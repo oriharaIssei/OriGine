@@ -41,7 +41,5 @@ private:
 	std::list<std::pair<std::string,std::string>> textureList_;
 	std::list<std::pair<std::string,std::string>> objectList_;
 
-	std::unique_ptr<Audio> audio_;
-
 	MaterialManager* materialManager_;
 };
