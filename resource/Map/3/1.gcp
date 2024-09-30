@@ -1,0 +1,8 @@
+CreateModel
+scale 1.2 1.2 1.2 
+rotate -1.2 1.5 -0.2 
+translate 16.1 0 31.6 
+material suzanne
+modelDirectoryPath ./resource
+modelName suzanne.obj
+end
