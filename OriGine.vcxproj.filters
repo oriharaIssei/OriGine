@@ -180,6 +180,9 @@
     <ClCompile Include="code\lib\RailEditor\RailEditor.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="code\math\Vector3.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\engine\audio\Audio.h">

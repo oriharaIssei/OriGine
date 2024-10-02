@@ -59,13 +59,9 @@ void Input::Finalize() {
 
 	if(keyboard_) {
 		keyboard_->Unacquire();
-		keyboard_->Release();
-		keyboard_ = nullptr;
 	}
 	if(mouse_) {
 		mouse_->Unacquire();
-		mouse_->Release();
-		mouse_ = nullptr;
 	}
 }
 

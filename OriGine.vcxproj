@@ -139,6 +139,7 @@
     <ClCompile Include="code\lib\RailEditor\RailEditor.cpp" />
     <ClCompile Include="code\main.cpp" />
     <ClCompile Include="code\math\Matrix4x4.cpp" />
+    <ClCompile Include="code\math\Vector3.cpp" />
     <ClCompile Include="externals\imgui\imgui.cpp" />
     <ClCompile Include="externals\imgui\imgui_demo.cpp" />
     <ClCompile Include="externals\imgui\imgui_draw.cpp" />

@@ -11,7 +11,7 @@
 
 class ControlPoint{
 public:
-	ControlPoint(const ViewProjection& pViewProjection):pViewProjection_(pViewProjection){};
+	ControlPoint(const ViewProjection& pViewProjection):pViewProjection_(pViewProjection){}
 	~ControlPoint() = default;
 
 	void Init(const Vector3 pos,float radius);
@@ -22,9 +22,16 @@ private:
 
 	WorldTransform transform_;
 	float radius_;
-public:
-
 };
 
 class RailEditor{
+public:
+	RailEditor(const ViewProjection& pViewProjection):pViewProjection_(pViewProjection){}
+	void Init();
+	void Update();
+	void Draw();
+private:
+	const ViewProjection& pViewProjection_;
+
+	std::list<std::unique_ptr<ControlPoint>> ctlPoints_;
 };
