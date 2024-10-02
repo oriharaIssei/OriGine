@@ -71,9 +71,6 @@ void PrimitiveDrawer::Line(const Vector3& p0,const Vector3& p1,const WorldTransf
 	lineMesh_->vertData[startIndex + 1].pos = {p1.x,p1.y,p1.z,1.0f};
 	lineMesh_->vertData[startIndex + 1].normal = p1;
 
-	lineMesh_->indexData[startIndex] = startIndex;
-	lineMesh_->indexData[startIndex + 1] = startIndex + 1;
-
 	commandList->SetGraphicsRootSignature(linePso_[(int)currentBlendMode_]->rootSignature.Get());
 	commandList->SetPipelineState(linePso_[(int)currentBlendMode_]->pipelineState.Get());
 
