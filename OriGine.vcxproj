@@ -136,6 +136,7 @@
     <ClCompile Include="code\lib\globalVariables\GlobalVariables.cpp" />
     <ClCompile Include="code\lib\imGuiManager\ImGuiManager.cpp" />
     <ClCompile Include="code\lib\myFileSystem\MyFileSystem.cpp" />
+    <ClCompile Include="code\lib\RailEditor\RailEditor.cpp" />
     <ClCompile Include="code\main.cpp" />
     <ClCompile Include="code\math\Matrix4x4.cpp" />
     <ClCompile Include="externals\imgui\imgui.cpp" />
@@ -192,6 +193,7 @@
     <ClInclude Include="code\lib\globalVariables\GlobalVariables.h" />
     <ClInclude Include="code\lib\imGuiManager\ImGuiManager.h" />
     <ClInclude Include="code\lib\myFileSystem\MyFileSystem.h" />
+    <ClInclude Include="code\lib\RailEditor\RailEditor.h" />
     <ClInclude Include="code\math\Matrix4x4.h" />
     <ClInclude Include="code\math\Transform.h" />
     <ClInclude Include="code\math\Vector2.h" />
