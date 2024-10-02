@@ -51,6 +51,8 @@ void GameScene::Init(){
 	sprite->Init("","sphere");
 	gameObjects_.emplace_back(std::move(sprite));
 
+	railEditor_ = std::make_unique<RailEditor>(viewProj_);
+	railEditor_->Init();
 }
 
 void GameScene::Update(){
@@ -139,6 +141,8 @@ void GameScene::Update(){
 	}
 	ImGui::End();
 #endif // _DEBUG
+
+	railEditor_->Update();
 }
 
 void GameScene::Draw(){
@@ -147,6 +151,8 @@ void GameScene::Draw(){
 	for(auto& object : gameObjects_){
 		object->Draw(viewProj_);
 	}
+
+	railEditor_->Draw();
 
 	sceneView_->PostDraw();
 

@@ -12,6 +12,8 @@
 #include "engine/texture/RenderTexture.h"
 #include "gameObject/IGameObject.h"
 
+#include "RailEditor/RailEditor.h"
+
 class Input;
 class MaterialManager;
 class DxRtvArray;
@@ -36,6 +38,8 @@ private:
 	std::shared_ptr<DxRtvArray> sceneRtvArray_;
 	std::shared_ptr<DxSrvArray> sceneSrvArray_;
 	std::unique_ptr<RenderTexture> sceneView_;
+
+	std::unique_ptr<RailEditor> railEditor_;
 
 	std::list<std::unique_ptr<IGameObject>> gameObjects_;
 	std::list<std::pair<std::string,std::string>> textureList_;
