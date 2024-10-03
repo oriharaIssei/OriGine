@@ -7,6 +7,7 @@
 #include "directX12/buffer/WorldTransform.h"
 
 #include "Matrix4x4.h"
+#include "stdint.h"
 #include "Vector3.h"
 
 class ControlPoint{
@@ -22,6 +23,9 @@ private:
 
 	WorldTransform transform_;
 	float radius_;
+public:
+	Vector3 getWorldPosition()const{ return transform_.worldMat[3]; }
+
 };
 
 class RailEditor{
@@ -33,5 +37,9 @@ public:
 private:
 	const ViewProjection& pViewProjection_;
 
+	uint32_t segmentCount_ = 432;
+	std::vector<Vector3> splineSegmentPoint_;
+
 	std::list<std::unique_ptr<ControlPoint>> ctlPoints_;
+	std::vector<Vector3> controlPointPositions_;
 };

@@ -10,7 +10,7 @@ struct Vector3{
 	Vector3(const float& x,const float& y,const float& z):x(x),y(y),z(z){};
 	Vector3(const Vector2& xy,const float& z):x(xy.x),y(xy.y),z(z){};
 	Vector3(const float& x,const Vector2& yz):x(x),y(yz.x),z(yz.y){};
-	Vector3(float* v):x(v[0]),y(v[1]),z(v[2]){};
+	Vector3(const float* v):x(v[0]),y(v[1]),z(v[2]){};
 	Vector3():x(0),y(0),z(0){};
 
 	///

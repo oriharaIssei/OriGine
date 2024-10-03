@@ -1,5 +1,6 @@
 #include "RailEditor.h"
 
+#include "imgui/imgui.h"
 #include "primitiveDrawer/PrimitiveDrawer.h"
 #include "System.h"
 
@@ -13,6 +14,10 @@ void ControlPoint::Init(const Vector3 pos,float radius){
 }
 
 void ControlPoint::Update(){
+#ifdef _DEBUG
+	ImGui::DragFloat3("Translate",&transform_.translate.x,0.1f);
+#endif // _DEBUG
+
 	///===========================================================================
 	///  Billboard化
 	///===========================================================================
@@ -45,7 +50,6 @@ void RailEditor::Init(){
 		ctlPoints_.emplace_back(std::make_unique<ControlPoint>(pViewProjection_));
 		ctlPoints_.back()->Init({0.0f,0.0f,0.0f},1.0f);
 	}
-
 }
 
 void RailEditor::Update(){
@@ -102,6 +106,12 @@ void RailEditor::Draw(){
 
 	for(auto& point : ctlPoints_){
 		point->Draw(System::getInstance()->getMaterialManager()->getMaterial("white"));
+		controlPointPositions_.push_back(point->getWorldPosition());
 	}
 
+
+	for(size_t i = 0; i < segmentCount_; ++i){
+		float t = 1.0f / segmentCount_ * i;
+		splineSegmentPoint_.push_back(CatmullRomInterpolation(controlPointPositions_,t));
+	}
 }
