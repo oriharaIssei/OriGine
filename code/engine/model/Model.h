@@ -15,29 +15,29 @@
 #include <directX12/buffer/ViewProjection.h>
 #include <directX12/buffer/WorldTransform.h>
 
-struct ModelMtl{
-	/// <summary>
-	/// mtl file などから読み込んだ情報を保存するためのもの
-	/// </summary>
-	std::unique_ptr<int> textureNumber = nullptr;
+struct ModelMaterial{
+	int textureNumber;
+
+	Material* material;
 };
+
+struct ModelMeshData{
+	std::unique_ptr<IObject3dMesh> meshBuff;
+	size_t dataSize  = 0;
+	size_t vertSize  = 0;
+	size_t indexSize = 0;
+};
+
 struct ModelData{
-	std::unique_ptr<IObject3dMesh> meshBuff_;
-
-	ModelMtl materialData;
-
-	size_t dataSize;
-	size_t vertSize;
-	size_t indexSize;
-
-	Material *material_;
+	ModelMeshData meshData;
+	ModelMaterial materialData;
 };
 
 class ModelManager;
 class Model{
 	friend class ModelManager;
 public:
-	static std::shared_ptr<Model> Create(const std::string &directoryPath,const std::string &filename);
+	static Model* Create(const std::string &directoryPath,const std::string &filename);
 	static void Init();
 	static void Finalize();
 private:
@@ -73,6 +73,6 @@ private:
 public:
 	const std::vector<std::unique_ptr<ModelData>> &getData()const{ return data_; }
 	void setMaterial(Material *material,uint32_t index = 0){
-		data_[index]->material_ = material;
+		data_[index]->materialData.material = material;
 	}
 };

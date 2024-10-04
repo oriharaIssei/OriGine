@@ -1,6 +1,6 @@
 #include "ModelObject.h"
 
-#include "imgui/imgui.h"
+#include "imgui.h"
 
 #include "texture/TextureManager.h"
 
@@ -36,7 +36,7 @@ void ModelObject::Update(){
 	for(auto& data : model_->getData()){
 		// ImGui::InputTextを使用して文字列の入力を受け取る
 		if(ImGui::Combo(std::string("# " + std::to_string(index) + "Material").c_str(),&checkedMaterial_[index],materialNameVector_.data(),static_cast<int>(materialNameVector_.size()))){
-			data->material_ = materialManager_->getMaterial(materialNameVector_[checkedMaterial_[index]]);
+			data->materialData.material = materialManager_->getMaterial(materialNameVector_[checkedMaterial_[index]]);
 		}
 		index++;
 	}

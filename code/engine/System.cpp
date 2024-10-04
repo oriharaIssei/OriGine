@@ -3,7 +3,7 @@
 #include "Audio/Audio.h"
 #include "directX12/dxFunctionHelper/DxFunctionHelper.h"
 #include "directX12/dxHeap/DxHeap.h"
-#include "imgui/imgui.h"
+#include "imgui.h"
 #include "imGuiManager/ImGuiManager.h"
 #include "primitiveDrawer/PrimitiveDrawer.h"
 #include "sprite/Sprite.h"
