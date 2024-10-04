@@ -2,7 +2,7 @@
 
 #include "d3d12.h"
 #include "DirectXTex/d3dx12.h"
-#include "DirectXTex/DirectXTex.h"
+#include "DirectXTex.h"
 
 #include <thread>
 

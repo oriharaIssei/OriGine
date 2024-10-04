@@ -12,5 +12,5 @@ public:
 	void Update()override;
 	void Draw(const ViewProjection &viewProj)override;
 private:
-	std::shared_ptr<Model> model_;
+	Model* model_;
 };

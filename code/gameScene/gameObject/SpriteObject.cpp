@@ -1,6 +1,6 @@
 #include "SpriteObject.h"
 
-#include "imgui/imgui.h"
+#include "imgui.h"
 
 #include "System.h"
 

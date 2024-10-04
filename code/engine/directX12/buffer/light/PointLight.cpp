@@ -3,7 +3,7 @@
 #include "directX12/dxFunctionHelper/DxFunctionHelper.h"
 #include "System.h"
 
-#include "imgui/imgui.h"
+#include "imgui.h"
 
 void PointLight::Init(){
 	mappingData_ = nullptr;
