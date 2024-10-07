@@ -17,7 +17,7 @@ public:
 	/// @return 
 	std::shared_ptr<DxSrvArray> Create(uint32_t size);
 	/// @brief size分 空いているメモリを検索
-	/// @param size 格納したいsrv数
+	/// @param size 格納したい srv 数
 	/// @param dxSrvArray 
 	/// @return 
 	uint32_t SearchEmptyLocation(uint32_t size,std::shared_ptr<DxSrvArray> dxSrvArray);

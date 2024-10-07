@@ -10,9 +10,9 @@
 #include "directX12/dxSwapChain/DxSwapChain.h"
 #include "directX12/dxHeap/DxHeap.h"
 
-#include "imgui.h"
-#include <imgui_impl_dx12.h>
-#include <imgui_impl_win32.h>
+#include "imgui/imgui.h"
+#include <imgui/imgui_impl_dx12.h>
+#include <imgui/imgui_impl_win32.h>
 #endif // _DEBUG
 
 ImGuiManager *ImGuiManager::getInstance(){
@@ -48,6 +48,9 @@ void ImGuiManager::Init(const WinApp *window,const DxDevice *dxDevice,const DxSw
 	);
 	ImGuiIO &io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
+	io.Fonts->AddFontFromFileTTF("resource/fonts/FiraMono-Regular.ttf",16.0f);
+
 #endif // _DEBUG
 }
 

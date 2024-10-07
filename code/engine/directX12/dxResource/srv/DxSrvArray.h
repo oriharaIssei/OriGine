@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DirectXTex.h"
+#include "DirectXTex/DirectXTex.h"
 #include <d3d12.h>
 
 #include <wrl.h>
@@ -31,7 +31,7 @@ private:
 	uint32_t arrayStartLocation_;
 	uint32_t size_;
 	/// <summary>
-	/// コンパイル後にサイズを決めるためvectorにしているが，
+	/// コンパイル後にサイズを決めるため vector にしているが，
 	/// Init後サイズを変更してはいけない
 	/// </summary>
 	std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> resources_;

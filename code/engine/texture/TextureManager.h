@@ -2,7 +2,7 @@
 
 #include "d3d12.h"
 #include "DirectXTex/d3dx12.h"
-#include "DirectXTex.h"
+#include "DirectXTex/DirectXTex.h"
 
 #include <thread>
 
@@ -56,26 +56,24 @@ private:
 		DirectX::ScratchImage Load(const std::string &filePath);
 		Microsoft::WRL::ComPtr<ID3D12Resource> CreateTextureResource(ID3D12Device *device,const DirectX::TexMetadata &metadata);
 		void UploadTextureData(DirectX::ScratchImage &mipImg,Microsoft::WRL::ComPtr<ID3D12Resource> &reosurce);
-		void ExecuteCommnad(Microsoft::WRL::ComPtr<ID3D12Resource> &resource);
+		void ExecuteCommand(Microsoft::WRL::ComPtr<ID3D12Resource> &resource);
 	};
-
 private:
 	static uint64_t cpuDescriptorHandleStart_;
 	static uint64_t gpuDescriptorHandleStart_;
 	static uint32_t handleIncrementSize_;
 
 	static std::shared_ptr<DxSrvArray> dxSrvArray_;
-	static std::array<std::shared_ptr<Texture>,maxTextureSize_> textures_;
+	static std::array<std::unique_ptr<Texture>,maxTextureSize_> textures_;
 
 	static std::thread loadingThread_;
-	static std::queue<std::tuple<std::weak_ptr<Texture>,std::string,uint32_t>> loadingQueue_;
+	static std::queue<std::tuple<Texture*,std::string,uint32_t>> loadingQueue_;
 	static std::mutex queueMutex_;
 	static std::condition_variable queueCondition_;
 	static bool stopLoadingThread_;
 
 	// バックグラウンドスレッド用
 	static std::unique_ptr<DxCommand> dxCommand_;
-
 public:
 	static const D3D12_GPU_DESCRIPTOR_HANDLE &getDescriptorGpuHandle(uint32_t handleId){
 		if(textures_[handleId]->loadState == Texture::LoadState::Loaded){

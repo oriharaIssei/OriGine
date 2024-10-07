@@ -5,7 +5,7 @@
 #include <unordered_map>
 
 #ifdef _DEBUG
-#include "imgui.h"
+#include "imgui/imgui.h"
 #endif // _DEBUG
 
 #include "directX12/dxFunctionHelper/DxFunctionHelper.h"

@@ -1,7 +1,7 @@
 #include "directX12/buffer/light/SpotLight.h"
 
 #include "directX12/dxFunctionHelper/DxFunctionHelper.h"
-#include "imgui.h"
+#include "imgui/imgui.h"
 #include "System.h"
 
 void SpotLight::Init(){
