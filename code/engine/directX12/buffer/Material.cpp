@@ -3,7 +3,7 @@
 #include "directX12/dxFunctionHelper/DxFunctionHelper.h"
 #include <System.h>
 
-#include "imgui.h"
+#include "imgui/imgui.h"
 
 const char *lightTypes[] = {
 	"NONE",

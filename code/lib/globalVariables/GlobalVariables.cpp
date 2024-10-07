@@ -8,10 +8,10 @@
 #include <Windows.h>
 
 #ifdef _DEBUG
-#include "imgui.h"
+#include "imgui/imgui.h"
 #endif // _DEBUG
 
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 
 using json = nlohmann::json;
 const std::string kDirectoryPath = "./resource/GlobalVariables/";

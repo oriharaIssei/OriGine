@@ -20,7 +20,7 @@
 #include "texture/TextureManager.h"
 
 #ifdef _DEBUG
-#include "imgui.h"
+#include "imgui/imgui.h"
 #endif // _DEBUG
 
 constexpr char dockingIDName[] = "ObjectsWindow";
