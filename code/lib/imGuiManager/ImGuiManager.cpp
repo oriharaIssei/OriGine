@@ -48,6 +48,9 @@ void ImGuiManager::Init(const WinApp *window,const DxDevice *dxDevice,const DxSw
 	);
 	ImGuiIO &io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
+	io.Fonts->AddFontFromFileTTF("resource/fonts/FiraMono-Regular.ttf",16.0f);
+
 #endif // _DEBUG
 }
 
