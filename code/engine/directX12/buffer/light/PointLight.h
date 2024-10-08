@@ -16,20 +16,21 @@ public:
 	void SetForRootParameter(ID3D12GraphicsCommandList *cmdList,UINT rootParameterNum)const;
 	void ConvertToBuffer();
 
-	Vector4 color = {1.0f,1.0f,1.0f,1.0f};
+	Vector3 color = {1.0f,1.0f,1.0f};
 	Vector3 pos = {0,0,0};
 	float intensity;
 	float radius;
-	float decay;
+	float decay = 0.1f;
 	
 private:
 	struct ConstBuffer{
-		Vector4 color;
-		Vector3 pos;
-		float intensity;
-		float radius;
-		float decay;
-		float padding[2];
+	Vector3 color;      // 12 bytes
+	float padding1;     // 4 bytes to align to 16 bytes
+	Vector3 pos;        // 12 bytes
+	float intensity;    // 4 bytes
+	float radius;       // 4 bytes
+	float decay;        // 4 bytes
+	float padding2[2];  // 8 bytes (to align to 16 bytes)
 	};
 private:
 	ConstBuffer *mappingData_;

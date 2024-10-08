@@ -16,9 +16,9 @@ public:
 	void SetForRootParameter(ID3D12GraphicsCommandList *cmdList,UINT rootParameterNum)const;
 	void ConvertToBuffer();
 
-	Vector4 color = {1.0f,1.0f,1.0f,1.0f};
+	Vector3 color = {1.0f,1.0f,1.0f};
 	Vector3 pos = {0,0,0};
-	float intensity;
+	float intensity = 0.1f;
 	Vector3 direction = {0,0,-1.0f};
 	float distance = 1.0f;
 	float decay = 0.1f;
@@ -26,15 +26,15 @@ public:
 	float cosFalloffStart = 1.0f;
 private:
 	struct ConstBuffer{
-		Vector4 color;
-		Vector3 pos;
-		float intensity;
-		Vector3 direction;
-		float distance;// ライトが届く最大距離
-		float decay;// 減衰率
-		float cosAngle; //余弦
-		float cosFalloffStart;
-		float padding[2];
+		Vector3 color;              // 12 bytes
+		Vector3 pos;                // 12 bytes
+		float intensity;            // 4 bytes
+		Vector3 direction;          // 12 bytes
+		float distance;             // 4 bytes
+		float decay;                // 4 bytes
+		float cosAngle;             // 4 bytes
+		float cosFalloffStart;      // 4 bytes
+		float padding[2];           // 8 bytes (to align to 16 bytes)
 	};
 private:
 	ConstBuffer *mappingData_;

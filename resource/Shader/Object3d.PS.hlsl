@@ -21,13 +21,13 @@ struct PixelShaderOutput {
 ///========================================
 /// Light
 struct DirectionalLight {
-    float4 color;
+    float3 color;
     float3 direction;
     float intensity;
 };
 
 struct PointLight {
-    float4 color;
+    float3 color;
     float3 pos;
     float intensity;
     float radius;
@@ -35,7 +35,7 @@ struct PointLight {
 };
 
 struct SpotLight {
-    float4 color;
+    float3 color;
     float3 pos;
     float intensity;
     float3 direction;
@@ -58,141 +58,137 @@ ConstantBuffer<DirectionalLight> gDirectionalLight : register(b1);
 ConstantBuffer<PointLight> gPointLight : register(b3);
 ConstantBuffer<SpotLight> gSpotLight : register(b4);
 
+///=============================================================
+/// Lighting Functions
+///=============================================================
+float3 LambertDiffuse(float3 normal,float3 lightDir,float3 lightColor,float lightIntensity) {
+    float NdotL = saturate(dot(normal,lightDir));
+    return lightColor * lightIntensity * NdotL;
+}
+
+float3 PhongSpecular(
+    float3 normal,
+    float3 lightDir,
+    float3 viewDir,
+    float shininess,
+    float3 lightColor,
+    float lightIntensity
+) {
+    float3 reflectDir = reflect(-lightDir,normal);
+    float RdotV = saturate(dot(reflectDir,viewDir));
+    float specularFactor = pow(RdotV,shininess);
+    return lightColor * lightIntensity * specularFactor;
+}
+
+float3 BlinnPhongSpecular(
+    float3 normal,
+    float3 lightDir,
+    float3 viewDir,
+    float shininess,
+    float3 lightColor,
+    float lightIntensity
+) {
+    float3 halfVec = normalize(lightDir + viewDir);
+    float NdotH = saturate(dot(normal,halfVec));
+    float specularFactor = pow(NdotH,shininess);
+    return lightColor * lightIntensity * specularFactor;
+}
+
+
 PixelShaderOutput main(VertexShaderOutput input) {
     PixelShaderOutput output;
 
     output.color = gMaterial.color;
     
     switch (gMaterial.enableLighting) {
-        case 1:{ // half Lambert
-                float3 inputNormal = normalize(input.normal);
-                ///=============================================
-                /// DirectionalLight
-                ///=============================================
-                float NdotL = dot(inputNormal,-gDirectionalLight.direction);
-                float cos = pow(NdotL * 0.5f + 0.5f,2.0f);
-                output.color.xyz = gMaterial.color.xyz * gMaterial.color.xyz * gDirectionalLight.color.xyz * cos * gDirectionalLight.intensity;
-                
-                ///=============================================
-                /// PointlLight
-                ///=============================================
+        case 1:{ // Half Lambert
+                float3 normal = normalize(input.normal);
+                float3 viewDir = normalize(gViewProjection.cameraPos - input.worldPos);
+
+                // Directional Light
+                float3 dirLightColor = LambertDiffuse(normal,-gDirectionalLight.direction,gDirectionalLight.color,gDirectionalLight.intensity);
+                output.color.rgb = gMaterial.color.rgb * dirLightColor;
+
+                // Point Light
                 float3 pointLightDir = normalize(input.worldPos - gPointLight.pos);
                 float distance = length(gPointLight.pos - input.worldPos);
-                float distFactor = pow(saturate(-distance / gPointLight.radius + 1.0f),gPointLight.decay);
-            
-                NdotL = dot(inputNormal,pointLightDir);
-                cos = pow(NdotL * 0.5f + 0.5f,2.0f);
-                
-                output.color.xyz += gMaterial.color.xyz * gMaterial.color.xyz * gPointLight.color.xyz * cos * gPointLight.intensity * distFactor;
-                
-                ///=============================================
-                /// SpotlLight
-                ///=============================================
+                float attenuation = pow(saturate(1.0f - distance / gPointLight.radius),gPointLight.decay);
+                float3 pointLightColor = LambertDiffuse(normal,pointLightDir,gPointLight.color,gPointLight.intensity * attenuation);
+                output.color.rgb += gMaterial.color.rgb * pointLightColor;
+
+                // Spot Light
                 float3 spotLightDir = normalize(input.worldPos - gSpotLight.pos);
                 distance = length(gSpotLight.pos - input.worldPos);
-                distFactor = pow(saturate(1.0f - distance / gSpotLight.distance),gSpotLight.decay);
+                attenuation = pow(saturate(1.0f - distance / gSpotLight.distance),gSpotLight.decay);
                 float cosAngle = dot(spotLightDir,normalize(gSpotLight.direction));
-                float falloffFactor = saturate(( cosAngle - gSpotLight.cosAngle ) / ( gSpotLight.cosFalloffStart - gSpotLight.cosAngle ));
-                
-                NdotL = dot(inputNormal,spotLightDir);
-                cos = pow(NdotL * 0.5f + 0.5f,2.0f);
-                
-                output.color.xyz += gMaterial.color.xyz * gMaterial.color.xyz * gSpotLight.color.xyz * cos * gSpotLight.intensity * falloffFactor * distFactor;
-                
-            
-                break;
-            };
-        case 2:{// Lambert
-                float cos = saturate(dot(normalize(input.normal),-gDirectionalLight.direction));
-                output.color.xyz = gMaterial.color.xyz * gMaterial.color.xyz * gDirectionalLight.color.xyz * cos * gDirectionalLight.intensity;
-                
-                ///=============================================
-                /// PointlLight
-                ///=============================================
-                float3 pointLightDir = normalize(input.worldPos - gPointLight.pos);
-                float distance = length(gPointLight.pos - input.worldPos);
-                float distFactor = pow(saturate(-distance / gPointLight.radius + 1.0f),gPointLight.decay);
-            
-                cos = saturate(dot(normalize(input.normal),-pointLightDir));
-                output.color.xyz += gMaterial.color.xyz * gMaterial.color.xyz * gPointLight.color.xyz * cos * gDirectionalLight.intensity * distFactor;
-                
-                ///=============================================
-                /// SpotlLight
-                ///=============================================
-                float3 spotLightDir = normalize(input.worldPos - gSpotLight.pos);
-                break;
-            };
-        case 3:{// Phong
-                float3 toEye = normalize(gViewProjection.cameraPos - input.worldPos);
+                float falloff = saturate(( cosAngle - gSpotLight.cosAngle ) / ( gSpotLight.cosFalloffStart - gSpotLight.cosAngle ));
+                float3 spotLightColor = LambertDiffuse(normal,spotLightDir,gSpotLight.color,gSpotLight.intensity * attenuation * falloff);
+                output.color.rgb += gMaterial.color.rgb * spotLightColor;
 
-                float cos = saturate(dot(normalize(input.normal),-gDirectionalLight.direction));
-
-                float3 reflectLight = reflect(gDirectionalLight.direction,normalize(input.normal));
-                float rDotE = dot(reflectLight,toEye);
-                float specularPow = pow(saturate(rDotE),gMaterial.shininess);
-
-                float3 diffuse = gMaterial.color.rgb * gMaterial.color.rgb * gDirectionalLight.color.rgb * cos * gDirectionalLight.intensity;
-                float3 specular = gDirectionalLight.color.rgb * gDirectionalLight.intensity * specularPow * gMaterial.specularColor;
-                output.color.rgb = diffuse + specular;
                 break;
             }
-        case 4:{// bllin Phong
-                float3 toEye = normalize(gViewProjection.cameraPos - input.worldPos);
-                float3 inputNormal = normalize(input.normal);
-                ///=============================================
-                /// DirectionalLight
-                ///=============================================
+    
+        case 2:{ // Lambert
+                float3 normal = normalize(input.normal);
+                float3 viewDir = normalize(gViewProjection.cameraPos - input.worldPos);
 
-                float cos = saturate(dot(inputNormal,-gDirectionalLight.direction));
+                // Directional Light
+                float3 dirLightColor = LambertDiffuse(normal,-gDirectionalLight.direction,gDirectionalLight.color,gDirectionalLight.intensity);
+                output.color.rgb = gMaterial.color.rgb * dirLightColor;
 
-                float3 halfVec = normalize(-gDirectionalLight.direction + toEye);
-                float nDotH = dot(inputNormal,halfVec);
-                float specularPow = pow(saturate(nDotH),gMaterial.shininess);
-
-                float3 directionalLightColor = gDirectionalLight.color.rgb * cos * gDirectionalLight.intensity;
-                float3 diffuse = gMaterial.color.rgb * gMaterial.color.rgb * directionalLightColor;
-                float3 specular = directionalLightColor * specularPow * gMaterial.specularColor;
-                output.color.rgb = diffuse + specular;
-            
-                ///=============================================
-                /// PointlLight
-                ///=============================================
+                // Point Light
                 float3 pointLightDir = normalize(input.worldPos - gPointLight.pos);
                 float distance = length(gPointLight.pos - input.worldPos);
-            
-                float factor = pow(saturate(-distance / gPointLight.radius + 1.0f),gPointLight.decay);
-            
-                cos = saturate(dot(inputNormal,pointLightDir));
-                halfVec = normalize(-pointLightDir + toEye);
-                nDotH = dot(inputNormal,halfVec);
-                specularPow = pow(saturate(nDotH),gMaterial.shininess);
-                
-                float3 pointLightColor = gPointLight.color.rgb * cos * gPointLight.intensity * factor;
-                diffuse = gMaterial.color.rgb * gMaterial.color.rgb * pointLightColor;
-                specular = pointLightColor * specularPow * gMaterial.specularColor;
-                output.color.rgb += diffuse + specular;
-            
-                ///=============================================
-                /// SpotLight
-                ///=============================================
-                float3 spotLightDirectionOnSurface = normalize(input.worldPos - gSpotLight.pos);
+                float attenuation = pow(saturate(1.0f - distance / gPointLight.radius),gPointLight.decay);
+                float3 pointLightColor = LambertDiffuse(normal,pointLightDir,gPointLight.color,gPointLight.intensity * attenuation);
+                output.color.rgb += gMaterial.color.rgb * pointLightColor;
 
-                float cosAngle = dot(spotLightDirectionOnSurface,normalize(gSpotLight.direction));
-                float falloffFactor = saturate(( cosAngle - gSpotLight.cosAngle ) / ( gSpotLight.cosFalloffStart - gSpotLight.cosAngle ));
-
+                // Spot Light
+                float3 spotLightDir = normalize(input.worldPos - gSpotLight.pos);
                 distance = length(gSpotLight.pos - input.worldPos);
-                float attenuationFactor = pow(saturate(1.0f - distance / gSpotLight.distance),gSpotLight.decay);
+                attenuation = pow(saturate(1.0f - distance / gSpotLight.distance),gSpotLight.decay);
+                float cosAngle = dot(spotLightDir,normalize(gSpotLight.direction));
+                float falloff = saturate(( cosAngle - gSpotLight.cosAngle ) / ( gSpotLight.cosFalloffStart - gSpotLight.cosAngle ));
+                float3 spotLightColor = LambertDiffuse(normal,spotLightDir,gSpotLight.color,gSpotLight.intensity * attenuation * falloff);
+                output.color.rgb += gMaterial.color.rgb * spotLightColor;
 
-                float3 spotLightColor = gSpotLight.color.rgb * gSpotLight.intensity * attenuationFactor * falloffFactor;
+            }
+        case 3:{ // Phong
+                float3 normal = normalize(input.normal);
+                float3 viewDir = normalize(gViewProjection.cameraPos - input.worldPos);
 
-                halfVec = normalize(spotLightDirectionOnSurface + toEye);
-                nDotH = dot(inputNormal,halfVec);
-                specularPow = pow(saturate(nDotH),gMaterial.shininess);
+                 // Directional Light - Diffuse + Specular
+                float3 dirLightDiffuse = LambertDiffuse(normal,-gDirectionalLight.direction,gDirectionalLight.color,gDirectionalLight.intensity);
+                float3 dirLightSpecular = PhongSpecular(normal,-gDirectionalLight.direction,viewDir,gMaterial.shininess,gDirectionalLight.color,gDirectionalLight.intensity);
+                output.color.rgb = gMaterial.color.rgb * dirLightDiffuse + dirLightSpecular;
 
-                diffuse = gMaterial.color.rgb * spotLightColor * saturate(dot(inputNormal,spotLightDirectionOnSurface));
-                specular = spotLightColor * specularPow * gMaterial.specularColor;
+                // Point Light - Diffuse + Specular
+                float3 pointLightDir = normalize(input.worldPos - gPointLight.pos);
+                float distance = length(gPointLight.pos - input.worldPos);
+                float attenuation = pow(saturate(1.0f - distance / gPointLight.radius),gPointLight.decay);
+                float3 pointLightDiffuse = LambertDiffuse(normal,pointLightDir,gPointLight.color,gPointLight.intensity * attenuation);
+                float3 pointLightSpecular = PhongSpecular(normal,pointLightDir,viewDir,gMaterial.shininess,gPointLight.color,gPointLight.intensity * attenuation);
+                output.color.rgb += gMaterial.color.rgb * pointLightDiffuse + pointLightSpecular;
 
-                output.color.rgb += diffuse + specular;
+                break;
+            }
+
+        case 4:{ // Blinn-Phong
+                float3 normal = normalize(input.normal);
+                float3 viewDir = normalize(gViewProjection.cameraPos - input.worldPos);
+
+                // Directional Light - Diffuse + Blinn-Phong Specular
+                float3 dirLightDiffuse = LambertDiffuse(normal,-gDirectionalLight.direction,gDirectionalLight.color,gDirectionalLight.intensity);
+                float3 dirLightSpecular = BlinnPhongSpecular(normal,-gDirectionalLight.direction,viewDir,gMaterial.shininess,gDirectionalLight.color,gDirectionalLight.intensity);
+                output.color.rgb = gMaterial.color.rgb * dirLightDiffuse + dirLightSpecular;
+
+                  // Point Light - Diffuse + Blinn-Phong Specular
+                float3 pointLightDir = normalize(input.worldPos - gPointLight.pos);
+                float distance = length(gPointLight.pos - input.worldPos);
+                float attenuation = pow(saturate(1.0f - distance / gPointLight.radius),gPointLight.decay);
+                float3 pointLightDiffuse = LambertDiffuse(normal,pointLightDir,gPointLight.color,gPointLight.intensity * attenuation);
+                float3 pointLightSpecular = BlinnPhongSpecular(normal,pointLightDir,viewDir,gMaterial.shininess,gPointLight.color,gPointLight.intensity * attenuation);
+                output.color.rgb += gMaterial.color.rgb * pointLightDiffuse + pointLightSpecular;
 
                 break;
             }

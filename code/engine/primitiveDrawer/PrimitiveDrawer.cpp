@@ -187,7 +187,7 @@ void PrimitiveDrawer::CreatePso(System *system){
 #pragma region"RootParameter"
 	D3D12_ROOT_PARAMETER rootParameter[6]{};
 	rootParameter[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	// PixelShderで使う
+	// PixelShaderで使う
 	rootParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 	// レジスタ番号0 とバインド
 	// register(b0) の 0. b11 なら 11
