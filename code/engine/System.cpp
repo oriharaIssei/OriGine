@@ -144,27 +144,39 @@ void System::CreateTexturePSO(){
 	texShaderInfo.psKey = "Object3dTexture.PS";
 
 #pragma region"RootParameter"
-	D3D12_ROOT_PARAMETER rootParameter{};
-	rootParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
-	rootParameter.Descriptor.ShaderRegister = 0;
-	texShaderInfo.pushBackRootParameter(rootParameter);
+	D3D12_ROOT_PARAMETER rootParameter[7]{};
+	// WorldTransform ... 0
+	rootParameter[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+	rootParameter[0].Descriptor.ShaderRegister = 0;
+	texShaderInfo.pushBackRootParameter(rootParameter[0]);
+	// ViewProjection ... 1
+	rootParameter[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameter[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+	rootParameter[1].Descriptor.ShaderRegister = 2;
+	texShaderInfo.pushBackRootParameter(rootParameter[1]);
+	// Material ... 2
+	rootParameter[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameter[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameter[2].Descriptor.ShaderRegister = 0;
+	texShaderInfo.pushBackRootParameter(rootParameter[2]);
+	// DirectionalLight ... 3
+	rootParameter[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameter[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameter[3].Descriptor.ShaderRegister = 1;
+	texShaderInfo.pushBackRootParameter(rootParameter[3]);
+	// PointLight ... 4
+	rootParameter[4].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameter[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameter[4].Descriptor.ShaderRegister = 3;
+	texShaderInfo.pushBackRootParameter(rootParameter[4]);
+	// SpotLight ... 5
+	rootParameter[5].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameter[5].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameter[5].Descriptor.ShaderRegister = 4;
+	texShaderInfo.pushBackRootParameter(rootParameter[5]);
 
-	rootParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-	rootParameter.Descriptor.ShaderRegister = 2;
-	texShaderInfo.pushBackRootParameter(rootParameter);
-
-	rootParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameter.Descriptor.ShaderRegister = 0;
-	texShaderInfo.pushBackRootParameter(rootParameter);
-
-	rootParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameter.Descriptor.ShaderRegister = 1;
-	texShaderInfo.pushBackRootParameter(rootParameter);
-
+	// Texture ... 6
 	D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
 	descriptorRange[0].BaseShaderRegister = 0;
 	descriptorRange[0].NumDescriptors = 1;
@@ -174,9 +186,9 @@ void System::CreateTexturePSO(){
 	descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	// DescriptorTable を使う
-	rootParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	rootParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	size_t rootParameterIndex = texShaderInfo.pushBackRootParameter(rootParameter);
+	rootParameter[6].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootParameter[6].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	size_t rootParameterIndex = texShaderInfo.pushBackRootParameter(rootParameter[6]);
 	texShaderInfo.SetDescriptorRange2Parameter(descriptorRange,1,rootParameterIndex);
 #pragma endregion
 

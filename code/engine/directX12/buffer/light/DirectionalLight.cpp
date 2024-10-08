@@ -24,7 +24,7 @@ void DirectionalLight::DebugUpdate(){
 	if(ImGui::Begin("DirectionalLight")){
 		ImGui::DragFloat3("Direction",&this->direction.x,0.01f,-1.0f,1.0f);
 		this->direction = this->direction.Normalize();
-		ImGui::ColorEdit4("Color",&this->color.x);
+		ImGui::ColorEdit3("Color",&this->color.x);
 		ImGui::SliderFloat("Intensity",&this->intensity,0.0f,1.0f);
 		this->ConvertToBuffer();
 	}
