@@ -14,28 +14,43 @@ const char *lightTypes[] = {
 };
 
 void Material::Init(){
-	DxFH::CreateBufferResource(System::getInstance()->getDxDevice(),constBuff_,sizeof(ConstBufferMaterial));
+	DxFH::CreateBufferResource(System::getInstance()->getDxDevice(),buff_,sizeof(Material::ConstantBuffer));
 
-	constBuff_->Map(
+	buff_->Map(
 		0,nullptr,reinterpret_cast<void **>(&mappingData_)
 	);
 
 	mappingData_->color = {1.0f,1.0f,1.0f,1.0f};
 	mappingData_->enableLighting = 0;
 
-	uvScale_ = {1.0f,1.0f,1.0f};
-	uvRotate_ = {0.0f,0.0f,0.0f};
+	uvScale_     = {1.0f,1.0f,1.0f};
+	uvRotate_    = {0.0f,0.0f,0.0f};
 	uvTranslate_ = {0.0f,0.0f,0.0f};
 
 	mappingData_->uvTransform = MakeMatrix::Affine(uvScale_,uvRotate_,uvTranslate_);
 }
 
+void Material::Update()
+{
+	uvMat_ = MakeMatrix::Affine(uvScale_,uvRotate_,uvTranslate_);
+}
+
 void Material::Finalize(){
-	constBuff_.Reset();
+	buff_.Reset();
+}
+
+void Material::ConvertToBuffer()
+{
+	mappingData_->uvTransform = uvMat_;
+	mappingData_->color = color_;
+	mappingData_->enableLighting = enableLighting_;
+	mappingData_->specularColor = specularColor_;
+	mappingData_->shininess = shininess_;
+
 }
 
 void Material::SetForRootParameter(ID3D12GraphicsCommandList *cmdList,UINT rootParameterNum) const{
-	cmdList->SetGraphicsRootConstantBufferView(rootParameterNum,constBuff_->GetGPUVirtualAddress());
+	cmdList->SetGraphicsRootConstantBufferView(rootParameterNum,buff_->GetGPUVirtualAddress());
 }
 
 Material *MaterialManager::Create(const std::string &materialName){
@@ -50,14 +65,16 @@ Material *MaterialManager::Create(const std::string &materialName,const Material
 	materialPallet_[materialName] = std::make_unique<Material>();
 	materialPallet_[materialName]->Init();
 	*materialPallet_[materialName]->mappingData_ = {
-		.color = data.color,
+		.color          = data.color,
 		.enableLighting = data.enableLighting,
-		.uvTransform = data.uvTransform
+		.uvTransform    = data.uvTransform
 	};
 
 	return materialPallet_[materialName].get();
 }
 
+// TODO 
+// リファクタリング
 void MaterialManager::DebugUpdate(){
 #ifdef _DEBUG
 	for(auto &material : materialPallet_){
@@ -99,24 +116,14 @@ void MaterialManager::Finalize(){
 	}
 }
 
-void MaterialManager::Edit(const std::string &materialName,const MaterialData &data){
-	*materialPallet_[materialName]->mappingData_ = {
-		.color = data.color,
-		.enableLighting = data.enableLighting,
-		.uvTransform = data.uvTransform
-	};
-}
-
-void MaterialManager::EditColor(const std::string &materialName,const Vector4 &color){
-	materialPallet_[materialName]->mappingData_->color = color;
-}
-
-void MaterialManager::EditUvTransform(const std::string &materialName,const Vector3 &scale,const Vector3& rotate,const Vector3& translate){
-	materialPallet_[materialName]->mappingData_->uvTransform = MakeMatrix::Affine(scale,rotate,translate);
-}
-
-void MaterialManager::EditEnableLighting(const std::string &materialName,bool enableLighting){
-	materialPallet_[materialName]->mappingData_->enableLighting = enableLighting;
+Material* MaterialManager::getMaterial(const std::string& name)
+{
+	auto itr = materialPallet_.find(name);
+	if(itr == materialPallet_.end())
+	{
+		return nullptr;
+	}
+	return itr->second.get();
 }
 
 void MaterialManager::DeleteMaterial(const std::string &materialName){
