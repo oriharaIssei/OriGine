@@ -1,50 +1,19 @@
 #pragma once
 
+#include <d3d12.h>
 #include <memory>
+#include <string>
+#include <unordered_map>
 #include <wrl.h>
 
-#include <unordered_map>
-
-#include <d3d12.h>
-
-#include <string>
+#include "IConstantBuffer.h"
 
 #include "Matrix4x4.h"
 #include "stdint.h"
 #include "Vector4.h"
 
-struct ConstBufferMaterial{
-	Vector4 color;
-	uint32_t enableLighting;
-	float padding[3];// 下記を参照
-	Matrix4x4 uvTransform;
-	float shininess;
-	Vector3 specularColor;
-	/*
-		< パディング >
-	機会に都合のいいような
-	c++とhlslのメモリ配置の違いによる誤差のようなもの。
-
-	c++ :
-	color			: [][][][]
-	enableLighting	: []
-	uvTransform		: [][][]float1
-					  [][][]float2
-					  [][][]float3
-	しかし、hlslでは
-	hlsl :
-	color			: [][][][]
-	enableLighting	: []<><><>
-	uvTransform		: [][][]<>float1
-					  [][][]<>float2
-					  [][][]<>float3
-	(<>は実際には使われないメモリ)
-	となっているらしい。
-	この誤差を埋めるためにc++側で隙間のメモリを上手く埋める。
-	*/
-};
-
-struct MaterialData{
+struct MaterialData
+{
 	Vector4 color;
 	uint32_t enableLighting;
 	Matrix4x4 uvTransform;
@@ -53,51 +22,72 @@ struct MaterialData{
 };
 
 class MaterialManager;
-class Material{
+class Material
+	: public IConstantBuffer{
 	friend class MaterialManager;
 public:
-	void Finalize();
+	Material() = default;
+	~Material()override{}
 
-	void SetForRootParameter(ID3D12GraphicsCommandList *cmdList,UINT rootParameterNum)const;
+	void UpdateUvMatrix();
+	void Finalize()override;
+
+	void ConvertToBuffer()override;
+	void SetForRootParameter(ID3D12GraphicsCommandList* cmdList,UINT rootParameterNum)const;
 public:
 	Vector3 uvScale_;
 	Vector3 uvRotate_;
 	Vector3 uvTranslate_;
+	Matrix4x4 uvMat_;
+
+	Vector4 color_;
+
+	uint32_t enableLighting_;
+	float	 shininess_;
+	Vector3  specularColor_;
+public:
+	struct ConstantBuffer{
+		Vector4 color;
+		uint32_t enableLighting;
+		float padding[3];// 下記を参照
+		Matrix4x4 uvTransform;
+		float shininess;
+		Vector3 specularColor;
+	};
 private:
-	void Init();
+	void Init()override;
 private:
-	Microsoft::WRL::ComPtr<ID3D12Resource> constBuff_;
-	ConstBufferMaterial *mappingData_ = nullptr;
+	Material::ConstantBuffer* mappingData_ = nullptr;
 };
 
-class MaterialManager{
+class MaterialManager
+{
 public:
-	Material *Create(const std::string &materialName);
-	Material *Create(const std::string &materialName,const MaterialData &data);
+	Material* Create(const std::string& materialName);
+	Material* Create(const std::string& materialName,const MaterialData& data);
 
 	void DebugUpdate();
 
 	void Finalize();
 private:
-	std::unordered_map<std::string,std::unique_ptr<Material>> materialPallete_;
+	std::unordered_map<std::string,std::unique_ptr<Material>> materialPallet_;
 	char newMaterialName_[64];
 public:
-	Material *getMaterial(const std::string &materialName) const{
-		auto it = materialPallete_.find(materialName);
-		if(it != materialPallete_.end()){
+	Material* getMaterial(const std::string& materialName) const
+	{
+		auto it = materialPallet_.find(materialName);
+		if(it != materialPallet_.end())
+		{
 			return it->second.get();
-		} else{
-			// キーが存在しない場合の処理
+		} else
+		{
+	  // キーが存在しない場合の処理
 			return nullptr; // または適切なエラー処理を行う
 		}
 	}
 
-	const std::unordered_map<std::string,std::unique_ptr<Material>> &getMaterialPallete()const{ return materialPallete_; }
+	const std::unordered_map<std::string,std::unique_ptr<Material>>& getMaterialPallet()const { return materialPallet_; }
+	Material* getMaterial(const std::string& name);
 
-	void Edit(const std::string &materialName,const MaterialData &data);
-	void EditColor(const std::string &materialName,const Vector4 &color);
-	void EditUvTransform(const std::string &materialName,const Transform &transform);
-	void EditEnableLighting(const std::string &materialName,bool enableLighting);
-
-	void DeleteMaterial(const std::string &materialName);
+	void DeleteMaterial(const std::string& materialName);
 };

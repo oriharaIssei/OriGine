@@ -8,15 +8,15 @@
 void DirectionalLight::Init(){
 	mappingData_ = nullptr;
 
-	DxFH::CreateBufferResource(System::getInstance()->getDxDevice(),constBuff_,sizeof(DirectionalLight::ConstBuffer));
+	DxFH::CreateBufferResource(System::getInstance()->getDxDevice(),buff_,sizeof(DirectionalLight::ConstantBuffer));
 
-	constBuff_->Map(
+	buff_->Map(
 		0,nullptr,reinterpret_cast<void**>(&mappingData_)
 	);
 }
 
 void DirectionalLight::Finalize(){
-	constBuff_.Reset();
+	buff_.Reset();
 }
 
 void DirectionalLight::DebugUpdate(){
@@ -32,9 +32,6 @@ void DirectionalLight::DebugUpdate(){
 #endif // _DEBUG
 }
 
-void DirectionalLight::SetForRootParameter(ID3D12GraphicsCommandList* cmdList,UINT rootParameterNum)const{
-	cmdList->SetGraphicsRootConstantBufferView(rootParameterNum,constBuff_->GetGPUVirtualAddress());
-}
 
 void DirectionalLight::ConvertToBuffer(){
 	mappingData_->color = color;

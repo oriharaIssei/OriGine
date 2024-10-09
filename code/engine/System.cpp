@@ -145,12 +145,12 @@ void System::CreateTexturePSO(){
 
 #pragma region"RootParameter"
 	D3D12_ROOT_PARAMETER rootParameter[7]{};
-	// WorldTransform ... 0
+	// TransformBuffer ... 0
 	rootParameter[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	rootParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 	rootParameter[0].Descriptor.ShaderRegister = 0;
 	texShaderInfo.pushBackRootParameter(rootParameter[0]);
-	// ViewProjection ... 1
+	// CameraBuffer ... 1
 	rootParameter[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	rootParameter[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 	rootParameter[1].Descriptor.ShaderRegister = 2;

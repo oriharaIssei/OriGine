@@ -52,20 +52,11 @@ void Input::Init() {
 }
 
 void Input::Finalize() {
-	if(directInput_) {
-		directInput_->Release();
-		directInput_ = nullptr;
-	}
-
 	if(keyboard_) {
 		keyboard_->Unacquire();
-		keyboard_->Release();
-		keyboard_ = nullptr;
 	}
 	if(mouse_) {
 		mouse_->Unacquire();
-		mouse_->Release();
-		mouse_ = nullptr;
 	}
 }
 

@@ -11,7 +11,7 @@ public:
 	~SpriteObject()override{};
 	void Init([[maybe_unused]] const std::string &directryPath,const std::string &objectName)override;
 	void Update()override;
-	void Draw(const ViewProjection &viewProj)override;
+	void Draw(const CameraBuffer &viewProj)override;
 private:
 	std::unique_ptr<Sprite> sprite_;
 

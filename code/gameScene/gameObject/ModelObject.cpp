@@ -6,10 +6,10 @@
 
 #include "System.h"
 
-void ModelObject::Init(const std::string& directryPath,const std::string& objectName){
-	IGameObject::Init(directryPath,objectName);
+void ModelObject::Init(const std::string& directoryPath,const std::string& objectName){
+	IGameObject::Init(directoryPath,objectName);
 
-	model_ = Model::Create(directryPath,objectName + ".obj");
+	model_ = Model::Create(directoryPath,objectName + ".obj");
 
 	transform_.Init();
 }
@@ -19,12 +19,12 @@ void ModelObject::Update(){
 	ImGui::DragFloat3("Scale",&transform_.scale.x,0.1f);
 	ImGui::DragFloat3("Rotate",&transform_.rotate.x,0.1f);
 	ImGui::DragFloat3("Translate",&transform_.translate.x,0.1f);
-	transform_.Update();
+	transform_.UpdateMatrix();
 
 	if(!materialNameVector_.empty()){
 		materialNameVector_.clear();
 	}
-	for(auto& material : materialManager_->getMaterialPallete()){
+	for(auto& material : materialManager_->getMaterialPallet()){
 		materialNameVector_.push_back(material.first.c_str());
 	}
 
@@ -43,6 +43,6 @@ void ModelObject::Update(){
 #endif // _DEBUG
 }
 
-void ModelObject::Draw(const ViewProjection& viewProj){
+void ModelObject::Draw(const CameraBuffer& viewProj){
 	model_->Draw(transform_,viewProj);
 }

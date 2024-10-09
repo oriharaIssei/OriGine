@@ -7,7 +7,7 @@
 
 #include "audio/Audio.h"
 #include "debugCamera/DebugCamera.h"
-#include "directX12/buffer/ViewProjection.h"
+#include "directX12/buffer/CameraBuffer.h"
 
 #include "engine/texture/RenderTexture.h"
 #include "gameObject/IGameObject.h"
@@ -30,7 +30,7 @@ public:
 	void Draw();
 private:
 	std::unique_ptr<DebugCamera> debugCamera_;
-	ViewProjection viewProj_;
+	CameraBuffer cameraBuff_;
 	Input* input_;
 
 	std::shared_ptr<DxRtvArray> sceneRtvArray_;

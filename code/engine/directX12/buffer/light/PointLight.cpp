@@ -8,15 +8,15 @@
 void PointLight::Init(){
 	mappingData_ = nullptr;
 
-	DxFH::CreateBufferResource(System::getInstance()->getDxDevice(),constBuff_,sizeof(PointLight::ConstBuffer));
+	DxFH::CreateBufferResource(System::getInstance()->getDxDevice(),buff_,sizeof(PointLight::ConstantBuffer));
 
-	constBuff_->Map(
+	buff_->Map(
 		0,nullptr,reinterpret_cast<void **>(&mappingData_)
 	);
 }
 
 void PointLight::Finalize(){
-	constBuff_.Reset();
+	buff_.Reset();
 }
 
 void PointLight::DebugUpdate(){
@@ -32,9 +32,6 @@ void PointLight::DebugUpdate(){
 #endif // _DEBUG
 }
 
-void PointLight::SetForRootParameter(ID3D12GraphicsCommandList *cmdList,UINT rootParameterNum) const{
-	cmdList->SetGraphicsRootConstantBufferView(rootParameterNum,constBuff_->GetGPUVirtualAddress());
-}
 
 void PointLight::ConvertToBuffer(){
 	mappingData_->color     = this->color;

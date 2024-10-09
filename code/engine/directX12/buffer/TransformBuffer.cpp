@@ -1,22 +1,26 @@
-#include "directX12/buffer/WorldTransform.h"
+#include "directX12/buffer/TransformBuffer.h"
 
-#include <System.h>
-#include "imgui/imgui.h"
 #include "directX12/dxFunctionHelper/DxFunctionHelper.h"
 
-void WorldTransform::Init(){
-	DxFH::CreateBufferResource(System::getInstance()->getDxDevice(),buff_,sizeof(ConstantBufferWorldMatrix));
+#ifdef _DEBUG
+#include "imgui/imgui.h"
+#endif // _DEBUG
+
+#include <System.h>
+
+void TransformBuffer::Init(){
+	DxFH::CreateBufferResource(System::getInstance()->getDxDevice(),buff_,sizeof(TransformBuffer::ConstantBuffer));
 	buff_->Map(0,nullptr,reinterpret_cast<void **>(&mappingWorldMat_));
 
 	worldMat = MakeMatrix::Identity();
 	mappingWorldMat_->world = worldMat;
 }
 
-void WorldTransform::Finalize(){
+void TransformBuffer::Finalize(){
 	buff_.Reset();
 }
 
-void WorldTransform::Update(){
+void TransformBuffer::UpdateMatrix(){
 	worldMat = MakeMatrix::Affine(scale,rotate,translate);
 
 	if(parent != nullptr){
@@ -25,7 +29,7 @@ void WorldTransform::Update(){
 	ConvertToBuffer();
 }
 
-void WorldTransform::Debug(const std::string &transformName){
+void TransformBuffer::Debug(const std::string &transformName){
 	std::string labelName = transformName + " scale";
 	ImGui::DragFloat3(labelName.c_str(),&scale.x,0.01f);
 	labelName = transformName + " rotate";
@@ -34,10 +38,6 @@ void WorldTransform::Debug(const std::string &transformName){
 	ImGui::DragFloat3(labelName.c_str(),&translate.x,0.1f);
 }
 
-void WorldTransform::ConvertToBuffer(){
+void TransformBuffer::ConvertToBuffer(){
 	mappingWorldMat_->world = worldMat;
-}
-
-void WorldTransform::SetForRootParameter(ID3D12GraphicsCommandList *cmdList,UINT rootParameterNum) const{
-	cmdList->SetGraphicsRootConstantBufferView(rootParameterNum,buff_->GetGPUVirtualAddress());
 }

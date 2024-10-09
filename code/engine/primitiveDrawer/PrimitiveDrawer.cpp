@@ -62,7 +62,7 @@ void PrimitiveDrawer::Finalize(){
 	quadMesh_->Finalize();
 }
 
-void PrimitiveDrawer::Line(const Vector3 &p0,const Vector3 &p1,const WorldTransform &transform,const ViewProjection &viewProj,const Material *material){
+void PrimitiveDrawer::Line(const Vector3 &p0,const Vector3 &p1,const TransformBuffer &TransformBuffer,const CameraBuffer &viewProj,const Material *material){
 	ID3D12GraphicsCommandList *commandList = dxCommand_->getCommandList();
 
 	const uint32_t startIndex = lineInstanceVal_ * 3;
@@ -82,7 +82,7 @@ void PrimitiveDrawer::Line(const Vector3 &p0,const Vector3 &p1,const WorldTransf
 	commandList->IASetVertexBuffers(0,1,&lineMesh_->vbView);
 	commandList->IASetIndexBuffer(&lineMesh_->ibView);
 
-	transform.SetForRootParameter(commandList,0);
+	TransformBuffer.SetForRootParameter(commandList,0);
 	viewProj.SetForRootParameter(commandList,1);
 	material->SetForRootParameter(commandList,2);
 
@@ -92,7 +92,7 @@ void PrimitiveDrawer::Line(const Vector3 &p0,const Vector3 &p1,const WorldTransf
 	++lineInstanceVal_;
 }
 
-void PrimitiveDrawer::Triangle(const Vector3 &p0,const Vector3 &p1,const Vector3 &p2,const WorldTransform &transform,const ViewProjection &viewProj,const Material *material){
+void PrimitiveDrawer::Triangle(const Vector3 &p0,const Vector3 &p1,const Vector3 &p2,const TransformBuffer &TransformBuffer,const CameraBuffer &viewProj,const Material *material){
 	ID3D12GraphicsCommandList *commandList = dxCommand_->getCommandList();
 
 	const uint32_t startIndex = triangleInstanceVal_ * 3;
@@ -115,7 +115,7 @@ void PrimitiveDrawer::Triangle(const Vector3 &p0,const Vector3 &p1,const Vector3
 	commandList->IASetVertexBuffers(0,1,&triangleMesh_->vbView);
 	commandList->IASetIndexBuffer(&triangleMesh_->ibView);
 
-	transform.SetForRootParameter(commandList,0);
+	TransformBuffer.SetForRootParameter(commandList,0);
 	viewProj.SetForRootParameter(commandList,1);
 	material->SetForRootParameter(commandList,2);
 	System::getInstance()->getDirectionalLight()->SetForRootParameter(commandList,3);
@@ -126,7 +126,7 @@ void PrimitiveDrawer::Triangle(const Vector3 &p0,const Vector3 &p1,const Vector3
 	++triangleInstanceVal_;
 }
 
-void PrimitiveDrawer::Quad(const Vector3 &p0,const Vector3 &p1,const Vector3 &p2,const Vector3 &p3,const WorldTransform &transform,const ViewProjection &viewProj,const Material *material){
+void PrimitiveDrawer::Quad(const Vector3 &p0,const Vector3 &p1,const Vector3 &p2,const Vector3 &p3,const TransformBuffer &TransformBuffer,const CameraBuffer &viewProj,const Material *material){
 	ID3D12GraphicsCommandList *commandList = dxCommand_->getCommandList();
 
 	const uint32_t startIndex = quadInstanceVal_ * 6;
@@ -155,7 +155,7 @@ void PrimitiveDrawer::Quad(const Vector3 &p0,const Vector3 &p1,const Vector3 &p2
 	commandList->IASetVertexBuffers(0,1,&quadMesh_->vbView);
 	commandList->IASetIndexBuffer(&quadMesh_->ibView);
 
-	transform.SetForRootParameter(commandList,0);
+	TransformBuffer.SetForRootParameter(commandList,0);
 	viewProj.SetForRootParameter(commandList,1);
 	material->SetForRootParameter(commandList,2);
 	System::getInstance()->getDirectionalLight()->SetForRootParameter(commandList,3);
