@@ -12,7 +12,7 @@ void CameraBuffer::Finalize(){
 	buff_.Reset();
 }
 
-void CameraBuffer::Update(){
+void CameraBuffer::UpdateMatrix(){
 	viewMat = MakeMatrix::Affine({1.0f,1.0f,1.0f},rotate,translate);
 	cameraPos_ = viewMat[3];
 	viewMat = viewMat.Inverse();

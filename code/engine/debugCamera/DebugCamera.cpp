@@ -22,7 +22,7 @@ void DebugCamera::Update(){
 	if(currentState_){
 		currentState_->Update();
 	}
-	cameraBuff_.Update();
+	cameraBuff_.UpdateMatrix();
 }
 
 void DebugCamera::Neutral::Update(){

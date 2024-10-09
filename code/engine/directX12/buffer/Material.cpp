@@ -30,7 +30,7 @@ void Material::Init(){
 	mappingData_->uvTransform = MakeMatrix::Affine(uvScale_,uvRotate_,uvTranslate_);
 }
 
-void Material::Update()
+void Material::UpdateUvMatrix()
 {
 	uvMat_ = MakeMatrix::Affine(uvScale_,uvRotate_,uvTranslate_);
 }

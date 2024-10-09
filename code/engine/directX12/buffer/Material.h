@@ -29,7 +29,7 @@ public:
 	Material() = default;
 	~Material()override{}
 
-	void Update()override;
+	void UpdateUvMatrix();
 	void Finalize()override;
 
 	void ConvertToBuffer()override;

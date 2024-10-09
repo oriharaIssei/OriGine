@@ -19,7 +19,7 @@ void ModelObject::Update(){
 	ImGui::DragFloat3("Scale",&transform_.scale.x,0.1f);
 	ImGui::DragFloat3("Rotate",&transform_.rotate.x,0.1f);
 	ImGui::DragFloat3("Translate",&transform_.translate.x,0.1f);
-	transform_.Update();
+	transform_.UpdateMatrix();
 
 	if(!materialNameVector_.empty()){
 		materialNameVector_.clear();

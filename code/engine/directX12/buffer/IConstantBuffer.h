@@ -12,7 +12,6 @@ public:
 	virtual ~IConstantBuffer(){}
 
 	virtual void Init  () = 0;
-	virtual void Update() = 0;
 	virtual void Finalize() = 0;
 
 	virtual void ConvertToBuffer() = 0;

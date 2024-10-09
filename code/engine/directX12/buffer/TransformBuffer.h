@@ -16,7 +16,7 @@ public:
 	~TransformBuffer()override{}
 
 	void Init()override;
-	void Update()override;
+	void UpdateMatrix();
 	void Finalize()override;
 	void ConvertToBuffer()override;
 	

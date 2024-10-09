@@ -20,7 +20,7 @@ void TransformBuffer::Finalize(){
 	buff_.Reset();
 }
 
-void TransformBuffer::Update(){
+void TransformBuffer::UpdateMatrix(){
 	worldMat = MakeMatrix::Affine(scale,rotate,translate);
 
 	if(parent != nullptr){

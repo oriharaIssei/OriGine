@@ -17,7 +17,7 @@ public:
 
 	void Init()		override;
 	void Finalize() override;
-	void Update()	override;
+	void UpdateMatrix();
 	void ConvertToBuffer() override;
 
 	// Vector3 scale ; 固定

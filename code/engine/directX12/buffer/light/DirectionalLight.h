@@ -3,24 +3,26 @@
 #include <d3d12.h>
 #include <wrl.h>
 
+#include "directX12/buffer/IConstantBuffer.h"
+
 #include "Vector3.h"
 #include "Vector4.h"
 
-class DirectionalLight{
+class DirectionalLight
+ : public IConstantBuffer{
 public:
-	void Init();
-	void Finalize();
+	void Init()    override;
+	void Finalize()override;
 
 	void DebugUpdate();
 
-	void SetForRootParameter(ID3D12GraphicsCommandList *cmdList,UINT rootParameterNum)const;
-	void ConvertToBuffer();
+	void ConvertToBuffer()override;
 
 	Vector3 color = {1.0f,1.0f,1.0f};
 	Vector3 direction = {1.0f,1.0f,1.0f};
 	float intensity = 1.0f;
 private:
-	struct ConstBuffer{
+	struct ConstantBuffer{
 		Vector3 color;      // 12 bytes
 		float padding1;     // 4 bytes to align to 16 bytes
 		Vector3 direction;  // 12 bytes
@@ -28,6 +30,5 @@ private:
 	};
 
 private:
-	ConstBuffer *mappingData_;
-	Microsoft::WRL::ComPtr<ID3D12Resource> constBuff_;
+	ConstantBuffer *mappingData_;
 };

@@ -3,18 +3,23 @@
 #include <d3d12.h>
 #include <wrl.h>
 
+#include "directX12/buffer/IConstantBuffer.h"
+
 #include "Vector3.h"
 #include "Vector4.h"
 
-class SpotLight{
+class SpotLight
+:public IConstantBuffer{
 public:
-	void Init();
-	void Finalize();
+	SpotLight() = default;
+	~SpotLight()override{}
+
+	void Init()    override;
+	void Finalize()override;
 
 	void DebugUpdate();
 
-	void SetForRootParameter(ID3D12GraphicsCommandList *cmdList,UINT rootParameterNum)const;
-	void ConvertToBuffer();
+	void ConvertToBuffer()override;
 
 	Vector3 color = {1.0f,1.0f,1.0f};
 	Vector3 pos = {0,0,0};
@@ -25,7 +30,7 @@ public:
 	float cosAngle = 0.5f;
 	float cosFalloffStart = 1.0f;
 private:
-	struct ConstBuffer{
+	struct ConstantBuffer{
 		Vector3 color;              // 12 bytes
 		Vector3 pos;                // 12 bytes
 		float intensity;            // 4 bytes
@@ -37,7 +42,6 @@ private:
 		float padding[2];           // 8 bytes (to align to 16 bytes)
 	};
 private:
-	ConstBuffer *mappingData_;
-	Microsoft::WRL::ComPtr<ID3D12Resource> constBuff_;
+	ConstantBuffer* mappingData_;
 };
 

@@ -7,15 +7,15 @@
 void SpotLight::Init(){
 	mappingData_ = nullptr;
 
-	DxFH::CreateBufferResource(System::getInstance()->getDxDevice(),constBuff_,sizeof(SpotLight::ConstBuffer));
+	DxFH::CreateBufferResource(System::getInstance()->getDxDevice(),buff_,sizeof(SpotLight::ConstantBuffer));
 
-	constBuff_->Map(
+	buff_->Map(
 		0,nullptr,reinterpret_cast<void **>(&mappingData_)
 	);
 }
 
 void SpotLight::Finalize(){
-	constBuff_.Reset();
+	buff_.Reset();
 }
 
 void SpotLight::DebugUpdate(){
@@ -34,10 +34,6 @@ void SpotLight::DebugUpdate(){
 	}
 	ImGui::End();
 #endif // _DEBUG
-}
-
-void SpotLight::SetForRootParameter(ID3D12GraphicsCommandList *cmdList,UINT rootParameterNum) const{
-	cmdList->SetGraphicsRootConstantBufferView(rootParameterNum,constBuff_->GetGPUVirtualAddress());
 }
 
 void SpotLight::ConvertToBuffer(){
