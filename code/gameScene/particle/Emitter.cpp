@@ -44,7 +44,7 @@ void Emitter::Init(uint32_t instanceValue,MaterialManager *materialManager){
 	Vector3 scale = {1.0f,1.0f,1.0f};
 	Vector3 rotate = {0.0f,0.0f,0.0f};
 	for(size_t i = 0; i < instanceValue; i++){
-		mappingData_[i].transform = MakeMatrix::Affine(scale,rotate,{i * 0.1f,i * 0.1f,i * 0.1f});
+		mappingData_[i].TransformBuffer = MakeMatrix::Affine(scale,rotate,{i * 0.1f,i * 0.1f,i * 0.1f});
 		mappingData_[i].color = {1.0f,1.0f,1.0f,1.0f};
 	}
 
@@ -56,7 +56,7 @@ void Emitter::Init(uint32_t instanceValue,MaterialManager *materialManager){
 	viewDesc.Buffer.FirstElement = 0;
 	viewDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
 	viewDesc.Buffer.NumElements = instanceValue;
-	viewDesc.Buffer.StructureByteStride = sizeof(ConstantBufferWorldMatrix);
+	viewDesc.Buffer.StructureByteStride = sizeof(TransformBuffer::ConstantBuffer);
 
 	dxSrvArray_->CreateView(device->getDevice(),viewDesc,resource);
 
@@ -105,7 +105,7 @@ void Emitter::Finalize(){
 	pso_.reset();
 }
 
-void Emitter::Draw(const ViewProjection &viewProjection){
+void Emitter::Draw(const CameraBuffer &CameraBuffer){
 	auto *commandList = dxCommand_->getCommandList();
 
 	commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
@@ -121,7 +121,7 @@ void Emitter::Draw(const ViewProjection &viewProjection){
 		TextureManager::getDescriptorGpuHandle(0)
 	);
 
-	Matrix4x4 cameraRotation = viewProjection.viewMat;
+	Matrix4x4 cameraRotation = CameraBuffer.viewMat;
 	for(size_t i = 0; i < 3; i++){
 		cameraRotation[3][i] = 0.0f;
 	}
@@ -131,12 +131,12 @@ void Emitter::Draw(const ViewProjection &viewProjection){
 	Matrix4x4 rotateMat = cameraRotation.Inverse();
 
 	for(size_t i = 0; i < particles_.size(); i++){
-		mappingData_[i].transform = MakeMatrix::Scale({1.0f,1.0f,1.0f}) * rotateMat * MakeMatrix::Translate(originPos_ + particles_[i]->pos);
+		mappingData_[i].TransformBuffer = MakeMatrix::Scale({1.0f,1.0f,1.0f}) * rotateMat * MakeMatrix::Translate(originPos_ + particles_[i]->pos);
 	}
 
 	commandList->SetGraphicsRootDescriptorTable(0,DxHeap::getInstance()->getSrvGpuHandle(dxSrvArray_->getLocationOnHeap(srvIndex_)));
 
-	viewProjection.SetForRootParameter(commandList,1);
+	CameraBuffer.SetForRootParameter(commandList,1);
 
 	material_->SetForRootParameter(commandList,2);
 	System::getInstance()->getDirectionalLight()->SetForRootParameter(commandList,3);

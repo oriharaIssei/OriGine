@@ -79,7 +79,7 @@ void PrimitiveDrawer::Line(const Vector3& p0,const Vector3& p1,const WorldTransf
 	commandList->IASetVertexBuffers(0,1,&lineMesh_->vbView);
 	commandList->IASetIndexBuffer(&lineMesh_->ibView);
 
-	transform.SetForRootParameter(commandList,0);
+	TransformBuffer.SetForRootParameter(commandList,0);
 	viewProj.SetForRootParameter(commandList,1);
 	material->SetForRootParameter(commandList,2);
 
@@ -108,7 +108,7 @@ void PrimitiveDrawer::Triangle(const Vector3& p0,const Vector3& p1,const Vector3
 	commandList->IASetVertexBuffers(0,1,&triangleMesh_->vbView);
 	commandList->IASetIndexBuffer(&triangleMesh_->ibView);
 
-	transform.SetForRootParameter(commandList,0);
+	TransformBuffer.SetForRootParameter(commandList,0);
 	viewProj.SetForRootParameter(commandList,1);
 	material->SetForRootParameter(commandList,2);
 	System::getInstance()->getDirectionalLight()->SetForRootParameter(commandList,3);
@@ -148,7 +148,7 @@ void PrimitiveDrawer::Quad(const Vector3& p0,const Vector3& p1,const Vector3& p2
 	commandList->IASetVertexBuffers(0,1,&quadMesh_->vbView);
 	commandList->IASetIndexBuffer(&quadMesh_->ibView);
 
-	transform.SetForRootParameter(commandList,0);
+	TransformBuffer.SetForRootParameter(commandList,0);
 	viewProj.SetForRootParameter(commandList,1);
 	material->SetForRootParameter(commandList,2);
 	System::getInstance()->getDirectionalLight()->SetForRootParameter(commandList,3);
@@ -180,7 +180,7 @@ void PrimitiveDrawer::CreatePso(System* system){
 #pragma region"RootParameter"
 	D3D12_ROOT_PARAMETER rootParameter[6]{};
 	rootParameter[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	// PixelShderで使う
+	// PixelShaderで使う
 	rootParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 	// レジスタ番号0 とバインド
 	// register(b0) の 0. b11 なら 11

@@ -61,30 +61,6 @@ Microsoft::WRL::ComPtr<ID3D12Resource> DxFunctionHelper::CreateRenderTextureReso
 	return renderTextureResource;
 }
 
-void DxFunctionHelper::ClearRenderTarget(const DxCommand* command,const DxSwapChain* swapChain){
-	UINT backBufferIndex = swapChain->getCurrentBackBufferIndex();
-
-	DxHeap* heap = DxHeap::getInstance();
-
-	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = heap->getDsvHeap()->GetCPUDescriptorHandleForHeapStart();
-	D3D12_CPU_DESCRIPTOR_HANDLE backBufferRtvHandle = heap->getRtvCpuHandle(backBufferIndex);
-	command->getCommandList()->OMSetRenderTargets(
-		1,
-		&backBufferRtvHandle,
-		false,
-		&dsvHandle
-	);
-
-	float clearColor[] = {0.1f,0.25f,0.5f,1.0f};
-	command->getCommandList()->ClearRenderTargetView(
-		backBufferRtvHandle,clearColor,0,nullptr
-	);
-
-	command->getCommandList()->ClearDepthStencilView(
-		dsvHandle,D3D12_CLEAR_FLAG_DEPTH,1.0f,0,0,nullptr
-	);
-}
-
 void DxFunctionHelper::SetViewportsAndScissor(const DxCommand* dxCommand,const WinApp* window){
 	ID3D12GraphicsCommandList* commandList = dxCommand->getCommandList();
 	//ビューポートの設定
@@ -179,7 +155,8 @@ void DxFunctionHelper::PreDraw(const DxCommand* command,const WinApp* window,con
 
 	commandList->RSSetScissorRects(1,&scissorRect);
 
-	ClearRenderTarget(command,swapChain);
+	swapChain->CurrentBackBufferClear(commandList);
+
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
@@ -218,7 +195,8 @@ void DxFunctionHelper::PreDraw(const DxCommand* dxCommand,const Vector2& rectSiz
 
 	commandList->RSSetScissorRects(1,&scissorRect);
 
-	ClearRenderTarget(dxCommand,dxSwapChain);
+	dxSwapChain->CurrentBackBufferClear(dxCommand->getCommandList());
+
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 

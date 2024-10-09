@@ -13,13 +13,13 @@ void DxSwapChain::Init(const WinApp *winApp,const DxDevice *device,const DxComma
 	///	SwapChain の生成
 	///================================================
 	DXGI_SWAP_CHAIN_DESC1 swapchainDesc{};
-	swapchainDesc.Width = winApp->getWidth();  //画面の幅。windowと同じにする
-	swapchainDesc.Height = winApp->getHeight(); //画面の高さ。windowと同じにする
+	swapchainDesc.Width = winApp->getWidth();                    //画面の幅。windowと同じにする
+	swapchainDesc.Height = winApp->getHeight();                  //画面の高さ。windowと同じにする
 	swapchainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	swapchainDesc.SampleDesc.Count = 1; //マルチサンプルしない
+	swapchainDesc.SampleDesc.Count = 1;                          //マルチサンプルしない
 	swapchainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT; //描画のターゲットとして利用する
-	swapchainDesc.BufferCount = 2; //ダブルバッファ
-	swapchainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD; //モニタに移したら中身を破棄する
+	swapchainDesc.BufferCount = 2;                               //ダブルバッファ
+	swapchainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;    //モニタに移したら中身を破棄する
 
 	Microsoft::WRL::ComPtr<IDXGISwapChain1> swapChain1;
 	HRESULT result = device->getDxgiFactory()->CreateSwapChainForHwnd(
@@ -49,7 +49,8 @@ void DxSwapChain::Init(const WinApp *winApp,const DxDevice *device,const DxComma
 	for(int i = 0; i < (int)bufferCount_; ++i){
 		Microsoft::WRL::ComPtr<ID3D12Resource> buff;
 		result = swapChain_->GetBuffer(
-			i,IID_PPV_ARGS(&buff));
+			i,IID_PPV_ARGS(&buff)
+		);
 		assert(SUCCEEDED(result));
 
 		backBuffers_->CreateView(device->getDevice(),rtvDesc,buff);
@@ -64,4 +65,8 @@ void DxSwapChain::Finalize(){
 
 void DxSwapChain::Present(){
 	swapChain_->Present(1,0);
+}
+
+void DxSwapChain::CurrentBackBufferClear(ID3D12GraphicsCommandList* commandList)const{
+	backBuffers_->ClearTarget(swapChain_->GetCurrentBackBufferIndex(),commandList,clearColor_);
 }

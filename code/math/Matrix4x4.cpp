@@ -110,10 +110,6 @@ Matrix4x4 MakeMatrix::Affine(const Vector3 &scale,const Vector3 &rotate,const Ve
 	return MakeMatrix::Scale(scale) * MakeMatrix::RotateXYZ(rotate) * MakeMatrix::Translate(translate);
 }
 
-Matrix4x4 MakeMatrix::Affine(const Transform &transform) {
-	return MakeMatrix::Scale(transform.scale) * MakeMatrix::RotateXYZ(transform.rotate) * MakeMatrix::Translate(transform.translate);
-}
-
 Vector3 TransformVector(const Vector3 &vec,const Matrix4x4 &matrix) {
 	float result[4] = {0.0f,0.0f,0.0f,0.0f};
 	float hcs[4] = {vec.x,vec.y,vec.z,1.0f};

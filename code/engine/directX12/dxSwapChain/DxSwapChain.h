@@ -19,10 +19,15 @@ public:
 	void Finalize();
 
 	void Present();
+
+	void CurrentBackBufferClear(ID3D12GraphicsCommandList* commandList)const;
 private:
 	Microsoft::WRL::ComPtr<IDXGISwapChain4> swapChain_;
+
 	std::shared_ptr<DxRtvArray> backBuffers_;
 	UINT bufferCount_;
+
+	const float clearColor_[4] = {0.1f,0.25f,0.5f,1.0f};
 public:
 	UINT getBufferCount()const{ return bufferCount_; }
 	UINT getCurrentBackBufferIndex()const{ return swapChain_->GetCurrentBackBufferIndex(); }

@@ -16,7 +16,6 @@
 #include "directX12/dxResource/srv/DxSrvArray.h"
 #include "directX12/dxSwapChain/DxSwapChain.h"
 #include "directX12/PipelineStateObj.h"
-#include "directX12/ShaderCompiler.h"
 #include "directX12/shaderManager/ShaderManager.h"
 
 #include "directX12/buffer/light/DirectionalLight.h"

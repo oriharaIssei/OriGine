@@ -44,10 +44,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)\externals\nlohmann;$(IncludePath)</IncludePath>
+    <IncludePath>$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectDir)\externals\nlohmann;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\externals\nlohmann;$(ProjectDir)..\externals\DirectXTex;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -56,7 +56,7 @@
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir)code/math;$(ProjectDir)code/lib;$(ProjectDir)code/gameScene;$(ProjectDir)code/engine;$(ProjectDir)code;$(ProjectDir)externals;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)code/math;$(ProjectDir)code/lib;$(ProjectDir)code/gameScene;$(ProjectDir)code/engine;$(ProjectDir)code;$(ProjectDir)externals;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
@@ -94,13 +94,14 @@
     <ClCompile Include="code\engine\audio\Audio.cpp" />
     <ClCompile Include="code\engine\debugCamera\DebugCamera.cpp" />
     <ClCompile Include="code\engine\deltaTime\DeltaTime.cpp" />
+    <ClCompile Include="code\engine\directX12\buffer\IConstantBuffer.cpp" />
     <ClCompile Include="code\engine\directX12\buffer\light\DirectionalLight.cpp" />
     <ClCompile Include="code\engine\directX12\buffer\light\PointLight.cpp" />
     <ClCompile Include="code\engine\directX12\buffer\light\SpotLight.cpp" />
     <ClCompile Include="code\engine\directX12\buffer\Material.cpp" />
     <ClCompile Include="code\engine\directX12\buffer\Object3dMesh.cpp" />
-    <ClCompile Include="code\engine\directX12\buffer\ViewProjection.cpp" />
-    <ClCompile Include="code\engine\directX12\buffer\WorldTransform.cpp" />
+    <ClCompile Include="code\engine\directX12\buffer\CameraBuffer.cpp" />
+    <ClCompile Include="code\engine\directX12\buffer\TransformBuffer.cpp" />
     <ClCompile Include="code\engine\directX12\dxCommand\DxCommand.cpp" />
     <ClCompile Include="code\engine\directX12\dxDebug\DxDebug.cpp" />
     <ClCompile Include="code\engine\directX12\dxDevice\DxDevice.cpp" />
@@ -120,6 +121,7 @@
     <ClCompile Include="code\engine\input\Input.cpp" />
     <ClCompile Include="code\engine\logger\Logger.cpp" />
     <ClCompile Include="code\engine\model\Model.cpp" />
+    <ClCompile Include="code\engine\model\ModelManager.cpp" />
     <ClCompile Include="code\engine\primitiveDrawer\PrimitiveDrawer.cpp" />
     <ClCompile Include="code\engine\sprite\Sprite.cpp" />
     <ClCompile Include="code\engine\System.cpp" />
@@ -152,13 +154,14 @@
     <ClInclude Include="code\engine\audio\Audio.h" />
     <ClInclude Include="code\engine\debugCamera\DebugCamera.h" />
     <ClInclude Include="code\engine\deltaTime\DeltaTime.h" />
+    <ClInclude Include="code\engine\directX12\buffer\IConstantBuffer.h" />
     <ClInclude Include="code\engine\directX12\buffer\light\DirectionalLight.h" />
     <ClInclude Include="code\engine\directX12\buffer\light\PointLight.h" />
     <ClInclude Include="code\engine\directX12\buffer\light\SpotLight.h" />
     <ClInclude Include="code\engine\directX12\buffer\Material.h" />
     <ClInclude Include="code\engine\directX12\buffer\Object3dMesh.h" />
-    <ClInclude Include="code\engine\directX12\buffer\ViewProjection.h" />
-    <ClInclude Include="code\engine\directX12\buffer\WorldTransform.h" />
+    <ClInclude Include="code\engine\directX12\buffer\CameraBuffer.h" />
+    <ClInclude Include="code\engine\directX12\buffer\TransformBuffer.h" />
     <ClInclude Include="code\engine\directX12\dxCommand\DxCommand.h" />
     <ClInclude Include="code\engine\directX12\dxDebug\DxDebug.h" />
     <ClInclude Include="code\engine\directX12\dxDevice\DxDevice.h" />
@@ -178,6 +181,7 @@
     <ClInclude Include="code\engine\input\Input.h" />
     <ClInclude Include="code\engine\logger\Logger.h" />
     <ClInclude Include="code\engine\model\Model.h" />
+    <ClInclude Include="code\engine\model\ModelManager.h" />
     <ClInclude Include="code\engine\primitiveDrawer\PrimitiveDrawer.h" />
     <ClInclude Include="code\engine\sprite\Sprite.h" />
     <ClInclude Include="code\engine\System.h" />
@@ -196,7 +200,6 @@
     <ClInclude Include="code\lib\myFileSystem\MyFileSystem.h" />
     <ClInclude Include="code\lib\RailEditor\RailEditor.h" />
     <ClInclude Include="code\math\Matrix4x4.h" />
-    <ClInclude Include="code\math\Transform.h" />
     <ClInclude Include="code\math\Vector2.h" />
     <ClInclude Include="code\math\Vector3.h" />
     <ClInclude Include="code\math\Vector4.h" />

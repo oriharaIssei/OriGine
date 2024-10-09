@@ -361,3 +361,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/resource
+/LE2A_08_オリハライッセイ/02_ProjectFiles/resource/fence
+/LE2A_08_オリハライッセイ/02_ProjectFiles/resource/Map

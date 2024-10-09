@@ -39,10 +39,10 @@
     <ClCompile Include="code\engine\directX12\buffer\Object3dMesh.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="code\engine\directX12\buffer\ViewProjection.cpp">
+    <ClCompile Include="code\engine\directX12\buffer\CameraBuffer.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="code\engine\directX12\buffer\WorldTransform.cpp">
+    <ClCompile Include="code\engine\directX12\buffer\TransformBuffer.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="code\engine\directX12\dxCommand\DxCommand.cpp">
@@ -183,6 +183,12 @@
     <ClCompile Include="code\math\Vector3.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="code\engine\model\ModelManager.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="code\engine\directX12\buffer\IConstantBuffer.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\engine\audio\Audio.h">
@@ -209,10 +215,10 @@
     <ClInclude Include="code\engine\directX12\buffer\Object3dMesh.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="code\engine\directX12\buffer\ViewProjection.h">
+    <ClInclude Include="code\engine\directX12\buffer\CameraBuffer.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="code\engine\directX12\buffer\WorldTransform.h">
+    <ClInclude Include="code\engine\directX12\buffer\TransformBuffer.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="code\engine\directX12\dxCommand\DxCommand.h">
@@ -323,9 +329,6 @@
     <ClInclude Include="code\math\Matrix4x4.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="code\math\Transform.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="code\math\Vector2.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
@@ -360,6 +363,12 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="code\lib\RailEditor\RailEditor.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\model\ModelManager.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\directX12\buffer\IConstantBuffer.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

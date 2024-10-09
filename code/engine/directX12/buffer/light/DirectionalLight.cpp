@@ -8,15 +8,15 @@
 void DirectionalLight::Init(){
 	mappingData_ = nullptr;
 
-	DxFH::CreateBufferResource(System::getInstance()->getDxDevice(),constBuff_,sizeof(DirectionalLight::ConstBuffer));
+	DxFH::CreateBufferResource(System::getInstance()->getDxDevice(),buff_,sizeof(DirectionalLight::ConstantBuffer));
 
-	constBuff_->Map(
+	buff_->Map(
 		0,nullptr,reinterpret_cast<void**>(&mappingData_)
 	);
 }
 
 void DirectionalLight::Finalize(){
-	constBuff_.Reset();
+	buff_.Reset();
 }
 
 void DirectionalLight::DebugUpdate(){
@@ -24,7 +24,7 @@ void DirectionalLight::DebugUpdate(){
 	if(ImGui::Begin("DirectionalLight")){
 		ImGui::DragFloat3("Direction",&this->direction.x,0.01f,-1.0f,1.0f);
 		this->direction = this->direction.Normalize();
-		ImGui::ColorEdit4("Color",&this->color.x);
+		ImGui::ColorEdit3("Color",&this->color.x);
 		ImGui::SliderFloat("Intensity",&this->intensity,0.0f,1.0f);
 		this->ConvertToBuffer();
 	}
@@ -32,9 +32,6 @@ void DirectionalLight::DebugUpdate(){
 #endif // _DEBUG
 }
 
-void DirectionalLight::SetForRootParameter(ID3D12GraphicsCommandList* cmdList,UINT rootParameterNum)const{
-	cmdList->SetGraphicsRootConstantBufferView(rootParameterNum,constBuff_->GetGPUVirtualAddress());
-}
 
 void DirectionalLight::ConvertToBuffer(){
 	mappingData_->color = color;

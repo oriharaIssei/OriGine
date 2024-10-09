@@ -33,7 +33,7 @@ void GameScene::Init(){
 	debugCamera_->Init();
 
 	debugCamera_->setViewTranslate({0.0f,0.0f,-12.0f});
-	viewProj_.Init();
+	cameraBuff_.Init();
 	input_ = Input::getInstance();
 
 	sceneRtvArray_ = DxRtvArrayManager::getInstance()->Create(1);
@@ -47,21 +47,15 @@ void GameScene::Init(){
 	textureList_ = myFs::SearchFile("./resource","png");
 	objectList_ = myFs::SearchFile("./resource","obj");
 
-	std::unique_ptr<SphereObject> sprite = std::make_unique<SphereObject>();
-	sprite->Init("","sphere");
-	gameObjects_.emplace_back(std::move(sprite));
-
-	railEditor_ = std::make_unique<RailEditor>(viewProj_);
-	railEditor_->Init();
 }
 
 void GameScene::Update(){
 #ifdef _DEBUG
 	debugCamera_->Update();
 	debugCamera_->DebugUpdate();
-	viewProj_.viewMat = debugCamera_->getViewProjection().viewMat;
-	viewProj_.projectionMat = debugCamera_->getViewProjection().projectionMat;
-	viewProj_.ConvertToBuffer();
+	cameraBuff_.viewMat = debugCamera_->getCameraBuffer().viewMat;
+	cameraBuff_.projectionMat = debugCamera_->getCameraBuffer().projectionMat;
+	cameraBuff_.ConvertToBuffer();
 #endif // _DEBUG
 
 #ifdef _DEBUG
@@ -149,7 +143,7 @@ void GameScene::Draw(){
 	sceneView_->PreDraw();
 
 	for(auto& object : gameObjects_){
-		object->Draw(viewProj_);
+		object->Draw(cameraBuff_);
 	}
 
 	railEditor_->Draw();

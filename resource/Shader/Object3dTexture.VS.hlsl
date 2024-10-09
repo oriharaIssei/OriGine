@@ -16,9 +16,9 @@ VertexShaderOutput main(VertexShaderInput input) {
     VertexShaderOutput output;
     //mul は 行列の 積
     float4x4 vpvMat = mul(mul(gWorldTransform.world,gViewProjection.view),gViewProjection.projection);
-    output.pos = mul(input.pos,vpvMat);
+    output.pos      = mul(input.pos,vpvMat);
     output.texCoord = input.texCoord;
-    output.normal = normalize(mul(input.normal,(float3x3)gViewProjection.viewTranspose));
+    output.normal  = normalize(mul(input.normal,(float3x3)gWorldTransform.world));
     output.worldPos = mul(input.pos,gWorldTransform.world).xyz;
     return output;
 }

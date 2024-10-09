@@ -12,32 +12,32 @@
 
 #include "directX12/buffer/Material.h"
 #include <directX12/buffer/Object3dMesh.h>
-#include <directX12/buffer/ViewProjection.h>
-#include <directX12/buffer/WorldTransform.h>
+#include <directX12/buffer/CameraBuffer.h>
+#include "directX12/buffer/TransformBuffer.h"
 
-struct ModelMtl{
-	/// <summary>
-	/// mtl file などから読み込んだ情報を保存するためのもの
-	/// </summary>
-	std::unique_ptr<int> textureNumber = nullptr;
+struct ModelMaterial{
+	int textureNumber;
+
+	Material* material;
 };
+
+struct ModelMeshData{
+	std::unique_ptr<IObject3dMesh> meshBuff;
+	size_t dataSize  = 0;
+	size_t vertSize  = 0;
+	size_t indexSize = 0;
+};
+
 struct ModelData{
-	std::unique_ptr<IObject3dMesh> meshBuff_;
-
-	ModelMtl materialData;
-
-	size_t dataSize;
-	size_t vertSize;
-	size_t indexSize;
-
-	Material *material_;
+	ModelMeshData meshData;
+	ModelMaterial materialData;
 };
 
 class ModelManager;
 class Model{
 	friend class ModelManager;
 public:
-	static std::shared_ptr<Model> Create(const std::string &directoryPath,const std::string &filename);
+	static Model* Create(const std::string &directoryPath,const std::string &filename);
 	static void Init();
 	static void Finalize();
 private:
@@ -54,11 +54,11 @@ public:
 
 	void Debug();
 
-	void Draw(const WorldTransform &world,const ViewProjection &view,[[maybe_unused]] BlendMode blend = BlendMode::Normal);
+	void Draw(const TransformBuffer &world,const CameraBuffer &view,[[maybe_unused]] BlendMode blend = BlendMode::Normal);
 private:
-	void NotDraw([[maybe_unused]] const WorldTransform &world,[[maybe_unused]] const ViewProjection &view,[[maybe_unused]] BlendMode blend = BlendMode::Normal){}
+	void NotDraw([[maybe_unused]] const TransformBuffer &world,[[maybe_unused]] const CameraBuffer &view,[[maybe_unused]] BlendMode blend = BlendMode::Normal){}
 
-	void DrawThis(const WorldTransform &world,const ViewProjection &view,BlendMode blend = BlendMode::Normal);
+	void DrawThis(const TransformBuffer &world,const CameraBuffer &view,BlendMode blend = BlendMode::Normal);
 private:
 	std::vector<std::unique_ptr<ModelData>> data_;
 	enum class LoadState{
@@ -66,13 +66,13 @@ private:
 		Loaded,
 	};
 	LoadState currentState_;
-	std::array<std::function<void(const WorldTransform &,const ViewProjection &,BlendMode)>,2> drawFuncTable_ = {
-		[this](const WorldTransform &world,const ViewProjection &view,BlendMode blend){ NotDraw(world,view,blend); },
-		[this](const WorldTransform &world,const ViewProjection &view,BlendMode blend = BlendMode::Alpha){ DrawThis(world,view,blend); }
+	std::array<std::function<void(const TransformBuffer &,const CameraBuffer &,BlendMode)>,2> drawFuncTable_ = {
+		[this](const TransformBuffer &world,const CameraBuffer &view,BlendMode blend){ NotDraw(world,view,blend); },
+		[this](const TransformBuffer &world,const CameraBuffer &view,BlendMode blend = BlendMode::Alpha){ DrawThis(world,view,blend); }
 	};
 public:
 	const std::vector<std::unique_ptr<ModelData>> &getData()const{ return data_; }
 	void setMaterial(Material *material,uint32_t index = 0){
-		data_[index]->material_ = material;
+		data_[index]->materialData.material = material;
 	}
 };

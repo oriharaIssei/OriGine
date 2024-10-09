@@ -16,7 +16,7 @@
 
 #include "directX12/buffer/Material.h"
 #include "directX12/buffer/Object3dMesh.h"
-#include "directX12/buffer/ViewProjection.h"
+#include "directX12/buffer/CameraBuffer.h"
 
 #include "Vector3.h"
 #include <stdint.h>
@@ -26,7 +26,7 @@ public:
 	~Emitter(){ Finalize(); }
 	void Init(uint32_t instanceValue,MaterialManager *materialManager);
 	void Update();
-	void Draw(const ViewProjection &viewProjection);
+	void Draw(const CameraBuffer &CameraBuffer);
 	void Finalize();
 private:
 	void CreatePso();
