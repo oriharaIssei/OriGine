@@ -7,7 +7,7 @@
 #include <string>
 
 #include "directX12/buffer/Material.h"
-#include "directX12/buffer/ViewProjection.h"
+#include "directX12/buffer/CameraBuffer.h"
 #include "directX12/buffer/TransformBuffer.h"
 
 class IGameObject{
@@ -16,7 +16,7 @@ public:
 
 	virtual void Init(const std::string &directryPath,const std::string &objectName);
 	virtual void Update();
-	virtual void Draw(const ViewProjection &viewProj) = 0;
+	virtual void Draw(const CameraBuffer &viewProj) = 0;
 protected:
 	static std::list<std::pair<std::string,std::string>> textureList_;
 	int currentTextureNum_;

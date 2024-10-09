@@ -12,8 +12,8 @@ void DebugCamera::Init(){
 
 void DebugCamera::DebugUpdate(){
 	if(ImGui::Begin("DebugCamera")){
-		ImGui::DragFloat3("Rotate",&viewProj_.rotate.x,0.1f);
-		ImGui::DragFloat3("Translate",&viewProj_.translate.x,0.1f);
+		ImGui::DragFloat3("Rotate",&cameraBuff_.rotate.x,0.1f);
+		ImGui::DragFloat3("Translate",&cameraBuff_.translate.x,0.1f);
 	}
 	ImGui::End();
 }
@@ -22,7 +22,7 @@ void DebugCamera::Update(){
 	if(currentState_){
 		currentState_->Update();
 	}
-	viewProj_.UpdateMatrix();
+	cameraBuff_.Update();
 }
 
 void DebugCamera::Neutral::Update(){
@@ -63,7 +63,7 @@ void DebugCamera::TranslationState::Update(){
 			break;
 	}
 	velo.y *= -1.0f;
-	host_->viewProj_.translate += TransformNormal(velo,MakeMatrix::RotateXYZ(host_->viewProj_.rotate));
+	host_->cameraBuff_.translate += TransformNormal(velo,MakeMatrix::RotateXYZ(host_->cameraBuff_.rotate));
 }
 
 void DebugCamera::RotationState::Update(){
@@ -74,10 +74,10 @@ void DebugCamera::RotationState::Update(){
 		host_->currentState_.reset(new Neutral(host_));
 		return;
 	}
-	host_->viewProj_.rotate += Vector3(host_->input_->getMouseVelocity().y,host_->input_->getMouseVelocity().x,0.0f) * 0.01f;
-	host_->viewProj_.rotate = {
-		std::fmod(host_->viewProj_.rotate.x,maxRad),
-		std::fmod(host_->viewProj_.rotate.y,maxRad),
-		std::fmod(host_->viewProj_.rotate.z,maxRad)
+	host_->cameraBuff_.rotate += Vector3(host_->input_->getMouseVelocity().y,host_->input_->getMouseVelocity().x,0.0f) * 0.01f;
+	host_->cameraBuff_.rotate = {
+		std::fmod(host_->cameraBuff_.rotate.x,maxRad),
+		std::fmod(host_->cameraBuff_.rotate.y,maxRad),
+		std::fmod(host_->cameraBuff_.rotate.z,maxRad)
 	};
 }

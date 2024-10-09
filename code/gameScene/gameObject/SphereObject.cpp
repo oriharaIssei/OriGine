@@ -26,7 +26,7 @@ void SphereObject::Update(){
 	IGameObject::Update();
 }
 
-void SphereObject::Draw(const ViewProjection &viewProj){
+void SphereObject::Draw(const CameraBuffer &viewProj){
 	constexpr int kSubDivision = 16;
 	const float kLonEvery = static_cast<float>(M_PI) * 2.0f / static_cast<float>(kSubDivision);
 	const float kLatEvery = static_cast<float>(M_PI) / static_cast<float>(kSubDivision);

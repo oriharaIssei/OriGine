@@ -105,7 +105,7 @@ void Emitter::Finalize(){
 	pso_.reset();
 }
 
-void Emitter::Draw(const ViewProjection &viewProjection){
+void Emitter::Draw(const CameraBuffer &CameraBuffer){
 	auto *commandList = dxCommand_->getCommandList();
 
 	commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
@@ -121,7 +121,7 @@ void Emitter::Draw(const ViewProjection &viewProjection){
 		TextureManager::getDescriptorGpuHandle(0)
 	);
 
-	Matrix4x4 cameraRotation = viewProjection.viewMat;
+	Matrix4x4 cameraRotation = CameraBuffer.viewMat;
 	for(size_t i = 0; i < 3; i++){
 		cameraRotation[3][i] = 0.0f;
 	}
@@ -136,7 +136,7 @@ void Emitter::Draw(const ViewProjection &viewProjection){
 
 	commandList->SetGraphicsRootDescriptorTable(0,DxHeap::getInstance()->getSrvGpuHandle(dxSrvArray_->getLocationOnHeap(srvIndex_)));
 
-	viewProjection.SetForRootParameter(commandList,1);
+	CameraBuffer.SetForRootParameter(commandList,1);
 
 	material_->SetForRootParameter(commandList,2);
 	System::getInstance()->getDirectionalLight()->SetForRootParameter(commandList,3);

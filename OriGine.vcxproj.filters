@@ -39,7 +39,7 @@
     <ClCompile Include="code\engine\directX12\buffer\Object3dMesh.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="code\engine\directX12\buffer\ViewProjection.cpp">
+    <ClCompile Include="code\engine\directX12\buffer\CameraBuffer.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="code\engine\directX12\buffer\TransformBuffer.cpp">
@@ -209,7 +209,7 @@
     <ClInclude Include="code\engine\directX12\buffer\Object3dMesh.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="code\engine\directX12\buffer\ViewProjection.h">
+    <ClInclude Include="code\engine\directX12\buffer\CameraBuffer.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="code\engine\directX12\buffer\TransformBuffer.h">

@@ -43,6 +43,6 @@ void ModelObject::Update(){
 #endif // _DEBUG
 }
 
-void ModelObject::Draw(const ViewProjection& viewProj){
+void ModelObject::Draw(const CameraBuffer& viewProj){
 	model_->Draw(transform_,viewProj);
 }

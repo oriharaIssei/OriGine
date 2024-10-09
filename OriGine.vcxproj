@@ -100,7 +100,7 @@
     <ClCompile Include="code\engine\directX12\buffer\light\SpotLight.cpp" />
     <ClCompile Include="code\engine\directX12\buffer\Material.cpp" />
     <ClCompile Include="code\engine\directX12\buffer\Object3dMesh.cpp" />
-    <ClCompile Include="code\engine\directX12\buffer\ViewProjection.cpp" />
+    <ClCompile Include="code\engine\directX12\buffer\CameraBuffer.cpp" />
     <ClCompile Include="code\engine\directX12\buffer\TransformBuffer.cpp" />
     <ClCompile Include="code\engine\directX12\dxCommand\DxCommand.cpp" />
     <ClCompile Include="code\engine\directX12\dxDebug\DxDebug.cpp" />
@@ -158,7 +158,7 @@
     <ClInclude Include="code\engine\directX12\buffer\light\SpotLight.h" />
     <ClInclude Include="code\engine\directX12\buffer\Material.h" />
     <ClInclude Include="code\engine\directX12\buffer\Object3dMesh.h" />
-    <ClInclude Include="code\engine\directX12\buffer\ViewProjection.h" />
+    <ClInclude Include="code\engine\directX12\buffer\CameraBuffer.h" />
     <ClInclude Include="code\engine\directX12\buffer\TransformBuffer.h" />
     <ClInclude Include="code\engine\directX12\dxCommand\DxCommand.h" />
     <ClInclude Include="code\engine\directX12\dxDebug\DxDebug.h" />

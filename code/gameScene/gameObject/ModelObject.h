@@ -10,7 +10,7 @@ public:
 	~ModelObject()override{};
 	void Init(const std::string &directryPath,const std::string &objectName)override;
 	void Update()override;
-	void Draw(const ViewProjection &viewProj)override;
+	void Draw(const CameraBuffer &viewProj)override;
 private:
 	Model* model_;
 };

@@ -62,7 +62,7 @@ void PrimitiveDrawer::Finalize(){
 	quadMesh_->Finalize();
 }
 
-void PrimitiveDrawer::Line(const Vector3 &p0,const Vector3 &p1,const TransformBuffer &TransformBuffer,const ViewProjection &viewProj,const Material *material){
+void PrimitiveDrawer::Line(const Vector3 &p0,const Vector3 &p1,const TransformBuffer &TransformBuffer,const CameraBuffer &viewProj,const Material *material){
 	ID3D12GraphicsCommandList *commandList = dxCommand_->getCommandList();
 
 	const uint32_t startIndex = lineInstanceVal_ * 3;
@@ -92,7 +92,7 @@ void PrimitiveDrawer::Line(const Vector3 &p0,const Vector3 &p1,const TransformBu
 	++lineInstanceVal_;
 }
 
-void PrimitiveDrawer::Triangle(const Vector3 &p0,const Vector3 &p1,const Vector3 &p2,const TransformBuffer &TransformBuffer,const ViewProjection &viewProj,const Material *material){
+void PrimitiveDrawer::Triangle(const Vector3 &p0,const Vector3 &p1,const Vector3 &p2,const TransformBuffer &TransformBuffer,const CameraBuffer &viewProj,const Material *material){
 	ID3D12GraphicsCommandList *commandList = dxCommand_->getCommandList();
 
 	const uint32_t startIndex = triangleInstanceVal_ * 3;
@@ -126,7 +126,7 @@ void PrimitiveDrawer::Triangle(const Vector3 &p0,const Vector3 &p1,const Vector3
 	++triangleInstanceVal_;
 }
 
-void PrimitiveDrawer::Quad(const Vector3 &p0,const Vector3 &p1,const Vector3 &p2,const Vector3 &p3,const TransformBuffer &TransformBuffer,const ViewProjection &viewProj,const Material *material){
+void PrimitiveDrawer::Quad(const Vector3 &p0,const Vector3 &p1,const Vector3 &p2,const Vector3 &p3,const TransformBuffer &TransformBuffer,const CameraBuffer &viewProj,const Material *material){
 	ID3D12GraphicsCommandList *commandList = dxCommand_->getCommandList();
 
 	const uint32_t startIndex = quadInstanceVal_ * 6;

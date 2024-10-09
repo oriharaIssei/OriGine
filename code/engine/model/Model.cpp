@@ -94,7 +94,7 @@ void Model::Finalize(){
 	dxCommand_->Finalize();
 }
 
-void Model::DrawThis(const TransformBuffer &world,const ViewProjection &view,BlendMode blend){
+void Model::DrawThis(const TransformBuffer &world,const CameraBuffer &view,BlendMode blend){
 	auto *commandList = dxCommand_->getCommandList();
 
 	for(auto &model : data_){
@@ -125,7 +125,7 @@ void Model::DrawThis(const TransformBuffer &world,const ViewProjection &view,Ble
 	}
 }
 
-void Model::Draw(const TransformBuffer &world,const ViewProjection &view,BlendMode blend){
+void Model::Draw(const TransformBuffer &world,const CameraBuffer &view,BlendMode blend){
 	drawFuncTable_[(size_t)currentState_](world,view,blend);
 }
 #pragma endregion

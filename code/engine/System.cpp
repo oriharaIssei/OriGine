@@ -150,7 +150,7 @@ void System::CreateTexturePSO(){
 	rootParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 	rootParameter[0].Descriptor.ShaderRegister = 0;
 	texShaderInfo.pushBackRootParameter(rootParameter[0]);
-	// ViewProjection ... 1
+	// CameraBuffer ... 1
 	rootParameter[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	rootParameter[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 	rootParameter[1].Descriptor.ShaderRegister = 2;
