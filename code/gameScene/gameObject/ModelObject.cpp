@@ -6,10 +6,10 @@
 
 #include "System.h"
 
-void ModelObject::Init(const std::string& directryPath,const std::string& objectName){
-	IGameObject::Init(directryPath,objectName);
+void ModelObject::Init(const std::string& directoryPath,const std::string& objectName){
+	IGameObject::Init(directoryPath,objectName);
 
-	model_ = Model::Create(directryPath,objectName + ".obj");
+	model_ = Model::Create(directoryPath,objectName + ".obj");
 
 	transform_.Init();
 }
@@ -24,7 +24,7 @@ void ModelObject::Update(){
 	if(!materialNameVector_.empty()){
 		materialNameVector_.clear();
 	}
-	for(auto& material : materialManager_->getMaterialPallete()){
+	for(auto& material : materialManager_->getMaterialPallet()){
 		materialNameVector_.push_back(material.first.c_str());
 	}
 

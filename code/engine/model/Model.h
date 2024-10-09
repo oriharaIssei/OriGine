@@ -13,7 +13,7 @@
 #include "directX12/buffer/Material.h"
 #include <directX12/buffer/Object3dMesh.h>
 #include <directX12/buffer/ViewProjection.h>
-#include <directX12/buffer/WorldTransform.h>
+#include "directX12/buffer/TransformBuffer.h"
 
 struct ModelMaterial{
 	int textureNumber;
@@ -54,11 +54,11 @@ public:
 
 	void Debug();
 
-	void Draw(const WorldTransform &world,const ViewProjection &view,[[maybe_unused]] BlendMode blend = BlendMode::Normal);
+	void Draw(const TransformBuffer &world,const ViewProjection &view,[[maybe_unused]] BlendMode blend = BlendMode::Normal);
 private:
-	void NotDraw([[maybe_unused]] const WorldTransform &world,[[maybe_unused]] const ViewProjection &view,[[maybe_unused]] BlendMode blend = BlendMode::Normal){}
+	void NotDraw([[maybe_unused]] const TransformBuffer &world,[[maybe_unused]] const ViewProjection &view,[[maybe_unused]] BlendMode blend = BlendMode::Normal){}
 
-	void DrawThis(const WorldTransform &world,const ViewProjection &view,BlendMode blend = BlendMode::Normal);
+	void DrawThis(const TransformBuffer &world,const ViewProjection &view,BlendMode blend = BlendMode::Normal);
 private:
 	std::vector<std::unique_ptr<ModelData>> data_;
 	enum class LoadState{
@@ -66,9 +66,9 @@ private:
 		Loaded,
 	};
 	LoadState currentState_;
-	std::array<std::function<void(const WorldTransform &,const ViewProjection &,BlendMode)>,2> drawFuncTable_ = {
-		[this](const WorldTransform &world,const ViewProjection &view,BlendMode blend){ NotDraw(world,view,blend); },
-		[this](const WorldTransform &world,const ViewProjection &view,BlendMode blend = BlendMode::Alpha){ DrawThis(world,view,blend); }
+	std::array<std::function<void(const TransformBuffer &,const ViewProjection &,BlendMode)>,2> drawFuncTable_ = {
+		[this](const TransformBuffer &world,const ViewProjection &view,BlendMode blend){ NotDraw(world,view,blend); },
+		[this](const TransformBuffer &world,const ViewProjection &view,BlendMode blend = BlendMode::Alpha){ DrawThis(world,view,blend); }
 	};
 public:
 	const std::vector<std::unique_ptr<ModelData>> &getData()const{ return data_; }

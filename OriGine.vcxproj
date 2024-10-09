@@ -101,7 +101,7 @@
     <ClCompile Include="code\engine\directX12\buffer\Material.cpp" />
     <ClCompile Include="code\engine\directX12\buffer\Object3dMesh.cpp" />
     <ClCompile Include="code\engine\directX12\buffer\ViewProjection.cpp" />
-    <ClCompile Include="code\engine\directX12\buffer\WorldTransform.cpp" />
+    <ClCompile Include="code\engine\directX12\buffer\TransformBuffer.cpp" />
     <ClCompile Include="code\engine\directX12\dxCommand\DxCommand.cpp" />
     <ClCompile Include="code\engine\directX12\dxDebug\DxDebug.cpp" />
     <ClCompile Include="code\engine\directX12\dxDevice\DxDevice.cpp" />
@@ -159,7 +159,7 @@
     <ClInclude Include="code\engine\directX12\buffer\Material.h" />
     <ClInclude Include="code\engine\directX12\buffer\Object3dMesh.h" />
     <ClInclude Include="code\engine\directX12\buffer\ViewProjection.h" />
-    <ClInclude Include="code\engine\directX12\buffer\WorldTransform.h" />
+    <ClInclude Include="code\engine\directX12\buffer\TransformBuffer.h" />
     <ClInclude Include="code\engine\directX12\dxCommand\DxCommand.h" />
     <ClInclude Include="code\engine\directX12\dxDebug\DxDebug.h" />
     <ClInclude Include="code\engine\directX12\dxDevice\DxDevice.h" />
@@ -197,7 +197,6 @@
     <ClInclude Include="code\lib\imGuiManager\ImGuiManager.h" />
     <ClInclude Include="code\lib\myFileSystem\MyFileSystem.h" />
     <ClInclude Include="code\math\Matrix4x4.h" />
-    <ClInclude Include="code\math\Transform.h" />
     <ClInclude Include="code\math\Vector2.h" />
     <ClInclude Include="code\math\Vector3.h" />
     <ClInclude Include="code\math\Vector4.h" />

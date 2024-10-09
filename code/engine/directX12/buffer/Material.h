@@ -1,13 +1,10 @@
 #pragma once
 
-#include <memory>
-#include <wrl.h>
-
-#include <unordered_map>
-
 #include <d3d12.h>
-
+#include <memory>
 #include <string>
+#include <unordered_map>
+#include <wrl.h>
 
 #include "Matrix4x4.h"
 #include "stdint.h"
@@ -79,12 +76,12 @@ public:
 
 	void Finalize();
 private:
-	std::unordered_map<std::string,std::unique_ptr<Material>> materialPallete_;
+	std::unordered_map<std::string,std::unique_ptr<Material>> materialPallet_;
 	char newMaterialName_[64];
 public:
 	Material *getMaterial(const std::string &materialName) const{
-		auto it = materialPallete_.find(materialName);
-		if(it != materialPallete_.end()){
+		auto it = materialPallet_.find(materialName);
+		if(it != materialPallet_.end()){
 			return it->second.get();
 		} else{
 			// キーが存在しない場合の処理
@@ -92,11 +89,11 @@ public:
 		}
 	}
 
-	const std::unordered_map<std::string,std::unique_ptr<Material>> &getMaterialPallete()const{ return materialPallete_; }
+	const std::unordered_map<std::string,std::unique_ptr<Material>> &getMaterialPallet()const{ return materialPallet_; }
 
 	void Edit(const std::string &materialName,const MaterialData &data);
 	void EditColor(const std::string &materialName,const Vector4 &color);
-	void EditUvTransform(const std::string &materialName,const Transform &transform);
+	void EditUvTransform(const std::string& materialName,const Vector3& scale,const Vector3& rotate,const Vector3& translate);
 	void EditEnableLighting(const std::string &materialName,bool enableLighting);
 
 	void DeleteMaterial(const std::string &materialName);

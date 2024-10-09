@@ -42,7 +42,7 @@
     <ClCompile Include="code\engine\directX12\buffer\ViewProjection.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="code\engine\directX12\buffer\WorldTransform.cpp">
+    <ClCompile Include="code\engine\directX12\buffer\TransformBuffer.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="code\engine\directX12\dxCommand\DxCommand.cpp">
@@ -212,7 +212,7 @@
     <ClInclude Include="code\engine\directX12\buffer\ViewProjection.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="code\engine\directX12\buffer\WorldTransform.h">
+    <ClInclude Include="code\engine\directX12\buffer\TransformBuffer.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="code\engine\directX12\dxCommand\DxCommand.h">
@@ -321,9 +321,6 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="code\math\Matrix4x4.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="code\math\Transform.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="code\math\Vector2.h">

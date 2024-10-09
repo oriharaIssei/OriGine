@@ -2,7 +2,7 @@
 #include "IGameObject.h"
 
 #include "model/Model.h"
-#include "directX12/buffer/WorldTransform.h"
+#include "directX12/buffer/TransformBuffer.h"
 
 class ModelObject :
 	public IGameObject{

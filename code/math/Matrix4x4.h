@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Transform.h>
 #include <Vector3.h>
 
 #include <DirectXMath.h>
@@ -46,7 +45,6 @@ namespace MakeMatrix {
 	Matrix4x4 RotateXYZ(const Vector3 &radian);
 	Matrix4x4 RotateXYZ(const Matrix4x4 &x, const Matrix4x4 &y, const Matrix4x4 &z);
 	Matrix4x4 Affine(const Vector3 &scale, const Vector3 &rotate, const Vector3 &translate);
-	Matrix4x4 Affine(const Transform &transform);
 
 	Matrix4x4 PerspectiveFov(const float &fovY, const float &aspectRatio, const float &nearClip, const float &farClip);
 	Matrix4x4 Orthographic(const float &left, const float &top, const float &right, const float &bottom, const float &nearClip, const float &farClip);

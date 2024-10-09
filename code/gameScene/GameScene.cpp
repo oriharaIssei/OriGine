@@ -47,10 +47,6 @@ void GameScene::Init(){
 	textureList_ = myFs::SearchFile("./resource","png");
 	objectList_ = myFs::SearchFile("./resource","obj");
 
-	std::unique_ptr<SphereObject> sprite = std::make_unique<SphereObject>();
-	sprite->Init("","sphere");
-	gameObjects_.emplace_back(std::move(sprite));
-
 }
 
 void GameScene::Update(){

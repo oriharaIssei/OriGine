@@ -8,7 +8,7 @@
 
 #include "directX12/buffer/Material.h"
 #include "directX12/buffer/ViewProjection.h"
-#include "directX12/buffer/WorldTransform.h"
+#include "directX12/buffer/TransformBuffer.h"
 
 class IGameObject{
 public:
@@ -24,7 +24,7 @@ protected:
 	MaterialManager *materialManager_;
 	[[maybe_unused]] Material *material_;
 
-	[[maybe_unused]] WorldTransform transform_;
+	[[maybe_unused]] TransformBuffer transform_;
 
 	std::vector<const char *> materialNameVector_;
 	std::vector<int> checkedMaterial_;

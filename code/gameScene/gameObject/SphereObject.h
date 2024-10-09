@@ -6,7 +6,7 @@
 
 #include "directX12/buffer/Object3dMesh.h"
 #include "directX12/buffer/ViewProjection.h"
-#include "directX12/buffer/WorldTransform.h"
+#include "directX12/buffer/TransformBuffer.h"
 
 class SphereObject :
 	public IGameObject{

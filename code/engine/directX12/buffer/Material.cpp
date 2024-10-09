@@ -39,28 +39,28 @@ void Material::SetForRootParameter(ID3D12GraphicsCommandList *cmdList,UINT rootP
 }
 
 Material *MaterialManager::Create(const std::string &materialName){
-	if(materialPallete_.count(materialName) == 0){
-		materialPallete_[materialName] = std::make_unique<Material>();
-		materialPallete_[materialName]->Init();
+	if(materialPallet_.count(materialName) == 0){
+		materialPallet_[materialName] = std::make_unique<Material>();
+		materialPallet_[materialName]->Init();
 	}
-	return materialPallete_[materialName].get();
+	return materialPallet_[materialName].get();
 }
 
 Material *MaterialManager::Create(const std::string &materialName,const MaterialData &data){
-	materialPallete_[materialName] = std::make_unique<Material>();
-	materialPallete_[materialName]->Init();
-	*materialPallete_[materialName]->mappingData_ = {
+	materialPallet_[materialName] = std::make_unique<Material>();
+	materialPallet_[materialName]->Init();
+	*materialPallet_[materialName]->mappingData_ = {
 		.color = data.color,
 		.enableLighting = data.enableLighting,
 		.uvTransform = data.uvTransform
 	};
 
-	return materialPallete_[materialName].get();
+	return materialPallet_[materialName].get();
 }
 
 void MaterialManager::DebugUpdate(){
 #ifdef _DEBUG
-	for(auto &material : materialPallete_){
+	for(auto &material : materialPallet_){
 		if(!ImGui::TreeNode(material.first.c_str())){
 			continue;
 		}
@@ -94,13 +94,13 @@ void MaterialManager::DebugUpdate(){
 }
 
 void MaterialManager::Finalize(){
-	for(auto &material : materialPallete_){
+	for(auto &material : materialPallet_){
 		material.second->Finalize();
 	}
 }
 
 void MaterialManager::Edit(const std::string &materialName,const MaterialData &data){
-	*materialPallete_[materialName]->mappingData_ = {
+	*materialPallet_[materialName]->mappingData_ = {
 		.color = data.color,
 		.enableLighting = data.enableLighting,
 		.uvTransform = data.uvTransform
@@ -108,22 +108,22 @@ void MaterialManager::Edit(const std::string &materialName,const MaterialData &d
 }
 
 void MaterialManager::EditColor(const std::string &materialName,const Vector4 &color){
-	materialPallete_[materialName]->mappingData_->color = color;
+	materialPallet_[materialName]->mappingData_->color = color;
 }
 
-void MaterialManager::EditUvTransform(const std::string &materialName,const Transform &transform){
-	materialPallete_[materialName]->mappingData_->uvTransform = MakeMatrix::Affine(transform);
+void MaterialManager::EditUvTransform(const std::string &materialName,const Vector3 &scale,const Vector3& rotate,const Vector3& translate){
+	materialPallet_[materialName]->mappingData_->uvTransform = MakeMatrix::Affine(scale,rotate,translate);
 }
 
 void MaterialManager::EditEnableLighting(const std::string &materialName,bool enableLighting){
-	materialPallete_[materialName]->mappingData_->enableLighting = enableLighting;
+	materialPallet_[materialName]->mappingData_->enableLighting = enableLighting;
 }
 
 void MaterialManager::DeleteMaterial(const std::string &materialName){
-	materialPallete_[materialName].reset();
-	materialPallete_[materialName] = nullptr;
+	materialPallet_[materialName].reset();
+	materialPallet_[materialName] = nullptr;
 
-	std::erase_if(materialPallete_,[](const auto &pair){
+	std::erase_if(materialPallet_,[](const auto &pair){
 		return pair.second == nullptr;
 	});
 }
