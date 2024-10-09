@@ -1,8 +1,12 @@
 #include "directX12/buffer/WorldTransform.h"
 
-#include <System.h>
-#include "imgui/imgui.h"
 #include "directX12/dxFunctionHelper/DxFunctionHelper.h"
+
+#ifdef _DEBUG
+#include "imgui/imgui.h"
+#endif // _DEBUG
+
+#include <System.h>
 
 void WorldTransform::Init(){
 	DxFH::CreateBufferResource(System::getInstance()->getDxDevice(),buff_,sizeof(ConstantBufferWorldMatrix));

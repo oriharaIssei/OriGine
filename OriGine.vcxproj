@@ -94,6 +94,7 @@
     <ClCompile Include="code\engine\audio\Audio.cpp" />
     <ClCompile Include="code\engine\debugCamera\DebugCamera.cpp" />
     <ClCompile Include="code\engine\deltaTime\DeltaTime.cpp" />
+    <ClCompile Include="code\engine\directX12\buffer\IConstantBuffer.cpp" />
     <ClCompile Include="code\engine\directX12\buffer\light\DirectionalLight.cpp" />
     <ClCompile Include="code\engine\directX12\buffer\light\PointLight.cpp" />
     <ClCompile Include="code\engine\directX12\buffer\light\SpotLight.cpp" />
@@ -151,6 +152,7 @@
     <ClInclude Include="code\engine\audio\Audio.h" />
     <ClInclude Include="code\engine\debugCamera\DebugCamera.h" />
     <ClInclude Include="code\engine\deltaTime\DeltaTime.h" />
+    <ClInclude Include="code\engine\directX12\buffer\IConstantBuffer.h" />
     <ClInclude Include="code\engine\directX12\buffer\light\DirectionalLight.h" />
     <ClInclude Include="code\engine\directX12\buffer\light\PointLight.h" />
     <ClInclude Include="code\engine\directX12\buffer\light\SpotLight.h" />
