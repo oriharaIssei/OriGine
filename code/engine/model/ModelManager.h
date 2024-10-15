@@ -24,10 +24,9 @@ private:
 	struct LoadTask{
 		std::string directory;
 		std::string fileName ;
-		Model* model;
+		Model* model = nullptr;
 		void Update();
 	};
-
 private:
 	std::unique_ptr<TaskThread<LoadTask>> loadThread_;
 

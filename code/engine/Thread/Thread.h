@@ -15,11 +15,20 @@ class IThread
 public:
 	IThread() = default;
 	virtual ~IThread(){}
-
+	/// <summary>
+	/// 初期化 
+	/// </summary>
+	/// <param name="threadNum">開くスレッド数</param>
 	virtual void Init(int32_t threadNum);
+	/// <summary>
+	/// 終了処理(必須)
+	/// </summary>
 	virtual void Finalize();
 protected:
-	virtual void LoopUpdate() = 0;
+	/// <summary>
+	/// Thread 内で 実行される 処理
+	/// </summary>
+	virtual void Update() = 0;
 protected:
 	std::vector<std::thread> threads_;
 	std::mutex  mutex_;
@@ -53,7 +62,7 @@ public:
 	void Init(int32_t threadNum)override;
 	void Finalize()override;
 private:
-	void LoopUpdate()override;
+	void Update()override;
 
 	std::queue<Task> taskQueue_;
 public:
@@ -78,7 +87,7 @@ inline void TaskThread<Task>::Finalize()
 }
 
 template<HaveUpdate Task>
-inline void TaskThread<Task>::LoopUpdate()
+inline void TaskThread<Task>::Update()
 {
 	while(true)
 	{

@@ -7,7 +7,7 @@ void IThread::Init(int32_t threadNum)
 	threads_.resize(threadNum);
 	for(auto& thread : threads_)
 	{
-		thread = std::thread(&IThread::LoopUpdate,this);
+		thread = std::thread(&IThread::Update,this);
 	}
 }
 
