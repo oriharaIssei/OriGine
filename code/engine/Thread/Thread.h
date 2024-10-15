@@ -47,7 +47,7 @@ class TaskThread:
 	public IThread
 {
 public:
-	TaskThread()override {}
+	TaskThread():IThread() {}
 	~TaskThread()override{}
 
 	void Init(int32_t threadNum)override;
@@ -65,19 +65,19 @@ public:
 	}
 };
 
-template<typename task>
-inline void TaskThread<task>::Init(int32_t threadNum)
+template<HaveUpdate Task>
+inline void TaskThread<Task>::Init(int32_t threadNum)
 {
-	IThread::Init();
+	IThread::Init(threadNum);
 }
 
-template<typename Task>
+template<HaveUpdate Task>
 inline void TaskThread<Task>::Finalize()
 {
 	IThread::Finalize();
 }
 
-template<typename Task>
+template<HaveUpdate Task>
 inline void TaskThread<Task>::LoopUpdate()
 {
 	while(true)
@@ -96,7 +96,7 @@ inline void TaskThread<Task>::LoopUpdate()
 		}
 
 		{
-			std::lock_guard guard(queueMutex_);
+			std::lock_guard guard(IThread::mutex_);
 			task.Update();
 		}
 	}
