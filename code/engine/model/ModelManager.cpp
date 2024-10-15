@@ -49,67 +49,42 @@ Model* ModelManager::Create(const std::string& directoryPath,const std::string& 
 
 	modelLibrary_[directoryPath + filename] = std::make_unique<Model>();
 
-	{
-		std::unique_lock<std::mutex> lock(queueMutex_);
-		loadingQueue_.emplace(directoryPath,filename);
-	}
-	queueCondition_.notify_one();//threadに通知
+	loadThread_->pushTask({directoryPath,filename,modelLibrary_[directoryPath + filename].get()});
+	
 	return modelLibrary_[directoryPath + filename].get();
 }
 
 void ModelManager::Init()
 {
-	stopLoadingThread_ = false;
-	loadingThread_ = std::thread(&ModelManager::LoadLoop,this);
+	loadThread_ = std::make_unique<TaskThread<ModelManager::LoadTask>>();
+	loadThread_->Init(1);
 }
 
 void ModelManager::Finalize()
 {
-	{
-		std::unique_lock<std::mutex> lock(queueMutex_);
-		stopLoadingThread_ = true;
-	}
-
-	queueCondition_.notify_all();
-	if(loadingThread_.joinable())
-	{
-		loadingThread_.join();
-	}
+	loadThread_->Finalize();
 
 	modelLibrary_.clear();
 }
 
-void ModelManager::LoadLoop()
+void ProcessMeshData(std::unique_ptr<ModelData>& modelData,const std::vector<TextureVertexData>& vertices,const std::vector<uint32_t>& indices)
 {
-	while(true)
-	{
-		std::pair<std::string,std::string> task;
-		{
-			std::unique_lock<std::mutex> lock(queueMutex_);
-			queueCondition_.wait(lock,[this] { return !loadingQueue_.empty() || stopLoadingThread_; });
+	TextureObject3dMesh* textureMesh = new TextureObject3dMesh();
 
-			if(stopLoadingThread_ && loadingQueue_.empty())
-			{
-				return;
-			}
+	modelData->meshData.dataSize = static_cast<int32_t>(sizeof(TextureVertexData) * vertices.size());
 
-			task = loadingQueue_.front();
-			loadingQueue_.pop();
-		}
+	textureMesh->Create(static_cast<UINT>(vertices.size()),static_cast<UINT>(indices.size()));
+	memcpy(textureMesh->vertData,vertices.data(),vertices.size() * sizeof(TextureVertexData));
+	modelData->meshData.meshBuff.reset(textureMesh);
 
-		{
-			std::lock_guard guard(queueMutex_);
+	memcpy(modelData->meshData.meshBuff->indexData,indices.data(),static_cast<UINT>(static_cast<size_t>(indices.size()) * sizeof(uint32_t)));
 
-			Model* model = modelLibrary_[std::get<0>(task) + std::get<1>(task)].get();
-
-			model->currentState_ = Model::LoadState::Loading;
-			LoadObjFile(&model->data_,std::get<0>(task),std::get<1>(task));
-			model->currentState_ = Model::LoadState::Loaded;
-		}
-	}
+	modelData->meshData.vertSize
+		= static_cast<int32_t>(vertices.size());
+	modelData->meshData.indexSize = static_cast<int32_t>(indices.size());
 }
 
-void ModelManager::LoadObjFile(std::vector<std::unique_ptr<ModelData>>* data,const std::string& directoryPath,const std::string& filename)
+void LoadObjFile(std::vector<std::unique_ptr<ModelData>>* data,const std::string& directoryPath,const std::string& filename)
 {
 	Assimp::Importer importer;
 	std::string filePath = directoryPath + "/" + filename;
@@ -180,55 +155,11 @@ void ModelManager::LoadObjFile(std::vector<std::unique_ptr<ModelData>>* data,con
 		indices.clear();
 		vertexMap.clear();
 	}
+
 }
-
-void ModelManager::ProcessMeshData(std::unique_ptr<ModelData>& modelData,const std::vector<TextureVertexData>& vertices,const std::vector<uint32_t>& indices)
+void ModelManager::LoadTask::Update()
 {
-	TextureObject3dMesh* textureMesh = new TextureObject3dMesh();
-
-	modelData->meshData.dataSize = static_cast<int32_t>(sizeof(TextureVertexData) * vertices.size());
-
-	textureMesh->Create(static_cast<UINT>(vertices.size()),static_cast<UINT>(indices.size()));
-	memcpy(textureMesh->vertData,vertices.data(),vertices.size() * sizeof(TextureVertexData));
-	modelData->meshData.meshBuff.reset(textureMesh);
-
-	memcpy(modelData->meshData.meshBuff->indexData,indices.data(),static_cast<UINT>(static_cast<size_t>(indices.size()) * sizeof(uint32_t)));
-
-	modelData->meshData.vertSize = static_cast<int32_t>(vertices.size());
-	modelData->meshData.indexSize = static_cast<int32_t>(indices.size());
-}
-
-ModelMaterial ModelManager::LoadMtlFile(const std::string& directoryPath,const std::string& filename,const std::string& materialName)
-{
-	ModelMaterial data{};
-
-	bool isMatchingName = false;
-
-	std::ifstream file(directoryPath + "/" + filename);
-
-	assert(file.is_open());
-
-	std::string line;
-	while(std::getline(file,line))
-	{
-		std::string identifier;
-		std::istringstream s(line);
-		s >> identifier;
-		if(identifier == "newmtl")
-		{
-			std::string mtlName;
-			s >> mtlName;
-			isMatchingName = mtlName == materialName?true:false;
-		} else if(identifier == "map_Kd")
-		{
-			if(!isMatchingName)
-			{
-				continue;
-			}
-			std::string textureFilename;
-			s >> textureFilename;
-			data.textureNumber = TextureManager::LoadTexture(directoryPath + "/" + textureFilename);
-		}
-	}
-	return data;
+	model->currentState_ = Model::LoadState::Loading;
+	LoadObjFile(&model->data_,this->directory,this->fileName);
+	model->currentState_ = Model::LoadState::Loaded;
 }
