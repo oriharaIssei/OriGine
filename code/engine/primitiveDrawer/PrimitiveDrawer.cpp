@@ -37,6 +37,15 @@ void PrimitiveDrawer::Init(){
 		"Prim_Blend_Screen"
 	};
 
+	linePsoKeys_ = {
+		"Line_Blend_None",
+		"Line_Blend_Normal",
+		"Line_Blend_Add",
+		"Line_Blend_Sub",
+		"Line_Blend_Multiply",
+		"Line_Blend_Screen"
+	};
+
 	currentBlendMode_ = BlendMode::Alpha;
 
 	CreatePso();
@@ -77,14 +86,13 @@ void PrimitiveDrawer::Line(const Vector3& p0,const Vector3& p1,const TransformBu
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 
 	commandList->IASetVertexBuffers(0,1,&lineMesh_->vbView);
-	commandList->IASetIndexBuffer(&lineMesh_->ibView);
 
 	transform.SetForRootParameter(commandList,0);
 	viewProj.SetForRootParameter(commandList,1);
 	material->SetForRootParameter(commandList,2);
 
-	commandList->DrawIndexedInstanced(
-		2,1,startIndex,0,0
+	commandList->DrawInstanced(
+		2,1,startIndex,0
 	);
 	++lineInstanceVal_;
 }

@@ -1,6 +1,12 @@
 #include "RailEditor.h"
 
+#include <iostream>
+#include <fstream>
+
+#ifdef _DEBUG
 #include "imgui/imgui.h"
+#endif // _DEBUG
+
 #include "primitiveDrawer/PrimitiveDrawer.h"
 #include "System.h"
 
@@ -51,16 +57,20 @@ void RailEditor::Init(){
 		ctlPoints_.emplace_back(std::make_unique<ControlPoint>(pCameraBuffer_));
 		ctlPoints_.back()->Init({0.0f,0.0f,0.0f},1.0f);
 	}
+	Load();
 }
 
 void RailEditor::Update(){
 	int32_t index = 0;
 	ImGui::Begin("RailEditor");
 	if(ImGui::Button("Add controlPoint")){
-	{
+	
 		ctlPoints_.emplace_back(new ControlPoint(pCameraBuffer_));
 		ctlPoints_.back()->Init({0.0f,0.0f,0.0f},1.0f);
 	}
+	if(ImGui::Button("Save"))
+	{
+		Save();
 	}
 	ImGui::End();
 	for(auto& ctlPoint : ctlPoints_){
@@ -125,14 +135,83 @@ void RailEditor::Draw(){
 		splineSegmentPoint_.push_back(CatmullRomInterpolation(controlPointPositions_,t));
 	}
 
-	/*
-	Vector3 segmentStart = splineSegmentPoint_[0];
-	Vector3 segmentEnd = splineSegmentPoint_[1];
-	for(size_t i = 1; i < splineSegmentPoint_.size() - 1; i++)
+	
+	for(size_t i = 1; i < splineSegmentPoint_.size(); i++)
 	{
-		PrimitiveDrawer::Line(segmentStart,segmentEnd,origin_,pCameraBuffer_,System::getInstance()->getMaterialManager()->getMaterial("white"));
-		segmentStart = segmentEnd;
-		segmentEnd = splineSegmentPoint_[i+1];
+		PrimitiveDrawer::Line(splineSegmentPoint_[i-1],
+							  splineSegmentPoint_[i],
+							  origin_,
+							  pCameraBuffer_,
+							  System::getInstance()->getMaterialManager()->getMaterial("white"));
 	}
-	*/
+	
+}
+
+std::string filename = "resource/RailPoint.csv";
+void RailEditor::Load()
+{
+	std::ifstream file(filename);
+
+	if(!file.is_open())
+	{
+		std::cerr << "Error opening file: " << filename << std::endl;
+		return ;
+	}
+
+	std::string line;
+	bool firstLine = true;
+
+	while(std::getline(file,line))
+	{
+// 最初の行（ヘッダー行）をスキップ
+		if(firstLine)
+		{
+			firstLine = false;
+			continue;
+		}
+
+		std::stringstream ss(line);
+		std::string item;
+		std::vector<float> values;
+
+		// カンマ区切りでデータを読み込む
+		while(std::getline(ss,item,','))
+		{
+			values.push_back(std::stof(item));  // 文字列をfloatに変換
+		}
+
+		// Vector3として追加
+		if(values.size() == 3)
+		{
+			ctlPoints_.push_back(std::make_unique<ControlPoint>(pCameraBuffer_));
+			ctlPoints_.back()->Init({values[0],values[1],values[2]},0.1f);
+		}
+	}
+
+	file.close();
+}
+
+void RailEditor::Save()
+{
+	
+	std::ofstream file(filename);
+
+	if(!file.is_open())
+	{
+		std::cerr << "Error opening file: " << filename << std::endl;
+		return;
+	}
+
+	// ヘッダー行（任意）
+	file << "x,y,z" << std::endl;
+
+	// データを書き込む
+	Vector3 pos;
+	for(const auto& point : ctlPoints_)
+	{
+		pos = point->getTranslate();
+		file << pos.x << "," << pos.y << "," << pos.z << std::endl;
+	}
+
+	file.close();
 }
