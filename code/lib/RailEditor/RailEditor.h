@@ -47,4 +47,7 @@ private:
 
 	std::list<std::unique_ptr<ControlPoint>> ctlPoints_;
 	std::vector<Vector3> controlPointPositions_;
+public:
+	uint32_t getSegmentCount()const{return segmentCount_;}
+	const std::vector<Vector3>& getControlPointPositions()const{return controlPointPositions_;}
 };

@@ -3,19 +3,27 @@
 #include <vector>
 
 #include "directX12/buffer/CameraBuffer.h"
-struct Vector3;
+#include "directX12/buffer/TransformBuffer.h"
+
+#include "Vector3.h"
 
 class RailCamera
 {
 public:
-	RailCamera(const std::vector<Vector3>& points):points_(points){}
+	RailCamera(const std::vector<Vector3>& controlPoints):controlPoints_(controlPoints){}
 	~RailCamera(){}
 	void Init();
 	void Update();
 	
+	void Reset(){count_ = 0;}
 private:
-	const std::vector<Vector3>& points_;
+	TransformBuffer transform_;
 	CameraBuffer cameraBuff_;
+	const std::vector<Vector3>& controlPoints_;
+
+	int32_t count_;
+	int32_t dimension_;
 public:
 	const CameraBuffer& getCameraBuffer()const{return cameraBuff_;}
+	void setDimension(int32_t dimension){dimension_ = dimension;}
 };

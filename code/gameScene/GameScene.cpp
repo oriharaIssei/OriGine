@@ -45,20 +45,44 @@ void GameScene::Init(){
 	materialManager_ = System::getInstance()->getMaterialManager();
 
 	textureList_ = myFs::SearchFile("./resource","png");
-	objectList_ = myFs::SearchFile("./resource","obj");
+	objectList_  = myFs::SearchFile("./resource","obj");
 
 	railEditor_ = std::make_unique<RailEditor>(cameraBuff_);
 	railEditor_->Init();
+
+	railCamera_ = std::make_unique<RailCamera>(railEditor_->getControlPointPositions());
+	railCamera_->Init();
+	railCamera_->setDimension(railEditor_->getSegmentCount());
 }
 
 void GameScene::Update(){
 #ifdef _DEBUG
-	debugCamera_->Update();
-	debugCamera_->DebugUpdate();
-	cameraBuff_.viewMat = debugCamera_->getCameraBuffer().viewMat;
-	cameraBuff_.projectionMat = debugCamera_->getCameraBuffer().projectionMat;
-	cameraBuff_.ConvertToBuffer();
+	if(input_->isTriggerKey(DIK_F1))
+	{
+		isDebugCamera_ = !isDebugCamera_;
+	}
+
+	if(isDebugCamera_)
+	{
+		debugCamera_->Update();
+		debugCamera_->DebugUpdate();
+		cameraBuff_.viewMat = debugCamera_->getCameraBuffer().viewMat;
+		cameraBuff_.projectionMat = debugCamera_->getCameraBuffer().projectionMat;
+	} else
+	{
+		railCamera_->Update();
+		cameraBuff_.viewMat = railCamera_->getCameraBuffer().viewMat;
+		cameraBuff_.projectionMat = railCamera_->getCameraBuffer().projectionMat;
+	}
+	
 #endif // _DEBUG
+#ifndef _DEBUG
+	railCamera_->Update();
+	cameraBuff_.viewMat = railCamera_->getCameraBuffer().viewMat;
+	cameraBuff_.projectionMat = railCamera_->getCameraBuffer().projectionMat;
+#endif // !_DEBUG
+	
+	cameraBuff_.ConvertToBuffer();
 
 #ifdef _DEBUG
 	if(ImGui::Begin("MaterialManager")){
