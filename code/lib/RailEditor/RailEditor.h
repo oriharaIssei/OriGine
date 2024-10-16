@@ -3,8 +3,8 @@
 #include <memory>
 
 #include "directX12/buffer/Material.h"
-#include "directX12/buffer/ViewProjection.h"
-#include "directX12/buffer/WorldTransform.h"
+#include "directX12/buffer/CameraBuffer.h"
+#include "directX12/buffer/TransformBuffer.h"
 
 #include "Matrix4x4.h"
 #include "stdint.h"
@@ -12,16 +12,16 @@
 
 class ControlPoint{
 public:
-	ControlPoint(const ViewProjection& pViewProjection):pViewProjection_(pViewProjection){}
+	ControlPoint(const CameraBuffer& pCameraBuffer):pCameraBuffer_(pCameraBuffer){}
 	~ControlPoint() = default;
 
 	void Init(const Vector3 pos,float radius);
-	void Update();
+	void Update(int32_t num);
 	void Draw(const Material* material);
 private:
-	const ViewProjection& pViewProjection_;
+	const CameraBuffer& pCameraBuffer_;
 
-	WorldTransform transform_;
+	TransformBuffer transform_;
 	float radius_;
 public:
 	Vector3 getWorldPosition()const{ return transform_.worldMat[3]; }
@@ -30,12 +30,13 @@ public:
 
 class RailEditor{
 public:
-	RailEditor(const ViewProjection& pViewProjection):pViewProjection_(pViewProjection){}
+	RailEditor(CameraBuffer& pCameraBuffer):pCameraBuffer_(pCameraBuffer){}
 	void Init();
 	void Update();
 	void Draw();
 private:
-	const ViewProjection& pViewProjection_;
+	TransformBuffer origin_;
+	 CameraBuffer& pCameraBuffer_;
 
 	uint32_t segmentCount_ = 432;
 	std::vector<Vector3> splineSegmentPoint_;

@@ -95,6 +95,7 @@ void System::Init(){
 	RenderTexture::Awake();
 
 	materialManager_ = std::make_unique<MaterialManager>();
+	materialManager_->Create("white");
 }
 
 void System::Finalize(){

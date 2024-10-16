@@ -47,6 +47,8 @@ void GameScene::Init(){
 	textureList_ = myFs::SearchFile("./resource","png");
 	objectList_ = myFs::SearchFile("./resource","obj");
 
+	railEditor_ = std::make_unique<RailEditor>(cameraBuff_);
+	railEditor_->Init();
 }
 
 void GameScene::Update(){

@@ -13,15 +13,16 @@ void ControlPoint::Init(const Vector3 pos,float radius){
 	radius_ = radius;
 }
 
-void ControlPoint::Update(){
+void ControlPoint::Update(int32_t num){
 #ifdef _DEBUG
-	ImGui::DragFloat3("Translate",&transform_.translate.x,0.1f);
+	std::string label = "Translate_" + std::to_string(num);
+	ImGui::DragFloat3(label.c_str(),&transform_.translate.x,0.1f);
 #endif // _DEBUG
 
 	///===========================================================================
 	///  Billboard化
 	///===========================================================================
-	Matrix4x4 cameraRotateMat = pViewProjection_.viewMat;
+	Matrix4x4 cameraRotateMat = pCameraBuffer_.viewMat;
 	// 平方移動 を無視
 	for(size_t i = 0; i < 3; i++){
 		cameraRotateMat[3][i] = 0.0f;
@@ -41,20 +42,30 @@ void ControlPoint::Draw(const Material* material){
 	p[0] = {0,radius_,0};
 	p[1] = {radius_,-radius_,0};
 	p[2] = {-radius_,-radius_,0};
-	PrimitiveDrawer::Triangle(p[0],p[1],p[2],transform_,pViewProjection_,material);
+	PrimitiveDrawer::Triangle(p[0],p[1],p[2],transform_,pCameraBuffer_,material);
 }
 
 void RailEditor::Init(){
-	// CatMullRom は 4 つ以上の点からなる
+	origin_.Init();
 	for(size_t i = 0; i < 4; i++){
-		ctlPoints_.emplace_back(std::make_unique<ControlPoint>(pViewProjection_));
+		ctlPoints_.emplace_back(std::make_unique<ControlPoint>(pCameraBuffer_));
 		ctlPoints_.back()->Init({0.0f,0.0f,0.0f},1.0f);
 	}
 }
 
 void RailEditor::Update(){
+	int32_t index = 0;
+	ImGui::Begin("RailEditor");
+	if(ImGui::Button("Add controlPoint")){
+	{
+		ctlPoints_.emplace_back(new ControlPoint(pCameraBuffer_));
+		ctlPoints_.back()->Init({0.0f,0.0f,0.0f},1.0f);
+	}
+	}
+	ImGui::End();
 	for(auto& ctlPoint : ctlPoints_){
-		ctlPoint->Update();
+		ctlPoint->Update(index);
+		++index;
 	}
 }
 
@@ -103,15 +114,25 @@ Vector3 CatmullRomInterpolation(const std::vector<Vector3>& points,float t){
 }
 
 void RailEditor::Draw(){
-
 	for(auto& point : ctlPoints_){
 		point->Draw(System::getInstance()->getMaterialManager()->getMaterial("white"));
 		controlPointPositions_.push_back(point->getWorldPosition());
 	}
 
-
+	splineSegmentPoint_.clear();
 	for(size_t i = 0; i < segmentCount_; ++i){
 		float t = 1.0f / segmentCount_ * i;
 		splineSegmentPoint_.push_back(CatmullRomInterpolation(controlPointPositions_,t));
 	}
+
+	/*
+	Vector3 segmentStart = splineSegmentPoint_[0];
+	Vector3 segmentEnd = splineSegmentPoint_[1];
+	for(size_t i = 1; i < splineSegmentPoint_.size() - 1; i++)
+	{
+		PrimitiveDrawer::Line(segmentStart,segmentEnd,origin_,pCameraBuffer_,System::getInstance()->getMaterialManager()->getMaterial("white"));
+		segmentStart = segmentEnd;
+		segmentEnd = splineSegmentPoint_[i+1];
+	}
+	*/
 }
