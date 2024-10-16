@@ -135,6 +135,7 @@
     <ClCompile Include="code\gameScene\GameScene.cpp" />
     <ClCompile Include="code\gameScene\particle\Emitter.cpp" />
     <ClCompile Include="code\gameScene\particle\Particle.cpp" />
+    <ClCompile Include="code\gameScene\railCamera\RailCamera.cpp" />
     <ClCompile Include="code\lib\globalVariables\GlobalVariables.cpp" />
     <ClCompile Include="code\lib\imGuiManager\ImGuiManager.cpp" />
     <ClCompile Include="code\lib\myFileSystem\MyFileSystem.cpp" />
@@ -195,6 +196,7 @@
     <ClInclude Include="code\gameScene\GameScene.h" />
     <ClInclude Include="code\gameScene\particle\Emitter.h" />
     <ClInclude Include="code\gameScene\particle\Particle.h" />
+    <ClInclude Include="code\gameScene\railCamera\RailCamera.h" />
     <ClInclude Include="code\lib\globalVariables\GlobalVariables.h" />
     <ClInclude Include="code\lib\imGuiManager\ImGuiManager.h" />
     <ClInclude Include="code\lib\myFileSystem\MyFileSystem.h" />

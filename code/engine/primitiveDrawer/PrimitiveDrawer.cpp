@@ -86,6 +86,7 @@ void PrimitiveDrawer::Line(const Vector3& p0,const Vector3& p1,const TransformBu
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 
 	commandList->IASetVertexBuffers(0,1,&lineMesh_->vbView);
+	commandList->IASetIndexBuffer(&lineMesh_->ibView);
 
 	transform.SetForRootParameter(commandList,0);
 	viewProj.SetForRootParameter(commandList,1);

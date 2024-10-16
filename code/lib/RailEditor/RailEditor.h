@@ -40,9 +40,9 @@ public:
 	void Save();
 private:
 	TransformBuffer origin_;
-	 CameraBuffer& pCameraBuffer_;
+	CameraBuffer& pCameraBuffer_;
 
-	uint32_t segmentCount_ = 432;
+	uint32_t segmentCount_ = 512;
 	std::vector<Vector3> splineSegmentPoint_;
 
 	std::list<std::unique_ptr<ControlPoint>> ctlPoints_;
