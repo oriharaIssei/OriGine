@@ -8,15 +8,15 @@
 void PointLight::Init(){
 	mappingData_ = nullptr;
 
-	DxFH::CreateBufferResource(System::getInstance()->getDxDevice(),buff_,sizeof(PointLight::ConstantBuffer));
+	buff_.CreateBufferResource(System::getInstance()->getDxDevice(),sizeof(PointLight::ConstantBuffer));
 
-	buff_->Map(
+	buff_.getResource()->Map(
 		0,nullptr,reinterpret_cast<void **>(&mappingData_)
 	);
 }
 
 void PointLight::Finalize(){
-	buff_.Reset();
+	buff_.Finalize();
 }
 
 void PointLight::DebugUpdate(){

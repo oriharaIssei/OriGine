@@ -81,37 +81,7 @@ void RenderTexture::Init(const Vector2& textureSize,DXGI_FORMAT _format,const Ve
 	///===========================================================================
 	ID3D12Device* device = System::getInstance()->getDxDevice()->getDevice();
 
-	D3D12_RESOURCE_DESC resourceDesc = {};
-	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-	resourceDesc.Width = static_cast<UINT64>(textureSize_.x);
-	resourceDesc.Height = static_cast<UINT>(textureSize_.y);
-	resourceDesc.DepthOrArraySize = 1;
-	resourceDesc.MipLevels = 1;
-	resourceDesc.Format = _format;
-	resourceDesc.SampleDesc.Count = 1;
-	resourceDesc.SampleDesc.Quality = 0;
-	resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-	resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
-
-	D3D12_HEAP_PROPERTIES heapProps{};
-	// VRAM 上に 生成
-	heapProps.Type = D3D12_HEAP_TYPE_DEFAULT;
-
-	D3D12_CLEAR_VALUE clearValue{};
-	clearValue.Format = _format;
-	clearValue.Color[0] = _clearColor.x;
-	clearValue.Color[1] = _clearColor.y;
-	clearValue.Color[2] = _clearColor.z;
-	clearValue.Color[3] = _clearColor.w;
-
-	device->CreateCommittedResource(
-		&heapProps,
-		D3D12_HEAP_FLAG_NONE,
-		&resourceDesc,
-		D3D12_RESOURCE_STATE_RENDER_TARGET, // 描画すること を 前提とした テクスチャ なので RenderTarget として 扱う
-		&clearValue,
-		IID_PPV_ARGS(&resource_)
-	);
+	resource_.CreateRenderTextureResource(device,static_cast<uint32_t>(textureSize_.x),static_cast<uint32_t>(textureSize_.y),_format,clearColor_);
 
 	///===========================================================================
 	///  RTV の作成
@@ -119,7 +89,7 @@ void RenderTexture::Init(const Vector2& textureSize,DXGI_FORMAT _format,const Ve
 	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
 	rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
-	rtvIndex_ = rtvArray_->CreateView(device,rtvDesc,resource_);
+	rtvIndex_ = rtvArray_->CreateView(device,rtvDesc,resource_.getResource());
 
 	///===========================================================================
 	///  SRV の作成
@@ -130,9 +100,9 @@ void RenderTexture::Init(const Vector2& textureSize,DXGI_FORMAT _format,const Ve
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MipLevels = 1;
 
-	srvIndex_ = srvArray_->CreateView(device,srvDesc,resource_);
+	srvIndex_ = srvArray_->CreateView(device,srvDesc,resource_.getResource());
 
-	ResourceBarrierManager::RegisterReosurce(resource_.Get(),D3D12_RESOURCE_STATE_RENDER_TARGET);
+	ResourceBarrierManager::RegisterReosurce(resource_.getResource(),D3D12_RESOURCE_STATE_RENDER_TARGET);
 }
 
 void RenderTexture::PreDraw(){
@@ -145,7 +115,7 @@ void RenderTexture::PreDraw(){
 ///=========================================
 //	TransitionBarrier の 設定
 ///=========================================
-	ResourceBarrierManager::Barrier(commandList,resource_.Get(),D3D12_RESOURCE_STATE_RENDER_TARGET);
+	ResourceBarrierManager::Barrier(commandList,resource_.getResource(),D3D12_RESOURCE_STATE_RENDER_TARGET);
 	commandList->OMSetRenderTargets(1,&rtvHandle,FALSE,&dsvHandle);
 
 ///=========================================
@@ -202,7 +172,7 @@ void RenderTexture::PostDraw(){
 	///===============================================================
 	///	バリアの更新(描画->表示状態)
 	///===============================================================
-	ResourceBarrierManager::Barrier(commandList,resource_.Get(),D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	ResourceBarrierManager::Barrier(commandList,resource_.getResource(),D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 	///===============================================================
 
 	// コマンドの受付終了 -----------------------------------

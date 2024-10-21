@@ -13,7 +13,7 @@ void DxSrvArray::Finalize(){
 	}
 }
 
-uint32_t DxSrvArray::CreateView(ID3D12Device *device,D3D12_SHADER_RESOURCE_VIEW_DESC &viewDesc,Microsoft::WRL::ComPtr<ID3D12Resource> resource){
+uint32_t DxSrvArray::CreateView(ID3D12Device *device,D3D12_SHADER_RESOURCE_VIEW_DESC &viewDesc,ID3D12Resource* resource){
 	DxHeap *dxHeap = DxHeap::getInstance();
 
 	uint32_t index = 0;
@@ -23,7 +23,7 @@ uint32_t DxSrvArray::CreateView(ID3D12Device *device,D3D12_SHADER_RESOURCE_VIEW_
 		}
 		break;
 	}
-	device->CreateShaderResourceView(resource.Get(),&viewDesc,dxHeap->getSrvCpuHandle(arrayStartLocation_ + index));
+	device->CreateShaderResourceView(resource,&viewDesc,dxHeap->getSrvCpuHandle(arrayStartLocation_ + index));
 	resources_[index] = resource;
 	
 	return index;

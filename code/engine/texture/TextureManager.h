@@ -17,6 +17,7 @@
 #include <wrl.h>
 
 #include "directX12/dxCommand/DxCommand.h"
+#include "directX12/dxResource/DxResource.h"
 #include "directX12/dxResource/srv/DxSrvArray.h"
 #include "directX12/PipelineStateObj.h"
 
@@ -54,9 +55,8 @@ private:
 		LoadState loadState;
 	private:
 		DirectX::ScratchImage Load(const std::string &filePath);
-		Microsoft::WRL::ComPtr<ID3D12Resource> CreateTextureResource(ID3D12Device *device,const DirectX::TexMetadata &metadata);
-		void UploadTextureData(DirectX::ScratchImage &mipImg,Microsoft::WRL::ComPtr<ID3D12Resource> &reosurce);
-		void ExecuteCommand(Microsoft::WRL::ComPtr<ID3D12Resource> &resource);
+		void UploadTextureData(DirectX::ScratchImage &mipImg,ID3D12Resource* reosurce);
+		void ExecuteCommand(ID3D12Resource* resource);
 	};
 private:
 	static uint64_t cpuDescriptorHandleStart_;

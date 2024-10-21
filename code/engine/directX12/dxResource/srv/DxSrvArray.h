@@ -14,12 +14,11 @@ class DxSrvArray{
 	friend class DxSrvArrayManager;
 private:
 public:
-
 	void Finalize();
 
 	uint32_t CreateView(ID3D12Device *device,
 						D3D12_SHADER_RESOURCE_VIEW_DESC &viewDesc,
-						Microsoft::WRL::ComPtr<ID3D12Resource> resource);
+						ID3D12Resource* resource);
 	void DestroyView(uint32_t srvIndex);
 private:
 	/// <summary>

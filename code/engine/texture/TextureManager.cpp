@@ -36,14 +36,14 @@ void TextureManager::Texture::Init(const std::string& filePath,std::shared_ptr<D
 {
 	loadState = LoadState::Loading;
 	path_ = filePath;
-	Microsoft::WRL::ComPtr<ID3D12Resource> resource;
+	DxResource resource;
 	//==================================================
 	// Textureを読み込んで転送する
 	//==================================================
 	DirectX::ScratchImage mipImages = Load(filePath);
 	const DirectX::TexMetadata& metadata = mipImages.GetMetadata();
-	resource = CreateTextureResource(System::getInstance()->getDxDevice()->getDevice(),metadata);
-	UploadTextureData(mipImages,resource);
+	resource.CreateTextureResource(System::getInstance()->getDxDevice()->getDevice(),metadata);
+	UploadTextureData(mipImages,resource.getResource());
 
 	//==================================================
 	// ShaderResourceView を作成
@@ -63,7 +63,7 @@ void TextureManager::Texture::Init(const std::string& filePath,std::shared_ptr<D
 
 	/// SRV の作成
 	auto device = System::getInstance()->getDxDevice()->getDevice();
-	resourceIndex = srvArray->CreateView(device,srvDesc,resource);
+	resourceIndex = srvArray->CreateView(device,srvDesc,resource.getResource());
 	loadState = LoadState::Loaded;
 }
 
@@ -116,7 +116,7 @@ DirectX::ScratchImage TextureManager::Texture::Load(const std::string& filePath)
 	return mipImages;
 }
 
-void TextureManager::Texture::UploadTextureData(DirectX::ScratchImage& mipImg,Microsoft::WRL::ComPtr<ID3D12Resource>& resource)
+void TextureManager::Texture::UploadTextureData(DirectX::ScratchImage& mipImg,ID3D12Resource* resource)
 {
 	std::vector<D3D12_SUBRESOURCE_DATA> subResources;
 	auto dxDevice = System::getInstance()->getDxDevice();
@@ -129,18 +129,18 @@ void TextureManager::Texture::UploadTextureData(DirectX::ScratchImage& mipImg,Mi
 	);
 
 	uint64_t intermediateSize = GetRequiredIntermediateSize(
-		resource.Get(),
+		resource,
 		0,
 		UINT(subResources.size())
 	);
 
-	Microsoft::WRL::ComPtr<ID3D12Resource> intermediateResource = nullptr;
-	DxFH::CreateBufferResource(dxDevice,intermediateResource,intermediateSize);
+	std::unique_ptr<DxResource> intermediateResource = std::make_unique<DxResource>();
+	intermediateResource->CreateBufferResource(dxDevice,intermediateSize);
 
 	UpdateSubresources(
 		dxCommand_->getCommandList(),
-		resource.Get(),
-		intermediateResource.Get(),
+		resource,
+		intermediateResource->getResource(),
 		0,
 		0,
 		UINT(subResources.size()),
@@ -148,12 +148,12 @@ void TextureManager::Texture::UploadTextureData(DirectX::ScratchImage& mipImg,Mi
 	);
 	ExecuteCommand(resource);
 }
-void TextureManager::Texture::ExecuteCommand(Microsoft::WRL::ComPtr<ID3D12Resource>& resource)
+void TextureManager::Texture::ExecuteCommand(ID3D12Resource* resource)
 {
 	D3D12_RESOURCE_BARRIER barrier{};
 	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	barrier.Transition.pResource = resource.Get();
+	barrier.Transition.pResource = resource;
 	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
 	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_GENERIC_READ;
@@ -170,41 +170,6 @@ void TextureManager::Texture::ExecuteCommand(Microsoft::WRL::ComPtr<ID3D12Resour
 	fence.Signal(dxCommand_->getCommandQueue());
 	fence.WaitForFence();
 	dxCommand_->CommandReset();
-}
-
-Microsoft::WRL::ComPtr<ID3D12Resource> TextureManager::Texture::CreateTextureResource(ID3D12Device* device,const DirectX::TexMetadata& metadata)
-{
-	Microsoft::WRL::ComPtr<ID3D12Resource> resource;
-	//================================================
-	// 1. metadata を基に Resource を設定
-	D3D12_RESOURCE_DESC resourceDesc{};
-	resourceDesc.Width = UINT(metadata.width);
-	resourceDesc.Height = UINT(metadata.height);
-	resourceDesc.MipLevels = UINT16(metadata.mipLevels);// mipMap の数
-	resourceDesc.DepthOrArraySize = UINT16(metadata.arraySize); // 奥行 or Texture[]の配列数
-	resourceDesc.Format = metadata.format; //texture の Format
-	resourceDesc.SampleDesc.Count = 1; // サンプリングカウント 1固定
-	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION(metadata.dimension);
-
-	//================================================
-	// 2. 利用する Heap の設定
-	D3D12_HEAP_PROPERTIES heapProperties{};
-	heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
-
-	//================================================
-	// 3. Resource の作成
-	HRESULT hr;
-	hr = device->CreateCommittedResource(
-		&heapProperties,// heap の設定
-		D3D12_HEAP_FLAG_NONE,
-		&resourceDesc,
-		D3D12_RESOURCE_STATE_COPY_DEST,
-		nullptr,// Clear最適値
-		IID_PPV_ARGS(&resource)
-	);
-	assert(SUCCEEDED(hr));
-
-	return resource;
 }
 
 #pragma endregion

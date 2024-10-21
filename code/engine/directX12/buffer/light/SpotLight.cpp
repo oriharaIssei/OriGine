@@ -7,15 +7,15 @@
 void SpotLight::Init(){
 	mappingData_ = nullptr;
 
-	DxFH::CreateBufferResource(System::getInstance()->getDxDevice(),buff_,sizeof(SpotLight::ConstantBuffer));
+	buff_.CreateBufferResource(System::getInstance()->getDxDevice(),sizeof(SpotLight::ConstantBuffer));
 
-	buff_->Map(
+	buff_.getResource()->Map(
 		0,nullptr,reinterpret_cast<void **>(&mappingData_)
 	);
 }
 
 void SpotLight::Finalize(){
-	buff_.Reset();
+	buff_.Finalize();
 }
 
 void SpotLight::DebugUpdate(){
