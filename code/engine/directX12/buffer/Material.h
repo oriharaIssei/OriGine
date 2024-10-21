@@ -33,7 +33,6 @@ public:
 	void Finalize()override;
 
 	void ConvertToBuffer()override;
-	void SetForRootParameter(ID3D12GraphicsCommandList* cmdList,UINT rootParameterNum)const;
 public:
 	Vector3 uvScale_;
 	Vector3 uvRotate_;

@@ -7,6 +7,7 @@
 #include "logger/Logger.h"
 #include "System.h"
 
+#include "directX12/dxResource/DxResource.h"
 #include "texture/TextureManager.h"
 
 #include <numbers>
@@ -36,11 +37,11 @@ void Emitter::Init(uint32_t instanceValue,MaterialManager *materialManager){
 	dxCommand_->Init(device->getDevice(),"main","main");
 
 	dxSrvArray_ = DxSrvArrayManager::getInstance()->Create(1);
-	Microsoft::WRL::ComPtr<ID3D12Resource> resource;
+	std::unique_ptr<DxResource> resource;
 	/// Resource の作成
-	DxFH::CreateBufferResource(device,resource,sizeof(ParticleStructuredBuffer) * instanceValue);
+	resource->CreateBufferResource(device,sizeof(ParticleStructuredBuffer) * instanceValue);
 
-	resource->Map(0,nullptr,reinterpret_cast<void **>(&mappingData_));
+	resource->getResource()->Map(0,nullptr,reinterpret_cast<void **>(&mappingData_));
 	Vector3 scale = {1.0f,1.0f,1.0f};
 	Vector3 rotate = {0.0f,0.0f,0.0f};
 	for(size_t i = 0; i < instanceValue; i++){
@@ -58,7 +59,7 @@ void Emitter::Init(uint32_t instanceValue,MaterialManager *materialManager){
 	viewDesc.Buffer.NumElements = instanceValue;
 	viewDesc.Buffer.StructureByteStride = sizeof(TransformBuffer::ConstantBuffer);
 
-	dxSrvArray_->CreateView(device->getDevice(),viewDesc,resource);
+	dxSrvArray_->CreateView(device->getDevice(),viewDesc,resource->getResource());
 
 	meshBuff_ = std::make_unique<TextureObject3dMesh>();
 	meshBuff_->Create(4,6);

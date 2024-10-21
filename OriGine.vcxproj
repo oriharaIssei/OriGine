@@ -113,6 +113,7 @@
     <ClCompile Include="code\engine\directX12\dxFunctionHelper\DxFunctionHelper.cpp" />
     <ClCompile Include="code\engine\directX12\dxHeap\DxHeap.cpp" />
     <ClCompile Include="code\engine\directX12\dxResource\dsv\DxDsv.cpp" />
+    <ClCompile Include="code\engine\directX12\dxResource\DxResource.cpp" />
     <ClCompile Include="code\engine\directX12\dxResource\rtv\DxRtvArray.cpp" />
     <ClCompile Include="code\engine\directX12\dxResource\rtv\DxRtvArrayManager.cpp" />
     <ClCompile Include="code\engine\directX12\dxResource\srv\DxSrvArray.cpp" />
@@ -151,7 +152,7 @@
     <ClCompile Include="externals\imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="externals\imgui\imgui_tables.cpp" />
     <ClCompile Include="externals\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="code\engine\Thread\Thread.cpp" />
+    <ClCompile Include="code\engine\thread\Thread.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\engine\audio\Audio.h" />
@@ -172,6 +173,7 @@
     <ClInclude Include="code\engine\directX12\dxFunctionHelper\DxFunctionHelper.h" />
     <ClInclude Include="code\engine\directX12\dxHeap\DxHeap.h" />
     <ClInclude Include="code\engine\directX12\dxResource\dsv\DxDsv.h" />
+    <ClInclude Include="code\engine\directX12\dxResource\DxResource.h" />
     <ClInclude Include="code\engine\directX12\dxResource\rtv\DxRtvArray.h" />
     <ClInclude Include="code\engine\directX12\dxResource\rtv\DxRtvArrayManager.h" />
     <ClInclude Include="code\engine\directX12\dxResource\srv\DxSrvArray.h" />
@@ -213,7 +215,7 @@
     <ClInclude Include="externals\imgui\imstb_rectpack.h" />
     <ClInclude Include="externals\imgui\imstb_textedit.h" />
     <ClInclude Include="externals\imgui\imstb_truetype.h" />
-    <ClInclude Include="code\engine\Thread\Thread.h" />
+    <ClInclude Include="code\engine\thread\Thread.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">

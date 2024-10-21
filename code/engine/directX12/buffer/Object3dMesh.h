@@ -2,7 +2,7 @@
 
 #include "d3d12.h"
 
-#include "wrl.h"
+#include "directX12/dxResource/DxResource.h"
 
 #include <Vector2.h>
 #include <Vector3.h>
@@ -48,7 +48,7 @@ struct PrimitiveVertexData {
 class IObject3dMesh {
 public:
 	virtual ~IObject3dMesh() {};
-	void Finalize() { vertBuff.Reset(); indexBuff.Reset(); }
+	void Finalize() { vertBuff.Finalize(); indexBuff.Finalize(); }
 	/// <summary>
 	/// VertexDataを設定後に実行
 	/// </summary>
@@ -56,8 +56,8 @@ public:
 	virtual void Create(UINT vertexSize,UINT indexSize) = 0;
 	uint32_t *indexData = nullptr;
 
-	Microsoft::WRL::ComPtr<ID3D12Resource> vertBuff = nullptr;
-	Microsoft::WRL::ComPtr<ID3D12Resource> indexBuff = nullptr;
+	DxResource vertBuff;
+	DxResource indexBuff;
 
 	D3D12_INDEX_BUFFER_VIEW ibView {};
 	D3D12_VERTEX_BUFFER_VIEW vbView {};

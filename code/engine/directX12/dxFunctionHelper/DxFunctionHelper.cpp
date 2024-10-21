@@ -2,65 +2,6 @@
 
 #include <cassert>
 
-void DxFunctionHelper::CreateBufferResource(const DxDevice* device,Microsoft::WRL::ComPtr<ID3D12Resource>& resource,size_t sizeInBytes){
-	//頂点リソース用のヒープの設定
-	D3D12_HEAP_PROPERTIES uploadHeapProperties{};
-	uploadHeapProperties.Type = D3D12_HEAP_TYPE_UPLOAD;//UploadHeapを使う
-	//頂点リソースの設定
-	D3D12_RESOURCE_DESC vertexResourceDesc{};
-	//バッファのリソース(テクスチャの場合は別の設定をする)
-	vertexResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-	vertexResourceDesc.Width = sizeInBytes;
-	//バッファの場合、これらは 1 にする
-	vertexResourceDesc.Height = 1;
-	vertexResourceDesc.DepthOrArraySize = 1;
-	vertexResourceDesc.MipLevels = 1;
-	vertexResourceDesc.SampleDesc.Count = 1;
-	//バッファの場合はこれにする
-	vertexResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-
-	HRESULT hr = device->getDevice()->CreateCommittedResource(
-		&uploadHeapProperties,
-		D3D12_HEAP_FLAG_NONE,
-		&vertexResourceDesc,
-		D3D12_RESOURCE_STATE_GENERIC_READ,
-		nullptr,
-		IID_PPV_ARGS(&resource)
-	);
-	assert(SUCCEEDED(hr));
-}
-
-Microsoft::WRL::ComPtr<ID3D12Resource> DxFunctionHelper::CreateRenderTextureResource(Microsoft::WRL::ComPtr<ID3D12Device> device,uint32_t width,uint32_t height,DXGI_FORMAT format,const Vector4& clearColor){
-	Microsoft::WRL::ComPtr<ID3D12Resource> renderTextureResource;
-	D3D12_RESOURCE_DESC resourceDesc;
-	// RenderTarget として 利用可能に
-	resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
-	resourceDesc.Width = width;
-	resourceDesc.Height = height;
-
-	D3D12_HEAP_PROPERTIES heapProps{};
-	// VRAM 上に 生成
-	heapProps.Type = D3D12_HEAP_TYPE_DEFAULT;
-
-	D3D12_CLEAR_VALUE clearValue;
-	clearValue.Format = format;
-	clearValue.Color[0] = clearColor.x;
-	clearValue.Color[1] = clearColor.y;
-	clearValue.Color[2] = clearColor.z;
-	clearValue.Color[3] = clearColor.w;
-
-	device->CreateCommittedResource(
-		&heapProps,
-		D3D12_HEAP_FLAG_NONE,
-		&resourceDesc,
-		D3D12_RESOURCE_STATE_RENDER_TARGET, // 描画すること を 前提とした テクスチャ なので RenderTarget として 扱う
-		&clearValue,
-		IID_PPV_ARGS(&renderTextureResource)
-	);
-
-	return renderTextureResource;
-}
-
 void DxFunctionHelper::SetViewportsAndScissor(const DxCommand* dxCommand,const WinApp* window){
 	ID3D12GraphicsCommandList* commandList = dxCommand->getCommandList();
 	//ビューポートの設定

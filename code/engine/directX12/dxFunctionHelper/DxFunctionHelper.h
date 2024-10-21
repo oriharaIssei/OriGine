@@ -16,8 +16,6 @@
 
 class DxFunctionHelper{
 public:
-	static void CreateBufferResource(const DxDevice* dxDevice,Microsoft::WRL::ComPtr<ID3D12Resource>& resource,size_t sizeInBytes);
-	static Microsoft::WRL::ComPtr<ID3D12Resource> CreateRenderTextureResource(Microsoft::WRL::ComPtr<ID3D12Device> device,uint32_t width,uint32_t height,DXGI_FORMAT format,const Vector4& clearColor);
 
 	static void SetViewportsAndScissor(const DxCommand* dxCommand,const WinApp* window);
 	static void SetViewportsAndScissor(const DxCommand* dxCommand,const Vector2& rectSize);

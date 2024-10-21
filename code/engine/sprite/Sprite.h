@@ -9,9 +9,9 @@
 #include <Vector4.h>
 
 #include <memory>
-#include <wrl.h>
 
 #include "directX12/dxCommand/DxCommand.h"
+#include "directX12/dxResource/DxResource.h"
 
 #include <string>
 
@@ -39,8 +39,8 @@ private:
 		SpriteVertexData *vertexData = nullptr;
 		uint32_t *indexData = nullptr;
 
-		Microsoft::WRL::ComPtr<ID3D12Resource> vertBuff = nullptr;
-		Microsoft::WRL::ComPtr<ID3D12Resource> indexBuff = nullptr;
+		DxResource vertBuff;
+		DxResource indexBuff;
 
 		D3D12_INDEX_BUFFER_VIEW ibView{};
 		D3D12_VERTEX_BUFFER_VIEW vbView{};
@@ -62,7 +62,7 @@ private:
 	Matrix4x4 worldMat_;
 
 	SpritConstBuffer *mappingConstBufferData_;
-	Microsoft::WRL::ComPtr<ID3D12Resource> constBuff_;
+	DxResource constBuff_;
 
 	uint32_t th_;
 public:

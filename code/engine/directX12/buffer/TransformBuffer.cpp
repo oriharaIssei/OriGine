@@ -9,15 +9,15 @@
 #include <System.h>
 
 void TransformBuffer::Init(){
-	DxFH::CreateBufferResource(System::getInstance()->getDxDevice(),buff_,sizeof(TransformBuffer::ConstantBuffer));
-	buff_->Map(0,nullptr,reinterpret_cast<void **>(&mappingWorldMat_));
+	buff_.CreateBufferResource(System::getInstance()->getDxDevice(),sizeof(TransformBuffer::ConstantBuffer));
+	buff_.getResource()->Map(0,nullptr,reinterpret_cast<void **>(&mappingWorldMat_));
 
 	worldMat = MakeMatrix::Identity();
 	mappingWorldMat_->world = worldMat;
 }
 
 void TransformBuffer::Finalize(){
-	buff_.Reset();
+	buff_.Finalize();
 }
 
 void TransformBuffer::UpdateMatrix(){
