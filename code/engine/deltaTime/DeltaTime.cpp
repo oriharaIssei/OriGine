@@ -1,12 +1,8 @@
 #include "DeltaTime.h"
 
-DeltaTime* DeltaTime::getInstance(){
-	static DeltaTime ins{};
-	return &ins;
-}
-
 void DeltaTime::Init(){
 	currentTime_ = std::chrono::high_resolution_clock::now();
+	preTime_ = currentTime_;
 }
 
 void DeltaTime::Update(){
