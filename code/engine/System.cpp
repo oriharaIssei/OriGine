@@ -6,7 +6,7 @@
 #include "imgui/imgui.h"
 #include "imGuiManager/ImGuiManager.h"
 #include "primitiveDrawer/PrimitiveDrawer.h"
-#include "sprite/Sprite.h"
+#include "sprite/SpriteCommon.h"
 #include "texture/RenderTexture.h"
 #include "texture/TextureManager.h"
 
@@ -91,7 +91,7 @@ void System::Init(){
 
 	PrimitiveDrawer::Init();
 	Model::Init();
-	Sprite::Init();
+	SpriteCommon::getInstance()->Init();
 	RenderTexture::Awake();
 
 	materialManager_ = std::make_unique<MaterialManager>();
@@ -108,7 +108,7 @@ void System::Finalize(){
 
 	ShaderManager::getInstance()->Finalize();
 	PrimitiveDrawer::Finalize();
-	Sprite::Finalize();
+	SpriteCommon::getInstance()->Finalize();
 	Model::Finalize();
 	TextureManager::Finalize();
 
@@ -253,7 +253,7 @@ void System::BeginFrame(){
 	PrimitiveDrawer::ResetInstanceVal();
 
 	PrimitiveDrawer::setBlendMode(BlendMode::Alpha);
-	Sprite::setBlendMode(BlendMode::Alpha);
+	//Sprite::setBlendMode(BlendMode::Alpha);
 }
 
 void System::EndFrame(){

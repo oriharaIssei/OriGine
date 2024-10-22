@@ -139,8 +139,10 @@ void GameScene::Update(){
 
 void GameScene::Draw(){
 	sceneView_->PreDraw();
-
-	for(auto& object : gameObjects_){
+	
+	SpriteCommon::getInstance()->PreDraw();
+	for(auto& object : gameObjects_)
+	{
 		object->Draw(cameraBuff_);
 	}
 
