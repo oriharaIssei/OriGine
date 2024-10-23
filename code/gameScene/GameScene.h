@@ -15,6 +15,8 @@
 #include "railCamera/RailCamera.h"
 #include "RailEditor/RailEditor.h"
 
+#include "Beam.h"
+
 class Input;
 class MaterialManager;
 class DxRtvArray;
@@ -47,6 +49,8 @@ private:
 	std::list<std::pair<std::string,std::string>> objectList_;
 
 	MaterialManager* materialManager_;
+
+	Beam beam_;
 
 #ifdef _DEBUG
 	std::unique_ptr<DebugCamera> debugCamera_;

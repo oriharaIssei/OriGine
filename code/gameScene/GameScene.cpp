@@ -53,6 +53,8 @@ void GameScene::Init(){
 	railCamera_ = std::make_unique<RailCamera>(railEditor_->getControlPointPositions());
 	railCamera_->Init();
 	railCamera_->setDimension(railEditor_->getSegmentCount());
+
+	beam_.Initialize();
 }
 
 void GameScene::Update(){
@@ -66,6 +68,7 @@ void GameScene::Update(){
 	{
 		debugCamera_->Update();
 		debugCamera_->DebugUpdate();
+		cameraBuff_.translate = debugCamera_->getCameraBuffer().translate;
 		cameraBuff_.viewMat = debugCamera_->getCameraBuffer().viewMat;
 		cameraBuff_.projectionMat = debugCamera_->getCameraBuffer().projectionMat;
 	} else
@@ -163,6 +166,8 @@ void GameScene::Update(){
 #endif // _DEBUG
 
 	railEditor_->Update();
+	beam_.SetOrigin(railCamera_->getTransform().translate);
+	beam_.Update(input_);
 }
 
 void GameScene::Draw(){
@@ -171,7 +176,8 @@ void GameScene::Draw(){
 	for(auto& object : gameObjects_){
 		object->Draw(cameraBuff_);
 	}
-
+	railCamera_->Draw(cameraBuff_);
+	beam_.Draw(cameraBuff_);
 	railEditor_->Draw();
 
 	sceneView_->PostDraw();

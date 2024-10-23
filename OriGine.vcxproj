@@ -91,6 +91,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="code\gameScene\Beam.cpp" />
     <ClCompile Include="code\engine\audio\Audio.cpp" />
     <ClCompile Include="code\engine\debugCamera\DebugCamera.cpp" />
     <ClCompile Include="code\engine\deltaTime\DeltaTime.cpp" />
@@ -153,6 +154,7 @@
     <ClCompile Include="externals\imgui\imgui_widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="code\gameScene\Beam.h" />
     <ClInclude Include="code\engine\audio\Audio.h" />
     <ClInclude Include="code\engine\debugCamera\DebugCamera.h" />
     <ClInclude Include="code\engine\deltaTime\DeltaTime.h" />

@@ -51,6 +51,9 @@ private:
 	static std::unique_ptr<Matrix4x4> fovMa_;
 public:
 	Model() = default;
+	~Model(){
+		drawFuncTable_.fill(nullptr);
+	}
 
 	void Debug();
 
@@ -67,8 +70,8 @@ private:
 	};
 	LoadState currentState_;
 	std::array<std::function<void(const TransformBuffer &,const CameraBuffer &,BlendMode)>,2> drawFuncTable_ = {
-		[this](const TransformBuffer &world,const CameraBuffer &view,BlendMode blend){ NotDraw(world,view,blend); },
-		[this](const TransformBuffer &world,const CameraBuffer &view,BlendMode blend = BlendMode::Alpha){ DrawThis(world,view,blend); }
+		std::bind(&Model::NotDraw,this,std::placeholders::_1,std::placeholders::_2,std::placeholders::_3),
+		std::bind(&Model::DrawThis,this,std::placeholders::_1,std::placeholders::_2,std::placeholders::_3)
 	};
 public:
 	const std::vector<std::unique_ptr<ModelData>> &getData()const{ return data_; }

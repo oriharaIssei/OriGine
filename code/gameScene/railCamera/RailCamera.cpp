@@ -9,6 +9,8 @@ void RailCamera::Init()
 #endif // _DEBUG
 
 	cameraBuff_.Init();
+	cameraBuff_.UpdateMatrix();
+	model_ = Model::Create("resource","axis.obj");
 }
 
 void RailCamera::Update()
@@ -37,6 +39,10 @@ void RailCamera::Update()
 #ifndef _DEBUG
 	transform_.worldMat= MakeMatrix::Affine(transform_.scale,transform_.rotate,transform_.translate);
 #endif // !_DEBUG
-
 	cameraBuff_.viewMat = transform_.worldMat.Inverse();
+}
+
+void RailCamera::Draw(const CameraBuffer& cameraBuff)
+{
+	model_->Draw(transform_,cameraBuff);
 }

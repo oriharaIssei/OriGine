@@ -18,10 +18,15 @@ void CameraBuffer::UpdateMatrix(){
 	viewMat = viewMat.Inverse();
 
 	projectionMat = MakeMatrix::PerspectiveFov(fovAngleY,aspectRatio,nearZ,farZ);
+	if(!mappingData_)
+	{
+		return;
+	}
+	ConvertToBuffer();
 }
 
 void CameraBuffer::ConvertToBuffer(){
-	mappingData_->cameraPos = translate;
+	mappingData_->cameraPos = viewMat[3];
 	mappingData_->view = viewMat;
 	mappingData_->viewTranspose = viewMat.Transpose();
 	mappingData_->projection = projectionMat;
