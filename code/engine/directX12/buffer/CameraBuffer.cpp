@@ -4,12 +4,12 @@
 #include "directX12/dxFunctionHelper/DxFunctionHelper.h"
 
 void CameraBuffer::Init(){
-	DxFH::CreateBufferResource(System::getInstance()->getDxDevice(),buff_,sizeof(CameraBuffer::ConstantBuffer));
-	buff_->Map(0,nullptr,reinterpret_cast<void **>(&mappingData_));
+	buff_.CreateBufferResource(System::getInstance()->getDxDevice(),sizeof(CameraBuffer::ConstantBuffer));
+	buff_.getResource()->Map(0,nullptr,reinterpret_cast<void **>(&mappingData_));
 }
 
 void CameraBuffer::Finalize(){
-	buff_.Reset();
+	buff_.Finalize();
 }
 
 void CameraBuffer::UpdateMatrix(){

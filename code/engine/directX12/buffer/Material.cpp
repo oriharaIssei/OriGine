@@ -14,9 +14,9 @@ const char *lightTypes[] = {
 };
 
 void Material::Init(){
-	DxFH::CreateBufferResource(System::getInstance()->getDxDevice(),buff_,sizeof(Material::ConstantBuffer));
+	buff_.CreateBufferResource(System::getInstance()->getDxDevice(),sizeof(Material::ConstantBuffer));
 
-	buff_->Map(
+	buff_.getResource()->Map(
 		0,nullptr,reinterpret_cast<void **>(&mappingData_)
 	);
 
@@ -36,7 +36,7 @@ void Material::UpdateUvMatrix()
 }
 
 void Material::Finalize(){
-	buff_.Reset();
+	buff_.Finalize();
 }
 
 void Material::ConvertToBuffer()
@@ -47,10 +47,6 @@ void Material::ConvertToBuffer()
 	mappingData_->specularColor = specularColor_;
 	mappingData_->shininess = shininess_;
 
-}
-
-void Material::SetForRootParameter(ID3D12GraphicsCommandList *cmdList,UINT rootParameterNum) const{
-	cmdList->SetGraphicsRootConstantBufferView(rootParameterNum,buff_->GetGPUVirtualAddress());
 }
 
 Material *MaterialManager::Create(const std::string &materialName){

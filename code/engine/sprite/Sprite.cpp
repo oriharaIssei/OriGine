@@ -37,9 +37,9 @@ Sprite *Sprite::Create(const Vector2 &pos,const Vector2 &size,const std::string 
 	result->meshBuff_->vertexData[3] = {{size.x,0.0f,0.0f,1.0f},{1.0f,0.0f}};
 
 	result->mappingConstBufferData_ = nullptr;
-	DxFH::CreateBufferResource(System::getInstance()->getDxDevice(),result->constBuff_,sizeof(SpritConstBuffer));
+	result->constBuff_.CreateBufferResource(System::getInstance()->getDxDevice(),sizeof(SpritConstBuffer));
 
-	result->constBuff_->Map(
+	result->constBuff_.getResource()->Map(
 		0,nullptr,reinterpret_cast<void **>(&result->mappingConstBufferData_)
 	);
 	result->mappingConstBufferData_->color_ = {1.0f,1.0f,1.0f,1.0f};
@@ -142,7 +142,7 @@ void Sprite::Draw(){
 	mappingConstBufferData_->uvMat_ = MakeMatrix::Affine(uvScale,uvRotate,uvTranslate);
 
 	commandList->SetGraphicsRootConstantBufferView(
-		0,constBuff_->GetGPUVirtualAddress()
+		0,constBuff_.getResource()->GetGPUVirtualAddress()
 	);
 
 	ID3D12DescriptorHeap *ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
@@ -152,7 +152,7 @@ void Sprite::Draw(){
 		TextureManager::getDescriptorGpuHandle(th_)
 	);
 	commandList->SetGraphicsRootDescriptorTable(1,TextureManager::getDescriptorGpuHandle(th_));
-	commandList->SetGraphicsRootConstantBufferView(0,constBuff_->GetGPUVirtualAddress());
+	commandList->SetGraphicsRootConstantBufferView(0,constBuff_.getResource()->GetGPUVirtualAddress());
 
 	commandList->DrawIndexedInstanced(6,1,0,0,0);
 }
@@ -174,24 +174,24 @@ void Sprite::SpriteMesh::Init(){
 
 	// バッファのリソースを作成
 	auto dxDevice = System::getInstance()->getDxDevice();
-	DxFH::CreateBufferResource(dxDevice,vertBuff,vertexBufferSize);
-	DxFH::CreateBufferResource(dxDevice,indexBuff,indexBufferSize);
+	vertBuff.CreateBufferResource(dxDevice,vertexBufferSize);
+	indexBuff.CreateBufferResource(dxDevice,indexBufferSize);
 
 	// 頂点バッファビューの設定
-	vbView.BufferLocation = vertBuff->GetGPUVirtualAddress();
+	vbView.BufferLocation = vertBuff.getResource()->GetGPUVirtualAddress();
 	vbView.SizeInBytes = vertexBufferSize;
 	vbView.StrideInBytes = sizeof(SpriteVertexData);
 
 	// 頂点バッファをマップ
-	vertBuff->Map(0,nullptr,reinterpret_cast<void **>(&vertexData));
+	vertBuff.getResource()->Map(0,nullptr,reinterpret_cast<void **>(&vertexData));
 
 	// インデックスバッファビューの設定
-	ibView.BufferLocation = indexBuff->GetGPUVirtualAddress();
+	ibView.BufferLocation = indexBuff.getResource()->GetGPUVirtualAddress();
 	ibView.SizeInBytes = indexBufferSize;
 	ibView.Format = DXGI_FORMAT_R32_UINT;
 
 	// インデックスバッファをマップ
-	indexBuff->Map(0,nullptr,reinterpret_cast<void **>(&indexData));
+	indexBuff.getResource()->Map(0,nullptr,reinterpret_cast<void **>(&indexData));
 
 	// インデックスデータの設定
 	indexData[0] = 0;

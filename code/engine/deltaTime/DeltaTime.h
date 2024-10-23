@@ -4,8 +4,6 @@
 
 class DeltaTime{
 public:
-	static DeltaTime* getInstance();
-
 	void Init();
 	void Update();
 private:

@@ -4,7 +4,8 @@
 #include <d3d12.h>
 #include <memory>
 #include <type_traits>
-#include <wrl.h>
+
+#include "directX12/dxResource/DxResource.h"
 
 class IConstantBuffer{
 public:
@@ -17,7 +18,7 @@ public:
 	virtual void ConvertToBuffer() = 0;
 	void SetForRootParameter(ID3D12GraphicsCommandList* cmdList,uint32_t rootParameterNum) const;
 protected:
-	Microsoft::WRL::ComPtr<ID3D12Resource> buff_;
+	DxResource buff_;
 };
 
 template<typename T>

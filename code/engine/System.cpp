@@ -95,7 +95,9 @@ void System::Init(){
 	RenderTexture::Awake();
 
 	materialManager_ = std::make_unique<MaterialManager>();
-	materialManager_->Create("white");
+
+	deltaTime_ = std::make_unique<DeltaTime>();
+	deltaTime_->Init();
 }
 
 void System::Finalize(){
@@ -264,7 +266,53 @@ void System::ScreenPreDraw(){
 void System::ScreenPostDraw(){
 	ImGuiManager::getInstance()->End();
 	ImGuiManager::getInstance()->Draw();
-	DxFH::PostDraw(dxCommand_.get(),dxFence_.get(),dxSwapChain_.get());
+	
+	HRESULT hr;
+	ID3D12GraphicsCommandList* commandList = dxCommand_->getCommandList();
+	///===============================================================
+	///	バリアの更新(描画->表示状態)
+	///===============================================================
+	ResourceBarrierManager::Barrier(
+		commandList,
+		dxSwapChain_->getCurrentBackBuffer(),
+		D3D12_RESOURCE_STATE_PRESENT
+	);
+	///===============================================================
+
+	// コマンドの受付終了 -----------------------------------
+	hr = commandList->Close();
+	//----------------------------------------------------
+
+	///===============================================================
+	/// コマンドリストの実行
+	///===============================================================
+	ID3D12CommandList* ppHeaps[] = {commandList};
+	dxCommand_->getCommandQueue()->ExecuteCommandLists(1,ppHeaps);
+	///===============================================================
+
+	dxSwapChain_->Present();
+
+	// Frame Lock
+	deltaTime_->Update();
+	if(deltaTime_->getDeltaTime() >= 1.0f / fps_)
+	{
+		while(deltaTime_->getDeltaTime() >= 1.0f / fps_)
+		{
+			deltaTime_->Update();
+		}
+	}
+	///===============================================================
+	/// コマンドリストの実行を待つ
+	///===============================================================
+	dxFence_->Signal(dxCommand_->getCommandQueue());
+	dxFence_->WaitForFence();
+	///===============================================================
+
+	///===============================================================
+	/// リセット
+	///===============================================================
+	dxCommand_->CommandReset();
+	///===============================================================
 }
 
 int System::LoadTexture(const std::string& filePath){

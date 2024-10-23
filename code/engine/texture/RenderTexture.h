@@ -1,11 +1,10 @@
 #pragma once
 
-#include <wrl.h>
-
 #include <stdint.h>
 #include <string>
 
 #include "directX12/dxCommand/DxCommand.h"
+#include "directX12/dxResource/DxResource.h"
 #include "directX12/dxResource/rtv/DxRtvArray.h"
 #include "directX12/dxResource/srv/DxSrvArray.h"
 
@@ -28,7 +27,7 @@ public:
 	void DrawTexture();
 private:
 	static PipelineStateObj* pso_;
-	Microsoft::WRL::ComPtr<ID3D12Resource> resource_;
+	DxResource resource_;
 
 	DxCommand* dxCommand_;
 
