@@ -2,14 +2,14 @@
 
 #include <algorithm>
 
-#include "DeltaTime/DeltaTime.h"
 #include "globalVariables/GlobalVariables.h"
 #include "input/Input.h"
 #include "System.h"
-
 #include "directX12/buffer/CameraBuffer.h"
 #include "directX12/buffer/TransformBuffer.h"
 #include "primitiveDrawer/PrimitiveDrawer.h"
+
+#include "railCamera/RailCamera.h"
 
 void Beam::Initialize()
 {
@@ -22,30 +22,38 @@ void Beam::Initialize()
 	leftEnergy_ = maxEnergy_;
 
 	transform_.Init();
+	WinApp* window = System::getInstance()->getWinApp();
+	viewPortMat_ = MakeMatrix::Orthographic(0,0,(float)window->getWidth(),(float)window->getHeight(),0.0f,100.0f);
 }
 
-void Beam::Update(Input* input)
+void Beam::Update(const RailCamera* camera,Input* input)
 {
-	isActive_ = input->isPressKey(DIK_SPACE) || leftEnergy_ > 0.0f;
+	{ // Direction Update
+		Vector3 mousePos = {input->getCurrentMousePos(),0.0f};
+		const CameraBuffer& cameraBuff = camera->getCameraBuffer();
+		Matrix4x4 inverseVpv = (cameraBuff.viewMat * cameraBuff.projectionMat * viewPortMat_).Inverse();
+		Vector3 mouseOnNearClip = inverseVpv * mousePos;
+		mousePos.z = 1.0f;
+		Vector3 mouseOnFarClip = inverseVpv * mousePos;
 
-	Vector2 mouseVelo = input->getMouseVelocity();
-
-	direction_.y *= -1.0f;
-	direction_ += {mouseVelo * 0.01f,0.0f};
-	direction_ = direction_.Normalize();
-
-	end_ = -(direction_.Normalize() * length_);
-
-	const float& deltaTime = DeltaTime::getInstance()->getDeltaTime();
-
-	if(isActive_)
-	{
-		leftEnergy_ -= lostEnergyPerSeconds_ * deltaTime;
-	} else
-	{
-		leftEnergy_ += healingEnergyPerSeconds_ * deltaTime;
+		direction_ = (mouseOnFarClip - mouseOnNearClip).Normalize();
 	}
-	leftEnergy_ = std::clamp(leftEnergy_,0.0f,maxEnergy_);
+
+	{ // Energy Update
+		const float& deltaTime = System::getInstance()->getDeltaTime();
+
+		isActive_ = input->isPressKey(DIK_SPACE) || leftEnergy_ > 0.0f;
+		if(isActive_)
+		{
+			leftEnergy_ -= lostEnergyPerSeconds_ * deltaTime;
+		} else
+		{
+			leftEnergy_ += healingEnergyPerSeconds_ * deltaTime;
+		}
+		leftEnergy_ = std::clamp(leftEnergy_,0.0f,maxEnergy_);
+	}
+
+	end_ = MakeMatrix::RotateXYZ(direction_) * Vector3(0.0f,0.0f,length_);
 
 	transform_.UpdateMatrix();
 }

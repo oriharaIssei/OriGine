@@ -51,5 +51,4 @@ namespace MakeMatrix {
 	Matrix4x4 ViewPort(const float &left, const float &top, const float &width, const float &height, const float &minDepth, const float &maxDepth);
 } // namespace MakeMatrix
 
-Vector3 TransformVector(const Vector3 &vec, const Matrix4x4 &matrix);
 Vector3 TransformNormal(const Vector3 &v, const Matrix4x4 &m);

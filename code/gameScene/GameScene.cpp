@@ -167,7 +167,7 @@ void GameScene::Update(){
 
 	railEditor_->Update();
 	beam_.SetOrigin(railCamera_->getTransform().translate);
-	beam_.Update(input_);
+	beam_.Update(railCamera_.get(),input_);
 }
 
 void GameScene::Draw(){

@@ -97,3 +97,5 @@ struct Vector3{
 };
 
 Vector3 operator*(const float& scalar,const Vector3& vec);
+struct Matrix4x4;
+Vector3 operator*(const Matrix4x4& mat,const Vector3& vec);

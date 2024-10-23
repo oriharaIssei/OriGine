@@ -110,20 +110,6 @@ Matrix4x4 MakeMatrix::Affine(const Vector3 &scale,const Vector3 &rotate,const Ve
 	return MakeMatrix::Scale(scale) * MakeMatrix::RotateXYZ(rotate) * MakeMatrix::Translate(translate);
 }
 
-Vector3 TransformVector(const Vector3 &vec,const Matrix4x4 &matrix) {
-	float result[4] = {0.0f,0.0f,0.0f,0.0f};
-	float hcs[4] = {vec.x,vec.y,vec.z,1.0f};
-
-	for(int r = 0; r < 4; r++) {
-		for(int c = 0; c < 4; c++) {
-			result[r] += hcs[c] * matrix[c][r];
-		}
-	}
-
-	assert(result[3] != 0.0f);
-	return Vector3(result[0] / result[3],result[1] / result[3],result[2] / result[3]);
-}
-
 Vector3 TransformNormal(const Vector3 &v,const Matrix4x4 &m) {
 	// 平行移動を無視して計算
 	Vector3 result = {
