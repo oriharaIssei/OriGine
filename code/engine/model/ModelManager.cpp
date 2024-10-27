@@ -2,12 +2,13 @@
 
 #include <cassert>
 
-#include "model/Model.h"
-#include "System.h"
-#include "texture/TextureManager.h"
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
+
+#include "model/Model.h"
+#include "System.h"
+#include "texture/TextureManager.h"
 
 //===========================================================================
 // unorderedMap 用
@@ -155,8 +156,8 @@ void LoadObjFile(std::vector<std::unique_ptr<ModelData>>* data,const std::string
 		indices.clear();
 		vertexMap.clear();
 	}
-
 }
+
 void ModelManager::LoadTask::Update()
 {
 	model->currentState_ = Model::LoadState::Loading;

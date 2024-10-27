@@ -15,7 +15,7 @@ public:
 	DxResource() = default;
 	~DxResource() = default;
 
-	void CreateBufferResource(const DxDevice* device,size_t sizeInBytes);
+	void CreateBufferResource(ID3D12Device* device,size_t sizeInBytes);
 	void CreateRenderTextureResource(Microsoft::WRL::ComPtr<ID3D12Device> device,uint32_t width,uint32_t height,DXGI_FORMAT format,const Vector4& clearColor);
 	void CreateTextureResource(ID3D12Device* device,const DirectX::TexMetadata& metadata);
 	void Finalize();

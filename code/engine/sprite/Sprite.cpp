@@ -6,7 +6,7 @@
 #include "logger/Logger.h"
 #include <directX12/ShaderCompiler.h>
 
-std::array<PipelineStateObj *,kBlendNum> Sprite::pso_;
+std::array<PipelineStateObj*,kBlendNum> Sprite::pso_;
 std::unique_ptr<DxCommand> Sprite::dxCommand_;
 Matrix4x4 Sprite::viewPortMat_;
 
@@ -16,7 +16,7 @@ void Sprite::Init(){
 	dxCommand_ = std::make_unique<DxCommand>();
 	dxCommand_->Init(System::getInstance()->getDxDevice()->getDevice(),"main","main");
 	CreatePSO();
-	WinApp *window = System::getInstance()->getWinApp();
+	WinApp* window = System::getInstance()->getWinApp();
 	viewPortMat_ = MakeMatrix::Orthographic(0,0,(float)window->getWidth(),(float)window->getHeight(),0.0f,100.0f);
 }
 
@@ -24,8 +24,8 @@ void Sprite::Finalize(){
 	dxCommand_->Finalize();
 }
 
-Sprite *Sprite::Create(const Vector2 &pos,const Vector2 &size,const std::string &textureFilePath){
-	Sprite *result = new Sprite();
+Sprite* Sprite::Create(const Vector2& pos,const Vector2& size,const std::string& textureFilePath){
+	Sprite* result = new Sprite();
 	result->th_ = TextureManager::LoadTexture(textureFilePath);
 
 	result->meshBuff_ = std::make_unique<SpriteMesh>();
@@ -37,10 +37,10 @@ Sprite *Sprite::Create(const Vector2 &pos,const Vector2 &size,const std::string 
 	result->meshBuff_->vertexData[3] = {{size.x,0.0f,0.0f,1.0f},{1.0f,0.0f}};
 
 	result->mappingConstBufferData_ = nullptr;
-	result->constBuff_.CreateBufferResource(System::getInstance()->getDxDevice(),sizeof(SpritConstBuffer));
+	result->constBuff_.CreateBufferResource(System::getInstance()->getDxDevice()->getDevice(),sizeof(SpritConstBuffer));
 
 	result->constBuff_.getResource()->Map(
-		0,nullptr,reinterpret_cast<void **>(&result->mappingConstBufferData_)
+		0,nullptr,reinterpret_cast<void**>(&result->mappingConstBufferData_)
 	);
 	result->mappingConstBufferData_->color_ = {1.0f,1.0f,1.0f,1.0f};
 
@@ -50,7 +50,7 @@ Sprite *Sprite::Create(const Vector2 &pos,const Vector2 &size,const std::string 
 }
 
 void Sprite::CreatePSO(){
-	ShaderManager *shaderManager = ShaderManager::getInstance();
+	ShaderManager* shaderManager = ShaderManager::getInstance();
 
 	shaderManager->LoadShader("Sprite.VS");
 	shaderManager->LoadShader("Sprite.PS",shaderDirectory,L"ps_6_0");
@@ -145,7 +145,7 @@ void Sprite::Draw(){
 		0,constBuff_.getResource()->GetGPUVirtualAddress()
 	);
 
-	ID3D12DescriptorHeap *ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
+	ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
 	commandList->SetDescriptorHeaps(1,ppHeaps);
 	commandList->SetGraphicsRootDescriptorTable(
 		1,
@@ -157,14 +157,14 @@ void Sprite::Draw(){
 	commandList->DrawIndexedInstanced(6,1,0,0,0);
 }
 
-void Sprite::setSize(const Vector2 &size){
+void Sprite::setSize(const Vector2& size){
 	meshBuff_->vertexData[0].pos = {0.0f,size.y,0.0f,1.0f};
 	meshBuff_->vertexData[1].pos = {0.0f,0.0f,0.0f,1.0f};
 	meshBuff_->vertexData[2].pos = {size.x,size.y,0.0f,1.0f};
 	meshBuff_->vertexData[3].pos = {size.x,0.0f,0.0f,1.0f};
 }
 
-void Sprite::setPos(const Vector2 &pos){
+void Sprite::setPos(const Vector2& pos){
 	worldMat_ = MakeMatrix::Affine({1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{pos,0.0f});
 }
 
@@ -174,8 +174,8 @@ void Sprite::SpriteMesh::Init(){
 
 	// バッファのリソースを作成
 	auto dxDevice = System::getInstance()->getDxDevice();
-	vertBuff.CreateBufferResource(dxDevice,vertexBufferSize);
-	indexBuff.CreateBufferResource(dxDevice,indexBufferSize);
+	vertBuff.CreateBufferResource(dxDevice->getDevice(),vertexBufferSize);
+	indexBuff.CreateBufferResource(dxDevice->getDevice(),indexBufferSize);
 
 	// 頂点バッファビューの設定
 	vbView.BufferLocation = vertBuff.getResource()->GetGPUVirtualAddress();
@@ -183,7 +183,7 @@ void Sprite::SpriteMesh::Init(){
 	vbView.StrideInBytes = sizeof(SpriteVertexData);
 
 	// 頂点バッファをマップ
-	vertBuff.getResource()->Map(0,nullptr,reinterpret_cast<void **>(&vertexData));
+	vertBuff.getResource()->Map(0,nullptr,reinterpret_cast<void**>(&vertexData));
 
 	// インデックスバッファビューの設定
 	ibView.BufferLocation = indexBuff.getResource()->GetGPUVirtualAddress();
@@ -191,7 +191,7 @@ void Sprite::SpriteMesh::Init(){
 	ibView.Format = DXGI_FORMAT_R32_UINT;
 
 	// インデックスバッファをマップ
-	indexBuff.getResource()->Map(0,nullptr,reinterpret_cast<void **>(&indexData));
+	indexBuff.getResource()->Map(0,nullptr,reinterpret_cast<void**>(&indexData));
 
 	// インデックスデータの設定
 	indexData[0] = 0;

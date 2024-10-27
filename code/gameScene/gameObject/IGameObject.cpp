@@ -14,10 +14,10 @@ void IGameObject::Init([[maybe_unused]] const std::string& directoryPath,const s
 }
 
 void IGameObject::Update(){
-	ImGui::DragFloat3("Scale",&transform_.scale.x,0.1f);
-	ImGui::DragFloat3("Rotate",&transform_.rotate.x,0.1f);
-	ImGui::DragFloat3("Translate",&transform_.translate.x,0.1f);
-	transform_.UpdateMatrix();
+	ImGui::DragFloat3("Scale",&transform_.openData_.scale.x,0.1f);
+	ImGui::DragFloat3("Rotate",&transform_.openData_.rotate.x,0.1f);
+	ImGui::DragFloat3("Translate",&transform_.openData_.translate.x,0.1f);
+	transform_.openData_.UpdateMatrix();
 
 	if(!materialNameVector_.empty()){
 		materialNameVector_.clear();
