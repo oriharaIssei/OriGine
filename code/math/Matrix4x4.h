@@ -20,7 +20,7 @@ struct Matrix4x4 {
 
 	Matrix4x4 *operator*=(const Matrix4x4 &another);
 
-	Matrix4x4 Transpose();
+	Matrix4x4 Transpose()const;
 
 	Matrix4x4 Inverse() const;
 private:

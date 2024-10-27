@@ -4,9 +4,9 @@
 
 #include <memory>
 
+#include "directX12/buffer/CameraTransform.h"
 #include "directX12/buffer/Object3dMesh.h"
-#include "directX12/buffer/CameraBuffer.h"
-#include "directX12/buffer/TransformBuffer.h"
+#include "directX12/buffer/Transform.h"
 
 class SphereObject :
 	public IGameObject{
@@ -15,7 +15,7 @@ public:
 
 	void Init([[maybe_unused]] const std::string &directryPath,const std::string &objectName)override;
 	void Update()override;
-	void Draw(const CameraBuffer &viewProj)override;
+	void Draw(const IConstantBuffer<CameraTransform>&viewProj)override;
 private:
 	std::unique_ptr<PrimitiveObject3dMesh> mesh_;
 };

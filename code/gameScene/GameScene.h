@@ -7,7 +7,7 @@
 
 #include "audio/Audio.h"
 #include "debugCamera/DebugCamera.h"
-#include "directX12/buffer/CameraBuffer.h"
+#include "directX12/buffer/CameraTransform.h"
 
 #include "engine/texture/RenderTexture.h"
 #include "gameObject/IGameObject.h"
@@ -30,7 +30,7 @@ public:
 	void Draw();
 private:
 	std::unique_ptr<DebugCamera> debugCamera_;
-	CameraBuffer cameraBuff_;
+	IConstantBuffer<CameraTransform> cameraBuff_;
 	Input* input_;
 
 	std::shared_ptr<DxRtvArray> sceneRtvArray_;

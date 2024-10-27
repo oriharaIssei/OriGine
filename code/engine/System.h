@@ -6,10 +6,10 @@
 #include <vector>
 
 #include "deltaTime/DeltaTime.h"
+#include "directX12/buffer/IConstantBuffer.h"
 #include "directX12/buffer/light/DirectionalLight.h"
 #include "directX12/buffer/light/PointLight.h"
 #include "directX12/buffer/light/SpotLight.h"
-#include "directX12/buffer/Material.h"
 #include "directX12/dxCommand/DxCommand.h"
 #include "directX12/dxDevice/DxDevice.h"
 #include "directX12/dxFence/DxFence.h"
@@ -28,6 +28,8 @@
 #include "Vector3.h"
 #include "Vector4.h"
 
+class Material;
+class MaterialManager;
 class System{
 	friend class PrimitiveDrawer;
 public:
@@ -67,9 +69,9 @@ private:
 
 	// buffers
 	std::unique_ptr<MaterialManager> materialManager_;
-	std::unique_ptr<DirectionalLight> directionalLight_;
-	std::unique_ptr<PointLight> pointLight_;
-	std::unique_ptr<SpotLight> spotLight_;
+	std::unique_ptr<IConstantBuffer<DirectionalLight>> directionalLight_;
+	std::unique_ptr<IConstantBuffer<PointLight>>       pointLight_;
+	std::unique_ptr<IConstantBuffer<SpotLight>>        spotLight_;
 
 	// Time
 	std::unique_ptr<DeltaTime> deltaTime_;
@@ -92,9 +94,9 @@ public:
 
 	float getDeltaTime()const{return deltaTime_->getDeltaTime();}
 
-	DirectionalLight* getDirectionalLight()const{ return directionalLight_.get(); }
-	PointLight* getPointLight()const{ return pointLight_.get(); }
-	SpotLight* getSpotLight()const{ return spotLight_.get(); }
+	IConstantBuffer<DirectionalLight>* getDirectionalLight()const{ return directionalLight_.get(); }
+	IConstantBuffer<PointLight>*       getPointLight()const{ return pointLight_.get(); }
+	IConstantBuffer<SpotLight>*        getSpotLight()const{ return spotLight_.get(); }
 };
 
-const std::string defaultReosurceFolder = "./resource";
+const std::string defaultResourceFolder = "./resource";

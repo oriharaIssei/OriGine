@@ -5,19 +5,6 @@
 
 #include "imgui/imgui.h"
 
-void DirectionalLight::Init(){
-	mappingData_ = nullptr;
-
-	buff_.CreateBufferResource(System::getInstance()->getDxDevice(),sizeof(DirectionalLight::ConstantBuffer));
-
-	buff_.getResource()->Map(
-		0,nullptr,reinterpret_cast<void**>(&mappingData_)
-	);
-}
-
-void DirectionalLight::Finalize(){
-	buff_.Finalize();
-}
 
 void DirectionalLight::DebugUpdate(){
 #ifdef _DEBUG
@@ -26,15 +13,7 @@ void DirectionalLight::DebugUpdate(){
 		this->direction = this->direction.Normalize();
 		ImGui::ColorEdit3("Color",&this->color.x);
 		ImGui::SliderFloat("Intensity",&this->intensity,0.0f,1.0f);
-		this->ConvertToBuffer();
 	}
 	ImGui::End();
 #endif // _DEBUG
-}
-
-
-void DirectionalLight::ConvertToBuffer(){
-	mappingData_->color = color;
-	mappingData_->direction = direction;
-	mappingData_->intensity = intensity;
 }

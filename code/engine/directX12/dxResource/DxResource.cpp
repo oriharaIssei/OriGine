@@ -4,7 +4,7 @@
 
 #include "directX12/dxDevice/DxDevice.h"
 
-void DxResource::CreateBufferResource(const DxDevice* device,size_t sizeInBytes)
+void DxResource::CreateBufferResource(ID3D12Device* device,size_t sizeInBytes)
 {
 //頂点リソース用のヒープの設定
 	D3D12_HEAP_PROPERTIES uploadHeapProperties{};
@@ -22,7 +22,7 @@ void DxResource::CreateBufferResource(const DxDevice* device,size_t sizeInBytes)
 	//バッファの場合はこれにする
 	vertexResourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 
-	HRESULT hr = device->getDevice()->CreateCommittedResource(
+	HRESULT hr = device->CreateCommittedResource(
 		&uploadHeapProperties,
 		D3D12_HEAP_FLAG_NONE,
 		&vertexResourceDesc,

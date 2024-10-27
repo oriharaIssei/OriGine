@@ -39,13 +39,13 @@ void Emitter::Init(uint32_t instanceValue,MaterialManager *materialManager){
 	dxSrvArray_ = DxSrvArrayManager::getInstance()->Create(1);
 	std::unique_ptr<DxResource> resource;
 	/// Resource の作成
-	resource->CreateBufferResource(device,sizeof(ParticleStructuredBuffer) * instanceValue);
+	resource->CreateBufferResource(device->getDevice(),sizeof(ParticleStructuredBuffer) * instanceValue);
 
 	resource->getResource()->Map(0,nullptr,reinterpret_cast<void **>(&mappingData_));
 	Vector3 scale = {1.0f,1.0f,1.0f};
 	Vector3 rotate = {0.0f,0.0f,0.0f};
 	for(size_t i = 0; i < instanceValue; i++){
-		mappingData_[i].TransformBuffer = MakeMatrix::Affine(scale,rotate,{i * 0.1f,i * 0.1f,i * 0.1f});
+		mappingData_[i].Transform = MakeMatrix::Affine(scale,rotate,{i * 0.1f,i * 0.1f,i * 0.1f});
 		mappingData_[i].color = {1.0f,1.0f,1.0f,1.0f};
 	}
 
@@ -57,7 +57,7 @@ void Emitter::Init(uint32_t instanceValue,MaterialManager *materialManager){
 	viewDesc.Buffer.FirstElement = 0;
 	viewDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
 	viewDesc.Buffer.NumElements = instanceValue;
-	viewDesc.Buffer.StructureByteStride = sizeof(TransformBuffer::ConstantBuffer);
+	viewDesc.Buffer.StructureByteStride = sizeof(Transform::ConstantBuffer);
 
 	dxSrvArray_->CreateView(device->getDevice(),viewDesc,resource->getResource());
 
@@ -106,7 +106,7 @@ void Emitter::Finalize(){
 	pso_.reset();
 }
 
-void Emitter::Draw(const CameraBuffer &CameraBuffer){
+void Emitter::Draw(const IConstantBuffer<CameraTransform> &CameraTransform){
 	auto *commandList = dxCommand_->getCommandList();
 
 	commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
@@ -122,7 +122,7 @@ void Emitter::Draw(const CameraBuffer &CameraBuffer){
 		TextureManager::getDescriptorGpuHandle(0)
 	);
 
-	Matrix4x4 cameraRotation = CameraBuffer.viewMat;
+	Matrix4x4 cameraRotation = CameraTransform.openData_.viewMat;
 	for(size_t i = 0; i < 3; i++){
 		cameraRotation[3][i] = 0.0f;
 	}
@@ -132,12 +132,12 @@ void Emitter::Draw(const CameraBuffer &CameraBuffer){
 	Matrix4x4 rotateMat = cameraRotation.Inverse();
 
 	for(size_t i = 0; i < particles_.size(); i++){
-		mappingData_[i].TransformBuffer = MakeMatrix::Scale({1.0f,1.0f,1.0f}) * rotateMat * MakeMatrix::Translate(originPos_ + particles_[i]->pos);
+		mappingData_[i].Transform = MakeMatrix::Scale({1.0f,1.0f,1.0f}) * rotateMat * MakeMatrix::Translate(originPos_ + particles_[i]->pos);
 	}
 
 	commandList->SetGraphicsRootDescriptorTable(0,DxHeap::getInstance()->getSrvGpuHandle(dxSrvArray_->getLocationOnHeap(srvIndex_)));
 
-	CameraBuffer.SetForRootParameter(commandList,1);
+	CameraTransform.SetForRootParameter(commandList,1);
 
 	material_->SetForRootParameter(commandList,2);
 	System::getInstance()->getDirectionalLight()->SetForRootParameter(commandList,3);

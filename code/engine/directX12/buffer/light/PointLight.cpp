@@ -1,23 +1,8 @@
 #include "directX12/buffer/light/PointLight.h"
 
-#include "directX12/dxFunctionHelper/DxFunctionHelper.h"
-#include "System.h"
-
+#ifdef _DEBUG
 #include "imgui/imgui.h"
-
-void PointLight::Init(){
-	mappingData_ = nullptr;
-
-	buff_.CreateBufferResource(System::getInstance()->getDxDevice(),sizeof(PointLight::ConstantBuffer));
-
-	buff_.getResource()->Map(
-		0,nullptr,reinterpret_cast<void **>(&mappingData_)
-	);
-}
-
-void PointLight::Finalize(){
-	buff_.Finalize();
-}
+#endif // _DEBUG
 
 void PointLight::DebugUpdate(){
 #ifdef _DEBUG
@@ -27,16 +12,6 @@ void PointLight::DebugUpdate(){
 	ImGui::SliderFloat("Intensity",&this->intensity,0.0f,1.0f);
 	ImGui::DragFloat("Radius",&this->radius,0.1f,0.1f,FLT_MAX);
 	ImGui::DragFloat("Decay",&this->decay,0.1f,0.1f,FLT_MAX);
-	this->ConvertToBuffer();
 	ImGui::End();
 #endif // _DEBUG
-}
-
-
-void PointLight::ConvertToBuffer(){
-	mappingData_->color     = this->color;
-	mappingData_->pos       = this->pos;
-	mappingData_->intensity = this->intensity;
-	mappingData_->radius    = this->radius;
-	mappingData_->decay     = this->decay;
 }
