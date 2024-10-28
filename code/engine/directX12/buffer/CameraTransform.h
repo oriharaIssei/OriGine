@@ -4,21 +4,15 @@
 
 #include <d3d12.h>
 
-#include "IConstantBuffer.h"
 #include <Matrix4x4.h>
 #include <Vector3.h>
 
-
-class CameraBuffer
-	:public IConstantBuffer{
+class CameraTransform{
 public:
-	CameraBuffer() = default;
-	~CameraBuffer()override{}
+	CameraTransform() = default;
+	~CameraTransform(){}
 
-	void Init()		override;
-	void Finalize() override;
 	void UpdateMatrix();
-	void ConvertToBuffer() override;
 
 	// Vector3 scale ; 固定
 	Vector3 rotate    = {0.0f,0.0f,0.0f};
@@ -34,7 +28,7 @@ public:
 	// 深度限界（奥側）
 	float farZ = 1000.0f;
 	Matrix4x4 projectionMat;
-private:
+public:
 	struct ConstantBuffer
 	{
 		Vector3 cameraPos;
@@ -42,7 +36,12 @@ private:
 		Matrix4x4 view;       // ワールド → ビュー変換行列
 		Matrix4x4 viewTranspose;
 		Matrix4x4 projection; // ビュー → プロジェクション変換行列
+		ConstantBuffer& operator=(const CameraTransform& camera){
+			cameraPos     = camera.viewMat[3];
+			view          = camera.viewMat;
+			viewTranspose = camera.viewMat.Transpose();
+			projection    = camera.projectionMat;
+			return *this;
+		}
 	};
-	Vector3 cameraPos_;
-	ConstantBuffer* mappingData_ = nullptr;
 };

@@ -12,27 +12,15 @@
 #include "stdint.h"
 #include "Vector4.h"
 
-struct MaterialData
-{
-	Vector4 color;
-	uint32_t enableLighting;
-	Matrix4x4 uvTransform;
-	float shininess = 10.0f;
-	Vector3 specularColor = {1.0f,1.0f,1.0f};
-};
-
 class MaterialManager;
-class Material
-	: public IConstantBuffer{
+class Material{
 	friend class MaterialManager;
 public:
 	Material() = default;
-	~Material()override{}
+	~Material(){}
 
+	void Init();
 	void UpdateUvMatrix();
-	void Finalize()override;
-
-	void ConvertToBuffer()override;
 public:
 	Vector3 uvScale_;
 	Vector3 uvRotate_;
@@ -52,27 +40,33 @@ public:
 		Matrix4x4 uvTransform;
 		float shininess;
 		Vector3 specularColor;
+		ConstantBuffer& operator=(const Material& material){
+			color          = material.color_;
+			enableLighting = material.enableLighting_;
+			uvTransform    = material.uvMat_;
+			shininess      = material.shininess_;
+			specularColor  = material.specularColor_;
+			return *this;
+		}
 	};
-private:
-	void Init()override;
-private:
-	Material::ConstantBuffer* mappingData_ = nullptr;
 };
 
 class MaterialManager
 {
 public:
-	Material* Create(const std::string& materialName);
-	Material* Create(const std::string& materialName,const MaterialData& data);
+	IConstantBuffer<Material>* Create(const std::string& materialName);
+	IConstantBuffer<Material>* Create(const std::string& materialName,const Material& data);
 
 	void DebugUpdate();
 
 	void Finalize();
 private:
-	std::unordered_map<std::string,std::unique_ptr<Material>> materialPallet_;
+	std::unordered_map<std::string,std::unique_ptr<IConstantBuffer<Material>>> materialPallet_;
+#ifdef _DEBUG
 	char newMaterialName_[64];
+#endif // _DEBUG
 public:
-	Material* getMaterial(const std::string& materialName) const
+	IConstantBuffer<Material>* getMaterial(const std::string& materialName) const
 	{
 		auto it = materialPallet_.find(materialName);
 		if(it != materialPallet_.end())
@@ -85,8 +79,8 @@ public:
 		}
 	}
 
-	const std::unordered_map<std::string,std::unique_ptr<Material>>& getMaterialPallet()const { return materialPallet_; }
-	Material* getMaterial(const std::string& name);
+	const std::unordered_map<std::string,std::unique_ptr<IConstantBuffer<Material>>>& getMaterialPallet()const { return materialPallet_; }
+	IConstantBuffer<Material>* getMaterial(const std::string& name);
 
 	void DeleteMaterial(const std::string& materialName);
 };

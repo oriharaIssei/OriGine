@@ -11,15 +11,17 @@ void ModelObject::Init(const std::string& directoryPath,const std::string& objec
 
 	model_ = Model::Create(directoryPath,objectName + ".obj");
 
-	transform_.Init();
+	transform_.openData_.Init();
+	transform_.CreateBuffer(System::getInstance()->getDxDevice()->getDevice());
 }
 
 void ModelObject::Update(){
 #ifdef _DEBUG
-	ImGui::DragFloat3("Scale",&transform_.scale.x,0.1f);
-	ImGui::DragFloat3("Rotate",&transform_.rotate.x,0.1f);
-	ImGui::DragFloat3("Translate",&transform_.translate.x,0.1f);
-	transform_.UpdateMatrix();
+	ImGui::DragFloat3("Scale",&transform_.openData_.scale.x,0.1f);
+	ImGui::DragFloat3("Rotate",&transform_.openData_.rotate.x,0.1f);
+	ImGui::DragFloat3("Translate",&transform_.openData_.translate.x,0.1f);
+	transform_.openData_.UpdateMatrix();
+	transform_.ConvertToBuffer();
 
 	if(!materialNameVector_.empty()){
 		materialNameVector_.clear();
@@ -43,6 +45,6 @@ void ModelObject::Update(){
 #endif // _DEBUG
 }
 
-void ModelObject::Draw(const CameraBuffer& viewProj){
+void ModelObject::Draw(const IConstantBuffer<CameraTransform>& viewProj){
 	model_->Draw(transform_,viewProj);
 }

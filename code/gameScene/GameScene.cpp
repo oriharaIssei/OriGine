@@ -33,7 +33,9 @@ void GameScene::Init(){
 	debugCamera_->Init();
 
 	debugCamera_->setViewTranslate({0.0f,0.0f,-12.0f});
-	cameraBuff_.Init();
+
+	cameraBuff_.CreateBuffer(System::getInstance()->getDxDevice()->getDevice());
+
 	input_ = Input::getInstance();
 
 	sceneRtvArray_ = DxRtvArrayManager::getInstance()->Create(1);
@@ -53,8 +55,8 @@ void GameScene::Update(){
 #ifdef _DEBUG
 	debugCamera_->Update();
 	debugCamera_->DebugUpdate();
-	cameraBuff_.viewMat = debugCamera_->getCameraBuffer().viewMat;
-	cameraBuff_.projectionMat = debugCamera_->getCameraBuffer().projectionMat;
+	cameraBuff_.openData_.viewMat = debugCamera_->getCameraTransform().viewMat;
+	cameraBuff_.openData_.projectionMat = debugCamera_->getCameraTransform().projectionMat;
 	cameraBuff_.ConvertToBuffer();
 #endif // _DEBUG
 
@@ -64,9 +66,9 @@ void GameScene::Update(){
 	}
 	ImGui::End();
 
-	System::getInstance()->getDirectionalLight()->DebugUpdate();
-	System::getInstance()->getPointLight()->DebugUpdate();
-	System::getInstance()->getSpotLight()->DebugUpdate();
+	System::getInstance()->getDirectionalLight()->openData_.DebugUpdate();
+	System::getInstance()->getPointLight()->openData_.DebugUpdate();
+	System::getInstance()->getSpotLight()->openData_.DebugUpdate();
 
 	if(ImGui::Begin("FileLists")){
 		if(ImGui::TreeNode("TextureFiles")){

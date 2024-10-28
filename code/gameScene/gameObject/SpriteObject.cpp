@@ -34,7 +34,7 @@ void SpriteObject::Update(){
 	sprite_->setSize(size_);*/
 }
 
-void SpriteObject::Draw(const CameraBuffer &viewProj){
+void SpriteObject::Draw(const IConstantBuffer<CameraTransform>&viewProj){
 	viewProj;
 	sprite_->Draw();
 }

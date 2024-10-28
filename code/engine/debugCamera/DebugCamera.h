@@ -2,7 +2,7 @@
 
 #include "input/Input.h"
 
-#include "directX12/buffer/CameraBuffer.h"
+#include "directX12/buffer/CameraTransform.h"
 
 #include <memory>
 
@@ -49,8 +49,8 @@ public:
 private:
 	Input *input_ = nullptr;
 	std::unique_ptr<IState> currentState_ = nullptr;
-	CameraBuffer cameraBuff_;
+	CameraTransform cameraBuff_;
 public:
 	void setViewTranslate(const Vector3 &translate){ cameraBuff_.translate = translate; }
-	const CameraBuffer &getCameraBuffer()const{ return cameraBuff_; }
+	const CameraTransform &getCameraTransform()const{ return cameraBuff_; }
 };

@@ -135,7 +135,7 @@ void TextureManager::Texture::UploadTextureData(DirectX::ScratchImage& mipImg,ID
 	);
 
 	std::unique_ptr<DxResource> intermediateResource = std::make_unique<DxResource>();
-	intermediateResource->CreateBufferResource(dxDevice,intermediateSize);
+	intermediateResource->CreateBufferResource(dxDevice->getDevice(),intermediateSize);
 
 	UpdateSubresources(
 		dxCommand_->getCommandList(),

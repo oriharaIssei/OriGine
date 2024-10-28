@@ -10,13 +10,12 @@
 
 #include "directX12/dxCommand/DxCommand.h"
 #include "directX12/dxResource/srv/DxSrvArray.h"
-#include "directX12/PipelineStateObj.h"
 #include "directX12/dxResource/srv/DxSrvArray.h"
 #include "directX12/PipelineStateObj.h"
 
+#include "directX12/buffer/CameraTransform.h"
 #include "directX12/buffer/Material.h"
 #include "directX12/buffer/Object3dMesh.h"
-#include "directX12/buffer/CameraBuffer.h"
 
 #include "Vector3.h"
 #include <stdint.h>
@@ -26,7 +25,7 @@ public:
 	~Emitter(){ Finalize(); }
 	void Init(uint32_t instanceValue,MaterialManager *materialManager);
 	void Update();
-	void Draw(const CameraBuffer &CameraBuffer);
+	void Draw(const IConstantBuffer<CameraTransform> &CameraTransform);
 	void Finalize();
 private:
 	void CreatePso();
@@ -44,10 +43,9 @@ private:
 	uint32_t srvIndex_;
 	uint32_t particleSize_;
 
-	Material *material_;
+	IConstantBuffer<Material>* material_;
 
 	std::shared_ptr<DxSrvArray> dxSrvArray_;
 	std::unique_ptr<TextureObject3dMesh> meshBuff_;
 	std::unique_ptr<DxCommand> dxCommand_;
-
 };

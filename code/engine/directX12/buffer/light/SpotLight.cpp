@@ -1,22 +1,8 @@
 #include "directX12/buffer/light/SpotLight.h"
 
-#include "directX12/dxFunctionHelper/DxFunctionHelper.h"
+#ifdef _DEBUG
 #include "imgui/imgui.h"
-#include "System.h"
-
-void SpotLight::Init(){
-	mappingData_ = nullptr;
-
-	buff_.CreateBufferResource(System::getInstance()->getDxDevice(),sizeof(SpotLight::ConstantBuffer));
-
-	buff_.getResource()->Map(
-		0,nullptr,reinterpret_cast<void **>(&mappingData_)
-	);
-}
-
-void SpotLight::Finalize(){
-	buff_.Finalize();
-}
+#endif // _DEBUG
 
 void SpotLight::DebugUpdate(){
 #ifdef _DEBUG
@@ -30,19 +16,7 @@ void SpotLight::DebugUpdate(){
 		ImGui::DragFloat("Decay",&this->decay,0.1f,0.1f,FLT_MAX);
 		ImGui::DragFloat("CosAngle",&this->cosAngle,0.01f,0.0f,FLT_MAX);
 		ImGui::DragFloat("CosFalloffStart",&this->cosFalloffStart,0.1f);
-		this->ConvertToBuffer();
 	}
 	ImGui::End();
 #endif // _DEBUG
-}
-
-void SpotLight::ConvertToBuffer(){
-	mappingData_->color     = this->color;
-	mappingData_->pos       = this->pos;
-	mappingData_->intensity = this->intensity;
-	mappingData_->direction = this->direction;
-	mappingData_->distance  = this->distance;
-	mappingData_->decay     = this->decay;
-	mappingData_->cosAngle  = this->cosAngle;
-	mappingData_->cosFalloffStart = this->cosFalloffStart;
 }

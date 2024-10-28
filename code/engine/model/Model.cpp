@@ -13,6 +13,7 @@
 #include "texture/TextureManager.h"
 #include "System.h"
 #include "directX12/dxHeap/DxHeap.h"
+#include "directX12/buffer/Material.h"
 
 #include "Vector2.h"
 #include "Vector3.h"
@@ -94,7 +95,7 @@ void Model::Finalize(){
 	dxCommand_->Finalize();
 }
 
-void Model::DrawThis(const TransformBuffer &world,const CameraBuffer &view,BlendMode blend){
+void Model::DrawThis(const IConstantBuffer<Transform>& world,const IConstantBuffer<CameraTransform>& view,BlendMode blend){
 	auto *commandList = dxCommand_->getCommandList();
 
 	for(auto &model : data_){
@@ -125,7 +126,7 @@ void Model::DrawThis(const TransformBuffer &world,const CameraBuffer &view,Blend
 	}
 }
 
-void Model::Draw(const TransformBuffer &world,const CameraBuffer &view,BlendMode blend){
+void Model::Draw(const IConstantBuffer<Transform>& world,const IConstantBuffer<CameraTransform>& view,BlendMode blend){
 	drawFuncTable_[(size_t)currentState_](world,view,blend);
 }
 #pragma endregion

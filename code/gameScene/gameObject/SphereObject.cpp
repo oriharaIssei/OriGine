@@ -18,7 +18,8 @@ void SphereObject::Init([[maybe_unused]] const std::string &directoryPath,const 
 
 	material_ = materialManager_->Create("white");
 
-	transform_.Init();
+	transform_.openData_.Init();
+	transform_.CreateBuffer(System::getInstance()->getDxDevice()->getDevice());
 }
 
 void SphereObject::Update(){
@@ -26,7 +27,7 @@ void SphereObject::Update(){
 	IGameObject::Update();
 }
 
-void SphereObject::Draw(const CameraBuffer &viewProj){
+void SphereObject::Draw(const IConstantBuffer<CameraTransform>& viewProj){
 	constexpr int kSubDivision = 16;
 	const float kLonEvery = static_cast<float>(M_PI) * 2.0f / static_cast<float>(kSubDivision);
 	const float kLatEvery = static_cast<float>(M_PI) / static_cast<float>(kSubDivision);

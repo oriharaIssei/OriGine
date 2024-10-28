@@ -39,10 +39,10 @@
     <ClCompile Include="code\engine\directX12\buffer\Object3dMesh.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="code\engine\directX12\buffer\CameraBuffer.cpp">
+    <ClCompile Include="code\engine\directX12\buffer\CameraTransform.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="code\engine\directX12\buffer\TransformBuffer.cpp">
+    <ClCompile Include="code\engine\directX12\buffer\Transform.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="code\engine\directX12\dxCommand\DxCommand.cpp">
@@ -180,9 +180,6 @@
     <ClCompile Include="code\engine\model\ModelManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="code\engine\directX12\buffer\IConstantBuffer.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="code\engine\thread\Thread.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
@@ -218,10 +215,10 @@
     <ClInclude Include="code\engine\directX12\buffer\Object3dMesh.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="code\engine\directX12\buffer\CameraBuffer.h">
+    <ClInclude Include="code\engine\directX12\buffer\CameraTransform.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="code\engine\directX12\buffer\TransformBuffer.h">
+    <ClInclude Include="code\engine\directX12\buffer\Transform.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="code\engine\directX12\dxCommand\DxCommand.h">

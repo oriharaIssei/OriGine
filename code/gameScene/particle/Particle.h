@@ -7,7 +7,7 @@
 #include "Matrix4x4.h"
 
 struct ParticleStructuredBuffer{
-	Matrix4x4 TransformBuffer;
+	Matrix4x4 Transform;
 	Vector4 color;
 };
 
