@@ -128,6 +128,7 @@
     <ClCompile Include="code\engine\model\ModelManager.cpp" />
     <ClCompile Include="code\engine\primitiveDrawer\PrimitiveDrawer.cpp" />
     <ClCompile Include="code\engine\sprite\Sprite.cpp" />
+    <ClCompile Include="code\engine\sprite\SpriteCommon.cpp" />
     <ClCompile Include="code\engine\System.cpp" />
     <ClCompile Include="code\engine\texture\RenderTexture.cpp" />
     <ClCompile Include="code\engine\texture\TextureManager.cpp" />
@@ -188,6 +189,7 @@
     <ClInclude Include="code\engine\model\ModelManager.h" />
     <ClInclude Include="code\engine\primitiveDrawer\PrimitiveDrawer.h" />
     <ClInclude Include="code\engine\sprite\Sprite.h" />
+    <ClInclude Include="code\engine\sprite\SpriteCommon.h" />
     <ClInclude Include="code\engine\System.h" />
     <ClInclude Include="code\engine\texture\RenderTexture.h" />
     <ClInclude Include="code\engine\texture\TextureManager.h" />

@@ -46,8 +46,9 @@ private:
 		};
 		void Init(const std::string &filePath,std::shared_ptr<DxSrvArray> srvArray,int textureIndex);
 		void Finalize();
-
-		std::string path_;
+		
+		std::string path;
+		DirectX::TexMetadata metaData;
 		uint32_t resourceIndex;
 		D3D12_CPU_DESCRIPTOR_HANDLE srvHandleCPU;
 		D3D12_GPU_DESCRIPTOR_HANDLE srvHandleGPU;
@@ -81,4 +82,6 @@ public:
 		}
 		return textures_[0]->srvHandleGPU;
 	}
+
+	static const DirectX::TexMetadata& getTexMetadata(uint32_t handleId){return textures_[handleId]->metaData; }
 };

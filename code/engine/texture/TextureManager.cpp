@@ -35,14 +35,14 @@ std::unique_ptr<DxCommand> TextureManager::dxCommand_;
 void TextureManager::Texture::Init(const std::string& filePath,std::shared_ptr<DxSrvArray> srvArray,int textureIndex)
 {
 	loadState = LoadState::Loading;
-	path_ = filePath;
+	path = filePath;
 	DxResource resource;
 	//==================================================
 	// Textureを読み込んで転送する
 	//==================================================
 	DirectX::ScratchImage mipImages = Load(filePath);
-	const DirectX::TexMetadata& metadata = mipImages.GetMetadata();
-	resource.CreateTextureResource(System::getInstance()->getDxDevice()->getDevice(),metadata);
+	metaData = mipImages.GetMetadata();
+	resource.CreateTextureResource(System::getInstance()->getDxDevice()->getDevice(),metaData);
 	UploadTextureData(mipImages,resource.getResource());
 
 	//==================================================
@@ -50,10 +50,10 @@ void TextureManager::Texture::Init(const std::string& filePath,std::shared_ptr<D
 	//==================================================
 	/// metadataを基に SRV の設定
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-	srvDesc.Format = metadata.format;
+	srvDesc.Format = metaData.format;
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MipLevels = UINT(metadata.mipLevels);
+	srvDesc.Texture2D.MipLevels = UINT(metaData.mipLevels);
 
 	/// SRV を作成する  の場所を決める
 	/// 先頭は ImGui が使用しているので その次を使う
@@ -240,7 +240,7 @@ uint32_t TextureManager::LoadTexture(const std::string& filePath)
 		{
 			textures_[index] = std::make_unique<Texture>();
 			break;
-		} else if(filePath == textures_[index]->path_)
+		} else if(filePath == textures_[index]->path)
 		{
 			return index;
 		}
