@@ -19,19 +19,8 @@ void SpriteObject::Init([[maybe_unused]] const std::string &directory,const std:
 }
 
 void SpriteObject::Update(){
-	/*ImGui::Text("Name: %s",name_.c_str());
-
-	ImGui::ColorEdit4("Color",&color_.x);
-	sprite_->setColor(color_);
-
-	ImGui::DragFloat2("UVScale",&sprite_->uvScale.x,0.1f);
-	ImGui::DragFloat2("UVRotate",&sprite_->uvRotate.x,0.1f);
-	ImGui::DragFloat2("UVTranslate",&sprite_->uvTranslate.x,0.1f);
-
-	ImGui::DragFloat2("Position",&pos_.x,0.1f);
-	ImGui::DragFloat2("Size",&size_.x,0.1f);
-	sprite_->setPos(pos_);
-	sprite_->setSize(size_);*/
+	sprite_->Debug(name_);
+	sprite_->Update();
 }
 
 void SpriteObject::Draw(const IConstantBuffer<CameraTransform>&viewProj){

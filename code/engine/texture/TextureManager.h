@@ -82,4 +82,6 @@ public:
 		}
 		return textures_[0]->srvHandleGPU;
 	}
+
+	static const DirectX::TexMetadata& getTexMetadata(uint32_t handleId){return textures_[handleId]->metaData; }
 };

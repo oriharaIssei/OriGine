@@ -48,7 +48,7 @@ Sprite* SpriteCommon::Create(const std::string& textureFilePath)
 	result->meshBuff_->vertexData[3] = {{1.0f,0.0f,0.0f,1.0f},{1.0f,0.0f}};
 
 	result->mappingConstBufferData_ = nullptr;
-	result->constBuff_.CreateBufferResource(System::getInstance()->getDxDevice(),sizeof(SpritConstBuffer));
+	result->constBuff_.CreateBufferResource(System::getInstance()->getDxDevice()->getDevice(),sizeof(SpritConstBuffer));
 
 	result->constBuff_.getResource()->Map(
 		0,nullptr,reinterpret_cast<void**>(&result->mappingConstBufferData_)
@@ -126,6 +126,14 @@ void SpriteCommon::CreatePSO()
 	inputElementDescs[1].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
 	shaderInfo.pushBackInputElementDesc(inputElementDescs[1]);
 
+	///================================================
+	/// RasterizerDesc の設定
+	///================================================
+	shaderInfo.ChangeCullMode(D3D12_CULL_MODE_NONE);
+
+	///================================================
+	/// 生成
+	///================================================
 	std::string psoKeys[kBlendNum] = {
 		"Sprite_None",
 		"Sprite_Alpha",

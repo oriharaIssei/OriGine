@@ -68,21 +68,21 @@ public:
 	/// </summary>
 	/// <param name="samplerDesc"></param>
 	/// <returns>Index</returns>
-	size_t pushBackSamplerDesc(const D3D12_STATIC_SAMPLER_DESC &samplerDesc){
+	size_t pushBackSamplerDesc(const D3D12_STATIC_SAMPLER_DESC& samplerDesc){
 		samplerDescs_.emplace_back(samplerDesc);
 		return samplerDescs_.size() - 1;
 	}
 	/// <returns>Index</returns>
-	size_t pushBackRootParameter(const D3D12_ROOT_PARAMETER &parameter){
+	size_t pushBackRootParameter(const D3D12_ROOT_PARAMETER& parameter){
 		rootParameters_.push_back(parameter);
 		return rootParameters_.size() - 1;
 	}
 	/// <returns>Index</returns>
-	size_t pushBackInputElementDesc(const D3D12_INPUT_ELEMENT_DESC &elementDesc){
+	size_t pushBackInputElementDesc(const D3D12_INPUT_ELEMENT_DESC& elementDesc){
 		elementDescs_.push_back(elementDesc);
 		return elementDescs_.size() - 1;
 	}
-	void SetDescriptorRange2Parameter(const D3D12_DESCRIPTOR_RANGE *range,size_t numRanges,size_t rootParameterIndex){
+	void SetDescriptorRange2Parameter(const D3D12_DESCRIPTOR_RANGE* range,size_t numRanges,size_t rootParameterIndex){
 		// 動的に確保して管理する
 		auto ranges = std::make_unique<D3D12_DESCRIPTOR_RANGE[]>(numRanges);
 		std::copy(range,range + numRanges,ranges.get());
@@ -92,12 +92,19 @@ public:
 		rootParameters_[rootParameterIndex].DescriptorTable.NumDescriptorRanges = static_cast<UINT>(numRanges);
 	}
 
+	void ChangeCullMode(D3D12_CULL_MODE cullMode){
+		rasterizerDesc.CullMode = cullMode;
+	}
+	void ChangeFillMode(D3D12_FILL_MODE fillMode){
+		rasterizerDesc.FillMode = fillMode;
+	}
+
 	/// <summary>
 	/// 楽だが非推奨
 	/// </summary>
 	/// <returns></returns>
-	D3D12_DEPTH_STENCIL_DESC &customDepthStencilDesc(){ return depthStencilDesc_; }
-	void setDepthStencilDesc(const D3D12_DEPTH_STENCIL_DESC &desc){ depthStencilDesc_ = desc; }
+	D3D12_DEPTH_STENCIL_DESC& customDepthStencilDesc(){ return depthStencilDesc_; }
+	void setDepthStencilDesc(const D3D12_DEPTH_STENCIL_DESC& desc){ depthStencilDesc_ = desc; }
 
 	void setTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE topology){ topologyType = topology; }
 };
@@ -105,22 +112,22 @@ using ShaderInfo = ShaderInformation;
 
 class ShaderManager{
 public:
-	static ShaderManager *getInstance(){ static ShaderManager instance; return &instance; }
+	static ShaderManager* getInstance(){ static ShaderManager instance; return &instance; }
 public:
 	void Init();
 	void Finalize();
-	PipelineStateObj *CreatePso(const std::string &key,const ShaderInformation &shaderInfo,ID3D12Device *device);
+	PipelineStateObj* CreatePso(const std::string& key,const ShaderInformation& shaderInfo,ID3D12Device* device);
 private:
 	ShaderManager() = default;
 	~ShaderManager(){};
-	ShaderManager(const ShaderManager &) = delete;
-	const ShaderManager &operator=(const ShaderManager &) = delete;
+	ShaderManager(const ShaderManager&) = delete;
+	const ShaderManager& operator=(const ShaderManager&) = delete;
 private:
 	std::unordered_map<std::string,Microsoft::WRL::ComPtr<IDxcBlob>> shaderBlobMap_;
 	std::unique_ptr<ShaderCompiler> shaderCompiler_;
 	std::unordered_map<std::string,std::unique_ptr<PipelineStateObj>> psoMap_;
 public:
-	ShaderCompiler *getShaderCompiler()const{ return shaderCompiler_.get(); }
+	ShaderCompiler* getShaderCompiler()const{ return shaderCompiler_.get(); }
 
 	/// <summary>
 	/// shaderBlob を 登録されていなければ登録
@@ -128,7 +135,7 @@ public:
 	/// <param name="key"></param>
 	/// <param name="shaderBlob"></param>
 	/// <returns> 登録できたら true </returns>
-	bool RegisterShaderBlob(const std::string &fileName,Microsoft::WRL::ComPtr<IDxcBlob> shaderBlob){
+	bool RegisterShaderBlob(const std::string& fileName,Microsoft::WRL::ComPtr<IDxcBlob> shaderBlob){
 		auto it = shaderBlobMap_.find(fileName);
 		if(it != shaderBlobMap_.end()){
 			return false;
@@ -136,14 +143,14 @@ public:
 		shaderBlobMap_.emplace(fileName,std::move(shaderBlob));
 		return true;
 	};
-	void ForciblyRegisterShaderBlob(const std::string &fileName,Microsoft::WRL::ComPtr<IDxcBlob> shaderBlob){
+	void ForciblyRegisterShaderBlob(const std::string& fileName,Microsoft::WRL::ComPtr<IDxcBlob> shaderBlob){
 		shaderBlobMap_[fileName] = std::move(shaderBlob);
 	};
 
-	bool LoadShader(const std::string &fileName,const std::string &directory = shaderDirectory,const wchar_t *profile = L"vs_6_0");
+	bool LoadShader(const std::string& fileName,const std::string& directory = shaderDirectory,const wchar_t* profile = L"vs_6_0");
 
-	PipelineStateObj *getPipelineStateObj(const std::string &key){ return psoMap_[key].get(); }
-	const Microsoft::WRL::ComPtr<IDxcBlob> &getShaderBlob(const std::string &key){
+	PipelineStateObj* getPipelineStateObj(const std::string& key){ return psoMap_[key].get(); }
+	const Microsoft::WRL::ComPtr<IDxcBlob>& getShaderBlob(const std::string& key){
 		auto it = shaderBlobMap_.find(key);
 		if(it == shaderBlobMap_.end()){
 			throw std::runtime_error("Shader blob not found for key: " + key);
