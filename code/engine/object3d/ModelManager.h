@@ -12,16 +12,16 @@
 
 #include "Matrix4x4.h"
 
-class Model;
-struct ModelMaterial;
-struct ModelData;
+class Object3d;
+struct Material3D;
+struct Model;
 struct TextureVertexData;
 
 class ModelManager{
-	friend class Model;
+	friend class Object3d;
 public:
 	static ModelManager* getInstance();
-	Model* Create(const std::string& directoryPath,const std::string& filename);
+	Object3d* Create(const std::string& directoryPath,const std::string& filename);
 	void Init();
 
 	void PreDraw();
@@ -37,11 +37,11 @@ private:
 	struct LoadTask{
 		std::string directory;
 		std::string fileName ;
-		Model* model = nullptr;
+		Object3d* model = nullptr;
 		void Update();
 	};
 private:
 	std::unique_ptr<TaskThread<LoadTask>> loadThread_;
 
-	std::unordered_map<std::string,std::unique_ptr<Model>> modelLibrary_;
+	std::unordered_map<std::string,std::unique_ptr<Object3d>> modelLibrary_;
 };

@@ -2,18 +2,13 @@
 
 #include "debugCamera/debugCamera.h"
 
-#include "GameObject/IGameObject.h"
-#include "GameObject/ModelObject.h"
-#include "GameObject/SphereObject.h"
-#include "GameObject/SpriteObject.h"
-
 #include <string>
 
 #include "directX12/DxCommand.h"
 #include "directX12/DxRtvArray.h"
 #include "directX12/DxRtvArrayManager.h"
 #include "directX12/DxSrvArrayManager.h"
-
+#include "sprite/SpriteCommon.h"
 #include "material/TextureManager.h"
 #include "myFileSystem/MyFileSystem.h"
 #include "primitiveDrawer/PrimitiveDrawer.h"
@@ -50,7 +45,6 @@ void GameScene::Init(){
 	objectList_ = myFs::SearchFile("./resource","obj");
 
 	emitter_.Init(10,materialManager_);
-
 }
 
 void GameScene::Update(){
@@ -62,100 +56,29 @@ void GameScene::Update(){
 	cameraBuff_.ConvertToBuffer();
 #endif // _DEBUG
 
-#ifdef _DEBUG
-	if(ImGui::Begin("MaterialManager")){
-		materialManager_->DebugUpdate();
-	}
-	ImGui::End();
-
-	System::getInstance()->getDirectionalLight()->openData_.DebugUpdate();
-	System::getInstance()->getPointLight()->openData_.DebugUpdate();
-	System::getInstance()->getSpotLight()->openData_.DebugUpdate();
-
-	if(ImGui::Begin("FileLists")){
-		if(ImGui::TreeNode("TextureFiles")){
-			ImGui::TreePop();
-			if(ImGui::BeginChild("TextureFiles",ImVec2(250,128),true,ImGuiWindowFlags_HorizontalScrollbar)){
-				for(auto& pngFile : textureList_){
-					ImGui::Bullet();
-					if(!ImGui::Button(pngFile.second.c_str())){
-						continue;
-					}
-					std::unique_ptr<SpriteObject> sprite = std::make_unique<SpriteObject>();
-					sprite->Init(pngFile.first,pngFile.second);
-					gameObjects_.emplace_back(std::move(sprite));
-				}
-			}
-			ImGui::EndChild();
-		}
-		// 高さ20pxのスペース
-		ImGui::Dummy(ImVec2(0.0f,20.0f));
-
-		if(ImGui::TreeNode("ModelList")){
-			ImGui::TreePop();
-			if(ImGui::BeginChild("ObjectFiles",ImVec2(250,128),true,ImGuiWindowFlags_HorizontalScrollbar)){
-				for(auto& objFile : objectList_){
-					ImGui::Bullet();
-					if(!ImGui::Button(objFile.second.c_str())){
-						continue;
-					}
-					std::unique_ptr<ModelObject> model = std::make_unique<ModelObject>();
-					model->Init(objFile.first,objFile.second);
-					gameObjects_.emplace_back(std::move(model));
-				}
-			}
-			ImGui::EndChild();
-		}
-
-		ImGui::Dummy(ImVec2(0.0f,10.0f));
-		if(ImGui::Button("Create Sphere")){
-			std::unique_ptr<SphereObject> sprite = std::make_unique<SphereObject>();
-			sprite->Init("","sphere");
-			gameObjects_.emplace_back(std::move(sprite));
-		}
-
-		int32_t index = 0;
-		ImGuiID dockingID = ImGui::GetID(dockingIDName);
-		for(auto objectItr = gameObjects_.begin(); objectItr != gameObjects_.end(); ){
-			auto& object = *objectItr;
-			std::string label = "# " + std::to_string(index) + object->getName();
-			++index;
-
-			ImGui::SetNextWindowDockID(dockingID);
-			if(ImGui::Begin(label.c_str())){
-				object->Update();
-
-				ImGui::Dummy(ImVec2(0.0f,7.0f));
-				if(ImGui::Button("Delete this")){
-					objectItr = gameObjects_.erase(objectItr);
-				} else{
-					++objectItr;
-				}
-			} else{
-				++objectItr;
-			}
-			ImGui::End();
-		}
-	}
-	ImGui::End();
-#endif // _DEBUG
-
 	emitter_.Update(cameraBuff_.openData_);
 }
 
 void GameScene::Draw(){
 	sceneView_->PreDraw();
 	
+	///===============================================
+	/// 3d Object
+	///===============================================
+	Object3d::PreDraw();
+
 	emitter_.Draw(cameraBuff_);
 
+	///===============================================
+	/// sprite
+	///===============================================
 	SpriteCommon::getInstance()->PreDraw();
-	for(auto& object : gameObjects_)
-	{
-		object->Draw(cameraBuff_);
-	}
+
 
 	sceneView_->PostDraw();
-
+	///===============================================
+	/// off screen Rendering
+	///===============================================
 	System::getInstance()->ScreenPreDraw();
 	sceneView_->DrawTexture();
 	System::getInstance()->ScreenPostDraw();

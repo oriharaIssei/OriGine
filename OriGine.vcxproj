@@ -124,8 +124,8 @@
     <ClCompile Include="code\engine\directX12\ShaderManager.cpp" />
     <ClCompile Include="code\engine\input\Input.cpp" />
     <ClCompile Include="code\lib\logger\Logger.cpp" />
-    <ClCompile Include="code\engine\model\Model.cpp" />
-    <ClCompile Include="code\engine\model\ModelManager.cpp" />
+    <ClCompile Include="code\engine\object3d\Object3d.cpp" />
+    <ClCompile Include="code\engine\object3d\ModellManager.cpp" />
     <ClCompile Include="code\engine\primitiveDrawer\PrimitiveDrawer.cpp" />
     <ClCompile Include="code\engine\sprite\Sprite.cpp" />
     <ClCompile Include="code\engine\sprite\SpriteCommon.cpp" />
@@ -133,10 +133,6 @@
     <ClCompile Include="code\engine\texture\RenderTexture.cpp" />
     <ClCompile Include="code\engine\material\TextureManager.cpp" />
     <ClCompile Include="code\lib\winApp\WinApp.cpp" />
-    <ClCompile Include="code\application\gameScene\gameObject\IGameObject.cpp" />
-    <ClCompile Include="code\application\gameScene\gameObject\ModelObject.cpp" />
-    <ClCompile Include="code\application\gameScene\gameObject\SphereObject.cpp" />
-    <ClCompile Include="code\application\gameScene\gameObject\SpriteObject.cpp" />
     <ClCompile Include="code\application\gameScene\GameScene.cpp" />
     <ClCompile Include="code\application\gameScene\particle\Emitter.cpp" />
     <ClCompile Include="code\application\gameScene\particle\Particle.cpp" />
@@ -185,8 +181,8 @@
     <ClInclude Include="code\engine\directX12\ShaderManager.h" />
     <ClInclude Include="code\engine\input\Input.h" />
     <ClInclude Include="code\lib\logger\Logger.h" />
-    <ClInclude Include="code\engine\model\Model.h" />
-    <ClInclude Include="code\engine\model\ModelManager.h" />
+    <ClInclude Include="code\engine\object3d\Object3d.h" />
+    <ClInclude Include="code\engine\object3d\ModelManager.h" />
     <ClInclude Include="code\engine\primitiveDrawer\PrimitiveDrawer.h" />
     <ClInclude Include="code\engine\sprite\Sprite.h" />
     <ClInclude Include="code\engine\sprite\SpriteCommon.h" />
@@ -194,10 +190,6 @@
     <ClInclude Include="code\engine\texture\RenderTexture.h" />
     <ClInclude Include="code\engine\material\TextureManager.h" />
     <ClInclude Include="code\lib\winApp\WinApp.h" />
-    <ClInclude Include="code\application\gameScene\gameObject\IGameObject.h" />
-    <ClInclude Include="code\application\gameScene\gameObject\ModelObject.h" />
-    <ClInclude Include="code\application\gameScene\gameObject\SphereObject.h" />
-    <ClInclude Include="code\application\gameScene\gameObject\SpriteObject.h" />
     <ClInclude Include="code\application\gameScene\GameScene.h" />
     <ClInclude Include="code\application\gameScene\particle\Emitter.h" />
     <ClInclude Include="code\application\gameScene\particle\Particle.h" />

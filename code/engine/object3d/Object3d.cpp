@@ -1,5 +1,5 @@
-#include "model/Model.h"
-#include "model/ModelManager.h"
+#include "object3d/Object3d.h"
+#include "ModelManager.h"
 
 #include <cassert>
 #include <unordered_map>
@@ -22,20 +22,30 @@
 
 #include <chrono>
 
-#pragma region"Model"
-Model* Model::Create(const std::string& directoryPath,const std::string& filename){
+BlendMode Object3d::currentBlend_ = BlendMode::Alpha;
+
+#pragma region"Object3d"
+Object3d* Object3d::Create(const std::string& directoryPath,const std::string& filename){
 	return ModelManager::getInstance()->Create(directoryPath,filename);
 }
 
-void Model::DrawThis(const IConstantBuffer<CameraTransform>& view,BlendMode blend){
+void Object3d::PreDraw(){
+	ModelManager* manager = ModelManager::getInstance();
+	auto* commandList = manager->dxCommand_->getCommandList();
+
+	commandList->SetGraphicsRootSignature(manager->texturePso_[static_cast<uint32_t>(currentBlend_)]->rootSignature.Get());
+	commandList->SetPipelineState(manager->texturePso_[static_cast<uint32_t>(currentBlend_)]->pipelineState.Get());
+
+	System::getInstance()->getDirectionalLight()->SetForRootParameter(commandList,3);
+	System::getInstance()->getPointLight()->SetForRootParameter(commandList,4);
+	System::getInstance()->getSpotLight()->SetForRootParameter(commandList,5);
+}
+
+void Object3d::DrawThis(const IConstantBuffer<CameraTransform>& view){
 	ModelManager* manager = ModelManager::getInstance();
 	auto* commandList = manager->dxCommand_->getCommandList();
 
 	for(auto& model : data_){
-
-		commandList->SetGraphicsRootSignature(manager->texturePso_[static_cast<uint32_t>(blend)]->rootSignature.Get());
-		commandList->SetPipelineState(manager->texturePso_[static_cast<uint32_t>(blend)]->pipelineState.Get());
-
 		ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
 		commandList->SetDescriptorHeaps(1,ppHeaps);
 		commandList->SetGraphicsRootDescriptorTable(
@@ -50,16 +60,12 @@ void Model::DrawThis(const IConstantBuffer<CameraTransform>& view,BlendMode blen
 		view.SetForRootParameter(commandList,1);
 
 		model->materialData.material->SetForRootParameter(commandList,2);
-		System::getInstance()->getDirectionalLight()->SetForRootParameter(commandList,3);
-		System::getInstance()->getPointLight()->SetForRootParameter(commandList,4);
-		System::getInstance()->getSpotLight()->SetForRootParameter(commandList,5);
-
 		// 描画!!!
 		commandList->DrawIndexedInstanced(UINT(model->meshData.indexSize),1,0,0,0);
 	}
 }
 
-void Model::Draw(const IConstantBuffer<CameraTransform>& view,BlendMode blend){
-	drawFuncTable_[(size_t)currentState_](view,blend);
+void Object3d::Draw(const IConstantBuffer<CameraTransform>& view){
+	drawFuncTable_[(size_t)currentState_](view);
 }
 #pragma endregion
