@@ -1,8 +1,8 @@
 #include "sprite/Sprite.h"
 
-#include "directX12/dxFunctionHelper/DxFunctionHelper.h"
+#include "directX12/DxFunctionHelper.h"
 #include "System.h"
-#include "texture/TextureManager.h"
+#include "material/TextureManager.h"
 #include "logger/Logger.h"
 #include <directX12/ShaderCompiler.h>
 

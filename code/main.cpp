@@ -1,11 +1,11 @@
-#include "directX12/dxDebug/DxDebug.h"
+#include "directX12/DxDebug.h"
 #include <System.h>
 
 #include <memory>
 
 #include "DeltaTime/DeltaTime.h"
 #include "globalVariables/GlobalVariables.h"
-#include <GameScene.h>
+#include <application/gameScene/GameScene.h>
 
 int WINAPI WinMain(HINSTANCE,HINSTANCE,LPSTR,int){
 	DxDebug debug;

@@ -6,16 +6,14 @@
 #include <fstream>
 #include <sstream>
 
-#include "directX12/dxCommand/DxCommand.h"
 #include "directX12/PipelineStateObj.h"
-#include "directX12/shaderManager/ShaderManager.h"
+#include "directX12/ShaderManager.h"
+#include "transform/CameraTransform.h"
+#include "directX12/IConstantBuffer.h"
+#include "material/Material.h"
+#include "transform/Transform.h"
 
-#include "directX12/buffer/CameraTransform.h"
-#include "directX12/buffer/IConstantBuffer.h"
-#include "directX12/buffer/Material.h"
-#include "directX12/buffer/Transform.h"
-
-#include "directX12/buffer/Object3dMesh.h"
+#include "directX12/Object3dMesh.h"
 
 struct ModelMaterial{
 	int textureNumber;
@@ -39,25 +37,17 @@ class Model{
 	friend class ModelManager;
 public:
 	static Model* Create(const std::string &directoryPath,const std::string &filename);
-	static void Init();
-	static void Finalize();
-private:
-	static std::unique_ptr<ModelManager> manager_;
-
-	static std::array<PipelineStateObj *,kBlendNum> primitivePso_;
-	static std::array<PipelineStateObj *,kBlendNum> texturePso_;
-
-	static std::unique_ptr<DxCommand> dxCommand_;
-
-	static std::unique_ptr<Matrix4x4> fovMa_;
 public:
 	Model() = default;
+	~Model(){transform_.Finalize();}
 
-	void Draw(const IConstantBuffer<Transform>& world,const IConstantBuffer<CameraTransform>& view,[[maybe_unused]] BlendMode blend = BlendMode::Normal);
+	IConstantBuffer<Transform> transform_;
+
+	void Draw(const IConstantBuffer<CameraTransform>& view,[[maybe_unused]] BlendMode blend = BlendMode::Normal);
 private:
-	void NotDraw([[maybe_unused]] const IConstantBuffer<Transform>& world,[[maybe_unused]] const IConstantBuffer<CameraTransform>& view,[[maybe_unused]] BlendMode blend = BlendMode::Normal){}
+	void NotDraw([[maybe_unused]] const IConstantBuffer<CameraTransform>& view,[[maybe_unused]] BlendMode blend = BlendMode::Normal){}
 
-	void DrawThis(const IConstantBuffer<Transform>& world, const IConstantBuffer<CameraTransform>& view,BlendMode blend = BlendMode::Normal);
+	void DrawThis(const IConstantBuffer<CameraTransform>& view,BlendMode blend = BlendMode::Normal);
 private:
 	std::vector<std::unique_ptr<ModelData>> data_;
 	enum class LoadState{
@@ -65,9 +55,9 @@ private:
 		Loaded,
 	};
 	LoadState currentState_;
-	std::array<std::function<void(const IConstantBuffer<Transform>&,const IConstantBuffer<CameraTransform>& ,BlendMode)>,2> drawFuncTable_ = {
-		[this](const IConstantBuffer<Transform>& world,const IConstantBuffer<CameraTransform>& view,BlendMode blend){ NotDraw(world,view,blend); },
-		[this](const IConstantBuffer<Transform>& world,const IConstantBuffer<CameraTransform>& view,BlendMode blend = BlendMode::Alpha){ DrawThis(world,view,blend); }
+	std::array<std::function<void(const IConstantBuffer<CameraTransform>& ,BlendMode)>,2> drawFuncTable_ = {
+		[this](const IConstantBuffer<CameraTransform>& view,BlendMode blend){ NotDraw(view,blend); },
+		[this](const IConstantBuffer<CameraTransform>& view,BlendMode blend = BlendMode::Alpha){ DrawThis(view,blend); }
 	};
 public:
 	const std::vector<std::unique_ptr<ModelData>> &getData()const{ return data_; }

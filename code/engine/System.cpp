@@ -1,19 +1,20 @@
 #include "System.h"
 
 #include "Audio/Audio.h"
-#include "directX12/buffer/Material.h"
-#include "directX12/dxFunctionHelper/DxFunctionHelper.h"
-#include "directX12/dxHeap/DxHeap.h"
+#include "material/Material.h"
+#include "directX12/DxFunctionHelper.h"
+#include "directX12/DxHeap.h"
 #include "imGuiManager/ImGuiManager.h"
+#include "model/ModelManager.h"
 #include "primitiveDrawer/PrimitiveDrawer.h"
 #include "sprite/SpriteCommon.h"
 #include "texture/RenderTexture.h"
-#include "texture/TextureManager.h"
+#include "material/TextureManager.h"
 
 #include "imgui/imgui.h"
 
-#include "directX12/dxResource/rtv/DxRtvArrayManager.h"
-#include "directX12/dxResource/srv/DxSrvArrayManager.h"
+#include "directX12/DxRtvArrayManager.h"
+#include "directX12/DxSrvArrayManager.h"
 
 #include "logger/Logger.h"
 
@@ -92,7 +93,7 @@ void System::Init(){
 	spotLight_->ConvertToBuffer();
 
 	PrimitiveDrawer::Init();
-	Model::Init();
+	ModelManager::getInstance()->Init();
 	SpriteCommon::getInstance()->Init();
 	RenderTexture::Awake();
 
@@ -111,7 +112,7 @@ void System::Finalize(){
 	ShaderManager::getInstance()->Finalize();
 	PrimitiveDrawer::Finalize();
 	SpriteCommon::getInstance()->Finalize();
-	Model::Finalize();
+	ModelManager::getInstance()->Finalize();
 	TextureManager::Finalize();
 
 	DxSrvArrayManager::getInstance()->Finalize();

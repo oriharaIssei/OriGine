@@ -1,6 +1,6 @@
 #include "primitiveDrawer/PrimitiveDrawer.h"
 
-#include "directX12/dxFunctionHelper/DxFunctionHelper.h"
+#include "directX12/DxFunctionHelper.h"
 #include "System.h"
 
 #include <Vector4.h>

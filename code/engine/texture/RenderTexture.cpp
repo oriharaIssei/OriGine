@@ -1,9 +1,9 @@
 #include "RenderTexture.h"
 
-#include "directX12/dxFunctionHelper/DxFunctionHelper.h"
-#include "directX12/dxHeap/DxHeap.h"
-#include "directX12/resourceBarrierManager/ResourceBarrierManager.h"
-#include "directX12/shaderManager/ShaderManager.h"
+#include "directX12/DxFunctionHelper.h"
+#include "directX12/DxHeap.h"
+#include "directX12/ResourceBarrierManager.h"
+#include "directX12/ShaderManager.h"
 
 #include "System.h"
 

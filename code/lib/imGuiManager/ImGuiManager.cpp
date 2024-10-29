@@ -4,11 +4,11 @@
 #include "System.h"
 #include "winApp/WinApp.h"
 
-#include "directX12/dxCommand/DxCommand.h"
-#include "directX12/dxDevice/DxDevice.h"
-#include "directX12/dxResource/srv/DxSrvArrayManager.h"
-#include "directX12/dxSwapChain/DxSwapChain.h"
-#include "directX12/dxHeap/DxHeap.h"
+#include "directX12/DxCommand.h"
+#include "directX12/DxDevice.h"
+#include "directX12/DxSrvArrayManager.h"
+#include "directX12/DxSwapChain.h"
+#include "directX12/DxHeap.h"
 
 #include "imgui/imgui.h"
 #include <imgui/imgui_impl_dx12.h>

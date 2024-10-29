@@ -2,17 +2,17 @@
 
 #include <System.h>
 
-#include "directX12/shaderManager/ShaderManager.h"
+#include "directX12/ShaderManager.h"
 
 #include <directX12/PipelineStateObj.h>
 
-#include "directX12/buffer/CameraTransform.h"
-#include "directX12/buffer/IConstantBuffer.h"
-#include "directX12/buffer/Material.h"
-#include "directX12/buffer/Object3dMesh.h"
-#include "directX12/buffer/Transform.h"
+#include "transform/CameraTransform.h"
+#include "directX12/IConstantBuffer.h"
+#include "material/Material.h"
+#include "directX12/Object3dMesh.h"
+#include "transform/Transform.h"
 
-#include "directX12/dxCommand/DxCommand.h"
+#include "directX12/DxCommand.h"
 
 #include <array>
 

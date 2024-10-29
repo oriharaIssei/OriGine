@@ -1,14 +1,14 @@
 #pragma once
 
 #include "directX12/PipelineStateObj.h"
-#include "directX12/shaderManager/ShaderManager.h"
+#include "directX12/ShaderManager.h"
 
 #include <array>
 #include <memory>
 
-#include "directX12/buffer/Object3dMesh.h"
-#include "directX12/dxCommand/DxCommand.h"
-#include "directX12/dxResource/DxResource.h"
+#include "directX12/DxCommand.h"
+#include "directX12/DxResource.h"
+#include "directX12/Object3dMesh.h"
 #include "directX12/PipelineStateObj.h"
 
 #include <string>

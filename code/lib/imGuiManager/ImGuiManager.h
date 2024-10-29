@@ -5,7 +5,8 @@
 
 #include <d3d12.h>
 
-#include "directX12/dxResource/srv/DxSrvArray.h"
+#include "directX12/DxCommand.h"
+#include "directX12/DxSrvArray.h"
 
 class WinApp;
 class DxDevice;

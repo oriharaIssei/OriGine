@@ -6,7 +6,9 @@ struct WorldTransform {
 };
 
 struct ViewProjection {
+    float3 cameraPos;
     float4x4 view;
+    float4x4 viewTranspose;
     float4x4 projection;
 };
 
