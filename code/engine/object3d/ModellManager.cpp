@@ -6,9 +6,9 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
-#include "model/Model.h"
-#include "System.h"
 #include "material/TextureManager.h"
+#include "Object3d/Object3d.h"
+#include "System.h"
 
 //===========================================================================
 // unorderedMap 用
@@ -40,13 +40,13 @@ ModelManager* ModelManager::getInstance(){
 	return &instance;
 }
 
-Model* ModelManager::Create(const std::string& directoryPath,const std::string& filename){
+Object3d* ModelManager::Create(const std::string& directoryPath,const std::string& filename){
 	const auto itr = modelLibrary_.find(directoryPath + filename);
 	if(itr != modelLibrary_.end()){
 		return itr->second.get();
 	}
 
-	modelLibrary_[directoryPath + filename] = std::make_unique<Model>();
+	modelLibrary_[directoryPath + filename] = std::make_unique<Object3d>();
 
 	loadThread_->pushTask({directoryPath,filename,modelLibrary_[directoryPath + filename].get()});
 
@@ -179,7 +179,7 @@ void LoadObjFile(std::vector<std::unique_ptr<ModelData>>* data,const std::string
 }
 
 void ModelManager::LoadTask::Update(){
-	model->currentState_ = Model::LoadState::Loading;
+	model->currentState_ = Object3d::LoadState::Loading;
 	LoadObjFile(&model->data_,this->directory,this->fileName);
-	model->currentState_ = Model::LoadState::Loaded;
+	model->currentState_ = Object3d::LoadState::Loaded;
 }

@@ -51,8 +51,7 @@ public:
 	};
 };
 
-class MaterialManager
-{
+class MaterialManager{
 public:
 	IConstantBuffer<Material>* Create(const std::string& materialName);
 	IConstantBuffer<Material>* Create(const std::string& materialName,const Material& data);
@@ -66,20 +65,17 @@ private:
 	char newMaterialName_[64];
 #endif // _DEBUG
 public:
-	IConstantBuffer<Material>* getMaterial(const std::string& materialName) const
-	{
+	IConstantBuffer<Material>* getMaterial(const std::string& materialName) const{
 		auto it = materialPallet_.find(materialName);
-		if(it != materialPallet_.end())
-		{
+		if(it != materialPallet_.end()){
 			return it->second.get();
-		} else
-		{
-	  // キーが存在しない場合の処理
+		} else{
+			// キーが存在しない場合の処理
 			return nullptr; // または適切なエラー処理を行う
 		}
 	}
 
-	const std::unordered_map<std::string,std::unique_ptr<IConstantBuffer<Material>>>& getMaterialPallet()const { return materialPallet_; }
+	const std::unordered_map<std::string,std::unique_ptr<IConstantBuffer<Material>>>& getMaterialPallet()const{ return materialPallet_; }
 	IConstantBuffer<Material>* getMaterial(const std::string& name);
 
 	void DeleteMaterial(const std::string& materialName);

@@ -20,7 +20,7 @@
 #include "material/light/DirectionalLight.h"
 #include "material/light/PointLight.h"
 #include "material/light/SpotLight.h"
-#include "model/Model.h"
+#include "object3d/Object3d.h"
 #include "winApp/WinApp.h"
 
 #include "Matrix4x4.h"

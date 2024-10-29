@@ -4,7 +4,7 @@
 
 #include "System.h"
 
-const char *lightTypes[] = {
+const char* lightTypes[] = {
 	"NONE",
 	"HALF_LAMBERT",
 	"LAMBERT",
@@ -19,12 +19,11 @@ void Material::Init(){
 	uvTranslate_ = {0.0f,0.0f,0.0f};
 }
 
-void Material::UpdateUvMatrix()
-{
+void Material::UpdateUvMatrix(){
 	uvMat_ = MakeMatrix::Affine(uvScale_,uvRotate_,uvTranslate_);
 }
 
-IConstantBuffer<Material>* MaterialManager::Create(const std::string &materialName){
+IConstantBuffer<Material>* MaterialManager::Create(const std::string& materialName){
 	if(materialPallet_.count(materialName) == 0){
 		materialPallet_[materialName] = std::make_unique<IConstantBuffer<Material>>();
 		materialPallet_[materialName]->openData_.Init();
@@ -33,7 +32,7 @@ IConstantBuffer<Material>* MaterialManager::Create(const std::string &materialNa
 	return materialPallet_[materialName].get();
 }
 
-IConstantBuffer<Material>* MaterialManager::Create(const std::string &materialName,const Material &data){
+IConstantBuffer<Material>* MaterialManager::Create(const std::string& materialName,const Material& data){
 	materialPallet_[materialName] = std::make_unique<IConstantBuffer<Material>>();
 	materialPallet_[materialName]->openData_ = data;
 	materialPallet_[materialName]->CreateBuffer(System::getInstance()->getDxDevice()->getDevice());
@@ -44,7 +43,7 @@ IConstantBuffer<Material>* MaterialManager::Create(const std::string &materialNa
 // リファクタリング
 void MaterialManager::DebugUpdate(){
 #ifdef _DEBUG
-	for(auto &material : materialPallet_){
+	for(auto& material : materialPallet_){
 		if(!ImGui::TreeNode(material.first.c_str())){
 			continue;
 		}
@@ -52,7 +51,7 @@ void MaterialManager::DebugUpdate(){
 		ImGui::ColorEdit4(std::string(material.first + "Color").c_str(),&material.second->openData_.color_.x);
 
 		ImGui::Combo((material.first + " Lighting Type").c_str(),
-					 (int *)&material.second->openData_.enableLighting_,
+					 (int*)&material.second->openData_.enableLighting_,
 					 lightTypes,
 					 IM_ARRAYSIZE(lightTypes),
 					 3);
@@ -81,21 +80,19 @@ void MaterialManager::Finalize(){
 	materialPallet_.clear();
 }
 
-IConstantBuffer<Material>* MaterialManager::getMaterial(const std::string& name)
-{
+IConstantBuffer<Material>* MaterialManager::getMaterial(const std::string& name){
 	auto itr = materialPallet_.find(name);
-	if(itr == materialPallet_.end())
-	{
+	if(itr == materialPallet_.end()){
 		return nullptr;
 	}
 	return itr->second.get();
 }
 
-void MaterialManager::DeleteMaterial(const std::string &materialName){
+void MaterialManager::DeleteMaterial(const std::string& materialName){
 	materialPallet_[materialName].reset();
 	materialPallet_[materialName] = nullptr;
 
-	std::erase_if(materialPallet_,[](const auto &pair){
+	std::erase_if(materialPallet_,[](const auto& pair){
 		return pair.second == nullptr;
-	});
+				  });
 }
