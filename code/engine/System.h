@@ -6,21 +6,21 @@
 #include <vector>
 
 #include "deltaTime/DeltaTime.h"
-#include "directX12/buffer/light/DirectionalLight.h"
-#include "directX12/buffer/light/PointLight.h"
-#include "directX12/buffer/light/SpotLight.h"
-#include "directX12/buffer/Material.h"
-#include "directX12/dxCommand/DxCommand.h"
-#include "directX12/dxDevice/DxDevice.h"
-#include "directX12/dxFence/DxFence.h"
-#include "directX12/dxResource/dsv/DxDsv.h"
-#include "directX12/dxResource/rtv/DxRtvArray.h"
-#include "directX12/dxResource/srv/DxSrvArray.h"
-#include "directX12/dxSwapChain/DxSwapChain.h"
+#include "directX12/DxCommand.h"
+#include "directX12/DxCommand.h"
+#include "directX12/DxDevice.h"
+#include "directX12/DxDsv.h"
+#include "directX12/DxFence.h"
+#include "directX12/DxRtvArray.h"
+#include "directX12/DxSwapChain.h"
+#include "directX12/IConstantBuffer.h"
 #include "directX12/PipelineStateObj.h"
-#include "directX12/shaderManager/ShaderManager.h"
+#include "directX12/ShaderManager.h"
 #include "input/Input.h"
-#include "model/Model.h"
+#include "material/light/DirectionalLight.h"
+#include "material/light/PointLight.h"
+#include "material/light/SpotLight.h"
+#include "object3d/Object3d.h"
 #include "winApp/WinApp.h"
 
 #include "Matrix4x4.h"
@@ -28,6 +28,8 @@
 #include "Vector3.h"
 #include "Vector4.h"
 
+class Material;
+class MaterialManager;
 class System{
 	friend class PrimitiveDrawer;
 public:
@@ -67,9 +69,9 @@ private:
 
 	// buffers
 	std::unique_ptr<MaterialManager> materialManager_;
-	std::unique_ptr<DirectionalLight> directionalLight_;
-	std::unique_ptr<PointLight> pointLight_;
-	std::unique_ptr<SpotLight> spotLight_;
+	std::unique_ptr<IConstantBuffer<DirectionalLight>> directionalLight_;
+	std::unique_ptr<IConstantBuffer<PointLight>>       pointLight_;
+	std::unique_ptr<IConstantBuffer<SpotLight>>        spotLight_;
 
 	// Time
 	std::unique_ptr<DeltaTime> deltaTime_;
@@ -92,9 +94,9 @@ public:
 
 	float getDeltaTime()const{return deltaTime_->getDeltaTime();}
 
-	DirectionalLight* getDirectionalLight()const{ return directionalLight_.get(); }
-	PointLight* getPointLight()const{ return pointLight_.get(); }
-	SpotLight* getSpotLight()const{ return spotLight_.get(); }
+	IConstantBuffer<DirectionalLight>* getDirectionalLight()const{ return directionalLight_.get(); }
+	IConstantBuffer<PointLight>*       getPointLight()const{ return pointLight_.get(); }
+	IConstantBuffer<SpotLight>*        getSpotLight()const{ return spotLight_.get(); }
 };
 
-const std::string defaultReosurceFolder = "./resource";
+const std::string defaultResourceFolder = "./resource";

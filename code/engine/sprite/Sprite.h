@@ -1,73 +1,102 @@
 #pragma once
 
-#include "directX12/PipelineStateObj.h"
-#include "directX12/shaderManager/ShaderManager.h"
+#include "SpriteCommon.h"
 
-#include <Matrix4x4.h>
-#include <stdint.h>
-#include <Vector2.h>
-#include <Vector4.h>
+#include "Vector2.h"
 
-#include <memory>
+struct SpriteVertexData{
+	Vector4 pos;
+	Vector2 texcoord;
+};
+struct SpritConstBuffer{
+	Vector4 color_;
+	Matrix4x4 mat_;
+	Matrix4x4 uvMat_;
+};
+struct SpriteMesh{
+	void Init();
+	SpriteVertexData* vertexData = nullptr;
+	uint32_t* indexData = nullptr;
 
-#include "directX12/dxCommand/DxCommand.h"
-#include "directX12/dxResource/DxResource.h"
+	DxResource vertBuff;
+	DxResource indexBuff;
 
-#include <string>
+	D3D12_INDEX_BUFFER_VIEW ibView{};
+	D3D12_VERTEX_BUFFER_VIEW vbView{};
+};
 
-#include "directX12/buffer/Object3dMesh.h"
-
+class SpriteCommon;
 class Sprite{
+	friend class SpriteCommon;
 public:
-	static void Init();
-	static void Finalize();
-	static Sprite *Create(const Vector2 &pos,const Vector2 &size,const std::string &textureFilePath);
-private:
-	static BlendMode currentBlend_;
-private:
-	struct SpriteVertexData{
-		Vector4 pos;
-		Vector2 texcoord;
-	};
-	struct SpritConstBuffer{
-		Vector4 color_;
-		Matrix4x4 mat_;
-		Matrix4x4 uvMat_;
-	};
-	struct SpriteMesh{
-		void Init();
-		SpriteVertexData *vertexData = nullptr;
-		uint32_t *indexData = nullptr;
+	Sprite(SpriteCommon* spriteCommon):spriteCommon_(spriteCommon){}
+	~Sprite() = default;
 
-		DxResource vertBuff;
-		DxResource indexBuff;
-
-		D3D12_INDEX_BUFFER_VIEW ibView{};
-		D3D12_VERTEX_BUFFER_VIEW vbView{};
-	};
-
-	static Matrix4x4 viewPortMat_;
-	static void CreatePSO();
-	static std::unique_ptr<DxCommand> dxCommand_;
-	static std::array<PipelineStateObj *,kBlendNum> pso_;
-public:
+	/// <summary>
+	/// SpriteCommon::Create と同じ
+	/// </summary>
+	/// <param name="filePath"></param>
+	void Init(const std::string& filePath);
 	void Draw();
-public:
-	Vector3 uvScale = {1.0f,1.0f,1.0f};
-	Vector3 uvRotate,uvTranslate;
 
+	void Debug(const std::string& name);
+
+	void Update();
+	void ConvertMappingData();
 private:
-	std::unique_ptr<SpriteMesh> meshBuff_;
+	SpriteCommon* spriteCommon_;
 
+	Vector2 textureLeftTop_;
+	Vector2 textureSize_;
+
+	Vector2 anchorPoint_;
+
+	bool isFlipX_ = false;
+	bool isFlipY_ = false;
+
+	Vector2 size_;
+	float rotate_ = 0.0f;
+	Vector2 pos_;
 	Matrix4x4 worldMat_;
 
-	SpritConstBuffer *mappingConstBufferData_;
+	Vector3 uvScale_ = {1.0f,1.0f,1.0f};
+	Vector3 uvRotate_ = {0.0f,0.0f,0.0f};
+	Vector3 uvTranslate_;
+	Matrix4x4 uvMat_;
+
+	Vector4 color_ = {1.0f,1.0f,1.0f,1.0f};
+
+	SpritConstBuffer* mappingConstBufferData_;
+	std::unique_ptr<SpriteMesh> meshBuff_;
 	DxResource constBuff_;
 
-	uint32_t th_;
+	uint32_t textureIndex_;
 public:
-	void setColor(const Vector4 &color){ mappingConstBufferData_->color_ = color; }
-	void setSize(const Vector2 &size);
-	void setPos(const Vector2 &pos);
-	static void setBlendMode(BlendMode blend){ currentBlend_ = blend; }
+	void setSize(const Vector2& size){ size_ = size; }
+	const Vector2& GetSize() const{ return size_; }
+
+	void setRotate(float rotate){ rotate_ = rotate; }
+	float GetRotate() const{ return rotate_; }
+
+	void setPosition(const Vector2& pos){ pos_ = pos; }
+	const Vector2& GetPosition() const{ return pos_; }
+
+	void setUVScale(const Vector3& uvScale){ uvScale_ = uvScale; }
+	const Vector3& GetUVScale() const{ return uvScale_; }
+
+	void setUVRotate(const Vector3& uvRotate){ uvRotate_ = uvRotate; }
+	const Vector3& GetUVRotate() const{ return uvRotate_; }
+
+	void setUVTranslate(const Vector3& uvTranslate){ uvTranslate_ = uvTranslate; }
+	const Vector3& GetUVTranslate() const{ return uvTranslate_; }
+
+	void setAnchorPoint(const Vector2& anchor){ anchorPoint_ = anchor; }
+
+	void setFlipX(bool flipX){ isFlipX_ = flipX; }
+	void setFlipY(bool flipY){ isFlipY_ = flipY; }
+
+	void setTextureLeftTop(const Vector2& lt){ textureLeftTop_ = lt; }
+	const Vector2& getTextureLeftTop()const{ return textureLeftTop_; }
+	void setTextureSize(const Vector2& size){ textureSize_ = textureSize_; }
+	const Vector2& getTextureSize()const{ return textureSize_; }
 };

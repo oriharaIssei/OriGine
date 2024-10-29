@@ -1,17 +1,20 @@
 #include "System.h"
 
 #include "Audio/Audio.h"
-#include "directX12/dxFunctionHelper/DxFunctionHelper.h"
-#include "directX12/dxHeap/DxHeap.h"
-#include "imgui/imgui.h"
+#include "directX12/DxFunctionHelper.h"
+#include "directX12/DxHeap.h"
 #include "imGuiManager/ImGuiManager.h"
+#include "material/Material.h"
+#include "material/TextureManager.h"
+#include "object3d/ModelManager.h"
 #include "primitiveDrawer/PrimitiveDrawer.h"
-#include "sprite/Sprite.h"
+#include "sprite/SpriteCommon.h"
 #include "texture/RenderTexture.h"
-#include "texture/TextureManager.h"
 
-#include "directX12/dxResource/rtv/DxRtvArrayManager.h"
-#include "directX12/dxResource/srv/DxSrvArrayManager.h"
+#include "imgui/imgui.h"
+
+#include "directX12/DxRtvArrayManager.h"
+#include "directX12/DxSrvArrayManager.h"
 
 #include "logger/Logger.h"
 
@@ -76,22 +79,22 @@ void System::Init(){
 	ImGuiManager::getInstance()->Init(window_.get(),dxDevice_.get(),dxSwapChain_.get());
 
 	TextureManager::Init();
-
-	directionalLight_ = std::make_unique<DirectionalLight>();
-	directionalLight_->Init();
+	
+	directionalLight_ = std::make_unique<IConstantBuffer<DirectionalLight>>();
+	directionalLight_->CreateBuffer(dxDevice_->getDevice());
 	directionalLight_->ConvertToBuffer();
 
-	pointLight_ = std::make_unique<PointLight>();
-	pointLight_->Init();
+	pointLight_ = std::make_unique<IConstantBuffer<PointLight>>();
+	pointLight_->CreateBuffer(dxDevice_->getDevice());
 	pointLight_->ConvertToBuffer();
 
-	spotLight_ = std::make_unique<SpotLight>();
-	spotLight_->Init();
+	spotLight_ = std::make_unique<IConstantBuffer<SpotLight>>();
+	spotLight_->CreateBuffer(dxDevice_->getDevice());
 	spotLight_->ConvertToBuffer();
 
 	PrimitiveDrawer::Init();
-	Model::Init();
-	Sprite::Init();
+	ModelManager::getInstance()->Init();
+	SpriteCommon::getInstance()->Init();
 	RenderTexture::Awake();
 
 	materialManager_ = std::make_unique<MaterialManager>();
@@ -108,8 +111,8 @@ void System::Finalize(){
 
 	ShaderManager::getInstance()->Finalize();
 	PrimitiveDrawer::Finalize();
-	Sprite::Finalize();
-	Model::Finalize();
+	SpriteCommon::getInstance()->Finalize();
+	ModelManager::getInstance()->Finalize();
 	TextureManager::Finalize();
 
 	DxSrvArrayManager::getInstance()->Finalize();
@@ -148,12 +151,12 @@ void System::CreateTexturePSO(){
 
 #pragma region"RootParameter"
 	D3D12_ROOT_PARAMETER rootParameter[7]{};
-	// TransformBuffer ... 0
+	// Transform ... 0
 	rootParameter[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	rootParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 	rootParameter[0].Descriptor.ShaderRegister = 0;
 	texShaderInfo.pushBackRootParameter(rootParameter[0]);
-	// CameraBuffer ... 1
+	// CameraTransform ... 1
 	rootParameter[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	rootParameter[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 	rootParameter[1].Descriptor.ShaderRegister = 2;
@@ -253,7 +256,7 @@ void System::BeginFrame(){
 	PrimitiveDrawer::ResetInstanceVal();
 
 	PrimitiveDrawer::setBlendMode(BlendMode::Alpha);
-	Sprite::setBlendMode(BlendMode::Alpha);
+	//Sprite::setBlendMode(BlendMode::Alpha);
 }
 
 void System::EndFrame(){

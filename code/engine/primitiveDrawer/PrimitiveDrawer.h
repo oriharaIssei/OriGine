@@ -2,16 +2,17 @@
 
 #include <System.h>
 
-#include "directX12/shaderManager/ShaderManager.h"
+#include "directX12/ShaderManager.h"
 
 #include <directX12/PipelineStateObj.h>
 
-#include "directX12/buffer/Material.h"
-#include "directX12/buffer/Object3dMesh.h"
-#include "directX12/buffer/CameraBuffer.h"
-#include "directX12/buffer/TransformBuffer.h"
+#include "transform/CameraTransform.h"
+#include "directX12/IConstantBuffer.h"
+#include "material/Material.h"
+#include "directX12/Object3dMesh.h"
+#include "transform/Transform.h"
 
-#include "directX12/dxCommand/DxCommand.h"
+#include "directX12/DxCommand.h"
 
 #include <array>
 
@@ -28,9 +29,9 @@ public:
 	static void Init();
 	static void Finalize();
 
-	static void Line(const Vector3 &p0,const Vector3 &p1,const TransformBuffer &TransformBuffer,const CameraBuffer &viewProj,const Material *material);
-	static void Triangle(const Vector3 &p0,const Vector3 &p1,const Vector3 &p2,const TransformBuffer &TransformBuffer,const CameraBuffer &viewProj,const Material *material);
-	static void Quad(const Vector3 &p0,const Vector3 &p1,const Vector3 &p2,const Vector3 &p3,const TransformBuffer &TransformBuffer,const CameraBuffer &viewProj,const Material *material);
+	static void Line(const Vector3& p0,const Vector3& p1,const IConstantBuffer<Transform>& Transform,const IConstantBuffer<CameraTransform>& viewProj,const IConstantBuffer<Material>* material);
+	static void Triangle(const Vector3 &p0,const Vector3 &p1,const Vector3 &p2,const IConstantBuffer<Transform>&Transform,const IConstantBuffer<CameraTransform>&viewProj,const IConstantBuffer<Material>*material);
+	static void Quad(const Vector3 &p0,const Vector3 &p1,const Vector3 &p2,const Vector3 &p3,const IConstantBuffer<Transform>&Transform,const IConstantBuffer<CameraTransform>&viewProj,const IConstantBuffer<Material>*material);
 
 	static void ResetInstanceVal(){
 		lineInstanceVal_ = 0; triangleInstanceVal_ = 0; quadInstanceVal_ = 0;

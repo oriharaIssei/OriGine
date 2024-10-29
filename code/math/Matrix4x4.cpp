@@ -61,7 +61,7 @@ Matrix4x4 *Matrix4x4::operator*=(const Matrix4x4 &another) {
 	return this;
 }
 
-Matrix4x4 Matrix4x4::Transpose() {
+Matrix4x4 Matrix4x4::Transpose()const {
 	Matrix4x4 result;
 	for(int row = 0; row < 4; row++) {
 		for(int col = 0; col < 4; col++) {

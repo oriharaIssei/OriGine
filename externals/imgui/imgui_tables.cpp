@@ -3258,7 +3258,7 @@ void ImGui::TableAngledHeadersRowEx(float angle, float max_label_width)
                 max_x = ImMax(max_x, bg_shape[3].x);
 
                 // Draw label
-                // - First draw at an offset where RenderTextXXX() function won't meddle with applying current ClipRect, then TransformBuffer to final offset.
+                // - First draw at an offset where RenderTextXXX() function won't meddle with applying current ClipRect, then Transform to final offset.
                 // - Handle multiple lines manually, as we want each lines to follow on the horizontal border, rather than see a whole block rotated.
                 const char* label_name = TableGetColumnName(table, column_n);
                 const char* label_name_end = FindRenderedTextEnd(label_name);

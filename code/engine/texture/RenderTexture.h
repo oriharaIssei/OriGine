@@ -3,10 +3,11 @@
 #include <stdint.h>
 #include <string>
 
-#include "directX12/dxCommand/DxCommand.h"
-#include "directX12/dxResource/DxResource.h"
-#include "directX12/dxResource/rtv/DxRtvArray.h"
-#include "directX12/dxResource/srv/DxSrvArray.h"
+#include "directX12/DxCommand.h"
+#include "directX12/DxCommand.h"
+#include "directX12/DxResource.h"
+#include "directX12/DxRtvArray.h"
+#include "directX12/DxSrvArray.h"
 
 #include "Vector2.h"
 #include "Vector4.h"
