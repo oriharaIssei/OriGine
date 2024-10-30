@@ -28,6 +28,7 @@ IConstantBuffer<Material>* MaterialManager::Create(const std::string& materialNa
 		materialPallet_[materialName] = std::make_unique<IConstantBuffer<Material>>();
 		materialPallet_[materialName]->openData_.Init();
 		materialPallet_[materialName]->CreateBuffer(System::getInstance()->getDxDevice()->getDevice());
+		materialPallet_[materialName]->ConvertToBuffer();
 	}
 	return materialPallet_[materialName].get();
 }
@@ -36,6 +37,7 @@ IConstantBuffer<Material>* MaterialManager::Create(const std::string& materialNa
 	materialPallet_[materialName] = std::make_unique<IConstantBuffer<Material>>();
 	materialPallet_[materialName]->openData_ = data;
 	materialPallet_[materialName]->CreateBuffer(System::getInstance()->getDxDevice()->getDevice());
+	materialPallet_[materialName]->ConvertToBuffer();
 	return materialPallet_[materialName].get();
 }
 
