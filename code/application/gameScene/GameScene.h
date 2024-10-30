@@ -7,9 +7,9 @@
 
 #include "audio/Audio.h"
 #include "debugCamera/DebugCamera.h"
-#include "transform/CameraTransform.h"
 #include "engine/texture/RenderTexture.h"
-#include "particle/Emitter.h"
+#include "object3d/Object3d.h"
+#include "transform/CameraTransform.h"
 
 class Input;
 class MaterialManager;
@@ -39,7 +39,7 @@ private:
 	std::list<std::pair<std::string,std::string>> textureList_;
 	std::list<std::pair<std::string,std::string>> objectList_;
 
-	Emitter emitter_;
+	std::unique_ptr<Object3d> object_;
 
 	MaterialManager* materialManager_;
 };

@@ -6,22 +6,43 @@
 #include <unordered_map>
 
 #include "directX12/DxCommand.h"
+#include "directX12/Object3dMesh.h"
 #include "directX12/PipelineStateObj.h"
 #include "directX12/ShaderManager.h"
+#include "material/Material.h"
+#include "Matrix4x4.h"
 #include "Thread/Thread.h"
 
-#include "Matrix4x4.h"
+struct Material3D{
+	int textureNumber;
+	IConstantBuffer<Material>* material;
+};
+struct Mesh3D{
+	std::unique_ptr<IObject3dMesh> meshBuff;
+	size_t dataSize  = 0;
+	size_t vertSize  = 0;
+	size_t indexSize = 0;
+};
+struct ModelData{
+	Mesh3D meshData;
+	Material3D materialData;
+};
+struct Model{
+	enum class LoadState{
+		Loading,
+		Loaded,
+	};
+	std::vector<ModelData> data_;
+	LoadState currentState_;
+};
 
-class Object3d;
-struct Material3D;
-struct Model;
 struct TextureVertexData;
-
+class Object3d;
 class ModelManager{
 	friend class Object3d;
 public:
 	static ModelManager* getInstance();
-	Object3d* Create(const std::string& directoryPath,const std::string& filename);
+	Model* Create(const std::string& directoryPath,const std::string& filename);
 	void Init();
 
 	void PreDraw();
@@ -37,11 +58,11 @@ private:
 	struct LoadTask{
 		std::string directory;
 		std::string fileName ;
-		Object3d* model = nullptr;
+		Model* model = nullptr;
 		void Update();
 	};
 private:
 	std::unique_ptr<TaskThread<LoadTask>> loadThread_;
 
-	std::unordered_map<std::string,std::unique_ptr<Object3d>> modelLibrary_;
+	std::unordered_map<std::string,std::unique_ptr<Model>> modelLibrary_;
 };
