@@ -13,6 +13,7 @@ int WINAPI WinMain(HINSTANCE,HINSTANCE,LPSTR,int){
 	GlobalVariables* variables = GlobalVariables::getInstance();
 	std::unique_ptr<GameScene> scene = std::make_unique<GameScene>();
 
+
 	system->Init();
 	variables->LoadAllFile();
 	scene->Init();
