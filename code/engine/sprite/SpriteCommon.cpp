@@ -6,14 +6,12 @@
 #include "System.h"
 #include "material/TextureManager.h"
 
-SpriteCommon* SpriteCommon::getInstance()
-{
+SpriteCommon* SpriteCommon::getInstance(){
 	static SpriteCommon instance{};
 	return &instance;
 }
 
-void SpriteCommon::Init()
-{
+void SpriteCommon::Init(){
 	dxCommand_ = std::make_unique<DxCommand>();
 	dxCommand_->Init(System::getInstance()->getDxDevice()->getDevice(),"main","main");
 	CreatePSO();
@@ -21,21 +19,18 @@ void SpriteCommon::Init()
 	viewPortMat_ = MakeMatrix::Orthographic(0,0,(float)window->getWidth(),(float)window->getHeight(),0.0f,100.0f);
 }
 
-void SpriteCommon::PreDraw()
-{
+void SpriteCommon::PreDraw(){
 	auto commandList = dxCommand_->getCommandList();
 	commandList->SetGraphicsRootSignature(pso_[(int)currentBlend_]->rootSignature.Get());
 	commandList->SetPipelineState(pso_[(int)currentBlend_]->pipelineState.Get());
 	dxCommand_->getCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-void SpriteCommon::Finalize()
-{
+void SpriteCommon::Finalize(){
 	dxCommand_->Finalize();
 }
 
-Sprite* SpriteCommon::Create(const std::string& textureFilePath)
-{
+Sprite* SpriteCommon::Create(const std::string& textureFilePath){
 	Sprite* result = new Sprite(this);
 	result->textureIndex_ = TextureManager::LoadTexture(textureFilePath);
 
@@ -60,8 +55,7 @@ Sprite* SpriteCommon::Create(const std::string& textureFilePath)
 	return result;
 }
 
-void SpriteCommon::CreatePSO()
-{
+void SpriteCommon::CreatePSO(){
 	ShaderManager* shaderManager = ShaderManager::getInstance();
 
 	shaderManager->LoadShader("Sprite.VS");
@@ -143,8 +137,7 @@ void SpriteCommon::CreatePSO()
 		"Sprite_Screen"
 	};
 
-	for(size_t i = 0; i < kBlendNum; i++)
-	{
+	for(size_t i = 0; i < kBlendNum; i++){
 		pso_[i] = shaderManager->CreatePso(psoKeys[i],shaderInfo,System::getInstance()->getDxDevice()->getDevice());
 	}
 }

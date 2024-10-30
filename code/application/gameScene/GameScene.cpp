@@ -44,7 +44,10 @@ void GameScene::Init(){
 	textureList_ = myFs::SearchFile("./resource","png");
 	objectList_ = myFs::SearchFile("./resource","obj");
 
-	emitter_.Init(10,materialManager_);
+	object_.reset(Object3d::Create("resource","axis.obj"));
+	object_->transform_.CreateBuffer(System::getInstance()->getDxDevice()->getDevice());
+	object_->transform_.openData_.UpdateMatrix();
+	object_->transform_.ConvertToBuffer();
 }
 
 void GameScene::Update(){
@@ -56,7 +59,9 @@ void GameScene::Update(){
 	cameraBuff_.ConvertToBuffer();
 #endif // _DEBUG
 
-	emitter_.Update(cameraBuff_.openData_);
+#ifdef _DEBUG
+	materialManager_->DebugUpdate();
+#endif // _DEBUG
 }
 
 void GameScene::Draw(){
@@ -66,8 +71,7 @@ void GameScene::Draw(){
 	/// 3d Object
 	///===============================================
 	Object3d::PreDraw();
-
-	emitter_.Draw(cameraBuff_);
+	object_->Draw(cameraBuff_);
 
 	///===============================================
 	/// sprite

@@ -7,7 +7,6 @@
 #include <assimp/scene.h>
 
 #include "material/TextureManager.h"
-#include "Object3d/Object3d.h"
 #include "System.h"
 
 //===========================================================================
@@ -40,13 +39,13 @@ ModelManager* ModelManager::getInstance(){
 	return &instance;
 }
 
-Object3d* ModelManager::Create(const std::string& directoryPath,const std::string& filename){
+Model* ModelManager::Create(const std::string& directoryPath,const std::string& filename){
 	const auto itr = modelLibrary_.find(directoryPath + filename);
 	if(itr != modelLibrary_.end()){
 		return itr->second.get();
 	}
 
-	modelLibrary_[directoryPath + filename] = std::make_unique<Object3d>();
+	modelLibrary_[directoryPath + filename] = std::make_unique<Model>();
 
 	loadThread_->pushTask({directoryPath,filename,modelLibrary_[directoryPath + filename].get()});
 
@@ -81,37 +80,29 @@ void ModelManager::Init(){
 	}
 }
 
-void ModelManager::PreDraw(){
-
-
-}
-
 void ModelManager::Finalize(){
 	loadThread_->Finalize();
-
 	dxCommand_->Finalize();
-	
-
 	modelLibrary_.clear();
 }
 
-void ProcessMeshData(std::unique_ptr<ModelData>& modelData,const std::vector<TextureVertexData>& vertices,const std::vector<uint32_t>& indices){
+void ProcessMeshData(ModelData& modelData,const std::vector<TextureVertexData>& vertices,const std::vector<uint32_t>& indices){
 	TextureObject3dMesh* textureMesh = new TextureObject3dMesh();
 
-	modelData->meshData.dataSize = static_cast<int32_t>(sizeof(TextureVertexData) * vertices.size());
+	modelData.meshData.dataSize = static_cast<int32_t>(sizeof(TextureVertexData) * vertices.size());
 
 	textureMesh->Create(static_cast<UINT>(vertices.size()),static_cast<UINT>(indices.size()));
 	memcpy(textureMesh->vertData,vertices.data(),vertices.size() * sizeof(TextureVertexData));
-	modelData->meshData.meshBuff.reset(textureMesh);
+	modelData.meshData.meshBuff.reset(textureMesh);
 
-	memcpy(modelData->meshData.meshBuff->indexData,indices.data(),static_cast<UINT>(static_cast<size_t>(indices.size()) * sizeof(uint32_t)));
+	memcpy(modelData.meshData.meshBuff->indexData,indices.data(),static_cast<UINT>(static_cast<size_t>(indices.size()) * sizeof(uint32_t)));
 
-	modelData->meshData.vertSize
+	modelData.meshData.vertSize
 		= static_cast<int32_t>(vertices.size());
-	modelData->meshData.indexSize = static_cast<int32_t>(indices.size());
+	modelData.meshData.indexSize = static_cast<int32_t>(indices.size());
 }
 
-void LoadObjFile(std::vector<std::unique_ptr<ModelData>>* data,const std::string& directoryPath,const std::string& filename){
+void LoadObjFile(std::vector<ModelData>& data,const std::string& directoryPath,const std::string& filename){
 	Assimp::Importer importer;
 	std::string filePath = directoryPath + "/" + filename;
 	const aiScene* scene = importer.ReadFile(filePath.c_str(),aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
@@ -122,7 +113,7 @@ void LoadObjFile(std::vector<std::unique_ptr<ModelData>>* data,const std::string
 	std::vector<uint32_t> indices;
 
 	for(uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex){
-		data->emplace_back(new ModelData());
+		data.emplace_back(ModelData());
 		aiMesh* mesh = scene->mMeshes[meshIndex];
 		assert(mesh->HasNormals() && mesh->HasTextureCoords(0));
 
@@ -162,14 +153,15 @@ void LoadObjFile(std::vector<std::unique_ptr<ModelData>>* data,const std::string
 		aiString textureFilePath;
 		if(material->GetTexture(aiTextureType_DIFFUSE,0,&textureFilePath) == AI_SUCCESS){
 			std::string texturePath = directoryPath + "/" + textureFilePath.C_Str();
-			data->back()->materialData.textureNumber = TextureManager::LoadTexture(texturePath);
+			data.back().materialData.textureNumber = TextureManager::LoadTexture(texturePath);
+		} else{
+			data.back().materialData.textureNumber = 0;
 		}
-
 		// マテリアル名の設定（仮）
-		data->back()->materialData.material = System::getInstance()->getMaterialManager()->Create("white");
+		data.back().materialData.material = System::getInstance()->getMaterialManager()->Create("white");
 
 		// メッシュデータを処理
-		ProcessMeshData(data->back(),vertices,indices);
+		ProcessMeshData(data.back(),vertices,indices);
 
 		// リセット
 		vertices.clear();
@@ -179,7 +171,7 @@ void LoadObjFile(std::vector<std::unique_ptr<ModelData>>* data,const std::string
 }
 
 void ModelManager::LoadTask::Update(){
-	model->currentState_ = Object3d::LoadState::Loading;
-	LoadObjFile(&model->data_,this->directory,this->fileName);
-	model->currentState_ = Object3d::LoadState::Loaded;
+	model->currentState_ = Model::LoadState::Loading;
+	LoadObjFile(model->data_,this->directory,this->fileName);
+	model->currentState_ = Model::LoadState::Loaded;
 }

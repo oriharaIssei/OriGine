@@ -10,8 +10,7 @@
 
 #include <stdint.h>
 
-class IThread
-{
+class IThread{
 public:
 	IThread() = default;
 	virtual ~IThread(){}
@@ -35,28 +34,26 @@ protected:
 	std::condition_variable condition_;
 	bool stopThread_;
 public:
-	void StopThread() { 
+	void StopThread(){
 
 		std::lock_guard<std::mutex> lock(mutex_);
-		stopThread_ = true; 
+		stopThread_ = true;
 	}
-	void RunThread()  { 
+	void RunThread(){
 		std::lock_guard<std::mutex> lock(mutex_);
-		stopThread_ = false; 
+		stopThread_ = false;
 	}
 };
 
 template<typename T>
-concept HaveUpdate = requires(T t)
-{
+concept HaveUpdate = requires(T t){
 	{ t.Update() } -> std::same_as<void>; // Update()がvoid型であることも要求
 };
 template <HaveUpdate Task>
-class TaskThread:
-	public IThread
-{
+class TaskThread :
+	public IThread{
 public:
-	TaskThread():IThread() {}
+	TaskThread():IThread(){}
 	~TaskThread()override{}
 
 	void Init(int32_t threadNum)override;
@@ -66,40 +63,35 @@ private:
 
 	std::queue<Task> taskQueue_;
 public:
-	void pushTask(Task task)
-	{
-		std::unique_lock<std::mutex> lock(mutex_);
+	void pushTask(Task task){
+		std::lock_guard<std::mutex> lock(mutex_);
 		taskQueue_.emplace(task);
 		condition_.notify_one();
 	}
 };
 
 template<HaveUpdate Task>
-inline void TaskThread<Task>::Init(int32_t threadNum)
-{
+inline void TaskThread<Task>::Init(int32_t threadNum){
 	IThread::Init(threadNum);
 }
 
 template<HaveUpdate Task>
-inline void TaskThread<Task>::Finalize()
-{
+inline void TaskThread<Task>::Finalize(){
 	IThread::Finalize();
 }
 
 template<HaveUpdate Task>
-inline void TaskThread<Task>::Update()
-{
-	while(true)
-	{
+inline void TaskThread<Task>::Update(){
+	while(true){
 		Task task;
 		{
 			std::unique_lock<std::mutex> lock(IThread::mutex_);
-			IThread::condition_.wait(lock,[this] { return !taskQueue_.empty() || IThread::stopThread_; });
+			IThread::condition_.wait(lock,[this]{ return !taskQueue_.empty() || IThread::stopThread_; });
 
-			if(IThread::stopThread_ && taskQueue_.empty())
-			{
+			if(IThread::stopThread_){
 				return;
 			}
+
 			task = taskQueue_.front();
 			taskQueue_.pop();
 		}
