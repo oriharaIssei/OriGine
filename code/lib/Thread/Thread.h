@@ -88,6 +88,10 @@ inline void TaskThread<Task>::Update(){
 			std::unique_lock<std::mutex> lock(IThread::mutex_);
 			IThread::condition_.wait(lock,[this]{ return !taskQueue_.empty() || IThread::stopThread_; });
 
+			if(IThread::stopThread_){
+				return;
+			}
+
 			task = taskQueue_.front();
 			taskQueue_.pop();
 		}

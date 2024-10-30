@@ -45,8 +45,6 @@ public:
 	Model* Create(const std::string& directoryPath,const std::string& filename);
 	void Init();
 
-	void PreDraw();
-
 	void Finalize();
 private:
 	std::array<PipelineStateObj*,kBlendNum> texturePso_;

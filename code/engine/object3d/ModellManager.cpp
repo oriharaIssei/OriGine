@@ -80,14 +80,6 @@ void ModelManager::Init(){
 	}
 }
 
-void ModelManager::PreDraw(){
-	ID3D12GraphicsCommandList* commandList = dxCommand_->getCommandList();
-	commandList->SetGraphicsRootSignature(texturePso_[0]->rootSignature.Get());
-	commandList->SetPipelineState(texturePso_[0]->pipelineState.Get());
-
-	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
-}
-
 void ModelManager::Finalize(){
 	loadThread_->Finalize();
 	dxCommand_->Finalize();
