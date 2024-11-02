@@ -20,8 +20,7 @@
 
 constexpr char dockingIDName[] = "ObjectsWindow";
 
-GameScene::~GameScene(){
-}
+GameScene::~GameScene(){}
 
 void GameScene::Init(){
 	debugCamera_ = std::make_unique<DebugCamera>();
@@ -44,34 +43,55 @@ void GameScene::Init(){
 	textureList_ = myFs::SearchFile("./resource","png");
 	objectList_ = myFs::SearchFile("./resource","obj");
 
-	object_.reset(Object3d::Create("resource","axis.obj"));
-	object_->transform_.CreateBuffer(System::getInstance()->getDxDevice()->getDevice());
-	object_->transform_.openData_.UpdateMatrix();
-	object_->transform_.ConvertToBuffer();
+	railEditor_ = std::make_unique<RailEditor>(cameraBuff_.openData_);
+	railEditor_->Init();
+	railCamera_ = std::make_unique<RailCamera>(railEditor_->getControlPointPositions());
+	railCamera_->Init(railEditor_->getSegmentCount());
 }
 
 void GameScene::Update(){
 #ifdef _DEBUG
-	debugCamera_->Update();
-	debugCamera_->DebugUpdate();
-	cameraBuff_.openData_.viewMat = debugCamera_->getCameraTransform().viewMat;
-	cameraBuff_.openData_.projectionMat = debugCamera_->getCameraTransform().projectionMat;
-	cameraBuff_.ConvertToBuffer();
+	if(input_->isTriggerKey(DIK_F1)){
+		isDebugCamera_ = !isDebugCamera_;
+	}
+
+	if(isDebugCamera_){
+		debugCamera_->Update();
+		debugCamera_->DebugUpdate();
+		cameraBuff_.openData_.viewMat = debugCamera_->getCameraTransform().viewMat;
+		cameraBuff_.openData_.projectionMat = debugCamera_->getCameraTransform().projectionMat;
+	} else{
+		railCamera_->Update();
+		cameraBuff_.openData_.viewMat = railCamera_->getCameraBuffer().viewMat;
+		cameraBuff_.openData_.projectionMat = railCamera_->getCameraBuffer().projectionMat;
+	}
+#else
+	railCamera_->Update();
+	cameraBuff_.openData_.viewMat = railCamera_->getCameraBuffer().viewMat;
+	cameraBuff_.openData_.projectionMat = railCamera_->getCameraBuffer().projectionMat;
 #endif // _DEBUG
 
+	cameraBuff_.ConvertToBuffer();
+
+	railEditor_->Update();
+
+
 #ifdef _DEBUG
+	ImGui::Begin("Materials");
 	materialManager_->DebugUpdate();
+	ImGui::End();
 #endif // _DEBUG
 }
 
 void GameScene::Draw(){
 	sceneView_->PreDraw();
-	
+
 	///===============================================
 	/// 3d Object
 	///===============================================
 	Object3d::PreDraw();
-	object_->Draw(cameraBuff_);
+	railCamera_->Draw(cameraBuff_);
+	railEditor_->Draw(cameraBuff_);
 
 	///===============================================
 	/// sprite

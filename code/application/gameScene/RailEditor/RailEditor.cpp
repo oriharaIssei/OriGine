@@ -14,15 +14,15 @@
 #include "Spline.h"
 
 void ControlPoint::Init(const Vector3 pos,float radius){
-	transform_.Init();
-	transform_.translate = pos;
+	transform_.CreateBuffer(System::getInstance()->getDxDevice()->getDevice());
+	transform_.openData_.translate = pos;
 	radius_ = radius;
 }
 
 void ControlPoint::Update(int32_t num){
 #ifdef _DEBUG
 	std::string label = "Translate_" + std::to_string(num);
-	ImGui::DragFloat3(label.c_str(),&transform_.translate.x,0.1f);
+	ImGui::DragFloat3(label.c_str(),&transform_.openData_.translate.x,0.1f);
 #endif // _DEBUG
 
 	///===========================================================================
@@ -38,86 +38,96 @@ void ControlPoint::Update(int32_t num){
 	// Y 軸に pi/2 回転させる
 	Matrix4x4 billboardMat = cameraRotateMat.Inverse();
 
-	transform_.worldMat = MakeMatrix::Scale(transform_.scale) * billboardMat * MakeMatrix::Translate(transform_.translate);
+	transform_.openData_.worldMat = MakeMatrix::Scale(transform_.openData_.scale) * billboardMat * MakeMatrix::Translate(transform_.openData_.translate);
 	transform_.ConvertToBuffer();
 }
 
-void ControlPoint::Draw(const Material* material){
+void ControlPoint::Draw(const IConstantBuffer<CameraTransform>& cameraTrans,const IConstantBuffer<Material>* material){
 	Vector3 p[3];
 
 	p[0] = {0,radius_,0};
 	p[1] = {radius_,-radius_,0};
 	p[2] = {-radius_,-radius_,0};
-	PrimitiveDrawer::Triangle(p[0],p[1],p[2],transform_,pCameraBuffer_,material);
+	PrimitiveDrawer::Triangle(p[0],p[1],p[2],transform_,cameraTrans,material);
 }
 
 void RailEditor::Init(){
 	origin_.Init();
+
 	Load();
+	for(auto& point : ctlPoints_){
+		controlPointPositions_.push_back(point->getWorldPosition());
+	}
+
+	for(size_t i = 0; i < segmentCount_; ++i){
+		float t = 1.0f / segmentCount_ * i;
+		splineSegmentPoint_.push_back(CatmullRomInterpolation(controlPointPositions_,t));
+		auto& rail = railObjects_.emplace_back(Object3d::Create("./resource","rail.obj"));
+		rail->transform_.CreateBuffer(System::getInstance()->getDxDevice()->getDevice());
+		rail->transform_.ConvertToBuffer();
+	}
 }
 
 void RailEditor::Update(){
-	int32_t index = 0;
 	ImGui::Begin("RailEditor");
 	if(ImGui::Button("Add controlPoint")){
-	
+
 		ctlPoints_.emplace_back(new ControlPoint(pCameraBuffer_));
 		ctlPoints_.back()->Init({0.0f,0.0f,0.0f},1.0f);
 	}
-	if(ImGui::Button("Save"))
-	{
+	if(ImGui::Button("Save")){
 		Save();
 	}
 	ImGui::End();
+
+
+	int32_t index = 0;
+	controlPointPositions_.clear();
 	for(auto& ctlPoint : ctlPoints_){
 		ctlPoint->Update(index);
+		controlPointPositions_.push_back(ctlPoint->getWorldPosition());
 		++index;
+	}
+
+	splineSegmentPoint_.clear();
+	for(uint32_t i = 0; i < segmentCount_; i++){
+		float t = 1.0f / segmentCount_ * i;
+		splineSegmentPoint_.push_back(CatmullRomInterpolation(controlPointPositions_,t));
+	}
+	for(uint32_t i = 0; i < segmentCount_ - 1; i++){
+		railObjects_[i]->transform_.openData_.translate = splineSegmentPoint_[i];
+		Vector3 diff = splineSegmentPoint_[i] - splineSegmentPoint_[i + 1];
+		railObjects_[i]->transform_.openData_.rotate.y = atan2(diff.x,diff.z);
+		railObjects_[i]->transform_.openData_.UpdateMatrix();
+		railObjects_[i]->transform_.ConvertToBuffer();
 	}
 }
 
 // 可変長のポイントからCatmull-Rom補間を行う関数
-void RailEditor::Draw(){
-	controlPointPositions_.clear();
+void RailEditor::Draw(const IConstantBuffer<CameraTransform>& cameraTrans){
+	for(auto& rail : railObjects_){
+		rail->Draw(cameraTrans);
+	}
 	for(auto& point : ctlPoints_){
-		point->Draw(System::getInstance()->getMaterialManager()->getMaterial("white"));
-		controlPointPositions_.push_back(point->getWorldPosition());
-	}
-
-	splineSegmentPoint_.clear();
-	for(size_t i = 0; i < segmentCount_; ++i){
-		float t = 1.0f / segmentCount_ * i;
-		splineSegmentPoint_.push_back(CatmullRomInterpolation(controlPointPositions_,t));
-	}
-	
-	for(size_t i = 1; i < splineSegmentPoint_.size(); i++)
-	{
-		PrimitiveDrawer::Line(splineSegmentPoint_[i-1],
-							  splineSegmentPoint_[i],
-							  origin_,
-							  pCameraBuffer_,
-							  System::getInstance()->getMaterialManager()->getMaterial("white"));
+		point->Draw(cameraTrans,System::getInstance()->getMaterialManager()->getMaterial("white"));
 	}
 }
 
 std::string filename = "resource/RailPoint.csv";
-void RailEditor::Load()
-{
+void RailEditor::Load(){
 	std::ifstream file(filename);
 
-	if(!file.is_open())
-	{
+	if(!file.is_open()){
 		std::cerr << "Error opening file: " << filename << std::endl;
-		return ;
+		return;
 	}
 
 	std::string line;
 	bool firstLine = true;
 
-	while(std::getline(file,line))
-	{
-// 最初の行（ヘッダー行）をスキップ
-		if(firstLine)
-		{
+	while(std::getline(file,line)){
+		// 最初の行（ヘッダー行）をスキップ
+		if(firstLine){
 			firstLine = false;
 			continue;
 		}
@@ -127,14 +137,12 @@ void RailEditor::Load()
 		std::vector<float> values;
 
 		// カンマ区切りでデータを読み込む
-		while(std::getline(ss,item,','))
-		{
+		while(std::getline(ss,item,',')){
 			values.push_back(std::stof(item));  // 文字列をfloatに変換
 		}
 
 		// Vector3として追加
-		if(values.size() == 3)
-		{
+		if(values.size() == 3){
 			ctlPoints_.push_back(std::make_unique<ControlPoint>(pCameraBuffer_));
 			ctlPoints_.back()->Init({values[0],values[1],values[2]},0.1f);
 		}
@@ -143,13 +151,11 @@ void RailEditor::Load()
 	file.close();
 }
 
-void RailEditor::Save()
-{
-	
+void RailEditor::Save(){
+
 	std::ofstream file(filename);
 
-	if(!file.is_open())
-	{
+	if(!file.is_open()){
 		std::cerr << "Error opening file: " << filename << std::endl;
 		return;
 	}
@@ -159,8 +165,7 @@ void RailEditor::Save()
 
 	// データを書き込む
 	Vector3 pos;
-	for(const auto& point : ctlPoints_)
-	{
+	for(const auto& point : ctlPoints_){
 		pos = point->getTranslate();
 		file << pos.x << "," << pos.y << "," << pos.z << std::endl;
 	}

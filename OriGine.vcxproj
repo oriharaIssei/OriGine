@@ -95,7 +95,8 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="code\gameScene\Beam.cpp" />
+    <ClCompile Include="code\application\Beam.cpp" />
+    <ClCompile Include="code\application\railCamera\RailCamera.cpp" />
     <ClCompile Include="code\engine\audio\Audio.cpp" />
     <ClCompile Include="code\lib\debugCamera\DebugCamera.cpp" />
     <ClCompile Include="code\lib\deltaTime\DeltaTime.cpp" />
@@ -137,11 +138,10 @@
     <ClCompile Include="code\application\gameScene\GameScene.cpp" />
     <ClCompile Include="code\application\gameScene\particle\Emitter.cpp" />
     <ClCompile Include="code\application\gameScene\particle\Particle.cpp" />
-    <ClCompile Include="code\gameScene\railCamera\RailCamera.cpp" />
     <ClCompile Include="code\lib\globalVariables\GlobalVariables.cpp" />
     <ClCompile Include="code\lib\imGuiManager\ImGuiManager.cpp" />
     <ClCompile Include="code\lib\myFileSystem\MyFileSystem.cpp" />
-    <ClCompile Include="code\lib\RailEditor\RailEditor.cpp" />
+    <ClCompile Include="code\application\gameScene\RailEditor\RailEditor.cpp" />
     <ClCompile Include="code\main.cpp" />
     <ClCompile Include="code\math\Matrix4x4.cpp" />
     <ClCompile Include="code\math\Spline.cpp" />
@@ -156,7 +156,8 @@
     <ClCompile Include="code\lib\Thread\Thread.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="code\gameScene\Beam.h" />
+    <ClInclude Include="code\application\Beam.h" />
+    <ClInclude Include="code\application\railCamera\RailCamera.h" />
     <ClInclude Include="code\engine\audio\Audio.h" />
     <ClInclude Include="code\lib\debugCamera\DebugCamera.h" />
     <ClInclude Include="code\lib\deltaTime\DeltaTime.h" />
@@ -199,11 +200,10 @@
     <ClInclude Include="code\application\gameScene\GameScene.h" />
     <ClInclude Include="code\application\gameScene\particle\Emitter.h" />
     <ClInclude Include="code\application\gameScene\particle\Particle.h" />
-    <ClInclude Include="code\gameScene\railCamera\RailCamera.h" />
     <ClInclude Include="code\lib\globalVariables\GlobalVariables.h" />
     <ClInclude Include="code\lib\imGuiManager\ImGuiManager.h" />
     <ClInclude Include="code\lib\myFileSystem\MyFileSystem.h" />
-    <ClInclude Include="code\lib\RailEditor\RailEditor.h" />
+    <ClInclude Include="code\application\gameScene\RailEditor\RailEditor.h" />
     <ClInclude Include="code\math\Matrix4x4.h" />
     <ClInclude Include="code\math\Spline.h" />
     <ClInclude Include="code\math\Vector2.h" />

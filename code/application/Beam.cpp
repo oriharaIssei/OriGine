@@ -5,14 +5,13 @@
 #include "globalVariables/GlobalVariables.h"
 #include "input/Input.h"
 #include "System.h"
-#include "directX12/buffer/CameraBuffer.h"
-#include "directX12/buffer/TransformBuffer.h"
+#include "transform/CameraTransform.h"
+#include "transform/Transform.h"
 #include "primitiveDrawer/PrimitiveDrawer.h"
 
 #include "railCamera/RailCamera.h"
 
-void Beam::Initialize()
-{
+void Beam::Initialize(){
 	GlobalVariables* variables = GlobalVariables::getInstance();
 	variables->addValue("Game","Beam","lostEnergyPerSeconds_",lostEnergyPerSeconds_);
 	variables->addValue("Game","Beam","healingEnergyPerSeconds_",healingEnergyPerSeconds_);
@@ -26,11 +25,10 @@ void Beam::Initialize()
 	viewPortMat_ = MakeMatrix::Orthographic(0,0,(float)window->getWidth(),(float)window->getHeight(),0.0f,100.0f);
 }
 
-void Beam::Update(const RailCamera* camera,Input* input)
-{
+void Beam::Update(const RailCamera* camera,Input* input){
 	{ // Direction Update
 		Vector3 mousePos = {input->getCurrentMousePos(),0.0f};
-		const CameraBuffer& cameraBuff = camera->getCameraBuffer();
+		const CameraTransform& cameraBuff = camera->getCameraBuffer();
 		Matrix4x4 inverseVpv = (cameraBuff.viewMat * cameraBuff.projectionMat * viewPortMat_).Inverse();
 		Vector3 mouseOnNearClip = inverseVpv * mousePos;
 		mousePos.z = 1.0f;
@@ -43,11 +41,9 @@ void Beam::Update(const RailCamera* camera,Input* input)
 		const float& deltaTime = System::getInstance()->getDeltaTime();
 
 		isActive_ = input->isPressKey(DIK_SPACE) || leftEnergy_ > 0.0f;
-		if(isActive_)
-		{
+		if(isActive_){
 			leftEnergy_ -= lostEnergyPerSeconds_ * deltaTime;
-		} else
-		{
+		} else{
 			leftEnergy_ += healingEnergyPerSeconds_ * deltaTime;
 		}
 		leftEnergy_ = std::clamp(leftEnergy_,0.0f,maxEnergy_);
@@ -58,11 +54,9 @@ void Beam::Update(const RailCamera* camera,Input* input)
 	transform_.UpdateMatrix();
 }
 
-void Beam::Draw(const CameraBuffer& cameraBuff)
-{
-	if(!isActive_)
-	{
+void Beam::Draw(const CameraTransform& cameraBuff){
+	if(!isActive_){
 		return;
 	}
-	PrimitiveDrawer::Line({0.0f,0.0f,0.0f},end_,transform_,cameraBuff,System::getInstance()->getMaterialManager()->getMaterial("white"));
+	//PrimitiveDrawer::Line({0.0f,0.0f,0.0f},end_,transform_,cameraBuff,System::getInstance()->getMaterialManager()->getMaterial("white"));
 }

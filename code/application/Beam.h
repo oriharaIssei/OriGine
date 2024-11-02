@@ -1,21 +1,20 @@
 #pragma once
 
-#include "model/Model.h"
+#include "object3d/Object3d.h"
 
 #include "Matrix4x4.h"
 #include "Vector3.h"
 
 class Input;
-class TransformBuffer;
-class CameraBuffer;
+struct Transform;
+class CameraTransform;
 class RailCamera;
 
-class Beam
-{
+class Beam{
 public:
 	void Initialize();
 	void Update(const RailCamera* camera,Input* input);
-	void Draw(const CameraBuffer& cameraBuff);
+	void Draw(const CameraTransform& cameraBuff);
 private:
 	bool isActive_;
 	float lostEnergyPerSeconds_;
@@ -28,9 +27,9 @@ private:
 	float length_ = 5.0f;
 
 	Vector3 end_;
-	TransformBuffer transform_;
+	Transform transform_;
 
 	Matrix4x4 viewPortMat_;
 public:
-	void SetOrigin(const Vector3 &origin){transform_.translate = origin;}
+	void SetOrigin(const Vector3& origin){ transform_.translate = origin; }
 };
