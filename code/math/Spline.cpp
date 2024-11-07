@@ -44,3 +44,49 @@ Vector3 CatmullRomInterpolation(const std::vector<Vector3>& points,float t){
 
 	return CatmullRomInterpolation(p0,p1,p2,p3,t_2);
 }
+
+Spline::Spline(const std::vector<Vector3>& points): controlPoints_(points){
+	CalculateArcLength();
+}
+
+void Spline::CalculateArcLength(){
+	arcLengthSegments_.clear();
+	totalLength_ = 0.0f;
+	constexpr int NUM_STEPS = 1000;
+	Vector3 prevPoint = GetPosition(0.0f);
+	arcLengthSegments_.emplace_back(ArcLengthSegment{0.0f,0.0f});
+
+	for(int i = 1; i <= NUM_STEPS; ++i){
+		float t = static_cast<float>(i) / NUM_STEPS;
+		Vector3 currentPoint = GetPosition(t);
+		float segmentLength = (currentPoint - prevPoint).length();
+		totalLength_ += segmentLength;
+		arcLengthSegments_.emplace_back(ArcLengthSegment{t,totalLength_});
+		prevPoint = currentPoint;
+	}
+}
+
+float Spline::GetTFromDistance(float distance) const{
+	if(distance <= 0.0f) return 0.0f;
+	if(distance >= totalLength_) return 1.0f;
+
+	// 二分探索で対応するセグメントを探す
+	size_t low = 0;
+	size_t high = arcLengthSegments_.size() - 1;
+	while(low <= high){
+		size_t mid = low + (high - low) / 2;
+		if(arcLengthSegments_[mid].length < distance){
+			low = mid + 1;
+		} else{
+			high = mid - 1;
+		}
+	}
+
+	// 線形補間でtを計算
+	if(low == 0) return arcLengthSegments_[0].t;
+	float prevLength = arcLengthSegments_[low - 1].length;
+	float segmentLength = arcLengthSegments_[low].length - prevLength;
+	float segmentT = arcLengthSegments_[low].t - arcLengthSegments_[low - 1].t;
+	float ratio = (distance - prevLength) / segmentLength;
+	return arcLengthSegments_[low - 1].t + ratio * segmentT;
+}

@@ -8,10 +8,10 @@
 #include "directX12/DxRtvArray.h"
 #include "directX12/DxRtvArrayManager.h"
 #include "directX12/DxSrvArrayManager.h"
-#include "sprite/SpriteCommon.h"
 #include "material/TextureManager.h"
 #include "myFileSystem/MyFileSystem.h"
 #include "primitiveDrawer/PrimitiveDrawer.h"
+#include "sprite/SpriteCommon.h"
 #include "System.h"
 
 #ifdef _DEBUG
@@ -45,8 +45,12 @@ void GameScene::Init(){
 
 	railEditor_ = std::make_unique<RailEditor>(cameraBuff_.openData_);
 	railEditor_->Init();
-	railCamera_ = std::make_unique<RailCamera>(railEditor_->getControlPointPositions());
+
+	spline_ = std::make_unique<Spline>(railEditor_->getControlPointPositions());
+
+	railCamera_ = std::make_unique<RailCamera>();
 	railCamera_->Init(railEditor_->getSegmentCount());
+	railCamera_->SetSpline(spline_.get());
 }
 
 void GameScene::Update(){
@@ -81,7 +85,7 @@ void GameScene::Update(){
 	materialManager_->DebugUpdate();
 	ImGui::End();
 #endif // _DEBUG
-}
+	}
 
 void GameScene::Draw(){
 	System::getInstance()->getDirectionalLight()->openData_.DebugUpdate();

@@ -79,7 +79,7 @@ void System::Init(){
 	ImGuiManager::getInstance()->Init(window_.get(),dxDevice_.get(),dxSwapChain_.get());
 
 	TextureManager::Init();
-	
+
 	directionalLight_ = std::make_unique<IConstantBuffer<DirectionalLight>>();
 	directionalLight_->CreateBuffer(dxDevice_->getDevice());
 	directionalLight_->ConvertToBuffer();
@@ -257,10 +257,10 @@ void System::BeginFrame(){
 
 	PrimitiveDrawer::setBlendMode(BlendMode::Alpha);
 	//Sprite::setBlendMode(BlendMode::Alpha);
+	deltaTime_->Update();
 }
 
-void System::EndFrame(){
-}
+void System::EndFrame(){}
 
 void System::ScreenPreDraw(){
 	DxFH::PreDraw(dxCommand_.get(),window_.get(),dxSwapChain_.get());
@@ -269,7 +269,7 @@ void System::ScreenPreDraw(){
 void System::ScreenPostDraw(){
 	ImGuiManager::getInstance()->End();
 	ImGuiManager::getInstance()->Draw();
-	
+
 	HRESULT hr;
 	ID3D12GraphicsCommandList* commandList = dxCommand_->getCommandList();
 	///===============================================================
@@ -296,14 +296,10 @@ void System::ScreenPostDraw(){
 	dxSwapChain_->Present();
 
 	// Frame Lock
-	deltaTime_->Update();
-	if(deltaTime_->getDeltaTime() >= 1.0f / fps_)
-	{
-		while(deltaTime_->getDeltaTime() >= 1.0f / fps_)
-		{
-			deltaTime_->Update();
-		}
-	}
+	/*deltaTime_->Update();
+	while(deltaTime_->getDeltaTime() >= 1.0f / fps_){
+		deltaTime_->Update();
+	}*/
 	///===============================================================
 	/// コマンドリストの実行を待つ
 	///===============================================================

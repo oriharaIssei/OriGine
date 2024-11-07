@@ -16,6 +16,8 @@
 void ControlPoint::Init(const Vector3 pos,float radius){
 	transform_.CreateBuffer(System::getInstance()->getDxDevice()->getDevice());
 	transform_.openData_.translate = pos;
+	transform_.openData_.UpdateMatrix();
+	transform_.ConvertToBuffer();
 	radius_ = radius;
 }
 

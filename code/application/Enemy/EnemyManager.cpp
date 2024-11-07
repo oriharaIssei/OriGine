@@ -8,7 +8,7 @@
 const std::string directory = "resource/";
 
 void EnemyManager::Init(){
-
+	Load();
 }
 
 void EnemyManager::Update(){
@@ -33,4 +33,4 @@ std::list<std::unique_ptr<Enemy>>& EnemySpawnEvent::Spawn(){
 	return enemies_;
 }
 
-void EnemySpawnEvent::SetEnemy(std::unique_ptr<Enemy> enemy){ enemies_.emplace_back(std::move(enemies_)); }
+void EnemySpawnEvent::SetEnemy(std::unique_ptr<Enemy> enemy){ enemies_.push_back(std::move(enemy)); }

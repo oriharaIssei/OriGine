@@ -13,6 +13,7 @@
 
 #include "../railCamera/RailCamera.h"
 #include "RailEditor/RailEditor.h"
+#include "Spline.h"
 
 #include "../Beam/Beam.h"
 
@@ -20,6 +21,8 @@ class Input;
 class MaterialManager;
 class DxRtvArray;
 class DxSrvArray;
+
+class Spline;
 
 struct Matrix4x4;
 struct Vector3;
@@ -47,6 +50,7 @@ private:
 	std::unique_ptr<RenderTexture> sceneView_;
 
 	std::unique_ptr<RailEditor> railEditor_;
+	std::unique_ptr<Spline> spline_;
 	std::unique_ptr<RailCamera> railCamera_;
 
 	std::list<std::pair<std::string,std::string>> textureList_;
