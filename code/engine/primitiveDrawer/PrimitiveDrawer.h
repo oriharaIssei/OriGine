@@ -29,6 +29,8 @@ public:
 	static void Init();
 	static void Finalize();
 
+	static void PreDraw();
+
 	static void Line(const Vector3& p0,const Vector3& p1,const IConstantBuffer<Transform>& Transform,const IConstantBuffer<CameraTransform>& viewProj,const IConstantBuffer<Material>* material);
 	static void Triangle(const Vector3 &p0,const Vector3 &p1,const Vector3 &p2,const IConstantBuffer<Transform>&Transform,const IConstantBuffer<CameraTransform>&viewProj,const IConstantBuffer<Material>*material);
 	static void Quad(const Vector3 &p0,const Vector3 &p1,const Vector3 &p2,const Vector3 &p3,const IConstantBuffer<Transform>&Transform,const IConstantBuffer<CameraTransform>&viewProj,const IConstantBuffer<Material>*material);

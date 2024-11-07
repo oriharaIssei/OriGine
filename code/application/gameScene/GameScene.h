@@ -14,7 +14,7 @@
 #include "../railCamera/RailCamera.h"
 #include "RailEditor/RailEditor.h"
 
-#include "../Beam.h"
+#include "../Beam/Beam.h"
 
 class Input;
 class MaterialManager;

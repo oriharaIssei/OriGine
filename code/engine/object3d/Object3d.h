@@ -36,12 +36,13 @@ private:
 	void DrawThis(const IConstantBuffer<CameraTransform>& view);
 private:
 	Model* data_;
-	
+
 	std::array<std::function<void(const IConstantBuffer<CameraTransform>&)>,2> drawFuncTable_ = {
 		[this](const IConstantBuffer<CameraTransform>& view){ NotDraw(view); },
 		[this](const IConstantBuffer<CameraTransform>& view){ DrawThis(view); }
 	};
 public:
+	void SetModel(Model* model){ data_ = model; }
 	const Model* getData()const;
 	void setMaterial(IConstantBuffer<Material>* material,uint32_t index = 0);
 };

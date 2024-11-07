@@ -1,7 +1,6 @@
 #include "Spline.h"
 
-Vector3 CatmullRomInterpolation(const Vector3& p0,const Vector3& p1,const Vector3& p2,const Vector3& p3,float t)
-{
+Vector3 CatmullRomInterpolation(const Vector3& p0,const Vector3& p1,const Vector3& p2,const Vector3& p3,float t){
 	constexpr float half = 0.5f;
 
 	float t2 = t * t;
@@ -15,8 +14,7 @@ Vector3 CatmullRomInterpolation(const Vector3& p0,const Vector3& p1,const Vector
 	return half * (e3 * t3 + e2 * t2 + e1 * t + e0);
 }
 
-Vector3 CatmullRomInterpolation(const std::vector<Vector3>& points,float t)
-{
+Vector3 CatmullRomInterpolation(const std::vector<Vector3>& points,float t){
 	assert(points.size() >= 4 && "制御点は 4点以上必要です");
 	size_t division = points.size() - 1;
 	float areaWidth = 1.0f / division;
@@ -32,12 +30,10 @@ Vector3 CatmullRomInterpolation(const std::vector<Vector3>& points,float t)
 	size_t index2 = index + 1;
 	size_t index3 = index + 2;
 
-	if(index == 0)
-	{
+	if(index == 0){
 		index0 = index1;
 	}
-	if(index3 >= points.size())
-	{
+	if(index3 >= points.size()){
 		index3 = index2;
 	}
 

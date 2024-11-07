@@ -84,6 +84,10 @@ void GameScene::Update(){
 }
 
 void GameScene::Draw(){
+	System::getInstance()->getDirectionalLight()->openData_.DebugUpdate();
+	System::getInstance()->getPointLight()->openData_.DebugUpdate();
+	System::getInstance()->getSpotLight()->openData_.DebugUpdate();
+
 	sceneView_->PreDraw();
 
 	///===============================================
@@ -96,7 +100,7 @@ void GameScene::Draw(){
 	///===============================================
 	/// sprite
 	///===============================================
-	SpriteCommon::getInstance()->PreDraw();
+	//SpriteCommon::getInstance()->PreDraw();
 
 
 	sceneView_->PostDraw();

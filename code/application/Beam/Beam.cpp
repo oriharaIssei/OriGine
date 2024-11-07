@@ -9,7 +9,7 @@
 #include "transform/Transform.h"
 #include "primitiveDrawer/PrimitiveDrawer.h"
 
-#include "railCamera/RailCamera.h"
+#include "../railCamera/RailCamera.h"
 
 void Beam::Initialize(){
 	GlobalVariables* variables = GlobalVariables::getInstance();

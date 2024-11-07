@@ -10,16 +10,15 @@
 
 #include "Vector3.h"
 
-class RailCamera
-{
+class RailCamera{
 public:
 	RailCamera(const std::vector<Vector3>& controlPoints):controlPoints_(controlPoints){}
 	~RailCamera(){}
 	void Init(int32_t dimension);
 	void Update();
 	void Draw(const IConstantBuffer<CameraTransform>& cameraBuff);
-	
-	void Reset(){count_ = 0;}
+
+	void Reset(){ count_ = 0; }
 private:
 	std::unique_ptr<Object3d> object_;
 	CameraTransform cameraBuff_;
@@ -28,7 +27,7 @@ private:
 	int32_t count_;
 	int32_t dimension_;
 public:
-	const CameraTransform& getCameraBuffer()const{return cameraBuff_;}
-	const Transform& getTransform()const{return object_->transform_.openData_;}
-	void setDimension(int32_t dimension){dimension_ = dimension;}
+	const CameraTransform& getCameraBuffer()const{ return cameraBuff_; }
+	const Transform& getTransform()const{ return object_->transform_.openData_; }
+	void setDimension(int32_t dimension){ dimension_ = dimension; }
 };

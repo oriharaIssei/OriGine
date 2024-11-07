@@ -71,6 +71,17 @@ void PrimitiveDrawer::Finalize(){
 	quadMesh_->Finalize();
 }
 
+void PrimitiveDrawer::PreDraw(){
+	ID3D12GraphicsCommandList* commandList = dxCommand_->getCommandList();
+
+	commandList->SetGraphicsRootSignature(linePso_[(int)currentBlendMode_]->rootSignature.Get());
+	commandList->SetPipelineState(linePso_[(int)currentBlendMode_]->pipelineState.Get());
+
+	System::getInstance()->getDirectionalLight()->SetForRootParameter(commandList,3);
+	System::getInstance()->getPointLight()->SetForRootParameter(commandList,4);
+	System::getInstance()->getSpotLight()->SetForRootParameter(commandList,5);
+}
+
 void PrimitiveDrawer::Line(const Vector3& p0,const Vector3& p1,const  IConstantBuffer<Transform>& Transform,const IConstantBuffer<CameraTransform>& viewProj,const IConstantBuffer<Material>* material){
 	ID3D12GraphicsCommandList *commandList = dxCommand_->getCommandList();
 
@@ -79,9 +90,6 @@ void PrimitiveDrawer::Line(const Vector3& p0,const Vector3& p1,const  IConstantB
 	lineMesh_->vertData[startIndex].normal = p0;
 	lineMesh_->vertData[startIndex + 1].pos = {p1.x,p1.y,p1.z,1.0f};
 	lineMesh_->vertData[startIndex + 1].normal = p1;
-
-	commandList->SetGraphicsRootSignature(linePso_[(int)currentBlendMode_]->rootSignature.Get());
-	commandList->SetPipelineState(linePso_[(int)currentBlendMode_]->pipelineState.Get());
 
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 
@@ -109,9 +117,6 @@ void PrimitiveDrawer::Triangle(const Vector3 &p0,const Vector3 &p1,const Vector3
 	triangleMesh_->vertData[startIndex + 2].pos = {p2.x,p2.y,p2.z,1.0f};
 	triangleMesh_->vertData[startIndex + 2].normal = p2;
 
-	commandList->SetGraphicsRootSignature(trianglePso_[(int)currentBlendMode_]->rootSignature.Get());
-	commandList->SetPipelineState(trianglePso_[(int)currentBlendMode_]->pipelineState.Get());
-
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	commandList->IASetVertexBuffers(0,1,&triangleMesh_->vbView);
@@ -120,7 +125,6 @@ void PrimitiveDrawer::Triangle(const Vector3 &p0,const Vector3 &p1,const Vector3
 	Transform.SetForRootParameter(commandList,0);
 	viewProj.SetForRootParameter(commandList,1);
 	material->SetForRootParameter(commandList,2);
-	System::getInstance()->getDirectionalLight()->SetForRootParameter(commandList,3);
 
 	commandList->DrawInstanced(
 		3,1,startIndex,0
@@ -149,9 +153,6 @@ void PrimitiveDrawer::Quad(const Vector3 &p0,const Vector3 &p1,const Vector3 &p2
 	quadMesh_->indexData[startIndex + 4] = startIndex + 3;
 	quadMesh_->indexData[startIndex + 5] = startIndex + 2;
 
-	commandList->SetGraphicsRootSignature(trianglePso_[(int)currentBlendMode_]->rootSignature.Get());
-	commandList->SetPipelineState(trianglePso_[(int)currentBlendMode_]->pipelineState.Get());
-
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	commandList->IASetVertexBuffers(0,1,&quadMesh_->vbView);
@@ -160,8 +161,6 @@ void PrimitiveDrawer::Quad(const Vector3 &p0,const Vector3 &p1,const Vector3 &p2
 	Transform.SetForRootParameter(commandList,0);
 	viewProj.SetForRootParameter(commandList,1);
 	material->SetForRootParameter(commandList,2);
-	System::getInstance()->getDirectionalLight()->SetForRootParameter(commandList,3);
-	System::getInstance()->getPointLight()->SetForRootParameter(commandList,4);
 
 	commandList->DrawIndexedInstanced(
 		6,1,0,startVertex,0

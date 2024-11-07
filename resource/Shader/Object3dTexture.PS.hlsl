@@ -52,8 +52,8 @@ ConstantBuffer<DirectionalLight> gDirectionalLight : register(b1);
 ConstantBuffer<PointLight> gPointLight : register(b3);
 ConstantBuffer<SpotLight> gSpotLight : register(b4);
 
-Texture2D<float4> gTexture : register(t0); // SRVの registerは t
-SamplerState gSampler : register(s0); // textureを読むためのもの. texture のサンプリングを担当
+Texture2D<float4> gTexture : register(t0);
+SamplerState gSampler : register(s0);
 
 ///=============================================================
 /// Lighting Functions
@@ -118,7 +118,7 @@ PixelShaderOutput main(VertexShaderOutput input) {
                 float distance = length(gPointLight.pos - input.worldPos);
                 float attenuation = pow(saturate(1.0f - distance / gPointLight.radius),gPointLight.decay);
                 float3 pointLightColor = LambertDiffuse(normal,pointLightDir,gPointLight.color,gPointLight.intensity * attenuation);
-                output.color.rgb += textureColor.rgb * pointLightColor; // テクスチャカラーを適用
+                output.color.rgb += textureColor.rgb * pointLightColor;
 
             // Spot Light
                 float3 spotLightDir = normalize(input.worldPos - gSpotLight.pos);
@@ -127,7 +127,7 @@ PixelShaderOutput main(VertexShaderOutput input) {
                 float cosAngle = dot(spotLightDir,normalize(gSpotLight.direction));
                 float falloff = saturate(( cosAngle - gSpotLight.cosAngle ) / ( gSpotLight.cosFalloffStart - gSpotLight.cosAngle ));
                 float3 spotLightColor = LambertDiffuse(normal,spotLightDir,gSpotLight.color,gSpotLight.intensity * attenuation * falloff);
-                output.color.rgb += textureColor.rgb * spotLightColor; // テクスチャカラーを適用
+                output.color.rgb += textureColor.rgb * spotLightColor;
 
                 break;
             }
@@ -145,7 +145,7 @@ PixelShaderOutput main(VertexShaderOutput input) {
                 float distance = length(gPointLight.pos - input.worldPos);
                 float attenuation = pow(saturate(1.0f - distance / gPointLight.radius),gPointLight.decay);
                 float3 pointLightColor = LambertDiffuse(normal,pointLightDir,gPointLight.color,gPointLight.intensity * attenuation);
-                output.color.rgb += textureColor.rgb * pointLightColor; // テクスチャカラーを適用
+                output.color.rgb += textureColor.rgb * pointLightColor;
 
             // Spot Light
                 float3 spotLightDir = normalize(input.worldPos - gSpotLight.pos);
@@ -154,7 +154,7 @@ PixelShaderOutput main(VertexShaderOutput input) {
                 float cosAngle = dot(spotLightDir,normalize(gSpotLight.direction));
                 float falloff = saturate(( cosAngle - gSpotLight.cosAngle ) / ( gSpotLight.cosFalloffStart - gSpotLight.cosAngle ));
                 float3 spotLightColor = LambertDiffuse(normal,spotLightDir,gSpotLight.color,gSpotLight.intensity * attenuation * falloff);
-                output.color.rgb += textureColor.rgb * spotLightColor; // テクスチャカラーを適用
+                output.color.rgb += textureColor.rgb * spotLightColor;
 
                 break;
             }
@@ -166,7 +166,7 @@ PixelShaderOutput main(VertexShaderOutput input) {
             // Directional Light - Diffuse + Specular
                 float3 dirLightDiffuse = LambertDiffuse(normal,-gDirectionalLight.direction,gDirectionalLight.color,gDirectionalLight.intensity);
                 float3 dirLightSpecular = PhongSpecular(normal,-gDirectionalLight.direction,viewDir,gMaterial.shininess,gDirectionalLight.color,gDirectionalLight.intensity);
-                output.color.rgb = textureColor.rgb * dirLightDiffuse + dirLightSpecular; // テクスチャカラーを適用
+                output.color.rgb = textureColor.rgb * dirLightDiffuse + dirLightSpecular;
 
             // Point Light - Diffuse + Specular
                 float3 pointLightDir = normalize(input.worldPos - gPointLight.pos);
@@ -174,7 +174,7 @@ PixelShaderOutput main(VertexShaderOutput input) {
                 float attenuation = pow(saturate(1.0f - distance / gPointLight.radius),gPointLight.decay);
                 float3 pointLightDiffuse = LambertDiffuse(normal,pointLightDir,gPointLight.color,gPointLight.intensity * attenuation);
                 float3 pointLightSpecular = PhongSpecular(normal,pointLightDir,viewDir,gMaterial.shininess,gPointLight.color,gPointLight.intensity * attenuation);
-                output.color.rgb += textureColor.rgb * pointLightDiffuse + pointLightSpecular; // テクスチャカラーを適用
+                output.color.rgb += textureColor.rgb * pointLightDiffuse + pointLightSpecular;
 
                 break;
             }
@@ -186,7 +186,7 @@ PixelShaderOutput main(VertexShaderOutput input) {
             // Directional Light - Diffuse + Blinn-Phong Specular
                 float3 dirLightDiffuse = LambertDiffuse(normal,-gDirectionalLight.direction,gDirectionalLight.color,gDirectionalLight.intensity);
                 float3 dirLightSpecular = BlinnPhongSpecular(normal,-gDirectionalLight.direction,viewDir,gMaterial.shininess,gDirectionalLight.color,gDirectionalLight.intensity);
-                output.color.rgb = textureColor.rgb * dirLightDiffuse + dirLightSpecular; // テクスチャカラーを適用
+                output.color.rgb = textureColor.rgb * dirLightDiffuse + dirLightSpecular;
 
             // Point Light - Diffuse + Blinn-Phong Specular
                 float3 pointLightDir = normalize(input.worldPos - gPointLight.pos);
@@ -194,11 +194,10 @@ PixelShaderOutput main(VertexShaderOutput input) {
                 float attenuation = pow(saturate(1.0f - distance / gPointLight.radius),gPointLight.decay);
                 float3 pointLightDiffuse = LambertDiffuse(normal,pointLightDir,gPointLight.color,gPointLight.intensity * attenuation);
                 float3 pointLightSpecular = BlinnPhongSpecular(normal,pointLightDir,viewDir,gMaterial.shininess,gPointLight.color,gPointLight.intensity * attenuation);
-                output.color.rgb += textureColor.rgb * pointLightDiffuse + pointLightSpecular; // テクスチャカラーを適用
+                output.color.rgb += textureColor.rgb * pointLightDiffuse + pointLightSpecular;
 
                 break;
             }
     }
-
     return output;
 }

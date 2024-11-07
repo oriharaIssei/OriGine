@@ -40,8 +40,10 @@ void Object3d::PreDraw(){
 	commandList->SetPipelineState(manager->texturePso_[static_cast<uint32_t>(currentBlend_)]->pipelineState.Get());
 
 	System::getInstance()->getDirectionalLight()->SetForRootParameter(commandList,3);
-	System::getInstance()->getSpotLight()->SetForRootParameter(commandList,4);
-	System::getInstance()->getPointLight()->SetForRootParameter(commandList,5);
+	System::getInstance()->getPointLight()->SetForRootParameter(commandList,4);
+	System::getInstance()->getSpotLight()->SetForRootParameter(commandList,5);
+
+	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 void Object3d::DrawThis(const IConstantBuffer<CameraTransform>& view){
