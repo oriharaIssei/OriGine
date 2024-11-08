@@ -9,7 +9,8 @@
 #include "imgui/imgui.h"
 #endif // _DEBUG
 
-void Enemy::Init(const Vector3& pos,const Vector3& velocity,Model* model){
+void Enemy::Init(const std::string& groupName,int32_t index,Model* model){
+	GlobalVariables* variables = GlobalVariables::getInstance();
 	///===============================================
 	/// Object Initialize
 	///===============================================
@@ -21,12 +22,16 @@ void Enemy::Init(const Vector3& pos,const Vector3& velocity,Model* model){
 	///===============================================
 	object_->transform_.CreateBuffer(System::getInstance()->getDxDevice()->getDevice());
 	object_->transform_.openData_.Init();
-	object_->transform_.openData_.translate = pos;
+#ifndef _DEBUG
+	Vector3 spawnPos_;
+#endif
+	variables->addValue("Game",groupName,"Enemy_" + std::to_string(index) + "_SpawnPos",spawnPos_);
+	object_->transform_.openData_.translate = spawnPos_;
 
 	///===============================================
 	/// Velocity Initialize
 	///===============================================
-	velocity_ = velocity;
+	variables->addValue("Game",groupName,"Enemy_" + std::to_string(index) + "_Velocity",velocity_);
 
 	GlobalVariables::getInstance()->addValue("Game","Enemy","radius",radius_);
 }

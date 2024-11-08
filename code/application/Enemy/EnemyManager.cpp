@@ -1,9 +1,10 @@
-#include "EnemyManager.h"
 #include "Enemy.h"
+#include "EnemyManager.h"
 
 #include <iostream>
 #include <string>
 
+#include "globalVariables/GlobalVariables.h"
 #include "object3d/ModelManager.h"
 #ifdef _DEBUG
 #include "imgui/imgui.h"
@@ -14,100 +15,92 @@ const std::string directory = "resource/";
 #pragma region"EnemyManager"
 void EnemyManager::Init(){
 	enemyModel_ = ModelManager::getInstance()->Create("resource","teapot.obj");
-	Load();
+
+	GlobalVariables* variables	= GlobalVariables::getInstance();
+	variables->addValue("Game","EnemyManager","enemySpawnEventSize_",eventSize_);
+	for(int32_t i = 0; i < eventSize_; ++i){
+		auto& spawnEvent = spawnEvents_.emplace_back();
+		spawnEvent->Init(i,enemyModel_);
+	}
 }
 
 void EnemyManager::Update(float currentDistance){
 #ifdef _DEBUG
-	ImGui::Begin("EnemyManager");
-
-	if(ImGui::Button("AddEvent")){
-		spawnEvents_.emplace_back(new EnemySpawnEvent());
-	}
-
-	if(ImGui::TreeNode("SpawnEventList")){
-		int32_t index = 0;
-		std::string spawnEventButtonLabel = "";
-		for(auto& spawnEvent : spawnEvents_){
-			spawnEventButtonLabel = "SpawnEvet_" + std::to_string(index);
-			if(ImGui::Button(spawnEventButtonLabel.c_str())){
-				eventIndex_ = index;
-				currentDebugEnemySpawnEvent_ = spawnEvent.get();
-				break;
+	if(preEventSize_ != eventSize_){
+		if(eventSize_ > preEventSize_){
+			auto& spawnEvent = spawnEvents_.emplace_back(new EnemySpawnEvent());
+			spawnEvent->Init(static_cast<int32_t>(spawnEvents_.size() - 1),enemyModel_);
+		} else{
+			if(!spawnEvents_.empty()){
+				spawnEvents_.pop_back();
 			}
-			index++;
 		}
-		ImGui::TreePop();
 	}
 
-	if(currentDebugEnemySpawnEvent_){
-		currentDebugEnemySpawnEvent_->Debug(eventIndex_,enemyModel_);
+	int32_t eventIndex_ = 0;
+	for(auto& spawnEvent : spawnEvents_){
+		spawnEvent->Debug(eventIndex_,enemyModel_);
+		eventIndex_++;
 	}
 
-	ImGui::End();
+	preEventSize_ = eventSize_;
 #endif // _DEBUG
 }
 
 void EnemyManager::Draw(IConstantBuffer<CameraTransform>& cameraTransform){
 #ifdef _DEBUG
-	if(currentDebugEnemySpawnEvent_){
-		for(auto& debugEnemy : currentDebugEnemySpawnEvent_->GetEnemyList()){
+	for(auto& spawnEvent : spawnEvents_){
+		for(auto& debugEnemy : spawnEvent->GetEnemyList()){
 			debugEnemy->Draw(cameraTransform);
 		}
 	}
 #endif // _DEBUG
 
+#ifndef _DEBUG
 	for(auto& enemy : enemies_){
 		enemy->Draw(cameraTransform);
 	}
+#endif // _DEBUG
 }
-void EnemyManager::Load(){}
-void EnemyManager::Save(){}
 #pragma endregion
 
 #pragma region"SpawnEvent"
-void EnemySpawnEvent::Init(float t){
-	eventTriggerDistance_ = t;
+void EnemySpawnEvent::Init(int32_t eventNum,Model* model){
+#ifndef _DEBUG
+	std::string groupName_;
+#endif // !_DEBUG
+
+	groupName_ = "EnemySpawnEvent::" + std::to_string(eventNum);
+	GlobalVariables* variables	= GlobalVariables::getInstance();
+	variables->addValue("Game",groupName_,"eventTriggerDistance",eventTriggerDistance_);
+	variables->addValue("Game",groupName_,"hasEnemySize_",hasEnemySize_);
+
+	for(int32_t i = 0; i < hasEnemySize_; i++){
+		enemies_.emplace_back(new Enemy());
+		enemies_.back()->Init(
+			groupName_,
+			i,
+			model
+		);
+	}
 }
 
 #ifdef _DEBUG
 void EnemySpawnEvent::Debug(int32_t num,Model* model){
-	std::string label = "EnemySpawnEvent::" + std::to_string(num);
-	if(ImGui::TreeNode(label.c_str())){
-		ImGui::DragFloat("eventTriggerDistance",&eventTriggerDistance_,0.1f);
-
-		if(ImGui::Button("AddEnemy")){
+	if(preHasEnemySize_ != hasEnemySize_){
+		if(hasEnemySize_ > preHasEnemySize_){
 			enemies_.emplace_back(new Enemy());
 			enemies_.back()->Init(
-				enemyInitializeVariables_[enemies_.back().get()].first,
-				enemyInitializeVariables_[enemies_.back().get()].second,
+				groupName_,
+				static_cast<int32_t>(enemies_.size() - 1),
 				model
 			);
+		} else{
+			enemies_.pop_back();
 		}
-
-		if(ImGui::TreeNode("EnemyList")){
-			int32_t enemyIndex = 0;
-			std::string enemyButtonLabel = "";
-			for(auto& enemy : enemies_){
-				std::string enemyButtonLabel = "Enemy_" + std::to_string(enemyIndex);
-				if(ImGui::Button(enemyButtonLabel.c_str())){
-					currentDebugEnemy_ = enemy.get();
-					currentEnemyVariables_ = &enemyInitializeVariables_[enemies_.back().get()];
-					break;
-				}
-				enemyIndex++;
-			}
-			ImGui::TreePop();
-		}
-
-		if(currentDebugEnemy_){
-			ImGui::DragFloat3("SpawnPos",&currentEnemyVariables_->first.x,0.1f);
-			ImGui::DragFloat3("SpawnVelocity",&currentEnemyVariables_->second.x,0.1f);
-			currentDebugEnemy_->SetPos(currentEnemyVariables_->first);
-			currentDebugEnemy_->SetPos(currentEnemyVariables_->second);
-		}
-		ImGui::TreePop();
 	}
+
+	preHasEnemySize_ = hasEnemySize_;
 }
 #endif // _DEBUG
 

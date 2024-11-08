@@ -27,7 +27,12 @@ private:
 	Spline* spline_ = nullptr;
 
 	Vector3 offset_;
-	float speed_; // 移動速度
+
+	float velocity_;
+	float acceleration_;
+	float minVelocity_;
+	float maxVelocity_;
+
 	float currentDistance_; // 現在の距離
 	int32_t dimension_;
 public:

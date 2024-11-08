@@ -1,27 +1,24 @@
 #pragma once
 
 #include <memory>
+#include <string>
 
 #include "object3d/Object3d.h"
-
-#ifdef _DEBUG
-struct EnemyInitializeVariables{
-	Vector3 pos,velocity;
-};
-#endif // _DEBUG
-
 
 class Enemy{
 public:
 	Enemy() = default;
 	~Enemy(){}
 
-	void Init(const Vector3& pos,const Vector3& velocity,Model* model);
+	void Init(const std::string& groupName,int32_t index,Model* model);
 	void Update();
 	void Draw(const IConstantBuffer<CameraTransform>& cameraTrans);
 private:
 	std::unique_ptr<Object3d> object_;
 
+#ifdef _DEBUG
+	Vector3 spawnPos_;
+#endif // _DEBUG
 	Vector3 velocity_;
 	float radius_;
 public:

@@ -44,6 +44,7 @@ void ControlPoint::Debug(int32_t num){
 	std::string label = "Translate_" + std::to_string(num);
 	ImGui::DragFloat3(label.c_str(),&transform_.openData_.translate.x,0.1f);
 }
+
 #endif // _DEBUG
 
 void ControlPoint::Draw(const IConstantBuffer<CameraTransform>& cameraTrans,const IConstantBuffer<Material>* material){

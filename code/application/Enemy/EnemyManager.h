@@ -15,13 +15,12 @@ struct EnemyInitializeVariables;
 #endif // _DEBUG
 
 struct Model;
-
 class EnemySpawnEvent{
 public:
 	EnemySpawnEvent() = default;
 	~EnemySpawnEvent(){}
 
-	void Init(float t);
+	void Init(int32_t eventNum,Model* model);
 
 #ifdef _DEBUG
 	void Debug(int32_t num,Model* model);
@@ -32,9 +31,9 @@ private:
 	float eventTriggerDistance_;
 
 #ifdef _DEBUG
-	Enemy* currentDebugEnemy_ = nullptr;
-	std::pair<Vector3,Vector3>* currentEnemyVariables_ = nullptr;
-	std::unordered_map < Enemy*,std::pair<Vector3,Vector3>> enemyInitializeVariables_;
+	std::string groupName_;
+	int32_t     preHasEnemySize_;
+	int32_t     hasEnemySize_;
 #endif // _DEBUG
 
 	std::list<std::unique_ptr<Enemy>> enemies_;
@@ -50,15 +49,13 @@ public:
 	void Update(float currentDistance);
 	void Draw(IConstantBuffer<CameraTransform>& cameraTransform);
 private:
-	void Load();
-	void Save();
-private:
 	Model* enemyModel_;
-	std::deque<std::unique_ptr<EnemySpawnEvent>> spawnEvents_;
+
 #ifdef _DEBUG
-	int32_t eventIndex_ = 0;
-	EnemySpawnEvent* currentDebugEnemySpawnEvent_;
+	int32_t eventSize_ = 0;
+	int32_t preEventSize_ = 0;
 #endif // _DEBUG
 
+	std::deque<std::unique_ptr<EnemySpawnEvent>> spawnEvents_;
 	std::list<std::unique_ptr<Enemy>> enemies_;
 };

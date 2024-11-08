@@ -1,8 +1,11 @@
 #include "RailCamera.h"
 
+
+
 #include "Spline.h"
 #include "System.h"
 
+#include "globalVariables/GlobalVariables.h"
 #ifdef _DEBUG
 #include "imgui/imgui.h"
 #endif // _DEBUG
@@ -13,20 +16,28 @@ void RailCamera::Init(int32_t dimension){
 	object_->transform_.CreateBuffer(System::getInstance()->getDxDevice()->getDevice());
 
 	dimension_ = dimension;
+
+	GlobalVariables* variables = GlobalVariables::getInstance();
+
+	variables->addValue("Game","RailCamera","offset",offset_);
+	variables->addValue("Game","RailCamera","acceleration",acceleration_);
+	variables->addValue("Game","RailCamera","minVelocity_",minVelocity_);
+	variables->addValue("Game","RailCamera","maxVelocity_",maxVelocity_);
 }
 
+const float kGravity = -9.8f;
 void RailCamera::Update(){
 #ifdef _DEBUG
 	ImGui::Begin("RailCamera");
-	ImGui::DragFloat("Speed",&speed_,0.1f);
-	ImGui::DragFloat3("Offset",&offset_.x,0.1f);
+	ImGui::InputFloat("currentDistance",&currentDistance_,0.0f,0.0f,"%.2f",ImGuiInputTextFlags_ReadOnly);
 	ImGui::End();
 #endif // _DEBUG
 
-	// 距離を速度に基づいて更新
 	float deltaTime = System::getInstance()->getDeltaTime();
 
-	currentDistance_ += speed_ * deltaTime;
+	float physicalVelocity = velocity_ * deltaTime;
+
+	currentDistance_ += physicalVelocity;
 
 	// スプラインのループ処理（必要に応じて）
 	if(currentDistance_ > spline_->GetTotalLength()){
@@ -43,16 +54,18 @@ void RailCamera::Update(){
 	Vector3 eye = spline_->GetPosition(t);
 
 	// 次の位置を取得して方向を計算
-	float nextDistance = currentDistance_ + speed_ * deltaTime;
+	float nextDistance = currentDistance_ + physicalVelocity;
 	if(nextDistance > spline_->GetTotalLength()){
 		nextDistance -= spline_->GetTotalLength();
 	}
 	float nextT = spline_->GetTFromDistance(nextDistance);
 	Vector3 target = spline_->GetPosition(nextT);
 
+
+	Vector3 direction = (target - eye).Normalize();
+
 	// カメラの向きと位置を更新
 	Transform& transform = object_->transform_.openData_;
-	Vector3 direction = (target - eye).Normalize();
 	transform.rotate.y = std::atan2(direction.x,direction.z);
 	Vector2 veloXZ = {direction.x,direction.z};
 	transform.rotate.x = std::atan2(-direction.y,veloXZ.Length());
@@ -62,6 +75,10 @@ void RailCamera::Update(){
 	transform.UpdateMatrix();
 	object_->transform_.ConvertToBuffer();
 	cameraBuff_.viewMat = transform.worldMat.Inverse();
+
+	// 速度 の 計算
+	velocity_ += direction.y * acceleration_ * deltaTime;
+	velocity_  = std::clamp(velocity_,minVelocity_,maxVelocity_);
 }
 
 void RailCamera::Draw(const IConstantBuffer<CameraTransform>& cameraBuff){
