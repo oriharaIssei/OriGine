@@ -3,6 +3,12 @@
 #include "SLerp.h"
 #include "System.h"
 
+#include "globalVariables/GlobalVariables.h"
+
+#ifdef _DEBUG
+#include "imgui/imgui.h"
+#endif // _DEBUG
+
 void Enemy::Init(const Vector3& pos,const Vector3& velocity,Model* model){
 	///===============================================
 	/// Object Initialize
@@ -22,6 +28,7 @@ void Enemy::Init(const Vector3& pos,const Vector3& velocity,Model* model){
 	///===============================================
 	velocity_ = velocity;
 
+	GlobalVariables::getInstance()->addValue("Game","Enemy","radius",radius_);
 }
 
 void Enemy::Update(){

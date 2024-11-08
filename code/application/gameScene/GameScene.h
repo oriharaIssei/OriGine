@@ -11,11 +11,11 @@
 #include "object3d/Object3d.h"
 #include "transform/CameraTransform.h"
 
+#include "../Beam/Beam.h"
 #include "../railCamera/RailCamera.h"
+#include "code/application/Enemy/EnemyManager.h"
 #include "RailEditor/RailEditor.h"
 #include "Spline.h"
-
-#include "../Beam/Beam.h"
 
 class Input;
 class MaterialManager;
@@ -53,8 +53,7 @@ private:
 	std::unique_ptr<Spline> spline_;
 	std::unique_ptr<RailCamera> railCamera_;
 
-	std::list<std::pair<std::string,std::string>> textureList_;
-	std::list<std::pair<std::string,std::string>> objectList_;
+	std::unique_ptr<EnemyManager> enemyManager_;
 
 	Beam beam_;
 };

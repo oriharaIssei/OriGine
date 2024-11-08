@@ -21,12 +21,7 @@ void ControlPoint::Init(const Vector3 pos,float radius){
 	radius_ = radius;
 }
 
-void ControlPoint::Update(int32_t num){
-#ifdef _DEBUG
-	std::string label = "Translate_" + std::to_string(num);
-	ImGui::DragFloat3(label.c_str(),&transform_.openData_.translate.x,0.1f);
-#endif // _DEBUG
-
+void ControlPoint::Update(){
 	///===========================================================================
 	///  Billboard化
 	///===========================================================================
@@ -43,6 +38,13 @@ void ControlPoint::Update(int32_t num){
 	transform_.openData_.worldMat = MakeMatrix::Scale(transform_.openData_.scale) * billboardMat * MakeMatrix::Translate(transform_.openData_.translate);
 	transform_.ConvertToBuffer();
 }
+
+#ifdef _DEBUG
+void ControlPoint::Debug(int32_t num){
+	std::string label = "Translate_" + std::to_string(num);
+	ImGui::DragFloat3(label.c_str(),&transform_.openData_.translate.x,0.1f);
+}
+#endif // _DEBUG
 
 void ControlPoint::Draw(const IConstantBuffer<CameraTransform>& cameraTrans,const IConstantBuffer<Material>* material){
 	Vector3 p[3];
@@ -71,6 +73,7 @@ void RailEditor::Init(){
 }
 
 void RailEditor::Update(){
+#ifdef _DEBUG
 	ImGui::Begin("RailEditor");
 	if(ImGui::Button("Add controlPoint")){
 
@@ -80,15 +83,19 @@ void RailEditor::Update(){
 	if(ImGui::Button("Save")){
 		Save();
 	}
-	ImGui::End();
-
 
 	int32_t index = 0;
+	for(auto& ctlPoint : ctlPoints_){
+		ctlPoint->Debug(index);
+		++index;
+	}
+	ImGui::End();
+#endif // _DEBUG
+
 	controlPointPositions_.clear();
 	for(auto& ctlPoint : ctlPoints_){
-		ctlPoint->Update(index);
+		ctlPoint->Update();
 		controlPointPositions_.push_back(ctlPoint->getWorldPosition());
-		++index;
 	}
 
 	splineSegmentPoint_.clear();
@@ -105,7 +112,7 @@ void RailEditor::Update(){
 	}
 }
 
-// 可変長のポイントからCatmull-Rom補間を行う関数
+// 可変長のポイントから Catmull-Rom 補間を行う関数
 void RailEditor::Draw(const IConstantBuffer<CameraTransform>& cameraTrans){
 	for(auto& rail : railObjects_){
 		rail->Draw(cameraTrans);

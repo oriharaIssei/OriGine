@@ -18,9 +18,13 @@ public:
 	~ControlPoint() = default;
 
 	void Init(const Vector3 pos,float radius);
-	void Update(int32_t num);
-	void Draw(const IConstantBuffer<CameraTransform>& cameraTrans,const IConstantBuffer<Material>* material);
+	void Update();
 
+#ifdef _DEBUG
+	void Debug(int32_t num);
+#endif // _DEBUG
+
+	void Draw(const IConstantBuffer<CameraTransform>& cameraTrans,const IConstantBuffer<Material>* material);
 private:
 	const CameraTransform& pCameraBuffer_;
 
@@ -43,7 +47,6 @@ public:
 private:
 	Transform origin_;
 	CameraTransform& pCameraBuffer_;
-
 
 	uint32_t segmentCount_ = 256;
 	std::vector<Vector3> splineSegmentPoint_;

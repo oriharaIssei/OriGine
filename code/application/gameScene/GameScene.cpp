@@ -40,9 +40,6 @@ void GameScene::Init(){
 
 	materialManager_ = System::getInstance()->getMaterialManager();
 
-	textureList_ = myFs::SearchFile("./resource","png");
-	objectList_ = myFs::SearchFile("./resource","obj");
-
 	railEditor_ = std::make_unique<RailEditor>(cameraBuff_.openData_);
 	railEditor_->Init();
 
@@ -51,6 +48,9 @@ void GameScene::Init(){
 	railCamera_ = std::make_unique<RailCamera>();
 	railCamera_->Init(railEditor_->getSegmentCount());
 	railCamera_->SetSpline(spline_.get());
+
+	enemyManager_ = std::make_unique<EnemyManager>();
+	enemyManager_->Init();
 }
 
 void GameScene::Update(){
@@ -79,13 +79,14 @@ void GameScene::Update(){
 
 	railEditor_->Update();
 
+	enemyManager_->Update(railCamera_->GetCurrentDistance());
 
 #ifdef _DEBUG
 	ImGui::Begin("Materials");
 	materialManager_->DebugUpdate();
 	ImGui::End();
 #endif // _DEBUG
-	}
+}
 
 void GameScene::Draw(){
 	System::getInstance()->getDirectionalLight()->openData_.DebugUpdate();
@@ -101,11 +102,12 @@ void GameScene::Draw(){
 	railCamera_->Draw(cameraBuff_);
 	railEditor_->Draw(cameraBuff_);
 
+	enemyManager_->Draw(cameraBuff_);
+
 	///===============================================
 	/// sprite
 	///===============================================
 	//SpriteCommon::getInstance()->PreDraw();
-
 
 	sceneView_->PostDraw();
 	///===============================================

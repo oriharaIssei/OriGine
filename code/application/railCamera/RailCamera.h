@@ -31,6 +31,7 @@ private:
 	float currentDistance_; // 現在の距離
 	int32_t dimension_;
 public:
+	float GetCurrentDistance()const{ return currentDistance_; }
 	void SetSpline(Spline* _spline);
 
 	const CameraTransform& getCameraBuffer()const{ return cameraBuff_; }
