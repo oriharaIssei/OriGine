@@ -25,7 +25,6 @@ void RailCamera::Init(int32_t dimension){
 	variables->addValue("Game","RailCamera","maxVelocity_",maxVelocity_);
 }
 
-const float kGravity = -9.8f;
 void RailCamera::Update(){
 #ifdef _DEBUG
 	ImGui::Begin("RailCamera");
