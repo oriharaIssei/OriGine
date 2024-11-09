@@ -57,5 +57,7 @@ private:
 #endif // _DEBUG
 
 	std::deque<std::unique_ptr<EnemySpawnEvent>> spawnEvents_;
-	std::list<std::unique_ptr<Enemy>> enemies_;
+	std::list<std::unique_ptr<Enemy>> activeEnemies_;
+public:
+	std::list<std::unique_ptr<Enemy>> getActiveEnemies(){ return activeEnemies_; }
 };

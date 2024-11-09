@@ -97,7 +97,6 @@ void Beam::Update(const RailCamera* camera,Input* input){
 		reticleObject_->transform_.openData_.translate = reticle3dPos_;
 		reticleObject_->transform_.openData_.UpdateMatrix();
 		reticleObject_->transform_.ConvertToBuffer();
-
 	}
 }
 

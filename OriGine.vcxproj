@@ -96,6 +96,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="code\application\beam\Beam.cpp" />
+    <ClCompile Include="code\application\collisionManager\CollisionManager.cpp" />
     <ClCompile Include="code\application\enemy\EnemyManager.cpp" />
     <ClCompile Include="code\application\particle\Emitter.cpp" />
     <ClCompile Include="code\application\particle\Particle.cpp" />
@@ -161,6 +162,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\application\beam\Beam.h" />
+    <ClInclude Include="code\application\collisionManager\CollisionManager.h" />
     <ClInclude Include="code\application\enemy\EnemyManager.h" />
     <ClInclude Include="code\application\particle\Emitter.h" />
     <ClInclude Include="code\application\particle\Particle.h" />

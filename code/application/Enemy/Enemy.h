@@ -13,6 +13,8 @@ public:
 	void Init(const std::string& groupName,int32_t index,Model* model);
 	void Update();
 	void Draw(const IConstantBuffer<CameraTransform>& cameraTrans);
+
+	void OnCollision();
 private:
 	std::unique_ptr<Object3d> object_;
 

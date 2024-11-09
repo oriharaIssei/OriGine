@@ -35,8 +35,15 @@ private:
 	float leftEnergy_;
 	float maxEnergy_;
 
-	float kDistancePlayerTo3DReticle_ = 5.0f;
+	float kDistancePlayerTo3DReticle_;
+
+	float radius_;
 
 	Matrix4x4 viewPortMat_;
 public:
+	Vector3 getLeftOrigin()const{ leftObject_->transform_.openData_.worldMat[3]; }
+	Vector3 getRightOrigin()const{ rightObject_->transform_.openData_.worldMat[3]; }
+	const Vector3& getEndPos()const{ return reticle3dPos_; }
+
+	float getRadius()const{ return radius_; }
 };

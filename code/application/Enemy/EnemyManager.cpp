@@ -57,7 +57,7 @@ void EnemyManager::Draw(IConstantBuffer<CameraTransform>& cameraTransform){
 #endif // _DEBUG
 
 #ifndef _DEBUG
-	for(auto& enemy : enemies_){
+	for(auto& enemy : activeEnemies_){
 		enemy->Draw(cameraTransform);
 	}
 #endif // _DEBUG
