@@ -15,7 +15,9 @@ void Transform::Init(){
 void Transform::UpdateMatrix(){
 	worldMat = MakeMatrix::Affine(scale,rotate,translate);
 
-	worldMat = CalculateWithParent(parent);
+	if(parent != nullptr){
+		worldMat = parent->worldMat * worldMat;
+	}
 }
 
 void Transform::Debug(const std::string& transformName){
@@ -27,9 +29,3 @@ void Transform::Debug(const std::string& transformName){
 	ImGui::DragFloat3(labelName.c_str(),&translate.x,0.1f);
 }
 
-Matrix4x4 Transform::CalculateWithParent(const Transform* parent){
-	if(parent == nullptr){
-		return worldMat;
-	}
-	return worldMat * CalculateWithParent(parent->parent);
-}

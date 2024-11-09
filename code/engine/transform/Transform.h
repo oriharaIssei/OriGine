@@ -28,9 +28,6 @@ public:
 	Matrix4x4 worldMat;
 
 	Transform* parent = nullptr;
-private:
-	Matrix4x4 CalculateWithParent(const Transform* parent);
-
 public:
 	struct ConstantBuffer{
 		Matrix4x4 world;

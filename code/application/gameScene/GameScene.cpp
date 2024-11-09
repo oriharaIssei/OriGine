@@ -51,6 +51,9 @@ void GameScene::Init(){
 
 	enemyManager_ = std::make_unique<EnemyManager>();
 	enemyManager_->Init();
+
+	beam_ = std::make_unique<Beam>();
+	beam_->Initialize();
 }
 
 void GameScene::Update(){
@@ -79,6 +82,8 @@ void GameScene::Update(){
 
 	railEditor_->Update();
 
+	beam_->Update(railCamera_.get(),input_);
+
 	enemyManager_->Update(railCamera_->GetCurrentDistance());
 
 #ifdef _DEBUG
@@ -86,7 +91,7 @@ void GameScene::Update(){
 	materialManager_->DebugUpdate();
 	ImGui::End();
 #endif // _DEBUG
-}
+	}
 
 void GameScene::Draw(){
 	System::getInstance()->getDirectionalLight()->openData_.DebugUpdate();
@@ -101,6 +106,8 @@ void GameScene::Draw(){
 	Object3d::PreDraw();
 	railCamera_->Draw(cameraBuff_);
 	railEditor_->Draw(cameraBuff_);
+
+	beam_->Draw(cameraBuff_);
 
 	enemyManager_->Draw(cameraBuff_);
 

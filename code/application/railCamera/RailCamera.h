@@ -41,5 +41,6 @@ public:
 
 	const CameraTransform& getCameraBuffer()const{ return cameraBuff_; }
 	const Transform& getTransform()const{ return object_->transform_.openData_; }
+	Transform& getTransform(){ return object_->transform_.openData_; }
 	void setDimension(int32_t dimension){ dimension_ = dimension; }
 };

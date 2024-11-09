@@ -55,5 +55,5 @@ private:
 
 	std::unique_ptr<EnemyManager> enemyManager_;
 
-	Beam beam_;
+	std::unique_ptr<Beam> beam_;
 };
