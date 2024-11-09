@@ -57,3 +57,5 @@ void Enemy::Update(){
 void Enemy::Draw(const IConstantBuffer<CameraTransform>& cameraTrans){
 	object_->Draw(cameraTrans);
 }
+
+void Enemy::OnCollision(){}
