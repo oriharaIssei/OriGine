@@ -95,9 +95,12 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="code\application\Beam\Beam.cpp" />
-    <ClCompile Include="code\application\Enemy\EnemyManager.cpp" />
+    <ClCompile Include="code\application\beam\Beam.cpp" />
+    <ClCompile Include="code\application\enemy\EnemyManager.cpp" />
+    <ClCompile Include="code\application\particle\Emitter.cpp" />
+    <ClCompile Include="code\application\particle\Particle.cpp" />
     <ClCompile Include="code\application\railCamera\RailCamera.cpp" />
+    <ClCompile Include="code\application\RailEditor\RailEditor.cpp" />
     <ClCompile Include="code\engine\audio\Audio.cpp" />
     <ClCompile Include="code\lib\debugCamera\DebugCamera.cpp" />
     <ClCompile Include="code\lib\deltaTime\DeltaTime.cpp" />
@@ -137,18 +140,15 @@
     <ClCompile Include="code\engine\material\TextureManager.cpp" />
     <ClCompile Include="code\lib\winApp\WinApp.cpp" />
     <ClCompile Include="code\application\gameScene\GameScene.cpp" />
-    <ClCompile Include="code\application\gameScene\particle\Emitter.cpp" />
-    <ClCompile Include="code\application\gameScene\particle\Particle.cpp" />
     <ClCompile Include="code\lib\globalVariables\GlobalVariables.cpp" />
     <ClCompile Include="code\lib\imGuiManager\ImGuiManager.cpp" />
     <ClCompile Include="code\lib\myFileSystem\MyFileSystem.cpp" />
-    <ClCompile Include="code\application\gameScene\RailEditor\RailEditor.cpp" />
     <ClCompile Include="code\main.cpp" />
     <ClCompile Include="code\math\Easing.cpp" />
     <ClCompile Include="code\math\Matrix4x4.cpp" />
     <ClCompile Include="code\math\Spline.cpp" />
     <ClCompile Include="code\math\Vector3.cpp" />
-    <ClCompile Include="code\application\Enemy\Enemy.cpp" />
+    <ClCompile Include="code\application\enemy\Enemy.cpp" />
     <ClCompile Include="externals\imgui\imgui.cpp" />
     <ClCompile Include="externals\imgui\imgui_demo.cpp" />
     <ClCompile Include="externals\imgui\imgui_draw.cpp" />
@@ -160,9 +160,12 @@
     <ClCompile Include="code\math\SLerp.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="code\application\Beam\Beam.h" />
-    <ClInclude Include="code\application\Enemy\EnemyManager.h" />
+    <ClInclude Include="code\application\beam\Beam.h" />
+    <ClInclude Include="code\application\enemy\EnemyManager.h" />
+    <ClInclude Include="code\application\particle\Emitter.h" />
+    <ClInclude Include="code\application\particle\Particle.h" />
     <ClInclude Include="code\application\railCamera\RailCamera.h" />
+    <ClInclude Include="code\application\RailEditor\RailEditor.h" />
     <ClInclude Include="code\engine\audio\Audio.h" />
     <ClInclude Include="code\lib\debugCamera\DebugCamera.h" />
     <ClInclude Include="code\lib\deltaTime\DeltaTime.h" />
@@ -203,19 +206,16 @@
     <ClInclude Include="code\engine\material\TextureManager.h" />
     <ClInclude Include="code\lib\winApp\WinApp.h" />
     <ClInclude Include="code\application\gameScene\GameScene.h" />
-    <ClInclude Include="code\application\gameScene\particle\Emitter.h" />
-    <ClInclude Include="code\application\gameScene\particle\Particle.h" />
     <ClInclude Include="code\lib\globalVariables\GlobalVariables.h" />
     <ClInclude Include="code\lib\imGuiManager\ImGuiManager.h" />
     <ClInclude Include="code\lib\myFileSystem\MyFileSystem.h" />
-    <ClInclude Include="code\application\gameScene\RailEditor\RailEditor.h" />
     <ClInclude Include="code\math\Easing.h" />
     <ClInclude Include="code\math\Matrix4x4.h" />
     <ClInclude Include="code\math\Spline.h" />
     <ClInclude Include="code\math\Vector2.h" />
     <ClInclude Include="code\math\Vector3.h" />
     <ClInclude Include="code\math\Vector4.h" />
-    <ClInclude Include="code\application\Enemy\Enemy.h" />
+    <ClInclude Include="code\application\enemy\Enemy.h" />
     <ClInclude Include="externals\imgui\imconfig.h" />
     <ClInclude Include="externals\imgui\imgui.h" />
     <ClInclude Include="externals\imgui\imgui_impl_dx12.h" />

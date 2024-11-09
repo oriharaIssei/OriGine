@@ -14,7 +14,7 @@
 #include "../Beam/Beam.h"
 #include "../railCamera/RailCamera.h"
 #include "code/application/Enemy/EnemyManager.h"
-#include "RailEditor/RailEditor.h"
+#include "../RailEditor/RailEditor.h"
 #include "Spline.h"
 
 class Input;

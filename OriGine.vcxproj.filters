@@ -120,12 +120,6 @@
     <ClCompile Include="code\engine\System.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="code\application\gameScene\particle\Emitter.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="code\application\gameScene\particle\Particle.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="code\application\gameScene\GameScene.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
@@ -189,10 +183,10 @@
     <ClCompile Include="code\application\railCamera\RailCamera.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="code\application\Beam\Beam.cpp">
+    <ClCompile Include="code\application\beam\Beam.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="code\application\Enemy\Enemy.cpp">
+    <ClCompile Include="code\application\enemy\Enemy.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="code\math\SLerp.cpp">
@@ -201,7 +195,16 @@
     <ClCompile Include="code\math\Easing.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="code\application\Enemy\EnemyManager.cpp">
+    <ClCompile Include="code\application\enemy\EnemyManager.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="code\application\particle\Emitter.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="code\application\particle\Particle.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="code\application\RailEditor\RailEditor.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -311,12 +314,6 @@
     <ClInclude Include="code\engine\System.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="code\application\gameScene\particle\Emitter.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="code\application\gameScene\particle\Particle.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="code\application\gameScene\GameScene.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
@@ -389,10 +386,10 @@
     <ClInclude Include="code\application\railCamera\RailCamera.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="code\application\Beam\Beam.h">
+    <ClInclude Include="code\application\beam\Beam.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="code\application\Enemy\Enemy.h">
+    <ClInclude Include="code\application\enemy\Enemy.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="code\math\SLerp.h">
@@ -401,7 +398,16 @@
     <ClInclude Include="code\math\Easing.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="code\application\Enemy\EnemyManager.h">
+    <ClInclude Include="code\application\enemy\EnemyManager.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\application\particle\Emitter.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\application\particle\Particle.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\application\RailEditor\RailEditor.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
