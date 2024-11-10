@@ -43,6 +43,8 @@ void ControlPoint::Update(){
 void ControlPoint::Debug(int32_t num){
 	std::string label = "Translate_" + std::to_string(num);
 	ImGui::DragFloat3(label.c_str(),&transform_.openData_.translate.x,0.1f);
+	label = "upVector" + std::to_string(num);
+	ImGui::DragFloat3(label.c_str(),&upVector_.x,0.1f);
 }
 
 #endif // _DEBUG
@@ -105,9 +107,24 @@ void RailEditor::Update(){
 		splineSegmentPoint_.push_back(CatmullRomInterpolation(controlPointPositions_,t));
 	}
 	for(uint32_t i = 0; i < segmentCount_ - 1; i++){
+		// 現在の位置から次の位置への進行方向ベクトルを計算
+		Vector3 diff = (splineSegmentPoint_[i + 1] - splineSegmentPoint_[i]).Normalize();
+
+		// 仮の上方向ベクトル（Y軸を上方向として仮定）
+		Vector3 upDirection_ = Vector3(0,1,0);
+
+		Vector3 rightDirection_ = (upDirection_).cross(diff).Normalize();
+
+		upDirection_ = (diff).cross(rightDirection_).Normalize();
+
+		railObjects_[i]->transform_.openData_.rotate = {
+			std::asin(-diff.y),
+			std::atan2(diff.x,diff.z),
+			std::atan2(rightDirection_.y,upDirection_.y)
+		};
+
+		// 座標と回転の更新
 		railObjects_[i]->transform_.openData_.translate = splineSegmentPoint_[i];
-		Vector3 diff = splineSegmentPoint_[i] - splineSegmentPoint_[i + 1];
-		railObjects_[i]->transform_.openData_.rotate.y = atan2(diff.x,diff.z);
 		railObjects_[i]->transform_.openData_.UpdateMatrix();
 		railObjects_[i]->transform_.ConvertToBuffer();
 	}

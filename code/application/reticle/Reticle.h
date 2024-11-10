@@ -33,5 +33,6 @@ private:
 	Vector3 reticleScreenPos_;
 	float kDistance3DReticle_;
 public:
-	
+	const Vector3& getWorldPos()const{ return reticleWorld3dPos_; }
+
 };

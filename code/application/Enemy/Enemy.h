@@ -16,10 +16,13 @@ public:
 
 	void OnCollision();
 private:
+	bool isAlive_;
+
 	std::unique_ptr<Object3d> object_;
 
 #ifdef _DEBUG
 	Vector3 spawnPos_;
+	bool checkBox;
 #endif // _DEBUG
 	Vector3 velocity_;
 	float radius_;

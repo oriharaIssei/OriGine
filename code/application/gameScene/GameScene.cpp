@@ -57,6 +57,8 @@ void GameScene::Init(){
 
 	reticle_ = std::make_unique<Reticle>();
 	reticle_->Init();
+
+	collisionManager_ = std::make_unique<CollisionManager>();
 }
 
 void GameScene::Update(){
@@ -86,9 +88,11 @@ void GameScene::Update(){
 	railEditor_->Update();
 
 	reticle_->Update(railCamera_.get(),input_);
-	beam_->Update(reticle_.get(),input_);
+	beam_->Update(railCamera_.get(),reticle_.get(),input_);
 
 	enemyManager_->Update(railCamera_->GetCurrentDistance());
+
+	collisionManager_->Update(enemyManager_.get(),beam_.get());
 
 #ifdef _DEBUG
 	ImGui::Begin("Materials");

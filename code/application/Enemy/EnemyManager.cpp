@@ -19,7 +19,7 @@ void EnemyManager::Init(){
 	GlobalVariables* variables	= GlobalVariables::getInstance();
 	variables->addValue("Game","EnemyManager","enemySpawnEventSize_",eventSize_);
 	for(int32_t i = 0; i < eventSize_; ++i){
-		auto& spawnEvent = spawnEvents_.emplace_back();
+		auto& spawnEvent = spawnEvents_.emplace_back(new EnemySpawnEvent());
 		spawnEvent->Init(i,enemyModel_);
 	}
 }
@@ -27,9 +27,12 @@ void EnemyManager::Init(){
 void EnemyManager::Update(float currentDistance){
 #ifdef _DEBUG
 	if(preEventSize_ != eventSize_){
-		if(eventSize_ > preEventSize_){
-			auto& spawnEvent = spawnEvents_.emplace_back(new EnemySpawnEvent());
-			spawnEvent->Init(static_cast<int32_t>(spawnEvents_.size() - 1),enemyModel_);
+		int32_t diff = eventSize_ - preEventSize_;
+		if(diff > 0){
+			for(int32_t i = 0; i < diff; i++){
+				spawnEvents_.push_back(std::make_unique<EnemySpawnEvent>());
+				spawnEvents_.back()->Init(static_cast<int32_t>(spawnEvents_.size() - 1),enemyModel_);
+			}
 		} else{
 			if(!spawnEvents_.empty()){
 				spawnEvents_.pop_back();
@@ -45,6 +48,21 @@ void EnemyManager::Update(float currentDistance){
 
 	preEventSize_ = eventSize_;
 #endif // _DEBUG
+
+	//if(!spawnEvents_.empty()){
+	//	auto& frontSpawnEvent = spawnEvents_.front();
+	//	if(frontSpawnEvent->GetTriggerDistance() >= currentDistance){
+	//		for(auto& enemy : frontSpawnEvent->Spawn()){
+	//			activeEnemies_.emplace_back(std::move(enemy));
+	//		}
+	//		spawnEvents_.pop_front();
+	//	}
+	//}
+	//if(!activeEnemies_.empty()){
+	//	for(auto& enemy : activeEnemies_){
+	//		enemy->Update();
+	//	}
+	//}
 }
 
 void EnemyManager::Draw(IConstantBuffer<CameraTransform>& cameraTransform){
@@ -70,7 +88,7 @@ void EnemySpawnEvent::Init(int32_t eventNum,Model* model){
 	std::string groupName_;
 #endif // !_DEBUG
 
-	groupName_ = "EnemySpawnEvent::" + std::to_string(eventNum);
+	groupName_ = "EnemySpawnEvent_" + std::to_string(eventNum);
 	GlobalVariables* variables	= GlobalVariables::getInstance();
 	variables->addValue("Game",groupName_,"eventTriggerDistance",eventTriggerDistance_);
 	variables->addValue("Game",groupName_,"hasEnemySize_",hasEnemySize_);
@@ -101,6 +119,10 @@ void EnemySpawnEvent::Debug(int32_t num,Model* model){
 	}
 
 	preHasEnemySize_ = hasEnemySize_;
+	for(auto& enemy : enemies_){
+		enemy->Update();
+	}
+
 }
 #endif // _DEBUG
 

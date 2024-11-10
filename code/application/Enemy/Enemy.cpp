@@ -10,6 +10,7 @@
 #endif // _DEBUG
 
 void Enemy::Init(const std::string& groupName,int32_t index,Model* model){
+	isAlive_ = true;
 	GlobalVariables* variables = GlobalVariables::getInstance();
 	///===============================================
 	/// Object Initialize
@@ -37,6 +38,16 @@ void Enemy::Init(const std::string& groupName,int32_t index,Model* model){
 }
 
 void Enemy::Update(){
+#ifdef _DEBUG
+	ImGui::Begin("Global Variables");
+	ImGui::Checkbox("isUpdate Enemy",&checkBox);
+	ImGui::End();
+	if(!checkBox){
+		object_->transform_.openData_.translate = spawnPos_;
+		return;
+	}
+#endif // _DEBUG
+
 	object_->transform_.openData_.translate += velocity_ * System::getInstance()->getDeltaTime();
 
 	velocity_ = Slerp(0.02f,velocity_.Normalize(),velocity_);

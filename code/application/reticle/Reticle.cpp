@@ -58,7 +58,7 @@ void Reticle::Update(const RailCamera* camera,Input* input){
 	{ // 3d => screen 
 		Matrix4x4 vpvMat = cameraT.viewMat * cameraT.projectionMat * viewPortMat_;
 
-		Vector3 reticleScreenPos_ = vpvMat * reticleWorld3dPos_;
+		reticleScreenPos_ = vpvMat * reticleWorld3dPos_;
 
 		sprite_->setPosition({reticleScreenPos_.x,reticleScreenPos_.y});
 	}

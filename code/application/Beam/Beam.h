@@ -12,11 +12,12 @@ class Input;
 struct Transform;
 class CameraTransform;
 class Reticle;
+class RailCamera;
 
 class Beam{
 public:
 	void Initialize();
-	void Update(const Reticle* reticle,Input* input);
+	void Update(const RailCamera* camera,const Reticle* reticle,Input* input);
 	void Draw(const IConstantBuffer<CameraTransform>& cameraBuff);
 
 private:
@@ -39,6 +40,10 @@ private:
 
 	Matrix4x4 viewPortMat_;
 public:
+	void setParent(Transform* parent){
+		leftObject_->transform_.openData_.parent = parent;
+		rightObject_->transform_.openData_.parent = parent;
+	}
 	Vector3 getLeftOrigin()   const{ return leftObject_->transform_.openData_.worldMat[3]; }
 	Vector3 getRightOrigin()  const{ return rightObject_->transform_.openData_.worldMat[3]; }
 	const Vector3& getEndPos()const{ return reticle3dPos_; }

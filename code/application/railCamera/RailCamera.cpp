@@ -54,13 +54,22 @@ void RailCamera::Update(){
 	float nextT = spline_->GetTFromDistance(nextDistance);
 	Vector3 target = spline_->GetPosition(nextT);
 
-
 	Vector3 direction = (target - eye).Normalize();
 	Transform& transform = object_->transform_.openData_;
 	// カメラの向きと位置を更新
-	transform.rotate.y = std::atan2(direction.x,direction.z);
-	Vector2 veloXZ = {direction.x,direction.z};
-	transform.rotate.x = std::atan2(-direction.y,veloXZ.Length());
+
+	// 仮の上方向ベクトル（Y軸を上方向として仮定）
+	Vector3 upDirection_ = Vector3(0,1,0);
+
+	Vector3 rightDirection_ = (upDirection_).cross(direction).Normalize();
+
+	upDirection_ = (direction).cross(rightDirection_).Normalize();
+
+	object_->transform_.openData_.rotate = {
+		std::asin(-direction.y),
+		std::atan2(direction.x,direction.z),
+		std::atan2(rightDirection_.y,upDirection_.y)
+	};
 
 	transform.translate = eye + offset_;
 
@@ -75,6 +84,9 @@ void RailCamera::Update(){
 #ifdef _DEBUG
 	ImGui::Begin("RailCamera");
 	ImGui::InputFloat("currentDistance",&currentDistance_,0.0f,0.0f,"%.2f",ImGuiInputTextFlags_ReadOnly);
+	if(ImGui::Button("reset CurrentDistance")){
+		currentDistance_ = 0.0f;
+	}
 
 	if(ImGui::TreeNode("Transform")){
 		ImGui::InputFloat3("scale",&transform.scale.x,"%.3f",ImGuiInputTextFlags_ReadOnly);

@@ -29,11 +29,11 @@ bool CollisionManager::CheckCollison(Beam* _beam,const Enemy* _enemy){
 	Vector3 rightSeg_ClosestPoint = ClosestPoint(enemyPos,_beam->getRightOrigin(),_beam->getEndPos());
 
 	/// 右 の ビームと 接触 していないか
-	if((leftSeg_ClosestPoint - enemyPos).length() >= collisionRadius){
+	if((leftSeg_ClosestPoint - enemyPos).length() > collisionRadius){
 		return false;
 	}
 	/// 左 の ビームと 接触 していないか
-	if((rightSeg_ClosestPoint - enemyPos).length() >= collisionRadius){
+	if((rightSeg_ClosestPoint - enemyPos).length() > collisionRadius){
 		return false;
 	}
 

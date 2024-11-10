@@ -12,6 +12,7 @@
 #include "transform/CameraTransform.h"
 
 #include "../Beam/Beam.h"
+#include "../collisionManager/CollisionManager.h"
 #include "../railCamera/RailCamera.h"
 #include "../RailEditor/RailEditor.h"
 #include "../reticle/Reticle.h"
@@ -58,4 +59,5 @@ private:
 
 	std::unique_ptr<Reticle> reticle_;
 	std::unique_ptr<Beam> beam_;
+	std::unique_ptr<CollisionManager> collisionManager_;
 };

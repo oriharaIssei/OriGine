@@ -12,6 +12,7 @@
 #include "transform/CameraTransform.h"
 
 #include "../railCamera/RailCamera.h"
+#include "../reticle/Reticle.h"
 
 void Beam::Initialize(){
 	///===========================================================
@@ -28,11 +29,6 @@ void Beam::Initialize(){
 	leftEnergy_ = maxEnergy_;
 
 	///===========================================================
-	/// Sprite
-	///===========================================================
-
-
-	///===========================================================
 	/// Object
 	///===========================================================
 	// Left Beam
@@ -40,32 +36,56 @@ void Beam::Initialize(){
 	leftObject_->SetModel(ModelManager::getInstance()->Create("resource","Beam.obj"));
 	leftObject_->transform_.CreateBuffer(System::getInstance()->getDxDevice()->getDevice());
 	variables->addValue("Game","Beam","leftOffset",leftOffset_);
+	leftObject_->transform_.openData_.translate = leftOffset_;
 	// right Beam
 	rightObject_ = std::make_unique<Object3d>();
 	rightObject_->SetModel(ModelManager::getInstance()->Create("resource","Beam.obj"));
 	rightObject_->transform_.CreateBuffer(System::getInstance()->getDxDevice()->getDevice());
 	variables->addValue("Game","Beam","rightOffset",rightOffset_);
-
-	//// reticle 
-	//reticleObject_ = std::make_unique<Object3d>();
-	//reticleObject_->SetModel(ModelManager::getInstance()->Create("resource","teapot.obj"));
-	//reticleObject_->transform_.CreateBuffer(System::getInstance()->getDxDevice()->getDevice());
+	rightObject_->transform_.openData_.translate = rightOffset_;
 
 }
 
-void Beam::Update(const Reticle* reticle,Input* input){
+void Beam::Update(const RailCamera* camera,const Reticle* reticle,Input* input){
+	float deltaTime = System::getInstance()->getDeltaTime();
+
+	reticle3dPos_ = reticle->getWorldPos();
+
 	isActive_ = input->isPressKey(DIK_SPACE) || leftEnergy_ > 0.0f;
 
 	if(!isActive_){
+		if(leftEnergy_ > maxEnergy_){
+			return;
+		}
+		leftEnergy_ += healingEnergyPerSeconds_ * deltaTime;
+		leftEnergy_  = (std::max)(leftEnergy_,maxEnergy_);
 		return;
 	}
 
 	{ // Energy Update
-	
+		leftEnergy_ -= lostEnergyPerSeconds_ * deltaTime;
 	}
 
-	{ // Rotate Update
+	{
+		Vector3 cameraPos = camera->getCameraBuffer().viewMat.Inverse()[3];
+		leftObject_->transform_.openData_.translate = cameraPos + leftOffset_;
+		rightObject_->transform_.openData_.translate = cameraPos + rightOffset_;
+	}
 
+	{
+		// Left Object rotation to reticle
+		Vector3 leftToReticleDir = (reticle3dPos_ - leftObject_->transform_.openData_.translate).Normalize();
+		leftObject_->transform_.openData_.rotate.y = std::atan2(leftToReticleDir.x,leftToReticleDir.z);  // Y軸回転
+		// y 軸周りに回転させる
+		Vector3 velocityZ = MakeMatrix::RotateY(-leftObject_->transform_.openData_.rotate.y) * leftToReticleDir;
+		leftObject_->transform_.openData_.rotate.x = std::atan2(-velocityZ.y,velocityZ.z); // X軸回転
+
+		// Right Object rotation to reticle
+		Vector3 rightToReticleDir = (reticle3dPos_ - rightObject_->transform_.openData_.translate).Normalize();
+		rightObject_->transform_.openData_.rotate.y = std::atan2(rightToReticleDir.x,rightToReticleDir.z);  // Y軸回転
+		// y 軸周りに回転させる
+		velocityZ = MakeMatrix::RotateY(-rightObject_->transform_.openData_.rotate.y) * rightToReticleDir;
+		rightObject_->transform_.openData_.rotate.x = std::atan2(-velocityZ.y,velocityZ.z); // X軸回転
 	}
 
 	{ // Objects Update
