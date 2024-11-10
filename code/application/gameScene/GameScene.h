@@ -13,8 +13,9 @@
 
 #include "../Beam/Beam.h"
 #include "../railCamera/RailCamera.h"
-#include "code/application/Enemy/EnemyManager.h"
 #include "../RailEditor/RailEditor.h"
+#include "../reticle/Reticle.h"
+#include "code/application/Enemy/EnemyManager.h"
 #include "Spline.h"
 
 class Input;
@@ -55,5 +56,6 @@ private:
 
 	std::unique_ptr<EnemyManager> enemyManager_;
 
+	std::unique_ptr<Reticle> reticle_;
 	std::unique_ptr<Beam> beam_;
 };

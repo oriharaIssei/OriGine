@@ -26,12 +26,6 @@ void RailCamera::Init(int32_t dimension){
 }
 
 void RailCamera::Update(){
-#ifdef _DEBUG
-	ImGui::Begin("RailCamera");
-	ImGui::InputFloat("currentDistance",&currentDistance_,0.0f,0.0f,"%.2f",ImGuiInputTextFlags_ReadOnly);
-	ImGui::End();
-#endif // _DEBUG
-
 	float deltaTime = System::getInstance()->getDeltaTime();
 
 	float physicalVelocity = velocity_ * deltaTime;
@@ -62,9 +56,8 @@ void RailCamera::Update(){
 
 
 	Vector3 direction = (target - eye).Normalize();
-
-	// カメラの向きと位置を更新
 	Transform& transform = object_->transform_.openData_;
+	// カメラの向きと位置を更新
 	transform.rotate.y = std::atan2(direction.x,direction.z);
 	Vector2 veloXZ = {direction.x,direction.z};
 	transform.rotate.x = std::atan2(-direction.y,veloXZ.Length());
@@ -78,6 +71,27 @@ void RailCamera::Update(){
 	// 速度 の 計算
 	velocity_ += direction.y * acceleration_ * deltaTime;
 	velocity_  = std::clamp(velocity_,minVelocity_,maxVelocity_);
+
+#ifdef _DEBUG
+	ImGui::Begin("RailCamera");
+	ImGui::InputFloat("currentDistance",&currentDistance_,0.0f,0.0f,"%.2f",ImGuiInputTextFlags_ReadOnly);
+
+	if(ImGui::TreeNode("Transform")){
+		ImGui::InputFloat3("scale",&transform.scale.x,"%.3f",ImGuiInputTextFlags_ReadOnly);
+		ImGui::InputFloat3("rotate",&transform.rotate.x,"%.3f",ImGuiInputTextFlags_ReadOnly);
+		ImGui::InputFloat3("translate",&transform.translate.x,"%.3f",ImGuiInputTextFlags_ReadOnly);
+
+		ImGui::Spacing();
+
+		ImGui::InputFloat4("viewMat[0]",cameraBuff_.viewMat[0],"%.3f",ImGuiInputTextFlags_ReadOnly);
+		ImGui::InputFloat4("viewMat[1]",cameraBuff_.viewMat[1],"%.3f",ImGuiInputTextFlags_ReadOnly);
+		ImGui::InputFloat4("viewMat[2]",cameraBuff_.viewMat[2],"%.3f",ImGuiInputTextFlags_ReadOnly);
+		ImGui::InputFloat4("viewMat[3]",cameraBuff_.viewMat[3],"%.3f",ImGuiInputTextFlags_ReadOnly);
+
+		ImGui::TreePop();
+	}
+	ImGui::End();
+#endif // _DEBUG
 }
 
 void RailCamera::Draw(const IConstantBuffer<CameraTransform>& cameraBuff){

@@ -24,7 +24,7 @@ private:
 	Vector3 velocity_;
 	float radius_;
 public:
-	Vector3 GetPos()const{ object_->transform_.openData_.worldMat[3]; }
+	Vector3 GetPos()const{ return object_->transform_.openData_.worldMat[3]; }
 	void SetPos(const Vector3& pos){ object_->transform_.openData_.translate = pos; }
 
 	const Vector3& GetVelocity()const{ return velocity_; }

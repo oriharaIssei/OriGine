@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -159,6 +159,7 @@
     <ClCompile Include="externals\imgui\imgui_widgets.cpp" />
     <ClCompile Include="code\lib\Thread\Thread.cpp" />
     <ClCompile Include="code\math\SLerp.cpp" />
+    <ClCompile Include="code\application\reticle\Reticle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\application\beam\Beam.h" />
@@ -228,6 +229,7 @@
     <ClInclude Include="externals\imgui\imstb_truetype.h" />
     <ClInclude Include="code\lib\Thread\Thread.h" />
     <ClInclude Include="code\math\SLerp.h" />
+    <ClInclude Include="code\application\reticle\Reticle.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">

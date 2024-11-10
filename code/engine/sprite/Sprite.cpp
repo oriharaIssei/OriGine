@@ -123,9 +123,9 @@ void Sprite::Update(){
 
 	const DirectX::TexMetadata& texData = TextureManager::getTexMetadata(textureIndex_);
 	float texLeft = textureLeftTop_.x / static_cast<float>(texData.width);
-	float texRight = (textureLeftTop_.x + textureSize_.x) / static_cast<float>(texData.width);
+	float texRight = 1;
 	float texTop = textureLeftTop_.y / static_cast<float>(texData.height);
-	float texBottom = (textureLeftTop_.y + textureSize_.y) / static_cast<float>(texData.height);
+	float texBottom = 1;
 
 	meshBuff_->vertexData[0].texcoord = {texLeft,texBottom};
 	meshBuff_->vertexData[1].texcoord = {texLeft,texTop};
@@ -135,7 +135,7 @@ void Sprite::Update(){
 }
 
 void Sprite::ConvertMappingData(){
-	mappingConstBufferData_->mat_ = worldMat_;
-	mappingConstBufferData_->uvMat_ = uvMat_;
+	mappingConstBufferData_->mat_    = worldMat_;
+	mappingConstBufferData_->uvMat_  = uvMat_;
 	mappingConstBufferData_->color_  = color_;
 }

@@ -54,6 +54,9 @@ void GameScene::Init(){
 
 	beam_ = std::make_unique<Beam>();
 	beam_->Initialize();
+
+	reticle_ = std::make_unique<Reticle>();
+	reticle_->Init();
 }
 
 void GameScene::Update(){
@@ -82,7 +85,8 @@ void GameScene::Update(){
 
 	railEditor_->Update();
 
-	beam_->Update(railCamera_.get(),input_);
+	reticle_->Update(railCamera_.get(),input_);
+	beam_->Update(reticle_.get(),input_);
 
 	enemyManager_->Update(railCamera_->GetCurrentDistance());
 
@@ -114,7 +118,9 @@ void GameScene::Draw(){
 	///===============================================
 	/// sprite
 	///===============================================
-	//SpriteCommon::getInstance()->PreDraw();
+	SpriteCommon::getInstance()->PreDraw();
+
+	reticle_->DrawSprite();
 
 	sceneView_->PostDraw();
 	///===============================================

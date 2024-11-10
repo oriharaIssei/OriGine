@@ -97,6 +97,6 @@ public:
 
 	void setTextureLeftTop(const Vector2& lt){ textureLeftTop_ = lt; }
 	const Vector2& getTextureLeftTop()const{ return textureLeftTop_; }
-	void setTextureSize(const Vector2& size){ textureSize_ = textureSize_; }
+	void setTextureSize(const Vector2& size){ textureSize_ = size; }
 	const Vector2& getTextureSize()const{ return textureSize_; }
 };
