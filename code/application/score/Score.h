@@ -18,6 +18,7 @@ public:
 	void Draw();
 private:
 	Vector2 tileSize_;
+	Vector2 textureTileSize_;
 	Vector2 tile2tileSpacing_;
 	Vector2 numbersLtPos_;
 

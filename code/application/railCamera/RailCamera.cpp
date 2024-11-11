@@ -47,7 +47,7 @@ void RailCamera::Update(){
 	Vector3 eye = spline_->GetPosition(t);
 
 	// 次の位置を取得して方向を計算
-	float nextDistance = currentDistance_ + (physicalVelocity * 3.0f);
+	float nextDistance = currentDistance_ + (physicalVelocity);
 	if(nextDistance > spline_->GetTotalLength()){
 		nextDistance -= spline_->GetTotalLength();
 	}

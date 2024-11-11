@@ -67,26 +67,28 @@ void Beam::Update(const RailCamera* camera,const Reticle* reticle,Input* input){
 	}
 
 	{
-		Vector3 cameraPos = camera->getCameraBuffer().viewMat.Inverse()[3];
-		leftObject_->transform_.openData_.translate = cameraPos + leftOffset_;
-		rightObject_->transform_.openData_.translate = cameraPos + rightOffset_;
+		const Matrix4x4& cameraMat = camera->getTransform().worldMat;
+		// カメラ位置とオフセットを加算してオブジェクト位置を更新
+		leftObject_->transform_.openData_.translate = cameraMat * leftOffset_;
+		rightObject_->transform_.openData_.translate = cameraMat * rightOffset_;
 	}
-
+	// ビームをリティクルの位置に向ける
+	// Left Object rotation to reticle
 	{
-		// Left Object rotation to reticle
 		Vector3 leftToReticleDir = (reticle3dPos_ - leftObject_->transform_.openData_.translate).Normalize();
 		leftObject_->transform_.openData_.rotate.y = std::atan2(leftToReticleDir.x,leftToReticleDir.z);  // Y軸回転
-		// y 軸周りに回転させる
 		Vector3 velocityZ = MakeMatrix::RotateY(-leftObject_->transform_.openData_.rotate.y) * leftToReticleDir;
 		leftObject_->transform_.openData_.rotate.x = std::atan2(-velocityZ.y,velocityZ.z); // X軸回転
+	}
 
-		// Right Object rotation to reticle
+	// Right Object rotation to reticle
+	{
 		Vector3 rightToReticleDir = (reticle3dPos_ - rightObject_->transform_.openData_.translate).Normalize();
 		rightObject_->transform_.openData_.rotate.y = std::atan2(rightToReticleDir.x,rightToReticleDir.z);  // Y軸回転
-		// y 軸周りに回転させる
-		velocityZ = MakeMatrix::RotateY(-rightObject_->transform_.openData_.rotate.y) * rightToReticleDir;
+		Vector3 velocityZ = MakeMatrix::RotateY(-rightObject_->transform_.openData_.rotate.y) * rightToReticleDir;
 		rightObject_->transform_.openData_.rotate.x = std::atan2(-velocityZ.y,velocityZ.z); // X軸回転
 	}
+
 
 	{ // Objects Update
 		leftObject_->transform_.openData_.UpdateMatrix();

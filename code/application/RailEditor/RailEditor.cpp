@@ -43,10 +43,7 @@ void ControlPoint::Update(){
 void ControlPoint::Debug(int32_t num){
 	std::string label = "Translate_" + std::to_string(num);
 	ImGui::DragFloat3(label.c_str(),&transform_.openData_.translate.x,0.1f);
-	label = "upVector" + std::to_string(num);
-	ImGui::DragFloat3(label.c_str(),&upVector_.x,0.1f);
 }
-
 #endif // _DEBUG
 
 void ControlPoint::Draw(const IConstantBuffer<CameraTransform>& cameraTrans,const IConstantBuffer<Material>* material){
@@ -79,7 +76,6 @@ void RailEditor::Update(){
 #ifdef _DEBUG
 	ImGui::Begin("RailEditor");
 	if(ImGui::Button("Add controlPoint")){
-
 		ctlPoints_.emplace_back(new ControlPoint(pCameraBuffer_));
 		ctlPoints_.back()->Init({0.0f,0.0f,0.0f},1.0f);
 	}

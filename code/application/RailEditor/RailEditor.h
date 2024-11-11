@@ -29,10 +29,8 @@ private:
 	const CameraTransform& pCameraBuffer_;
 
 	IConstantBuffer<Transform> transform_;
-	Vector3 upVector_;
 	float radius_;
 public:
-	const Vector3& getUpVector()const{ return upVector_; }
 	Vector3 getWorldPosition()const{ return transform_.openData_.worldMat[3]; }
 	Vector3 getTranslate()const{ return transform_.openData_.translate; }
 };
@@ -56,7 +54,6 @@ private:
 
 	std::list<std::unique_ptr<ControlPoint>> ctlPoints_;
 	std::vector<Vector3> controlPointPositions_;
-	std::vector<Vector3> controlPointUpVectors_;
 public:
 	uint32_t getSegmentCount()const{ return segmentCount_; }
 	const std::vector<Vector3>& getControlPointPositions()const{ return controlPointPositions_; }
