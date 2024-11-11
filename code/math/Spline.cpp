@@ -52,7 +52,7 @@ Spline::Spline(const std::vector<Vector3>& points): controlPoints_(points){
 void Spline::CalculateArcLength(){
 	arcLengthSegments_.clear();
 	totalLength_ = 0.0f;
-	constexpr int NUM_STEPS = 1000;
+	constexpr int NUM_STEPS = 2048;
 	Vector3 prevPoint = GetPosition(0.0f);
 	arcLengthSegments_.emplace_back(ArcLengthSegment{0.0f,0.0f});
 

@@ -4,6 +4,8 @@
 
 #include "System.h"
 
+#include "globalVariables/GlobalVariables.h"
+
 const char* lightTypes[] = {
 	"NONE",
 	"HALF_LAMBERT",
@@ -12,11 +14,18 @@ const char* lightTypes[] = {
 	"BLINN_PHONG_REFLECTION",
 };
 
-void Material::Init(){
-	color_.w = 1.0f;
-	uvScale_     = {1.0f,1.0f,1.0f};
-	uvRotate_    = {0.0f,0.0f,0.0f};
-	uvTranslate_ = {0.0f,0.0f,0.0f};
+void Material::Init(const std::string& materialName){
+	GlobalVariables* variables = GlobalVariables::getInstance();
+
+	variables->addValue("MaterialManager",materialName,"uvScale",uvScale_);
+	variables->addValue("MaterialManager",materialName,"uvRotate_",uvRotate_);
+	variables->addValue("MaterialManager",materialName,"uvTranslate_",uvTranslate_);
+	variables->addValue("MaterialManager",materialName,"color_",color_);
+	variables->addValue("MaterialManager",materialName,"enableLighting_",enableLighting_);
+	variables->addValue("MaterialManager",materialName,"shininess_",shininess_);
+	variables->addValue("MaterialManager",materialName,"specularColor_",specularColor_);
+
+	UpdateUvMatrix();
 }
 
 void Material::UpdateUvMatrix(){
@@ -26,7 +35,7 @@ void Material::UpdateUvMatrix(){
 IConstantBuffer<Material>* MaterialManager::Create(const std::string& materialName){
 	if(materialPallet_.count(materialName) == 0){
 		materialPallet_[materialName] = std::make_unique<IConstantBuffer<Material>>();
-		materialPallet_[materialName]->openData_.Init();
+		materialPallet_[materialName]->openData_.Init(materialName);
 		materialPallet_[materialName]->CreateBuffer(System::getInstance()->getDxDevice()->getDevice());
 		materialPallet_[materialName]->ConvertToBuffer();
 	}
@@ -65,6 +74,7 @@ void MaterialManager::DebugUpdate(){
 		ImGui::DragFloat((material.first + " Shininess").c_str(),&material.second->openData_.shininess_,0.01f,0.0f,FLT_MAX);
 		ImGui::ColorEdit3((material.first + " SpecularColor").c_str(),&material.second->openData_.specularColor_.x);
 
+		material.second->openData_.UpdateUvMatrix();
 		material.second->ConvertToBuffer();
 	}
 

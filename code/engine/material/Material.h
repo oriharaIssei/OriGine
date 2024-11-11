@@ -19,7 +19,7 @@ public:
 	Material() = default;
 	~Material(){}
 
-	void Init();
+	void Init(const std::string& materialName);
 	void UpdateUvMatrix();
 public:
 	Vector3 uvScale_;
@@ -29,7 +29,7 @@ public:
 
 	Vector4 color_;
 
-	uint32_t enableLighting_;
+	int32_t enableLighting_;
 	float	 shininess_;
 	Vector3  specularColor_;
 public:

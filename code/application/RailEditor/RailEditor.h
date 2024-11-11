@@ -48,7 +48,7 @@ private:
 	Transform origin_;
 	CameraTransform& pCameraBuffer_;
 
-	uint32_t segmentCount_ = 256;
+	uint32_t segmentCount_ = 326;
 	std::vector<Vector3> splineSegmentPoint_;
 	std::vector<std::unique_ptr<Object3d>> railObjects_;
 
