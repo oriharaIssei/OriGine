@@ -66,10 +66,11 @@ void RenderTexture::Awake(){
 	///================================================
 	/// depthStencil の設定
 	///================================================
-	D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
+	/*D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
 	depthStencilDesc.DepthEnable = false;
-	shaderInfo.setDepthStencilDesc(depthStencilDesc);
+	shaderInfo.setDepthStencilDesc(depthStencilDesc);*/
 
+	shaderInfo.blendMode_ = BlendMode::Alpha;
 	pso_ = shaderManager->CreatePso("copyImage",shaderInfo,System::getInstance()->getDxDevice()->getDevice());
 }
 
@@ -112,15 +113,15 @@ void RenderTexture::PreDraw(){
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = heap->getRtvCpuHandle(rtvArray_->getLocationOnHeap(rtvIndex_));
 	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = heap->getDsvCpuHandle(0);
 
-///=========================================
-//	TransitionBarrier の 設定
-///=========================================
+	///=========================================
+	//	TransitionBarrier の 設定
+	///=========================================
 	ResourceBarrierManager::Barrier(commandList,resource_.getResource(),D3D12_RESOURCE_STATE_RENDER_TARGET);
 	commandList->OMSetRenderTargets(1,&rtvHandle,FALSE,&dsvHandle);
 
-///=========================================
-//	Clear RTV
-///=========================================
+	///=========================================
+	//	Clear RTV
+	///=========================================
 	float clearColor[4] = {
 		clearColor_.x,
 		clearColor_.y,
@@ -131,16 +132,16 @@ void RenderTexture::PreDraw(){
 		rtvHandle,clearColor,0,nullptr
 	);
 
-///=========================================
-//	Clear DSV
-///=========================================
+	///=========================================
+	//	Clear DSV
+	///=========================================
 	commandList->ClearDepthStencilView(
 		dsvHandle,D3D12_CLEAR_FLAG_DEPTH,1.0f,0,0,nullptr
 	);
 
-///=========================================
-//	ビューポート の 設定
-///=========================================
+	///=========================================
+	//	ビューポート の 設定
+	///=========================================
 	D3D12_VIEWPORT viewPort{};
 	viewPort.Width = textureSize_.x;
 	viewPort.Height = textureSize_.y;
@@ -150,9 +151,9 @@ void RenderTexture::PreDraw(){
 	viewPort.MaxDepth = 1.0f;
 
 	commandList->RSSetViewports(1,&viewPort);
-///=========================================
-//	シザーレクト の 設定
-///=========================================
+	///=========================================
+	//	シザーレクト の 設定
+	///=========================================
 	D3D12_RECT scissorRect{};
 	scissorRect.left = 0;
 	scissorRect.right = static_cast<LONG>(textureSize_.x);
@@ -206,7 +207,7 @@ void RenderTexture::DrawTexture(){
 
 	commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
 	commandList->SetPipelineState(pso_->pipelineState.Get());
-	
+
 	ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
 	commandList->SetDescriptorHeaps(1,ppHeaps);
 	commandList->SetGraphicsRootDescriptorTable(

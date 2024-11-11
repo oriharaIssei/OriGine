@@ -4,6 +4,7 @@
 
 #include <string>
 
+#include "../score/Score.h"
 #include "directX12/DxCommand.h"
 #include "directX12/DxRtvArray.h"
 #include "directX12/DxRtvArrayManager.h"
@@ -20,7 +21,9 @@
 
 constexpr char dockingIDName[] = "ObjectsWindow";
 
-GameScene::~GameScene(){}
+GameScene::~GameScene(){
+	score_->Finalize();
+}
 
 void GameScene::Init(){
 	debugCamera_ = std::make_unique<DebugCamera>();
@@ -59,6 +62,9 @@ void GameScene::Init(){
 	reticle_->Init();
 
 	collisionManager_ = std::make_unique<CollisionManager>();
+
+	score_ = Score::getInstance();
+	score_->Init();
 }
 
 void GameScene::Update(){
@@ -94,12 +100,14 @@ void GameScene::Update(){
 
 	collisionManager_->Update(enemyManager_.get(),beam_.get());
 
+	score_->Update();
+
 #ifdef _DEBUG
 	ImGui::Begin("Materials");
 	materialManager_->DebugUpdate();
 	ImGui::End();
 #endif // _DEBUG
-	}
+}
 
 void GameScene::Draw(){
 	System::getInstance()->getDirectionalLight()->openData_.DebugUpdate();
@@ -123,8 +131,8 @@ void GameScene::Draw(){
 	/// sprite
 	///===============================================
 	SpriteCommon::getInstance()->PreDraw();
-
 	reticle_->DrawSprite();
+	score_->Draw();
 
 	sceneView_->PostDraw();
 	///===============================================

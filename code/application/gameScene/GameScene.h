@@ -25,6 +25,7 @@ class DxRtvArray;
 class DxSrvArray;
 
 class Spline;
+class Score;
 
 struct Matrix4x4;
 struct Vector3;
@@ -60,4 +61,6 @@ private:
 	std::unique_ptr<Reticle> reticle_;
 	std::unique_ptr<Beam> beam_;
 	std::unique_ptr<CollisionManager> collisionManager_;
+
+	Score* score_;
 };

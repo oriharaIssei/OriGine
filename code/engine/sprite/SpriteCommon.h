@@ -19,24 +19,23 @@
 #include <Vector4.h>
 
 class Sprite;
-class SpriteCommon
-{
-friend class Sprite;
+class SpriteCommon{
+	friend class Sprite;
 public:
 	static SpriteCommon* getInstance();
 
-	 void Init();
+	void Init();
 
-	 void PreDraw();
+	void PreDraw();
 
-	 void Finalize();
-	 Sprite* Create(const std::string& textureFilePath);
+	void Finalize();
+	Sprite* Create(const std::string& textureFilePath);
 
 private:
-	 BlendMode currentBlend_;
+	BlendMode currentBlend_ = BlendMode::Alpha;
 
-	 void CreatePSO();
-	 Matrix4x4 viewPortMat_;
-	 std::unique_ptr<DxCommand> dxCommand_;
-	 std::array<PipelineStateObj*,kBlendNum> pso_;
+	void CreatePSO();
+	Matrix4x4 viewPortMat_;
+	std::unique_ptr<DxCommand> dxCommand_;
+	std::array<PipelineStateObj*,kBlendNum> pso_;
 };
