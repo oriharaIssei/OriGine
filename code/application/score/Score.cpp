@@ -58,24 +58,25 @@ void Score::Update(){
 
 #endif // _DEBUG
 
-	//int score = currentScore_;
-	//std::vector<int32_t> digits;
-	//while(score > 0){
-	//	int digit = score % 10;
-	//	digits.push_back(digit);
-	//	score /= 10;
-	//}
+	int score = currentScore_;
 
-	//int32_t numberIndex_ = 0;
+	for(int32_t i = 0; i < 5; i++){
+		int digit = score % 10;
+		digits_[i] = digit;
+		score /= 10;
+	}
+	std::reverse(digits_.begin(),digits_.end());
 
-	//for(auto& aScoreNumber : numberSprites_){
-	//	int digit = digits[numberIndex_];
-	//	aScoreNumber->setTextureLeftTop(textureTileSize_ * static_cast<float>(digit));
+	int32_t numberIndex_ = 0;
 
-	//	aScoreNumber->Update();
-	//	numberIndex_++;
-	//}
-	//backgroundSprite_->Update();
+	for(auto& aScoreNumber : numberSprites_){
+		int digit = digits_[numberIndex_];
+		aScoreNumber->setTextureLeftTop(textureTileSize_ * static_cast<float>(digit));
+
+		aScoreNumber->Update();
+		numberIndex_++;
+	}
+	backgroundSprite_->Update();
 }
 
 void Score::Draw(){

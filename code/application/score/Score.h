@@ -23,6 +23,7 @@ private:
 	Vector2 numbersLtPos_;
 
 	std::array<std::unique_ptr<Sprite>,5> numberSprites_;
+	std::array<int32_t,5> digits_;
 	std::unique_ptr<Sprite> backgroundSprite_;
 
 	int32_t currentScore_;
