@@ -1,8 +1,0 @@
-CreateModel
-scale 0.8 0.4 0.8 
-rotate 0 -0.3 0 
-translate 51.1 1.9 12.8 
-material verticalBox
-modelDirectoryPath ./resource
-modelName VerticalBox.obj
-end

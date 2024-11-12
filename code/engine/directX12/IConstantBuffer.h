@@ -64,7 +64,7 @@ public:
 	void SetForRootParameter(ID3D12GraphicsCommandList* cmdList,uint32_t rootParameterNum) const;
 
 	// 公開用変数（バッファのデータを保持）
-	std::vector<typename structBuff::ConstantBuffer> openData_;
+	std::vector<typename structBuff> openData_;
 protected:
 	// bind されたデータへのポインタ
 	typename structBuff::ConstantBuffer* mappingData_ = nullptr;
@@ -76,6 +76,9 @@ public:
 
 template<HasInConstantBuffer structBuff>
 inline void IStructuredBuffer<structBuff>::CreateBuffer(ID3D12Device* device,uint32_t elementCount){
+	if(elementCount == 0){
+		return;
+	}
 	elementCount_ = elementCount;
 	size_t bufferSize = sizeof(typename structBuff::ConstantBuffer) * elementCount_;
 	buff_.CreateBufferResource(device,bufferSize);
@@ -93,5 +96,8 @@ inline void IStructuredBuffer<structBuff>::ConvertToBuffer(){
 
 template<HasInConstantBuffer structBuff>
 inline void IStructuredBuffer<structBuff>::SetForRootParameter(ID3D12GraphicsCommandList* cmdList,uint32_t rootParameterNum) const{
+	if(!buff_.getResource()){
+		return;
+	}
 	cmdList->SetGraphicsRootShaderResourceView(rootParameterNum,buff_.getResource()->GetGPUVirtualAddress());
 }

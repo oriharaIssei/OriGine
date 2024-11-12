@@ -131,9 +131,6 @@ void RailEditor::Draw(const IConstantBuffer<CameraTransform>& cameraTrans){
 	for(auto& rail : railObjects_){
 		rail->Draw(cameraTrans);
 	}
-	for(auto& point : ctlPoints_){
-		point->Draw(cameraTrans,System::getInstance()->getMaterialManager()->getMaterial("white"));
-	}
 }
 
 std::string filename = "resource/RailPoint.csv";

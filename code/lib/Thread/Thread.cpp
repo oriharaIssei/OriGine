@@ -11,7 +11,7 @@ void IThread::Init(int32_t threadNum){
 
 void IThread::Finalize(){
 	{
-		std::unique_lock<std::mutex> lock(mutex_);
+		std::lock_guard<std::mutex> lock(mutex_);
 		stopThread_ = true;
 	}
 

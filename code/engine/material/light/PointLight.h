@@ -12,6 +12,8 @@ struct PointLight{
 public:
 	PointLight() = default;
 	~PointLight(){}
+
+	void Init(int32_t num);
 	void DebugUpdate();
 
 	Vector3 color   = {1.0f,1.0f,1.0f};
@@ -22,13 +24,14 @@ public:
 
 public:
 	struct ConstantBuffer{
-		Vector3 color;      // 12 bytes
-		float padding1;     // 4 bytes to align to 16 bytes
-		Vector3 pos;        // 12 bytes
-		float intensity;    // 4 bytes
-		float radius;       // 4 bytes
-		float decay;        // 4 bytes
-		float padding2[2];  // 8 bytes (to align to 16 bytes)
+		Vector3 color;      // 12 バイト
+		float intensity;    // 4 バイト（合計16バイトにアラインメント）
+
+		Vector3 pos;        // 12 バイト
+		float radius;       // 4 バイト（合計16バイトにアラインメント）
+
+		float decay;        // 4 バイト
+		float padding[3];   // 12 バイト（合計16バイトにアラインメント）
 		ConstantBuffer& operator=(const PointLight& light){
 			color    = light.color;
 			pos      = light.pos;

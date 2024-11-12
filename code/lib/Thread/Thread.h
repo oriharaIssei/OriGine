@@ -35,7 +35,6 @@ protected:
 	bool stopThread_;
 public:
 	void StopThread(){
-
 		std::lock_guard<std::mutex> lock(mutex_);
 		stopThread_ = true;
 	}
@@ -86,9 +85,12 @@ inline void TaskThread<Task>::Update(){
 		Task task;
 		{
 			std::unique_lock<std::mutex> lock(IThread::mutex_);
+
+			// 条件変数を使ってタスクキューが空でないか、停止フラグが設定されるまで待機
 			IThread::condition_.wait(lock,[this]{ return !taskQueue_.empty() || IThread::stopThread_; });
 
-			if(IThread::stopThread_){
+			// スレッド停止フラグが立っており、かつキューが空である場合はスレッド終了
+			if(IThread::stopThread_ && taskQueue_.empty()){
 				return;
 			}
 
@@ -96,9 +98,11 @@ inline void TaskThread<Task>::Update(){
 			taskQueue_.pop();
 		}
 
+		// タスクの処理を実行
 		{
-			std::lock_guard guard(IThread::mutex_);
+			std::lock_guard<std::mutex> guard(IThread::mutex_);
 			task.Update();
 		}
 	}
+
 }

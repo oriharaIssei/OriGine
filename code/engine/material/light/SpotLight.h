@@ -11,6 +11,7 @@ public:
 	SpotLight() = default;
 	~SpotLight(){}
 
+	void Init(int32_t num);
 	void DebugUpdate();
 
 	Vector3 color         = {1.0f,1.0f,1.0f};

@@ -136,7 +136,6 @@ void Emitter::Draw(const IConstantBuffer<CameraTransform>& CameraTransform){
 	CameraTransform.SetForRootParameter(commandList,1);
 
 	material_->SetForRootParameter(commandList,2);
-	System::getInstance()->getDirectionalLight()->SetForRootParameter(commandList,3);
 
 	// 描画!!!
 	commandList->DrawIndexedInstanced(6,particleSize_,0,0,0);

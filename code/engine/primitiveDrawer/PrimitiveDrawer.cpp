@@ -77,13 +77,11 @@ void PrimitiveDrawer::PreDraw(){
 	commandList->SetGraphicsRootSignature(linePso_[(int)currentBlendMode_]->rootSignature.Get());
 	commandList->SetPipelineState(linePso_[(int)currentBlendMode_]->pipelineState.Get());
 
-	System::getInstance()->getDirectionalLight()->SetForRootParameter(commandList,3);
-	System::getInstance()->getPointLight()->SetForRootParameter(commandList,4);
-	System::getInstance()->getSpotLight()->SetForRootParameter(commandList,5);
+	//System::getInstance()->getLightManager()->SetForRootParameter(commandList);
 }
 
 void PrimitiveDrawer::Line(const Vector3& p0,const Vector3& p1,const  IConstantBuffer<Transform>& Transform,const IConstantBuffer<CameraTransform>& viewProj,const IConstantBuffer<Material>* material){
-	ID3D12GraphicsCommandList *commandList = dxCommand_->getCommandList();
+	ID3D12GraphicsCommandList* commandList = dxCommand_->getCommandList();
 
 	const uint32_t startIndex = lineInstanceVal_ * 2;
 	lineMesh_->vertData[startIndex].pos = {p0.x,p0.y,p0.z,1.0f};
@@ -106,8 +104,8 @@ void PrimitiveDrawer::Line(const Vector3& p0,const Vector3& p1,const  IConstantB
 	++lineInstanceVal_;
 }
 
-void PrimitiveDrawer::Triangle(const Vector3 &p0,const Vector3 &p1,const Vector3 &p2,const  IConstantBuffer<Transform>& Transform,const IConstantBuffer<CameraTransform>& viewProj,const IConstantBuffer<Material>* material){
-	ID3D12GraphicsCommandList *commandList = dxCommand_->getCommandList();
+void PrimitiveDrawer::Triangle(const Vector3& p0,const Vector3& p1,const Vector3& p2,const  IConstantBuffer<Transform>& Transform,const IConstantBuffer<CameraTransform>& viewProj,const IConstantBuffer<Material>* material){
+	ID3D12GraphicsCommandList* commandList = dxCommand_->getCommandList();
 
 	const uint32_t startIndex = triangleInstanceVal_ * 3;
 	triangleMesh_->vertData[startIndex].pos = {p0.x,p0.y,p0.z,1.0f};
@@ -132,8 +130,8 @@ void PrimitiveDrawer::Triangle(const Vector3 &p0,const Vector3 &p1,const Vector3
 	++triangleInstanceVal_;
 }
 
-void PrimitiveDrawer::Quad(const Vector3 &p0,const Vector3 &p1,const Vector3 &p2,const Vector3 &p3,const  IConstantBuffer<Transform>& Transform,const IConstantBuffer<CameraTransform>& viewProj,const IConstantBuffer<Material>* material){
-	ID3D12GraphicsCommandList *commandList = dxCommand_->getCommandList();
+void PrimitiveDrawer::Quad(const Vector3& p0,const Vector3& p1,const Vector3& p2,const Vector3& p3,const  IConstantBuffer<Transform>& Transform,const IConstantBuffer<CameraTransform>& viewProj,const IConstantBuffer<Material>* material){
+	ID3D12GraphicsCommandList* commandList = dxCommand_->getCommandList();
 
 	const uint32_t startIndex = quadInstanceVal_ * 6;
 	const uint32_t startVertex = quadInstanceVal_ * 4;

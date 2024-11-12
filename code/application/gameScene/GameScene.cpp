@@ -110,12 +110,9 @@ void GameScene::Update(){
 }
 
 void GameScene::Draw(){
-	System::getInstance()->getDirectionalLight()->openData_.DebugUpdate();
-	System::getInstance()->getPointLight()->openData_.DebugUpdate();
-	System::getInstance()->getSpotLight()->openData_.DebugUpdate();
+	System::getInstance()->getLightManager()->Update();
 
 	sceneView_->PreDraw();
-
 	///===============================================
 	/// 3d Object
 	///===============================================

@@ -27,7 +27,7 @@ BlendMode Object3d::currentBlend_ = BlendMode::Alpha;
 
 #pragma region"Object3d"
 Object3d* Object3d::Create(const std::string& directoryPath,const std::string& filename){
-	Object3d *newInstance = new Object3d();
+	Object3d* newInstance = new Object3d();
 	newInstance->data_ = ModelManager::getInstance()->Create(directoryPath,filename);
 	return newInstance;
 }
@@ -39,9 +39,7 @@ void Object3d::PreDraw(){
 	commandList->SetGraphicsRootSignature(manager->texturePso_[static_cast<uint32_t>(currentBlend_)]->rootSignature.Get());
 	commandList->SetPipelineState(manager->texturePso_[static_cast<uint32_t>(currentBlend_)]->pipelineState.Get());
 
-	System::getInstance()->getDirectionalLight()->SetForRootParameter(commandList,3);
-	System::getInstance()->getPointLight()->SetForRootParameter(commandList,4);
-	System::getInstance()->getSpotLight()->SetForRootParameter(commandList,5);
+	System::getInstance()->getLightManager()->SetForRootParameter(commandList);
 
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }

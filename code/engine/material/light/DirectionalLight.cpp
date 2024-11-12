@@ -1,19 +1,21 @@
-#include "material/light/DirectionalLight.h"
+#include "DirectionalLight.h"
 
-#include "directX12/DxFunctionHelper.h"
-#include "System.h"
+#include "globalVariables/GlobalVariables.h"
 
+#ifdef _DEBUG
 #include "imgui/imgui.h"
+#endif // _DEBUG
 
+void DirectionalLight::Init(int32_t num){
+	GlobalVariables* variables = GlobalVariables::getInstance();
+
+	variables->addValue("LightManager","DirectionalLight" + std::to_string(num),"color",color);
+	variables->addValue("LightManager","DirectionalLight" + std::to_string(num),"direction",direction);
+	variables->addValue("LightManager","DirectionalLight" + std::to_string(num),"intensity",intensity);
+}
 
 void DirectionalLight::DebugUpdate(){
 #ifdef _DEBUG
-	if(ImGui::Begin("DirectionalLight")){
-		ImGui::DragFloat3("Direction",&this->direction.x,0.01f,-1.0f,1.0f);
-		this->direction = this->direction.Normalize();
-		ImGui::ColorEdit3("Color",&this->color.x);
-		ImGui::SliderFloat("Intensity",&this->intensity,0.0f,1.0f);
-	}
-	ImGui::End();
+	this->direction = this->direction.Normalize();
 #endif // _DEBUG
 }

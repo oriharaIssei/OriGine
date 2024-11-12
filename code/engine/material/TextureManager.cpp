@@ -32,8 +32,7 @@ std::condition_variable TextureManager::queueCondition_;
 std::unique_ptr<DxCommand> TextureManager::dxCommand_;
 
 #pragma region Texture
-void TextureManager::Texture::Init(const std::string& filePath,std::shared_ptr<DxSrvArray> srvArray,int textureIndex)
-{
+void TextureManager::Texture::Init(const std::string& filePath,std::shared_ptr<DxSrvArray> srvArray,int textureIndex){
 	loadState = LoadState::Loading;
 	path = filePath;
 	DxResource resource;
@@ -67,16 +66,14 @@ void TextureManager::Texture::Init(const std::string& filePath,std::shared_ptr<D
 	loadState = LoadState::Loaded;
 }
 
-void TextureManager::Texture::Finalize()
-{
+void TextureManager::Texture::Finalize(){
 	dxSrvArray_->DestroyView(resourceIndex);
 }
 
-DirectX::ScratchImage TextureManager::Texture::Load(const std::string& filePath)
-{
+DirectX::ScratchImage TextureManager::Texture::Load(const std::string& filePath){
 	DirectX::ScratchImage image{};
 
-// テクスチャファイルを読み込む
+	// テクスチャファイルを読み込む
 	std::wstring filePathW = Logger::ConvertString(filePath);
 	HRESULT hr = DirectX::LoadFromWICFile(
 		filePathW.c_str(),
@@ -84,8 +81,7 @@ DirectX::ScratchImage TextureManager::Texture::Load(const std::string& filePath)
 		nullptr,
 		image
 	);
-	if(FAILED(hr))
-	{
+	if(FAILED(hr)){
 		std::cerr << "Failed to load texture file: " << filePath << std::endl;
 		assert(SUCCEEDED(hr));
 	}
@@ -93,8 +89,7 @@ DirectX::ScratchImage TextureManager::Texture::Load(const std::string& filePath)
 	DirectX::ScratchImage mipImages{};
 
 	// ミップマップの作成は画像が1x1以上の場合のみ行う
-	if(image.GetMetadata().width > 1 && image.GetMetadata().height > 1)
-	{
+	if(image.GetMetadata().width > 1 && image.GetMetadata().height > 1){
 		hr = DirectX::GenerateMipMaps(
 			image.GetImages(),
 			image.GetImageCount(),
@@ -103,21 +98,18 @@ DirectX::ScratchImage TextureManager::Texture::Load(const std::string& filePath)
 			0,
 			mipImages
 		);
-		if(FAILED(hr))
-		{
+		if(FAILED(hr)){
 			std::cerr << "Failed to generate mipmaps for: " << filePath << std::endl;
 			assert(SUCCEEDED(hr));
 		}
-	} else
-	{
+	} else{
 		mipImages = std::move(image);  // 1x1の場合、MipMap生成をスキップ
 	}
 
 	return mipImages;
 }
 
-void TextureManager::Texture::UploadTextureData(DirectX::ScratchImage& mipImg,ID3D12Resource* resource)
-{
+void TextureManager::Texture::UploadTextureData(DirectX::ScratchImage& mipImg,ID3D12Resource* resource){
 	std::vector<D3D12_SUBRESOURCE_DATA> subResources;
 	auto dxDevice = System::getInstance()->getDxDevice();
 	DirectX::PrepareUpload(
@@ -148,8 +140,7 @@ void TextureManager::Texture::UploadTextureData(DirectX::ScratchImage& mipImg,ID
 	);
 	ExecuteCommand(resource);
 }
-void TextureManager::Texture::ExecuteCommand(ID3D12Resource* resource)
-{
+void TextureManager::Texture::ExecuteCommand(ID3D12Resource* resource){
 	D3D12_RESOURCE_BARRIER barrier{};
 	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
@@ -175,8 +166,7 @@ void TextureManager::Texture::ExecuteCommand(ID3D12Resource* resource)
 #pragma endregion
 
 #pragma region "Manager"
-void TextureManager::Init()
-{
+void TextureManager::Init(){
 	CoInitializeEx(0,COINIT_MULTITHREADED);
 
 	DxHeap* heap = DxHeap::getInstance();
@@ -206,15 +196,13 @@ void TextureManager::Init()
 	LoadTexture("resource/white1x1.png");
 }
 
-void TextureManager::Finalize()
-{
+void TextureManager::Finalize(){
 	{
 		std::unique_lock<std::mutex> lock(queueMutex_);
 		stopLoadingThread_ = true;
 	}
 	queueCondition_.notify_all();
-	if(loadingThread_.joinable())
-	{
+	if(loadingThread_.joinable()){
 		loadingThread_.join();
 	}
 
@@ -222,26 +210,20 @@ void TextureManager::Finalize()
 
 	dxCommand_->Finalize();
 
-	for(auto& texture : textures_)
-	{
-		if(texture != nullptr)
-		{
+	for(auto& texture : textures_){
+		if(texture != nullptr){
 			texture->Finalize();
 		}
 	}
 }
 
-uint32_t TextureManager::LoadTexture(const std::string& filePath)
-{
+uint32_t TextureManager::LoadTexture(const std::string& filePath){
 	uint32_t index = 0;
-	for(index = 0; index < textures_.size(); ++index)
-	{
-		if(textures_[index] == nullptr)
-		{
+	for(index = 0; index < textures_.size(); ++index){
+		if(textures_[index] == nullptr){
 			textures_[index] = std::make_unique<Texture>();
 			break;
-		} else if(filePath == textures_[index]->path)
-		{
+		} else if(filePath == textures_[index]->path){
 			return index;
 		}
 	}
@@ -256,17 +238,14 @@ uint32_t TextureManager::LoadTexture(const std::string& filePath)
 }
 
 
-void TextureManager::LoadLoop()
-{
-	while(true)
-	{
+void TextureManager::LoadLoop(){
+	while(true){
 		std::tuple<Texture*,std::string,uint32_t> task;
 		{
 			std::unique_lock<std::mutex> lock(queueMutex_);
-			queueCondition_.wait(lock,[] { return !loadingQueue_.empty() || stopLoadingThread_; });
+			queueCondition_.wait(lock,[]{ return !loadingQueue_.empty() || stopLoadingThread_; });
 
-			if(stopLoadingThread_ && loadingQueue_.empty())
-			{
+			if(stopLoadingThread_ && loadingQueue_.empty()){
 				return;
 			}
 
@@ -281,8 +260,7 @@ void TextureManager::LoadLoop()
 	}
 }
 
-void TextureManager::UnloadTexture(uint32_t id)
-{
+void TextureManager::UnloadTexture(uint32_t id){
 	dxSrvArray_->DestroyView(textures_[id]->resourceIndex);
 	textures_[id]->Finalize();
 	textures_[id].reset();
