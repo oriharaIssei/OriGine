@@ -26,11 +26,6 @@ GameScene::~GameScene(){
 }
 
 void GameScene::Init(){
-	debugCamera_ = std::make_unique<DebugCamera>();
-	debugCamera_->Init();
-
-	debugCamera_->setViewTranslate({0.0f,0.0f,-12.0f});
-
 	cameraBuff_.CreateBuffer(System::getInstance()->getDxDevice()->getDevice());
 
 	input_ = Input::getInstance();
@@ -68,26 +63,10 @@ void GameScene::Init(){
 }
 
 void GameScene::Update(){
-#ifdef _DEBUG
-	if(input_->isTriggerKey(DIK_F1)){
-		isDebugCamera_ = !isDebugCamera_;
-	}
 
-	if(isDebugCamera_){
-		debugCamera_->Update();
-		debugCamera_->DebugUpdate();
-		cameraBuff_.openData_.viewMat = debugCamera_->getCameraTransform().viewMat;
-		cameraBuff_.openData_.projectionMat = debugCamera_->getCameraTransform().projectionMat;
-	} else{
-		railCamera_->Update();
-		cameraBuff_.openData_.viewMat = railCamera_->getCameraBuffer().viewMat;
-		cameraBuff_.openData_.projectionMat = railCamera_->getCameraBuffer().projectionMat;
-	}
-#else
 	railCamera_->Update();
 	cameraBuff_.openData_.viewMat = railCamera_->getCameraBuffer().viewMat;
 	cameraBuff_.openData_.projectionMat = railCamera_->getCameraBuffer().projectionMat;
-#endif // _DEBUG
 
 	cameraBuff_.ConvertToBuffer();
 
@@ -117,7 +96,6 @@ void GameScene::Draw(){
 	/// 3d Object
 	///===============================================
 	Object3d::PreDraw();
-	railCamera_->Draw(cameraBuff_);
 	railEditor_->Draw(cameraBuff_);
 
 	beam_->Draw(cameraBuff_);

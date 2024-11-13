@@ -35,7 +35,7 @@ System* System::getInstance(){
 
 void System::Init(){
 	window_ = std::make_unique<WinApp>();
-	window_->CreateGameWindow(L"title",WS_OVERLAPPEDWINDOW,1280,720);
+	window_->CreateGameWindow(L"LE2A_07_orihara_isssei_AL4",WS_OVERLAPPEDWINDOW,1280,720);
 
 	input_ = Input::getInstance();
 	input_->Init();
@@ -58,6 +58,10 @@ void System::Init(){
 	dxDsv_->Init(dxDevice_->getDevice(),dxHeap->getDsvHeap(),window_->getWidth(),window_->getHeight());
 
 	DxSrvArrayManager::getInstance()->Init();
+
+#ifndef _DEBUG
+	DxSrvArrayManager::getInstance()->Create(1);
+#endif // !_DEBUG
 
 	DxRtvArrayManager::getInstance()->Init();
 

@@ -12,8 +12,6 @@
 
 void RailCamera::Init(int32_t dimension){
 	cameraBuff_.UpdateMatrix();
-	object_.reset(Object3d::Create("resource","axis.obj"));
-	object_->transform_.CreateBuffer(System::getInstance()->getDxDevice()->getDevice());
 
 	dimension_ = dimension;
 
@@ -55,7 +53,6 @@ void RailCamera::Update(){
 	Vector3 target = spline_->GetPosition(nextT);
 
 	Vector3 direction = (target - eye).Normalize();
-	Transform& transform = object_->transform_.openData_;
 	// カメラの向きと位置を更新
 
 	// 仮の上方向ベクトル（Y軸を上方向として仮定）
@@ -65,17 +62,16 @@ void RailCamera::Update(){
 
 	upDirection_ = (direction).cross(rightDirection_).Normalize();
 
-	object_->transform_.openData_.rotate = {
+	transform_.rotate = {
 		std::asin(-direction.y),
 		std::atan2(direction.x,direction.z),
 		std::atan2(rightDirection_.y,upDirection_.y)
 	};
 
-	transform.translate = eye + offset_;
+	transform_.translate = eye + offset_;
 
-	transform.UpdateMatrix();
-	object_->transform_.ConvertToBuffer();
-	cameraBuff_.viewMat = transform.worldMat.Inverse();
+	transform_.UpdateMatrix();
+	cameraBuff_.viewMat = transform_.worldMat.Inverse();
 
 	// 速度 の 計算
 	velocity_ += direction.y * acceleration_ * deltaTime;
@@ -89,9 +85,9 @@ void RailCamera::Update(){
 	}
 
 	if(ImGui::TreeNode("Transform")){
-		ImGui::InputFloat3("scale",&transform.scale.x,"%.3f",ImGuiInputTextFlags_ReadOnly);
-		ImGui::InputFloat3("rotate",&transform.rotate.x,"%.3f",ImGuiInputTextFlags_ReadOnly);
-		ImGui::InputFloat3("translate",&transform.translate.x,"%.3f",ImGuiInputTextFlags_ReadOnly);
+		ImGui::InputFloat3("scale",&transform_.scale.x,"%.3f",ImGuiInputTextFlags_ReadOnly);
+		ImGui::InputFloat3("rotate",&transform_.rotate.x,"%.3f",ImGuiInputTextFlags_ReadOnly);
+		ImGui::InputFloat3("translate",&transform_.translate.x,"%.3f",ImGuiInputTextFlags_ReadOnly);
 
 		ImGui::Spacing();
 
@@ -104,10 +100,6 @@ void RailCamera::Update(){
 	}
 	ImGui::End();
 #endif // _DEBUG
-}
-
-void RailCamera::Draw(const IConstantBuffer<CameraTransform>& cameraBuff){
-	object_->Draw(cameraBuff);
 }
 
 void RailCamera::SetSpline(Spline* _spline){ spline_ = _spline; }

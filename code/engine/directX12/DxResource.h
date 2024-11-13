@@ -9,8 +9,7 @@
 #include <stdint.h>
 
 class DxDevice;
-class DxResource
-{
+class DxResource{
 public:
 	DxResource() = default;
 	~DxResource() = default;
@@ -22,6 +21,6 @@ public:
 private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> resource_;
 public:
-	ID3D12Resource* getResource()const{return resource_.Get();}
+	ID3D12Resource* getResource()const{ return resource_.Get(); }
 };
 

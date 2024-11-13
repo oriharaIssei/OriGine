@@ -14,7 +14,11 @@ const std::string directory = "resource/";
 
 #pragma region"EnemyManager"
 void EnemyManager::Init(){
-	enemyModel_ = ModelManager::getInstance()->Create("resource","teapot.obj");
+	enemyModel_ = ModelManager::getInstance()->Create("resource/Models","Enemy.obj");
+
+#ifndef  _DUBUG
+	int32_t eventSize_;
+#endif // ! _DUBUG
 
 	GlobalVariables* variables	= GlobalVariables::getInstance();
 	variables->addValue("Game","EnemyManager","enemySpawnEventSize_",eventSize_);
@@ -25,60 +29,29 @@ void EnemyManager::Init(){
 }
 
 void EnemyManager::Update(float currentDistance){
-#ifdef _DEBUG
-	if(preEventSize_ != eventSize_){
-		int32_t diff = eventSize_ - preEventSize_;
-		if(diff > 0){
-			for(int32_t i = 0; i < diff; i++){
-				spawnEvents_.push_back(std::make_unique<EnemySpawnEvent>());
-				spawnEvents_.back()->Init(static_cast<int32_t>(spawnEvents_.size() - 1),enemyModel_);
+
+	if(!spawnEvents_.empty()){
+		auto& frontEvent = spawnEvents_.front();
+		if(frontEvent->GetTriggerDistance() <= currentDistance){
+			for(auto& spawnEnemy : frontEvent->GetEnemyList()){
+				activeEnemies_.push_back(std::move(spawnEnemy));
 			}
-		} else{
-			if(!spawnEvents_.empty()){
-				spawnEvents_.pop_back();
-			}
+			spawnEvents_.pop_front();
 		}
 	}
 
-	int32_t eventIndex_ = 0;
-	for(auto& spawnEvent : spawnEvents_){
-		spawnEvent->Debug(eventIndex_,enemyModel_);
-		eventIndex_++;
+	if(!activeEnemies_.empty()){
+		for(auto& enemy : activeEnemies_){
+			enemy->Update();
+		}
+		std::erase_if(activeEnemies_,[](std::unique_ptr<Enemy>& enemy){return !enemy->getIsAlive(); });
 	}
-
-	preEventSize_ = eventSize_;
-#endif // _DEBUG
-
-	//if(!spawnEvents_.empty()){
-	//	auto& frontSpawnEvent = spawnEvents_.front();
-	//	if(frontSpawnEvent->GetTriggerDistance() >= currentDistance){
-	//		for(auto& enemy : frontSpawnEvent->Spawn()){
-	//			activeEnemies_.emplace_back(std::move(enemy));
-	//		}
-	//		spawnEvents_.pop_front();
-	//	}
-	//}
-	//if(!activeEnemies_.empty()){
-	//	for(auto& enemy : activeEnemies_){
-	//		enemy->Update();
-	//	}
-	//}
 }
 
 void EnemyManager::Draw(IConstantBuffer<CameraTransform>& cameraTransform){
-#ifdef _DEBUG
-	for(auto& spawnEvent : spawnEvents_){
-		for(auto& debugEnemy : spawnEvent->GetEnemyList()){
-			debugEnemy->Draw(cameraTransform);
-		}
-	}
-#endif // _DEBUG
-
-#ifndef _DEBUG
 	for(auto& enemy : activeEnemies_){
 		enemy->Draw(cameraTransform);
 	}
-#endif // _DEBUG
 }
 #pragma endregion
 
@@ -86,6 +59,7 @@ void EnemyManager::Draw(IConstantBuffer<CameraTransform>& cameraTransform){
 void EnemySpawnEvent::Init(int32_t eventNum,Model* model){
 #ifndef _DEBUG
 	std::string groupName_;
+	int32_t hasEnemySize_;
 #endif // !_DEBUG
 
 	groupName_ = "EnemySpawnEvent_" + std::to_string(eventNum);

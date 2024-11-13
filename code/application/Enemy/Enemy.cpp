@@ -34,27 +34,15 @@ void Enemy::Init(const std::string& groupName,int32_t index,Model* model){
 	/// Velocity Initialize
 	///===============================================
 	variables->addValue("Game",groupName,"Enemy_" + std::to_string(index) + "_Direction",direction_);
-	velocity_ = direction_ * speed_;
 	variables->addValue("Game",groupName,"Enemy_" + std::to_string(index) + "_Speed",speed_);
+	velocity_ = direction_ * speed_;
 
-	GlobalVariables::getInstance()->addValue("Game","Enemy","radius",radius_);
 	GlobalVariables::getInstance()->addValue("Game","Enemy","score",score_);
+
+	radius_ = 1.0f;
 }
 
 void Enemy::Update(){
-#ifdef _DEBUG
-	ImGui::Begin("Global Variables");
-	ImGui::Checkbox("isUpdate Enemy",&checkBox);
-	ImGui::End();
-
-	direction_.Normalize();
-
-	if(!checkBox){
-		object_->transform_.openData_.translate = spawnPos_;
-		return;
-	}
-	velocity_ = direction_ * speed_;
-#endif // _DEBUG
 
 	object_->transform_.openData_.translate += velocity_ * System::getInstance()->getDeltaTime();
 

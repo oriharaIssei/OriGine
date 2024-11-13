@@ -23,7 +23,7 @@
 #include <chrono>
 #include "Object3d.h"
 
-BlendMode Object3d::currentBlend_ = BlendMode::Alpha;
+BlendMode Object3d::currentBlend_ = BlendMode::None;
 
 #pragma region"Object3d"
 Object3d* Object3d::Create(const std::string& directoryPath,const std::string& filename){

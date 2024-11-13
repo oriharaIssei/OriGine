@@ -74,6 +74,10 @@ struct Vector3{
 	float length()const{
 		return std::sqrtf(dot(*this));
 	}
+	float lengthSq()const{
+		return dot(*this);
+	}
+
 
 	Vector3 cross(const Vector3& other)const{
 		return {

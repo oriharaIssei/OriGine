@@ -21,7 +21,7 @@ public:
 
 	void Reset(){ currentDistance_ = 0; }
 private:
-	std::unique_ptr<Object3d> object_;
+	Transform transform_;
 	CameraTransform cameraBuff_;
 
 	Spline* spline_ = nullptr;
@@ -40,7 +40,7 @@ public:
 	void SetSpline(Spline* _spline);
 
 	const CameraTransform& getCameraBuffer()const{ return cameraBuff_; }
-	const Transform& getTransform()const{ return object_->transform_.openData_; }
-	Transform& getTransform(){ return object_->transform_.openData_; }
+	const Transform& getTransform()const{ return transform_; }
+	Transform& getTransform(){ return transform_; }
 	void setDimension(int32_t dimension){ dimension_ = dimension; }
 };

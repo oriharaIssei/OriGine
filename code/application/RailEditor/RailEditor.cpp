@@ -66,7 +66,7 @@ void RailEditor::Init(){
 	for(size_t i = 0; i < segmentCount_; ++i){
 		float t = 1.0f / segmentCount_ * i;
 		splineSegmentPoint_.push_back(CatmullRomInterpolation(controlPointPositions_,t));
-		auto& rail = railObjects_.emplace_back(Object3d::Create("./resource","rail.obj"));
+		auto& rail = railObjects_.emplace_back(Object3d::Create("./resource/Models","rail.obj"));
 		rail->transform_.CreateBuffer(System::getInstance()->getDxDevice()->getDevice());
 		rail->transform_.ConvertToBuffer();
 	}

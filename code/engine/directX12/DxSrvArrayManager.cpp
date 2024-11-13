@@ -6,7 +6,7 @@
 #include "directX12/DxCommand.h"
 #include "directX12/DxSrvArray.h"
 
-DxSrvArrayManager *DxSrvArrayManager::getInstance(){
+DxSrvArrayManager* DxSrvArrayManager::getInstance(){
 	static DxSrvArrayManager instance;
 	return &instance;
 }
@@ -33,7 +33,7 @@ std::shared_ptr<DxSrvArray> DxSrvArrayManager::Create(uint32_t size){
 }
 
 uint32_t DxSrvArrayManager::SearchEmptyLocation(uint32_t size,std::shared_ptr<DxSrvArray> dxSrvArray){
-	DxHeap *dxHeap = DxHeap::getInstance();
+	DxHeap* dxHeap = DxHeap::getInstance();
 	std::vector<std::pair<D3D12_CPU_DESCRIPTOR_HANDLE,uint32_t>> usedArrays_;
 	uint32_t currentLocation = 0;
 

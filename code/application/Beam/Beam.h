@@ -40,6 +40,8 @@ private:
 
 	Matrix4x4 viewPortMat_;
 public:
+	bool getIsActive()const{ return isActive_; }
+
 	void setParent(Transform* parent){
 		leftObject_->transform_.openData_.parent = parent;
 		rightObject_->transform_.openData_.parent = parent;

@@ -23,6 +23,7 @@ void Score::Init(){
 		aScoreNumber->Init("resource/Texture/numbers.png");
 		aScoreNumber->setAnchorPoint({0.5f,0.5f});
 		aScoreNumber->setTextureSize(textureTileSize_);
+		aScoreNumber->setSize(tileSize_);
 	}
 	for(size_t i = 0; i < numberSprites_.size(); i++){
 		numberSprites_[i]->setPosition({
@@ -33,6 +34,13 @@ void Score::Init(){
 
 	backgroundSprite_ = std::make_unique<Sprite>(SpriteCommon::getInstance());
 	backgroundSprite_->Init("resource/white1x1.png");
+
+	for(size_t i = 0; i < numberSprites_.size(); i++){
+		numberSprites_[i]->setPosition({
+			numbersLtPos_.x + (tileSize_.x + tile2tileSpacing_.x) * i,
+			numbersLtPos_.y + (tile2tileSpacing_.y * 0.5f)
+									   });
+	}
 }
 
 void Score::Finalize(){
@@ -43,21 +51,6 @@ void Score::Finalize(){
 }
 
 void Score::Update(){
-#ifdef _DEBUG
-	for(size_t i = 0; i < numberSprites_.size(); i++){
-		numberSprites_[i]->setPosition({
-			numbersLtPos_.x + (tileSize_.x + tile2tileSpacing_.x) * i,
-			numbersLtPos_.y + (tile2tileSpacing_.y * 0.5f)
-									   });
-		numberSprites_[i]->setSize(tileSize_);
-	}
-
-	ImGui::Begin("Score");
-	ImGui::InputInt("score",&currentScore_);
-	ImGui::End();
-
-#endif // _DEBUG
-
 	int score = currentScore_;
 
 	for(int32_t i = 0; i < 5; i++){
@@ -76,7 +69,7 @@ void Score::Update(){
 		aScoreNumber->Update();
 		numberIndex_++;
 	}
-	backgroundSprite_->Update();
+ 	backgroundSprite_->Update();
 }
 
 void Score::Draw(){

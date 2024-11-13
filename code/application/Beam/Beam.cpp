@@ -33,17 +33,18 @@ void Beam::Initialize(){
 	///===========================================================
 	// Left Beam
 	leftObject_ = std::make_unique<Object3d>();
-	leftObject_->SetModel(ModelManager::getInstance()->Create("resource","Beam.obj"));
+	leftObject_->SetModel(ModelManager::getInstance()->Create("resource/Models","Beam.obj"));
 	leftObject_->transform_.CreateBuffer(System::getInstance()->getDxDevice()->getDevice());
 	variables->addValue("Game","Beam","leftOffset",leftOffset_);
 	leftObject_->transform_.openData_.translate = leftOffset_;
 	// right Beam
 	rightObject_ = std::make_unique<Object3d>();
-	rightObject_->SetModel(ModelManager::getInstance()->Create("resource","Beam.obj"));
+	rightObject_->SetModel(ModelManager::getInstance()->Create("resource/Models","Beam.obj"));
 	rightObject_->transform_.CreateBuffer(System::getInstance()->getDxDevice()->getDevice());
 	variables->addValue("Game","Beam","rightOffset",rightOffset_);
 	rightObject_->transform_.openData_.translate = rightOffset_;
 
+	radius_ = 2.0f;
 }
 
 void Beam::Update(const RailCamera* camera,const Reticle* reticle,Input* input){
@@ -51,7 +52,7 @@ void Beam::Update(const RailCamera* camera,const Reticle* reticle,Input* input){
 
 	reticle3dPos_ = reticle->getWorldPos();
 
-	isActive_ = input->isPressKey(DIK_SPACE) || leftEnergy_ > 0.0f;
+	isActive_ = input->isPressKey(DIK_SPACE) && leftEnergy_ > 0.0f;
 
 	if(!isActive_){
 		if(leftEnergy_ > maxEnergy_){
@@ -100,8 +101,11 @@ void Beam::Update(const RailCamera* camera,const Reticle* reticle,Input* input){
 }
 
 void Beam::Draw(const IConstantBuffer<CameraTransform>& cameraBuff){
+	if(!isActive_){
+		return;
+	}
+
 	leftObject_->Draw(cameraBuff);
 	rightObject_->Draw(cameraBuff);
 
-	//PrimitiveDrawer::Line({0.0f,0.0f,0.0f},end_,transform_,cameraBuff,System::getInstance()->getMaterialManager()->getMaterial("white"));
 }

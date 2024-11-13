@@ -26,13 +26,14 @@ void Reticle::Init(){
 	/// Sprite
 	///===========================================================
 	sprite_ = std::make_unique<Sprite>(SpriteCommon::getInstance());
-	sprite_->Init("resource/4k.png");
+	sprite_->Init("resource/Texture/Reticle.png");
 
 #ifndef _DEBUG
 	Vector2 size_;
 #endif // _DEBUG
 	variables->addValue("Game","Reticle","size",size_);
 	sprite_->setPosition(Vector2((float)window->getWidth() * 0.5f,(float)window->getHeight() * 0.5f));
+	sprite_->setTextureSize({36.0f,36.0f});
 	sprite_->setSize(size_);
 	sprite_->setAnchorPoint({0.5f,0.5f});
 }
@@ -62,7 +63,6 @@ void Reticle::Update(const RailCamera* camera,Input* input){
 
 		sprite_->setPosition({reticleScreenPos_.x,reticleScreenPos_.y});
 	}
-	sprite_->setSize(size_);
 	sprite_->Update();
 
 	/*

@@ -32,6 +32,8 @@ private:
 
 	int32_t score_;
 public:
+	bool getIsAlive()const{ return isAlive_; }
+
 	Vector3 GetPos()const{ return object_->transform_.openData_.worldMat[3]; }
 	void SetPos(const Vector3& pos){ object_->transform_.openData_.translate = pos; }
 
