@@ -96,6 +96,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="code\engine\audio\Audio.cpp" />
+    <ClCompile Include="code\engine\material\light\LightManager.cpp" />
     <ClCompile Include="code\lib\debugCamera\DebugCamera.cpp" />
     <ClCompile Include="code\lib\deltaTime\DeltaTime.cpp" />
     <ClCompile Include="code\engine\material\light\DirectionalLight.cpp" />
@@ -134,8 +135,6 @@
     <ClCompile Include="code\engine\material\TextureManager.cpp" />
     <ClCompile Include="code\lib\winApp\WinApp.cpp" />
     <ClCompile Include="code\application\gameScene\GameScene.cpp" />
-    <ClCompile Include="code\application\gameScene\particle\Emitter.cpp" />
-    <ClCompile Include="code\application\gameScene\particle\Particle.cpp" />
     <ClCompile Include="code\lib\globalVariables\GlobalVariables.cpp" />
     <ClCompile Include="code\lib\imGuiManager\ImGuiManager.cpp" />
     <ClCompile Include="code\lib\myFileSystem\MyFileSystem.cpp" />
@@ -152,6 +151,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\engine\audio\Audio.h" />
+    <ClInclude Include="code\engine\directX12\IStructuredBuffer.h" />
+    <ClInclude Include="code\engine\material\light\LightManager.h" />
     <ClInclude Include="code\lib\debugCamera\DebugCamera.h" />
     <ClInclude Include="code\lib\deltaTime\DeltaTime.h" />
     <ClInclude Include="code\engine\directX12\IConstantBuffer.h" />
@@ -191,8 +192,6 @@
     <ClInclude Include="code\engine\material\TextureManager.h" />
     <ClInclude Include="code\lib\winApp\WinApp.h" />
     <ClInclude Include="code\application\gameScene\GameScene.h" />
-    <ClInclude Include="code\application\gameScene\particle\Emitter.h" />
-    <ClInclude Include="code\application\gameScene\particle\Particle.h" />
     <ClInclude Include="code\lib\globalVariables\GlobalVariables.h" />
     <ClInclude Include="code\lib\imGuiManager\ImGuiManager.h" />
     <ClInclude Include="code\lib\myFileSystem\MyFileSystem.h" />

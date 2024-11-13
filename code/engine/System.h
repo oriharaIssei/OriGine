@@ -17,9 +17,7 @@
 #include "directX12/PipelineStateObj.h"
 #include "directX12/ShaderManager.h"
 #include "input/Input.h"
-#include "material/light/DirectionalLight.h"
-#include "material/light/PointLight.h"
-#include "material/light/SpotLight.h"
+#include "material/light/lightManager.h"
 #include "object3d/Object3d.h"
 #include "winApp/WinApp.h"
 
@@ -69,9 +67,7 @@ private:
 
 	// buffers
 	std::unique_ptr<MaterialManager> materialManager_;
-	std::unique_ptr<IConstantBuffer<DirectionalLight>> directionalLight_;
-	std::unique_ptr<IConstantBuffer<PointLight>>       pointLight_;
-	std::unique_ptr<IConstantBuffer<SpotLight>>        spotLight_;
+	std::unique_ptr<LightManager> lightManager_;
 
 	// Time
 	std::unique_ptr<DeltaTime> deltaTime_;
@@ -92,11 +88,9 @@ public:
 
 	const std::array<std::string,kBlendNum>& getTexturePsoKeys()const{ return texturePsoKeys_; }
 
-	float getDeltaTime()const{return deltaTime_->getDeltaTime();}
+	float getDeltaTime()const{ return deltaTime_->getDeltaTime(); }
 
-	IConstantBuffer<DirectionalLight>* getDirectionalLight()const{ return directionalLight_.get(); }
-	IConstantBuffer<PointLight>*       getPointLight()const{ return pointLight_.get(); }
-	IConstantBuffer<SpotLight>*        getSpotLight()const{ return spotLight_.get(); }
+	LightManager* getLightManager()const{ return lightManager_.get(); }
 };
 
 const std::string defaultResourceFolder = "./resource";

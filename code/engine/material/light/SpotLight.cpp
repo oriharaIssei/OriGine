@@ -1,22 +1,16 @@
 #include "material/light/SpotLight.h"
 
-#ifdef _DEBUG
-#include "imgui/imgui.h"
-#endif // _DEBUG
+#include "globalVariables/GlobalVariables.h"
 
-void SpotLight::DebugUpdate(){
-#ifdef _DEBUG
-	if(ImGui::Begin("SpotLight")){
-		ImGui::DragFloat3("Position",&this->pos.x,0.01f);
-		ImGui::ColorEdit4("Color",&this->color.x);
-		ImGui::SliderFloat("Intensity",&this->intensity,0.0f,1.0f);
-		ImGui::DragFloat3("Direction",&this->direction.x,0.1f);
-		this->direction = direction.Normalize();
-		ImGui::DragFloat("Distance",&this->distance,0.1f,0.1f,FLT_MAX);
-		ImGui::DragFloat("Decay",&this->decay,0.1f,0.1f,FLT_MAX);
-		ImGui::DragFloat("CosAngle",&this->cosAngle,0.01f,0.0f,FLT_MAX);
-		ImGui::DragFloat("CosFalloffStart",&this->cosFalloffStart,0.1f);
-	}
-	ImGui::End();
-#endif // _DEBUG
+void SpotLight::Init(const std::string& scene,int32_t index){
+	GlobalVariables* variables = GlobalVariables::getInstance();
+
+	variables->addValue(scene,"SpotLight" + std::to_string(index),"pos",pos);
+	variables->addValue(scene,"SpotLight" + std::to_string(index),"color",color);
+	variables->addValue(scene,"SpotLight" + std::to_string(index),"intensity",intensity);
+	variables->addValue(scene,"SpotLight" + std::to_string(index),"direction",direction);
+	variables->addValue(scene,"SpotLight" + std::to_string(index),"distance",distance);
+	variables->addValue(scene,"SpotLight" + std::to_string(index),"decay",decay);
+	variables->addValue(scene,"SpotLight" + std::to_string(index),"cosAngle",cosAngle);
+	variables->addValue(scene,"SpotLight" + std::to_string(index),"cosFalloffStart",cosFalloffStart);
 }

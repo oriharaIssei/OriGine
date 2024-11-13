@@ -3,6 +3,8 @@
 #include <d3d12.h>
 #include <wrl.h>
 
+#include <string>
+
 #include "Vector3.h"
 #include "Vector4.h"
 
@@ -11,7 +13,7 @@ public:
 	SpotLight() = default;
 	~SpotLight(){}
 
-	void DebugUpdate();
+	void Init(const std::string& scene,int32_t index);
 
 	Vector3 color         = {1.0f,1.0f,1.0f};
 	Vector3 pos           = {0,0,0};

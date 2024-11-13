@@ -30,21 +30,21 @@ public:
 	static void Finalize();
 
 	static void Line(const Vector3& p0,const Vector3& p1,const IConstantBuffer<Transform>& Transform,const IConstantBuffer<CameraTransform>& viewProj,const IConstantBuffer<Material>* material);
-	static void Triangle(const Vector3 &p0,const Vector3 &p1,const Vector3 &p2,const IConstantBuffer<Transform>&Transform,const IConstantBuffer<CameraTransform>&viewProj,const IConstantBuffer<Material>*material);
-	static void Quad(const Vector3 &p0,const Vector3 &p1,const Vector3 &p2,const Vector3 &p3,const IConstantBuffer<Transform>&Transform,const IConstantBuffer<CameraTransform>&viewProj,const IConstantBuffer<Material>*material);
+	static void Triangle(const Vector3& p0,const Vector3& p1,const Vector3& p2,const IConstantBuffer<Transform>& Transform,const IConstantBuffer<CameraTransform>& viewProj,const IConstantBuffer<Material>* material);
+	static void Quad(const Vector3& p0,const Vector3& p1,const Vector3& p2,const Vector3& p3,const IConstantBuffer<Transform>& Transform,const IConstantBuffer<CameraTransform>& viewProj,const IConstantBuffer<Material>* material);
 
 	static void ResetInstanceVal(){
 		lineInstanceVal_ = 0; triangleInstanceVal_ = 0; quadInstanceVal_ = 0;
 	};
 private:
-	static void CreatePso(System *system = System::getInstance());
+	static void CreatePso(System* system = System::getInstance());
 private:
 	static std::unique_ptr<DxCommand> dxCommand_;
 
-	static std::array<PipelineStateObj *,kBlendNum> trianglePso_;
+	static std::array<PipelineStateObj*,kBlendNum> trianglePso_;
 	static std::array<std::string,kBlendNum> trianglePsoKeys_;
 
-	static std::array<PipelineStateObj *,kBlendNum> linePso_;
+	static std::array<PipelineStateObj*,kBlendNum> linePso_;
 	static std::array<std::string,kBlendNum> linePsoKeys_;
 
 	static std::unique_ptr<PrimitiveObject3dMesh> lineMesh_;
@@ -62,8 +62,8 @@ public:
 		currentBlendMode_ = blend;
 	}
 
-	static PipelineStateObj *getPrimitivePso(BlendMode blend){ return trianglePso_[static_cast<size_t>(blend)]; }
+	static PipelineStateObj* getPrimitivePso(BlendMode blend){ return trianglePso_[static_cast<size_t>(blend)]; }
 
-	static const std::array<std::string,kBlendNum> &getTrianglePsoKeys(){ return trianglePsoKeys_; }
-	static const std::array<std::string,kBlendNum> &getLinePsoKeys(){ return linePsoKeys_; }
+	static const std::array<std::string,kBlendNum>& getTrianglePsoKeys(){ return trianglePsoKeys_; }
+	static const std::array<std::string,kBlendNum>& getLinePsoKeys(){ return linePsoKeys_; }
 };

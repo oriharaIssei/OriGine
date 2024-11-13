@@ -41,10 +41,7 @@ void GameScene::Init(){
 
 	materialManager_ = System::getInstance()->getMaterialManager();
 
-	textureList_ = myFs::SearchFile("./resource","png");
-	objectList_ = myFs::SearchFile("./resource","obj");
-
-	object_.reset(Object3d::Create("resource","axis.obj"));
+	object_.reset(Object3d::Create("resource/Models","Enemy.obj"));
 	object_->transform_.CreateBuffer(System::getInstance()->getDxDevice()->getDevice());
 	object_->transform_.openData_.UpdateMatrix();
 	object_->transform_.ConvertToBuffer();
@@ -65,8 +62,9 @@ void GameScene::Update(){
 }
 
 void GameScene::Draw(){
-	sceneView_->PreDraw();
+	System::getInstance()->getLightManager()->Update();
 	
+	sceneView_->PreDraw();
 	///===============================================
 	/// 3d Object
 	///===============================================

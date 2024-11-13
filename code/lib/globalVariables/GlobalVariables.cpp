@@ -100,11 +100,11 @@ void GlobalVariables::CreateScene(const std::string &scene){
 
 void GlobalVariables::LoadAllFile(){
 	std::filesystem::directory_iterator sceneDirItr(kDirectoryPath);
-	for(auto &sceneEntry : sceneDirItr){
-		const std::filesystem::path &scenePath = sceneEntry.path();
+	for(auto& sceneEntry : sceneDirItr){
+		const std::filesystem::path& scenePath = sceneEntry.path();
 		std::filesystem::directory_iterator dirItr(sceneEntry);
-		for(auto &entry : dirItr){
-			const std::filesystem::path &filePath = entry.path();
+		for(auto& entry : dirItr){
+			const std::filesystem::path& filePath = entry.path();
 			std::string extension = filePath.extension().string();
 
 			if(extension.compare(".json") != 0){
@@ -116,7 +116,7 @@ void GlobalVariables::LoadAllFile(){
 	}
 }
 
-void GlobalVariables::LoadFile(const std::string &scene,const std::string &groupName){
+void GlobalVariables::LoadFile(const std::string& scene,const std::string& groupName){
 	std::string dir = kDirectoryPath + scene + "/" + groupName + ".json";
 	if(!std::filesystem::exists(dir)){
 		return;
@@ -154,24 +154,27 @@ void GlobalVariables::LoadFile(const std::string &scene,const std::string &group
 			setValue(scene,groupName,itemName,fValue);
 		} else if(itemItr->is_array()){
 			switch(itemItr->size()){
-				case 2: {
-					// Vector2 なら
-					Vector2 value(itemItr->at(0).get<float>(),itemItr->at(1).get<float>());
-					setValue(scene,groupName,itemName,value);
-					break;
-				}
-				case 3: {
-					// Vector3 なら
-					Vector3 value(itemItr->at(0).get<float>(),itemItr->at(1).get<float>(),itemItr->at(2).get<float>());
-					setValue(scene,groupName,itemName,value);
-					break;
-				}
-				case 4: {
-					// Vector4 なら
-					Vector4 value(itemItr->at(0).get<float>(),itemItr->at(1).get<float>(),itemItr->at(2).get<float>(),itemItr->at(3).get<float>());
-					setValue(scene,groupName,itemName,value);
-					break;
-				}
+				case 2:
+					{
+						// Vector2 なら
+						Vector2 value(itemItr->at(0).get<float>(),itemItr->at(1).get<float>());
+						setValue(scene,groupName,itemName,value);
+						break;
+					}
+				case 3:
+					{
+						// Vector3 なら
+						Vector3 value(itemItr->at(0).get<float>(),itemItr->at(1).get<float>(),itemItr->at(2).get<float>());
+						setValue(scene,groupName,itemName,value);
+						break;
+					}
+				case 4:
+					{
+						// Vector4 なら
+						Vector4 value(itemItr->at(0).get<float>(),itemItr->at(1).get<float>(),itemItr->at(2).get<float>(),itemItr->at(3).get<float>());
+						setValue(scene,groupName,itemName,value);
+						break;
+					}
 			}
 		} else if(itemItr->is_boolean()){
 			bool value = itemItr->get<bool>();
@@ -180,56 +183,15 @@ void GlobalVariables::LoadFile(const std::string &scene,const std::string &group
 	}
 }
 
-void GlobalVariables::SaveScene(const std::string &scene){
-	for(auto &group : data_[scene]){
+void GlobalVariables::SaveScene(const std::string& scene){
+	for(auto& group : data_[scene]){
 		std::string dir = kDirectoryPath + scene + "/" + group.first + ".json";
-		if(!std::filesystem::exists(dir)){
-			return;
-		}
-
-		std::ifstream ifs;
-		ifs.open(dir);
-		if(!ifs.is_open()){
-			std::string message = "Failed open data file for Load.";
-			MessageBoxA(nullptr,message.c_str(),"GrobalVariables",0);
-			assert(0);
-			return;
-		}
-
-		json root;
-		ifs >> root;
-
-		ifs.close();
-
-		json::iterator groupItr = root.find(group.first);
-		assert(groupItr != root.end());
-
-		json::iterator itemItr = groupItr->begin();
-		for(; itemItr != groupItr->end(); ++itemItr){
-			std::string itemName = itemItr.key();
-
-			if(itemItr->is_number_integer()){
-				// int32_t なら
-				int32_t value = itemItr->get<int32_t>();
-				setValue(scene,group.first,itemName,value);
-			} else if(itemItr->is_number_float()){
-				// float なら
-				double value = itemItr->get<double>();
-				float fValue = static_cast<float>(value);
-				setValue(scene,group.first,itemName,fValue);
-			} else if(itemItr->is_array() && itemItr->size()){
-				// Vector3 なら
-				Vector3 value(itemItr->at(0),itemItr->at(1),itemItr->at(0));
-				setValue(scene,group.first,itemName,value);
-			} else if(itemItr->is_boolean()){
-				bool value = itemItr->get<bool>();
-				setValue(scene,group.first,itemName,value);
-			}
-		}
+		SaveFile(scene,group.first);
 	}
 }
 
-void GlobalVariables::SaveFile(const std::string &scene,const std::string &groupName){
+
+void GlobalVariables::SaveFile(const std::string& scene,const std::string& groupName){
 	///========================================
 	///保存項目をまとめる
 	///========================================
@@ -241,8 +203,8 @@ void GlobalVariables::SaveFile(const std::string &scene,const std::string &group
 
 	for(std::map<std::string,Item>::iterator itemItr = groupItr->second.begin();
 		itemItr != groupItr->second.end(); ++itemItr){
-		const std::string &itemName = itemItr->first;
-		Item &item = itemItr->second;
+		const std::string& itemName = itemItr->first;
+		Item& item = itemItr->second;
 
 		if(std::holds_alternative<int32_t>(item.value)){
 			root[groupName][itemName] = std::get<int32_t>(item.value);
@@ -287,44 +249,46 @@ void GlobalVariables::SaveFile(const std::string &scene,const std::string &group
 
 #ifdef _DEBUG
 void GlobalVariables::ImGuiMenu(){
-	if(!ImGui::BeginMenuBar()){
-		ImGui::EndMenuBar();
-		return;
-	}
-	if(ImGui::BeginMenu("File")){
-		if(ImGui::MenuItem("Save")){
-			std::string message = std::format("{}/{}.json save it?",currentScene_,currentGroupName_);
-			if(MessageBoxA(nullptr,message.c_str(),"GlobalVariables",MB_OKCANCEL)){
-				SaveFile(currentScene_,currentGroupName_);
-				message = std::format("{}/{}.json saveed",currentScene_,currentGroupName_);
-				MessageBoxA(nullptr,message.c_str(),"GlobalVariables",0);
-			}
-		}
-		ImGui::EndMenu();
-	} else if(ImGui::BeginMenu("Scene")){
-		if(ImGui::BeginMenu("Open")){
-			std::vector<std::string> sceneList;  // 動的なシーンリストを作成
-			for(auto &scene : data_){
-				sceneList.push_back(scene.first);
-			}
-			for(auto &scene : sceneList){
-				if(ImGui::MenuItem(scene.c_str())){
-					currentScene_ = scene;
-					break;
+	if(ImGui::BeginMenuBar()){
+		if(ImGui::BeginMenu("File")){
+			if(ImGui::MenuItem("Save")){
+				std::string message = std::format("{}/{}.json save it?",currentScene_,currentGroupName_);
+				if(MessageBoxA(nullptr,message.c_str(),"GlobalVariables",MB_OKCANCEL) == IDOK){
+					SaveFile(currentScene_,currentGroupName_);
+					message = std::format("{}/{}.json saved",currentScene_,currentGroupName_);
+					MessageBoxA(nullptr,message.c_str(),"GlobalVariables",MB_OK);
 				}
 			}
-			currentScene_ = sceneList[currentSceneNum_];
-		} else if(ImGui::MenuItem("Save")){
-			std::string message = std::format("{} save it?",currentScene_);
-			if(MessageBoxA(nullptr,message.c_str(),"GlobalVariables",MB_OKCANCEL)){
-				SaveScene(currentScene_);
-				message = std::format("{} saveed",currentScene_);
-				MessageBoxA(nullptr,message.c_str(),"GlobalVariables",0);
-			}
+			ImGui::EndMenu();  // Ensure this is called to match BeginMenu
 		}
-		ImGui::EndMenu();
-	}
-	ImGui::EndMenuBar();
-}
 
+		if(ImGui::BeginMenu("Scene")){
+			if(ImGui::BeginMenu("Open")){
+				std::vector<std::string> sceneList;  // Create a dynamic scene list
+				for(auto& scene : data_){
+					sceneList.push_back(scene.first);
+				}
+				for(int i = 0; i < sceneList.size(); ++i){
+					if(ImGui::MenuItem(sceneList[i].c_str(),nullptr,currentSceneNum_ == i)){
+						currentScene_ = sceneList[i];
+						currentSceneNum_ = i; // Update currentSceneNum_ index
+						currentGroupNum_ = 0;
+					}
+				}
+				ImGui::EndMenu();  // Ensure this is called to match BeginMenu
+			}
+			if(ImGui::MenuItem("Save")){
+				std::string message = std::format("{} save it?",currentScene_);
+				if(MessageBoxA(nullptr,message.c_str(),"GlobalVariables",MB_OKCANCEL) == IDOK){
+					SaveScene(currentScene_);
+					message = std::format("{} saved",currentScene_);
+					MessageBoxA(nullptr,message.c_str(),"GlobalVariables",MB_OK);
+				}
+			}
+			ImGui::EndMenu();  // Ensure this is called to match BeginMenu
+		}
+
+		ImGui::EndMenuBar();  // Ensure this is called to match BeginMenuBar
+	}
+}
 #endif // _DEBUG

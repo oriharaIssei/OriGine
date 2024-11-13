@@ -28,18 +28,18 @@ public:
 	void Update();
 	void Draw();
 private:
+#ifdef _DEBUG
 	std::unique_ptr<DebugCamera> debugCamera_;
+#endif // _DEBUG
+
 	IConstantBuffer<CameraTransform> cameraBuff_;
 	Input* input_;
+	MaterialManager* materialManager_;
 
 	std::shared_ptr<DxRtvArray> sceneRtvArray_;
 	std::shared_ptr<DxSrvArray> sceneSrvArray_;
 	std::unique_ptr<RenderTexture> sceneView_;
 
-	std::list<std::pair<std::string,std::string>> textureList_;
-	std::list<std::pair<std::string,std::string>> objectList_;
-
 	std::unique_ptr<Object3d> object_;
 
-	MaterialManager* materialManager_;
 };

@@ -4,9 +4,8 @@
 
 #include "directX12/DxDevice.h"
 
-void DxResource::CreateBufferResource(ID3D12Device* device,size_t sizeInBytes)
-{
-//頂点リソース用のヒープの設定
+void DxResource::CreateBufferResource(ID3D12Device* device,size_t sizeInBytes){
+	//頂点リソース用のヒープの設定
 	D3D12_HEAP_PROPERTIES uploadHeapProperties{};
 	uploadHeapProperties.Type = D3D12_HEAP_TYPE_UPLOAD;//UploadHeapを使う
 	//頂点リソースの設定
@@ -33,8 +32,7 @@ void DxResource::CreateBufferResource(ID3D12Device* device,size_t sizeInBytes)
 	assert(SUCCEEDED(hr));
 }
 
-void DxResource::CreateRenderTextureResource(Microsoft::WRL::ComPtr<ID3D12Device> device,uint32_t width,uint32_t height,DXGI_FORMAT format,const Vector4& clearColor)
-{
+void DxResource::CreateRenderTextureResource(Microsoft::WRL::ComPtr<ID3D12Device> device,uint32_t width,uint32_t height,DXGI_FORMAT format,const Vector4& clearColor){
 	D3D12_RESOURCE_DESC resourceDesc = {};
 	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 	resourceDesc.Width = static_cast<UINT64>(width);
@@ -67,8 +65,7 @@ void DxResource::CreateRenderTextureResource(Microsoft::WRL::ComPtr<ID3D12Device
 	);
 }
 
-void DxResource::CreateTextureResource(ID3D12Device* device,const DirectX::TexMetadata& metadata)
-{
+void DxResource::CreateTextureResource(ID3D12Device* device,const DirectX::TexMetadata& metadata){
 	//================================================
 	// 1. metadata を基に Resource を設定
 	D3D12_RESOURCE_DESC resourceDesc{};
@@ -100,7 +97,6 @@ void DxResource::CreateTextureResource(ID3D12Device* device,const DirectX::TexMe
 }
 
 
-void DxResource::Finalize()
-{
+void DxResource::Finalize(){
 	resource_.Reset();
 }

@@ -46,10 +46,10 @@ private:
 	std::map<std::string,Scene> data_;
 
 #ifdef _DEBUG
-	std::string currentScene_ = "";
+	std::string currentScene_ = "NULL";
 	int currentSceneNum_ = 0;
 
-	std::string currentGroupName_ = "";
+	std::string currentGroupName_ = "NULL";
 	int currentGroupNum_ = 0;
 	Group *currentGroup_ = nullptr;
 #endif // _DEBUG

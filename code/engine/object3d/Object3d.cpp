@@ -39,9 +39,7 @@ void Object3d::PreDraw(){
 	commandList->SetGraphicsRootSignature(manager->texturePso_[static_cast<uint32_t>(currentBlend_)]->rootSignature.Get());
 	commandList->SetPipelineState(manager->texturePso_[static_cast<uint32_t>(currentBlend_)]->pipelineState.Get());
 
-	System::getInstance()->getDirectionalLight()->SetForRootParameter(commandList,3);
-	System::getInstance()->getPointLight()->SetForRootParameter(commandList,4);
-	System::getInstance()->getSpotLight()->SetForRootParameter(commandList,5);
+	System::getInstance()->getLightManager()->SetForRootParameter(commandList);
 }
 
 void Object3d::DrawThis(const IConstantBuffer<CameraTransform>& view){
@@ -52,7 +50,7 @@ void Object3d::DrawThis(const IConstantBuffer<CameraTransform>& view){
 		ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
 		commandList->SetDescriptorHeaps(1,ppHeaps);
 		commandList->SetGraphicsRootDescriptorTable(
-			6,
+			7,
 			TextureManager::getDescriptorGpuHandle(model.materialData.textureNumber)
 		);
 

@@ -7,10 +7,10 @@
 
 std::unique_ptr<DxCommand> PrimitiveDrawer::dxCommand_;
 
-std::array<PipelineStateObj *,kBlendNum> PrimitiveDrawer::trianglePso_;
+std::array<PipelineStateObj*,kBlendNum> PrimitiveDrawer::trianglePso_;
 std::array<std::string,kBlendNum> PrimitiveDrawer::trianglePsoKeys_;
 
-std::array<PipelineStateObj *,kBlendNum> PrimitiveDrawer::linePso_;
+std::array<PipelineStateObj*,kBlendNum> PrimitiveDrawer::linePso_;
 std::array<std::string,kBlendNum> PrimitiveDrawer::linePsoKeys_;
 
 std::unique_ptr<PrimitiveObject3dMesh> PrimitiveDrawer::lineMesh_ = nullptr;
@@ -63,7 +63,7 @@ void PrimitiveDrawer::Finalize(){
 }
 
 void PrimitiveDrawer::Line(const Vector3& p0,const Vector3& p1,const  IConstantBuffer<Transform>& Transform,const IConstantBuffer<CameraTransform>& viewProj,const IConstantBuffer<Material>* material){
-	ID3D12GraphicsCommandList *commandList = dxCommand_->getCommandList();
+	ID3D12GraphicsCommandList* commandList = dxCommand_->getCommandList();
 
 	const uint32_t startIndex = lineInstanceVal_ * 3;
 	lineMesh_->vertData[startIndex].pos = {p0.x,p0.y,p0.z,1.0f};
@@ -86,14 +86,16 @@ void PrimitiveDrawer::Line(const Vector3& p0,const Vector3& p1,const  IConstantB
 	viewProj.SetForRootParameter(commandList,1);
 	material->SetForRootParameter(commandList,2);
 
+	System::getInstance()->getLightManager()->SetForRootParameter(commandList);
+
 	commandList->DrawIndexedInstanced(
 		2,1,startIndex * 2,0,0
 	);
 	++lineInstanceVal_;
 }
 
-void PrimitiveDrawer::Triangle(const Vector3 &p0,const Vector3 &p1,const Vector3 &p2,const  IConstantBuffer<Transform>& Transform,const IConstantBuffer<CameraTransform>& viewProj,const IConstantBuffer<Material>* material){
-	ID3D12GraphicsCommandList *commandList = dxCommand_->getCommandList();
+void PrimitiveDrawer::Triangle(const Vector3& p0,const Vector3& p1,const Vector3& p2,const  IConstantBuffer<Transform>& Transform,const IConstantBuffer<CameraTransform>& viewProj,const IConstantBuffer<Material>* material){
+	ID3D12GraphicsCommandList* commandList = dxCommand_->getCommandList();
 
 	const uint32_t startIndex = triangleInstanceVal_ * 3;
 	triangleMesh_->vertData[startIndex].pos = {p0.x,p0.y,p0.z,1.0f};
@@ -118,7 +120,7 @@ void PrimitiveDrawer::Triangle(const Vector3 &p0,const Vector3 &p1,const Vector3
 	Transform.SetForRootParameter(commandList,0);
 	viewProj.SetForRootParameter(commandList,1);
 	material->SetForRootParameter(commandList,2);
-	System::getInstance()->getDirectionalLight()->SetForRootParameter(commandList,3);
+	System::getInstance()->getLightManager()->SetForRootParameter(commandList);
 
 	commandList->DrawIndexedInstanced(
 		3,1,startIndex * 3,0,0
@@ -126,8 +128,8 @@ void PrimitiveDrawer::Triangle(const Vector3 &p0,const Vector3 &p1,const Vector3
 	++triangleInstanceVal_;
 }
 
-void PrimitiveDrawer::Quad(const Vector3 &p0,const Vector3 &p1,const Vector3 &p2,const Vector3 &p3,const  IConstantBuffer<Transform>& Transform,const IConstantBuffer<CameraTransform>& viewProj,const IConstantBuffer<Material>* material){
-	ID3D12GraphicsCommandList *commandList = dxCommand_->getCommandList();
+void PrimitiveDrawer::Quad(const Vector3& p0,const Vector3& p1,const Vector3& p2,const Vector3& p3,const  IConstantBuffer<Transform>& Transform,const IConstantBuffer<CameraTransform>& viewProj,const IConstantBuffer<Material>* material){
+	ID3D12GraphicsCommandList* commandList = dxCommand_->getCommandList();
 
 	const uint32_t startIndex = quadInstanceVal_ * 6;
 	const uint32_t startVertex = quadInstanceVal_ * 4;
@@ -158,8 +160,7 @@ void PrimitiveDrawer::Quad(const Vector3 &p0,const Vector3 &p1,const Vector3 &p2
 	Transform.SetForRootParameter(commandList,0);
 	viewProj.SetForRootParameter(commandList,1);
 	material->SetForRootParameter(commandList,2);
-	System::getInstance()->getDirectionalLight()->SetForRootParameter(commandList,3);
-	System::getInstance()->getPointLight()->SetForRootParameter(commandList,4);
+	System::getInstance()->getLightManager()->SetForRootParameter(commandList);
 
 	commandList->DrawIndexedInstanced(
 		6,1,0,startVertex,0
@@ -167,9 +168,9 @@ void PrimitiveDrawer::Quad(const Vector3 &p0,const Vector3 &p1,const Vector3 &p2
 	++quadInstanceVal_;
 }
 
-void PrimitiveDrawer::CreatePso(System *system){
+void PrimitiveDrawer::CreatePso(System* system){
 
-	ShaderManager *shaderManager = ShaderManager::getInstance();
+	ShaderManager* shaderManager = ShaderManager::getInstance();
 	///=================================================
 	/// shader読み込み
 	///=================================================
@@ -185,7 +186,7 @@ void PrimitiveDrawer::CreatePso(System *system){
 	primShaderInfo.psKey = "Object3d.PS";
 
 #pragma region"RootParameter"
-	D3D12_ROOT_PARAMETER rootParameter[6]{};
+	D3D12_ROOT_PARAMETER rootParameter[7]{};
 	rootParameter[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	// PixelShaderで使う
 	rootParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
@@ -204,20 +205,49 @@ void PrimitiveDrawer::CreatePso(System *system){
 	rootParameter[2].Descriptor.ShaderRegister = 0;
 	primShaderInfo.pushBackRootParameter(rootParameter[2]);
 
-	rootParameter[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameter[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	rootParameter[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameter[3].Descriptor.ShaderRegister = 1;
+	rootParameter[3].Descriptor.ShaderRegister = 1;  // t1 register for DirectionalLight StructuredBuffer
 	primShaderInfo.pushBackRootParameter(rootParameter[3]);
 
-	rootParameter[4].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	// PointLight ... 4 (StructuredBuffer)
+	rootParameter[4].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	rootParameter[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameter[4].Descriptor.ShaderRegister = 3;
+	rootParameter[4].Descriptor.ShaderRegister = 3;  // t3 register for PointLight StructuredBuffer
 	primShaderInfo.pushBackRootParameter(rootParameter[4]);
 
-	rootParameter[5].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	// SpotLight ... 5 (StructuredBuffer)
+	rootParameter[5].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	rootParameter[5].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameter[5].Descriptor.ShaderRegister = 4;
+	rootParameter[5].Descriptor.ShaderRegister = 4;  // t4 register for SpotLight StructuredBuffer
 	primShaderInfo.pushBackRootParameter(rootParameter[5]);
+	// lightCounts
+	rootParameter[6].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameter[6].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameter[6].Descriptor.ShaderRegister = 5;
+	primShaderInfo.pushBackRootParameter(rootParameter[6]);
+
+	D3D12_DESCRIPTOR_RANGE directionalLightRange[1] = {};
+	directionalLightRange[0].BaseShaderRegister = 1;
+	directionalLightRange[0].NumDescriptors = 1;
+	directionalLightRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	directionalLightRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	D3D12_DESCRIPTOR_RANGE pointLightRange[1] = {};
+	pointLightRange[0].BaseShaderRegister = 3;
+	pointLightRange[0].NumDescriptors = 1;
+	pointLightRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	pointLightRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	D3D12_DESCRIPTOR_RANGE spotLightRange[1] = {};
+	spotLightRange[0].BaseShaderRegister = 4;
+	spotLightRange[0].NumDescriptors = 1;
+	spotLightRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	spotLightRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	primShaderInfo.SetDescriptorRange2Parameter(directionalLightRange,1,3);
+	primShaderInfo.SetDescriptorRange2Parameter(pointLightRange,1,4);
+	primShaderInfo.SetDescriptorRange2Parameter(spotLightRange,1,5);
 #pragma endregion
 
 #pragma region"Input Element"

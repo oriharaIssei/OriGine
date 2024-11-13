@@ -4,6 +4,7 @@
 #include "directX12/DxFunctionHelper.h"
 #include "directX12/DxHeap.h"
 #include "imGuiManager/ImGuiManager.h"
+#include "material/light/LightManager.h"
 #include "material/Material.h"
 #include "material/TextureManager.h"
 #include "object3d/ModelManager.h"
@@ -34,7 +35,7 @@ System* System::getInstance(){
 
 void System::Init(){
 	window_ = std::make_unique<WinApp>();
-	window_->CreateGameWindow(L"title",WS_OVERLAPPEDWINDOW,1280,720);
+	window_->CreateGameWindow(L"LE2A_07_orihara_isssei_AL4",WS_OVERLAPPEDWINDOW,1280,720);
 
 	input_ = Input::getInstance();
 	input_->Init();
@@ -58,6 +59,10 @@ void System::Init(){
 
 	DxSrvArrayManager::getInstance()->Init();
 
+#ifndef _DEBUG
+	DxSrvArrayManager::getInstance()->Create(1);
+#endif // !_DEBUG
+
 	DxRtvArrayManager::getInstance()->Init();
 
 	dxFence_ = std::make_unique<DxFence>();
@@ -79,18 +84,9 @@ void System::Init(){
 	ImGuiManager::getInstance()->Init(window_.get(),dxDevice_.get(),dxSwapChain_.get());
 
 	TextureManager::Init();
-	
-	directionalLight_ = std::make_unique<IConstantBuffer<DirectionalLight>>();
-	directionalLight_->CreateBuffer(dxDevice_->getDevice());
-	directionalLight_->ConvertToBuffer();
 
-	pointLight_ = std::make_unique<IConstantBuffer<PointLight>>();
-	pointLight_->CreateBuffer(dxDevice_->getDevice());
-	pointLight_->ConvertToBuffer();
-
-	spotLight_ = std::make_unique<IConstantBuffer<SpotLight>>();
-	spotLight_->CreateBuffer(dxDevice_->getDevice());
-	spotLight_->ConvertToBuffer();
+	lightManager_ = std::make_unique<LightManager>();
+	lightManager_->Init();
 
 	PrimitiveDrawer::Init();
 	ModelManager::getInstance()->Init();
@@ -104,9 +100,7 @@ void System::Init(){
 }
 
 void System::Finalize(){
-	directionalLight_->Finalize();
-	pointLight_->Finalize();
-	spotLight_->Finalize();
+	lightManager_->Finalize();
 	materialManager_->Finalize();
 
 	ShaderManager::getInstance()->Finalize();
@@ -150,7 +144,7 @@ void System::CreateTexturePSO(){
 	texShaderInfo.psKey = "Object3dTexture.PS";
 
 #pragma region"RootParameter"
-	D3D12_ROOT_PARAMETER rootParameter[7]{};
+	D3D12_ROOT_PARAMETER rootParameter[8]{};
 	// Transform ... 0
 	rootParameter[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	rootParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
@@ -166,23 +160,36 @@ void System::CreateTexturePSO(){
 	rootParameter[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 	rootParameter[2].Descriptor.ShaderRegister = 0;
 	texShaderInfo.pushBackRootParameter(rootParameter[2]);
-	// DirectionalLight ... 3
-	rootParameter[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+
+	rootParameter[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	rootParameter[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameter[3].Descriptor.ShaderRegister = 1;
+	rootParameter[3].Descriptor.ShaderRegister = 1;  // t1 register for DirectionalLight StructuredBuffer
 	texShaderInfo.pushBackRootParameter(rootParameter[3]);
-	// PointLight ... 4
-	rootParameter[4].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+
+	// PointLight ... 4 (StructuredBuffer)
+	rootParameter[4].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	rootParameter[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameter[4].Descriptor.ShaderRegister = 3;
+	rootParameter[4].Descriptor.ShaderRegister = 3;  // t3 register for PointLight StructuredBuffer
 	texShaderInfo.pushBackRootParameter(rootParameter[4]);
-	// SpotLight ... 5
-	rootParameter[5].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+
+	// SpotLight ... 5 (StructuredBuffer)
+	rootParameter[5].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	rootParameter[5].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameter[5].Descriptor.ShaderRegister = 4;
+	rootParameter[5].Descriptor.ShaderRegister = 4;  // t4 register for SpotLight StructuredBuffer
 	texShaderInfo.pushBackRootParameter(rootParameter[5]);
 
-	// Texture ... 6
+	// lightCounts ... 6
+	rootParameter[6].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameter[6].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameter[6].Descriptor.ShaderRegister = 5;
+	texShaderInfo.pushBackRootParameter(rootParameter[6]);
+
+	// Texture ... 7
+	// DescriptorTable を使う
+	rootParameter[7].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootParameter[7].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	size_t rootParameterIndex = texShaderInfo.pushBackRootParameter(rootParameter[7]);
+
 	D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
 	descriptorRange[0].BaseShaderRegister = 0;
 	descriptorRange[0].NumDescriptors = 1;
@@ -191,11 +198,29 @@ void System::CreateTexturePSO(){
 	// offset を自動計算するように 設定
 	descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	// DescriptorTable を使う
-	rootParameter[6].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	rootParameter[6].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	size_t rootParameterIndex = texShaderInfo.pushBackRootParameter(rootParameter[6]);
+	D3D12_DESCRIPTOR_RANGE directionalLightRange[1] = {};
+	directionalLightRange[0].BaseShaderRegister = 1;
+	directionalLightRange[0].NumDescriptors = 1;
+	directionalLightRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	directionalLightRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	D3D12_DESCRIPTOR_RANGE pointLightRange[1] = {};
+	pointLightRange[0].BaseShaderRegister = 3;
+	pointLightRange[0].NumDescriptors = 1;
+	pointLightRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	pointLightRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	D3D12_DESCRIPTOR_RANGE spotLightRange[1] = {};
+	spotLightRange[0].BaseShaderRegister = 4;
+	spotLightRange[0].NumDescriptors = 1;
+	spotLightRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	spotLightRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+
 	texShaderInfo.SetDescriptorRange2Parameter(descriptorRange,1,rootParameterIndex);
+	texShaderInfo.SetDescriptorRange2Parameter(directionalLightRange,1,3);
+	texShaderInfo.SetDescriptorRange2Parameter(pointLightRange,1,4);
+	texShaderInfo.SetDescriptorRange2Parameter(spotLightRange,1,5);
 #pragma endregion
 
 	///=================================================
@@ -257,10 +282,10 @@ void System::BeginFrame(){
 
 	PrimitiveDrawer::setBlendMode(BlendMode::Alpha);
 	//Sprite::setBlendMode(BlendMode::Alpha);
+	deltaTime_->Update();
 }
 
-void System::EndFrame(){
-}
+void System::EndFrame(){}
 
 void System::ScreenPreDraw(){
 	DxFH::PreDraw(dxCommand_.get(),window_.get(),dxSwapChain_.get());
@@ -269,7 +294,7 @@ void System::ScreenPreDraw(){
 void System::ScreenPostDraw(){
 	ImGuiManager::getInstance()->End();
 	ImGuiManager::getInstance()->Draw();
-	
+
 	HRESULT hr;
 	ID3D12GraphicsCommandList* commandList = dxCommand_->getCommandList();
 	///===============================================================
@@ -296,14 +321,10 @@ void System::ScreenPostDraw(){
 	dxSwapChain_->Present();
 
 	// Frame Lock
-	deltaTime_->Update();
-	if(deltaTime_->getDeltaTime() >= 1.0f / fps_)
-	{
-		while(deltaTime_->getDeltaTime() >= 1.0f / fps_)
-		{
-			deltaTime_->Update();
-		}
-	}
+	/*deltaTime_->Update();
+	while(deltaTime_->getDeltaTime() >= 1.0f / fps_){
+		deltaTime_->Update();
+	}*/
 	///===============================================================
 	/// コマンドリストの実行を待つ
 	///===============================================================

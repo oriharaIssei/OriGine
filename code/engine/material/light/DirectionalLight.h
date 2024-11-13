@@ -3,12 +3,14 @@
 #include <d3d12.h>
 #include <wrl.h>
 
+#include <string>
+
 #include "Vector3.h"
 #include "Vector4.h"
 
 struct DirectionalLight{
 public:
-	void DebugUpdate();
+	void Init(const std::string& scene,int32_t index);
 
 	Vector3 color = {1.0f,1.0f,1.0f};
 	Vector3 direction = {1.0f,1.0f,1.0f};
