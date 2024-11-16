@@ -11,6 +11,7 @@
 #include "directX12/DxSrvArrayManager.h"
 #include "material/TextureManager.h"
 #include "myFileSystem/MyFileSystem.h"
+#include "object3d/ModelManager.h"
 #include "primitiveDrawer/PrimitiveDrawer.h"
 #include "sprite/SpriteCommon.h"
 #include "System.h"
@@ -58,8 +59,15 @@ void GameScene::Init(){
 
 	collisionManager_ = std::make_unique<CollisionManager>();
 
+	skyDome_ = std::make_unique<Object3d>();
+	skyDome_->SetModel(ModelManager::getInstance()->Create("resource/Models","Skydome.obj"));
+	skyDome_->transform_.CreateBuffer(System::getInstance()->getDxDevice()->getDevice());
+	skyDome_->transform_.openData_.UpdateMatrix();
+	skyDome_->transform_.ConvertToBuffer();
+
 	score_ = Score::getInstance();
 	score_->Init();
+
 }
 
 void GameScene::Update(){
@@ -96,6 +104,8 @@ void GameScene::Draw(){
 	/// 3d Object
 	///===============================================
 	Object3d::PreDraw();
+	skyDome_->Draw(cameraBuff_);
+
 	railEditor_->Draw(cameraBuff_);
 
 	beam_->Draw(cameraBuff_);

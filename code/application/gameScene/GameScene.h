@@ -58,5 +58,7 @@ private:
 	std::unique_ptr<Beam> beam_;
 	std::unique_ptr<CollisionManager> collisionManager_;
 
+	std::unique_ptr<Object3d> skyDome_;
+
 	Score* score_;
 };
