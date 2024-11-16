@@ -97,6 +97,7 @@
   <ItemGroup>
     <ClCompile Include="code\engine\audio\Audio.cpp" />
     <ClCompile Include="code\engine\material\light\LightManager.cpp" />
+    <ClCompile Include="code\engine\particle\Particle.cpp" />
     <ClCompile Include="code\lib\debugCamera\DebugCamera.cpp" />
     <ClCompile Include="code\lib\deltaTime\DeltaTime.cpp" />
     <ClCompile Include="code\engine\material\light\DirectionalLight.cpp" />
@@ -140,6 +141,7 @@
     <ClCompile Include="code\lib\myFileSystem\MyFileSystem.cpp" />
     <ClCompile Include="code\main.cpp" />
     <ClCompile Include="code\math\Matrix4x4.cpp" />
+    <ClCompile Include="code\engine\particle\emitter\Emitter.cpp" />
     <ClCompile Include="externals\imgui\imgui.cpp" />
     <ClCompile Include="externals\imgui\imgui_demo.cpp" />
     <ClCompile Include="externals\imgui\imgui_draw.cpp" />
@@ -148,11 +150,13 @@
     <ClCompile Include="externals\imgui\imgui_tables.cpp" />
     <ClCompile Include="externals\imgui\imgui_widgets.cpp" />
     <ClCompile Include="code\lib\Thread\Thread.cpp" />
+    <ClCompile Include="code\engine\particle\manager\ParticleManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\engine\audio\Audio.h" />
     <ClInclude Include="code\engine\directX12\IStructuredBuffer.h" />
     <ClInclude Include="code\engine\material\light\LightManager.h" />
+    <ClInclude Include="code\engine\particle\Particle.h" />
     <ClInclude Include="code\lib\debugCamera\DebugCamera.h" />
     <ClInclude Include="code\lib\deltaTime\DeltaTime.h" />
     <ClInclude Include="code\engine\directX12\IConstantBuffer.h" />
@@ -199,6 +203,7 @@
     <ClInclude Include="code\math\Vector2.h" />
     <ClInclude Include="code\math\Vector3.h" />
     <ClInclude Include="code\math\Vector4.h" />
+    <ClInclude Include="code\engine\particle\emitter\Emitter.h" />
     <ClInclude Include="externals\imgui\imconfig.h" />
     <ClInclude Include="externals\imgui\imgui.h" />
     <ClInclude Include="externals\imgui\imgui_impl_dx12.h" />
@@ -208,6 +213,7 @@
     <ClInclude Include="externals\imgui\imstb_textedit.h" />
     <ClInclude Include="externals\imgui\imstb_truetype.h" />
     <ClInclude Include="code\lib\Thread\Thread.h" />
+    <ClInclude Include="code\engine\particle\manager\ParticleManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
