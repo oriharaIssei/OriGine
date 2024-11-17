@@ -20,6 +20,9 @@ void EnemyManager::Init(){
 	int32_t eventSize_;
 #endif // ! _DUBUG
 
+	activeEnemies_.clear();
+	spawnEvents_.clear();
+
 	GlobalVariables* variables	= GlobalVariables::getInstance();
 	variables->addValue("Game","EnemyManager","enemySpawnEventSize_",eventSize_);
 	for(int32_t i = 0; i < eventSize_; ++i){

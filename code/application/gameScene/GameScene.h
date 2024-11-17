@@ -62,7 +62,6 @@ private:
 
 #pragma region"Title"
 	std::unique_ptr<Sprite> titleBackground_;
-	std::unique_ptr<Sprite> titleBar_;
 	std::unique_ptr<Sprite> howToStartGame_;
 #pragma endregion
 

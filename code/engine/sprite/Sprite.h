@@ -99,4 +99,7 @@ public:
 	const Vector2& getTextureLeftTop()const{ return textureLeftTop_; }
 	void setTextureSize(const Vector2& size){ textureSize_ = size; }
 	const Vector2& getTextureSize()const{ return textureSize_; }
+
+	const Vector4& getColor()const{ return color_; }
+	void setColor(const Vector4& color){ color_ = color; }
 };

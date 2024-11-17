@@ -66,6 +66,19 @@ void GameScene::Init(){
 	score_ = Score::getInstance();
 	score_->Init();
 
+	titleBackground_ = std::make_unique<Sprite>(SpriteCommon::getInstance());
+	titleBackground_->Init("resource/white1x1.png");
+	titleBackground_->setSize({1280.0f,720.0f});
+	titleBackground_->setColor({0.0f,0.0f,0.0f,1.0f});
+
+	howToStartGame_ = std::make_unique<Sprite>(SpriteCommon::getInstance());
+	howToStartGame_->Init("resource/Texture/howToStart.png");
+	howToStartGame_->setTextureSize({256.0f,36.0f});
+	howToStartGame_->setSize({256.0f,36.0f});
+	howToStartGame_->setAnchorPoint({0.5f,0.5f});
+	howToStartGame_->setPosition({680.0f,420.0f});
+
+
 	currentUpdate_ = [this](){TitleUpdate(); };
 	currentDraw_ = [this](){TitleDraw(); };
 }
@@ -106,6 +119,9 @@ void GameScene::TitleDraw(){
 	/// sprite
 	///===============================================
 	SpriteCommon::getInstance()->PreDraw();
+
+	titleBackground_->Draw();
+	howToStartGame_->Draw();
 
 	sceneView_->PostDraw();
 	///===============================================
