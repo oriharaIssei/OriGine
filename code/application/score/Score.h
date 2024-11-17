@@ -26,12 +26,14 @@ private:
 	Vector2 tile2tileSpacing_;
 	Vector2 numbersLtPos_;
 
+	Vector2 textPos_;
+	Vector2 textSize_;
+
+	std::unique_ptr<Sprite> scoreTextSprite_;
 	std::array<std::unique_ptr<Sprite>,5> numberSprites_;
 	std::array<int32_t,5> digits_;
-	std::unique_ptr<Sprite> backgroundSprite_;
 
 	int32_t currentScore_;
 public:
 	void AddScore(int32_t add){ currentScore_ += add; }
 };
-
