@@ -45,7 +45,7 @@ bool CollisionManager::CheckCollison(Beam* _beam,const Enemy* _enemy){
 	}
 
 	const Vector3 enemyPos = _enemy->GetPos();
-	const float collisionRadius = _enemy->GetRadius() + _beam->getRadius();
+	const float collisionRadius = _enemy->GetRadius();
 
 	// 左右のビームそれぞれについて、最も近い点を求める
 	Vector3 leftSeg_ClosestPoint = ClosestPointOnSegment(enemyPos,_beam->getLeftOrigin(),_beam->getEndPos());

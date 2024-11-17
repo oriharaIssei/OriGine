@@ -16,6 +16,10 @@ public:
 	void Finalize();
 	void Update();
 	void Draw();
+
+	void ResetStatus(){
+		currentScore_ = 0;
+	}
 private:
 	Vector2 tileSize_;
 	Vector2 textureTileSize_;

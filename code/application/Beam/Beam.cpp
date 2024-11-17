@@ -1,6 +1,7 @@
 #include "Beam.h"
 
 #include <algorithm>
+#include <numbers>
 
 #include "globalVariables/GlobalVariables.h"
 #include "input/Input.h"
@@ -45,8 +46,6 @@ void Beam::Initialize(){
 	rightObject_->transform_.CreateBuffer(System::getInstance()->getDxDevice()->getDevice());
 	variables->addValue("Game","Beam","rightOffset",rightOffset_);
 	rightObject_->transform_.openData_.translate = rightOffset_;
-
-	radius_ = 2.0f;
 
 	///===========================================================
 	/// Sprites
@@ -118,6 +117,9 @@ void Beam::Update(const RailCamera* camera,const Reticle* reticle,Input* input){
 		leftObject_->transform_.openData_.rotate.y = std::atan2(leftToReticleDir.x,leftToReticleDir.z);  // Y軸回転
 		Vector3 velocityZ = MakeMatrix::RotateY(-leftObject_->transform_.openData_.rotate.y) * leftToReticleDir;
 		leftObject_->transform_.openData_.rotate.x = std::atan2(-velocityZ.y,velocityZ.z); // X軸回転
+
+		leftObject_->transform_.openData_.rotate.z += 0.02f;
+		leftObject_->transform_.openData_.rotate.z = std::fmod(leftObject_->transform_.openData_.rotate.z,std::numbers::pi_v<float>*2.0f);
 	}
 
 	// Right Object rotation to reticle
@@ -126,6 +128,9 @@ void Beam::Update(const RailCamera* camera,const Reticle* reticle,Input* input){
 		rightObject_->transform_.openData_.rotate.y = std::atan2(rightToReticleDir.x,rightToReticleDir.z);  // Y軸回転
 		Vector3 velocityZ = MakeMatrix::RotateY(-rightObject_->transform_.openData_.rotate.y) * rightToReticleDir;
 		rightObject_->transform_.openData_.rotate.x = std::atan2(-velocityZ.y,velocityZ.z); // X軸回転
+
+		rightObject_->transform_.openData_.rotate.z += 0.02f;
+		rightObject_->transform_.openData_.rotate.z = std::fmod(leftObject_->transform_.openData_.rotate.z,std::numbers::pi_v<float>*2.0f);
 	}
 
 	{ // Objects Update

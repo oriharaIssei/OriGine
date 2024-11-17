@@ -20,6 +20,10 @@ public:
 	void Update(const RailCamera* camera,const Reticle* reticle,Input* input);
 	void Draw(const IConstantBuffer<CameraTransform>& cameraBuff);
 	void DrawSprite();
+
+	void ResetStatus(){
+		leftEnergy_ = maxEnergy_;
+	}
 private:
 	bool isActive_;
 
@@ -35,8 +39,6 @@ private:
 	float healingEnergyPerSeconds_;
 	float leftEnergy_;
 	float maxEnergy_;
-
-	float radius_;
 
 	Matrix4x4 viewPortMat_;
 
@@ -57,5 +59,4 @@ public:
 	Vector3 getRightOrigin()  const{ return rightObject_->transform_.openData_.worldMat[3]; }
 	const Vector3& getEndPos()const{ return reticle3dPos_; }
 
-	float getRadius()const{ return radius_; }
 };

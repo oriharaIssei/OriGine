@@ -16,6 +16,9 @@ public:
 	void Update(const RailCamera* camera,Input* input);
 	void DrawSprite();
 
+	void ResteStatus(){
+		reticleLocal3dPos_ = {0.0f,0.0f,0.0f};
+	}
 private:
 #ifdef _DEBUG
 	Vector2 size_;

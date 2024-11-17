@@ -37,7 +37,20 @@ public:
 	void Init();
 	void Update();
 	void Draw();
+
 private:
+	void TitleUpdate();
+	void TitleDraw();
+	void GameUpdate();
+	void GameDraw();
+	void EndingUpdate();
+	void EndignDraw();
+
+private:
+	std::function<void()> currentUpdate_;
+	std::function<void()> currentDraw_;
+
+	bool isGameClear_ = false;
 	Input* input_;
 
 	IConstantBuffer<CameraTransform> cameraBuff_;
@@ -48,6 +61,13 @@ private:
 	std::shared_ptr<DxSrvArray> sceneSrvArray_;
 	std::unique_ptr<RenderTexture> sceneView_;
 
+#pragma region"Title"
+	std::unique_ptr<Sprite> titleBackground_;
+	std::unique_ptr<Sprite> titleBar_;
+	std::unique_ptr<Sprite> howToStartGame_;
+#pragma endregion
+
+#pragma region"Game"
 	std::unique_ptr<RailEditor> railEditor_;
 	std::unique_ptr<Spline> spline_;
 	std::unique_ptr<RailCamera> railCamera_;
@@ -59,6 +79,11 @@ private:
 	std::unique_ptr<CollisionManager> collisionManager_;
 
 	std::unique_ptr<Object3d> skyDome_;
-
 	Score* score_;
+#pragma endregion
+
+#pragma region"Score"
+
+#pragma endregion
+
 };

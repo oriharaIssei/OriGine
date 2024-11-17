@@ -21,6 +21,9 @@ void RailCamera::Init(int32_t dimension){
 	variables->addValue("Game","RailCamera","acceleration",acceleration_);
 	variables->addValue("Game","RailCamera","minVelocity_",minVelocity_);
 	variables->addValue("Game","RailCamera","maxVelocity_",maxVelocity_);
+
+	currentDistance_ = 0.0f;
+	velocity_ = 0.0f;
 }
 
 void RailCamera::Update(){

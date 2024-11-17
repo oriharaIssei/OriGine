@@ -17,9 +17,8 @@ public:
 	~RailCamera(){}
 	void Init(int32_t dimension);
 	void Update();
-	void Draw(const IConstantBuffer<CameraTransform>& cameraBuff);
 
-	void Reset(){ currentDistance_ = 0; }
+	void ResetStatus(){ currentDistance_ = 0.0f; velocity_ = 0.0f; }
 private:
 	Transform transform_;
 	CameraTransform cameraBuff_;

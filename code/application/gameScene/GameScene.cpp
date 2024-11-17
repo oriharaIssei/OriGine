@@ -20,8 +20,6 @@
 #include "imgui/imgui.h"
 #endif // _DEBUG
 
-constexpr char dockingIDName[] = "ObjectsWindow";
-
 GameScene::~GameScene(){
 	score_->Finalize();
 }
@@ -68,10 +66,59 @@ void GameScene::Init(){
 	score_ = Score::getInstance();
 	score_->Init();
 
+	currentUpdate_ = [this](){TitleUpdate(); };
+	currentDraw_ = [this](){TitleDraw(); };
 }
 
 void GameScene::Update(){
+	currentUpdate_();
 
+#ifdef _DEBUG
+	ImGui::Begin("Materials");
+	materialManager_->DebugUpdate();
+	ImGui::End();
+#endif // _DEBUG
+}
+
+void GameScene::Draw(){
+	currentDraw_();
+}
+
+#pragma region"Title"
+void GameScene::TitleUpdate(){
+
+	if(input_->isReleaseKey(DIK_SPACE)){
+		currentUpdate_ = [this](){GameUpdate(); };
+		currentDraw_ = [this](){GameDraw(); };
+	}
+}
+
+void GameScene::TitleDraw(){
+	System::getInstance()->getLightManager()->Update();
+
+	sceneView_->PreDraw();
+	///===============================================
+	/// 3d Object
+	///===============================================
+	Object3d::PreDraw();
+	
+	///===============================================
+	/// sprite
+	///===============================================
+	SpriteCommon::getInstance()->PreDraw();
+	
+	sceneView_->PostDraw();
+	///===============================================
+	/// off screen Rendering
+	///===============================================
+	System::getInstance()->ScreenPreDraw();
+	sceneView_->DrawTexture();
+	System::getInstance()->ScreenPostDraw();
+}
+#pragma endregion"Title"
+
+#pragma region"Game"
+void GameScene::GameUpdate(){
 	railCamera_->Update();
 	cameraBuff_.openData_.viewMat = railCamera_->getCameraBuffer().viewMat;
 	cameraBuff_.openData_.projectionMat = railCamera_->getCameraBuffer().projectionMat;
@@ -89,14 +136,13 @@ void GameScene::Update(){
 
 	score_->Update();
 
-#ifdef _DEBUG
-	ImGui::Begin("Materials");
-	materialManager_->DebugUpdate();
-	ImGui::End();
-#endif // _DEBUG
+	if(spline_->GetTotalLength() - railCamera_->GetCurrentDistance() <= 10.0f){
+		currentUpdate_ = [this](){ScoreUpdate(); };
+		currentDraw_ = [this](){ScoreDraw(); };
+	}
 }
 
-void GameScene::Draw(){
+void GameScene::GameDraw(){
 	System::getInstance()->getLightManager()->Update();
 
 	sceneView_->PreDraw();
@@ -128,3 +174,52 @@ void GameScene::Draw(){
 	sceneView_->DrawTexture();
 	System::getInstance()->ScreenPostDraw();
 }
+#pragma endregion"Game"
+
+#pragma region"Score"
+void GameScene::ScoreUpdate(){
+	if(input_->isReleaseKey(DIK_SPACE)){
+		reticle_->ResteStatus();
+		beam_->ResetStatus();
+		score_->ResetStatus();
+		railCamera_->ResetStatus();
+		enemyManager_->Init();
+
+		currentUpdate_ = [this](){TitleUpdate(); };
+		currentDraw_ = [this](){TitleDraw(); };
+	}
+}
+
+void GameScene::ScoreDraw(){
+	System::getInstance()->getLightManager()->Update();
+
+	sceneView_->PreDraw();
+	///===============================================
+	/// 3d Object
+	///===============================================
+	Object3d::PreDraw();
+	skyDome_->Draw(cameraBuff_);
+
+	railEditor_->Draw(cameraBuff_);
+
+	beam_->Draw(cameraBuff_);
+
+	enemyManager_->Draw(cameraBuff_);
+
+	///===============================================
+	/// sprite
+	///===============================================
+	SpriteCommon::getInstance()->PreDraw();
+	reticle_->DrawSprite();
+	score_->Draw();
+	beam_->DrawSprite();
+
+	sceneView_->PostDraw();
+	///===============================================
+	/// off screen Rendering
+	///===============================================
+	System::getInstance()->ScreenPreDraw();
+	sceneView_->DrawTexture();
+	System::getInstance()->ScreenPostDraw();
+}
+#pragma endregion"Score"
