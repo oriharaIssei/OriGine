@@ -2,12 +2,13 @@
 
 class Enemy;
 class EnemyManager;
+class Reticle;
 class Beam;
 class CollisionManager{
 public:
 	CollisionManager() = default;
 
-	void Update(EnemyManager* _enemyManager,Beam* _beam);
+	void Update(EnemyManager* _enemyManager,Beam* _beam,Reticle* _reticle);
 private:
-	bool CheckCollison(Beam* _beam,const Enemy* _enemy);
+	bool CheckCollison(Reticle* _reticle,const Enemy* _enemy);
 };

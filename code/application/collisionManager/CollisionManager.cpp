@@ -2,8 +2,9 @@
 
 #include <algorithm>
 
-#include "../beam/Beam.h"
+#include "../Beam/Beam.h"
 #include "../enemy/EnemyManager.h"
+#include "../Reticle/Reticle.h"
 
 #pragma region "Math Functions"
 Vector3 Projection(const Vector3& v1,const Vector3& v2){
@@ -28,34 +29,39 @@ Vector3 ClosestPointOnSegment(const Vector3& point,const Vector3& segmentOrigin,
 }
 #pragma endregion
 
-void CollisionManager::Update(EnemyManager* _enemyManager,Beam* _beam){
+void CollisionManager::Update(EnemyManager* _enemyManager,Beam* _beam,Reticle* reticle){
 	if(!_beam->getIsActive()){
 		return;
 	}
 	for(auto& enemy : _enemyManager->getActiveEnemies()){
-		if(!CheckCollison(_beam,enemy.get())){
+		if(CheckCollison(reticle,enemy.get())){
 			enemy->OnCollision();
 		}
 	}
 }
 
-bool CollisionManager::CheckCollison(Beam* _beam,const Enemy* _enemy){
+/// <summary>
+/// Reticle の 2d座標 と Enemy の 2d座標 が 接触しているか
+/// </summary>
+bool CollisionManager::CheckCollison(Reticle* reticle,const Enemy* _enemy){
 	if(!_enemy->getIsAlive()){
 		return false;
 	}
 
-	const Vector3 enemyPos = _enemy->GetPos();
-	const float collisionRadius = _enemy->GetRadius();
+	Vector3 enemyLeftPos = _enemy->GetPos();
+	enemyLeftPos.x -= _enemy->GetRadius();
+	Vector3 enemyRightPos =  _enemy->GetPos();
+	enemyRightPos.x += _enemy->GetRadius();
 
-	// 左右のビームそれぞれについて、最も近い点を求める
-	Vector3 leftSeg_ClosestPoint = ClosestPointOnSegment(enemyPos,_beam->getLeftOrigin(),_beam->getEndPos());
-	Vector3 rightSeg_ClosestPoint = ClosestPointOnSegment(enemyPos,_beam->getRightOrigin(),_beam->getEndPos());
+	Vector3 enemyScreenLeftPos = reticle->getVpvMat() * enemyLeftPos;
+	Vector3 enemyScreenRightPos = reticle->getVpvMat() * enemyRightPos;
+	Vector3 enemyScreenPos = reticle->getVpvMat() * _enemy->GetPos();
 
-	// 左右のビームと接触しているか確認
-	if((leftSeg_ClosestPoint - enemyPos).length() <= collisionRadius){
-		return true;
-	}
-	if((rightSeg_ClosestPoint - enemyPos).length() <= collisionRadius){
+	float enemyScreenRadiusSq = (enemyScreenLeftPos.x - enemyScreenRightPos.x) * (enemyScreenLeftPos.x - enemyScreenRightPos.x);
+
+	const Vector3& reticleScreenPos = reticle->getScreenPos();
+
+	if((enemyScreenPos - reticleScreenPos).lengthSq() - enemyScreenRadiusSq <= 16.0f){
 		return true;
 	}
 

@@ -57,20 +57,13 @@ void Reticle::Update(const RailCamera* camera,Input* input){
 	}
 
 	{ // 3d => screen 
-		Matrix4x4 vpvMat = cameraT.viewMat * cameraT.projectionMat * viewPortMat_;
+		vpvMat_ = cameraT.viewMat * cameraT.projectionMat * viewPortMat_;
 
-		reticleScreenPos_ = vpvMat * reticleWorld3dPos_;
+		reticleScreenPos_ = vpvMat_ * reticleWorld3dPos_;
 
 		sprite_->setPosition({reticleScreenPos_.x,reticleScreenPos_.y});
 	}
 	sprite_->Update();
-
-	/*
-	reticleObject_->transform_.openData_.translate = reticle3dPos_;
-	reticleObject_->transform_.openData_.UpdateMatrix();
-	reticleObject_->transform_.ConvertToBuffer();
-	reticleObject_->Draw(cameraBuff);
-	*/
 }
 
 void Reticle::DrawSprite(){

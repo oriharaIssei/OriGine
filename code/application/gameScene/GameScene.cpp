@@ -101,12 +101,12 @@ void GameScene::TitleDraw(){
 	/// 3d Object
 	///===============================================
 	Object3d::PreDraw();
-	
+
 	///===============================================
 	/// sprite
 	///===============================================
 	SpriteCommon::getInstance()->PreDraw();
-	
+
 	sceneView_->PostDraw();
 	///===============================================
 	/// off screen Rendering
@@ -132,13 +132,13 @@ void GameScene::GameUpdate(){
 
 	enemyManager_->Update(railCamera_->GetCurrentDistance());
 
-	collisionManager_->Update(enemyManager_.get(),beam_.get());
+	collisionManager_->Update(enemyManager_.get(),beam_.get(),reticle_.get());
 
 	score_->Update();
 
 	if(spline_->GetTotalLength() - railCamera_->GetCurrentDistance() <= 10.0f){
-		currentUpdate_ = [this](){ScoreUpdate(); };
-		currentDraw_ = [this](){ScoreDraw(); };
+		currentUpdate_ = [this](){GameClearUpdate(); };
+		currentDraw_ = [this](){GameClearDraw(); };
 	}
 }
 
@@ -176,8 +176,8 @@ void GameScene::GameDraw(){
 }
 #pragma endregion"Game"
 
-#pragma region"Score"
-void GameScene::ScoreUpdate(){
+#pragma region"GameClear"
+void GameScene::GameClearUpdate(){
 	if(input_->isReleaseKey(DIK_SPACE)){
 		reticle_->ResteStatus();
 		beam_->ResetStatus();
@@ -190,7 +190,7 @@ void GameScene::ScoreUpdate(){
 	}
 }
 
-void GameScene::ScoreDraw(){
+void GameScene::GameClearDraw(){
 	System::getInstance()->getLightManager()->Update();
 
 	sceneView_->PreDraw();

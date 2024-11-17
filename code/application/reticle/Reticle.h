@@ -26,6 +26,7 @@ private:
 	std::unique_ptr<Sprite> sprite_;
 
 	Matrix4x4 viewPortMat_;
+	Matrix4x4 vpvMat_;
 
 	Vector2 minPos_;
 	Vector2 maxPos_;
@@ -37,5 +38,6 @@ private:
 	float kDistance3DReticle_;
 public:
 	const Vector3& getWorldPos()const{ return reticleWorld3dPos_; }
-
+	const Vector3& getScreenPos()const{ return reticleScreenPos_; }
+	const Matrix4x4& getVpvMat()const{ return vpvMat_; }
 };

@@ -43,14 +43,13 @@ private:
 	void TitleDraw();
 	void GameUpdate();
 	void GameDraw();
-	void EndingUpdate();
-	void EndignDraw();
+	void GameClearUpdate();
+	void GameClearDraw();
 
 private:
 	std::function<void()> currentUpdate_;
 	std::function<void()> currentDraw_;
 
-	bool isGameClear_ = false;
 	Input* input_;
 
 	IConstantBuffer<CameraTransform> cameraBuff_;
@@ -82,7 +81,7 @@ private:
 	Score* score_;
 #pragma endregion
 
-#pragma region"Score"
+#pragma region"GameClear"
 
 #pragma endregion
 
