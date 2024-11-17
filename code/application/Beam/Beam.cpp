@@ -4,9 +4,11 @@
 
 #include "globalVariables/GlobalVariables.h"
 #include "input/Input.h"
+#include "math/Easing.h"
 #include "object3d/ModelManager.h"
 #include "primitiveDrawer/PrimitiveDrawer.h"
 #include "SLerp.h"
+#include "sprite/SpriteCommon.h"
 #include "sprite/SpriteCommon.h"
 #include "System.h"
 #include "transform/CameraTransform.h"
@@ -45,12 +47,48 @@ void Beam::Initialize(){
 	rightObject_->transform_.openData_.translate = rightOffset_;
 
 	radius_ = 2.0f;
+
+	///===========================================================
+	/// Sprites
+	///===========================================================
+	currentEnergy_ = std::make_unique<Sprite>(SpriteCommon::getInstance());
+	energyBackground_ = std::make_unique<Sprite>(SpriteCommon::getInstance());
+
+	currentEnergy_->Init("resource/Texture/Energy.png");
+	energyBackground_->Init("resource/Texture/EnergyBackground.png");
+	currentEnergy_->setAnchorPoint({0.5f,1.0f});
+	energyBackground_->setAnchorPoint({0.5f,1.0f});
+	currentEnergy_->setTextureSize({36.0f,256.0f});
+	energyBackground_->setTextureSize({36.0f,256.0f});
+
+	variables->addValue("Game","Beam","energySpritePos",spritePos_);
+	variables->addValue("Game","Beam","energySpriteSize",maxSpriteSize_);
+	variables->addValue("Game","Beam","rightOffset",rightOffset_);
+
+	currentEnergy_->setPosition(spritePos_);
+	energyBackground_->setPosition(spritePos_);
+
+	currentEnergy_->setSize(maxSpriteSize_);
+	energyBackground_->setSize(maxSpriteSize_);
+
+	currentEnergy_->Update();
+	energyBackground_->Update();
+
+	currentSpriteSize_ = maxSpriteSize_;
 }
 
 void Beam::Update(const RailCamera* camera,const Reticle* reticle,Input* input){
 	float deltaTime = System::getInstance()->getDeltaTime();
 
 	reticle3dPos_ = reticle->getWorldPos();
+
+	{ // Sprite Update
+		float energyPercent = leftEnergy_ / maxEnergy_;
+		currentSpriteSize_.y = Lerp(energyPercent,0.0f,maxSpriteSize_.y);
+		currentEnergy_->setSize(currentSpriteSize_);
+
+		currentEnergy_->Update();
+	}
 
 	isActive_ = input->isPressKey(DIK_SPACE) && leftEnergy_ > 0.0f;
 
@@ -59,7 +97,7 @@ void Beam::Update(const RailCamera* camera,const Reticle* reticle,Input* input){
 			return;
 		}
 		leftEnergy_ += healingEnergyPerSeconds_ * deltaTime;
-		leftEnergy_  = (std::max)(leftEnergy_,maxEnergy_);
+		leftEnergy_  = (std::min)(leftEnergy_,maxEnergy_);
 		return;
 	}
 
@@ -90,7 +128,6 @@ void Beam::Update(const RailCamera* camera,const Reticle* reticle,Input* input){
 		rightObject_->transform_.openData_.rotate.x = std::atan2(-velocityZ.y,velocityZ.z); // X軸回転
 	}
 
-
 	{ // Objects Update
 		leftObject_->transform_.openData_.UpdateMatrix();
 		leftObject_->transform_.ConvertToBuffer();
@@ -108,4 +145,9 @@ void Beam::Draw(const IConstantBuffer<CameraTransform>& cameraBuff){
 	leftObject_->Draw(cameraBuff);
 	rightObject_->Draw(cameraBuff);
 
+}
+
+void Beam::DrawSprite(){
+	currentEnergy_->Draw();
+	energyBackground_->Draw();
 }

@@ -118,6 +118,7 @@ void GameScene::Draw(){
 	SpriteCommon::getInstance()->PreDraw();
 	reticle_->DrawSprite();
 	score_->Draw();
+	beam_->DrawSprite();
 
 	sceneView_->PostDraw();
 	///===============================================

@@ -19,7 +19,7 @@ public:
 	void Initialize();
 	void Update(const RailCamera* camera,const Reticle* reticle,Input* input);
 	void Draw(const IConstantBuffer<CameraTransform>& cameraBuff);
-
+	void DrawSprite();
 private:
 	bool isActive_;
 
@@ -39,6 +39,13 @@ private:
 	float radius_;
 
 	Matrix4x4 viewPortMat_;
+
+	std::unique_ptr<Sprite> currentEnergy_;
+	std::unique_ptr<Sprite> energyBackground_;
+
+	Vector2 spritePos_;
+	Vector2 maxSpriteSize_;
+	Vector2 currentSpriteSize_;
 public:
 	bool getIsActive()const{ return isActive_; }
 
