@@ -17,6 +17,8 @@ public:
 	void Update();
 	void Draw();
 
+	void InitOnGameClear();
+	void UpdateOnGameClear();
 	void ResetStatus(){
 		currentScore_ = 0;
 	}
@@ -28,6 +30,12 @@ private:
 
 	Vector2 textPos_;
 	Vector2 textSize_;
+
+	Vector2 textPosOnGameClear_;
+	Vector2 textSizeOnGameClear_;
+	Vector2 numbersLtPosOnGameClear_;
+	Vector2 tileSizeOnGameClear_;
+	Vector2 tile2tileSpacingOnGameClear_;
 
 	std::unique_ptr<Sprite> scoreTextSprite_;
 	std::array<std::unique_ptr<Sprite>,5> numberSprites_;

@@ -20,18 +20,19 @@ void Score::Init(){
 	variables->addValue("Game","Score","scoreTextSize_",textSize_);
 	variables->addValue("Game","Score","scoreTextPos_",textPos_);
 
+	int32_t i = 0;
 	for(auto& aScoreNumber : numberSprites_){
 		aScoreNumber = std::make_unique<Sprite>(SpriteCommon::getInstance());
 		aScoreNumber->Init("resource/Texture/numbers.png");
 		aScoreNumber->setAnchorPoint({0.5f,0.5f});
 		aScoreNumber->setTextureSize(textureTileSize_);
 		aScoreNumber->setSize(tileSize_);
-	}
-	for(size_t i = 0; i < numberSprites_.size(); i++){
-		numberSprites_[i]->setPosition({
+
+		aScoreNumber->setPosition({
 			numbersLtPos_.x + (tileSize_.x + tile2tileSpacing_.x) * i,
 			numbersLtPos_.y + (tile2tileSpacing_.y * 0.5f)
-									   });
+								  });
+		++i;
 	}
 
 	scoreTextSprite_ = std::make_unique<Sprite>(SpriteCommon::getInstance());
@@ -41,6 +42,13 @@ void Score::Init(){
 	scoreTextSprite_->setSize(textSize_);
 	scoreTextSprite_->setPosition(textPos_);
 	scoreTextSprite_->Update();
+
+	variables->addValue("GameClear","Score","tileSize_",tileSizeOnGameClear_);
+	variables->addValue("GameClear","Score","tile2tileSpacing_",tile2tileSpacingOnGameClear_);
+	variables->addValue("GameClear","Score","numbersLtPos_",numbersLtPosOnGameClear_);
+	variables->addValue("GameClear","Score","scoreTextSize_",textSizeOnGameClear_);
+	variables->addValue("GameClear","Score","scoreTextPos_",textPosOnGameClear_);
+
 }
 
 void Score::Finalize(){
@@ -61,10 +69,16 @@ void Score::Update(){
 	std::reverse(digits_.begin(),digits_.end());
 
 	int32_t numberIndex_ = 0;
-
 	for(auto& aScoreNumber : numberSprites_){
 		int digit = digits_[numberIndex_];
 		aScoreNumber->setTextureLeftTop(textureTileSize_ * static_cast<float>(digit));
+
+		aScoreNumber->setSize(tileSize_);
+
+		aScoreNumber->setPosition({
+			numbersLtPos_.x + (tileSize_.x + tile2tileSpacing_.x) * numberIndex_,
+			numbersLtPos_.y + (tile2tileSpacing_.y * 0.5f)
+								  });
 
 		aScoreNumber->Update();
 		numberIndex_++;
@@ -80,4 +94,43 @@ void Score::Draw(){
 	for(auto& aScoreNumber : numberSprites_){
 		aScoreNumber->Draw();
 	}
+}
+
+void Score::InitOnGameClear(){
+	
+	int32_t i = 0;
+	for(auto& aScoreNumber : numberSprites_){
+		aScoreNumber->setSize(tileSizeOnGameClear_);
+
+		aScoreNumber->setPosition({
+			numbersLtPosOnGameClear_.x + (tileSize_.x + tile2tileSpacingOnGameClear_.x) * i,
+			numbersLtPosOnGameClear_.y + (tile2tileSpacingOnGameClear_.y * 0.5f)
+								  });
+		aScoreNumber->Update();
+		++i;
+	}
+	scoreTextSprite_->setSize(textSizeOnGameClear_);
+	scoreTextSprite_->setPosition(textPosOnGameClear_);
+	scoreTextSprite_->Update();
+
+}
+
+void Score::UpdateOnGameClear(){
+	int32_t numberIndex_ = 0;
+	for(auto& aScoreNumber : numberSprites_){
+		int digit = digits_[numberIndex_];
+		aScoreNumber->setSize(tileSizeOnGameClear_);
+
+		aScoreNumber->setPosition({
+			numbersLtPosOnGameClear_.x + (tileSize_.x + tile2tileSpacingOnGameClear_.x) * numberIndex_,
+			numbersLtPosOnGameClear_.y + (tile2tileSpacingOnGameClear_.y * 0.5f)
+								  });
+
+		aScoreNumber->Update();
+		numberIndex_++;
+	}
+
+	scoreTextSprite_->setPosition(textPosOnGameClear_);
+	scoreTextSprite_->setSize(textSizeOnGameClear_);
+	scoreTextSprite_->Update();
 }

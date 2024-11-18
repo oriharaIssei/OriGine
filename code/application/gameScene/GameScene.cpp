@@ -76,7 +76,7 @@ void GameScene::Init(){
 	howToStartGame_->setTextureSize({256.0f,36.0f});
 	howToStartGame_->setSize({256.0f,36.0f});
 	howToStartGame_->setAnchorPoint({0.5f,0.5f});
-	howToStartGame_->setPosition({680.0f,420.0f});
+	howToStartGame_->setPosition({640.0f,420.0f});
 
 
 	currentUpdate_ = [this](){TitleUpdate(); };
@@ -153,6 +153,7 @@ void GameScene::GameUpdate(){
 	score_->Update();
 
 	if(spline_->GetTotalLength() - railCamera_->GetCurrentDistance() <= 10.0f){
+		score_->InitOnGameClear();
 		currentUpdate_ = [this](){GameClearUpdate(); };
 		currentDraw_ = [this](){GameClearDraw(); };
 	}
@@ -194,6 +195,9 @@ void GameScene::GameDraw(){
 
 #pragma region"GameClear"
 void GameScene::GameClearUpdate(){
+
+	score_->UpdateOnGameClear();
+
 	if(input_->isReleaseKey(DIK_SPACE)){
 		reticle_->ResteStatus();
 		beam_->ResetStatus();
@@ -214,21 +218,14 @@ void GameScene::GameClearDraw(){
 	/// 3d Object
 	///===============================================
 	Object3d::PreDraw();
-	skyDome_->Draw(cameraBuff_);
-
-	railEditor_->Draw(cameraBuff_);
-
-	beam_->Draw(cameraBuff_);
-
-	enemyManager_->Draw(cameraBuff_);
-
+	
 	///===============================================
 	/// sprite
 	///===============================================
 	SpriteCommon::getInstance()->PreDraw();
-	reticle_->DrawSprite();
+
+	titleBackground_->Draw();
 	score_->Draw();
-	beam_->DrawSprite();
 
 	sceneView_->PostDraw();
 	///===============================================
