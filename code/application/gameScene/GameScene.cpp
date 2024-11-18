@@ -94,6 +94,7 @@ void GameScene::Update(){
 }
 
 void GameScene::Draw(){
+	System::getInstance()->getLightManager()->Update();
 	currentDraw_();
 }
 
@@ -107,8 +108,6 @@ void GameScene::TitleUpdate(){
 }
 
 void GameScene::TitleDraw(){
-	System::getInstance()->getLightManager()->Update();
-
 	sceneView_->PreDraw();
 	///===============================================
 	/// 3d Object
@@ -160,7 +159,6 @@ void GameScene::GameUpdate(){
 }
 
 void GameScene::GameDraw(){
-	System::getInstance()->getLightManager()->Update();
 
 	sceneView_->PreDraw();
 	///===============================================
@@ -211,8 +209,6 @@ void GameScene::GameClearUpdate(){
 }
 
 void GameScene::GameClearDraw(){
-	System::getInstance()->getLightManager()->Update();
-
 	sceneView_->PreDraw();
 	///===============================================
 	/// 3d Object

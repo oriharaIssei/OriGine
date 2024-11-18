@@ -16,8 +16,8 @@ struct PixelShaderOutput {
 /// Light
 struct DirectionalLight {
     float3 color;
-    float3 direction;
     float intensity;
+    float3 direction;
 };
 
 struct PointLight {
@@ -127,9 +127,9 @@ PixelShaderOutput main(VertexShaderOutput input) {
 
         // Point Light
                 for (uint pointLightIndex = 0 ; pointLightIndex < gLightCounts.pointLightCount ; ++pointLightIndex) {
-                    float3 lightDir = normalize(input.worldPos - gPointLight[pointLightIndex].pos);
+                    float3 lightDir = normalize(gPointLight[pointLightIndex].pos - input.worldPos);
                     float distance = length(gPointLight[pointLightIndex].pos - input.worldPos);
-                    float attenuation = pow(saturate(1.0f - distance / gPointLight[pointLightIndex].radius),gPointLight[pointLightIndex].decay);
+                    float attenuation = pow(saturate(-distance / gPointLight[pointLightIndex].radius + 1.0f),gPointLight[pointLightIndex].decay);
                     float3 lightColor = LambertDiffuse(normal,lightDir,gPointLight[pointLightIndex].color,gPointLight[pointLightIndex].intensity * attenuation);
                     output.color.rgb += textureColor.rgb * lightColor;
                 }
@@ -160,7 +160,7 @@ PixelShaderOutput main(VertexShaderOutput input) {
 
         // Point Light
                 for (uint pointLightIndex = 0 ; pointLightIndex < gLightCounts.pointLightCount ; ++pointLightIndex) {
-                    float3 lightDir = normalize(input.worldPos - gPointLight[pointLightIndex].pos);
+                    float3 lightDir = normalize(gPointLight[pointLightIndex].pos - input.worldPos);
                     float distance = length(gPointLight[pointLightIndex].pos - input.worldPos);
                     float attenuation = pow(saturate(1.0f - distance / gPointLight[pointLightIndex].radius),gPointLight[pointLightIndex].decay);
                     float3 lightColor = LambertDiffuse(normal,lightDir,gPointLight[pointLightIndex].color,gPointLight[pointLightIndex].intensity * attenuation);
@@ -171,7 +171,7 @@ PixelShaderOutput main(VertexShaderOutput input) {
                 for (uint spotLightIndex = 0 ; spotLightIndex < gLightCounts.spotLightCount ; ++spotLightIndex) {
                     float3 lightDir = normalize(input.worldPos - gSpotLight[spotLightIndex].pos);
                     float distance = length(gSpotLight[spotLightIndex].pos - input.worldPos);
-                    float attenuation = pow(saturate(1.0f - distance / gSpotLight[spotLightIndex].distance),gSpotLight[spotLightIndex].decay);
+                    float attenuation = pow(saturate(-distance / gPointLight[pointLightIndex].radius + 1.0f),gPointLight[pointLightIndex].decay);
                     float cosAngle = dot(lightDir,normalize(gSpotLight[spotLightIndex].direction));
                     float falloff = saturate(( cosAngle - gSpotLight[spotLightIndex].cosAngle ) / ( gSpotLight[spotLightIndex].cosFalloffStart - gSpotLight[spotLightIndex].cosAngle ));
                     float3 lightColor = LambertDiffuse(normal,lightDir,gSpotLight[spotLightIndex].color,gSpotLight[spotLightIndex].intensity * attenuation * falloff);
@@ -189,17 +189,17 @@ PixelShaderOutput main(VertexShaderOutput input) {
                 for (uint directionalLightIndex = 0 ; directionalLightIndex < gLightCounts.directionalLightCount ; ++directionalLightIndex) {
                     float3 diffuse = LambertDiffuse(normal,-gDirectionalLight[directionalLightIndex].direction,gDirectionalLight[directionalLightIndex].color,gDirectionalLight[directionalLightIndex].intensity);
                     float3 specular = PhongSpecular(normal,-gDirectionalLight[directionalLightIndex].direction,viewDir,gMaterial.shininess,gDirectionalLight[directionalLightIndex].color,gDirectionalLight[directionalLightIndex].intensity);
-                    output.color.rgb += textureColor.rgb * diffuse + specular;
+                    output.color.rgb += textureColor.rgb * ( diffuse + specular * ( 1 - diffuse ) );
                 }
 
         // Point Light
                 for (uint pointLightIndex = 0 ; pointLightIndex < gLightCounts.pointLightCount ; ++pointLightIndex) {
-                    float3 lightDir = normalize(input.worldPos - gPointLight[pointLightIndex].pos);
+                    float3 lightDir = normalize(gPointLight[pointLightIndex].pos - input.worldPos);
                     float distance = length(gPointLight[pointLightIndex].pos - input.worldPos);
-                    float attenuation = pow(saturate(1.0f - distance / gPointLight[pointLightIndex].radius),gPointLight[pointLightIndex].decay);
+                    float attenuation = pow(saturate(-distance / gPointLight[pointLightIndex].radius + 1.0f),gPointLight[pointLightIndex].decay);
                     float3 diffuse = LambertDiffuse(normal,lightDir,gPointLight[pointLightIndex].color,gPointLight[pointLightIndex].intensity * attenuation);
                     float3 specular = PhongSpecular(normal,lightDir,viewDir,gMaterial.shininess,gPointLight[pointLightIndex].color,gPointLight[pointLightIndex].intensity * attenuation);
-                    output.color.rgb += textureColor.rgb * diffuse + specular;
+                    output.color.rgb += textureColor.rgb * ( diffuse + specular * ( 1 - diffuse ) );
                 }
             // Spot Light
                 for (uint spotLightIndex = 0 ; spotLightIndex < gLightCounts.spotLightCount ; ++spotLightIndex) {
@@ -210,7 +210,7 @@ PixelShaderOutput main(VertexShaderOutput input) {
                     float falloff = saturate(( cosAngle - gSpotLight[spotLightIndex].cosAngle ) / ( gSpotLight[spotLightIndex].cosFalloffStart - gSpotLight[spotLightIndex].cosAngle ));
                     float3 diffuse = LambertDiffuse(normal,lightDir,gSpotLight[spotLightIndex].color,gSpotLight[spotLightIndex].intensity * attenuation * falloff);
                     float3 specular = PhongSpecular(normal,lightDir,viewDir,gMaterial.shininess,gSpotLight[spotLightIndex].color,gSpotLight[spotLightIndex].intensity * attenuation * falloff);
-                    output.color.rgb += textureColor.rgb * diffuse + specular;
+                    output.color.rgb += textureColor.rgb * ( diffuse + specular * ( 1 - diffuse ) );
                 }
                 break;
             }
@@ -224,17 +224,17 @@ PixelShaderOutput main(VertexShaderOutput input) {
                 for (uint directionalLightIndex = 0 ; directionalLightIndex < gLightCounts.directionalLightCount ; ++directionalLightIndex) {
                     float3 diffuse = LambertDiffuse(normal,-gDirectionalLight[directionalLightIndex].direction,gDirectionalLight[directionalLightIndex].color,gDirectionalLight[directionalLightIndex].intensity);
                     float3 specular = BlinnPhongSpecular(normal,-gDirectionalLight[directionalLightIndex].direction,viewDir,gMaterial.shininess,gDirectionalLight[directionalLightIndex].color,gDirectionalLight[directionalLightIndex].intensity);
-                    output.color.rgb += textureColor.rgb * diffuse + specular;
+                    output.color.rgb += textureColor.rgb * ( diffuse + specular * ( 1 - diffuse ) );
                 }
 
         // Point Light
                 for (uint pointLightIndex = 0 ; pointLightIndex < gLightCounts.pointLightCount ; ++pointLightIndex) {
-                    float3 lightDir = normalize(input.worldPos - gPointLight[pointLightIndex].pos);
+                    float3 lightDir = normalize(gPointLight[pointLightIndex].pos - input.worldPos);
                     float distance = length(gPointLight[pointLightIndex].pos - input.worldPos);
-                    float attenuation = pow(saturate(1.0f - distance / gPointLight[pointLightIndex].radius),gPointLight[pointLightIndex].decay);
+                    float attenuation = pow(saturate(-distance / gPointLight[pointLightIndex].radius + 1.0f),gPointLight[pointLightIndex].decay);
                     float3 diffuse = LambertDiffuse(normal,lightDir,gPointLight[pointLightIndex].color,gPointLight[pointLightIndex].intensity * attenuation);
                     float3 specular = BlinnPhongSpecular(normal,lightDir,viewDir,gMaterial.shininess,gPointLight[pointLightIndex].color,gPointLight[pointLightIndex].intensity * attenuation);
-                    output.color.rgb += textureColor.rgb * diffuse + specular;
+                    output.color.rgb += textureColor.rgb * ( diffuse + specular * ( 1 - diffuse ) );
                 }
             
             // Spot Light
@@ -246,7 +246,7 @@ PixelShaderOutput main(VertexShaderOutput input) {
                     float falloff = saturate(( cosAngle - gSpotLight[spotLightIndex].cosAngle ) / ( gSpotLight[spotLightIndex].cosFalloffStart - gSpotLight[spotLightIndex].cosAngle ));
                     float3 diffuse = LambertDiffuse(normal,lightDir,gSpotLight[spotLightIndex].color,gSpotLight[spotLightIndex].intensity * attenuation * falloff);
                     float3 specular = BlinnPhongSpecular(normal,lightDir,viewDir,gMaterial.shininess,gSpotLight[spotLightIndex].color,gSpotLight[spotLightIndex].intensity * attenuation * falloff);
-                    output.color.rgb += textureColor.rgb * diffuse + specular;
+                    output.color.rgb += textureColor.rgb * ( diffuse + specular * ( 1 - diffuse ) );
                 }
                 break;
             }
