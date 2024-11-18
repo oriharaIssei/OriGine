@@ -9,7 +9,10 @@ class Model;
 class Transform;
 class Particle{
 public:
-	void Init();
+	Particle() = default;
+	~Particle(){}
+
+	void Init(Model* _model,uint32_t _textureIndex,Transform* _transform,float _lifeTime);
 	void Update();
 	void Draw(IConstantBuffer<CameraTransform> camera);
 private:
