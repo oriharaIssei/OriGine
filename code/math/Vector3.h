@@ -61,10 +61,24 @@ struct Vector3{
 			this->z * scalar
 		);
 	}
-	Vector3& operator*=(const Vector3& another){
-		this->x *= another.x;
-		this->y *= another.y;
-		this->z *= another.z;
+	Vector3& operator*=(const float& scalar){
+		this->x *= scalar;
+		this->y *= scalar;
+		this->z *= scalar;
+		return *this;
+	}
+
+	Vector3 operator/(const float& scalar)const{
+		return Vector3(
+			this->x / scalar,
+			this->y / scalar,
+			this->z / scalar
+		);
+	}
+	Vector3& operator/=(const float& scalar){
+		this->x /= scalar;
+		this->y /= scalar;
+		this->z /= scalar;
 		return *this;
 	}
 

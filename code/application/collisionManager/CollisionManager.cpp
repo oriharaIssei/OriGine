@@ -4,66 +4,52 @@
 
 #include "../Beam/Beam.h"
 #include "../enemy/EnemyManager.h"
+#include "../railCamera/RailCamera.h"
 #include "../Reticle/Reticle.h"
 
-#pragma region "Math Functions"
-Vector3 Projection(const Vector3& v1,const Vector3& v2){
-	return Vector3(v2.Normalize() * (v1.dot(v2.Normalize())));
-}
-
-Vector3 ClosestPointOnSegment(const Vector3& point,const Vector3& segmentOrigin,const Vector3& segmentEnd){
-	Vector3 segmentDiff = segmentEnd - segmentOrigin;
-	float segmentLengthSquared = segmentDiff.lengthSq();
-
-	// セグメントの長さが0に近い場合は、始点を返す
-	if(segmentLengthSquared < std::numeric_limits<float>::epsilon()){
-		return segmentOrigin;
-	}
-
-	// セグメント上の最も近い位置のスカラー値 t を計算し、[0, 1]でクランプ
-	float t = (point - segmentOrigin).dot(segmentDiff) / segmentLengthSquared;
-	t = (std::max)(0.0f,(std::min)(1.0f,t));
-
-	// 最近傍点を計算
-	return segmentOrigin + segmentDiff * t;
-}
-#pragma endregion
-
-void CollisionManager::Update(EnemyManager* _enemyManager,Beam* _beam,Reticle* reticle){
+void CollisionManager::Update(EnemyManager* _enemyManager,const Beam* _beam,const Reticle* reticle,const RailCamera* railCamera){
 	if(!_beam->getIsActive()){
 		return;
 	}
 	for(auto& enemy : _enemyManager->getActiveEnemies()){
-		if(CheckCollison(reticle,enemy.get())){
+		if(CheckCollison(reticle,enemy.get(),railCamera)){
 			enemy->OnCollision();
 		}
 	}
 }
 
 /// <summary>
-/// Reticle の 2d座標 と Enemy の 2d座標 が 接触しているか
+/// Reticle の 2D座標と Enemy の 2D座標が接触しているか
 /// </summary>
-bool CollisionManager::CheckCollison(Reticle* reticle,const Enemy* _enemy){
+bool CollisionManager::CheckCollison(const Reticle* _reticle,const Enemy* _enemy,const RailCamera* _railCamera){
 	if(!_enemy->getIsAlive()){
+		return false; // 敵が死んでいる場合は無視
+	}
+
+
+	// 敵のワールド座標を計算
+	Vector3 enemyLeftPos = _enemy->GetPos() - Vector3(_enemy->GetRadius(),0.0f,0.0f);
+	Vector3 enemyRightPos = _enemy->GetPos() + Vector3(_enemy->GetRadius(),0.0f,0.0f);
+
+	Vector3 enemyScreenPos = _reticle->getVpvMat() * _enemy->GetPos();
+	Vector3 enemyScreenLeftPos = _reticle->getVpvMat() * enemyLeftPos;
+	Vector3 enemyScreenRightPos = _reticle->getVpvMat() * enemyRightPos;
+
+	if(enemyScreenPos.x > 1280.0f || enemyScreenPos.x < 0.0f
+	   || enemyScreenPos.y > 720.0f || enemyScreenPos.y < 0.0f){
 		return false;
 	}
 
-	Vector3 enemyLeftPos = _enemy->GetPos();
-	enemyLeftPos.x -= _enemy->GetRadius();
-	Vector3 enemyRightPos =  _enemy->GetPos();
-	enemyRightPos.x += _enemy->GetRadius();
+	// 敵のスクリーン空間における半径の2乗
+	float enemyScreenRadiusSq = (enemyScreenRightPos.x - enemyScreenLeftPos.x) * (enemyScreenRightPos.x - enemyScreenLeftPos.x);
 
-	Vector3 enemyScreenLeftPos = reticle->getVpvMat() * enemyLeftPos;
-	Vector3 enemyScreenRightPos = reticle->getVpvMat() * enemyRightPos;
-	Vector3 enemyScreenPos = reticle->getVpvMat() * _enemy->GetPos();
+	// レティクルのスクリーン座標を取得
+	const Vector3& reticleScreenPos = _reticle->getScreenPos();
 
-	float enemyScreenRadiusSq = (enemyScreenLeftPos.x - enemyScreenRightPos.x) * (enemyScreenLeftPos.x - enemyScreenRightPos.x);
-
-	const Vector3& reticleScreenPos = reticle->getScreenPos();
-
-	if((enemyScreenPos - reticleScreenPos).lengthSq() - enemyScreenRadiusSq <= 16.0f){
-		return true;
+	// スクリーン空間での衝突判定 (距離の2乗と半径の2乗を比較)
+	if((enemyScreenPos - reticleScreenPos).lengthSq() <= enemyScreenRadiusSq){
+		return true; // 衝突している
 	}
 
-	return false;
+	return false; // 衝突していない
 }

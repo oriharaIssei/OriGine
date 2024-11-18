@@ -73,20 +73,9 @@ void Score::Update(){
 		int digit = digits_[numberIndex_];
 		aScoreNumber->setTextureLeftTop(textureTileSize_ * static_cast<float>(digit));
 
-		aScoreNumber->setSize(tileSize_);
-
-		aScoreNumber->setPosition({
-			numbersLtPos_.x + (tileSize_.x + tile2tileSpacing_.x) * numberIndex_,
-			numbersLtPos_.y + (tile2tileSpacing_.y * 0.5f)
-								  });
-
 		aScoreNumber->Update();
 		numberIndex_++;
 	}
-
-	scoreTextSprite_->setPosition(textPos_);
-	scoreTextSprite_->setSize(textSize_);
-	scoreTextSprite_->Update();
 }
 
 void Score::Draw(){
@@ -116,21 +105,5 @@ void Score::InitOnGameClear(){
 }
 
 void Score::UpdateOnGameClear(){
-	int32_t numberIndex_ = 0;
-	for(auto& aScoreNumber : numberSprites_){
-		int digit = digits_[numberIndex_];
-		aScoreNumber->setSize(tileSizeOnGameClear_);
 
-		aScoreNumber->setPosition({
-			numbersLtPosOnGameClear_.x + (tileSize_.x + tile2tileSpacingOnGameClear_.x) * numberIndex_,
-			numbersLtPosOnGameClear_.y + (tile2tileSpacingOnGameClear_.y * 0.5f)
-								  });
-
-		aScoreNumber->Update();
-		numberIndex_++;
-	}
-
-	scoreTextSprite_->setPosition(textPosOnGameClear_);
-	scoreTextSprite_->setSize(textSizeOnGameClear_);
-	scoreTextSprite_->Update();
 }

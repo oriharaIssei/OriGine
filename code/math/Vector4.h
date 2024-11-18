@@ -80,3 +80,6 @@ struct Vector4{
 		return std::sqrt(x * x + y * y + z * z + w * w);
 	}
 };
+
+struct Matrix4x4;
+Vector4 operator*(const Matrix4x4& mat,const Vector4& vec);

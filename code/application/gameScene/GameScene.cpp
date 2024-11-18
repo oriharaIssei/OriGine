@@ -148,7 +148,7 @@ void GameScene::GameUpdate(){
 
 	enemyManager_->Update(railCamera_->GetCurrentDistance());
 
-	collisionManager_->Update(enemyManager_.get(),beam_.get(),reticle_.get());
+	collisionManager_->Update(enemyManager_.get(),beam_.get(),reticle_.get(),railCamera_.get());
 
 	score_->Update();
 
@@ -201,7 +201,7 @@ void GameScene::GameClearUpdate(){
 	if(input_->isReleaseKey(DIK_SPACE)){
 		reticle_->ResteStatus();
 		beam_->ResetStatus();
-		score_->ResetStatus();
+		score_->Init();
 		railCamera_->ResetStatus();
 		enemyManager_->Init();
 
