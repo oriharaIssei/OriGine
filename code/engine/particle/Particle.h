@@ -5,23 +5,27 @@
 #include "directX12/IConstantBuffer.h"
 #include "transform/CameraTransform.h"
 
-class Model;
-class Transform;
+struct Model;
+struct Transform;
+struct ParticleTransform;
+struct Vector3;
 class Particle{
 public:
 	Particle() = default;
 	~Particle(){}
 
-	void Init(Model* _model,uint32_t _textureIndex,Transform* _transform,float _lifeTime);
-	void Update();
-	void Draw(IConstantBuffer<CameraTransform> camera);
+	void Init(Model* _model,ParticleTransform* _transform,float _lifeTime);
+	void Update(float deltaTime);
+
+	void Spawn(const ParticleTransform& initialValue,float _lifeTime);
 private:
-	// 形状
+	bool isAlive_;
+	// 形状,Material
 	Model* model_;
-	// Texture
-	uint32_t textureIndex_;
 	// 位置，サイズ
-	Transform* transform_;
+	ParticleTransform* transform_;
 
 	float lifeTime_;
+public:
+	bool getIsAlive()const{ return isAlive_; }
 };

@@ -1,4 +1,5 @@
 #include "ModelManager.h"
+#include "model/Model.h"
 
 #include <cassert>
 

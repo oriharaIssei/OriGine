@@ -127,7 +127,7 @@
     <ClCompile Include="code\engine\input\Input.cpp" />
     <ClCompile Include="code\lib\logger\Logger.cpp" />
     <ClCompile Include="code\engine\object3d\Object3d.cpp" />
-    <ClCompile Include="code\engine\object3d\ModellManager.cpp" />
+    <ClCompile Include="code\engine\model\ModellManager.cpp" />
     <ClCompile Include="code\engine\primitiveDrawer\PrimitiveDrawer.cpp" />
     <ClCompile Include="code\engine\sprite\Sprite.cpp" />
     <ClCompile Include="code\engine\sprite\SpriteCommon.cpp" />
@@ -151,11 +151,13 @@
     <ClCompile Include="externals\imgui\imgui_widgets.cpp" />
     <ClCompile Include="code\lib\Thread\Thread.cpp" />
     <ClCompile Include="code\engine\particle\manager\ParticleManager.cpp" />
+    <ClCompile Include="code\engine\transform\ParticleTransform.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\engine\audio\Audio.h" />
     <ClInclude Include="code\engine\directX12\IStructuredBuffer.h" />
     <ClInclude Include="code\engine\material\light\LightManager.h" />
+    <ClInclude Include="code\engine\model\Model.h" />
     <ClInclude Include="code\engine\particle\Particle.h" />
     <ClInclude Include="code\lib\debugCamera\DebugCamera.h" />
     <ClInclude Include="code\lib\deltaTime\DeltaTime.h" />
@@ -187,7 +189,7 @@
     <ClInclude Include="code\engine\input\Input.h" />
     <ClInclude Include="code\lib\logger\Logger.h" />
     <ClInclude Include="code\engine\object3d\Object3d.h" />
-    <ClInclude Include="code\engine\object3d\ModelManager.h" />
+    <ClInclude Include="code\engine\model\ModelManager.h" />
     <ClInclude Include="code\engine\primitiveDrawer\PrimitiveDrawer.h" />
     <ClInclude Include="code\engine\sprite\Sprite.h" />
     <ClInclude Include="code\engine\sprite\SpriteCommon.h" />
@@ -214,6 +216,7 @@
     <ClInclude Include="externals\imgui\imstb_truetype.h" />
     <ClInclude Include="code\lib\Thread\Thread.h" />
     <ClInclude Include="code\engine\particle\manager\ParticleManager.h" />
+    <ClInclude Include="code\engine\transform\ParticleTransform.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">

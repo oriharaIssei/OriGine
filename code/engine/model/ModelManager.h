@@ -6,38 +6,13 @@
 #include <unordered_map>
 
 #include "directX12/DxCommand.h"
-#include "directX12/Object3dMesh.h"
 #include "directX12/PipelineStateObj.h"
 #include "directX12/ShaderManager.h"
-#include "material/Material.h"
 #include "Matrix4x4.h"
 #include "Thread/Thread.h"
 
-struct Material3D{
-	int textureNumber;
-	IConstantBuffer<Material>* material;
-};
-struct Mesh3D{
-	std::unique_ptr<IObject3dMesh> meshBuff;
-	size_t dataSize  = 0;
-	size_t vertSize  = 0;
-	size_t indexSize = 0;
-};
-struct ModelData{
-	Mesh3D meshData;
-	Material3D materialData;
-};
-struct Model{
-	enum class LoadState{
-		Loading,
-		Loaded,
-	};
-	std::vector<ModelData> data_;
-	LoadState currentState_;
-};
-
-struct TextureVertexData;
 class Object3d;
+struct Model;
 class ModelManager{
 	friend class Object3d;
 public:
@@ -55,7 +30,7 @@ private:
 	// ModelManager* manager を どうにかする
 	struct LoadTask{
 		std::string directory;
-		std::string fileName ;
+		std::string fileName;
 		Model* model = nullptr;
 		void Update();
 	};

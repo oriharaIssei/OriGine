@@ -7,7 +7,7 @@
 #include "material/light/LightManager.h"
 #include "material/Material.h"
 #include "material/TextureManager.h"
-#include "object3d/ModelManager.h"
+#include "model/ModelManager.h"
 #include "primitiveDrawer/PrimitiveDrawer.h"
 #include "sprite/SpriteCommon.h"
 #include "texture/RenderTexture.h"

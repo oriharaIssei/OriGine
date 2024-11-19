@@ -4,7 +4,6 @@
 #include <memory>
 #include <string>
 
-#include "../emitter/Emitter.h"
 #include "directX12/DxCommand.h"
 #include "directX12/DxSrvArray.h"
 #include "directX12/IConstantBuffer.h"
@@ -12,7 +11,9 @@
 #include "directX12/ShaderManager.h"
 #include "transform/CameraTransform.h"
 
+class Emitter;
 class ParticleManager{
+	friend class Emitter;
 public:
 	static ParticleManager* getInstance();
 	void Init();
@@ -20,7 +21,7 @@ public:
 private:
 	void CreatePso();
 private:
-	int32_t srvNum_ = 3;
+	int32_t srvNum_ = 4;
 	std::shared_ptr<DxSrvArray> dxSrvArray_;
 
 	std::unique_ptr<DxCommand> dxCommand_;

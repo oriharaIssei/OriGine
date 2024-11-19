@@ -11,7 +11,7 @@
 struct Transform{
 public:
 	Transform(){}
-	Transform(const Vector3& _scale,const Vector3& _rotate,const Vector3& _translate):scale(_scale),rotate(_rotate),translate(_translate){}
+	Transform(const Vector3& _scale,const Vector3& _rotate,const Vector3& _translate):scale(_scale),rotate(_rotate),translate(_translate),worldMat(MakeMatrix::Identity()){}
 	~Transform(){}
 
 	void Init();
