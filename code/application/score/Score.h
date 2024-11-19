@@ -18,7 +18,6 @@ public:
 	void Draw();
 
 	void InitOnGameClear();
-	void UpdateOnGameClear();
 	void ResetStatus(){
 		currentScore_ = 0;
 	}

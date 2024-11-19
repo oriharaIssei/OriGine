@@ -194,8 +194,6 @@ void GameScene::GameDraw(){
 #pragma region"GameClear"
 void GameScene::GameClearUpdate(){
 
-	score_->UpdateOnGameClear();
-
 	if(input_->isReleaseKey(DIK_SPACE)){
 		reticle_->ResteStatus();
 		beam_->ResetStatus();

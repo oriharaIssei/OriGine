@@ -49,6 +49,7 @@ void Score::Init(){
 	variables->addValue("GameClear","Score","scoreTextSize_",textSizeOnGameClear_);
 	variables->addValue("GameClear","Score","scoreTextPos_",textPosOnGameClear_);
 
+	currentScore_ = 0;
 }
 
 void Score::Finalize(){
@@ -86,7 +87,7 @@ void Score::Draw(){
 }
 
 void Score::InitOnGameClear(){
-	
+
 	int32_t i = 0;
 	for(auto& aScoreNumber : numberSprites_){
 		aScoreNumber->setSize(tileSizeOnGameClear_);
@@ -101,9 +102,5 @@ void Score::InitOnGameClear(){
 	scoreTextSprite_->setSize(textSizeOnGameClear_);
 	scoreTextSprite_->setPosition(textPosOnGameClear_);
 	scoreTextSprite_->Update();
-
-}
-
-void Score::UpdateOnGameClear(){
 
 }
