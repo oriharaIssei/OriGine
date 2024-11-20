@@ -8,6 +8,7 @@
 #include "material/Material.h"
 #include "material/TextureManager.h"
 #include "model/ModelManager.h"
+#include "particle/manager/ParticleManager.h"
 #include "primitiveDrawer/PrimitiveDrawer.h"
 #include "sprite/SpriteCommon.h"
 #include "texture/RenderTexture.h"
@@ -95,11 +96,14 @@ void System::Init(){
 
 	materialManager_ = std::make_unique<MaterialManager>();
 
+	ParticleManager::getInstance()->Init();
+
 	deltaTime_ = std::make_unique<DeltaTime>();
 	deltaTime_->Init();
 }
 
 void System::Finalize(){
+	ParticleManager::getInstance()->Finalize();
 	lightManager_->Finalize();
 	materialManager_->Finalize();
 

@@ -1,5 +1,6 @@
 #include "ParticleManager.h"
 
+#include "../emitter/Emitter.h"
 #include "directX12/DxSrvArrayManager.h"
 #include "System.h"
 
@@ -16,13 +17,22 @@ void ParticleManager::Init(){
 	CreatePso();
 }
 
+void ParticleManager::Finalize(){
+	dxCommand_->Finalize();
+	dxSrvArray_->Finalize();
+}
+
 void ParticleManager::PreDraw(){
 	auto* commandList = dxCommand_->getCommandList();
 
 	commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
 	commandList->SetPipelineState(pso_->pipelineState.Get());
+}
 
-	System::getInstance()->getLightManager()->SetForRootParameter(commandList);
+void ParticleManager::Draw(const IConstantBuffer<CameraTransform>& cameraTransform){
+	for(auto& [name,emitter] : emitters_){
+		emitter->Draw(cameraTransform);
+	}
 }
 
 void ParticleManager::CreatePso(){
@@ -122,4 +132,12 @@ void ParticleManager::CreatePso(){
 	///=================================================
 	shaderInfo.blendMode_ = BlendMode::Normal;
 	pso_ = shaderManager->CreatePso(psoKey_,shaderInfo,System::getInstance()->getDxDevice()->getDevice());
+}
+
+Emitter* ParticleManager::getEmitter(const std::string& name) const{
+	auto emitter = emitters_.find(name);
+	if(emitter != emitters_.end()){
+		return emitter->second.get();
+	}
+	return nullptr;
 }
