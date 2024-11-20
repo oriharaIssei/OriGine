@@ -2,8 +2,8 @@
 
 #include "System.h"
 
-#include "directX12/DxHeap.h"
 #include "directX12/DxCommand.h"
+#include "directX12/DxHeap.h"
 #include "directX12/DxSrvArray.h"
 
 DxSrvArrayManager *DxSrvArrayManager::getInstance(){

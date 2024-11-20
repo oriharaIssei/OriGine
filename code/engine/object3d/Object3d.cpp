@@ -1,5 +1,6 @@
 #include "object3d/Object3d.h"
-#include "ModelManager.h"
+#include "model/Model.h"
+#include "model/ModelManager.h"
 
 #include <cassert>
 #include <unordered_map>
@@ -27,7 +28,7 @@ BlendMode Object3d::currentBlend_ = BlendMode::Alpha;
 
 #pragma region"Object3d"
 Object3d* Object3d::Create(const std::string& directoryPath,const std::string& filename){
-	Object3d *newInstance = new Object3d();
+	Object3d* newInstance = new Object3d();
 	newInstance->data_ = ModelManager::getInstance()->Create(directoryPath,filename);
 	return newInstance;
 }

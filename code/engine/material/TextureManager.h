@@ -51,8 +51,6 @@ private:
 		std::string path;
 		DirectX::TexMetadata metaData;
 		uint32_t resourceIndex;
-		D3D12_CPU_DESCRIPTOR_HANDLE srvHandleCPU;
-		D3D12_GPU_DESCRIPTOR_HANDLE srvHandleGPU;
 
 		LoadState loadState;
 	private:
@@ -61,10 +59,6 @@ private:
 		void ExecuteCommand(ID3D12Resource* resource);
 	};
 private:
-	static uint64_t cpuDescriptorHandleStart_;
-	static uint64_t gpuDescriptorHandleStart_;
-	static uint32_t handleIncrementSize_;
-
 	static std::shared_ptr<DxSrvArray> dxSrvArray_;
 	static std::array<std::unique_ptr<Texture>,maxTextureSize_> textures_;
 
@@ -77,11 +71,13 @@ private:
 	// バックグラウンドスレッド用
 	static std::unique_ptr<DxCommand> dxCommand_;
 public:
-	static const D3D12_GPU_DESCRIPTOR_HANDLE &getDescriptorGpuHandle(uint32_t handleId){
+	static D3D12_GPU_DESCRIPTOR_HANDLE getDescriptorGpuHandle(uint32_t handleId){
+		DxHeap* heap = DxHeap::getInstance();
+		int32_t locate = 0;
 		if(textures_[handleId]->loadState == Texture::LoadState::Loaded){
-			return textures_[handleId]->srvHandleGPU;
+			locate = textures_[handleId]->resourceIndex;
 		}
-		return textures_[0]->srvHandleGPU;
+		return  heap->getSrvGpuHandle(dxSrvArray_->getLocationOnHeap(textures_[locate]->resourceIndex));
 	}
 
 	static const DirectX::TexMetadata& getTexMetadata(uint32_t handleId){return textures_[handleId]->metaData; }
