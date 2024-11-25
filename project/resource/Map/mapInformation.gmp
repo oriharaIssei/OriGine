@@ -1,0 +1,25 @@
+ChipSize 10 10
+MaxAddress 7 7
+MaterialList
+Name WHITE
+Color 1 1 1 1
+EnableLighting 0
+Name Ground
+Color 0.921569 0.921569 0.921569 1
+EnableLighting 0
+Name verticalBox
+Color 0.472245 0.671569 0.391748 1
+EnableLighting 0
+Name Red
+Color 0.539216 0.0845829 0.0845829 1
+EnableLighting 0
+Name suzanne
+Color 0.50841 0.651921 0.696078 1
+EnableLighting 1
+Name bunny
+Color 1 1 1 1
+EnableLighting 1
+Name teapotGreen
+Color 0.437908 0.656863 0.470108 1
+EnableLighting 0
+EndMaterialList

@@ -1,0 +1,16 @@
+CreateModel
+scale 0.8 0.4 0.8 
+rotate 0 -0.3 0 
+translate 8 1.9 3.8 
+material verticalBox
+modelDirectoryPath ./resource
+modelName VerticalBox.obj
+end
+CreateModel
+scale 1 1 1 
+rotate 0 1 0.5 
+translate 2.4 1 7 
+material WHITE
+modelDirectoryPath ./resource
+modelName axis.obj
+end
