@@ -73,6 +73,9 @@
     <Filter Include="engine\material\light">
       <UniqueIdentifier>{700569cf-ede6-4ce5-837e-fe3ab075c1e3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="engine\particle">
+      <UniqueIdentifier>{d37b4b19-0605-4c83-a496-e577128ace0e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="code\application\gameScene\GameScene.cpp">
@@ -235,16 +238,16 @@
       <Filter>engine\material\light</Filter>
     </ClCompile>
     <ClCompile Include="code\engine\particle\Particle.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="code\engine\particle\emitter\Emitter.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>engine\particle</Filter>
     </ClCompile>
     <ClCompile Include="code\engine\particle\manager\ParticleManager.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>engine\particle</Filter>
     </ClCompile>
     <ClCompile Include="code\engine\transform\ParticleTransform.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>engine\transform</Filter>
+    </ClCompile>
+    <ClCompile Include="code\engine\particle\emitter\Emitter.cpp">
+      <Filter>engine\particle</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -268,9 +271,6 @@
     </ClInclude>
     <ClInclude Include="externals\imgui\imgui_internal.h">
       <Filter>externals\imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="code\engine\model\Model.h">
-      <Filter>engine\model</Filter>
     </ClInclude>
     <ClInclude Include="code\engine\directX12\DxCommand.h">
       <Filter>engine\directX12</Filter>
@@ -425,20 +425,23 @@
     <ClInclude Include="code\engine\material\light\SpotLight.h">
       <Filter>engine\material\light</Filter>
     </ClInclude>
-    <ClInclude Include="code\engine\particle\Particle.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="code\engine\particle\emitter\Emitter.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="code\engine\particle\manager\ParticleManager.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="code\engine\model\Model.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="code\engine\particle\Particle.h">
+      <Filter>engine\particle</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\particle\manager\ParticleManager.h">
+      <Filter>engine\particle</Filter>
+    </ClInclude>
     <ClInclude Include="code\engine\transform\ParticleTransform.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>engine\transform</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\particle\emitter\Emitter.h">
+      <Filter>engine\particle</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\model\Model.h">
+      <Filter>engine\model</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -8,7 +8,7 @@
 #include <assimp/scene.h>
 
 #include "directX12/ShaderManager.h"
-#include "material/TextureManager.h"
+#include "material/Texture/TextureManager.h"
 #include "Model.h"
 #include "System.h"
 

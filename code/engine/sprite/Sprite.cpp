@@ -2,7 +2,7 @@
 
 #include "directX12/DxFunctionHelper.h"
 #include "System.h"
-#include "material/TextureManager.h"
+#include "material/texture/TextureManager.h"
 #include "logger/Logger.h"
 #include <directX12/ShaderCompiler.h>
 

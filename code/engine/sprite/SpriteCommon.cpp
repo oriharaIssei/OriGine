@@ -4,7 +4,7 @@
 
 #include "Sprite.h"
 #include "System.h"
-#include "material/TextureManager.h"
+#include "material/texture/TextureManager.h"
 
 SpriteCommon* SpriteCommon::getInstance(){
 	static SpriteCommon instance{};
