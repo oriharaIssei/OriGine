@@ -1,0 +1,8 @@
+CreateModel
+scale 0.5 0.5 1 
+rotate 0 -0.7 0 
+translate 35.5 2.4 16 
+material verticalBox
+modelDirectoryPath ./resource
+modelName VerticalBox.obj
+end
