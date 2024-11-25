@@ -1,5 +1,9 @@
 #pragma once
 
+#include <memory>
+#include <vector>
+
+#include "directX12/IConstantBuffer.h"
 #include "directX12/Object3dMesh.h"
 #include "material/Material.h"
 

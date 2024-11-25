@@ -45,6 +45,8 @@ void GameScene::Init(){
 	object_->transform_.CreateBuffer(System::getInstance()->getDxDevice()->getDevice());
 	object_->transform_.openData_.UpdateMatrix();
 	object_->transform_.ConvertToBuffer();
+
+	particleManager = ParticleManager::getInstance();
 }
 
 void GameScene::Update(){

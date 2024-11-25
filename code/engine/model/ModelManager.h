@@ -11,10 +11,8 @@
 #include "Matrix4x4.h"
 #include "Thread/Thread.h"
 
-struct TextureVertexData;
 class Object3d;
 struct Model;
-
 class ModelManager{
 	friend class Object3d;
 public:
