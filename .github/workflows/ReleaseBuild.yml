@@ -7,7 +7,7 @@ env:
 # リポジトリーのルートディレクトリを起点としたソリューションファイルのパス
   SOLUTION_FILE_PATH: project/OriGine.sln
 # Visual Studio の 構成 (Debug/Release)
-  CONFIGURATION: Debug
+  CONFIGURATION: Release
 
 # jobs = ワークフロー本体 ワークフローが何をするかを書く
 jobs:
