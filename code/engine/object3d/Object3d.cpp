@@ -20,8 +20,8 @@
 #include "Vector4.h"
 #include <stdint.h>
 
-#include <chrono>
 #include "Object3d.h"
+#include "Model.h"
 
 BlendMode Object3d::currentBlend_ = BlendMode::Alpha;
 

@@ -126,13 +126,13 @@
     <ClCompile Include="code\engine\input\Input.cpp" />
     <ClCompile Include="code\lib\logger\Logger.cpp" />
     <ClCompile Include="code\engine\object3d\Object3d.cpp" />
-    <ClCompile Include="code\engine\object3d\ModellManager.cpp" />
+    <ClCompile Include="code\engine\model\ModelManager.cpp" />
     <ClCompile Include="code\engine\primitiveDrawer\PrimitiveDrawer.cpp" />
     <ClCompile Include="code\engine\sprite\Sprite.cpp" />
     <ClCompile Include="code\engine\sprite\SpriteCommon.cpp" />
     <ClCompile Include="code\engine\System.cpp" />
-    <ClCompile Include="code\engine\texture\RenderTexture.cpp" />
-    <ClCompile Include="code\engine\material\TextureManager.cpp" />
+    <ClCompile Include="code\engine\material\texture\RenderTexture.cpp" />
+    <ClCompile Include="code\engine\material\texture\TextureManager.cpp" />
     <ClCompile Include="code\lib\winApp\WinApp.cpp" />
     <ClCompile Include="code\application\gameScene\GameScene.cpp" />
     <ClCompile Include="code\lib\globalVariables\GlobalVariables.cpp" />
@@ -150,9 +150,10 @@
     <ClCompile Include="code\lib\Thread\Thread.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="code\engine\audio\Audio.h" />
+    <ClInclude Include="code\engine\audio\Audio .h" />
     <ClInclude Include="code\engine\directX12\IStructuredBuffer.h" />
     <ClInclude Include="code\engine\material\light\LightManager.h" />
+    <ClInclude Include="code\engine\model\Model.h" />
     <ClInclude Include="code\lib\debugCamera\DebugCamera.h" />
     <ClInclude Include="code\lib\deltaTime\DeltaTime.h" />
     <ClInclude Include="code\engine\directX12\IConstantBuffer.h" />
@@ -183,13 +184,13 @@
     <ClInclude Include="code\engine\input\Input.h" />
     <ClInclude Include="code\lib\logger\Logger.h" />
     <ClInclude Include="code\engine\object3d\Object3d.h" />
-    <ClInclude Include="code\engine\object3d\ModelManager.h" />
+    <ClInclude Include="code\engine\model\ModelManager.h" />
     <ClInclude Include="code\engine\primitiveDrawer\PrimitiveDrawer.h" />
     <ClInclude Include="code\engine\sprite\Sprite.h" />
     <ClInclude Include="code\engine\sprite\SpriteCommon.h" />
     <ClInclude Include="code\engine\System.h" />
-    <ClInclude Include="code\engine\texture\RenderTexture.h" />
-    <ClInclude Include="code\engine\material\TextureManager.h" />
+    <ClInclude Include="code\engine\material\texture\RenderTexture.h" />
+    <ClInclude Include="code\engine\material\texture\TextureManager.h" />
     <ClInclude Include="code\lib\winApp\WinApp.h" />
     <ClInclude Include="code\application\gameScene\GameScene.h" />
     <ClInclude Include="code\lib\globalVariables\GlobalVariables.h" />

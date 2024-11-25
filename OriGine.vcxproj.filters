@@ -46,18 +46,6 @@
     <Filter Include="engine\render">
       <UniqueIdentifier>{80005e3a-f0ea-445b-b51e-a91fe7fdc44a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="engine\assetsManager">
-      <UniqueIdentifier>{8dd466f9-50ec-446a-9970-7be6a41f126e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="engine\asstes">
-      <UniqueIdentifier>{dde0c647-6591-4895-92d3-eeb24b2b9e6b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="engine\asstes\audio">
-      <UniqueIdentifier>{fdc6676b-eeb9-4c8c-956a-7be9b9babcdb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="engine\asstes\Model">
-      <UniqueIdentifier>{126e9828-fbb4-4c66-baa1-1163adc733f6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="engine\renderer">
       <UniqueIdentifier>{0939aea9-15e4-488c-9c79-a96d6175ddd0}</UniqueIdentifier>
     </Filter>
@@ -72,6 +60,18 @@
     </Filter>
     <Filter Include="application">
       <UniqueIdentifier>{ddc34478-1e28-4cd6-b0b1-c58c3fea90dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\audio">
+      <UniqueIdentifier>{fdc6676b-eeb9-4c8c-956a-7be9b9babcdb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\model">
+      <UniqueIdentifier>{126e9828-fbb4-4c66-baa1-1163adc733f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\material\texture">
+      <UniqueIdentifier>{dec122a2-5d4f-4015-9ba4-a332a6be2392}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\material\light">
+      <UniqueIdentifier>{700569cf-ede6-4ce5-837e-fe3ab075c1e3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -151,18 +151,9 @@
       <Filter>engine\camera</Filter>
     </ClCompile>
     <ClCompile Include="code\engine\audio\Audio.cpp">
-      <Filter>engine\asstes\audio</Filter>
+      <Filter>engine\audio</Filter>
     </ClCompile>
     <ClCompile Include="code\engine\material\Material.cpp">
-      <Filter>engine\material</Filter>
-    </ClCompile>
-    <ClCompile Include="code\engine\material\light\DirectionalLight.cpp">
-      <Filter>engine\material</Filter>
-    </ClCompile>
-    <ClCompile Include="code\engine\material\light\PointLight.cpp">
-      <Filter>engine\material</Filter>
-    </ClCompile>
-    <ClCompile Include="code\engine\material\light\SpotLight.cpp">
       <Filter>engine\material</Filter>
     </ClCompile>
     <ClCompile Include="code\engine\input\Input.cpp">
@@ -172,9 +163,6 @@
       <Filter>engine\directX12</Filter>
     </ClCompile>
     <ClCompile Include="code\engine\directX12\ShaderManager.cpp">
-      <Filter>engine\directX12</Filter>
-    </ClCompile>
-    <ClCompile Include="code\engine\texture\RenderTexture.cpp">
       <Filter>engine\directX12</Filter>
     </ClCompile>
     <ClCompile Include="code\lib\globalVariables\GlobalVariables.cpp">
@@ -198,9 +186,6 @@
     <ClCompile Include="code\engine\object3d\Object3d.cpp">
       <Filter>engine\renderer\3d</Filter>
     </ClCompile>
-    <ClCompile Include="code\engine\directX12\Object3dMesh.cpp">
-      <Filter>engine\renderer\3d</Filter>
-    </ClCompile>
     <ClCompile Include="code\engine\directX12\PipelineStateObj.cpp">
       <Filter>engine\directX12</Filter>
     </ClCompile>
@@ -209,15 +194,6 @@
     </ClCompile>
     <ClCompile Include="code\engine\primitiveDrawer\PrimitiveDrawer.cpp">
       <Filter>engine\render</Filter>
-    </ClCompile>
-    <ClCompile Include="code\engine\material\TextureManager.cpp">
-      <Filter>engine\assetsManager</Filter>
-    </ClCompile>
-    <ClCompile Include="code\engine\object3d\ModelManager.cpp">
-      <Filter>engine\assetsManager</Filter>
-    </ClCompile>
-    <ClCompile Include="code\engine\material\light\LightManager.cpp">
-      <Filter>engine\material</Filter>
     </ClCompile>
     <ClCompile Include="code\lib\logger\Logger.cpp">
       <Filter>engine\system</Filter>
@@ -233,6 +209,30 @@
     </ClCompile>
     <ClCompile Include="code\lib\imGuiManager\ImGuiManager.cpp">
       <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="code\engine\directX12\Object3dMesh.cpp">
+      <Filter>engine\directX12</Filter>
+    </ClCompile>
+    <ClCompile Include="code\engine\material\texture\TextureManager.cpp">
+      <Filter>engine\material\texture</Filter>
+    </ClCompile>
+    <ClCompile Include="code\engine\material\texture\RenderTexture.cpp">
+      <Filter>engine\material\texture</Filter>
+    </ClCompile>
+    <ClCompile Include="code\engine\model\ModelManager.cpp">
+      <Filter>engine\model</Filter>
+    </ClCompile>
+    <ClCompile Include="code\engine\material\light\DirectionalLight.cpp">
+      <Filter>engine\material\light</Filter>
+    </ClCompile>
+    <ClCompile Include="code\engine\material\light\LightManager.cpp">
+      <Filter>engine\material\light</Filter>
+    </ClCompile>
+    <ClCompile Include="code\engine\material\light\PointLight.cpp">
+      <Filter>engine\material\light</Filter>
+    </ClCompile>
+    <ClCompile Include="code\engine\material\light\SpotLight.cpp">
+      <Filter>engine\material\light</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -257,8 +257,8 @@
     <ClInclude Include="externals\imgui\imgui_internal.h">
       <Filter>externals\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="code\engine\object3d\Model.h">
-      <Filter>engine\asstes\Model</Filter>
+    <ClInclude Include="code\engine\model\Model.h">
+      <Filter>engine\model</Filter>
     </ClInclude>
     <ClInclude Include="code\engine\directX12\DxCommand.h">
       <Filter>engine\directX12</Filter>
@@ -299,25 +299,13 @@
     <ClInclude Include="code\engine\directX12\DxSwapChain.h">
       <Filter>engine\directX12</Filter>
     </ClInclude>
-    <ClInclude Include="code\engine\object3d\ModelManager.h">
-      <Filter>engine\assetsManager</Filter>
-    </ClInclude>
-    <ClInclude Include="code\engine\material\TextureManager.h">
-      <Filter>engine\assetsManager</Filter>
-    </ClInclude>
-    <ClInclude Include="code\engine\texture\RenderTexture.h">
-      <Filter>engine\directX12</Filter>
-    </ClInclude>
     <ClInclude Include="code\engine\audio\Audio .h">
-      <Filter>engine\asstes\audio</Filter>
+      <Filter>engine\audio</Filter>
     </ClInclude>
     <ClInclude Include="code\engine\sprite\Sprite.h">
       <Filter>engine\renderer\2d</Filter>
     </ClInclude>
     <ClInclude Include="code\engine\object3d\Object3d.h">
-      <Filter>engine\renderer\3d</Filter>
-    </ClInclude>
-    <ClInclude Include="code\engine\directX12\Object3dMesh.h">
       <Filter>engine\renderer\3d</Filter>
     </ClInclude>
     <ClInclude Include="code\engine\transform\CameraTransform.h">
@@ -356,19 +344,7 @@
     <ClInclude Include="code\engine\directX12\IStructuredBuffer.h">
       <Filter>engine\directX12</Filter>
     </ClInclude>
-    <ClInclude Include="code\engine\material\light\DirectionalLight.h">
-      <Filter>engine\material</Filter>
-    </ClInclude>
     <ClInclude Include="code\engine\material\Material.h">
-      <Filter>engine\material</Filter>
-    </ClInclude>
-    <ClInclude Include="code\engine\material\light\LightManager.h">
-      <Filter>engine\material</Filter>
-    </ClInclude>
-    <ClInclude Include="code\engine\material\light\PointLight.h">
-      <Filter>engine\material</Filter>
-    </ClInclude>
-    <ClInclude Include="code\engine\material\light\SpotLight.h">
       <Filter>engine\material</Filter>
     </ClInclude>
     <ClInclude Include="code\math\Matrix4x4.h">
@@ -412,6 +388,30 @@
     </ClInclude>
     <ClInclude Include="code\lib\imGuiManager\ImGuiManager.h">
       <Filter>lib</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\directX12\Object3dMesh.h">
+      <Filter>engine\directX12</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\material\texture\TextureManager.h">
+      <Filter>engine\material\texture</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\material\texture\RenderTexture.h">
+      <Filter>engine\material\texture</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\model\ModelManager.h">
+      <Filter>engine\model</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\material\light\DirectionalLight.h">
+      <Filter>engine\material\light</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\material\light\LightManager.h">
+      <Filter>engine\material\light</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\material\light\PointLight.h">
+      <Filter>engine\material\light</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\material\light\SpotLight.h">
+      <Filter>engine\material\light</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
