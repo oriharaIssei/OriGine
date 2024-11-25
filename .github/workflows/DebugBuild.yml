@@ -17,7 +17,7 @@ jobs:
     steps:
       # リポジトリをクローン
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # MSBuild をセットアップ
       - name: Add MSBuild to PATH
@@ -28,4 +28,4 @@ jobs:
       # ビルド
       - name: Build
         run: |
-          msbuild ${{ env.SOLUTION_FILE_PATH }} /p:Platform=x64 /p:Configuration=${{ env.CONFIGURATION }}
+          msbuild ${{env.SOLUTION_FILE_PATH }}/p:Platform=x64 /p:Configuration=${{ env.CONFIGURATION }}
