@@ -6,12 +6,12 @@
 #include "imGuiManager/ImGuiManager.h"
 #include "material/light/LightManager.h"
 #include "material/Material.h"
-#include "material/TextureManager.h"
+#include "material/texture/RenderTexture.h"
+#include "material/texture/TextureManager.h"
 #include "model/ModelManager.h"
 #include "particle/manager/ParticleManager.h"
 #include "primitiveDrawer/PrimitiveDrawer.h"
 #include "sprite/SpriteCommon.h"
-#include "texture/RenderTexture.h"
 
 #include "imgui/imgui.h"
 

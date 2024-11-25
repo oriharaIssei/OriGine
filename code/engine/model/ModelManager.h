@@ -26,8 +26,6 @@ private:
 	std::unique_ptr<DxCommand> dxCommand_;
 
 	std::unique_ptr<Matrix4x4> fovMa_;
-	// TODOタスク 
-	// ModelManager* manager を どうにかする
 	struct LoadTask{
 		std::string directory;
 		std::string fileName;

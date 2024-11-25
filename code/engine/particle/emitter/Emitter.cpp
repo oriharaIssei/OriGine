@@ -1,7 +1,7 @@
 #include "../manager/ParticleManager.h"
 #include "Emitter.h"
 
-#include "material/TextureManager.h"
+#include "material/texture/TextureManager.h"
 #include "model/Model.h"
 #include "model/ModelManager.h"
 #include "particle/Particle.h"

@@ -7,7 +7,9 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
-#include "material/TextureManager.h"
+#include "directX12/ShaderManager.h"
+#include "material/Texture/TextureManager.h"
+#include "Model.h"
 #include "System.h"
 
 //===========================================================================

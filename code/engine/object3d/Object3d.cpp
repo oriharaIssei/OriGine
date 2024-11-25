@@ -11,7 +11,7 @@
 
 #include "directX12/DxFunctionHelper.h"
 #include "primitiveDrawer/PrimitiveDrawer.h"
-#include "material/TextureManager.h"
+#include "material/texture/TextureManager.h"
 #include "System.h"
 #include "directX12/DxHeap.h"
 #include "material/Material.h"
@@ -21,8 +21,8 @@
 #include "Vector4.h"
 #include <stdint.h>
 
-#include <chrono>
 #include "Object3d.h"
+#include "model/Model.h"
 
 BlendMode Object3d::currentBlend_ = BlendMode::Alpha;
 
