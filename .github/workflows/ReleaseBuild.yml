@@ -3,26 +3,30 @@ on:
   push:
     branches:
       - master
+
 env:
-# リポジトリーのルートディレクトリを起点としたソリューションファイルのパス
+  # リポジトリーのルートディレクトリを起点としたソリューションファイルのパス
   SOLUTION_FILE_PATH: project/OriGine.sln
-# Visual Studio の 構成 (Debug/Release)
+  # Visual Studio の構成 (Debug/Release)
   CONFIGURATION: Release
 
-# jobs = ワークフロー本体 ワークフローが何をするかを書く
 jobs:
   build:
     runs-on: windows-2022
 
     steps:
+      # リポジトリをチェックアウト
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
-        - name: Add MSBuild to PATH
-          uses: microsoft/setup-msbuild@v2
-          with:
-            msbuild-architecture: x64
+      # MSBuild をセットアップ
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v2
+        with:
+          msbuild-architecture: x64
 
-            - name: Build
-              run: |
-                msbuild ${{env.SOLUTION_FILE_PATH}} /p:Platform=64,Configuration=${{env.CONFIGURATION}}
+      # ビルドを実行
+      - name: Build
+        run: |
+          msbuild ${{ env.SOLUTION_FILE_PATH }} /p:Platform=x64 /p:Configuration=${{ env.CONFIGURATION }}
+
