@@ -1,0 +1,29 @@
+name: DebugBuild
+on: 
+  push:
+    branches:
+      - master
+env:
+# リポジトリーのルートディレクトリを起点としたソリューションファイルのパス
+  SOLUTION_FILE_PATH: project/OriGine.sln
+# Visual Studio の 構成 (Debug/Release)
+  CONFIGURATION: Debug
+
+# jobs = ワークフロー本体 ワークフローが何をするかを書く
+jobs:
+  build:
+    runs-on: windows-2022
+
+    steps:
+      - name: Checkout
+        usus: actions/checkout@v4
+
+        - name: Add MSBuild to PATH
+          uses: microsoft/setup-msbuild@v2
+          with:
+            msbuild-architecture: x64
+
+            - name: Build
+              run: |
+                msbuild ${{env.SOLUTION_FILE_PATH}} /p:Platform=64,Configuration=${{env.CONFIGURATION}}
+                
