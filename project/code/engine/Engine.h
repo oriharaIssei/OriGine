@@ -26,11 +26,11 @@
 #include "Vector3.h"
 #include "Vector4.h"
 
-class Material;
+struct Material;
 class MaterialManager;
 class Engine{
 	friend class PrimitiveDrawer;
-public:
+public:class Material;
 	static Engine* getInstance();
 public:
 	void Init();

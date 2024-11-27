@@ -252,6 +252,12 @@
     <ClCompile Include="code\engine\module\IModule.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="code\engine\assets\IAsset.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="code\engine\component\IComponent.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\math\Vector2.h">
@@ -313,9 +319,6 @@
     </ClInclude>
     <ClInclude Include="code\engine\directX12\DxSwapChain.h">
       <Filter>engine\directX12</Filter>
-    </ClInclude>
-    <ClInclude Include="code\engine\audio\Audio .h">
-      <Filter>engine\audio</Filter>
     </ClInclude>
     <ClInclude Include="code\engine\sprite\Sprite.h">
       <Filter>engine\renderer\2d</Filter>
@@ -450,6 +453,12 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="code\engine\module\IModule.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\assets\IAsset.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\component\IComponent.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

@@ -17,18 +17,18 @@
 
 const uint32_t TextureManager::maxTextureSize_;
 std::shared_ptr<DxSrvArray> TextureManager::dxSrvArray_;
-std::array<std::unique_ptr<TextureManager::Texture>,TextureManager::maxTextureSize_> TextureManager::textures_;
+std::array<std::unique_ptr<Texture>,TextureManager::maxTextureSize_> TextureManager::textures_;
 
 bool TextureManager::stopLoadingThread_;
 std::thread TextureManager::loadingThread_;
-std::queue<std::tuple<TextureManager::Texture*,std::string,uint32_t>> TextureManager::loadingQueue_;
+std::queue<std::tuple<Texture*,std::string,uint32_t>> TextureManager::loadingQueue_;
 std::mutex TextureManager::queueMutex_;
 std::condition_variable TextureManager::queueCondition_;
 
 std::unique_ptr<DxCommand> TextureManager::dxCommand_;
 
 #pragma region Texture
-void TextureManager::Texture::Init(const std::string& filePath,std::shared_ptr<DxSrvArray> srvArray,int textureIndex){
+void Texture::Init(const std::string& filePath,std::shared_ptr<DxSrvArray> srvArray,int textureIndex){
 	loadState = LoadState::Loading;
 	path = filePath;
 	DxResource resource;
@@ -59,11 +59,11 @@ void TextureManager::Texture::Init(const std::string& filePath,std::shared_ptr<D
 	loadState = LoadState::Loaded;
 }
 
-void TextureManager::Texture::Finalize(){
-	dxSrvArray_->DestroyView(resourceIndex);
+void Texture::Finalize(){
+	TextureManager::dxSrvArray_->DestroyView(resourceIndex);
 }
 
-DirectX::ScratchImage TextureManager::Texture::Load(const std::string& filePath){
+DirectX::ScratchImage Texture::Load(const std::string& filePath){
 	DirectX::ScratchImage image{};
 
 	// テクスチャファイルを読み込む
@@ -102,7 +102,7 @@ DirectX::ScratchImage TextureManager::Texture::Load(const std::string& filePath)
 	return mipImages;
 }
 
-void TextureManager::Texture::UploadTextureData(DirectX::ScratchImage& mipImg,ID3D12Resource* resource){
+void Texture::UploadTextureData(DirectX::ScratchImage& mipImg,ID3D12Resource* resource){
 	std::vector<D3D12_SUBRESOURCE_DATA> subResources;
 	auto dxDevice = Engine::getInstance()->getDxDevice();
 	DirectX::PrepareUpload(
@@ -123,7 +123,7 @@ void TextureManager::Texture::UploadTextureData(DirectX::ScratchImage& mipImg,ID
 	intermediateResource->CreateBufferResource(dxDevice->getDevice(),intermediateSize);
 
 	UpdateSubresources(
-		dxCommand_->getCommandList(),
+		TextureManager::dxCommand_->getCommandList(),
 		resource,
 		intermediateResource->getResource(),
 		0,
@@ -133,7 +133,7 @@ void TextureManager::Texture::UploadTextureData(DirectX::ScratchImage& mipImg,ID
 	);
 	ExecuteCommand(resource);
 }
-void TextureManager::Texture::ExecuteCommand(ID3D12Resource* resource){
+void Texture::ExecuteCommand(ID3D12Resource* resource){
 	D3D12_RESOURCE_BARRIER barrier{};
 	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
@@ -141,19 +141,19 @@ void TextureManager::Texture::ExecuteCommand(ID3D12Resource* resource){
 	barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 	barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
 	barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_GENERIC_READ;
-	dxCommand_->ResourceBarrier(1,&barrier);
+	TextureManager::dxCommand_->ResourceBarrier(1,&barrier);
 
-	dxCommand_->Close();
+	TextureManager::dxCommand_->Close();
 
-	dxCommand_->ExecuteCommand();
+	TextureManager::dxCommand_->ExecuteCommand();
 
 	// フェンスを使ってGPUが完了するのを待つ
 	DxFence fence;
 	fence.Init(Engine::getInstance()->getDxDevice()->getDevice());
 
-	fence.Signal(dxCommand_->getCommandQueue());
+	fence.Signal(TextureManager::dxCommand_->getCommandQueue());
 	fence.WaitForFence();
-	dxCommand_->CommandReset();
+	TextureManager::dxCommand_->CommandReset();
 }
 
 #pragma endregion

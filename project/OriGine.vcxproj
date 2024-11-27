@@ -157,9 +157,10 @@
     <ClCompile Include="code\engine\particle\manager\ParticleManager.cpp" />
     <ClCompile Include="code\engine\transform\ParticleTransform.cpp" />
     <ClCompile Include="code\engine\module\IModule.cpp" />
+    <ClCompile Include="code\engine\assets\IAsset.cpp" />
+    <ClCompile Include="code\engine\component\IComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="code\engine\audio\Audio .h" />
     <ClInclude Include="code\engine\audio\Audio.h" />
     <ClInclude Include="code\engine\directX12\IStructuredBuffer.h" />
     <ClInclude Include="code\engine\material\light\LightManager.h" />
@@ -224,6 +225,8 @@
     <ClInclude Include="code\engine\particle\manager\ParticleManager.h" />
     <ClInclude Include="code\engine\transform\ParticleTransform.h" />
     <ClInclude Include="code\engine\module\IModule.h" />
+    <ClInclude Include="code\engine\assets\IAsset.h" />
+    <ClInclude Include="code\engine\component\IComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">

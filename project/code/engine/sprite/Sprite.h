@@ -2,6 +2,8 @@
 
 #include "SpriteCommon.h"
 
+#include "component/IComponent.h"
+
 #include "Vector2.h"
 
 struct SpriteVertexData{
@@ -26,7 +28,8 @@ struct SpriteMesh{
 };
 
 class SpriteCommon;
-class Sprite{
+class Sprite
+	:public IComponent{
 	friend class SpriteCommon;
 public:
 	Sprite(SpriteCommon* spriteCommon):spriteCommon_(spriteCommon){}
