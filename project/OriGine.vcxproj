@@ -102,7 +102,7 @@
     <ClCompile Include="code\engine\audio\Audio.cpp" />
     <ClCompile Include="code\engine\material\light\LightManager.cpp" />
     <ClCompile Include="code\engine\particle\Particle.cpp" />
-    <ClCompile Include="code\lib\debugCamera\DebugCamera.cpp" />
+    <ClCompile Include="code\engine\camera\debugCamera\DebugCamera.cpp" />
     <ClCompile Include="code\lib\deltaTime\DeltaTime.cpp" />
     <ClCompile Include="code\engine\material\light\DirectionalLight.cpp" />
     <ClCompile Include="code\engine\material\light\PointLight.cpp" />
@@ -164,7 +164,7 @@
     <ClInclude Include="code\engine\material\light\LightManager.h" />
     <ClInclude Include="code\engine\model\Model.h" />
     <ClInclude Include="code\engine\particle\Particle.h" />
-    <ClInclude Include="code\lib\debugCamera\DebugCamera.h" />
+    <ClInclude Include="code\engine\camera\debugCamera\DebugCamera.h" />
     <ClInclude Include="code\lib\deltaTime\DeltaTime.h" />
     <ClInclude Include="code\engine\directX12\IConstantBuffer.h" />
     <ClInclude Include="code\engine\material\light\DirectionalLight.h" />

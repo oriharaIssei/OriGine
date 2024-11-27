@@ -150,7 +150,7 @@
     <ClCompile Include="externals\imgui\imgui_widgets.cpp">
       <Filter>externals\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="code\lib\debugCamera\DebugCamera.cpp">
+    <ClCompile Include="code\engine\camera\debugCamera\DebugCamera.cpp">
       <Filter>engine\camera</Filter>
     </ClCompile>
     <ClCompile Include="code\engine\audio\Audio.cpp">
@@ -323,7 +323,7 @@
     <ClInclude Include="code\engine\transform\CameraTransform.h">
       <Filter>engine\transform</Filter>
     </ClInclude>
-    <ClInclude Include="code\lib\debugCamera\DebugCamera.h">
+    <ClInclude Include="code\engine\camera\debugCamera\DebugCamera.h">
       <Filter>engine\camera</Filter>
     </ClInclude>
     <ClInclude Include="code\lib\deltaTime\DeltaTime.h">
