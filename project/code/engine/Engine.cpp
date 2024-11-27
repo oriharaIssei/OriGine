@@ -3,6 +3,7 @@
 #include "Audio/Audio.h"
 #include "directX12/DxFunctionHelper.h"
 #include "directX12/DxHeap.h"
+#include "editor/Editor.h"
 #include "imGuiManager/ImGuiManager.h"
 #include "material/light/LightManager.h"
 #include "material/Material.h"
@@ -97,6 +98,10 @@ void Engine::Init(){
 
 	deltaTime_ = std::make_unique<DeltaTime>();
 	deltaTime_->Init();
+
+	editor_ = Editor::getInstance();
+	editor_->setWinApp(window_.get());
+	editor_->addMenuBarUpdate("File",[](){});
 }
 
 void Engine::Finalize(){
@@ -279,6 +284,8 @@ bool Engine::ProcessMessage(){
 
 void Engine::BeginFrame(){
 	ImGuiManager::getInstance()->Begin();
+	editor_->Begin();
+
 	input_->Update();
 	PrimitiveDrawer::ResetInstanceVal();
 
@@ -294,6 +301,7 @@ void Engine::ScreenPreDraw(){
 }
 
 void Engine::ScreenPostDraw(){
+	editor_->End();
 	ImGuiManager::getInstance()->End();
 	ImGuiManager::getInstance()->Draw();
 

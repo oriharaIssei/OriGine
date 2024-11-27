@@ -28,9 +28,10 @@
 
 struct Material;
 class MaterialManager;
+class Editor;
 class Engine{
 	friend class PrimitiveDrawer;
-public:class Material;
+public:
 	static Engine* getInstance();
 public:
 	void Init();
@@ -72,6 +73,9 @@ private:
 	// Time
 	std::unique_ptr<DeltaTime> deltaTime_;
 	float fps_ = 60.0f;
+
+	//editor 
+	Editor* editor_;
 public:
 	WinApp* getWinApp(){ return window_.get(); }
 
@@ -92,5 +96,3 @@ public:
 
 	LightManager* getLightManager()const{ return lightManager_.get(); }
 };
-
-const std::string defaultResourceFolder = "./resource";
