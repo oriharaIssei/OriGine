@@ -135,7 +135,7 @@
     <ClCompile Include="code\engine\primitiveDrawer\PrimitiveDrawer.cpp" />
     <ClCompile Include="code\engine\sprite\Sprite.cpp" />
     <ClCompile Include="code\engine\sprite\SpriteCommon.cpp" />
-    <ClCompile Include="code\engine\System.cpp" />
+    <ClCompile Include="code\engine\Engine.cpp" />
     <ClCompile Include="code\engine\material\texture\RenderTexture.cpp" />
     <ClCompile Include="code\engine\material\texture\TextureManager.cpp" />
     <ClCompile Include="code\lib\winApp\WinApp.cpp" />
@@ -156,6 +156,7 @@
     <ClCompile Include="code\lib\Thread\Thread.cpp" />
     <ClCompile Include="code\engine\particle\manager\ParticleManager.cpp" />
     <ClCompile Include="code\engine\transform\ParticleTransform.cpp" />
+    <ClCompile Include="code\engine\module\IModule.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\engine\audio\Audio .h" />
@@ -198,7 +199,7 @@
     <ClInclude Include="code\engine\primitiveDrawer\PrimitiveDrawer.h" />
     <ClInclude Include="code\engine\sprite\Sprite.h" />
     <ClInclude Include="code\engine\sprite\SpriteCommon.h" />
-    <ClInclude Include="code\engine\System.h" />
+    <ClInclude Include="code\engine\Engine.h" />
     <ClInclude Include="code\engine\material\texture\RenderTexture.h" />
     <ClInclude Include="code\engine\material\texture\TextureManager.h" />
     <ClInclude Include="code\lib\winApp\WinApp.h" />
@@ -222,6 +223,7 @@
     <ClInclude Include="code\lib\Thread\Thread.h" />
     <ClInclude Include="code\engine\particle\manager\ParticleManager.h" />
     <ClInclude Include="code\engine\transform\ParticleTransform.h" />
+    <ClInclude Include="code\engine\module\IModule.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">

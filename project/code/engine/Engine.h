@@ -28,10 +28,10 @@
 
 class Material;
 class MaterialManager;
-class System{
+class Engine{
 	friend class PrimitiveDrawer;
 public:
-	static System* getInstance();
+	static Engine* getInstance();
 public:
 	void Init();
 	void Finalize();
@@ -44,10 +44,10 @@ public:
 
 	int LoadTexture(const std::string& filePath);
 private:
-	System() = default;
-	~System(){};
-	System(const System&) = delete;
-	const System& operator=(const System&) = delete;
+	Engine() = default;
+	~Engine(){};
+	Engine(const Engine&) = delete;
+	const Engine& operator=(const Engine&) = delete;
 	void CreateTexturePSO();
 private:
 	// api

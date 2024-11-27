@@ -1,7 +1,7 @@
 #include "sprite/Sprite.h"
 
 #include "directX12/DxFunctionHelper.h"
-#include "System.h"
+#include "Engine.h"
 #include "material/texture/TextureManager.h"
 #include "logger/Logger.h"
 #include <directX12/ShaderCompiler.h>
@@ -13,13 +13,13 @@ void SpriteMesh::Init(){
 	const int32_t indexSize = 6;
 	UINT vertDataSize = sizeof(SpriteVertexData);
 
-	vertBuff.CreateBufferResource(System::getInstance()->getDxDevice()->getDevice(),vertDataSize * vertexSize);
+	vertBuff.CreateBufferResource(Engine::getInstance()->getDxDevice()->getDevice(),vertDataSize * vertexSize);
 	vbView.BufferLocation = vertBuff.getResource()->GetGPUVirtualAddress();
 	vbView.SizeInBytes = vertDataSize * vertexSize;
 	vbView.StrideInBytes = vertDataSize;
 	vertBuff.getResource()->Map(0,nullptr,reinterpret_cast<void**>(&vertexData));
 
-	indexBuff.CreateBufferResource(System::getInstance()->getDxDevice()->getDevice(),sizeof(uint32_t) * indexSize);
+	indexBuff.CreateBufferResource(Engine::getInstance()->getDxDevice()->getDevice(),sizeof(uint32_t) * indexSize);
 	ibView.BufferLocation = indexBuff.getResource()->GetGPUVirtualAddress();
 	ibView.SizeInBytes = sizeof(uint32_t) * indexSize;
 	ibView.Format = DXGI_FORMAT_R32_UINT;
@@ -46,7 +46,7 @@ void Sprite::Init(const std::string& filePath){
 	this->meshBuff_->indexData[5] = 2;
 
 	this->mappingConstBufferData_ = nullptr;
-	this->constBuff_.CreateBufferResource(System::getInstance()->getDxDevice()->getDevice(),sizeof(SpritConstBuffer));
+	this->constBuff_.CreateBufferResource(Engine::getInstance()->getDxDevice()->getDevice(),sizeof(SpritConstBuffer));
 
 	this->constBuff_.getResource()->Map(
 		0,nullptr,reinterpret_cast<void**>(&this->mappingConstBufferData_)

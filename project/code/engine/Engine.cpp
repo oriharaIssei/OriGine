@@ -1,4 +1,4 @@
-#include "System.h"
+#include "Engine.h"
 
 #include "Audio/Audio.h"
 #include "directX12/DxFunctionHelper.h"
@@ -29,14 +29,14 @@
 #pragma comment(lib,"dxguid.lib")
 #pragma comment(lib,"dinput8.lib")
 
-System* System::getInstance(){
-	static System instance;
+Engine* Engine::getInstance(){
+	static Engine instance;
 	return &instance;
 }
 
-void System::Init(){
+void Engine::Init(){
 	window_ = std::make_unique<WinApp>();
-	window_->CreateGameWindow(L"LE2A_07_orihara_isssei_AL4",WS_OVERLAPPEDWINDOW,1280,720);
+	window_->CreateGameWindow(L"OriGine",WS_OVERLAPPEDWINDOW,1280,720);
 
 	input_ = Input::getInstance();
 	input_->Init();
@@ -99,7 +99,7 @@ void System::Init(){
 	deltaTime_->Init();
 }
 
-void System::Finalize(){
+void Engine::Finalize(){
 	lightManager_->Finalize();
 	materialManager_->Finalize();
 
@@ -130,7 +130,7 @@ void System::Finalize(){
 #endif // _DEBUG
 }
 
-void System::CreateTexturePSO(){
+void Engine::CreateTexturePSO(){
 	ShaderManager* shaderManager_ = ShaderManager::getInstance();
 	///=================================================
 	/// shader読み込み
@@ -273,11 +273,11 @@ void System::CreateTexturePSO(){
 	}
 }
 
-bool System::ProcessMessage(){
+bool Engine::ProcessMessage(){
 	return window_->ProcessMessage();
 }
 
-void System::BeginFrame(){
+void Engine::BeginFrame(){
 	ImGuiManager::getInstance()->Begin();
 	input_->Update();
 	PrimitiveDrawer::ResetInstanceVal();
@@ -287,13 +287,13 @@ void System::BeginFrame(){
 	deltaTime_->Update();
 }
 
-void System::EndFrame(){}
+void Engine::EndFrame(){}
 
-void System::ScreenPreDraw(){
+void Engine::ScreenPreDraw(){
 	DxFH::PreDraw(dxCommand_.get(),window_.get(),dxSwapChain_.get());
 }
 
-void System::ScreenPostDraw(){
+void Engine::ScreenPostDraw(){
 	ImGuiManager::getInstance()->End();
 	ImGuiManager::getInstance()->Draw();
 
@@ -341,6 +341,6 @@ void System::ScreenPostDraw(){
 	///===============================================================
 }
 
-int System::LoadTexture(const std::string& filePath){
+int Engine::LoadTexture(const std::string& filePath){
 	return TextureManager::LoadTexture(filePath);
 }

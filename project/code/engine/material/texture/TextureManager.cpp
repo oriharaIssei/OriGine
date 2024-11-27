@@ -5,7 +5,7 @@
 
 #include <iostream>
 
-#include "System.h"
+#include "Engine.h"
 
 #include "directX12/DxFunctionHelper.h"
 #include "directX12/DxHeap.h"
@@ -37,7 +37,7 @@ void TextureManager::Texture::Init(const std::string& filePath,std::shared_ptr<D
 	//==================================================
 	DirectX::ScratchImage mipImages = Load(filePath);
 	metaData = mipImages.GetMetadata();
-	resource.CreateTextureResource(System::getInstance()->getDxDevice()->getDevice(),metaData);
+	resource.CreateTextureResource(Engine::getInstance()->getDxDevice()->getDevice(),metaData);
 	UploadTextureData(mipImages,resource.getResource());
 
 	//==================================================
@@ -54,7 +54,7 @@ void TextureManager::Texture::Init(const std::string& filePath,std::shared_ptr<D
 	/// 先頭は ImGui が使用しているので その次を使う
 
 	/// SRV の作成
-	auto device = System::getInstance()->getDxDevice()->getDevice();
+	auto device = Engine::getInstance()->getDxDevice()->getDevice();
 	resourceIndex = srvArray->CreateView(device,srvDesc,resource.getResource());
 	loadState = LoadState::Loaded;
 }
@@ -104,7 +104,7 @@ DirectX::ScratchImage TextureManager::Texture::Load(const std::string& filePath)
 
 void TextureManager::Texture::UploadTextureData(DirectX::ScratchImage& mipImg,ID3D12Resource* resource){
 	std::vector<D3D12_SUBRESOURCE_DATA> subResources;
-	auto dxDevice = System::getInstance()->getDxDevice();
+	auto dxDevice = Engine::getInstance()->getDxDevice();
 	DirectX::PrepareUpload(
 		dxDevice->getDevice(),
 		mipImg.GetImages(),
@@ -149,7 +149,7 @@ void TextureManager::Texture::ExecuteCommand(ID3D12Resource* resource){
 
 	// フェンスを使ってGPUが完了するのを待つ
 	DxFence fence;
-	fence.Init(System::getInstance()->getDxDevice()->getDevice());
+	fence.Init(Engine::getInstance()->getDxDevice()->getDevice());
 
 	fence.Signal(dxCommand_->getCommandQueue());
 	fence.WaitForFence();
@@ -163,7 +163,7 @@ void TextureManager::Init(){
 	CoInitializeEx(0,COINIT_MULTITHREADED);
 
 	DxHeap* heap = DxHeap::getInstance();
-	auto* device = System::getInstance()->getDxDevice()->getDevice();
+	auto* device = Engine::getInstance()->getDxDevice()->getDevice();
 
 	dxSrvArray_ = DxSrvArrayManager::getInstance()->Create(maxTextureSize_);
 

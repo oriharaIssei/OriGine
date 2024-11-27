@@ -1,5 +1,5 @@
 #include "directX12/DxDebug.h"
-#include <System.h>
+#include <Engine.h>
 
 #include <memory>
 
@@ -9,7 +9,7 @@
 
 int WINAPI WinMain(HINSTANCE,HINSTANCE,LPSTR,int){
 	DxDebug debug;
-	System* system = System::getInstance();
+	Engine* system = Engine::getInstance();
 	GlobalVariables* variables = GlobalVariables::getInstance();
 	std::unique_ptr<GameScene> scene = std::make_unique<GameScene>();
 

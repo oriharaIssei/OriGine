@@ -10,7 +10,7 @@
 #include "directX12/ShaderManager.h"
 #include "material/Texture/TextureManager.h"
 #include "Model.h"
-#include "System.h"
+#include "Engine.h"
 
 //===========================================================================
 // unorderedMap 用
@@ -63,9 +63,9 @@ void ModelManager::Init(){
 	Matrix4x4* maPtr = new Matrix4x4();
 	*maPtr = MakeMatrix::PerspectiveFov(
 		0.45f,
-		static_cast<float>(System::getInstance()->getWinApp()->getWidth())
+		static_cast<float>(Engine::getInstance()->getWinApp()->getWidth())
 		/
-		static_cast<float>(System::getInstance()->getWinApp()->getHeight()),
+		static_cast<float>(Engine::getInstance()->getWinApp()->getHeight()),
 		0.1f,
 		100.0f);
 	fovMa_.reset(
@@ -73,11 +73,11 @@ void ModelManager::Init(){
 	);
 
 	dxCommand_ = std::make_unique<DxCommand>();
-	dxCommand_->Init(System::getInstance()->getDxDevice()->getDevice(),"main","main");
+	dxCommand_->Init(Engine::getInstance()->getDxDevice()->getDevice(),"main","main");
 
 	size_t index = 0;
 
-	for(auto& texShaderKey : System::getInstance()->getTexturePsoKeys()){
+	for(auto& texShaderKey : Engine::getInstance()->getTexturePsoKeys()){
 		texturePso_[index] = ShaderManager::getInstance()->getPipelineStateObj(texShaderKey);
 		index++;
 	}
@@ -161,7 +161,7 @@ void LoadObjFile(std::vector<ModelData>& data,const std::string& directoryPath,c
 			data.back().materialData.textureNumber = 0;
 		}
 		// マテリアル名の設定（仮）
-		data.back().materialData.material = System::getInstance()->getMaterialManager()->Create("white");
+		data.back().materialData.material = Engine::getInstance()->getMaterialManager()->Create("white");
 
 		// メッシュデータを処理
 		ProcessMeshData(data.back(),vertices,indices);
