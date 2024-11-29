@@ -78,9 +78,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="code\application\gameScene\GameScene.cpp">
-      <Filter>application</Filter>
-    </ClCompile>
     <ClCompile Include="code\engine\directX12\DxCommand.cpp">
       <Filter>engine\directX12</Filter>
     </ClCompile>
@@ -219,9 +216,6 @@
     <ClCompile Include="code\engine\material\texture\TextureManager.cpp">
       <Filter>engine\material\texture</Filter>
     </ClCompile>
-    <ClCompile Include="code\engine\material\texture\RenderTexture.cpp">
-      <Filter>engine\material\texture</Filter>
-    </ClCompile>
     <ClCompile Include="code\engine\model\ModelManager.cpp">
       <Filter>engine\model</Filter>
     </ClCompile>
@@ -259,6 +253,12 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="code\engine\editor\Editor.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="code\application\scene\GameScene.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="code\engine\directX12\RenderTexture.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -338,9 +338,6 @@
     <ClInclude Include="code\lib\deltaTime\DeltaTime.h">
       <Filter>lib</Filter>
     </ClInclude>
-    <ClInclude Include="code\application\gameScene\GameScene.h">
-      <Filter>application</Filter>
-    </ClInclude>
     <ClInclude Include="code\lib\globalVariables\GlobalVariables.h">
       <Filter>engine\io</Filter>
     </ClInclude>
@@ -416,9 +413,6 @@
     <ClInclude Include="code\engine\material\texture\TextureManager.h">
       <Filter>engine\material\texture</Filter>
     </ClInclude>
-    <ClInclude Include="code\engine\material\texture\RenderTexture.h">
-      <Filter>engine\material\texture</Filter>
-    </ClInclude>
     <ClInclude Include="code\engine\model\ModelManager.h">
       <Filter>engine\model</Filter>
     </ClInclude>
@@ -465,6 +459,12 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="code\engine\editor\Editor.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\application\scene\GameScene.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\directX12\RenderTexture.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

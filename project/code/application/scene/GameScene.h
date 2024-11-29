@@ -7,7 +7,7 @@
 
 #include "audio/Audio.h"
 #include "engine/camera/debugCamera/DebugCamera.h"
-#include "engine/material/texture/RenderTexture.h"
+#include "engine/directX12/RenderTexture.h"
 #include "engine/particle/manager/ParticleManager.h"
 #include "object3d/Object3d.h"
 #include "transform/CameraTransform.h"
@@ -44,4 +44,6 @@ private:
 	std::unique_ptr<Object3d> object_;
 
 	ParticleManager* particleManager;
+
+
 };

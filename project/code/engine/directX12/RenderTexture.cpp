@@ -214,5 +214,5 @@ void RenderTexture::DrawTexture(){
 		DxHeap::getInstance()->getSrvGpuHandle(srvArray_->getLocationOnHeap(srvIndex_))
 	);
 
-	commandList->DrawInstanced(3,1,0,0);
+	commandList->DrawInstanced(6,1,0,0);
 }
