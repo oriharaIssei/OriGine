@@ -5,7 +5,7 @@
 
 #include "DeltaTime/DeltaTime.h"
 #include "globalVariables/GlobalVariables.h"
-#include <application/gameScene/GameScene.h>
+#include <application/scene/GameScene.h>
 
 int WINAPI WinMain(HINSTANCE,HINSTANCE,LPSTR,int){
 	DxDebug debug;

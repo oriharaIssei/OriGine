@@ -11,7 +11,4 @@ struct IAsset{
 public:
 	IAsset(){}
 	virtual ~IAsset(){}
-
-protected:
-
 };

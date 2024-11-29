@@ -5,7 +5,6 @@
 #include <string>
 
 #include "Engine.h"
-#include "editor/Editor.h"
 
 #include "directX12/DxCommand.h"
 #include "directX12/DxRtvArray.h"
@@ -39,8 +38,6 @@ void GameScene::Init(){
 
 	sceneView_ = std::make_unique<RenderTexture>(Engine::getInstance()->getDxCommand(),sceneRtvArray_.get(),sceneSrvArray_.get());
 	sceneView_->Init({1280.0f,720.0f},DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,{0.0f,0.0f,0.0f,0.0f});
-
-	Editor::getInstance()->setSceneView(sceneView_.get());
 
 	materialManager_ = Engine::getInstance()->getMaterialManager();
 
