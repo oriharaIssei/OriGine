@@ -20,14 +20,15 @@
 
 constexpr char dockingIDName[] = "ObjectsWindow";
 
-GameScene::~GameScene(){
-}
+GameScene::~GameScene(){}
 
 void GameScene::Init(){
+#ifdef _DEBUG
 	debugCamera_ = std::make_unique<DebugCamera>();
 	debugCamera_->Init();
 
 	debugCamera_->setViewTranslate({0.0f,0.0f,-12.0f});
+#endif // _DEBUG
 
 	cameraBuff_.CreateBuffer(System::getInstance()->getDxDevice()->getDevice());
 
@@ -65,7 +66,7 @@ void GameScene::Update(){
 
 void GameScene::Draw(){
 	System::getInstance()->getLightManager()->Update();
-	
+
 	sceneView_->PreDraw();
 	///===============================================
 	/// 3d Object
