@@ -148,6 +148,7 @@ xcopy /Y /I /E "$(ProjectDir)Resources" "$(OutDir)Resources"</Command>
     <ClCompile Include="code\main.cpp" />
     <ClCompile Include="code\math\Matrix4x4.cpp" />
     <ClCompile Include="code\engine\particle\emitter\Emitter.cpp" />
+    <ClCompile Include="code\engine\component\componentManager\ComponentManager.cpp" />
     <ClCompile Include="externals\imgui\imgui.cpp" />
     <ClCompile Include="externals\imgui\imgui_demo.cpp" />
     <ClCompile Include="externals\imgui\imgui_draw.cpp" />
@@ -215,6 +216,7 @@ xcopy /Y /I /E "$(ProjectDir)Resources" "$(OutDir)Resources"</Command>
     <ClInclude Include="code\math\Vector3.h" />
     <ClInclude Include="code\math\Vector4.h" />
     <ClInclude Include="code\engine\particle\emitter\Emitter.h" />
+    <ClInclude Include="code\engine\component\componentManager\ComponentManager.h" />
     <ClInclude Include="externals\imgui\imconfig.h" />
     <ClInclude Include="externals\imgui\imgui.h" />
     <ClInclude Include="externals\imgui\imgui_impl_dx12.h" />

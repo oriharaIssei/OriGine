@@ -1,5 +1,8 @@
 #pragma once
 
+#include <stdint.h>
+#include <string>
+
 ///===================================================
 /// asset などの データを持ち， 
 /// 複数の機能が まとまった クラス
@@ -7,6 +10,9 @@
 ///===================================================
 class IComponent{
 public:
-	IComponent(){}
+	IComponent();
 	virtual ~IComponent(){}
+
+private:
+	std::string typeName_;
 };
