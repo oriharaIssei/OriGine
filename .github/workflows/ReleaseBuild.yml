@@ -1,23 +1,23 @@
-name: DebugBuild
+name: ReleaseBuild
 on:
   push:
     branches:
-      - master
+      - main
 
 env:
-  # リポジトリーのルートディレクトリを起点としたソリューションファイルのパス
+  # 新しいソリューションファイルのパス
   SOLUTION_FILE_PATH: project/OriGine.sln
   # Visual Studio の構成 (Debug/Release)
   CONFIGURATION: Release
 
 jobs:
   build:
-    runs-on: windows-2022
+    runs-on: windows-latest
 
     steps:
-      # リポジトリをチェックアウト
+      # リポジトリをクローン
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # MSBuild をセットアップ
       - name: Add MSBuild to PATH
@@ -25,8 +25,20 @@ jobs:
         with:
           msbuild-architecture: x64
 
-      # ビルドを実行
+      # 必要なディレクトリを作成
+      - name: Create necessary directories
+        run: |
+          mkdir -p generated/obj/OriGine/Debug
+          mkdir -p generated/outputs/Debug
+
+      # 環境変数のデバッグ (オプション)
+      - name: Debug Environment Variables
+        run: |
+          echo "Current Directory: $(pwd)"
+          echo "SOLUTION_FILE_PATH=${{ env.SOLUTION_FILE_PATH }}"
+          echo "CONFIGURATION=${{ env.CONFIGURATION }}"
+
+      # ビルド
       - name: Build
         run: |
-          msbuild ${{ env.SOLUTION_FILE_PATH }} /p:Platform=x64 /p:Configuration=${{ env.CONFIGURATION }}
-
+          msbuild ${{ env.SOLUTION_FILE_PATH }} /p:Platform=x64 /p:Configuration=${{ env.CONFIGURATION }} /p:SolutionDir=$(pwd)\
