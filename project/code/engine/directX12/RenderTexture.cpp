@@ -5,7 +5,7 @@
 #include "directX12/ResourceBarrierManager.h"
 #include "directX12/ShaderManager.h"
 
-#include "System.h"
+#include "Engine.h"
 
 #include "Vector2.h"
 
@@ -70,7 +70,7 @@ void RenderTexture::Awake(){
 	depthStencilDesc.DepthEnable = false;
 	shaderInfo.setDepthStencilDesc(depthStencilDesc);
 
-	pso_ = shaderManager->CreatePso("copyImage",shaderInfo,System::getInstance()->getDxDevice()->getDevice());
+	pso_ = shaderManager->CreatePso("copyImage",shaderInfo,Engine::getInstance()->getDxDevice()->getDevice());
 }
 
 void RenderTexture::Init(const Vector2& textureSize,DXGI_FORMAT _format,const Vector4& _clearColor){
@@ -79,7 +79,7 @@ void RenderTexture::Init(const Vector2& textureSize,DXGI_FORMAT _format,const Ve
 	///===========================================================================
 	/// RenderTexture Resource の作成
 	///===========================================================================
-	ID3D12Device* device = System::getInstance()->getDxDevice()->getDevice();
+	ID3D12Device* device = Engine::getInstance()->getDxDevice()->getDevice();
 
 	resource_.CreateRenderTextureResource(device,static_cast<uint32_t>(textureSize_.x),static_cast<uint32_t>(textureSize_.y),_format,clearColor_);
 
@@ -167,7 +167,7 @@ void RenderTexture::PreDraw(){
 void RenderTexture::PostDraw(){
 	HRESULT hr;
 	ID3D12GraphicsCommandList* commandList = dxCommand_->getCommandList();
-	DxFence* fence = System::getInstance()->getDxFence();
+	DxFence* fence = Engine::getInstance()->getDxFence();
 
 	///===============================================================
 	///	バリアの更新(描画->表示状態)
@@ -214,5 +214,5 @@ void RenderTexture::DrawTexture(){
 		DxHeap::getInstance()->getSrvGpuHandle(srvArray_->getLocationOnHeap(srvIndex_))
 	);
 
-	commandList->DrawInstanced(3,1,0,0);
+	commandList->DrawInstanced(6,1,0,0);
 }

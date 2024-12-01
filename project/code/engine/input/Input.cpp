@@ -3,7 +3,7 @@
 
 #include <cassert>
 
-#include "System.h"
+#include "Engine.h"
 #include <Windows.h>
 
 Input *Input::getInstance() {
@@ -12,7 +12,7 @@ Input *Input::getInstance() {
 }
 
 void Input::Init() {
-	WinApp *window = System::getInstance()->getWinApp();
+	WinApp *window = Engine::getInstance()->getWinApp();
 	HRESULT result = 0;
 	result = DirectInput8Create(
 		window->getHInstance(),

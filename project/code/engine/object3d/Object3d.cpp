@@ -12,7 +12,7 @@
 #include "directX12/DxFunctionHelper.h"
 #include "primitiveDrawer/PrimitiveDrawer.h"
 #include "material/texture/TextureManager.h"
-#include "System.h"
+#include "Engine.h"
 #include "directX12/DxHeap.h"
 #include "material/Material.h"
 
@@ -40,7 +40,7 @@ void Object3d::PreDraw(){
 	commandList->SetGraphicsRootSignature(manager->texturePso_[static_cast<uint32_t>(currentBlend_)]->rootSignature.Get());
 	commandList->SetPipelineState(manager->texturePso_[static_cast<uint32_t>(currentBlend_)]->pipelineState.Get());
 
-	System::getInstance()->getLightManager()->SetForRootParameter(commandList);
+	Engine::getInstance()->getLightManager()->SetForRootParameter(commandList);
 }
 
 void Object3d::DrawThis(const IConstantBuffer<CameraTransform>& view){

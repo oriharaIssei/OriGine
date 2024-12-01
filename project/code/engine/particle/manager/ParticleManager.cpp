@@ -2,7 +2,7 @@
 
 #include "../emitter/Emitter.h"
 #include "directX12/DxSrvArrayManager.h"
-#include "System.h"
+#include "Engine.h"
 
 ParticleManager* ParticleManager::getInstance(){
 	static ParticleManager instance;
@@ -135,7 +135,7 @@ void ParticleManager::CreatePso(){
 	/// BlendMode ごとの Pso作成
 	///=================================================
 	shaderInfo.blendMode_ = BlendMode::Normal;
-	pso_ = shaderManager->CreatePso(psoKey_,shaderInfo,System::getInstance()->getDxDevice()->getDevice());
+	pso_ = shaderManager->CreatePso(psoKey_,shaderInfo,Engine::getInstance()->getDxDevice()->getDevice());
 }
 
 Emitter* ParticleManager::getEmitter(const std::string& name) const{

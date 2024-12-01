@@ -5,8 +5,8 @@
 #include <memory>
 #include <wrl.h>
 
-#include <string>
 #include <stdint.h>
+#include <string>
 
 struct ChunkHeader{
 	char id[4];

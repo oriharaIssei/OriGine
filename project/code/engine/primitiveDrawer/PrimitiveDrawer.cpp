@@ -1,7 +1,7 @@
 #include "primitiveDrawer/PrimitiveDrawer.h"
 
 #include "directX12/DxFunctionHelper.h"
-#include "System.h"
+#include "Engine.h"
 
 #include <Vector4.h>
 
@@ -26,7 +26,7 @@ BlendMode PrimitiveDrawer::currentBlendMode_ = BlendMode::Alpha;
 
 void PrimitiveDrawer::Init(){
 	dxCommand_ = std::make_unique<DxCommand>();
-	dxCommand_->Init(System::getInstance()->getDxDevice()->getDevice(),"main","main");
+	dxCommand_->Init(Engine::getInstance()->getDxDevice()->getDevice(),"main","main");
 
 	trianglePsoKeys_ = {
 		"Prim_Blend_None",
@@ -86,7 +86,7 @@ void PrimitiveDrawer::Line(const Vector3& p0,const Vector3& p1,const  IConstantB
 	viewProj.SetForRootParameter(commandList,1);
 	material->SetForRootParameter(commandList,2);
 
-	System::getInstance()->getLightManager()->SetForRootParameter(commandList);
+	Engine::getInstance()->getLightManager()->SetForRootParameter(commandList);
 
 	commandList->DrawIndexedInstanced(
 		2,1,startIndex * 2,0,0
@@ -120,7 +120,7 @@ void PrimitiveDrawer::Triangle(const Vector3& p0,const Vector3& p1,const Vector3
 	Transform.SetForRootParameter(commandList,0);
 	viewProj.SetForRootParameter(commandList,1);
 	material->SetForRootParameter(commandList,2);
-	System::getInstance()->getLightManager()->SetForRootParameter(commandList);
+	Engine::getInstance()->getLightManager()->SetForRootParameter(commandList);
 
 	commandList->DrawIndexedInstanced(
 		3,1,startIndex * 3,0,0
@@ -160,7 +160,7 @@ void PrimitiveDrawer::Quad(const Vector3& p0,const Vector3& p1,const Vector3& p2
 	Transform.SetForRootParameter(commandList,0);
 	viewProj.SetForRootParameter(commandList,1);
 	material->SetForRootParameter(commandList,2);
-	System::getInstance()->getLightManager()->SetForRootParameter(commandList);
+	Engine::getInstance()->getLightManager()->SetForRootParameter(commandList);
 
 	commandList->DrawIndexedInstanced(
 		6,1,0,startVertex,0
@@ -168,7 +168,7 @@ void PrimitiveDrawer::Quad(const Vector3& p0,const Vector3& p1,const Vector3& p2
 	++quadInstanceVal_;
 }
 
-void PrimitiveDrawer::CreatePso(System* system){
+void PrimitiveDrawer::CreatePso(Engine* system){
 
 	ShaderManager* shaderManager = ShaderManager::getInstance();
 	///=================================================

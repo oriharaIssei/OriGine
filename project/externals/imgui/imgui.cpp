@@ -983,7 +983,7 @@ CODE
 #ifndef IMGUI_DISABLE
 #include "imgui_internal.h"
 
-// System includes
+// Engine includes
 #include <stdio.h>      // vsnprintf, sscanf, printf
 #include <stdint.h>     // intptr_t
 

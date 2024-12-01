@@ -5,12 +5,15 @@
 #include "DirectionalLight.h"
 #include "directX12/IConstantBuffer.h"
 #include "directX12/IStructuredBuffer.h"
+#include "Module/IModule.h"
+#include "Assets/IAsset.h"
 #include "PointLight.h"
 #include "SpotLight.h"
 
 #include "directX12/DxSrvArray.h"
 
-struct LightCounts{
+struct LightCounts
+	:IAsset{
 	int32_t directionalLightNum;
 	int32_t spotLightNum;
 	int32_t pointLightNum;
@@ -29,7 +32,8 @@ struct LightCounts{
 	};
 };
 
-class LightManager{
+class LightManager
+	:IModule{
 public:
 	LightManager() = default;
 	~LightManager() = default;

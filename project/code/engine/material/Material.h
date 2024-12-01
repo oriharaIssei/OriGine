@@ -6,14 +6,17 @@
 #include <unordered_map>
 #include <wrl.h>
 
+#include "assets/IAsset.h"
 #include "directX12/IConstantBuffer.h"
+#include "module/IModule.h"
 
 #include "Matrix4x4.h"
 #include "stdint.h"
 #include "Vector4.h"
 
 class MaterialManager;
-class Material{
+struct Material
+	: IAsset{
 	friend class MaterialManager;
 public:
 	Material() = default;
@@ -51,7 +54,8 @@ public:
 	};
 };
 
-class MaterialManager{
+class MaterialManager
+	: public IModule{
 public:
 	IConstantBuffer<Material>* Create(const std::string& materialName);
 	IConstantBuffer<Material>* Create(const std::string& materialName,const Material& data);

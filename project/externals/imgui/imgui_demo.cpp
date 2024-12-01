@@ -98,7 +98,7 @@ Index of this file:
 #include "imgui/imgui.h"
 #ifndef IMGUI_DISABLE
 
-// System includes
+// Engine includes
 #include <ctype.h>          // toupper
 #include <limits.h>         // INT_MIN, INT_MAX
 #include <math.h>           // sqrtf, powf, cosf, sinf, floorf, ceilf
@@ -5271,7 +5271,7 @@ static void ShowDemoWindowTables()
                 { "Root",                         "Folder",       -1,       1, 3    }, // 0
                 { "Music",                        "Folder",       -1,       4, 2    }, // 1
                 { "Textures",                     "Folder",       -1,       6, 3    }, // 2
-                { "desktop.ini",                  "System file",  1024,    -1,-1    }, // 3
+                { "desktop.ini",                  "Engine file",  1024,    -1,-1    }, // 3
                 { "File1_a.wav",                  "Audio file",   123000,  -1,-1    }, // 4
                 { "File1_b.wav",                  "Audio file",   456000,  -1,-1    }, // 5
                 { "Image001.png",                 "Image file",   203128,  -1,-1    }, // 6

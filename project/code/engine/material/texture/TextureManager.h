@@ -16,18 +16,43 @@
 #include <memory>
 #include <wrl.h>
 
+#include "assets/IAsset.h"
 #include "directX12/DxCommand.h"
 #include "directX12/DxCommand.h"
 #include "directX12/DxResource.h"
 #include "directX12/DxSrvArray.h"
 #include "directX12/PipelineStateObj.h"
+#include "module/IModule.h"
 
 #include <condition_variable>
 #include <future>
 #include <mutex>
 #include <queue>
 
-class TextureManager{
+struct Texture
+	: IAsset{
+	enum class LoadState{
+		Loading,
+		Loaded,
+		Error
+	};
+	void Init(const std::string& filePath,std::shared_ptr<DxSrvArray> srvArray,int textureIndex);
+	void Finalize();
+
+	std::string path;
+	DirectX::TexMetadata metaData;
+	uint32_t resourceIndex;
+
+	LoadState loadState;
+private:
+	DirectX::ScratchImage Load(const std::string& filePath);
+	void UploadTextureData(DirectX::ScratchImage& mipImg,ID3D12Resource* reosurce);
+	void ExecuteCommand(ID3D12Resource* resource);
+};
+
+class TextureManager
+:public IModule{
+	friend struct Texture;
 public:
 	static void Init();
 	static void Finalize();
@@ -37,27 +62,7 @@ public:
 
 	static void LoadLoop();
 public:
-	static const uint32_t maxTextureSize_ = 128;
-private:
-	struct Texture{
-		enum class LoadState{
-			Loading,
-			Loaded,
-			Error
-		};
-		void Init(const std::string &filePath,std::shared_ptr<DxSrvArray> srvArray,int textureIndex);
-		void Finalize();
-		
-		std::string path;
-		DirectX::TexMetadata metaData;
-		uint32_t resourceIndex;
-
-		LoadState loadState;
-	private:
-		DirectX::ScratchImage Load(const std::string &filePath);
-		void UploadTextureData(DirectX::ScratchImage &mipImg,ID3D12Resource* reosurce);
-		void ExecuteCommand(ID3D12Resource* resource);
-	};
+	static const uint32_t maxTextureSize_ = 128;	
 private:
 	static std::shared_ptr<DxSrvArray> dxSrvArray_;
 	static std::array<std::unique_ptr<Texture>,maxTextureSize_> textures_;

@@ -2,11 +2,11 @@
 
 #include "directX12/DxSrvArrayManager.h"
 #include "globalVariables/GlobalVariables.h"
-#include "System.h"
+#include "Engine.h"
 
 void LightManager::Init(){
 	GlobalVariables* variables = GlobalVariables::getInstance();
-	ID3D12Device* device = System::getInstance()->getDxDevice()->getDevice();
+	ID3D12Device* device = Engine::getInstance()->getDxDevice()->getDevice();
 
 	///========================================
 	///作成個数を決める

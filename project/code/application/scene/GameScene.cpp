@@ -1,18 +1,19 @@
 #include "GameScene.h"
 
-#include "debugCamera/debugCamera.h"
+#include "engine/camera/debugCamera/debugCamera.h"
 
 #include <string>
+
+#include "Engine.h"
 
 #include "directX12/DxCommand.h"
 #include "directX12/DxRtvArray.h"
 #include "directX12/DxRtvArrayManager.h"
 #include "directX12/DxSrvArrayManager.h"
-#include "sprite/SpriteCommon.h"
 #include "material/texture/TextureManager.h"
 #include "myFileSystem/MyFileSystem.h"
 #include "primitiveDrawer/PrimitiveDrawer.h"
-#include "System.h"
+#include "sprite/SpriteCommon.h"
 
 #ifdef _DEBUG
 #include "imgui/imgui.h"
@@ -30,20 +31,20 @@ void GameScene::Init(){
 	debugCamera_->setViewTranslate({0.0f,0.0f,-12.0f});
 #endif // _DEBUG
 
-	cameraBuff_.CreateBuffer(System::getInstance()->getDxDevice()->getDevice());
+	cameraBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
 
 	input_ = Input::getInstance();
 
 	sceneRtvArray_ = DxRtvArrayManager::getInstance()->Create(1);
 	sceneSrvArray_ = DxSrvArrayManager::getInstance()->Create(1);
 
-	sceneView_ = std::make_unique<RenderTexture>(System::getInstance()->getDxCommand(),sceneRtvArray_.get(),sceneSrvArray_.get());
+	sceneView_ = std::make_unique<RenderTexture>(Engine::getInstance()->getDxCommand(),sceneRtvArray_.get(),sceneSrvArray_.get());
 	sceneView_->Init({1280.0f,720.0f},DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,{0.0f,0.0f,0.0f,0.0f});
 
-	materialManager_ = System::getInstance()->getMaterialManager();
+	materialManager_ = Engine::getInstance()->getMaterialManager();
 
 	object_.reset(Object3d::Create("resource/Models","Enemy.obj"));
-	object_->transform_.CreateBuffer(System::getInstance()->getDxDevice()->getDevice());
+	object_->transform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
 	object_->transform_.openData_.UpdateMatrix();
 	object_->transform_.ConvertToBuffer();
 
@@ -84,7 +85,7 @@ void GameScene::Draw(){
 	///===============================================
 	/// off screen Rendering
 	///===============================================
-	System::getInstance()->ScreenPreDraw();
+	Engine::getInstance()->ScreenPreDraw();
 	sceneView_->DrawTexture();
-	System::getInstance()->ScreenPostDraw();
+	Engine::getInstance()->ScreenPostDraw();
 }
