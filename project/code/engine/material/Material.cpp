@@ -2,7 +2,7 @@
 
 #include "imgui/imgui.h"
 
-#include "System.h"
+#include "Engine.h"
 
 const char* lightTypes[] = {
 	"NONE",
@@ -27,7 +27,7 @@ IConstantBuffer<Material>* MaterialManager::Create(const std::string& materialNa
 	if(materialPallet_.count(materialName) == 0){
 		materialPallet_[materialName] = std::make_unique<IConstantBuffer<Material>>();
 		materialPallet_[materialName]->openData_.Init();
-		materialPallet_[materialName]->CreateBuffer(System::getInstance()->getDxDevice()->getDevice());
+		materialPallet_[materialName]->CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
 		materialPallet_[materialName]->ConvertToBuffer();
 	}
 	return materialPallet_[materialName].get();
@@ -36,7 +36,7 @@ IConstantBuffer<Material>* MaterialManager::Create(const std::string& materialNa
 IConstantBuffer<Material>* MaterialManager::Create(const std::string& materialName,const Material& data){
 	materialPallet_[materialName] = std::make_unique<IConstantBuffer<Material>>();
 	materialPallet_[materialName]->openData_ = data;
-	materialPallet_[materialName]->CreateBuffer(System::getInstance()->getDxDevice()->getDevice());
+	materialPallet_[materialName]->CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
 	materialPallet_[materialName]->ConvertToBuffer();
 	return materialPallet_[materialName].get();
 }

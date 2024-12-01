@@ -1,6 +1,6 @@
 #pragma once
 
-#include <System.h>
+#include <Engine.h>
 
 #include "directX12/ShaderManager.h"
 
@@ -37,7 +37,7 @@ public:
 		lineInstanceVal_ = 0; triangleInstanceVal_ = 0; quadInstanceVal_ = 0;
 	};
 private:
-	static void CreatePso(System* system = System::getInstance());
+	static void CreatePso(Engine* system = Engine::getInstance());
 private:
 	static std::unique_ptr<DxCommand> dxCommand_;
 

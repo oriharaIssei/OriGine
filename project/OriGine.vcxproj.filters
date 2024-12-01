@@ -78,9 +78,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="code\application\gameScene\GameScene.cpp">
-      <Filter>application</Filter>
-    </ClCompile>
     <ClCompile Include="code\engine\directX12\DxCommand.cpp">
       <Filter>engine\directX12</Filter>
     </ClCompile>
@@ -150,7 +147,7 @@
     <ClCompile Include="externals\imgui\imgui_widgets.cpp">
       <Filter>externals\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="code\lib\debugCamera\DebugCamera.cpp">
+    <ClCompile Include="code\engine\camera\debugCamera\DebugCamera.cpp">
       <Filter>engine\camera</Filter>
     </ClCompile>
     <ClCompile Include="code\engine\audio\Audio.cpp">
@@ -201,7 +198,7 @@
     <ClCompile Include="code\lib\logger\Logger.cpp">
       <Filter>engine\system</Filter>
     </ClCompile>
-    <ClCompile Include="code\engine\System.cpp">
+    <ClCompile Include="code\engine\Engine.cpp">
       <Filter>engine\system</Filter>
     </ClCompile>
     <ClCompile Include="code\lib\winApp\WinApp.cpp">
@@ -217,9 +214,6 @@
       <Filter>engine\directX12</Filter>
     </ClCompile>
     <ClCompile Include="code\engine\material\texture\TextureManager.cpp">
-      <Filter>engine\material\texture</Filter>
-    </ClCompile>
-    <ClCompile Include="code\engine\material\texture\RenderTexture.cpp">
       <Filter>engine\material\texture</Filter>
     </ClCompile>
     <ClCompile Include="code\engine\model\ModelManager.cpp">
@@ -248,6 +242,24 @@
     </ClCompile>
     <ClCompile Include="code\engine\particle\emitter\Emitter.cpp">
       <Filter>engine\particle</Filter>
+    </ClCompile>
+    <ClCompile Include="code\engine\module\IModule.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="code\engine\assets\IAsset.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="code\engine\component\IComponent.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="code\application\scene\GameScene.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="code\engine\directX12\RenderTexture.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="code\engine\component\componentManager\ComponentManager.cpp">
+      <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -311,9 +323,6 @@
     <ClInclude Include="code\engine\directX12\DxSwapChain.h">
       <Filter>engine\directX12</Filter>
     </ClInclude>
-    <ClInclude Include="code\engine\audio\Audio .h">
-      <Filter>engine\audio</Filter>
-    </ClInclude>
     <ClInclude Include="code\engine\sprite\Sprite.h">
       <Filter>engine\renderer\2d</Filter>
     </ClInclude>
@@ -323,14 +332,11 @@
     <ClInclude Include="code\engine\transform\CameraTransform.h">
       <Filter>engine\transform</Filter>
     </ClInclude>
-    <ClInclude Include="code\lib\debugCamera\DebugCamera.h">
+    <ClInclude Include="code\engine\camera\debugCamera\DebugCamera.h">
       <Filter>engine\camera</Filter>
     </ClInclude>
     <ClInclude Include="code\lib\deltaTime\DeltaTime.h">
       <Filter>lib</Filter>
-    </ClInclude>
-    <ClInclude Include="code\application\gameScene\GameScene.h">
-      <Filter>application</Filter>
     </ClInclude>
     <ClInclude Include="code\lib\globalVariables\GlobalVariables.h">
       <Filter>engine\io</Filter>
@@ -392,7 +398,7 @@
     <ClInclude Include="code\lib\logger\Logger.h">
       <Filter>engine\system</Filter>
     </ClInclude>
-    <ClInclude Include="code\engine\System.h">
+    <ClInclude Include="code\engine\Engine.h">
       <Filter>engine\system</Filter>
     </ClInclude>
     <ClInclude Include="code\lib\winApp\WinApp.h">
@@ -405,9 +411,6 @@
       <Filter>engine\directX12</Filter>
     </ClInclude>
     <ClInclude Include="code\engine\material\texture\TextureManager.h">
-      <Filter>engine\material\texture</Filter>
-    </ClInclude>
-    <ClInclude Include="code\engine\material\texture\RenderTexture.h">
       <Filter>engine\material\texture</Filter>
     </ClInclude>
     <ClInclude Include="code\engine\model\ModelManager.h">
@@ -444,6 +447,24 @@
       <Filter>engine\model</Filter>
     </ClInclude>
     <ClInclude Include="code\engine\audio\Audio.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\module\IModule.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\assets\IAsset.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\component\IComponent.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\application\scene\GameScene.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\directX12\RenderTexture.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\component\componentManager\ComponentManager.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

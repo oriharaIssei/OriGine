@@ -3,7 +3,7 @@
 
 
 #include "Sprite.h"
-#include "System.h"
+#include "Engine.h"
 #include "material/texture/TextureManager.h"
 
 SpriteCommon* SpriteCommon::getInstance(){
@@ -13,9 +13,9 @@ SpriteCommon* SpriteCommon::getInstance(){
 
 void SpriteCommon::Init(){
 	dxCommand_ = std::make_unique<DxCommand>();
-	dxCommand_->Init(System::getInstance()->getDxDevice()->getDevice(),"main","main");
+	dxCommand_->Init(Engine::getInstance()->getDxDevice()->getDevice(),"main","main");
 	CreatePSO();
-	WinApp* window = System::getInstance()->getWinApp();
+	WinApp* window = Engine::getInstance()->getWinApp();
 	viewPortMat_ = MakeMatrix::Orthographic(0,0,(float)window->getWidth(),(float)window->getHeight(),0.0f,100.0f);
 }
 
@@ -43,7 +43,7 @@ Sprite* SpriteCommon::Create(const std::string& textureFilePath){
 	result->meshBuff_->vertexData[3] = {{1.0f,0.0f,0.0f,1.0f},{1.0f,0.0f}};
 
 	result->mappingConstBufferData_ = nullptr;
-	result->constBuff_.CreateBufferResource(System::getInstance()->getDxDevice()->getDevice(),sizeof(SpritConstBuffer));
+	result->constBuff_.CreateBufferResource(Engine::getInstance()->getDxDevice()->getDevice(),sizeof(SpritConstBuffer));
 
 	result->constBuff_.getResource()->Map(
 		0,nullptr,reinterpret_cast<void**>(&result->mappingConstBufferData_)
@@ -138,6 +138,6 @@ void SpriteCommon::CreatePSO(){
 	};
 
 	for(size_t i = 0; i < kBlendNum; i++){
-		pso_[i] = shaderManager->CreatePso(psoKeys[i],shaderInfo,System::getInstance()->getDxDevice()->getDevice());
+		pso_[i] = shaderManager->CreatePso(psoKeys[i],shaderInfo,Engine::getInstance()->getDxDevice()->getDevice());
 	}
 }

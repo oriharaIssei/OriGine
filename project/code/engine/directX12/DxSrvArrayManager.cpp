@@ -1,6 +1,6 @@
 #include "DxSrvArrayManager.h"
 
-#include "System.h"
+#include "Engine.h"
 
 #include "directX12/DxCommand.h"
 #include "directX12/DxHeap.h"
@@ -61,7 +61,7 @@ uint32_t DxSrvArrayManager::SearchEmptyLocation(uint32_t size,std::shared_ptr<Dx
 	}
 
 	// 前詰め処理
-	DxHeap::getInstance()->CompactSrvHeap(System::getInstance()->getDxDevice()->getDevice(),
+	DxHeap::getInstance()->CompactSrvHeap(Engine::getInstance()->getDxDevice()->getDevice(),
 										  usedArrays_);
 
 	///使われていないものを一箇所にまとめる

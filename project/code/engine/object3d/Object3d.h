@@ -6,15 +6,17 @@
 #include <fstream>
 #include <sstream>
 
+#include "component/IComponent.h"
+#include "directX12/IConstantBuffer.h"
 #include "directX12/PipelineStateObj.h"
 #include "directX12/ShaderManager.h"
-#include "transform/CameraTransform.h"
-#include "directX12/IConstantBuffer.h"
 #include "material/Material.h"
+#include "transform/CameraTransform.h"
 #include "transform/Transform.h"
 
 struct Model;
-class Object3d{
+class Object3d
+	:public IComponent{
 public:
 	static Object3d* Create(const std::string& directoryPath,const std::string& filename);
 	static void PreDraw();
@@ -36,7 +38,7 @@ private:
 	void DrawThis(const IConstantBuffer<CameraTransform>& view);
 private:
 	Model* data_;
-	
+
 	std::array<std::function<void(const IConstantBuffer<CameraTransform>&)>,2> drawFuncTable_ = {
 		[this](const IConstantBuffer<CameraTransform>& view){ NotDraw(view); },
 		[this](const IConstantBuffer<CameraTransform>& view){ DrawThis(view); }
