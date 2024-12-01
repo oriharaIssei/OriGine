@@ -18,9 +18,9 @@ class ComponentManager
 public:
 	static ComponentManager* getInstance();
 
-	bool PutOn(const std::string& typeName,
-			   const std::string& valuableName);
-	bool Destroy(const std::string& valiableName);
+	bool PutOn(IComponent* instance,
+			   const std::string& variableName);
+	bool Destroy(const std::string& variableName);
 
 	IComponent* GetVariable(const std::string& name){
 		return activeInstancesPool_[activeInstanceIndices_[name]].get();
