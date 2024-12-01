@@ -66,7 +66,7 @@ void GameScene::Update(){
 }
 
 void GameScene::Draw(){
-	System::getInstance()->getLightManager()->Update();
+	Engine::getInstance()->getLightManager()->Update();
 
 	sceneView_->PreDraw();
 	///===============================================
