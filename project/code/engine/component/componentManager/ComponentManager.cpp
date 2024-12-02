@@ -2,8 +2,6 @@
 
 #include <algorithm>
 
-// リフレクション登録のためのマクロ
-#define SetReflection(className) namespace className##Reflection
 
 ComponentManager* ComponentManager::getInstance(){
 	static ComponentManager instance{};
@@ -22,6 +20,21 @@ bool ComponentManager::PutOn(IComponent* instance,const std::string& variableNam
 }
 
 bool ComponentManager::Destroy(const std::string& variableName){
+	if(!activeInstancesPool_[activeInstanceIndices_[variableName]]){
+		// すでに インスタンスが 存在しない
+		return false;
+	}
 	activeInstancesPool_[activeInstanceIndices_[variableName]].reset();
-	return false;
+	return true;
+}
+
+template <class T>
+inline std::string CreateName(T* t){
+	std::string name = typeid(*t).name();
+	name = name.substr(std::string("class ").length());
+	return name;
+}
+
+std::string ComponentManager::getTypeName(IComponent* instance) const{
+	return CreateName(instance);
 }

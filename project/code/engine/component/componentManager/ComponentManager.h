@@ -18,6 +18,7 @@ class ComponentManager
 public:
 	static ComponentManager* getInstance();
 
+
 	bool PutOn(IComponent* instance,
 			   const std::string& variableName);
 	bool Destroy(const std::string& variableName);
@@ -32,4 +33,6 @@ private:
 	std::unordered_map<std::string,size_t> activeInstanceIndices_;
 	// activeInstancePool_ にて 使われていない Index 
 	std::vector<size_t> freeIndices_;
+public:
+	std::string getTypeName(IComponent* instance)const;
 };

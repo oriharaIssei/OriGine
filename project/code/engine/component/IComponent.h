@@ -13,6 +13,11 @@ public:
 	IComponent();
 	virtual ~IComponent(){}
 
+	virtual void Init();
+	virtual void Update();
+
 private:
 	std::string typeName_;
+public:
+	const std::string& getTypeName()const{ return typeName_; }
 };
