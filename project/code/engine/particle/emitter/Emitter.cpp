@@ -47,20 +47,24 @@ void Emitter::Debug(){
 void Emitter::Draw(const IConstantBuffer<CameraTransform>& camera){
 	auto* commandList = ParticleManager::getInstance()->dxCommand_->getCommandList();
 
-	for(auto& model : particleModel_->data_){
+	uint32_t index = 0;
+	for(auto& model : particleModel_->meshData_->mesh_){
+		auto& material = particleModel_->materialData_[index];
 		ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
 		commandList->SetDescriptorHeaps(1,ppHeaps);
 		commandList->SetGraphicsRootDescriptorTable(
 			3,
-			TextureManager::getDescriptorGpuHandle(model.materialData.textureNumber)
+			TextureManager::getDescriptorGpuHandle(material.textureNumber)
 		);
 
 		structuredTransform_.SetForRootParameter(commandList,0);
 		camera.SetForRootParameter(commandList,1);
 
-		model.materialData.material->SetForRootParameter(commandList,2);
+		material.material->SetForRootParameter(commandList,2);
 		// 描画!!!
-		commandList->DrawIndexedInstanced(UINT(model.meshData.indexSize),static_cast<UINT>(structuredTransform_.openData_.size()),0,0,0);
+		commandList->DrawIndexedInstanced(UINT(model.indexSize),static_cast<UINT>(structuredTransform_.openData_.size()),0,0,0);
+
+		++index;
 	}
 }
 

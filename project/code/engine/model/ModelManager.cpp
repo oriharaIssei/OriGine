@@ -42,17 +42,22 @@ ModelManager* ModelManager::getInstance(){
 	return &instance;
 }
 
-Model* ModelManager::Create(const std::string& directoryPath,const std::string& filename){
+std::unique_ptr<Model> ModelManager::Create(const std::string& directoryPath,const std::string& filename){
+	std::unique_ptr<Model> result = std::make_unique<Model>();
 	const auto itr = modelLibrary_.find(directoryPath + filename);
 	if(itr != modelLibrary_.end()){
-		return itr->second.get();
+		result->meshData_ = itr->second.get();
+		result->materialData_ = defaultMaterials_[result->meshData_];
+		return result;
 	}
 
-	modelLibrary_[directoryPath + filename] = std::make_unique<Model>();
+	modelLibrary_[directoryPath + filename] = std::make_unique<ModelMeshData>();
 
-	loadThread_->pushTask({directoryPath,filename,modelLibrary_[directoryPath + filename].get()});
+	result = std::make_unique<Model>();
+	result->meshData_ = modelLibrary_[directoryPath + filename].get();
+	loadThread_->pushTask({directoryPath,filename,result.get()});
 
-	return modelLibrary_[directoryPath + filename].get();
+	return result;
 }
 
 void ModelManager::Init(){
@@ -89,23 +94,27 @@ void ModelManager::Finalize(){
 	modelLibrary_.clear();
 }
 
-void ProcessMeshData(ModelData& modelData,const std::vector<TextureVertexData>& vertices,const std::vector<uint32_t>& indices){
+void ModelManager::pushBackDefaultMaterial(ModelMeshData* key,Material3D material){
+	defaultMaterials_[key].emplace_back(material);
+}
+
+void ProcessMeshData(Mesh3D& meshData,const std::vector<TextureVertexData>& vertices,const std::vector<uint32_t>& indices){
 	TextureObject3dMesh* textureMesh = new TextureObject3dMesh();
 
-	modelData.meshData.dataSize = static_cast<int32_t>(sizeof(TextureVertexData) * vertices.size());
+	meshData.dataSize = static_cast<int32_t>(sizeof(TextureVertexData) * vertices.size());
 
 	textureMesh->Create(static_cast<UINT>(vertices.size()),static_cast<UINT>(indices.size()));
 	memcpy(textureMesh->vertData,vertices.data(),vertices.size() * sizeof(TextureVertexData));
-	modelData.meshData.meshBuff.reset(textureMesh);
+	meshData.meshBuff.reset(textureMesh);
 
-	memcpy(modelData.meshData.meshBuff->indexData,indices.data(),static_cast<UINT>(static_cast<size_t>(indices.size()) * sizeof(uint32_t)));
+	memcpy(meshData.meshBuff->indexData,indices.data(),static_cast<UINT>(static_cast<size_t>(indices.size()) * sizeof(uint32_t)));
 
-	modelData.meshData.vertSize
+	meshData.vertSize
 		= static_cast<int32_t>(vertices.size());
-	modelData.meshData.indexSize = static_cast<int32_t>(indices.size());
+	meshData.indexSize = static_cast<int32_t>(indices.size());
 }
 
-void LoadObjFile(std::vector<ModelData>& data,const std::string& directoryPath,const std::string& filename){
+void LoadModelFile(ModelMeshData* data,const std::string& directoryPath,const std::string& filename){
 	Assimp::Importer importer;
 	std::string filePath = directoryPath + "/" + filename;
 	const aiScene* scene = importer.ReadFile(filePath.c_str(),aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
@@ -116,7 +125,7 @@ void LoadObjFile(std::vector<ModelData>& data,const std::string& directoryPath,c
 	std::vector<uint32_t> indices;
 
 	for(uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex){
-		data.emplace_back(ModelData());
+		data->mesh_.emplace_back(Mesh3D());
 		aiMesh* mesh = scene->mMeshes[meshIndex];
 		assert(mesh->HasNormals() && mesh->HasTextureCoords(0));
 
@@ -154,17 +163,21 @@ void LoadObjFile(std::vector<ModelData>& data,const std::string& directoryPath,c
 		// マテリアルとテクスチャの処理
 		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 		aiString textureFilePath;
+		uint32_t textureIndex;
 		if(material->GetTexture(aiTextureType_DIFFUSE,0,&textureFilePath) == AI_SUCCESS){
 			std::string texturePath = directoryPath + "/" + textureFilePath.C_Str();
-			data.back().materialData.textureNumber = TextureManager::LoadTexture(texturePath);
+			textureIndex = TextureManager::LoadTexture(texturePath);
 		} else{
-			data.back().materialData.textureNumber = 0;
+			textureIndex = 0;
 		}
-		// マテリアル名の設定（仮）
-		data.back().materialData.material = Engine::getInstance()->getMaterialManager()->Create("white");
+
+		ModelManager::getInstance()->pushBackDefaultMaterial(data,{
+			textureIndex,
+			Engine::getInstance()->getMaterialManager()->Create("white")
+															 });
 
 		// メッシュデータを処理
-		ProcessMeshData(data.back(),vertices,indices);
+		ProcessMeshData(data->mesh_.back(),vertices,indices);
 
 		// リセット
 		vertices.clear();
@@ -175,6 +188,9 @@ void LoadObjFile(std::vector<ModelData>& data,const std::string& directoryPath,c
 
 void ModelManager::LoadTask::Update(){
 	model->currentState_ = Model::LoadState::Loading;
-	LoadObjFile(model->data_,this->directory,this->fileName);
-	model->currentState_ = Model::LoadState::Loaded;
+
+	LoadModelFile(model->meshData_,this->directory,this->fileName);
+	model->materialData_ = ModelManager::getInstance()->defaultMaterials_[model->meshData_];
+
+	model->currentState_= Model::LoadState::Loaded;
 }
