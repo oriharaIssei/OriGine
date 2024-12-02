@@ -28,8 +28,7 @@ struct SpriteMesh{
 };
 
 class SpriteCommon;
-class Sprite
-	:public IComponent{
+class Sprite{
 	friend class SpriteCommon;
 public:
 	Sprite(SpriteCommon* spriteCommon):spriteCommon_(spriteCommon){}

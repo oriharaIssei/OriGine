@@ -15,8 +15,7 @@
 #include "transform/Transform.h"
 
 struct Model;
-class Object3d
-	:public IComponent{
+class Object3d{
 public:
 	static Object3d* Create(const std::string& directoryPath,const std::string& filename);
 	static void PreDraw();
