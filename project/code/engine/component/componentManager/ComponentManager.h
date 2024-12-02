@@ -3,36 +3,39 @@
 #include <memory>
 #include <unordered_map>
 #include <vector>
-
-#include <stdint.h>
 #include <string>
+#include <cstdint>
+#include <algorithm>
 
-#include "../IComponent.h"
-#include "module/IModule.h"
+#include "Component/IComponent.h"
 
-/// <summary>
-/// 生存している Component を 制御 する 
-/// </summary>
-class ComponentManager
-	:public IModule{
+class ComponentManager{
 public:
 	static ComponentManager* getInstance();
 
+	void Init();
+	void UpdateActiveComponents();
 
-	bool PutOn(IComponent* instance,
-			   const std::string& variableName);
+	bool PutOn(IComponent* instance,const std::string& variableName);
 	bool Destroy(const std::string& variableName);
 
-	IComponent* GetVariable(const std::string& name){
-		return activeInstancesPool_[activeInstanceIndices_[name]].get();
+	IComponent* getVariable(const std::string& name){
+		auto it = activeInstanceIndices_.find(name);
+		if(it != activeInstanceIndices_.end() && it->second < activeInstancesPool_.size() && activeInstancesPool_[it->second]){
+			return activeInstancesPool_[it->second].get();
+		}
+		return nullptr;
 	}
+
+	void CreateComponentInstance(IComponent* instance);
+
 private:
-	//  情報 を 保存 するところ
+	// コンポーネントを格納するプール
 	std::vector<std::unique_ptr<IComponent>> activeInstancesPool_;
-	// 文字列で activeInstancePool_ から オブジェクトを 拾うためのもの
-	std::unordered_map<std::string,size_t> activeInstanceIndices_;
-	// activeInstancePool_ にて 使われていない Index 
+	// フリーリスト（削除されたインデックスを保持）
 	std::vector<size_t> freeIndices_;
-public:
-	std::string getTypeName(IComponent* instance)const;
+	// 名前からインデックスへのマッピング
+	std::unordered_map<std::string,size_t> activeInstanceIndices_;
 };
+
+void CreateComponentInstance(IComponent* instance);
