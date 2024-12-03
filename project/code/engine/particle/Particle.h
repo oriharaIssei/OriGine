@@ -9,6 +9,7 @@ struct Model;
 struct Transform;
 struct ParticleTransform;
 struct Vector3;
+
 class Particle{
 public:
 	Particle() = default;

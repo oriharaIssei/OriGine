@@ -10,21 +10,33 @@
 
 #include "../Particle.h"
 
+class Particle;
+struct EmitterShape;
 class Emitter{
 public:
+	Emitter();
+	~Emitter();
+
 	void Init(const std::string& emitterName);
 	void Update(float deltaTime);
 	void Draw(const IConstantBuffer<CameraTransform>& camera);
 
 #ifdef _DEBUG
-	void Debug();
+	void Debug(bool* isOpenedWindow);
 #endif // _DEBUG
 
 private:
 	void SpawnParticle();
 private:
+#ifdef _DEBUG
+	int32_t shapeType_;
+#endif // _DEBUG
+
+private:
 	std::string emitterName_;
 	std::list<std::unique_ptr<Particle>> particles_;
+
+	std::unique_ptr<EmitterShape> emitterSpawnShape_;
 
 	float currentCoolTime_;
 	float spawnCoolTime_;

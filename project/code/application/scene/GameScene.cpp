@@ -61,6 +61,7 @@ void GameScene::Update(){
 #endif // _DEBUG
 
 #ifdef _DEBUG
+	particleManager->Edit();
 	materialManager_->DebugUpdate();
 #endif // _DEBUG
 }
@@ -74,6 +75,12 @@ void GameScene::Draw(){
 	///===============================================
 	Object3d::PreDraw();
 	object_->Draw(cameraBuff_);
+
+	///===============================================
+	/// Particle
+	///===============================================
+	particleManager->PreDraw();
+	particleManager->DrawDebug(cameraBuff_);
 
 	///===============================================
 	/// sprite

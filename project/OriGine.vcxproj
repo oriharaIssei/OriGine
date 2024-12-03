@@ -150,6 +150,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="code\math\Matrix4x4.cpp" />
     <ClCompile Include="code\engine\particle\emitter\Emitter.cpp" />
     <ClCompile Include="code\engine\component\componentManager\ComponentManager.cpp" />
+    <ClCompile Include="code\engine\particle\emitter\EmitterShape.cpp" />
     <ClCompile Include="externals\imgui\imgui.cpp" />
     <ClCompile Include="externals\imgui\imgui_demo.cpp" />
     <ClCompile Include="externals\imgui\imgui_draw.cpp" />
@@ -218,6 +219,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="code\math\Vector4.h" />
     <ClInclude Include="code\engine\particle\emitter\Emitter.h" />
     <ClInclude Include="code\engine\component\componentManager\ComponentManager.h" />
+    <ClInclude Include="code\engine\particle\emitter\EmitterShape.h" />
     <ClInclude Include="externals\imgui\imconfig.h" />
     <ClInclude Include="externals\imgui\imgui.h" />
     <ClInclude Include="externals\imgui\imgui_impl_dx12.h" />
@@ -232,6 +234,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="code\engine\module\IModule.h" />
     <ClInclude Include="code\engine\assets\IAsset.h" />
     <ClInclude Include="code\engine\component\IComponent.h" />
+    <ClInclude Include="code\lib\myRandom\MyRandom.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">

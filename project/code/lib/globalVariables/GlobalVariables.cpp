@@ -237,7 +237,7 @@ void GlobalVariables::SaveFile(const std::string& scene,const std::string& group
 		ofs.open(filePath);
 		if(ofs.fail()){
 			std::string message = "Failed open data file for write.";
-			MessageBoxA(nullptr,message.c_str(),"GrobalVariables",0);
+			MessageBoxA(nullptr,message.c_str(),"GlobalVariables",0);
 			assert(0);
 			return;
 		}

@@ -13,7 +13,6 @@ void Particle::Update(float deltaTime){
 		transform_->color.w = 0.0f;
 		return;
 	}
-
 }
 
 void Particle::Spawn(const ParticleTransform& initialValue,float _lifeTime){

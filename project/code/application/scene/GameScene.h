@@ -44,6 +44,4 @@ private:
 	std::unique_ptr<Object3d> object_;
 
 	ParticleManager* particleManager;
-
-
 };

@@ -4,6 +4,11 @@
 #include "directX12/DxSrvArrayManager.h"
 #include "Engine.h"
 
+#ifdef _DEBUG
+#include "imgui/imgui.h"
+#endif // _DEBUG
+
+
 ParticleManager* ParticleManager::getInstance(){
 	static ParticleManager instance;
 	return &instance;
@@ -11,6 +16,9 @@ ParticleManager* ParticleManager::getInstance(){
 
 void ParticleManager::Init(){
 	dxSrvArray_ = DxSrvArrayManager::getInstance()->Create(srvNum_);
+
+	dxCommand_ = std::make_unique<DxCommand>();
+	dxCommand_->Init(Engine::getInstance()->getDxDevice()->getDevice(),"Particle","Particle");
 
 	psoKey_ = "Particle_Alpha";
 
@@ -33,9 +41,9 @@ void ParticleManager::PreDraw(){
 	commandList->SetPipelineState(pso_->pipelineState.Get());
 }
 
-void ParticleManager::Draw(const IConstantBuffer<CameraTransform>& cameraTransform){
-	for(auto& [name,emitter] : emitters_){
-		emitter->Draw(cameraTransform);
+void ParticleManager::DrawDebug(const IConstantBuffer<CameraTransform>& cameraTransform){
+	if(currentEditEmitter_){
+		currentEditEmitter_->Draw(cameraTransform);
 	}
 }
 
@@ -137,6 +145,51 @@ void ParticleManager::CreatePso(){
 	shaderInfo.blendMode_ = BlendMode::Normal;
 	pso_ = shaderManager->CreatePso(psoKey_,shaderInfo,Engine::getInstance()->getDxDevice()->getDevice());
 }
+
+#ifdef _DEBUG
+void ParticleManager::Edit(){
+	// main window
+	if(ImGui::Begin("ParticleManager")){
+		if(ImGui::Button("Create New Emitter")){
+			isOpenedCrateWindow_ = true;
+		}
+
+		if(currentEditEmitter_){
+			ImGui::Checkbox("Update the Emitter?",&isUpdateCurrentEmitter_);
+			ImGui::Checkbox("open the EmitterWindow? ",&emitterWindowedState_);
+			currentEditEmitter_->Debug(&emitterWindowedState_);
+			if(isUpdateCurrentEmitter_){
+				currentEditEmitter_->Update(Engine::getInstance()->getDeltaTime());
+			}
+		}
+
+		ImGui::End();
+	}
+
+	if(isOpenedCrateWindow_){
+		ImGui::Begin("Create New",&isOpenedCrateWindow_);
+		ImGui::InputText("name",&newInstanceName_[0],sizeof(char) * 64,ImGuiInputTextFlags_CharsNoBlank);
+
+		if(ImGui::Button("Create")){
+			emitters_[newInstanceName_] = std::make_unique<Emitter>();
+			emitters_[newInstanceName_]->Init(newInstanceName_);
+			currentEditEmitter_ = emitters_[newInstanceName_].get();
+			emitterWindowedState_  	= false;
+			isUpdateCurrentEmitter_ = false;
+			isOpenedCrateWindow_ 	= false;
+		}
+		ImGui::SameLine();
+		if(ImGui::Button("Cancel")){
+			// window を 閉じる
+			isOpenedCrateWindow_ = false;
+		}
+		ImGui::End();
+	} else{
+		// 作成用文字列の 初期化
+		newInstanceName_ = "NULL";
+	}
+}
+#endif // _DEBUG
 
 Emitter* ParticleManager::getEmitter(const std::string& name) const{
 	auto emitter = emitters_.find(name);

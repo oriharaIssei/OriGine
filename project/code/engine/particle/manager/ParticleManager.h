@@ -21,18 +21,34 @@ public:
 	void Finalize();
 	void PreDraw();
 
-	void Draw(const IConstantBuffer<CameraTransform>& cameraTransform);
+
+#ifdef _DEBUG
+	void Edit();
+	void DrawDebug(const IConstantBuffer<CameraTransform>& cameraTransform);
+#endif // _DEBUG
 private:
 	void CreatePso();
 private:
-	int32_t srvNum_ = 5;
+	int32_t srvNum_ = 16;
 	std::shared_ptr<DxSrvArray> dxSrvArray_;
 
 	std::unique_ptr<DxCommand> dxCommand_;
 	std::string psoKey_;
 	PipelineStateObj* pso_;
 
+	bool emitterWindowedState_ = false;
+
+#ifdef _DEBUG // Editor 用 変数
+	// 新しい Emitterを 作成する ための もの
+	bool isOpenedCrateWindow_ = false;
+	std::string newInstanceName_ = "NULL";
+
+	// 現在変更している Emitter
+	Emitter* currentEditEmitter_ = nullptr;
+	bool isUpdateCurrentEmitter_ = false;
+
 	std::unordered_map<std::string,std::unique_ptr<Emitter>> emitters_;
+#endif // _DEBUG
 public:
 	Emitter* getEmitter(const std::string& name)const;
 };
