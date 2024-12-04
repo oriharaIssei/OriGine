@@ -10,16 +10,19 @@
 #include "directX12/DxRtvArray.h"
 #include "directX12/DxRtvArrayManager.h"
 #include "directX12/DxSrvArrayManager.h"
+#include "directX12/RenderTexture.h"
 #include "material/texture/TextureManager.h"
 #include "myFileSystem/MyFileSystem.h"
+#include "particle/manager/ParticleManager.h"
 #include "primitiveDrawer/PrimitiveDrawer.h"
 #include "sprite/SpriteCommon.h"
 
 #ifdef _DEBUG
+#include "camera/debugCamera/DebugCamera.h"
 #include "imgui/imgui.h"
 #endif // _DEBUG
 
-constexpr char dockingIDName[] = "ObjectsWindow";
+GameScene::GameScene():IScene("GameScene"){}
 
 GameScene::~GameScene(){}
 
@@ -34,12 +37,6 @@ void GameScene::Init(){
 	cameraBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
 
 	input_ = Input::getInstance();
-
-	sceneRtvArray_ = DxRtvArrayManager::getInstance()->Create(1);
-	sceneSrvArray_ = DxSrvArrayManager::getInstance()->Create(1);
-
-	sceneView_ = std::make_unique<RenderTexture>(Engine::getInstance()->getDxCommand(),sceneRtvArray_.get(),sceneSrvArray_.get());
-	sceneView_->Init({1280.0f,720.0f},DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,{0.0f,0.0f,0.0f,0.0f});
 
 	materialManager_ = Engine::getInstance()->getMaterialManager();
 
@@ -64,35 +61,18 @@ void GameScene::Update(){
 	particleManager->Edit();
 	materialManager_->DebugUpdate();
 #endif // _DEBUG
+
+	Engine::getInstance()->getLightManager()->Update();
 }
 
-void GameScene::Draw(){
-	Engine::getInstance()->getLightManager()->Update();
-
-	sceneView_->PreDraw();
-	///===============================================
-	/// 3d Object
-	///===============================================
-	Object3d::PreDraw();
+void GameScene::Draw3d(){
 	object_->Draw(cameraBuff_);
+}
 
-	///===============================================
-	/// Particle
-	///===============================================
-	particleManager->PreDraw();
+void GameScene::DrawLine(){}
+
+void GameScene::DrawSprite(){}
+
+void GameScene::DrawParticle(){
 	particleManager->DrawDebug(cameraBuff_);
-
-	///===============================================
-	/// sprite
-	///===============================================
-	SpriteCommon::getInstance()->PreDraw();
-
-
-	sceneView_->PostDraw();
-	///===============================================
-	/// off screen Rendering
-	///===============================================
-	Engine::getInstance()->ScreenPreDraw();
-	sceneView_->DrawTexture();
-	Engine::getInstance()->ScreenPostDraw();
 }

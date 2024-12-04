@@ -164,6 +164,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="code\engine\module\IModule.cpp" />
     <ClCompile Include="code\engine\assets\IAsset.cpp" />
     <ClCompile Include="code\engine\component\IComponent.cpp" />
+    <ClCompile Include="code\application\scene\IScene.cpp" />
+    <ClCompile Include="code\application\scene\SceneManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\application\scene\GameScene.h" />
@@ -235,6 +237,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="code\engine\assets\IAsset.h" />
     <ClInclude Include="code\engine\component\IComponent.h" />
     <ClInclude Include="code\lib\myRandom\MyRandom.h" />
+    <ClInclude Include="code\application\scene\IScene.h" />
+    <ClInclude Include="code\application\scene\SceneManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">

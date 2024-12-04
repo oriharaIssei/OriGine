@@ -5,41 +5,40 @@
 
 #include <string>
 
-#include "audio/Audio.h"
-#include "engine/camera/debugCamera/DebugCamera.h"
-#include "engine/directX12/RenderTexture.h"
-#include "engine/particle/manager/ParticleManager.h"
-#include "object3d/Object3d.h"
-#include "transform/CameraTransform.h"
+#include "IScene.h"
 
 class Input;
 class MaterialManager;
 class DxRtvArray;
 class DxSrvArray;
+class ParticleManager;
+class DebugCamera;
 
 struct Matrix4x4;
 struct Vector3;
 
-class GameScene{
+class GameScene
+	:public IScene{
 public:
-	GameScene() = default;
+	GameScene();
 	~GameScene();
 
 	void Init();
 	void Update();
-	void Draw();
+
+	void Draw3d();
+	void DrawLine();
+	void DrawSprite();
+	void DrawParticle();
 private:
 #ifdef _DEBUG
+	//DebugObjects
 	std::unique_ptr<DebugCamera> debugCamera_;
 #endif // _DEBUG
 
 	IConstantBuffer<CameraTransform> cameraBuff_;
 	Input* input_;
 	MaterialManager* materialManager_;
-
-	std::shared_ptr<DxRtvArray> sceneRtvArray_;
-	std::shared_ptr<DxSrvArray> sceneSrvArray_;
-	std::unique_ptr<RenderTexture> sceneView_;
 
 	std::unique_ptr<Object3d> object_;
 
