@@ -109,9 +109,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="code\engine\particle\Particle.cpp" />
     <ClCompile Include="code\engine\camera\debugCamera\DebugCamera.cpp" />
     <ClCompile Include="code\lib\deltaTime\DeltaTime.cpp" />
-    <ClCompile Include="code\engine\material\light\DirectionalLight.cpp" />
-    <ClCompile Include="code\engine\material\light\PointLight.cpp" />
-    <ClCompile Include="code\engine\material\light\SpotLight.cpp" />
     <ClCompile Include="code\engine\material\Material.cpp" />
     <ClCompile Include="code\engine\directX12\Object3dMesh.cpp" />
     <ClCompile Include="code\engine\transform\CameraTransform.cpp" />
@@ -203,6 +200,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="code\engine\directX12\ShaderCompiler.h" />
     <ClInclude Include="code\engine\directX12\ShaderManager.h" />
     <ClInclude Include="code\engine\input\Input.h" />
+    <ClInclude Include="code\lib\globalVariables\SerializedField.h" />
     <ClInclude Include="code\lib\logger\Logger.h" />
     <ClInclude Include="code\engine\object3d\Object3d.h" />
     <ClInclude Include="code\engine\model\ModelManager.h" />

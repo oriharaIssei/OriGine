@@ -14,10 +14,6 @@ void LightManager::Init(){
 
 	lightCounts_.CreateBuffer(device);
 
-	variables->addValue("LightManager","LightCounts","directionalLightNum",lightCounts_.openData_.directionalLightNum);
-	variables->addValue("LightManager","LightCounts","spotLightNum",lightCounts_.openData_.spotLightNum);
-	variables->addValue("LightManager","LightCounts","pointLightNum",lightCounts_.openData_.pointLightNum);
-
 	lightCounts_.ConvertToBuffer();
 
 	///========================================
@@ -30,26 +26,20 @@ void LightManager::Init(){
 	///========================================
 	/// Directional Light
 	directionalLights_.CreateBuffer(device,srvArray_.get(),lightCounts_.openData_.directionalLightNum);
-	int32_t index = 0;
-	for(auto& directionalLight : directionalLights_.openData_){
-		directionalLight.Init("LightManager",index);
-		index++;
+	for(int32_t i = 0; i < lightCounts_.openData_.directionalLightNum; i++){
+		directionalLights_.openData_.push_back({"LightManager",i});
 	}
 
 	/// Point Light
 	pointLights_.CreateBuffer(device,srvArray_.get(),lightCounts_.openData_.pointLightNum);
-	index = 0;
-	for(auto& pointLight : pointLights_.openData_){
-		pointLight.Init("LightManager",index);
-		index++;
+	for(int32_t i = 0; i < lightCounts_.openData_.pointLightNum; i++){
+		pointLights_.openData_.push_back({"LightManager",i});
 	}
 
 	/// Spot Light
 	spotLights_.CreateBuffer(device,srvArray_.get(),lightCounts_.openData_.spotLightNum);
-	index = 0;
-	for(auto& spotLight : spotLights_.openData_){
-		spotLight.Init("LightManager",index);
-		index++;
+	for(int32_t i = 0; i < lightCounts_.openData_.spotLightNum; i++){
+		spotLights_.openData_.push_back({"LightManager",i});
 	}
 }
 

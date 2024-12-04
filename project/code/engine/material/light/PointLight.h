@@ -5,23 +5,27 @@
 
 #include <string>
 
-#include "directX12/IConstantBuffer.h"
+#include "globalVariables/SerializedField.h"
 
 #include "Vector3.h"
 #include "Vector4.h"
 
 struct PointLight{
 public:
-	PointLight() = default;
+	PointLight(const std::string& scene,int32_t index):
+		color{scene,"PointLight" + std::to_string(index),"color"},
+		pos{scene,"PointLight" + std::to_string(index),"pos"},
+		intensity{scene,"PointLight" + std::to_string(index),"intensity"},
+		radius{scene,"PointLight" + std::to_string(index),"radius"},
+		decay{scene,"PointLight" + std::to_string(index),"decay"}{}
+
 	~PointLight(){}
 
-	void Init(const std::string& scene,int32_t index);
-
-	Vector3 color   = {1.0f,1.0f,1.0f};
-	Vector3 pos     = {0,0,0};
-	float intensity = 0.1f;
-	float radius    = 0.0f;
-	float decay     = 0.1f;
+	SerializedField<Vector3> color;
+	SerializedField<Vector3> pos;
+	SerializedField<float> intensity;
+	SerializedField<float> radius;
+	SerializedField<float> decay;
 
 public:
 	struct ConstantBuffer{

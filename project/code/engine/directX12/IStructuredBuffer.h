@@ -54,7 +54,7 @@ inline void IStructuredBuffer<structBuff>::CreateBuffer(ID3D12Device* device,DxS
 	buff_.CreateBufferResource(device,bufferSize);
 	buff_.getResource()->Map(0,nullptr,reinterpret_cast<void**>(&mappingData_));
 
-	openData_.resize(elementCount);
+	openData_.reserve(elementCount);
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC viewDesc{};
 	viewDesc.Format = DXGI_FORMAT_UNKNOWN;

@@ -162,9 +162,8 @@ void ParticleManager::Edit(){
 				currentEditEmitter_->Update(Engine::getInstance()->getDeltaTime());
 			}
 		}
-
-		ImGui::End();
 	}
+	ImGui::End();
 
 	if(isOpenedCrateWindow_){
 		ImGui::Begin("Create New",&isOpenedCrateWindow_);

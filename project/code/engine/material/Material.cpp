@@ -45,36 +45,39 @@ IConstantBuffer<Material>* MaterialManager::Create(const std::string& materialNa
 // リファクタリング
 void MaterialManager::DebugUpdate(){
 #ifdef _DEBUG
-	for(auto& material : materialPallet_){
-		if(!ImGui::TreeNode(material.first.c_str())){
-			continue;
+	if(ImGui::Begin("MaterialManager")){
+		for(auto& material : materialPallet_){
+			if(!ImGui::TreeNode(material.first.c_str())){
+				continue;
+			}
+			ImGui::TreePop();
+			ImGui::ColorEdit4(std::string(material.first + "Color").c_str(),&material.second->openData_.color_.x);
+
+			ImGui::Combo((material.first + " Lighting Type").c_str(),
+						 (int*)&material.second->openData_.enableLighting_,
+						 lightTypes,
+						 IM_ARRAYSIZE(lightTypes),
+						 3);
+
+			ImGui::DragFloat3((material.first + " uvScale").c_str(),&material.second->openData_.uvScale_.x,0.1f);
+			ImGui::DragFloat3((material.first + " uvRotate").c_str(),&material.second->openData_.uvRotate_.x,0.1f);
+			ImGui::DragFloat3((material.first + " uvTranslate").c_str(),&material.second->openData_.uvTranslate_.x,0.1f);
+
+			ImGui::DragFloat((material.first + " Shininess").c_str(),&material.second->openData_.shininess_,0.01f,0.0f,FLT_MAX);
+			ImGui::ColorEdit3((material.first + " SpecularColor").c_str(),&material.second->openData_.specularColor_.x);
+
+			material.second->ConvertToBuffer();
 		}
-		ImGui::TreePop();
-		ImGui::ColorEdit4(std::string(material.first + "Color").c_str(),&material.second->openData_.color_.x);
 
-		ImGui::Combo((material.first + " Lighting Type").c_str(),
-					 (int*)&material.second->openData_.enableLighting_,
-					 lightTypes,
-					 IM_ARRAYSIZE(lightTypes),
-					 3);
+		ImGui::Dummy(ImVec2(0.0f,12.0f));
 
-		ImGui::DragFloat3((material.first + " uvScale").c_str(),&material.second->openData_.uvScale_.x,0.1f);
-		ImGui::DragFloat3((material.first + " uvRotate").c_str(),&material.second->openData_.uvRotate_.x,0.1f);
-		ImGui::DragFloat3((material.first + " uvTranslate").c_str(),&material.second->openData_.uvTranslate_.x,0.1f);
+		ImGui::InputText("MaterialName",newMaterialName_,64);
+		if(ImGui::Button("Create",{64,24})){
+			Create(newMaterialName_);
+		}
 
-		ImGui::DragFloat((material.first + " Shininess").c_str(),&material.second->openData_.shininess_,0.01f,0.0f,FLT_MAX);
-		ImGui::ColorEdit3((material.first + " SpecularColor").c_str(),&material.second->openData_.specularColor_.x);
-
-		material.second->ConvertToBuffer();
 	}
-
-	ImGui::Dummy(ImVec2(0.0f,12.0f));
-
-	ImGui::InputText("MaterialName",newMaterialName_,64);
-	if(ImGui::Button("Create",{64,24})){
-		Create(newMaterialName_);
-	}
-
+		ImGui::End();
 #endif // _DEBUG
 }
 

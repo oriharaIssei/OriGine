@@ -32,5 +32,6 @@ int WINAPI WinMain(HINSTANCE,HINSTANCE,LPSTR,int){
 
 	sceneManager->Finalize();
 	system->Finalize();
+
 	return 0;
 }

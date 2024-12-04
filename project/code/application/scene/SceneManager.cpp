@@ -67,8 +67,6 @@ void SceneManager::Draw(){
 	Engine::getInstance()->ScreenPreDraw();
 	sceneView_->DrawTexture();
 	Engine::getInstance()->ScreenPostDraw();
-
-	currentScene_->DrawLine();
 }
 
 SceneManager::SceneManager(){}

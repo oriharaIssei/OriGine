@@ -219,16 +219,7 @@
     <ClCompile Include="code\engine\model\ModelManager.cpp">
       <Filter>engine\model</Filter>
     </ClCompile>
-    <ClCompile Include="code\engine\material\light\DirectionalLight.cpp">
-      <Filter>engine\material\light</Filter>
-    </ClCompile>
     <ClCompile Include="code\engine\material\light\LightManager.cpp">
-      <Filter>engine\material\light</Filter>
-    </ClCompile>
-    <ClCompile Include="code\engine\material\light\PointLight.cpp">
-      <Filter>engine\material\light</Filter>
-    </ClCompile>
-    <ClCompile Include="code\engine\material\light\SpotLight.cpp">
       <Filter>engine\material\light</Filter>
     </ClCompile>
     <ClCompile Include="code\engine\particle\Particle.cpp">
@@ -486,6 +477,9 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="code\application\scene\SceneManager.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\lib\globalVariables\SerializedField.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
