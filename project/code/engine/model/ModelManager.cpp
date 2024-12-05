@@ -46,6 +46,7 @@ std::unique_ptr<Model> ModelManager::Create(const std::string& directoryPath,con
 	std::unique_ptr<Model> result = std::make_unique<Model>();
 	const auto itr = modelLibrary_.find(directoryPath + filename);
 	if(itr != modelLibrary_.end()){
+		result->currentState_ = Model::LoadState::Loaded;
 		result->meshData_ = itr->second.get();
 		result->materialData_ = defaultMaterials_[result->meshData_];
 		return result;

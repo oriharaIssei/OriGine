@@ -136,7 +136,6 @@ void RenderTexture::PreDraw(){
 	commandList->ClearRenderTargetView(
 		rtvHandle,clearColor,0,nullptr
 	);
-
 	///=========================================
 	//	Clear DSV
 	///=========================================

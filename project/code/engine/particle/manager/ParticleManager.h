@@ -38,6 +38,8 @@ private:
 
 	bool emitterWindowedState_ = false;
 
+	std::unordered_map<std::string,std::unique_ptr<Emitter>> emitters_;
+
 #ifdef _DEBUG // Editor 用 変数
 	// 新しい Emitterを 作成する ための もの
 	bool isOpenedCrateWindow_ = false;
@@ -47,7 +49,6 @@ private:
 	Emitter* currentEditEmitter_ = nullptr;
 	bool isUpdateCurrentEmitter_ = false;
 
-	std::unordered_map<std::string,std::unique_ptr<Emitter>> emitters_;
 #endif // _DEBUG
 public:
 	Emitter* getEmitter(const std::string& name)const;

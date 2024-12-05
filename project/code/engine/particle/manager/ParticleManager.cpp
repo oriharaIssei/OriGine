@@ -18,7 +18,7 @@ void ParticleManager::Init(){
 	dxSrvArray_ = DxSrvArrayManager::getInstance()->Create(srvNum_);
 
 	dxCommand_ = std::make_unique<DxCommand>();
-	dxCommand_->Init(Engine::getInstance()->getDxDevice()->getDevice(),"Particle","Particle");
+	dxCommand_->Init(Engine::getInstance()->getDxDevice()->getDevice(),"main","main");
 
 	psoKey_ = "Particle_Alpha";
 
@@ -32,6 +32,7 @@ void ParticleManager::Finalize(){
 	if(dxSrvArray_){
 		dxSrvArray_->Finalize();
 	}
+	emitters_.clear();
 }
 
 void ParticleManager::PreDraw(){
@@ -39,6 +40,8 @@ void ParticleManager::PreDraw(){
 
 	commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
 	commandList->SetPipelineState(pso_->pipelineState.Get());
+
+	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 void ParticleManager::DrawDebug(const IConstantBuffer<CameraTransform>& cameraTransform){
@@ -170,7 +173,7 @@ void ParticleManager::Edit(){
 		ImGui::InputText("name",&newInstanceName_[0],sizeof(char) * 64,ImGuiInputTextFlags_CharsNoBlank);
 
 		if(ImGui::Button("Create")){
-			emitters_[newInstanceName_] = std::make_unique<Emitter>();
+			emitters_[newInstanceName_] = std::make_unique<Emitter>(dxSrvArray_.get());
 			emitters_[newInstanceName_]->Init(newInstanceName_);
 			currentEditEmitter_ = emitters_[newInstanceName_].get();
 			emitterWindowedState_  	= false;

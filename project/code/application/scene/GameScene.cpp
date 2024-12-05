@@ -66,7 +66,6 @@ void GameScene::Update(){
 }
 
 void GameScene::Draw3d(){
-	object_->Draw(cameraBuff_);
 }
 
 void GameScene::DrawLine(){}

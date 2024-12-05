@@ -54,7 +54,7 @@ public:
 	// 新しいアイテムを作成してセット
 	template <typename T>
 	void setValue(const std::string& scene,const std::string& groupName,const std::string& itemName,const T& value){
-		data_[scene][groupName][itemName] = value; // Itemはstd::variantなので自動的に型が選択される
+		data_[scene][groupName][itemName] = value;
 	}
 
 	// アイテムを取得、存在しない場合は作成してそのポインタを返す

@@ -3,11 +3,12 @@
 #include <memory>
 
 #include "Assets/IAsset.h"
-#include "DirectionalLight.h"
 #include "directX12/IConstantBuffer.h"
 #include "directX12/IStructuredBuffer.h"
 #include "globalVariables/SerializedField.h"
 #include "Module/IModule.h"
+
+#include "DirectionalLight.h"
 #include "PointLight.h"
 #include "SpotLight.h"
 
@@ -17,7 +18,6 @@ struct LightCounts{
 	SerializedField<int32_t> directionalLightNum{"LightManager","LightCounts","directionalLightNum"};
 	SerializedField<int32_t> spotLightNum{"LightManager","LightCounts","spotLightNum"};
 	SerializedField<int32_t> pointLightNum{"LightManager","LightCounts","pointLightNum"};
-
 
 	struct ConstantBuffer{
 		int32_t directionalLightNum;

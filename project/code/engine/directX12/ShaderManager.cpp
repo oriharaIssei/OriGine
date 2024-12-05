@@ -1,7 +1,7 @@
 #include "directX12/ShaderManager.h"
 
-#include <cassert>
 #include "logger/Logger.h"
+#include <cassert>
 #include <Windows.h>
 
 void ShaderManager::Init(){
@@ -212,7 +212,7 @@ PipelineStateObj* ShaderManager::CreatePso(const std::string& key,
 
 	pipelineStateDesc.NumRenderTargets = 1;
 	pipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-	// 利用するトポロジ(形状)タイプ。三角形を設定する
+	// 利用するトポロジ(形状)タイプ。
 	pipelineStateDesc.PrimitiveTopologyType = shaderInfo.topologyType;
 	// どのように画面に色を打ち込むかの設定
 	pipelineStateDesc.SampleDesc.Count = 1;

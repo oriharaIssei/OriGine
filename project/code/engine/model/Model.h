@@ -25,7 +25,7 @@ struct Model{
 		Loading,
 		Loaded,
 	};
-	LoadState currentState_;
+	LoadState currentState_ = LoadState::Loading;
 
 	ModelMeshData* meshData_;
 

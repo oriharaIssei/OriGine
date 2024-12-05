@@ -12,6 +12,8 @@
 
 struct SpotLight{
 public:
+	SpotLight() = default;
+	
 	SpotLight(const std::string& scene,int32_t index):
 		color{scene,"SpotLight" + std::to_string(index),"color"},
 		pos{scene,"SpotLight" + std::to_string(index),"pos"},
