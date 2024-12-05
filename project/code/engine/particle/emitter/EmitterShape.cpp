@@ -17,7 +17,7 @@ Vector3 EmitterSphere::getSpawnPos(){
 	randFloat.setRange(-1.0f,1.0f);
 
 	Vector3 randDire = {randFloat.get(),randFloat.get(),randFloat.get()};
-	randDire = randDire.Normalize();
+	randDire = randDire.normalize();
 
 	return randDire * randDist;
 }
