@@ -482,5 +482,8 @@
     <ClInclude Include="code\lib\globalVariables\SerializedField.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="code\lib\node\DefaultNodes.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
