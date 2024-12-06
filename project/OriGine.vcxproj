@@ -60,7 +60,7 @@
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir)code/math;$(ProjectDir)code/lib;$(ProjectDir)code/gameScene;$(ProjectDir)code/engine;$(ProjectDir)code;$(ProjectDir)externals;$(ProjectDir)externals/assimp/include;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)code/math;$(ProjectDir)code/lib;$(ProjectDir)code/gameScene;$(ProjectDir)code/engine;$(ProjectDir)code;$(ProjectDir)externals;$(ProjectDir)externals/assimp/include;$(ProjectDir)externals/imgui;$(ProjectDir)externals/DirectXTex;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
@@ -82,7 +82,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)code/math;$(ProjectDir)code/lib;$(ProjectDir)code/gameScene;$(ProjectDir)code/engine;$(ProjectDir)code;$(ProjectDir)externals;$(ProjectDir)externals/assimp/include;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)code/math;$(ProjectDir)code/lib;$(ProjectDir)code/gameScene;$(ProjectDir)code/engine;$(ProjectDir)code;$(ProjectDir)externals;$(ProjectDir)externals/assimp/include;$(ProjectDir)externals/imgui;$(ProjectDir)externals/DirectXTex;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -163,6 +163,11 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="code\engine\component\IComponent.cpp" />
     <ClCompile Include="code\application\scene\IScene.cpp" />
     <ClCompile Include="code\application\scene\SceneManager.cpp" />
+    <ClCompile Include="code\lib\node\OperatorNodes.cpp" />
+    <ClCompile Include="externals\imgui_nodeEditor\crude_json.cpp" />
+    <ClCompile Include="externals\imgui_nodeEditor\imgui_canvas.cpp" />
+    <ClCompile Include="externals\imgui_nodeEditor\imgui_node_editor.cpp" />
+    <ClCompile Include="externals\imgui_nodeEditor\imgui_node_editor_api.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\application\scene\GameScene.h" />
@@ -221,6 +226,89 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="code\engine\component\componentManager\ComponentManager.h" />
     <ClInclude Include="code\engine\particle\emitter\EmitterShape.h" />
     <ClInclude Include="code\lib\node\DefaultNodes.h" />
+    <ClInclude Include="externals\assimp\include\assimp\aabb.h" />
+    <ClInclude Include="externals\assimp\include\assimp\ai_assert.h" />
+    <ClInclude Include="externals\assimp\include\assimp\anim.h" />
+    <ClInclude Include="externals\assimp\include\assimp\AssertHandler.h" />
+    <ClInclude Include="externals\assimp\include\assimp\Base64.hpp" />
+    <ClInclude Include="externals\assimp\include\assimp\BaseImporter.h" />
+    <ClInclude Include="externals\assimp\include\assimp\Bitmap.h" />
+    <ClInclude Include="externals\assimp\include\assimp\BlobIOSystem.h" />
+    <ClInclude Include="externals\assimp\include\assimp\ByteSwapper.h" />
+    <ClInclude Include="externals\assimp\include\assimp\camera.h" />
+    <ClInclude Include="externals\assimp\include\assimp\cexport.h" />
+    <ClInclude Include="externals\assimp\include\assimp\cfileio.h" />
+    <ClInclude Include="externals\assimp\include\assimp\cimport.h" />
+    <ClInclude Include="externals\assimp\include\assimp\ColladaMetaData.h" />
+    <ClInclude Include="externals\assimp\include\assimp\color4.h" />
+    <ClInclude Include="externals\assimp\include\assimp\commonMetaData.h" />
+    <ClInclude Include="externals\assimp\include\assimp\Compiler\poppack1.h" />
+    <ClInclude Include="externals\assimp\include\assimp\Compiler\pstdint.h" />
+    <ClInclude Include="externals\assimp\include\assimp\Compiler\pushpack1.h" />
+    <ClInclude Include="externals\assimp\include\assimp\config.h" />
+    <ClInclude Include="externals\assimp\include\assimp\CreateAnimMesh.h" />
+    <ClInclude Include="externals\assimp\include\assimp\DefaultIOStream.h" />
+    <ClInclude Include="externals\assimp\include\assimp\DefaultIOSystem.h" />
+    <ClInclude Include="externals\assimp\include\assimp\DefaultLogger.hpp" />
+    <ClInclude Include="externals\assimp\include\assimp\defs.h" />
+    <ClInclude Include="externals\assimp\include\assimp\Exceptional.h" />
+    <ClInclude Include="externals\assimp\include\assimp\Exporter.hpp" />
+    <ClInclude Include="externals\assimp\include\assimp\fast_atof.h" />
+    <ClInclude Include="externals\assimp\include\assimp\GenericProperty.h" />
+    <ClInclude Include="externals\assimp\include\assimp\GltfMaterial.h" />
+    <ClInclude Include="externals\assimp\include\assimp\Hash.h" />
+    <ClInclude Include="externals\assimp\include\assimp\Importer.hpp" />
+    <ClInclude Include="externals\assimp\include\assimp\importerdesc.h" />
+    <ClInclude Include="externals\assimp\include\assimp\IOStream.hpp" />
+    <ClInclude Include="externals\assimp\include\assimp\IOStreamBuffer.h" />
+    <ClInclude Include="externals\assimp\include\assimp\IOSystem.hpp" />
+    <ClInclude Include="externals\assimp\include\assimp\light.h" />
+    <ClInclude Include="externals\assimp\include\assimp\LineSplitter.h" />
+    <ClInclude Include="externals\assimp\include\assimp\LogAux.h" />
+    <ClInclude Include="externals\assimp\include\assimp\Logger.hpp" />
+    <ClInclude Include="externals\assimp\include\assimp\LogStream.hpp" />
+    <ClInclude Include="externals\assimp\include\assimp\material.h" />
+    <ClInclude Include="externals\assimp\include\assimp\MathFunctions.h" />
+    <ClInclude Include="externals\assimp\include\assimp\matrix3x3.h" />
+    <ClInclude Include="externals\assimp\include\assimp\matrix4x4.h" />
+    <ClInclude Include="externals\assimp\include\assimp\MemoryIOWrapper.h" />
+    <ClInclude Include="externals\assimp\include\assimp\mesh.h" />
+    <ClInclude Include="externals\assimp\include\assimp\metadata.h" />
+    <ClInclude Include="externals\assimp\include\assimp\NullLogger.hpp" />
+    <ClInclude Include="externals\assimp\include\assimp\ObjMaterial.h" />
+    <ClInclude Include="externals\assimp\include\assimp\ParsingUtils.h" />
+    <ClInclude Include="externals\assimp\include\assimp\pbrmaterial.h" />
+    <ClInclude Include="externals\assimp\include\assimp\port\AndroidJNI\AndroidJNIIOSystem.h" />
+    <ClInclude Include="externals\assimp\include\assimp\port\AndroidJNI\BundledAssetIOSystem.h" />
+    <ClInclude Include="externals\assimp\include\assimp\postprocess.h" />
+    <ClInclude Include="externals\assimp\include\assimp\Profiler.h" />
+    <ClInclude Include="externals\assimp\include\assimp\ProgressHandler.hpp" />
+    <ClInclude Include="externals\assimp\include\assimp\qnan.h" />
+    <ClInclude Include="externals\assimp\include\assimp\quaternion.h" />
+    <ClInclude Include="externals\assimp\include\assimp\RemoveComments.h" />
+    <ClInclude Include="externals\assimp\include\assimp\scene.h" />
+    <ClInclude Include="externals\assimp\include\assimp\SceneCombiner.h" />
+    <ClInclude Include="externals\assimp\include\assimp\SGSpatialSort.h" />
+    <ClInclude Include="externals\assimp\include\assimp\SkeletonMeshBuilder.h" />
+    <ClInclude Include="externals\assimp\include\assimp\SmallVector.h" />
+    <ClInclude Include="externals\assimp\include\assimp\SmoothingGroups.h" />
+    <ClInclude Include="externals\assimp\include\assimp\SpatialSort.h" />
+    <ClInclude Include="externals\assimp\include\assimp\StandardShapes.h" />
+    <ClInclude Include="externals\assimp\include\assimp\StreamReader.h" />
+    <ClInclude Include="externals\assimp\include\assimp\StreamWriter.h" />
+    <ClInclude Include="externals\assimp\include\assimp\StringComparison.h" />
+    <ClInclude Include="externals\assimp\include\assimp\StringUtils.h" />
+    <ClInclude Include="externals\assimp\include\assimp\Subdivision.h" />
+    <ClInclude Include="externals\assimp\include\assimp\texture.h" />
+    <ClInclude Include="externals\assimp\include\assimp\TinyFormatter.h" />
+    <ClInclude Include="externals\assimp\include\assimp\types.h" />
+    <ClInclude Include="externals\assimp\include\assimp\vector2.h" />
+    <ClInclude Include="externals\assimp\include\assimp\vector3.h" />
+    <ClInclude Include="externals\assimp\include\assimp\version.h" />
+    <ClInclude Include="externals\assimp\include\assimp\Vertex.h" />
+    <ClInclude Include="externals\assimp\include\assimp\XmlParser.h" />
+    <ClInclude Include="externals\assimp\include\assimp\XMLTools.h" />
+    <ClInclude Include="externals\assimp\include\assimp\ZipArchiveIOSystem.h" />
     <ClInclude Include="externals\imgui\imconfig.h" />
     <ClInclude Include="externals\imgui\imgui.h" />
     <ClInclude Include="externals\imgui\imgui_impl_dx12.h" />
@@ -238,11 +326,33 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="code\lib\myRandom\MyRandom.h" />
     <ClInclude Include="code\application\scene\IScene.h" />
     <ClInclude Include="code\application\scene\SceneManager.h" />
+    <ClInclude Include="code\lib\node\OperatorNodes.h" />
+    <ClInclude Include="externals\imgui_nodeEditor\crude_json.h" />
+    <ClInclude Include="externals\imgui_nodeEditor\imgui_bezier_math.h" />
+    <ClInclude Include="externals\imgui_nodeEditor\imgui_canvas.h" />
+    <ClInclude Include="externals\imgui_nodeEditor\imgui_extra_math.h" />
+    <ClInclude Include="externals\imgui_nodeEditor\imgui_node_editor.h" />
+    <ClInclude Include="externals\imgui_nodeEditor\imgui_node_editor_internal.h" />
+    <ClInclude Include="externals\nlohmann\json.hpp" />
+    <ClInclude Include="externals\nlohmann\json_fwd.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
       <Project>{371b9fa9-4c90-4ac6-a123-aced756d6c77}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="externals\assimp\include\assimp\color4.inl" />
+    <None Include="externals\assimp\include\assimp\material.inl" />
+    <None Include="externals\assimp\include\assimp\matrix3x3.inl" />
+    <None Include="externals\assimp\include\assimp\matrix4x4.inl" />
+    <None Include="externals\assimp\include\assimp\quaternion.inl" />
+    <None Include="externals\assimp\include\assimp\SmoothingGroups.inl" />
+    <None Include="externals\assimp\include\assimp\vector2.inl" />
+    <None Include="externals\assimp\include\assimp\vector3.inl" />
+    <None Include="externals\imgui_nodeEditor\imgui_bezier_math.inl" />
+    <None Include="externals\imgui_nodeEditor\imgui_extra_math.inl" />
+    <None Include="externals\imgui_nodeEditor\imgui_node_editor_internal.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -47,7 +47,10 @@ void ImGuiManager::Init(const WinApp *window,const DxDevice *dxDevice,const DxSw
 		srvHeap_->GetGPUDescriptorHandleForHeapStart()
 	);
 	ImGuiIO &io = ImGui::GetIO();
+	// Docking を可能に
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+	// ctl + Mouse Wheel で フォントサイズを 変更可能に
+	io.FontAllowUserScaling = true;
 
 	io.Fonts->AddFontFromFileTTF("resource/fonts/FiraMono-Regular.ttf",16.0f);
 
