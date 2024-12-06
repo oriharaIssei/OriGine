@@ -8,16 +8,17 @@
 ///===============================================================
 namespace MyTree{
 	enum class NodeType{
-		Selector,
-		Sequence,
-		Action,
-		Condition,
-		Decorator
+		Value,     // 計算処理などに使われる変数など
+		Action,    // 1 つの 処理
+		Condition, // boolで表せるもの
+		Selector,  // 実行するNode を選択するもの
+		Decorator,
+		Sequence   // すべてが 成功するか，何かが失敗するまで実行するもの
 	};
 	enum class Status{
-		SUCCESS,
-		FAILURE
-		//RUNNING
+		FAILURE,
+		//RUNNING,
+		SUCCESS
 	};
 
 	class Node{
@@ -30,6 +31,30 @@ namespace MyTree{
 		NodeType type_;
 	public:
 		NodeType getType()const{ return type_; }
+	};
+
+	template <typename T>
+	class ValueNode{
+	public:
+		ValueNode(T* _t)
+			:Node(NodeType::Value),t_(_t){}
+		~ValueNode(){}
+
+		/// <summary>
+		///  特にすることがない
+		/// </summary>
+		/// <returns></returns>
+		Status tick()override{
+			return Status::SUCCESS;
+		}
+
+		operator T() const{ return *t_; }
+		operator T* () const{ return t_; }
+	private:
+		T* t_ = nullptr;
+	public:
+		T* getValue(){ return t_; }
+		T* getValue()const{ return t_; }
 	};
 
 	class Action : public Node{
