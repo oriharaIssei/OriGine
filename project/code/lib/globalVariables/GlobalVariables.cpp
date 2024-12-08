@@ -21,6 +21,10 @@ GlobalVariables* GlobalVariables::getInstance(){
 	return &instance;
 }
 
+GlobalVariables::GlobalVariables(){}
+
+GlobalVariables::~GlobalVariables(){}
+
 void GlobalVariables::Update(){
 #ifdef _DEBUG
 	if(ImGui::Begin("Global Variables",nullptr,ImGuiWindowFlags_MenuBar)){
@@ -55,6 +59,9 @@ void GlobalVariables::Update(){
 				} else if(std::holds_alternative<float>(item)){
 					float* valuePtr = std::get_if<float>(&item);
 					ImGui::DragFloat(itemName.c_str(),valuePtr,0.1f);
+				} else if(std::holds_alternative<std::string>(item)){
+					std::string* valuePtr = std::get_if<std::string>(&item);
+					ImGui::InputText(itemName.c_str(),&valuePtr->operator[](0),sizeof(char) * 64);
 				} else if(std::holds_alternative<Vector2>(item)){
 					Vector2* valuePtr = std::get_if<Vector2>(&item);
 					ImGui::DragFloat2(itemName.c_str(),reinterpret_cast<float*>(valuePtr),0.1f);
@@ -76,10 +83,7 @@ void GlobalVariables::Update(){
 #endif // _DEBUG
 }
 
-void GlobalVariables::CreateScene(const std::string& scene){
-	data_[scene];
-}
-
+#pragma region"Load"
 void GlobalVariables::LoadAllFile(){
 	std::filesystem::directory_iterator sceneDirItr(kDirectoryPath);
 	for(auto& sceneEntry : sceneDirItr){
@@ -161,10 +165,15 @@ void GlobalVariables::LoadFile(const std::string& scene,const std::string& group
 		} else if(itemItr->is_boolean()){
 			bool value = itemItr->get<bool>();
 			setValue(scene,groupName,itemName,value);
+		} else if(itemItr->is_string()){
+			std::string value = itemItr->get<std::string>();
+			setValue(scene,groupName,itemName,value);
 		}
 	}
 }
+#pragma endregion
 
+#pragma region"Save"
 void GlobalVariables::SaveScene(const std::string& scene){
 	for(auto& group : data_[scene]){
 		std::string dir = kDirectoryPath + scene + "/" + group.first + ".json";
@@ -187,10 +196,13 @@ void GlobalVariables::SaveFile(const std::string& scene,const std::string& group
 		const std::string& itemName = itemItr->first;
 		Item& item = itemItr->second;
 
+
 		if(std::holds_alternative<int32_t>(item)){
 			root[groupName][itemName] = std::get<int32_t>(item);
 		} else if(std::holds_alternative<float>(item)){
 			root[groupName][itemName] = std::get<float>(item);
+		} else if(std::holds_alternative<std::string>(item)){
+			root[groupName][itemName] = std::get<std::string>(item);
 		} else if(std::holds_alternative<Vector2>(item)){
 			Vector2 value = std::get<Vector2>(item);
 			root[groupName][itemName] = json::array({value.x,value.y});
@@ -227,10 +239,7 @@ void GlobalVariables::SaveFile(const std::string& scene,const std::string& group
 		ofs.close();
 	}
 }
-
-GlobalVariables::GlobalVariables(){}
-
-GlobalVariables::~GlobalVariables(){}
+#pragma endregion
 
 #ifdef _DEBUG
 void GlobalVariables::ImGuiMenu(){

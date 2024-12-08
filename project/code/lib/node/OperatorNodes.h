@@ -1,11 +1,11 @@
 #pragma once
 
+#include <memory>
 #include <type_traits>
 
 #include "DefaultNodes.h"
 
 namespace MyTree{
-
 #pragma region"Concepts"
 	// 加算が可能な型
 	template <typename T,typename U,typename H>
@@ -36,7 +36,7 @@ namespace MyTree{
 	concept assignable  = requires(T t,U u){
 		{ t = u } -> std::convertible_to<H>;
 	};
-#pragma endregion"Concepts"
+#pragma endregion
 
 	/// <summary>
 	/// 計算 処理 ノード
@@ -48,20 +48,25 @@ namespace MyTree{
 	class OperatorNode
 		:Action{
 	public:
-		OperatorNode(const Left& _left,const Right& _right)
-			:Action(),left_(_left),right_(_right),return_(Return()){}
+		OperatorNode(ValueNode<Left>* _left,ValueNode<Left>* _right)
+			:Action(),left_(_left),
+			right_(_right),
+			return_(Return()),
+			returnNode_(std::make_unique<ValueNode<Return>>(&return_)){}
 		~OperatorNode(){}
 
 		virtual Status tick() = 0;
-
 	protected:
-		Left left_;
-		Right right_;
+		ValueNode<Left>* left_;
+		ValueNode<Right>* right_;
 		Return return_;
+		std::unique_ptr<ValueNode<Return>> returnNode_;
 	public:
 		const Left& getLeft()const{ return left_; }
 		const Right& getRight()const{ return right_; }
 		const Return& getReturn()const{ return return_; }
+
+		ValueNode<Return>* getReturnNode()const{ return returnNode_.get(); }
 	};
 
 	/// <summary>
@@ -157,7 +162,9 @@ namespace MyTree{
 		~AssignmentNode(){}
 
 		Status tick(){
-			this->left_ = this->right_;  // 代入操作
+			this->right_->tick();
+
+			this->left_->SetValue(this->right_);  // 代入操作
 			this->return_ = this->left_;  // 結果を左辺に設定
 			return Action::Status::SUCCESS;
 		}

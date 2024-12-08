@@ -1,26 +1,23 @@
 #pragma once
 
-#include <map>
-
-#include <variant>
-
-#include <iostream>
-
 #include <assert.h>
+#include <iostream>
+#include <map>
+#include <string>
+#include <variant>
 
 #include "Vector2.h"
 #include "Vector3.h"
 #include "Vector4.h"
 
-#include <string>
-
+/// <summary>
+/// 定数値を json に保存する 
+/// </summary>
 class GlobalVariables{
 public:
 	static GlobalVariables* getInstance();
 
 	void Update();
-
-	void CreateScene(const std::string& scene);
 
 	void LoadAllFile();
 	void LoadFile(const std::string& scene,const std::string& groupName);
@@ -34,9 +31,8 @@ private:
 	GlobalVariables* operator=(GlobalVariables&) = delete;
 private:
 	void ImGuiMenu();
-
 private:
-	using Item = std::variant<int32_t,float,Vector2,Vector3,Vector4,bool>;
+	using Item = std::variant<int32_t,float,std::string,Vector2,Vector3,Vector4,bool>;
 	using Group = std::map<std::string,Item>;
 	using Scene =  std::map<std::string,Group>;
 
@@ -108,4 +104,5 @@ public:
 	void DestroyValue(const std::string& scene,const std::string& groupName,const std::string& valueName){
 		data_[scene][groupName].erase(valueName);
 	}
+
 };

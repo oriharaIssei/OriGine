@@ -15,9 +15,9 @@ class DxCommand;
 
 class ImGuiManager{
 public:
-	static ImGuiManager *getInstance();
+	static ImGuiManager* getInstance();
 
-	void Init(const WinApp *window,const DxDevice *dxDevice,const DxSwapChain *dxSwapChain);
+	void Init(const WinApp* window,const DxDevice* dxDevice,const DxSwapChain* dxSwapChain);
 	void Finalize();
 
 	void Begin();
@@ -25,17 +25,15 @@ public:
 
 	void Draw();
 private:
-#ifdef _DEBUG
-	// SRV用ヒープ
-	ID3D12DescriptorHeap *srvHeap_;
-
-	std::shared_ptr<DxSrvArray>dxSrvArray_;
-
-	std::unique_ptr<DxCommand> dxCommand_;
-#endif // _DEBUG
-
 	ImGuiManager() = default;
 	~ImGuiManager() = default;
-	ImGuiManager(const ImGuiManager &) = delete;
-	const ImGuiManager &operator=(const ImGuiManager &) = delete;
+	ImGuiManager(const ImGuiManager&) = delete;
+	const ImGuiManager& operator=(const ImGuiManager&) = delete;
+#ifdef _DEBUG
+private:
+	// SRV用ヒープ
+	ID3D12DescriptorHeap* srvHeap_ = nullptr;
+	std::shared_ptr<DxSrvArray>dxSrvArray_;
+	std::unique_ptr<DxCommand> dxCommand_;
+#endif // _DEBUG
 };

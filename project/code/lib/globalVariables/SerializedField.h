@@ -29,6 +29,33 @@ public:
 		}
 		throw std::runtime_error("Attempted to access uninitialized value.");
 	}
+	operator T* () const{
+		if(value_){
+			return value_;
+		}
+		throw std::runtime_error("Attempted to access uninitialized value.");
+	}
+
+	template <typename U>
+		requires std::is_same_v<U,T>
+	bool operator==(const U& other) const{
+		return value_ && (*value_ == other);
+	}
+
+	template <typename U>
+		requires std::is_same_v<U,T>
+	bool operator!=(const U& other) const{
+		return value_ && (*value_ != other);
+	}
+
+
+	template <typename U>
+	U as() const{
+		if(value_){
+			return static_cast<U>(*value_);
+		}
+		throw std::runtime_error("Attempted to access uninitialized value.");
+	}
 
 	// 値を設定する
 	void setValue(const T& newValue){
@@ -40,3 +67,15 @@ public:
 private:
 	T* value_;
 };
+
+template <typename T,typename U>
+	requires std::is_same_v<U,T>
+bool operator==(const U& other,const SerializedField<T>& serializeField){
+	return (serializeField == other);
+}
+
+template <typename T,typename U>
+	requires std::is_same_v<U,T>
+bool operator!=(const U& other,const SerializedField<T>& serializeField){
+	return (serializeField != other);
+}

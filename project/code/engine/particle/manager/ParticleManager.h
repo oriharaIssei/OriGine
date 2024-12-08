@@ -4,12 +4,14 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 #include "directX12/DxCommand.h"
 #include "directX12/DxSrvArray.h"
 #include "directX12/IConstantBuffer.h"
 #include "directX12/PipelineStateObj.h"
 #include "directX12/ShaderManager.h"
+#include "globalVariables/SerializedField.h"
 #include "transform/CameraTransform.h"
 
 class Emitter;
@@ -21,11 +23,9 @@ public:
 	void Finalize();
 	void PreDraw();
 
-
-#ifdef _DEBUG
 	void Edit();
 	void DrawDebug(const IConstantBuffer<CameraTransform>& cameraTransform);
-#endif // _DEBUG
+
 private:
 	void CreatePso();
 private:
@@ -40,16 +40,10 @@ private:
 
 	std::unordered_map<std::string,std::unique_ptr<Emitter>> emitters_;
 
-#ifdef _DEBUG // Editor 用 変数
 	// 新しい Emitterを 作成する ための もの
 	bool isOpenedCrateWindow_ = false;
 	std::string newInstanceName_ = "NULL";
-
-	// 現在変更している Emitter
-	Emitter* currentEditEmitter_ = nullptr;
-	bool isUpdateCurrentEmitter_ = false;
-
-#endif // _DEBUG
 public:
-	Emitter* getEmitter(const std::string& name)const;
+	std::unique_ptr<Emitter> CreateEmitter(DxSrvArray* srvArray,const std::string& name)const;
+
 };

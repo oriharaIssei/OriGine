@@ -3,6 +3,7 @@
 #include <Array>
 #include <string>
 
+#include "globalVariables/SerializedField.h"
 #include "Vector3.h"
 
 enum class EmitterShapeType : int32_t{
@@ -31,12 +32,12 @@ private:
 };
 struct EmitterSphere
 	:EmitterShape{
-	EmitterSphere():EmitterShape(EmitterShapeType::SPHERE){}
-	EmitterSphere(float radius):
-		EmitterShape(EmitterShapeType::SPHERE),
-		radius_(radius){}
+	EmitterSphere(const std::string& scene,
+				  const std::string& emitterName)
+		:EmitterShape(EmitterShapeType::SPHERE),
+		radius_{scene,emitterName,"spawnSphereRadius"}{}
 
-	float radius_ = 0.0f;
+	SerializedField<float> radius_;
 
 #ifdef _DEBUG
 	void Debug()override;
@@ -45,13 +46,14 @@ struct EmitterSphere
 };
 struct EmitterAABB
 	:EmitterShape{
-	EmitterAABB():EmitterShape(EmitterShapeType::AABB){}
-	EmitterAABB(const Vector3& min,const Vector3& max)
+	EmitterAABB(const std::string& scene,
+				const std::string& emitterName)
 		:EmitterShape(EmitterShapeType::AABB),
-		min_(min),max_(max){}
+		min_{scene,emitterName,"spawnAABBmin"},
+		max_{scene,emitterName,"spawnAABBmax"}{}
 
-	Vector3 min_ = {0.0f,0.0f,0.0f};
-	Vector3 max_ = {0.0f,0.0f,0.0f};
+	SerializedField<Vector3> min_;
+	SerializedField<Vector3> max_;
 
 #ifdef _DEBUG
 	void Debug()override;

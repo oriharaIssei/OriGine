@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <stdint.h>
 
 #include "transform/CameraTransform.h"
@@ -10,14 +11,18 @@ struct Vector3;
 
 class Particle{
 public:
-	Particle() = default;
-	~Particle(){}
+	Particle();
+	virtual ~Particle();
 
-	void Init(const ParticleTransform& transform,float lifeTime);
+	void Init(const ParticleTransform& transform,
+			  Vector3 velocity,
+			  float lifeTime);
 	void Update(float deltaTime);
-private:
+protected:
 	ParticleTransform transform_;
 
+	Vector3 velocity_;
+	float maxLifeTime_;
 	float lifeTime_;
 	bool isAlive_;
 public:

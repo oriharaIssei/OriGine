@@ -55,6 +55,7 @@ namespace MyTree{
 	public:
 		T* getValue(){ return t_; }
 		T* getValue()const{ return t_; }
+		void setValue(const T& _t){ *t_ = _t; }
 	};
 
 	class Action : public Node{

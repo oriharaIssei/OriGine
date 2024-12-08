@@ -23,7 +23,9 @@ public:
 
 	void CreateBuffer(ID3D12Device* device,DxSrvArray* srvArray,uint32_t elementCount);
 	void Finalize(){
-		srvArray_->DestroyView(srvIndex_);
+		if(srvArray_){
+			srvArray_->DestroyView(srvIndex_);
+		}
 		buff_.Finalize();
 	}
 
@@ -51,6 +53,7 @@ public:
 template<StructuredBuffer structBuff>
 inline void IStructuredBuffer<structBuff>::CreateBuffer(ID3D12Device* device,DxSrvArray* srvArray,uint32_t elementCount){
 	elementCount_ = elementCount;
+	srvArray_ = srvArray;
 
 	if(elementCount_ == 0){
 		return;
@@ -71,7 +74,6 @@ inline void IStructuredBuffer<structBuff>::CreateBuffer(ID3D12Device* device,DxS
 	viewDesc.Buffer.NumElements = elementCount;
 	viewDesc.Buffer.StructureByteStride = sizeof(structBuff::ConstantBuffer);
 
-	srvArray_ = srvArray;
 	srvIndex_ = srvArray_->CreateView(device,viewDesc,buff_.getResource());
 }
 

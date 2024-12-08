@@ -13,7 +13,7 @@ const char* lightTypes[] = {
 };
 
 void Material::Init(){
-	color_.w = 1.0f;
+	color_ = {1.0f,1.0f,1.0f,1.0f};
 	uvScale_     = {1.0f,1.0f,1.0f};
 	uvRotate_    = {0.0f,0.0f,0.0f};
 	uvTranslate_ = {0.0f,0.0f,0.0f};
@@ -77,7 +77,7 @@ void MaterialManager::DebugUpdate(){
 		}
 
 	}
-		ImGui::End();
+	ImGui::End();
 #endif // _DEBUG
 }
 

@@ -60,7 +60,7 @@
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir)code/math;$(ProjectDir)code/lib;$(ProjectDir)code/gameScene;$(ProjectDir)code/engine;$(ProjectDir)code;$(ProjectDir)externals;$(ProjectDir)externals/assimp/include;$(ProjectDir)externals/imgui;$(ProjectDir)externals/DirectXTex;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)code/math;$(ProjectDir)code/lib;$(ProjectDir)code/gameScene;$(ProjectDir)code/engine;$(ProjectDir)code;$(ProjectDir)externals;$(ProjectDir)externals/assimp/include;$(ProjectDir)externals/imgui_nodeEditor;$(ProjectDir)externals/imgui;$(ProjectDir)externals/DirectXTex;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
@@ -82,7 +82,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)code/math;$(ProjectDir)code/lib;$(ProjectDir)code/gameScene;$(ProjectDir)code/engine;$(ProjectDir)code;$(ProjectDir)externals;$(ProjectDir)externals/assimp/include;$(ProjectDir)externals/imgui;$(ProjectDir)externals/DirectXTex;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)code/math;$(ProjectDir)code/lib;$(ProjectDir)code/gameScene;$(ProjectDir)code/engine;$(ProjectDir)code;$(ProjectDir)externals;$(ProjectDir)externals/assimp/include;$(ProjectDir)externals/imgui_nodeEditor;$(ProjectDir)externals/imgui;$(ProjectDir)externals/DirectXTex;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -148,6 +148,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="code\engine\particle\emitter\Emitter.cpp" />
     <ClCompile Include="code\engine\component\componentManager\ComponentManager.cpp" />
     <ClCompile Include="code\engine\particle\emitter\EmitterShape.cpp" />
+    <ClCompile Include="code\math\MyEasing.cpp" />
     <ClCompile Include="externals\imgui\imgui.cpp" />
     <ClCompile Include="externals\imgui\imgui_demo.cpp" />
     <ClCompile Include="externals\imgui\imgui_draw.cpp" />
@@ -164,10 +165,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="code\application\scene\IScene.cpp" />
     <ClCompile Include="code\application\scene\SceneManager.cpp" />
     <ClCompile Include="code\lib\node\OperatorNodes.cpp" />
-    <ClCompile Include="externals\imgui_nodeEditor\crude_json.cpp" />
-    <ClCompile Include="externals\imgui_nodeEditor\imgui_canvas.cpp" />
-    <ClCompile Include="externals\imgui_nodeEditor\imgui_node_editor.cpp" />
-    <ClCompile Include="externals\imgui_nodeEditor\imgui_node_editor_api.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\application\scene\GameScene.h" />
@@ -226,6 +223,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="code\engine\component\componentManager\ComponentManager.h" />
     <ClInclude Include="code\engine\particle\emitter\EmitterShape.h" />
     <ClInclude Include="code\lib\node\DefaultNodes.h" />
+    <ClInclude Include="code\math\MyEasing.h" />
     <ClInclude Include="externals\assimp\include\assimp\aabb.h" />
     <ClInclude Include="externals\assimp\include\assimp\ai_assert.h" />
     <ClInclude Include="externals\assimp\include\assimp\anim.h" />
@@ -327,12 +325,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="code\application\scene\IScene.h" />
     <ClInclude Include="code\application\scene\SceneManager.h" />
     <ClInclude Include="code\lib\node\OperatorNodes.h" />
-    <ClInclude Include="externals\imgui_nodeEditor\crude_json.h" />
-    <ClInclude Include="externals\imgui_nodeEditor\imgui_bezier_math.h" />
-    <ClInclude Include="externals\imgui_nodeEditor\imgui_canvas.h" />
-    <ClInclude Include="externals\imgui_nodeEditor\imgui_extra_math.h" />
-    <ClInclude Include="externals\imgui_nodeEditor\imgui_node_editor.h" />
-    <ClInclude Include="externals\imgui_nodeEditor\imgui_node_editor_internal.h" />
     <ClInclude Include="externals\nlohmann\json.hpp" />
     <ClInclude Include="externals\nlohmann\json_fwd.hpp" />
   </ItemGroup>
@@ -350,9 +342,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <None Include="externals\assimp\include\assimp\SmoothingGroups.inl" />
     <None Include="externals\assimp\include\assimp\vector2.inl" />
     <None Include="externals\assimp\include\assimp\vector3.inl" />
-    <None Include="externals\imgui_nodeEditor\imgui_bezier_math.inl" />
-    <None Include="externals\imgui_nodeEditor\imgui_extra_math.inl" />
-    <None Include="externals\imgui_nodeEditor\imgui_node_editor_internal.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

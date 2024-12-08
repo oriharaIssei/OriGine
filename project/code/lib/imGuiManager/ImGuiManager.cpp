@@ -15,13 +15,13 @@
 #include <imgui/imgui_impl_win32.h>
 #endif // _DEBUG
 
-ImGuiManager *ImGuiManager::getInstance(){
+ImGuiManager* ImGuiManager::getInstance(){
 	static ImGuiManager instance;
 	return &instance;
 }
 
-void ImGuiManager::Init(const WinApp *window,const DxDevice *dxDevice,const DxSwapChain *dxSwapChain){
-#ifdef _DEBUG
+void ImGuiManager::Init(const WinApp* window,const DxDevice* dxDevice,const DxSwapChain* dxSwapChain){
+ #ifdef _DEBUG
 	srvHeap_ = DxHeap::getInstance()->getSrvHeap();
 
 	dxCommand_ = std::make_unique<DxCommand>();
@@ -46,14 +46,13 @@ void ImGuiManager::Init(const WinApp *window,const DxDevice *dxDevice,const DxSw
 		srvHeap_->GetCPUDescriptorHandleForHeapStart(),
 		srvHeap_->GetGPUDescriptorHandleForHeapStart()
 	);
-	ImGuiIO &io = ImGui::GetIO();
+	ImGuiIO& io = ImGui::GetIO();
 	// Docking を可能に
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 	// ctl + Mouse Wheel で フォントサイズを 変更可能に
 	io.FontAllowUserScaling = true;
 
 	io.Fonts->AddFontFromFileTTF("resource/fonts/FiraMono-Regular.ttf",16.0f);
-
 #endif // _DEBUG
 }
 
@@ -78,14 +77,15 @@ void ImGuiManager::Begin(){
 
 void ImGuiManager::End(){
 #ifdef _DEBUG
-	// 描画前準備
-	ImGui::Render();
 #endif
 }
 
 void ImGuiManager::Draw(){
 #ifdef _DEBUG
-	ID3D12DescriptorHeap *ppHeaps[] = {srvHeap_};
+	// 描画前準備
+	ImGui::Render();
+
+	ID3D12DescriptorHeap* ppHeaps[] = {srvHeap_};
 	dxCommand_->getCommandList()->SetDescriptorHeaps(1,ppHeaps);
 
 	ImGui_ImplDx12_RenderDrawData(ImGui::GetDrawData(),dxCommand_->getCommandList());
