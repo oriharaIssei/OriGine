@@ -6,7 +6,9 @@
 #include "logger/Logger.h"
 #include <directX12/ShaderCompiler.h>
 
+#ifdef _DEBUG
 #include "imgui/imgui.h"
+#endif // _DEBUG
 
 void SpriteMesh::Init(){
 	const int32_t vertexSize = 4;

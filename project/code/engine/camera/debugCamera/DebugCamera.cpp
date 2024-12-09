@@ -1,6 +1,8 @@
 #include "DebugCamera.h"
 
+#ifdef _DEBUG
 #include "imgui/imgui.h"
+#endif // _DEBUG
 
 #include <cmath>
 #include <numbers>
