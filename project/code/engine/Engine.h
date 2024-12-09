@@ -48,6 +48,7 @@ private:
 	~Engine(){};
 	Engine(const Engine&) = delete;
 	const Engine& operator=(const Engine&) = delete;
+
 	void CreateTexturePSO();
 private:
 	// api

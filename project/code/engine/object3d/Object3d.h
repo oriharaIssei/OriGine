@@ -6,7 +6,6 @@
 #include <fstream>
 #include <sstream>
 
-#include "component/IComponent.h"
 #include "directX12/IConstantBuffer.h"
 #include "directX12/PipelineStateObj.h"
 #include "directX12/ShaderManager.h"
