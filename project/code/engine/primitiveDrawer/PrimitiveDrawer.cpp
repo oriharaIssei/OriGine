@@ -1,5 +1,6 @@
 #include "primitiveDrawer/PrimitiveDrawer.h"
 
+#include "camera/Camera.h"
 #include "directX12/DxFunctionHelper.h"
 #include "Engine.h"
 
@@ -7,8 +8,8 @@
 
 std::unique_ptr<DxCommand> PrimitiveDrawer::dxCommand_;
 
-std::array<PipelineStateObj*,kBlendNum> PrimitiveDrawer::trianglePso_;
-std::array<std::string,kBlendNum> PrimitiveDrawer::trianglePsoKeys_;
+// std::array<PipelineStateObj*,kBlendNum> PrimitiveDrawer::trianglePso_;
+// std::array<std::string,kBlendNum> PrimitiveDrawer::trianglePsoKeys_;
 
 std::array<PipelineStateObj*,kBlendNum> PrimitiveDrawer::linePso_;
 std::array<std::string,kBlendNum> PrimitiveDrawer::linePsoKeys_;
@@ -16,11 +17,11 @@ std::array<std::string,kBlendNum> PrimitiveDrawer::linePsoKeys_;
 std::unique_ptr<PrimitiveObject3dMesh> PrimitiveDrawer::lineMesh_ = nullptr;
 uint32_t PrimitiveDrawer::lineInstanceVal_ = 0;
 
-std::unique_ptr<PrimitiveObject3dMesh> PrimitiveDrawer::triangleMesh_ = nullptr;
-uint32_t PrimitiveDrawer::triangleInstanceVal_ = 0;
+// std::unique_ptr<PrimitiveObject3dMesh> PrimitiveDrawer::triangleMesh_ = nullptr;
+// uint32_t PrimitiveDrawer::triangleInstanceVal_ = 0;
 
-std::unique_ptr<PrimitiveObject3dMesh>PrimitiveDrawer::quadMesh_ = nullptr;
-uint32_t PrimitiveDrawer::quadInstanceVal_ = 0;
+// std::unique_ptr<PrimitiveObject3dMesh>PrimitiveDrawer::quadMesh_ = nullptr;
+// uint32_t PrimitiveDrawer::quadInstanceVal_ = 0;
 
 BlendMode PrimitiveDrawer::currentBlendMode_ = BlendMode::Alpha;
 
@@ -28,13 +29,22 @@ void PrimitiveDrawer::Init(){
 	dxCommand_ = std::make_unique<DxCommand>();
 	dxCommand_->Init(Engine::getInstance()->getDxDevice()->getDevice(),"main","main");
 
-	trianglePsoKeys_ = {
+	/*trianglePsoKeys_ = {
 		"Prim_Blend_None",
 		"Prim_Blend_Normal",
 		"Prim_Blend_Add",
 		"Prim_Blend_Sub",
 		"Prim_Blend_Multiply",
 		"Prim_Blend_Screen"
+	};*/
+
+	linePsoKeys_ = {
+		"Line_Blend_None",
+		"Line_Blend_Normal",
+		"Line_Blend_Add",
+		"Line_Blend_Sub",
+		"Line_Blend_Multiply",
+		"Line_Blend_Screen"
 	};
 
 	currentBlendMode_ = BlendMode::Alpha;
@@ -45,27 +55,30 @@ void PrimitiveDrawer::Init(){
 	lineMesh_->Create(2 * 600,0);
 	lineInstanceVal_ = 0;
 
-	triangleMesh_ = std::make_unique<PrimitiveObject3dMesh>();
-	triangleMesh_->Create(3 * 400,0);
-	triangleInstanceVal_ = 0;
-
-	quadMesh_ = std::make_unique<PrimitiveObject3dMesh>();
-	quadMesh_->Create(4 * 1280,6 * 1280);
-	quadInstanceVal_ = 0;
+	// triangleMesh_ = std::make_unique<PrimitiveObject3dMesh>();
+	// triangleMesh_->Create(3 * 400,0);
+	// triangleInstanceVal_ = 0;
+	// 
+	// quadMesh_ = std::make_unique<PrimitiveObject3dMesh>();
+	// quadMesh_->Create(4 * 1280,6 * 1280);
+	// quadInstanceVal_ = 0;
 }
 
 void PrimitiveDrawer::Finalize(){
 	dxCommand_->Finalize();
 
 	lineMesh_->Finalize();
-	triangleMesh_->Finalize();
-	quadMesh_->Finalize();
+	// triangleMesh_->Finalize();
+	// quadMesh_->Finalize();
 }
 
-void PrimitiveDrawer::Line(const Vector3& p0,const Vector3& p1,const  IConstantBuffer<Transform>& Transform,const IConstantBuffer<CameraTransform>& viewProj,const IConstantBuffer<Material>* material){
+void PrimitiveDrawer::Line(const Vector3& p0,
+						   const Vector3& p1,
+						   const  IConstantBuffer<Transform>& Transform,
+						   const IConstantBuffer<Material>* material){
 	ID3D12GraphicsCommandList* commandList = dxCommand_->getCommandList();
 
-	const uint32_t startIndex = lineInstanceVal_ * 3;
+	const uint32_t startIndex = lineInstanceVal_ * 2;
 	lineMesh_->vertData[startIndex].pos = {p0.x,p0.y,p0.z,1.0f};
 	lineMesh_->vertData[startIndex].normal = p0;
 	lineMesh_->vertData[startIndex + 1].pos = {p1.x,p1.y,p1.z,1.0f};
@@ -74,19 +87,8 @@ void PrimitiveDrawer::Line(const Vector3& p0,const Vector3& p1,const  IConstantB
 	lineMesh_->indexData[startIndex] = startIndex;
 	lineMesh_->indexData[startIndex + 1] = startIndex + 1;
 
-	commandList->SetGraphicsRootSignature(linePso_[(int)currentBlendMode_]->rootSignature.Get());
-	commandList->SetPipelineState(linePso_[(int)currentBlendMode_]->pipelineState.Get());
-
-	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
-
-	commandList->IASetVertexBuffers(0,1,&lineMesh_->vbView);
-	commandList->IASetIndexBuffer(&lineMesh_->ibView);
-
 	Transform.SetForRootParameter(commandList,0);
-	viewProj.SetForRootParameter(commandList,1);
 	material->SetForRootParameter(commandList,2);
-
-	Engine::getInstance()->getLightManager()->SetForRootParameter(commandList);
 
 	commandList->DrawIndexedInstanced(
 		2,1,startIndex * 2,0,0
@@ -94,81 +96,113 @@ void PrimitiveDrawer::Line(const Vector3& p0,const Vector3& p1,const  IConstantB
 	++lineInstanceVal_;
 }
 
-void PrimitiveDrawer::Triangle(const Vector3& p0,const Vector3& p1,const Vector3& p2,const  IConstantBuffer<Transform>& Transform,const IConstantBuffer<CameraTransform>& viewProj,const IConstantBuffer<Material>* material){
+//
+//void PrimitiveDrawer::Triangle(const Vector3& p0,
+//							   const Vector3& p1,
+//							   const Vector3& p2,
+//							   const  IConstantBuffer<Transform>& Transform,
+//							   const IConstantBuffer<CameraTransform>& viewProj,
+//							   const IConstantBuffer<Material>* material){
+//	ID3D12GraphicsCommandList* commandList = dxCommand_->getCommandList();
+//
+//	const uint32_t startIndex = triangleInstanceVal_ * 3;
+//	triangleMesh_->vertData[startIndex].pos = {p0.x,p0.y,p0.z,1.0f};
+//	triangleMesh_->vertData[startIndex].normal = p0;
+//	triangleMesh_->vertData[startIndex + 1].pos = {p1.x,p1.y,p1.z,1.0f};
+//	triangleMesh_->vertData[startIndex + 1].normal = p1;
+//	triangleMesh_->vertData[startIndex + 2].pos = {p2.x,p2.y,p2.z,1.0f};
+//	triangleMesh_->vertData[startIndex + 2].normal = p2;
+//
+//	triangleMesh_->indexData[startIndex] = startIndex;
+//	triangleMesh_->indexData[startIndex + 1] = startIndex + 1;
+//	triangleMesh_->indexData[startIndex + 2] = startIndex + 2;
+//
+//	commandList->SetGraphicsRootSignature(trianglePso_[(int)currentBlendMode_]->rootSignature.Get());
+//	commandList->SetPipelineState(trianglePso_[(int)currentBlendMode_]->pipelineState.Get());
+//
+//	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+//
+//	commandList->IASetVertexBuffers(0,1,&triangleMesh_->vbView);
+//	commandList->IASetIndexBuffer(&triangleMesh_->ibView);
+//
+//	Transform.SetForRootParameter(commandList,0);
+//	viewProj.SetForRootParameter(commandList,1);
+//	material->SetForRootParameter(commandList,2);
+//	Engine::getInstance()->getLightManager()->SetForRootParameter(commandList);
+//
+//	commandList->DrawIndexedInstanced(
+//		3,1,startIndex * 3,0,0
+//	);
+//	++triangleInstanceVal_;
+//}
+//
+//void PrimitiveDrawer::Quad(const Vector3& p0,
+//						   const Vector3& p1,
+//						   const Vector3& p2,
+//						   const Vector3& p3,
+//						   const  IConstantBuffer<Transform>& Transform,
+//						   const IConstantBuffer<CameraTransform>& viewProj,
+//						   const IConstantBuffer<Material>* material){
+//	ID3D12GraphicsCommandList* commandList = dxCommand_->getCommandList();
+//
+//	const uint32_t startIndex = quadInstanceVal_ * 6;
+//	const uint32_t startVertex = quadInstanceVal_ * 4;
+//	quadMesh_->vertData[startVertex].pos = {p0.x,p0.y,p0.z,1.0f};
+//	quadMesh_->vertData[startVertex].normal = p0;
+//	quadMesh_->vertData[startVertex + 1].pos = {p1.x,p1.y,p1.z,1.0f};
+//	quadMesh_->vertData[startVertex + 1].normal = p1;
+//	quadMesh_->vertData[startVertex + 2].pos = {p2.x,p2.y,p2.z,1.0f};
+//	quadMesh_->vertData[startVertex + 2].normal = p2;
+//	quadMesh_->vertData[startVertex + 3].pos = {p3.x,p3.y,p3.z,1.0f};
+//	quadMesh_->vertData[startVertex + 3].normal = p3;
+//
+//	quadMesh_->indexData[startIndex] = startIndex;
+//	quadMesh_->indexData[startIndex + 1] = startIndex + 1;
+//	quadMesh_->indexData[startIndex + 2] = startIndex + 2;
+//	quadMesh_->indexData[startIndex + 3] = startIndex + 1;
+//	quadMesh_->indexData[startIndex + 4] = startIndex + 3;
+//	quadMesh_->indexData[startIndex + 5] = startIndex + 2;
+//
+//	commandList->SetGraphicsRootSignature(trianglePso_[(int)currentBlendMode_]->rootSignature.Get());
+//	commandList->SetPipelineState(trianglePso_[(int)currentBlendMode_]->pipelineState.Get());
+//
+//	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+//
+//	commandList->IASetVertexBuffers(0,1,&quadMesh_->vbView);
+//	commandList->IASetIndexBuffer(&quadMesh_->ibView);
+//
+//	Transform.SetForRootParameter(commandList,0);
+//	viewProj.SetForRootParameter(commandList,1);
+//	material->SetForRootParameter(commandList,2);
+//	Engine::getInstance()->getLightManager()->SetForRootParameter(commandList);
+//
+//	commandList->DrawIndexedInstanced(
+//		6,1,0,startVertex,0
+//	);
+//	++quadInstanceVal_;
+//}
+
+void PrimitiveDrawer::PreDrawLine(){
 	ID3D12GraphicsCommandList* commandList = dxCommand_->getCommandList();
 
-	const uint32_t startIndex = triangleInstanceVal_ * 3;
-	triangleMesh_->vertData[startIndex].pos = {p0.x,p0.y,p0.z,1.0f};
-	triangleMesh_->vertData[startIndex].normal = p0;
-	triangleMesh_->vertData[startIndex + 1].pos = {p1.x,p1.y,p1.z,1.0f};
-	triangleMesh_->vertData[startIndex + 1].normal = p1;
-	triangleMesh_->vertData[startIndex + 2].pos = {p2.x,p2.y,p2.z,1.0f};
-	triangleMesh_->vertData[startIndex + 2].normal = p2;
+	commandList->SetGraphicsRootSignature(linePso_[(int)currentBlendMode_]->rootSignature.Get());
+	commandList->SetPipelineState(linePso_[(int)currentBlendMode_]->pipelineState.Get());
 
-	triangleMesh_->indexData[startIndex] = startIndex;
-	triangleMesh_->indexData[startIndex + 1] = startIndex + 1;
-	triangleMesh_->indexData[startIndex + 2] = startIndex + 2;
+	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 
-	commandList->SetGraphicsRootSignature(trianglePso_[(int)currentBlendMode_]->rootSignature.Get());
-	commandList->SetPipelineState(trianglePso_[(int)currentBlendMode_]->pipelineState.Get());
+	Camera::getInstance()->setBufferForRootParameter(commandList,1);
 
-	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	commandList->IASetVertexBuffers(0,1,&triangleMesh_->vbView);
-	commandList->IASetIndexBuffer(&triangleMesh_->ibView);
-
-	Transform.SetForRootParameter(commandList,0);
-	viewProj.SetForRootParameter(commandList,1);
-	material->SetForRootParameter(commandList,2);
 	Engine::getInstance()->getLightManager()->SetForRootParameter(commandList);
-
-	commandList->DrawIndexedInstanced(
-		3,1,startIndex * 3,0,0
-	);
-	++triangleInstanceVal_;
 }
 
-void PrimitiveDrawer::Quad(const Vector3& p0,const Vector3& p1,const Vector3& p2,const Vector3& p3,const  IConstantBuffer<Transform>& Transform,const IConstantBuffer<CameraTransform>& viewProj,const IConstantBuffer<Material>* material){
+void PrimitiveDrawer::PostDrawLine(){
 	ID3D12GraphicsCommandList* commandList = dxCommand_->getCommandList();
 
-	const uint32_t startIndex = quadInstanceVal_ * 6;
-	const uint32_t startVertex = quadInstanceVal_ * 4;
-	quadMesh_->vertData[startVertex].pos = {p0.x,p0.y,p0.z,1.0f};
-	quadMesh_->vertData[startVertex].normal = p0;
-	quadMesh_->vertData[startVertex + 1].pos = {p1.x,p1.y,p1.z,1.0f};
-	quadMesh_->vertData[startVertex + 1].normal = p1;
-	quadMesh_->vertData[startVertex + 2].pos = {p2.x,p2.y,p2.z,1.0f};
-	quadMesh_->vertData[startVertex + 2].normal = p2;
-	quadMesh_->vertData[startVertex + 3].pos = {p3.x,p3.y,p3.z,1.0f};
-	quadMesh_->vertData[startVertex + 3].normal = p3;
-
-	quadMesh_->indexData[startIndex] = startIndex;
-	quadMesh_->indexData[startIndex + 1] = startIndex + 1;
-	quadMesh_->indexData[startIndex + 2] = startIndex + 2;
-	quadMesh_->indexData[startIndex + 3] = startIndex + 1;
-	quadMesh_->indexData[startIndex + 4] = startIndex + 3;
-	quadMesh_->indexData[startIndex + 5] = startIndex + 2;
-
-	commandList->SetGraphicsRootSignature(trianglePso_[(int)currentBlendMode_]->rootSignature.Get());
-	commandList->SetPipelineState(trianglePso_[(int)currentBlendMode_]->pipelineState.Get());
-
-	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	commandList->IASetVertexBuffers(0,1,&quadMesh_->vbView);
-	commandList->IASetIndexBuffer(&quadMesh_->ibView);
-
-	Transform.SetForRootParameter(commandList,0);
-	viewProj.SetForRootParameter(commandList,1);
-	material->SetForRootParameter(commandList,2);
-	Engine::getInstance()->getLightManager()->SetForRootParameter(commandList);
-
-	commandList->DrawIndexedInstanced(
-		6,1,0,startVertex,0
-	);
-	++quadInstanceVal_;
+	commandList->IASetVertexBuffers(0,1,&lineMesh_->vbView);
+	commandList->IASetIndexBuffer(&lineMesh_->ibView);
 }
 
-void PrimitiveDrawer::CreatePso(Engine* system){
+void PrimitiveDrawer::CreatePso(Engine* engine){
 
 	ShaderManager* shaderManager = ShaderManager::getInstance();
 	///=================================================
@@ -268,14 +302,15 @@ void PrimitiveDrawer::CreatePso(Engine* system){
 	///=================================================
 	/// BlendMode ごとの Pso作成
 	///=================================================
-	for(size_t i = 0; i < kBlendNum; ++i){
+	/*for(size_t i = 0; i < kBlendNum; ++i){
 		primShaderInfo.blendMode_=static_cast<BlendMode>(i);
-		trianglePso_[i]=shaderManager->CreatePso(trianglePsoKeys_[i],primShaderInfo,system->getDxDevice()->getDevice());
-	}
-	// line も
+		trianglePso_[i]=shaderManager->CreatePso(trianglePsoKeys_[i],primShaderInfo,engine->getDxDevice()->getDevice());
+	}*/
+
+	/// line
 	primShaderInfo.topologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
 	for(size_t i = 0; i < kBlendNum; ++i){
-		primShaderInfo.blendMode_=static_cast<BlendMode>(i);
-		linePso_[i]=shaderManager->CreatePso(linePsoKeys_[i],primShaderInfo,system->getDxDevice()->getDevice());
+		primShaderInfo.blendMode_ = static_cast<BlendMode>(i);
+		linePso_[i] = shaderManager->CreatePso(linePsoKeys_[i],primShaderInfo,engine->getDxDevice()->getDevice());
 	}
 }

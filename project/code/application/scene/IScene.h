@@ -16,7 +16,7 @@ public:
 	IScene(const std::string& sceneName);
 	virtual ~IScene();
 
-	virtual void Init();
+	virtual void Init() = 0;
 	virtual void Update() = 0;
 
 	virtual void Draw3d()	    = 0;
@@ -24,8 +24,6 @@ public:
 	virtual void DrawSprite()   = 0;
 	virtual void DrawParticle() = 0;
 protected:
-	IConstantBuffer<CameraTransform> cameraBuff_;
-
 	std::shared_ptr<DxRtvArray> sceneRtvArray_;
 	std::shared_ptr<DxSrvArray> sceneSrvArray_;
 private:

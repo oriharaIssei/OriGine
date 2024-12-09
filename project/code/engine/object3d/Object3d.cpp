@@ -21,6 +21,7 @@
 #include "Vector4.h"
 #include <stdint.h>
 
+#include "camera/Camera.h"
 #include "Object3d.h"
 #include "model/Model.h"
 
@@ -41,9 +42,11 @@ void Object3d::PreDraw(){
 	commandList->SetPipelineState(manager->texturePso_[static_cast<uint32_t>(currentBlend_)]->pipelineState.Get());
 
 	Engine::getInstance()->getLightManager()->SetForRootParameter(commandList);
+
+	Camera::getInstance()->setBufferForRootParameter(commandList,1);
 }
 
-void Object3d::DrawThis(const IConstantBuffer<CameraTransform>& view){
+void Object3d::DrawThis(){
 	ModelManager* manager = ModelManager::getInstance();
 	auto* commandList = manager->dxCommand_->getCommandList();
 
@@ -61,7 +64,6 @@ void Object3d::DrawThis(const IConstantBuffer<CameraTransform>& view){
 		commandList->IASetIndexBuffer(&mesh.meshBuff->ibView);
 
 		transform_.SetForRootParameter(commandList,0);
-		view.SetForRootParameter(commandList,1);
 
 		material.material->SetForRootParameter(commandList,2);
 		// 描画!!!
@@ -75,7 +77,7 @@ void Object3d::setMaterial(IConstantBuffer<Material>* material,uint32_t index){
 	data_->materialData_[index].material = material;
 }
 
-void Object3d::Draw(const IConstantBuffer<CameraTransform>& view){
-	drawFuncTable_[(size_t)data_->currentState_](view);
+void Object3d::Draw(){
+	drawFuncTable_[(size_t)data_->currentState_]();
 }
 #pragma endregion

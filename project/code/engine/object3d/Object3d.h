@@ -30,17 +30,17 @@ public:
 
 	IConstantBuffer<Transform> transform_;
 
-	void Draw(const IConstantBuffer<CameraTransform>& view);
+	void Draw();
 private:
-	void NotDraw([[maybe_unused]] const IConstantBuffer<CameraTransform>& view){}
+	void NotDraw(){}
 
-	void DrawThis(const IConstantBuffer<CameraTransform>& view);
+	void DrawThis();
 private:
 	std::unique_ptr<Model> data_;
 
-	std::array<std::function<void(const IConstantBuffer<CameraTransform>&)>,2> drawFuncTable_ = {
-		[this](const IConstantBuffer<CameraTransform>& view){ NotDraw(view); },
-		[this](const IConstantBuffer<CameraTransform>& view){ DrawThis(view); }
+	std::array <std::function<void()>,2> drawFuncTable_ = {
+		[this](){ NotDraw(); },
+		[this](){ DrawThis(); }
 	};
 public:
 	const Model* getModel()const{ return data_.get(); }

@@ -102,6 +102,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="code\engine\camera\Camera.cpp" />
     <ClCompile Include="code\application\scene\GameScene.cpp" />
     <ClCompile Include="code\engine\audio\Audio.cpp" />
     <ClCompile Include="code\engine\directX12\RenderTexture.cpp" />
@@ -167,6 +168,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="code\lib\node\OperatorNodes.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="code\engine\camera\Camera.h" />
     <ClInclude Include="code\application\scene\GameScene.h" />
     <ClInclude Include="code\engine\audio\Audio.h" />
     <ClInclude Include="code\engine\directX12\IStructuredBuffer.h" />
