@@ -147,7 +147,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="code\main.cpp" />
     <ClCompile Include="code\math\Matrix4x4.cpp" />
     <ClCompile Include="code\engine\particle\emitter\Emitter.cpp" />
-    <ClCompile Include="code\engine\component\componentManager\ComponentManager.cpp" />
     <ClCompile Include="code\engine\particle\emitter\EmitterShape.cpp" />
     <ClCompile Include="code\math\MyEasing.cpp" />
     <ClCompile Include="externals\imgui\imgui.cpp" />
@@ -162,7 +161,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="code\engine\transform\ParticleTransform.cpp" />
     <ClCompile Include="code\engine\module\IModule.cpp" />
     <ClCompile Include="code\engine\assets\IAsset.cpp" />
-    <ClCompile Include="code\engine\component\IComponent.cpp" />
     <ClCompile Include="code\application\scene\IScene.cpp" />
     <ClCompile Include="code\application\scene\SceneManager.cpp" />
     <ClCompile Include="code\lib\node\OperatorNodes.cpp" />
@@ -222,7 +220,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="code\math\Vector3.h" />
     <ClInclude Include="code\math\Vector4.h" />
     <ClInclude Include="code\engine\particle\emitter\Emitter.h" />
-    <ClInclude Include="code\engine\component\componentManager\ComponentManager.h" />
     <ClInclude Include="code\engine\particle\emitter\EmitterShape.h" />
     <ClInclude Include="code\lib\node\DefaultNodes.h" />
     <ClInclude Include="code\math\MyEasing.h" />
@@ -322,7 +319,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="code\engine\transform\ParticleTransform.h" />
     <ClInclude Include="code\engine\module\IModule.h" />
     <ClInclude Include="code\engine\assets\IAsset.h" />
-    <ClInclude Include="code\engine\component\IComponent.h" />
     <ClInclude Include="code\lib\myRandom\MyRandom.h" />
     <ClInclude Include="code\application\scene\IScene.h" />
     <ClInclude Include="code\application\scene\SceneManager.h" />

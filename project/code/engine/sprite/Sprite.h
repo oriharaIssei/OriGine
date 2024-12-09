@@ -2,8 +2,6 @@
 
 #include "SpriteCommon.h"
 
-#include "component/IComponent.h"
-
 #include "Vector2.h"
 
 struct SpriteVertexData{
