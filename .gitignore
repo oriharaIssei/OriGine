@@ -391,3 +391,5 @@ FodyWeavers.xsd
 /project/externals/imgui/x64/Debug
 /project/ImGui/x64/Debug
 /project/x64/Debug
+/project/externals/imgui/x64/Release
+/project/x64/Release

@@ -87,6 +87,8 @@ void Sprite::Draw(){
 }
 
 void Sprite::Debug(const std::string& name){
+#ifdef _DEBUG
+
 	ImGui::ColorEdit4("Color",&color_.x);
 
 	ImGui::DragFloat2("UVScale",&uvScale_.x,0.1f);
@@ -98,6 +100,7 @@ void Sprite::Debug(const std::string& name){
 
 	ImGui::DragFloat2("textureLeftTopPos",&textureLeftTop_.x,0.1f);
 	ImGui::DragFloat2("textureSize",&textureSize_.x,0.1f);
+#endif // _DEBUG
 }
 
 void Sprite::Update(){
