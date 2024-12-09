@@ -6,9 +6,11 @@
 #include "imgui/imgui.h"
 #endif // _DEBUG
 
+#ifdef _DEBUG
 void EmitterSphere::Debug(){
 	ImGui::DragFloat("radius",radius_,0.1f);
 }
+#endif // _DEBUG
 
 Vector3 EmitterSphere::getSpawnPos(){
 	MyRandom::Float randFloat = MyRandom::Float(-radius_,radius_);
@@ -21,6 +23,7 @@ Vector3 EmitterSphere::getSpawnPos(){
 	return randDire * randDist;
 }
 
+#ifdef _DEBUG
 void EmitterAABB::Debug(){
 	ImGui::DragFloat3("min",reinterpret_cast<float*>(min_.operator Vector3 * ()),0.1f);
 	ImGui::DragFloat3("max",reinterpret_cast<float*>(max_.operator Vector3 * ()),0.1f);
@@ -32,6 +35,7 @@ void EmitterAABB::Debug(){
 				  (std::max)(min_->y,max_->y),
 				  (std::max)(min_->z,max_->z)});
 }
+#endif // _DEBUG
 
 Vector3 EmitterAABB::getSpawnPos(){
 	float randX,randY,randZ;
