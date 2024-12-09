@@ -1,6 +1,8 @@
 #include "DebugCamera.h"
 
+#ifdef _DEBUG
 #include "imgui/imgui.h"
+#endif // _DEBUG
 
 #include <cmath>
 #include <numbers>
@@ -11,11 +13,13 @@ void DebugCamera::Init(){
 }
 
 void DebugCamera::DebugUpdate(){
+#ifdef _DEBUG
 	if(ImGui::Begin("DebugCamera")){
 		ImGui::DragFloat3("Rotate",&cameraBuff_.rotate.x,0.1f);
 		ImGui::DragFloat3("Translate",&cameraBuff_.translate.x,0.1f);
 	}
 	ImGui::End();
+#endif // _DEBUG
 }
 
 void DebugCamera::Update(){
