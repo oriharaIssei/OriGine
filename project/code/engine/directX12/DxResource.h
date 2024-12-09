@@ -3,14 +3,13 @@
 #include <d3d12.h>
 #include <wrl.h>
 
-#include "DirectXTex.h"
+#include "DirectXTex/DirectXTex.h"
 
 #include "Vector4.h"
 #include <stdint.h>
 
 class DxDevice;
-class DxResource
-{
+class DxResource{
 public:
 	DxResource() = default;
 	~DxResource() = default;

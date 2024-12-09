@@ -388,3 +388,8 @@ FodyWeavers.xsd
 /project/externals/DirectXTex/Shaders/Compiled/BC7Encode_TryMode137CS_cs40.pdb
 /project/externals/DirectXTex/Shaders/Compiled/BC7Encode_TryMode456CS.pdb
 /project/externals/DirectXTex/Shaders/Compiled/BC7Encode_TryMode456CS_cs40.pdb
+/project/externals/imgui/x64/Debug
+/project/ImGui/x64/Debug
+/project/x64/Debug
+/project/externals/imgui/x64/Release
+/project/x64/Release
