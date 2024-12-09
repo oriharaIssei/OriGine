@@ -14,6 +14,7 @@
 
 class Object3d;
 struct Model;
+struct ModelNode;
 struct ModelMeshData;
 struct Material3D;
 class ModelManager{

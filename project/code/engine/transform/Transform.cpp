@@ -33,5 +33,5 @@ Matrix4x4 Transform::CalculateWithParent(const Transform* parent){
 	if(parent == nullptr){
 		return worldMat;
 	}
-	return worldMat * CalculateWithParent(parent->parent);
+	return CalculateWithParent(parent->parent) * worldMat;
 }

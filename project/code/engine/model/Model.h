@@ -1,24 +1,35 @@
 #pragma once
 
 #include <memory>
+#include <string>
 #include <vector>
 
 #include "directX12/IConstantBuffer.h"
 #include "directX12/Object3dMesh.h"
 #include "material/Material.h"
+#include "Matrix4x4.h"
 
 struct Material3D{
 	uint32_t textureNumber;
 	IConstantBuffer<Material>* material;
 };
+
+struct ModelNode{
+	Matrix4x4 localMatrix;
+	std::string name;
+	std::vector<ModelNode> children;
+};
+
 struct Mesh3D{
 	std::unique_ptr<IObject3dMesh> meshBuff;
+
 	size_t dataSize  = 0;
 	size_t vertSize  = 0;
 	size_t indexSize = 0;
 };
 struct ModelMeshData{
 	std::vector<Mesh3D> mesh_;
+	ModelNode rootNode;
 };
 struct Model{
 	enum class LoadState{

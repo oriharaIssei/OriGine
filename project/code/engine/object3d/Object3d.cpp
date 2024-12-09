@@ -51,6 +51,7 @@ void Object3d::DrawThis(){
 	auto* commandList = manager->dxCommand_->getCommandList();
 
 	uint32_t index = 0;
+
 	for(auto& mesh : data_->meshData_->mesh_){
 		auto& material = data_->materialData_[index];
 		ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};

@@ -115,6 +115,47 @@ void ProcessMeshData(Mesh3D& meshData,const std::vector<TextureVertexData>& vert
 	meshData.indexSize = static_cast<int32_t>(indices.size());
 }
 
+ModelNode ReadNode(aiNode* node){
+	ModelNode result;
+	/// LocalMatrix の 取得
+	aiMatrix4x4 aiLocalMatrix = node->mTransformation;
+	/// 列ベクトル を 行ベクトル に
+	aiLocalMatrix.Transpose();
+	/// localMatrix を Copy
+	result.localMatrix[0][0] = aiLocalMatrix[0][0];
+	result.localMatrix[0][1] = aiLocalMatrix[0][1];
+	result.localMatrix[0][2] = aiLocalMatrix[0][2];
+	result.localMatrix[0][3] = aiLocalMatrix[0][3];
+
+	result.localMatrix[1][0] = aiLocalMatrix[1][0];
+	result.localMatrix[1][1] = aiLocalMatrix[1][1];
+	result.localMatrix[1][2] = aiLocalMatrix[1][2];
+	result.localMatrix[1][3] = aiLocalMatrix[1][3];
+
+	result.localMatrix[2][0] = aiLocalMatrix[2][0];
+	result.localMatrix[2][1] = aiLocalMatrix[2][1];
+	result.localMatrix[2][2] = aiLocalMatrix[2][2];
+	result.localMatrix[2][3] = aiLocalMatrix[2][3];
+
+	result.localMatrix[3][0] = aiLocalMatrix[3][0];
+	result.localMatrix[3][1] = aiLocalMatrix[3][1];
+	result.localMatrix[3][2] = aiLocalMatrix[3][2];
+	result.localMatrix[3][3] = aiLocalMatrix[3][3];
+
+	/// Name を Copy
+	result.name = node->mName.C_Str();
+
+	/// Children を Copy
+	result.children.resize(node->mNumChildren);
+
+	/// Children すべてを Copy
+	for(uint32_t childIndex = 0; childIndex < node->mNumChildren; childIndex++){
+		result.children[childIndex] = ReadNode(node->mChildren[childIndex]);
+	}
+
+	return result;
+}
+
 void LoadModelFile(ModelMeshData* data,const std::string& directoryPath,const std::string& filename){
 	Assimp::Importer importer;
 	std::string filePath = directoryPath + "/" + filename;
@@ -125,8 +166,12 @@ void LoadModelFile(ModelMeshData* data,const std::string& directoryPath,const st
 	std::vector<TextureVertexData> vertices;
 	std::vector<uint32_t> indices;
 
+	/// node 読み込み
+	data->rootNode = ReadNode(scene->mRootNode);
+
 	for(uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex){
 		data->mesh_.emplace_back(Mesh3D());
+
 		aiMesh* mesh = scene->mMeshes[meshIndex];
 		assert(mesh->HasNormals() && mesh->HasTextureCoords(0));
 
