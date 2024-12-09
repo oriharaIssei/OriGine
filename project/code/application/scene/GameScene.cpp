@@ -39,13 +39,6 @@ void GameScene::Init(){
 	input_ = Input::getInstance();
 
 	materialManager_ = Engine::getInstance()->getMaterialManager();
-
-	object_.reset(Object3d::Create("resource/Models","Enemy.obj"));
-	object_->transform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
-	object_->transform_.openData_.UpdateMatrix();
-	object_->transform_.ConvertToBuffer();
-
-	particleManager = ParticleManager::getInstance();
 }
 
 void GameScene::Update(){
@@ -58,20 +51,16 @@ void GameScene::Update(){
 #endif // _DEBUG
 
 #ifdef _DEBUG
-	particleManager->Edit();
 	materialManager_->DebugUpdate();
 #endif // _DEBUG
 
 	Engine::getInstance()->getLightManager()->Update();
 }
 
-void GameScene::Draw3d(){
-}
+void GameScene::Draw3d(){}
 
 void GameScene::DrawLine(){}
 
 void GameScene::DrawSprite(){}
 
-void GameScene::DrawParticle(){
-	particleManager->DrawDebug(cameraBuff_);
-}
+void GameScene::DrawParticle(){}

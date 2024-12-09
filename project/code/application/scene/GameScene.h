@@ -39,8 +39,4 @@ private:
 	IConstantBuffer<CameraTransform> cameraBuff_;
 	Input* input_;
 	MaterialManager* materialManager_;
-
-	std::unique_ptr<Object3d> object_;
-
-	ParticleManager* particleManager;
 };
