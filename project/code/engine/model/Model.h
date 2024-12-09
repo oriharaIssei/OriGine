@@ -8,6 +8,7 @@
 #include "directX12/Object3dMesh.h"
 #include "material/Material.h"
 #include "Matrix4x4.h"
+#include "transform/Transform.h"
 
 struct Material3D{
 	uint32_t textureNumber;
@@ -22,7 +23,6 @@ struct ModelNode{
 
 struct Mesh3D{
 	std::unique_ptr<IObject3dMesh> meshBuff;
-
 	size_t dataSize  = 0;
 	size_t vertSize  = 0;
 	size_t indexSize = 0;

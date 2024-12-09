@@ -38,6 +38,9 @@ void GameScene::Init(){
 	input_ = Input::getInstance();
 
 	materialManager_ = Engine::getInstance()->getMaterialManager();
+
+	object_.reset(Object3d::Create("resource/Models","cube.gltf"));
+	object_->transform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
 }
 
 void GameScene::Update(){
@@ -54,7 +57,9 @@ void GameScene::Update(){
 	Engine::getInstance()->getLightManager()->Update();
 }
 
-void GameScene::Draw3d(){}
+void GameScene::Draw3d(){
+	object_->Draw();
+}
 
 void GameScene::DrawLine(){}
 

@@ -52,6 +52,9 @@ void Object3d::DrawThis(){
 
 	uint32_t index = 0;
 
+	transform_.openData_.worldMat = data_->meshData_->rootNode.localMatrix * MakeMatrix::Affine(transform_.openData_.scale,transform_.openData_.rotate,transform_.openData_.translate);
+	transform_.ConvertToBuffer();
+
 	for(auto& mesh : data_->meshData_->mesh_){
 		auto& material = data_->materialData_[index];
 		ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
