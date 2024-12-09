@@ -1,6 +1,7 @@
 #include "Engine.h"
 
 #include "Audio/Audio.h"
+#include "camera/Camera.h"
 #include "directX12/DxFunctionHelper.h"
 #include "directX12/DxHeap.h"
 #include "directX12/RenderTexture.h"
@@ -97,9 +98,12 @@ void Engine::Init(){
 
 	deltaTime_ = std::make_unique<DeltaTime>();
 	deltaTime_->Init();
+
+	Camera::getInstance()->Init();
 }
 
 void Engine::Finalize(){
+	Camera::getInstance()->Finalize();
 	lightManager_->Finalize();
 	ParticleManager::getInstance()->Finalize();
 	materialManager_->Finalize();

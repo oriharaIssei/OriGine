@@ -36,7 +36,6 @@ private:
 	std::unique_ptr<DebugCamera> debugCamera_;
 #endif // _DEBUG
 
-	IConstantBuffer<CameraTransform> cameraBuff_;
 	Input* input_;
 	MaterialManager* materialManager_;
 };

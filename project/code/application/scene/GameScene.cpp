@@ -6,6 +6,7 @@
 
 #include "Engine.h"
 
+#include "camera/Camera.h"
 #include "directX12/DxCommand.h"
 #include "directX12/DxRtvArray.h"
 #include "directX12/DxRtvArrayManager.h"
@@ -34,8 +35,6 @@ void GameScene::Init(){
 	debugCamera_->setViewTranslate({0.0f,0.0f,-12.0f});
 #endif // _DEBUG
 
-	cameraBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
-
 	input_ = Input::getInstance();
 
 	materialManager_ = Engine::getInstance()->getMaterialManager();
@@ -45,9 +44,7 @@ void GameScene::Update(){
 #ifdef _DEBUG
 	debugCamera_->Update();
 	debugCamera_->DebugUpdate();
-	cameraBuff_.openData_.viewMat = debugCamera_->getCameraTransform().viewMat;
-	cameraBuff_.openData_.projectionMat = debugCamera_->getCameraTransform().projectionMat;
-	cameraBuff_.ConvertToBuffer();
+	Camera::getInstance()->setTransform(debugCamera_->getCameraTransform());
 #endif // _DEBUG
 
 #ifdef _DEBUG

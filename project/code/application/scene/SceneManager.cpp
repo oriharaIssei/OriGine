@@ -1,5 +1,6 @@
 #include "SceneManager.h"
 
+#include "camera/Camera.h"
 #include "engine/directX12/DxRtvArrayManager.h"
 #include "engine/directX12/DxSrvArrayManager.h"
 #include "engine/directX12/RenderTexture.h"
@@ -34,6 +35,8 @@ void SceneManager::Finalize(){
 
 void SceneManager::Update(){
 	currentScene_->Update();
+
+	Camera::getInstance()->DataConvertToBuffer();
 }
 
 void SceneManager::Draw(){
@@ -44,6 +47,12 @@ void SceneManager::Draw(){
 	Object3d::PreDraw();
 
 	currentScene_->Draw3d();
+	///===============================================
+	/// Line
+	///===============================================
+	PrimitiveDrawer::PreDrawLine();
+
+	currentScene_->DrawLine();
 	///===============================================
 	/// Particle
 	///===============================================
@@ -56,14 +65,10 @@ void SceneManager::Draw(){
 	SpriteCommon::getInstance()->PreDraw();
 
 	currentScene_->DrawSprite();
-
-	sceneView_->PostDraw();
-
-	currentScene_->DrawLine();
-
 	///===============================================
 	/// off screen Rendering
 	///===============================================
+	sceneView_->PostDraw();
 	Engine::getInstance()->ScreenPreDraw();
 	sceneView_->DrawTexture();
 	Engine::getInstance()->ScreenPostDraw();
