@@ -1,37 +1,17 @@
-#include "directX12/DxDebug.h"
-#include <Engine.h>
-
 #include <memory>
 
-#include "DeltaTime/DeltaTime.h"
-#include "globalVariables/GlobalVariables.h"
-#include <application/scene/GameScene.h>
-#include <application/scene/SceneManager.h>
+#include "application/MyGame.h"
+#include "directX12/DxDebug.h"
 
 int WINAPI WinMain(HINSTANCE,HINSTANCE,LPSTR,int){
 	DxDebug debug;
-	Engine* system = Engine::getInstance();
-	GlobalVariables* variables = GlobalVariables::getInstance();
-	SceneManager* sceneManager = SceneManager::getInstance();
 
-	variables->LoadAllFile();
-	system->Init();
-	sceneManager->Init();
-	sceneManager->ChangeScene(std::make_unique<GameScene>());
+	std::unique_ptr<MyGame> gameApp = std::make_unique<MyGame>();
+	gameApp->Init();
 
-	while(!system->ProcessMessage()){
-		system->BeginFrame();
+	gameApp->Run();
 
-		variables->Update();
-
-		sceneManager->Update();
-		sceneManager->Draw();
-
-		system->EndFrame();
-	}
-
-	sceneManager->Finalize();
-	system->Finalize();
+	gameApp->Finalize();
 
 	return 0;
 }

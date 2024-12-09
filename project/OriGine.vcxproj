@@ -157,6 +157,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="code\application\scene\IScene.cpp" />
     <ClCompile Include="code\application\scene\SceneManager.cpp" />
     <ClCompile Include="code\lib\node\OperatorNodes.cpp" />
+    <ClCompile Include="code\application\MyGame.cpp" />
+    <ClCompile Include="code\application\FrameWork.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\engine\camera\Camera.h" />
@@ -310,6 +312,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="code\lib\node\OperatorNodes.h" />
     <ClInclude Include="externals\nlohmann\json.hpp" />
     <ClInclude Include="externals\nlohmann\json_fwd.hpp" />
+    <ClInclude Include="code\application\MyGame.h" />
+    <ClInclude Include="code\application\FrameWork.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
