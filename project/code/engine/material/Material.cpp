@@ -1,6 +1,8 @@
 #include "material/Material.h"
 
+#ifdef _DEBUG
 #include "imgui/imgui.h"
+#endif // _DEBUG
 
 #include "Engine.h"
 

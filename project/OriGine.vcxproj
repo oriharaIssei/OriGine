@@ -44,12 +44,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\externals\nlohmann;$(SolutionDir)\imgui;$(SolutionDir)\DirectXTex;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\generated\outputs\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\generated\outputs\obj\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectDir)..\externals\nlohmann;$(ProjectDir)..\externals\DirectXTex;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\externals\nlohmann;$(SolutionDir)\imgui;$(SolutionDir)\DirectXTex;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\generated\outputs\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)..\generated\outputs\obj\$(ProjectName)\$(Configuration)\</IntDir>
   </PropertyGroup>
@@ -60,7 +60,7 @@
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir)code/math;$(ProjectDir)code/lib;$(ProjectDir)code/gameScene;$(ProjectDir)code/engine;$(ProjectDir)code;$(ProjectDir)externals;$(ProjectDir)externals/assimp/include;$(ProjectDir)externals/imgui_nodeEditor;$(ProjectDir)externals/imgui;$(ProjectDir)externals/DirectXTex;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)code/math;$(ProjectDir)code/lib;$(ProjectDir)code/gameScene;$(ProjectDir)code/engine;$(ProjectDir)code;$(ProjectDir)externals;$(ProjectDir)externals/assimp/include;$(ProjectDir)externals/imgui_nodeEditor;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
@@ -82,7 +82,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)code/math;$(ProjectDir)code/lib;$(ProjectDir)code/gameScene;$(ProjectDir)code/engine;$(ProjectDir)code;$(ProjectDir)externals;$(ProjectDir)externals/assimp/include;$(ProjectDir)externals/imgui_nodeEditor;$(ProjectDir)externals/imgui;$(ProjectDir)externals/DirectXTex;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)code/math;$(ProjectDir)code/lib;$(ProjectDir)code/gameScene;$(ProjectDir)code/engine;$(ProjectDir)code;$(ProjectDir)externals;$(ProjectDir)externals/assimp/include;$(ProjectDir)externals/imgui_nodeEditor;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -149,13 +149,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="code\engine\particle\emitter\Emitter.cpp" />
     <ClCompile Include="code\engine\particle\emitter\EmitterShape.cpp" />
     <ClCompile Include="code\math\MyEasing.cpp" />
-    <ClCompile Include="externals\imgui\imgui.cpp" />
-    <ClCompile Include="externals\imgui\imgui_demo.cpp" />
-    <ClCompile Include="externals\imgui\imgui_draw.cpp" />
-    <ClCompile Include="externals\imgui\imgui_impl_dx12.cpp" />
-    <ClCompile Include="externals\imgui\imgui_impl_win32.cpp" />
-    <ClCompile Include="externals\imgui\imgui_tables.cpp" />
-    <ClCompile Include="externals\imgui\imgui_widgets.cpp" />
     <ClCompile Include="code\lib\Thread\Thread.cpp" />
     <ClCompile Include="code\engine\particle\manager\ParticleManager.cpp" />
     <ClCompile Include="code\engine\transform\ParticleTransform.cpp" />
@@ -306,14 +299,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="externals\assimp\include\assimp\XmlParser.h" />
     <ClInclude Include="externals\assimp\include\assimp\XMLTools.h" />
     <ClInclude Include="externals\assimp\include\assimp\ZipArchiveIOSystem.h" />
-    <ClInclude Include="externals\imgui\imconfig.h" />
-    <ClInclude Include="externals\imgui\imgui.h" />
-    <ClInclude Include="externals\imgui\imgui_impl_dx12.h" />
-    <ClInclude Include="externals\imgui\imgui_impl_win32.h" />
-    <ClInclude Include="externals\imgui\imgui_internal.h" />
-    <ClInclude Include="externals\imgui\imstb_rectpack.h" />
-    <ClInclude Include="externals\imgui\imstb_textedit.h" />
-    <ClInclude Include="externals\imgui\imstb_truetype.h" />
     <ClInclude Include="code\lib\Thread\Thread.h" />
     <ClInclude Include="code\engine\particle\manager\ParticleManager.h" />
     <ClInclude Include="code\engine\transform\ParticleTransform.h" />
@@ -329,6 +314,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
       <Project>{371b9fa9-4c90-4ac6-a123-aced756d6c77}</Project>
+    </ProjectReference>
+    <ProjectReference Include="externals\imgui\ImGui.vcxproj">
+      <Project>{77acf814-1ee6-459c-9dff-d3f7eaf61a32}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

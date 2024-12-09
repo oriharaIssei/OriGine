@@ -1,15 +1,15 @@
 #include "ImGuiManager.h"
 
-#ifdef _DEBUG
 #include "Engine.h"
 #include "winApp/WinApp.h"
 
 #include "directX12/DxCommand.h"
 #include "directX12/DxDevice.h"
+#include "directX12/DxHeap.h"
 #include "directX12/DxSrvArrayManager.h"
 #include "directX12/DxSwapChain.h"
-#include "directX12/DxHeap.h"
 
+#ifdef _DEBUG
 #include "imgui/imgui.h"
 #include <imgui/imgui_impl_dx12.h>
 #include <imgui/imgui_impl_win32.h>
