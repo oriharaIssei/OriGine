@@ -5,24 +5,35 @@
 
 #include <string>
 
+#include "globalVariables/SerializedField.h"
+
 #include "Vector3.h"
 #include "Vector4.h"
 
 struct SpotLight{
 public:
 	SpotLight() = default;
+	
+	SpotLight(const std::string& scene,int32_t index):
+		color{scene,"SpotLight" + std::to_string(index),"color"},
+		pos{scene,"SpotLight" + std::to_string(index),"pos"},
+		intensity{scene,"SpotLight" + std::to_string(index),"intensity"},
+		direction{scene,"SpotLight" + std::to_string(index),"direction"},
+		distance{scene,"SpotLight" + std::to_string(index),"distance"},
+		decay{scene,"SpotLight" + std::to_string(index),"decay"},
+		cosAngle{scene,"SpotLight" + std::to_string(index),"cosAngle"},
+		cosFalloffStart{scene,"SpotLight" + std::to_string(index),"cosFalloffStart"}{}
+	
 	~SpotLight(){}
 
-	void Init(const std::string& scene,int32_t index);
-
-	Vector3 color         = {1.0f,1.0f,1.0f};
-	Vector3 pos           = {0,0,0};
-	float intensity       = 0.1f;
-	Vector3 direction     = {0,0,-1.0f};
-	float distance        = 1.0f;
-	float decay           = 0.1f;
-	float cosAngle        = 0.5f;
-	float cosFalloffStart = 1.0f;
+	SerializedField<Vector3>color;
+	SerializedField<Vector3>pos;
+	SerializedField<float>intensity;
+	SerializedField<Vector3>direction;
+	SerializedField<float>distance;
+	SerializedField<float>decay;
+	SerializedField<float>cosAngle;
+	SerializedField<float> cosFalloffStart;
 public:
 	struct ConstantBuffer{
 		Vector3 color;              // 12 bytes

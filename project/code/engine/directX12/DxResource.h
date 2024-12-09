@@ -3,7 +3,7 @@
 #include <d3d12.h>
 #include <wrl.h>
 
-#include "externals/DirectXTex/DirectXTex.h"
+#include "DirectXTex.h"
 
 #include "Vector4.h"
 #include <stdint.h>

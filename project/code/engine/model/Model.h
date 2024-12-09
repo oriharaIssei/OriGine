@@ -8,7 +8,7 @@
 #include "material/Material.h"
 
 struct Material3D{
-	int textureNumber;
+	uint32_t textureNumber;
 	IConstantBuffer<Material>* material;
 };
 struct Mesh3D{
@@ -17,15 +17,25 @@ struct Mesh3D{
 	size_t vertSize  = 0;
 	size_t indexSize = 0;
 };
-struct ModelData{
-	Mesh3D meshData;
-	Material3D materialData;
+struct ModelMeshData{
+	std::vector<Mesh3D> mesh_;
 };
 struct Model{
 	enum class LoadState{
 		Loading,
 		Loaded,
 	};
-	std::vector<ModelData> data_;
-	LoadState currentState_;
+	LoadState currentState_ = LoadState::Loading;
+
+	ModelMeshData* meshData_;
+
+	using ModelMaterialData =  std::vector<Material3D>;
+	ModelMaterialData materialData_;
+
+	void setMaterialBuff(int32_t part,IConstantBuffer<Material>* buff){
+		materialData_[part].material = buff;
+	}
+	void setTexture(int32_t part,uint32_t textureNumber){
+		materialData_[part].textureNumber = textureNumber;
+	}
 };

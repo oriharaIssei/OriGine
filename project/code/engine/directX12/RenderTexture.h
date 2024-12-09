@@ -21,6 +21,7 @@ public:
 
 	static void Awake();
 	void Init(const Vector2& textureSize,DXGI_FORMAT format,const Vector4& _clearColor);
+	void Finalize();
 
 	/// <summary>
 	/// RenderTexture への 書き込み準備

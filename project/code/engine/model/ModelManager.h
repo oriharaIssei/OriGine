@@ -1,3 +1,4 @@
+
 #pragma once
 
 #include <array>
@@ -13,11 +14,13 @@
 
 class Object3d;
 struct Model;
+struct ModelMeshData;
+struct Material3D;
 class ModelManager{
 	friend class Object3d;
 public:
 	static ModelManager* getInstance();
-	Model* Create(const std::string& directoryPath,const std::string& filename);
+	std::unique_ptr<Model> Create(const std::string& directoryPath,const std::string& filename);
 	void Init();
 
 	void Finalize();
@@ -32,8 +35,12 @@ private:
 		Model* model = nullptr;
 		void Update();
 	};
+
 private:
 	std::unique_ptr<TaskThread<LoadTask>> loadThread_;
 
-	std::unordered_map<std::string,std::unique_ptr<Model>> modelLibrary_;
+	std::unordered_map<std::string,std::unique_ptr<ModelMeshData>> modelLibrary_;
+	std::unordered_map<ModelMeshData*,std::vector<Material3D>> defaultMaterials_;
+public:
+	void pushBackDefaultMaterial(ModelMeshData* key,Material3D material);
 };

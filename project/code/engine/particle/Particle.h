@@ -1,31 +1,31 @@
 #pragma once
 
+#include <memory>
 #include <stdint.h>
 
-#include "directX12/IConstantBuffer.h"
 #include "transform/CameraTransform.h"
+#include "transform/ParticleTransform.h"
 
-struct Model;
 struct Transform;
-struct ParticleTransform;
 struct Vector3;
+
 class Particle{
 public:
-	Particle() = default;
-	~Particle(){}
+	Particle();
+	virtual ~Particle();
 
-	void Init(Model* _model,ParticleTransform* _transform,float _lifeTime);
+	void Init(const ParticleTransform& transform,
+			  Vector3 velocity,
+			  float lifeTime);
 	void Update(float deltaTime);
+protected:
+	ParticleTransform transform_;
 
-	void Spawn(const ParticleTransform& initialValue,float _lifeTime);
-private:
-	bool isAlive_;
-	// 形状,Material
-	Model* model_;
-	// 位置，サイズ
-	ParticleTransform* transform_;
-
+	Vector3 velocity_;
+	float maxLifeTime_;
 	float lifeTime_;
+	bool isAlive_;
 public:
+	const ParticleTransform& getTransform()const{ return transform_; }
 	bool getIsAlive()const{ return isAlive_; }
 };

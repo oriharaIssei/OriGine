@@ -47,30 +47,32 @@ void Object3d::DrawThis(const IConstantBuffer<CameraTransform>& view){
 	ModelManager* manager = ModelManager::getInstance();
 	auto* commandList = manager->dxCommand_->getCommandList();
 
-	for(auto& model : data_->data_){
+	uint32_t index = 0;
+	for(auto& mesh : data_->meshData_->mesh_){
+		auto& material = data_->materialData_[index];
 		ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
 		commandList->SetDescriptorHeaps(1,ppHeaps);
 		commandList->SetGraphicsRootDescriptorTable(
 			7,
-			TextureManager::getDescriptorGpuHandle(model.materialData.textureNumber)
+			TextureManager::getDescriptorGpuHandle(material.textureNumber)
 		);
 
-		commandList->IASetVertexBuffers(0,1,&model.meshData.meshBuff->vbView);
-		commandList->IASetIndexBuffer(&model.meshData.meshBuff->ibView);
+		commandList->IASetVertexBuffers(0,1,&mesh.meshBuff->vbView);
+		commandList->IASetIndexBuffer(&mesh.meshBuff->ibView);
 
 		transform_.SetForRootParameter(commandList,0);
 		view.SetForRootParameter(commandList,1);
 
-		model.materialData.material->SetForRootParameter(commandList,2);
+		material.material->SetForRootParameter(commandList,2);
 		// 描画!!!
-		commandList->DrawIndexedInstanced(UINT(model.meshData.indexSize),1,0,0,0);
+		commandList->DrawIndexedInstanced(UINT(mesh.indexSize),1,0,0,0);
+
+		++index;
 	}
 }
 
-const Model* Object3d::getData() const{ return data_; }
-
 void Object3d::setMaterial(IConstantBuffer<Material>* material,uint32_t index){
-	data_->data_[index].materialData.material = material;
+	data_->materialData_[index].material = material;
 }
 
 void Object3d::Draw(const IConstantBuffer<CameraTransform>& view){

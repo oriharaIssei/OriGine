@@ -70,7 +70,7 @@ void DebugCamera::RotationState::Update(){
 	constexpr float maxRad = std::numbers::pi_v<float>*2.0f;
 	if(!host_->input_->isPressMouseButton(1) ||
 	   !(host_->input_->isPressKey(DIK_LALT) ||
-		 host_->input_->isPressKey(DIK_RALT))){
+	   host_->input_->isPressKey(DIK_RALT))){
 		host_->currentState_.reset(new Neutral(host_));
 		return;
 	}

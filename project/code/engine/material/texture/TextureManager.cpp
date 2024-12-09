@@ -180,7 +180,7 @@ void TextureManager::Init(){
 	dxCommand_ = std::make_unique<DxCommand>();
 	dxCommand_->Init(device,"TextureManager","TextureManager");
 	// load中のテクスチャにはこれをはっつける
-	LoadTexture("resource/white1x1.png");
+	LoadTexture("resource/Texture/white1x1.png");
 }
 
 void TextureManager::Finalize(){

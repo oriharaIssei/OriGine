@@ -16,10 +16,14 @@
 using json = nlohmann::json;
 const std::string kDirectoryPath = "./resource/GlobalVariables/";
 
-GlobalVariables *GlobalVariables::getInstance(){
+GlobalVariables* GlobalVariables::getInstance(){
 	static GlobalVariables instance;
 	return &instance;
 }
+
+GlobalVariables::GlobalVariables(){}
+
+GlobalVariables::~GlobalVariables(){}
 
 void GlobalVariables::Update(){
 #ifdef _DEBUG
@@ -32,8 +36,8 @@ void GlobalVariables::Update(){
 			return;
 		}
 
-		std::vector<const char *> groupList;  // 動的なグループリストを
-		for(auto &group : data_[currentScene_]){
+		std::vector<const char*> groupList;  // 動的なグループリストを
+		for(auto& group : data_[currentScene_]){
 			groupList.push_back(group.first.c_str());
 		}
 
@@ -47,57 +51,39 @@ void GlobalVariables::Update(){
 			for(std::map<std::string,Item>::iterator itemItr = currentGroup_->begin();
 				itemItr != currentGroup_->end();
 				++itemItr){
-				const std::string &itemName = itemItr->first;
-				Item &item = itemItr->second;
-				if(std::holds_alternative<int32_t>(item.value)){
-					int32_t *valuePtr = std::get_if<int32_t>(&item.value);
+				const std::string& itemName = itemItr->first;
+				Item& item = itemItr->second;
+				if(std::holds_alternative<int32_t>(item)){
+					int32_t* valuePtr = std::get_if<int32_t>(&item);
 					ImGui::DragInt(itemName.c_str(),valuePtr,1);
-					auto intPtr = std::get_if<int32_t *>(&item.valuePtr);
-					**intPtr = *valuePtr;
-				} else if(std::holds_alternative<float>(item.value)){
-					float *valuePtr = std::get_if<float>(&item.value);
+				} else if(std::holds_alternative<float>(item)){
+					float* valuePtr = std::get_if<float>(&item);
 					ImGui::DragFloat(itemName.c_str(),valuePtr,0.1f);
-					auto floatPtr = std::get_if<float *>(&item.valuePtr);
-					**floatPtr = *valuePtr;
-				} else if(std::holds_alternative<Vector2>(item.value)){
-					Vector2 *valuePtr = std::get_if<Vector2>(&item.value);
-					ImGui::DragFloat2(itemName.c_str(),reinterpret_cast<float *>(valuePtr),0.1f);
-					auto v2Ptr = std::get_if<Vector2 *>(&item.valuePtr);
-					**v2Ptr = *valuePtr;
-				} else if(std::holds_alternative<Vector3>(item.value)){
-					Vector3 *valuePtr = std::get_if<Vector3>(&item.value);
-					ImGui::DragFloat3(itemName.c_str(),reinterpret_cast<float *>(valuePtr),0.1f);
-					auto v3Ptr = std::get_if<Vector3 *>(&item.valuePtr);
-					**v3Ptr = *valuePtr;
-				} else if(std::holds_alternative<Vector4>(item.value)){
-					Vector4 *valuePtr = std::get_if<Vector4>(&item.value);
-					ImGui::DragFloat4(itemName.c_str(),reinterpret_cast<float *>(valuePtr),0.1f);
-					auto v4Ptr = std::get_if<Vector4 *>(&item.valuePtr);
-					**v4Ptr = *valuePtr;
-				} else if(std::holds_alternative<bool>(item.value)){
-					bool *valuePtr = std::get_if<bool>(&item.value);
+				} else if(std::holds_alternative<std::string>(item)){
+					std::string* valuePtr = std::get_if<std::string>(&item);
+					ImGui::InputText(itemName.c_str(),&valuePtr->operator[](0),sizeof(char) * 64);
+				} else if(std::holds_alternative<Vector2>(item)){
+					Vector2* valuePtr = std::get_if<Vector2>(&item);
+					ImGui::DragFloat2(itemName.c_str(),reinterpret_cast<float*>(valuePtr),0.1f);
+				} else if(std::holds_alternative<Vector3>(item)){
+					Vector3* valuePtr = std::get_if<Vector3>(&item);
+					ImGui::DragFloat3(itemName.c_str(),reinterpret_cast<float*>(valuePtr),0.1f);
+				} else if(std::holds_alternative<Vector4>(item)){
+					Vector4* valuePtr = std::get_if<Vector4>(&item);
+					ImGui::DragFloat4(itemName.c_str(),reinterpret_cast<float*>(valuePtr),0.1f);
+				} else if(std::holds_alternative<bool>(item)){
+					bool* valuePtr = std::get_if<bool>(&item);
 					ImGui::Checkbox(itemName.c_str(),valuePtr);
-					auto boolPtr = std::get_if<bool *>(&item.valuePtr);
-					**boolPtr = *valuePtr;
 				}
 			}
 		}
 
-		ImGui::Dummy({0.0f,4.0f});
-		ImGui::Text("\n");
-		if(ImGui::Button("save")){
-			SaveFile(currentScene_,currentGroupName_);
-
-		}
 	}
 	ImGui::End();
 #endif // _DEBUG
 }
 
-void GlobalVariables::CreateScene(const std::string &scene){
-	data_[scene];
-}
-
+#pragma region"Load"
 void GlobalVariables::LoadAllFile(){
 	std::filesystem::directory_iterator sceneDirItr(kDirectoryPath);
 	for(auto& sceneEntry : sceneDirItr){
@@ -179,17 +165,21 @@ void GlobalVariables::LoadFile(const std::string& scene,const std::string& group
 		} else if(itemItr->is_boolean()){
 			bool value = itemItr->get<bool>();
 			setValue(scene,groupName,itemName,value);
+		} else if(itemItr->is_string()){
+			std::string value = itemItr->get<std::string>();
+			setValue(scene,groupName,itemName,value);
 		}
 	}
 }
+#pragma endregion
 
+#pragma region"Save"
 void GlobalVariables::SaveScene(const std::string& scene){
 	for(auto& group : data_[scene]){
 		std::string dir = kDirectoryPath + scene + "/" + group.first + ".json";
 		SaveFile(scene,group.first);
 	}
 }
-
 
 void GlobalVariables::SaveFile(const std::string& scene,const std::string& groupName){
 	///========================================
@@ -206,21 +196,24 @@ void GlobalVariables::SaveFile(const std::string& scene,const std::string& group
 		const std::string& itemName = itemItr->first;
 		Item& item = itemItr->second;
 
-		if(std::holds_alternative<int32_t>(item.value)){
-			root[groupName][itemName] = std::get<int32_t>(item.value);
-		} else if(std::holds_alternative<float>(item.value)){
-			root[groupName][itemName] = std::get<float>(item.value);
-		} else if(std::holds_alternative<Vector2>(item.value)){
-			Vector2 value = std::get<Vector2>(item.value);
+
+		if(std::holds_alternative<int32_t>(item)){
+			root[groupName][itemName] = std::get<int32_t>(item);
+		} else if(std::holds_alternative<float>(item)){
+			root[groupName][itemName] = std::get<float>(item);
+		} else if(std::holds_alternative<std::string>(item)){
+			root[groupName][itemName] = std::get<std::string>(item);
+		} else if(std::holds_alternative<Vector2>(item)){
+			Vector2 value = std::get<Vector2>(item);
 			root[groupName][itemName] = json::array({value.x,value.y});
-		} else if(std::holds_alternative<Vector3>(item.value)){
-			Vector3 value = std::get<Vector3>(item.value);
+		} else if(std::holds_alternative<Vector3>(item)){
+			Vector3 value = std::get<Vector3>(item);
 			root[groupName][itemName] = json::array({value.x,value.y,value.z});
-		} else if(std::holds_alternative<Vector4>(item.value)){
-			Vector4 value = std::get<Vector4>(item.value);
+		} else if(std::holds_alternative<Vector4>(item)){
+			Vector4 value = std::get<Vector4>(item);
 			root[groupName][itemName] = json::array({value.x,value.y,value.z,value.w});
-		} else if(std::holds_alternative<bool>(item.value)){
-			root[groupName][itemName] = std::get<bool>(item.value);
+		} else if(std::holds_alternative<bool>(item)){
+			root[groupName][itemName] = std::get<bool>(item);
 		}
 
 		///========================================
@@ -237,7 +230,7 @@ void GlobalVariables::SaveFile(const std::string& scene,const std::string& group
 		ofs.open(filePath);
 		if(ofs.fail()){
 			std::string message = "Failed open data file for write.";
-			MessageBoxA(nullptr,message.c_str(),"GrobalVariables",0);
+			MessageBoxA(nullptr,message.c_str(),"GlobalVariables",0);
 			assert(0);
 			return;
 		}
@@ -246,6 +239,7 @@ void GlobalVariables::SaveFile(const std::string& scene,const std::string& group
 		ofs.close();
 	}
 }
+#pragma endregion
 
 #ifdef _DEBUG
 void GlobalVariables::ImGuiMenu(){

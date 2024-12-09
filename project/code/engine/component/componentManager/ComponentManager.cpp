@@ -61,7 +61,6 @@ bool ComponentManager::Destroy(const std::string& variableName){
 
 void ComponentManager::CreateComponentInstance(IComponent* instance){
 	instance->typeName_ = typeid(*instance).name();
-	instance->typeName_.substr();
 
 	int32_t num = 0;
 	instance->variableName_ =

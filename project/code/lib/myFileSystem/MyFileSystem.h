@@ -14,14 +14,14 @@ public:
 	/// <param name="directory">検索するフォルダーのパス</param>
 	/// <param name="extension">fileFormat (.pngとか)</param>
 	/// <returns>first = directory, second = fileName </returns>
-	static std::list<std::pair<std::string,std::string>> SearchFile(const std::string &directory,const std::string &extension);
-	
-	static std::list<std::string> SearchSubFolder(const std::string &directory);
+	static std::list<std::pair<std::string,std::string>> SearchFile(const std::string& directory,const std::string& extension,bool withoutExtensionOutput = true);
 
-	static bool CreateFolder(const std::string &directory);
+	static std::list<std::string> SearchSubFolder(const std::string& directory);
 
-	static bool removeEmptyFolder(const std::string &directory);
-	static std::uintmax_t deleteFolder(const std::string &path);
+	static bool CreateFolder(const std::string& directory);
+
+	static bool removeEmptyFolder(const std::string& directory);
+	static std::uintmax_t deleteFolder(const std::string& path);
 };
 
 using myfs = MyFileSystem;

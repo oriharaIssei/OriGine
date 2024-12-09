@@ -11,10 +11,10 @@
 #include "directX12/PipelineStateObj.h"
 #include "directX12/ShaderManager.h"
 #include "material/Material.h"
+#include "model/Model.h"
 #include "transform/CameraTransform.h"
 #include "transform/Transform.h"
 
-struct Model;
 class Object3d{
 public:
 	static Object3d* Create(const std::string& directoryPath,const std::string& filename);
@@ -36,13 +36,13 @@ private:
 
 	void DrawThis(const IConstantBuffer<CameraTransform>& view);
 private:
-	Model* data_;
+	std::unique_ptr<Model> data_;
 
 	std::array<std::function<void(const IConstantBuffer<CameraTransform>&)>,2> drawFuncTable_ = {
 		[this](const IConstantBuffer<CameraTransform>& view){ NotDraw(view); },
 		[this](const IConstantBuffer<CameraTransform>& view){ DrawThis(view); }
 	};
 public:
-	const Model* getData()const;
+	const Model* getModel()const{ return data_.get(); }
 	void setMaterial(IConstantBuffer<Material>* material,uint32_t index = 0);
 };

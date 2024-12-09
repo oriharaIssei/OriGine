@@ -22,16 +22,24 @@ public:
 	~IStructuredBuffer(){ Finalize(); }
 
 	void CreateBuffer(ID3D12Device* device,DxSrvArray* srvArray,uint32_t elementCount);
-	void Finalize(){ buff_.Finalize(); }
+	void Finalize(){
+		if(srvArray_){
+			srvArray_->DestroyView(srvIndex_);
+		}
+		buff_.Finalize();
+	}
 
 	void ConvertToBuffer();
 	void SetForRootParameter(ID3D12GraphicsCommandList* cmdList,uint32_t rootParameterNum) const;
 
+	void Resize(ID3D12Device* device,uint32_t newElementCount);
+	void ResizeForDataSize(ID3D12Device* device);
+
 	// 公開用変数（バッファのデータを保持）
 	std::vector<structBuff> openData_;
 protected:
-	DxSrvArray* srvArray_;
-	int32_t srvIndex_;
+	DxSrvArray* srvArray_ = nullptr;
+	int32_t srvIndex_ = 0;
 	DxResource buff_;
 
 	// bind されたデータへのポインタ
@@ -45,6 +53,7 @@ public:
 template<StructuredBuffer structBuff>
 inline void IStructuredBuffer<structBuff>::CreateBuffer(ID3D12Device* device,DxSrvArray* srvArray,uint32_t elementCount){
 	elementCount_ = elementCount;
+	srvArray_ = srvArray;
 
 	if(elementCount_ == 0){
 		return;
@@ -54,7 +63,7 @@ inline void IStructuredBuffer<structBuff>::CreateBuffer(ID3D12Device* device,DxS
 	buff_.CreateBufferResource(device,bufferSize);
 	buff_.getResource()->Map(0,nullptr,reinterpret_cast<void**>(&mappingData_));
 
-	openData_.resize(elementCount);
+	openData_.reserve(elementCount);
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC viewDesc{};
 	viewDesc.Format = DXGI_FORMAT_UNKNOWN;
@@ -65,13 +74,71 @@ inline void IStructuredBuffer<structBuff>::CreateBuffer(ID3D12Device* device,DxS
 	viewDesc.Buffer.NumElements = elementCount;
 	viewDesc.Buffer.StructureByteStride = sizeof(structBuff::ConstantBuffer);
 
-	srvArray_ = srvArray;
 	srvIndex_ = srvArray_->CreateView(device,viewDesc,buff_.getResource());
 }
 
 template<StructuredBuffer structBuff>
+inline void IStructuredBuffer<structBuff>::Resize(ID3D12Device* device,uint32_t newElementCount){
+	if(newElementCount == elementCount_ || newElementCount == 0){
+		return;
+	}
+
+	// 今のバッファを削除
+	Finalize();
+
+	{ // 新しいバッファを作成
+		elementCount_ = newElementCount;
+
+		size_t bufferSize = sizeof(typename structBuff::ConstantBuffer) * elementCount_;
+		buff_.CreateBufferResource(device,bufferSize);
+		buff_.getResource()->Map(0,nullptr,reinterpret_cast<void**>(&mappingData_));
+
+		D3D12_SHADER_RESOURCE_VIEW_DESC viewDesc{};
+		viewDesc.Format = DXGI_FORMAT_UNKNOWN;
+		viewDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		viewDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+		viewDesc.Buffer.FirstElement = 0;
+		viewDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+		viewDesc.Buffer.NumElements = elementCount_;
+		viewDesc.Buffer.StructureByteStride = sizeof(structBuff::ConstantBuffer);
+
+		srvIndex_ = srvArray_->CreateView(device,viewDesc,buff_.getResource());
+	}
+}
+
+template<StructuredBuffer structBuff>
+inline void IStructuredBuffer<structBuff>::ResizeForDataSize(ID3D12Device* device){
+	int32_t newElementCount = static_cast<int32_t>(openData_.size());
+	if(newElementCount == elementCount_ || newElementCount == 0){
+		return;
+	}
+
+	// 今のバッファを削除
+	Finalize();
+
+	{ // 新しいバッファを作成
+		elementCount_ = newElementCount;
+
+		size_t bufferSize = sizeof(typename structBuff::ConstantBuffer) * elementCount_;
+		buff_.CreateBufferResource(device,bufferSize);
+		buff_.getResource()->Map(0,nullptr,reinterpret_cast<void**>(&mappingData_));
+
+		D3D12_SHADER_RESOURCE_VIEW_DESC viewDesc{};
+		viewDesc.Format = DXGI_FORMAT_UNKNOWN;
+		viewDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		viewDesc.ViewDimension = D3D12_SRV_DIMENSION_BUFFER;
+		viewDesc.Buffer.FirstElement = 0;
+		viewDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAG_NONE;
+		viewDesc.Buffer.NumElements = elementCount_;
+		viewDesc.Buffer.StructureByteStride = sizeof(structBuff::ConstantBuffer);
+
+		srvIndex_ = srvArray_->CreateView(device,viewDesc,buff_.getResource());
+	}
+}
+
+template<StructuredBuffer structBuff>
 inline void IStructuredBuffer<structBuff>::ConvertToBuffer(){
-	if(mappingData_ && openData_.size() == elementCount_){
+	if(mappingData_){
 		std::copy(openData_.begin(),openData_.end(),mappingData_);
 	}
 }

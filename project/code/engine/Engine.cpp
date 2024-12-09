@@ -101,8 +101,12 @@ void Engine::Init(){
 
 void Engine::Finalize(){
 	lightManager_->Finalize();
+	ParticleManager::getInstance()->Finalize();
 	materialManager_->Finalize();
 
+#ifdef _DEBUG
+	ImGuiManager::getInstance()->Finalize();
+#endif // _DEBUG
 	ShaderManager::getInstance()->Finalize();
 	PrimitiveDrawer::Finalize();
 	SpriteCommon::getInstance()->Finalize();
@@ -122,12 +126,6 @@ void Engine::Finalize(){
 
 	input_->Finalize();
 	Audio::StaticFinalize();
-
-	ParticleManager::getInstance()->Finalize();
-
-#ifdef _DEBUG
-	ImGuiManager::getInstance()->Finalize();
-#endif // _DEBUG
 }
 
 void Engine::CreateTexturePSO(){
@@ -288,14 +286,15 @@ void Engine::BeginFrame(){
 	deltaTime_->Update();
 }
 
-void Engine::EndFrame(){}
+void Engine::EndFrame(){
+	ImGuiManager::getInstance()->End();
+}
 
 void Engine::ScreenPreDraw(){
 	DxFH::PreDraw(dxCommand_.get(),window_.get(),dxSwapChain_.get());
 }
 
 void Engine::ScreenPostDraw(){
-	ImGuiManager::getInstance()->End();
 	ImGuiManager::getInstance()->Draw();
 
 	HRESULT hr;
