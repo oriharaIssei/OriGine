@@ -13,6 +13,7 @@ class DxRtvArray;
 class DxSrvArray;
 class ParticleManager;
 class DebugCamera;
+class Player;
 
 struct Animation;
 
@@ -41,6 +42,5 @@ private:
 	Input* input_;
 	MaterialManager* materialManager_;
 
-	std::unique_ptr<Object3d> object_;
-	Animation animation_;
+	std::unique_ptr<Player> player_;
 };

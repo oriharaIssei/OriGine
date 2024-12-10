@@ -17,6 +17,8 @@
 #include "primitiveDrawer/PrimitiveDrawer.h"
 #include "sprite/SpriteCommon.h"
 
+#include "../Player/Player.h"
+
 #ifdef _DEBUG
 #include "camera/debugCamera/DebugCamera.h"
 #include "imgui/imgui.h"
@@ -38,11 +40,8 @@ void GameScene::Init(){
 
 	materialManager_ = Engine::getInstance()->getMaterialManager();
 
-	object_.reset(Object3d::Create("resource/Models","cube.gltf"));
-	object_->transform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
-	object_->transform_.openData_.UpdateMatrix();
-
-	animation_ = ModelManager::LoadAnimation("resource/Models/AnimatedCube","AnimatedCube.gltf");
+	player_ = std::make_unique<Player>();
+	player_->Init();
 }
 
 void GameScene::Update(){
@@ -52,13 +51,7 @@ void GameScene::Update(){
 	Camera::getInstance()->setTransform(debugCamera_->getCameraTransform());
 #endif // _DEBUG
 
-	// model を animation で 動かす
-	{
-		animation_.UpdateTime(Engine::getInstance()->getDeltaTime());
-		object_->transform_.openData_.worldMat =
-			animation_.CalculateCurrentLocal();
-		object_->transform_.ConvertToBuffer();
-	}
+	player_->Update();
 
 #ifdef _DEBUG
 	materialManager_->DebugUpdate();
@@ -68,7 +61,7 @@ void GameScene::Update(){
 }
 
 void GameScene::Draw3d(){
-	object_->Draw();
+	player_->Draw();
 }
 
 void GameScene::DrawLine(){}
