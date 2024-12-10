@@ -5,20 +5,20 @@
             1.0,
             1.0
         ],
-        "cosAngle": 0.5,
-        "cosFalloffStart": 1.0,
-        "decay": 0.10000000149011612,
+        "cosAngle": 0.6000000238418579,
+        "cosFalloffStart": 1.5,
+        "decay": 3.0999999046325684,
         "direction": [
             0.0,
             0.0,
             -1.0
         ],
-        "distance": 1.0,
-        "intensity": 0.10000000149011612,
+        "distance": 72.30000305175781,
+        "intensity": 0.0,
         "pos": [
             0.0,
             0.0,
-            0.0
+            -0.5
         ]
     }
 }

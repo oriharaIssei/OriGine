@@ -25,9 +25,8 @@ public:
 public:
 	struct ConstantBuffer{
 		Vector3 color;      // 12 bytes
-		float padding1;     // 4 bytes to align to 16 bytes
-		Vector3 direction;  // 12 bytes
 		float intensity;    // 4 bytes
+		Vector3 direction;  // 12 bytes
 		ConstantBuffer& operator=(const DirectionalLight& light){
 			color     = light.color;
 			direction = light.direction;
