@@ -1,5 +1,7 @@
 #include "Matrix4x4.h"
 
+#include "Quaternion.h"
+
 #include <cmath>
 
 #include "assert.h"
@@ -61,7 +63,7 @@ Matrix4x4 *Matrix4x4::operator*=(const Matrix4x4 &another) {
 	return this;
 }
 
-Matrix4x4 Matrix4x4::Transpose()const {
+Matrix4x4 Matrix4x4::transpose()const {
 	Matrix4x4 result;
 	for(int row = 0; row < 4; row++) {
 		for(int col = 0; col < 4; col++) {
@@ -71,8 +73,25 @@ Matrix4x4 Matrix4x4::Transpose()const {
 	return result;
 }
 
-Matrix4x4 Matrix4x4::Inverse() const {
+Matrix4x4 Matrix4x4::Transpose(const Matrix4x4& m){
+	Matrix4x4 result;
+	for(int row = 0; row < 4; row++){
+		for(int col = 0; col < 4; col++){
+			result.m[row][col] = m[col][row];
+		}
+	}
+	return result;
+}
+
+Matrix4x4 Matrix4x4::inverse() const {
 	DirectX::XMMATRIX thisMat = MatrixToXMMATRIX();
+	DirectX::XMVECTOR det = DirectX::XMMatrixDeterminant(thisMat);
+	Matrix4x4 inverse;
+	inverse.XMMATRIXToMatrix(DirectX::XMMatrixInverse(&det,thisMat));
+	return  inverse;
+}
+Matrix4x4 Matrix4x4::Inverse(const Matrix4x4& m){
+	DirectX::XMMATRIX thisMat = m.MatrixToXMMATRIX();
 	DirectX::XMVECTOR det = DirectX::XMMatrixDeterminant(thisMat);
 	Matrix4x4 inverse;
 	inverse.XMMATRIXToMatrix(DirectX::XMMatrixInverse(&det,thisMat));
@@ -105,6 +124,28 @@ Matrix4x4 MakeMatrix::RotateZ(const float &radian) {
 Matrix4x4 MakeMatrix::RotateXYZ(const Vector3 &radian) { return MakeMatrix::RotateZ(radian.z) * MakeMatrix::RotateX(radian.x) * MakeMatrix::RotateY(radian.y); }
 
 Matrix4x4 MakeMatrix::RotateXYZ(const Matrix4x4 &x,const Matrix4x4 &y,const Matrix4x4 &z) { return z * x * y; }
+
+Matrix4x4 MakeMatrix::RotateQuaternion(const Quaternion& q){
+	return Matrix4x4({
+		(q.w * q.w + q.x * q.x - q.y * q.y - q.z * q.z),2.0f * (q.x * q.y + q.w * q.z),2.0f * (q.x * q.z - q.w * q.y),0.0f,
+		2.0f * (q.x * q.y - q.w * q.z),(q.w * q.w - q.x * q.x + q.y * q.y - q.z * q.z),2.0f * (q.y * q.z + q.w * q.x),0.0f,
+		2.0f * (q.x * q.z + q.w * q.y),2.0f * (q.y * q.z - q.w * q.x),(q.w * q.w - q.x * q.x - q.y * q.y + q.z * q.z),0.0f,
+		0.0f,0.0f,0.0f,1.0f
+					 });
+}
+
+Matrix4x4 MakeMatrix::RotateAxisAngle(const Vector3& axis,float angle){
+	float sinAngle = sinf(angle);
+	float cosAngle = cosf(angle);
+	float mCosAngle = (1.0f - cosAngle);
+	return {
+		axis.x * axis.x * mCosAngle + cosAngle,axis.x * axis.y * mCosAngle + axis.z * sinAngle,axis.x * axis.z * mCosAngle - axis.y * sinAngle,0.0f,
+		axis.x * axis.y * mCosAngle - axis.z * sinAngle,axis.y * axis.y * mCosAngle + cosAngle,axis.y * axis.z * mCosAngle + axis.x * sinAngle,0.0f,
+		axis.x * axis.z * mCosAngle + axis.y * sinAngle,axis.y * axis.z * mCosAngle - axis.x * sinAngle,axis.z * axis.z * mCosAngle + cosAngle,0.0f,
+		0.0f,0.0f,0.0f,1.0f
+	};
+}
+
 
 Matrix4x4 MakeMatrix::Affine(const Vector3 &scale,const Vector3 &rotate,const Vector3 &translate) {
 	return MakeMatrix::Scale(scale) * MakeMatrix::RotateXYZ(rotate) * MakeMatrix::Translate(translate);
