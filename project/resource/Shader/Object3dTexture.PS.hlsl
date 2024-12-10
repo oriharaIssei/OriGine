@@ -26,7 +26,6 @@ struct PointLight {
     float3 pos;
     float radius;
     float decay;
-    float3 padding;
 };
 
 struct SpotLight {

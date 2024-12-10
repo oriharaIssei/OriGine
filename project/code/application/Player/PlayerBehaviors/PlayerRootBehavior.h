@@ -4,8 +4,6 @@
 
 #include "globalVariables/SerializedField.h"
 
-#include "Vector3.h"
-
 class PlayerRootBehavior
 	:public IPlayerBehavior{
 public:
@@ -16,9 +14,11 @@ public:
 	void Update()override;
 protected:
 	void StartUp()override; //使用しない
-	void Action()override; //使用しない
+	void Action()override;
 	void EndLag()override; //使用しない
 private:
 	SerializedField<float> speed_;
+
+	Vector3 lastDir_ = {0.0f,0.0f,1.0f};
 };
 
