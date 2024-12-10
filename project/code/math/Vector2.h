@@ -109,3 +109,10 @@ struct Vector2 final{
 inline Vector2 operator*(const float& scalar,const Vector2& vec){
 	return Vector2(vec.x * scalar,vec.y * scalar);
 }
+
+inline Vector2 Lerp(const Vector2& start,const Vector2& end,float time){
+	return {
+		std::lerp(start.x,end.x,time),
+		std::lerp(start.y,end.y,time)
+	};
+}

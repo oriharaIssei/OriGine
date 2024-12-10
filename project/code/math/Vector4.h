@@ -125,3 +125,12 @@ struct Vector4 final{
 inline Vector4 operator*(float scalar,const Vector4& vec){
 	return Vector4(vec.x * scalar,vec.y * scalar,vec.z * scalar,vec.w * scalar);
 }
+
+inline Vector4 Lerp(const Vector4& start,const Vector4& end,float time){
+	return {
+		std::lerp(start.x,end.x,time),
+		std::lerp(start.y,end.y,time),
+		std::lerp(start.z,end.z,time),
+		std::lerp(start.w,end.w,time)
+	};
+}

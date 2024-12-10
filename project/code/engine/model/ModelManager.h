@@ -14,13 +14,19 @@
 
 class Object3d;
 struct Model;
+struct ModelNode;
 struct ModelMeshData;
 struct Material3D;
+struct Animation;
+
 class ModelManager{
 	friend class Object3d;
 public:
 	static ModelManager* getInstance();
+	
 	std::unique_ptr<Model> Create(const std::string& directoryPath,const std::string& filename);
+	static Animation LoadAnimation(const std::string& directoryPath,const std::string& filename);
+	
 	void Init();
 
 	void Finalize();
@@ -35,6 +41,7 @@ private:
 		Model* model = nullptr;
 		void Update();
 	};
+
 
 private:
 	std::unique_ptr<TaskThread<LoadTask>> loadThread_;

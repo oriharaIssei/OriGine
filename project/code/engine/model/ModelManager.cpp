@@ -115,6 +115,47 @@ void ProcessMeshData(Mesh3D& meshData,const std::vector<TextureVertexData>& vert
 	meshData.indexSize = static_cast<int32_t>(indices.size());
 }
 
+ModelNode ReadNode(aiNode* node){
+	ModelNode result;
+	/// LocalMatrix の 取得
+	aiMatrix4x4 aiLocalMatrix = node->mTransformation;
+	/// 列ベクトル を 行ベクトル に
+	aiLocalMatrix.Transpose();
+	/// localMatrix を Copy
+	result.localMatrix[0][0] = aiLocalMatrix[0][0];
+	result.localMatrix[0][1] = aiLocalMatrix[0][1];
+	result.localMatrix[0][2] = aiLocalMatrix[0][2];
+	result.localMatrix[0][3] = aiLocalMatrix[0][3];
+
+	result.localMatrix[1][0] = aiLocalMatrix[1][0];
+	result.localMatrix[1][1] = aiLocalMatrix[1][1];
+	result.localMatrix[1][2] = aiLocalMatrix[1][2];
+	result.localMatrix[1][3] = aiLocalMatrix[1][3];
+
+	result.localMatrix[2][0] = aiLocalMatrix[2][0];
+	result.localMatrix[2][1] = aiLocalMatrix[2][1];
+	result.localMatrix[2][2] = aiLocalMatrix[2][2];
+	result.localMatrix[2][3] = aiLocalMatrix[2][3];
+
+	result.localMatrix[3][0] = aiLocalMatrix[3][0];
+	result.localMatrix[3][1] = aiLocalMatrix[3][1];
+	result.localMatrix[3][2] = aiLocalMatrix[3][2];
+	result.localMatrix[3][3] = aiLocalMatrix[3][3];
+
+	/// Name を Copy
+	result.name = node->mName.C_Str();
+
+	/// Children を Copy
+	result.children.resize(node->mNumChildren);
+
+	/// Children すべてを Copy
+	for(uint32_t childIndex = 0; childIndex < node->mNumChildren; childIndex++){
+		result.children[childIndex] = ReadNode(node->mChildren[childIndex]);
+	}
+
+	return result;
+}
+
 void LoadModelFile(ModelMeshData* data,const std::string& directoryPath,const std::string& filename){
 	Assimp::Importer importer;
 	std::string filePath = directoryPath + "/" + filename;
@@ -125,8 +166,12 @@ void LoadModelFile(ModelMeshData* data,const std::string& directoryPath,const st
 	std::vector<TextureVertexData> vertices;
 	std::vector<uint32_t> indices;
 
+	/// node 読み込み
+	data->rootNode = ReadNode(scene->mRootNode);
+
 	for(uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex){
 		data->mesh_.emplace_back(Mesh3D());
+
 		aiMesh* mesh = scene->mMeshes[meshIndex];
 		assert(mesh->HasNormals() && mesh->HasTextureCoords(0));
 
@@ -185,6 +230,74 @@ void LoadModelFile(ModelMeshData* data,const std::string& directoryPath,const st
 		indices.clear();
 		vertexMap.clear();
 	}
+}
+
+Animation ModelManager::LoadAnimation(const std::string& directoryPath,const std::string& filename){
+	Animation result;
+	Assimp::Importer importer;
+
+	std::string filePath = directoryPath + "/" + filename;
+	const aiScene* scene = importer.ReadFile(filePath.c_str(),0);
+
+	// アニメーションがなかったら assert
+	assert(scene->mNumAnimations != 0);
+
+	aiAnimation* animationAssimp = scene->mAnimations[0];
+	/// 時間の単位を 秒 に 合わせる
+	// mTicksPerSecond ： 周波数
+	// mDuration      : mTicksPerSecond で 指定された 周波数 における長さ
+	result.duration = float(animationAssimp->mDuration / animationAssimp->mTicksPerSecond);
+
+	for(uint32_t channelIndex = 0; channelIndex < animationAssimp->mNumChannels; ++channelIndex){
+		aiNodeAnim* nodeAnimationAssimp = animationAssimp->mChannels[channelIndex];
+		NodeAnimation& nodeAnimation = result.nodeAnimations[nodeAnimationAssimp->mNodeName.C_Str()];
+
+		///=============================================
+		/// Scale 解析
+		///=============================================
+		for(uint32_t keyIndex = 0; keyIndex < nodeAnimationAssimp->mNumScalingKeys; ++keyIndex){
+			aiVectorKey& keyAssimp = nodeAnimationAssimp->mScalingKeys[keyIndex];
+			KeyframeVector3 keyframe;
+			// 時間単位を 秒 に変換
+			keyframe.time = float(keyAssimp.mTime / animationAssimp->mTicksPerSecond);
+			// スケール値をそのまま使用
+			keyframe.value = {keyAssimp.mValue.x,keyAssimp.mValue.y,keyAssimp.mValue.z};
+			nodeAnimation.scale.push_back(keyframe);
+		}
+
+		///=============================================
+		/// Rotate 解析
+		///=============================================
+		for(uint32_t keyIndex = 0; keyIndex < nodeAnimationAssimp->mNumRotationKeys; ++keyIndex){
+			aiQuatKey& keyAssimp = nodeAnimationAssimp->mRotationKeys[keyIndex];
+			KeyframeQuaternion keyframe;
+			// 時間単位を 秒 に変換
+			keyframe.time = float(keyAssimp.mTime / animationAssimp->mTicksPerSecond);
+			// クォータニオンの値を変換 (右手座標系 → 左手座標系)
+			keyframe.value = {
+				keyAssimp.mValue.x,
+				-keyAssimp.mValue.y,
+				-keyAssimp.mValue.z,
+				keyAssimp.mValue.w
+			};
+			nodeAnimation.rotate.push_back(keyframe);
+		}
+
+		///=============================================
+		/// Translate 解析
+		///=============================================
+		for(uint32_t keyIndex = 0; keyIndex < nodeAnimationAssimp->mNumPositionKeys; ++keyIndex){
+			aiVectorKey& keyAssimp = nodeAnimationAssimp->mPositionKeys[keyIndex];
+			KeyframeVector3 keyframe;
+			// 時間単位を 秒 に変換
+			keyframe.time = float(keyAssimp.mTime / animationAssimp->mTicksPerSecond);
+			// 元が 右手座標系 なので 左手座標系 に 変換する
+			keyframe.value = {-keyAssimp.mValue.x,keyAssimp.mValue.y,keyAssimp.mValue.z};
+			nodeAnimation.translate.push_back(keyframe);
+		}
+	}
+
+	return result;
 }
 
 void ModelManager::LoadTask::Update(){

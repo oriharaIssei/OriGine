@@ -295,7 +295,7 @@ void Emitter::Draw(const IConstantBuffer<CameraTransform>& camera){
 		cameraRotation[3][3] = 1.0f;
 
 		// カメラの回転行列を反転してワールド空間への変換行列を作成
-		rotateMat = cameraRotation.Inverse();
+		rotateMat = cameraRotation.inverse();
 
 		// 各パーティクルのワールド行列を計算
 		for(size_t i = 0; i < particles_.size(); i++){
