@@ -252,6 +252,9 @@
     <ClCompile Include="code\math\Quaternion.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="code\engine\model\Model.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\math\Vector2.h">

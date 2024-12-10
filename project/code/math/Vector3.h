@@ -115,3 +115,11 @@ struct Vector3 final{
 inline Vector3 operator*(const float& scalar,const Vector3& vec){
     return Vector3(vec.x * scalar,vec.y * scalar,vec.z * scalar);
 }
+
+inline Vector3 Lerp(const Vector3& start,const Vector3& end,float time){
+    return {
+        std::lerp(start.x,end.x,time),
+        std::lerp(start.y,end.y,time),
+        std::lerp(start.z,end.z,time)
+    };
+}

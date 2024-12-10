@@ -39,7 +39,7 @@ public:
 		ConstantBuffer& operator=(const CameraTransform& camera){
 			cameraPos     = camera.viewMat[3];
 			view          = camera.viewMat;
-			viewTranspose = camera.viewMat.Transpose();
+			viewTranspose = camera.viewMat.transpose();
 			projection    = camera.projectionMat;
 			return *this;
 		}

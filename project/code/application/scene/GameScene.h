@@ -14,6 +14,8 @@ class DxSrvArray;
 class ParticleManager;
 class DebugCamera;
 
+struct Animation;
+
 struct Matrix4x4;
 struct Vector3;
 
@@ -40,4 +42,5 @@ private:
 	MaterialManager* materialManager_;
 
 	std::unique_ptr<Object3d> object_;
+	Animation animation_;
 };

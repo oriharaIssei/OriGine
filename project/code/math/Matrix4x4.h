@@ -50,12 +50,12 @@ namespace MakeMatrix {
 	Matrix4x4 RotateXYZ(const Vector3 &radian);
 	Matrix4x4 RotateXYZ(const Matrix4x4 &x, const Matrix4x4 &y, const Matrix4x4 &z);
 
-
 	Matrix4x4 RotateQuaternion(const Quaternion& q);
 
 	Matrix4x4 RotateAxisAngle(const Vector3& axis,float angle);
 
 	Matrix4x4 Affine(const Vector3 &scale, const Vector3 &rotate, const Vector3 &translate);
+	Matrix4x4 Affine(const Vector3& scale,const Quaternion& rotate,const Vector3& translate);
 
 	Matrix4x4 PerspectiveFov(const float &fovY, const float &aspectRatio, const float &nearClip, const float &farClip);
 	Matrix4x4 Orthographic(const float &left, const float &top, const float &right, const float &bottom, const float &nearClip, const float &farClip);

@@ -1,10 +1,9 @@
 #include "GameScene.h"
 
-#include "engine/camera/debugCamera/debugCamera.h"
-
 #include <string>
 
 #include "Engine.h"
+#include "model/ModelManager.h"
 
 #include "camera/Camera.h"
 #include "directX12/DxCommand.h"
@@ -41,6 +40,9 @@ void GameScene::Init(){
 
 	object_.reset(Object3d::Create("resource/Models","cube.gltf"));
 	object_->transform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+	object_->transform_.openData_.UpdateMatrix();
+
+	animation_ = ModelManager::LoadAnimation("resource/Models/AnimatedCube","AnimatedCube.gltf");
 }
 
 void GameScene::Update(){
@@ -49,6 +51,14 @@ void GameScene::Update(){
 	debugCamera_->DebugUpdate();
 	Camera::getInstance()->setTransform(debugCamera_->getCameraTransform());
 #endif // _DEBUG
+
+	// model を animation で 動かす
+	{
+		animation_.UpdateTime(Engine::getInstance()->getDeltaTime());
+		object_->transform_.openData_.worldMat =
+			animation_.CalculateCurrentLocal();
+		object_->transform_.ConvertToBuffer();
+	}
 
 #ifdef _DEBUG
 	materialManager_->DebugUpdate();
