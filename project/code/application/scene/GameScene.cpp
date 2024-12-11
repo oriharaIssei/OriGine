@@ -42,6 +42,11 @@ void GameScene::Init(){
 
 	player_ = std::make_unique<Player>();
 	player_->Init();
+
+	ground_.reset(Object3d::Create("resource/Models","Ground.obj"));
+	ground_->transform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+	ground_->transform_.openData_.UpdateMatrix();
+	ground_->transform_.ConvertToBuffer();
 }
 
 void GameScene::Update(){
@@ -61,6 +66,7 @@ void GameScene::Update(){
 }
 
 void GameScene::Draw3d(){
+	ground_->Draw();
 	player_->Draw();
 }
 
