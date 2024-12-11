@@ -166,6 +166,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="code\application\Player\PlayerBehaviors\PlayerRootBehavior.cpp" />
     <ClCompile Include="code\application\Player\PlayerBehaviors\PlayerDodgeBehavior.cpp" />
     <ClCompile Include="code\math\Vector3.cpp" />
+    <ClCompile Include="code\application\Player\PlayerBehaviors\PlayerWeakAttackBehavior.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\engine\camera\Camera.h" />
@@ -326,6 +327,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="code\application\Player\PlayerBehaviors\IPlayerBehavior.h" />
     <ClInclude Include="code\application\Player\PlayerBehaviors\PlayerRootBehavior.h" />
     <ClInclude Include="code\application\Player\PlayerBehaviors\PlayerDodgeBehavior.h" />
+    <ClInclude Include="code\application\Player\PlayerBehaviors\PlayerWeakAttackBehavior.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">

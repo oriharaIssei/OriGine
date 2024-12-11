@@ -2,6 +2,7 @@
 
 #include "../Player.h"
 #include "../PlayerBehaviors/PlayerDodgeBehavior.h"
+#include "../PlayerBehaviors/PlayerWeakAttackBehavior.h"
 
 #include "Engine.h"
 #include "input/Input.h"
@@ -18,6 +19,12 @@ void PlayerRootBehavior::Init(){
 
 void PlayerRootBehavior::Update(){
 	currentUpdate_();
+
+	if(input->isTriggerKey(DIK_LSHIFT)){
+		player_->ChangeBehavior(new PlayerDodgeBehavior(player_,lastDir_));
+	} else if(input->isTriggerKey(DIK_SPACE)){
+		player_->ChangeBehavior(new PlayerWeakAttackBehavior(player_,0));
+	}
 }
 
 void PlayerRootBehavior::StartUp(){}
@@ -50,10 +57,6 @@ void PlayerRootBehavior::Action(){
 		// 現在の 座標
 		const Vector3& playerPos = player_->getTranslate();
 		player_->setTranslate(playerPos + directionXZ * speedPerSecond);
-	}
-
-	if(input->isTriggerKey(DIK_LSHIFT)){
-		player_->ChangeBehavior(new PlayerDodgeBehavior(player_,lastDir_));
 	}
 }
 
