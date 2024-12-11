@@ -30,12 +30,11 @@ public:
 public:
 	struct ConstantBuffer{
 		Vector3 color;      // 12 bytes
-		float padding1;     // 4 bytes to align to 16 bytes
+		float intensity;    // 4 bytes to align to 16 bytes
 		Vector3 pos;        // 12 bytes
-		float intensity;    // 4 bytes
 		float radius;       // 4 bytes
 		float decay;        // 4 bytes
-		float padding2[2];  // 8 bytes (to align to 16 bytes)
+		float padding[3];
 		ConstantBuffer& operator=(const PointLight& light){
 			color    = light.color;
 			pos      = light.pos;

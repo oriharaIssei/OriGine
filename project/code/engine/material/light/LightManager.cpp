@@ -1,8 +1,14 @@
 #include "LightManager.h"
 
-#include "directX12/DxSrvArrayManager.h"
-#include "globalVariables/GlobalVariables.h"
 #include "Engine.h"
+#include "globalVariables/GlobalVariables.h"
+
+#include "directX12/DxSrvArrayManager.h"
+
+#ifdef _DEBUG
+#include "imgui/imgui.h"
+#endif // _DEBUG
+
 
 void LightManager::Init(){
 	GlobalVariables* variables = GlobalVariables::getInstance();
@@ -44,6 +50,53 @@ void LightManager::Init(){
 }
 
 void LightManager::Update(){
+
+#ifdef _DEBUG
+	int32_t lightIndex = 0;
+	std::string label = "NULL";
+
+	for(auto& directionalLight : directionalLights_.openData_){
+		label = "DirectionalLight_" + std::to_string(lightIndex);
+		ImGui::Begin(label.c_str());
+		ImGui::ColorEdit3("color",reinterpret_cast<float*>(directionalLight.color.operator Vector3 * ()));
+		ImGui::SliderFloat("intensity",directionalLight.intensity,0.0f,1.0f);
+		ImGui::SliderFloat3("direction",reinterpret_cast<float*>(directionalLight.direction.operator Vector3 * ()),0.0f,1.0f);
+		directionalLight.direction.setValue(directionalLight.direction->normalize());
+		ImGui::End();
+		++lightIndex;
+	}
+
+	lightIndex = 0;
+	label = "NULL";
+	for(auto& pointLight : pointLights_.openData_){
+		label = "PointLight" + std::to_string(lightIndex);
+		ImGui::Begin(label.c_str());
+		ImGui::ColorEdit3("color",reinterpret_cast<float*>(pointLight.color.operator Vector3 * ()));
+		ImGui::SliderFloat("intensity",pointLight.intensity,0.0f,1.0f);
+		ImGui::DragFloat("decay",pointLight.decay,0.1f,0.0f);
+		ImGui::DragFloat3("pos",reinterpret_cast<float*>(pointLight.pos.operator Vector3 * ()),0.1f);
+		ImGui::DragFloat("radius",pointLight.radius,0.1f,0.0f);
+		ImGui::End();
+		++lightIndex;
+	}
+
+	for(auto& spotLight : spotLights_.openData_){
+		label = "SpotLight" + std::to_string(lightIndex);
+		ImGui::Begin(label.c_str());
+		ImGui::ColorEdit3("color",reinterpret_cast<float*>(spotLight.color.operator Vector3 * ()));
+		ImGui::SliderFloat("intensity",spotLight.intensity,0.0f,1.0f);
+		ImGui::DragFloat("decay",spotLight.decay,0.1f,0.0f);
+		ImGui::DragFloat("cosFalloffStart",spotLight.cosFalloffStart,0.1f,0.0f);
+		ImGui::DragFloat3("pos",reinterpret_cast<float*>(spotLight.pos.operator Vector3 * ()),0.1f);
+		ImGui::SliderFloat3("direction",reinterpret_cast<float*>(spotLight.direction.operator Vector3 * ()),0.0f,1.0f);
+		spotLight.direction.setValue(spotLight.direction->normalize());
+		ImGui::DragFloat("distance",spotLight.distance,0.1f,0.0f);
+		ImGui::DragFloat("cosAngle",spotLight.cosAngle,0.1f,0.0f);
+		ImGui::End();
+		++lightIndex;
+	}
+#endif // _DEBUG
+
 	directionalLights_.ConvertToBuffer();
 	pointLights_.ConvertToBuffer();
 	spotLights_.ConvertToBuffer();
