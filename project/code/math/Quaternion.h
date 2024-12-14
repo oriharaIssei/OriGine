@@ -62,13 +62,13 @@ struct Quaternion{
 		);
 	}
 
-	static float Norm(Quaternion q);
+	static float Norm(const Quaternion& q);
 	float norm() const;
 
-	static float NormSq(Quaternion q);
+	static float NormSq(const Quaternion& q);
 	float normSq() const;
 
-	static Quaternion Normalize(Quaternion q);
+	static Quaternion Normalize(const Quaternion& q);
 	Quaternion normalize() const;
 
 	static float Dot(const Quaternion& q0,const Quaternion& q1);
