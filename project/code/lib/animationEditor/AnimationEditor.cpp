@@ -1,5 +1,7 @@
 #include "AnimationEditor.h"
 
+#include "model/Model.h"
+
 #include <algorithm>
 
 #ifdef _DEBUG
