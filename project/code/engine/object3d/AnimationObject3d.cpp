@@ -1,7 +1,6 @@
-#include "AnimationObject3d.h"
+﻿#include "AnimationObject3d.h"
 
 #include "material/Material.h"
-
 #include "material/texture/TextureManager.h"
 #include "model/ModelManager.h"
 

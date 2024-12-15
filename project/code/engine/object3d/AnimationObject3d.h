@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <memory>
 #include <vector>
@@ -10,8 +10,6 @@
 #include "model/Model.h"
 #include "transform/CameraTransform.h"
 #include "transform/Transform.h"
-
-struct Animation;
 
 class AnimationObject3d{
 public:
