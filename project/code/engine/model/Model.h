@@ -26,9 +26,13 @@ struct ModelNode{
 
 struct Mesh3D{
 	std::unique_ptr<IObject3dMesh> meshBuff;
-	size_t dataSize  = 0;
-	size_t vertSize  = 0;
+	size_t dataSize = 0;
+	size_t vertSize = 0;
 	size_t indexSize = 0;
+
+	IConstantBuffer<Transform> transform_;
+	// 対応するノードの名前
+	std::string nodeName;
 };
 
 struct ModelMeshData{
@@ -45,7 +49,7 @@ struct Model{
 
 	ModelMeshData* meshData_;
 
-	using ModelMaterialData =  std::vector<Material3D>;
+	using ModelMaterialData = std::vector<Material3D>;
 	ModelMaterialData materialData_;
 
 	void setMaterialBuff(int32_t part,IConstantBuffer<Material>* buff){
@@ -56,16 +60,14 @@ struct Model{
 	}
 };
 
-template <typename T>
-struct Keyframe{
+template <typename T> struct Keyframe{
 	float time; // キーフレームの時刻
-	T value; // キーフレームの 値
+	T value;    // キーフレームの 値
 };
 using KeyframeVector3 = Keyframe<Vector3>;
 using KeyframeQuaternion = Keyframe<Quaternion>;
 
-template <typename T>
-using AnimationCurve = std::vector<Keyframe<T>>;
+template <typename T> using AnimationCurve = std::vector<Keyframe<T>>;
 
 struct NodeAnimation{
 	AnimationCurve<Vector3> scale;
@@ -74,7 +76,11 @@ struct NodeAnimation{
 };
 
 struct Animation{
-	float duration; // アニメーション 全体の 時間 (秒)
+	Animation() = default;
+	~Animation() = default;
+
+	float duration; // アニメーション 全体の 時間
+	// (秒)
 	float currentAnimationTime; // アニメーション の 経過時間
 	// 各 Node 名で 管理する
 	std::map<std::string,NodeAnimation> nodeAnimations;
@@ -85,13 +91,20 @@ struct Animation{
 		// リピート
 		currentAnimationTime = std::fmod(currentAnimationTime,duration);
 	}
-	Matrix4x4 CalculateCurrentLocal();
+	Matrix4x4 CalculateNodeLocal(const std::string& nodeName) const;
 	/// <summary>
 	///  指定時間の 値を 計算し 取得
 	/// </summary>
 	/// <param name="keyframes"></param>
 	/// <param name="time"></param>
 	/// <returns></returns>
-	Vector3 CalculateValue(const std::vector<KeyframeVector3>& keyframes,float time);
-	Quaternion CalculateValue(const std::vector<KeyframeQuaternion>& keyframes,float time);
+	Vector3 CalculateValue(const std::vector<KeyframeVector3>& keyframes,
+						   float time) const;
+	Quaternion CalculateValue(const std::vector<KeyframeQuaternion>& keyframes,
+							  float time) const;
 };
+
+void ApplyAnimationToNodes(const ModelNode& node,
+						   const Matrix4x4& parentTransform,
+						   const Animation& animation,
+						   std::map<std::string,Matrix4x4>& outTransforms);

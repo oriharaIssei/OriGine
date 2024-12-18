@@ -129,7 +129,7 @@ Quaternion Quaternion::inverse() const{
 	return conjugate / normSq; // 共役をノルムの二乗で割る
 }
 
-float Quaternion::Norm(Quaternion q){
+float Quaternion::Norm(const Quaternion& q){
 	return sqrtf(q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z);
 }
 
@@ -137,7 +137,7 @@ float Quaternion::norm() const{
 	return sqrtf(this->w * this->w + this->x * this->x + this->y * this->y + this->z * this->z);
 }
 
-float Quaternion::NormSq(Quaternion q){
+float Quaternion::NormSq(const Quaternion& q){
 	return q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z;
 }
 
@@ -145,7 +145,7 @@ float Quaternion::normSq() const{
 	return this->w * this->w + this->x * this->x + this->y * this->y + this->z * this->z;
 }
 
-Quaternion Quaternion::Normalize(Quaternion q){
+Quaternion Quaternion::Normalize(const Quaternion& q){
 	float norm = q.norm();
 	if(norm == 0.0f){
 		return {0.0f,0.0f,0.0f,0.0f};

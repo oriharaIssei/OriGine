@@ -13,6 +13,7 @@
 #include "directX12/RenderTexture.h"
 #include "material/texture/TextureManager.h"
 #include "myFileSystem/MyFileSystem.h"
+#include "object3d/AnimationObject3d.h"
 #include "particle/manager/ParticleManager.h"
 #include "primitiveDrawer/PrimitiveDrawer.h"
 #include "sprite/SpriteCommon.h"
@@ -38,11 +39,7 @@ void GameScene::Init(){
 
 	materialManager_ = Engine::getInstance()->getMaterialManager();
 
-	object_.reset(Object3d::Create("resource/Models","cube.gltf"));
-	object_->transform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
-	object_->transform_.openData_.UpdateMatrix();
-
-	animation_ = ModelManager::LoadAnimation("resource/Models/AnimatedCube","AnimatedCube.gltf");
+	object_ = std::move(AnimationObject3d::Create("resource/Models/AnimatedCube","AnimatedCube.gltf"));
 }
 
 void GameScene::Update(){
@@ -54,10 +51,7 @@ void GameScene::Update(){
 
 	// model を animation で 動かす
 	{
-		animation_.UpdateTime(Engine::getInstance()->getDeltaTime());
-		object_->transform_.openData_.worldMat =
-			animation_.CalculateCurrentLocal();
-		object_->transform_.ConvertToBuffer();
+		object_->Update(Engine::getInstance()->getDeltaTime());
 	}
 
 #ifdef _DEBUG
