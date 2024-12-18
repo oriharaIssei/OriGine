@@ -1,6 +1,23 @@
 {
     "version": "2.0.0",
-    "command": "DebugC++",
-    "type": "shell",
-    "showOutput": "always",
+    "tasks": [
+        {
+            "label": "Build OriGine",
+            "type": "shell",
+            "command": "msbuild",
+            "args": [
+                "OriGine.sln",
+                "/p:Configuration=Debug",
+                "/p:Platform=x64"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": "$msCompile"
+        }
+    ]
 }

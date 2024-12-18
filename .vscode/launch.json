@@ -5,14 +5,13 @@
             "name": "Launch OriGine",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/bin/Debug-windows-x86_64/OriGine.exe",
+            "program": "${workspaceFolder}/generated/outputs/Debug/OriGine.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
-            "externalConsole": false,
-            "preLaunchTask": "Build OriGine",
-            "internalConsoleOptions": "openOnSessionStart"
+            "externalConsole": true,
+            "preLaunchTask": "Build OriGine"
         }
     ]
 }
