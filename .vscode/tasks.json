@@ -1,17 +1,6 @@
 {
     "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "Build AnimationEditor",
-            "type": "shell",
-            "command": "premake5 vs2019 && msbuild AnimationEditor.sln /p:Configuration=Debug",
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "problemMatcher": [
-                "$msCompile"
-            ]
-        }
-    ]
+    "command": "DebugC++",
+    "type": "shell",
+    "showOutput": "always",
 }
