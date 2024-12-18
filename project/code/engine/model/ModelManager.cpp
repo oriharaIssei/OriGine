@@ -156,6 +156,24 @@ ModelNode ReadNode(aiNode* node){
 	return result;
 }
 
+void BuildMeshNodeMap(aiNode* node,std::unordered_map<unsigned int,std::string>& meshNodeMap){
+	// 現在のノードが参照するすべてのメッシュに対してノード名を記録
+	for(unsigned int i = 0; i < node->mNumMeshes; ++i){
+		meshNodeMap[node->mMeshes[i]] = node->mName.C_Str();
+	}
+
+	// 子ノードを再帰的に処理
+	for(unsigned int i = 0; i < node->mNumChildren; ++i){
+		BuildMeshNodeMap(node->mChildren[i],meshNodeMap);
+	}
+}
+
+std::unordered_map<unsigned int,std::string> CreateMeshNodeMap(const aiScene* scene){
+	std::unordered_map<unsigned int,std::string> meshNodeMap;
+	BuildMeshNodeMap(scene->mRootNode,meshNodeMap);
+	return meshNodeMap;
+}
+
 void LoadModelFile(ModelMeshData* data,const std::string& directoryPath,const std::string& filename){
 	Assimp::Importer importer;
 	std::string filePath = directoryPath + "/" + filename;
@@ -166,27 +184,33 @@ void LoadModelFile(ModelMeshData* data,const std::string& directoryPath,const st
 	std::vector<TextureVertexData> vertices;
 	std::vector<uint32_t> indices;
 
+	// ノードとメッシュの対応表を作成
+	std::unordered_map<unsigned int,std::string> meshNodeMap = CreateMeshNodeMap(scene);
+
 	/// node 読み込み
 	data->rootNode = ReadNode(scene->mRootNode);
 
 	for(uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex){
-		data->mesh_.emplace_back(Mesh3D());
+		auto& mesh = data->mesh_.emplace_back(Mesh3D());
 
-		aiMesh* mesh = scene->mMeshes[meshIndex];
-		assert(mesh->HasNormals() && mesh->HasTextureCoords(0));
+		// transform の作成
+		mesh.transform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
 
-		// 頂点データとインデックスデータの処理を統合
-		for(uint32_t faceIndex = 0; faceIndex < mesh->mNumFaces; ++faceIndex){
-			aiFace& face = mesh->mFaces[faceIndex];
+		aiMesh* loadedMesh = scene->mMeshes[meshIndex];
+		assert(loadedMesh->HasNormals() && loadedMesh->HasTextureCoords(0));
+
+		// 頂点データとインデックスデータの処理
+		for(uint32_t faceIndex = 0; faceIndex < loadedMesh->mNumFaces; ++faceIndex){
+			aiFace& face = loadedMesh->mFaces[faceIndex];
 			assert(face.mNumIndices == 3);  // 三角形面のみを扱う
 
 			for(uint32_t i = 0; i < 3; ++i){
 				uint32_t vertexIndex = face.mIndices[i];
 
 				// 頂点データを取得
-				Vector4 pos = {mesh->mVertices[vertexIndex].x,mesh->mVertices[vertexIndex].y,mesh->mVertices[vertexIndex].z,1.0f};
-				Vector3 normal = {mesh->mNormals[vertexIndex].x,mesh->mNormals[vertexIndex].y,mesh->mNormals[vertexIndex].z};
-				Vector2 texCoord = {mesh->mTextureCoords[0][vertexIndex].x,mesh->mTextureCoords[0][vertexIndex].y};
+				Vector4 pos = {loadedMesh->mVertices[vertexIndex].x,loadedMesh->mVertices[vertexIndex].y,loadedMesh->mVertices[vertexIndex].z,1.0f};
+				Vector3 normal = {loadedMesh->mNormals[vertexIndex].x,loadedMesh->mNormals[vertexIndex].y,loadedMesh->mNormals[vertexIndex].z};
+				Vector2 texCoord = {loadedMesh->mTextureCoords[0][vertexIndex].x,loadedMesh->mTextureCoords[0][vertexIndex].y};
 
 				// X軸反転
 				pos.x *= -1.0f;
@@ -206,8 +230,11 @@ void LoadModelFile(ModelMeshData* data,const std::string& directoryPath,const st
 			}
 		}
 
+		// メッシュに対応するノード名を設定
+		mesh.nodeName = meshNodeMap[meshIndex];
+
 		// マテリアルとテクスチャの処理
-		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+		aiMaterial* material = scene->mMaterials[loadedMesh->mMaterialIndex];
 		aiString textureFilePath;
 		uint32_t textureIndex;
 		if(material->GetTexture(aiTextureType_DIFFUSE,0,&textureFilePath) == AI_SUCCESS){
@@ -223,7 +250,7 @@ void LoadModelFile(ModelMeshData* data,const std::string& directoryPath,const st
 															 });
 
 		// メッシュデータを処理
-		ProcessMeshData(data->mesh_.back(),vertices,indices);
+		ProcessMeshData(mesh,vertices,indices);
 
 		// リセット
 		vertices.clear();
@@ -232,7 +259,8 @@ void LoadModelFile(ModelMeshData* data,const std::string& directoryPath,const st
 	}
 }
 
-Animation ModelManager::LoadAnimation(const std::string& directoryPath,const std::string& filename){
+Animation ModelManager::LoadAnimation(const std::string& directoryPath,
+									  const std::string& filename){
 	Animation result;
 	Assimp::Importer importer;
 

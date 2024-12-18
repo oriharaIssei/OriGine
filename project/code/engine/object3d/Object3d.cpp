@@ -28,8 +28,8 @@
 BlendMode Object3d::currentBlend_ = BlendMode::Alpha;
 
 #pragma region"Object3d"
-Object3d* Object3d::Create(const std::string& directoryPath,const std::string& filename){
-	Object3d* newInstance = new Object3d();
+std::unique_ptr<Object3d> Object3d::Create(const std::string& directoryPath,const std::string& filename){
+	std::unique_ptr<Object3d> newInstance = std::make_unique<Object3d>();
 	newInstance->data_ = ModelManager::getInstance()->Create(directoryPath,filename);
 	return newInstance;
 }
@@ -64,7 +64,7 @@ void Object3d::DrawThis(){
 		commandList->IASetVertexBuffers(0,1,&mesh.meshBuff->vbView);
 		commandList->IASetIndexBuffer(&mesh.meshBuff->ibView);
 
-		transform_.SetForRootParameter(commandList,0);
+		mesh.transform_.SetForRootParameter(commandList,0);
 
 		material.material->SetForRootParameter(commandList,2);
 		// 描画!!!
