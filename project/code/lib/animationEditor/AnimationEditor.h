@@ -19,7 +19,9 @@ public:
     ~AnimationEditor();
 
     void Init();
+#ifdef _DEBUG
     void Update();
+#endif // _DEBUG
     void DrawEditObject();
 
 private:

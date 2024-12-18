@@ -1,4 +1,4 @@
-﻿#include "AnimationEditor.h"
+#include "AnimationEditor.h"
 
 // stl
 #include <algorithm>
@@ -118,6 +118,7 @@ void AnimationEditor::Init() {
     animationFileList_ = myfs::SearchFile("data/animation", ".gltf");
 }
 
+#ifdef _DEBUG
 void AnimationEditor::Update() {
     if (ImGui::Begin("AnimationEditor", nullptr, ImGuiWindowFlags_MenuBar)) {
         // メニューバー
@@ -164,6 +165,7 @@ void AnimationEditor::Update() {
         }
     }
 }
+#endif // _DEBUG
 
 void AnimationEditor::DrawEditObject() {
     // Object が　存在する場合 描画

@@ -104,6 +104,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="code\application\Player\IPlayerCommand.cpp" />
+    <ClCompile Include="code\application\Player\Player.cpp" />
+    <ClCompile Include="code\application\Player\PlayerMoveCommand.cpp" />
     <ClCompile Include="code\engine\object3d\AnimationObject3d.cpp" />
     <ClCompile Include="code\lib\animationEditor\AnimationEditor.cpp" />
     <ClCompile Include="code\engine\camera\Camera.cpp" />
@@ -167,6 +170,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="code\math\Quaternion.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="code\application\Player\IPlayerCommand.h" />
+    <ClInclude Include="code\application\Player\Player.h" />
+    <ClInclude Include="code\application\Player\PlayerMoveCommand.h" />
     <ClInclude Include="code\engine\object3d\AnimationObject3d.h" />
     <ClInclude Include="code\lib\animationEditor\AnimationEditor.h" />
     <ClInclude Include="code\engine\camera\Camera.h" />

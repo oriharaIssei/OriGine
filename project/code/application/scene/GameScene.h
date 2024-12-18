@@ -7,18 +7,10 @@
 
 #include "IScene.h"
 
+class DebugCamera;
 class Input;
 class MaterialManager;
-class DxRtvArray;
-class DxSrvArray;
-class ParticleManager;
-class DebugCamera;
-
-struct Animation;
-class AnimationObject3d;
-
-struct Matrix4x4;
-struct Vector3;
+class Player;
 
 class GameScene
 	:public IScene{
@@ -42,5 +34,5 @@ private:
 	Input* input_;
 	MaterialManager* materialManager_;
 
-	std::unique_ptr<AnimationObject3d> object_;
+	std::unique_ptr<Player> player_;
 };

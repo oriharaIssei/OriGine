@@ -1,22 +1,13 @@
 #include "GameScene.h"
 
-#include <string>
 
-#include "Engine.h"
-#include "model/ModelManager.h"
-
+#include "engine/Engine.h"
+#include "input/Input.h"
+#include "material/Material.h"
+// camera
 #include "camera/Camera.h"
-#include "directX12/DxCommand.h"
-#include "directX12/DxRtvArray.h"
-#include "directX12/DxRtvArrayManager.h"
-#include "directX12/DxSrvArrayManager.h"
-#include "directX12/RenderTexture.h"
-#include "material/texture/TextureManager.h"
-#include "myFileSystem/MyFileSystem.h"
-#include "object3d/AnimationObject3d.h"
-#include "particle/manager/ParticleManager.h"
-#include "primitiveDrawer/PrimitiveDrawer.h"
-#include "sprite/SpriteCommon.h"
+// Player
+#include "../Player/Player.h"
 
 #ifdef _DEBUG
 #include "camera/debugCamera/DebugCamera.h"
@@ -29,44 +20,42 @@ GameScene::~GameScene(){}
 
 void GameScene::Init(){
 #ifdef _DEBUG
-	debugCamera_ = std::make_unique<DebugCamera>();
-	debugCamera_->Init();
+    debugCamera_ = std::make_unique<DebugCamera>();
+    debugCamera_->Init();
 
-	debugCamera_->setViewTranslate({0.0f,0.0f,-12.0f});
+    debugCamera_->setViewTranslate({0.0f,0.0f,-12.0f});
 #endif // _DEBUG
 
-	input_ = Input::getInstance();
+    input_ = Input::getInstance();
 
-	materialManager_ = Engine::getInstance()->getMaterialManager();
+    materialManager_ = Engine::getInstance()->getMaterialManager();
 
-	object_ = std::move(AnimationObject3d::Create("resource/Models/AnimatedCube","AnimatedCube.gltf"));
+    player_ = std::make_unique<Player>();
+    player_->Init();
 }
 
 void GameScene::Update(){
 #ifdef _DEBUG
-	debugCamera_->Update();
-	debugCamera_->DebugUpdate();
-	Camera::getInstance()->setTransform(debugCamera_->getCameraTransform());
+    debugCamera_->Update();
+    debugCamera_->DebugUpdate();
+    Camera::getInstance()->setTransform(debugCamera_->getCameraTransform());
 #endif // _DEBUG
 
-	// model を animation で 動かす
-	{
-		object_->Update(Engine::getInstance()->getDeltaTime());
-	}
+    player_->Update();
 
 #ifdef _DEBUG
-	materialManager_->DebugUpdate();
+    materialManager_->DebugUpdate();
 #endif // _DEBUG
 
-	Engine::getInstance()->getLightManager()->Update();
+    Engine::getInstance()->getLightManager()->Update();
 }
 
-void GameScene::Draw3d(){
-	object_->Draw();
-}
+void GameScene::Draw3d(){}
 
 void GameScene::DrawLine(){}
 
-void GameScene::DrawSprite(){}
+void GameScene::DrawSprite(){
+    player_->Draw();
+}
 
 void GameScene::DrawParticle(){}

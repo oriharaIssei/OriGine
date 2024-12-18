@@ -42,6 +42,13 @@ Sprite* SpriteCommon::Create(const std::string& textureFilePath){
 	result->meshBuff_->vertexData[2] = {{1.0f,1.0f,0.0f,1.0f},{1.0f,1.0f}};
 	result->meshBuff_->vertexData[3] = {{1.0f,0.0f,0.0f,1.0f},{1.0f,0.0f}};
 
+    result->meshBuff_->indexData[0] = 0;
+    result->meshBuff_->indexData[1] = 1;
+    result->meshBuff_->indexData[2] = 2;
+    result->meshBuff_->indexData[3] = 1;
+    result->meshBuff_->indexData[4] = 3;
+    result->meshBuff_->indexData[5] = 2;
+
 	result->mappingConstBufferData_ = nullptr;
 	result->constBuff_.CreateBufferResource(Engine::getInstance()->getDxDevice()->getDevice(),sizeof(SpritConstBuffer));
 
