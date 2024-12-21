@@ -43,9 +43,6 @@ project "OriGine"
     filter "platforms:Win32"
         architecture "x86"
 
-    -- UTF-8 エンコーディングを指定
-    characterset ("Unicode")
-
     filter "configurations:Debug"
         defines { "DEBUG" }
         symbols "On"

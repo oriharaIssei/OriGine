@@ -18,6 +18,53 @@
                 "reveal": "always"
             },
             "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Create C++ Class",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "${workspaceFolder}/.vscode/createClass.py",
+                "${workspaceFolder}/${input:directory}",
+                "${input:className}",
+                "${input:parentClass}",
+                "${input:parentType}"
+            ],
+            "group": "none",
+            "presentation": {
+                "reveal": "always"
+            },
+            "options": {
+                "env": {
+                    "PARENT_CLASS": "${input:parentClass}",
+                    "PARENT_TYPE": "${input:parentType}"
+                }
+            }
+        }
+    ],
+    "inputs": [
+        {
+            "id": "directory",
+            "type": "promptString",
+            "description": "Enter the directory to create the class in",
+            "default": "project/code/"
+        },
+        {
+            "id": "className",
+            "type": "promptString",
+            "description": "Enter the class name"
+        },
+        {
+            "id": "parentClass",
+            "type": "promptString",
+            "description": "Enter the parent class name (optional)",
+            "default": ""
+        },
+        {
+            "id": "parentType",
+            "type": "promptString",
+            "description": "Enter the inheritance type (public, protected, private) (optional)",
+            "default": ""
         }
     ]
 }
