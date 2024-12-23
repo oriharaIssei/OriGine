@@ -37,6 +37,8 @@ void SceneManager::Update(){
 	currentScene_->Update();
 
 	Camera::getInstance()->DataConvertToBuffer();
+
+    Engine::getInstance()->getLightManager()->Update();
 }
 
 void SceneManager::Draw(){

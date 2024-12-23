@@ -81,6 +81,9 @@ public:
 	void setPosition(const Vector2& pos){ pos_ = pos; }
 	const Vector2& GetPosition() const{ return pos_; }
 
+    const Vector4& getColor() const{ return color_; }
+    void setColor(const Vector4& color){ color_ = color; }
+
 	void setUVScale(const Vector3& uvScale){ uvScale_ = uvScale; }
 	const Vector3& GetUVScale() const{ return uvScale_; }
 
@@ -97,6 +100,6 @@ public:
 
 	void setTextureLeftTop(const Vector2& lt){ textureLeftTop_ = lt; }
 	const Vector2& getTextureLeftTop()const{ return textureLeftTop_; }
-	void setTextureSize(const Vector2& size){ textureSize_ = textureSize_; }
+	void setTextureSize(const Vector2& size){ textureSize_ = size; }
 	const Vector2& getTextureSize()const{ return textureSize_; }
 };

@@ -1,72 +1,94 @@
 #include "GameScene.h"
-
-#include <string>
+#include "TitleScene.h"
+#include "GameClearScene.h"
 
 #include "Engine.h"
-#include "model/ModelManager.h"
+#include "SceneManager.h"
 
-#include "camera/Camera.h"
-#include "directX12/DxCommand.h"
-#include "directX12/DxRtvArray.h"
-#include "directX12/DxRtvArrayManager.h"
-#include "directX12/DxSrvArrayManager.h"
-#include "directX12/RenderTexture.h"
-#include "material/texture/TextureManager.h"
-#include "myFileSystem/MyFileSystem.h"
-#include "object3d/AnimationObject3d.h"
-#include "particle/manager/ParticleManager.h"
-#include "primitiveDrawer/PrimitiveDrawer.h"
-#include "sprite/SpriteCommon.h"
+#include "application/Bullet/Bullet.h"
+#include "application/collision/Collision.h"
+#include "application/Enemy/Enemy.h"
+#include "application/Player/Player.h"
 
-#ifdef _DEBUG
-#include "camera/debugCamera/DebugCamera.h"
-#include "imgui/imgui.h"
-#endif // _DEBUG
-
-GameScene::GameScene():IScene("GameScene"){}
+GameScene::GameScene()
+    :IScene("GameScene"){}
 
 GameScene::~GameScene(){}
 
 void GameScene::Init(){
 #ifdef _DEBUG
-	debugCamera_ = std::make_unique<DebugCamera>();
-	debugCamera_->Init();
-
-	debugCamera_->setViewTranslate({0.0f,0.0f,-12.0f});
 #endif // _DEBUG
 
-	input_ = Input::getInstance();
+    input_ = Input::getInstance();
 
-	materialManager_ = Engine::getInstance()->getMaterialManager();
+    materialManager_ = Engine::getInstance()->getMaterialManager();
 
-	object_ = std::move(AnimationObject3d::Create("resource/Models/AnimatedCube","AnimatedCube.gltf"));
+    player_ = std::make_unique<Player>();
+    player_->Init();
+    for(size_t i = 0; i < 2; i++){
+        std::unique_ptr<Enemy> enemy = std::make_unique<Enemy>();
+        enemy->Init();
+        enemyList_.push_back(std::move(enemy));
+    }
 }
 
 void GameScene::Update(){
 #ifdef _DEBUG
-	debugCamera_->Update();
-	debugCamera_->DebugUpdate();
-	Camera::getInstance()->setTransform(debugCamera_->getCameraTransform());
+    materialManager_->DebugUpdate();
 #endif // _DEBUG
+    if(!player_->getIsAlive()){
+        SceneManager::getInstance()->ChangeScene(std::make_unique<TitleScene>());
+        return;
+    } else if(enemyList_.empty()){
+        SceneManager::getInstance()->ChangeScene(std::make_unique<GameClearScene>());
+        return;
+    }
 
-	// model を animation で 動かす
-	{
-		object_->Update(Engine::getInstance()->getDeltaTime());
-	}
+    ///========================
+    /// 各オブジェクトの更新
+    ///========================
+    {
+        player_->Update(this);
 
-#ifdef _DEBUG
-	materialManager_->DebugUpdate();
-#endif // _DEBUG
+        for(auto& bullet : bulletList_){
+            bullet->Update();
+        }
 
-	Engine::getInstance()->getLightManager()->Update();
+        for(auto& enemy : enemyList_){
+            enemy->Update();
+        }
+    }
+
+    ///========================
+    /// 衝突判定
+    ///========================
+    {
+        collision_->Update(player_.get(),bulletList_,enemyList_);
+    }
+
+    ///========================
+    /// オブジェクトの削除
+    ///========================
+    std::erase_if(bulletList_,[](const std::unique_ptr<Bullet>& bullet){ return !bullet->getIsAlive(); });
+    std::erase_if(enemyList_,[](const std::unique_ptr<Enemy>& enemy){ return !enemy->getIsAlive(); });
 }
 
-void GameScene::Draw3d(){
-	object_->Draw();
-}
+void GameScene::Draw3d(){}
 
 void GameScene::DrawLine(){}
 
-void GameScene::DrawSprite(){}
+void GameScene::DrawSprite(){
+    player_->Draw();
+    for(auto& enemy : enemyList_){
+        enemy->Draw();
+    }
+    for(auto& bullet : bulletList_){
+        bullet->Draw();
+    }
+}
 
 void GameScene::DrawParticle(){}
+
+void GameScene::addBullet(std::unique_ptr<Bullet> bullet){
+    bulletList_.push_back(std::move(bullet));
+}
