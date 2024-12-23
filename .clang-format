@@ -63,7 +63,7 @@ PenaltyBreakFunctionCall: 19
 
 # === コメント設定 ===
 # コメントを再フォーマットするかどうかを指定します。
-ReflowComments: true
+ReflowComments: false
 # 行末コメントの前に入れるスペースの数を指定します。
 SpacesBeforeTrailingComments: 1
 
