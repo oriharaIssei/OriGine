@@ -4,7 +4,7 @@
 #include "globalVariables/GlobalVariables.h"
 #include "scene/SceneManager.h"
 
-#include "scene/GameScene.h"
+#include "scene/TitleScene.h"
 
 MyGame::MyGame(){}
 
@@ -19,7 +19,7 @@ void MyGame::Init(){
 	variables_->LoadAllFile();
 	engine_->Init();
 	sceneManager_->Init();
-	sceneManager_->ChangeScene(std::make_unique<GameScene>());
+	sceneManager_->ChangeScene(std::make_unique<TitleScene>());
 }
 
 void MyGame::Finalize(){
