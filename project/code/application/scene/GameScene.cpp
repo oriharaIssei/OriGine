@@ -18,6 +18,8 @@
 #include "primitiveDrawer/PrimitiveDrawer.h"
 #include "sprite/SpriteCommon.h"
 
+#include "animationEditor/AnimationEditor.h"
+
 #ifdef _DEBUG
 #include "camera/debugCamera/DebugCamera.h"
 #include "imgui/imgui.h"
@@ -39,7 +41,8 @@ void GameScene::Init(){
 
 	materialManager_ = Engine::getInstance()->getMaterialManager();
 
-	object_ = std::move(AnimationObject3d::Create("resource/Models/AnimatedCube","AnimatedCube.gltf"));
+    animationEditor_ = std::make_unique<AnimationEditor>();
+    animationEditor_->Init();
 }
 
 void GameScene::Update(){
@@ -49,10 +52,7 @@ void GameScene::Update(){
 	Camera::getInstance()->setTransform(debugCamera_->getCameraTransform());
 #endif // _DEBUG
 
-	// model を animation で 動かす
-	{
-		object_->Update(Engine::getInstance()->getDeltaTime());
-	}
+    animationEditor_->Update();
 
 #ifdef _DEBUG
 	materialManager_->DebugUpdate();
@@ -62,7 +62,7 @@ void GameScene::Update(){
 }
 
 void GameScene::Draw3d(){
-	object_->Draw();
+    animationEditor_->DrawEditObject(); 
 }
 
 void GameScene::DrawLine(){}
