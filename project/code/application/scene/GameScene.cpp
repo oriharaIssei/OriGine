@@ -1,10 +1,7 @@
 #include "GameScene.h"
 
-#include <string>
-
+#include "../Player/Player.h"
 #include "Engine.h"
-#include "model/ModelManager.h"
-
 #include "camera/Camera.h"
 #include "directX12/DxCommand.h"
 #include "directX12/DxRtvArray.h"
@@ -12,61 +9,69 @@
 #include "directX12/DxSrvArrayManager.h"
 #include "directX12/RenderTexture.h"
 #include "material/texture/TextureManager.h"
+#include "model/ModelManager.h"
 #include "myFileSystem/MyFileSystem.h"
 #include "object3d/AnimationObject3d.h"
 #include "particle/manager/ParticleManager.h"
 #include "primitiveDrawer/PrimitiveDrawer.h"
 #include "sprite/SpriteCommon.h"
 
-#include "animationEditor/AnimationEditor.h"
+#include <string>
 
 #ifdef _DEBUG
 #include "camera/debugCamera/DebugCamera.h"
 #include "imgui/imgui.h"
 #endif // _DEBUG
 
-GameScene::GameScene():IScene("GameScene"){}
+GameScene::GameScene()
+    : IScene("GameScene") {}
 
-GameScene::~GameScene(){}
+GameScene::~GameScene() {}
 
-void GameScene::Init(){
+void GameScene::Init() {
 #ifdef _DEBUG
-	debugCamera_ = std::make_unique<DebugCamera>();
-	debugCamera_->Init();
+    debugCamera_ = std::make_unique<DebugCamera>();
+    debugCamera_->Init();
 
-	debugCamera_->setViewTranslate({0.0f,0.0f,-12.0f});
+    debugCamera_->setViewTranslate({0.0f, 0.0f, -12.0f});
 #endif // _DEBUG
 
-	input_ = Input::getInstance();
+    input_ = Input::getInstance();
 
-	materialManager_ = Engine::getInstance()->getMaterialManager();
+    materialManager_ = Engine::getInstance()->getMaterialManager();
 
-    animationEditor_ = std::make_unique<AnimationEditor>();
-    animationEditor_->Init();
+    player_ = std::make_unique<Player>();
+    player_->Init();
+
+    ground_.reset(Object3d::Create("resource/Models", "Ground.obj"));
+    ground_->transform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+    ground_->transform_.openData_.UpdateMatrix();
+    ground_->transform_.ConvertToBuffer();
 }
 
-void GameScene::Update(){
+void GameScene::Update() {
 #ifdef _DEBUG
-	debugCamera_->Update();
-	debugCamera_->DebugUpdate();
-	Camera::getInstance()->setTransform(debugCamera_->getCameraTransform());
+    debugCamera_->Update();
+    debugCamera_->DebugUpdate();
+    Camera::getInstance()->setTransform(debugCamera_->getCameraTransform());
 #endif // _DEBUG
 
-    animationEditor_->Update();
+    player_->Update();
 
 #ifdef _DEBUG
-	materialManager_->DebugUpdate();
+    materialManager_->DebugUpdate();
 #endif // _DEBUG
 
-	Engine::getInstance()->getLightManager()->Update();
+    Engine::getInstance()->getLightManager()->Update();
 }
 
-void GameScene::Draw3d(){
-    animationEditor_->DrawEditObject(); 
+void GameScene::Draw3d() {
+    ground_->Draw();
+    player_->Draw();
 }
 
-void GameScene::DrawLine(){}
+void GameScene::DrawLine() {}
 
-void GameScene::DrawSprite(){}
+void GameScene::DrawSprite() {}
 
-void GameScene::DrawParticle(){}
+void GameScene::DrawParticle() {}

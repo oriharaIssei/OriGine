@@ -13,7 +13,7 @@ struct Quaternion{
 	float x = 0;
 	float y = 0;
 	float z = 0;
-	float w = 0;
+	float w = 1.0f; // 初期化時に 単位行列にする
 	Quaternion operator+(const Quaternion& q)const;
 	Quaternion operator-(const Quaternion& q)const;
 	Quaternion operator-()const{
