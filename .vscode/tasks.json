@@ -6,8 +6,8 @@
             "type": "shell",
             "command": "msbuild",
             "args": [
-                "OriGine.sln",
-                "/p:Configuration=Debug",
+                "${input:projectPath}",
+                "/p:Configuration=${input:buildConfig}",
                 "/p:Platform=x64"
             ],
             "group": {
@@ -43,6 +43,22 @@
         }
     ],
     "inputs": [
+        {
+            "id": "projectPath",
+            "type": "promptString",
+            "description": "Enter the project path relative to the workspace",
+            "default": "project/OriGine.sln"
+        },
+        {
+            "id": "buildConfig",
+            "type": "pickString",
+            "description": "Select the build configuration",
+            "options": [
+                "Debug",
+                "Release"
+            ],
+            "default": "Debug"
+        },
         {
             "id": "directory",
             "type": "promptString",

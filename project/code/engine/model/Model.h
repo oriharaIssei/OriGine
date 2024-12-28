@@ -35,6 +35,7 @@ struct Mesh3D {
 };
 
 struct ModelMeshData {
+    std::unordered_map<std::string, uint32_t> meshIndexes;
     std::vector<Mesh3D> mesh_;
     ModelNode rootNode;
 };

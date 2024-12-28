@@ -1,17 +1,18 @@
-#include <memory>
-
 #include "application/MyGame.h"
 #include "directX12/DxDebug.h"
+#include "lib/myFileSystem/MyFileSystem.h"
 
-int WINAPI WinMain(HINSTANCE,HINSTANCE,LPSTR,int){
-	DxDebug debug;
+#include <memory>
 
-	std::unique_ptr<MyGame> gameApp = std::make_unique<MyGame>();
-	gameApp->Init();
+int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
+    DxDebug debug;
+    std::unique_ptr<MyGame> gameApp = std::make_unique<MyGame>();
 
-	gameApp->Run();
+    gameApp->Init();
 
-	gameApp->Finalize();
+    gameApp->Run();
 
-	return 0;
+    gameApp->Finalize();
+
+    return 0;
 }
