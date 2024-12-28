@@ -17,9 +17,9 @@ project "OriGine"
     -- 中間ファイルの出力先を指定
     objdir "../OriGine/generated/objects/%{cfg.buildcfg}"
     -- ビルド後イベントの追加
-    postbuildcommands {
-        '{COPY} "%{os.getenv("WindowsSdkDir")}bin\\%{os.getenv("TargetPlatformVersion")}\\x64\\dxcompiler.dll" "%{cfg.targetdir}dxcompiler.dll"',
-        '{COPY} "%{os.getenv("WindowsSdkDir")}bin\\%{os.getenv("TargetPlatformVersion")}\\x64\\dxil.dll" "%{cfg.targetdir}dxil.dll"'
+   postbuildcommands {
+        '{COPY} "%{os.getenv("WindowsSdkDir")}bin\\%{os.getenv("TargetPlatformVersion")}\\x64\\dxcompiler.dll" "%{cfg.targetdir}\\dxcompiler.dll"',
+        '{COPY} "%{os.getenv("WindowsSdkDir")}bin\\%{os.getenv("TargetPlatformVersion")}\\x64\\dxil.dll" "%{cfg.targetdir}\\dxil.dll"'
     }
 
     files { "project/code/**.h", "project/code/**.cpp"}
@@ -31,7 +31,7 @@ project "OriGine"
             }
 
     -- imgui と DirectXTex を参照
-    links { "imgui", "DirectXTex", "assimp" }
+    links { "imgui", "DirectXTex" }
 
     -- インクルードディレクトリの追加
     includedirs { "project/code","project/code/engine","project/code/application","project/code/lib","project/code/math", -- project Include
@@ -50,20 +50,26 @@ project "OriGine"
         symbols "On"
         staticruntime "on" -- runtime "Debug" と 組み合わせることで /MTd になる
         runtime "Debug"
+        links {"assimp-vc143-mtd.lib" }
+        libdirs {"project/externals/assimp/lib/Debug" }
 
     filter "configurations:Release"
         defines { "NDEBUG" }
         optimize "On"
         staticruntime "off" -- runtime "Release" と 組み合わせることで /MT になる
         runtime "Release"
+        links {"assimp-vc143-mt.lib" }
+        libdirs {"project/externals/assimp/lib/Release" }
 
     filter "configurations:Profile"
         defines { "NDEBUG" }
         optimize "On"
         staticruntime "off"
         runtime "Release"
+        links {"assimp-vc143-mt.lib" }
+        libdirs { "project/externals/assimp/lib/Release" }
 
-project "imgui"
+externalproject  "imgui"
     kind "StaticLib"
     language "C++"
     location "project/externals/imgui"
@@ -99,7 +105,7 @@ project "imgui"
         staticruntime "off"
         runtime "Release"
 
-project "DirectXTex"
+externalproject  "DirectXTex"
     kind "StaticLib"
     language "C++"
     location "project/externals/DirectXTex"
@@ -137,39 +143,3 @@ project "DirectXTex"
         optimize "On"
         staticruntime "off"
         runtime "Release"
-
-project "assimp"
-    kind "StaticLib"
-    language "C++"
-    location "project/externals/assimp"
-    targetdir "../OriGine/generated/outputs/%{cfg.buildcfg}"
-    -- 中間ファイルの出力先を指定
-    objdir "../OriGine/generated/objects/%{cfg.buildcfg}"
-
-    files { "project/externals/assimp/**.h", "project/externals/assimp/**.cpp" }
-
-    includedirs { "project/externals/assimp" }
-
-    -- C++20 を指定
-    cppdialect "C++20"
-
-    buildoptions { "/utf-8" }
-
-    filter "platforms:x64"
-        architecture "x64"
-
-    filter "platforms:Win32"
-        architecture "x86"
-
-    filter "configurations:Debug"
-        defines { "DEBUG" }
-        symbols "On"
-        staticruntime "on"
-        runtime "Debug"
-
-    filter "configurations:Release"
-        defines { "NDEBUG" }
-        optimize "On"
-        staticruntime "off"
-        runtime "Release"
-

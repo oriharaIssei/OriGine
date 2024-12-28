@@ -9,6 +9,10 @@ className = sys.argv[2]
 parentClass = os.getenv('PARENT_CLASS', '')
 parentType = os.getenv('PARENT_TYPE', '') if parentClass else ''
 
+# Create directory if it does not exist
+if not os.path.exists(directory):
+    os.makedirs(directory)
+
 # Create header file
 header_file_content = f"""#pragma once
 {f'#include "{parentClass}.h"' if parentClass else ""}

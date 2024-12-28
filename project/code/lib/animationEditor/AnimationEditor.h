@@ -10,6 +10,8 @@
 #include <vector>
 
 class AnimationObject3d;
+struct AnimationData;
+struct AnimationSetting;
 
 /// <summary>
 /// アニメーションのエディター
@@ -24,27 +26,13 @@ public:
     void DrawEditObject();
 
 private:
-    struct AnimationSetting {
-        AnimationSetting(const std::string& _name)
-            : name(_name.c_str()),
-              targetModelDirection_("Animations", _name, "targetModelDirection"),
-              targetModelFileName_("Animations", _name, "targetModelFileName") {}
-        ~AnimationSetting() {}
-        // アニメーション名
-        std::string name;
-        // アニメーション対象のモデル名
-        SerializedField<std::string> targetModelDirection_;
-        SerializedField<std::string> targetModelFileName_;
-    };
-
-private:
     // アニメーションリスト
     std::list<std::pair<std::string, std::string>> animationSettingsFileList_;
     std::list<std::pair<std::string, std::string>> modelFileList_;
 
     // アニメーション対象のオブジェクト
-    std::unique_ptr<AnimationObject3d> currentEditObject_;
-    std::unique_ptr<AnimationSetting> currentEditAnimationSetting_;
+    std::unique_ptr<AnimationObject3d> currentEditObject_          = nullptr;
+    std::unique_ptr<AnimationSetting> currentEditAnimationSetting_ = nullptr;
 
     bool isObjectPlaying_ = false;
 };
