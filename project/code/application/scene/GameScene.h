@@ -10,7 +10,6 @@ class Input;
 class MaterialManager;
 class DebugCamera;
 class Object3d;
-class Player;
 
 class AnimationEditor;
 
