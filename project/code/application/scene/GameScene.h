@@ -31,6 +31,8 @@ private:
 #ifdef _DEBUG
     //DebugObjects
     std::unique_ptr<DebugCamera> debugCamera_;
+
+    std::unique_ptr<AnimationEditor> animationEditor_;
 #endif // _DEBUG
 
     Input* input_;

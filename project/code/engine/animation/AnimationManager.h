@@ -37,8 +37,8 @@ public:
     ///< param name="filename">ファイル名(format を つけない .anm 固定)</param>
     void SaveAnimation(const std::string& directory, const std::string& filename, const AnimationData& animationData);
 
-    int addAnimationData(const std::string& name,
-                          std::unique_ptr<AnimationData> animationData);
+    int addAnimationData(const std::string& name, std::unique_ptr<AnimationData> animationData);
+
 private:
     /// <summary>
     /// アニメーションデータの読み込み

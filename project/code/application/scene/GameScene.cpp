@@ -20,6 +20,8 @@
 #ifdef _DEBUG
 #include "camera/debugCamera/DebugCamera.h"
 #include "imgui/imgui.h"
+
+#include "animationEditor/AnimationEditor.h"
 #endif // _DEBUG
 
 GameScene::GameScene()
@@ -41,6 +43,8 @@ void GameScene::Init() {
 
     ground_ = std::move(Object3d::Create("resource/Models", "Ground.obj"));
     ground_->transform_.UpdateMatrix();
+
+    animationEditor_ = std::make_unique<AnimationEditor>();
 }
 
 void GameScene::Update() {
@@ -48,6 +52,8 @@ void GameScene::Update() {
     debugCamera_->Update();
     debugCamera_->DebugUpdate();
     Camera::getInstance()->setTransform(debugCamera_->getCameraTransform());
+
+    animationEditor_->Update();
 #endif // _DEBUG
 
 #ifdef _DEBUG
@@ -58,6 +64,7 @@ void GameScene::Update() {
 }
 
 void GameScene::Draw3d() {
+    animationEditor_->DrawEditObject();
     ground_->Draw();
 }
 

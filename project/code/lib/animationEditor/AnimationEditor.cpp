@@ -85,7 +85,7 @@ void AnimationEditor::Update(){
                             AnimationManager::getInstance()->SaveAnimation(
                                 currentEditAnimationSetting_->targetAnimationDirection,
                                 currentEditAnimationSetting_->name,
-                                *currentEditObject_->getAnimation()->data);
+                                *currentEditObject_->getAnimation()->getData());
                         }
                     }
                 }
@@ -124,7 +124,7 @@ void AnimationEditor::Update(){
                         std::make_unique<AnimationData>());
                     currentEditObject_->setAnimation(
                         std::make_unique<Animation>(
-                        const_cast<AnimationData*>(AnimationManager::getInstance()->getAnimationData("editor"))
+                        const_cast<AnimationData*>(AnimationManager::getInstance()->getAnimationData(fileName))
                     )
                     );
                 }
@@ -181,7 +181,7 @@ void AnimationEditor::Update(){
                                }
                            }
                            // アニメーションを リセット
-                           auto currentEditAnimationData = currentEditObject_->getAnimation()->data;
+                           auto currentEditAnimationData = currentEditObject_->getAnimation()->getData();
                            currentEditAnimationData->nodeAnimations.clear();
                            for(const auto& mesh : currentEditObject_->getModel()->meshData_->mesh_){
                                currentEditAnimationData->nodeAnimations[mesh.nodeName].scale.push_back({0.0f,{1.0f,1.0f,1.0f}});
@@ -210,33 +210,36 @@ void AnimationEditor::Update(){
         if(ImGui::Begin("Timelines")){
             // アニメーションの再生
             if(ImGui::Checkbox("Play",&isObjectPlaying_)){
-                currentEditObject_->getAnimation()->currentAnimationTime = 0.0f;
+                currentEditObject_->getAnimation()->setCurrentAnimationTime(0.0f);
             }
 
             // アニメーションのタイムライン
-            auto& nodeAnimations = currentEditObject_->getAnimation()->data->nodeAnimations;
+            auto& nodeAnimations = currentEditObject_->getAnimation()->getData()->nodeAnimations;
+            float animationDuration = currentEditObject_->getAnimation()->getDuration();
 
             for(auto& [nodeName,nodeAnimation] : nodeAnimations){
                 if(ImGui::TreeNode(nodeName.c_str())){
                     ImGui::BeginGroup(); // グループ化
                     ImGui::Text("Duration :");
-                    if(ImGui::InputFloat(std::string("##" + nodeName + "Duration").c_str(),&currentEditObject_->getAnimation()->data->duration,0.1f,0.3f,"%.3f")){
-                        float newDuration = currentEditObject_->getAnimation()->data->duration;
+                    if(ImGui::InputFloat(std::string("##" + nodeName + "Duration").c_str(),&animationDuration,0.1f,0.3f,"%.3f")){
+                        float newDuration = animationDuration;
+                        float duration = currentEditObject_->getAnimation()->getDuration();
                         // 前の Duration に対する Scale の時間を変更
                         for(auto& keyframe : nodeAnimation.scale){
-                            keyframe.time = (keyframe.time / currentEditObject_->getAnimation()->duration) * newDuration;
+                            keyframe.time = (keyframe.time / duration) * newDuration;
                         }
                         // 前の Duration に対する Rotate の時間を変更
                         for(auto& keyframe : nodeAnimation.rotate){
-                            keyframe.time = (keyframe.time / currentEditObject_->getAnimation()->duration) * newDuration;
+                            keyframe.time = (keyframe.time / duration) * newDuration;
                         }
                         // 前の Duration に対する Translate の時間を変更
                         for(auto& keyframe : nodeAnimation.translate){
-                            keyframe.time = (keyframe.time / currentEditObject_->getAnimation()->duration) * newDuration;
+                            keyframe.time = (keyframe.time / duration) * newDuration;
                         }
 
                         // DurationUpdate
-                        currentEditObject_->getAnimation()->duration = newDuration;
+                        currentEditObject_->getAnimation()->setDuration(newDuration);
+                        currentEditObject_->getAnimation()->getData()->duration = newDuration;
                     }
 
                     // scaleのキーフレーム時刻を取得
@@ -262,7 +265,7 @@ void AnimationEditor::Update(){
                     ImGui::TimeLineButtons(
                         std::string("Scale##" + nodeName).c_str(),
                         scaleTimes,
-                        currentEditObject_->getAnimation()->duration,
+                        animationDuration,
                         [&](float newNodeTime){
                             // キーフレームによる ノードの順番を変更
                             std::sort(
@@ -307,7 +310,7 @@ void AnimationEditor::Update(){
                     ImGui::TimeLineButtons(
                         std::string("Rotate##" + nodeName).c_str(),
                         rotateTimes,
-                        currentEditObject_->getAnimation()->duration,
+                        animationDuration,
                         [&](float newNodeTime){
                             // キーフレームによる ノードの順番を変更
                             std::sort(
@@ -355,7 +358,7 @@ void AnimationEditor::Update(){
                     ImGui::TimeLineButtons(
                         std::string("Translate##" + nodeName).c_str(),
                         translateTimes,
-                        currentEditObject_->getAnimation()->duration,
+                        animationDuration,
                         [&](float newNodeTime){
                             // キーフレームによる ノードの順番を変更
                             std::sort(
