@@ -30,7 +30,7 @@ Matrix4x4 Animation::CalculateNodeLocal(const std::string& nodeName) const {
     Vector3 scale     = CalculateValue(nodeAnimation.scale, currentAnimationTime);
     Quaternion rotate = Quaternion::Normalize(CalculateValue(nodeAnimation.rotate, currentAnimationTime));
     Vector3 translate = CalculateValue(nodeAnimation.translate, currentAnimationTime);
-    return MakeMatrix::Affine(scale, rotate, translate);
+     return MakeMatrix::Affine(scale, rotate, translate);
 }
 
 Vector3 Animation::CalculateValue(const std::vector<KeyframeVector3>& keyframes, float time) const {

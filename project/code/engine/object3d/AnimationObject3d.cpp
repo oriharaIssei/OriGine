@@ -48,17 +48,24 @@ void AnimationObject3d::Update(float deltaTime) {
     // モデルの更新
 
     // rootNode
-    auto& rootNode                                                                                        = model_->meshData_->rootNode;
-    model_->meshData_->mesh_[model_->meshData_->meshIndexes[rootNode.name]].transform_.openData_.worldMat = transform_.worldMat * rootNode.localMatrix;
-
-    // ChildNode
-    for (const auto& node : rootNode.children) {
-        auto& mesh = model_->meshData_->mesh_[model_->meshData_->meshIndexes[node.name]];
-        // mesh の ワールド行列を更新
-        mesh.transform_.openData_.worldMat = transform_.worldMat * node.localMatrix;
+    auto& rootNode = model_->meshData_->rootNode;
+    { // rootMeshUpdate
+        auto rootMeshIndexItr = model_->meshData_->meshIndexes.find(rootNode.name);
+        if (rootMeshIndexItr != model_->meshData_->meshIndexes.end()) {
+            Mesh3D& rootMesh                       = model_->meshData_->mesh_[rootMeshIndexItr->second];
+            rootMesh.transform_.openData_.worldMat = transform_.worldMat * rootNode.localMatrix;
+            rootMesh.transform_.ConvertToBuffer();
+        }
     }
-    for (auto& mesh : model_->meshData_->mesh_) {
-        mesh.transform_.ConvertToBuffer();
+    // ChildNode Update
+    for (const auto& node : rootNode.children) {
+        auto meshIndexItr = model_->meshData_->meshIndexes.find(node.name);
+        if (meshIndexItr != model_->meshData_->meshIndexes.end()) {
+            IConstantBuffer<Transform>& meshTransform = model_->meshData_->mesh_[meshIndexItr->second].transform_;
+            // mesh の ワールド行列を更新
+            meshTransform.openData_.worldMat = transform_.worldMat * node.localMatrix;
+            meshTransform.ConvertToBuffer();
+        }
     }
 }
 

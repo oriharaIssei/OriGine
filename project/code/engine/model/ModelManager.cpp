@@ -1,6 +1,6 @@
+#include "Engine.h"
 #include "ModelManager.h"
 
-#include "Engine.h"
 #include "Model.h"
 #include "directX12/ShaderManager.h"
 #include "material/Texture/TextureManager.h"
@@ -14,37 +14,37 @@
 //===========================================================================
 // unorderedMap 用
 //===========================================================================
-struct VertexKey {
+struct VertexKey{
     Vector4 position;
     Vector3 normal;
     Vector2 texCoord;
 
-    bool operator==(const VertexKey& other) const {
+    bool operator==(const VertexKey& other) const{
         return position == other.position &&
-               normal == other.normal &&
-               texCoord == other.texCoord;
+            normal == other.normal &&
+            texCoord == other.texCoord;
     }
 };
 namespace std {
-template <>
-struct hash<VertexKey> {
-    size_t operator()(const VertexKey& key) const {
-        return hash<float>()(key.position.x) ^ hash<float>()(key.position.y) ^ hash<float>()(key.position.z) ^
-               hash<float>()(key.normal.x) ^ hash<float>()(key.normal.y) ^ hash<float>()(key.normal.z) ^
-               hash<float>()(key.texCoord.x) ^ hash<float>()(key.texCoord.y);
-    }
-};
+    template <>
+    struct hash<VertexKey>{
+        size_t operator()(const VertexKey& key) const{
+            return hash<float>()(key.position.x) ^ hash<float>()(key.position.y) ^ hash<float>()(key.position.z) ^
+                hash<float>()(key.normal.x) ^ hash<float>()(key.normal.y) ^ hash<float>()(key.normal.z) ^
+                hash<float>()(key.texCoord.x) ^ hash<float>()(key.texCoord.y);
+        }
+    };
 } // namespace std
 
-ModelManager* ModelManager::getInstance() {
+ModelManager* ModelManager::getInstance(){
     static ModelManager instance{};
     return &instance;
 }
 
-std::unique_ptr<Model> ModelManager::Create(const std::string& directoryPath, const std::string& filename) {
+std::unique_ptr<Model> ModelManager::Create(const std::string& directoryPath,const std::string& filename){
     std::unique_ptr<Model> result = std::make_unique<Model>();
     const auto itr                = modelLibrary_.find(directoryPath + filename);
-    if (itr != modelLibrary_.end()) {
+    if(itr != modelLibrary_.end()){
         result->currentState_ = Model::LoadState::Loaded;
         result->meshData_     = itr->second.get();
         result->materialData_ = defaultMaterials_[result->meshData_];
@@ -55,12 +55,12 @@ std::unique_ptr<Model> ModelManager::Create(const std::string& directoryPath, co
 
     result            = std::make_unique<Model>();
     result->meshData_ = modelLibrary_[directoryPath + filename].get();
-    loadThread_->pushTask({directoryPath, filename, result.get()});
+    loadThread_->pushTask({directoryPath,filename,result.get()});
 
     return result;
 }
 
-void ModelManager::Init() {
+void ModelManager::Init(){
     loadThread_ = std::make_unique<TaskThread<ModelManager::LoadTask>>();
     loadThread_->Init(1);
 
@@ -69,49 +69,49 @@ void ModelManager::Init() {
     *maPtr           = MakeMatrix::PerspectiveFov(
         0.45f,
         static_cast<float>(Engine::getInstance()->getWinApp()->getWidth()) /
-            static_cast<float>(Engine::getInstance()->getWinApp()->getHeight()),
+        static_cast<float>(Engine::getInstance()->getWinApp()->getHeight()),
         0.1f,
         100.0f);
     fovMa_.reset(
         maPtr);
 
     dxCommand_ = std::make_unique<DxCommand>();
-    dxCommand_->Init(Engine::getInstance()->getDxDevice()->getDevice(), "main", "main");
+    dxCommand_->Init(Engine::getInstance()->getDxDevice()->getDevice(),"main","main");
 
     size_t index = 0;
 
-    for (auto& texShaderKey : Engine::getInstance()->getTexturePsoKeys()) {
+    for(auto& texShaderKey : Engine::getInstance()->getTexturePsoKeys()){
         texturePso_[index] = ShaderManager::getInstance()->getPipelineStateObj(texShaderKey);
         index++;
     }
 }
 
-void ModelManager::Finalize() {
+void ModelManager::Finalize(){
     loadThread_->Finalize();
     dxCommand_->Finalize();
     modelLibrary_.clear();
 }
 
-void ModelManager::pushBackDefaultMaterial(ModelMeshData* key, Material3D material) {
+void ModelManager::pushBackDefaultMaterial(ModelMeshData* key,Material3D material){
     defaultMaterials_[key].emplace_back(material);
 }
 
-void ProcessMeshData(Mesh3D& meshData, const std::vector<TextureVertexData>& vertices, const std::vector<uint32_t>& indices) {
+void ProcessMeshData(Mesh3D& meshData,const std::vector<TextureVertexData>& vertices,const std::vector<uint32_t>& indices){
     TextureObject3dMesh* textureMesh = new TextureObject3dMesh();
 
     meshData.dataSize = static_cast<int32_t>(sizeof(TextureVertexData) * vertices.size());
 
-    textureMesh->Create(static_cast<UINT>(vertices.size()), static_cast<UINT>(indices.size()));
-    memcpy(textureMesh->vertData, vertices.data(), vertices.size() * sizeof(TextureVertexData));
+    textureMesh->Create(static_cast<UINT>(vertices.size()),static_cast<UINT>(indices.size()));
+    memcpy(textureMesh->vertData,vertices.data(),vertices.size() * sizeof(TextureVertexData));
     meshData.meshBuff.reset(textureMesh);
 
-    memcpy(meshData.meshBuff->indexData, indices.data(), static_cast<UINT>(static_cast<size_t>(indices.size()) * sizeof(uint32_t)));
+    memcpy(meshData.meshBuff->indexData,indices.data(),static_cast<UINT>(static_cast<size_t>(indices.size()) * sizeof(uint32_t)));
 
     meshData.vertSize  = static_cast<int32_t>(vertices.size());
     meshData.indexSize = static_cast<int32_t>(indices.size());
 }
 
-ModelNode ReadNode(aiNode* node) {
+ModelNode ReadNode(aiNode* node){
     ModelNode result;
     /// LocalMatrix の 取得
     aiMatrix4x4 aiLocalMatrix = node->mTransformation;
@@ -145,48 +145,51 @@ ModelNode ReadNode(aiNode* node) {
     result.children.resize(node->mNumChildren);
 
     /// Children すべてを Copy
-    for (uint32_t childIndex = 0; childIndex < node->mNumChildren; childIndex++) {
+    for(uint32_t childIndex = 0; childIndex < node->mNumChildren; childIndex++){
         result.children[childIndex] = ReadNode(node->mChildren[childIndex]);
     }
 
     return result;
 }
 
-void BuildMeshNodeMap(aiNode* node, std::unordered_map<unsigned int, std::string>& meshNodeMap) {
+void BuildMeshNodeMap(aiNode* node,std::unordered_map<unsigned int,std::string>& meshNodeMap){
     // 現在のノードが参照するすべてのメッシュに対してノード名を記録
-    for (unsigned int i = 0; i < node->mNumMeshes; ++i) {
+    for(unsigned int i = 0; i < node->mNumMeshes; ++i){
         meshNodeMap[node->mMeshes[i]] = node->mName.C_Str();
     }
 
     // 子ノードを再帰的に処理
-    for (unsigned int i = 0; i < node->mNumChildren; ++i) {
-        BuildMeshNodeMap(node->mChildren[i], meshNodeMap);
+    for(unsigned int i = 0; i < node->mNumChildren; ++i){
+        BuildMeshNodeMap(node->mChildren[i],meshNodeMap);
     }
 }
 
-std::unordered_map<unsigned int, std::string> CreateMeshNodeMap(const aiScene* scene) {
-    std::unordered_map<unsigned int, std::string> meshNodeMap;
-    BuildMeshNodeMap(scene->mRootNode, meshNodeMap);
+std::unordered_map<unsigned int,std::string> CreateMeshNodeMap(const aiScene* scene){
+    std::unordered_map<unsigned int,std::string> meshNodeMap;
+    BuildMeshNodeMap(scene->mRootNode,meshNodeMap);
     return meshNodeMap;
 }
 
-void LoadModelFile(ModelMeshData* data, const std::string& directoryPath, const std::string& filename) {
+void LoadModelFile(ModelMeshData* data,const std::string& directoryPath,const std::string& filename){
     Assimp::Importer importer;
     std::string filePath = directoryPath + "/" + filename;
-    const aiScene* scene = importer.ReadFile(filePath.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
+    const aiScene* scene = importer.ReadFile(filePath.c_str(),aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
     assert(scene->HasMeshes());
 
-    std::unordered_map<VertexKey, uint32_t> vertexMap;
+    std::unordered_map<VertexKey,uint32_t> vertexMap;
     std::vector<TextureVertexData> vertices;
     std::vector<uint32_t> indices;
 
     // ノードとメッシュの対応表を作成
-    std::unordered_map<unsigned int, std::string> meshNodeMap = CreateMeshNodeMap(scene);
+    std::unordered_map<unsigned int,std::string> meshNodeMap = CreateMeshNodeMap(scene);
+    for(auto& [index,name] : meshNodeMap){
+        data->meshIndexes[name] = index;
+    }
 
     /// node 読み込み
     data->rootNode = ReadNode(scene->mRootNode);
 
-    for (uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex) {
+    for(uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex){
         auto& mesh = data->mesh_.emplace_back(Mesh3D());
 
         // transform の作成
@@ -196,29 +199,29 @@ void LoadModelFile(ModelMeshData* data, const std::string& directoryPath, const 
         assert(loadedMesh->HasNormals() && loadedMesh->HasTextureCoords(0));
 
         // 頂点データとインデックスデータの処理
-        for (uint32_t faceIndex = 0; faceIndex < loadedMesh->mNumFaces; ++faceIndex) {
+        for(uint32_t faceIndex = 0; faceIndex < loadedMesh->mNumFaces; ++faceIndex){
             aiFace& face = loadedMesh->mFaces[faceIndex];
             assert(face.mNumIndices == 3); // 三角形面のみを扱う
 
-            for (uint32_t i = 0; i < 3; ++i) {
+            for(uint32_t i = 0; i < 3; ++i){
                 uint32_t vertexIndex = face.mIndices[i];
 
                 // 頂点データを取得
-                Vector4 pos      = {loadedMesh->mVertices[vertexIndex].x, loadedMesh->mVertices[vertexIndex].y, loadedMesh->mVertices[vertexIndex].z, 1.0f};
-                Vector3 normal   = {loadedMesh->mNormals[vertexIndex].x, loadedMesh->mNormals[vertexIndex].y, loadedMesh->mNormals[vertexIndex].z};
-                Vector2 texCoord = {loadedMesh->mTextureCoords[0][vertexIndex].x, loadedMesh->mTextureCoords[0][vertexIndex].y};
+                Vector4 pos      = {loadedMesh->mVertices[vertexIndex].x,loadedMesh->mVertices[vertexIndex].y,loadedMesh->mVertices[vertexIndex].z,1.0f};
+                Vector3 normal   = {loadedMesh->mNormals[vertexIndex].x,loadedMesh->mNormals[vertexIndex].y,loadedMesh->mNormals[vertexIndex].z};
+                Vector2 texCoord = {loadedMesh->mTextureCoords[0][vertexIndex].x,loadedMesh->mTextureCoords[0][vertexIndex].y};
 
                 // X軸反転
                 pos.x *= -1.0f;
                 normal.x *= -1.0f;
 
                 // VertexKeyを生成
-                VertexKey vertexKey = {pos, normal, texCoord};
+                VertexKey vertexKey = {pos,normal,texCoord};
 
                 // vertexMapに存在するか確認し、無ければ追加
-                if (vertexMap.find(vertexKey) == vertexMap.end()) {
+                if(vertexMap.find(vertexKey) == vertexMap.end()){
                     vertexMap[vertexKey] = static_cast<uint32_t>(vertices.size());
-                    vertices.push_back({pos, texCoord, normal});
+                    vertices.push_back({pos,texCoord,normal});
                 }
 
                 // インデックスを追加
@@ -233,17 +236,22 @@ void LoadModelFile(ModelMeshData* data, const std::string& directoryPath, const 
         aiMaterial* material = scene->mMaterials[loadedMesh->mMaterialIndex];
         aiString textureFilePath;
         uint32_t textureIndex;
-        if (material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePath) == AI_SUCCESS) {
-            std::string texturePath = directoryPath + "/" + textureFilePath.C_Str();
+        if(material->GetTexture(aiTextureType_DIFFUSE,0,&textureFilePath) == AI_SUCCESS){
+            std::string texturePath = textureFilePath.C_Str();
+
+            // /が含まれているなら directoryPath は無視
+            if(texturePath.find("/") == std::string::npos){
+                texturePath = directoryPath + "/" + textureFilePath.C_Str();
+            }
             textureIndex            = TextureManager::LoadTexture(texturePath);
-        } else {
+        } else{
             textureIndex = 0;
         }
 
-        ModelManager::getInstance()->pushBackDefaultMaterial(data, {textureIndex, Engine::getInstance()->getMaterialManager()->Create("white")});
+        ModelManager::getInstance()->pushBackDefaultMaterial(data,{textureIndex,Engine::getInstance()->getMaterialManager()->Create("white")});
 
         // メッシュデータを処理
-        ProcessMeshData(mesh, vertices, indices);
+        ProcessMeshData(mesh,vertices,indices);
 
         // リセット
         vertices.clear();
@@ -252,10 +260,10 @@ void LoadModelFile(ModelMeshData* data, const std::string& directoryPath, const 
     }
 }
 
-void ModelManager::LoadTask::Update() {
+void ModelManager::LoadTask::Update(){
     model->currentState_ = Model::LoadState::Loading;
 
-    LoadModelFile(model->meshData_, this->directory, this->fileName);
+    LoadModelFile(model->meshData_,this->directory,this->fileName);
     model->materialData_ = ModelManager::getInstance()->defaultMaterials_[model->meshData_];
 
     model->currentState_ = Model::LoadState::Loaded;

@@ -6,13 +6,17 @@
 #include <memory>
 #include <string>
 
+/// Module
 class Input;
 class MaterialManager;
 class DebugCamera;
-class Object3d;
-class Player;
-
 class AnimationEditor;
+
+// component
+class Object3d;
+
+// object
+class Player;
 
 class GameScene
     : public IScene {
@@ -32,6 +36,8 @@ private:
 #ifdef _DEBUG
     //DebugObjects
     std::unique_ptr<DebugCamera> debugCamera_;
+
+    std::unique_ptr<AnimationEditor> animationEditor_;
 #endif // _DEBUG
 
     Input* input_;

@@ -124,7 +124,7 @@ void AnimationEditor::Update(){
                         std::make_unique<AnimationData>());
                     currentEditObject_->setAnimation(
                         std::make_unique<Animation>(
-                        const_cast<AnimationData*>(AnimationManager::getInstance()->getAnimationData("editor"))
+                        const_cast<AnimationData*>(AnimationManager::getInstance()->getAnimationData(fileName))
                     )
                     );
                 }

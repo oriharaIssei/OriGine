@@ -16,12 +16,7 @@ void Player::Init(){
 	transform_.UpdateMatrix();
 
 	// DrawObject
-	drawObject3d_.reset(Object3d::Create("resource/Models","Enemy.obj"));
-	drawObject3d_->transform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
-
-	drawObject3d_->transform_.openData_.parent = &transform_;
-	drawObject3d_->transform_.openData_.UpdateMatrix();
-	drawObject3d_->transform_.ConvertToBuffer();
+	drawObject3d_ = std::move(Object3d::Create("resource/Models","Enemy.obj"));
 
 	// Behavior
 	currentBehavior_ = std::make_unique<PlayerRootBehavior>(this);
@@ -33,9 +28,6 @@ void Player::Update(){
 
 	{// Transform Update
 		transform_.UpdateMatrix();
-
-		drawObject3d_->transform_.openData_.UpdateMatrix();
-		drawObject3d_->transform_.ConvertToBuffer();
 	}
 }
 
