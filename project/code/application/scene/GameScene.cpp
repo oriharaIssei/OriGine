@@ -9,7 +9,6 @@
 #include "directX12/DxCommand.h"
 #include "directX12/DxRtvArray.h"
 //module
-#include "camera/Camera.h"
 #include "directX12/DxRtvArrayManager.h"
 #include "directX12/DxSrvArrayManager.h"
 #include "material/texture/TextureManager.h"
@@ -45,8 +44,6 @@ void GameScene::Init() {
 
     debugCamera_->setViewTranslate({0.0f, 0.0f, -12.0f});
 
-    animationEditor_ = std::make_unique<AnimationEditor>();
-    animationEditor_->Init();
 #endif // _DEBUG
 
     input_ = Input::getInstance();
@@ -63,10 +60,10 @@ void GameScene::Update() {
 #ifdef _DEBUG
     debugCamera_->Update();
     debugCamera_->DebugUpdate();
-    CameraManager::getInstance()->setTransform(debugCamera_->getCameraTransform());
+    Camera::getInstance()->setTransform(debugCamera_->getCameraTransform());
 #endif // _DEBUG
 
-    // player_->Update();
+    player_->Update();
 
 #endif // _DEBUG
 
@@ -74,10 +71,8 @@ void GameScene::Update() {
 }
 
 void GameScene::Draw3d() {
-    animationEditor_->DrawEditObject();
 
     ground_->Draw();
-    player_->Draw();
 }
 
 void GameScene::DrawLine() {}
