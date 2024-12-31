@@ -41,6 +41,7 @@ struct ModelMeshData {
 };
 
 struct Model {
+
     enum class LoadState {
         Loading,
         Loaded,

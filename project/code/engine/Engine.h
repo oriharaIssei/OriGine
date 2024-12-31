@@ -1,12 +1,22 @@
 #pragma once
 
+///stl
+//container
 #include <array>
-#include <memory>
-#include <string>
 #include <vector>
+//memory
+#include <memory>
+//string
+#include <string>
 
-#include "deltaTime/DeltaTime.h"
-#include "directX12/DxCommand.h"
+///engine
+//module
+#include "input/Input.h"
+#include "material/Material.h"
+#include "material/light/lightManager.h"
+#include "winApp/WinApp.h"
+#include "editor/EngineEditor.h"
+//DirectX Object
 #include "directX12/DxCommand.h"
 #include "directX12/DxDevice.h"
 #include "directX12/DxDsv.h"
@@ -16,80 +26,83 @@
 #include "directX12/IConstantBuffer.h"
 #include "directX12/PipelineStateObj.h"
 #include "directX12/ShaderManager.h"
-#include "input/Input.h"
-#include "material/light/lightManager.h"
+//component
 #include "object3d/Object3d.h"
-#include "winApp/WinApp.h"
-
+//etc
+#include "deltaTime/DeltaTime.h"
+//math
 #include "Matrix4x4.h"
 #include "Vector2.h"
 #include "Vector3.h"
 #include "Vector4.h"
 
-struct Material;
-class MaterialManager;
 class Engine{
-	friend class PrimitiveDrawer;
-public:
-	static Engine* getInstance();
-public:
-	void Init();
-	void Finalize();
-	bool ProcessMessage();
-	void BeginFrame();
-	void EndFrame();
+    friend class PrimitiveDrawer;
 
-	void ScreenPreDraw();
-	void ScreenPostDraw();
+public:
+    static Engine* getInstance();
 
-	int LoadTexture(const std::string& filePath);
+public:
+    void Init();
+    void Finalize();
+    bool ProcessMessage();
+    void BeginFrame();
+    void EndFrame();
+
+    void ScreenPreDraw();
+    void ScreenPostDraw();
+
+    int LoadTexture(const std::string& filePath);
+
 private:
-	Engine() = default;
-	~Engine(){};
-	Engine(const Engine&) = delete;
-	const Engine& operator=(const Engine&) = delete;
+    Engine() = default;
+    ~Engine(){};
+    Engine(const Engine&)                  = delete;
+    const Engine& operator=(const Engine&) = delete;
 
-	void CreateTexturePSO();
+    void CreateTexturePSO();
+
 private:
-	// api
-	std::unique_ptr<WinApp> window_;
-	Input* input_;
+    // api
+    std::unique_ptr<WinApp> window_;
+    Input* input_;
 
-	// directX
-	std::unique_ptr<DxDevice> dxDevice_;
-	std::unique_ptr<DxCommand> dxCommand_;
-	std::unique_ptr<DxSwapChain> dxSwapChain_;
-	std::unique_ptr<DxFence> dxFence_;
-	std::unique_ptr<DxDsv> dxDsv_;
+    // directX
+    std::unique_ptr<DxDevice> dxDevice_;
+    std::unique_ptr<DxCommand> dxCommand_;
+    std::unique_ptr<DxSwapChain> dxSwapChain_;
+    std::unique_ptr<DxFence> dxFence_;
+    std::unique_ptr<DxDsv> dxDsv_;
 
-	// PipelineState Object
-	std::array<PipelineStateObj*,kBlendNum> texturePso_;
-	std::array<std::string,kBlendNum> texturePsoKeys_;
+    // PipelineState Object
+    std::array<PipelineStateObj*,kBlendNum> texturePso_;
+    std::array<std::string,kBlendNum> texturePsoKeys_;
 
-	// buffers
-	std::unique_ptr<MaterialManager> materialManager_;
-	std::unique_ptr<LightManager> lightManager_;
+    // module
+    EngineEditor* editor_             = nullptr;
+    LightManager* lightManager_       = nullptr;
+    std::unique_ptr<MaterialManager> materialManager_ = nullptr;
+    // Time
+    std::unique_ptr<DeltaTime> deltaTime_;
+    float fps_ = 60.0f;
 
-	// Time
-	std::unique_ptr<DeltaTime> deltaTime_;
-	float fps_ = 60.0f;
 public:
-	WinApp* getWinApp(){ return window_.get(); }
+    WinApp* getWinApp(){ return window_.get(); }
 
-	DxDevice* getDxDevice()const{ return dxDevice_.get(); }
-	DxCommand* getDxCommand()const{ return dxCommand_.get(); }
-	DxSwapChain* getDxSwapChain()const{ return dxSwapChain_.get(); }
-	DxFence* getDxFence()const{ return dxFence_.get(); }
+    DxDevice* getDxDevice() const{ return dxDevice_.get(); }
+    DxCommand* getDxCommand() const{ return dxCommand_.get(); }
+    DxSwapChain* getDxSwapChain() const{ return dxSwapChain_.get(); }
+    DxFence* getDxFence() const{ return dxFence_.get(); }
 
-	DxDsv* getDsv()const{ return dxDsv_.get(); }
+    DxDsv* getDsv() const{ return dxDsv_.get(); }
 
-	MaterialManager* getMaterialManager()const{ return materialManager_.get(); }
+    MaterialManager* getMaterialManager() const{ return materialManager_.get(); }
 
-	PipelineStateObj* getTexturePso(BlendMode blend)const{ return texturePso_[static_cast<size_t>(blend)]; }
+    PipelineStateObj* getTexturePso(BlendMode blend) const{ return texturePso_[static_cast<size_t>(blend)]; }
 
-	const std::array<std::string,kBlendNum>& getTexturePsoKeys()const{ return texturePsoKeys_; }
+    const std::array<std::string,kBlendNum>& getTexturePsoKeys() const{ return texturePsoKeys_; }
 
-	float getDeltaTime()const{ return deltaTime_->getDeltaTime(); }
+    float getDeltaTime() const{ return deltaTime_->getDeltaTime(); }
 
-	LightManager* getLightManager()const{ return lightManager_.get(); }
+    LightManager* getLightManager() const{ return lightManager_; }
 };

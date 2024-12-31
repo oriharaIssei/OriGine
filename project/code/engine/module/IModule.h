@@ -4,8 +4,8 @@
 /// エンジンの中に一つだけ 存在する
 /// ある方面の 機能を 統合したクラスl
 ///===================================================
-class IModule{
+class IModule {
 public:
-	IModule(){}
-	virtual ~IModule(){}
+    IModule() {}
+    virtual ~IModule() {}
 };

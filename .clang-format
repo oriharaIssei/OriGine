@@ -28,7 +28,7 @@ AllowShortBlocksOnASingleLine: Never
 # 短いラムダ式を1行にまとめるかどうかを指定します。
 AllowShortLambdasOnASingleLine: None
 # 変数の宣言を改行しないように設定を追加します。
-AllowShortVariablesOnASingleLine: All
+#AllowShortVariablesOnASingleLine: All
 # 演算子の前で改行するかを指定します。
 BreakBeforeBinaryOperators: None
 # コンストラクタの初期化リストの改行スタイルを指定します。
@@ -59,7 +59,7 @@ AllowAllArgumentsOnNextLine: true
 # すべてのパラメータを次の行に配置することを許可します。
 AllowAllParametersOfDeclarationOnNextLine: true
 # 関数呼び出しの改行に対するペナルティ値を指定します。
-PenaltyBreakFunctionCall: 19
+#PenaltyBreakFunctionCall: 19
 
 # === コメント設定 ===
 # コメントを再フォーマットするかどうかを指定します。
