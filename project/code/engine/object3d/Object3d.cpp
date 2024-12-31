@@ -21,7 +21,7 @@
 #include "Vector4.h"
 #include <stdint.h>
 
-#include "camera/Camera.h"
+#include "camera/CameraManager.h"
 #include "Object3d.h"
 #include "model/Model.h"
 
@@ -43,7 +43,7 @@ void Object3d::PreDraw(){
 
 	Engine::getInstance()->getLightManager()->SetForRootParameter(commandList);
 
-	Camera::getInstance()->setBufferForRootParameter(commandList,1);
+    CameraManager::getInstance()->setBufferForRootParameter(commandList,1);
 }
 
 void Object3d::DrawThis(){

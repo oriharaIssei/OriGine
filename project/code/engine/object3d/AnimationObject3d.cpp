@@ -8,118 +8,191 @@
 #include "model/ModelManager.h"
 
 #pragma region "Static"
-std::unique_ptr<AnimationObject3d> AnimationObject3d::Create(const std::string& _directoryPath, const std::string& _filename) {
+std::unique_ptr<AnimationObject3d> AnimationObject3d::Create(const std::string& _directoryPath,const std::string& _filename){
     std::unique_ptr<AnimationObject3d> newInstance = std::make_unique<AnimationObject3d>();
-    newInstance->model_                            = ModelManager::getInstance()->Create(_directoryPath, _filename);
-    newInstance->animation_                        = AnimationManager::getInstance()->Load(_directoryPath, _filename);
+    newInstance->model_                            = ModelManager::getInstance()->Create(_directoryPath,_filename);
+    newInstance->currentAnimationName_             = _filename;
+    newInstance->animation_                        = AnimationManager::getInstance()->Load(_directoryPath,_filename);
     return newInstance;
 }
 
-std::unique_ptr<AnimationObject3d> AnimationObject3d::Create(const AnimationSetting& _animationSetting) {
+std::unique_ptr<AnimationObject3d> AnimationObject3d::Create(const AnimationSetting& _animationSetting){
     std::unique_ptr<AnimationObject3d> newInstance = std::make_unique<AnimationObject3d>();
     // model
-    newInstance->model_ = ModelManager::getInstance()->Create(_animationSetting.targetModelDirection, _animationSetting.targetModelFileName);
+    newInstance->model_ = ModelManager::getInstance()->Create(_animationSetting.targetModelDirection,_animationSetting.targetModelFileName);
     // animation
-    newInstance->animation_ = AnimationManager::getInstance()->Load(_animationSetting.targetAnimationDirection, _animationSetting.name + ".anm");
+    newInstance->currentAnimationName_ = _animationSetting.name;
+    newInstance->animation_            = AnimationManager::getInstance()->Load(_animationSetting.targetAnimationDirection,_animationSetting.name + ".anm");
     return newInstance;
 }
 
-std::unique_ptr<AnimationObject3d> AnimationObject3d::Create(const std::string& _modelDirectoryPath, const std::string& _modelFilename, const std::string& _animationDirectoryPath, const std::string& _animationFilename) {
+std::unique_ptr<AnimationObject3d> AnimationObject3d::Create(const std::string& _modelDirectoryPath,const std::string& _modelFilename,const std::string& _animationDirectoryPath,const std::string& _animationFilename){
     std::unique_ptr<AnimationObject3d> newInstance = std::make_unique<AnimationObject3d>();
     // model
-    newInstance->model_ = ModelManager::getInstance()->Create(_modelDirectoryPath, _modelFilename);
+    newInstance->model_ = ModelManager::getInstance()->Create(_modelDirectoryPath,_modelFilename);
     // animation
-    newInstance->animation_ = AnimationManager::getInstance()->Load(_animationDirectoryPath, _animationFilename);
+    newInstance->currentAnimationName_ = _animationFilename;
+    newInstance->animation_            = AnimationManager::getInstance()->Load(_animationDirectoryPath,_animationFilename);
     return newInstance;
 }
 #pragma endregion
 
-AnimationObject3d::AnimationObject3d() {}
+AnimationObject3d::AnimationObject3d(){}
 
-AnimationObject3d::~AnimationObject3d() {}
+AnimationObject3d::~AnimationObject3d(){}
 
-void AnimationObject3d::Update(float deltaTime) {
+void AnimationObject3d::Update(float deltaTime){
     // Animationより 先に Object 座標系の 行進
     transform_.UpdateMatrix();
 
-    // アニメーションの更新
-    animation_->Update(deltaTime, model_.get(), transform_.worldMat);
+    if(toNextAnimation_ && nextAnimation_){
+        // 現在の姿勢から 次のアニメーションの姿勢への補間
+        toNextAnimation_->Update(deltaTime,model_.get(),transform_.worldMat);
+        if(toNextAnimation_->isEnd()){
+            animation_ = std::move(nextAnimation_);
+            nextAnimation_.reset();
+            toNextAnimation_.reset();
+        }
+    } else{
+        // アニメーションの更新
+        animation_->Update(deltaTime,model_.get(),transform_.worldMat);
+    }
 
     // モデルの更新
 
     // rootNode
-    auto& rootNode                                                                                        = model_->meshData_->rootNode;
-    model_->meshData_->mesh_[model_->meshData_->meshIndexes[rootNode.name]].transform_.openData_.worldMat = transform_.worldMat * rootNode.localMatrix;
-
-    // ChildNode
-    for (const auto& node : rootNode.children) {
-        auto& mesh = model_->meshData_->mesh_[model_->meshData_->meshIndexes[node.name]];
-        // mesh の ワールド行列を更新
-        mesh.transform_.openData_.worldMat = transform_.worldMat * node.localMatrix;
+    auto& rootNode = model_->meshData_->rootNode;
+    { // rootMeshUpdate
+        auto rootMeshIndexItr = model_->meshData_->meshIndexes.find(rootNode.name);
+        if(rootMeshIndexItr != model_->meshData_->meshIndexes.end()){
+            Mesh3D& rootMesh                       = model_->meshData_->mesh_[rootMeshIndexItr->second];
+            rootMesh.transform_.openData_.worldMat = transform_.worldMat * rootNode.localMatrix;
+            rootMesh.transform_.ConvertToBuffer();
+        }
     }
-    for (auto& mesh : model_->meshData_->mesh_) {
-        mesh.transform_.ConvertToBuffer();
+    // ChildNode Update
+    for(const auto& node : rootNode.children){
+        auto meshIndexItr = model_->meshData_->meshIndexes.find(node.name);
+        if(meshIndexItr != model_->meshData_->meshIndexes.end()){
+            IConstantBuffer<Transform>& meshTransform = model_->meshData_->mesh_[meshIndexItr->second].transform_;
+            // mesh の ワールド行列を更新
+            meshTransform.openData_.worldMat = transform_.worldMat * node.localMatrix;
+            meshTransform.ConvertToBuffer();
+        }
     }
 }
 
-void AnimationObject3d::Draw() {
+void AnimationObject3d::Draw(){
     drawFuncTable_[(int)model_->currentState_]();
 }
 
-void AnimationObject3d::DrawThis() {
+void AnimationObject3d::DrawThis(){
     ModelManager* manager = ModelManager::getInstance();
     auto* commandList     = manager->dxCommand_->getCommandList();
 
     uint32_t index = 0;
 
-    for (auto& mesh : model_->meshData_->mesh_) {
+    for(auto& mesh : model_->meshData_->mesh_){
         auto& material                  = model_->materialData_[index];
         ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
-        commandList->SetDescriptorHeaps(1, ppHeaps);
+        commandList->SetDescriptorHeaps(1,ppHeaps);
         commandList->SetGraphicsRootDescriptorTable(
             7,
             TextureManager::getDescriptorGpuHandle(material.textureNumber));
 
-        commandList->IASetVertexBuffers(0, 1, &mesh.meshBuff->vbView);
+        commandList->IASetVertexBuffers(0,1,&mesh.meshBuff->vbView);
         commandList->IASetIndexBuffer(&mesh.meshBuff->ibView);
 
-        mesh.transform_.SetForRootParameter(commandList, 0);
+        mesh.transform_.SetForRootParameter(commandList,0);
 
-        material.material->SetForRootParameter(commandList, 2);
+        material.material->SetForRootParameter(commandList,2);
         // 描画!!!
-        commandList->DrawIndexedInstanced(UINT(mesh.indexSize), 1, 0, 0, 0);
+        commandList->DrawIndexedInstanced(UINT(mesh.indexSize),1,0,0,0);
 
         ++index;
     }
 }
 
-const Model* AnimationObject3d::getModel() const {
+const Model* AnimationObject3d::getModel() const{
     return model_.get();
 }
 
-Model* AnimationObject3d::getModel() {
+Model* AnimationObject3d::getModel(){
     return model_.get();
 }
 
-void AnimationObject3d::setModel(std::unique_ptr<Model> model) {
+void AnimationObject3d::setModel(std::unique_ptr<Model> model){
     model_ = std::move(model);
 }
-void AnimationObject3d::setModel(const std::string& directory, const std::string& filename) {
-    model_ = ModelManager::getInstance()->Create(directory, filename);
+void AnimationObject3d::setModel(const std::string& directory,const std::string& filename){
+    model_ = ModelManager::getInstance()->Create(directory,filename);
 }
 
-const Animation* AnimationObject3d::getAnimation() const {
+const Animation* AnimationObject3d::getAnimation() const{
     return animation_.get();
 }
 
-Animation* AnimationObject3d::getAnimation() {
+Animation* AnimationObject3d::getAnimation(){
     return animation_.get();
 }
 
-void AnimationObject3d::setAnimation(std::unique_ptr<Animation> animation) {
+void AnimationObject3d::setAnimation(const std::string& directory,const std::string& filename){
+    animation_ = std::move(AnimationManager::getInstance()->Load(directory,filename));
+}
+
+void AnimationObject3d::setNextAnimation(const std::string& directory,const std::string& filename,float _lerpTime){
+    nextAnimation_ = std::move(AnimationManager::getInstance()->Load(directory,filename));
+
+    AnimationManager* animationManager = AnimationManager::getInstance();
+    int toNextAnimationDataIndex       = animationManager->addAnimationData("to" + filename + "from" + currentAnimationName_,std::make_unique<AnimationData>(_lerpTime));
+    AnimationData* toNextAnimationData = const_cast<AnimationData*>(animationManager->getAnimationData(toNextAnimationDataIndex));
+
+    toNextAnimationData->nodeAnimations.clear();
+    for(const auto& [nodeName,nodeAnimation] : animation_->getData()->nodeAnimations){
+        toNextAnimationData->nodeAnimations[nodeName] = {
+            .scale     = AnimationCurve<Vector3>(),
+            .rotate    = AnimationCurve<Quaternion>(),
+            .translate = AnimationCurve<Vector3>()
+        };
+
+        ///=============================================
+        /// 現在の姿勢をはじめに追加
+        toNextAnimationData->nodeAnimations[nodeName].scale.push_back(KeyframeVector3(
+            0.0f,
+            animation_->getCurrentScale(nodeName)
+        ));
+        toNextAnimationData->nodeAnimations[nodeName].rotate.push_back(KeyframeQuaternion(
+            0.0f,
+            animation_->getCurrentRotate(nodeName)
+        ));
+        toNextAnimationData->nodeAnimations[nodeName].translate.push_back(KeyframeVector3(
+            0.0f,
+            animation_->getCurrentTranslate(nodeName)
+        ));
+
+        ///=============================================
+        /// 次の姿勢を追加
+        toNextAnimationData->nodeAnimations[nodeName].scale.push_back(KeyframeVector3(
+            _lerpTime,
+            nextAnimation_->getData()->nodeAnimations[nodeName].scale[0].value
+        ));
+        toNextAnimationData->nodeAnimations[nodeName].rotate.push_back(KeyframeQuaternion(
+            _lerpTime,
+            nextAnimation_->getData()->nodeAnimations[nodeName].rotate[0].value
+        ));
+        toNextAnimationData->nodeAnimations[nodeName].translate.push_back(KeyframeVector3(
+            _lerpTime,
+            nextAnimation_->getData()->nodeAnimations[nodeName].translate[0].value
+        ));
+    }
+    toNextAnimation_ = std::make_unique<Animation>(toNextAnimationData);
+    toNextAnimation_->setDuration(_lerpTime);
+}
+
+void AnimationObject3d::setAnimation(std::unique_ptr<Animation> animation){
     animation_ = std::move(animation);
 }
 
-void AnimationObject3d::setMaterial(IConstantBuffer<Material>* material, uint32_t index) {
+void AnimationObject3d::setMaterial(IConstantBuffer<Material>* material,uint32_t index){
     model_->materialData_[index].material = material;
 }

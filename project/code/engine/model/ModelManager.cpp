@@ -182,6 +182,9 @@ void LoadModelFile(ModelMeshData* data, const std::string& directoryPath, const 
 
     // ノードとメッシュの対応表を作成
     std::unordered_map<unsigned int, std::string> meshNodeMap = CreateMeshNodeMap(scene);
+    for (const auto& [nodeIndex, nodeName] : meshNodeMap) {
+        data->meshIndexes[nodeName] = nodeIndex;
+    }
 
     /// node 読み込み
     data->rootNode = ReadNode(scene->mRootNode);
@@ -234,8 +237,12 @@ void LoadModelFile(ModelMeshData* data, const std::string& directoryPath, const 
         aiString textureFilePath;
         uint32_t textureIndex;
         if (material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePath) == AI_SUCCESS) {
-            std::string texturePath = directoryPath + "/" + textureFilePath.C_Str();
-            textureIndex            = TextureManager::LoadTexture(texturePath);
+            std::string texturePath = textureFilePath.C_Str();
+            // filepath が localなら directoryPath と結合
+            if (texturePath.find("/") == std::string::npos) {
+                texturePath = directoryPath + "/" + texturePath;
+            }
+            textureIndex = TextureManager::LoadTexture(texturePath);
         } else {
             textureIndex = 0;
         }

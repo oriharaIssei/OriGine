@@ -213,9 +213,6 @@
     <ClCompile Include="code\engine\particle\emitter\Emitter.cpp">
       <Filter>engine\particle</Filter>
     </ClCompile>
-    <ClCompile Include="code\engine\module\IModule.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="code\engine\assets\IAsset.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
@@ -240,9 +237,6 @@
     <ClCompile Include="code\math\MyEasing.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="code\engine\camera\Camera.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="code\application\MyGame.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
@@ -255,22 +249,7 @@
     <ClCompile Include="code\engine\model\Model.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="code\application\Player\Player.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="code\application\Player\PlayerBehaviors\IPlayerBehavior.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="code\application\Player\PlayerBehaviors\PlayerRootBehavior.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="code\application\Player\PlayerBehaviors\PlayerDodgeBehavior.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="code\math\Vector3.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="code\application\Player\PlayerBehaviors\PlayerWeakAttackBehavior.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="code\lib\animationEditor\AnimationEditor.cpp">
@@ -286,6 +265,15 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="code\engine\animation\AnimationManager.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="code\engine\camera\CameraManager.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="code\engine\editor\EngineEditor.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="code\application\scene\AnimationEditScene.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -743,9 +731,6 @@
     <ClInclude Include="code\math\MyEasing.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="code\engine\camera\Camera.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="code\application\MyGame.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
@@ -753,21 +738,6 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="code\math\Quaternion.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="code\application\Player\Player.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="code\application\Player\PlayerBehaviors\IPlayerBehavior.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="code\application\Player\PlayerBehaviors\PlayerRootBehavior.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="code\application\Player\PlayerBehaviors\PlayerDodgeBehavior.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="code\application\Player\PlayerBehaviors\PlayerWeakAttackBehavior.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="code\lib\animationEditor\AnimationEditor.h">
@@ -783,6 +753,18 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="code\engine\animation\AnimationManager.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\camera\CameraManager.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\module\editor\IEditor.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\editor\EngineEditor.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\application\scene\AnimationEditScene.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

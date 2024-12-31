@@ -1,8 +1,7 @@
 #include "GameScene.h"
 
-#include "../Player/Player.h"
 #include "Engine.h"
-#include "camera/Camera.h"
+#include "camera/CameraManager.h"
 #include "directX12/DxCommand.h"
 #include "directX12/DxRtvArray.h"
 #include "directX12/DxRtvArrayManager.h"
@@ -21,6 +20,8 @@
 #ifdef _DEBUG
 #include "camera/debugCamera/DebugCamera.h"
 #include "imgui/imgui.h"
+
+#include "animationEditor/AnimationEditor.h"
 #endif // _DEBUG
 
 GameScene::GameScene()
@@ -40,26 +41,16 @@ void GameScene::Init() {
 
     materialManager_ = Engine::getInstance()->getMaterialManager();
 
-    player_ = std::make_unique<Player>();
-    player_->Init();
-
-    ground_.reset(Object3d::Create("resource/Models", "Ground.obj"));
-    ground_->transform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
-    ground_->transform_.openData_.UpdateMatrix();
-    ground_->transform_.ConvertToBuffer();
+    ground_ = std::move(Object3d::Create("resource/Models", "Ground.obj"));
+    ground_->transform_.UpdateMatrix();
 }
 
 void GameScene::Update() {
 #ifdef _DEBUG
     debugCamera_->Update();
     debugCamera_->DebugUpdate();
-    Camera::getInstance()->setTransform(debugCamera_->getCameraTransform());
-#endif // _DEBUG
+    CameraManager::getInstance()->setTransform(debugCamera_->getCameraTransform());
 
-    player_->Update();
-
-#ifdef _DEBUG
-    materialManager_->DebugUpdate();
 #endif // _DEBUG
 
     Engine::getInstance()->getLightManager()->Update();
@@ -67,7 +58,6 @@ void GameScene::Update() {
 
 void GameScene::Draw3d() {
     ground_->Draw();
-    player_->Draw();
 }
 
 void GameScene::DrawLine() {}

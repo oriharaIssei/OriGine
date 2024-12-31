@@ -10,7 +10,6 @@ class Input;
 class MaterialManager;
 class DebugCamera;
 class Object3d;
-class Player;
 
 class AnimationEditor;
 
@@ -36,8 +35,6 @@ private:
 
     Input* input_;
     MaterialManager* materialManager_;
-
-    std::unique_ptr<Player> player_;
 
     std::unique_ptr<Object3d> ground_;
     std::unique_ptr<Object3d> skyDome_;

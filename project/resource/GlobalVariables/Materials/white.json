@@ -1,0 +1,32 @@
+{
+    "white": {
+        "color": [
+            1.0,
+            1.0,
+            1.0,
+            0.0
+        ],
+        "enableLighting": 0,
+        "shininess": 28.75,
+        "specularColor": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "uvRotate": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "uvScale": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "uvTranslate": [
+            0.0,
+            0.0,
+            0.0
+        ]
+    }
+}
