@@ -11,26 +11,33 @@ class RenderTexture;
 class DxRtvArray;
 class DxSrvArray;
 
+class EngineEditor;
+
 class SceneManager{
+    friend class EngineEditor;
 public:
-	static SceneManager* getInstance();
+    static SceneManager* getInstance();
 
-	void Init();
-	void Finalize();
+    void Init();
+    void Finalize();
 
-	void Update();
-	void Draw();
+    void Update();
+    void Draw();
 private:
-	SceneManager();
-	~SceneManager();
-	SceneManager(const SceneManager&) = delete;
-	SceneManager* operator=(const SceneManager&) = delete;
+    SceneManager();
+    ~SceneManager();
+    SceneManager(const SceneManager&) = delete;
+    SceneManager* operator=(const SceneManager&) = delete;
 private:
-	std::unique_ptr<IScene> currentScene_;
+    IScene* currentScene_ = nullptr;
 
-	std::unique_ptr<RenderTexture> sceneView_;
-	std::shared_ptr<DxRtvArray> sceneViewRtvArray_;
-	std::shared_ptr<DxSrvArray> sceneViewSrvArray_;
+    std::unique_ptr<RenderTexture> sceneView_;
+    std::shared_ptr<DxRtvArray> sceneViewRtvArray_;
+    std::shared_ptr<DxSrvArray> sceneViewSrvArray_;
+
+    std::unordered_map<std::string,int32_t> sceneIndexs_;
+    std::vector<std::unique_ptr<IScene>> scenes_;
 public:
-	void ChangeScene(std::unique_ptr<IScene> next);
+    void addScene(const std::string& name,std::unique_ptr<IScene> scene);
+    void changeScene(const std::string& name);
 };

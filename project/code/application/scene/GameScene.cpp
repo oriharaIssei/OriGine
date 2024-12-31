@@ -1,7 +1,7 @@
 #include "GameScene.h"
 
 #include "Engine.h"
-#include "camera/Camera.h"
+#include "camera/CameraManager.h"
 #include "directX12/DxCommand.h"
 #include "directX12/DxRtvArray.h"
 #include "directX12/DxRtvArrayManager.h"
@@ -43,28 +43,20 @@ void GameScene::Init() {
 
     ground_ = std::move(Object3d::Create("resource/Models", "Ground.obj"));
     ground_->transform_.UpdateMatrix();
-
-    animationEditor_ = std::make_unique<AnimationEditor>();
 }
 
 void GameScene::Update() {
 #ifdef _DEBUG
     debugCamera_->Update();
     debugCamera_->DebugUpdate();
-    Camera::getInstance()->setTransform(debugCamera_->getCameraTransform());
+    CameraManager::getInstance()->setTransform(debugCamera_->getCameraTransform());
 
-    animationEditor_->Update();
-#endif // _DEBUG
-
-#ifdef _DEBUG
-    materialManager_->DebugUpdate();
 #endif // _DEBUG
 
     Engine::getInstance()->getLightManager()->Update();
 }
 
 void GameScene::Draw3d() {
-    animationEditor_->DrawEditObject();
     ground_->Draw();
 }
 

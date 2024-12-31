@@ -4,6 +4,8 @@
 #include "globalVariables/GlobalVariables.h"
 #include "scene/SceneManager.h"
 
+//scene
+#include "scene/AnimationEditScene.h"
 #include "scene/GameScene.h"
 
 MyGame::MyGame(){}
@@ -19,7 +21,11 @@ void MyGame::Init(){
 	variables_->LoadAllFile();
 	engine_->Init();
 	sceneManager_->Init();
-	sceneManager_->ChangeScene(std::make_unique<GameScene>());
+
+    //exe 上で 使用するscene
+    sceneManager_->addScene("GameScene",std::make_unique<GameScene>());
+    sceneManager_->addScene("AnimationEditScene",std::make_unique<AnimationEditScene>());
+    sceneManager_->changeScene("GameScene");
 }
 
 void MyGame::Finalize(){

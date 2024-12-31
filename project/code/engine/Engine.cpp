@@ -2,7 +2,7 @@
 
 #include "animation/AnimationManager.h"
 #include "Audio/Audio.h"
-#include "camera/Camera.h"
+#include "camera/CameraManager.h"
 #include "directX12/DxFunctionHelper.h"
 #include "directX12/DxHeap.h"
 #include "directX12/RenderTexture.h"
@@ -86,7 +86,7 @@ void Engine::Init(){
 
     TextureManager::Init();
 
-    lightManager_ = std::make_unique<LightManager>();
+    lightManager_ = LightManager::getInstance();
     lightManager_->Init();
 
     PrimitiveDrawer::Init();
@@ -102,14 +102,21 @@ void Engine::Init(){
     deltaTime_ = std::make_unique<DeltaTime>();
     deltaTime_->Init();
 
-    Camera::getInstance()->Init();
-
     AnimationManager::getInstance()->Init();
+    CameraManager::getInstance()->Init();
+    //Editor
+    editor_ = EngineEditor::getInstance();
+
+    std::unique_ptr<LightEditor> lightEditor = std::make_unique<LightEditor>();
+    lightEditor->Init();
+    editor_->addEditor("LightEditor",std::move(lightEditor));
+    std::unique_ptr<MaterialEditor> materialEditor = std::make_unique<MaterialEditor>(materialManager_.get());
+    editor_->addEditor("MaterialEditor",std::move(materialEditor));
 }
 
 void Engine::Finalize(){
     AnimationManager::getInstance()->Finalize();
-    Camera::getInstance()->Finalize();
+    CameraManager::getInstance()->Finalize();
     lightManager_->Finalize();
     ParticleManager::getInstance()->Finalize();
     materialManager_->Finalize();
@@ -294,6 +301,8 @@ void Engine::BeginFrame(){
     PrimitiveDrawer::setBlendMode(BlendMode::Alpha);
     //Sprite::setBlendMode(BlendMode::Alpha);
     deltaTime_->Update();
+
+    editor_->Update();
 }
 
 void Engine::EndFrame(){

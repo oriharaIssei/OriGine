@@ -104,11 +104,13 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="code\application\scene\AnimationEditScene.cpp" />
     <ClCompile Include="code\engine\animation\Animation.cpp" />
     <ClCompile Include="code\engine\animation\AnimationManager.cpp" />
+    <ClCompile Include="code\engine\camera\CameraManager.cpp" />
+    <ClCompile Include="code\engine\editor\EngineEditor.cpp" />
     <ClCompile Include="code\engine\object3d\AnimationObject3d.cpp" />
     <ClCompile Include="code\lib\animationEditor\AnimationEditor.cpp" />
-    <ClCompile Include="code\engine\camera\Camera.cpp" />
     <ClCompile Include="code\application\scene\GameScene.cpp" />
     <ClCompile Include="code\engine\audio\Audio.cpp" />
     <ClCompile Include="code\engine\directX12\RenderTexture.cpp" />
@@ -160,7 +162,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="code\lib\Thread\Thread.cpp" />
     <ClCompile Include="code\engine\particle\manager\ParticleManager.cpp" />
     <ClCompile Include="code\engine\transform\ParticleTransform.cpp" />
-    <ClCompile Include="code\engine\module\IModule.cpp" />
     <ClCompile Include="code\engine\assets\IAsset.cpp" />
     <ClCompile Include="code\application\scene\IScene.cpp" />
     <ClCompile Include="code\application\scene\SceneManager.cpp" />
@@ -171,11 +172,14 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="code\math\Vector3.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="code\application\scene\AnimationEditScene.h" />
     <ClInclude Include="code\engine\animation\Animation.h" />
     <ClInclude Include="code\engine\animation\AnimationManager.h" />
+    <ClInclude Include="code\engine\camera\CameraManager.h" />
+    <ClInclude Include="code\engine\editor\EngineEditor.h" />
+    <ClInclude Include="code\engine\module\editor\IEditor.h" />
     <ClInclude Include="code\engine\object3d\AnimationObject3d.h" />
     <ClInclude Include="code\lib\animationEditor\AnimationEditor.h" />
-    <ClInclude Include="code\engine\camera\Camera.h" />
     <ClInclude Include="code\application\scene\GameScene.h" />
     <ClInclude Include="code\engine\audio\Audio.h" />
     <ClInclude Include="code\engine\directX12\IStructuredBuffer.h" />

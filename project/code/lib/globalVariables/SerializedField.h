@@ -10,10 +10,7 @@ public:
         value_ = GlobalVariables::getInstance()->addValue<T>(scene, group, value);
     }
 
-private:
-    SerializedField()
-        : value_(nullptr) {}
-
+    SerializedField(): value_(nullptr) {}
 public:
     // デストラクタ
     ~SerializedField() {}
