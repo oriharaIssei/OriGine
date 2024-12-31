@@ -10,7 +10,6 @@
 class Input;
 class MaterialManager;
 class DebugCamera;
-class AnimationEditor;
 
 // component
 class Object3d;
@@ -37,7 +36,6 @@ private:
     //DebugObjects
     std::unique_ptr<DebugCamera> debugCamera_;
 
-    std::unique_ptr<AnimationEditor> animationEditor_;
 #endif // _DEBUG
 
     Input* input_;

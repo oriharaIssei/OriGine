@@ -5,20 +5,23 @@
 
 ///Engine & application
 #include "Engine.h"
+#include "camera/CameraManager.h"
+#include "directX12/DxCommand.h"
+#include "directX12/DxRtvArray.h"
 //module
-#include "particle/manager/ParticleManager.h"
 #include "camera/Camera.h"
-#include "model/ModelManager.h"
-#include "sprite/SpriteCommon.h"
-#include "primitiveDrawer/PrimitiveDrawer.h"
 #include "directX12/DxRtvArrayManager.h"
-#include "material/texture/TextureManager.h"
 #include "directX12/DxSrvArrayManager.h"
+#include "material/texture/TextureManager.h"
+#include "model/ModelManager.h"
 #include "myFileSystem/MyFileSystem.h"
+#include "particle/manager/ParticleManager.h"
+#include "primitiveDrawer/PrimitiveDrawer.h"
+#include "sprite/SpriteCommon.h"
 
 //component
-#include "object3d/AnimationObject3d.h"
 #include "directX12/RenderTexture.h"
+#include "object3d/AnimationObject3d.h"
 
 //object
 #include "../Player/Player.h"
@@ -60,14 +63,11 @@ void GameScene::Update() {
 #ifdef _DEBUG
     debugCamera_->Update();
     debugCamera_->DebugUpdate();
-    Camera::getInstance()->setTransform(debugCamera_->getCameraTransform());
+    CameraManager::getInstance()->setTransform(debugCamera_->getCameraTransform());
 #endif // _DEBUG
 
-   // player_->Update();
+    // player_->Update();
 
-#ifdef _DEBUG
-    materialManager_->DebugUpdate();
-    animationEditor_->Update();
 #endif // _DEBUG
 
     Engine::getInstance()->getLightManager()->Update();
@@ -77,7 +77,7 @@ void GameScene::Draw3d() {
     animationEditor_->DrawEditObject();
 
     ground_->Draw();
-    // player_->Draw();
+    player_->Draw();
 }
 
 void GameScene::DrawLine() {}

@@ -11,6 +11,7 @@
 std::unique_ptr<AnimationObject3d> AnimationObject3d::Create(const std::string& _directoryPath, const std::string& _filename) {
     std::unique_ptr<AnimationObject3d> newInstance = std::make_unique<AnimationObject3d>();
     newInstance->model_                            = ModelManager::getInstance()->Create(_directoryPath, _filename);
+    newInstance->currentAnimationName_             = _filename;
     newInstance->animation_                        = AnimationManager::getInstance()->Load(_directoryPath, _filename);
     return newInstance;
 }
@@ -20,7 +21,8 @@ std::unique_ptr<AnimationObject3d> AnimationObject3d::Create(const AnimationSett
     // model
     newInstance->model_ = ModelManager::getInstance()->Create(_animationSetting.targetModelDirection, _animationSetting.targetModelFileName);
     // animation
-    newInstance->animation_ = AnimationManager::getInstance()->Load(_animationSetting.targetAnimationDirection, _animationSetting.name + ".anm");
+    newInstance->currentAnimationName_ = _animationSetting.name;
+    newInstance->animation_            = AnimationManager::getInstance()->Load(_animationSetting.targetAnimationDirection, _animationSetting.name + ".anm");
     return newInstance;
 }
 
@@ -29,7 +31,8 @@ std::unique_ptr<AnimationObject3d> AnimationObject3d::Create(const std::string& 
     // model
     newInstance->model_ = ModelManager::getInstance()->Create(_modelDirectoryPath, _modelFilename);
     // animation
-    newInstance->animation_ = AnimationManager::getInstance()->Load(_animationDirectoryPath, _animationFilename);
+    newInstance->currentAnimationName_ = _animationFilename;
+    newInstance->animation_            = AnimationManager::getInstance()->Load(_animationDirectoryPath, _animationFilename);
     return newInstance;
 }
 #pragma endregion
@@ -42,8 +45,18 @@ void AnimationObject3d::Update(float deltaTime) {
     // Animationより 先に Object 座標系の 行進
     transform_.UpdateMatrix();
 
-    // アニメーションの更新
-    animation_->Update(deltaTime, model_.get(), transform_.worldMat);
+    if (toNextAnimation_ && nextAnimation_) {
+        // 現在の姿勢から 次のアニメーションの姿勢への補間
+        toNextAnimation_->Update(deltaTime, model_.get(), transform_.worldMat);
+        if (toNextAnimation_->isEnd()) {
+            animation_ = std::move(nextAnimation_);
+            nextAnimation_.reset();
+            toNextAnimation_.reset();
+        }
+    } else {
+        // アニメーションの更新
+        animation_->Update(deltaTime, model_.get(), transform_.worldMat);
+    }
 
     // モデルの更新
 
@@ -121,6 +134,52 @@ const Animation* AnimationObject3d::getAnimation() const {
 
 Animation* AnimationObject3d::getAnimation() {
     return animation_.get();
+}
+
+void AnimationObject3d::setAnimation(const std::string& directory, const std::string& filename) {
+    animation_ = std::move(AnimationManager::getInstance()->Load(directory, filename));
+}
+
+void AnimationObject3d::setNextAnimation(const std::string& directory, const std::string& filename, float _lerpTime) {
+    nextAnimation_ = std::move(AnimationManager::getInstance()->Load(directory, filename));
+
+    AnimationManager* animationManager = AnimationManager::getInstance();
+    int toNextAnimationDataIndex       = animationManager->addAnimationData("to" + filename + "from" + currentAnimationName_, std::make_unique<AnimationData>(_lerpTime));
+    AnimationData* toNextAnimationData = const_cast<AnimationData*>(animationManager->getAnimationData(toNextAnimationDataIndex));
+
+    toNextAnimationData->nodeAnimations.clear();
+    for (const auto& [nodeName, nodeAnimation] : animation_->getData()->nodeAnimations) {
+        toNextAnimationData->nodeAnimations[nodeName] = {
+            .scale     = AnimationCurve<Vector3>(),
+            .rotate    = AnimationCurve<Quaternion>(),
+            .translate = AnimationCurve<Vector3>()};
+
+        ///=============================================
+        /// 現在の姿勢をはじめに追加
+        toNextAnimationData->nodeAnimations[nodeName].scale.push_back(KeyframeVector3(
+            0.0f,
+            animation_->getCurrentScale(nodeName)));
+        toNextAnimationData->nodeAnimations[nodeName].rotate.push_back(KeyframeQuaternion(
+            0.0f,
+            animation_->getCurrentRotate(nodeName)));
+        toNextAnimationData->nodeAnimations[nodeName].translate.push_back(KeyframeVector3(
+            0.0f,
+            animation_->getCurrentTranslate(nodeName)));
+
+        ///=============================================
+        /// 次の姿勢を追加
+        toNextAnimationData->nodeAnimations[nodeName].scale.push_back(KeyframeVector3(
+            _lerpTime,
+            nextAnimation_->getData()->nodeAnimations[nodeName].scale[0].value));
+        toNextAnimationData->nodeAnimations[nodeName].rotate.push_back(KeyframeQuaternion(
+            _lerpTime,
+            nextAnimation_->getData()->nodeAnimations[nodeName].rotate[0].value));
+        toNextAnimationData->nodeAnimations[nodeName].translate.push_back(KeyframeVector3(
+            _lerpTime,
+            nextAnimation_->getData()->nodeAnimations[nodeName].translate[0].value));
+    }
+    toNextAnimation_ = std::make_unique<Animation>(toNextAnimationData);
+    toNextAnimation_->setDuration(_lerpTime);
 }
 
 void AnimationObject3d::setAnimation(std::unique_ptr<Animation> animation) {

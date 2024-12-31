@@ -1,6 +1,6 @@
 #include "primitiveDrawer/PrimitiveDrawer.h"
 
-#include "camera/Camera.h"
+#include "camera/CameraManager.h"
 #include "directX12/DxFunctionHelper.h"
 #include "Engine.h"
 
@@ -190,7 +190,7 @@ void PrimitiveDrawer::PreDrawLine(){
 
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 
-	Camera::getInstance()->setBufferForRootParameter(commandList,1);
+    CameraManager::getInstance()->setBufferForRootParameter(commandList,1);
 
 	Engine::getInstance()->getLightManager()->SetForRootParameter(commandList);
 }

@@ -3,6 +3,7 @@
 #include "Quaternion.h"
 #include "Vector3.h"
 #include "globalVariables/SerializedField.h"
+#include "module/editor/IEditor.h"
 
 #include <list>
 #include <memory>
@@ -16,13 +17,14 @@ struct AnimationSetting;
 /// <summary>
 /// アニメーションのエディター
 /// </summary>
-class AnimationEditor {
+class AnimationEditor
+    : public IEditor {
 public:
     AnimationEditor();
     ~AnimationEditor();
 
     void Init();
-    void Update();
+    void Update() override;
     void DrawEditObject();
 
 private:

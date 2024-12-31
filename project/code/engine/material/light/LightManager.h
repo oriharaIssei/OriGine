@@ -1,56 +1,78 @@
 #pragma once
 
-#include <memory>
-
-#include "Assets/IAsset.h"
-#include "directX12/IConstantBuffer.h"
-#include "directX12/IStructuredBuffer.h"
-#include "globalVariables/SerializedField.h"
-#include "Module/IModule.h"
-
 #include "DirectionalLight.h"
 #include "PointLight.h"
 #include "SpotLight.h"
-
 #include "directX12/DxSrvArray.h"
+#include "directX12/IConstantBuffer.h"
+#include "directX12/IStructuredBuffer.h"
+#include "globalVariables/SerializedField.h"
+#include "module/IModule.h"
+#include "module/editor/IEditor.h"
 
-struct LightCounts{
-	SerializedField<int32_t> directionalLightNum{"LightManager","LightCounts","directionalLightNum"};
-	SerializedField<int32_t> spotLightNum{"LightManager","LightCounts","spotLightNum"};
-	SerializedField<int32_t> pointLightNum{"LightManager","LightCounts","pointLightNum"};
+#include <memory>
 
-	struct ConstantBuffer{
-		int32_t directionalLightNum;
-		int32_t spotLightNum;
-		int32_t pointLightNum;
+struct LightCounts {
+    SerializedField<int32_t> directionalLightNum{"LightManager", "LightCounts", "directionalLightNum"};
+    SerializedField<int32_t> spotLightNum{"LightManager", "LightCounts", "spotLightNum"};
+    SerializedField<int32_t> pointLightNum{"LightManager", "LightCounts", "pointLightNum"};
 
-		ConstantBuffer& operator=(const LightCounts& light){
-			this->directionalLightNum = light.directionalLightNum;
-			this->spotLightNum = light.spotLightNum;
-			this->pointLightNum = light.pointLightNum;
-			return *this;
-		}
-	};
+    struct ConstantBuffer {
+        int32_t directionalLightNum;
+        int32_t spotLightNum;
+        int32_t pointLightNum;
+
+        ConstantBuffer& operator=(const LightCounts& light) {
+            this->directionalLightNum = light.directionalLightNum;
+            this->spotLightNum        = light.spotLightNum;
+            this->pointLightNum       = light.pointLightNum;
+            return *this;
+        }
+    };
 };
 
+class LightEditor;
+
 class LightManager
-	:IModule{
+    : public IModule {
+    friend class LightEditor;
+
 public:
-	LightManager() = default;
-	~LightManager() = default;
+    static LightManager* getInstance() {
+        static LightManager instance;
+        return &instance;
+    }
+    LightManager();
+    ~LightManager();
+    LightManager(const LightManager&)            = delete;
+    LightManager& operator=(const LightManager&) = delete;
 
-	void Init();
-	void Update();
-	void Finalize();
+    void Init();
+    void Update();
+    void Finalize();
 
-	void SetForRootParameter(ID3D12GraphicsCommandList* cmdList);
+    void SetForRootParameter(ID3D12GraphicsCommandList* cmdList);
 
 private:
-	std::shared_ptr<DxSrvArray> srvArray_;
+    std::shared_ptr<DxSrvArray> srvArray_;
 
-	IConstantBuffer<LightCounts> lightCounts_;
+    IConstantBuffer<LightCounts> lightCounts_;
 
-	IStructuredBuffer<DirectionalLight> directionalLights_;
-	IStructuredBuffer<PointLight> pointLights_;
-	IStructuredBuffer<SpotLight> spotLights_;
+    IStructuredBuffer<DirectionalLight> directionalLights_;
+    IStructuredBuffer<PointLight> pointLights_;
+    IStructuredBuffer<SpotLight> spotLights_;
+};
+
+class LightEditor
+    : public IEditor {
+public:
+    LightEditor();
+    ~LightEditor();
+
+    void Init();
+
+    void Update() override;
+
+private:
+    LightManager* lightManager_;
 };

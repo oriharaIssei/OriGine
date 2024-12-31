@@ -13,9 +13,15 @@ struct AnimationSetting;
 
 class AnimationObject3d {
 public:
-    static std::unique_ptr<AnimationObject3d> Create(const std::string& _modelDirectoryPath, const std::string& _modelFilename);
+    static std::unique_ptr<AnimationObject3d> Create(
+        const std::string& _modelDirectoryPath,
+        const std::string& _modelFilename);
     static std::unique_ptr<AnimationObject3d> Create(const AnimationSetting& _animationSetting);
-    static std::unique_ptr<AnimationObject3d> Create(const std::string& _modelDirectoryPath, const std::string& _modelFilename, const std::string& _animationDirectoryPath, const std::string& _animationFilename);
+    static std::unique_ptr<AnimationObject3d> Create(
+        const std::string& _modelDirectoryPath,
+        const std::string& _modelFilename,
+        const std::string& _animationDirectoryPath,
+        const std::string& _animationFilename);
     // Object3d と 同じ Pipeline を使うため 必要なし
     //	static void PreDraw();
 
@@ -43,7 +49,11 @@ private:
         }};
 
     std::unique_ptr<Model> model_;
+    std::string currentAnimationName_;
     std::unique_ptr<Animation> animation_;
+
+    std::unique_ptr<Animation> toNextAnimation_;
+    std::unique_ptr<Animation> nextAnimation_;
 
 public:
     const Model* getModel() const;
@@ -53,6 +63,9 @@ public:
 
     const Animation* getAnimation() const;
     Animation* getAnimation();
+    void setAnimation(const std::string& directory, const std::string& filename);
+    void setNextAnimation(const std::string& directory, const std::string& filename, float _lerpTime);
+
     void setAnimation(std::unique_ptr<Animation> animation);
 
     void setMaterial(IConstantBuffer<Material>* material, uint32_t index = 0);

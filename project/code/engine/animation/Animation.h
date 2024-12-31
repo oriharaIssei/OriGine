@@ -55,13 +55,12 @@ struct Animation{
 
     ~Animation() = default;
 
-    AnimationData* data = nullptr;
-    //* アニメーションの再生時間(data にも あるが instance 毎に変更できるようにこちらで管理する)
-    float duration             = 0.0f; // (秒)
-    float currentAnimationTime = 0.0f; // アニメーション の 経過時間 (秒)
+    void Update(
+        float deltaTime,
+        Model* model,
+        const Matrix4x4& parentTransform);
 
-    void Update(float deltaTime,Model* model,const Matrix4x4& parentTransform);
-
+private:
     Matrix4x4 CalculateNodeLocal(const std::string& nodeName) const;
     /// <summary>
     ///  指定時間の 値を 計算し 取得
@@ -73,18 +72,43 @@ struct Animation{
         const std::vector<KeyframeVector3>& keyframes,float time) const;
     Quaternion CalculateValue(
         const std::vector<KeyframeQuaternion>& keyframes,float time) const;
-};
 
-/// <summary>
+    /// <summary>
 /// ノードにアニメーションを適用
 /// </summary>
 /// <param name="node">root Node</param>
 /// <param name="parentTransform">rootNode ParentMatrix</param>
 /// <param name="animation">animation</param>
-void ApplyAnimationToNodes(
-    ModelNode& node,
-    const Matrix4x4& parentTransform,
-    const Animation* animation);
+    void ApplyAnimationToNodes(
+        ModelNode& node,
+        const Matrix4x4& parentTransform,
+        const Animation* animation);
+private:
+    AnimationData* data = nullptr;
+    //* アニメーションの再生時間(data にも あるが instance 毎に変更できるようにこちらで管理する)
+    float duration             = 0.0f; // (秒)
+    float currentAnimationTime = 0.0f; // アニメーション の 経過時間 (秒)
+
+    bool isEnd_ = false; // アニメーションが終了したか
+
+public:
+    bool isEnd() const{ return isEnd_; }
+
+    float getDuration() const{ return duration; }
+    void setDuration(float _duration){ duration = _duration; }
+
+    float getCurrentAnimationTime() const{ return currentAnimationTime; }
+    void setCurrentAnimationTime(float _currentAnimationTime){ currentAnimationTime = _currentAnimationTime; }
+
+    AnimationData* getData() const{ return data; }
+    void setData(AnimationData* _data){ data = _data; }
+
+    Vector3 getCurrentScale(const std::string& nodeName)const;
+    Quaternion getCurrentRotate(const std::string& nodeName)const;
+    Vector3 getCurrentTranslate(const std::string& nodeName)const;
+};
+
+
 
 struct AnimationSetting{
     AnimationSetting(const std::string& _name)
