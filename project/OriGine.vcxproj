@@ -176,6 +176,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="code\application\Player\PlayerBehaviors\PlayerDodgeBehavior.cpp" />
     <ClCompile Include="code\application\Player\PlayerBehaviors\PlayerRootBehavior.cpp" />
     <ClCompile Include="code\application\Player\PlayerBehaviors\PlayerWeakAttackBehavior.cpp" />
+    <ClCompile Include="code\application\Enemy\WeakEnemy.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\application\Enemy\IEnemy.h" />
@@ -346,6 +347,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="code\application\Player\PlayerBehaviors\PlayerDodgeBehavior.h" />
     <ClInclude Include="code\application\Player\PlayerBehaviors\PlayerRootBehavior.h" />
     <ClInclude Include="code\application\Player\PlayerBehaviors\PlayerWeakAttackBehavior.h" />
+    <ClInclude Include="code\application\Enemy\WeakEnemy.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">

@@ -48,26 +48,21 @@ void GameScene::Init() {
 
     input_ = Input::getInstance();
 
-    materialManager_ = Engine::getInstance()->getMaterialManager();
+    player_ = std::make_unique<Player>();
+    player_->Init();
 
-    // player_ = std::make_unique<Player>();
-    // player_->Init();
-
-    ground_ = std::move(Object3d::Create("resource/Models", "Ground.obj"));
+    ground_ = std::make_unique<Object3d>();
+    ground_->Init("resource/Models", "Ground.obj");
 }
 
 void GameScene::Update() {
 #ifdef _DEBUG
     debugCamera_->Update();
     debugCamera_->DebugUpdate();
-    Camera::getInstance()->setTransform(debugCamera_->getCameraTransform());
+    CameraManager::getInstance()->setTransform(debugCamera_->getCameraTransform());
 #endif // _DEBUG
 
     player_->Update();
-
-#endif // _DEBUG
-
-    Engine::getInstance()->getLightManager()->Update();
 }
 
 void GameScene::Draw3d() {

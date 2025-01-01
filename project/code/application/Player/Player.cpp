@@ -16,7 +16,8 @@ void Player::Init(){
 	transform_.UpdateMatrix();
 
 	// DrawObject
-	drawObject3d_ = std::move(Object3d::Create("resource/Models","Enemy.obj"));
+	drawObject3d_ = std::unique_ptr<Object3d>();
+    drawObject3d_->Init("resource/Models", "Enemy.obj");
 
 	// Behavior
 	currentBehavior_ = std::make_unique<PlayerRootBehavior>(this);
