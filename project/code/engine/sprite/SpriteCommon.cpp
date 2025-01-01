@@ -30,31 +30,6 @@ void SpriteCommon::Finalize(){
 	dxCommand_->Finalize();
 }
 
-Sprite* SpriteCommon::Create(const std::string& textureFilePath){
-	Sprite* result = new Sprite(this);
-	result->textureIndex_ = TextureManager::LoadTexture(textureFilePath);
-
-	result->meshBuff_ = std::make_unique<SpriteMesh>();
-	result->meshBuff_->Init();
-
-	result->meshBuff_->vertexData[0] = {{0.0f,1.0f,0.0f,1.0f},{0.0f,1.0f}};
-	result->meshBuff_->vertexData[1] = {{0.0f,0.0f,0.0f,1.0f},{0.0f,0.0f}};
-	result->meshBuff_->vertexData[2] = {{1.0f,1.0f,0.0f,1.0f},{1.0f,1.0f}};
-	result->meshBuff_->vertexData[3] = {{1.0f,0.0f,0.0f,1.0f},{1.0f,0.0f}};
-
-	result->mappingConstBufferData_ = nullptr;
-	result->constBuff_.CreateBufferResource(Engine::getInstance()->getDxDevice()->getDevice(),sizeof(SpritConstBuffer));
-
-	result->constBuff_.getResource()->Map(
-		0,nullptr,reinterpret_cast<void**>(&result->mappingConstBufferData_)
-	);
-	result->mappingConstBufferData_->color_ = {1.0f,1.0f,1.0f,1.0f};
-
-	result->mappingConstBufferData_->mat_ = MakeMatrix::Affine({1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,1.0f});
-
-	return result;
-}
-
 void SpriteCommon::CreatePSO(){
 	ShaderManager* shaderManager = ShaderManager::getInstance();
 

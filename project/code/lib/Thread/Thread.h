@@ -8,6 +8,11 @@
 #include <thread>
 #include <vector>
 
+enum class LoadState {
+    Unloaded,
+    Loaded
+};
+
 class IThread {
 public:
     IThread() = default;

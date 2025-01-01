@@ -1,15 +1,21 @@
 #include "ModelManager.h"
 
+///stl
+//assert
+#include <cassert>
+
+///engine
 #include "Engine.h"
+//assetes
 #include "Model.h"
+//dx12Object
 #include "directX12/ShaderManager.h"
 #include "material/Texture/TextureManager.h"
-#include "model/Model.h"
 
+/// lib
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
-#include <cassert>
 
 //===========================================================================
 // unorderedMap 用
@@ -41,21 +47,41 @@ ModelManager* ModelManager::getInstance() {
     return &instance;
 }
 
-std::unique_ptr<Model> ModelManager::Create(const std::string& directoryPath, const std::string& filename) {
+std::unique_ptr<Model> ModelManager::Create(
+    const std::string& directoryPath,
+    const std::string& filename,
+    std::function<void(Model*)> callBack) {
     std::unique_ptr<Model> result = std::make_unique<Model>();
-    const auto itr                = modelLibrary_.find(directoryPath + filename);
+
+    std::string filePath = directoryPath + "/" + filename;
+
+    const auto itr = modelLibrary_.find(filePath);
     if (itr != modelLibrary_.end()) {
-        result->currentState_ = Model::LoadState::Loaded;
-        result->meshData_     = itr->second.get();
+        auto* targetModelMesh = itr->second.get();
+        while (true) {
+            if (targetModelMesh->currentState_ == LoadState::Loaded) {
+                break;
+            }
+        }
+        result->meshData_     = targetModelMesh;
         result->materialData_ = defaultMaterials_[result->meshData_];
+
+        if (callBack != nullptr) {
+            callBack(result.get());
+        }
+
         return result;
     }
 
-    modelLibrary_[directoryPath + filename] = std::make_unique<ModelMeshData>();
+    modelLibrary_[filePath] = std::make_unique<ModelMeshData>();
 
     result            = std::make_unique<Model>();
-    result->meshData_ = modelLibrary_[directoryPath + filename].get();
-    loadThread_->pushTask({directoryPath, filename, result.get()});
+    result->meshData_ = modelLibrary_[filePath].get();
+    loadThread_->pushTask(
+        {.directory = directoryPath,
+         .fileName  = filename,
+         .model     = result.get(),
+         .callBack  = callBack});
 
     return result;
 }
@@ -260,10 +286,15 @@ void LoadModelFile(ModelMeshData* data, const std::string& directoryPath, const 
 }
 
 void ModelManager::LoadTask::Update() {
-    model->currentState_ = Model::LoadState::Loading;
+    model->meshData_->currentState_ = LoadState::Unloaded;
 
     LoadModelFile(model->meshData_, this->directory, this->fileName);
+
     model->materialData_ = ModelManager::getInstance()->defaultMaterials_[model->meshData_];
 
-    model->currentState_ = Model::LoadState::Loaded;
+    if (callBack != nullptr) {
+        callBack(model);
+    }
+
+    model->meshData_->currentState_ = LoadState::Loaded;
 }

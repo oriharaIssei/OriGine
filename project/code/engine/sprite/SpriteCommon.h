@@ -31,7 +31,6 @@ public:
 	void PreDraw();
 
 	void Finalize();
-	Sprite* Create(const std::string& textureFilePath);
 
 private:
 	BlendMode currentBlend_;

@@ -1,16 +1,28 @@
 #pragma once
 
-#include "Matrix4x4.h"
-#include "Quaternion.h"
+///stl
+//memory
+#include <memory>
+//contiainer
+#include <unordered_map>
+#include <vector>
+// basic class
+#include <string>
+
+///engine
+//assetes
+#include "material/Material.h"
+//dx12Object
 #include "directX12/IConstantBuffer.h"
 #include "directX12/Object3dMesh.h"
-#include "material/Material.h"
+//component
 #include "transform/Transform.h"
+//lib
+#include "Thread/Thread.h"
+//math
+#include "Matrix4x4.h"
+#include "Quaternion.h"
 
-#include <map>
-#include <memory>
-#include <string>
-#include <vector>
 
 struct Material3D {
     uint32_t textureNumber;
@@ -35,18 +47,14 @@ struct Mesh3D {
 };
 
 struct ModelMeshData {
+    LoadState currentState_ = LoadState::Unloaded;
+
     std::unordered_map<std::string, uint32_t> meshIndexes;
     std::vector<Mesh3D> mesh_;
     ModelNode rootNode;
 };
 
 struct Model {
-
-    enum class LoadState {
-        Loading,
-        Loaded,
-    };
-    LoadState currentState_ = LoadState::Loading;
 
     ModelMeshData* meshData_;
 
