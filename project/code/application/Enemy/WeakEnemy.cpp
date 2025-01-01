@@ -39,7 +39,7 @@ void WeakEnemy::Update() {
         }
     }
 
-    drawObject3d_->Update();
+    drawObject3d_->UpdateTransform();
 }
 
 std::unique_ptr<IEnemy> WeakEnemy::Clone() {

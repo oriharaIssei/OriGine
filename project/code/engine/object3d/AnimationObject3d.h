@@ -15,21 +15,21 @@ class AnimationObject3d {
 public:
     // Object3d と 同じ Pipeline を使うため 必要なし
     //	static void PreDraw();
-    void Init(
-        const std::string& _modelDirectoryPath,
-        const std::string& _modelFilename);
-    void Init(const AnimationSetting& _animationSetting);
-    void Init(
-        const std::string& _modelDirectoryPath,
-        const std::string& _modelFilename,
-        const std::string& _animationDirectoryPath,
-        const std::string& _animationFilename);
 
 public:
     AnimationObject3d();
     ~AnimationObject3d();
 
     Transform transform_;
+    void Init(
+        const std::string& _directoryPath,
+        const std::string& _filename);
+    void Init(const AnimationSetting& _animationSetting);
+    void Init(
+        const std::string& _modelDirectoryPath,
+        const std::string& _modelFilename,
+        const std::string& _animationDirectoryPath,
+        const std::string& _animationFilename);
 
     void Update(float deltaTime);
     void Draw();

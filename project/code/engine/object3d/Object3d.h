@@ -1,8 +1,5 @@
 #pragma once
 
-#include <memory>
-#include <vector>
-
 #include "directX12/IConstantBuffer.h"
 #include "directX12/PipelineStateObj.h"
 #include "directX12/ShaderManager.h"
@@ -11,34 +8,47 @@
 #include "transform/CameraTransform.h"
 #include "transform/Transform.h"
 
-class Object3d{
+#include <memory>
+#include <vector>
+
+class Object3d {
 public:
-	static void PreDraw();
+    static void PreDraw();
+
+    static void setBlendMode(BlendMode blend) { currentBlend_ = blend; }
 
     void Init(const std::string& directoryPath, const std::string& filename);
-    void Update();
+
 private:
-	static BlendMode currentBlend_;
+    static BlendMode currentBlend_;
 
 public:
-	Object3d() = default;
-	~Object3d(){}
+    Object3d() = default;
+    ~Object3d() {}
 
-	Transform transform_;
+    Transform transform_;
 
-	void Draw();
+    void UpdateTransform();
+
+    void Draw();
+
 private:
-	void NotDraw(){}
+    void NotDraw() {}
 
-	void DrawThis();
+    void DrawThis();
+
 private:
-	std::unique_ptr<Model> data_;
+    std::unique_ptr<Model> data_;
 
-	std::array <std::function<void()>,2> drawFuncTable_ = {
-		[this](){ NotDraw(); },
-		[this](){ DrawThis(); }
-	};
+    std::array<std::function<void()>, 2> drawFuncTable_ = {
+        [this]() {
+            NotDraw();
+        },
+        [this]() {
+            DrawThis();
+        }};
+
 public:
-	const Model* getModel()const{ return data_.get(); }
-	void setMaterial(IConstantBuffer<Material>* material,uint32_t index = 0);
+    const Model* getModel() const { return data_.get(); }
+    void setMaterial(IConstantBuffer<Material>* material, uint32_t index = 0);
 };

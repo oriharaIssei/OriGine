@@ -117,7 +117,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="code\engine\audio\Audio.cpp" />
     <ClCompile Include="code\engine\directX12\RenderTexture.cpp" />
     <ClCompile Include="code\engine\material\light\LightManager.cpp" />
-    <ClCompile Include="code\engine\model\Model.cpp" />
     <ClCompile Include="code\engine\particle\Particle.cpp" />
     <ClCompile Include="code\engine\camera\debugCamera\DebugCamera.cpp" />
     <ClCompile Include="code\lib\animationEditor\Timeline.cpp" />

@@ -1,5 +1,6 @@
 #include "AnimationObject3d.h"
 
+#include "Engine.h"
 #include "animation/Animation.h"
 #include "animation/AnimationManager.h"
 #include "material/Material.h"
@@ -7,20 +8,55 @@
 #include "model/Model.h"
 #include "model/ModelManager.h"
 
+AnimationObject3d::AnimationObject3d() {}
+
+AnimationObject3d::~AnimationObject3d() {}
+
 void AnimationObject3d::Init(
-    const std::string& _modelDirectoryPath,
-    const std::string& _modelFilename) {
-    this->model_                = ModelManager::getInstance()->Create(_modelDirectoryPath, _modelFilename);
-    this->currentAnimationName_ = _modelFilename;
-    this->animation_            = AnimationManager::getInstance()->Load(_modelDirectoryPath, _modelFilename);
+    const std::string& _directoryPath,
+    const std::string& _filename) {
+    this->model_ = ModelManager::getInstance()->Create(
+        _directoryPath,
+        _filename,
+        [this](Model* model) {
+            transform_.Init();
+            transform_.UpdateMatrix();
+            for (auto& mesh : model->meshData_->mesh_) {
+                mesh.transform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+                mesh.transform_.openData_.Init();
+                mesh.transform_.openData_.parent = &transform_;
+
+                mesh.transform_.openData_.UpdateMatrix();
+                mesh.transform_.ConvertToBuffer();
+            }
+        });
+    this->currentAnimationName_ = _filename;
+    this->animation_            = AnimationManager::getInstance()->Load(_directoryPath, _filename);
 }
 
 void AnimationObject3d::Init(const AnimationSetting& _animationSetting) {
     // model
-    this->model_ = ModelManager::getInstance()->Create(_animationSetting.targetModelDirection, _animationSetting.targetModelFileName);
+    this->model_ = ModelManager::getInstance()->Create(
+        _animationSetting.targetModelDirection,
+        _animationSetting.targetModelFileName,
+        [this](Model* model) {
+            transform_.Init();
+            transform_.UpdateMatrix();
+            for (auto& mesh : model->meshData_->mesh_) {
+                mesh.transform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+                mesh.transform_.openData_.Init();
+                mesh.transform_.openData_.parent = &transform_;
+
+                mesh.transform_.openData_.UpdateMatrix();
+                mesh.transform_.ConvertToBuffer();
+            }
+        });
     // animation
     this->currentAnimationName_ = _animationSetting.name;
-    this->animation_            = AnimationManager::getInstance()->Load(_animationSetting.targetAnimationDirection, _animationSetting.name + ".anm");
+    this->animation_ =
+        AnimationManager::getInstance()->Load(
+            _animationSetting.targetAnimationDirection,
+            _animationSetting.name + ".anm");
 }
 
 void AnimationObject3d::Init(
@@ -29,15 +65,30 @@ void AnimationObject3d::Init(
     const std::string& _animationDirectoryPath,
     const std::string& _animationFilename) {
     // model
-    this->model_ = ModelManager::getInstance()->Create(_modelDirectoryPath, _modelFilename);
+    this->model_ =
+        ModelManager::getInstance()->Create(
+            _modelDirectoryPath,
+            _modelFilename,
+            [this](Model* model) {
+                transform_.Init();
+                transform_.UpdateMatrix();
+                for (auto& mesh : model->meshData_->mesh_) {
+                    mesh.transform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+                    mesh.transform_.openData_.Init();
+                    mesh.transform_.openData_.parent = &transform_;
+
+                    mesh.transform_.openData_.UpdateMatrix();
+                    mesh.transform_.ConvertToBuffer();
+                }
+            });
+
     // animation
     this->currentAnimationName_ = _animationFilename;
-    this->animation_            = AnimationManager::getInstance()->Load(_animationDirectoryPath, _animationFilename);
+    this->animation_ =
+        AnimationManager::getInstance()->Load(
+            _animationDirectoryPath,
+            _animationFilename);
 }
-
-AnimationObject3d::AnimationObject3d() {}
-
-AnimationObject3d::~AnimationObject3d() {}
 
 void AnimationObject3d::Update(float deltaTime) {
     // Animationより 先に Object 座標系の 行進

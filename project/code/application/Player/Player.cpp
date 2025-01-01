@@ -30,7 +30,7 @@ void Player::Update() {
 
     { // Transform Update
         transform_.UpdateMatrix();
-        drawObject3d_->Update();
+        drawObject3d_->UpdateTransform();
     }
 }
 

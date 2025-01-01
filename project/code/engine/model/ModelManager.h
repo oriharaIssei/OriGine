@@ -4,34 +4,34 @@
 //memory
 #include <functional>
 #include <memory>
-//container
+//contiainer
 #include <array>
 #include <unordered_map>
-//string
+// basic class
 #include <string>
 
-//directX12Object
-#include "directX12/DxCommand.h"
-#include "directX12/PipelineStateObj.h"
-#include "directX12/ShaderManager.h"
-
-///lib
-#include "Thread/Thread.h"
-
-///math
-#include "Matrix4x4.h"
-
-class AnimationObject3d;
-class Object3d;
+///engine
+//assetes
 struct Model;
 struct ModelNode;
 struct ModelMeshData;
 struct Material3D;
-struct Animation;
+
+//component
+class AnimationObject3d;
+class Object3d;
+
+//dx12Object
+#include "directX12/DxCommand.h"
+#include "directX12/PipelineStateObj.h"
+#include "directX12/ShaderManager.h"
+//lib
+#include "Thread/Thread.h"
+//math
+#include "Matrix4x4.h"
 
 class ModelManager {
     friend class AnimationObject3d;
-
     friend class Object3d;
 
 public:
@@ -40,7 +40,7 @@ public:
     std::unique_ptr<Model> Create(
         const std::string& directoryPath,
         const std::string& filename,
-        std::function<void(Model* )> callBack = nullptr);
+        std::function<void(Model*)> callBack = nullptr);
 
     void Init();
     void Finalize();
@@ -54,7 +54,8 @@ private:
     struct LoadTask {
         std::string directory;
         std::string fileName;
-        Model* model                   = nullptr;
+        Model* model = nullptr;
+
         std::function<void(Model*)> callBack = nullptr;
         void Update();
     };
@@ -63,8 +64,8 @@ private:
     std::unique_ptr<TaskThread<LoadTask>> loadThread_;
 
     std::unordered_map<std::string, std::unique_ptr<ModelMeshData>> modelLibrary_;
-    std::unordered_map<std::string, std::vector<Material3D>> defaultMaterials_;
+    std::unordered_map<ModelMeshData*, std::vector<Material3D>> defaultMaterials_;
 
 public:
-    void pushBackDefaultMaterial(const std::string& key, Material3D material);
+    void pushBackDefaultMaterial(ModelMeshData* key, Material3D material);
 };

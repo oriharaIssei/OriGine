@@ -11,7 +11,6 @@
 #endif // _DEBUG
 
 #include "Engine.h"
-#include "Object3d.h"
 #include "Vector2.h"
 #include "Vector3.h"
 #include "Vector4.h"
@@ -20,7 +19,6 @@
 #include "directX12/DxHeap.h"
 #include "material/Material.h"
 #include "material/texture/TextureManager.h"
-#include "model/Model.h"
 #include "primitiveDrawer/PrimitiveDrawer.h"
 
 #include <stdint.h>
@@ -41,21 +39,21 @@ void Object3d::PreDraw() {
 }
 
 void Object3d::Init(const std::string& directoryPath, const std::string& filename) {
-    data_ = ModelManager::getInstance()->Create(directoryPath, filename, [this](Model* modelData) {
-        for (auto& mesh : modelData->meshData_->mesh_) {
-            mesh.transform_.openData_.parent = &transform_;
-            mesh.transform_.openData_.UpdateMatrix();
-            mesh.transform_.ConvertToBuffer();
-        }
-    });
-}
+    data_ = ModelManager::getInstance()->Create(
+        directoryPath,
+        filename,
+        [this](Model* model) {
+            transform_.Init();
+            transform_.UpdateMatrix();
+            for (auto& mesh : model->meshData_->mesh_) {
+                mesh.transform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+                mesh.transform_.openData_.Init();
+                mesh.transform_.openData_.parent = &transform_;
 
-void Object3d::Update() {
-    transform_.UpdateMatrix();
-    for (auto& mesh : data_->meshData_->mesh_) {
-        mesh.transform_.openData_.UpdateMatrix();
-        mesh.transform_.ConvertToBuffer();
-    }
+                mesh.transform_.openData_.UpdateMatrix();
+                mesh.transform_.ConvertToBuffer();
+            }
+        });
 }
 
 void Object3d::DrawThis() {
@@ -87,6 +85,14 @@ void Object3d::DrawThis() {
 
 void Object3d::setMaterial(IConstantBuffer<Material>* material, uint32_t index) {
     data_->materialData_[index].material = material;
+}
+
+void Object3d::UpdateTransform() {
+    transform_.UpdateMatrix();
+    for (auto& mesh : data_->meshData_->mesh_) {
+        mesh.transform_.openData_.UpdateMatrix();
+        mesh.transform_.ConvertToBuffer();
+    }
 }
 
 void Object3d::Draw() {
