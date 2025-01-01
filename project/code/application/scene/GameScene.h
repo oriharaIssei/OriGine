@@ -16,6 +16,7 @@ class Object3d;
 
 // object
 class Player;
+class IEnemy;
 
 class GameScene
     : public IScene {
@@ -41,6 +42,8 @@ private:
     Input* input_;
 
     std::unique_ptr<Player> player_;
+
+    std::unique_ptr<IEnemy> enemy_;
 
     std::unique_ptr<Object3d> ground_;
     std::unique_ptr<Object3d> skyDome_;

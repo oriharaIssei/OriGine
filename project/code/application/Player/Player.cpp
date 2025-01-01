@@ -1,66 +1,68 @@
 #include "Player.h"
 
 #include "Engine.h"
-
 #include "PlayerBehaviors/PlayerRootBehavior.h"
-
 #include "object3d/Object3d.h"
 #include "transform/Transform.h"
 
-Player::Player(){}
+Player::Player()
+    : hp_("Game", "Player", "hp") {
+    currentHp_ = hp_;
+}
 
-Player::~Player(){}
+Player::~Player() {}
 
-void Player::Init(){
-	// 座標系
-	transform_.UpdateMatrix();
+void Player::Init() {
+    // 座標系
+    transform_.UpdateMatrix();
 
-	// DrawObject
-	drawObject3d_ = std::unique_ptr<Object3d>();
+    // DrawObject
+    drawObject3d_ = std::make_unique<Object3d>();
     drawObject3d_->Init("resource/Models", "Enemy.obj");
 
-	// Behavior
-	currentBehavior_ = std::make_unique<PlayerRootBehavior>(this);
-	currentBehavior_->Init();
+    // Behavior
+    currentBehavior_ = std::make_unique<PlayerRootBehavior>(this);
+    currentBehavior_->Init();
 }
 
-void Player::Update(){
-	currentBehavior_->Update();
+void Player::Update() {
+    currentBehavior_->Update();
 
-	{// Transform Update
-		transform_.UpdateMatrix();
-	}
+    { // Transform Update
+        transform_.UpdateMatrix();
+        drawObject3d_->Update();
+    }
 }
 
-void Player::Draw(){
-	drawObject3d_->Draw();
+void Player::Draw() {
+    drawObject3d_->Draw();
 }
 
-void Player::ChangeBehavior(IPlayerBehavior* next){
-	currentBehavior_.reset(next);
-	currentBehavior_->Init();
+void Player::ChangeBehavior(IPlayerBehavior* next) {
+    currentBehavior_.reset(next);
+    currentBehavior_->Init();
 }
 
-const Vector3& Player::getScale() const{
-	return transform_.scale;
+const Vector3& Player::getScale() const {
+    return transform_.scale;
 }
 
-const Quaternion& Player::getRotate() const{
-	return transform_.rotate;
+const Quaternion& Player::getRotate() const {
+    return transform_.rotate;
 }
 
-const Vector3& Player::getTranslate() const{
-	return transform_.translate;
+const Vector3& Player::getTranslate() const {
+    return transform_.translate;
 }
 
-void Player::setScale(const Vector3& s){
-	transform_.scale = s;
+void Player::setScale(const Vector3& s) {
+    transform_.scale = s;
 }
 
-void Player::setRotate(const Quaternion& q){
-	transform_.rotate = q;
+void Player::setRotate(const Quaternion& q) {
+    transform_.rotate = q;
 }
 
-void Player::setTranslate(const Vector3& t){
-	transform_.translate = t;
+void Player::setTranslate(const Vector3& t) {
+    transform_.translate = t;
 }

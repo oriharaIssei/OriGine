@@ -24,6 +24,8 @@
 
 //object
 #include "../Player/Player.h"
+#include "../Enemy/IEnemy.h"
+#include "../Enemy/WeakEnemy.h"
 
 //debug
 #ifdef _DEBUG
@@ -51,6 +53,10 @@ void GameScene::Init() {
     player_ = std::make_unique<Player>();
     player_->Init();
 
+    enemy_ = std::make_unique<WeakEnemy>();
+    enemy_->Init();
+    enemy_->setPlayer(player_.get());
+
     ground_ = std::make_unique<Object3d>();
     ground_->Init("resource/Models", "Ground.obj");
 }
@@ -63,11 +69,14 @@ void GameScene::Update() {
 #endif // _DEBUG
 
     player_->Update();
+    enemy_->Update();
 }
 
 void GameScene::Draw3d() {
-
     ground_->Draw();
+    player_->Draw();
+
+    enemy_->Draw();
 }
 
 void GameScene::DrawLine() {}

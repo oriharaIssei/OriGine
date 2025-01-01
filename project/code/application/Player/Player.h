@@ -1,5 +1,6 @@
 #pragma once
 
+#include "globalVariables/SerializedField.h"
 #include "Transform/Transform.h"
 
 #include <memory>
@@ -22,6 +23,10 @@ private:
     std::unique_ptr<Object3d> drawObject3d_;
     Transform transform_;
 
+
+    SerializedField<float> hp_;
+    float currentHp_ = 0.0f;
+
 public:
     void ChangeBehavior(IPlayerBehavior* next);
 
@@ -32,4 +37,14 @@ public:
     void setScale(const Vector3& s);
     void setRotate(const Quaternion& q);
     void setTranslate(const Vector3& t);
+
+    float getHP() const {
+        return currentHp_;
+    }
+    void setHP(float hp) {
+        currentHp_ = hp;
+    }
+    void Damage(float damage) {
+        currentHp_ -= damage;
+    }
 };
