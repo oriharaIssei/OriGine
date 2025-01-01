@@ -34,6 +34,9 @@ void AnimationEditor::Init() {
     // gltf
     std::list<std::pair<std::string, std::string>> addFileList = myfs::SearchFile("resource", "gltf", false);
     animationSettingsFileList_.insert(animationSettingsFileList_.end(), addFileList.begin(), addFileList.end());
+
+    // EditObject の instance 作成
+    currentEditObject_ = std::make_unique<AnimationObject3d>();
 }
 
 void AnimationEditor::Update() {
@@ -64,10 +67,10 @@ void AnimationEditor::Update() {
                                 currentEditAnimationSetting_.reset(new AnimationSetting(filename));
                                 currentEditAnimationSetting_->targetModelDirection.setValue(directory);
                                 currentEditAnimationSetting_->targetModelFileName.setValue(filename);
-                                currentEditObject_ = AnimationObject3d::Create(directory, filename);
+                                currentEditObject_->Init(directory, filename);
                             } else {
                                 currentEditAnimationSetting_.reset(new AnimationSetting(filename));
-                                currentEditObject_ = AnimationObject3d::Create(filename);
+                                currentEditObject_->Init(*currentEditAnimationSetting_);
                             }
                         }
                     }
@@ -171,7 +174,7 @@ void AnimationEditor::Update() {
 
                         // モデルの読み込みが終わるまで待機
                         while (true) {
-                            if (currentEditObject_->getModel()->currentState_ == Model::LoadState::Loaded) {
+                            if (currentEditObject_->getModel()->meshData_->currentState_ == LoadState::Loaded) {
                                 break;
                             }
                         }

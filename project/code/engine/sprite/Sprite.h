@@ -33,10 +33,10 @@ public:
 	~Sprite() = default;
 
 	/// <summary>
-	/// SpriteCommon::Create と同じ
+	/// 初期化
 	/// </summary>
-	/// <param name="filePath"></param>
-	void Init(const std::string& filePath);
+	/// <param name="texFilePath">TextureFilePath</param>
+	void Init(const std::string& texFilePath);
 	void Draw();
 
 	void Debug(const std::string& name);
@@ -46,17 +46,17 @@ public:
 private:
 	SpriteCommon* spriteCommon_;
 
-	Vector2 textureLeftTop_;
-	Vector2 textureSize_;
+	Vector2 textureLeftTop_ = {0.0f, 0.0f};
+    Vector2 textureSize_    = {0.0f, 0.0f};
 
 	Vector2 anchorPoint_;
 
 	bool isFlipX_ = false;
 	bool isFlipY_ = false;
 
-	Vector2 size_;
+	Vector2 size_ = {0.0f,0.0f};
 	float rotate_ = 0.0f;
-	Vector2 pos_;
+    Vector2 pos_  = {0.0f, 0.0f};
 	Matrix4x4 worldMat_;
 
 	Vector3 uvScale_ = {1.0f,1.0f,1.0f};
@@ -70,7 +70,7 @@ private:
 	std::unique_ptr<SpriteMesh> meshBuff_;
 	DxResource constBuff_;
 
-	uint32_t textureIndex_;
+	uint32_t textureIndex_ = 0;
 public:
 	void setSize(const Vector2& size){ size_ = size; }
 	const Vector2& GetSize() const{ return size_; }

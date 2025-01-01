@@ -41,8 +41,8 @@ void GameScene::Init() {
 
     materialManager_ = Engine::getInstance()->getMaterialManager();
 
-    ground_ = std::move(Object3d::Create("resource/Models", "Ground.obj"));
-    ground_->transform_.UpdateMatrix();
+    ground_ = std::make_unique<Object3d>();
+    ground_->Init("resource/Models", "Ground.obj");
 }
 
 void GameScene::Update() {

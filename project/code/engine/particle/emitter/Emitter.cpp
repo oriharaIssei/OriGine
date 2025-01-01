@@ -278,7 +278,7 @@ void Emitter::Debug(){
 
 void Emitter::Draw(const IConstantBuffer<CameraTransform>& camera){
 	if(!particleModel_ ||
-	   particleModel_->currentState_ != Model::LoadState::Loaded){
+	   particleModel_->meshData_->currentState_ != LoadState::Loaded){
 		return;
 	}
 
