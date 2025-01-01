@@ -7,6 +7,7 @@
 #include "directX12/ShaderManager.h"
 
 #include <array>
+#include <functional>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -27,7 +28,10 @@ class ModelManager {
 public:
     static ModelManager* getInstance();
 
-    std::unique_ptr<Model> Create(const std::string& directoryPath, const std::string& filename);
+    std::unique_ptr<Model> Create(
+        const std::string& directoryPath,
+        const std::string& filename,
+        std::function<void()> callBack = nullptr);
 
     void Init();
     void Finalize();
@@ -41,7 +45,8 @@ private:
     struct LoadTask {
         std::string directory;
         std::string fileName;
-        Model* model = nullptr;
+        Model* model                   = nullptr;
+        std::function<void()> callBack = nullptr;
         void Update();
     };
 

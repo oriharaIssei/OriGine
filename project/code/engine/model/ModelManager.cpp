@@ -41,9 +41,13 @@ ModelManager* ModelManager::getInstance() {
     return &instance;
 }
 
-std::unique_ptr<Model> ModelManager::Create(const std::string& directoryPath, const std::string& filename) {
+std::unique_ptr<Model> ModelManager::Create(
+    const std::string& directoryPath,
+    const std::string& filename,
+    std::function<void()> callBack) {
     std::unique_ptr<Model> result = std::make_unique<Model>();
-    const auto itr                = modelLibrary_.find(directoryPath + filename);
+
+    const auto itr = modelLibrary_.find(directoryPath + filename);
     if (itr != modelLibrary_.end()) {
         result->currentState_ = Model::LoadState::Loaded;
         result->meshData_     = itr->second.get();
@@ -55,7 +59,7 @@ std::unique_ptr<Model> ModelManager::Create(const std::string& directoryPath, co
 
     result            = std::make_unique<Model>();
     result->meshData_ = modelLibrary_[directoryPath + filename].get();
-    loadThread_->pushTask({directoryPath, filename, result.get()});
+    loadThread_->pushTask({directoryPath, filename, result.get(), callBack});
 
     return result;
 }
@@ -264,6 +268,10 @@ void ModelManager::LoadTask::Update() {
 
     LoadModelFile(model->meshData_, this->directory, this->fileName);
     model->materialData_ = ModelManager::getInstance()->defaultMaterials_[model->meshData_];
+
+    if (callBack) {
+        callBack();
+    }
 
     model->currentState_ = Model::LoadState::Loaded;
 }

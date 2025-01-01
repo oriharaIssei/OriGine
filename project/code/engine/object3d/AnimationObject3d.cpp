@@ -7,35 +7,33 @@
 #include "model/Model.h"
 #include "model/ModelManager.h"
 
-#pragma region "Static"
-std::unique_ptr<AnimationObject3d> AnimationObject3d::Create(const std::string& _directoryPath, const std::string& _filename) {
-    std::unique_ptr<AnimationObject3d> newInstance = std::make_unique<AnimationObject3d>();
-    newInstance->model_                            = ModelManager::getInstance()->Create(_directoryPath, _filename);
-    newInstance->currentAnimationName_             = _filename;
-    newInstance->animation_                        = AnimationManager::getInstance()->Load(_directoryPath, _filename);
-    return newInstance;
+void AnimationObject3d::Init(
+    const std::string& _modelDirectoryPath,
+    const std::string& _modelFilename) {
+    this->model_                = ModelManager::getInstance()->Create(_modelDirectoryPath, _modelFilename);
+    this->currentAnimationName_ = _modelFilename;
+    this->animation_            = AnimationManager::getInstance()->Load(_modelDirectoryPath, _modelFilename);
 }
 
-std::unique_ptr<AnimationObject3d> AnimationObject3d::Create(const AnimationSetting& _animationSetting) {
-    std::unique_ptr<AnimationObject3d> newInstance = std::make_unique<AnimationObject3d>();
+void AnimationObject3d::Init(const AnimationSetting& _animationSetting) {
     // model
-    newInstance->model_ = ModelManager::getInstance()->Create(_animationSetting.targetModelDirection, _animationSetting.targetModelFileName);
+    this->model_ = ModelManager::getInstance()->Create(_animationSetting.targetModelDirection, _animationSetting.targetModelFileName);
     // animation
-    newInstance->currentAnimationName_ = _animationSetting.name;
-    newInstance->animation_            = AnimationManager::getInstance()->Load(_animationSetting.targetAnimationDirection, _animationSetting.name + ".anm");
-    return newInstance;
+    this->currentAnimationName_ = _animationSetting.name;
+    this->animation_            = AnimationManager::getInstance()->Load(_animationSetting.targetAnimationDirection, _animationSetting.name + ".anm");
 }
 
-std::unique_ptr<AnimationObject3d> AnimationObject3d::Create(const std::string& _modelDirectoryPath, const std::string& _modelFilename, const std::string& _animationDirectoryPath, const std::string& _animationFilename) {
-    std::unique_ptr<AnimationObject3d> newInstance = std::make_unique<AnimationObject3d>();
+void AnimationObject3d::Init(
+    const std::string& _modelDirectoryPath,
+    const std::string& _modelFilename,
+    const std::string& _animationDirectoryPath,
+    const std::string& _animationFilename) {
     // model
-    newInstance->model_ = ModelManager::getInstance()->Create(_modelDirectoryPath, _modelFilename);
+    this->model_ = ModelManager::getInstance()->Create(_modelDirectoryPath, _modelFilename);
     // animation
-    newInstance->currentAnimationName_ = _animationFilename;
-    newInstance->animation_            = AnimationManager::getInstance()->Load(_animationDirectoryPath, _animationFilename);
-    return newInstance;
+    this->currentAnimationName_ = _animationFilename;
+    this->animation_            = AnimationManager::getInstance()->Load(_animationDirectoryPath, _animationFilename);
 }
-#pragma endregion
 
 AnimationObject3d::AnimationObject3d() {}
 

@@ -13,10 +13,10 @@
 
 class Object3d{
 public:
-	static std::unique_ptr<Object3d> Create(const std::string& directoryPath,const std::string& filename);
 	static void PreDraw();
 
-	static void setBlendMode(BlendMode blend){ currentBlend_ = blend; }
+    void Init(const std::string& directoryPath, const std::string& filename);
+    void Update();
 private:
 	static BlendMode currentBlend_;
 
