@@ -44,21 +44,35 @@ ModelManager* ModelManager::getInstance() {
 std::unique_ptr<Model> ModelManager::Create(
     const std::string& directoryPath,
     const std::string& filename,
-    std::function<void()> callBack) {
+    std::function<void(Model*)> callBack) {
     std::unique_ptr<Model> result = std::make_unique<Model>();
 
-    const auto itr = modelLibrary_.find(directoryPath + filename);
+    std::string filePath = directoryPath + "/" + filename;
+
+    const auto itr = modelLibrary_.find(filePath);
     if (itr != modelLibrary_.end()) {
-        result->currentState_ = Model::LoadState::Loaded;
-        result->meshData_     = itr->second.get();
-        result->materialData_ = defaultMaterials_[result->meshData_];
+        auto* meshData = itr->second.get();
+
+        // 読み込みが終わるまで待つ
+        while (true) {
+            if (meshData->currentState_ == ModelMeshData::LoadState::Loaded) {
+                break;
+            }
+        }
+
+        result->meshData_     = meshData;
+        result->materialData_ = defaultMaterials_[filePath];
+
+        if (callBack) {
+            callBack(result.get());
+        }
         return result;
     }
 
-    modelLibrary_[directoryPath + filename] = std::make_unique<ModelMeshData>();
+    modelLibrary_[filePath] = std::make_unique<ModelMeshData>();
 
     result            = std::make_unique<Model>();
-    result->meshData_ = modelLibrary_[directoryPath + filename].get();
+    result->meshData_ = modelLibrary_[filePath].get();
     loadThread_->pushTask({directoryPath, filename, result.get(), callBack});
 
     return result;
@@ -96,7 +110,7 @@ void ModelManager::Finalize() {
     modelLibrary_.clear();
 }
 
-void ModelManager::pushBackDefaultMaterial(ModelMeshData* key, Material3D material) {
+void ModelManager::pushBackDefaultMaterial(const std::string& key, Material3D material) {
     defaultMaterials_[key].emplace_back(material);
 }
 
@@ -233,10 +247,7 @@ void LoadModelFile(ModelMeshData* data, const std::string& directoryPath, const 
             }
         }
 
-        // メッシュに対応するノード名を設定
-        mesh.nodeName = meshNodeMap[meshIndex];
-
-        // マテリアルとテクスチャの処理
+        // マテリアルの処理
         aiMaterial* material = scene->mMaterials[loadedMesh->mMaterialIndex];
         aiString textureFilePath;
         uint32_t textureIndex;
@@ -250,8 +261,11 @@ void LoadModelFile(ModelMeshData* data, const std::string& directoryPath, const 
         } else {
             textureIndex = 0;
         }
+        // デフォルトマテリアルを追加
+        ModelManager::getInstance()->pushBackDefaultMaterial(filePath, {textureIndex, Engine::getInstance()->getMaterialManager()->Create("white")});
 
-        ModelManager::getInstance()->pushBackDefaultMaterial(data, {textureIndex, Engine::getInstance()->getMaterialManager()->Create("white")});
+        // メッシュに対応するノード名を設定
+        mesh.nodeName = meshNodeMap[meshIndex];
 
         // メッシュデータを処理
         ProcessMeshData(mesh, vertices, indices);
@@ -264,14 +278,14 @@ void LoadModelFile(ModelMeshData* data, const std::string& directoryPath, const 
 }
 
 void ModelManager::LoadTask::Update() {
-    model->currentState_ = Model::LoadState::Loading;
+    model->meshData_->currentState_ = ModelMeshData::LoadState::Loading;
 
     LoadModelFile(model->meshData_, this->directory, this->fileName);
-    model->materialData_ = ModelManager::getInstance()->defaultMaterials_[model->meshData_];
+    model->materialData_ = ModelManager::getInstance()->defaultMaterials_[this->directory + "/" + this->fileName];
 
     if (callBack) {
-        callBack();
+        callBack(model);
     }
 
-    model->currentState_ = Model::LoadState::Loaded;
+    model->meshData_->currentState_ = ModelMeshData::LoadState::Loaded;
 }

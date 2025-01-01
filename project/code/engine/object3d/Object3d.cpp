@@ -41,8 +41,8 @@ void Object3d::PreDraw() {
 }
 
 void Object3d::Init(const std::string& directoryPath, const std::string& filename) {
-    data_ = ModelManager::getInstance()->Create(directoryPath, filename, [this]() {
-        for (auto& mesh : data_->meshData_->mesh_) {
+    data_ = ModelManager::getInstance()->Create(directoryPath, filename, [this](Model* modelData) {
+        for (auto& mesh : modelData->meshData_->mesh_) {
             mesh.transform_.openData_.parent = &transform_;
             mesh.transform_.openData_.UpdateMatrix();
             mesh.transform_.ConvertToBuffer();
@@ -90,6 +90,6 @@ void Object3d::setMaterial(IConstantBuffer<Material>* material, uint32_t index) 
 }
 
 void Object3d::Draw() {
-    drawFuncTable_[(size_t)data_->currentState_]();
+    drawFuncTable_[(size_t)data_->meshData_->currentState_]();
 }
 #pragma endregion

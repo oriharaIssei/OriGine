@@ -81,7 +81,7 @@ void AnimationObject3d::Update(float deltaTime) {
 }
 
 void AnimationObject3d::Draw() {
-    drawFuncTable_[(int)model_->currentState_]();
+    drawFuncTable_[(int)model_->meshData_->currentState_]();
 }
 
 void AnimationObject3d::DrawThis() {

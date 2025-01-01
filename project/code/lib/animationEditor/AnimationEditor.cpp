@@ -174,7 +174,7 @@ void AnimationEditor::Update() {
 
                         // モデルの読み込みが終わるまで待機
                         while (true) {
-                            if (currentEditObject_->getModel()->currentState_ == Model::LoadState::Loaded) {
+                            if (currentEditObject_->getModel()->meshData_->currentState_ == ModelMeshData::LoadState::Loaded) {
                                 break;
                             }
                         }

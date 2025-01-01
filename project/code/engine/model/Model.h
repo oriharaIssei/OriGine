@@ -6,9 +6,9 @@
 #include "directX12/Object3dMesh.h"
 #include "material/Material.h"
 #include "transform/Transform.h"
-
 #include <map>
 #include <memory>
+///stl
 #include <string>
 #include <vector>
 
@@ -35,22 +35,20 @@ struct Mesh3D {
 };
 
 struct ModelMeshData {
-    std::unordered_map<std::string, uint32_t> meshIndexes;
-    std::vector<Mesh3D> mesh_;
-    ModelNode rootNode;
-};
-
-struct Model {
-
     enum class LoadState {
         Loading,
         Loaded,
     };
     LoadState currentState_ = LoadState::Loading;
+    std::unordered_map<std::string, uint32_t> meshIndexes;
+    std::vector<Mesh3D> mesh_;
+    ModelNode rootNode;
+};
 
+using ModelMaterialData = std::vector<Material3D>;
+struct Model {
     ModelMeshData* meshData_;
 
-    using ModelMaterialData = std::vector<Material3D>;
     ModelMaterialData materialData_;
 
     void setMaterialBuff(int32_t part, IConstantBuffer<Material>* buff) {
