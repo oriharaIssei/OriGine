@@ -3,7 +3,6 @@
 #include "../Player.h"
 #include "../PlayerBehaviors/PlayerDodgeBehavior.h"
 #include "../PlayerBehaviors/PlayerWeakAttackBehavior.h"
-
 #include "Engine.h"
 #include "input/Input.h"
 
@@ -40,7 +39,7 @@ void PlayerRootBehavior::Action() {
     lastDir_                              = directionXZ;
     const Quaternion& currentPlayerRotate = player_->getRotate();
     { // Player を 入力方向 へ 回転
-        Quaternion inputDirectionRotate = Quaternion::RotateAxisAngle({0.0f, 1.0f, 0.0f}, acosf(directionXZ.dot()));
+        Quaternion inputDirectionRotate = Quaternion(0.0f, std::atan2(directionXZ.x, directionXZ.z), 0.0f, 1.0f);
         player_->setRotate(inputDirectionRotate);
     }
     { // 方向と速度を 使って 次の座標を計算

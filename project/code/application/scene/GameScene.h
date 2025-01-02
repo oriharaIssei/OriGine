@@ -10,6 +10,7 @@
 class Input;
 class MaterialManager;
 class DebugCamera;
+class CollisionManager;
 
 // component
 class Object3d;
@@ -40,6 +41,8 @@ private:
 #endif // _DEBUG
 
     Input* input_;
+
+    std::unique_ptr<CollisionManager> collisionManager_;
 
     std::unique_ptr<Player> player_;
 

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -176,6 +176,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="code\application\Player\PlayerBehaviors\PlayerRootBehavior.cpp" />
     <ClCompile Include="code\application\Player\PlayerBehaviors\PlayerWeakAttackBehavior.cpp" />
     <ClCompile Include="code\application\Enemy\WeakEnemy.cpp" />
+    <ClCompile Include="code\application\Collision\Collider.cpp" />
+    <ClCompile Include="code\application\GameObject\GameObject.cpp" />
+    <ClCompile Include="code\application\Collision\CollisionManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\application\Enemy\IEnemy.h" />
@@ -246,6 +249,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="code\engine\particle\emitter\EmitterShape.h" />
     <ClInclude Include="code\lib\node\DefaultNodes.h" />
     <ClInclude Include="code\math\MyEasing.h" />
+    <ClInclude Include="code\application\Collision\Collider.h" />
+    <ClInclude Include="code\application\Collision\CollisionManager.h" />
     <ClInclude Include="externals\assimp\include\assimp\aabb.h" />
     <ClInclude Include="externals\assimp\include\assimp\ai_assert.h" />
     <ClInclude Include="externals\assimp\include\assimp\anim.h" />
@@ -347,6 +352,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="code\application\Player\PlayerBehaviors\PlayerRootBehavior.h" />
     <ClInclude Include="code\application\Player\PlayerBehaviors\PlayerWeakAttackBehavior.h" />
     <ClInclude Include="code\application\Enemy\WeakEnemy.h" />
+    <ClInclude Include="code\application\GameObject\GameObject.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
