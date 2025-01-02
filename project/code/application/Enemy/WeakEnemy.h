@@ -19,5 +19,5 @@ public:
      SerializedField<float> minPlayer2Distance_;
      SerializedField<float> maxPlayer2Distance_;
      // playerとの distance
-     float currentPlayer2Distance_ = 0.0f;
+     float player2Distance_ = 0.0f;
 };

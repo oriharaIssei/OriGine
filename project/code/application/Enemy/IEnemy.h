@@ -38,14 +38,19 @@ protected:
     SerializedField<float> maxAttackCoolTime_;
     SerializedField<float> minAttackCoolTime_;
 
-    float currentHp_      = 0.0f;
-    float currentSpeed_   = 0.0f;
-    float currentAttack_  = 0.0f;
+    float currentHp_             = 0.0f;
+    float currentSpeed_          = 0.0f;
+    float currentAttack_         = 0.0f;
     float currentAttackCoolTime_ = 0.0f; // minAttackCoolTime_ ~ maxAttackCoolTime_
 
 public:
+    Player* getPlayer() { return player_; }
     void setPlayer(Player* player) {
         player_ = player;
+    }
+
+    const Transform& getTransform() const {
+        return transform_;
     }
 
     const Vector3& getScale() const {
