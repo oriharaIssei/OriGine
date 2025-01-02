@@ -33,11 +33,12 @@ private:
 private:
     void ImGuiMenu();
 
-private:
+public:
     using Item  = std::variant<int32_t, float, std::string, Vector2, Vector3, Vector4, bool>;
     using Group = std::map<std::string, Item>;
     using Scene = std::map<std::string, Group>;
 
+private:
     std::map<std::string, Scene> data_;
 #ifdef _DEBUG
     std::string currentScene_ = "NULL";
@@ -49,6 +50,14 @@ private:
 #endif // _DEBUG
 
 public:
+    Scene* getScene(const std::string& scene) {
+        auto itr = data_.find(scene);
+        if (itr == data_.end()) {
+            return nullptr;
+        }
+        return &itr->second;
+    }
+
     // 新しいアイテムを作成してセット
     template <typename T>
     void setValue(const std::string& scene, const std::string& groupName, const std::string& itemName, const T& value) {

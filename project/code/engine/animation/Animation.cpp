@@ -30,7 +30,7 @@ Matrix4x4 Animation::CalculateNodeLocal(const std::string& nodeName) const {
     Vector3 scale     = CalculateValue(nodeAnimation.scale, currentAnimationTime);
     Quaternion rotate = Quaternion::Normalize(CalculateValue(nodeAnimation.rotate, currentAnimationTime));
     Vector3 translate = CalculateValue(nodeAnimation.translate, currentAnimationTime);
-     return MakeMatrix::Affine(scale, rotate, translate);
+    return MakeMatrix::Affine(scale, rotate, translate);
 }
 
 Vector3 Animation::CalculateValue(const std::vector<KeyframeVector3>& keyframes, float time) const {
@@ -92,36 +92,39 @@ Quaternion Animation::CalculateValue(
     return (*keyframes.rbegin()).value;
 }
 
-void Animation::ApplyAnimationToNodes(ModelNode& node,const Matrix4x4& parentTransform,const Animation* animation){
+void Animation::ApplyAnimationToNodes(
+    ModelNode& node,
+    const Matrix4x4& parentTransform,
+    const Animation* animation) {
     node.localMatrix          = animation->CalculateNodeLocal(node.name);
     Matrix4x4 globalTransform = parentTransform * node.localMatrix;
 
     // 子ノードに再帰的に適用
-    for(auto& child : node.children){
-        ApplyAnimationToNodes(child,globalTransform,animation);
+    for (auto& child : node.children) {
+        ApplyAnimationToNodes(child, globalTransform, animation);
     }
 }
 
-Vector3 Animation::getCurrentScale(const std::string& nodeName) const{
+Vector3 Animation::getCurrentScale(const std::string& nodeName) const {
     auto itr = data->nodeAnimations.find(nodeName);
-    if(itr == data->nodeAnimations.end()){
-        return Vector3(1.0f,1.0f,1.0f);
+    if (itr == data->nodeAnimations.end()) {
+        return Vector3(1.0f, 1.0f, 1.0f);
     }
-    return CalculateValue(itr->second.scale,currentAnimationTime);
+    return CalculateValue(itr->second.scale, currentAnimationTime);
 }
 
-Quaternion Animation::getCurrentRotate(const std::string& nodeName) const{
+Quaternion Animation::getCurrentRotate(const std::string& nodeName) const {
     auto itr = data->nodeAnimations.find(nodeName);
-    if(itr == data->nodeAnimations.end()){
+    if (itr == data->nodeAnimations.end()) {
         return Quaternion::Identity();
     }
-    return CalculateValue(itr->second.rotate,currentAnimationTime);
+    return CalculateValue(itr->second.rotate, currentAnimationTime);
 }
 
-Vector3 Animation::getCurrentTranslate(const std::string& nodeName) const{
+Vector3 Animation::getCurrentTranslate(const std::string& nodeName) const {
     auto itr = data->nodeAnimations.find(nodeName);
-    if(itr == data->nodeAnimations.end()){
-        return Vector3(0.0f,0.0f,0.0f);
+    if (itr == data->nodeAnimations.end()) {
+        return Vector3(0.0f, 0.0f, 0.0f);
     }
-    return CalculateValue(itr->second.translate,currentAnimationTime);
+    return CalculateValue(itr->second.translate, currentAnimationTime);
 }

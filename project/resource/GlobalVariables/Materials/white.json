@@ -6,7 +6,7 @@
             1.0,
             1.0
         ],
-        "enableLighting": 0,
+        "enableLighting": 1,
         "shininess": 28.75,
         "specularColor": [
             1.0,

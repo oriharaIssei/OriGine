@@ -1,0 +1,7 @@
+{
+    "PlayerIdle": {
+        "targetAnimationDirection": "resource/Animations",
+        "targetModelDirection": "resource/Models",
+        "targetModelFileName": "Player.obj"
+    }
+}
