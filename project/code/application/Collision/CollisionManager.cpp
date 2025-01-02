@@ -44,11 +44,7 @@ void CollisionManager::CheckCollisionPair(
     float radiusSum = a->getRadius() + b->getRadius();
 
     if (distance.lengthSq() < radiusSum * radiusSum) {
-        if (b->getHostObject()) {
-            a->OnCollision(b->getHostObject());
-        }
-        if (a->getHostObject()) {
-            b->OnCollision(a->getHostObject());
-        }
+        a->OnCollision(b->getHostObject());
+        b->OnCollision(a->getHostObject());
     }
 }
