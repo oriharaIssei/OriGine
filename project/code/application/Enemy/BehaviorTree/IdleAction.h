@@ -12,16 +12,18 @@
 #include "globalVariables/SerializedField.h"
 
 namespace EnemyBehavior {
-class ChaseAction
+/// <summary>
+/// 規定時間 待機する 
+/// </summary>
+class IdleAction
     : public Action {
 public:
-    ChaseAction(float _speed,float _targetDistance);
-    ~ChaseAction();
+    IdleAction(float _time);
+    ~IdleAction();
 
     Status tick() override;
 
 private:
-    float speed_          = 0.0f;
-    float targetDistance_ = 0.0f;
+    float leftTime_ = 0.0f;
 };
 } // namespace EnemyBehavior
