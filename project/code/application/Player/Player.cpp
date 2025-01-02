@@ -17,8 +17,9 @@ void Player::Init() {
     transform_.UpdateMatrix();
 
     // DrawObject
-    drawObject3d_ = std::make_unique<Object3d>();
+    drawObject3d_                    = std::make_unique<Object3d>();
     drawObject3d_->Init("resource/Models", "Enemy.obj");
+    drawObject3d_->transform_.parent = &transform_;
 
     // Behavior
     currentBehavior_ = std::make_unique<PlayerRootBehavior>(this);
@@ -41,28 +42,4 @@ void Player::Draw() {
 void Player::ChangeBehavior(IPlayerBehavior* next) {
     currentBehavior_.reset(next);
     currentBehavior_->Init();
-}
-
-const Vector3& Player::getScale() const {
-    return transform_.scale;
-}
-
-const Quaternion& Player::getRotate() const {
-    return transform_.rotate;
-}
-
-const Vector3& Player::getTranslate() const {
-    return transform_.translate;
-}
-
-void Player::setScale(const Vector3& s) {
-    transform_.scale = s;
-}
-
-void Player::setRotate(const Quaternion& q) {
-    transform_.rotate = q;
-}
-
-void Player::setTranslate(const Vector3& t) {
-    transform_.translate = t;
 }

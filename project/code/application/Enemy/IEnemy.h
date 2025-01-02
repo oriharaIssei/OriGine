@@ -5,9 +5,9 @@
 #include <string>
 
 /// engine
+#include "../GameObject/GameObject.h"
 #include "globalVariables/SerializedField.h"
 #include "transform/Transform.h"
-
 //math
 #include "Quaternion.h"
 #include "Vector3.h"
@@ -15,7 +15,8 @@
 class Object3d;
 class Player;
 
-class IEnemy {
+class IEnemy
+    : public GameObject {
 public:
     IEnemy(const std::string& _type);
     virtual ~IEnemy();
@@ -28,9 +29,6 @@ public:
 
 protected:
     Player* player_ = nullptr;
-
-    std::unique_ptr<Object3d> drawObject3d_;
-    Transform transform_;
 
     SerializedField<float> hp_;
     SerializedField<float> speed_;
@@ -47,30 +45,6 @@ public:
     Player* getPlayer() { return player_; }
     void setPlayer(Player* player) {
         player_ = player;
-    }
-
-    const Transform& getTransform() const {
-        return transform_;
-    }
-
-    const Vector3& getScale() const {
-        return transform_.scale;
-    }
-    const Quaternion& getRotate() const {
-        return transform_.rotate;
-    }
-    const Vector3& getTranslate() const {
-        return transform_.translate;
-    }
-
-    void setScale(const Vector3& s) {
-        transform_.scale = s;
-    }
-    void setRotate(const Quaternion& q) {
-        transform_.rotate = q;
-    }
-    void setTranslate(const Vector3& t) {
-        transform_.translate = t;
     }
 
     float getHp() const {

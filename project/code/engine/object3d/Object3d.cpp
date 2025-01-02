@@ -63,6 +63,8 @@ void Object3d::DrawThis() {
     uint32_t index = 0;
 
     for (auto& mesh : data_->meshData_->mesh_) {
+        mesh.transform_.ConvertToBuffer();
+
         auto& material                  = data_->materialData_[index];
         ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
         commandList->SetDescriptorHeaps(1, ppHeaps);
@@ -90,8 +92,8 @@ void Object3d::setMaterial(IConstantBuffer<Material>* material, uint32_t index) 
 void Object3d::UpdateTransform() {
     transform_.UpdateMatrix();
     for (auto& mesh : data_->meshData_->mesh_) {
+        mesh.transform_.openData_.parent = &transform_;
         mesh.transform_.openData_.UpdateMatrix();
-        mesh.transform_.ConvertToBuffer();
     }
 }
 
