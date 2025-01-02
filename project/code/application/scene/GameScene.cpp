@@ -17,6 +17,7 @@
 #include "particle/manager/ParticleManager.h"
 #include "primitiveDrawer/PrimitiveDrawer.h"
 #include "sprite/SpriteCommon.h"
+#include "../Collision/CollisionManager.h"
 
 //component
 #include "directX12/RenderTexture.h"
@@ -50,6 +51,8 @@ void GameScene::Init() {
 
     input_ = Input::getInstance();
 
+    collisionManager_ = std::make_unique<CollisionManager>();
+
     player_ = std::make_unique<Player>();
     player_->Init();
 
@@ -70,6 +73,8 @@ void GameScene::Update() {
 
     player_->Update();
     enemy_->Update();
+
+    collisionManager_->Update();
 }
 
 void GameScene::Draw3d() {
