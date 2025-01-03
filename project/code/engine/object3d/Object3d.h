@@ -23,8 +23,8 @@ private:
     static BlendMode currentBlend_;
 
 public:
-    Object3d() = default;
-    ~Object3d() {}
+    Object3d();
+    ~Object3d();
 
     Transform transform_;
 
