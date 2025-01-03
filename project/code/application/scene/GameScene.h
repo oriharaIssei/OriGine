@@ -16,6 +16,7 @@ class CollisionManager;
 class Object3d;
 
 // object
+class EnemyManager;
 class Player;
 class IEnemy;
 
@@ -46,7 +47,7 @@ private:
 
     std::unique_ptr<Player> player_;
 
-    std::unique_ptr<IEnemy> enemy_;
+    std::unique_ptr<EnemyManager> enemyManager_;
 
     std::unique_ptr<Object3d> ground_;
     std::unique_ptr<Object3d> skyDome_;

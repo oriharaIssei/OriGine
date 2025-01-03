@@ -20,7 +20,13 @@ void WeakEnemy::Init() {
 }
 
 void WeakEnemy::Update() {
-   
+    if (currentHp_ <= 0.0f) {
+        isAlive_ = false;
+        return;
+    }
+    if (!isAlive_) {
+        return;
+    }
     drawObject3d_->UpdateTransform();
 }
 

@@ -179,6 +179,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="code\application\Collision\Collider.cpp" />
     <ClCompile Include="code\application\GameObject\GameObject.cpp" />
     <ClCompile Include="code\application\Collision\CollisionManager.cpp" />
+    <ClCompile Include="code\application\Enemy\Spawner\EnemySpawner.cpp" />
+    <ClCompile Include="code\application\Enemy\Manager\EnemyManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\application\Enemy\IEnemy.h" />
@@ -251,6 +253,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="code\math\MyEasing.h" />
     <ClInclude Include="code\application\Collision\Collider.h" />
     <ClInclude Include="code\application\Collision\CollisionManager.h" />
+    <ClInclude Include="code\application\Enemy\Spawner\EnemySpawner.h" />
+    <ClInclude Include="code\application\Enemy\Manager\EnemyManager.h" />
     <ClInclude Include="externals\assimp\include\assimp\aabb.h" />
     <ClInclude Include="externals\assimp\include\assimp\ai_assert.h" />
     <ClInclude Include="externals\assimp\include\assimp\anim.h" />
