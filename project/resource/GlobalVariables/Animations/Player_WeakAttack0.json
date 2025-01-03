@@ -1,5 +1,5 @@
 {
-    "Player_WeakAttack4": {
+    "Player_WeakAttack0": {
         "targetAnimationDirection": "resource/Animations",
         "targetModelDirection": "resource/Models",
         "targetModelFileName": "Player.obj"
