@@ -8,6 +8,11 @@
 #include "../GameObject/GameObject.h"
 #include "globalVariables/SerializedField.h"
 #include "transform/Transform.h"
+
+/// application
+//Behavior
+#include "BehaviorTree/DefaultNodes.h"
+
 //math
 #include "Quaternion.h"
 #include "Vector3.h"
@@ -30,16 +35,15 @@ public:
 protected:
     Player* player_ = nullptr;
 
+    std::unique_ptr<EnemyBehavior::Node> behaviorTree_ = nullptr;
+
     SerializedField<float> hp_;
     SerializedField<float> speed_;
     SerializedField<float> attack_;
-    SerializedField<float> maxAttackCoolTime_;
-    SerializedField<float> minAttackCoolTime_;
 
     float currentHp_             = 0.0f;
     float currentSpeed_          = 0.0f;
     float currentAttack_         = 0.0f;
-    float currentAttackCoolTime_ = 0.0f; // minAttackCoolTime_ ~ maxAttackCoolTime_
 
 public:
     Player* getPlayer() { return player_; }

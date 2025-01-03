@@ -2,10 +2,8 @@
     "WeakEnemy": {
         "attack": 0.0,
         "hp": 4.699999809265137,
-        "maxAttackCoolTime": 0.0,
-        "maxPlayer2Distance": 0.0,
-        "minAttackCoolTime": 0.0,
-        "minPlayer2Distance": 0.0,
-        "speed": 0.0
+        "maxPlayer2Distance": 15.100000381469727,
+        "minPlayer2Distance": 8.5,
+        "speed": 5.099999904632568
     }
 }

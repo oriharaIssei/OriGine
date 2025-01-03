@@ -104,6 +104,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="code\application\Enemy\BehaviorTree\ChaseAction.cpp" />
+    <ClCompile Include="code\application\Enemy\BehaviorTree\IdleAction.cpp" />
+    <ClCompile Include="code\application\Enemy\BehaviorTree\WeakAttackAction.cpp" />
     <ClCompile Include="code\application\Enemy\IEnemy.cpp" />
     <ClCompile Include="code\application\Player\Player.cpp" />
     <ClCompile Include="code\application\scene\AnimationEditScene.cpp" />
@@ -183,6 +186,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="code\application\Enemy\Manager\EnemyManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="code\application\Enemy\BehaviorTree\ChaseAction.h" />
+    <ClInclude Include="code\application\Enemy\BehaviorTree\DefaultNodes.h" />
+    <ClInclude Include="code\application\Enemy\BehaviorTree\IdleAction.h" />
+    <ClInclude Include="code\application\Enemy\BehaviorTree\WeakAttackAction.h" />
     <ClInclude Include="code\application\Enemy\IEnemy.h" />
     <ClInclude Include="code\application\Player\Player.h" />
     <ClInclude Include="code\application\scene\AnimationEditScene.h" />
