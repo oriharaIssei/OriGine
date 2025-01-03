@@ -46,6 +46,8 @@ public:
     int32_t getEnemyCount() const { return static_cast<int32_t>(enemies_.size()); }
     int32_t getMaxEnemyCount() const { return maxEnemyCount_; }
 
+    bool isMaxEnemy() const { return getEnemyCount() >= maxEnemyCount_; }
+
     void addEnemy(std::unique_ptr<IEnemy> _enemy) {
         enemies_.push_back(std::move(_enemy));
     }

@@ -31,5 +31,5 @@ void WeakEnemy::Update() {
 }
 
 std::unique_ptr<IEnemy> WeakEnemy::Clone() {
-    return std::unique_ptr<WeakEnemy>();
+    return std::make_unique<WeakEnemy>();
 }

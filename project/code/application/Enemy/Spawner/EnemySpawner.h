@@ -8,6 +8,9 @@
 #include "../IEnemy.h"
 #include "application/GameObject/GameObject.h"
 
+//math
+#include "Vector3.h"
+
 class EnemyManager;
 
 class EnemySpawner
@@ -31,6 +34,8 @@ private:
     SerializedField<float> maxHp_;
     float hp_ = 0.0f;
 
+    SerializedField<Vector3> position_;
+
     bool isAlive_ = false;
 
 public:
@@ -53,5 +58,4 @@ public:
     void Damage(float damage) {
         hp_ -= damage;
     }
-
 };

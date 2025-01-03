@@ -23,7 +23,7 @@ public:
     }
     void removeDeadCollider() {
         colliders_.remove_if([](Collider* c) {
-            return !c->getIsAlive();
+            return !c->getIsAlive() || c == nullptr;
         });
     }
 };
