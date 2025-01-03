@@ -17,7 +17,6 @@ public:
 
     void Init();
     void Update();
-    void Draw();
 
 private:
     std::unique_ptr<IPlayerBehavior> currentBehavior_;
