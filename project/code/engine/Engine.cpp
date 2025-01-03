@@ -303,6 +303,8 @@ void Engine::BeginFrame(){
     deltaTime_->Update();
 
     editor_->Update();
+
+    lightManager_->Update();
 }
 
 void Engine::EndFrame(){

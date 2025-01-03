@@ -76,6 +76,7 @@ public:
     IConstantBuffer<Material>* Create(const std::string& materialName);
     IConstantBuffer<Material>* Create(const std::string& materialName,const Material& data);
 
+    void Init();
     void Finalize();
 
 private:
