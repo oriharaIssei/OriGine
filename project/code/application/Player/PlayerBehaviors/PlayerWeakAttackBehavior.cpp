@@ -11,20 +11,18 @@ PlayerWeakAttackBehavior::PlayerWeakAttackBehavior(Player* _player, int32_t _cur
       endLagTime_{"Game", "PlayerWeakAttack" + std::to_string(_currentCombo), "endLagTime"} {
     currentCombo_ = _currentCombo;
 }
+
 PlayerWeakAttackBehavior::~PlayerWeakAttackBehavior() {}
 void PlayerWeakAttackBehavior::Init() {
-    if (currentCombo_ > maxCombo_) {
-        player_->ChangeBehavior(new PlayerRootBehavior(player_));
-        return;
-    }
-    nextBehavior_  = new PlayerRootBehavior(player_);
     currentUpdate_ = [this]() {
         StartUp();
     };
 }
+
 void PlayerWeakAttackBehavior::Update() {
     currentUpdate_();
 }
+
 void PlayerWeakAttackBehavior::StartUp() {
     currentTimer_ += Engine::getInstance()->getDeltaTime();
     if (currentTimer_ >= startUpTime_) {
@@ -34,11 +32,16 @@ void PlayerWeakAttackBehavior::StartUp() {
         };
     }
 }
+
 void PlayerWeakAttackBehavior::Action() {
     currentTimer_ += Engine::getInstance()->getDeltaTime();
-    if (input->isTriggerKey(DIK_SPACE)) {
-        nextBehavior_ = new PlayerWeakAttackBehavior(player_, currentCombo_ + 1);
+
+    if (input->isPadActive() && !nextBehavior_ && currentCombo_ < maxCombo_) {
+        if (input->isTriggerButton(XINPUT_GAMEPAD_X)) {
+            nextBehavior_.reset(new PlayerWeakAttackBehavior(player_, 0));
+        }
     }
+
     if (currentTimer_ >= actionTime_) {
         currentTimer_  = 0.0f;
         currentUpdate_ = [this]() {
@@ -46,13 +49,23 @@ void PlayerWeakAttackBehavior::Action() {
         };
     }
 }
+
 void PlayerWeakAttackBehavior::EndLag() {
     currentTimer_ += Engine::getInstance()->getDeltaTime();
-    if (input->isTriggerKey(DIK_SPACE)) {
-        nextBehavior_ = new PlayerWeakAttackBehavior(player_, currentCombo_ + 1);
+
+    if (input->isPadActive() && !nextBehavior_ && currentCombo_ < maxCombo_) {
+        if (input->isTriggerButton(XINPUT_GAMEPAD_X)) {
+            nextBehavior_.reset(new PlayerWeakAttackBehavior(player_, 0));
+        }
     }
     if (currentTimer_ >= endLagTime_) {
         currentTimer_ = 0.0f;
-        player_->ChangeBehavior(nextBehavior_);
+        if (nextBehavior_) {
+            player_->ChangeBehavior(nextBehavior_);
+            return;
+        } else {
+            player_->ChangeBehavior(new PlayerRootBehavior(player_));
+            return;
+        }
     }
 }

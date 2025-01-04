@@ -74,11 +74,11 @@ private:
         const std::vector<KeyframeQuaternion>& keyframes,float time) const;
 
     /// <summary>
-/// ノードにアニメーションを適用
-/// </summary>
-/// <param name="node">root Node</param>
-/// <param name="parentTransform">rootNode ParentMatrix</param>
-/// <param name="animation">animation</param>
+    /// ノードにアニメーションを適用
+    /// </summary>
+    /// <param name="node">root Node</param>
+    /// <param name="parentTransform">rootNode ParentMatrix</param>
+    /// <param name="animation">animation</param>
     void ApplyAnimationToNodes(
         ModelNode& node,
         const Matrix4x4& parentTransform,

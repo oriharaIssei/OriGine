@@ -20,7 +20,6 @@ public:
     AnimationObject3d();
     ~AnimationObject3d();
 
-    Transform transform_;
     void Init(
         const std::string& _directoryPath,
         const std::string& _filename);
@@ -34,6 +33,7 @@ public:
     void Update(float deltaTime);
     void Draw();
 
+    Transform transform_;
 private:
     void NotDraw() {}
 

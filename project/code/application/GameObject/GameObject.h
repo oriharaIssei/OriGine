@@ -5,7 +5,7 @@
 #include <memory>
 /// Engine
 // component
-#include "Object3d/Object3d.h"
+#include "Object3d/AnimationObject3d.h"
 #include "transform/Transform.h"
 
 class GameObject {
@@ -17,7 +17,7 @@ public:
     virtual void Draw();
 
 protected:
-    std::unique_ptr<Object3d> drawObject3d_;
+    std::unique_ptr<AnimationObject3d> drawObject3d_;
 
     bool isAlive_ = false;
 

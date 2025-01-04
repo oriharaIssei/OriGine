@@ -14,7 +14,7 @@ void Animation::Update(float deltaTime, Model* model, const Matrix4x4& parentTra
     }
 
     {
-        ApplyAnimationToNodes(model->meshData_->rootNode, MakeMatrix::Identity(), this);
+        ApplyAnimationToNodes(model->meshData_->rootNode, parentTransform, this);
     }
 }
 

@@ -17,36 +17,46 @@ void PlayerRootBehavior::Init() {
 }
 void PlayerRootBehavior::Update() {
     currentUpdate_();
-    if (input->isTriggerKey(DIK_LSHIFT)) {
-        player_->ChangeBehavior(new PlayerDodgeBehavior(player_, lastDir_));
-    } else if (input->isTriggerKey(DIK_SPACE)) {
-        player_->ChangeBehavior(new PlayerWeakAttackBehavior(player_, 0));
+
+    if (input->isPadActive()) {
+        if (input->isTriggerButton(XINPUT_GAMEPAD_A)) {
+            player_->ChangeBehavior(new PlayerDodgeBehavior(player_, lastDir_));
+        } else if (input->isTriggerButton(XINPUT_GAMEPAD_X)) {
+            player_->ChangeBehavior(new PlayerWeakAttackBehavior(player_, 0));
+        }
     }
 }
 void PlayerRootBehavior::StartUp() {}
 void PlayerRootBehavior::Action() {
     Vector3 directionXZ;
-    { // 入力 に 応じた 方向を 取得，計算
+    // 入力 に 応じた 方向を 取得，計算
+    if (input->isPadActive()) {
+        directionXZ = {
+            input->getLStickVelocity().x,
+            0.0f, // 上方向には 移動しない
+            input->getLStickVelocity().y};
+    } else {
         directionXZ = {
             static_cast<float>(input->isPressKey(DIK_D) - input->isPressKey(DIK_A)),
             0.0f, // 上方向には 移動しない
             static_cast<float>(input->isPressKey(DIK_W) - input->isPressKey(DIK_S))};
+        directionXZ = directionXZ.normalize();
     }
+
     if (directionXZ.lengthSq() == 0.0f) {
         return; // skip
     }
-    directionXZ = directionXZ.normalize();
 
     CameraTransform* cameraTransform = player_->getCameraTransform();
     if (cameraTransform) {
-        directionXZ = TransformVector(directionXZ, MakeMatrix::RotateXYZ(cameraTransform->rotate));
+        directionXZ = TransformVector(directionXZ, MakeMatrix::RotateY(cameraTransform->rotate.y));
     }
     lastDir_ = directionXZ;
 
     const Quaternion& currentPlayerRotate = player_->getRotate();
     { // Player を 入力方向 へ 回転
         Quaternion inputDirectionRotate = Quaternion::RotateAxisAngle({0.0f, 1.0f, 0.0f}, atan2(directionXZ.x, directionXZ.z));
-        player_->setRotate(Slerp(currentPlayerRotate, inputDirectionRotate, 0.1f));
+        player_->setRotate(Slerp(currentPlayerRotate, inputDirectionRotate.normalize(), 0.3f).normalize());
     }
     { // 方向と速度を 使って 次の座標を計算
         // 速度を 秒単位に
