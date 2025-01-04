@@ -58,14 +58,22 @@ void Input::Update() {
     isPadActive_ = (XInputGetState(0, &padState_) == ERROR_SUCCESS);
     if (isPadActive_) {
         // スティックの速度を更新
-        preStickVelocity_     = currentStickVelocity_;
-        currentStickVelocity_ = Vector2(
+        preLStickVelocity_     = currentLStickVelocity_;
+        currentLStickVelocity_ = Vector2(
             static_cast<float>(padState_.Gamepad.sThumbLX) / stickMax_,
             static_cast<float>(padState_.Gamepad.sThumbLY) / stickMax_);
-
         // デッドゾーンを適用
-        if (currentStickVelocity_.lengthSq() < deadZone_ * deadZone_) {
-            currentStickVelocity_ = {0.0f, 0.0f};
+        if (currentLStickVelocity_.lengthSq() < deadZone_ * deadZone_) {
+            currentLStickVelocity_ = {0.0f, 0.0f};
+        }
+
+        preRStickVelocity_     = currentRStickVelocity_;
+        currentRStickVelocity_ = Vector2(
+            static_cast<float>(padState_.Gamepad.sThumbRX) / stickMax_,
+            static_cast<float>(padState_.Gamepad.sThumbRY) / stickMax_);
+        // デッドゾーンを適用
+        if (currentRStickVelocity_.lengthSq() < deadZone_ * deadZone_) {
+            currentRStickVelocity_ = {0.0f, 0.0f};
         }
     }
 }

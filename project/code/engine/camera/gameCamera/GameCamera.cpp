@@ -24,7 +24,7 @@ void GameCamera::Update() {
     if (followTarget_) {
         Vector2 rotateVelocity;
         if (input->isPadActive()) {
-            rotateVelocity = input->getStickVelocity() * rotateSpeed_;
+            rotateVelocity = input->getRStickVelocity() * rotateSpeed_;
         } else {
             rotateVelocity = input->getMouseVelocity() * rotateSpeed_;
         }
