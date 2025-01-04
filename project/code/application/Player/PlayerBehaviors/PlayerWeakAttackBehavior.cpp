@@ -41,11 +41,7 @@ void PlayerWeakAttackBehavior::Action() {
         if (input->isTriggerButton(XINPUT_GAMEPAD_X)) {
             player_->ChangeBehavior(new PlayerWeakAttackBehavior(player_, 0));
         }
-    } else {
-        if (input->isTriggerKey(DIK_SPACE)) {
-            player_->ChangeBehavior(new PlayerWeakAttackBehavior(player_, 0));
-        }
-    }
+    } 
 
     if (currentTimer_ >= actionTime_) {
         currentTimer_  = 0.0f;
@@ -61,12 +57,7 @@ void PlayerWeakAttackBehavior::EndLag() {
         if (input->isTriggerButton(XINPUT_GAMEPAD_X)) {
             player_->ChangeBehavior(new PlayerWeakAttackBehavior(player_, 0));
         }
-    } else {
-        if (input->isTriggerKey(DIK_SPACE)) {
-            player_->ChangeBehavior(new PlayerWeakAttackBehavior(player_, 0));
-        }
     }
-
     if (currentTimer_ >= endLagTime_) {
         currentTimer_ = 0.0f;
         player_->ChangeBehavior(nextBehavior_);

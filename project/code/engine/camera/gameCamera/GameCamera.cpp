@@ -25,11 +25,9 @@ void GameCamera::Update() {
         Vector2 rotateVelocity;
         if (input->isPadActive()) {
             rotateVelocity = input->getRStickVelocity() * rotateSpeed_;
-        } else {
-            rotateVelocity = input->getMouseVelocity() * rotateSpeed_;
+            // input の x,yをそれぞれの角度に変換
+            destinationAngleXY_ += {rotateVelocity.y, -rotateVelocity.x};
         }
-        // input の x,yをそれぞれの角度に変換
-        destinationAngleXY_ += {rotateVelocity.y, -rotateVelocity.x};
 
         destinationAngleXY_.x = std::clamp(destinationAngleXY_.x, minRotateX_.operator float(), maxRotateX_.operator float());
 

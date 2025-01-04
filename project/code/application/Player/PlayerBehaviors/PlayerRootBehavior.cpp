@@ -24,12 +24,6 @@ void PlayerRootBehavior::Update() {
         } else if (input->isTriggerButton(XINPUT_GAMEPAD_X)) {
             player_->ChangeBehavior(new PlayerWeakAttackBehavior(player_, 0));
         }
-    } else {
-        if (input->isTriggerKey(DIK_LSHIFT)) {
-            player_->ChangeBehavior(new PlayerDodgeBehavior(player_, lastDir_));
-        } else if (input->isTriggerKey(DIK_SPACE)) {
-            player_->ChangeBehavior(new PlayerWeakAttackBehavior(player_, 0));
-        }
     }
 }
 void PlayerRootBehavior::StartUp() {}
