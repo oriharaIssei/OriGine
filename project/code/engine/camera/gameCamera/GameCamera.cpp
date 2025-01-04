@@ -39,10 +39,9 @@ void GameCamera::Update() {
         Vector3 offset = OffstVector();
         interTarget_   = Lerp(followTarget_->translate, interTarget_, rotateSensitivity_);
 
-        cameraTransform_.translate = offset + followTarget_->translate;
+        cameraTransform_.translate = offset + interTarget_;
     }
     cameraTransform_.UpdateMatrix();
-    cameraTransform_.viewMat[3][1] = std::clamp(cameraTransform_.viewMat[3][1], 3.0f, 100.0f);
 }
 
 Vector3 GameCamera::OffstVector() {

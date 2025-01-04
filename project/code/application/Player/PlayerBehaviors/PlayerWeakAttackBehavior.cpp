@@ -36,9 +36,17 @@ void PlayerWeakAttackBehavior::StartUp() {
 }
 void PlayerWeakAttackBehavior::Action() {
     currentTimer_ += Engine::getInstance()->getDeltaTime();
-    if (input->isTriggerKey(DIK_SPACE)) {
-        nextBehavior_ = new PlayerWeakAttackBehavior(player_, currentCombo_ + 1);
+
+    if (input->isPadActive()) {
+        if (input->isTriggerButton(XINPUT_GAMEPAD_X)) {
+            player_->ChangeBehavior(new PlayerWeakAttackBehavior(player_, 0));
+        }
+    } else {
+        if (input->isTriggerKey(DIK_SPACE)) {
+            player_->ChangeBehavior(new PlayerWeakAttackBehavior(player_, 0));
+        }
     }
+
     if (currentTimer_ >= actionTime_) {
         currentTimer_  = 0.0f;
         currentUpdate_ = [this]() {
@@ -48,9 +56,17 @@ void PlayerWeakAttackBehavior::Action() {
 }
 void PlayerWeakAttackBehavior::EndLag() {
     currentTimer_ += Engine::getInstance()->getDeltaTime();
-    if (input->isTriggerKey(DIK_SPACE)) {
-        nextBehavior_ = new PlayerWeakAttackBehavior(player_, currentCombo_ + 1);
+
+    if (input->isPadActive()) {
+        if (input->isTriggerButton(XINPUT_GAMEPAD_X)) {
+            player_->ChangeBehavior(new PlayerWeakAttackBehavior(player_, 0));
+        }
+    } else {
+        if (input->isTriggerKey(DIK_SPACE)) {
+            player_->ChangeBehavior(new PlayerWeakAttackBehavior(player_, 0));
+        }
     }
+
     if (currentTimer_ >= endLagTime_) {
         currentTimer_ = 0.0f;
         player_->ChangeBehavior(nextBehavior_);
