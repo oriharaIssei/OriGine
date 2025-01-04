@@ -62,5 +62,10 @@ void Input::Update() {
         currentStickVelocity_ = Vector2(
             static_cast<float>(padState_.Gamepad.sThumbLX) / stickMax_,
             static_cast<float>(padState_.Gamepad.sThumbLY) / stickMax_);
+
+        // デッドゾーンを適用
+        if (currentStickVelocity_.lengthSq() < deadZone_ * deadZone_) {
+            currentStickVelocity_ = {0.0f, 0.0f};
+        }
     }
 }

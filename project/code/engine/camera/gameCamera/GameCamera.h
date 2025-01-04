@@ -24,9 +24,12 @@ private:
     Transform* followTarget_ = nullptr;
     SerializedField<Vector3> followOffset_;
     Vector3 interTarget_;
-    float destinationAngleY_ = 0.0f;
+    Vector2 destinationAngleXY_ = {0.0f, 0.0f};
     SerializedField<float> rotateSpeed_;
     SerializedField<float> rotateSensitivity_;
+
+    SerializedField<float> maxRotateX_;
+    SerializedField<float> minRotateX_;
 
 public:
     void setViewTranslate(const Vector3& translate) { cameraTransform_.translate = translate; }

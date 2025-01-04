@@ -11,6 +11,8 @@
 #include <Xinput.h>
 #include <dinput.h>
 
+//lib
+#include "globalVariables/SerializedField.h"
 //math
 #include <Vector2.h>
 
@@ -49,7 +51,7 @@ private:
     XINPUT_STATE padState_;
     XINPUT_STATE prePadState_;
     bool isPadActive_;
-
+    SerializedField<float> deadZone_{"Input", "GamePad", "DeadZone"};
     Vector2 currentStickVelocity_ = {0.0f, 0.0f};
     Vector2 preStickVelocity_     = {0.0f, 0.0f};
 

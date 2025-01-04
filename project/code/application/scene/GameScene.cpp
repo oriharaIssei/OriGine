@@ -57,6 +57,8 @@ void GameScene::Init() {
 
     player_ = std::make_unique<Player>();
     player_->Init();
+    player_->setCameraTransform(const_cast<CameraTransform*>(&gameCamera_->getCameraTransform()));
+    gameCamera_->setFollowTarget(const_cast<Transform*>(&player_->getTransform()));
 
     enemyManager_ = std::make_unique<EnemyManager>();
     enemyManager_->Init();
