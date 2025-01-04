@@ -1,0 +1,7 @@
+{
+    "EnemySpawner": {
+        "targetAnimationDirection": "resource/Animations",
+        "targetModelDirection": "resource/Models",
+        "targetModelFileName": "EnemySpawner.obj"
+    }
+}
