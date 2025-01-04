@@ -25,6 +25,7 @@
 #include "../Enemy/Manager/EnemyManager.h"
 #include "../Enemy/WeakEnemy.h"
 #include "../Player/Player.h"
+#include "camera/gameCamera/GameCamera.h"
 
 //debug
 #ifdef _DEBUG
@@ -49,6 +50,9 @@ void GameScene::Init() {
 
     input_ = Input::getInstance();
 
+    gameCamera_ = std::make_unique<GameCamera>();
+    gameCamera_->Init();
+
     collisionManager_ = std::make_unique<CollisionManager>();
 
     player_ = std::make_unique<Player>();
@@ -64,9 +68,20 @@ void GameScene::Init() {
 
 void GameScene::Update() {
 #ifdef _DEBUG
-    debugCamera_->Update();
-    debugCamera_->DebugUpdate();
-    CameraManager::getInstance()->setTransform(debugCamera_->getCameraTransform());
+    ImGui::Begin("DebugCamera");
+    ImGui::Checkbox("isActive", &isDebugCameraActive_);
+    ImGui::End();
+    if (isDebugCameraActive_) {
+        debugCamera_->Update();
+        debugCamera_->DebugUpdate();
+        CameraManager::getInstance()->setTransform(debugCamera_->getCameraTransform());
+    } else {
+        gameCamera_->Update();
+        CameraManager::getInstance()->setTransform(gameCamera_->getCameraTransform());
+    }
+#else  // !_DEBUG
+    gameCamera_->Update();
+    CameraManager::getInstance()->setTransform(gameCamera_->getCameraTransform());
 #endif // _DEBUG
 
     player_->Update();
