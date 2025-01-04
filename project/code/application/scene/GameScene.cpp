@@ -73,6 +73,13 @@ void GameScene::Update() {
 
     enemyManager_->Update();
 
+    ///collision
+    //clear
+    collisionManager_->clearCollider();
+    //add
+    collisionManager_->addCollider(player_->getHitCollider());
+    enemyManager_->setCollidersForCollisionManager(collisionManager_.get());
+
     collisionManager_->Update();
 }
 
@@ -82,6 +89,8 @@ void GameScene::Draw3d() {
     player_->Draw();
 
     enemyManager_->Draw();
+
+    collisionManager_->Draw();
 }
 
 void GameScene::DrawLine() {}

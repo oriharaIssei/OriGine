@@ -10,7 +10,9 @@ class CollisionManager {
 public:
     CollisionManager();
     ~CollisionManager();
+
     void Update();
+    void Draw();
 
 private:
     void CheckCollisionPair(Collider* a, Collider* b);
@@ -19,11 +21,16 @@ private:
 
 public:
     void addCollider(Collider* collider) {
-        colliders_.push_back(collider);
+        if (collider) {
+            colliders_.push_back(collider);
+        }
     }
     void removeDeadCollider() {
         colliders_.remove_if([](Collider* c) {
             return !c->getIsAlive() || c == nullptr;
         });
+    }
+    void clearCollider() {
+        colliders_.clear();
     }
 };

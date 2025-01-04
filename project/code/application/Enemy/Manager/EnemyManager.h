@@ -18,6 +18,7 @@
 #include "../IEnemy.h"
 #include "../Spawner/EnemySpawner.h"
 class Player;
+class CollisionManager;
 
 class EnemyManager {
 public:
@@ -43,6 +44,9 @@ public:
     void setPlayer(Player* player) {
         player_ = player;
     }
+
+    void setCollidersForCollisionManager(CollisionManager* _collisionManager);
+
     int32_t getEnemyCount() const { return static_cast<int32_t>(enemies_.size()); }
     int32_t getMaxEnemyCount() const { return maxEnemyCount_; }
 
@@ -54,4 +58,6 @@ public:
     void removeDeadEnemy();
     void removeDeadSpawner();
     void clear() { enemies_.clear(); }
+
+
 };

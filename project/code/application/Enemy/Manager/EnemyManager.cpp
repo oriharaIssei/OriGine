@@ -1,6 +1,10 @@
 #include "EnemyManager.h"
 
+//enemy
 #include "../WeakEnemy.h"
+
+///application
+#include "application/Collision/CollisionManager.h"
 #include "application/Player/Player.h"
 
 EnemyManager::EnemyManager()
@@ -37,6 +41,15 @@ void EnemyManager::Draw() {
     }
     for (auto& enemy : enemies_) {
         enemy->Draw();
+    }
+}
+
+void EnemyManager::setCollidersForCollisionManager(CollisionManager* _collisionManager) {
+    for (auto& spawner : spawners_) {
+        _collisionManager->addCollider(spawner->getHitCollider());
+    }
+    for (auto& enemy : enemies_) {
+        _collisionManager->addCollider(enemy->getHitCollider());
     }
 }
 

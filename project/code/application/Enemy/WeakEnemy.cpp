@@ -1,9 +1,12 @@
 #include "WeakEnemy.h"
 
-#include "../Player/Player.h"
+///engine
 #include "engine/Engine.h"
-#include "myRandom/MyRandom.h"
 #include "object3d/Object3d.h"
+//lib
+#include "myRandom/MyRandom.h"
+///application
+#include "../Player/Player.h"
 
 #pragma region WeakEnemyBehavior
 #include "BehaviorTree/ChaseAction.h"
@@ -49,8 +52,15 @@ WeakEnemy::~WeakEnemy() {}
 void WeakEnemy::Init() {
     isAlive_ = true;
 
+    // drawObject3d_
     drawObject3d_ = std::make_unique<Object3d>();
     drawObject3d_->Init("resource/Models", "Enemy.obj");
+
+    // Collider
+    hitCollider_ = std::make_unique<Collider>("WeakEnemy");
+    hitCollider_->Init();
+    hitCollider_->setHostObject(this);
+    hitCollider_->setParent(&drawObject3d_->transform_);
 
     behaviorTree_ = std::make_unique<WeakEnemyBehavior>(this);
 }

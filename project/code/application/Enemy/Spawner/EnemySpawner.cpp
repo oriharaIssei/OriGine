@@ -4,6 +4,7 @@
 #include "Engine.h"
 ///applicatoin
 #include "../Manager/EnemyManager.h"
+#include "application/Collision/Collider.h"
 
 EnemySpawner::EnemySpawner(IEnemy* _enemy, int index)
     : cloneOrigine_(_enemy),
@@ -23,6 +24,12 @@ void EnemySpawner::Init() {
     drawObject3d_ = std::make_unique<Object3d>();
     drawObject3d_->Init("resource/Models", "EnemySpawner.obj");
     drawObject3d_->transform_.translate = position_;
+
+    // Collider
+    hitCollider_ = std::make_unique<Collider>("EnemySpawner");
+    hitCollider_->Init();
+    hitCollider_->setHostObject(this);
+    hitCollider_->setParent(&drawObject3d_->transform_);
 }
 
 void EnemySpawner::Update() {

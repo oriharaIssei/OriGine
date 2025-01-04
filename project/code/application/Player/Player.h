@@ -1,13 +1,18 @@
 #pragma once
 
-#include "../GameObject/GameObject.h"
-#include "globalVariables/SerializedField.h"
-#include "Transform/Transform.h"
-
+///stl
+//memory
 #include <memory>
 
+///engine
+//component
+#include "../GameObject/GameObject.h"
+#include "Transform/Transform.h"
 class IPlayerBehavior;
 class Object3d;
+class Collider;
+//lib
+#include "globalVariables/SerializedField.h"
 
 class Player
     : public GameObject {
@@ -24,6 +29,8 @@ private:
     SerializedField<float> hp_;
     float currentHp_ = 0.0f;
 
+    std::unique_ptr<Collider> hitCollider_;
+
 public:
     void ChangeBehavior(IPlayerBehavior* next);
 
@@ -36,4 +43,6 @@ public:
     void Damage(float damage) {
         currentHp_ -= damage;
     }
+
+    Collider* getHitCollider() const { return hitCollider_.get(); }
 };

@@ -15,10 +15,9 @@ void CollisionManager::Update() {
         }
         aCollider->UpdateMatrix();
 
-        for (std::list<Collider*>::iterator bItr = aItr;
-             bItr != colliders_.end();
-             ++bItr) {
-            ++bItr;
+        std::list<Collider*>::iterator bItr = aItr;
+        ++bItr;
+        for (; bItr != colliders_.end(); ++bItr) {
 
             Collider* bCollider = *aItr;
             if (!bCollider->getIsAlive()) {
@@ -27,9 +26,15 @@ void CollisionManager::Update() {
             bCollider->UpdateMatrix();
 
             if (aItr != bItr) {
-                CheckCollisionPair(*aItr, *bItr);
+                CheckCollisionPair(aCollider, bCollider);
             }
         }
+    }
+}
+
+void CollisionManager::Draw() {
+    for (Collider* c : colliders_) {
+        c->Draw();
     }
 }
 

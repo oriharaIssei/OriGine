@@ -5,13 +5,17 @@
 #include <string>
 
 /// engine
+//component
 #include "../GameObject/GameObject.h"
-#include "globalVariables/SerializedField.h"
 #include "transform/Transform.h"
+//lib
+#include "globalVariables/SerializedField.h"
 
 /// application
 //Behavior
 #include "BehaviorTree/DefaultNodes.h"
+//component
+#include "application/Collision/Collider.h"
 
 //math
 #include "Quaternion.h"
@@ -35,6 +39,8 @@ public:
 protected:
     Player* player_ = nullptr;
 
+    std::unique_ptr<Collider> hitCollider_;
+
     std::unique_ptr<EnemyBehavior::Node> behaviorTree_ = nullptr;
 
     SerializedField<float> hp_;
@@ -49,6 +55,10 @@ public:
     Player* getPlayer() { return player_; }
     void setPlayer(Player* player) {
         player_ = player;
+    }
+
+    Collider* getHitCollider() const {
+        return hitCollider_.get();
     }
 
     float getHp() const {

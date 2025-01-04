@@ -9,6 +9,7 @@
 ///engine
 //component
 #include "transform/Transform.h"
+class Object3d;
 //lib
 #include "globalVariables/SerializedField.h"
 
@@ -20,16 +21,19 @@ public:
     void Init(std::function<void(GameObject*)> _onCollision = nullptr);
     void OnCollision(GameObject* collisionObject);
 
-    void UpdateMatrix() { transform_.UpdateMatrix(); }
+    void UpdateMatrix();
+    void Draw();
 
 private:
+    GameObject* hostObject_ = nullptr;
+
+    std::unique_ptr<Object3d> drawObject3d_;
+
     Transform transform_;
     SerializedField<float> radius_;
     float currentRadius_ = 0.0f;
 
     std::function<void(GameObject*)> onCollision_ = nullptr;
-
-    GameObject* hostObject_ = nullptr;
 
     bool isAlive_ = false;
 
