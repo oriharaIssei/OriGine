@@ -1,76 +1,66 @@
-#include "input/Input.h"
-#include "logger/Logger.h"
+#include "Input.h"
 
-#include <cassert>
-
-#include "Engine.h"
-#include <Windows.h>
-
-Input *Input::getInstance() {
-	static Input instance;
-	return &instance;
+Input* Input::getInstance() {
+    static Input instance;
+    return &instance;
 }
 
 void Input::Init() {
-	WinApp *window = Engine::getInstance()->getWinApp();
-	HRESULT result = 0;
-	result = DirectInput8Create(
-		window->getHInstance(),
-		DIRECTINPUT_VERSION,
-		IID_IDirectInput8,
-		(void **)&directInput_,
-		nullptr
-	);
-	assert(SUCCEEDED(result));
+    // DirectInput の初期化
+    DirectInput8Create(GetModuleHandle(nullptr), DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&directInput_, nullptr);
 
-	result = directInput_->CreateDevice(GUID_SysKeyboard, &keyboard_, NULL);
-	assert(SUCCEEDED(result));
+    // キーボードの初期化
+    directInput_->CreateDevice(GUID_SysKeyboard, &keyboard_, nullptr);
+    keyboard_->SetDataFormat(&c_dfDIKeyboard);
+    keyboard_->SetCooperativeLevel(nullptr, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
+    keyboard_->Acquire();
 
-	result = keyboard_->SetDataFormat(&c_dfDIKeyboard);
-	assert(SUCCEEDED(result));
+    // マウスの初期化
+    directInput_->CreateDevice(GUID_SysMouse, &mouse_, nullptr);
+    mouse_->SetDataFormat(&c_dfDIMouse2);
+    mouse_->SetCooperativeLevel(nullptr, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
+    mouse_->Acquire();
 
-	result = keyboard_->SetCooperativeLevel(
-		window->getHwnd(),
-		DISCL_FOREGROUND |
-		DISCL_NONEXCLUSIVE |
-		DISCL_NOWINKEY
-	);
-	assert(SUCCEEDED(result));
-
-	result = directInput_->CreateDevice(GUID_SysMouse, &mouse_, NULL);
-	assert(SUCCEEDED(result));
-
-	result = mouse_->SetDataFormat(&c_dfDIMouse2);
-	assert(SUCCEEDED(result));
-
-	result = mouse_->SetCooperativeLevel(
-		window->getHwnd(),
-		DISCL_NONEXCLUSIVE |
-		DISCL_FOREGROUND
-	);
-	assert(SUCCEEDED(result));
+    // ゲームパッドの初期化
+    ZeroMemory(&padState_, sizeof(XINPUT_STATE));
+    ZeroMemory(&prePadState_, sizeof(XINPUT_STATE));
+    isPadActive_ = (XInputGetState(0, &padState_) == ERROR_SUCCESS);
 }
 
 void Input::Finalize() {
-	if(keyboard_) {
-		keyboard_->Unacquire();
-	}
-	if(mouse_) {
-		mouse_->Unacquire();
-	}
+    if (keyboard_) {
+        keyboard_->Unacquire();
+        keyboard_.Reset();
+    }
+    if (mouse_) {
+        mouse_->Unacquire();
+        mouse_.Reset();
+    }
 }
 
 void Input::Update() {
-	keyboard_->Acquire();
+    // キーボードの状態を更新
+    memcpy(preKeys_, keys_, sizeof(keys_));
+    keyboard_->GetDeviceState(sizeof(keys_), (LPVOID)&keys_);
 
-	memcpy(preKeys_, keys_, sizeof(keys_));
-	keyboard_->GetDeviceState(sizeof(keys_), keys_);
+    // マウスの状態を更新
+    preMouseState_ = currentMouseState_;
+    mouse_->GetDeviceState(sizeof(DIMOUSESTATE2), &currentMouseState_);
 
-	mouse_->Acquire();
-	preMouseState_ = currentMouseState_;
-	mouse_->GetDeviceState(sizeof(currentMouseState_), &currentMouseState_);
+    // マウスの位置を更新
+    GetCursorPos(&mousePoint_);
+    ScreenToClient(nullptr, &mousePoint_);
+    preMousePos_     = currentMousePos_;
+    currentMousePos_ = Vector2(static_cast<float>(mousePoint_.x), static_cast<float>(mousePoint_.y));
 
-	GetCursorPos(&mousePoint_);
-	preMousePos_ = currentMousePos_;
-	currentMousePos_ = { (float)mousePoint_.x,(float)mousePoint_.y };
+    // ゲームパッドの状態を更新
+    prePadState_ = padState_;
+    isPadActive_ = (XInputGetState(0, &padState_) == ERROR_SUCCESS);
+    if (isPadActive_) {
+        // スティックの速度を更新
+        preStickVelocity_     = currentStickVelocity_;
+        currentStickVelocity_ = Vector2(
+            static_cast<float>(padState_.Gamepad.sThumbLX) / stickMax_,
+            static_cast<float>(padState_.Gamepad.sThumbLY) / stickMax_);
+    }
 }
