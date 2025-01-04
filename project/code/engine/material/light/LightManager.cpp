@@ -94,7 +94,7 @@ void LightEditor::Update() {
         ImGui::Begin(label.c_str());
         ImGui::ColorEdit3("color", reinterpret_cast<float*>(directionalLight.color.operator Vector3*()));
         ImGui::SliderFloat("intensity", directionalLight.intensity, 0.0f, 1.0f);
-        ImGui::SliderFloat3("direction", reinterpret_cast<float*>(directionalLight.direction.operator Vector3*()), 0.0f, 1.0f);
+        ImGui::SliderFloat3("direction", reinterpret_cast<float*>(directionalLight.direction.operator Vector3*()), -1.0f, 1.0f);
         directionalLight.direction.setValue(directionalLight.direction->normalize());
         ImGui::End();
         ++lightIndex;
@@ -122,7 +122,7 @@ void LightEditor::Update() {
         ImGui::DragFloat("decay", spotLight.decay, 0.1f, 0.0f);
         ImGui::DragFloat("cosFalloffStart", spotLight.cosFalloffStart, 0.1f, 0.0f);
         ImGui::DragFloat3("pos", reinterpret_cast<float*>(spotLight.pos.operator Vector3*()), 0.1f);
-        ImGui::SliderFloat3("direction", reinterpret_cast<float*>(spotLight.direction.operator Vector3*()), 0.0f, 1.0f);
+        ImGui::SliderFloat3("direction", reinterpret_cast<float*>(spotLight.direction.operator Vector3*()), -1.0f, 1.0f);
         spotLight.direction.setValue(spotLight.direction->normalize());
         ImGui::DragFloat("distance", spotLight.distance, 0.1f, 0.0f);
         ImGui::DragFloat("cosAngle", spotLight.cosAngle, 0.1f, 0.0f);
