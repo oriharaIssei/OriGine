@@ -35,8 +35,14 @@ void PlayerRootBehavior::Action() {
     if (directionXZ.lengthSq() == 0.0f) {
         return; // skip
     }
-    directionXZ                           = directionXZ.normalize();
-    lastDir_                              = directionXZ;
+    directionXZ = directionXZ.normalize();
+
+    CameraTransform* cameraTransform = player_->getCameraTransform();
+    if (cameraTransform) {
+        directionXZ = TransformVector(directionXZ, MakeMatrix::RotateXYZ(cameraTransform->rotate));
+    }
+    lastDir_ = directionXZ;
+
     const Quaternion& currentPlayerRotate = player_->getRotate();
     { // Player を 入力方向 へ 回転
         Quaternion inputDirectionRotate = Quaternion::RotateAxisAngle({0.0f, 1.0f, 0.0f}, atan2(directionXZ.x, directionXZ.z));

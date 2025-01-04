@@ -8,6 +8,7 @@
 //component
 #include "../GameObject/GameObject.h"
 #include "Transform/Transform.h"
+#include "transform/CameraTransform.h"
 class IPlayerBehavior;
 class Object3d;
 class Collider;
@@ -26,6 +27,8 @@ public:
 private:
     std::unique_ptr<IPlayerBehavior> currentBehavior_;
 
+    CameraTransform* cameraTransform_ = nullptr;
+
     SerializedField<float> hp_;
     float currentHp_ = 0.0f;
 
@@ -33,6 +36,11 @@ private:
 
 public:
     void ChangeBehavior(IPlayerBehavior* next);
+
+    CameraTransform* getCameraTransform() const { return cameraTransform_; }
+    void setCameraTransform(CameraTransform* cameraTransform) { cameraTransform_ = cameraTransform; }
+
+    Collider* getHitCollider() const { return hitCollider_.get(); }
 
     float getHP() const {
         return currentHp_;
@@ -43,6 +51,4 @@ public:
     void Damage(float damage) {
         currentHp_ -= damage;
     }
-
-    Collider* getHitCollider() const { return hitCollider_.get(); }
 };
