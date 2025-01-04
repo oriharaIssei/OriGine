@@ -11,15 +11,18 @@ PlayerWeakAttackBehavior::PlayerWeakAttackBehavior(Player* _player, int32_t _cur
       endLagTime_{"Game", "PlayerWeakAttack" + std::to_string(_currentCombo), "endLagTime"} {
     currentCombo_ = _currentCombo;
 }
+
 PlayerWeakAttackBehavior::~PlayerWeakAttackBehavior() {}
 void PlayerWeakAttackBehavior::Init() {
     currentUpdate_ = [this]() {
         StartUp();
     };
 }
+
 void PlayerWeakAttackBehavior::Update() {
     currentUpdate_();
 }
+
 void PlayerWeakAttackBehavior::StartUp() {
     currentTimer_ += Engine::getInstance()->getDeltaTime();
     if (currentTimer_ >= startUpTime_) {
@@ -29,6 +32,7 @@ void PlayerWeakAttackBehavior::StartUp() {
         };
     }
 }
+
 void PlayerWeakAttackBehavior::Action() {
     currentTimer_ += Engine::getInstance()->getDeltaTime();
 
@@ -45,6 +49,7 @@ void PlayerWeakAttackBehavior::Action() {
         };
     }
 }
+
 void PlayerWeakAttackBehavior::EndLag() {
     currentTimer_ += Engine::getInstance()->getDeltaTime();
 
@@ -63,3 +68,4 @@ void PlayerWeakAttackBehavior::EndLag() {
             return;
         }
     }
+}

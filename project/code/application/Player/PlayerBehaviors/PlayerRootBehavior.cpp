@@ -56,7 +56,7 @@ void PlayerRootBehavior::Action() {
     const Quaternion& currentPlayerRotate = player_->getRotate();
     { // Player を 入力方向 へ 回転
         Quaternion inputDirectionRotate = Quaternion::RotateAxisAngle({0.0f, 1.0f, 0.0f}, atan2(directionXZ.x, directionXZ.z));
-        player_->setRotate(Slerp(currentPlayerRotate, inputDirectionRotate, 0.1f));
+        player_->setRotate(Slerp(currentPlayerRotate, inputDirectionRotate.normalize(), 0.3f).normalize());
     }
     { // 方向と速度を 使って 次の座標を計算
         // 速度を 秒単位に
