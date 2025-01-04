@@ -40,7 +40,6 @@ struct Mesh3D {
     size_t vertSize  = 0;
     size_t indexSize = 0;
 
-    IConstantBuffer<Transform> transform_;
     // 対応するノードの名前
     std::string nodeName;
 };
@@ -54,8 +53,15 @@ struct ModelMeshData {
 };
 
 struct Model {
-
+    Model() = default;
+    ~Model() {
+        for (auto& [key, transofrmBuffer] : transformBuff_) {
+            transofrmBuffer.Finalize();
+        }
+    }
     ModelMeshData* meshData_;
+
+    std::unordered_map<Mesh3D*, IConstantBuffer<Transform>> transformBuff_;
 
     using ModelMaterialData = std::vector<Material3D>;
     ModelMaterialData materialData_;

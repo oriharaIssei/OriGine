@@ -38,6 +38,10 @@ void Object3d::PreDraw() {
     CameraManager::getInstance()->setBufferForRootParameter(commandList, 1);
 }
 
+Object3d::Object3d() {}
+
+Object3d::~Object3d() {}
+
 void Object3d::Init(const std::string& directoryPath, const std::string& filename) {
     data_ = ModelManager::getInstance()->Create(
         directoryPath,
@@ -46,12 +50,9 @@ void Object3d::Init(const std::string& directoryPath, const std::string& filenam
             transform_.Init();
             transform_.UpdateMatrix();
             for (auto& mesh : model->meshData_->mesh_) {
-                mesh.transform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
-                mesh.transform_.openData_.Init();
-                mesh.transform_.openData_.parent = &transform_;
-
-                mesh.transform_.openData_.UpdateMatrix();
-                mesh.transform_.ConvertToBuffer();
+                model->transformBuff_[&mesh].openData_.parent = &transform_;
+                model->transformBuff_[&mesh].openData_.UpdateMatrix();
+                model->transformBuff_[&mesh].ConvertToBuffer();
             }
         });
 }
@@ -63,9 +64,11 @@ void Object3d::DrawThis() {
     uint32_t index = 0;
 
     for (auto& mesh : data_->meshData_->mesh_) {
-        mesh.transform_.ConvertToBuffer();
+        auto& material = data_->materialData_[index];
 
-        auto& material                  = data_->materialData_[index];
+        IConstantBuffer<Transform>& meshTransform = data_->transformBuff_[&mesh];
+        meshTransform.ConvertToBuffer();
+
         ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
         commandList->SetDescriptorHeaps(1, ppHeaps);
         commandList->SetGraphicsRootDescriptorTable(
@@ -75,7 +78,7 @@ void Object3d::DrawThis() {
         commandList->IASetVertexBuffers(0, 1, &mesh.meshBuff->vbView);
         commandList->IASetIndexBuffer(&mesh.meshBuff->ibView);
 
-        mesh.transform_.SetForRootParameter(commandList, 0);
+        meshTransform.SetForRootParameter(commandList, 0);
 
         material.material->SetForRootParameter(commandList, 2);
         // 描画!!!
@@ -92,8 +95,8 @@ void Object3d::setMaterial(IConstantBuffer<Material>* material, uint32_t index) 
 void Object3d::UpdateTransform() {
     transform_.UpdateMatrix();
     for (auto& mesh : data_->meshData_->mesh_) {
-        mesh.transform_.openData_.parent = &transform_;
-        mesh.transform_.openData_.UpdateMatrix();
+        data_->transformBuff_[&mesh].openData_.parent = &transform_;
+        data_->transformBuff_[&mesh].openData_.UpdateMatrix();
     }
 }
 

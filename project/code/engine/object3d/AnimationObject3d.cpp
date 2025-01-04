@@ -22,12 +22,9 @@ void AnimationObject3d::Init(
             transform_.Init();
             transform_.UpdateMatrix();
             for (auto& mesh : model->meshData_->mesh_) {
-                mesh.transform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
-                mesh.transform_.openData_.Init();
-                mesh.transform_.openData_.parent = &transform_;
-
-                mesh.transform_.openData_.UpdateMatrix();
-                mesh.transform_.ConvertToBuffer();
+                model->transformBuff_[&mesh].openData_.parent = &transform_;
+                model->transformBuff_[&mesh].openData_.UpdateMatrix();
+                model->transformBuff_[&mesh].ConvertToBuffer();
             }
         });
     this->currentAnimationName_ = _filename;
@@ -43,12 +40,9 @@ void AnimationObject3d::Init(const AnimationSetting& _animationSetting) {
             transform_.Init();
             transform_.UpdateMatrix();
             for (auto& mesh : model->meshData_->mesh_) {
-                mesh.transform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
-                mesh.transform_.openData_.Init();
-                mesh.transform_.openData_.parent = &transform_;
-
-                mesh.transform_.openData_.UpdateMatrix();
-                mesh.transform_.ConvertToBuffer();
+                model->transformBuff_[&mesh].openData_.parent = &transform_;
+                model->transformBuff_[&mesh].openData_.UpdateMatrix();
+                model->transformBuff_[&mesh].ConvertToBuffer();
             }
         });
     // animation
@@ -73,12 +67,9 @@ void AnimationObject3d::Init(
                 transform_.Init();
                 transform_.UpdateMatrix();
                 for (auto& mesh : model->meshData_->mesh_) {
-                    mesh.transform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
-                    mesh.transform_.openData_.Init();
-                    mesh.transform_.openData_.parent = &transform_;
-
-                    mesh.transform_.openData_.UpdateMatrix();
-                    mesh.transform_.ConvertToBuffer();
+                    model->transformBuff_[&mesh].openData_.parent = &transform_;
+                    model->transformBuff_[&mesh].openData_.UpdateMatrix();
+                    model->transformBuff_[&mesh].ConvertToBuffer();
                 }
             });
 
@@ -114,16 +105,16 @@ void AnimationObject3d::Update(float deltaTime) {
     { // rootMeshUpdate
         auto rootMeshIndexItr = model_->meshData_->meshIndexes.find(rootNode.name);
         if (rootMeshIndexItr != model_->meshData_->meshIndexes.end()) {
-            Mesh3D& rootMesh                       = model_->meshData_->mesh_[rootMeshIndexItr->second];
-            rootMesh.transform_.openData_.worldMat = transform_.worldMat * rootNode.localMatrix;
-            rootMesh.transform_.ConvertToBuffer();
+            Mesh3D& rootMesh                                     = model_->meshData_->mesh_[rootMeshIndexItr->second];
+            model_->transformBuff_[&rootMesh].openData_.worldMat = transform_.worldMat * rootNode.localMatrix;
+            model_->transformBuff_[&rootMesh].ConvertToBuffer();
         }
     }
     // ChildNode Update
     for (const auto& node : rootNode.children) {
         auto meshIndexItr = model_->meshData_->meshIndexes.find(node.name);
         if (meshIndexItr != model_->meshData_->meshIndexes.end()) {
-            IConstantBuffer<Transform>& meshTransform = model_->meshData_->mesh_[meshIndexItr->second].transform_;
+            IConstantBuffer<Transform>& meshTransform = model_->transformBuff_[&model_->meshData_->mesh_[meshIndexItr->second]];
             // mesh の ワールド行列を更新
             meshTransform.openData_.worldMat = transform_.worldMat * node.localMatrix;
             meshTransform.ConvertToBuffer();
@@ -142,7 +133,11 @@ void AnimationObject3d::DrawThis() {
     uint32_t index = 0;
 
     for (auto& mesh : model_->meshData_->mesh_) {
-        auto& material                  = model_->materialData_[index];
+        auto& material                            = model_->materialData_[index];
+
+        IConstantBuffer<Transform>& meshTransform = model_->transformBuff_[&mesh];
+        meshTransform.ConvertToBuffer();
+
         ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
         commandList->SetDescriptorHeaps(1, ppHeaps);
         commandList->SetGraphicsRootDescriptorTable(
@@ -152,7 +147,7 @@ void AnimationObject3d::DrawThis() {
         commandList->IASetVertexBuffers(0, 1, &mesh.meshBuff->vbView);
         commandList->IASetIndexBuffer(&mesh.meshBuff->ibView);
 
-        mesh.transform_.SetForRootParameter(commandList, 0);
+        meshTransform.SetForRootParameter(commandList, 0);
 
         material.material->SetForRootParameter(commandList, 2);
         // 描画!!!

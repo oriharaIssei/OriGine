@@ -20,4 +20,8 @@ public:
      SerializedField<float> maxPlayer2Distance_;
      // playerとの distance
      float player2Distance_ = 0.0f;
+
+ public:
+     float getPlayer2Distance() const { return player2Distance_; }
+     void setPlayer2Distance(float distance) { player2Distance_ = distance; }
 };

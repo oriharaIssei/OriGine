@@ -66,6 +66,13 @@ std::unique_ptr<Model> ModelManager::Create(
         result->meshData_     = targetModelMesh;
         result->materialData_ = defaultMaterials_[result->meshData_];
 
+         for (auto& mesh : result->meshData_->mesh_) {
+            result->transformBuff_[&mesh].CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+
+            result->transformBuff_[&mesh].openData_.UpdateMatrix();
+            result->transformBuff_[&mesh].ConvertToBuffer();
+        }
+
         if (callBack != nullptr) {
             callBack(result.get());
         }
@@ -218,9 +225,6 @@ void LoadModelFile(ModelMeshData* data, const std::string& directoryPath, const 
     for (uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex) {
         auto& mesh = data->mesh_.emplace_back(Mesh3D());
 
-        // transform の作成
-        mesh.transform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
-
         aiMesh* loadedMesh = scene->mMeshes[meshIndex];
         assert(loadedMesh->HasNormals() && loadedMesh->HasTextureCoords(0));
 
@@ -291,6 +295,13 @@ void ModelManager::LoadTask::Update() {
     LoadModelFile(model->meshData_, this->directory, this->fileName);
 
     model->materialData_ = ModelManager::getInstance()->defaultMaterials_[model->meshData_];
+
+    for (auto& mesh : model->meshData_->mesh_) {
+        model->transformBuff_[&mesh].CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+
+        model->transformBuff_[&mesh].openData_.UpdateMatrix();
+        model->transformBuff_[&mesh].ConvertToBuffer();
+    }
 
     if (callBack != nullptr) {
         callBack(model);

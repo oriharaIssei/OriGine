@@ -1,6 +1,7 @@
 #include "ChaseAction.h"
 
 ///engine
+#include "Engine.h"
 //component
 #include "../IEnemy.h"
 #include "application/Player/Player.h"
@@ -26,7 +27,7 @@ Status ChaseAction::tick() {
 
     // 移動
     dist = dist.normalize();
-    enemyPos += dist * speed_;
+    enemyPos += dist * (speed_ * Engine::getInstance()->getDeltaTime());
     // セット
     enemy_->setTranslate(enemyPos);
     return Status::RUNNING;
