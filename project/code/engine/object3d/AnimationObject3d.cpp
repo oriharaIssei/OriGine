@@ -17,16 +17,7 @@ void AnimationObject3d::Init(
     const std::string& _filename) {
     this->model_ = ModelManager::getInstance()->Create(
         _directoryPath,
-        _filename,
-        [this](Model* model) {
-            transform_.Init();
-            transform_.UpdateMatrix();
-            for (auto& mesh : model->meshData_->mesh_) {
-                model->transformBuff_[&mesh].openData_.parent = &transform_;
-                model->transformBuff_[&mesh].openData_.UpdateMatrix();
-                model->transformBuff_[&mesh].ConvertToBuffer();
-            }
-        });
+        _filename);
     this->currentAnimationName_ = _filename;
     this->animation_            = AnimationManager::getInstance()->Load(_directoryPath, _filename);
 }
@@ -35,16 +26,7 @@ void AnimationObject3d::Init(const AnimationSetting& _animationSetting) {
     // model
     this->model_ = ModelManager::getInstance()->Create(
         _animationSetting.targetModelDirection,
-        _animationSetting.targetModelFileName,
-        [this](Model* model) {
-            transform_.Init();
-            transform_.UpdateMatrix();
-            for (auto& mesh : model->meshData_->mesh_) {
-                model->transformBuff_[&mesh].openData_.parent = &transform_;
-                model->transformBuff_[&mesh].openData_.UpdateMatrix();
-                model->transformBuff_[&mesh].ConvertToBuffer();
-            }
-        });
+        _animationSetting.targetModelFileName);
     // animation
     this->currentAnimationName_ = _animationSetting.name;
     this->animation_ =
@@ -62,16 +44,7 @@ void AnimationObject3d::Init(
     this->model_ =
         ModelManager::getInstance()->Create(
             _modelDirectoryPath,
-            _modelFilename,
-            [this](Model* model) {
-                transform_.Init();
-                transform_.UpdateMatrix();
-                for (auto& mesh : model->meshData_->mesh_) {
-                    model->transformBuff_[&mesh].openData_.parent = &transform_;
-                    model->transformBuff_[&mesh].openData_.UpdateMatrix();
-                    model->transformBuff_[&mesh].ConvertToBuffer();
-                }
-            });
+            _modelFilename);
 
     // animation
     this->currentAnimationName_ = _animationFilename;
@@ -87,15 +60,15 @@ void AnimationObject3d::Update(float deltaTime) {
 
     if (toNextAnimation_ && nextAnimation_) {
         // 現在の姿勢から 次のアニメーションの姿勢への補間
-        toNextAnimation_->Update(deltaTime, model_.get(), transform_.worldMat);
+        toNextAnimation_->Update(deltaTime, model_.get(), MakeMatrix::Identity());
         if (toNextAnimation_->isEnd()) {
             animation_ = std::move(nextAnimation_);
             nextAnimation_.reset();
             toNextAnimation_.reset();
         }
-    } else {
+    } else if (animation_) {
         // アニメーションの更新
-        animation_->Update(deltaTime, model_.get(), transform_.worldMat);
+        animation_->Update(deltaTime, model_.get(), MakeMatrix::Identity());
     }
 
     // モデルの更新
@@ -106,7 +79,7 @@ void AnimationObject3d::Update(float deltaTime) {
         auto rootMeshIndexItr = model_->meshData_->meshIndexes.find(rootNode.name);
         if (rootMeshIndexItr != model_->meshData_->meshIndexes.end()) {
             Mesh3D& rootMesh                                     = model_->meshData_->mesh_[rootMeshIndexItr->second];
-            model_->transformBuff_[&rootMesh].openData_.worldMat = transform_.worldMat * rootNode.localMatrix;
+            model_->transformBuff_[&rootMesh].openData_.worldMat = rootNode.localMatrix * transform_.worldMat;
             model_->transformBuff_[&rootMesh].ConvertToBuffer();
         }
     }
@@ -116,12 +89,11 @@ void AnimationObject3d::Update(float deltaTime) {
         if (meshIndexItr != model_->meshData_->meshIndexes.end()) {
             IConstantBuffer<Transform>& meshTransform = model_->transformBuff_[&model_->meshData_->mesh_[meshIndexItr->second]];
             // mesh の ワールド行列を更新
-            meshTransform.openData_.worldMat = transform_.worldMat * node.localMatrix;
+            meshTransform.openData_.worldMat = node.localMatrix * transform_.worldMat;
             meshTransform.ConvertToBuffer();
         }
     }
 }
-
 void AnimationObject3d::Draw() {
     drawFuncTable_[(int)model_->meshData_->currentState_]();
 }
@@ -133,7 +105,7 @@ void AnimationObject3d::DrawThis() {
     uint32_t index = 0;
 
     for (auto& mesh : model_->meshData_->mesh_) {
-        auto& material                            = model_->materialData_[index];
+        auto& material = model_->materialData_[index];
 
         IConstantBuffer<Transform>& meshTransform = model_->transformBuff_[&mesh];
         meshTransform.ConvertToBuffer();
