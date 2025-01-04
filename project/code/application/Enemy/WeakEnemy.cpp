@@ -2,6 +2,9 @@
 
 ///engine
 #include "engine/Engine.h"
+//assets
+#include "animation/Animation.h"
+//component
 #include "object3d/Object3d.h"
 //lib
 #include "myRandom/MyRandom.h"
@@ -21,13 +24,13 @@ class WeakEnemyBehavior
 public:
     WeakEnemyBehavior(WeakEnemy* _enemy) {
         setEnemy(_enemy);
-        auto chase       = std::make_unique<EnemyBehavior::ChaseAction>(_enemy->getSpeed(), _enemy->getPlayer2Distance());
+        auto chase = std::make_unique<EnemyBehavior::ChaseAction>(_enemy->getSpeed(), _enemy->getPlayer2Distance());
         chase->setEnemy(_enemy);
-        auto idle        = std::make_unique<EnemyBehavior::IdleAction>(3.0f);
+        auto idle = std::make_unique<EnemyBehavior::IdleAction>(3.0f);
         idle->setEnemy(_enemy);
         auto secondChase = std::make_unique<EnemyBehavior::ChaseAction>(_enemy->getSpeed(), 2.0f);
         secondChase->setEnemy(_enemy);
-        auto attack      = std::make_unique<EnemyBehavior::WeakAttackAction>(enemy_->getAttack());
+        auto attack = std::make_unique<EnemyBehavior::WeakAttackAction>(enemy_->getAttack());
         attack->setEnemy(_enemy);
 
         addChild(std::move(chase));
@@ -52,9 +55,9 @@ WeakEnemy::~WeakEnemy() {}
 void WeakEnemy::Init() {
     isAlive_ = true;
 
-    // drawObject3d_
-    drawObject3d_ = std::make_unique<Object3d>();
-    drawObject3d_->Init("resource/Models", "Enemy.obj");
+    // DrawObject
+    drawObject3d_ = std::make_unique<AnimationObject3d>();
+    drawObject3d_->Init(AnimationSetting("EnemyIdle"));
 
     // Collider
     hitCollider_ = std::make_unique<Collider>("WeakEnemy");
@@ -76,7 +79,7 @@ void WeakEnemy::Update() {
 
     behaviorTree_->tick();
 
-    drawObject3d_->UpdateTransform();
+    drawObject3d_->Update(Engine::getInstance()->getDeltaTime());
 }
 
 std::unique_ptr<IEnemy> WeakEnemy::Clone() {

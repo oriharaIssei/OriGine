@@ -2,6 +2,8 @@
 
 ///engine
 #include "Engine.h"
+//assetes
+#include "animation/Animation.h"
 ///applicatoin
 #include "../Manager/EnemyManager.h"
 #include "application/Collision/Collider.h"
@@ -21,8 +23,9 @@ void EnemySpawner::Init() {
     leftCoolTime_ = spawnCoolTime_;
     hp_           = maxHp_;
 
-    drawObject3d_ = std::make_unique<Object3d>();
-    drawObject3d_->Init("resource/Models", "EnemySpawner.obj");
+    // DrawObject
+    drawObject3d_ = std::make_unique<AnimationObject3d>();
+    drawObject3d_->Init(AnimationSetting("EnemySpawner"));
     drawObject3d_->transform_.translate = position_;
 
     // Collider
@@ -49,7 +52,7 @@ void EnemySpawner::Update() {
     }
 
     setTranslate(position_);
-    drawObject3d_->UpdateTransform();
+    drawObject3d_->Update(Engine::getInstance()->getDeltaTime());
 }
 
 std::unique_ptr<IEnemy> EnemySpawner::Spawn() {

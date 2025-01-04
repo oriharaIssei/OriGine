@@ -36,6 +36,7 @@ private:
 
 public:
     void ChangeBehavior(IPlayerBehavior* next);
+    void ChangeBehavior(std::unique_ptr<IPlayerBehavior>& next);
 
     CameraTransform* getCameraTransform() const { return cameraTransform_; }
     void setCameraTransform(CameraTransform* cameraTransform) { cameraTransform_ = cameraTransform; }

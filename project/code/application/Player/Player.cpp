@@ -2,6 +2,8 @@
 
 ///enigne
 #include "Engine.h"
+//assets
+#include "animation/Animation.h"
 //component
 #include "../Collision/Collider.h"
 #include "object3d/Object3d.h"
@@ -19,8 +21,8 @@ Player::~Player() {}
 
 void Player::Init() {
     // DrawObject
-    drawObject3d_ = std::make_unique<Object3d>();
-    drawObject3d_->Init("resource/Models", "Player.obj");
+    drawObject3d_ = std::make_unique<AnimationObject3d>();
+    drawObject3d_->Init(AnimationSetting("PlayerIdle"));
 
     // Behavior
     currentBehavior_ = std::make_unique<PlayerRootBehavior>(this);
@@ -37,12 +39,17 @@ void Player::Update() {
     currentBehavior_->Update();
 
     { // Transform Update
-        drawObject3d_->UpdateTransform();
+        drawObject3d_->Update(Engine::getInstance()->getDeltaTime());
         hitCollider_->UpdateMatrix();
     }
 }
 
 void Player::ChangeBehavior(IPlayerBehavior* next) {
     currentBehavior_.reset(next);
+    currentBehavior_->Init();
+}
+
+void Player::ChangeBehavior(std::unique_ptr<IPlayerBehavior>& next) {
+    currentBehavior_ = std::move(next);
     currentBehavior_->Init();
 }

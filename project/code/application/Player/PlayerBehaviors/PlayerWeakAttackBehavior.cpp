@@ -13,11 +13,6 @@ PlayerWeakAttackBehavior::PlayerWeakAttackBehavior(Player* _player, int32_t _cur
 }
 PlayerWeakAttackBehavior::~PlayerWeakAttackBehavior() {}
 void PlayerWeakAttackBehavior::Init() {
-    if (currentCombo_ > maxCombo_) {
-        player_->ChangeBehavior(new PlayerRootBehavior(player_));
-        return;
-    }
-    nextBehavior_  = new PlayerRootBehavior(player_);
     currentUpdate_ = [this]() {
         StartUp();
     };
@@ -37,11 +32,11 @@ void PlayerWeakAttackBehavior::StartUp() {
 void PlayerWeakAttackBehavior::Action() {
     currentTimer_ += Engine::getInstance()->getDeltaTime();
 
-    if (input->isPadActive()) {
+    if (input->isPadActive() && !nextBehavior_ && currentCombo_ < maxCombo_) {
         if (input->isTriggerButton(XINPUT_GAMEPAD_X)) {
-            player_->ChangeBehavior(new PlayerWeakAttackBehavior(player_, 0));
+            nextBehavior_.reset(new PlayerWeakAttackBehavior(player_, 0));
         }
-    } 
+    }
 
     if (currentTimer_ >= actionTime_) {
         currentTimer_  = 0.0f;
@@ -53,13 +48,18 @@ void PlayerWeakAttackBehavior::Action() {
 void PlayerWeakAttackBehavior::EndLag() {
     currentTimer_ += Engine::getInstance()->getDeltaTime();
 
-    if (input->isPadActive()) {
+    if (input->isPadActive() && !nextBehavior_ && currentCombo_ < maxCombo_) {
         if (input->isTriggerButton(XINPUT_GAMEPAD_X)) {
-            player_->ChangeBehavior(new PlayerWeakAttackBehavior(player_, 0));
+            nextBehavior_.reset(new PlayerWeakAttackBehavior(player_, 0));
         }
     }
     if (currentTimer_ >= endLagTime_) {
         currentTimer_ = 0.0f;
-        player_->ChangeBehavior(nextBehavior_);
+        if (nextBehavior_) {
+            player_->ChangeBehavior(nextBehavior_);
+            return;
+        } else {
+            player_->ChangeBehavior(new PlayerRootBehavior(player_));
+            return;
+        }
     }
-}
