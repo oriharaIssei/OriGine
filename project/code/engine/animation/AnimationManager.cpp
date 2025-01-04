@@ -29,6 +29,7 @@ std::unique_ptr<Animation> AnimationManager::Load(const std::string& directory, 
     auto animationIndex = animationDataLibrary_.find(filePath);
     if (animationIndex != animationDataLibrary_.end()) {
         result->setData(animationData_[animationIndex->second].get());
+        result->setDuration(result->getData()->duration);
     } else {
         // 新しい ポインタを作成
         animationData_.push_back(std::make_unique<AnimationData>());
