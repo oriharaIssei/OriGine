@@ -16,7 +16,8 @@
 
 Player::Player()
     : GameObject("Player"),
-      hp_("Game", "Player", "hp") {
+      hp_("Game", "Player", "hp"),
+      maxMoveLenght_("Game", "Player", "maxMoveLenght") {
     currentHp_ = hp_;
 }
 
@@ -62,6 +63,10 @@ void Player::Update() {
     currentBehavior_->Update();
 
     { // Transform Update
+        if (drawObject3d_->transform_.translate.lengthSq() >= maxMoveLenght_ * maxMoveLenght_) {
+            drawObject3d_->transform_.translate = drawObject3d_->transform_.translate.normalize() * maxMoveLenght_;
+        }
+
         drawObject3d_->Update(Engine::getInstance()->getDeltaTime());
         hitCollider_->UpdateMatrix();
     }

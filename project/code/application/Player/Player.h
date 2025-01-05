@@ -42,6 +42,8 @@ private:
     std::unique_ptr<Collider> hitCollider_;
     std::unique_ptr<AttackCollider> attackCollider_;
 
+    SerializedField<float> maxMoveLenght_;
+
 public:
     void ChangeBehavior(IPlayerBehavior* next);
     void ChangeBehavior(std::unique_ptr<IPlayerBehavior>& next);

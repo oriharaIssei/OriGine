@@ -115,13 +115,20 @@ void WeakEnemy::Update() {
 
     behaviorTree_->tick();
 
-    drawObject3d_->Update(Engine::getInstance()->getDeltaTime());
+    { // Transform Update
+        if (drawObject3d_->transform_.translate.lengthSq() >= maxMoveLenght_ * maxMoveLenght_) {
+            drawObject3d_->transform_.translate = drawObject3d_->transform_.translate.normalize() * maxMoveLenght_;
+        }
+        drawObject3d_->Update(Engine::getInstance()->getDeltaTime());
+    }
 
     if (invisibleTime_ >= 0.0f) {
         invisibleTime_ -= Engine::getInstance()->getDeltaTime();
         if (invisibleTime_ < 0.0f) {
             isInvisible_ = false;
         }
+    } else {
+        isInvisible_ = false;
     }
 }
 

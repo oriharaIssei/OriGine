@@ -48,10 +48,11 @@ protected:
     SerializedField<float> hp_;
     SerializedField<float> speed_;
     SerializedField<float> attack_;
-
     float currentHp_     = 0.0f;
     float currentSpeed_  = 0.0f;
     float currentAttack_ = 0.0f;
+
+    SerializedField<float> maxMoveLenght_;
 
 public:
     Player* getPlayer() { return player_; }

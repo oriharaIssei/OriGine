@@ -7,7 +7,8 @@ IEnemy::IEnemy(const std::string& _type)
     : GameObject("Enemy"),
       hp_("Game", _type, "hp"),
       speed_("Game", _type, "speed"),
-      attack_("Game", _type, "attack") {
+      attack_("Game", _type, "attack"),
+      maxMoveLenght_("Game", _type, "maxMoveLenght") {
     // Init Status
     currentHp_     = hp_;
     currentSpeed_  = speed_;
