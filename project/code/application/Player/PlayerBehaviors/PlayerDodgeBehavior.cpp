@@ -1,11 +1,11 @@
 #include "PlayerDodgeBehavior.h"
 
 #include "../Player.h"
-#include "PlayerRootBehavior.h"
-
 #include "Engine.h"
 #include "Matrix4x4.h"
+#include "PlayerRootBehavior.h"
 #include "Vector3.h"
+#include "animation/Animation.h"
 PlayerDodgeBehavior::PlayerDodgeBehavior(Player* _player, const Vector3& direction)
     : IPlayerBehavior(_player),
       actionTime_{"Game", "PlayerDodge", "actionTime"},
@@ -24,6 +24,14 @@ void PlayerDodgeBehavior::Init() {
     currentUpdate_ = [this]() {
         this->Action();
     };
+
+    AnimationSetting dodgeAnimation = AnimationSetting("PlayerDodge");
+    player_->getDrawObject3d()->setAnimation(dodgeAnimation.targetAnimationDirection, dodgeAnimation.name + ".anm");
+    while (true) {
+        if (player_->getDrawObject3d()->getAnimation()->getData()) {
+            break;
+        }
+    }
 }
 void PlayerDodgeBehavior::Update() {
     currentUpdate_();
@@ -33,7 +41,11 @@ void PlayerDodgeBehavior::Action() {
     currentTimer_ += Engine::getInstance()->getDeltaTime();
     player_->setTranslate(Lerp(beforePos_, afterPos_, currentTimer_ / actionTime_));
     if (currentTimer_ >= actionTime_) {
-        currentTimer_  = 0.0f;
+        currentTimer_ = 0.0f;
+
+        AnimationSetting idleAnimation = AnimationSetting("PlayerIdle");
+        player_->getDrawObject3d()->setAnimation(idleAnimation.targetAnimationDirection, idleAnimation.name + ".anm");
+
         currentUpdate_ = [this]() {
             this->EndLag();
         };

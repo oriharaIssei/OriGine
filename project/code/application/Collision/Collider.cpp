@@ -37,8 +37,8 @@ void Collider::UpdateMatrix() {
         drawObject3d_->transform_.rotate    = transform_.parent->rotate;
         drawObject3d_->transform_.translate = transform_.parent->translate;
     } else {
-        drawObject3d_->transform_.rotate    = transform_.parent->rotate;
-        drawObject3d_->transform_.translate = transform_.parent->translate;
+        drawObject3d_->transform_.rotate    = transform_.rotate;
+        drawObject3d_->transform_.translate = transform_.translate;
     }
     drawObject3d_->UpdateTransform();
 #endif // _DEBUG

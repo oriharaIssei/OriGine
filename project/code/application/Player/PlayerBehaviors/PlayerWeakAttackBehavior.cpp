@@ -6,6 +6,7 @@
 
 ///Engine
 #include "Engine.h"
+#include "animation/Animation.h"
 ///application
 // object
 #include "application/Enemy/IEnemy.h"
@@ -21,6 +22,14 @@ PlayerWeakAttackBehavior::PlayerWeakAttackBehavior(Player* _player, int32_t _cur
       attackPower_{"Game", "PlayerWeakAttack" + std::to_string(_currentCombo), "attackPower"},
       attackColliderOffset_{"Game", "PlayerWeakAttack" + std::to_string(_currentCombo), "attackColliderOffset_"} {
     currentCombo_ = _currentCombo;
+
+    AnimationSetting weakAttackActionSettings = AnimationSetting("Player_WeakAttack" + std::to_string(currentCombo_));
+    player_->getDrawObject3d()->setNextAnimation(weakAttackActionSettings.targetAnimationDirection, weakAttackActionSettings.name + ".anm", startUpTime_);
+    while (true) {
+        if (player_->getDrawObject3d()->getAnimation()->getData()) {
+            break;
+        }
+    }
 }
 
 PlayerWeakAttackBehavior::~PlayerWeakAttackBehavior() {}
@@ -76,15 +85,23 @@ void PlayerWeakAttackBehavior::Action() {
         currentUpdate_ = [this]() {
             this->EndLag();
         };
+
+        AnimationSetting weakAttackActionSettings = AnimationSetting("PlayerIdle");
+        player_->getDrawObject3d()->setNextAnimation(weakAttackActionSettings.targetAnimationDirection, weakAttackActionSettings.name + ".anm", startUpTime_);
     }
 }
 
 void PlayerWeakAttackBehavior::EndLag() {
     currentTimer_ += Engine::getInstance()->getDeltaTime();
 
-    if (input->isPadActive() && !nextBehavior_ && currentCombo_ < maxCombo_) {
-        if (input->isTriggerButton(XINPUT_GAMEPAD_X)) {
-            nextBehavior_.reset(new PlayerWeakAttackBehavior(player_, currentCombo_ + 1));
+    if (nextBehavior_) {
+        player_->ChangeBehavior(nextBehavior_);
+        return;
+    } else {
+        if (input->isPadActive() && currentCombo_ < maxCombo_) {
+            if (input->isTriggerButton(XINPUT_GAMEPAD_X)) {
+                nextBehavior_.reset(new PlayerWeakAttackBehavior(player_, currentCombo_ + 1));
+            }
         }
     }
     if (currentTimer_ >= endLagTime_) {
