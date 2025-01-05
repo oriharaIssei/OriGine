@@ -116,7 +116,7 @@ void GameScene::Draw3d() {
 
     enemyManager_->Draw();
 
-    collisionManager_->Draw();
+ //   collisionManager_->Draw();
 }
 
 void GameScene::DrawLine() {}

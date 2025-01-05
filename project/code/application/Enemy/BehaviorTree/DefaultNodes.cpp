@@ -15,9 +15,9 @@ Status EnemyBehavior::ChangeAnimation::tick() {
     }
 
     if (lerpNextAnimation_) {
-        animationObject3d->setNextAnimation(animation, animationName_, lerpNextAnimationTime_);
+        animationObject3d->setNextAnimation("resource/Animations", animationName_, lerpNextAnimationTime_);
     } else {
-        animationObject3d->setAnimation(animation);
+        animationObject3d->setAnimation("resource/Animations", animationName_);
     }
 
     return Status::SUCCESS;

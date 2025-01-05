@@ -78,9 +78,9 @@ public:
                 currentChild = 0;
                 return Status::FAILURE;
             }
-            /*if(status == Status::RUNNING){
-					return Status::RUNNING;
-				}*/
+            if (status == Status::RUNNING) {
+                return Status::RUNNING;
+            }
             ++currentChild;
         }
         currentChild = 0;

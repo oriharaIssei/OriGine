@@ -34,12 +34,11 @@ std::unique_ptr<Animation> AnimationManager::Load(const std::string& directory, 
         // 新しい ポインタを作成
         animationData_.push_back(std::make_unique<AnimationData>());
         animationDataLibrary_[filePath] = static_cast<int>(animationData_.size() - 1);
-        result->setData(animationData_.back().get());
 
         ///===========================================
         /// TaskThread に ロードタスクを追加
         ///===========================================
-        AnimationLoadTask task(directory, filename, result->getData(), result.get());
+        AnimationLoadTask task(directory, filename, animationData_.back().get(), result.get());
         loadThread_->pushTask(task);
     }
     return result;

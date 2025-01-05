@@ -157,13 +157,22 @@ void AnimationObject3d::setAnimation(const std::string& directory, const std::st
 }
 
 void AnimationObject3d::setNextAnimation(const std::string& directory, const std::string& filename, float _lerpTime) {
+    nextAnimation_.reset();
+    toNextAnimation_.reset();
+
     nextAnimation_ = std::move(AnimationManager::getInstance()->Load(directory, filename));
+    while (true) {
+        if (nextAnimation_->getData()) {
+            break;
+        }
+    }
 
     AnimationManager* animationManager = AnimationManager::getInstance();
     int toNextAnimationDataIndex       = animationManager->addAnimationData("to" + filename + "from" + currentAnimationName_, std::make_unique<AnimationData>(_lerpTime));
     AnimationData* toNextAnimationData = const_cast<AnimationData*>(animationManager->getAnimationData(toNextAnimationDataIndex));
 
     toNextAnimationData->nodeAnimations.clear();
+    toNextAnimationData->duration = _lerpTime;
     for (const auto& [nodeName, nodeAnimation] : animation_->getData()->nodeAnimations) {
         toNextAnimationData->nodeAnimations[nodeName] = {
             .scale     = AnimationCurve<Vector3>(),
@@ -184,21 +193,32 @@ void AnimationObject3d::setNextAnimation(const std::string& directory, const std
 
         ///=============================================
         /// 次の姿勢を追加
-        toNextAnimationData->nodeAnimations[nodeName].scale.push_back(KeyframeVector3(
-            _lerpTime,
-            nextAnimation_->getData()->nodeAnimations[nodeName].scale[0].value));
-        toNextAnimationData->nodeAnimations[nodeName].rotate.push_back(KeyframeQuaternion(
-            _lerpTime,
-            nextAnimation_->getData()->nodeAnimations[nodeName].rotate[0].value));
-        toNextAnimationData->nodeAnimations[nodeName].translate.push_back(KeyframeVector3(
-            _lerpTime,
-            nextAnimation_->getData()->nodeAnimations[nodeName].translate[0].value));
+        if (!nextAnimation_->getData()->nodeAnimations[nodeName].scale.empty()) {
+            toNextAnimationData->nodeAnimations[nodeName].scale.push_back(KeyframeVector3(
+                _lerpTime,
+                nextAnimation_->getData()->nodeAnimations[nodeName].scale[0].value));
+        }
+        if (!nextAnimation_->getData()->nodeAnimations[nodeName].rotate.empty()) {
+            toNextAnimationData->nodeAnimations[nodeName].rotate.push_back(KeyframeQuaternion(
+                _lerpTime,
+                nextAnimation_->getData()->nodeAnimations[nodeName].rotate[0].value));
+        }
+        if (!nextAnimation_->getData()->nodeAnimations[nodeName].translate.empty()) {
+            toNextAnimationData->nodeAnimations[nodeName].translate.push_back(KeyframeVector3(
+                _lerpTime,
+                nextAnimation_->getData()->nodeAnimations[nodeName].translate[0].value));
+        }
     }
     toNextAnimation_ = std::make_unique<Animation>(toNextAnimationData);
     toNextAnimation_->setDuration(_lerpTime);
 }
-
 void AnimationObject3d::setNextAnimation(std::unique_ptr<Animation>& animation, const std::string& filename, float _lerpTime) {
+    while (true) {
+        if (animation->getData()) {
+            break;
+        }
+    }
+
     nextAnimation_ = std::move(animation);
 
     AnimationManager* animationManager = AnimationManager::getInstance();
@@ -206,6 +226,7 @@ void AnimationObject3d::setNextAnimation(std::unique_ptr<Animation>& animation, 
     AnimationData* toNextAnimationData = const_cast<AnimationData*>(animationManager->getAnimationData(toNextAnimationDataIndex));
 
     toNextAnimationData->nodeAnimations.clear();
+    toNextAnimationData->duration = _lerpTime;
     for (const auto& [nodeName, nodeAnimation] : animation_->getData()->nodeAnimations) {
         toNextAnimationData->nodeAnimations[nodeName] = {
             .scale     = AnimationCurve<Vector3>(),
@@ -226,15 +247,21 @@ void AnimationObject3d::setNextAnimation(std::unique_ptr<Animation>& animation, 
 
         ///=============================================
         /// 次の姿勢を追加
-        toNextAnimationData->nodeAnimations[nodeName].scale.push_back(KeyframeVector3(
-            _lerpTime,
-            nextAnimation_->getData()->nodeAnimations[nodeName].scale[0].value));
-        toNextAnimationData->nodeAnimations[nodeName].rotate.push_back(KeyframeQuaternion(
-            _lerpTime,
-            nextAnimation_->getData()->nodeAnimations[nodeName].rotate[0].value));
-        toNextAnimationData->nodeAnimations[nodeName].translate.push_back(KeyframeVector3(
-            _lerpTime,
-            nextAnimation_->getData()->nodeAnimations[nodeName].translate[0].value));
+        if (!nextAnimation_->getData()->nodeAnimations[nodeName].scale.empty()) {
+            toNextAnimationData->nodeAnimations[nodeName].scale.push_back(KeyframeVector3(
+                _lerpTime,
+                nextAnimation_->getData()->nodeAnimations[nodeName].scale[0].value));
+        }
+        if (!nextAnimation_->getData()->nodeAnimations[nodeName].rotate.empty()) {
+            toNextAnimationData->nodeAnimations[nodeName].rotate.push_back(KeyframeQuaternion(
+                _lerpTime,
+                nextAnimation_->getData()->nodeAnimations[nodeName].rotate[0].value));
+        }
+        if (!nextAnimation_->getData()->nodeAnimations[nodeName].translate.empty()) {
+            toNextAnimationData->nodeAnimations[nodeName].translate.push_back(KeyframeVector3(
+                _lerpTime,
+                nextAnimation_->getData()->nodeAnimations[nodeName].translate[0].value));
+        }
     }
     toNextAnimation_ = std::make_unique<Animation>(toNextAnimationData);
     toNextAnimation_->setDuration(_lerpTime);

@@ -34,16 +34,17 @@ public:
         auto attack = std::make_unique<EnemyBehavior::WeakAttackAction>(enemy_->getAttack());
         attack->setEnemy(_enemy);
 
-        auto chaseAnimation = std::make_unique<EnemyBehavior::ChangeAnimation>("EnemyChase");
+        auto chaseAnimation = std::make_unique<EnemyBehavior::ChangeAnimation>("EnemyChase.anm");
         chaseAnimation->setEnemy(_enemy);
-        auto idleAnimation = std::make_unique<EnemyBehavior::ChangeAnimation>("EnemyIdle");
+        auto idleAnimation = std::make_unique<EnemyBehavior::ChangeAnimation>("EnemyIdle.anm");
         idleAnimation->setEnemy(_enemy);
-        auto chaseForIdle = std::make_unique<EnemyBehavior::ChangeAnimation>("EnemyChase");
+        idleAnimation->LerpNextAnimation(0.1f);
+        auto chaseForIdle = std::make_unique<EnemyBehavior::ChangeAnimation>("EnemyChase.anm");
         chaseForIdle->setEnemy(_enemy);
-        chaseForIdle->LerpNextAnimation(0.2f);
-        auto idleForAttack = std::make_unique<EnemyBehavior::ChangeAnimation>("EnemyChase");
+        chaseForIdle->LerpNextAnimation(0.1f);
+        auto idleForAttack = std::make_unique<EnemyBehavior::ChangeAnimation>("WeakEnemy_WeakAttack.anm");
         idleForAttack->setEnemy(_enemy);
-        idleForAttack->LerpNextAnimation(0.2f);
+        idleForAttack->LerpNextAnimation(0.06f);
 
         addChild(std::move(chaseAnimation));
         addChild(std::move(chase));
@@ -73,7 +74,7 @@ void WeakEnemy::Init() {
 
     // DrawObject
     drawObject3d_ = std::make_unique<AnimationObject3d>();
-    drawObject3d_->Init(AnimationSetting("EnemyIdle"));
+    drawObject3d_->Init(AnimationSetting("EnemyChase"));
 
     // Collider
     hitCollider_ = std::make_unique<Collider>("WeakEnemy");

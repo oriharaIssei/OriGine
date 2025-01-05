@@ -127,7 +127,7 @@ void AnimationEditor::Update() {
                         std::make_unique<AnimationData>());
                     std::unique_ptr<Animation> animation = std::make_unique<Animation>(
                         const_cast<AnimationData*>(AnimationManager::getInstance()->getAnimationData(fileName)));
-                        currentEditObject_->setAnimation(animation);
+                    currentEditObject_->setAnimation(animation);
                 }
                 ImGui::CloseCurrentPopup();
             }
@@ -211,7 +211,7 @@ void AnimationEditor::Update() {
 
     if (currentEditObject_ &&
         currentEditObject_->getModel() &&
-        currentEditObject_->getAnimation()) {
+        currentEditObject_->getAnimation()->getData()) {
 
         if (ImGui::Begin("Timelines")) {
             // アニメーションの再生
