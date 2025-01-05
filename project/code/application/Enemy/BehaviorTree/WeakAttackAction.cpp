@@ -44,6 +44,9 @@ Status WeakAttackAction::tick() {
     if (!isEndMotion_) {
         return Status::RUNNING;
     }
+    if (enemy_->getAttackCollider()) {
+        enemy_->resetAttackCollider();
+    }
     return Status::SUCCESS;
 }
 } // namespace EnemyBehavior

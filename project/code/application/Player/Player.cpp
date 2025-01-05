@@ -52,7 +52,7 @@ void Player::Init() {
 
         // set invisible
         isInvisible_   = true;
-        invisibleTime_ = 0.4f;
+        invisibleTime_ = 0.7f;
     });
     hitCollider_->setHostObject(this);
     hitCollider_->setParent(&drawObject3d_->transform_);

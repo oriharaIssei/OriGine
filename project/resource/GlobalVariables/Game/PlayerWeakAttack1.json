@@ -1,7 +1,14 @@
 {
     "PlayerWeakAttack1": {
         "actionTime": 0.30000001192092896,
-        "endLagTime": 0.699999988079071,
-        "startUpTime": 0.4000000059604645
+        "attackColliderOffset_": [
+            0.0,
+            0.0,
+            1.0
+        ],
+        "attackPower": 0.0,
+        "endLagTime": 0.20000000298023224,
+        "radius": 1.5,
+        "startUpTime": 0.10000000149011612
     }
 }

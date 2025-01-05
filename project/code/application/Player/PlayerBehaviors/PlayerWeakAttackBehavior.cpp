@@ -66,7 +66,7 @@ void PlayerWeakAttackBehavior::Action() {
 
     if (input->isPadActive() && !nextBehavior_ && currentCombo_ < maxCombo_) {
         if (input->isTriggerButton(XINPUT_GAMEPAD_X)) {
-            nextBehavior_.reset(new PlayerWeakAttackBehavior(player_, 0));
+            nextBehavior_.reset(new PlayerWeakAttackBehavior(player_, currentCombo_ + 1));
         }
     }
 
@@ -84,7 +84,7 @@ void PlayerWeakAttackBehavior::EndLag() {
 
     if (input->isPadActive() && !nextBehavior_ && currentCombo_ < maxCombo_) {
         if (input->isTriggerButton(XINPUT_GAMEPAD_X)) {
-            nextBehavior_.reset(new PlayerWeakAttackBehavior(player_, 0));
+            nextBehavior_.reset(new PlayerWeakAttackBehavior(player_, currentCombo_ + 1));
         }
     }
     if (currentTimer_ >= endLagTime_) {
