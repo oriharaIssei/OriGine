@@ -65,8 +65,12 @@ void GameScene::Init() {
     enemyManager_->Init();
     enemyManager_->setPlayer(player_.get());
 
+    //terrain
     ground_ = std::make_unique<Object3d>();
     ground_->Init("resource/Models", "Ground.obj");
+
+    skyDome_ = std::make_unique<Object3d>();
+    skyDome_->Init("resource/Models", "Skydome.obj");
 }
 
 void GameScene::Update() {
@@ -106,6 +110,7 @@ void GameScene::Update() {
 
 void GameScene::Draw3d() {
     ground_->Draw();
+    skyDome_->Draw();
 
     player_->Draw();
 
