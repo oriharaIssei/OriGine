@@ -22,6 +22,7 @@
 #include "object3d/AnimationObject3d.h"
 
 //object
+#include "../AttackCollider/AttackCollider.h"
 #include "../Enemy/Manager/EnemyManager.h"
 #include "../Enemy/WeakEnemy.h"
 #include "../Player/Player.h"
@@ -95,6 +96,9 @@ void GameScene::Update() {
     collisionManager_->clearCollider();
     //add
     collisionManager_->addCollider(player_->getHitCollider());
+    if (player_->getAttackCollider()) {
+        collisionManager_->addCollider(player_->getAttackCollider()->getHitCollider());
+    }
     enemyManager_->setCollidersForCollisionManager(collisionManager_.get());
 
     collisionManager_->Update();

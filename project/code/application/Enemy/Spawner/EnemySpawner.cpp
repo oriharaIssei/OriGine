@@ -9,7 +9,8 @@
 #include "application/Collision/Collider.h"
 
 EnemySpawner::EnemySpawner(IEnemy* _enemy, int index)
-    : cloneOrigine_(_enemy),
+    : GameObject("EnemySpawner"),
+      cloneOrigine_(_enemy),
       spawnCoolTime_("Game", "EnemySpawner", "spawnCoolTime"),
       maxHp_("Game", "EnemySpawner", "maxHp"),
       position_("Game", "EnemySpawner" + std::to_string(index), "position") {}
@@ -30,7 +31,19 @@ void EnemySpawner::Init() {
 
     // Collider
     hitCollider_ = std::make_unique<Collider>("EnemySpawner");
-    hitCollider_->Init();
+    hitCollider_->Init([this](GameObject* object) {
+        // null check
+        if (!object) {
+            return;
+        }
+
+        if (object->getID() != "PlayerAttack") {
+            return;
+        }
+
+        // Damage
+        hp_ -= 1.0f;
+    });
     hitCollider_->setHostObject(this);
     hitCollider_->setParent(&drawObject3d_->transform_);
 }

@@ -34,6 +34,7 @@ public:
     void Draw();
 
     Transform transform_;
+
 private:
     void NotDraw() {}
 
@@ -64,9 +65,9 @@ public:
     const Animation* getAnimation() const;
     Animation* getAnimation();
     void setAnimation(const std::string& directory, const std::string& filename);
+    void setAnimation(std::unique_ptr<Animation>& animation);
+    void setNextAnimation(std::unique_ptr<Animation>& animation, const std::string& filename, float _lerpTime);
     void setNextAnimation(const std::string& directory, const std::string& filename, float _lerpTime);
-
-    void setAnimation(std::unique_ptr<Animation> animation);
 
     void setMaterial(IConstantBuffer<Material>* material, uint32_t index = 0);
 };

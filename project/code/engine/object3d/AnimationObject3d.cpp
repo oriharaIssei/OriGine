@@ -198,7 +198,49 @@ void AnimationObject3d::setNextAnimation(const std::string& directory, const std
     toNextAnimation_->setDuration(_lerpTime);
 }
 
-void AnimationObject3d::setAnimation(std::unique_ptr<Animation> animation) {
+void AnimationObject3d::setNextAnimation(std::unique_ptr<Animation>& animation, const std::string& filename, float _lerpTime) {
+    nextAnimation_ = std::move(animation);
+
+    AnimationManager* animationManager = AnimationManager::getInstance();
+    int toNextAnimationDataIndex       = animationManager->addAnimationData("to" + filename + "from" + currentAnimationName_, std::make_unique<AnimationData>(_lerpTime));
+    AnimationData* toNextAnimationData = const_cast<AnimationData*>(animationManager->getAnimationData(toNextAnimationDataIndex));
+
+    toNextAnimationData->nodeAnimations.clear();
+    for (const auto& [nodeName, nodeAnimation] : animation_->getData()->nodeAnimations) {
+        toNextAnimationData->nodeAnimations[nodeName] = {
+            .scale     = AnimationCurve<Vector3>(),
+            .rotate    = AnimationCurve<Quaternion>(),
+            .translate = AnimationCurve<Vector3>()};
+
+        ///=============================================
+        /// 現在の姿勢をはじめに追加
+        toNextAnimationData->nodeAnimations[nodeName].scale.push_back(KeyframeVector3(
+            0.0f,
+            animation_->getCurrentScale(nodeName)));
+        toNextAnimationData->nodeAnimations[nodeName].rotate.push_back(KeyframeQuaternion(
+            0.0f,
+            animation_->getCurrentRotate(nodeName)));
+        toNextAnimationData->nodeAnimations[nodeName].translate.push_back(KeyframeVector3(
+            0.0f,
+            animation_->getCurrentTranslate(nodeName)));
+
+        ///=============================================
+        /// 次の姿勢を追加
+        toNextAnimationData->nodeAnimations[nodeName].scale.push_back(KeyframeVector3(
+            _lerpTime,
+            nextAnimation_->getData()->nodeAnimations[nodeName].scale[0].value));
+        toNextAnimationData->nodeAnimations[nodeName].rotate.push_back(KeyframeQuaternion(
+            _lerpTime,
+            nextAnimation_->getData()->nodeAnimations[nodeName].rotate[0].value));
+        toNextAnimationData->nodeAnimations[nodeName].translate.push_back(KeyframeVector3(
+            _lerpTime,
+            nextAnimation_->getData()->nodeAnimations[nodeName].translate[0].value));
+    }
+    toNextAnimation_ = std::make_unique<Animation>(toNextAnimationData);
+    toNextAnimation_->setDuration(_lerpTime);
+}
+
+void AnimationObject3d::setAnimation(std::unique_ptr<Animation>& animation) {
     animation_ = std::move(animation);
 }
 

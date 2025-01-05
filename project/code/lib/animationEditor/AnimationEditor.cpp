@@ -125,9 +125,9 @@ void AnimationEditor::Update() {
                     AnimationManager::getInstance()->addAnimationData(
                         fileName,
                         std::make_unique<AnimationData>());
-                    currentEditObject_->setAnimation(
-                        std::make_unique<Animation>(
-                            const_cast<AnimationData*>(AnimationManager::getInstance()->getAnimationData(fileName))));
+                    std::unique_ptr<Animation> animation = std::make_unique<Animation>(
+                        const_cast<AnimationData*>(AnimationManager::getInstance()->getAnimationData(fileName)));
+                        currentEditObject_->setAnimation(animation);
                 }
                 ImGui::CloseCurrentPopup();
             }

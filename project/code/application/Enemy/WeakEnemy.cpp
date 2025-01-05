@@ -24,6 +24,7 @@ class WeakEnemyBehavior
 public:
     WeakEnemyBehavior(WeakEnemy* _enemy) {
         setEnemy(_enemy);
+
         auto chase = std::make_unique<EnemyBehavior::ChaseAction>(_enemy->getSpeed(), _enemy->getPlayer2Distance());
         chase->setEnemy(_enemy);
         auto idle = std::make_unique<EnemyBehavior::IdleAction>(3.0f);
@@ -33,9 +34,24 @@ public:
         auto attack = std::make_unique<EnemyBehavior::WeakAttackAction>(enemy_->getAttack());
         attack->setEnemy(_enemy);
 
+        auto chaseAnimation = std::make_unique<EnemyBehavior::ChangeAnimation>("EnemyChase");
+        chaseAnimation->setEnemy(_enemy);
+        auto idleAnimation = std::make_unique<EnemyBehavior::ChangeAnimation>("EnemyIdle");
+        idleAnimation->setEnemy(_enemy);
+        auto chaseForIdle = std::make_unique<EnemyBehavior::ChangeAnimation>("EnemyChase");
+        chaseForIdle->setEnemy(_enemy);
+        chaseForIdle->LerpNextAnimation(0.2f);
+        auto idleForAttack = std::make_unique<EnemyBehavior::ChangeAnimation>("EnemyChase");
+        idleForAttack->setEnemy(_enemy);
+        idleForAttack->LerpNextAnimation(0.2f);
+
+        addChild(std::move(chaseAnimation));
         addChild(std::move(chase));
+        addChild(std::move(idleAnimation));
         addChild(std::move(idle));
+        addChild(std::move(chaseForIdle));
         addChild(std::move(secondChase));
+        addChild(std::move(idleForAttack));
         addChild(std::move(attack));
     }
     ~WeakEnemyBehavior() {}
@@ -61,7 +77,27 @@ void WeakEnemy::Init() {
 
     // Collider
     hitCollider_ = std::make_unique<Collider>("WeakEnemy");
-    hitCollider_->Init();
+    hitCollider_->Init([this](GameObject* object) {
+        // null check
+        if (!object) {
+            return;
+        }
+
+        if (object->getID() != "PlayerAttack") {
+            return;
+        }
+
+        // Damage
+        if (isInvisible_) {
+            return;
+        }
+        IEnemy* enemy = reinterpret_cast<IEnemy*>(object);
+        currentHp_ -= enemy->getAttack();
+
+        // set invisible
+        isInvisible_   = true;
+        invisibleTime_ = 0.4f;
+    });
     hitCollider_->setHostObject(this);
     hitCollider_->setParent(&drawObject3d_->transform_);
 
@@ -80,6 +116,13 @@ void WeakEnemy::Update() {
     behaviorTree_->tick();
 
     drawObject3d_->Update(Engine::getInstance()->getDeltaTime());
+
+    if (invisibleTime_ >= 0.0f) {
+        invisibleTime_ -= Engine::getInstance()->getDeltaTime();
+        if (invisibleTime_ < 0.0f) {
+            isInvisible_ = false;
+        }
+    }
 }
 
 std::unique_ptr<IEnemy> WeakEnemy::Clone() {

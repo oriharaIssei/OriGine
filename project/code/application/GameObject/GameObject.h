@@ -3,6 +3,8 @@
 /// stl
 //memory
 #include <memory>
+//string
+#include <string>
 /// Engine
 // component
 #include "Object3d/AnimationObject3d.h"
@@ -10,9 +12,9 @@
 
 class GameObject {
 public:
-    GameObject();
+    GameObject(const std::string& id);
     virtual ~GameObject();
-    virtual void Init() = 0;
+    virtual void Init()   = 0;
     virtual void Update() = 0;
     virtual void Draw();
 
@@ -21,11 +23,19 @@ protected:
 
     bool isAlive_ = false;
 
+private:
+    std::string id_;
+
 public:
     bool getIsAlive() const { return isAlive_; }
     void setIsAlive(bool isAlive) { isAlive_ = isAlive; }
 
-    
+    const std::string& getID() const { return id_; }
+
+    AnimationObject3d* getDrawObject3d() const {
+        return drawObject3d_.get();
+    }
+
     const Transform& getTransform() const {
         return drawObject3d_->transform_;
     }

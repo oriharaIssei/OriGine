@@ -4,7 +4,8 @@
 #include "object3d/Object3d.h"
 
 IEnemy::IEnemy(const std::string& _type)
-    : hp_("Game", _type, "hp"),
+    : GameObject("Enemy"),
+      hp_("Game", _type, "hp"),
       speed_("Game", _type, "speed"),
       attack_("Game", _type, "attack") {
     // Init Status

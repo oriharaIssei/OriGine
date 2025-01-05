@@ -4,6 +4,7 @@
 #include "../WeakEnemy.h"
 
 ///application
+#include "application/AttackCollider/AttackCollider.h"
 #include "application/Collision/CollisionManager.h"
 #include "application/Player/Player.h"
 
@@ -50,6 +51,9 @@ void EnemyManager::setCollidersForCollisionManager(CollisionManager* _collisionM
     }
     for (auto& enemy : enemies_) {
         _collisionManager->addCollider(enemy->getHitCollider());
+        if (enemy->getAttackCollider()) {
+            _collisionManager->addCollider(enemy->getAttackCollider()->getHitCollider());
+        }
     }
 }
 

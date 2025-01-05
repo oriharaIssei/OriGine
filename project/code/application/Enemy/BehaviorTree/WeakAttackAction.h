@@ -12,6 +12,21 @@
 #include "globalVariables/SerializedField.h"
 
 namespace EnemyBehavior {
+class CreateAttackCollider
+    : public Action {
+public:
+    CreateAttackCollider(
+        const std::string& _colliderID,
+        const Vector3& _colliderOffset);
+    ~CreateAttackCollider();
+
+    Status tick() override;
+
+private:
+    std::string colliderID_;
+    Vector3 colliderOffset_;
+};
+
 class WeakAttackAction
     : public Action {
 public:
@@ -21,7 +36,7 @@ public:
     Status tick() override;
 
 private:
-    float attack_ = 0.0f;
-    bool isEndMotion_ = false;
+    float attackPower_ = 0.0f;
+    bool isEndMotion_  = false;
 };
 } // namespace EnemyBehavior

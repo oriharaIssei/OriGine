@@ -1,6 +1,8 @@
 #pragma once
 
+//parent
 #include "IPlayerBehavior.h"
+//lib
 #include "globalVariables/SerializedField.h"
 
 class PlayerWeakAttackBehavior
@@ -24,6 +26,9 @@ private:
     SerializedField<float> actionTime_;
     SerializedField<float> endLagTime_;
     float currentTimer_ = 0.0f;
+
+    SerializedField<float> attackPower_;
+    SerializedField<Vector3> attackColliderOffset_;
 
     std::unique_ptr<IPlayerBehavior> nextBehavior_ = nullptr;
 };

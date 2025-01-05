@@ -6,10 +6,12 @@
 
 ///engine
 //component
-#include "../GameObject/GameObject.h"
-#include "Transform/Transform.h"
 #include "transform/CameraTransform.h"
+#include "transform/Transform.h"
 class IPlayerBehavior;
+//object
+#include "../AttackCollider/AttackCollider.h"
+#include "../GameObject/GameObject.h"
 class Object3d;
 class Collider;
 //lib
@@ -32,7 +34,13 @@ private:
     SerializedField<float> hp_;
     float currentHp_ = 0.0f;
 
+    SerializedField<float> power_;
+
+    bool isInvisible_    = false;
+    float invisibleTime_ = 0.0f;
+
     std::unique_ptr<Collider> hitCollider_;
+    std::unique_ptr<AttackCollider> attackCollider_;
 
 public:
     void ChangeBehavior(IPlayerBehavior* next);
@@ -52,4 +60,19 @@ public:
     void Damage(float damage) {
         currentHp_ -= damage;
     }
+
+    float getPower() const {
+        return power_;
+    }
+
+    AttackCollider* getAttackCollider() const { return attackCollider_.get(); }
+    void setAttackCollider(std::unique_ptr<AttackCollider>& attackCollider) {
+        attackCollider_ = std::move(attackCollider);
+    }
+    void resetAttackCollider() {
+        attackCollider_.reset();
+    }
+
+    void setInvisibleTime(float time) { invisibleTime_ = time; }
+    float getInvisibleTime() const { return invisibleTime_; }
 };

@@ -4,11 +4,13 @@
 
 void Animation::Update(float deltaTime, Model* model, const Matrix4x4& parentTransform) {
     {
+        isEnd_ = false;
         // 時間更新
         currentAnimationTime += deltaTime;
 
         // リピート
         if (currentAnimationTime > duration) {
+            isEnd_               = true;
             currentAnimationTime = std::fmod(currentAnimationTime, duration);
         }
     }

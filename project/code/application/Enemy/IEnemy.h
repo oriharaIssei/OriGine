@@ -6,7 +6,6 @@
 
 /// engine
 //component
-#include "../GameObject/GameObject.h"
 #include "transform/Transform.h"
 //lib
 #include "globalVariables/SerializedField.h"
@@ -16,13 +15,14 @@
 #include "BehaviorTree/DefaultNodes.h"
 //component
 #include "application/Collision/Collider.h"
-
+//object
+#include "../GameObject/GameObject.h"
+#include "../AttackCollider/AttackCollider.h"
+class Collider;
+class Player;
 //math
 #include "Quaternion.h"
 #include "Vector3.h"
-
-class Object3d;
-class Player;
 
 class IEnemy
     : public GameObject {
@@ -41,15 +41,17 @@ protected:
 
     std::unique_ptr<Collider> hitCollider_;
 
+    std::unique_ptr<AttackCollider> attackCollider_;
+
     std::unique_ptr<EnemyBehavior::Node> behaviorTree_ = nullptr;
 
     SerializedField<float> hp_;
     SerializedField<float> speed_;
     SerializedField<float> attack_;
 
-    float currentHp_             = 0.0f;
-    float currentSpeed_          = 0.0f;
-    float currentAttack_         = 0.0f;
+    float currentHp_     = 0.0f;
+    float currentSpeed_  = 0.0f;
+    float currentAttack_ = 0.0f;
 
 public:
     Player* getPlayer() { return player_; }
@@ -81,7 +83,12 @@ public:
     float getAttack() const {
         return attack_;
     }
-    void setAttack(float attack) {
-        currentAttack_ = attack;
+
+    AttackCollider* getAttackCollider() const { return attackCollider_.get(); }
+    void setAttackCollider(std::unique_ptr<AttackCollider>& attackCollider) {
+        attackCollider_ = std::move(attackCollider);
+    }
+    void resetAttackCollider() {
+        attackCollider_.reset();
     }
 };

@@ -11,9 +11,12 @@
 /// application
 //component
 #include "PlayerBehaviors/PlayerRootBehavior.h"
+//object
+#include "../Enemy/IEnemy.h"
 
 Player::Player()
-    : hp_("Game", "Player", "hp") {
+    : GameObject("Player"),
+      hp_("Game", "Player", "hp") {
     currentHp_ = hp_;
 }
 
@@ -30,7 +33,27 @@ void Player::Init() {
 
     // Collider
     hitCollider_ = std::make_unique<Collider>("Player");
-    hitCollider_->Init();
+    hitCollider_->Init([this](GameObject* object) {
+        // null check
+        if (!object) {
+            return;
+        }
+
+        if (object->getID() != "EnemyAttack") {
+            return;
+        }
+
+        // Damage
+        if (isInvisible_) {
+            return;
+        }
+        IEnemy* enemy = reinterpret_cast<IEnemy*>(object);
+        currentHp_ -= enemy->getAttack();
+
+        // set invisible
+        isInvisible_   = true;
+        invisibleTime_ = 0.4f;
+    });
     hitCollider_->setHostObject(this);
     hitCollider_->setParent(&drawObject3d_->transform_);
 }
@@ -41,6 +64,13 @@ void Player::Update() {
     { // Transform Update
         drawObject3d_->Update(Engine::getInstance()->getDeltaTime());
         hitCollider_->UpdateMatrix();
+    }
+
+    if (invisibleTime_ >= 0.0f) {
+        invisibleTime_ -= Engine::getInstance()->getDeltaTime();
+        if (invisibleTime_ < 0.0f) {
+            isInvisible_ = false;
+        }
     }
 }
 
