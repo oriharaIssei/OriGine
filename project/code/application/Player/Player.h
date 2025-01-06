@@ -25,9 +25,12 @@ public:
 
     void Init();
     void Update();
+    void Draw() override;
 
 private:
     std::unique_ptr<IPlayerBehavior> currentBehavior_;
+
+    std::unique_ptr<AnimationObject3d> effectAnimationObject_;
 
     CameraTransform* cameraTransform_ = nullptr;
 
@@ -49,6 +52,13 @@ public:
 
     CameraTransform* getCameraTransform() const { return cameraTransform_; }
     void setCameraTransform(CameraTransform* cameraTransform) { cameraTransform_ = cameraTransform; }
+
+    void resetEffectAnimationObject() {
+        effectAnimationObject_.reset();
+    }
+    void setEffectAnimationObject(std::unique_ptr<AnimationObject3d>& effectAnimationObject) {
+        effectAnimationObject_ = std::move(effectAnimationObject);
+    }
 
     float getHP() const {
         return currentHp_;

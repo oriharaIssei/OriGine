@@ -10,6 +10,7 @@
 ///application
 // object
 #include "application/Enemy/IEnemy.h"
+#include "application/Enemy/Spawner/EnemySpawner.h"
 ///Collider
 #include "application/AttackCollider/AttackCollider.h"
 
@@ -60,19 +61,21 @@ void PlayerWeakAttackBehavior::StartUp() {
                 if (!object) {
                     return;
                 }
-                if (object->getID() != "Enemy") {
-                    return;
-                }
-                IEnemy* enemy = dynamic_cast<IEnemy*>(object);
+                if (object->getID() == "Enemy") {
+                    IEnemy* enemy = dynamic_cast<IEnemy*>(object);
 
-                if (!enemy && enemy->getIsInvisible()) {
-                    return;
-                }
+                    if (!enemy && enemy->getIsInvisible()) {
+                        return;
+                    }
 
-                enemy->Damage(player_->getPower() * attackPower_);
-                Vector3 knockBackDirection = enemy->getTranslate() - player_->getTranslate();
-                enemy->KnockBack(knockBackDirection.normalize(), 11.1f);
-                enemy->setInvisibleTime(0.1f);
+                    enemy->Damage(player_->getPower() * attackPower_);
+                    Vector3 knockBackDirection = enemy->getTranslate() - player_->getTranslate();
+                    enemy->KnockBack(knockBackDirection.normalize(), 11.1f);
+                    enemy->setInvisibleTime(0.1f);
+                } else if (object->getID() == "EnemySpawner") {
+                    EnemySpawner* enemySpawner = dynamic_cast<EnemySpawner*>(object);
+                    enemySpawner->Damage(player_->getPower() * attackPower_);
+                }
             });
         currentUpdate_ = [this]() {
             this->Action();

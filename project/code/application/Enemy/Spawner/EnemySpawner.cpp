@@ -31,19 +31,7 @@ void EnemySpawner::Init() {
 
     // Collider
     hitCollider_ = std::make_unique<Collider>("EnemySpawner");
-    hitCollider_->Init([this](GameObject* object) {
-        // null check
-        if (!object) {
-            return;
-        }
-
-        if (object->getID() != "PlayerAttack") {
-            return;
-        }
-
-        // Damage
-        hp_ -= 1.0f;
-    });
+    hitCollider_->Init();
     hitCollider_->setHostObject(this);
     hitCollider_->setParent(&drawObject3d_->transform_);
 }

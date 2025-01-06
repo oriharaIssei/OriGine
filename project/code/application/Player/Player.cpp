@@ -63,6 +63,21 @@ void Player::Update() {
             isInvisible_ = false;
         }
     }
+
+    if (effectAnimationObject_) {
+        effectAnimationObject_->Update(Engine::getInstance()->getDeltaTime());
+        if (effectAnimationObject_->getAnimation()->isEnd()) {
+            effectAnimationObject_.reset();
+        }
+    }
+}
+
+void Player::Draw() {
+    drawObject3d_->Draw();
+
+    if (effectAnimationObject_) {
+        effectAnimationObject_->Draw();
+    }
 }
 
 void Player::ChangeBehavior(IPlayerBehavior* next) {

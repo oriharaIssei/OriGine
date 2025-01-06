@@ -94,6 +94,8 @@ void GameScene::Update() {
     CameraManager::getInstance()->setTransform(gameCamera_->getCameraTransform());
 #endif // _DEBUG
 
+    enemyManager_->removeDeadEnemy();
+    enemyManager_->removeDeadSpawner();
     activeGameObjects_.clear();
 
     // add activeGameObjects_
@@ -125,9 +127,6 @@ void GameScene::Update() {
     for (auto& gameObject : activeGameObjects_) {
         gameObject->Update();
     }
-
-    enemyManager_->removeDeadEnemy();
-    enemyManager_->removeDeadSpawner();
 
     ///collision
     //add
