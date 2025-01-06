@@ -32,10 +32,10 @@ void SpriteMesh::Init() {
 void Sprite::Init(const std::string& filePath) {
     this->textureIndex_ = TextureManager::LoadTexture(filePath, [this]() {
         const DirectX::TexMetadata& texData = TextureManager::getTexMetadata(textureIndex_);
-        if (textureSize_.lengthSq() != 0.0f) {
+        if (textureSize_.lengthSq() == 0.0f) {
             textureSize_ = {static_cast<float>(texData.width), static_cast<float>(texData.height)};
         }
-        if (size_.lengthSq() != 0.0f) {
+        if (size_.lengthSq() == 0.0f) {
             size_ = textureSize_;
         }
     });

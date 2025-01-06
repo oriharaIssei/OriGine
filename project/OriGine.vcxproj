@@ -188,6 +188,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="code\application\Enemy\Spawner\EnemySpawner.cpp" />
     <ClCompile Include="code\application\Enemy\Manager\EnemyManager.cpp" />
     <ClCompile Include="code\application\Enemy\BehaviorTree\KnockBack.cpp" />
+    <ClCompile Include="code\application\scene\TitleScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\application\AttackCollider\AttackCollider.h" />
@@ -371,6 +372,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="code\application\Enemy\WeakEnemy.h" />
     <ClInclude Include="code\application\GameObject\GameObject.h" />
     <ClInclude Include="code\application\Enemy\BehaviorTree\KnockBack.h" />
+    <ClInclude Include="code\application\scene\TitleScene.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">

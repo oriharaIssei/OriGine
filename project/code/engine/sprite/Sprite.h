@@ -29,8 +29,8 @@ class Sprite {
     friend class SpriteCommon;
 
 public:
-    Sprite(SpriteCommon* spriteCommon)
-        : spriteCommon_(spriteCommon) {}
+    Sprite()
+        : spriteCommon_(SpriteCommon::getInstance()) {}
     ~Sprite() = default;
 
     /// <summary>

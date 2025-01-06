@@ -102,7 +102,7 @@ DirectX::ScratchImage Texture::Load(const std::string& filePath) {
 void Texture::UploadTextureData(DirectX::ScratchImage& mipImg, ID3D12Resource* resource) {
     std::vector<D3D12_SUBRESOURCE_DATA> subResources;
     auto dxDevice = Engine::getInstance()->getDxDevice();
-    
+
     DirectX::PrepareUpload(
         dxDevice->getDevice(),
         mipImg.GetImages(),
@@ -209,7 +209,8 @@ uint32_t TextureManager::LoadTexture(const std::string& filePath, std::function<
     loadThread_->pushTask(
         {.filePath     = filePath,
          .textureIndex = index,
-         .texture      = textures_[index].get()});
+         .texture      = textures_[index].get(),
+         .callBack     = callBack});
 
     return index;
 }

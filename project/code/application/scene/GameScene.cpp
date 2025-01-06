@@ -7,6 +7,7 @@
 #include "Engine.h"
 //module
 #include "../Collision/CollisionManager.h"
+#include "SceneManager.h"
 #include "directX12/DxRtvArrayManager.h"
 #include "directX12/DxSrvArrayManager.h"
 #include "material/texture/TextureManager.h"
@@ -106,6 +107,15 @@ void GameScene::Update() {
         if (playerAttackCollider && playerAttackCollider->getIsAlive()) {
             activeGameObjects_.push_back(playerAttackCollider);
         }
+    } else {
+        // playerが死んだらタイトルに戻る
+        SceneManager::getInstance()->changeScene("TitleScene");
+        return;
+    }
+    if (enemyManager_->getSpawners().empty()) {
+        // クリア
+        SceneManager::getInstance()->changeScene("TitleScene");
+        return;
     }
     for (auto& enemySpawner : enemyManager_->getSpawners()) {
         if (enemySpawner->getIsAlive()) {
