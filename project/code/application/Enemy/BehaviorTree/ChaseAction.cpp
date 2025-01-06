@@ -9,6 +9,19 @@
 #include "myRandom/MyRandom.h"
 
 namespace EnemyBehavior {
+IsNearToPlayer::IsNearToPlayer(float _distance) {}
+IsNearToPlayer::~IsNearToPlayer() {
+}
+Status IsNearToPlayer::tick() {
+    Vector3 playerPos = enemy_->getPlayer()->getTranslate();
+    Vector3 enemyPos  = enemy_->getTranslate();
+    Vector3 dist      = playerPos - enemyPos;
+    if (dist.lengthSq() < distance_ * distance_) {
+        return Status::SUCCESS;
+    }
+    return Status::FAILURE;
+}
+
 ChaseAction::ChaseAction(float _speed, float _targetDistance)
     : speed_(_speed),
       targetDistance_(_targetDistance) {}

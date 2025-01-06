@@ -12,10 +12,17 @@
 #include "globalVariables/SerializedField.h"
 
 namespace EnemyBehavior {
+class IsNearToPlayer
+    : public Condition {
+public:
+    IsNearToPlayer(float _distance);
+    ~IsNearToPlayer();
+    Status tick() override;
+};
 class ChaseAction
     : public Action {
 public:
-    ChaseAction(float _speed,float _targetDistance);
+    ChaseAction(float _speed, float _targetDistance);
     ~ChaseAction();
 
     Status tick() override;
