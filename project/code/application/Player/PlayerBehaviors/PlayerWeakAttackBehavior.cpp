@@ -48,22 +48,30 @@ void PlayerWeakAttackBehavior::StartUp() {
     if (currentTimer_ >= startUpTime_) {
         currentTimer_ = 0.0f;
 
-        std::unique_ptr<AttackCollider> attackCollider_ = std::make_unique<AttackCollider>("PlayerWeakAttack" + std::to_string(currentCombo_));
+        AttackCollider* attackCollider_ = player_->getAttackCollider();
+        attackCollider_->getHitCollider()->resetRadius("PlayerWeakAttack" + std::to_string(currentCombo_));
 
         Vector3 colliderPos = player_->getTranslate();
         colliderPos += TransformVector(attackColliderOffset_, MakeMatrix::RotateQuaternion(player_->getRotate()));
         attackCollider_->Init();
-        attackCollider_->ColliderInit(colliderPos, [this](GameObject* object) {
-            if (!object) {
-                return;
-            }
-            if (object->getID() != "Enemy") {
-                return;
-            }
-            IEnemy* enemy = reinterpret_cast<IEnemy*>(object);
-            enemy->Damage(player_->getPower() * attackPower_);
-        });
-        player_->setAttackCollider(attackCollider_);
+        attackCollider_->ColliderInit(
+            colliderPos,
+            [this](GameObject* object) {
+                if (!object) {
+                    return;
+                }
+                if (object->getID() != "Enemy") {
+                    return;
+                }
+                IEnemy* enemy = dynamic_cast<IEnemy*>(object);
+
+                if (!enemy && enemy->getIsInvisible()) {
+                    return;
+                }
+
+                enemy->Damage(player_->getPower() * attackPower_);
+                enemy->setInvisibleTime(0.1f);
+            });
         currentUpdate_ = [this]() {
             this->Action();
         };
@@ -73,7 +81,7 @@ void PlayerWeakAttackBehavior::StartUp() {
 void PlayerWeakAttackBehavior::Action() {
     currentTimer_ += Engine::getInstance()->getDeltaTime();
 
-    if (input->isPadActive() && !nextBehavior_ && currentCombo_ < maxCombo_) {
+    if (input->isPadActive() && !nextBehavior_ && currentCombo_ + 1 < maxCombo_) {
         if (input->isTriggerButton(XINPUT_GAMEPAD_X)) {
             nextBehavior_.reset(new PlayerWeakAttackBehavior(player_, currentCombo_ + 1));
         }
@@ -81,7 +89,7 @@ void PlayerWeakAttackBehavior::Action() {
 
     if (currentTimer_ >= actionTime_) {
         currentTimer_ = 0.0f;
-        player_->resetAttackCollider();
+        player_->getAttackCollider()->getHitCollider()->setIsAlive(false);
         currentUpdate_ = [this]() {
             this->EndLag();
         };
@@ -98,7 +106,7 @@ void PlayerWeakAttackBehavior::EndLag() {
         player_->ChangeBehavior(nextBehavior_);
         return;
     } else {
-        if (input->isPadActive() && currentCombo_ < maxCombo_) {
+        if (input->isPadActive() && currentCombo_ + 1 < maxCombo_) {
             if (input->isTriggerButton(XINPUT_GAMEPAD_X)) {
                 nextBehavior_.reset(new PlayerWeakAttackBehavior(player_, currentCombo_ + 1));
             }

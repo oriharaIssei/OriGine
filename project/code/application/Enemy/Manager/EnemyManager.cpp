@@ -16,23 +16,12 @@ EnemyManager::~EnemyManager() {
 }
 
 void EnemyManager::Init() {
+    enemies_.reserve(maxEnemyCount_);
+
     for (int32_t i = 0; i < spawnerCount_; ++i) {
         auto& spawner = spawners_.emplace_back(new EnemySpawner(new WeakEnemy(), i));
         spawner->Init();
         spawner->setEnemyManager(this);
-    }
-}
-
-void EnemyManager::Update() {
-    removeDeadSpawner();
-    removeDeadEnemy();
-
-    for (auto& spawner : spawners_) {
-        spawner->Update();
-    }
-
-    for (auto& enemy : enemies_) {
-        enemy->Update();
     }
 }
 
@@ -50,8 +39,10 @@ void EnemyManager::setCollidersForCollisionManager(CollisionManager* _collisionM
         _collisionManager->addCollider(spawner->getHitCollider());
     }
     for (auto& enemy : enemies_) {
-        _collisionManager->addCollider(enemy->getHitCollider());
-        if (enemy->getAttackCollider()) {
+        if (enemy && enemy->getHitCollider()->getIsAlive()) {
+            _collisionManager->addCollider(enemy->getHitCollider());
+        }
+        if (enemy->getAttackCollider() && enemy->getAttackCollider()->getIsAlive()) {
             _collisionManager->addCollider(enemy->getAttackCollider()->getHitCollider());
         }
     }

@@ -26,7 +26,7 @@ void GameCamera::Update() {
         if (input->isPadActive()) {
             rotateVelocity = input->getRStickVelocity() * rotateSpeed_;
             // input の x,yをそれぞれの角度に変換
-            destinationAngleXY_ += {rotateVelocity.y, -rotateVelocity.x};
+            destinationAngleXY_ += {-rotateVelocity.y, rotateVelocity.x};
         }
 
         destinationAngleXY_.x = std::clamp(destinationAngleXY_.x, minRotateX_.operator float(), maxRotateX_.operator float());

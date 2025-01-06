@@ -10,26 +10,22 @@
 
 namespace EnemyBehavior {
 CreateAttackCollider::CreateAttackCollider(
-    const std::string& _colliderID, const Vector3& _colliderOffset)
+    const std::string& _colliderID,
+    const Vector3& _colliderOffset,
+    std::function<void(GameObject*)> onCollision)
     : colliderID_(_colliderID),
-      colliderOffset_(_colliderOffset) {}
+      colliderOffset_(_colliderOffset),
+      onCollision_(onCollision) {}
 
 CreateAttackCollider::~CreateAttackCollider() {}
 
 Status CreateAttackCollider::tick() {
-    std::unique_ptr<AttackCollider> collider = std::make_unique<AttackCollider>(colliderID_);
+    AttackCollider* collider = enemy_->getAttackCollider();
     collider->Init();
-    collider->ColliderInit(colliderOffset_, [this](GameObject* object) {
-        if (!object) {
-            return;
-        }
-        if (object->getID() != "Player") {
-            return;
-        }
-        Player* player = reinterpret_cast<Player*>(object);
-        player->Damage(enemy_->getAttack());
-    });
-    enemy_->setAttackCollider(collider);
+
+    Vector3 offset = TransformVector(colliderOffset_, MakeMatrix::RotateQuaternion(enemy_->getRotate()));
+
+    collider->ColliderInit(offset, onCollision_);
     return Status::SUCCESS;
 }
 

@@ -26,7 +26,6 @@ public:
     ~EnemyManager();
 
     void Init();
-    void Update();
     void Draw();
 
 private:
@@ -37,13 +36,16 @@ private:
 
     std::vector<std::unique_ptr<EnemySpawner>> spawners_;
 
-    std::list<std::unique_ptr<IEnemy>> enemies_;
+    std::vector<std::unique_ptr<IEnemy>> enemies_;
 
 public:
     Player* getPlayer() const { return player_; }
     void setPlayer(Player* player) {
         player_ = player;
     }
+
+    std::vector<std::unique_ptr<EnemySpawner>>& getSpawners() { return spawners_; }
+    std::vector<std::unique_ptr<IEnemy>>& getEnemies() { return enemies_; }
 
     void setCollidersForCollisionManager(CollisionManager* _collisionManager);
 
@@ -58,6 +60,4 @@ public:
     void removeDeadEnemy();
     void removeDeadSpawner();
     void clear() { enemies_.clear(); }
-
-
 };

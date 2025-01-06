@@ -9,6 +9,7 @@
 //lib
 #include "myRandom/MyRandom.h"
 ///application
+#include "../AttackCollider/AttackCollider.h"
 #include "../Player/Player.h"
 
 #pragma region WeakEnemyBehavior
@@ -46,6 +47,27 @@ public:
         idleForAttack->setEnemy(_enemy);
         idleForAttack->LerpNextAnimation(0.06f);
 
+        auto createAttackCollider =
+            std::make_unique<EnemyBehavior::CreateAttackCollider>(
+                "EnemyAttack",
+                Vector3(0.0f, 0.0f, 2.0f),
+                [this](GameObject* object) {
+                    if (!object) {
+                        return;
+                    }
+                    if (object->getID() != "Player") {
+                        return;
+                    }
+                    Player* player = dynamic_cast<Player*>(object);
+
+                    if (!player && player->getInvisibleTime()) {
+                        return;
+                    }
+                    player->Damage(enemy_->getAttack());
+                    player->setInvisibleTime(0.6f);
+                });
+        createAttackCollider->setEnemy(_enemy);
+
         addChild(std::move(chaseAnimation));
         addChild(std::move(chase));
         addChild(std::move(idleAnimation));
@@ -53,6 +75,7 @@ public:
         addChild(std::move(chaseForIdle));
         addChild(std::move(secondChase));
         addChild(std::move(idleForAttack));
+        addChild(std::move(createAttackCollider));
         addChild(std::move(attack));
     }
     ~WeakEnemyBehavior() {}
@@ -78,31 +101,15 @@ void WeakEnemy::Init() {
 
     // Collider
     hitCollider_ = std::make_unique<Collider>("WeakEnemy");
-    hitCollider_->Init([this](GameObject* object) {
-        // null check
-        if (!object) {
-            return;
-        }
-
-        if (object->getID() != "PlayerAttack") {
-            return;
-        }
-
-        // Damage
-        if (isInvisible_) {
-            return;
-        }
-        IEnemy* enemy = reinterpret_cast<IEnemy*>(object);
-        currentHp_ -= enemy->getAttack();
-
-        // set invisible
-        isInvisible_   = true;
-        invisibleTime_ = 0.4f;
-    });
+    hitCollider_->Init();
     hitCollider_->setHostObject(this);
     hitCollider_->setParent(&drawObject3d_->transform_);
 
     behaviorTree_ = std::make_unique<WeakEnemyBehavior>(this);
+
+    attackCollider_ = std::make_unique<AttackCollider>("EnemyAttack");
+    attackCollider_->Init();
+    attackCollider_->setIsAlive(false);
 }
 
 void WeakEnemy::Update() {

@@ -19,7 +19,7 @@ void CollisionManager::Update() {
         ++bItr;
         for (; bItr != colliders_.end(); ++bItr) {
 
-            Collider* bCollider = *aItr;
+            Collider* bCollider = *bItr; 
             if (!bCollider->getIsAlive()) {
                 break;
             }

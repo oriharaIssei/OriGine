@@ -26,7 +26,17 @@ Status ChaseAction::tick() {
     }
 
     // 移動
-    dist = dist.normalize();
+    dist                            = dist.normalize();
+    const Quaternion& currentRotate = enemy_->getRotate();
+    { // Player を 入力方向 へ 回転
+        Quaternion inputDirectionRotate = Quaternion::RotateAxisAngle({0.0f, 1.0f, 0.0f}, atan2(dist.x, dist.z));
+        inputDirectionRotate            = inputDirectionRotate.normalize();
+        enemy_->setRotate(LerpShortAngle(currentRotate, inputDirectionRotate, 0.3f).normalize());
+
+        if (std::isnan(currentRotate.x)) {
+            enemy_->setRotate(inputDirectionRotate);
+        }
+    }
     enemyPos += dist * (speed_ * Engine::getInstance()->getDeltaTime());
     // セット
     enemy_->setTranslate(enemyPos);

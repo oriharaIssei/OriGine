@@ -39,7 +39,6 @@ private:
     bool isInvisible_    = false;
     float invisibleTime_ = 0.0f;
 
-    std::unique_ptr<Collider> hitCollider_;
     std::unique_ptr<AttackCollider> attackCollider_;
 
     SerializedField<float> maxMoveLenght_;
@@ -50,8 +49,6 @@ public:
 
     CameraTransform* getCameraTransform() const { return cameraTransform_; }
     void setCameraTransform(CameraTransform* cameraTransform) { cameraTransform_ = cameraTransform; }
-
-    Collider* getHitCollider() const { return hitCollider_.get(); }
 
     float getHP() const {
         return currentHp_;
@@ -71,10 +68,10 @@ public:
     void setAttackCollider(std::unique_ptr<AttackCollider>& attackCollider) {
         attackCollider_ = std::move(attackCollider);
     }
-    void resetAttackCollider() {
-        attackCollider_.reset();
-    }
 
-    void setInvisibleTime(float time) { invisibleTime_ = time; }
+    void setInvisibleTime(float time) {
+        isInvisible_   = true;
+        invisibleTime_ = time;
+    }
     float getInvisibleTime() const { return invisibleTime_; }
 };

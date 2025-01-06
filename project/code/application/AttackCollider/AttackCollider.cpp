@@ -11,6 +11,7 @@ AttackCollider::~AttackCollider() {
 }
 
 void AttackCollider::Init() {
+    isAlive_     = true;
     hitCollider_ = std::make_unique<Collider>(id_);
 }
 
