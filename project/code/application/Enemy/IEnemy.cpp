@@ -1,7 +1,12 @@
 #include "IEnemy.h"
 
-#include "myRandom/MyRandom.h"
+//behavior
+#include "BehaviorTree/KnockBack.h"
+
+//component
 #include "object3d/Object3d.h"
+//lib
+#include "myRandom/MyRandom.h"
 
 IEnemy::IEnemy(const std::string& _type)
     : GameObject("Enemy"),
@@ -21,4 +26,8 @@ IEnemy::~IEnemy() {
 
 void IEnemy::Draw() {
     drawObject3d_->Draw();
+}
+
+void IEnemy::KnockBack(const Vector3& direction, float speed) {
+    behaviorTree_ = std::make_unique<EnemyBehavior::KnockBack>(this, direction, speed, std::move(behaviorTree_));
 }

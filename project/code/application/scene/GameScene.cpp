@@ -138,10 +138,8 @@ void GameScene::Update() {
         }
     }
 
-    //checkCollison
+    //checkCollison & clear
     collisionManager_->Update();
-    //clear
-    collisionManager_->clearCollider();
 }
 
 void GameScene::Draw3d() {

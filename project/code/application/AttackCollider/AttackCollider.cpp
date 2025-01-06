@@ -19,6 +19,11 @@ void AttackCollider::Update() {
     hitCollider_->UpdateMatrix();
 }
 
+void AttackCollider::resetRadius(const std::string& id) {
+    id_ = id;
+    hitCollider_->resetRadius(id);
+}
+
 void AttackCollider::ColliderInit(
     const Vector3& position,
     std::function<void(GameObject*)> onCollision) {

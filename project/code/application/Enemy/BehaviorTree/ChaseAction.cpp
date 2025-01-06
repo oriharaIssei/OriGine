@@ -9,7 +9,8 @@
 #include "myRandom/MyRandom.h"
 
 namespace EnemyBehavior {
-IsNearToPlayer::IsNearToPlayer(float _distance) {}
+IsNearToPlayer::IsNearToPlayer(float _distance)
+    : distance_(_distance) {}
 IsNearToPlayer::~IsNearToPlayer() {
 }
 Status IsNearToPlayer::tick() {

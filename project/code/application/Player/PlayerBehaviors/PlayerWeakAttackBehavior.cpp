@@ -49,7 +49,7 @@ void PlayerWeakAttackBehavior::StartUp() {
         currentTimer_ = 0.0f;
 
         AttackCollider* attackCollider_ = player_->getAttackCollider();
-        attackCollider_->getHitCollider()->resetRadius("PlayerWeakAttack" + std::to_string(currentCombo_));
+        attackCollider_->resetRadius("PlayerWeakAttack" + std::to_string(currentCombo_));
 
         Vector3 colliderPos = player_->getTranslate();
         colliderPos += TransformVector(attackColliderOffset_, MakeMatrix::RotateQuaternion(player_->getRotate()));
@@ -70,6 +70,8 @@ void PlayerWeakAttackBehavior::StartUp() {
                 }
 
                 enemy->Damage(player_->getPower() * attackPower_);
+                Vector3 knockBackDirection = enemy->getTranslate() - player_->getTranslate();
+                enemy->KnockBack(knockBackDirection.normalize(), 11.1f);
                 enemy->setInvisibleTime(0.1f);
             });
         currentUpdate_ = [this]() {

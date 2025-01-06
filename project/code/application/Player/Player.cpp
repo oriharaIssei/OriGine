@@ -25,6 +25,7 @@ Player::Player()
 Player::~Player() {}
 
 void Player::Init() {
+    isAlive_ = true;
     // DrawObject
     drawObject3d_ = std::make_unique<AnimationObject3d>();
     drawObject3d_->Init(AnimationSetting("PlayerIdle"));
@@ -38,6 +39,10 @@ void Player::Init() {
     hitCollider_->Init();
     hitCollider_->setHostObject(this);
     hitCollider_->setParent(&drawObject3d_->transform_);
+
+    attackCollider_ = std::make_unique<AttackCollider>("NULL");
+    attackCollider_->Init();
+    attackCollider_->setIsAlive(false);
 }
 
 void Player::Update() {
