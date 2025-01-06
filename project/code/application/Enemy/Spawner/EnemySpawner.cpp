@@ -71,6 +71,7 @@ void EnemySpawner::Update() {
 std::unique_ptr<IEnemy> EnemySpawner::Spawn() {
     std::unique_ptr<IEnemy> clone = std::move(cloneOrigine_->Clone());
     clone->Init();
+    clone->setTranslate(position_);
     clone->setPlayer(enemyManager_->getPlayer());
     return clone;
 }

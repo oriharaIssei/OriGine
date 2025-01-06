@@ -4,12 +4,16 @@
 #include "DefaultNodes.h"
 
 ///stl
+//pointer
+#include <functional>
 //string
 #include <string>
 
-///engine
+///object
+class GameObject;
 //lib
 #include "globalVariables/SerializedField.h"
+
 
 namespace EnemyBehavior {
 class CreateAttackCollider
@@ -17,7 +21,8 @@ class CreateAttackCollider
 public:
     CreateAttackCollider(
         const std::string& _colliderID,
-        const Vector3& _colliderOffset);
+        const Vector3& _colliderOffset,
+        std::function<void(GameObject*)> onCollision = nullptr);
     ~CreateAttackCollider();
 
     Status tick() override;
@@ -25,6 +30,7 @@ public:
 private:
     std::string colliderID_;
     Vector3 colliderOffset_;
+    std::function<void(GameObject*)> onCollision_ = nullptr;
 };
 
 class WeakAttackAction

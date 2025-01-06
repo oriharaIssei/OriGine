@@ -26,7 +26,6 @@ private:
     std::string id_;
 
     std::unique_ptr<Collider> hitCollider_ = nullptr;
-
 public:
     void ColliderInit(
         const Vector3& position,

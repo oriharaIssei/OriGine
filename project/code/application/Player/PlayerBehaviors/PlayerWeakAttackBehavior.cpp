@@ -53,16 +53,24 @@ void PlayerWeakAttackBehavior::StartUp() {
         Vector3 colliderPos = player_->getTranslate();
         colliderPos += TransformVector(attackColliderOffset_, MakeMatrix::RotateQuaternion(player_->getRotate()));
         attackCollider_->Init();
-        attackCollider_->ColliderInit(colliderPos, [this](GameObject* object) {
-            if (!object) {
-                return;
-            }
-            if (object->getID() != "Enemy") {
-                return;
-            }
-            IEnemy* enemy = reinterpret_cast<IEnemy*>(object);
-            enemy->Damage(player_->getPower() * attackPower_);
-        });
+        attackCollider_->ColliderInit(
+            colliderPos,
+            [this](GameObject* object) {
+                if (!object) {
+                    return;
+                }
+                if (object->getID() != "Enemy") {
+                    return;
+                }
+                IEnemy* enemy = dynamic_cast<IEnemy*>(object);
+
+                if (!enemy && enemy->getIsInvisible()) {
+                    return;
+                }
+
+                enemy->Damage(player_->getPower() * attackPower_);
+                enemy->setInvisibleTime(0.1f);
+            });
         player_->setAttackCollider(attackCollider_);
         currentUpdate_ = [this]() {
             this->Action();
@@ -73,7 +81,7 @@ void PlayerWeakAttackBehavior::StartUp() {
 void PlayerWeakAttackBehavior::Action() {
     currentTimer_ += Engine::getInstance()->getDeltaTime();
 
-    if (input->isPadActive() && !nextBehavior_ && currentCombo_ < maxCombo_) {
+    if (input->isPadActive() && !nextBehavior_ && currentCombo_ + 1 < maxCombo_) {
         if (input->isTriggerButton(XINPUT_GAMEPAD_X)) {
             nextBehavior_.reset(new PlayerWeakAttackBehavior(player_, currentCombo_ + 1));
         }
@@ -98,7 +106,7 @@ void PlayerWeakAttackBehavior::EndLag() {
         player_->ChangeBehavior(nextBehavior_);
         return;
     } else {
-        if (input->isPadActive() && currentCombo_ < maxCombo_) {
+        if (input->isPadActive() && currentCombo_ + 1 < maxCombo_) {
             if (input->isTriggerButton(XINPUT_GAMEPAD_X)) {
                 nextBehavior_.reset(new PlayerWeakAttackBehavior(player_, currentCombo_ + 1));
             }

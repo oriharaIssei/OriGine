@@ -35,12 +35,6 @@ void PlayerRootBehavior::Action() {
             input->getLStickVelocity().x,
             0.0f, // 上方向には 移動しない
             input->getLStickVelocity().y};
-    } else {
-        directionXZ = {
-            static_cast<float>(input->isPressKey(DIK_D) - input->isPressKey(DIK_A)),
-            0.0f, // 上方向には 移動しない
-            static_cast<float>(input->isPressKey(DIK_W) - input->isPressKey(DIK_S))};
-        directionXZ = directionXZ.normalize();
     }
 
     if (directionXZ.lengthSq() == 0.0f) {
@@ -51,12 +45,17 @@ void PlayerRootBehavior::Action() {
     if (cameraTransform) {
         directionXZ = TransformVector(directionXZ, MakeMatrix::RotateY(cameraTransform->rotate.y));
     }
-    lastDir_ = directionXZ;
+    lastDir_ = directionXZ.normalize();
 
-    const Quaternion& currentPlayerRotate = player_->getRotate();
+    Quaternion currentPlayerRotate = player_->getRotate();
     { // Player を 入力方向 へ 回転
-        Quaternion inputDirectionRotate = Quaternion::RotateAxisAngle({0.0f, 1.0f, 0.0f}, atan2(directionXZ.x, directionXZ.z));
-        player_->setRotate(Slerp(currentPlayerRotate, inputDirectionRotate.normalize(), 0.3f).normalize());
+        Quaternion inputDirectionRotate = Quaternion::RotateAxisAngle({0.0f, 1.0f, 0.0f}, atan2(lastDir_.x, lastDir_.z));
+        inputDirectionRotate            = inputDirectionRotate.normalize();
+        player_->setRotate(LerpShortAngle(currentPlayerRotate, inputDirectionRotate, 0.3f).normalize());
+
+        if (std::isnan(player_->getRotate().x)) {
+            player_->setRotate(inputDirectionRotate);
+        }
     }
     { // 方向と速度を 使って 次の座標を計算
         // 速度を 秒単位に

@@ -16,8 +16,8 @@
 //component
 #include "application/Collision/Collider.h"
 //object
-#include "../GameObject/GameObject.h"
 #include "../AttackCollider/AttackCollider.h"
+#include "../GameObject/GameObject.h"
 class Collider;
 class Player;
 //math
@@ -54,6 +54,9 @@ protected:
 
     SerializedField<float> maxMoveLenght_;
 
+    bool isInvisible_    = true;
+    float invisibleTime_ = 0.0f;
+
 public:
     Player* getPlayer() { return player_; }
     void setPlayer(Player* player) {
@@ -85,11 +88,21 @@ public:
         return attack_;
     }
 
+    void setInvisibleTime(float time) {
+        isInvisible_   = true;
+        invisibleTime_ = time;
+    }
+    bool getIsInvisible() const {
+        return isInvisible_;
+    }
+
     AttackCollider* getAttackCollider() const { return attackCollider_.get(); }
     void setAttackCollider(std::unique_ptr<AttackCollider>& attackCollider) {
         attackCollider_ = std::move(attackCollider);
     }
     void resetAttackCollider() {
-        attackCollider_.reset();
+        if (attackCollider_) {
+            attackCollider_->setIsAlive(false);
+        }
     }
 };

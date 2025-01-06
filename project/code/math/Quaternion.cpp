@@ -1,5 +1,6 @@
 #include "Quaternion.h"
 
+#include <algorithm>
 #include <cmath>
 #include <iomanip>
 #include <iostream>
@@ -144,7 +145,7 @@ float Quaternion::normSq() const {
 Quaternion Quaternion::Normalize(const Quaternion& q) {
     float norm = q.norm();
     if (norm == 0.0f) {
-        return {0.0f, 0.0f, 0.0f, 0.0f};
+        return {0.0f, 0.0f, 0.0f, 1.0f};
     }
     return q / norm;
 }
@@ -152,7 +153,7 @@ Quaternion Quaternion::Normalize(const Quaternion& q) {
 Quaternion Quaternion::normalize() const {
     float norm = this->norm();
     if (norm == 0.0f) {
-        return {0.0f, 0.0f, 0.0f, 0.0f};
+        return {0.0f, 0.0f, 0.0f, 1.0f};
     }
     return *this / norm;
 }
@@ -201,4 +202,18 @@ Quaternion Slerp(const Quaternion& q0, const Quaternion& q1, float t) {
     float scale1 = sinf(t * theta) / sinTheta;
 
     return q0 * scale0 + q1 * scale1;
+}
+
+Quaternion LerpShortAngle(const Quaternion& q1, const Quaternion& q2, float t) {
+    t         = std::clamp(t, 0.0f, 1.0f);
+    float dot = q1.dot(q1);
+
+    Quaternion q2Copy = q2;
+    if (dot < 0.0f) {
+        q2Copy = -q2Copy;
+        dot    = -dot;
+    }
+
+    Quaternion result = Lerp(q1, q2Copy, t);
+    return result.normalize();
 }

@@ -72,9 +72,14 @@ public:
         attackCollider_ = std::move(attackCollider);
     }
     void resetAttackCollider() {
-        attackCollider_.reset();
+        if (attackCollider_) {
+            attackCollider_->setIsAlive(false);
+        }
     }
 
-    void setInvisibleTime(float time) { invisibleTime_ = time; }
+    void setInvisibleTime(float time) {
+        isInvisible_   = true;
+        invisibleTime_ = time;
+    }
     float getInvisibleTime() const { return invisibleTime_; }
 };

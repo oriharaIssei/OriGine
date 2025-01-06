@@ -17,6 +17,7 @@
 Player::Player()
     : GameObject("Player"),
       hp_("Game", "Player", "hp"),
+      power_("Game", "Player", "power"),
       maxMoveLenght_("Game", "Player", "maxMoveLenght") {
     currentHp_ = hp_;
 }
@@ -34,32 +35,18 @@ void Player::Init() {
 
     // Collider
     hitCollider_ = std::make_unique<Collider>("Player");
-    hitCollider_->Init([this](GameObject* object) {
-        // null check
-        if (!object) {
-            return;
-        }
-
-        if (object->getID() != "EnemyAttack") {
-            return;
-        }
-
-        // Damage
-        if (isInvisible_) {
-            return;
-        }
-        IEnemy* enemy = reinterpret_cast<IEnemy*>(object);
-        currentHp_ -= enemy->getAttack();
-
-        // set invisible
-        isInvisible_   = true;
-        invisibleTime_ = 0.7f;
-    });
+    hitCollider_->Init();
     hitCollider_->setHostObject(this);
     hitCollider_->setParent(&drawObject3d_->transform_);
 }
 
 void Player::Update() {
+    if (attackCollider_) {
+        if (!attackCollider_->getIsAlive()) {
+            attackCollider_.reset();
+        }
+    }
+
     currentBehavior_->Update();
 
     { // Transform Update

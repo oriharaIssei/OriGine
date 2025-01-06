@@ -67,7 +67,7 @@ void GameScene::Init() {
 
     //terrain
     ground_ = std::make_unique<Object3d>();
-    ground_->Init("resource/Models", "Ground.obj");
+    ground_->Init("resource/Models", "BattleField.obj");
 
     skyDome_ = std::make_unique<Object3d>();
     skyDome_->Init("resource/Models", "Skydome.obj");
@@ -91,13 +91,18 @@ void GameScene::Update() {
     CameraManager::getInstance()->setTransform(gameCamera_->getCameraTransform());
 #endif // _DEBUG
 
-    player_->Update();
+    //clear
+    collisionManager_->clearCollider();
 
+    enemyManager_->removeDeadEnemy();
+    enemyManager_->removeDeadSpawner();
+
+    //player
+    player_->Update();
+    //enemies
     enemyManager_->Update();
 
     ///collision
-    //clear
-    collisionManager_->clearCollider();
     //add
     collisionManager_->addCollider(player_->getHitCollider());
     if (player_->getAttackCollider()) {
@@ -105,6 +110,7 @@ void GameScene::Update() {
     }
     enemyManager_->setCollidersForCollisionManager(collisionManager_.get());
 
+    //checkCollison
     collisionManager_->Update();
 }
 
@@ -116,7 +122,7 @@ void GameScene::Draw3d() {
 
     enemyManager_->Draw();
 
- //   collisionManager_->Draw();
+    //   collisionManager_->Draw();
 }
 
 void GameScene::DrawLine() {}
