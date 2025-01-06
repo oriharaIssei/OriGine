@@ -27,6 +27,8 @@ BlendMode Object3d::currentBlend_ = BlendMode::Alpha;
 
 #pragma region "Object3d"
 void Object3d::PreDraw() {
+    currentBlend_ = BlendMode::Alpha;
+
     ModelManager* manager = ModelManager::getInstance();
     auto* commandList     = manager->dxCommand_->getCommandList();
 
@@ -36,6 +38,15 @@ void Object3d::PreDraw() {
     Engine::getInstance()->getLightManager()->SetForRootParameter(commandList);
 
     CameraManager::getInstance()->setBufferForRootParameter(commandList, 1);
+}
+
+void Object3d::setBlendMode(BlendMode blend) {
+    currentBlend_         = blend;
+    ModelManager* manager = ModelManager::getInstance();
+    auto* commandList     = manager->dxCommand_->getCommandList();
+
+    commandList->SetGraphicsRootSignature(manager->texturePso_[static_cast<uint32_t>(currentBlend_)]->rootSignature.Get());
+    commandList->SetPipelineState(manager->texturePso_[static_cast<uint32_t>(currentBlend_)]->pipelineState.Get());
 }
 
 Object3d::Object3d() {}

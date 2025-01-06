@@ -88,5 +88,3 @@ inline Quaternion Lerp(const Quaternion& start, const Quaternion& end, float tim
 }
 
 Quaternion Slerp(const Quaternion& q0, const Quaternion& q1, float t);
-
-Quaternion LerpShortAngle(const Quaternion& q1, const Quaternion& q2, float t);

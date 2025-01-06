@@ -183,37 +183,25 @@ void Quaternion::Show() {
 }
 
 Quaternion Slerp(const Quaternion& q0, const Quaternion& q1, float t) {
-    float dot         = q0.dot(q1);
-    Quaternion rotate = q0;
+    float dot = q0.dot(q1);
 
-    /// dot が 0未満なら 反転(逆回転)
-    if (dot < 0) {
-        rotate = -rotate;
-        dot    = -dot;
+    // ドット積が負の場合、q1 を反転して最短経路を取る
+    Quaternion q1Adjusted = q1;
+    if (dot < 0.0f) {
+        q1Adjusted = -q1Adjusted;
+        dot        = -dot;
     }
 
-    float theta = acosf(dot);
-    if (theta == 0.0f) {
-        return q0;
+    // θがほぼゼロの場合、直接返す
+    if (dot > 0.9995f) {
+        return (q0 * (1.0f - t) + q1Adjusted * t).normalize(); // 線形補間を用いる
     }
+
+    float theta    = acosf(dot);
     float sinTheta = sinf(theta);
 
     float scale0 = sinf((1.0f - t) * theta) / sinTheta;
     float scale1 = sinf(t * theta) / sinTheta;
 
-    return q0 * scale0 + q1 * scale1;
-}
-
-Quaternion LerpShortAngle(const Quaternion& q1, const Quaternion& q2, float t) {
-    t         = std::clamp(t, 0.0f, 1.0f);
-    float dot = q1.dot(q1);
-
-    Quaternion q2Copy = q2;
-    if (dot < 0.0f) {
-        q2Copy = -q2Copy;
-        dot    = -dot;
-    }
-
-    Quaternion result = Lerp(q1, q2Copy, t);
-    return result.normalize();
+    return (q0 * scale0 + q1Adjusted * scale1).normalize(); // 結果を正規化
 }

@@ -51,7 +51,7 @@ void PlayerRootBehavior::Action() {
     { // Player を 入力方向 へ 回転
         Quaternion inputDirectionRotate = Quaternion::RotateAxisAngle({0.0f, 1.0f, 0.0f}, atan2(lastDir_.x, lastDir_.z));
         inputDirectionRotate            = inputDirectionRotate.normalize();
-        player_->setRotate(LerpShortAngle(currentPlayerRotate, inputDirectionRotate, 0.3f).normalize());
+        player_->setRotate(Slerp(currentPlayerRotate, inputDirectionRotate, 0.3f).normalize());
 
         if (std::isnan(player_->getRotate().x)) {
             player_->setRotate(inputDirectionRotate);

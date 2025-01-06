@@ -41,6 +41,8 @@ protected:
 
     std::unique_ptr<AttackCollider> attackCollider_;
 
+    std::unique_ptr<Object3d> shadowObject_;
+
     std::unique_ptr<EnemyBehavior::Node> behaviorTree_ = nullptr;
 
     SerializedField<float> hp_;
@@ -60,6 +62,11 @@ public:
     void setPlayer(Player* player) {
         player_ = player;
     }
+
+    void setBehaviorTree(std::unique_ptr<EnemyBehavior::Node>& behaviorTree) {
+        behaviorTree_ = std::move(behaviorTree);
+    }
+    void KnockBack(const Vector3& direction, float speed);
 
     Collider* getHitCollider() const {
         return hitCollider_.get();

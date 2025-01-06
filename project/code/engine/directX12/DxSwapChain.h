@@ -27,7 +27,8 @@ private:
 	std::shared_ptr<DxRtvArray> backBuffers_;
 	UINT bufferCount_;
 
-	const float clearColor_[4] = {0.1f,0.25f,0.5f,1.0f};
+	const float clearColor_[4] = {0.2f, 0.2f, 0.2f, 1.0f};
+
 public:
 	UINT getBufferCount()const{ return bufferCount_; }
 	UINT getCurrentBackBufferIndex()const{ return swapChain_->GetCurrentBackBufferIndex(); }

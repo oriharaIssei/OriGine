@@ -1,11 +1,13 @@
 #include "CollisionManager.h"
 
-CollisionManager::CollisionManager() {}
+CollisionManager::CollisionManager() {
+    colliders_.reserve(100);
+}
 
 CollisionManager::~CollisionManager() {}
 
 void CollisionManager::Update() {
-    for (std::list<Collider*>::iterator aItr = colliders_.begin();
+    for (std::vector<Collider*>::iterator aItr = colliders_.begin();
          aItr != colliders_.end();
          ++aItr) {
 
@@ -15,11 +17,11 @@ void CollisionManager::Update() {
         }
         aCollider->UpdateMatrix();
 
-        std::list<Collider*>::iterator bItr = aItr;
+        std::vector<Collider*>::iterator bItr = aItr;
         ++bItr;
         for (; bItr != colliders_.end(); ++bItr) {
 
-            Collider* bCollider = *bItr; 
+            Collider* bCollider = *bItr;
             if (!bCollider->getIsAlive()) {
                 break;
             }
@@ -30,6 +32,8 @@ void CollisionManager::Update() {
             }
         }
     }
+
+    colliders_.clear();
 }
 
 void CollisionManager::Draw() {

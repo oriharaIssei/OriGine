@@ -1,7 +1,7 @@
 #pragma once
 
 ///stl
-#include <list>
+#include <vector>
 
 ///engine
 #include "Collider.h"
@@ -17,18 +17,13 @@ public:
 private:
     void CheckCollisionPair(Collider* a, Collider* b);
 
-    std::list<Collider*> colliders_;
+    std::vector<Collider*> colliders_;
 
 public:
     void addCollider(Collider* collider) {
         if (collider) {
             colliders_.push_back(collider);
         }
-    }
-    void removeDeadCollider() {
-        colliders_.remove_if([](Collider* c) {
-            return !c->getIsAlive() || c == nullptr;
-        });
     }
     void clearCollider() {
         colliders_.clear();

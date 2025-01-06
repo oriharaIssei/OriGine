@@ -15,7 +15,7 @@ class Object3d {
 public:
     static void PreDraw();
 
-    static void setBlendMode(BlendMode blend) { currentBlend_ = blend; }
+    static void setBlendMode(BlendMode blend);
 
     void Init(const std::string& directoryPath, const std::string& filename);
 
@@ -50,5 +50,7 @@ private:
 
 public:
     const Model* getModel() const { return data_.get(); }
+    Model* getModel() { return data_.get(); }
+
     void setMaterial(IConstantBuffer<Material>* material, uint32_t index = 0);
 };

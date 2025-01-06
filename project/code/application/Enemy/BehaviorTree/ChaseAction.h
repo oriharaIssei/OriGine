@@ -3,14 +3,6 @@
 //parent
 #include "DefaultNodes.h"
 
-///stl
-//string
-#include <string>
-
-///engine
-//lib
-#include "globalVariables/SerializedField.h"
-
 namespace EnemyBehavior {
 class IsNearToPlayer
     : public Condition {
@@ -18,6 +10,9 @@ public:
     IsNearToPlayer(float _distance);
     ~IsNearToPlayer();
     Status tick() override;
+
+private:
+    float distance_ = 0.0f;
 };
 class ChaseAction
     : public Action {

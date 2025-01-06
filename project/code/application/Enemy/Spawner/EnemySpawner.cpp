@@ -28,22 +28,25 @@ void EnemySpawner::Init() {
     drawObject3d_ = std::make_unique<AnimationObject3d>();
     drawObject3d_->Init(AnimationSetting("EnemySpawner"));
     drawObject3d_->transform_.translate = position_;
+    // Shadow
+    shadowObject_ = std::make_unique<Object3d>();
+    shadowObject_->Init("resource/Models", "ShadowPlane.obj");
+    {
+        auto model = shadowObject_->getModel();
+        while (true) {
+            if (model->meshData_->currentState_ == LoadState::Loaded) {
+                break;
+            }
+        }
+        for (auto& material : model->materialData_) {
+            material.material = Engine::getInstance()->getMaterialManager()->Create("Shadow");
+        }
+    }
+    shadowObject_->transform_.scale = Vector3(3.5f, 3.5f, 3.5f);
 
     // Collider
     hitCollider_ = std::make_unique<Collider>("EnemySpawner");
-    hitCollider_->Init([this](GameObject* object) {
-        // null check
-        if (!object) {
-            return;
-        }
-
-        if (object->getID() != "PlayerAttack") {
-            return;
-        }
-
-        // Damage
-        hp_ -= 1.0f;
-    });
+    hitCollider_->Init();
     hitCollider_->setHostObject(this);
     hitCollider_->setParent(&drawObject3d_->transform_);
 }
@@ -66,6 +69,20 @@ void EnemySpawner::Update() {
 
     setTranslate(position_);
     drawObject3d_->Update(Engine::getInstance()->getDeltaTime());
+
+    // Shadow
+    {
+        shadowObject_->transform_.translate = (Vector3(drawObject3d_->transform_.translate.x, -0.03f, drawObject3d_->transform_.translate.z));
+        shadowObject_->UpdateTransform();
+    }
+}
+
+void EnemySpawner::Draw() {
+    drawObject3d_->Draw();
+    // Shadow
+    Object3d::setBlendMode(BlendMode::Sub);
+    shadowObject_->Draw();
+    Object3d::setBlendMode(BlendMode::Alpha);
 }
 
 std::unique_ptr<IEnemy> EnemySpawner::Spawn() {
