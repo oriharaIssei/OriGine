@@ -110,6 +110,22 @@ void WeakEnemy::Init() {
     attackCollider_ = std::make_unique<AttackCollider>("EnemyAttack");
     attackCollider_->Init();
     attackCollider_->setIsAlive(false);
+
+    // Shadow
+    shadowObject_ = std::make_unique<Object3d>();
+    shadowObject_->Init("resource/Models", "ShadowPlane.obj");
+    {
+        auto model = shadowObject_->getModel();
+        while (true) {
+            if (model->meshData_->currentState_ == LoadState::Loaded) {
+                break;
+            }
+        }
+        for (auto& material : model->materialData_) {
+            material.material = Engine::getInstance()->getMaterialManager()->Create("Shadow");
+        }
+    }
+    shadowObject_->transform_.scale = Vector3(2.3f, 2.3f, 2.3f);
 }
 
 void WeakEnemy::Update() {

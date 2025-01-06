@@ -22,7 +22,7 @@ void SceneManager::Init() {
     sceneView_ = std::make_unique<RenderTexture>(Engine::getInstance()->getDxCommand(), sceneViewRtvArray_.get(), sceneViewSrvArray_.get());
     /// TODO
     // fix MagicNumber
-    sceneView_->Init({1280.0f, 720.0f}, DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, {0.0f, 0.0f, 0.0f, 0.0f});
+    sceneView_->Init({1280.0f, 720.0f}, DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, {0.0f, 0.0f, 0.0f, 1.0f});
 }
 
 void SceneManager::Finalize() {

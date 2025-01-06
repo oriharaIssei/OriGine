@@ -41,6 +41,8 @@ protected:
 
     std::unique_ptr<AttackCollider> attackCollider_;
 
+    std::unique_ptr<Object3d> shadowObject_;
+
     std::unique_ptr<EnemyBehavior::Node> behaviorTree_ = nullptr;
 
     SerializedField<float> hp_;

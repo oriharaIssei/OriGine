@@ -26,6 +26,15 @@ IEnemy::~IEnemy() {
 
 void IEnemy::Draw() {
     drawObject3d_->Draw();
+
+    // Shadow
+    {
+        shadowObject_->transform_.translate = (Vector3(drawObject3d_->transform_.translate.x, -0.03f, drawObject3d_->transform_.translate.z));
+        shadowObject_->UpdateTransform();
+    }
+    Object3d::setBlendMode(BlendMode::Sub);
+    shadowObject_->Draw();
+    Object3d::setBlendMode(BlendMode::Alpha);
 }
 
 void IEnemy::KnockBack(const Vector3& direction, float speed) {

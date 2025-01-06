@@ -29,6 +29,7 @@ public:
 
 private:
     std::unique_ptr<IPlayerBehavior> currentBehavior_;
+    std::unique_ptr<Object3d> shadowObject_;
 
     std::unique_ptr<AnimationObject3d> effectAnimationObject_;
 

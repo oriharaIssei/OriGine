@@ -1,6 +1,8 @@
 #pragma once
 
 /// engine
+//component
+class Object3d;
 //lib
 #include "globalVariables/SerializedField.h"
 
@@ -22,12 +24,15 @@ public:
 
     void Init();
     void Update();
+    void Draw();
 
     std::unique_ptr<IEnemy> Spawn();
 
 private:
     EnemyManager* enemyManager_ = nullptr;
     IEnemy* cloneOrigine_       = nullptr;
+
+    std::unique_ptr<Object3d> shadowObject_;
 
     SerializedField<float> spawnCoolTime_;
     float leftCoolTime_ = 0.0f;
