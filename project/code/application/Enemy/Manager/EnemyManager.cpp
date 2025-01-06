@@ -16,20 +16,12 @@ EnemyManager::~EnemyManager() {
 }
 
 void EnemyManager::Init() {
+    enemies_.reserve(maxEnemyCount_);
+
     for (int32_t i = 0; i < spawnerCount_; ++i) {
         auto& spawner = spawners_.emplace_back(new EnemySpawner(new WeakEnemy(), i));
         spawner->Init();
         spawner->setEnemyManager(this);
-    }
-}
-
-void EnemyManager::Update() {
-    for (auto& spawner : spawners_) {
-        spawner->Update();
-    }
-
-    for (auto& enemy : enemies_) {
-        enemy->Update();
     }
 }
 

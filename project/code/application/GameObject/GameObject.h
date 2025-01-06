@@ -8,6 +8,7 @@
 /// Engine
 // component
 #include "Object3d/AnimationObject3d.h"
+#include "application/Collision/Collider.h"
 #include "transform/Transform.h"
 
 class GameObject {
@@ -21,6 +22,8 @@ public:
 protected:
     std::unique_ptr<AnimationObject3d> drawObject3d_;
 
+    std::unique_ptr<Collider> hitCollider_;
+
     bool isAlive_ = false;
 
 private:
@@ -31,6 +34,8 @@ public:
     void setIsAlive(bool isAlive) { isAlive_ = isAlive; }
 
     const std::string& getID() const { return id_; }
+
+    Collider* getHitCollider() const { return hitCollider_.get(); }
 
     AnimationObject3d* getDrawObject3d() const {
         return drawObject3d_.get();

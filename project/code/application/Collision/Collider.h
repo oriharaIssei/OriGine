@@ -5,7 +5,7 @@
 #include <functional>
 
 //object
-#include "../GameObject/GameObject.h"
+class GameObject;
 ///engine
 //component
 #include "transform/Transform.h"
@@ -46,6 +46,7 @@ public:
     void setParent(Transform* parent) { transform_.parent = parent; }
 
     float getRadius() const { return currentRadius_; }
+    void resetRadius(const std::string& id);
 
     Vector3 getPosition() const { return transform_.worldMat[3]; }
 

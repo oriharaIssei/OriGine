@@ -106,6 +106,10 @@ void WeakEnemy::Init() {
     hitCollider_->setParent(&drawObject3d_->transform_);
 
     behaviorTree_ = std::make_unique<WeakEnemyBehavior>(this);
+
+    attackCollider_ = std::make_unique<AttackCollider>("EnemyAttack");
+    attackCollider_->Init();
+    attackCollider_->setIsAlive(false);
 }
 
 void WeakEnemy::Update() {
@@ -115,12 +119,6 @@ void WeakEnemy::Update() {
     }
     if (!isAlive_) {
         return;
-    }
-
-     if (attackCollider_) {
-        if (!attackCollider_->getIsAlive()) {
-            attackCollider_.reset();
-        }
     }
 
     behaviorTree_->tick();

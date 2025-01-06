@@ -29,8 +29,6 @@ private:
     EnemyManager* enemyManager_ = nullptr;
     IEnemy* cloneOrigine_       = nullptr;
 
-    std::unique_ptr<Collider> hitCollider_ = nullptr;
-
     SerializedField<float> spawnCoolTime_;
     float leftCoolTime_ = 0.0f;
 
@@ -48,8 +46,6 @@ public:
     void setCloneOrigine(IEnemy* cloneOrigine) {
         cloneOrigine_ = cloneOrigine;
     }
-
-    Collider* getHitCollider() const { return hitCollider_.get(); }
 
     bool getIsAlive() const { return isAlive_; }
     void setIsAlive(bool isAlive) {

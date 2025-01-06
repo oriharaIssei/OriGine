@@ -20,13 +20,12 @@ CreateAttackCollider::CreateAttackCollider(
 CreateAttackCollider::~CreateAttackCollider() {}
 
 Status CreateAttackCollider::tick() {
-    std::unique_ptr<AttackCollider> collider = std::make_unique<AttackCollider>(colliderID_);
+    AttackCollider* collider = enemy_->getAttackCollider();
     collider->Init();
 
     Vector3 offset = TransformVector(colliderOffset_, MakeMatrix::RotateQuaternion(enemy_->getRotate()));
 
     collider->ColliderInit(offset, onCollision_);
-    enemy_->setAttackCollider(collider);
     return Status::SUCCESS;
 }
 

@@ -39,8 +39,6 @@ public:
 protected:
     Player* player_ = nullptr;
 
-    std::unique_ptr<Collider> hitCollider_;
-
     std::unique_ptr<AttackCollider> attackCollider_;
 
     std::unique_ptr<EnemyBehavior::Node> behaviorTree_ = nullptr;

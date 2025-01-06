@@ -41,12 +41,6 @@ void Player::Init() {
 }
 
 void Player::Update() {
-    if (attackCollider_) {
-        if (!attackCollider_->getIsAlive()) {
-            attackCollider_.reset();
-        }
-    }
-
     currentBehavior_->Update();
 
     { // Transform Update

@@ -49,10 +49,13 @@ void GameScene::Init() {
 
 #endif // _DEBUG
 
+    //input
     input_ = Input::getInstance();
-
+    //camera
     gameCamera_ = std::make_unique<GameCamera>();
     gameCamera_->Init();
+
+    activeGameObjects_.reserve(100);
 
     collisionManager_ = std::make_unique<CollisionManager>();
 
@@ -91,27 +94,54 @@ void GameScene::Update() {
     CameraManager::getInstance()->setTransform(gameCamera_->getCameraTransform());
 #endif // _DEBUG
 
-    //clear
-    collisionManager_->clearCollider();
+    activeGameObjects_.clear();
+
+    // add activeGameObjects_
+    if (player_->getIsAlive()) {
+        activeGameObjects_.push_back(player_.get());
+
+        auto playerAttackCollider = player_->getAttackCollider();
+        if (playerAttackCollider && playerAttackCollider->getIsAlive()) {
+            activeGameObjects_.push_back(playerAttackCollider);
+        }
+    }
+    for (auto& enemySpawner : enemyManager_->getSpawners()) {
+        if (enemySpawner->getIsAlive()) {
+            activeGameObjects_.push_back(enemySpawner.get());
+        }
+    }
+    for (auto& enemy : enemyManager_->getEnemies()) {
+        if (enemy->getIsAlive()) {
+            activeGameObjects_.push_back(enemy.get());
+
+            auto enemyAttackCollider = enemy->getAttackCollider();
+            if (enemyAttackCollider && enemyAttackCollider->getIsAlive()) {
+                activeGameObjects_.push_back(enemyAttackCollider);
+            }
+        }
+    }
+
+    // update activeGameObjects_
+    for (auto& gameObject : activeGameObjects_) {
+        gameObject->Update();
+    }
 
     enemyManager_->removeDeadEnemy();
     enemyManager_->removeDeadSpawner();
 
-    //player
-    player_->Update();
-    //enemies
-    enemyManager_->Update();
-
     ///collision
     //add
-    collisionManager_->addCollider(player_->getHitCollider());
-    if (player_->getAttackCollider()) {
-        collisionManager_->addCollider(player_->getAttackCollider()->getHitCollider());
+    for (auto& gameObject : activeGameObjects_) {
+        auto collider = gameObject->getHitCollider();
+        if (collider && collider->getIsAlive()) {
+            collisionManager_->addCollider(collider);
+        }
     }
-    enemyManager_->setCollidersForCollisionManager(collisionManager_.get());
 
     //checkCollison
     collisionManager_->Update();
+    //clear
+    collisionManager_->clearCollider();
 }
 
 void GameScene::Draw3d() {
