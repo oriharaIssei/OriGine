@@ -127,6 +127,7 @@ void MaterialEditor::Update() {
 }
 
 void MaterialEditor::MenuUpdate() {
+#ifdef _DEBUG
     if (ImGui::BeginMenuBar()) {
         if (ImGui::BeginMenu("File")) {
             if (ImGui::MenuItem("SaveAll")) {
@@ -139,4 +140,5 @@ void MaterialEditor::MenuUpdate() {
         }
     }
     ImGui::EndMenuBar();
+#endif // _DEBUG
 }

@@ -40,6 +40,7 @@ void AnimationEditor::Init() {
 }
 
 void AnimationEditor::Update() {
+#ifdef _DEBUG 
     bool openCreateNewPopup = false;
 
     if (ImGui::Begin("AnimationEditor", nullptr, ImGuiWindowFlags_MenuBar)) {
@@ -411,6 +412,8 @@ void AnimationEditor::Update() {
             currentEditObject_->Update(Engine::getInstance()->getDeltaTime());
         }
     }
+
+#endif // _DEBUG
 }
 
 void AnimationEditor::DrawEditObject() {
