@@ -22,12 +22,9 @@ public:
     void OnCollision(GameObject* collisionObject);
 
     void UpdateMatrix();
-    void Draw();
 
 private:
     GameObject* hostObject_ = nullptr;
-
-    std::unique_ptr<Object3d> drawObject3d_;
 
     Transform transform_;
     SerializedField<float> radius_;

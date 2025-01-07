@@ -154,4 +154,5 @@ WeakEnemyBehavior::WeakEnemyBehavior(IEnemy* _enemy) {
 }
 
 WeakEnemyBehavior::~WeakEnemyBehavior() {
+    enemy_->getAttackCollider()->setIsAlive(false);
 }

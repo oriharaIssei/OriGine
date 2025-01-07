@@ -32,6 +32,8 @@ void PlayerDodgeBehavior::Init() {
             break;
         }
     }
+
+    player_->setInvisibleTime(actionTime_);
 }
 void PlayerDodgeBehavior::Update() {
     currentUpdate_();

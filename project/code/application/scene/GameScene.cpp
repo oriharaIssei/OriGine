@@ -21,6 +21,7 @@
 #include "camera/CameraManager.h"
 #include "directX12/RenderTexture.h"
 #include "object3d/AnimationObject3d.h"
+#include "sprite/Sprite.h"
 
 //object
 #include "../AttackCollider/AttackCollider.h"
@@ -28,6 +29,7 @@
 #include "../Enemy/WeakEnemy.h"
 #include "../HitEffectManager/HitEffectManager.h"
 #include "../Player/Player.h"
+#include "../PlayerHpBar/PlayerHpBar.h"
 #include "camera/gameCamera/GameCamera.h"
 //debug
 #ifdef _DEBUG
@@ -37,7 +39,10 @@
 #endif // _DEBUG
 
 GameScene::GameScene()
-    : IScene("GameScene") {}
+    : IScene("GameScene"),
+      dashUIPos_{"Game", "UI", "dashUIPos"},
+      attackUIPos_{"Game", "UI", "attackUIPos"},
+      jumpUIPos_{"Game", "UI", "jumpUIPos"} {}
 
 GameScene::~GameScene() {}
 
@@ -77,6 +82,26 @@ void GameScene::Init() {
     skyDome_->Init("resource/Models", "Skydome.obj");
 
     HitEffectManager::getInstance()->Init();
+
+    //UI
+    dashUI_   = std::make_unique<Sprite>();
+    attackUI_ = std::make_unique<Sprite>();
+    jumpUI_   = std::make_unique<Sprite>();
+    dashUI_->Init("resource/Texture/dashUI.png");
+    attackUI_->Init("resource/Texture/attackUI.png");
+    jumpUI_->Init("resource/Texture/jumpUI.png");
+
+    dashUI_->setAnchorPoint(Vector2(0.5f, 0.5f));
+    attackUI_->setAnchorPoint(Vector2(0.5f, 0.5f));
+    jumpUI_->setAnchorPoint(Vector2(0.5f, 0.5f));
+    Vector2 uiSize_ = Vector2(128.0f, 32.0f);
+    dashUI_->setSize(uiSize_);
+    attackUI_->setSize(uiSize_);
+    jumpUI_->setSize(uiSize_);
+
+    playerHpBar_ = std::make_unique<PlayerHpBar>();
+    playerHpBar_->setPlayer(player_.get());
+    playerHpBar_->Init();
 }
 
 void GameScene::Update() {
@@ -97,6 +122,7 @@ void GameScene::Update() {
     CameraManager::getInstance()->setTransform(gameCamera_->getCameraTransform());
 #endif // _DEBUG
 
+    collisionManager_->clearCollider();
     enemyManager_->removeDeadEnemy();
     enemyManager_->removeDeadSpawner();
     activeGameObjects_.clear();
@@ -153,6 +179,16 @@ void GameScene::Update() {
     collisionManager_->Update();
 
     HitEffectManager::getInstance()->Update();
+
+    //UI
+    dashUI_->setPosition(dashUIPos_);
+    dashUI_->Update();
+    attackUI_->setPosition(attackUIPos_);
+    attackUI_->Update();
+    jumpUI_->setPosition(jumpUIPos_);
+    jumpUI_->Update();
+
+    playerHpBar_->Update();
 }
 
 void GameScene::Draw3d() {
@@ -163,11 +199,17 @@ void GameScene::Draw3d() {
 
     enemyManager_->Draw();
     HitEffectManager::getInstance()->Draw();
-    collisionManager_->Draw();
+    //collisionManager_->Draw();
 }
 
 void GameScene::DrawLine() {}
 
-void GameScene::DrawSprite() {}
+void GameScene::DrawSprite() {
+    dashUI_->Draw();
+    attackUI_->Draw();
+    jumpUI_->Draw();
+
+    playerHpBar_->Draw();
+}
 
 void GameScene::DrawParticle() {}

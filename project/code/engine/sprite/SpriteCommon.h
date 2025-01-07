@@ -30,7 +30,7 @@ public:
     void Finalize();
 
 private:
-    BlendMode currentBlend_;
+    BlendMode currentBlend_ = BlendMode::None;
 
     void CreatePSO();
     Matrix4x4 viewPortMat_;

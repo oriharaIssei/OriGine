@@ -111,6 +111,8 @@ void SpriteCommon::CreatePSO() {
         "Sprite_Screen"};
 
     for (size_t i = 0; i < kBlendNum; i++) {
+        shaderInfo.blendMode_ = static_cast<BlendMode>(i);
+
         pso_[i] = shaderManager->CreatePso(psoKeys[i], shaderInfo, Engine::getInstance()->getDxDevice()->getDevice());
     }
 }

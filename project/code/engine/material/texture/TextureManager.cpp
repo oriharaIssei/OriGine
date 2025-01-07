@@ -192,7 +192,7 @@ void TextureManager::Finalize() {
     }
 }
 
-uint32_t TextureManager::LoadTexture(const std::string& filePath, std::function<void()> callBack) {
+uint32_t TextureManager::LoadTexture(const std::string& filePath, std::function<void(uint32_t loadedIndex)> callBack) {
     uint32_t index = 0;
     for (index = 0; index < textures_.size(); ++index) {
         if (textures_[index] == nullptr) {
@@ -200,7 +200,7 @@ uint32_t TextureManager::LoadTexture(const std::string& filePath, std::function<
             break;
         } else if (filePath == textures_[index]->path) {
             if (callBack) {
-                callBack();
+                callBack(index);
             }
             return index;
         }
@@ -228,7 +228,7 @@ void TextureManager::LoadTask::Update() {
     texture->Init(filePath, dxSrvArray.lock(), textureIndex);
 
     if (callBack) {
-        callBack();
+        callBack(TextureManager::LoadTexture(filePath));
     }
 }
 #pragma endregion

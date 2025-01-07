@@ -73,6 +73,9 @@ public:
     float getHP() const {
         return currentHp_;
     }
+    float getMaxHp() const {
+        return hp_;
+    }
     void setHP(float hp) {
         currentHp_ = hp;
     }

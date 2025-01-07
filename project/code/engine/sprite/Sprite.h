@@ -76,22 +76,25 @@ private:
 
 public:
     void setSize(const Vector2& size) { size_ = size; }
-    const Vector2& GetSize() const { return size_; }
+    const Vector2& getSize() const { return size_; }
 
     void setRotate(float rotate) { rotate_ = rotate; }
-    float GetRotate() const { return rotate_; }
+    float getRotate() const { return rotate_; }
 
     void setPosition(const Vector2& pos) { pos_ = pos; }
-    const Vector2& GetPosition() const { return pos_; }
+    const Vector2& getPosition() const { return pos_; }
 
     void setUVScale(const Vector3& uvScale) { uvScale_ = uvScale; }
-    const Vector3& GetUVScale() const { return uvScale_; }
+    const Vector3& getUVScale() const { return uvScale_; }
 
     void setUVRotate(const Vector3& uvRotate) { uvRotate_ = uvRotate; }
-    const Vector3& GetUVRotate() const { return uvRotate_; }
+    const Vector3& getUVRotate() const { return uvRotate_; }
 
     void setUVTranslate(const Vector3& uvTranslate) { uvTranslate_ = uvTranslate; }
-    const Vector3& GetUVTranslate() const { return uvTranslate_; }
+    const Vector3& getUVTranslate() const { return uvTranslate_; }
+
+    void setColor(const Vector4& color) { color_ = color; }
+    const Vector4& getColor() const { return color_; }
 
     void setAnchorPoint(const Vector2& anchor) { anchorPoint_ = anchor; }
 

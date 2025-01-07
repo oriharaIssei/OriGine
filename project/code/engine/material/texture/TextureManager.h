@@ -52,7 +52,7 @@ public:
     static void Init();
     static void Finalize();
 
-    static uint32_t LoadTexture(const std::string& filePath, std::function<void()> callBack = nullptr);
+    static uint32_t LoadTexture(const std::string& filePath, std::function<void(uint32_t loadedIndex)> callBack = nullptr);
     static void UnloadTexture(uint32_t id);
 
 public:
@@ -67,7 +67,7 @@ private:
         uint32_t textureIndex = 0;
         Texture* texture      = nullptr;
 
-        std::function<void()> callBack = nullptr;
+        std::function<void(uint32_t loadedIndex)> callBack = nullptr;
         void Update();
     };
     static std::unique_ptr<TaskThread<LoadTask>> loadThread_;

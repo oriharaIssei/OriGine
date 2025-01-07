@@ -41,6 +41,14 @@ void SceneManager::Update() {
 
 void SceneManager::Draw() {
     sceneView_->PreDraw();
+
+    ///===============================================
+    /// sprite
+    ///===============================================
+    SpriteCommon::getInstance()->PreDraw();
+
+    currentScene_->DrawSprite();
+
     ///===============================================
     /// 3d Object
     ///===============================================
@@ -59,12 +67,7 @@ void SceneManager::Draw() {
     ParticleManager::getInstance()->PreDraw();
 
     currentScene_->DrawParticle();
-    ///===============================================
-    /// sprite
-    ///===============================================
-    SpriteCommon::getInstance()->PreDraw();
-
-    currentScene_->DrawSprite();
+   
     ///===============================================
     /// off screen Rendering
     ///===============================================

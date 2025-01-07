@@ -39,14 +39,6 @@ void CollisionManager::Update() {
 
 }
 
-void CollisionManager::Draw() {
-    for (Collider* c : colliders_) {
-        c->Draw();
-    }
-
-    colliders_.clear();
-}
-
 void CollisionManager::CheckCollisionPair(
     Collider* a,
     Collider* b) {

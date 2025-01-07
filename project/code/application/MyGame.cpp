@@ -6,6 +6,7 @@
 
 //scene
 #include "scene/AnimationEditScene.h"
+#include "scene/GameClearScene.h"
 #include "scene/GameScene.h"
 #include "scene/TitleScene.h"
 
@@ -26,6 +27,7 @@ void MyGame::Init(){
     //exe 上で 使用するscene
     sceneManager_->addScene("TitleScene", std::make_unique<TitleScene>());
     sceneManager_->addScene("GameScene",std::make_unique<GameScene>());
+    sceneManager_->addScene("GameClearScene", std::make_unique<GameClearScene>());
    sceneManager_->addScene("AnimationEditScene",std::make_unique<AnimationEditScene>());
     sceneManager_->changeScene("TitleScene");
 }

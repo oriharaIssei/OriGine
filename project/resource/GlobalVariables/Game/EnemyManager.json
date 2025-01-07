@@ -1,6 +1,6 @@
 {
     "EnemyManager": {
-        "maxEnemyCount": 12,
+        "maxEnemyCount": 8,
         "spawnerCount": 4
     }
 }

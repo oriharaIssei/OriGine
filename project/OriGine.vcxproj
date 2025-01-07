@@ -190,6 +190,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="code\application\Enemy\BehaviorTree\KnockBack.cpp" />
     <ClCompile Include="code\application\scene\TitleScene.cpp" />
     <ClCompile Include="code\application\HitEffectManager\HitEffectManager.cpp" />
+    <ClCompile Include="code\application\scene\GameClearScene.cpp" />
+    <ClCompile Include="code\application\PlayerHpBar\PlayerHpBar.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\application\AttackCollider\AttackCollider.h" />
@@ -375,6 +377,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="code\application\Enemy\BehaviorTree\KnockBack.h" />
     <ClInclude Include="code\application\scene\TitleScene.h" />
     <ClInclude Include="code\application\HitEffectManager\HitEffectManager.h" />
+    <ClInclude Include="code\application\scene\GameClearScene.h" />
+    <ClInclude Include="code\application\PlayerHpBar\PlayerHpBar.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">

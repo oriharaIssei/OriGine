@@ -12,12 +12,11 @@ public:
     ~CollisionManager();
 
     void Update();
-    void Draw();
-
 private:
     void CheckCollisionPair(Collider* a, Collider* b);
 
     std::vector<Collider*> colliders_;
+
 public:
     void addCollider(Collider* collider) {
         if (collider) {

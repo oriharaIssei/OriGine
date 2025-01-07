@@ -10,11 +10,11 @@ class Input;
 //component
 class Sprite;
 
-class TitleScene
+class GameClearScene
     : public IScene {
 public:
-    TitleScene();
-    ~TitleScene();
+    GameClearScene();
+    ~GameClearScene();
 
     void Init();
     void Update();
@@ -27,8 +27,8 @@ public:
 private:
     Input* input_ = nullptr;
 
-    float time_;
+    float time_ = 0.0f;
 
-    std::unique_ptr<Sprite> title_;
+    std::unique_ptr<Sprite> text_;
     std::unique_ptr<Sprite> pushA_;
 };
