@@ -62,8 +62,11 @@ void Player::Init() {
 }
 
 void Player::Update() {
-    if (hp_ <= 0.0f) {
+    if (currentHp_ <= 0.0f) {
         isAlive_ = false;
+        return;
+    }
+    if (!isAlive_) {
         return;
     }
 

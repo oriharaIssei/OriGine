@@ -40,7 +40,7 @@ Engine* Engine::getInstance() {
 
 void Engine::Init() {
     window_ = std::make_unique<WinApp>();
-    window_->CreateGameWindow(L"OriGine", WS_OVERLAPPEDWINDOW, 1280, 720);
+    window_->CreateGameWindow(L"LE2A_07_OriharaIssei_AL4", WS_OVERLAPPEDWINDOW, 1280, 720);
 
     input_ = Input::getInstance();
     input_->Init();

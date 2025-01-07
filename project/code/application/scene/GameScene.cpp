@@ -164,7 +164,7 @@ void GameScene::Update() {
     }
     if (enemyManager_->getSpawners().empty()) {
         // クリア
-        SceneManager::getInstance()->changeScene("TitleScene");
+        SceneManager::getInstance()->changeScene("GameClearScene");
         return;
     }
     for (auto& enemySpawner : enemyManager_->getSpawners()) {

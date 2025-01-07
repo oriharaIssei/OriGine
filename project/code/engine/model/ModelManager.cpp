@@ -42,93 +42,7 @@ struct hash<VertexKey> {
 };
 } // namespace std
 
-ModelManager* ModelManager::getInstance() {
-    static ModelManager instance{};
-    return &instance;
-}
-
-std::unique_ptr<Model> ModelManager::Create(
-    const std::string& directoryPath,
-    const std::string& filename,
-    std::function<void(Model*)> callBack) {
-    std::unique_ptr<Model> result = std::make_unique<Model>();
-
-    std::string filePath = directoryPath + "/" + filename;
-
-    const auto itr = modelLibrary_.find(filePath);
-    if (itr != modelLibrary_.end()) {
-        auto* targetModelMesh = itr->second.get();
-        while (true) {
-            if (targetModelMesh->currentState_ == LoadState::Loaded) {
-                break;
-            }
-        }
-        result->meshData_     = targetModelMesh;
-        result->materialData_ = defaultMaterials_[result->meshData_];
-
-         for (auto& mesh : result->meshData_->mesh_) {
-            result->transformBuff_[&mesh].CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
-
-            result->transformBuff_[&mesh].openData_.UpdateMatrix();
-            result->transformBuff_[&mesh].ConvertToBuffer();
-        }
-
-        if (callBack != nullptr) {
-            callBack(result.get());
-        }
-
-        return result;
-    }
-
-    modelLibrary_[filePath] = std::make_unique<ModelMeshData>();
-
-    result            = std::make_unique<Model>();
-    result->meshData_ = modelLibrary_[filePath].get();
-    loadThread_->pushTask(
-        {.directory = directoryPath,
-         .fileName  = filename,
-         .model     = result.get(),
-         .callBack  = callBack});
-
-    return result;
-}
-
-void ModelManager::Init() {
-    loadThread_ = std::make_unique<TaskThread<ModelManager::LoadTask>>();
-    loadThread_->Init(1);
-
-    fovMa_           = std::make_unique<Matrix4x4>();
-    Matrix4x4* maPtr = new Matrix4x4();
-    *maPtr           = MakeMatrix::PerspectiveFov(
-        0.45f,
-        static_cast<float>(Engine::getInstance()->getWinApp()->getWidth()) /
-            static_cast<float>(Engine::getInstance()->getWinApp()->getHeight()),
-        0.1f,
-        100.0f);
-    fovMa_.reset(
-        maPtr);
-
-    dxCommand_ = std::make_unique<DxCommand>();
-    dxCommand_->Init(Engine::getInstance()->getDxDevice()->getDevice(), "main", "main");
-
-    size_t index = 0;
-
-    for (auto& texShaderKey : Engine::getInstance()->getTexturePsoKeys()) {
-        texturePso_[index] = ShaderManager::getInstance()->getPipelineStateObj(texShaderKey);
-        index++;
-    }
-}
-
-void ModelManager::Finalize() {
-    loadThread_->Finalize();
-    dxCommand_->Finalize();
-    modelLibrary_.clear();
-}
-
-void ModelManager::pushBackDefaultMaterial(ModelMeshData* key, Material3D material) {
-    defaultMaterials_[key].emplace_back(material);
-}
-
+#pragma region"LoadFunctions"
 void ProcessMeshData(Mesh3D& meshData, const std::vector<TextureVertexData>& vertices, const std::vector<uint32_t>& indices) {
     TextureObject3dMesh* textureMesh = new TextureObject3dMesh();
 
@@ -289,7 +203,126 @@ void LoadModelFile(ModelMeshData* data, const std::string& directoryPath, const 
     }
 }
 
+#pragma endregion
+
+ModelManager* ModelManager::getInstance() {
+    static ModelManager instance{};
+    return &instance;
+}
+
+std::unique_ptr<Model> ModelManager::Create(
+    const std::string& directoryPath,
+    const std::string& filename,
+    std::function<void(Model*)> callBack) {
+    std::unique_ptr<Model> result = std::make_unique<Model>();
+
+    std::string filePath = directoryPath + "/" + filename;
+
+    const auto itr = modelLibrary_.find(filePath);
+    if (itr != modelLibrary_.end()) {
+        auto* targetModelMesh = itr->second.get();
+        while (true) {
+            if (targetModelMesh->currentState_ == LoadState::Loaded) {
+                break;
+            }
+        }
+        result->meshData_     = targetModelMesh;
+        result->materialData_ = defaultMaterials_[result->meshData_];
+
+        for (auto& mesh : result->meshData_->mesh_) {
+            result->transformBuff_[&mesh].CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+
+            result->transformBuff_[&mesh].openData_.UpdateMatrix();
+            result->transformBuff_[&mesh].ConvertToBuffer();
+        }
+
+        if (callBack != nullptr) {
+            callBack(result.get());
+        }
+
+        return result;
+    }
+
+    modelLibrary_[filePath] = std::make_unique<ModelMeshData>();
+
+    result            = std::make_unique<Model>();
+    result->meshData_ = modelLibrary_[filePath].get();
+
+    result->meshData_->currentState_ = LoadState::Unloaded;
+
+    try {
+        LoadModelFile(result->meshData_, directoryPath, filename);
+    } catch (const std::exception& e) {
+        // エラーハンドリング
+        std::cerr << "Error loading model file: " << e.what() << std::endl;
+        return nullptr;
+    }
+
+    result->materialData_ = ModelManager::getInstance()->defaultMaterials_[result->meshData_];
+
+    auto device = Engine::getInstance()->getDxDevice()->getDevice();
+    std::mutex mutex;
+    for (auto& mesh : result->meshData_->mesh_) {
+        try {
+            std::lock_guard<std::mutex> lock(mutex);
+            result->transformBuff_[&mesh] = IConstantBuffer<Transform>();
+            result->transformBuff_[&mesh].CreateBuffer(device);
+            result->transformBuff_[&mesh].openData_.UpdateMatrix();
+            result->transformBuff_[&mesh].ConvertToBuffer();
+        } catch (const std::exception& e) {
+            // エラーハンドリング
+            std::cerr << "Error creating or updating buffer: " << e.what() << std::endl;
+            return nullptr;
+        }
+    }
+
+    if (callBack != nullptr) {
+        callBack(result.get());
+    }
+
+    result->meshData_->currentState_ = LoadState::Loaded;
+    return result;
+}
+
+void ModelManager::Init() {
+    loadThread_ = std::make_unique<TaskThread<ModelManager::LoadTask>>();
+    loadThread_->Init(1);
+
+    fovMa_           = std::make_unique<Matrix4x4>();
+    Matrix4x4* maPtr = new Matrix4x4();
+    *maPtr           = MakeMatrix::PerspectiveFov(
+        0.45f,
+        static_cast<float>(Engine::getInstance()->getWinApp()->getWidth()) /
+            static_cast<float>(Engine::getInstance()->getWinApp()->getHeight()),
+        0.1f,
+        100.0f);
+    fovMa_.reset(
+        maPtr);
+
+    dxCommand_ = std::make_unique<DxCommand>();
+    dxCommand_->Init(Engine::getInstance()->getDxDevice()->getDevice(), "main", "main");
+
+    size_t index = 0;
+
+    for (auto& texShaderKey : Engine::getInstance()->getTexturePsoKeys()) {
+        texturePso_[index] = ShaderManager::getInstance()->getPipelineStateObj(texShaderKey);
+        index++;
+    }
+}
+
+void ModelManager::Finalize() {
+    loadThread_->Finalize();
+    dxCommand_->Finalize();
+    modelLibrary_.clear();
+}
+
+void ModelManager::pushBackDefaultMaterial(ModelMeshData* key, Material3D material) {
+    defaultMaterials_[key].emplace_back(material);
+}
+
 void ModelManager::LoadTask::Update() {
+    std::mutex mutex_;
+    std::lock_guard<std::mutex> lock(mutex_);
     model->meshData_->currentState_ = LoadState::Unloaded;
 
     try {
