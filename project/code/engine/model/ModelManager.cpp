@@ -292,15 +292,30 @@ void LoadModelFile(ModelMeshData* data, const std::string& directoryPath, const 
 void ModelManager::LoadTask::Update() {
     model->meshData_->currentState_ = LoadState::Unloaded;
 
-    LoadModelFile(model->meshData_, this->directory, this->fileName);
+    try {
+        LoadModelFile(model->meshData_, this->directory, this->fileName);
+    } catch (const std::exception& e) {
+        // エラーハンドリング
+        std::cerr << "Error loading model file: " << e.what() << std::endl;
+        return;
+    }
 
     model->materialData_ = ModelManager::getInstance()->defaultMaterials_[model->meshData_];
 
+    auto device = Engine::getInstance()->getDxDevice()->getDevice();
+    std::mutex mutex;
     for (auto& mesh : model->meshData_->mesh_) {
-        model->transformBuff_[&mesh].CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
-
-        model->transformBuff_[&mesh].openData_.UpdateMatrix();
-        model->transformBuff_[&mesh].ConvertToBuffer();
+        try {
+            std::lock_guard<std::mutex> lock(mutex);
+            model->transformBuff_[&mesh] = IConstantBuffer<Transform>();
+            model->transformBuff_[&mesh].CreateBuffer(device);
+            model->transformBuff_[&mesh].openData_.UpdateMatrix();
+            model->transformBuff_[&mesh].ConvertToBuffer();
+        } catch (const std::exception& e) {
+            // エラーハンドリング
+            std::cerr << "Error creating or updating buffer: " << e.what() << std::endl;
+            return;
+        }
     }
 
     if (callBack != nullptr) {

@@ -45,7 +45,7 @@ private:
     std::unique_ptr<DebugCamera> debugCamera_;
 
 #endif // _DEBUG
-    Input* input_;
+    Input* input_ = nullptr;
 
     std::unique_ptr<GameCamera> gameCamera_;
 

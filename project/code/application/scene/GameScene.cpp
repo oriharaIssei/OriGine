@@ -54,6 +54,28 @@ void GameScene::Init() {
     debugCamera_->setViewTranslate({0.0f, 0.0f, -12.0f});
 
 #endif // _DEBUG
+    ModelManager* modelManager = ModelManager::getInstance();
+
+    {
+        std::vector<std::unique_ptr<Model>> useModels;
+        useModels.reserve(10);
+        useModels.push_back(std::move(modelManager->Create("resource/Models", "Player.obj")));
+        useModels.push_back(std::move(modelManager->Create("resource/Models", "Enemy.obj")));
+        useModels.push_back(std::move(modelManager->Create("resource/Models", "EnemySpawner.obj")));
+        useModels.push_back(std::move(modelManager->Create("resource/Models", "BattleField.obj")));
+        useModels.push_back(std::move(modelManager->Create("resource/Models", "Skydome.obj")));
+        useModels.push_back(std::move(modelManager->Create("resource/Models", "hitParticle.obj")));
+        useModels.push_back(std::move(modelManager->Create("resource/Models", "shadowPlane.obj")));
+        while (true) {
+            //model の読み込みを先にする
+            if (useModels.empty()) {
+                break;
+            }
+            if (useModels.back()) {
+                useModels.pop_back();
+            }
+        }
+    }
 
     //input
     input_ = Input::getInstance();

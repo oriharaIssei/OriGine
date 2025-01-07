@@ -104,13 +104,15 @@ void Engine::Init() {
     AnimationManager::getInstance()->Init();
     CameraManager::getInstance()->Init();
     //Editor
+#ifdef _DEBUG
     editor_ = EngineEditor::getInstance();
-
     std::unique_ptr<LightEditor> lightEditor = std::make_unique<LightEditor>();
     lightEditor->Init();
     editor_->addEditor("LightEditor", std::move(lightEditor));
     std::unique_ptr<MaterialEditor> materialEditor = std::make_unique<MaterialEditor>(materialManager_.get());
     editor_->addEditor("MaterialEditor", std::move(materialEditor));
+#endif // _DEBUG
+
 }
 
 void Engine::Finalize() {
@@ -300,7 +302,9 @@ void Engine::BeginFrame() {
     //Sprite::setBlendMode(BlendMode::Alpha);
     deltaTime_->Update();
 
+#ifdef _DEBUG
     editor_->Update();
+#endif // _DEBUG
 
     lightManager_->Update();
 }
