@@ -146,7 +146,7 @@ void WeakEnemy::Update() {
         drawObject3d_->Update(Engine::getInstance()->getDeltaTime());
     }
 
-    if (invisibleTime_ >= 0.0f) {
+    if (invisibleTime_ > 0.0f) {
         invisibleTime_ -= Engine::getInstance()->getDeltaTime();
         if (invisibleTime_ < 0.0f) {
             isInvisible_ = false;

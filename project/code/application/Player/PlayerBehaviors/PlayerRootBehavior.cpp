@@ -57,6 +57,12 @@ void PlayerRootBehavior::Action() {
             player_->setRotate(inputDirectionRotate);
         }
     }
+    if (player_->getOnGround()) {
+        if (input->isTriggerButton(XINPUT_GAMEPAD_Y)) {
+            player_->setJampForce(8.0f);
+        }
+    }
+
     { // 方向と速度を 使って 次の座標を計算
         // 速度を 秒単位に
         float speedPerSecond = speed_ * Engine::getInstance()->getDeltaTime();

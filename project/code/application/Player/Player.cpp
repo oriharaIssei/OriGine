@@ -62,6 +62,21 @@ void Player::Init() {
 }
 
 void Player::Update() {
+    if (hp_ <= 0.0f) {
+        isAlive_ = false;
+        return;
+    }
+    Transform& transform = drawObject3d_->transform_;
+    jampForce_ -= 9.8f * Engine::getInstance()->getDeltaTime();
+    transform.translate.y += jampForce_ * Engine::getInstance()->getDeltaTime();
+    if (transform.translate.y < 0.0f) {
+        transform.translate.y = 0.0f;
+        jampForce_            = 0.0f;
+        onGround_             = true;
+    } else {
+        onGround_ = false;
+    }
+
     currentBehavior_->Update();
 
     { // Transform Update

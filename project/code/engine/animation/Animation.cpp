@@ -85,7 +85,7 @@ Quaternion Animation::CalculateValue(
             time <= keyframes[nextIndex].time) {
             // 範囲内 で 保管
             float t = (time - keyframes[index].time) / (keyframes[nextIndex].time - keyframes[index].time);
-            return Lerp(keyframes[index].value, keyframes[nextIndex].value, t);
+            return Slerp(keyframes[index].value, keyframes[nextIndex].value, t);
         }
     }
 

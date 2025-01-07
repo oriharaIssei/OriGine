@@ -60,6 +60,13 @@ void EnemySpawner::Update() {
         return;
     }
 
+    if (isInvisible_) {
+        invisibleTime_ -= Engine::getInstance()->getDeltaTime();
+        if (invisibleTime_ < 0.0f) {
+            isInvisible_ = false;
+        }
+    }
+
     leftCoolTime_ -= Engine::getInstance()->getDeltaTime();
     if (leftCoolTime_ <= 0.0f && !enemyManager_->isMaxEnemy()) {
         leftCoolTime_ = spawnCoolTime_;

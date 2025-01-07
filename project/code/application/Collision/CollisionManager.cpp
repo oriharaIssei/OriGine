@@ -1,5 +1,9 @@
 #include "CollisionManager.h"
 
+#include "Engine.h"
+#include "animation/Animation.h"
+#include "object3d/AnimationObject3d.h"
+
 CollisionManager::CollisionManager() {
     colliders_.reserve(100);
 }

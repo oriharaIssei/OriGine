@@ -43,11 +43,15 @@ private:
     bool isInvisible_    = false;
     float invisibleTime_ = 0.0f;
 
+    float jampForce_    = 0.0f;
+    bool onGround_      = true;
+
     std::unique_ptr<AttackCollider> attackCollider_;
 
     SerializedField<float> maxMoveLenght_;
 
 public:
+    bool getOnGround() const { return onGround_; }
     void ChangeBehavior(IPlayerBehavior* next);
     void ChangeBehavior(std::unique_ptr<IPlayerBehavior>& next);
 
@@ -60,6 +64,11 @@ public:
     void setEffectAnimationObject(std::unique_ptr<AnimationObject3d>& effectAnimationObject) {
         effectAnimationObject_ = std::move(effectAnimationObject);
     }
+
+    void setJampForce(float force) {
+        jampForce_ = force;
+    }
+    float getJampForce() const { return jampForce_; }
 
     float getHP() const {
         return currentHp_;

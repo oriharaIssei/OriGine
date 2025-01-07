@@ -3,16 +3,17 @@
 #include "../Player.h"
 //behavior
 #include "PlayerRootBehavior.h"
-
+#include "application/HitEffectManager/HitEffectManager.h"
 ///Engine
 #include "Engine.h"
 #include "animation/Animation.h"
-///application
 // object
 #include "application/Enemy/IEnemy.h"
 #include "application/Enemy/Spawner/EnemySpawner.h"
 ///Collider
 #include "application/AttackCollider/AttackCollider.h"
+//lib
+#include "myRandom/MyRandom.h"
 
 PlayerWeakAttackBehavior::PlayerWeakAttackBehavior(Player* _player, int32_t _currentCombo)
     : IPlayerBehavior(_player),
@@ -61,21 +62,41 @@ void PlayerWeakAttackBehavior::StartUp() {
                 if (!object) {
                     return;
                 }
-                if (object->getID() == "Enemy") {
+                Quaternion effectRotate;
+                Vector3 effectPos;
+                if (object->getID() == "Player") {
+                    return;
+                } else if (object->getID() == "Enemy") {
                     IEnemy* enemy = dynamic_cast<IEnemy*>(object);
 
-                    if (!enemy && enemy->getIsInvisible()) {
+                    if (!enemy || enemy->getIsInvisible()) {
                         return;
                     }
 
+                    effectPos = enemy->getTranslate();
+
                     enemy->Damage(player_->getPower() * attackPower_);
                     Vector3 knockBackDirection = enemy->getTranslate() - player_->getTranslate();
-                    enemy->KnockBack(knockBackDirection.normalize(), 11.1f);
-                    enemy->setInvisibleTime(0.1f);
+                    knockBackDirection.y       = 0.0f;
+                    enemy->KnockBack(knockBackDirection.normalize(), (player_->getPower() * attackPower_) * 0.5f);
+                    enemy->setInvisibleTime(actionTime_ - currentTimer_);
                 } else if (object->getID() == "EnemySpawner") {
                     EnemySpawner* enemySpawner = dynamic_cast<EnemySpawner*>(object);
+
+                    if (!enemySpawner || enemySpawner->getIsInvisible()) {
+                        return;
+                    }
+
+                    effectPos = object->getTranslate();
+
                     enemySpawner->Damage(player_->getPower() * attackPower_);
+                    enemySpawner->setInvisibleTime(actionTime_ - currentTimer_);
                 }
+                Vector2 directionForEffect = Vector2(player_->getTranslate().x, player_->getTranslate().z) - Vector2(effectPos.x, effectPos.z).normalize();
+                effectRotate               = Quaternion::RotateAxisAngle({0.0f, 1.0f, 0.0f}, atan2(directionForEffect.x, directionForEffect.y));
+
+                HitEffectManager* hitEffectManager = HitEffectManager::getInstance();
+                hitEffectManager->addHitEffect(effectRotate, effectPos);
             });
         currentUpdate_ = [this]() {
             this->Action();

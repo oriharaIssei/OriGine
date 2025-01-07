@@ -26,9 +26,9 @@
 #include "../AttackCollider/AttackCollider.h"
 #include "../Enemy/Manager/EnemyManager.h"
 #include "../Enemy/WeakEnemy.h"
+#include "../HitEffectManager/HitEffectManager.h"
 #include "../Player/Player.h"
 #include "camera/gameCamera/GameCamera.h"
-
 //debug
 #ifdef _DEBUG
 #include "animationEditor/AnimationEditor.h"
@@ -75,6 +75,8 @@ void GameScene::Init() {
 
     skyDome_ = std::make_unique<Object3d>();
     skyDome_->Init("resource/Models", "Skydome.obj");
+
+    HitEffectManager::getInstance()->Init();
 }
 
 void GameScene::Update() {
@@ -149,6 +151,8 @@ void GameScene::Update() {
 
     //checkCollison & clear
     collisionManager_->Update();
+
+    HitEffectManager::getInstance()->Update();
 }
 
 void GameScene::Draw3d() {
@@ -158,7 +162,7 @@ void GameScene::Draw3d() {
     player_->Draw();
 
     enemyManager_->Draw();
-
+    HitEffectManager::getInstance()->Draw();
     //   collisionManager_->Draw();
 }
 

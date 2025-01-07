@@ -42,9 +42,18 @@ private:
 
     SerializedField<Vector3> position_;
 
+    bool isInvisible_ = false;
+    float invisibleTime_ = 0.0f;
+
     bool isAlive_ = false;
 
 public:
+    void setInvisibleTime(float invisibleTime) {
+        invisibleTime_ = invisibleTime;
+        isInvisible_   = true;
+    }
+    bool getIsInvisible() const { return isInvisible_; }
+
     void setEnemyManager(EnemyManager* enemyManager) {
         enemyManager_ = enemyManager;
     }
