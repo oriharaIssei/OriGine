@@ -43,8 +43,8 @@ private:
     bool isInvisible_    = false;
     float invisibleTime_ = 0.0f;
 
-    float jampForce_    = 0.0f;
-    bool onGround_      = true;
+    float jampForce_ = 0.0f;
+    bool onGround_   = true;
 
     std::unique_ptr<AttackCollider> attackCollider_;
 
@@ -89,6 +89,7 @@ public:
         attackCollider_ = std::move(attackCollider);
     }
 
+    bool getIsInvisible() const { return isInvisible_; }
     void setInvisibleTime(float time);
     float getInvisibleTime() const { return invisibleTime_; }
 };

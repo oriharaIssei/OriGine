@@ -134,7 +134,7 @@ WeakEnemyBehavior::WeakEnemyBehavior(IEnemy* _enemy) {
                 }
                 Player* player = dynamic_cast<Player*>(object);
 
-                if (!player || player->getInvisibleTime()) {
+                if (!player || player->getIsInvisible()) {
                     return;
                 }
                 player->Damage(enemy_->getAttack());
