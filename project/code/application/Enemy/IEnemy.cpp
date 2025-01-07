@@ -1,8 +1,12 @@
 #include "IEnemy.h"
 
+
 //behavior
+#include "WeakEnemy.h"
 #include "BehaviorTree/KnockBack.h"
 
+///engine
+#include "Engine.h"
 //component
 #include "object3d/Object3d.h"
 //lib
@@ -38,5 +42,15 @@ void IEnemy::Draw() {
 }
 
 void IEnemy::KnockBack(const Vector3& direction, float speed) {
-    behaviorTree_ = std::make_unique<EnemyBehavior::KnockBack>(this, direction, speed, std::move(behaviorTree_));
+    behaviorTree_ = std::make_unique<EnemyBehavior::KnockBack>(this, direction, speed, std::make_unique<WeakEnemyBehavior>(this));
+}
+
+void IEnemy::setInvisibleTime(float time) {
+    isInvisible_   = true;
+    invisibleTime_ = time;
+
+    for (auto& material :
+         drawObject3d_->getModel()->materialData_) {
+        material.material = Engine::getInstance()->getMaterialManager()->Create("Player_Inbisible");
+    }
 }

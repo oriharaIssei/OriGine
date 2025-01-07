@@ -8,6 +8,7 @@
         ],
         "attackPower": 1.2000000476837158,
         "endLagTime": 0.4000000059604645,
+        "knockBackPower": 30.0,
         "radius": 5.300000190734863,
         "startUpTime": 0.20000000298023224
     }

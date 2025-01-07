@@ -66,6 +66,7 @@ void Player::Update() {
         isAlive_ = false;
         return;
     }
+
     Transform& transform = drawObject3d_->transform_;
     jampForce_ -= 9.8f * Engine::getInstance()->getDeltaTime();
     transform.translate.y += jampForce_ * Engine::getInstance()->getDeltaTime();
@@ -92,6 +93,11 @@ void Player::Update() {
         invisibleTime_ -= Engine::getInstance()->getDeltaTime();
         if (invisibleTime_ < 0.0f) {
             isInvisible_ = false;
+
+            for (auto& material :
+                 drawObject3d_->getModel()->materialData_) {
+                material.material = Engine::getInstance()->getMaterialManager()->getMaterial("white");
+            }
         }
     }
 
@@ -128,4 +134,13 @@ void Player::ChangeBehavior(IPlayerBehavior* next) {
 void Player::ChangeBehavior(std::unique_ptr<IPlayerBehavior>& next) {
     currentBehavior_ = std::move(next);
     currentBehavior_->Init();
+}
+
+void Player::setInvisibleTime(float time) {
+    isInvisible_   = true;
+    invisibleTime_ = time;
+    for (auto& material :
+         drawObject3d_->getModel()->materialData_) {
+        material.material = Engine::getInstance()->getMaterialManager()->Create("Player_Inbisible");
+    }
 }

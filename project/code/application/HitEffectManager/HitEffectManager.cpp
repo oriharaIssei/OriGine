@@ -3,6 +3,8 @@
 #include "Engine.h"
 #include "animation/Animation.h"
 #include "animation/AnimationManager.h"
+#include "material/Material.h"
+#include "model/ModelManager.h"
 #include "object3d/AnimationObject3d.h"
 
 void HitEffectManager::Init() {
@@ -10,12 +12,16 @@ void HitEffectManager::Init() {
     hitEffects_.reserve(30);
 
     // load Check
-    auto loadCheck = AnimationManager::getInstance()->Load("resource/Animations", "HitEffect.anm");
+    auto loadCheck = std::make_unique<AnimationObject3d>();
+    loadCheck->Init(AnimationSetting("HitEffect"));
     while (true) {
-        if (loadCheck->getData()) {
+        if (loadCheck->getAnimation()->getData() &&
+            loadCheck->getModel()->meshData_->currentState_ == LoadState::Loaded) {
             break;
         }
     }
+    // defaultMaterial を セット
+    ModelManager::getInstance()->pushBackDefaultMaterial(loadCheck->getModel()->meshData_, {.textureNumber = 0, .material = Engine::getInstance()->getMaterialManager()->Create("HitEffect")});
 }
 
 void HitEffectManager::Update() {

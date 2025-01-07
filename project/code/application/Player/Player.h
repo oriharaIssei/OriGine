@@ -89,9 +89,6 @@ public:
         attackCollider_ = std::move(attackCollider);
     }
 
-    void setInvisibleTime(float time) {
-        isInvisible_   = true;
-        invisibleTime_ = time;
-    }
+    void setInvisibleTime(float time);
     float getInvisibleTime() const { return invisibleTime_; }
 };

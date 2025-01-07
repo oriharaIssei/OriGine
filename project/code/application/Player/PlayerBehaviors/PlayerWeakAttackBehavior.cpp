@@ -22,7 +22,8 @@ PlayerWeakAttackBehavior::PlayerWeakAttackBehavior(Player* _player, int32_t _cur
       actionTime_{"Game", "PlayerWeakAttack" + std::to_string(_currentCombo), "actionTime"},
       endLagTime_{"Game", "PlayerWeakAttack" + std::to_string(_currentCombo), "endLagTime"},
       attackPower_{"Game", "PlayerWeakAttack" + std::to_string(_currentCombo), "attackPower"},
-      attackColliderOffset_{"Game", "PlayerWeakAttack" + std::to_string(_currentCombo), "attackColliderOffset_"} {
+      attackColliderOffset_{"Game", "PlayerWeakAttack" + std::to_string(_currentCombo), "attackColliderOffset_"},
+      knockBackPower_{"Game", "PlayerWeakAttack" + std::to_string(_currentCombo), "knockBackPower"} {
     currentCombo_ = _currentCombo;
 
     AnimationSetting weakAttackActionSettings = AnimationSetting("Player_WeakAttack" + std::to_string(currentCombo_));
@@ -78,7 +79,7 @@ void PlayerWeakAttackBehavior::StartUp() {
                     enemy->Damage(player_->getPower() * attackPower_);
                     Vector3 knockBackDirection = enemy->getTranslate() - player_->getTranslate();
                     knockBackDirection.y       = 0.0f;
-                    enemy->KnockBack(knockBackDirection.normalize(), (player_->getPower() * attackPower_) * 0.5f);
+                    enemy->KnockBack(knockBackDirection.normalize(), knockBackPower_);
                     enemy->setInvisibleTime(actionTime_ - currentTimer_);
                 } else if (object->getID() == "EnemySpawner") {
                     EnemySpawner* enemySpawner = dynamic_cast<EnemySpawner*>(object);

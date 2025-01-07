@@ -58,6 +58,11 @@ void AnimationObject3d::Update(float deltaTime) {
     // Animationより 先に Object 座標系の 行進
     transform_.UpdateMatrix();
 
+    if (model_->meshData_->currentState_ == LoadState::Unloaded ||
+        !animation_->getData()) {
+        return;
+    }
+
     if (toNextAnimation_ && nextAnimation_) {
         // 現在の姿勢から 次のアニメーションの姿勢への補間
         toNextAnimation_->Update(deltaTime, model_.get(), MakeMatrix::Identity());

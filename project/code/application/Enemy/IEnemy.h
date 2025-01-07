@@ -93,10 +93,7 @@ public:
         return attack_;
     }
 
-    void setInvisibleTime(float time) {
-        isInvisible_   = true;
-        invisibleTime_ = time;
-    }
+    void setInvisibleTime(float time);
     bool getIsInvisible() const {
         return isInvisible_;
     }

@@ -1,17 +1,17 @@
 {
-    "white": {
+    "Player_Inbisible": {
         "color": [
-            1.0,
-            1.0,
-            1.0,
+            0.4345991611480713,
+            0.06968257576227188,
+            0.06968257576227188,
             1.0
         ],
-        "enableLighting": 1,
-        "shininess": 29.010000228881836,
+        "enableLighting": 0,
+        "shininess": 8.010000228881836,
         "specularColor": [
-            1.0,
-            1.0,
-            1.0
+            0.0,
+            0.0,
+            0.0
         ],
         "uvRotate": [
             0.0,

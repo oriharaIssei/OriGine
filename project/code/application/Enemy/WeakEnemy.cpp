@@ -18,77 +18,10 @@
 #include "BehaviorTree/IdleAction.h"
 #include "BehaviorTree/WeakAttackAction.h"
 
-class WeakEnemyBehavior
-    : public EnemyBehavior::Sequence {
-    friend class WeakEnemy;
-
-public:
-    WeakEnemyBehavior(WeakEnemy* _enemy) {
-        setEnemy(_enemy);
-
-        auto chase = std::make_unique<EnemyBehavior::ChaseAction>(_enemy->getSpeed(), _enemy->getPlayer2Distance());
-        chase->setEnemy(_enemy);
-        auto idle = std::make_unique<EnemyBehavior::IdleAction>(3.0f);
-        idle->setEnemy(_enemy);
-        auto secondChase = std::make_unique<EnemyBehavior::ChaseAction>(_enemy->getSpeed(), 2.0f);
-        secondChase->setEnemy(_enemy);
-        auto attack = std::make_unique<EnemyBehavior::WeakAttackAction>(enemy_->getAttack());
-        attack->setEnemy(_enemy);
-
-        auto chaseAnimation = std::make_unique<EnemyBehavior::ChangeAnimation>("EnemyChase.anm");
-        chaseAnimation->setEnemy(_enemy);
-        auto idleAnimation = std::make_unique<EnemyBehavior::ChangeAnimation>("EnemyIdle.anm");
-        idleAnimation->setEnemy(_enemy);
-        idleAnimation->LerpNextAnimation(0.1f);
-        auto chaseForIdle = std::make_unique<EnemyBehavior::ChangeAnimation>("EnemyChase.anm");
-        chaseForIdle->setEnemy(_enemy);
-        chaseForIdle->LerpNextAnimation(0.1f);
-        auto idleForAttack = std::make_unique<EnemyBehavior::ChangeAnimation>("WeakEnemy_WeakAttack.anm");
-        idleForAttack->setEnemy(_enemy);
-        idleForAttack->LerpNextAnimation(0.06f);
-
-        auto createAttackCollider =
-            std::make_unique<EnemyBehavior::CreateAttackCollider>(
-                "EnemyAttack",
-                Vector3(0.0f, 0.0f, 2.0f),
-                [this](GameObject* object) {
-                    if (!object) {
-                        return;
-                    }
-                    if (object->getID() != "Player") {
-                        return;
-                    }
-                    Player* player = dynamic_cast<Player*>(object);
-
-                    if (!player && player->getInvisibleTime()) {
-                        return;
-                    }
-                    player->Damage(enemy_->getAttack());
-                    player->setInvisibleTime(0.6f);
-                });
-        createAttackCollider->setEnemy(_enemy);
-
-        addChild(std::move(chaseAnimation));
-        addChild(std::move(chase));
-        addChild(std::move(idleAnimation));
-        addChild(std::move(idle));
-        addChild(std::move(chaseForIdle));
-        addChild(std::move(secondChase));
-        addChild(std::move(idleForAttack));
-        addChild(std::move(createAttackCollider));
-        addChild(std::move(attack));
-    }
-    ~WeakEnemyBehavior() {}
-};
-
 #pragma endregion
 
 WeakEnemy::WeakEnemy()
-    : IEnemy("WeakEnemy"),
-      minPlayer2Distance_("Game", "WeakEnemy", "minPlayer2Distance"),
-      maxPlayer2Distance_("Game", "WeakEnemy", "maxPlayer2Distance") {
-    player2Distance_ = MyRandom::Float(minPlayer2Distance_, maxPlayer2Distance_).get();
-}
+    : IEnemy("WeakEnemy") {}
 
 WeakEnemy::~WeakEnemy() {}
 
@@ -150,6 +83,10 @@ void WeakEnemy::Update() {
         invisibleTime_ -= Engine::getInstance()->getDeltaTime();
         if (invisibleTime_ < 0.0f) {
             isInvisible_ = false;
+            for (auto& material :
+                 drawObject3d_->getModel()->materialData_) {
+                material.material = Engine::getInstance()->getMaterialManager()->getMaterial("white");
+            }
         }
     } else {
         isInvisible_ = false;
@@ -158,4 +95,63 @@ void WeakEnemy::Update() {
 
 std::unique_ptr<IEnemy> WeakEnemy::Clone() {
     return std::make_unique<WeakEnemy>();
+}
+
+WeakEnemyBehavior::WeakEnemyBehavior(IEnemy* _enemy) {
+    setEnemy(_enemy);
+
+    auto chase = std::make_unique<EnemyBehavior::ChaseAction>(_enemy->getSpeed(), 8.0f);
+    chase->setEnemy(_enemy);
+    auto idle = std::make_unique<EnemyBehavior::IdleAction>(3.0f);
+    idle->setEnemy(_enemy);
+    auto secondChase = std::make_unique<EnemyBehavior::ChaseAction>(_enemy->getSpeed(), 2.0f);
+    secondChase->setEnemy(_enemy);
+    auto attack = std::make_unique<EnemyBehavior::WeakAttackAction>(enemy_->getAttack());
+    attack->setEnemy(_enemy);
+
+    auto chaseAnimation = std::make_unique<EnemyBehavior::ChangeAnimation>("EnemyChase.anm");
+    chaseAnimation->setEnemy(_enemy);
+    auto idleAnimation = std::make_unique<EnemyBehavior::ChangeAnimation>("EnemyIdle.anm");
+    idleAnimation->setEnemy(_enemy);
+    idleAnimation->LerpNextAnimation(0.1f);
+    auto chaseForIdle = std::make_unique<EnemyBehavior::ChangeAnimation>("EnemyChase.anm");
+    chaseForIdle->setEnemy(_enemy);
+    chaseForIdle->LerpNextAnimation(0.1f);
+    auto idleForAttack = std::make_unique<EnemyBehavior::ChangeAnimation>("WeakEnemy_WeakAttack.anm");
+    idleForAttack->setEnemy(_enemy);
+    idleForAttack->LerpNextAnimation(0.06f);
+
+    auto createAttackCollider =
+        std::make_unique<EnemyBehavior::CreateAttackCollider>(
+            "EnemyAttack",
+            Vector3(0.0f, 0.0f, 1.3f),
+            [this](GameObject* object) {
+                if (!object) {
+                    return;
+                }
+                if (object->getID() != "Player") {
+                    return;
+                }
+                Player* player = dynamic_cast<Player*>(object);
+
+                if (!player || player->getInvisibleTime()) {
+                    return;
+                }
+                player->Damage(enemy_->getAttack());
+                player->setInvisibleTime(0.6f);
+            });
+    createAttackCollider->setEnemy(_enemy);
+
+    addChild(std::move(chaseAnimation));
+    addChild(std::move(chase));
+    addChild(std::move(idleAnimation));
+    addChild(std::move(idle));
+    addChild(std::move(chaseForIdle));
+    addChild(std::move(secondChase));
+    addChild(std::move(idleForAttack));
+    addChild(std::move(createAttackCollider));
+    addChild(std::move(attack));
+}
+
+WeakEnemyBehavior::~WeakEnemyBehavior() {
 }

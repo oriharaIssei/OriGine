@@ -16,9 +16,9 @@ Status KnockBackAction::tick() {
     Vector3 enemyPos = enemy_->getTranslate();
 
     // ノックバックの挙動
-    velocity_ *= deltaTime;
+    velocity_ *= attenuation;
 
-    if (velocity_.lengthSq() <= 0.001f) {
+    if (velocity_.lengthSq() <= 10.00f) {
         // ノックバックが終了したら元のBehaviorに戻す
         enemy_->setBehaviorTree(originalBehavior_);
         return Status::SUCCESS;

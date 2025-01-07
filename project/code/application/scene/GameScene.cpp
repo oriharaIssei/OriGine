@@ -163,7 +163,7 @@ void GameScene::Draw3d() {
 
     enemyManager_->Draw();
     HitEffectManager::getInstance()->Draw();
-    //   collisionManager_->Draw();
+    collisionManager_->Draw();
 }
 
 void GameScene::DrawLine() {}

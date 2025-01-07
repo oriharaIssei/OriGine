@@ -30,5 +30,7 @@ private:
     SerializedField<float> attackPower_;
     SerializedField<Vector3> attackColliderOffset_;
 
+    SerializedField<float> knockBackPower_;
+
     std::unique_ptr<IPlayerBehavior> nextBehavior_ = nullptr;
 };

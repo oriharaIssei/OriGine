@@ -25,7 +25,7 @@ Status CreateAttackCollider::tick() {
 
     Vector3 offset = TransformVector(colliderOffset_, MakeMatrix::RotateQuaternion(enemy_->getRotate()));
 
-    collider->ColliderInit(offset, onCollision_);
+    collider->ColliderInit(Vector3(enemy_->getTransform().worldMat[3]) + offset, onCollision_);
     return Status::SUCCESS;
 }
 
