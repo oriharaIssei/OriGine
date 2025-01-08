@@ -219,6 +219,7 @@ std::unique_ptr<Model> ModelManager::Create(
     std::string filePath = directoryPath + "/" + filename;
 
     const auto itr = modelLibrary_.find(filePath);
+    // すでに読み込まれている場合
     if (itr != modelLibrary_.end()) {
         auto* targetModelMesh = itr->second.get();
         while (true) {
@@ -243,50 +244,17 @@ std::unique_ptr<Model> ModelManager::Create(
         return result;
     }
 
+    /// モデルデータを読み込む
     modelLibrary_[filePath] = std::make_unique<ModelMeshData>();
 
     result            = std::make_unique<Model>();
     result->meshData_ = modelLibrary_[filePath].get();
+    loadThread_->pushTask(
+        {.directory = directoryPath,
+         .fileName  = filename,
+         .model     = result.get(),
+         .callBack  = callBack});
 
-    try {
-        modelLibrary_[filePath] = std::make_unique<ModelMeshData>();
-
-        result            = std::make_unique<Model>();
-        result->meshData_ = modelLibrary_[filePath].get();
-        loadThread_->pushTask(
-            {.directory = directoryPath,
-            .fileName  = filename,
-            .model     = result.get(),
-            .callBack  = callBack});
-    } catch (const std::exception& e) {
-        // エラーハンドリング
-        std::cerr << "Error loading model file: " << e.what() << std::endl;
-        return nullptr;
-    }
-
-    result->materialData_ = ModelManager::getInstance()->defaultMaterials_[result->meshData_];
-
-    auto device = Engine::getInstance()->getDxDevice()->getDevice();
-    std::mutex mutex;
-    for (auto& mesh : result->meshData_->mesh_) {
-        try {
-            std::lock_guard<std::mutex> lock(mutex);
-            result->transformBuff_[&mesh] = IConstantBuffer<Transform>();
-            result->transformBuff_[&mesh].CreateBuffer(device);
-            result->transformBuff_[&mesh].openData_.UpdateMatrix();
-            result->transformBuff_[&mesh].ConvertToBuffer();
-        } catch (const std::exception& e) {
-            // エラーハンドリング
-            std::cerr << "Error creating or updating buffer: " << e.what() << std::endl;
-            return nullptr;
-        }
-    }
-
-    if (callBack != nullptr) {
-        callBack(result.get());
-    }
-
-    result->meshData_->currentState_ = LoadState::Loaded;
     return result;
 }
 

@@ -35,15 +35,11 @@ std::unique_ptr<Animation> AnimationManager::Load(const std::string& directory, 
         animationData_.push_back(std::make_unique<AnimationData>());
         animationDataLibrary_[filePath] = static_cast<int>(animationData_.size() - 1);
 
-        animationData_.back() = std::make_unique<AnimationData>(AnimationManager::getInstance()->LoadAnimationData(directory, filename));
-        result->setData(animationData_.back().get());
-        result->setDuration(animationData_.back()->duration);
-
         ///===========================================
         /// TaskThread に ロードタスクを追加
         ///===========================================
-        /*AnimationLoadTask task(directory, filename, animationData_.back().get(), result.get());
-        loadThread_->pushTask(task);*/
+        AnimationLoadTask task(directory, filename, animationData_.back().get(), result.get());
+        loadThread_->pushTask(task);
     }
     return result;
 }
