@@ -49,23 +49,7 @@ private:
 
     std::unique_ptr<GameCamera> gameCamera_;
 
-    std::vector<GameObject*> activeGameObjects_;
-    std::unique_ptr<CollisionManager> collisionManager_;
-
-    std::unique_ptr<Player> player_;
-    std::unique_ptr<EnemyManager> enemyManager_;
-
     std::unique_ptr<Object3d> ground_;
     std::unique_ptr<Object3d> skyDome_;
-
-    std::unique_ptr<Sprite> dashUI_ = nullptr;
-    std::unique_ptr<Sprite> attackUI_ = nullptr;
-    std::unique_ptr<Sprite> jumpUI_ = nullptr;
-
-    std::unique_ptr<PlayerHpBar> playerHpBar_;
-
-    SerializedField<Vector2> dashUIPos_;
-    SerializedField<Vector2> attackUIPos_;
-    SerializedField<Vector2> jumpUIPos_;
 
 };
