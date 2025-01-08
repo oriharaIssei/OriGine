@@ -35,12 +35,13 @@ void AnimationEditor::Init() {
     std::list<std::pair<std::string, std::string>> addFileList = myfs::SearchFile("resource", "gltf", false);
     animationSettingsFileList_.insert(animationSettingsFileList_.end(), addFileList.begin(), addFileList.end());
 
-    // EditObject の instance 作成
+    // editInstance を作成
     currentEditObject_ = std::make_unique<AnimationObject3d>();
 }
 
 void AnimationEditor::Update() {
-#ifdef _DEBUG 
+
+#ifdef _DEBUG
     bool openCreateNewPopup = false;
 
     if (ImGui::Begin("AnimationEditor", nullptr, ImGuiWindowFlags_MenuBar)) {
@@ -71,7 +72,7 @@ void AnimationEditor::Update() {
                                 currentEditObject_->Init(directory, filename);
                             } else {
                                 currentEditAnimationSetting_.reset(new AnimationSetting(filename));
-                                currentEditObject_->Init(*currentEditAnimationSetting_);
+                                currentEditObject_->Init(filename);
                             }
                         }
                     }
@@ -126,9 +127,9 @@ void AnimationEditor::Update() {
                     AnimationManager::getInstance()->addAnimationData(
                         fileName,
                         std::make_unique<AnimationData>());
-                    currentEditObject_->setAnimation(
-                        std::make_unique<Animation>(
-                            const_cast<AnimationData*>(AnimationManager::getInstance()->getAnimationData(fileName))));
+                    std::unique_ptr<Animation> animation = std::make_unique<Animation>(
+                        const_cast<AnimationData*>(AnimationManager::getInstance()->getAnimationData(fileName)));
+                    currentEditObject_->setAnimation(animation);
                 }
                 ImGui::CloseCurrentPopup();
             }
@@ -147,7 +148,12 @@ void AnimationEditor::Update() {
                         "##AnimationName",
                         currentEditAnimationSetting_->name.data(),
                         currentEditAnimationSetting_->name.capacity())) {
-                    preAnimationSettingName.erase(std::remove_if(preAnimationSettingName.begin(), preAnimationSettingName.end(), ::isspace), preAnimationSettingName.end());
+                    preAnimationSettingName.erase(
+                        std::remove_if(
+                            preAnimationSettingName.begin(),
+                            preAnimationSettingName.end(),
+                            ::isspace),
+                        preAnimationSettingName.end());
                     currentEditAnimationSetting_->name = currentEditAnimationSetting_->name.c_str();
                     GlobalVariables::getInstance()->ChangeGroupName(
                         "Animations",
@@ -205,7 +211,10 @@ void AnimationEditor::Update() {
     }
     ImGui::End();
 
-    if (currentEditObject_ && currentEditObject_->getModel() && currentEditObject_->getAnimation()) {
+    if (currentEditObject_ &&
+        currentEditObject_->getModel() &&
+        currentEditObject_->getAnimation()->getData()) {
+
         if (ImGui::Begin("Timelines")) {
             // アニメーションの再生
             if (ImGui::Checkbox("Play", &isObjectPlaying_)) {
@@ -292,19 +301,34 @@ void AnimationEditor::Update() {
                             // NodeUpdate
                             ImGui::Text("NodeIndex : %d", nodeIndex);
 
+                            if (ImGui::Button("Delete")) {
+                                nodeAnimation.scale.erase(nodeAnimation.scale.begin() + nodeIndex);
+                                return;
+                            }
+                            ImGui::Text("Time");
+                            ImGui::DragFloat(
+                                std::string("##Time" + nodeName + std::to_string(nodeIndex)).c_str(),
+                                &nodeAnimation.scale[nodeIndex].time,
+                                0.1f);
+
+                            ImGui::Spacing();
+
                             ImGui::Text("X:");
                             ImGui::DragFloat(
                                 std::string("##X" + nodeName + std::to_string(nodeIndex)).c_str(),
-                                &nodeAnimation.scale[nodeIndex].value.x);
+                                &nodeAnimation.scale[nodeIndex].value.x,
+                                0.1f);
                             ImGui::Text("Y:");
 
                             ImGui::DragFloat(
                                 std::string("##Y" + nodeName + std::to_string(nodeIndex)).c_str(),
-                                &nodeAnimation.scale[nodeIndex].value.y);
+                                &nodeAnimation.scale[nodeIndex].value.y,
+                                0.1f);
                             ImGui::Text("Z:");
                             ImGui::DragFloat(
                                 std::string("##Z" + nodeName + std::to_string(nodeIndex)).c_str(),
-                                &nodeAnimation.scale[nodeIndex].value.z);
+                                &nodeAnimation.scale[nodeIndex].value.z,
+                                0.1f);
                         });
                     ImGui::TimeLineButtons(
                         std::string("Rotate##" + nodeName).c_str(),
@@ -337,22 +361,39 @@ void AnimationEditor::Update() {
                             // NodeUpdate
                             ImGui::Text("NodeIndex : %d", nodeIndex);
 
+                            if (ImGui::Button("Delete")) {
+                                nodeAnimation.rotate.erase(nodeAnimation.rotate.begin() + nodeIndex);
+                                return;
+                            }
+                            ImGui::Text("Time");
+                            ImGui::DragFloat(
+                                std::string("##Time" + nodeName + std::to_string(nodeIndex)).c_str(),
+                                &nodeAnimation.rotate[nodeIndex].time,
+                                0.1f);
+
+                            ImGui::Spacing();
+
                             ImGui::Text("X:");
                             ImGui::DragFloat(
                                 std::string("##X" + nodeName + std::to_string(nodeIndex)).c_str(),
-                                &nodeAnimation.rotate[nodeIndex].value.x);
+                                &nodeAnimation.rotate[nodeIndex].value.x,
+                                0.1f);
                             ImGui::Text("Y:");
+
                             ImGui::DragFloat(
                                 std::string("##Y" + nodeName + std::to_string(nodeIndex)).c_str(),
-                                &nodeAnimation.rotate[nodeIndex].value.y);
+                                &nodeAnimation.rotate[nodeIndex].value.y,
+                                0.1f);
                             ImGui::Text("Z:");
                             ImGui::DragFloat(
                                 std::string("##Z" + nodeName + std::to_string(nodeIndex)).c_str(),
-                                &nodeAnimation.rotate[nodeIndex].value.z);
+                                &nodeAnimation.rotate[nodeIndex].value.z,
+                                0.1f);
                             ImGui::Text("W:");
                             ImGui::DragFloat(
                                 std::string("##W" + nodeName + std::to_string(nodeIndex)).c_str(),
-                                &nodeAnimation.rotate[nodeIndex].value.w);
+                                &nodeAnimation.rotate[nodeIndex].value.w,
+                                0.1f);
                         });
                     ImGui::TimeLineButtons(
                         std::string("Translate##" + nodeName).c_str(),
@@ -385,18 +426,34 @@ void AnimationEditor::Update() {
                             // NodeUpdate
                             ImGui::Text("NodeIndex : %d", nodeIndex);
 
+                            if (ImGui::Button("Delete")) {
+                                nodeAnimation.translate.erase(nodeAnimation.translate.begin() + nodeIndex);
+                                return;
+                            }
+                            ImGui::Text("Time");
+                            ImGui::DragFloat(
+                                std::string("##Time" + nodeName + std::to_string(nodeIndex)).c_str(),
+                                &nodeAnimation.translate[nodeIndex].time,
+                                0.1f);
+
+                            ImGui::Spacing();
+
                             ImGui::Text("X:");
                             ImGui::DragFloat(
                                 std::string("##X" + nodeName + std::to_string(nodeIndex)).c_str(),
-                                &nodeAnimation.translate[nodeIndex].value.x);
+                                &nodeAnimation.translate[nodeIndex].value.x,
+                                0.1f);
                             ImGui::Text("Y:");
+
                             ImGui::DragFloat(
                                 std::string("##Y" + nodeName + std::to_string(nodeIndex)).c_str(),
-                                &nodeAnimation.translate[nodeIndex].value.y);
+                                &nodeAnimation.translate[nodeIndex].value.y,
+                                0.1f);
                             ImGui::Text("Z:");
                             ImGui::DragFloat(
                                 std::string("##Z" + nodeName + std::to_string(nodeIndex)).c_str(),
-                                &nodeAnimation.translate[nodeIndex].value.z);
+                                &nodeAnimation.translate[nodeIndex].value.z,
+                                0.1f);
                         });
 
                     ImGui::EndGroup(); // グループ化

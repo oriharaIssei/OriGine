@@ -1,0 +1,7 @@
+{
+    "ImpactWave": {
+        "targetAnimationDirection": "resource/Animations",
+        "targetModelDirection": "resource/Models",
+        "targetModelFileName": "ImpactWave.obj"
+    }
+}

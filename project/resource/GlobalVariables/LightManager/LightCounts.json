@@ -1,7 +1,7 @@
 {
     "LightCounts": {
-        "directionalLightNum": 2,
+        "directionalLightNum": 1,
         "pointLightNum": 1,
-        "spotLightNum": 1
+        "spotLightNum": 4
     }
 }

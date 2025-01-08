@@ -11,7 +11,6 @@
 #endif // _DEBUG
 
 #include "Engine.h"
-#include "Object3d.h"
 #include "Vector2.h"
 #include "Vector3.h"
 #include "Vector4.h"
@@ -20,7 +19,6 @@
 #include "directX12/DxHeap.h"
 #include "material/Material.h"
 #include "material/texture/TextureManager.h"
-#include "model/Model.h"
 #include "primitiveDrawer/PrimitiveDrawer.h"
 
 #include <stdint.h>
@@ -29,6 +27,8 @@ BlendMode Object3d::currentBlend_ = BlendMode::Alpha;
 
 #pragma region "Object3d"
 void Object3d::PreDraw() {
+    currentBlend_ = BlendMode::Alpha;
+
     ModelManager* manager = ModelManager::getInstance();
     auto* commandList     = manager->dxCommand_->getCommandList();
 
@@ -40,6 +40,19 @@ void Object3d::PreDraw() {
     CameraManager::getInstance()->setBufferForRootParameter(commandList, 1);
 }
 
+void Object3d::setBlendMode(BlendMode blend) {
+    currentBlend_         = blend;
+    ModelManager* manager = ModelManager::getInstance();
+    auto* commandList     = manager->dxCommand_->getCommandList();
+
+    commandList->SetGraphicsRootSignature(manager->texturePso_[static_cast<uint32_t>(currentBlend_)]->rootSignature.Get());
+    commandList->SetPipelineState(manager->texturePso_[static_cast<uint32_t>(currentBlend_)]->pipelineState.Get());
+}
+
+Object3d::Object3d() {}
+
+Object3d::~Object3d() {}
+
 void Object3d::Init(const std::string& directoryPath, const std::string& filename) {
     data_ = ModelManager::getInstance()->Create(
         directoryPath,
@@ -48,12 +61,9 @@ void Object3d::Init(const std::string& directoryPath, const std::string& filenam
             transform_.Init();
             transform_.UpdateMatrix();
             for (auto& mesh : model->meshData_->mesh_) {
-                mesh.transform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
-                mesh.transform_.openData_.Init();
-                mesh.transform_.openData_.parent = &transform_;
-
-                mesh.transform_.openData_.UpdateMatrix();
-                mesh.transform_.ConvertToBuffer();
+                model->transformBuff_[&mesh].openData_.parent = &transform_;
+                model->transformBuff_[&mesh].openData_.UpdateMatrix();
+                model->transformBuff_[&mesh].ConvertToBuffer();
             }
         });
 }
@@ -65,7 +75,11 @@ void Object3d::DrawThis() {
     uint32_t index = 0;
 
     for (auto& mesh : data_->meshData_->mesh_) {
-        auto& material                  = data_->materialData_[index];
+        auto& material = data_->materialData_[index];
+
+        IConstantBuffer<Transform>& meshTransform = data_->transformBuff_[&mesh];
+        meshTransform.ConvertToBuffer();
+
         ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
         commandList->SetDescriptorHeaps(1, ppHeaps);
         commandList->SetGraphicsRootDescriptorTable(
@@ -75,7 +89,7 @@ void Object3d::DrawThis() {
         commandList->IASetVertexBuffers(0, 1, &mesh.meshBuff->vbView);
         commandList->IASetIndexBuffer(&mesh.meshBuff->ibView);
 
-        mesh.transform_.SetForRootParameter(commandList, 0);
+        meshTransform.SetForRootParameter(commandList, 0);
 
         material.material->SetForRootParameter(commandList, 2);
         // 描画!!!
@@ -92,8 +106,8 @@ void Object3d::setMaterial(IConstantBuffer<Material>* material, uint32_t index) 
 void Object3d::UpdateTransform() {
     transform_.UpdateMatrix();
     for (auto& mesh : data_->meshData_->mesh_) {
-        mesh.transform_.openData_.UpdateMatrix();
-        mesh.transform_.ConvertToBuffer();
+        data_->transformBuff_[&mesh].openData_.parent = &transform_;
+        data_->transformBuff_[&mesh].openData_.UpdateMatrix();
     }
 }
 

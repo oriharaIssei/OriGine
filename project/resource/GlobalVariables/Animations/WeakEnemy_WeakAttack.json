@@ -1,0 +1,7 @@
+{
+    "WeakEnemy_WeakAttack": {
+        "targetAnimationDirection": "resource/Animations",
+        "targetModelDirection": "resource/Models",
+        "targetModelFileName": "Enemy.obj"
+    }
+}

@@ -8,15 +8,16 @@
 ///microsoft
 #include <wrl.h>
 ///input API
-#include <dinput.h>
 #include <Xinput.h>
+#include <dinput.h>
 
+//lib
+#include "globalVariables/SerializedField.h"
 //math
 #include <Vector2.h>
 
 static const float stickMax_ = static_cast<float>(SHORT_MAX);
 static const float stickMin_ = static_cast<float>(-SHORT_MAX);
-
 
 class Input {
 public:
@@ -50,9 +51,13 @@ private:
     XINPUT_STATE padState_;
     XINPUT_STATE prePadState_;
     bool isPadActive_;
+    SerializedField<float> deadZone_{"Input", "GamePad", "DeadZone"};
+    Vector2 currentLStickVelocity_ = {0.0f, 0.0f};
+    Vector2 preLStickVelocity_     = {0.0f, 0.0f};
 
-    Vector2 currentStickVelocity_ = {0.0f, 0.0f};
-    Vector2 preStickVelocity_     = {0.0f, 0.0f};
+    Vector2 currentRStickVelocity_ = {0.0f, 0.0f};
+    Vector2 preRStickVelocity_     = {0.0f, 0.0f};
+
 public:
     bool isPressKey(const uint32_t& key) const { return keys_[key]; };
     bool isTriggerKey(const uint32_t& key) const { return (keys_[key] && preKeys_[key]); }
@@ -71,8 +76,11 @@ public:
     const Vector2& getPreMousePos() const { return preMousePos_; }
     Vector2 getMouseVelocity() const { return Vector2(currentMousePos_ - preMousePos_); }
 
-    const Vector2& getStickVelocity() const { return currentStickVelocity_; }
-    const Vector2& getPreStickVelocity() const { return preStickVelocity_; }
+    const Vector2& getLStickVelocity() const { return currentLStickVelocity_; }
+    const Vector2& getPreLStickVelocity() const { return preLStickVelocity_; }
+
+    const Vector2& getRStickVelocity() const { return currentRStickVelocity_; }
+    const Vector2& getPreRStickVelocity() const { return preRStickVelocity_; }
 
     bool isPadActive() const { return isPadActive_; }
     bool isPressButton(const uint32_t& button) const { return padState_.Gamepad.wButtons & button; }

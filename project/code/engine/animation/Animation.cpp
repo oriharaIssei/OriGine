@@ -4,17 +4,19 @@
 
 void Animation::Update(float deltaTime, Model* model, const Matrix4x4& parentTransform) {
     {
+        isEnd_ = false;
         // 時間更新
         currentAnimationTime += deltaTime;
 
         // リピート
         if (currentAnimationTime > duration) {
+            isEnd_               = true;
             currentAnimationTime = std::fmod(currentAnimationTime, duration);
         }
     }
 
     {
-        ApplyAnimationToNodes(model->meshData_->rootNode, MakeMatrix::Identity(), this);
+        ApplyAnimationToNodes(model->meshData_->rootNode, parentTransform, this);
     }
 }
 
@@ -83,7 +85,7 @@ Quaternion Animation::CalculateValue(
             time <= keyframes[nextIndex].time) {
             // 範囲内 で 保管
             float t = (time - keyframes[index].time) / (keyframes[nextIndex].time - keyframes[index].time);
-            return Lerp(keyframes[index].value, keyframes[nextIndex].value, t);
+            return Slerp(keyframes[index].value, keyframes[nextIndex].value, t);
         }
     }
 
@@ -92,36 +94,39 @@ Quaternion Animation::CalculateValue(
     return (*keyframes.rbegin()).value;
 }
 
-void Animation::ApplyAnimationToNodes(ModelNode& node,const Matrix4x4& parentTransform,const Animation* animation){
+void Animation::ApplyAnimationToNodes(
+    ModelNode& node,
+    const Matrix4x4& parentTransform,
+    const Animation* animation) {
     node.localMatrix          = animation->CalculateNodeLocal(node.name);
     Matrix4x4 globalTransform = parentTransform * node.localMatrix;
 
     // 子ノードに再帰的に適用
-    for(auto& child : node.children){
-        ApplyAnimationToNodes(child,globalTransform,animation);
+    for (auto& child : node.children) {
+        ApplyAnimationToNodes(child, globalTransform, animation);
     }
 }
 
-Vector3 Animation::getCurrentScale(const std::string& nodeName) const{
+Vector3 Animation::getCurrentScale(const std::string& nodeName) const {
     auto itr = data->nodeAnimations.find(nodeName);
-    if(itr == data->nodeAnimations.end()){
-        return Vector3(1.0f,1.0f,1.0f);
+    if (itr == data->nodeAnimations.end()) {
+        return Vector3(1.0f, 1.0f, 1.0f);
     }
-    return CalculateValue(itr->second.scale,currentAnimationTime);
+    return CalculateValue(itr->second.scale, currentAnimationTime);
 }
 
-Quaternion Animation::getCurrentRotate(const std::string& nodeName) const{
+Quaternion Animation::getCurrentRotate(const std::string& nodeName) const {
     auto itr = data->nodeAnimations.find(nodeName);
-    if(itr == data->nodeAnimations.end()){
+    if (itr == data->nodeAnimations.end()) {
         return Quaternion::Identity();
     }
-    return CalculateValue(itr->second.rotate,currentAnimationTime);
+    return CalculateValue(itr->second.rotate, currentAnimationTime);
 }
 
-Vector3 Animation::getCurrentTranslate(const std::string& nodeName) const{
+Vector3 Animation::getCurrentTranslate(const std::string& nodeName) const {
     auto itr = data->nodeAnimations.find(nodeName);
-    if(itr == data->nodeAnimations.end()){
-        return Vector3(0.0f,0.0f,0.0f);
+    if (itr == data->nodeAnimations.end()) {
+        return Vector3(0.0f, 0.0f, 0.0f);
     }
-    return CalculateValue(itr->second.translate,currentAnimationTime);
+    return CalculateValue(itr->second.translate, currentAnimationTime);
 }

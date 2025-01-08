@@ -1,7 +1,0 @@
-{
-    "test": {
-        "targetAnimationDirection": "resource/Animations",
-        "targetModelDirection": "resource/Models\\AnimatedCube",
-        "targetModelFileName": "AnimatedCube.gltf"
-    }
-}

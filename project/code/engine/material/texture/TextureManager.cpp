@@ -1,4 +1,4 @@
-#include "material/texture/TextureManager.h"
+#include "TextureManager.h"
 
 ///stl
 //io
@@ -102,6 +102,7 @@ DirectX::ScratchImage Texture::Load(const std::string& filePath) {
 void Texture::UploadTextureData(DirectX::ScratchImage& mipImg, ID3D12Resource* resource) {
     std::vector<D3D12_SUBRESOURCE_DATA> subResources;
     auto dxDevice = Engine::getInstance()->getDxDevice();
+
     DirectX::PrepareUpload(
         dxDevice->getDevice(),
         mipImg.GetImages(),
@@ -191,7 +192,7 @@ void TextureManager::Finalize() {
     }
 }
 
-uint32_t TextureManager::LoadTexture(const std::string& filePath, std::function<void()> callBack) {
+uint32_t TextureManager::LoadTexture(const std::string& filePath, std::function<void(uint32_t loadedIndex)> callBack) {
     uint32_t index = 0;
     for (index = 0; index < textures_.size(); ++index) {
         if (textures_[index] == nullptr) {
@@ -199,7 +200,7 @@ uint32_t TextureManager::LoadTexture(const std::string& filePath, std::function<
             break;
         } else if (filePath == textures_[index]->path) {
             if (callBack) {
-                callBack();
+                callBack(index);
             }
             return index;
         }
@@ -208,7 +209,8 @@ uint32_t TextureManager::LoadTexture(const std::string& filePath, std::function<
     loadThread_->pushTask(
         {.filePath     = filePath,
          .textureIndex = index,
-         .texture      = textures_[index].get()});
+         .texture      = textures_[index].get(),
+         .callBack     = callBack});
 
     return index;
 }
@@ -226,7 +228,7 @@ void TextureManager::LoadTask::Update() {
     texture->Init(filePath, dxSrvArray.lock(), textureIndex);
 
     if (callBack) {
-        callBack();
+        callBack(TextureManager::LoadTexture(filePath));
     }
 }
 #pragma endregion

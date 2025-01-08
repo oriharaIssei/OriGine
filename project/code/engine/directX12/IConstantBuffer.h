@@ -18,10 +18,10 @@ template <HasInConstantBuffer constBuff>
 class IConstantBuffer {
 public:
     template <typename... Args>
-    IConstantBuffer(Args... args){
+    IConstantBuffer(Args... args) {
         openData_ = constBuff(args...);
     }
-    IConstantBuffer(){}
+    IConstantBuffer() {}
     ~IConstantBuffer() {}
 
     void CreateBuffer(ID3D12Device* device);
@@ -34,7 +34,7 @@ public:
 
 protected:
     // bind されたデータ
-    constBuff::ConstantBuffer* mappingData_;
+    constBuff::ConstantBuffer* mappingData_ = nullptr;
     DxResource buff_;
 
 public:

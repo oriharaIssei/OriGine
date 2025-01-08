@@ -1,7 +1,6 @@
 #include "AnimationObject3d.h"
 
 #include "Engine.h"
-
 #include "animation/Animation.h"
 #include "animation/AnimationManager.h"
 #include "material/Material.h"
@@ -18,19 +17,7 @@ void AnimationObject3d::Init(
     const std::string& _filename) {
     this->model_ = ModelManager::getInstance()->Create(
         _directoryPath,
-        _filename,
-        [this](Model* model) {
-            transform_.Init();
-            transform_.UpdateMatrix();
-            for (auto& mesh : model->meshData_->mesh_) {
-                mesh.transform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
-                mesh.transform_.openData_.Init();
-                mesh.transform_.openData_.parent = &transform_;
-
-                mesh.transform_.openData_.UpdateMatrix();
-                mesh.transform_.ConvertToBuffer();
-            }
-        });
+        _filename);
     this->currentAnimationName_ = _filename;
     this->animation_            = AnimationManager::getInstance()->Load(_directoryPath, _filename);
 }
@@ -39,19 +26,7 @@ void AnimationObject3d::Init(const AnimationSetting& _animationSetting) {
     // model
     this->model_ = ModelManager::getInstance()->Create(
         _animationSetting.targetModelDirection,
-        _animationSetting.targetModelFileName,
-        [this](Model* model) {
-            transform_.Init();
-            transform_.UpdateMatrix();
-            for (auto& mesh : model->meshData_->mesh_) {
-                mesh.transform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
-                mesh.transform_.openData_.Init();
-                mesh.transform_.openData_.parent = &transform_;
-
-                mesh.transform_.openData_.UpdateMatrix();
-                mesh.transform_.ConvertToBuffer();
-            }
-        });
+        _animationSetting.targetModelFileName);
     // animation
     this->currentAnimationName_ = _animationSetting.name;
     this->animation_ =
@@ -69,19 +44,7 @@ void AnimationObject3d::Init(
     this->model_ =
         ModelManager::getInstance()->Create(
             _modelDirectoryPath,
-            _modelFilename,
-            [this](Model* model) {
-                transform_.Init();
-                transform_.UpdateMatrix();
-                for (auto& mesh : model->meshData_->mesh_) {
-                    mesh.transform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
-                    mesh.transform_.openData_.Init();
-                    mesh.transform_.openData_.parent = &transform_;
-
-                    mesh.transform_.openData_.UpdateMatrix();
-                    mesh.transform_.ConvertToBuffer();
-                }
-            });
+            _modelFilename);
 
     // animation
     this->currentAnimationName_ = _animationFilename;
@@ -95,17 +58,22 @@ void AnimationObject3d::Update(float deltaTime) {
     // Animationより 先に Object 座標系の 行進
     transform_.UpdateMatrix();
 
+    if (model_->meshData_->currentState_ == LoadState::Unloaded ||
+        !animation_->getData()) {
+        return;
+    }
+
     if (toNextAnimation_ && nextAnimation_) {
         // 現在の姿勢から 次のアニメーションの姿勢への補間
-        toNextAnimation_->Update(deltaTime, model_.get(), transform_.worldMat);
+        toNextAnimation_->Update(deltaTime, model_.get(), MakeMatrix::Identity());
         if (toNextAnimation_->isEnd()) {
             animation_ = std::move(nextAnimation_);
             nextAnimation_.reset();
             toNextAnimation_.reset();
         }
-    } else {
+    } else if (animation_) {
         // アニメーションの更新
-        animation_->Update(deltaTime, model_.get(), transform_.worldMat);
+        animation_->Update(deltaTime, model_.get(), MakeMatrix::Identity());
     }
 
     // モデルの更新
@@ -115,23 +83,22 @@ void AnimationObject3d::Update(float deltaTime) {
     { // rootMeshUpdate
         auto rootMeshIndexItr = model_->meshData_->meshIndexes.find(rootNode.name);
         if (rootMeshIndexItr != model_->meshData_->meshIndexes.end()) {
-            Mesh3D& rootMesh                       = model_->meshData_->mesh_[rootMeshIndexItr->second];
-            rootMesh.transform_.openData_.worldMat = transform_.worldMat * rootNode.localMatrix;
-            rootMesh.transform_.ConvertToBuffer();
+            Mesh3D& rootMesh                                     = model_->meshData_->mesh_[rootMeshIndexItr->second];
+            model_->transformBuff_[&rootMesh].openData_.worldMat = rootNode.localMatrix * transform_.worldMat;
+            model_->transformBuff_[&rootMesh].ConvertToBuffer();
         }
     }
     // ChildNode Update
     for (const auto& node : rootNode.children) {
         auto meshIndexItr = model_->meshData_->meshIndexes.find(node.name);
         if (meshIndexItr != model_->meshData_->meshIndexes.end()) {
-            IConstantBuffer<Transform>& meshTransform = model_->meshData_->mesh_[meshIndexItr->second].transform_;
+            IConstantBuffer<Transform>& meshTransform = model_->transformBuff_[&model_->meshData_->mesh_[meshIndexItr->second]];
             // mesh の ワールド行列を更新
-            meshTransform.openData_.worldMat = transform_.worldMat * node.localMatrix;
+            meshTransform.openData_.worldMat = node.localMatrix * transform_.worldMat;
             meshTransform.ConvertToBuffer();
         }
     }
 }
-
 void AnimationObject3d::Draw() {
     drawFuncTable_[(int)model_->meshData_->currentState_]();
 }
@@ -143,7 +110,11 @@ void AnimationObject3d::DrawThis() {
     uint32_t index = 0;
 
     for (auto& mesh : model_->meshData_->mesh_) {
-        auto& material                  = model_->materialData_[index];
+        auto& material = model_->materialData_[index];
+
+        IConstantBuffer<Transform>& meshTransform = model_->transformBuff_[&mesh];
+        meshTransform.ConvertToBuffer();
+
         ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
         commandList->SetDescriptorHeaps(1, ppHeaps);
         commandList->SetGraphicsRootDescriptorTable(
@@ -153,7 +124,7 @@ void AnimationObject3d::DrawThis() {
         commandList->IASetVertexBuffers(0, 1, &mesh.meshBuff->vbView);
         commandList->IASetIndexBuffer(&mesh.meshBuff->ibView);
 
-        mesh.transform_.SetForRootParameter(commandList, 0);
+        meshTransform.SetForRootParameter(commandList, 0);
 
         material.material->SetForRootParameter(commandList, 2);
         // 描画!!!
@@ -191,13 +162,22 @@ void AnimationObject3d::setAnimation(const std::string& directory, const std::st
 }
 
 void AnimationObject3d::setNextAnimation(const std::string& directory, const std::string& filename, float _lerpTime) {
+    nextAnimation_.reset();
+    toNextAnimation_.reset();
+
     nextAnimation_ = std::move(AnimationManager::getInstance()->Load(directory, filename));
+    while (true) {
+        if (nextAnimation_->getData()) {
+            break;
+        }
+    }
 
     AnimationManager* animationManager = AnimationManager::getInstance();
     int toNextAnimationDataIndex       = animationManager->addAnimationData("to" + filename + "from" + currentAnimationName_, std::make_unique<AnimationData>(_lerpTime));
     AnimationData* toNextAnimationData = const_cast<AnimationData*>(animationManager->getAnimationData(toNextAnimationDataIndex));
 
     toNextAnimationData->nodeAnimations.clear();
+    toNextAnimationData->duration = _lerpTime;
     for (const auto& [nodeName, nodeAnimation] : animation_->getData()->nodeAnimations) {
         toNextAnimationData->nodeAnimations[nodeName] = {
             .scale     = AnimationCurve<Vector3>(),
@@ -218,21 +198,81 @@ void AnimationObject3d::setNextAnimation(const std::string& directory, const std
 
         ///=============================================
         /// 次の姿勢を追加
+        if (!nextAnimation_->getData()->nodeAnimations[nodeName].scale.empty()) {
+            toNextAnimationData->nodeAnimations[nodeName].scale.push_back(KeyframeVector3(
+                _lerpTime,
+                nextAnimation_->getData()->nodeAnimations[nodeName].scale[0].value));
+        }
+        if (!nextAnimation_->getData()->nodeAnimations[nodeName].rotate.empty()) {
+            toNextAnimationData->nodeAnimations[nodeName].rotate.push_back(KeyframeQuaternion(
+                _lerpTime,
+                nextAnimation_->getData()->nodeAnimations[nodeName].rotate[0].value));
+        }
+        if (!nextAnimation_->getData()->nodeAnimations[nodeName].translate.empty()) {
+            toNextAnimationData->nodeAnimations[nodeName].translate.push_back(KeyframeVector3(
+                _lerpTime,
+                nextAnimation_->getData()->nodeAnimations[nodeName].translate[0].value));
+        }
+    }
+    toNextAnimation_ = std::make_unique<Animation>(toNextAnimationData);
+    toNextAnimation_->setDuration(_lerpTime);
+}
+void AnimationObject3d::setNextAnimation(std::unique_ptr<Animation>& animation, const std::string& filename, float _lerpTime) {
+    while (true) {
+        if (animation->getData()) {
+            break;
+        }
+    }
+
+    nextAnimation_ = std::move(animation);
+
+    AnimationManager* animationManager = AnimationManager::getInstance();
+    int toNextAnimationDataIndex       = animationManager->addAnimationData("to" + filename + "from" + currentAnimationName_, std::make_unique<AnimationData>(_lerpTime));
+    AnimationData* toNextAnimationData = const_cast<AnimationData*>(animationManager->getAnimationData(toNextAnimationDataIndex));
+
+    toNextAnimationData->nodeAnimations.clear();
+    toNextAnimationData->duration = _lerpTime;
+    for (const auto& [nodeName, nodeAnimation] : animation_->getData()->nodeAnimations) {
+        toNextAnimationData->nodeAnimations[nodeName] = {
+            .scale     = AnimationCurve<Vector3>(),
+            .rotate    = AnimationCurve<Quaternion>(),
+            .translate = AnimationCurve<Vector3>()};
+
+        ///=============================================
+        /// 現在の姿勢をはじめに追加
         toNextAnimationData->nodeAnimations[nodeName].scale.push_back(KeyframeVector3(
-            _lerpTime,
-            nextAnimation_->getData()->nodeAnimations[nodeName].scale[0].value));
+            0.0f,
+            animation_->getCurrentScale(nodeName)));
         toNextAnimationData->nodeAnimations[nodeName].rotate.push_back(KeyframeQuaternion(
-            _lerpTime,
-            nextAnimation_->getData()->nodeAnimations[nodeName].rotate[0].value));
+            0.0f,
+            animation_->getCurrentRotate(nodeName)));
         toNextAnimationData->nodeAnimations[nodeName].translate.push_back(KeyframeVector3(
-            _lerpTime,
-            nextAnimation_->getData()->nodeAnimations[nodeName].translate[0].value));
+            0.0f,
+            animation_->getCurrentTranslate(nodeName)));
+
+        ///=============================================
+        /// 次の姿勢を追加
+        if (!nextAnimation_->getData()->nodeAnimations[nodeName].scale.empty()) {
+            toNextAnimationData->nodeAnimations[nodeName].scale.push_back(KeyframeVector3(
+                _lerpTime,
+                nextAnimation_->getData()->nodeAnimations[nodeName].scale[0].value));
+        }
+        if (!nextAnimation_->getData()->nodeAnimations[nodeName].rotate.empty()) {
+            toNextAnimationData->nodeAnimations[nodeName].rotate.push_back(KeyframeQuaternion(
+                _lerpTime,
+                nextAnimation_->getData()->nodeAnimations[nodeName].rotate[0].value));
+        }
+        if (!nextAnimation_->getData()->nodeAnimations[nodeName].translate.empty()) {
+            toNextAnimationData->nodeAnimations[nodeName].translate.push_back(KeyframeVector3(
+                _lerpTime,
+                nextAnimation_->getData()->nodeAnimations[nodeName].translate[0].value));
+        }
     }
     toNextAnimation_ = std::make_unique<Animation>(toNextAnimationData);
     toNextAnimation_->setDuration(_lerpTime);
 }
 
-void AnimationObject3d::setAnimation(std::unique_ptr<Animation> animation) {
+void AnimationObject3d::setAnimation(std::unique_ptr<Animation>& animation) {
     animation_ = std::move(animation);
 }
 

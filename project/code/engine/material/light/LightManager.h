@@ -14,18 +14,18 @@
 
 struct LightCounts {
     SerializedField<int32_t> directionalLightNum{"LightManager", "LightCounts", "directionalLightNum"};
-    SerializedField<int32_t> spotLightNum{"LightManager", "LightCounts", "spotLightNum"};
     SerializedField<int32_t> pointLightNum{"LightManager", "LightCounts", "pointLightNum"};
+    SerializedField<int32_t> spotLightNum{"LightManager", "LightCounts", "spotLightNum"};
 
     struct ConstantBuffer {
         int32_t directionalLightNum;
-        int32_t spotLightNum;
         int32_t pointLightNum;
+        int32_t spotLightNum;
 
         ConstantBuffer& operator=(const LightCounts& light) {
             this->directionalLightNum = light.directionalLightNum;
-            this->spotLightNum        = light.spotLightNum;
             this->pointLightNum       = light.pointLightNum;
+            this->spotLightNum        = light.spotLightNum;
             return *this;
         }
     };

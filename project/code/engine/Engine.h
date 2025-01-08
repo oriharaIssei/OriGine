@@ -79,6 +79,7 @@ private:
     std::array<std::string,kBlendNum> texturePsoKeys_;
 
     // module
+
 #ifdef _DEBUG
     EngineEditor* editor_             = nullptr;
 #endif // _DEBUG
