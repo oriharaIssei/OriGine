@@ -186,7 +186,7 @@ inline aiMatrix3x3t<TReal> aiQuaterniont<TReal>::GetMatrix() const
 // ---------------------------------------------------------------------------
 // Construction from an axis-angle pair
 template<typename TReal>
-inline aiQuaterniont<TReal>::aiQuaterniont( aiVector3t<TReal> axis, TReal angle)
+inline aiQuaterniont<TReal>::aiQuaterniont( aiVec3ft<TReal> axis, TReal angle)
 {
     axis.Normalize();
 
@@ -200,7 +200,7 @@ inline aiQuaterniont<TReal>::aiQuaterniont( aiVector3t<TReal> axis, TReal angle)
 // ---------------------------------------------------------------------------
 // Construction from am existing, normalized quaternion
 template<typename TReal>
-inline aiQuaterniont<TReal>::aiQuaterniont( aiVector3t<TReal> normalized)
+inline aiQuaterniont<TReal>::aiQuaterniont( aiVec3ft<TReal> normalized)
 {
     x = normalized.x;
     y = normalized.y;
@@ -298,13 +298,13 @@ inline aiQuaterniont<TReal>& aiQuaterniont<TReal>::Conjugate ()
 
 // ---------------------------------------------------------------------------
 template<typename TReal>
-inline aiVector3t<TReal> aiQuaterniont<TReal>::Rotate (const aiVector3t<TReal>& v) const
+inline aiVec3ft<TReal> aiQuaterniont<TReal>::Rotate (const aiVec3ft<TReal>& v) const
 {
     aiQuaterniont q2(0.f,v.x,v.y,v.z), q = *this, qinv = q;
     qinv.Conjugate();
 
     q = q*q2*qinv;
-    return aiVector3t<TReal>(q.x,q.y,q.z);
+    return aiVec3ft<TReal>(q.x,q.y,q.z);
 }
 
 #endif

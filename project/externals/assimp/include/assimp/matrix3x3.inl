@@ -239,7 +239,7 @@ aiMatrix3x3t<TReal>& aiMatrix3x3t<TReal>::RotationZ(TReal a, aiMatrix3x3t<TReal>
 // Returns a rotation matrix for a rotation around an arbitrary axis.
 template <typename TReal>
 AI_FORCE_INLINE
-aiMatrix3x3t<TReal>& aiMatrix3x3t<TReal>::Rotation( TReal a, const aiVector3t<TReal>& axis, aiMatrix3x3t<TReal>& out) {
+aiMatrix3x3t<TReal>& aiMatrix3x3t<TReal>::Rotation( TReal a, const aiVec3ft<TReal>& axis, aiMatrix3x3t<TReal>& out) {
   TReal c = std::cos( a), s = std::sin( a), t = 1 - c;
   TReal x = axis.x, y = axis.y, z = axis.z;
 
@@ -254,7 +254,7 @@ aiMatrix3x3t<TReal>& aiMatrix3x3t<TReal>::Rotation( TReal a, const aiVector3t<TR
 // ------------------------------------------------------------------------------------------------
 template <typename TReal>
 AI_FORCE_INLINE
-aiMatrix3x3t<TReal>& aiMatrix3x3t<TReal>::Translation( const aiVector2t<TReal>& v, aiMatrix3x3t<TReal>& out) {
+aiMatrix3x3t<TReal>& aiMatrix3x3t<TReal>::Translation( const aiVec2ft<TReal>& v, aiMatrix3x3t<TReal>& out) {
     out = aiMatrix3x3t<TReal>();
     out.a3 = v.x;
     out.b3 = v.y;
@@ -272,15 +272,15 @@ aiMatrix3x3t<TReal>& aiMatrix3x3t<TReal>::Translation( const aiVector2t<TReal>& 
  */
 // ----------------------------------------------------------------------------------------
 template <typename TReal>
-AI_FORCE_INLINE aiMatrix3x3t<TReal>& aiMatrix3x3t<TReal>::FromToMatrix(const aiVector3t<TReal>& from,
-        const aiVector3t<TReal>& to, aiMatrix3x3t<TReal>& mtx) {
+AI_FORCE_INLINE aiMatrix3x3t<TReal>& aiMatrix3x3t<TReal>::FromToMatrix(const aiVec3ft<TReal>& from,
+        const aiVec3ft<TReal>& to, aiMatrix3x3t<TReal>& mtx) {
     const TReal e = from * to;
     const TReal f = (e < 0)? -e:e;
 
     if (f > static_cast<TReal>(1.0) - static_cast<TReal>(0.00001))     /* "from" and "to"-vector almost parallel */
     {
-        aiVector3D u,v;     /* temporary storage vectors */
-        aiVector3D x;       /* vector most nearly orthogonal to "from" */
+        aiVec3fD u,v;     /* temporary storage vectors */
+        aiVec3fD x;       /* vector most nearly orthogonal to "from" */
 
         x.x = (from.x > 0.0)? from.x : -from.x;
         x.y = (from.y > 0.0)? from.y : -from.y;
@@ -332,7 +332,7 @@ AI_FORCE_INLINE aiMatrix3x3t<TReal>& aiMatrix3x3t<TReal>::FromToMatrix(const aiV
     }
     else  /* the most common case, unless "from"="to", or "from"=-"to" */
     {
-        const aiVector3D v = from ^ to;
+        const aiVec3fD v = from ^ to;
         /* ... use this hand optimized version (9 mults less) */
         const TReal h = static_cast<TReal>(1.0)/(static_cast<TReal>(1.0) + e);      /* optimization by Gottfried Chen */
         const TReal hvx = h * v.x;

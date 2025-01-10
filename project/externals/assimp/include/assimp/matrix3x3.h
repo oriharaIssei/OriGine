@@ -55,8 +55,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifdef __cplusplus
 
 template <typename T> class aiMatrix4x4t;
-template <typename T> class aiVector2t;
-template <typename T> class aiVector3t;
+template <typename T> class aiVec2ft;
+template <typename T> class aiVec3ft;
 
 // ---------------------------------------------------------------------------
 /** @brief Represents a row-major 3x3 matrix
@@ -135,7 +135,7 @@ public:
      *  @param axis Axis to rotate around
      *  @param out To be filled
      */
-    static aiMatrix3x3t& Rotation( TReal a, const aiVector3t<TReal>& axis, aiMatrix3x3t& out);
+    static aiMatrix3x3t& Rotation( TReal a, const aiVec3ft<TReal>& axis, aiMatrix3x3t& out);
 
     // -------------------------------------------------------------------
     /** @brief Returns a translation matrix
@@ -143,7 +143,7 @@ public:
      *  @param out Receives the output matrix
      *  @return Reference to the output matrix
      */
-    static aiMatrix3x3t& Translation( const aiVector2t<TReal>& v, aiMatrix3x3t& out);
+    static aiMatrix3x3t& Translation( const aiVec2ft<TReal>& v, aiMatrix3x3t& out);
 
     // -------------------------------------------------------------------
     /** @brief A function for creating a rotation matrix that rotates a
@@ -154,8 +154,8 @@ public:
      *          "Efficiently Building a Matrix to Rotate One Vector to Another"
      *          Journal of Graphics Tools, 4(4):1-4, 1999
      */
-    static aiMatrix3x3t& FromToMatrix(const aiVector3t<TReal>& from,
-        const aiVector3t<TReal>& to, aiMatrix3x3t& out);
+    static aiMatrix3x3t& FromToMatrix(const aiVec3ft<TReal>& from,
+        const aiVec3ft<TReal>& to, aiMatrix3x3t& out);
 
 public:
     TReal a1, a2, a3;
