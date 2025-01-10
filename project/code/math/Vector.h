@@ -1,5 +1,10 @@
 #pragma once
 
+// indexNumbers
+static const int X = 0;
+static const int Y = 1;
+static const int Z = 2;
+static const int W = 3;
 template <int dimension, typename valueType>
 struct Vector {
     Vector() {
