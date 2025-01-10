@@ -1,19 +1,28 @@
 #pragma once
 
+///stl
 #include <memory>
 #include <vector>
 
+///engine
+//dxObject
 #include "directX12/IConstantBuffer.h"
 #include "directX12/IStructuredBuffer.h"
+
+//lib
 #include "globalVariables/SerializedField.h"
+
+//asset
 #include "material/Material.h"
+//objct
 #include "object3d/Object3d.h"
+//transform
 #include "transform/CameraTransform.h"
 #include "transform/ParticleTransform.h"
 #include "transform/Transform.h"
 
+// emitObject
 #include "../Particle.h"
-
 class Particle;
 struct EmitterShape;
 class Emitter{
@@ -44,7 +53,7 @@ private:
 	SerializedField<float> activeTime_;
 	float leftActiveTime_;
 
-	SerializedField<Vector3> originPos_;
+	SerializedField<Vec3f> originPos_;
 
 	SerializedField<std::string> modelFileName_;
 	SerializedField<std::string> textureFileName_;
@@ -74,18 +83,18 @@ private:
 	/// <summary>
 	/// パーティクルの 初期値
 	/// </summary>
-	SerializedField<Vector3> minDirectory_;
-	SerializedField<Vector3> maxDirectory_;
+	SerializedField<Vec3f> minDirectory_;
+	SerializedField<Vec3f> maxDirectory_;
 	SerializedField<float> particleSpeed_;
 
-	SerializedField<Vector3> particleScale_;
-	SerializedField<Vector3> particleRotate_;
+	SerializedField<Vec3f> particleScale_;
+	SerializedField<Vec3f> particleRotate_;
 
-	SerializedField<Vector3> particleUvScale_;
-	SerializedField<Vector3> particleUvRotate_;
-	SerializedField<Vector3> particleUvTranslate_;
+	SerializedField<Vec3f> particleUvScale_;
+	SerializedField<Vec3f> particleUvRotate_;
+	SerializedField<Vec3f> particleUvTranslate_;
 
-	SerializedField<Vector4> particleColor_;
+	SerializedField<Vec4f> particleColor_;
 
 	SerializedField<bool> particleIsBillBoard_;
 public:

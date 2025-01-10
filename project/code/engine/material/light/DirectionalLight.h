@@ -19,14 +19,14 @@ public:
 
 	~DirectionalLight(){}
 
-	SerializedField<Vector3>color;
-	SerializedField<Vector3>direction;
+	SerializedField<Vec3f>color;
+	SerializedField<Vec3f>direction;
 	SerializedField<float>intensity;
 public:
 	struct ConstantBuffer{
-		Vector3 color;      // 12 bytes
+		Vec3f color;      // 12 bytes
 		float intensity;    // 4 bytes
-		Vector3 direction;  // 12 bytes
+		Vec3f direction;  // 12 bytes
 		ConstantBuffer& operator=(const DirectionalLight& light){
 			color     = light.color;
 			direction = light.direction;

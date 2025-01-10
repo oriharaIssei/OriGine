@@ -21,9 +21,9 @@
 // unorderedMap 用
 //===========================================================================
 struct VertexKey {
-    Vector4 position;
-    Vector3 normal;
-    Vector2 texCoord;
+    Vec4f position;
+    Vec3f normal;
+    Vec2f texCoord;
 
     bool operator==(const VertexKey& other) const {
         return position == other.position &&
@@ -35,14 +35,14 @@ namespace std {
 template <>
 struct hash<VertexKey> {
     size_t operator()(const VertexKey& key) const {
-        return hash<float>()(key.position.x) ^ hash<float>()(key.position.y) ^ hash<float>()(key.position.z) ^
-               hash<float>()(key.normal.x) ^ hash<float>()(key.normal.y) ^ hash<float>()(key.normal.z) ^
-               hash<float>()(key.texCoord.x) ^ hash<float>()(key.texCoord.y);
+        return hash<float>()(key.position.x()) ^ hash<float>()(key.position.y()) ^ hash<float>()(key.position.z()) ^
+               hash<float>()(key.normal.x()) ^ hash<float>()(key.normal.y()) ^ hash<float>()(key.normal.z()) ^
+               hash<float>()(key.texCoord.x()) ^ hash<float>()(key.texCoord.y());
     }
 };
 } // namespace std
 
-#pragma region"LoadFunctions"
+#pragma region "LoadFunctions"
 void ProcessMeshData(Mesh3D& meshData, const std::vector<TextureVertexData>& vertices, const std::vector<uint32_t>& indices) {
     TextureObject3dMesh* textureMesh = new TextureObject3dMesh();
 
@@ -151,13 +151,13 @@ void LoadModelFile(ModelMeshData* data, const std::string& directoryPath, const 
                 uint32_t vertexIndex = face.mIndices[i];
 
                 // 頂点データを取得
-                Vector4 pos      = {loadedMesh->mVertices[vertexIndex].x, loadedMesh->mVertices[vertexIndex].y, loadedMesh->mVertices[vertexIndex].z, 1.0f};
-                Vector3 normal   = {loadedMesh->mNormals[vertexIndex].x, loadedMesh->mNormals[vertexIndex].y, loadedMesh->mNormals[vertexIndex].z};
-                Vector2 texCoord = {loadedMesh->mTextureCoords[0][vertexIndex].x, loadedMesh->mTextureCoords[0][vertexIndex].y};
+                Vec4f pos      = {loadedMesh->mVertices[vertexIndex].x, loadedMesh->mVertices[vertexIndex].y, loadedMesh->mVertices[vertexIndex].z, 1.0f};
+                Vec3f normal   = {loadedMesh->mNormals[vertexIndex].x, loadedMesh->mNormals[vertexIndex].y, loadedMesh->mNormals[vertexIndex].z};
+                Vec2f texCoord = {loadedMesh->mTextureCoords[0][vertexIndex].x, loadedMesh->mTextureCoords[0][vertexIndex].y};
 
                 // X軸反転
-                pos.x *= -1.0f;
-                normal.x *= -1.0f;
+                pos.x() *= -1.0f;
+                normal.x() *= -1.0f;
 
                 // VertexKeyを生成
                 VertexKey vertexKey = {pos, normal, texCoord};

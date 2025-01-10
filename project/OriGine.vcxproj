@@ -170,7 +170,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="code\application\MyGame.cpp" />
     <ClCompile Include="code\application\FrameWork.cpp" />
     <ClCompile Include="code\math\Quaternion.cpp" />
-    <ClCompile Include="code\math\Vector3.cpp" />
     <ClCompile Include="code\application\scene\TitleScene.cpp" />
     <ClCompile Include="code\application\scene\GameClearScene.cpp" />
   </ItemGroup>
@@ -235,6 +234,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="code\lib\myFileSystem\MyFileSystem.h" />
     <ClInclude Include="code\math\Matrix4x4.h" />
     <ClInclude Include="code\math\Quaternion.h" />
+    <ClInclude Include="code\math\Vector.h" />
     <ClInclude Include="code\math\Vector2.h" />
     <ClInclude Include="code\math\Vector3.h" />
     <ClInclude Include="code\math\Vector4.h" />

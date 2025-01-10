@@ -34,7 +34,7 @@ private:
     void ImGuiMenu();
 
 public:
-    using Item  = std::variant<int32_t, float, std::string, Vector2, Vector3, Vector4, bool>;
+    using Item  = std::variant<int32_t, float, std::string, Vec2f, Vec3f, Vec4f, bool>;
     using Group = std::map<std::string, Item>;
     using Scene = std::map<std::string, Group>;
 

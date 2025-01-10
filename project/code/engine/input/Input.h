@@ -44,19 +44,19 @@ private:
     DIMOUSESTATE2 preMouseState_;
 
     POINT mousePoint_;
-    Vector2 currentMousePos_;
-    Vector2 preMousePos_;
+    Vec2f currentMousePos_;
+    Vec2f preMousePos_;
 
     // ゲームパッド とりあえず 一つだけ
     XINPUT_STATE padState_;
     XINPUT_STATE prePadState_;
     bool isPadActive_;
     SerializedField<float> deadZone_{"Input", "GamePad", "DeadZone"};
-    Vector2 currentLStickVelocity_ = {0.0f, 0.0f};
-    Vector2 preLStickVelocity_     = {0.0f, 0.0f};
+    Vec2f currentLStickVelocity_ = {0.0f, 0.0f};
+    Vec2f preLStickVelocity_     = {0.0f, 0.0f};
 
-    Vector2 currentRStickVelocity_ = {0.0f, 0.0f};
-    Vector2 preRStickVelocity_     = {0.0f, 0.0f};
+    Vec2f currentRStickVelocity_ = {0.0f, 0.0f};
+    Vec2f preRStickVelocity_     = {0.0f, 0.0f};
 
 public:
     bool isPressKey(const uint32_t& key) const { return keys_[key]; };
@@ -72,15 +72,15 @@ public:
     int getWheel() const { return static_cast<int>(currentMouseState_.lZ); }
     int getPreWheel() const { return static_cast<int>(preMouseState_.lZ); }
 
-    const Vector2& getCurrentMousePos() const { return currentMousePos_; }
-    const Vector2& getPreMousePos() const { return preMousePos_; }
-    Vector2 getMouseVelocity() const { return Vector2(currentMousePos_ - preMousePos_); }
+    const Vec2f& getCurrentMousePos() const { return currentMousePos_; }
+    const Vec2f& getPreMousePos() const { return preMousePos_; }
+    Vec2f getMouseVelocity() const { return Vec2f(currentMousePos_ - preMousePos_); }
 
-    const Vector2& getLStickVelocity() const { return currentLStickVelocity_; }
-    const Vector2& getPreLStickVelocity() const { return preLStickVelocity_; }
+    const Vec2f& getLStickVelocity() const { return currentLStickVelocity_; }
+    const Vec2f& getPreLStickVelocity() const { return preLStickVelocity_; }
 
-    const Vector2& getRStickVelocity() const { return currentRStickVelocity_; }
-    const Vector2& getPreRStickVelocity() const { return preRStickVelocity_; }
+    const Vec2f& getRStickVelocity() const { return currentRStickVelocity_; }
+    const Vec2f& getPreRStickVelocity() const { return preRStickVelocity_; }
 
     bool isPadActive() const { return isPadActive_; }
     bool isPressButton(const uint32_t& button) const { return padState_.Gamepad.wButtons & button; }

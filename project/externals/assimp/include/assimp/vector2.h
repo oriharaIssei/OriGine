@@ -63,44 +63,44 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef __cplusplus
 template <typename TReal>
-class aiVector2t {
+class aiVec2ft {
 public:
-    aiVector2t () : x(), y() {}
-    aiVector2t (TReal _x, TReal _y) : x(_x), y(_y) {}
-    explicit aiVector2t (TReal _xyz) : x(_xyz), y(_xyz) {}
-    aiVector2t (const aiVector2t& o) = default;
+    aiVec2ft () : x(), y() {}
+    aiVec2ft (TReal _x, TReal _y) : x(_x), y(_y) {}
+    explicit aiVec2ft (TReal _xyz) : x(_xyz), y(_xyz) {}
+    aiVec2ft (const aiVec2ft& o) = default;
 
     void Set( TReal pX, TReal pY);
     TReal SquareLength() const ;
     TReal Length() const ;
-    aiVector2t& Normalize();
+    aiVec2ft& Normalize();
 
-    const aiVector2t& operator += (const aiVector2t& o);
-    const aiVector2t& operator -= (const aiVector2t& o);
-    const aiVector2t& operator *= (TReal f);
-    const aiVector2t& operator /= (TReal f);
+    const aiVec2ft& operator += (const aiVec2ft& o);
+    const aiVec2ft& operator -= (const aiVec2ft& o);
+    const aiVec2ft& operator *= (TReal f);
+    const aiVec2ft& operator /= (TReal f);
 
     TReal operator[](unsigned int i) const;
 
-    bool operator== (const aiVector2t& other) const;
-    bool operator!= (const aiVector2t& other) const;
+    bool operator== (const aiVec2ft& other) const;
+    bool operator!= (const aiVec2ft& other) const;
 
-    bool Equal(const aiVector2t &other, TReal epsilon = ai_epsilon) const;
+    bool Equal(const aiVec2ft &other, TReal epsilon = ai_epsilon) const;
 
-    aiVector2t& operator= (TReal f);
-    const aiVector2t SymMul(const aiVector2t& o);
+    aiVec2ft& operator= (TReal f);
+    const aiVec2ft SymMul(const aiVec2ft& o);
 
     template <typename TOther>
-    operator aiVector2t<TOther> () const;
+    operator aiVec2ft<TOther> () const;
 
     TReal x, y;
 };
 
-typedef aiVector2t<ai_real> aiVector2D;
+typedef aiVec2ft<ai_real> aiVec2fD;
 
 #else
 
-struct aiVector2D {
+struct aiVec2fD {
     ai_real x, y;
 };
 

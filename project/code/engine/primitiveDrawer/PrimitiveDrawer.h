@@ -29,21 +29,21 @@ public:
 	static void Init();
 	static void Finalize();
 
-	static void Line(const Vector3& p0,
-					 const Vector3& p1,
+	static void Line(const Vec3f& p0,
+					 const Vec3f& p1,
 					 const IConstantBuffer<Transform>& Transform,
 					 const IConstantBuffer<Material>* material);
 
-	/*static void Triangle(const Vector3& p0,
-						 const Vector3& p1,
-						 const Vector3& p2,
+	/*static void Triangle(const Vec3f& p0,
+						 const Vec3f& p1,
+						 const Vec3f& p2,
 						 const IConstantBuffer<Transform>& Transform,
 						 const IConstantBuffer<CameraTransform>& viewProj,
 						 const IConstantBuffer<Material>* material);
-	static void Quad(const Vector3& p0,
-					 const Vector3& p1,
-					 const Vector3& p2,
-					 const Vector3& p3,
+	static void Quad(const Vec3f& p0,
+					 const Vec3f& p1,
+					 const Vec3f& p2,
+					 const Vec3f& p3,
 					 const IConstantBuffer<Transform>& Transform,
 					 const IConstantBuffer<CameraTransform>& viewProj,
 					 const IConstantBuffer<Material>* material);*/

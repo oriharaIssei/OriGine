@@ -78,7 +78,7 @@ AnimationData AnimationManager::LoadGltfAnimationData(const std::string& directo
         ///=============================================
         for (uint32_t keyIndex = 0; keyIndex < nodeAnimationAssimp->mNumScalingKeys; ++keyIndex) {
             aiVectorKey& keyAssimp = nodeAnimationAssimp->mScalingKeys[keyIndex];
-            KeyframeVector3 keyframe;
+            KeyframeVec3f keyframe;
             // 時間単位を 秒 に変換
             keyframe.time = float(keyAssimp.mTime / animationAssimp->mTicksPerSecond);
             // スケール値をそのまま使用
@@ -108,7 +108,7 @@ AnimationData AnimationManager::LoadGltfAnimationData(const std::string& directo
         ///=============================================
         for (uint32_t keyIndex = 0; keyIndex < nodeAnimationAssimp->mNumPositionKeys; ++keyIndex) {
             aiVectorKey& keyAssimp = nodeAnimationAssimp->mPositionKeys[keyIndex];
-            KeyframeVector3 keyframe;
+            KeyframeVec3f keyframe;
             // 時間単位を 秒 に変換
             keyframe.time = float(keyAssimp.mTime / animationAssimp->mTicksPerSecond);
             // 元が 右手座標系 なので 左手座標系 に 変換する

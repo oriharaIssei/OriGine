@@ -166,7 +166,7 @@ float Quaternion::dot(const Quaternion& q) const {
     return x * q.x + y * q.y + z * q.z + w * q.w;
 }
 
-Quaternion Quaternion::RotateAxisAngle(const Vector3& axis, float angle) {
+Quaternion Quaternion::RotateAxisAngle(const Vec3f& axis, float angle) {
     float halfAngle = angle / 2.0f;
     return Quaternion(
         axis * sinf(halfAngle),

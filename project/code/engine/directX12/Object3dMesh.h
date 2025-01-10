@@ -9,9 +9,9 @@
 #include <Vector4.h>
 
 struct TextureVertexData {
-	Vector4 pos;
-	Vector2 texCoord;
-	Vector3 normal;
+	Vec4f pos;
+	Vec2f texCoord;
+	Vec3f normal;
 	TextureVertexData *operator=(const TextureVertexData &vert) {
 		this->pos = vert.pos;
 		this->texCoord = vert.texCoord;
@@ -27,8 +27,8 @@ struct TextureVertexData {
 	}
 };
 struct PrimitiveVertexData {
-	Vector4 pos;
-	Vector3 normal;
+	Vec4f pos;
+	Vec3f normal;
 	PrimitiveVertexData(const TextureVertexData &vert) {
 		this->pos = vert.pos;
 		this->normal = vert.normal;
