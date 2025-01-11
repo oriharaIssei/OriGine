@@ -16,10 +16,10 @@ PlayerHpBar::~PlayerHpBar() {
 void PlayerHpBar::Init() {
     hpBar_ = std::make_unique<Sprite>();
     hpBar_->Init("resource/Texture/white1x1.png");
-    hpBar_->setAnchorPoint(Vector2(0.0f, 0.5f));
+    hpBar_->setAnchorPoint(Vec2f(0.0f, 0.5f));
     hpBar_->setSize(hpBarSize_);
-    hpBar_->setPosition(hpBarPos_);
-    currentWidth_ = hpBarSize_->x;
+    hpBar_->setTranslate(hpBarPos_);
+    currentWidth_ = hpBarSize_->x();
     currentColor_ = maxHpColor_;
 }
 
@@ -28,12 +28,12 @@ void PlayerHpBar::Update() {
         float t = player_->getHP() / player_->getMaxHp();
 
         t             = (std::max)(0.0f, t);
-        currentWidth_ = hpBarSize_->x * t;
-        currentColor_ = Lerp(minHpColor_, maxHpColor_, t);
+        currentWidth_ = hpBarSize_->x() * t;
+        currentColor_ = Lerp<float>(minHpColor_, maxHpColor_, t);
     }
-    hpBar_->setSize(Vector2(currentWidth_, hpBarSize_->y));
+    hpBar_->setSize(Vec2f(currentWidth_, hpBarSize_->y()));
     hpBar_->setColor(currentColor_);
-    hpBar_->setPosition(hpBarPos_);
+    hpBar_->setTranslate(hpBarPos_);
     hpBar_->Update();
 }
 

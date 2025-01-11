@@ -28,6 +28,6 @@ private:
 public:
     void resetRadius(const std::string& id);
     void ColliderInit(
-        const Vector3& position,
+        const Vec3f& position,
         std::function<void(GameObject*)> onCollision);
 };

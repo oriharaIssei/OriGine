@@ -19,13 +19,13 @@ void GameClearScene::Init() {
 
     text_ = std::make_unique<Sprite>();
     text_->Init("resource/Texture/Clear.png");
-    text_->setAnchorPoint(Vector2(0.5f, 0.5f));
-    text_->setPosition(Vector2(1280.0f * 0.5f, 720.0f * 0.3f));
+    text_->setAnchorPoint(Vec2f(0.5f, 0.5f));
+    text_->setTranslate(Vec2f(1280.0f * 0.5f, 720.0f * 0.3f));
 
     pushA_ = std::make_unique<Sprite>();
     pushA_->Init("resource/Texture/PushA.png");
-    pushA_->setAnchorPoint(Vector2(0.5f, 0.5f));
-    pushA_->setPosition(Vector2(1280.0f * 0.5f, 720.0f * 0.7f));
+    pushA_->setAnchorPoint(Vec2f(0.5f, 0.5f));
+    pushA_->setTranslate(Vec2f(1280.0f * 0.5f, 720.0f * 0.7f));
 }
 
 void GameClearScene::Update() {

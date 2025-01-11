@@ -43,7 +43,7 @@ Status ChaseAction::tick() {
     dist                            = dist.normalize();
     const Quaternion& currentRotate = enemy_->getRotate();
     { // Player を 入力方向 へ 回転
-        Quaternion inputDirectionRotate = Quaternion::RotateAxisAngle({0.0f, 1.0f, 0.0f}, atan2(dist.x, dist.z));
+        Quaternion inputDirectionRotate = Quaternion::RotateAxisAngle({0.0f, 1.0f, 0.0f}, atan2(dist.x(), dist.z()));
         inputDirectionRotate            = inputDirectionRotate.normalize();
         enemy_->setRotate(Slerp(currentRotate, inputDirectionRotate, 0.3f).normalize());
 

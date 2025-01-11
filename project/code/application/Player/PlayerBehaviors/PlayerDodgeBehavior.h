@@ -8,7 +8,7 @@
 class PlayerDodgeBehavior
     : public IPlayerBehavior {
 public:
-    PlayerDodgeBehavior(Player* _player, const Vector3& direction);
+    PlayerDodgeBehavior(Player* _player, const Vec3f& direction);
     ~PlayerDodgeBehavior();
     void Init() override;
     void Update() override;
@@ -24,6 +24,6 @@ private:
     SerializedField<float> distance_;
     float currentTimer_ = 0.0f;
     // 行動前と その後の 座標
-    Vector3 beforePos_;
-    Vector3 afterPos_;
+    Vec3f beforePos_;
+    Vec3f afterPos_;
 };

@@ -33,7 +33,7 @@ void IEnemy::Draw() {
 
     // Shadow
     {
-        shadowObject_->transform_.translate = (Vector3(drawObject3d_->transform_.translate.x, -0.03f, drawObject3d_->transform_.translate.z));
+        shadowObject_->transform_.translate = (Vector3(drawObject3d_->transform_.translate.x(), -0.03f, drawObject3d_->transform_.translate.z()));
         shadowObject_->UpdateTransform();
     }
     Object3d::setBlendMode(BlendMode::Sub);
@@ -41,7 +41,7 @@ void IEnemy::Draw() {
     Object3d::setBlendMode(BlendMode::Alpha);
 }
 
-void IEnemy::KnockBack(const Vector3& direction, float speed) {
+void IEnemy::KnockBack(const Vec3f& direction, float speed) {
     behaviorTree_ = std::make_unique<EnemyBehavior::KnockBack>(this, direction, speed, std::make_unique<WeakEnemyBehavior>(this));
 }
 

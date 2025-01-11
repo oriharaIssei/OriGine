@@ -29,5 +29,5 @@ private:
     std::vector<std::unique_ptr<AnimationObject3d>> hitEffects_;
 
 public:
-    void addHitEffect(const Quaternion& rotate, const Vector3& spawnTranslate);
+    void addHitEffect(const Quaternion& rotate, const Vec3f& spawnTranslate);
 };

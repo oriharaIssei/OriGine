@@ -64,8 +64,8 @@ private:
 
     std::unique_ptr<PlayerHpBar> playerHpBar_;
 
-    SerializedField<Vector2> dashUIPos_;
-    SerializedField<Vector2> attackUIPos_;
-    SerializedField<Vector2> jumpUIPos_;
+    SerializedField<Vec2f> dashUIPos_;
+    SerializedField<Vec2f> attackUIPos_;
+    SerializedField<Vec2f> jumpUIPos_;
 
 };

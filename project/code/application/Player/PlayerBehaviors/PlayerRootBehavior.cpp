@@ -32,9 +32,9 @@ void PlayerRootBehavior::Action() {
     // 入力 に 応じた 方向を 取得，計算
     if (input->isPadActive()) {
         directionXZ = {
-            input->getLStickVelocity().x,
+            input->getLStickVelocity().x(),
             0.0f, // 上方向には 移動しない
-            input->getLStickVelocity().y};
+            input->getLStickVelocity().y()};
     }
 
     if (directionXZ.lengthSq() == 0.0f) {
@@ -43,13 +43,13 @@ void PlayerRootBehavior::Action() {
 
     CameraTransform* cameraTransform = player_->getCameraTransform();
     if (cameraTransform) {
-        directionXZ = TransformVector(directionXZ, MakeMatrix::RotateY(cameraTransform->rotate.y));
+        directionXZ = TransformVector(directionXZ, MakeMatrix::RotateY(cameraTransform->rotate.y()));
     }
     lastDir_ = directionXZ.normalize();
 
     Quaternion currentPlayerRotate = player_->getRotate();
     { // Player を 入力方向 へ 回転
-        Quaternion inputDirectionRotate = Quaternion::RotateAxisAngle({0.0f, 1.0f, 0.0f}, atan2(lastDir_.x, lastDir_.z));
+        Quaternion inputDirectionRotate = Quaternion::RotateAxisAngle({0.0f, 1.0f, 0.0f}, atan2(lastDir_.x(), lastDir_.z()));
         inputDirectionRotate            = inputDirectionRotate.normalize();
         player_->setRotate(Slerp(currentPlayerRotate, inputDirectionRotate, 0.3f).normalize());
 
@@ -67,7 +67,7 @@ void PlayerRootBehavior::Action() {
         // 速度を 秒単位に
         float speedPerSecond = speed_ * Engine::getInstance()->getDeltaTime();
         // 現在の 座標
-        const Vector3& playerPos = player_->getTranslate();
+        const Vec3f& playerPos = player_->getTranslate();
         player_->setTranslate(playerPos + directionXZ * speedPerSecond);
     }
 }

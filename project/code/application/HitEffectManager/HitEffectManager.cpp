@@ -50,7 +50,7 @@ HitEffectManager::HitEffectManager() {
 HitEffectManager::~HitEffectManager() {
 }
 
-void HitEffectManager::addHitEffect(const Quaternion& rotate, const Vector3& spawnTranslate) {
+void HitEffectManager::addHitEffect(const Quaternion& rotate, const Vec3f& spawnTranslate) {
     hitEffects_.push_back(std::make_unique<AnimationObject3d>());
     auto& spawnedEffect = hitEffects_.back();
     spawnedEffect->Init(AnimationSetting("HitEffect"));

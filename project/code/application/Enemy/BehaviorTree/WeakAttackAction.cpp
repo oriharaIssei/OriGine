@@ -11,7 +11,7 @@
 namespace EnemyBehavior {
 CreateAttackCollider::CreateAttackCollider(
     const std::string& _colliderID,
-    const Vector3& _colliderOffset,
+    const Vec3f& _colliderOffset,
     std::function<void(GameObject*)> onCollision)
     : colliderID_(_colliderID),
       colliderOffset_(_colliderOffset),
@@ -23,7 +23,7 @@ Status CreateAttackCollider::tick() {
     AttackCollider* collider = enemy_->getAttackCollider();
     collider->Init();
 
-    Vector3 offset = TransformVector(colliderOffset_, MakeMatrix::RotateQuaternion(enemy_->getRotate()));
+    Vec3f offset = TransformVector(colliderOffset_, MakeMatrix::RotateQuaternion(enemy_->getRotate()));
 
     collider->ColliderInit(enemy_->getTranslate() + offset, onCollision_);
     return Status::SUCCESS;

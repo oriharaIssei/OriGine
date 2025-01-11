@@ -25,7 +25,7 @@ void AttackCollider::resetRadius(const std::string& id) {
 }
 
 void AttackCollider::ColliderInit(
-    const Vector3& position,
+    const Vec3f& position,
     std::function<void(GameObject*)> onCollision) {
     hitCollider_->Init(onCollision);
     hitCollider_->setHostObject(this);

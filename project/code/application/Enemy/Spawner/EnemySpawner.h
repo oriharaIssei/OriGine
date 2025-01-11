@@ -40,7 +40,7 @@ private:
     SerializedField<float> maxHp_;
     float hp_ = 0.0f;
 
-    SerializedField<Vector3> position_;
+    SerializedField<Vec3f> position_;
 
     bool isInvisible_ = false;
     float invisibleTime_ = 0.0f;

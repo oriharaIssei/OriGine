@@ -18,13 +18,13 @@ void TitleScene::Init() {
 
     title_ = std::make_unique<Sprite>();
     title_->Init("resource/Texture/Title.png");
-    title_->setAnchorPoint(Vector2(0.5f, 0.5f));
-    title_->setPosition(Vector2(1280.0f * 0.5f, 720.0f * 0.3f));
+    title_->setAnchorPoint(Vec2f(0.5f, 0.5f));
+    title_->setTranslate(Vec2f(1280.0f * 0.5f, 720.0f * 0.3f));
 
     pushA_ = std::make_unique<Sprite>();
     pushA_->Init("resource/Texture/PushA.png");
-    pushA_->setAnchorPoint(Vector2(0.5f, 0.5f));
-    pushA_->setPosition(Vector2(1280.0f * 0.5f, 720.0f * 0.7f));
+    pushA_->setAnchorPoint(Vec2f(0.5f, 0.5f));
+    pushA_->setTranslate(Vec2f(1280.0f * 0.5f, 720.0f * 0.7f));
 }
 
 void TitleScene::Update() {

@@ -21,7 +21,7 @@ class CreateAttackCollider
 public:
     CreateAttackCollider(
         const std::string& _colliderID,
-        const Vector3& _colliderOffset,
+        const Vec3f& _colliderOffset,
         std::function<void(GameObject*)> onCollision = nullptr);
     ~CreateAttackCollider();
 
@@ -29,7 +29,7 @@ public:
 
 private:
     std::string colliderID_;
-    Vector3 colliderOffset_;
+    Vec3f colliderOffset_;
     std::function<void(GameObject*)> onCollision_ = nullptr;
 };
 

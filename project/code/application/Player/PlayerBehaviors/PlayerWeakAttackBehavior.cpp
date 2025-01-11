@@ -78,7 +78,7 @@ void PlayerWeakAttackBehavior::StartUp() {
 
                     enemy->Damage(player_->getPower() * attackPower_);
                     Vector3 knockBackDirection = enemy->getTranslate() - player_->getTranslate();
-                    knockBackDirection.y       = 0.0f;
+                    knockBackDirection[Y]      = 0.0f;
                     enemy->KnockBack(knockBackDirection.normalize(), knockBackPower_);
                     enemy->setInvisibleTime(actionTime_ - currentTimer_);
                 } else if (object->getID() == "EnemySpawner") {
@@ -93,8 +93,8 @@ void PlayerWeakAttackBehavior::StartUp() {
                     enemySpawner->Damage(player_->getPower() * attackPower_);
                     enemySpawner->setInvisibleTime(actionTime_ - currentTimer_);
                 }
-                Vector2 directionForEffect = Vector2(player_->getTranslate().x, player_->getTranslate().z) - Vector2(effectPos.x, effectPos.z).normalize();
-                effectRotate               = Quaternion::RotateAxisAngle({0.0f, 1.0f, 0.0f}, atan2(directionForEffect.x, directionForEffect.y));
+                Vec2f directionForEffect = Vec2f(player_->getTranslate().x(), player_->getTranslate().z()) - Vec2f(effectPos.x(), effectPos.z()).normalize();
+                effectRotate               = Quaternion::RotateAxisAngle({0.0f, 1.0f, 0.0f}, atan2(directionForEffect.x(), directionForEffect.y()));
 
                 HitEffectManager* hitEffectManager = HitEffectManager::getInstance();
                 hitEffectManager->addHitEffect(effectRotate, effectPos);

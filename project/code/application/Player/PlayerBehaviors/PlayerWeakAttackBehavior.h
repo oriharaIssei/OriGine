@@ -28,7 +28,7 @@ private:
     float currentTimer_ = 0.0f;
 
     SerializedField<float> attackPower_;
-    SerializedField<Vector3> attackColliderOffset_;
+    SerializedField<Vec3f> attackColliderOffset_;
 
     SerializedField<float> knockBackPower_;
 

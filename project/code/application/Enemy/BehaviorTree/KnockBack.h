@@ -19,7 +19,7 @@ public:
     /// <param name="_direction"></param>
     /// <param name="_speed"></param>
     KnockBackAction(
-        const Vector3& _direction,
+        const Vec3f& _direction,
         float _speed,
         std::unique_ptr<Node> _originalBehavior);
     ~KnockBackAction();
@@ -27,7 +27,7 @@ public:
     Status tick() override;
 
 private:
-    Vector3 velocity_ = {0.0f, 0.0f, 0.0f};
+    Vec3f velocity_ = {0.0f, 0.0f, 0.0f};
     std::unique_ptr<Node> originalBehavior_;
 };
 
@@ -36,7 +36,7 @@ class KnockBack
 public:
     KnockBack(
         IEnemy* _enemy,
-        const Vector3& _direction,
+        const Vec3f& _direction,
         float _speed,
         std::unique_ptr<Node> _afterNode) {
         setEnemy(_enemy);

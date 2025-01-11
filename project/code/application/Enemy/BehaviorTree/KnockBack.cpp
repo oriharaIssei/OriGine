@@ -5,7 +5,7 @@
 #include "../IEnemy.h"
 
 namespace EnemyBehavior {
-KnockBackAction::KnockBackAction(const Vector3& _direction, float _speed, std::unique_ptr<Node> _originalBehavior)
+KnockBackAction::KnockBackAction(const Vec3f& _direction, float _speed, std::unique_ptr<Node> _originalBehavior)
     : velocity_(_direction * _speed), originalBehavior_(std::move(_originalBehavior)) {}
 
 KnockBackAction::~KnockBackAction() {}
@@ -13,7 +13,7 @@ KnockBackAction::~KnockBackAction() {}
 const float attenuation = 0.8f; // 速度減衰率
 Status KnockBackAction::tick() {
     float deltaTime  = Engine::getInstance()->getDeltaTime();
-    Vector3 enemyPos = enemy_->getTranslate();
+    Vec3f enemyPos  = enemy_->getTranslate();
 
     // ノックバックの挙動
     velocity_ *= attenuation;

@@ -6,7 +6,8 @@
 #include "PlayerRootBehavior.h"
 #include "Vector3.h"
 #include "animation/Animation.h"
-PlayerDodgeBehavior::PlayerDodgeBehavior(Player* _player, const Vector3& direction)
+
+PlayerDodgeBehavior::PlayerDodgeBehavior(Player* _player, const Vec3f& direction)
     : IPlayerBehavior(_player),
       actionTime_{"Game", "PlayerDodge", "actionTime"},
       endLagTime_{"Game", "PlayerDodge", "endLagTime"},

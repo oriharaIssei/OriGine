@@ -113,10 +113,10 @@ void GameScene::Init() {
     attackUI_->Init("resource/Texture/attackUI.png");
     jumpUI_->Init("resource/Texture/jumpUI.png");
 
-    dashUI_->setAnchorPoint(Vector2(0.5f, 0.5f));
-    attackUI_->setAnchorPoint(Vector2(0.5f, 0.5f));
-    jumpUI_->setAnchorPoint(Vector2(0.5f, 0.5f));
-    Vector2 uiSize_ = Vector2(128.0f, 32.0f);
+    dashUI_->setAnchorPoint(Vec2f(0.5f, 0.5f));
+    attackUI_->setAnchorPoint(Vec2f(0.5f, 0.5f));
+    jumpUI_->setAnchorPoint(Vec2f(0.5f, 0.5f));
+    Vec2f uiSize_ = Vec2f(128.0f, 32.0f);
     dashUI_->setSize(uiSize_);
     attackUI_->setSize(uiSize_);
     jumpUI_->setSize(uiSize_);
@@ -203,11 +203,11 @@ void GameScene::Update() {
     HitEffectManager::getInstance()->Update();
 
     //UI
-    dashUI_->setPosition(dashUIPos_);
+    dashUI_->setTranslate(dashUIPos_);
     dashUI_->Update();
-    attackUI_->setPosition(attackUIPos_);
+    attackUI_->setTranslate(attackUIPos_);
     attackUI_->Update();
-    jumpUI_->setPosition(jumpUIPos_);
+    jumpUI_->setTranslate(jumpUIPos_);
     jumpUI_->Update();
 
     playerHpBar_->Update();

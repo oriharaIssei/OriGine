@@ -17,5 +17,5 @@ protected:
     void EndLag() override; //使用しない
 private:
     SerializedField<float> speed_;
-    Vector3 lastDir_ = {0.0f, 0.0f, 1.0f};
+    Vec3f lastDir_ = {0.0f, 0.0f, 1.0f};
 };

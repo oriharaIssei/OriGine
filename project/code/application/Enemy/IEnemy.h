@@ -66,7 +66,7 @@ public:
     void setBehaviorTree(std::unique_ptr<EnemyBehavior::Node>& behaviorTree) {
         behaviorTree_ = std::move(behaviorTree);
     }
-    void KnockBack(const Vector3& direction, float speed);
+    void KnockBack(const Vec3f& direction, float speed);
 
     Collider* getHitCollider() const {
         return hitCollider_.get();
