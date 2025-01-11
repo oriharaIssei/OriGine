@@ -31,7 +31,7 @@ void TitleScene::Update() {
     time_ = std::fmod(time_, 3.1415f);
     time_ += Engine::getInstance()->getDeltaTime(); // 時間を進める
 
-    pushA_->setColor(Vector4(1.0f, 1.0f, 1.0f, sinf(time_)));
+    pushA_->setColor(Vec4f(1.0f, 1.0f, 1.0f, sinf(time_)));
 
     title_->Update();
     pushA_->Update();

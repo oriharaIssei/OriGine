@@ -49,12 +49,6 @@ private:
 
     std::unique_ptr<GameCamera> gameCamera_;
 
-    std::vector<GameObject*> activeGameObjects_;
-    std::unique_ptr<CollisionManager> collisionManager_;
-
-    std::unique_ptr<Player> player_;
-    std::unique_ptr<EnemyManager> enemyManager_;
-
     std::unique_ptr<Object3d> ground_;
     std::unique_ptr<Object3d> skyDome_;
 
