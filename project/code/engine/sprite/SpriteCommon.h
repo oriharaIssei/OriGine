@@ -1,19 +1,28 @@
 #pragma once
 
+//Interface
 #include "Module/IModule.h"
+
+///stl
+// memory
+#include <array>
+#include <memory>
+// basic
+#include <stdint.h>
+#include <string>
+
+///engine
+//dxObject
 #include "directX12/DxCommand.h"
 #include "directX12/DxResource.h"
 #include "directX12/Object3dMesh.h"
 #include "directX12/PipelineStateObj.h"
 #include "directX12/ShaderManager.h"
 
+//math
 #include <Matrix4x4.h>
 #include <Vector2.h>
 #include <Vector4.h>
-#include <array>
-#include <memory>
-#include <stdint.h>
-#include <string>
 
 class Sprite;
 class SpriteCommon

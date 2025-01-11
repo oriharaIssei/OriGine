@@ -1,16 +1,20 @@
 #pragma once
 
 #include "SpriteCommon.h"
+
+///math
 #include "Vector2.h"
+#include "Vector3.h"
+#include "Vector4.h"
 
 struct SpriteVertexData {
-    Vector4 pos;
-    Vector2 texcoord;
+    Vec4f pos;
+    Vec2f texcoord;
 };
 struct SpritConstBuffer {
-    Vector4 color_;
-    Matrix4x4 mat_;
-    Matrix4x4 uvMat_;
+    Vec4f color;
+    Matrix4x4 mat;
+    Matrix4x4 uvMat;
 };
 struct SpriteMesh {
     void Init();
@@ -48,25 +52,27 @@ public:
 private:
     SpriteCommon* spriteCommon_;
 
-    Vector2 textureLeftTop_ = {0.0f, 0.0f};
-    Vector2 textureSize_    = {0.0f, 0.0f};
+    Vec2f textureLeftTop_ = {0.0f, 0.0f};
+    Vec2f textureSize_    = {0.0f, 0.0f};
 
-    Vector2 anchorPoint_;
+    Vec2f size_ = {0.0f, 0.0f};
 
     bool isFlipX_ = false;
     bool isFlipY_ = false;
 
-    Vector2 size_ = {0.0f, 0.0f};
-    float rotate_ = 0.0f;
-    Vector2 pos_  = {0.0f, 0.0f};
+    Vec2f scale      = {0.0f, 0.0f};
+    float rotate_    = 0.0f;
+    Vec2f translate_ = {0.0f, 0.0f};
     Matrix4x4 worldMat_;
 
-    Vector3 uvScale_  = {1.0f, 1.0f, 1.0f};
-    Vector3 uvRotate_ = {0.0f, 0.0f, 0.0f};
-    Vector3 uvTranslate_;
+    Vec3f uvScale_{1.0f, 1.0f, 1.0f};
+    Vec3f uvRotate_{0.0f, 0.0f, 0.0f};
+    Vec3f uvTranslate_{0.0f, 0.0f, 0.0f};
     Matrix4x4 uvMat_;
 
-    Vector4 color_ = {1.0f, 1.0f, 1.0f, 1.0f};
+    Vec4f color_ = {1.0f, 1.0f, 1.0f, 1.0f};
+
+    Vec2f anchorPoint_ = {0.0f, 0.0f};
 
     SpritConstBuffer* mappingConstBufferData_;
     std::unique_ptr<SpriteMesh> meshBuff_;
@@ -75,34 +81,76 @@ private:
     uint32_t textureIndex_ = 0;
 
 public:
-    void setSize(const Vector2& size) { size_ = size; }
-    const Vector2& getSize() const { return size_; }
+    void setSize(const Vec2f& size) {
+        size_ = size;
+    }
+    const Vec2f& getSize() const {
+        return size_;
+    }
 
-    void setRotate(float rotate) { rotate_ = rotate; }
-    float getRotate() const { return rotate_; }
+    void setRotate(float rotate) {
+        rotate_ = rotate;
+    }
+    float getRotate() const {
+        return rotate_;
+    }
 
-    void setPosition(const Vector2& pos) { pos_ = pos; }
-    const Vector2& getPosition() const { return pos_; }
+    void setTranslate(const Vec2f& pos) {
+        translate_ = pos;
+    }
+    const Vec2f& getTranslate() const {
+        return translate_;
+    }
 
-    void setUVScale(const Vector3& uvScale) { uvScale_ = uvScale; }
-    const Vector3& getUVScale() const { return uvScale_; }
+    void setUVScale(const Vec3f& uvScale) {
+        uvScale_ = uvScale;
+    }
+    const Vec3f& getUvScale() const {
+        return uvScale_;
+    }
 
-    void setUVRotate(const Vector3& uvRotate) { uvRotate_ = uvRotate; }
-    const Vector3& getUVRotate() const { return uvRotate_; }
+    void setUVRotate(const Vec3f& uvRotate) {
+        uvRotate_ = uvRotate;
+    }
+    const Vec3f& getUvRotate() const {
+        return uvRotate_;
+    }
 
-    void setUVTranslate(const Vector3& uvTranslate) { uvTranslate_ = uvTranslate; }
-    const Vector3& getUVTranslate() const { return uvTranslate_; }
+    void setUVTranslate(const Vec3f& t) {
+        uvTranslate_ = t;
+    }
+    const Vec3f& getUvTranslate() const {
+        return uvTranslate_;
+    }
 
-    void setColor(const Vector4& color) { color_ = color; }
-    const Vector4& getColor() const { return color_; }
+    void setColor(const Vec4f& color) {
+        color_ = color;
+    }
+    const Vec4f& getColor() const {
+        return color_;
+    }
 
-    void setAnchorPoint(const Vector2& anchor) { anchorPoint_ = anchor; }
+    void setAnchorPoint(const Vec2f& anchor) {
+        anchorPoint_ = anchor;
+    }
 
-    void setFlipX(bool flipX) { isFlipX_ = flipX; }
-    void setFlipY(bool flipY) { isFlipY_ = flipY; }
+    void setFlipX(bool flipX) {
+        isFlipX_ = flipX;
+    }
+    void setFlipY(bool flipY) {
+        isFlipY_ = flipY;
+    }
 
-    void setTextureLeftTop(const Vector2& lt) { textureLeftTop_ = lt; }
-    const Vector2& getTextureLeftTop() const { return textureLeftTop_; }
-    void setTextureSize(const Vector2& size) { textureSize_ = textureSize_; }
-    const Vector2& getTextureSize() const { return textureSize_; }
+    void setTextureLeftTop(const Vec2f& lt) {
+        textureLeftTop_ = lt;
+    }
+    const Vec2f& getTextureLeftTop() const {
+        return textureLeftTop_;
+    }
+    void setTextureSize(const Vec2f& size) {
+        textureSize_ = textureSize_;
+    }
+    const Vec2f& getTextureSize() const {
+        return textureSize_;
+    }
 };

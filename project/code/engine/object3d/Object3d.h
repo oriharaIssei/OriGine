@@ -1,15 +1,22 @@
 #pragma once
 
+///stl
+#include <functional>
+#include <memory>
+//container
+#include <array>
+#include <vector>
+///engine
+//dx12Object
 #include "directX12/IConstantBuffer.h"
 #include "directX12/PipelineStateObj.h"
 #include "directX12/ShaderManager.h"
+//assets
 #include "material/Material.h"
 #include "model/Model.h"
+//transform
 #include "transform/CameraTransform.h"
 #include "transform/Transform.h"
-
-#include <memory>
-#include <vector>
 
 class Object3d {
 public:

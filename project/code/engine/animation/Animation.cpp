@@ -29,13 +29,13 @@ Matrix4x4 Animation::CalculateNodeLocal(const std::string& nodeName) const {
 
     const NodeAnimation& nodeAnimation = it->second;
 
-    Vector3 scale     = CalculateValue(nodeAnimation.scale, currentAnimationTime);
+    Vec3f scale     = CalculateValue(nodeAnimation.scale, currentAnimationTime);
     Quaternion rotate = Quaternion::Normalize(CalculateValue(nodeAnimation.rotate, currentAnimationTime));
-    Vector3 translate = CalculateValue(nodeAnimation.translate, currentAnimationTime);
+    Vec3f translate = CalculateValue(nodeAnimation.translate, currentAnimationTime);
     return MakeMatrix::Affine(scale, rotate, translate);
 }
 
-Vector3 Animation::CalculateValue(const std::vector<KeyframeVector3>& keyframes, float time) const {
+Vec3f Animation::CalculateValue(const std::vector<KeyframeVec3f>& keyframes, float time) const {
     ///===========================================
     /// 例外処理
     ///===========================================
@@ -107,10 +107,10 @@ void Animation::ApplyAnimationToNodes(
     }
 }
 
-Vector3 Animation::getCurrentScale(const std::string& nodeName) const {
+Vec3f Animation::getCurrentScale(const std::string& nodeName) const {
     auto itr = data->nodeAnimations.find(nodeName);
     if (itr == data->nodeAnimations.end()) {
-        return Vector3(1.0f, 1.0f, 1.0f);
+        return Vec3f(1.0f, 1.0f, 1.0f);
     }
     return CalculateValue(itr->second.scale, currentAnimationTime);
 }
@@ -123,10 +123,10 @@ Quaternion Animation::getCurrentRotate(const std::string& nodeName) const {
     return CalculateValue(itr->second.rotate, currentAnimationTime);
 }
 
-Vector3 Animation::getCurrentTranslate(const std::string& nodeName) const {
+Vec3f Animation::getCurrentTranslate(const std::string& nodeName) const {
     auto itr = data->nodeAnimations.find(nodeName);
     if (itr == data->nodeAnimations.end()) {
-        return Vector3(0.0f, 0.0f, 0.0f);
+        return Vec3f(0.0f, 0.0f, 0.0f);
     }
     return CalculateValue(itr->second.translate, currentAnimationTime);
 }

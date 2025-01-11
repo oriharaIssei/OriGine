@@ -8,6 +8,12 @@
 //etc
 #include <combaseapi.h>
 
+///microsoft
+//dx12
+#include "d3d12.h"
+#include "DirectXTex/DirectXTex.h"
+#include "DirectXTex/d3dx12.h"
+
 ///engine
 #include "Engine.h"
 //dx12Object
@@ -228,7 +234,7 @@ void TextureManager::LoadTask::Update() {
     texture->Init(filePath, dxSrvArray.lock(), textureIndex);
 
     if (callBack) {
-        callBack(TextureManager::LoadTexture(filePath));
+        callBack(textureIndex);
     }
 }
 #pragma endregion

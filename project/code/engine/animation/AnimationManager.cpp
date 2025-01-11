@@ -35,15 +35,11 @@ std::unique_ptr<Animation> AnimationManager::Load(const std::string& directory, 
         animationData_.push_back(std::make_unique<AnimationData>());
         animationDataLibrary_[filePath] = static_cast<int>(animationData_.size() - 1);
 
-        animationData_.back() = std::make_unique<AnimationData>(AnimationManager::getInstance()->LoadAnimationData(directory, filename));
-        result->setData(animationData_.back().get());
-        result->setDuration(animationData_.back()->duration);
-
         ///===========================================
         /// TaskThread に ロードタスクを追加
         ///===========================================
-        /*AnimationLoadTask task(directory, filename, animationData_.back().get(), result.get());
-        loadThread_->pushTask(task);*/
+        AnimationLoadTask task(directory, filename, animationData_.back().get(), result.get());
+        loadThread_->pushTask(task);
     }
     return result;
 }
@@ -82,7 +78,7 @@ AnimationData AnimationManager::LoadGltfAnimationData(const std::string& directo
         ///=============================================
         for (uint32_t keyIndex = 0; keyIndex < nodeAnimationAssimp->mNumScalingKeys; ++keyIndex) {
             aiVectorKey& keyAssimp = nodeAnimationAssimp->mScalingKeys[keyIndex];
-            KeyframeVector3 keyframe;
+            KeyframeVec3f keyframe;
             // 時間単位を 秒 に変換
             keyframe.time = float(keyAssimp.mTime / animationAssimp->mTicksPerSecond);
             // スケール値をそのまま使用
@@ -112,7 +108,7 @@ AnimationData AnimationManager::LoadGltfAnimationData(const std::string& directo
         ///=============================================
         for (uint32_t keyIndex = 0; keyIndex < nodeAnimationAssimp->mNumPositionKeys; ++keyIndex) {
             aiVectorKey& keyAssimp = nodeAnimationAssimp->mPositionKeys[keyIndex];
-            KeyframeVector3 keyframe;
+            KeyframeVec3f keyframe;
             // 時間単位を 秒 に変換
             keyframe.time = float(keyAssimp.mTime / animationAssimp->mTicksPerSecond);
             // 元が 右手座標系 なので 左手座標系 に 変換する

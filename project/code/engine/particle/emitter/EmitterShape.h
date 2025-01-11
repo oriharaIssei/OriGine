@@ -26,7 +26,7 @@ struct EmitterShape{
 	virtual void Debug() = 0;
 #endif // _DEBUG
 
-	virtual Vector3 getSpawnPos() = 0;
+	virtual Vec3f getSpawnPos() = 0;
 private:
 	const EmitterShapeType type_;
 };
@@ -42,7 +42,7 @@ struct EmitterSphere
 #ifdef _DEBUG
 	void Debug()override;
 #endif // _DEBUG
-	Vector3 getSpawnPos()override;
+	Vec3f getSpawnPos()override;
 };
 struct EmitterAABB
 	:EmitterShape{
@@ -52,11 +52,11 @@ struct EmitterAABB
 		min_{scene,emitterName,"spawnAABBmin"},
 		max_{scene,emitterName,"spawnAABBmax"}{}
 
-	SerializedField<Vector3> min_;
-	SerializedField<Vector3> max_;
+	SerializedField<Vec3f> min_;
+	SerializedField<Vec3f> max_;
 
 #ifdef _DEBUG
 	void Debug()override;
 #endif // _DEBUG
-	Vector3 getSpawnPos()override;
+	Vec3f getSpawnPos()override;
 };
