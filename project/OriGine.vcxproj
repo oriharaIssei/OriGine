@@ -173,6 +173,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="code\math\Vector3.cpp" />
     <ClCompile Include="code\application\scene\TitleScene.cpp" />
     <ClCompile Include="code\application\scene\GameClearScene.cpp" />
+    <ClCompile Include="code\application\scene\EffectEditScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\application\scene\AnimationEditScene.h" />
@@ -235,6 +236,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="code\lib\myFileSystem\MyFileSystem.h" />
     <ClInclude Include="code\math\Matrix4x4.h" />
     <ClInclude Include="code\math\Quaternion.h" />
+    <ClInclude Include="code\math\Vector.h" />
     <ClInclude Include="code\math\Vector2.h" />
     <ClInclude Include="code\math\Vector3.h" />
     <ClInclude Include="code\math\Vector4.h" />
@@ -242,6 +244,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="code\engine\particle\emitter\EmitterShape.h" />
     <ClInclude Include="code\lib\node\DefaultNodes.h" />
     <ClInclude Include="code\math\MyEasing.h" />
+    <ClInclude Include="code\application\scene\EffectEditScene.h" />
     <ClInclude Include="externals\assimp\include\assimp\aabb.h" />
     <ClInclude Include="externals\assimp\include\assimp\ai_assert.h" />
     <ClInclude Include="externals\assimp\include\assimp\anim.h" />

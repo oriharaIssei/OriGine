@@ -8,7 +8,7 @@ EffectEditScene::EffectEditScene()
 EffectEditScene::~EffectEditScene() {}
 
 void EffectEditScene::Init() {
-    particleManager_ = std::make_unique<ParticleManager>();
+    particleManager_ = ParticleManager::getInstance();
     particleManager_->Init();
 }
 
@@ -26,4 +26,5 @@ void EffectEditScene::DrawSprite() {
 }
 
 void EffectEditScene::DrawParticle() {
+    particleManager_->DrawDebug();
 }

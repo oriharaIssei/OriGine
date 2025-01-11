@@ -24,5 +24,5 @@ public:
     void DrawParticle();
 
 private:
-    std::unique_ptr<ParticleManager> particleManager_;
+    ParticleManager* particleManager_;
 };

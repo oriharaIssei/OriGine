@@ -1,20 +1,26 @@
 #include "../manager/ParticleManager.h"
 #include "Emitter.h"
 
+//stl
+//container
 #include <array>
-#include <cmath>
 
+///engine
 #include "Engine.h"
+//module
 #include "globalVariables/GlobalVariables.h"
 #include "material/texture/TextureManager.h"
 #include "myFileSystem/MyFileSystem.h"
-
-#include "EmitterShape.h"
-#include "model/Model.h"
 #include "model/ModelManager.h"
 #include "myRandom/MyRandom.h"
+#include "camera/CameraManager.h"
+//assets
+#include "EmitterShape.h"
+#include "model/Model.h"
+//object
 #include "particle/Particle.h"
 
+//math
 #include <cmath>
 
 #ifdef _DEBUG
@@ -276,11 +282,13 @@ void Emitter::Debug(){
 }
 #endif // _DEBUG
 
-void Emitter::Draw(const IConstantBuffer<CameraTransform>& camera){
+void Emitter::Draw(){
 	if(!particleModel_ ||
         particleModel_->meshData_->currentState_ != LoadState::Loaded) {
 		return;
 	}
+
+   const Matrix4x4& viewMat =   CameraManager::getInstance()->getTransform().viewMat;
 
 	Matrix4x4 rotateMat = {};
 	// パーティクルのスケール行列を事前計算
@@ -288,7 +296,7 @@ void Emitter::Draw(const IConstantBuffer<CameraTransform>& camera){
 
 	if(particleIsBillBoard_){ // Bill Board 
 		// カメラの回転行列を取得し、平行移動成分をゼロにする
-		Matrix4x4 cameraRotation = camera.openData_.viewMat;
+        Matrix4x4 cameraRotation = viewMat;
 		cameraRotation[3][0] = 0.0f;
 		cameraRotation[3][1] = 0.0f;
 		cameraRotation[3][2] = 0.0f;
@@ -335,7 +343,6 @@ void Emitter::Draw(const IConstantBuffer<CameraTransform>& camera){
 		commandList->IASetIndexBuffer(&model.meshBuff->ibView);
 
 		structuredTransform_.SetForRootParameter(commandList,0);
-		camera.SetForRootParameter(commandList,1);
 
 		material.material->SetForRootParameter(commandList,2);
 		// 描画!!!

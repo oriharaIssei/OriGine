@@ -1,8 +1,13 @@
 #include "ParticleManager.h"
 
 #include "../emitter/Emitter.h"
-#include "directX12/DxSrvArrayManager.h"
+
+///engine
 #include "Engine.h"
+//dx12Object
+#include "directX12/DxSrvArrayManager.h"
+//lib
+#include "camera/CameraManager.h"
 #include "myFileSystem/MyFileSystem.h"
 
 #ifdef _DEBUG
@@ -47,14 +52,20 @@ void ParticleManager::PreDraw(){
 	commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
 	commandList->SetPipelineState(pso_->pipelineState.Get());
 
+    CameraManager::getInstance()->setBufferForRootParameter(commandList, 1);
+
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-void ParticleManager::DrawDebug(const IConstantBuffer<CameraTransform>& cameraTransform){
+void ParticleManager::DrawDebug(){
 	for(auto& [emitterName,emitter] : emitters_){
-		emitter->Draw(cameraTransform);
+		emitter->Draw();
 	}
 }
+
+ParticleManager::ParticleManager() {}
+
+ParticleManager::~ParticleManager() {}
 
 void ParticleManager::CreatePso(){
 	ShaderManager* shaderManager = ShaderManager::getInstance();

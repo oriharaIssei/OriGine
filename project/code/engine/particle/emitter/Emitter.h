@@ -24,7 +24,7 @@ public:
 	void Init();
 	void Update(float deltaTime);
 
-	void Draw(const IConstantBuffer<CameraTransform>& camera);
+	void Draw();
 
 #ifdef _DEBUG
 	void Debug();
