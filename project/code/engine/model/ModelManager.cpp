@@ -21,9 +21,9 @@
 // unorderedMap 用
 //===========================================================================
 struct VertexKey {
-    Vector4 position;
-    Vector3 normal;
-    Vector2 texCoord;
+    Vec4f position;
+    Vec3f normal;
+    Vec2f texCoord;
 
     bool operator==(const VertexKey& other) const {
         return position == other.position &&
@@ -35,14 +35,14 @@ namespace std {
 template <>
 struct hash<VertexKey> {
     size_t operator()(const VertexKey& key) const {
-        return hash<float>()(key.position.x) ^ hash<float>()(key.position.y) ^ hash<float>()(key.position.z) ^
-               hash<float>()(key.normal.x) ^ hash<float>()(key.normal.y) ^ hash<float>()(key.normal.z) ^
-               hash<float>()(key.texCoord.x) ^ hash<float>()(key.texCoord.y);
+        return hash<float>()(key.position.x()) ^ hash<float>()(key.position.y()) ^ hash<float>()(key.position.z()) ^
+               hash<float>()(key.normal.x()) ^ hash<float>()(key.normal.y()) ^ hash<float>()(key.normal.z()) ^
+               hash<float>()(key.texCoord.x()) ^ hash<float>()(key.texCoord.y());
     }
 };
 } // namespace std
 
-#pragma region"LoadFunctions"
+#pragma region "LoadFunctions"
 void ProcessMeshData(Mesh3D& meshData, const std::vector<TextureVertexData>& vertices, const std::vector<uint32_t>& indices) {
     TextureObject3dMesh* textureMesh = new TextureObject3dMesh();
 
@@ -151,13 +151,13 @@ void LoadModelFile(ModelMeshData* data, const std::string& directoryPath, const 
                 uint32_t vertexIndex = face.mIndices[i];
 
                 // 頂点データを取得
-                Vector4 pos      = {loadedMesh->mVertices[vertexIndex].x, loadedMesh->mVertices[vertexIndex].y, loadedMesh->mVertices[vertexIndex].z, 1.0f};
-                Vector3 normal   = {loadedMesh->mNormals[vertexIndex].x, loadedMesh->mNormals[vertexIndex].y, loadedMesh->mNormals[vertexIndex].z};
-                Vector2 texCoord = {loadedMesh->mTextureCoords[0][vertexIndex].x, loadedMesh->mTextureCoords[0][vertexIndex].y};
+                Vec4f pos      = {loadedMesh->mVertices[vertexIndex].x, loadedMesh->mVertices[vertexIndex].y, loadedMesh->mVertices[vertexIndex].z, 1.0f};
+                Vec3f normal   = {loadedMesh->mNormals[vertexIndex].x, loadedMesh->mNormals[vertexIndex].y, loadedMesh->mNormals[vertexIndex].z};
+                Vec2f texCoord = {loadedMesh->mTextureCoords[0][vertexIndex].x, loadedMesh->mTextureCoords[0][vertexIndex].y};
 
                 // X軸反転
-                pos.x *= -1.0f;
-                normal.x *= -1.0f;
+                pos.x() *= -1.0f;
+                normal.x() *= -1.0f;
 
                 // VertexKeyを生成
                 VertexKey vertexKey = {pos, normal, texCoord};
@@ -219,6 +219,7 @@ std::unique_ptr<Model> ModelManager::Create(
     std::string filePath = directoryPath + "/" + filename;
 
     const auto itr = modelLibrary_.find(filePath);
+    // すでに読み込まれている場合
     if (itr != modelLibrary_.end()) {
         auto* targetModelMesh = itr->second.get();
         while (true) {
@@ -243,44 +244,17 @@ std::unique_ptr<Model> ModelManager::Create(
         return result;
     }
 
+    /// モデルデータを読み込む
     modelLibrary_[filePath] = std::make_unique<ModelMeshData>();
 
     result            = std::make_unique<Model>();
     result->meshData_ = modelLibrary_[filePath].get();
+    loadThread_->pushTask(
+        {.directory = directoryPath,
+         .fileName  = filename,
+         .model     = result.get(),
+         .callBack  = callBack});
 
-    result->meshData_->currentState_ = LoadState::Unloaded;
-
-    try {
-        LoadModelFile(result->meshData_, directoryPath, filename);
-    } catch (const std::exception& e) {
-        // エラーハンドリング
-        std::cerr << "Error loading model file: " << e.what() << std::endl;
-        return nullptr;
-    }
-
-    result->materialData_ = ModelManager::getInstance()->defaultMaterials_[result->meshData_];
-
-    auto device = Engine::getInstance()->getDxDevice()->getDevice();
-    std::mutex mutex;
-    for (auto& mesh : result->meshData_->mesh_) {
-        try {
-            std::lock_guard<std::mutex> lock(mutex);
-            result->transformBuff_[&mesh] = IConstantBuffer<Transform>();
-            result->transformBuff_[&mesh].CreateBuffer(device);
-            result->transformBuff_[&mesh].openData_.UpdateMatrix();
-            result->transformBuff_[&mesh].ConvertToBuffer();
-        } catch (const std::exception& e) {
-            // エラーハンドリング
-            std::cerr << "Error creating or updating buffer: " << e.what() << std::endl;
-            return nullptr;
-        }
-    }
-
-    if (callBack != nullptr) {
-        callBack(result.get());
-    }
-
-    result->meshData_->currentState_ = LoadState::Loaded;
     return result;
 }
 
@@ -321,8 +295,6 @@ void ModelManager::pushBackDefaultMaterial(ModelMeshData* key, Material3D materi
 }
 
 void ModelManager::LoadTask::Update() {
-    std::mutex mutex_;
-    std::lock_guard<std::mutex> lock(mutex_);
     model->meshData_->currentState_ = LoadState::Unloaded;
 
     try {

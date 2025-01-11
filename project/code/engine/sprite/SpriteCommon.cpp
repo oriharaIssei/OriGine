@@ -29,8 +29,8 @@ void SpriteCommon::Finalize() {
     dxCommand_->Finalize();
 }
 
-void SpriteCommon::CreatePSO() {
-    ShaderManager* shaderManager = ShaderManager::getInstance();
+void SpriteCommon::CreatePSO(){
+	ShaderManager* shaderManager = ShaderManager::getInstance();
 
     shaderManager->LoadShader("Sprite.VS");
     shaderManager->LoadShader("Sprite.PS", shaderDirectory, L"ps_6_0");

@@ -10,7 +10,7 @@
 
 enum class LoadState {
     Unloaded,
-    Loaded,
+    Loaded
 };
 
 class IThread {

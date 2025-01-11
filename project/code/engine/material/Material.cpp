@@ -88,7 +88,7 @@ void MaterialEditor::Update() {
             if (ImGui::TreeNode(material.first.c_str())) {
                 ImGui::ColorEdit4(
                     std::string(material.first + "Color").c_str(),
-                    reinterpret_cast<float*>(material.second->openData_.color_.operator Vector4*()));
+                    reinterpret_cast<float*>(material.second->openData_.color_.operator Vec4f*()));
 
                 ImGui::Checkbox(
                     (material.first + " enableLighting").c_str(),
@@ -96,15 +96,15 @@ void MaterialEditor::Update() {
 
                 ImGui::DragFloat3(
                     (material.first + " uvScale").c_str(),
-                    reinterpret_cast<float*>(material.second->openData_.uvScale_.operator Vector3*()),
+                    reinterpret_cast<float*>(material.second->openData_.uvScale_.operator Vec3f*()),
                     0.1f);
                 ImGui::DragFloat3(
                     (material.first + " uvRotate").c_str(),
-                    reinterpret_cast<float*>(material.second->openData_.uvRotate_.operator Vector3*()),
+                    reinterpret_cast<float*>(material.second->openData_.uvRotate_.operator Vec3f*()),
                     0.1f);
                 ImGui::DragFloat3(
                     (material.first + " uvTranslate").c_str(),
-                    reinterpret_cast<float*>(material.second->openData_.uvTranslate_.operator Vector3*()),
+                    reinterpret_cast<float*>(material.second->openData_.uvTranslate_.operator Vec3f*()),
                     0.1f);
 
                 ImGui::DragFloat(
@@ -115,7 +115,7 @@ void MaterialEditor::Update() {
                     FLT_MAX);
                 ImGui::ColorEdit3(
                     (material.first + " SpecularColor").c_str(),
-                    reinterpret_cast<float*>(material.second->openData_.specularColor_.operator Vector3*()));
+                    reinterpret_cast<float*>(material.second->openData_.specularColor_.operator Vec3f*()));
 
                 material.second->ConvertToBuffer();
                 ImGui::TreePop();

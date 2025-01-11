@@ -16,15 +16,15 @@ public:
     void Update();
 
 private:
-    Vector3 OffstVector();
+    Vec3f OffstVector();
 
 private:
     CameraTransform cameraTransform_;
 
     Transform* followTarget_ = nullptr;
-    SerializedField<Vector3> followOffset_;
-    Vector3 interTarget_;
-    Vector2 destinationAngleXY_ = {0.0f, 0.0f};
+    SerializedField<Vec3f> followOffset_;
+    Vec3f interTarget_;
+    Vec2f destinationAngleXY_ = {0.0f, 0.0f};
     SerializedField<float> rotateSpeed_;
     SerializedField<float> rotateSensitivity_;
 
@@ -32,7 +32,7 @@ private:
     SerializedField<float> minRotateX_;
 
 public:
-    void setViewTranslate(const Vector3& translate) { cameraTransform_.translate = translate; }
+    void setViewTranslate(const Vec3f& translate) { cameraTransform_.translate = translate; }
     const CameraTransform& getCameraTransform() const { return cameraTransform_; }
     void setFollowTarget(Transform* target) { followTarget_ = target; }
 };

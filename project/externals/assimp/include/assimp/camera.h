@@ -114,7 +114,7 @@ struct aiCamera {
      *
      *  The default value is 0|0|0.
      */
-    C_STRUCT aiVector3D mPosition;
+    C_STRUCT aiVec3fD mPosition;
 
     /** 'Up' - vector of the camera coordinate system relative to
      *  the coordinate space defined by the corresponding node.
@@ -124,7 +124,7 @@ struct aiCamera {
      *  The default value is 0|1|0. The vector
      *  may be normalized, but it needn't.
      */
-    C_STRUCT aiVector3D mUp;
+    C_STRUCT aiVec3fD mUp;
 
     /** 'LookAt' - vector of the camera coordinate system relative to
      *  the coordinate space defined by the corresponding node.
@@ -133,7 +133,7 @@ struct aiCamera {
      *  The default value is 0|0|1. The vector
      *  may be normalized, but it needn't.
      */
-    C_STRUCT aiVector3D mLookAt;
+    C_STRUCT aiVec3fD mLookAt;
 
     /** Horizontal field of view angle, in radians.
      *
@@ -197,11 +197,11 @@ struct aiCamera {
         /** todo: test ... should work, but i'm not absolutely sure */
 
         /** We don't know whether these vectors are already normalized ...*/
-        aiVector3D zaxis = mLookAt;
+        aiVec3fD zaxis = mLookAt;
         zaxis.Normalize();
-        aiVector3D yaxis = mUp;
+        aiVec3fD yaxis = mUp;
         yaxis.Normalize();
-        aiVector3D xaxis = mUp ^ mLookAt;
+        aiVec3fD xaxis = mUp ^ mLookAt;
         xaxis.Normalize();
 
         out.a4 = -(xaxis * mPosition);

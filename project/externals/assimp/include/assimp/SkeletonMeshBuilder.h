@@ -103,7 +103,7 @@ protected:
 
 private:
     /** space to assemble the mesh data: points */
-    std::vector<aiVector3D> mVertices;
+    std::vector<aiVec3fD> mVertices;
 
     /** faces */
     struct Face {

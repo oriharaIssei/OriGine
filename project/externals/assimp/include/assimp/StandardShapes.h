@@ -78,18 +78,18 @@ public:
      *  @param numIndices Number of indices per primitive
      *  @return Output mesh
      */
-    static aiMesh* MakeMesh(const std::vector<aiVector3D>& positions,
+    static aiMesh* MakeMesh(const std::vector<aiVec3fD>& positions,
         unsigned int numIndices);
 
 
     static aiMesh* MakeMesh ( unsigned int (*GenerateFunc)
-        (std::vector<aiVector3D>&));
+        (std::vector<aiVec3fD>&));
 
     static aiMesh* MakeMesh ( unsigned int (*GenerateFunc)
-        (std::vector<aiVector3D>&, bool));
+        (std::vector<aiVec3fD>&, bool));
 
     static aiMesh* MakeMesh ( unsigned int n,  void (*GenerateFunc)
-        (unsigned int,std::vector<aiVector3D>&));
+        (unsigned int,std::vector<aiVec3fD>&));
 
     // ----------------------------------------------------------------
     /** @brief Generates a hexahedron (cube)
@@ -100,7 +100,7 @@ public:
      *  @return Number of vertices per face
      */
     static unsigned int MakeHexahedron(
-        std::vector<aiVector3D>& positions,
+        std::vector<aiVec3fD>& positions,
         bool polygons = false);
 
     // ----------------------------------------------------------------
@@ -110,7 +110,7 @@ public:
      *  @return Number of vertices per face
      */
     static unsigned int MakeIcosahedron(
-        std::vector<aiVector3D>& positions);
+        std::vector<aiVec3fD>& positions);
 
 
     // ----------------------------------------------------------------
@@ -121,7 +121,7 @@ public:
      *  @return Number of vertices per face
      */
     static unsigned int MakeDodecahedron(
-        std::vector<aiVector3D>& positions,
+        std::vector<aiVec3fD>& positions,
         bool polygons = false);
 
 
@@ -132,7 +132,7 @@ public:
      *  @return Number of vertices per face
      */
     static unsigned int MakeOctahedron(
-        std::vector<aiVector3D>& positions);
+        std::vector<aiVec3fD>& positions);
 
 
     // ----------------------------------------------------------------
@@ -142,7 +142,7 @@ public:
      *  @return Number of vertices per face
      */
     static unsigned int MakeTetrahedron(
-        std::vector<aiVector3D>& positions);
+        std::vector<aiVec3fD>& positions);
 
 
 
@@ -153,7 +153,7 @@ public:
      *  @param positions Receives output triangles.
      */
     static void MakeSphere(unsigned int tess,
-        std::vector<aiVector3D>& positions);
+        std::vector<aiVec3fD>& positions);
 
 
     // ----------------------------------------------------------------
@@ -184,7 +184,7 @@ public:
      */
     static void MakeCone(ai_real height,ai_real radius1,
         ai_real radius2,unsigned int tess,
-        std::vector<aiVector3D>& positions,bool bOpen= false);
+        std::vector<aiVec3fD>& positions,bool bOpen= false);
 
 
     // ----------------------------------------------------------------
@@ -198,7 +198,7 @@ public:
      *  @param positions Receives output triangles.
      */
     static void MakeCircle(ai_real radius, unsigned int tess,
-        std::vector<aiVector3D>& positions);
+        std::vector<aiVec3fD>& positions);
 
 };
 } // ! Assimp

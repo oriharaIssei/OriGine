@@ -104,7 +104,7 @@ aiMatrix4x4t<TReal>::aiMatrix4x4t (const aiMatrix3x3t<TReal>& m) {
 // ----------------------------------------------------------------------------------------
 template <typename TReal>
 AI_FORCE_INLINE
-aiMatrix4x4t<TReal>::aiMatrix4x4t (const aiVector3t<TReal>& scaling, const aiQuaterniont<TReal>& rotation, const aiVector3t<TReal>& position) {
+aiMatrix4x4t<TReal>::aiMatrix4x4t (const aiVec3ft<TReal>& scaling, const aiQuaterniont<TReal>& rotation, const aiVec3ft<TReal>& position) {
     // build a 3x3 rotation matrix
     aiMatrix3x3t<TReal> m = rotation.GetMatrix();
 
@@ -375,10 +375,10 @@ bool aiMatrix4x4t<TReal>::Equal(const aiMatrix4x4t<TReal>& m, TReal epsilon) con
 	pPosition.z = _this[2][3]; \
 	\
 	/* extract the columns of the matrix. */ \
-	aiVector3t<TReal> vCols[3] = { \
-		aiVector3t<TReal>(_this[0][0],_this[1][0],_this[2][0]), \
-		aiVector3t<TReal>(_this[0][1],_this[1][1],_this[2][1]), \
-		aiVector3t<TReal>(_this[0][2],_this[1][2],_this[2][2]) \
+	aiVec3ft<TReal> vCols[3] = { \
+		aiVec3ft<TReal>(_this[0][0],_this[1][0],_this[2][0]), \
+		aiVec3ft<TReal>(_this[0][1],_this[1][1],_this[2][1]), \
+		aiVec3ft<TReal>(_this[0][2],_this[1][2],_this[2][2]) \
 	}; \
 	\
 	/* extract the scaling factors */ \
@@ -398,8 +398,8 @@ bool aiMatrix4x4t<TReal>::Equal(const aiMatrix4x4t<TReal>& m, TReal epsilon) con
 
 template <typename TReal>
 AI_FORCE_INLINE
-void aiMatrix4x4t<TReal>::Decompose (aiVector3t<TReal>& pScaling, aiQuaterniont<TReal>& pRotation,
-        aiVector3t<TReal>& pPosition) const {
+void aiMatrix4x4t<TReal>::Decompose (aiVec3ft<TReal>& pScaling, aiQuaterniont<TReal>& pRotation,
+        aiVec3ft<TReal>& pPosition) const {
 	ASSIMP_MATRIX4_4_DECOMPOSE_PART;
 
     // build a 3x3 rotation matrix
@@ -413,7 +413,7 @@ void aiMatrix4x4t<TReal>::Decompose (aiVector3t<TReal>& pScaling, aiQuaterniont<
 
 template <typename TReal>
 AI_FORCE_INLINE
-void aiMatrix4x4t<TReal>::Decompose(aiVector3t<TReal>& pScaling, aiVector3t<TReal>& pRotation, aiVector3t<TReal>& pPosition) const {
+void aiMatrix4x4t<TReal>::Decompose(aiVec3ft<TReal>& pScaling, aiVec3ft<TReal>& pRotation, aiVec3ft<TReal>& pPosition) const {
 	ASSIMP_MATRIX4_4_DECOMPOSE_PART;
 
     /*
@@ -468,8 +468,8 @@ void aiMatrix4x4t<TReal>::Decompose(aiVector3t<TReal>& pScaling, aiVector3t<TRea
 
 template <typename TReal>
 AI_FORCE_INLINE
-void aiMatrix4x4t<TReal>::Decompose(aiVector3t<TReal>& pScaling, aiVector3t<TReal>& pRotationAxis, TReal& pRotationAngle,
-											aiVector3t<TReal>& pPosition) const {
+void aiMatrix4x4t<TReal>::Decompose(aiVec3ft<TReal>& pScaling, aiVec3ft<TReal>& pRotationAxis, TReal& pRotationAngle,
+											aiVec3ft<TReal>& pPosition) const {
     aiQuaterniont<TReal> pRotation;
 
 	Decompose(pScaling, pRotation, pPosition);
@@ -494,7 +494,7 @@ void aiMatrix4x4t<TReal>::Decompose(aiVector3t<TReal>& pScaling, aiVector3t<TRea
 template <typename TReal>
 AI_FORCE_INLINE
 void aiMatrix4x4t<TReal>::DecomposeNoScaling (aiQuaterniont<TReal>& rotation,
-        aiVector3t<TReal>& position) const {
+        aiVec3ft<TReal>& position) const {
     const aiMatrix4x4t<TReal>& _this = *this;
 
     // extract translation
@@ -509,7 +509,7 @@ void aiMatrix4x4t<TReal>::DecomposeNoScaling (aiQuaterniont<TReal>& rotation,
 // ----------------------------------------------------------------------------------------
 template <typename TReal>
 AI_FORCE_INLINE
-aiMatrix4x4t<TReal>& aiMatrix4x4t<TReal>::FromEulerAnglesXYZ(const aiVector3t<TReal>& blubb) {
+aiMatrix4x4t<TReal>& aiMatrix4x4t<TReal>::FromEulerAnglesXYZ(const aiVec3ft<TReal>& blubb) {
     return FromEulerAnglesXYZ(blubb.x,blubb.y,blubb.z);
 }
 
@@ -617,7 +617,7 @@ aiMatrix4x4t<TReal>& aiMatrix4x4t<TReal>::RotationZ(TReal a, aiMatrix4x4t<TReal>
 // Returns a rotation matrix for a rotation around an arbitrary axis.
 template <typename TReal>
 AI_FORCE_INLINE
-aiMatrix4x4t<TReal>& aiMatrix4x4t<TReal>::Rotation( TReal a, const aiVector3t<TReal>& axis, aiMatrix4x4t<TReal>& out) {
+aiMatrix4x4t<TReal>& aiMatrix4x4t<TReal>::Rotation( TReal a, const aiVec3ft<TReal>& axis, aiMatrix4x4t<TReal>& out) {
     TReal c = std::cos( a), s = std::sin( a), t = 1 - c;
     TReal x = axis.x, y = axis.y, z = axis.z;
 
@@ -634,7 +634,7 @@ aiMatrix4x4t<TReal>& aiMatrix4x4t<TReal>::Rotation( TReal a, const aiVector3t<TR
 
 // ----------------------------------------------------------------------------------------
 template <typename TReal>
-AI_FORCE_INLINE aiMatrix4x4t<TReal>& aiMatrix4x4t<TReal>::Translation( const aiVector3t<TReal>& v, aiMatrix4x4t<TReal>& out) {
+AI_FORCE_INLINE aiMatrix4x4t<TReal>& aiMatrix4x4t<TReal>::Translation( const aiVec3ft<TReal>& v, aiMatrix4x4t<TReal>& out) {
     out = aiMatrix4x4t<TReal>();
     out.a4 = v.x;
     out.b4 = v.y;
@@ -645,7 +645,7 @@ AI_FORCE_INLINE aiMatrix4x4t<TReal>& aiMatrix4x4t<TReal>::Translation( const aiV
 // ----------------------------------------------------------------------------------------
 template <typename TReal>
 AI_FORCE_INLINE
-aiMatrix4x4t<TReal>& aiMatrix4x4t<TReal>::Scaling( const aiVector3t<TReal>& v, aiMatrix4x4t<TReal>& out) {
+aiMatrix4x4t<TReal>& aiMatrix4x4t<TReal>::Scaling( const aiVec3ft<TReal>& v, aiMatrix4x4t<TReal>& out) {
     out = aiMatrix4x4t<TReal>();
     out.a1 = v.x;
     out.b2 = v.y;
@@ -665,8 +665,8 @@ aiMatrix4x4t<TReal>& aiMatrix4x4t<TReal>::Scaling( const aiVector3t<TReal>& v, a
 // ----------------------------------------------------------------------------------------
 template <typename TReal>
 AI_FORCE_INLINE
-aiMatrix4x4t<TReal>& aiMatrix4x4t<TReal>::FromToMatrix(const aiVector3t<TReal>& from,
-        const aiVector3t<TReal>& to, aiMatrix4x4t<TReal>& mtx) {
+aiMatrix4x4t<TReal>& aiMatrix4x4t<TReal>::FromToMatrix(const aiVec3ft<TReal>& from,
+        const aiVec3ft<TReal>& to, aiMatrix4x4t<TReal>& mtx) {
     aiMatrix3x3t<TReal> m3;
     aiMatrix3x3t<TReal>::FromToMatrix(from,to,m3);
     mtx = aiMatrix4x4t<TReal>(m3);

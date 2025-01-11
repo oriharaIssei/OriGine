@@ -478,22 +478,22 @@ struct aiAnimMesh {
      *  meshes may neither add or nor remove vertex components (if
      *  a replacement array is nullptr and the corresponding source
      *  array is not, the source data is taken instead)*/
-    C_STRUCT aiVector3D *mVertices;
+    C_STRUCT aiVec3fD *mVertices;
 
     /** Replacement for aiMesh::mNormals.  */
-    C_STRUCT aiVector3D *mNormals;
+    C_STRUCT aiVec3fD *mNormals;
 
     /** Replacement for aiMesh::mTangents. */
-    C_STRUCT aiVector3D *mTangents;
+    C_STRUCT aiVec3fD *mTangents;
 
     /** Replacement for aiMesh::mBitangents. */
-    C_STRUCT aiVector3D *mBitangents;
+    C_STRUCT aiVec3fD *mBitangents;
 
     /** Replacement for aiMesh::mColors */
     C_STRUCT aiColor4D *mColors[AI_MAX_NUMBER_OF_COLOR_SETS];
 
     /** Replacement for aiMesh::mTextureCoords */
-    C_STRUCT aiVector3D *mTextureCoords[AI_MAX_NUMBER_OF_TEXTURECOORDS];
+    C_STRUCT aiVec3fD *mTextureCoords[AI_MAX_NUMBER_OF_TEXTURECOORDS];
 
     /** The number of vertices in the aiAnimMesh, and thus the length of all
      * the member arrays.
@@ -662,7 +662,7 @@ struct aiMesh {
      * This array is always present in a mesh. The array is
      * mNumVertices in size.
      */
-    C_STRUCT aiVector3D *mVertices;
+    C_STRUCT aiVec3fD *mVertices;
 
     /**
      * @brief Vertex normals.
@@ -686,7 +686,7 @@ struct aiMesh {
      * However, this needn't apply for normals that have been taken
      * directly from the model file.
      */
-    C_STRUCT aiVector3D *mNormals;
+    C_STRUCT aiVec3fD *mNormals;
 
     /**
      * @brief Vertex tangents.
@@ -702,7 +702,7 @@ struct aiMesh {
      * @note If the mesh contains tangents, it automatically also
      * contains bitangents.
      */
-    C_STRUCT aiVector3D *mTangents;
+    C_STRUCT aiVec3fD *mTangents;
 
     /**
      * @brief Vertex bitangents.
@@ -713,7 +713,7 @@ struct aiMesh {
      * @note If the mesh contains tangents, it automatically also contains
      * bitangents.
      */
-    C_STRUCT aiVector3D *mBitangents;
+    C_STRUCT aiVec3fD *mBitangents;
 
     /**
      * @brief Vertex color sets.
@@ -730,7 +730,7 @@ struct aiMesh {
      * A mesh may contain 0 to AI_MAX_NUMBER_OF_TEXTURECOORDS per
      * vertex. nullptr if not present. The array is mNumVertices in size.
      */
-    C_STRUCT aiVector3D *mTextureCoords[AI_MAX_NUMBER_OF_TEXTURECOORDS];
+    C_STRUCT aiVec3fD *mTextureCoords[AI_MAX_NUMBER_OF_TEXTURECOORDS];
 
     /**
      * @brief Specifies the number of components for a given UV channel.

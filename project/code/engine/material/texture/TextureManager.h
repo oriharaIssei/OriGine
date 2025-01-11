@@ -23,9 +23,6 @@
 #include "directX12/PipelineStateObj.h"
 //lib
 #include "Thread/Thread.h"
-//externals
-#include "DirectXTex/DirectXTex.h"
-#include "DirectXTex/d3dx12.h"
 
 struct Texture
     : IAsset {
@@ -52,26 +49,26 @@ public:
     static void Init();
     static void Finalize();
 
-    static uint32_t LoadTexture(const std::string& filePath, std::function<void(uint32_t loadedIndex)> callBack = nullptr);
+    static uint32_t LoadTexture(const std::string& filePath, std::function<void(uint32_t)> callBack = nullptr);
     static void UnloadTexture(uint32_t id);
 
 public:
     static const uint32_t maxTextureSize_ = 128;
-
-private:
-    static std::shared_ptr<DxSrvArray> dxSrvArray_;
-    static std::array<std::unique_ptr<Texture>, maxTextureSize_> textures_;
 
     struct LoadTask {
         std::string filePath;
         uint32_t textureIndex = 0;
         Texture* texture      = nullptr;
 
-        std::function<void(uint32_t loadedIndex)> callBack = nullptr;
+        std::function<void(uint32_t)> callBack;
         void Update();
     };
-    static std::unique_ptr<TaskThread<LoadTask>> loadThread_;
+private:
+    static std::shared_ptr<DxSrvArray> dxSrvArray_;
+    static std::array<std::unique_ptr<Texture>, maxTextureSize_> textures_;
 
+    static std::unique_ptr<TaskThread<TextureManager::LoadTask>> loadThread_;
+    
     // バックグラウンドスレッド用
     static std::unique_ptr<DxCommand> dxCommand_;
 

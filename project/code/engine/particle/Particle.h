@@ -1,31 +1,33 @@
 #pragma once
 
+///stl
 #include <memory>
-#include <stdint.h>
 
-#include "transform/CameraTransform.h"
+//transform
 #include "transform/ParticleTransform.h"
 
-struct Transform;
-struct Vector3;
+///math
+#include "Vector3.h"
 
-class Particle{
+#include <stdint.h>
+
+class Particle {
 public:
-	Particle();
-	virtual ~Particle();
+    Particle();
+    virtual ~Particle();
 
-	void Init(const ParticleTransform& transform,
-			  Vector3 velocity,
-			  float lifeTime);
-	void Update(float deltaTime);
+    void Init(const ParticleTransform& transform, Vec3f velocity, float lifeTime);
+    void Update(float deltaTime);
+
 protected:
-	ParticleTransform transform_;
+    ParticleTransform transform_;
 
-	Vector3 velocity_;
-	float maxLifeTime_;
-	float lifeTime_;
-	bool isAlive_;
+    Vec3f velocity_;
+    float maxLifeTime_;
+    float lifeTime_;
+    bool isAlive_;
+
 public:
-	const ParticleTransform& getTransform()const{ return transform_; }
-	bool getIsAlive()const{ return isAlive_; }
+    const ParticleTransform& getTransform() const { return transform_; }
+    bool getIsAlive() const { return isAlive_; }
 };

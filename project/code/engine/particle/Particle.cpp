@@ -7,7 +7,7 @@ Particle::Particle(){}
 Particle::~Particle(){}
 
 void Particle::Init(const ParticleTransform& transform,
-					Vector3 velocity,
+					Vec3f velocity,
 					float lifeTime){
 	transform_ = transform;
 	transform_.UpdateMatrix();

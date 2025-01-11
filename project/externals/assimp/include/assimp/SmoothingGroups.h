@@ -92,13 +92,13 @@ template <class T>
 struct MeshWithSmoothingGroups
 {
     //! Vertex positions
-    std::vector<aiVector3D> mPositions;
+    std::vector<aiVec3fD> mPositions;
 
     //! Face lists
     std::vector<T> mFaces;
 
     //! List of normal vectors
-    std::vector<aiVector3D> mNormals;
+    std::vector<aiVec3fD> mNormals;
 };
 
 // ---------------------------------------------------------------------------
