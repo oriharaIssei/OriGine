@@ -174,6 +174,7 @@ void AnimationManager::SaveAnimation(const std::string& directory, const std::st
     std::string filePath = directory + "/" + filename + ".anm";
     std::ofstream ofs(filePath, std::ios::binary);
     if (!ofs) {
+        throw std::runtime_error("Failed to open file for writing");
     }
 
     // duration を保存

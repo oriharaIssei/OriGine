@@ -35,7 +35,7 @@ Matrix4x4 Animation::CalculateNodeLocal(const std::string& nodeName) const {
     return MakeMatrix::Affine(scale, rotate, translate);
 }
 
-Vector3 Animation::CalculateValue(const std::vector<KeyframeVector3>& keyframes, float time) const {
+Vector3 CalculateValue(const std::vector<KeyframeVector3>& keyframes, float time) {
     ///===========================================
     /// 例外処理
     ///===========================================
@@ -65,8 +65,8 @@ Vector3 Animation::CalculateValue(const std::vector<KeyframeVector3>& keyframes,
     return (*keyframes.rbegin()).value;
 }
 
-Quaternion Animation::CalculateValue(
-    const std::vector<KeyframeQuaternion>& keyframes, float time) const {
+Quaternion CalculateValue(
+    const std::vector<KeyframeQuaternion>& keyframes, float time) {
     ///===========================================
     /// 例外処理
     ///===========================================

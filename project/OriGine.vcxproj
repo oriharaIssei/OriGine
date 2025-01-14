@@ -117,7 +117,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="code\engine\audio\Audio.cpp" />
     <ClCompile Include="code\engine\directX12\RenderTexture.cpp" />
     <ClCompile Include="code\engine\material\light\LightManager.cpp" />
-    <ClCompile Include="code\engine\particle\Particle.cpp" />
+    <ClCompile Include="code\engine\effect\particle\Particle.cpp" />
     <ClCompile Include="code\engine\camera\debugCamera\DebugCamera.cpp" />
     <ClCompile Include="code\lib\animationEditor\Timeline.cpp" />
     <ClCompile Include="code\lib\deltaTime\DeltaTime.cpp" />
@@ -157,11 +157,11 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="code\lib\myFileSystem\MyFileSystem.cpp" />
     <ClCompile Include="code\main.cpp" />
     <ClCompile Include="code\math\Matrix4x4.cpp" />
-    <ClCompile Include="code\engine\particle\emitter\Emitter.cpp" />
-    <ClCompile Include="code\engine\particle\emitter\EmitterShape.cpp" />
+    <ClCompile Include="code\engine\effect\particle\emitter\Emitter.cpp" />
+    <ClCompile Include="code\engine\effect\particle\emitter\EmitterShape.cpp" />
     <ClCompile Include="code\math\MyEasing.cpp" />
     <ClCompile Include="code\lib\Thread\Thread.cpp" />
-    <ClCompile Include="code\engine\particle\manager\ParticleManager.cpp" />
+    <ClCompile Include="code\engine\effect\particle\manager\ParticleManager.cpp" />
     <ClCompile Include="code\engine\transform\ParticleTransform.cpp" />
     <ClCompile Include="code\engine\assets\IAsset.cpp" />
     <ClCompile Include="code\application\scene\IScene.cpp" />
@@ -173,6 +173,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="code\math\Vector3.cpp" />
     <ClCompile Include="code\application\scene\TitleScene.cpp" />
     <ClCompile Include="code\application\scene\GameClearScene.cpp" />
+    <ClCompile Include="code\application\scene\EffectEditScene.cpp" />
+    <ClCompile Include="code\engine\effect\EffectGroup.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\application\scene\AnimationEditScene.h" />
@@ -190,7 +192,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="code\engine\directX12\RenderTexture.h" />
     <ClInclude Include="code\engine\material\light\LightManager.h" />
     <ClInclude Include="code\engine\model\Model.h" />
-    <ClInclude Include="code\engine\particle\Particle.h" />
+    <ClInclude Include="code\engine\effect\particle\Particle.h" />
     <ClInclude Include="code\engine\camera\debugCamera\DebugCamera.h" />
     <ClInclude Include="code\lib\animationEditor\Timeline.h" />
     <ClInclude Include="code\lib\deltaTime\DeltaTime.h" />
@@ -235,13 +237,16 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="code\lib\myFileSystem\MyFileSystem.h" />
     <ClInclude Include="code\math\Matrix4x4.h" />
     <ClInclude Include="code\math\Quaternion.h" />
+    <ClInclude Include="code\math\Vector.h" />
     <ClInclude Include="code\math\Vector2.h" />
     <ClInclude Include="code\math\Vector3.h" />
     <ClInclude Include="code\math\Vector4.h" />
-    <ClInclude Include="code\engine\particle\emitter\Emitter.h" />
-    <ClInclude Include="code\engine\particle\emitter\EmitterShape.h" />
+    <ClInclude Include="code\engine\effect\particle\emitter\Emitter.h" />
+    <ClInclude Include="code\engine\effect\particle\emitter\EmitterShape.h" />
     <ClInclude Include="code\lib\node\DefaultNodes.h" />
     <ClInclude Include="code\math\MyEasing.h" />
+    <ClInclude Include="code\application\scene\EffectEditScene.h" />
+    <ClInclude Include="code\engine\effect\EffectGroup.h" />
     <ClInclude Include="externals\assimp\include\assimp\aabb.h" />
     <ClInclude Include="externals\assimp\include\assimp\ai_assert.h" />
     <ClInclude Include="externals\assimp\include\assimp\anim.h" />
@@ -326,7 +331,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="externals\assimp\include\assimp\XMLTools.h" />
     <ClInclude Include="externals\assimp\include\assimp\ZipArchiveIOSystem.h" />
     <ClInclude Include="code\lib\Thread\Thread.h" />
-    <ClInclude Include="code\engine\particle\manager\ParticleManager.h" />
+    <ClInclude Include="code\engine\effect\particle\manager\ParticleManager.h" />
     <ClInclude Include="code\engine\transform\ParticleTransform.h" />
     <ClInclude Include="code\engine\module\IModule.h" />
     <ClInclude Include="code\engine\assets\IAsset.h" />

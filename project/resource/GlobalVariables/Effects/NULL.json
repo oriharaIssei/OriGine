@@ -1,5 +1,7 @@
 {
     "NULL": {
+        "Sphere_radius": 0.0,
+        "SpherespawnLocationType": 0,
         "activeTime": 1.100000023841858,
         "isLoop": true,
         "maxDirectory": [
@@ -57,6 +59,6 @@
         "spawnCoolTime": 0.20000000298023224,
         "spawnParticleVal": 7,
         "spawnSphereRadius": 6.900000095367432,
-        "textureFileName": "resource/Models/Beam.png"
+        "textureFileName": "resource/Models\\AnimatedCube/AnimatedCube_BaseColor.png"
     }
 }

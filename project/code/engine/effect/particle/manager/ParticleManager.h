@@ -1,21 +1,32 @@
 #pragma once
 
-#include <array>
+///stl
+//memory
 #include <memory>
-#include <string>
-#include <unordered_map>
+//container
+#include <array>
 #include <vector>
+#include <unordered_map>
+//string
+#include <string>
 
+///engine
+//dx12Object
 #include "directX12/DxCommand.h"
 #include "directX12/DxSrvArray.h"
 #include "directX12/IConstantBuffer.h"
 #include "directX12/PipelineStateObj.h"
 #include "directX12/ShaderManager.h"
+//module
+#include "module/IModule.h"
+//lib
 #include "globalVariables/SerializedField.h"
+//transform
 #include "transform/CameraTransform.h"
 
 class Emitter;
-class ParticleManager{
+class ParticleManager
+    : public IModule {
 	friend class Emitter;
 public:
 	static ParticleManager* getInstance();
@@ -24,9 +35,14 @@ public:
 	void PreDraw();
 
 	void Edit();
-	void DrawDebug(const IConstantBuffer<CameraTransform>& cameraTransform);
+	void DrawDebug();
 
 private:
+    ParticleManager();
+    ~ParticleManager();
+    ParticleManager(const ParticleManager&) = delete;
+    const ParticleManager& operator=(const ParticleManager&) = delete;
+
 	void CreatePso();
 private:
 	int32_t srvNum_ = 16;
