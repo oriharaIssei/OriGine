@@ -66,7 +66,7 @@ struct aiVectorKey {
     double mTime;
 
     /** The value of this key */
-    C_STRUCT aiVec3fD mValue;
+    C_STRUCT aiVector3D mValue;
 
 #ifdef __cplusplus
 
@@ -79,12 +79,12 @@ struct aiVectorKey {
 
     /// @brief  Construction from a given time and key value.
 
-    aiVectorKey(double time, const aiVec3fD &value) :
+    aiVectorKey(double time, const aiVector3D &value) :
             mTime(time), mValue(value) {
         // empty
     }
 
-    typedef aiVec3fD elem_type;
+    typedef aiVector3D elem_type;
 
     // Comparison operators. For use with std::find();
     bool operator==(const aiVectorKey &rhs) const {
@@ -523,9 +523,9 @@ struct Interpolator<unsigned int> {
 
 template <>
 struct Interpolator<aiVectorKey> {
-    void operator()(aiVec3fD &out, const aiVectorKey &a,
+    void operator()(aiVector3D &out, const aiVectorKey &a,
             const aiVectorKey &b, ai_real d) const {
-        Interpolator<aiVec3fD> ipl;
+        Interpolator<aiVector3D> ipl;
         ipl(out, a.mValue, b.mValue, d);
     }
 }; // ! Interpolator <aiVectorKey>
