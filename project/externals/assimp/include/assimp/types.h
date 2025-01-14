@@ -147,7 +147,7 @@ struct aiPlane {
 struct aiRay {
 #ifdef __cplusplus
     aiRay() AI_NO_EXCEPT {}
-    aiRay(const aiVec3fD &_pos, const aiVec3fD &_dir) :
+    aiRay(const aiVector3D &_pos, const aiVector3D &_dir) :
             pos(_pos), dir(_dir) {}
 
     aiRay(const aiRay &o) :
@@ -156,7 +156,7 @@ struct aiRay {
 #endif // !__cplusplus
 
     //! Position and direction of the ray
-    C_STRUCT aiVec3fD pos, dir;
+    C_STRUCT aiVector3D pos, dir;
 }; // !struct aiRay
 
 // ----------------------------------------------------------------------------------

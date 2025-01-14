@@ -522,13 +522,13 @@ struct aiUVTransform {
      *
      *  The default value is (0|0).
      */
-    C_STRUCT aiVec2fD mTranslation;
+    C_STRUCT aiVector2D mTranslation;
 
     /** Scaling on the u and v axes.
      *
      *  The default value is (1|1).
      */
-    C_STRUCT aiVec2fD mScaling;
+    C_STRUCT aiVector2D mScaling;
 
     /** Rotation - in counter-clockwise direction.
      *
@@ -856,7 +856,7 @@ public:
             unsigned int type = 0,
             unsigned int index = 0);
 
-    aiReturn AddProperty(const aiVec3fD *pInput,
+    aiReturn AddProperty(const aiVector3D *pInput,
             unsigned int pNumValues,
             const char *pKey,
             unsigned int type = 0,

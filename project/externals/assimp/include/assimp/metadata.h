@@ -131,7 +131,7 @@ inline aiMetadataType GetAiType(double) {
 inline aiMetadataType GetAiType(const aiString &) {
     return AI_AISTRING;
 }
-inline aiMetadataType GetAiType(const aiVec3fD &) {
+inline aiMetadataType GetAiType(const aiVector3D &) {
     return AI_AIVECTOR3D;
 }
 inline aiMetadataType GetAiType(const aiMetadata &) {
@@ -216,9 +216,9 @@ struct aiMetadata {
                 mValues[i].mData = new aiString(v);
             } break;
             case AI_AIVECTOR3D: {
-                aiVec3fD v;
-                rhs.Get<aiVec3fD>(static_cast<unsigned int>(i), v);
-                mValues[i].mData = new aiVec3fD(v);
+                aiVector3D v;
+                rhs.Get<aiVector3D>(static_cast<unsigned int>(i), v);
+                mValues[i].mData = new aiVector3D(v);
             } break;
             case AI_AIMETADATA: {
                 aiMetadata v;
@@ -282,7 +282,7 @@ struct aiMetadata {
                     delete static_cast<aiString *>(data);
                     break;
                 case AI_AIVECTOR3D:
-                    delete static_cast<aiVec3fD *>(data);
+                    delete static_cast<aiVector3D *>(data);
                     break;
                 case AI_AIMETADATA:
                     delete static_cast<aiMetadata *>(data);
@@ -527,7 +527,7 @@ struct aiMetadata {
                 }
             } break;
             case AI_AIVECTOR3D: {
-                if (*static_cast<aiVec3fD *>(lhs.mValues[i].mData) != *static_cast<aiVec3fD *>(rhs.mValues[i].mData)) {
+                if (*static_cast<aiVector3D *>(lhs.mValues[i].mData) != *static_cast<aiVector3D *>(rhs.mValues[i].mData)) {
                     return false;
                 }
             } break;

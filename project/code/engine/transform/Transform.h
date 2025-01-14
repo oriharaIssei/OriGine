@@ -23,9 +23,9 @@ public:
     /// </summary>
     void Debug(const std::string& transformName);
 
-    Vec3f scale       = {1.0f, 1.0f, 1.0f};
+    Vec3f scale         = {1.0f, 1.0f, 1.0f};
     Quaternion rotate = {0.0f, 0.0f, 0.0f, 1.0f};
-    Vec3f translate   = {0.0f, 0.0f, 0.0f};
+    Vec3f translate     = {0.0f, 0.0f, 0.0f};
     Matrix4x4 worldMat;
 
     Transform* parent = nullptr;

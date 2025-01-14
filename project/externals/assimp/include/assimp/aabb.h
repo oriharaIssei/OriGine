@@ -54,8 +54,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *  An axis-aligned bounding box.
  */
 struct aiAABB {
-    C_STRUCT aiVec3fD mMin;
-    C_STRUCT aiVec3fD mMax;
+    C_STRUCT aiVector3D mMin;
+    C_STRUCT aiVector3D mMax;
 
 #ifdef __cplusplus
     /// @brief The default class constructor.
@@ -67,7 +67,7 @@ struct aiAABB {
     /// @brief The class constructor with the minimum and maximum.
     /// @param min  The minimum dimension.
     /// @param max  The maximum dimension.
-    aiAABB(const aiVec3fD &min, const aiVec3fD &max) :
+    aiAABB(const aiVector3D &min, const aiVector3D &max) :
             mMin(min), mMax(max) {
         // empty
     }
