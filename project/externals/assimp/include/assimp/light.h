@@ -132,7 +132,7 @@ struct aiLight {
      *
      *  The position is undefined for directional lights.
      */
-    C_STRUCT aiVec3fD mPosition;
+    C_STRUCT aiVector3D mPosition;
 
     /** Direction of the light source in space. Relative to the
      *  transformation of the node corresponding to the light.
@@ -140,7 +140,7 @@ struct aiLight {
      *  The direction is undefined for point lights. The vector
      *  may be normalized, but it needn't.
      */
-    C_STRUCT aiVec3fD mDirection;
+    C_STRUCT aiVector3D mDirection;
 
     /** Up direction of the light source in space. Relative to the
      *  transformation of the node corresponding to the light.
@@ -148,7 +148,7 @@ struct aiLight {
      *  The direction is undefined for point lights. The vector
      *  may be normalized, but it needn't.
      */
-    C_STRUCT aiVec3fD mUp;
+    C_STRUCT aiVector3D mUp;
 
     /** Constant light attenuation factor.
      *
@@ -233,7 +233,7 @@ struct aiLight {
     float mAngleOuterCone;
 
     /** Size of area light source. */
-    C_STRUCT aiVec2fD mSize;
+    C_STRUCT aiVector2D mSize;
 
 #ifdef __cplusplus
 

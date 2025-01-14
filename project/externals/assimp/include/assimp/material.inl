@@ -291,13 +291,13 @@ AI_FORCE_INLINE aiReturn aiMaterial::AddProperty(const aiColor3D* pInput,
 }
 
 // ---------------------------------------------------------------------------
-AI_FORCE_INLINE aiReturn aiMaterial::AddProperty(const aiVec3fD* pInput,
+AI_FORCE_INLINE aiReturn aiMaterial::AddProperty(const aiVector3D* pInput,
         const unsigned int pNumValues,
         const char* pKey,
         unsigned int type,
         unsigned int index) {
     return AddBinaryProperty((const void*)pInput,
-        pNumValues * sizeof(aiVec3fD),
+        pNumValues * sizeof(aiVector3D),
         pKey,type,index,ai_real_to_property_type_info(pInput->x));
 }
 
@@ -381,13 +381,13 @@ AI_FORCE_INLINE aiReturn aiMaterial::AddProperty<aiColor3D>(const aiColor3D* pIn
 
 // ---------------------------------------------------------------------------
 template<>
-AI_FORCE_INLINE aiReturn aiMaterial::AddProperty<aiVec3fD>(const aiVec3fD* pInput,
+AI_FORCE_INLINE aiReturn aiMaterial::AddProperty<aiVector3D>(const aiVector3D* pInput,
         const unsigned int pNumValues,
         const char* pKey,
         unsigned int type,
         unsigned int index) {
     return AddBinaryProperty((const void*)pInput,
-        pNumValues * sizeof(aiVec3fD),
+        pNumValues * sizeof(aiVector3D),
         pKey,type,index,aiPTI_Float);
 }
 
