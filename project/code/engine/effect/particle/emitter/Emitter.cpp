@@ -43,7 +43,6 @@ Emitter::Emitter(DxSrvArray* srvArray, const std::string& emitterName)
       particleColor_{"Effects", emitterName, "particleColor"},
       particleScale_{"Effects", emitterName, "particleScale"},
       particleRotate_{"Effects", emitterName, "particleRotate"},
-      particleTranslate_{"Effects", emitterName, "particleTranslate"},
       particleSpeed_{"Effects", emitterName, "particleSpeed"},
       particleUvScale_{"Effects", emitterName, "particleUvScale"},
       particleUvRotate_{"Effects", emitterName, "particleUvRotate"},
@@ -96,6 +95,10 @@ void Emitter::Init() {
     { // Initialize Active State
         isActive_       = true;
         leftActiveTime_ = activeTime_;
+    }
+
+    if (updateSettings_ != 0) {
+        particleKeyFrames_->LoadKeyFrames("resource/ParticleCurve/" + emitterName_ + "pkf");
     }
 }
 
@@ -183,6 +186,11 @@ void Emitter::Debug() {
         EditShapeType();
         EditEmitter();
         EditParticle();
+
+        CalculateMaxSize();
+        if (structuredTransform_.capacity() <= particleMaxSize_) {
+            structuredTransform_.resize(Engine::getInstance()->getDxDevice()->getDevice(), particleMaxSize_);
+        }
     }
     ImGui::End();
 }
@@ -269,14 +277,20 @@ void Emitter::SpawnParticle() {
     // スポーンして良い数
     int32_t canSpawnParticleValue_ = (std::min<int32_t>)(spawnParticleVal_, static_cast<int32_t>(particleMaxSize_ - particles_.size()));
 
-    ParticleTransform initialTransform = {};
-
     for (int32_t i = 0; i < canSpawnParticleValue_; i++) {
         //割りたてる Transform の 初期化
         structuredTransform_.openData_.push_back({});
+        auto& transform = structuredTransform_.openData_.back();
+
+        transform.color     = particleColor_;
+        transform.scale     = particleScale_;
+        transform.rotate    = particleRotate_;
+        transform.translate = emitterSpawnShape_->getSpawnPos();
+
         // Particle 初期化
         std::unique_ptr<Particle>& spawnedParticle = particles_.emplace_back<std::unique_ptr<Particle>>(std::make_unique<Particle>());
-        spawnedParticle->Init(initialTransform, particleLifeTime_);
+        spawnedParticle->Init(transform, particleLifeTime_, Vector3(transform.translate - originPos_).normalize(), particleSpeed_);
+        spawnedParticle->setKeyFrames(updateSettings_, particleKeyFrames_.get());
     }
 }
 
@@ -365,6 +379,7 @@ void Emitter::EditParticle() {
         if (ImGui::Checkbox("UpdateColorPerLifeTime", &updatePerLifeTime)) {
             if (updatePerLifeTime) {
                 updateSettings_.setValue(updateSettings_ | static_cast<int32_t>(ParticleUpdatePerLifeTime::Color));
+
             } else {
                 updateSettings_.setValue(updateSettings_ & ~static_cast<int32_t>(ParticleUpdatePerLifeTime::Color));
             }

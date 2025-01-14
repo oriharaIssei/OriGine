@@ -12,6 +12,7 @@
 #include "material/Material.h"
 struct ParticleKeyFrames;
 struct EmitterShape;
+struct ParticleKeyFrames;
 //object
 #include "../Particle.h"
 #include "object3d/Object3d.h"
@@ -99,7 +100,6 @@ private:
     SerializedField<Vector4> particleColor_;
     SerializedField<Vector3> particleScale_;
     SerializedField<Vector3> particleRotate_;
-    SerializedField<Vector3> particleTranslate_;
     SerializedField<float> particleSpeed_;
 
     SerializedField<Vector3> particleUvScale_;
@@ -107,6 +107,8 @@ private:
     SerializedField<Vector3> particleUvTranslate_;
 
     SerializedField<int32_t> updateSettings_;
+
+    std::unique_ptr<ParticleKeyFrames> particleKeyFrames_ = nullptr;
 
 public:
     bool getIsActive() const { return isActive_; }
