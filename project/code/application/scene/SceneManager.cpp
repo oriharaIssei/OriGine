@@ -6,7 +6,7 @@
 #include "engine/directX12/DxRtvArrayManager.h"
 #include "engine/directX12/DxSrvArrayManager.h"
 #include "engine/directX12/RenderTexture.h"
-#include "particle/manager/ParticleManager.h"
+#include "effect/particle/manager/ParticleManager.h"
 #include "primitiveDrawer/PrimitiveDrawer.h"
 #include "sprite/SpriteCommon.h"
 

@@ -1,6 +1,6 @@
 #include "EffectEditScene.h"
 
-#include "particle/manager/ParticleManager.h"
+#include "effect/particle/manager/ParticleManager.h"
 
 EffectEditScene::EffectEditScene()
     : IScene("EffectEditScene") {}

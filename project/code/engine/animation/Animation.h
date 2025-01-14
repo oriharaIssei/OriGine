@@ -46,6 +46,18 @@ struct AnimationData{
     std::unordered_map<std::string,NodeAnimation> nodeAnimations;
 };
 
+/// <summary>
+///  指定時間の 値を 計算し 取得
+/// </summary>
+/// <param name="keyframes"></param>
+/// <param name="time"></param>
+/// <returns></returns>
+Vector3 CalculateValue(
+    const std::vector<KeyframeVector3>& keyframes, float time);
+Quaternion CalculateValue(
+    const std::vector<KeyframeQuaternion>& keyframes, float time);
+
+
 struct Animation{
     Animation() = default;
     Animation(AnimationData* _data)
@@ -62,17 +74,7 @@ struct Animation{
 
 private:
     Matrix4x4 CalculateNodeLocal(const std::string& nodeName) const;
-    /// <summary>
-    ///  指定時間の 値を 計算し 取得
-    /// </summary>
-    /// <param name="keyframes"></param>
-    /// <param name="time"></param>
-    /// <returns></returns>
-    Vector3 CalculateValue(
-        const std::vector<KeyframeVector3>& keyframes,float time) const;
-    Quaternion CalculateValue(
-        const std::vector<KeyframeQuaternion>& keyframes,float time) const;
-
+    
     /// <summary>
     /// ノードにアニメーションを適用
     /// </summary>
