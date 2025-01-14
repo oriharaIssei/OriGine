@@ -20,7 +20,7 @@ public:
 	~RenderTexture() = default;
 
 	static void Awake();
-	void Init(const Vec2f& textureSize,DXGI_FORMAT format,const Vec4f& _clearColor);
+	void Init(const Vector2& textureSize,DXGI_FORMAT format,const Vector4& _clearColor);
 	void Finalize();
 
 	/// <summary>
@@ -45,8 +45,8 @@ private:
 	DxRtvArray* rtvArray_;
 	DxSrvArray* srvArray_;
 
-	Vec2f textureSize_;
-	Vec4f clearColor_;
+	Vector2 textureSize_;
+	Vector4 clearColor_;
 public:
 	ID3D12Resource* getSrv()const{ return resource_.getResource(); }
 	D3D12_GPU_DESCRIPTOR_HANDLE getSrvHandle()const{ return DxHeap::getInstance()->getSrvGpuHandle(srvArray_->getLocationOnHeap(srvIndex_)); }

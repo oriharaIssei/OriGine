@@ -9,8 +9,8 @@ struct Quaternion {
     Quaternion() {}
     Quaternion(float _x, float _y, float _z, float _w)
         : x(_x), y(_y), z(_z), w(_w) {}
-    Quaternion(const Vec3f& v, float _w)
-        : x(v.x()), y(v.y()), z(v.z()), w(_w) {}
+    Quaternion(const Vector3& v, float _w)
+        : x(v.x), y(v.y), z(v.z), w(_w) {}
 
     float x = 0;
     float y = 0;
@@ -72,7 +72,7 @@ struct Quaternion {
     static float Dot(const Quaternion& q0, const Quaternion& q1);
     float dot(const Quaternion& q) const;
 
-    static Quaternion RotateAxisAngle(const Vec3f& axis, float angle);
+    static Quaternion RotateAxisAngle(const Vector3& axis, float angle);
     void Show();
 };
 

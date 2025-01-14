@@ -201,16 +201,16 @@
     <ClCompile Include="code\engine\material\light\LightManager.cpp">
       <Filter>engine\material\light</Filter>
     </ClCompile>
-    <ClCompile Include="code\engine\particle\Particle.cpp">
+    <ClCompile Include="code\engine\effect\particle\Particle.cpp">
       <Filter>engine\particle</Filter>
     </ClCompile>
-    <ClCompile Include="code\engine\particle\manager\ParticleManager.cpp">
+    <ClCompile Include="code\engine\effect\particle\manager\ParticleManager.cpp">
       <Filter>engine\particle</Filter>
     </ClCompile>
     <ClCompile Include="code\engine\transform\ParticleTransform.cpp">
       <Filter>engine\transform</Filter>
     </ClCompile>
-    <ClCompile Include="code\engine\particle\emitter\Emitter.cpp">
+    <ClCompile Include="code\engine\effect\particle\emitter\Emitter.cpp">
       <Filter>engine\particle</Filter>
     </ClCompile>
     <ClCompile Include="code\engine\assets\IAsset.cpp">
@@ -222,7 +222,7 @@
     <ClCompile Include="code\engine\directX12\RenderTexture.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="code\engine\particle\emitter\EmitterShape.cpp">
+    <ClCompile Include="code\engine\effect\particle\emitter\EmitterShape.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="code\application\scene\IScene.cpp">
@@ -244,6 +244,9 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="code\math\Quaternion.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="code\math\Vector3.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="code\lib\animationEditor\AnimationEditor.cpp">
@@ -277,6 +280,12 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="code\application\scene\GameClearScene.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="code\application\scene\EffectEditScene.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="code\engine\effect\EffectGroup.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -425,16 +434,16 @@
     <ClInclude Include="code\engine\model\Model.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="code\engine\particle\Particle.h">
+    <ClInclude Include="code\engine\effect\particle\Particle.h">
       <Filter>engine\particle</Filter>
     </ClInclude>
-    <ClInclude Include="code\engine\particle\manager\ParticleManager.h">
+    <ClInclude Include="code\engine\effect\particle\manager\ParticleManager.h">
       <Filter>engine\particle</Filter>
     </ClInclude>
     <ClInclude Include="code\engine\transform\ParticleTransform.h">
       <Filter>engine\transform</Filter>
     </ClInclude>
-    <ClInclude Include="code\engine\particle\emitter\Emitter.h">
+    <ClInclude Include="code\engine\effect\particle\emitter\Emitter.h">
       <Filter>engine\particle</Filter>
     </ClInclude>
     <ClInclude Include="code\engine\model\Model.h">
@@ -458,7 +467,7 @@
     <ClInclude Include="code\lib\myRandom\MyRandom.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="code\engine\particle\emitter\EmitterShape.h">
+    <ClInclude Include="code\engine\effect\particle\emitter\EmitterShape.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="code\application\scene\IScene.h">
@@ -780,6 +789,12 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="code\math\Vector.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\application\scene\EffectEditScene.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\effect\EffectGroup.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

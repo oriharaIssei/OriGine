@@ -51,7 +51,7 @@ void Input::Update() {
     GetCursorPos(&mousePoint_);
     ScreenToClient(nullptr, &mousePoint_);
     preMousePos_     = currentMousePos_;
-    currentMousePos_ = Vec2f(static_cast<float>(mousePoint_.x), static_cast<float>(mousePoint_.y));
+    currentMousePos_ = Vector2(static_cast<float>(mousePoint_.x), static_cast<float>(mousePoint_.y));
 
     // ゲームパッドの状態を更新
     prePadState_ = padState_;
@@ -59,7 +59,7 @@ void Input::Update() {
     if (isPadActive_) {
         // スティックの速度を更新
         preLStickVelocity_     = currentLStickVelocity_;
-        currentLStickVelocity_ = Vec2f(
+        currentLStickVelocity_ = Vector2(
             static_cast<float>(padState_.Gamepad.sThumbLX) / stickMax_,
             static_cast<float>(padState_.Gamepad.sThumbLY) / stickMax_);
         // デッドゾーンを適用
@@ -68,7 +68,7 @@ void Input::Update() {
         }
 
         preRStickVelocity_     = currentRStickVelocity_;
-        currentRStickVelocity_ = Vec2f(
+        currentRStickVelocity_ = Vector2(
             static_cast<float>(padState_.Gamepad.sThumbRX) / stickMax_,
             static_cast<float>(padState_.Gamepad.sThumbRY) / stickMax_);
         // デッドゾーンを適用

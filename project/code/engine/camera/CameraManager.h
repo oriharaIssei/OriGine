@@ -27,7 +27,7 @@ private:
     IConstantBuffer<CameraTransform> cTransform_;
 
 public:
-    const CameraTransform& getTransform() const { cTransform_.openData_; }
+    const CameraTransform& getTransform() const { return cTransform_.openData_; }
     void setTransform(const CameraTransform& transform) { cTransform_.openData_ = transform; }
 
     void DataConvertToBuffer() {

@@ -66,8 +66,8 @@ void Sprite::Draw() {
     Update();
     auto commandList = spriteCommon_->dxCommand_->getCommandList();
 
-    mappingConstBufferData_->mat   = worldMat_ * spriteCommon_->viewPortMat_;
-    mappingConstBufferData_->uvMat = MakeMatrix::Affine(uvScale_, uvRotate_, uvTranslate_);
+    mappingConstBufferData_->mat_   = worldMat_ * spriteCommon_->viewPortMat_;
+    mappingConstBufferData_->uvMat_ = MakeMatrix::Affine(uvScale_, uvRotate_, uvTranslate_);
 
     commandList->IASetVertexBuffers(0, 1, &meshBuff_->vbView);
     commandList->IASetIndexBuffer(&meshBuff_->ibView);
@@ -86,28 +86,28 @@ void Sprite::Draw() {
 void Sprite::Debug(const std::string& name) {
 #ifdef _DEBUG
 
-    ImGui::ColorEdit4("Color", color_.v);
+    ImGui::ColorEdit4("Color", &color_.x);
 
-    ImGui::DragFloat2("UVScale", uvScale_.v, 0.1f);
-    ImGui::DragFloat2("UVRotate", uvRotate_.v, 0.1f);
-    ImGui::DragFloat2("UVTranslate", uvTranslate_.v, 0.1f);
+    ImGui::DragFloat2("UVScale", &uvScale_.x, 0.1f);
+    ImGui::DragFloat2("UVRotate", &uvRotate_.x, 0.1f);
+    ImGui::DragFloat2("UVTranslate", &uvTranslate_.x, 0.1f);
 
-    ImGui::DragFloat2("Translate", translate_.v, 0.1f);
-    ImGui::DragFloat2("Size", size_.v, 0.1f);
+    ImGui::DragFloat2("Position", &pos_.x, 0.1f);
+    ImGui::DragFloat2("Size", &size_.x, 0.1f);
 
-    ImGui::DragFloat2("TextureLeftTopPos", textureLeftTop_.v, 0.1f);
-    ImGui::DragFloat2("TextureSize", textureSize_.v, 0.1f);
+    ImGui::DragFloat2("textureLeftTopPos", &textureLeftTop_.x, 0.1f);
+    ImGui::DragFloat2("textureSize", &textureSize_.x, 0.1f);
 #endif // _DEBUG
 }
 
 void Sprite::Update() {
-    worldMat_ = MakeMatrix::Affine({size_, 1.0f}, {0.0f, 0.0f, rotate_}, {translate_, 0.0f});
+    worldMat_ = MakeMatrix::Affine({size_, 1.0f}, {0.0f, 0.0f, rotate_}, {pos_, 0.0f});
     uvMat_    = MakeMatrix::Affine(uvScale_, uvRotate_, uvTranslate_);
 
-    float left   = -anchorPoint_.x();
-    float right  = 1.0f - anchorPoint_.x();
-    float top    = -anchorPoint_.y();
-    float bottom = 1.0f - anchorPoint_.y();
+    float left   = -anchorPoint_.x;
+    float right  = 1.0f - anchorPoint_.x;
+    float top    = -anchorPoint_.y;
+    float bottom = 1.0f - anchorPoint_.y;
 
     if (isFlipX_) {
         left  = -left;
@@ -123,10 +123,10 @@ void Sprite::Update() {
     meshBuff_->vertexData[2].pos = {right, bottom, 0.0f, 1.0f};
     meshBuff_->vertexData[3].pos = {right, top, 0.0f, 1.0f};
 
-    float texLeft   = textureLeftTop_.x() / textureSize_.x();
-    float texRight  = (textureLeftTop_.x() + textureSize_.x()) / textureSize_.x();
-    float texTop    = textureLeftTop_.y() / textureSize_.y();
-    float texBottom = (textureLeftTop_.y() + textureSize_.y()) / textureSize_.y();
+    float texLeft   = textureLeftTop_.x / textureSize_.x;
+    float texRight  = (textureLeftTop_.x + textureSize_.x) / textureSize_.x;
+    float texTop    = textureLeftTop_.y / textureSize_.y;
+    float texBottom = (textureLeftTop_.y + textureSize_.y) / textureSize_.y;
 
     meshBuff_->vertexData[0].texcoord = {texLeft, texBottom};
     meshBuff_->vertexData[1].texcoord = {texLeft, texTop};
@@ -136,7 +136,7 @@ void Sprite::Update() {
 }
 
 void Sprite::ConvertMappingData() {
-    mappingConstBufferData_->mat   = worldMat_;
-    mappingConstBufferData_->uvMat = uvMat_;
-    mappingConstBufferData_->color = color_;
+    mappingConstBufferData_->mat_   = worldMat_;
+    mappingConstBufferData_->uvMat_ = uvMat_;
+    mappingConstBufferData_->color_ = color_;
 }

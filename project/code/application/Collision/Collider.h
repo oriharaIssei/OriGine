@@ -45,13 +45,13 @@ public:
     float getRadius() const { return currentRadius_; }
     void resetRadius(const std::string& id);
 
-    Vec3f getPosition() const { return transform_.worldMat[3]; }
+    Vector3 getPosition() const { return transform_.worldMat[3]; }
 
-    const Vec3f& getScale() const { return transform_.scale; }
+    const Vector3& getScale() const { return transform_.scale; }
     const Quaternion& getRotate() const { return transform_.rotate; }
-    const Vec3f& getTranslate() const { return transform_.translate; }
+    const Vector3& getTranslate() const { return transform_.translate; }
 
-    void setScale(const Vec3f& s) { transform_.scale = s; }
+    void setScale(const Vector3& s) { transform_.scale = s; }
     void setRotate(const Quaternion& q) { transform_.rotate = q; }
-    void setTranslate(const Vec3f& t) { transform_.translate = t; }
+    void setTranslate(const Vector3& t) { transform_.translate = t; }
 };

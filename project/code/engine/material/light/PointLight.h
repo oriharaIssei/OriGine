@@ -21,17 +21,17 @@ public:
 
 	~PointLight(){}
 
-	SerializedField<Vec3f> color;
-	SerializedField<Vec3f> pos;
+	SerializedField<Vector3> color;
+	SerializedField<Vector3> pos;
 	SerializedField<float> intensity;
 	SerializedField<float> radius;
 	SerializedField<float> decay;
 
 public:
 	struct ConstantBuffer{
-		Vec3f color;      // 12 bytes
+		Vector3 color;      // 12 bytes
 		float intensity;    // 4 bytes to align to 16 bytes
-		Vec3f pos;        // 12 bytes
+		Vector3 pos;        // 12 bytes
 		float radius;       // 4 bytes
 		float decay;        // 4 bytes
 		float padding[3];

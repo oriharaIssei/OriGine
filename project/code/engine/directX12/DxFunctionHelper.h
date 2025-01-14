@@ -18,13 +18,13 @@ class DxFunctionHelper{
 public:
 
 	static void SetViewportsAndScissor(const DxCommand* dxCommand,const WinApp* window);
-	static void SetViewportsAndScissor(const DxCommand* dxCommand,const Vec2f& rectSize);
+	static void SetViewportsAndScissor(const DxCommand* dxCommand,const Vector2& rectSize);
 
 	static void SetRenderTargets(const DxCommand* dxCommand,const DxSwapChain* dxSwapChain);
 	static void SetRenderTargets(const DxCommand* dxCommand,D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle);
 
 	static void PreDraw(const DxCommand* dxCommand,const WinApp* window,const DxSwapChain* dxSwapChain);
-	static void PreDraw(const DxCommand* dxCommand,const Vec2f& rectSize,const DxSwapChain* dxSwapChain);
+	static void PreDraw(const DxCommand* dxCommand,const Vector2& rectSize,const DxSwapChain* dxSwapChain);
 
 	static void PostDraw(DxCommand* dxCommands,DxFence* dxFence,DxSwapChain* dxSwapChain);
 };

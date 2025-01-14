@@ -1,17 +1,18 @@
 #pragma once
 
-///stl
-#include <string>
-
-///math
 #include "Matrix4x4.h"
 #include "Quaternion.h"
-#include "Vector3.h"
+
+#include <array>
+#include <d3d12.h>
+#include <functional>
+#include <string>
+#include <wrl.h>
 
 struct Transform {
 public:
     Transform() {}
-    Transform(const Vec3f& _scale, const Quaternion& _rotate, const Vec3f& _translate)
+    Transform(const Vector3& _scale, const Quaternion& _rotate, const Vector3& _translate)
         : scale(_scale), rotate(_rotate), translate(_translate), worldMat(MakeMatrix::Identity()) {}
     ~Transform() {}
 

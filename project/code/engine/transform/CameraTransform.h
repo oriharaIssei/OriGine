@@ -14,9 +14,9 @@ public:
 
 	void UpdateMatrix();
 
-	// Vec3f scale ; 固定
-	Vec3f rotate    = {0.0f,0.0f,0.0f};
-	Vec3f translate = {0.0f,0.0f,0.0f};
+	// Vector3 scale ; 固定
+	Vector3 rotate    = {0.0f,0.0f,0.0f};
+	Vector3 translate = {0.0f,0.0f,0.0f};
 	Matrix4x4 viewMat;
 
 	// 垂直方向視野角
@@ -31,7 +31,7 @@ public:
 public:
 	struct ConstantBuffer
 	{
-		Vec3f cameraPos;
+		Vector3 cameraPos;
 		float padding;
 		Matrix4x4 view;       // ワールド → ビュー変換行列
 		Matrix4x4 viewTranspose;

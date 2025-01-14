@@ -21,44 +21,51 @@
 
 class MaterialManager;
 struct Material
-    : IAsset{
+    : IAsset {
     friend class MaterialManager;
 
 public:
-    Material(){}
+    Material()
+        : uvScale_(SerializedField<Vector3>::CreateNull()),
+          uvRotate_(SerializedField<Vector3>::CreateNull()),
+          uvTranslate_(SerializedField<Vector3>::CreateNull()),
+          color_(SerializedField<Vector4>::CreateNull()),
+          enableLighting_(SerializedField<int32_t>::CreateNull()),
+          shininess_(SerializedField<float>::CreateNull()),
+          specularColor_(SerializedField<Vector3>::CreateNull()) {}
     Material(const std::string& _materialName)
-        : uvScale_("Materials",_materialName,"uvScale"),
-        uvRotate_("Materials",_materialName,"uvRotate"),
-        uvTranslate_("Materials",_materialName,"uvTranslate"),
-        color_("Materials",_materialName,"color"),
-        enableLighting_("Materials",_materialName,"enableLighting"),
-        shininess_("Materials",_materialName,"shininess"),
-        specularColor_("Materials",_materialName,"specularColor"){}
-    ~Material(){}
+        : uvScale_("Materials", _materialName, "uvScale"),
+          uvRotate_("Materials", _materialName, "uvRotate"),
+          uvTranslate_("Materials", _materialName, "uvTranslate"),
+          color_("Materials", _materialName, "color"),
+          enableLighting_("Materials", _materialName, "enableLighting"),
+          shininess_("Materials", _materialName, "shininess"),
+          specularColor_("Materials", _materialName, "specularColor") {}
+    ~Material() {}
 
     void UpdateUvMatrix();
 
 public:
-    SerializedField<Vec3f> uvScale_;
-    SerializedField<Vec3f> uvRotate_;
-    SerializedField<Vec3f> uvTranslate_;
+    SerializedField<Vector3> uvScale_;
+    SerializedField<Vector3> uvRotate_;
+    SerializedField<Vector3> uvTranslate_;
     Matrix4x4 uvMat_ = MakeMatrix::Identity();
 
-    SerializedField<Vec4f> color_;
+    SerializedField<Vector4> color_;
 
     SerializedField<int32_t> enableLighting_;
     SerializedField<float> shininess_;
-    SerializedField<Vec3f> specularColor_;
+    SerializedField<Vector3> specularColor_;
 
 public:
-    struct ConstantBuffer{
-        Vec4f color;
+    struct ConstantBuffer {
+        Vector4 color;
         uint32_t enableLighting;
         float padding[3]; // 下記を参照
         Matrix4x4 uvTransform;
         float shininess;
-        Vec3f specularColor;
-        ConstantBuffer& operator=(const Material& material){
+        Vector3 specularColor;
+        ConstantBuffer& operator=(const Material& material) {
             color          = material.color_;
             enableLighting = material.enableLighting_;
             uvTransform    = material.uvMat_;
@@ -70,45 +77,48 @@ public:
 };
 
 class MaterialManager
-    : public IModule{
+    : public IModule {
     friend class MaterialEditor;
+
 public:
     IConstantBuffer<Material>* Create(const std::string& materialName);
-    IConstantBuffer<Material>* Create(const std::string& materialName,const Material& data);
+    IConstantBuffer<Material>* Create(const std::string& materialName, const Material& data);
 
     void Init();
     void Finalize();
 
 private:
-    std::unordered_map<std::string,std::unique_ptr<IConstantBuffer<Material>>> materialPallet_;
+    std::unordered_map<std::string, std::unique_ptr<IConstantBuffer<Material>>> materialPallet_;
 
 public:
-    IConstantBuffer<Material>* getMaterial(const std::string& materialName) const{
+    IConstantBuffer<Material>* getMaterial(const std::string& materialName) const {
         auto it = materialPallet_.find(materialName);
-        if(it != materialPallet_.end()){
+        if (it != materialPallet_.end()) {
             return it->second.get();
-        } else{
+        } else {
             // キーが存在しない場合の処理
             return nullptr; // または適切なエラー処理を行う
         }
     }
 
-    const std::unordered_map<std::string,std::unique_ptr<IConstantBuffer<Material>>>& getMaterialPallet() const{ return materialPallet_; }
+    const std::unordered_map<std::string, std::unique_ptr<IConstantBuffer<Material>>>& getMaterialPallet() const { return materialPallet_; }
     IConstantBuffer<Material>* getMaterial(const std::string& name);
 
     void DeleteMaterial(const std::string& materialName);
 };
 
 class MaterialEditor
-    : public IEditor{
+    : public IEditor {
 public:
     MaterialEditor(MaterialManager* materialManager)
-        : IEditor(),materialManager_(materialManager){}
-    ~MaterialEditor(){}
+        : IEditor(), materialManager_(materialManager) {}
+    ~MaterialEditor() {}
 
     void Update() override;
+
 private:
     void MenuUpdate();
+
 private:
     MaterialManager* materialManager_;
 

@@ -29,13 +29,13 @@ Matrix4x4 Animation::CalculateNodeLocal(const std::string& nodeName) const {
 
     const NodeAnimation& nodeAnimation = it->second;
 
-    Vec3f scale     = CalculateValue(nodeAnimation.scale, currentAnimationTime);
+    Vector3 scale     = CalculateValue(nodeAnimation.scale, currentAnimationTime);
     Quaternion rotate = Quaternion::Normalize(CalculateValue(nodeAnimation.rotate, currentAnimationTime));
-    Vec3f translate = CalculateValue(nodeAnimation.translate, currentAnimationTime);
+    Vector3 translate = CalculateValue(nodeAnimation.translate, currentAnimationTime);
     return MakeMatrix::Affine(scale, rotate, translate);
 }
 
-Vec3f Animation::CalculateValue(const std::vector<KeyframeVec3f>& keyframes, float time) const {
+Vector3 CalculateValue(const std::vector<KeyframeVector3>& keyframes, float time) {
     ///===========================================
     /// 例外処理
     ///===========================================
@@ -65,8 +65,8 @@ Vec3f Animation::CalculateValue(const std::vector<KeyframeVec3f>& keyframes, flo
     return (*keyframes.rbegin()).value;
 }
 
-Quaternion Animation::CalculateValue(
-    const std::vector<KeyframeQuaternion>& keyframes, float time) const {
+Quaternion CalculateValue(
+    const std::vector<KeyframeQuaternion>& keyframes, float time) {
     ///===========================================
     /// 例外処理
     ///===========================================
@@ -107,10 +107,10 @@ void Animation::ApplyAnimationToNodes(
     }
 }
 
-Vec3f Animation::getCurrentScale(const std::string& nodeName) const {
+Vector3 Animation::getCurrentScale(const std::string& nodeName) const {
     auto itr = data->nodeAnimations.find(nodeName);
     if (itr == data->nodeAnimations.end()) {
-        return Vec3f(1.0f, 1.0f, 1.0f);
+        return Vector3(1.0f, 1.0f, 1.0f);
     }
     return CalculateValue(itr->second.scale, currentAnimationTime);
 }
@@ -123,10 +123,10 @@ Quaternion Animation::getCurrentRotate(const std::string& nodeName) const {
     return CalculateValue(itr->second.rotate, currentAnimationTime);
 }
 
-Vec3f Animation::getCurrentTranslate(const std::string& nodeName) const {
+Vector3 Animation::getCurrentTranslate(const std::string& nodeName) const {
     auto itr = data->nodeAnimations.find(nodeName);
     if (itr == data->nodeAnimations.end()) {
-        return Vec3f(0.0f, 0.0f, 0.0f);
+        return Vector3(0.0f, 0.0f, 0.0f);
     }
     return CalculateValue(itr->second.translate, currentAnimationTime);
 }

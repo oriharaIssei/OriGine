@@ -13,7 +13,7 @@
 #include "material/texture/TextureManager.h"
 #include "model/ModelManager.h"
 #include "myFileSystem/MyFileSystem.h"
-#include "particle/manager/ParticleManager.h"
+#include "effect/particle/manager/ParticleManager.h"
 #include "primitiveDrawer/PrimitiveDrawer.h"
 #include "sprite/SpriteCommon.h"
 

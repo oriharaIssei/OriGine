@@ -1,19 +1,12 @@
 #pragma once
 
-///stl
-//container
-#include <unordered_map>
-//string
-#include <string>
-
-///engine
-//lib
-#include "globalVariables/SerializedField.h"
-
-
 #include "Matrix4x4.h"
 #include "Quaternion.h"
 #include "Vector3.h"
+#include "globalVariables/SerializedField.h"
+
+#include <string>
+#include <unordered_map>
 
 struct Model;
 struct ModelNode;
@@ -28,16 +21,16 @@ struct Keyframe{
     float time; // キーフレームの時刻
     T value;    // キーフレームの 値
 };
-using KeyframeVec3f    = Keyframe<Vec3f>;
+using KeyframeVector3    = Keyframe<Vector3>;
 using KeyframeQuaternion = Keyframe<Quaternion>;
 
 template <typename T>
 using AnimationCurve = std::vector<Keyframe<T>>;
 
 struct NodeAnimation{
-    AnimationCurve<Vec3f> scale;
+    AnimationCurve<Vector3> scale;
     AnimationCurve<Quaternion> rotate;
-    AnimationCurve<Vec3f> translate;
+    AnimationCurve<Vector3> translate;
 };
 
 /// <summary>
@@ -52,6 +45,18 @@ struct AnimationData{
     float duration = 0.0f;
     std::unordered_map<std::string,NodeAnimation> nodeAnimations;
 };
+
+/// <summary>
+///  指定時間の 値を 計算し 取得
+/// </summary>
+/// <param name="keyframes"></param>
+/// <param name="time"></param>
+/// <returns></returns>
+Vector3 CalculateValue(
+    const std::vector<KeyframeVector3>& keyframes, float time);
+Quaternion CalculateValue(
+    const std::vector<KeyframeQuaternion>& keyframes, float time);
+
 
 struct Animation{
     Animation() = default;
@@ -69,17 +74,7 @@ struct Animation{
 
 private:
     Matrix4x4 CalculateNodeLocal(const std::string& nodeName) const;
-    /// <summary>
-    ///  指定時間の 値を 計算し 取得
-    /// </summary>
-    /// <param name="keyframes"></param>
-    /// <param name="time"></param>
-    /// <returns></returns>
-    Vec3f CalculateValue(
-        const std::vector<KeyframeVec3f>& keyframes,float time) const;
-    Quaternion CalculateValue(
-        const std::vector<KeyframeQuaternion>& keyframes,float time) const;
-
+    
     /// <summary>
     /// ノードにアニメーションを適用
     /// </summary>
@@ -110,9 +105,9 @@ public:
     AnimationData* getData() const{ return data; }
     void setData(AnimationData* _data){ data = _data; }
 
-    Vec3f getCurrentScale(const std::string& nodeName)const;
+    Vector3 getCurrentScale(const std::string& nodeName)const;
     Quaternion getCurrentRotate(const std::string& nodeName)const;
-    Vec3f getCurrentTranslate(const std::string& nodeName)const;
+    Vector3 getCurrentTranslate(const std::string& nodeName)const;
 };
 
 

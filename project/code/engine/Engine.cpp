@@ -1,27 +1,37 @@
 #include "Engine.h"
 
-#include "Audio/Audio.h"
+///engine
+//module
 #include "animation/AnimationManager.h"
 #include "camera/CameraManager.h"
-#include "directX12/DxFunctionHelper.h"
-#include "directX12/DxHeap.h"
-#include "directX12/RenderTexture.h"
+#include "directX12/DxRtvArrayManager.h"
+#include "directX12/DxSrvArrayManager.h"
+#include "effect/particle/manager/ParticleManager.h"
 #include "imGuiManager/ImGuiManager.h"
-#include "material/Material.h"
 #include "material/light/LightManager.h"
 #include "material/texture/TextureManager.h"
 #include "model/ModelManager.h"
-#include "particle/manager/ParticleManager.h"
 #include "primitiveDrawer/PrimitiveDrawer.h"
 #include "sprite/SpriteCommon.h"
+
+//assets
+#include "Audio/Audio.h"
+#include "material/Material.h"
+
+//dx12Object
+#include "directX12/DxFunctionHelper.h"
+#include "directX12/DxHeap.h"
+#include "directX12/RenderTexture.h"
+
+//lib
+#include "logger/Logger.h"
+
+//math
 
 #ifdef _DEBUG
 #include "imgui/imgui.h"
 #endif // _DEBUG
 
-#include "directX12/DxRtvArrayManager.h"
-#include "directX12/DxSrvArrayManager.h"
-#include "logger/Logger.h"
 
 #define _USE_MATH_DEFINES
 #include <cmath>

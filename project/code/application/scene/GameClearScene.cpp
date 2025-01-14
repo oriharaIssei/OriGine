@@ -19,20 +19,20 @@ void GameClearScene::Init() {
 
     text_ = std::make_unique<Sprite>();
     text_->Init("resource/Texture/Clear.png");
-    text_->setAnchorPoint(Vec2f(0.5f, 0.5f));
-    text_->setTranslate(Vec2f(1280.0f * 0.5f, 720.0f * 0.3f));
+    text_->setAnchorPoint(Vector2(0.5f, 0.5f));
+    text_->setPosition(Vector2(1280.0f * 0.5f, 720.0f * 0.3f));
 
     pushA_ = std::make_unique<Sprite>();
     pushA_->Init("resource/Texture/PushA.png");
-    pushA_->setAnchorPoint(Vec2f(0.5f, 0.5f));
-    pushA_->setTranslate(Vec2f(1280.0f * 0.5f, 720.0f * 0.7f));
+    pushA_->setAnchorPoint(Vector2(0.5f, 0.5f));
+    pushA_->setPosition(Vector2(1280.0f * 0.5f, 720.0f * 0.7f));
 }
 
 void GameClearScene::Update() {
     time_ = std::fmod(time_, 3.1415f);
     time_ += Engine::getInstance()->getDeltaTime(); // 時間を進める
 
-    pushA_->setColor(Vec4f(1.0f, 1.0f, 1.0f, sinf(time_)));
+    pushA_->setColor(Vector4(1.0f, 1.0f, 1.0f, sinf(time_)));
 
     text_->Update();
     pushA_->Update();
