@@ -473,13 +473,13 @@ ASSIMP_API void aiCreateQuaternionFromMatrix(
  * @param scaling Receives the scaling component
  * @param rotation Receives the rotational component
  * @param position Receives the translational component.
- * @see aiMatrix4x4::Decompose (aiVec3fD&, aiQuaternion&, aiVec3fD&) const;
+ * @see aiMatrix4x4::Decompose (aiVector3D&, aiQuaternion&, aiVector3D&) const;
  */
 ASSIMP_API void aiDecomposeMatrix(
         const C_STRUCT aiMatrix4x4 *mat,
-        C_STRUCT aiVec3fD *scaling,
+        C_STRUCT aiVector3D *scaling,
         C_STRUCT aiQuaternion *rotation,
-        C_STRUCT aiVec3fD *position);
+        C_STRUCT aiVector3D *position);
 
 // --------------------------------------------------------------------------------
 /** Transpose a 4x4 matrix.
@@ -501,7 +501,7 @@ ASSIMP_API void aiTransposeMatrix3(
  *  @param mat Matrix to transform the vector with.
  */
 ASSIMP_API void aiTransformVecByMatrix3(
-        C_STRUCT aiVec3fD *vec,
+        C_STRUCT aiVector3D *vec,
         const C_STRUCT aiMatrix3x3 *mat);
 
 // --------------------------------------------------------------------------------
@@ -510,7 +510,7 @@ ASSIMP_API void aiTransformVecByMatrix3(
  *  @param mat Matrix to transform the vector with.
  */
 ASSIMP_API void aiTransformVecByMatrix4(
-        C_STRUCT aiVec3fD *vec,
+        C_STRUCT aiVector3D *vec,
         const C_STRUCT aiMatrix4x4 *mat);
 
 // --------------------------------------------------------------------------------
@@ -567,9 +567,9 @@ ASSIMP_API const C_STRUCT aiImporterDesc *aiGetImportFormatDescription(size_t pI
  *  @return 1 if the vectors are equal
  *  @return 0 if the vectors are not equal
  */
-ASSIMP_API int aiVec2fAreEqual(
-        const C_STRUCT aiVec2fD *a,
-        const C_STRUCT aiVec2fD *b);
+ASSIMP_API int aiVector2AreEqual(
+        const C_STRUCT aiVector2D *a,
+        const C_STRUCT aiVector2D *b);
 
 // --------------------------------------------------------------------------------
 /** Check if 2D vectors are equal using epsilon.
@@ -579,9 +579,9 @@ ASSIMP_API int aiVec2fAreEqual(
  *  @return 1 if the vectors are equal
  *  @return 0 if the vectors are not equal
  */
-ASSIMP_API int aiVec2fAreEqualEpsilon(
-        const C_STRUCT aiVec2fD *a,
-        const C_STRUCT aiVec2fD *b,
+ASSIMP_API int aiVector2AreEqualEpsilon(
+        const C_STRUCT aiVector2D *a,
+        const C_STRUCT aiVector2D *b,
         const float epsilon);
 
 // --------------------------------------------------------------------------------
@@ -589,26 +589,26 @@ ASSIMP_API int aiVec2fAreEqualEpsilon(
  *  @param dst First addend, receives result.
  *  @param src Vector to be added to 'dst'.
  */
-ASSIMP_API void aiVec2fAdd(
-        C_STRUCT aiVec2fD *dst,
-        const C_STRUCT aiVec2fD *src);
+ASSIMP_API void aiVector2Add(
+        C_STRUCT aiVector2D *dst,
+        const C_STRUCT aiVector2D *src);
 
 // --------------------------------------------------------------------------------
 /** Subtract 2D vectors.
  *  @param dst Minuend, receives result.
  *  @param src Vector to be subtracted from 'dst'.
  */
-ASSIMP_API void aiVec2fSubtract(
-        C_STRUCT aiVec2fD *dst,
-        const C_STRUCT aiVec2fD *src);
+ASSIMP_API void aiVector2Subtract(
+        C_STRUCT aiVector2D *dst,
+        const C_STRUCT aiVector2D *src);
 
 // --------------------------------------------------------------------------------
 /** Multiply a 2D vector by a scalar.
  *  @param dst Vector to be scaled by \p s
  *  @param s Scale factor
  */
-ASSIMP_API void aiVec2fScale(
-        C_STRUCT aiVec2fD *dst,
+ASSIMP_API void aiVector2Scale(
+        C_STRUCT aiVector2D *dst,
         const float s);
 
 // --------------------------------------------------------------------------------
@@ -617,17 +617,17 @@ ASSIMP_API void aiVec2fScale(
  *  @param dst First vector, receives result
  *  @param other Second vector
  */
-ASSIMP_API void aiVec2fSymMul(
-        C_STRUCT aiVec2fD *dst,
-        const C_STRUCT aiVec2fD *other);
+ASSIMP_API void aiVector2SymMul(
+        C_STRUCT aiVector2D *dst,
+        const C_STRUCT aiVector2D *other);
 
 // --------------------------------------------------------------------------------
 /** Divide a 2D vector by a scalar.
  *  @param dst Vector to be divided by \p s
  *  @param s Scalar divisor
  */
-ASSIMP_API void aiVec2fDivideByScalar(
-        C_STRUCT aiVec2fD *dst,
+ASSIMP_API void aiVector2DivideByScalar(
+        C_STRUCT aiVector2D *dst,
         const float s);
 
 // --------------------------------------------------------------------------------
@@ -636,30 +636,30 @@ ASSIMP_API void aiVec2fDivideByScalar(
  *  @param dst Vector as the dividend
  *  @param v Vector as the divisor
  */
-ASSIMP_API void aiVec2fDivideByVector(
-        C_STRUCT aiVec2fD *dst,
-        C_STRUCT aiVec2fD *v);
+ASSIMP_API void aiVector2DivideByVector(
+        C_STRUCT aiVector2D *dst,
+        C_STRUCT aiVector2D *v);
 
 // --------------------------------------------------------------------------------
 /** Get the length of a 2D vector.
  *  @return v Vector to evaluate
  */
-ASSIMP_API float aiVec2fLength(
-        const C_STRUCT aiVec2fD *v);
+ASSIMP_API float aiVector2Length(
+        const C_STRUCT aiVector2D *v);
 
 // --------------------------------------------------------------------------------
 /** Get the squared length of a 2D vector.
  *  @return v Vector to evaluate
  */
-ASSIMP_API float aiVec2fSquareLength(
-        const C_STRUCT aiVec2fD *v);
+ASSIMP_API float aiVector2SquareLength(
+        const C_STRUCT aiVector2D *v);
 
 // --------------------------------------------------------------------------------
 /** Negate a 2D vector.
  *  @param dst Vector to be negated
  */
-ASSIMP_API void aiVec2fNegate(
-        C_STRUCT aiVec2fD *dst);
+ASSIMP_API void aiVector2Negate(
+        C_STRUCT aiVector2D *dst);
 
 // --------------------------------------------------------------------------------
 /** Get the dot product of 2D vectors.
@@ -667,16 +667,16 @@ ASSIMP_API void aiVec2fNegate(
  *  @param b Second vector
  *  @return The dot product of vectors
  */
-ASSIMP_API float aiVec2fDotProduct(
-        const C_STRUCT aiVec2fD *a,
-        const C_STRUCT aiVec2fD *b);
+ASSIMP_API float aiVector2DotProduct(
+        const C_STRUCT aiVector2D *a,
+        const C_STRUCT aiVector2D *b);
 
 // --------------------------------------------------------------------------------
 /** Normalize a 2D vector.
  *  @param v Vector to normalize
  */
-ASSIMP_API void aiVec2fNormalize(
-        C_STRUCT aiVec2fD *v);
+ASSIMP_API void aiVector2Normalize(
+        C_STRUCT aiVector2D *v);
 
 // --------------------------------------------------------------------------------
 /** Check if 3D vectors are equal.
@@ -685,9 +685,9 @@ ASSIMP_API void aiVec2fNormalize(
  *  @return 1 if the vectors are equal
  *  @return 0 if the vectors are not equal
  */
-ASSIMP_API int aiVec3fAreEqual(
-        const C_STRUCT aiVec3fD *a,
-        const C_STRUCT aiVec3fD *b);
+ASSIMP_API int aiVector3AreEqual(
+        const C_STRUCT aiVector3D *a,
+        const C_STRUCT aiVector3D *b);
 
 // --------------------------------------------------------------------------------
 /** Check if 3D vectors are equal using epsilon.
@@ -697,9 +697,9 @@ ASSIMP_API int aiVec3fAreEqual(
  *  @return 1 if the vectors are equal
  *  @return 0 if the vectors are not equal
  */
-ASSIMP_API int aiVec3fAreEqualEpsilon(
-        const C_STRUCT aiVec3fD *a,
-        const C_STRUCT aiVec3fD *b,
+ASSIMP_API int aiVector3AreEqualEpsilon(
+        const C_STRUCT aiVector3D *a,
+        const C_STRUCT aiVector3D *b,
         const float epsilon);
 
 // --------------------------------------------------------------------------------
@@ -710,35 +710,35 @@ ASSIMP_API int aiVec3fAreEqualEpsilon(
  *  @return 1 if \p a is less than \p b
  *  @return 0 if \p a is equal or greater than \p b
  */
-ASSIMP_API int aiVec3fLessThan(
-        const C_STRUCT aiVec3fD *a,
-        const C_STRUCT aiVec3fD *b);
+ASSIMP_API int aiVector3LessThan(
+        const C_STRUCT aiVector3D *a,
+        const C_STRUCT aiVector3D *b);
 
 // --------------------------------------------------------------------------------
 /** Add 3D vectors.
  *  @param dst First addend, receives result.
  *  @param src Vector to be added to 'dst'.
  */
-ASSIMP_API void aiVec3fAdd(
-        C_STRUCT aiVec3fD *dst,
-        const C_STRUCT aiVec3fD *src);
+ASSIMP_API void aiVector3Add(
+        C_STRUCT aiVector3D *dst,
+        const C_STRUCT aiVector3D *src);
 
 // --------------------------------------------------------------------------------
 /** Subtract 3D vectors.
  *  @param dst Minuend, receives result.
  *  @param src Vector to be subtracted from 'dst'.
  */
-ASSIMP_API void aiVec3fSubtract(
-        C_STRUCT aiVec3fD *dst,
-        const C_STRUCT aiVec3fD *src);
+ASSIMP_API void aiVector3Subtract(
+        C_STRUCT aiVector3D *dst,
+        const C_STRUCT aiVector3D *src);
 
 // --------------------------------------------------------------------------------
 /** Multiply a 3D vector by a scalar.
  *  @param dst Vector to be scaled by \p s
  *  @param s Scale factor
  */
-ASSIMP_API void aiVec3fScale(
-        C_STRUCT aiVec3fD *dst,
+ASSIMP_API void aiVector3Scale(
+        C_STRUCT aiVector3D *dst,
         const float s);
 
 // --------------------------------------------------------------------------------
@@ -747,17 +747,17 @@ ASSIMP_API void aiVec3fScale(
  *  @param dst First vector, receives result
  *  @param other Second vector
  */
-ASSIMP_API void aiVec3fSymMul(
-        C_STRUCT aiVec3fD *dst,
-        const C_STRUCT aiVec3fD *other);
+ASSIMP_API void aiVector3SymMul(
+        C_STRUCT aiVector3D *dst,
+        const C_STRUCT aiVector3D *other);
 
 // --------------------------------------------------------------------------------
 /** Divide a 3D vector by a scalar.
  *  @param dst Vector to be divided by \p s
  *  @param s Scalar divisor
  */
-ASSIMP_API void aiVec3fDivideByScalar(
-        C_STRUCT aiVec3fD *dst,
+ASSIMP_API void aiVector3DivideByScalar(
+        C_STRUCT aiVector3D *dst,
         const float s);
 
 // --------------------------------------------------------------------------------
@@ -766,30 +766,30 @@ ASSIMP_API void aiVec3fDivideByScalar(
  *  @param dst Vector as the dividend
  *  @param v Vector as the divisor
  */
-ASSIMP_API void aiVec3fDivideByVector(
-        C_STRUCT aiVec3fD *dst,
-        C_STRUCT aiVec3fD *v);
+ASSIMP_API void aiVector3DivideByVector(
+        C_STRUCT aiVector3D *dst,
+        C_STRUCT aiVector3D *v);
 
 // --------------------------------------------------------------------------------
 /** Get the length of a 3D vector.
  *  @return v Vector to evaluate
  */
-ASSIMP_API float aiVec3fLength(
-        const C_STRUCT aiVec3fD *v);
+ASSIMP_API float aiVector3Length(
+        const C_STRUCT aiVector3D *v);
 
 // --------------------------------------------------------------------------------
 /** Get the squared length of a 3D vector.
  *  @return v Vector to evaluate
  */
-ASSIMP_API float aiVec3fSquareLength(
-        const C_STRUCT aiVec3fD *v);
+ASSIMP_API float aiVector3SquareLength(
+        const C_STRUCT aiVector3D *v);
 
 // --------------------------------------------------------------------------------
 /** Negate a 3D vector.
  *  @param dst Vector to be negated
  */
-ASSIMP_API void aiVec3fNegate(
-        C_STRUCT aiVec3fD *dst);
+ASSIMP_API void aiVector3Negate(
+        C_STRUCT aiVector3D *dst);
 
 // --------------------------------------------------------------------------------
 /** Get the dot product of 3D vectors.
@@ -797,9 +797,9 @@ ASSIMP_API void aiVec3fNegate(
  *  @param b Second vector
  *  @return The dot product of vectors
  */
-ASSIMP_API float aiVec3fDotProduct(
-        const C_STRUCT aiVec3fD *a,
-        const C_STRUCT aiVec3fD *b);
+ASSIMP_API float aiVector3DotProduct(
+        const C_STRUCT aiVector3D *a,
+        const C_STRUCT aiVector3D *b);
 
 // --------------------------------------------------------------------------------
 /** Get cross product of 3D vectors.
@@ -808,32 +808,32 @@ ASSIMP_API float aiVec3fDotProduct(
  *  @param b Second vector
  *  @return The dot product of vectors
  */
-ASSIMP_API void aiVec3fCrossProduct(
-        C_STRUCT aiVec3fD *dst,
-        const C_STRUCT aiVec3fD *a,
-        const C_STRUCT aiVec3fD *b);
+ASSIMP_API void aiVector3CrossProduct(
+        C_STRUCT aiVector3D *dst,
+        const C_STRUCT aiVector3D *a,
+        const C_STRUCT aiVector3D *b);
 
 // --------------------------------------------------------------------------------
 /** Normalize a 3D vector.
  *  @param v Vector to normalize
  */
-ASSIMP_API void aiVec3fNormalize(
-        C_STRUCT aiVec3fD *v);
+ASSIMP_API void aiVector3Normalize(
+        C_STRUCT aiVector3D *v);
 
 // --------------------------------------------------------------------------------
 /** Check for division by zero and normalize a 3D vector.
  *  @param v Vector to normalize
  */
-ASSIMP_API void aiVec3fNormalizeSafe(
-        C_STRUCT aiVec3fD *v);
+ASSIMP_API void aiVector3NormalizeSafe(
+        C_STRUCT aiVector3D *v);
 
 // --------------------------------------------------------------------------------
 /** Rotate a 3D vector by a quaternion.
  *  @param v The vector to rotate by \p q
  *  @param q Quaternion to use to rotate \p v
  */
-ASSIMP_API void aiVec3fRotateByQuaternion(
-        C_STRUCT aiVec3fD *v,
+ASSIMP_API void aiVector3RotateByQuaternion(
+        C_STRUCT aiVector3D *v,
         const C_STRUCT aiQuaternion *q);
 
 // --------------------------------------------------------------------------------
@@ -909,7 +909,7 @@ ASSIMP_API void aiMatrix3RotationZ(
  */
 ASSIMP_API void aiMatrix3FromRotationAroundAxis(
         C_STRUCT aiMatrix3x3 *mat,
-        const C_STRUCT aiVec3fD *axis,
+        const C_STRUCT aiVector3D *axis,
         const float angle);
 
 // --------------------------------------------------------------------------------
@@ -919,7 +919,7 @@ ASSIMP_API void aiMatrix3FromRotationAroundAxis(
  */
 ASSIMP_API void aiMatrix3Translation(
         C_STRUCT aiMatrix3x3 *mat,
-        const C_STRUCT aiVec2fD *translation);
+        const C_STRUCT aiVector2D *translation);
 
 // --------------------------------------------------------------------------------
 /** Create a 3x3 matrix that rotates one vector to another vector.
@@ -929,8 +929,8 @@ ASSIMP_API void aiMatrix3Translation(
  */
 ASSIMP_API void aiMatrix3FromTo(
         C_STRUCT aiMatrix3x3 *mat,
-        const C_STRUCT aiVec3fD *from,
-        const C_STRUCT aiVec3fD *to);
+        const C_STRUCT aiVector3D *from,
+        const C_STRUCT aiVector3D *to);
 
 // --------------------------------------------------------------------------------
 /** Construct a 4x4 matrix from a 3x3 matrix.
@@ -950,9 +950,9 @@ ASSIMP_API void aiMatrix4FromMatrix3(
  */
 ASSIMP_API void aiMatrix4FromScalingQuaternionPosition(
         C_STRUCT aiMatrix4x4 *mat,
-        const C_STRUCT aiVec3fD *scaling,
+        const C_STRUCT aiVector3D *scaling,
         const C_STRUCT aiQuaternion *rotation,
-        const C_STRUCT aiVec3fD *position);
+        const C_STRUCT aiVector3D *position);
 
 // --------------------------------------------------------------------------------
 /** Add 4x4 matrices.
@@ -1022,9 +1022,9 @@ ASSIMP_API int aiMatrix4IsIdentity(
  */
 ASSIMP_API void aiMatrix4DecomposeIntoScalingEulerAnglesPosition(
         const C_STRUCT aiMatrix4x4 *mat,
-        C_STRUCT aiVec3fD *scaling,
-        C_STRUCT aiVec3fD *rotation,
-        C_STRUCT aiVec3fD *position);
+        C_STRUCT aiVector3D *scaling,
+        C_STRUCT aiVector3D *rotation,
+        C_STRUCT aiVector3D *position);
 
 // --------------------------------------------------------------------------------
 /** Decompose a transformation matrix into its scaling,
@@ -1039,10 +1039,10 @@ ASSIMP_API void aiMatrix4DecomposeIntoScalingEulerAnglesPosition(
  */
 ASSIMP_API void aiMatrix4DecomposeIntoScalingAxisAnglePosition(
         const C_STRUCT aiMatrix4x4 *mat,
-        C_STRUCT aiVec3fD *scaling,
-        C_STRUCT aiVec3fD *axis,
+        C_STRUCT aiVector3D *scaling,
+        C_STRUCT aiVector3D *axis,
         ai_real *angle,
-        C_STRUCT aiVec3fD *position);
+        C_STRUCT aiVector3D *position);
 
 // --------------------------------------------------------------------------------
 /** Decompose a transformation matrix into its rotational and
@@ -1055,7 +1055,7 @@ ASSIMP_API void aiMatrix4DecomposeIntoScalingAxisAnglePosition(
 ASSIMP_API void aiMatrix4DecomposeNoScaling(
         const C_STRUCT aiMatrix4x4 *mat,
         C_STRUCT aiQuaternion *rotation,
-        C_STRUCT aiVec3fD *position);
+        C_STRUCT aiVector3D *position);
 
 // --------------------------------------------------------------------------------
 /** Creates a 4x4 matrix from a set of euler angles.
@@ -1103,7 +1103,7 @@ ASSIMP_API void aiMatrix4RotationZ(
  */
 ASSIMP_API void aiMatrix4FromRotationAroundAxis(
         C_STRUCT aiMatrix4x4 *mat,
-        const C_STRUCT aiVec3fD *axis,
+        const C_STRUCT aiVector3D *axis,
         const float angle);
 
 // --------------------------------------------------------------------------------
@@ -1113,7 +1113,7 @@ ASSIMP_API void aiMatrix4FromRotationAroundAxis(
  */
 ASSIMP_API void aiMatrix4Translation(
         C_STRUCT aiMatrix4x4 *mat,
-        const C_STRUCT aiVec3fD *translation);
+        const C_STRUCT aiVector3D *translation);
 
 // --------------------------------------------------------------------------------
 /** Get a 4x4 scaling matrix.
@@ -1122,7 +1122,7 @@ ASSIMP_API void aiMatrix4Translation(
  */
 ASSIMP_API void aiMatrix4Scaling(
         C_STRUCT aiMatrix4x4 *mat,
-        const C_STRUCT aiVec3fD *scaling);
+        const C_STRUCT aiVector3D *scaling);
 
 // --------------------------------------------------------------------------------
 /** Create a 4x4 matrix that rotates one vector to another vector.
@@ -1132,8 +1132,8 @@ ASSIMP_API void aiMatrix4Scaling(
  */
 ASSIMP_API void aiMatrix4FromTo(
         C_STRUCT aiMatrix4x4 *mat,
-        const C_STRUCT aiVec3fD *from,
-        const C_STRUCT aiVec3fD *to);
+        const C_STRUCT aiVector3D *from,
+        const C_STRUCT aiVector3D *to);
 
 // --------------------------------------------------------------------------------
 /** Create a Quaternion from euler angles.
@@ -1154,7 +1154,7 @@ ASSIMP_API void aiQuaternionFromEulerAngles(
  */
 ASSIMP_API void aiQuaternionFromAxisAngle(
         C_STRUCT aiQuaternion *q,
-        const C_STRUCT aiVec3fD *axis,
+        const C_STRUCT aiVector3D *axis,
         const float angle);
 
 // --------------------------------------------------------------------------------
@@ -1165,7 +1165,7 @@ ASSIMP_API void aiQuaternionFromAxisAngle(
  */
 ASSIMP_API void aiQuaternionFromNormalizedQuaternion(
         C_STRUCT aiQuaternion *q,
-        const C_STRUCT aiVec3fD *normalized);
+        const C_STRUCT aiVector3D *normalized);
 
 // --------------------------------------------------------------------------------
 /** Check if quaternions are equal.

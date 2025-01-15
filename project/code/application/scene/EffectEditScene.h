@@ -9,6 +9,9 @@
 //editor
 class ParticleManager;
 
+//debugCamera
+#include "camera/debugCamera/DebugCamera.h"
+
 class EffectEditScene
     : public IScene {
 public:
@@ -24,5 +27,7 @@ public:
     void DrawParticle();
 
 private:
+    std::unique_ptr<DebugCamera> debugCamera_;
+
     ParticleManager* particleManager_;
 };

@@ -12,6 +12,7 @@
 #include "material/Material.h"
 struct ParticleKeyFrames;
 struct EmitterShape;
+struct ParticleKeyFrames;
 //object
 #include "../Particle.h"
 #include "object3d/Object3d.h"
@@ -74,6 +75,7 @@ private:
     SerializedField<std::string> textureFileName_;
 
     //=============== エミッター設定項目 ===============//
+    SerializedField<int32_t> blendMode_;
     bool isActive_;
     SerializedField<bool> isLoop_;
     // emitter 生存時間
@@ -99,7 +101,6 @@ private:
     SerializedField<Vector4> particleColor_;
     SerializedField<Vector3> particleScale_;
     SerializedField<Vector3> particleRotate_;
-    SerializedField<Vector3> particleTranslate_;
     SerializedField<float> particleSpeed_;
 
     SerializedField<Vector3> particleUvScale_;
@@ -107,6 +108,8 @@ private:
     SerializedField<Vector3> particleUvTranslate_;
 
     SerializedField<int32_t> updateSettings_;
+
+    std::unique_ptr<ParticleKeyFrames> particleKeyFrames_ = nullptr;
 
 public:
     bool getIsActive() const { return isActive_; }

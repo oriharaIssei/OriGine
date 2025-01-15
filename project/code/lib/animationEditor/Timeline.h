@@ -1,8 +1,14 @@
 #pragma once
 
+///stl
+//pointer
 #include <functional>
-#include <string>
+//container
 #include <vector>
+//string
+#include "animation/Animation.h"
+
+#include <string>
 
 namespace ImGui {
 /// <summary>
@@ -22,4 +28,28 @@ bool TimeLineButtons(
     std::function<void(float newNodeTime)> _updateOnNodeDragged = nullptr,
     std::function<void(float _currentTime)> _sliderPopupUpdate  = nullptr,
     std::function<void(int nodeIndex)> _nodePopupUpdate         = nullptr);
+
+/// <summary>
+/// AnimationCurve<>を編集
+/// </summary>
+/// <param name="_label">ラベル</param>
+/// <param name="_keyFrames">編集対象</param>
+/// <param name="_duration">総合時間</param>
+/// <returns></returns>
+bool EditKeyFrame(
+    const std::string& _label,
+    AnimationCurve<float>& _keyFrames,
+    float _duration);
+bool EditKeyFrame(
+    const std::string& _label,
+    AnimationCurve<Vector3>& _keyFrames,
+    float _duration);
+bool EditKeyFrame(
+    const std::string& _label,
+    AnimationCurve<Vector4>& _keyFrames,
+    float _duration);
+bool EditKeyFrame(
+    const std::string& _label,
+    AnimationCurve<Quaternion>& _keyFrames,
+    float _duration);
 } // namespace ImGui

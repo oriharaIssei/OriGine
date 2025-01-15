@@ -23,8 +23,11 @@
 #include <cmath>
 
 #ifdef _DEBUG
+#include "animationEditor/Timeline.h"
 #include "imgui/imgui.h"
 #endif // _DEBUG
+
+// TODO Emitterと ParticleEditor の 切り離し
 
 Emitter::Emitter(DxSrvArray* srvArray, const std::string& emitterName)
     : srvArray_(srvArray),
@@ -34,6 +37,7 @@ Emitter::Emitter(DxSrvArray* srvArray, const std::string& emitterName)
       textureDirectory_{"Effects", emitterName, "textureDirectory"},
       textureFileName_{"Effects", emitterName, "textureFileName"},
       shapeType_{"Effects", emitterName, "shapeType"},
+      blendMode_{"Effects", emitterName, "blendMode"},
       isLoop_{"Effects", emitterName, "isLoop"},
       activeTime_{"Effects", emitterName, "activeTime"},
       spawnCoolTime_{"Effects", emitterName, "spawnCoolTime"},
@@ -43,7 +47,6 @@ Emitter::Emitter(DxSrvArray* srvArray, const std::string& emitterName)
       particleColor_{"Effects", emitterName, "particleColor"},
       particleScale_{"Effects", emitterName, "particleScale"},
       particleRotate_{"Effects", emitterName, "particleRotate"},
-      particleTranslate_{"Effects", emitterName, "particleTranslate"},
       particleSpeed_{"Effects", emitterName, "particleSpeed"},
       particleUvScale_{"Effects", emitterName, "particleUvScale"},
       particleUvRotate_{"Effects", emitterName, "particleUvRotate"},
@@ -97,6 +100,11 @@ void Emitter::Init() {
         isActive_       = true;
         leftActiveTime_ = activeTime_;
     }
+
+    particleKeyFrames_ = std::make_unique<ParticleKeyFrames>();
+    if (updateSettings_ != 0) {
+        particleKeyFrames_->LoadKeyFrames("resource/ParticleCurve/" + emitterName_ + "pkf");
+    }
 }
 
 void Emitter::Update(float deltaTime) {
@@ -116,6 +124,7 @@ void Emitter::Update(float deltaTime) {
     }
 
     { // Particles Update
+        uint32_t index = 0;
         for (auto& particle : particles_) {
             particle->Update(deltaTime);
         }
@@ -146,6 +155,9 @@ void Emitter::Debug() {
     if (ImGui::Begin(emitterName_.c_str())) {
         if (ImGui::Button("save")) {
             GlobalVariables::getInstance()->SaveFile("Effects", emitterName_);
+            if (updateSettings_) {
+                particleKeyFrames_->SaveKeyFrames("resource/ParticleCurve/" + emitterName_ + "pkf");
+            }
         }
 
         ImGui::Checkbox("isActive", &isActive_);
@@ -180,106 +192,26 @@ void Emitter::Debug() {
 
         ImGui::Spacing();
 
-        EditShapeType();
-        EditEmitter();
-        EditParticle();
+        if (ImGui::TreeNode("ShapeType")) {
+            EditShapeType();
+            ImGui::TreePop();
+        }
+        if (ImGui::TreeNode("Emitter")) {
+            EditEmitter();
+            ImGui::TreePop();
+        }
+        if (ImGui::TreeNode("Particle")) {
+            EditParticle();
+            ImGui::TreePop();
+        }
+
+        CalculateMaxSize();
+        if (structuredTransform_.capacity() <= particleMaxSize_) {
+            structuredTransform_.resize(Engine::getInstance()->getDxDevice()->getDevice(), particleMaxSize_);
+        }
     }
     ImGui::End();
 }
-#endif // _DEBUG
-
-void Emitter::Draw() {
-    if (!particleModel_ ||
-        particleModel_->meshData_->currentState_ != LoadState::Loaded) {
-        return;
-    }
-
-    const Matrix4x4& viewMat = CameraManager::getInstance()->getTransform().viewMat;
-
-    Matrix4x4 rotateMat = {};
-    // パーティクルのスケール行列を事前計算
-    Matrix4x4 scaleMat = MakeMatrix::Scale({1.0f, 1.0f, 1.0f});
-
-    if (particleIsBillBoard_) { // Bill Board
-                                // カメラの回転行列を取得し、平行移動成分をゼロにする
-        Matrix4x4 cameraRotation = viewMat;
-        cameraRotation[3][0]     = 0.0f;
-        cameraRotation[3][1]     = 0.0f;
-        cameraRotation[3][2]     = 0.0f;
-        cameraRotation[3][3]     = 1.0f;
-
-        // カメラの回転行列を反転してワールド空間への変換行列を作成
-        rotateMat = cameraRotation.inverse();
-
-        // 各パーティクルのワールド行列を計算
-        for (size_t i = 0; i < particles_.size(); i++) {
-            scaleMat = MakeMatrix::Scale(structuredTransform_.openData_[i].scale);
-            // 平行移動行列を計算
-            Matrix4x4 translateMat = MakeMatrix::Translate(structuredTransform_.openData_[i].translate + originPos_);
-            // ワールド行列を構築
-            structuredTransform_.openData_[i].worldMat = scaleMat * rotateMat * translateMat;
-        }
-    } else {
-        // 各パーティクルのワールド行列を計算
-        for (size_t i = 0; i < particles_.size(); i++) {
-            scaleMat  = MakeMatrix::Scale(structuredTransform_.openData_[i].scale);
-            rotateMat = MakeMatrix::RotateXYZ(structuredTransform_.openData_[i].rotate);
-            // 平行移動行列を計算
-            Matrix4x4 translateMat = MakeMatrix::Translate(structuredTransform_.openData_[i].translate + originPos_);
-
-            // ワールド行列を構築
-            structuredTransform_.openData_[i].worldMat = scaleMat * rotateMat * translateMat;
-        }
-    }
-
-    structuredTransform_.ConvertToBuffer();
-
-    auto* commandList = ParticleManager::getInstance()->dxCommand_->getCommandList();
-    uint32_t index    = 0;
-    for (auto& model : particleModel_->meshData_->mesh_) {
-        auto& material                  = particleModel_->materialData_[index];
-        ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
-        commandList->SetDescriptorHeaps(1, ppHeaps);
-        commandList->SetGraphicsRootDescriptorTable(
-            3,
-            TextureManager::getDescriptorGpuHandle(material.textureNumber));
-
-        commandList->IASetVertexBuffers(0, 1, &model.meshBuff->vbView);
-        commandList->IASetIndexBuffer(&model.meshBuff->ibView);
-
-        structuredTransform_.SetForRootParameter(commandList, 0);
-
-        material.material->SetForRootParameter(commandList, 2);
-        // 描画!!!
-        commandList->DrawIndexedInstanced(UINT(model.indexSize), static_cast<UINT>(structuredTransform_.openData_.size()), 0, 0, 0);
-
-        ++index;
-    }
-}
-
-void Emitter::CalculateMaxSize() {
-    // 1秒あたりの生成回数
-    float spawnRatePerSecond = spawnParticleVal_ / spawnCoolTime_;
-
-    // 最大個数
-    particleMaxSize_ = (std::max<uint32_t>)(static_cast<uint32_t>(std::ceil(spawnRatePerSecond * particleLifeTime_)), spawnParticleVal_);
-}
-
-void Emitter::SpawnParticle() {
-    // スポーンして良い数
-    int32_t canSpawnParticleValue_ = (std::min<int32_t>)(spawnParticleVal_, static_cast<int32_t>(particleMaxSize_ - particles_.size()));
-
-    ParticleTransform initialTransform = {};
-
-    for (int32_t i = 0; i < canSpawnParticleValue_; i++) {
-        //割りたてる Transform の 初期化
-        structuredTransform_.openData_.push_back({});
-        // Particle 初期化
-        std::unique_ptr<Particle>& spawnedParticle = particles_.emplace_back<std::unique_ptr<Particle>>(std::make_unique<Particle>());
-        spawnedParticle->Init(initialTransform, particleLifeTime_);
-    }
-}
-
 void Emitter::EditEmitter() {
     //======================== Emitter の 編集 ========================//
     float deltaTime = Engine::getInstance()->getDeltaTime();
@@ -345,87 +277,241 @@ void Emitter::EditShapeType() {
     }
 
     //======================== ShapeType の 編集 ========================//
-    if (ImGui::TreeNode("EmitterShape")) {
-        if (emitterSpawnShape_) {
-            emitterSpawnShape_->Debug();
-        }
-        ImGui::TreePop();
+
+    if (emitterSpawnShape_) {
+        emitterSpawnShape_->Debug();
     }
 }
 
 void Emitter::EditParticle() {
     //======================== Particle の 編集 ========================//
-    if (ImGui::TreeNode("Particle InitialData")) {
-        ImGui::Text("ParticleLifeTime");
-        ImGui::DragFloat("##ParticleLifeTime", particleLifeTime_, 0.1f, 0);
+    ImGui::Text("ParticleLifeTime");
+    float preLifeTime = particleLifeTime_;
+    if (ImGui::DragFloat("##ParticleLifeTime", particleLifeTime_, 0.1f, 0)) {
+        if (updateSettings_ != 0) {
+            for (auto& colorNode : particleKeyFrames_->colorCurve_) {
+                colorNode.time = (colorNode.time / preLifeTime) * particleLifeTime_;
+            }
+            for (auto& speedNode : particleKeyFrames_->speedCurve_) {
+                speedNode.time = (speedNode.time / preLifeTime) * particleLifeTime_;
+            }
+            for (auto& scaleNode : particleKeyFrames_->scaleCurve_) {
+                scaleNode.time = (scaleNode.time / preLifeTime) * particleLifeTime_;
+            }
+            for (auto& rotateNode : particleKeyFrames_->rotateCurve_) {
+                rotateNode.time = (rotateNode.time / preLifeTime) * particleLifeTime_;
+            }
 
-        ImGui::Text("Particle Color");
-        ImGui::ColorEdit4("##Particle Color", reinterpret_cast<float*>(particleColor_.operator Vector4*()));
-        bool updatePerLifeTime = (updateSettings_ & static_cast<int32_t>(ParticleUpdatePerLifeTime::Color)) != 0;
-        if (ImGui::Checkbox("UpdateColorPerLifeTime", &updatePerLifeTime)) {
-            if (updatePerLifeTime) {
-                updateSettings_.setValue(updateSettings_ | static_cast<int32_t>(ParticleUpdatePerLifeTime::Color));
-            } else {
-                updateSettings_.setValue(updateSettings_ & ~static_cast<int32_t>(ParticleUpdatePerLifeTime::Color));
+            for (auto& uvScaleNode : particleKeyFrames_->uvScaleCurve_) {
+                uvScaleNode.time = (uvScaleNode.time / preLifeTime) * particleLifeTime_;
+            }
+            for (auto& uvRotateNode : particleKeyFrames_->uvRotateCurve_) {
+                uvRotateNode.time = (uvRotateNode.time / preLifeTime) * particleLifeTime_;
+            }
+            for (auto& uvTranslateNode : particleKeyFrames_->uvTranslateCurve_) {
+                uvTranslateNode.time = (uvTranslateNode.time / preLifeTime) * particleLifeTime_;
             }
         }
+    }
 
-        ImGui::Spacing();
+    ImGui::Text("Particle Color");
+    ImGui::ColorEdit4("##Particle Color", reinterpret_cast<float*>(particleColor_.operator Vector4*()));
+    bool updatePerLifeTime = (updateSettings_ & static_cast<int32_t>(ParticleUpdatePerLifeTime::Color)) != 0;
+    ImGui::Checkbox("UpdateColorPerLifeTime", &updatePerLifeTime);
+    if (updatePerLifeTime) {
+        updateSettings_.setValue(updateSettings_ | static_cast<int32_t>(ParticleUpdatePerLifeTime::Color));
 
-        ImGui::Text("Particle Scale");
-        ImGui::DragFloat3("##Particle Scale", reinterpret_cast<float*>(particleScale_.operator Vector3*()), 0.1f);
-        updatePerLifeTime = (updateSettings_ & static_cast<int32_t>(ParticleUpdatePerLifeTime::Scale)) != 0;
-        if (ImGui::Checkbox("UpdateColorPerLifeTime", &updatePerLifeTime)) {
-            if (updatePerLifeTime) {
-                updateSettings_.setValue(updateSettings_ | static_cast<int32_t>(ParticleUpdatePerLifeTime::Scale));
-            } else {
-                updateSettings_.setValue(updateSettings_ & ~static_cast<int32_t>(ParticleUpdatePerLifeTime::Scale));
-            }
-        }
-        ImGui::Text("Particle Rotate");
-        ImGui::DragFloat3("##Particle Rotate", reinterpret_cast<float*>(particleRotate_.operator Vector3*()), 0.1f);
-        updatePerLifeTime = (updateSettings_ & static_cast<int32_t>(ParticleUpdatePerLifeTime::Rotate)) != 0;
-        if (ImGui::Checkbox("UpdateColorPerLifeTime", &updatePerLifeTime)) {
-            if (updatePerLifeTime) {
-                updateSettings_.setValue(updateSettings_ | static_cast<int32_t>(ParticleUpdatePerLifeTime::Rotate));
-            } else {
-                updateSettings_.setValue(updateSettings_ & ~static_cast<int32_t>(ParticleUpdatePerLifeTime::Rotate));
-            }
-        }
+        particleKeyFrames_->colorCurve_[0].value = particleColor_;
+        ImGui::EditKeyFrame(emitterName_ + "ColorLine", particleKeyFrames_->colorCurve_, particleLifeTime_);
+    } else {
+        updateSettings_.setValue(updateSettings_ & ~static_cast<int32_t>(ParticleUpdatePerLifeTime::Color));
+    }
 
-        ImGui::Spacing();
+    ImGui::Text("Particle Speed");
+    ImGui::DragFloat("##ParticleSpeed", particleSpeed_, 0.1f);
+    updatePerLifeTime = (updateSettings_ & static_cast<int32_t>(ParticleUpdatePerLifeTime::Speed)) != 0;
+    ImGui::Checkbox("Update Speed PerLifeTime", &updatePerLifeTime);
+    if (updatePerLifeTime) {
+        updateSettings_.setValue(updateSettings_ | static_cast<int32_t>(ParticleUpdatePerLifeTime::Speed));
 
-        ImGui::Text("Particle UV Scale");
-        ImGui::DragFloat3("##ParticleUvScale", reinterpret_cast<float*>(particleUvScale_.operator Vector3*()), 0.1f);
-        updatePerLifeTime = (updateSettings_ & static_cast<int32_t>(ParticleUpdatePerLifeTime::UvScale)) != 0;
-        if (ImGui::Checkbox("UpdateColorPerLifeTime", &updatePerLifeTime)) {
-            if (updatePerLifeTime) {
-                updateSettings_.setValue(updateSettings_ | static_cast<int32_t>(ParticleUpdatePerLifeTime::UvScale));
-            } else {
-                updateSettings_.setValue(updateSettings_ & ~static_cast<int32_t>(ParticleUpdatePerLifeTime::UvScale));
-            }
-        }
-        ImGui::Text("Particle UV Rotate");
-        ImGui::DragFloat3("##ParticleUvRotate", reinterpret_cast<float*>(particleUvRotate_.operator Vector3*()), 0.1f);
-        updatePerLifeTime = (updateSettings_ & static_cast<int32_t>(ParticleUpdatePerLifeTime::UvRotate)) != 0;
-        if (ImGui::Checkbox("UpdateColorPerLifeTime", &updatePerLifeTime)) {
-            if (updatePerLifeTime) {
-                updateSettings_.setValue(updateSettings_ | static_cast<int32_t>(ParticleUpdatePerLifeTime::UvRotate));
-            } else {
-                updateSettings_.setValue(updateSettings_ & ~static_cast<int32_t>(ParticleUpdatePerLifeTime::UvRotate));
-            }
-        }
-        ImGui::Text("Particle UV Translate");
-        ImGui::DragFloat3("##ParticleUvTranslate", reinterpret_cast<float*>(particleUvTranslate_.operator Vector3*()), 0.1f);
-        updatePerLifeTime = (updateSettings_ & static_cast<int32_t>(ParticleUpdatePerLifeTime::UvTranslate)) != 0;
-        if (ImGui::Checkbox("UpdateColorPerLifeTime", &updatePerLifeTime)) {
-            if (updatePerLifeTime) {
-                updateSettings_.setValue(updateSettings_ | static_cast<int32_t>(ParticleUpdatePerLifeTime::UvTranslate));
-            } else {
-                updateSettings_.setValue(updateSettings_ & ~static_cast<int32_t>(ParticleUpdatePerLifeTime::UvTranslate));
-            }
-        }
+        particleKeyFrames_->speedCurve_[0].value = particleSpeed_;
+        ImGui::EditKeyFrame(emitterName_ + "SpeedLine", particleKeyFrames_->speedCurve_, particleLifeTime_);
+    } else {
+        updateSettings_.setValue(updateSettings_ & ~static_cast<int32_t>(ParticleUpdatePerLifeTime::Speed));
+    }
 
-        ImGui::TreePop();
+    ImGui::Spacing();
+
+    ImGui::Text("Particle Scale");
+    ImGui::DragFloat3("##Particle Scale", reinterpret_cast<float*>(particleScale_.operator Vector3*()), 0.1f);
+    updatePerLifeTime = (updateSettings_ & static_cast<int32_t>(ParticleUpdatePerLifeTime::Scale)) != 0;
+    ImGui::Checkbox("Update Scale PerLifeTime", &updatePerLifeTime);
+    if (updatePerLifeTime) {
+        updateSettings_.setValue(updateSettings_ | static_cast<int32_t>(ParticleUpdatePerLifeTime::Scale));
+
+        particleKeyFrames_->scaleCurve_[0].value = particleScale_;
+        ImGui::EditKeyFrame(emitterName_ + "ScaleLine", particleKeyFrames_->scaleCurve_, particleLifeTime_);
+    } else {
+        updateSettings_.setValue(updateSettings_ & ~static_cast<int32_t>(ParticleUpdatePerLifeTime::Scale));
+    }
+
+    ImGui::Text("Particle Rotate");
+    ImGui::DragFloat3("##Particle Rotate", reinterpret_cast<float*>(particleRotate_.operator Vector3*()), 0.1f);
+    updatePerLifeTime = (updateSettings_ & static_cast<int32_t>(ParticleUpdatePerLifeTime::Rotate)) != 0;
+
+    ImGui::Checkbox("Update Rotate PerLifeTime", &updatePerLifeTime);
+    if (updatePerLifeTime) {
+        updateSettings_.setValue(updateSettings_ | static_cast<int32_t>(ParticleUpdatePerLifeTime::Rotate));
+
+        particleKeyFrames_->rotateCurve_[0].value = particleRotate_;
+        ImGui::EditKeyFrame(emitterName_ + "RotateLine", particleKeyFrames_->rotateCurve_, particleLifeTime_);
+    } else {
+        updateSettings_.setValue(updateSettings_ & ~static_cast<int32_t>(ParticleUpdatePerLifeTime::Rotate));
+    }
+
+    ImGui::Spacing();
+
+    ImGui::Text("Particle UV Scale");
+    ImGui::DragFloat3("##ParticleUvScale", reinterpret_cast<float*>(particleUvScale_.operator Vector3*()), 0.1f);
+    updatePerLifeTime = (updateSettings_ & static_cast<int32_t>(ParticleUpdatePerLifeTime::UvScale)) != 0;
+    ImGui::Checkbox("Update UvScale PerLifeTime", &updatePerLifeTime);
+    if (updatePerLifeTime) {
+        updateSettings_.setValue(updateSettings_ | static_cast<int32_t>(ParticleUpdatePerLifeTime::UvScale));
+
+        particleKeyFrames_->uvScaleCurve_[0].value = particleUvScale_;
+        ImGui::EditKeyFrame(emitterName_ + "UvScaleLine", particleKeyFrames_->uvScaleCurve_, particleLifeTime_);
+    } else {
+        updateSettings_.setValue(updateSettings_ & ~static_cast<int32_t>(ParticleUpdatePerLifeTime::UvScale));
+    }
+
+    ImGui::Text("Particle UV Rotate");
+    ImGui::DragFloat3("##ParticleUvRotate", reinterpret_cast<float*>(particleUvRotate_.operator Vector3*()), 0.1f);
+    updatePerLifeTime = (updateSettings_ & static_cast<int32_t>(ParticleUpdatePerLifeTime::UvRotate)) != 0;
+    ImGui::Checkbox("Update UvRotate PerLifeTime", &updatePerLifeTime);
+    if (updatePerLifeTime) {
+        updateSettings_.setValue(updateSettings_ | static_cast<int32_t>(ParticleUpdatePerLifeTime::UvRotate));
+
+        particleKeyFrames_->uvRotateCurve_[0].value = particleUvRotate_;
+        ImGui::EditKeyFrame(emitterName_ + "UvRotateLine", particleKeyFrames_->uvRotateCurve_, particleLifeTime_);
+    } else {
+        updateSettings_.setValue(updateSettings_ & ~static_cast<int32_t>(ParticleUpdatePerLifeTime::UvRotate));
+    }
+
+    ImGui::Text("Particle UV Translate");
+    ImGui::DragFloat3("##ParticleUvTranslate", reinterpret_cast<float*>(particleUvTranslate_.operator Vector3*()), 0.1f);
+    updatePerLifeTime = (updateSettings_ & static_cast<int32_t>(ParticleUpdatePerLifeTime::UvTranslate)) != 0;
+    ImGui::Checkbox("Update UvTransform PerLifeTime", &updatePerLifeTime);
+    if (updatePerLifeTime) {
+        updateSettings_.setValue(updateSettings_ | static_cast<int32_t>(ParticleUpdatePerLifeTime::UvTranslate));
+
+        particleKeyFrames_->uvTranslateCurve_[0].value = particleUvTranslate_;
+        ImGui::EditKeyFrame(emitterName_ + "UvTranslateLine", particleKeyFrames_->uvTranslateCurve_, particleLifeTime_);
+    } else {
+        updateSettings_.setValue(updateSettings_ & ~static_cast<int32_t>(ParticleUpdatePerLifeTime::UvTranslate));
+    }
+}
+#endif // _DEBUG
+
+void Emitter::Draw() {
+    if (!particleModel_ ||
+        particleModel_->meshData_->currentState_ != LoadState::Loaded) {
+        return;
+    }
+
+    const Matrix4x4& viewMat = CameraManager::getInstance()->getTransform().viewMat;
+
+    Matrix4x4 rotateMat = {};
+    // パーティクルのスケール行列を事前計算
+    Matrix4x4 scaleMat = MakeMatrix::Scale({1.0f, 1.0f, 1.0f});
+
+    if (particleIsBillBoard_) { // Bill Board
+                                // カメラの回転行列を取得し、平行移動成分をゼロにする
+        Matrix4x4 cameraRotation = viewMat;
+        cameraRotation[3][0]     = 0.0f;
+        cameraRotation[3][1]     = 0.0f;
+        cameraRotation[3][2]     = 0.0f;
+        cameraRotation[3][3]     = 1.0f;
+
+        // カメラの回転行列を反転してワールド空間への変換行列を作成
+        rotateMat = cameraRotation.inverse();
+
+        // 各パーティクルのワールド行列を計算
+        for (size_t i = 0; i < particles_.size(); i++) {
+            scaleMat = MakeMatrix::Scale(structuredTransform_.openData_[i].scale);
+            // 平行移動行列を計算
+            Matrix4x4 translateMat = MakeMatrix::Translate(structuredTransform_.openData_[i].translate + originPos_);
+            // ワールド行列を構築
+            structuredTransform_.openData_[i].worldMat = scaleMat * rotateMat * translateMat;
+        }
+    } else {
+        // 各パーティクルのワールド行列を計算
+        for (size_t i = 0; i < particles_.size(); i++) {
+            scaleMat  = MakeMatrix::Scale(structuredTransform_.openData_[i].scale);
+            rotateMat = MakeMatrix::RotateXYZ(structuredTransform_.openData_[i].rotate);
+            // 平行移動行列を計算
+            Matrix4x4 translateMat = MakeMatrix::Translate(structuredTransform_.openData_[i].translate + originPos_);
+
+            // ワールド行列を構築
+            structuredTransform_.openData_[i].worldMat = scaleMat * rotateMat * translateMat;
+        }
+    }
+
+    structuredTransform_.ConvertToBuffer();
+
+    auto* commandList               = ParticleManager::getInstance()->dxCommand_->getCommandList();
+    ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
+    commandList->SetDescriptorHeaps(1, ppHeaps);
+
+    uint32_t index = 0;
+    for (auto& model : particleModel_->meshData_->mesh_) {
+        auto& material = particleModel_->materialData_[index];
+        commandList->SetGraphicsRootDescriptorTable(
+            3,
+            TextureManager::getDescriptorGpuHandle(material.textureNumber));
+
+        commandList->IASetVertexBuffers(0, 1, &model.meshBuff->vbView);
+        commandList->IASetIndexBuffer(&model.meshBuff->ibView);
+
+        structuredTransform_.SetForRootParameter(commandList, 0);
+
+        material.material->SetForRootParameter(commandList, 2);
+        // 描画!!!
+        commandList->DrawIndexedInstanced(UINT(model.indexSize), static_cast<UINT>(structuredTransform_.openData_.size()), 0, 0, 0);
+
+        ++index;
+    }
+}
+
+void Emitter::CalculateMaxSize() {
+    // 1秒あたりの生成回数
+    float spawnRatePerSecond = spawnParticleVal_ / spawnCoolTime_;
+
+    // 最大個数
+    particleMaxSize_ = (std::max<uint32_t>)(static_cast<uint32_t>(std::ceil(spawnRatePerSecond * particleLifeTime_)), spawnParticleVal_);
+}
+
+void Emitter::SpawnParticle() {
+    // スポーンして良い数
+    int32_t canSpawnParticleValue_ = (std::min<int32_t>)(spawnParticleVal_, static_cast<int32_t>(particleMaxSize_ - particles_.size()));
+
+    for (int32_t i = 0; i < canSpawnParticleValue_; i++) {
+        //割りたてる Transform の 初期化
+        structuredTransform_.openData_.push_back({});
+        auto& transform = structuredTransform_.openData_.back();
+
+        transform.color = particleColor_;
+
+        transform.scale     = particleScale_;
+        transform.rotate    = particleRotate_;
+        transform.translate = emitterSpawnShape_->getSpawnPos();
+
+        transform.uvScale     = particleUvScale_;
+        transform.uvRotate    = particleUvRotate_;
+        transform.uvTranslate = particleUvTranslate_;
+
+        // Particle 初期化
+        std::unique_ptr<Particle>& spawnedParticle = particles_.emplace_back<std::unique_ptr<Particle>>(std::make_unique<Particle>());
+        spawnedParticle->Init(transform, particleLifeTime_, Vector3(transform.translate - originPos_).normalize(), particleSpeed_);
+        spawnedParticle->setKeyFrames(updateSettings_, particleKeyFrames_.get());
     }
 }

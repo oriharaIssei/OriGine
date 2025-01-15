@@ -104,11 +104,11 @@ struct Vertex {
     friend Vertex operator / (const Vertex&,ai_real);
     friend Vertex operator * (ai_real, const Vertex&);
 
-    aiVec3fD position;
-    aiVec3fD normal;
-    aiVec3fD tangent, bitangent;
+    aiVector3D position;
+    aiVector3D normal;
+    aiVector3D tangent, bitangent;
 
-    aiVec3fD texcoords[AI_MAX_NUMBER_OF_TEXTURECOORDS];
+    aiVector3D texcoords[AI_MAX_NUMBER_OF_TEXTURECOORDS];
     aiColor4D colors[AI_MAX_NUMBER_OF_COLOR_SETS];
 
     Vertex() = default;
@@ -215,13 +215,13 @@ private:
         // this is a heavy task for the compiler to optimize ... *pray*
 
         Vertex res;
-        res.position  = op<aiVec3fD>()(v0.position,v1.position);
-        res.normal    = op<aiVec3fD>()(v0.normal,v1.normal);
-        res.tangent   = op<aiVec3fD>()(v0.tangent,v1.tangent);
-        res.bitangent = op<aiVec3fD>()(v0.bitangent,v1.bitangent);
+        res.position  = op<aiVector3D>()(v0.position,v1.position);
+        res.normal    = op<aiVector3D>()(v0.normal,v1.normal);
+        res.tangent   = op<aiVector3D>()(v0.tangent,v1.tangent);
+        res.bitangent = op<aiVector3D>()(v0.bitangent,v1.bitangent);
 
         for (unsigned int i = 0; i < AI_MAX_NUMBER_OF_TEXTURECOORDS; ++i) {
-            res.texcoords[i] = op<aiVec3fD>()(v0.texcoords[i],v1.texcoords[i]);
+            res.texcoords[i] = op<aiVector3D>()(v0.texcoords[i],v1.texcoords[i]);
         }
         for (unsigned int i = 0; i < AI_MAX_NUMBER_OF_COLOR_SETS; ++i) {
             res.colors[i] = op<aiColor4D>()(v0.colors[i],v1.colors[i]);
@@ -235,13 +235,13 @@ private:
         // this is a heavy task for the compiler to optimize ... *pray*
 
         Vertex res;
-        res.position  = op<aiVec3fD,ai_real,aiVec3fD>()(v0.position,f);
-        res.normal    = op<aiVec3fD,ai_real,aiVec3fD>()(v0.normal,f);
-        res.tangent   = op<aiVec3fD,ai_real,aiVec3fD>()(v0.tangent,f);
-        res.bitangent = op<aiVec3fD,ai_real,aiVec3fD>()(v0.bitangent,f);
+        res.position  = op<aiVector3D,ai_real,aiVector3D>()(v0.position,f);
+        res.normal    = op<aiVector3D,ai_real,aiVector3D>()(v0.normal,f);
+        res.tangent   = op<aiVector3D,ai_real,aiVector3D>()(v0.tangent,f);
+        res.bitangent = op<aiVector3D,ai_real,aiVector3D>()(v0.bitangent,f);
 
         for (unsigned int i = 0; i < AI_MAX_NUMBER_OF_TEXTURECOORDS; ++i) {
-            res.texcoords[i] = op<aiVec3fD,ai_real,aiVec3fD>()(v0.texcoords[i],f);
+            res.texcoords[i] = op<aiVector3D,ai_real,aiVector3D>()(v0.texcoords[i],f);
         }
         for (unsigned int i = 0; i < AI_MAX_NUMBER_OF_COLOR_SETS; ++i) {
             res.colors[i] = op<aiColor4D,ai_real,aiColor4D>()(v0.colors[i],f);
@@ -255,13 +255,13 @@ private:
         // this is a heavy task for the compiler to optimize ... *pray*
 
         Vertex res;
-        res.position  = op<ai_real,aiVec3fD,aiVec3fD>()(f,v0.position);
-        res.normal    = op<ai_real,aiVec3fD,aiVec3fD>()(f,v0.normal);
-        res.tangent   = op<ai_real,aiVec3fD,aiVec3fD>()(f,v0.tangent);
-        res.bitangent = op<ai_real,aiVec3fD,aiVec3fD>()(f,v0.bitangent);
+        res.position  = op<ai_real,aiVector3D,aiVector3D>()(f,v0.position);
+        res.normal    = op<ai_real,aiVector3D,aiVector3D>()(f,v0.normal);
+        res.tangent   = op<ai_real,aiVector3D,aiVector3D>()(f,v0.tangent);
+        res.bitangent = op<ai_real,aiVector3D,aiVector3D>()(f,v0.bitangent);
 
         for (unsigned int i = 0; i < AI_MAX_NUMBER_OF_TEXTURECOORDS; ++i) {
-            res.texcoords[i] = op<ai_real,aiVec3fD,aiVec3fD>()(f,v0.texcoords[i]);
+            res.texcoords[i] = op<ai_real,aiVector3D,aiVector3D>()(f,v0.texcoords[i]);
         }
         for (unsigned int i = 0; i < AI_MAX_NUMBER_OF_COLOR_SETS; ++i) {
             res.colors[i] = op<ai_real,aiColor4D,aiColor4D>()(f,v0.colors[i]);

@@ -316,18 +316,18 @@ void AnimationEditor::Update() {
                             ImGui::Text("X:");
                             ImGui::DragFloat(
                                 std::string("##X" + nodeName + std::to_string(nodeIndex)).c_str(),
-                                nodeAnimation.scale[nodeIndex].value.v,
+                                &nodeAnimation.scale[nodeIndex].value.x,
                                 0.1f);
                             ImGui::Text("Y:");
 
                             ImGui::DragFloat(
                                 std::string("##Y" + nodeName + std::to_string(nodeIndex)).c_str(),
-                                nodeAnimation.scale[nodeIndex].value.v,
+                                &nodeAnimation.scale[nodeIndex].value.x,
                                 0.1f);
                             ImGui::Text("Z:");
                             ImGui::DragFloat(
                                 std::string("##Z" + nodeName + std::to_string(nodeIndex)).c_str(),
-                                nodeAnimation.scale[nodeIndex].value.v,
+                                &nodeAnimation.scale[nodeIndex].value.x,
                                 0.1f);
                         });
                     ImGui::TimeLineButtons(
