@@ -30,6 +30,7 @@
 #include "object3d/Object3d.h"
 //etc
 #include "deltaTime/DeltaTime.h"
+#include "deltaTime/GameDeltaTime.h"
 //math
 #include "Matrix4x4.h"
 #include "Vector2.h"
@@ -87,6 +88,7 @@ private:
     std::unique_ptr<MaterialManager> materialManager_ = nullptr;
     // Time
     std::unique_ptr<DeltaTime> deltaTime_;
+    std::unique_ptr<GameDeltaTime> gameDeltaTime_;
     float fps_ = 60.0f;
 
 public:
@@ -106,6 +108,8 @@ public:
     const std::array<std::string,kBlendNum>& getTexturePsoKeys() const{ return texturePsoKeys_; }
 
     float getDeltaTime() const{ return deltaTime_->getDeltaTime(); }
+    float getGameDeltaTime() const { return gameDeltaTime_->getDeltaTime(); }
+    GameDeltaTime* getGameDeltaTimeInstance() const { return gameDeltaTime_.get(); }
 
     LightManager* getLightManager() const{ return lightManager_; }
 };

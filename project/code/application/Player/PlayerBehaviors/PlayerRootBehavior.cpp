@@ -65,7 +65,7 @@ void PlayerRootBehavior::Action() {
 
     { // 方向と速度を 使って 次の座標を計算
         // 速度を 秒単位に
-        float speedPerSecond = speed_ * Engine::getInstance()->getDeltaTime();
+        float speedPerSecond = speed_ * Engine::getInstance()->getGameDeltaTime();
         // 現在の 座標
         const Vec3f& playerPos = player_->getTranslate();
         player_->setTranslate(playerPos + directionXZ * speedPerSecond);

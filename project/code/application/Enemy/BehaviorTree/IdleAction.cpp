@@ -9,7 +9,7 @@ IdleAction::IdleAction(float _time)
 IdleAction::~IdleAction() {}
 
 Status IdleAction::tick() {
-    leftTime_ -= Engine::getInstance()->getDeltaTime();
+    leftTime_ -= Engine::getInstance()->getGameDeltaTime();
     if (leftTime_ <= 0.0f) {
         return Status::SUCCESS;
     }
