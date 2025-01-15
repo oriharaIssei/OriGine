@@ -45,27 +45,27 @@ public:
         return drawObject3d_->transform_;
     }
 
-    const Vector3& getScale() const {
+    const Vec3f& getScale() const {
         return drawObject3d_->transform_.scale;
     }
     const Quaternion& getRotate() const {
         return drawObject3d_->transform_.rotate;
     }
-    const Vector3& getTranslate() const {
+    const Vec3f& getTranslate() const {
         return drawObject3d_->transform_.translate;
     }
 
-    void setScale(const Vector3& s) {
+    void setScale(const Vec3f& s) {
         drawObject3d_->transform_.scale = s;
     }
     void setScaleX(float x) {
-        drawObject3d_->transform_.scale.x = x;
+        drawObject3d_->transform_.scale[X] = x;
     }
     void setScaleY(float y) {
-        drawObject3d_->transform_.scale.y = y;
+        drawObject3d_->transform_.scale[Y] = y;
     }
     void setScaleZ(float z) {
-        drawObject3d_->transform_.scale.z = z;
+        drawObject3d_->transform_.scale[Z] = z;
     }
 
     void setRotate(const Quaternion& q) {
@@ -84,16 +84,16 @@ public:
         drawObject3d_->transform_.rotate.w = w;
     }
 
-    void setTranslate(const Vector3& t) {
+    void setTranslate(const Vec3f& t) {
         drawObject3d_->transform_.translate = t;
     }
     void setTranslateX(float x) {
-        drawObject3d_->transform_.translate.x = x;
+        drawObject3d_->transform_.translate[X] = x;
     }
     void setTranslateY(float y) {
-        drawObject3d_->transform_.translate.y = y;
+        drawObject3d_->transform_.translate[Y] = y;
     }
     void setTranslateZ(float z) {
-        drawObject3d_->transform_.translate.z = z;
+        drawObject3d_->transform_.translate[Z] = z;
     }
 };
