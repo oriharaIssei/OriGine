@@ -32,7 +32,7 @@ void DxResource::CreateBufferResource(ID3D12Device* device,size_t sizeInBytes){
 	assert(SUCCEEDED(hr));
 }
 
-void DxResource::CreateRenderTextureResource(Microsoft::WRL::ComPtr<ID3D12Device> device,uint32_t width,uint32_t height,DXGI_FORMAT format,const Vector4& clearColor){
+void DxResource::CreateRenderTextureResource(Microsoft::WRL::ComPtr<ID3D12Device> device,uint32_t width,uint32_t height,DXGI_FORMAT format,const Vec4f& clearColor){
 	D3D12_RESOURCE_DESC resourceDesc = {};
 	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 	resourceDesc.Width = static_cast<UINT64>(width);
@@ -50,10 +50,10 @@ void DxResource::CreateRenderTextureResource(Microsoft::WRL::ComPtr<ID3D12Device
 
 	D3D12_CLEAR_VALUE clearValue;
 	clearValue.Format = format;
-	clearValue.Color[0] = clearColor.x;
-	clearValue.Color[1] = clearColor.y;
-	clearValue.Color[2] = clearColor.z;
-	clearValue.Color[3] = clearColor.w;
+	clearValue.Color[0] = clearColor[X];
+	clearValue.Color[1] = clearColor[Y];
+	clearValue.Color[2] = clearColor[Z];
+	clearValue.Color[3] = clearColor[W];
 
 	device->CreateCommittedResource(
 		&heapProps,

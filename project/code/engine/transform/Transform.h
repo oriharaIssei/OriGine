@@ -12,7 +12,7 @@
 struct Transform {
 public:
     Transform() {}
-    Transform(const Vector3& _scale, const Quaternion& _rotate, const Vector3& _translate)
+    Transform(const Vec3f& _scale, const Quaternion& _rotate, const Vec3f& _translate)
         : scale(_scale), rotate(_rotate), translate(_translate), worldMat(MakeMatrix::Identity()) {}
     ~Transform() {}
 
@@ -24,9 +24,9 @@ public:
     /// </summary>
     void Debug(const std::string& transformName);
 
-    Vector3 scale         = {1.0f, 1.0f, 1.0f};
+    Vec3f scale         = {1.0f, 1.0f, 1.0f};
     Quaternion rotate = {0.0f, 0.0f, 0.0f, 1.0f};
-    Vector3 translate     = {0.0f, 0.0f, 0.0f};
+    Vec3f translate     = {0.0f, 0.0f, 0.0f};
     Matrix4x4 worldMat;
 
     Transform* parent = nullptr;

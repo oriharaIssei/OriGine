@@ -39,17 +39,17 @@ public:
     void Init(
         const ParticleTransform& _initialTransfrom,
         float _lifeTime,
-        const Vector3& _direction,
+        const Vec3f& _direction,
         float _speed);
     void Update(float _deltaTime);
 
 protected:
     ParticleTransform transform_;
 
-    Vector3 direction_ = {0.0f, 0.0f, 0.0f};
+    Vec3f direction_ = {0.0f, 0.0f, 0.0f};
     float speed_       = 0.0f;
 
-    Vector3 velocity_ = {0.0f, 0.0f, 0.0f};
+    Vec3f velocity_ = {0.0f, 0.0f, 0.0f};
 
     float lifeTime_ = 0.0f;
     float currentTime_ = 0.0f;
@@ -84,15 +84,15 @@ struct ParticleKeyFrames {
     void SaveKeyFrames(const std::string& _filePath);
     void LoadKeyFrames(const std::string& _filePath);
 
-    AnimationCurve<Vector4> colorCurve_;
+    AnimationCurve<Vec4f> colorCurve_;
 
-    AnimationCurve<Vector3> scaleCurve_;
-    AnimationCurve<Vector3> rotateCurve_;
+    AnimationCurve<Vec3f> scaleCurve_;
+    AnimationCurve<Vec3f> rotateCurve_;
     AnimationCurve<float> speedCurve_;
 
-    AnimationCurve<Vector3> uvScaleCurve_;
-    AnimationCurve<Vector3> uvRotateCurve_;
-    AnimationCurve<Vector3> uvTranslateCurve_;
+    AnimationCurve<Vec3f> uvScaleCurve_;
+    AnimationCurve<Vec3f> uvRotateCurve_;
+    AnimationCurve<Vec3f> uvTranslateCurve_;
 
     // float currentTime_ = Particle::leftTime;
     // float duration     = Particle::lifeTime;

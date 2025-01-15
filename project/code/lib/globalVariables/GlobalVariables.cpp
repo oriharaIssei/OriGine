@@ -62,14 +62,14 @@ void GlobalVariables::Update(){
 				} else if(std::holds_alternative<std::string>(item)){
 					std::string* valuePtr = std::get_if<std::string>(&item);
 					ImGui::InputText(itemName.c_str(),&valuePtr->operator[](0),sizeof(char) * 64);
-				} else if(std::holds_alternative<Vector2>(item)){
-					Vector2* valuePtr = std::get_if<Vector2>(&item);
+				} else if(std::holds_alternative<Vec2f>(item)){
+					Vec2f* valuePtr = std::get_if<Vec2f>(&item);
 					ImGui::DragFloat2(itemName.c_str(),reinterpret_cast<float*>(valuePtr),0.1f);
-				} else if(std::holds_alternative<Vector3>(item)){
-					Vector3* valuePtr = std::get_if<Vector3>(&item);
+				} else if(std::holds_alternative<Vec3f>(item)){
+					Vec3f* valuePtr = std::get_if<Vec3f>(&item);
 					ImGui::DragFloat3(itemName.c_str(),reinterpret_cast<float*>(valuePtr),0.1f);
-				} else if(std::holds_alternative<Vector4>(item)){
-					Vector4* valuePtr = std::get_if<Vector4>(&item);
+				} else if(std::holds_alternative<Vec4f>(item)){
+					Vec4f* valuePtr = std::get_if<Vec4f>(&item);
 					ImGui::DragFloat4(itemName.c_str(),reinterpret_cast<float*>(valuePtr),0.1f);
 				} else if(std::holds_alternative<bool>(item)){
 					bool* valuePtr = std::get_if<bool>(&item);
@@ -142,22 +142,22 @@ void GlobalVariables::LoadFile(const std::string& scene,const std::string& group
 			switch(itemItr->size()){
 				case 2:
 					{
-						// Vector2 なら
-						Vector2 value(itemItr->at(0).get<float>(),itemItr->at(1).get<float>());
+						// Vec2f なら
+						Vec2f value(itemItr->at(0).get<float>(),itemItr->at(1).get<float>());
 						setValue(scene,groupName,itemName,value);
 						break;
 					}
 				case 3:
 					{
-						// Vector3 なら
-						Vector3 value(itemItr->at(0).get<float>(),itemItr->at(1).get<float>(),itemItr->at(2).get<float>());
+						// Vec3f なら
+						Vec3f value(itemItr->at(0).get<float>(),itemItr->at(1).get<float>(),itemItr->at(2).get<float>());
 						setValue(scene,groupName,itemName,value);
 						break;
 					}
 				case 4:
 					{
-						// Vector4 なら
-						Vector4 value(itemItr->at(0).get<float>(),itemItr->at(1).get<float>(),itemItr->at(2).get<float>(),itemItr->at(3).get<float>());
+						// Vec4f なら
+						Vec4f value(itemItr->at(0).get<float>(),itemItr->at(1).get<float>(),itemItr->at(2).get<float>(),itemItr->at(3).get<float>());
 						setValue(scene,groupName,itemName,value);
 						break;
 					}
@@ -203,15 +203,15 @@ void GlobalVariables::SaveFile(const std::string& scene,const std::string& group
 			root[groupName][itemName] = std::get<float>(item);
 		} else if(std::holds_alternative<std::string>(item)){
 			root[groupName][itemName] = std::get<std::string>(item);
-		} else if(std::holds_alternative<Vector2>(item)){
-			Vector2 value = std::get<Vector2>(item);
-			root[groupName][itemName] = json::array({value.x,value.y});
-		} else if(std::holds_alternative<Vector3>(item)){
-			Vector3 value = std::get<Vector3>(item);
-			root[groupName][itemName] = json::array({value.x,value.y,value.z});
-		} else if(std::holds_alternative<Vector4>(item)){
-			Vector4 value = std::get<Vector4>(item);
-			root[groupName][itemName] = json::array({value.x,value.y,value.z,value.w});
+		} else if(std::holds_alternative<Vec2f>(item)){
+			Vec2f value = std::get<Vec2f>(item);
+			root[groupName][itemName] = json::array({value[X],value[Y]});
+		} else if(std::holds_alternative<Vec3f>(item)){
+			Vec3f value = std::get<Vec3f>(item);
+			root[groupName][itemName] = json::array({value[X],value[Y],value[Z]});
+		} else if(std::holds_alternative<Vec4f>(item)){
+			Vec4f value = std::get<Vec4f>(item);
+			root[groupName][itemName] = json::array({value[X],value[Y],value[Z],value[W]});
 		} else if(std::holds_alternative<bool>(item)){
 			root[groupName][itemName] = std::get<bool>(item);
 		}

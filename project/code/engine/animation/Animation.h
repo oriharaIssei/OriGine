@@ -28,16 +28,16 @@ struct Keyframe {
     float time; // キーフレームの時刻
     T value;    // キーフレームの 値
 };
-using KeyframeVector3    = Keyframe<Vector3>;
+using KeyframeVector3    = Keyframe<Vec3f>;
 using KeyframeQuaternion = Keyframe<Quaternion>;
 
 template <typename T>
 using AnimationCurve = std::vector<Keyframe<T>>;
 
 struct NodeAnimation {
-    AnimationCurve<Vector3> scale;
+    AnimationCurve<Vec3f> scale;
     AnimationCurve<Quaternion> rotate;
-    AnimationCurve<Vector3> translate;
+    AnimationCurve<Vec3f> translate;
 };
 
 /// <summary>
@@ -61,10 +61,10 @@ struct AnimationData {
 /// <returns></returns>
 float CalculateValue(
     const std::vector<Keyframe<float>>& keyframes, float time);
-Vector3 CalculateValue(
+Vec3f CalculateValue(
     const std::vector<KeyframeVector3>& keyframes, float time);
-Vector4 CalculateValue(
-    const std::vector<Keyframe<Vector4>>& keyframes, float time);
+Vec4f CalculateValue(
+    const std::vector<Keyframe<Vec4f>>& keyframes, float time);
 Quaternion CalculateValue(
     const std::vector<KeyframeQuaternion>& keyframes, float time);
 
@@ -116,9 +116,9 @@ public:
     AnimationData* getData() const { return data; }
     void setData(AnimationData* _data) { data = _data; }
 
-    Vector3 getCurrentScale(const std::string& nodeName) const;
+    Vec3f getCurrentScale(const std::string& nodeName) const;
     Quaternion getCurrentRotate(const std::string& nodeName) const;
-    Vector3 getCurrentTranslate(const std::string& nodeName) const;
+    Vec3f getCurrentTranslate(const std::string& nodeName) const;
 };
 
 struct AnimationSetting {

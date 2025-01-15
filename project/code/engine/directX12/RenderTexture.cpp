@@ -73,7 +73,7 @@ void RenderTexture::Awake(){
 	pso_ = shaderManager->CreatePso("copyImage",shaderInfo,Engine::getInstance()->getDxDevice()->getDevice());
 }
 
-void RenderTexture::Init(const Vector2& textureSize,DXGI_FORMAT _format,const Vector4& _clearColor){
+void RenderTexture::Init(const Vec2f& textureSize,DXGI_FORMAT _format,const Vec4f& _clearColor){
 	textureSize_ = textureSize;
 	clearColor_ = _clearColor;
 	///===========================================================================
@@ -81,7 +81,7 @@ void RenderTexture::Init(const Vector2& textureSize,DXGI_FORMAT _format,const Ve
 	///===========================================================================
 	ID3D12Device* device = Engine::getInstance()->getDxDevice()->getDevice();
 
-	resource_.CreateRenderTextureResource(device,static_cast<uint32_t>(textureSize_.x),static_cast<uint32_t>(textureSize_.y),_format,clearColor_);
+	resource_.CreateRenderTextureResource(device,static_cast<uint32_t>(textureSize_[X]),static_cast<uint32_t>(textureSize_[Y]),_format,clearColor_);
 
 	///===========================================================================
 	///  RTV の作成
@@ -128,10 +128,10 @@ void RenderTexture::PreDraw(){
 	//	Clear RTV
 	///=========================================
 	float clearColor[4] = {
-		clearColor_.x,
-		clearColor_.y,
-		clearColor_.z,
-		clearColor_.w
+		clearColor_[X],
+		clearColor_[Y],
+		clearColor_[Z],
+		clearColor_[W]
 	};
 	commandList->ClearRenderTargetView(
 		rtvHandle,clearColor,0,nullptr
@@ -147,8 +147,8 @@ void RenderTexture::PreDraw(){
 	//	ビューポート の 設定
 	///=========================================
 	D3D12_VIEWPORT viewPort{};
-	viewPort.Width = textureSize_.x;
-	viewPort.Height = textureSize_.y;
+	viewPort.Width = textureSize_[X];
+	viewPort.Height = textureSize_[Y];
 	viewPort.TopLeftX = 0;
 	viewPort.TopLeftY = 0;
 	viewPort.MinDepth = 0.0f;
@@ -160,9 +160,9 @@ void RenderTexture::PreDraw(){
 	///=========================================
 	D3D12_RECT scissorRect{};
 	scissorRect.left = 0;
-	scissorRect.right = static_cast<LONG>(textureSize_.x);
+	scissorRect.right = static_cast<LONG>(textureSize_[X]);
 	scissorRect.top = 0;
-	scissorRect.bottom = static_cast<LONG>(textureSize_.y);
+	scissorRect.bottom = static_cast<LONG>(textureSize_[Y]);
 
 	commandList->RSSetScissorRects(1,&scissorRect);
 

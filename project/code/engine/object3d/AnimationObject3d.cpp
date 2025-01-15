@@ -180,9 +180,9 @@ void AnimationObject3d::setNextAnimation(const std::string& directory, const std
     toNextAnimationData->duration = _lerpTime;
     for (const auto& [nodeName, nodeAnimation] : animation_->getData()->nodeAnimations) {
         toNextAnimationData->nodeAnimations[nodeName] = {
-            .scale     = AnimationCurve<Vector3>(),
+            .scale     = AnimationCurve<Vec3f>(),
             .rotate    = AnimationCurve<Quaternion>(),
-            .translate = AnimationCurve<Vector3>()};
+            .translate = AnimationCurve<Vec3f>()};
 
         ///=============================================
         /// 現在の姿勢をはじめに追加
@@ -234,9 +234,9 @@ void AnimationObject3d::setNextAnimation(std::unique_ptr<Animation>& animation, 
     toNextAnimationData->duration = _lerpTime;
     for (const auto& [nodeName, nodeAnimation] : animation_->getData()->nodeAnimations) {
         toNextAnimationData->nodeAnimations[nodeName] = {
-            .scale     = AnimationCurve<Vector3>(),
+            .scale     = AnimationCurve<Vec3f>(),
             .rotate    = AnimationCurve<Quaternion>(),
-            .translate = AnimationCurve<Vector3>()};
+            .translate = AnimationCurve<Vec3f>()};
 
         ///=============================================
         /// 現在の姿勢をはじめに追加

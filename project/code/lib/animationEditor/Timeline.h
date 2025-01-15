@@ -42,11 +42,11 @@ bool EditKeyFrame(
     float _duration);
 bool EditKeyFrame(
     const std::string& _label,
-    AnimationCurve<Vector3>& _keyFrames,
+    AnimationCurve<Vec3f>& _keyFrames,
     float _duration);
 bool EditKeyFrame(
     const std::string& _label,
-    AnimationCurve<Vector4>& _keyFrames,
+    AnimationCurve<Vec4f>& _keyFrames,
     float _duration);
 bool EditKeyFrame(
     const std::string& _label,

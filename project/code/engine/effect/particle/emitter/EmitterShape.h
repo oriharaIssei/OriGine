@@ -59,7 +59,7 @@ public: // メンバ関数
     virtual void Debug();
 #endif // _DEBUG
 
-    virtual Vector3 getSpawnPos() = 0;
+    virtual Vec3f getSpawnPos() = 0;
 
 protected:
     SerializedField<int32_t> spawnType_;
@@ -79,7 +79,7 @@ public: // メンバ関数
 #ifdef _DEBUG
     void Debug() override;
 #endif // _DEBUG
-    Vector3 getSpawnPos() override;
+    Vec3f getSpawnPos() override;
 
 public: // メンバ変数
     SerializedField<float> radius_;
@@ -100,12 +100,12 @@ struct EmitterOBB
     void Debug() override;
 #endif // _DEBUG
 
-    Vector3 getSpawnPos() override;
+    Vec3f getSpawnPos() override;
 
 private: // メンバ変数
-    SerializedField<Vector3> min_;
-    SerializedField<Vector3> max_;
-    SerializedField<Vector3> rotate_;
+    SerializedField<Vec3f> min_;
+    SerializedField<Vec3f> max_;
+    SerializedField<Vec3f> rotate_;
 };
 
 ///<summary>
@@ -123,12 +123,12 @@ public: // メンバ関数
 #ifdef _DEBUG
     void Debug() override;
 #endif // _DEBUG
-    Vector3 getSpawnPos() override;
+    Vec3f getSpawnPos() override;
 
 private: // メンバ変数
     SerializedField<float> radius_;
     SerializedField<float> length_;
-    SerializedField<Vector3> direction_;
+    SerializedField<Vec3f> direction_;
 };
 
 ///<summary>
@@ -147,10 +147,10 @@ public: // メンバ関数
     void Debug() override;
 #endif // _DEBUG
 
-    Vector3 getSpawnPos() override;
+    Vec3f getSpawnPos() override;
 
 private: // メンバ変数
     SerializedField<float> angle_;
     SerializedField<float> length_;
-    SerializedField<Vector3> direction_;
+    SerializedField<Vec3f> direction_;
 };

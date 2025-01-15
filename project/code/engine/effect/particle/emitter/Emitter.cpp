@@ -326,7 +326,7 @@ void Emitter::EditParticle() {
     }
 
     ImGui::Text("Particle Color");
-    ImGui::ColorEdit4("##Particle Color", reinterpret_cast<float*>(particleColor_.operator Vector4*()));
+    ImGui::ColorEdit4("##Particle Color", reinterpret_cast<float*>(particleColor_.operator Vec4f*()));
     bool updatePerLifeTime    = (updateSettings_ & static_cast<int32_t>(ParticleUpdatePerLifeTime::Color)) != 0;
     bool preUpdatePerLifeTime = updatePerLifeTime;
     ImGui::Checkbox("UpdateColorPerLifeTime", &updatePerLifeTime);
@@ -362,7 +362,7 @@ void Emitter::EditParticle() {
     ImGui::Spacing();
 
     ImGui::Text("Particle Scale");
-    ImGui::DragFloat3("##Particle Scale", reinterpret_cast<float*>(particleScale_.operator Vector3*()), 0.1f);
+    ImGui::DragFloat3("##Particle Scale", reinterpret_cast<float*>(particleScale_.operator Vec3f*()), 0.1f);
     updatePerLifeTime    = (updateSettings_ & static_cast<int32_t>(ParticleUpdatePerLifeTime::Scale)) != 0;
     preUpdatePerLifeTime = updatePerLifeTime;
     ImGui::Checkbox("Update Scale PerLifeTime", &updatePerLifeTime);
@@ -379,7 +379,7 @@ void Emitter::EditParticle() {
     }
 
     ImGui::Text("Particle Rotate");
-    ImGui::DragFloat3("##Particle Rotate", reinterpret_cast<float*>(particleRotate_.operator Vector3*()), 0.1f);
+    ImGui::DragFloat3("##Particle Rotate", reinterpret_cast<float*>(particleRotate_.operator Vec3f*()), 0.1f);
     updatePerLifeTime    = (updateSettings_ & static_cast<int32_t>(ParticleUpdatePerLifeTime::Rotate)) != 0;
     preUpdatePerLifeTime = updatePerLifeTime;
     ImGui::Checkbox("Update Rotate PerLifeTime", &updatePerLifeTime);
@@ -397,7 +397,7 @@ void Emitter::EditParticle() {
     ImGui::Spacing();
 
     ImGui::Text("Particle UV Scale");
-    ImGui::DragFloat3("##ParticleUvScale", reinterpret_cast<float*>(particleUvScale_.operator Vector3*()), 0.1f);
+    ImGui::DragFloat3("##ParticleUvScale", reinterpret_cast<float*>(particleUvScale_.operator Vec3f*()), 0.1f);
     updatePerLifeTime    = (updateSettings_ & static_cast<int32_t>(ParticleUpdatePerLifeTime::UvScale)) != 0;
     preUpdatePerLifeTime = updatePerLifeTime;
     ImGui::Checkbox("Update UvScale PerLifeTime", &updatePerLifeTime);
@@ -413,7 +413,7 @@ void Emitter::EditParticle() {
     }
 
     ImGui::Text("Particle UV Rotate");
-    ImGui::DragFloat3("##ParticleUvRotate", reinterpret_cast<float*>(particleUvRotate_.operator Vector3*()), 0.1f);
+    ImGui::DragFloat3("##ParticleUvRotate", reinterpret_cast<float*>(particleUvRotate_.operator Vec3f*()), 0.1f);
     updatePerLifeTime    = (updateSettings_ & static_cast<int32_t>(ParticleUpdatePerLifeTime::UvRotate)) != 0;
     preUpdatePerLifeTime = updatePerLifeTime;
     ImGui::Checkbox("Update UvRotate PerLifeTime", &updatePerLifeTime);
@@ -429,7 +429,7 @@ void Emitter::EditParticle() {
     }
 
     ImGui::Text("Particle UV Translate");
-    ImGui::DragFloat3("##ParticleUvTranslate", reinterpret_cast<float*>(particleUvTranslate_.operator Vector3*()), 0.1f);
+    ImGui::DragFloat3("##ParticleUvTranslate", reinterpret_cast<float*>(particleUvTranslate_.operator Vec3f*()), 0.1f);
     updatePerLifeTime    = (updateSettings_ & static_cast<int32_t>(ParticleUpdatePerLifeTime::UvTranslate)) != 0;
     preUpdatePerLifeTime = updatePerLifeTime;
     ImGui::Checkbox("Update UvTransform PerLifeTime", &updatePerLifeTime);
@@ -547,7 +547,7 @@ void Emitter::SpawnParticle() {
 
         // Particle 初期化
         std::unique_ptr<Particle>& spawnedParticle = particles_.emplace_back<std::unique_ptr<Particle>>(std::make_unique<Particle>());
-        spawnedParticle->Init(transform, particleLifeTime_, Vector3(transform.translate - originPos_).normalize(), particleSpeed_);
+        spawnedParticle->Init(transform, particleLifeTime_, Vec3f(transform.translate - originPos_).normalize(), particleSpeed_);
         spawnedParticle->setKeyFrames(updateSettings_, particleKeyFrames_.get());
     }
 }

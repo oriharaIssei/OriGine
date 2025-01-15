@@ -29,7 +29,7 @@ bool TimeLineButtons(
     const float width       = CalcItemWidth();
 
     const ImVec2 label_size = CalcTextSize(_label.c_str(), NULL, true);
-    const ImRect frame_bb(window->DC.CursorPos, ImVec2(window->DC.CursorPos.x + width, window->DC.CursorPos.y + 20.0f));
+    const ImRect frame_bb(window->DC.CursorPos, ImVec2(window->DC.CursorPos.x + width, window->DC.CursorPos[Y] + 20.0f));
     const ImRect total_bb(frame_bb.Min, ImVec2((label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f) + frame_bb.Max.x, frame_bb.Max.y));
 
     ItemSize(total_bb, style.FramePadding.y);
@@ -62,7 +62,7 @@ bool TimeLineButtons(
     RenderFrame(frame_bb.Min, frame_bb.Max, frame_col, true, g.Style.FrameRounding);
 
     ImDrawList* draw_list   = GetWindowDrawList();
-    const float sliderWidth = frame_bb.Max.x - frame_bb.Min.x;
+    const float sliderWidth = frame_bb.Max[X] - frame_bb.Min[X];
     const float buttonSize  = 10.0f;
 
     ImGuiStorage* storage  = ImGui::GetStateStorage();
@@ -83,9 +83,9 @@ bool TimeLineButtons(
 
     for (int i = 0; i < _nodeTimes.size(); ++i) {
         float t       = (*_nodeTimes[i]) / (_duration);
-        float buttonX = frame_bb.Min.x + t * sliderWidth;
+        float buttonX = frame_bb.Min[X] + t * sliderWidth;
         ImVec2 buttonPos(buttonX - buttonSize * 0.5f, frame_bb.Min.y);
-        ImVec2 buttonEnd(buttonPos.x + buttonSize, buttonPos.y + 20.0f);
+        ImVec2 buttonEnd(buttonPos[X] + buttonSize, buttonPos.y + 20.0f);
 
         ImRect buttonRect(buttonPos, buttonEnd);
         bool isHovered = IsMouseHoveringRect(buttonRect.Min, buttonRect.Max);
@@ -107,7 +107,7 @@ bool TimeLineButtons(
         bool isActive = (draggedIndex == i);
         if (isActive) {
             if (IsMouseDragging(0)) {
-                float newT     = (GetMousePos().x - frame_bb.Min.x) / sliderWidth;
+                float newT     = (GetMousePos()[X] - frame_bb.Min[X]) / sliderWidth;
                 newT           = ImClamp(newT, 0.0f, 1.0f);
                 *_nodeTimes[i] = newT * _duration;
             }
@@ -136,7 +136,7 @@ bool TimeLineButtons(
                 OpenPopup((_label + "slider").c_str());
             }
             if (BeginPopup((_label + "slider").c_str())) {
-                float currentTime = ((GetMousePos().x - frame_bb.Min.x) / (frame_bb.Max.x - frame_bb.Min.x)) * _duration;
+                float currentTime = ((GetMousePos()[X] - frame_bb.Min[X]) / (frame_bb.Max[X] - frame_bb.Min[X])) * _duration;
                 _sliderPopupUpdate(currentTime);
                 EndPopup();
             }
@@ -165,8 +165,8 @@ bool EditKeyFrame(
     const float width       = CalcItemWidth();
 
     const ImVec2 label_size = CalcTextSize(_label.c_str(), NULL, true);
-    const ImRect frame_bb(window->DC.CursorPos, ImVec2(window->DC.CursorPos.x + width, window->DC.CursorPos.y + 20.0f));
-    const ImRect total_bb(frame_bb.Min, ImVec2((label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f) + frame_bb.Max.x, frame_bb.Max.y));
+    const ImRect frame_bb(window->DC.CursorPos, ImVec2(window->DC.CursorPos[X] + width, window->DC.CursorPos.y + 20.0f));
+    const ImRect total_bb(frame_bb.Min, ImVec2((label_size[X] > 0.0f ? style.ItemInnerSpacing[X] + label_size[X] : 0.0f) + frame_bb.Max[X], frame_bb.Max.y));
 
     ItemSize(total_bb, style.FramePadding.y);
     if (!ItemAdd(total_bb, id, &frame_bb)) {
@@ -198,7 +198,7 @@ bool EditKeyFrame(
     RenderFrame(frame_bb.Min, frame_bb.Max, frame_col, true, g.Style.FrameRounding);
 
     ImDrawList* draw_list   = GetWindowDrawList();
-    const float sliderWidth = frame_bb.Max.x - frame_bb.Min.x;
+    const float sliderWidth = frame_bb.Max[X] - frame_bb.Min[X];
     const float buttonSize  = 10.0f;
 
     ImGuiStorage* storage  = ImGui::GetStateStorage();
@@ -229,9 +229,9 @@ bool EditKeyFrame(
 
     for (int i = 0; i < _keyFrames.size(); ++i) {
         float t       = (_keyFrames[i].time) / (_duration);
-        float buttonX = frame_bb.Min.x + t * sliderWidth;
+        float buttonX = frame_bb.Min[X] + t * sliderWidth;
         ImVec2 buttonPos(buttonX - buttonSize * 0.5f, frame_bb.Min.y);
-        ImVec2 buttonEnd(buttonPos.x + buttonSize, buttonPos.y + 20.0f);
+        ImVec2 buttonEnd(buttonPos[X] + buttonSize, buttonPos.y + 20.0f);
 
         ImRect buttonRect(buttonPos, buttonEnd);
         bool isHovered = IsMouseHoveringRect(buttonRect.Min, buttonRect.Max);
@@ -253,7 +253,7 @@ bool EditKeyFrame(
         bool isActive = (draggedIndex == i);
         if (isActive) {
             if (IsMouseDragging(0)) {
-                float newT         = (GetMousePos().x - frame_bb.Min.x) / sliderWidth;
+                float newT         = (GetMousePos()[X] - frame_bb.Min[X]) / sliderWidth;
                 newT               = ImClamp(newT, 0.0f, 1.0f);
                 _keyFrames[i].time = newT * _duration;
             }
@@ -323,7 +323,7 @@ bool EditKeyFrame(
             OpenPopup((_label + "slider").c_str());
         }
         if (BeginPopup((_label + "slider").c_str())) {
-            float currentTime = ((GetMousePos().x - frame_bb.Min.x) / (frame_bb.Max.x - frame_bb.Min.x)) * _duration;
+            float currentTime = ((GetMousePos()[X] - frame_bb.Min[X]) / (frame_bb.Max[X] - frame_bb.Min[X])) * _duration;
 
             auto sliderPopupUpdate = [&]() {
                 // SliderPopup
@@ -360,7 +360,7 @@ bool EditKeyFrame(
 
 bool EditKeyFrame(
     const std::string& _label,
-    AnimationCurve<Vector3>& _keyFrames,
+    AnimationCurve<Vec3f>& _keyFrames,
     float _duration) {
     ImGuiWindow* window = GetCurrentWindow();
     if (window->SkipItems) {
@@ -515,18 +515,18 @@ bool EditKeyFrame(
                 ImGui::Text("X:");
                 ImGui::DragFloat(
                     std::string("##X" + _label + std::to_string(popUpIndex)).c_str(),
-                    &_keyFrames[popUpIndex].value.x,
+                    &_keyFrames[popUpIndex].value[X],
                     0.1f);
                 ImGui::Text("Y:");
 
                 ImGui::DragFloat(
                     std::string("##Y" + _label + std::to_string(popUpIndex)).c_str(),
-                    &_keyFrames[popUpIndex].value.y,
+                    &_keyFrames[popUpIndex].value[Y],
                     0.1f);
                 ImGui::Text("Z:");
                 ImGui::DragFloat(
                     std::string("##Z" + _label + std::to_string(popUpIndex)).c_str(),
-                    &_keyFrames[popUpIndex].value.z,
+                    &_keyFrames[popUpIndex].value[Z],
                     0.1f);
                 return 1;
             }();
@@ -578,7 +578,7 @@ bool EditKeyFrame(
 
 bool EditKeyFrame(
     const std::string& _label,
-    AnimationCurve<Vector4>& _keyFrames,
+    AnimationCurve<Vec4f>& _keyFrames,
     float _duration) {
     ImGuiWindow* window = GetCurrentWindow();
     if (window->SkipItems) {
@@ -591,10 +591,10 @@ bool EditKeyFrame(
     const float width       = CalcItemWidth();
 
     const ImVec2 label_size = CalcTextSize(_label.c_str(), NULL, true);
-    const ImRect frame_bb(window->DC.CursorPos, ImVec2(window->DC.CursorPos.x + width, window->DC.CursorPos.y + 20.0f));
-    const ImRect total_bb(frame_bb.Min, ImVec2((label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f) + frame_bb.Max.x, frame_bb.Max.y));
+    const ImRect frame_bb(window->DC.CursorPos, ImVec2(window->DC.CursorPos.x + width, window->DC.CursorPos[Y] + 20.0f));
+    const ImRect total_bb(frame_bb.Min, ImVec2((label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f) + frame_bb.Max.x, frame_bb.Max[Y]));
 
-    ItemSize(total_bb, style.FramePadding.y);
+    ItemSize(total_bb, style.FramePadding[Y]);
     if (!ItemAdd(total_bb, id, &frame_bb)) {
         return false;
     }
@@ -656,8 +656,8 @@ bool EditKeyFrame(
     for (int i = 0; i < _keyFrames.size(); ++i) {
         float t       = (_keyFrames[i].time) / (_duration);
         float buttonX = frame_bb.Min.x + t * sliderWidth;
-        ImVec2 buttonPos(buttonX - buttonSize * 0.5f, frame_bb.Min.y);
-        ImVec2 buttonEnd(buttonPos.x + buttonSize, buttonPos.y + 20.0f);
+        ImVec2 buttonPos(buttonX - buttonSize * 0.5f, frame_bb.Min[Y]);
+        ImVec2 buttonEnd(buttonPos.x + buttonSize, buttonPos[Y] + 20.0f);
 
         ImRect buttonRect(buttonPos, buttonEnd);
         bool isHovered = IsMouseHoveringRect(buttonRect.Min, buttonRect.Max);
@@ -733,23 +733,23 @@ bool EditKeyFrame(
                 ImGui::Text("X:");
                 ImGui::DragFloat(
                     std::string("##X" + _label + std::to_string(popUpIndex)).c_str(),
-                    &_keyFrames[popUpIndex].value.x,
+                    &_keyFrames[popUpIndex].value[X],
                     0.1f);
                 ImGui::Text("Y:");
 
                 ImGui::DragFloat(
                     std::string("##Y" + _label + std::to_string(popUpIndex)).c_str(),
-                    &_keyFrames[popUpIndex].value.y,
+                    &_keyFrames[popUpIndex].value[Y],
                     0.1f);
                 ImGui::Text("Z:");
                 ImGui::DragFloat(
                     std::string("##Z" + _label + std::to_string(popUpIndex)).c_str(),
-                    &_keyFrames[popUpIndex].value.z,
+                    &_keyFrames[popUpIndex].value[Z],
                     0.1f);
                 ImGui::Text("W:");
                 ImGui::DragFloat(
                     std::string("##W" + _label + std::to_string(popUpIndex)).c_str(),
-                    &_keyFrames[popUpIndex].value.w,
+                    &_keyFrames[popUpIndex].value[W],
                     0.1f);
 
                 return 1;
@@ -765,7 +765,7 @@ bool EditKeyFrame(
             OpenPopup((_label + "slider").c_str());
         }
         if (BeginPopup((_label + "slider").c_str())) {
-            float currentTime = ((GetMousePos().x - frame_bb.Min.x) / (frame_bb.Max.x - frame_bb.Min.x)) * _duration;
+            float currentTime = ((GetMousePos()[X] - frame_bb.Min[X]) / (frame_bb.Max[X] - frame_bb.Min[X])) * _duration;
 
             auto sliderPopupUpdate = [&]() {
                 // SliderPopup
@@ -815,10 +815,10 @@ bool EditKeyFrame(
     const float width       = CalcItemWidth();
 
     const ImVec2 label_size = CalcTextSize(_label.c_str(), NULL, true);
-    const ImRect frame_bb(window->DC.CursorPos, ImVec2(window->DC.CursorPos.x + width, window->DC.CursorPos.y + 20.0f));
-    const ImRect total_bb(frame_bb.Min, ImVec2((label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f) + frame_bb.Max.x, frame_bb.Max.y));
+    const ImRect frame_bb(window->DC.CursorPos, ImVec2(window->DC.CursorPos[X] + width, window->DC.CursorPos[Y] + 20.0f));
+    const ImRect total_bb(frame_bb.Min, ImVec2((label_size[X] > 0.0f ? style.ItemInnerSpacing[X] + label_size[X] : 0.0f) + frame_bb.Max[X], frame_bb.Max[Y]));
 
-    ItemSize(total_bb, style.FramePadding.y);
+    ItemSize(total_bb, style.FramePadding[Y]);
     if (!ItemAdd(total_bb, id, &frame_bb)) {
         return false;
     }
@@ -848,7 +848,7 @@ bool EditKeyFrame(
     RenderFrame(frame_bb.Min, frame_bb.Max, frame_col, true, g.Style.FrameRounding);
 
     ImDrawList* draw_list   = GetWindowDrawList();
-    const float sliderWidth = frame_bb.Max.x - frame_bb.Min.x;
+    const float sliderWidth = frame_bb.Max[X] - frame_bb.Min[X];
     const float buttonSize  = 10.0f;
 
     ImGuiStorage* storage  = ImGui::GetStateStorage();
@@ -879,9 +879,9 @@ bool EditKeyFrame(
 
     for (int i = 0; i < _keyFrames.size(); ++i) {
         float t       = (_keyFrames[i].time) / (_duration);
-        float buttonX = frame_bb.Min.x + t * sliderWidth;
-        ImVec2 buttonPos(buttonX - buttonSize * 0.5f, frame_bb.Min.y);
-        ImVec2 buttonEnd(buttonPos.x + buttonSize, buttonPos.y + 20.0f);
+        float buttonX = frame_bb.Min[X] + t * sliderWidth;
+        ImVec2 buttonPos(buttonX - buttonSize * 0.5f, frame_bb.Min[Y]);
+        ImVec2 buttonEnd(buttonPos[X] + buttonSize, buttonPos[Y] + 20.0f);
 
         ImRect buttonRect(buttonPos, buttonEnd);
         bool isHovered = IsMouseHoveringRect(buttonRect.Min, buttonRect.Max);
@@ -903,7 +903,7 @@ bool EditKeyFrame(
         bool isActive = (draggedIndex == i);
         if (isActive) {
             if (IsMouseDragging(0)) {
-                float newT         = (GetMousePos().x - frame_bb.Min.x) / sliderWidth;
+                float newT         = (GetMousePos()[X] - frame_bb.Min[X]) / sliderWidth;
                 newT               = ImClamp(newT, 0.0f, 1.0f);
                 _keyFrames[i].time = newT * _duration;
             }
@@ -990,7 +990,7 @@ bool EditKeyFrame(
             OpenPopup((_label + "slider").c_str());
         }
         if (BeginPopup((_label + "slider").c_str())) {
-            float currentTime = ((GetMousePos().x - frame_bb.Min.x) / (frame_bb.Max.x - frame_bb.Min.x)) * _duration;
+            float currentTime = ((GetMousePos()[X] - frame_bb.Min[X]) / (frame_bb.Max[X] - frame_bb.Min[X])) * _duration;
 
             auto sliderPopupUpdate = [&]() {
                 // SliderPopup

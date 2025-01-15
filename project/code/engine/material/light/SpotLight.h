@@ -26,21 +26,21 @@ public:
 	
 	~SpotLight(){}
 
-	SerializedField<Vector3>color;
-	SerializedField<Vector3>pos;
+	SerializedField<Vec3f>color;
+	SerializedField<Vec3f>pos;
 	SerializedField<float>intensity;
-	SerializedField<Vector3>direction;
+	SerializedField<Vec3f>direction;
 	SerializedField<float>distance;
 	SerializedField<float>decay;
 	SerializedField<float>cosAngle;
 	SerializedField<float> cosFalloffStart;
 public:
 	struct ConstantBuffer{
-		Vector3 color;              // 12 bytes
+		Vec3f color;              // 12 bytes
 		float intensity;            // 4 bytes
-		Vector3 pos;                // 12 bytes
+		Vec3f pos;                // 12 bytes
 		float distance;             // 4 bytes
-		Vector3 direction;          // 12 bytes
+		Vec3f direction;          // 12 bytes
 		float decay;                // 4 bytes
 		float cosAngle;             // 4 bytes
 		float cosFalloffStart;      // 4 bytes
