@@ -5,8 +5,8 @@
 #include <memory>
 //container
 #include <array>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 //string
 #include <string>
 
@@ -27,39 +27,47 @@
 class Emitter;
 class ParticleManager
     : public IModule {
-	friend class Emitter;
-public:
-	static ParticleManager* getInstance();
-	void Init();
-	void Finalize();
-	void PreDraw();
+    friend class Emitter;
 
-	void Edit();
-	void DrawDebug();
+public:
+    static ParticleManager* getInstance();
+    void Init();
+    void Finalize();
+    void PreDraw();
+
+    void Edit();
+    void DrawDebug();
+
+    void ChangeBlendMode(BlendMode mode);
+
 
 private:
     ParticleManager();
     ~ParticleManager();
-    ParticleManager(const ParticleManager&) = delete;
+    ParticleManager(const ParticleManager&)                  = delete;
     const ParticleManager& operator=(const ParticleManager&) = delete;
 
-	void CreatePso();
+    void CreatePso();
+
 private:
-	int32_t srvNum_ = 16;
-	std::shared_ptr<DxSrvArray> dxSrvArray_;
+    int32_t srvNum_ = 16;
+    std::shared_ptr<DxSrvArray> dxSrvArray_;
 
-	std::unique_ptr<DxCommand> dxCommand_;
-	std::string psoKey_;
-	PipelineStateObj* pso_;
+    std::unique_ptr<DxCommand> dxCommand_;
 
-	bool emitterWindowedState_ = false;
+    std::array<std::string, kBlendNum> psoKey_;
+    std::array<PipelineStateObj*, kBlendNum> pso_;
+    BlendMode blendMode_ = BlendMode::Normal;
 
-	std::unordered_map<std::string,std::unique_ptr<Emitter>> emitters_;
+    bool emitterWindowedState_ = false;
 
-	// 新しい Emitterを 作成する ための もの
-	bool isOpenedCrateWindow_ = false;
-	std::string newInstanceName_ = "NULL";
+    std::unordered_map<std::string, std::unique_ptr<Emitter>> emitters_;
+
+
+    // 新しい Emitterを 作成する ための もの
+    bool isOpenedCrateWindow_    = false;
+    std::string newInstanceName_ = "NULL";
+
 public:
-	std::unique_ptr<Emitter> CreateEmitter(DxSrvArray* srvArray,const std::string& name)const;
-
+    std::unique_ptr<Emitter> CreateEmitter(DxSrvArray* srvArray, const std::string& name) const;
 };

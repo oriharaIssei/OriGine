@@ -3,7 +3,7 @@
         "Sphere_radius": 21.0,
         "SpherespawnLocationType": 1,
         "activeTime": 1.100000023841858,
-        "blendMode": 0,
+        "blendMode": 1,
         "isLoop": true,
         "maxDirectory": [
             0.4000000059604645,
