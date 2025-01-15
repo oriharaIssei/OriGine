@@ -10,6 +10,7 @@
 #include "Engine.h"
 //module
 #include "camera/CameraManager.h"
+#include "directX12/ShaderManager.h"
 #include "globalVariables/GlobalVariables.h"
 #include "material/texture/TextureManager.h"
 #include "model/ModelManager.h"
@@ -63,8 +64,8 @@ Emitter::~Emitter() {
     structuredTransform_.Finalize();
 }
 
-static std::list<std::pair<std::string, std::string>> objectFiles  = MyFileSystem::SearchFile("resource/Models", "obj", false);
-static std::list<std::pair<std::string, std::string>> textureFiles = MyFileSystem::SearchFile("resource/Models", "png", false);
+static std::list<std::pair<std::string, std::string>> objectFiles  = MyFileSystem::SearchFile("resource", "obj", false);
+static std::list<std::pair<std::string, std::string>> textureFiles = MyFileSystem::SearchFile("resource", "png", false);
 
 void Emitter::Init() {
     { // Initialize DrawingData Size
@@ -153,6 +154,8 @@ void Emitter::Update(float deltaTime) {
 #ifdef _DEBUG
 void Emitter::Debug() {
     if (ImGui::Begin(emitterName_.c_str())) {
+        float deltaTime = Engine::getInstance()->getDeltaTime();
+        ImGui::InputFloat("DeltaTime", &deltaTime, 0.1f, 1.0f, "%.3f", ImGuiInputTextFlags_ReadOnly);
         if (ImGui::Button("save")) {
             GlobalVariables::getInstance()->SaveFile("Effects", emitterName_);
             if (updateSettings_) {
@@ -165,8 +168,8 @@ void Emitter::Debug() {
         ImGui::Spacing();
 
         if (ImGui::Button("reload FileList")) {
-            objectFiles  = MyFileSystem::SearchFile("resource/Models", "obj", false);
-            textureFiles = MyFileSystem::SearchFile("resource/Models", "png", false);
+            objectFiles  = MyFileSystem::SearchFile("resource", "obj", false);
+            textureFiles = MyFileSystem::SearchFile("resource", "png", false);
         }
 
         if (ImGui::BeginCombo("ParticleModel", modelFileName_->c_str())) {
@@ -214,9 +217,6 @@ void Emitter::Debug() {
 }
 void Emitter::EditEmitter() {
     //======================== Emitter の 編集 ========================//
-    float deltaTime = Engine::getInstance()->getDeltaTime();
-    ImGui::InputFloat("DeltaTime", &deltaTime, 0.1f, 1.0f, "%.3f", ImGuiInputTextFlags_ReadOnly);
-
     if (ImGui::Button("Active")) {
         isActive_       = true;
         leftActiveTime_ = activeTime_;
@@ -227,6 +227,17 @@ void Emitter::EditEmitter() {
     }
 
     ImGui::Checkbox("isLoop", isLoop_);
+
+    if (ImGui::BeginCombo("BlendMode", blendModeStr[int(blendMode_)].c_str())) {
+        for (int32_t i = 0; i < kBlendNum; i++) {
+            bool isSelected = (blendMode_ == i); // 現在選択中かどうか
+            if (ImGui::Selectable(blendModeStr[i].c_str(), isSelected)) {
+                blendMode_.setValue(i);
+                break;
+            }
+        }
+        ImGui::EndCombo();
+    }
 
     ImGui::Text("EmitterActiveTime");
     ImGui::DragFloat("##EmitterActiveTime", activeTime_, 0.1f);
@@ -316,27 +327,35 @@ void Emitter::EditParticle() {
 
     ImGui::Text("Particle Color");
     ImGui::ColorEdit4("##Particle Color", reinterpret_cast<float*>(particleColor_.operator Vector4*()));
-    bool updatePerLifeTime = (updateSettings_ & static_cast<int32_t>(ParticleUpdatePerLifeTime::Color)) != 0;
+    bool updatePerLifeTime    = (updateSettings_ & static_cast<int32_t>(ParticleUpdatePerLifeTime::Color)) != 0;
+    bool preUpdatePerLifeTime = updatePerLifeTime;
     ImGui::Checkbox("UpdateColorPerLifeTime", &updatePerLifeTime);
     if (updatePerLifeTime) {
         updateSettings_.setValue(updateSettings_ | static_cast<int32_t>(ParticleUpdatePerLifeTime::Color));
 
         particleKeyFrames_->colorCurve_[0].value = particleColor_;
         ImGui::EditKeyFrame(emitterName_ + "ColorLine", particleKeyFrames_->colorCurve_, particleLifeTime_);
-    } else {
+    } else if (preUpdatePerLifeTime && !updatePerLifeTime) {
+
+        particleKeyFrames_->colorCurve_.clear();
+        particleKeyFrames_->colorCurve_.emplace_back(0.0f, particleColor_);
         updateSettings_.setValue(updateSettings_ & ~static_cast<int32_t>(ParticleUpdatePerLifeTime::Color));
     }
 
     ImGui::Text("Particle Speed");
     ImGui::DragFloat("##ParticleSpeed", particleSpeed_, 0.1f);
-    updatePerLifeTime = (updateSettings_ & static_cast<int32_t>(ParticleUpdatePerLifeTime::Speed)) != 0;
+    updatePerLifeTime    = (updateSettings_ & static_cast<int32_t>(ParticleUpdatePerLifeTime::Speed)) != 0;
+    preUpdatePerLifeTime = updatePerLifeTime;
     ImGui::Checkbox("Update Speed PerLifeTime", &updatePerLifeTime);
     if (updatePerLifeTime) {
         updateSettings_.setValue(updateSettings_ | static_cast<int32_t>(ParticleUpdatePerLifeTime::Speed));
 
         particleKeyFrames_->speedCurve_[0].value = particleSpeed_;
         ImGui::EditKeyFrame(emitterName_ + "SpeedLine", particleKeyFrames_->speedCurve_, particleLifeTime_);
-    } else {
+    } else if (preUpdatePerLifeTime && !updatePerLifeTime) {
+
+        particleKeyFrames_->speedCurve_.clear();
+        particleKeyFrames_->speedCurve_.emplace_back(0.0f, particleSpeed_);
         updateSettings_.setValue(updateSettings_ & ~static_cast<int32_t>(ParticleUpdatePerLifeTime::Speed));
     }
 
@@ -344,28 +363,34 @@ void Emitter::EditParticle() {
 
     ImGui::Text("Particle Scale");
     ImGui::DragFloat3("##Particle Scale", reinterpret_cast<float*>(particleScale_.operator Vector3*()), 0.1f);
-    updatePerLifeTime = (updateSettings_ & static_cast<int32_t>(ParticleUpdatePerLifeTime::Scale)) != 0;
+    updatePerLifeTime    = (updateSettings_ & static_cast<int32_t>(ParticleUpdatePerLifeTime::Scale)) != 0;
+    preUpdatePerLifeTime = updatePerLifeTime;
     ImGui::Checkbox("Update Scale PerLifeTime", &updatePerLifeTime);
     if (updatePerLifeTime) {
         updateSettings_.setValue(updateSettings_ | static_cast<int32_t>(ParticleUpdatePerLifeTime::Scale));
 
         particleKeyFrames_->scaleCurve_[0].value = particleScale_;
         ImGui::EditKeyFrame(emitterName_ + "ScaleLine", particleKeyFrames_->scaleCurve_, particleLifeTime_);
-    } else {
+    } else if (preUpdatePerLifeTime && !updatePerLifeTime) {
+
+        particleKeyFrames_->scaleCurve_.clear();
+        particleKeyFrames_->scaleCurve_.emplace_back(0.0f, particleScale_);
         updateSettings_.setValue(updateSettings_ & ~static_cast<int32_t>(ParticleUpdatePerLifeTime::Scale));
     }
 
     ImGui::Text("Particle Rotate");
     ImGui::DragFloat3("##Particle Rotate", reinterpret_cast<float*>(particleRotate_.operator Vector3*()), 0.1f);
-    updatePerLifeTime = (updateSettings_ & static_cast<int32_t>(ParticleUpdatePerLifeTime::Rotate)) != 0;
-
+    updatePerLifeTime    = (updateSettings_ & static_cast<int32_t>(ParticleUpdatePerLifeTime::Rotate)) != 0;
+    preUpdatePerLifeTime = updatePerLifeTime;
     ImGui::Checkbox("Update Rotate PerLifeTime", &updatePerLifeTime);
     if (updatePerLifeTime) {
         updateSettings_.setValue(updateSettings_ | static_cast<int32_t>(ParticleUpdatePerLifeTime::Rotate));
 
         particleKeyFrames_->rotateCurve_[0].value = particleRotate_;
         ImGui::EditKeyFrame(emitterName_ + "RotateLine", particleKeyFrames_->rotateCurve_, particleLifeTime_);
-    } else {
+    } else if (preUpdatePerLifeTime && !updatePerLifeTime) {
+        particleKeyFrames_->rotateCurve_.clear();
+        particleKeyFrames_->rotateCurve_.emplace_back(0.0f, particleRotate_);
         updateSettings_.setValue(updateSettings_ & ~static_cast<int32_t>(ParticleUpdatePerLifeTime::Rotate));
     }
 
@@ -373,40 +398,49 @@ void Emitter::EditParticle() {
 
     ImGui::Text("Particle UV Scale");
     ImGui::DragFloat3("##ParticleUvScale", reinterpret_cast<float*>(particleUvScale_.operator Vector3*()), 0.1f);
-    updatePerLifeTime = (updateSettings_ & static_cast<int32_t>(ParticleUpdatePerLifeTime::UvScale)) != 0;
+    updatePerLifeTime    = (updateSettings_ & static_cast<int32_t>(ParticleUpdatePerLifeTime::UvScale)) != 0;
+    preUpdatePerLifeTime = updatePerLifeTime;
     ImGui::Checkbox("Update UvScale PerLifeTime", &updatePerLifeTime);
     if (updatePerLifeTime) {
         updateSettings_.setValue(updateSettings_ | static_cast<int32_t>(ParticleUpdatePerLifeTime::UvScale));
 
         particleKeyFrames_->uvScaleCurve_[0].value = particleUvScale_;
         ImGui::EditKeyFrame(emitterName_ + "UvScaleLine", particleKeyFrames_->uvScaleCurve_, particleLifeTime_);
-    } else {
+    } else if (preUpdatePerLifeTime && !updatePerLifeTime) {
+        particleKeyFrames_->uvScaleCurve_.clear();
+        particleKeyFrames_->uvScaleCurve_.emplace_back(0.0f, particleUvScale_);
         updateSettings_.setValue(updateSettings_ & ~static_cast<int32_t>(ParticleUpdatePerLifeTime::UvScale));
     }
 
     ImGui::Text("Particle UV Rotate");
     ImGui::DragFloat3("##ParticleUvRotate", reinterpret_cast<float*>(particleUvRotate_.operator Vector3*()), 0.1f);
-    updatePerLifeTime = (updateSettings_ & static_cast<int32_t>(ParticleUpdatePerLifeTime::UvRotate)) != 0;
+    updatePerLifeTime    = (updateSettings_ & static_cast<int32_t>(ParticleUpdatePerLifeTime::UvRotate)) != 0;
+    preUpdatePerLifeTime = updatePerLifeTime;
     ImGui::Checkbox("Update UvRotate PerLifeTime", &updatePerLifeTime);
     if (updatePerLifeTime) {
         updateSettings_.setValue(updateSettings_ | static_cast<int32_t>(ParticleUpdatePerLifeTime::UvRotate));
 
         particleKeyFrames_->uvRotateCurve_[0].value = particleUvRotate_;
         ImGui::EditKeyFrame(emitterName_ + "UvRotateLine", particleKeyFrames_->uvRotateCurve_, particleLifeTime_);
-    } else {
+    } else if (preUpdatePerLifeTime && !updatePerLifeTime) {
+        particleKeyFrames_->uvRotateCurve_.clear();
+        particleKeyFrames_->uvRotateCurve_.emplace_back(0.0f, particleUvRotate_);
         updateSettings_.setValue(updateSettings_ & ~static_cast<int32_t>(ParticleUpdatePerLifeTime::UvRotate));
     }
 
     ImGui::Text("Particle UV Translate");
     ImGui::DragFloat3("##ParticleUvTranslate", reinterpret_cast<float*>(particleUvTranslate_.operator Vector3*()), 0.1f);
-    updatePerLifeTime = (updateSettings_ & static_cast<int32_t>(ParticleUpdatePerLifeTime::UvTranslate)) != 0;
+    updatePerLifeTime    = (updateSettings_ & static_cast<int32_t>(ParticleUpdatePerLifeTime::UvTranslate)) != 0;
+    preUpdatePerLifeTime = updatePerLifeTime;
     ImGui::Checkbox("Update UvTransform PerLifeTime", &updatePerLifeTime);
     if (updatePerLifeTime) {
         updateSettings_.setValue(updateSettings_ | static_cast<int32_t>(ParticleUpdatePerLifeTime::UvTranslate));
 
         particleKeyFrames_->uvTranslateCurve_[0].value = particleUvTranslate_;
         ImGui::EditKeyFrame(emitterName_ + "UvTranslateLine", particleKeyFrames_->uvTranslateCurve_, particleLifeTime_);
-    } else {
+    } else if (preUpdatePerLifeTime && !updatePerLifeTime) {
+        particleKeyFrames_->uvTranslateCurve_.clear();
+        particleKeyFrames_->uvTranslateCurve_.emplace_back(0.0f, particleUvTranslate_);
         updateSettings_.setValue(updateSettings_ & ~static_cast<int32_t>(ParticleUpdatePerLifeTime::UvTranslate));
     }
 }
@@ -417,6 +451,8 @@ void Emitter::Draw() {
         particleModel_->meshData_->currentState_ != LoadState::Loaded) {
         return;
     }
+
+    ParticleManager::getInstance()->ChangeBlendMode(static_cast<BlendMode>(blendMode_.operator int()));
 
     const Matrix4x4& viewMat = CameraManager::getInstance()->getTransform().viewMat;
 

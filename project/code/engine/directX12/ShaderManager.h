@@ -1,16 +1,25 @@
 #pragma once
 
-#include "directX12/PipelineStateObj.h"
-#include "directX12/ShaderCompiler.h"
-
-#include <dxcapi.h>
+///stl
+//memory
 #include <memory>
-#include <stdexcept>
-#include <stdint.h>
-#include <string>
+#include <wrl.h>
+
+//container
+#include <array> 
 #include <unordered_map>
 #include <vector>
-#include <wrl.h>
+//string
+#include <string>
+//exception
+#include <dxcapi.h>
+#include <stdexcept>
+#include <stdint.h>
+
+///engine
+//dx12object
+#include "directX12/PipelineStateObj.h"
+#include "directX12/ShaderCompiler.h"
 
 const std::string shaderDirectory = "./resource/Shader";
 
@@ -28,6 +37,13 @@ enum class BlendMode {
 };
 
 constexpr size_t kBlendNum = static_cast<size_t>(BlendMode::Count);
+static const std::array<std::string, kBlendNum> blendModeStr = {
+    "None",
+    "Normal",
+    "Add",
+    "Subtract",
+    "Multiply",
+    "Screen"};
 
 class ShaderManager;
 class ShaderInformation {
