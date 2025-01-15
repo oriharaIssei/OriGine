@@ -316,18 +316,18 @@ void AnimationEditor::Update() {
                             ImGui::Text("X:");
                             ImGui::DragFloat(
                                 std::string("##X" + nodeName + std::to_string(nodeIndex)).c_str(),
-                                &nodeAnimation.scale[nodeIndex].value.x,
+                                &nodeAnimation.scale[nodeIndex].value[X],
                                 0.1f);
                             ImGui::Text("Y:");
 
                             ImGui::DragFloat(
                                 std::string("##Y" + nodeName + std::to_string(nodeIndex)).c_str(),
-                                &nodeAnimation.scale[nodeIndex].value.x,
+                                &nodeAnimation.scale[nodeIndex].value[X],
                                 0.1f);
                             ImGui::Text("Z:");
                             ImGui::DragFloat(
                                 std::string("##Z" + nodeName + std::to_string(nodeIndex)).c_str(),
-                                &nodeAnimation.scale[nodeIndex].value.x,
+                                &nodeAnimation.scale[nodeIndex].value[X],
                                 0.1f);
                         });
                     ImGui::TimeLineButtons(
@@ -441,18 +441,18 @@ void AnimationEditor::Update() {
                             ImGui::Text("X:");
                             ImGui::DragFloat(
                                 std::string("##X" + nodeName + std::to_string(nodeIndex)).c_str(),
-                                &nodeAnimation.translate[nodeIndex].value.x,
+                                &nodeAnimation.translate[nodeIndex].value[X],
                                 0.1f);
                             ImGui::Text("Y:");
 
                             ImGui::DragFloat(
                                 std::string("##Y" + nodeName + std::to_string(nodeIndex)).c_str(),
-                                &nodeAnimation.translate[nodeIndex].value.y,
+                                &nodeAnimation.translate[nodeIndex].value[Y],
                                 0.1f);
                             ImGui::Text("Z:");
                             ImGui::DragFloat(
                                 std::string("##Z" + nodeName + std::to_string(nodeIndex)).c_str(),
-                                &nodeAnimation.translate[nodeIndex].value.z,
+                                &nodeAnimation.translate[nodeIndex].value[Z],
                                 0.1f);
                         });
 

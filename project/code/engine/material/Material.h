@@ -26,13 +26,13 @@ struct Material
 
 public:
     Material()
-        : uvScale_(SerializedField<Vector3>::CreateNull()),
-          uvRotate_(SerializedField<Vector3>::CreateNull()),
-          uvTranslate_(SerializedField<Vector3>::CreateNull()),
-          color_(SerializedField<Vector4>::CreateNull()),
+        : uvScale_(SerializedField<Vec3f>::CreateNull()),
+          uvRotate_(SerializedField<Vec3f>::CreateNull()),
+          uvTranslate_(SerializedField<Vec3f>::CreateNull()),
+          color_(SerializedField<Vec4f>::CreateNull()),
           enableLighting_(SerializedField<int32_t>::CreateNull()),
           shininess_(SerializedField<float>::CreateNull()),
-          specularColor_(SerializedField<Vector3>::CreateNull()) {}
+          specularColor_(SerializedField<Vec3f>::CreateNull()) {}
     Material(const std::string& _materialName)
         : uvScale_("Materials", _materialName, "uvScale"),
           uvRotate_("Materials", _materialName, "uvRotate"),
@@ -46,25 +46,25 @@ public:
     void UpdateUvMatrix();
 
 public:
-    SerializedField<Vector3> uvScale_;
-    SerializedField<Vector3> uvRotate_;
-    SerializedField<Vector3> uvTranslate_;
+    SerializedField<Vec3f> uvScale_;
+    SerializedField<Vec3f> uvRotate_;
+    SerializedField<Vec3f> uvTranslate_;
     Matrix4x4 uvMat_ = MakeMatrix::Identity();
 
-    SerializedField<Vector4> color_;
+    SerializedField<Vec4f> color_;
 
     SerializedField<int32_t> enableLighting_;
     SerializedField<float> shininess_;
-    SerializedField<Vector3> specularColor_;
+    SerializedField<Vec3f> specularColor_;
 
 public:
     struct ConstantBuffer {
-        Vector4 color;
+        Vec4f color;
         uint32_t enableLighting;
         float padding[3]; // 下記を参照
         Matrix4x4 uvTransform;
         float shininess;
-        Vector3 specularColor;
+        Vec3f specularColor;
         ConstantBuffer& operator=(const Material& material) {
             color          = material.color_;
             enableLighting = material.enableLighting_;

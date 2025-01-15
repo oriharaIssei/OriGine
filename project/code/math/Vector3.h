@@ -1,137 +1,83 @@
 #pragma once
 
+#include "Vector.h"
 #include "Vector2.h"
 
 #include <cmath>
 
-struct Quaternion;
+template <typename valueType = float>
+struct Vector3 final : Vector<3, valueType> {
+    using Vector<3, valueType>::v;
+    using Vector<3, valueType>::operator[];
+    using Vector<3, valueType>::operator+;
+    using Vector<3, valueType>::operator+=;
+    using Vector<3, valueType>::operator-;
+    using Vector<3, valueType>::operator-=;
+    using Vector<3, valueType>::operator*;
+    using Vector<3, valueType>::operator*=;
+    using Vector<3, valueType>::operator/;
+    using Vector<3, valueType>::operator/=;
+    using Vector<3, valueType>::operator=;
+    using Vector<3, valueType>::operator==;
+    using Vector<3, valueType>::operator!=;
 
-struct Vector3 final{
-	float x,y,z;
+    // コンストラクタ
+    Vector3(valueType xValue, valueType yValue, valueType zValue)
+        : Vector<3, valueType>({xValue, yValue, zValue}) {}
+    Vector3(int X, int Y, int Z)
+        : Vector<3, valueType>({(valueType)X, (valueType)Y, (valueType)Z}) {}
+    Vector3(const Vector2<valueType>& xy, const valueType& z)
+        : Vector<3, valueType>({xy[X], xy[Y], z}) {}
+    Vector3(const valueType& x, const Vector2<valueType>& yz)
+        : Vector<3, valueType>({x, yz[X], yz[Y]}) {}
+    Vector3(const valueType* x_ptr, const valueType* y_ptr, const valueType* z_ptr)
+        : Vector<3, valueType>({*x_ptr, *y_ptr, *z_ptr}) {}
+    Vector3(const valueType* ptr)
+        : Vector<3, valueType>({ptr[0], ptr[1], ptr[2]}) {}
+    Vector3()
+        : Vector<3, valueType>({0, 0, 0}) {}
 
-	// コンストラクタ
-	Vector3(float xValue,float yValue,float zValue): x(xValue),y(yValue),z(zValue){}
-	Vector3(int X,int Y,int Z): x((float)X),y((float)Y),z((float)Z){}
-	Vector3(const Vector2& xy,const float& z):x(xy.x),y(xy.y),z(z){}
-	Vector3(const float& x,const Vector2& yz):x(x),y(yz.x),z(yz.y){}
-	Vector3(const float* x_ptr,const float* y_ptr,const float* z_ptr): x(*x_ptr),y(*y_ptr),z(*z_ptr){}
-	Vector3(const float* ptr): x(ptr[0]),y(ptr[1]),z(ptr[2]){}
-	Vector3(): x(0.0f),y(0.0f),z(0.0f){}
+    // ベクトルの長さ
+    valueType length() const { return std::sqrt(v[X] * v[X] + v[Y] * v[Y] + v[Z] * v[Z]); }
+    static valueType Length(const Vector3& v) { return std::sqrt(v.v[X] * v.v[X] + v.v[Y] * v.v[Y] + v.v[Z] * v.v[Z]); }
 
-	// ベクトルの長さ
-	float length() const{ return sqrtf(x * x + y * y + z * z); }
-	static float Length(const Vector3& v){ return sqrtf(v.x * v.x + v.y * v.y + v.z * v.z); }
+    // ベクトルの長さの二乗
+    valueType lengthSq() const { return (v[X] * v[X] + v[Y] * v[Y] + v[Z] * v[Z]); }
+    static valueType LengthSq(const Vector3& v) { return (v.v[X] * v.v[X] + v.v[Y] * v.v[Y] + v.v[Z] * v.v[Z]); }
 
-	// ベクトルの長さの二乗
-	float lengthSq() const{ return (x * x + y * y + z * z); }
-	static float LengthSq(const Vector3& v){ return (v.x * v.x + v.y * v.y + v.z * v.z); }
+    // 内積
+    valueType dot() const { return v[X] * v[X] + v[Y] * v[Y] + v[Z] * v[Z]; }
+    static valueType Dot(const Vector3& v) { return v.v[X] * v.v[X] + v.v[Y] * v.v[Y] + v.v[Z] * v.v[Z]; }
+    // 外積
+    Vector3 cross(const Vector3& another) const {
+        return Vector3(
+            v[Y] * another.v[Z] - v[Z] * another.v[Y],
+            v[Z] * another.v[X] - v[X] * another.v[Z],
+            v[X] * another.v[Y] - v[Y] * another.v[X]);
+    }
+    static Vector3 Cross(const Vector3& v, const Vector3& another) {
+        return v.cross(another);
+    }
 
-	// 内積
-	float dot() const{
-		return (x * x) + (y * y) + (z * z);
-	}
-	static float Dot(const Vector3& v){
-		return (v.x * v.x) + (v.y * v.y) + (v.z * v.z);
-	}
-	float dot(const Vector3& another) const{
-		return (x * another.x) + (y * another.y) + (z * another.z);
-	}
-	static float Dot(const Vector3& v,const Vector3& another){
-		return (v.x * another.x) + (v.y * another.y) + (v.z * another.z);
-	}
-
-	// 外積
-	Vector3 cross(const Vector3& another) const{
-		return Vector3(
-			y * another.z - z * another.y,
-			z * another.x - x * another.z,
-			x * another.y - y * another.x
-		);
-	}
-	static Vector3 Cross(const Vector3& v,const Vector3& another){
-		return v.cross(another);
-	}
-
-	// 正規化
-	Vector3 normalize() const{
-		float len = length();
-		if(len == 0) return *this;
-		return (*this / len);
-	}
-	static Vector3 Normalize(const Vector3& v){
-		float len = v.length();
-		if(len == 0) return v;
-		return (v / len);
-	}
-
-	// 演算子オーバーロード（+ - * / 等）
-	Vector3 operator+(const Vector3& other) const{
-		return Vector3(x + other.x,y + other.y,z + other.z);
-	}
-	void operator+=(const Vector3& other){
-		x += other.x;
-		y += other.y;
-		z += other.z;
-	}
-
-	Vector3 operator-(const Vector3& other) const{
-		return Vector3(x - other.x,y - other.y,z - other.z);
-	}
-	Vector3 operator-() const{ return Vector3(-x,-y,-z); }
-	void operator-=(const Vector3& other){
-		x -= other.x;
-		y -= other.y;
-		z -= other.z;
-	}
-
-	Vector3 operator*(const float& scalar) const{
-		return Vector3(x * scalar,y * scalar,z * scalar);
-	}
-	void operator*=(const float& scalar){
-		x *= scalar;
-		y *= scalar;
-		z *= scalar;
-	}
-
-	Vector3 operator/(const float& scalar) const{
-		if(scalar != 0){
-			return Vector3(x / scalar,y / scalar,z / scalar);
-		} else{
-			return Vector3(0.0f,0.0f,0.0f);
-		}
-	}
-	void operator/=(const float& scalar){
-		if(scalar != 0){
-			x /= scalar;
-			y /= scalar;
-			z /= scalar;
-		} else{
-			x = 0;
-			y = 0;
-			z = 0;
-		}
-	}
-
-	bool operator==(const Vector3& other) const{
-		return (x == other.x && y == other.y && z == other.z);
-	}
-	bool operator!=(const Vector3& other) const{
-		return !(*this == other);
-	}
-
-	Vector3 RotateVector(const Quaternion& q) const;
-
-	Vector3 RotateVector(const Vector3& v,const Quaternion& q);
+    // 正規化
+    Vector3 normalize() const {
+        valueType len = length();
+        if (len == 0) return *this;
+        return (*this / len);
+    }
+    static Vector3 Normalize(const Vector3& v) {
+        valueType len = v.length();
+        if (len == 0) return v;
+        return (v / len);
+    }
 };
 
-inline Vector3 operator*(const float& scalar,const Vector3& vec){
-	return Vector3(vec.x * scalar,vec.y * scalar,vec.z * scalar);
-}
+//=========== using ===========//
+template <typename valueType>
+using Vec3 = Vector3<valueType>;
 
-inline Vector3 Lerp(const Vector3& start,const Vector3& end,float time){
-	return {
-		std::lerp(start.x,end.x,time),
-		std::lerp(start.y,end.y,time),
-		std::lerp(start.z,end.z,time)
-	};
-}
+using Vector3f = Vector3<float>;
+using Vec3f    = Vector3<float>;
+
+using Vector3d = Vector3<double>;
+using Vec3d    = Vector3<double>;

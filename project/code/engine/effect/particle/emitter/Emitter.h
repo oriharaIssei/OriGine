@@ -58,7 +58,7 @@ private:
     std::string emitterName_;
     DxSrvArray* srvArray_ = nullptr;
 
-    Vector3 originPos_;
+    Vec3f originPos_;
     uint32_t particleMaxSize_;
 
     std::vector<std::unique_ptr<Particle>> particles_;
@@ -98,14 +98,14 @@ private:
     SerializedField<bool> particleIsBillBoard_;
 
     //=============== パーティクル設定項目 ===============//
-    SerializedField<Vector4> particleColor_;
-    SerializedField<Vector3> particleScale_;
-    SerializedField<Vector3> particleRotate_;
+    SerializedField<Vec4f> particleColor_;
+    SerializedField<Vec3f> particleScale_;
+    SerializedField<Vec3f> particleRotate_;
     SerializedField<float> particleSpeed_;
 
-    SerializedField<Vector3> particleUvScale_;
-    SerializedField<Vector3> particleUvRotate_;
-    SerializedField<Vector3> particleUvTranslate_;
+    SerializedField<Vec3f> particleUvScale_;
+    SerializedField<Vec3f> particleUvRotate_;
+    SerializedField<Vec3f> particleUvTranslate_;
 
     SerializedField<int32_t> updateSettings_;
 

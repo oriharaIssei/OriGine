@@ -15,8 +15,8 @@ void DebugCamera::Init(){
 void DebugCamera::DebugUpdate(){
 #ifdef _DEBUG
 	if(ImGui::Begin("DebugCamera")){
-		ImGui::DragFloat3("Rotate",&cameraBuff_.rotate.x,0.1f);
-		ImGui::DragFloat3("Translate",&cameraBuff_.translate.x,0.1f);
+		ImGui::DragFloat3("Rotate",&cameraBuff_.rotate[X],0.1f);
+		ImGui::DragFloat3("Translate",&cameraBuff_.translate[X],0.1f);
 	}
 	ImGui::End();
 #endif // _DEBUG
@@ -49,7 +49,7 @@ void DebugCamera::TranslationState::Update(){
 	uint32_t c = (host_->input_->isPressKey(DIK_LALT) | host_->input_->isPressKey(DIK_RALT));
 	state = (a)+(b * 2);
 	state *= c;
-	Vector3 velo = {};
+	Vec3f velo = {};
 	switch((TranslationType)state){
 		case NONE:
 			host_->currentState_.reset(new Neutral(host_));
@@ -66,7 +66,7 @@ void DebugCamera::TranslationState::Update(){
 		default:
 			break;
 	}
-	velo.y *= -1.0f;
+	velo[Y] *= -1.0f;
 	host_->cameraBuff_.translate += TransformNormal(velo,MakeMatrix::RotateXYZ(host_->cameraBuff_.rotate));
 }
 
@@ -78,10 +78,10 @@ void DebugCamera::RotationState::Update(){
 		host_->currentState_.reset(new Neutral(host_));
 		return;
 	}
-	host_->cameraBuff_.rotate += Vector3(host_->input_->getMouseVelocity().y,host_->input_->getMouseVelocity().x,0.0f) * 0.01f;
+	host_->cameraBuff_.rotate += Vec3f(host_->input_->getMouseVelocity()[Y],host_->input_->getMouseVelocity()[X],0.0f) * 0.01f;
 	host_->cameraBuff_.rotate = {
-		std::fmod(host_->cameraBuff_.rotate.x,maxRad),
-		std::fmod(host_->cameraBuff_.rotate.y,maxRad),
-		std::fmod(host_->cameraBuff_.rotate.z,maxRad)
+		std::fmod(host_->cameraBuff_.rotate[X],maxRad),
+		std::fmod(host_->cameraBuff_.rotate[Y],maxRad),
+		std::fmod(host_->cameraBuff_.rotate[Z],maxRad)
 	};
 }

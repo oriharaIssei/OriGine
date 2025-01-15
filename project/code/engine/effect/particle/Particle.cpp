@@ -13,7 +13,7 @@ Particle::Particle() {}
 
 Particle::~Particle() {}
 
-void Particle::Init(const ParticleTransform& _initialTransfrom, float _lifeTime, const Vector3& _direction, float _speed) {
+void Particle::Init(const ParticleTransform& _initialTransfrom, float _lifeTime, const Vec3f& _direction, float _speed) {
     transform_ = _initialTransfrom;
     transform_.UpdateMatrix();
 

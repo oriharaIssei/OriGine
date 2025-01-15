@@ -32,13 +32,13 @@ void EmitterSphere::Debug() {
 }
 #endif // _DEBUG
 
-Vector3 EmitterSphere::getSpawnPos() {
+Vec3f EmitterSphere::getSpawnPos() {
     if (spawnType_ == int32_t(ParticleSpawnLocationType::InBody)) {
         MyRandom::Float randFloat = MyRandom::Float(0.0f, radius_);
         float randDist            = randFloat.get();
         randFloat.setRange(-1.0f, 1.0f);
 
-        Vector3 randDire = {randFloat.get(), randFloat.get(), randFloat.get()};
+        Vec3f randDire = {randFloat.get(), randFloat.get(), randFloat.get()};
         randDire         = randDire.normalize();
 
         return randDire * randDist;
@@ -48,7 +48,7 @@ Vector3 EmitterSphere::getSpawnPos() {
         randFloat.setRange(-1.0f, 1.0f);
         float randPhi = randFloat.get() * 3.14159265358979323846f;
 
-        Vector3 randDire = {std::cos(randTheta) * std::sin(randPhi), std::cos(randPhi), std::sin(randTheta) * std::sin(randPhi)};
+        Vec3f randDire = {std::cos(randTheta) * std::sin(randPhi), std::cos(randPhi), std::sin(randTheta) * std::sin(randPhi)};
 
         return randDire * radius_;
     }
@@ -61,24 +61,24 @@ void EmitterOBB::Debug() {
     EmitterShape::Debug();
     ImGui::Text("min");
     std::string label = "##" + emitterShapeTypeWord_[int(type_)] + "_min";
-    ImGui::DragFloat3(label.c_str(), reinterpret_cast<float*>(min_.operator Vector3*()), 0.1f);
+    ImGui::DragFloat3(label.c_str(), reinterpret_cast<float*>(min_.operator Vec3f*()), 0.1f);
 
     ImGui::Text("min");
     label = "##" + emitterShapeTypeWord_[int(type_)] + "_max";
-    ImGui::DragFloat3(label.c_str(), reinterpret_cast<float*>(max_.operator Vector3*()), 0.1f);
+    ImGui::DragFloat3(label.c_str(), reinterpret_cast<float*>(max_.operator Vec3f*()), 0.1f);
 
-    min_.setValue({(std::min)(min_->x, max_->x), (std::min)(min_->y, max_->y), (std::min)(min_->z, max_->z)});
-    max_.setValue({(std::max)(min_->x, max_->x), (std::max)(min_->y, max_->y), (std::max)(min_->z, max_->z)});
+    min_.setValue({(std::min)(min_->v[X], max_->v[X]), (std::min)(min_->v[Y], max_->v[Y]), (std::min)(min_->v[Z], max_->v[Z])});
+    max_.setValue({(std::max)(min_->v[X], max_->v[X]), (std::max)(min_->v[Y], max_->v[Y]), (std::max)(min_->v[Z], max_->v[Z])});
 }
 #endif // _DEBUG
 
-Vector3 EmitterOBB::getSpawnPos() {
+Vec3f EmitterOBB::getSpawnPos() {
     MyRandom::Float randFloat = MyRandom::Float(0.0f, 1.0f);
     float randX               = randFloat.get();
     float randY               = randFloat.get();
     float randZ               = randFloat.get();
 
-    Vector3 diff = Vector3(max_) - Vector3(min_);
+    Vec3f diff = Vec3f(max_) - Vec3f(min_);
     if (spawnType_ == int32_t(ParticleSpawnLocationType::Edge)) {
         if (randX < 0.5f) {
             randX = 0.0f;
@@ -96,10 +96,10 @@ Vector3 EmitterOBB::getSpawnPos() {
             randZ = 1.0f;
         }
     }
-    Vector3 spawnPos = Vector3(
-        min_->x + diff.x * randX,
-        min_->y + diff.y * randY,
-        min_->z + diff.z * randZ);
+    Vec3f spawnPos = Vec3f(
+        min_->v[X] + diff[X] * randX,
+        min_->v[Y] + diff[Y] * randY,
+        min_->v[Z] + diff[Z] * randZ);
 
     spawnPos = TransformVector(spawnPos, MakeMatrix::RotateXYZ(rotate_));
 
@@ -114,7 +114,7 @@ void EmitterCapsule::Debug() {
     EmitterShape::Debug();
     ImGui::Text("direction");
     std::string label = "##" + emitterShapeTypeWord_[int(type_)] + "_direction";
-    if (ImGui::DragFloat3(label.c_str(), reinterpret_cast<float*>(direction_.operator Vector3*()), 0.1f)) {
+    if (ImGui::DragFloat3(label.c_str(), reinterpret_cast<float*>(direction_.operator Vec3f*()), 0.1f)) {
         direction_.setValue(direction_->normalize());
     }
 
@@ -129,10 +129,10 @@ void EmitterCapsule::Debug() {
 
 #endif // _DEBUG
 
-Vector3 EmitterCapsule::getSpawnPos() {
+Vec3f EmitterCapsule::getSpawnPos() {
     MyRandom::Float randFloat = MyRandom::Float(0.0f, 1.0f);
 
-    Vector3 randDire = {randFloat.get(), randFloat.get(), randFloat.get()};
+    Vec3f randDire = {randFloat.get(), randFloat.get(), randFloat.get()};
     randDire         = randDire.normalize();
 
     float randRadius = 0.0f;
@@ -145,7 +145,7 @@ Vector3 EmitterCapsule::getSpawnPos() {
     randFloat.setRange(0.0f, length_);
     float randDist = randFloat.get();
 
-    return (Vector3(direction_) * randDist) + (randDire * randRadius);
+    return (Vec3f(direction_) * randDist) + (randDire * randRadius);
 }
 #pragma endregion
 
@@ -155,7 +155,7 @@ void EmitterCone::Debug() {
     EmitterShape::Debug();
     ImGui::Text("direction");
     std::string label = "##" + emitterShapeTypeWord_[int(type_)] + "_direction";
-    if (ImGui::DragFloat3(label.c_str(), reinterpret_cast<float*>(direction_.operator Vector3*()), 0.1f)) {
+    if (ImGui::DragFloat3(label.c_str(), reinterpret_cast<float*>(direction_.operator Vec3f*()), 0.1f)) {
         direction_.setValue(direction_->normalize());
     }
 
@@ -169,10 +169,10 @@ void EmitterCone::Debug() {
 }
 #endif // _DEBUG
 
-Vector3 EmitterCone::getSpawnPos() {
+Vec3f EmitterCone::getSpawnPos() {
     MyRandom::Float randFloat = MyRandom::Float(0.0f, 1.0f);
 
-    Vector3 randDire = {randFloat.get(), randFloat.get(), randFloat.get()};
+    Vec3f randDire = {randFloat.get(), randFloat.get(), randFloat.get()};
     randDire         = randDire.normalize();
 
     float randRadius = 0.0f;
@@ -185,6 +185,6 @@ Vector3 EmitterCone::getSpawnPos() {
     randFloat.setRange(0.0f, length_);
     float randDist = randFloat.get();
 
-    return (Vector3(direction_) * randDist) + (randDire * randRadius);
+    return (Vec3f(direction_) * randDist) + (randDire * randRadius);
 }
 #pragma endregion

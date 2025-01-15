@@ -51,6 +51,6 @@ private:
 	std::unique_ptr<IState> currentState_ = nullptr;
 	CameraTransform cameraBuff_;
 public:
-	void setViewTranslate(const Vector3 &translate){ cameraBuff_.translate = translate; }
+	void setViewTranslate(const Vec3f &translate){ cameraBuff_.translate = translate; }
 	const CameraTransform &getCameraTransform()const{ return cameraBuff_; }
 };

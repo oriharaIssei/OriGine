@@ -105,6 +105,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="code\application\Collision\Collider.cpp" />
+    <ClCompile Include="code\application\Collision\CollisionManager.cpp" />
+    <ClCompile Include="code\application\GameObject\GameObject.cpp" />
     <ClCompile Include="code\application\scene\AnimationEditScene.cpp" />
     <ClCompile Include="code\engine\animation\Animation.cpp" />
     <ClCompile Include="code\engine\animation\AnimationManager.cpp" />
@@ -176,6 +179,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="code\engine\effect\EffectGroup.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="code\application\Collision\Collider.h" />
+    <ClInclude Include="code\application\Collision\CollisionManager.h" />
+    <ClInclude Include="code\application\GameObject\GameObject.h" />
     <ClInclude Include="code\application\scene\AnimationEditScene.h" />
     <ClInclude Include="code\engine\animation\Animation.h" />
     <ClInclude Include="code\engine\animation\AnimationManager.h" />
@@ -246,6 +252,19 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="code\math\MyEasing.h" />
     <ClInclude Include="code\application\scene\EffectEditScene.h" />
     <ClInclude Include="code\engine\effect\EffectGroup.h" />
+    <ClInclude Include="code\lib\Thread\Thread.h" />
+    <ClInclude Include="code\engine\effect\particle\manager\ParticleManager.h" />
+    <ClInclude Include="code\engine\transform\ParticleTransform.h" />
+    <ClInclude Include="code\engine\module\IModule.h" />
+    <ClInclude Include="code\engine\assets\IAsset.h" />
+    <ClInclude Include="code\lib\myRandom\MyRandom.h" />
+    <ClInclude Include="code\application\scene\IScene.h" />
+    <ClInclude Include="code\application\scene\SceneManager.h" />
+    <ClInclude Include="code\lib\node\OperatorNodes.h" />
+    <ClInclude Include="code\application\MyGame.h" />
+    <ClInclude Include="code\application\FrameWork.h" />
+    <ClInclude Include="code\application\scene\TitleScene.h" />
+    <ClInclude Include="code\application\scene\GameClearScene.h" />
     <ClInclude Include="externals\assimp\include\assimp\aabb.h" />
     <ClInclude Include="externals\assimp\include\assimp\ai_assert.h" />
     <ClInclude Include="externals\assimp\include\assimp\anim.h" />
@@ -329,21 +348,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="externals\assimp\include\assimp\XmlParser.h" />
     <ClInclude Include="externals\assimp\include\assimp\XMLTools.h" />
     <ClInclude Include="externals\assimp\include\assimp\ZipArchiveIOSystem.h" />
-    <ClInclude Include="code\lib\Thread\Thread.h" />
-    <ClInclude Include="code\engine\effect\particle\manager\ParticleManager.h" />
-    <ClInclude Include="code\engine\transform\ParticleTransform.h" />
-    <ClInclude Include="code\engine\module\IModule.h" />
-    <ClInclude Include="code\engine\assets\IAsset.h" />
-    <ClInclude Include="code\lib\myRandom\MyRandom.h" />
-    <ClInclude Include="code\application\scene\IScene.h" />
-    <ClInclude Include="code\application\scene\SceneManager.h" />
-    <ClInclude Include="code\lib\node\OperatorNodes.h" />
     <ClInclude Include="externals\nlohmann\json.hpp" />
     <ClInclude Include="externals\nlohmann\json_fwd.hpp" />
-    <ClInclude Include="code\application\MyGame.h" />
-    <ClInclude Include="code\application\FrameWork.h" />
-    <ClInclude Include="code\application\scene\TitleScene.h" />
-    <ClInclude Include="code\application\scene\GameClearScene.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">

@@ -33,9 +33,9 @@ Matrix4x4 Animation::CalculateNodeLocal(const std::string& nodeName) const {
 
     const NodeAnimation& nodeAnimation = it->second;
 
-    Vector3 scale     = CalculateValue(nodeAnimation.scale, currentAnimationTime);
+    Vec3f scale     = CalculateValue(nodeAnimation.scale, currentAnimationTime);
     Quaternion rotate = Quaternion::Normalize(CalculateValue(nodeAnimation.rotate, currentAnimationTime));
-    Vector3 translate = CalculateValue(nodeAnimation.translate, currentAnimationTime);
+    Vec3f translate = CalculateValue(nodeAnimation.translate, currentAnimationTime);
     return MakeMatrix::Affine(scale, rotate, translate);
 }
 
@@ -66,7 +66,7 @@ float CalculateValue(const std::vector<Keyframe<float>>& keyframes, float time) 
     return (*keyframes.rbegin()).value;
 }
 
-Vector3 CalculateValue(const std::vector<KeyframeVector3>& keyframes, float time) {
+Vec3f CalculateValue(const std::vector<KeyframeVector3>& keyframes, float time) {
     ///===========================================
     /// 例外処理
     ///===========================================
@@ -87,7 +87,7 @@ Vector3 CalculateValue(const std::vector<KeyframeVector3>& keyframes, float time
             // 範囲内 で 保管
             float t = (time - keyframes[index].time) /
                       (keyframes[nextIndex].time - keyframes[index].time);
-            return Lerp(keyframes[index].value, keyframes[nextIndex].value, t);
+            return Vec3f::Lerp(keyframes[index].value, keyframes[nextIndex].value, t);
         }
     }
 
@@ -96,7 +96,7 @@ Vector3 CalculateValue(const std::vector<KeyframeVector3>& keyframes, float time
     return (*keyframes.rbegin()).value;
 }
 
-Vector4 CalculateValue(const std::vector<Keyframe<Vector4>>& keyframes, float time) {
+Vec4f CalculateValue(const std::vector<Keyframe<Vec4f>>& keyframes, float time) {
     ///===========================================
     /// 例外処理
     ///===========================================
@@ -115,7 +115,7 @@ Vector4 CalculateValue(const std::vector<Keyframe<Vector4>>& keyframes, float ti
             // 範囲内 で 保管
             float t = (time - keyframes[index].time) /
                       (keyframes[nextIndex].time - keyframes[index].time);
-            return Lerp(keyframes[index].value, keyframes[nextIndex].value, t);
+            return Vec4f::Lerp(keyframes[index].value, keyframes[nextIndex].value, t);
         }
     }
     // 登録されている時間より 後ろ
@@ -165,10 +165,10 @@ void Animation::ApplyAnimationToNodes(
     }
 }
 
-Vector3 Animation::getCurrentScale(const std::string& nodeName) const {
+Vec3f Animation::getCurrentScale(const std::string& nodeName) const {
     auto itr = data->nodeAnimations.find(nodeName);
     if (itr == data->nodeAnimations.end()) {
-        return Vector3(1.0f, 1.0f, 1.0f);
+        return Vec3f(1.0f, 1.0f, 1.0f);
     }
     return CalculateValue(itr->second.scale, currentAnimationTime);
 }
@@ -181,10 +181,10 @@ Quaternion Animation::getCurrentRotate(const std::string& nodeName) const {
     return CalculateValue(itr->second.rotate, currentAnimationTime);
 }
 
-Vector3 Animation::getCurrentTranslate(const std::string& nodeName) const {
+Vec3f Animation::getCurrentTranslate(const std::string& nodeName) const {
     auto itr = data->nodeAnimations.find(nodeName);
     if (itr == data->nodeAnimations.end()) {
-        return Vector3(0.0f, 0.0f, 0.0f);
+        return Vec3f(0.0f, 0.0f, 0.0f);
     }
     return CalculateValue(itr->second.translate, currentAnimationTime);
 }

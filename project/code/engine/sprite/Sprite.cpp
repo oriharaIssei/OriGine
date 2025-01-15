@@ -86,17 +86,17 @@ void Sprite::Draw() {
 void Sprite::Debug(const std::string& name) {
 #ifdef _DEBUG
 
-    ImGui::ColorEdit4("Color", &color_.x);
+    ImGui::ColorEdit4("Color", &color_[X]);
 
-    ImGui::DragFloat2("UVScale", &uvScale_.x, 0.1f);
-    ImGui::DragFloat2("UVRotate", &uvRotate_.x, 0.1f);
-    ImGui::DragFloat2("UVTranslate", &uvTranslate_.x, 0.1f);
+    ImGui::DragFloat2("UVScale", &uvScale_[X], 0.1f);
+    ImGui::DragFloat2("UVRotate", &uvRotate_[X], 0.1f);
+    ImGui::DragFloat2("UVTranslate", &uvTranslate_[X], 0.1f);
 
-    ImGui::DragFloat2("Position", &pos_.x, 0.1f);
-    ImGui::DragFloat2("Size", &size_.x, 0.1f);
+    ImGui::DragFloat2("Position", &pos_[X], 0.1f);
+    ImGui::DragFloat2("Size", &size_[X], 0.1f);
 
-    ImGui::DragFloat2("textureLeftTopPos", &textureLeftTop_.x, 0.1f);
-    ImGui::DragFloat2("textureSize", &textureSize_.x, 0.1f);
+    ImGui::DragFloat2("textureLeftTopPos", &textureLeftTop_[X], 0.1f);
+    ImGui::DragFloat2("textureSize", &textureSize_[X], 0.1f);
 #endif // _DEBUG
 }
 
@@ -104,10 +104,10 @@ void Sprite::Update() {
     worldMat_ = MakeMatrix::Affine({size_, 1.0f}, {0.0f, 0.0f, rotate_}, {pos_, 0.0f});
     uvMat_    = MakeMatrix::Affine(uvScale_, uvRotate_, uvTranslate_);
 
-    float left   = -anchorPoint_.x;
-    float right  = 1.0f - anchorPoint_.x;
-    float top    = -anchorPoint_.y;
-    float bottom = 1.0f - anchorPoint_.y;
+    float left   = -anchorPoint_[X];
+    float right  = 1.0f - anchorPoint_[X];
+    float top    = -anchorPoint_[Y];
+    float bottom = 1.0f - anchorPoint_[Y];
 
     if (isFlipX_) {
         left  = -left;
@@ -123,10 +123,10 @@ void Sprite::Update() {
     meshBuff_->vertexData[2].pos = {right, bottom, 0.0f, 1.0f};
     meshBuff_->vertexData[3].pos = {right, top, 0.0f, 1.0f};
 
-    float texLeft   = textureLeftTop_.x / textureSize_.x;
-    float texRight  = (textureLeftTop_.x + textureSize_.x) / textureSize_.x;
-    float texTop    = textureLeftTop_.y / textureSize_.y;
-    float texBottom = (textureLeftTop_.y + textureSize_.y) / textureSize_.y;
+    float texLeft   = textureLeftTop_[X] / textureSize_[X];
+    float texRight  = (textureLeftTop_[X] + textureSize_[X]) / textureSize_[X];
+    float texTop    = textureLeftTop_[Y] / textureSize_[Y];
+    float texBottom = (textureLeftTop_[Y] + textureSize_[Y]) / textureSize_[Y];
 
     meshBuff_->vertexData[0].texcoord = {texLeft, texBottom};
     meshBuff_->vertexData[1].texcoord = {texLeft, texTop};

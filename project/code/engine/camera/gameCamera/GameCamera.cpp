@@ -22,26 +22,26 @@ void GameCamera::Init() {
 void GameCamera::Update() {
     Input* input = Input::getInstance();
     if (followTarget_) {
-        Vector2 rotateVelocity;
+        Vec2f rotateVelocity;
         if (input->isPadActive()) {
             rotateVelocity = input->getRStickVelocity() * rotateSpeed_;
             // input の x,yをそれぞれの角度に変換
-            destinationAngleXY_ += {-rotateVelocity.y, rotateVelocity.x};
+            destinationAngleXY_ += {-rotateVelocity[Y], rotateVelocity[X]};
         }
 
-        destinationAngleXY_.x = std::clamp(destinationAngleXY_.x, minRotateX_.operator float(), maxRotateX_.operator float());
+        destinationAngleXY_[X] = std::clamp(destinationAngleXY_[X], minRotateX_.operator float(), maxRotateX_.operator float());
 
-        cameraTransform_.rotate.x = std::lerp(cameraTransform_.rotate.x, destinationAngleXY_.x, rotateSensitivity_);
-        cameraTransform_.rotate.y = std::lerp(cameraTransform_.rotate.y, destinationAngleXY_.y, rotateSensitivity_);
+        cameraTransform_.rotate[X] = std::lerp(cameraTransform_.rotate[X], destinationAngleXY_[X], rotateSensitivity_);
+        cameraTransform_.rotate[Y] = std::lerp(cameraTransform_.rotate[Y], destinationAngleXY_[Y], rotateSensitivity_);
 
-        Vector3 offset = OffstVector();
-        interTarget_   = Lerp(followTarget_->translate, interTarget_, rotateSensitivity_);
+        Vec3f offset = OffstVector();
+        interTarget_   = Vec3f::Lerp(followTarget_->translate, interTarget_, rotateSensitivity_);
 
         cameraTransform_.translate = offset + interTarget_;
     }
     cameraTransform_.UpdateMatrix();
 }
 
-Vector3 GameCamera::OffstVector() {
+Vec3f GameCamera::OffstVector() {
     return TransformVector(followOffset_, MakeMatrix::RotateXYZ(cameraTransform_.rotate));
 }

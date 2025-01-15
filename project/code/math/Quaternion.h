@@ -9,8 +9,8 @@ struct Quaternion {
     Quaternion() {}
     Quaternion(float _x, float _y, float _z, float _w)
         : x(_x), y(_y), z(_z), w(_w) {}
-    Quaternion(const Vector3& v, float _w)
-        : x(v.x), y(v.y), z(v.z), w(_w) {}
+    Quaternion(const Vec3f& v, float _w)
+        : x(v[X]), y(v[Y]), z(v[Z]), w(_w) {}
 
     float x = 0;
     float y = 0;
@@ -72,8 +72,15 @@ struct Quaternion {
     static float Dot(const Quaternion& q0, const Quaternion& q1);
     float dot(const Quaternion& q) const;
 
-    static Quaternion RotateAxisAngle(const Vector3& axis, float angle);
+    static Quaternion RotateAxisAngle(const Vec3f& axis, float angle);
     void Show();
+
+    // インライン関数として定義
+    friend inline Vec3f RotateVector(const Vec3f& v, const Quaternion& q) {
+        Quaternion r = Quaternion(v, 0.0f);
+        r            = q * r * q.Conjugation();
+        return Vec3f(r.x, r.y, r.z);
+    }
 };
 
 Quaternion operator*(float scalar, const Quaternion& q);

@@ -26,12 +26,12 @@ struct ParticleTransform{
 	}
 	~ParticleTransform() = default;
 
-	Vector3 scale,rotate,translate;
+	Vec3f scale,rotate,translate;
 	Matrix4x4 worldMat;
-	Vector3 uvScale,uvRotate,uvTranslate;
+	Vec3f uvScale,uvRotate,uvTranslate;
 	Matrix4x4 uvMat;
 
-	Vector4 color;
+	Vec4f color;
 
 	ParticleTransform* parent = nullptr;
 
@@ -40,7 +40,7 @@ public:
 	struct ConstantBuffer{
 		Matrix4x4 worldMat;
 		Matrix4x4 uvMat;
-		Vector4 color;
+		Vec4f color;
 
 		ConstantBuffer& operator=(const ParticleTransform& transform){
 			worldMat = transform.worldMat;

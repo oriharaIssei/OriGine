@@ -1,118 +1,79 @@
 #pragma once
 
+#include "Vector.h"
+
 #include <cmath>
 
 //=====================================
 // x&yをもつ単位
 //=====================================
 
-struct Vector2 final{
-	float x;
-	float y;
+template <typename valueType = float>
+struct Vector2 final
+    : Vector<2, valueType> {
+    using Vector<2, valueType>::v;
+    using Vector<2, valueType>::operator[];
+    using Vector<2, valueType>::operator+;
+    using Vector<2, valueType>::operator+=;
+    using Vector<2, valueType>::operator-;
+    using Vector<2, valueType>::operator-=;
+    using Vector<2, valueType>::operator*;
+    using Vector<2, valueType>::operator*=;
+    using Vector<2, valueType>::operator/;
+    using Vector<2, valueType>::operator/=;
+    using Vector<2, valueType>::operator=;
+    using Vector<2, valueType>::operator==;
+    using Vector<2, valueType>::operator!=;
 
-	// コンストラクタ
-	Vector2(float xValue,float yValue): x(xValue),y(yValue){}
-	Vector2(int X,int Y):x((float)X),y((float)Y){}
-	Vector2(const float* x_ptr,const float* y_ptr): x(*x_ptr),y(*y_ptr){}
-	Vector2(const float* ptr): x(ptr[0]),y(ptr[1]){}
-	Vector2(): x(0.0f),y(0.0f){}
+    // コンストラクタ
+    Vector2(valueType xValue, valueType yValue)
+        : Vector<2, valueType>({xValue, yValue}) {}
+    Vector2(const valueType* x_ptr, const valueType* y_ptr)
+        : Vector<2, valueType>({*x_ptr, *y_ptr}) {}
+    Vector2(const valueType* ptr)
+        : Vector<2, valueType>({ptr[0], ptr[1]}) {}
+    Vector2()
+        : Vector<2, valueType>({0, 0}) {}
 
-	// ベクトルの長さを計算
-	float length()const{ return sqrtf(x * x + y * y); }
-	static float Length(const Vector2& v){ return sqrtf(v.x * v.x + v.y * v.y); }
+    // ベクトルの長さを計算
+    valueType length() const { return std::sqrt(v[X] * v[X] + v[Y] * v[Y]); }
+    static valueType Length(const Vector2& v) { return std::sqrt(v.v[X] * v.v[X] + v.v[Y] * v.v[Y]); }
 
-	float lengthSq()const{ return (this->x * this->x + this->y * this->y); }
-	static float LengthSq(const Vector2& v1){ return (v1.x * v1.x + v1.y * v1.y); }
+    valueType lengthSq() const { return (this->v[X] * this->v[X] + this->v[Y] * this->v[Y]); }
+    static valueType LengthSq(const Vector2& v1) { return (v1.v[X] * v1.v[X] + v1.v[Y] * v1.v[Y]); }
 
-	float dot()const{ return x * x + y * y; }
-	float dot(const Vector2& another) const{ return (this->x * another.x) + (this->y * another.y); }
+    valueType dot() const { return v[X] * v[X] + v[Y] * v[Y]; }
 
-	static float Dot(const Vector2& v){ return v.x * v.x + v.y * v.y; }
-	static float Dot(const Vector2& v,const Vector2& another){ return (v.x * another.x) + (v.y * another.y); }
+    static valueType Dot(const Vector2& _v) { return _v.v[X] * _v.v[X] + _v.v[Y] * _v.v[Y]; }
 
-	float cross(const Vector2& another)const{ return (this->x * another.y) - (this->y * another.x); }
-	static float Cross(const Vector2& v,const Vector2& another){ return (v.x * another.y) - (v.y * another.x); }
+    valueType cross(const Vector2& another) const { return (this->v[X] * another.v[Y]) - (this->v[Y] * another.v[X]); }
+    static valueType Cross(const Vector2& _v, const Vector2& another) { return (_v.v[X] * another.v[Y]) - (_v.v[Y] * another.v[X]); }
 
-	Vector2 normalize()const{
-		float length = this->length();
-		if(length == 0){
-			return *this;
-		}
-		Vector2 result = *this;
-		return (result / length);
-	}
+    Vector2 normalize() const {
+        valueType length = this->length();
+        if (length == 0) {
+            return *this;
+        }
+        Vector2 result = *this;
+        return (result / length);
+    }
 
-	static Vector2 Normalize(const Vector2& v){
-		float length = v.length();
-		if(length == 0){
-			return v;
-		}
-		Vector2 result = v;
-		return (result / length);
-	}
-
-	Vector2 operator+(const Vector2& other) const{
-		return Vector2(x + other.x,y + other.y);
-	}
-	void operator+=(const Vector2& other){
-		x += other.x;
-		y += other.y;
-	}
-
-	Vector2 operator-(const Vector2& other) const{
-		return Vector2(x - other.x,y - other.y);
-	}
-	Vector2 operator-()const{ return Vector2(-x,-y); }
-	void operator-=(const Vector2& other){
-		x -= other.x;
-		y -= other.y;
-	}
-
-	Vector2 operator*(const float& scalar) const{
-		return Vector2(x * scalar,y * scalar);
-	}
-	void operator*=(const float& scalar){
-		x *= scalar;
-		y *= scalar;
-	}
-
-	Vector2 operator/(const float& scalar) const{
-		if(scalar != 0){
-			return Vector2(x / scalar,y / scalar);
-		} else{
-			// ゼロで割る場合の処理を追加
-			return Vector2(0.0f,0.0f);
-		}
-	}
-	void operator/=(const float& scalar){
-		if(scalar != 0){
-			x /= scalar;
-			y /= scalar;
-		} else{
-			// ゼロで割る場合の処理を追加
-			x = 0;
-			y = 0;
-		}
-	}
-
-	// 等号演算子のオーバーロード
-	bool operator==(const Vector2& other) const{
-		return (x == other.x && y == other.y);
-	}
-
-	// 不等号演算子のオーバーロード
-	bool operator!=(const Vector2& other) const{
-		return !(*this == other);
-	}
+    static Vector2 Normalize(const Vector2& _v) {
+        valueType length = _v.length();
+        if (length == 0) {
+            return _v;
+        }
+        Vector2 result = _v;
+        return (result / length);
+    }
 };
 
-inline Vector2 operator*(const float& scalar,const Vector2& vec){
-	return Vector2(vec.x * scalar,vec.y * scalar);
-}
+//=========== using ===========//
+template <typename valueType>
+using Vec2 = Vector2<valueType>;
 
-inline Vector2 Lerp(const Vector2& start,const Vector2& end,float time){
-	return {
-		std::lerp(start.x,end.x,time),
-		std::lerp(start.y,end.y,time)
-	};
-}
+using Vector2f = Vector2<float>;
+using Vec2f    = Vector2<float>;
+
+using Vector2d = Vector2<double>;
+using Vec2d    = Vector2<double>;
