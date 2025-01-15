@@ -12,7 +12,7 @@ KnockBackAction::~KnockBackAction() {}
 
 const float attenuation = 0.8f; // 速度減衰率
 Status KnockBackAction::tick() {
-    float deltaTime  = Engine::getInstance()->getDeltaTime();
+    float deltaTime  = Engine::getInstance()->getGameDeltaTime();
     Vec3f enemyPos  = enemy_->getTranslate();
 
     // ノックバックの挙動

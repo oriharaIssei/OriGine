@@ -101,6 +101,9 @@ void Engine::Init() {
     deltaTime_ = std::make_unique<DeltaTime>();
     deltaTime_->Init();
 
+    gameDeltaTime_ = std::make_unique<GameDeltaTime>();
+    gameDeltaTime_->Init();
+
     AnimationManager::getInstance()->Init();
     CameraManager::getInstance()->Init();
     //Editor
@@ -301,6 +304,7 @@ void Engine::BeginFrame() {
     PrimitiveDrawer::setBlendMode(BlendMode::Alpha);
     //Sprite::setBlendMode(BlendMode::Alpha);
     deltaTime_->Update();
+    gameDeltaTime_->Update();
 
 #ifdef _DEBUG
     editor_->Update();

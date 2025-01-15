@@ -18,15 +18,24 @@ protected:
     void Action() override;
     void EndLag() override;
 
+    void CreateAttackCollider();
+    void CheckCombo();
+
 private:
+    // Combo
     SerializedField<int32_t> maxCombo_;
     int32_t currentCombo_ = 0;
 
+    // Timer
     SerializedField<float> startUpTime_;
     SerializedField<float> actionTime_;
     SerializedField<float> endLagTime_;
     float currentTimer_ = 0.0f;
 
+    SerializedField<float> hitStopScale_;
+    SerializedField<float> hitStopTime_;
+
+    // Attack
     SerializedField<float> attackPower_;
     SerializedField<Vec3f> attackColliderOffset_;
 

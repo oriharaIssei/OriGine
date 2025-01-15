@@ -7,6 +7,8 @@
 #include "Engine.h"
 //module
 #include "../Collision/CollisionManager.h"
+#include "../Enemy/Manager/EnemyManager.h"
+#include "../HitEffectManager/HitEffectManager.h"
 #include "SceneManager.h"
 #include "directX12/DxRtvArrayManager.h"
 #include "directX12/DxSrvArrayManager.h"
@@ -16,7 +18,6 @@
 #include "particle/manager/ParticleManager.h"
 #include "primitiveDrawer/PrimitiveDrawer.h"
 #include "sprite/SpriteCommon.h"
-
 //component
 #include "camera/CameraManager.h"
 #include "directX12/RenderTexture.h"
@@ -24,6 +25,9 @@
 #include "sprite/Sprite.h"
 
 //object
+#include "../Enemy/IEnemy.h"
+#include "../Player/Player.h"
+#include "../PlayerHpBar/PlayerHpBar.h"
 #include "camera/gameCamera/GameCamera.h"
 //debug
 #ifdef _DEBUG
@@ -33,7 +37,10 @@
 #endif // _DEBUG
 
 GameScene::GameScene()
-    : IScene("GameScene"){}
+    : IScene("GameScene"),
+      dashUIPos_{"Game", "UI", "dashUIPos"},
+      attackUIPos_{"Game", "UI", "attackUIPos"},
+      jumpUIPos_{"Game", "UI", "jumpUIPos"} {}
 
 GameScene::~GameScene() {}
 
@@ -53,6 +60,20 @@ void GameScene::Init() {
     gameCamera_ = std::make_unique<GameCamera>();
     gameCamera_->Init();
 
+    activeGameObjects_.reserve(128);
+
+    collisionManager_ = std::make_unique<CollisionManager>();
+
+    player_ = std::make_unique<Player>();
+    player_->Init();
+    player_->setCameraTransform(const_cast<CameraTransform*>(&gameCamera_->getCameraTransform()));
+    gameCamera_->setFollowTarget(const_cast<Transform*>(&player_->getTransform()));
+
+    enemyManager_ = std::make_unique<EnemyManager>();
+    enemyManager_->Init();
+    enemyManager_->setPlayer(player_.get());
+
+    //terrain
     ground_ = std::make_unique<Object3d>();
     ground_->Init("resource/Models", "BattleField.obj");
 
@@ -100,8 +121,36 @@ void GameScene::Update() {
     CameraManager::getInstance()->setTransform(gameCamera_->getCameraTransform());
 #endif // _DEBUG
 
-}
+    collisionManager_->clearCollider();
+    enemyManager_->removeDeadEnemy();
+    enemyManager_->removeDeadSpawner();
+    activeGameObjects_.clear();
+    // add activeGameObjects_
+    if (player_->getIsAlive()) {
+        activeGameObjects_.push_back(player_.get());
+        auto playerAttackCollider = player_->getAttackCollider();
+        if (playerAttackCollider && playerAttackCollider->getIsAlive()) {
+            activeGameObjects_.push_back(playerAttackCollider);
+        }
+    } else {
+        // playerが死んだらタイトルに戻る
+        SceneManager::getInstance()->changeScene("TitleScene");
+        return;
+    }
+    if (enemyManager_->getSpawners().empty()) {
+        // クリア
+        SceneManager::getInstance()->changeScene("GameClearScene");
+        return;
+    }
 
+    for (auto& enemySpawner : enemyManager_->getSpawners()) {
+        if (enemySpawner->getIsAlive()) {
+            activeGameObjects_.push_back(enemySpawner.get());
+        }
+    }
+    for (auto& enemy : enemyManager_->getEnemies()) {
+        if (enemy->getIsAlive()) {
+            activeGameObjects_.push_back(enemy.get());
             auto enemyAttackCollider = enemy->getAttackCollider();
             if (enemyAttackCollider && enemyAttackCollider->getIsAlive()) {
                 activeGameObjects_.push_back(enemyAttackCollider);
@@ -140,6 +189,9 @@ void GameScene::Update() {
 }
 
 void GameScene::Draw3d() {
+    player_->Draw();
+    enemyManager_->Draw();
+
     ground_->Draw();
     skyDome_->Draw();
 }

@@ -23,7 +23,9 @@ PlayerWeakAttackBehavior::PlayerWeakAttackBehavior(Player* _player, int32_t _cur
       endLagTime_{"Game", "PlayerWeakAttack" + std::to_string(_currentCombo), "endLagTime"},
       attackPower_{"Game", "PlayerWeakAttack" + std::to_string(_currentCombo), "attackPower"},
       attackColliderOffset_{"Game", "PlayerWeakAttack" + std::to_string(_currentCombo), "attackColliderOffset_"},
-      knockBackPower_{"Game", "PlayerWeakAttack" + std::to_string(_currentCombo), "knockBackPower"} {
+      knockBackPower_{"Game", "PlayerWeakAttack" + std::to_string(_currentCombo), "knockBackPower"},
+      hitStopScale_{"Game", "PlayerWeakAttack" + std::to_string(_currentCombo), "hitStopScale"},
+      hitStopTime_{"Game", "PlayerWeakAttack"+ std::to_string(_currentCombo), "hitStopTime"} {
     currentCombo_ = _currentCombo;
 
     AnimationSetting weakAttackActionSettings = AnimationSetting("Player_WeakAttack" + std::to_string(currentCombo_));
@@ -47,58 +49,11 @@ void PlayerWeakAttackBehavior::Update() {
 }
 
 void PlayerWeakAttackBehavior::StartUp() {
-    currentTimer_ += Engine::getInstance()->getDeltaTime();
+    currentTimer_ += Engine::getInstance()->getGameDeltaTime();
     if (currentTimer_ >= startUpTime_) {
         currentTimer_ = 0.0f;
 
-        AttackCollider* attackCollider_ = player_->getAttackCollider();
-        attackCollider_->resetRadius("PlayerWeakAttack" + std::to_string(currentCombo_));
-
-        Vector3 colliderPos = player_->getTranslate();
-        colliderPos += TransformVector(attackColliderOffset_, MakeMatrix::RotateQuaternion(player_->getRotate()));
-        attackCollider_->Init();
-        attackCollider_->ColliderInit(
-            colliderPos,
-            [this](GameObject* object) {
-                if (!object) {
-                    return;
-                }
-                Quaternion effectRotate;
-                Vector3 effectPos;
-                if (object->getID() == "Player") {
-                    return;
-                } else if (object->getID() == "Enemy") {
-                    IEnemy* enemy = dynamic_cast<IEnemy*>(object);
-
-                    if (!enemy || enemy->getIsInvisible()) {
-                        return;
-                    }
-
-                    effectPos = enemy->getTranslate();
-
-                    enemy->Damage(player_->getPower() * attackPower_);
-                    Vector3 knockBackDirection = enemy->getTranslate() - player_->getTranslate();
-                    knockBackDirection[Y]      = 0.0f;
-                    enemy->KnockBack(knockBackDirection.normalize(), knockBackPower_);
-                    enemy->setInvisibleTime(actionTime_ - currentTimer_);
-                } else if (object->getID() == "EnemySpawner") {
-                    EnemySpawner* enemySpawner = dynamic_cast<EnemySpawner*>(object);
-
-                    if (!enemySpawner || enemySpawner->getIsInvisible()) {
-                        return;
-                    }
-
-                    effectPos = object->getTranslate();
-
-                    enemySpawner->Damage(player_->getPower() * attackPower_);
-                    enemySpawner->setInvisibleTime(actionTime_ - currentTimer_);
-                }
-                Vec2f directionForEffect = Vec2f(player_->getTranslate().x(), player_->getTranslate().z()) - Vec2f(effectPos.x(), effectPos.z()).normalize();
-                effectRotate               = Quaternion::RotateAxisAngle({0.0f, 1.0f, 0.0f}, atan2(directionForEffect.x(), directionForEffect.y()));
-
-                HitEffectManager* hitEffectManager = HitEffectManager::getInstance();
-                hitEffectManager->addHitEffect(effectRotate, effectPos);
-            });
+        CreateAttackCollider();
         currentUpdate_ = [this]() {
             this->Action();
         };
@@ -106,13 +61,9 @@ void PlayerWeakAttackBehavior::StartUp() {
 }
 
 void PlayerWeakAttackBehavior::Action() {
-    currentTimer_ += Engine::getInstance()->getDeltaTime();
+    currentTimer_ += Engine::getInstance()->getGameDeltaTime();
 
-    if (input->isPadActive() && !nextBehavior_ && currentCombo_ + 1 < maxCombo_) {
-        if (input->isTriggerButton(XINPUT_GAMEPAD_X)) {
-            nextBehavior_.reset(new PlayerWeakAttackBehavior(player_, currentCombo_ + 1));
-        }
-    }
+    CheckCombo();
 
     if (currentTimer_ >= actionTime_) {
         currentTimer_ = 0.0f;
@@ -129,16 +80,7 @@ void PlayerWeakAttackBehavior::Action() {
 void PlayerWeakAttackBehavior::EndLag() {
     currentTimer_ += Engine::getInstance()->getDeltaTime();
 
-    if (nextBehavior_) {
-        player_->ChangeBehavior(nextBehavior_);
-        return;
-    } else {
-        if (input->isPadActive() && currentCombo_ + 1 < maxCombo_) {
-            if (input->isTriggerButton(XINPUT_GAMEPAD_X)) {
-                nextBehavior_.reset(new PlayerWeakAttackBehavior(player_, currentCombo_ + 1));
-            }
-        }
-    }
+    CheckCombo();
     if (currentTimer_ >= endLagTime_) {
         currentTimer_ = 0.0f;
         if (nextBehavior_) {
@@ -147,6 +89,79 @@ void PlayerWeakAttackBehavior::EndLag() {
         } else {
             player_->ChangeBehavior(new PlayerRootBehavior(player_));
             return;
+        }
+    }
+}
+
+void PlayerWeakAttackBehavior::CreateAttackCollider() {
+    AttackCollider* attackCollider_ = player_->getAttackCollider();
+    attackCollider_->resetRadius("PlayerWeakAttack" + std::to_string(currentCombo_));
+
+    Vector3 colliderPos = player_->getTranslate();
+    colliderPos += TransformVector(attackColliderOffset_, MakeMatrix::RotateQuaternion(player_->getRotate()));
+    attackCollider_->Init();
+    attackCollider_->ColliderInit(
+        colliderPos,
+        [this](GameObject* object) {
+            if (!object) {
+                return;
+            }
+            Quaternion effectRotate;
+            Vector3 effectPos;
+            if (object->getID() == "Player") {
+                return;
+            } else if (object->getID() == "Enemy") {
+                IEnemy* enemy = dynamic_cast<IEnemy*>(object);
+
+                if (!enemy || enemy->getIsInvisible()) {
+                    return;
+                }
+
+                effectPos = enemy->getTranslate();
+
+                enemy->Damage(player_->getPower() * attackPower_);
+                Vector3 knockBackDirection = enemy->getTranslate() - player_->getTranslate();
+                knockBackDirection[Y]      = 0.0f;
+                enemy->KnockBack(knockBackDirection.normalize(), knockBackPower_);
+                enemy->setInvisibleTime(actionTime_ - currentTimer_);
+
+                Vec2f directionForEffect = Vec2f(player_->getTranslate().x(), player_->getTranslate().z()) - Vec2f(effectPos.x(), effectPos.z()).normalize();
+                effectRotate             = Quaternion::RotateAxisAngle({0.0f, 1.0f, 0.0f}, atan2(directionForEffect.x(), directionForEffect.y()));
+
+                HitEffectManager* hitEffectManager = HitEffectManager::getInstance();
+                hitEffectManager->addHitEffect(effectRotate, effectPos);
+
+                Engine::getInstance()->getGameDeltaTimeInstance()->HitStop(hitStopScale_, hitStopTime_);
+            } else if (object->getID() == "EnemySpawner") {
+                EnemySpawner* enemySpawner = dynamic_cast<EnemySpawner*>(object);
+
+                if (!enemySpawner || enemySpawner->getIsInvisible()) {
+                    return;
+                }
+
+                effectPos = object->getTranslate();
+
+                enemySpawner->Damage(player_->getPower() * attackPower_);
+                enemySpawner->setInvisibleTime(actionTime_ - currentTimer_);
+
+                Vec2f directionForEffect = Vec2f(player_->getTranslate().x(), player_->getTranslate().z()) - Vec2f(effectPos.x(), effectPos.z()).normalize();
+                effectRotate             = Quaternion::RotateAxisAngle({0.0f, 1.0f, 0.0f}, atan2(directionForEffect.x(), directionForEffect.y()));
+
+                HitEffectManager* hitEffectManager = HitEffectManager::getInstance();
+                hitEffectManager->addHitEffect(effectRotate, effectPos);
+
+                Engine::getInstance()->getGameDeltaTimeInstance()->HitStop(hitStopScale_, hitStopTime_);
+            }
+        });
+}
+
+void PlayerWeakAttackBehavior::CheckCombo() {
+    if (nextBehavior_) {
+        return;
+    }
+    if (input->isPadActive() && !nextBehavior_ && currentCombo_ + 1 < maxCombo_) {
+        if (input->isTriggerButton(XINPUT_GAMEPAD_X)) {
+            nextBehavior_.reset(new PlayerWeakAttackBehavior(player_, currentCombo_ + 1));
         }
     }
 }

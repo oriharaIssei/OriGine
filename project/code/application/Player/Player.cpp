@@ -70,9 +70,11 @@ void Player::Update() {
         return;
     }
 
+    float deltaTime = Engine::getInstance()->getGameDeltaTime();
+
     Transform& transform = drawObject3d_->transform_;
-    jampForce_ -= 9.8f * Engine::getInstance()->getDeltaTime();
-    transform.translate.y() += jampForce_ * Engine::getInstance()->getDeltaTime();
+    jampForce_ -= 9.8f * deltaTime;
+    transform.translate.y() += jampForce_ * deltaTime;
     if (transform.translate.y() < 0.0f) {
         transform.translate.y() = 0.0f;
         jampForce_            = 0.0f;
@@ -88,12 +90,12 @@ void Player::Update() {
             drawObject3d_->transform_.translate = drawObject3d_->transform_.translate.normalize() * maxMoveLenght_;
         }
 
-        drawObject3d_->Update(Engine::getInstance()->getDeltaTime());
+        drawObject3d_->Update(deltaTime);
         hitCollider_->UpdateMatrix();
     }
 
     if (invisibleTime_ >= 0.0f) {
-        invisibleTime_ -= Engine::getInstance()->getDeltaTime();
+        invisibleTime_ -= deltaTime;
         if (invisibleTime_ < 0.0f) {
             isInvisible_ = false;
 
@@ -105,7 +107,7 @@ void Player::Update() {
     }
 
     if (effectAnimationObject_) {
-        effectAnimationObject_->Update(Engine::getInstance()->getDeltaTime());
+        effectAnimationObject_->Update(deltaTime);
         if (effectAnimationObject_->getAnimation()->isEnd()) {
             effectAnimationObject_.reset();
         }
