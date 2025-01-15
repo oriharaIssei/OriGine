@@ -54,7 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <assimp/defs.h>
 
 // Forward declarations
-template <typename TReal> class aiVec3ft;
+template <typename TReal> class aiVector3t;
 template <typename TReal> class aiMatrix3x3t;
 template <typename TReal> class aiMatrix4x4t;
 
@@ -78,10 +78,10 @@ public:
     aiQuaterniont( TReal roty, TReal rotz, TReal rotx);
 
     /** Construct from an axis-angle pair */
-    aiQuaterniont( aiVec3ft<TReal> axis, TReal angle);
+    aiQuaterniont( aiVector3t<TReal> axis, TReal angle);
 
     /** Construct from a normalized quaternion stored in a vec3 */
-    explicit aiQuaterniont( aiVec3ft<TReal> normalized);
+    explicit aiQuaterniont( aiVector3t<TReal> normalized);
 
     /** Returns a matrix representation of the quaternion */
     aiMatrix3x3t<TReal> GetMatrix() const;
@@ -107,7 +107,7 @@ public:
     /**
      *  @brief  Rotate a point by this quaternion
      */
-    aiVec3ft<TReal> Rotate(const aiVec3ft<TReal>& in) const;
+    aiVector3t<TReal> Rotate(const aiVector3t<TReal>& in) const;
 
     /**
      *  @brief Multiply two quaternions

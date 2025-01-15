@@ -60,25 +60,25 @@ template <class T>
 void ComputeNormalsWithSmoothingsGroups(MeshWithSmoothingGroups<T>& sMesh)
 {
     // First generate face normals
-    sMesh.mNormals.resize(sMesh.mPositions.size(),aiVec3fD());
+    sMesh.mNormals.resize(sMesh.mPositions.size(),aiVector3D());
     for( unsigned int a = 0; a < sMesh.mFaces.size(); a++)
     {
         T& face = sMesh.mFaces[a];
 
-        aiVec3fD* pV1 = &sMesh.mPositions[face.mIndices[0]];
-        aiVec3fD* pV2 = &sMesh.mPositions[face.mIndices[1]];
-        aiVec3fD* pV3 = &sMesh.mPositions[face.mIndices[2]];
+        aiVector3D* pV1 = &sMesh.mPositions[face.mIndices[0]];
+        aiVector3D* pV2 = &sMesh.mPositions[face.mIndices[1]];
+        aiVector3D* pV3 = &sMesh.mPositions[face.mIndices[2]];
 
-        aiVec3fD pDelta1 = *pV2 - *pV1;
-        aiVec3fD pDelta2 = *pV3 - *pV1;
-        aiVec3fD vNor = pDelta1 ^ pDelta2;
+        aiVector3D pDelta1 = *pV2 - *pV1;
+        aiVector3D pDelta2 = *pV3 - *pV1;
+        aiVector3D vNor = pDelta1 ^ pDelta2;
 
         for (unsigned int c = 0; c < 3;++c)
             sMesh.mNormals[face.mIndices[c]] = vNor;
     }
 
     // calculate the position bounds so we have a reliable epsilon to check position differences against
-    aiVec3fD minVec( 1e10f, 1e10f, 1e10f), maxVec( -1e10f, -1e10f, -1e10f);
+    aiVector3D minVec( 1e10f, 1e10f, 1e10f), maxVec( -1e10f, -1e10f, -1e10f);
     for( unsigned int a = 0; a < sMesh.mPositions.size(); a++)
     {
         minVec.x = std::min( minVec.x, sMesh.mPositions[a].x);
@@ -89,7 +89,7 @@ void ComputeNormalsWithSmoothingsGroups(MeshWithSmoothingGroups<T>& sMesh)
         maxVec.z = std::max( maxVec.z, sMesh.mPositions[a].z);
     }
     const float posEpsilon = (maxVec - minVec).Length() * 1e-5f;
-    std::vector<aiVec3fD> avNormals;
+    std::vector<aiVector3D> avNormals;
     avNormals.resize(sMesh.mNormals.size());
 
     // now generate the spatial sort tree
@@ -115,7 +115,7 @@ void ComputeNormalsWithSmoothingsGroups(MeshWithSmoothingGroups<T>& sMesh)
             sSort.FindPositions(sMesh.mPositions[idx],(*i).iSmoothGroup,
                 posEpsilon,poResult);
 
-            aiVec3fD vNormals;
+            aiVector3D vNormals;
             for (std::vector<unsigned int>::const_iterator
                 a =  poResult.begin();
                 a != poResult.end();++a)

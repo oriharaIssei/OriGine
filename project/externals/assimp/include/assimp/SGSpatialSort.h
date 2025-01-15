@@ -73,7 +73,7 @@ public:
     /** Construction from a given face array, handling smoothing groups
      *  properly
      */
-    explicit SGSpatialSort(const std::vector<aiVec3fD>& vPositions);
+    explicit SGSpatialSort(const std::vector<aiVector3D>& vPositions);
 
     // -------------------------------------------------------------------
     /** Add a vertex to the spatial sort
@@ -81,7 +81,7 @@ public:
      * @param index Index of the vrtex
      * @param smoothingGroup SmoothingGroup for this vertex
      */
-    void Add(const aiVec3fD& vPosition, unsigned int index,
+    void Add(const aiVector3D& vPosition, unsigned int index,
         unsigned int smoothingGroup);
 
     // -------------------------------------------------------------------
@@ -106,13 +106,13 @@ public:
      * @return An iterator to iterate over all vertices in the given area.
      */
     // -------------------------------------------------------------------
-    void FindPositions( const aiVec3fD& pPosition, uint32_t pSG,
+    void FindPositions( const aiVector3D& pPosition, uint32_t pSG,
         float pRadius, std::vector<unsigned int>& poResults,
         bool exactMatch = false) const;
 
 protected:
     /** Normal of the sorting plane, normalized. The center is always at (0, 0, 0) */
-    aiVec3fD mPlaneNormal;
+    aiVector3D mPlaneNormal;
 
     // -------------------------------------------------------------------
     /** An entry in a spatially sorted position array. Consists of a
@@ -121,7 +121,7 @@ protected:
     // -------------------------------------------------------------------
     struct Entry {
         unsigned int mIndex;    ///< The vertex referred by this entry
-        aiVec3fD mPosition;   ///< Position
+        aiVector3D mPosition;   ///< Position
         uint32_t mSmoothGroups;
         float mDistance;        ///< Distance of this vertex to the sorting plane
 
@@ -133,7 +133,7 @@ protected:
             // empty
         }
 
-        Entry( unsigned int pIndex, const aiVec3fD& pPosition, float pDistance,uint32_t pSG)
+        Entry( unsigned int pIndex, const aiVector3D& pPosition, float pDistance,uint32_t pSG)
         : mIndex( pIndex)
         , mPosition( pPosition)
         , mSmoothGroups(pSG)

@@ -52,7 +52,7 @@ protected:
     Vector3 velocity_ = {0.0f, 0.0f, 0.0f};
 
     float lifeTime_ = 0.0f;
-    float leftTime_ = 0.0f;
+    float currentTime_ = 0.0f;
     bool isAlive_   = false;
 
     ParticleKeyFrames* keyFrames_ = nullptr;
@@ -68,7 +68,16 @@ public:
 };
 
 struct ParticleKeyFrames {
-    ParticleKeyFrames() {}
+    ParticleKeyFrames() {
+        colorCurve_.push_back({});
+
+        scaleCurve_.push_back({});
+        rotateCurve_.push_back({});
+        speedCurve_.push_back({});
+        uvScaleCurve_.push_back({});
+        uvRotateCurve_.push_back({});
+        uvTranslateCurve_.push_back({});
+    }
     ~ParticleKeyFrames() {}
 
     //.pkf ファイルから読み込み

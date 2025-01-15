@@ -75,6 +75,7 @@ private:
     SerializedField<std::string> textureFileName_;
 
     //=============== エミッター設定項目 ===============//
+    SerializedField<int32_t> blendMode_;
     bool isActive_;
     SerializedField<bool> isLoop_;
     // emitter 生存時間

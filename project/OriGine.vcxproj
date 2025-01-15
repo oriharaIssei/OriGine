@@ -170,7 +170,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="code\application\MyGame.cpp" />
     <ClCompile Include="code\application\FrameWork.cpp" />
     <ClCompile Include="code\math\Quaternion.cpp" />
-    <ClCompile Include="code\math\Vector3.cpp" />
     <ClCompile Include="code\application\scene\TitleScene.cpp" />
     <ClCompile Include="code\application\scene\GameClearScene.cpp" />
     <ClCompile Include="code\application\scene\EffectEditScene.cpp" />

@@ -33,19 +33,23 @@ bool TimeLineButtons(
 /// AnimationCurve<>を編集
 /// </summary>
 /// <param name="_label">ラベル</param>
-/// <param name="_KeyFrames">編集対象</param>
+/// <param name="_keyFrames">編集対象</param>
 /// <param name="_duration">総合時間</param>
 /// <returns></returns>
 bool EditKeyFrame(
     const std::string& _label,
-    AnimationCurve<Vector3>& _KeyFrames,
+    AnimationCurve<float>& _keyFrames,
     float _duration);
 bool EditKeyFrame(
     const std::string& _label,
-    AnimationCurve<Vector4>& _KeyFrames,
+    AnimationCurve<Vector3>& _keyFrames,
     float _duration);
 bool EditKeyFrame(
     const std::string& _label,
-    AnimationCurve<Quaternion>& _KeyFrames,
+    AnimationCurve<Vector4>& _keyFrames,
+    float _duration);
+bool EditKeyFrame(
+    const std::string& _label,
+    AnimationCurve<Quaternion>& _keyFrames,
     float _duration);
 } // namespace ImGui

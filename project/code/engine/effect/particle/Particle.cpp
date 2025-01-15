@@ -19,11 +19,12 @@ void Particle::Init(const ParticleTransform& _initialTransfrom, float _lifeTime,
 
     direction_ = _direction;
     speed_     = _speed;
+    velocity_  = direction_ * speed_;
 
     isAlive_ = true;
 
-    lifeTime_ = _lifeTime;
-    leftTime_ = lifeTime_;
+    lifeTime_    = _lifeTime;
+    currentTime_ = 0.0f;
 }
 
 void Particle::Update(float _deltaTime) {
@@ -31,24 +32,14 @@ void Particle::Update(float _deltaTime) {
         return;
     }
 
-    leftTime_ -= _deltaTime;
-    if (leftTime_ <= 0.0f) {
+    currentTime_ += _deltaTime;
+    if (currentTime_ >= lifeTime_) {
         isAlive_ = false;
         return;
     }
 
-    if (updateByCurbes_.empty()) {
-        transform_.color = CalculateValue(keyFrames_->colorCurve_, leftTime_);
-
-        transform_.scale  = CalculateValue(keyFrames_->scaleCurve_, leftTime_);
-        transform_.rotate = CalculateValue(keyFrames_->rotateCurve_, leftTime_);
-        speed_            = CalculateValue(keyFrames_->speedCurve_, leftTime_);
-
-        transform_.uvScale     = CalculateValue(keyFrames_->uvScaleCurve_, leftTime_);
-        transform_.uvRotate    = CalculateValue(keyFrames_->uvRotateCurve_, leftTime_);
-        transform_.uvTranslate = CalculateValue(keyFrames_->uvTranslateCurve_, leftTime_);
-
-        velocity_ = direction_ * speed_;
+    for (auto& update : updateByCurbes_) {
+        update();
     }
 
     transform_.translate += velocity_ * _deltaTime;
@@ -57,7 +48,7 @@ void Particle::Update(float _deltaTime) {
 }
 
 void Particle::setKeyFrames(int32_t updateSettings, ParticleKeyFrames* _keyFrames) {
-    if (updateSettings == 0 || _keyFrames) {
+    if (updateSettings == 0 ||! _keyFrames) {
         return;
     }
 
@@ -65,37 +56,38 @@ void Particle::setKeyFrames(int32_t updateSettings, ParticleKeyFrames* _keyFrame
 
     if (updateSettings & static_cast<int32_t>(ParticleUpdatePerLifeTime::Color)) {
         updateByCurbes_.push_back([this]() {
-            transform_.color = CalculateValue(keyFrames_->colorCurve_, leftTime_);
+            transform_.color = CalculateValue(keyFrames_->colorCurve_, currentTime_);
         });
     }
     if (updateSettings & static_cast<int32_t>(ParticleUpdatePerLifeTime::Scale)) {
         updateByCurbes_.push_back([this]() {
-            transform_.scale = CalculateValue(keyFrames_->scaleCurve_, leftTime_);
+            transform_.scale = CalculateValue(keyFrames_->scaleCurve_, currentTime_);
         });
     }
     if (updateSettings & static_cast<int32_t>(ParticleUpdatePerLifeTime::Rotate)) {
         updateByCurbes_.push_back([this]() {
-            transform_.rotate = CalculateValue(keyFrames_->rotateCurve_, leftTime_);
+            transform_.rotate = CalculateValue(keyFrames_->rotateCurve_, currentTime_);
         });
     }
     if (updateSettings & static_cast<int32_t>(ParticleUpdatePerLifeTime::Speed)) {
         updateByCurbes_.push_back([this]() {
-            speed_ = CalculateValue(keyFrames_->speedCurve_, leftTime_);
+            speed_    = CalculateValue(keyFrames_->speedCurve_, currentTime_);
+            velocity_ = direction_ * speed_;
         });
     }
     if (updateSettings & static_cast<int32_t>(ParticleUpdatePerLifeTime::UvScale)) {
         updateByCurbes_.push_back([this]() {
-            transform_.uvScale = CalculateValue(keyFrames_->uvScaleCurve_, leftTime_);
+            transform_.uvScale = CalculateValue(keyFrames_->uvScaleCurve_, currentTime_);
         });
     }
     if (updateSettings & static_cast<int32_t>(ParticleUpdatePerLifeTime::UvRotate)) {
         updateByCurbes_.push_back([this]() {
-            transform_.uvRotate = CalculateValue(keyFrames_->uvRotateCurve_, leftTime_);
+            transform_.uvRotate = CalculateValue(keyFrames_->uvRotateCurve_, currentTime_);
         });
     }
     if (updateSettings & static_cast<int32_t>(ParticleUpdatePerLifeTime::UvTranslate)) {
         updateByCurbes_.push_back([this]() {
-            transform_.uvTranslate = CalculateValue(keyFrames_->uvTranslateCurve_, leftTime_);
+            transform_.uvTranslate = CalculateValue(keyFrames_->uvTranslateCurve_, currentTime_);
         });
     }
 }
