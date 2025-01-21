@@ -1,7 +1,7 @@
 #include "EffectEditScene.h"
 
 //editor
-#include "effect/particle/manager/ParticleManager.h"
+#include "effect/manager/EffectManager.h"
 //camera
 #include "camera/CameraManager.h"
 
@@ -14,8 +14,8 @@ void EffectEditScene::Init() {
     debugCamera_ = std::make_unique<DebugCamera>();
     debugCamera_->Init();
 
-    particleManager_ = ParticleManager::getInstance();
-    particleManager_->Init();
+    EffectManager_ = EffectManager::getInstance();
+    EffectManager_->Init();
 }
 
 void EffectEditScene::Update() {
@@ -23,7 +23,7 @@ void EffectEditScene::Update() {
     debugCamera_->DebugUpdate();
     CameraManager::getInstance()->setTransform(debugCamera_->getCameraTransform());
 
-    particleManager_->Edit();
+    EffectManager_->Edit();
 }
 
 void EffectEditScene::Draw3d() {
@@ -36,5 +36,5 @@ void EffectEditScene::DrawSprite() {
 }
 
 void EffectEditScene::DrawParticle() {
-    particleManager_->DrawDebug();
+    EffectManager_->DrawDebug();
 }

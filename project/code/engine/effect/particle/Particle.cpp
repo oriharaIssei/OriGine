@@ -9,86 +9,169 @@
 //transform
 #include "transform/ParticleTransform.h"
 
+// lib
+#include "myRandom/MyRandom.h"
+
 Particle::Particle() {}
 
 Particle::~Particle() {}
 
-void Particle::Init(const ParticleTransform& _initialTransfrom, float _lifeTime, const Vec3f& _direction, float _speed) {
+void Particle::Init(
+    const ParticleTransform& _initialTransfrom,
+    const Vec3f& _minVelocity,
+    const Vec3f& _maxVelocity,
+    const Vec3f& _minScale,
+    const Vec3f& _maxScale,
+    const Vec3f& _minRotate,
+    const Vec3f& _maxRotate,
+    float _lifeTime,
+    const Vec3f& _direction,
+    const Vec3f& _velocity) {
     transform_ = _initialTransfrom;
     transform_.UpdateMatrix();
 
     direction_ = _direction;
-    speed_     = _speed;
-    velocity_  = direction_ * speed_;
+    velocity_  = _velocity;
 
     isAlive_ = true;
+
+    scaleRatio_    = transform_.scale / (_maxScale - _minScale);
+    rotateRatio_   = transform_.rotate / (_maxRotate - _minRotate);
+    velocityRatio_ = velocity_ / (_maxVelocity - _minVelocity);
 
     lifeTime_    = _lifeTime;
     currentTime_ = 0.0f;
 }
 
 void Particle::Update(float _deltaTime) {
+    deltaTime_ = _deltaTime;
     if (!isAlive_) {
         return;
     }
-
-    currentTime_ += _deltaTime;
+    currentTime_ += deltaTime_;
     if (currentTime_ >= lifeTime_) {
         isAlive_ = false;
         return;
     }
 
-    for (auto& update : updateByCurbes_) {
+    for (auto& update : updateByCurves_) {
         update();
     }
 
-    transform_.translate += velocity_ * _deltaTime;
+    // direction_ を法線ベクトルとして velocity_ を回転させる
+    Vec3f zAxis           = {0.0f, 0.0f, 1.0f};
+    Vec3f rotationAxis    = zAxis.cross(direction_).normalize();
+    float angle           = std::acos(Vec3f(zAxis * direction_).dot() / (zAxis.length() * direction_.length()));
+    Quaternion rotation   = Quaternion::RotateAxisAngle(rotationAxis, angle);
+    Vec3f rotatedVelocity = RotateVector(velocity_, rotation);
+
+    // 回転させた velocity_ で移動
+    Vec3f movement = rotatedVelocity * _deltaTime;
+    transform_.translate += movement;
+
+    if (rotateForward_) {
+        // 進行方向を向くように回転させる
+        if (rotatedVelocity.length() < 0.0f) {
+            rotatedVelocity = direction_;
+        }
+        Vec3f forward = rotatedVelocity.normalize();
+        float dot     = Vec3f(zAxis * forward).dot();
+        if (dot < 1.0f - std::numeric_limits<float>::epsilon()) {
+            Vec3f axis        = zAxis.cross(forward).normalize();
+            float angle       = std::acos(dot);
+            Quaternion q      = Quaternion::RotateAxisAngle(axis, angle).normalize();
+            transform_.rotate = q.ToEulerAngles();
+        }
+    }
 
     transform_.UpdateMatrix();
 }
 
 void Particle::setKeyFrames(int32_t updateSettings, ParticleKeyFrames* _keyFrames) {
-    if (updateSettings == 0 ||! _keyFrames) {
+    if (updateSettings == 0 || !_keyFrames) {
         return;
     }
 
     keyFrames_ = _keyFrames;
 
-    if (updateSettings & static_cast<int32_t>(ParticleUpdatePerLifeTime::Color)) {
-        updateByCurbes_.push_back([this]() {
+    if (updateSettings & static_cast<int32_t>(ParticleUpdateType::ColorPerLifeTime)) {
+        updateByCurves_.push_back([this]() {
             transform_.color = CalculateValue(keyFrames_->colorCurve_, currentTime_);
         });
     }
-    if (updateSettings & static_cast<int32_t>(ParticleUpdatePerLifeTime::Scale)) {
-        updateByCurbes_.push_back([this]() {
-            transform_.scale = CalculateValue(keyFrames_->scaleCurve_, currentTime_);
+    if (updateSettings & static_cast<int32_t>(ParticleUpdateType::ScalePerLifeTime)) {
+        updateByCurves_.push_back([this]() {
+            transform_.scale = CalculateValue(keyFrames_->scaleCurve_, currentTime_) * scaleRatio_;
         });
+    } else if (updateSettings & static_cast<int32_t>(ParticleUpdateType::ScaleRandom)) {
+        MyRandom::Float randomX(minUpdateScale_->v[X], maxUpdateScale_->v[X]);
+        MyRandom::Float randomY(minUpdateScale_->v[Y], maxUpdateScale_->v[Y]);
+        MyRandom::Float randomZ(minUpdateScale_->v[Z], maxUpdateScale_->v[Z]);
+        transform_.scale += Vec3f(randomX.get(), randomY.get(), randomZ.get()) * deltaTime_;
     }
-    if (updateSettings & static_cast<int32_t>(ParticleUpdatePerLifeTime::Rotate)) {
-        updateByCurbes_.push_back([this]() {
+
+    if (updateSettings & static_cast<int32_t>(ParticleUpdateType::RotatePerLifeTime)) {
+        updateByCurves_.push_back([this]() {
             transform_.rotate = CalculateValue(keyFrames_->rotateCurve_, currentTime_);
         });
+    } else if (updateSettings & static_cast<int32_t>(ParticleUpdateType::RotateRandom)) {
+        MyRandom::Float randomX(minUpdateRotate_->v[X], maxUpdateRotate_->v[X]);
+        MyRandom::Float randomY(minUpdateRotate_->v[Y], maxUpdateRotate_->v[Y]);
+        MyRandom::Float randomZ(minUpdateRotate_->v[Z], maxUpdateRotate_->v[Z]);
+        transform_.rotate += Vec3f(randomX.get(), randomY.get(), randomZ.get()) * deltaTime_;
+    } else if (updateSettings & static_cast<int32_t>(ParticleUpdateType::RotateForward)) {
+        rotateForward_ = true;
     }
-    if (updateSettings & static_cast<int32_t>(ParticleUpdatePerLifeTime::Speed)) {
-        updateByCurbes_.push_back([this]() {
-            speed_    = CalculateValue(keyFrames_->speedCurve_, currentTime_);
-            velocity_ = direction_ * speed_;
+
+    if (updateSettings & static_cast<int32_t>(ParticleUpdateType::VelocityPerLifeTime)) {
+        updateByCurves_.push_back([this]() {
+            velocity_ = CalculateValue(keyFrames_->velocityCurve_, currentTime_);
         });
+    } else if (updateSettings & static_cast<int32_t>(ParticleUpdateType::VelocityRandom)) {
+        MyRandom::Float randomX(minUpdateVelocity_->v[X], maxUpdateVelocity_->v[X]);
+        MyRandom::Float randomY(minUpdateVelocity_->v[Y], maxUpdateVelocity_->v[Y]);
+        MyRandom::Float randomZ(minUpdateVelocity_->v[Z], maxUpdateVelocity_->v[Z]);
+        velocity_ += Vec3f(randomX.get(), randomY.get(), randomZ.get()) * deltaTime_;
     }
-    if (updateSettings & static_cast<int32_t>(ParticleUpdatePerLifeTime::UvScale)) {
-        updateByCurbes_.push_back([this]() {
+
+    if (updateSettings & static_cast<int32_t>(ParticleUpdateType::UvScalePerLifeTime)) {
+        updateByCurves_.push_back([this]() {
             transform_.uvScale = CalculateValue(keyFrames_->uvScaleCurve_, currentTime_);
         });
     }
-    if (updateSettings & static_cast<int32_t>(ParticleUpdatePerLifeTime::UvRotate)) {
-        updateByCurbes_.push_back([this]() {
+    if (updateSettings & static_cast<int32_t>(ParticleUpdateType::UvRotatePerLifeTime)) {
+        updateByCurves_.push_back([this]() {
             transform_.uvRotate = CalculateValue(keyFrames_->uvRotateCurve_, currentTime_);
         });
     }
-    if (updateSettings & static_cast<int32_t>(ParticleUpdatePerLifeTime::UvTranslate)) {
-        updateByCurbes_.push_back([this]() {
+    if (updateSettings & static_cast<int32_t>(ParticleUpdateType::UvTranslatePerLifeTime)) {
+        updateByCurves_.push_back([this]() {
             transform_.uvTranslate = CalculateValue(keyFrames_->uvTranslateCurve_, currentTime_);
         });
+    }
+}
+
+void Particle::UpdateKeyFrameValues() {
+    auto updateCurve = [](auto& curve, const auto& min, const auto& max) {
+        for (auto& keyframe : curve) {
+            for (int i = 0; i < 3; ++i) {
+                float range = max.v[i] - min.v[i];
+                if (range != 0) {
+                    float ratio         = (keyframe.value.v[i] - min.v[i]) / range;
+                    keyframe.value.v[i] = min.v[i] + ratio * range;
+                }
+            }
+        }
+    };
+
+    if (minUpdateScale_ && maxUpdateScale_) {
+        updateCurve(keyFrames_->scaleCurve_, *minUpdateScale_, *maxUpdateScale_);
+    }
+    if (minUpdateRotate_ && maxUpdateRotate_) {
+        updateCurve(keyFrames_->rotateCurve_, *minUpdateRotate_, *maxUpdateRotate_);
+    }
+    if (minUpdateVelocity_ && maxUpdateVelocity_) {
+        updateCurve(keyFrames_->velocityCurve_, *minUpdateVelocity_, *maxUpdateVelocity_);
     }
 }
 
@@ -124,7 +207,7 @@ void ParticleKeyFrames::SaveKeyFrames(const std::string& _filePath) {
     writeCurve(colorCurve_);
     writeCurve(scaleCurve_);
     writeCurve(rotateCurve_);
-    writeCurve(speedCurve_);
+    writeCurve(velocityCurve_);
     writeCurve(uvScaleCurve_);
     writeCurve(uvRotateCurve_);
     writeCurve(uvTranslateCurve_);
@@ -163,7 +246,7 @@ void ParticleKeyFrames::LoadKeyFrames(const std::string& _filePath) {
     readCurve(colorCurve_);
     readCurve(scaleCurve_);
     readCurve(rotateCurve_);
-    readCurve(speedCurve_);
+    readCurve(velocityCurve_);
     readCurve(uvScaleCurve_);
     readCurve(uvRotateCurve_);
     readCurve(uvTranslateCurve_);

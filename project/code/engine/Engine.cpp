@@ -6,7 +6,7 @@
 #include "camera/CameraManager.h"
 #include "directX12/DxRtvArrayManager.h"
 #include "directX12/DxSrvArrayManager.h"
-#include "effect/particle/manager/ParticleManager.h"
+#include "effect/manager/EffectManager.h"
 #include "imGuiManager/ImGuiManager.h"
 #include "material/light/LightManager.h"
 #include "material/texture/TextureManager.h"
@@ -105,8 +105,8 @@ void Engine::Init() {
 
     materialManager_ = std::make_unique<MaterialManager>();
 
-    ParticleManager* particleManager = ParticleManager::getInstance();
-    particleManager->Init();
+    EffectManager* EffectManager = EffectManager::getInstance();
+    EffectManager->Init();
 
     deltaTime_ = std::make_unique<DeltaTime>();
     deltaTime_->Init();
@@ -129,7 +129,7 @@ void Engine::Finalize() {
     AnimationManager::getInstance()->Finalize();
     CameraManager::getInstance()->Finalize();
     lightManager_->Finalize();
-    ParticleManager::getInstance()->Finalize();
+    EffectManager::getInstance()->Finalize();
     materialManager_->Finalize();
 
 #ifdef _DEBUG

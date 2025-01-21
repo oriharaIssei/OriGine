@@ -28,12 +28,12 @@ struct ParticleTransform{
 
 	Vec3f scale,rotate,translate;
 	Matrix4x4 worldMat;
+    Matrix4x4* parentWorldMat = nullptr;
+
 	Vec3f uvScale,uvRotate,uvTranslate;
 	Matrix4x4 uvMat;
 
 	Vec4f color;
-
-	ParticleTransform* parent = nullptr;
 
 	void UpdateMatrix();
 public:
