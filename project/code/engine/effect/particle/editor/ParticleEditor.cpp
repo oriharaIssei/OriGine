@@ -45,6 +45,7 @@ void ParticleEditor::Update() {
 
         if (currentEditEmitter_) {
             currentEditEmitter_->Debug();
+            currentEditEmitter_->Update(Engine::getInstance()->getDeltaTime());
         }
     }
     ImGui::End();

@@ -46,6 +46,7 @@ void EffectEditor::Update() {
 
         if (currentEditEffect_) {
             currentEditEffect_->Debug();
+            currentEditEffect_->Update(Engine::getInstance()->getDeltaTime());
         }
     }
     ImGui::End();

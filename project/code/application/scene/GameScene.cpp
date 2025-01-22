@@ -10,10 +10,10 @@
 #include "SceneManager.h"
 #include "directX12/DxRtvArrayManager.h"
 #include "directX12/DxSrvArrayManager.h"
+#include "effect/manager/EffectManager.h"
 #include "material/texture/TextureManager.h"
 #include "model/ModelManager.h"
 #include "myFileSystem/MyFileSystem.h"
-#include "effect/manager/EffectManager.h"
 #include "primitiveDrawer/PrimitiveDrawer.h"
 #include "sprite/SpriteCommon.h"
 
@@ -33,7 +33,7 @@
 #endif // _DEBUG
 
 GameScene::GameScene()
-    : IScene("GameScene"){}
+    : IScene("GameScene") {}
 
 GameScene::~GameScene() {}
 
@@ -55,6 +55,9 @@ void GameScene::Init() {
 
     ground_ = std::make_unique<Object3d>();
     ground_->Init("resource/Models", "Ground.obj");
+
+    skyDome_ = std::make_unique<Object3d>();
+    skyDome_->Init("resource/Models", "Skydome.obj");
 }
 
 void GameScene::Update() {
@@ -74,7 +77,6 @@ void GameScene::Update() {
     gameCamera_->Update();
     CameraManager::getInstance()->setTransform(gameCamera_->getCameraTransform());
 #endif // _DEBUG
-
 }
 
 void GameScene::Draw3d() {

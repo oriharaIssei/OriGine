@@ -67,6 +67,7 @@ private:
     DxSrvArray* srvArray_ = nullptr;
 
     Vec3f originPos_;
+    uint32_t textureIndex_ = 0;
     uint32_t particleMaxSize_;
 
     std::vector<std::unique_ptr<Particle>> particles_;
@@ -76,7 +77,7 @@ private:
     /// </summary>
     std::unique_ptr<Model> particleModel_;
     IStructuredBuffer<ParticleTransform> structuredTransform_;
-    //=============== 形状設定項目 ===============/
+    //=============== 見た目項目 ===============/
     SerializedField<std::string> modelFileName_;
     SerializedField<std::string> textureFileName_;
 

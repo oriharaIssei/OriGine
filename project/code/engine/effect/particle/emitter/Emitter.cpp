@@ -28,8 +28,6 @@
 #include "imgui/imgui.h"
 #endif // _DEBUG
 
-// TODO Emitterと ParticleEditor の 切り離し
-
 Emitter::Emitter(DxSrvArray* srvArray, const std::string& _emitterDataName, int _id)
     : srvArray_(srvArray),
       emitterDataName_(_emitterDataName.c_str()),
@@ -101,8 +99,11 @@ void Emitter::Init() {
         }
     }
 
-    if (modelFileName_->c_str() != "") {
+    if (!modelFileName_->empty()) {
         particleModel_ = ModelManager::getInstance()->Create("resource/Models", modelFileName_);
+    }
+    if (!textureFileName_->empty()) {
+        textureIndex_ = TextureManager::LoadTexture(textureFileName_);
     }
 
     { // Initialize Active State
@@ -160,6 +161,8 @@ void Emitter::Update(float deltaTime) {
 }
 
 #ifdef _DEBUG
+static const float changingSrvSizeInterval = 0.5f;
+static float changingSrvSizeLeftTime       = 0.0f;
 void Emitter::Debug() {
     ImGui::Text("Name");
     std::string preDataName = emitterDataName_;
@@ -174,6 +177,12 @@ void Emitter::Debug() {
     ImGui::InputFloat("DeltaTime", &deltaTime, 0.1f, 1.0f, "%.3f", ImGuiInputTextFlags_ReadOnly);
 
     ImGui::Checkbox("isActive", &isActive_);
+    ImGui::SameLine();
+    if (ImGui::Button("Stop")) {
+        isActive_ = false;
+    }
+
+    ImGui::Checkbox("isLoop", isLoop_);
 
     ImGui::Spacing();
 
@@ -218,9 +227,13 @@ void Emitter::Debug() {
         ImGui::TreePop();
     }
 
-    CalculateMaxSize();
-    if (structuredTransform_.capacity() <= particleMaxSize_) {
-        structuredTransform_.resize(Engine::getInstance()->getDxDevice()->getDevice(), particleMaxSize_);
+    changingSrvSizeLeftTime -= deltaTime;
+    if (changingSrvSizeLeftTime < 0.0f) {
+        CalculateMaxSize();
+        if (structuredTransform_.capacity() <= particleMaxSize_) {
+            structuredTransform_.resize(Engine::getInstance()->getDxDevice()->getDevice(), particleMaxSize_ * 2);
+            changingSrvSizeLeftTime = changingSrvSizeInterval;
+        }
     }
 }
 
@@ -233,17 +246,6 @@ void Emitter::Save() {
 
 void Emitter::EditEmitter() {
     //======================== Emitter の 編集 ========================//
-    if (ImGui::Button("Active")) {
-        isActive_       = true;
-        leftActiveTime_ = activeTime_;
-    }
-    ImGui::SameLine();
-    if (ImGui::Button("Stop")) {
-        isActive_ = false;
-    }
-
-    ImGui::Checkbox("isLoop", isLoop_);
-
     if (ImGui::BeginCombo("BlendMode", blendModeStr[int(blendMode_)].c_str())) {
         for (int32_t i = 0; i < kBlendNum; i++) {
             bool isSelected = (blendMode_ == i); // 現在選択中かどうか
@@ -341,11 +343,6 @@ void Emitter::EditParticle() {
         }
     }
 
-    ImGui::Text("LocalTime");
-    if (ImGui::DragFloat("##LocalTime", &leftActiveTime_, 0.1f, 0.0f, activeTime_)) {
-        isActive_ = false;
-    }
-
     if (ImGui::TreeNode("Particle Color")) {
         ImGui::ColorEdit4("##Particle Color", reinterpret_cast<float*>(particleColor_.operator Vec4f*()));
         // curveで変更するかどうか
@@ -415,6 +412,12 @@ void Emitter::EditParticle() {
             particleKeyFrames_->scaleCurve_[0].value = startParticleScaleMax_;
             ImGui::EditKeyFrame(emitterDataName_ + "ScaleLine", particleKeyFrames_->scaleCurve_, particleLifeTime_);
         } else if (randomOrPerLifeTime == 1) {
+            // ランダムなScaleを設定
+            ImGui::Text("UpdateMin");
+            ImGui::DragFloat3("##UpdateParticleScaleMin", updateParticleScaleMin_.operator Vector3<float>*()->v, 0.1f);
+            ImGui::Text("UpdateMax");
+            ImGui::DragFloat3("##UpdateParticleScaleMax", updateParticleScaleMax_.operator Vector3<float>*()->v, 0.1f);
+
             // ランダムなスケールを設定
             updateSettings_.setValue(updateSettings_ & ~static_cast<int32_t>(ParticleUpdateType::ScalePerLifeTime));
             updateSettings_.setValue(updateSettings_ | static_cast<int32_t>(ParticleUpdateType::ScaleRandom));
@@ -441,6 +444,11 @@ void Emitter::EditParticle() {
             ImGui::EditKeyFrame(emitterDataName_ + "RotateLine", particleKeyFrames_->rotateCurve_, particleLifeTime_);
         } else if (randomOrPerLifeTime == 1) {
             // ランダムな回転を設定
+            ImGui::Text("UpdateMin");
+            ImGui::DragFloat3("##UpdateParticleRotateMin", updateParticleRotateMin_.operator Vector3<float>*()->v, 0.1f);
+            ImGui::Text("UpdateMax");
+            ImGui::DragFloat3("##UpdateParticleRotateMax", updateParticleRotateMax_.operator Vector3<float>*()->v, 0.1f);
+
             updateSettings_.setValue(updateSettings_ & ~static_cast<int32_t>(ParticleUpdateType::RotatePerLifeTime));
             updateSettings_.setValue(updateSettings_ | static_cast<int32_t>(ParticleUpdateType::RotateRandom));
         } else if (preRandomOrPerLifeTime == 2 && randomOrPerLifeTime == 0) {
@@ -558,24 +566,20 @@ void Emitter::Draw() {
     ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
 
-    uint32_t index = 0;
-    for (auto& model : particleModel_->meshData_->mesh_) {
-        auto& material = particleModel_->materialData_[index];
-        commandList->SetGraphicsRootDescriptorTable(
-            3,
-            TextureManager::getDescriptorGpuHandle(material.textureNumber));
+    auto& model    = particleModel_->meshData_->mesh_[0];
+    auto& material = particleModel_->materialData_[0];
+    commandList->SetGraphicsRootDescriptorTable(
+        3,
+        TextureManager::getDescriptorGpuHandle(textureIndex_));
 
-        commandList->IASetVertexBuffers(0, 1, &model.meshBuff->vbView);
-        commandList->IASetIndexBuffer(&model.meshBuff->ibView);
+    commandList->IASetVertexBuffers(0, 1, &model.meshBuff->vbView);
+    commandList->IASetIndexBuffer(&model.meshBuff->ibView);
 
-        structuredTransform_.SetForRootParameter(commandList, 0);
+    structuredTransform_.SetForRootParameter(commandList, 0);
 
-        material.material->SetForRootParameter(commandList, 2);
-        // 描画!!!
-        commandList->DrawIndexedInstanced(UINT(model.indexSize), static_cast<UINT>(structuredTransform_.openData_.size()), 0, 0, 0);
-
-        ++index;
-    }
+    material.material->SetForRootParameter(commandList, 2);
+    // 描画!!!
+    commandList->DrawIndexedInstanced(UINT(model.indexSize), static_cast<UINT>(structuredTransform_.openData_.size()), 0, 0, 0);
 }
 
 void Emitter::Finalize() {
@@ -641,6 +645,16 @@ void Emitter::SpawnParticle() {
             particleLifeTime_,
             Vec3f(transform.translate - originPos_).normalize(),
             velocity);
+
+        if (updateSettings_ & int(ParticleUpdateType::VelocityRandom)) {
+            spawnedParticle->setUpdateVelocityMinMax(updateParticleVelocityMin_, updateParticleVelocityMax_);
+        }
+        if (updateSettings_ & int(ParticleUpdateType::ScaleRandom)) {
+            spawnedParticle->setUpdateScaleMinMax(updateParticleScaleMin_, updateParticleScaleMax_);
+        }
+        if (updateSettings_ & int(ParticleUpdateType::RotateRandom)) {
+            spawnedParticle->setUpdateRotateMinMax(updateParticleRotateMin_, updateParticleRotateMax_);
+        }
         spawnedParticle->setKeyFrames(updateSettings_, particleKeyFrames_.get());
         spawnedParticle->UpdateKeyFrameValues();
     }
