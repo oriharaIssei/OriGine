@@ -11,7 +11,7 @@
 ///engine
 #include "animation/Animation.h"
 //dxObject
-class DxSrvArray;
+#include "directX12/DxSrvArray.h"
 //Object
 class Emitter;
 class ISilhouette;
@@ -23,6 +23,8 @@ class ISilhouette;
 /// 複数種類の Particle で 1つのエフェクトを表すためのクラス
 /// </summary>
 class Effect {
+    friend class EffectEditor;
+
 public:
     Effect(std::shared_ptr<DxSrvArray> _srvArray, const std::string& _name);
     ~Effect();
@@ -35,13 +37,15 @@ public:
     void Debug();
 
 private:
-    void LoadEffect();
-    void SaveEffect();
+    void LoadCurve();
+    void SaveCurve();
+
+    void Save();
 
     void StartEmitter();
 
 private:
-    std::string name_;
+    std::string dataName_;
 
     Vec3f origen_;
 
@@ -56,15 +60,17 @@ private:
 
     SerializedField<float> duration_ = SerializedField<float>::CreateNull();
     float currentTime_               = 0.0f;
+    float preTime_                   = 0.0f;
 
     std::vector<Keyframe<int>> particleSchedule_;
     std::vector<std::unique_ptr<Emitter>> emitters_;
     std::vector<Emitter*> activeEmitters_;
 
 public:
+    const std::string& getDataName() const { return dataName_; }
+
     const Vec3f getOrigen() const { return origen_; }
     void setOrigen(const Vec3f& _origen) { origen_ = _origen; }
 
-    int32_t getUsingSrvNum() const { return emitters_.size(); }
-
+    int32_t getUsingSrvNum() const { return static_cast<int32_t>(emitters_.size()); }
 };

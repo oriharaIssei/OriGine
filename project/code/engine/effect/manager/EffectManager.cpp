@@ -183,7 +183,7 @@ void EffectManager::CreatePso() {
 }
 
 std::unique_ptr<Effect> EffectManager::CreateEffect(const std::string& name) {
-    std::unique_ptr<Effect> result = std::make_unique<Effect>(this->dxSrvArray_.get(), name);
+    std::unique_ptr<Effect> result = std::make_unique<Effect>(this->dxSrvArray_, name);
     result->Init();
     usingSrvNum_ -= result->getUsingSrvNum();
     if (srvNum_ < usingSrvNum_) {

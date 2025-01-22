@@ -24,6 +24,8 @@ struct ParticleKeyFrames;
 #include "globalVariables/SerializedField.h"
 
 class Emitter {
+    friend class ParticleEditor;
+
 public:
     Emitter(DxSrvArray* srvArray, const std::string& emitterName, int _id);
     ~Emitter();
@@ -35,6 +37,8 @@ public:
 
 #ifdef _DEBUG
     void Debug();
+
+    void Save();
 #endif // _DEBUG
 
     void CalculateMaxSize();

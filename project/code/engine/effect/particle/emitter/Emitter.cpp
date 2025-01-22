@@ -161,68 +161,76 @@ void Emitter::Update(float deltaTime) {
 
 #ifdef _DEBUG
 void Emitter::Debug() {
-    if (ImGui::Begin(emitterDataName_.c_str())) {
-        float deltaTime = Engine::getInstance()->getDeltaTime();
-        ImGui::InputFloat("DeltaTime", &deltaTime, 0.1f, 1.0f, "%.3f", ImGuiInputTextFlags_ReadOnly);
-        if (ImGui::Button("save")) {
-            GlobalVariables::getInstance()->SaveFile("Emitters", emitterDataName_);
-            if (updateSettings_) {
-                particleKeyFrames_->SaveKeyFrames("resource/ParticleCurve/" + emitterDataName_ + "pkf");
-            }
-        }
-
-        ImGui::Checkbox("isActive", &isActive_);
-
-        ImGui::Spacing();
-
-        if (ImGui::Button("reload FileList")) {
-            objectFiles  = MyFileSystem::SearchFile("resource", "obj", false);
-            textureFiles = MyFileSystem::SearchFile("resource", "png", false);
-        }
-
-        if (ImGui::BeginCombo("ParticleModel", modelFileName_->c_str())) {
-            for (auto& fileName : objectFiles) {
-                bool isSelected = (fileName.second == modelFileName_); // 現在選択中かどうか
-                if (ImGui::Selectable(fileName.second.c_str(), isSelected)) {
-                    particleModel_ = ModelManager::getInstance()->Create(fileName.first, fileName.second);
-                    modelFileName_.setValue(fileName.second);
-                }
-            }
-            ImGui::EndCombo();
-        }
-        if (ImGui::BeginCombo("ParticleTexture", textureFileName_->c_str())) {
-            for (auto& fileName : textureFiles) {
-                bool isSelected = (fileName.second == textureFileName_); // 現在選択中かどうか
-                if (ImGui::Selectable(fileName.second.c_str(), isSelected)) {
-                    textureFileName_.setValue(fileName.first + "/" + fileName.second);
-                    particleModel_->setTexture(0, TextureManager::LoadTexture(textureFileName_));
-                }
-            }
-            ImGui::EndCombo();
-        }
-
-        ImGui::Spacing();
-
-        if (ImGui::TreeNode("ShapeType")) {
-            EditShapeType();
-            ImGui::TreePop();
-        }
-        if (ImGui::TreeNode("Emitter")) {
-            EditEmitter();
-            ImGui::TreePop();
-        }
-        if (ImGui::TreeNode("Particle")) {
-            EditParticle();
-            ImGui::TreePop();
-        }
-
-        CalculateMaxSize();
-        if (structuredTransform_.capacity() <= particleMaxSize_) {
-            structuredTransform_.resize(Engine::getInstance()->getDxDevice()->getDevice(), particleMaxSize_);
+    ImGui::Text("Name");
+    std::string preDataName = emitterDataName_;
+    if (ImGui::InputText("##emitterName", &emitterDataName_[0], sizeof(char*) * 64)) {
+        GlobalVariables::getInstance()->ChangeGroupName("Emitters", preDataName, emitterDataName_);
+        if (particleKeyFrames_) {
+            myFs::deleteFile("resource/ParticleCurve/" + preDataName + "pkf");
+            particleKeyFrames_->SaveKeyFrames("resource/ParticleCurve/" + emitterDataName_ + "pkf");
         }
     }
-    ImGui::End();
+    float deltaTime = Engine::getInstance()->getDeltaTime();
+    ImGui::InputFloat("DeltaTime", &deltaTime, 0.1f, 1.0f, "%.3f", ImGuiInputTextFlags_ReadOnly);
+
+    ImGui::Checkbox("isActive", &isActive_);
+
+    ImGui::Spacing();
+
+    if (ImGui::Button("reload FileList")) {
+        objectFiles  = MyFileSystem::SearchFile("resource", "obj", false);
+        textureFiles = MyFileSystem::SearchFile("resource", "png", false);
+    }
+
+    if (ImGui::BeginCombo("ParticleModel", modelFileName_->c_str())) {
+        for (auto& fileName : objectFiles) {
+            bool isSelected = (fileName.second == modelFileName_); // 現在選択中かどうか
+            if (ImGui::Selectable(fileName.second.c_str(), isSelected)) {
+                particleModel_ = ModelManager::getInstance()->Create(fileName.first, fileName.second);
+                modelFileName_.setValue(fileName.second);
+            }
+        }
+        ImGui::EndCombo();
+    }
+    if (ImGui::BeginCombo("ParticleTexture", textureFileName_->c_str())) {
+        for (auto& fileName : textureFiles) {
+            bool isSelected = (fileName.second == textureFileName_); // 現在選択中かどうか
+            if (ImGui::Selectable(fileName.second.c_str(), isSelected)) {
+                textureFileName_.setValue(fileName.first + "/" + fileName.second);
+                particleModel_->setTexture(0, TextureManager::LoadTexture(textureFileName_));
+            }
+        }
+        ImGui::EndCombo();
+    }
+
+    ImGui::Spacing();
+
+    if (ImGui::TreeNode("ShapeType")) {
+        EditShapeType();
+        ImGui::TreePop();
+    }
+    if (ImGui::TreeNode("Emitter")) {
+        EditEmitter();
+        ImGui::TreePop();
+    }
+    if (ImGui::TreeNode("Particle")) {
+        EditParticle();
+        ImGui::TreePop();
+    }
+
+    CalculateMaxSize();
+    if (structuredTransform_.capacity() <= particleMaxSize_) {
+        structuredTransform_.resize(Engine::getInstance()->getDxDevice()->getDevice(), particleMaxSize_);
+    }
 }
+
+void Emitter::Save() {
+    GlobalVariables::getInstance()->SaveFile("Emitters", emitterDataName_);
+    if (updateSettings_) {
+        particleKeyFrames_->SaveKeyFrames("resource/ParticleCurve/" + emitterDataName_ + "pkf");
+    }
+}
+
 void Emitter::EditEmitter() {
     //======================== Emitter の 編集 ========================//
     if (ImGui::Button("Active")) {
@@ -304,34 +312,38 @@ void Emitter::EditShapeType() {
 
 void Emitter::EditParticle() {
     //======================== Particle の 編集 ========================//
-    if (ImGui::TreeNode("ParticleLifeTime")) {
-        float preLifeTime = particleLifeTime_;
-        if (ImGui::DragFloat("##ParticleLifeTime", particleLifeTime_, 0.1f, 0)) {
-            // 各Curveのノードの時間を変更前と同じ割合になるように
-            for (auto& colorNode : particleKeyFrames_->colorCurve_) {
-                colorNode.time = (colorNode.time / preLifeTime) * particleLifeTime_;
-            }
-            for (auto& speedNode : particleKeyFrames_->velocityCurve_) {
-                speedNode.time = (speedNode.time / preLifeTime) * particleLifeTime_;
-            }
-            for (auto& scaleNode : particleKeyFrames_->scaleCurve_) {
-                scaleNode.time = (scaleNode.time / preLifeTime) * particleLifeTime_;
-            }
-            for (auto& rotateNode : particleKeyFrames_->rotateCurve_) {
-                rotateNode.time = (rotateNode.time / preLifeTime) * particleLifeTime_;
-            }
 
-            for (auto& uvScaleNode : particleKeyFrames_->uvScaleCurve_) {
-                uvScaleNode.time = (uvScaleNode.time / preLifeTime) * particleLifeTime_;
-            }
-            for (auto& uvRotateNode : particleKeyFrames_->uvRotateCurve_) {
-                uvRotateNode.time = (uvRotateNode.time / preLifeTime) * particleLifeTime_;
-            }
-            for (auto& uvTranslateNode : particleKeyFrames_->uvTranslateCurve_) {
-                uvTranslateNode.time = (uvTranslateNode.time / preLifeTime) * particleLifeTime_;
-            }
+    ImGui::Text("ParticleLifeTime");
+    float preLifeTime = particleLifeTime_;
+    if (ImGui::DragFloat("##ParticleLifeTime", particleLifeTime_, 0.1f, 0)) {
+        // 各Curveのノードの時間を変更前と同じ割合になるように
+        for (auto& colorNode : particleKeyFrames_->colorCurve_) {
+            colorNode.time = (colorNode.time / preLifeTime) * particleLifeTime_;
         }
-        ImGui::TreePop();
+        for (auto& speedNode : particleKeyFrames_->velocityCurve_) {
+            speedNode.time = (speedNode.time / preLifeTime) * particleLifeTime_;
+        }
+        for (auto& scaleNode : particleKeyFrames_->scaleCurve_) {
+            scaleNode.time = (scaleNode.time / preLifeTime) * particleLifeTime_;
+        }
+        for (auto& rotateNode : particleKeyFrames_->rotateCurve_) {
+            rotateNode.time = (rotateNode.time / preLifeTime) * particleLifeTime_;
+        }
+
+        for (auto& uvScaleNode : particleKeyFrames_->uvScaleCurve_) {
+            uvScaleNode.time = (uvScaleNode.time / preLifeTime) * particleLifeTime_;
+        }
+        for (auto& uvRotateNode : particleKeyFrames_->uvRotateCurve_) {
+            uvRotateNode.time = (uvRotateNode.time / preLifeTime) * particleLifeTime_;
+        }
+        for (auto& uvTranslateNode : particleKeyFrames_->uvTranslateCurve_) {
+            uvTranslateNode.time = (uvTranslateNode.time / preLifeTime) * particleLifeTime_;
+        }
+    }
+
+    ImGui::Text("LocalTime");
+    if (ImGui::DragFloat("##LocalTime", &leftActiveTime_, 0.1f, 0.0f, activeTime_)) {
+        isActive_ = false;
     }
 
     if (ImGui::TreeNode("Particle Color")) {
@@ -604,7 +616,7 @@ void Emitter::SpawnParticle() {
         randX.setRange(startParticleScaleMin_->v[X], startParticleScaleMax_->v[X]);
         randY.setRange(startParticleScaleMin_->v[Y], startParticleScaleMax_->v[Y]);
         randZ.setRange(startParticleScaleMin_->v[Z], startParticleScaleMax_->v[Z]);
-        transform.scale     = {randX.get(), randY.get(), randZ.get()};
+        transform.scale = {randX.get(), randY.get(), randZ.get()};
 
         randX.setRange(startParticleRotateMin_->v[X], startParticleRotateMax_->v[X]);
         randY.setRange(startParticleRotateMin_->v[Y], startParticleRotateMax_->v[Y]);

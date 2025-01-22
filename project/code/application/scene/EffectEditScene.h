@@ -7,7 +7,8 @@
 #include <memory>
 
 //editor
-class EffectManager;
+class ParticleEditor;
+class EffectEditor;
 
 //debugCamera
 #include "camera/debugCamera/DebugCamera.h"
@@ -29,5 +30,6 @@ public:
 private:
     std::unique_ptr<DebugCamera> debugCamera_;
 
-    EffectManager* EffectManager_;
+    std::unique_ptr<EffectEditor> effectEditor_;
+    std::unique_ptr<ParticleEditor> particleEditor_;
 };

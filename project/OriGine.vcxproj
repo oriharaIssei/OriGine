@@ -114,6 +114,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="code\engine\camera\CameraManager.cpp" />
     <ClCompile Include="code\engine\camera\gameCamera\GameCamera.cpp" />
     <ClCompile Include="code\engine\editor\EngineEditor.cpp" />
+    <ClCompile Include="code\engine\effect\particle\editor\ParticleEditor.cpp" />
     <ClCompile Include="code\engine\effect\silhouette\ISilhouette.cpp" />
     <ClCompile Include="code\engine\object3d\AnimationObject3d.cpp" />
     <ClCompile Include="code\lib\animationEditor\AnimationEditor.cpp" />
@@ -178,6 +179,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="code\application\scene\GameClearScene.cpp" />
     <ClCompile Include="code\application\scene\EffectEditScene.cpp" />
     <ClCompile Include="code\engine\effect\Effect.cpp" />
+    <ClCompile Include="code\engine\effect\editor\EffectEditor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\application\Collision\Collider.h" />
@@ -189,6 +191,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="code\engine\camera\CameraManager.h" />
     <ClInclude Include="code\engine\camera\gameCamera\GameCamera.h" />
     <ClInclude Include="code\engine\editor\EngineEditor.h" />
+    <ClInclude Include="code\engine\effect\particle\editor\ParticleEditor.h" />
     <ClInclude Include="code\engine\effect\silhouette\ISilhouette.h" />
     <ClInclude Include="code\engine\module\editor\IEditor.h" />
     <ClInclude Include="code\engine\object3d\AnimationObject3d.h" />
@@ -267,6 +270,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="code\application\FrameWork.h" />
     <ClInclude Include="code\application\scene\TitleScene.h" />
     <ClInclude Include="code\application\scene\GameClearScene.h" />
+    <ClInclude Include="code\engine\effect\editor\EffectEditor.h" />
     <ClInclude Include="externals\assimp\include\assimp\aabb.h" />
     <ClInclude Include="externals\assimp\include\assimp\ai_assert.h" />
     <ClInclude Include="externals\assimp\include\assimp\anim.h" />
