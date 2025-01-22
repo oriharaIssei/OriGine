@@ -37,7 +37,10 @@
 #endif // _DEBUG
 
 GameScene::GameScene()
-    : IScene("GameScene") {}
+    : IScene("GameScene"),
+      dashUIPos_("Game", "UI", "dashUIPos"),
+      attackUIPos_("Game", "UI", "attackUIPos"),
+      jumpUIPos_("Game", "UI", "jumpUIPos") {}
 
 GameScene::~GameScene() {}
 
@@ -130,12 +133,12 @@ void GameScene::Update() {
             activeGameObjects_.push_back(playerAttackCollider);
         }
     } else {
-        // player‚ªŽ€‚ñ‚¾‚çƒ^ƒCƒgƒ‹‚É–ß‚é
+        // playerãŒæ­»ã‚“ã ã‚‰ã‚¿ã‚¤ãƒˆãƒ«ã«æˆ»ã‚‹
         SceneManager::getInstance()->changeScene("TitleScene");
         return;
     }
     if (enemyManager_->getSpawners().empty()) {
-        // ƒNƒŠƒA
+        // ã‚¯ãƒªã‚¢
         SceneManager::getInstance()->changeScene("GameClearScene");
         return;
     }

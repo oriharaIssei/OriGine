@@ -14,9 +14,9 @@ IsNearToPlayer::IsNearToPlayer(float _distance)
 IsNearToPlayer::~IsNearToPlayer() {
 }
 Status IsNearToPlayer::tick() {
-    Vector3 playerPos = enemy_->getPlayer()->getTranslate();
-    Vector3 enemyPos  = enemy_->getTranslate();
-    Vector3 dist      = playerPos - enemyPos;
+    Vec3f playerPos = enemy_->getPlayer()->getTranslate();
+    Vec3f enemyPos  = enemy_->getTranslate();
+    Vec3f dist      = playerPos - enemyPos;
     if (dist.lengthSq() < distance_ * distance_) {
         return Status::SUCCESS;
     }
@@ -30,9 +30,9 @@ ChaseAction::ChaseAction(float _speed, float _targetDistance)
 ChaseAction::~ChaseAction() {}
 
 Status ChaseAction::tick() {
-    Vector3 playerPos = enemy_->getPlayer()->getTranslate();
-    Vector3 enemyPos  = enemy_->getTranslate();
-    Vector3 dist      = playerPos - enemyPos;
+    Vec3f playerPos = enemy_->getPlayer()->getTranslate();
+    Vec3f enemyPos  = enemy_->getTranslate();
+    Vec3f dist      = playerPos - enemyPos;
 
     // 規定距離内なら 攻撃 それ以外なら追跡
     if (dist.lengthSq() < targetDistance_ * targetDistance_) {
@@ -43,7 +43,7 @@ Status ChaseAction::tick() {
     dist                            = dist.normalize();
     const Quaternion& currentRotate = enemy_->getRotate();
     { // Player を 入力方向 へ 回転
-        Quaternion inputDirectionRotate = Quaternion::RotateAxisAngle({0.0f, 1.0f, 0.0f}, atan2(dist.x(), dist.z()));
+        Quaternion inputDirectionRotate = Quaternion::RotateAxisAngle({0.0f, 1.0f, 0.0f}, atan2(dist[X], dist[X]));
         inputDirectionRotate            = inputDirectionRotate.normalize();
         enemy_->setRotate(Slerp(currentRotate, inputDirectionRotate, 0.3f).normalize());
 

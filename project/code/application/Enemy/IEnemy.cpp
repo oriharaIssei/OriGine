@@ -33,7 +33,7 @@ void IEnemy::Draw() {
 
     // Shadow
     {
-        shadowObject_->transform_.translate = (Vector3(drawObject3d_->transform_.translate.x(), -0.03f, drawObject3d_->transform_.translate.z()));
+        shadowObject_->transform_.translate = (Vec3f(drawObject3d_->transform_.translate[X], -0.03f, drawObject3d_->transform_.translate[Z]));
         shadowObject_->UpdateTransform();
     }
     Object3d::setBlendMode(BlendMode::Sub);

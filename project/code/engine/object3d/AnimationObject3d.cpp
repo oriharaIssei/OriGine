@@ -186,20 +186,20 @@ void AnimationObject3d::setNextAnimation(const std::string& directory, const std
 
         ///=============================================
         /// 現在の姿勢をはじめに追加
-        toNextAnimationData->nodeAnimations[nodeName].scale.push_back(KeyframeVec3f(
+        toNextAnimationData->nodeAnimations[nodeName].scale.push_back(KeyframeVector3(
             0.0f,
             animation_->getCurrentScale(nodeName)));
         toNextAnimationData->nodeAnimations[nodeName].rotate.push_back(KeyframeQuaternion(
             0.0f,
             animation_->getCurrentRotate(nodeName)));
-        toNextAnimationData->nodeAnimations[nodeName].translate.push_back(KeyframeVec3f(
+        toNextAnimationData->nodeAnimations[nodeName].translate.push_back(KeyframeVector3(
             0.0f,
             animation_->getCurrentTranslate(nodeName)));
 
         ///=============================================
         /// 次の姿勢を追加
         if (!nextAnimation_->getData()->nodeAnimations[nodeName].scale.empty()) {
-            toNextAnimationData->nodeAnimations[nodeName].scale.push_back(KeyframeVec3f(
+            toNextAnimationData->nodeAnimations[nodeName].scale.push_back(KeyframeVector3(
                 _lerpTime,
                 nextAnimation_->getData()->nodeAnimations[nodeName].scale[0].value));
         }
@@ -209,7 +209,7 @@ void AnimationObject3d::setNextAnimation(const std::string& directory, const std
                 nextAnimation_->getData()->nodeAnimations[nodeName].rotate[0].value));
         }
         if (!nextAnimation_->getData()->nodeAnimations[nodeName].translate.empty()) {
-            toNextAnimationData->nodeAnimations[nodeName].translate.push_back(KeyframeVec3f(
+            toNextAnimationData->nodeAnimations[nodeName].translate.push_back(KeyframeVector3(
                 _lerpTime,
                 nextAnimation_->getData()->nodeAnimations[nodeName].translate[0].value));
         }
@@ -240,20 +240,20 @@ void AnimationObject3d::setNextAnimation(std::unique_ptr<Animation>& animation, 
 
         ///=============================================
         /// 現在の姿勢をはじめに追加
-        toNextAnimationData->nodeAnimations[nodeName].scale.push_back(KeyframeVec3f(
+        toNextAnimationData->nodeAnimations[nodeName].scale.push_back(KeyframeVector3(
             0.0f,
             animation_->getCurrentScale(nodeName)));
         toNextAnimationData->nodeAnimations[nodeName].rotate.push_back(KeyframeQuaternion(
             0.0f,
             animation_->getCurrentRotate(nodeName)));
-        toNextAnimationData->nodeAnimations[nodeName].translate.push_back(KeyframeVec3f(
+        toNextAnimationData->nodeAnimations[nodeName].translate.push_back(KeyframeVector3(
             0.0f,
             animation_->getCurrentTranslate(nodeName)));
 
         ///=============================================
         /// 次の姿勢を追加
         if (!nextAnimation_->getData()->nodeAnimations[nodeName].scale.empty()) {
-            toNextAnimationData->nodeAnimations[nodeName].scale.push_back(KeyframeVec3f(
+            toNextAnimationData->nodeAnimations[nodeName].scale.push_back(KeyframeVector3(
                 _lerpTime,
                 nextAnimation_->getData()->nodeAnimations[nodeName].scale[0].value));
         }
@@ -263,7 +263,7 @@ void AnimationObject3d::setNextAnimation(std::unique_ptr<Animation>& animation, 
                 nextAnimation_->getData()->nodeAnimations[nodeName].rotate[0].value));
         }
         if (!nextAnimation_->getData()->nodeAnimations[nodeName].translate.empty()) {
-            toNextAnimationData->nodeAnimations[nodeName].translate.push_back(KeyframeVec3f(
+            toNextAnimationData->nodeAnimations[nodeName].translate.push_back(KeyframeVector3(
                 _lerpTime,
                 nextAnimation_->getData()->nodeAnimations[nodeName].translate[0].value));
         }

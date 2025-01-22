@@ -32,9 +32,9 @@ void PlayerRootBehavior::Action() {
     // 入力 に 応じた 方向を 取得，計算
     if (input->isPadActive()) {
         directionXZ = {
-            input->getLStickVelocity().x(),
+            input->getLStickVelocity()[X],
             0.0f, // 上方向には 移動しない
-            input->getLStickVelocity().y()};
+            input->getLStickVelocity()[Y]};
     }
 
     if (directionXZ.lengthSq() == 0.0f) {
@@ -43,13 +43,13 @@ void PlayerRootBehavior::Action() {
 
     CameraTransform* cameraTransform = player_->getCameraTransform();
     if (cameraTransform) {
-        directionXZ = TransformVector(directionXZ, MakeMatrix::RotateY(cameraTransform->rotate.y()));
+        directionXZ = TransformVector(directionXZ, MakeMatrix::RotateY(cameraTransform->rotate[Y]));
     }
     lastDir_ = directionXZ.normalize();
 
     Quaternion currentPlayerRotate = player_->getRotate();
     { // Player を 入力方向 へ 回転
-        Quaternion inputDirectionRotate = Quaternion::RotateAxisAngle({0.0f, 1.0f, 0.0f}, atan2(lastDir_.x(), lastDir_.z()));
+        Quaternion inputDirectionRotate = Quaternion::RotateAxisAngle({0.0f, 1.0f, 0.0f}, atan2(lastDir_[X], lastDir_[Z]));
         inputDirectionRotate            = inputDirectionRotate.normalize();
         player_->setRotate(Slerp(currentPlayerRotate, inputDirectionRotate, 0.3f).normalize());
 

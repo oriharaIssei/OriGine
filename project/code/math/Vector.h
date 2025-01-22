@@ -155,7 +155,6 @@ public:
         return true;
     }
 
-
     Vector& operator=(const Vector& other) {
         for (int i = 0; i < dimension; i++)
             v[i] = other.v[i];
@@ -231,3 +230,8 @@ inline Vector<dim, valueType>* operator/=(Vector<dim, valueType>& vec, const Vec
 
 template <int dimension, typename valueType>
 using Vec = Vector<dimension, valueType>;
+
+template <int dim, typename valueType>
+Vector<dim, valueType> Lerp(const Vector<dim, valueType>& start, const Vector<dim, valueType>& end, valueType t) {
+    return Vector<dim, valueType>::Lerp(start, end, t);
+}

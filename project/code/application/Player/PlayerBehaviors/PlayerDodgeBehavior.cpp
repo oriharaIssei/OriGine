@@ -42,7 +42,7 @@ void PlayerDodgeBehavior::Update() {
 void PlayerDodgeBehavior::StartUp() {}
 void PlayerDodgeBehavior::Action() {
     currentTimer_ += Engine::getInstance()->getGameDeltaTime();
-    player_->setTranslate(Lerp(beforePos_, afterPos_, currentTimer_ / actionTime_));
+    player_->setTranslate(Vector<3, float>::Lerp(beforePos_, afterPos_, currentTimer_ / actionTime_));
     if (currentTimer_ >= actionTime_) {
         currentTimer_ = 0.0f;
 

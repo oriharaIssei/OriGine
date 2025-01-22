@@ -74,9 +74,9 @@ void Player::Update() {
 
     Transform& transform = drawObject3d_->transform_;
     jampForce_ -= 9.8f * deltaTime;
-    transform.translate.y() += jampForce_ * deltaTime;
-    if (transform.translate.y() < 0.0f) {
-        transform.translate.y() = 0.0f;
+    transform.translate[Y] += jampForce_ * deltaTime;
+    if (transform.translate[Y] < 0.0f) {
+        transform.translate[Y] = 0.0f;
         jampForce_            = 0.0f;
         onGround_             = true;
     } else {
@@ -115,7 +115,7 @@ void Player::Update() {
 
     // Shadow
     {
-        shadowObject_->transform_.translate = (Vec3f(drawObject3d_->transform_.translate.x(), -0.03f, drawObject3d_->transform_.translate.z()));
+        shadowObject_->transform_.translate = (Vec3f(drawObject3d_->transform_.translate[X], -0.03f, drawObject3d_->transform_.translate[Z]));
         shadowObject_->UpdateTransform();
     }
 }

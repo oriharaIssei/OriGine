@@ -1,7 +1,15 @@
 #include "PlayerHpBar.h"
 
-#include "../Player/Player.h"
+///stl
+//algorithm
+#include <algorithm>
+
+///engine
+//component
 #include "sprite/Sprite.h"
+///application
+//object
+#include "../Player/Player.h"
 
 PlayerHpBar::PlayerHpBar()
     : hpBarPos_{"Game", "HpBarUI", "hpBarPos"},
@@ -19,19 +27,19 @@ void PlayerHpBar::Init() {
     hpBar_->setAnchorPoint(Vec2f(0.0f, 0.5f));
     hpBar_->setSize(hpBarSize_);
     hpBar_->setTranslate(hpBarPos_);
-    currentWidth_ = hpBarSize_->x();
+    currentWidth_ = hpBarSize_->v[X];
     currentColor_ = maxHpColor_;
 }
 
 void PlayerHpBar::Update() {
     if (player_) {
         float t = player_->getHP() / player_->getMaxHp();
+        t       = std::clamp(t, 0.0f, 1.0f); // Ensure t is within [0, 1]
 
-        t             = (std::max)(0.0f, t);
-        currentWidth_ = hpBarSize_->x() * t;
-        currentColor_ = Lerp<float>(minHpColor_, maxHpColor_, t);
+        currentWidth_ = hpBarSize_->v[X] * t;
+        currentColor_ = Vector<4, float>::Lerp(minHpColor_, maxHpColor_, t);
     }
-    hpBar_->setSize(Vec2f(currentWidth_, hpBarSize_->y()));
+    hpBar_->setSize(Vec2f(currentWidth_, hpBarSize_->v[Y]));
     hpBar_->setColor(currentColor_);
     hpBar_->setTranslate(hpBarPos_);
     hpBar_->Update();

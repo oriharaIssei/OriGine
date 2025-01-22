@@ -265,7 +265,7 @@ bool TimeLineButtons(
             std::string popupId = _label + "node" + std::to_string(popUpIndex);
             if (BeginPopup(popupId.c_str())) {
                 if (!_nodePopupUpdate(popUpIndex)) {
-                    // 失敗したらポップアチE�Eを閉じる
+                    // 螟ｱ謨励＠縺溘ｉ繝昴ャ繝励い繝・・繧帝哩縺倥ｋ
                     popUpIndex = -1;
                 }
                 EndPopup();
@@ -357,9 +357,9 @@ bool EditKeyFrame(
 
     if (IsMouseReleased(0)) {
         if (draggedIndex != -1) {
-            //ソートすめE
+            //繧ｽ繝ｼ繝医☆繧・
             if (_keyFrames.size() > 1) {
-                // キーフレームによる ノ�Eド�E頁E��を変更
+                // 繧ｭ繝ｼ繝輔Ξ繝ｼ繝縺ｫ繧医ｋ 繝弱・繝峨・鬆・分繧貞､画峩
                 std::sort(
                     _keyFrames.begin(),
                     _keyFrames.end(),
@@ -570,9 +570,9 @@ bool EditKeyFrame(
 
     if (IsMouseReleased(0)) {
         if (draggedIndex != -1) {
-            //ソートすめE
+            //繧ｽ繝ｼ繝医☆繧・
             if (_keyFrames.size() > 1) {
-                // キーフレームによる ノ�Eド�E頁E��を変更
+                // 繧ｭ繝ｼ繝輔Ξ繝ｼ繝縺ｫ繧医ｋ 繝弱・繝峨・鬆・分繧貞､画峩
                 std::sort(
                     _keyFrames.begin(),
                     _keyFrames.end(),
@@ -794,9 +794,9 @@ bool EditKeyFrame(
 
     if (IsMouseReleased(0)) {
         if (draggedIndex != -1) {
-            //�\�[�g����
+            //ソートする
             if (_keyFrames.size() > 1) {
-                // �L�[�t���[���ɂ�� �m�[�h�̏��Ԃ�ύX
+                // キーフレームによる ノードの順番を変更
                 std::sort(
                     _keyFrames.begin(),
                     _keyFrames.end(),
@@ -1023,9 +1023,9 @@ bool EditKeyFrame(
 
     if (IsMouseReleased(0)) {
         if (draggedIndex != -1) {
-            //�\�[�g����
+            //ソートする
             if (_keyFrames.size() > 1) {
-                // �L�[�t���[���ɂ�� �m�[�h�̏��Ԃ�ύX
+                // キーフレームによる ノードの順番を変更
                 std::sort(
                     _keyFrames.begin(),
                     _keyFrames.end(),

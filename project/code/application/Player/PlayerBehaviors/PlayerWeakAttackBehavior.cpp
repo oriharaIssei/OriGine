@@ -97,7 +97,7 @@ void PlayerWeakAttackBehavior::CreateAttackCollider() {
     AttackCollider* attackCollider_ = player_->getAttackCollider();
     attackCollider_->resetRadius("PlayerWeakAttack" + std::to_string(currentCombo_));
 
-    Vector3 colliderPos = player_->getTranslate();
+    Vec3f colliderPos = player_->getTranslate();
     colliderPos += TransformVector(attackColliderOffset_, MakeMatrix::RotateQuaternion(player_->getRotate()));
     attackCollider_->Init();
     attackCollider_->ColliderInit(
@@ -107,7 +107,7 @@ void PlayerWeakAttackBehavior::CreateAttackCollider() {
                 return;
             }
             Quaternion effectRotate;
-            Vector3 effectPos;
+            Vec3f effectPos;
             if (object->getID() == "Player") {
                 return;
             } else if (object->getID() == "Enemy") {
@@ -120,13 +120,13 @@ void PlayerWeakAttackBehavior::CreateAttackCollider() {
                 effectPos = enemy->getTranslate();
 
                 enemy->Damage(player_->getPower() * attackPower_);
-                Vector3 knockBackDirection = enemy->getTranslate() - player_->getTranslate();
+                Vec3f knockBackDirection = enemy->getTranslate() - player_->getTranslate();
                 knockBackDirection[Y]      = 0.0f;
                 enemy->KnockBack(knockBackDirection.normalize(), knockBackPower_);
                 enemy->setInvisibleTime(actionTime_ - currentTimer_);
 
-                Vec2f directionForEffect = Vec2f(player_->getTranslate().x(), player_->getTranslate().z()) - Vec2f(effectPos.x(), effectPos.z()).normalize();
-                effectRotate             = Quaternion::RotateAxisAngle({0.0f, 1.0f, 0.0f}, atan2(directionForEffect.x(), directionForEffect.y()));
+                Vec2f directionForEffect = Vec2f(player_->getTranslate()[X], player_->getTranslate()[Z]) - Vec2f(effectPos[X], effectPos[Z]).normalize();
+                effectRotate             = Quaternion::RotateAxisAngle({0.0f, 1.0f, 0.0f}, atan2(directionForEffect[X], directionForEffect[Y]));
 
                 HitEffectManager* hitEffectManager = HitEffectManager::getInstance();
                 hitEffectManager->addHitEffect(effectRotate, effectPos);
@@ -144,8 +144,8 @@ void PlayerWeakAttackBehavior::CreateAttackCollider() {
                 enemySpawner->Damage(player_->getPower() * attackPower_);
                 enemySpawner->setInvisibleTime(actionTime_ - currentTimer_);
 
-                Vec2f directionForEffect = Vec2f(player_->getTranslate().x(), player_->getTranslate().z()) - Vec2f(effectPos.x(), effectPos.z()).normalize();
-                effectRotate             = Quaternion::RotateAxisAngle({0.0f, 1.0f, 0.0f}, atan2(directionForEffect.x(), directionForEffect.y()));
+                Vec2f directionForEffect = Vec2f(player_->getTranslate()[X], player_->getTranslate()[Z]) - Vec2f(effectPos[X], effectPos[Z]).normalize();
+                effectRotate             = Quaternion::RotateAxisAngle({0.0f, 1.0f, 0.0f}, atan2(directionForEffect[X], directionForEffect[Y]));
 
                 HitEffectManager* hitEffectManager = HitEffectManager::getInstance();
                 hitEffectManager->addHitEffect(effectRotate, effectPos);
