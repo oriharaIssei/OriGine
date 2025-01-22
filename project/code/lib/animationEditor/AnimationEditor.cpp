@@ -250,6 +250,16 @@ void AnimationEditor::Update() {
                         currentEditObject_->getAnimation()->getData()->duration = newDuration;
                     }
 
+                    ImGui::Text("Local Time:");
+                    float currentTime = currentEditObject_->getAnimation()->getCurrentAnimationTime();
+                    if (ImGui::SliderFloat(std::string("##" + nodeName + "LocalTime").c_str(), &currentTime, 0.0f, animationDuration)) {
+                        currentEditObject_->getAnimation()->setCurrentAnimationTime(currentTime);
+                        // 現在の姿勢に更新
+                        currentEditObject_->Update(0.0f);
+                        // 更新を中断
+                        isObjectPlaying_ = false;
+                    }
+
                     // TimeLineButtonsを呼び出す
                     ImGui::EditKeyFrame(
                         "Scale##" + nodeName,
@@ -277,6 +287,9 @@ void AnimationEditor::Update() {
         // アニメーションの再生
         if (isObjectPlaying_) {
             currentEditObject_->Update(Engine::getInstance()->getDeltaTime());
+        } else {
+            // 変更後の姿勢に更新
+            currentEditObject_->Update(0.0f);
         }
     }
 

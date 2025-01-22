@@ -1141,6 +1141,8 @@ bool EditKeyFrame(
                         0.1f);
                     _keyFrames[popUpIndex].value = _keyFrames[popUpIndex].value.normalize();
                 }
+                // Quaternionは正規化する
+                _keyFrames[popUpIndex].value = _keyFrames[popUpIndex].value.normalize();
                 return 1;
             }();
 

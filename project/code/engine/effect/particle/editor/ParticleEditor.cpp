@@ -14,7 +14,9 @@
 #include "imgui/imgui.h"
 #endif // _DEBUG
 
-static std::list<std::pair<std::string, std::string>> emitterFiles = myfs::SearchFile("resource/GlobalVariables/Effects", "json");
+const std::string emittersDirectory = "resource/GlobalVariables/Emitters";
+
+static std::list<std::pair<std::string, std::string>> emitterFiles = myfs::SearchFile(emittersDirectory, "json");
 
 void ParticleEditor::Init() {
     dxCommand_ = std::make_unique<DxCommand>();

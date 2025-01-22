@@ -145,6 +145,12 @@ Matrix4x4 MakeMatrix::RotateAxisAngle(const Vec3f& axis, float angle) {
         axis[X] * axis[X] * mCosAngle + cosAngle, axis[X] * axis[Y] * mCosAngle + axis[Z] * sinAngle, axis[X] * axis[Z] * mCosAngle - axis[Y] * sinAngle, 0.0f, axis[X] * axis[Y] * mCosAngle - axis[Z] * sinAngle, axis[Y] * axis[Y] * mCosAngle + cosAngle, axis[Y] * axis[Z] * mCosAngle + axis[X] * sinAngle, 0.0f, axis[X] * axis[Z] * mCosAngle + axis[Y] * sinAngle, axis[Y] * axis[Z] * mCosAngle - axis[X] * sinAngle, axis[Z] * axis[Z] * mCosAngle + cosAngle, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
 }
 
+Matrix4x4 MakeMatrix::RotateAxisAngle(const Vec3f& fromV, const Vec3f& toV) {
+    float angle = std::acosf(fromV.Dot(toV));
+    Vec3f axis  = fromV.cross(toV).normalize();
+    return MakeMatrix::RotateAxisAngle(axis, angle);
+}
+
 Matrix4x4 MakeMatrix::Affine(const Vec3f& scale, const Vec3f& rotate, const Vec3f& translate) {
     return MakeMatrix::Scale(scale) * MakeMatrix::RotateXYZ(rotate) * MakeMatrix::Translate(translate);
 }
