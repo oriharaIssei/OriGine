@@ -53,6 +53,7 @@ Matrix4x4 RotateXYZ(const Matrix4x4& x, const Matrix4x4& y, const Matrix4x4& z);
 Matrix4x4 RotateQuaternion(const Quaternion& q);
 
 Matrix4x4 RotateAxisAngle(const Vec3f& axis, float angle);
+Matrix4x4 RotateAxisAngle(const Vec3f& fromV, const Vec3f& toV);
 
 Matrix4x4 Affine(const Vec3f& scale, const Vec3f& rotate, const Vec3f& translate);
 Matrix4x4 Affine(const Vec3f& scale, const Quaternion& rotate, const Vec3f& translate);

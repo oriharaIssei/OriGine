@@ -81,3 +81,8 @@ using Vec3f    = Vector3<float>;
 
 using Vector3d = Vector3<double>;
 using Vec3d    = Vector3<double>;
+
+//=========== DirectionVector ===========//
+static const Vec3f axisX = Vec3f(1.0f, 0.0f, 0.0f);
+static const Vec3f axisY = Vec3f(0.0f, 1.0f, 0.0f);
+static const Vec3f axisZ = Vec3f(0.0f, 0.0f, 1.0f);

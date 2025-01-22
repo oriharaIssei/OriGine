@@ -59,9 +59,8 @@ void Particle::Update(float _deltaTime) {
     }
 
     // direction_ を法線ベクトルとして velocity_ を回転させる
-    Vec3f zAxis           = {0.0f, 0.0f, 1.0f};
-    Vec3f rotationAxis    = zAxis.cross(direction_).normalize();
-    float angle           = std::acos(Vec3f(zAxis * direction_).dot() / (zAxis.length() * direction_.length()));
+    Vec3f rotationAxis    = axisZ.cross(direction_).normalize();
+    float angle           = std::acos(Vec3f(axisZ * direction_).dot() / (axisZ.length() * direction_.length()));
     Quaternion rotation   = Quaternion::RotateAxisAngle(rotationAxis, angle);
     Vec3f rotatedVelocity = RotateVector(velocity_, rotation);
 
@@ -75,15 +74,14 @@ void Particle::Update(float _deltaTime) {
             rotatedVelocity = direction_;
         }
         Vec3f forward = rotatedVelocity.normalize();
-        float dot     = Vec3f(zAxis * forward).dot();
+        float dot     = Vec3f(axisZ * forward).dot();
         if (dot < 1.0f - std::numeric_limits<float>::epsilon()) {
-            Vec3f axis        = zAxis.cross(forward).normalize();
+            Vec3f axis        = axisZ.cross(forward).normalize();
             float angle       = std::acos(dot);
             Quaternion q      = Quaternion::RotateAxisAngle(axis, angle).normalize();
             transform_.rotate = q.ToEulerAngles();
         }
     }
-
     transform_.UpdateMatrix();
 }
 
