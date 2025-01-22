@@ -1,0 +1,100 @@
+{
+    "Test": {
+        "Sphere_radius": 7.0,
+        "SpherespawnLocationType": 0,
+        "activeTime": 0.0,
+        "blendMode": 1,
+        "isLoop": true,
+        "modelDirectory": "",
+        "modelFileName": "sphere.obj",
+        "particleColor": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+        ],
+        "particleIsBillBoard": true,
+        "particleLifeTime": 0.8999999761581421,
+        "particleUvRotate": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "particleUvScale": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "particleUvTranslate": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "shapeType": 0,
+        "spawnCoolTime": 0.4000000059604645,
+        "spawnParticleVal": 6,
+        "startParticleRotateMax": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "startParticleRotateMin": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "startParticleScaleMax": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "startParticleScaleMin": [
+            0.30000001192092896,
+            0.30000001192092896,
+            0.30000001192092896
+        ],
+        "startParticleVelocityMax": [
+            0.0,
+            0.0,
+            1.0
+        ],
+        "startParticleVelocityMin": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "textureDirectory": "",
+        "textureFileName": "resource\\Texture/checkerBoard.png",
+        "updateParticleRotateMax": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "updateParticleRotateMin": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "updateParticleScaleMax": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "updateParticleScaleMin": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "updateParticleVelocityMax": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "updateParticleVelocityMin": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "updateSettings": 144
+    }
+}

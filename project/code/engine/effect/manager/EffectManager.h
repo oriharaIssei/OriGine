@@ -24,13 +24,15 @@
 //transform
 #include "transform/CameraTransform.h"
 
+class Effect;
 class Emitter;
-class ParticleManager
+class EffectManager
     : public IModule {
+    friend class Effect;
     friend class Emitter;
 
 public:
-    static ParticleManager* getInstance();
+    static EffectManager* getInstance();
     void Init();
     void Finalize();
     void PreDraw();
@@ -40,17 +42,17 @@ public:
 
     void ChangeBlendMode(BlendMode mode);
 
-
 private:
-    ParticleManager();
-    ~ParticleManager();
-    ParticleManager(const ParticleManager&)                  = delete;
-    const ParticleManager& operator=(const ParticleManager&) = delete;
+    EffectManager();
+    ~EffectManager();
+    EffectManager(const EffectManager&)                  = delete;
+    const EffectManager& operator=(const EffectManager&) = delete;
 
     void CreatePso();
 
 private:
-    int32_t srvNum_ = 16;
+    int32_t srvNum_ = 64;
+    int32_t usingSrvNum_ = 0;
     std::shared_ptr<DxSrvArray> dxSrvArray_;
 
     std::unique_ptr<DxCommand> dxCommand_;
@@ -59,15 +61,13 @@ private:
     std::array<PipelineStateObj*, kBlendNum> pso_;
     BlendMode blendMode_ = BlendMode::Normal;
 
+    std::unordered_map<std::string, std::unique_ptr<Effect>> effects_;
+
     bool emitterWindowedState_ = false;
-
-    std::unordered_map<std::string, std::unique_ptr<Emitter>> emitters_;
-
 
     // 新しい Emitterを 作成する ための もの
     bool isOpenedCrateWindow_    = false;
     std::string newInstanceName_ = "NULL";
-
 public:
-    std::unique_ptr<Emitter> CreateEmitter(DxSrvArray* srvArray, const std::string& name) const;
+    std::unique_ptr<Effect> CreateEffect(const std::string& name) ;
 };

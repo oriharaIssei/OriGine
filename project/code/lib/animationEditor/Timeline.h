@@ -23,12 +23,19 @@ namespace ImGui {
 /// <returns>更新されたか</returns>
 bool TimeLineButtons(
     const std::string& _label,
-    std::vector<float*> _nodeTimes,
+    std::vector<float>& _nodeTimes,
     float _duration,
     std::function<void(float newNodeTime)> _updateOnNodeDragged = nullptr,
     std::function<void(float _currentTime)> _sliderPopupUpdate  = nullptr,
-    std::function<void(int nodeIndex)> _nodePopupUpdate         = nullptr);
+    std::function<bool(int nodeIndex)> _nodePopupUpdate         = nullptr);
 
+bool TimeLineButtons(
+    const std::string& _label,
+    std::vector<KeyFrame<int>>& _nodeTimes,
+    float _duration,
+    std::function<void(float newNodeTime)> _updateOnNodeDragged = nullptr,
+    std::function<void(float _currentTime)> _sliderPopupUpdate  = nullptr,
+    std::function<bool(int nodeIndex)> _nodePopupUpdate         = nullptr);
 /// <summary>
 /// AnimationCurve<>を編集
 /// </summary>
@@ -39,17 +46,21 @@ bool TimeLineButtons(
 bool EditKeyFrame(
     const std::string& _label,
     AnimationCurve<float>& _keyFrames,
-    float _duration);
+    float _duration,
+    std::function<void(int)> _howEditItem = nullptr);
 bool EditKeyFrame(
     const std::string& _label,
     AnimationCurve<Vec3f>& _keyFrames,
-    float _duration);
+    float _duration,
+    std::function<void(int)> _howEditItem = nullptr);
 bool EditKeyFrame(
     const std::string& _label,
     AnimationCurve<Vec4f>& _keyFrames,
-    float _duration);
+    float _duration,
+    std::function<void(int)> _howEditItem = nullptr);
 bool EditKeyFrame(
     const std::string& _label,
     AnimationCurve<Quaternion>& _keyFrames,
-    float _duration);
+    float _duration,
+    std::function<void(int)> _howEditItem = nullptr);
 } // namespace ImGui

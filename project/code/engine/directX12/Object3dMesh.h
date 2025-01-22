@@ -1,9 +1,10 @@
 #pragma once
 
+///directX12
 #include "d3d12.h"
-
 #include "directX12/DxResource.h"
 
+///math
 #include <Vector2.h>
 #include <Vector3.h>
 #include <Vector4.h>

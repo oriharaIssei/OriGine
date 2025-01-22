@@ -28,6 +28,9 @@ struct Keyframe {
     float time; // キーフレームの時刻
     T value;    // キーフレームの 値
 };
+
+template <typename T>
+using KeyFrame           = Keyframe<T>;
 using KeyframeVector3    = Keyframe<Vec3f>;
 using KeyframeQuaternion = Keyframe<Quaternion>;
 
@@ -59,6 +62,7 @@ struct AnimationData {
 /// <param name="keyframes"></param>
 /// <param name="time"></param>
 /// <returns></returns>
+
 float CalculateValue(
     const std::vector<Keyframe<float>>& keyframes, float time);
 Vec3f CalculateValue(

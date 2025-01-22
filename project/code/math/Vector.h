@@ -88,6 +88,12 @@ public:
         }
         return result;
     }
+    Vector* operator*=(const Vector& other) {
+        for (int i = 0; i < dimension; i++) {
+            v[i] *= other.v[i];
+        }
+        return this;
+    }
     Vector* operator*=(const valueType& scalar) {
         for (int i = 0; i < dimension; i++) {
             v[i] *= scalar;
@@ -116,6 +122,16 @@ public:
         }
         return this;
     }
+    Vector* operator/=(const Vector& other) {
+        for (int i = 0; i < dimension; i++) {
+            if (other.v[i] != 0) {
+                v[i] /= other.v[i];
+            } else {
+                v[i] = 0;
+            }
+        }
+        return this;
+    }
 
     // equal
     bool operator==(const Vector& other) const {
@@ -127,6 +143,18 @@ public:
     bool operator!=(const Vector& other) const {
         return !(*this == other);
     }
+
+    bool operator<(const Vector& other) const {
+        for (int i = 0; i < dimension; i++)
+            if (v[i] >= other.v[i]) return false;
+        return true;
+    }
+    bool operator>(const Vector& other) const {
+        for (int i = 0; i < dimension; i++)
+            if (v[i] <= other.v[i]) return false;
+        return true;
+    }
+
 
     Vector& operator=(const Vector& other) {
         for (int i = 0; i < dimension; i++)
@@ -155,10 +183,50 @@ public:
 template <int dim, typename valueType>
 inline Vector<dim, valueType> operator*(const valueType& scalar, const Vector<dim, valueType>& vec) {
     Vector<dim, valueType> result;
-    for (size_t i = 0; i < dim; i++) {
+    for (int i = 0; i < dim; i++) {
         result[i] = vec[i] * scalar;
     }
     return result;
+}
+
+template <int dim, typename valueType>
+inline Vector<dim, valueType> operator*(const Vector<dim, valueType>& vec, const Vector<dim, valueType>& another) {
+    Vector<dim, valueType> result;
+    for (int i = 0; i < dim; i++) {
+        result[i] = vec[i] * another[i];
+    }
+    return result;
+}
+template <int dim, typename valueType>
+inline Vector<dim, valueType>* operator*=(Vector<dim, valueType>& vec, const Vector<dim, valueType>& another) {
+    for (int i = 0; i < dim; i++) {
+        vec[i] *= another[i];
+    }
+    return &vec;
+}
+
+template <int dim, typename valueType>
+inline Vector<dim, valueType> operator/(const Vector<dim, valueType>& vec, const Vector<dim, valueType>& another) {
+    Vector<dim, valueType> result;
+    for (int i = 0; i < dim; i++) {
+        if (another[i] != 0) {
+            result[i] = vec[i] / another[i];
+        } else {
+            result[i] = 0;
+        }
+    }
+    return result;
+}
+template <int dim, typename valueType>
+inline Vector<dim, valueType>* operator/=(Vector<dim, valueType>& vec, const Vector<dim, valueType>& another) {
+    for (int i = 0; i < dim; i++) {
+        if (another[i] != 0) {
+            vec[i] /= another[i];
+        } else {
+            vec[i] = 0;
+        }
+    }
+    return &vec;
 }
 
 template <int dimension, typename valueType>

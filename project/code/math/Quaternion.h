@@ -75,6 +75,8 @@ struct Quaternion {
     static Quaternion RotateAxisAngle(const Vec3f& axis, float angle);
     void Show();
 
+    Vec3f ToEulerAngles() const;
+
     // インライン関数として定義
     friend inline Vec3f RotateVector(const Vec3f& v, const Quaternion& q) {
         Quaternion r = Quaternion(v, 0.0f);

@@ -1,6 +1,6 @@
-#include "ParticleManager.h"
+#include "EffectManager.h"
 
-#include "../emitter/Emitter.h"
+#include "../Effect.h"
 
 ///engine
 #include "Engine.h"
@@ -14,12 +14,12 @@
 #include "imgui/imgui.h"
 #endif // _DEBUG
 
-ParticleManager* ParticleManager::getInstance() {
-    static ParticleManager instance;
+EffectManager* EffectManager::getInstance() {
+    static EffectManager instance;
     return &instance;
 }
 
-void ParticleManager::Init() {
+void EffectManager::Init() {
     dxSrvArray_ = DxSrvArrayManager::getInstance()->Create(srvNum_);
 
     dxCommand_ = std::make_unique<DxCommand>();
@@ -33,22 +33,22 @@ void ParticleManager::Init() {
 
     std::list<std::pair<std::string, std::string>> loadedEmitter = myfs::SearchFile("resource/GlobalVariables/Effects", "json");
     for (auto& [directory, filename] : loadedEmitter) {
-        emitters_[filename] = std::make_unique<Emitter>(dxSrvArray_.get(), filename);
-        emitters_[filename]->Init();
+        effects_[filename] = CreateEffect(filename);
     }
 }
 
-void ParticleManager::Finalize() {
+void EffectManager::Finalize() {
     if (dxCommand_) {
         dxCommand_->Finalize();
     }
     if (dxSrvArray_) {
         dxSrvArray_->Finalize();
     }
-    emitters_.clear();
+
+    effects_.clear();
 }
 
-void ParticleManager::PreDraw() {
+void EffectManager::PreDraw() {
     auto* commandList = dxCommand_->getCommandList();
 
     commandList->SetGraphicsRootSignature(pso_[int(blendMode_)]->rootSignature.Get());
@@ -59,13 +59,13 @@ void ParticleManager::PreDraw() {
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-void ParticleManager::DrawDebug() {
-    for (auto& [emitterName, emitter] : emitters_) {
-        emitter->Draw();
+void EffectManager::DrawDebug() {
+    for (auto& [effectName, effect] : effects_) {
+        effect->Draw();
     }
 }
 
-void ParticleManager::ChangeBlendMode(BlendMode mode) {
+void EffectManager::ChangeBlendMode(BlendMode mode) {
     if (blendMode_ == mode) {
         return;
     }
@@ -77,11 +77,11 @@ void ParticleManager::ChangeBlendMode(BlendMode mode) {
     commandList->SetPipelineState(pso_[int(blendMode_)]->pipelineState.Get());
 }
 
-ParticleManager::ParticleManager() {}
+EffectManager::EffectManager() {}
 
-ParticleManager::~ParticleManager() {}
+EffectManager::~EffectManager() {}
 
-void ParticleManager::CreatePso() {
+void EffectManager::CreatePso() {
     ShaderManager* shaderManager = ShaderManager::getInstance();
     ///=================================================
     /// shader読み込み
@@ -182,25 +182,31 @@ void ParticleManager::CreatePso() {
     }
 }
 
-std::unique_ptr<Emitter> ParticleManager::CreateEmitter(DxSrvArray* srvArray, const std::string& name) const {
-    std::unique_ptr<Emitter> result = std::make_unique<Emitter>(srvArray, name);
+std::unique_ptr<Effect> EffectManager::CreateEffect(const std::string& name) {
+    std::unique_ptr<Effect> result = std::make_unique<Effect>(this->dxSrvArray_, name);
     result->Init();
+    usingSrvNum_ -= result->getUsingSrvNum();
+    if (srvNum_ < usingSrvNum_) {
+        // 未対応
+        //dxSrvArray_->resize(srvNum_);
+    }
+
     return result;
 }
 
 #ifdef _DEBUG
-void ParticleManager::Edit() {
+void EffectManager::Edit() {
     // main window
-    if (ImGui::Begin("ParticleManager")) {
+    if (ImGui::Begin("EffectManager")) {
         if (ImGui::Button("Create New Emitter")) {
             isOpenedCrateWindow_ = true;
         }
     }
     ImGui::End();
 
-    for (auto& [emitterName, emitter] : emitters_) {
-        emitter->Debug();
-        emitter->Update(Engine::getInstance()->getDeltaTime());
+    for (auto& [emitterName, effects_] : effects_) {
+        effects_->Debug();
+        effects_->Update(Engine::getInstance()->getDeltaTime());
     }
 
     if (isOpenedCrateWindow_) {
@@ -212,9 +218,8 @@ void ParticleManager::Edit() {
 
         if (ImGui::Button("Create")) {
             // 名前が既に存在している場合は登録しない
-            if (emitters_.find(newInstanceName_) == emitters_.end()) {
-                emitters_[newInstanceName_] = std::make_unique<Emitter>(dxSrvArray_.get(), newInstanceName_);
-                emitters_[newInstanceName_]->Init();
+            if (effects_.find(newInstanceName_) == effects_.end()) {
+                effects_[newInstanceName_] = CreateEffect(newInstanceName_);
             }
             emitterWindowedState_ = false;
             isOpenedCrateWindow_  = false;

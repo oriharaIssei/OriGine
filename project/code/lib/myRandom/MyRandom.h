@@ -41,4 +41,5 @@ namespace MyRandom{
 			distribution = std::uniform_real_distribution<float>(min,max);
 		}
 	};
+
 }

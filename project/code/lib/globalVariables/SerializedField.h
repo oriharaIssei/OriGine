@@ -19,6 +19,9 @@ public:
 
     // 値を読み取る
     const T* operator->() const { return value_; }
+    const T* GetValue() const {
+        return value_;
+    }
 
     // 値を取得（暗黙変換用）
     operator T() const {
