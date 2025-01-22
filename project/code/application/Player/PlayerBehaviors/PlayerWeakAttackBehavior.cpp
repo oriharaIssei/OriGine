@@ -69,15 +69,7 @@ void PlayerWeakAttackBehavior::Action() {
     if (currentTimer_ >= actionTime_) {
         // attackColliderを消す
         player_->getAttackCollider()->getHitCollider()->setIsAlive(false);
-        // Playerの座標をアニメーション終了後の座標に変更
-        {
-            auto playerModel    = player_->getDrawObject3d()->getModel();
-            int32_t bodyIndex   = playerModel->meshData_->meshIndexes["body"];
-            auto& bodyMesh      = playerModel->meshData_->mesh_[bodyIndex];
-            auto& bodyTransform = playerModel->transformBuff_[&bodyMesh].openData_;
-            player_->setTranslate(bodyTransform.worldMat[3]);
-        }
-
+        
         // アニメーションを変更
         AnimationSetting weakAttackActionSettings = AnimationSetting("PlayerIdle");
         player_->getDrawObject3d()->setNextAnimation(weakAttackActionSettings.targetAnimationDirection, weakAttackActionSettings.name + ".anm", startUpTime_);
