@@ -205,13 +205,13 @@ void GlobalVariables::SaveFile(const std::string& scene,const std::string& group
 			root[groupName][itemName] = std::get<std::string>(item);
 		} else if(std::holds_alternative<Vec2f>(item)){
 			Vec2f value = std::get<Vec2f>(item);
-            root[groupName][itemName] = json::array({value.x(), value.y()});
+			root[groupName][itemName] = json::array({value[X],value[Y]});
 		} else if(std::holds_alternative<Vec3f>(item)){
 			Vec3f value = std::get<Vec3f>(item);
-            root[groupName][itemName] = json::array({value.x(), value.y(), value.z()});
+			root[groupName][itemName] = json::array({value[X],value[Y],value[Z]});
 		} else if(std::holds_alternative<Vec4f>(item)){
 			Vec4f value = std::get<Vec4f>(item);
-            root[groupName][itemName] = json::array({value.x(), value.y(), value.z(), value.w()});
+			root[groupName][itemName] = json::array({value[X],value[Y],value[Z],value[W]});
 		} else if(std::holds_alternative<bool>(item)){
 			root[groupName][itemName] = std::get<bool>(item);
 		}

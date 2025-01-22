@@ -47,12 +47,12 @@ void DxResource::CreateRenderTextureResource(Microsoft::WRL::ComPtr<ID3D12Device
     // VRAM 上に 生成
     heapProps.Type = D3D12_HEAP_TYPE_DEFAULT;
 
-    D3D12_CLEAR_VALUE clearValue;
-    clearValue.Format   = format;
-    clearValue.Color[0] = clearColor.x();
-    clearValue.Color[1] = clearColor.y();
-    clearValue.Color[2] = clearColor.z();
-    clearValue.Color[3] = clearColor.w();
+	D3D12_CLEAR_VALUE clearValue;
+	clearValue.Format = format;
+	clearValue.Color[0] = clearColor[X];
+	clearValue.Color[1] = clearColor[Y];
+	clearValue.Color[2] = clearColor[Z];
+	clearValue.Color[3] = clearColor[W];
 
     device->CreateCommittedResource(
         &heapProps,

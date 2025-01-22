@@ -12,6 +12,9 @@ struct SpriteVertexData {
     Vec2f texcoord;
 };
 struct SpritConstBuffer {
+    Vec4f color_;
+    Matrix4x4 mat_;
+    Matrix4x4 uvMat_;
     Vec4f color;
     Matrix4x4 mat;
     Matrix4x4 uvMat;
@@ -55,6 +58,7 @@ private:
     Vec2f textureLeftTop_ = {0.0f, 0.0f};
     Vec2f textureSize_    = {0.0f, 0.0f};
 
+    Vec2f anchorPoint_;
     Vec2f size_ = {0.0f, 0.0f};
 
     bool isFlipX_ = false;
@@ -71,8 +75,6 @@ private:
     Matrix4x4 uvMat_;
 
     Vec4f color_ = {1.0f, 1.0f, 1.0f, 1.0f};
-
-    Vec2f anchorPoint_ = {0.0f, 0.0f};
 
     SpritConstBuffer* mappingConstBufferData_;
     std::unique_ptr<SpriteMesh> meshBuff_;

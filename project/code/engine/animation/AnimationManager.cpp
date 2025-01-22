@@ -82,7 +82,7 @@ AnimationData AnimationManager::LoadGltfAnimationData(const std::string& directo
             // 時間単位を 秒 に変換
             keyframe.time = float(keyAssimp.mTime / animationAssimp->mTicksPerSecond);
             // スケール値をそのまま使用
-            keyframe.value = {keyAssimp.mValue.x, keyAssimp.mValue.y, keyAssimp.mValue.z};
+            keyframe.value = {keyAssimp.mValue[X], keyAssimp.mValue[Y], keyAssimp.mValue[Z]};
             nodeAnimation.scale.push_back(keyframe);
         }
 
@@ -96,10 +96,10 @@ AnimationData AnimationManager::LoadGltfAnimationData(const std::string& directo
             keyframe.time = float(keyAssimp.mTime / animationAssimp->mTicksPerSecond);
             // クォータニオンの値を変換 (右手座標系 → 左手座標系)
             keyframe.value = {
-                keyAssimp.mValue.x,
+                keyAssimp.mValue .x,
                 -keyAssimp.mValue.y,
                 -keyAssimp.mValue.z,
-                keyAssimp.mValue.w};
+                keyAssimp.mValue .w};
             nodeAnimation.rotate.push_back(keyframe);
         }
 
@@ -112,7 +112,7 @@ AnimationData AnimationManager::LoadGltfAnimationData(const std::string& directo
             // 時間単位を 秒 に変換
             keyframe.time = float(keyAssimp.mTime / animationAssimp->mTicksPerSecond);
             // 元が 右手座標系 なので 左手座標系 に 変換する
-            keyframe.value = {-keyAssimp.mValue.x, keyAssimp.mValue.y, keyAssimp.mValue.z};
+            keyframe.value = {-keyAssimp.mValue[X], keyAssimp.mValue[Y], keyAssimp.mValue[Z]};
             nodeAnimation.translate.push_back(keyframe);
         }
     }
@@ -174,6 +174,7 @@ void AnimationManager::SaveAnimation(const std::string& directory, const std::st
     std::string filePath = directory + "/" + filename + ".anm";
     std::ofstream ofs(filePath, std::ios::binary);
     if (!ofs) {
+        throw std::runtime_error("Failed to open file for writing");
     }
 
     // duration を保存

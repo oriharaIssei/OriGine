@@ -22,6 +22,7 @@ public:
 
     static bool removeEmptyFolder(const std::string& directory);
     static std::uintmax_t deleteFolder(const std::string& path);
+    static std::uintmax_t deleteFile(const std::string& filePath);
 };
 
 using myfs = MyFileSystem;

@@ -10,17 +10,18 @@ public:
         value_ = GlobalVariables::getInstance()->addValue<T>(scene, group, value);
     }
 
-    SerializedField(): value_(nullptr) {}
-public:
     // デストラクタ
     ~SerializedField() {}
 
-    SerializedField CreateNull() {
+    static SerializedField CreateNull() {
         return SerializedField<T>();
     }
 
     // 値を読み取る
     const T* operator->() const { return value_; }
+    const T* GetValue() const {
+        return value_;
+    }
 
     // 値を取得（暗黙変換用）
     operator T() const {
@@ -70,6 +71,8 @@ public:
     }
 
 private:
+    SerializedField()
+        : value_(nullptr) {}
     T* value_;
 };
 

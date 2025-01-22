@@ -71,14 +71,17 @@ void PrimitiveDrawer::Finalize() {
     // quadMesh_->Finalize();
 }
 
-void PrimitiveDrawer::Line(const Vec3f& p0, const Vec3f& p1, const IConstantBuffer<Transform>& Transform, const IConstantBuffer<Material>* material) {
-    ID3D12GraphicsCommandList* commandList = dxCommand_->getCommandList();
+void PrimitiveDrawer::Line(const Vec3f& p0,
+						   const Vec3f& p1,
+						   const  IConstantBuffer<Transform>& Transform,
+						   const IConstantBuffer<Material>* material){
+	ID3D12GraphicsCommandList* commandList = dxCommand_->getCommandList();
 
-    const uint32_t startIndex                  = lineInstanceVal_ * 2;
-    lineMesh_->vertData[startIndex].pos        = {p0.x(), p0.y(), p0.z(), 1.0f};
-    lineMesh_->vertData[startIndex].normal     = p0;
-    lineMesh_->vertData[startIndex + 1].pos    = {p1.x(), p1.y(), p1.z(), 1.0f};
-    lineMesh_->vertData[startIndex + 1].normal = p1;
+	const uint32_t startIndex = lineInstanceVal_ * 2;
+	lineMesh_->vertData[startIndex].pos = {p0[X],p0[Y],p0[Z],1.0f};
+	lineMesh_->vertData[startIndex].normal = p0;
+	lineMesh_->vertData[startIndex + 1].pos = {p1[X],p1[Y],p1[Z],1.0f};
+	lineMesh_->vertData[startIndex + 1].normal = p1;
 
     lineMesh_->indexData[startIndex]     = startIndex;
     lineMesh_->indexData[startIndex + 1] = startIndex + 1;
@@ -101,11 +104,11 @@ void PrimitiveDrawer::Line(const Vec3f& p0, const Vec3f& p1, const IConstantBuff
 //	ID3D12GraphicsCommandList* commandList = dxCommand_->getCommandList();
 //
 //	const uint32_t startIndex = triangleInstanceVal_ * 3;
-//	triangleMesh_->vertData[startIndex].pos = {p0.x,p0.y,p0.z,1.0f};
+//	triangleMesh_->vertData[startIndex].pos = {p0[X],p0[Y],p0[Z],1.0f};
 //	triangleMesh_->vertData[startIndex].normal = p0;
-//	triangleMesh_->vertData[startIndex + 1].pos = {p1.x,p1.y,p1.z,1.0f};
+//	triangleMesh_->vertData[startIndex + 1].pos = {p1[X],p1[Y],p1[Z],1.0f};
 //	triangleMesh_->vertData[startIndex + 1].normal = p1;
-//	triangleMesh_->vertData[startIndex + 2].pos = {p2.x,p2.y,p2.z,1.0f};
+//	triangleMesh_->vertData[startIndex + 2].pos = {p2[X],p2[Y],p2[Z],1.0f};
 //	triangleMesh_->vertData[startIndex + 2].normal = p2;
 //
 //	triangleMesh_->indexData[startIndex] = startIndex;
@@ -142,13 +145,13 @@ void PrimitiveDrawer::Line(const Vec3f& p0, const Vec3f& p1, const IConstantBuff
 //
 //	const uint32_t startIndex = quadInstanceVal_ * 6;
 //	const uint32_t startVertex = quadInstanceVal_ * 4;
-//	quadMesh_->vertData[startVertex].pos = {p0.x,p0.y,p0.z,1.0f};
+//	quadMesh_->vertData[startVertex].pos = {p0[X],p0[Y],p0[Z],1.0f};
 //	quadMesh_->vertData[startVertex].normal = p0;
-//	quadMesh_->vertData[startVertex + 1].pos = {p1.x,p1.y,p1.z,1.0f};
+//	quadMesh_->vertData[startVertex + 1].pos = {p1[X],p1[Y],p1[Z],1.0f};
 //	quadMesh_->vertData[startVertex + 1].normal = p1;
-//	quadMesh_->vertData[startVertex + 2].pos = {p2.x,p2.y,p2.z,1.0f};
+//	quadMesh_->vertData[startVertex + 2].pos = {p2[X],p2[Y],p2[Z],1.0f};
 //	quadMesh_->vertData[startVertex + 2].normal = p2;
-//	quadMesh_->vertData[startVertex + 3].pos = {p3.x,p3.y,p3.z,1.0f};
+//	quadMesh_->vertData[startVertex + 3].pos = {p3[X],p3[Y],p3[Z],1.0f};
 //	quadMesh_->vertData[startVertex + 3].normal = p3;
 //
 //	quadMesh_->indexData[startIndex] = startIndex;

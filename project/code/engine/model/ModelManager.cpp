@@ -35,9 +35,9 @@ namespace std {
 template <>
 struct hash<VertexKey> {
     size_t operator()(const VertexKey& key) const {
-        return hash<float>()(key.position.x()) ^ hash<float>()(key.position.y()) ^ hash<float>()(key.position.z()) ^
-               hash<float>()(key.normal.x()) ^ hash<float>()(key.normal.y()) ^ hash<float>()(key.normal.z()) ^
-               hash<float>()(key.texCoord.x()) ^ hash<float>()(key.texCoord.y());
+        return hash<float>()(key.position[X]) ^ hash<float>()(key.position[Y]) ^ hash<float>()(key.position[Z]) ^
+               hash<float>()(key.normal[X]) ^ hash<float>()(key.normal[Y]) ^ hash<float>()(key.normal[Z]) ^
+               hash<float>()(key.texCoord[X]) ^ hash<float>()(key.texCoord[Y]);
     }
 };
 } // namespace std
@@ -151,13 +151,13 @@ void LoadModelFile(ModelMeshData* data, const std::string& directoryPath, const 
                 uint32_t vertexIndex = face.mIndices[i];
 
                 // 頂点データを取得
-                Vec4f pos      = {loadedMesh->mVertices[vertexIndex].x, loadedMesh->mVertices[vertexIndex].y, loadedMesh->mVertices[vertexIndex].z, 1.0f};
-                Vec3f normal   = {loadedMesh->mNormals[vertexIndex].x, loadedMesh->mNormals[vertexIndex].y, loadedMesh->mNormals[vertexIndex].z};
-                Vec2f texCoord = {loadedMesh->mTextureCoords[0][vertexIndex].x, loadedMesh->mTextureCoords[0][vertexIndex].y};
+                Vec4f pos      = {loadedMesh->mVertices[vertexIndex][X], loadedMesh->mVertices[vertexIndex][Y], loadedMesh->mVertices[vertexIndex][Z], 1.0f};
+                Vec3f normal   = {loadedMesh->mNormals[vertexIndex][X], loadedMesh->mNormals[vertexIndex][Y], loadedMesh->mNormals[vertexIndex][Z]};
+                Vec2f texCoord = {loadedMesh->mTextureCoords[0][vertexIndex][X], loadedMesh->mTextureCoords[0][vertexIndex][Y]};
 
                 // X軸反転
-                pos.x() *= -1.0f;
-                normal.x() *= -1.0f;
+                pos[X] *= -1.0f;
+                normal[X] *= -1.0f;
 
                 // VertexKeyを生成
                 VertexKey vertexKey = {pos, normal, texCoord};

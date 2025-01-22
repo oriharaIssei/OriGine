@@ -12,10 +12,10 @@
 #include "SceneManager.h"
 #include "directX12/DxRtvArrayManager.h"
 #include "directX12/DxSrvArrayManager.h"
+#include "effect/manager/EffectManager.h"
 #include "material/texture/TextureManager.h"
 #include "model/ModelManager.h"
 #include "myFileSystem/MyFileSystem.h"
-#include "particle/manager/ParticleManager.h"
 #include "primitiveDrawer/PrimitiveDrawer.h"
 #include "sprite/SpriteCommon.h"
 //component
@@ -37,10 +37,7 @@
 #endif // _DEBUG
 
 GameScene::GameScene()
-    : IScene("GameScene"),
-      dashUIPos_{"Game", "UI", "dashUIPos"},
-      attackUIPos_{"Game", "UI", "attackUIPos"},
-      jumpUIPos_{"Game", "UI", "jumpUIPos"} {}
+    : IScene("GameScene") {}
 
 GameScene::~GameScene() {}
 
@@ -133,12 +130,12 @@ void GameScene::Update() {
             activeGameObjects_.push_back(playerAttackCollider);
         }
     } else {
-        // playerãŒæ­»ã‚“ã ã‚‰ã‚¿ã‚¤ãƒˆãƒ«ã«æˆ»ã‚‹
+        // player‚ªŽ€‚ñ‚¾‚çƒ^ƒCƒgƒ‹‚É–ß‚é
         SceneManager::getInstance()->changeScene("TitleScene");
         return;
     }
     if (enemyManager_->getSpawners().empty()) {
-        // ã‚¯ãƒªã‚¢
+        // ƒNƒŠƒA
         SceneManager::getInstance()->changeScene("GameClearScene");
         return;
     }

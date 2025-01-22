@@ -6,7 +6,7 @@
 #include "engine/directX12/DxRtvArrayManager.h"
 #include "engine/directX12/DxSrvArrayManager.h"
 #include "engine/directX12/RenderTexture.h"
-#include "particle/manager/ParticleManager.h"
+#include "effect/manager/EffectManager.h"
 #include "primitiveDrawer/PrimitiveDrawer.h"
 #include "sprite/SpriteCommon.h"
 
@@ -64,7 +64,7 @@ void SceneManager::Draw() {
     ///===============================================
     /// Particle
     ///===============================================
-    ParticleManager::getInstance()->PreDraw();
+    EffectManager::getInstance()->PreDraw();
 
     currentScene_->DrawParticle();
    

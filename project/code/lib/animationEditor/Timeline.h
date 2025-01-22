@@ -1,8 +1,14 @@
 #pragma once
 
+///stl
+//pointer
 #include <functional>
-#include <string>
+//container
 #include <vector>
+//string
+#include "animation/Animation.h"
+
+#include <string>
 
 namespace ImGui {
 /// <summary>
@@ -17,9 +23,44 @@ namespace ImGui {
 /// <returns>更新されたか</returns>
 bool TimeLineButtons(
     const std::string& _label,
-    std::vector<float*> _nodeTimes,
+    std::vector<float>& _nodeTimes,
     float _duration,
     std::function<void(float newNodeTime)> _updateOnNodeDragged = nullptr,
     std::function<void(float _currentTime)> _sliderPopupUpdate  = nullptr,
-    std::function<void(int nodeIndex)> _nodePopupUpdate         = nullptr);
+    std::function<bool(int nodeIndex)> _nodePopupUpdate         = nullptr);
+
+bool TimeLineButtons(
+    const std::string& _label,
+    std::vector<KeyFrame<int>>& _nodeTimes,
+    float _duration,
+    std::function<void(float newNodeTime)> _updateOnNodeDragged = nullptr,
+    std::function<void(float _currentTime)> _sliderPopupUpdate  = nullptr,
+    std::function<bool(int nodeIndex)> _nodePopupUpdate         = nullptr);
+/// <summary>
+/// AnimationCurve<>を編集
+/// </summary>
+/// <param name="_label">ラベル</param>
+/// <param name="_keyFrames">編集対象</param>
+/// <param name="_duration">総合時間</param>
+/// <returns></returns>
+bool EditKeyFrame(
+    const std::string& _label,
+    AnimationCurve<float>& _keyFrames,
+    float _duration,
+    std::function<void(int)> _howEditItem = nullptr);
+bool EditKeyFrame(
+    const std::string& _label,
+    AnimationCurve<Vec3f>& _keyFrames,
+    float _duration,
+    std::function<void(int)> _howEditItem = nullptr);
+bool EditKeyFrame(
+    const std::string& _label,
+    AnimationCurve<Vec4f>& _keyFrames,
+    float _duration,
+    std::function<void(int)> _howEditItem = nullptr);
+bool EditKeyFrame(
+    const std::string& _label,
+    AnimationCurve<Quaternion>& _keyFrames,
+    float _duration,
+    std::function<void(int)> _howEditItem = nullptr);
 } // namespace ImGui

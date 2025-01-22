@@ -4,6 +4,7 @@
 #include <cmath>
 #include <iomanip>
 #include <iostream>
+#include <numbers>
 
 #pragma region "Operators"
 Quaternion Quaternion::operator+(const Quaternion& q) const {
@@ -180,6 +181,29 @@ void Quaternion::Show() {
     std::cout << std::fixed << std::setprecision(3) << w << " ";
     std::cout << "\n"
               << std::endl;
+}
+
+Vec3f Quaternion::ToEulerAngles() const {
+    Vec3f euler;
+
+    // Roll (x-axis rotation)
+    float sinr_cosp = 2.0f * (w * x + y * z);
+    float cosr_cosp = 1.0f - 2.0f * (x * x + y * y);
+    euler[X]        = std::atan2(sinr_cosp, cosr_cosp);
+
+    // Pitch (y-axis rotation)
+    float sinp = 2.0f * (w * y - z * x);
+    if (std::abs(sinp) >= 1.0f)
+        euler[Y] = std::copysign(std::numbers::pi_v<float> / 2.0f, sinp); // use 90 degrees if out of range
+    else
+        euler[Y] = std::asin(sinp);
+
+    // Yaw (z-axis rotation)
+    float siny_cosp = 2.0f * (w * z + x * y);
+    float cosy_cosp = 1.0f - 2.0f * (y * y + z * z);
+    euler[Z]        = std::atan2(siny_cosp, cosy_cosp);
+
+    return euler;
 }
 
 Quaternion Slerp(const Quaternion& q0, const Quaternion& q1, float t) {

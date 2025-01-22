@@ -10,7 +10,7 @@ struct Quaternion {
     Quaternion(float _x, float _y, float _z, float _w)
         : x(_x), y(_y), z(_z), w(_w) {}
     Quaternion(const Vec3f& v, float _w)
-        : x(v.x()), y(v.y()), z(v.z()), w(_w) {}
+        : x(v[X]), y(v[Y]), z(v[Z]), w(_w) {}
 
     float x = 0;
     float y = 0;
@@ -74,6 +74,15 @@ struct Quaternion {
 
     static Quaternion RotateAxisAngle(const Vec3f& axis, float angle);
     void Show();
+
+    Vec3f ToEulerAngles() const;
+
+    // インライン関数として定義
+    friend inline Vec3f RotateVector(const Vec3f& v, const Quaternion& q) {
+        Quaternion r = Quaternion(v, 0.0f);
+        r            = q * r * q.Conjugation();
+        return Vec3f(r.x, r.y, r.z);
+    }
 };
 
 Quaternion operator*(float scalar, const Quaternion& q);

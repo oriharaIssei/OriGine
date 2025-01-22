@@ -42,10 +42,10 @@ void CollisionManager::Update() {
 void CollisionManager::CheckCollisionPair(
     Collider* a,
     Collider* b) {
-    Vector3 aPos = a->getPosition();
-    Vector3 bPos = b->getPosition();
+    Vec3f aPos = a->getPosition();
+    Vec3f bPos   = b->getPosition();
 
-    Vector3 distance = aPos - bPos;
+    Vec3f distance = aPos - bPos;
 
     float radiusSum = a->getRadius() + b->getRadius();
 

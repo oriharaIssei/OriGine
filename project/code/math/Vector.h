@@ -5,6 +5,14 @@ static const int X = 0;
 static const int Y = 1;
 static const int Z = 2;
 static const int W = 3;
+
+template <typename valueType>
+struct Vector2;
+template <typename valueType>
+struct Vector3;
+template <typename valueType>
+struct Vector4;
+
 template <int dimension, typename valueType>
 struct Vector {
     Vector() {
@@ -20,7 +28,7 @@ struct Vector {
     Vector(Args... args) {
         // 初期化子と Vector の次元が一致しているかをチェック
         static_assert(sizeof...(args) == dimension, "The number of arguments must be equal to the dimension of the vector.");
-        valueType argArray[] = {args...};
+        valueType argArray[] = {static_cast<valueType>(args)...};
         for (int i = 0; i < dimension; i++)
             v[i] = argArray[i];
     }
@@ -80,6 +88,12 @@ public:
         }
         return result;
     }
+    Vector* operator*=(const Vector& other) {
+        for (int i = 0; i < dimension; i++) {
+            v[i] *= other.v[i];
+        }
+        return this;
+    }
     Vector* operator*=(const valueType& scalar) {
         for (int i = 0; i < dimension; i++) {
             v[i] *= scalar;
@@ -108,6 +122,16 @@ public:
         }
         return this;
     }
+    Vector* operator/=(const Vector& other) {
+        for (int i = 0; i < dimension; i++) {
+            if (other.v[i] != 0) {
+                v[i] /= other.v[i];
+            } else {
+                v[i] = 0;
+            }
+        }
+        return this;
+    }
 
     // equal
     bool operator==(const Vector& other) const {
@@ -119,7 +143,91 @@ public:
     bool operator!=(const Vector& other) const {
         return !(*this == other);
     }
+
+    bool operator<(const Vector& other) const {
+        for (int i = 0; i < dimension; i++)
+            if (v[i] >= other.v[i]) return false;
+        return true;
+    }
+    bool operator>(const Vector& other) const {
+        for (int i = 0; i < dimension; i++)
+            if (v[i] <= other.v[i]) return false;
+        return true;
+    }
+
+
+    Vector& operator=(const Vector& other) {
+        for (int i = 0; i < dimension; i++)
+            v[i] = other.v[i];
+        return *this;
+    }
+
+    static Vector Lerp(const Vector& start, const Vector& end, valueType t) {
+        return start + (end - start) * t;
+    }
+
+    operator Vector2<valueType>() const {
+        static_assert(dimension == 2, "Conversion only available for 2D vectors.");
+        return Vector2<valueType>(v[X], v[Y]);
+    }
+    operator Vector3<valueType>() const {
+        static_assert(dimension == 3, "Conversion only available for 2D vectors.");
+        return Vector3<valueType>(v[X], v[Y], v[Z]);
+    }
+    operator Vector4<valueType>() const {
+        static_assert(dimension == 4, "Conversion only available for 2D vectors.");
+        return Vector4<valueType>(v[X], v[Y], v[Z], v[W]);
+    }
 };
+
+template <int dim, typename valueType>
+inline Vector<dim, valueType> operator*(const valueType& scalar, const Vector<dim, valueType>& vec) {
+    Vector<dim, valueType> result;
+    for (int i = 0; i < dim; i++) {
+        result[i] = vec[i] * scalar;
+    }
+    return result;
+}
+
+template <int dim, typename valueType>
+inline Vector<dim, valueType> operator*(const Vector<dim, valueType>& vec, const Vector<dim, valueType>& another) {
+    Vector<dim, valueType> result;
+    for (int i = 0; i < dim; i++) {
+        result[i] = vec[i] * another[i];
+    }
+    return result;
+}
+template <int dim, typename valueType>
+inline Vector<dim, valueType>* operator*=(Vector<dim, valueType>& vec, const Vector<dim, valueType>& another) {
+    for (int i = 0; i < dim; i++) {
+        vec[i] *= another[i];
+    }
+    return &vec;
+}
+
+template <int dim, typename valueType>
+inline Vector<dim, valueType> operator/(const Vector<dim, valueType>& vec, const Vector<dim, valueType>& another) {
+    Vector<dim, valueType> result;
+    for (int i = 0; i < dim; i++) {
+        if (another[i] != 0) {
+            result[i] = vec[i] / another[i];
+        } else {
+            result[i] = 0;
+        }
+    }
+    return result;
+}
+template <int dim, typename valueType>
+inline Vector<dim, valueType>* operator/=(Vector<dim, valueType>& vec, const Vector<dim, valueType>& another) {
+    for (int i = 0; i < dim; i++) {
+        if (another[i] != 0) {
+            vec[i] /= another[i];
+        } else {
+            vec[i] = 0;
+        }
+    }
+    return &vec;
+}
 
 template <int dimension, typename valueType>
 using Vec = Vector<dimension, valueType>;

@@ -59,13 +59,13 @@ public:
         drawObject3d_->transform_.scale = s;
     }
     void setScaleX(float x) {
-        drawObject3d_->transform_.scale.x() = x;
+        drawObject3d_->transform_.scale[X] = x;
     }
     void setScaleY(float y) {
-        drawObject3d_->transform_.scale.y() = y;
+        drawObject3d_->transform_.scale[Y] = y;
     }
     void setScaleZ(float z) {
-        drawObject3d_->transform_.scale.z() = z;
+        drawObject3d_->transform_.scale[Z] = z;
     }
 
     void setRotate(const Quaternion& q) {
@@ -88,12 +88,12 @@ public:
         drawObject3d_->transform_.translate = t;
     }
     void setTranslateX(float x) {
-        drawObject3d_->transform_.translate.x() = x;
+        drawObject3d_->transform_.translate[X] = x;
     }
     void setTranslateY(float y) {
-        drawObject3d_->transform_.translate.y() = y;
+        drawObject3d_->transform_.translate[Y] = y;
     }
     void setTranslateZ(float z) {
-        drawObject3d_->transform_.translate.z() = z;
+        drawObject3d_->transform_.translate[Z] = z;
     }
 };
