@@ -25,7 +25,7 @@ PlayerWeakAttackBehavior::PlayerWeakAttackBehavior(Player* _player, int32_t _cur
       attackColliderOffset_{"Game", "PlayerWeakAttack" + std::to_string(_currentCombo), "attackColliderOffset_"},
       knockBackPower_{"Game", "PlayerWeakAttack" + std::to_string(_currentCombo), "knockBackPower"},
       hitStopScale_{"Game", "PlayerWeakAttack" + std::to_string(_currentCombo), "hitStopScale"},
-      hitStopTime_{"Game", "PlayerWeakAttack"+ std::to_string(_currentCombo), "hitStopTime"} {
+      hitStopTime_{"Game", "PlayerWeakAttack" + std::to_string(_currentCombo), "hitStopTime"} {
     currentCombo_ = _currentCombo;
 
     AnimationSetting weakAttackActionSettings = AnimationSetting("Player_WeakAttack" + std::to_string(currentCombo_));
@@ -35,6 +35,7 @@ PlayerWeakAttackBehavior::PlayerWeakAttackBehavior(Player* _player, int32_t _cur
             break;
         }
     }
+    
 }
 
 PlayerWeakAttackBehavior::~PlayerWeakAttackBehavior() {}
@@ -66,14 +67,26 @@ void PlayerWeakAttackBehavior::Action() {
     CheckCombo();
 
     if (currentTimer_ >= actionTime_) {
-        currentTimer_ = 0.0f;
+        // attackColliderを消す
         player_->getAttackCollider()->getHitCollider()->setIsAlive(false);
+        // Playerの座標をアニメーション終了後の座標に変更
+        {
+            auto playerModel    = player_->getDrawObject3d()->getModel();
+            int32_t bodyIndex   = playerModel->meshData_->meshIndexes["body"];
+            auto& bodyMesh      = playerModel->meshData_->mesh_[bodyIndex];
+            auto& bodyTransform = playerModel->transformBuff_[&bodyMesh].openData_;
+            player_->setTranslate(bodyTransform.worldMat[3]);
+        }
+
+        // アニメーションを変更
+        AnimationSetting weakAttackActionSettings = AnimationSetting("PlayerIdle");
+        player_->getDrawObject3d()->setNextAnimation(weakAttackActionSettings.targetAnimationDirection, weakAttackActionSettings.name + ".anm", startUpTime_);
+
+        currentTimer_ = 0.0f;
         currentUpdate_ = [this]() {
             this->EndLag();
         };
 
-        AnimationSetting weakAttackActionSettings = AnimationSetting("PlayerIdle");
-        player_->getDrawObject3d()->setNextAnimation(weakAttackActionSettings.targetAnimationDirection, weakAttackActionSettings.name + ".anm", startUpTime_);
     }
 }
 
@@ -121,7 +134,7 @@ void PlayerWeakAttackBehavior::CreateAttackCollider() {
 
                 enemy->Damage(player_->getPower() * attackPower_);
                 Vec3f knockBackDirection = enemy->getTranslate() - player_->getTranslate();
-                knockBackDirection[Y]      = 0.0f;
+                knockBackDirection[Y]    = 0.0f;
                 enemy->KnockBack(knockBackDirection.normalize(), knockBackPower_);
                 enemy->setInvisibleTime(actionTime_ - currentTimer_);
 
