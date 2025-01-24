@@ -42,7 +42,7 @@ struct hash<VertexKey> {
 };
 } // namespace std
 
-#pragma region"LoadFunctions"
+#pragma region "LoadFunctions"
 void ProcessMeshData(Mesh3D& meshData, const std::vector<TextureVertexData>& vertices, const std::vector<uint32_t>& indices) {
     TextureObject3dMesh* textureMesh = new TextureObject3dMesh();
 
@@ -140,7 +140,6 @@ void LoadModelFile(ModelMeshData* data, const std::string& directoryPath, const 
         auto& mesh = data->mesh_.emplace_back(Mesh3D());
 
         aiMesh* loadedMesh = scene->mMeshes[meshIndex];
-        assert(loadedMesh->HasNormals() && loadedMesh->HasTextureCoords(0));
 
         // 頂点データとインデックスデータの処理
         for (uint32_t faceIndex = 0; faceIndex < loadedMesh->mNumFaces; ++faceIndex) {
@@ -151,9 +150,18 @@ void LoadModelFile(ModelMeshData* data, const std::string& directoryPath, const 
                 uint32_t vertexIndex = face.mIndices[i];
 
                 // 頂点データを取得
-                Vec4f pos      = {loadedMesh->mVertices[vertexIndex][X], loadedMesh->mVertices[vertexIndex][Y], loadedMesh->mVertices[vertexIndex][Z], 1.0f};
-                Vec3f normal   = {loadedMesh->mNormals[vertexIndex][X], loadedMesh->mNormals[vertexIndex][Y], loadedMesh->mNormals[vertexIndex][Z]};
-                Vec2f texCoord = {loadedMesh->mTextureCoords[0][vertexIndex][X], loadedMesh->mTextureCoords[0][vertexIndex][Y]};
+                Vec4f pos    = {loadedMesh->mVertices[vertexIndex][X], loadedMesh->mVertices[vertexIndex][Y], loadedMesh->mVertices[vertexIndex][Z], 1.0f};
+                Vec3f normal = {0.f, 0.f, 0.f};
+                if (loadedMesh->HasNormals()) {
+                    normal = {loadedMesh->mNormals[vertexIndex][X], loadedMesh->mNormals[vertexIndex][Y], loadedMesh->mNormals[vertexIndex][Z]};
+                } else {
+                    normal = {pos[X], pos[Y], -pos[Z]};
+                    normal = Vec3f::Normalize(normal);
+                }
+                Vec2f texCoord = {0.f, 0.f};
+                if (loadedMesh->HasTextureCoords(0)) {
+                    texCoord = {loadedMesh->mTextureCoords[0][vertexIndex][X], loadedMesh->mTextureCoords[0][vertexIndex][Y]};
+                }
 
                 // X軸反転
                 pos[X] *= -1.0f;
@@ -182,11 +190,8 @@ void LoadModelFile(ModelMeshData* data, const std::string& directoryPath, const 
         uint32_t textureIndex;
         if (material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePath) == AI_SUCCESS) {
             std::string texturePath = textureFilePath.C_Str();
-            // filepath が localなら directoryPath と結合
-            if (texturePath.find("/") == std::string::npos) {
-                texturePath = directoryPath + "/" + texturePath;
-            }
-            textureIndex = TextureManager::LoadTexture(texturePath);
+
+            textureIndex = TextureManager::LoadTexture(directoryPath + "/" + texturePath);
         } else {
             textureIndex = 0;
         }
