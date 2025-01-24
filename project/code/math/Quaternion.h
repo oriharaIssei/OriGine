@@ -88,12 +88,4 @@ struct Quaternion {
 Quaternion operator*(float scalar, const Quaternion& q);
 Quaternion operator/(float scalar, const Quaternion& q);
 
-inline Quaternion Lerp(const Quaternion& start, const Quaternion& end, float time) {
-    return {
-        std::lerp(start.x, end.x, time),
-        std::lerp(start.y, end.y, time),
-        std::lerp(start.z, end.z, time),
-        std::lerp(start.w, end.w, time)};
-}
-
 Quaternion Slerp(const Quaternion& q0, const Quaternion& q1, float t);

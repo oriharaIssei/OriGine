@@ -21,6 +21,11 @@
 #include "imgui/imgui_internal.h"
 #endif // _DEBUG
 
+static std::array<std::string, static_cast<int>(InterpolationType::COUNT)> interpolationTypeString = {
+    "LINEAR",
+    "STEP",
+    "CUBICSPLINE"};
+
 AnimationEditor::AnimationEditor()
     : IEditor() {}
 
@@ -45,13 +50,16 @@ void AnimationEditor::Update() {
     bool openCreateNewPopup = false;
 
     if (ImGui::Begin("AnimationEditor", nullptr, ImGuiWindowFlags_MenuBar)) {
-        // メニューバー
+        ///================================================================
+        /// メニューバー
+        ///================================================================
         if (ImGui::BeginMenuBar()) {
-            // ファイル
+            /// ================================================================
+            //ファイル
             if (ImGui::BeginMenu("File")) {
                 // filelist reload
                 if (ImGui::MenuItem("Reload")) {
-                    // アニメーションリストを取得
+                    //===================== アニメーションリストを取得 =====================//
                     //json
                     animationSettingsFileList_ = myfs::SearchFile("resource/GlobalVariables/Animations", "json");
 
@@ -61,7 +69,7 @@ void AnimationEditor::Update() {
                 }
                 // 開く
                 if (ImGui::BeginMenu("Open")) {
-                    // アニメーション設定ファイルを開く
+                    //===================== アニメーション設定ファイルを開く =====================//
                     for (const auto& [directory, filename] : animationSettingsFileList_) {
                         if (ImGui::MenuItem(filename.c_str())) {
                             // ファイルのパスを保存
@@ -78,7 +86,7 @@ void AnimationEditor::Update() {
                     }
                     ImGui::EndMenu();
                 }
-                // 保存
+                //===================== 保存 =====================//
                 if (ImGui::MenuItem("Save")) {
                     if (currentEditAnimationSetting_) {
                         // アニメーション設定ファイルを保存
@@ -95,7 +103,7 @@ void AnimationEditor::Update() {
                     }
                 }
 
-                // 作成する
+                //===================== 作成する =====================//
                 if (ImGui::MenuItem("Create New")) {
                     openCreateNewPopup = true;
                 }
@@ -104,13 +112,13 @@ void AnimationEditor::Update() {
             ImGui::EndMenuBar();
         }
 
-        // メニューバーの外でポップアップを開く
+        //===================== メニューバーの外でポップアップを開く =====================//
         if (openCreateNewPopup) {
             ImGui::OpenPopup("Create_New_Animation");
             openCreateNewPopup = false;
         }
 
-        // ポップアップウィンドウ
+        //===================== ポップアップウィンドウ =====================//
         if (ImGui::BeginPopup("Create_New_Animation")) {
             // ファイル名の入力
             static char fileName[256] = "";
@@ -140,7 +148,11 @@ void AnimationEditor::Update() {
             ImGui::EndPopup();
         }
 
+        ///================================================================
+        /// アニメーションの設定
+        ///================================================================
         if (currentEditAnimationSetting_) {
+            //===================== アニメーション設定ファイルの編集 =====================//
             ImGui::Text("AnimationName :");
             {
                 std::string preAnimationSettingName = currentEditAnimationSetting_->name;
@@ -148,6 +160,7 @@ void AnimationEditor::Update() {
                         "##AnimationName",
                         currentEditAnimationSetting_->name.data(),
                         currentEditAnimationSetting_->name.capacity())) {
+                    // アニメーション名の変更
                     preAnimationSettingName.erase(
                         std::remove_if(
                             preAnimationSettingName.begin(),
@@ -162,7 +175,7 @@ void AnimationEditor::Update() {
                 }
             }
 
-            // アニメーション対象のモデル
+            //===================== アニメーション対象のモデルを選択 =====================//
             ImGui::Text("TargetModel :");
             if (ImGui::BeginCombo("##TargetModel", currentEditAnimationSetting_->targetModelFileName->c_str())) {
                 // モデルリストを取得
@@ -201,7 +214,7 @@ void AnimationEditor::Update() {
                 ImGui::EndCombo();
             }
 
-            // アニメーション の directory
+            //===================== アニメーションファイルの保存先を選択 =====================//
             ImGui::Text("AnimationDirectory : %s", currentEditAnimationSetting_->targetAnimationDirection->c_str());
             if (ImGui::Button("Select AnimationDirectory")) {
                 std::string newDirection = "";
@@ -211,11 +224,16 @@ void AnimationEditor::Update() {
     }
     ImGui::End();
 
+    ///================================================================
+    /// アニメーションの編集
+    ///================================================================
     if (currentEditObject_ &&
         currentEditObject_->getModel() &&
         currentEditObject_->getAnimation()->getData()) {
+        ImGui::BeginGroup(); // グループ化
+        std::string parentWindowName = currentEditAnimationSetting_->name + "TimeLines";
+        if (ImGui::Begin(parentWindowName.c_str())) {
 
-        if (ImGui::Begin("Timelines")) {
             // アニメーションの再生
             if (ImGui::Checkbox("Play", &isObjectPlaying_)) {
                 currentEditObject_->getAnimation()->setCurrentAnimationTime(0.0f);
@@ -225,64 +243,82 @@ void AnimationEditor::Update() {
             auto& nodeAnimations    = currentEditObject_->getAnimation()->getData()->nodeAnimations;
             float animationDuration = currentEditObject_->getAnimation()->getDuration();
 
+            ImGui::Text("Duration :");
+            if (ImGui::InputFloat(std::string("##" + currentEditAnimationSetting_->name + "Duration").c_str(), &animationDuration, 0.1f, 0.3f, "%.3f")) {
+                float newDuration = animationDuration;
+                float duration    = currentEditObject_->getAnimation()->getDuration();
+                // 前の Duration に対する Scale の時間を変更
+                for (auto& [nodeName, nodeAnimation] : nodeAnimations) {
+                    for (auto& keyframe : nodeAnimation.scale) {
+                        keyframe.time = (keyframe.time / duration) * newDuration;
+                    }
+                    // 前の Duration に対する Rotate の時間を変更
+                    for (auto& keyframe : nodeAnimation.rotate) {
+                        keyframe.time = (keyframe.time / duration) * newDuration;
+                    }
+                    // 前の Duration に対する Translate の時間を変更
+                    for (auto& keyframe : nodeAnimation.translate) {
+                        keyframe.time = (keyframe.time / duration) * newDuration;
+                    }
+                }
+                // DurationUpdate
+                currentEditObject_->getAnimation()->setDuration(newDuration);
+                currentEditObject_->getAnimation()->getData()->duration = newDuration;
+            }
+
+            ImGui::Text("Local Time:");
+            float currentTime = currentEditObject_->getAnimation()->getCurrentAnimationTime();
+            if (ImGui::SliderFloat(std::string("##" + currentEditAnimationSetting_->name + "LocalTime").c_str(), &currentTime, 0.0f, animationDuration)) {
+                currentEditObject_->getAnimation()->setCurrentAnimationTime(currentTime);
+                // 現在の姿勢に更新
+                currentEditObject_->Update(0.0f);
+                // 更新を中断
+                isObjectPlaying_ = false;
+            }
+
             for (auto& [nodeName, nodeAnimation] : nodeAnimations) {
-                if (ImGui::TreeNode(nodeName.c_str())) {
+                if (ImGui::Begin(nodeName.c_str())) {
                     ImGui::BeginGroup(); // グループ化
-                    ImGui::Text("Duration :");
-                    if (ImGui::InputFloat(std::string("##" + nodeName + "Duration").c_str(), &animationDuration, 0.1f, 0.3f, "%.3f")) {
-                        float newDuration = animationDuration;
-                        float duration    = currentEditObject_->getAnimation()->getDuration();
-                        // 前の Duration に対する Scale の時間を変更
-                        for (auto& keyframe : nodeAnimation.scale) {
-                            keyframe.time = (keyframe.time / duration) * newDuration;
-                        }
-                        // 前の Duration に対する Rotate の時間を変更
-                        for (auto& keyframe : nodeAnimation.rotate) {
-                            keyframe.time = (keyframe.time / duration) * newDuration;
-                        }
-                        // 前の Duration に対する Translate の時間を変更
-                        for (auto& keyframe : nodeAnimation.translate) {
-                            keyframe.time = (keyframe.time / duration) * newDuration;
-                        }
 
-                        // DurationUpdate
-                        currentEditObject_->getAnimation()->setDuration(newDuration);
-                        currentEditObject_->getAnimation()->getData()->duration = newDuration;
+                    // ============= 補間タイプ選択 ============= //
+                    if (ImGui::BeginCombo("Interpolation", interpolationTypeString[(int)nodeAnimation.interpolationType].c_str())) {
+                        for (int i = 0; i < static_cast<int>(InterpolationType::COUNT); i++) {
+                            bool isSelected = (int)nodeAnimation.interpolationType == i;
+                            if (ImGui::Selectable(interpolationTypeString[i].c_str(), isSelected)) {
+                                nodeAnimation.interpolationType = static_cast<InterpolationType>(i);
+                            }
+                            if (isSelected) {
+                                ImGui::SetItemDefaultFocus();
+                            }
+                        }
+                        ImGui::EndCombo();
                     }
 
-                    ImGui::Text("Local Time:");
-                    float currentTime = currentEditObject_->getAnimation()->getCurrentAnimationTime();
-                    if (ImGui::SliderFloat(std::string("##" + nodeName + "LocalTime").c_str(), &currentTime, 0.0f, animationDuration)) {
-                        currentEditObject_->getAnimation()->setCurrentAnimationTime(currentTime);
-                        // 現在の姿勢に更新
-                        currentEditObject_->Update(0.0f);
-                        // 更新を中断
-                        isObjectPlaying_ = false;
-                    }
-
-                    // TimeLineButtonsを呼び出す
+                    // ============= タイムラインの編集 ============= //
+                    ImGui::Text("Scale");
                     ImGui::EditKeyFrame(
                         "Scale##" + nodeName,
                         nodeAnimation.scale,
                         animationDuration);
 
+                    ImGui::Text("Rotate");
                     ImGui::EditKeyFrame(
                         "Rotate##" + nodeName,
                         nodeAnimation.rotate,
                         animationDuration);
-
+                    ImGui::Text("Translate");
                     ImGui::EditKeyFrame(
                         "Translate##" + nodeName,
                         nodeAnimation.translate,
                         animationDuration);
 
                     ImGui::EndGroup(); // グループ化
-
-                    ImGui::TreePop();
                 }
+                ImGui::End();
             }
         }
         ImGui::End();
+        ImGui::EndGroup();
 
         // アニメーションの再生
         if (isObjectPlaying_) {

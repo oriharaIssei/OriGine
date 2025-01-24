@@ -94,12 +94,12 @@ void Particle::setKeyFrames(int32_t updateSettings, ParticleKeyFrames* _keyFrame
 
     if (updateSettings & static_cast<int32_t>(ParticleUpdateType::ColorPerLifeTime)) {
         updateByCurves_.push_back([this]() {
-            transform_.color = CalculateValue(keyFrames_->colorCurve_, currentTime_);
+            transform_.color = CalculateValue::LINEAR(keyFrames_->colorCurve_, currentTime_);
         });
     }
     if (updateSettings & static_cast<int32_t>(ParticleUpdateType::ScalePerLifeTime)) {
         updateByCurves_.push_back([this]() {
-            transform_.scale = CalculateValue(keyFrames_->scaleCurve_, currentTime_) * scaleRatio_;
+            transform_.scale = CalculateValue::LINEAR(keyFrames_->scaleCurve_, currentTime_) * scaleRatio_;
         });
     } else if (updateSettings & static_cast<int32_t>(ParticleUpdateType::ScaleRandom)) {
         MyRandom::Float randomX(minUpdateScale_->v[X], maxUpdateScale_->v[X]);
@@ -110,7 +110,7 @@ void Particle::setKeyFrames(int32_t updateSettings, ParticleKeyFrames* _keyFrame
 
     if (updateSettings & static_cast<int32_t>(ParticleUpdateType::RotatePerLifeTime)) {
         updateByCurves_.push_back([this]() {
-            transform_.rotate = CalculateValue(keyFrames_->rotateCurve_, currentTime_);
+            transform_.rotate = CalculateValue::LINEAR(keyFrames_->rotateCurve_, currentTime_);
         });
     } else if (updateSettings & static_cast<int32_t>(ParticleUpdateType::RotateRandom)) {
         MyRandom::Float randomX(minUpdateRotate_->v[X], maxUpdateRotate_->v[X]);
@@ -123,7 +123,7 @@ void Particle::setKeyFrames(int32_t updateSettings, ParticleKeyFrames* _keyFrame
 
     if (updateSettings & static_cast<int32_t>(ParticleUpdateType::VelocityPerLifeTime)) {
         updateByCurves_.push_back([this]() {
-            velocity_ = CalculateValue(keyFrames_->velocityCurve_, currentTime_);
+            velocity_ = CalculateValue::LINEAR(keyFrames_->velocityCurve_, currentTime_);
         });
     } else if (updateSettings & static_cast<int32_t>(ParticleUpdateType::VelocityRandom)) {
         MyRandom::Float randomX(minUpdateVelocity_->v[X], maxUpdateVelocity_->v[X]);
@@ -134,17 +134,17 @@ void Particle::setKeyFrames(int32_t updateSettings, ParticleKeyFrames* _keyFrame
 
     if (updateSettings & static_cast<int32_t>(ParticleUpdateType::UvScalePerLifeTime)) {
         updateByCurves_.push_back([this]() {
-            transform_.uvScale = CalculateValue(keyFrames_->uvScaleCurve_, currentTime_);
+            transform_.uvScale = CalculateValue::LINEAR(keyFrames_->uvScaleCurve_, currentTime_);
         });
     }
     if (updateSettings & static_cast<int32_t>(ParticleUpdateType::UvRotatePerLifeTime)) {
         updateByCurves_.push_back([this]() {
-            transform_.uvRotate = CalculateValue(keyFrames_->uvRotateCurve_, currentTime_);
+            transform_.uvRotate = CalculateValue::LINEAR(keyFrames_->uvRotateCurve_, currentTime_);
         });
     }
     if (updateSettings & static_cast<int32_t>(ParticleUpdateType::UvTranslatePerLifeTime)) {
         updateByCurves_.push_back([this]() {
-            transform_.uvTranslate = CalculateValue(keyFrames_->uvTranslateCurve_, currentTime_);
+            transform_.uvTranslate = CalculateValue::LINEAR(keyFrames_->uvTranslateCurve_, currentTime_);
         });
     }
 }

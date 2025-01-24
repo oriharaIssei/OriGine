@@ -155,15 +155,10 @@ public:
         return true;
     }
 
-
     Vector& operator=(const Vector& other) {
         for (int i = 0; i < dimension; i++)
             v[i] = other.v[i];
         return *this;
-    }
-
-    static Vector Lerp(const Vector& start, const Vector& end, valueType t) {
-        return start + (end - start) * t;
     }
 
     operator Vector2<valueType>() const {
@@ -227,6 +222,15 @@ inline Vector<dim, valueType>* operator/=(Vector<dim, valueType>& vec, const Vec
         }
     }
     return &vec;
+}
+
+template <int dim, typename valueType>
+inline Vector<dim, valueType> Lerp(const Vector<dim, valueType>& start, const Vector<dim, valueType>& end, float t) {
+    return start + (end - start) * t;
+}
+template <int dim, typename valueType>
+inline Vector<dim, valueType> lerp(const Vector<dim, valueType>& start, const Vector<dim, valueType>& end, float t) {
+    return start + (end - start) * t;
 }
 
 template <int dimension, typename valueType>

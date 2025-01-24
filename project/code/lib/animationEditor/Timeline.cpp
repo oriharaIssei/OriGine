@@ -478,7 +478,7 @@ bool EditKeyFrame(
                 // SliderPopup
                 if (ImGui::Button("Add Node")) {
                     _keyFrames.push_back(
-                        {currentTime, CalculateValue(_keyFrames, currentTime)});
+                        {currentTime, CalculateValue::LINEAR(_keyFrames, currentTime)});
                     ImGui::CloseCurrentPopup();
                     std::sort(
                         _keyFrames.begin(),
@@ -702,7 +702,7 @@ bool EditKeyFrame(
                 // SliderPopup
                 if (ImGui::Button("Add Node")) {
                     _keyFrames.push_back(
-                        {currentTime, CalculateValue(_keyFrames, currentTime)});
+                        {currentTime, CalculateValue::LINEAR(_keyFrames, currentTime)});
                     ImGui::CloseCurrentPopup();
                     std::sort(
                         _keyFrames.begin(),
@@ -931,7 +931,7 @@ bool EditKeyFrame(
                 // SliderPopup
                 if (ImGui::Button("Add Node")) {
                     _keyFrames.push_back(
-                        {currentTime, CalculateValue(_keyFrames, currentTime)});
+                        {currentTime, CalculateValue::LINEAR(_keyFrames, currentTime)});
                     ImGui::CloseCurrentPopup();
                     std::sort(
                         _keyFrames.begin(),
@@ -1162,7 +1162,7 @@ bool EditKeyFrame(
                 // SliderPopup
                 if (ImGui::Button("Add Node")) {
                     _keyFrames.push_back(
-                        {currentTime, CalculateValue(_keyFrames, currentTime)});
+                        {currentTime, CalculateValue::LINEAR(_keyFrames, currentTime)});
                     ImGui::CloseCurrentPopup();
                     std::sort(
                         _keyFrames.begin(),

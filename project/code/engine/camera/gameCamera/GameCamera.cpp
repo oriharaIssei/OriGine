@@ -35,7 +35,7 @@ void GameCamera::Update() {
         cameraTransform_.rotate[Y] = std::lerp(cameraTransform_.rotate[Y], destinationAngleXY_[Y], rotateSensitivity_);
 
         Vec3f offset = OffstVector();
-        interTarget_   = Vec3f::Lerp(followTarget_->translate, interTarget_, rotateSensitivity_);
+        interTarget_   = Lerp(followTarget_->translate, interTarget_, rotateSensitivity_);
 
         cameraTransform_.translate = offset + interTarget_;
     }
