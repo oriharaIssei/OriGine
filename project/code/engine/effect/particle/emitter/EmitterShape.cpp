@@ -6,11 +6,9 @@
 //math
 #include "Matrix4x4.h"
 
-#ifdef _DEBUG
+//externals
 #include "imgui/imgui.h"
-#endif // _DEBUG
 
-#ifdef _DEBUG
 void EmitterShape::Debug() {
     ImGui::Text("SpawnType : %s", particleSpawnLocationTypeWord_[int(spawnType_)].c_str());
     if (ImGui::RadioButton(particleSpawnLocationTypeWord_[int(ParticleSpawnLocationType::InBody)].c_str(), spawnType_ == int32_t(ParticleSpawnLocationType::InBody))) {
@@ -20,17 +18,14 @@ void EmitterShape::Debug() {
         spawnType_.setValue(int32_t(ParticleSpawnLocationType::Edge));
     }
 }
-#endif // _DEBUG
 
 #pragma region "Sphere"
-#ifdef _DEBUG
 void EmitterSphere::Debug() {
     EmitterShape::Debug();
     ImGui::Text("radius");
     std::string label = "##" + emitterShapeTypeWord_[int(type_)] + "_radius";
     ImGui::DragFloat(label.c_str(), radius_, 0.1f);
 }
-#endif // _DEBUG
 
 Vec3f EmitterSphere::getSpawnPos() {
     if (spawnType_ == int32_t(ParticleSpawnLocationType::InBody)) {
@@ -56,7 +51,6 @@ Vec3f EmitterSphere::getSpawnPos() {
 #pragma endregion
 
 #pragma region "Obb"
-#ifdef _DEBUG
 void EmitterOBB::Debug() {
     EmitterShape::Debug();
     ImGui::Text("min");
@@ -70,7 +64,6 @@ void EmitterOBB::Debug() {
     min_.setValue({(std::min)(min_->v[X], max_->v[X]), (std::min)(min_->v[Y], max_->v[Y]), (std::min)(min_->v[Z], max_->v[Z])});
     max_.setValue({(std::max)(min_->v[X], max_->v[X]), (std::max)(min_->v[Y], max_->v[Y]), (std::max)(min_->v[Z], max_->v[Z])});
 }
-#endif // _DEBUG
 
 Vec3f EmitterOBB::getSpawnPos() {
     MyRandom::Float randFloat = MyRandom::Float(0.0f, 1.0f);
@@ -109,7 +102,6 @@ Vec3f EmitterOBB::getSpawnPos() {
 #pragma endregion
 
 #pragma region "Capsule"
-#ifdef _DEBUG
 void EmitterCapsule::Debug() {
     EmitterShape::Debug();
     ImGui::Text("direction");
@@ -126,8 +118,6 @@ void EmitterCapsule::Debug() {
     label = "##" + emitterShapeTypeWord_[int(type_)] + "_length";
     ImGui::DragFloat(label.c_str(), length_, 0.1f);
 }
-
-#endif // _DEBUG
 
 Vec3f EmitterCapsule::getSpawnPos() {
     MyRandom::Float randFloat = MyRandom::Float(0.0f, 1.0f);
@@ -150,7 +140,6 @@ Vec3f EmitterCapsule::getSpawnPos() {
 #pragma endregion
 
 #pragma region "Cone"
-#ifdef _DEBUG
 void EmitterCone::Debug() {
     EmitterShape::Debug();
     ImGui::Text("direction");
@@ -167,7 +156,6 @@ void EmitterCone::Debug() {
     label = "##" + emitterShapeTypeWord_[int(type_)] + "_length";
     ImGui::DragFloat(label.c_str(), length_, 0.1f);
 }
-#endif // _DEBUG
 
 Vec3f EmitterCone::getSpawnPos() {
     MyRandom::Float randFloat = MyRandom::Float(0.0f, 1.0f);

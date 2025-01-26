@@ -10,9 +10,7 @@
 #include "camera/CameraManager.h"
 #include "myFileSystem/MyFileSystem.h"
 
-#ifdef _DEBUG
 #include "imgui/imgui.h"
-#endif // _DEBUG
 
 const std::string emittersDirectory = "resource/GlobalVariables/Emitters";
 

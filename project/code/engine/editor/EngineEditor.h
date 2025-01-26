@@ -1,7 +1,5 @@
 #pragma once
 
-#ifdef _DEBUG
-
 ///stl
 #include <memory>
 #include <string>
@@ -44,5 +42,3 @@ public:
 
     void addEditor(const std::string& name, std::unique_ptr<IEditor>&& editor);
 };
-
-#endif // _DEBUG

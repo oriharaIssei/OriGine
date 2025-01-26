@@ -1,6 +1,9 @@
 #include "material/Material.h"
 
+///local
+//lib
 #include "globalVariables/GlobalVariables.h"
+#include "myFileSystem/MyFileSystem.h"
 
 #ifdef _DEBUG
 #include "imgui/imgui.h"
@@ -32,6 +35,14 @@ IConstantBuffer<Material>* MaterialManager::Create(const std::string& materialNa
     materialPallet_[materialName]->CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
     materialPallet_[materialName]->ConvertToBuffer();
     return materialPallet_[materialName].get();
+}
+
+void MaterialManager::Init() {
+    std::list<std::pair<std::string, std::string>> materialList = myfs::SearchFile("resource/GlobalVariables/Materials", "json");
+    for (auto& [materialDir, materialName] : materialList) {
+        Material material(materialName);
+        Create(materialName, material);
+    }
 }
 
 void MaterialManager::Finalize() {
@@ -90,9 +101,11 @@ void MaterialEditor::Update() {
                     std::string(material.first + "Color").c_str(),
                     reinterpret_cast<float*>(material.second->openData_.color_.operator Vec4f*()));
 
+                bool isLight = material.second->openData_.enableLighting_;
                 ImGui::Checkbox(
                     (material.first + " enableLighting").c_str(),
-                    (bool*)(&material.second->openData_.enableLighting_));
+                    &isLight);
+                material.second->openData_.enableLighting_.setValue(isLight);
 
                 ImGui::DragFloat3(
                     (material.first + " uvScale").c_str(),

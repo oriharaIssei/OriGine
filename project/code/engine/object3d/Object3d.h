@@ -53,4 +53,5 @@ public:
     Model* getModel() { return data_.get(); }
 
     void setMaterial(IConstantBuffer<Material>* material, uint32_t index = 0);
+    void setTexture(uint32_t textureIndex, uint32_t index = 0);
 };

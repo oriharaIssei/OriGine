@@ -7,9 +7,7 @@
 
 #include <Windows.h>
 
-#ifdef _DEBUG
 #include "imgui/imgui.h"
-#endif // _DEBUG
 
 #include <nlohmann/json.hpp>
 
@@ -26,7 +24,6 @@ GlobalVariables::GlobalVariables(){}
 GlobalVariables::~GlobalVariables(){}
 
 void GlobalVariables::Update(){
-#ifdef _DEBUG
 	if(ImGui::Begin("Global Variables",nullptr,ImGuiWindowFlags_MenuBar)){
 
 		ImGuiMenu();
@@ -80,7 +77,6 @@ void GlobalVariables::Update(){
 
 	}
 	ImGui::End();
-#endif // _DEBUG
 }
 
 #pragma region"Load"
@@ -241,7 +237,6 @@ void GlobalVariables::SaveFile(const std::string& scene,const std::string& group
 }
 #pragma endregion
 
-#ifdef _DEBUG
 void GlobalVariables::ImGuiMenu(){
 	if(ImGui::BeginMenuBar()){
 		if(ImGui::BeginMenu("File")){
@@ -285,4 +280,3 @@ void GlobalVariables::ImGuiMenu(){
 		ImGui::EndMenuBar();  // Ensure this is called to match BeginMenuBar
 	}
 }
-#endif // _DEBUG

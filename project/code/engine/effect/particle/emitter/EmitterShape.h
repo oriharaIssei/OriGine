@@ -55,9 +55,7 @@ struct EmitterShape {
           spawnType_{scene, emitterName, emitterShapeTypeWord_[int(type)] + "spawnLocationType"} {}
 
 public: // メンバ関数
-#ifdef _DEBUG
     virtual void Debug();
-#endif // _DEBUG
 
     virtual Vec3f getSpawnPos() = 0;
 
@@ -76,9 +74,7 @@ struct EmitterSphere
           radius_{scene, emitterName, emitterShapeTypeWord_[int(type_)] + "_radius"} {}
 
 public: // メンバ関数
-#ifdef _DEBUG
     void Debug() override;
-#endif // _DEBUG
     Vec3f getSpawnPos() override;
 
 public: // メンバ変数
@@ -96,9 +92,7 @@ struct EmitterOBB
           max_{scene, emitterName, emitterShapeTypeWord_[int(type_)] + "_max"},
           rotate_{scene, emitterName, emitterShapeTypeWord_[int(type_)] + "_rotate"} {}
 // メンバ関数
-#ifdef _DEBUG
     void Debug() override;
-#endif // _DEBUG
 
     Vec3f getSpawnPos() override;
 
@@ -120,9 +114,7 @@ struct EmitterCapsule
           direction_{scene, emitterName, emitterShapeTypeWord_[int(type_)] + "_direction"} {}
 
 public: // メンバ関数
-#ifdef _DEBUG
     void Debug() override;
-#endif // _DEBUG
     Vec3f getSpawnPos() override;
 
 private: // メンバ変数
@@ -143,9 +135,7 @@ struct EmitterCone
           direction_{scene, emitterName, emitterShapeTypeWord_[int(type_)] + "_direction"} {}
 
 public: // メンバ関数
-#ifdef _DEBUG
     void Debug() override;
-#endif // _DEBUG
 
     Vec3f getSpawnPos() override;
 

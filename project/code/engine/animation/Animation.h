@@ -47,7 +47,6 @@ using AnimationCurve = std::vector<Keyframe<T>>;
 enum class InterpolationType {
     LINEAR,
     STEP,
-    CUBICSPLINE,
 
     COUNT
 };

@@ -28,10 +28,7 @@
 
 //math
 
-#ifdef _DEBUG
 #include "imgui/imgui.h"
-#endif // _DEBUG
-
 
 #define _USE_MATH_DEFINES
 #include <cmath>
@@ -50,7 +47,7 @@ Engine* Engine::getInstance() {
 
 void Engine::Init() {
     window_ = std::make_unique<WinApp>();
-    window_->CreateGameWindow(L"LE2A_07_OriharaIssei_", WS_OVERLAPPEDWINDOW, 1280, 720);
+    window_->CreateGameWindow(L"LE2A_07_OriharaIssei_CG3", WS_OVERLAPPEDWINDOW, 1280, 720);
 
     input_ = Input::getInstance();
     input_->Init();
@@ -104,6 +101,7 @@ void Engine::Init() {
     RenderTexture::Awake();
 
     materialManager_ = std::make_unique<MaterialManager>();
+    materialManager_->Init();
 
     EffectManager* EffectManager = EffectManager::getInstance();
     EffectManager->Init();
@@ -114,15 +112,12 @@ void Engine::Init() {
     AnimationManager::getInstance()->Init();
     CameraManager::getInstance()->Init();
     //Editor
-#ifdef _DEBUG
-    editor_ = EngineEditor::getInstance();
+    editor_                                  = EngineEditor::getInstance();
     std::unique_ptr<LightEditor> lightEditor = std::make_unique<LightEditor>();
     lightEditor->Init();
     editor_->addEditor("LightEditor", std::move(lightEditor));
     std::unique_ptr<MaterialEditor> materialEditor = std::make_unique<MaterialEditor>(materialManager_.get());
     editor_->addEditor("MaterialEditor", std::move(materialEditor));
-#endif // _DEBUG
-
 }
 
 void Engine::Finalize() {
@@ -132,9 +127,8 @@ void Engine::Finalize() {
     EffectManager::getInstance()->Finalize();
     materialManager_->Finalize();
 
-#ifdef _DEBUG
     ImGuiManager::getInstance()->Finalize();
-#endif // _DEBUG
+
     ShaderManager::getInstance()->Finalize();
     PrimitiveDrawer::Finalize();
     SpriteCommon::getInstance()->Finalize();
@@ -312,9 +306,7 @@ void Engine::BeginFrame() {
     //Sprite::setBlendMode(BlendMode::Alpha);
     deltaTime_->Update();
 
-#ifdef _DEBUG
     editor_->Update();
-#endif // _DEBUG
 
     lightManager_->Update();
 }

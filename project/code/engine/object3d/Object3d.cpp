@@ -103,6 +103,10 @@ void Object3d::setMaterial(IConstantBuffer<Material>* material, uint32_t index) 
     data_->materialData_[index].material = material;
 }
 
+void Object3d::setTexture(uint32_t textureIndex, uint32_t index) {
+    data_->materialData_[index].textureNumber = textureIndex;
+}
+
 void Object3d::UpdateTransform() {
     transform_.UpdateMatrix();
     for (auto& mesh : data_->meshData_->mesh_) {

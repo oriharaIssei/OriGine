@@ -13,18 +13,14 @@
 #include "object3d/AnimationObject3d.h"
 
 // lib
-#include "myFileSystem/MyFileSystem.h"
-
-#ifdef _DEBUG
 #include "Timeline.h"
 #include "imgui/imgui.h"
 #include "imgui/imgui_internal.h"
-#endif // _DEBUG
+#include "myFileSystem/MyFileSystem.h"
 
 static std::array<std::string, static_cast<int>(InterpolationType::COUNT)> interpolationTypeString = {
     "LINEAR",
-    "STEP",
-    "CUBICSPLINE"};
+    "STEP"};
 
 AnimationEditor::AnimationEditor()
     : IEditor() {}
@@ -46,7 +42,6 @@ void AnimationEditor::Init() {
 
 void AnimationEditor::Update() {
 
-#ifdef _DEBUG
     bool openCreateNewPopup = false;
 
     if (ImGui::Begin("AnimationEditor", nullptr, ImGuiWindowFlags_MenuBar)) {
@@ -231,7 +226,7 @@ void AnimationEditor::Update() {
         currentEditObject_->getModel() &&
         currentEditObject_->getAnimation()->getData()) {
         ImGui::BeginGroup(); // グループ化
-        std::string parentWindowName = currentEditAnimationSetting_->name + "TimeLines";
+        std::string parentWindowName = "TimeLines";
         if (ImGui::Begin(parentWindowName.c_str())) {
 
             // アニメーションの再生
@@ -328,8 +323,6 @@ void AnimationEditor::Update() {
             currentEditObject_->Update(0.0f);
         }
     }
-
-#endif // _DEBUG
 }
 
 void AnimationEditor::DrawEditObject() {

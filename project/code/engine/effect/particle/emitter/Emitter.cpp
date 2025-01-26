@@ -23,10 +23,8 @@
 //math
 #include <cmath>
 
-#ifdef _DEBUG
 #include "animationEditor/Timeline.h"
 #include "imgui/imgui.h"
-#endif // _DEBUG
 
 Emitter::Emitter(DxSrvArray* srvArray, const std::string& _emitterDataName, int _id)
     : srvArray_(srvArray),
@@ -160,7 +158,6 @@ void Emitter::Update(float deltaTime) {
     }
 }
 
-#ifdef _DEBUG
 static const float changingSrvSizeInterval = 0.5f;
 static float changingSrvSizeLeftTime       = 0.0f;
 void Emitter::Debug() {
@@ -512,7 +509,6 @@ void Emitter::EditParticle() {
         ImGui::TreePop();
     }
 }
-#endif // _DEBUG
 
 void Emitter::Draw() {
     if (!particleModel_ ||

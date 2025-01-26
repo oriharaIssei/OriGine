@@ -147,6 +147,13 @@ AnimationData AnimationManager::LoadMyAnimationData(const std::string& directory
         std::string nodeName(nodeNameLength, '\0');
         ifs.read(&nodeName[0], nodeNameLength);
 
+        // interpolationType を読み込み
+        size_t interpolationType;
+        //読み込めない場合はデフォルト値を設定
+        if (ifs.read(reinterpret_cast<char*>(&interpolationType), sizeof(interpolationType))) {
+            animationData.nodeAnimations[nodeName].interpolationType = static_cast<InterpolationType>(interpolationType);
+        }
+
         NodeAnimation nodeAnimation;
 
         // scale, rotate, translate の各アニメーションカーブを読み込み
@@ -190,6 +197,9 @@ void AnimationManager::SaveAnimation(const std::string& directory, const std::st
         size_t nodeNameLength = nodeName.size();
         ofs.write(reinterpret_cast<const char*>(&nodeNameLength), sizeof(nodeNameLength));
         ofs.write(nodeName.c_str(), nodeNameLength);
+
+        //interpolationType を保存
+        ofs.write(reinterpret_cast<const char*>(&nodeAnimation.interpolationType), sizeof(nodeAnimation.interpolationType));
 
         // scale, rotate, translate の各アニメーションカーブを保存
         auto writeCurve = [&ofs](const auto& curve) {

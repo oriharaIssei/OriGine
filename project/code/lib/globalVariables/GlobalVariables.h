@@ -40,14 +40,13 @@ public:
 
 private:
     std::map<std::string, Scene> data_;
-#ifdef _DEBUG
+
     std::string currentScene_ = "NULL";
     int currentSceneNum_      = 0;
 
     std::string currentGroupName_ = "NULL";
     int currentGroupNum_          = 0;
     Group* currentGroup_          = nullptr;
-#endif // _DEBUG
 
 public:
     Scene* getScene(const std::string& scene) {
@@ -116,11 +115,9 @@ public:
         data_[scene][groupName].erase(valueName);
     }
 
-#ifdef _DEBUG
     // Editor用の関数
     void ChangeGroupName(const std::string& scene, const std::string& oldGroupName, const std::string& newGroupName) {
         data_[scene][newGroupName] = std::move(data_[scene][oldGroupName]);
         data_[scene].erase(oldGroupName);
     }
-#endif // _DEBUG
 };

@@ -12,9 +12,7 @@
 //manager
 #include "effect/manager/EffectManager.h"
 
-#ifdef _DEBUG
 #include "imgui/imgui.h"
-#endif // _DEBUG
 
 static std::list<std::pair<std::string, std::string>> emitterFiles = myfs::SearchFile("resource/GlobalVariables/Effects", "json");
 
@@ -25,15 +23,18 @@ EffectEditor::~EffectEditor() {}
 void EffectEditor::Init() {
     EffectManager* effectMaanger = EffectManager::getInstance();
     for (auto& [directory, filename] : emitterFiles) {
-        effects_[filename] = effectMaanger->CreateEffect("filename");
+        effects_[filename] = effectMaanger->CreateEffect(filename);
+    }
+    if (!effects_.empty()) {
+        currentEditEffect_ = effects_.begin()->second.get();
     }
 }
 
 void EffectEditor::Update() {
-    // main window
+    //============= main window =============//
     if (ImGui::Begin("EffectEditor", nullptr, ImGuiWindowFlags_MenuBar)) {
         MenuBarUpdate();
-
+        // ==================== SelectEditEffect ==================== //
         if (ImGui::BeginCombo("Effect", currentEditEffect_ ? currentEditEffect_->getDataName().c_str() : "NULL")) {
             for (auto& [emitterName, emitter] : effects_) {
                 bool isSelected = (currentEditEffect_ == emitter.get());
@@ -44,6 +45,7 @@ void EffectEditor::Update() {
             ImGui::EndCombo();
         }
 
+        // ==================== Effect Edit ==================== //
         if (currentEditEffect_) {
             currentEditEffect_->Debug();
             currentEditEffect_->Update(Engine::getInstance()->getDeltaTime());
@@ -106,7 +108,7 @@ void EffectEditor::MenuBarUpdate() {
             }
 
             if (ImGui::MenuItem("Load")) {
-                emitterFiles = myfs::SearchFile("resource/GlobalVariables/Effects", "json");
+                emitterFiles = myfs::SearchFile(effectDir, "json");
                 for (auto& [directory, filename] : emitterFiles) {
                     if (ImGui::MenuItem(filename.c_str())) {
                         if (!effects_[filename]) {

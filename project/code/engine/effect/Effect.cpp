@@ -144,12 +144,24 @@ void Effect::Debug() {
             }
         }
     }
+
+    // ============================= Emitter削除 ============================= //
     if (clickedEmitterIndex_ != -1) {
         ImGui::OpenPopup("Delete Emitter");
     }
     if (ImGui::BeginPopup("Delete Emitter")) {
         ImGui::Text("Delete Emitter?");
         if (ImGui::Button("Yes")) {
+            emitters_[clickedEmitterIndex_]->Finalize();
+            emitters_[clickedEmitterIndex_] = nullptr;
+            emitters_.erase(
+                std::remove_if(
+                    emitters_.begin(),
+                    emitters_.end(),
+                    [](const auto& emitter) {
+                        return emitter == nullptr;
+                    }),
+                emitters_.end());
             activeEmitters_.erase(
                 std::remove_if(
                     activeEmitters_.begin(),
@@ -168,13 +180,29 @@ void Effect::Debug() {
 
     ImGui::EndChild();
 
+    if (ImGui::Button("Play")) {
+        currentTime_ = 0.0f;
+        isActive_    = true;
+        activeEmitters_.clear();
+    }
     ImGui::Checkbox("Active", &isActive_);
     ImGui::Checkbox("Loop", isLoop_);
 
     std::string timelineWindowLabel_ = dataName_ + "Timeline";
     if (ImGui::Begin(timelineWindowLabel_.c_str())) {
+        // ============================= タイムライン ============================= //
+        // 総合時間
         ImGui::DragFloat("Duration", duration_, 0.001f);
-        ImGui::SliderFloat("Time", &currentTime_, 0.0f, duration_);
+        // 現在時間
+        if (ImGui::SliderFloat("Time", &currentTime_, 0.0f, duration_)) {
+            // 辻褄合わせ
+
+            activeEmitters_.clear();
+            StartEmitter();
+            for (auto& emitter : activeEmitters_) {
+                emitter->Update(currentTime_);
+            }
+        }
 
         {
             // タイムラインで使用する関数たち
@@ -226,7 +254,7 @@ void Effect::Debug() {
                 }
                 return true;
             };
-
+            // タイムライン表示
             ImGui::TimeLineButtons(
                 dataName_ + "ParticleSchedule",
                 particleSchedule_,
@@ -238,14 +266,10 @@ void Effect::Debug() {
     }
 
     ImGui::End();
-
-    for (auto& emitter : emitters_) {
-        emitter->Debug();
-    }
 }
 
 #pragma region "IO"
-void Effect::LoadCurve() {
+void Effect::SaveCurve() {
     std::string filePath = "resource/GlobalVariables/Effect/" + dataName_ + ".bin";
 
     // 1. fileを開く
@@ -269,13 +293,13 @@ void Effect::LoadCurve() {
     ofs.close();
 }
 
-void Effect::SaveCurve() {
-    std::string filePath = "resource/GlobalVariables/Effect/" + dataName_ + ".bin";
+void Effect::LoadCurve() {
+    std::string filePath = effectDir + "/" + dataName_ + ".bin";
 
     // 1. fileを開く
     std::ifstream ifs(filePath, std::ios::binary);
     if (!ifs) {
-        throw std::runtime_error("Failed to open file for reading");
+        return;
     }
     auto readCurve = [&ifs](auto& curve) {
         size_t size;
@@ -286,7 +310,7 @@ void Effect::SaveCurve() {
             ifs.read(reinterpret_cast<char*>(&keyframe.value), sizeof(keyframe.value));
         }
     };
-    // 2 書き込み
+    // 2. 読み込み
     readCurve(particleSchedule_);
     //3. fileを閉じる
     ifs.close();

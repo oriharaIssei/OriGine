@@ -1,0 +1,32 @@
+{
+    "Defaultsphere_Material0": {
+        "color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+        ],
+        "enableLighting": 1,
+        "shininess": 48.099998474121094,
+        "specularColor": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "uvRotate": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "uvScale": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "uvTranslate": [
+            0.0,
+            0.0,
+            0.0
+        ]
+    }
+}

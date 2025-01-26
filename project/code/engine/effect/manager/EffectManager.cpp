@@ -10,9 +10,7 @@
 #include "camera/CameraManager.h"
 #include "myFileSystem/MyFileSystem.h"
 
-#ifdef _DEBUG
 #include "imgui/imgui.h"
-#endif // _DEBUG
 
 EffectManager* EffectManager::getInstance() {
     static EffectManager instance;
@@ -194,7 +192,6 @@ std::unique_ptr<Effect> EffectManager::CreateEffect(const std::string& name) {
     return result;
 }
 
-#ifdef _DEBUG
 void EffectManager::Edit() {
     // main window
     if (ImGui::Begin("EffectManager")) {
@@ -236,4 +233,3 @@ void EffectManager::Edit() {
         newInstanceName_ = "NULL";
     }
 }
-#endif // _DEBUG

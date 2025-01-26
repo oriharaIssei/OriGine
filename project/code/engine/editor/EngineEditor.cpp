@@ -1,6 +1,5 @@
 #include "EngineEditor.h"
 
-#ifdef _DEBUG
 ///engine
 //module
 #include "application/scene/SceneManager.h"
@@ -42,17 +41,12 @@ void EngineEditor::Update(){
                 }
                 ImGui::EndMenu();
             }
-            if(ImGui::MenuItem("IsDebug")){
-                ImGui::Checkbox("IsDebug",&isActive_);
-            }
+            
             ImGui::EndMenu();
         }
         ImGui::EndMainMenuBar();
     }
 
-    if(!isActive_){
-        return;
-    }
     for(auto& [name,editor] : editors_){
         if(editorActive_[editor.get()]){
             editor->Update();
@@ -67,5 +61,3 @@ void EngineEditor::addEditor(const std::string& name,std::unique_ptr<IEditor>&& 
 }
 
 #pragma endregion
-
-#endif // _DEBUG

@@ -119,21 +119,28 @@ std::unordered_map<unsigned int, std::string> CreateMeshNodeMap(const aiScene* s
 
 void LoadModelFile(ModelMeshData* data, const std::string& directoryPath, const std::string& filename) {
     Assimp::Importer importer;
+    //================== fileを開く ==================//
     std::string filePath = directoryPath + "/" + filename;
     const aiScene* scene = importer.ReadFile(filePath.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
     assert(scene->HasMeshes());
 
+    //================== 頂点データとインデックスデータに使用する変数 ==================//
     std::unordered_map<VertexKey, uint32_t> vertexMap;
     std::vector<TextureVertexData> vertices;
     std::vector<uint32_t> indices;
 
-    // ノードとメッシュの対応表を作成
+    //================== 命名等に使用する変数 ==================//
+    std::string objectName = filename;
+    objectName.erase(objectName.find_last_of("."));
+    std::string materialName;
+
+    //================== ノードとメッシュの対応表を作成 ==================//
     std::unordered_map<unsigned int, std::string> meshNodeMap = CreateMeshNodeMap(scene);
     for (const auto& [nodeIndex, nodeName] : meshNodeMap) {
         data->meshIndexes[nodeName] = nodeIndex;
     }
 
-    /// node 読み込み
+    //================== node 読み込み ==================//
     data->rootNode = ReadNode(scene->mRootNode);
 
     for (uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex) {
@@ -141,7 +148,7 @@ void LoadModelFile(ModelMeshData* data, const std::string& directoryPath, const 
 
         aiMesh* loadedMesh = scene->mMeshes[meshIndex];
 
-        // 頂点データとインデックスデータの処理
+        //================== 頂点データとインデックスデータの処理 ==================//
         for (uint32_t faceIndex = 0; faceIndex < loadedMesh->mNumFaces; ++faceIndex) {
             aiFace& face = loadedMesh->mFaces[faceIndex];
             assert(face.mNumIndices == 3); // 三角形面のみを扱う
@@ -181,14 +188,15 @@ void LoadModelFile(ModelMeshData* data, const std::string& directoryPath, const 
             }
         }
 
-        // メッシュに対応するノード名を設定
+        //================== メッシュに対応するノード名を設定 ==================//
         mesh.nodeName = meshNodeMap[meshIndex];
 
-        // マテリアルとテクスチャの処理
-        aiMaterial* material = scene->mMaterials[loadedMesh->mMaterialIndex];
+        //================== テクスチャの処理 ==================//
+        aiMaterial* aiMaterial = scene->mMaterials[loadedMesh->mMaterialIndex];
         aiString textureFilePath;
         uint32_t textureIndex;
-        if (material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePath) == AI_SUCCESS) {
+
+        if (aiMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePath) == AI_SUCCESS) {
             std::string texturePath = textureFilePath.C_Str();
 
             textureIndex = TextureManager::LoadTexture(directoryPath + "/" + texturePath);
@@ -196,7 +204,26 @@ void LoadModelFile(ModelMeshData* data, const std::string& directoryPath, const 
             textureIndex = 0;
         }
 
-        ModelManager::getInstance()->pushBackDefaultMaterial(data, {textureIndex, Engine::getInstance()->getMaterialManager()->Create("white")});
+        //================== マテリアルの取得 ==================//
+        aiColor4D color(1.f, 1.f, 1.f, 1.f);
+        aiMaterial->Get<aiColor4D>(AI_MATKEY_COLOR_DIFFUSE, color);
+        aiColor3D specular;
+        aiMaterial->Get<aiColor3D>(AI_MATKEY_COLOR_SPECULAR, specular);
+        float shininess;
+        aiMaterial->Get(AI_MATKEY_SHININESS, shininess);
+
+        //================== マテリアルの作成 ==================//
+        materialName  = objectName + "_Material" + std::to_string(meshIndex);
+        auto material = Engine::getInstance()->getMaterialManager()->Create("Default" + materialName);
+
+        //================== マテリアルのセット ==================//
+        material->openData_.color_.setValue({(float)color.r, (float)color.g, (float)color.b, (float)color.a});
+        material->openData_.specularColor_.setValue({(float)specular.r, (float)specular.g, (float)specular.b});
+        material->openData_.shininess_.setValue(shininess);
+        material->ConvertToBuffer();
+
+        //================== マテリアルの設定 ==================//
+        ModelManager::getInstance()->pushBackDefaultMaterial(data, {textureIndex, material});
 
         // メッシュデータを処理
         ProcessMeshData(mesh, vertices, indices);

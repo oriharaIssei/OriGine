@@ -14,6 +14,7 @@ EffectEditScene::~EffectEditScene() {}
 void EffectEditScene::Init() {
     debugCamera_ = std::make_unique<DebugCamera>();
     debugCamera_->Init();
+    debugCamera_->setViewTranslate(Vector3(0.0f, 0.0f, -10.0f));
 
     effectEditor_ = std::make_unique<EffectEditor>();
     effectEditor_->Init();

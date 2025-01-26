@@ -1,4 +1,5 @@
 #pragma once
+#pragma once
 
 ///stl
 //memory
@@ -17,6 +18,8 @@ class Emitter;
 class ISilhouette;
 //lib
 #include "globalVariables/SerializedField.h"
+
+static const std::string effectDir = "resource/GlobalVariables/Effects";
 
 /// <summary>
 /// 1 エフェクトを表すクラス

@@ -3,6 +3,7 @@
 
 #include "animationEditor/AnimationEditor.h"
 #include "camera/debugCamera/DebugCamera.h"
+#include "object3d/Object3d.h"
 
 class AnimationEditScene
     : public IScene{
@@ -22,4 +23,7 @@ private:
     //DebugObjects
     std::unique_ptr<DebugCamera> debugCamera_;
     std::unique_ptr<AnimationEditor> animationEditor_;
+
+    //Ground
+    std::unique_ptr<Object3d> ground_;
 };

@@ -35,17 +35,15 @@ public:
     void Draw();
     void Finalize();
 
-#ifdef _DEBUG
     void Debug();
 
     void Save();
-#endif // _DEBUG
 
     void CalculateMaxSize();
 
 private:
     void SpawnParticle();
-#ifdef _DEBUG
+
     void EditEmitter();
 
     /// <summary>
@@ -57,7 +55,6 @@ private:
     /// Particle の 編集項目
     /// </summary>
     void EditParticle();
-#endif // _DEBUG
 private:
     // jsonのファイル名と一致する名前
     std::string emitterDataName_;
