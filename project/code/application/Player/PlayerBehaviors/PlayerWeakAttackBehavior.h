@@ -32,6 +32,10 @@ private:
     SerializedField<float> endLagTime_;
     float currentTimer_ = 0.0f;
 
+    // invisibleTime
+    SerializedField<float> hitDetectionTimeForAttack_;
+
+    // HitStop
     SerializedField<float> hitStopScale_;
     SerializedField<float> hitStopTime_;
 
@@ -40,6 +44,17 @@ private:
     SerializedField<Vec3f> attackColliderOffset_;
 
     SerializedField<float> knockBackPower_;
+
+    Vec3f lastDirection_;
+    SerializedField<float> rotateInterpolateInStartup_;
+    SerializedField<Vec3f> velocityInStartup_;
+    float speedInStartup_     = 0.0f;
+    Vec3f directionInStartup_ = Vec3f(0.0f, 0.0f, 0.0f);
+
+    SerializedField<float> rotateInterpolateInAttack_;
+    SerializedField<Vec3f> velocityInAttack_;
+    float speedInAttack_     = 0.0f;
+    Vec3f directionInAttack_ = Vec3f(0.0f, 0.0f, 0.0f);
 
     std::unique_ptr<IPlayerBehavior> nextBehavior_ = nullptr;
 };

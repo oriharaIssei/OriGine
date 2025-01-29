@@ -27,6 +27,8 @@ public:
     void Update();
     void Draw() override;
 
+    Vector3f RotateUpdateByStick(float interpolation);
+
 private:
     std::unique_ptr<IPlayerBehavior> currentBehavior_;
     std::unique_ptr<Object3d> shadowObject_;
@@ -43,12 +45,12 @@ private:
     bool isInvisible_    = false;
     float invisibleTime_ = 0.0f;
 
-    float jampForce_ = 0.0f;
+    float jumpForce_ = 0.0f;
     bool onGround_   = true;
 
     std::unique_ptr<AttackCollider> attackCollider_;
 
-    SerializedField<float> maxMoveLenght_;
+    SerializedField<float> maxMoveLength_;
 
 public:
     bool getOnGround() const { return onGround_; }
@@ -65,10 +67,10 @@ public:
         effectAnimationObject_ = std::move(effectAnimationObject);
     }
 
-    void setJampForce(float force) {
-        jampForce_ = force;
+    void setJumpForce(float force) {
+        jumpForce_ = force;
     }
-    float getJampForce() const { return jampForce_; }
+    float getJumpForce() const { return jumpForce_; }
 
     float getHP() const {
         return currentHp_;

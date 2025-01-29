@@ -25,7 +25,12 @@ PlayerWeakAttackBehavior::PlayerWeakAttackBehavior(Player* _player, int32_t _cur
       attackColliderOffset_{"Game", "PlayerWeakAttack" + std::to_string(_currentCombo), "attackColliderOffset_"},
       knockBackPower_{"Game", "PlayerWeakAttack" + std::to_string(_currentCombo), "knockBackPower"},
       hitStopScale_{"Game", "PlayerWeakAttack" + std::to_string(_currentCombo), "hitStopScale"},
-      hitStopTime_{"Game", "PlayerWeakAttack" + std::to_string(_currentCombo), "hitStopTime"} {
+      hitStopTime_{"Game", "PlayerWeakAttack" + std::to_string(_currentCombo), "hitStopTime"},
+      hitDetectionTimeForAttack_{"Game", "PlayerWeakAttack" + std::to_string(_currentCombo), "hitDetectionTimeForAttack"},
+      rotateInterpolateInStartup_{"Game", "PlayerWeakAttack" + std::to_string(_currentCombo), "rotateInterpolateInStartup"},
+      rotateInterpolateInAttack_{"Game", "PlayerWeakAttack" + std::to_string(_currentCombo), "rotateInterpolateInAttack"},
+      velocityInStartup_{"Game", "PlayerWeakAttack" + std::to_string(_currentCombo), "velocityInStartup"},
+      velocityInAttack_{"Game", "PlayerWeakAttack" + std::to_string(_currentCombo), "velocityInAttack"} {
     currentCombo_ = _currentCombo;
 
     AnimationSetting weakAttackActionSettings = AnimationSetting("Player_WeakAttack" + std::to_string(currentCombo_));
@@ -35,7 +40,11 @@ PlayerWeakAttackBehavior::PlayerWeakAttackBehavior(Player* _player, int32_t _cur
             break;
         }
     }
-    
+
+    speedInStartup_     = velocityInStartup_->length();
+    directionInStartup_ = velocityInStartup_->normalize();
+    speedInAttack_      = velocityInAttack_->length();
+    directionInAttack_  = velocityInAttack_->normalize();
 }
 
 PlayerWeakAttackBehavior::~PlayerWeakAttackBehavior() {}
@@ -51,6 +60,14 @@ void PlayerWeakAttackBehavior::Update() {
 
 void PlayerWeakAttackBehavior::StartUp() {
     currentTimer_ += Engine::getInstance()->getGameDeltaTime();
+
+    if (rotateInterpolateInStartup_ != 0.f) {
+        lastDirection_ = player_->RotateUpdateByStick(rotateInterpolateInStartup_);
+    }
+    if (speedInStartup_ != 0.f) {
+        player_->setTranslate(player_->getTranslate() + lastDirection_ * (speedInStartup_ * Engine::getInstance()->getDeltaTime()));
+    }
+
     if (currentTimer_ >= startUpTime_) {
         currentTimer_ = 0.0f;
 
@@ -66,19 +83,25 @@ void PlayerWeakAttackBehavior::Action() {
 
     CheckCombo();
 
+    if (rotateInterpolateInAttack_ != 0.f) {
+        lastDirection_ = player_->RotateUpdateByStick(rotateInterpolateInAttack_);
+    }
+    if (speedInAttack_ != 0.f) {
+        player_->setTranslate(player_->getTranslate() + lastDirection_ * (speedInAttack_ * Engine::getInstance()->getDeltaTime()));
+    }
+
     if (currentTimer_ >= actionTime_) {
         // attackColliderを消す
         player_->getAttackCollider()->getHitCollider()->setIsAlive(false);
-        
+
         // アニメーションを変更
         AnimationSetting weakAttackActionSettings = AnimationSetting("PlayerIdle");
         player_->getDrawObject3d()->setNextAnimation(weakAttackActionSettings.targetAnimationDirection, weakAttackActionSettings.name + ".anm", startUpTime_);
 
-        currentTimer_ = 0.0f;
+        currentTimer_  = 0.0f;
         currentUpdate_ = [this]() {
             this->EndLag();
         };
-
     }
 }
 

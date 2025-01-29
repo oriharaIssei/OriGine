@@ -7,6 +7,8 @@
 //component
 #include "../Collision/Collider.h"
 #include "object3d/Object3d.h"
+//lib
+#include "input/Input.h"
 
 /// application
 //component
@@ -18,7 +20,7 @@ Player::Player()
     : GameObject("Player"),
       hp_("Game", "Player", "hp"),
       power_("Game", "Player", "power"),
-      maxMoveLenght_("Game", "Player", "maxMoveLenght") {
+      maxMoveLength_("Game", "Player", "maxMoveLength") {
     currentHp_ = hp_;
 }
 
@@ -73,11 +75,11 @@ void Player::Update() {
     float deltaTime = Engine::getInstance()->getGameDeltaTime();
 
     Transform& transform = drawObject3d_->transform_;
-    jampForce_ -= 9.8f * deltaTime;
-    transform.translate[Y] += jampForce_ * deltaTime;
+    jumpForce_ -= 9.8f * deltaTime;
+    transform.translate[Y] += jumpForce_ * deltaTime;
     if (transform.translate[Y] < 0.0f) {
         transform.translate[Y] = 0.0f;
-        jampForce_             = 0.0f;
+        jumpForce_             = 0.0f;
         onGround_              = true;
     } else {
         onGround_ = false;
@@ -86,8 +88,8 @@ void Player::Update() {
     currentBehavior_->Update();
 
     { // Transform Update
-        if (drawObject3d_->transform_.translate.lengthSq() >= maxMoveLenght_ * maxMoveLenght_) {
-            drawObject3d_->transform_.translate = drawObject3d_->transform_.translate.normalize() * maxMoveLenght_;
+        if (drawObject3d_->transform_.translate.lengthSq() >= maxMoveLength_ * maxMoveLength_) {
+            drawObject3d_->transform_.translate = drawObject3d_->transform_.translate.normalize() * maxMoveLength_;
         }
 
         drawObject3d_->Update(deltaTime);
@@ -140,6 +142,46 @@ void Player::Draw() {
     }
 }
 
+Vector3f Player::RotateUpdateByStick(float interpolation) {
+    if (interpolation * interpolation <= 0.0000001f) {
+        return axisZ * MakeMatrix::RotateQuaternion(getRotate());
+    }
+    Vector3f directionXZ;
+    // 入力 に 応じた 方向を 取得，計算
+    Input* input = Input::getInstance();
+
+    if (input->isPadActive()) {
+        directionXZ = {
+            input->getLStickVelocity()[X],
+            0.0f, // 上方向には 移動しない
+            input->getLStickVelocity()[Y]};
+    }
+
+    CameraTransform* cameraTransform = cameraTransform_;
+    if (cameraTransform) {
+        directionXZ = TransformVector(directionXZ, MakeMatrix::RotateY(cameraTransform->rotate[Y]));
+    }
+
+    directionXZ = directionXZ.normalize();
+
+    if (directionXZ.lengthSq() <= 0.0000001f) {
+        return axisZ * MakeMatrix::RotateQuaternion(getRotate());
+    }
+
+
+    Quaternion currentPlayerRotate = getRotate();
+    { // Player を 入力方向 へ 回転
+        Quaternion inputDirectionRotate = Quaternion::RotateAxisAngle({0.0f, 1.0f, 0.0f}, atan2(directionXZ[X], directionXZ[Z]));
+        inputDirectionRotate            = inputDirectionRotate.normalize();
+        setRotate(Slerp(currentPlayerRotate, inputDirectionRotate, interpolation).normalize());
+
+        if (std::isnan(getRotate().x)) {
+            setRotate(inputDirectionRotate);
+        }
+    }
+    return axisZ * MakeMatrix::RotateQuaternion(getRotate());
+}
+
 void Player::ChangeBehavior(IPlayerBehavior* next) {
     currentBehavior_.reset(next);
     currentBehavior_->Init();
@@ -155,6 +197,6 @@ void Player::setInvisibleTime(float time) {
     invisibleTime_ = time;
     for (auto& material :
          drawObject3d_->getModel()->materialData_) {
-        material.material = Engine::getInstance()->getMaterialManager()->Create("Player_Inbisible");
+        material.material = Engine::getInstance()->getMaterialManager()->Create("Player_Invisible");
     }
 }

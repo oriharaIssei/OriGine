@@ -1,10 +1,18 @@
 #include "PlayerRootBehavior.h"
 
+//host
 #include "../Player.h"
+//behavior
 #include "../PlayerBehaviors/PlayerDodgeBehavior.h"
 #include "../PlayerBehaviors/PlayerWeakAttackBehavior.h"
+
+///engine
 #include "Engine.h"
+//lib
 #include "input/Input.h"
+
+///math
+#include "Quaternion.h"
 
 PlayerRootBehavior::PlayerRootBehavior(Player* _player)
     : IPlayerBehavior(_player),
@@ -20,7 +28,8 @@ void PlayerRootBehavior::Update() {
 
     if (input->isPadActive()) {
         if (input->isTriggerButton(XINPUT_GAMEPAD_A)) {
-            player_->ChangeBehavior(new PlayerDodgeBehavior(player_, lastDir_));
+            Vec3f playerFront = axisZ * MakeMatrix::RotateQuaternion(player_->getRotate());
+            player_->ChangeBehavior(new PlayerDodgeBehavior(player_, playerFront));
         } else if (input->isTriggerButton(XINPUT_GAMEPAD_X)) {
             player_->ChangeBehavior(new PlayerWeakAttackBehavior(player_, 0));
         }
@@ -28,39 +37,17 @@ void PlayerRootBehavior::Update() {
 }
 void PlayerRootBehavior::StartUp() {}
 void PlayerRootBehavior::Action() {
-    Vector3 directionXZ;
     // 入力 に 応じた 方向を 取得，計算
-    if (input->isPadActive()) {
-        directionXZ = {
-            input->getLStickVelocity()[X],
-            0.0f, // 上方向には 移動しない
-            input->getLStickVelocity()[Y]};
-    }
-
-    if (directionXZ.lengthSq() == 0.0f) {
-        return; // skip
-    }
-
-    CameraTransform* cameraTransform = player_->getCameraTransform();
-    if (cameraTransform) {
-        directionXZ = TransformVector(directionXZ, MakeMatrix::RotateY(cameraTransform->rotate[Y]));
-    }
-    lastDir_ = directionXZ.normalize();
-
-    Quaternion currentPlayerRotate = player_->getRotate();
-    { // Player を 入力方向 へ 回転
-        Quaternion inputDirectionRotate = Quaternion::RotateAxisAngle({0.0f, 1.0f, 0.0f}, atan2(lastDir_[X], lastDir_[Z]));
-        inputDirectionRotate            = inputDirectionRotate.normalize();
-        player_->setRotate(Slerp(currentPlayerRotate, inputDirectionRotate, 0.3f).normalize());
-
-        if (std::isnan(player_->getRotate().x)) {
-            player_->setRotate(inputDirectionRotate);
-        }
-    }
+    lastDir_ = player_->RotateUpdateByStick(0.3f);
+    // ジャンプ
     if (player_->getOnGround()) {
         if (input->isTriggerButton(XINPUT_GAMEPAD_Y)) {
-            player_->setJampForce(8.0f);
+            player_->setJumpForce(8.0f);
         }
+    }
+
+    if (input->getLStickVelocity().lengthSq() <= 0.000000001f) {
+        return;
     }
 
     { // 方向と速度を 使って 次の座標を計算
@@ -68,7 +55,7 @@ void PlayerRootBehavior::Action() {
         float speedPerSecond = speed_ * Engine::getInstance()->getGameDeltaTime();
         // 現在の 座標
         const Vec3f& playerPos = player_->getTranslate();
-        player_->setTranslate(playerPos + directionXZ * speedPerSecond);
+        player_->setTranslate(playerPos + lastDir_.normalize() * speedPerSecond * input->getLStickVelocity().length());
     }
 }
 void PlayerRootBehavior::EndLag() {}
