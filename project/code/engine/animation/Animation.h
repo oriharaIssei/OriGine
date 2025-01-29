@@ -18,6 +18,9 @@ struct ModelNode;
 #include "Quaternion.h"
 #include "Vector3.h"
 
+/// <summary>
+/// 時間と紐づけられた値を表すクラス
+/// </summary>
 template <typename T>
 struct Keyframe {
     Keyframe() = default;
@@ -29,6 +32,7 @@ struct Keyframe {
     T value;    // キーフレームの 値
 };
 
+// ============= using ================= //
 template <typename T>
 using KeyFrame           = Keyframe<T>;
 using KeyframeVector3    = Keyframe<Vec3f>;
@@ -37,10 +41,38 @@ using KeyframeQuaternion = Keyframe<Quaternion>;
 template <typename T>
 using AnimationCurve = std::vector<Keyframe<T>>;
 
+/// <summary>
+/// 補間の種類
+/// </summary>
+enum class InterpolationType {
+    LINEAR,
+    STEP,
+    CUBICSPLINE,
+
+    COUNT
+};
+
+/// <summary>
+/// ノードによるアニメーションを行う曲線
+/// </summary>
 struct NodeAnimation {
+    NodeAnimation()  = default;
+    ~NodeAnimation() = default;
+
+    NodeAnimation(
+        const AnimationCurve<Vec3f>& _scale,
+        const AnimationCurve<Quaternion>& _rotate,
+        const AnimationCurve<Vec3f>& _translate,
+        InterpolationType _interpolationType)
+        : scale(_scale),
+          rotate(_rotate),
+          translate(_translate),
+          interpolationType(_interpolationType) {}
+
     AnimationCurve<Vec3f> scale;
     AnimationCurve<Quaternion> rotate;
     AnimationCurve<Vec3f> translate;
+    InterpolationType interpolationType = InterpolationType::LINEAR; // デフォルトはLINEAR
 };
 
 /// <summary>
@@ -56,22 +88,29 @@ struct AnimationData {
     std::unordered_map<std::string, NodeAnimation> nodeAnimations;
 };
 
+namespace CalculateValue {
+    float LINEAR(
+        const std::vector<Keyframe<float>>& keyframes, float time);
+    Vec3f LINEAR(
+        const std::vector<KeyframeVector3>& keyframes, float time);
+    Vec4f LINEAR(
+        const std::vector<Keyframe<Vec4f>>& keyframes, float time);
+    Quaternion LINEAR(
+        const std::vector<KeyframeQuaternion>& keyframes, float time);
+
+    float Step(
+        const std::vector<Keyframe<float>>& keyframes, float time);
+    Vec3f Step(
+        const std::vector<KeyframeVector3>& keyframes, float time);
+    Vec4f Step(
+        const std::vector<Keyframe<Vec4f>>& keyframes, float time);
+    Quaternion Step(
+        const std::vector<KeyframeQuaternion>& keyframes, float time);
+} // namespace CalculateValue
+
 /// <summary>
-///  指定時間の 値を 計算し 取得
+/// アニメーションの再生を行うクラス
 /// </summary>
-/// <param name="keyframes"></param>
-/// <param name="time"></param>
-/// <returns></returns>
-
-float CalculateValue(
-    const std::vector<Keyframe<float>>& keyframes, float time);
-Vec3f CalculateValue(
-    const std::vector<KeyframeVector3>& keyframes, float time);
-Vec4f CalculateValue(
-    const std::vector<Keyframe<Vec4f>>& keyframes, float time);
-Quaternion CalculateValue(
-    const std::vector<KeyframeQuaternion>& keyframes, float time);
-
 struct Animation {
     Animation() = default;
     Animation(AnimationData* _data)
@@ -130,9 +169,7 @@ struct AnimationSetting {
         : name(_name.c_str()),
           targetModelDirection("Animations", _name, "targetModelDirection"),
           targetModelFileName("Animations", _name, "targetModelFileName"),
-          targetAnimationDirection("Animations", _name, "targetAnimationDirection") {
-        targetAnimationDirection.setValue("resource/Animations");
-    }
+          targetAnimationDirection("Animations", _name, "targetAnimationDirection") {}
     ~AnimationSetting() {}
     // アニメーション名
     std::string name;

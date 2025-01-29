@@ -57,6 +57,7 @@ AnimationData AnimationManager::LoadGltfAnimationData(const std::string& directo
     AnimationData result;
     Assimp::Importer importer;
 
+    // =============================== アニメーションデータの読み込み =============================== //
     std::string filePath = directory + "/" + filename;
     const aiScene* scene = importer.ReadFile(filePath.c_str(), 0);
 
@@ -69,13 +70,16 @@ AnimationData AnimationManager::LoadGltfAnimationData(const std::string& directo
     // mDuration      : mTicksPerSecond で 指定された 周波数 における長さ
     result.duration = float(animationAssimp->mDuration / animationAssimp->mTicksPerSecond);
 
+    ///=============================================
+    /// ノードアニメーションの解析
+    ///=============================================
     for (uint32_t channelIndex = 0; channelIndex < animationAssimp->mNumChannels; ++channelIndex) {
         aiNodeAnim* nodeAnimationAssimp = animationAssimp->mChannels[channelIndex];
         NodeAnimation& nodeAnimation    = result.nodeAnimations[nodeAnimationAssimp->mNodeName.C_Str()];
 
-        ///=============================================
-        /// Scale 解析
-        ///=============================================
+        // =============================== InterpolationType =============================== //
+        nodeAnimation.interpolationType = static_cast<InterpolationType>(nodeAnimationAssimp->mPreState);
+        // =============================== Scale =============================== //
         for (uint32_t keyIndex = 0; keyIndex < nodeAnimationAssimp->mNumScalingKeys; ++keyIndex) {
             aiVectorKey& keyAssimp = nodeAnimationAssimp->mScalingKeys[keyIndex];
             KeyframeVector3 keyframe;
@@ -86,9 +90,7 @@ AnimationData AnimationManager::LoadGltfAnimationData(const std::string& directo
             nodeAnimation.scale.push_back(keyframe);
         }
 
-        ///=============================================
-        /// Rotate 解析
-        ///=============================================
+        // =============================== Rotate =============================== //
         for (uint32_t keyIndex = 0; keyIndex < nodeAnimationAssimp->mNumRotationKeys; ++keyIndex) {
             aiQuatKey& keyAssimp = nodeAnimationAssimp->mRotationKeys[keyIndex];
             KeyframeQuaternion keyframe;
@@ -96,16 +98,14 @@ AnimationData AnimationManager::LoadGltfAnimationData(const std::string& directo
             keyframe.time = float(keyAssimp.mTime / animationAssimp->mTicksPerSecond);
             // クォータニオンの値を変換 (右手座標系 → 左手座標系)
             keyframe.value = {
-                keyAssimp.mValue .x,
+                keyAssimp.mValue.x,
                 -keyAssimp.mValue.y,
                 -keyAssimp.mValue.z,
-                keyAssimp.mValue .w};
+                keyAssimp.mValue.w};
             nodeAnimation.rotate.push_back(keyframe);
         }
 
-        ///=============================================
-        /// Translate 解析
-        ///=============================================
+        // =============================== Translate =============================== //
         for (uint32_t keyIndex = 0; keyIndex < nodeAnimationAssimp->mNumPositionKeys; ++keyIndex) {
             aiVectorKey& keyAssimp = nodeAnimationAssimp->mPositionKeys[keyIndex];
             KeyframeVector3 keyframe;
