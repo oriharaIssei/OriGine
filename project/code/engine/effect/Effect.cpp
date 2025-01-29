@@ -111,6 +111,7 @@ void Effect::Debug() {
                 auto newEmitter = std::make_unique<Emitter>(srvArray_.get(), emitter.second, static_cast<int>(emitters_.size()));
                 newEmitter->Init();
                 emitters_.push_back(std::move(newEmitter));
+                particleSchedule_.emplace_back(0.0f, static_cast<int>(emitters_.size() - 1));
             }
             if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
                 ImGui::SetDragDropPayload("DND_EFFECT", &emitter, sizeof(emitter));
@@ -150,14 +151,23 @@ void Effect::Debug() {
     if (ImGui::BeginPopup("Delete Emitter")) {
         ImGui::Text("Delete Emitter?");
         if (ImGui::Button("Yes")) {
-            activeEmitters_.erase(
+            particleSchedule_.erase(
                 std::remove_if(
-                    activeEmitters_.begin(),
-                    activeEmitters_.end(),
+                    particleSchedule_.begin(),
+                    particleSchedule_.end(),
+                    [clickedEmitterIndex_](const auto& emitter) {
+                        return emitter.value == clickedEmitterIndex_;
+                    }),
+                particleSchedule_.end());
+
+            emitters_.erase(
+                std::remove_if(
+                    emitters_.begin(),
+                    emitters_.end(),
                     [clickedEmitterIndex_](const auto& emitter) {
                         return emitter->getId() == clickedEmitterIndex_;
                     }),
-                activeEmitters_.end());
+                emitters_.end());
             ImGui::CloseCurrentPopup();
         }
         if (ImGui::Button("No")) {
@@ -187,19 +197,6 @@ void Effect::Debug() {
                     });
             };
             std::function<void(float _currentTime)> sliderPopupUpdate = [this](float _currentTime) {
-                if (ImGui::Button("Add Node")) {
-                    // 1つのエミッターに対して 1つのスケジュールしか設定できない
-                    if (particleSchedule_.size() > emitters_.size()) {
-                        return;
-                    }
-                    particleSchedule_.push_back({_currentTime, 0});
-                    ImGui::CloseCurrentPopup();
-                    return;
-                }
-                if (ImGui::Button("Cancel")) {
-                    ImGui::CloseCurrentPopup();
-                    return;
-                }
             };
             std::function<bool(int)> nodePopUpUpdate = [this](int _index) {
                 if (ImGui::Button("Delete")) {
@@ -238,10 +235,6 @@ void Effect::Debug() {
     }
 
     ImGui::End();
-
-    for (auto& emitter : emitters_) {
-        emitter->Debug();
-    }
 }
 
 #pragma region "IO"
