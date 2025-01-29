@@ -49,6 +49,10 @@ void EnemySpawner::Init() {
     hitCollider_->Init();
     hitCollider_->setHostObject(this);
     hitCollider_->setParent(&drawObject3d_->transform_);
+
+    // DeltaTime
+    deltaTime_ = std::make_unique<GameDeltaTime>();
+    deltaTime_->Init();
 }
 
 void EnemySpawner::Update() {
@@ -59,6 +63,9 @@ void EnemySpawner::Update() {
     if (!isAlive_) {
         return;
     }
+
+    deltaTime_->Update();
+    float localDeltaTime = deltaTime_->getDeltaTime();
 
     if (isInvisible_) {
         invisibleTime_ -= Engine::getInstance()->getDeltaTime();
@@ -75,7 +82,7 @@ void EnemySpawner::Update() {
     }
 
     setTranslate(position_);
-    drawObject3d_->Update(Engine::getInstance()->getDeltaTime());
+    drawObject3d_->Update(localDeltaTime);
 
     // Shadow
     {

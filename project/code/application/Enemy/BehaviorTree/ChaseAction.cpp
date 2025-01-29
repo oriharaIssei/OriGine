@@ -51,7 +51,7 @@ Status ChaseAction::tick() {
             enemy_->setRotate(inputDirectionRotate);
         }
     }
-    enemyPos += dist * (speed_ * Engine::getInstance()->getGameDeltaTime());
+    enemyPos += dist * (speed_ * enemy_->DeltaTime());
     // セット
     enemy_->setTranslate(enemyPos);
     return Status::RUNNING;

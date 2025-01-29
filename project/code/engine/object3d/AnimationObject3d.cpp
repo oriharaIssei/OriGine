@@ -63,15 +63,7 @@ void AnimationObject3d::Update(float deltaTime) {
         return;
     }
 
-    if (toNextAnimation_ && nextAnimation_) {
-        // 現在の姿勢から 次のアニメーションの姿勢への補間
-        toNextAnimation_->Update(deltaTime, model_.get(), MakeMatrix::Identity());
-        if (toNextAnimation_->isEnd()) {
-            animation_ = std::move(nextAnimation_);
-            nextAnimation_.reset();
-            toNextAnimation_.reset();
-        }
-    } else if (animation_) {
+    if (animation_) {
         // アニメーションの更新
         animation_->Update(deltaTime, model_.get(), MakeMatrix::Identity());
     }
@@ -159,108 +151,6 @@ Animation* AnimationObject3d::getAnimation() {
 
 void AnimationObject3d::setAnimation(const std::string& directory, const std::string& filename) {
     animation_ = std::move(AnimationManager::getInstance()->Load(directory, filename));
-}
-
-void AnimationObject3d::setNextAnimation(const std::string& directory, const std::string& filename, float _lerpTime) {
-    nextAnimation_.reset();
-    toNextAnimation_.reset();
-
-    nextAnimation_ = std::move(AnimationManager::getInstance()->Load(directory, filename));
-    while (true) {
-        if (nextAnimation_->getData()) {
-            break;
-        }
-    }
-
-    AnimationManager* animationManager = AnimationManager::getInstance();
-    int toNextAnimationDataIndex       = animationManager->addAnimationData("to" + filename + "from" + currentAnimationName_, std::make_unique<AnimationData>(_lerpTime));
-    AnimationData* toNextAnimationData = const_cast<AnimationData*>(animationManager->getAnimationData(toNextAnimationDataIndex));
-
-    toNextAnimationData->nodeAnimations.clear();
-    toNextAnimationData->duration = _lerpTime;
-    for (const auto& [nodeName, nodeAnimation] : animation_->getData()->nodeAnimations) {
-      
-        ///=============================================
-        /// 現在の姿勢をはじめに追加
-        toNextAnimationData->nodeAnimations[nodeName].scale.push_back(KeyframeVector3(
-            0.0f,
-            animation_->getCurrentScale(nodeName)));
-        toNextAnimationData->nodeAnimations[nodeName].rotate.push_back(KeyframeQuaternion(
-            0.0f,
-            animation_->getCurrentRotate(nodeName)));
-        toNextAnimationData->nodeAnimations[nodeName].translate.push_back(KeyframeVector3(
-            0.0f,
-            animation_->getCurrentTranslate(nodeName)));
-
-        ///=============================================
-        /// 次の姿勢を追加
-        if (!nextAnimation_->getData()->nodeAnimations[nodeName].scale.empty()) {
-            toNextAnimationData->nodeAnimations[nodeName].scale.push_back(KeyframeVector3(
-                _lerpTime,
-                nextAnimation_->getData()->nodeAnimations[nodeName].scale[0].value));
-        }
-        if (!nextAnimation_->getData()->nodeAnimations[nodeName].rotate.empty()) {
-            toNextAnimationData->nodeAnimations[nodeName].rotate.push_back(KeyframeQuaternion(
-                _lerpTime,
-                nextAnimation_->getData()->nodeAnimations[nodeName].rotate[0].value));
-        }
-        if (!nextAnimation_->getData()->nodeAnimations[nodeName].translate.empty()) {
-            toNextAnimationData->nodeAnimations[nodeName].translate.push_back(KeyframeVector3(
-                _lerpTime,
-                nextAnimation_->getData()->nodeAnimations[nodeName].translate[0].value));
-        }
-    }
-    toNextAnimation_ = std::make_unique<Animation>(toNextAnimationData);
-    toNextAnimation_->setDuration(_lerpTime);
-}
-void AnimationObject3d::setNextAnimation(std::unique_ptr<Animation>& animation, const std::string& filename, float _lerpTime) {
-    while (true) {
-        if (animation->getData()) {
-            break;
-        }
-    }
-
-    nextAnimation_ = std::move(animation);
-
-    AnimationManager* animationManager = AnimationManager::getInstance();
-    int toNextAnimationDataIndex       = animationManager->addAnimationData("to" + filename + "from" + currentAnimationName_, std::make_unique<AnimationData>(_lerpTime));
-    AnimationData* toNextAnimationData = const_cast<AnimationData*>(animationManager->getAnimationData(toNextAnimationDataIndex));
-
-    toNextAnimationData->nodeAnimations.clear();
-    toNextAnimationData->duration = _lerpTime;
-    for (const auto& [nodeName, nodeAnimation] : animation_->getData()->nodeAnimations) {
-        ///=============================================
-        /// 現在の姿勢をはじめに追加
-        toNextAnimationData->nodeAnimations[nodeName].scale.push_back(KeyframeVector3(
-            0.0f,
-            animation_->getCurrentScale(nodeName)));
-        toNextAnimationData->nodeAnimations[nodeName].rotate.push_back(KeyframeQuaternion(
-            0.0f,
-            animation_->getCurrentRotate(nodeName)));
-        toNextAnimationData->nodeAnimations[nodeName].translate.push_back(KeyframeVector3(
-            0.0f,
-            animation_->getCurrentTranslate(nodeName)));
-
-        ///=============================================
-        /// 次の姿勢を追加
-        if (!nextAnimation_->getData()->nodeAnimations[nodeName].scale.empty()) {
-            toNextAnimationData->nodeAnimations[nodeName].scale.push_back(KeyframeVector3(
-                _lerpTime,
-                nextAnimation_->getData()->nodeAnimations[nodeName].scale[0].value));
-        }
-        if (!nextAnimation_->getData()->nodeAnimations[nodeName].rotate.empty()) {
-            toNextAnimationData->nodeAnimations[nodeName].rotate.push_back(KeyframeQuaternion(
-                _lerpTime,
-                nextAnimation_->getData()->nodeAnimations[nodeName].rotate[0].value));
-        }
-        if (!nextAnimation_->getData()->nodeAnimations[nodeName].translate.empty()) {
-            toNextAnimationData->nodeAnimations[nodeName].translate.push_back(KeyframeVector3(
-                _lerpTime,
-                nextAnimation_->getData()->nodeAnimations[nodeName].translate[0].value));
-        }
-    }
-    toNextAnimation_ = std::make_unique<Animation>(toNextAnimationData);
-    toNextAnimation_->setDuration(_lerpTime);
 }
 
 void AnimationObject3d::setAnimation(std::unique_ptr<Animation>& animation) {

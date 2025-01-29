@@ -4,6 +4,7 @@
 //component
 class Object3d;
 //lib
+#include "deltaTime/GameDeltaTime.h"
 #include "globalVariables/SerializedField.h"
 
 /// application
@@ -42,10 +43,12 @@ private:
 
     SerializedField<Vec3f> position_;
 
-    bool isInvisible_ = false;
+    bool isInvisible_    = false;
     float invisibleTime_ = 0.0f;
 
     bool isAlive_ = false;
+
+    std::unique_ptr<GameDeltaTime> deltaTime_ = nullptr;
 
 public:
     void setInvisibleTime(float invisibleTime) {
@@ -53,6 +56,11 @@ public:
         isInvisible_   = true;
     }
     bool getIsInvisible() const { return isInvisible_; }
+
+    float DeltaTime() const { return deltaTime_->getDeltaTime(); }
+    void HitStop(float scale, float time) {
+        return deltaTime_->HitStop(scale, time);
+    }
 
     void setEnemyManager(EnemyManager* enemyManager) {
         enemyManager_ = enemyManager;

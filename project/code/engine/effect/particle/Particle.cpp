@@ -35,9 +35,9 @@ void Particle::Init(
 
     isAlive_ = true;
 
-    scaleRatio_    = transform_.scale / (_maxScale - _minScale);
-    rotateRatio_   = transform_.rotate / (_maxRotate - _minRotate);
-    velocityRatio_ = velocity_ / (_maxVelocity - _minVelocity);
+    scaleRatio_    = transform_.scale / _maxScale;
+    rotateRatio_   = transform_.rotate / _maxRotate;
+    velocityRatio_ = velocity_ / _maxVelocity;
 
     lifeTime_    = _lifeTime;
     currentTime_ = 0.0f;
@@ -102,10 +102,12 @@ void Particle::setKeyFrames(int32_t updateSettings, ParticleKeyFrames* _keyFrame
             transform_.scale = CalculateValue::LINEAR(keyFrames_->scaleCurve_, currentTime_) * scaleRatio_;
         });
     } else if (updateSettings & static_cast<int32_t>(ParticleUpdateType::ScaleRandom)) {
-        MyRandom::Float randomX(minUpdateScale_->v[X], maxUpdateScale_->v[X]);
-        MyRandom::Float randomY(minUpdateScale_->v[Y], maxUpdateScale_->v[Y]);
-        MyRandom::Float randomZ(minUpdateScale_->v[Z], maxUpdateScale_->v[Z]);
-        transform_.scale += Vec3f(randomX.get(), randomY.get(), randomZ.get()) * deltaTime_;
+        updateByCurves_.push_back([this]() {
+            MyRandom::Float randomX(minUpdateScale_->v[X], maxUpdateScale_->v[X]);
+            MyRandom::Float randomY(minUpdateScale_->v[Y], maxUpdateScale_->v[Y]);
+            MyRandom::Float randomZ(minUpdateScale_->v[Z], maxUpdateScale_->v[Z]);
+            transform_.scale += Vec3f(randomX.get(), randomY.get(), randomZ.get()) * deltaTime_;
+        });
     }
 
     if (updateSettings & static_cast<int32_t>(ParticleUpdateType::RotatePerLifeTime)) {
@@ -113,11 +115,14 @@ void Particle::setKeyFrames(int32_t updateSettings, ParticleKeyFrames* _keyFrame
             transform_.rotate = CalculateValue::LINEAR(keyFrames_->rotateCurve_, currentTime_);
         });
     } else if (updateSettings & static_cast<int32_t>(ParticleUpdateType::RotateRandom)) {
-        MyRandom::Float randomX(minUpdateRotate_->v[X], maxUpdateRotate_->v[X]);
-        MyRandom::Float randomY(minUpdateRotate_->v[Y], maxUpdateRotate_->v[Y]);
-        MyRandom::Float randomZ(minUpdateRotate_->v[Z], maxUpdateRotate_->v[Z]);
-        transform_.rotate += Vec3f(randomX.get(), randomY.get(), randomZ.get()) * deltaTime_;
-    } else if (updateSettings & static_cast<int32_t>(ParticleUpdateType::RotateForward)) {
+        updateByCurves_.push_back([this]() {
+            MyRandom::Float randomX(minUpdateRotate_->v[X], maxUpdateRotate_->v[X]);
+            MyRandom::Float randomY(minUpdateRotate_->v[Y], maxUpdateRotate_->v[Y]);
+            MyRandom::Float randomZ(minUpdateRotate_->v[Z], maxUpdateRotate_->v[Z]);
+            transform_.rotate += Vec3f(randomX.get(), randomY.get(), randomZ.get()) * deltaTime_;
+        });
+    }
+    if (updateSettings & static_cast<int32_t>(ParticleUpdateType::RotateForward)) {
         rotateForward_ = true;
     }
 
@@ -126,10 +131,12 @@ void Particle::setKeyFrames(int32_t updateSettings, ParticleKeyFrames* _keyFrame
             velocity_ = CalculateValue::LINEAR(keyFrames_->velocityCurve_, currentTime_);
         });
     } else if (updateSettings & static_cast<int32_t>(ParticleUpdateType::VelocityRandom)) {
-        MyRandom::Float randomX(minUpdateVelocity_->v[X], maxUpdateVelocity_->v[X]);
-        MyRandom::Float randomY(minUpdateVelocity_->v[Y], maxUpdateVelocity_->v[Y]);
-        MyRandom::Float randomZ(minUpdateVelocity_->v[Z], maxUpdateVelocity_->v[Z]);
-        velocity_ += Vec3f(randomX.get(), randomY.get(), randomZ.get()) * deltaTime_;
+        updateByCurves_.push_back([this]() {
+            MyRandom::Float randomX(minUpdateVelocity_->v[X], maxUpdateVelocity_->v[X]);
+            MyRandom::Float randomY(minUpdateVelocity_->v[Y], maxUpdateVelocity_->v[Y]);
+            MyRandom::Float randomZ(minUpdateVelocity_->v[Z], maxUpdateVelocity_->v[Z]);
+            velocity_ += Vec3f(randomX.get(), randomY.get(), randomZ.get()) * deltaTime_;
+        });
     }
 
     if (updateSettings & static_cast<int32_t>(ParticleUpdateType::UvScalePerLifeTime)) {

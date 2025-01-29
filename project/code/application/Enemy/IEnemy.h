@@ -9,6 +9,7 @@
 #include "transform/Transform.h"
 //lib
 #include "globalVariables/SerializedField.h"
+#include "DeltaTime/GameDeltaTime.h"
 
 /// application
 //Behavior
@@ -46,6 +47,7 @@ protected:
     std::unique_ptr<EnemyBehavior::Sequence> behaviorTree_ = nullptr;
     int currentNode_                                   = 0;
 
+    //============= status =============//
     SerializedField<float> hp_;
     SerializedField<float> speed_;
     SerializedField<float> attack_;
@@ -59,6 +61,8 @@ protected:
     bool isKnockBack_    = false;
     float invisibleTime_ = 0.0f;
 
+    std::unique_ptr<GameDeltaTime> deltaTime_ = nullptr;
+     
 public:
     Player* getPlayer() { return player_; }
     void setPlayer(Player* player) {
@@ -69,6 +73,13 @@ public:
         behaviorTree_ = std::move(behaviorTree);
     }
     void KnockBack(const Vec3f& direction, float speed);
+
+    void HitStop(float timeScale, float timeScalingTime) {
+        deltaTime_->HitStop(timeScale, timeScalingTime);
+    }
+    float DeltaTime() {
+        return deltaTime_->getDeltaTime();
+    }
 
     Collider* getHitCollider() const {
         return hitCollider_.get();

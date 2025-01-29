@@ -1,19 +1,23 @@
 #include "GameDeltaTime.h"
 
+///engine
+#include "Engine.h"
+
 void GameDeltaTime::Init() {
-    DeltaTime::Init();
+    deltaTime_ = Engine::getInstance()->getDeltaTimeInstance();
 }
 
 void GameDeltaTime::Update() {
-    DeltaTime::Update();
+    scaledDeltaTime_ = deltaTime_->getDeltaTime();
 
     if (timeScalingTime_ > 0.0f) {
-        timeScalingTime_ -= deltaTime_;
+        // この時点では scaleDeltaTime == deltaTime
+        timeScalingTime_ -= scaledDeltaTime_;
         if (timeScalingTime_ <= 0.0f) {
             timeScale_       = 1.0f;
             timeScalingTime_ = -1.0f;
         }
     }
 
-    deltaTime_ *= timeScale_;
+    scaledDeltaTime_ *= timeScale_;
 }

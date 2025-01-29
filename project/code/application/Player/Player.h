@@ -16,6 +16,7 @@ class Object3d;
 class Collider;
 //lib
 #include "globalVariables/SerializedField.h"
+#include "deltaTime/GameDeltaTime.h"
 
 class Player
     : public GameObject {
@@ -52,6 +53,8 @@ private:
 
     SerializedField<float> maxMoveLength_;
 
+    std::unique_ptr<GameDeltaTime> deltaTime_ = nullptr;
+
 public:
     bool getOnGround() const { return onGround_; }
     void ChangeBehavior(IPlayerBehavior* next);
@@ -59,6 +62,10 @@ public:
 
     CameraTransform* getCameraTransform() const { return cameraTransform_; }
     void setCameraTransform(CameraTransform* cameraTransform) { cameraTransform_ = cameraTransform; }
+
+    float DeltaTime() {
+        return deltaTime_->getDeltaTime();
+    }
 
     void resetEffectAnimationObject() {
         effectAnimationObject_.reset();

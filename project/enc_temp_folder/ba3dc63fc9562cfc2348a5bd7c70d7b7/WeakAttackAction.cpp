@@ -17,9 +17,7 @@ CreateAttackCollider::CreateAttackCollider(
       colliderOffset_(_colliderOffset),
       onCollision_(onCollision) {}
 
-CreateAttackCollider::~CreateAttackCollider() {
-    enemy_->getAttackCollider()->setIsAlive(false);
-}
+CreateAttackCollider::~CreateAttackCollider() {}
 
 Status CreateAttackCollider::tick() {
     AttackCollider* collider = enemy_->getAttackCollider();

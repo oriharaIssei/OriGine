@@ -14,11 +14,7 @@ Status EnemyBehavior::ChangeAnimation::tick() {
         animation->setDuration(time_);
     }
 
-    if (lerpNextAnimation_) {
-        animationObject3d->setNextAnimation("resource/Animations", animationName_, lerpNextAnimationTime_);
-    } else {
-        animationObject3d->setAnimation("resource/Animations", animationName_);
-    }
+    animationObject3d->setAnimation("resource/Animations", animationName_);
 
     return Status::SUCCESS;
 }

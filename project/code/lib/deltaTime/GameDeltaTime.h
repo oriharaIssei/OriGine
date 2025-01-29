@@ -1,16 +1,18 @@
 #pragma once
 #include "DeltaTime.h"
 
-class GameDeltaTime
-    : public DeltaTime {
+class GameDeltaTime {
 public:
-    void Init() override;
-    void Update() override;
+    void Init();
+    void Update();
 
 private:
-    float timeScale_ = 1.0f;
+    DeltaTime* deltaTime_ = nullptr;
 
+    float timeScale_ = 1.0f;
     float timeScalingTime_ = -1.0f;
+
+    float scaledDeltaTime_ = 0.0f;
 
 public:
     void HitStop(float _timeScale, float _timeScalingTime) {
@@ -23,4 +25,6 @@ public:
 
     void setTimeScalingTime(float timeScalingTime) { timeScalingTime_ = timeScalingTime; }
     float getTimeScalingTime() const { return timeScalingTime_; }
+
+    float getDeltaTime() const { return scaledDeltaTime_; }
 };

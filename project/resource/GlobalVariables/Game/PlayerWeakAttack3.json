@@ -8,10 +8,23 @@
         ],
         "attackPower": 1.2000000476837158,
         "endLagTime": 0.4000000059604645,
+        "hitDetectionTimeForAttack": 0.0,
         "hitStopScale": 0.10000000149011612,
         "hitStopTime": 0.2800000011920929,
         "knockBackPower": 41.900001525878906,
         "radius": 5.800000190734863,
-        "startUpTime": 0.20000000298023224
+        "rotateInterpolateInAttack": 0.30000001192092896,
+        "rotateInterpolateInStartup": 0.0,
+        "startUpTime": 0.20000000298023224,
+        "velocityInAttack": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "velocityInStartup": [
+            0.0,
+            0.0,
+            0.0
+        ]
     }
 }

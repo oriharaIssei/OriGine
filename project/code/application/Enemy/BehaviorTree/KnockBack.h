@@ -42,7 +42,6 @@ public:
 
         auto changeAnimation = std::make_unique<ChangeAnimation>("EnemyKnockBack.anm");
         changeAnimation->setEnemy(_enemy);
-        changeAnimation->LerpNextAnimation(0.3f);
         addChild(std::move(changeAnimation));
         addChild(std::move(nockBack));
     }

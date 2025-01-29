@@ -144,16 +144,10 @@ public:
 
 private:
     std::string animationName_;
-    bool lerpNextAnimation_ = false;
 
-    float lerpNextAnimationTime_ = 0.0f;
-    float time_                  = -1.0f;
+    float time_ = -1.0f;
 
 public:
-    void LerpNextAnimation(float _lerpNextAnimationTime) {
-        lerpNextAnimation_     = true;
-        lerpNextAnimationTime_ = _lerpNextAnimationTime;
-    }
     void setTime(float _time) { time_ = _time; }
 };
 } // namespace EnemyBehavior

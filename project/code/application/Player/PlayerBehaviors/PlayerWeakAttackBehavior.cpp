@@ -34,7 +34,8 @@ PlayerWeakAttackBehavior::PlayerWeakAttackBehavior(Player* _player, int32_t _cur
     currentCombo_ = _currentCombo;
 
     AnimationSetting weakAttackActionSettings = AnimationSetting("Player_WeakAttack" + std::to_string(currentCombo_));
-    player_->getDrawObject3d()->setNextAnimation(weakAttackActionSettings.targetAnimationDirection, weakAttackActionSettings.name + ".anm", startUpTime_);
+    player_->getDrawObject3d()->setAnimation(weakAttackActionSettings.targetAnimationDirection, weakAttackActionSettings.name + ".anm");
+
     while (true) {
         if (player_->getDrawObject3d()->getAnimation()->getData()) {
             break;
@@ -59,7 +60,7 @@ void PlayerWeakAttackBehavior::Update() {
 }
 
 void PlayerWeakAttackBehavior::StartUp() {
-    currentTimer_ += Engine::getInstance()->getGameDeltaTime();
+    currentTimer_ += player_->DeltaTime();
 
     if (rotateInterpolateInStartup_ != 0.f) {
         lastDirection_ = player_->RotateUpdateByStick(rotateInterpolateInStartup_);
@@ -71,6 +72,9 @@ void PlayerWeakAttackBehavior::StartUp() {
     if (currentTimer_ >= startUpTime_) {
         currentTimer_ = 0.0f;
 
+         AnimationSetting weakAttackActionSettings = AnimationSetting("Player_WeakAttack" + std::to_string(currentCombo_));
+        player_->getDrawObject3d()->setAnimation(weakAttackActionSettings.targetAnimationDirection, weakAttackActionSettings.name + ".anm");
+
         CreateAttackCollider();
         currentUpdate_ = [this]() {
             this->Action();
@@ -79,7 +83,7 @@ void PlayerWeakAttackBehavior::StartUp() {
 }
 
 void PlayerWeakAttackBehavior::Action() {
-    currentTimer_ += Engine::getInstance()->getGameDeltaTime();
+    currentTimer_ += player_->DeltaTime();
 
     CheckCombo();
 
@@ -96,7 +100,7 @@ void PlayerWeakAttackBehavior::Action() {
 
         // アニメーションを変更
         AnimationSetting weakAttackActionSettings = AnimationSetting("PlayerIdle");
-        player_->getDrawObject3d()->setNextAnimation(weakAttackActionSettings.targetAnimationDirection, weakAttackActionSettings.name + ".anm", startUpTime_);
+        player_->getDrawObject3d()->setAnimation(weakAttackActionSettings.targetAnimationDirection, weakAttackActionSettings.name + ".anm");
 
         currentTimer_  = 0.0f;
         currentUpdate_ = [this]() {
@@ -159,7 +163,7 @@ void PlayerWeakAttackBehavior::CreateAttackCollider() {
                 HitEffectManager* hitEffectManager = HitEffectManager::getInstance();
                 hitEffectManager->addHitEffect(effectRotate, effectPos);
 
-                Engine::getInstance()->getGameDeltaTimeInstance()->HitStop(hitStopScale_, hitStopTime_);
+                enemy->HitStop(hitStopScale_, hitStopTime_);
             } else if (object->getID() == "EnemySpawner") {
                 EnemySpawner* enemySpawner = dynamic_cast<EnemySpawner*>(object);
 
@@ -178,7 +182,7 @@ void PlayerWeakAttackBehavior::CreateAttackCollider() {
                 HitEffectManager* hitEffectManager = HitEffectManager::getInstance();
                 hitEffectManager->addHitEffect(effectRotate, effectPos);
 
-                Engine::getInstance()->getGameDeltaTimeInstance()->HitStop(hitStopScale_, hitStopTime_);
+                enemySpawner->HitStop(hitStopScale_, hitStopTime_);
             }
         });
 }

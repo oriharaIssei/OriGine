@@ -9,6 +9,7 @@
 #include "object3d/Object3d.h"
 //lib
 #include "input/Input.h"
+#include "deltaTime/GameDeltaTime.h"
 
 /// application
 //component
@@ -61,6 +62,10 @@ void Player::Init() {
     attackCollider_ = std::make_unique<AttackCollider>("NULL");
     attackCollider_->Init();
     attackCollider_->setIsAlive(false);
+
+    // DeltaTime
+    deltaTime_ = std::make_unique<GameDeltaTime>();
+    deltaTime_->Init();
 }
 
 void Player::Update() {
@@ -72,7 +77,9 @@ void Player::Update() {
         return;
     }
 
-    float deltaTime = Engine::getInstance()->getGameDeltaTime();
+    deltaTime_->Update();
+
+    float deltaTime = deltaTime_->getDeltaTime();
 
     Transform& transform = drawObject3d_->transform_;
     jumpForce_ -= 9.8f * deltaTime;

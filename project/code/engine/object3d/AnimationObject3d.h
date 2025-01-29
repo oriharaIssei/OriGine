@@ -56,10 +56,6 @@ private:
     std::unique_ptr<Model> model_;
     std::string currentAnimationName_;
     std::unique_ptr<Animation> animation_;
-
-    std::unique_ptr<Animation> toNextAnimation_;
-    std::unique_ptr<Animation> nextAnimation_;
-
 public:
     const Model* getModel() const;
     Model* getModel();
@@ -70,8 +66,6 @@ public:
     Animation* getAnimation();
     void setAnimation(const std::string& directory, const std::string& filename);
     void setAnimation(std::unique_ptr<Animation>& animation);
-    void setNextAnimation(std::unique_ptr<Animation>& animation, const std::string& filename, float _lerpTime);
-    void setNextAnimation(const std::string& directory, const std::string& filename, float _lerpTime);
-
+   
     void setMaterial(IConstantBuffer<Material>* material, uint32_t index = 0);
 };

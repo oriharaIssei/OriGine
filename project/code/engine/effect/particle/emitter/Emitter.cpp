@@ -188,6 +188,8 @@ void Emitter::Debug() {
 
     if (ImGui::Button("reload FileList")) {
         objectFiles  = MyFileSystem::SearchFile("resource", "obj", false);
+        objectFiles.splice(objectFiles.end(), MyFileSystem::SearchFile("resource", "gltf", false));
+
         textureFiles = MyFileSystem::SearchFile("resource", "png", false);
     }
 
@@ -433,6 +435,14 @@ void Emitter::EditParticle() {
         ImGui::DragFloat3("##ParticleRotateMax", reinterpret_cast<float*>(startParticleRotateMax_.operator Vec3f*()), 0.1f);
         int randomOrPerLifeTime    = (updateSettings_ & static_cast<int32_t>(ParticleUpdateType::RotatePerLifeTime)) ? 2 : ((updateSettings_ & static_cast<int32_t>(ParticleUpdateType::RotateRandom)) ? 1 : 0);
         int preRandomOrPerLifeTime = randomOrPerLifeTime;
+        bool rotateForward         = (updateSettings_ & static_cast<int32_t>(ParticleUpdateType::RotateForward)) != 0;
+        ImGui::Checkbox("Update Rotate Forward", &rotateForward);
+        if (rotateForward) {
+            updateSettings_.setValue(updateSettings_ | static_cast<int32_t>(ParticleUpdateType::RotateForward));
+        } else {
+            updateSettings_.setValue(updateSettings_ & ~static_cast<int32_t>(ParticleUpdateType::RotateForward));
+        }
+
         ImGui::RadioButton("Update Rotate None", &randomOrPerLifeTime, 0);
         ImGui::RadioButton("Update Rotate Random", &randomOrPerLifeTime, 1);
         ImGui::RadioButton("Update Rotate PerLifeTime", &randomOrPerLifeTime, 2);

@@ -59,6 +59,10 @@ void WeakEnemy::Init() {
         }
     }
     shadowObject_->transform_.scale = Vector3(2.3f, 2.3f, 2.3f);
+
+    // deltaTime
+    deltaTime_ = std::make_unique<GameDeltaTime>();
+    deltaTime_->Init();
 }
 
 void WeakEnemy::Update() {
@@ -70,23 +74,27 @@ void WeakEnemy::Update() {
         return;
     }
 
-    if (behaviorTree_->tick() == EnemyBehavior::Status::SUCCESS) {
-        if (isKnockBack_) {
+    deltaTime_->Update();
+
+    EnemyBehavior::Status currentStatus = behaviorTree_->tick();
+    
+    { // Transform Update
+        if (drawObject3d_->transform_.translate.lengthSq() >= maxMoveLenght_ * maxMoveLenght_) {
+            drawObject3d_->transform_.translate = drawObject3d_->transform_.translate.normalize() * maxMoveLenght_;
+        }
+        drawObject3d_->Update(deltaTime_->getDeltaTime());
+    }
+
+    if (isKnockBack_) {
+        if (currentStatus == EnemyBehavior::Status::SUCCESS) {
             isKnockBack_  = false;
             behaviorTree_ = std::make_unique<WeakEnemyBehavior>(this);
             behaviorTree_->setCurrentChildNum(currentNode_ - 1);
         }
     }
 
-    { // Transform Update
-        if (drawObject3d_->transform_.translate.lengthSq() >= maxMoveLenght_ * maxMoveLenght_) {
-            drawObject3d_->transform_.translate = drawObject3d_->transform_.translate.normalize() * maxMoveLenght_;
-        }
-        drawObject3d_->Update(Engine::getInstance()->getGameDeltaTime());
-    }
-
     if (invisibleTime_ > 0.0f) {
-        invisibleTime_ -= Engine::getInstance()->getGameDeltaTime();
+        invisibleTime_ -= deltaTime_->getDeltaTime();
         if (invisibleTime_ < 0.0f) {
             isInvisible_ = false;
             for (auto& material :
@@ -119,13 +127,10 @@ WeakEnemyBehavior::WeakEnemyBehavior(IEnemy* _enemy) {
     chaseAnimation->setEnemy(_enemy);
     auto idleAnimation = std::make_unique<EnemyBehavior::ChangeAnimation>("EnemyIdle.anm");
     idleAnimation->setEnemy(_enemy);
-    idleAnimation->LerpNextAnimation(0.1f);
     auto chaseForIdle = std::make_unique<EnemyBehavior::ChangeAnimation>("EnemyChase.anm");
     chaseForIdle->setEnemy(_enemy);
-    chaseForIdle->LerpNextAnimation(0.1f);
     auto idleForAttack = std::make_unique<EnemyBehavior::ChangeAnimation>("WeakEnemy_WeakAttack.anm");
     idleForAttack->setEnemy(_enemy);
-    idleForAttack->LerpNextAnimation(0.06f);
 
     auto createAttackCollider =
         std::make_unique<EnemyBehavior::CreateAttackCollider>(
