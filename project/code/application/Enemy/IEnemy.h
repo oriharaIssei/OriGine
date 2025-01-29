@@ -43,7 +43,8 @@ protected:
 
     std::unique_ptr<Object3d> shadowObject_;
 
-    std::unique_ptr<EnemyBehavior::Node> behaviorTree_ = nullptr;
+    std::unique_ptr<EnemyBehavior::Sequence> behaviorTree_ = nullptr;
+    int currentNode_                                   = 0;
 
     SerializedField<float> hp_;
     SerializedField<float> speed_;
@@ -55,6 +56,7 @@ protected:
     SerializedField<float> maxMoveLenght_;
 
     bool isInvisible_    = true;
+    bool isKnockBack_    = false;
     float invisibleTime_ = 0.0f;
 
 public:
@@ -63,7 +65,7 @@ public:
         player_ = player;
     }
 
-    void setBehaviorTree(std::unique_ptr<EnemyBehavior::Node>& behaviorTree) {
+    void setBehaviorTree(std::unique_ptr<EnemyBehavior::Sequence>& behaviorTree) {
         behaviorTree_ = std::move(behaviorTree);
     }
     void KnockBack(const Vec3f& direction, float speed);

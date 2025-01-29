@@ -191,7 +191,10 @@ void LoadModelFile(ModelMeshData* data, const std::string& directoryPath, const 
         if (material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePath) == AI_SUCCESS) {
             std::string texturePath = textureFilePath.C_Str();
 
-            textureIndex = TextureManager::LoadTexture(directoryPath + "/" + texturePath);
+            if (texturePath.find("/") == std::string::npos) {
+                texturePath = directoryPath + "/" + texturePath;
+            }
+            textureIndex = TextureManager::LoadTexture(texturePath);
         } else {
             textureIndex = 0;
         }

@@ -1,9 +1,8 @@
 #include "IEnemy.h"
 
-
 //behavior
-#include "WeakEnemy.h"
 #include "BehaviorTree/KnockBack.h"
+#include "WeakEnemy.h"
 
 ///engine
 #include "Engine.h"
@@ -42,7 +41,9 @@ void IEnemy::Draw() {
 }
 
 void IEnemy::KnockBack(const Vec3f& direction, float speed) {
-    behaviorTree_ = std::make_unique<EnemyBehavior::KnockBack>(this, direction, speed, std::make_unique<WeakEnemyBehavior>(this));
+    currentNode_  = (int)behaviorTree_->getCurrentChildNum();
+    behaviorTree_ = std::make_unique<EnemyBehavior::KnockBack>(this, direction, speed);
+    isKnockBack_  = true;
 }
 
 void IEnemy::setInvisibleTime(float time) {

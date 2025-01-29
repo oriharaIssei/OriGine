@@ -70,7 +70,13 @@ void WeakEnemy::Update() {
         return;
     }
 
-    behaviorTree_->tick();
+    if (behaviorTree_->tick() == EnemyBehavior::Status::SUCCESS) {
+        if (isKnockBack_) {
+            isKnockBack_  = false;
+            behaviorTree_ = std::make_unique<WeakEnemyBehavior>(this);
+            behaviorTree_->setCurrentChildNum(currentNode_ - 1);
+        }
+    }
 
     { // Transform Update
         if (drawObject3d_->transform_.translate.lengthSq() >= maxMoveLenght_ * maxMoveLenght_) {

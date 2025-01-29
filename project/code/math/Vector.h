@@ -1,3 +1,4 @@
+
 #pragma once
 
 // indexNumbers
@@ -235,8 +236,3 @@ inline Vector<dim, valueType> lerp(const Vector<dim, valueType>& start, const Ve
 
 template <int dimension, typename valueType>
 using Vec = Vector<dimension, valueType>;
-
-template <int dim, typename valueType>
-Vector<dim, valueType> Lerp(const Vector<dim, valueType>& start, const Vector<dim, valueType>& end, valueType t) {
-    return Vector<dim, valueType>::Lerp(start, end, t);
-}

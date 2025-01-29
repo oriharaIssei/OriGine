@@ -5,8 +5,8 @@
 #include "../IEnemy.h"
 
 namespace EnemyBehavior {
-KnockBackAction::KnockBackAction(const Vec3f& _direction, float _speed, std::unique_ptr<Node> _originalBehavior)
-    : velocity_(_direction * _speed), originalBehavior_(std::move(_originalBehavior)) {}
+KnockBackAction::KnockBackAction(const Vec3f& _direction, float _speed)
+    : velocity_(_direction * _speed) {}
 
 KnockBackAction::~KnockBackAction() {}
 
@@ -20,7 +20,6 @@ Status KnockBackAction::tick() {
 
     if (velocity_.lengthSq() <= 10.00f) {
         // ノックバックが終了したら元のBehaviorに戻す
-        enemy_->setBehaviorTree(originalBehavior_);
         return Status::SUCCESS;
     }
     enemy_->setTranslate(enemyPos + velocity_ * deltaTime);

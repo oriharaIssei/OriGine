@@ -95,6 +95,9 @@ public:
     void addChild(std::unique_ptr<Node> child) {
         children.push_back(std::move(child));
     }
+    size_t getChildSize() const { return children.size(); }
+    size_t getCurrentChildNum() const { return currentChild; }
+    void setCurrentChildNum(size_t _num) { currentChild = _num; }
 };
 
 class Selector

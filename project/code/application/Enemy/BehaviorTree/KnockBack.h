@@ -20,15 +20,13 @@ public:
     /// <param name="_speed"></param>
     KnockBackAction(
         const Vec3f& _direction,
-        float _speed,
-        std::unique_ptr<Node> _originalBehavior);
+        float _speed);
     ~KnockBackAction();
 
     Status tick() override;
 
 private:
     Vec3f velocity_ = {0.0f, 0.0f, 0.0f};
-    std::unique_ptr<Node> originalBehavior_;
 };
 
 class KnockBack
@@ -37,10 +35,9 @@ public:
     KnockBack(
         IEnemy* _enemy,
         const Vec3f& _direction,
-        float _speed,
-        std::unique_ptr<Node> _afterNode) {
+        float _speed) {
         setEnemy(_enemy);
-        auto nockBack = std::make_unique<KnockBackAction>(_direction, _speed, std::move(_afterNode));
+        auto nockBack = std::make_unique<KnockBackAction>(_direction, _speed);
         nockBack->setEnemy(_enemy);
 
         auto changeAnimation = std::make_unique<ChangeAnimation>("EnemyKnockBack.anm");

@@ -27,6 +27,4 @@ public:
     std::unique_ptr<IEnemy> Clone() override;
 
 private:
-
-public:
 };

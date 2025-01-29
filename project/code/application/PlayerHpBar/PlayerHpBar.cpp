@@ -37,7 +37,7 @@ void PlayerHpBar::Update() {
         t       = std::clamp(t, 0.0f, 1.0f); // Ensure t is within [0, 1]
 
         currentWidth_ = hpBarSize_->v[X] * t;
-        currentColor_ = Vector<4, float>::Lerp(minHpColor_, maxHpColor_, t);
+        currentColor_ = Lerp<4,float>(minHpColor_, maxHpColor_, t);
     }
     hpBar_->setSize(Vec2f(currentWidth_, hpBarSize_->v[Y]));
     hpBar_->setColor(currentColor_);
