@@ -96,6 +96,9 @@ void EffectEditor::MenuBarUpdate() {
                     for (auto& [emitterName, emitter] : effects_) {
                         emitter->Save();
                     }
+                    if (currentEditEffect_) {
+                        currentEditEffect_->Save();
+                    }
                 }
                 if (ImGui::MenuItem("This")) {
                     if (currentEditEffect_) {

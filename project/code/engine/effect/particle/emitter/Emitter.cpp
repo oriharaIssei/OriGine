@@ -206,7 +206,7 @@ void Emitter::Debug() {
             bool isSelected = (fileName.second == textureFileName_); // 現在選択中かどうか
             if (ImGui::Selectable(fileName.second.c_str(), isSelected)) {
                 textureFileName_.setValue(fileName.first + "/" + fileName.second);
-                particleModel_->setTexture(0, TextureManager::LoadTexture(textureFileName_));
+                textureIndex_ = TextureManager::LoadTexture(textureFileName_);
             }
         }
         ImGui::EndCombo();
