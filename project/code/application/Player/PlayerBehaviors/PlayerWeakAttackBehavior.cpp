@@ -12,8 +12,8 @@
 ///Collider
 #include "application/AttackCollider/AttackCollider.h"
 //lib
-#include "myRandom/MyRandom.h"
 #include "effect/manager/EffectManager.h"
+#include "myRandom/MyRandom.h"
 
 PlayerWeakAttackBehavior::PlayerWeakAttackBehavior(Player* _player, int32_t _currentCombo)
     : IPlayerBehavior(_player),
@@ -72,7 +72,7 @@ void PlayerWeakAttackBehavior::StartUp() {
     if (currentTimer_ >= startUpTime_) {
         currentTimer_ = 0.0f;
 
-         AnimationSetting weakAttackActionSettings = AnimationSetting("Player_WeakAttack" + std::to_string(currentCombo_));
+        AnimationSetting weakAttackActionSettings = AnimationSetting("Player_WeakAttack" + std::to_string(currentCombo_));
         player_->getDrawObject3d()->setAnimation(weakAttackActionSettings.targetAnimationDirection, weakAttackActionSettings.name + ".anm");
 
         CreateAttackCollider();
@@ -96,9 +96,9 @@ void PlayerWeakAttackBehavior::Action() {
 
     {
         AttackCollider* attackCollider_ = player_->getAttackCollider();
-        attackCollider_->resetRadius("PlayerWeakAttack" + std::to_string(currentCombo_));
-        Vec3f colliderPos = player_->getTranslate();
+        Vec3f colliderPos               = player_->getTranslate();
         colliderPos += TransformVector(attackColliderOffset_, MakeMatrix::RotateQuaternion(player_->getRotate()));
+        attackCollider_->SetHitColliderPos(colliderPos);
     }
 
     if (currentTimer_ >= actionTime_) {

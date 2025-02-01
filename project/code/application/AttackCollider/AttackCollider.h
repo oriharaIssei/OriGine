@@ -30,4 +30,8 @@ public:
     void ColliderInit(
         const Vec3f& position,
         std::function<void(GameObject*)> onCollision);
+
+    void SetHitColliderPos(const Vec3f& _pos) {
+        hitCollider_->setTranslate(_pos);
+    }
 };
