@@ -30,11 +30,6 @@ void EffectManager::Init() {
     }
 
     CreatePso();
-
-    std::list<std::pair<std::string, std::string>> loadedEmitter = myfs::SearchFile("resource/GlobalVariables/Effects", "json");
-    for (auto& [directory, filename] : loadedEmitter) {
-        effects_[filename] = CreateEffect(filename);
-    }
 }
 
 void EffectManager::Finalize() {
@@ -59,8 +54,14 @@ void EffectManager::PreDraw() {
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-void EffectManager::DrawDebug() {
-    for (auto& [effectName, effect] : effects_) {
+void EffectManager::UpdateEffects(float _deltaTime) {
+    for (auto& effect : effects_) {
+        effect->Update(_deltaTime);
+    }
+}
+
+void EffectManager::Draw() {
+    for (auto& effect : effects_) {
         effect->Draw();
     }
 }
@@ -194,46 +195,7 @@ std::unique_ptr<Effect> EffectManager::CreateEffect(const std::string& name) {
     return result;
 }
 
-#ifdef _DEBUG
-void EffectManager::Edit() {
-    // main window
-    if (ImGui::Begin("EffectManager")) {
-        if (ImGui::Button("Create New Emitter")) {
-            isOpenedCrateWindow_ = true;
-        }
-    }
-    ImGui::End();
-
-    for (auto& [emitterName, effects_] : effects_) {
-        effects_->Debug();
-        effects_->Update(Engine::getInstance()->getDeltaTime());
-    }
-
-    if (isOpenedCrateWindow_) {
-        ImGui::Begin("Create New", &isOpenedCrateWindow_);
-        ImGui::InputText("name", &newInstanceName_[0], sizeof(char) * 64, ImGuiInputTextFlags_CharsNoBlank);
-
-        // 終端文字で切り詰める
-        newInstanceName_ = std::string(newInstanceName_.c_str());
-
-        if (ImGui::Button("Create")) {
-            // 名前が既に存在している場合は登録しない
-            if (effects_.find(newInstanceName_) == effects_.end()) {
-                effects_[newInstanceName_] = CreateEffect(newInstanceName_);
-            }
-            emitterWindowedState_ = false;
-            isOpenedCrateWindow_  = false;
-        }
-
-        ImGui::SameLine();
-        if (ImGui::Button("Cancel")) {
-            // window を閉じる
-            isOpenedCrateWindow_ = false;
-        }
-        ImGui::End();
-    } else {
-        // 作成用文字列の初期化
-        newInstanceName_ = "NULL";
-    }
+void EffectManager::PlayEffect(const std::string& _effectName) {
+    std::unique_ptr<Effect> effect = CreateEffect(_effectName);
+    effects_.push_back(std::move(effect));
 }
-#endif // _DEBUG

@@ -36,10 +36,8 @@ public:
     void Init();
     void Finalize();
     void PreDraw();
-
-    void Edit();
-    void DrawDebug();
-
+    void UpdateEffects(float _deltaTime);
+    void Draw();
     void ChangeBlendMode(BlendMode mode);
 
 private:
@@ -51,7 +49,7 @@ private:
     void CreatePso();
 
 private:
-    int32_t srvNum_ = 64;
+    int32_t srvNum_      = 64;
     int32_t usingSrvNum_ = 0;
     std::shared_ptr<DxSrvArray> dxSrvArray_;
 
@@ -61,13 +59,16 @@ private:
     std::array<PipelineStateObj*, kBlendNum> pso_;
     BlendMode blendMode_ = BlendMode::Normal;
 
-    std::unordered_map<std::string, std::unique_ptr<Effect>> effects_;
+    std::vector<std::unique_ptr<Effect>> effects_;
 
     bool emitterWindowedState_ = false;
 
     // 新しい Emitterを 作成する ための もの
     bool isOpenedCrateWindow_    = false;
     std::string newInstanceName_ = "NULL";
+
 public:
-    std::unique_ptr<Effect> CreateEffect(const std::string& name) ;
+    std::unique_ptr<Effect> CreateEffect(const std::string& name);
+
+    void PlayEffect(const std::string& _effectName);
 };
