@@ -1,0 +1,8 @@
+{
+    "HitEffect": {
+        "Duration": 0.4259999990463257,
+        "IsLoop": false,
+        "ParticleNum": 1,
+        "emitter_0": "HitParticle"
+    }
+}

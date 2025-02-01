@@ -45,6 +45,10 @@ public:
         return drawObject3d_->transform_;
     }
 
+    void setParent(Transform* parent) {
+        drawObject3d_->transform_.parent = parent;
+    }
+
     const Vec3f& getScale() const {
         return drawObject3d_->transform_.scale;
     }

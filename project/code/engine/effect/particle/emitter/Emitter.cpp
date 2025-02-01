@@ -144,7 +144,7 @@ void Emitter::Update(float deltaTime) {
         });
     }
 
-    if (leftActiveTime_ >= 0.0f) {
+    if (leftActiveTime_ >= 0.0f || isLoop_) {
         // Update Spawn
         currentCoolTime_ -= deltaTime;
         if (currentCoolTime_ <= 0.0f) {

@@ -195,7 +195,8 @@ std::unique_ptr<Effect> EffectManager::CreateEffect(const std::string& name) {
     return result;
 }
 
-void EffectManager::PlayEffect(const std::string& _effectName) {
+void EffectManager::PlayEffect(const std::string& _effectName,const Vec3f& _effectPos) {
     std::unique_ptr<Effect> effect = CreateEffect(_effectName);
+    effect->setOrigen(_effectPos);
     effects_.push_back(std::move(effect));
 }

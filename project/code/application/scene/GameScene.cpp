@@ -177,6 +177,8 @@ void GameScene::Update() {
 
     HitEffectManager::getInstance()->Update();
 
+     EffectManager::getInstance()->UpdateEffects(Engine::getInstance()->getDeltaTime());
+
     //UI
     dashUI_->setTranslate(dashUIPos_);
     dashUI_->Update();
@@ -200,4 +202,6 @@ void GameScene::DrawLine() {}
 
 void GameScene::DrawSprite() {}
 
-void GameScene::DrawParticle() {}
+void GameScene::DrawParticle() {
+    EffectManager::getInstance()->Draw();
+}

@@ -1,16 +1,16 @@
 {
-    "HitEffect": {
-        "Sphere_radius": 4.400000095367432,
+    "HitParticle": {
+        "Sphere_radius": 2.5999999046325684,
         "SpherespawnLocationType": 1,
         "activeTime": 0.30000001192092896,
-        "blendMode": 0,
+        "blendMode": 1,
         "isLoop": false,
-        "modelFileName": "sphere.obj",
+        "modelFileName": "hitParticle.obj",
         "particleColor": [
             1.0,
             1.0,
             1.0,
-            1.0
+            0.0
         ],
         "particleIsBillBoard": false,
         "particleLifeTime": 0.4000000059604645,
@@ -26,12 +26,12 @@
         ],
         "particleUvTranslate": [
             0.0,
-            0.0,
+            0.75,
             0.0
         ],
         "shapeType": 0,
-        "spawnCoolTime": 0.30000001192092896,
-        "spawnParticleVal": 5,
+        "spawnCoolTime": 0.10000000149011612,
+        "spawnParticleVal": 1,
         "startParticleRotateMax": [
             0.0,
             0.0,
@@ -43,26 +43,26 @@
             0.0
         ],
         "startParticleScaleMax": [
-            0.4000000059604645,
-            0.4000000059604645,
-            1.7000000476837158
+            0.5,
+            0.5,
+            1.399999976158142
         ],
         "startParticleScaleMin": [
-            0.4000000059604645,
-            0.4000000059604645,
-            0.699999988079071
+            0.20000000298023224,
+            0.20000000298023224,
+            1.0
         ],
         "startParticleVelocityMax": [
             0.0,
             0.0,
-            1.7999999523162842
+            1.0
         ],
         "startParticleVelocityMin": [
             0.0,
             0.0,
-            0.5
+            1.0
         ],
-        "textureFileName": "resource\\Texture/uvChecker.png",
+        "textureFileName": "resource\\Texture/hitParticle.png",
         "updateParticleRotateMax": [
             0.0,
             0.0,
@@ -93,6 +93,6 @@
             0.0,
             0.0
         ],
-        "updateSettings": 2082
+        "updateSettings": 3234
     }
 }

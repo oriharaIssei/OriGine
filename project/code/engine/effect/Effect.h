@@ -55,6 +55,8 @@ private:
     //int32_t usingSrvNum_                  = 0;
     std::shared_ptr<DxSrvArray> srvArray_ = nullptr;
 
+    SerializedField<int32_t> particleNum_ = SerializedField<int32_t>::CreateNull();
+
     bool isActive_                = false;
     SerializedField<bool> isLoop_ = SerializedField<bool>::CreateNull();
 

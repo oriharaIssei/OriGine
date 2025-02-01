@@ -14,6 +14,7 @@
 #include "application/AttackCollider/AttackCollider.h"
 //lib
 #include "myRandom/MyRandom.h"
+#include "effect/manager/EffectManager.h"
 
 PlayerWeakAttackBehavior::PlayerWeakAttackBehavior(Player* _player, int32_t _currentCombo)
     : IPlayerBehavior(_player),
@@ -94,6 +95,13 @@ void PlayerWeakAttackBehavior::Action() {
         player_->setTranslate(player_->getTranslate() + lastDirection_ * (speedInAttack_ * Engine::getInstance()->getDeltaTime()));
     }
 
+    {
+        AttackCollider* attackCollider_ = player_->getAttackCollider();
+        attackCollider_->resetRadius("PlayerWeakAttack" + std::to_string(currentCombo_));
+        Vec3f colliderPos = player_->getTranslate();
+        colliderPos += TransformVector(attackColliderOffset_, MakeMatrix::RotateQuaternion(player_->getRotate()));
+    }
+
     if (currentTimer_ >= actionTime_) {
         // attackColliderを消す
         player_->getAttackCollider()->getHitCollider()->setIsAlive(false);
@@ -128,7 +136,6 @@ void PlayerWeakAttackBehavior::EndLag() {
 void PlayerWeakAttackBehavior::CreateAttackCollider() {
     AttackCollider* attackCollider_ = player_->getAttackCollider();
     attackCollider_->resetRadius("PlayerWeakAttack" + std::to_string(currentCombo_));
-
     Vec3f colliderPos = player_->getTranslate();
     colliderPos += TransformVector(attackColliderOffset_, MakeMatrix::RotateQuaternion(player_->getRotate()));
     attackCollider_->Init();
@@ -163,6 +170,8 @@ void PlayerWeakAttackBehavior::CreateAttackCollider() {
                 HitEffectManager* hitEffectManager = HitEffectManager::getInstance();
                 hitEffectManager->addHitEffect(effectRotate, effectPos);
 
+                EffectManager::getInstance()->PlayEffect("HitEffect", effectPos);
+
                 enemy->HitStop(hitStopScale_, hitStopTime_);
             } else if (object->getID() == "EnemySpawner") {
                 EnemySpawner* enemySpawner = dynamic_cast<EnemySpawner*>(object);
@@ -183,6 +192,7 @@ void PlayerWeakAttackBehavior::CreateAttackCollider() {
                 hitEffectManager->addHitEffect(effectRotate, effectPos);
 
                 enemySpawner->HitStop(hitStopScale_, hitStopTime_);
+                EffectManager::getInstance()->PlayEffect("HitEffect", effectPos);
             }
         });
 }

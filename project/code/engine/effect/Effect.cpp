@@ -33,13 +33,25 @@ Effect::~Effect() {}
 void Effect::Init() {
     isActive_ = true;
 
-    isLoop_   = SerializedField<bool>("Effects", dataName_, "IsLoop");
-    duration_ = SerializedField<float>("Effects", dataName_, "Duration");
+    particleNum_ = SerializedField<int32_t>("Effects", dataName_, "ParticleNum");
+    isLoop_      = SerializedField<bool>("Effects", dataName_, "IsLoop");
+    duration_    = SerializedField<float>("Effects", dataName_, "Duration");
+
+    for (int32_t i = 0; i < particleNum_; i++) {
+        std::string emitterName = GlobalVariables::getInstance()->getValue<std::string>("Effects", dataName_, "emitter_" + std::to_string(i));
+        emitters_.emplace_back(std::make_unique<Emitter>(srvArray_.get(), emitterName, i));
+        emitters_.back()->Init();
+    }
 
     LoadCurve();
 }
 
 void Effect::Update(float _deltaTime) {
+    // 削除
+    std::erase_if(activeEmitters_, [](const auto& emitter) {
+        return emitter->getIsActive() == false;
+    });
+
     if (!isActive_) {
         return;
     }
@@ -52,18 +64,21 @@ void Effect::Update(float _deltaTime) {
             currentTime_ = 0.0f;
             preTime_     = 0.0f;
         } else {
-            isActive_ = false;
-            return;
+            if (activeEmitters_.empty()) {
+                isActive_ = false;
+                return;
+            }
         }
-    }
-
-    for (auto& emitter : particleSchedule_) {
-        if (emitter.time < preTime_) {
-            break;
-        } else if (emitter.time > currentTime_) {
-            break;
+    } else {
+        //spawn
+        for (auto& emitter : particleSchedule_) {
+            if (emitter.time < preTime_) {
+                break;
+            } else if (emitter.time > currentTime_) {
+                break;
+            }
+            activeEmitters_.push_back(emitters_[emitter.value].get());
         }
-        activeEmitters_.push_back(emitters_[emitter.value].get());
     }
 
     for (auto& emitter : activeEmitters_) {
@@ -108,10 +123,13 @@ void Effect::Debug() {
     if (ImGui::BeginChild((windowLabel + "Addable").c_str(), childWindowSize, ImGuiChildFlags_Border)) {
         for (const auto& emitter : emitterLists_) {
             if (ImGui::Button(emitter.second.c_str())) {
-                auto newEmitter = std::make_unique<Emitter>(srvArray_.get(), emitter.second, static_cast<int>(emitters_.size()));
+                int emitterId   = static_cast<int>(emitters_.size());
+                auto newEmitter = std::make_unique<Emitter>(srvArray_.get(), emitter.second, emitterId);
                 newEmitter->Init();
                 emitters_.push_back(std::move(newEmitter));
-                particleSchedule_.emplace_back(0.0f, static_cast<int>(emitters_.size() - 1));
+                particleSchedule_.emplace_back(0.0f, emitterId);
+
+                GlobalVariables::getInstance()->setValue<std::string>("Effects", dataName_, "emitter_" + std::to_string(emitterId), emitter.second);
             }
             if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
                 ImGui::SetDragDropPayload("DND_EFFECT", &emitter, sizeof(emitter));
@@ -168,6 +186,9 @@ void Effect::Debug() {
                         return emitter->getId() == clickedEmitterIndex_;
                     }),
                 emitters_.end());
+
+            GlobalVariables::getInstance()->DestroyValue("Effects", dataName_, "emitter_" + std::to_string(clickedEmitterIndex_));
+
             ImGui::CloseCurrentPopup();
         }
         if (ImGui::Button("No")) {
@@ -234,6 +255,7 @@ void Effect::Debug() {
         }
     }
 
+    particleNum_.setValue(static_cast<int32_t>(emitters_.size()));
     ImGui::End();
 }
 
@@ -268,8 +290,23 @@ void Effect::SaveCurve() {
     // 1. fileを開く
     std::ifstream ifs(filePath, std::ios::binary);
     if (!ifs) {
-        throw std::runtime_error("Failed to open file for reading");
+        // ファイルを作成する
+        std::ofstream ofs(filePath, std::ios::binary);
+        if (!ofs) {
+            // ファイル作成に失敗した場合のエラーハンドリング
+            std::cerr << "Failed to create file: " << filePath << std::endl;
+            return;
+        }
+        ofs.close();
+        // 再度ファイルを開く
+        ifs.open(filePath, std::ios::binary);
+        if (!ifs) {
+            // 再度開くのに失敗した場合のエラーハンドリング
+            std::cerr << "Failed to open file: " << filePath << std::endl;
+            return;
+        }
     }
+
     auto readCurve = [&ifs](auto& curve) {
         size_t size;
         ifs.read(reinterpret_cast<char*>(&size), sizeof(size));
