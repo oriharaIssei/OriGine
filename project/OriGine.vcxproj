@@ -118,7 +118,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="code\application\Enemy\Spawner\EnemySpawner.cpp" />
     <ClCompile Include="code\application\Enemy\WeakEnemy.cpp" />
     <ClCompile Include="code\application\GameObject\GameObject.cpp" />
-    <ClCompile Include="code\application\HitEffectManager\HitEffectManager.cpp" />
     <ClCompile Include="code\application\PlayerHpBar\PlayerHpBar.cpp" />
     <ClCompile Include="code\application\Player\Player.cpp" />
     <ClCompile Include="code\application\Player\PlayerBehaviors\IPlayerBehavior.cpp" />
@@ -213,7 +212,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="code\application\Enemy\Spawner\EnemySpawner.h" />
     <ClInclude Include="code\application\Enemy\WeakEnemy.h" />
     <ClInclude Include="code\application\GameObject\GameObject.h" />
-    <ClInclude Include="code\application\HitEffectManager\HitEffectManager.h" />
     <ClInclude Include="code\application\PlayerHpBar\PlayerHpBar.h" />
     <ClInclude Include="code\application\Player\Player.h" />
     <ClInclude Include="code\application\Player\PlayerBehaviors\IPlayerBehavior.h" />

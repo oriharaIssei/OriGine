@@ -55,6 +55,10 @@ void EffectManager::PreDraw() {
 }
 
 void EffectManager::UpdateEffects(float _deltaTime) {
+    std::erase_if(effects_,[](std::unique_ptr<Effect>& effect){
+        return !effect->getIsActive();
+                  });
+
     for (auto& effect : effects_) {
         effect->Update(_deltaTime);
     }
@@ -197,6 +201,7 @@ std::unique_ptr<Effect> EffectManager::CreateEffect(const std::string& name) {
 
 void EffectManager::PlayEffect(const std::string& _effectName,const Vec3f& _effectPos) {
     std::unique_ptr<Effect> effect = CreateEffect(_effectName);
+    effect->Init();
     effect->setOrigen(_effectPos);
     effects_.push_back(std::move(effect));
 }

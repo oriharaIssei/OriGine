@@ -11,7 +11,7 @@ public:
 	static DxHeap *getInstance();
 
 	static const UINT rtvHeapSize = 4;
-	static const UINT srvHeapSize = 256;
+	static const UINT srvHeapSize = 364;
 	static const UINT dsvHeapSize = 1;
 public:
 	void Init(ID3D12Device *device);

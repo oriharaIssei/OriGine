@@ -68,7 +68,11 @@ private:
     std::vector<std::unique_ptr<Emitter>> emitters_;
     std::vector<Emitter*> activeEmitters_;
 
+    int clickedEmitterIndex_ = -1;
+
 public:
+    bool getIsActive() const { return isActive_; }
+
     const std::string& getDataName() const { return dataName_; }
 
     const Vec3f getOrigen() const { return origen_; }

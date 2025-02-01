@@ -73,11 +73,14 @@ void Effect::Update(float _deltaTime) {
         //spawn
         for (auto& emitter : particleSchedule_) {
             if (emitter.time < preTime_) {
-                break;
-            } else if (emitter.time > currentTime_) {
-                break;
+                continue;
             }
-            activeEmitters_.push_back(emitters_[emitter.value].get());
+            if (emitter.time < currentTime_) {
+                activeEmitters_.push_back(emitters_[emitter.value].get());
+                activeEmitters_.back()->Init();
+                activeEmitters_.back()->setOriginPos(origen_);
+                continue;
+            }
         }
     }
 
@@ -142,7 +145,6 @@ void Effect::Debug() {
 
     ImGui::SameLine();
 
-    int clickedEmitterIndex_ = -1;
     std::string emitterName;
 
     // 現在存在しているEmitterのリストを表示
@@ -173,7 +175,7 @@ void Effect::Debug() {
                 std::remove_if(
                     particleSchedule_.begin(),
                     particleSchedule_.end(),
-                    [clickedEmitterIndex_](const auto& emitter) {
+                    [this](const auto& emitter) {
                         return emitter.value == clickedEmitterIndex_;
                     }),
                 particleSchedule_.end());
@@ -182,7 +184,7 @@ void Effect::Debug() {
                 std::remove_if(
                     emitters_.begin(),
                     emitters_.end(),
-                    [clickedEmitterIndex_](const auto& emitter) {
+                    [this](const auto& emitter) {
                         return emitter->getId() == clickedEmitterIndex_;
                     }),
                 emitters_.end());
@@ -190,9 +192,13 @@ void Effect::Debug() {
             GlobalVariables::getInstance()->DestroyValue("Effects", dataName_, "emitter_" + std::to_string(clickedEmitterIndex_));
 
             ImGui::CloseCurrentPopup();
+
+            clickedEmitterIndex_ = -1;
         }
         if (ImGui::Button("No")) {
             ImGui::CloseCurrentPopup();
+
+            clickedEmitterIndex_ = -1;
         }
         ImGui::EndPopup();
     }
@@ -261,7 +267,33 @@ void Effect::Debug() {
 
 #pragma region "IO"
 void Effect::LoadCurve() {
-    std::string filePath = "resource/GlobalVariables/Effect/" + dataName_ + ".bin";
+
+    std::string filePath = "resource/GlobalVariables/Effects/" + dataName_ + ".bin";
+
+    // 1. fileを開く
+    std::ifstream ifs(filePath, std::ios::binary);
+    if (!ifs) {
+        // ファイル作成に失敗した場合のエラーハンドリング
+        return;
+    }
+
+    auto readCurve = [&ifs](auto& curve) {
+        size_t size;
+        ifs.read(reinterpret_cast<char*>(&size), sizeof(size));
+        curve.resize(size);
+        for (auto& keyframe : curve) {
+            ifs.read(reinterpret_cast<char*>(&keyframe.time), sizeof(keyframe.time));
+            ifs.read(reinterpret_cast<char*>(&keyframe.value), sizeof(keyframe.value));
+        }
+    };
+    // 2 読み込み
+    readCurve(particleSchedule_);
+    //3. fileを閉じる
+    ifs.close();
+}
+
+void Effect::SaveCurve() {
+    std::string filePath = "resource/GlobalVariables/Effects/" + dataName_ + ".bin";
 
     // 1. fileを開く
     std::ofstream ofs(filePath, std::ios::binary);
@@ -282,44 +314,6 @@ void Effect::LoadCurve() {
 
     //3. fileを閉じる
     ofs.close();
-}
-
-void Effect::SaveCurve() {
-    std::string filePath = "resource/GlobalVariables/Effect/" + dataName_ + ".bin";
-
-    // 1. fileを開く
-    std::ifstream ifs(filePath, std::ios::binary);
-    if (!ifs) {
-        // ファイルを作成する
-        std::ofstream ofs(filePath, std::ios::binary);
-        if (!ofs) {
-            // ファイル作成に失敗した場合のエラーハンドリング
-            std::cerr << "Failed to create file: " << filePath << std::endl;
-            return;
-        }
-        ofs.close();
-        // 再度ファイルを開く
-        ifs.open(filePath, std::ios::binary);
-        if (!ifs) {
-            // 再度開くのに失敗した場合のエラーハンドリング
-            std::cerr << "Failed to open file: " << filePath << std::endl;
-            return;
-        }
-    }
-
-    auto readCurve = [&ifs](auto& curve) {
-        size_t size;
-        ifs.read(reinterpret_cast<char*>(&size), sizeof(size));
-        curve.resize(size);
-        for (auto& keyframe : curve) {
-            ifs.read(reinterpret_cast<char*>(&keyframe.time), sizeof(keyframe.time));
-            ifs.read(reinterpret_cast<char*>(&keyframe.value), sizeof(keyframe.value));
-        }
-    };
-    // 2 書き込み
-    readCurve(particleSchedule_);
-    //3. fileを閉じる
-    ifs.close();
 }
 void Effect::Save() {
     // 保存

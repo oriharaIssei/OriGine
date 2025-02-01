@@ -8,7 +8,6 @@
 //module
 #include "../Collision/CollisionManager.h"
 #include "../Enemy/Manager/EnemyManager.h"
-#include "../HitEffectManager/HitEffectManager.h"
 #include "SceneManager.h"
 #include "directX12/DxRtvArrayManager.h"
 #include "directX12/DxSrvArrayManager.h"
@@ -79,8 +78,6 @@ void GameScene::Init() {
 
     skyDome_ = std::make_unique<Object3d>();
     skyDome_->Init("resource/Models", "Skydome.obj");
-
-    HitEffectManager::getInstance()->Init();
 
     //UI
     dashUI_   = std::make_unique<Sprite>();
@@ -175,9 +172,7 @@ void GameScene::Update() {
     //checkCollison & clear
     collisionManager_->Update();
 
-    HitEffectManager::getInstance()->Update();
-
-     EffectManager::getInstance()->UpdateEffects(Engine::getInstance()->getDeltaTime());
+    EffectManager::getInstance()->UpdateEffects(Engine::getInstance()->getDeltaTime());
 
     //UI
     dashUI_->setTranslate(dashUIPos_);

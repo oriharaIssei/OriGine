@@ -3,7 +3,6 @@
 #include "../Player.h"
 //behavior
 #include "PlayerRootBehavior.h"
-#include "application/HitEffectManager/HitEffectManager.h"
 ///Engine
 #include "Engine.h"
 #include "animation/Animation.h"
@@ -156,20 +155,13 @@ void PlayerWeakAttackBehavior::CreateAttackCollider() {
                     return;
                 }
 
-                effectPos = enemy->getTranslate();
-
                 enemy->Damage(player_->getPower() * attackPower_);
                 Vec3f knockBackDirection = enemy->getTranslate() - player_->getTranslate();
                 knockBackDirection[Y]    = 0.0f;
                 enemy->KnockBack(knockBackDirection.normalize(), knockBackPower_);
                 enemy->setInvisibleTime(actionTime_ - currentTimer_);
 
-                Vec2f directionForEffect = Vec2f(player_->getTranslate()[X], player_->getTranslate()[Z]) - Vec2f(effectPos[X], effectPos[Z]).normalize();
-                effectRotate             = Quaternion::RotateAxisAngle({0.0f, 1.0f, 0.0f}, atan2(directionForEffect[X], directionForEffect[Y]));
-
-                HitEffectManager* hitEffectManager = HitEffectManager::getInstance();
-                hitEffectManager->addHitEffect(effectRotate, effectPos);
-
+                effectPos = enemy->getTranslate();
                 EffectManager::getInstance()->PlayEffect("HitEffect", effectPos);
 
                 enemy->HitStop(hitStopScale_, hitStopTime_);
@@ -179,19 +171,14 @@ void PlayerWeakAttackBehavior::CreateAttackCollider() {
                 if (!enemySpawner || enemySpawner->getIsInvisible()) {
                     return;
                 }
-
-                effectPos = object->getTranslate();
-
                 enemySpawner->Damage(player_->getPower() * attackPower_);
                 enemySpawner->setInvisibleTime(actionTime_ - currentTimer_);
 
                 Vec2f directionForEffect = Vec2f(player_->getTranslate()[X], player_->getTranslate()[Z]) - Vec2f(effectPos[X], effectPos[Z]).normalize();
                 effectRotate             = Quaternion::RotateAxisAngle({0.0f, 1.0f, 0.0f}, atan2(directionForEffect[X], directionForEffect[Y]));
 
-                HitEffectManager* hitEffectManager = HitEffectManager::getInstance();
-                hitEffectManager->addHitEffect(effectRotate, effectPos);
-
                 enemySpawner->HitStop(hitStopScale_, hitStopTime_);
+                effectPos = object->getTranslate();
                 EffectManager::getInstance()->PlayEffect("HitEffect", effectPos);
             }
         });

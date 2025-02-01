@@ -131,6 +131,9 @@ private:
     SerializedField<Vec3f> updateParticleVelocityMax_;
 
 public:
+    const Vec3f& getOriginPos() const { return originPos_; }
+    void setOriginPos(const Vec3f& _originPos) { originPos_ = _originPos; }
+
     bool getIsActive() const { return isActive_; };
     const std::string& getDataName() const { return emitterDataName_; }
     int getId() const { return id_; }
