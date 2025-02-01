@@ -144,7 +144,8 @@ void Emitter::Update(float deltaTime) {
         });
     }
 
-    { // Update Spawn
+    if (leftActiveTime_ >= 0.0f) {
+        // Update Spawn
         currentCoolTime_ -= deltaTime;
         if (currentCoolTime_ <= 0.0f) {
             currentCoolTime_ = spawnCoolTime_;
@@ -187,7 +188,7 @@ void Emitter::Debug() {
     ImGui::Spacing();
 
     if (ImGui::Button("reload FileList")) {
-        objectFiles  = MyFileSystem::SearchFile("resource", "obj", false);
+        objectFiles = MyFileSystem::SearchFile("resource", "obj", false);
         objectFiles.splice(objectFiles.end(), MyFileSystem::SearchFile("resource", "gltf", false));
 
         textureFiles = MyFileSystem::SearchFile("resource", "png", false);
