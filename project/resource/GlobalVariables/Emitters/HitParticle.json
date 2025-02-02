@@ -1,6 +1,6 @@
 {
     "HitParticle": {
-        "Sphere_radius": 2.5999999046325684,
+        "Sphere_radius": 4.099999904632568,
         "SpherespawnLocationType": 1,
         "activeTime": 0.30000001192092896,
         "blendMode": 1,
@@ -13,7 +13,7 @@
             0.0
         ],
         "particleIsBillBoard": false,
-        "particleLifeTime": 0.4000000059604645,
+        "particleLifeTime": 0.46000000834465027,
         "particleUvRotate": [
             0.0,
             0.0,
@@ -26,7 +26,7 @@
         ],
         "particleUvTranslate": [
             0.0,
-            0.75,
+            1.0,
             0.0
         ],
         "shapeType": 0,
@@ -43,14 +43,14 @@
             0.0
         ],
         "startParticleScaleMax": [
-            0.5,
-            0.5,
-            1.399999976158142
+            1.0,
+            1.0,
+            4.400000095367432
         ],
         "startParticleScaleMin": [
-            0.20000000298023224,
-            0.20000000298023224,
-            1.0
+            1.0,
+            1.0,
+            2.799999952316284
         ],
         "startParticleVelocityMax": [
             0.0,

@@ -654,7 +654,7 @@ void Emitter::SpawnParticle() {
             startParticleRotateMin_,
             startParticleRotateMax_,
             particleLifeTime_,
-            Vec3f(transform.translate - originPos_).normalize(),
+            Vec3f(transform.translate).normalize(),
             velocity);
 
         if (updateSettings_ & int(ParticleUpdateType::VelocityRandom)) {

@@ -71,4 +71,6 @@ public:
     std::unique_ptr<Effect> CreateEffect(const std::string& name);
 
     void PlayEffect(const std::string& _effectName, const Vec3f& _effectPos);
+
+    void clearEffect();
 };

@@ -205,3 +205,7 @@ void EffectManager::PlayEffect(const std::string& _effectName,const Vec3f& _effe
     effect->setOrigen(_effectPos);
     effects_.push_back(std::move(effect));
 }
+
+void EffectManager::clearEffect() {
+    effects_.clear();
+}

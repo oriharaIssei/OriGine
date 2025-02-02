@@ -41,7 +41,9 @@ GameScene::GameScene()
       attackUIPos_("Game", "UI", "attackUIPos"),
       jumpUIPos_("Game", "UI", "jumpUIPos") {}
 
-GameScene::~GameScene() {}
+GameScene::~GameScene() {
+EffectManager::getInstance()->clearEffect();
+}
 
 void GameScene::Init() {
 #ifdef _DEBUG
