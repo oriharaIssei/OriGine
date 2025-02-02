@@ -52,6 +52,6 @@ void IEnemy::setInvisibleTime(float time) {
 
     for (auto& material :
          drawObject3d_->getModel()->materialData_) {
-        material.material = Engine::getInstance()->getMaterialManager()->Create("Player_Inbisible");
+        material.material = Engine::getInstance()->getMaterialManager()->Create("Enemy_Invisible");
     }
 }

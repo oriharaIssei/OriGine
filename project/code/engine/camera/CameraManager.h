@@ -8,6 +8,9 @@
 #include "module/IModule.h"
 #include "transform/CameraTransform.h"
 
+//camera
+#include "camera/gameCamera/GameCamera.h"
+
 class CameraManager
     : public IModule {
 public:
@@ -25,10 +28,13 @@ private:
 
 private:
     IConstantBuffer<CameraTransform> cTransform_;
-
+    GameCamera* gameCamera_ = nullptr;
 public:
     const CameraTransform& getTransform() const { return cTransform_.openData_; }
     void setTransform(const CameraTransform& transform) { cTransform_.openData_ = transform; }
+
+    GameCamera* getGameCamera() { return gameCamera_; }
+    void setGameCamera(GameCamera* gameCamera) { gameCamera_ = gameCamera; }
 
     void DataConvertToBuffer() {
         cTransform_.ConvertToBuffer();

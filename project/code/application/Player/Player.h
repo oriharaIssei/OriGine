@@ -66,6 +66,9 @@ public:
     float DeltaTime() {
         return deltaTime_->getDeltaTime();
     }
+    void HitStop(float _timeScale, float _timeScalingTime) {
+        deltaTime_->HitStop(_timeScale, _timeScalingTime);
+    }
 
     void resetEffectAnimationObject() {
         effectAnimationObject_.reset();

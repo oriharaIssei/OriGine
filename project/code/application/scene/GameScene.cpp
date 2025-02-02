@@ -53,13 +53,13 @@ void GameScene::Init() {
     debugCamera_->setViewTranslate({0.0f, 0.0f, -12.0f});
 
 #endif // _DEBUG
-    ModelManager* modelManager = ModelManager::getInstance();
-
+    
     //input
     input_ = Input::getInstance();
     //camera
     gameCamera_ = std::make_unique<GameCamera>();
     gameCamera_->Init();
+    CameraManager::getInstance()->setGameCamera(gameCamera_.get());
 
     activeGameObjects_.reserve(128);
 

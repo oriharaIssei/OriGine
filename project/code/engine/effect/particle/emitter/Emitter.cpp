@@ -554,7 +554,7 @@ void Emitter::Draw() {
         for (size_t i = 0; i < particles_.size(); i++) {
             scaleMat = MakeMatrix::Scale(structuredTransform_.openData_[i].scale);
             // 平行移動行列を計算
-            Matrix4x4 translateMat = MakeMatrix::Translate(structuredTransform_.openData_[i].translate + originPos_);
+            Matrix4x4 translateMat = MakeMatrix::Translate(structuredTransform_.openData_[i].translate);
             // ワールド行列を構築
             structuredTransform_.openData_[i].worldMat = scaleMat * rotateMat * translateMat;
         }
@@ -564,7 +564,7 @@ void Emitter::Draw() {
             scaleMat  = MakeMatrix::Scale(structuredTransform_.openData_[i].scale);
             rotateMat = MakeMatrix::RotateXYZ(structuredTransform_.openData_[i].rotate);
             // 平行移動行列を計算
-            Matrix4x4 translateMat = MakeMatrix::Translate(structuredTransform_.openData_[i].translate + originPos_);
+            Matrix4x4 translateMat = MakeMatrix::Translate(structuredTransform_.openData_[i].translate);
 
             // ワールド行列を構築
             structuredTransform_.openData_[i].worldMat = scaleMat * rotateMat * translateMat;
@@ -637,7 +637,7 @@ void Emitter::SpawnParticle() {
         randY.setRange(startParticleRotateMin_->v[Y], startParticleRotateMax_->v[Y]);
         randZ.setRange(startParticleRotateMin_->v[Z], startParticleRotateMax_->v[Z]);
         transform.rotate    = {randX.get(), randY.get(), randZ.get()};
-        transform.translate = emitterSpawnShape_->getSpawnPos();
+        transform.translate = emitterSpawnShape_->getSpawnPos() + originPos_;
 
         transform.uvScale     = particleUvScale_;
         transform.uvRotate    = particleUvRotate_;
@@ -654,7 +654,7 @@ void Emitter::SpawnParticle() {
             startParticleRotateMin_,
             startParticleRotateMax_,
             particleLifeTime_,
-            Vec3f(transform.translate).normalize(),
+            Vec3f(transform.translate - originPos_).normalize(),
             velocity);
 
         if (updateSettings_ & int(ParticleUpdateType::VelocityRandom)) {

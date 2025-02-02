@@ -35,10 +35,19 @@ void GameCamera::Update() {
         cameraTransform_.rotate[Y] = std::lerp(cameraTransform_.rotate[Y], destinationAngleXY_[Y], rotateSensitivity_);
 
         Vec3f offset = OffstVector();
-        interTarget_   = Lerp(followTarget_->translate, interTarget_, rotateSensitivity_);
+        interTarget_ = Lerp(followTarget_->translate, interTarget_, rotateSensitivity_);
 
         cameraTransform_.translate = offset + interTarget_;
     }
+
+    if (shakePower_ * shakePower_ >= 0.000000001f) {
+        Vec2f shake = shakeDirection_ * shakePower_;
+        cameraTransform_.translate[X] += shake[X];
+        cameraTransform_.translate[Y] += shake[Y];
+        shakeDirection_ *= -1.0f;
+        shakePower_ *= shakeDecay_;
+    }
+
     cameraTransform_.UpdateMatrix();
 }
 

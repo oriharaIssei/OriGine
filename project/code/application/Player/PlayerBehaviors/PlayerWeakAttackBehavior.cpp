@@ -12,6 +12,7 @@
 ///Collider
 #include "application/AttackCollider/AttackCollider.h"
 //lib
+#include "camera/CameraManager.h"
 #include "effect/manager/EffectManager.h"
 #include "myRandom/MyRandom.h"
 
@@ -154,32 +155,50 @@ void PlayerWeakAttackBehavior::CreateAttackCollider() {
                 if (!enemy || enemy->getIsInvisible()) {
                     return;
                 }
-
+                // ダメージ処理
                 enemy->Damage(player_->getPower() * attackPower_);
+                enemy->setInvisibleTime(actionTime_ - currentTimer_);
+                // ノックバック処理
                 Vec3f knockBackDirection = enemy->getTranslate() - player_->getTranslate();
                 knockBackDirection[Y]    = 0.0f;
                 enemy->KnockBack(knockBackDirection.normalize(), knockBackPower_);
-                enemy->setInvisibleTime(actionTime_ - currentTimer_);
 
+                //effect
                 effectPos = enemy->getTranslate();
                 EffectManager::getInstance()->PlayEffect("HitEffect", effectPos);
 
+                // hitstop
                 enemy->HitStop(hitStopScale_, hitStopTime_);
+                player_->HitStop(hitStopScale_, hitStopTime_ * 0.5f);
+
+                // cameraShake
+                GameCamera* gameCamera = CameraManager::getInstance()->getGameCamera();
+                if (gameCamera) {
+                    gameCamera->Shake(attackPower_ * 2.f);
+                }
             } else if (object->getID() == "EnemySpawner") {
                 EnemySpawner* enemySpawner = dynamic_cast<EnemySpawner*>(object);
 
                 if (!enemySpawner || enemySpawner->getIsInvisible()) {
                     return;
                 }
+                // ダメージ処理
                 enemySpawner->Damage(player_->getPower() * attackPower_);
                 enemySpawner->setInvisibleTime(actionTime_ - currentTimer_);
 
-                Vec2f directionForEffect = Vec2f(player_->getTranslate()[X], player_->getTranslate()[Z]) - Vec2f(effectPos[X], effectPos[Z]).normalize();
-                effectRotate             = Quaternion::RotateAxisAngle({0.0f, 1.0f, 0.0f}, atan2(directionForEffect[X], directionForEffect[Y]));
-
-                enemySpawner->HitStop(hitStopScale_, hitStopTime_);
-                effectPos = object->getTranslate();
+                //effect
+                effectPos = enemySpawner->getTranslate();
                 EffectManager::getInstance()->PlayEffect("HitEffect", effectPos);
+
+                // hitstop
+                enemySpawner->HitStop(hitStopScale_, hitStopTime_);
+                player_->HitStop(hitStopScale_, hitStopTime_ * 0.5f);
+
+                // cameraShake
+                GameCamera* gameCamera = CameraManager::getInstance()->getGameCamera();
+                if (gameCamera) {
+                    gameCamera->Shake(attackPower_ * 2.f);
+                }
             }
         });
 }
