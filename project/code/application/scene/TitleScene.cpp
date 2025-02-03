@@ -22,7 +22,7 @@ void TitleScene::Init() {
     title_->setTranslate(Vec2f(1280.0f * 0.5f, 720.0f * 0.3f));
 
     pushA_ = std::make_unique<Sprite>();
-    pushA_->Init("resource/Texture/TestText.png");
+    pushA_->Init("resource/Texture/pushA.png");
     pushA_->setAnchorPoint(Vec2f(0.5f, 0.5f));
     pushA_->setTranslate(Vec2f(1280.0f * 0.5f, 720.0f * 0.7f));
 }

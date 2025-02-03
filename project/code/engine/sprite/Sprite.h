@@ -12,9 +12,6 @@ struct SpriteVertexData {
     Vec2f texcoord;
 };
 struct SpritConstBuffer {
-    Vec4f color_;
-    Matrix4x4 mat_;
-    Matrix4x4 uvMat_;
     Vec4f color;
     Matrix4x4 mat;
     Matrix4x4 uvMat;

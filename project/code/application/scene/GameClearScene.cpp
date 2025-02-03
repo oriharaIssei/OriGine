@@ -23,14 +23,14 @@ void GameClearScene::Init() {
     text_->setTranslate(Vec2f(1280.0f * 0.5f, 720.0f * 0.3f));
 
     pushA_ = std::make_unique<Sprite>();
-    pushA_->Init("resource/Texture/PushA.png");
+    pushA_->Init("resource/Texture/pushA.png");
     pushA_->setAnchorPoint(Vec2f(0.5f, 0.5f));
     pushA_->setTranslate(Vec2f(1280.0f * 0.5f, 720.0f * 0.7f));
 }
 
 void GameClearScene::Update() {
-    time_ = std::fmod(time_, 3.1415f);
     time_ += Engine::getInstance()->getDeltaTime(); // 時間を進める
+    time_ = std::fmod(time_, 3.1415f);
 
     pushA_->setColor(Vec4f(1.0f, 1.0f, 1.0f, sinf(time_)));
 
@@ -42,10 +42,6 @@ void GameClearScene::Update() {
     }
     text_->Update();
     pushA_->Update();
-
-    if (input_->isTriggerButton(XINPUT_GAMEPAD_A)) {
-        SceneManager::getInstance()->changeScene("Title");
-    }
 }
 
 void GameClearScene::Draw3d() {}
