@@ -45,7 +45,7 @@ private:
     void DrawThis();
 
 private:
-    std::unique_ptr<Model> data_;
+    std::shared_ptr<Model> data_;
 
     std::array<std::function<void()>, 2> drawFuncTable_ = {
         [this]() {

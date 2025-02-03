@@ -99,11 +99,15 @@ void Engine::Init() {
     lightManager_->Init();
 
     PrimitiveDrawer::Init();
-    ModelManager::getInstance()->Init();
-    SpriteCommon::getInstance()->Init();
-    RenderTexture::Awake();
 
     materialManager_ = std::make_unique<MaterialManager>();
+
+    ModelManager::getInstance()->Init();
+    // Model の初期読み込み
+    ModelManager::getInstance()->StartUpLoad();
+
+    SpriteCommon::getInstance()->Init();
+    RenderTexture::Awake();
 
     EffectManager* EffectManager = EffectManager::getInstance();
     EffectManager->Init();
@@ -122,7 +126,6 @@ void Engine::Init() {
     std::unique_ptr<MaterialEditor> materialEditor = std::make_unique<MaterialEditor>(materialManager_.get());
     editor_->addEditor("MaterialEditor", std::move(materialEditor));
 #endif // _DEBUG
-
 }
 
 void Engine::Finalize() {

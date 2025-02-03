@@ -29,6 +29,7 @@ void EffectEditor::Init() {
     }
 }
 
+#ifdef _DEBUG
 void EffectEditor::Update() {
     // main window
     if (ImGui::Begin("EffectEditor", nullptr, ImGuiWindowFlags_MenuBar)) {
@@ -78,16 +79,6 @@ void EffectEditor::Update() {
     }
 }
 
-void EffectEditor::Draw() {
-    if (currentEditEffect_) {
-        currentEditEffect_->Draw();
-    }
-}
-
-void EffectEditor::Finalize() {
-    effects_.clear();
-}
-
 void EffectEditor::MenuBarUpdate() {
     if (ImGui::BeginMenuBar()) {
         if (ImGui::BeginMenu("File")) {
@@ -127,4 +118,15 @@ void EffectEditor::MenuBarUpdate() {
         }
         ImGui::EndMenuBar();
     }
+}
+#endif // _DEBUG
+
+void EffectEditor::Draw() {
+    if (currentEditEffect_) {
+        currentEditEffect_->Draw();
+    }
+}
+
+void EffectEditor::Finalize() {
+    effects_.clear();
 }

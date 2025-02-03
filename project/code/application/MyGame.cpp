@@ -11,44 +11,47 @@
 #include "scene/GameScene.h"
 #include "scene/TitleScene.h"
 
-MyGame::MyGame(){}
+MyGame::MyGame() {}
 
-MyGame::~MyGame(){}
+MyGame::~MyGame() {}
 
-void MyGame::Init(){
-	engine_ = Engine::getInstance();
+void MyGame::Init() {
+    engine_ = Engine::getInstance();
 
-	variables_ = GlobalVariables::getInstance();
-	sceneManager_ = SceneManager::getInstance();
+    variables_    = GlobalVariables::getInstance();
+    sceneManager_ = SceneManager::getInstance();
 
-	variables_->LoadAllFile();
-	engine_->Init();
-	sceneManager_->Init();
+    variables_->LoadAllFile();
+    engine_->Init();
+    sceneManager_->Init();
 
     //exe 上で 使用するscene
     sceneManager_->addScene("TitleScene", std::make_unique<TitleScene>());
-    sceneManager_->addScene("GameScene",std::make_unique<GameScene>());
+    sceneManager_->addScene("GameScene", std::make_unique<GameScene>());
     sceneManager_->addScene("GameClearScene", std::make_unique<GameClearScene>());
 
+#ifdef _DEBUG
     sceneManager_->addScene("AnimationEditScene", std::make_unique<AnimationEditScene>());
     sceneManager_->addScene("EffectEditScene", std::make_unique<EffectEditScene>());
+#endif // _DEBUG
+
     sceneManager_->changeScene("TitleScene");
 }
 
-void MyGame::Finalize(){
-	sceneManager_->Finalize();
-	engine_->Finalize();
+void MyGame::Finalize() {
+    sceneManager_->Finalize();
+    engine_->Finalize();
 }
 
-void MyGame::Run(){
-	while(!engine_->ProcessMessage()){
-		engine_->BeginFrame();
+void MyGame::Run() {
+    while (!engine_->ProcessMessage()) {
+        engine_->BeginFrame();
 
-		variables_->Update();
+        variables_->Update();
 
-		sceneManager_->Update();
-		sceneManager_->Draw();
+        sceneManager_->Update();
+        sceneManager_->Draw();
 
-		engine_->EndFrame();
-	}
+        engine_->EndFrame();
+    }
 }

@@ -23,9 +23,7 @@ public:
 
     void CreateBuffer(ID3D12Device* device, DxSrvArray* srvArray, uint32_t elementCount);
     void Finalize() {
-        if (srvArray_) {
-            srvArray_->DestroyView(srvIndex_);
-        }
+        srvArray_->DestroyView(srvIndex_);
         buff_.Finalize();
     }
     // 公開用変数（バッファのデータを保持）
@@ -48,7 +46,7 @@ public:
     void resize(ID3D12Device* device, uint32_t newElementCount);
     void resizeForDataSize(ID3D12Device* device);
     size_t size() const { return openData_.size(); }
-    size_t capacity() const { return elementCount_; }
+    uint32_t capacity() const { return elementCount_; }
 
     const DxResource& getResource() { return buff_; }
 };

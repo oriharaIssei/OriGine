@@ -75,7 +75,7 @@ private:
     /// <summary>
     /// 頂点とMaterial を 併せ持つ
     /// </summary>
-    std::unique_ptr<Model> particleModel_;
+    std::shared_ptr<Model> particleModel_;
     IStructuredBuffer<ParticleTransform> structuredTransform_;
     //=============== 見た目項目 ===============/
     SerializedField<std::string> modelFileName_;

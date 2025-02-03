@@ -15,6 +15,7 @@
 #include "particle/emitter/Emitter.h"
 //lib
 #include "animationEditor/Timeline.h"
+#include "effect/manager/EffectManager.h"
 #include "myFileSystem/MyFileSystem.h"
 //external
 #include "imgui/imgui.h"
@@ -25,22 +26,21 @@ static std::list<std::pair<std::string, std::string>> LoadEmitters() {
 
 static std::list<std::pair<std::string, std::string>> emitterLists_ = LoadEmitters();
 
-Effect::Effect(std::shared_ptr<DxSrvArray> _srvArray, const std::string& _name)
-    : dataName_(_name), srvArray_(_srvArray) {}
+Effect::Effect(const std::string& _name, std::shared_ptr<DxSrvArray> _srvArray)
+    : dataName_(_name), srvArray_(_srvArray) {
+    particleNum_ = SerializedField<int32_t>("Effects", dataName_, "ParticleNum");
+    isLoop_      = SerializedField<bool>("Effects", dataName_, "IsLoop");
+    duration_    = SerializedField<float>("Effects", dataName_, "Duration");
+}
 
 Effect::~Effect() {}
 
 void Effect::Init() {
     isActive_ = true;
 
-    particleNum_ = SerializedField<int32_t>("Effects", dataName_, "ParticleNum");
-    isLoop_      = SerializedField<bool>("Effects", dataName_, "IsLoop");
-    duration_    = SerializedField<float>("Effects", dataName_, "Duration");
-
     for (int32_t i = 0; i < particleNum_; i++) {
         std::string emitterName = GlobalVariables::getInstance()->getValue<std::string>("Effects", dataName_, "emitter_" + std::to_string(i));
         emitters_.emplace_back(std::make_unique<Emitter>(srvArray_.get(), emitterName, i));
-        emitters_.back()->Init();
     }
 
     LoadCurve();
@@ -105,6 +105,7 @@ void Effect::Finalize() {
     }
 }
 
+#ifdef _DEBUG
 void Effect::Debug() {
     ImGui::Text("Name");
     std::string preName = dataName_;
@@ -264,6 +265,7 @@ void Effect::Debug() {
     particleNum_.setValue(static_cast<int32_t>(emitters_.size()));
     ImGui::End();
 }
+#endif // _DEBUG
 
 #pragma region "IO"
 void Effect::LoadCurve() {

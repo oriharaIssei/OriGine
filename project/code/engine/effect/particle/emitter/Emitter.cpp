@@ -76,7 +76,7 @@ static std::list<std::pair<std::string, std::string>> textureFiles = MyFileSyste
 void Emitter::Init() {
     { // Initialize DrawingData Size
         CalculateMaxSize();
-        structuredTransform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice(), srvArray_, particleMaxSize_);
+       structuredTransform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice(), srvArray_, particleMaxSize_);
         particles_.reserve(particleMaxSize_);
     }
 
@@ -155,7 +155,12 @@ void Emitter::Update(float deltaTime) {
 
     { // push Drawing InstanceData
         structuredTransform_.openData_.clear();
-        for (auto& particle : particles_) {
+        int loopNum = (std::min)((int)structuredTransform_.capacity(), (int)particles_.size());
+        for (int i = 0; i < loopNum; ++i) {
+            auto& particle = particles_[i];
+            if (!particle) {
+                break;
+            }
             structuredTransform_.openData_.push_back(particle->getTransform());
         }
     }
@@ -531,6 +536,10 @@ void Emitter::Draw() {
         return;
     }
 
+    if (structuredTransform_.openData_.empty()) {
+        return;
+    }
+
     EffectManager::getInstance()->ChangeBlendMode(static_cast<BlendMode>(blendMode_.operator int()));
 
     const Matrix4x4& viewMat = CameraManager::getInstance()->getTransform().viewMat;
@@ -606,6 +615,8 @@ void Emitter::CalculateMaxSize() {
 
     // 最大個数
     particleMaxSize_ = (std::max<uint32_t>)(static_cast<uint32_t>(std::ceil(spawnRatePerSecond * particleLifeTime_)), spawnParticleVal_);
+    // バッファサイズを適切に設定
+    particleMaxSize_ = static_cast<uint32_t>((float)particleMaxSize_ * 1.5f);
 }
 
 void Emitter::SpawnParticle() {

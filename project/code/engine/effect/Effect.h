@@ -26,7 +26,7 @@ class Effect {
     friend class EffectEditor;
 
 public:
-    Effect(std::shared_ptr<DxSrvArray> _srvArray, const std::string& _name);
+    Effect(const std::string& _name, std::shared_ptr<DxSrvArray> _srvArray);
     ~Effect();
 
     void Init();
@@ -34,8 +34,9 @@ public:
     void Draw();
     void Finalize();
 
+#ifdef _DEBUG
     void Debug();
-
+#endif // _DEBUG
 private:
     void LoadCurve();
     void SaveCurve();
@@ -78,5 +79,5 @@ public:
     const Vec3f getOrigen() const { return origen_; }
     void setOrigen(const Vec3f& _origen) { origen_ = _origen; }
 
-    int32_t getUsingSrvNum() const { return static_cast<int32_t>(emitters_.size()); }
+    int32_t getUsingSrvNum() const { return particleNum_; }
 };

@@ -10,9 +10,9 @@
 
 ///microsoft
 //dx12
-#include "d3d12.h"
 #include "DirectXTex/DirectXTex.h"
 #include "DirectXTex/d3dx12.h"
+#include "d3d12.h"
 
 ///engine
 #include "Engine.h"
@@ -211,6 +211,8 @@ uint32_t TextureManager::LoadTexture(const std::string& filePath, std::function<
             return index;
         }
     }
+
+    std::cout << "Loading texture: " << filePath << " at index: " << index << std::endl; // デバッグ情報を追加
 
     loadThread_->pushTask(
         {.filePath     = filePath,

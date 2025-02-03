@@ -2,6 +2,7 @@
 
 #include <concepts>
 #include <functional>
+#include <iostream>
 #include <mutex>
 #include <queue>
 #include <stdint.h>

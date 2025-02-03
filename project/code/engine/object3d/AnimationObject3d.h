@@ -53,13 +53,13 @@ private:
             DrawThis();
         }};
 
-    std::unique_ptr<Model> model_;
+    std::shared_ptr<Model> model_;
     std::string currentAnimationName_;
     std::unique_ptr<Animation> animation_;
 public:
     const Model* getModel() const;
     Model* getModel();
-    void setModel(std::unique_ptr<Model> model);
+    void setModel(std::shared_ptr<Model> model);
     void setModel(const std::string& directory, const std::string& filename);
 
     const Animation* getAnimation() const;

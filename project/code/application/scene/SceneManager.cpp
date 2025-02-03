@@ -34,6 +34,8 @@ void SceneManager::Finalize() {
 }
 
 void SceneManager::Update() {
+    EffectManager::getInstance()->UpdateEffects(Engine::getInstance()->getDeltaTime());
+
     currentScene_->Update();
 
     CameraManager::getInstance()->DataConvertToBuffer();

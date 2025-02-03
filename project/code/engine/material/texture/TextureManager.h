@@ -63,12 +63,13 @@ public:
         std::function<void(uint32_t)> callBack;
         void Update();
     };
+
 private:
     static std::shared_ptr<DxSrvArray> dxSrvArray_;
     static std::array<std::unique_ptr<Texture>, maxTextureSize_> textures_;
 
     static std::unique_ptr<TaskThread<TextureManager::LoadTask>> loadThread_;
-    
+
     // バックグラウンドスレッド用
     static std::unique_ptr<DxCommand> dxCommand_;
 

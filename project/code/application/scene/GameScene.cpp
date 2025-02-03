@@ -133,10 +133,12 @@ void GameScene::Update() {
         }
     } else {
         // playerが死んだらタイトルに戻る
+        EffectManager::getInstance()->clearEffect();
         SceneManager::getInstance()->changeScene("TitleScene");
         return;
     }
     if (enemyManager_->getSpawners().empty()) {
+        EffectManager::getInstance()->clearEffect();
         // クリア
         SceneManager::getInstance()->changeScene("GameClearScene");
         return;
@@ -174,8 +176,6 @@ void GameScene::Update() {
     //checkCollison & clear
     collisionManager_->Update();
 
-    EffectManager::getInstance()->UpdateEffects(Engine::getInstance()->getDeltaTime());
-
     //UI
     dashUI_->setTranslate(dashUIPos_);
     dashUI_->Update();
@@ -197,7 +197,12 @@ void GameScene::Draw3d() {
 
 void GameScene::DrawLine() {}
 
-void GameScene::DrawSprite() {}
+void GameScene::DrawSprite() {
+    dashUI_->Draw();
+    attackUI_->Draw();
+    jumpUI_->Draw();
+    playerHpBar_->Draw();
+}
 
 void GameScene::DrawParticle() {
     EffectManager::getInstance()->Draw();

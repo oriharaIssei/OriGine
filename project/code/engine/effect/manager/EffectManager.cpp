@@ -40,6 +40,9 @@ void EffectManager::Finalize() {
         dxSrvArray_->Finalize();
     }
 
+    for (auto& effect : effects_) {
+        effect->Finalize();
+    }
     effects_.clear();
 }
 
@@ -55,11 +58,17 @@ void EffectManager::PreDraw() {
 }
 
 void EffectManager::UpdateEffects(float _deltaTime) {
-    std::erase_if(effects_,[](std::unique_ptr<Effect>& effect){
-        return !effect->getIsActive();
-                  });
+    usingSrvNum_ = 0;
+    std::erase_if(effects_, [](std::unique_ptr<Effect>& effect) {
+        bool result = !effect->getIsActive();
+        if (result) {
+            effect->Finalize();
+        }
+        return result;
+    });
 
     for (auto& effect : effects_) {
+        usingSrvNum_ += effect->getUsingSrvNum();
         effect->Update(_deltaTime);
     }
 }
@@ -188,20 +197,23 @@ void EffectManager::CreatePso() {
 }
 
 std::unique_ptr<Effect> EffectManager::CreateEffect(const std::string& name) {
-    std::unique_ptr<Effect> result = std::make_unique<Effect>(this->dxSrvArray_, name);
-    result->Init();
-    usingSrvNum_ -= result->getUsingSrvNum();
-    if (srvNum_ < usingSrvNum_) {
-        // 未対応
-        //dxSrvArray_->resize(srvNum_);
+    std::unique_ptr<Effect> result = std::make_unique<Effect>(name, this->dxSrvArray_);
+    
+    if (srvNum_ < usingSrvNum_ + result->getUsingSrvNum()) {
+        return nullptr;
     }
+
+    usingSrvNum_ += result->getUsingSrvNum();
+    result->Init();
 
     return result;
 }
 
-void EffectManager::PlayEffect(const std::string& _effectName,const Vec3f& _effectPos) {
+void EffectManager::PlayEffect(const std::string& _effectName, const Vec3f& _effectPos) {
     std::unique_ptr<Effect> effect = CreateEffect(_effectName);
-    effect->Init();
+    if (!effect) {
+        return;
+    }
     effect->setOrigen(_effectPos);
     effects_.push_back(std::move(effect));
 }

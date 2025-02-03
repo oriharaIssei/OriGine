@@ -18,6 +18,10 @@ const std::string emittersDirectory = "resource/GlobalVariables/Emitters";
 
 static std::list<std::pair<std::string, std::string>> emitterFiles = myfs::SearchFile(emittersDirectory, "json");
 
+ParticleEditor::ParticleEditor() {}
+
+ParticleEditor::~ParticleEditor() {}
+
 void ParticleEditor::Init() {
     dxCommand_ = std::make_unique<DxCommand>();
     dxCommand_->Init(Engine::getInstance()->getDxDevice()->getDevice(), "main", "main");
@@ -30,6 +34,17 @@ void ParticleEditor::Init() {
     }
 }
 
+void ParticleEditor::Finalize() {
+    if (dxCommand_) {
+        dxCommand_->Finalize();
+    }
+    if (dxSrvArray_) {
+        dxSrvArray_->Finalize();
+    }
+    emitters_.clear();
+}
+
+#ifdef _DEBUG
 void ParticleEditor::Update() {
     // main window
     if (ImGui::Begin("ParticleEditor", nullptr, ImGuiWindowFlags_MenuBar)) {
@@ -80,25 +95,7 @@ void ParticleEditor::Update() {
     }
 }
 
-void ParticleEditor::Draw() {
-    if (currentEditEmitter_) {
-        currentEditEmitter_->Draw();
-    }
-}
 
-void ParticleEditor::Finalize() {
-    if (dxCommand_) {
-        dxCommand_->Finalize();
-    }
-    if (dxSrvArray_) {
-        dxSrvArray_->Finalize();
-    }
-    emitters_.clear();
-}
-
-ParticleEditor::ParticleEditor() {}
-
-ParticleEditor::~ParticleEditor() {}
 
 void ParticleEditor::MenuBarUpdate() {
     if (ImGui::BeginMenuBar()) {
@@ -136,5 +133,12 @@ void ParticleEditor::MenuBarUpdate() {
             ImGui::EndMenu();
         }
         ImGui::EndMenuBar();
+    }
+}
+#endif // _DEBUG
+
+void ParticleEditor::Draw() {
+    if (currentEditEmitter_) {
+        currentEditEmitter_->Draw();
     }
 }

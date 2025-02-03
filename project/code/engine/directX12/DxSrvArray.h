@@ -40,5 +40,10 @@ public:
 	ID3D12Resource *getSrv(uint32_t index)const{ return resources_[index].Get(); }
 	Microsoft::WRL::ComPtr<ID3D12Resource> getSrvComPtr(uint32_t index)const{ return resources_[index]; }
 
-	uint32_t getLocationOnHeap(uint32_t index)const{ return index + arrayStartLocation_; }
+	uint32_t getLocationOnHeap(uint32_t index)const{
+        if (size_ <= index) {
+            assert(false);
+            return 0;
+        }
+        return index + arrayStartLocation_; }
 };

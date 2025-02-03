@@ -134,7 +134,7 @@ Model* AnimationObject3d::getModel() {
     return model_.get();
 }
 
-void AnimationObject3d::setModel(std::unique_ptr<Model> model) {
+void AnimationObject3d::setModel(std::shared_ptr<Model> model) {
     model_ = std::move(model);
 }
 void AnimationObject3d::setModel(const std::string& directory, const std::string& filename) {

@@ -218,11 +218,11 @@ ModelManager* ModelManager::getInstance() {
     return &instance;
 }
 
-std::unique_ptr<Model> ModelManager::Create(
+std::shared_ptr<Model> ModelManager::Create(
     const std::string& directoryPath,
     const std::string& filename,
     std::function<void(Model*)> callBack) {
-    std::unique_ptr<Model> result = std::make_unique<Model>();
+    std::shared_ptr<Model> result = std::make_shared<Model>();
 
     std::string filePath = directoryPath + "/" + filename;
 
@@ -260,7 +260,7 @@ std::unique_ptr<Model> ModelManager::Create(
     loadThread_->pushTask(
         {.directory = directoryPath,
          .fileName  = filename,
-         .model     = result.get(),
+         .model     = result,
          .callBack  = callBack});
 
     return result;
@@ -289,6 +289,32 @@ void ModelManager::Init() {
     for (auto& texShaderKey : Engine::getInstance()->getTexturePsoKeys()) {
         texturePso_[index] = ShaderManager::getInstance()->getPipelineStateObj(texShaderKey);
         index++;
+    }
+}
+
+void ModelManager::StartUpLoad() {
+    /// モデルデータを読み込む
+    std::vector<std::pair<std::string, std::string>> filePaths = {
+        {"resource/Models", "BattleField.obj"},
+        {"resource/Models", "Skydome.obj"},
+        {"resource/Models", "Player.obj"},
+        {"resource/Models", "Enemy.obj"}};
+    std::vector<std::shared_ptr<Model>> results;
+
+    std::string filePath;
+    for (const auto& [directory, filename] : filePaths) {
+        filePath = directory + "/" + filename;
+
+        auto& result = results.emplace_back(std::make_shared<Model>());
+
+        modelLibrary_[filePath] = std::make_unique<ModelMeshData>();
+
+        result->meshData_ = modelLibrary_[filePath].get();
+        loadThread_->pushTask(
+            {.directory = directory,
+             .fileName  = filename,
+             .model     = result,
+             .callBack  = nullptr});
     }
 }
 
@@ -332,7 +358,7 @@ void ModelManager::LoadTask::Update() {
     }
 
     if (callBack != nullptr) {
-        callBack(model);
+        callBack(model.get());
     }
 
     model->meshData_->currentState_ = LoadState::Loaded;

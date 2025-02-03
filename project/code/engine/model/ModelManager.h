@@ -38,12 +38,15 @@ class ModelManager {
 public:
     static ModelManager* getInstance();
 
-    std::unique_ptr<Model> Create(
+    std::shared_ptr<Model> Create(
         const std::string& directoryPath,
         const std::string& filename,
         std::function<void(Model*)> callBack = nullptr);
 
     void Init();
+
+    void StartUpLoad();
+
     void Finalize();
 
 private:
@@ -55,7 +58,7 @@ private:
     struct LoadTask {
         std::string directory;
         std::string fileName;
-        Model* model = nullptr;
+        std::shared_ptr<Model> model = nullptr;
 
         std::function<void(Model*)> callBack = nullptr;
         void Update();
