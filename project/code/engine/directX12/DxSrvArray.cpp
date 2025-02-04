@@ -13,7 +13,6 @@ void DxSrvArray::Finalize() {
 }
 
 uint32_t DxSrvArray::CreateView(ID3D12Device* device, D3D12_SHADER_RESOURCE_VIEW_DESC& viewDesc, ID3D12Resource* resource) {
-    DxHeap* dxHeap = DxHeap::getInstance();
 
     uint32_t index = 0;
     for (; index < resources_.size(); index++) {
@@ -27,12 +26,39 @@ uint32_t DxSrvArray::CreateView(ID3D12Device* device, D3D12_SHADER_RESOURCE_VIEW
         return index + 1;
     }
 
-    device->CreateShaderResourceView(resource, &viewDesc, dxHeap->getSrvCpuHandle(arrayStartLocation_ + index));
-    resources_[index] = resource;
+    { // Create View
+        DxHeap* dxHeap = DxHeap::getInstance();
+        device->CreateShaderResourceView(resource, &viewDesc, dxHeap->getSrvCpuHandle(arrayStartLocation_ + index));
+        resources_[index] = resource;
+    }
 
     std::cout << "Created SRV at index: " << index << " for resource: " << resource << std::endl; // デバッグ情報を追加
 
     return index;
+}
+
+uint32_t DxSrvArray::preCreateView() {
+    uint32_t index = 0;
+    for (; index < resources_.size(); index++) {
+        if (resources_[index].Get() != nullptr) {
+            continue;
+        }
+        break;
+    }
+
+    if (index >= resources_.size()) {
+        return index + 1;
+    }
+
+    return index;
+}
+
+void DxSrvArray::CreateView(ID3D12Device* device, D3D12_SHADER_RESOURCE_VIEW_DESC& viewDesc, ID3D12Resource* resource, uint32_t srvIndex) {
+    if (resources_[srvIndex].Get() == nullptr) {
+        DxHeap* dxHeap = DxHeap::getInstance();
+        device->CreateShaderResourceView(resource, &viewDesc, dxHeap->getSrvCpuHandle(arrayStartLocation_ + srvIndex));
+        resources_[srvIndex] = resource;
+    }
 }
 
 void DxSrvArray::DestroyView(uint32_t srvIndex) {

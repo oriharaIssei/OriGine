@@ -84,6 +84,7 @@ public:
             ++currentChild;
         }
         currentChild = 0;
+
         return Status::SUCCESS;
     }
 

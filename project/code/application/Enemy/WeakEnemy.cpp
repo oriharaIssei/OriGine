@@ -77,7 +77,7 @@ void WeakEnemy::Update() {
     deltaTime_->Update();
 
     EnemyBehavior::Status currentStatus = behaviorTree_->tick();
-    
+
     { // Transform Update
         if (drawObject3d_->transform_.translate.lengthSq() >= maxMoveLenght_ * maxMoveLenght_) {
             drawObject3d_->transform_.translate = drawObject3d_->transform_.translate.normalize() * maxMoveLenght_;
@@ -85,11 +85,13 @@ void WeakEnemy::Update() {
         drawObject3d_->Update(deltaTime_->getDeltaTime());
     }
 
-    if (isKnockBack_) {
-        if (currentStatus == EnemyBehavior::Status::SUCCESS) {
+    if (currentStatus == EnemyBehavior::Status::SUCCESS) {
+        if (isKnockBack_) {
             isKnockBack_  = false;
             behaviorTree_ = std::make_unique<WeakEnemyBehavior>(this);
             behaviorTree_->setCurrentChildNum(currentNode_ - 1);
+        } else { // リセット
+            behaviorTree_ = std::make_unique<WeakEnemyBehavior>(this);
         }
     }
 

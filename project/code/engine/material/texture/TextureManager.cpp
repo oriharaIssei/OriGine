@@ -59,9 +59,9 @@ void Texture::Init(const std::string& filePath, std::shared_ptr<DxSrvArray> srvA
     /// 先頭は ImGui が使用しているので その次を使う
 
     /// SRV の作成
-    auto device   = Engine::getInstance()->getDxDevice()->getDevice();
-    resourceIndex = srvArray->CreateView(device, srvDesc, resource.getResource());
-    loadState     = LoadState::Loaded;
+    auto device = Engine::getInstance()->getDxDevice()->getDevice();
+    srvArray->CreateView(device, srvDesc, resource.getResource(), resourceIndex);
+    loadState = LoadState::Loaded;
 }
 
 void Texture::Finalize() {
@@ -213,6 +213,8 @@ uint32_t TextureManager::LoadTexture(const std::string& filePath, std::function<
     }
 
     std::cout << "Loading texture: " << filePath << " at index: " << index << std::endl; // デバッグ情報を追加
+
+    textures_[index]->resourceIndex = dxSrvArray_->preCreateView();
 
     loadThread_->pushTask(
         {.filePath     = filePath,

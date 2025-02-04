@@ -19,6 +19,8 @@ public:
 	uint32_t CreateView(ID3D12Device *device,
 						D3D12_SHADER_RESOURCE_VIEW_DESC &viewDesc,
 						ID3D12Resource* resource);
+    uint32_t preCreateView();
+    void CreateView(ID3D12Device* device, D3D12_SHADER_RESOURCE_VIEW_DESC& viewDesc, ID3D12Resource* resource, uint32_t srvIndex);
 	void DestroyView(uint32_t srvIndex);
 private:
 	/// <summary>
