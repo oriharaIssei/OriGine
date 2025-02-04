@@ -51,6 +51,12 @@ PlayerWeakAttackBehavior::PlayerWeakAttackBehavior(Player* _player, int32_t _cur
 
 PlayerWeakAttackBehavior::~PlayerWeakAttackBehavior() {}
 void PlayerWeakAttackBehavior::Init() {
+    if (currentCombo_ == 3) {
+        Vec3f effectPos = player_->getTranslate();
+        effectPos[Y] += 3.0f;
+        EffectManager::getInstance()->PlayEffect("WeakAttack_03", effectPos);
+    }
+
     currentUpdate_ = [this]() {
         StartUp();
     };
@@ -92,7 +98,7 @@ void PlayerWeakAttackBehavior::Action() {
         lastDirection_ = player_->RotateUpdateByStick(rotateInterpolateInAttack_);
     }
     if (speedInAttack_ != 0.f) {
-        player_->setTranslate(player_->getTranslate() + lastDirection_ * (speedInAttack_ * Engine::getInstance()->getDeltaTime()));
+        player_->setTranslate(player_->getTranslate() + lastDirection_ * (speedInAttack_ * player_->DeltaTime()));
     }
 
     {
@@ -118,7 +124,7 @@ void PlayerWeakAttackBehavior::Action() {
 }
 
 void PlayerWeakAttackBehavior::EndLag() {
-    currentTimer_ += Engine::getInstance()->getDeltaTime();
+    currentTimer_ += player_->DeltaTime();
 
     CheckCombo();
     if (currentTimer_ >= endLagTime_) {

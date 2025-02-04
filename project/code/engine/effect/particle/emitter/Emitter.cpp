@@ -64,10 +64,6 @@ Emitter::Emitter(DxSrvArray* srvArray, const std::string& _emitterDataName, int 
 }
 
 Emitter::~Emitter() {
-    if (!particles_.empty()) {
-        particles_.clear();
-    }
-    structuredTransform_.Finalize();
 }
 
 static std::list<std::pair<std::string, std::string>> objectFiles  = MyFileSystem::SearchFile("resource", "obj", false);

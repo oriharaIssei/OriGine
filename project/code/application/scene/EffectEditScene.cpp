@@ -29,8 +29,8 @@ void EffectEditScene::Update() {
     CameraManager::getInstance()->setTransform(debugCamera_->getCameraTransform());
 
     // ================== Editor ==================//
-    //effectEditor_->Update();
-    //particleEditor_->Update();
+   /* effectEditor_->Update();
+    particleEditor_->Update();*/
 }
 
 void EffectEditScene::Draw3d() {
@@ -43,6 +43,6 @@ void EffectEditScene::DrawSprite() {
 }
 
 void EffectEditScene::DrawParticle() {
-    effectEditor_->Draw();
-    particleEditor_->Draw();
+   /* effectEditor_->Draw();
+    particleEditor_->Draw();*/
 }

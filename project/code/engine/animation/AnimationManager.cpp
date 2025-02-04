@@ -14,12 +14,12 @@ AnimationManager::~AnimationManager() {
 }
 
 void AnimationManager::Init() {
-    loadThread_ = std::make_unique<TaskThread<AnimationLoadTask>>();
-    loadThread_->Init(1);
+    // loadThread_ = std::make_unique<TaskThread<AnimationLoadTask>>();
+    // loadThread_->Init(1);
 }
 
 void AnimationManager::Finalize() {
-    loadThread_->Finalize();
+    // loadThread_->Finalize();
 }
 
 std::unique_ptr<Animation> AnimationManager::Load(const std::string& directory, const std::string& filename) {
@@ -39,7 +39,8 @@ std::unique_ptr<Animation> AnimationManager::Load(const std::string& directory, 
         /// TaskThread に ロードタスクを追加
         ///===========================================
         AnimationLoadTask task(directory, filename, animationData_.back().get(), result.get());
-        loadThread_->pushTask(task);
+        task.Update();
+        //loadThread_->pushTask(task);
     }
     return result;
 }

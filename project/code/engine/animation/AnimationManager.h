@@ -76,7 +76,7 @@ private:
         void Update();
     };
 
-    std::unique_ptr<TaskThread<AnimationLoadTask>> loadThread_ = nullptr;
+   // std::unique_ptr<TaskThread<AnimationLoadTask>> loadThread_ = nullptr;
 
     // アニメーションデータのライブラリ
     std::unordered_map<std::string, int> animationDataLibrary_;

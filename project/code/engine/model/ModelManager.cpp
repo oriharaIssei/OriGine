@@ -257,18 +257,21 @@ std::shared_ptr<Model> ModelManager::Create(
 
     result            = std::make_unique<Model>();
     result->meshData_ = modelLibrary_[filePath].get();
-    loadThread_->pushTask(
+
+    LoadTask task = {.directory = directoryPath, .fileName = filename, .model = result, .callBack = callBack};
+    task.Update();
+    /* loadThread_->pushTask(
         {.directory = directoryPath,
          .fileName  = filename,
          .model     = result,
-         .callBack  = callBack});
+         .callBack  = callBack});*/
 
     return result;
 }
 
 void ModelManager::Init() {
-    loadThread_ = std::make_unique<TaskThread<ModelManager::LoadTask>>();
-    loadThread_->Init(1);
+    // loadThread_ = std::make_unique<TaskThread<ModelManager::LoadTask>>();
+    // loadThread_->Init(1);
 
     fovMa_           = std::make_unique<Matrix4x4>();
     Matrix4x4* maPtr = new Matrix4x4();
@@ -310,16 +313,19 @@ void ModelManager::StartUpLoad() {
         modelLibrary_[filePath] = std::make_unique<ModelMeshData>();
 
         result->meshData_ = modelLibrary_[filePath].get();
-        loadThread_->pushTask(
+        LoadTask task     = {.directory = directory, .fileName = filename, .model = result, .callBack = nullptr};
+        task.Update();
+
+        /* loadThread_->pushTask(
             {.directory = directory,
              .fileName  = filename,
              .model     = result,
-             .callBack  = nullptr});
+             .callBack  = nullptr});*/
     }
 }
 
 void ModelManager::Finalize() {
-    loadThread_->Finalize();
+    //loadThread_->Finalize();
     dxCommand_->Finalize();
     modelLibrary_.clear();
 }

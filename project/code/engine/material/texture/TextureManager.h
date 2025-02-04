@@ -68,7 +68,7 @@ private:
     static std::shared_ptr<DxSrvArray> dxSrvArray_;
     static std::array<std::unique_ptr<Texture>, maxTextureSize_> textures_;
 
-    static std::unique_ptr<TaskThread<TextureManager::LoadTask>> loadThread_;
+  //  static std::unique_ptr<TaskThread<TextureManager::LoadTask>> loadThread_;
 
     // バックグラウンドスレッド用
     static std::unique_ptr<DxCommand> dxCommand_;
@@ -77,6 +77,7 @@ public:
     static D3D12_GPU_DESCRIPTOR_HANDLE getDescriptorGpuHandle(uint32_t handleId) {
         DxHeap* heap   = DxHeap::getInstance();
         int32_t locate = 0;
+
         if (textures_[handleId]->loadState == LoadState::Loaded) {
             locate = textures_[handleId]->resourceIndex;
         }

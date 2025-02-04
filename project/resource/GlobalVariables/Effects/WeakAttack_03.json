@@ -1,0 +1,8 @@
+{
+    "WeakAttack_03": {
+        "Duration": 0.375,
+        "IsLoop": false,
+        "ParticleNum": 1,
+        "emitter_0": "WeakAttack_03"
+    }
+}

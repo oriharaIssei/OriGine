@@ -1,0 +1,114 @@
+{
+    "WeakAttack_03": {
+        "OBB_max": [
+            2.0,
+            0.0,
+            2.9000000953674316
+        ],
+        "OBB_min": [
+            -1.399999976158142,
+            0.0,
+            -2.4000000953674316
+        ],
+        "OBB_rotate": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "OBBspawnLocationType": 0,
+        "Sphere_radius": 6.699999809265137,
+        "SpherespawnLocationType": 0,
+        "activeTime": 1.100000023841858,
+        "blendMode": 2,
+        "isLoop": false,
+        "modelFileName": "sword.obj",
+        "particleColor": [
+            0.4514768123626709,
+            0.7153233289718628,
+            1.0,
+            1.0
+        ],
+        "particleIsBillBoard": false,
+        "particleLifeTime": 0.8999999761581421,
+        "particleUvRotate": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "particleUvScale": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "particleUvTranslate": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "shapeType": 1,
+        "spawnCoolTime": 0.07000000029802322,
+        "spawnParticleVal": 3,
+        "startParticleRotateMax": [
+            0.0,
+            3.0,
+            0.0
+        ],
+        "startParticleRotateMin": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "startParticleScaleMax": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "startParticleScaleMin": [
+            1.0,
+            1.0,
+            0.699999988079071
+        ],
+        "startParticleVelocityMax": [
+            0.0,
+            -20.0,
+            0.0
+        ],
+        "startParticleVelocityMin": [
+            0.0,
+            -22.0,
+            0.0
+        ],
+        "textureFileName": "resource\\Texture/white1x1.png",
+        "updateParticleRotateMax": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "updateParticleRotateMin": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "updateParticleScaleMax": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "updateParticleScaleMin": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "updateParticleVelocityMax": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "updateParticleVelocityMin": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "updateSettings": 32
+    }
+}

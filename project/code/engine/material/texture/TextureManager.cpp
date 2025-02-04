@@ -29,7 +29,7 @@ const uint32_t TextureManager::maxTextureSize_;
 std::shared_ptr<DxSrvArray> TextureManager::dxSrvArray_;
 std::array<std::unique_ptr<Texture>, TextureManager::maxTextureSize_> TextureManager::textures_;
 
-std::unique_ptr<TaskThread<TextureManager::LoadTask>> TextureManager::loadThread_;
+// std::unique_ptr<TaskThread<TextureManager::LoadTask>> TextureManager::loadThread_;
 std::unique_ptr<DxCommand> TextureManager::dxCommand_;
 
 #pragma region Texture
@@ -55,12 +55,11 @@ void Texture::Init(const std::string& filePath, std::shared_ptr<DxSrvArray> srvA
     srvDesc.ViewDimension           = D3D12_SRV_DIMENSION_TEXTURE2D;
     srvDesc.Texture2D.MipLevels     = UINT(metaData.mipLevels);
 
-    /// SRV を作成する  の場所を決める
-    /// 先頭は ImGui が使用しているので その次を使う
-
     /// SRV の作成
     auto device = Engine::getInstance()->getDxDevice()->getDevice();
-    srvArray->CreateView(device, srvDesc, resource.getResource(), resourceIndex);
+
+    this->resourceIndex = srvArray->CreateView(device, srvDesc, resource.getResource());
+
     loadState = LoadState::Loaded;
 }
 
@@ -168,8 +167,8 @@ void TextureManager::Init() {
 
     dxSrvArray_ = DxSrvArrayManager::getInstance()->Create(maxTextureSize_);
 
-    loadThread_ = std::make_unique<TaskThread<LoadTask>>();
-    loadThread_->Init(1);
+    //   loadThread_ = std::make_unique<TaskThread<LoadTask>>();
+    //   loadThread_->Init(1);
 
     // コマンドキュー、コマンドアロケーター、コマンドリストの初期化
     D3D12_COMMAND_QUEUE_DESC queueDesc = {};
@@ -185,7 +184,7 @@ void TextureManager::Init() {
 }
 
 void TextureManager::Finalize() {
-    loadThread_->Finalize();
+    //loadThread_->Finalize();
 
     CoUninitialize();
 
@@ -202,7 +201,6 @@ uint32_t TextureManager::LoadTexture(const std::string& filePath, std::function<
     uint32_t index = 0;
     for (index = 0; index < textures_.size(); ++index) {
         if (textures_[index] == nullptr) {
-            textures_[index] = std::make_unique<Texture>();
             break;
         } else if (filePath == textures_[index]->path) {
             if (callBack) {
@@ -214,13 +212,25 @@ uint32_t TextureManager::LoadTexture(const std::string& filePath, std::function<
 
     std::cout << "Loading texture: " << filePath << " at index: " << index << std::endl; // デバッグ情報を追加
 
-    textures_[index]->resourceIndex = dxSrvArray_->preCreateView();
+    if (index >= maxTextureSize_) {
+        std::cerr << "Error: Texture index out of bounds." << std::endl;
+        return -1; // Or handle the error appropriately
+    }
 
-    loadThread_->pushTask(
-        {.filePath     = filePath,
-         .textureIndex = index,
-         .texture      = textures_[index].get(),
-         .callBack     = callBack});
+    textures_[index] = std::make_unique<Texture>();
+    LoadTask task {
+        .filePath     = filePath,
+        .textureIndex = index,
+        .texture      = textures_[index].get(),
+        .callBack     = callBack
+    };
+    task.Update();
+
+    //loadThread_->pushTask(
+    //    {.filePath     = filePath,
+    //     .textureIndex = index,
+    //     .texture      = textures_[index].get(),
+    //     .callBack     = callBack});
 
     return index;
 }

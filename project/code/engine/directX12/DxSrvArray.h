@@ -28,6 +28,8 @@ private:
 	/// </summary>
 	/// <param name="textureSize">テクスチャーマネージャーで静的に確保されている数</param>
 	void Init(uint32_t size,uint32_t arrayLocation);
+
+    bool IsPreCreated(uint32_t index) const;
 private:
 	uint32_t arrayStartLocation_;
 	uint32_t size_;
@@ -36,6 +38,7 @@ private:
 	/// Init後サイズを変更してはいけない
 	/// </summary>
 	std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> resources_;
+    std::vector<uint32_t> preCreateIndexs_;
 public:
 	uint32_t getSize()const{ return size_; }
 

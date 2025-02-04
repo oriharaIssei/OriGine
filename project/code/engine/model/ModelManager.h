@@ -65,7 +65,7 @@ private:
     };
 
 private:
-    std::unique_ptr<TaskThread<LoadTask>> loadThread_;
+    //std::unique_ptr<TaskThread<LoadTask>> loadThread_;
 
     std::unordered_map<std::string, std::unique_ptr<ModelMeshData>> modelLibrary_;
     std::unordered_map<ModelMeshData*, std::vector<Material3D>> defaultMaterials_;

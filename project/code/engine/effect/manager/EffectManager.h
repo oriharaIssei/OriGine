@@ -49,7 +49,7 @@ private:
     void CreatePso();
 
 private:
-    int32_t srvNum_      = 228;
+    int32_t srvNum_      = 200;//228
     int32_t usingSrvNum_ = 0;
     std::shared_ptr<DxSrvArray> dxSrvArray_;
 
