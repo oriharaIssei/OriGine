@@ -1,5 +1,6 @@
 #pragma once
 
+#include <list>
 #include <memory>
 
 struct Vector2;
@@ -22,10 +23,14 @@ private:
     /// </summary>
     void InputHandle();
 
+    bool UndoCommand();
+    bool RedoCommand();
+
 private:
     std::unique_ptr<Sprite> sprite_;
-    std::unique_ptr<IPlayerCommand> command_;
-
+    std::unique_ptr<IPlayerCommand> currentCommand_;
+    std::list<std::unique_ptr<IPlayerCommand>>::iterator currentCommandItr_;
+    std::list<std::unique_ptr<IPlayerCommand>> commandHistory_;
     float speed_ = 12.0f;
 
 public:
