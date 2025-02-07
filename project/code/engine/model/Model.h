@@ -1,25 +1,25 @@
 #pragma once
 
-///stl
-//memory
+/// stl
+// memory
 #include <memory>
-//contiainer
+// Container
 #include <unordered_map>
 #include <vector>
 // basic class
 #include <string>
 
-///engine
-//assetes
+/// engine
+// assets
 #include "material/Material.h"
-//dx12Object
+// dx12Object
 #include "directX12/IConstantBuffer.h"
 #include "directX12/Object3dMesh.h"
-//component
+// component
 #include "transform/Transform.h"
-//lib
+// lib
 #include "Thread/Thread.h"
-//math
+// math
 #include "Matrix4x4.h"
 #include "Quaternion.h"
 

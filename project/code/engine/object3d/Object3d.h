@@ -1,17 +1,25 @@
 #pragma once
 
-#include "directX12/IConstantBuffer.h"
-#include "directX12/PipelineStateObj.h"
-#include "directX12/ShaderManager.h"
-#include "material/Material.h"
-#include "model/Model.h"
-#include "transform/CameraTransform.h"
-#include "transform/Transform.h"
-
+/// stl
 #include <memory>
 #include <vector>
 
-class Object3d {
+/// engine
+// assets
+#include "material/Material.h"
+#include "model/Model.h"
+// dxObject
+#include "directX12/IConstantBuffer.h"
+#include "directX12/PipelineStateObj.h"
+#include "directX12/ShaderManager.h"
+#include "transform/CameraTransform.h"
+#include "transform/Transform.h"
+
+// hostObject
+#include "component/renderer/IRendererComponent.h"
+
+class Object3d
+    : public IRendererComponent {
 public:
     static void PreDraw();
 

@@ -20,17 +20,17 @@ ColumnLimit: 0
 # 波括弧 ({ }) の配置を指定します。（Attach は同じ行に配置）
 BreakBeforeBraces: Attach
 # 短い if 文を1行にまとめるかどうかを指定します。
-AllowShortIfStatementsOnASingleLine: true
+AllowShortIfStatementsOnASingleLine: false
 # 短い関数を1行にまとめるかどうかを指定します。
-AllowShortFunctionsOnASingleLine: Inline
+AllowShortFunctionsOnASingleLine: All
 # 短いブロック（{ ... }）を1行にまとめるかどうかを指定します。
-AllowShortBlocksOnASingleLine: Never
+AllowShortBlocksOnASingleLine: Always
 # 短いラムダ式を1行にまとめるかどうかを指定します。
-AllowShortLambdasOnASingleLine: None
+AllowShortLambdasOnASingleLine: Inline
 # 変数の宣言を改行しないように設定を追加します。
 #AllowShortVariablesOnASingleLine: All
 # 演算子の前で改行するかを指定します。
-BreakBeforeBinaryOperators: None
+BreakBeforeBinaryOperators: NonAssignment
 # コンストラクタの初期化リストの改行スタイルを指定します。
 BreakConstructorInitializers: BeforeColon
 # 関数呼び出しの最初の引数の前で改行する場合のペナルティ値を指定します。
@@ -38,40 +38,40 @@ PenaltyBreakBeforeFirstCallParameter: 19
 
 # === アライメント（整列）設定 ===
 # 括弧の後の要素を揃えるかを指定します。
-AlignAfterOpenBracket: AlwaysBreak
+AlignAfterOpenBracket: DontAlign
 # 演算子を揃えるかどうかを指定します。
 AlignOperands: true
 # 代入演算子の整列を有効にします。
 AlignConsecutiveAssignments: true
 # 行末コメントを揃えるかどうかを指定します。
-AlignTrailingComments: true
+AlignTrailingComments: false
 # ポインタや参照の位置を指定します。（Left: 型に近づける, Right: 名前に近づける, Middle: 中央）
 PointerAlignment: Left
 # ポインタ配置をソースコードから自動推測するかどうかを指定します。
 DerivePointerAlignment: false
 # === 関数と引数の設定 ===
 # 関数引数を1行に詰め込むかどうかを指定します。
-BinPackArguments: false
+BinPackArguments: true
 # 関数パラメータを1行に詰め込むかどうかを指定します。
-BinPackParameters: false
+BinPackParameters: true
 # すべての引数を次の行に配置することを許可します。
-AllowAllArgumentsOnNextLine: true
+AllowAllArgumentsOnNextLine: false
 # すべてのパラメータを次の行に配置することを許可します。
-AllowAllParametersOfDeclarationOnNextLine: true
+AllowAllParametersOfDeclarationOnNextLine: false
 # 関数呼び出しの改行に対するペナルティ値を指定します。
 #PenaltyBreakFunctionCall: 19
 
 # === コメント設定 ===
 # コメントを再フォーマットするかどうかを指定します。
-ReflowComments: false
+ReflowComments: true
 # 行末コメントの前に入れるスペースの数を指定します。
 SpacesBeforeTrailingComments: 1
 
 # === インクルード関連設定 ===
 # インクルードのソート順を指定します。（CaseInsensitive: 大文字小文字を区別しない）
-SortIncludes: CaseSensitive
+SortIncludes: CaseInsensitive
 # インクルードのブロック分け方法を指定します。（Preserve, Merge, Regroup）
-IncludeBlocks: Regroup
+IncludeBlocks: Preserve
 # メインファイルのインクルードを指定する正規表現。
 IncludeIsMainRegex: "([-_](test|unittest))?$"
 
@@ -81,7 +81,7 @@ IncludeIsMainRegex: "([-_](test|unittest))?$"
 # C++の標準バージョンを指定します。（Cpp03, Cpp11, Cpp14, Cpp17, Cpp20）
 #Standard: Cpp20
 # 名前空間の閉じコメントを追加するかどうかを指定します。
-FixNamespaceComments: true
+FixNamespaceComments: false
 # 山括弧 (< >) の中にスペースを入れるかを指定します。
 SpacesInAngles: false
 # コンテナリテラル内のスペースを指定します。
@@ -93,9 +93,9 @@ SpacesInCStyleCastParentheses: false
 # アクセス修飾子（public, private など）のインデント量を指定します。
 AccessModifierOffset: -4
 # 名前空間内のすべての要素をインデントするかを指定します。
-NamespaceIndentation: Inner
+NamespaceIndentation: None
 # 短い列挙型を1行にまとめるかどうかを指定します。
-AllowShortEnumsOnASingleLine: false
+AllowShortEnumsOnASingleLine: true
 # 許容される文字数超過のペナルティを指定します。
 PenaltyExcessCharacter: 1000000
 # 戻り値の型が独自行になる場合のペナルティを指定します。
