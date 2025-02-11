@@ -16,7 +16,7 @@
 struct Model;
 struct ModelNode;
 struct ModelMeshData;
-struct Material3D;
+struct TexturedMaterial;
 
 //component
 class AnimationObject3d;
@@ -65,8 +65,8 @@ private:
     std::unique_ptr<TaskThread<LoadTask>> loadThread_;
 
     std::unordered_map<std::string, std::unique_ptr<ModelMeshData>> modelLibrary_;
-    std::unordered_map<ModelMeshData*, std::vector<Material3D>> defaultMaterials_;
+    std::unordered_map<ModelMeshData*, std::vector<TexturedMaterial>> defaultMaterials_;
 
 public:
-    void pushBackDefaultMaterial(ModelMeshData* key, Material3D material);
+    void pushBackDefaultMaterial(ModelMeshData* key, TexturedMaterial material);
 };

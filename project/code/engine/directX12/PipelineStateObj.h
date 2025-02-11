@@ -12,8 +12,8 @@
 /// Pipeline State Object
 ///=================================================
 struct PipelineStateObj {
-	void Finalize();
+    void Finalize();
 
-	Microsoft::WRL::ComPtr <ID3D12RootSignature> rootSignature = nullptr;
-	Microsoft::WRL::ComPtr <ID3D12PipelineState> pipelineState = nullptr;
+    Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature = nullptr;
+    Microsoft::WRL::ComPtr<ID3D12PipelineState> pipelineState = nullptr;
 };

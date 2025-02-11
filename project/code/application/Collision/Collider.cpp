@@ -1,7 +1,6 @@
 #include "Collider.h"
 
 #include "../GameObject/GameObject.h"
-#include "object3d/Object3d.h"
 
 Collider::Collider(const std::string& name)
     : radius_("Game", name, "radius") {}
@@ -25,7 +24,7 @@ void Collider::OnCollision(GameObject* collisionObject) {
 }
 
 void Collider::UpdateMatrix() {
-    transform_.UpdateMatrix();
+    transform_.Update();
 
 #ifdef _DEBUG
     currentRadius_ = radius_;

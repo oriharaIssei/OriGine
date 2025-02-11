@@ -7,7 +7,7 @@
 //assets
 #include "animation/Animation.h"
 //directX12
-#include "directX12/Object3dMesh.h"
+#include "directX12/Mesh.h"
 
 enum class SilhouetteType {
     Plane,
@@ -29,7 +29,7 @@ public:
     virtual void Draw()   = 0;
 
 protected:
-    std::unique_ptr<TextureObject3dMesh> meshBuff_;
+    std::unique_ptr<TextureMesh> meshBuff_;
 
 private:
     SilhouetteType type_;

@@ -1,23 +1,23 @@
 #pragma once
 
-///stl
-//memory
+/// stl
+// memory
 #include <memory>
 #include <wrl.h>
 
-//container
-#include <array> 
+// container
+#include <array>
 #include <unordered_map>
 #include <vector>
-//string
+// string
 #include <string>
-//exception
+// exception
 #include <dxcapi.h>
 #include <stdexcept>
 #include <stdint.h>
 
-///engine
-//dx12object
+/// engine
+// dx12object
 #include "directX12/PipelineStateObj.h"
 #include "directX12/ShaderCompiler.h"
 
@@ -36,7 +36,7 @@ enum class BlendMode {
     Count
 };
 
-constexpr size_t kBlendNum = static_cast<size_t>(BlendMode::Count);
+constexpr size_t kBlendNum                                   = static_cast<size_t>(BlendMode::Count);
 static const std::array<std::string, kBlendNum> blendModeStr = {
     "None",
     "Normal",

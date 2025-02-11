@@ -1,16 +1,23 @@
 #pragma once
 
+/// interface
+#include "module/editor/IEditor.h"
+#include "module/IModule.h"
+
+/// stl
+#include <memory>
+
+/// engine
+// lights
 #include "DirectionalLight.h"
 #include "PointLight.h"
 #include "SpotLight.h"
+// directX12Object
 #include "directX12/DxSrvArray.h"
 #include "directX12/IConstantBuffer.h"
 #include "directX12/IStructuredBuffer.h"
+// lib
 #include "globalVariables/SerializedField.h"
-#include "module/IModule.h"
-#include "module/editor/IEditor.h"
-
-#include <memory>
 
 struct LightCounts {
     SerializedField<int32_t> directionalLightNum{"LightManager", "LightCounts", "directionalLightNum"};

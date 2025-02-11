@@ -23,7 +23,7 @@ void EffectManager::Init() {
     dxSrvArray_ = DxSrvArrayManager::getInstance()->Create(srvNum_);
 
     dxCommand_ = std::make_unique<DxCommand>();
-    dxCommand_->Init(Engine::getInstance()->getDxDevice()->getDevice(), "main", "main");
+    dxCommand_->Init("EffectManager", "EffectManager");
 
     for (size_t i = 0; i < kBlendNum; i++) {
         psoKey_[i] = "Particle_" + blendModeStr[i];

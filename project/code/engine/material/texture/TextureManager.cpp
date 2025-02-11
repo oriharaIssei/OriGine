@@ -164,7 +164,6 @@ void TextureManager::Init() {
     CoInitializeEx(0, COINIT_MULTITHREADED);
 
     DxHeap* heap = DxHeap::getInstance();
-    auto* device = Engine::getInstance()->getDxDevice()->getDevice();
 
     dxSrvArray_ = DxSrvArrayManager::getInstance()->Create(maxTextureSize_);
 
@@ -179,7 +178,7 @@ void TextureManager::Init() {
     queueDesc.NodeMask                 = 0;
 
     dxCommand_ = std::make_unique<DxCommand>();
-    dxCommand_->Init(device, "TextureManager", "TextureManager");
+    dxCommand_->Init( "TextureManager", "TextureManager");
     // load中のテクスチャにはこれをはっつける
     LoadTexture("resource/Texture/white1x1.png");
 }

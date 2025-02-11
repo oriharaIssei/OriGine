@@ -15,7 +15,6 @@ struct EmitterShape;
 struct ParticleKeyFrames;
 //object
 #include "../Particle.h"
-#include "object3d/Object3d.h"
 //transform
 #include "transform/CameraTransform.h"
 #include "transform/ParticleTransform.h"

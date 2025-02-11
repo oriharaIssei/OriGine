@@ -13,11 +13,9 @@ class DebugCamera;
 class CollisionManager;
 
 // component
-class Object3d;
-class Sprite;
+#include "component/renderer/MeshRender.h"
 
 // object
-class GameObject;
 class EnemyManager;
 class Player;
 class IEnemy;
@@ -47,9 +45,8 @@ private:
 #endif // _DEBUG
     Input* input_ = nullptr;
 
-    std::unique_ptr<GameCamera> gameCamera_;
+    std::shared_ptr<TextureMeshRenderer> test;
 
-    std::unique_ptr<Object3d> ground_;
-    std::unique_ptr<Object3d> skyDome_;
+    std::unique_ptr<GameCamera> gameCamera_;
 
 };

@@ -22,6 +22,7 @@
 #include "directX12/RenderTexture.h"
 #include "object3d/AnimationObject3d.h"
 #include "sprite/Sprite.h"
+#include "component/renderer/RendererComponentFactory.h"
 
 //object
 #include "camera/gameCamera/GameCamera.h"
@@ -53,11 +54,7 @@ void GameScene::Init() {
     gameCamera_ = std::make_unique<GameCamera>();
     gameCamera_->Init();
 
-    ground_ = std::make_unique<Object3d>();
-    ground_->Init("resource/Models", "Ground.obj");
-
-    skyDome_ = std::make_unique<Object3d>();
-    skyDome_->Init("resource/Models", "Skydome.obj");
+    test = CreateFromModelFile("resource/Models", "Enemy.obj");
 }
 
 void GameScene::Update() {
@@ -80,8 +77,6 @@ void GameScene::Update() {
 }
 
 void GameScene::Draw3d() {
-    ground_->Draw();
-    skyDome_->Draw();
 }
 
 void GameScene::DrawLine() {}

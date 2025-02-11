@@ -18,34 +18,36 @@
 // hostObject
 #include "component/renderer/IRendererComponent.h"
 
-class Object3d
+class ModelRenderer
     : public IRendererComponent {
 public:
+    //------------------------- static member -------------------------//
     static void PreDraw();
 
     static void setBlendMode(BlendMode blend);
-
-    void Init(const std::string& directoryPath, const std::string& filename);
 
 private:
     static BlendMode currentBlend_;
 
 public:
-    Object3d();
-    ~Object3d();
+    //------------------------- member -------------------------//
+    ModelRenderer(const std::string& directoryPath, const std::string& filename);
+    ~ModelRenderer();
+
+    void Init() override;
+    void Update() override;
+    void Render() override;
 
     Transform transform_;
 
-    void UpdateTransform();
-
-    void Draw();
+private:
+    //------------------------- DrawFunction -------------------------//
+    void NotDraw() {} // < 何もしない. 読み込み中に描画されないようにするための関数
+    void DrawThis(); //  < モデルを描画する関数
 
 private:
-    void NotDraw() {}
+    std::string& directoryPath_;
 
-    void DrawThis();
-
-private:
     std::unique_ptr<Model> data_;
 
     std::array<std::function<void()>, 2> drawFuncTable_ = {
