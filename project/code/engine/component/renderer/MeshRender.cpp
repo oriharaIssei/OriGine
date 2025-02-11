@@ -43,7 +43,7 @@ void TextureMeshRenderer::Update() {
 }
 
 void TextureMeshRenderer::Render() {
-    IRendererComponentController* controller = RenderManager::getInstance()->getRendererController<RendererComponentController<TextureMeshRenderer>>();
+    IRendererComponentController* controller = RenderManager::getInstance()->getRendererController<TextureMeshRendererController>();
     auto* commandList                        = controller->getDxCommand()->getCommandList();
 
     uint32_t index = 0;
@@ -103,7 +103,7 @@ void PrimitiveMeshRenderer::Update() {
 }
 
 void PrimitiveMeshRenderer::Render() {
-    IRendererComponentController* controller = RenderManager::getInstance()->getRendererController<RendererComponentController<TextureMeshRenderer>>();
+    IRendererComponentController* controller = RenderManager::getInstance()->getRendererController<PrimitiveMeshRendererController>();
     auto* commandList                        = controller->getDxCommand()->getCommandList();
 
     uint32_t index = 0;
@@ -129,15 +129,17 @@ void PrimitiveMeshRenderer::Render() {
 #pragma endregion
 
 //----------------------------------------------------------------------------------------------------------
-// ↓ PrimitiveMesh
+// ↓ PrimitiveMeshContorller
 //----------------------------------------------------------------------------------------------------------
-void PrimitiveRendererComponentController::StartRender() {
+void PrimitiveMeshRendererController::StartRender() {
     auto* commandList = dxCommand_->getCommandList();
     commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
     commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
+
+    commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-void PrimitiveRendererComponentController::CreatePso() {
+void PrimitiveMeshRendererController::CreatePso() {
     ShaderManager* shaderManager = ShaderManager::getInstance();
     ///=================================================
     /// shader読み込み
@@ -244,9 +246,9 @@ void PrimitiveRendererComponentController::CreatePso() {
 };
 
 //----------------------------------------------------------------------------------------------------------
-// ↓ Texture付きMesh
+// ↓ TextureMeshContoroller
 //----------------------------------------------------------------------------------------------------------
-void TextureRendererComponentController::StartRender() {
+void TextureMeshRendererController::StartRender() {
     currentBlend_ = BlendMode::Alpha;
 
     ID3D12GraphicsCommandList* commandList = dxCommand_->getCommandList();
@@ -254,12 +256,15 @@ void TextureRendererComponentController::StartRender() {
     commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
     commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
 
+    
+    commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
     Engine::getInstance()->getLightManager()->SetForRootParameter(commandList);
 
     CameraManager::getInstance()->setBufferForRootParameter(commandList, 1);
 }
 
-void TextureRendererComponentController::CreatePso() {
+void TextureMeshRendererController::CreatePso() {
     ShaderManager* shaderManager_ = ShaderManager::getInstance();
     ///=================================================
     /// shader読み込み
@@ -397,6 +402,6 @@ void TextureRendererComponentController::CreatePso() {
     ///=================================================
     for (size_t i = 0; i < kBlendNum; ++i) {
         texShaderInfo.blendMode_ = static_cast<BlendMode>(i);
-        shaderManager_->CreatePso("TextureMesh_" + blendModeStr[i], texShaderInfo, dxDevice_->getDevice());
+        pso_[texShaderInfo.blendMode_] =  shaderManager_->CreatePso("TextureMesh_" + blendModeStr[i], texShaderInfo, dxDevice_->getDevice());
     }
 }

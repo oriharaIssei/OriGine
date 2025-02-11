@@ -32,6 +32,9 @@ void SceneManager::Finalize() {
     scenes_.clear();
 
     sceneView_->Finalize();
+
+    RenderManager::getInstance()->Finalize();
+
     sceneViewRtvArray_->Finalize();
     sceneViewSrvArray_->Finalize();
 }

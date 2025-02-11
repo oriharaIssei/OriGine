@@ -14,7 +14,7 @@ void RenderManager::Init() {
 
 void RenderManager::RenderFrame() {
     for (auto& [name, controller] : renderControllers_) {
-        controller->RenderFrame(); // 更新と描画をひとまとめにした関数
+        controller->RenderFrame();
     }
 }
 

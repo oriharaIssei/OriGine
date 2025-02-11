@@ -16,6 +16,7 @@
 // utility
 #include "util/TypeName.h"
 // manager
+#include "model/ModelManager.h"
 #include "RenderManager.h"
 
 ///==================================================================================================================
@@ -74,7 +75,7 @@ std::shared_ptr<TextureMeshRenderer> CreateFromModelFile(const std::string& _dir
     }
 
     // renderer作成時にorderedMeshGroupをセット
-    std::shared_ptr<TextureMeshRenderer> renderer = CreateRendererComponent<TextureMeshRenderer, TextureRendererComponentController>(orderedMeshGroup);
+    std::shared_ptr<TextureMeshRenderer> renderer = CreateRendererComponent<TextureMeshRenderer, TextureMeshRendererController>(orderedMeshGroup);
     for (int i = 0; i < orderedMeshGroup.size(); ++i) {
         renderer->setTransform(i, orderedTransform[i]);
         renderer->setMaterialBuff(i, orderedMaterial[i].material);

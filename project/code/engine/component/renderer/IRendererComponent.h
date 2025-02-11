@@ -62,6 +62,7 @@ public:
     virtual void Init() {
         dxDevice_  = Engine::getInstance()->getDxDevice();
         dxCommand_ = std::make_unique<DxCommand>();
+        dxCommand_->Init("main","main");
 
         CreatePso();
     }
@@ -111,7 +112,7 @@ protected:
     ///</summary>
     virtual void CreatePso() = 0;
 
-private:
+protected:
     ///< summary>
     /// ブレンドモードを変更 << 描画時にオブジェクトのブレンドモードを変更するための関数
     /// </summary>
@@ -173,6 +174,7 @@ public:
     virtual void Finalize() {
         for (auto& renderer : renderSchedule_) {
             if (renderer) {
+                renderer->Finalize();
                 renderer.reset();
             }
         }
@@ -203,28 +205,9 @@ protected:
     virtual void CreatePso() = 0;
 
 private:
-    ///< summary>
-    /// ブレンドモードを変更 << 描画時にオブジェクトのブレンドモードを変更するための関数
-    /// </summary>
-    void changeBlendMode(BlendMode blend) {
-        currentBlend_                          = blend;
-        ID3D12GraphicsCommandList* commandList = dxCommand_->getCommandList();
-
-        commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
-        commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
-    }
-
-protected:
-    DxDevice* dxDevice_                   = nullptr;
-    std::unique_ptr<DxCommand> dxCommand_ = nullptr;
-
-    // 描画オブジェクト
     std::vector<std::shared_ptr<RenderComponent>> renderSchedule_;
 
-    // 描画設定
-    BlendMode currentBlend_ = BlendMode::Alpha;
-    std::unordered_map<BlendMode, PipelineStateObj*> pso_;
-
+protected:
 public: // ↓ Accessor
     //------------------------------ RenderSchedule ------------------------------//
     void addRenderer(std::shared_ptr<RenderComponent> _renderer) {
@@ -242,16 +225,14 @@ inline void RendererComponentController<RendererCompoenent>::Update() {
     // renderSchedule_ から nullptr または外部参照が無い(renderer.use_count() == 1)レンダラーを削除
     std::erase_if(renderSchedule_, [](std::shared_ptr<RendererCompoenent>& renderer) {
         bool isExists = (!renderer) || (renderer.use_count() >= 1);
-        if (isExists) {
+        if (!isExists) {
             // nullptr ではないなら 開放してから削除
             if (renderer) {
                 renderer.get()->Finalize();
                 renderer.reset();
             }
-            return true;
-        } else {
-            return false;
         }
+        return !isExists;
     });
 
     for (std::shared_ptr<RendererCompoenent>& renderer : renderSchedule_) {

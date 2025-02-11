@@ -76,8 +76,7 @@ void GameScene::Update() {
 #endif // _DEBUG
 }
 
-void GameScene::Draw3d() {
-}
+void GameScene::Draw3d() {}
 
 void GameScene::DrawLine() {}
 

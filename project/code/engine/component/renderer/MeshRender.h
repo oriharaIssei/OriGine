@@ -211,7 +211,7 @@ public:
 //----------------------------------------------------------------------------------------------------------
 // ↓ PrimitiveMesh
 //----------------------------------------------------------------------------------------------------------
-class PrimitiveRendererComponentController
+class PrimitiveMeshRendererController
     : public RendererComponentController<PrimitiveMeshRenderer> {
 public:
     void StartRender() override;
@@ -225,7 +225,7 @@ public:
 // ↓ Texture付きMesh
 //----------------------------------------------------------------------------------------------------------
 
-class TextureRendererComponentController
+class TextureMeshRendererController
     : public RendererComponentController<TextureMeshRenderer> {
 public:
     void StartRender() override;
