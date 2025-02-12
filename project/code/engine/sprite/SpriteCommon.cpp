@@ -12,7 +12,7 @@ SpriteCommon* SpriteCommon::getInstance() {
 
 void SpriteCommon::Init() {
     dxCommand_ = std::make_unique<DxCommand>();
-    dxCommand_->Init(Engine::getInstance()->getDxDevice()->getDevice(), "main", "main");
+    dxCommand_->Init("main", "main");
     CreatePSO();
     WinApp* window = Engine::getInstance()->getWinApp();
     viewPortMat_   = MakeMatrix::Orthographic(0, 0, (float)window->getWidth(), (float)window->getHeight(), 0.0f, 100.0f);

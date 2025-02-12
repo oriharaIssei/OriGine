@@ -56,7 +56,7 @@ void AnimationObject3d::Init(
 
 void AnimationObject3d::Update(float deltaTime) {
     // Animationより 先に Object 座標系の 行進
-    transform_.UpdateMatrix();
+    transform_.Update();
 
     if (model_->meshData_->currentState_ == LoadState::Unloaded ||
         !animation_->getData()) {
@@ -81,21 +81,19 @@ void AnimationObject3d::Update(float deltaTime) {
     // rootNode
     auto& rootNode = model_->meshData_->rootNode;
     { // rootMeshUpdate
-        auto rootMeshIndexItr = model_->meshData_->meshIndexes.find(rootNode.name);
-        if (rootMeshIndexItr != model_->meshData_->meshIndexes.end()) {
-            Mesh3D& rootMesh                                     = model_->meshData_->mesh_[rootMeshIndexItr->second];
-            model_->transformBuff_[&rootMesh].openData_.worldMat = rootNode.localMatrix * transform_.worldMat;
-            model_->transformBuff_[&rootMesh].ConvertToBuffer();
+        auto rootMeshItr = model_->meshData_->meshGroup_.find(rootNode.name);
+        if (rootMeshItr != model_->meshData_->meshGroup_.end()) {
+            TextureMesh& rootMesh                   = model_->meshData_->meshGroup_[rootNode.name];
+            model_->transforms_[&rootMesh].worldMat = rootNode.localMatrix * transform_.worldMat;
         }
     }
     // ChildNode Update
     for (const auto& node : rootNode.children) {
-        auto meshIndexItr = model_->meshData_->meshIndexes.find(node.name);
-        if (meshIndexItr != model_->meshData_->meshIndexes.end()) {
-            IConstantBuffer<Transform>& meshTransform = model_->transformBuff_[&model_->meshData_->mesh_[meshIndexItr->second]];
+        auto meshItr = model_->meshData_->meshGroup_.find(node.name);
+        if (meshItr != model_->meshData_->meshGroup_.end()) {
+            Transform& meshTransform = model_->transforms_[&meshItr->second];
             // mesh の ワールド行列を更新
-            meshTransform.openData_.worldMat = node.localMatrix * transform_.worldMat;
-            meshTransform.ConvertToBuffer();
+            meshTransform.worldMat = node.localMatrix * transform_.worldMat;
         }
     }
 }
@@ -104,34 +102,34 @@ void AnimationObject3d::Draw() {
 }
 
 void AnimationObject3d::DrawThis() {
-    ModelManager* manager = ModelManager::getInstance();
-    auto* commandList     = manager->dxCommand_->getCommandList();
+    //ModelManager* manager = ModelManager::getInstance();
+    //auto* commandList     = manager->dxCommand_->getCommandList();
 
-    uint32_t index = 0;
+    //uint32_t index = 0;
 
-    for (auto& mesh : model_->meshData_->mesh_) {
-        auto& material = model_->materialData_[index];
+    //for (auto& mesh : model_->meshData_->meshGroup_) {
+    //    auto& material = model_->materialData_[index];
 
-        IConstantBuffer<Transform>& meshTransform = model_->transformBuff_[&mesh];
-        meshTransform.ConvertToBuffer();
+    //    IConstantBuffer<Transform>& meshTransform = model_->transformBuff_[&mesh];
+    //    meshTransform.ConvertToBuffer();
 
-        ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
-        commandList->SetDescriptorHeaps(1, ppHeaps);
-        commandList->SetGraphicsRootDescriptorTable(
-            7,
-            TextureManager::getDescriptorGpuHandle(material.textureNumber));
+    //    ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
+    //    commandList->SetDescriptorHeaps(1, ppHeaps);
+    //    commandList->SetGraphicsRootDescriptorTable(
+    //        7,
+    //        TextureManager::getDescriptorGpuHandle(material.textureNumber));
 
-        commandList->IASetVertexBuffers(0, 1, &mesh.meshBuff->vbView);
-        commandList->IASetIndexBuffer(&mesh.meshBuff->ibView);
+    //    commandList->IASetVertexBuffers(0, 1, &mesh.meshBuff->vbView);
+    //    commandList->IASetIndexBuffer(&mesh.meshBuff->ibView);
 
-        meshTransform.SetForRootParameter(commandList, 0);
+    //    meshTransform.SetForRootParameter(commandList, 0);
 
-        material.material->SetForRootParameter(commandList, 2);
-        // 描画!!!
-        commandList->DrawIndexedInstanced(UINT(mesh.indexSize), 1, 0, 0, 0);
+    //    material.material->SetForRootParameter(commandList, 2);
+    //    // 描画!!!
+    //    commandList->DrawIndexedInstanced(UINT(mesh.indexSize), 1, 0, 0, 0);
 
-        ++index;
-    }
+    //    ++index;
+    //}
 }
 
 const Model* AnimationObject3d::getModel() const {

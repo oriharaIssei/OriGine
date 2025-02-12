@@ -162,9 +162,6 @@
     <ClCompile Include="code\engine\sprite\Sprite.cpp">
       <Filter>engine\renderer\2d</Filter>
     </ClCompile>
-    <ClCompile Include="code\engine\object3d\Object3d.cpp">
-      <Filter>engine\renderer\3d</Filter>
-    </ClCompile>
     <ClCompile Include="code\engine\directX12\PipelineStateObj.cpp">
       <Filter>engine\directX12</Filter>
     </ClCompile>
@@ -188,9 +185,6 @@
     </ClCompile>
     <ClCompile Include="code\lib\imGuiManager\ImGuiManager.cpp">
       <Filter>lib</Filter>
-    </ClCompile>
-    <ClCompile Include="code\engine\directX12\Object3dMesh.cpp">
-      <Filter>engine\directX12</Filter>
     </ClCompile>
     <ClCompile Include="code\engine\material\texture\TextureManager.cpp">
       <Filter>engine\material\texture</Filter>
@@ -297,6 +291,24 @@
     <ClCompile Include="code\engine\effect\silhouette\ISilhouette.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="code\engine\effect\particle\editor\ParticleEditor.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="code\engine\effect\editor\EffectEditor.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="code\engine\component\renderer\IRendererComponent.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="code\engine\component\renderer\MeshRender.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="code\engine\component\renderer\RenderManager.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="code\engine\component\IComponent.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\math\Vector2.h">
@@ -349,9 +361,6 @@
     </ClInclude>
     <ClInclude Include="code\engine\sprite\Sprite.h">
       <Filter>engine\renderer\2d</Filter>
-    </ClInclude>
-    <ClInclude Include="code\engine\object3d\Object3d.h">
-      <Filter>engine\renderer\3d</Filter>
     </ClInclude>
     <ClInclude Include="code\engine\transform\CameraTransform.h">
       <Filter>engine\transform</Filter>
@@ -418,9 +427,6 @@
     </ClInclude>
     <ClInclude Include="code\lib\imGuiManager\ImGuiManager.h">
       <Filter>lib</Filter>
-    </ClInclude>
-    <ClInclude Include="code\engine\directX12\Object3dMesh.h">
-      <Filter>engine\directX12</Filter>
     </ClInclude>
     <ClInclude Include="code\engine\material\texture\TextureManager.h">
       <Filter>engine\material\texture</Filter>
@@ -816,6 +822,30 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="code\engine\effect\silhouette\ISilhouette.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\effect\particle\editor\ParticleEditor.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\effect\editor\EffectEditor.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\component\renderer\IRendererComponent.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\component\renderer\MeshRender.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\component\renderer\RenderManager.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\component\IComponent.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\directX12\Mesh.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\component\renderer\RendererComponentFactory.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

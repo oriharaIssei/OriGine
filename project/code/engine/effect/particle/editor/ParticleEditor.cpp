@@ -20,7 +20,7 @@ static std::list<std::pair<std::string, std::string>> emitterFiles = myfs::Searc
 
 void ParticleEditor::Init() {
     dxCommand_ = std::make_unique<DxCommand>();
-    dxCommand_->Init(Engine::getInstance()->getDxDevice()->getDevice(), "main", "main");
+    dxCommand_->Init("main", "main");
 
     dxSrvArray_ = DxSrvArrayManager::getInstance()->Create(srvNum_);
 

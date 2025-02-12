@@ -1,14 +1,17 @@
 #include "SceneManager.h"
 
-#include "Engine.h"
+// Interface
 #include "IScene.h"
+
+/// engine
+#include "Engine.h"
+// directX12Object
+#include "directX12/DxRtvArrayManager.h"
+#include "directX12/DxSrvArrayManager.h"
+#include "directX12/RenderTexture.h"
+// module
 #include "camera/CameraManager.h"
-#include "engine/directX12/DxRtvArrayManager.h"
-#include "engine/directX12/DxSrvArrayManager.h"
-#include "engine/directX12/RenderTexture.h"
-#include "effect/manager/EffectManager.h"
-#include "primitiveDrawer/PrimitiveDrawer.h"
-#include "sprite/SpriteCommon.h"
+#include "component//renderer/RenderManager.h"
 
 SceneManager* SceneManager::getInstance() {
     static SceneManager instance;
@@ -29,6 +32,9 @@ void SceneManager::Finalize() {
     scenes_.clear();
 
     sceneView_->Finalize();
+
+    RenderManager::getInstance()->Finalize();
+
     sceneViewRtvArray_->Finalize();
     sceneViewSrvArray_->Finalize();
 }
@@ -40,38 +46,11 @@ void SceneManager::Update() {
 }
 
 void SceneManager::Draw() {
+
     sceneView_->PreDraw();
-
-    ///===============================================
-    /// sprite
-    ///===============================================
-    SpriteCommon::getInstance()->PreDraw();
-
-    currentScene_->DrawSprite();
-
-    ///===============================================
-    /// 3d Object
-    ///===============================================
-    Object3d::PreDraw();
-
-    currentScene_->Draw3d();
-    ///===============================================
-    /// Line
-    ///===============================================
-    PrimitiveDrawer::PreDrawLine();
-
-    currentScene_->DrawLine();
-    ///===============================================
-    /// Particle
-    ///===============================================
-    EffectManager::getInstance()->PreDraw();
-
-    currentScene_->DrawParticle();
-   
-    ///===============================================
-    /// off screen Rendering
-    ///===============================================
+    RenderManager::getInstance()->RenderFrame();
     sceneView_->PostDraw();
+
     Engine::getInstance()->ScreenPreDraw();
     sceneView_->DrawTexture();
     Engine::getInstance()->ScreenPostDraw();

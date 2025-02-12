@@ -1,4 +1,4 @@
-#include "object3d/Object3d.h"
+#include "ModelRenderer/ModelRenderer.h"
 
 #include "model/Model.h"
 #include "model/ModelManager.h"
@@ -10,23 +10,23 @@
 #include "imgui/imgui.h"
 #endif // _DEBUG
 
-#include "Engine.h"
-#include "Vector2.h"
-#include "Vector3.h"
-#include "Vector4.h"
 #include "camera/CameraManager.h"
 #include "directX12/DxFunctionHelper.h"
 #include "directX12/DxHeap.h"
+#include "Engine.h"
 #include "material/Material.h"
 #include "material/texture/TextureManager.h"
-#include "primitiveDrawer/PrimitiveDrawer.h"
+#include "Vector2.h"
+#include "Vector3.h"
+#include "Vector4.h"
 
+#include "ModelRenderer.h"
 #include <stdint.h>
 
-BlendMode Object3d::currentBlend_ = BlendMode::Alpha;
+BlendMode ModelRenderer::currentBlend_ = BlendMode::Alpha;
 
-#pragma region "Object3d"
-void Object3d::PreDraw() {
+#pragma region "ModelRenderer"
+void ModelRenderer::PreDraw() {
     currentBlend_ = BlendMode::Alpha;
 
     ModelManager* manager = ModelManager::getInstance();
@@ -40,7 +40,7 @@ void Object3d::PreDraw() {
     CameraManager::getInstance()->setBufferForRootParameter(commandList, 1);
 }
 
-void Object3d::setBlendMode(BlendMode blend) {
+void ModelRenderer::setBlendMode(BlendMode blend) {
     currentBlend_         = blend;
     ModelManager* manager = ModelManager::getInstance();
     auto* commandList     = manager->dxCommand_->getCommandList();
@@ -49,11 +49,14 @@ void Object3d::setBlendMode(BlendMode blend) {
     commandList->SetPipelineState(manager->texturePso_[static_cast<uint32_t>(currentBlend_)]->pipelineState.Get());
 }
 
-Object3d::Object3d() {}
+ModelRenderer::ModelRenderer() {}
 
-Object3d::~Object3d() {}
+ModelRenderer::ModelRenderer(const std::string& directoryPath, const std::string& filename) {
+}
 
-void Object3d::Init(const std::string& directoryPath, const std::string& filename) {
+ModelRenderer::~ModelRenderer() {}
+
+void ModelRenderer::Init(const std::string& directoryPath, const std::string& filename) {
     data_ = ModelManager::getInstance()->Create(
         directoryPath,
         filename,
@@ -68,7 +71,7 @@ void Object3d::Init(const std::string& directoryPath, const std::string& filenam
         });
 }
 
-void Object3d::DrawThis() {
+void ModelRenderer::DrawThis() {
     ModelManager* manager = ModelManager::getInstance();
     auto* commandList     = manager->dxCommand_->getCommandList();
 
@@ -99,11 +102,11 @@ void Object3d::DrawThis() {
     }
 }
 
-void Object3d::setMaterial(IConstantBuffer<Material>* material, uint32_t index) {
+void ModelRenderer::setMaterial(IConstantBuffer<Material>* material, uint32_t index) {
     data_->materialData_[index].material = material;
 }
 
-void Object3d::UpdateTransform() {
+void ModelRenderer::UpdateTransform() {
     transform_.UpdateMatrix();
     for (auto& mesh : data_->meshData_->mesh_) {
         data_->transformBuff_[&mesh].openData_.parent = &transform_;
@@ -111,7 +114,7 @@ void Object3d::UpdateTransform() {
     }
 }
 
-void Object3d::Draw() {
+void ModelRenderer::Draw() {
     drawFuncTable_[(size_t)data_->meshData_->currentState_]();
 }
 #pragma endregion

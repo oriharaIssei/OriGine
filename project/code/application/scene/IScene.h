@@ -4,7 +4,6 @@
 
 #include "audio/Audio.h"
 #include "directX12/IConstantBuffer.h"
-#include "object3d/Object3d.h"
 #include "transform/CameraTransform.h"
 
 class RenderTexture;

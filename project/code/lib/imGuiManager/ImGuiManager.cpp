@@ -25,7 +25,7 @@ void ImGuiManager::Init(const WinApp* window,const DxDevice* dxDevice,const DxSw
 	srvHeap_ = DxHeap::getInstance()->getSrvHeap();
 
 	dxCommand_ = std::make_unique<DxCommand>();
-	dxCommand_->Init(Engine::getInstance()->getDxDevice()->getDevice(),"main","main");
+	dxCommand_->Init("main","main");
 
 	// 先頭のDescriptorを使っている事になっているので合わせる
 	// 追記，fontのテクスチャに使われているらしい

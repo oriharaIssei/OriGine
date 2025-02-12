@@ -43,18 +43,18 @@ struct hash<VertexKey> {
 } // namespace std
 
 #pragma region "LoadFunctions"
-void ProcessMeshData(Mesh3D& meshData, const std::vector<TextureVertexData>& vertices, const std::vector<uint32_t>& indices) {
-    TextureObject3dMesh* textureMesh = new TextureObject3dMesh();
+void ProcessMeshData(TextureMesh& meshData, const std::vector<TextureVertexData>& vertices, const std::vector<uint32_t>& indices) {
+    TextureMesh textureMesh = TextureMesh();
 
-    meshData.dataSize = static_cast<int32_t>(sizeof(TextureVertexData) * vertices.size());
+    //meshData.dataSize = static_cast<int32_t>(sizeof(TextureVertexData) * vertices.size());
 
-    textureMesh->Create(static_cast<UINT>(vertices.size()), static_cast<UINT>(indices.size()));
-    memcpy(textureMesh->vertData, vertices.data(), vertices.size() * sizeof(TextureVertexData));
-    meshData.meshBuff.reset(textureMesh);
+    textureMesh.Init(static_cast<UINT>(vertices.size()), static_cast<UINT>(indices.size()));
+    memcpy(textureMesh.vertData, vertices.data(), vertices.size() * sizeof(TextureVertexData));
 
-    memcpy(meshData.meshBuff->indexData, indices.data(), static_cast<UINT>(static_cast<size_t>(indices.size()) * sizeof(uint32_t)));
+    meshData = textureMesh;
+    memcpy(meshData.indexData, indices.data(), static_cast<UINT>(static_cast<size_t>(indices.size()) * sizeof(uint32_t)));
 
-    meshData.vertSize  = static_cast<int32_t>(vertices.size());
+    meshData.vertexSize  = static_cast<int32_t>(vertices.size());
     meshData.indexSize = static_cast<int32_t>(indices.size());
 }
 
@@ -130,16 +130,15 @@ void LoadModelFile(ModelMeshData* data, const std::string& directoryPath, const 
     // ノードとメッシュの対応表を作成
     std::unordered_map<unsigned int, std::string> meshNodeMap = CreateMeshNodeMap(scene);
     for (const auto& [nodeIndex, nodeName] : meshNodeMap) {
-        data->meshIndexes[nodeName] = nodeIndex;
     }
 
     /// node 読み込み
     data->rootNode = ReadNode(scene->mRootNode);
 
     for (uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex) {
-        auto& mesh = data->mesh_.emplace_back(Mesh3D());
-
         aiMesh* loadedMesh = scene->mMeshes[meshIndex];
+
+        auto& mesh = data->meshGroup_[loadedMesh->mName.C_Str()] = TextureMesh();
 
         // 頂点データとインデックスデータの処理
         for (uint32_t faceIndex = 0; faceIndex < loadedMesh->mNumFaces; ++faceIndex) {
@@ -180,9 +179,6 @@ void LoadModelFile(ModelMeshData* data, const std::string& directoryPath, const 
                 indices.push_back(vertexMap[vertexKey]);
             }
         }
-
-        // メッシュに対応するノード名を設定
-        mesh.nodeName = meshNodeMap[meshIndex];
 
         // マテリアルとテクスチャの処理
         aiMaterial* material = scene->mMaterials[loadedMesh->mMaterialIndex];
@@ -235,11 +231,8 @@ std::unique_ptr<Model> ModelManager::Create(
         result->meshData_     = targetModelMesh;
         result->materialData_ = defaultMaterials_[result->meshData_];
 
-        for (auto& mesh : result->meshData_->mesh_) {
-            result->transformBuff_[&mesh].CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
-
-            result->transformBuff_[&mesh].openData_.UpdateMatrix();
-            result->transformBuff_[&mesh].ConvertToBuffer();
+        for (auto& [name,data] : result->meshData_->meshGroup_) {
+            result->transforms_[&data].Update();
         }
 
         if (callBack != nullptr) {
@@ -279,14 +272,10 @@ void ModelManager::Init() {
         maPtr);
 
     dxCommand_ = std::make_unique<DxCommand>();
-    dxCommand_->Init(Engine::getInstance()->getDxDevice()->getDevice(), "main", "main");
+    dxCommand_->Init("main", "main");
 
     size_t index = 0;
 
-    for (auto& texShaderKey : Engine::getInstance()->getTexturePsoKeys()) {
-        texturePso_[index] = ShaderManager::getInstance()->getPipelineStateObj(texShaderKey);
-        index++;
-    }
 }
 
 void ModelManager::Finalize() {
@@ -295,7 +284,7 @@ void ModelManager::Finalize() {
     modelLibrary_.clear();
 }
 
-void ModelManager::pushBackDefaultMaterial(ModelMeshData* key, Material3D material) {
+void ModelManager::pushBackDefaultMaterial(ModelMeshData* key, TexturedMaterial material) {
     defaultMaterials_[key].emplace_back(material);
 }
 
@@ -314,13 +303,11 @@ void ModelManager::LoadTask::Update() {
 
     auto device = Engine::getInstance()->getDxDevice()->getDevice();
     std::mutex mutex;
-    for (auto& mesh : model->meshData_->mesh_) {
+    for (auto& [name,data] : model->meshData_->meshGroup_) {
         try {
             std::lock_guard<std::mutex> lock(mutex);
-            model->transformBuff_[&mesh] = IConstantBuffer<Transform>();
-            model->transformBuff_[&mesh].CreateBuffer(device);
-            model->transformBuff_[&mesh].openData_.UpdateMatrix();
-            model->transformBuff_[&mesh].ConvertToBuffer();
+            model->transforms_[&data] = Transform();
+            model->transforms_[&data].Update();
         } catch (const std::exception& e) {
             // エラーハンドリング
             std::cerr << "Error creating or updating buffer: " << e.what() << std::endl;

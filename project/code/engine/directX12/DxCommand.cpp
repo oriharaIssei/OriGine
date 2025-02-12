@@ -1,11 +1,23 @@
 #include "directX12/DxCommand.h"
 
-#include "directX12/DxFence.h"
+///stl
+//assert
 #include <cassert>
+///engine
+#include "Engine.h"
+//directX12Object
+#include "directX12/DxFence.h"
 
 std::unordered_map < std::string,Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>> DxCommand::commandListMap_;
 std::unordered_map<std::string,Microsoft::WRL::ComPtr<ID3D12CommandAllocator>> DxCommand::commandAllocatorMap_;
 std::unordered_map<std::string,Microsoft::WRL::ComPtr<ID3D12CommandQueue>> DxCommand::commandQueueMap_;
+
+
+DxCommand::DxCommand() {
+}
+
+DxCommand::~DxCommand() {
+}
 
 void DxCommand::CreateCommandListWithAllocator(ID3D12Device* device,const std::string& listAndAllocatorKey,D3D12_COMMAND_LIST_TYPE listType){
 	commandListMap_[listAndAllocatorKey] = nullptr;
@@ -36,8 +48,10 @@ void DxCommand::CreateCommandQueue(ID3D12Device* device,const std::string& queue
 	assert(SUCCEEDED(result));
 };
 
-void DxCommand::Init(ID3D12Device* device,const std::string& commandListKey,const std::string& commandQueueKey){
+void DxCommand::Init(const std::string& commandListKey, const std::string& commandQueueKey) {
 	HRESULT result;
+
+    ID3D12Device* device = Engine::getInstance()->getDxDevice()->getDevice();
 
 	if(commandQueueMap_.count(commandQueueKey) == 0){
 		///================================================
@@ -76,8 +90,10 @@ void DxCommand::Init(ID3D12Device* device,const std::string& commandListKey,cons
 	commandAllocator_ = commandAllocatorMap_[commandListKey];
 }
 
-void DxCommand::Init(ID3D12Device* device,const std::string& commandListKey,const std::string& commandQueueKey,D3D12_COMMAND_LIST_TYPE listType){
+void DxCommand::Init(const std::string& commandListKey,const std::string& commandQueueKey,D3D12_COMMAND_LIST_TYPE listType){
 	HRESULT result;
+
+    ID3D12Device* device = Engine::getInstance()->getDxDevice()->getDevice();
 
 	if(commandQueueMap_.count(commandQueueKey) == 0){
 		///================================================

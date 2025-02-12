@@ -16,9 +16,9 @@
 #include "myFileSystem/MyFileSystem.h"
 
 #ifdef _DEBUG
-#include "Timeline.h"
 #include "imgui/imgui.h"
 #include "imgui/imgui_internal.h"
+#include "Timeline.h"
 #endif // _DEBUG
 
 static std::array<std::string, static_cast<int>(InterpolationType::COUNT)> interpolationTypeString = {
@@ -33,7 +33,7 @@ AnimationEditor::~AnimationEditor() {}
 
 void AnimationEditor::Init() {
     // アニメーションリストを取得
-    //json
+    // json
     animationSettingsFileList_ = myfs::SearchFile("resource/GlobalVariables/Animations", "json");
 
     // gltf
@@ -55,12 +55,12 @@ void AnimationEditor::Update() {
         ///================================================================
         if (ImGui::BeginMenuBar()) {
             /// ================================================================
-            //ファイル
+            // ファイル
             if (ImGui::BeginMenu("File")) {
                 // filelist reload
                 if (ImGui::MenuItem("Reload")) {
                     //===================== アニメーションリストを取得 =====================//
-                    //json
+                    // json
                     animationSettingsFileList_ = myfs::SearchFile("resource/GlobalVariables/Animations", "json");
 
                     // gltf
@@ -189,7 +189,7 @@ void AnimationEditor::Update() {
                         // モデルのパスを保存
                         currentEditAnimationSetting_->targetModelDirection.setValue(directory);
                         currentEditAnimationSetting_->targetModelFileName.setValue(filename);
-                        //モデルを読み込む
+                        // モデルを読み込む
                         currentEditObject_->setModel(ModelManager::getInstance()->Create(directory, filename));
 
                         // モデルの読み込みが終わるまで待機
@@ -201,10 +201,10 @@ void AnimationEditor::Update() {
                         // アニメーションを リセット
                         auto currentEditAnimationData = currentEditObject_->getAnimation()->getData();
                         currentEditAnimationData->nodeAnimations.clear();
-                        for (const auto& mesh : currentEditObject_->getModel()->meshData_->mesh_) {
-                            currentEditAnimationData->nodeAnimations[mesh.nodeName].scale.push_back({0.0f, {1.0f, 1.0f, 1.0f}});
-                            currentEditAnimationData->nodeAnimations[mesh.nodeName].rotate.push_back({0.0f, {0.0f, 0.0f, 0.0f, 1.0f}});
-                            currentEditAnimationData->nodeAnimations[mesh.nodeName].translate.push_back({0.0f, {0.0f, 0.0f, 0.0f}});
+                        for (const auto& [name, mesh] : currentEditObject_->getModel()->meshData_->meshGroup_) {
+                            currentEditAnimationData->nodeAnimations[name].scale.push_back({0.0f, {1.0f, 1.0f, 1.0f}});
+                            currentEditAnimationData->nodeAnimations[name].rotate.push_back({0.0f, {0.0f, 0.0f, 0.0f, 1.0f}});
+                            currentEditAnimationData->nodeAnimations[name].translate.push_back({0.0f, {0.0f, 0.0f, 0.0f}});
                         }
                     }
                     if (isSelected) {
@@ -227,9 +227,7 @@ void AnimationEditor::Update() {
     ///================================================================
     /// アニメーションの編集
     ///================================================================
-    if (currentEditObject_ &&
-        currentEditObject_->getModel() &&
-        currentEditObject_->getAnimation()->getData()) {
+    if (currentEditObject_ && currentEditObject_->getModel() && currentEditObject_->getAnimation()->getData()) {
         ImGui::BeginGroup(); // グループ化
         std::string parentWindowName = currentEditAnimationSetting_->name + "TimeLines";
         if (ImGui::Begin(parentWindowName.c_str())) {

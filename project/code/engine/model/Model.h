@@ -1,29 +1,29 @@
 #pragma once
 
-///stl
-//memory
+/// stl
+// memory
 #include <memory>
-//contiainer
-#include <unordered_map>
+// Container
+#include <map>
 #include <vector>
 // basic class
 #include <string>
 
-///engine
-//assetes
+/// engine
+// assets
 #include "material/Material.h"
-//dx12Object
+// dx12Object
 #include "directX12/IConstantBuffer.h"
-#include "directX12/Object3dMesh.h"
-//component
+#include "directX12/Mesh.h"
+// component
 #include "transform/Transform.h"
-//lib
+// lib
 #include "Thread/Thread.h"
-//math
+// math
 #include "Matrix4x4.h"
 #include "Quaternion.h"
 
-struct Material3D {
+struct TexturedMaterial {
     uint32_t textureNumber;
     IConstantBuffer<Material>* material;
 };
@@ -34,36 +34,22 @@ struct ModelNode {
     std::vector<ModelNode> children;
 };
 
-struct Mesh3D {
-    std::unique_ptr<IObject3dMesh> meshBuff;
-    size_t dataSize  = 0;
-    size_t vertSize  = 0;
-    size_t indexSize = 0;
-
-    // 対応するノードの名前
-    std::string nodeName;
-};
-
 struct ModelMeshData {
     LoadState currentState_ = LoadState::Unloaded;
 
-    std::unordered_map<std::string, uint32_t> meshIndexes;
-    std::vector<Mesh3D> mesh_;
+    std::map<std::string, TextureMesh> meshGroup_;
     ModelNode rootNode;
 };
 
-struct Model {
+struct Model { // Model から MeshModel に名称変更
     Model() = default;
-    ~Model() {
-        for (auto& [key, transofrmBuffer] : transformBuff_) {
-            transofrmBuffer.Finalize();
-        }
-    }
+    ~Model() {}
     ModelMeshData* meshData_;
 
-    std::unordered_map<Mesh3D*, IConstantBuffer<Transform>> transformBuff_;
+    // Meshに対応した TransformBuffer
+    std::map<TextureMesh*, Transform> transforms_;
 
-    using ModelMaterialData = std::vector<Material3D>;
+    using ModelMaterialData = std::vector<TexturedMaterial>;
     ModelMaterialData materialData_;
 
     void setMaterialBuff(int32_t part, IConstantBuffer<Material>* buff) {

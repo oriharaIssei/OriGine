@@ -566,14 +566,14 @@ void Emitter::Draw() {
     ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
 
-    auto& model    = particleModel_->meshData_->mesh_[0];
+    auto& model    = particleModel_->meshData_->meshGroup_[0];
     auto& material = particleModel_->materialData_[0];
     commandList->SetGraphicsRootDescriptorTable(
         3,
         TextureManager::getDescriptorGpuHandle(textureIndex_));
 
-    commandList->IASetVertexBuffers(0, 1, &model.meshBuff->vbView);
-    commandList->IASetIndexBuffer(&model.meshBuff->ibView);
+    commandList->IASetVertexBuffers(0, 1, &model.vbView);
+    commandList->IASetIndexBuffer(&model.ibView);
 
     structuredTransform_.SetForRootParameter(commandList, 0);
 
