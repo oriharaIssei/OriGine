@@ -210,7 +210,7 @@
     <ClCompile Include="code\engine\assets\IAsset.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="code\application\scene\GameScene.cpp">
+    <ClCompile Include="code\engine\scene\GameScene.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="code\engine\directX12\RenderTexture.cpp">
@@ -219,10 +219,10 @@
     <ClCompile Include="code\engine\effect\particle\emitter\EmitterShape.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="code\application\scene\IScene.cpp">
+    <ClCompile Include="code\engine\scene\IScene.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="code\application\scene\SceneManager.cpp">
+    <ClCompile Include="code\engine\scene\SceneManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="code\lib\node\OperatorNodes.cpp">
@@ -231,10 +231,10 @@
     <ClCompile Include="code\math\MyEasing.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="code\application\MyGame.cpp">
+    <ClCompile Include="code\MyGame.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="code\application\FrameWork.cpp">
+    <ClCompile Include="code\FrameWork.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="code\math\Quaternion.cpp">
@@ -261,31 +261,22 @@
     <ClCompile Include="code\engine\editor\EngineEditor.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="code\application\scene\AnimationEditScene.cpp">
+    <ClCompile Include="code\engine\scene\AnimationEditScene.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="code\engine\camera\gameCamera\GameCamera.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="code\application\scene\TitleScene.cpp">
+    <ClCompile Include="code\engine\scene\TitleScene.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="code\application\scene\GameClearScene.cpp">
+    <ClCompile Include="code\engine\scene\GameClearScene.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="code\application\scene\EffectEditScene.cpp">
+    <ClCompile Include="code\engine\scene\EffectEditScene.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="code\engine\effect\Effect.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="code\application\Collision\Collider.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="code\application\Collision\CollisionManager.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="code\application\GameObject\GameObject.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="code\engine\effect\silhouette\ISilhouette.cpp">
@@ -473,7 +464,7 @@
     <ClInclude Include="code\engine\assets\IAsset.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="code\application\scene\GameScene.h">
+    <ClInclude Include="code\engine\scene\GameScene.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="code\engine\directX12\RenderTexture.h">
@@ -485,10 +476,10 @@
     <ClInclude Include="code\engine\effect\particle\emitter\EmitterShape.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="code\application\scene\IScene.h">
+    <ClInclude Include="code\engine\scene\IScene.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="code\application\scene\SceneManager.h">
+    <ClInclude Include="code\engine\scene\SceneManager.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="code\lib\globalVariables\SerializedField.h">
@@ -503,10 +494,10 @@
     <ClInclude Include="code\math\MyEasing.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="code\application\MyGame.h">
+    <ClInclude Include="code\MyGame.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="code\application\FrameWork.h">
+    <ClInclude Include="code\FrameWork.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="code\math\Quaternion.h">
@@ -536,22 +527,22 @@
     <ClInclude Include="code\engine\editor\EngineEditor.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="code\application\scene\AnimationEditScene.h">
+    <ClInclude Include="code\engine\scene\AnimationEditScene.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="code\engine\camera\gameCamera\GameCamera.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="code\application\scene\TitleScene.h">
+    <ClInclude Include="code\engine\scene\TitleScene.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="code\application\scene\GameClearScene.h">
+    <ClInclude Include="code\engine\scene\GameClearScene.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="code\math\Vector.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="code\application\scene\EffectEditScene.h">
+    <ClInclude Include="code\engine\scene\EffectEditScene.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="code\engine\effect\Effect.h">
@@ -810,15 +801,6 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="externals\nlohmann\json_fwd.hpp">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="code\application\Collision\Collider.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="code\application\Collision\CollisionManager.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="code\application\GameObject\GameObject.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="code\engine\effect\silhouette\ISilhouette.h">

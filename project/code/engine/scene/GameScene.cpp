@@ -1,13 +1,11 @@
 #include "GameScene.h"
 
-///stl
+/// stl
 #include <string>
 
-///Engine & application
+/// Engine & application
 #include "Engine.h"
-//module
-#include "../Collision/CollisionManager.h"
-#include "SceneManager.h"
+// module
 #include "directX12/DxRtvArrayManager.h"
 #include "directX12/DxSrvArrayManager.h"
 #include "effect/manager/EffectManager.h"
@@ -15,18 +13,19 @@
 #include "model/ModelManager.h"
 #include "myFileSystem/MyFileSystem.h"
 #include "primitiveDrawer/PrimitiveDrawer.h"
+#include "SceneManager.h"
 #include "sprite/SpriteCommon.h"
 
-//component
+// component
 #include "camera/CameraManager.h"
+#include "component/renderer/RendererComponentFactory.h"
 #include "directX12/RenderTexture.h"
 #include "object3d/AnimationObject3d.h"
 #include "sprite/Sprite.h"
-#include "component/renderer/RendererComponentFactory.h"
 
-//object
+// object
 #include "camera/gameCamera/GameCamera.h"
-//debug
+// debug
 #ifdef _DEBUG
 #include "animationEditor/AnimationEditor.h"
 #include "camera/debugCamera/DebugCamera.h"
@@ -48,9 +47,9 @@ void GameScene::Init() {
 #endif // _DEBUG
     ModelManager* modelManager = ModelManager::getInstance();
 
-    //input
+    // input
     input_ = Input::getInstance();
-    //camera
+    // camera
     gameCamera_ = std::make_unique<GameCamera>();
     gameCamera_->Init();
 
@@ -70,7 +69,7 @@ void GameScene::Update() {
         gameCamera_->Update();
         CameraManager::getInstance()->setTransform(gameCamera_->getCameraTransform());
     }
-#else  // !_DEBUG
+#else // !_DEBUG
     gameCamera_->Update();
     CameraManager::getInstance()->setTransform(gameCamera_->getCameraTransform());
 #endif // _DEBUG

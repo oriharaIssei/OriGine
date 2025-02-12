@@ -1,4 +1,4 @@
-#include "application/MyGame.h"
+#include "MyGame.h"
 #include "directX12/DxDebug.h"
 #include "lib/myFileSystem/MyFileSystem.h"
 
