@@ -9,10 +9,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DirectXTex", "externals\Dir
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imgui", "externals\imgui\ImGui.vcxproj", "{77ACF814-1EE6-459C-9DFF-D3F7EAF61A32}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "application", "application\application.vcxproj", "{98A14D90-8DDB-430C-8CDD-552D0D55CF97}"
-	ProjectSection(ProjectDependencies) = postProject
-		{B23D79D6-1E1D-F871-2735-834893935ED3} = {B23D79D6-1E1D-F871-2735-834893935ED3}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OriGineApplication", "OriGineApplication\OriGineApplication.vcxproj", "{98A14D90-8DDB-430C-8CDD-552D0D55CF97}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
