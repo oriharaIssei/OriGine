@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{b733f3b5-81c4-41bb-a9ba-362b2e8a1fae}</ProjectGuid>
-    <RootNamespace>Application</RootNamespace>
+    <ProjectGuid>{98a14d90-8ddb-430c-8cdd-552d0d55cf97}</ProjectGuid>
+    <RootNamespace>application</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -71,12 +71,14 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)..\..\..\..\generated\outputs\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)..\..\..\..\generated\outputs\obj\$(ProjectName)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)..\..\generated\outputs\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\generated\outputs\obj\$(ProjectName)\$(Configuration)\</IntDir>
+    <IncludePath>$(ProjectDir)..\code\lib;$(ProjectDir)..\code\engine;$(ProjectDir)..\code;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)..\..\..\..\generated\outputs\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)..\..\..\..\generated\outputs\obj\$(ProjectName)\$(Configuration)\</IntDir>
+    <OutDir>$(SolutionDir)..\..\generated\outputs\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)..\..\generated\outputs\obj\$(ProjectName)\$(Configuration)\</IntDir>
+    <IncludePath>$(ProjectDir)..\code\lib;$(ProjectDir)..\code\engine;$(ProjectDir)..\code;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -139,6 +141,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="code\a.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="code\a.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

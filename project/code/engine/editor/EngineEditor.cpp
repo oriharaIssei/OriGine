@@ -3,12 +3,12 @@
 #ifdef _DEBUG
 ///engine
 //module
-#include "application/scene/SceneManager.h"
+#include "scene/SceneManager.h"
 #include "engine/camera/CameraManager.h"
 #include "engine/material/Material.h"
 #include "engine/material/light/LightManager.h"
 //scene
-#include "application/scene/IScene.h"
+#include "scene/IScene.h"
 //externals
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_dx12.h"

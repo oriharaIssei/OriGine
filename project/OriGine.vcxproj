@@ -105,9 +105,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="code\engine\Collision\Collider.cpp" />
-    <ClCompile Include="code\engine\Collision\CollisionManager.cpp" />
-    <ClCompile Include="code\engine\GameObject\GameObject.cpp" />
     <ClCompile Include="code\engine\scene\AnimationEditScene.cpp" />
     <ClCompile Include="code\engine\animation\Animation.cpp" />
     <ClCompile Include="code\engine\animation\AnimationManager.cpp" />
@@ -184,9 +181,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="code\engine\effect\editor\EffectEditor.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="code\engine\Collision\Collider.h" />
-    <ClInclude Include="code\engine\Collision\CollisionManager.h" />
-    <ClInclude Include="code\engine\GameObject\GameObject.h" />
     <ClInclude Include="code\engine\scene\AnimationEditScene.h" />
     <ClInclude Include="code\engine\animation\Animation.h" />
     <ClInclude Include="code\engine\animation\AnimationManager.h" />
