@@ -105,10 +105,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="code\application\Collision\Collider.cpp" />
-    <ClCompile Include="code\application\Collision\CollisionManager.cpp" />
-    <ClCompile Include="code\application\GameObject\GameObject.cpp" />
-    <ClCompile Include="code\application\scene\AnimationEditScene.cpp" />
+    <ClCompile Include="code\engine\Collision\Collider.cpp" />
+    <ClCompile Include="code\engine\Collision\CollisionManager.cpp" />
+    <ClCompile Include="code\engine\GameObject\GameObject.cpp" />
+    <ClCompile Include="code\engine\scene\AnimationEditScene.cpp" />
     <ClCompile Include="code\engine\animation\Animation.cpp" />
     <ClCompile Include="code\engine\animation\AnimationManager.cpp" />
     <ClCompile Include="code\engine\camera\CameraManager.cpp" />
@@ -122,7 +122,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="code\engine\effect\silhouette\ISilhouette.cpp" />
     <ClCompile Include="code\engine\object3d\AnimationObject3d.cpp" />
     <ClCompile Include="code\lib\animationEditor\AnimationEditor.cpp" />
-    <ClCompile Include="code\application\scene\GameScene.cpp" />
+    <ClCompile Include="code\engine\scene\GameScene.cpp" />
     <ClCompile Include="code\engine\audio\Audio.cpp" />
     <ClCompile Include="code\engine\directX12\RenderTexture.cpp" />
     <ClCompile Include="code\engine\material\light\LightManager.cpp" />
@@ -171,23 +171,23 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="code\engine\effect\manager\EffectManager.cpp" />
     <ClCompile Include="code\engine\transform\ParticleTransform.cpp" />
     <ClCompile Include="code\engine\assets\IAsset.cpp" />
-    <ClCompile Include="code\application\scene\IScene.cpp" />
-    <ClCompile Include="code\application\scene\SceneManager.cpp" />
+    <ClCompile Include="code\engine\scene\IScene.cpp" />
+    <ClCompile Include="code\engine\scene\SceneManager.cpp" />
     <ClCompile Include="code\lib\node\OperatorNodes.cpp" />
-    <ClCompile Include="code\application\MyGame.cpp" />
-    <ClCompile Include="code\application\FrameWork.cpp" />
+    <ClCompile Include="code\MyGame.cpp" />
+    <ClCompile Include="code\FrameWork.cpp" />
     <ClCompile Include="code\math\Quaternion.cpp" />
-    <ClCompile Include="code\application\scene\TitleScene.cpp" />
-    <ClCompile Include="code\application\scene\GameClearScene.cpp" />
-    <ClCompile Include="code\application\scene\EffectEditScene.cpp" />
+    <ClCompile Include="code\engine\scene\TitleScene.cpp" />
+    <ClCompile Include="code\engine\scene\GameClearScene.cpp" />
+    <ClCompile Include="code\engine\scene\EffectEditScene.cpp" />
     <ClCompile Include="code\engine\effect\Effect.cpp" />
     <ClCompile Include="code\engine\effect\editor\EffectEditor.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="code\application\Collision\Collider.h" />
-    <ClInclude Include="code\application\Collision\CollisionManager.h" />
-    <ClInclude Include="code\application\GameObject\GameObject.h" />
-    <ClInclude Include="code\application\scene\AnimationEditScene.h" />
+    <ClInclude Include="code\engine\Collision\Collider.h" />
+    <ClInclude Include="code\engine\Collision\CollisionManager.h" />
+    <ClInclude Include="code\engine\GameObject\GameObject.h" />
+    <ClInclude Include="code\engine\scene\AnimationEditScene.h" />
     <ClInclude Include="code\engine\animation\Animation.h" />
     <ClInclude Include="code\engine\animation\AnimationManager.h" />
     <ClInclude Include="code\engine\camera\CameraManager.h" />
@@ -204,7 +204,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="code\engine\module\editor\IEditor.h" />
     <ClInclude Include="code\engine\object3d\AnimationObject3d.h" />
     <ClInclude Include="code\lib\animationEditor\AnimationEditor.h" />
-    <ClInclude Include="code\application\scene\GameScene.h" />
+    <ClInclude Include="code\engine\scene\GameScene.h" />
     <ClInclude Include="code\engine\audio\Audio.h" />
     <ClInclude Include="code\engine\directX12\IStructuredBuffer.h" />
     <ClInclude Include="code\engine\directX12\RenderTexture.h" />
@@ -261,7 +261,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="code\engine\effect\particle\emitter\EmitterShape.h" />
     <ClInclude Include="code\lib\node\DefaultNodes.h" />
     <ClInclude Include="code\math\MyEasing.h" />
-    <ClInclude Include="code\application\scene\EffectEditScene.h" />
+    <ClInclude Include="code\engine\scene\EffectEditScene.h" />
     <ClInclude Include="code\engine\effect\Effect.h" />
     <ClInclude Include="code\lib\Thread\Thread.h" />
     <ClInclude Include="code\engine\effect\manager\EffectManager.h" />
@@ -269,13 +269,13 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="code\engine\module\IModule.h" />
     <ClInclude Include="code\engine\assets\IAsset.h" />
     <ClInclude Include="code\lib\myRandom\MyRandom.h" />
-    <ClInclude Include="code\application\scene\IScene.h" />
-    <ClInclude Include="code\application\scene\SceneManager.h" />
+    <ClInclude Include="code\engine\scene\IScene.h" />
+    <ClInclude Include="code\engine\scene\SceneManager.h" />
     <ClInclude Include="code\lib\node\OperatorNodes.h" />
-    <ClInclude Include="code\application\MyGame.h" />
-    <ClInclude Include="code\application\FrameWork.h" />
-    <ClInclude Include="code\application\scene\TitleScene.h" />
-    <ClInclude Include="code\application\scene\GameClearScene.h" />
+    <ClInclude Include="code\MyGame.h" />
+    <ClInclude Include="code\FrameWork.h" />
+    <ClInclude Include="code\engine\scene\TitleScene.h" />
+    <ClInclude Include="code\engine\scene\GameClearScene.h" />
     <ClInclude Include="code\engine\effect\editor\EffectEditor.h" />
     <ClInclude Include="externals\assimp\include\assimp\aabb.h" />
     <ClInclude Include="externals\assimp\include\assimp\ai_assert.h" />
