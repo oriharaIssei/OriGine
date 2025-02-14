@@ -13,7 +13,7 @@ class DebugCamera;
 class CollisionManager;
 
 // component
-#include "component/renderer/MeshRender.h"
+#include "sprite/Sprite.h"
 
 // object
 class EnemyManager;
@@ -45,7 +45,7 @@ private:
 #endif // _DEBUG
     Input* input_ = nullptr;
 
-    std::shared_ptr<TextureMeshRenderer> test;
+    std::shared_ptr<SpriteRenderer> test;
 
     std::unique_ptr<GameCamera> gameCamera_;
 
