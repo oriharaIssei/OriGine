@@ -29,8 +29,13 @@ public:
 
     void ConvertToBuffer();
     void SetForRootParameter(ID3D12GraphicsCommandList* cmdList, uint32_t rootParameterNum) const;
+
     // 公開用変数
     constBuff openData_;
+    // openData_ のアクセス
+    constBuff* operator->() { return &openData_; }
+    const constBuff* operator->() const { return &openData_; }
+    operator const constBuff*() const { return &openData_; }
 
 protected:
     // bind されたデータ

@@ -1,5 +1,5 @@
 #pragma once
-#include "IRendererComponent.h"
+#include "../IRendererComponent.h"
 
 #include "module/IModule.h"
 
@@ -49,6 +49,9 @@ public:
     virtual void Update() = 0;
     virtual void Render() = 0;
     virtual void Finalize() {
+        for (auto& mesh : *meshGroup_) {
+            mesh.Finalize();
+        }
         meshGroup_.reset();
     }
 
