@@ -53,7 +53,7 @@ void GameScene::Init() {
     gameCamera_ = std::make_unique<GameCamera>();
     gameCamera_->Init();
 
-    test = CreateFromModelFile("resource/Models", "Enemy.obj");
+    test = CreateRendererComponent<SpriteRenderer,SpriteMeshController>("resource/Texture/white1x1.png");
 }
 
 void GameScene::Update() {

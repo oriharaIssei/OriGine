@@ -204,7 +204,7 @@ protected:
     ///</summary>
     virtual void CreatePso() = 0;
 
-private:
+protected:
     std::vector<std::shared_ptr<RenderComponent>> renderSchedule_;
 
 protected:
