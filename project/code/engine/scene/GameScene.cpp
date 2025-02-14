@@ -14,14 +14,13 @@
 #include "myFileSystem/MyFileSystem.h"
 #include "primitiveDrawer/PrimitiveDrawer.h"
 #include "SceneManager.h"
-#include "sprite/SpriteCommon.h"
 
 // component
 #include "camera/CameraManager.h"
 #include "component/renderer/RendererComponentFactory.h"
 #include "directX12/RenderTexture.h"
 #include "object3d/AnimationObject3d.h"
-#include "sprite/Sprite.h"
+#include "component/renderer/sprite/Sprite.h"
 
 // object
 #include "camera/gameCamera/GameCamera.h"
@@ -53,7 +52,7 @@ void GameScene::Init() {
     gameCamera_ = std::make_unique<GameCamera>();
     gameCamera_->Init();
 
-    test = CreateRendererComponent<SpriteRenderer,SpriteMeshController>("resource/Texture/white1x1.png");
+    test = CreateRendererComponent<SpriteRenderer,SpriteRendererController>("resource/Texture/white1x1.png");
 }
 
 void GameScene::Update() {
