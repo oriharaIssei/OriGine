@@ -10,7 +10,7 @@
 #include "Model.h"
 //dx12Object
 #include "directX12/ShaderManager.h"
-#include "material/Texture/TextureManager.h"
+#include "texture/TextureManager.h"
 
 /// lib
 #include <assimp/Importer.hpp>

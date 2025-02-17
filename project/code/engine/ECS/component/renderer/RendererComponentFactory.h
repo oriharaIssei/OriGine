@@ -12,7 +12,7 @@
 //assets
 #include "model/Model.h"
 // component
-#include "MeshRender.h"
+#include "meshRenderer/MeshRender.h"
 // utility
 #include "util/TypeName.h"
 // manager

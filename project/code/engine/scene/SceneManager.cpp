@@ -4,6 +4,7 @@
 #include "IScene.h"
 
 /// engine
+#include "ECS/ECSManager.h"
 #include "Engine.h"
 // directX12Object
 #include "directX12/DxRtvArrayManager.h"
@@ -21,6 +22,9 @@ SceneManager* SceneManager::getInstance() {
 void SceneManager::Init() {
     sceneViewRtvArray_ = DxRtvArrayManager::getInstance()->Create(1);
     sceneViewSrvArray_ = DxSrvArrayManager::getInstance()->Create(1);
+
+    ecsManager_ = EntityComponentSystemManager::getInstance();
+    ecsManager_->Init();
 
     sceneView_ = std::make_unique<RenderTexture>(Engine::getInstance()->getDxCommand(), sceneViewRtvArray_.get(), sceneViewSrvArray_.get());
     /// TODO
@@ -41,6 +45,8 @@ void SceneManager::Finalize() {
 
 void SceneManager::Update() {
     currentScene_->Update();
+
+    ecsManager_->Run();
 
     CameraManager::getInstance()->DataConvertToBuffer();
 }

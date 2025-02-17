@@ -11,10 +11,12 @@ class RenderTexture;
 class DxRtvArray;
 class DxSrvArray;
 
+class EntityComponentSystemManager;
 class EngineEditor;
 
-class SceneManager{
+class SceneManager {
     friend class EngineEditor;
+
 public:
     static SceneManager* getInstance();
 
@@ -23,21 +25,26 @@ public:
 
     void Update();
     void Draw();
+
 private:
     SceneManager();
     ~SceneManager();
-    SceneManager(const SceneManager&) = delete;
+    SceneManager(const SceneManager&)            = delete;
     SceneManager* operator=(const SceneManager&) = delete;
+
 private:
     IScene* currentScene_ = nullptr;
+
+    EntityComponentSystemManager* ecsManager_ = nullptr;
 
     std::unique_ptr<RenderTexture> sceneView_;
     std::shared_ptr<DxRtvArray> sceneViewRtvArray_;
     std::shared_ptr<DxSrvArray> sceneViewSrvArray_;
 
-    std::unordered_map<std::string,int32_t> sceneIndexs_;
+    std::unordered_map<std::string, int32_t> sceneIndexs_;
     std::vector<std::unique_ptr<IScene>> scenes_;
+
 public:
-    void addScene(const std::string& name,std::unique_ptr<IScene> scene);
+    void addScene(const std::string& name, std::unique_ptr<IScene> scene);
     void changeScene(const std::string& name);
 };

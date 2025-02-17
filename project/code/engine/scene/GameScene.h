@@ -13,7 +13,7 @@ class DebugCamera;
 class CollisionManager;
 
 // component
-#include "sprite/Sprite.h"
+#include "renderer/sprite/Sprite.h"
 
 // object
 class EnemyManager;

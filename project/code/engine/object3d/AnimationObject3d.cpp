@@ -4,7 +4,7 @@
 #include "animation/Animation.h"
 #include "animation/AnimationManager.h"
 #include "material/Material.h"
-#include "material/texture/TextureManager.h"
+#include "texture/TextureManager.h"
 #include "model/Model.h"
 #include "model/ModelManager.h"
 

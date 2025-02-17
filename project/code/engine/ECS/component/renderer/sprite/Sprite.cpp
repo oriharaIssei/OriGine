@@ -1,4 +1,4 @@
-#include "sprite/Sprite.h"
+#include "Sprite.h"
 
 /// algorithm
 #include <algorithm>
@@ -9,7 +9,7 @@
 #include "directX12/DxFunctionHelper.h"
 #include <directX12/ShaderCompiler.h>
 // assets
-#include "material/texture/TextureManager.h"
+#include "texture/TextureManager.h"
 // lib
 #include "component/renderer/RenderManager.h"
 #include "logger/Logger.h"

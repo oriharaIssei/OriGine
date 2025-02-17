@@ -9,10 +9,9 @@
 #include "effect/manager/EffectManager.h"
 #include "imGuiManager/ImGuiManager.h"
 #include "material/light/LightManager.h"
-#include "material/texture/TextureManager.h"
+#include "texture/TextureManager.h"
 #include "model/ModelManager.h"
 #include "primitiveDrawer/PrimitiveDrawer.h"
-#include "sprite/SpriteCommon.h"
 
 // assets
 #include "Audio/Audio.h"
@@ -89,7 +88,6 @@ void Engine::Init() {
 
     PrimitiveDrawer::Init();
     ModelManager::getInstance()->Init();
-    SpriteCommon::getInstance()->Init();
     RenderTexture::Awake();
 
     materialManager_ = std::make_unique<MaterialManager>();
@@ -125,7 +123,6 @@ void Engine::Finalize() {
 #endif // _DEBUG
     ShaderManager::getInstance()->Finalize();
     PrimitiveDrawer::Finalize();
-    SpriteCommon::getInstance()->Finalize();
     ModelManager::getInstance()->Finalize();
     TextureManager::Finalize();
 

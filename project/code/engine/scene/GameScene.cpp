@@ -9,7 +9,7 @@
 #include "directX12/DxRtvArrayManager.h"
 #include "directX12/DxSrvArrayManager.h"
 #include "effect/manager/EffectManager.h"
-#include "material/texture/TextureManager.h"
+#include "texture/TextureManager.h"
 #include "model/ModelManager.h"
 #include "myFileSystem/MyFileSystem.h"
 #include "primitiveDrawer/PrimitiveDrawer.h"

@@ -17,7 +17,7 @@
 // directX12Object
 #include "directX12/Mesh.h"
 // module
-#include "material/texture/TextureManager.h"
+#include "texture/TextureManager.h"
 
 ///==================================================================================================================
 /// ↓ MeshRenderer
