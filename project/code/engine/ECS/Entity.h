@@ -18,7 +18,6 @@ public:
     GameEntity(const std::string& _dataType, uint32_t _id)
         : dataType_(_dataType), id_(_id) {}
 
-
     ~GameEntity() = default;
 
     operator uint32_t() const {
@@ -35,5 +34,8 @@ public:
     }
     const std::string& getDataType() const {
         return dataType_;
+    }
+    const std::string& getUniqueID() const {
+        return dataType_ + std::to_string(id_);
     }
 };

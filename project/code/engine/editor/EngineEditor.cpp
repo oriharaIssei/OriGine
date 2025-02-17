@@ -4,9 +4,9 @@
 ///engine
 //module
 #include "scene/SceneManager.h"
-#include "engine/camera/CameraManager.h"
-#include "engine/material/Material.h"
-#include "engine/material/light/LightManager.h"
+#include "camera/CameraManager.h"
+#include "material/Material.h"
+#include "material/light/LightManager.h"
 //scene
 #include "scene/IScene.h"
 //externals

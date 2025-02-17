@@ -46,6 +46,9 @@ private:
     /// </summary>
     std::vector<std::unique_ptr<ISystem>> systems_;
 
+    std::map<std::string, std::vector<IComponentArray*>> componentArraysByDataType_;
+    std::map<std::string, std::vector<ISystem*>> systemsByDataType_;
+
 public:
     /// <summary>
     /// エンティティの容量を取得する
@@ -64,6 +67,9 @@ public:
         }
         uint32_t index = freeEntityIndex_.back();
         freeEntityIndex_.pop_back();
+
+        entities_[index] = std::make_unique<GameEntity>(_entityDataType, index);
+
         return index;
     }
 
@@ -83,5 +89,23 @@ public:
             return nullptr;
         }
         return static_cast<ComponentArray<componentType>*>(componentArrays_[typeName]);
+    }
+
+    void registerComponentArrayByDataType(const std::string& dataType, IComponentArray* compArray) {
+        componentArraysByDataType_[dataType].push_back(compArray);
+    }
+    const std::vector<IComponentArray*>& getComponentArraysByDataType(const std::string& dataType) const {
+        static const std::vector<IComponentArray*> empty;
+        auto it = componentArraysByDataType_.find(dataType);
+        return (it != componentArraysByDataType_.end()) ? it->second : empty;
+    }
+
+    void registerSystemByDataType(const std::string& dataType, ISystem* system) {
+        systemsByDataType_[dataType].push_back(system);
+    }
+    const std::vector<ISystem*>& getSystemsByDataType(const std::string& dataType) const {
+        static const std::vector<ISystem*> empty;
+        auto it = systemsByDataType_.find(dataType);
+        return (it != systemsByDataType_.end()) ? it->second : empty;
     }
 };
