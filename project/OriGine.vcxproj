@@ -243,6 +243,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="code\engine\primitiveDrawer\PrimitiveDrawer.h" />
     <ClInclude Include="code\engine\ECS\component\renderer\sprite\Sprite.h" />
     <ClInclude Include="code\engine\Engine.h" />
+    <ClInclude Include="code\lib\MyGui.h" />
     <ClInclude Include="code\lib\winApp\WinApp.h" />
     <ClInclude Include="code\lib\globalVariables\GlobalVariables.h" />
     <ClInclude Include="code\lib\imGuiManager\ImGuiManager.h" />
