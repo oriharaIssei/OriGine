@@ -1,5 +1,5 @@
 #pragma once
-#include "../IRendererComponent.h"
+#include "ECS/component/IComponent.h"
 
 #include "module/IModule.h"
 
@@ -33,7 +33,7 @@ concept IsDerivedMesh = std::derived_from<MeshTenplate, Mesh<VertexDataType>>;
 template <typename MeshTemplate, typename VertexDataType>
     requires IsDerivedMesh<MeshTemplate, VertexDataType>
 class MeshRenderer
-    : public IRendererComponent {
+    : public IComponent {
 public:
     using VertexType = VertexDataType;
 
@@ -45,9 +45,7 @@ public:
 
     virtual ~MeshRenderer() {}
 
-    virtual void Init()   = 0;
-    virtual void Update() = 0;
-    virtual void Render() = 0;
+    virtual void Init() = 0;
     virtual void Finalize() {
         for (auto& mesh : *meshGroup_) {
             mesh.Finalize();
@@ -96,14 +94,6 @@ public:
     /// 初期化
     ///</summary>
     void Init() override;
-    /// <summary>
-    /// 更新
-    /// </summary>
-    void Update() override;
-    /// <summary>
-    /// 描画
-    /// </summary>
-    void Render() override;
 
 private:
     std::vector<IConstantBuffer<Transform>> meshTransformBuff_;
@@ -111,15 +101,24 @@ private:
     std::vector<uint32_t> meshTextureNumber_;
 
 public:
+    int32_t getMeshSize() const {
+        return static_cast<int32_t>(meshGroup_->size());
+    }
     //------------------------------ Transform ------------------------------//
-    const Transform& getTransform(int32_t _meshIndex) const {
+    const Transform& getTransform(int32_t _meshIndex = 0) const {
         return meshTransformBuff_[_meshIndex].openData_;
+    }
+    Transform& getTransform(int32_t _meshIndex = 0) {
+        return meshTransformBuff_[_meshIndex].openData_;
+    }
+    const IConstantBuffer<Transform>& getTransformBuff(int32_t _meshIndex = 0) const {
+        return meshTransformBuff_[_meshIndex];
+    }
+    IConstantBuffer<Transform>& getTransformBuff(int32_t _meshIndex = 0) {
+        return meshTransformBuff_[_meshIndex];
     }
     void setTransform(int32_t _meshIndex, const Transform& _transform) {
         meshTransformBuff_[_meshIndex].openData_ = _transform;
-    }
-    const IConstantBuffer<Transform>& getTransformBuff(int32_t _meshIndex) const {
-        return meshTransformBuff_[_meshIndex];
     }
 
     /// <summary>
@@ -166,14 +165,6 @@ public:
     /// 初期化
     ///</summary>
     void Init() override;
-    /// <summary>
-    /// 更新
-    /// </summary>
-    void Update() override;
-    /// <summary>
-    /// 描画
-    /// </summary>
-    void Render() override;
 
 private:
     std::vector<IConstantBuffer<Transform>> meshTransformBuff_;
@@ -205,37 +196,4 @@ public:
     IConstantBuffer<Material>* getMaterialBuff(int32_t _meshIndex) const {
         return meshMaterialBuff_[_meshIndex];
     }
-};
-
-///==================================================================================================================
-/// ↓ DefaultMeshRenderControllers
-///==================================================================================================================
-
-//----------------------------------------------------------------------------------------------------------
-// ↓ PrimitiveMesh
-//----------------------------------------------------------------------------------------------------------
-class PrimitiveMeshRendererController
-    : public RendererComponentController<PrimitiveMeshRenderer> {
-public:
-    void StartRender() override;
-
-    void EndRender() override {}
-
-    void CreatePso() override;
-};
-
-//----------------------------------------------------------------------------------------------------------
-// ↓ Texture付きMesh
-//----------------------------------------------------------------------------------------------------------
-
-class TextureMeshRendererController
-    : public RendererComponentController<TextureMeshRenderer> {
-public:
-    void StartRender() override;
-
-    void EndRender() override {}
-
-    void CreatePso() override;
-
-public:
 };

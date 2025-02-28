@@ -1,8 +1,10 @@
 #pragma once
 
+/// stl
+#include <functional>
 #include <memory>
 #include <unordered_map>
-
+// string
 #include <string>
 
 class IScene;
@@ -33,7 +35,7 @@ private:
     SceneManager* operator=(const SceneManager&) = delete;
 
 private:
-    IScene* currentScene_ = nullptr;
+    std::unique_ptr<IScene> currentScene_ = nullptr;
 
     EntityComponentSystemManager* ecsManager_ = nullptr;
 
@@ -42,9 +44,9 @@ private:
     std::shared_ptr<DxSrvArray> sceneViewSrvArray_;
 
     std::unordered_map<std::string, int32_t> sceneIndexs_;
-    std::vector<std::unique_ptr<IScene>> scenes_;
+    std::vector<std::function<std::unique_ptr<IScene>()>> scenes_;
 
 public:
-    void addScene(const std::string& name, std::unique_ptr<IScene> scene);
+    void addScene(const std::string& name, std::function<std::unique_ptr<IScene>()> _sceneMakeFunc);
     void changeScene(const std::string& name);
 };

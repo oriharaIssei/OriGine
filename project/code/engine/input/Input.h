@@ -1,20 +1,20 @@
 #pragma once
 
 #define DIRECTINPUT_VERSION 0x0800
-///stl
+/// stl
 #include <array>
 #include <stdint.h>
 
-///microsoft
+/// microsoft
 #include <wrl.h>
-///input API
-#include <Xinput.h>
+/// input API
 #include <dinput.h>
+#include <Xinput.h>
 
-//lib
-#include "globalVariables/SerializedField.h"
-//math
-#include <Vector2.h>
+// lib
+#include "lib/globalVariables/SerializedField.h"
+// math
+#include <math/Vector2.h>
 
 static const float stickMax_ = static_cast<float>(SHORT_MAX);
 static const float stickMin_ = static_cast<float>(-SHORT_MAX);

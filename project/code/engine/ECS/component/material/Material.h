@@ -1,27 +1,29 @@
 #pragma once
 
-///stl
+/// stl
 #include <memory>
 #include <string>
 #include <unordered_map>
-///microsoft
+/// microsoft
 #include <d3d12.h>
 #include <wrl.h>
 
-///engine
+/// engine
 #include "assets/IAsset.h"
+#include "component/IComponent.h"
 #include "directX12/IConstantBuffer.h"
 #include "globalVariables/SerializedField.h"
-#include "module/IModule.h"
 #include "module/editor/IEditor.h"
-///math
+#include "module/IModule.h"
+
+/// math
 #include "Matrix4x4.h"
-#include "Vector4.h"
 #include "stdint.h"
+#include "Vector4.h"
 
 class MaterialManager;
 struct Material
-    : IAsset {
+    : IAsset{
     friend class MaterialManager;
 
 public:
@@ -46,6 +48,7 @@ public:
     void UpdateUvMatrix();
 
 public:
+    // TODO : SerializedFieldを使用するべきか 要検討
     SerializedField<Vec3f> uvScale_;
     SerializedField<Vec3f> uvRotate_;
     SerializedField<Vec3f> uvTranslate_;
@@ -75,6 +78,26 @@ public:
         }
     };
 };
+
+//template <>
+//inline bool EditComponent<Material>(Material* _editComponent) {
+//    bool isChange = false;
+//    // --------------------------- uvScale --------------------------- //
+//    isChange |= MyGui::Drag<3, float>("uvScale", _editComponent->uvScale_, 0.01f);
+//    // --------------------------- uvRotate --------------------------- //
+//    isChange |= MyGui::Drag<3, float>("uvRotate", _editComponent->uvRotate_, 0.01f);
+//    // --------------------------- uvTranslate --------------------------- //
+//    isChange |= MyGui::Drag<3, float>("uvTranslate", _editComponent->uvTranslate_, 0.01f);
+//    // --------------------------- color --------------------------- //
+//    isChange |= MyGui::Drag<4, float>("color", _editComponent->color_, 0.01f);
+//    // --------------------------- enableLighting --------------------------- //
+//    isChange |= MyGui::Drag<int32_t>("enableLighting", _editComponent->enableLighting_, 1);
+//    // --------------------------- shininess --------------------------- //
+//    isChange |= MyGui::Drag<float>("shininess", _editComponent->shininess_, 0.01f);
+//    // --------------------------- specularColor --------------------------- //
+//    isChange |= MyGui::Drag<3, float>("specularColor", _editComponent->specularColor_, 0.01f);
+//    return isChange;
+//}
 
 class MaterialManager
     : public IModule {

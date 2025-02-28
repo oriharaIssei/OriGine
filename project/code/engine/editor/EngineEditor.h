@@ -1,29 +1,36 @@
 #pragma once
 
-#ifdef _DEBUG
-
-///stl
+/// stl
+#include <list>
 #include <memory>
 #include <string>
 #include <unordered_map>
 
-///engine
+/// engine
 #include "module/editor/IEditor.h"
-class Camera;
-class Engine;
-class IScene;
 
 ///=============================================================================
 /// EngineEditor (Engine の 汎用的な editor郡)
 ///=============================================================================
 class EngineEditor {
 public:
-    static EngineEditor* getInstance() {
-        static EngineEditor instance;
-        return &instance;
-    }
+    static EngineEditor* getInstance();
 
     void Update();
+
+    //void Undo() {
+    //    if (currentCommand_ != editCommands_.begin()) {
+    //        --currentCommand_;
+    //        (*currentCommand_)->Undo();
+    //    }
+    //}
+
+    //void Redo() {
+    //    if (currentCommand_ != editCommands_.end()) {
+    //        (*currentCommand_)->Execute();
+    //        ++currentCommand_;
+    //    }
+    //}
 
 private:
     EngineEditor();
@@ -38,11 +45,18 @@ private:
     std::unordered_map<std::string, std::unique_ptr<IEditor>> editors_;
     std::unordered_map<IEditor*, bool> editorActive_;
 
+    std::list<std::unique_ptr<IEditCommand>> editCommands_;
+    std::list<std::unique_ptr<IEditCommand>>::iterator currentCommand_ = editCommands_.end();
+
 public:
     void SetActive(bool active) { isActive_ = active; }
     bool IsActive() const { return isActive_; }
 
     void addEditor(const std::string& name, std::unique_ptr<IEditor>&& editor);
-};
 
-#endif // _DEBUG
+    void AddCommand(std::unique_ptr<IEditCommand>&& command) {
+        editCommands_.erase(currentCommand_, editCommands_.end());
+        editCommands_.push_back(std::move(command));
+        currentCommand_ = editCommands_.end();
+    }
+};

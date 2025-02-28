@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IScene.h"
+#include "scene/IScene.h"
 
 #include <list>
 #include <memory>
@@ -8,20 +8,10 @@
 
 /// Module
 class Input;
-class MaterialManager;
 class DebugCamera;
-class CollisionManager;
-
-// component
-#include "renderer/sprite/Sprite.h"
+class GameCamera;
 
 // object
-class EnemyManager;
-class Player;
-class IEnemy;
-class GameCamera;
-class PlayerHpBar;
-
 class GameScene
     : public IScene {
 public:
@@ -31,11 +21,6 @@ public:
     void Init();
     void Update();
 
-    void Draw3d();
-    void DrawLine();
-    void DrawSprite();
-    void DrawParticle();
-
 private:
 #ifdef _DEBUG
     //DebugObjects
@@ -44,8 +29,6 @@ private:
 
 #endif // _DEBUG
     Input* input_ = nullptr;
-
-    std::shared_ptr<SpriteRenderer> test;
 
     std::unique_ptr<GameCamera> gameCamera_;
 

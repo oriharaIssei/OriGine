@@ -11,10 +11,10 @@
 
 /// engine
 // module
+#include "ECS/component/material/light/lightManager.h"
+#include "ECS/component/material/Material.h"
 #include "editor/EngineEditor.h"
 #include "input/Input.h"
-#include "material/light/lightManager.h"
-#include "material/Material.h"
 #include "winApp/WinApp.h"
 // DirectX Object
 #include "directX12/DxCommand.h"
@@ -71,12 +71,8 @@ private:
     std::unique_ptr<DxFence> dxFence_;
     std::unique_ptr<DxDsv> dxDsv_;
 
-    // module
-
-
-#ifdef _DEBUG
     EngineEditor* editor_ = nullptr;
-#endif // _DEBUG
+
     LightManager* lightManager_                       = nullptr;
     std::unique_ptr<MaterialManager> materialManager_ = nullptr;
     // Time

@@ -12,10 +12,8 @@ struct Quaternion {
     Quaternion(const Vec3f& v, float _w)
         : x(v[X]), y(v[Y]), z(v[Z]), w(_w) {}
 
-    float x = 0;
-    float y = 0;
-    float z = 0;
-    float w = 1.0f; // 初期化時に 単位行列にする
+    float x, y, z, w;
+
     Quaternion operator+(const Quaternion& q) const;
     Quaternion operator-(const Quaternion& q) const;
     Quaternion operator-() const {

@@ -18,6 +18,7 @@ public:
 	void Run();
 
 private:
+
 	Engine* engine_ = nullptr;
 	GlobalVariables* variables_ = nullptr;
 	SceneManager* sceneManager_ = nullptr;

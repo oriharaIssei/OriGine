@@ -1,7 +1,7 @@
 #include "SceneManager.h"
 
 // Interface
-#include "IScene.h"
+#include "../IScene.h"
 
 /// engine
 #include "ECS/ECSManager.h"
@@ -12,7 +12,10 @@
 #include "directX12/RenderTexture.h"
 // module
 #include "camera/CameraManager.h"
-#include "component//renderer/RenderManager.h"
+
+/// math
+#include "math/Vector2.h"
+#include "math/Vector4.h"
 
 SceneManager* SceneManager::getInstance() {
     static SceneManager instance;
@@ -29,6 +32,7 @@ void SceneManager::Init() {
     sceneView_ = std::make_unique<RenderTexture>(Engine::getInstance()->getDxCommand(), sceneViewRtvArray_.get(), sceneViewSrvArray_.get());
     /// TODO
     // fix MagicNumber
+
     sceneView_->Init({1280.0f, 720.0f}, DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, {0.0f, 0.0f, 0.0f, 1.0f});
 }
 
@@ -36,8 +40,6 @@ void SceneManager::Finalize() {
     scenes_.clear();
 
     sceneView_->Finalize();
-
-    RenderManager::getInstance()->Finalize();
 
     sceneViewRtvArray_->Finalize();
     sceneViewSrvArray_->Finalize();
@@ -52,9 +54,8 @@ void SceneManager::Update() {
 }
 
 void SceneManager::Draw() {
-
     sceneView_->PreDraw();
-    RenderManager::getInstance()->RenderFrame();
+
     sceneView_->PostDraw();
 
     Engine::getInstance()->ScreenPreDraw();
@@ -68,12 +69,12 @@ SceneManager::~SceneManager() {}
 
 void SceneManager::addScene(
     const std::string& name,
-    std::unique_ptr<IScene> scene) {
+    std::function<std::unique_ptr<IScene>()> _sceneMakeFunc) {
     sceneIndexs_[name] = static_cast<int32_t>(scenes_.size());
-    scenes_.push_back(std::move(scene));
+    scenes_.push_back(std::move(_sceneMakeFunc));
 }
 
 void SceneManager::changeScene(const std::string& name) {
-    currentScene_ = scenes_[sceneIndexs_[name]].get();
+    currentScene_ = scenes_[sceneIndexs_[name]]();
     currentScene_->Init();
 }

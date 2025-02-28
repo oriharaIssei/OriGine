@@ -1,6 +1,6 @@
 #include "IScene.h"
 
-#include "SceneManager.h"
+#include "scene/manager/SceneManager.h"
 
 #include "engine/directX12/DxRtvArrayManager.h"
 #include "engine/directX12/DxSrvArrayManager.h"

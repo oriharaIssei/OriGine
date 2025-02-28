@@ -1,12 +1,14 @@
 #pragma once
 
 /// stl
+#include <assert.h>
 #include <memory>
 // container
-#include <map>
+#include <set>
 #include <vector>
 // utility
 #include <concepts>
+#include <stdint.h>
 
 /// engine
 // ECS
@@ -25,78 +27,82 @@ public:
     virtual ~IComponentArray() = default;
 
     virtual void Update() = 0;
+
+public:
+    virtual void resize(uint32_t _size)                                         = 0;
+    virtual void registerEntity(uint32_t _entityIndex, int32_t _entitySize = 1) = 0;
+
+    // 追加: IComponent を引数にとる addComponent 関数
+    virtual void addComponent(const GameEntity* _hostEntity, const IComponent& _component) = 0;
+
+    // エンティティの全コンポーネントを削除する（個別削除を行う場合はインデックス等の指定が必要）
+    virtual void clearComponent(const GameEntity* _hostEntity) = 0;
 };
 
 ///====================================================================================
 // ComponentArray
 ///====================================================================================
 /// <summary>
-/// コンポーネントを継承しているかどうかを判定する
-/// </summary>
-template <typename componentType>
-concept IsComponent = std::derived_from<componentType, IComponent>;
-
-/// <summary>
 /// コンポーネントを管理するクラス
 /// </summary>
 template <IsComponent componentType>
-class ComponentArray {
+class ComponentArray : public IComponentArray {
 public:
     using ComponentType = componentType;
 
     ComponentArray()          = default;
     virtual ~ComponentArray() = default;
 
-    void Update();
-
 private:
     // エンティティID -> vector<unique_ptr<componentType>> に変更
-    std::map<uint32_t, std::vector<std::unique_ptr<componentType>>> components_;
+    std::vector<std::vector<componentType>> components_;
 
 public:
-    // コンポーネントを追加する：指定エンティティの vector に push_back
-    void addComponent(const GameEntity* _hostEntity, std::unique_ptr<componentType> _component) {
-        uint32_t entityId = _hostEntity->getID();
-        // ...existing code...
-        components_[entityId].push_back(std::move(_component));
+    // エンティティの全コンポーネントの取得
+    std::vector<componentType>* getComponents(const GameEntity* _entity) {
+        return uint32_t(components_[_entity->getID()].size()) == 0 ? nullptr : &components_[_entity->getID()];
     }
-    // エンティティの全コンポーネントを削除する（個別削除を行う場合はインデックス等の指定が必要）
-    void removeComponent(const GameEntity* _hostEntity) {
-        uint32_t entityId = _hostEntity->getID();
-        // ...existing code...
-        components_.erase(entityId);
+    // エンティティの指定したインデックスのコンポーネントの取得
+    componentType* getComponent(const GameEntity* _entity, uint32_t _index = 0) {
+        return uint32_t(components_[_entity->getID()].size()) <= _index ? nullptr : &components_[_entity->getID()][_index];
     }
-    // エンティティの全コンポーネントの生ポインタを返す
-    std::vector<componentType*> getComponents(const GameEntity* _entity) {
-        std::vector<componentType*> result;
-        auto it = components_.find(_entity->getID());
-        if (it != components_.end()) {
-            for (auto& comp : it->second)
-                result.push_back(comp.get());
-        }
-        return result;
-    }
-};
 
-template <IsComponent componentType>
-inline void ComponentArray<componentType>::Update() {
-    // 各エンティティのvectorを確認し、nullptr の要素を削除した後、各 component の Update を呼び出す
-    for (auto it = components_.begin(); it != components_.end();) {
-        auto& vec = it->second;
-        vec.erase(std::remove_if(vec.begin(), vec.end(), [](const std::unique_ptr<componentType>& comp) {
-            return comp == nullptr;
+    void resize(uint32_t _size) override {
+        components_.resize(_size);
+    }
+
+    //------------------------------------------------------------------------------------------
+    // Add,Register 追加系
+    //------------------------------------------------------------------------------------------
+    virtual void registerEntity(uint32_t _entityIndex, int32_t _entitySize = 1) {
+        components_[_entityIndex] = std::vector<componentType>();
+    }
+    virtual void addComponent(const GameEntity* _hostEntity, const componentType& _component) {
+        uint32_t entityId = _hostEntity->getID();
+        components_[entityId].push_back(_component);
+    }
+    // 追加: IComponentArray のインターフェースを満たすための addComponent オーバーライド
+    void addComponent(const GameEntity* _hostEntity, const IComponent& _component) override {
+        const componentType* comp = dynamic_cast<const componentType*>(&_component);
+        assert(comp != nullptr && "Invalid component type passed to addComponent");
+        addComponent(_hostEntity, *comp);
+    }
+
+    //------------------------------------------------------------------------------------------
+    // Remove,Clear 削除系
+    //------------------------------------------------------------------------------------------
+    // エンティティの全コンポーネントを削除する（個別削除を行う場合はインデックス等の指定が必要）
+    void clearComponent(const GameEntity* _hostEntity) {
+        uint32_t entityId = _hostEntity->getID();
+        components_[entityId].clear();
+    }
+
+    void removeComponent(const GameEntity* _hostEntity, componentType* _component) {
+        uint32_t entityId = _hostEntity->getID();
+        auto& vec         = components_[entityId];
+        vec.erase(std::remove_if(vec.begin(), vec.end(), [_component](const componentType& comp) {
+            return &comp == _component;
         }),
             vec.end());
-        for (auto& comp : vec) {
-            if (comp) {
-                comp->Update();
-            }
-        }
-        // エンティティのvectorが空の場合は map から削除
-        if (vec.empty()) {
-            it = components_.erase(it);
-        } else {
-            ++it;
-        }
     }
-}
+};

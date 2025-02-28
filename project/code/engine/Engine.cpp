@@ -9,9 +9,9 @@
 #include "effect/manager/EffectManager.h"
 #include "imGuiManager/ImGuiManager.h"
 #include "material/light/LightManager.h"
-#include "texture/TextureManager.h"
 #include "model/ModelManager.h"
 #include "primitiveDrawer/PrimitiveDrawer.h"
+#include "texture/TextureManager.h"
 
 // assets
 #include "Audio/Audio.h"

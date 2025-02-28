@@ -64,15 +64,11 @@ public:
     /// <summary>
     /// 更新
     /// </summary>
-    void Update() override;
-    /// <summary>
-    /// 描画
-    /// </summary>
-    void Render() override;
+    void Update(const Matrix4x4& _viewPortMat);
     /// <summary>
     /// 終了処理
     /// </summary>
-    //void Finalize() override;
+    void Finalize() override;
 
 private:
     uint32_t renderingNum_ = 1;
@@ -91,8 +87,13 @@ private:
     bool isFlipY_ = false;
 
 public:
+    uint32_t getTextureNumber() const { return textureNumber_; }
+
     uint32_t getRenderingNum() const { return renderingNum_; }
     void setRenderingNum(uint32_t num) { renderingNum_ = num; }
+
+    const IConstantBuffer<SpritConstBuffer>& getSpriteBuff() const { return spriteBuff_; }
+    IConstantBuffer<SpritConstBuffer>& getSpriteBuff() { return spriteBuff_; }
 
     void setSize(const Vec2f& size) { spriteBuff_->scale_ = size; }
     const Vec2f& getSize() const { return spriteBuff_->scale_; }
@@ -127,39 +128,39 @@ public:
 };
 
 //====================================== SpriteMeshController ======================================//
-class SpriteRendererController
-    : public RendererComponentController<SpriteRenderer> {
-public:
-    SpriteRendererController() : RendererComponentController<SpriteRenderer>() {}
-    ~SpriteRendererController() {}
-
-    ///< summary>
-    /// 初期化
-    ///</summary>
-    void Init() override;
-
-protected:
-    ///< summary>
-    /// 更新
-    ///</summary>
-    void Update() override;
-    ///< summary>
-    /// 描画開始
-    ///</summary>
-    void StartRender() override;
-    ///< summary>
-    /// 描画終了
-    ///</summary>
-    void EndRender() override{}
-
-    ///< summary>
-    /// PipelineStateObjectを作成
-    ///</summary>
-    void CreatePso() override;
-
-private:
-    Matrix4x4 viewPortMat_;
-
-public:
-    const Matrix4x4& getViewPortMat() const { return viewPortMat_; }
-};
+// class SpriteRendererController
+//    : public RendererComponentController<SpriteRenderer> {
+// public:
+//    SpriteRendererController() : RendererComponentController<SpriteRenderer>() {}
+//    ~SpriteRendererController() {}
+//
+//    ///< summary>
+//    /// 初期化
+//    ///</summary>
+//    void Init() override;
+//
+// protected:
+//    ///< summary>
+//    /// 更新
+//    ///</summary>
+//    void Update() override;
+//    ///< summary>
+//    /// 描画開始
+//    ///</summary>
+//    void StartRender() override;
+//    ///< summary>
+//    /// 描画終了
+//    ///</summary>
+//    void EndRender() override{}
+//
+//    ///< summary>
+//    /// PipelineStateObjectを作成
+//    ///</summary>
+//    void CreatePso() override;
+//
+// private:
+//    Matrix4x4 viewPortMat_;
+//
+// public:
+//    const Matrix4x4& getViewPortMat() const { return viewPortMat_; }
+//};

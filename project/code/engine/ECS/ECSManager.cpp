@@ -10,7 +10,7 @@ void EntityComponentSystemManager::Init() {
 
 void EntityComponentSystemManager::Run() {
     // システムの更新
-    for (auto& system : systems_) {
+    for (auto& [systemTypeName, system] : systems_) {
         system->Update();
     }
 }
