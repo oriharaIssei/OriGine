@@ -1,5 +1,7 @@
 #pragma once
 
+#include <type_traits>
+
 // indexNumbers
 static const int X = 0;
 static const int Y = 1;

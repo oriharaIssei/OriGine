@@ -206,3 +206,7 @@ void PrimitiveMeshRenderer::Init() {
 //        pso_[primShaderInfo.blendMode_] = shaderManager->CreatePso("PrimitiveMesh_" + blendModeStr[i], primShaderInfo, dxDevice_->getDevice());
 //    }
 //};
+
+TextureMeshRenderer CreateModelMeshRenderer(const std::string& _directory, const std::string& _filenName) {
+    return TextureMeshRenderer();
+}

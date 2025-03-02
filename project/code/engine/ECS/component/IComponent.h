@@ -1,8 +1,14 @@
 #pragma once
 
 /// stl
-// utility
+#include <string>
+
+/// lib
+#include <lib/binaryIO/BinaryIO.h>
+
+/// utility
 #include <concepts>
+#include <util/nameof.h>
 
 ///< summary>
 /// 1コンポーネントを表すクラス(基底クラス)
@@ -12,7 +18,12 @@ public:
     IComponent();
     virtual ~IComponent();
 
-    virtual void Init()     = 0;
+    virtual void Init() = 0;
+
+    virtual bool Edit()                      = 0;
+    virtual void Save(BinaryWriter& _writer) = 0;
+    virtual void Load(BinaryReader& _reader) = 0;
+
     virtual void Finalize() = 0;
 };
 
@@ -21,15 +32,3 @@ public:
 /// </summary>
 template <typename componentType>
 concept IsComponent = std::derived_from<componentType, IComponent>;
-/*
-↓ 基本 コンポーネントを編集できるようにするには
-    以下の関数をしようすること
-*/
-
-///< summary>
-/// コンポーネントを編集する
-///</summary>
-template <IsComponent componentType>
-bool EditComponent(componentType* _editComponent) {
-    return false;
-}

@@ -97,11 +97,11 @@ AnimationData AnimationManager::LoadGltfAnimationData(const std::string& directo
             // 時間単位を 秒 に変換
             keyframe.time = float(keyAssimp.mTime / animationAssimp->mTicksPerSecond);
             // クォータニオンの値を変換 (右手座標系 → 左手座標系)
-            keyframe.value = {
+            keyframe.value = Quaternion(
                 keyAssimp.mValue.x,
                 -keyAssimp.mValue.y,
                 -keyAssimp.mValue.z,
-                keyAssimp.mValue.w};
+                keyAssimp.mValue.w);
             nodeAnimation.rotate.push_back(keyframe);
         }
 

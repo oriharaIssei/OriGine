@@ -6,9 +6,9 @@
 #include "camera/CameraManager.h"
 #include "material/light/LightManager.h"
 #include "material/Material.h"
-#include "scene/manager/SceneManager.h"
+#include "../application/scene/manager/SceneManager.h"
 // scene
-#include "scene/IScene.h"
+#include "../application/scene/IScene.h"
 // externals
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_dx12.h"

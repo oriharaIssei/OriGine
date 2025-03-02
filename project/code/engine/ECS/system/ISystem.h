@@ -17,7 +17,10 @@ enum class SystemType {
     Physics, // Movementの結果に対する物理演算処理
     Collision, // 衝突判定処理
 
-    Render // 更新処理のあとに 描画処理
+    Render, // 更新処理のあとに 描画処理
+    PostRender, // 描画処理のあとに 後処理
+
+    Count
 };
 
 class ISystem {

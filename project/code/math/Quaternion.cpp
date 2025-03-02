@@ -6,107 +6,6 @@
 #include <iostream>
 #include <numbers>
 
-#pragma region "Operators"
-Quaternion Quaternion::operator+(const Quaternion& q) const {
-    return {
-        x + q.x,
-        y + q.y,
-        z + q.z,
-        w + q.w,
-    };
-}
-
-Quaternion Quaternion::operator-(const Quaternion& q) const {
-    return {
-        x - q.x,
-        y - q.y,
-        z - q.z,
-        w - q.w,
-    };
-}
-
-Quaternion Quaternion::operator*(const Quaternion& q) const {
-    return {
-        w * q.x + x * q.w + y * q.z - z * q.y, // x'
-        w * q.y + y * q.w + z * q.x - x * q.z, // y'
-        w * q.z + z * q.w + x * q.y - y * q.x, // z'
-        w * q.w - x * q.x - y * q.y - z * q.z  // w'
-    };
-}
-
-Quaternion Quaternion::operator*(float scalar) const {
-    return Quaternion(
-        x * scalar,
-        y * scalar,
-        z * scalar,
-        w * scalar);
-}
-
-Quaternion Quaternion::operator/(float scalar) const {
-    return Quaternion(
-        this->x / scalar,
-        this->y / scalar,
-        this->z / scalar,
-        this->w / scalar);
-}
-
-Quaternion* Quaternion::operator=(const Quaternion& q) {
-    this->x = q.x;
-    this->y = q.y;
-    this->z = q.z;
-    this->w = q.w;
-    return this;
-}
-
-Quaternion* Quaternion::operator+=(const Quaternion& q) {
-    this->x += q.x;
-    this->y += q.y;
-    this->z += q.z;
-    this->w += q.w;
-    return this;
-}
-
-Quaternion* Quaternion::operator*=(const Quaternion& q) {
-    this->x *= q.x;
-    this->y *= q.y;
-    this->z *= q.z;
-    this->w *= q.w;
-    return this;
-}
-
-Quaternion* Quaternion::operator*=(float scalar) {
-    this->x *= scalar;
-    this->y *= scalar;
-    this->z *= scalar;
-    this->w *= scalar;
-    return this;
-}
-
-Quaternion* Quaternion::operator/=(float scalar) {
-    this->x /= scalar;
-    this->y /= scalar;
-    this->z /= scalar;
-    this->w /= scalar;
-    return this;
-}
-
-Quaternion operator*(float scalar, const Quaternion& q) {
-    return {
-        q.x * scalar,
-        q.y * scalar,
-        q.z * scalar,
-        q.w * scalar};
-}
-
-Quaternion operator/(float scalar, const Quaternion& q) {
-    return {
-        q.x / scalar,
-        q.y / scalar,
-        q.z / scalar,
-        q.w / scalar};
-}
-#pragma endregion
-
 Quaternion Quaternion::Inverse(const Quaternion& q) {
     float normSq = q.normSq(); // ノルムの二乗
     if (normSq == 0.0f) {
@@ -114,7 +13,7 @@ Quaternion Quaternion::Inverse(const Quaternion& q) {
         return {0.0f, 0.0f, 0.0f, 0.0f}; // エラー処理としてゼロ四元数を返す
     }
     Quaternion conjugate = q.Conjugation();
-    return conjugate / normSq; // 共役をノルムの二乗で割る
+    return Quaternion(conjugate / normSq); // 共役をノルムの二乗で割った結果を明示的にQuaternionへ変換
 }
 
 Quaternion Quaternion::inverse() const {
@@ -124,23 +23,23 @@ Quaternion Quaternion::inverse() const {
         return {0.0f, 0.0f, 0.0f, 0.0f}; // エラー処理としてゼロ四元数を返す
     }
     Quaternion conjugate = this->Conjugation();
-    return conjugate / normSq; // 共役をノルムの二乗で割る
+    return Quaternion(conjugate / normSq); // 明示的な変換
 }
 
 float Quaternion::Norm(const Quaternion& q) {
-    return sqrtf(q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z);
+    return sqrtf(q[W] * q[W] + q[X] * q[X] + q[Y] * q[Y] + q[Z] * q[Z]);
 }
 
 float Quaternion::norm() const {
-    return sqrtf(this->w * this->w + this->x * this->x + this->y * this->y + this->z * this->z);
+    return sqrtf(this->v[W] * this->v[W] + this->v[X] * this->v[X] + this->v[Y] * this->v[Y] + this->v[Z] * this->v[Z]);
 }
 
 float Quaternion::NormSq(const Quaternion& q) {
-    return q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z;
+    return q[W] * q[W] + q[X] * q[X] + q[Y] * q[Y] + q[Z] * q[Z];
 }
 
 float Quaternion::normSq() const {
-    return this->w * this->w + this->x * this->x + this->y * this->y + this->z * this->z;
+    return this->v[W] * this->v[W] + this->v[X] * this->v[X] + this->v[Y] * this->v[Y] + this->v[Z] * this->v[Z];
 }
 
 Quaternion Quaternion::Normalize(const Quaternion& q) {
@@ -148,7 +47,7 @@ Quaternion Quaternion::Normalize(const Quaternion& q) {
     if (norm == 0.0f) {
         return {0.0f, 0.0f, 0.0f, 1.0f};
     }
-    return q / norm;
+    return Quaternion(q / norm); // 明示的にQuaternionへ変換
 }
 
 Quaternion Quaternion::normalize() const {
@@ -156,15 +55,15 @@ Quaternion Quaternion::normalize() const {
     if (norm == 0.0f) {
         return {0.0f, 0.0f, 0.0f, 1.0f};
     }
-    return *this / norm;
+    return Quaternion(*this / norm); // 明示的にQuaternionへ変換
 }
 
 float Quaternion::Dot(const Quaternion& q0, const Quaternion& q1) {
-    return q0.x * q1.x + q0.y * q1.y + q0.z * q1.z + q0.w * q1.w;
+    return q0[X] * q1[X] + q0[Y] * q1[Y] + q0[Z] * q1[Z] + q0[W] * q1[W];
 }
 
 float Quaternion::dot(const Quaternion& q) const {
-    return x * q.x + y * q.y + z * q.z + w * q.w;
+    return v[X] * q[X] + v[Y] * q[Y] + v[Z] * q[Z] + v[W] * q[W];
 }
 
 Quaternion Quaternion::RotateAxisAngle(const Vec3f& axis, float angle) {
@@ -174,33 +73,24 @@ Quaternion Quaternion::RotateAxisAngle(const Vec3f& axis, float angle) {
         cosf(halfAngle));
 }
 
-void Quaternion::Show() {
-    std::cout << std::fixed << std::setprecision(3) << x << " ";
-    std::cout << std::fixed << std::setprecision(3) << y << " ";
-    std::cout << std::fixed << std::setprecision(3) << z << " ";
-    std::cout << std::fixed << std::setprecision(3) << w << " ";
-    std::cout << "\n"
-              << std::endl;
-}
-
 Vec3f Quaternion::ToEulerAngles() const {
     Vec3f euler;
 
     // Roll (x-axis rotation)
-    float sinr_cosp = 2.0f * (w * x + y * z);
-    float cosr_cosp = 1.0f - 2.0f * (x * x + y * y);
+    float sinr_cosp = 2.0f * (v[W] * v[X] + v[Y] * v[Z]);
+    float cosr_cosp = 1.0f - 2.0f * (v[X] * v[X] + v[Y] * v[Y]);
     euler[X]        = std::atan2(sinr_cosp, cosr_cosp);
 
     // Pitch (y-axis rotation)
-    float sinp = 2.0f * (w * y - z * x);
+    float sinp = 2.0f * (v[W] * v[Y] - v[Z] * v[X]);
     if (std::abs(sinp) >= 1.0f)
         euler[Y] = std::copysign(std::numbers::pi_v<float> / 2.0f, sinp); // use 90 degrees if out of range
     else
         euler[Y] = std::asin(sinp);
 
-    // Yaw (z-axis rotation)
-    float siny_cosp = 2.0f * (w * z + x * y);
-    float cosy_cosp = 1.0f - 2.0f * (y * y + z * z);
+    // v[Y] av[W] (z-axis rotation)
+    float siny_cosp = 2.0f * (v[W] * v[Z] + v[X] * v[Y]);
+    float cosy_cosp = 1.0f - 2.0f * (v[Y] * v[Y] + v[Z] * v[Z]);
     euler[Z]        = std::atan2(siny_cosp, cosy_cosp);
 
     return euler;
@@ -218,7 +108,7 @@ Quaternion Slerp(const Quaternion& q0, const Quaternion& q1, float t) {
 
     // θがほぼゼロの場合、直接返す
     if (dot > 0.9995f) {
-        return (q0 * (1.0f - t) + q1Adjusted * t).normalize(); // 線形補間を用いる
+        return Quaternion(q0 * (1.0f - t) + q1Adjusted * t).normalize(); // 線形補間を用いる
     }
 
     float theta    = acosf(dot);
@@ -227,5 +117,5 @@ Quaternion Slerp(const Quaternion& q0, const Quaternion& q1, float t) {
     float scale0 = sinf((1.0f - t) * theta) / sinTheta;
     float scale1 = sinf(t * theta) / sinTheta;
 
-    return (q0 * scale0 + q1Adjusted * scale1).normalize(); // 結果を正規化
+    return Quaternion(q0 * scale0 + q1Adjusted * scale1).normalize(); // 結果を正規化
 }

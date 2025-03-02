@@ -1,12 +1,12 @@
 #include "Timeline.h"
 
-///stl
-//assert
+/// stl
+// assert
 #include <assert.h>
-//algorithm
+// algorithm
 #include <algorithm>
 
-///lib
+/// lib
 #include "imgui/imgui.h"
 #include "imgui/imgui_internal.h"
 
@@ -357,7 +357,7 @@ bool EditKeyFrame(
 
     if (IsMouseReleased(0)) {
         if (draggedIndex != -1) {
-            //ソートする
+            // ソートする
             if (_keyFrames.size() > 1) {
                 // キーフレームによる ノードの順番を変更
                 std::sort(
@@ -570,7 +570,7 @@ bool EditKeyFrame(
 
     if (IsMouseReleased(0)) {
         if (draggedIndex != -1) {
-            //ソートする
+            // ソートする
             if (_keyFrames.size() > 1) {
                 // キーフレームによる ノードの順番を変更
                 std::sort(
@@ -794,7 +794,7 @@ bool EditKeyFrame(
 
     if (IsMouseReleased(0)) {
         if (draggedIndex != -1) {
-            //ソートする
+            // ソートする
             if (_keyFrames.size() > 1) {
                 // キーフレームによる ノードの順番を変更
                 std::sort(
@@ -1023,7 +1023,7 @@ bool EditKeyFrame(
 
     if (IsMouseReleased(0)) {
         if (draggedIndex != -1) {
-            //ソートする
+            // ソートする
             if (_keyFrames.size() > 1) {
                 // キーフレームによる ノードの順番を変更
                 std::sort(
@@ -1087,7 +1087,7 @@ bool EditKeyFrame(
                 if (ImGui::Button("Delete")) {
                     if (_keyFrames.size() <= 1) {
                         _keyFrames[0].time  = 0.0f;
-                        _keyFrames[0].value = {0.0f, 0.0f, 0.0f, 1.0f};
+                        _keyFrames[0].value = Quaternion(0.0f, 0.0f, 0.0f, 1.0f);
                         return 0;
                     }
                     _keyFrames.erase(_keyFrames.begin() + popUpIndex);
@@ -1121,23 +1121,23 @@ bool EditKeyFrame(
                     ImGui::Text("X:");
                     ImGui::DragFloat(
                         std::string("##X" + _label + std::to_string(popUpIndex)).c_str(),
-                        &_keyFrames[popUpIndex].value.x,
+                        &_keyFrames[popUpIndex].value.v[X],
                         0.1f);
                     ImGui::Text("Y:");
 
                     ImGui::DragFloat(
                         std::string("##Y" + _label + std::to_string(popUpIndex)).c_str(),
-                        &_keyFrames[popUpIndex].value.y,
+                        &_keyFrames[popUpIndex].value.v[Y],
                         0.1f);
                     ImGui::Text("Z:");
                     ImGui::DragFloat(
                         std::string("##Z" + _label + std::to_string(popUpIndex)).c_str(),
-                        &_keyFrames[popUpIndex].value.z,
+                        &_keyFrames[popUpIndex].value.v[Z],
                         0.1f);
                     ImGui::Text("W:");
                     ImGui::DragFloat(
                         std::string("##W" + _label + std::to_string(popUpIndex)).c_str(),
-                        &_keyFrames[popUpIndex].value.w,
+                        &_keyFrames[popUpIndex].value.v[W],
                         0.1f);
                     _keyFrames[popUpIndex].value = _keyFrames[popUpIndex].value.normalize();
                 }

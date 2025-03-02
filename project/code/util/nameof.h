@@ -3,6 +3,8 @@
 #include <string>
 #include <typeinfo>
 
+#define variable_name(x) #x
+
 template <typename T>
 constexpr std::string_view _cdecl nameof_view() {
     //_cdeclを付けないとMSVCの場合アプリケーションの既定呼び出し規約オプションによって文字数がずれるため。

@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 // container
+#include <array>
 #include <map>
 
 /// engine
@@ -44,21 +45,7 @@ private:
     /// <summary>
     /// システム配列
     /// </summary>
-    std::map<std::string, std::unique_ptr<ISystem>> systems_;
-
-    /// <summary>
-    /// エンティティのデータタイプ
-    /// <string, byDataTypeIndex>
-    /// </summary>
-    std::map<std::string, uint32_t> entityDataTypes_;
-    /// <summary>
-    /// データタイプごとに所持しているコンポーネントの種類と数を保持
-    /// </summary>
-    std::vector<std::vector<std::pair<std::string, int32_t>>> componentTypeListByDataType_;
-    /// <summary>
-    /// データタイプごとに所属しているシステムのタイプを保持
-    /// </summary>
-    std::vector<std::vector<std::string>> systemTypeListByDataType_;
+    std::array<std::map<std::string, std::unique_ptr<ISystem>>, int32_t(SystemType::Count)> systems_;
 
 public: // ============== accessor ==============//
     // --------------------------------------------------------------------------------------
@@ -90,7 +77,7 @@ public: // ============== accessor ==============//
             entityCapacity_ = uint32_t(entities_.size());
 
             for (auto& [componentID, componentArray] : componentArrays_) {
-                componentArray->resize(entityCapacity_);
+                componentArray->Init(entityCapacity_);
             }
         }
         uint32_t index = freeEntityIndex_.back();
@@ -112,17 +99,22 @@ public: // ============== accessor ==============//
     /// エンティティにコンポーネントを追加する
     /// </summary>
     template <IsComponent componentType>
-    void addComponent(uint32_t _entityIndex, componentType&& _component) {
+    void addComponent(uint32_t _entityIndex, const componentType& _component) {
         ComponentArray<componentType>* componentArray = getComponentArray<componentType>();
-        componentArray->addComponent(_entityIndex, std::forward<componentType>(_component));
+        componentArray->add(&entities_[_entityIndex], _component);
     }
 
     /// <summary>
     /// エンティティを削除する
     /// </summary>
     void destroyEntity(uint32_t _entityIndex) {
-        //! TODO : エンティティの削除処理 (コンポーネントの削除処理も必要)
         freeEntityIndex_.push_back(_entityIndex);
+        entities_[_entityIndex] = GameEntity("Free", -1);
+    }
+
+    void clearEntity() {
+        entities_.clear();
+        freeEntityIndex_.clear();
     }
 
     // --------------------------------------------------------------------------------------
@@ -132,7 +124,7 @@ public: // ============== accessor ==============//
     ComponentArray<componentType>* getComponentArray() {
         std::string typeName = nameof<componentType>();
         if (componentArrays_.find(typeName) == componentArrays_.end()) {
-            return nullptr;
+            componentArrays_[typeName] = std::make_unique<ComponentArray<componentType>>();
         }
         return dynamic_cast<ComponentArray<componentType>*>(componentArrays_[typeName].get());
     }
@@ -162,96 +154,53 @@ public: // ============== accessor ==============//
         }
         return itr->second.get();
     }
+
+    void clearComponentArray() {
+        componentArrays_.clear();
+    }
+
     // --------------------------------------------------------------------------------------
     //  System
     // --------------------------------------------------------------------------------------
-    template <IsSystem SystemType>
-    SystemType* getSystem() const {
-        std::string typeName = nameof<SystemType>();
-
-        auto itr = systems_.find(typeName);
-        if (itr == systems_.end()) {
-            return nullptr;
-        }
-        return static_cast<SystemType*>(itr->second.get());
-    }
-    ISystem* getSystem(const std::string& _typeName) const {
-        auto itr = systems_.find(_typeName);
-        if (itr == systems_.end()) {
-            return nullptr;
-        }
-        return itr->second.get();
-    }
-
-    // --------------------------------------------------------------------------------------
-    // ForDataType
-    // --------------------------------------------------------------------------------------
-    void registerNewEntityDataType(const std::string& dataType) {
-        uint32_t dataTypeIndex     = uint32_t(entityDataTypes_.size());
-        entityDataTypes_[dataType] = dataTypeIndex;
-        componentTypeListByDataType_.resize(dataTypeIndex);
-        systemTypeListByDataType_.resize(dataTypeIndex);
-    }
-    void removeEntityDataType(const std::string& dataType) {
-        uint32_t dataTypeIndex = entityDataTypes_[dataType];
-        entityDataTypes_.erase(dataType);
-        componentTypeListByDataType_.erase(componentTypeListByDataType_.begin() + dataTypeIndex);
-        systemTypeListByDataType_.erase(systemTypeListByDataType_.begin() + dataTypeIndex);
-    }
-
-    /// -------------------------- ComponentArrayByDataType -------------------------- ///
-    template <IsComponent componentType>
-    void registerComponentTypeByDataType(const std::string& _dataType) {
-        std::string typeName                                            = nameof<componentType>();
-        std::vector<std::pair<std::string, int32_t>>& componentTypeList = componentTypeListByDataType_[entityDataTypes_[_dataType]];
-
-        // すでに登録されているか確認
-        for (auto& [registeredComponentTypeName, componentSize] : componentTypeList) {
-            // 登録されている場合 登録されている数情報を増やす
-            if (registeredComponentTypeName == typeName) {
-                componentSize++;
-                return;
+    template <IsSystem SystemDataType>
+    SystemDataType* getSystem() const {
+        std::string typeName = nameof<SystemDataType>();
+        // 各 SystemType 毎のマップから型名で検索
+        for (const auto& systemMap : systems_) {
+            auto itr = systemMap.find(typeName);
+            if (itr != systemMap.end()) {
+                return static_cast<SystemDataType*>(itr->second.get());
             }
         }
-        componentTypeList.push_back({typeName, 1});
+        return nullptr;
     }
-    void removeComponentTypeByDataType(const std::string& _dataType, const std::string& _componentType) {
-        std::vector<std::pair<std::string, int32_t>>& componentTypeList = componentTypeListByDataType_[entityDataTypes_[_dataType]];
 
-        // すでに登録されているか確認
-        for (auto itr = componentTypeList.begin(); itr != componentTypeList.end(); ++itr) {
-            // 登録されている場合
-            if (itr->first == _componentType) {
-                // 登録されている数情報を減らす
-                itr->second--;
-                if (itr->second == 0) {
-                    // 0になった場合は削除
-                    componentTypeList.erase(itr);
-                }
-                return;
-            }
+    template <IsSystem SystemDataType, typename... Args>
+    void registerSystem(Args... _args) {
+        // 登録する インスタンスを作成
+        std::unique_ptr<SystemDataType> system = std::make_unique<SystemDataType>(_args...);
+        system->Init();
+
+        // システムのデータタイプを取得
+        std::string typeName = nameof<SystemDataType>();
+
+        // システムのタイプを取得
+        SystemType systemType = SystemDataType::getSystemType();
+
+        // システムを登録
+        if (systems_[int32_t(systemType)].find(typeName) == systems_[int32_t(systemType)].end()) {
+            systems_[int32_t(systemType)][typeName] = std::move(system);
+            return;
         }
-    }
-    const std::vector<std::pair<std::string, int32_t>>& getComponentTypeByDataType(const std::string& dataType) const {
-        static const std::vector<std::pair<std::string, int32_t>> empty;
-        uint32_t dataTypeIndex = entityDataTypes_.at(dataType);
-        return (dataTypeIndex < componentTypeListByDataType_.size()) ? componentTypeListByDataType_[dataTypeIndex] : empty;
+
+        // すでに登録されている場合はエラーを出力
+        assert(false && "System already registered");
     }
 
-    /// -------------------------- SystemByDataType -------------------------- ///
-    template <IsSystem systemType>
-    void registerSystemByDataType(const std::string& dataType, systemType* system) {
-        systemTypeListByDataType_[entityDataTypes_[dataType]].push_back(nameof<systemType>());
-    }
-    void removeSystem(const std::string& dataType, const std::string& systemType) {
-        std::vector<std::string>& systemList = systemTypeListByDataType_[entityDataTypes_[dataType]];
-        systemList.erase(std::remove(systemList.begin(), systemList.end(), systemType), systemList.end());
-    }
-
-    const std::vector<std::string>& getSystemsByDataType(const std::string& dataType) const {
-        static const std::vector<std::string> empty;
-        uint32_t dataTypeIndex = entityDataTypes_.at(dataType);
-        return (dataTypeIndex < systemTypeListByDataType_.size()) ? systemTypeListByDataType_[dataTypeIndex] : empty;
+    void clearSystem() {
+        for (auto& systemMap : systems_) {
+            systemMap.clear();
+        }
     }
 };
 
@@ -260,4 +209,11 @@ using ECSManager = EntityComponentSystemManager;
 template <IsComponent ComponentType>
 ComponentType* getComponent(GameEntity* _entity, int32_t _index = 0) {
     return ECSManager::getInstance()->getComponent<ComponentType>(_entity, _index);
+}
+
+template <IsComponent... ComponentArgs>
+uint32_t CreateEntity(const std::string& _dataType, ComponentArgs... _args) {
+    uint32_t entityIndex = ECSManager::getInstance()->registerEntity(_dataType);
+    (ECSManager::getInstance()->template addComponent<ComponentArgs>(entityIndex, _args), ...);
+    return entityIndex;
 }

@@ -49,7 +49,3 @@ public:
         return dataType_ + std::to_string(id_);
     }
 };
-
-uint32_t CreateEntity(const std::string& _dataType);
-
-void DestroyEntity(GameEntity* _entity);

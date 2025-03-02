@@ -10,7 +10,26 @@ void EntityComponentSystemManager::Init() {
 
 void EntityComponentSystemManager::Run() {
     // システムの更新
-    for (auto& [systemTypeName, system] : systems_) {
+    for (auto& [systemTypeName, system] : systems_[int32_t(SystemType::Input)]) {
+        system->Update();
+    }
+    for (auto& [systemTypeName, system] : systems_[int32_t(SystemType::StateTransition)]) {
+        system->Update();
+    }
+    for (auto& [systemTypeName, system] : systems_[int32_t(SystemType::Movement)]) {
+        system->Update();
+    }
+    for (auto& [systemTypeName, system] : systems_[int32_t(SystemType::Physics)]) {
+        system->Update();
+    }
+    for (auto& [systemTypeName, system] : systems_[int32_t(SystemType::Collision)]) {
+        system->Update();
+    }
+
+    for (auto& [systemTypeName, system] : systems_[int32_t(SystemType::Render)]) {
+        system->Update();
+    }
+    for (auto& [systemTypeName, system] : systems_[int32_t(SystemType::PostRender)]) {
         system->Update();
     }
 }

@@ -32,7 +32,6 @@ void SceneManager::Init() {
     sceneView_ = std::make_unique<RenderTexture>(Engine::getInstance()->getDxCommand(), sceneViewRtvArray_.get(), sceneViewSrvArray_.get());
     /// TODO
     // fix MagicNumber
-
     sceneView_->Init({1280.0f, 720.0f}, DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, {0.0f, 0.0f, 0.0f, 1.0f});
 }
 
@@ -46,8 +45,6 @@ void SceneManager::Finalize() {
 }
 
 void SceneManager::Update() {
-    currentScene_->Update();
-
     ecsManager_->Run();
 
     CameraManager::getInstance()->DataConvertToBuffer();
@@ -75,6 +72,10 @@ void SceneManager::addScene(
 }
 
 void SceneManager::changeScene(const std::string& name) {
+    if (currentScene_) {
+        currentScene_->Finalize();
+    }
+
     currentScene_ = scenes_[sceneIndexs_[name]]();
     currentScene_->Init();
 }

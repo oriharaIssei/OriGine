@@ -46,6 +46,17 @@ public:
     virtual ~MeshRenderer() {}
 
     virtual void Init() = 0;
+
+    bool Edit() override { return false; }
+    void Save(BinaryWriter& _writer) override {
+        _writer.Write<int32_t>(static_cast<int32_t>(currentBlend_));
+    }
+    void Load(BinaryReader& _reader) override {
+        int32_t blend = 0;
+        _reader.Read<int32_t>(blend);
+        currentBlend_ = static_cast<BlendMode>(blend);
+    }
+
     virtual void Finalize() {
         for (auto& mesh : *meshGroup_) {
             mesh.Finalize();
@@ -94,6 +105,13 @@ public:
     /// 初期化
     ///</summary>
     void Init() override;
+
+    void Finalize() override {
+        for (auto& mesh : *meshGroup_) {
+            mesh.Finalize();
+        }
+        meshGroup_.reset();
+    }
 
 private:
     std::vector<IConstantBuffer<Transform>> meshTransformBuff_;
@@ -150,6 +168,8 @@ public:
         meshTextureNumber_[_meshIndex] = TextureManager::LoadTexture(_filename);
     }
 };
+
+TextureMeshRenderer CreateModelMeshRenderer(const std::string& _directory, const std::string& _filenName);
 
 //----------------------------------------- PrimitiveMeshRenderer -----------------------------------------//
 class PrimitiveMeshRenderer
