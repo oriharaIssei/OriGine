@@ -9,9 +9,9 @@
 
 /// engine
 // ECS
-#include "ECS/ComponentArray.h"
-#include "ECS/system/ISystem.h"
+#include "component/ComponentArray.h"
 #include "Entity.h"
+#include "system/ISystem.h"
 // util
 #include "util/nameof.h"
 
@@ -95,6 +95,10 @@ public: // ============== accessor ==============//
         return &entities_[_entityIndex];
     }
 
+    const std::vector<GameEntity>& getEntities() const {
+        return entities_;
+    }
+
     /// <summary>
     /// エンティティにコンポーネントを追加する
     /// </summary>
@@ -125,6 +129,7 @@ public: // ============== accessor ==============//
         std::string typeName = nameof<componentType>();
         if (componentArrays_.find(typeName) == componentArrays_.end()) {
             componentArrays_[typeName] = std::make_unique<ComponentArray<componentType>>();
+            componentArrays_[typeName]->Init(entityCapacity_);
         }
         return dynamic_cast<ComponentArray<componentType>*>(componentArrays_[typeName].get());
     }
@@ -144,7 +149,7 @@ public: // ============== accessor ==============//
         if (componentArray == nullptr) {
             return nullptr;
         }
-        return componentArray->getComponent(_entity, _index);
+        return componentArray->getDynamicComponent(_entity, _index);
     }
 
     IComponentArray* getComponentArray(const std::string& _typeName) const {
@@ -153,6 +158,9 @@ public: // ============== accessor ==============//
             return nullptr;
         }
         return itr->second.get();
+    }
+    const std::map<std::string, std::unique_ptr<IComponentArray>>& getComponentArrayMap() const {
+        return componentArrays_;
     }
 
     void clearComponentArray() {
@@ -185,7 +193,7 @@ public: // ============== accessor ==============//
         std::string typeName = nameof<SystemDataType>();
 
         // システムのタイプを取得
-        SystemType systemType = SystemDataType::getSystemType();
+        SystemType systemType = system->getSystemType();
 
         // システムを登録
         if (systems_[int32_t(systemType)].find(typeName) == systems_[int32_t(systemType)].end()) {
@@ -212,8 +220,8 @@ ComponentType* getComponent(GameEntity* _entity, int32_t _index = 0) {
 }
 
 template <IsComponent... ComponentArgs>
-uint32_t CreateEntity(const std::string& _dataType, ComponentArgs... _args) {
+GameEntity* CreateEntity(const std::string& _dataType, ComponentArgs... _args) {
     uint32_t entityIndex = ECSManager::getInstance()->registerEntity(_dataType);
     (ECSManager::getInstance()->template addComponent<ComponentArgs>(entityIndex, _args), ...);
-    return entityIndex;
+    return ECSManager::getInstance()->getEntity(entityIndex);
 }

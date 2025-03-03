@@ -18,19 +18,19 @@ public:
 
     void Update();
 
-    //void Undo() {
-    //    if (currentCommand_ != editCommands_.begin()) {
-    //        --currentCommand_;
-    //        (*currentCommand_)->Undo();
-    //    }
-    //}
+    void Undo() {
+        if (currentCommand_ != editCommands_.begin()) {
+            --currentCommand_;
+            (*currentCommand_)->Undo();
+        }
+    }
 
-    //void Redo() {
-    //    if (currentCommand_ != editCommands_.end()) {
-    //        (*currentCommand_)->Execute();
-    //        ++currentCommand_;
-    //    }
-    //}
+    void Redo() {
+        if (currentCommand_ != editCommands_.end()) {
+            (*currentCommand_)->Execute();
+            ++currentCommand_;
+        }
+    }
 
 private:
     EngineEditor();
@@ -49,12 +49,12 @@ private:
     std::list<std::unique_ptr<IEditCommand>>::iterator currentCommand_ = editCommands_.end();
 
 public:
-    void SetActive(bool active) { isActive_ = active; }
-    bool IsActive() const { return isActive_; }
+    void setActive(bool active) { isActive_ = active; }
+    bool isActive() const { return isActive_; }
 
     void addEditor(const std::string& name, std::unique_ptr<IEditor>&& editor);
 
-    void AddCommand(std::unique_ptr<IEditCommand>&& command) {
+    void addCommand(std::unique_ptr<IEditCommand>&& command) {
         editCommands_.erase(currentCommand_, editCommands_.end());
         editCommands_.push_back(std::move(command));
         currentCommand_ = editCommands_.end();

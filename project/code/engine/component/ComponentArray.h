@@ -33,6 +33,7 @@ public:
     // エンティティの全コンポーネントを削除する（個別削除を行う場合はインデックス等の指定が必要）
     virtual void clearComponent(GameEntity* _hostEntity) = 0;
 
+    virtual IComponent* getComponent(GameEntity* _entity, uint32_t _index = 0)         = 0;
     virtual void registerEntity(GameEntity* _entity, int32_t _entitySize = 1)          = 0;
     virtual void addComponent(GameEntity* _hostEntity, IComponent* _component)         = 0;
     virtual void removeComponent(GameEntity* _hostEntity, int32_t _componentIndex = 1) = 0;
@@ -85,7 +86,15 @@ public:
     }
 
     // エンティティの指定したインデックスのコンポーネントの取得
-    componentType* getComponent(GameEntity* _entity, uint32_t _index = 0) {
+    componentType* getDynamicComponent(GameEntity* _entity, uint32_t _index = 0) {
+        auto it = entityIndexBind_.find(_entity);
+        if (it == entityIndexBind_.end()) {
+            return nullptr;
+        }
+        uint32_t index = it->second;
+        return components_[index].size() <= _index ? nullptr : &components_[index][_index];
+    }
+    IComponent* getComponent(GameEntity* _entity, uint32_t _index = 0) override {
         auto it = entityIndexBind_.find(_entity);
         if (it == entityIndexBind_.end()) {
             return nullptr;
@@ -103,6 +112,13 @@ public:
             freeIndex_.pop_back();
             entityIndexBind_[const_cast<GameEntity*>(_entity)] = freeIdx;
         } else {
+            uint32_t oldSize = static_cast<uint32_t>(components_.size());
+            components_.resize(oldSize * 2);
+            for (uint32_t i = oldSize; i < components_.size(); i++) {
+                freeIndex_.push_back(i);
+            }
+
+            entityIndexBind_[const_cast<GameEntity*>(_entity)] = static_cast<uint32_t>(components_.size() - 1);
         }
     }
 
@@ -110,6 +126,7 @@ public:
         auto it = entityIndexBind_.find(_hostEntity);
         if (it == entityIndexBind_.end()) {
             registerEntity(_hostEntity);
+            it = entityIndexBind_.find(_hostEntity);
         }
         uint32_t index = it->second;
         components_[index].push_back(_component);
@@ -133,6 +150,11 @@ public:
     // Remove,Clear 削除系
     //------------------------------------------------------------------------------------------
     void clear() override {
+        for (auto& compArray : components_) {
+            for (auto& comp : compArray) {
+                comp.Finalize();
+            }
+        }
         components_.clear();
         entityIndexBind_.clear();
         freeIndex_.clear();
@@ -145,6 +167,9 @@ public:
             return;
         }
         uint32_t index = it->second;
+        for (auto& comp : components_[index]) {
+            comp.Finalize();
+        }
         components_[index].clear();
     }
 
@@ -155,8 +180,12 @@ public:
         }
         uint32_t index = it->second;
         auto& vec      = components_[index];
-        vec.erase(std::remove_if(vec.begin(), vec.end(), [vec, _componentIndex](const componentType& comp) {
-            return &vec[_componentIndex] == &comp;
+        vec.erase(std::remove_if(vec.begin(), vec.end(), [vec, _componentIndex](componentType& comp) {
+            bool isRemove = &vec[_componentIndex] == &comp;
+            if (isRemove) {
+                comp.Finalize();
+            }
+            return isRemove;
         }),
             vec.end());
     }

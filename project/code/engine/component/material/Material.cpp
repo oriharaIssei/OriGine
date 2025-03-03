@@ -1,4 +1,4 @@
-#include "material/Material.h"
+#include "Material.h"
 
 #include "globalVariables/GlobalVariables.h"
 

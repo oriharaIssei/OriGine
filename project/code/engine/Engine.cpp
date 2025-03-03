@@ -3,19 +3,20 @@
 /// engine
 // module
 #include "animation/AnimationManager.h"
+#include "component/material/light/LightManager.h"
 #include "camera/CameraManager.h"
 #include "directX12/DxRtvArrayManager.h"
 #include "directX12/DxSrvArrayManager.h"
+#include "ECSEditor.h"
 #include "effect/manager/EffectManager.h"
 #include "imGuiManager/ImGuiManager.h"
-#include "material/light/LightManager.h"
 #include "model/ModelManager.h"
 #include "primitiveDrawer/PrimitiveDrawer.h"
 #include "texture/TextureManager.h"
 
 // assets
+#include "component/material/Material.h"
 #include "Audio/Audio.h"
-#include "material/Material.h"
 
 // dx12Object
 #include "directX12/DxFunctionHelper.h"
@@ -108,6 +109,8 @@ void Engine::Init() {
     editor_->addEditor("LightEditor", std::move(lightEditor));
     std::unique_ptr<MaterialEditor> materialEditor = std::make_unique<MaterialEditor>(materialManager_.get());
     editor_->addEditor("MaterialEditor", std::move(materialEditor));
+    std::unique_ptr<ECSEditor> ecsEditor = std::make_unique<ECSEditor>();
+    editor_->addEditor("ECSEditor", std::move(ecsEditor));
 #endif // _DEBUG
 }
 

@@ -49,4 +49,6 @@ private:
 public:
     void addScene(const std::string& name, std::function<std::unique_ptr<IScene>()> _sceneMakeFunc);
     void changeScene(const std::string& name);
+
+    RenderTexture* getSceneView() const { return sceneView_.get(); }
 };

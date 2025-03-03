@@ -11,8 +11,8 @@
 
 /// engine
 // module
-#include "ECS/component/material/light/lightManager.h"
-#include "ECS/component/material/Material.h"
+#include "component/material/light/lightManager.h"
+#include "component/material/Material.h"
 #include "editor/EngineEditor.h"
 #include "input/Input.h"
 #include "winApp/WinApp.h"

@@ -106,19 +106,19 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="code\lib\binaryIO\BinaryIO.cpp" />
-    <ClCompile Include="code\application\component\default\material\light\LightManager.cpp" />
-    <ClCompile Include="code\application\component\default\material\Material.cpp" />
-    <ClCompile Include="code\application\component\default\transform\CameraTransform.cpp" />
-    <ClCompile Include="code\application\component\default\transform\ParticleTransform.cpp" />
-    <ClCompile Include="code\application\component\default\transform\Transform.cpp" />
+    <ClCompile Include="code\engine\component\material\light\LightManager.cpp" />
+    <ClCompile Include="code\engine\component\material\Material.cpp" />
+    <ClCompile Include="code\engine\component\transform\CameraTransform.cpp" />
+    <ClCompile Include="code\engine\component\transform\ParticleTransform.cpp" />
+    <ClCompile Include="code\engine\component\transform\Transform.cpp" />
     <ClCompile Include="code\engine\ECS\ECSEditor.cpp" />
-    <ClCompile Include="code\engine\ECS\system\ISystem.cpp" />
+    <ClCompile Include="code\engine\system\ISystem.cpp" />
     <ClCompile Include="code\engine\animation\Animation.cpp" />
     <ClCompile Include="code\engine\animation\AnimationManager.cpp" />
     <ClCompile Include="code\engine\camera\CameraManager.cpp" />
     <ClCompile Include="code\engine\camera\gameCamera\GameCamera.cpp" />
-    <ClCompile Include="code\engine\ECS\component\IComponent.cpp" />
-    <ClCompile Include="code\application\component\default\renderer\MeshRender.cpp" />
+    <ClCompile Include="code\engine\component\IComponent.cpp" />
+    <ClCompile Include="code\engine\component\renderer\MeshRender.cpp" />
     <ClCompile Include="code\engine\editor\EngineEditor.cpp" />
     <ClCompile Include="code\engine\effect\particle\editor\ParticleEditor.cpp" />
     <ClCompile Include="code\engine\effect\silhouette\ISilhouette.cpp" />
@@ -157,7 +157,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="code\lib\logger\Logger.cpp" />
     <ClCompile Include="code\engine\model\ModelManager.cpp" />
     <ClCompile Include="code\engine\primitiveDrawer\PrimitiveDrawer.cpp" />
-    <ClCompile Include="code\application\component\default\renderer\Sprite.cpp" />
+    <ClCompile Include="code\engine\component\renderer\Sprite.cpp" />
     <ClCompile Include="code\engine\Engine.cpp" />
     <ClCompile Include="code\lib\winApp\WinApp.cpp" />
     <ClCompile Include="code\lib\globalVariables\GlobalVariables.cpp" />
@@ -175,30 +175,30 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="code\engine\effect\Effect.cpp" />
     <ClCompile Include="code\engine\effect\editor\EffectEditor.cpp" />
     <ClCompile Include="code\engine\ECS\ECSManager.cpp" />
-    <ClCompile Include="code\engine\ECS\ComponentArray.cpp" />
-    <ClCompile Include="code\application\system\default\render\TexturedMeshRenderSystem.cpp" />
-    <ClCompile Include="code\application\system\default\render\SpritRenderSystem.cpp" />
+    <ClCompile Include="code\engine\component\ComponentArray.cpp" />
+    <ClCompile Include="code\engine\system\render\TexturedMeshRenderSystem.cpp" />
+    <ClCompile Include="code\engine\system\render\SpritRenderSystem.cpp" />
     <ClCompile Include="code\application\scene\IScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\lib\binaryIO\BinaryIO.h" />
-    <ClInclude Include="code\application\component\default\material\light\DirectionalLight.h" />
-    <ClInclude Include="code\application\component\default\material\light\LightManager.h" />
-    <ClInclude Include="code\application\component\default\material\light\PointLight.h" />
-    <ClInclude Include="code\application\component\default\material\light\SpotLight.h" />
-    <ClInclude Include="code\application\component\default\material\Material.h" />
-    <ClInclude Include="code\application\component\default\transform\CameraTransform.h" />
-    <ClInclude Include="code\application\component\default\transform\ParticleTransform.h" />
-    <ClInclude Include="code\application\component\default\transform\Transform.h" />
+    <ClInclude Include="code\engine\component\material\light\DirectionalLight.h" />
+    <ClInclude Include="code\engine\component\material\light\LightManager.h" />
+    <ClInclude Include="code\engine\component\material\light\PointLight.h" />
+    <ClInclude Include="code\engine\component\material\light\SpotLight.h" />
+    <ClInclude Include="code\engine\component\material\Material.h" />
+    <ClInclude Include="code\engine\component\transform\CameraTransform.h" />
+    <ClInclude Include="code\engine\component\transform\ParticleTransform.h" />
+    <ClInclude Include="code\engine\component\transform\Transform.h" />
     <ClInclude Include="code\engine\ECS\ECSEditor.h" />
     <ClInclude Include="code\engine\ECS\Entity.h" />
-    <ClInclude Include="code\engine\ECS\system\ISystem.h" />
+    <ClInclude Include="code\engine\system\ISystem.h" />
     <ClInclude Include="code\engine\animation\Animation.h" />
     <ClInclude Include="code\engine\animation\AnimationManager.h" />
     <ClInclude Include="code\engine\camera\CameraManager.h" />
     <ClInclude Include="code\engine\camera\gameCamera\GameCamera.h" />
-    <ClInclude Include="code\engine\ECS\component\IComponent.h" />
-    <ClInclude Include="code\application\component\default\renderer\MeshRender.h" />
+    <ClInclude Include="code\engine\component\IComponent.h" />
+    <ClInclude Include="code\engine\component\renderer\MeshRender.h" />
     <ClInclude Include="code\engine\directX12\Mesh.h" />
     <ClInclude Include="code\engine\editor\EngineEditor.h" />
     <ClInclude Include="code\engine\effect\particle\editor\ParticleEditor.h" />
@@ -242,7 +242,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="code\lib\logger\Logger.h" />
     <ClInclude Include="code\engine\model\ModelManager.h" />
     <ClInclude Include="code\engine\primitiveDrawer\PrimitiveDrawer.h" />
-    <ClInclude Include="code\application\component\default\renderer\Sprite.h" />
+    <ClInclude Include="code\engine\component\renderer\Sprite.h" />
     <ClInclude Include="code\engine\Engine.h" />
     <ClInclude Include="code\lib\winApp\WinApp.h" />
     <ClInclude Include="code\lib\globalVariables\GlobalVariables.h" />
@@ -269,7 +269,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="code\application\scene\IScene.h" />
     <ClInclude Include="code\util\nameof.h" />
     <ClInclude Include="code\engine\ECS\ECSManager.h" />
-    <ClInclude Include="code\engine\ECS\ComponentArray.h" />
+    <ClInclude Include="code\engine\component\ComponentArray.h" />
     <ClInclude Include="externals\assimp\include\assimp\aabb.h" />
     <ClInclude Include="externals\assimp\include\assimp\ai_assert.h" />
     <ClInclude Include="externals\assimp\include\assimp\anim.h" />
@@ -355,8 +355,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="externals\assimp\include\assimp\ZipArchiveIOSystem.h" />
     <ClInclude Include="externals\nlohmann\json.hpp" />
     <ClInclude Include="externals\nlohmann\json_fwd.hpp" />
-    <ClInclude Include="code\application\system\default\render\TexturedMeshRenderSystem.h" />
-    <ClInclude Include="code\application\system\default\render\SpritRenderSystem.h" />
+    <ClInclude Include="code\engine\system\render\TexturedMeshRenderSystem.h" />
+    <ClInclude Include="code\engine\system\render\SpritRenderSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">

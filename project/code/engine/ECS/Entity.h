@@ -26,7 +26,7 @@ public:
     }
 
 private:
-    int32_t id_ = -1;
+    int32_t id_           = -1;
     std::string dataType_ = "UNKNOWN";
 
 public:
@@ -45,7 +45,7 @@ public:
     /// <summary>
     /// エンティティのユニークIDを取得する
     /// </summary>
-    const std::string& getUniqueID() const {
+    std::string getUniqueID() const {
         return dataType_ + std::to_string(id_);
     }
 };

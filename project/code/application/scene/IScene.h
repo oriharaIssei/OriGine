@@ -18,9 +18,6 @@ public:
     virtual void Finalize();
 
 protected:
-    virtual void CreateSceneEntity() = 0;
-    virtual void CreateSceneSystem() = 0;
-
     virtual void LoadSceneEntity() = 0;
     virtual void SaveSceneEntity() = 0;
 

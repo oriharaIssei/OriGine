@@ -4,8 +4,8 @@
 /// engine
 // module
 #include "camera/CameraManager.h"
-#include "material/light/LightManager.h"
-#include "material/Material.h"
+#include "component/material/light/LightManager.h"
+#include "component/material/Material.h"
 #include "../application/scene/manager/SceneManager.h"
 // scene
 #include "../application/scene/IScene.h"

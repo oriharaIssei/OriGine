@@ -4,12 +4,7 @@
 #include "Engine.h"
 // assets
 #include "model/Model.h"
-// camera
-#include "camera/CameraManager.h"
-// material
-#include "material/light/LightManager.h"
 // manager
-#include "material/Material.h"
 #include "model/ModelManager.h"
 
 //----------------------------------------------------------------------------------------------------------
@@ -57,43 +52,43 @@ void PrimitiveMeshRenderer::Init() {
     }
 }
 
-//void PrimitiveMeshRenderer::Update() {
-//    for (auto& transform : meshTransformBuff_) {
-//        transform.openData_.Update();
-//        transform.ConvertToBuffer();
-//    }
-//}
+// void PrimitiveMeshRenderer::Update() {
+//     for (auto& transform : meshTransformBuff_) {
+//         transform.openData_.Update();
+//         transform.ConvertToBuffer();
+//     }
+// }
 //
-//void PrimitiveMeshRenderer::Render() {
-//    IRendererComponentController* controller = RenderManager::getInstance()->getRendererController<PrimitiveMeshRendererController>();
-//    auto* commandList                        = controller->getDxCommand()->getCommandList();
+// void PrimitiveMeshRenderer::Render() {
+//     IRendererComponentController* controller = RenderManager::getInstance()->getRendererController<PrimitiveMeshRendererController>();
+//     auto* commandList                        = controller->getDxCommand()->getCommandList();
 //
-//    uint32_t index = 0;
+//     uint32_t index = 0;
 //
-//    for (auto& mesh : *meshGroup_) {
-//        auto& material = meshMaterialBuff_[index];
+//     for (auto& mesh : *meshGroup_) {
+//         auto& material = meshMaterialBuff_[index];
 //
-//        IConstantBuffer<Transform>& meshTransform = meshTransformBuff_[index];
-//        meshTransform.ConvertToBuffer();
+//         IConstantBuffer<Transform>& meshTransform = meshTransformBuff_[index];
+//         meshTransform.ConvertToBuffer();
 //
-//        commandList->IASetVertexBuffers(0, 1, &mesh.vbView);
-//        commandList->IASetIndexBuffer(&mesh.ibView);
+//         commandList->IASetVertexBuffers(0, 1, &mesh.vbView);
+//         commandList->IASetIndexBuffer(&mesh.ibView);
 //
-//        meshTransform.SetForRootParameter(commandList, 0);
+//         meshTransform.SetForRootParameter(commandList, 0);
 //
-//        material->SetForRootParameter(commandList, 2);
-//        // 描画!!!
-//        commandList->DrawIndexedInstanced(UINT(mesh.indexSize), 1, 0, 0, 0);
+//         material->SetForRootParameter(commandList, 2);
+//         // 描画!!!
+//         commandList->DrawIndexedInstanced(UINT(mesh.indexSize), 1, 0, 0, 0);
 //
-//        ++index;
-//    }
-//}
+//         ++index;
+//     }
+// }
 #pragma endregion
 
 //----------------------------------------------------------------------------------------------------------
 // ↓ PrimitiveMeshContorller
 //----------------------------------------------------------------------------------------------------------
-//void PrimitiveMeshRendererController::StartRender() {
+// void PrimitiveMeshRendererController::StartRender() {
 //    auto* commandList = dxCommand_->getCommandList();
 //    commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
 //    commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
@@ -101,7 +96,7 @@ void PrimitiveMeshRenderer::Init() {
 //    commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 //}
 //
-//void PrimitiveMeshRendererController::CreatePso() {
+// void PrimitiveMeshRendererController::CreatePso() {
 //    ShaderManager* shaderManager = ShaderManager::getInstance();
 //    ///=================================================
 //    /// shader読み込み
@@ -117,7 +112,7 @@ void PrimitiveMeshRenderer::Init() {
 //    primShaderInfo.vsKey = "Object3d.VS";
 //    primShaderInfo.psKey = "Object3d.PS";
 //
-//#pragma region "RootParameter"
+// #pragma region "RootParameter"
 //    D3D12_ROOT_PARAMETER rootParameter[7]{};
 //    rootParameter[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 //    // PixelShaderで使う
@@ -180,9 +175,9 @@ void PrimitiveMeshRenderer::Init() {
 //    primShaderInfo.SetDescriptorRange2Parameter(directionalLightRange, 1, 3);
 //    primShaderInfo.SetDescriptorRange2Parameter(pointLightRange, 1, 4);
 //    primShaderInfo.SetDescriptorRange2Parameter(spotLightRange, 1, 5);
-//#pragma endregion
+// #pragma endregion
 //
-//#pragma region "Input Element"
+// #pragma region "Input Element"
 //    D3D12_INPUT_ELEMENT_DESC inputElementDesc = {};
 //    inputElementDesc.SemanticName             = "POSITION"; /*Semantics*/
 //    inputElementDesc.SemanticIndex            = 0; /*Semanticsの横に書いてある数字(今回はPOSITION0なので 0 )*/
@@ -195,7 +190,7 @@ void PrimitiveMeshRenderer::Init() {
 //    inputElementDesc.Format            = DXGI_FORMAT_R32G32B32_FLOAT;
 //    inputElementDesc.AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
 //    primShaderInfo.pushBackInputElementDesc(inputElementDesc);
-//#pragma endregion
+// #pragma endregion
 //
 //    ///=================================================
 //    /// BlendMode ごとの Pso作成
@@ -208,5 +203,39 @@ void PrimitiveMeshRenderer::Init() {
 //};
 
 TextureMeshRenderer CreateModelMeshRenderer(const std::string& _directory, const std::string& _filenName) {
-    return TextureMeshRenderer();
+    TextureMeshRenderer meshRenderer;
+    bool isLoaded = false;
+    // -------------------- Modelの読み込み --------------------//
+    ModelManager::getInstance()->Create(_directory, _filenName, [&meshRenderer, &isLoaded](Model* model) {
+        // 再帰ラムダをstd::functionとして定義
+        std::function<void(TextureMeshRenderer*, Model*, ModelNode*)> CreateMeshGroupFormNode;
+        CreateMeshGroupFormNode = [&](TextureMeshRenderer* _meshRenderer, Model* _model, ModelNode* _node) {
+            auto meshItr = _model->meshData_->meshGroup_.find(_node->name);
+            if (meshItr != _model->meshData_->meshGroup_.end()) {
+                _meshRenderer->pushBackMesh(meshItr->second);
+            }
+            for (auto& child : _node->children) {
+                CreateMeshGroupFormNode(_meshRenderer, _model, &child);
+            }
+            return;
+        };
+
+        CreateMeshGroupFormNode(&meshRenderer, model, &model->meshData_->rootNode);
+        meshRenderer.Init();
+
+        // マテリアルの設定
+        for (uint32_t i = 0; i < static_cast<uint32_t>(model->materialData_.size()); ++i) {
+            meshRenderer.setMaterialBuff(i, model->materialData_[i].material);
+            meshRenderer.setTextureNumber(i, model->materialData_[i].textureNumber);
+        }
+        isLoaded = true;
+    });
+
+    while (true) {
+        if (isLoaded) {
+            break;
+        }
+    }
+
+    return meshRenderer;
 }

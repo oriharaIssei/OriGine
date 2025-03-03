@@ -1,10 +1,11 @@
 #pragma once
 
+#include "component/material/Material.h"
+#include "component/transform/Transform.h"
 #include "directX12/IConstantBuffer.h"
-#include "material/Material.h"
-#include "transform/Transform.h"
 
 #include <memory>
+#include <string>
 #include <vector>
 
 struct Model;
@@ -49,7 +50,7 @@ private:
             DrawThis();
         }};
 
-    std::unique_ptr<Model> model_;
+    std::shared_ptr<Model> model_;
     std::string currentAnimationName_;
     std::unique_ptr<Animation> animation_;
 
@@ -59,7 +60,7 @@ private:
 public:
     const Model* getModel() const;
     Model* getModel();
-    void setModel(std::unique_ptr<Model> model);
+    void setModel(std::shared_ptr<Model> model);
     void setModel(const std::string& directory, const std::string& filename);
 
     const Animation* getAnimation() const;

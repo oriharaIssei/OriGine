@@ -7,7 +7,7 @@
 #include "texture/TextureManager.h"
 #include "winApp/WinApp.h"
 // ECS
-#include "ECS/component/renderer/sprite/Sprite.h"
+#include "component/renderer/Sprite.h"
 #include "ECS/ECSManager.h"
 
 void SpritRenderSystem::Init() {

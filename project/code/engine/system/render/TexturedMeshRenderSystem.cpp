@@ -8,7 +8,7 @@
 // ECS
 // component
 #include "../ECSManager.h"
-#include "renderer/meshRenderer/MeshRender.h"
+#include "component/renderer/MeshRender.h"
 
 void TexturedMeshRenderSystem::Init() {
     dxCommand_ = std::make_unique<DxCommand>();
@@ -200,7 +200,7 @@ void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
     ///==============================
     /// Transformの更新
     ///==============================
-    for (int32_t i = 0; i >= renderer->getMeshSize(); ++i) {
+    for (int32_t i = 0; i < renderer->getMeshSize(); ++i) {
         auto& transform = renderer->getTransformBuff(i);
         transform.openData_.Update();
         transform.ConvertToBuffer();

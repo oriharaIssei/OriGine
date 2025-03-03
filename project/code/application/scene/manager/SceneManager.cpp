@@ -36,6 +36,7 @@ void SceneManager::Init() {
 }
 
 void SceneManager::Finalize() {
+    currentScene_->Finalize();
     scenes_.clear();
 
     sceneView_->Finalize();
@@ -51,10 +52,6 @@ void SceneManager::Update() {
 }
 
 void SceneManager::Draw() {
-    sceneView_->PreDraw();
-
-    sceneView_->PostDraw();
-
     Engine::getInstance()->ScreenPreDraw();
     sceneView_->DrawTexture();
     Engine::getInstance()->ScreenPostDraw();

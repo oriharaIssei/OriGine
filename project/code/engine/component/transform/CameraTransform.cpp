@@ -1,4 +1,4 @@
-#include "transform/CameraTransform.h"
+#include "CameraTransform.h"
 
 void CameraTransform::UpdateMatrix(){
 	viewMat = MakeMatrix::Affine({1.0f,1.0f,1.0f},rotate,translate);

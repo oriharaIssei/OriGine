@@ -1,25 +1,25 @@
 #pragma once
 
-///stl
+/// stl
 #include <memory>
 #include <vector>
 
-///engine
-//dx12object
+/// engine
+// dx12object
 #include "directX12/IConstantBuffer.h"
 #include "directX12/IStructuredBuffer.h"
-//assets
-#include "material/Material.h"
+// assets
+#include "component/material/Material.h"
 struct ParticleKeyFrames;
 struct EmitterShape;
 struct ParticleKeyFrames;
-//object
+// object
 #include "../Particle.h"
-//transform
-#include "transform/CameraTransform.h"
-#include "transform/ParticleTransform.h"
-#include "transform/Transform.h"
-//lib
+// transform
+#include "component/transform/CameraTransform.h"
+#include "component/transform/ParticleTransform.h"
+#include "component/transform/Transform.h"
+// lib
 #include "globalVariables/SerializedField.h"
 
 class Emitter {
@@ -74,7 +74,7 @@ private:
     /// <summary>
     /// 頂点とMaterial を 併せ持つ
     /// </summary>
-    std::unique_ptr<Model> particleModel_;
+    std::shared_ptr<Model> particleModel_;
     IStructuredBuffer<ParticleTransform> structuredTransform_;
     //=============== 見た目項目 ===============/
     SerializedField<std::string> modelFileName_;

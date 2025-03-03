@@ -1,12 +1,12 @@
 #include "AnimationObject3d.h"
 
-#include "Engine.h"
 #include "animation/Animation.h"
 #include "animation/AnimationManager.h"
-#include "material/Material.h"
-#include "texture/TextureManager.h"
+#include "component/material/Material.h"
+#include "Engine.h"
 #include "model/Model.h"
 #include "model/ModelManager.h"
+#include "texture/TextureManager.h"
 
 AnimationObject3d::AnimationObject3d() {}
 
@@ -58,8 +58,7 @@ void AnimationObject3d::Update(float deltaTime) {
     // Animationより 先に Object 座標系の 行進
     transform_.Update();
 
-    if (model_->meshData_->currentState_ == LoadState::Unloaded ||
-        !animation_->getData()) {
+    if (model_->meshData_->currentState_ == LoadState::Unloaded || !animation_->getData()) {
         return;
     }
 
@@ -102,13 +101,13 @@ void AnimationObject3d::Draw() {
 }
 
 void AnimationObject3d::DrawThis() {
-    //ModelManager* manager = ModelManager::getInstance();
-    //auto* commandList     = manager->dxCommand_->getCommandList();
+    // ModelManager* manager = ModelManager::getInstance();
+    // auto* commandList     = manager->dxCommand_->getCommandList();
 
-    //uint32_t index = 0;
+    // uint32_t index = 0;
 
-    //for (auto& mesh : model_->meshData_->meshGroup_) {
-    //    auto& material = model_->materialData_[index];
+    // for (auto& mesh : model_->meshData_->meshGroup_) {
+    //     auto& material = model_->materialData_[index];
 
     //    IConstantBuffer<Transform>& meshTransform = model_->transformBuff_[&mesh];
     //    meshTransform.ConvertToBuffer();
@@ -140,7 +139,7 @@ Model* AnimationObject3d::getModel() {
     return model_.get();
 }
 
-void AnimationObject3d::setModel(std::unique_ptr<Model> model) {
+void AnimationObject3d::setModel(std::shared_ptr<Model> model) {
     model_ = std::move(model);
 }
 void AnimationObject3d::setModel(const std::string& directory, const std::string& filename) {
@@ -177,7 +176,7 @@ void AnimationObject3d::setNextAnimation(const std::string& directory, const std
     toNextAnimationData->nodeAnimations.clear();
     toNextAnimationData->duration = _lerpTime;
     for (const auto& [nodeName, nodeAnimation] : animation_->getData()->nodeAnimations) {
-      
+
         ///=============================================
         /// 現在の姿勢をはじめに追加
         toNextAnimationData->nodeAnimations[nodeName].scale.push_back(KeyframeVector3(

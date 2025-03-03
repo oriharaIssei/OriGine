@@ -17,8 +17,6 @@ public:
     void Finalize() override;
 
 protected:
-    void CreateSceneEntity() override;
-    void CreateSceneSystem() override;
     void LoadSceneEntity() override;
     void SaveSceneEntity() override;
 

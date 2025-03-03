@@ -1,5 +1,5 @@
 #pragma once
-#include "ECS/component/IComponent.h"
+#include "component/IComponent.h"
 
 #include "module/IModule.h"
 
@@ -13,7 +13,8 @@
 
 /// engine
 // conmponent
-#include "transform/Transform.h"
+#include "../material/Material.h"
+#include "../transform/Transform.h"
 // directX12Object
 #include "directX12/Mesh.h"
 // module
@@ -37,7 +38,7 @@ class MeshRenderer
 public:
     using VertexType = VertexDataType;
 
-    MeshRenderer() {}
+    MeshRenderer() { meshGroup_ = std::make_shared<std::vector<MeshTemplate>>(); }
     MeshRenderer(const std::vector<MeshTemplate>& _meshGroup) {
         meshGroup_ = std::make_shared<std::vector<MeshTemplate>>(_meshGroup);
     }
@@ -86,6 +87,9 @@ public: // ↓ Accessor
     void setMeshGroup(const std::vector<MeshTemplate>& _meshGroup) {
         meshGroup_ = std::make_shared<std::vector<MeshTemplate>>(_meshGroup);
     }
+    void pushBackMesh(const MeshTemplate& _mesh) {
+        meshGroup_->push_back(_mesh);
+    }
 };
 
 ///==================================================================================================================
@@ -111,6 +115,10 @@ public:
             mesh.Finalize();
         }
         meshGroup_.reset();
+
+        for (auto& transformBuff : meshTransformBuff_) {
+            transformBuff.Finalize();
+        }
     }
 
 private:
@@ -137,6 +145,9 @@ public:
     }
     void setTransform(int32_t _meshIndex, const Transform& _transform) {
         meshTransformBuff_[_meshIndex].openData_ = _transform;
+    }
+    void pushBackTransformBuff() {
+        meshTransformBuff_.emplace_back();
     }
 
     /// <summary>

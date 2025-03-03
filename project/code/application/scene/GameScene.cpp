@@ -3,8 +3,8 @@
 /// ECS
 #include "ECS/ECSManager.h"
 // component
-#include "renderer/meshRenderer/MeshRender.h"
-#include "transform/Transform.h"
+#include "component/renderer/MeshRender.h"
+#include "component/transform/Transform.h"
 // system
 #include "system/render/TexturedMeshRenderSystem.h"
 
@@ -14,19 +14,23 @@ GameScene::GameScene()
 GameScene::~GameScene() {}
 
 void GameScene::Init() {
+    // ===================================== DefaultEntity ===================================== //
+    // ----------------------------------- Player ----------------------------------- //
+    GameEntity* player = CreateEntity<Transform, TextureMeshRenderer>("Player", Transform(), CreateModelMeshRenderer("resource/Models", "Enemy.obj"));
 
-    IScene::Init();
+    // ===================================== DefaultSystem ===================================== //
+    // ----------------------------------- Render ----------------------------------- //
+    ECSManager::getInstance()->registerSystem<TexturedMeshRenderSystem>();
+    {
+        TexturedMeshRenderSystem* texturedMeshRenderSystem = ECSManager::getInstance()->getSystem<TexturedMeshRenderSystem>();
+        texturedMeshRenderSystem->Init();
+
+        texturedMeshRenderSystem->addEntity(player);
+    }
 }
 
 void GameScene::Finalize() {
-}
-
-void GameScene::CreateSceneEntity() {
-    // Player 作成
-    CreateEntity<Transform, TextureMeshRenderer>("Player", Transform(), TextureMeshRenderer());
-}
-
-void GameScene::CreateSceneSystem() {
+    IScene::Finalize();
 }
 
 void GameScene::LoadSceneEntity() {

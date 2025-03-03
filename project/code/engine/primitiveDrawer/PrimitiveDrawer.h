@@ -6,11 +6,11 @@
 
 #include <directX12/PipelineStateObj.h>
 
+#include "component/material/Material.h"
+#include "component/transform/CameraTransform.h"
+#include "component/transform/Transform.h"
 #include "directX12/IConstantBuffer.h"
 #include "directX12/Mesh.h"
-#include "material/Material.h"
-#include "transform/CameraTransform.h"
-#include "transform/Transform.h"
 
 #include "directX12/DxCommand.h"
 

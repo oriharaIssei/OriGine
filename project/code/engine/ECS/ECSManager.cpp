@@ -1,5 +1,11 @@
 #include "ECSManager.h"
 
+/// engine
+// module
+#include "./application/scene/manager/SceneManager.h"
+// dx12Object
+#include "engine/directX12/RenderTexture.h"
+
 void EntityComponentSystemManager::Init() {
     // エンティティの初期化
     entities_.resize(entityCapacity_);
@@ -26,9 +32,13 @@ void EntityComponentSystemManager::Run() {
         system->Update();
     }
 
+    auto sceneView = SceneManager::getInstance()->getSceneView();
+    sceneView->PreDraw();
     for (auto& [systemTypeName, system] : systems_[int32_t(SystemType::Render)]) {
         system->Update();
     }
+    sceneView->PostDraw();
+
     for (auto& [systemTypeName, system] : systems_[int32_t(SystemType::PostRender)]) {
         system->Update();
     }
