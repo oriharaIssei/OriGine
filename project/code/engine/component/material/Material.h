@@ -23,7 +23,7 @@
 
 class MaterialManager;
 struct Material
-    : IAsset{
+    : IAsset {
     friend class MaterialManager;
 
 public:
@@ -79,25 +79,25 @@ public:
     };
 };
 
-//template <>
-//inline bool EditComponent<Material>(Material* _editComponent) {
-//    bool isChange = false;
-//    // --------------------------- uvScale --------------------------- //
-//    isChange |= MyGui::Drag<3, float>("uvScale", _editComponent->uvScale_, 0.01f);
-//    // --------------------------- uvRotate --------------------------- //
-//    isChange |= MyGui::Drag<3, float>("uvRotate", _editComponent->uvRotate_, 0.01f);
-//    // --------------------------- uvTranslate --------------------------- //
-//    isChange |= MyGui::Drag<3, float>("uvTranslate", _editComponent->uvTranslate_, 0.01f);
-//    // --------------------------- color --------------------------- //
-//    isChange |= MyGui::Drag<4, float>("color", _editComponent->color_, 0.01f);
-//    // --------------------------- enableLighting --------------------------- //
-//    isChange |= MyGui::Drag<int32_t>("enableLighting", _editComponent->enableLighting_, 1);
-//    // --------------------------- shininess --------------------------- //
-//    isChange |= MyGui::Drag<float>("shininess", _editComponent->shininess_, 0.01f);
-//    // --------------------------- specularColor --------------------------- //
-//    isChange |= MyGui::Drag<3, float>("specularColor", _editComponent->specularColor_, 0.01f);
-//    return isChange;
-//}
+// template <>
+// inline bool EditComponent<Material>(Material* _editComponent) {
+//     bool isChange = false;
+//     // --------------------------- uvScale --------------------------- //
+//     isChange |= MyGui::Drag<3, float>("uvScale", _editComponent->uvScale_, 0.01f);
+//     // --------------------------- uvRotate --------------------------- //
+//     isChange |= MyGui::Drag<3, float>("uvRotate", _editComponent->uvRotate_, 0.01f);
+//     // --------------------------- uvTranslate --------------------------- //
+//     isChange |= MyGui::Drag<3, float>("uvTranslate", _editComponent->uvTranslate_, 0.01f);
+//     // --------------------------- color --------------------------- //
+//     isChange |= MyGui::Drag<4, float>("color", _editComponent->color_, 0.01f);
+//     // --------------------------- enableLighting --------------------------- //
+//     isChange |= MyGui::Drag<int32_t>("enableLighting", _editComponent->enableLighting_, 1);
+//     // --------------------------- shininess --------------------------- //
+//     isChange |= MyGui::Drag<float>("shininess", _editComponent->shininess_, 0.01f);
+//     // --------------------------- specularColor --------------------------- //
+//     isChange |= MyGui::Drag<3, float>("specularColor", _editComponent->specularColor_, 0.01f);
+//     return isChange;
+// }
 
 class MaterialManager
     : public IModule {
@@ -107,7 +107,7 @@ public:
     IConstantBuffer<Material>* Create(const std::string& materialName);
     IConstantBuffer<Material>* Create(const std::string& materialName, const Material& data);
 
-    void Init();
+    void Init() {}
     void Finalize();
 
 private:

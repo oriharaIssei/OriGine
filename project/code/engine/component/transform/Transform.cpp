@@ -1,6 +1,6 @@
 #include "Transform.h"
 
-///engine
+/// engine
 #include <Engine.h>
 
 #ifdef _DEBUG
@@ -26,7 +26,10 @@ bool Transform::Edit() {
     // --------------------------- scale --------------------------- //
     isChange |= ImGui::DragFloat3("Scale", this->scale.v, 0.01f);
     // --------------------------- rotate --------------------------- //
-    isChange |= ImGui::DragFloat4("Rotate", this->rotate.v, 0.01f);
+    if (ImGui::DragFloat4("Rotate", this->rotate.v, 0.01f)) {
+        isChange     = true;
+        this->rotate = Quaternion::Normalize(this->rotate);
+    }
     // --------------------------- translate --------------------------- //
     isChange |= ImGui::DragFloat3("Translate", this->translate.v, 0.01f);
 

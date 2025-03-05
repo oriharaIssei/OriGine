@@ -6,7 +6,7 @@
 
 IComponent::IComponent(GameEntity* _hostEntity) {
     // Constructor implementation
-    _hostEntity;
+    hostEntity_ = _hostEntity;
 }
 
 IComponent::~IComponent() {

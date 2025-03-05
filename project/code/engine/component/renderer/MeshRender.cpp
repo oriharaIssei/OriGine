@@ -9,11 +9,16 @@
 // manager
 #include "model/ModelManager.h"
 
+/// lib
+#include "myFileSystem/MyFileSystem.h"
+
+#include "imgui/imgui.h"
+
 //----------------------------------------------------------------------------------------------------------
 // ↓ DefaultMeshRenderer
 //----------------------------------------------------------------------------------------------------------
-#pragma region "TextureMeshRenderer"
-TextureMeshRenderer::TextureMeshRenderer(GameEntity* _hostEntity, const std::vector<TextureMesh>& _meshGroup)
+#pragma region "ModelMeshRenderer"
+ModelMeshRenderer::ModelMeshRenderer(GameEntity* _hostEntity, const std::vector<TextureMesh>& _meshGroup)
     : MeshRenderer<TextureMesh, TextureVertexData>(_hostEntity, _meshGroup) {
     Init();
 
@@ -26,7 +31,7 @@ TextureMeshRenderer::TextureMeshRenderer(GameEntity* _hostEntity, const std::vec
     }
 }
 
-TextureMeshRenderer::TextureMeshRenderer(GameEntity* _hostEntity, const std::shared_ptr<std::vector<TextureMesh>>& _meshGroup)
+ModelMeshRenderer::ModelMeshRenderer(GameEntity* _hostEntity, const std::shared_ptr<std::vector<TextureMesh>>& _meshGroup)
     : MeshRenderer<TextureMesh, TextureVertexData>(_hostEntity, _meshGroup) {
     Init();
 
@@ -39,7 +44,7 @@ TextureMeshRenderer::TextureMeshRenderer(GameEntity* _hostEntity, const std::sha
     }
 }
 
-void TextureMeshRenderer::Init() {
+void ModelMeshRenderer::Init() {
     if (meshTransformBuff_.size() != meshGroup_->size()) {
         meshTransformBuff_.resize(meshGroup_->size());
     }
@@ -60,6 +65,67 @@ void TextureMeshRenderer::Init() {
         meshTextureNumber_[i] = 0;
     }
 }
+
+bool ModelMeshRenderer::Edit() {
+    bool isChange = false;
+
+    ImGui::Text("BlendMode :");
+    ImGui::SameLine();
+    if (ImGui::BeginCombo("##BlendMode", blendModeStr[(int32_t)currentBlend_].c_str())) {
+        bool isSelected    = false;
+        int32_t blendIndex = 0;
+        for (auto& blendModeName : blendModeStr) {
+            isSelected = blendModeName == blendModeStr[(int32_t)currentBlend_];
+
+            if (ImGui::Selectable(blendModeName.c_str(), isSelected)) {
+                currentBlend_ = static_cast<BlendMode>(blendIndex);
+
+                isChange = true;
+                break;
+            }
+
+            blendIndex++;
+        }
+        ImGui::EndCombo();
+    }
+
+    ImGui::Text("Model File: %s", fileName_.c_str());
+    ImGui::SameLine();
+    if (ImGui::Button("Load")) {
+        std::string directory;
+        std::string fileName;
+        if (myfs::SelectFileDialog("resource", directory, fileName, {"obj", "gltf"})) {
+            directory_ = "resource/" + directory;
+            fileName_  = fileName;
+
+            this->Finalize();
+            meshGroup_ = std::make_shared<std::vector<TextureMesh>>();
+            CreateModelMeshRenderer(this, hostEntity_, directory_, fileName_);
+
+            isChange = true;
+        }
+    }
+    return isChange;
+}
+
+void ModelMeshRenderer::Save(BinaryWriter& _writer) {
+    MeshRenderer::Save(_writer);
+
+    _writer.Write<std::string>(directory_);
+    _writer.Write<std::string>(fileName_);
+}
+
+void ModelMeshRenderer::Load(BinaryReader& _reader) {
+    MeshRenderer::Load(_reader);
+
+    _reader.Read<std::string>(directory_);
+    _reader.Read<std::string>(fileName_);
+
+    if (!fileName_.empty()) {
+        CreateModelMeshRenderer(this, hostEntity_, directory_, fileName_);
+    }
+}
+
 
 #pragma endregion
 
@@ -258,16 +324,15 @@ void PrimitiveMeshRenderer::Init() {
 //    }
 //};
 
-TextureMeshRenderer CreateModelMeshRenderer(GameEntity* _hostEntity, const std::string& _directory, const std::string& _filenName) {
-    TextureMeshRenderer meshRenderer = TextureMeshRenderer(_hostEntity);
-    meshRenderer.setParentTransform(getComponent<Transform>(_hostEntity));
+void CreateModelMeshRenderer(ModelMeshRenderer* _renderer, GameEntity* _hostEntity, const std::string& _directory, const std::string& _filenName) {
+    _renderer->setParentTransform(getComponent<Transform>(_hostEntity));
 
     bool isLoaded = false;
     // -------------------- Modelの読み込み --------------------//
-    ModelManager::getInstance()->Create(_directory, _filenName, [&meshRenderer, &isLoaded](Model* model) {
+    ModelManager::getInstance()->Create(_directory, _filenName, [&_renderer, &isLoaded](Model* model) {
         // 再帰ラムダをstd::functionとして定義
-        std::function<void(TextureMeshRenderer*, Model*, ModelNode*)> CreateMeshGroupFormNode;
-        CreateMeshGroupFormNode = [&](TextureMeshRenderer* _meshRenderer, Model* _model, ModelNode* _node) {
+        std::function<void(ModelMeshRenderer*, Model*, ModelNode*)> CreateMeshGroupFormNode;
+        CreateMeshGroupFormNode = [&](ModelMeshRenderer* _meshRenderer, Model* _model, ModelNode* _node) {
             auto meshItr = _model->meshData_->meshGroup_.find(_node->name);
             if (meshItr != _model->meshData_->meshGroup_.end()) {
                 _meshRenderer->pushBackMesh(meshItr->second);
@@ -278,13 +343,13 @@ TextureMeshRenderer CreateModelMeshRenderer(GameEntity* _hostEntity, const std::
             return;
         };
 
-        CreateMeshGroupFormNode(&meshRenderer, model, &model->meshData_->rootNode);
-        meshRenderer.Init();
+        CreateMeshGroupFormNode(_renderer, model, &model->meshData_->rootNode);
+        _renderer->Init();
 
         // マテリアルの設定
         for (uint32_t i = 0; i < static_cast<uint32_t>(model->materialData_.size()); ++i) {
-            meshRenderer.setMaterialBuff(i, model->materialData_[i].material);
-            meshRenderer.setTextureNumber(i, model->materialData_[i].textureNumber);
+            _renderer->setMaterialBuff(i, model->materialData_[i].material);
+            _renderer->setTextureNumber(i, model->materialData_[i].textureNumber);
         }
         isLoaded = true;
     });
@@ -294,6 +359,4 @@ TextureMeshRenderer CreateModelMeshRenderer(GameEntity* _hostEntity, const std::
             break;
         }
     }
-
-    return meshRenderer;
 }

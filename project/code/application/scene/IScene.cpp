@@ -36,13 +36,14 @@ void IScene::Init() {
 #pragma region "RegisterComponent"
     ecsManager->registerComponent<Transform>();
     ecsManager->registerComponent<CameraTransform>();
-    ecsManager->registerComponent<TextureMeshRenderer>();
+    ecsManager->registerComponent<ModelMeshRenderer>();
     ecsManager->registerComponent<SpriteRenderer>();
 #pragma endregion "RegisterComponent"
 
 // System の登録
 #pragma region "RegisterSystem"
-
+    ecsManager->registerSystem<TexturedMeshRenderSystem>();
+    ecsManager->registerSystem<SpritRenderSystem>();
 #pragma endregion "RegisterSystem"
 
     // 読み込み (component,System の登録のあと)
@@ -124,10 +125,10 @@ void IScene::LoadSceneEntity() {
                     }
                 }
             }
-            // 読み込み 終了
-            reader.ReadEnd();
         }
     }
+    // 読み込み 終了
+    reader.ReadEnd();
 }
 
 void IScene::SaveSceneEntity() {

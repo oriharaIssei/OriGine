@@ -179,13 +179,13 @@ void LoadModelFile(ModelMeshData* data, const std::string& directoryPath, const 
         // マテリアルとテクスチャの処理
         aiMaterial* material = scene->mMaterials[loadedMesh->mMaterialIndex];
         aiString textureFilePath;
-        uint32_t textureIndex;
+        uint32_t textureIndex = 0;
         if (material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePath) == AI_SUCCESS) {
             std::string texturePath = textureFilePath.C_Str();
-
-            textureIndex = TextureManager::LoadTexture(directoryPath + "/" + texturePath);
-        } else {
-            textureIndex = 0;
+            if ((texturePath.find("/") == std::string::npos)) {
+                texturePath = directoryPath + "/" + texturePath;
+            }
+            textureIndex = TextureManager::LoadTexture(texturePath);
         }
 
         ModelManager::getInstance()->pushBackDefaultMaterial(data, {textureIndex, Engine::getInstance()->getMaterialManager()->Create("white")});

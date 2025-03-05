@@ -19,7 +19,7 @@ public:
     static bool CreateFolder(const std::string& directory);
 
     static void SelectFolderDialog(const std::string& _defaultDirectory, std::string& _outPath);
-    static void SelectFileDialog(const std::string& _defaultDirectory, std::string& _outPath);
+    static bool SelectFileDialog(const std::string& defaultDirectory, std::string& fileDirectory, std::string& filename, const std::vector<std::string>& extensions);
 
     static bool removeEmptyFolder(const std::string& directory);
     static std::uintmax_t deleteFolder(const std::string& path);

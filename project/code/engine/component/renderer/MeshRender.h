@@ -51,11 +51,15 @@ public:
     bool Edit() override { return false; }
     void Save(BinaryWriter& _writer) override {
         _writer.Write<int32_t>(static_cast<int32_t>(currentBlend_));
+
+        _writer.Write<bool>(isRender_);
     }
     void Load(BinaryReader& _reader) override {
         int32_t blend = 0;
         _reader.Read<int32_t>(blend);
         currentBlend_ = static_cast<BlendMode>(blend);
+
+        _reader.Read<bool>(isRender_);
     }
 
     virtual void Finalize() {
@@ -105,19 +109,25 @@ public: // ↓ Accessor
 /// ↓ DefaultMeshRenderer
 ///==================================================================================================================
 
-//----------------------------------------- TextureMeshRenderer -----------------------------------------//
-class TextureMeshRenderer
+//----------------------------------------- ModelMeshRenderer -----------------------------------------//
+
+class ModelMeshRenderer
     : public MeshRenderer<TextureMesh, TextureVertexData> {
 public:
-    TextureMeshRenderer(GameEntity* _hostEntity) : MeshRenderer<TextureMesh, TextureVertexData>(_hostEntity) {}
-    TextureMeshRenderer(GameEntity* _hostEntity, const std::vector<TextureMesh>& _meshGroup);
-    TextureMeshRenderer(GameEntity* _hostEntity, const std::shared_ptr<std::vector<TextureMesh>>& _meshGroup);
+    ModelMeshRenderer(GameEntity* _hostEntity) : MeshRenderer<TextureMesh, TextureVertexData>(_hostEntity) {}
+    ModelMeshRenderer(GameEntity* _hostEntity, const std::vector<TextureMesh>& _meshGroup);
+    ModelMeshRenderer(GameEntity* _hostEntity, const std::shared_ptr<std::vector<TextureMesh>>& _meshGroup);
 
-    ~TextureMeshRenderer() {}
+    ~ModelMeshRenderer() {}
     ///< summary>
     /// 初期化
     ///</summary>
     void Init() override;
+
+    bool Edit() override;
+
+    void Save(BinaryWriter& _writer) override;
+    void Load(BinaryReader& _reader) override;
 
     void Finalize() override {
         for (auto& mesh : *meshGroup_) {
@@ -131,6 +141,9 @@ public:
     }
 
 private:
+    std::string directory_;
+    std::string fileName_;
+
     std::vector<IConstantBuffer<Transform>> meshTransformBuff_;
     std::vector<IConstantBuffer<Material>*> meshMaterialBuff_;
     std::vector<uint32_t> meshTextureNumber_;
@@ -189,7 +202,7 @@ public:
     }
 };
 
-TextureMeshRenderer CreateModelMeshRenderer(GameEntity* _hostEntity, const std::string& _directory, const std::string& _filenName);
+void CreateModelMeshRenderer(ModelMeshRenderer* _renderer, GameEntity* _hostEntity, const std::string& _directory, const std::string& _filenName);
 
 //----------------------------------------- PrimitiveMeshRenderer -----------------------------------------//
 class PrimitiveMeshRenderer

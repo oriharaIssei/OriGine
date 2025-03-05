@@ -56,11 +56,14 @@ bool SpriteRenderer::Edit() {
     ImGui::Text("Texture");
     ImGui::SameLine();
     if (ImGui::Button("...")) {
-        std::string path;
-        MyFileSystem::SelectFolderDialog("resource", path);
-        if (!path.empty()) {
-            texturePath_ = "resource/" + path;
-            isChange     = true;
+        std::string directory;
+        std::string fileName;
+        if (myFs::SelectFileDialog("resource", directory, fileName, {".png"})) {
+            texturePath_ = "resource/" + directory + "/" + fileName;
+
+            textureNumber_ = TextureManager::LoadTexture(texturePath_);
+
+            isChange = true;
         }
     }
 

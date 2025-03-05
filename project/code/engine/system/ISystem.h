@@ -1,6 +1,7 @@
 #pragma once
 
 /// stl
+#include <array>
 #include <vector>
 
 /// engine
@@ -22,6 +23,15 @@ enum class SystemType {
 
     Count
 };
+
+static const std::array<std::string, static_cast<int>(SystemType::Count)> SystemTypeString = {
+    "Input",
+    "StateTransition",
+    "Movement",
+    "Physics",
+    "Collision",
+    "Render",
+    "PostRender"};
 
 class ISystem {
 public:

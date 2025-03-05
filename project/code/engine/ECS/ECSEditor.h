@@ -24,12 +24,19 @@ public:
 private:
     void SelectEntity();
     void EditComponent();
+    void WorkerSystemList();
+
+    void PopupEntityJoinWorkSystem(GameEntity* _entity);
+    void PopupEntityAddComponent(GameEntity* _entity);
 
 private:
+    ECSManager* ecsManager_ = nullptr;
+
     GameEntity* editEntity_ = nullptr;
     std::vector<IComponent*> editComponents_;
 
-    bool isOpenPopUpAddComponent_ = false;
+    bool isOpenPopupJoinWorkSystem_ = false;
+    bool isOpenPopUpAddComponent_   = false;
 
 public:
     GameEntity* getEditEntity() const {

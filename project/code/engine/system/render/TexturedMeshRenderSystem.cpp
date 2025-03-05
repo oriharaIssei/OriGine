@@ -4,10 +4,12 @@
 #include "Engine.h"
 // module
 #include "camera/CameraManager.h"
+#include "texture/TextureManager.h"
 
 // ECS
 // component
 #include "../ECSManager.h"
+#include "component/material/light/LightManager.h"
 #include "component/renderer/MeshRender.h"
 
 void TexturedMeshRenderSystem::Init() {
@@ -186,6 +188,7 @@ void TexturedMeshRenderSystem::StartRender() {
     Engine::getInstance()->getLightManager()->SetForRootParameter(commandList);
 
     CameraManager::getInstance()->setBufferForRootParameter(commandList, 1);
+    LightManager::getInstance()->SetForRootParameter(commandList);
 }
 
 /// <summary>
@@ -195,15 +198,39 @@ void TexturedMeshRenderSystem::StartRender() {
 void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
     auto* commandList = dxCommand_->getCommandList();
 
-    TextureMeshRenderer* renderer = getComponent<TextureMeshRenderer>(_entity);
+    ModelMeshRenderer* renderer = getComponent<ModelMeshRenderer>(_entity);
+
+    // nullptr と 描画しないものは skip
+    if (!renderer) {
+        return;
+    }
+    if (!renderer->isRender()) {
+        return;
+    }
 
     ///==============================
     /// Transformの更新
     ///==============================
-    for (int32_t i = 0; i < renderer->getMeshSize(); ++i) {
-        auto& transform = renderer->getTransformBuff(i);
-        transform.openData_.Update();
-        transform.ConvertToBuffer();
+    {
+        Transform* entityTransform = getComponent<Transform>(_entity);
+        for (int32_t i = 0; i < renderer->getMeshSize(); ++i) {
+            auto& transform = renderer->getTransformBuff(i);
+
+            if (transform->parent == nullptr) {
+                transform->parent = entityTransform;
+            }
+
+            transform.openData_.Update();
+            transform.ConvertToBuffer();
+        }
+    }
+
+    // BlendMode を 適応
+    BlendMode rendererBlend = renderer->getCurrentBlend();
+    if (rendererBlend != currentBlend_) {
+        currentBlend_ = rendererBlend;
+        commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
+        commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
     }
 
     uint32_t index = 0;
