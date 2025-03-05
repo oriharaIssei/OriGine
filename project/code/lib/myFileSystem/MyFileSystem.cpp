@@ -95,6 +95,81 @@ void MyFileSystem::SelectFolderDialog(const std::string& _defaultDirectory, std:
     }
 }
 
+bool MyFileSystem::SelectFileDialog(const std::string& defaultDirectory, std::string& fileDirectory, std::string& filename, const std::vector<std::string>& extensions) {
+    HRESULT hr         = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+    bool coInitialized = SUCCEEDED(hr);
+
+    if (coInitialized || hr == RPC_E_CHANGED_MODE) {
+        IFileOpenDialog* pFileOpen = nullptr;
+
+        hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL, IID_IFileOpenDialog, reinterpret_cast<void**>(&pFileOpen));
+
+        if (SUCCEEDED(hr)) {
+            pFileOpen->SetOptions(FOS_FORCEFILESYSTEM);
+
+            // デフォルトディレクトリを設定
+            if (!defaultDirectory.empty()) {
+                PIDLIST_ABSOLUTE pidl;
+                hr = SHParseDisplayName(std::wstring(defaultDirectory.begin(), defaultDirectory.end()).c_str(), NULL, &pidl, 0, NULL);
+                if (SUCCEEDED(hr)) {
+                    IShellItem* psi;
+                    hr = SHCreateShellItem(NULL, NULL, pidl, &psi);
+                    if (SUCCEEDED(hr)) {
+                        pFileOpen->SetFolder(psi);
+                        psi->Release();
+                    }
+                    CoTaskMemFree(pidl);
+                }
+            }
+
+            // ファイルフィルターを設定
+            if (!extensions.empty()) {
+                std::vector<COMDLG_FILTERSPEC> fileTypes;
+                for (const auto& ext : extensions) {
+                    fileTypes.push_back({L"All Files", std::wstring(L"*." + std::wstring(ext.begin(), ext.end())).c_str()});
+                }
+                pFileOpen->SetFileTypes(static_cast<UINT>(fileTypes.size()), fileTypes.data());
+                pFileOpen->SetFileTypeIndex(1); // デフォルトのファイルタイプを設定
+            }
+
+            hr = pFileOpen->Show(NULL);
+
+            if (SUCCEEDED(hr)) {
+                IShellItem* pItem;
+                hr = pFileOpen->GetResult(&pItem);
+                if (SUCCEEDED(hr)) {
+                    PWSTR pszFilePath;
+                    hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
+
+                    if (SUCCEEDED(hr)) {
+                        std::wstring wFullPath(pszFilePath);
+                        std::string fullPath  = Logger::ConvertString(wFullPath);
+                        fs::path relativePath = fs::relative(fullPath, defaultDirectory);
+                        fileDirectory         = relativePath.parent_path().string();
+                        filename              = relativePath.filename().string();
+                        CoTaskMemFree(pszFilePath);
+                        pItem->Release();
+                        pFileOpen->Release();
+                        if (coInitialized) {
+                            CoUninitialize();
+                        }
+                        return true;
+                    }
+                    pItem->Release();
+                }
+            }
+            pFileOpen->Release();
+        }
+
+        if (coInitialized) {
+            CoUninitialize();
+        }
+    } else {
+        Logger::OutputLog("CoInitializeEx failed with error: " + std::to_string(hr));
+    }
+    return false;
+}
+
 bool MyFileSystem::removeEmptyFolder(const std::string& directory) {
     return fs::remove(directory);
 }

@@ -62,17 +62,16 @@ struct Vector4 final
     // 正規化
     Vector4 normalize() const {
         valueType len = length();
-        if (len == 0) return *this;
+        if (len == 0)
+            return *this;
         return (*this / len);
     }
     static Vector4 Normalize(const Vector4& v) {
         valueType len = v.length();
-        if (len == 0) return v;
+        if (len == 0)
+            return v;
         return (v / len);
     }
-
-    // 演算子オーバーロード（+ - * / 等）
-    // ...existing code...
 };
 
 //=========== using ===========//

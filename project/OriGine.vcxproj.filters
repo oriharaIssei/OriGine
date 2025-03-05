@@ -117,12 +117,6 @@
     <ClCompile Include="code\engine\directX12\DxSwapChain.cpp">
       <Filter>engine\directX12</Filter>
     </ClCompile>
-    <ClCompile Include="code\engine\transform\CameraTransform.cpp">
-      <Filter>engine\transform</Filter>
-    </ClCompile>
-    <ClCompile Include="code\engine\transform\Transform.cpp">
-      <Filter>engine\transform</Filter>
-    </ClCompile>
     <ClCompile Include="code\math\Matrix4x4.cpp">
       <Filter>math</Filter>
     </ClCompile>
@@ -131,9 +125,6 @@
     </ClCompile>
     <ClCompile Include="code\engine\audio\Audio.cpp">
       <Filter>engine\audio</Filter>
-    </ClCompile>
-    <ClCompile Include="code\engine\material\Material.cpp">
-      <Filter>engine\material</Filter>
     </ClCompile>
     <ClCompile Include="code\engine\input\Input.cpp">
       <Filter>engine\io</Filter>
@@ -159,14 +150,8 @@
     <ClCompile Include="code\lib\Thread\Thread.cpp">
       <Filter>lib</Filter>
     </ClCompile>
-    <ClCompile Include="code\engine\sprite\Sprite.cpp">
-      <Filter>engine\renderer\2d</Filter>
-    </ClCompile>
     <ClCompile Include="code\engine\directX12\PipelineStateObj.cpp">
       <Filter>engine\directX12</Filter>
-    </ClCompile>
-    <ClCompile Include="code\engine\sprite\SpriteCommon.cpp">
-      <Filter>engine\render</Filter>
     </ClCompile>
     <ClCompile Include="code\engine\primitiveDrawer\PrimitiveDrawer.cpp">
       <Filter>engine\render</Filter>
@@ -180,20 +165,11 @@
     <ClCompile Include="code\lib\winApp\WinApp.cpp">
       <Filter>engine\system</Filter>
     </ClCompile>
-    <ClCompile Include="code\main.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="code\lib\imGuiManager\ImGuiManager.cpp">
       <Filter>lib</Filter>
     </ClCompile>
-    <ClCompile Include="code\engine\material\texture\TextureManager.cpp">
-      <Filter>engine\material\texture</Filter>
-    </ClCompile>
     <ClCompile Include="code\engine\model\ModelManager.cpp">
       <Filter>engine\model</Filter>
-    </ClCompile>
-    <ClCompile Include="code\engine\material\light\LightManager.cpp">
-      <Filter>engine\material\light</Filter>
     </ClCompile>
     <ClCompile Include="code\engine\effect\particle\Particle.cpp">
       <Filter>engine\particle</Filter>
@@ -201,16 +177,10 @@
     <ClCompile Include="code\engine\effect\manager\EffectManager.cpp">
       <Filter>engine\particle</Filter>
     </ClCompile>
-    <ClCompile Include="code\engine\transform\ParticleTransform.cpp">
-      <Filter>engine\transform</Filter>
-    </ClCompile>
     <ClCompile Include="code\engine\effect\particle\emitter\Emitter.cpp">
       <Filter>engine\particle</Filter>
     </ClCompile>
     <ClCompile Include="code\engine\assets\IAsset.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="code\engine\scene\GameScene.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="code\engine\directX12\RenderTexture.cpp">
@@ -219,22 +189,10 @@
     <ClCompile Include="code\engine\effect\particle\emitter\EmitterShape.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="code\engine\scene\IScene.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="code\engine\scene\SceneManager.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="code\lib\node\OperatorNodes.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="code\math\MyEasing.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="code\MyGame.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="code\FrameWork.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="code\math\Quaternion.cpp">
@@ -261,13 +219,7 @@
     <ClCompile Include="code\engine\editor\EngineEditor.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="code\engine\scene\AnimationEditScene.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="code\engine\camera\gameCamera\GameCamera.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="code\engine\scene\EffectEditScene.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="code\engine\effect\Effect.cpp">
@@ -282,16 +234,67 @@
     <ClCompile Include="code\engine\effect\editor\EffectEditor.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="code\engine\component\renderer\IRendererComponent.cpp">
+    <ClCompile Include="code\engine\component\IComponent.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="code\engine\component\renderer\MeshRender.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="code\engine\component\renderer\RenderManager.cpp">
+    <ClCompile Include="code\engine\component\renderer\Sprite.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="code\engine\component\IComponent.cpp">
+    <ClCompile Include="code\engine\ECS\ECSManager.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="code\engine\system\ISystem.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="code\engine\component\material\light\LightManager.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="code\engine\component\material\Material.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="code\engine\component\transform\CameraTransform.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="code\engine\component\transform\ParticleTransform.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="code\engine\component\transform\Transform.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="code\engine\texture\TextureManager.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="code\engine\ECS\ECSEditor.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="code\engine\system\render\TexturedMeshRenderSystem.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="code\engine\system\render\SpritRenderSystem.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="code\application\scene\manager\SceneManager.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="code\application\scene\IScene.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="code\application\FrameWork.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="code\application\scene\GameScene.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="code\main.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="code\application\MyGame.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="code\lib\binaryIO\BinaryIO.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -344,12 +347,6 @@
     <ClInclude Include="code\engine\directX12\DxSwapChain.h">
       <Filter>engine\directX12</Filter>
     </ClInclude>
-    <ClInclude Include="code\engine\sprite\Sprite.h">
-      <Filter>engine\renderer\2d</Filter>
-    </ClInclude>
-    <ClInclude Include="code\engine\transform\CameraTransform.h">
-      <Filter>engine\transform</Filter>
-    </ClInclude>
     <ClInclude Include="code\engine\camera\debugCamera\DebugCamera.h">
       <Filter>engine\camera</Filter>
     </ClInclude>
@@ -368,9 +365,6 @@
     <ClInclude Include="code\engine\directX12\IStructuredBuffer.h">
       <Filter>engine\directX12</Filter>
     </ClInclude>
-    <ClInclude Include="code\engine\material\Material.h">
-      <Filter>engine\material</Filter>
-    </ClInclude>
     <ClInclude Include="code\math\Matrix4x4.h">
       <Filter>math</Filter>
     </ClInclude>
@@ -380,9 +374,6 @@
     <ClInclude Include="code\lib\Thread\Thread.h">
       <Filter>lib</Filter>
     </ClInclude>
-    <ClInclude Include="code\engine\transform\Transform.h">
-      <Filter>engine\transform</Filter>
-    </ClInclude>
     <ClInclude Include="code\engine\directX12\ResourceBarrierManager.h">
       <Filter>engine\directX12</Filter>
     </ClInclude>
@@ -390,9 +381,6 @@
       <Filter>engine\directX12</Filter>
     </ClInclude>
     <ClInclude Include="code\engine\primitiveDrawer\PrimitiveDrawer.h">
-      <Filter>engine\render</Filter>
-    </ClInclude>
-    <ClInclude Include="code\engine\sprite\SpriteCommon.h">
       <Filter>engine\render</Filter>
     </ClInclude>
     <ClInclude Include="code\engine\directX12\ShaderCompiler.h">
@@ -413,23 +401,8 @@
     <ClInclude Include="code\lib\imGuiManager\ImGuiManager.h">
       <Filter>lib</Filter>
     </ClInclude>
-    <ClInclude Include="code\engine\material\texture\TextureManager.h">
-      <Filter>engine\material\texture</Filter>
-    </ClInclude>
     <ClInclude Include="code\engine\model\ModelManager.h">
       <Filter>engine\model</Filter>
-    </ClInclude>
-    <ClInclude Include="code\engine\material\light\DirectionalLight.h">
-      <Filter>engine\material\light</Filter>
-    </ClInclude>
-    <ClInclude Include="code\engine\material\light\LightManager.h">
-      <Filter>engine\material\light</Filter>
-    </ClInclude>
-    <ClInclude Include="code\engine\material\light\PointLight.h">
-      <Filter>engine\material\light</Filter>
-    </ClInclude>
-    <ClInclude Include="code\engine\material\light\SpotLight.h">
-      <Filter>engine\material\light</Filter>
     </ClInclude>
     <ClInclude Include="code\engine\model\Model.h">
       <Filter>ヘッダー ファイル</Filter>
@@ -439,9 +412,6 @@
     </ClInclude>
     <ClInclude Include="code\engine\effect\manager\EffectManager.h">
       <Filter>engine\particle</Filter>
-    </ClInclude>
-    <ClInclude Include="code\engine\transform\ParticleTransform.h">
-      <Filter>engine\transform</Filter>
     </ClInclude>
     <ClInclude Include="code\engine\effect\particle\emitter\Emitter.h">
       <Filter>engine\particle</Filter>
@@ -458,9 +428,6 @@
     <ClInclude Include="code\engine\assets\IAsset.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="code\engine\scene\GameScene.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="code\engine\directX12\RenderTexture.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
@@ -468,12 +435,6 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="code\engine\effect\particle\emitter\EmitterShape.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="code\engine\scene\IScene.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="code\engine\scene\SceneManager.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="code\lib\globalVariables\SerializedField.h">
@@ -486,12 +447,6 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="code\math\MyEasing.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="code\MyGame.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="code\FrameWork.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="code\math\Quaternion.h">
@@ -521,16 +476,10 @@
     <ClInclude Include="code\engine\editor\EngineEditor.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="code\engine\scene\AnimationEditScene.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="code\engine\camera\gameCamera\GameCamera.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="code\math\Vector.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="code\engine\scene\EffectEditScene.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="code\engine\effect\Effect.h">
@@ -800,22 +749,85 @@
     <ClInclude Include="code\engine\effect\editor\EffectEditor.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="code\engine\component\renderer\IRendererComponent.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="code\engine\component\renderer\MeshRender.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="code\engine\component\renderer\RenderManager.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="code\engine\component\IComponent.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="code\engine\directX12\Mesh.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="code\engine\component\renderer\RendererComponentFactory.h">
+    <ClInclude Include="code\engine\component\renderer\MeshRender.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\component\renderer\Sprite.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\util\nameof.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\ECS\ECSManager.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\component\ComponentArray.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\ECS\Entity.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\system\ISystem.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\component\material\light\DirectionalLight.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\component\material\light\LightManager.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\component\material\light\PointLight.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\component\material\light\SpotLight.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\component\material\Material.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\component\transform\CameraTransform.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\component\transform\ParticleTransform.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\component\transform\Transform.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\texture\TextureManager.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\ECS\ECSEditor.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\system\render\TexturedMeshRenderSystem.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\engine\system\render\SpritRenderSystem.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\application\scene\manager\SceneManager.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\application\scene\IScene.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\application\FrameWork.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\application\scene\GameScene.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\application\MyGame.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="code\lib\binaryIO\BinaryIO.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

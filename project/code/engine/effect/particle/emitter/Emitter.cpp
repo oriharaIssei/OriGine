@@ -12,7 +12,7 @@
 #include "camera/CameraManager.h"
 #include "directX12/ShaderManager.h"
 #include "globalVariables/GlobalVariables.h"
-#include "material/texture/TextureManager.h"
+#include "texture/TextureManager.h"
 #include "model/ModelManager.h"
 #include "myFileSystem/MyFileSystem.h"
 #include "myRandom/MyRandom.h"

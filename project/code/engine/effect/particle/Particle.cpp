@@ -7,7 +7,7 @@
 
 ///engine
 //transform
-#include "transform/ParticleTransform.h"
+#include "component/transform/ParticleTransform.h"
 
 // lib
 #include "myRandom/MyRandom.h"

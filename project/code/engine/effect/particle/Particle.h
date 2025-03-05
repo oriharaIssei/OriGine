@@ -13,7 +13,7 @@
 //assets
 #include "animation/Animation.h" // KeyFrame に関する情報
 //transform
-#include "transform/ParticleTransform.h"
+#include "component/transform/ParticleTransform.h"
 
 //math
 #include <stdint.h>

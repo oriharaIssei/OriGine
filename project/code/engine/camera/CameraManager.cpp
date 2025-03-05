@@ -13,6 +13,9 @@ CameraManager* CameraManager::getInstance() {
 
 void CameraManager::Init() {
     cTransform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+    cTransform_->Init();
+    cTransform_->UpdateMatrix();
+    cTransform_.ConvertToBuffer();
 }
 
 void CameraManager::Finalize() {

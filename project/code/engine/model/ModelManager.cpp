@@ -1,16 +1,16 @@
 #include "ModelManager.h"
 
-///stl
-//assert
+/// stl
+// assert
 #include <cassert>
 
-///engine
+/// engine
 #include "Engine.h"
-//assetes
+// assetes
 #include "Model.h"
-//dx12Object
+// dx12Object
 #include "directX12/ShaderManager.h"
-#include "material/Texture/TextureManager.h"
+#include "texture/TextureManager.h"
 
 /// lib
 #include <assimp/Importer.hpp>
@@ -26,18 +26,14 @@ struct VertexKey {
     Vec2f texCoord;
 
     bool operator==(const VertexKey& other) const {
-        return position == other.position &&
-               normal == other.normal &&
-               texCoord == other.texCoord;
+        return position == other.position && normal == other.normal && texCoord == other.texCoord;
     }
 };
 namespace std {
 template <>
 struct hash<VertexKey> {
     size_t operator()(const VertexKey& key) const {
-        return hash<float>()(key.position[X]) ^ hash<float>()(key.position[Y]) ^ hash<float>()(key.position[Z]) ^
-               hash<float>()(key.normal[X]) ^ hash<float>()(key.normal[Y]) ^ hash<float>()(key.normal[Z]) ^
-               hash<float>()(key.texCoord[X]) ^ hash<float>()(key.texCoord[Y]);
+        return hash<float>()(key.position[X]) ^ hash<float>()(key.position[Y]) ^ hash<float>()(key.position[Z]) ^ hash<float>()(key.normal[X]) ^ hash<float>()(key.normal[Y]) ^ hash<float>()(key.normal[Z]) ^ hash<float>()(key.texCoord[X]) ^ hash<float>()(key.texCoord[Y]);
     }
 };
 } // namespace std
@@ -46,7 +42,7 @@ struct hash<VertexKey> {
 void ProcessMeshData(TextureMesh& meshData, const std::vector<TextureVertexData>& vertices, const std::vector<uint32_t>& indices) {
     TextureMesh textureMesh = TextureMesh();
 
-    //meshData.dataSize = static_cast<int32_t>(sizeof(TextureVertexData) * vertices.size());
+    // meshData.dataSize = static_cast<int32_t>(sizeof(TextureVertexData) * vertices.size());
 
     textureMesh.Init(static_cast<UINT>(vertices.size()), static_cast<UINT>(indices.size()));
     memcpy(textureMesh.vertData, vertices.data(), vertices.size() * sizeof(TextureVertexData));
@@ -54,8 +50,8 @@ void ProcessMeshData(TextureMesh& meshData, const std::vector<TextureVertexData>
     meshData = textureMesh;
     memcpy(meshData.indexData, indices.data(), static_cast<UINT>(static_cast<size_t>(indices.size()) * sizeof(uint32_t)));
 
-    meshData.vertexSize  = static_cast<int32_t>(vertices.size());
-    meshData.indexSize = static_cast<int32_t>(indices.size());
+    meshData.vertexSize = static_cast<int32_t>(vertices.size());
+    meshData.indexSize  = static_cast<int32_t>(indices.size());
 }
 
 ModelNode ReadNode(aiNode* node) {
@@ -183,13 +179,13 @@ void LoadModelFile(ModelMeshData* data, const std::string& directoryPath, const 
         // マテリアルとテクスチャの処理
         aiMaterial* material = scene->mMaterials[loadedMesh->mMaterialIndex];
         aiString textureFilePath;
-        uint32_t textureIndex;
+        uint32_t textureIndex = 0;
         if (material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePath) == AI_SUCCESS) {
             std::string texturePath = textureFilePath.C_Str();
-
-            textureIndex = TextureManager::LoadTexture(directoryPath + "/" + texturePath);
-        } else {
-            textureIndex = 0;
+            if ((texturePath.find("/") == std::string::npos)) {
+                texturePath = directoryPath + "/" + texturePath;
+            }
+            textureIndex = TextureManager::LoadTexture(texturePath);
         }
 
         ModelManager::getInstance()->pushBackDefaultMaterial(data, {textureIndex, Engine::getInstance()->getMaterialManager()->Create("white")});
@@ -211,11 +207,11 @@ ModelManager* ModelManager::getInstance() {
     return &instance;
 }
 
-std::unique_ptr<Model> ModelManager::Create(
+std::shared_ptr<Model> ModelManager::Create(
     const std::string& directoryPath,
     const std::string& filename,
     std::function<void(Model*)> callBack) {
-    std::unique_ptr<Model> result = std::make_unique<Model>();
+    std::shared_ptr<Model> result = std::make_unique<Model>();
 
     std::string filePath = directoryPath + "/" + filename;
 
@@ -231,7 +227,7 @@ std::unique_ptr<Model> ModelManager::Create(
         result->meshData_     = targetModelMesh;
         result->materialData_ = defaultMaterials_[result->meshData_];
 
-        for (auto& [name,data] : result->meshData_->meshGroup_) {
+        for (auto& [name, data] : result->meshData_->meshGroup_) {
             result->transforms_[&data].Update();
         }
 
@@ -248,10 +244,10 @@ std::unique_ptr<Model> ModelManager::Create(
     result            = std::make_unique<Model>();
     result->meshData_ = modelLibrary_[filePath].get();
     loadThread_->pushTask(
-        {.directory = directoryPath,
-         .fileName  = filename,
-         .model     = result.get(),
-         .callBack  = callBack});
+        {.directory   = directoryPath,
+            .fileName = filename,
+            .model    = result,
+            .callBack = callBack});
 
     return result;
 }
@@ -264,8 +260,7 @@ void ModelManager::Init() {
     Matrix4x4* maPtr = new Matrix4x4();
     *maPtr           = MakeMatrix::PerspectiveFov(
         0.45f,
-        static_cast<float>(Engine::getInstance()->getWinApp()->getWidth()) /
-            static_cast<float>(Engine::getInstance()->getWinApp()->getHeight()),
+        static_cast<float>(Engine::getInstance()->getWinApp()->getWidth()) / static_cast<float>(Engine::getInstance()->getWinApp()->getHeight()),
         0.1f,
         100.0f);
     fovMa_.reset(
@@ -275,7 +270,6 @@ void ModelManager::Init() {
     dxCommand_->Init("main", "main");
 
     size_t index = 0;
-
 }
 
 void ModelManager::Finalize() {
@@ -303,10 +297,10 @@ void ModelManager::LoadTask::Update() {
 
     auto device = Engine::getInstance()->getDxDevice()->getDevice();
     std::mutex mutex;
-    for (auto& [name,data] : model->meshData_->meshGroup_) {
+    for (auto& [name, data] : model->meshData_->meshGroup_) {
         try {
             std::lock_guard<std::mutex> lock(mutex);
-            model->transforms_[&data] = Transform();
+            model->transforms_[&data] = Transform(nullptr);
             model->transforms_[&data].Update();
         } catch (const std::exception& e) {
             // エラーハンドリング
@@ -316,7 +310,7 @@ void ModelManager::LoadTask::Update() {
     }
 
     if (callBack != nullptr) {
-        callBack(model);
+        callBack(model.get());
     }
 
     model->meshData_->currentState_ = LoadState::Loaded;

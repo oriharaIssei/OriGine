@@ -4,8 +4,6 @@
 #include "model/Model.h"
 
 //math
-#include "Interpolation.h"
-
 #include <cmath>
 
 void Animation::Update(float deltaTime, Model* model, const Matrix4x4& parentTransform) {

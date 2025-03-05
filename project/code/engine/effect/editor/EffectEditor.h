@@ -22,7 +22,7 @@
 //lib
 #include "globalVariables/SerializedField.h"
 //transform
-#include "transform/CameraTransform.h"
+#include "component/transform/CameraTransform.h"
 
 class Effect;
 /// <summary>

@@ -10,13 +10,12 @@
 #include <string>
 
 /// engine
-// assets
-#include "material/Material.h"
 // dx12Object
 #include "directX12/IConstantBuffer.h"
 #include "directX12/Mesh.h"
 // component
-#include "transform/Transform.h"
+#include "component/transform/Transform.h"
+#include "component/material/Material.h"
 // lib
 #include "Thread/Thread.h"
 // math
@@ -41,7 +40,7 @@ struct ModelMeshData {
     ModelNode rootNode;
 };
 
-struct Model { // Model から MeshModel に名称変更
+struct Model {
     Model() = default;
     ~Model() {}
     ModelMeshData* meshData_;

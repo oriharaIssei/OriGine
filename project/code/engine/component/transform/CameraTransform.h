@@ -1,0 +1,61 @@
+#pragma once
+
+/// microsoft
+#include <wrl.h>
+/// directX12
+#include <d3d12.h>
+
+/// engine
+#include "component/IComponent.h"
+
+/// math
+#include <Matrix4x4.h>
+#include <Vector3.h>
+
+class CameraTransform
+    : public IComponent {
+public:
+    CameraTransform(GameEntity* _hostEntity = nullptr) : IComponent(_hostEntity) {}
+    ~CameraTransform() {}
+
+    void Init();
+
+    bool Edit() override;
+    void Save(BinaryWriter& _writer) override;
+    void Load(BinaryReader& _reader) override;
+
+    void Finalize() override;
+
+    void UpdateMatrix();
+
+    // Vec3f scale;
+    Vec3f rotate    = {0.0f, 0.0f, 0.0f};
+    Vec3f translate = {0.0f, 0.0f, 0.0f};
+    Matrix4x4 viewMat;
+
+    // 垂直方向視野角
+    float fovAngleY = 45.0f * 3.141592654f / 180.0f;
+    // ビューポートのアスペクト比
+    float aspectRatio = (float)16 / 9;
+    // 深度限界（手前側）
+    float nearZ = 0.1f;
+    // 深度限界（奥側）
+    float farZ = 1000.0f;
+    Matrix4x4 projectionMat;
+
+public:
+    struct ConstantBuffer {
+        Vec3f cameraPos;
+        float padding;
+        Matrix4x4 view; // ワールド → ビュー変換行列
+        Matrix4x4 viewTranspose;
+        Matrix4x4 projection; // ビュー → プロジェクション変換行列
+        ConstantBuffer& operator=(const CameraTransform& camera) {
+            cameraPos     = camera.viewMat[3];
+            view          = camera.viewMat;
+            viewTranspose = camera.viewMat.transpose();
+            projection    = camera.projectionMat;
+            return *this;
+        }
+    };
+};

@@ -1,12 +1,12 @@
 #pragma once
 
-///stl
+/// stl
 #include <memory>
 
-///engine
+/// engine
+#include "component/transform/CameraTransform.h"
 #include "directX12/IConstantBuffer.h"
 #include "module/IModule.h"
-#include "transform/CameraTransform.h"
 
 class CameraManager
     : public IModule {

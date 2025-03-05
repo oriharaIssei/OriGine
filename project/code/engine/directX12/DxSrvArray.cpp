@@ -1,7 +1,7 @@
 #include "directX12/DxCommand.h"
 
-#include "material/texture/TextureManager.h"
 #include "Engine.h"
+#include "texture/TextureManager.h"
 
 #include <assert.h>
 

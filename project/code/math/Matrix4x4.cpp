@@ -134,7 +134,7 @@ Matrix4x4 MakeMatrix::RotateXYZ(const Matrix4x4& x, const Matrix4x4& y, const Ma
 }
 
 Matrix4x4 MakeMatrix::RotateQuaternion(const Quaternion& q) {
-    return Matrix4x4({(q.w * q.w + q.x * q.x - q.y * q.y - q.z * q.z), 2.0f * (q.x * q.y + q.w * q.z), 2.0f * (q.x * q.z - q.w * q.y), 0.0f, 2.0f * (q.x * q.y - q.w * q.z), (q.w * q.w - q.x * q.x + q.y * q.y - q.z * q.z), 2.0f * (q.y * q.z + q.w * q.x), 0.0f, 2.0f * (q.x * q.z + q.w * q.y), 2.0f * (q.y * q.z - q.w * q.x), (q.w * q.w - q.x * q.x - q.y * q.y + q.z * q.z), 0.0f, 0.0f, 0.0f, 0.0f, 1.0f});
+    return Matrix4x4({(q.v[W] * q.v[W] + q.v[X] * q.v[X] - q.v[Y] * q.v[Y] - q.v[Z] * q.v[Z]), 2.0f * (q.v[X] * q.v[Y] + q.v[W] * q.v[Z]), 2.0f * (q.v[X] * q.v[Z] - q.v[W] * q.v[Y]), 0.0f, 2.0f * (q.v[X] * q.v[Y] - q.v[W] * q.v[Z]), (q.v[W] * q.v[W] - q.v[X] * q.v[X] + q.v[Y] * q.v[Y] - q.v[Z] * q.v[Z]), 2.0f * (q.v[Y] * q.v[Z] + q.v[W] * q.v[X]), 0.0f, 2.0f * (q.v[X] * q.v[Z] + q.v[W] * q.v[Y]), 2.0f * (q.v[Y] * q.v[Z] - q.v[W] * q.v[X]), (q.v[W] * q.v[W] - q.v[X] * q.v[X] - q.v[Y] * q.v[Y] + q.v[Z] * q.v[Z]), 0.0f, 0.0f, 0.0f, 0.0f, 1.0f});
 }
 
 Matrix4x4 MakeMatrix::RotateAxisAngle(const Vec3f& axis, float angle) {

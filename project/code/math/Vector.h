@@ -1,10 +1,17 @@
 #pragma once
 
+#include <type_traits>
+
 // indexNumbers
 static const int X = 0;
 static const int Y = 1;
 static const int Z = 2;
 static const int W = 3;
+
+static const int R = 0;
+static const int G = 1;
+static const int B = 2;
+static const int A = 3;
 
 template <typename valueType>
 struct Vector2;
@@ -34,13 +41,13 @@ struct Vector {
     }
 
 public:
-    //メンバ変数
+    // メンバ変数
     static const int dim = dimension;
     valueType v[dimension];
 
 public:
-    //演算子のオーバーロード
-    //accessor
+    // 演算子のオーバーロード
+    // accessor
     valueType& operator[](int index) { return v[index]; }
     const valueType& operator[](int index) const { return v[index]; }
 
@@ -136,7 +143,8 @@ public:
     // equal
     bool operator==(const Vector& other) const {
         for (int i = 0; i < dimension; i++)
-            if (v[i] != other.v[i]) return false;
+            if (v[i] != other.v[i])
+                return false;
         return true;
     }
     // not equal
@@ -146,12 +154,14 @@ public:
 
     bool operator<(const Vector& other) const {
         for (int i = 0; i < dimension; i++)
-            if (v[i] >= other.v[i]) return false;
+            if (v[i] >= other.v[i])
+                return false;
         return true;
     }
     bool operator>(const Vector& other) const {
         for (int i = 0; i < dimension; i++)
-            if (v[i] <= other.v[i]) return false;
+            if (v[i] <= other.v[i])
+                return false;
         return true;
     }
 
@@ -172,6 +182,21 @@ public:
     operator Vector4<valueType>() const {
         static_assert(dimension == 4, "Conversion only available for 2D vectors.");
         return Vector4<valueType>(v[X], v[Y], v[Z], v[W]);
+    }
+
+    // Add serialization support
+    template <typename Writer>
+    void Write(Writer& writer) const {
+        for (int i = 0; i < dimension; i++) {
+            writer.Write(v[i]);
+        }
+    }
+
+    template <typename Reader>
+    void Read(Reader& reader) {
+        for (int i = 0; i < dimension; i++) {
+            reader.Read(v[i]);
+        }
     }
 };
 

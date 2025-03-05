@@ -1,39 +1,34 @@
 #pragma once
 
+#include "Vector.h"
 #include "Vector3.h"
 
 /// <summary>
 /// 四元数
 /// </summary>
-struct Quaternion {
+struct Quaternion final : public Vector<4, float> {
+    using Vector<4, float>::v;
+    using Vector<4, float>::operator[];
+    using Vector<4, float>::operator+;
+    using Vector<4, float>::operator+=;
+    using Vector<4, float>::operator-;
+    using Vector<4, float>::operator-=;
+    using Vector<4, float>::operator*;
+    using Vector<4, float>::operator*=;
+    using Vector<4, float>::operator/;
+    using Vector<4, float>::operator/=;
+    using Vector<4, float>::operator=;
+    using Vector<4, float>::operator==;
+    using Vector<4, float>::operator!=;
+
     Quaternion() {}
+    Quaternion(const Vector<4, float>& vec) : Vector<4, float>(vec) {}
     Quaternion(float _x, float _y, float _z, float _w)
-        : x(_x), y(_y), z(_z), w(_w) {}
+        : Vector<4, float>(_x, _y, _z, _w) {}
     Quaternion(const Vec3f& v, float _w)
-        : x(v[X]), y(v[Y]), z(v[Z]), w(_w) {}
-
-    float x = 0;
-    float y = 0;
-    float z = 0;
-    float w = 1.0f; // 初期化時に 単位行列にする
-    Quaternion operator+(const Quaternion& q) const;
-    Quaternion operator-(const Quaternion& q) const;
-    Quaternion operator-() const {
-        return {
-            -x,
-            -y,
-            -z,
-            -w};
-    }
-    Quaternion operator*(const Quaternion& q) const;
-    Quaternion operator*(float scalar) const;
-    Quaternion operator/(float scalar) const;
-
-    Quaternion* operator=(const Quaternion& q);
-    Quaternion* operator+=(const Quaternion& q);
-    Quaternion* operator*=(const Quaternion& q);
-    Quaternion* operator*=(float scalar);
-    Quaternion* operator/=(float scalar);
+        : Vector<4, float>(v[X], v[Y], v[Z], _w) {}
+    Quaternion(const Quaternion& q)
+        : Vector<4, float>(q[X], q[Y], q[Z], q[W]) {}
 
     static Quaternion Identity() {
         return Quaternion(
@@ -47,17 +42,17 @@ struct Quaternion {
 
     static Quaternion Conjugation(const Quaternion& q) {
         return Quaternion(
-            -q.x,
-            -q.y,
-            -q.z,
-            q.w);
+            -q[X],
+            -q[Y],
+            -q[Z],
+            q[W]);
     }
     Quaternion Conjugation() const {
         return Quaternion(
-            -this->x,
-            -this->y,
-            -this->z,
-            this->w);
+            -this->v[X],
+            -this->v[Y],
+            -this->v[Z],
+            this->v[W]);
     }
 
     static float Norm(const Quaternion& q);
@@ -81,7 +76,7 @@ struct Quaternion {
     friend inline Vec3f RotateVector(const Vec3f& v, const Quaternion& q) {
         Quaternion r = Quaternion(v, 0.0f);
         r            = q * r * q.Conjugation();
-        return Vec3f(r.x, r.y, r.z);
+        return Vec3f(r[X], r[Y], r[Z]);
     }
 };
 

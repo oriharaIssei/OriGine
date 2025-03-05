@@ -27,7 +27,7 @@ public:
     void CreateBuffer(ID3D12Device* device);
     void Finalize() { buff_.Finalize(); }
 
-    void ConvertToBuffer();
+    void ConvertToBuffer() const;
     void SetForRootParameter(ID3D12GraphicsCommandList* cmdList, uint32_t rootParameterNum) const;
 
     // 公開用変数
@@ -53,7 +53,7 @@ inline void IConstantBuffer<constBuff>::CreateBuffer(ID3D12Device* device) {
 }
 
 template <HasInConstantBuffer constBuff>
-inline void IConstantBuffer<constBuff>::ConvertToBuffer() {
+inline void IConstantBuffer<constBuff>::ConvertToBuffer() const {
     *mappingData_ = openData_;
 }
 

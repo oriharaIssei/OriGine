@@ -1,11 +1,11 @@
 #pragma once
 
-//lib
+// lib
 #include "globalVariables/SerializedField.h"
 
-//transform
-#include "transform/CameraTransform.h"
-#include "transform/Transform.h"
+// transform
+#include "component/transform/CameraTransform.h"
+#include "component/transform/Transform.h"
 
 class GameCamera {
 public:
