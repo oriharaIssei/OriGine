@@ -38,11 +38,11 @@ class MeshRenderer
 public:
     using VertexType = VertexDataType;
 
-    MeshRenderer() { meshGroup_ = std::make_shared<std::vector<MeshTemplate>>(); }
-    MeshRenderer(const std::vector<MeshTemplate>& _meshGroup) {
+    MeshRenderer(GameEntity* _hostEntity) : IComponent(_hostEntity) { meshGroup_ = std::make_shared<std::vector<MeshTemplate>>(); }
+    MeshRenderer(GameEntity* _hostEntity, const std::vector<MeshTemplate>& _meshGroup) : IComponent(_hostEntity) {
         meshGroup_ = std::make_shared<std::vector<MeshTemplate>>(_meshGroup);
     }
-    MeshRenderer(const std::shared_ptr<std::vector<MeshTemplate>>& _meshGroup) : meshGroup_(_meshGroup) {}
+    MeshRenderer(GameEntity* _hostEntity, const std::shared_ptr<std::vector<MeshTemplate>>& _meshGroup) : IComponent(_hostEntity), meshGroup_(_meshGroup) {}
 
     virtual ~MeshRenderer() {}
 
@@ -68,6 +68,8 @@ public:
 protected:
     BlendMode currentBlend_ = BlendMode::Alpha;
 
+    bool isRender_ = true;
+
     std::shared_ptr<std::vector<MeshTemplate>> meshGroup_;
 
 public: // ↓ Accessor
@@ -79,6 +81,13 @@ public: // ↓ Accessor
         currentBlend_ = _blend;
     }
 
+    //------------------------------ isRender ------------------------------//
+    bool isRender() const {
+        return isRender_;
+    }
+    void setIsRender(bool _isRender) {
+        isRender_ = _isRender;
+    }
     //------------------------------ MeshGroup ------------------------------//
     const std::shared_ptr<std::vector<MeshTemplate>>& getMeshGroup() const {
         return meshGroup_;
@@ -100,9 +109,9 @@ public: // ↓ Accessor
 class TextureMeshRenderer
     : public MeshRenderer<TextureMesh, TextureVertexData> {
 public:
-    TextureMeshRenderer() {}
-    TextureMeshRenderer(const std::vector<TextureMesh>& _meshGroup) : MeshRenderer<TextureMesh, TextureVertexData>(_meshGroup) {}
-    TextureMeshRenderer(const std::shared_ptr<std::vector<TextureMesh>>& _meshGroup) : MeshRenderer<TextureMesh, TextureVertexData>(_meshGroup) {}
+    TextureMeshRenderer(GameEntity* _hostEntity) : MeshRenderer<TextureMesh, TextureVertexData>(_hostEntity) {}
+    TextureMeshRenderer(GameEntity* _hostEntity, const std::vector<TextureMesh>& _meshGroup);
+    TextureMeshRenderer(GameEntity* _hostEntity, const std::shared_ptr<std::vector<TextureMesh>>& _meshGroup);
 
     ~TextureMeshRenderer() {}
     ///< summary>
@@ -180,15 +189,15 @@ public:
     }
 };
 
-TextureMeshRenderer CreateModelMeshRenderer(const std::string& _directory, const std::string& _filenName);
+TextureMeshRenderer CreateModelMeshRenderer(GameEntity* _hostEntity, const std::string& _directory, const std::string& _filenName);
 
 //----------------------------------------- PrimitiveMeshRenderer -----------------------------------------//
 class PrimitiveMeshRenderer
     : public MeshRenderer<PrimitiveMesh, PrimitiveVertexData> {
 public:
-    PrimitiveMeshRenderer();
-    PrimitiveMeshRenderer(const std::vector<PrimitiveMesh>& _meshGroup) : MeshRenderer<PrimitiveMesh, PrimitiveVertexData>(_meshGroup) {}
-    PrimitiveMeshRenderer(const std::shared_ptr<std::vector<PrimitiveMesh>>& _meshGroup) : MeshRenderer<PrimitiveMesh, PrimitiveVertexData>(_meshGroup) {}
+    PrimitiveMeshRenderer(GameEntity* _hostEntity);
+    PrimitiveMeshRenderer(GameEntity* _hostEntity, const std::vector<PrimitiveMesh>& _meshGroup);
+    PrimitiveMeshRenderer(GameEntity* _hostEntity, const std::shared_ptr<std::vector<PrimitiveMesh>>& _meshGroup);
 
     ~PrimitiveMeshRenderer();
 

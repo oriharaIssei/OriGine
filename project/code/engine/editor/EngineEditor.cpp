@@ -3,10 +3,10 @@
 #ifdef _DEBUG
 /// engine
 // module
+#include "../application/scene/manager/SceneManager.h"
 #include "camera/CameraManager.h"
 #include "component/material/light/LightManager.h"
 #include "component/material/Material.h"
-#include "../application/scene/manager/SceneManager.h"
 // scene
 #include "../application/scene/IScene.h"
 // externals
@@ -31,13 +31,20 @@ void EngineEditor::Update() {
     // MainMenuBar
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("Scene")) {
-            SceneManager* sceneManager = SceneManager::getInstance();
-            for (auto& [name, index] : sceneManager->sceneIndexs_) {
-                if (ImGui::MenuItem(name.c_str())) {
-                    sceneManager->changeScene(name);
-                    break;
+            if (ImGui::BeginMenu("Change")) {
+                SceneManager* sceneManager = SceneManager::getInstance();
+                for (auto& [name, index] : sceneManager->sceneIndexs_) {
+                    if (ImGui::MenuItem(name.c_str())) {
+                        sceneManager->changeScene(name);
+                        break;
+                    }
                 }
+                ImGui::EndMenu();
             }
+            if (ImGui::MenuItem("Save")) {
+                SceneManager::getInstance()->getCurrentScene()->SaveSceneEntity();
+            }
+
             ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Editors")) {

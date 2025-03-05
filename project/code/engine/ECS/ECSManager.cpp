@@ -43,3 +43,21 @@ void EntityComponentSystemManager::Run() {
         system->Update();
     }
 }
+
+void EntityComponentSystemManager::Finalize() {
+    // エンティティのクリア
+    entities_.clear();
+    freeEntityIndex_.clear();
+    // コンポーネントのクリア
+    for (auto& [componentID, componentArray] : componentArrays_) {
+        componentArray->clear();
+    }
+    // システムのクリア
+    clearSystem();
+}
+
+void EntityComponentSystemManager::ComponentArraysInit() {
+    for (auto& [componentID, componentArray] : componentArrays_) {
+        componentArray->Init(entityCapacity_);
+    }
+}

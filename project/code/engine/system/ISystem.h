@@ -45,6 +45,9 @@ public: // ========================================== accessor =================
     SystemType getSystemType() const {
         return systemType_;
     }
+    const std::vector<GameEntity*>& getEntities() const {
+        return entities_;
+    }
 
     void addEntity(GameEntity* _entity) {
         entities_.push_back(_entity);

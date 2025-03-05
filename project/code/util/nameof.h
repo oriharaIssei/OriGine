@@ -6,17 +6,15 @@
 #define variable_name(x) #x
 
 template <typename T>
-constexpr std::string_view _cdecl nameof_view() {
-    std::string_view name = __FUNCSIG__;
-    name.remove_prefix(name[87] == ' ' ? 88 : 87); // 87文字目が' 'ならstruct,それ以外はclass,union
-    name.remove_suffix(7);
+constexpr std::string nameof() {
+    std::string name = typeid(T).name();
+    // Remove "struct" and "class" from the name
+    std::string::size_type pos;
+    if ((pos = name.find("struct ")) != std::string::npos) {
+        name.erase(pos, 7);
+    }
+    if ((pos = name.find("class ")) != std::string::npos) {
+        name.erase(pos, 6);
+    }
     return name;
-}
-
-template <typename T>
-constexpr std::string _cdecl nameof() {
-    std::string_view name = __FUNCSIG__;
-    name.remove_prefix(name[87] == ' ' ? 88 : 87);
-    name.remove_suffix(7);
-    return std::string(name);
 }

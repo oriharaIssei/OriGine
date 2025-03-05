@@ -10,12 +10,13 @@
 #include <concepts>
 #include <util/nameof.h>
 
+class GameEntity;
 ///< summary>
 /// 1コンポーネントを表すクラス(基底クラス)
 ///</summary>
 class IComponent {
 public:
-    IComponent();
+    IComponent(GameEntity* _hostEntity);
     virtual ~IComponent();
 
     virtual void Init() = 0;

@@ -17,8 +17,5 @@ public:
     void Finalize() override;
 
 protected:
-    void LoadSceneEntity() override;
-    void SaveSceneEntity() override;
-
 private:
 };

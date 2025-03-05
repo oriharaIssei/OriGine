@@ -24,14 +24,14 @@ struct SpritConstBuffer {
     Vec2f translate_ = {0.f, 0.f};
     Matrix4x4 worldMat_;
 
-    Vec3f uvScale_     = {1.f, 1.f, 1.f};
-    Vec3f uvRotate_    = {0.f, 0.f, 0.f};
-    Vec3f uvTranslate_ = {0.f, 0.f, 0.f};
+    Vec2f uvScale_     = {1.f, 1.f};
+    float uvRotate_    = 0.f;
+    Vec2f uvTranslate_ = {0.f, 0.f};
     Matrix4x4 uvMat_;
 
     void Update(const Matrix4x4& _vpMat) {
         worldMat_ = MakeMatrix::Affine({scale_, 1.0f}, {0.0f, 0.0f, rotate_}, {translate_, 0.0f}) * _vpMat;
-        uvMat_    = MakeMatrix::Affine(uvScale_, uvRotate_, uvTranslate_);
+        uvMat_    = MakeMatrix::Affine({uvScale_, 1.f}, {0.f, uvRotate_, 0.f}, {uvTranslate_, 0.f});
     }
 
     struct ConstantBuffer {
@@ -53,14 +53,47 @@ using SpriteMesh = Mesh<SpriteVertexData>;
 class SpriteRenderer
     : public MeshRenderer<SpriteMesh, SpriteVertexData> {
 public:
-    SpriteRenderer() {}
-    SpriteRenderer(const std::string& _texturePath) : texturePath_(_texturePath) {}
+    SpriteRenderer(GameEntity* _hostEntity) : MeshRenderer<SpriteMesh, SpriteVertexData>(_hostEntity) {}
     ~SpriteRenderer() {}
 
     ///< summary>
     /// 初期化
     ///</summary>
     void Init() override;
+
+    bool Edit() override;
+    void Save(BinaryWriter& _writer) override {
+        MeshRenderer<SpriteMesh, SpriteVertexData>::Save(_writer);
+
+        _writer.Write<uint32_t>(renderingNum_);
+
+        _writer.Write(texturePath_);
+
+        _writer.WriteVec(textureLeftTop_);
+        _writer.WriteVec(textureSize_);
+        _writer.WriteVec(anchorPoint_);
+
+        _writer.Write<bool>(isFlipX_);
+        _writer.Write<bool>(isFlipY_);
+    }
+    void Load(BinaryReader& _reader) override {
+        MeshRenderer<SpriteMesh, SpriteVertexData>::Load(_reader);
+
+        _reader.Read<uint32_t>(renderingNum_);
+
+        _reader.Read(texturePath_);
+        if (!texturePath_.empty()) {
+            textureNumber_ = TextureManager::LoadTexture(texturePath_);
+        }
+
+        _reader.ReadVec(textureLeftTop_);
+        _reader.ReadVec(textureSize_);
+        _reader.ReadVec(anchorPoint_);
+
+        _reader.Read<bool>(isFlipX_);
+        _reader.Read<bool>(isFlipY_);
+    }
+
     /// <summary>
     /// 更新
     /// </summary>
@@ -104,14 +137,14 @@ public:
     void setTranslate(const Vec2f& _translate) { spriteBuff_->translate_ = _translate; }
     const Vec2f& getTranslate() const { return spriteBuff_->translate_; }
 
-    void setUVScale(const Vec3f& uvScale) { spriteBuff_->uvScale_ = uvScale; }
-    const Vec3f& getUVScale() const { return spriteBuff_->uvScale_; }
+    void setUVScale(const Vec2f& uvScale) { spriteBuff_->uvScale_ = uvScale; }
+    const Vec2f& getUVScale() const { return spriteBuff_->uvScale_; }
 
-    void setUVRotate(const Vec3f& uvRotate) { spriteBuff_->uvRotate_ = uvRotate; }
-    const Vec3f& getUVRotate() const { return spriteBuff_->uvRotate_; }
+    void setUVRotate(float uvRotate) { spriteBuff_->uvRotate_ = uvRotate; }
+    float getUVRotate() const { return spriteBuff_->uvRotate_; }
 
-    void setUVTranslate(const Vec3f& uvTranslate) { spriteBuff_->uvTranslate_ = uvTranslate; }
-    const Vec3f& getUVTranslate() const { return spriteBuff_->uvTranslate_; }
+    void setUVTranslate(const Vec2f& uvTranslate) { spriteBuff_->uvTranslate_ = uvTranslate; }
+    const Vec2f& getUVTranslate() const { return spriteBuff_->uvTranslate_; }
 
     void setColor(const Vec4f& color) { spriteBuff_->color_ = color; }
     const Vec4f& getColor() const { return spriteBuff_->color_; }

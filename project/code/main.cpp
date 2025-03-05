@@ -1,6 +1,6 @@
 #include "engine/directX12/DxDebug.h"
 
-#include "MyGame.h"
+#include "application/MyGame.h"
 
 #include <memory>
 

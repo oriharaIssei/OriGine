@@ -24,6 +24,9 @@ public:
 
     void Init();
     void Run();
+    void Finalize();
+
+    void ComponentArraysInit();
 
 private:
     EntityComponentSystemManager() {}
@@ -113,7 +116,7 @@ public: // ============== accessor ==============//
     /// </summary>
     void destroyEntity(uint32_t _entityIndex) {
         freeEntityIndex_.push_back(_entityIndex);
-        entities_[_entityIndex] = GameEntity("Free", -1);
+        entities_[_entityIndex] = GameEntity("UNKNOWN", -1);
     }
 
     void clearEntity() {
@@ -124,6 +127,15 @@ public: // ============== accessor ==============//
     // --------------------------------------------------------------------------------------
     //  Component
     // --------------------------------------------------------------------------------------
+    template <IsComponent componentType>
+    void registerComponent() {
+        std::string typeName = nameof<componentType>();
+        if (componentArrays_.find(typeName) == componentArrays_.end()) {
+            componentArrays_[typeName] = std::make_unique<ComponentArray<componentType>>();
+            componentArrays_[typeName]->Init(entityCapacity_);
+        }
+    }
+
     template <IsComponent componentType>
     ComponentArray<componentType>* getComponentArray() {
         std::string typeName = nameof<componentType>();
@@ -163,13 +175,34 @@ public: // ============== accessor ==============//
         return componentArrays_;
     }
 
-    void clearComponentArray() {
+    /// <summary>
+    /// 登録したコンポーネント配列を消す
+    /// </summary>
+    void clearComponentArrays() {
         componentArrays_.clear();
+    }
+
+    /// <summary>
+    /// 全コンポーネントを削除する(登録された ComponentArrayの種類は保持したまま)
+    /// </summary>
+    void clearComponents() {
+        for (auto& [componentID, componentArray] : componentArrays_) {
+            componentArray->clear();
+        }
     }
 
     // --------------------------------------------------------------------------------------
     //  System
     // --------------------------------------------------------------------------------------
+
+    const std::array<std::map<std::string, std::unique_ptr<ISystem>>, int32_t(SystemType::Count)>& getSystems() const {
+        return systems_;
+    }
+
+    const std::map<std::string, std::unique_ptr<ISystem>>& getSystemsBy(SystemType _systemType) const {
+        return systems_[int32_t(_systemType)];
+    }
+
     template <IsSystem SystemDataType>
     SystemDataType* getSystem() const {
         std::string typeName = nameof<SystemDataType>();

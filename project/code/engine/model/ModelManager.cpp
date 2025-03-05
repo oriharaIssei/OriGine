@@ -300,7 +300,7 @@ void ModelManager::LoadTask::Update() {
     for (auto& [name, data] : model->meshData_->meshGroup_) {
         try {
             std::lock_guard<std::mutex> lock(mutex);
-            model->transforms_[&data] = Transform();
+            model->transforms_[&data] = Transform(nullptr);
             model->transforms_[&data].Update();
         } catch (const std::exception& e) {
             // エラーハンドリング

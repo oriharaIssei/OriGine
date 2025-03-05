@@ -17,9 +17,9 @@ public:
     virtual void Init();
     virtual void Finalize();
 
+    virtual void LoadSceneEntity();
+    virtual void SaveSceneEntity();
 protected:
-    virtual void LoadSceneEntity() = 0;
-    virtual void SaveSceneEntity() = 0;
 
 protected:
     std::shared_ptr<DxRtvArray> sceneRtvArray_;

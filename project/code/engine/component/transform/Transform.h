@@ -19,9 +19,9 @@
 struct Transform
     : public IComponent {
 public:
-    Transform() {}
-    Transform(const Vec3f& _scale, const Quaternion& _rotate, const Vec3f& _translate)
-        : scale(_scale), rotate(_rotate), translate(_translate), worldMat(MakeMatrix::Identity()) {}
+    Transform(GameEntity* _hostEntity = nullptr);
+    Transform(const Vec3f& _scale, const Quaternion& _rotate, const Vec3f& _translate, GameEntity* _hostEntity = nullptr)
+        : scale(_scale), rotate(_rotate), translate(_translate), worldMat(MakeMatrix::Identity()), IComponent(_hostEntity) {}
     ~Transform() {}
 
     void Init() override;

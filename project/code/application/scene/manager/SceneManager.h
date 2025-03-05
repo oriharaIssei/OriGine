@@ -47,6 +47,7 @@ private:
     std::vector<std::function<std::unique_ptr<IScene>()>> scenes_;
 
 public:
+    IScene* getCurrentScene() const { return currentScene_.get(); }
     void addScene(const std::string& name, std::function<std::unique_ptr<IScene>()> _sceneMakeFunc);
     void changeScene(const std::string& name);
 

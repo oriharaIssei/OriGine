@@ -12,6 +12,7 @@
 #include "texture/TextureManager.h"
 // lib
 #include "logger/Logger.h"
+#include "myFileSystem/MyFileSystem.h"
 
 #ifdef _DEBUG
 #include "imgui/imgui.h"
@@ -49,7 +50,69 @@ void SpriteRenderer::Init() {
     }
 }
 
+bool SpriteRenderer::Edit() {
+    bool isChange = false;
+
+    ImGui::Text("Texture");
+    ImGui::SameLine();
+    if (ImGui::Button("...")) {
+        std::string path;
+        MyFileSystem::SelectFolderDialog("resource", path);
+        if (!path.empty()) {
+            texturePath_ = "resource/" + path;
+            isChange     = true;
+        }
+    }
+
+    ImGui::Spacing();
+
+    ImGui::Text("TextureSize");
+    isChange |= ImGui::DragFloat2("##TextureSize", textureSize_.v, 1.0f, 0.0f, 1000.0f);
+
+    ImGui::Text("TextureLeftTop");
+    isChange |= ImGui::DragFloat2("##TextureLeftTop", textureLeftTop_.v, 1.0f, 0.0f, 1000.0f);
+
+    ImGui::Text("AnchorPoint");
+    isChange |= ImGui::DragFloat2("##AnchorPoint", anchorPoint_.v, 0.01f, -1.0f, 1.0f);
+
+    ImGui::Spacing();
+
+    ImGui::Text("Flip");
+    isChange |= ImGui::Checkbox("FlipX", &isFlipX_);
+    ImGui::SameLine();
+    isChange |= ImGui::Checkbox("FlipY", &isFlipY_);
+
+    ImGui::Spacing();
+
+    ImGui::Text("Color");
+    isChange |= ImGui::ColorEdit4("##Color", spriteBuff_->color_.v);
+
+    if (ImGui::TreeNode("UVTransform")) {
+        ImGui::Text("UVScale");
+        isChange |= ImGui::DragFloat2("##UVScale", spriteBuff_->uvScale_.v, 0.01f, 0.0f, 1000.0f);
+        ImGui::Text("UVRotate");
+        isChange |= ImGui::DragFloat("##UVRotate", &spriteBuff_->uvRotate_, 0.01f, 0.0f, 1000.0f);
+        ImGui::Text("UVTranslate");
+        isChange |= ImGui::DragFloat2("##UVTranslate", spriteBuff_->uvTranslate_.v, 0.01f, 0.0f, 1000.0f);
+        ImGui::TreePop();
+    }
+
+    if (ImGui::TreeNode("SpriteTransform")) {
+        ImGui::Text("Scale");
+        isChange |= ImGui::DragFloat2("##Scale", spriteBuff_->scale_.v, 0.01f, 0.0f, 1000.0f);
+        ImGui::Text("Rotate");
+        isChange |= ImGui::DragFloat("##Rotate", &spriteBuff_->rotate_, 0.01f, 0.0f, 1000.0f);
+        ImGui::Text("Translate");
+        isChange |= ImGui::DragFloat2("##Translate", spriteBuff_->translate_.v, 0.01f, 0.0f, 1000.0f);
+        ImGui::TreePop();
+    }
+
+    return isChange;
+}
+
 void SpriteRenderer::Finalize() {
+    MeshRenderer::Finalize();
+    spriteBuff_.Finalize();
 }
 
 void SpriteRenderer::Update(const Matrix4x4& _viewPortMat) {

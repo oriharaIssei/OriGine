@@ -95,6 +95,64 @@ void MyFileSystem::SelectFolderDialog(const std::string& _defaultDirectory, std:
     }
 }
 
+void MyFileSystem::SelectFileDialog(const std::string& _defaultDirectory, std::string& _outPath) {
+    HRESULT hr         = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+    bool coInitialized = SUCCEEDED(hr);
+
+    if (coInitialized || hr == RPC_E_CHANGED_MODE) {
+        IFileOpenDialog* pFileOpen = nullptr;
+
+        hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL, IID_IFileOpenDialog, reinterpret_cast<void**>(&pFileOpen));
+
+        if (SUCCEEDED(hr)) {
+            pFileOpen->SetOptions(FOS_FORCEFILESYSTEM);
+
+            // デフォルトディレクトリを設定
+            if (!_defaultDirectory.empty()) {
+                PIDLIST_ABSOLUTE pidl;
+                hr = SHParseDisplayName(std::wstring(_defaultDirectory.begin(), _defaultDirectory.end()).c_str(), NULL, &pidl, 0, NULL);
+                if (SUCCEEDED(hr)) {
+                    IShellItem* psi;
+                    hr = SHCreateShellItem(NULL, NULL, pidl, &psi);
+                    if (SUCCEEDED(hr)) {
+                        pFileOpen->SetFolder(psi);
+                        psi->Release();
+                    }
+                    CoTaskMemFree(pidl);
+                }
+            }
+
+            hr = pFileOpen->Show(NULL);
+
+            if (SUCCEEDED(hr)) {
+                IShellItem* pItem;
+                hr = pFileOpen->GetResult(&pItem);
+                if (SUCCEEDED(hr)) {
+                    PWSTR pszFilePath;
+                    hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
+
+                    if (SUCCEEDED(hr)) {
+                        // pszFilePath で入手されるのは フルパスなので それを _defaultDirectory からの相対パスに変換する
+                        std::wstring wFullPath(pszFilePath);
+                        std::string fullPath  = Logger::ConvertString(wFullPath);
+                        fs::path relativePath = fs::relative(fullPath, _defaultDirectory);
+                        _outPath              = relativePath.string();
+                        CoTaskMemFree(pszFilePath);
+                    }
+                    pItem->Release();
+                }
+            }
+            pFileOpen->Release();
+        }
+
+        if (coInitialized) {
+            CoUninitialize();
+        }
+    } else {
+        Logger::OutputLog("CoInitializeEx failed with error: " + std::to_string(hr));
+    }
+}
+
 bool MyFileSystem::removeEmptyFolder(const std::string& directory) {
     return fs::remove(directory);
 }

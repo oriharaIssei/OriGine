@@ -1,5 +1,7 @@
 #include "BinaryIO.h"
 
+#include <Windows.h>
+
 #pragma region BinaryWriter
 void BinaryWriter::WriteBegin() {
     if (isOpen_) {
@@ -10,7 +12,7 @@ void BinaryWriter::WriteBegin() {
     std::string path = directory_ + "/" + fileName_;
     fileStream_.open(path, std::ios::binary);
     if (!fileStream_.is_open()) {
-        throw std::runtime_error("Failed to open file: " + path);
+        MessageBoxA(nullptr, ("Failed to open file: " + path).c_str(), "Error", MB_OK);
     }
     isOpen_ = true;
 }
@@ -38,7 +40,7 @@ void BinaryReader::ReadBegin() {
     readStream_.open(path, std::ios::binary);
 
     if (!readStream_.is_open()) {
-        throw std::runtime_error("Failed to open file: " + path);
+        MessageBoxA(nullptr, ("Failed to open file: " + path).c_str(), "Error", MB_OK);
     }
     isOpen_ = true;
 }

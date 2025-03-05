@@ -1,7 +1,12 @@
 #include "IComponent.h"
 
-IComponent::IComponent() {
+/// engine
+// ECS
+#include "Entity.h"
+
+IComponent::IComponent(GameEntity* _hostEntity) {
     // Constructor implementation
+    _hostEntity;
 }
 
 IComponent::~IComponent() {

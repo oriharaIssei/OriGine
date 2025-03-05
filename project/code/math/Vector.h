@@ -183,6 +183,21 @@ public:
         static_assert(dimension == 4, "Conversion only available for 2D vectors.");
         return Vector4<valueType>(v[X], v[Y], v[Z], v[W]);
     }
+
+    // Add serialization support
+    template <typename Writer>
+    void Write(Writer& writer) const {
+        for (int i = 0; i < dimension; i++) {
+            writer.Write(v[i]);
+        }
+    }
+
+    template <typename Reader>
+    void Read(Reader& reader) {
+        for (int i = 0; i < dimension; i++) {
+            reader.Read(v[i]);
+        }
+    }
 };
 
 template <int dim, typename valueType>

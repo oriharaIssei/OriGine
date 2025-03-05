@@ -29,6 +29,8 @@ private:
     GameEntity* editEntity_ = nullptr;
     std::vector<IComponent*> editComponents_;
 
+    bool isOpenPopUpAddComponent_ = false;
+
 public:
     GameEntity* getEditEntity() const {
         return editEntity_;

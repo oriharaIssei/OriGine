@@ -246,9 +246,6 @@
     <ClCompile Include="code\engine\ECS\ECSManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="code\engine\component\ComponentArray.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="code\engine\system\ISystem.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>

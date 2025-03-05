@@ -175,7 +175,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="code\engine\effect\Effect.cpp" />
     <ClCompile Include="code\engine\effect\editor\EffectEditor.cpp" />
     <ClCompile Include="code\engine\ECS\ECSManager.cpp" />
-    <ClCompile Include="code\engine\component\ComponentArray.cpp" />
     <ClCompile Include="code\engine\system\render\TexturedMeshRenderSystem.cpp" />
     <ClCompile Include="code\engine\system\render\SpritRenderSystem.cpp" />
     <ClCompile Include="code\application\scene\IScene.cpp" />

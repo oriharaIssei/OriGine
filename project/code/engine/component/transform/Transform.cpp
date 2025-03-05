@@ -1,12 +1,13 @@
 #include "Transform.h"
 
-#include "directX12/DxFunctionHelper.h"
+///engine
+#include <Engine.h>
 
 #ifdef _DEBUG
 #include "imgui/imgui.h"
 #endif // _DEBUG
 
-#include <Engine.h>
+Transform::Transform(GameEntity* _hostEntity) : IComponent(_hostEntity), worldMat(MakeMatrix::Identity()) {}
 
 void Transform::Init() {
     worldMat = MakeMatrix::Identity();
@@ -37,14 +38,14 @@ bool Transform::Edit() {
 }
 
 void Transform::Save(BinaryWriter& _writer) {
-    _writer.Write(scale);
-    _writer.Write(rotate);
-    _writer.Write(translate);
+    _writer.WriteVec(scale);
+    _writer.WriteVec(rotate);
+    _writer.WriteVec(translate);
 }
 
 void Transform::Load(BinaryReader& _reader) {
-    _reader.Read<Vec3f>(scale);
-    _reader.Read<Quaternion>(rotate);
-    _reader.Read<Vec3f>(translate);
+    _reader.ReadVec(scale);
+    _reader.ReadVec(rotate);
+    _reader.ReadVec(translate);
     Update();
 }
