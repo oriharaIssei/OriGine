@@ -49,13 +49,11 @@ void EngineEditor::Update() {
         }
         if (ImGui::BeginMenu("Editors")) {
             if (ImGui::BeginMenu("ActiveState")) {
+                ImGui::Checkbox("IsEdit", &isActive_);
                 for (auto& [name, editor] : editors_) {
                     ImGui::Checkbox(name.c_str(), &editorActive_[editor.get()]);
                 }
                 ImGui::EndMenu();
-            }
-            if (ImGui::MenuItem("IsDebug")) {
-                ImGui::Checkbox("IsDebug", &isActive_);
             }
             ImGui::EndMenu();
         }
@@ -65,6 +63,9 @@ void EngineEditor::Update() {
     if (!isActive_) {
         return;
     }
+
+    CameraManager::getInstance()->DebugUpdate();
+
     for (auto& [name, editor] : editors_) {
         if (editorActive_[editor.get()]) {
             editor->Update();
