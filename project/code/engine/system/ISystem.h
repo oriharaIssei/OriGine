@@ -51,6 +51,8 @@ protected:
 private:
     SystemType systemType_;
 
+    int32_t priority_ = 0;
+
 public: // ========================================== accessor ========================================== //
     SystemType getSystemType() const {
         return systemType_;
@@ -60,6 +62,10 @@ public: // ========================================== accessor =================
     }
 
     void addEntity(GameEntity* _entity) {
+        // 重複登録を防ぐ
+        if (std::find(entities_.begin(), entities_.end(), _entity) != entities_.end()) {
+            return;
+        }
         entities_.push_back(_entity);
     }
     void removeEntity(GameEntity* _entity) {
@@ -68,6 +74,14 @@ public: // ========================================== accessor =================
     void clearEntities() {
         entities_.clear();
     }
+
+    void setPriority(int32_t _priority) {
+        priority_ = _priority;
+    }
+    int32_t getPriority() const {
+        return priority_;
+    }
+
 };
 
 // Systemを継承しているかどうか

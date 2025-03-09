@@ -6,6 +6,7 @@
 // container
 #include <array>
 #include <map>
+#include <vector>
 
 /// engine
 // ECS
@@ -49,6 +50,8 @@ private:
     /// システム配列
     /// </summary>
     std::array<std::map<std::string, std::unique_ptr<ISystem>>, int32_t(SystemType::Count)> systems_;
+
+    std::array<std::vector<ISystem*>, int32_t(SystemType::Count)> priorityOrderSystems_;
 
 public: // ============== accessor ==============//
     // --------------------------------------------------------------------------------------
@@ -231,16 +234,22 @@ public: // ============== accessor ==============//
         // システムを登録
         if (systems_[int32_t(systemType)].find(typeName) == systems_[int32_t(systemType)].end()) {
             systems_[int32_t(systemType)][typeName] = std::move(system);
+
+            // 優先順位順にシステムを格納
+            priorityOrderSystems_[int32_t(systemType)].push_back(system.get());
+            std::sortable(priorityOrderSystems_[int32_t(systemType)].begin(), priorityOrderSystems_[int32_t(systemType)].end(),
+                [](ISystem* a, ISystem* b) { return a->getPriority() < b->getPriority(); });
+
             return;
         }
-
-        // すでに登録されている場合はエラーを出力
-        assert(false && "System already registered");
     }
 
     void clearSystem() {
         for (auto& systemMap : systems_) {
             systemMap.clear();
+        }
+        for (auto& prioritySystems : priorityOrderSystems_) {
+            prioritySystems.clear();
         }
     }
 };
@@ -250,6 +259,11 @@ using ECSManager = EntityComponentSystemManager;
 template <IsComponent ComponentType>
 ComponentType* getComponent(GameEntity* _entity, int32_t _index = 0) {
     return ECSManager::getInstance()->getComponent<ComponentType>(_entity, _index);
+}
+
+template <IsComponent ComponentType>
+std::vector<ComponentType>* getComponents(GameEntity* _entity) {
+    return ECSManager::getInstance()->getComponents<ComponentType>(_entity);
 }
 
 template <IsComponent... ComponentArgs>

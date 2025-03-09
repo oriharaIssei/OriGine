@@ -24,60 +24,60 @@ void EntityComponentSystemManager::Run() {
         CameraManager::getInstance()->DebugUpdate();
     } else {
         // システムの更新
-        for (auto& [systemTypeName, system] : systems_[int32_t(SystemType::Input)]) {
+        for (auto& system : priorityOrderSystems_[int32_t(SystemType::Input)]) {
             system->Update();
         }
-        for (auto& [systemTypeName, system] : systems_[int32_t(SystemType::StateTransition)]) {
+        for (auto& system : priorityOrderSystems_[int32_t(SystemType::StateTransition)]) {
             system->Update();
         }
-        for (auto& [systemTypeName, system] : systems_[int32_t(SystemType::Movement)]) {
+        for (auto& system : priorityOrderSystems_[int32_t(SystemType::Movement)]) {
             system->Update();
         }
-        for (auto& [systemTypeName, system] : systems_[int32_t(SystemType::Physics)]) {
+        for (auto& system : priorityOrderSystems_[int32_t(SystemType::Physics)]) {
             system->Update();
         }
-        for (auto& [systemTypeName, system] : systems_[int32_t(SystemType::Collision)]) {
+        for (auto& system : priorityOrderSystems_[int32_t(SystemType::Collision)]) {
             system->Update();
         }
     }
 
     auto sceneView = SceneManager::getInstance()->getSceneView();
     sceneView->PreDraw();
-    for (auto& [systemTypeName, system] : systems_[int32_t(SystemType::Render)]) {
+    for (auto& system : priorityOrderSystems_[int32_t(SystemType::Render)]) {
         system->Update();
     }
     sceneView->PostDraw();
 
-    for (auto& [systemTypeName, system] : systems_[int32_t(SystemType::PostRender)]) {
+    for (auto& system : priorityOrderSystems_[int32_t(SystemType::PostRender)]) {
         system->Update();
     }
 
 #else
     // システムの更新
-    for (auto& [systemTypeName, system] : systems_[int32_t(SystemType::Input)]) {
+    for (auto& system : priorityOrderSystems_[int32_t(SystemType::Input)]) {
         system->Update();
     }
-    for (auto& [systemTypeName, system] : systems_[int32_t(SystemType::StateTransition)]) {
+    for (auto& system : priorityOrderSystems_[int32_t(SystemType::StateTransition)]) {
         system->Update();
     }
-    for (auto& [systemTypeName, system] : systems_[int32_t(SystemType::Movement)]) {
+    for (auto& system : priorityOrderSystems_[int32_t(SystemType::Movement)]) {
         system->Update();
     }
-    for (auto& [systemTypeName, system] : systems_[int32_t(SystemType::Physics)]) {
+    for (auto& system : priorityOrderSystems_[int32_t(SystemType::Physics)]) {
         system->Update();
     }
-    for (auto& [systemTypeName, system] : systems_[int32_t(SystemType::Collision)]) {
+    for (auto& system : priorityOrderSystems_[int32_t(SystemType::Collision)]) {
         system->Update();
     }
 
     auto sceneView = SceneManager::getInstance()->getSceneView();
     sceneView->PreDraw();
-    for (auto& [systemTypeName, system] : systems_[int32_t(SystemType::Render)]) {
+    for (auto& system : priorityOrderSystems_[int32_t(SystemType::Render)]) {
         system->Update();
     }
     sceneView->PostDraw();
 
-    for (auto& [systemTypeName, system] : systems_[int32_t(SystemType::PostRender)]) {
+    for (auto& system : priorityOrderSystems_[int32_t(SystemType::PostRender)]) {
         system->Update();
     }
 #endif // _DEBUG
