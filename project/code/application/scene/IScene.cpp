@@ -77,7 +77,7 @@ void IScene::LoadSceneEntity() {
     BinaryReader reader("resource/scene", name_ + ".scene");
     reader.ReadBegin();
 
-    // ------------------------------- エンティティ & component の読み込み -------------------------------//
+    // ------------------------------ エンティティ & component の読み込み ------------------------------//
     {
         GameEntity* loadedEntity = nullptr;
         int32_t entitySize       = 0;
