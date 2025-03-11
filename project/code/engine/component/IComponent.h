@@ -29,6 +29,9 @@ public:
 
 protected:
     GameEntity* hostEntity_ = nullptr;
+
+public:
+    GameEntity* getHostEntity() { return hostEntity_; }
 };
 
 /// <summary>

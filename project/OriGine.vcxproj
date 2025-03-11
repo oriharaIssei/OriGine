@@ -178,6 +178,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="code\engine\system\render\TexturedMeshRenderSystem.cpp" />
     <ClCompile Include="code\engine\system\render\SpritRenderSystem.cpp" />
     <ClCompile Include="code\application\scene\IScene.cpp" />
+    <ClCompile Include="code\engine\component\collider\Collider.cpp" />
+    <ClCompile Include="code\engine\system\collision\CollisionCheckSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\lib\binaryIO\BinaryIO.h" />
@@ -249,6 +251,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="code\lib\myFileSystem\MyFileSystem.h" />
     <ClInclude Include="code\math\Matrix4x4.h" />
     <ClInclude Include="code\math\Quaternion.h" />
+    <ClInclude Include="code\math\shape\Shapes.h" />
     <ClInclude Include="code\math\Vector.h" />
     <ClInclude Include="code\math\Vector2.h" />
     <ClInclude Include="code\math\Vector3.h" />
@@ -269,6 +272,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="code\util\nameof.h" />
     <ClInclude Include="code\engine\ECS\ECSManager.h" />
     <ClInclude Include="code\engine\component\ComponentArray.h" />
+    <ClInclude Include="code\engine\system\collision\CollisionCheckSystem.h" />
     <ClInclude Include="externals\assimp\include\assimp\aabb.h" />
     <ClInclude Include="externals\assimp\include\assimp\ai_assert.h" />
     <ClInclude Include="externals\assimp\include\assimp\anim.h" />
@@ -356,6 +360,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="externals\nlohmann\json_fwd.hpp" />
     <ClInclude Include="code\engine\system\render\TexturedMeshRenderSystem.h" />
     <ClInclude Include="code\engine\system\render\SpritRenderSystem.h" />
+    <ClInclude Include="code\engine\component\collider\Collider.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">

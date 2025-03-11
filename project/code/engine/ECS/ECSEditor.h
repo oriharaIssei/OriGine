@@ -19,6 +19,7 @@ public:
     ECSEditor();
     ~ECSEditor();
 
+    void Init();
     void Update() override;
 
 private:
@@ -26,19 +27,32 @@ private:
     void EditComponent();
     void WorkerSystemList();
 
+    /// <summary>
+    ///  エンティティを WorkSystem に追加するためのポップアップ
+    /// </summary>
+    /// <param name="_entity"></param>
     void PopupEntityJoinWorkSystem(GameEntity* _entity);
+    /// <summary>
+    /// エンティティに Component を追加するためのポップアップ
+    /// </summary>
+    /// <param name="_entity"></param>
     void PopupEntityAddComponent(GameEntity* _entity);
 
 private:
     ECSManager* ecsManager_ = nullptr;
 
     GameEntity* editEntity_ = nullptr;
-    std::vector<IComponent*> editComponents_;
+    std::vector<IComponent*> editEntityComponents_;
+
+    std::array<std::vector<std::pair<std::string, ISystem*>>, int32_t(SystemType::Count)> workSystemList_;
 
     bool isOpenPopupJoinWorkSystem_ = false;
     bool isOpenPopUpAddComponent_   = false;
 
 public:
+    void SortPriorityOrderFromECSManager();
+    void SortPriorityOrderFromECSManager(int32_t systemTypeIndex);
+
     GameEntity* getEditEntity() const {
         return editEntity_;
     }
@@ -47,10 +61,10 @@ public:
     }
 
     std::vector<IComponent*> getEditComponents() const {
-        return editComponents_;
+        return editEntityComponents_;
     }
     void setEditComponents(const std::vector<IComponent*>& _components) {
-        editComponents_ = _components;
+        editEntityComponents_ = _components;
     }
 };
 

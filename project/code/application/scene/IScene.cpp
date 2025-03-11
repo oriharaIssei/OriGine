@@ -6,14 +6,17 @@
 // Ecs
 #include "ECSManager.h"
 // component
+#include "component/collider/Collider.h"
 #include "component/IComponent.h"
 #include "component/material/Material.h"
 #include "component/renderer/MeshRender.h"
 #include "component/renderer/Sprite.h"
 #include "component/transform/CameraTransform.h"
 // #include "component/transform/ParticleTransform.h"
+#include "component/collider/Collider.h"
 #include "component/transform/Transform.h"
 // system
+#include "system/collision/CollisionCheckSystem.h"
 #include "system/render/SpritRenderSystem.h"
 #include "system/render/TexturedMeshRenderSystem.h"
 
@@ -38,13 +41,17 @@ void IScene::Init() {
     ecsManager->registerComponent<CameraTransform>();
     ecsManager->registerComponent<ModelMeshRenderer>();
     ecsManager->registerComponent<SpriteRenderer>();
+    ecsManager->registerComponent<AABBCollider>();
+    ecsManager->registerComponent<SphereCollider>();
 #pragma endregion "RegisterComponent"
 
 // System の登録
 #pragma region "RegisterSystem"
     ecsManager->registerSystem<TexturedMeshRenderSystem>();
     ecsManager->registerSystem<SpritRenderSystem>();
+    ecsManager->registerSystem<CollisionCheckSystem>();
 #pragma endregion "RegisterSystem"
+    ECSManager::getInstance()->SortPriorityOrderSystems();
 
     // 読み込み (component,System の登録のあと)
     LoadSceneEntity();
@@ -108,7 +115,7 @@ void IScene::LoadSceneEntity() {
         int32_t systemSizeByType    = 0;
         int32_t systemHasEntitySize = 0;
         std::string systemName;
-        uint32_t entityID = 0;
+        int32_t entityID = 0;
 
         auto& systems = ecsManager->getSystems();
         for (auto& systemsByType : systems) {
@@ -118,9 +125,15 @@ void IScene::LoadSceneEntity() {
                 auto itr = systemsByType.find(systemName);
 
                 if (itr != systemsByType.end()) {
+                    // priority
+                    int32_t priority = 0;
+                    reader.Read<int32_t>(priority);
+                    itr->second->setPriority(priority);
+
+                    // entities
                     reader.Read<int32_t>(systemHasEntitySize);
                     for (int32_t j = 0; j < systemHasEntitySize; j++) {
-                        reader.Read<uint32_t>(entityID);
+                        reader.Read<int32_t>(entityID);
                         itr->second->addEntity(ecsManager->getEntity(entityID));
                     }
                 }
@@ -144,8 +157,9 @@ void IScene::SaveSceneEntity() {
         int32_t entityID = 0;
         for (auto& entity : ecsManager->getEntities()) {
             entityID = entity.getID();
-            if (entityID < 0)
+            if (entityID < 0) {
                 continue;
+            }
             activeEntities.push_back(ecsManager->getEntity(entityID));
         }
     }
@@ -176,12 +190,13 @@ void IScene::SaveSceneEntity() {
     {
         const auto& systems = ecsManager->getSystems();
         for (const auto& systemsByType : systems) {
-            writer.Write<uint32_t>(static_cast<uint32_t>(systemsByType.size()));
+            writer.Write<int32_t>(static_cast<int32_t>(systemsByType.size()));
             for (const auto& [systemName, system] : systemsByType) {
                 writer.Write<std::string>(systemName);
-                writer.Write<uint32_t>(static_cast<uint32_t>(system->getEntities().size()));
+                writer.Write<int32_t>(system->getPriority());
+                writer.Write<int32_t>(static_cast<int32_t>(system->getEntities().size()));
                 for (const auto& entity : system->getEntities()) {
-                    writer.Write<uint32_t>(entity->getID());
+                    writer.Write<int32_t>(entity->getID());
                 }
             }
         }
