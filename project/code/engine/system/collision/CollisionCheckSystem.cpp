@@ -6,7 +6,7 @@
 /// ECS
 #include "ECSManager.h"
 // component
-#include "component/collider/Collider.h"
+#include "collider/Collider.h"
 #include "component/transform/Transform.h"
 
 #pragma region "CheckCollisionPair"

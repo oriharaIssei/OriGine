@@ -127,7 +127,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="code\main.cpp" />
     <ClCompile Include="code\application\MyGame.cpp" />
     <ClCompile Include="code\application\scene\GameScene.cpp" />
-    <ClCompile Include="code\application\scene\manager\SceneManager.cpp" />
+    <ClCompile Include="code\engine\sceneManager\SceneManager.cpp" />
     <ClCompile Include="code\engine\texture\TextureManager.cpp" />
     <ClCompile Include="code\lib\animationEditor\AnimationEditor.cpp" />
     <ClCompile Include="code\engine\audio\Audio.cpp" />
@@ -209,7 +209,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="code\application\FrameWork.h" />
     <ClInclude Include="code\application\MyGame.h" />
     <ClInclude Include="code\application\scene\GameScene.h" />
-    <ClInclude Include="code\application\scene\manager\SceneManager.h" />
+    <ClInclude Include="code\engine\sceneManager\SceneManager.h" />
     <ClInclude Include="code\engine\texture\TextureManager.h" />
     <ClInclude Include="code\lib\animationEditor\AnimationEditor.h" />
     <ClInclude Include="code\engine\audio\Audio.h" />
