@@ -1,0 +1,3 @@
+[submodule "project/Application"]
+	path = project/Application
+	url = https://github.com/oriharaIssei/OriGineApp.git
