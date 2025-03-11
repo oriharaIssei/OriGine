@@ -145,7 +145,7 @@ public:
             it = entityIndexBind_.find(_hostEntity);
         }
         uint32_t index = it->second;
-        components_[index].push_back(_component);
+        components_[index].push_back(std::move(*_component));
     }
 
     // 追加
@@ -159,7 +159,7 @@ public:
             it = entityIndexBind_.find(_hostEntity);
         }
         uint32_t index = it->second;
-        components_[index].push_back(*comp);
+        components_[index].push_back(std::move(*comp));
     }
 
     // 追加

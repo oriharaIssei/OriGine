@@ -1,7 +1,0 @@
-{
-    "HitEffect": {
-        "targetAnimationDirection": "resource/Animations",
-        "targetModelDirection": "resource/Models",
-        "targetModelFileName": "hitParticle.obj"
-    }
-}

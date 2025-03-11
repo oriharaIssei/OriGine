@@ -1,6 +1,7 @@
 #pragma once
 
 /// stl
+#include <algorithm>
 #include <memory>
 #include <string>
 // container
@@ -97,7 +98,7 @@ public: // ============== accessor ==============//
     /// <summary>
     /// エンティティを取得する
     /// </summary>
-    GameEntity* getEntity(uint32_t _entityIndex) {
+    GameEntity* getEntity(int32_t _entityIndex) {
         return &entities_[_entityIndex];
     }
 
@@ -206,6 +207,13 @@ public: // ============== accessor ==============//
         return systems_[int32_t(_systemType)];
     }
 
+    const std::vector<ISystem*>& getPriorityOrderSystems(SystemType _systemType) const {
+        return priorityOrderSystems_[int32_t(_systemType)];
+    }
+    std::vector<ISystem*>& customPriorityOrderSystems(SystemType _systemType) {
+        return priorityOrderSystems_[int32_t(_systemType)];
+    }
+
     template <IsSystem SystemDataType>
     SystemDataType* getSystem() const {
         std::string typeName = nameof<SystemDataType>();
@@ -221,12 +229,13 @@ public: // ============== accessor ==============//
 
     template <IsSystem SystemDataType, typename... Args>
     void registerSystem(Args... _args) {
+
+        // システムの名前を取得
+        std::string typeName = nameof<SystemDataType>();
+
         // 登録する インスタンスを作成
         std::unique_ptr<SystemDataType> system = std::make_unique<SystemDataType>(_args...);
         system->Init();
-
-        // システムのデータタイプを取得
-        std::string typeName = nameof<SystemDataType>();
 
         // システムのタイプを取得
         SystemType systemType = system->getSystemType();
@@ -235,13 +244,30 @@ public: // ============== accessor ==============//
         if (systems_[int32_t(systemType)].find(typeName) == systems_[int32_t(systemType)].end()) {
             systems_[int32_t(systemType)][typeName] = std::move(system);
 
-            // 優先順位順にシステムを格納
-            priorityOrderSystems_[int32_t(systemType)].push_back(system.get());
-            std::sortable(priorityOrderSystems_[int32_t(systemType)].begin(), priorityOrderSystems_[int32_t(systemType)].end(),
-                [](ISystem* a, ISystem* b) { return a->getPriority() < b->getPriority(); });
-
             return;
         }
+    }
+
+    void SortPriorityOrderSystems() {
+        for (int32_t systemTypeIndex = 0; systemTypeIndex < int32_t(SystemType::Count); ++systemTypeIndex) {
+            // sort
+            if (priorityOrderSystems_[systemTypeIndex].size() > 1) {
+                continue;
+            }
+            std::sort(
+                priorityOrderSystems_[systemTypeIndex].begin(),
+                priorityOrderSystems_[systemTypeIndex].end(),
+                [](ISystem* a, ISystem* b) { return a->getPriority() < b->getPriority(); });
+        }
+    }
+    void SortPriorityOrderSystems(int32_t _systemTypeIndex) {
+        if (priorityOrderSystems_[_systemTypeIndex].size() > 1) {
+            return;
+        }
+        std::sort(
+            priorityOrderSystems_[_systemTypeIndex].begin(),
+            priorityOrderSystems_[_systemTypeIndex].end(),
+            [](ISystem* a, ISystem* b) { return a->getPriority() < b->getPriority(); });
     }
 
     void clearSystem() {

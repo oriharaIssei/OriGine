@@ -6,7 +6,7 @@
 /// ECS
 #include "ECSManager.h"
 // component
-#include "collider/Collider.h"
+#include "component/collider/Collider.h"
 #include "component/transform/Transform.h"
 
 #pragma region "CheckCollisionPair"
@@ -72,29 +72,44 @@ void CollisionCheckSystem::Init() {
 void CollisionCheckSystem::Update() {
     entityItr_ = entities_.begin();
 
-    for (auto& entity : entities_) {
-        std::vector<Collider>* colliders = getComponents<Collider>(entity);
-        if (!colliders) {
-            continue;
+    // 衝突判定の記録開始処理
+    for (auto entity : entities_) {
+        // AABB
+        const auto& aabbColliders = getComponents<AABBCollider>(entity);
+        for (auto collider = aabbColliders->begin();
+            collider != aabbColliders->end();
+            ++collider) {
+            collider->StartCollision();
         }
-
-        for (auto& collider : *colliders) {
-            collider.StartCollision();
+        // Sphere
+        const auto& sphereColliders = getComponents<SphereCollider>(entity);
+        for (auto collider = sphereColliders->begin();
+            collider != sphereColliders->end();
+            ++collider) {
+            collider->StartCollision();
         }
     }
 
+    // エンティティごとの更新処理
     for (auto& entity : entities_) {
         UpdateEntity(entity);
     }
 
-    for (auto& entity : entities_) {
-        std::vector<Collider>* colliders = getComponents<Collider>(entity);
-        if (!colliders) {
-            continue;
+    // 衝突判定の記録終了処理
+    for (auto entity : entities_) {
+        // AABB
+        const auto& aabbColliders = getComponents<AABBCollider>(entity);
+        for (auto collider = aabbColliders->begin();
+            collider != aabbColliders->end();
+            ++collider) {
+            collider->EndCollision();
         }
-
-        for (auto& collider : *colliders) {
-            collider.EndCollision();
+        // Sphere
+        const auto& sphereColliders = getComponents<SphereCollider>(entity);
+        for (auto collider = sphereColliders->begin();
+            collider != sphereColliders->end();
+            ++collider) {
+            collider->EndCollision();
         }
     }
 }
@@ -106,64 +121,29 @@ void CollisionCheckSystem::Finalize() {
 void CollisionCheckSystem::UpdateEntity(GameEntity* _entity) {
     ++entityItr_;
 
-    std::vector<Collider>* aColliders = getComponents<Collider>(_entity);
+    auto aEntityAabbColliders   = getComponents<AABBCollider>(_entity);
+    auto aEntitySphereColliders = getComponents<SphereCollider>(_entity);
 
-    // collider　が ない場合は処理を行わない
-    if (!aColliders || aColliders->empty()) {
-        return;
-    }
-
-    for (std::vector<GameEntity*>::iterator itr = entityItr_;
-        itr != entities_.end();
-        ++itr) {
-        for (auto& aCollider : *aColliders) {
-            if (!aCollider.isActive()) {
-                continue;
-            }
-
-            std::vector<Collider>* bColliders = getComponents<Collider>(*itr);
-            if (!bColliders) {
-                continue;
-            }
-
-            // aCollider の形状情報をキャッシュ
-            IShape* shapeA           = aCollider.getWorldShape();
-            CollisionShapeType typeA = aCollider.getShapeType();
-
-            for (auto& bCollider : *bColliders) {
-                if (!bCollider.isActive()) {
-                    continue;
-                }
-
-                // bCollider の形状情報
-                IShape* shapeB           = bCollider.getWorldShape();
-                CollisionShapeType typeB = bCollider.getShapeType();
-
-                bool collisionDetected = false;
-                // ToDo : cast による Shape の変換
-                if (typeA == CollisionShapeType::Sphere && typeB == CollisionShapeType::Sphere) {
-                    const Sphere* sphereA = static_cast<const Sphere*>(shapeA);
-                    const Sphere* sphereB = static_cast<const Sphere*>(shapeB);
-                    collisionDetected     = CheckCollisionPair<Sphere, Sphere>(*sphereA, *sphereB);
-                } else if (typeA == CollisionShapeType::AABB && typeB == CollisionShapeType::AABB) {
-                    const AABB* aabbA = static_cast<const AABB*>(shapeA);
-                    const AABB* aabbB = static_cast<const AABB*>(shapeB);
-                    collisionDetected = CheckCollisionPair<AABB, AABB>(*aabbA, *aabbB);
-                } else if (typeA == CollisionShapeType::AABB && typeB == CollisionShapeType::Sphere) {
-                    const AABB* aabbA     = static_cast<const AABB*>(shapeA);
-                    const Sphere* sphereB = static_cast<const Sphere*>(shapeB);
-                    collisionDetected     = CheckCollisionPair<AABB, Sphere>(*aabbA, *sphereB);
-                } else if (typeA == CollisionShapeType::Sphere && typeB == CollisionShapeType::AABB) {
-                    const Sphere* sphereA = static_cast<const Sphere*>(shapeA);
-                    const AABB* aabbB     = static_cast<const AABB*>(shapeB);
-                    collisionDetected     = CheckCollisionPair<Sphere, AABB>(*sphereA, *aabbB);
-                }
-
-                if (collisionDetected) {
-                    aCollider.setCollisionState(*itr);
-                    bCollider.setCollisionState(_entity);
+    // ラムダ関数: 2つのリスト間の衝突判定をまとめる
+    auto checkCollisions = [&](auto& listA, auto& listB, GameEntity* aEntity, GameEntity* bEntity) {
+        for (auto colliderA = listA->begin(); colliderA != listA->end(); ++colliderA) {
+            for (auto colliderB = listB->begin(); colliderB != listB->end(); ++colliderB) {
+                if (CheckCollisionPair(colliderA->getWorldShape(), colliderB->getWorldShape())) {
+                    colliderA->setCollisionState(bEntity);
+                    colliderB->setCollisionState(aEntity);
                 }
             }
         }
+    };
+
+    for (auto bItr = entityItr_; bItr != entities_.end(); ++bItr) {
+        GameEntity* bEntity         = *bItr;
+        auto bEntityAabbColliders   = getComponents<AABBCollider>(bEntity);
+        auto bEntitySphereColliders = getComponents<SphereCollider>(bEntity);
+
+        checkCollisions(aEntityAabbColliders, bEntityAabbColliders, _entity, bEntity);
+        checkCollisions(aEntitySphereColliders, bEntitySphereColliders, _entity, bEntity);
+        checkCollisions(aEntityAabbColliders, bEntitySphereColliders, _entity, bEntity);
+        checkCollisions(aEntitySphereColliders, bEntityAabbColliders, _entity, bEntity);
     }
 }

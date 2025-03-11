@@ -297,13 +297,10 @@
     <ClCompile Include="code\lib\binaryIO\BinaryIO.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="code\engine\collider\Collider.cpp">
+    <ClCompile Include="code\engine\component\collider\Collider.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="code\engine\system\collision\CollisionCheckSystem.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="code\engine\collider\shape\Shapes.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -839,13 +836,13 @@
     <ClInclude Include="code\lib\binaryIO\BinaryIO.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="code\engine\collider\Collider.h">
+    <ClInclude Include="code\engine\component\collider\Collider.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="code\engine\system\collision\CollisionCheckSystem.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="code\engine\collider\shape\Shapes.h">
+    <ClInclude Include="code\math\shape\Shapes.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
