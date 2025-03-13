@@ -1,29 +1,22 @@
 #include "IScene.h"
 
 /// engine
-#include "Engine.h"
+#define ENGINE_INCLUDE
 #include "sceneManager/SceneManager.h"
 // Ecs
-#include "ECSManager.h"
+#define ENGINE_ECS
 // component
-#include "component/collider/Collider.h"
-#include "component/IComponent.h"
-#include "component/material/Material.h"
-#include "component/renderer/MeshRender.h"
-#include "component/renderer/Sprite.h"
-#include "component/transform/CameraTransform.h"
-#include "component/transform/Transform.h"
-#include "component/transform/ParticleTransform.h"
+// #define ENGINE_ECS
 // system
-#include "system/collision/CollisionCheckSystem.h"
-#include "system/render/SpritRenderSystem.h"
-#include "system/render/TexturedMeshRenderSystem.h"
+// #define ENGINE_ECS
 
 /// directX12Object
 #include "directX12/DxRtvArrayManager.h"
 #include "directX12/DxSrvArrayManager.h"
 // lib
 #include "lib/binaryIO/BinaryIO.h"
+
+#include "EngineInclude.h"
 
 IScene::IScene(const std::string& sceneName) : name_(sceneName) {
 }
@@ -34,26 +27,38 @@ void IScene::Init() {
     ECSManager* ecsManager = ECSManager::getInstance();
     ecsManager->Init();
     ecsManager->ComponentArraysInit();
-// componentの登録
-#pragma region "RegisterComponent"
+
+    // componentの登録
+    registerComponents();
+
+    // System の登録
+    registerSystems();
+
+    ECSManager::getInstance()->SortPriorityOrderSystems();
+
+    // 読み込み (component,System の登録のあと)
+    LoadSceneEntity();
+}
+
+void IScene::registerComponents() {
+    ECSManager* ecsManager = ECSManager::getInstance();
+
     ecsManager->registerComponent<Transform>();
     ecsManager->registerComponent<CameraTransform>();
     ecsManager->registerComponent<ModelMeshRenderer>();
     ecsManager->registerComponent<SpriteRenderer>();
     ecsManager->registerComponent<AABBCollider>();
     ecsManager->registerComponent<SphereCollider>();
-#pragma endregion "RegisterComponent"
+    ecsManager->registerComponent<Rigidbody>();
+}
 
-// System の登録
-#pragma region "RegisterSystem"
+void IScene::registerSystems() {
+    ECSManager* ecsManager = ECSManager::getInstance();
+
     ecsManager->registerSystem<TexturedMeshRenderSystem>();
     ecsManager->registerSystem<SpritRenderSystem>();
     ecsManager->registerSystem<CollisionCheckSystem>();
-#pragma endregion "RegisterSystem"
-    ECSManager::getInstance()->SortPriorityOrderSystems();
-
-    // 読み込み (component,System の登録のあと)
-    LoadSceneEntity();
+    ecsManager->registerSystem<MoveSystemByRigidBody>();
 }
 
 void IScene::Finalize() {
@@ -73,7 +78,7 @@ void IScene::LoadSceneEntity() {
     ECSManager* ecsManager = ECSManager::getInstance();
 
     // ===================================== 読み込み開始 ===================================== //
-    BinaryReader reader("resource/scene", name_ + ".scene");
+    BinaryReader reader("Application/resource/scene", name_ + ".scene");
     reader.ReadBegin();
 
     // ------------------------------ エンティティ & component の読み込み ------------------------------//
@@ -147,7 +152,7 @@ void IScene::SaveSceneEntity() {
     ECSManager* ecsManager = ECSManager::getInstance();
 
     // ===================================== 書き込み開始 ===================================== //
-    BinaryWriter writer("resource/scene", name_ + ".scene");
+    BinaryWriter writer("Application/resource/scene", name_ + ".scene");
     writer.WriteBegin();
 
     // 収集済みの有効なEntity数を書き込む (Load側と対応)

@@ -1,10 +1,10 @@
 #include "Matrix4x4.h"
 
-///stl
-//assert
+/// stl
+// assert
 #include "assert.h"
 
-///math
+/// math
 #include "Quaternion.h"
 
 #include <cmath>
@@ -100,7 +100,7 @@ Matrix4x4 Matrix4x4::Inverse(const Matrix4x4& m) {
     inverse.XMMATRIXToMatrix(DirectX::XMMatrixInverse(&det, thisMat));
     return inverse;
 }
-Matrix4x4 MakeMatrix::Identity() {
+const Matrix4x4 MakeMatrix::Identity() {
     return Matrix4x4({1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f});
 }
 

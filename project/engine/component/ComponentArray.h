@@ -119,10 +119,7 @@ public:
             freeIndex_.pop_back();
             entityIndexBind_[_entity] = freeIdx;
 
-            components_[entityIndexBind_[_entity]].resize(_entitySize, _entity);
-            for (auto& newComp : components_[entityIndexBind_[_entity]]) {
-                newComp.Init();
-            }
+            components_[entityIndexBind_[_entity]].resize(_entitySize);
         } else {
             uint32_t oldSize = static_cast<uint32_t>(components_.size());
             components_.resize(oldSize * 2);
@@ -131,10 +128,7 @@ public:
             }
 
             entityIndexBind_[const_cast<GameEntity*>(_entity)] = static_cast<uint32_t>(components_.size() - 1);
-            components_[entityIndexBind_[_entity]].resize(_entitySize, _entity);
-            for (auto& newComp : components_[entityIndexBind_[_entity]]) {
-                newComp.Init();
-            }
+            components_[entityIndexBind_[_entity]].resize(_entitySize);
         }
     }
 
@@ -145,7 +139,7 @@ public:
             it = entityIndexBind_.find(_hostEntity);
         }
         uint32_t index = it->second;
-        components_[index].push_back(std::move(*_component));
+        components_[index].push_back(_component);
     }
 
     // 追加
@@ -171,8 +165,7 @@ public:
             it = entityIndexBind_.find(_hostEntity);
         }
         uint32_t index = it->second;
-        components_[index].push_back(ComponentType(_hostEntity));
-        components_[index].back().Init();
+        components_[index].push_back(ComponentType());
     }
 
     //------------------------------------------------------------------------------------------

@@ -19,7 +19,16 @@ public:
 
     virtual void LoadSceneEntity();
     virtual void SaveSceneEntity();
+
 protected:
+    /// <summary>
+    /// シーン内で使用するComponentを登録する
+    /// </summary>
+    virtual void registerComponents();
+    /// <summary>
+    /// シーン内で使用する System を登録する
+    /// </summary>
+    virtual void registerSystems();
 
 protected:
     std::shared_ptr<DxRtvArray> sceneRtvArray_;

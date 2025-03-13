@@ -38,15 +38,17 @@ class MeshRenderer
 public:
     using VertexType = VertexDataType;
 
-    MeshRenderer(GameEntity* _hostEntity) : IComponent(_hostEntity) { meshGroup_ = std::make_shared<std::vector<MeshTemplate>>(); }
-    MeshRenderer(GameEntity* _hostEntity, const std::vector<MeshTemplate>& _meshGroup) : IComponent(_hostEntity) {
+    MeshRenderer() { meshGroup_ = std::make_shared<std::vector<MeshTemplate>>(); }
+    MeshRenderer(const std::vector<MeshTemplate>& _meshGroup) {
         meshGroup_ = std::make_shared<std::vector<MeshTemplate>>(_meshGroup);
     }
-    MeshRenderer(GameEntity* _hostEntity, const std::shared_ptr<std::vector<MeshTemplate>>& _meshGroup) : IComponent(_hostEntity), meshGroup_(_meshGroup) {}
+    MeshRenderer(const std::shared_ptr<std::vector<MeshTemplate>>& _meshGroup) : meshGroup_(_meshGroup) {}
 
     virtual ~MeshRenderer() {}
 
-    virtual void Init() = 0;
+    virtual void Init(GameEntity* _hostEntity) {
+        hostEntity_ = _hostEntity;
+    }
 
     bool Edit() override { return false; }
     void Save(BinaryWriter& _writer) override {
@@ -70,6 +72,8 @@ public:
     }
 
 protected:
+    GameEntity* hostEntity_ = nullptr;
+
     BlendMode currentBlend_ = BlendMode::Alpha;
 
     bool isRender_ = true;
@@ -114,15 +118,15 @@ public: // ↓ Accessor
 class ModelMeshRenderer
     : public MeshRenderer<TextureMesh, TextureVertexData> {
 public:
-    ModelMeshRenderer(GameEntity* _hostEntity) : MeshRenderer<TextureMesh, TextureVertexData>(_hostEntity) {}
-    ModelMeshRenderer(GameEntity* _hostEntity, const std::vector<TextureMesh>& _meshGroup);
-    ModelMeshRenderer(GameEntity* _hostEntity, const std::shared_ptr<std::vector<TextureMesh>>& _meshGroup);
+    ModelMeshRenderer() {}
+    ModelMeshRenderer(const std::vector<TextureMesh>& _meshGroup);
+    ModelMeshRenderer(const std::shared_ptr<std::vector<TextureMesh>>& _meshGroup);
 
     ~ModelMeshRenderer() {}
     ///< summary>
     /// 初期化
     ///</summary>
-    void Init() override;
+    void Init(GameEntity* _hostEntity) override;
 
     bool Edit() override;
 
@@ -208,16 +212,16 @@ void CreateModelMeshRenderer(ModelMeshRenderer* _renderer, GameEntity* _hostEnti
 class PrimitiveMeshRenderer
     : public MeshRenderer<PrimitiveMesh, PrimitiveVertexData> {
 public:
-    PrimitiveMeshRenderer(GameEntity* _hostEntity);
-    PrimitiveMeshRenderer(GameEntity* _hostEntity, const std::vector<PrimitiveMesh>& _meshGroup);
-    PrimitiveMeshRenderer(GameEntity* _hostEntity, const std::shared_ptr<std::vector<PrimitiveMesh>>& _meshGroup);
+    PrimitiveMeshRenderer();
+    PrimitiveMeshRenderer(const std::vector<PrimitiveMesh>& _meshGroup);
+    PrimitiveMeshRenderer(const std::shared_ptr<std::vector<PrimitiveMesh>>& _meshGroup);
 
     ~PrimitiveMeshRenderer();
 
     ///< summary>
     /// 初期化
     ///</summary>
-    void Init() override;
+    void Init(GameEntity* _hostEntity) override;
 
 private:
     std::vector<IConstantBuffer<Transform>> meshTransformBuff_;

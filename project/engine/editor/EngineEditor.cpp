@@ -3,10 +3,10 @@
 #ifdef _DEBUG
 /// engine
 // module
-#include "sceneManager/SceneManager.h"
 #include "camera/CameraManager.h"
 #include "component/material/light/LightManager.h"
 #include "component/material/Material.h"
+#include "sceneManager/SceneManager.h"
 // scene
 #include "iScene/IScene.h"
 // externals
@@ -28,47 +28,55 @@ EngineEditor* EngineEditor::getInstance() {
 }
 
 void EngineEditor::Update() {
-    // MainMenuBar
-    if (ImGui::BeginMainMenuBar()) {
-        if (ImGui::BeginMenu("Scene")) {
-            if (ImGui::BeginMenu("Change")) {
-                SceneManager* sceneManager = SceneManager::getInstance();
-                for (auto& [name, index] : sceneManager->sceneIndexs_) {
-                    if (ImGui::MenuItem(name.c_str())) {
-                        sceneManager->changeScene(name);
-                        break;
+    if (isActive_) {
+        // MainMenuBar
+        if (ImGui::BeginMainMenuBar()) {
+            if (ImGui::BeginMenu("Scene")) {
+                if (ImGui::BeginMenu("Change")) {
+                    SceneManager* sceneManager = SceneManager::getInstance();
+                    for (auto& [name, index] : sceneManager->sceneIndexs_) {
+                        if (ImGui::MenuItem(name.c_str())) {
+                            sceneManager->changeScene(name);
+                            break;
+                        }
                     }
+                    ImGui::EndMenu();
+                }
+                if (ImGui::MenuItem("Save")) {
+                    SceneManager::getInstance()->getCurrentScene()->SaveSceneEntity();
+                }
+
+                ImGui::EndMenu();
+            }
+            if (ImGui::BeginMenu("Editors")) {
+                if (ImGui::BeginMenu("ActiveState")) {
+                    ImGui::Checkbox("IsEdit", &isActive_);
+                    for (auto& [name, editor] : editors_) {
+                        ImGui::Checkbox(name.c_str(), &editorActive_[editor.get()]);
+                    }
+                    ImGui::EndMenu();
                 }
                 ImGui::EndMenu();
             }
-            if (ImGui::MenuItem("Save")) {
-                SceneManager::getInstance()->getCurrentScene()->SaveSceneEntity();
-            }
-
-            ImGui::EndMenu();
+            ImGui::EndMainMenuBar();
         }
-        if (ImGui::BeginMenu("Editors")) {
-            if (ImGui::BeginMenu("ActiveState")) {
-                ImGui::Checkbox("IsEdit", &isActive_);
-                for (auto& [name, editor] : editors_) {
-                    ImGui::Checkbox(name.c_str(), &editorActive_[editor.get()]);
+
+        CameraManager::getInstance()->DebugUpdate();
+
+        for (auto& [name, editor] : editors_) {
+            if (editorActive_[editor.get()]) {
+                editor->Update();
+            }
+        }
+    } else {
+        if (ImGui::BeginMainMenuBar()) {
+            if (ImGui::BeginMenu("Debug")) {
+                if (ImGui::MenuItem("EndDebug")) {
+                    isActive_ = true;
                 }
                 ImGui::EndMenu();
             }
-            ImGui::EndMenu();
-        }
-        ImGui::EndMainMenuBar();
-    }
-
-    if (!isActive_) {
-        return;
-    }
-
-    CameraManager::getInstance()->DebugUpdate();
-
-    for (auto& [name, editor] : editors_) {
-        if (editorActive_[editor.get()]) {
-            editor->Update();
+            ImGui::EndMainMenuBar();
         }
     }
 }

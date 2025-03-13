@@ -33,7 +33,7 @@ public:
     };
 
     template <int dim, typename valueType>
-    void WriteVec(const Vector<dim, valueType>& _data);
+    void Write(const Vector<dim, valueType>& _data);
 
 private:
     std::string directory_;
@@ -67,7 +67,7 @@ public:
     };
 
     template <int dim, typename valueType>
-    void ReadVec(Vector<dim, valueType>& _data);
+    void Read(Vector<dim, valueType>& _data);
 
 private:
     std::string directory_;
@@ -110,14 +110,14 @@ inline void BinaryReader::Read<std::string>(std::string& _data) {
 #pragma region "Vector"
 // Vector
 template <int dim, typename valueType>
-inline void BinaryWriter::WriteVec(const Vector<dim, valueType>& _data) {
+inline void BinaryWriter::Write(const Vector<dim, valueType>& _data) {
     for (size_t i = 0; i < dim; i++) {
         this->Write<valueType>(_data.v[i]);
     }
 }
 
 template <int dim, typename valueType>
-inline void BinaryReader::ReadVec(Vector<dim, valueType>& _data) {
+inline void BinaryReader::Read(Vector<dim, valueType>& _data) {
     for (size_t i = 0; i < dim; i++) {
         this->Read<valueType>(_data.v[i]);
     }

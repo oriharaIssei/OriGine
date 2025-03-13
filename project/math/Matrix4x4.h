@@ -39,7 +39,7 @@ private:
 };
 
 namespace MakeMatrix {
-Matrix4x4 Identity();
+const Matrix4x4 Identity();
 
 Matrix4x4 Translate(const Vec3f& vec);
 Matrix4x4 Scale(const Vec3f& vec);

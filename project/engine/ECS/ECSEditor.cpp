@@ -10,8 +10,7 @@
 /// externals
 #include <imgui/imgui.h>
 
-ECSEditor::ECSEditor() {
-}
+ECSEditor::ECSEditor() {}
 
 ECSEditor::~ECSEditor() {
     for (int32_t i = 0; i < int32_t(SystemType::Count); i++) {

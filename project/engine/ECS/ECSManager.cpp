@@ -2,9 +2,9 @@
 
 /// engine
 // module
-#include "sceneManager/SceneManager.h"
 #include "camera/CameraManager.h"
 #include "editor/EngineEditor.h"
+#include "sceneManager/SceneManager.h"
 // dx12Object
 #include "engine/directX12/RenderTexture.h"
 
@@ -17,8 +17,22 @@ void EntityComponentSystemManager::Init() {
 }
 
 void EntityComponentSystemManager::Run() {
-#ifdef _DEBUG
+    /// =================================================================================================
+    // 削除予定のエンティティを削除
+    /// =================================================================================================
+    while (!deleteEntityQueue_.empty()) {
+        GameEntity* entity = deleteEntityQueue_.front();
+        deleteEntityQueue_.pop();
 
+        for (auto& [compTypeName, compArray] : componentArrays_) {
+            compArray->clearComponent(entity);
+        }
+
+        entity->setAlive(false); // エンティティを無効化
+        freeEntityIndex_.push_back(entity->getID()); // エンティティIDを再利用可能にする
+    }
+
+#ifdef _DEBUG
     if (EngineEditor::getInstance()->isActive()) {
         // Debug,Edit 用システム追加予定
         CameraManager::getInstance()->DebugUpdate();
@@ -99,4 +113,8 @@ void EntityComponentSystemManager::ComponentArraysInit() {
     for (auto& [componentID, componentArray] : componentArrays_) {
         componentArray->Init(entityCapacity_);
     }
+}
+
+void DestroyEntity(GameEntity* _entity) {
+    ECSManager::getInstance()->destroyEntity(_entity);
 }

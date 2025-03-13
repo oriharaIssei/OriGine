@@ -16,10 +16,10 @@ class GameEntity;
 ///</summary>
 class IComponent {
 public:
-    IComponent(GameEntity* _hostEntity);
+    IComponent();
     virtual ~IComponent();
 
-    virtual void Init() = 0;
+    virtual void Init(GameEntity* _entity) = 0;
 
     virtual bool Edit()                      = 0;
     virtual void Save(BinaryWriter& _writer) = 0;
@@ -27,11 +27,6 @@ public:
 
     virtual void Finalize() = 0;
 
-protected:
-    GameEntity* hostEntity_ = nullptr;
-
-public:
-    GameEntity* getHostEntity() { return hostEntity_; }
 };
 
 /// <summary>

@@ -15,10 +15,10 @@
 class CameraTransform
     : public IComponent {
 public:
-    CameraTransform(GameEntity* _hostEntity = nullptr) : IComponent(_hostEntity) {}
+    CameraTransform() {}
     ~CameraTransform() {}
 
-    void Init();
+    void Init(GameEntity* _hostEntity = nullptr);
 
     bool Edit() override;
     void Save(BinaryWriter& _writer) override;

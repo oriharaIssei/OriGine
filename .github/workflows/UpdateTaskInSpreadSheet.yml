@@ -1,0 +1,32 @@
+name: Send Task Update to GAS
+
+on:
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  update-task:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Extract PR Details
+        id: pr_details
+        run: |
+          PR_MESSAGE="${{ github.event.pull_request.body }}"
+          TASK_ID=$(echo "$PR_MESSAGE" | grep -oP '(?<=\[)\d+(?=,)' || echo "UNKNOWN")
+          STATUS=$(echo "$PR_MESSAGE" | grep -oP '(?<=,)\w+(?=\])' || echo "UNKNOWN")
+          echo "TASK_ID=$TASK_ID" >> $GITHUB_ENV
+          echo "STATUS=$STATUS" >> $GITHUB_ENV
+          echo "DONE_DATE=$(date -u +'%Y-%m-%d')" >> $GITHUB_ENV
+
+      - name: Send Data to GAS
+        run: |
+          curl -X POST "$GAS_WEBHOOK_URL" \
+            -H "Content-Type: application/json" \
+            -d "{\n              \"taskId\": \"$TASK_ID\",\n              \"pullData\": \"$DONE_DATE\",\n              \"status\": \"$STATUS\"\n            }"
+        env:
+          GAS_WEBHOOK_URL: "https://script.google.com/macros/s/AKfycbzLhaAySiujNDbVwmbcXkRJerOANa3Q1eavLsfAWxMxEg4DATHzkoE9TY-XP6Epe1-I/exec"

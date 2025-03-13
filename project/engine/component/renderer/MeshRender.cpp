@@ -18,33 +18,8 @@
 // ↓ DefaultMeshRenderer
 //----------------------------------------------------------------------------------------------------------
 #pragma region "ModelMeshRenderer"
-ModelMeshRenderer::ModelMeshRenderer(GameEntity* _hostEntity, const std::vector<TextureMesh>& _meshGroup)
-    : MeshRenderer<TextureMesh, TextureVertexData>(_hostEntity, _meshGroup) {
-    Init();
-
-    Transform* entityTransform = getComponent<Transform>(_hostEntity);
-    if (entityTransform == nullptr) {
-        return;
-    }
-    for (auto& transform : meshTransformBuff_) {
-        transform->parent = entityTransform;
-    }
-}
-
-ModelMeshRenderer::ModelMeshRenderer(GameEntity* _hostEntity, const std::shared_ptr<std::vector<TextureMesh>>& _meshGroup)
-    : MeshRenderer<TextureMesh, TextureVertexData>(_hostEntity, _meshGroup) {
-    Init();
-
-    Transform* entityTransform = getComponent<Transform>(_hostEntity);
-    if (entityTransform == nullptr) {
-        return;
-    }
-    for (auto& transform : meshTransformBuff_) {
-        transform->parent = entityTransform;
-    }
-}
-
-void ModelMeshRenderer::Init() {
+ModelMeshRenderer::ModelMeshRenderer(const std::vector<TextureMesh>& _meshGroup)
+    : MeshRenderer<TextureMesh, TextureVertexData>(_meshGroup) {
     if (meshTransformBuff_.size() != meshGroup_->size()) {
         meshTransformBuff_.resize(meshGroup_->size());
     }
@@ -57,12 +32,48 @@ void ModelMeshRenderer::Init() {
     for (size_t i = 0; i < meshGroup_->size(); ++i) {
         meshTransformBuff_[i].CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
 
-        meshTransformBuff_[i]->Init();
         meshTransformBuff_[i]->Update();
         meshTransformBuff_[i].ConvertToBuffer();
 
         meshMaterialBuff_[i]  = Engine::getInstance()->getMaterialManager()->getMaterial("white");
         meshTextureNumber_[i] = 0;
+    }
+}
+
+ModelMeshRenderer::ModelMeshRenderer(const std::shared_ptr<std::vector<TextureMesh>>& _meshGroup)
+    : MeshRenderer<TextureMesh, TextureVertexData>(_meshGroup) {
+    if (meshTransformBuff_.size() != meshGroup_->size()) {
+        meshTransformBuff_.resize(meshGroup_->size());
+    }
+    if (meshMaterialBuff_.size() != meshGroup_->size()) {
+        meshMaterialBuff_.resize(meshGroup_->size());
+    }
+    if (meshTextureNumber_.size() != meshGroup_->size()) {
+        meshTextureNumber_.resize(meshGroup_->size());
+    }
+    for (size_t i = 0; i < meshGroup_->size(); ++i) {
+        meshTransformBuff_[i].CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+
+        meshTransformBuff_[i]->Update();
+        meshTransformBuff_[i].ConvertToBuffer();
+
+        meshMaterialBuff_[i]  = Engine::getInstance()->getMaterialManager()->getMaterial("white");
+        meshTextureNumber_[i] = 0;
+    }
+}
+
+void ModelMeshRenderer::Init(GameEntity* _hostEntity) {
+    MeshRenderer::Init(_hostEntity);
+
+    Transform* entityTransform = getComponent<Transform>(_hostEntity);
+    meshTransformBuff_.resize(meshGroup_->size());
+    for (int32_t i = 0; i < meshGroup_->size(); ++i) {
+        if (meshTransformBuff_[i]->parent == nullptr) {
+            meshTransformBuff_[i]->parent = entityTransform;
+        }
+
+        meshTransformBuff_[i].openData_.Update();
+        meshTransformBuff_[i].ConvertToBuffer();
     }
 }
 
@@ -100,7 +111,7 @@ bool ModelMeshRenderer::Edit() {
 
             this->Finalize();
             meshGroup_ = std::make_shared<std::vector<TextureMesh>>();
-            CreateModelMeshRenderer(this, hostEntity_, directory_, fileName_);
+            CreateModelMeshRenderer(this, this->hostEntity_, directory_, fileName_);
 
             isChange = true;
         }
@@ -126,41 +137,15 @@ void ModelMeshRenderer::Load(BinaryReader& _reader) {
     }
 }
 
-
 #pragma endregion
 
 #pragma region "PrimitiveMeshRenderer"
-PrimitiveMeshRenderer::PrimitiveMeshRenderer(GameEntity* _hostEntity) : MeshRenderer<PrimitiveMesh, PrimitiveVertexData>(_hostEntity) {}
+PrimitiveMeshRenderer::PrimitiveMeshRenderer()
+    : MeshRenderer<PrimitiveMesh, PrimitiveVertexData>() {}
 
-PrimitiveMeshRenderer::PrimitiveMeshRenderer(GameEntity* _hostEntity, const std::vector<PrimitiveMesh>& _meshGroup)
-    : MeshRenderer<PrimitiveMesh, PrimitiveVertexData>(_hostEntity, _meshGroup) {
-    Init();
+PrimitiveMeshRenderer::PrimitiveMeshRenderer(const std::vector<PrimitiveMesh>& _meshGroup)
+    : MeshRenderer<PrimitiveMesh, PrimitiveVertexData>(_meshGroup) {
 
-    Transform* entityTransform = getComponent<Transform>(_hostEntity);
-    if (entityTransform == nullptr) {
-        return;
-    }
-    for (auto& transform : meshTransformBuff_) {
-        transform->parent = entityTransform;
-    }
-}
-
-PrimitiveMeshRenderer::PrimitiveMeshRenderer(GameEntity* _hostEntity, const std::shared_ptr<std::vector<PrimitiveMesh>>& _meshGroup)
-    : MeshRenderer<PrimitiveMesh, PrimitiveVertexData>(_hostEntity, _meshGroup) {
-    Init();
-
-    Transform* entityTransform = getComponent<Transform>(_hostEntity);
-    if (entityTransform == nullptr) {
-        return;
-    }
-    for (auto& transform : meshTransformBuff_) {
-        transform->parent = entityTransform;
-    }
-}
-
-PrimitiveMeshRenderer::~PrimitiveMeshRenderer() {}
-
-void PrimitiveMeshRenderer::Init() {
     if (meshTransformBuff_.size() != meshGroup_->size()) {
         meshTransformBuff_.resize(meshGroup_->size());
     }
@@ -169,8 +154,36 @@ void PrimitiveMeshRenderer::Init() {
     }
     for (size_t i = 0; i < meshGroup_->size(); ++i) {
         meshTransformBuff_[i].CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
-        meshTransformBuff_[i].openData_.Init();
         meshMaterialBuff_[i] = Engine::getInstance()->getMaterialManager()->getMaterial("white");
+    }
+}
+
+PrimitiveMeshRenderer::PrimitiveMeshRenderer(const std::shared_ptr<std::vector<PrimitiveMesh>>& _meshGroup)
+    : MeshRenderer<PrimitiveMesh, PrimitiveVertexData>(_meshGroup) {
+
+    if (meshTransformBuff_.size() != meshGroup_->size()) {
+        meshTransformBuff_.resize(meshGroup_->size());
+    }
+    if (meshMaterialBuff_.size() != meshGroup_->size()) {
+        meshMaterialBuff_.resize(meshGroup_->size());
+    }
+    for (size_t i = 0; i < meshGroup_->size(); ++i) {
+        meshTransformBuff_[i].CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+        meshMaterialBuff_[i] = Engine::getInstance()->getMaterialManager()->getMaterial("white");
+    }
+}
+
+PrimitiveMeshRenderer::~PrimitiveMeshRenderer() {}
+
+void PrimitiveMeshRenderer::Init(GameEntity* _hostEntity) {
+    Transform* entityTransform = getComponent<Transform>(_hostEntity);
+    for (int32_t i = 0; i < meshGroup_->size(); ++i) {
+        if (meshTransformBuff_[i]->parent == nullptr) {
+            meshTransformBuff_[i]->parent = entityTransform;
+        }
+
+        meshTransformBuff_[i].openData_.Update();
+        meshTransformBuff_[i].ConvertToBuffer();
     }
 }
 
@@ -329,7 +342,7 @@ void CreateModelMeshRenderer(ModelMeshRenderer* _renderer, GameEntity* _hostEnti
 
     bool isLoaded = false;
     // -------------------- Modelの読み込み --------------------//
-    ModelManager::getInstance()->Create(_directory, _filenName, [&_renderer, &isLoaded](Model* model) {
+    ModelManager::getInstance()->Create(_directory, _filenName, [&_hostEntity, &_renderer, &isLoaded](Model* model) {
         // 再帰ラムダをstd::functionとして定義
         std::function<void(ModelMeshRenderer*, Model*, ModelNode*)> CreateMeshGroupFormNode;
         CreateMeshGroupFormNode = [&](ModelMeshRenderer* _meshRenderer, Model* _model, ModelNode* _node) {
@@ -344,7 +357,7 @@ void CreateModelMeshRenderer(ModelMeshRenderer* _renderer, GameEntity* _hostEnti
         };
 
         CreateMeshGroupFormNode(_renderer, model, &model->meshData_->rootNode);
-        _renderer->Init();
+        _renderer->Init(_hostEntity);
 
         // マテリアルの設定
         for (uint32_t i = 0; i < static_cast<uint32_t>(model->materialData_.size()); ++i) {

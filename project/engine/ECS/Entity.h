@@ -29,7 +29,16 @@ private:
     int32_t id_           = -1;
     std::string dataType_ = "UNKNOWN";
 
+    bool isAlive_ = true;
+
 public:
+    void setAlive(bool _isAlive) {
+        isAlive_ = _isAlive;
+    }
+    void deleteEntity() {
+        isAlive_ = false;
+    }
+
     /// <summary>
     /// エンティティのIDを取得する
     /// </summary>

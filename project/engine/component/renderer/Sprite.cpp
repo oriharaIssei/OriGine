@@ -18,7 +18,9 @@
 #include "imgui/imgui.h"
 #endif // _DEBUG
 
-void SpriteRenderer::Init() {
+void SpriteRenderer::Init(GameEntity* _hostEntity) {
+    MeshRenderer::Init(_hostEntity);
+
     // buffer作成
     spriteBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
 

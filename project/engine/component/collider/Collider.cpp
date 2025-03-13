@@ -1,6 +1,6 @@
 #include "Collider.h"
 
-ICollider::ICollider(GameEntity* _hostEntity) : IComponent(_hostEntity) {
+void ICollider::Init(GameEntity* _hostEntity) {
     this->transform_.parent = getComponent<Transform>(_hostEntity);
 }
 

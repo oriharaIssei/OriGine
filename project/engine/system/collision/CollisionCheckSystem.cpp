@@ -124,7 +124,7 @@ void CollisionCheckSystem::UpdateEntity(GameEntity* _entity) {
     auto aEntityAabbColliders   = getComponents<AABBCollider>(_entity);
     auto aEntitySphereColliders = getComponents<SphereCollider>(_entity);
 
-    // ラムダ関数: 2つのリスト間の衝突判定をまとめる
+    // 2つのリスト間の衝突判定をまとめる
     auto checkCollisions = [&](auto& listA, auto& listB, GameEntity* aEntity, GameEntity* bEntity) {
         for (auto colliderA = listA->begin(); colliderA != listA->end(); ++colliderA) {
             for (auto colliderB = listB->begin(); colliderB != listB->end(); ++colliderB) {

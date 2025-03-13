@@ -28,10 +28,10 @@ enum class CollisionState {
 class ICollider
     : public IComponent {
 public:
-    ICollider(GameEntity* _hostEntity);
+    ICollider() {}
     virtual ~ICollider() {}
 
-    virtual void Init()     = 0;
+    virtual void Init(GameEntity* _hostEntity);
     virtual void Finalize() = 0;
 
     virtual bool Edit()                      = 0;
@@ -60,16 +60,17 @@ public: // accessor
         else
             this->collisionStateMap_[_other] = CollisionState::Stay;
     }
+    const std::map<GameEntity*, CollisionState>& getCollisionStateMap() { return collisionStateMap_; }
 };
 
 template <IsShape ShapeClass>
 class Collider
     : public ICollider {
 public:
-    Collider(GameEntity* _hostEntity)
-        : ICollider(_hostEntity) {}
-
-    void Init() override {}
+    Collider() {}
+    void Init(GameEntity* _hostEntity) override {
+        ICollider::Init(_hostEntity);
+    }
     void Finalize() override {
         this->collisionStateMap_.clear();
         this->preCollisionStateMap_.clear();
@@ -94,8 +95,8 @@ public:
 class AABBCollider
     : public Collider<AABB> {
 public:
-    AABBCollider(GameEntity* _hostEntity)
-        : Collider<AABB>(_hostEntity) {}
+    AABBCollider()
+        : Collider<AABB>() {}
     ~AABBCollider() {}
 
     bool Edit() override {
@@ -115,13 +116,13 @@ public:
     }
     void Save(BinaryWriter& _writer) override {
         _writer.Write(isActive_);
-        _writer.WriteVec(shape_.min_);
-        _writer.WriteVec(shape_.max_);
+        _writer.Write<3, float>(shape_.min_);
+        _writer.Write<3, float>(shape_.max_);
     }
     void Load(BinaryReader& _reader) override {
         _reader.Read(isActive_);
-        _reader.ReadVec(shape_.min_);
-        _reader.ReadVec(shape_.max_);
+        _reader.Read<3, float>(shape_.min_);
+        _reader.Read<3, float>(shape_.max_);
     }
 
     void StartCollision() override {
@@ -142,7 +143,7 @@ public:
 class SphereCollider
     : public Collider<Sphere> {
 public:
-    SphereCollider(GameEntity* _hostEntity) : Collider<Sphere>(_hostEntity) {}
+    SphereCollider() : Collider<Sphere>() {}
     ~SphereCollider() {}
 
     bool Edit() override {
@@ -162,12 +163,12 @@ public:
     }
     void Save(BinaryWriter& _writer) override {
         _writer.Write(isActive_);
-        _writer.WriteVec(shape_.center_);
+        _writer.Write<3, float>(shape_.center_);
         _writer.Write(shape_.radius_);
     }
     void Load(BinaryReader& _reader) override {
         _reader.Read(isActive_);
-        _reader.ReadVec(shape_.center_);
+        _reader.Read<3, float>(shape_.center_);
         _reader.Read(shape_.radius_);
     }
 

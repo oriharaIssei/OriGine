@@ -19,14 +19,13 @@
 struct Transform
     : public IComponent {
 public:
-    Transform(GameEntity* _hostEntity = nullptr);
-    Transform(const Vec3f& _scale, const Quaternion& _rotate, const Vec3f& _translate, GameEntity* _hostEntity = nullptr)
-        : scale(_scale), rotate(_rotate), translate(_translate), worldMat(MakeMatrix::Identity()), IComponent(_hostEntity) {}
+    Transform();
+    Transform(const Vec3f& _scale, const Quaternion& _rotate, const Vec3f& _translate)
+        : scale(_scale), rotate(_rotate), translate(_translate), worldMat(MakeMatrix::Identity()) {}
     ~Transform() {}
 
-    void Init() override;
+    void Init(GameEntity* _entity) override;
     void Update();
-
     bool Edit() override;
     void Save(BinaryWriter& _writer) override;
     void Load(BinaryReader& _reader) override;
@@ -34,10 +33,10 @@ public:
     void Finalize() override {};
 
 public:
-    Vec3f scale       = {1.0f, 1.0f, 1.0f};
-    Quaternion rotate = {0.0f, 0.0f, 0.0f, 1.0f};
-    Vec3f translate   = {0.0f, 0.0f, 0.0f};
-    Matrix4x4 worldMat;
+    Vec3f scale        = {1.0f, 1.0f, 1.0f};
+    Quaternion rotate  = {0.0f, 0.0f, 0.0f, 1.0f};
+    Vec3f translate    = {0.0f, 0.0f, 0.0f};
+    Matrix4x4 worldMat = MakeMatrix::Identity();
 
     Transform* parent = nullptr;
 

@@ -7,11 +7,9 @@
 #include "imgui/imgui.h"
 #endif // _DEBUG
 
-Transform::Transform(GameEntity* _hostEntity) : IComponent(_hostEntity), worldMat(MakeMatrix::Identity()) {}
+Transform::Transform(){}
 
-void Transform::Init() {
-    worldMat = MakeMatrix::Identity();
-}
+void Transform::Init(GameEntity* _entity) {}
 
 void Transform::Update() {
     worldMat = MakeMatrix::Affine(scale, rotate, translate);
@@ -41,14 +39,14 @@ bool Transform::Edit() {
 }
 
 void Transform::Save(BinaryWriter& _writer) {
-    _writer.WriteVec(scale);
-    _writer.WriteVec(rotate);
-    _writer.WriteVec(translate);
+    _writer.Write<3, float>(scale);
+    _writer.Write<4, float>(rotate);
+    _writer.Write<3, float>(translate);
 }
 
 void Transform::Load(BinaryReader& _reader) {
-    _reader.ReadVec(scale);
-    _reader.ReadVec(rotate);
-    _reader.ReadVec(translate);
+    _reader.Read<3, float>(scale);
+    _reader.Read<4, float>(rotate);
+    _reader.Read<3, float>(translate);
     Update();
 }

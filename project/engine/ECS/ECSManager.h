@@ -7,6 +7,7 @@
 // container
 #include <array>
 #include <map>
+#include <queue>
 #include <vector>
 
 /// engine
@@ -37,10 +38,15 @@ private:
     EntityComponentSystemManager* operator=(const EntityComponentSystemManager&) = delete;
 
 private:
+    /// <summary>
+    /// エンティティ配列
+    /// </summary>
     std::vector<GameEntity> entities_;
     std::vector<uint32_t> freeEntityIndex_;
 
     uint32_t entityCapacity_ = 100;
+
+    std::queue<GameEntity*> deleteEntityQueue_;
 
     /// <summary>
     /// コンポーネント配列
@@ -118,9 +124,8 @@ public: // ============== accessor ==============//
     /// <summary>
     /// エンティティを削除する
     /// </summary>
-    void destroyEntity(uint32_t _entityIndex) {
-        freeEntityIndex_.push_back(_entityIndex);
-        entities_[_entityIndex] = GameEntity("UNKNOWN", -1);
+    void destroyEntity(GameEntity* _entityIndex) {
+        deleteEntityQueue_.push(_entityIndex);
     }
 
     void clearEntity() {
@@ -295,6 +300,22 @@ std::vector<ComponentType>* getComponents(GameEntity* _entity) {
 template <IsComponent... ComponentArgs>
 GameEntity* CreateEntity(const std::string& _dataType, ComponentArgs... _args) {
     uint32_t entityIndex = ECSManager::getInstance()->registerEntity(_dataType);
+    GameEntity* entity   = ECSManager::getInstance()->getEntity(entityIndex);
+
     (ECSManager::getInstance()->template addComponent<ComponentArgs>(entityIndex, _args), ...);
-    return ECSManager::getInstance()->getEntity(entityIndex);
+
+    // コンポーネントの初期化
+    ([&entity]<typename T>() {
+        auto components = ECSManager::getInstance()->template getComponents<T>(entity);
+        if (components) {
+            for (auto& component : *components) {
+                component.Init(entity);
+            }
+        }
+    }.template operator()<ComponentArgs>(),
+        ...);
+
+    return entity;
 }
+
+void DestroyEntity(GameEntity* _entity);

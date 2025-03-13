@@ -53,13 +53,13 @@ using SpriteMesh = Mesh<SpriteVertexData>;
 class SpriteRenderer
     : public MeshRenderer<SpriteMesh, SpriteVertexData> {
 public:
-    SpriteRenderer(GameEntity* _hostEntity) : MeshRenderer<SpriteMesh, SpriteVertexData>(_hostEntity) {}
+    SpriteRenderer() : MeshRenderer<SpriteMesh, SpriteVertexData>() {}
     ~SpriteRenderer() {}
 
     ///< summary>
     /// 初期化
     ///</summary>
-    void Init() override;
+    void Init(GameEntity* _hostEntity) override;
 
     bool Edit() override;
     void Save(BinaryWriter& _writer) override {
@@ -69,9 +69,9 @@ public:
 
         _writer.Write(texturePath_);
 
-        _writer.WriteVec(textureLeftTop_);
-        _writer.WriteVec(textureSize_);
-        _writer.WriteVec(anchorPoint_);
+        _writer.Write<2,float>(textureLeftTop_);
+        _writer.Write<2,float>(textureSize_);
+        _writer.Write<2,float>(anchorPoint_);
 
         _writer.Write<bool>(isFlipX_);
         _writer.Write<bool>(isFlipY_);
@@ -86,9 +86,9 @@ public:
             textureNumber_ = TextureManager::LoadTexture(texturePath_);
         }
 
-        _reader.ReadVec(textureLeftTop_);
-        _reader.ReadVec(textureSize_);
-        _reader.ReadVec(anchorPoint_);
+        _reader.Read<2,float>(textureLeftTop_);
+        _reader.Read<2,float>(textureSize_);
+        _reader.Read<2,float>(anchorPoint_);
 
         _reader.Read<bool>(isFlipX_);
         _reader.Read<bool>(isFlipY_);

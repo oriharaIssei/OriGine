@@ -2,7 +2,8 @@
 
 #include <imgui/imgui.h>
 
-void CameraTransform::Init() {
+void CameraTransform::Init(GameEntity* _hostEntity) {
+    _hostEntity;
     UpdateMatrix();
 }
 
@@ -24,8 +25,8 @@ bool CameraTransform::Edit() {
 }
 
 void CameraTransform::Save(BinaryWriter& _writer) {
-    _writer.WriteVec(rotate);
-    _writer.WriteVec(translate);
+    _writer.Write<3, float>(rotate);
+    _writer.Write<3, float>(translate);
 
     _writer.Write(fovAngleY);
     _writer.Write(aspectRatio);
@@ -35,8 +36,8 @@ void CameraTransform::Save(BinaryWriter& _writer) {
 }
 
 void CameraTransform::Load(BinaryReader& _reader) {
-    _reader.ReadVec(rotate);
-    _reader.ReadVec(translate);
+    _reader.Read<3, float>(rotate);
+    _reader.Read<3, float>(translate);
 
     _reader.Read(fovAngleY);
     _reader.Read(aspectRatio);
