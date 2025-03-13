@@ -40,6 +40,44 @@
                     "PARENT_TYPE": "${input:parentType}"
                 }
             }
+        },
+        {
+            "label": "Add Task to Spreadsheet",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-ExecutionPolicy",
+                "Bypass",
+                "-Command",
+                "$date = Get-Date -Format 'yyyy-MM-dd';",
+                "$body = @{",
+                "    taskName=''${input:taskName}'';",
+                "    taskType=''${input:taskType}'';",
+                "    remarks=''${input:remarks}'';",
+                "    createdDate=$date",
+                "} | ConvertTo-Json -Compress;",
+                "Invoke-RestMethod -Uri 'https://script.google.com/macros/s/AKfycbzygTfZTN3BApVGc2HyeTC2B4NMVaeGjj8amX85f-zmAaYS9RaQ_LFeed2En_FyFwWi/exec' -Method Post -Body $body -ContentType 'application/json'"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Create Branch",
+            "type": "shell",
+            "command": "git",
+            "args": [
+                "checkout",
+                "-b",
+                "${input:taskName}"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "problemMatcher": []
         }
     ],
     "inputs": [
@@ -81,6 +119,21 @@
             "type": "promptString",
             "description": "Enter the inheritance type (public, protected, private) (optional)",
             "default": ""
+        },
+        {
+            "id": "taskName",
+            "type": "promptString",
+            "description": "Enter Task Name"
+        },
+        {
+            "id": "taskType",
+            "type": "promptString",
+            "description": "Enter Task Type"
+        },
+        {
+            "id": "remarks",
+            "type": "promptString",
+            "description": "Enter Remarks"
         }
     ]
 }
