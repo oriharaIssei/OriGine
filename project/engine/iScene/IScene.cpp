@@ -62,9 +62,11 @@ void IScene::registerSystems() {
     ecsManager->registerSystem<MoveSystemByRigidBody>();
 }
 
-void IScene::Finalize() {
+void IScene::Finalize(bool _isSave) {
 #ifdef _DEBUG
-    SaveSceneEntity();
+    if (_isSave) {
+        SaveSceneEntity();
+    }
 #endif
     sceneRtvArray_.reset();
     sceneSrvArray_.reset();
