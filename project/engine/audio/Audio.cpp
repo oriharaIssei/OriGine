@@ -8,7 +8,7 @@
 Microsoft::WRL::ComPtr<IXAudio2> Audio::xAudio2_;
 IXAudio2MasteringVoice* Audio::masterVoice_;
 
-void Audio::StaticInit(){
+void Audio::StaticInitialize(){
 	HRESULT result;
 
 	//===================================================================
@@ -28,7 +28,7 @@ void Audio::StaticFinalize(){
 	xAudio2_.Reset();
 }
 
-void Audio::Init(const std::string& fileName){
+void Audio::Initialize(const std::string& fileName){
 	soundData_ = LoadWave(fileName);
 }
 

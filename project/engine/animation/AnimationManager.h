@@ -22,7 +22,7 @@ public:
         return &instance;
     }
 
-    void Init();
+    void Initialize();
     void Finalize();
 
     /// <summary>

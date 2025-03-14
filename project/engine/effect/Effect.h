@@ -29,7 +29,7 @@ public:
     Effect(std::shared_ptr<DxSrvArray> _srvArray, const std::string& _name);
     ~Effect();
 
-    void Init();
+    void Initialize();
     void Update(float _deltaTime);
     void Draw();
     void Finalize();

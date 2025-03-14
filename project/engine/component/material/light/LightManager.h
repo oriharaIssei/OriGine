@@ -54,7 +54,7 @@ public:
     LightManager(const LightManager&)            = delete;
     LightManager& operator=(const LightManager&) = delete;
 
-    void Init();
+    void Initialize();
     void Update();
     void Finalize();
 
@@ -76,10 +76,9 @@ public:
     LightEditor();
     ~LightEditor();
 
-    void Init();
-
+    void Initialize();
     void Update() override;
-
+    void Finalize()override{}
 private:
     LightManager* lightManager_;
 };

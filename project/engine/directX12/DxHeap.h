@@ -14,7 +14,7 @@ public:
 	static const UINT srvHeapSize = 256;
 	static const UINT dsvHeapSize = 1;
 public:
-	void Init(ID3D12Device *device);
+	void Initialize(ID3D12Device *device);
 
 	void CompactRtvHeap(ID3D12Device *device,std::vector<std::pair<D3D12_CPU_DESCRIPTOR_HANDLE,uint32_t>> &usedDescriptorsArrayss);
 	void CompactSrvHeap(ID3D12Device *device,std::vector<std::pair<D3D12_CPU_DESCRIPTOR_HANDLE,uint32_t>> &usedDescriptorsArrays);

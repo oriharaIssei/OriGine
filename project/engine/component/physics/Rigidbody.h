@@ -12,7 +12,7 @@ public:
     Rigidbody();
     virtual ~Rigidbody() = default;
 
-    void Init(GameEntity* _entity) override;
+    void Initialize(GameEntity* _entity) override;
 
     virtual bool Edit();
     virtual void Save(BinaryWriter& _writer);

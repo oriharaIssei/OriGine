@@ -10,7 +10,7 @@ DxRtvArrayManager *DxRtvArrayManager::getInstance(){
 	return &instance;
 }
 
-void DxRtvArrayManager::Init(){
+void DxRtvArrayManager::Initialize(){
 	heapCondition_.push_back({nullptr,DxHeap::dsvHeapSize,0});
 }
 
@@ -26,7 +26,7 @@ void DxRtvArrayManager::Finalize(){
 std::shared_ptr<DxRtvArray> DxRtvArrayManager::Create(uint32_t size){
 	std::shared_ptr<DxRtvArray> dxRtvArray = std::make_shared<DxRtvArray>();
 	uint32_t locate = SearchEmptyLocation(size,dxRtvArray);
-	dxRtvArray->Init(size,locate);
+	dxRtvArray->Initialize(size,locate);
 	heapCondition_.push_back({dxRtvArray,size,locate});
 	return dxRtvArray;
 }

@@ -21,7 +21,7 @@ public:
     /// 初期化
     /// </summary>
     /// <param name="threadNum">開くスレッド数</param>
-    virtual void Init(int32_t threadNum);
+    virtual void Initialize(int32_t threadNum);
     /// <summary>
     /// 終了処理(必須)
     /// </summary>
@@ -61,7 +61,7 @@ public:
         : IThread() {}
     ~TaskThread() override {}
 
-    void Init(int32_t threadNum) override;
+    void Initialize(int32_t threadNum) override;
     void Finalize() override;
 
 private:
@@ -78,8 +78,8 @@ public:
 };
 
 template <HaveUpdate Task>
-inline void TaskThread<Task>::Init(int32_t threadNum) {
-    IThread::Init(threadNum);
+inline void TaskThread<Task>::Initialize(int32_t threadNum) {
+    IThread::Initialize(threadNum);
 }
 
 template <HaveUpdate Task>

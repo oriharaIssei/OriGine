@@ -33,7 +33,7 @@ std::unique_ptr<TaskThread<TextureManager::LoadTask>> TextureManager::loadThread
 std::unique_ptr<DxCommand> TextureManager::dxCommand_;
 
 #pragma region Texture
-void Texture::Init(const std::string& filePath, std::shared_ptr<DxSrvArray> srvArray, int textureIndex) {
+void Texture::Initialize(const std::string& filePath, std::shared_ptr<DxSrvArray> srvArray, int textureIndex) {
     loadState = LoadState::Loaded;
     path      = filePath;
     DxResource resource;
@@ -150,7 +150,7 @@ void Texture::ExecuteCommand(ID3D12Resource* resource) {
 
     // フェンスを使ってGPUが完了するのを待つ
     DxFence fence;
-    fence.Init(Engine::getInstance()->getDxDevice()->getDevice());
+    fence.Initialize(Engine::getInstance()->getDxDevice()->getDevice());
 
     fence.Signal(TextureManager::dxCommand_->getCommandQueue());
     fence.WaitForFence();
@@ -160,7 +160,7 @@ void Texture::ExecuteCommand(ID3D12Resource* resource) {
 #pragma endregion
 
 #pragma region "Manager"
-void TextureManager::Init() {
+void TextureManager::Initialize() {
     CoInitializeEx(0, COINIT_MULTITHREADED);
 
     DxHeap* heap = DxHeap::getInstance();
@@ -168,7 +168,7 @@ void TextureManager::Init() {
     dxSrvArray_ = DxSrvArrayManager::getInstance()->Create(maxTextureSize_);
 
     loadThread_ = std::make_unique<TaskThread<LoadTask>>();
-    loadThread_->Init(1);
+    loadThread_->Initialize(1);
 
     // コマンドキュー、コマンドアロケーター、コマンドリストの初期化
     D3D12_COMMAND_QUEUE_DESC queueDesc = {};
@@ -178,7 +178,7 @@ void TextureManager::Init() {
     queueDesc.NodeMask                 = 0;
 
     dxCommand_ = std::make_unique<DxCommand>();
-    dxCommand_->Init( "TextureManager", "TextureManager");
+    dxCommand_->Initialize( "TextureManager", "TextureManager");
     // load中のテクスチャにはこれをはっつける
     LoadTexture("resource/Texture/white1x1.png");
 }
@@ -230,7 +230,7 @@ void TextureManager::UnloadTexture(uint32_t id) {
 #pragma region "LoadTask"
 void TextureManager::LoadTask::Update() {
     std::weak_ptr<DxSrvArray> dxSrvArray = dxSrvArray_;
-    texture->Init(filePath, dxSrvArray.lock(), textureIndex);
+    texture->Initialize(filePath, dxSrvArray.lock(), textureIndex);
 
     if (callBack) {
         callBack(textureIndex);

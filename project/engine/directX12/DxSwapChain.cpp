@@ -8,7 +8,7 @@
 
 #include "directX12/DxRtvArrayManager.h"
 
-void DxSwapChain::Init(const WinApp *winApp,const DxDevice *device,const DxCommand *command){
+void DxSwapChain::Initialize(const WinApp *winApp,const DxDevice *device,const DxCommand *command){
 	///================================================
 	///	SwapChain の生成
 	///================================================

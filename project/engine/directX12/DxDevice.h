@@ -7,7 +7,7 @@
 
 class DxDevice{
 public:
-	void Init();
+	void Initialize();
 	void Finalize();
 private:
 	Microsoft::WRL::ComPtr<IDXGIFactory7> dxgiFactory_ = nullptr;

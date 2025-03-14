@@ -24,7 +24,7 @@ public:
         : scale(_scale), rotate(_rotate), translate(_translate), worldMat(MakeMatrix::Identity()) {}
     ~Transform() {}
 
-    void Init(GameEntity* _entity) override;
+    void Initialize(GameEntity* _entity) override;
     void Update();
     bool Edit() override;
     void Save(BinaryWriter& _writer) override;

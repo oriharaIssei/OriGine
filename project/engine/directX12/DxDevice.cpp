@@ -4,7 +4,7 @@
 
 #include "logger/Logger.h"
 
-void DxDevice::Init() {
+void DxDevice::Initialize() {
 	HRESULT result;
 
 	///================================================

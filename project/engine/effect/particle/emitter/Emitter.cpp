@@ -73,7 +73,7 @@ Emitter::~Emitter() {
 static std::list<std::pair<std::string, std::string>> objectFiles  = MyFileSystem::SearchFile("resource", "obj", false);
 static std::list<std::pair<std::string, std::string>> textureFiles = MyFileSystem::SearchFile("resource", "png", false);
 
-void Emitter::Init() {
+void Emitter::Initialize() {
     { // Initialize DrawingData Size
         CalculateMaxSize();
         structuredTransform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice(), srvArray_, particleMaxSize_);
@@ -634,7 +634,7 @@ void Emitter::SpawnParticle() {
 
         // Particle 初期化
         std::unique_ptr<Particle>& spawnedParticle = particles_.emplace_back<std::unique_ptr<Particle>>(std::make_unique<Particle>());
-        spawnedParticle->Init(
+        spawnedParticle->Initialize(
             transform,
             startParticleVelocityMin_,
             startParticleVelocityMax_,

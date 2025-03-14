@@ -25,9 +25,9 @@ uint32_t PrimitiveDrawer::lineInstanceVal_                = 0;
 
 BlendMode PrimitiveDrawer::currentBlendMode_ = BlendMode::Alpha;
 
-void PrimitiveDrawer::Init() {
+void PrimitiveDrawer::Initialize() {
     dxCommand_ = std::make_unique<DxCommand>();
-    dxCommand_->Init("main", "main");
+    dxCommand_->Initialize("main", "main");
 
     /*trianglePsoKeys_ = {
         "Prim_Blend_None",
@@ -51,7 +51,7 @@ void PrimitiveDrawer::Init() {
     CreatePso();
 
     lineMesh_ = std::make_unique<PrimitiveMesh>();
-    lineMesh_->Init(2 * 600, 0);
+    lineMesh_->Initialize(2 * 600, 0);
     lineInstanceVal_ = 0;
 
     // triangleMesh_ = std::make_unique<PrimitiveObject3dMesh>();

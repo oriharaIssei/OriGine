@@ -14,7 +14,7 @@ GameCamera::GameCamera()
 
 GameCamera::~GameCamera() {}
 
-void GameCamera::Init() {
+void GameCamera::Initialize() {
     cameraTransform_.translate = {0.0f, 0.0f, -10.0f};
     cameraTransform_.rotate    = {0.0f, 0.0f, 0.0f};
 }

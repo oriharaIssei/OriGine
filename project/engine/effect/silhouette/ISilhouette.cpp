@@ -7,7 +7,7 @@ ISilhouette::ISilhouette(SilhouetteType _type)
 ISilhouette::~ISilhouette() {
 }
 
-void ISilhouette::Init() {
+void ISilhouette::Initialize() {
 }
 
 void ISilhouette::Finalize() {

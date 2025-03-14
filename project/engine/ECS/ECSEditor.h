@@ -19,12 +19,13 @@ public:
     ECSEditor();
     ~ECSEditor();
 
-    void Init();
+    void Initialize() override;
     void Update() override;
+    void Finalize() override;
 
 private:
     void SelectEntity();
-    void EditComponent();
+    void EditEntity();
     void WorkerSystemList();
 
     /// <summary>
@@ -42,7 +43,8 @@ private:
     ECSManager* ecsManager_ = nullptr;
 
     GameEntity* editEntity_ = nullptr;
-    std::vector<IComponent*> editEntityComponents_;
+    std::vector<std::pair<std::string, IComponent*>> editEntityComponents_;
+    std::array<std::vector<std::pair<std::string, ISystem*>>, int32_t(SystemType::Count)> editEntitySystems_;
 
     std::array<std::vector<std::pair<std::string, ISystem*>>, int32_t(SystemType::Count)> workSystemList_;
 
@@ -60,11 +62,11 @@ public:
         editEntity_ = _entity;
     }
 
-    std::vector<IComponent*> getEditComponents() const {
+   std::vector<std::pair<std::string, IComponent*>>& customEditComponents() {
         return editEntityComponents_;
     }
-    void setEditComponents(const std::vector<IComponent*>& _components) {
-        editEntityComponents_ = _components;
+    std::array<std::vector<std::pair<std::string, ISystem*>>, int32_t(SystemType::Count)>& customEditEntitySystems() {
+        return editEntitySystems_;
     }
 };
 
@@ -78,12 +80,8 @@ public:
     }
     ~SelectEntityCommand() {}
 
-    void Execute() override {
-        ecsEditor_->setEditEntity(nextEntity_);
-    }
-    void Undo() override {
-        ecsEditor_->setEditEntity(preEntity_);
-    }
+    void Execute() override;
+    void Undo() override ;
 
 private:
     ECSEditor* ecsEditor_;

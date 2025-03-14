@@ -2,7 +2,7 @@
 
 #include <imgui/imgui.h>
 
-void CameraTransform::Init(GameEntity* _hostEntity) {
+void CameraTransform::Initialize(GameEntity* _hostEntity) {
     _hostEntity;
     UpdateMatrix();
 }

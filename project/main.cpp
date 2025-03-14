@@ -5,14 +5,15 @@
 #include <memory>
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
-    DxDebug debug;
-    std::unique_ptr<MyGame> gameApp = std::make_unique<MyGame>();
+    {
+        DxDebug debug;
+        std::unique_ptr<MyGame> gameApp = std::make_unique<MyGame>();
 
-    gameApp->Init();
+        gameApp->Initialize();
 
-    gameApp->Run();
+        gameApp->Run();
 
-    gameApp->Finalize();
-
+        gameApp->Finalize();
+    }
     return 0;
 }

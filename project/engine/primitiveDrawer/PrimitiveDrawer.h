@@ -24,7 +24,7 @@
 
 class PrimitiveDrawer {
 public:
-    static void Init();
+    static void Initialize();
     static void Finalize();
 
     static void Line(const Vec3f& p0,

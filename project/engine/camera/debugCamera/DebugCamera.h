@@ -42,7 +42,7 @@ class DebugCamera {
     };
 #pragma endregion
 public:
-    void Init();
+    void Initialize();
     void DebugUpdate();
     void Update();
 

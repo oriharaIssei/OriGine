@@ -6,7 +6,7 @@
 
 class DxDepthStencilView{
 public:
-	void Init(ID3D12Device *device,ID3D12DescriptorHeap *dsvHeap,UINT64 width,UINT height);
+	void Initialize(ID3D12Device *device,ID3D12DescriptorHeap *dsvHeap,UINT64 width,UINT height);
 	void Finalize();
 private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> dsv_;

@@ -11,7 +11,7 @@ DxSrvArrayManager *DxSrvArrayManager::getInstance(){
 	return &instance;
 }
 
-void DxSrvArrayManager::Init(){
+void DxSrvArrayManager::Initialize(){
 	heapCondition_.push_back({nullptr,DxHeap::srvHeapSize,0});
 }
 
@@ -27,7 +27,7 @@ void DxSrvArrayManager::Finalize(){
 std::shared_ptr<DxSrvArray> DxSrvArrayManager::Create(uint32_t size){
 	std::shared_ptr<DxSrvArray> dxSrvArray = std::make_shared<DxSrvArray>();
 	uint32_t locate = SearchEmptyLocation(size,dxSrvArray);
-	dxSrvArray->Init(size,locate);
+	dxSrvArray->Initialize(size,locate);
 	heapCondition_.push_back({dxSrvArray,size,locate});
 	return dxSrvArray;
 }

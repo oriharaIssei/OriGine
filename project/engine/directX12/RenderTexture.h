@@ -20,7 +20,7 @@ public:
 	~RenderTexture() = default;
 
 	static void Awake();
-	void Init(const Vec2f& textureSize,DXGI_FORMAT format,const Vec4f& _clearColor);
+	void Initialize(const Vec2f& textureSize,DXGI_FORMAT format,const Vec4f& _clearColor);
 	void Finalize();
 
 	/// <summary>

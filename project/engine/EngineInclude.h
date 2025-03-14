@@ -4,6 +4,12 @@
 #include "Engine.h"
 #endif // ENGINE_INCLUDE
 
+#ifdef RESOURCE_DIRECTORY
+#include <string>
+static const std::string kApplicationResourceDirectory = "application/resource";
+static const std::string kEngineResourceDirectory      = "engine/resource";
+#endif // RESOURCE_DIRECTORY
+
 #ifdef ENGINE_ECS
 #include "ECS/ECSManager.h"
 #include "ECS/Entity.h"

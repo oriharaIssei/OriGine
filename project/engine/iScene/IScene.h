@@ -14,7 +14,7 @@ public:
     IScene(const std::string& sceneName);
     virtual ~IScene();
 
-    virtual void Init();
+    virtual void Initialize();
     virtual void Finalize();
 
     virtual void LoadSceneEntity();

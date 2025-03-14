@@ -60,7 +60,7 @@
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir)math;$(ProjectDir)lib;$(ProjectDir)engine/ECS;$(ProjectDir)engine;$(ProjectDir)Application;$(ProjectDir);$(ProjectDir)externals;$(ProjectDir)externals/assimp/include;$(ProjectDir)externals/imgui_nodeEditor;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)math;$(ProjectDir)lib;$(ProjectDir)engine/ECS;$(ProjectDir)engine;$(ProjectDir)application;$(ProjectDir);$(ProjectDir)externals;$(ProjectDir)externals/assimp/include;$(ProjectDir)externals/imgui_nodeEditor;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
@@ -105,13 +105,13 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Application\FrameWork.cpp" />
-    <ClCompile Include="Application\MyGame.cpp" />
-    <ClCompile Include="Application\scene\GameScene.cpp" />
-    <ClCompile Include="Application\component\BulletSpawner.cpp" />
-    <ClCompile Include="Application\component\CharacterStatus.cpp" />
-    <ClCompile Include="Application\system\DeleteCharacterEntitySystem.cpp" />
-    <ClCompile Include="Application\system\CharacterOnCollision.cpp" />
+    <ClCompile Include="application\FrameWork.cpp" />
+    <ClCompile Include="application\MyGame.cpp" />
+    <ClCompile Include="application\scene\GameScene.cpp" />
+    <ClCompile Include="application\component\BulletSpawner.cpp" />
+    <ClCompile Include="application\component\CharacterStatus.cpp" />
+    <ClCompile Include="application\system\DeleteCharacterEntitySystem.cpp" />
+    <ClCompile Include="application\system\CharacterOnCollision.cpp" />
     <ClCompile Include="engine\system\movement\MoveSystemByRigidBody.cpp" />
     <ClCompile Include="engine\animation\Animation.cpp" />
     <ClCompile Include="engine\animation\AnimationManager.cpp" />
@@ -186,17 +186,17 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="math\Matrix4x4.cpp" />
     <ClCompile Include="math\MyEasing.cpp" />
     <ClCompile Include="math\Quaternion.cpp" />
-    <ClCompile Include="Application\system\ShotBulletSystem.cpp" />
-    <ClCompile Include="Application\system\PlayerInputSystem.cpp" />
+    <ClCompile Include="application\system\ShotBulletSystem.cpp" />
+    <ClCompile Include="application\system\PlayerInputSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Application\FrameWork.h" />
-    <ClInclude Include="Application\MyGame.h" />
-    <ClInclude Include="Application\scene\GameScene.h" />
-    <ClInclude Include="Application\component\BulletSpawner.h" />
-    <ClInclude Include="Application\component\CharacterStatus.h" />
-    <ClInclude Include="Application\system\DeleteCharacterEntitySystem.h" />
-    <ClInclude Include="Application\system\CharacterOnCollision.h" />
+    <ClInclude Include="application\FrameWork.h" />
+    <ClInclude Include="application\MyGame.h" />
+    <ClInclude Include="application\scene\GameScene.h" />
+    <ClInclude Include="application\component\BulletSpawner.h" />
+    <ClInclude Include="application\component\CharacterStatus.h" />
+    <ClInclude Include="application\system\DeleteCharacterEntitySystem.h" />
+    <ClInclude Include="application\system\CharacterOnCollision.h" />
     <ClInclude Include="engine\system\movement\MoveSystemByRigidBody.h" />
     <ClInclude Include="engine\animation\Animation.h" />
     <ClInclude Include="engine\animation\AnimationManager.h" />
@@ -375,8 +375,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="math\Vector2.h" />
     <ClInclude Include="math\Vector3.h" />
     <ClInclude Include="math\Vector4.h" />
-    <ClInclude Include="Application\system\ShotBulletSystem.h" />
-    <ClInclude Include="Application\system\PlayerInputSystem.h" />
+    <ClInclude Include="application\system\ShotBulletSystem.h" />
+    <ClInclude Include="application\system\PlayerInputSystem.h" />
     <ClInclude Include="util\nameof.h" />
   </ItemGroup>
   <ItemGroup>

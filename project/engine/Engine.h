@@ -42,7 +42,7 @@ public:
     static Engine* getInstance();
 
 public:
-    void Init();
+    void Initialize();
     void Finalize();
     bool ProcessMessage();
     void BeginFrame();

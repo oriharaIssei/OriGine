@@ -26,7 +26,7 @@ public:
     IComponentArray()          = default;
     virtual ~IComponentArray() = default;
 
-    virtual void Init(uint32_t _size) = 0;
+    virtual void Initialize(uint32_t _size) = 0;
 
     virtual void SaveComponent(GameEntity* _entity, BinaryWriter& _writer) = 0;
     virtual void LoadComponent(GameEntity* _entity, BinaryReader& _reader) = 0;
@@ -59,7 +59,7 @@ public:
     ComponentArray()          = default;
     virtual ~ComponentArray() = default;
 
-    void Init(uint32_t _size) override {
+    void Initialize(uint32_t _size) override {
         // クリア
         components_.clear();
         entityIndexBind_.clear();
@@ -120,6 +120,9 @@ public:
             entityIndexBind_[_entity] = freeIdx;
 
             components_[entityIndexBind_[_entity]].resize(_entitySize);
+            for (auto& comp : components_[entityIndexBind_[_entity]]) {
+                comp.Initialize(_entity);
+            }
         } else {
             uint32_t oldSize = static_cast<uint32_t>(components_.size());
             components_.resize(oldSize * 2);
@@ -129,6 +132,9 @@ public:
 
             entityIndexBind_[const_cast<GameEntity*>(_entity)] = static_cast<uint32_t>(components_.size() - 1);
             components_[entityIndexBind_[_entity]].resize(_entitySize);
+            for (auto& comp : components_[entityIndexBind_[_entity]]) {
+                comp.Initialize(_entity);
+            }
         }
     }
 

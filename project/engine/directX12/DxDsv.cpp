@@ -2,7 +2,7 @@
 
 #include <assert.h>
 
-void DxDepthStencilView::Init(ID3D12Device *device,ID3D12DescriptorHeap *dsvHeap,UINT64 width,UINT height){
+void DxDepthStencilView::Initialize(ID3D12Device *device,ID3D12DescriptorHeap *dsvHeap,UINT64 width,UINT height){
 	D3D12_RESOURCE_DESC resourceDesc{};
 	resourceDesc.Width = width;
 	resourceDesc.Height = height;

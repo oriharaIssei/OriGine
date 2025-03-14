@@ -18,15 +18,15 @@ const std::string emittersDirectory = "resource/GlobalVariables/Emitters";
 
 static std::list<std::pair<std::string, std::string>> emitterFiles = myfs::SearchFile(emittersDirectory, "json");
 
-void ParticleEditor::Init() {
+void ParticleEditor::Initialize() {
     dxCommand_ = std::make_unique<DxCommand>();
-    dxCommand_->Init("main", "main");
+    dxCommand_->Initialize("main", "main");
 
     dxSrvArray_ = DxSrvArrayManager::getInstance()->Create(srvNum_);
 
     for (auto& [directory, filename] : emitterFiles) {
         emitters_[filename] = std::make_unique<Emitter>(dxSrvArray_.get(), filename, 0);
-        emitters_[filename]->Init();
+        emitters_[filename]->Initialize();
     }
 }
 
@@ -63,7 +63,7 @@ void ParticleEditor::Update() {
             // 名前が既に存在している場合は登録しない
             if (emitters_.find(newInstanceName_) == emitters_.end()) {
                 emitters_[newInstanceName_] = std::make_unique<Emitter>(dxSrvArray_.get(), newInstanceName_, 0);
-                emitters_[newInstanceName_]->Init();
+                emitters_[newInstanceName_]->Initialize();
             }
             isOpenedCrateWindow_ = false;
         }
@@ -123,7 +123,7 @@ void ParticleEditor::MenuBarUpdate() {
                     if (ImGui::MenuItem(filename.c_str())) {
                         if (!emitters_[filename]) {
                             emitters_[filename] = std::make_unique<Emitter>(dxSrvArray_.get(), filename, 0);
-                            emitters_[filename]->Init();
+                            emitters_[filename]->Initialize();
                         }
                     }
                 }

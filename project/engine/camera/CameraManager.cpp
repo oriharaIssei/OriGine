@@ -12,14 +12,14 @@ CameraManager* CameraManager::getInstance() {
     return &instance;
 }
 
-void CameraManager::Init() {
+void CameraManager::Initialize() {
     cTransform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
-    cTransform_->Init();
+    cTransform_->Initialize();
     cTransform_->UpdateMatrix();
     cTransform_.ConvertToBuffer();
 
     debugCamera_ = std::make_unique<DebugCamera>();
-    debugCamera_->Init();
+    debugCamera_->Initialize();
 }
 
 void CameraManager::DebugUpdate() {

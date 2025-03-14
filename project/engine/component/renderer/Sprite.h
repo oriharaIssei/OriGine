@@ -59,7 +59,7 @@ public:
     ///< summary>
     /// 初期化
     ///</summary>
-    void Init(GameEntity* _hostEntity) override;
+    void Initialize(GameEntity* _hostEntity) override;
 
     bool Edit() override;
     void Save(BinaryWriter& _writer) override {
@@ -170,7 +170,7 @@ public:
 //    ///< summary>
 //    /// 初期化
 //    ///</summary>
-//    void Init() override;
+//    void Initialize() override;
 //
 // protected:
 //    ///< summary>

@@ -22,7 +22,7 @@ EffectEditor::EffectEditor() {}
 
 EffectEditor::~EffectEditor() {}
 
-void EffectEditor::Init() {
+void EffectEditor::Initialize() {
     EffectManager* effectMaanger = EffectManager::getInstance();
     for (auto& [directory, filename] : emitterFiles) {
         effects_[filename] = effectMaanger->CreateEffect("filename");

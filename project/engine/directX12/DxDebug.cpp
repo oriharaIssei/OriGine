@@ -5,13 +5,13 @@
 
 DxDebug::DxDebug(){
 #ifdef _DEBUG
-	Microsoft::WRL::ComPtr<ID3D12Debug1> debugController = nullptr;
+    debugController_ = nullptr;
 	//デバッグレイヤーをオンに
-	if(SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))){
+    if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController_)))) {
 		//デバッグレイヤーの有効化
-		debugController->EnableDebugLayer();
+        debugController_->EnableDebugLayer();
 		//GPU側でもデバッグさせる
-		debugController->SetEnableGPUBasedValidation(TRUE);
+        debugController_->SetEnableGPUBasedValidation(TRUE);
 	}
 #endif // DEBUG 
 }

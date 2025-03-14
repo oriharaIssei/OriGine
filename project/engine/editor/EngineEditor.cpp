@@ -27,6 +27,12 @@ EngineEditor* EngineEditor::getInstance() {
     return &instance;
 }
 
+void EngineEditor::Initialize() {
+    for (auto& [editorName, editor] : editors_) {
+        editor->Initialize();
+    }
+}
+
 void EngineEditor::Update() {
     if (isActive_) {
         // MainMenuBar
@@ -58,6 +64,12 @@ void EngineEditor::Update() {
                 }
                 ImGui::EndMenu();
             }
+            if (ImGui::BeginMenu("Debug")) {
+                if (ImGui::MenuItem("StartDebug")) {
+                    isActive_ = false;
+                }
+                ImGui::EndMenu();
+            }
             ImGui::EndMainMenuBar();
         }
 
@@ -81,12 +93,9 @@ void EngineEditor::Update() {
     }
 }
 
-#pragma region "アクセッサー"
-void EngineEditor::addEditor(const std::string& name, std::unique_ptr<IEditor>&& editor) {
-    editors_[name]                      = std::move(editor);
-    editorActive_[editors_[name].get()] = false;
+void EngineEditor::Finalize() {
+    for (auto& [editorName, editor] : editors_) {
+        editor->Finalize();
+    }
 }
-
-#pragma endregion
-
 #endif // _DEBUG

@@ -58,7 +58,7 @@ void DxRtvArray::ClearTarget(uint32_t index,ID3D12GraphicsCommandList* commandLi
 	);
 }
 
-void DxRtvArray::Init(uint32_t size,uint32_t arrayLocation)
+void DxRtvArray::Initialize(uint32_t size,uint32_t arrayLocation)
 {
 	size_ = size;
 	arrayStartLocation_ = arrayLocation;

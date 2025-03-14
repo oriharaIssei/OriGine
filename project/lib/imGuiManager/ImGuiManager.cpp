@@ -20,12 +20,12 @@ ImGuiManager* ImGuiManager::getInstance(){
 	return &instance;
 }
 
-void ImGuiManager::Init(const WinApp* window,const DxDevice* dxDevice,const DxSwapChain* dxSwapChain){
+void ImGuiManager::Initialize(const WinApp* window,const DxDevice* dxDevice,const DxSwapChain* dxSwapChain){
  #ifdef _DEBUG
 	srvHeap_ = DxHeap::getInstance()->getSrvHeap();
 
 	dxCommand_ = std::make_unique<DxCommand>();
-	dxCommand_->Init("main","main");
+	dxCommand_->Initialize("main","main");
 
 	// 先頭のDescriptorを使っている事になっているので合わせる
 	// 追記，fontのテクスチャに使われているらしい

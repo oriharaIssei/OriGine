@@ -34,7 +34,7 @@ void DxSrvArray::DestroyView(uint32_t srvIndex){
 	resources_[srvIndex] = nullptr;
 }
 
-void DxSrvArray::Init(uint32_t size,uint32_t arrayLocation){
+void DxSrvArray::Initialize(uint32_t size,uint32_t arrayLocation){
 	size_ = size;
 	arrayStartLocation_ = arrayLocation;
 	resources_.resize(size_);

@@ -17,7 +17,7 @@ class ImGuiManager{
 public:
 	static ImGuiManager* getInstance();
 
-	void Init(const WinApp* window,const DxDevice* dxDevice,const DxSwapChain* dxSwapChain);
+	void Initialize(const WinApp* window,const DxDevice* dxDevice,const DxSwapChain* dxSwapChain);
 	void Finalize();
 
 	void Begin();

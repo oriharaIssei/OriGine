@@ -21,8 +21,8 @@ public:
 	/// <param name="device"></param>
 	/// <param name="commandListKey">list と allocator の Key(見つからない場合,D3D12_COMMAND_LIST_TYPE_DIRECTで作成される</param>
 	/// <param name="commandQueueKey"></param>
-	void Init(const std::string &commandListKey,const std::string &commandQueueKey);
-	void Init(const std::string &commandListKey,const std::string &commandQueueKey,D3D12_COMMAND_LIST_TYPE listType);
+	void Initialize(const std::string &commandListKey,const std::string &commandQueueKey);
+	void Initialize(const std::string &commandListKey,const std::string &commandQueueKey,D3D12_COMMAND_LIST_TYPE listType);
 	void Finalize();
 public:
 	static void ResetAll();

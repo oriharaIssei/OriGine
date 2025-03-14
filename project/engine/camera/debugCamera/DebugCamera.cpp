@@ -7,7 +7,7 @@
 #include <cmath>
 #include <numbers>
 
-void DebugCamera::Init(){
+void DebugCamera::Initialize(){
 	input_ = Input::getInstance();
 	currentState_.reset(new Neutral(this));
 }

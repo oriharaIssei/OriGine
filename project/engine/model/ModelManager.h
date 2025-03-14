@@ -43,7 +43,7 @@ public:
         const std::string& filename,
         std::function<void(Model*)> callBack = nullptr);
 
-    void Init();
+    void Initialize();
     void Finalize();
 
 private:

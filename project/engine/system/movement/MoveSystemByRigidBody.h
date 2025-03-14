@@ -12,7 +12,7 @@ public:
     MoveSystemByRigidBody();
     ~MoveSystemByRigidBody();
 
-    void Init() override;
+    void Initialize() override;
     // void Update();
     void Finalize() override;
 

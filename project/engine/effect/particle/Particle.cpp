@@ -16,7 +16,7 @@ Particle::Particle() {}
 
 Particle::~Particle() {}
 
-void Particle::Init(
+void Particle::Initialize(
     const ParticleTransform& _initialTransfrom,
     const Vec3f& _minVelocity,
     const Vec3f& _maxVelocity,

@@ -5,7 +5,7 @@ Input* Input::getInstance() {
     return &instance;
 }
 
-void Input::Init() {
+void Input::Initialize() {
     // DirectInput の初期化
     DirectInput8Create(GetModuleHandle(nullptr), DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&directInput_, nullptr);
 

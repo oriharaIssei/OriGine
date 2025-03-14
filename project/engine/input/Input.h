@@ -28,7 +28,7 @@ public:
     Input(const Input&)                  = delete;
     const Input& operator=(const Input&) = delete;
 
-    void Init();
+    void Initialize();
     void Finalize();
     void Update();
 

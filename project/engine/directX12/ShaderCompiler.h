@@ -7,7 +7,7 @@
 
 class ShaderCompiler {
 public:
-	void Init();
+	void Initialize();
 	/// <summary>
 	/// DxCを使ってShaderをCompileする
 	/// </summary>

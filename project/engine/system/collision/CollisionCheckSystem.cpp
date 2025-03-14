@@ -66,7 +66,7 @@ CollisionCheckSystem::CollisionCheckSystem()
 
 CollisionCheckSystem::~CollisionCheckSystem() {}
 
-void CollisionCheckSystem::Init() {
+void CollisionCheckSystem::Initialize() {
 }
 
 void CollisionCheckSystem::Update() {

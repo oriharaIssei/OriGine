@@ -7,7 +7,7 @@
 
 #pragma comment(lib,"dxcompiler.lib")
 
-void ShaderCompiler::Init() {
+void ShaderCompiler::Initialize() {
 	HRESULT hr;
 	hr = DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&dxcUtils_));
 	assert(SUCCEEDED(hr));

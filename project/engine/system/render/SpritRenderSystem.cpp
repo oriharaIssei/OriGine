@@ -10,9 +10,9 @@
 #include "component/renderer/Sprite.h"
 #include "ECS/ECSManager.h"
 
-void SpritRenderSystem::Init() {
+void SpritRenderSystem::Initialize() {
     dxCommand_ = std::make_unique<DxCommand>();
-    dxCommand_->Init("main", "main");
+    dxCommand_->Initialize("main", "main");
 
     CreatePso();
 

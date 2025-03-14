@@ -35,6 +35,9 @@ IConstantBuffer<Material>* MaterialManager::Create(const std::string& materialNa
 }
 
 void MaterialManager::Finalize() {
+    for (auto& material : materialPallet_) {
+        material.second->Finalize();
+    }
     materialPallet_.clear();
 }
 

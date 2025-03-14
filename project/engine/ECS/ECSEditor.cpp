@@ -12,13 +12,9 @@
 
 ECSEditor::ECSEditor() {}
 
-ECSEditor::~ECSEditor() {
-    for (int32_t i = 0; i < int32_t(SystemType::Count); i++) {
-        workSystemList_[i].clear();
-    }
-}
+ECSEditor::~ECSEditor() {}
 
-void ECSEditor::Init() {
+void ECSEditor::Initialize() {
     ecsManager_ = ECSManager::getInstance();
 
     for (int32_t i = 0; i < int32_t(SystemType::Count); i++) {
@@ -30,9 +26,19 @@ void ECSEditor::Init() {
 
 void ECSEditor::Update() {
     SelectEntity();
-    EditComponent();
+    EditEntity();
 
     WorkerSystemList();
+}
+
+void ECSEditor::Finalize() {
+    ecsManager_ = nullptr;
+    editEntity_ = nullptr;
+
+    editEntityComponents_.clear();
+    for (int32_t i = 0; i < int32_t(SystemType::Count); i++) {
+        workSystemList_[i].clear();
+    }
 }
 
 void ECSEditor::SelectEntity() {
@@ -46,6 +52,7 @@ void ECSEditor::SelectEntity() {
             if (ImGui::Button("AddEntity")) {
                 uint32_t addedEntity = ecsManager_->registerEntity("Entity");
                 editEntity_          = ecsManager_->getEntity(addedEntity);
+                editEntityComponents_.clear();
             }
             ImGui::EndPopup();
         }
@@ -81,7 +88,7 @@ void ECSEditor::SelectEntity() {
     ImGui::End();
 }
 
-void ECSEditor::EditComponent() {
+void ECSEditor::EditEntity() {
     std::string label = "Entity Info";
 
     std::string componentName = "UNKNOWN";
@@ -116,20 +123,20 @@ void ECSEditor::EditComponent() {
 
         ImGui::Separator();
 
-        for (auto& [componentTypeName, componentArray] : ecsManager_->getComponentArrayMap()) {
-            int32_t index = 0;
-            while (true) {
-                IComponent* component = componentArray->getComponent(editEntity_, index);
-                if (component) {
-                    componentName = componentTypeName + std::to_string(index);
-                    if (ImGui::CollapsingHeader(componentName.c_str())) {
-                        ImGui::Text("Component Type : %s", componentTypeName.c_str());
-                        ImGui::Separator();
-                        component->Edit();
-                    }
-                    index++;
-                } else {
-                    break;
+        for (auto& [compName, comp] : editEntityComponents_) {
+            if (ImGui::CollapsingHeader(compName.c_str())) {
+                comp->Edit();
+            }
+        }
+
+        ImGui::Separator();
+
+        ImGui::Text("Work Systems");
+
+        for (int32_t systemTypeIndex = 0; systemTypeIndex < int32_t(SystemType::Count); ++systemTypeIndex) {
+            if (ImGui::CollapsingHeader(SystemTypeString[systemTypeIndex].c_str())) {
+                for (auto& [systemName, system] : editEntitySystems_[systemTypeIndex]) {
+                    ImGui::Text("%s", systemName.c_str());
                 }
             }
         }
@@ -209,9 +216,8 @@ void ECSEditor::WorkerSystemList() {
             }
             systemTypeIndex++;
         }
-
-        ImGui::End();
     }
+    ImGui::End();
 }
 
 void ECSEditor::PopupEntityJoinWorkSystem(GameEntity* _entity) {
@@ -224,13 +230,18 @@ void ECSEditor::PopupEntityJoinWorkSystem(GameEntity* _entity) {
     ImGui::Text("Work Systems");
     int systemTypeIndex = 0;
     for (auto& systemByType : ecsManager_->getSystems()) {
-        if (ImGui::CollapsingHeader(SystemTypeString[systemTypeIndex++].c_str())) {
+        if (ImGui::CollapsingHeader(SystemTypeString[systemTypeIndex].c_str())) {
             for (auto& [systemName, system] : systemByType) {
                 if (ImGui::Button(systemName.c_str())) {
                     system->addEntity(_entity);
+
+                    // エンティティに紐づくシステムを更新
+                    editEntitySystems_[systemTypeIndex].push_back(std::make_pair(systemName, system.get()));
+
                     isOpenPopupJoinWorkSystem_ = false;
                 }
             }
+            ++systemTypeIndex;
         }
     }
 
@@ -247,6 +258,22 @@ void ECSEditor::PopupEntityAddComponent(GameEntity* _entity) {
     for (auto& [componentTypeName, componentArray] : ecsManager_->getComponentArrayMap()) {
         if (ImGui::Button(componentTypeName.c_str())) {
             componentArray->addComponent(_entity);
+
+            // エンティティに紐づくコンポーネントを更新
+
+            // コンポーネントの配列の最後のインデックスを取得
+            int32_t compBackIndex = 0;
+            while (true) {
+                auto comp = componentArray->getComponent(_entity, compBackIndex);
+                if (!comp) {
+                    break;
+                }
+                ++compBackIndex;
+            }
+
+            // エンティティに紐づくコンポーネントを更新
+            editEntityComponents_.push_back(std::make_pair(componentTypeName, componentArray->getComponent(_entity, compBackIndex - 1)));
+
             isOpenPopUpAddComponent_ = false;
         }
     }
@@ -291,4 +318,43 @@ void ECSEditor::SortPriorityOrderFromECSManager(int32_t systemTypeIndex) {
             const std::pair<std::string, ISystem*>& b) {
             return a.second->getPriority() < b.second->getPriority();
         });
+}
+
+void SelectEntityCommand::Execute() {
+    ecsEditor_->setEditEntity(nextEntity_);
+
+    auto& editComponents = ecsEditor_->customEditComponents();
+    editComponents.clear();
+
+    ECSManager* ecsManager = ECSManager::getInstance();
+    // エンティティに紐づくコンポーネントを取得
+    for (auto& [componentTypeName, componentArray] : ecsManager->getComponentArrayMap()) {
+        int32_t index = 0;
+        while (true) {
+            IComponent* component = componentArray->getComponent(ecsEditor_->getEditEntity(), index);
+            if (component) {
+                editComponents.push_back(std::make_pair(componentTypeName + "(" + std::to_string(index) + ")", component));
+                index++;
+            } else {
+                break;
+            }
+        }
+    }
+
+    // エンティティに紐づくシステムを取得
+    auto& editEntitySystems = ecsEditor_->customEditEntitySystems();
+    for (int32_t systemTypeIndex = 0; systemTypeIndex < int32_t(SystemType::Count); ++systemTypeIndex) {
+        // システムをクリア
+        editEntitySystems[systemTypeIndex].clear();
+        for (auto& [systemName, system] : ecsManager->getSystemsBy(SystemType(systemTypeIndex))) {
+            // システムにエンティティが登録されている場合のみ追加
+            if (system->hasEntity(nextEntity_)) {
+                editEntitySystems[systemTypeIndex].push_back(std::make_pair(systemName, system.get()));
+            }
+        }
+    }
+}
+
+void SelectEntityCommand::Undo() {
+    ecsEditor_->setEditEntity(preEntity_);
 }

@@ -107,7 +107,7 @@ public:
     IConstantBuffer<Material>* Create(const std::string& materialName);
     IConstantBuffer<Material>* Create(const std::string& materialName, const Material& data);
 
-    void Init() {}
+    void Initialize() {}
     void Finalize();
 
 private:
@@ -137,8 +137,9 @@ public:
         : IEditor(), materialManager_(materialManager) {}
     ~MaterialEditor() {}
 
+    void Initialize() override{}
     void Update() override;
-
+    void Finalize()override{}
 private:
     void MenuUpdate();
 

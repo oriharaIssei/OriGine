@@ -81,13 +81,13 @@
     <ClCompile Include="main.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Application\scene\GameScene.cpp">
+    <ClCompile Include="application\scene\GameScene.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Application\FrameWork.cpp">
+    <ClCompile Include="application\FrameWork.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Application\MyGame.cpp">
+    <ClCompile Include="application\MyGame.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="engine\animation\Animation.cpp">
@@ -303,25 +303,28 @@
     <ClCompile Include="math\Quaternion.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Application\component\BulletSpawner.cpp">
+    <ClCompile Include="application\component\BulletSpawner.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="engine\component\physics\Rigidbody.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Application\system\ShotBulletSystem.cpp">
+    <ClCompile Include="application\system\ShotBulletSystem.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Application\component\CharacterStatus.cpp">
+    <ClCompile Include="application\component\CharacterStatus.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Application\system\DeleteCharacterEntitySystem.cpp">
+    <ClCompile Include="application\system\DeleteCharacterEntitySystem.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Application\system\CharacterOnCollision.cpp">
+    <ClCompile Include="application\system\CharacterOnCollision.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Application\system\PlayerInputSystem.cpp">
+    <ClCompile Include="application\system\PlayerInputSystem.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\system\movement\MoveSystemByRigidBody.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -581,13 +584,13 @@
     <ClInclude Include="externals\nlohmann\json_fwd.hpp">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Application\scene\GameScene.h">
+    <ClInclude Include="application\scene\GameScene.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Application\FrameWork.h">
+    <ClInclude Include="application\FrameWork.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Application\MyGame.h">
+    <ClInclude Include="application\MyGame.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="engine\animation\Animation.h">
@@ -863,28 +866,31 @@
     <ClInclude Include="util\nameof.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Application\component\BulletSpawner.h">
+    <ClInclude Include="application\component\BulletSpawner.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="engine\component\physics\Rigidbody.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Application\system\ShotBulletSystem.h">
+    <ClInclude Include="application\system\ShotBulletSystem.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="engine\EngineInclude.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Application\component\CharacterStatus.h">
+    <ClInclude Include="application\component\CharacterStatus.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Application\system\DeleteCharacterEntitySystem.h">
+    <ClInclude Include="application\system\DeleteCharacterEntitySystem.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Application\system\CharacterOnCollision.h">
+    <ClInclude Include="application\system\CharacterOnCollision.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Application\system\PlayerInputSystem.h">
+    <ClInclude Include="application\system\PlayerInputSystem.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\system\movement\MoveSystemByRigidBody.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

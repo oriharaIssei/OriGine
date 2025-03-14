@@ -9,6 +9,9 @@
 // manager
 #include "model/ModelManager.h"
 
+#define RESOURCE_DIRECTORY
+#include "EngineInclude.h"
+
 /// lib
 #include "myFileSystem/MyFileSystem.h"
 
@@ -62,12 +65,17 @@ ModelMeshRenderer::ModelMeshRenderer(const std::shared_ptr<std::vector<TextureMe
     }
 }
 
-void ModelMeshRenderer::Init(GameEntity* _hostEntity) {
-    MeshRenderer::Init(_hostEntity);
+void ModelMeshRenderer::Initialize(GameEntity* _hostEntity) {
+    MeshRenderer::Initialize(_hostEntity);
 
     Transform* entityTransform = getComponent<Transform>(_hostEntity);
     meshTransformBuff_.resize(meshGroup_->size());
+    meshTextureNumber_.resize(meshGroup_->size());
+    meshMaterialBuff_.resize(meshGroup_->size());
+
     for (int32_t i = 0; i < meshGroup_->size(); ++i) {
+
+        meshTransformBuff_[i].CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
         if (meshTransformBuff_[i]->parent == nullptr) {
             meshTransformBuff_[i]->parent = entityTransform;
         }
@@ -105,8 +113,8 @@ bool ModelMeshRenderer::Edit() {
     if (ImGui::Button("Load")) {
         std::string directory;
         std::string fileName;
-        if (myfs::SelectFileDialog("resource", directory, fileName, {"obj", "gltf"})) {
-            directory_ = "resource/" + directory;
+        if (myfs::SelectFileDialog(kApplicationResourceDirectory, directory, fileName, {"obj", "gltf"})) {
+            directory_ = kApplicationResourceDirectory + "/" + directory;
             fileName_  = fileName;
 
             this->Finalize();
@@ -175,7 +183,7 @@ PrimitiveMeshRenderer::PrimitiveMeshRenderer(const std::shared_ptr<std::vector<P
 
 PrimitiveMeshRenderer::~PrimitiveMeshRenderer() {}
 
-void PrimitiveMeshRenderer::Init(GameEntity* _hostEntity) {
+void PrimitiveMeshRenderer::Initialize(GameEntity* _hostEntity) {
     Transform* entityTransform = getComponent<Transform>(_hostEntity);
     for (int32_t i = 0; i < meshGroup_->size(); ++i) {
         if (meshTransformBuff_[i]->parent == nullptr) {
@@ -357,7 +365,7 @@ void CreateModelMeshRenderer(ModelMeshRenderer* _renderer, GameEntity* _hostEnti
         };
 
         CreateMeshGroupFormNode(_renderer, model, &model->meshData_->rootNode);
-        _renderer->Init(_hostEntity);
+        _renderer->Initialize(_hostEntity);
 
         // マテリアルの設定
         for (uint32_t i = 0; i < static_cast<uint32_t>(model->materialData_.size()); ++i) {

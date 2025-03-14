@@ -46,75 +46,79 @@ Engine* Engine::getInstance() {
     return &instance;
 }
 
-void Engine::Init() {
+void Engine::Initialize() {
     window_ = std::make_unique<WinApp>();
     window_->CreateGameWindow(L"LE2A_07_OriharaIssei_", WS_OVERLAPPEDWINDOW, 1280, 720);
 
     input_ = Input::getInstance();
-    input_->Init();
+    input_->Initialize();
 
-    Audio::StaticInit();
+    Audio::StaticInitialize();
 
     dxDevice_ = std::make_unique<DxDevice>();
-    dxDevice_->Init();
+    dxDevice_->Initialize();
 
     DxHeap* dxHeap = DxHeap::getInstance();
-    dxHeap->Init(dxDevice_->getDevice());
+    dxHeap->Initialize(dxDevice_->getDevice());
 
     dxCommand_ = std::make_unique<DxCommand>();
-    dxCommand_->Init("main", "main");
+    dxCommand_->Initialize("main", "main");
 
     dxSwapChain_ = std::make_unique<DxSwapChain>();
-    dxSwapChain_->Init(window_.get(), dxDevice_.get(), dxCommand_.get());
+    dxSwapChain_->Initialize(window_.get(), dxDevice_.get(), dxCommand_.get());
 
     dxDsv_ = std::make_unique<DxDsv>();
-    dxDsv_->Init(dxDevice_->getDevice(), dxHeap->getDsvHeap(), window_->getWidth(), window_->getHeight());
+    dxDsv_->Initialize(dxDevice_->getDevice(), dxHeap->getDsvHeap(), window_->getWidth(), window_->getHeight());
 
-    DxSrvArrayManager::getInstance()->Init();
+    DxSrvArrayManager::getInstance()->Initialize();
 
-    DxRtvArrayManager::getInstance()->Init();
+    DxRtvArrayManager::getInstance()->Initialize();
 
     dxFence_ = std::make_unique<DxFence>();
-    dxFence_->Init(dxDevice_->getDevice());
+    dxFence_->Initialize(dxDevice_->getDevice());
 
-    ShaderManager::getInstance()->Init();
+    ShaderManager::getInstance()->Initialize();
 
-    ImGuiManager::getInstance()->Init(window_.get(), dxDevice_.get(), dxSwapChain_.get());
+    ImGuiManager::getInstance()->Initialize(window_.get(), dxDevice_.get(), dxSwapChain_.get());
 
-    TextureManager::Init();
+    TextureManager::Initialize();
 
     lightManager_ = LightManager::getInstance();
-    lightManager_->Init();
+    lightManager_->Initialize();
 
-    PrimitiveDrawer::Init();
-    ModelManager::getInstance()->Init();
+    PrimitiveDrawer::Initialize();
+    ModelManager::getInstance()->Initialize();
     RenderTexture::Awake();
 
     materialManager_ = std::make_unique<MaterialManager>();
 
     EffectManager* EffectManager = EffectManager::getInstance();
-    EffectManager->Init();
+    EffectManager->Initialize();
 
     deltaTime_ = std::make_unique<DeltaTime>();
-    deltaTime_->Init();
+    deltaTime_->Initialize();
 
-    AnimationManager::getInstance()->Init();
-    CameraManager::getInstance()->Init();
+    AnimationManager::getInstance()->Initialize();
+    CameraManager::getInstance()->Initialize();
     // Editor
 #ifdef _DEBUG
     editor_                                  = EngineEditor::getInstance();
     std::unique_ptr<LightEditor> lightEditor = std::make_unique<LightEditor>();
-    lightEditor->Init();
-    editor_->addEditor("LightEditor", std::move(lightEditor));
+    editor_->addEditor(std::move(lightEditor));
     std::unique_ptr<MaterialEditor> materialEditor = std::make_unique<MaterialEditor>(materialManager_.get());
-    editor_->addEditor("MaterialEditor", std::move(materialEditor));
+    editor_->addEditor(std::move(materialEditor));
     std::unique_ptr<ECSEditor> ecsEditor = std::make_unique<ECSEditor>();
-    ecsEditor->Init();
-    editor_->addEditor("ECSEditor", std::move(ecsEditor));
+    editor_->addEditor( std::move(ecsEditor));
+
+    editor_->Initialize();
 #endif // _DEBUG
 }
 
 void Engine::Finalize() {
+#ifdef _DEBUG
+    editor_->Finalize();
+#endif // _DEBUG
+
     AnimationManager::getInstance()->Finalize();
     CameraManager::getInstance()->Finalize();
     lightManager_->Finalize();

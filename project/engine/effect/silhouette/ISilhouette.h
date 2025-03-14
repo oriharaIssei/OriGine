@@ -21,7 +21,7 @@ public:
     ISilhouette(SilhouetteType _type);
     virtual ~ISilhouette();
 
-    void Init();
+    void Initialize();
     void Finalize();
 
     virtual void Create() = 0;

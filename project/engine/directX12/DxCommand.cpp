@@ -48,7 +48,7 @@ void DxCommand::CreateCommandQueue(ID3D12Device* device,const std::string& queue
 	assert(SUCCEEDED(result));
 };
 
-void DxCommand::Init(const std::string& commandListKey, const std::string& commandQueueKey) {
+void DxCommand::Initialize(const std::string& commandListKey, const std::string& commandQueueKey) {
 	HRESULT result;
 
     ID3D12Device* device = Engine::getInstance()->getDxDevice()->getDevice();
@@ -90,7 +90,7 @@ void DxCommand::Init(const std::string& commandListKey, const std::string& comma
 	commandAllocator_ = commandAllocatorMap_[commandListKey];
 }
 
-void DxCommand::Init(const std::string& commandListKey,const std::string& commandQueueKey,D3D12_COMMAND_LIST_TYPE listType){
+void DxCommand::Initialize(const std::string& commandListKey,const std::string& commandQueueKey,D3D12_COMMAND_LIST_TYPE listType){
 	HRESULT result;
 
     ID3D12Device* device = Engine::getInstance()->getDxDevice()->getDevice();

@@ -26,7 +26,7 @@
 
 struct Texture
     : IAsset {
-    void Init(const std::string& filePath, std::shared_ptr<DxSrvArray> srvArray, int textureIndex);
+    void Initialize(const std::string& filePath, std::shared_ptr<DxSrvArray> srvArray, int textureIndex);
     void Finalize();
 
     std::string path;
@@ -46,7 +46,7 @@ class TextureManager
     friend struct Texture;
 
 public:
-    static void Init();
+    static void Initialize();
     static void Finalize();
 
     static uint32_t LoadTexture(const std::string& filePath, std::function<void(uint32_t)> callBack = nullptr);

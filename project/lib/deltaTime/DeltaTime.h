@@ -4,7 +4,7 @@
 
 class DeltaTime{
 public:
-	void Init();
+	void Initialize();
 	void Update();
 private:
 	float deltaTime_;

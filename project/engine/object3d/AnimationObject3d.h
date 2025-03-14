@@ -21,11 +21,11 @@ public:
     AnimationObject3d();
     ~AnimationObject3d();
 
-    void Init(
+    void Initialize(
         const std::string& _directoryPath,
         const std::string& _filename);
-    void Init(const AnimationSetting& _animationSetting);
-    void Init(
+    void Initialize(const AnimationSetting& _animationSetting);
+    void Initialize(
         const std::string& _modelDirectoryPath,
         const std::string& _modelFilename,
         const std::string& _animationDirectoryPath,

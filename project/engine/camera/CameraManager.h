@@ -15,7 +15,7 @@ class CameraManager
 public:
     static CameraManager* getInstance();
 
-    void Init();
+    void Initialize();
     void DebugUpdate();
     void Finalize();
 

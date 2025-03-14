@@ -9,6 +9,9 @@
 /// engine
 #include "module/editor/IEditor.h"
 
+///util
+#include <util/nameof.h>
+
 ///=============================================================================
 /// EngineEditor (Engine の 汎用的な editor郡)
 ///=============================================================================
@@ -16,7 +19,9 @@ class EngineEditor {
 public:
     static EngineEditor* getInstance();
 
+    void Initialize();
     void Update();
+    void Finalize();
 
     void Undo() {
         if (currentCommand_ != editCommands_.begin()) {
@@ -52,7 +57,12 @@ public:
     void setActive(bool active) { isActive_ = active; }
     bool isActive() const { return isActive_; }
 
-    void addEditor(const std::string& name, std::unique_ptr<IEditor>&& editor);
+    template <IsEditor EditorClass>
+    void addEditor(std::unique_ptr<EditorClass>&& editor) {
+        std::string name                    = nameof<EditorClass>();
+        editors_[name]                      = std::move(editor);
+        editorActive_[editors_[name].get()] = false;
+    }
 
     void addCommand(std::unique_ptr<IEditCommand>&& command) {
         editCommands_.erase(currentCommand_, editCommands_.end());

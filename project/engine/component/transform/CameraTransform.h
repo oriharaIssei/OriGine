@@ -18,7 +18,7 @@ public:
     CameraTransform() {}
     ~CameraTransform() {}
 
-    void Init(GameEntity* _hostEntity = nullptr);
+    void Initialize(GameEntity* _hostEntity = nullptr);
 
     bool Edit() override;
     void Save(BinaryWriter& _writer) override;

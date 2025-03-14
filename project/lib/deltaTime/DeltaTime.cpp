@@ -1,6 +1,6 @@
 #include "DeltaTime.h"
 
-void DeltaTime::Init(){
+void DeltaTime::Initialize(){
 	currentTime_ = std::chrono::high_resolution_clock::now();
 	preTime_ = currentTime_;
 }

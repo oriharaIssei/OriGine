@@ -29,13 +29,13 @@ struct SoundData{
 
 class Audio{
 public:
-	static void StaticInit();
+	static void StaticInitialize();
 	static void StaticFinalize();
 
 	Audio(){}
 	~Audio(){}
 
-	void Init(const std::string& fileName);
+	void Initialize(const std::string& fileName);
 
 	void PlayTrigger();
 	void PlayLoop();

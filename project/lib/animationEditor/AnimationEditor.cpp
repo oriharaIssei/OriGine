@@ -31,7 +31,7 @@ AnimationEditor::AnimationEditor()
 
 AnimationEditor::~AnimationEditor() {}
 
-void AnimationEditor::Init() {
+void AnimationEditor::Initialize() {
     // アニメーションリストを取得
     // json
     animationSettingsFileList_ = myfs::SearchFile("resource/GlobalVariables/Animations", "json");
@@ -77,10 +77,10 @@ void AnimationEditor::Update() {
                                 currentEditAnimationSetting_.reset(new AnimationSetting(filename));
                                 currentEditAnimationSetting_->targetModelDirection.setValue(directory);
                                 currentEditAnimationSetting_->targetModelFileName.setValue(filename);
-                                currentEditObject_->Init(directory, filename);
+                                currentEditObject_->Initialize(directory, filename);
                             } else {
                                 currentEditAnimationSetting_.reset(new AnimationSetting(filename));
-                                currentEditObject_->Init(filename);
+                                currentEditObject_->Initialize(filename);
                             }
                         }
                     }

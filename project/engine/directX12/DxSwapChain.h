@@ -15,7 +15,7 @@ class DxCommand;
 class WinApp;
 class DxSwapChain{
 public:
-	void Init(const WinApp *winApp,const DxDevice *device,const DxCommand *command);
+	void Initialize(const WinApp *winApp,const DxDevice *device,const DxCommand *command);
 	void Finalize();
 
 	void Present();

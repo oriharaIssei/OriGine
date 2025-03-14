@@ -38,7 +38,7 @@ public:
     ISystem(SystemType _systemType) : systemType_(_systemType) {};
     virtual ~ISystem() = default;
 
-    virtual void Init() = 0;
+    virtual void Initialize() = 0;
     virtual void Update();
     virtual void Finalize() = 0;
 
@@ -59,6 +59,10 @@ public: // ========================================== accessor =================
     }
     const std::vector<GameEntity*>& getEntities() const {
         return entities_;
+    }
+
+    bool hasEntity(GameEntity* _entity) const {
+        return std::find(entities_.begin(), entities_.end(), _entity) != entities_.end();
     }
 
     void addEntity(GameEntity* _entity) {

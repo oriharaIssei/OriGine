@@ -22,7 +22,7 @@ class SceneManager {
 public:
     static SceneManager* getInstance();
 
-    void Init();
+    void Initialize();
     void Finalize();
 
     void Update();

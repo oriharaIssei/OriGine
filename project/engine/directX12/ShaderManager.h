@@ -130,7 +130,7 @@ public:
     }
 
 public:
-    void Init();
+    void Initialize();
     void Finalize();
     PipelineStateObj* CreatePso(const std::string& key, const ShaderInformation& shaderInfo, ID3D12Device* device);
 

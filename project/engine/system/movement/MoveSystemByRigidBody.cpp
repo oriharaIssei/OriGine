@@ -10,7 +10,7 @@ MoveSystemByRigidBody::MoveSystemByRigidBody() : ISystem(SystemType::Movement) {
 
 MoveSystemByRigidBody::~MoveSystemByRigidBody() {}
 
-void MoveSystemByRigidBody::Init() {}
+void MoveSystemByRigidBody::Initialize() {}
 
 void MoveSystemByRigidBody::Finalize() {}
 

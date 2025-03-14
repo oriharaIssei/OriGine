@@ -44,7 +44,7 @@ void ProcessMeshData(TextureMesh& meshData, const std::vector<TextureVertexData>
 
     // meshData.dataSize = static_cast<int32_t>(sizeof(TextureVertexData) * vertices.size());
 
-    textureMesh.Init(static_cast<UINT>(vertices.size()), static_cast<UINT>(indices.size()));
+    textureMesh.Initialize(static_cast<UINT>(vertices.size()), static_cast<UINT>(indices.size()));
     memcpy(textureMesh.vertData, vertices.data(), vertices.size() * sizeof(TextureVertexData));
 
     meshData = textureMesh;
@@ -252,9 +252,9 @@ std::shared_ptr<Model> ModelManager::Create(
     return result;
 }
 
-void ModelManager::Init() {
+void ModelManager::Initialize() {
     loadThread_ = std::make_unique<TaskThread<ModelManager::LoadTask>>();
-    loadThread_->Init(1);
+    loadThread_->Initialize(1);
 
     fovMa_           = std::make_unique<Matrix4x4>();
     Matrix4x4* maPtr = new Matrix4x4();
@@ -267,7 +267,7 @@ void ModelManager::Init() {
         maPtr);
 
     dxCommand_ = std::make_unique<DxCommand>();
-    dxCommand_->Init("main", "main");
+    dxCommand_->Initialize("main", "main");
 
     size_t index = 0;
 }

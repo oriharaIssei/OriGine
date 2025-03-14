@@ -19,7 +19,7 @@ public:
     IComponent();
     virtual ~IComponent();
 
-    virtual void Init(GameEntity* _entity) = 0;
+    virtual void Initialize(GameEntity* _entity) = 0;
 
     virtual bool Edit()                      = 0;
     virtual void Save(BinaryWriter& _writer) = 0;

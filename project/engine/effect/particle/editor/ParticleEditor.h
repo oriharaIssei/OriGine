@@ -35,7 +35,7 @@ public:
     ParticleEditor();
     ~ParticleEditor();
 
-    void Init();
+    void Initialize();
     void Update();
     void Draw();
     void Finalize();

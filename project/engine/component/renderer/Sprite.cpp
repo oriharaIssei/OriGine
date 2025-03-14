@@ -18,8 +18,8 @@
 #include "imgui/imgui.h"
 #endif // _DEBUG
 
-void SpriteRenderer::Init(GameEntity* _hostEntity) {
-    MeshRenderer::Init(_hostEntity);
+void SpriteRenderer::Initialize(GameEntity* _hostEntity) {
+    MeshRenderer::Initialize(_hostEntity);
 
     // buffer作成
     spriteBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
@@ -29,7 +29,7 @@ void SpriteRenderer::Init(GameEntity* _hostEntity) {
     meshGroup_->push_back(SpriteMesh());
 
     SpriteMesh& mesh = meshGroup_->at(0);
-    mesh.Init(4, 6);
+    mesh.Initialize(4, 6);
     // indexData
     mesh.indexData[0] = 0;
     mesh.indexData[1] = 1;

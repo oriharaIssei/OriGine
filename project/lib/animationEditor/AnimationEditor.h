@@ -23,7 +23,7 @@ public:
     AnimationEditor();
     ~AnimationEditor();
 
-    void Init();
+    void Initialize();
     void Update() override;
     void DrawEditObject();
 

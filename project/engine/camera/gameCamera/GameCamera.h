@@ -12,7 +12,7 @@ public:
     GameCamera();
     ~GameCamera();
 
-    void Init();
+    void Initialize();
     void Update();
 
 private:

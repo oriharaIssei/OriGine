@@ -25,7 +25,7 @@ private:
 	/// 初期化
 	/// </summary>
 	/// <param name="textureSize">テクスチャーマネージャーで静的に確保されている数</param>
-	void Init(uint32_t size,uint32_t arrayLocation);
+	void Initialize(uint32_t size,uint32_t arrayLocation);
 private:
 	uint32_t arrayStartLocation_;
 	uint32_t size_;

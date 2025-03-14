@@ -4,6 +4,9 @@
 #include "module/IModule.h"
 
 /// stl
+#include <concepts>
+
+/// stl
 #include <memory>
 // container
 #include <list>
@@ -18,7 +21,9 @@ public:
         : IModule() {}
     virtual ~IEditor() {}
 
-    virtual void Update() = 0;
+    virtual void Initialize() = 0;
+    virtual void Update()     = 0;
+    virtual void Finalize()   = 0;
 
 private:
 };
@@ -36,3 +41,6 @@ public:
 
 protected:
 };
+
+template <typename T>
+concept IsEditor = std::derived_from<T, IEditor>;

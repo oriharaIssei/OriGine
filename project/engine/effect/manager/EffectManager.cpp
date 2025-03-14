@@ -19,11 +19,11 @@ EffectManager* EffectManager::getInstance() {
     return &instance;
 }
 
-void EffectManager::Init() {
+void EffectManager::Initialize() {
     dxSrvArray_ = DxSrvArrayManager::getInstance()->Create(srvNum_);
 
     dxCommand_ = std::make_unique<DxCommand>();
-    dxCommand_->Init("EffectManager", "EffectManager");
+    dxCommand_->Initialize("EffectManager", "EffectManager");
 
     for (size_t i = 0; i < kBlendNum; i++) {
         psoKey_[i] = "Particle_" + blendModeStr[i];
@@ -184,7 +184,7 @@ void EffectManager::CreatePso() {
 
 std::unique_ptr<Effect> EffectManager::CreateEffect(const std::string& name) {
     std::unique_ptr<Effect> result = std::make_unique<Effect>(this->dxSrvArray_, name);
-    result->Init();
+    result->Initialize();
     usingSrvNum_ -= result->getUsingSrvNum();
     if (srvNum_ < usingSrvNum_) {
         // 未対応

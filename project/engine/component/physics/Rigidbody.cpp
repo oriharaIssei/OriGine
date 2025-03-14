@@ -5,7 +5,7 @@
 
 Rigidbody::Rigidbody() {}
 
-void Rigidbody::Init(GameEntity* _entity) {
+void Rigidbody::Initialize(GameEntity* _entity) {
     _entity;
 }
 

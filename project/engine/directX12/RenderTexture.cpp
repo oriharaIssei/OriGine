@@ -73,7 +73,7 @@ void RenderTexture::Awake(){
 	pso_ = shaderManager->CreatePso("copyImage",shaderInfo,Engine::getInstance()->getDxDevice()->getDevice());
 }
 
-void RenderTexture::Init(const Vec2f& textureSize,DXGI_FORMAT _format,const Vec4f& _clearColor){
+void RenderTexture::Initialize(const Vec2f& textureSize,DXGI_FORMAT _format,const Vec4f& _clearColor){
 	textureSize_ = textureSize;
 	clearColor_ = _clearColor;
 	///===========================================================================

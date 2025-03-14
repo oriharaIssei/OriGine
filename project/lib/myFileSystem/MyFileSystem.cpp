@@ -99,7 +99,11 @@ void MyFileSystem::SelectFolderDialog(const std::string& _defaultDirectory, std:
     }
 }
 
-bool MyFileSystem::SelectFileDialog(const std::string& defaultDirectory, std::string& fileDirectory, std::string& filename, const std::vector<std::string>& extensions) {
+bool MyFileSystem::SelectFileDialog(
+    const std::string& defaultDirectory,
+    std::string& fileDirectory,
+    std::string& filename,
+    const std::vector<std::string>& extensions) {
     HRESULT hr         = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
     bool coInitialized = SUCCEEDED(hr);
 
@@ -130,7 +134,8 @@ bool MyFileSystem::SelectFileDialog(const std::string& defaultDirectory, std::st
             if (!extensions.empty()) {
                 std::vector<COMDLG_FILTERSPEC> fileTypes;
                 for (const auto& ext : extensions) {
-                    fileTypes.push_back({L"All Files", std::wstring(L"*." + std::wstring(ext.begin(), ext.end())).c_str()});
+                    std::wstring filter = L"*." + std::wstring(ext.begin(), ext.end());
+                    fileTypes.push_back({L"Files", filter.c_str()});
                 }
                 pFileOpen->SetFileTypes(static_cast<UINT>(fileTypes.size()), fileTypes.data());
                 pFileOpen->SetFileTypeIndex(1); // デフォルトのファイルタイプを設定

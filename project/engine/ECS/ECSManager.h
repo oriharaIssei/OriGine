@@ -25,11 +25,11 @@ public:
         return &instance;
     }
 
-    void Init();
+    void Initialize();
     void Run();
     void Finalize();
 
-    void ComponentArraysInit();
+    void ComponentArraysInitialize();
 
 private:
     EntityComponentSystemManager() {}
@@ -90,7 +90,7 @@ public: // ============== accessor ==============//
             entityCapacity_ = uint32_t(entities_.size());
 
             for (auto& [componentID, componentArray] : componentArrays_) {
-                componentArray->Init(entityCapacity_);
+                componentArray->Initialize(entityCapacity_);
             }
         }
         uint32_t index = freeEntityIndex_.back();
@@ -141,7 +141,7 @@ public: // ============== accessor ==============//
         std::string typeName = nameof<componentType>();
         if (componentArrays_.find(typeName) == componentArrays_.end()) {
             componentArrays_[typeName] = std::make_unique<ComponentArray<componentType>>();
-            componentArrays_[typeName]->Init(entityCapacity_);
+            componentArrays_[typeName]->Initialize(entityCapacity_);
         }
     }
 
@@ -150,7 +150,7 @@ public: // ============== accessor ==============//
         std::string typeName = nameof<componentType>();
         if (componentArrays_.find(typeName) == componentArrays_.end()) {
             componentArrays_[typeName] = std::make_unique<ComponentArray<componentType>>();
-            componentArrays_[typeName]->Init(entityCapacity_);
+            componentArrays_[typeName]->Initialize(entityCapacity_);
         }
         return dynamic_cast<ComponentArray<componentType>*>(componentArrays_[typeName].get());
     }
@@ -240,15 +240,16 @@ public: // ============== accessor ==============//
 
         // 登録する インスタンスを作成
         std::unique_ptr<SystemDataType> system = std::make_unique<SystemDataType>(_args...);
-        system->Init();
+        system->Initialize();
 
         // システムのタイプを取得
-        SystemType systemType = system->getSystemType();
+        SystemType systemType   = system->getSystemType();
+        int32_t systemTypeIndex = int32_t(systemType);
 
         // システムを登録
-        if (systems_[int32_t(systemType)].find(typeName) == systems_[int32_t(systemType)].end()) {
-            systems_[int32_t(systemType)][typeName] = std::move(system);
-
+        if (systems_[systemTypeIndex].find(typeName) == systems_[int32_t(systemType)].end()) {
+            systems_[systemTypeIndex][typeName] = std::move(system);
+            priorityOrderSystems_[systemTypeIndex].push_back(systems_[systemTypeIndex][typeName].get());
             return;
         }
     }
@@ -309,7 +310,7 @@ GameEntity* CreateEntity(const std::string& _dataType, ComponentArgs... _args) {
         auto components = ECSManager::getInstance()->template getComponents<T>(entity);
         if (components) {
             for (auto& component : *components) {
-                component.Init(entity);
+                component.Initialize(entity);
             }
         }
     }.template operator()<ComponentArgs>(),

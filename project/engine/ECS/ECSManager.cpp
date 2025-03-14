@@ -8,8 +8,11 @@
 // dx12Object
 #include "engine/directX12/RenderTexture.h"
 
-void EntityComponentSystemManager::Init() {
+void EntityComponentSystemManager::Initialize() {
     // エンティティの初期化
+    if (!entities_.empty()) {
+        entities_.clear();
+    }
     entities_.resize(entityCapacity_);
     for (uint32_t i = 0; i < entityCapacity_; ++i) {
         freeEntityIndex_.push_back(i);
@@ -109,9 +112,9 @@ void EntityComponentSystemManager::Finalize() {
     clearSystem();
 }
 
-void EntityComponentSystemManager::ComponentArraysInit() {
+void EntityComponentSystemManager::ComponentArraysInitialize() {
     for (auto& [componentID, componentArray] : componentArrays_) {
-        componentArray->Init(entityCapacity_);
+        componentArray->Initialize(entityCapacity_);
     }
 }
 

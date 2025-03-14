@@ -30,7 +30,7 @@ Effect::Effect(std::shared_ptr<DxSrvArray> _srvArray, const std::string& _name)
 
 Effect::~Effect() {}
 
-void Effect::Init() {
+void Effect::Initialize() {
     isActive_ = true;
 
     isLoop_   = SerializedField<bool>("Effects", dataName_, "IsLoop");
@@ -109,7 +109,7 @@ void Effect::Debug() {
         for (const auto& emitter : emitterLists_) {
             if (ImGui::Button(emitter.second.c_str())) {
                 auto newEmitter = std::make_unique<Emitter>(srvArray_.get(), emitter.second, static_cast<int>(emitters_.size()));
-                newEmitter->Init();
+                newEmitter->Initialize();
                 emitters_.push_back(std::move(newEmitter));
                 particleSchedule_.emplace_back(0.0f, static_cast<int>(emitters_.size() - 1));
             }

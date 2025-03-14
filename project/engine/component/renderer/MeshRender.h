@@ -46,7 +46,7 @@ public:
 
     virtual ~MeshRenderer() {}
 
-    virtual void Init(GameEntity* _hostEntity) {
+    virtual void Initialize(GameEntity* _hostEntity) {
         hostEntity_ = _hostEntity;
     }
 
@@ -126,7 +126,7 @@ public:
     ///< summary>
     /// 初期化
     ///</summary>
-    void Init(GameEntity* _hostEntity) override;
+    void Initialize(GameEntity* _hostEntity) override;
 
     bool Edit() override;
 
@@ -221,7 +221,7 @@ public:
     ///< summary>
     /// 初期化
     ///</summary>
-    void Init(GameEntity* _hostEntity) override;
+    void Initialize(GameEntity* _hostEntity) override;
 
 private:
     std::vector<IConstantBuffer<Transform>> meshTransformBuff_;

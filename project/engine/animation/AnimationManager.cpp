@@ -13,9 +13,9 @@ AnimationManager::~AnimationManager() {
     // Destructor implementation
 }
 
-void AnimationManager::Init() {
+void AnimationManager::Initialize() {
     loadThread_ = std::make_unique<TaskThread<AnimationLoadTask>>();
-    loadThread_->Init(1);
+    loadThread_->Initialize(1);
 }
 
 void AnimationManager::Finalize() {

@@ -34,7 +34,7 @@ public:
     EffectEditor();
     ~EffectEditor();
 
-    void Init();
+    void Initialize();
     void Update();
     void Draw();
     void Finalize();

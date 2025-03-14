@@ -12,7 +12,7 @@ LightManager::LightManager()
     : IModule() {}
 LightManager::~LightManager() {}
 
-void LightManager::Init() {
+void LightManager::Initialize() {
     GlobalVariables* variables = GlobalVariables::getInstance();
     ID3D12Device* device       = Engine::getInstance()->getDxDevice()->getDevice();
 
@@ -81,7 +81,7 @@ LightEditor::LightEditor()
     : IEditor() {}
 LightEditor::~LightEditor() {}
 
-void LightEditor::Init() {
+void LightEditor::Initialize() {
     lightManager_ = LightManager::getInstance();
 }
 void LightEditor::Update() {

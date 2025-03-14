@@ -31,7 +31,7 @@ public:
     ICollider() {}
     virtual ~ICollider() {}
 
-    virtual void Init(GameEntity* _hostEntity);
+    virtual void Initialize(GameEntity* _hostEntity);
     virtual void Finalize() = 0;
 
     virtual bool Edit()                      = 0;
@@ -68,8 +68,8 @@ class Collider
     : public ICollider {
 public:
     Collider() {}
-    void Init(GameEntity* _hostEntity) override {
-        ICollider::Init(_hostEntity);
+    void Initialize(GameEntity* _hostEntity) override {
+        ICollider::Initialize(_hostEntity);
     }
     void Finalize() override {
         this->collisionStateMap_.clear();
@@ -151,8 +151,8 @@ public:
         isChange      = ImGui::Checkbox("IsActive", &this->isActive_);
 
         if (ImGui::TreeNode("Sphere")) {
-            isChange |= ImGui::InputFloat3("Min", shape_.center_.v);
-            isChange |= ImGui::InputFloat("Max", &shape_.radius_);
+            isChange |= ImGui::InputFloat3("Center", shape_.center_.v);
+            isChange |= ImGui::InputFloat("Radius", &shape_.radius_);
             ImGui::TreePop();
         }
         if (ImGui::TreeNode("Transform")) {

@@ -12,9 +12,9 @@
 #include "component/material/light/LightManager.h"
 #include "component/renderer/MeshRender.h"
 
-void TexturedMeshRenderSystem::Init() {
+void TexturedMeshRenderSystem::Initialize() {
     dxCommand_ = std::make_unique<DxCommand>();
-    dxCommand_->Init("main", "main");
+    dxCommand_->Initialize("main", "main");
 
     CreatePso();
 }

@@ -13,7 +13,7 @@ public:
     CollisionCheckSystem();
     ~CollisionCheckSystem();
 
-    void Init() override;
+    void Initialize() override;
     void Update() override;
     void Finalize() override;
 

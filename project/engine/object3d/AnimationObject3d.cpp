@@ -12,7 +12,7 @@ AnimationObject3d::AnimationObject3d() {}
 
 AnimationObject3d::~AnimationObject3d() {}
 
-void AnimationObject3d::Init(
+void AnimationObject3d::Initialize(
     const std::string& _directoryPath,
     const std::string& _filename) {
     this->model_ = ModelManager::getInstance()->Create(
@@ -22,7 +22,7 @@ void AnimationObject3d::Init(
     this->animation_            = AnimationManager::getInstance()->Load(_directoryPath, _filename);
 }
 
-void AnimationObject3d::Init(const AnimationSetting& _animationSetting) {
+void AnimationObject3d::Initialize(const AnimationSetting& _animationSetting) {
     // model
     this->model_ = ModelManager::getInstance()->Create(
         _animationSetting.targetModelDirection,
@@ -35,7 +35,7 @@ void AnimationObject3d::Init(const AnimationSetting& _animationSetting) {
             _animationSetting.name + ".anm");
 }
 
-void AnimationObject3d::Init(
+void AnimationObject3d::Initialize(
     const std::string& _modelDirectoryPath,
     const std::string& _modelFilename,
     const std::string& _animationDirectoryPath,

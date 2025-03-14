@@ -1,6 +1,6 @@
 #include "Thread.h"
 
-void IThread::Init(int32_t threadNum) {
+void IThread::Initialize(int32_t threadNum) {
     stopThread_ = false;
 
     threads_.resize(threadNum);

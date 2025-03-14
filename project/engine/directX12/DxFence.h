@@ -6,7 +6,7 @@
 
 class DxFence {
 public:
-	void Init(ID3D12Device *device);
+	void Initialize(ID3D12Device *device);
 	void Finalize();
 	void Signal(ID3D12CommandQueue *commandQueue) {
 		commandQueue->Signal(fence_.Get(),++fenceValue_);

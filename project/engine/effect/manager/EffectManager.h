@@ -33,7 +33,7 @@ class EffectManager
 
 public:
     static EffectManager* getInstance();
-    void Init();
+    void Initialize();
     void Finalize();
     void PreDraw();
 

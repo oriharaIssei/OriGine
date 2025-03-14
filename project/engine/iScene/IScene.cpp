@@ -3,6 +3,7 @@
 /// engine
 #define ENGINE_INCLUDE
 #include "sceneManager/SceneManager.h"
+#define RESOURCE_DIRECTORY
 // Ecs
 #define ENGINE_ECS
 // component
@@ -23,10 +24,10 @@ IScene::IScene(const std::string& sceneName) : name_(sceneName) {
 
 IScene::~IScene() {}
 
-void IScene::Init() {
+void IScene::Initialize() {
     ECSManager* ecsManager = ECSManager::getInstance();
-    ecsManager->Init();
-    ecsManager->ComponentArraysInit();
+    ecsManager->Initialize();
+    ecsManager->ComponentArraysInitialize();
 
     // componentの登録
     registerComponents();
@@ -69,16 +70,14 @@ void IScene::Finalize() {
     sceneSrvArray_.reset();
 
     ECSManager* ecsManager = ECSManager::getInstance();
-    ecsManager->clearComponents();
-    ecsManager->clearSystem();
-    ecsManager->clearEntity();
+    ecsManager->Finalize();
 }
 
 void IScene::LoadSceneEntity() {
     ECSManager* ecsManager = ECSManager::getInstance();
 
     // ===================================== 読み込み開始 ===================================== //
-    BinaryReader reader("Application/resource/scene", name_ + ".scene");
+    BinaryReader reader(kApplicationResourceDirectory + "/scene", name_ + ".scene");
     reader.ReadBegin();
 
     // ------------------------------ エンティティ & component の読み込み ------------------------------//
@@ -152,7 +151,7 @@ void IScene::SaveSceneEntity() {
     ECSManager* ecsManager = ECSManager::getInstance();
 
     // ===================================== 書き込み開始 ===================================== //
-    BinaryWriter writer("Application/resource/scene", name_ + ".scene");
+    BinaryWriter writer(kApplicationResourceDirectory + "/scene", name_ + ".scene");
     writer.WriteBegin();
 
     // 収集済みの有効なEntity数を書き込む (Load側と対応)

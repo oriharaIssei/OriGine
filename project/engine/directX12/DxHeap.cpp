@@ -9,7 +9,7 @@ DxHeap *DxHeap::getInstance(){
 	return &instance;
 }
 
-void DxHeap::Init(ID3D12Device *device){
+void DxHeap::Initialize(ID3D12Device *device){
 	///================================================
 	///	Heap の生成
 	///================================================

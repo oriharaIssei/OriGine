@@ -77,7 +77,7 @@ public:
     /// VertexDataを設定後に実行
     /// </summary>
     /// <param name="vertexSize">総頂点数</param>
-    void Init(UINT _vertexSize, UINT _indexSize) {
+    void Initialize(UINT _vertexSize, UINT _indexSize) {
         this->vertexSize = static_cast<uint32_t>(_vertexSize);
         this->indexSize  = static_cast<uint32_t>(_indexSize);
 

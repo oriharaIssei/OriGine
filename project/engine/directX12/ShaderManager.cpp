@@ -4,9 +4,9 @@
 #include <cassert>
 #include <Windows.h>
 
-void ShaderManager::Init(){
+void ShaderManager::Initialize(){
 	shaderCompiler_ = std::make_unique<ShaderCompiler>();
-	shaderCompiler_->Init();
+	shaderCompiler_->Initialize();
 }
 
 void ShaderManager::Finalize(){

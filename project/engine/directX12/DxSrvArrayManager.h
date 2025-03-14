@@ -10,7 +10,7 @@ class DxSrvArrayManager{
 public:
 	static DxSrvArrayManager *getInstance();
 public:
-	void Init();
+	void Initialize();
 	void Finalize();
 	/// @brief 生成
 	/// @param size Srv 格納可能数

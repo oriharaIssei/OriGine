@@ -2,7 +2,7 @@
 
 #include <cassert>
 
-void DxFence::Init(ID3D12Device *device) {
+void DxFence::Initialize(ID3D12Device *device) {
 	//初期値0でFenceを生成
 	HRESULT hr = device->CreateFence(
 		fenceValue_,
