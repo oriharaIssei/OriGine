@@ -60,8 +60,8 @@ private:
 
 public:
     bool isPressKey(const uint32_t& key) const { return keys_[key]; };
-    bool isTriggerKey(const uint32_t& key) const { return (keys_[key] && preKeys_[key]); }
-    bool isReleaseKey(const uint32_t& key) const { return (keys_[key] && !preKeys_[key]); }
+    bool isTriggerKey(const uint32_t& key) const { return (keys_[key] && !preKeys_[key]); }
+    bool isReleaseKey(const uint32_t& key) const { return (!keys_[key] && preKeys_[key]); }
 
     bool isPressMouseButton(const uint32_t& key) const { return currentMouseState_.rgbButtons[key]; }
     bool isTriggerMouseButton(const uint32_t& key) const { return currentMouseState_.rgbButtons[key] && !preMouseState_.rgbButtons[key]; }

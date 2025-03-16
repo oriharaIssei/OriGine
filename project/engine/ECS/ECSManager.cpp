@@ -8,15 +8,19 @@
 // dx12Object
 #include "engine/directX12/RenderTexture.h"
 
+/// externals
+#include "imgui/imgui.h"
+
 void EntityComponentSystemManager::Initialize() {
     // エンティティの初期化
     if (!entities_.empty()) {
         entities_.clear();
     }
-    entities_.resize(entityCapacity_);
-    for (uint32_t i = 0; i < entityCapacity_; ++i) {
-        freeEntityIndex_.push_back(i);
+    if (!freeEntityIndex_.empty()) {
+        freeEntityIndex_.clear();
     }
+
+    resize(entityCapacity_);
 }
 
 void EntityComponentSystemManager::Run() {
@@ -40,6 +44,9 @@ void EntityComponentSystemManager::Run() {
         // Debug,Edit 用システム追加予定
         CameraManager::getInstance()->DebugUpdate();
     } else {
+
+        ShowEntityStack();
+
         // システムの更新
         for (auto& system : priorityOrderSystems_[int32_t(SystemType::Input)]) {
             system->Update();
@@ -116,6 +123,51 @@ void EntityComponentSystemManager::ComponentArraysInitialize() {
     for (auto& [componentID, componentArray] : componentArrays_) {
         componentArray->Initialize(entityCapacity_);
     }
+}
+
+void EntityComponentSystemManager::ShowEntityStack() {
+    ImGui::Begin("EntityStack");
+    for (auto& entity : entities_) {
+        if (entity.isAlive_) {
+            ImGui::Text("EntityID : %d", entity.getID());
+        }
+    }
+    ImGui::End();
+}
+
+void EntityComponentSystemManager::resize(uint32_t _newSize) {
+    uint32_t oldSize = static_cast<uint32_t>(entities_.size());
+
+    if (_newSize <= oldSize) {
+        // 必要のないものを削除
+        std::erase_if(entities_, [](const GameEntity& entity) { return !entity.isAlive_; });
+
+        // エンティティの使用容量より _newSize が小さい場合
+        if (entities_.size() >= _newSize) {
+            assert(false);
+        }
+
+        // エンティティのIDを振り直す
+        uint32_t entityIndex = 0;
+        for (auto& entity : entities_) {
+            entity.id_ = entityIndex;
+            ++entityIndex;
+        }
+
+        // freeEntityIndexを再構築
+        freeEntityIndex_.clear();
+        for (uint32_t i = 0; i < _newSize; i++) {
+            freeEntityIndex_.push_back(i);
+        }
+    } else {
+        // エンティティの容量を増やす
+        entities_.resize(_newSize);
+
+        for (uint32_t i = entityCapacity_; i < _newSize; ++i) {
+            freeEntityIndex_.push_back(i);
+        }
+    }
+    entityCapacity_ = _newSize;
 }
 
 void DestroyEntity(GameEntity* _entity) {

@@ -29,9 +29,12 @@ private:
     int32_t id_           = -1;
     std::string dataType_ = "UNKNOWN";
 
-    bool isAlive_ = true;
+    bool isAlive_ = false;
 
 public:
+    bool isAlive() const {
+        return isAlive_;
+    }
     void setAlive(bool _isAlive) {
         isAlive_ = _isAlive;
     }

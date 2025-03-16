@@ -24,16 +24,16 @@ public:
     void Finalize();
 
     void Undo() {
-        if (currentCommand_ != editCommands_.begin()) {
-            --currentCommand_;
-            (*currentCommand_)->Undo();
+        if (currentCommandItr_ != editCommands_.begin()) {
+            --currentCommandItr_;
+            (*currentCommandItr_)->Undo();
         }
     }
 
     void Redo() {
-        if (currentCommand_ != editCommands_.end()) {
-            (*currentCommand_)->Execute();
-            ++currentCommand_;
+        if (currentCommandItr_ != editCommands_.end()) {
+            (*currentCommandItr_)->Execute();
+            ++currentCommandItr_;
         }
     }
 
@@ -51,7 +51,7 @@ private:
     std::unordered_map<IEditor*, bool> editorActive_;
 
     std::list<std::unique_ptr<IEditCommand>> editCommands_;
-    std::list<std::unique_ptr<IEditCommand>>::iterator currentCommand_ = editCommands_.end();
+    std::list<std::unique_ptr<IEditCommand>>::iterator currentCommandItr_ = editCommands_.end();
 
 public:
     void setActive(bool active) { isActive_ = active; }
@@ -65,8 +65,8 @@ public:
     }
 
     void addCommand(std::unique_ptr<IEditCommand>&& command) {
-        editCommands_.erase(currentCommand_, editCommands_.end());
+        editCommands_.erase(currentCommandItr_, editCommands_.end());
         editCommands_.push_back(std::move(command));
-        currentCommand_ = editCommands_.end();
+        currentCommandItr_ = editCommands_.end();
     }
 };

@@ -37,6 +37,9 @@ private:
 private:
     std::unique_ptr<IScene> currentScene_ = nullptr;
 
+    bool isChangeScene_              = false;
+    std::string changingSceneName_ = "";
+
     EntityComponentSystemManager* ecsManager_ = nullptr;
 
     std::unique_ptr<RenderTexture> sceneView_;

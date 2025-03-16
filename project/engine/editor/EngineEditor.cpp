@@ -9,6 +9,9 @@
 #include "sceneManager/SceneManager.h"
 // scene
 #include "iScene/IScene.h"
+// lib
+#include "input/Input.h"
+
 // externals
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_dx12.h"
@@ -34,9 +37,15 @@ void EngineEditor::Initialize() {
 }
 
 void EngineEditor::Update() {
+    // Editor が Active のとき
     if (isActive_) {
+        ///=================================================================================================
         // MainMenuBar
+        ///=================================================================================================
         if (ImGui::BeginMainMenuBar()) {
+            /// ------------------------------------------------------------------------------------------------
+            // Scene
+            /// ------------------------------------------------------------------------------------------------
             if (ImGui::BeginMenu("Scene")) {
                 if (ImGui::BeginMenu("Change")) {
                     SceneManager* sceneManager = SceneManager::getInstance();
@@ -54,6 +63,10 @@ void EngineEditor::Update() {
 
                 ImGui::EndMenu();
             }
+
+            /// ------------------------------------------------------------------------------------------------
+            // Editors
+            /// ------------------------------------------------------------------------------------------------
             if (ImGui::BeginMenu("Editors")) {
                 if (ImGui::BeginMenu("ActiveState")) {
                     ImGui::Checkbox("IsEdit", &isActive_);
@@ -64,6 +77,10 @@ void EngineEditor::Update() {
                 }
                 ImGui::EndMenu();
             }
+
+            /// ------------------------------------------------------------------------------------------------
+            // Debug
+            /// ------------------------------------------------------------------------------------------------
             if (ImGui::BeginMenu("Debug")) {
                 if (ImGui::MenuItem("StartDebug")) {
                     // 保存, ロード処理を行い, シーンを再読み込み
@@ -75,14 +92,42 @@ void EngineEditor::Update() {
             ImGui::EndMainMenuBar();
         }
 
+        ///=================================================================================================
+        // Editor
+        ///=================================================================================================
+
+        // Camera
         CameraManager::getInstance()->DebugUpdate();
 
+        ///-------------------------------------------------------------------------------------------------
+        // Editors Update
+        ///-------------------------------------------------------------------------------------------------
         for (auto& [name, editor] : editors_) {
             if (editorActive_[editor.get()]) {
                 editor->Update();
             }
         }
-    } else {
+
+        // Undo Redo
+        Input* input = Input::getInstance();
+        if (input->isPressKey(DIK_LCONTROL)) {
+            if (input->isPressKey(DIK_LSHIFT)) {
+                // SHIFT あり
+                if (input->isTriggerKey(DIK_Z)) {
+                    Redo();
+                }
+            } else {
+                // SHIFT なし
+                if (input->isTriggerKey(DIK_Z)) {
+                    Undo();
+                }
+                if (input->isTriggerKey(DIK_Y)) {
+                    Redo();
+                }
+            }
+        }
+
+    } else { // Debug のとき
         if (ImGui::BeginMainMenuBar()) {
             if (ImGui::BeginMenu("Debug")) {
                 if (ImGui::MenuItem("EndDebug")) {

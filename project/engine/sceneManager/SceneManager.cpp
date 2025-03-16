@@ -45,6 +45,22 @@ void SceneManager::Finalize() {
 }
 
 void SceneManager::Update() {
+    auto SceneChange = [this]() {
+        if (currentScene_) {
+            currentScene_->Finalize();
+        }
+
+        currentScene_ = scenes_[sceneIndexs_[changingSceneName_]]();
+        currentScene_->Initialize();
+
+        isChangeScene_ = false;
+    };
+
+    if (isChangeScene_) {
+        // SceneChange
+        SceneChange();
+    }
+
     ecsManager_->Run();
 
     CameraManager::getInstance()->DataConvertToBuffer();
@@ -68,10 +84,6 @@ void SceneManager::addScene(
 }
 
 void SceneManager::changeScene(const std::string& name) {
-    if (currentScene_) {
-        currentScene_->Finalize();
-    }
-
-    currentScene_ = scenes_[sceneIndexs_[name]]();
-    currentScene_->Initialize();
+    changingSceneName_ = name;
+    isChangeScene_     = true;
 }

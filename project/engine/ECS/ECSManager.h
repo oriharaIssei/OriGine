@@ -37,6 +37,8 @@ private:
     EntityComponentSystemManager(const EntityComponentSystemManager&)            = delete;
     EntityComponentSystemManager* operator=(const EntityComponentSystemManager&) = delete;
 
+    void ShowEntityStack();
+
 private:
     /// <summary>
     /// エンティティ配列
@@ -61,6 +63,8 @@ private:
     std::array<std::vector<ISystem*>, int32_t(SystemType::Count)> priorityOrderSystems_;
 
 public: // ============== accessor ==============//
+    void resize(uint32_t _newSize);
+
     // --------------------------------------------------------------------------------------
     //  Entity
     // --------------------------------------------------------------------------------------
@@ -79,15 +83,8 @@ public: // ============== accessor ==============//
     uint32_t registerEntity(const std::string& _entityDataType) {
         if (freeEntityIndex_.empty()) {
             // 容量に空きが無い場合, 容量を増やす
-            //  リサイズ前のサイズを保存
-            size_t oldSize = entities_.size();
-            // entities_ を倍のサイズにリサイズ
-            entities_.resize(oldSize * 2);
-            // 新しく追加されたインデックスを freeEntityIndex_ に登録
-            for (uint32_t i = static_cast<uint32_t>(oldSize); i < entities_.size(); i++) {
-                freeEntityIndex_.push_back(i);
-            }
-            entityCapacity_ = uint32_t(entities_.size());
+            // 2倍の容量にリサイズ
+            this->resize(entityCapacity_ * 2);
 
             for (auto& [componentID, componentArray] : componentArrays_) {
                 componentArray->Initialize(entityCapacity_);
@@ -96,7 +93,8 @@ public: // ============== accessor ==============//
         uint32_t index = freeEntityIndex_.back();
         freeEntityIndex_.pop_back();
 
-        entities_[index] = GameEntity(_entityDataType, index);
+        entities_[index]          = GameEntity(_entityDataType, index);
+        entities_[index].isAlive_ = true;
 
         return index;
     }
@@ -110,6 +108,24 @@ public: // ============== accessor ==============//
 
     const std::vector<GameEntity>& getEntities() const {
         return entities_;
+    }
+
+    /// <summary>
+    /// 有効なエンティティが前に来るようにソートする
+    /// </summary>
+    void sortFrontActiveEntities() {
+        auto removedItr = std::remove_if(entities_.begin(), entities_.end(), [](GameEntity& entity) { return !entity.isAlive_; });
+
+        uint32_t index = 0;
+        for (std::vector<GameEntity>::iterator entityItr = entities_.begin();
+            entityItr != removedItr;
+            ++entityItr) {
+            entityItr->id_ = int32_t(index++);
+        }
+
+        for (uint32_t i = index - 1; i < entityCapacity_; i++) {
+            freeEntityIndex_.push_back(i);
+        }
     }
 
     /// <summary>

@@ -8,9 +8,9 @@
 
 // ECS
 // component
-#include "ECSManager.h"
 #include "component/material/light/LightManager.h"
 #include "component/renderer/MeshRender.h"
+#include "ECSManager.h"
 
 void TexturedMeshRenderSystem::Initialize() {
     dxCommand_ = std::make_unique<DxCommand>();
@@ -32,6 +32,7 @@ void TexturedMeshRenderSystem::Finalize() {
 }
 
 void TexturedMeshRenderSystem::CreatePso() {
+
     ShaderManager* shaderManager = ShaderManager::getInstance();
     DxDevice* dxDevice           = Engine::getInstance()->getDxDevice();
 
@@ -170,7 +171,11 @@ void TexturedMeshRenderSystem::CreatePso() {
     /// BlendMode ごとの Psoを作成
     ///=================================================
     for (size_t i = 0; i < kBlendNum; ++i) {
-        texShaderInfo.blendMode_       = static_cast<BlendMode>(i);
+        BlendMode blend = static_cast<BlendMode>(i);
+        if (pso_[blend]) {
+            continue;
+        }
+        texShaderInfo.blendMode_       = blend;
         pso_[texShaderInfo.blendMode_] = shaderManager->CreatePso("TextureMesh_" + blendModeStr[i], texShaderInfo, dxDevice->getDevice());
     }
 }
