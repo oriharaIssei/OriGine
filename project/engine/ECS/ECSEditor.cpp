@@ -154,6 +154,7 @@ void ECSEditor::EditEntity() {
                 for (auto& [systemName, system] : editEntitySystems_[systemTypeIndex]) {
                     // Popupで 処理するために保持
                     if (ImGui::Button(systemName.c_str())) {
+                        popupLeaveWorkSystem_.isOpen_ = true;
                         leaveSystemName_ = systemName;
                         leaveSystem_     = system;
                     }
@@ -248,7 +249,9 @@ void ECSEditor::PopupEntityJoinWorkSystem(GameEntity* _entity) {
     }
 
     ImGui::Begin("Join Work System", &popupJoinWorkSystem_.isOpen_);
-    popupJoinWorkSystem_.isOpen_ |= ImGui::IsWindowFocused();
+    if (popupJoinWorkSystem_.isOpen_ != false) {
+        popupJoinWorkSystem_.isOpen_ = ImGui::IsWindowFocused();
+    }
 
     ImGui::Text("Work Systems");
     int systemTypeIndex = 0;
@@ -274,8 +277,9 @@ void ECSEditor::PopupEntityAddComponent(GameEntity* _entity) {
         return;
     }
     ImGui::Begin("AddComponent", &popupAddComponent_.isOpen_);
-    popupAddComponent_.isOpen_ |= ImGui::IsWindowFocused();
-
+    if (popupAddComponent_.isOpen_ != false) {
+        popupAddComponent_.isOpen_ = ImGui::IsWindowFocused();
+    }
     // コンポーネントの追加 → Command経由に変更
     for (auto& [componentTypeName, componentArray] : ecsManager_->getComponentArrayMap()) {
         if (ImGui::Button(componentTypeName.c_str())) {
@@ -290,12 +294,14 @@ void ECSEditor::PopupEntityAddComponent(GameEntity* _entity) {
 }
 
 void ECSEditor::PopupEntityLeaveWorkSystem(GameEntity* _entity) {
-    if (!leaveWorkSystem_.isOpen_) {
+    if (!popupLeaveWorkSystem_.isOpen_) {
         return;
     };
 
-    ImGui::Begin("Leave Work System", &leaveWorkSystem_.isOpen_);
-    leaveWorkSystem_.isOpen_ |= ImGui::IsWindowFocused();
+    ImGui::Begin("Leave Work System", &popupLeaveWorkSystem_.isOpen_);
+    if (popupLeaveWorkSystem_.isOpen_ != false) {
+        popupLeaveWorkSystem_.isOpen_ = ImGui::IsWindowFocused();
+    }
 
     ImGui::Text("Leave %s ?", leaveSystemName_.c_str());
 
@@ -310,7 +316,7 @@ void ECSEditor::PopupEntityLeaveWorkSystem(GameEntity* _entity) {
     }
     ImGui::SameLine();
     if (ImGui::Button("Cancel")) {
-        leaveWorkSystem_.isOpen_ = false;
+        popupLeaveWorkSystem_.isOpen_ = false;
 
         leaveSystem_ = nullptr;
         leaveSystemName_.clear();

@@ -62,7 +62,7 @@ private:
     ImGuiWindowPopUp popupJoinWorkSystem_;
     ImGuiWindowPopUp popupAddComponent_;
 
-    ImGuiWindowPopUp leaveWorkSystem_;
+    ImGuiWindowPopUp popupLeaveWorkSystem_;
     std::string leaveSystemName_;
     ISystem* leaveSystem_ = nullptr;
 
