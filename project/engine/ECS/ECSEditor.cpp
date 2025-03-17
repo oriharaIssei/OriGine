@@ -17,6 +17,8 @@ ECSEditor::~ECSEditor() {}
 void ECSEditor::Initialize() {
     ecsManager_ = ECSManager::getInstance();
 
+    editEntity_ = nullptr;
+
     for (int32_t i = 0; i < int32_t(SystemType::Count); i++) {
         workSystemList_[i].clear();
     }

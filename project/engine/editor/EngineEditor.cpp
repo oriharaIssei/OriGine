@@ -134,6 +134,9 @@ void EngineEditor::Update() {
                     // ロード処理を行い, シーンを再読み込み
                     SceneManager::getInstance()->getCurrentScene()->Finalize(false);
                     SceneManager::getInstance()->getCurrentScene()->Initialize();
+
+                    // Editor を再初期化
+                    this->Initialize();
                     isActive_ = true;
                 }
                 ImGui::EndMenu();

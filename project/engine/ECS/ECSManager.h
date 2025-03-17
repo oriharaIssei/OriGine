@@ -114,17 +114,20 @@ public: // ============== accessor ==============//
     /// 有効なエンティティが前に来るようにソートする
     /// </summary>
     void sortFrontActiveEntities() {
-        auto removedItr = std::remove_if(entities_.begin(), entities_.end(), [](GameEntity& entity) { return !entity.isAlive_; });
+        // isAlive が true のエンティティを前に持ってくる
+        std::partition(entities_.begin(), entities_.end(), [](const GameEntity& entity) { return entity.isAlive_; });
 
         uint32_t index = 0;
-        for (std::vector<GameEntity>::iterator entityItr = entities_.begin();
-            entityItr != removedItr;
-            ++entityItr) {
-            entityItr->id_ = int32_t(index++);
-        }
+        freeEntityIndex_.clear();
 
-        for (uint32_t i = index - 1; i < entityCapacity_; i++) {
-            freeEntityIndex_.push_back(i);
+        // isAlive が true のエンティティに新しい ID を振り直す
+        for (auto& entity : entities_) {
+            if (entity.isAlive_) {
+                entity.id_ = int32_t(index++);
+            } else {
+                // isAlive が false のエンティティのインデックスを freeEntityIndex_ に追加
+                freeEntityIndex_.push_back(index++);
+            }
         }
     }
 

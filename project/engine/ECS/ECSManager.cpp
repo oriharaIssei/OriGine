@@ -163,7 +163,7 @@ void EntityComponentSystemManager::resize(uint32_t _newSize) {
         // エンティティの容量を増やす
         entities_.resize(_newSize);
 
-        for (uint32_t i = entityCapacity_; i < _newSize; ++i) {
+        for (uint32_t i = oldSize; i < _newSize; ++i) {
             freeEntityIndex_.push_back(i);
         }
     }
