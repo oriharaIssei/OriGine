@@ -37,8 +37,8 @@ void ImGuiManager::Initialize(const WinApp* window,const DxDevice* dxDevice,cons
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGui::StyleColorsDark();
-	ImGui_ImplWin32_Init(window->getHwnd());
-	ImGui_ImplDx12_Init(
+	ImGui_ImplWin32_Initialize(window->getHwnd());
+	ImGui_ImplDx12_Initialize(
 		dxDevice->getDevice(),
 		dxSwapChain->getBufferCount(),
 		DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
