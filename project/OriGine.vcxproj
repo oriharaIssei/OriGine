@@ -125,7 +125,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\component\material\light\LightManager.cpp" />
     <ClCompile Include="engine\component\material\Material.cpp" />
     <ClCompile Include="engine\component\physics\Rigidbody.cpp" />
-    <ClCompile Include="engine\component\renderer\MeshRender.cpp" />
+    <ClCompile Include="engine\component\renderer\MeshRenderer.cpp" />
     <ClCompile Include="engine\component\renderer\Sprite.cpp" />
     <ClCompile Include="engine\component\transform\CameraTransform.cpp" />
     <ClCompile Include="engine\component\transform\ParticleTransform.cpp" />
@@ -214,7 +214,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\component\material\light\SpotLight.h" />
     <ClInclude Include="engine\component\material\Material.h" />
     <ClInclude Include="engine\component\physics\Rigidbody.h" />
-    <ClInclude Include="engine\component\renderer\MeshRender.h" />
+    <ClInclude Include="engine\component\renderer\MeshRenderer.h" />
     <ClInclude Include="engine\component\renderer\Sprite.h" />
     <ClInclude Include="engine\component\transform\CameraTransform.h" />
     <ClInclude Include="engine\component\transform\ParticleTransform.h" />

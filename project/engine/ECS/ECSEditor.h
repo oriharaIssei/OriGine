@@ -39,6 +39,12 @@ private:
     /// <param name="_entity"></param>
     void PopupEntityAddComponent(GameEntity* _entity);
 
+    /// <summary>
+    /// システムから離れる前のポップアップ(本当に抜けるのか確認)
+    /// </summary>
+    /// <param name="_entity"></param>
+    void PopupEntityLeaveWorkSystem(GameEntity* _entity);
+
 private:
     ECSManager* ecsManager_ = nullptr;
 
@@ -55,6 +61,10 @@ private:
     };
     ImGuiWindowPopUp popupJoinWorkSystem_;
     ImGuiWindowPopUp popupAddComponent_;
+
+    ImGuiWindowPopUp leaveWorkSystem_;
+    std::string leaveSystemName_;
+    ISystem* leaveSystem_ = nullptr;
 
 public:
     void SortPriorityOrderFromECSManager();

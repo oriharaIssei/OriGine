@@ -120,7 +120,7 @@
     <ClCompile Include="engine\component\material\Material.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="engine\component\renderer\MeshRender.cpp">
+    <ClCompile Include="engine\component\renderer\MeshRenderer.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="engine\component\renderer\Sprite.cpp">
@@ -632,7 +632,7 @@
     <ClInclude Include="engine\component\material\Material.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="engine\component\renderer\MeshRender.h">
+    <ClInclude Include="engine\component\renderer\MeshRenderer.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="engine\component\renderer\Sprite.h">

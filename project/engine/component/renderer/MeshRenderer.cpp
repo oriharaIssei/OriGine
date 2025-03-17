@@ -1,4 +1,4 @@
-#include "MeshRender.h"
+#include "MeshRenderer.h"
 
 /// engine
 #include "Engine.h"
@@ -109,7 +109,7 @@ bool ModelMeshRenderer::Edit() {
     }
 
     ImGui::Text("Model File: %s", fileName_.c_str());
-    ImGui::SameLine();
+
     if (ImGui::Button("Load")) {
         std::string directory;
         std::string fileName;
@@ -124,6 +124,29 @@ bool ModelMeshRenderer::Edit() {
             isChange = true;
         }
     }
+
+    ImGui::Separator();
+
+    std::string meshName = "Mesh";
+    for (int32_t i = 0; i < meshGroup_->size(); ++i) {
+        meshName = "Mesh" + '[' + std::to_string(i) + "]";
+        if (ImGui::CollapsingHeader(meshName.c_str())) {
+            if (ImGui::TreeNode("Transform")) {
+                Transform& transform = meshTransformBuff_[i].openData_;
+                // Transform
+                if (transform.Edit()) {
+                    meshTransformBuff_[i].ConvertToBuffer();
+                    isChange = true;
+                }
+                ImGui::TreePop();
+            }
+            if (ImGui::TreeNode("Material")) {
+
+                ImGui::TreePop();
+            }
+        }
+    }
+
     return isChange;
 }
 

@@ -120,8 +120,9 @@ void ECSEditor::EditEntity() {
             EngineEditor::getInstance()->addCommand(std::move(command));
         }
 
-        ImGui::Text("Entity ID   : %s", editEntity_->getUniqueID().c_str());
-        ImGui::Text("Entity Name : ");
+        ImGui::Text("Entity UniqueID   : %s", editEntity_->getUniqueID().c_str());
+        ImGui::Text("Entity ID         : %d", editEntity_->getID());
+        ImGui::Text("Entity Name       :");
         ImGui::SameLine();
         ImGui::InputText("##entityName", const_cast<char*>(editEntity_->getDataType().c_str()), 256);
 
@@ -151,15 +152,21 @@ void ECSEditor::EditEntity() {
         for (int32_t systemTypeIndex = 0; systemTypeIndex < int32_t(SystemType::Count); ++systemTypeIndex) {
             if (ImGui::CollapsingHeader(SystemTypeString[systemTypeIndex].c_str())) {
                 for (auto& [systemName, system] : editEntitySystems_[systemTypeIndex]) {
-                    ImGui::Text("%s", systemName.c_str());
+                    // Popupで 処理するために保持
+                    if (ImGui::Button(systemName.c_str())) {
+                        leaveSystemName_ = systemName;
+                        leaveSystem_     = system;
+                    }
                 }
             }
         }
     }
+
     ImGui::End();
 
     PopupEntityJoinWorkSystem(editEntity_);
     PopupEntityAddComponent(editEntity_);
+    PopupEntityLeaveWorkSystem(editEntity_);
 }
 
 void ECSEditor::WorkerSystemList() {
@@ -241,7 +248,7 @@ void ECSEditor::PopupEntityJoinWorkSystem(GameEntity* _entity) {
     }
 
     ImGui::Begin("Join Work System", &popupJoinWorkSystem_.isOpen_);
-    popupJoinWorkSystem_.isOpen_ = ImGui::IsWindowFocused();
+    popupJoinWorkSystem_.isOpen_ |= ImGui::IsWindowFocused();
 
     ImGui::Text("Work Systems");
     int systemTypeIndex = 0;
@@ -267,7 +274,7 @@ void ECSEditor::PopupEntityAddComponent(GameEntity* _entity) {
         return;
     }
     ImGui::Begin("AddComponent", &popupAddComponent_.isOpen_);
-    popupAddComponent_.isOpen_ = ImGui::IsWindowFocused();
+    popupAddComponent_.isOpen_ |= ImGui::IsWindowFocused();
 
     // コンポーネントの追加 → Command経由に変更
     for (auto& [componentTypeName, componentArray] : ecsManager_->getComponentArrayMap()) {
@@ -277,6 +284,36 @@ void ECSEditor::PopupEntityAddComponent(GameEntity* _entity) {
             command->Execute();
             EngineEditor::getInstance()->addCommand(std::move(command));
         }
+    }
+
+    ImGui::End();
+}
+
+void ECSEditor::PopupEntityLeaveWorkSystem(GameEntity* _entity) {
+    if (!leaveWorkSystem_.isOpen_) {
+        return;
+    };
+
+    ImGui::Begin("Leave Work System", &leaveWorkSystem_.isOpen_);
+    leaveWorkSystem_.isOpen_ |= ImGui::IsWindowFocused();
+
+    ImGui::Text("Leave %s ?", leaveSystemName_.c_str());
+
+    if (ImGui::Button("Yes")) {
+        // commandから 実行
+        auto command = std::make_unique<LeaveWorkSystemCommand>(this, _entity, leaveSystemName_, leaveSystem_);
+        command->Execute();
+        EngineEditor::getInstance()->addCommand(std::move(command));
+
+        leaveSystem_ = nullptr;
+        leaveSystemName_.clear();
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Cancel")) {
+        leaveWorkSystem_.isOpen_ = false;
+
+        leaveSystem_ = nullptr;
+        leaveSystemName_.clear();
     }
 
     ImGui::End();
