@@ -240,6 +240,7 @@ public:
 
 private:
     GameEntity* entity_ = nullptr;
+    int32_t typeIdx_    = -1;
     std::string systemName_;
     ISystem* system_ = nullptr;
 };

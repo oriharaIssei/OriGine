@@ -586,3 +586,16 @@ void RemoveComponentCommand::Undo() {
     }
 }
 #pragma endregion // Commands
+
+void LeaveWorkSystemCommand::Execute() {
+    // エンティティをシステムから離脱させる処理
+    system_->removeEntity(entity_);
+    typeIdx_ = int32_t(system_->getSystemType());
+    ecsEditor_->customEditEntitySystems()[typeIdx_].pop_back();
+}
+
+void LeaveWorkSystemCommand::Undo() {
+    // エンティティをシステムに参加させる処理
+    system_->addEntity(entity_);
+    ecsEditor_->customEditEntitySystems()[typeIdx_].push_back({systemName_, system_});
+}

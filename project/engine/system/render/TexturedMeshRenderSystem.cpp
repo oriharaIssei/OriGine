@@ -9,7 +9,7 @@
 // ECS
 // component
 #include "component/material/light/LightManager.h"
-#include "component/renderer/MeshRender.h"
+#include "component/renderer/MeshRenderer.h"
 #include "ECSManager.h"
 
 void TexturedMeshRenderSystem::Initialize() {

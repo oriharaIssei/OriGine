@@ -4,7 +4,7 @@
 #include "directX12/IConstantBuffer.h"
 #include "directX12/Mesh.h"
 // component
-#include "component/renderer/MeshRender.h"
+#include "component/renderer/MeshRenderer.h"
 
 // math
 #include "Vector2.h"

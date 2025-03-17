@@ -31,7 +31,7 @@ static const std::string kEngineResourceDirectory      = "engine/resource";
 #include "component/collider/Collider.h"
 #include "component/IComponent.h"
 #include "component/physics/Rigidbody.h"
-#include "component/renderer/MeshRender.h"
+#include "component/renderer/MeshRenderer.h"
 #include "component/renderer/Sprite.h"
 #include "component/transform/CameraTransform.h"
 #include "component/transform/Transform.h"
