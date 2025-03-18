@@ -1,4 +1,8 @@
+-- 先頭で作業ディレクトリをprojectに変更
+os.chdir(_SCRIPT_DIR .. "/..")
+
 workspace "OriGine"
+
     architecture "x86_64"
     configurations { "Debug", "Release" }
 
@@ -7,36 +11,52 @@ workspace "OriGine"
 project "OriGine"
     kind "WindowedApp"
     language "C++"
-    targetdir "../../generated/outputs/%{cfg.buildcfg}/"
+    targetdir "../generated/outputs/%{cfg.buildcfg}/"
+    objdir "../generated/obj/%{cfg.buildcfg}/"
 
-    files { "OriGine/**.h", "OriGine/**.cpp" }
+    files { "**.h", "**.cpp"}
+    removefiles  { "externals/**", "application/**"}
 
     includedirs {
-        "OriGine/code/math",
-        "OriGine/code/lib",
-        "OriGine/code/gameScene",
-        "OriGine/code/engine",
-        "OriGine/code",
-        "../externals/assimp/include",
-        "../externals/imgui_nodeEditor"
+        "$(SolutionDir)math",
+        "$(SolutionDir)lib",
+        "$(SolutionDir)engine/ECS",
+        "$(SolutionDir)engine",
+        "$(SolutionDir).",
+        "$(SolutionDir)externals",
+        "$(SolutionDir)externals/assimp/include"
     }
+
+    dependson { "DirectXTex", "imgui", "OriGineApp" }
 
     links {
         "DirectXTex",
-        "imgui"
+        "imgui",
+        "OriGineApp"
     }
 
     defines {
         "_WINDOWS"
     }
 
+    warnings "Extra"
+    buildoptions { "/WX", "/utf-8" }
+
     filter "configurations:Debug"
         defines { "DEBUG", "_DEBUG" }
         symbols "On"
+        runtime "Debug"
+        libdirs { "externals/assimp/lib/Debug" }
+        links { "assimp-vc143-mtd" }
+        staticruntime "On"
 
     filter "configurations:Release"
         defines { "NDEBUG" }
         optimize "Full"
+        runtime "Release"
+        libdirs { "externals/assimp/lib/Release" }
+        links { "assimp-vc143-mt" }
+        staticruntime "On"
 
     filter "system:windows"
         cppdialect "C++20"
@@ -49,22 +69,84 @@ project "OriGine"
 project "DirectXTex"
     kind "StaticLib"
     language "C++"
-    location "../externals/DirectXTex/"
-    targetdir "../../generated/outputs/DirectXTex/%{cfg.buildcfg}/"
+    location "externals/DirectXTex/"
+    targetdir "../generated/outputs/%{cfg.buildcfg}/"
+    objdir "../generated/obj/%{cfg.buildcfg}/"
+    targetname "DirectXTex"
+    files { "externals/DirectXTex/**.h", "externals/DirectXTex/**.cpp" }
+    includedirs { "$(ProjectDir)","$(ProjectDir)Shaders/Compiled" }
+    filter "system:windows"
+        cppdialect "C++20"
+        systemversion "latest"
+    filter "configurations:Debug"
+         runtime "Debug"       -- Debug ランタイム (MTd) を使用
+         symbols "On"
+         staticruntime "On"
+    filter "configurations:Release"
+         runtime "Release"     -- Release ランタイム (MT) を使用
+         optimize "Full"
+         staticruntime "On"
 
-    files { "../externals/DirectXTex/**.h", "../externals/DirectXTex/**.cpp" }
+project "imgui"
+    kind "StaticLib"
+    language "C++"
+    location "externals/imgui/"
+    targetdir "../generated/outputs/%{cfg.buildcfg}/"
+    objdir "../generated/obj/%{cfg.buildcfg}/"
+
+    files { "externals/imgui/**.h", "externals/imgui/**.cpp" }
 
     filter "system:windows"
         cppdialect "C++20"
         systemversion "latest"
 
-project "imgui"
+    filter "configurations:Debug"
+        staticruntime "On"
+
+    filter "configurations:Release"
+        staticruntime "On"
+
+project "OriGineApp"
     kind "StaticLib"
     language "C++"
-    location "../externals/imgui/"
-    targetdir "../../generated/outputs/imgui/%{cfg.buildcfg}/"
+    location "application"
+    targetdir "../generated/outputs/%{cfg.buildcfg}/"
+    objdir "../generated/obj/%{cfg.buildcfg}/"
+    files { "application/**.h", "application/**.cpp" }
 
-    files { "../externals/imgui/**.h", "../externals/imgui/**.cpp" }
+    includedirs {
+        "$(SolutionDir)application",
+        "$(SolutionDir)math",
+        "$(SolutionDir)lib",
+        "$(SolutionDir)engine/ECS",
+        "$(SolutionDir)engine",
+        "$(SolutionDir).",
+        "$(SolutionDir)externals",
+        "$(SolutionDir)externals/assimp/include"
+    }
+    dependson { "DirectXTex", "imgui" }
+    links {
+        "DirectXTex",
+        "imgui"
+    }
+    warnings "Extra"
+    buildoptions { "/WX", "/utf-8" }
+
+    filter "configurations:Debug"
+        defines { "DEBUG", "_DEBUG" }
+        symbols "On"
+        runtime "Debug"
+        libdirs { "externals/assimp/lib/Debug" }
+        links { "assimp-vc143-mtd" }
+        staticruntime "On"
+
+    filter "configurations:Release"
+        defines { "NDEBUG" }
+        optimize "Full"
+        runtime "Release"
+        libdirs { "externals/assimp/lib/Release" }
+        links { "assimp-vc143-mt" }
+        staticruntime "On"
 
     filter "system:windows"
         cppdialect "C++20"

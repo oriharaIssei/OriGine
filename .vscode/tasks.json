@@ -78,6 +78,25 @@
                 "isDefault": false
             },
             "problemMatcher": []
+        },
+        {
+            "label": "Generate Premake5",
+            "type": "shell",
+            "command": "premake5",
+            "args": [
+                "vs2022"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/project/config"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "presentation": {
+                "reveal": "always"
+            },
+            "problemMatcher": []
         }
     ],
     "inputs": [
