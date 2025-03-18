@@ -9,7 +9,7 @@
 
 Transform::Transform(){}
 
-void Transform::Initialize(GameEntity* _entity) {}
+void Transform::Initialize([[maybe_unused]]GameEntity* _entity) {}
 
 void Transform::Update() {
     worldMat = MakeMatrix::Affine(scale, rotate, translate);

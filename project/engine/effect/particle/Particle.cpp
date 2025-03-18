@@ -1,12 +1,12 @@
 #include "Particle.h"
 
-///stl
-//io
+/// stl
+// io
 #include <fstream>
 #include <iostream>
 
-///engine
-//transform
+/// engine
+// transform
 #include "component/transform/ParticleTransform.h"
 
 // lib
@@ -77,8 +77,8 @@ void Particle::Update(float _deltaTime) {
         float dot     = Vec3f(axisZ * forward).dot();
         if (dot < 1.0f - std::numeric_limits<float>::epsilon()) {
             Vec3f axis        = axisZ.cross(forward).normalize();
-            float angle       = std::acos(dot);
-            Quaternion q      = Quaternion::RotateAxisAngle(axis, angle).normalize();
+            float rotateAngle       = std::acos(dot);
+            Quaternion q      = Quaternion::RotateAxisAngle(axis, rotateAngle).normalize();
             transform_.rotate = q.ToEulerAngles();
         }
     }
@@ -187,7 +187,7 @@ void ParticleKeyFrames::SaveKeyFrames(const std::string& _filePath) {
     9. fileを閉じる
     */
 
-    //1. fileを開く
+    // 1. fileを開く
     std::ofstream ofs(_filePath, std::ios::binary);
     if (!ofs) {
         throw std::runtime_error("Failed to open file for writing");
@@ -210,7 +210,7 @@ void ParticleKeyFrames::SaveKeyFrames(const std::string& _filePath) {
     writeCurve(uvRotateCurve_);
     writeCurve(uvTranslateCurve_);
 
-    //9. fileを閉じる
+    // 9. fileを閉じる
     ofs.close();
 }
 
@@ -226,7 +226,7 @@ void ParticleKeyFrames::LoadKeyFrames(const std::string& _filePath) {
     8. uvTranslateCurve_のkeyframesを読み込む(サイズ, 各キーフレーム)
     9. fileを閉じる
     */
-    //1. fileを開く
+    // 1. fileを開く
     std::ifstream ifs(_filePath, std::ios::binary);
     if (!ifs) {
         throw std::runtime_error("Failed to open file for reading");
@@ -248,7 +248,7 @@ void ParticleKeyFrames::LoadKeyFrames(const std::string& _filePath) {
     readCurve(uvScaleCurve_);
     readCurve(uvRotateCurve_);
     readCurve(uvTranslateCurve_);
-    //9. fileを閉じる
+    // 9. fileを閉じる
     ifs.close();
 }
 #pragma endregion

@@ -422,11 +422,9 @@ bool EditKeyFrame(
                     if (_keyFrames.size() <= 1) {
                         _keyFrames[0].time  = 0.0f;
                         _keyFrames[0].value = 0.0f;
-                        return 0;
                     }
                     _keyFrames.erase(_keyFrames.begin() + popUpIndex);
                     popUpIndex = 0;
-                    return 0;
                 }
                 if (ImGui::Button("Copy")) {
                     _keyFrames.push_back(_keyFrames[popUpIndex]);
@@ -439,7 +437,6 @@ bool EditKeyFrame(
                             return a.time < b.time;
                         });
                     popUpIndex += 1;
-                    return 0;
                 }
                 ImGui::Text("Time");
                 ImGui::DragFloat(
@@ -458,9 +455,8 @@ bool EditKeyFrame(
                         &_keyFrames[popUpIndex].value,
                         0.1f);
                 }
-
-                return 1;
-            }();
+            };
+            popupUpdadte();
 
             EndPopup();
         } else {
@@ -494,7 +490,9 @@ bool EditKeyFrame(
                 }
 
                 return 0;
-            }();
+            };
+
+            sliderPopupUpdate();
 
             EndPopup();
         }
@@ -684,8 +682,8 @@ bool EditKeyFrame(
                 }
 
                 return 1;
-            }();
-
+            };
+            popupUpdadte();
             EndPopup();
         } else {
             popUpIndex = -1;
@@ -718,7 +716,8 @@ bool EditKeyFrame(
                 }
 
                 return 0;
-            }();
+            };
+            sliderPopupUpdate();
 
             EndPopup();
         }
@@ -913,7 +912,8 @@ bool EditKeyFrame(
                 }
 
                 return 1;
-            }();
+            };
+            popupUpdadte();
 
             EndPopup();
         } else {
@@ -947,7 +947,8 @@ bool EditKeyFrame(
                 }
 
                 return 0;
-            }();
+            };
+            sliderPopupUpdate();
 
             EndPopup();
         }
@@ -1144,7 +1145,8 @@ bool EditKeyFrame(
                 // Quaternionは正規化する
                 _keyFrames[popUpIndex].value = _keyFrames[popUpIndex].value.normalize();
                 return 1;
-            }();
+            };
+            popupUpdadte();
 
             EndPopup();
         } else {
@@ -1178,7 +1180,8 @@ bool EditKeyFrame(
                 }
 
                 return 0;
-            }();
+            };
+            sliderPopupUpdate();
 
             EndPopup();
         }

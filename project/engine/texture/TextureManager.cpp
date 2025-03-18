@@ -33,7 +33,7 @@ std::unique_ptr<TaskThread<TextureManager::LoadTask>> TextureManager::loadThread
 std::unique_ptr<DxCommand> TextureManager::dxCommand_;
 
 #pragma region Texture
-void Texture::Initialize(const std::string& filePath, std::shared_ptr<DxSrvArray> srvArray, int textureIndex) {
+void Texture::Initialize(const std::string& filePath, std::shared_ptr<DxSrvArray> srvArray) {
     loadState = LoadState::Loaded;
     path      = filePath;
     DxResource resource;
@@ -162,9 +162,6 @@ void Texture::ExecuteCommand(ID3D12Resource* resource) {
 #pragma region "Manager"
 void TextureManager::Initialize() {
     CoInitializeEx(0, COINIT_MULTITHREADED);
-
-    DxHeap* heap = DxHeap::getInstance();
-
     dxSrvArray_ = DxSrvArrayManager::getInstance()->Create(maxTextureSize_);
 
     loadThread_ = std::make_unique<TaskThread<LoadTask>>();
@@ -230,7 +227,7 @@ void TextureManager::UnloadTexture(uint32_t id) {
 #pragma region "LoadTask"
 void TextureManager::LoadTask::Update() {
     std::weak_ptr<DxSrvArray> dxSrvArray = dxSrvArray_;
-    texture->Initialize(filePath, dxSrvArray.lock(), textureIndex);
+    texture->Initialize(filePath, dxSrvArray.lock());
 
     if (callBack) {
         callBack(textureIndex);

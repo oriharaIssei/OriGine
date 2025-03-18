@@ -11,8 +11,8 @@ workspace "OriGine"
 project "OriGine"
     kind "WindowedApp"
     language "C++"
-    targetdir "../generated/outputs/%{cfg.buildcfg}/"
-    objdir "../generated/obj/%{cfg.buildcfg}/"
+    targetdir "../generated/output/%{cfg.buildcfg}/"
+    objdir "../generated/obj/%{cfg.buildcfg}/OriGine/"
 
     files { "**.h", "**.cpp"}
     removefiles  { "externals/**", "application/**"}
@@ -27,7 +27,11 @@ project "OriGine"
         "$(SolutionDir)externals/assimp/include"
     }
 
-    dependson { "DirectXTex", "imgui", "OriGineApp" }
+    dependson {
+        "DirectXTex",
+        "imgui",
+        "OriGineApp"
+        }
 
     links {
         "DirectXTex",
@@ -62,16 +66,16 @@ project "OriGine"
         cppdialect "C++20"
         systemversion "latest"
         postbuildcommands {
-            "{COPY} $(WindowsSdkDir)bin/$(TargetPlatformVersion)/x64/dxcompiler.dll %{cfg.targetdir}/dxcompiler.dll",
-            "{COPY} $(WindowsSdkDir)bin/$(TargetPlatformVersion)/x64/dxil.dll %{cfg.targetdir}/dxil.dll"
+            "copy \"$(WindowsSdkDir)bin\\$(TargetPlatformVersion)\\x64\\dxcompiler.dll\" \"$(TargetDir)dxcompiler.dll\"",
+            "copy \"$(WindowsSdkDir)bin\\$(TargetPlatformVersion)\\x64\\dxil.dll\" \"$(TargetDir)dxil.dll\""
         }
 
 project "DirectXTex"
     kind "StaticLib"
     language "C++"
     location "externals/DirectXTex/"
-    targetdir "../generated/outputs/%{cfg.buildcfg}/"
-    objdir "../generated/obj/%{cfg.buildcfg}/"
+    targetdir "../generated/output/%{cfg.buildcfg}/"
+    objdir "../generated/obj/%{cfg.buildcfg}/DirectXTex/"
     targetname "DirectXTex"
     files { "externals/DirectXTex/**.h", "externals/DirectXTex/**.cpp" }
     includedirs { "$(ProjectDir)","$(ProjectDir)Shaders/Compiled" }
@@ -91,8 +95,8 @@ project "imgui"
     kind "StaticLib"
     language "C++"
     location "externals/imgui/"
-    targetdir "../generated/outputs/%{cfg.buildcfg}/"
-    objdir "../generated/obj/%{cfg.buildcfg}/"
+    targetdir "../generated/output/%{cfg.buildcfg}/"
+    objdir "../generated/obj/%{cfg.buildcfg}/imgui/"
 
     files { "externals/imgui/**.h", "externals/imgui/**.cpp" }
 
@@ -110,8 +114,8 @@ project "OriGineApp"
     kind "StaticLib"
     language "C++"
     location "application"
-    targetdir "../generated/outputs/%{cfg.buildcfg}/"
-    objdir "../generated/obj/%{cfg.buildcfg}/"
+    targetdir "../generated/output/%{cfg.buildcfg}/"
+    objdir "../generated/obj/%{cfg.buildcfg}/OriGineApp/"
     files { "application/**.h", "application/**.cpp" }
 
     includedirs {

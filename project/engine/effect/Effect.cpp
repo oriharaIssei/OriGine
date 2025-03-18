@@ -188,7 +188,7 @@ void Effect::Debug() {
 
         {
             // タイムラインで使用する関数たち
-            std::function<void(float newNodeTime)> updateOnNodeDragged = [this](float newNodeTime) {
+            std::function<void(float newNodeTime)> updateOnNodeDragged = [this]([[maybe_unused]]float newNodeTime) {
                 std::sort(
                     particleSchedule_.begin(),
                     particleSchedule_.end(),
@@ -196,7 +196,7 @@ void Effect::Debug() {
                         return a.time < b.time;
                     });
             };
-            std::function<void(float _currentTime)> sliderPopupUpdate = [this](float _currentTime) {
+            std::function<void(float _currentTime)> sliderPopupUpdate = [this]([[maybe_unused]] float _currentTime) {
             };
             std::function<bool(int)> nodePopUpUpdate = [this](int _index) {
                 if (ImGui::Button("Delete")) {

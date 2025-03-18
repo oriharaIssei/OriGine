@@ -134,7 +134,6 @@ void Emitter::Update(float deltaTime) {
     }
 
     { // Particles Update
-        uint32_t index = 0;
         for (auto& particle : particles_) {
             particle->Update(deltaTime);
         }

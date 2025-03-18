@@ -11,9 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <VCProjectVersion>17.0</VCProjectVersion>
-    <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{B23D79D6-1E1D-F871-2735-834893935ED3}</ProjectGuid>
+    <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
+    <Keyword>Win32Proj</Keyword>
     <RootNamespace>OriGine</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -21,20 +21,17 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
-  </ImportGroup>
-  <ImportGroup Label="Shared">
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -44,32 +41,37 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(ProjectDir)..\externals\nlohmann;$(SolutionDir)imgui;$(SolutionDir)\DirectXTex;$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)..\generated\outputs\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)..\generated\outputs\obj\$(ProjectName)\$(Configuration)\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>..\generated\output\Debug\</OutDir>
+    <IntDir>..\generated\obj\Debug\OriGine\</IntDir>
+    <TargetName>OriGine</TargetName>
+    <TargetExt>.exe</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(ProjectDir)..\externals\nlohmann;$(SolutionDir)imgui;$(SolutionDir)\DirectXTex;$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)..\generated\outputs\$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)..\generated\outputs\obj\$(ProjectName)\$(Configuration)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>..\generated\output\Release\</OutDir>
+    <IntDir>..\generated\obj\Release\OriGine\</IntDir>
+    <TargetName>OriGine</TargetName>
+    <TargetExt>.exe</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>_WINDOWS;DEBUG;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)math;$(SolutionDir)lib;$(SolutionDir)engine\ECS;$(SolutionDir)engine;$(SolutionDir);$(SolutionDir)externals;$(SolutionDir)externals\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir)math;$(ProjectDir)lib;$(ProjectDir)engine/ECS;$(ProjectDir)engine;$(ProjectDir)application;$(ProjectDir);$(ProjectDir)externals;$(ProjectDir)externals/assimp/include;$(ProjectDir)externals/imgui_nodeEditor;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <TreatWarningAsError>true</TreatWarningAsError>
+      <AdditionalOptions>/WX /utf-8 %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <ExternalWarningLevel>Level3</ExternalWarningLevel>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)externals\assimp\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>assimp-vc143-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>externals\assimp\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxcompiler.dll" "$(TargetDir)dxcompiler.dll"
@@ -78,26 +80,26 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)math;$(SolutionDir)lib;$(SolutionDir)engine\ECS;$(SolutionDir)engine;$(SolutionDir);$(SolutionDir)externals;$(SolutionDir)externals\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)math;$(ProjectDir)lib;$(ProjectDir)application/gameScene;$(ProjectDir)engine/ECS/component;$(ProjectDir)engine/ECS;$(ProjectDir)engine;$(ProjectDir);$(ProjectDir)externals;$(ProjectDir)externals/assimp/include;$(ProjectDir)externals/imgui_nodeEditor;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <TreatWarningAsError>true</TreatWarningAsError>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <MinimalRebuild>false</MinimalRebuild>
+      <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/WX /utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <ExternalWarningLevel>Level3</ExternalWarningLevel>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)externals\assimp\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
+      <AdditionalLibraryDirectories>externals\assimp\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxcompiler.dll" "$(TargetDir)dxcompiler.dll"
@@ -105,99 +107,11 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="application\FrameWork.cpp" />
-    <ClCompile Include="application\MyGame.cpp" />
-    <ClCompile Include="application\scene\GameScene.cpp" />
-    <ClCompile Include="application\component\BulletSpawner.cpp" />
-    <ClCompile Include="application\component\CharacterStatus.cpp" />
-    <ClCompile Include="application\system\DeleteCharacterEntitySystem.cpp" />
-    <ClCompile Include="application\system\CharacterOnCollision.cpp" />
-    <ClCompile Include="engine\system\movement\MoveSystemByRigidBody.cpp" />
-    <ClCompile Include="engine\animation\Animation.cpp" />
-    <ClCompile Include="engine\animation\AnimationManager.cpp" />
-    <ClCompile Include="engine\assets\IAsset.cpp" />
-    <ClCompile Include="engine\audio\Audio.cpp" />
-    <ClCompile Include="engine\camera\CameraManager.cpp" />
-    <ClCompile Include="engine\camera\debugCamera\DebugCamera.cpp" />
-    <ClCompile Include="engine\camera\gameCamera\GameCamera.cpp" />
-    <ClCompile Include="engine\component\collider\Collider.cpp" />
-    <ClCompile Include="engine\component\IComponent.cpp" />
-    <ClCompile Include="engine\component\material\light\LightManager.cpp" />
-    <ClCompile Include="engine\component\material\Material.cpp" />
-    <ClCompile Include="engine\component\physics\Rigidbody.cpp" />
-    <ClCompile Include="engine\component\renderer\MeshRenderer.cpp" />
-    <ClCompile Include="engine\component\renderer\Sprite.cpp" />
-    <ClCompile Include="engine\component\transform\CameraTransform.cpp" />
-    <ClCompile Include="engine\component\transform\ParticleTransform.cpp" />
-    <ClCompile Include="engine\component\transform\Transform.cpp" />
-    <ClCompile Include="engine\directX12\DxCommand.cpp" />
-    <ClCompile Include="engine\directX12\DxDebug.cpp" />
-    <ClCompile Include="engine\directX12\DxDevice.cpp" />
-    <ClCompile Include="engine\directX12\DxDsv.cpp" />
-    <ClCompile Include="engine\directX12\DxFence.cpp" />
-    <ClCompile Include="engine\directX12\DxFunctionHelper.cpp" />
-    <ClCompile Include="engine\directX12\DxHeap.cpp" />
-    <ClCompile Include="engine\directX12\DxResource.cpp" />
-    <ClCompile Include="engine\directX12\DxRtvArray.cpp" />
-    <ClCompile Include="engine\directX12\DxRtvArrayManager.cpp" />
-    <ClCompile Include="engine\directX12\DxSrvArray.cpp" />
-    <ClCompile Include="engine\directX12\DxSrvArrayManager.cpp" />
-    <ClCompile Include="engine\directX12\DxSwapChain.cpp" />
-    <ClCompile Include="engine\directX12\PipelineStateObj.cpp" />
-    <ClCompile Include="engine\directX12\RenderTexture.cpp" />
-    <ClCompile Include="engine\directX12\ResourceBarrierManager.cpp" />
-    <ClCompile Include="engine\directX12\ShaderCompiler.cpp" />
-    <ClCompile Include="engine\directX12\ShaderManager.cpp" />
-    <ClCompile Include="engine\ECS\ECSEditor.cpp" />
-    <ClCompile Include="engine\ECS\ECSManager.cpp" />
-    <ClCompile Include="engine\editor\EngineEditor.cpp" />
-    <ClCompile Include="engine\effect\editor\EffectEditor.cpp" />
-    <ClCompile Include="engine\effect\Effect.cpp" />
-    <ClCompile Include="engine\effect\manager\EffectManager.cpp" />
-    <ClCompile Include="engine\effect\particle\editor\ParticleEditor.cpp" />
-    <ClCompile Include="engine\effect\particle\emitter\Emitter.cpp" />
-    <ClCompile Include="engine\effect\particle\emitter\EmitterShape.cpp" />
-    <ClCompile Include="engine\effect\particle\Particle.cpp" />
-    <ClCompile Include="engine\effect\silhouette\ISilhouette.cpp" />
-    <ClCompile Include="engine\Engine.cpp" />
-    <ClCompile Include="engine\input\Input.cpp" />
-    <ClCompile Include="engine\iScene\IScene.cpp" />
-    <ClCompile Include="engine\model\ModelManager.cpp" />
-    <ClCompile Include="engine\object3d\AnimationObject3d.cpp" />
-    <ClCompile Include="engine\primitiveDrawer\PrimitiveDrawer.cpp" />
-    <ClCompile Include="engine\sceneManager\SceneManager.cpp" />
-    <ClCompile Include="engine\system\collision\CollisionCheckSystem.cpp" />
-    <ClCompile Include="engine\system\ISystem.cpp" />
-    <ClCompile Include="engine\system\render\SpritRenderSystem.cpp" />
-    <ClCompile Include="engine\system\render\TexturedMeshRenderSystem.cpp" />
-    <ClCompile Include="engine\texture\TextureManager.cpp" />
-    <ClCompile Include="lib\animationEditor\AnimationEditor.cpp" />
-    <ClCompile Include="lib\animationEditor\Timeline.cpp" />
-    <ClCompile Include="lib\binaryIO\BinaryIO.cpp" />
-    <ClCompile Include="lib\deltaTime\DeltaTime.cpp" />
-    <ClCompile Include="lib\globalVariables\GlobalVariables.cpp" />
-    <ClCompile Include="lib\imGuiManager\ImGuiManager.cpp" />
-    <ClCompile Include="lib\logger\Logger.cpp" />
-    <ClCompile Include="lib\myFileSystem\MyFileSystem.cpp" />
-    <ClCompile Include="lib\node\OperatorNodes.cpp" />
-    <ClCompile Include="lib\Thread\Thread.cpp" />
-    <ClCompile Include="lib\winApp\WinApp.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="math\Matrix4x4.cpp" />
-    <ClCompile Include="math\MyEasing.cpp" />
-    <ClCompile Include="math\Quaternion.cpp" />
-    <ClCompile Include="application\system\ShotBulletSystem.cpp" />
-    <ClCompile Include="application\system\PlayerInputSystem.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="application\FrameWork.h" />
-    <ClInclude Include="application\MyGame.h" />
-    <ClInclude Include="application\scene\GameScene.h" />
-    <ClInclude Include="application\component\BulletSpawner.h" />
-    <ClInclude Include="application\component\CharacterStatus.h" />
-    <ClInclude Include="application\system\DeleteCharacterEntitySystem.h" />
-    <ClInclude Include="application\system\CharacterOnCollision.h" />
-    <ClInclude Include="engine\system\movement\MoveSystemByRigidBody.h" />
+    <ClInclude Include="engine\ECS\ECSEditor.h" />
+    <ClInclude Include="engine\ECS\ECSManager.h" />
+    <ClInclude Include="engine\ECS\Entity.h" />
+    <ClInclude Include="engine\Engine.h" />
+    <ClInclude Include="engine\EngineInclude.h" />
     <ClInclude Include="engine\animation\Animation.h" />
     <ClInclude Include="engine\animation\AnimationManager.h" />
     <ClInclude Include="engine\assets\IAsset.h" />
@@ -205,14 +119,14 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\camera\CameraManager.h" />
     <ClInclude Include="engine\camera\debugCamera\DebugCamera.h" />
     <ClInclude Include="engine\camera\gameCamera\GameCamera.h" />
-    <ClInclude Include="engine\component\collider\Collider.h" />
     <ClInclude Include="engine\component\ComponentArray.h" />
     <ClInclude Include="engine\component\IComponent.h" />
+    <ClInclude Include="engine\component\collider\Collider.h" />
+    <ClInclude Include="engine\component\material\Material.h" />
     <ClInclude Include="engine\component\material\light\DirectionalLight.h" />
     <ClInclude Include="engine\component\material\light\LightManager.h" />
     <ClInclude Include="engine\component\material\light\PointLight.h" />
     <ClInclude Include="engine\component\material\light\SpotLight.h" />
-    <ClInclude Include="engine\component\material\Material.h" />
     <ClInclude Include="engine\component\physics\Rigidbody.h" />
     <ClInclude Include="engine\component\renderer\MeshRenderer.h" />
     <ClInclude Include="engine\component\renderer\Sprite.h" />
@@ -240,119 +154,31 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\directX12\ResourceBarrierManager.h" />
     <ClInclude Include="engine\directX12\ShaderCompiler.h" />
     <ClInclude Include="engine\directX12\ShaderManager.h" />
-    <ClInclude Include="engine\ECS\ECSEditor.h" />
-    <ClInclude Include="engine\ECS\ECSManager.h" />
-    <ClInclude Include="engine\ECS\Entity.h" />
     <ClInclude Include="engine\editor\EngineEditor.h" />
-    <ClInclude Include="engine\effect\editor\EffectEditor.h" />
     <ClInclude Include="engine\effect\Effect.h" />
+    <ClInclude Include="engine\effect\editor\EffectEditor.h" />
     <ClInclude Include="engine\effect\manager\EffectManager.h" />
+    <ClInclude Include="engine\effect\particle\Particle.h" />
     <ClInclude Include="engine\effect\particle\editor\ParticleEditor.h" />
     <ClInclude Include="engine\effect\particle\emitter\Emitter.h" />
     <ClInclude Include="engine\effect\particle\emitter\EmitterShape.h" />
-    <ClInclude Include="engine\effect\particle\Particle.h" />
     <ClInclude Include="engine\effect\silhouette\ISilhouette.h" />
-    <ClInclude Include="engine\Engine.h" />
-    <ClInclude Include="engine\EngineInclude.h" />
-    <ClInclude Include="engine\input\Input.h" />
     <ClInclude Include="engine\iScene\IScene.h" />
+    <ClInclude Include="engine\input\Input.h" />
     <ClInclude Include="engine\model\Model.h" />
     <ClInclude Include="engine\model\ModelManager.h" />
-    <ClInclude Include="engine\module\editor\IEditor.h" />
     <ClInclude Include="engine\module\IModule.h" />
+    <ClInclude Include="engine\module\editor\IEditor.h" />
     <ClInclude Include="engine\object3d\AnimationObject3d.h" />
     <ClInclude Include="engine\primitiveDrawer\PrimitiveDrawer.h" />
     <ClInclude Include="engine\sceneManager\SceneManager.h" />
-    <ClInclude Include="engine\system\collision\CollisionCheckSystem.h" />
     <ClInclude Include="engine\system\ISystem.h" />
+    <ClInclude Include="engine\system\collision\CollisionCheckSystem.h" />
+    <ClInclude Include="engine\system\movement\MoveSystemByRigidBody.h" />
     <ClInclude Include="engine\system\render\SpritRenderSystem.h" />
     <ClInclude Include="engine\system\render\TexturedMeshRenderSystem.h" />
     <ClInclude Include="engine\texture\TextureManager.h" />
-    <ClInclude Include="externals\assimp\include\assimp\aabb.h" />
-    <ClInclude Include="externals\assimp\include\assimp\ai_assert.h" />
-    <ClInclude Include="externals\assimp\include\assimp\anim.h" />
-    <ClInclude Include="externals\assimp\include\assimp\AssertHandler.h" />
-    <ClInclude Include="externals\assimp\include\assimp\Base64.hpp" />
-    <ClInclude Include="externals\assimp\include\assimp\BaseImporter.h" />
-    <ClInclude Include="externals\assimp\include\assimp\Bitmap.h" />
-    <ClInclude Include="externals\assimp\include\assimp\BlobIOSystem.h" />
-    <ClInclude Include="externals\assimp\include\assimp\ByteSwapper.h" />
-    <ClInclude Include="externals\assimp\include\assimp\camera.h" />
-    <ClInclude Include="externals\assimp\include\assimp\cexport.h" />
-    <ClInclude Include="externals\assimp\include\assimp\cfileio.h" />
-    <ClInclude Include="externals\assimp\include\assimp\cimport.h" />
-    <ClInclude Include="externals\assimp\include\assimp\ColladaMetaData.h" />
-    <ClInclude Include="externals\assimp\include\assimp\color4.h" />
-    <ClInclude Include="externals\assimp\include\assimp\commonMetaData.h" />
-    <ClInclude Include="externals\assimp\include\assimp\Compiler\poppack1.h" />
-    <ClInclude Include="externals\assimp\include\assimp\Compiler\pstdint.h" />
-    <ClInclude Include="externals\assimp\include\assimp\Compiler\pushpack1.h" />
-    <ClInclude Include="externals\assimp\include\assimp\config.h" />
-    <ClInclude Include="externals\assimp\include\assimp\CreateAnimMesh.h" />
-    <ClInclude Include="externals\assimp\include\assimp\DefaultIOStream.h" />
-    <ClInclude Include="externals\assimp\include\assimp\DefaultIOSystem.h" />
-    <ClInclude Include="externals\assimp\include\assimp\DefaultLogger.hpp" />
-    <ClInclude Include="externals\assimp\include\assimp\defs.h" />
-    <ClInclude Include="externals\assimp\include\assimp\Exceptional.h" />
-    <ClInclude Include="externals\assimp\include\assimp\Exporter.hpp" />
-    <ClInclude Include="externals\assimp\include\assimp\fast_atof.h" />
-    <ClInclude Include="externals\assimp\include\assimp\GenericProperty.h" />
-    <ClInclude Include="externals\assimp\include\assimp\GltfMaterial.h" />
-    <ClInclude Include="externals\assimp\include\assimp\Hash.h" />
-    <ClInclude Include="externals\assimp\include\assimp\Importer.hpp" />
-    <ClInclude Include="externals\assimp\include\assimp\importerdesc.h" />
-    <ClInclude Include="externals\assimp\include\assimp\IOStream.hpp" />
-    <ClInclude Include="externals\assimp\include\assimp\IOStreamBuffer.h" />
-    <ClInclude Include="externals\assimp\include\assimp\IOSystem.hpp" />
-    <ClInclude Include="externals\assimp\include\assimp\light.h" />
-    <ClInclude Include="externals\assimp\include\assimp\LineSplitter.h" />
-    <ClInclude Include="externals\assimp\include\assimp\LogAux.h" />
-    <ClInclude Include="externals\assimp\include\assimp\Logger.hpp" />
-    <ClInclude Include="externals\assimp\include\assimp\LogStream.hpp" />
-    <ClInclude Include="externals\assimp\include\assimp\material.h" />
-    <ClInclude Include="externals\assimp\include\assimp\MathFunctions.h" />
-    <ClInclude Include="externals\assimp\include\assimp\matrix3x3.h" />
-    <ClInclude Include="externals\assimp\include\assimp\matrix4x4.h" />
-    <ClInclude Include="externals\assimp\include\assimp\MemoryIOWrapper.h" />
-    <ClInclude Include="externals\assimp\include\assimp\mesh.h" />
-    <ClInclude Include="externals\assimp\include\assimp\metadata.h" />
-    <ClInclude Include="externals\assimp\include\assimp\NullLogger.hpp" />
-    <ClInclude Include="externals\assimp\include\assimp\ObjMaterial.h" />
-    <ClInclude Include="externals\assimp\include\assimp\ParsingUtils.h" />
-    <ClInclude Include="externals\assimp\include\assimp\pbrmaterial.h" />
-    <ClInclude Include="externals\assimp\include\assimp\port\AndroidJNI\AndroidJNIIOSystem.h" />
-    <ClInclude Include="externals\assimp\include\assimp\port\AndroidJNI\BundledAssetIOSystem.h" />
-    <ClInclude Include="externals\assimp\include\assimp\postprocess.h" />
-    <ClInclude Include="externals\assimp\include\assimp\Profiler.h" />
-    <ClInclude Include="externals\assimp\include\assimp\ProgressHandler.hpp" />
-    <ClInclude Include="externals\assimp\include\assimp\qnan.h" />
-    <ClInclude Include="externals\assimp\include\assimp\quaternion.h" />
-    <ClInclude Include="externals\assimp\include\assimp\RemoveComments.h" />
-    <ClInclude Include="externals\assimp\include\assimp\scene.h" />
-    <ClInclude Include="externals\assimp\include\assimp\SceneCombiner.h" />
-    <ClInclude Include="externals\assimp\include\assimp\SGSpatialSort.h" />
-    <ClInclude Include="externals\assimp\include\assimp\SkeletonMeshBuilder.h" />
-    <ClInclude Include="externals\assimp\include\assimp\SmallVector.h" />
-    <ClInclude Include="externals\assimp\include\assimp\SmoothingGroups.h" />
-    <ClInclude Include="externals\assimp\include\assimp\SpatialSort.h" />
-    <ClInclude Include="externals\assimp\include\assimp\StandardShapes.h" />
-    <ClInclude Include="externals\assimp\include\assimp\StreamReader.h" />
-    <ClInclude Include="externals\assimp\include\assimp\StreamWriter.h" />
-    <ClInclude Include="externals\assimp\include\assimp\StringComparison.h" />
-    <ClInclude Include="externals\assimp\include\assimp\StringUtils.h" />
-    <ClInclude Include="externals\assimp\include\assimp\Subdivision.h" />
-    <ClInclude Include="externals\assimp\include\assimp\texture.h" />
-    <ClInclude Include="externals\assimp\include\assimp\TinyFormatter.h" />
-    <ClInclude Include="externals\assimp\include\assimp\types.h" />
-    <ClInclude Include="externals\assimp\include\assimp\vector2.h" />
-    <ClInclude Include="externals\assimp\include\assimp\vector3.h" />
-    <ClInclude Include="externals\assimp\include\assimp\version.h" />
-    <ClInclude Include="externals\assimp\include\assimp\Vertex.h" />
-    <ClInclude Include="externals\assimp\include\assimp\XmlParser.h" />
-    <ClInclude Include="externals\assimp\include\assimp\XMLTools.h" />
-    <ClInclude Include="externals\assimp\include\assimp\ZipArchiveIOSystem.h" />
-    <ClInclude Include="externals\nlohmann\json.hpp" />
-    <ClInclude Include="externals\nlohmann\json_fwd.hpp" />
+    <ClInclude Include="lib\Thread\Thread.h" />
     <ClInclude Include="lib\animationEditor\AnimationEditor.h" />
     <ClInclude Include="lib\animationEditor\Timeline.h" />
     <ClInclude Include="lib\binaryIO\BinaryIO.h" />
@@ -365,37 +191,103 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="lib\myRandom\MyRandom.h" />
     <ClInclude Include="lib\node\DefaultNodes.h" />
     <ClInclude Include="lib\node\OperatorNodes.h" />
-    <ClInclude Include="lib\Thread\Thread.h" />
     <ClInclude Include="lib\winApp\WinApp.h" />
     <ClInclude Include="math\Matrix4x4.h" />
     <ClInclude Include="math\MyEasing.h" />
     <ClInclude Include="math\Quaternion.h" />
-    <ClInclude Include="math\shape\Shapes.h" />
     <ClInclude Include="math\Vector.h" />
     <ClInclude Include="math\Vector2.h" />
     <ClInclude Include="math\Vector3.h" />
     <ClInclude Include="math\Vector4.h" />
-    <ClInclude Include="application\system\ShotBulletSystem.h" />
-    <ClInclude Include="application\system\PlayerInputSystem.h" />
+    <ClInclude Include="math\shape\Shapes.h" />
     <ClInclude Include="util\nameof.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
-      <Project>{371b9fa9-4c90-4ac6-a123-aced756d6c77}</Project>
-    </ProjectReference>
-    <ProjectReference Include="externals\imgui\ImGui.vcxproj">
-      <Project>{77acf814-1ee6-459c-9dff-d3f7eaf61a32}</Project>
-    </ProjectReference>
+    <ClCompile Include="engine\ECS\ECSEditor.cpp" />
+    <ClCompile Include="engine\ECS\ECSManager.cpp" />
+    <ClCompile Include="engine\Engine.cpp" />
+    <ClCompile Include="engine\animation\Animation.cpp" />
+    <ClCompile Include="engine\animation\AnimationManager.cpp" />
+    <ClCompile Include="engine\assets\IAsset.cpp" />
+    <ClCompile Include="engine\audio\Audio.cpp" />
+    <ClCompile Include="engine\camera\CameraManager.cpp" />
+    <ClCompile Include="engine\camera\debugCamera\DebugCamera.cpp" />
+    <ClCompile Include="engine\camera\gameCamera\GameCamera.cpp" />
+    <ClCompile Include="engine\component\IComponent.cpp" />
+    <ClCompile Include="engine\component\collider\Collider.cpp" />
+    <ClCompile Include="engine\component\material\Material.cpp" />
+    <ClCompile Include="engine\component\material\light\LightManager.cpp" />
+    <ClCompile Include="engine\component\physics\Rigidbody.cpp" />
+    <ClCompile Include="engine\component\renderer\MeshRenderer.cpp" />
+    <ClCompile Include="engine\component\renderer\Sprite.cpp" />
+    <ClCompile Include="engine\component\transform\CameraTransform.cpp" />
+    <ClCompile Include="engine\component\transform\ParticleTransform.cpp" />
+    <ClCompile Include="engine\component\transform\Transform.cpp" />
+    <ClCompile Include="engine\directX12\DxCommand.cpp" />
+    <ClCompile Include="engine\directX12\DxDebug.cpp" />
+    <ClCompile Include="engine\directX12\DxDevice.cpp" />
+    <ClCompile Include="engine\directX12\DxDsv.cpp" />
+    <ClCompile Include="engine\directX12\DxFence.cpp" />
+    <ClCompile Include="engine\directX12\DxFunctionHelper.cpp" />
+    <ClCompile Include="engine\directX12\DxHeap.cpp" />
+    <ClCompile Include="engine\directX12\DxResource.cpp" />
+    <ClCompile Include="engine\directX12\DxRtvArray.cpp" />
+    <ClCompile Include="engine\directX12\DxRtvArrayManager.cpp" />
+    <ClCompile Include="engine\directX12\DxSrvArray.cpp" />
+    <ClCompile Include="engine\directX12\DxSrvArrayManager.cpp" />
+    <ClCompile Include="engine\directX12\DxSwapChain.cpp" />
+    <ClCompile Include="engine\directX12\PipelineStateObj.cpp" />
+    <ClCompile Include="engine\directX12\RenderTexture.cpp" />
+    <ClCompile Include="engine\directX12\ResourceBarrierManager.cpp" />
+    <ClCompile Include="engine\directX12\ShaderCompiler.cpp" />
+    <ClCompile Include="engine\directX12\ShaderManager.cpp" />
+    <ClCompile Include="engine\editor\EngineEditor.cpp" />
+    <ClCompile Include="engine\effect\Effect.cpp" />
+    <ClCompile Include="engine\effect\editor\EffectEditor.cpp" />
+    <ClCompile Include="engine\effect\manager\EffectManager.cpp" />
+    <ClCompile Include="engine\effect\particle\Particle.cpp" />
+    <ClCompile Include="engine\effect\particle\editor\ParticleEditor.cpp" />
+    <ClCompile Include="engine\effect\particle\emitter\Emitter.cpp" />
+    <ClCompile Include="engine\effect\particle\emitter\EmitterShape.cpp" />
+    <ClCompile Include="engine\effect\silhouette\ISilhouette.cpp" />
+    <ClCompile Include="engine\iScene\IScene.cpp" />
+    <ClCompile Include="engine\input\Input.cpp" />
+    <ClCompile Include="engine\model\ModelManager.cpp" />
+    <ClCompile Include="engine\object3d\AnimationObject3d.cpp" />
+    <ClCompile Include="engine\primitiveDrawer\PrimitiveDrawer.cpp" />
+    <ClCompile Include="engine\sceneManager\SceneManager.cpp" />
+    <ClCompile Include="engine\system\ISystem.cpp" />
+    <ClCompile Include="engine\system\collision\CollisionCheckSystem.cpp" />
+    <ClCompile Include="engine\system\movement\MoveSystemByRigidBody.cpp" />
+    <ClCompile Include="engine\system\render\SpritRenderSystem.cpp" />
+    <ClCompile Include="engine\system\render\TexturedMeshRenderSystem.cpp" />
+    <ClCompile Include="engine\texture\TextureManager.cpp" />
+    <ClCompile Include="lib\Thread\Thread.cpp" />
+    <ClCompile Include="lib\animationEditor\AnimationEditor.cpp" />
+    <ClCompile Include="lib\animationEditor\Timeline.cpp" />
+    <ClCompile Include="lib\binaryIO\BinaryIO.cpp" />
+    <ClCompile Include="lib\deltaTime\DeltaTime.cpp" />
+    <ClCompile Include="lib\globalVariables\GlobalVariables.cpp" />
+    <ClCompile Include="lib\imGuiManager\ImGuiManager.cpp" />
+    <ClCompile Include="lib\logger\Logger.cpp" />
+    <ClCompile Include="lib\myFileSystem\MyFileSystem.cpp" />
+    <ClCompile Include="lib\node\OperatorNodes.cpp" />
+    <ClCompile Include="lib\winApp\WinApp.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="math\Matrix4x4.cpp" />
+    <ClCompile Include="math\MyEasing.cpp" />
+    <ClCompile Include="math\Quaternion.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="externals\assimp\include\assimp\color4.inl" />
-    <None Include="externals\assimp\include\assimp\material.inl" />
-    <None Include="externals\assimp\include\assimp\matrix3x3.inl" />
-    <None Include="externals\assimp\include\assimp\matrix4x4.inl" />
-    <None Include="externals\assimp\include\assimp\quaternion.inl" />
-    <None Include="externals\assimp\include\assimp\SmoothingGroups.inl" />
-    <None Include="externals\assimp\include\assimp\vector2.inl" />
-    <None Include="externals\assimp\include\assimp\vector3.inl" />
+    <ProjectReference Include="externals\DirectXTex\DirectXTex.vcxproj">
+      <Project>{A90EE592-95C6-26E0-FECD-FF3BEAA4C1D0}</Project>
+    </ProjectReference>
+    <ProjectReference Include="externals\imgui\imgui.vcxproj">
+      <Project>{0098A80F-6CAC-D0C0-352E-7420A101CDF1}</Project>
+    </ProjectReference>
+    <ProjectReference Include="application\OriGineApp.vcxproj">
+      <Project>{D3DBAE91-BF93-F0DE-289B-C93A14728BCF}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -13,7 +13,6 @@ LightManager::LightManager()
 LightManager::~LightManager() {}
 
 void LightManager::Initialize() {
-    GlobalVariables* variables = GlobalVariables::getInstance();
     ID3D12Device* device       = Engine::getInstance()->getDxDevice()->getDevice();
 
     ///========================================

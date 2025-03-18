@@ -38,7 +38,7 @@ void Audio::PlayTrigger(){
 	HRESULT result;
 
 	if(pSourceVoice_){
-		delete pSourceVoice_;
+		// delete pSourceVoice_;
 	}
 	pSourceVoice_ = nullptr;
 	result = xAudio2_->CreateSourceVoice(&pSourceVoice_,&soundData_.wfex);
@@ -59,7 +59,7 @@ void Audio::PlayLoop(){
 	HRESULT result;
 
 	if(pSourceVoice_){
-		delete pSourceVoice_;
+		// delete pSourceVoice_;
 	}
 	pSourceVoice_ = nullptr;
 	result = xAudio2_->CreateSourceVoice(&pSourceVoice_,&soundData_.wfex);

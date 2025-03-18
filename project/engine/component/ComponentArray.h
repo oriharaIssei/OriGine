@@ -140,7 +140,6 @@ public:
         auto it = entityIndexBind_.find(_hostEntity);
         if (it == entityIndexBind_.end()) {
             registerEntity(_hostEntity);
-            return;
             it = entityIndexBind_.find(_hostEntity);
         }
         uint32_t index = it->second;

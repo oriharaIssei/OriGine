@@ -26,6 +26,6 @@ protected:
 };
 
 template <typename ShapeA, typename ShapeB>
-bool CheckCollisionPair(const ShapeA& _shapeA, const ShapeB& _shapeB) {
+bool CheckCollisionPair([[maybe_unused]] const ShapeA& _shapeA, [[maybe_unused]] const ShapeB& _shapeB) {
     return false;
 }

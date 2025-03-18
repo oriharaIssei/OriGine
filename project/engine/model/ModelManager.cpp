@@ -268,8 +268,6 @@ void ModelManager::Initialize() {
 
     dxCommand_ = std::make_unique<DxCommand>();
     dxCommand_->Initialize("main", "main");
-
-    size_t index = 0;
 }
 
 void ModelManager::Finalize() {
@@ -295,7 +293,6 @@ void ModelManager::LoadTask::Update() {
 
     model->materialData_ = ModelManager::getInstance()->defaultMaterials_[model->meshData_];
 
-    auto device = Engine::getInstance()->getDxDevice()->getDevice();
     std::mutex mutex;
     for (auto& [name, data] : model->meshData_->meshGroup_) {
         try {

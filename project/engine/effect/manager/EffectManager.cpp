@@ -204,9 +204,9 @@ void EffectManager::Edit() {
     }
     ImGui::End();
 
-    for (auto& [emitterName, effects_] : effects_) {
-        effects_->Debug();
-        effects_->Update(Engine::getInstance()->getDeltaTime());
+    for (auto& [emitterName, effect] : effects_) {
+        effect->Debug();
+        effect->Update(Engine::getInstance()->getDeltaTime());
     }
 
     if (isOpenedCrateWindow_) {

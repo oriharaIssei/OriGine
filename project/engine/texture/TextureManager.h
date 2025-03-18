@@ -26,7 +26,7 @@
 
 struct Texture
     : IAsset {
-    void Initialize(const std::string& filePath, std::shared_ptr<DxSrvArray> srvArray, int textureIndex);
+    void Initialize(const std::string& filePath, std::shared_ptr<DxSrvArray> srvArray);
     void Finalize();
 
     std::string path;
