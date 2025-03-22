@@ -54,6 +54,14 @@ public:
     const std::string& getDataType() const {
         return dataType_;
     }
+
+    /// <summary>
+    /// エンティティのデータタイプを設定する
+    /// </summary>
+    void setDataType(const std::string& _dataType) {
+        dataType_ = _dataType;
+    }
+
     /// <summary>
     /// エンティティのユニークIDを取得する
     /// </summary>

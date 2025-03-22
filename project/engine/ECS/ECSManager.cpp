@@ -31,12 +31,23 @@ void EntityComponentSystemManager::Run() {
         GameEntity* entity = deleteEntityQueue_.front();
         deleteEntityQueue_.pop();
 
+        // 無効ポインタにアクセスしないように 弾く
+        if (!entity) {
+            continue;
+        }
+
+        // component の 初期化
         for (auto& [compTypeName, compArray] : componentArrays_) {
             compArray->clearComponent(entity);
         }
 
-        entity->setAlive(false); // エンティティを無効化
-        freeEntityIndex_.push_back(entity->getID()); // エンティティIDを再利用可能にする
+        // エンティティIDを再利用可能にする
+        freeEntityIndex_.push_back(entity->getID()); 
+
+        // エンティティを無効化
+        entity->id_ = -1;
+        entity->dataType_ = "";
+        entity->setAlive(false);
     }
 
 #ifdef _DEBUG

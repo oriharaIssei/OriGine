@@ -4,7 +4,10 @@
 #include "module/editor/IEditor.h"
 
 /// stl
+#include <list>
 #include <memory>
+#include <unordered_map>
+#include <vector>
 
 /// ECS
 #include "component/IComponent.h"
@@ -32,22 +35,23 @@ private:
     ///  エンティティを WorkSystem に追加するためのポップアップ
     /// </summary>
     /// <param name="_entity"></param>
-    void PopupEntityJoinWorkSystem(GameEntity* _entity);
+    void PopupEntityJoinWorkSystem(GameEntity* _entity, bool _isGroup);
     /// <summary>
     /// エンティティに Component を追加するためのポップアップ
     /// </summary>
     /// <param name="_entity"></param>
-    void PopupEntityAddComponent(GameEntity* _entity);
+    void PopupEntityAddComponent(GameEntity* _entity, bool _isGroup);
 
     /// <summary>
     /// システムから離れる前のポップアップ(本当に抜けるのか確認)
     /// </summary>
     /// <param name="_entity"></param>
-    void PopupEntityLeaveWorkSystem(GameEntity* _entity);
+    void PopupEntityLeaveWorkSystem(GameEntity* _entity, bool _isGroup);
 
 private:
     ECSManager* ecsManager_ = nullptr;
 
+    std::list<const GameEntity*> selectedEntities_;
     GameEntity* editEntity_ = nullptr;
     std::vector<std::pair<std::string, IComponent*>> editEntityComponents_;
     std::array<std::vector<std::pair<std::string, ISystem*>>, int32_t(SystemType::Count)> editEntitySystems_;
@@ -82,6 +86,15 @@ public:
     }
     std::array<std::vector<std::pair<std::string, ISystem*>>, int32_t(SystemType::Count)>& customEditEntitySystems() {
         return editEntitySystems_;
+    }
+
+    // 選択されたエンティティを非 const ポインタとして取得するヘルパー
+    std::vector<GameEntity*> getSelectedEntities() {
+        std::vector<GameEntity*> entities;
+        for (auto* e : selectedEntities_) {
+            entities.push_back(const_cast<GameEntity*>(e));
+        }
+        return entities;
     }
 };
 
@@ -165,18 +178,47 @@ private:
 };
 
 /// <summary>
+/// エンティティの DataType を変更するコマンド
+/// </summary>
+class ChangeEntityDataTypeCommand
+    : public ECSEditorCommand {
+public:
+    ChangeEntityDataTypeCommand(ECSEditor* _ecsEditor, GameEntity* _entity, const std::string& _newDataType)
+        : ECSEditorCommand(_ecsEditor), entity_(_entity), newDataType_(_newDataType) {
+        oldDataType_ = entity_->getDataType();
+    }
+
+    ~ChangeEntityDataTypeCommand() {}
+
+    void Execute() override;
+    void Undo() override;
+
+private:
+    GameEntity* entity_ = nullptr;
+    std::string oldDataType_;
+    std::string newDataType_;
+};
+
+/// <summary>
 /// エンティティに Component を追加するコマンド
 /// </summary>
 class AddComponentCommand
     : public ECSEditorCommand {
 public:
     AddComponentCommand(ECSEditor* _ecsEditor, GameEntity* _entity, const std::string& _componentTypeName)
-        : ECSEditorCommand(_ecsEditor), entity_(_entity), componentTypeName_(_componentTypeName), addedComponentArray_(nullptr) {}
+        : ECSEditorCommand(_ecsEditor),
+          entity_(_entity),
+          componentTypeName_(_componentTypeName),
+          addedComponentArray_(nullptr) {
+        entityIsEditEntity_ = (entity_ == ecsEditor_->getEditEntity());
+    }
     ~AddComponentCommand() {}
     void Execute() override;
     void Undo() override;
 
 private:
+    bool entityIsEditEntity_ = false;
+
     GameEntity* entity_ = nullptr;
     std::string componentTypeName_;
     // Componentを追加された Array
@@ -192,13 +234,20 @@ class RemoveComponentCommand
     : public ECSEditorCommand {
 public:
     RemoveComponentCommand(ECSEditor* _ecsEditor, GameEntity* _entity, const std::string& _componentTypeName, int32_t _componentIndex)
-        : ECSEditorCommand(_ecsEditor), entity_(_entity), componentTypeName_(_componentTypeName), componentIndex_(_componentIndex) {}
+        : ECSEditorCommand(_ecsEditor),
+          entity_(_entity),
+          componentTypeName_(_componentTypeName),
+          componentIndex_(_componentIndex) {
+        entityIsEditEntity_ = (entity_ == ecsEditor_->getEditEntity());
+    }
     ~RemoveComponentCommand() {}
 
     void Execute() override;
     void Undo() override;
 
 private:
+    bool entityIsEditEntity_ = false;
+
     GameEntity* entity_ = nullptr;
 
     std::string componentTypeName_;
@@ -212,13 +261,17 @@ class JoinWorkSystemCommand
     : public ECSEditorCommand {
 public:
     JoinWorkSystemCommand(ECSEditor* _ecsEditor, GameEntity* _entity, const std::string& _systemName, ISystem* _system)
-        : ECSEditorCommand(_ecsEditor), entity_(_entity), systemName_(_systemName), system_(_system) {}
+        : ECSEditorCommand(_ecsEditor), entity_(_entity), systemName_(_systemName), system_(_system) {
+        entityIsEditEntity_ = (entity_ == ecsEditor_->getEditEntity());
+    }
     ~JoinWorkSystemCommand() {}
 
     void Execute() override;
     void Undo() override;
 
 private:
+    bool entityIsEditEntity_ = false;
+
     GameEntity* entity_ = nullptr;
     std::string systemName_;
     int32_t typeIdx_ = -1;
@@ -232,17 +285,158 @@ class LeaveWorkSystemCommand
     : public ECSEditorCommand {
 public:
     LeaveWorkSystemCommand(ECSEditor* _ecsEditor, GameEntity* _entity, const std::string& _systemName, ISystem* _system)
-        : ECSEditorCommand(_ecsEditor), entity_(_entity), systemName_(_systemName), system_(_system) {}
+        : ECSEditorCommand(_ecsEditor), entity_(_entity), systemName_(_systemName), system_(_system) {
+        entityIsEditEntity_ = (entity_ == ecsEditor_->getEditEntity());
+    }
     ~LeaveWorkSystemCommand() {}
 
     void Execute() override;
     void Undo() override;
 
 private:
+    bool entityIsEditEntity_ = false;
+
     GameEntity* entity_ = nullptr;
     int32_t typeIdx_    = -1;
     std::string systemName_;
     ISystem* system_ = nullptr;
+};
+
+#pragma endregion
+
+#pragma region "Group Command"
+
+// 新しい GroupCommand の基本クラスはそのまま
+class ECSGroupCommand
+    : public ECSEditorCommand {
+public:
+    ECSGroupCommand(ECSEditor* _ecsEditor) : ECSEditorCommand(_ecsEditor) {
+        entities_ = ecsEditor_->getSelectedEntities();
+    }
+    virtual ~ECSGroupCommand() {}
+    void Execute() override {
+        for (auto* entity : entities_) {
+            ExecuteForEntity(entity);
+        }
+    }
+    void Undo() override {
+        for (auto* entity : entities_) {
+            UndoForEntity(entity);
+        }
+    }
+
+protected:
+    virtual void ExecuteForEntity(GameEntity* entity) = 0;
+    virtual void UndoForEntity(GameEntity* entity)    = 0;
+
+    std::vector<GameEntity*> entities_;
+};
+
+class GroupEraseEntityCommand : public ECSGroupCommand {
+public:
+    GroupEraseEntityCommand(ECSEditor* _ecsEditor)
+        : ECSGroupCommand(_ecsEditor) {}
+
+protected:
+    void ExecuteForEntity(GameEntity* entity) override {
+        auto cmd = std::make_unique<EraseEntityCommand>(ecsEditor_, entity);
+        cmd->Execute();
+        childCommands_.push_back(std::move(cmd));
+    }
+    void UndoForEntity(GameEntity* /*entity*/) override {
+        childCommands_[undoIndex_++]->Undo();
+    }
+
+private:
+    std::vector<std::unique_ptr<IEditCommand>> childCommands_;
+    size_t undoIndex_;
+};
+
+class GroupAddComponentCommand : public ECSGroupCommand {
+public:
+    GroupAddComponentCommand(ECSEditor* _ecsEditor, const std::string& _componentTypeName)
+        : ECSGroupCommand(_ecsEditor), componentTypeName_(_componentTypeName), undoIndex_(0) {}
+
+protected:
+    void ExecuteForEntity(GameEntity* entity) override {
+        auto cmd = std::make_unique<AddComponentCommand>(ecsEditor_, entity, componentTypeName_);
+        cmd->Execute();
+        childCommands_.push_back(std::move(cmd));
+    }
+    void UndoForEntity(GameEntity* /*entity*/) override {
+        childCommands_[undoIndex_++]->Undo();
+    }
+
+private:
+    std::string componentTypeName_;
+    std::vector<std::unique_ptr<IEditCommand>> childCommands_;
+    size_t undoIndex_;
+};
+
+class GroupRemoveComponentCommand : public ECSGroupCommand {
+public:
+    GroupRemoveComponentCommand(ECSEditor* _ecsEditor, const std::string& _componentTypeName, int32_t _componentIndex)
+        : ECSGroupCommand(_ecsEditor), componentTypeName_(_componentTypeName), componentIndex_(_componentIndex), undoIndex_(0) {}
+
+protected:
+    void ExecuteForEntity(GameEntity* entity) override {
+        auto cmd = std::make_unique<RemoveComponentCommand>(ecsEditor_, entity, componentTypeName_, componentIndex_);
+        cmd->Execute();
+        childCommands_.push_back(std::move(cmd));
+    }
+    void UndoForEntity(GameEntity* /*entity*/) override {
+        childCommands_[undoIndex_++]->Undo();
+    }
+
+private:
+    std::string componentTypeName_;
+    int32_t componentIndex_;
+    std::vector<std::unique_ptr<IEditCommand>> childCommands_;
+    size_t undoIndex_;
+};
+
+class GroupJoinWorkSystemCommand : public ECSGroupCommand {
+public:
+    GroupJoinWorkSystemCommand(ECSEditor* _ecsEditor, const std::string& _systemName, ISystem* _system)
+        : ECSGroupCommand(_ecsEditor), systemName_(_systemName), system_(_system), undoIndex_(0) {}
+
+protected:
+    void ExecuteForEntity(GameEntity* entity) override {
+        auto cmd = std::make_unique<JoinWorkSystemCommand>(ecsEditor_, entity, systemName_, system_);
+        cmd->Execute();
+        childCommands_.push_back(std::move(cmd));
+    }
+    void UndoForEntity(GameEntity* /*entity*/) override {
+        childCommands_[undoIndex_++]->Undo();
+    }
+
+private:
+    std::string systemName_;
+    ISystem* system_;
+    std::vector<std::unique_ptr<IEditCommand>> childCommands_;
+    size_t undoIndex_;
+};
+
+class GroupLeaveWorkSystemCommand : public ECSGroupCommand {
+public:
+    GroupLeaveWorkSystemCommand(ECSEditor* _ecsEditor, const std::string& _systemName, ISystem* _system)
+        : ECSGroupCommand(_ecsEditor), systemName_(_systemName), system_(_system), undoIndex_(0) {}
+
+protected:
+    void ExecuteForEntity(GameEntity* entity) override {
+        auto cmd = std::make_unique<LeaveWorkSystemCommand>(ecsEditor_, entity, systemName_, system_);
+        cmd->Execute();
+        childCommands_.push_back(std::move(cmd));
+    }
+    void UndoForEntity(GameEntity* /*entity*/) override {
+        childCommands_[undoIndex_++]->Undo();
+    }
+
+private:
+    std::string systemName_;
+    ISystem* system_;
+    std::vector<std::unique_ptr<IEditCommand>> childCommands_;
+    size_t undoIndex_;
 };
 
 #pragma endregion
