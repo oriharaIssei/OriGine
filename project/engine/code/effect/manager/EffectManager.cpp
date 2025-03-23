@@ -33,7 +33,7 @@ void EffectManager::Initialize() {
 
     CreatePso();
 
-    std::list<std::pair<std::string, std::string>> loadedEmitter = myfs::SearchFile(kEngineResourceDirectory + "/GlobalVariables/Effects", "json");
+    std::list<std::pair<std::string, std::string>> loadedEmitter = myfs::SearchFile(kApplicationResourceDirectory + "/GlobalVariables/Effects", "json");
     for (auto& [directory, filename] : loadedEmitter) {
         effects_[filename] = CreateEffect(filename);
     }

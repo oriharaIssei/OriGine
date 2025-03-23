@@ -83,6 +83,7 @@ LightEditor::~LightEditor() {}
 void LightEditor::Initialize() {
     lightManager_ = LightManager::getInstance();
 }
+
 void LightEditor::Update() {
 #ifdef _DEBUG
     int32_t lightIndex = 0;

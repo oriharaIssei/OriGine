@@ -10,6 +10,7 @@ void DxFence::Initialize(ID3D12Device *device) {
 		IID_PPV_ARGS(&fence_)
 	);
 	assert(SUCCEEDED(hr));
+    hr;
 }
 
 void DxFence::Finalize() {

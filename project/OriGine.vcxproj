@@ -83,7 +83,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <PreprocessorDefinitions>_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)math;$(SolutionDir)lib;$(SolutionDir)engine\ECS;$(SolutionDir)engine;$(SolutionDir);$(SolutionDir)externals;$(SolutionDir)externals\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)math;$(SolutionDir)lib;$(SolutionDir)engine\code\ECS;$(SolutionDir)engine\code;$(SolutionDir)engine;$(SolutionDir);$(SolutionDir)externals;$(SolutionDir)externals\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>

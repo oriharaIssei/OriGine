@@ -62,7 +62,7 @@ void IScene::registerSystems() {
     ecsManager->registerSystem<MoveSystemByRigidBody>();
 }
 
-void IScene::Finalize(bool _isSave) {
+void IScene::Finalize([[maybe_unused]] bool _isSave) {
 #ifdef _DEBUG
     if (_isSave) {
         SaveSceneEntity();
@@ -159,7 +159,7 @@ void IScene::SaveSceneEntity() {
     // 収集済みの有効なEntity数を書き込む (Load側と対応)
     std::vector<GameEntity*> activeEntities;
     // Entityを整理
-    ecsManager->sortFrontActiveEntities();
+    ecsManager->sortBackActiveEntities();
     {
         int32_t entityID = 0;
         for (auto& entity : ecsManager->getEntities()) {
@@ -175,7 +175,6 @@ void IScene::SaveSceneEntity() {
     // ------------------------------- エンティティ & コンポーネント の保存 -------------------------------//
     auto& componentArrayMap = ecsManager->getComponentArrayMap();
     std::vector<std::pair<std::string, IComponentArray*>> hasComponentTypeArray;
-
 
     for (auto entity : activeEntities) {
         writer.Write<std::string>(entity->getDataType());
@@ -204,6 +203,10 @@ void IScene::SaveSceneEntity() {
                 writer.Write<int32_t>(system->getPriority());
                 writer.Write<int32_t>(static_cast<int32_t>(system->getEntities().size()));
                 for (const auto& entity : system->getEntities()) {
+                    if (entity->isAlive() == false) {
+                        continue;
+                    }
+
                     writer.Write<int32_t>(entity->getID());
                 }
             }

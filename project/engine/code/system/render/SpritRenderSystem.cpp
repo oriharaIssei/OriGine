@@ -132,6 +132,9 @@ void SpritRenderSystem::StartRender() {
 void SpritRenderSystem::UpdateEntity(GameEntity* _entity) {
     auto commandList         = dxCommand_->getCommandList();
     SpriteRenderer* renderer = getComponent<SpriteRenderer>(_entity);
+    if (!renderer) {
+        return;
+    }
     ///==============================
     /// ConstBufferの更新
     ///==============================

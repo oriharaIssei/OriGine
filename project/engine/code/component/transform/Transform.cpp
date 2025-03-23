@@ -20,6 +20,7 @@ void Transform::Update() {
 }
 
 bool Transform::Edit() {
+#ifdef _DEBUG
     bool isChange = false;
     // --------------------------- scale --------------------------- //
     isChange |= ImGui::DragFloat3("Scale", this->scale.v, 0.01f);
@@ -36,6 +37,9 @@ bool Transform::Edit() {
     }
 
     return isChange;
+#else
+    return false;
+#endif // _DEBUG
 }
 
 void Transform::Save(BinaryWriter& _writer) {

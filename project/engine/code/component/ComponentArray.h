@@ -141,6 +141,7 @@ public:
         if (it == entityIndexBind_.end()) {
             registerEntity(_hostEntity);
             it = entityIndexBind_.find(_hostEntity);
+            return;
         }
         uint32_t index = it->second;
         components_[index].push_back(ComponentType());

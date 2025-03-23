@@ -16,7 +16,7 @@
 #include "imgui/imgui.h"
 #endif // _DEBUG
 
-const std::string emittersDirectory = kEngineResourceDirectory + "/GlobalVariables/Emitters";
+const std::string emittersDirectory = kApplicationResourceDirectory + "/GlobalVariables/Emitters";
 
 static std::list<std::pair<std::string, std::string>> emitterFiles = myfs::SearchFile(emittersDirectory, "json");
 
@@ -33,6 +33,8 @@ void ParticleEditor::Initialize() {
 }
 
 void ParticleEditor::Update() {
+#ifdef _DEBUG
+
     // main window
     if (ImGui::Begin("ParticleEditor", nullptr, ImGuiWindowFlags_MenuBar)) {
         MenuBarUpdate();
@@ -80,6 +82,8 @@ void ParticleEditor::Update() {
         // 作成用文字列の初期化
         newInstanceName_ = "NULL";
     }
+
+#endif // _DEBUG
 }
 
 void ParticleEditor::Draw() {
@@ -103,6 +107,8 @@ ParticleEditor::ParticleEditor() {}
 ParticleEditor::~ParticleEditor() {}
 
 void ParticleEditor::MenuBarUpdate() {
+#ifdef _DEBUG
+
     if (ImGui::BeginMenuBar()) {
         if (ImGui::BeginMenu("File")) {
             if (ImGui::BeginMenu("Save")) {
@@ -139,4 +145,6 @@ void ParticleEditor::MenuBarUpdate() {
         }
         ImGui::EndMenuBar();
     }
+
+#endif // _DEBUG
 }

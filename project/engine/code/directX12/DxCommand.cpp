@@ -46,6 +46,7 @@ void DxCommand::CreateCommandQueue(ID3D12Device* device,const std::string& queue
 		&desc,IID_PPV_ARGS(&commandQueueMap_[queueKey])
 	);
 	assert(SUCCEEDED(result));
+    result;
 };
 
 void DxCommand::Initialize(const std::string& commandListKey, const std::string& commandQueueKey) {
@@ -160,6 +161,7 @@ void DxCommand::ExecuteCommandAndPresent(IDXGISwapChain4* swapChain){
 
 	HRESULT hr = swapChain->Present(1,0);
 	assert(SUCCEEDED(hr));
+    hr;
 	///===============================================================
 }
 

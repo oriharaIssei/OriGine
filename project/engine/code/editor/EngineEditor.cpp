@@ -47,7 +47,20 @@ void EngineEditor::Update() {
             // Scene
             /// ------------------------------------------------------------------------------------------------
             if (ImGui::BeginMenu("Scene")) {
-                if (ImGui::BeginMenu("Change")) {
+                if (ImGui::BeginMenu("Change Startup Scene")) {
+                    SceneManager* sceneManager = SceneManager::getInstance();
+                    SerializedField<std::string> startupSceneName("Settings", "Scene", "StartupSceneName");
+                    ImGui::Text("Startup Scene Name: %s", startupSceneName->c_str());
+                    for (auto& [name, index] : sceneManager->sceneIndexs_) {
+                        if (ImGui::MenuItem(name.c_str())) {
+                            startupSceneName.setValue(name);
+                            GlobalVariables::getInstance()->SaveFile("Settings","Scene");
+                            break;
+                        }
+                    }
+                    ImGui::EndMenu();
+                }
+                if (ImGui::BeginMenu("Change EditScene")) {
                     SceneManager* sceneManager = SceneManager::getInstance();
                     for (auto& [name, index] : sceneManager->sceneIndexs_) {
                         if (ImGui::MenuItem(name.c_str())) {

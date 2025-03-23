@@ -25,7 +25,7 @@ ImGuiManager* ImGuiManager::getInstance() {
     return &instance;
 }
 
-void ImGuiManager::Initialize(const WinApp* window, const DxDevice* dxDevice, const DxSwapChain* dxSwapChain) {
+void ImGuiManager::Initialize([[maybe_unused]] const WinApp* window, [[maybe_unused]] const DxDevice* dxDevice, [[maybe_unused]] const DxSwapChain* dxSwapChain) {
 #ifdef _DEBUG
     srvHeap_ = DxHeap::getInstance()->getSrvHeap();
 

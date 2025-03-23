@@ -30,6 +30,7 @@ void DxDepthStencilView::Initialize(ID3D12Device *device,ID3D12DescriptorHeap *d
 		IID_PPV_ARGS(&dsv_)
 	);
 	assert(SUCCEEDED(hr));
+    hr;
 
 	// DSV の設定
 	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{};

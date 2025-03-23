@@ -10,6 +10,11 @@ static const std::string kApplicationResourceDirectory = "application/resource";
 static const std::string kEngineResourceDirectory      = "engine/resource";
 #endif // RESOURCE_DIRECTORY
 
+#ifdef ENGINE_SCENE
+#include "iScene/IScene.h"
+#include "sceneManager/SceneManager.h"
+#endif // ENGINE_SCENE
+
 #ifdef ENGINE_ECS
 #include "ECS/ECSManager.h"
 #include "ECS/Entity.h"
@@ -36,3 +41,37 @@ static const std::string kEngineResourceDirectory      = "engine/resource";
 #include "component/transform/CameraTransform.h"
 #include "component/transform/Transform.h"
 #endif // ENGINE_COMPONENTS
+
+#ifdef ENGINE_INPUT
+#include "input/Input.h"
+#endif // ENGINE_INPUT
+
+#ifdef LIBRARY_INCLUDE
+#define GLOBALVARIABLES_INCLUDE
+#define MY_FILESYSTEM
+#define MY_RANDOM
+#define DELTA_TIME
+#endif // LIBRARY_INCLUDE
+
+#ifdef GLOBALVARIABLES_INCLUDE
+#include "globalVariables/GlobalVariables.h"
+#include "globalVariables/SerializedField.h"
+#endif // GLOBALVARIABLES_INCLUDE
+
+#ifdef MY_FS
+#define MY_FILESYSTEM
+#endif // MY_FS
+
+#ifdef MY_FILESYSTEM
+#include "myFileSystem/MyFileSystem.h"
+#endif // MY_FILESYSTEM
+
+#ifdef MY_RANDOM
+#include "myRandom/MyRandom.h"
+#endif // MY_RANDOM
+
+#ifdef DELTA_TIME
+float DeltaTime() const {
+    return Engine::Instance().DeltaTime();
+}
+#endif // DELTA_TIME

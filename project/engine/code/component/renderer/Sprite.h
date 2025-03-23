@@ -19,7 +19,7 @@ struct SpriteVertexData {
 struct SpritConstBuffer {
     Vec4f color_ = {1.f, 1.f, 1.f, 1.f};
 
-    Vec2f scale_     = {0.f, 0.f};
+    Vec2f scale_     = {1.f, 1.f};
     float rotate_    = 0.f;
     Vec2f translate_ = {0.f, 0.f};
     Matrix4x4 worldMat_;
@@ -35,12 +35,14 @@ struct SpritConstBuffer {
     }
 
     struct ConstantBuffer {
-        Matrix4x4 mat_;
         Vec4f color_;
+        Matrix4x4 mat_;
+        Matrix4x4 uvMat_;
 
         ConstantBuffer& operator=(const SpritConstBuffer& _sprit) {
-            mat_   = _sprit.worldMat_;
             color_ = _sprit.color_;
+            mat_   = _sprit.worldMat_;
+            uvMat_ = _sprit.uvMat_;
             return *this;
         }
     };
@@ -69,9 +71,9 @@ public:
 
         _writer.Write(texturePath_);
 
-        _writer.Write<2,float>(textureLeftTop_);
-        _writer.Write<2,float>(textureSize_);
-        _writer.Write<2,float>(anchorPoint_);
+        _writer.Write<2, float>(textureLeftTop_);
+        _writer.Write<2, float>(textureSize_);
+        _writer.Write<2, float>(anchorPoint_);
 
         _writer.Write<bool>(isFlipX_);
         _writer.Write<bool>(isFlipY_);
@@ -86,9 +88,9 @@ public:
             textureNumber_ = TextureManager::LoadTexture(texturePath_);
         }
 
-        _reader.Read<2,float>(textureLeftTop_);
-        _reader.Read<2,float>(textureSize_);
-        _reader.Read<2,float>(anchorPoint_);
+        _reader.Read<2, float>(textureLeftTop_);
+        _reader.Read<2, float>(textureSize_);
+        _reader.Read<2, float>(anchorPoint_);
 
         _reader.Read<bool>(isFlipX_);
         _reader.Read<bool>(isFlipY_);
@@ -149,6 +151,7 @@ public:
     void setColor(const Vec4f& color) { spriteBuff_->color_ = color; }
     const Vec4f& getColor() const { return spriteBuff_->color_; }
 
+    const Vec2f& getAnchorPoint() const { return anchorPoint_; }
     void setAnchorPoint(const Vec2f& anchor) { anchorPoint_ = anchor; }
 
     void setFlipX(bool flipX) { isFlipX_ = flipX; }

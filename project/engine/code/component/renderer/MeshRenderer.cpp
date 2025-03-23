@@ -86,6 +86,7 @@ void ModelMeshRenderer::Initialize(GameEntity* _hostEntity) {
 }
 
 bool ModelMeshRenderer::Edit() {
+#ifdef _DEBUG
     bool isChange = false;
 
     ImGui::Text("BlendMode :");
@@ -146,8 +147,10 @@ bool ModelMeshRenderer::Edit() {
             }
         }
     }
-
     return isChange;
+#else
+    return false;
+#endif // _DEBUG
 }
 
 void ModelMeshRenderer::Save(BinaryWriter& _writer) {

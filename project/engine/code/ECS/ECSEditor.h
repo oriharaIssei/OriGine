@@ -16,6 +16,8 @@
 // util
 #include "util/nameof.h"
 
+#ifdef _DEBUG
+
 class ECSEditor
     : public IEditor {
 public:
@@ -349,7 +351,7 @@ protected:
 
 private:
     std::vector<std::unique_ptr<IEditCommand>> childCommands_;
-    size_t undoIndex_;
+    size_t undoIndex_ = 0;
 };
 
 class GroupAddComponentCommand : public ECSGroupCommand {
@@ -440,3 +442,5 @@ private:
 };
 
 #pragma endregion
+
+#endif // _DEBUG

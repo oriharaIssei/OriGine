@@ -26,7 +26,6 @@ public:
     virtual void Load(BinaryReader& _reader) = 0;
 
     virtual void Finalize() = 0;
-
 };
 
 /// <summary>

@@ -18,7 +18,7 @@
 #include "imgui/imgui.h"
 #endif // _DEBUG
 
-static std::list<std::pair<std::string, std::string>> emitterFiles = myfs::SearchFile(kEngineResourceDirectory + "/GlobalVariables/Effects", "json");
+static std::list<std::pair<std::string, std::string>> emitterFiles = myfs::SearchFile(kApplicationResourceDirectory + "/GlobalVariables/Effects", "json");
 
 EffectEditor::EffectEditor() {}
 
@@ -32,6 +32,8 @@ void EffectEditor::Initialize() {
 }
 
 void EffectEditor::Update() {
+#ifdef _DEBUG
+
     // main window
     if (ImGui::Begin("EffectEditor", nullptr, ImGuiWindowFlags_MenuBar)) {
         MenuBarUpdate();
@@ -78,6 +80,8 @@ void EffectEditor::Update() {
         // 作成用文字列の初期化
         newInstanceName_ = "NULL";
     }
+
+#endif // _DEBUG
 }
 
 void EffectEditor::Draw() {
@@ -91,6 +95,8 @@ void EffectEditor::Finalize() {
 }
 
 void EffectEditor::MenuBarUpdate() {
+#ifdef _DEBUG
+
     if (ImGui::BeginMenuBar()) {
         if (ImGui::BeginMenu("File")) {
             if (ImGui::BeginMenu("Save")) {
@@ -129,4 +135,6 @@ void EffectEditor::MenuBarUpdate() {
         }
         ImGui::EndMenuBar();
     }
+
+#endif // _DEBUG
 }

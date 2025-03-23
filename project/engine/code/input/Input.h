@@ -3,7 +3,9 @@
 #define DIRECTINPUT_VERSION 0x0800
 /// stl
 #include <array>
+#include <map>
 #include <stdint.h>
+#include <string>
 
 /// microsoft
 #include <wrl.h>
@@ -18,6 +20,255 @@
 
 static const float stickMax_ = static_cast<float>(SHORT_MAX);
 static const float stickMin_ = static_cast<float>(-SHORT_MAX);
+
+enum class PadButton : uint32_t {
+    UP         = XINPUT_GAMEPAD_DPAD_UP,
+    DOWN       = XINPUT_GAMEPAD_DPAD_DOWN,
+    LEFT       = XINPUT_GAMEPAD_DPAD_LEFT,
+    RIGHT      = XINPUT_GAMEPAD_DPAD_RIGHT,
+    START      = XINPUT_GAMEPAD_START,
+    BACK       = XINPUT_GAMEPAD_BACK,
+    L_THUMB    = XINPUT_GAMEPAD_LEFT_THUMB,
+    R_THUMB    = XINPUT_GAMEPAD_RIGHT_THUMB,
+    L_SHOULDER = XINPUT_GAMEPAD_LEFT_SHOULDER,
+    R_SHOULDER = XINPUT_GAMEPAD_RIGHT_SHOULDER,
+    A          = XINPUT_GAMEPAD_A,
+    B          = XINPUT_GAMEPAD_B,
+    X          = XINPUT_GAMEPAD_X,
+    Y          = XINPUT_GAMEPAD_Y,
+};
+static std::map<PadButton, std::string> padButtonNameMap = {
+    {PadButton::UP, "UP"},
+    {PadButton::DOWN, "DOWN"},
+    {PadButton::LEFT, "LEFT"},
+    {PadButton::RIGHT, "RIGHT"},
+    {PadButton::START, "START"},
+    {PadButton::BACK, "BACK"},
+    {PadButton::L_THUMB, "L_THUMB"},
+    {PadButton::R_THUMB, "R_THUMB"},
+    {PadButton::L_SHOULDER, "L_SHOULDER"},
+    {PadButton::R_SHOULDER, "R_SHOULDER"},
+    {PadButton::A, "A"},
+    {PadButton::B, "B"},
+    {PadButton::X, "X"},
+    {PadButton::Y, "Y"}};
+
+enum class Key : uint32_t {
+    ESCAPE        = DIK_ESCAPE,
+    ONE           = DIK_1,
+    TWO           = DIK_2,
+    THREE         = DIK_3,
+    FOUR          = DIK_4,
+    FIVE          = DIK_5,
+    SIX           = DIK_6,
+    SEVEN         = DIK_7,
+    EIGHT         = DIK_8,
+    NINE          = DIK_9,
+    ZERO          = DIK_0,
+    NUM_1         = ONE,
+    NUM_2         = TWO,
+    NUM_3         = THREE,
+    NUM_4         = FOUR,
+    NUM_5         = FIVE,
+    NUM_6         = SIX,
+    NUM_7         = SEVEN,
+    NUM_8         = EIGHT,
+    NUM_9         = NINE,
+    NUM_0         = ZERO,
+    MINUS         = DIK_MINUS,
+    EQUALS        = DIK_EQUALS,
+    BACKSPACE     = DIK_BACK,
+    TAB           = DIK_TAB,
+    Q             = DIK_Q,
+    W             = DIK_W,
+    E             = DIK_E,
+    R             = DIK_R,
+    T             = DIK_T,
+    Y             = DIK_Y,
+    U             = DIK_U,
+    I             = DIK_I,
+    O             = DIK_O,
+    P             = DIK_P,
+    LBRACKET      = DIK_LBRACKET,
+    LEFT_BRACKET  = DIK_LBRACKET,
+    L_BRACKET     = DIK_LBRACKET,
+    RBRACKET      = DIK_RBRACKET,
+    RIGHT_BRACKET = DIK_RBRACKET,
+    R_BRACKET     = DIK_RBRACKET,
+    ENTER         = DIK_RETURN,
+    LCTRL         = DIK_LCONTROL,
+    LEFT_CONTROL  = DIK_LCONTROL,
+    L_CTRL        = DIK_LCONTROL,
+    A             = DIK_A,
+    S             = DIK_S,
+    D             = DIK_D,
+    F             = DIK_F,
+    G             = DIK_G,
+    H             = DIK_H,
+    J             = DIK_J,
+    K             = DIK_K,
+    L             = DIK_L,
+    SEMICOLON     = DIK_SEMICOLON,
+    APOSTROPHE    = DIK_APOSTROPHE,
+    GRAVE         = DIK_GRAVE,
+    LSHIFT        = DIK_LSHIFT,
+    LEFT_SHIFT    = DIK_LSHIFT,
+    L_SHIFT       = DIK_LSHIFT,
+    BACKSLASH     = DIK_BACKSLASH,
+    Z             = DIK_Z,
+    X             = DIK_X,
+    C             = DIK_C,
+    V             = DIK_V,
+    B             = DIK_B,
+    N             = DIK_N,
+    M             = DIK_M,
+    COMMA         = DIK_COMMA,
+    PERIOD        = DIK_PERIOD,
+    SLASH         = DIK_SLASH,
+    RSHIFT        = DIK_RSHIFT,
+    RIGHT_SHIFT   = DIK_RSHIFT,
+    R_SHIFT       = DIK_RSHIFT,
+    MULTIPLY      = DIK_MULTIPLY,
+    LALT          = DIK_LMENU,
+    LEFT_ALT      = DIK_LMENU,
+    L_ALT         = DIK_LMENU,
+    SPACE         = DIK_SPACE,
+    CAPITAL       = DIK_CAPITAL,
+    F1            = DIK_F1,
+    F2            = DIK_F2,
+    F3            = DIK_F3,
+    F4            = DIK_F4,
+    F5            = DIK_F5,
+    F6            = DIK_F6,
+    F7            = DIK_F7,
+    F8            = DIK_F8,
+    F9            = DIK_F9,
+    F10           = DIK_F10,
+    F11           = DIK_F11,
+    F12           = DIK_F12,
+    NUMLOCK       = DIK_NUMLOCK,
+    SCROLL        = DIK_SCROLL,
+    NUMPAD7       = DIK_NUMPAD7,
+    NUMPAD8       = DIK_NUMPAD8,
+    NUMPAD9       = DIK_NUMPAD9,
+    SUBTRACT      = DIK_SUBTRACT,
+    NUMPAD4       = DIK_NUMPAD4,
+    NUMPAD5       = DIK_NUMPAD5,
+    NUMPAD6       = DIK_NUMPAD6,
+    ADD           = DIK_ADD,
+    NUMPAD1       = DIK_NUMPAD1,
+    NUMPAD2       = DIK_NUMPAD2,
+    NUMPAD3       = DIK_NUMPAD3,
+    NUMPAD0       = DIK_NUMPAD0,
+    DECIMAL       = DIK_DECIMAL,
+};
+static std::map<Key, std::string> keyNameMap = {
+    {Key::ESCAPE, "ESCAPE"},
+    {Key::ONE, "ONE"},
+    {Key::TWO, "TWO"},
+    {Key::THREE, "THREE"},
+    {Key::FOUR, "FOUR"},
+    {Key::FIVE, "FIVE"},
+    {Key::SIX, "SIX"},
+    {Key::SEVEN, "SEVEN"},
+    {Key::EIGHT, "EIGHT"},
+    {Key::NINE, "NINE"},
+    {Key::ZERO, "ZERO"},
+    {Key::NUM_1, "NUM_1"},
+    {Key::NUM_2, "NUM_2"},
+    {Key::NUM_3, "NUM_3"},
+    {Key::NUM_4, "NUM_4"},
+    {Key::NUM_5, "NUM_5"},
+    {Key::NUM_6, "NUM_6"},
+    {Key::NUM_7, "NUM_7"},
+    {Key::NUM_8, "NUM_8"},
+    {Key::NUM_9, "NUM_9"},
+    {Key::NUM_0, "NUM_0"},
+    {Key::MINUS, "MINUS"},
+    {Key::EQUALS, "EQUALS"},
+    {Key::BACKSPACE, "BACKSPACE"},
+    {Key::TAB, "TAB"},
+    {Key::Q, "Q"},
+    {Key::W, "W"},
+    {Key::E, "E"},
+    {Key::R, "R"},
+    {Key::T, "T"},
+    {Key::Y, "Y"},
+    {Key::U, "U"},
+    {Key::I, "I"},
+    {Key::O, "O"},
+    {Key::P, "P"},
+    {Key::L_BRACKET, "L_BRACKET"},
+    {Key::R_BRACKET, "R_BRACKET"},
+    {Key::ENTER, "ENTER"},
+    {Key::L_CTRL, "L_CTRL"},
+    {Key::A, "A"},
+    {Key::S, "S"},
+    {Key::D, "D"},
+    {Key::F, "F"},
+    {Key::G, "G"},
+    {Key::H, "H"},
+    {Key::J, "J"},
+    {Key::K, "K"},
+    {Key::L, "L"},
+    {Key::SEMICOLON, "SEMICOLON"},
+    {Key::APOSTROPHE, "APOSTROPHE"},
+    {Key::GRAVE, "GRAVE"},
+    {Key::L_SHIFT, "L_SHIFT"},
+    {Key::BACKSLASH, "BACKSLASH"},
+    {Key::Z, "Z"},
+    {Key::X, "X"},
+    {Key::C, "C"},
+    {Key::V, "V"},
+    {Key::B, "B"},
+    {Key::N, "N"},
+    {Key::M, "M"},
+    {Key::COMMA, "COMMA"},
+    {Key::PERIOD, "PERIOD"},
+    {Key::SLASH, "SLASH"},
+    {Key::R_SHIFT, "R_SHIFT"},
+    {Key::MULTIPLY, "MULTIPLY"},
+    {Key::L_ALT, "L_ALT"},
+    {Key::SPACE, "SPACE"},
+    {Key::CAPITAL, "CAPITAL"},
+    {Key::F1, "F1"},
+    {Key::F2, "F2"},
+    {Key::F3, "F3"},
+    {Key::F4, "F4"},
+    {Key::F5, "F5"},
+    {Key::F6, "F6"},
+    {Key::F7, "F7"},
+    {Key::F8, "F8"},
+    {Key::F9, "F9"},
+    {Key::F10, "F10"},
+    {Key::F11, "F11"},
+    {Key::F12, "F12"},
+    {Key::NUMLOCK, "NUMLOCK"},
+    {Key::SCROLL, "SCROLL"},
+    {Key::NUMPAD7, "NUMPAD7"},
+    {Key::NUMPAD8, "NUMPAD8"},
+    {Key::NUMPAD9, "NUMPAD9"},
+    {Key::SUBTRACT, "SUBTRACT"},
+    {Key::NUMPAD4, "NUMPAD4"},
+    {Key::NUMPAD5, "NUMPAD5"},
+    {Key::NUMPAD6, "NUMPAD6"},
+    {Key::ADD, "ADD"},
+    {Key::NUMPAD1, "NUMPAD1"},
+    {Key::NUMPAD2, "NUMPAD2"},
+    {Key::NUMPAD3, "NUMPAD3"},
+    {Key::NUMPAD0, "NUMPAD0"},
+    {Key::DECIMAL, "DECIMAL"}};
+
+enum class MouseButton : uint32_t {
+    LEFT   = 0,
+    RIGHT  = 1,
+    MIDDLE = 2,
+};
+static std::map<MouseButton, std::string> mouseButtonName = {
+    {MouseButton::LEFT, "LEFT"},
+    {MouseButton::RIGHT, "RIGHT"},
+    {MouseButton::MIDDLE, "MIDDLE"},
+};
 
 class Input {
 public:
@@ -43,6 +294,7 @@ private:
     DIMOUSESTATE2 currentMouseState_;
     DIMOUSESTATE2 preMouseState_;
 
+    // マウス座標
     POINT mousePoint_;
     Vec2f currentMousePos_;
     Vec2f preMousePos_;
@@ -59,13 +311,31 @@ private:
     Vec2f preRStickVelocity_     = {0.0f, 0.0f};
 
 public:
-    bool isPressKey(const uint32_t& key) const { return keys_[key]; };
+    bool isPressKey(const uint32_t& key) const { return keys_[key]; }
+    bool isPressKey(Key key) const { return keys_[static_cast<int32_t>(key)]; }
     bool isTriggerKey(const uint32_t& key) const { return (keys_[key] && !preKeys_[key]); }
+    bool isTriggerKey(Key key) const {
+        int32_t keyNum = static_cast<int32_t>(key);
+        return (keys_[keyNum] && !preKeys_[keyNum]);
+    }
     bool isReleaseKey(const uint32_t& key) const { return (!keys_[key] && preKeys_[key]); }
+    bool isReleaseKey(Key key) const {
+        int32_t keyNum = static_cast<int32_t>(key);
+        return (!keys_[keyNum] && preKeys_[keyNum]);
+    }
 
-    bool isPressMouseButton(const uint32_t& key) const { return currentMouseState_.rgbButtons[key]; }
-    bool isTriggerMouseButton(const uint32_t& key) const { return currentMouseState_.rgbButtons[key] && !preMouseState_.rgbButtons[key]; }
-    bool isReleaseMouseButton(const uint32_t& key) const { return !currentMouseState_.rgbButtons[key] && preMouseState_.rgbButtons[key]; }
+    bool isPressMouseButton(const uint32_t& _mouse) const { return currentMouseState_.rgbButtons[_mouse]; }
+    bool isPressMouseButton(MouseButton mouse) const { return currentMouseState_.rgbButtons[static_cast<int32_t>(mouse)]; }
+    bool isTriggerMouseButton(const uint32_t& _mouse) const { return currentMouseState_.rgbButtons[_mouse] && !preMouseState_.rgbButtons[_mouse]; }
+    bool isTriggerMouseButton(MouseButton mouse) const {
+        int32_t mouseNum = static_cast<int32_t>(mouse);
+        return currentMouseState_.rgbButtons[mouseNum] && !preMouseState_.rgbButtons[mouseNum];
+    }
+    bool isReleaseMouseButton(const uint32_t& _mouse) const { return !currentMouseState_.rgbButtons[_mouse] && preMouseState_.rgbButtons[_mouse]; }
+    bool isReleaseMouseButton(MouseButton mouse) const {
+        int32_t mouseNum = static_cast<int32_t>(mouse);
+        return !currentMouseState_.rgbButtons[mouseNum] && preMouseState_.rgbButtons[mouseNum];
+    }
 
     bool isWheel() const { return currentMouseState_.lZ != 0; }
     bool isPreWheel() const { return preMouseState_.lZ != 0; }
@@ -84,6 +354,15 @@ public:
 
     bool isPadActive() const { return isPadActive_; }
     bool isPressButton(const uint32_t& button) const { return padState_.Gamepad.wButtons & button; }
+    bool isPressButton(PadButton button) const { return padState_.Gamepad.wButtons & static_cast<uint32_t>(button); }
     bool isTriggerButton(const uint32_t& button) const { return padState_.Gamepad.wButtons & button && !(prePadState_.Gamepad.wButtons & button); }
+    bool isTriggerButton(PadButton button) const {
+        int32_t buttonNum = static_cast<int32_t>(button);
+        return padState_.Gamepad.wButtons & buttonNum && !(prePadState_.Gamepad.wButtons & buttonNum);
+    }
     bool isReleaseButton(const uint32_t& button) const { return !(padState_.Gamepad.wButtons & button) && prePadState_.Gamepad.wButtons & button; }
+    bool isReleaseButton(PadButton button) const {
+        int32_t buttonNum = static_cast<int32_t>(button);
+        return !(padState_.Gamepad.wButtons & buttonNum) && prePadState_.Gamepad.wButtons & buttonNum;
+    }
 };

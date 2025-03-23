@@ -7,6 +7,8 @@
 // editor
 #include "editor/EngineEditor.h"
 
+#ifdef _DEBUG
+
 /// externals
 #include <imgui/imgui.h>
 
@@ -761,3 +763,5 @@ void ChangeEntityDataTypeCommand::Undo() {
     // エンティティのデータタイプを戻す
     entity_->setDataType(oldDataType_);
 }
+
+#endif // _DEBUG

@@ -53,17 +53,23 @@ void SpriteRenderer::Initialize(GameEntity* _hostEntity) {
 }
 
 bool SpriteRenderer::Edit() {
+#ifdef _DEBUG
     bool isChange = false;
 
-    ImGui::Text("Texture");
+    ImGui::Text("Texture Path : %s", texturePath_.c_str());
     ImGui::SameLine();
     if (ImGui::Button("...")) {
         std::string directory;
         std::string fileName;
-        if (myFs::SelectFileDialog("resource", directory, fileName, {".png"})) {
-            texturePath_ = "resource/" + directory + "/" + fileName;
+        if (myFs::SelectFileDialog(kApplicationResourceDirectory, directory, fileName, {".png"})) {
+            texturePath_ = kApplicationResourceDirectory + "/" + directory + "/" + fileName;
 
-            textureNumber_ = TextureManager::LoadTexture(texturePath_);
+            // テクスチャの読み込みとサイズの適応
+            textureNumber_ = TextureManager::LoadTexture(texturePath_, [this](uint32_t loadIndex) {
+                const DirectX::TexMetadata& texData = TextureManager::getTexMetadata(loadIndex);
+                textureSize_                        = {static_cast<float>(texData.width), static_cast<float>(texData.height)};
+                spriteBuff_->scale_                 = textureSize_;
+            });
 
             isChange = true;
         }
@@ -103,7 +109,7 @@ bool SpriteRenderer::Edit() {
     }
 
     if (ImGui::TreeNode("SpriteTransform")) {
-        ImGui::Text("Scale");
+        ImGui::Text("Size(Scale)");
         isChange |= ImGui::DragFloat2("##Scale", spriteBuff_->scale_.v, 0.01f, 0.0f, 1000.0f);
         ImGui::Text("Rotate");
         isChange |= ImGui::DragFloat("##Rotate", &spriteBuff_->rotate_, 0.01f, 0.0f, 1000.0f);
@@ -113,6 +119,10 @@ bool SpriteRenderer::Edit() {
     }
 
     return isChange;
+
+#else
+return false;
+#endif // _DEBUG
 }
 
 void SpriteRenderer::Finalize() {

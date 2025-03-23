@@ -30,6 +30,7 @@ void DxResource::CreateBufferResource(ID3D12Device* device,size_t sizeInBytes){
 		IID_PPV_ARGS(&resource_)
 	);
 	assert(SUCCEEDED(hr));
+    hr;
 }
 
 void DxResource::CreateRenderTextureResource(Microsoft::WRL::ComPtr<ID3D12Device> device,uint32_t width,uint32_t height,DXGI_FORMAT format,const Vec4f& clearColor){

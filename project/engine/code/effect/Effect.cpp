@@ -19,10 +19,12 @@
 #include "animationEditor/Timeline.h"
 #include "myFileSystem/MyFileSystem.h"
 // external
+#ifdef _DEBUG
 #include "imgui/imgui.h"
+#endif // _DEBUG
 
 static std::list<std::pair<std::string, std::string>> LoadEmitters() {
-    return myfs::SearchFile(kEngineResourceDirectory + "/GlobalVariables/Emitters", "json");
+    return myfs::SearchFile(kApplicationResourceDirectory + "/GlobalVariables/Emitters", "json");
 }
 
 static std::list<std::pair<std::string, std::string>> emitterLists_ = LoadEmitters();
@@ -90,6 +92,8 @@ void Effect::Finalize() {
 }
 
 void Effect::Debug() {
+#ifdef _DEBUG
+
     ImGui::Text("Name");
     std::string preName = dataName_;
     if (ImGui::InputText("##Name", &dataName_[0], sizeof(char) * 64)) {
@@ -237,6 +241,8 @@ void Effect::Debug() {
     }
 
     ImGui::End();
+
+#endif // _DEBUG
 }
 
 #pragma region "IO"

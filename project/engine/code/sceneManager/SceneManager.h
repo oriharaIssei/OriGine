@@ -48,11 +48,12 @@ private:
 
     std::unordered_map<std::string, int32_t> sceneIndexs_;
     std::vector<std::function<std::unique_ptr<IScene>()>> scenes_;
-
 public:
     IScene* getCurrentScene() const { return currentScene_.get(); }
     void addScene(const std::string& name, std::function<std::unique_ptr<IScene>()> _sceneMakeFunc);
     void changeScene(const std::string& name);
 
     RenderTexture* getSceneView() const { return sceneView_.get(); }
+
+    const std::unordered_map<std::string, int32_t>& getScenes() const { return sceneIndexs_; }
 };

@@ -111,22 +111,24 @@ public: // ============== accessor ==============//
     }
 
     /// <summary>
-    /// 有効なエンティティが前に来るようにソートする
+    /// 有効なエンティティが後ろに来るようにソート
     /// </summary>
-    void sortFrontActiveEntities() {
-        // isAlive が true のエンティティを前に持ってくる
-        std::partition(entities_.begin(), entities_.end(), [](const GameEntity& entity) { return entity.isAlive_; });
+    void sortBackActiveEntities() {
+        // isAlive が true のエンティティを前に安定した順序で持ってくる
+        auto mid = std::stable_partition(entities_.begin(), entities_.end(), [](const GameEntity& entity) {
+            return !entity.isAlive_;
+        });
 
         uint32_t index = 0;
         freeEntityIndex_.clear();
 
-        // isAlive が true のエンティティに新しい ID を振り直す
-        for (auto& entity : entities_) {
-            if (entity.isAlive_) {
-                entity.id_ = int32_t(index++);
+        // アクティブなエンティティに新しいIDを付与し、非アクティブなインデックスを freeEntityIndex_ に追加
+        for (auto it = entities_.begin(); it != entities_.end(); ++it) {
+            if (it >= mid) {
+                it->id_ = int32_t(index++);
             } else {
-                // isAlive が false のエンティティのインデックスを freeEntityIndex_ に追加
                 freeEntityIndex_.push_back(index++);
+                it->id_ = -1;
             }
         }
     }
@@ -291,7 +293,7 @@ public: // ============== accessor ==============//
         }
         std::sort(
             priorityOrderSystems_[_systemTypeIndex].begin(),
-            priorityOrderSystems_[_systemTypeIndex].end(),
+            priorityOrderSystems_[int32_t(_systemTypeIndex)].end(),
             [](ISystem* a, ISystem* b) { return a->getPriority() < b->getPriority(); });
     }
 

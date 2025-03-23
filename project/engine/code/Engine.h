@@ -73,7 +73,9 @@ private:
     std::unique_ptr<DxFence> dxFence_;
     std::unique_ptr<DxDsv> dxDsv_;
 
+#ifdef _DEBUG
     EngineEditor* editor_ = nullptr;
+#endif // _DEBUG
 
     LightManager* lightManager_                       = nullptr;
     std::unique_ptr<MaterialManager> materialManager_ = nullptr;
