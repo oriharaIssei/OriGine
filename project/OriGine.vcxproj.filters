@@ -363,7 +363,7 @@
     <ClInclude Include="engine\code\system\movement\MoveSystemByRigidBody.h">
       <Filter>engine\system\movement</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\system\render\SpritRenderSystem.h">
+    <ClInclude Include="engine\code\system\render\SpriteRenderSystem.h">
       <Filter>engine\system\render</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\system\render\TexturedMeshRenderSystem.h">
@@ -611,7 +611,7 @@
     <ClCompile Include="engine\code\system\movement\MoveSystemByRigidBody.cpp">
       <Filter>engine\system\movement</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\system\render\SpritRenderSystem.cpp">
+    <ClCompile Include="engine\code\system\render\SpriteRenderSystem.cpp">
       <Filter>engine\system\render</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\system\render\TexturedMeshRenderSystem.cpp">

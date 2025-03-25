@@ -77,6 +77,10 @@ public:
 
         _writer.Write<bool>(isFlipX_);
         _writer.Write<bool>(isFlipY_);
+
+        _writer.Write<2, float>(spriteBuff_->scale_);
+        _writer.Write<float>(spriteBuff_->rotate_);
+        _writer.Write<2, float>(spriteBuff_->translate_);
     }
     void Load(BinaryReader& _reader) override {
         MeshRenderer<SpriteMesh, SpriteVertexData>::Load(_reader);
@@ -94,6 +98,10 @@ public:
 
         _reader.Read<bool>(isFlipX_);
         _reader.Read<bool>(isFlipY_);
+
+        _reader.Read<2, float>(spriteBuff_->scale_);
+        _reader.Read<float>(spriteBuff_->rotate_);
+        _reader.Read<2, float>(spriteBuff_->translate_);
     }
 
     /// <summary>

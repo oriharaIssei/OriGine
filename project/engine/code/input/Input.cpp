@@ -1,5 +1,7 @@
 #include "Input.h"
 
+#include "Engine.h"
+
 Input* Input::getInstance() {
     static Input instance;
     return &instance;
@@ -49,7 +51,7 @@ void Input::Update() {
 
     // マウスの位置を更新
     GetCursorPos(&mousePoint_);
-    ScreenToClient(nullptr, &mousePoint_);
+    ScreenToClient(Engine::getInstance()->getWinApp()->getHwnd(), &mousePoint_);
     preMousePos_     = currentMousePos_;
     currentMousePos_ = Vec2f(static_cast<float>(mousePoint_.x), static_cast<float>(mousePoint_.y));
 

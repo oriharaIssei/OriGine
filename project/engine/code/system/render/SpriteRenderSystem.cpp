@@ -1,4 +1,4 @@
-#include "SpritRenderSystem.h"
+#include "SpriteRenderSystem.h"
 
 /// engine
 #include "Engine.h"
@@ -10,7 +10,7 @@
 #include "component/renderer/Sprite.h"
 #include "ECS/ECSManager.h"
 
-void SpritRenderSystem::Initialize() {
+void SpriteRenderSystem::Initialize() {
     dxCommand_ = std::make_unique<DxCommand>();
     dxCommand_->Initialize("main", "main");
 
@@ -21,18 +21,18 @@ void SpritRenderSystem::Initialize() {
     viewPortMat_   = MakeMatrix::Orthographic(0, 0, (float)window->getWidth(), (float)window->getHeight(), 0.0f, 100.0f);
 }
 
-void SpritRenderSystem::Update() {
+void SpriteRenderSystem::Update() {
     StartRender();
     for (auto& entity : entities_) {
         UpdateEntity(entity);
     }
 }
 
-void SpritRenderSystem::Finalize() {
+void SpriteRenderSystem::Finalize() {
     dxCommand_->Finalize();
 }
 
-void SpritRenderSystem::CreatePso() {
+void SpriteRenderSystem::CreatePso() {
 
     ShaderManager* shaderManager = ShaderManager::getInstance();
 
@@ -121,7 +121,7 @@ void SpritRenderSystem::CreatePso() {
     }
 }
 
-void SpritRenderSystem::StartRender() {
+void SpriteRenderSystem::StartRender() {
     auto commandList     = dxCommand_->getCommandList();
     auto currentBlendPso = pso_[currentBlend_];
     commandList->SetGraphicsRootSignature(currentBlendPso->rootSignature.Get());
@@ -129,7 +129,7 @@ void SpritRenderSystem::StartRender() {
     dxCommand_->getCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-void SpritRenderSystem::UpdateEntity(GameEntity* _entity) {
+void SpriteRenderSystem::UpdateEntity(GameEntity* _entity) {
     auto commandList         = dxCommand_->getCommandList();
     SpriteRenderer* renderer = getComponent<SpriteRenderer>(_entity);
     if (!renderer) {

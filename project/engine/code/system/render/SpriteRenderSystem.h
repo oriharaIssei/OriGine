@@ -12,11 +12,11 @@
 /// math
 #include "Matrix4x4.h"
 
-class SpritRenderSystem
+class SpriteRenderSystem
     : public ISystem {
 public:
-    SpritRenderSystem() : ISystem(SystemType::Render) {};
-    ~SpritRenderSystem() = default;
+    SpriteRenderSystem() : ISystem(SystemType::Render) {};
+    ~SpriteRenderSystem() = default;
     void Initialize() override;
     void Update() override;
     void Finalize() override;

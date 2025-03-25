@@ -28,7 +28,7 @@ static const std::string kEngineResourceDirectory      = "engine/resource";
 
 #include "system/collision/CollisionCheckSystem.h"
 #include "system/movement/MoveSystemByRigidBody.h"
-#include "system/render/SpritRenderSystem.h"
+#include "system/render/SpriteRenderSystem.h"
 #include "system/render/TexturedMeshRenderSystem.h"
 #endif // ENGINE_SYSTEMS
 

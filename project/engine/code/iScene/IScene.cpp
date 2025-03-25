@@ -1,5 +1,9 @@
 #include "IScene.h"
 
+/// stl
+// container
+#include <list>
+
 /// engine
 #define ENGINE_INCLUDE
 #include "sceneManager/SceneManager.h"
@@ -57,7 +61,7 @@ void IScene::registerSystems() {
     ECSManager* ecsManager = ECSManager::getInstance();
 
     ecsManager->registerSystem<TexturedMeshRenderSystem>();
-    ecsManager->registerSystem<SpritRenderSystem>();
+    ecsManager->registerSystem<SpriteRenderSystem>();
     ecsManager->registerSystem<CollisionCheckSystem>();
     ecsManager->registerSystem<MoveSystemByRigidBody>();
 }
@@ -157,7 +161,7 @@ void IScene::SaveSceneEntity() {
     writer.WriteBegin();
 
     // 収集済みの有効なEntity数を書き込む (Load側と対応)
-    std::vector<GameEntity*> activeEntities;
+    std::list<GameEntity*> activeEntities;
     // Entityを整理
     ecsManager->sortBackActiveEntities();
     {
@@ -167,7 +171,7 @@ void IScene::SaveSceneEntity() {
             if (entityID < 0) {
                 continue;
             }
-            activeEntities.push_back(ecsManager->getEntity(entityID));
+            activeEntities.push_front(ecsManager->getEntity(entityID));
         }
     }
     writer.Write<int32_t>(static_cast<int32_t>(activeEntities.size()));
@@ -176,7 +180,14 @@ void IScene::SaveSceneEntity() {
     auto& componentArrayMap = ecsManager->getComponentArrayMap();
     std::vector<std::pair<std::string, IComponentArray*>> hasComponentTypeArray;
 
-    for (auto entity : activeEntities) {
+    while (true) {
+        if (activeEntities.empty()) {
+            break;
+        }
+
+        auto entity = activeEntities.front();
+        activeEntities.pop_front();
+
         writer.Write<std::string>(entity->getDataType());
 
         hasComponentTypeArray.clear();

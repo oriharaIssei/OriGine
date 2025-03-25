@@ -175,7 +175,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\system\ISystem.h" />
     <ClInclude Include="engine\code\system\collision\CollisionCheckSystem.h" />
     <ClInclude Include="engine\code\system\movement\MoveSystemByRigidBody.h" />
-    <ClInclude Include="engine\code\system\render\SpritRenderSystem.h" />
+    <ClInclude Include="engine\code\system\render\SpriteRenderSystem.h" />
     <ClInclude Include="engine\code\system\render\TexturedMeshRenderSystem.h" />
     <ClInclude Include="engine\code\texture\TextureManager.h" />
     <ClInclude Include="lib\Thread\Thread.h" />
@@ -259,7 +259,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\system\ISystem.cpp" />
     <ClCompile Include="engine\code\system\collision\CollisionCheckSystem.cpp" />
     <ClCompile Include="engine\code\system\movement\MoveSystemByRigidBody.cpp" />
-    <ClCompile Include="engine\code\system\render\SpritRenderSystem.cpp" />
+    <ClCompile Include="engine\code\system\render\SpriteRenderSystem.cpp" />
     <ClCompile Include="engine\code\system\render\TexturedMeshRenderSystem.cpp" />
     <ClCompile Include="engine\code\texture\TextureManager.cpp" />
     <ClCompile Include="lib\Thread\Thread.cpp" />
