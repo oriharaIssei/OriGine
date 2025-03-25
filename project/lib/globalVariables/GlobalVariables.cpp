@@ -32,63 +32,6 @@ GlobalVariables::GlobalVariables() {}
 
 GlobalVariables::~GlobalVariables() {}
 
-void GlobalVariables::Update() {
-#ifdef _DEBUG
-    if (ImGui::Begin("Global Variables", nullptr, ImGuiWindowFlags_MenuBar)) {
-
-        ImGuiMenu();
-
-        if (data_[currentScene_].empty()) {
-            ImGui::End();
-            return;
-        }
-
-        std::vector<const char*> groupList; // 動的なグループリストを
-        for (auto& group : data_[currentScene_]) {
-            groupList.push_back(group.first.c_str());
-        }
-
-        // ImGui の Combo ボックスでグループリストを表示
-        ImGui::Combo("GroupList", &currentGroupNum_, groupList.data(), static_cast<int>(groupList.size()));
-        currentGroup_     = &data_[currentScene_][groupList[currentGroupNum_]];
-        currentGroupName_ = groupList[currentGroupNum_];
-
-        ImGui::Dummy({0.0f, 4.0f});
-        if (currentGroup_) {
-            for (std::map<std::string, Item>::iterator itemItr = currentGroup_->begin();
-                itemItr != currentGroup_->end();
-                ++itemItr) {
-                const std::string& itemName = itemItr->first;
-                Item& item                  = itemItr->second;
-                if (std::holds_alternative<int32_t>(item)) {
-                    int32_t* valuePtr = std::get_if<int32_t>(&item);
-                    ImGui::DragInt(itemName.c_str(), valuePtr, 1);
-                } else if (std::holds_alternative<float>(item)) {
-                    float* valuePtr = std::get_if<float>(&item);
-                    ImGui::DragFloat(itemName.c_str(), valuePtr, 0.1f);
-                } else if (std::holds_alternative<std::string>(item)) {
-                    std::string* valuePtr = std::get_if<std::string>(&item);
-                    ImGui::InputText(itemName.c_str(), &valuePtr->operator[](0), sizeof(char) * 64);
-                } else if (std::holds_alternative<Vec2f>(item)) {
-                    Vec2f* valuePtr = std::get_if<Vec2f>(&item);
-                    ImGui::DragFloat2(itemName.c_str(), reinterpret_cast<float*>(valuePtr), 0.1f);
-                } else if (std::holds_alternative<Vec3f>(item)) {
-                    Vec3f* valuePtr = std::get_if<Vec3f>(&item);
-                    ImGui::DragFloat3(itemName.c_str(), reinterpret_cast<float*>(valuePtr), 0.1f);
-                } else if (std::holds_alternative<Vec4f>(item)) {
-                    Vec4f* valuePtr = std::get_if<Vec4f>(&item);
-                    ImGui::DragFloat4(itemName.c_str(), reinterpret_cast<float*>(valuePtr), 0.1f);
-                } else if (std::holds_alternative<bool>(item)) {
-                    bool* valuePtr = std::get_if<bool>(&item);
-                    ImGui::Checkbox(itemName.c_str(), valuePtr);
-                }
-            }
-        }
-    }
-    ImGui::End();
-#endif // _DEBUG
-}
-
 #pragma region "Load"
 void GlobalVariables::LoadAllFile() {
     std::filesystem::directory_iterator sceneDirItr(kDirectoryPath);
@@ -244,14 +187,76 @@ void GlobalVariables::SaveFile(const std::string& scene, const std::string& grou
 #pragma endregion
 
 #ifdef _DEBUG
-void GlobalVariables::ImGuiMenu() {
+void GlobalVariablesEditor::Initialize() {
+    globalVariables_ = GlobalVariables::getInstance();
+}
+
+void GlobalVariablesEditor::Update() {
+    if (ImGui::Begin("Global Variables", nullptr, ImGuiWindowFlags_MenuBar)) {
+
+        ImGuiMenu();
+
+        auto& currentScene = globalVariables_->data_[currentSceneName_];
+
+        if (currentScene.empty()) {
+            ImGui::End();
+            return;
+        }
+
+        std::vector<const char*> groupList; // 動的なグループリストを
+        for (auto& group : currentScene) {
+            groupList.push_back(group.first.c_str());
+        }
+
+        // ImGui の Combo ボックスでグループリストを表示
+        ImGui::Combo("GroupList", &currentGroupNum_, groupList.data(), static_cast<int>(groupList.size()));
+        currentGroup_     = &currentScene[groupList[currentGroupNum_]];
+        currentGroupName_ = groupList[currentGroupNum_];
+
+        ImGui::Dummy({0.0f, 4.0f});
+        if (currentGroup_) {
+            for (std::map<std::string, GlobalVariables::Item>::iterator itemItr = currentGroup_->begin();
+                itemItr != currentGroup_->end();
+                ++itemItr) {
+                const std::string& itemName = itemItr->first;
+                GlobalVariables::Item& item = itemItr->second;
+                if (std::holds_alternative<int32_t>(item)) {
+                    int32_t* valuePtr = std::get_if<int32_t>(&item);
+                    ImGui::DragInt(itemName.c_str(), valuePtr, 1);
+                } else if (std::holds_alternative<float>(item)) {
+                    float* valuePtr = std::get_if<float>(&item);
+                    ImGui::DragFloat(itemName.c_str(), valuePtr, 0.1f);
+                } else if (std::holds_alternative<std::string>(item)) {
+                    std::string* valuePtr = std::get_if<std::string>(&item);
+                    ImGui::InputText(itemName.c_str(), &valuePtr->operator[](0), sizeof(char) * 64);
+                } else if (std::holds_alternative<Vec2f>(item)) {
+                    Vec2f* valuePtr = std::get_if<Vec2f>(&item);
+                    ImGui::DragFloat2(itemName.c_str(), reinterpret_cast<float*>(valuePtr), 0.1f);
+                } else if (std::holds_alternative<Vec3f>(item)) {
+                    Vec3f* valuePtr = std::get_if<Vec3f>(&item);
+                    ImGui::DragFloat3(itemName.c_str(), reinterpret_cast<float*>(valuePtr), 0.1f);
+                } else if (std::holds_alternative<Vec4f>(item)) {
+                    Vec4f* valuePtr = std::get_if<Vec4f>(&item);
+                    ImGui::DragFloat4(itemName.c_str(), reinterpret_cast<float*>(valuePtr), 0.1f);
+                } else if (std::holds_alternative<bool>(item)) {
+                    bool* valuePtr = std::get_if<bool>(&item);
+                    ImGui::Checkbox(itemName.c_str(), valuePtr);
+                }
+            }
+        }
+    }
+}
+
+void GlobalVariablesEditor::Finalize() {}
+
+void GlobalVariablesEditor::ImGuiMenu() {
     if (ImGui::BeginMenuBar()) {
         if (ImGui::BeginMenu("File")) {
             if (ImGui::MenuItem("Save")) {
-                std::string message = std::format("{}/{}.json save it?", currentScene_, currentGroupName_);
+                std::string message = std::format("{}/{}.json save it?", currentSceneName_, currentGroupName_);
                 if (MessageBoxA(nullptr, message.c_str(), "GlobalVariables", MB_OKCANCEL) == IDOK) {
-                    SaveFile(currentScene_, currentGroupName_);
-                    message = std::format("{}/{}.json saved", currentScene_, currentGroupName_);
+                    globalVariables_->SaveFile(currentSceneName_, currentGroupName_);
+                    message = std::format("{}/{}.json saved", currentSceneName_, currentGroupName_);
                     MessageBoxA(nullptr, message.c_str(), "GlobalVariables", MB_OK);
                 }
             }
@@ -261,23 +266,23 @@ void GlobalVariables::ImGuiMenu() {
         if (ImGui::BeginMenu("Scene")) {
             if (ImGui::BeginMenu("Open")) {
                 std::vector<std::string> sceneList; // Create a dynamic scene list
-                for (auto& scene : data_) {
+                for (auto& scene : globalVariables_->data_) {
                     sceneList.push_back(scene.first);
                 }
                 for (int i = 0; i < sceneList.size(); ++i) {
                     if (ImGui::MenuItem(sceneList[i].c_str(), nullptr, currentSceneNum_ == i)) {
-                        currentScene_    = sceneList[i];
-                        currentSceneNum_ = i; // Update currentSceneNum_ index
-                        currentGroupNum_ = 0;
+                        currentSceneName_ = sceneList[i];
+                        currentSceneNum_  = i; // Update currentSceneNum_ index
+                        currentGroupNum_  = 0;
                     }
                 }
                 ImGui::EndMenu(); // Ensure this is called to match BeginMenu
             }
             if (ImGui::MenuItem("Save")) {
-                std::string message = std::format("{} save it?", currentScene_);
+                std::string message = std::format("{} save it?", currentSceneName_);
                 if (MessageBoxA(nullptr, message.c_str(), "GlobalVariables", MB_OKCANCEL) == IDOK) {
-                    SaveScene(currentScene_);
-                    message = std::format("{} saved", currentScene_);
+                    globalVariables_->SaveScene(currentSceneName_);
+                    message = std::format("{} saved", currentSceneName_);
                     MessageBoxA(nullptr, message.c_str(), "GlobalVariables", MB_OK);
                 }
             }

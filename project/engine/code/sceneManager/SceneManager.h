@@ -28,6 +28,10 @@ public:
     void Update();
     void Draw();
 
+#ifdef _DEBUG
+    void DebugUpdate();
+#endif
+
 private:
     SceneManager();
     ~SceneManager();
@@ -37,7 +41,7 @@ private:
 private:
     std::unique_ptr<IScene> currentScene_ = nullptr;
 
-    bool isChangeScene_              = false;
+    bool isChangeScene_            = false;
     std::string changingSceneName_ = "";
 
     EntityComponentSystemManager* ecsManager_ = nullptr;
@@ -48,6 +52,7 @@ private:
 
     std::unordered_map<std::string, int32_t> sceneIndexs_;
     std::vector<std::function<std::unique_ptr<IScene>()>> scenes_;
+
 public:
     IScene* getCurrentScene() const { return currentScene_.get(); }
     void addScene(const std::string& name, std::function<std::unique_ptr<IScene>()> _sceneMakeFunc);

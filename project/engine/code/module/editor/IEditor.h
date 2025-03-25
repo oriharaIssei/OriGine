@@ -12,7 +12,6 @@
 #include <list>
 // utility
 #include <cassert>
-#include <concepts>
 
 class IEditor
     : public IModule {

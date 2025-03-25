@@ -113,6 +113,8 @@ void Engine::Initialize() {
     editor_->addEditor(std::move(materialEditor));
     std::unique_ptr<ECSEditor> ecsEditor = std::make_unique<ECSEditor>();
     editor_->addEditor(std::move(ecsEditor));
+    std::unique_ptr<GlobalVariablesEditor> globalVariables = std::make_unique<GlobalVariablesEditor>();
+    editor_->addEditor(std::move(globalVariables));
 
     editor_->Initialize();
 #endif // _DEBUG

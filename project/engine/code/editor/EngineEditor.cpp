@@ -54,7 +54,7 @@ void EngineEditor::Update() {
                     for (auto& [name, index] : sceneManager->sceneIndexs_) {
                         if (ImGui::MenuItem(name.c_str())) {
                             startupSceneName.setValue(name);
-                            GlobalVariables::getInstance()->SaveFile("Settings","Scene");
+                            GlobalVariables::getInstance()->SaveFile("Settings", "Scene");
                             break;
                         }
                     }
@@ -82,7 +82,6 @@ void EngineEditor::Update() {
             /// ------------------------------------------------------------------------------------------------
             if (ImGui::BeginMenu("Editors")) {
                 if (ImGui::BeginMenu("ActiveState")) {
-                    ImGui::Checkbox("IsEdit", &isActive_);
                     for (auto& [name, editor] : editors_) {
                         ImGui::Checkbox(name.c_str(), &editorActive_[editor.get()]);
                     }
@@ -104,6 +103,31 @@ void EngineEditor::Update() {
             }
             ImGui::EndMainMenuBar();
         }
+
+        ///=================================================================================================
+        // Main DockSpace Window
+        ///=================================================================================================
+        ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+        ImGuiViewport* viewport       = ImGui::GetMainViewport();
+        ImGui::SetNextWindowPos(viewport->Pos);
+        ImGui::SetNextWindowSize(viewport->Size);
+        ImGui::SetNextWindowViewport(viewport->ID);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+        window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+        window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+
+        ImGui::Begin("MainEditorWindow", nullptr, window_flags);
+        ImGui::PopStyleVar(2);
+
+        // DockSpaceを作成
+        ImGuiID dockspace_id = ImGui::GetID("MainEditorWindow");
+        ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);
+
+        ///=================================================================================================
+        // Scene
+        ///=================================================================================================
+        SceneManager::getInstance()->DebugUpdate();
 
         ///=================================================================================================
         // Editor
@@ -140,6 +164,7 @@ void EngineEditor::Update() {
             }
         }
 
+        ImGui::End();
     } else { // Debug のとき
         if (ImGui::BeginMainMenuBar()) {
             if (ImGui::BeginMenu("Debug")) {

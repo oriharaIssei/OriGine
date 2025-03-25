@@ -22,6 +22,10 @@ SceneManager* SceneManager::getInstance() {
     return &instance;
 }
 
+SceneManager::SceneManager() {}
+
+SceneManager::~SceneManager() {}
+
 void SceneManager::Initialize() {
     sceneViewRtvArray_ = DxRtvArrayManager::getInstance()->Create(1);
     sceneViewSrvArray_ = DxSrvArrayManager::getInstance()->Create(1);
@@ -72,9 +76,15 @@ void SceneManager::Draw() {
     Engine::getInstance()->ScreenPostDraw();
 }
 
-SceneManager::SceneManager() {}
-
-SceneManager::~SceneManager() {}
+#ifdef _DEBUG
+#include "imgui/imgui.h"
+void SceneManager::DebugUpdate() {
+    if (ImGui::Begin("SceneView")) {
+        ImGui::Image(reinterpret_cast<ImTextureID>(sceneView_->getSrvHandle().ptr), ImGui::GetWindowSize());
+    }
+    ImGui::End();
+}
+#endif
 
 void SceneManager::addScene(
     const std::string& name,
