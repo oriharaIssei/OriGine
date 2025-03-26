@@ -7,19 +7,28 @@
 #include <string>
 #include <variant>
 
-///math
+/// Engine
+// editor
+#include "module/editor/IEditor.h"
+
+/// math
 #include "Vector2.h"
 #include "Vector3.h"
 #include "Vector4.h"
+
+class GlobalVariablesEditor;
 
 /// <summary>
 /// 定数値を json に保存する
 /// </summary>
 class GlobalVariables {
+
+#ifdef _DEBUG
+    friend class GlobalVariablesEditor;
+#endif // _DEBUG
+
 public:
     static GlobalVariables* getInstance();
-
-    void Update();
 
     void LoadAllFile();
     void LoadFile(const std::string& scene, const std::string& groupName);
@@ -32,9 +41,6 @@ private:
     GlobalVariables(const GlobalVariables&)      = delete;
     GlobalVariables* operator=(GlobalVariables&) = delete;
 
-private:
-    void ImGuiMenu();
-
 public:
     using Item  = std::variant<int32_t, float, std::string, Vec2f, Vec3f, Vec4f, bool>;
     using Group = std::map<std::string, Item>;
@@ -42,14 +48,6 @@ public:
 
 private:
     std::map<std::string, Scene> data_;
-#ifdef _DEBUG
-    std::string currentScene_ = "NULL";
-    int currentSceneNum_      = 0;
-
-    std::string currentGroupName_ = "NULL";
-    int currentGroupNum_          = 0;
-    Group* currentGroup_          = nullptr;
-#endif // _DEBUG
 
 public:
     Scene* getScene(const std::string& scene) {
@@ -126,3 +124,30 @@ public:
     }
 #endif // _DEBUG
 };
+
+#ifdef _DEBUG
+class GlobalVariablesEditor
+    : public IEditor {
+public:
+    GlobalVariablesEditor()
+        : IEditor() {}
+    ~GlobalVariablesEditor() {}
+
+    void Initialize() override;
+    void Update() override;
+    void Finalize() override;
+
+private:
+    void ImGuiMenu();
+
+private:
+    GlobalVariables* globalVariables_ = nullptr;
+
+    std::string currentSceneName_ = "NULL";
+    int currentSceneNum_      = 0;
+
+    std::string currentGroupName_ = "NULL";
+    int currentGroupNum_          = 0;
+    GlobalVariables::Group* currentGroup_ = nullptr;
+};
+#endif // _DEBUG
