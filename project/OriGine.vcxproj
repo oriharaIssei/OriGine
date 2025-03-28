@@ -107,11 +107,11 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="engine\EngineInclude.h" />
     <ClInclude Include="engine\code\ECS\ECSEditor.h" />
     <ClInclude Include="engine\code\ECS\ECSManager.h" />
     <ClInclude Include="engine\code\ECS\Entity.h" />
     <ClInclude Include="engine\code\Engine.h" />
-    <ClInclude Include="engine\EngineInclude.h" />
     <ClInclude Include="engine\code\animation\Animation.h" />
     <ClInclude Include="engine\code\animation\AnimationManager.h" />
     <ClInclude Include="engine\code\assets\IAsset.h" />
@@ -188,6 +188,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="lib\imGuiManager\ImGuiManager.h" />
     <ClInclude Include="lib\logger\Logger.h" />
     <ClInclude Include="lib\myFileSystem\MyFileSystem.h" />
+    <ClInclude Include="lib\myGui\MyGui.h" />
     <ClInclude Include="lib\myRandom\MyRandom.h" />
     <ClInclude Include="lib\node\DefaultNodes.h" />
     <ClInclude Include="lib\node\OperatorNodes.h" />
