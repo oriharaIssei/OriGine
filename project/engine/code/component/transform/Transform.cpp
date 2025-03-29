@@ -15,7 +15,7 @@ void Transform::Update() {
     worldMat = MakeMatrix::Affine(scale, rotate, translate);
 
     if (parent) {
-        worldMat = parent->worldMat * worldMat;
+        worldMat *= parent->worldMat;
     }
 }
 
