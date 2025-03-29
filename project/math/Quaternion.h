@@ -30,7 +30,7 @@ struct Quaternion final : public Vector<4, float> {
     Quaternion(const Quaternion& q)
         : Vector<4, float>(q[X], q[Y], q[Z], q[W]) {}
 
-    Quaternion operator*(const Quaternion& _q) {
+    Quaternion operator*(const Quaternion& _q) const {
         Quaternion q;
         q[X] = v[W] * _q[X] + v[X] * _q[W] + v[Y] * _q[Z] - v[Z] * _q[Y];
         q[Y] = v[W] * _q[Y] + v[Y] * _q[W] + v[Z] * _q[X] - v[X] * _q[Z];
@@ -45,7 +45,7 @@ struct Quaternion final : public Vector<4, float> {
         return this;
     }
 
-    Quaternion operator*(float scalar) {
+    Quaternion operator*(float scalar) const {
         return Quaternion(
             v[X] * scalar,
             v[Y] * scalar,
