@@ -30,16 +30,33 @@ struct Quaternion final : public Vector<4, float> {
     Quaternion(const Quaternion& q)
         : Vector<4, float>(q[X], q[Y], q[Z], q[W]) {}
 
-    Quaternion operator*(const Quaternion& _q) const {
-        Quaternion q{
-            v[W] * _q[X] + v[X] * _q[W] + v[Y] * _q[Z] - v[Z] * _q[Y], // X'
-            v[W] * _q[Y] + v[Y] * _q[W] + v[Z] * _q[X] - v[X] * _q[Z], // Y'
-            v[W] * _q[Z] + v[Z] * _q[W] + v[X] * _q[Y] - v[Y] * _q[X], // Z'
-            v[W] * _q[W] - v[X] * _q[X] - v[Y] * _q[Y] - v[Z] * _q[Z]  // W'
-        };
+    Quaternion operator*(const Quaternion& q2) const {
+        Vec3f v1  = Vec3f(this->v[X], this->v[Y], this->v[Z]);
+        Vec3f v2 = Vec3f(q2[X], q2[Y], q2[Z]);
 
-        return q;
+        float dot  = Vec3f::Dot(v1 - v2);
+        float newW = (this->v[W] * q2[W]) - dot;
+
+        Vector3f cross{};
+        cross[X] = v1[Y] * v2[Z] - v1[Z] * v2[Y];
+        cross[Y] = v1[Z] * v2[X] - v1[X] * v2[Z];
+        cross[Z] = v1[X] * v2[Y] - v1[Y] * v2[X];
+
+        Vector3f vector = cross + (v1 * q2[W]) + (v2 * this->v[W]);
+        return Quaternion(vector[X], vector[Y], vector[Z], newW);
     }
+
+    // Quaternion operator*(const Quaternion& _q) const {
+    //     Quaternion q{
+    //         v[W] * _q[X] + v[X] * _q[W] + v[Y] * _q[Z] - v[Z] * _q[Y], // X'
+    //         v[W] * _q[Y] + v[Y] * _q[W] + v[Z] * _q[X] - v[X] * _q[Z], // Y'
+    //         v[W] * _q[Z] + v[Z] * _q[W] + v[X] * _q[Y] - v[Y] * _q[X], // Z'
+    //         v[W] * _q[W] - v[X] * _q[X] - v[Y] * _q[Y] - v[Z] * _q[Z]  // W'
+    //     };
+
+    //    return q;
+    //}
+
     Quaternion* operator*=(const Quaternion& _q) {
         Quaternion q = *this * _q;
         *this        = q;
