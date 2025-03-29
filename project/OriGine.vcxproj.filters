@@ -450,6 +450,8 @@
     <ClInclude Include="util\nameof.h">
       <Filter>util</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\system\movement\ParticleUpdateSystem.h" />
+    <ClInclude Include="engine\code\system\render\ParticleRenderSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\code\ECS\ECSEditor.cpp">
@@ -672,5 +674,7 @@
     <ClCompile Include="math\Quaternion.cpp">
       <Filter>math</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\system\movement\ParticleUpdateSystem.cpp" />
+    <ClCompile Include="engine\code\system\render\ParticleRenderSystem.cpp" />
   </ItemGroup>
 </Project>

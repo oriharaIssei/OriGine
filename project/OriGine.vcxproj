@@ -201,6 +201,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="math\Vector3.h" />
     <ClInclude Include="math\Vector4.h" />
     <ClInclude Include="math\shape\Shapes.h" />
+    <ClInclude Include="engine\code\system\movement\ParticleUpdateSystem.h" />
+    <ClInclude Include="engine\code\system\render\ParticleRenderSystem.h" />
     <ClInclude Include="util\nameof.h" />
   </ItemGroup>
   <ItemGroup>
@@ -278,6 +280,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="math\Matrix4x4.cpp" />
     <ClCompile Include="math\MyEasing.cpp" />
     <ClCompile Include="math\Quaternion.cpp" />
+    <ClCompile Include="engine\code\system\movement\ParticleUpdateSystem.cpp" />
+    <ClCompile Include="engine\code\system\render\ParticleRenderSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex.vcxproj">
