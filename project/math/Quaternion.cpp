@@ -27,11 +27,11 @@ Quaternion Quaternion::inverse() const {
 }
 
 float Quaternion::Norm(const Quaternion& q) {
-    return sqrtf(q[W] * q[W] + q[X] * q[X] + q[Y] * q[Y] + q[Z] * q[Z]);
+    return sqrtf((q[W] * q[W]) + (q[X] * q[X]) + (q[Y] * q[Y]) + (q[Z] * q[Z]));
 }
 
 float Quaternion::norm() const {
-    return sqrtf(this->v[W] * this->v[W] + this->v[X] * this->v[X] + this->v[Y] * this->v[Y] + this->v[Z] * this->v[Z]);
+    return sqrtf((this->v[W] * this->v[W]) + (this->v[X] * this->v[X]) + (this->v[Y] * this->v[Y]) + (this->v[Z] * this->v[Z]));
 }
 
 float Quaternion::NormSq(const Quaternion& q) {
