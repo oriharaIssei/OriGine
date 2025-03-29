@@ -217,13 +217,8 @@ void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
     /// Transformの更新
     ///==============================
     {
-        Transform* entityTransform = getComponent<Transform>(_entity);
         for (int32_t i = 0; i < renderer->getMeshSize(); ++i) {
             auto& transform = renderer->getTransformBuff(i);
-
-            if (transform->parent == nullptr) {
-                transform->parent = entityTransform;
-            }
 
             transform.openData_.Update();
             transform.ConvertToBuffer();
