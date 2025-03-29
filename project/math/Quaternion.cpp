@@ -83,10 +83,11 @@ Vec3f Quaternion::ToEulerAngles() const {
 
     // Pitch (y-axis rotation)
     float sinp = 2.0f * (v[W] * v[Y] - v[Z] * v[X]);
-    if (std::abs(sinp) >= 1.0f)
+    if (std::abs(sinp) >= 1.0f) {
         euler[Y] = std::copysign(std::numbers::pi_v<float> / 2.0f, sinp); // use 90 degrees if out of range
-    else
+    } else {
         euler[Y] = std::asin(sinp);
+    }
 
     // v[Y] av[W] (z-axis rotation)
     float siny_cosp = 2.0f * (v[W] * v[Z] + v[X] * v[Y]);
@@ -94,6 +95,14 @@ Vec3f Quaternion::ToEulerAngles() const {
     euler[Z]        = std::atan2(siny_cosp, cosy_cosp);
 
     return euler;
+}
+
+Quaternion operator*(float scalar, const Quaternion& q) {
+    return Quaternion(q * scalar);
+}
+
+Quaternion operator/(float scalar, const Quaternion& q) {
+    return Quaternion(q / scalar);
 }
 
 Quaternion Slerp(const Quaternion& q0, const Quaternion& q1, float t) {

@@ -13,8 +13,8 @@ struct Quaternion final : public Vector<4, float> {
     using Vector<4, float>::operator+=;
     using Vector<4, float>::operator-;
     using Vector<4, float>::operator-=;
-    using Vector<4, float>::operator*;
-    using Vector<4, float>::operator*=;
+    /* using Vector<4, float>::operator*;
+     using Vector<4, float>::operator*=;*/
     using Vector<4, float>::operator/;
     using Vector<4, float>::operator/=;
     using Vector<4, float>::operator=;
@@ -29,6 +29,34 @@ struct Quaternion final : public Vector<4, float> {
         : Vector<4, float>(v[X], v[Y], v[Z], _w) {}
     Quaternion(const Quaternion& q)
         : Vector<4, float>(q[X], q[Y], q[Z], q[W]) {}
+
+    Quaternion operator*(const Quaternion& _q) {
+        Quaternion q;
+        q[X] = v[W] * _q[X] + v[X] * _q[W] + v[Y] * _q[Z] - v[Z] * _q[Y];
+        q[Y] = v[W] * _q[Y] + v[Y] * _q[W] + v[Z] * _q[X] - v[X] * _q[Z];
+        q[Z] = v[W] * _q[Z] + v[Z] * _q[W] + v[X] * _q[Y] - v[Y] * _q[X];
+        q[W] = v[W] * _q[W] - v[X] * _q[X] - v[Y] * _q[Y] - v[Z] * _q[Z];
+
+        return q;
+    }
+    Quaternion* operator*=(const Quaternion& _q) {
+        Quaternion q = *this * _q;
+        *this        = q;
+        return this;
+    }
+
+    Quaternion operator*(float scalar) {
+        return Quaternion(
+            v[X] * scalar,
+            v[Y] * scalar,
+            v[Z] * scalar,
+            v[W] * scalar);
+    }
+    Quaternion* operator*=(float scalar) {
+        Quaternion q = *this * scalar;
+        *this        = q;
+        return this;
+    }
 
     static Quaternion Identity() {
         return Quaternion(
@@ -64,11 +92,10 @@ struct Quaternion final : public Vector<4, float> {
     static Quaternion Normalize(const Quaternion& q);
     Quaternion normalize() const;
 
-    static float Dot(const Quaternion& q0, const Quaternion& q1);
+    static float Dot(const Quaternion& q0, const Quaternion& v);
     float dot(const Quaternion& q) const;
 
     static Quaternion RotateAxisAngle(const Vec3f& axis, float angle);
-    void Show();
 
     Vec3f ToEulerAngles() const;
 
@@ -83,4 +110,4 @@ struct Quaternion final : public Vector<4, float> {
 Quaternion operator*(float scalar, const Quaternion& q);
 Quaternion operator/(float scalar, const Quaternion& q);
 
-Quaternion Slerp(const Quaternion& q0, const Quaternion& q1, float t);
+Quaternion Slerp(const Quaternion& q0, const Quaternion& v, float t);
