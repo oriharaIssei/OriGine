@@ -7,15 +7,17 @@
 #include "imgui/imgui.h"
 #endif // _DEBUG
 
-Transform::Transform(){}
+Transform::Transform() {}
 
-void Transform::Initialize([[maybe_unused]]GameEntity* _entity) {}
+void Transform::Initialize([[maybe_unused]] GameEntity* _entity) {}
 
 void Transform::Update() {
+    rotate = Quaternion::Normalize(rotate);
+    // 修正: 局所変換行列を作成
     worldMat = MakeMatrix::Affine(scale, rotate, translate);
-
+    // 修正: 親の行列との乗算順序を変更 (親行列を左側に乗算)
     if (parent) {
-        worldMat = parent->worldMat * worldMat;
+        worldMat *= parent->worldMat;
     }
 }
 
