@@ -30,18 +30,16 @@ Matrix4x4 Matrix4x4::operator-(const Matrix4x4& another) const {
 }
 
 Matrix4x4 Matrix4x4::operator*(const Matrix4x4& another) const {
-    Matrix4x4 result;
-    float sum = 0.0f;
 
-    for (int row = 0; row < 4; ++row) {
-        for (int col = 0; col < 4; ++col) {
-            sum = 0.0f;
-            for (int k = 0; k < 4; ++k) {
-                sum += this->m[row][k] * another.m[k][col];
-            }
-            result[row][col] = sum;
+    Matrix4x4 result;
+
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            result.m[i][j] =
+                (m[i][0] * another.m[0][j]) + (m[i][1] * another.m[1][j]) + (m[i][2] * another.m[2][j]) + (m[i][3] * another.m[3][j]);
         }
     }
+
     return result;
 }
 
