@@ -10,6 +10,7 @@
 #include "component/transform/ParticleTransform.h"
 
 // lib
+#include "binaryIO/BinaryIO.h"
 #include "myRandom/MyRandom.h"
 
 Particle::Particle() {}
@@ -77,7 +78,7 @@ void Particle::Update(float _deltaTime) {
         float dot     = Vec3f(axisZ * forward).dot();
         if (dot < 1.0f - std::numeric_limits<float>::epsilon()) {
             Vec3f axis        = axisZ.cross(forward).normalize();
-            float rotateAngle       = std::acos(dot);
+            float rotateAngle = std::acos(dot);
             Quaternion q      = Quaternion::RotateAxisAngle(axis, rotateAngle).normalize();
             transform_.rotate = q.ToEulerAngles();
         }
@@ -174,31 +175,25 @@ void Particle::UpdateKeyFrameValues() {
 }
 
 #pragma region "ParticleKeyFrames"
-void ParticleKeyFrames::SaveKeyFrames(const std::string& _filePath) {
+void ParticleKeyFrames::SaveKeyFrames(BinaryWriter& _writer) {
     /*
-    1. fileを開く
-    2. colorCurve_のkeyframesを書き込む(サイズ, 各キーフレーム)
-    3. scaleCurve_のkeyframesを書き込む(サイズ, 各キーフレーム)
-    4. rotateCurve_のkeyframesを書き込む(サイズ, 各キーフレーム)
-    5. speedCurve_のkeyframesを書き込む(サイズ, 各キーフレーム)
-    6. uvScaleCurve_のkeyframesを書き込む(サイズ, 各キーフレーム)
-    7. uvRotateCurve_のkeyframesを書き込む(サイズ, 各キーフレーム)
-    8. uvTranslateCurve_のkeyframesを書き込む(サイズ, 各キーフレーム)
-    9. fileを閉じる
-    */
+        2. colorCurve_のkeyframesを書き込む(サイズ, 各キーフレーム)
+        3. scaleCurve_のkeyframesを書き込む(サイズ, 各キーフレーム)
+        4. rotateCurve_のkeyframesを書き込む(サイズ, 各キーフレーム)
+        5. speedCurve_のkeyframesを書き込む(サイズ, 各キーフレーム)
+        6. uvScaleCurve_のkeyframesを書き込む(サイズ, 各キーフレーム)
+        7. uvRotateCurve_のkeyframesを書き込む(サイズ, 各キーフレーム)
+        8. uvTranslateCurve_のkeyframesを書き込む(サイズ, 各キーフレーム)
+     */
 
-    // 1. fileを開く
-    std::ofstream ofs(_filePath, std::ios::binary);
-    if (!ofs) {
-        throw std::runtime_error("Failed to open file for writing");
-    }
-
-    auto writeCurve = [&ofs](const auto& curve) {
+    auto writeCurve = [&_writer](const auto& curve) {
         size_t size = curve.size();
-        ofs.write(reinterpret_cast<const char*>(&size), sizeof(size));
+        _writer.Write(size);
         for (const auto& keyframe : curve) {
-            ofs.write(reinterpret_cast<const char*>(&keyframe.time), sizeof(keyframe.time));
-            ofs.write(reinterpret_cast<const char*>(&keyframe.value), sizeof(keyframe.value));
+            _writer.Write(keyframe.time);
+            for (int32_t i = 0; i < keyframe.value.dim; i++) {
+                _writer.Write(keyframe.value.v[i]);
+            }
         }
     };
     // 2 ~ 8 書き込み
@@ -209,37 +204,31 @@ void ParticleKeyFrames::SaveKeyFrames(const std::string& _filePath) {
     writeCurve(uvScaleCurve_);
     writeCurve(uvRotateCurve_);
     writeCurve(uvTranslateCurve_);
-
-    // 9. fileを閉じる
-    ofs.close();
 }
 
-void ParticleKeyFrames::LoadKeyFrames(const std::string& _filePath) {
+void ParticleKeyFrames::LoadKeyFrames(BinaryReader& _reader) {
     /*
-    1. fileを開く
-    2. colorCurve_のkeyframesを読み込む(サイズ, 各キーフレーム)
-    3. scaleCurve_のkeyframesを読み込む(サイズ, 各キーフレーム)
-    4. rotateCurve_のkeyframesを読み込む(サイズ, 各キーフレーム)
-    5. speedCurve_のkeyframesを読み込む(サイズ, 各キーフレーム)
-    6. uvScaleCurve_のkeyframesを読み込む(サイズ, 各キーフレーム)
-    7. uvRotateCurve_のkeyframesを読み込む(サイズ, 各キーフレーム)
-    8. uvTranslateCurve_のkeyframesを読み込む(サイズ, 各キーフレーム)
-    9. fileを閉じる
+        2. colorCurve_のkeyframesを読み込む(サイズ, 各キーフレーム)
+        3. scaleCurve_のkeyframesを読み込む(サイズ, 各キーフレーム)
+        4. rotateCurve_のkeyframesを読み込む(サイズ, 各キーフレーム)
+        5. speedCurve_のkeyframesを読み込む(サイズ, 各キーフレーム)
+        6. uvScaleCurve_のkeyframesを読み込む(サイズ, 各キーフレーム)
+        7. uvRotateCurve_のkeyframesを読み込む(サイズ, 各キーフレーム)
+        8. uvTranslateCurve_のkeyframesを読み込む(サイズ, 各キーフレーム)
     */
-    // 1. fileを開く
-    std::ifstream ifs(_filePath, std::ios::binary);
-    if (!ifs) {
-        throw std::runtime_error("Failed to open file for reading");
-    }
-    auto readCurve = [&ifs](auto& curve) {
+
+    auto readCurve = [&_reader](auto& curve) {
         size_t size;
-        ifs.read(reinterpret_cast<char*>(&size), sizeof(size));
+        _reader.Read(size);
         curve.resize(size);
         for (auto& keyframe : curve) {
-            ifs.read(reinterpret_cast<char*>(&keyframe.time), sizeof(keyframe.time));
-            ifs.read(reinterpret_cast<char*>(&keyframe.value), sizeof(keyframe.value));
+            _reader.Read(keyframe.time);
+            for (int32_t i = 0; i < keyframe.value.dim; i++) {
+                _reader.Read(keyframe.value.v[i]);
+            }
         }
     };
+
     // 2 ~ 8 読み込み
     readCurve(colorCurve_);
     readCurve(scaleCurve_);
@@ -248,7 +237,5 @@ void ParticleKeyFrames::LoadKeyFrames(const std::string& _filePath) {
     readCurve(uvScaleCurve_);
     readCurve(uvRotateCurve_);
     readCurve(uvTranslateCurve_);
-    // 9. fileを閉じる
-    ifs.close();
 }
 #pragma endregion

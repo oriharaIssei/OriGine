@@ -148,11 +148,8 @@ Matrix4x4 MakeMatrix::RotateQuaternion(const Quaternion& q) {
 
     return Matrix4x4(
         {(w2 + x2 - y2 - z2), 2.0f * (xy + wz), 2.0f * (xz - wy), 0.0f,
-
             2.0f * (xy - wz), (w2 - x2 + y2 - z2), 2.0f * (yz + wx), 0.0f,
-
             2.0f * (xz + wy), 2.0f * (yz - wx), (w2 - x2 - y2 + z2), 0.0f,
-
             0.0f, 0.0f, 0.0f, 1.0f});
 }
 

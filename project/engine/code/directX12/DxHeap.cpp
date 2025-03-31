@@ -27,7 +27,7 @@ void DxHeap::CompactRtvHeap(ID3D12Device *device,std::vector<std::pair<D3D12_CPU
 
 	for(size_t i = 0; i < usedDescriptorsArrays.size(); ++i){
 		if(usedDescriptorsArrays[i].first.ptr != dstHandle.ptr){
-			device->CopyDescriptorsSimple(usedDescriptorsArrays[i].second,dstHandle,usedDescriptorsArrays[i].first,D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+            device->CopyDescriptorsSimple(usedDescriptorsArrays[i].second, dstHandle, usedDescriptorsArrays[i].first, D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 		}
 		dstHandle.ptr += srvIncrementSize_ * usedDescriptorsArrays[i].second;
 	}
@@ -49,7 +49,7 @@ void DxHeap::CompactDsvHeap(ID3D12Device *device,std::vector<std::pair<D3D12_CPU
 
 	for(size_t i = 0; i < usedDescriptorsArrays.size(); ++i){
 		if(usedDescriptorsArrays[i].first.ptr != dstHandle.ptr){
-			device->CopyDescriptorsSimple(usedDescriptorsArrays[i].second,dstHandle,usedDescriptorsArrays[i].first,D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+            device->CopyDescriptorsSimple(usedDescriptorsArrays[i].second, dstHandle, usedDescriptorsArrays[i].first, D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 		}
 		dstHandle.ptr += srvIncrementSize_ * usedDescriptorsArrays[i].second;
 	}
