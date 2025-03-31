@@ -35,10 +35,10 @@ void IScene::Initialize() {
     // System の登録
     registerSystems();
 
-    ECSManager::getInstance()->SortPriorityOrderSystems();
-
     // 読み込み (component,System の登録のあと)
     LoadSceneEntity();
+
+    ECSManager::getInstance()->SortPriorityOrderSystems();
 }
 
 void IScene::registerComponents() {

@@ -299,7 +299,7 @@ public: // ============== accessor ==============//
     void SortPriorityOrderSystems() {
         for (int32_t systemTypeIndex = 0; systemTypeIndex < int32_t(SystemType::Count); ++systemTypeIndex) {
             // sort
-            if (priorityOrderSystems_[systemTypeIndex].size() > 1) {
+            if (priorityOrderSystems_[systemTypeIndex].size() < 1) {
                 continue;
             }
             std::sort(
@@ -309,7 +309,7 @@ public: // ============== accessor ==============//
         }
     }
     void SortPriorityOrderSystems(int32_t _systemTypeIndex) {
-        if (priorityOrderSystems_[_systemTypeIndex].size() > 1) {
+        if (priorityOrderSystems_[_systemTypeIndex].size() < 1) {
             return;
         }
         std::sort(
