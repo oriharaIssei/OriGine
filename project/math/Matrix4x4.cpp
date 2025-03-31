@@ -56,13 +56,7 @@ Matrix4x4 Matrix4x4::operator*(const float& scalar) const {
 }
 
 Matrix4x4* Matrix4x4::operator*=(const Matrix4x4& another) {
-    for (int row = 0; row < 4; ++row) {
-        for (int col = 0; col < 4; ++col) {
-            for (int k = 0; k < 4; ++k) {
-                this->m[row][col] += this->m[row][k] * another.m[k][col];
-            }
-        }
-    }
+    *this = *this * another;
     return this;
 }
 
