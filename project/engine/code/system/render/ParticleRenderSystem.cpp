@@ -141,6 +141,7 @@ void ParticleRenderSystem::UpdateEntity(GameEntity* _entity) {
     ID3D12GraphicsCommandList* commandList = dxCommand_->getCommandList();
     const float deltaTime                  = Engine::getInstance()->getDeltaTime();
     int32_t currentEmitterIndex            = 0;
+    Transform* parentTransform             = getComponent<Transform>(_entity);
 
     while (true) {
         Emitter* emitter = getComponent<Emitter>(_entity, currentEmitterIndex++);
@@ -158,6 +159,7 @@ void ParticleRenderSystem::UpdateEntity(GameEntity* _entity) {
             commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
         }
 
+        emitter->setParent(parentTransform);
         emitter->Draw(commandList);
     }
 }

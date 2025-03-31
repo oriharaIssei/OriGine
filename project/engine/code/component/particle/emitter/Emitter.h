@@ -79,6 +79,7 @@ private:
     std::shared_ptr<Model> particleModel_;
     IStructuredBuffer<ParticleTransform> structuredTransform_;
     //=============== Model & Texture ===============/
+    std::string modelDirectory_;
     std::string modelFileName_;
     std::string textureFileName_;
     int32_t textureIndex_;
@@ -108,7 +109,7 @@ private:
 
     //=============== パーティクル設定項目 ===============//
     Vec4f particleColor_;
-    Vec3f particleUvScale_;
+    Vec3f particleUvScale_ = {1.f, 1.f, 1.f};
     Vec3f particleUvRotate_;
     Vec3f particleUvTranslate_;
 
@@ -118,23 +119,25 @@ private:
 
     // ランダムな数値の範囲を設定するためのメンバ変数
     // ランダムではない場合 (min == max) になる
-    Vec3f startParticleScaleMin_;
-    Vec3f startParticleScaleMax_;
-    Vec3f startParticleRotateMin_;
-    Vec3f startParticleRotateMax_;
-    Vec3f startParticleVelocityMin_;
-    Vec3f startParticleVelocityMax_;
+    Vec3f startParticleScaleMin_    = {1.f, 1.f, 1.f};
+    Vec3f startParticleScaleMax_    = {1.f, 1.f, 1.f};
+    Vec3f startParticleRotateMin_   = {0.f, 0.f, 0.f};
+    Vec3f startParticleRotateMax_   = {0.f, 0.f, 0.f};
+    Vec3f startParticleVelocityMin_ = {0.f, 0.f, 0.f};
+    Vec3f startParticleVelocityMax_ = {0.f, 0.f, 0.f};
 
-    Vec3f updateParticleScaleMin_;
-    Vec3f updateParticleScaleMax_;
-    Vec3f updateParticleRotateMin_;
-    Vec3f updateParticleRotateMax_;
-    Vec3f updateParticleVelocityMin_;
-    Vec3f updateParticleVelocityMax_;
+    Vec3f updateParticleScaleMin_    = {1.f, 1.f, 1.f};
+    Vec3f updateParticleScaleMax_    = {1.f, 1.f, 1.f};
+    Vec3f updateParticleRotateMin_   = {0.f, 0.f, 0.f};
+    Vec3f updateParticleRotateMax_   = {0.f, 0.f, 0.f};
+    Vec3f updateParticleVelocityMin_ = {0.f, 0.f, 0.f};
+    Vec3f updateParticleVelocityMax_ = {0.f, 0.f, 0.f};
 
 public:
     BlendMode getBlendMode() const { return blendMode_; }
     bool getIsActive() const { return isActive_; };
+
+    void setParent(Transform* _parent) { parent_ = _parent; }
 };
 
 #pragma region
