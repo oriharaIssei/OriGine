@@ -54,13 +54,7 @@ Matrix4x4 Matrix4x4::operator*(const float& scalar) const {
 }
 
 Matrix4x4* Matrix4x4::operator*=(const Matrix4x4& another) {
-    for (int row = 0; row < 4; ++row) {
-        for (int col = 0; col < 4; ++col) {
-            for (int k = 0; k < 4; ++k) {
-                this->m[row][col] += this->m[row][k] * another.m[k][col];
-            }
-        }
-    }
+    *this = *this * another;
     return this;
 }
 
@@ -145,10 +139,10 @@ Matrix4x4 MakeMatrix::RotateQuaternion(const Quaternion& q) {
     float w2 = q.v[W] * q.v[W];
 
     return Matrix4x4(
-        {(w2 + x2 - y2 - z2), 2.0f * (xy + wz), 2.0f * (xz - wy), 0.0f,
-            2.0f * (xy - wz), (w2 - x2 + y2 - z2), 2.0f * (yz + wx), 0.0f,
-            2.0f * (xz + wy), 2.0f * (yz - wx), (w2 - x2 - y2 + z2), 0.0f,
-            0.0f, 0.0f, 0.0f, 1.0f});
+        {(w2 + x2 - y2 - z2), 2.0f * (xy + wz)   , 2.0f * (xz - wy)   , 0.0f,
+            2.0f * (xy - wz), (w2 - x2 + y2 - z2), 2.0f * (yz + wx)   , 0.0f,
+            2.0f * (xz + wy), 2.0f * (yz - wx)   , (w2 - x2 - y2 + z2), 0.0f,
+                        0.0f,                0.0f,                0.0f, 1.0f});
 }
 
 Matrix4x4 MakeMatrix::RotateAxisAngle(const Vec3f& axis, float angle) {
