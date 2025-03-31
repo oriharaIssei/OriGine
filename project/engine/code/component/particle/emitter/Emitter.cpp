@@ -70,9 +70,7 @@ Emitter::~Emitter() {
     structuredTransform_.Finalize();
 }
 
-void Emitter::Initialize(GameEntity* _entity) {
-    parent_ = getComponent<Transform>(_entity);
-
+void Emitter::Initialize(GameEntity* /*_entity*/) {
     { // Initialize DrawingData Size
         structuredTransform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice(), srvArray_, particleMaxSize_);
         particles_.reserve(particleMaxSize_);
@@ -152,8 +150,9 @@ bool Emitter::Edit() {
         for (auto& fileName : objectFiles) {
             bool isSelected = (fileName.second == modelFileName_); // 現在選択中かどうか
             if (ImGui::Selectable(fileName.second.c_str(), isSelected)) {
-                particleModel_ = ModelManager::getInstance()->Create(fileName.first, fileName.second);
-                modelFileName_ = fileName.first + "/" + fileName.second;
+                particleModel_  = ModelManager::getInstance()->Create(fileName.first, fileName.second);
+                modelDirectory_ = fileName.first;
+                modelFileName_  = fileName.second;
             }
         }
         ImGui::EndCombo();
@@ -204,6 +203,7 @@ bool Emitter::Edit() {
     return isChange;
 #endif // _DEBUG
 }
+
 void Emitter::Save(BinaryWriter& _writer) {
     _writer.Write(isActive_);
     _writer.Write(isLoop_);
@@ -212,6 +212,7 @@ void Emitter::Save(BinaryWriter& _writer) {
     _writer.Write(spawnParticleVal_);
     _writer.Write(spawnCoolTime_);
 
+    _writer.Write(modelDirectory_);
     _writer.Write(modelFileName_);
     _writer.Write(textureFileName_);
 
@@ -247,8 +248,15 @@ void Emitter::Load(BinaryReader& _reader) {
     _reader.Read(spawnParticleVal_);
     _reader.Read(spawnCoolTime_);
 
+    _reader.Read(modelDirectory_);
     _reader.Read(modelFileName_);
+    if (!modelFileName_.empty()) {
+        particleModel_ = ModelManager::getInstance()->Create(modelDirectory_, modelFileName_);
+    }
     _reader.Read(textureFileName_);
+    if (!textureFileName_.empty()) {
+        textureIndex_ = TextureManager::LoadTexture(textureFileName_);
+    }
 
     int32_t blendMode;
     _reader.Read(blendMode);
@@ -425,6 +433,9 @@ void Emitter::EditParticle() {
         ImGui::Text("Max");
         ImGui::DragFloat3("##ParticleVelocityMax", startParticleVelocityMax_.v, 0.1f);
 
+        startParticleVelocityMin_ = (std::min)(startParticleVelocityMin_, startParticleVelocityMax_);
+        startParticleVelocityMax_ = (std::max)(startParticleVelocityMin_, startParticleVelocityMax_);
+
         int randomOrPerLifeTime    = (updateSettings_ & static_cast<int32_t>(ParticleUpdateType::VelocityPerLifeTime)) ? 2 : ((updateSettings_ & static_cast<int32_t>(ParticleUpdateType::VelocityRandom)) ? 1 : 0);
         int preRandomOrPerLifeTime = randomOrPerLifeTime;
         ImGui::RadioButton("Update Velocity None", &randomOrPerLifeTime, 0);
@@ -458,6 +469,9 @@ void Emitter::EditParticle() {
         ImGui::Text("Max");
         ImGui::DragFloat3("##ParticleScaleMax", startParticleScaleMax_.v, 0.1f);
 
+        startParticleScaleMin_ = (std::min)(startParticleScaleMin_, startParticleScaleMax_);
+        startParticleScaleMax_ = (std::max)(startParticleScaleMin_, startParticleScaleMax_);
+
         // curveかrandom か
         int randomOrPerLifeTime    = (updateSettings_ & static_cast<int32_t>(ParticleUpdateType::ScalePerLifeTime)) ? 2 : ((updateSettings_ & static_cast<int32_t>(ParticleUpdateType::ScaleRandom)) ? 1 : 0);
         int preRandomOrPerLifeTime = randomOrPerLifeTime;
@@ -490,6 +504,10 @@ void Emitter::EditParticle() {
     if (ImGui::TreeNode("Particle Rotate")) {
         ImGui::DragFloat3("##ParticleRotateMin", startParticleRotateMin_.v, 0.1f);
         ImGui::DragFloat3("##ParticleRotateMax", startParticleRotateMax_.v, 0.1f);
+
+        startParticleRotateMin_ = (std::min)(startParticleRotateMin_, startParticleRotateMax_);
+        startParticleRotateMax_ = (std::max)(startParticleRotateMin_, startParticleRotateMax_);
+
         int randomOrPerLifeTime    = (updateSettings_ & static_cast<int32_t>(ParticleUpdateType::RotatePerLifeTime)) ? 2 : ((updateSettings_ & static_cast<int32_t>(ParticleUpdateType::RotateRandom)) ? 1 : 0);
         int preRandomOrPerLifeTime = randomOrPerLifeTime;
         ImGui::RadioButton("Update Rotate None", &randomOrPerLifeTime, 0);
