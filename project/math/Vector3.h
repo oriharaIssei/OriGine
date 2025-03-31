@@ -47,7 +47,14 @@ struct Vector3 final : Vector<3, valueType> {
 
     // 内積
     valueType dot() const { return v[X] * v[X] + v[Y] * v[Y] + v[Z] * v[Z]; }
+    valueType dot(const Vector3<valueType>& vec) const {
+        return v[X] * vec.v[X] + v[Y] * vec.v[Y] + v[Z] * vec.v[Z];
+    }
     static valueType Dot(const Vector3& v) { return v.v[X] * v.v[X] + v.v[Y] * v.v[Y] + v.v[Z] * v.v[Z]; }
+    static valueType Dot(const Vector3& v, const Vector3& vec) {
+        return v.dot(vec);
+    }
+
     // 外積
     Vector3 cross(const Vector3& another) const {
         return Vector3(
@@ -62,15 +69,22 @@ struct Vector3 final : Vector<3, valueType> {
     // 正規化
     Vector3 normalize() const {
         valueType len = length();
-        if (len == 0) return *this;
+        if (len == 0)
+            return *this;
         return (*this / len);
     }
     static Vector3 Normalize(const Vector3& v) {
         valueType len = v.length();
-        if (len == 0) return v;
+        if (len == 0)
+            return v;
         return (v / len);
     }
 };
+
+template <typename valueType>
+valueType Dot(const Vector3<valueType>& vec1, const Vector3<valueType>& vec2) {
+    return vec1.dot(vec2);
+}
 
 //=========== using ===========//
 template <typename valueType>
