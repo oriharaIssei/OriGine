@@ -155,14 +155,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\directX12\ShaderCompiler.h" />
     <ClInclude Include="engine\code\directX12\ShaderManager.h" />
     <ClInclude Include="engine\code\editor\EngineEditor.h" />
-    <ClInclude Include="engine\code\effect\Effect.h" />
-    <ClInclude Include="engine\code\effect\editor\EffectEditor.h" />
-    <ClInclude Include="engine\code\effect\manager\EffectManager.h" />
-    <ClInclude Include="engine\code\effect\particle\Particle.h" />
-    <ClInclude Include="engine\code\effect\particle\editor\ParticleEditor.h" />
-    <ClInclude Include="engine\code\effect\particle\emitter\Emitter.h" />
-    <ClInclude Include="engine\code\effect\particle\emitter\EmitterShape.h" />
-    <ClInclude Include="engine\code\effect\silhouette\ISilhouette.h" />
+    <ClInclude Include="engine\code\component\particle\Particle.h" />
+    <ClInclude Include="engine\code\component\particle\emitter\Emitter.h" />
+    <ClInclude Include="engine\code\component\particle\emitter\EmitterShape.h" />
     <ClInclude Include="engine\code\iScene\IScene.h" />
     <ClInclude Include="engine\code\input\Input.h" />
     <ClInclude Include="engine\code\model\Model.h" />
@@ -201,7 +196,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="math\Vector3.h" />
     <ClInclude Include="math\Vector4.h" />
     <ClInclude Include="math\shape\Shapes.h" />
-    <ClInclude Include="engine\code\system\movement\ParticleUpdateSystem.h" />
     <ClInclude Include="engine\code\system\render\ParticleRenderSystem.h" />
     <ClInclude Include="util\nameof.h" />
   </ItemGroup>
@@ -245,14 +239,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\directX12\ShaderCompiler.cpp" />
     <ClCompile Include="engine\code\directX12\ShaderManager.cpp" />
     <ClCompile Include="engine\code\editor\EngineEditor.cpp" />
-    <ClCompile Include="engine\code\effect\Effect.cpp" />
-    <ClCompile Include="engine\code\effect\editor\EffectEditor.cpp" />
-    <ClCompile Include="engine\code\effect\manager\EffectManager.cpp" />
-    <ClCompile Include="engine\code\effect\particle\Particle.cpp" />
-    <ClCompile Include="engine\code\effect\particle\editor\ParticleEditor.cpp" />
-    <ClCompile Include="engine\code\effect\particle\emitter\Emitter.cpp" />
-    <ClCompile Include="engine\code\effect\particle\emitter\EmitterShape.cpp" />
-    <ClCompile Include="engine\code\effect\silhouette\ISilhouette.cpp" />
+    <ClCompile Include="engine\code\component\particle\Particle.cpp" />
+    <ClCompile Include="engine\code\component\particle\emitter\Emitter.cpp" />
+    <ClCompile Include="engine\code\component\particle\emitter\EmitterShape.cpp" />
     <ClCompile Include="engine\code\iScene\IScene.cpp" />
     <ClCompile Include="engine\code\input\Input.cpp" />
     <ClCompile Include="engine\code\model\ModelManager.cpp" />
@@ -280,7 +269,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="math\Matrix4x4.cpp" />
     <ClCompile Include="math\MyEasing.cpp" />
     <ClCompile Include="math\Quaternion.cpp" />
-    <ClCompile Include="engine\code\system\movement\ParticleUpdateSystem.cpp" />
     <ClCompile Include="engine\code\system\render\ParticleRenderSystem.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -1,12 +1,11 @@
 #include "Emitter.h"
 
-#include "effect/manager/EffectManager.h"
-
 // stl
 // container
 #include <array>
 
 /// engine
+#include "ECS/ECSManager.h"
 #include "Engine.h"
 #define RESOURCE_DIRECTORY
 #include "EngineInclude.h"
@@ -30,6 +29,35 @@
 #include "imgui/imgui.h"
 #endif // _DEBUG
 
+static std::list<std::pair<std::string, std::string>> SearchModelFile() {
+    std::list<std::pair<std::string, std::string>> modelFiles   = MyFileSystem::SearchFile(kEngineResourceDirectory, "obj", false);
+    std::list<std::pair<std::string, std::string>> gltfFiles    = MyFileSystem::SearchFile(kEngineResourceDirectory, "gltf", false);
+    std::list<std::pair<std::string, std::string>> appObjFiles  = MyFileSystem::SearchFile(kApplicationResourceDirectory, "obj", false);
+    std::list<std::pair<std::string, std::string>> appGltfFiles = MyFileSystem::SearchFile(kApplicationResourceDirectory, "gltf", false);
+
+    modelFiles.insert(modelFiles.end(), gltfFiles.begin(), gltfFiles.end());
+    modelFiles.insert(modelFiles.end(), appObjFiles.begin(), appObjFiles.end());
+    modelFiles.insert(modelFiles.end(), appGltfFiles.begin(), appGltfFiles.end());
+
+    return modelFiles;
+}
+
+static std::list<std::pair<std::string, std::string>> SearchTextureFile() {
+    std::list<std::pair<std::string, std::string>> textureFiles = MyFileSystem::SearchFile(kEngineResourceDirectory, "png", false);
+    std::list<std::pair<std::string, std::string>> appPngFiles  = MyFileSystem::SearchFile(kApplicationResourceDirectory, "png", false);
+
+    textureFiles.insert(textureFiles.end(), appPngFiles.begin(), appPngFiles.end());
+
+    return textureFiles;
+}
+static std::list<std::pair<std::string, std::string>> objectFiles  = SearchModelFile();
+static std::list<std::pair<std::string, std::string>> textureFiles = SearchTextureFile();
+
+Emitter::Emitter() : IComponent() {
+    isActive_       = false;
+    leftActiveTime_ = 0.0f;
+}
+
 Emitter::Emitter(DxSrvArray* _srvArray) : IComponent(), srvArray_(_srvArray) {
     isActive_       = false;
     leftActiveTime_ = 0.0f;
@@ -42,24 +70,10 @@ Emitter::~Emitter() {
     structuredTransform_.Finalize();
 }
 
-static std::list<std::pair<std::string, std::string>> SearchModelFile() {
-    std::list<std::pair<std::string, std::string>> modelFiles = MyFileSystem::SearchFile(kEngineResourceDirectory, "obj", false);
-    modelFiles.merge(MyFileSystem::SearchFile(kEngineResourceDirectory, "gltf", false));
-    modelFiles.merge(MyFileSystem::SearchFile(kApplicationResourceDirectory, "obj", false));
-    modelFiles.merge(MyFileSystem::SearchFile(kApplicationResourceDirectory, "gltf", false));
-    return modelFiles;
-}
-static std::list<std::pair<std::string, std::string>> SearchTextureFile() {
-    std::list<std::pair<std::string, std::string>> texutreFiles = MyFileSystem::SearchFile(kEngineResourceDirectory, "png", false);
-    texutreFiles.merge(MyFileSystem::SearchFile(kApplicationResourceDirectory, "png", false));
-    return texutreFiles;
-}
-static std::list<std::pair<std::string, std::string>> objectFiles  = SearchModelFile();
-static std::list<std::pair<std::string, std::string>> textureFiles = SearchTextureFile();
-
 void Emitter::Initialize(GameEntity* _entity) {
+    parent_ = getComponent<Transform>(_entity);
+
     { // Initialize DrawingData Size
-        CalculateMaxSize();
         structuredTransform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice(), srvArray_, particleMaxSize_);
         particles_.reserve(particleMaxSize_);
     }
@@ -93,7 +107,7 @@ void Emitter::Update(float deltaTime) {
             particle->Update(deltaTime);
         }
         // isAliveでないもの は 消す
-        std::erase_if(particles_, [](std::unique_ptr<Particle>& particle) {
+        std::erase_if(particles_, [](std::shared_ptr<Particle>& particle) {
             return !particle->getIsAlive();
         });
     }
@@ -117,14 +131,6 @@ void Emitter::Update(float deltaTime) {
 bool Emitter::Edit() {
 #ifdef _DEBUG
     bool isChange = false;
-
-    std::string preDataName = emitterDataName_;
-    if (ImGui::InputText("##emitterName", &emitterDataName_[0], sizeof(char*) * 64)) {
-        GlobalVariables::getInstance()->ChangeGroupName("Emitters", preDataName, emitterDataName_);
-        if (particleKeyFrames_) {
-        }
-    }
-
     ImGui::Checkbox("isActive", &isActive_);
     ImGui::SameLine();
     if (ImGui::Button("Stop")) {
@@ -186,7 +192,7 @@ bool Emitter::Edit() {
 
     static float changingSrvSizeLeftTime       = 0.f;
     static const float changingSrvSizeInterval = 2.f;
-    changingSrvSizeLeftTime -= 0.16;
+    changingSrvSizeLeftTime -= 0.16f;
     if (changingSrvSizeLeftTime < 0.0f) {
         CalculateMaxSize();
         if (structuredTransform_.capacity() <= particleMaxSize_) {
@@ -194,20 +200,17 @@ bool Emitter::Edit() {
             changingSrvSizeLeftTime = changingSrvSizeInterval;
         }
     }
+
+    return isChange;
 #endif // _DEBUG
 }
 void Emitter::Save(BinaryWriter& _writer) {
-    _writer.Write(particleKeyFrameFileName_);
-
     _writer.Write(isActive_);
     _writer.Write(isLoop_);
 
     _writer.Write(activeTime_);
-    _writer.Write(leftActiveTime_);
     _writer.Write(spawnParticleVal_);
     _writer.Write(spawnCoolTime_);
-    _writer.Write(currentCoolTime_);
-    _writer.Write(particleMaxSize_);
 
     _writer.Write(modelFileName_);
     _writer.Write(textureFileName_);
@@ -215,34 +218,89 @@ void Emitter::Save(BinaryWriter& _writer) {
     _writer.Write(static_cast<int32_t>(blendMode_));
     _writer.Write(particleIsBillBoard_);
     _writer.Write(static_cast<int32_t>(shapeType_));
+    emitterSpawnShape_->Save(_writer);
+
+    _writer.Write(particleLifeTime_);
+    _writer.Write<4, float>(particleColor_);
+    _writer.Write<3, float>(startParticleVelocityMin_);
+    _writer.Write<3, float>(startParticleVelocityMax_);
+    _writer.Write<3, float>(updateParticleVelocityMin_);
+    _writer.Write<3, float>(updateParticleVelocityMax_);
+    _writer.Write<3, float>(startParticleScaleMin_);
+    _writer.Write<3, float>(startParticleScaleMax_);
+    _writer.Write<3, float>(updateParticleScaleMin_);
+    _writer.Write<3, float>(updateParticleScaleMax_);
+
+    _writer.Write(updateSettings_);
+    if (updateSettings_ != 0) {
+        if (particleKeyFrames_) {
+            particleKeyFrames_->SaveKeyFrames(_writer);
+        }
+    }
 }
 
 void Emitter::Load(BinaryReader& _reader) {
-    _reader.Read(particleKeyFrameFileName_);
-    if (!particleKeyFrameFileName_.empty()) {
-        particleKeyFrames_->Load(particleKeyFrameFileName_);
-    }
-
     _reader.Read(isActive_);
     _reader.Read(isLoop_);
+
     _reader.Read(activeTime_);
-    _reader.Read(leftActiveTime_);
     _reader.Read(spawnParticleVal_);
     _reader.Read(spawnCoolTime_);
-    _reader.Read(currentCoolTime_);
-    _reader.Read(particleMaxSize_);
 
     _reader.Read(modelFileName_);
     _reader.Read(textureFileName_);
-    _reader.Read(textureIndex_);
+
     int32_t blendMode;
     _reader.Read(blendMode);
     blendMode_ = BlendMode(blendMode);
     _reader.Read(particleIsBillBoard_);
+
     int32_t shapeType;
     _reader.Read(shapeType);
     shapeType_ = EmitterShapeType(shapeType);
+    switch (shapeType_) {
+    case EmitterShapeType::SPHERE:
+        emitterSpawnShape_ = std::make_shared<EmitterSphere>();
+        break;
+    case EmitterShapeType::OBB:
+        emitterSpawnShape_ = std::make_shared<EmitterOBB>();
+        break;
+    case EmitterShapeType::CAPSULE:
+        emitterSpawnShape_ = std::make_shared<EmitterCapsule>();
+        break;
+    case EmitterShapeType::CONE:
+        emitterSpawnShape_ = std::make_shared<EmitterCone>();
+        break;
+    default:
+        emitterSpawnShape_ = std::make_shared<EmitterSphere>();
+        break;
+    }
+    emitterSpawnShape_->Load(_reader);
 
+    _reader.Read(particleLifeTime_);
+    _reader.Read<4, float>(particleColor_);
+    _reader.Read<3, float>(startParticleVelocityMin_);
+    _reader.Read<3, float>(startParticleVelocityMax_);
+    _reader.Read<3, float>(updateParticleVelocityMin_);
+    _reader.Read<3, float>(updateParticleVelocityMax_);
+    _reader.Read<3, float>(startParticleScaleMin_);
+    _reader.Read<3, float>(startParticleScaleMax_);
+    _reader.Read<3, float>(updateParticleScaleMin_);
+    _reader.Read<3, float>(updateParticleScaleMax_);
+
+    _reader.Read(updateSettings_);
+    if (!particleKeyFrames_) {
+        particleKeyFrames_ = std::make_shared<ParticleKeyFrames>();
+    }
+    if (updateSettings_ != 0) {
+        particleKeyFrames_->LoadKeyFrames(_reader);
+    }
+
+    { // Initialize DrawingData Size
+        CalculateMaxSize();
+        structuredTransform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice(), srvArray_, particleMaxSize_);
+        particles_.reserve(particleMaxSize_);
+    }
 }
 
 void Emitter::EditEmitter() {
@@ -278,24 +336,24 @@ void Emitter::EditShapeType() {
             bool isSelected = (shapeType_ == EmitterShapeType(i)); // 現在選択中かどうか
 
             if (ImGui::Selectable(emitterShapeTypeWord_[i].c_str(), isSelected)) {
+                shapeType_ = EmitterShapeType(i);
+
                 switch (shapeType_) {
                 case EmitterShapeType::SPHERE:
-                    emitterSpawnShape_ = std::make_unique<EmitterSphere>("Emitters", emitterDataName_);
+                    emitterSpawnShape_ = std::make_shared<EmitterSphere>();
                     break;
                 case EmitterShapeType::OBB:
-                    emitterSpawnShape_ = std::make_unique<EmitterOBB>("Emitters", emitterDataName_);
+                    emitterSpawnShape_ = std::make_shared<EmitterOBB>();
                     break;
-                case EmitterShapeType::Capsule:
-                    emitterSpawnShape_ = std::make_unique<EmitterCapsule>("Emitters", emitterDataName_);
+                case EmitterShapeType::CAPSULE:
+                    emitterSpawnShape_ = std::make_shared<EmitterCapsule>();
                     break;
-                case EmitterShapeType::Cone:
-                    emitterSpawnShape_ = std::make_unique<EmitterCone>("Emitters", emitterDataName_);
+                case EmitterShapeType::CONE:
+                    emitterSpawnShape_ = std::make_shared<EmitterCone>();
                     break;
                 default:
                     break;
                 }
-
-                shapeType_ = EmitterShapeType(i);
             }
 
             // 現在選択中の項目をハイライトする
@@ -354,7 +412,7 @@ void Emitter::EditParticle() {
             updateSettings_ = (updateSettings_ | static_cast<int32_t>(ParticleUpdateType::ColorPerLifeTime));
 
             particleKeyFrames_->colorCurve_[0].value = particleColor_;
-            ImGui::EditKeyFrame(emitterDataName_ + "ColorLine", particleKeyFrames_->colorCurve_, particleLifeTime_);
+            ImGui::EditKeyFrame("ColorLine", particleKeyFrames_->colorCurve_, particleLifeTime_);
         } else if (preUpdatePerLifeTime && !updatePerLifeTime) {
             updateSettings_ = (updateSettings_ & ~static_cast<int32_t>(ParticleUpdateType::ColorPerLifeTime));
         }
@@ -377,7 +435,7 @@ void Emitter::EditParticle() {
             updateSettings_ = (updateSettings_ & ~static_cast<int32_t>(ParticleUpdateType::VelocityRandom));
 
             particleKeyFrames_->velocityCurve_[0].value = startParticleVelocityMax_;
-            ImGui::EditKeyFrame(emitterDataName_ + "SpeedLine", particleKeyFrames_->velocityCurve_, particleLifeTime_);
+            ImGui::EditKeyFrame("SpeedLine", particleKeyFrames_->velocityCurve_, particleLifeTime_);
         } else if (randomOrPerLifeTime == 1) {
             // ランダムな速度を設定
             ImGui::Text("UpdateMin");
@@ -411,7 +469,7 @@ void Emitter::EditParticle() {
             updateSettings_ = (updateSettings_ & ~static_cast<int32_t>(ParticleUpdateType::ScaleRandom));
 
             particleKeyFrames_->scaleCurve_[0].value = startParticleScaleMax_;
-            ImGui::EditKeyFrame(emitterDataName_ + "ScaleLine", particleKeyFrames_->scaleCurve_, particleLifeTime_);
+            ImGui::EditKeyFrame("ScaleLine", particleKeyFrames_->scaleCurve_, particleLifeTime_);
         } else if (randomOrPerLifeTime == 1) {
             // ランダムなScaleを設定
             ImGui::Text("UpdateMin");
@@ -442,7 +500,7 @@ void Emitter::EditParticle() {
             updateSettings_ = (updateSettings_ & ~static_cast<int32_t>(ParticleUpdateType::RotateRandom));
 
             particleKeyFrames_->rotateCurve_[0].value = startParticleRotateMax_;
-            ImGui::EditKeyFrame(emitterDataName_ + "RotateLine", particleKeyFrames_->rotateCurve_, particleLifeTime_);
+            ImGui::EditKeyFrame("RotateLine", particleKeyFrames_->rotateCurve_, particleLifeTime_);
         } else if (randomOrPerLifeTime == 1) {
             // ランダムな回転を設定
             ImGui::Text("UpdateMin");
@@ -468,7 +526,7 @@ void Emitter::EditParticle() {
             updateSettings_ = (updateSettings_ | static_cast<int32_t>(ParticleUpdateType::UvScalePerLifeTime));
 
             particleKeyFrames_->uvScaleCurve_[0].value = particleUvScale_;
-            ImGui::EditKeyFrame(emitterDataName_ + "UvScaleLine", particleKeyFrames_->uvScaleCurve_, particleLifeTime_);
+            ImGui::EditKeyFrame("UvScaleLine", particleKeyFrames_->uvScaleCurve_, particleLifeTime_);
         } else if (preUpdatePerLifeTime && !updatePerLifeTime) {
             particleKeyFrames_->uvScaleCurve_.clear();
             particleKeyFrames_->uvScaleCurve_.emplace_back(0.0f, particleUvScale_);
@@ -486,7 +544,7 @@ void Emitter::EditParticle() {
             updateSettings_ = (updateSettings_ | static_cast<int32_t>(ParticleUpdateType::UvRotatePerLifeTime));
 
             particleKeyFrames_->uvRotateCurve_[0].value = particleUvRotate_;
-            ImGui::EditKeyFrame(emitterDataName_ + "UvRotateLine", particleKeyFrames_->uvRotateCurve_, particleLifeTime_);
+            ImGui::EditKeyFrame("UvRotateLine", particleKeyFrames_->uvRotateCurve_, particleLifeTime_);
         } else if (preUpdatePerLifeTime && !updatePerLifeTime) {
             particleKeyFrames_->uvRotateCurve_.clear();
             particleKeyFrames_->uvRotateCurve_.emplace_back(0.0f, particleUvRotate_);
@@ -504,7 +562,7 @@ void Emitter::EditParticle() {
             updateSettings_ = (updateSettings_ | static_cast<int32_t>(ParticleUpdateType::UvTranslatePerLifeTime));
 
             particleKeyFrames_->uvTranslateCurve_[0].value = particleUvTranslate_;
-            ImGui::EditKeyFrame(emitterDataName_ + "UvTranslateLine", particleKeyFrames_->uvTranslateCurve_, particleLifeTime_);
+            ImGui::EditKeyFrame("UvTranslateLine", particleKeyFrames_->uvTranslateCurve_, particleLifeTime_);
         } else if (preUpdatePerLifeTime && !updatePerLifeTime) {
             particleKeyFrames_->uvTranslateCurve_.clear();
             particleKeyFrames_->uvTranslateCurve_.emplace_back(0.0f, particleUvTranslate_);
@@ -518,8 +576,6 @@ void Emitter::Draw(ID3D12GraphicsCommandList* _commandList) {
     if (!particleModel_ || particleModel_->meshData_->currentState_ != LoadState::Loaded) {
         return;
     }
-
-    EffectManager::getInstance()->ChangeBlendMode(blendMode_);
 
     const Matrix4x4& viewMat = CameraManager::getInstance()->getTransform().viewMat;
 
@@ -559,26 +615,34 @@ void Emitter::Draw(ID3D12GraphicsCommandList* _commandList) {
         }
     }
 
+    if (parent_) {
+        for (size_t i = 0; i < particles_.size(); i++) {
+            structuredTransform_.openData_[i].worldMat *= parent_->worldMat;
+        }
+    }
+
     structuredTransform_.ConvertToBuffer();
 
-    auto* commandList               = EffectManager::getInstance()->dxCommand_->getCommandList();
     ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
-    commandList->SetDescriptorHeaps(1, ppHeaps);
+    _commandList->SetDescriptorHeaps(1, ppHeaps);
 
-    auto& model    = particleModel_->meshData_->meshGroup_[0];
-    auto& material = particleModel_->materialData_[0];
-    commandList->SetGraphicsRootDescriptorTable(
-        3,
-        TextureManager::getDescriptorGpuHandle(textureIndex_));
+    int32_t meshIndex = 0;
+    for (auto& [meshName, mesh] : particleModel_->meshData_->meshGroup_) {
 
-    commandList->IASetVertexBuffers(0, 1, &model.vbView);
-    commandList->IASetIndexBuffer(&model.ibView);
+        auto& material = particleModel_->materialData_[meshIndex];
+        _commandList->SetGraphicsRootDescriptorTable(
+            3,
+            TextureManager::getDescriptorGpuHandle(textureIndex_));
 
-    structuredTransform_.SetForRootParameter(commandList, 0);
+        _commandList->IASetVertexBuffers(0, 1, &mesh.vbView);
+        _commandList->IASetIndexBuffer(&mesh.ibView);
 
-    material.material->SetForRootParameter(commandList, 2);
-    // 描画!!!
-    commandList->DrawIndexedInstanced(UINT(model.indexSize), static_cast<UINT>(structuredTransform_.openData_.size()), 0, 0, 0);
+        structuredTransform_.SetForRootParameter(_commandList, 0);
+
+        material.material->SetForRootParameter(_commandList, 2);
+        // 描画!!!
+        _commandList->DrawIndexedInstanced(UINT(mesh.indexSize), static_cast<UINT>(structuredTransform_.openData_.size()), 0, 0, 0);
+    }
 }
 
 void Emitter::Finalize() {

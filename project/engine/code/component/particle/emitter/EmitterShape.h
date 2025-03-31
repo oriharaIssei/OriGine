@@ -9,14 +9,18 @@
 // math
 #include "Vector3.h"
 
+// binaryIO
+class BinaryWriter;
+class BinaryReader;
+
 ///< summary>
 /// エミッターの形状の種類
 ///</summary>
 enum class EmitterShapeType : int32_t {
     SPHERE,
     OBB,
-    Capsule,
-    Cone,
+    CAPSULE,
+    CONE,
 
     Count // 種類の数
 };
@@ -46,18 +50,22 @@ static std::array<std::string, shapeTypeCount> particleSpawnLocationTypeWord_ = 
 /// エミッターの形状 の Interface クラス
 ///</summary>
 struct EmitterShape {
-    EmitterShape(EmitterShapeType type)
-        : type_(type) {}
+    EmitterShape(EmitterShapeType _shapeType)
+        : type_(_shapeType) {}
 
 public: // メンバ関数
 #ifdef _DEBUG
     virtual void Debug();
 #endif // _DEBUG
 
+    virtual void Save(BinaryWriter& _writer) = 0;
+    virtual void Load(BinaryReader& _reader) = 0;
+
     virtual Vec3f getSpawnPos() = 0;
 
 public:
     const EmitterShapeType type_;
+    ParticleSpawnLocationType spawnType_ = ParticleSpawnLocationType::InBody;
 };
 
 ///< summary>
@@ -74,6 +82,10 @@ public: // メンバ関数
 #endif // _DEBUG
     Vec3f getSpawnPos() override;
 
+    void Save(BinaryWriter& _writer) override;
+    void Load(BinaryReader& _reader) override;
+
+public: // メンバ変数
     float radius_;
 };
 
@@ -91,6 +103,9 @@ struct EmitterOBB
 
     Vec3f getSpawnPos() override;
 
+    void Save(BinaryWriter& _writer) override;
+    void Load(BinaryReader& _reader) override;
+
 public: // メンバ変数
     Vec3f min_;
     Vec3f max_;
@@ -103,13 +118,16 @@ public: // メンバ変数
 struct EmitterCapsule
     : EmitterShape {
     EmitterCapsule()
-        : EmitterShape(EmitterShapeType::Capsule) {}
+        : EmitterShape(EmitterShapeType::CAPSULE) {}
 
 public: // メンバ関数
 #ifdef _DEBUG
     void Debug() override;
 #endif // _DEBUG
     Vec3f getSpawnPos() override;
+
+    void Save(BinaryWriter& _writer) override;
+    void Load(BinaryReader& _reader) override;
 
 public: // メンバ変数
     float radius_;
@@ -123,7 +141,7 @@ public: // メンバ変数
 struct EmitterCone
     : EmitterShape {
     EmitterCone()
-        : EmitterShape(EmitterShapeType::Cone) {}
+        : EmitterShape(EmitterShapeType::CONE) {}
 
 public: // メンバ関数
 #ifdef _DEBUG
@@ -131,6 +149,9 @@ public: // メンバ関数
 #endif // _DEBUG
 
     Vec3f getSpawnPos() override;
+
+    void Save(BinaryWriter& _writer) override;
+    void Load(BinaryReader& _reader) override;
 
 public: // メンバ変数
     float angle_;

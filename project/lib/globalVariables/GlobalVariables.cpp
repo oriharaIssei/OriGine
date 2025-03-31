@@ -245,9 +245,19 @@ void GlobalVariablesEditor::Update() {
             }
         }
     }
+    ImGui::End();
 }
 
-void GlobalVariablesEditor::Finalize() {}
+void GlobalVariablesEditor::Finalize() {
+    globalVariables_ = nullptr;
+
+    currentSceneName_ = "NULL";
+    currentSceneNum_  = 0;
+
+    currentGroupName_ = "NULL";
+    currentGroupNum_  = 0;
+    currentGroup_     = nullptr;
+}
 
 void GlobalVariablesEditor::ImGuiMenu() {
     if (ImGui::BeginMenuBar()) {

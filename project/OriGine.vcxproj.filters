@@ -309,29 +309,14 @@
     <ClInclude Include="engine\code\editor\EngineEditor.h">
       <Filter>engine\code\editor</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\effect\Effect.h">
-      <Filter>engine\code\effect</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\code\effect\editor\EffectEditor.h">
-      <Filter>engine\code\effect\editor</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\code\effect\manager\EffectManager.h">
-      <Filter>engine\code\effect\manager</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\code\effect\particle\Particle.h">
+    <ClInclude Include="engine\code\component\particle\Particle.h">
       <Filter>engine\code\effect\particle</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\effect\particle\editor\ParticleEditor.h">
-      <Filter>engine\code\effect\particle\editor</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\code\effect\particle\emitter\Emitter.h">
+    <ClInclude Include="engine\code\component\particle\emitter\Emitter.h">
       <Filter>engine\code\effect\particle\emitter</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\effect\particle\emitter\EmitterShape.h">
+    <ClInclude Include="engine\code\component\particle\emitter\EmitterShape.h">
       <Filter>engine\code\effect\particle\emitter</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\code\effect\silhouette\ISilhouette.h">
-      <Filter>engine\code\effect\silhouette</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\iScene\IScene.h">
       <Filter>engine\code\iScene</Filter>
@@ -450,7 +435,6 @@
     <ClInclude Include="util\nameof.h">
       <Filter>util</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\system\movement\ParticleUpdateSystem.h" />
     <ClInclude Include="engine\code\system\render\ParticleRenderSystem.h" />
   </ItemGroup>
   <ItemGroup>
@@ -571,29 +555,14 @@
     <ClCompile Include="engine\code\editor\EngineEditor.cpp">
       <Filter>engine\code\editor</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\effect\Effect.cpp">
-      <Filter>engine\code\effect</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\code\effect\editor\EffectEditor.cpp">
-      <Filter>engine\code\effect\editor</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\code\effect\manager\EffectManager.cpp">
-      <Filter>engine\code\effect\manager</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\code\effect\particle\Particle.cpp">
+    <ClCompile Include="engine\code\component\particle\Particle.cpp">
       <Filter>engine\code\effect\particle</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\effect\particle\editor\ParticleEditor.cpp">
-      <Filter>engine\code\effect\particle\editor</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\code\effect\particle\emitter\Emitter.cpp">
+    <ClCompile Include="engine\code\component\particle\emitter\Emitter.cpp">
       <Filter>engine\code\effect\particle\emitter</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\effect\particle\emitter\EmitterShape.cpp">
+    <ClCompile Include="engine\code\component\particle\emitter\EmitterShape.cpp">
       <Filter>engine\code\effect\particle\emitter</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\code\effect\silhouette\ISilhouette.cpp">
-      <Filter>engine\code\effect\silhouette</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\iScene\IScene.cpp">
       <Filter>engine\code\iScene</Filter>
@@ -674,7 +643,6 @@
     <ClCompile Include="math\Quaternion.cpp">
       <Filter>math</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\system\movement\ParticleUpdateSystem.cpp" />
     <ClCompile Include="engine\code\system\render\ParticleRenderSystem.cpp" />
   </ItemGroup>
 </Project>

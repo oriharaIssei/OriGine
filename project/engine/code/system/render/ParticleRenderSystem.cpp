@@ -1,19 +1,18 @@
 #include "ParticleRenderSystem.h"
 
 /// engine
+#include "ECS/ECSManager.h"
 #include "Engine.h"
 
-#include "ECS/ECSManager.h"
-
 // component
-#include "effect/particle/emitter/Emitter.h"
+#include "component/particle/emitter/Emitter.h"
 
 // module
 #include "camera/CameraManager.h"
 
 void ParticleRenderSystem::Initialize() {
     dxCommand_ = std::make_unique<DxCommand>();
-    dxCommand_->Initialize("ParticleRenderSystem", "ParticleRenderSystem");
+    dxCommand_->Initialize("main", "main");
     CreatePso();
 }
 
@@ -135,18 +134,30 @@ void ParticleRenderSystem::StartRender() {
     commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
     commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    Engine::getInstance()->getLightManager()->SetForRootParameter(commandList);
     CameraManager::getInstance()->setBufferForRootParameter(commandList, 1);
-    LightManager::getInstance()->SetForRootParameter(commandList);
 }
 
 void ParticleRenderSystem::UpdateEntity(GameEntity* _entity) {
-    int32_t currentEmitterIndex = 0;
+    ID3D12GraphicsCommandList* commandList = dxCommand_->getCommandList();
+    const float deltaTime                  = Engine::getInstance()->getDeltaTime();
+    int32_t currentEmitterIndex            = 0;
+
     while (true) {
         Emitter* emitter = getComponent<Emitter>(_entity, currentEmitterIndex++);
         if (emitter == nullptr) {
             return;
         }
-        emitter->Draw(dxCommand_->getCommandList());
+        if (!emitter->getIsActive()) {
+            continue;
+        }
+        emitter->Update(deltaTime);
+
+        if (currentBlend_ != emitter->getBlendMode()) {
+            currentBlend_ = emitter->getBlendMode();
+            commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
+            commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
+        }
+
+        emitter->Draw(commandList);
     }
 }
