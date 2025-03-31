@@ -1,89 +1,33 @@
-#include "EffectManager.h"
-
-#include "../Effect.h"
+#include "ParticleRenderSystem.h"
 
 /// engine
+#include "ECS/ECSManager.h"
 #include "Engine.h"
-#define RESOURCE_DIRECTORY
-#include "EngineInclude.h"
-// dx12Object
-#include "directX12/DxSrvArrayManager.h"
-// lib
+
+// component
+#include "component/particle/emitter/Emitter.h"
+
+// module
 #include "camera/CameraManager.h"
-#include "myFileSystem/MyFileSystem.h"
 
-#ifdef _DEBUG
-#include "imgui/imgui.h"
-#endif // _DEBUG
-
-EffectManager* EffectManager::getInstance() {
-    static EffectManager instance;
-    return &instance;
-}
-
-void EffectManager::Initialize() {
-    dxSrvArray_ = DxSrvArrayManager::getInstance()->Create(srvNum_);
-
+void ParticleRenderSystem::Initialize() {
     dxCommand_ = std::make_unique<DxCommand>();
-    dxCommand_->Initialize("EffectManager", "EffectManager");
-
-    for (size_t i = 0; i < kBlendNum; i++) {
-        psoKey_[i] = "Particle_" + blendModeStr[i];
-    }
-
+    dxCommand_->Initialize("main", "main");
     CreatePso();
+}
 
-    std::list<std::pair<std::string, std::string>> loadedEmitter = myfs::SearchFile(kApplicationResourceDirectory + "/GlobalVariables/Effects", "json");
-    for (auto& [directory, filename] : loadedEmitter) {
-        effects_[filename] = CreateEffect(filename);
+void ParticleRenderSystem::Update() {
+    StartRender();
+    for (auto& entity : entities_) {
+        UpdateEntity(entity);
     }
 }
 
-void EffectManager::Finalize() {
-    if (dxCommand_) {
-        dxCommand_->Finalize();
-    }
-    if (dxSrvArray_) {
-        dxSrvArray_->Finalize();
-    }
-
-    effects_.clear();
+void ParticleRenderSystem::Finalize() {
+    dxCommand_->Finalize();
 }
 
-void EffectManager::PreDraw() {
-    auto* commandList = dxCommand_->getCommandList();
-
-    commandList->SetGraphicsRootSignature(pso_[int(blendMode_)]->rootSignature.Get());
-    commandList->SetPipelineState(pso_[int(blendMode_)]->pipelineState.Get());
-
-    CameraManager::getInstance()->setBufferForRootParameter(commandList, 1);
-
-    commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-}
-
-void EffectManager::DrawDebug() {
-    for (auto& [effectName, effect] : effects_) {
-        effect->Draw();
-    }
-}
-
-void EffectManager::ChangeBlendMode(BlendMode mode) {
-    if (blendMode_ == mode) {
-        return;
-    }
-    blendMode_ = mode;
-
-    auto* commandList = dxCommand_->getCommandList();
-
-    commandList->SetGraphicsRootSignature(pso_[int(blendMode_)]->rootSignature.Get());
-    commandList->SetPipelineState(pso_[int(blendMode_)]->pipelineState.Get());
-}
-
-EffectManager::EffectManager() {}
-
-EffectManager::~EffectManager() {}
-
-void EffectManager::CreatePso() {
+void ParticleRenderSystem::CreatePso() {
     ShaderManager* shaderManager = ShaderManager::getInstance();
     ///=================================================
     /// shader読み込み
@@ -179,63 +123,41 @@ void EffectManager::CreatePso() {
     /// BlendMode ごとの Pso作成
     ///=================================================
     for (size_t i = 0; i < kBlendNum; i++) {
-        shaderInfo.blendMode_ = BlendMode(i);
-        pso_[i]               = shaderManager->CreatePso(psoKey_[i], shaderInfo, Engine::getInstance()->getDxDevice()->getDevice());
+        shaderInfo.blendMode_       = BlendMode(i);
+        pso_[shaderInfo.blendMode_] = shaderManager->CreatePso("Particle_" + blendModeStr[i], shaderInfo, Engine::getInstance()->getDxDevice()->getDevice());
     }
 }
 
-std::unique_ptr<Effect> EffectManager::CreateEffect(const std::string& name) {
-    std::unique_ptr<Effect> result = std::make_unique<Effect>(this->dxSrvArray_, name);
-    result->Initialize();
-    usingSrvNum_ -= result->getUsingSrvNum();
-    if (srvNum_ < usingSrvNum_) {
-        // 未対応
-        // dxSrvArray_->resize(srvNum_);
-    }
-
-    return result;
+void ParticleRenderSystem::StartRender() {
+    currentBlend_                          = BlendMode::Alpha;
+    ID3D12GraphicsCommandList* commandList = dxCommand_->getCommandList();
+    commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
+    commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
+    commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    CameraManager::getInstance()->setBufferForRootParameter(commandList, 1);
 }
 
-#ifdef _DEBUG
-void EffectManager::Edit() {
-    // main window
-    if (ImGui::Begin("EffectManager")) {
-        if (ImGui::Button("Create New Emitter")) {
-            isOpenedCrateWindow_ = true;
+void ParticleRenderSystem::UpdateEntity(GameEntity* _entity) {
+    ID3D12GraphicsCommandList* commandList = dxCommand_->getCommandList();
+    const float deltaTime                  = Engine::getInstance()->getDeltaTime();
+    int32_t currentEmitterIndex            = 0;
+
+    while (true) {
+        Emitter* emitter = getComponent<Emitter>(_entity, currentEmitterIndex++);
+        if (emitter == nullptr) {
+            return;
         }
-    }
-    ImGui::End();
+        if (!emitter->getIsActive()) {
+            continue;
+        }
+        emitter->Update(deltaTime);
 
-    for (auto& [emitterName, effect] : effects_) {
-        effect->Debug();
-        effect->Update(Engine::getInstance()->getDeltaTime());
-    }
-
-    if (isOpenedCrateWindow_) {
-        ImGui::Begin("Create New", &isOpenedCrateWindow_);
-        ImGui::InputText("name", &newInstanceName_[0], sizeof(char) * 64, ImGuiInputTextFlags_CharsNoBlank);
-
-        // 終端文字で切り詰める
-        newInstanceName_ = std::string(newInstanceName_.c_str());
-
-        if (ImGui::Button("Create")) {
-            // 名前が既に存在している場合は登録しない
-            if (effects_.find(newInstanceName_) == effects_.end()) {
-                effects_[newInstanceName_] = CreateEffect(newInstanceName_);
-            }
-            emitterWindowedState_ = false;
-            isOpenedCrateWindow_  = false;
+        if (currentBlend_ != emitter->getBlendMode()) {
+            currentBlend_ = emitter->getBlendMode();
+            commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
+            commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
         }
 
-        ImGui::SameLine();
-        if (ImGui::Button("Cancel")) {
-            // window を閉じる
-            isOpenedCrateWindow_ = false;
-        }
-        ImGui::End();
-    } else {
-        // 作成用文字列の初期化
-        newInstanceName_ = "NULL";
+        emitter->Draw(commandList);
     }
 }
-#endif // _DEBUG

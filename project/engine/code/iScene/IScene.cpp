@@ -23,15 +23,11 @@
 
 #include "engine/EngineInclude.h"
 
-IScene::IScene(const std::string& sceneName) : name_(sceneName) {
-}
+IScene::IScene(const std::string& sceneName) : name_(sceneName) {}
 
 IScene::~IScene() {}
 
 void IScene::Initialize() {
-    ECSManager* ecsManager = ECSManager::getInstance();
-    ecsManager->Initialize();
-    ecsManager->ComponentArraysInitialize();
 
     // componentの登録
     registerComponents();
@@ -55,6 +51,7 @@ void IScene::registerComponents() {
     ecsManager->registerComponent<AABBCollider>();
     ecsManager->registerComponent<SphereCollider>();
     ecsManager->registerComponent<Rigidbody>();
+    ecsManager->registerComponent<Emitter>();
 }
 
 void IScene::registerSystems() {
@@ -64,6 +61,7 @@ void IScene::registerSystems() {
     ecsManager->registerSystem<SpriteRenderSystem>();
     ecsManager->registerSystem<CollisionCheckSystem>();
     ecsManager->registerSystem<MoveSystemByRigidBody>();
+    ecsManager->registerSystem<ParticleRenderSystem>();
 }
 
 void IScene::Finalize([[maybe_unused]] bool _isSave) {
@@ -76,7 +74,13 @@ void IScene::Finalize([[maybe_unused]] bool _isSave) {
     sceneSrvArray_.reset();
 
     ECSManager* ecsManager = ECSManager::getInstance();
-    ecsManager->Finalize();
+    ecsManager->FinalizeSystems();
+    ecsManager->clearSystem();
+
+    ecsManager->FinalizeComponentArrays();
+    ecsManager->clearComponentArrays();
+
+    ecsManager->clearAliveEntities();
 }
 
 void IScene::LoadSceneEntity() {

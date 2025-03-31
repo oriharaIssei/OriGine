@@ -28,13 +28,16 @@ static const std::string kEngineResourceDirectory      = "engine/resource";
 
 #include "system/collision/CollisionCheckSystem.h"
 #include "system/movement/MoveSystemByRigidBody.h"
+#include "system/render/ParticleRenderSystem.h"
 #include "system/render/SpriteRenderSystem.h"
 #include "system/render/TexturedMeshRenderSystem.h"
 #endif // ENGINE_SYSTEMS
 
 #ifdef ENGINE_COMPONENTS
-#include "component/collider/Collider.h"
 #include "component/IComponent.h"
+
+#include "component/collider/Collider.h"
+#include "component/particle/emitter/Emitter.h"
 #include "component/physics/Rigidbody.h"
 #include "component/renderer/MeshRenderer.h"
 #include "component/renderer/Sprite.h"
@@ -71,7 +74,7 @@ static const std::string kEngineResourceDirectory      = "engine/resource";
 #endif // MY_RANDOM
 
 #ifdef DELTA_TIME
-float DeltaTime() const {
-    return Engine::Instance().DeltaTime();
+float getDeltaTime() const {
+    return Engine::getInstance()->getDeltaTime();
 }
 #endif // DELTA_TIME

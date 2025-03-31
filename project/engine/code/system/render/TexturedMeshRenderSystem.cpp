@@ -20,6 +20,11 @@ void TexturedMeshRenderSystem::Initialize() {
 }
 
 void TexturedMeshRenderSystem::Update() {
+    if (entities_.empty()) {
+        return;
+    }
+    ISystem::eraseDeadEntity();
+
     StartRender();
 
     for (auto& entity : entities_) {
@@ -190,8 +195,6 @@ void TexturedMeshRenderSystem::StartRender() {
 
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    Engine::getInstance()->getLightManager()->SetForRootParameter(commandList);
-
     CameraManager::getInstance()->setBufferForRootParameter(commandList, 1);
     LightManager::getInstance()->SetForRootParameter(commandList);
 }
@@ -201,70 +204,74 @@ void TexturedMeshRenderSystem::StartRender() {
 /// </summary>
 /// <param name="_entity">描画対象オブジェクト</param>
 void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
-    auto* commandList = dxCommand_->getCommandList();
+    auto* commandList      = dxCommand_->getCommandList();
+    int32_t componentIndex = 0;
 
-    ModelMeshRenderer* renderer = getComponent<ModelMeshRenderer>(_entity);
+    while (true) {
+        ModelMeshRenderer* renderer = getComponent<ModelMeshRenderer>(_entity, componentIndex++);
 
-    // nullptr と 描画しないものは skip
-    if (!renderer) {
-        return;
-    }
-    if (!renderer->isRender()) {
-        return;
-    }
-
-    ///==============================
-    /// Transformの更新
-    ///==============================
-    {
-        Transform* entityTransfrom_ = getComponent<Transform>(_entity);
-        for (int32_t i = 0; i < renderer->getMeshSize(); ++i) {
-            auto& transform = renderer->getTransformBuff(i);
-
-            if (transform->parent == nullptr) {
-                transform->parent = entityTransfrom_;
-            }
-
-            transform.openData_.Update();
-            transform.ConvertToBuffer();
+        // nullptr なら これ以上存在しないとして終了
+        if (!renderer) {
+            return;
         }
-    }
+        // 描画フラグが立っていないならスキップ
+        if (!renderer->isRender()) {
+            continue;
+        }
 
-    // BlendMode を 適応
-    BlendMode rendererBlend = renderer->getCurrentBlend();
-    if (rendererBlend != currentBlend_) {
-        currentBlend_ = rendererBlend;
-        commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
-        commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
-    }
+        ///==============================
+        /// Transformの更新
+        ///==============================
+        {
+            Transform* entityTransfrom_ = getComponent<Transform>(_entity);
+            for (int32_t i = 0; i < renderer->getMeshSize(); ++i) {
+                auto& transform = renderer->getTransformBuff(i);
 
-    uint32_t index = 0;
+                if (transform->parent == nullptr) {
+                    transform->parent = entityTransfrom_;
+                }
 
-    auto& meshGroup = renderer->getMeshGroup();
-    for (auto& mesh : *meshGroup) {
-        // ============================= テクスチャの設定 ============================= //
-        ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
-        commandList->SetDescriptorHeaps(1, ppHeaps);
-        commandList->SetGraphicsRootDescriptorTable(
-            7,
-            TextureManager::getDescriptorGpuHandle(renderer->getTextureNumber(index)));
+                transform.openData_.Update();
+                transform.ConvertToBuffer();
+            }
+        }
 
-        // ============================= Viewのセット ============================= //
-        commandList->IASetVertexBuffers(0, 1, &mesh.vbView);
-        commandList->IASetIndexBuffer(&mesh.ibView);
+        // BlendMode を 適応
+        BlendMode rendererBlend = renderer->getCurrentBlend();
+        if (rendererBlend != currentBlend_) {
+            currentBlend_ = rendererBlend;
+            commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
+            commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
+        }
 
-        // ============================= Transformのセット ============================= //
-        const IConstantBuffer<Transform>& meshTransform = renderer->getTransformBuff(index);
-        meshTransform.ConvertToBuffer();
-        meshTransform.SetForRootParameter(commandList, 0);
+        uint32_t index = 0;
 
-        // ============================= Materialのセット ============================= //
-        const auto& material = renderer->getMaterialBuff(index);
-        material->SetForRootParameter(commandList, 2);
+        auto& meshGroup = renderer->getMeshGroup();
+        for (auto& mesh : *meshGroup) {
+            // ============================= テクスチャの設定 ============================= //
+            ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
+            commandList->SetDescriptorHeaps(1, ppHeaps);
+            commandList->SetGraphicsRootDescriptorTable(
+                7,
+                TextureManager::getDescriptorGpuHandle(renderer->getTextureNumber(index)));
 
-        // ============================= 描画 ============================= //
-        commandList->DrawIndexedInstanced(UINT(mesh.indexSize), 1, 0, 0, 0);
+            // ============================= Viewのセット ============================= //
+            commandList->IASetVertexBuffers(0, 1, &mesh.vbView);
+            commandList->IASetIndexBuffer(&mesh.ibView);
 
-        ++index;
+            // ============================= Transformのセット ============================= //
+            const IConstantBuffer<Transform>& meshTransform = renderer->getTransformBuff(index);
+            meshTransform.ConvertToBuffer();
+            meshTransform.SetForRootParameter(commandList, 0);
+
+            // ============================= Materialのセット ============================= //
+            const auto& material = renderer->getMaterialBuff(index);
+            material->SetForRootParameter(commandList, 2);
+
+            // ============================= 描画 ============================= //
+            commandList->DrawIndexedInstanced(UINT(mesh.indexSize), 1, 0, 0, 0);
+
+            ++index;
+        }
     }
 }

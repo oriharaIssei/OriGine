@@ -154,6 +154,21 @@ public: // ============== accessor ==============//
         freeEntityIndex_.clear();
     }
 
+    /// <summary>
+    /// 生きているエンティティを削除する
+    /// </summary>
+    void clearAliveEntities() {
+        auto removedItr = std::remove_if(entities_.begin(), entities_.end(), [](const GameEntity& entity) { return entity.isAlive_; });
+        for (auto& itr = removedItr; itr != entities_.end(); ++removedItr) {
+            freeEntityIndex_.push_back(itr->id_);
+
+            // エンティティを無効化
+            itr->id_       = -1;
+            itr->dataType_ = "UNKNOWN";
+            itr->isAlive_  = false;
+        }
+    }
+
     // --------------------------------------------------------------------------------------
     //  Component
     // --------------------------------------------------------------------------------------
@@ -203,6 +218,12 @@ public: // ============== accessor ==============//
     }
     const std::map<std::string, std::unique_ptr<IComponentArray>>& getComponentArrayMap() const {
         return componentArrays_;
+    }
+
+    void FinalizeComponentArrays() {
+        for (auto& [componentID, componentArray] : componentArrays_) {
+            componentArray->Finalize();
+        }
     }
 
     /// <summary>
@@ -295,6 +316,14 @@ public: // ============== accessor ==============//
             priorityOrderSystems_[_systemTypeIndex].begin(),
             priorityOrderSystems_[int32_t(_systemTypeIndex)].end(),
             [](ISystem* a, ISystem* b) { return a->getPriority() < b->getPriority(); });
+    }
+
+    void FinalizeSystems() {
+        for (auto& systemMap : systems_) {
+            for (auto& [systemID, system] : systemMap) {
+                system->Finalize();
+            }
+        }
     }
 
     void clearSystem() {

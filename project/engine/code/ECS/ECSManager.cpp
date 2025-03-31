@@ -42,10 +42,10 @@ void EntityComponentSystemManager::Run() {
         }
 
         // エンティティIDを再利用可能にする
-        freeEntityIndex_.push_back(entity->getID()); 
+        freeEntityIndex_.push_back(entity->getID());
 
         // エンティティを無効化
-        entity->id_ = -1;
+        entity->id_       = -1;
         entity->dataType_ = "";
         entity->setAlive(false);
     }
@@ -77,6 +77,7 @@ void EntityComponentSystemManager::Run() {
     }
 
     auto sceneView = SceneManager::getInstance()->getSceneView();
+
     sceneView->PreDraw();
     for (auto& system : priorityOrderSystems_[int32_t(SystemType::Render)]) {
         system->Update();
@@ -119,15 +120,17 @@ void EntityComponentSystemManager::Run() {
 }
 
 void EntityComponentSystemManager::Finalize() {
+    // システムのクリア
+    FinalizeSystems();
+    clearSystem();
+
+    // コンポーネントのクリア
+    FinalizeComponentArrays();
+    clearComponentArrays();
+
     // エンティティのクリア
     entities_.clear();
     freeEntityIndex_.clear();
-    // コンポーネントのクリア
-    for (auto& [componentID, componentArray] : componentArrays_) {
-        componentArray->clear();
-    }
-    // システムのクリア
-    clearSystem();
 }
 
 void EntityComponentSystemManager::ComponentArraysInitialize() {

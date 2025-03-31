@@ -7,7 +7,6 @@
 #include "component/material/light/LightManager.h"
 #include "directX12/DxRtvArrayManager.h"
 #include "directX12/DxSrvArrayManager.h"
-#include "effect/manager/EffectManager.h"
 #include "imGuiManager/ImGuiManager.h"
 #include "model/ModelManager.h"
 #include "primitiveDrawer/PrimitiveDrawer.h"
@@ -95,9 +94,6 @@ void Engine::Initialize() {
 
     materialManager_ = std::make_unique<MaterialManager>();
 
-    EffectManager* EffectManager = EffectManager::getInstance();
-    EffectManager->Initialize();
-
     deltaTime_ = std::make_unique<DeltaTime>();
     deltaTime_->Initialize();
 
@@ -128,7 +124,6 @@ void Engine::Finalize() {
     AnimationManager::getInstance()->Finalize();
     CameraManager::getInstance()->Finalize();
     lightManager_->Finalize();
-    EffectManager::getInstance()->Finalize();
     materialManager_->Finalize();
 
 #ifdef _DEBUG

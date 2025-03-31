@@ -1,85 +1,148 @@
 #pragma once
 
 /// stl
-#include <assert.h>
 #include <memory>
-// container
-#include <map>
 #include <vector>
-// utility
-#include <concepts>
-#include <stdint.h>
 
 /// engine
-// ECS
-#include "component/IComponent.h"
-#include "Entity.h"
+// dx12object
+#include "directX12/DxSrvArray.h"
+#include "directX12/DxSrvArrayManager.h"
+#include "directX12/IConstantBuffer.h"
+#include "directX12/IStructuredBuffer.h"
+#include "directX12/ShaderManager.h"
+// assets
+#include "component/material/Material.h"
+struct ParticleKeyFrames;
+struct EmitterShape;
+struct ParticleKeyFrames;
+// object
+#include "../Particle.h"
+// component
+#include "component/ComponentArray.h"
+#include "component/transform/CameraTransform.h"
+#include "component/transform/ParticleTransform.h"
+#include "component/transform/Transform.h"
 
-///====================================================================================
-// IComponentArray Interface
-///====================================================================================
-/// <summary>
-/// ECS の各コンポーネント配列を統一的に管理するためのインターフェース。
-/// </summary>
-class IComponentArray {
+/// math
+// shape
+#include "EmitterShape.h"
+
+class Emitter
+    : public IComponent {
+
 public:
-    IComponentArray()          = default;
-    virtual ~IComponentArray() = default;
+    Emitter();
+    Emitter(DxSrvArray* _srvArray);
+    ~Emitter();
 
-    /// @brief 指定サイズで初期化する
-    virtual void Initialize(uint32_t _size) = 0;
-    virtual void Finalize()                 = 0;
+    void Initialize(GameEntity* _entity) override;
+    //! ToDo :: Update,Draw の削除
+    void Update(float _deltaTime);
+    void Draw(ID3D12GraphicsCommandList* _commandList);
 
-    /// @brief 指定エンティティのコンポーネントを BinaryWriter で保存する
-    virtual void SaveComponent(GameEntity* _entity, BinaryWriter& _writer) = 0;
+    void Finalize() override;
 
-    /// @brief 指定エンティティのコンポーネントを BinaryReader で読み込む
-    virtual void LoadComponent(GameEntity* _entity, BinaryReader& _reader) = 0;
+    bool Edit() override;
+    void Save(BinaryWriter& _writer) override;
+    void Load(BinaryReader& _reader) override;
 
-    /// @brief 登録されている全コンポーネント配列をクリアする
-    virtual void clear() = 0;
+    void CalculateMaxSize();
 
-    /// @brief 指定エンティティの全コンポーネントをクリアする
-    virtual void clearComponent(GameEntity* _hostEntity) = 0;
+private:
+    void SpawnParticle();
+#ifdef _DEBUG
+    void EditEmitter();
 
-    /// @brief 指定エンティティのコンポーネント数を取得する
-    virtual int32_t getComponentSize(GameEntity* _entity) = 0;
+    /// <summary>
+    /// ShapeType に関する 編集項目
+    /// </summary>
+    void EditShapeType();
 
-    /// @brief 指定エンティティのコンポーネントを取得する
-    virtual IComponent* getComponent(GameEntity* _entity, uint32_t _index = 0) = 0;
+    /// <summary>
+    /// Particle の 編集項目
+    /// </summary>
+    void EditParticle();
+#endif // _DEBUG
+private:
+    DxSrvArray* srvArray_ = nullptr;
 
-    virtual IComponent* getFrontComponent(GameEntity* _entity) {
-        return getComponent(_entity, 0);
-    }
-    virtual IComponent* getBackComponent(GameEntity* _entity) = 0;
+    Transform* parent_ = nullptr;
+    Vec3f originPos_;
+    uint32_t particleMaxSize_ = 34;
 
-    /// @brief エンティティを登録し、初期のコンポーネント領域を確保する
-    virtual void registerEntity(GameEntity* _entity, int32_t _entitySize = 1) = 0;
+    std::vector<std::shared_ptr<Particle>> particles_;
 
-    /// @brief IComponent を用いてコンポーネントを追加する
-    virtual void addComponent(GameEntity* _hostEntity, IComponent* _component) = 0;
+    /// <summary>
+    /// 頂点とMaterial を 併せ持つ
+    /// </summary>
+    std::shared_ptr<Model> particleModel_;
+    IStructuredBuffer<ParticleTransform> structuredTransform_;
+    //=============== Model & Texture ===============/
+    std::string modelFileName_;
+    std::string textureFileName_;
+    int32_t textureIndex_;
 
-    /// @brief デフォルト値によるコンポーネントを追加する
-    virtual void addComponent(GameEntity* _hostEntity) = 0;
+    //=============== エミッター設定項目 ===============//
+    BlendMode blendMode_ = BlendMode::None;
+    bool isActive_       = false;
+    bool isLoop_         = false;
+    // emitter 生存時間
+    float activeTime_     = 0.f;
+    float leftActiveTime_ = 0.f;
 
-    /// @brief 指定エンティティの特定インデックスのコンポーネントを削除する
-    virtual void removeComponent(GameEntity* _hostEntity, int32_t _componentIndex = 1) = 0;
+    /// <summary>
+    /// 一度に 生成される Particle の 数
+    /// </summary>
+    int32_t spawnParticleVal_;
 
-    /// @brief 末尾のエンティティを削除
-    virtual void removeBackComponent(GameEntity* _hostEntity) = 0;
+    EmitterShapeType shapeType_ = EmitterShapeType::SPHERE;
+    std::shared_ptr<EmitterShape> emitterSpawnShape_;
 
-    /// @brief エンティティの全コンポーネントを削除し、インデックスを解放する
-    virtual void deleteEntity(GameEntity* _hostEntity) = 0;
+    float currentCoolTime_  = 0.f;
+    float spawnCoolTime_    = 0.f;
+    float particleLifeTime_ = 0.f;
+
+    // billBoard 計算するかどうか
+    bool particleIsBillBoard_ = true;
+
+    //=============== パーティクル設定項目 ===============//
+    Vec4f particleColor_;
+    Vec3f particleUvScale_;
+    Vec3f particleUvRotate_;
+    Vec3f particleUvTranslate_;
+
+    int32_t updateSettings_ = 0;
+
+    std::shared_ptr<ParticleKeyFrames> particleKeyFrames_ = nullptr;
+
+    // ランダムな数値の範囲を設定するためのメンバ変数
+    // ランダムではない場合 (min == max) になる
+    Vec3f startParticleScaleMin_;
+    Vec3f startParticleScaleMax_;
+    Vec3f startParticleRotateMin_;
+    Vec3f startParticleRotateMax_;
+    Vec3f startParticleVelocityMin_;
+    Vec3f startParticleVelocityMax_;
+
+    Vec3f updateParticleScaleMin_;
+    Vec3f updateParticleScaleMax_;
+    Vec3f updateParticleRotateMin_;
+    Vec3f updateParticleRotateMax_;
+    Vec3f updateParticleVelocityMin_;
+    Vec3f updateParticleVelocityMax_;
+
+public:
+    BlendMode getBlendMode() const { return blendMode_; }
+    bool getIsActive() const { return isActive_; };
 };
 
-///====================================================================================
-// ComponentArray
-///====================================================================================
-template <IsComponent componentType>
-class ComponentArray
+#pragma region
+template <>
+class ComponentArray<Emitter>
     : public IComponentArray {
 public:
-    using ComponentType = componentType;
+    using Emitter = Emitter;
 
     // コンストラクタ・デストラクタ
     ComponentArray()          = default;
@@ -93,9 +156,20 @@ public:
         components_.clear();
         entityIndexBind_.clear();
         components_.reserve(_size);
+
+        srvArray_ = DxSrvArrayManager::getInstance()->Create(64);
     }
-    void Finalize() {
+    void Finalize() override {
+
+        for (auto& compVec : components_) {
+            for (auto& comp : compVec) {
+                comp.Finalize();
+            }
+        }
+
         clear();
+        srvArray_->Finalize();
+        srvArray_.reset();
     }
 
     /// @brief コンポーネントの保存
@@ -107,8 +181,7 @@ public:
     /// @brief エンティティ登録（メモリ確保）
     void registerEntity(GameEntity* _entity, int32_t _entitySize = 1) override {
         uint32_t index = static_cast<uint32_t>(components_.size());
-        components_.push_back(std::vector<componentType>());
-        components_.back().resize(_entitySize);
+        components_.push_back(std::vector<Emitter>(_entitySize, srvArray_.get()));
         for (auto& comp : components_.back()) {
             comp.Initialize(_entity);
         }
@@ -116,7 +189,7 @@ public:
     }
 
     /// @brief 値によるコンポーネントの追加
-    void add(GameEntity* _hostEntity, const componentType& _component) {
+    void add(GameEntity* _hostEntity, const Emitter& _component) {
         auto it = entityIndexBind_.find(_hostEntity);
         if (it == entityIndexBind_.end()) {
             registerEntity(_hostEntity);
@@ -128,7 +201,7 @@ public:
 
     /// @brief IComponent ポインタからコンポーネントの追加
     void addComponent(GameEntity* _hostEntity, IComponent* _component) override {
-        const componentType* comp = dynamic_cast<const componentType*>(_component);
+        const Emitter* comp = dynamic_cast<const Emitter*>(_component);
         assert(comp != nullptr && "Invalid component type passed to addComponent");
         auto it = entityIndexBind_.find(_hostEntity);
         if (it == entityIndexBind_.end()) {
@@ -148,7 +221,7 @@ public:
             return;
         }
         uint32_t index = it->second;
-        components_[index].push_back(ComponentType());
+        components_[index].push_back(Emitter(srvArray_.get()));
     }
 
     /// @brief 指定インデックスのコンポーネント削除
@@ -159,7 +232,7 @@ public:
         }
         uint32_t index = it->second;
         auto& vec      = components_[index];
-        vec.erase(std::remove_if(vec.begin(), vec.end(), [vec, _componentIndex](componentType& comp) {
+        vec.erase(std::remove_if(vec.begin(), vec.end(), [vec, _componentIndex](Emitter& comp) {
             bool isRemove = &vec[_componentIndex] == &comp;
             if (isRemove) {
                 comp.Finalize();
@@ -230,8 +303,10 @@ protected:
     // ─────────────────────────────
     //  メンバ変数
     // ─────────────────────────────
-    std::vector<std::vector<componentType>> components_;
+    std::vector<std::vector<Emitter>> components_;
     std::map<GameEntity*, uint32_t> entityIndexBind_;
+
+    std::shared_ptr<DxSrvArray> srvArray_ = nullptr;
 
 public:
     // ─────────────────────────────
@@ -248,7 +323,7 @@ public:
         return static_cast<int32_t>(components_[index].size());
     }
     /// @brief エンティティごとのコンポーネント配列取得
-    std::vector<componentType>* getComponents(GameEntity* _entity) {
+    std::vector<Emitter>* getComponents(GameEntity* _entity) {
         auto it = entityIndexBind_.find(_entity);
         if (it == entityIndexBind_.end()) {
             return nullptr;
@@ -272,7 +347,7 @@ public:
     }
 
     /// @brief 動的コンポーネント取得
-    componentType* getDynamicComponent(GameEntity* _entity, uint32_t _index = 0) {
+    Emitter* getDynamicComponent(GameEntity* _entity, uint32_t _index = 0) {
         auto it = entityIndexBind_.find(_entity);
         if (it == entityIndexBind_.end()) {
             return nullptr;
@@ -281,11 +356,11 @@ public:
         return components_[index].size() <= _index ? nullptr : &components_[index][_index];
     }
     /// @brief 動的なコンポーネントの先頭を取得
-    componentType* getDynamicFrontComponent(GameEntity* _entity) {
+    Emitter* getDynamicFrontComponent(GameEntity* _entity) {
         return getDynamicComponent(_entity, 0);
     }
     /// @brief 動的なコンポーネントの末尾を取得
-    componentType* getDynamicBackComponent(GameEntity* _entity) {
+    Emitter* getDynamicBackComponent(GameEntity* _entity) {
         auto it = entityIndexBind_.find(_entity);
         if (it == entityIndexBind_.end()) {
             return nullptr;
@@ -305,8 +380,7 @@ public:
     }
 };
 
-template <IsComponent componentType>
-inline void ComponentArray<componentType>::SaveComponent(GameEntity* _entity, BinaryWriter& _writer) {
+inline void ComponentArray<Emitter>::SaveComponent(GameEntity* _entity, BinaryWriter& _writer) {
     auto it = entityIndexBind_.find(_entity);
     if (it == entityIndexBind_.end()) {
         return;
@@ -318,8 +392,7 @@ inline void ComponentArray<componentType>::SaveComponent(GameEntity* _entity, Bi
     }
 }
 
-template <IsComponent componentType>
-inline void ComponentArray<componentType>::LoadComponent(GameEntity* _entity, BinaryReader& _reader) {
+inline void ComponentArray<Emitter>::LoadComponent(GameEntity* _entity, BinaryReader& _reader) {
     uint32_t size;
     _reader.Read<uint32_t>(size);
     registerEntity(_entity, size);
@@ -328,3 +401,5 @@ inline void ComponentArray<componentType>::LoadComponent(GameEntity* _entity, Bi
         comp.Load(_reader);
     }
 }
+
+#pragma endregion

@@ -51,6 +51,7 @@ public:
     size_t capacity() const { return elementCount_; }
 
     const DxResource& getResource() { return buff_; }
+    void setSrvArray(DxSrvArray* _srvArray) { srvArray_ = _srvArray; }
 };
 
 template <StructuredBuffer structBuff>

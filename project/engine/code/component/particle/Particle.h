@@ -18,6 +18,9 @@
 //math
 #include <stdint.h>
 
+class BinaryWriter;
+class BinaryReader;
+
 struct ParticleKeyFrames;
 
 enum class ParticleUpdateType {
@@ -117,8 +120,8 @@ struct ParticleKeyFrames {
     ~ParticleKeyFrames() {}
 
     //.pkf ファイルから読み込み
-    void SaveKeyFrames(const std::string& _filePath);
-    void LoadKeyFrames(const std::string& _filePath);
+    void SaveKeyFrames(BinaryWriter& _writer);
+    void LoadKeyFrames(BinaryReader& _reader);
 
     AnimationCurve<Vec4f> colorCurve_;
 

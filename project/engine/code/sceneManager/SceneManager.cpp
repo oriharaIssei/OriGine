@@ -31,6 +31,7 @@ void SceneManager::Initialize() {
     sceneViewSrvArray_ = DxSrvArrayManager::getInstance()->Create(1);
 
     ecsManager_ = EntityComponentSystemManager::getInstance();
+    ecsManager_->Initialize();
 
     sceneView_ = std::make_unique<RenderTexture>(Engine::getInstance()->getDxCommand(), sceneViewRtvArray_.get(), sceneViewSrvArray_.get());
     /// TODO
@@ -39,7 +40,9 @@ void SceneManager::Initialize() {
 }
 
 void SceneManager::Finalize() {
-    currentScene_->Finalize();
+    ecsManager_->Finalize();
+
+    currentScene_->Finalize(!EngineEditor::getInstance()->isActive());
     scenes_.clear();
 
     sceneView_->Finalize();

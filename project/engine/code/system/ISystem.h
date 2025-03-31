@@ -42,6 +42,12 @@ public:
     virtual void Update();
     virtual void Finalize() = 0;
 
+    void eraseDeadEntity() {
+        std::erase_if(entities_, [](GameEntity* _entity) {
+            return !_entity || !_entity->isAlive();
+        });
+    }
+
 protected:
     virtual void UpdateEntity(GameEntity* _entity) = 0;
 
@@ -85,7 +91,6 @@ public: // ========================================== accessor =================
     int32_t getPriority() const {
         return priority_;
     }
-
 };
 
 // Systemを継承しているかどうか
