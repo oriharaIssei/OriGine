@@ -42,7 +42,7 @@ void SceneManager::Initialize() {
 void SceneManager::Finalize() {
     ecsManager_->Finalize();
 
-    currentScene_->Finalize();
+    currentScene_->Finalize(!EngineEditor::getInstance()->isActive());
     scenes_.clear();
 
     sceneView_->Finalize();
