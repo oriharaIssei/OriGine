@@ -363,17 +363,17 @@ public: // ============== accessor ==============//
 using ECSManager = EntityComponentSystemManager;
 
 template <IsComponent ComponentType>
-ComponentType* getComponent(GameEntity* _entity, int32_t _index = 0) {
+inline ComponentType* getComponent(GameEntity* _entity, int32_t _index = 0) {
     return ECSManager::getInstance()->getComponent<ComponentType>(_entity, _index);
 }
 
 template <IsComponent ComponentType>
-std::vector<ComponentType>* getComponents(GameEntity* _entity) {
+inline std::vector<ComponentType>* getComponents(GameEntity* _entity) {
     return ECSManager::getInstance()->getComponents<ComponentType>(_entity);
 }
 
 template <IsComponent... ComponentArgs>
-GameEntity* CreateEntity(const std::string& _dataType, ComponentArgs... _args) {
+inline GameEntity* CreateEntity(const std::string& _dataType, ComponentArgs... _args) {
     uint32_t entityIndex = ECSManager::getInstance()->registerEntity(_dataType);
     GameEntity* entity   = ECSManager::getInstance()->getEntity(entityIndex);
 
@@ -393,15 +393,15 @@ GameEntity* CreateEntity(const std::string& _dataType, ComponentArgs... _args) {
     return entity;
 }
 
-GameEntity* getUniqueEntity(const std::string& _dataTypeName){
+inline GameEntity* getUniqueEntity(const std::string& _dataTypeName) {
     return ECSManager::getInstance()->getUniqueEntity(_dataTypeName);
 }
 
-bool registerUniqueEntity(const std::string& _dataTypeName, GameEntity* _entity) {
+inline bool registerUniqueEntity(const std::string& _dataTypeName, GameEntity* _entity) {
     return ECSManager::getInstance()->registerUniqueEntity(_dataTypeName, _entity);
 }
 
-void removeUniqueEntity(const std::string& _dataTypeName) {
+inline void removeUniqueEntity(const std::string& _dataTypeName) {
     ECSManager::getInstance()->removeUniqueEntity(_dataTypeName);
 }
 
