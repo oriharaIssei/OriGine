@@ -55,8 +55,8 @@ void ECSEditor::SelectEntity() {
         if (ImGui::BeginPopup("EntityOption")) {
             if (ImGui::Button("AddEntity")) {
                 auto command = std::make_unique<CreateEntityCommand>(this);
-                command->Execute();
-                EngineEditor::getInstance()->addCommand(std::move(command));
+                
+                EngineEditor::getInstance()->pushCommand(std::move(command));
             }
 
             // 選ばれたエンティティが あれば 表示
@@ -97,8 +97,8 @@ void ECSEditor::SelectEntity() {
 
                     if (ImGui::Button(entity.getUniqueID().c_str())) {
                         auto command = std::make_unique<SelectEntityCommand>(this, const_cast<GameEntity*>(&entity));
-                        command->Execute();
-                        EngineEditor::getInstance()->addCommand(std::move(command));
+                        
+                        EngineEditor::getInstance()->pushCommand(std::move(command));
                     }
                 }
             }
@@ -107,16 +107,16 @@ void ECSEditor::SelectEntity() {
 
         if (ImGui::Button("Add Entity")) {
             auto command = std::make_unique<CreateEntityCommand>(this);
-            command->Execute();
-            EngineEditor::getInstance()->addCommand(std::move(command));
+            
+            EngineEditor::getInstance()->pushCommand(std::move(command));
         }
         // 選ばれたエンティティが あれば表示
         if (!selectedEntities_.empty()) {
 
             if (ImGui::Button("Group Erase")) {
                 auto command = std::make_unique<GroupEraseEntityCommand>(this);
-                command->Execute();
-                EngineEditor::getInstance()->addCommand(std::move(command));
+                
+                EngineEditor::getInstance()->pushCommand(std::move(command));
             }
 
             ImGui::Spacing();
@@ -180,8 +180,8 @@ void ECSEditor::EditEntity() {
         // ID と Name の表示
         if (ImGui::Button("Erase This")) {
             auto command = std::make_unique<EraseEntityCommand>(this, editEntity_);
-            command->Execute();
-            EngineEditor::getInstance()->addCommand(std::move(command));
+            
+            EngineEditor::getInstance()->pushCommand(std::move(command));
 
             ImGui::End();
             return;
@@ -201,10 +201,31 @@ void ECSEditor::EditEntity() {
             popupAddComponent_.isOpen_ = true;
         }
 
+        // 空のコンポーネントVectorを削除
+        std::erase_if(editEntityComponents_, [](const std::pair<std::string, std::deque<IComponent*>>& compVec) { return compVec.second.empty(); });
+
         // コンポーネントの表示
-        for (auto& [compName, comp] : editEntityComponents_) {
-            if (ImGui::CollapsingHeader(compName.c_str())) {
-                comp->Edit();
+        std::string componentLabel = "";
+        int32_t componentIndex     = 0;
+
+        for (auto& [compTypeName, compVec] : editEntityComponents_) {
+            componentLabel = "";
+            componentIndex = 0;
+            for (auto& comp : compVec) {
+                componentLabel = "X##" + compTypeName + "[" + std::to_string(componentIndex) + "]";
+                if (ImGui::Button(componentLabel.c_str())) {
+                    // 遅延実行用に削除コマンドをプッシュ
+                    auto command = std::make_unique<RemoveComponentCommand>(this, editEntity_, compTypeName, componentIndex);
+                    EngineEditor::getInstance()->pushCommand(std::move(command));
+                }
+                ImGui::SameLine();
+
+                componentLabel = compTypeName + "[" + std::to_string(componentIndex) + "]";
+                if (ImGui::CollapsingHeader(componentLabel.c_str())) {
+                    comp->Edit();
+                }
+
+                componentIndex++;
             }
         }
 
@@ -333,14 +354,14 @@ void ECSEditor::PopupEntityJoinWorkSystem(GameEntity* _entity, bool _isGroup) {
                     if (_isGroup) {
                         // GroupCommand経由に変更
                         auto command = std::make_unique<GroupJoinWorkSystemCommand>(this, systemName, system.get());
-                        command->Execute();
-                        EngineEditor::getInstance()->addCommand(std::move(command));
+                        
+                        EngineEditor::getInstance()->pushCommand(std::move(command));
 
                     } else {
                         // commandから 実行
                         auto command = std::make_unique<JoinWorkSystemCommand>(this, _entity, systemName, system.get());
-                        command->Execute();
-                        EngineEditor::getInstance()->addCommand(std::move(command));
+                        
+                        EngineEditor::getInstance()->pushCommand(std::move(command));
                     }
                     // 実行したら閉じる
                     popupJoinWorkSystem_.isOpen_ = false;
@@ -372,13 +393,13 @@ void ECSEditor::PopupEntityAddComponent(GameEntity* _entity, bool _isGroup) {
             if (_isGroup) {
                 // GroupCommand経由に変更
                 auto command = std::make_unique<GroupAddComponentCommand>(this, componentTypeName);
-                command->Execute();
-                EngineEditor::getInstance()->addCommand(std::move(command));
+                
+                EngineEditor::getInstance()->pushCommand(std::move(command));
             } else {
                 // commandから 実行
                 auto command = std::make_unique<AddComponentCommand>(this, _entity, componentTypeName);
-                command->Execute();
-                EngineEditor::getInstance()->addCommand(std::move(command));
+                
+                EngineEditor::getInstance()->pushCommand(std::move(command));
             }
             // 実行したら閉じる
             popupAddComponent_.isOpen_ = false;
@@ -429,13 +450,13 @@ void ECSEditor::PopupEntityLeaveWorkSystem(GameEntity* _entity, bool _isGroup) {
             if (_isGroup) {
                 // GroupCommand経由に変更
                 auto command = std::make_unique<GroupLeaveWorkSystemCommand>(this, leaveSystemName_, leaveSystem_);
-                command->Execute();
-                EngineEditor::getInstance()->addCommand(std::move(command));
+                
+                EngineEditor::getInstance()->pushCommand(std::move(command));
             } else {
                 // commandから 実行
                 auto command = std::make_unique<LeaveWorkSystemCommand>(this, _entity, leaveSystemName_, leaveSystem_);
-                command->Execute();
-                EngineEditor::getInstance()->addCommand(std::move(command));
+                
+                EngineEditor::getInstance()->pushCommand(std::move(command));
             }
 
             // 実行したら閉じる
@@ -529,15 +550,26 @@ void AddComponentCommand::Execute() {
 
     if (compArrayItr != compMap.end()) {
         addedComponentArray_ = compArrayItr->second.get();
+
+        // 追加したコンポーネントのインデックスを記録
+        addedComponentIndex_ = addedComponentArray_->getComponentSize(entity_);
+        if (addedComponentArray_->entityCapacity(entity_) <= 0) {
+            int32_t newSize = (std::max)(10, addedComponentIndex_ * 2);
+            addedComponentArray_->reserveEntity(entity_, newSize);
+        }
         // コンポーネントの追加
         addedComponentArray_->addComponent(entity_);
-        // 追加したコンポーネントのインデックスを記録
-        addedComponentIndex_ = addedComponentArray_->getComponentSize(entity_) - 1;
 
         // 編集用 Component に追加
         if (entityIsEditEntity_) {
-            auto* addedComponent_ = addedComponentArray_->getComponent(entity_, addedComponentIndex_);
-            ecsEditor_->customEditComponents().push_back({componentTypeName_ + "(" + std::to_string(addedComponentIndex_) + ")", addedComponent_});
+            ecsEditor_->customEditComponents()[componentTypeName_].clear();
+
+            for (int32_t compIndex = 0; compIndex < addedComponentIndex_ + 1; ++compIndex) {
+                IComponent* component = addedComponentArray_->getComponent(entity_, compIndex);
+                if (component) {
+                    ecsEditor_->customEditComponents()[componentTypeName_].push_back(component);
+                }
+            }
         }
     }
 }
@@ -545,7 +577,7 @@ void AddComponentCommand::Execute() {
 void AddComponentCommand::Undo() {
     addedComponentArray_->removeBackComponent(entity_);
     if (entityIsEditEntity_) {
-        ecsEditor_->customEditComponents().pop_back();
+        ecsEditor_->customEditComponents()[componentTypeName_].pop_back();
     }
 }
 
@@ -554,14 +586,14 @@ void JoinWorkSystemCommand::Execute() {
     system_->addEntity(entity_);
     typeIdx_ = int32_t(system_->getSystemType());
     if (entityIsEditEntity_) {
-        ecsEditor_->customEditEntitySystems()[typeIdx_].push_back({systemName_, system_});
+        ecsEditor_->customEditEntitySystems()[typeIdx_][systemName_] = system_;
     }
 }
 
 void JoinWorkSystemCommand::Undo() {
     system_->removeEntity(entity_);
     if (entityIsEditEntity_) {
-        ecsEditor_->customEditEntitySystems()[typeIdx_].pop_back();
+        ecsEditor_->customEditEntitySystems()[typeIdx_].erase(systemName_);
     }
 }
 
@@ -578,7 +610,7 @@ void SelectEntityCommand::Execute() {
         while (true) {
             IComponent* component = componentArray->getComponent(ecsEditor_->getEditEntity(), index);
             if (component) {
-                editComponents.push_back(std::make_pair(componentTypeName + "(" + std::to_string(index) + ")", component));
+                editComponents[componentTypeName].push_back(component);
                 index++;
             } else {
                 break;
@@ -594,7 +626,7 @@ void SelectEntityCommand::Execute() {
         for (auto& [systemName, system] : ecsManager->getSystemsBy(SystemType(systemTypeIndex))) {
             // システムにエンティティが登録されている場合のみ追加
             if (system->hasEntity(nextEntity_)) {
-                editEntitySystems[systemTypeIndex].push_back(std::make_pair(systemName, system.get()));
+                editEntitySystems[systemTypeIndex][systemName] = system.get();
             }
         }
     }
@@ -613,7 +645,7 @@ void SelectEntityCommand::Undo() {
         while (true) {
             IComponent* component = componentArray->getComponent(ecsEditor_->getEditEntity(), index);
             if (component) {
-                editComponents.push_back(std::make_pair(componentTypeName + "(" + std::to_string(index) + ")", component));
+                editComponents[componentTypeName].push_back(component);
                 index++;
             } else {
                 break;
@@ -629,7 +661,7 @@ void SelectEntityCommand::Undo() {
         for (auto& [systemName, system] : ecsManager->getSystemsBy(SystemType(systemTypeIndex))) {
             // システムにエンティティが登録されている場合のみ追加
             if (system->hasEntity(nextEntity_)) {
-                editEntitySystems[systemTypeIndex].push_back(std::make_pair(systemName, system.get()));
+                editEntitySystems[systemTypeIndex][systemName] = system.get();
             }
         }
     }
@@ -669,7 +701,7 @@ void EraseEntityCommand::Execute() {
 
     // 編集中のエンティティをクリア
     auto command = std::make_unique<SelectEntityCommand>(ecsEditor_, nullptr);
-    command->Execute();
+    
 }
 void EraseEntityCommand::Undo() {
     ECSManager* ecsManager = ECSManager::getInstance();
@@ -699,7 +731,7 @@ void EraseEntityCommand::Undo() {
 
     // 編集中のエンティティをセット
     auto command = std::make_unique<SelectEntityCommand>(ecsEditor_, addedEntityPtr);
-    command->Execute();
+    
 }
 
 void RemoveComponentCommand::Execute() {
@@ -714,7 +746,8 @@ void RemoveComponentCommand::Execute() {
         // remove
         removedComponentArray_->removeComponent(entity_, componentIndex_);
         if (entityIsEditEntity_) {
-            ecsEditor_->customEditComponents().pop_back();
+            auto& editCOmponents = ecsEditor_->customEditComponents();
+            editCOmponents[componentTypeName_].erase(editCOmponents[componentTypeName_].begin() + componentIndex_);
         }
     }
 }
@@ -730,7 +763,8 @@ void RemoveComponentCommand::Undo() {
         // 追加
         removedComponentArray_->addComponent(entity_);
         if (entityIsEditEntity_) {
-            ecsEditor_->customEditComponents().push_back({componentTypeName_, removedComponentArray_->getBackComponent(entity_)});
+            auto& editCOmponents = ecsEditor_->customEditComponents();
+            editCOmponents[componentTypeName_].insert(editCOmponents[componentTypeName_].begin() + componentIndex_, removedComponentArray_->getComponent(entity_, componentIndex_));
         }
     }
 }
@@ -741,7 +775,7 @@ void LeaveWorkSystemCommand::Execute() {
     system_->removeEntity(entity_);
     typeIdx_ = int32_t(system_->getSystemType());
     if (entityIsEditEntity_) {
-        ecsEditor_->customEditEntitySystems()[typeIdx_].pop_back();
+        ecsEditor_->customEditEntitySystems()[typeIdx_].erase(systemName_);
     }
 }
 
@@ -749,7 +783,7 @@ void LeaveWorkSystemCommand::Undo() {
     // エンティティをシステムに参加させる処理
     system_->addEntity(entity_);
     if (entityIsEditEntity_) {
-        ecsEditor_->customEditEntitySystems()[typeIdx_].push_back({systemName_, system_});
+        ecsEditor_->customEditEntitySystems()[typeIdx_][systemName_] = system_;
     }
 }
 

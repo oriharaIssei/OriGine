@@ -93,7 +93,8 @@
 			"xutility": "cpp",
 			"codecvt": "cpp",
 			"coroutine": "cpp",
-			"resumable": "cpp"
+			"resumable": "cpp",
+			"stack": "cpp"
 		}
 	}
 }

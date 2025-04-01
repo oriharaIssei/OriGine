@@ -3,13 +3,14 @@
 /// stl
 #include <list>
 #include <memory>
+#include <queue>
 #include <string>
 #include <unordered_map>
 
 /// engine
 #include "module/editor/IEditor.h"
 
-///util
+/// util
 #include <util/nameof.h>
 
 ///=============================================================================
@@ -24,14 +25,14 @@ public:
     void Finalize();
 
     void Undo() {
-        if (currentCommandItr_ != editCommands_.begin()) {
+        if (currentCommandItr_ != commandHistory_.begin()) {
             --currentCommandItr_;
             (*currentCommandItr_)->Undo();
         }
     }
 
     void Redo() {
-        if (currentCommandItr_ != editCommands_.end()) {
+        if (currentCommandItr_ != commandHistory_.end()) {
             (*currentCommandItr_)->Execute();
             ++currentCommandItr_;
         }
@@ -45,13 +46,17 @@ private:
     EngineEditor& operator=(EngineEditor&&)      = delete;
 
 private:
+    void ExecuteCommandRequests();
+
+private:
     bool isActive_ = true;
 
     std::unordered_map<std::string, std::unique_ptr<IEditor>> editors_;
     std::unordered_map<IEditor*, bool> editorActive_;
 
-    std::list<std::unique_ptr<IEditCommand>> editCommands_;
-    std::list<std::unique_ptr<IEditCommand>>::iterator currentCommandItr_ = editCommands_.end();
+    std::queue<std::unique_ptr<IEditCommand>> commandRequestQueue_;
+    std::list<std::unique_ptr<IEditCommand>> commandHistory_;
+    std::list<std::unique_ptr<IEditCommand>>::iterator currentCommandItr_ = commandHistory_.end();
 
 public:
     void setActive(bool active) { isActive_ = active; }
@@ -64,9 +69,7 @@ public:
         editorActive_[editors_[name].get()] = false;
     }
 
-    void addCommand(std::unique_ptr<IEditCommand>&& command) {
-        editCommands_.erase(currentCommandItr_, editCommands_.end());
-        editCommands_.push_back(std::move(command));
-        currentCommandItr_ = editCommands_.end();
+    void pushCommand(std::unique_ptr<IEditCommand>&& command) {
+        commandRequestQueue_.push(std::move(command));
     }
 };
