@@ -111,6 +111,12 @@ void IScene::LoadSceneEntity() {
             entityID     = ecsManager->registerEntity(entityName);
             loadedEntity = ecsManager->getEntity(entityID);
 
+            bool isUnique = false;
+            reader.Read<bool>(isUnique);
+            if (isUnique) {
+                ecsManager->registerUniqueEntity(entityName, loadedEntity);
+            }
+
             reader.Read<int32_t>(hasComponentTypeSize);
 
             for (int32_t componentIndex = 0; componentIndex < hasComponentTypeSize; ++componentIndex) {
@@ -193,6 +199,7 @@ void IScene::SaveSceneEntity() {
         activeEntities.pop_front();
 
         writer.Write<std::string>(entity->getDataType());
+        writer.Write<bool>(entity->isUnique());
 
         hasComponentTypeArray.clear();
         for (const auto& [componentTypeName, componentArray] : componentArrayMap) {

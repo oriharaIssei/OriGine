@@ -15,8 +15,8 @@ class GameEntity {
     friend class EntityComponentSystemManager;
 
 public:
-    GameEntity(const std::string& _dataType, int32_t _id)
-        : dataType_(_dataType), id_(_id) {}
+    GameEntity(const std::string& _dataType, int32_t _id, bool _isUnique = false)
+        : dataType_(_dataType), id_(_id), isAlive_(true), isUnique_(_isUnique) {}
     GameEntity() = default;
 
     ~GameEntity() = default;
@@ -29,15 +29,20 @@ private:
     int32_t id_           = -1;
     std::string dataType_ = "UNKNOWN";
 
-    bool isAlive_ = false;
+    bool isAlive_  = false;
+    bool isUnique_ = false;
 
 public:
     bool isAlive() const {
         return isAlive_;
     }
-    void setAlive(bool _isAlive) {
+    void setIsAlive(bool _isAlive) {
         isAlive_ = _isAlive;
     }
+    bool isUnique() const {
+        return isUnique_;
+    }
+
     void deleteEntity() {
         isAlive_ = false;
     }

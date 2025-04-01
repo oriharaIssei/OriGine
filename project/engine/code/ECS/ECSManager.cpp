@@ -47,7 +47,7 @@ void EntityComponentSystemManager::Run() {
         // エンティティを無効化
         entity->id_       = -1;
         entity->dataType_ = "";
-        entity->setAlive(false);
+        entity->setIsAlive(false);
     }
 
 #ifdef _DEBUG

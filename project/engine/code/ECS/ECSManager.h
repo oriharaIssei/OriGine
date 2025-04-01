@@ -45,7 +45,7 @@ private:
     /// </summary>
     std::vector<GameEntity> entities_;
     std::vector<uint32_t> freeEntityIndex_;
-
+    std::map<std::string, GameEntity*> uniqueEntities_;
     uint32_t entityCapacity_ = 100;
 
     std::queue<GameEntity*> deleteEntityQueue_;
@@ -104,6 +104,30 @@ public: // ============== accessor ==============//
     /// </summary>
     GameEntity* getEntity(int32_t _entityIndex) {
         return &entities_[_entityIndex];
+    }
+
+    GameEntity* getUniqueEntity(const std::string& _dataTypeName) const {
+        auto itr = uniqueEntities_.find(_dataTypeName);
+        if (itr == uniqueEntities_.end()) {
+            return nullptr;
+        }
+        return itr->second;
+    }
+    bool registerUniqueEntity(const std::string& _dataTypeName, GameEntity* _entity) {
+        _entity->isUnique_ = true;
+
+        if (uniqueEntities_.find(_dataTypeName) != uniqueEntities_.end()) {
+            return false;
+        }
+
+        uniqueEntities_[_dataTypeName] = _entity;
+        return true;
+    }
+    void removeUniqueEntity(const std::string& _dataTypeName) {
+        if (uniqueEntities_[_dataTypeName]) {
+            uniqueEntities_[_dataTypeName]->isUnique_ = false;
+        }
+        uniqueEntities_.erase(_dataTypeName);
     }
 
     const std::vector<GameEntity>& getEntities() const {
