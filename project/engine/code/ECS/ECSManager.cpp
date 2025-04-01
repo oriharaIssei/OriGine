@@ -44,6 +44,10 @@ void EntityComponentSystemManager::Run() {
         // エンティティIDを再利用可能にする
         freeEntityIndex_.push_back(entity->getID());
 
+        // エンティティがユニークな場合は、ユニークエンティティから削除
+        if (entity->isUnique_) {
+            this->removeUniqueEntity(entity->dataType_);
+        }
         // エンティティを無効化
         entity->id_       = -1;
         entity->dataType_ = "";

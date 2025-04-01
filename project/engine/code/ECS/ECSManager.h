@@ -393,4 +393,16 @@ GameEntity* CreateEntity(const std::string& _dataType, ComponentArgs... _args) {
     return entity;
 }
 
+GameEntity* getUniqueEntity(const std::string& _dataTypeName){
+    return ECSManager::getInstance()->getUniqueEntity(_dataTypeName);
+}
+
+bool registerUniqueEntity(const std::string& _dataTypeName, GameEntity* _entity) {
+    return ECSManager::getInstance()->registerUniqueEntity(_dataTypeName, _entity);
+}
+
+void removeUniqueEntity(const std::string& _dataTypeName) {
+    ECSManager::getInstance()->removeUniqueEntity(_dataTypeName);
+}
+
 void DestroyEntity(GameEntity* _entity);
