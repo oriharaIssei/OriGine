@@ -83,7 +83,7 @@ void WinApp::TerminateGameWindow() {
 bool WinApp::ProcessMessage() {
 	MSG msg{}; // メッセージ
 
-	if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {// メッセージがある？
+	while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {// メッセージがある？
 		TranslateMessage(&msg); // キー入力メッセージの処理
 		DispatchMessage(&msg);  // ウィンドウプロシージャにメッセージを送る
 	}
