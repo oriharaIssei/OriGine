@@ -33,7 +33,7 @@ struct Quaternion final : public Vector<4, float> {
     Quaternion operator*(const Quaternion& q2) const {
         Vec3f v1 = Vec3f(this->v[X], this->v[Y], this->v[Z]);
         Vec3f v2 = Vec3f(q2[X], q2[Y], q2[Z]);
-
+        // 修正: ドット積はv1とv2の間で計算する
         float dot  = Vec3f::Dot(v1, v2);
         float newW = (this->v[W] * q2[W]) - dot;
 

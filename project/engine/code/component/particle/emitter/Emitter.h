@@ -227,6 +227,46 @@ public:
         components_[index].push_back(Emitter(srvArray_.get()));
     }
 
+    virtual void insertComponent(GameEntity* _hostEntity, IComponent* _component, int32_t _index) override {
+        const Emitter* comp = dynamic_cast<const Emitter*>(_component);
+        assert(comp != nullptr && "Invalid component type passed to addComponent");
+        auto it = entityIndexBind_.find(_hostEntity);
+        if (it == entityIndexBind_.end()) {
+            registerEntity(_hostEntity);
+            it = entityIndexBind_.find(_hostEntity);
+        }
+        uint32_t index = it->second;
+        components_[index].insert(components_[index].begin() + _index, std::move(*comp));
+    }
+    virtual void insertComponent(GameEntity* _hostEntity, int32_t _index) override {
+        auto it = entityIndexBind_.find(_hostEntity);
+        if (it == entityIndexBind_.end()) {
+            registerEntity(_hostEntity);
+            it = entityIndexBind_.find(_hostEntity);
+            return;
+        }
+        uint32_t index = it->second;
+        components_[index].insert(components_[index].begin() + _index, Emitter(srvArray_.get()));
+    }
+
+    void reserveEntity(GameEntity* _hostEntity, int32_t _size) override {
+        auto it = entityIndexBind_.find(_hostEntity);
+        if (it == entityIndexBind_.end()) {
+            return;
+        }
+        uint32_t index = it->second;
+        components_[index].reserve(_size);
+    }
+
+    void resizeEntity(GameEntity* _hostEntity, int32_t _size) override {
+        auto it = entityIndexBind_.find(_hostEntity);
+        if (it == entityIndexBind_.end()) {
+            return;
+        }
+        uint32_t index = it->second;
+        components_[index].reserve(_size);
+    }
+
     /// @brief 指定インデックスのコンポーネント削除
     void removeComponent(GameEntity* _hostEntity, int32_t _componentIndex = 1) override {
         auto it = entityIndexBind_.find(_hostEntity);
@@ -300,6 +340,19 @@ public:
                 pair.second--;
             }
         }
+    }
+
+    bool hasEntity(GameEntity* _hostEntity) override {
+        return entityIndexBind_.find(_hostEntity) != entityIndexBind_.end();
+    }
+
+    int32_t entityCapacity(GameEntity* _hostEntity) const override {
+        auto it = entityIndexBind_.find(_hostEntity);
+        if (it == entityIndexBind_.end()) {
+            return 0;
+        }
+        uint32_t index = it->second;
+        return static_cast<int32_t>(components_[index].size());
     }
 
 protected:

@@ -4,6 +4,7 @@
 #include "module/editor/IEditor.h"
 
 /// stl
+#include <deque>
 #include <list>
 #include <memory>
 #include <unordered_map>
@@ -55,8 +56,8 @@ private:
 
     std::list<const GameEntity*> selectedEntities_;
     GameEntity* editEntity_ = nullptr;
-    std::vector<std::pair<std::string, IComponent*>> editEntityComponents_;
-    std::array<std::vector<std::pair<std::string, ISystem*>>, int32_t(SystemType::Count)> editEntitySystems_;
+    std::map<std::string, std::deque<IComponent*>> editEntityComponents_;
+    std::array<std::map<std::string, ISystem*>, int32_t(SystemType::Count)> editEntitySystems_;
 
     std::array<std::vector<std::pair<std::string, ISystem*>>, int32_t(SystemType::Count)> workSystemList_;
 
@@ -83,10 +84,10 @@ public:
         editEntity_ = _entity;
     }
 
-    std::vector<std::pair<std::string, IComponent*>>& customEditComponents() {
+    std::map<std::string, std::deque<IComponent*>>& customEditComponents() {
         return editEntityComponents_;
     }
-    std::array<std::vector<std::pair<std::string, ISystem*>>, int32_t(SystemType::Count)>& customEditEntitySystems() {
+    std::array<std::map<std::string, ISystem*>, int32_t(SystemType::Count)>& customEditEntitySystems() {
         return editEntitySystems_;
     }
 

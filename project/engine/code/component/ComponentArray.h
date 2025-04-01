@@ -36,6 +36,10 @@ public:
     /// @brief 指定エンティティのコンポーネントを BinaryReader で読み込む
     virtual void LoadComponent(GameEntity* _entity, BinaryReader& _reader) = 0;
 
+    virtual void reserveEntity(GameEntity* _hostEntity, int32_t _entitySize) = 0;
+
+    virtual void resizeEntity(GameEntity* _hostEntity, int32_t _entitySize)  = 0;
+
     /// @brief 登録されている全コンポーネント配列をクリアする
     virtual void clear() = 0;
 
@@ -75,6 +79,10 @@ public:
     virtual void deleteEntity(GameEntity* _hostEntity) = 0;
 
     virtual bool hasEntity(GameEntity* _hostEntity) = 0;
+
+    /// @brief エンティティのコンポーネント数を取得する
+    virtual int32_t entityCapacity(GameEntity* _hostEntity) const = 0;
+
 };
 
 ///====================================================================================
@@ -178,6 +186,28 @@ public:
         components_[index].insert(components_[index].begin() + _index, ComponentType());
     }
 
+    
+     void reserveEntity(GameEntity* _hostEntity, int32_t _size) override {
+        auto it = entityIndexBind_.find(_hostEntity);
+        if (it == entityIndexBind_.end()) {
+            return;
+        }
+
+        uint32_t index = it->second;
+        components_[index].reserve(_size);
+     }
+
+     void resizeEntity(GameEntity* _hostEntity, int32_t _size) override{
+         auto it = entityIndexBind_.find(_hostEntity);
+         if (it == entityIndexBind_.end()) {
+             return;
+         }
+
+         uint32_t index = it->second;
+         components_[index].reserve(_size);
+     }
+
+
     /// @brief 指定インデックスのコンポーネント削除
     void removeComponent(GameEntity* _hostEntity, int32_t _componentIndex = 1) override {
         auto it = entityIndexBind_.find(_hostEntity);
@@ -255,6 +285,15 @@ public:
 
     bool hasEntity(GameEntity* _hostEntity) override {
         return entityIndexBind_.find(_hostEntity) != entityIndexBind_.end();
+    }
+
+    int32_t entityCapacity(GameEntity* _hostEntity) const override {
+        auto it = entityIndexBind_.find(_hostEntity);
+        if (it == entityIndexBind_.end()) {
+            return 0;
+        }
+        uint32_t index = it->second;
+        return static_cast<int32_t>(components_[index].capacity());
     }
 
 protected:

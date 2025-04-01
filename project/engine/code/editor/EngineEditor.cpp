@@ -25,12 +25,37 @@ EngineEditor::~EngineEditor() {
     // Destructor implementation
 }
 
+void EngineEditor::ExecuteCommandRequests() {
+    while (true) {
+        // request がなくなったら終了
+        if (commandRequestQueue_.empty()) {
+            break;
+        }
+
+        // command を取り出す
+        auto command = std::move(commandRequestQueue_.front());
+        commandRequestQueue_.pop();
+        if (command == nullptr) {
+            continue;
+        }
+
+        // command を実行
+        command->Execute();
+
+
+        commandHistory_.erase(currentCommandItr_, commandHistory_.end());
+        commandHistory_.push_back(std::move(command));
+        currentCommandItr_ = commandHistory_.end();
+    }
+}
+
 EngineEditor* EngineEditor::getInstance() {
     static EngineEditor instance;
     return &instance;
 }
 
 void EngineEditor::Initialize() {
+    ///============================= Editor の初期化 ========================================
     for (auto& [editorName, editor] : editors_) {
         editor->Initialize();
     }
@@ -144,6 +169,11 @@ void EngineEditor::Update() {
                 editor->Update();
             }
         }
+
+        ///-------------------------------------------------------------------------------------------------
+        // Commandの実行
+        ///-------------------------------------------------------------------------------------------------
+        ExecuteCommandRequests();
 
         // Undo Redo
         Input* input = Input::getInstance();
