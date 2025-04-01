@@ -32,9 +32,17 @@ public:
         }
     };
 
-
     template <int dim, typename valueType>
     void Write(const Vector<dim, valueType>& _data);
+
+    template <typename T>
+    void Write(const std::string& _label, const T& _data) {
+        Write<std::string>(_label);
+        Write<T>(_data);
+    }
+    template <int dim, typename valueType>
+    void Write(const std::string& _label, const Vector<dim, valueType>& _data);
+    // ----------------------------------------------
 
 private:
     std::string directory_;
@@ -70,6 +78,26 @@ public:
     template <int dim, typename valueType>
     void Read(Vector<dim, valueType>& _data);
 
+    template <typename T>
+    bool Read(const std::string& _expectedLabel, T& _data) {
+        auto pos = readStream_.tellg();
+        std::string label;
+        Read<std::string>(label);
+        if (label == _expectedLabel) {
+            Read<T>(_data);
+            return true;
+        } else {
+            readStream_.seekg(pos);
+            return false;
+        }
+    }
+
+    template <int dim, typename valueType>
+    bool Read(const std::string& _expectedLabel, Vector<dim, valueType>& _data);
+
+    bool Read(const std::string& _expectedLabel, std::string& _data);
+    // ----------------------------------------------
+
 private:
     std::string directory_;
     std::string fileName_;
@@ -88,6 +116,11 @@ inline void BinaryWriter::Write<std::string>(const std::string& _data) {
     if (length > 0) {
         fileStream_.write(_data.c_str(), length);
     }
+};
+template <>
+inline void BinaryWriter::Write<std::string>(const std::string& _label, const std::string& _data) {
+    Write<std::string>(_label);
+    Write<std::string>(_data);
 };
 
 template <>
@@ -118,9 +151,34 @@ inline void BinaryWriter::Write(const Vector<dim, valueType>& _data) {
 }
 
 template <int dim, typename valueType>
+inline void BinaryWriter::Write(const std::string& _label, const Vector<dim, valueType>& _data) {
+    Write<std::string>(_label);
+    Write<Vector<dim, valueType>>(_data);
+}
+
+template <int dim, typename valueType>
 inline void BinaryReader::Read(Vector<dim, valueType>& _data) {
     for (size_t i = 0; i < dim; i++) {
         this->Read<valueType>(_data.v[i]);
     }
+}
+template <int dim, typename valueType>
+inline bool BinaryReader::Read(const std::string& _expectedLabel, Vector<dim, valueType>& _data) {
+    auto pos = readStream_.tellg();
+    std::string label;
+    Read<std::string>(label);
+    if (label != _expectedLabel) {
+        readStream_.seekg(pos);
+        return false;
+    }
+    Read<Vector<dim, valueType>>(_data);
+    if (readStream_.good()) {
+        return true;
+    } else {
+        readStream_.seekg(pos);
+        return false;
+    }
+
+    return false;
 }
 #pragma endregion "Vector"

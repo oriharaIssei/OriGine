@@ -36,6 +36,10 @@ public:
     /// @brief 指定エンティティのコンポーネントを BinaryReader で読み込む
     virtual void LoadComponent(GameEntity* _entity, BinaryReader& _reader) = 0;
 
+    virtual void reserveEntity(GameEntity* _hostEntity, int32_t _entitySize) = 0;
+
+    virtual void resizeEntity(GameEntity* _hostEntity, int32_t _entitySize)  = 0;
+
     /// @brief 登録されている全コンポーネント配列をクリアする
     virtual void clear() = 0;
 
@@ -62,6 +66,9 @@ public:
     /// @brief デフォルト値によるコンポーネントを追加する
     virtual void addComponent(GameEntity* _hostEntity) = 0;
 
+    virtual void insertComponent(GameEntity* _hostEntity, IComponent* _component, int32_t _index) = 0;
+    virtual void insertComponent(GameEntity* _hostEntity, int32_t _index)                         = 0;
+
     /// @brief 指定エンティティの特定インデックスのコンポーネントを削除する
     virtual void removeComponent(GameEntity* _hostEntity, int32_t _componentIndex = 1) = 0;
 
@@ -70,6 +77,12 @@ public:
 
     /// @brief エンティティの全コンポーネントを削除し、インデックスを解放する
     virtual void deleteEntity(GameEntity* _hostEntity) = 0;
+
+    virtual bool hasEntity(GameEntity* _hostEntity) = 0;
+
+    /// @brief エンティティのコンポーネント数を取得する
+    virtual int32_t entityCapacity(GameEntity* _hostEntity) const = 0;
+
 };
 
 ///====================================================================================
@@ -151,6 +164,50 @@ public:
         components_[index].push_back(ComponentType());
     }
 
+    virtual void insertComponent(GameEntity* _hostEntity, IComponent* _component, int32_t _index) override {
+        const componentType* comp = dynamic_cast<const componentType*>(_component);
+        assert(comp != nullptr && "Invalid component type passed to addComponent");
+        auto it = entityIndexBind_.find(_hostEntity);
+        if (it == entityIndexBind_.end()) {
+            registerEntity(_hostEntity);
+            it = entityIndexBind_.find(_hostEntity);
+        }
+        uint32_t index = it->second;
+        components_[index].insert(components_[index].begin() + _index, std::move(*comp));
+    }
+    virtual void insertComponent(GameEntity* _hostEntity, int32_t _index) override {
+        auto it = entityIndexBind_.find(_hostEntity);
+        if (it == entityIndexBind_.end()) {
+            registerEntity(_hostEntity);
+            it = entityIndexBind_.find(_hostEntity);
+            return;
+        }
+        uint32_t index = it->second;
+        components_[index].insert(components_[index].begin() + _index, ComponentType());
+    }
+
+    
+     void reserveEntity(GameEntity* _hostEntity, int32_t _size) override {
+        auto it = entityIndexBind_.find(_hostEntity);
+        if (it == entityIndexBind_.end()) {
+            return;
+        }
+
+        uint32_t index = it->second;
+        components_[index].reserve(_size);
+     }
+
+     void resizeEntity(GameEntity* _hostEntity, int32_t _size) override{
+         auto it = entityIndexBind_.find(_hostEntity);
+         if (it == entityIndexBind_.end()) {
+             return;
+         }
+
+         uint32_t index = it->second;
+         components_[index].reserve(_size);
+     }
+
+
     /// @brief 指定インデックスのコンポーネント削除
     void removeComponent(GameEntity* _hostEntity, int32_t _componentIndex = 1) override {
         auto it = entityIndexBind_.find(_hostEntity);
@@ -224,6 +281,19 @@ public:
                 pair.second--;
             }
         }
+    }
+
+    bool hasEntity(GameEntity* _hostEntity) override {
+        return entityIndexBind_.find(_hostEntity) != entityIndexBind_.end();
+    }
+
+    int32_t entityCapacity(GameEntity* _hostEntity) const override {
+        auto it = entityIndexBind_.find(_hostEntity);
+        if (it == entityIndexBind_.end()) {
+            return 0;
+        }
+        uint32_t index = it->second;
+        return static_cast<int32_t>(components_[index].capacity());
     }
 
 protected:

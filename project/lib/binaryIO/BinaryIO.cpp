@@ -26,6 +26,7 @@ void BinaryWriter::WriteEnd() {
 void BinaryWriter::WriteLine(const std::string& _line) {
     fileStream_ << _line << std::endl;
 }
+
 #pragma endregion
 
 #pragma region BinaryReader
@@ -56,5 +57,21 @@ std::string BinaryReader::ReadLine() {
     std::string line;
     std::getline(readStream_, line);
     return line;
+}
+
+bool BinaryReader::Read(const std::string& _expectedLabel, std::string& _data) {
+    auto pos = readStream_.tellg();
+    std::string label;
+    Read<std::string>(label);
+    size_t length = 0;
+    readStream_.read(reinterpret_cast<char*>(&length), sizeof(size_t));
+    if (label != _expectedLabel) {
+        readStream_.seekg(pos);
+        _data = "";
+        return false;
+    }
+    _data.resize(length);
+    readStream_.read(&_data[0], length);
+    return true;
 }
 #pragma endregion

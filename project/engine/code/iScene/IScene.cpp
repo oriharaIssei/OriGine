@@ -35,10 +35,10 @@ void IScene::Initialize() {
     // System の登録
     registerSystems();
 
-    ECSManager::getInstance()->SortPriorityOrderSystems();
-
     // 読み込み (component,System の登録のあと)
     LoadSceneEntity();
+
+    ECSManager::getInstance()->SortPriorityOrderSystems();
 }
 
 void IScene::registerComponents() {
@@ -110,6 +110,12 @@ void IScene::LoadSceneEntity() {
 
             entityID     = ecsManager->registerEntity(entityName);
             loadedEntity = ecsManager->getEntity(entityID);
+
+            bool isUnique = false;
+            reader.Read<bool>(isUnique);
+            if (isUnique) {
+                ecsManager->registerUniqueEntity(entityName, loadedEntity);
+            }
 
             reader.Read<int32_t>(hasComponentTypeSize);
 
@@ -193,6 +199,7 @@ void IScene::SaveSceneEntity() {
         activeEntities.pop_front();
 
         writer.Write<std::string>(entity->getDataType());
+        writer.Write<bool>(entity->isUnique());
 
         hasComponentTypeArray.clear();
         for (const auto& [componentTypeName, componentArray] : componentArrayMap) {
