@@ -38,7 +38,7 @@ public:
 
     virtual void reserveEntity(GameEntity* _hostEntity, int32_t _entitySize) = 0;
 
-    virtual void resizeEntity(GameEntity* _hostEntity, int32_t _entitySize)  = 0;
+    virtual void resizeEntity(GameEntity* _hostEntity, int32_t _entitySize) = 0;
 
     /// @brief 登録されている全コンポーネント配列をクリアする
     virtual void clear() = 0;
@@ -82,7 +82,6 @@ public:
 
     /// @brief エンティティのコンポーネント数を取得する
     virtual int32_t entityCapacity(GameEntity* _hostEntity) const = 0;
-
 };
 
 ///====================================================================================
@@ -186,8 +185,7 @@ public:
         components_[index].insert(components_[index].begin() + _index, ComponentType());
     }
 
-    
-     void reserveEntity(GameEntity* _hostEntity, int32_t _size) override {
+    void reserveEntity(GameEntity* _hostEntity, int32_t _size) override {
         auto it = entityIndexBind_.find(_hostEntity);
         if (it == entityIndexBind_.end()) {
             return;
@@ -195,18 +193,17 @@ public:
 
         uint32_t index = it->second;
         components_[index].reserve(_size);
-     }
+    }
 
-     void resizeEntity(GameEntity* _hostEntity, int32_t _size) override{
-         auto it = entityIndexBind_.find(_hostEntity);
-         if (it == entityIndexBind_.end()) {
-             return;
-         }
+    void resizeEntity(GameEntity* _hostEntity, int32_t _size) override {
+        auto it = entityIndexBind_.find(_hostEntity);
+        if (it == entityIndexBind_.end()) {
+            return;
+        }
 
-         uint32_t index = it->second;
-         components_[index].reserve(_size);
-     }
-
+        uint32_t index = it->second;
+        components_[index].reserve(_size);
+    }
 
     /// @brief 指定インデックスのコンポーネント削除
     void removeComponent(GameEntity* _hostEntity, int32_t _componentIndex = 1) override {
@@ -381,20 +378,38 @@ inline void ComponentArray<componentType>::SaveComponent(GameEntity* _entity, Bi
     if (it == entityIndexBind_.end()) {
         return;
     }
+
+    std::string preGroupName                = _writer.getGroupName();
+    std::string componentTypeName = nameof<componentType>();
+    _writer.WriteBeginGroup(preGroupName + componentTypeName);
+
     uint32_t index = it->second;
-    _writer.Write<uint32_t>(static_cast<uint32_t>(components_[index].size()));
+    _writer.Write<uint32_t>("size", static_cast<uint32_t>(components_[index].size()));
+
+    int32_t compIndex = 0;
     for (auto& comp : components_[index]) {
+        _writer.WriteBeginGroup(preGroupName + componentTypeName + std::to_string(compIndex++));
         comp.Save(_writer);
     }
+
+    _writer.WriteBeginGroup(preGroupName);
 }
 
 template <IsComponent componentType>
 inline void ComponentArray<componentType>::LoadComponent(GameEntity* _entity, BinaryReader& _reader) {
+    std::string preGroupName = _reader.getGroupName();
+
     uint32_t size;
-    _reader.Read<uint32_t>(size);
+    std::string componentTypeName = nameof<componentType>();
+    _reader.ReadBeginGroup(preGroupName + componentTypeName);
+
+    _reader.Read<uint32_t>("size", size);
     registerEntity(_entity, size);
     auto& componentVec = components_[entityIndexBind_[const_cast<GameEntity*>(_entity)]];
+    int32_t compIndex  = 0;
     for (auto& comp : componentVec) {
+        _reader.ReadBeginGroup(preGroupName + componentTypeName + std::to_string(compIndex++));
         comp.Load(_reader);
     }
+    _reader.ReadBeginGroup(preGroupName);
 }

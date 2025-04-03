@@ -55,10 +55,10 @@ Vec3f EmitterSphere::getSpawnPos() {
     }
 }
 void EmitterSphere::Save(BinaryWriter& _writer) {
-    _writer.Write(radius_);
+    _writer.Write("ShapeRadius", radius_);
 }
 void EmitterSphere::Load(BinaryReader& _reader) {
-    _reader.Read(radius_);
+    _reader.Read("ShapeRadius", radius_);
 }
 #pragma endregion
 
@@ -114,15 +114,15 @@ Vec3f EmitterOBB::getSpawnPos() {
 }
 
 void EmitterOBB::Save(BinaryWriter& _writer) {
-    _writer.Write<3,float>(min_);
-    _writer.Write<3,float>(max_);
-    _writer.Write<3,float>(rotate_);
+    _writer.Write<3, float>("ShapeMin", min_);
+    _writer.Write<3, float>("ShapeMax", max_);
+    _writer.Write<3, float>("ShapeRotate", rotate_);
 }
 
 void EmitterOBB::Load(BinaryReader& _reader) {
-    _reader.Read<3,float>(min_);
-    _reader.Read<3,float>(max_);
-    _reader.Read<3,float>(rotate_);
+    _reader.Read<3, float>("ShapeMin", min_);
+    _reader.Read<3, float>("ShapeMax", max_);
+    _reader.Read<3, float>("ShapeRotate", rotate_);
 }
 
 #pragma endregion
@@ -167,14 +167,14 @@ Vec3f EmitterCapsule::getSpawnPos() {
     return (Vec3f(direction_) * randDist) + (randDire * randRadius);
 }
 void EmitterCapsule::Save(BinaryWriter& _writer) {
-    _writer.Write<3, float>(direction_);
-    _writer.Write(radius_);
-    _writer.Write(length_);
+    _writer.Write<3, float>("ShapeDirection", direction_);
+    _writer.Write("ShapeRadius", radius_);
+    _writer.Write("ShapeLength", length_);
 }
 void EmitterCapsule::Load(BinaryReader& _reader) {
-    _reader.Read<3, float>(direction_);
-    _reader.Read(radius_);
-    _reader.Read(length_);
+    _reader.Read<3, float>("ShapeDirection", direction_);
+    _reader.Read("ShapeRadius", radius_);
+    _reader.Read("ShapeLength", length_);
 }
 #pragma endregion
 
@@ -217,13 +217,13 @@ Vec3f EmitterCone::getSpawnPos() {
     return (Vec3f(direction_) * randDist) + (randDire * randRadius);
 }
 void EmitterCone::Save(BinaryWriter& _writer) {
-    _writer.Write<3,float>(direction_);
-    _writer.Write(angle_);
-    _writer.Write(length_);
+    _writer.Write<3, float>("ShapeDirection", direction_);
+    _writer.Write("ShapeAngle", angle_);
+    _writer.Write("ShapeLength", length_);
 }
 void EmitterCone::Load(BinaryReader& _reader) {
-    _reader.Read<3, float>(direction_);
-    _reader.Read(angle_);
-    _reader.Read(length_);
+    _reader.Read<3, float>("ShapeDirection", direction_);
+    _reader.Read("ShapeAngle", angle_);
+    _reader.Read("ShapeLength", length_);
 }
 #pragma endregion

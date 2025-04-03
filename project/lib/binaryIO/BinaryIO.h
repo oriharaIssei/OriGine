@@ -3,6 +3,7 @@
 /// stl
 #include <cassert>
 #include <fstream>
+#include <map>
 #include <string>
 
 /// math
@@ -20,29 +21,42 @@ public:
     void WriteBegin();
     void WriteEnd();
 
+    void WriteBeginGroup(const std::string& _groupName) {
+        groupName_ = _groupName;
+    }
+    void WriteEndGroup() {
+        groupName_ = "";
+    }
+
     void WriteLine(const std::string& _line);
 
     template <typename T>
-    void Write(const T& _data) {
+    void Write(const std::string& _label, const T& _data) {
         static_assert(std::is_trivially_copyable_v<T>, "T must be trivially copyable.");
 
-        fileStream_.write(reinterpret_cast<const char*>(&_data), sizeof(T));
+        WriteLabel(groupName_ + _label);
+
+        size_t length = sizeof(T);
+        fileStream_.write(reinterpret_cast<const char*>(&length), sizeof(size_t));
+        fileStream_.write(reinterpret_cast<const char*>(&_data), length);
         if (!fileStream_) {
             throw std::runtime_error("Failed to write to the file.");
         }
     };
 
     template <int dim, typename valueType>
-    void Write(const Vector<dim, valueType>& _data);
-
-    template <typename T>
-    void Write(const std::string& _label, const T& _data) {
-        Write<std::string>(_label);
-        Write<T>(_data);
-    }
-    template <int dim, typename valueType>
     void Write(const std::string& _label, const Vector<dim, valueType>& _data);
-    // ----------------------------------------------
+
+protected:
+    void WriteLabel(const std::string& _label) {
+        size_t length = _label.size();
+        fileStream_.write(reinterpret_cast<const char*>(&length), sizeof(size_t));
+        if (length < 0) {
+            assert(false);
+            return;
+        }
+        fileStream_.write(_label.c_str(), length);
+    }
 
 private:
     std::string directory_;
@@ -51,134 +65,92 @@ private:
     std::ofstream fileStream_;
     bool isOpen_ = false;
 
+    std::string groupName_;
+
 public:
     const std::string& getDirectory() const { return directory_; }
     const std::string& getFileName() const { return fileName_; }
 
     bool isOpen() const { return isOpen_; }
+
+    const std::string& getGroupName() const { return groupName_; }
 };
 
 class BinaryReader {
 public:
     BinaryReader(const std::string& _directory, const std::string& _fileName) : directory_(_directory), fileName_(_fileName) {}
-    ~BinaryReader() {
-        assert(!isOpen_);
-    }
+    ~BinaryReader() {}
 
-    void ReadBegin();
-    void ReadEnd();
+    bool ReadFile();
 
     std::string ReadLine();
+    void ReadBeginGroup(const std::string& _groupName) {
+        groupName_ = _groupName;
+    }
+    void ReadEndGroup() {
+        groupName_ = "";
+    }
     template <typename T>
-    void Read(T& _data) {
+    void Read(const std::string& _label, T& _data) {
         static_assert(std::is_trivially_copyable_v<T>, "T must be trivially copyable.");
-        readStream_.read(reinterpret_cast<char*>(&_data), sizeof(T));
-    };
-
-    template <int dim, typename valueType>
-    void Read(Vector<dim, valueType>& _data);
-
-    template <typename T>
-    bool Read(const std::string& _expectedLabel, T& _data) {
-        auto pos = readStream_.tellg();
-        std::string label;
-        Read<std::string>(label);
-        if (label == _expectedLabel) {
-            Read<T>(_data);
-            return true;
-        } else {
-            readStream_.seekg(pos);
-            return false;
+        const std::string& dataStr = readMap_[groupName_ + _label];
+        if (dataStr.size() != sizeof(T)) {
+            throw std::runtime_error("Size mismatch when reading data.");
         }
+        std::memcpy(&_data, dataStr.data(), sizeof(T));
     }
 
     template <int dim, typename valueType>
-    bool Read(const std::string& _expectedLabel, Vector<dim, valueType>& _data);
-
-    bool Read(const std::string& _expectedLabel, std::string& _data);
+    void Read(const std::string& _label, Vector<dim, valueType>& _data);
     // ----------------------------------------------
 
 private:
     std::string directory_;
     std::string fileName_;
-
     std::ifstream readStream_;
-    bool isOpen_ = false;
+
+    std::string groupName_;
+
+    std::map<std::string, std::string> readMap_;
+
+public:
+    const std::string& getDirectory() const { return directory_; }
+    const std::string& getFileName() const { return fileName_; }
+
+    const std::string& getGroupName() const { return groupName_; }
 };
 
 // std::string専用の関数を追加
 #pragma region "std::string"
 template <>
-inline void BinaryWriter::Write<std::string>(const std::string& _data) {
-    size_t length = _data.size();
-    fileName_;
-    fileStream_.write(reinterpret_cast<const char*>(&length), sizeof(size_t));
-    if (length > 0) {
-        fileStream_.write(_data.c_str(), length);
-    }
-};
-template <>
 inline void BinaryWriter::Write<std::string>(const std::string& _label, const std::string& _data) {
-    Write<std::string>(_label);
-    Write<std::string>(_data);
+    WriteLabel(groupName_ + _label);
+    size_t length = _data.size();
+    fileStream_.write(reinterpret_cast<const char*>(&length), sizeof(size_t));
+    fileStream_.write(_data.c_str(), length);
 };
-
 template <>
-inline void BinaryReader::Read<std::string>(std::string& _data) {
-    size_t length = 0;
-
-    readStream_.read(reinterpret_cast<char*>(&length), sizeof(size_t));
-    _data.resize(length);
-
-    if (length > 0) {
-        char* buff = new char[length];
-
-        readStream_.read(buff, length);
-        _data = std::string(buff, length);
-
-        delete[] buff;
-    }
-};
+inline void BinaryReader::Read<std::string>(const std::string& _label, std::string& _data) {
+    _data = readMap_[groupName_ + _label];
+}
 #pragma endregion "std::string"
 
 #pragma region "Vector"
-// Vector
-template <int dim, typename valueType>
-inline void BinaryWriter::Write(const Vector<dim, valueType>& _data) {
-    for (size_t i = 0; i < dim; i++) {
-        this->Write<valueType>(_data.v[i]);
-    }
-}
-
 template <int dim, typename valueType>
 inline void BinaryWriter::Write(const std::string& _label, const Vector<dim, valueType>& _data) {
-    Write<std::string>(_label);
-    Write<Vector<dim, valueType>>(_data);
+    WriteLabel(groupName_ + _label);
+
+    size_t length = sizeof(valueType) * dim;
+    fileStream_.write(reinterpret_cast<const char*>(&length), sizeof(size_t));
+    fileStream_.write(reinterpret_cast<const char*>(&_data.v[0]), length);
 }
 
 template <int dim, typename valueType>
-inline void BinaryReader::Read(Vector<dim, valueType>& _data) {
-    for (size_t i = 0; i < dim; i++) {
-        this->Read<valueType>(_data.v[i]);
+inline void BinaryReader::Read(const std::string& _label, Vector<dim, valueType>& _data) {
+    const std::string& dataStr = readMap_[groupName_ + _label];
+    if (dataStr.size() != sizeof(valueType) * dim) {
+        throw std::runtime_error("Size mismatch when reading Vector data.");
     }
-}
-template <int dim, typename valueType>
-inline bool BinaryReader::Read(const std::string& _expectedLabel, Vector<dim, valueType>& _data) {
-    auto pos = readStream_.tellg();
-    std::string label;
-    Read<std::string>(label);
-    if (label != _expectedLabel) {
-        readStream_.seekg(pos);
-        return false;
-    }
-    Read<Vector<dim, valueType>>(_data);
-    if (readStream_.good()) {
-        return true;
-    } else {
-        readStream_.seekg(pos);
-        return false;
-    }
-
-    return false;
+    std::memcpy(&_data.v[0], dataStr.data(), sizeof(valueType) * dim);
 }
 #pragma endregion "Vector"

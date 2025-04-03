@@ -197,9 +197,13 @@ void ECSEditor::EditEntity() {
 
         ImGui::Text("Entity UniqueID   : %s", editEntity_->getUniqueID().c_str());
         ImGui::Text("Entity ID         : %d", editEntity_->getID());
+
         ImGui::Text("Entity Name       :");
         ImGui::SameLine();
-        ImGui::InputText("##entityName", const_cast<char*>(editEntity_->getDataType().c_str()), 256);
+        std::string dataType = editEntity_->getDataType();
+        ImGui::InputText("##entityName", &dataType[0], 256);
+        editEntity_->setDataType(dataType);
+
         ImGui::Text("Entity Is Unique  :");
         ImGui::SameLine();
         bool isUnique = editEntity_->isUnique();
