@@ -23,17 +23,17 @@ bool Rigidbody::Edit() {
 }
 
 void Rigidbody::Save(BinaryWriter& _writer) {
-    _writer.Write<3, float>(acceleration_);
-    _writer.Write<3, float>(velocity_);
-    _writer.Write(mass_);
-    _writer.Write(useGravity_);
+    _writer.Write<3, float>("acceleration", acceleration_);
+    _writer.Write<3, float>("velocity", velocity_);
+    _writer.Write("mass", mass_);
+    _writer.Write("useGravity", useGravity_);
 }
 
 void Rigidbody::Load(BinaryReader& _reader) {
-    _reader.Read<3, float>(acceleration_);
-    _reader.Read<3, float>(velocity_);
-    _reader.Read(mass_);
-    _reader.Read(useGravity_);
+    _reader.Read<3, float>("acceleration", acceleration_);
+    _reader.Read<3, float>("velocity", velocity_);
+    _reader.Read("mass", mass_);
+    _reader.Read("useGravity", useGravity_);
 }
 
 void Rigidbody::Finalize() {}

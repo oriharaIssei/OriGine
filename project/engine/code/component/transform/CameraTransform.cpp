@@ -25,25 +25,25 @@ bool CameraTransform::Edit() {
 }
 
 void CameraTransform::Save(BinaryWriter& _writer) {
-    _writer.Write<3, float>(rotate);
-    _writer.Write<3, float>(translate);
+    _writer.Write<3, float>("rotate", rotate);
+    _writer.Write<3, float>("translate", translate);
 
-    _writer.Write(fovAngleY);
-    _writer.Write(aspectRatio);
+    _writer.Write("fovAngleY",fovAngleY);
+    _writer.Write("aspectRatio",aspectRatio);
 
-    _writer.Write(nearZ);
-    _writer.Write(farZ);
+    _writer.Write("nearZ", nearZ);
+    _writer.Write("farZ", farZ);
 }
 
 void CameraTransform::Load(BinaryReader& _reader) {
-    _reader.Read<3, float>(rotate);
-    _reader.Read<3, float>(translate);
+    _reader.Read<3, float>("rotate", rotate);
+    _reader.Read<3, float>("translate", translate);
 
-    _reader.Read(fovAngleY);
-    _reader.Read(aspectRatio);
+    _reader.Read("fovAngleY", fovAngleY);
+    _reader.Read("aspectRatio", aspectRatio);
 
-    _reader.Read(nearZ);
-    _reader.Read(farZ);
+    _reader.Read("nearZ", nearZ);
+    _reader.Read("farZ", farZ);
 
     UpdateMatrix();
 }

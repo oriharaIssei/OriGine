@@ -30,48 +30,54 @@ void BinaryWriter::WriteLine(const std::string& _line) {
 #pragma endregion
 
 #pragma region BinaryReader
-void BinaryReader::ReadBegin() {
-    if (isOpen_) {
-        assert(false);
-        return;
-    }
-
+bool BinaryReader::ReadFile() {
     // ファイルを開く
     std::string path = directory_ + "/" + fileName_;
     readStream_.open(path, std::ios::binary);
 
     if (!readStream_.is_open()) {
         MessageBoxA(nullptr, ("Failed to open file: " + path).c_str(), "Error", MB_OK);
+        return false;
     }
-    isOpen_ = true;
-}
 
-void BinaryReader::ReadEnd() {
-    if (isOpen_) {
-        readStream_.close();
-        isOpen_ = false;
+    while (true) {
+        if (readStream_.eof()) {
+            break;
+        }
+        if (readStream_.fail()) {
+            MessageBoxA(nullptr, ("Failed to read from file: " + path).c_str(), "Error", MB_OK);
+            return false;
+        }
+
+        std::string label;
+        { // ラベルの読み込み
+            size_t length = 0;
+            readStream_.read(reinterpret_cast<char*>(&length), sizeof(size_t));
+            if (length < 0) {
+                assert(false);
+                break;
+            }
+            label.resize(length);
+
+            readStream_.read(&label[0], length);
+        }
+
+        { // データの読み込み
+            size_t length = 0;
+            readStream_.read(reinterpret_cast<char*>(&length), sizeof(size_t));
+            std::string data(length, '\0');
+            readStream_.read(&data[0], length);
+            readMap_[label] = data;
+        }
     }
+
+    readStream_.close();
+    return true;
 }
 
 std::string BinaryReader::ReadLine() {
     std::string line;
     std::getline(readStream_, line);
     return line;
-}
-
-bool BinaryReader::Read(const std::string& _expectedLabel, std::string& _data) {
-    auto pos = readStream_.tellg();
-    std::string label;
-    Read<std::string>(label);
-    size_t length = 0;
-    readStream_.read(reinterpret_cast<char*>(&length), sizeof(size_t));
-    if (label != _expectedLabel) {
-        readStream_.seekg(pos);
-        _data = "";
-        return false;
-    }
-    _data.resize(length);
-    readStream_.read(&_data[0], length);
-    return true;
 }
 #pragma endregion

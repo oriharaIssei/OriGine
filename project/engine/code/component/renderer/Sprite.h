@@ -64,45 +64,8 @@ public:
     void Initialize(GameEntity* _hostEntity) override;
 
     bool Edit() override;
-    void Save(BinaryWriter& _writer) override {
-        MeshRenderer<SpriteMesh, SpriteVertexData>::Save(_writer);
-
-        _writer.Write<uint32_t>(renderingNum_);
-
-        _writer.Write(texturePath_);
-
-        _writer.Write<2, float>(textureLeftTop_);
-        _writer.Write<2, float>(textureSize_);
-        _writer.Write<2, float>(anchorPoint_);
-
-        _writer.Write<bool>(isFlipX_);
-        _writer.Write<bool>(isFlipY_);
-
-        _writer.Write<2, float>(spriteBuff_->scale_);
-        _writer.Write<float>(spriteBuff_->rotate_);
-        _writer.Write<2, float>(spriteBuff_->translate_);
-    }
-    void Load(BinaryReader& _reader) override {
-        MeshRenderer<SpriteMesh, SpriteVertexData>::Load(_reader);
-
-        _reader.Read<uint32_t>(renderingNum_);
-
-        _reader.Read(texturePath_);
-        if (!texturePath_.empty()) {
-            textureNumber_ = TextureManager::LoadTexture(texturePath_);
-        }
-
-        _reader.Read<2, float>(textureLeftTop_);
-        _reader.Read<2, float>(textureSize_);
-        _reader.Read<2, float>(anchorPoint_);
-
-        _reader.Read<bool>(isFlipX_);
-        _reader.Read<bool>(isFlipY_);
-
-        _reader.Read<2, float>(spriteBuff_->scale_);
-        _reader.Read<float>(spriteBuff_->rotate_);
-        _reader.Read<2, float>(spriteBuff_->translate_);
-    }
+    void Save(BinaryWriter& _writer) override;
+    void Load(BinaryReader& _reader) override;
 
     /// <summary>
     /// 更新
@@ -114,7 +77,7 @@ public:
     void Finalize() override;
 
 private:
-    uint32_t renderingNum_ = 1;
+    uint32_t renderingPriority_ = 1;
 
     IConstantBuffer<SpritConstBuffer> spriteBuff_;
 
@@ -132,8 +95,8 @@ private:
 public:
     uint32_t getTextureNumber() const { return textureNumber_; }
 
-    uint32_t getRenderingNum() const { return renderingNum_; }
-    void setRenderingNum(uint32_t num) { renderingNum_ = num; }
+    uint32_t getRenderingNum() const { return renderingPriority_; }
+    void setRenderingNum(uint32_t num) { renderingPriority_ = num; }
 
     const IConstantBuffer<SpritConstBuffer>& getSpriteBuff() const { return spriteBuff_; }
     IConstantBuffer<SpritConstBuffer>& getSpriteBuff() { return spriteBuff_; }

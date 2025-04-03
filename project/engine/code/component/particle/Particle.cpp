@@ -175,7 +175,59 @@ void Particle::UpdateKeyFrameValues() {
 }
 
 #pragma region "ParticleKeyFrames"
-void ParticleKeyFrames::SaveKeyFrames(BinaryWriter& _writer) {
+static void WriteCurve(const std::string& _curveName, const AnimationCurve<Vector3f>& curve, BinaryWriter& _writer) {
+    size_t size = curve.size();
+    _writer.Write(_curveName + "size", size);
+    int32_t index        = 0;
+    std::string indexStr = "";
+    for (const auto& keyframe : curve) {
+        indexStr = std::to_string(index++);
+
+        _writer.Write(_curveName + "time" + indexStr, keyframe.time);
+        _writer.Write<3, float>(_curveName + "value" + indexStr, keyframe.value);
+    }
+}
+
+static void WriteCurve(const std::string& _curveName, const AnimationCurve<Vector4f>& curve, BinaryWriter& _writer) {
+    size_t size = curve.size();
+    _writer.Write(_curveName + "size", size);
+    int32_t index        = 0;
+    std::string indexStr = "";
+    for (const auto& keyframe : curve) {
+        indexStr = std::to_string(index++);
+
+        _writer.Write(_curveName + "time" + indexStr, keyframe.time);
+        _writer.Write<4, float>(_curveName + "value" + indexStr, keyframe.value);
+    }
+}
+
+static void ReadCurve(const std::string& _curveName, AnimationCurve<Vector3f>& curve, BinaryReader& _reader) {
+    size_t size;
+    _reader.Read(_curveName + "size", size);
+    curve.resize(size);
+    int32_t index        = 0;
+    std::string indexStr = "";
+    for (auto& keyframe : curve) {
+        indexStr = std::to_string(index++);
+        _reader.Read(_curveName + "time" + indexStr, keyframe.time);
+        _reader.Read<3, float>(_curveName + "value" + indexStr, keyframe.value);
+    }
+}
+
+static void ReadCurve(const std::string& _curveName, AnimationCurve<Vector4f>& curve, BinaryReader& _reader) {
+    size_t size;
+    _reader.Read(_curveName + "size", size);
+    curve.resize(size);
+    int32_t index        = 0;
+    std::string indexStr = "";
+    for (auto& keyframe : curve) {
+        indexStr = std::to_string(index++);
+        _reader.Read(_curveName + "time" + indexStr, keyframe.time);
+        _reader.Read<4, float>(_curveName + "value" + indexStr, keyframe.value);
+    }
+}
+
+void ParticleKeyFrames::SaveKeyFrames(BinaryWriter& _writer) const {
     /*
         2. colorCurve_のkeyframesを書き込む(サイズ, 各キーフレーム)
         3. scaleCurve_のkeyframesを書き込む(サイズ, 各キーフレーム)
@@ -186,24 +238,14 @@ void ParticleKeyFrames::SaveKeyFrames(BinaryWriter& _writer) {
         8. uvTranslateCurve_のkeyframesを書き込む(サイズ, 各キーフレーム)
      */
 
-    auto writeCurve = [&_writer](const auto& curve) {
-        size_t size = curve.size();
-        _writer.Write(size);
-        for (const auto& keyframe : curve) {
-            _writer.Write(keyframe.time);
-            for (int32_t i = 0; i < keyframe.value.dim; i++) {
-                _writer.Write(keyframe.value.v[i]);
-            }
-        }
-    };
     // 2 ~ 8 書き込み
-    writeCurve(colorCurve_);
-    writeCurve(scaleCurve_);
-    writeCurve(rotateCurve_);
-    writeCurve(velocityCurve_);
-    writeCurve(uvScaleCurve_);
-    writeCurve(uvRotateCurve_);
-    writeCurve(uvTranslateCurve_);
+    WriteCurve("uvTranslateCurve", uvTranslateCurve_, _writer);
+    WriteCurve("colorCurve", colorCurve_, _writer);
+    WriteCurve("scaleCurve", scaleCurve_, _writer);
+    WriteCurve("rotateCurve", rotateCurve_, _writer);
+    WriteCurve("velocityCurve", velocityCurve_, _writer);
+    WriteCurve("uvScaleCurve", uvScaleCurve_, _writer);
+    WriteCurve("uvRotateCurve", uvRotateCurve_, _writer);
 }
 
 void ParticleKeyFrames::LoadKeyFrames(BinaryReader& _reader) {
@@ -217,25 +259,13 @@ void ParticleKeyFrames::LoadKeyFrames(BinaryReader& _reader) {
         8. uvTranslateCurve_のkeyframesを読み込む(サイズ, 各キーフレーム)
     */
 
-    auto readCurve = [&_reader](auto& curve) {
-        size_t size;
-        _reader.Read(size);
-        curve.resize(size);
-        for (auto& keyframe : curve) {
-            _reader.Read(keyframe.time);
-            for (int32_t i = 0; i < keyframe.value.dim; i++) {
-                _reader.Read(keyframe.value.v[i]);
-            }
-        }
-    };
-
     // 2 ~ 8 読み込み
-    readCurve(colorCurve_);
-    readCurve(scaleCurve_);
-    readCurve(rotateCurve_);
-    readCurve(velocityCurve_);
-    readCurve(uvScaleCurve_);
-    readCurve(uvRotateCurve_);
-    readCurve(uvTranslateCurve_);
+    ReadCurve("colorCurve", colorCurve_, _reader);
+    ReadCurve("scaleCurve", scaleCurve_, _reader);
+    ReadCurve("rotateCurve", rotateCurve_, _reader);
+    ReadCurve("velocityCurve", velocityCurve_, _reader);
+    ReadCurve("uvScaleCurve", uvScaleCurve_, _reader);
+    ReadCurve("uvRotateCurve", uvRotateCurve_, _reader);
+    ReadCurve("uvTranslateCurve", uvTranslateCurve_, _reader);
 }
 #pragma endregion
