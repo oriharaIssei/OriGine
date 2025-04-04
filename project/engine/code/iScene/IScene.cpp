@@ -107,7 +107,7 @@ void IScene::LoadSceneEntity() {
 
         for (int32_t entityIndex = 0; entityIndex < entitySize; ++entityIndex) {
             reader.Read<std::string>(entityName);
-
+           
             entityID     = ecsManager->registerEntity(entityName);
             loadedEntity = ecsManager->getEntity(entityID);
 
