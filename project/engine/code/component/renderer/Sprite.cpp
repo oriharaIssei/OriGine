@@ -161,7 +161,7 @@ void SpriteRenderer::Load(BinaryReader& _reader) {
     _reader.Read<bool>("isFlipX", isFlipX_);
     _reader.Read<bool>("isFlipY", isFlipY_);
 
-    _reader.Read<2, float>("scale", spriteBuff_->scale_);
+    _reader.Read<2,float>("scale", spriteBuff_->scale_);
     _reader.Read<float>("rotate", spriteBuff_->rotate_);
     _reader.Read<2, float>("translate", spriteBuff_->translate_);
 }

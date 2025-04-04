@@ -250,6 +250,8 @@ void IScene::SaveSceneEntity() {
 
                     writer.Write<int32_t>("entityID" + std::to_string(joinedEntityIndex++), entity->getID());
                 }
+
+                writer.WriteEndGroup();
             }
             writer.WriteEndGroup();
             systemTypeIndex++;
