@@ -436,6 +436,7 @@
       <Filter>util</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\system\render\ParticleRenderSystem.h" />
+    <ClInclude Include="engine\code\ECS\ECSDebugger.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\code\ECS\ECSEditor.cpp">
@@ -644,5 +645,7 @@
       <Filter>math</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\system\render\ParticleRenderSystem.cpp" />
+    <ClCompile Include="engine\code\module\debugger\IDebugger.h" />
+    <ClCompile Include="engine\code\ECS\ECSDebugger.cpp" />
   </ItemGroup>
 </Project>

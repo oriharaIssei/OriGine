@@ -79,6 +79,10 @@ public: // ============== accessor ==============//
         return entityCapacity_;
     }
 
+    int32_t getActiveEntityCount() const {
+        return entities_.size() - freeEntityIndex_.size();
+    }
+
     /// <summary>
     /// エンティティを作成する
     /// </summary>

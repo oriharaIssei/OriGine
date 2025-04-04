@@ -107,6 +107,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="engine\code\ECS\ECSDebugger.h" />
     <ClInclude Include="engine\EngineInclude.h" />
     <ClInclude Include="engine\code\ECS\ECSEditor.h" />
     <ClInclude Include="engine\code\ECS\ECSManager.h" />
@@ -200,6 +201,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="util\nameof.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="engine\code\ECS\ECSDebugger.cpp" />
     <ClCompile Include="engine\code\ECS\ECSEditor.cpp" />
     <ClCompile Include="engine\code\ECS\ECSManager.cpp" />
     <ClCompile Include="engine\code\Engine.cpp" />
@@ -245,6 +247,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\iScene\IScene.cpp" />
     <ClCompile Include="engine\code\input\Input.cpp" />
     <ClCompile Include="engine\code\model\ModelManager.cpp" />
+    <ClCompile Include="engine\code\module\debugger\IDebugger.h" />
     <ClCompile Include="engine\code\object3d\AnimationObject3d.cpp" />
     <ClCompile Include="engine\code\primitiveDrawer\PrimitiveDrawer.cpp" />
     <ClCompile Include="engine\code\sceneManager\SceneManager.cpp" />
