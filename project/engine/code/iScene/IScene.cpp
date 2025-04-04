@@ -39,6 +39,14 @@ void IScene::Initialize() {
     LoadSceneEntity();
 
     ECSManager::getInstance()->SortPriorityOrderSystems();
+
+#ifdef _DEBUG
+    if (!EngineEditor::getInstance()->isActive()) {
+        ECSManager::getInstance()->RunInitialize();
+    }
+#else
+    ECSManager::getInstance()->RunInitialize();
+#endif // _DEBUG
 }
 
 void IScene::registerComponents() {
@@ -142,10 +150,9 @@ void IScene::LoadSceneEntity() {
         auto& systems           = ecsManager->getSystems();
         int32_t systemTypeIndex = 0;
         for (auto& systemsByType : systems) {
-            reader.ReadEndGroup();
             reader.Read<int32_t>(SystemTypeString[systemTypeIndex] + "Size", systemSizeByType);
-            for (int32_t i = 0; i < systemSizeByType; i++) {
-                reader.ReadBeginGroup(SystemTypeString[systemTypeIndex] + std::to_string(i));
+            for (int32_t systemIndex = 0; systemIndex < systemSizeByType; systemIndex++) {
+                reader.ReadBeginGroup(SystemTypeString[systemTypeIndex] + std::to_string(systemIndex));
                 reader.Read<std::string>("Name", systemName);
                 auto itr = systemsByType.find(systemName);
 
@@ -164,6 +171,7 @@ void IScene::LoadSceneEntity() {
                 }
                 reader.ReadEndGroup();
             }
+            systemTypeIndex++;
         }
     }
     // 読み込み 終了
@@ -236,8 +244,10 @@ void IScene::SaveSceneEntity() {
         int32_t systemTypeIndex = 0;
         for (const auto& systemsByType : systems) {
             writer.Write<int32_t>(SystemTypeString[systemTypeIndex] + "Size", static_cast<int32_t>(systemsByType.size()));
+
+            int32_t systemIndex_ = 0;
             for (const auto& [systemName, system] : systemsByType) {
-                writer.WriteBeginGroup(SystemTypeString[systemTypeIndex] + systemName);
+                writer.WriteBeginGroup(SystemTypeString[systemTypeIndex] + std::to_string(systemIndex_++));
                 writer.Write<std::string>("Name", systemName);
                 writer.Write<int32_t>("priority", system->getPriority());
                 writer.Write<int32_t>("systemHasEntitySize", static_cast<int32_t>(system->getEntities().size()));
