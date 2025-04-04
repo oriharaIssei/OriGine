@@ -60,6 +60,9 @@ void EntityComponentSystemManager::Run() {
         CameraManager::getInstance()->DebugUpdate();
     } else {
 
+        // Debug,Edit 用システム追加予定
+        CameraManager::getInstance()->DebugUpdate();
+
         ShowEntityStack();
 
         // システムの更新
