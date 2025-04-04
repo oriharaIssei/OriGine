@@ -128,10 +128,19 @@ void EngineEditor::Update() {
             // Debug
             /// ------------------------------------------------------------------------------------------------
             if (ImGui::BeginMenu("Debug")) {
-                if (ImGui::MenuItem("StartDebug")) {
-                    // 保存, ロード処理を行い, シーンを再読み込み
-                    SceneManager::getInstance()->changeScene(SceneManager::getInstance()->getCurrentScene()->GetName());
-                    isActive_ = false;
+                if (ImGui::BeginMenu("StartDebug")) {
+                    if (ImGui::MenuItem("Startup Scene")) {
+                        // 保存, ロード処理を行い, シーンを再読み込み
+                        SceneManager::getInstance()->changeScene(SceneManager::getInstance()->getCurrentScene()->GetName());
+                        isActive_ = false;
+                    }
+                    if (ImGui::MenuItem("Current Scene")) {
+                        const auto& scene = SceneManager::getInstance()->getCurrentScene();
+                        scene->Finalize(false);
+                        scene->Initialize();
+
+                        isActive_ = false;
+                    }
                 }
                 ImGui::EndMenu();
             }
