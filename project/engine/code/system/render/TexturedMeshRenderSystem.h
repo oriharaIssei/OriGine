@@ -14,9 +14,7 @@ class TexturedMeshRenderSystem
     : public ISystem {
 public:
     TexturedMeshRenderSystem() : ISystem(SystemType::Render) {};
-    ~TexturedMeshRenderSystem() = default;
-
-    void Initialize() override;
+    ~TexturedMeshRenderSystem() = default;    void Initialize() override;
     void Update() override;
     void Finalize() override;
 
