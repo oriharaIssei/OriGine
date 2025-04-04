@@ -72,10 +72,10 @@ void EntityComponentSystemManager::Run() {
         for (auto& system : priorityOrderSystems_[int32_t(SystemType::Movement)]) {
             system->Update();
         }
-        for (auto& system : priorityOrderSystems_[int32_t(SystemType::Physics)]) {
+        for (auto& system : priorityOrderSystems_[int32_t(SystemType::Collision)]) {
             system->Update();
         }
-        for (auto& system : priorityOrderSystems_[int32_t(SystemType::Collision)]) {
+        for (auto& system : priorityOrderSystems_[int32_t(SystemType::Effect)]) {
             system->Update();
         }
     }
@@ -140,6 +140,12 @@ void EntityComponentSystemManager::Finalize() {
 void EntityComponentSystemManager::ComponentArraysInitialize() {
     for (auto& [componentID, componentArray] : componentArrays_) {
         componentArray->Initialize(entityCapacity_);
+    }
+}
+
+void EntityComponentSystemManager::RunInitialize() {
+    for (auto& system : priorityOrderSystems_[int32_t(SystemType::Initialize)]) {
+        system->Update();
     }
 }
 
