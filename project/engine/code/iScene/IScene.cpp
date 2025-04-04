@@ -39,7 +39,14 @@ void IScene::Initialize() {
     LoadSceneEntity();
 
     ECSManager::getInstance()->SortPriorityOrderSystems();
+
+#ifdef _DEBUG
+    if (EngineEditor::getInstance()->isActive()) {
+        ECSManager::getInstance()->RunInitialize();
+    }
+#else
     ECSManager::getInstance()->RunInitialize();
+#endif // _DEBUG
 }
 
 void IScene::registerComponents() {
