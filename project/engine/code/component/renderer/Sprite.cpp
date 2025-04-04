@@ -125,6 +125,47 @@ return false;
 #endif // _DEBUG
 }
 
+void SpriteRenderer::Save(BinaryWriter& _writer) {
+    MeshRenderer<SpriteMesh, SpriteVertexData>::Save(_writer);
+
+    _writer.Write<uint32_t>("renderingPriority", renderingPriority_);
+
+    _writer.Write("texturePath", texturePath_);
+
+    _writer.Write<2, float>("textureLeftTop", textureLeftTop_);
+    _writer.Write<2, float>("textureSize", textureSize_);
+    _writer.Write<2, float>("anchorPoint", anchorPoint_);
+
+    _writer.Write<bool>("isFlipX", isFlipX_);
+    _writer.Write<bool>("isFlipY", isFlipY_);
+
+    _writer.Write<2, float>("scale", spriteBuff_->scale_);
+    _writer.Write<float>("rotate", spriteBuff_->rotate_);
+    _writer.Write<2, float>("translate", spriteBuff_->translate_);
+}
+
+void SpriteRenderer::Load(BinaryReader& _reader) {
+    MeshRenderer<SpriteMesh, SpriteVertexData>::Load(_reader);
+
+    _reader.Read<uint32_t>("renderingPriority", renderingPriority_);
+
+    _reader.Read("texturePath", texturePath_);
+    if (!texturePath_.empty()) {
+        textureNumber_ = TextureManager::LoadTexture(texturePath_);
+    }
+
+    _reader.Read<2, float>("textureLeftTop", textureLeftTop_);
+    _reader.Read<2, float>("textureSize", textureSize_);
+    _reader.Read<2, float>("anchorPoint", anchorPoint_);
+
+    _reader.Read<bool>("isFlipX", isFlipX_);
+    _reader.Read<bool>("isFlipY", isFlipY_);
+
+    _reader.Read<2, float>("scale", spriteBuff_->scale_);
+    _reader.Read<float>("rotate", spriteBuff_->rotate_);
+    _reader.Read<2, float>("translate", spriteBuff_->translate_);
+}
+
 void SpriteRenderer::Finalize() {
     MeshRenderer::Finalize();
     spriteBuff_.Finalize();

@@ -90,6 +90,8 @@ void EngineEditor::Update() {
                     for (auto& [name, index] : sceneManager->sceneIndexs_) {
                         if (ImGui::MenuItem(name.c_str())) {
                             sceneManager->changeScene(name);
+                            // Editor を再初期化
+                            this->Initialize();
                             break;
                         }
                     }
@@ -97,6 +99,13 @@ void EngineEditor::Update() {
                 }
                 if (ImGui::MenuItem("Save")) {
                     SceneManager::getInstance()->getCurrentScene()->SaveSceneEntity();
+                }
+                if (ImGui::MenuItem("Reload")) {
+                    SceneManager::getInstance()->getCurrentScene()->Finalize();
+                    SceneManager::getInstance()->getCurrentScene()->Initialize();
+
+                    // Editor を再初期化
+                    this->Initialize();
                 }
 
                 ImGui::EndMenu();

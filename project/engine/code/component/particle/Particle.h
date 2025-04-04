@@ -1,21 +1,21 @@
 #pragma once
 
-///stl
-//memory
+/// stl
+// memory
 #include <functional>
 #include <memory>
-//container
+// container
 #include <vector>
-//string
+// string
 #include <string>
 
-///engine
-//assets
+/// engine
+// assets
 #include "animation/Animation.h" // KeyFrame に関する情報
-//transform
+// transform
 #include "component/transform/ParticleTransform.h"
 
-//math
+// math
 #include <stdint.h>
 
 class BinaryWriter;
@@ -61,8 +61,8 @@ public:
 protected:
     ParticleTransform transform_;
 
-    Vec3f direction_ = {0.0f, 0.0f, 1.0f};
-    Vec3f velocity_ = {0.0f, 0.0f, 0.0f};
+    Vec3f direction_    = {0.0f, 0.0f, 1.0f};
+    Vec3f velocity_     = {0.0f, 0.0f, 0.0f};
     bool rotateForward_ = false;
 
     float deltaTime_ = 0.0f;
@@ -120,7 +120,7 @@ struct ParticleKeyFrames {
     ~ParticleKeyFrames() {}
 
     //.pkf ファイルから読み込み
-    void SaveKeyFrames(BinaryWriter& _writer);
+    void SaveKeyFrames(BinaryWriter& _writer) const;
     void LoadKeyFrames(BinaryReader& _reader);
 
     AnimationCurve<Vec4f> colorCurve_;

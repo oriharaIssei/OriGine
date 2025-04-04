@@ -67,8 +67,8 @@ private:
 private:
     DxSrvArray* srvArray_ = nullptr;
 
-    Transform* parent_ = nullptr;
-    Vec3f originPos_;
+    Transform* parent_        = nullptr;
+    Vec3f originPos_          = {0.f, 0.f, 0.f};
     uint32_t particleMaxSize_ = 34;
 
     std::vector<std::shared_ptr<Particle>> particles_;
@@ -95,7 +95,7 @@ private:
     /// <summary>
     /// 一度に 生成される Particle の 数
     /// </summary>
-    int32_t spawnParticleVal_;
+    int32_t spawnParticleVal_ = 1;
 
     EmitterShapeType shapeType_ = EmitterShapeType::SPHERE;
     std::shared_ptr<EmitterShape> emitterSpawnShape_;
@@ -108,7 +108,7 @@ private:
     bool particleIsBillBoard_ = true;
 
     //=============== パーティクル設定項目 ===============//
-    Vec4f particleColor_;
+    Vec4f particleColor_   = {1.f, 1.f, 1.f, 1.f};
     Vec3f particleUvScale_ = {1.f, 1.f, 1.f};
     Vec3f particleUvRotate_;
     Vec3f particleUvTranslate_;
@@ -441,21 +441,39 @@ inline void ComponentArray<Emitter>::SaveComponent(GameEntity* _entity, BinaryWr
     if (it == entityIndexBind_.end()) {
         return;
     }
+
+    std::string preGroupName      = _writer.getGroupName();
+    std::string componentTypeName = "Emitter";
+    _writer.WriteBeginGroup(preGroupName + componentTypeName);
+
     uint32_t index = it->second;
-    _writer.Write<uint32_t>(static_cast<uint32_t>(components_[index].size()));
+    _writer.Write<uint32_t>("size", static_cast<uint32_t>(components_[index].size()));
+
+    int32_t compIndex = 0;
     for (auto& comp : components_[index]) {
+        _writer.WriteBeginGroup(preGroupName + componentTypeName + std::to_string(compIndex++));
         comp.Save(_writer);
     }
+
+    _writer.WriteBeginGroup(preGroupName);
 }
 
 inline void ComponentArray<Emitter>::LoadComponent(GameEntity* _entity, BinaryReader& _reader) {
+    std::string preGroupName = _reader.getGroupName();
+
     uint32_t size;
-    _reader.Read<uint32_t>(size);
+    std::string componentTypeName = "Emitter";
+    _reader.ReadBeginGroup(preGroupName + componentTypeName);
+
+    _reader.Read<uint32_t>("size", size);
     registerEntity(_entity, size);
     auto& componentVec = components_[entityIndexBind_[const_cast<GameEntity*>(_entity)]];
+    int32_t compIndex  = 0;
     for (auto& comp : componentVec) {
+        _reader.ReadBeginGroup(preGroupName + componentTypeName + std::to_string(compIndex++));
         comp.Load(_reader);
     }
+    _reader.ReadBeginGroup(preGroupName);
 }
 
 #pragma endregion

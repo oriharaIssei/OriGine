@@ -156,15 +156,15 @@ bool ModelMeshRenderer::Edit() {
 void ModelMeshRenderer::Save(BinaryWriter& _writer) {
     MeshRenderer::Save(_writer);
 
-    _writer.Write<std::string>(directory_);
-    _writer.Write<std::string>(fileName_);
+    _writer.Write<std::string>("directory", directory_);
+    _writer.Write<std::string>("fileName", fileName_);
 }
 
 void ModelMeshRenderer::Load(BinaryReader& _reader) {
     MeshRenderer::Load(_reader);
 
-    _reader.Read<std::string>(directory_);
-    _reader.Read<std::string>(fileName_);
+    _reader.Read<std::string>("directory", directory_);
+    _reader.Read<std::string>("fileName", fileName_);
 
     if (!fileName_.empty()) {
         CreateModelMeshRenderer(this, hostEntity_, directory_, fileName_);

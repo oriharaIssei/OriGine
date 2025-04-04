@@ -115,14 +115,14 @@ public:
         return isChange;
     }
     void Save(BinaryWriter& _writer) override {
-        _writer.Write(isActive_);
-        _writer.Write<3, float>(shape_.min_);
-        _writer.Write<3, float>(shape_.max_);
+        _writer.Write("isActive", isActive_);
+        _writer.Write<3, float>("min", shape_.min_);
+        _writer.Write<3, float>("max", shape_.max_);
     }
     void Load(BinaryReader& _reader) override {
-        _reader.Read(isActive_);
-        _reader.Read<3, float>(shape_.min_);
-        _reader.Read<3, float>(shape_.max_);
+        _reader.Read("isActive", isActive_);
+        _reader.Read<3, float>("min", shape_.min_);
+        _reader.Read<3, float>("max", shape_.max_);
     }
 
     void StartCollision() override {
@@ -162,14 +162,14 @@ public:
         return isChange;
     }
     void Save(BinaryWriter& _writer) override {
-        _writer.Write(isActive_);
-        _writer.Write<3, float>(shape_.center_);
-        _writer.Write(shape_.radius_);
+        _writer.Write("isActive", isActive_);
+        _writer.Write<3, float>("center", shape_.center_);
+        _writer.Write("radius", shape_.radius_);
     }
     void Load(BinaryReader& _reader) override {
-        _reader.Read(isActive_);
-        _reader.Read<3, float>(shape_.center_);
-        _reader.Read(shape_.radius_);
+        _reader.Read("isActive", isActive_);
+        _reader.Read<3, float>("center", shape_.center_);
+        _reader.Read("radius", shape_.radius_);
     }
 
     void StartCollision() override {

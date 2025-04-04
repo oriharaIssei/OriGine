@@ -45,14 +45,14 @@ bool Transform::Edit() {
 }
 
 void Transform::Save(BinaryWriter& _writer) {
-    _writer.Write<3, float>(scale);
-    _writer.Write<4, float>(rotate);
-    _writer.Write<3, float>(translate);
+    _writer.Write<3, float>("scale", scale);
+    _writer.Write<4, float>("rotate", rotate);
+    _writer.Write<3, float>("translate", translate);
 }
 
 void Transform::Load(BinaryReader& _reader) {
-    _reader.Read<3, float>(scale);
-    _reader.Read<4, float>(rotate);
-    _reader.Read<3, float>(translate);
+    _reader.Read<3, float>("scale", scale);
+    _reader.Read<4, float>("rotate", rotate);
+    _reader.Read<3, float>("translate", translate);
     Update();
 }

@@ -81,6 +81,8 @@ void Emitter::Initialize(GameEntity* /*_entity*/) {
         leftActiveTime_ = activeTime_;
     }
 
+    emitterSpawnShape_ = std::make_unique<EmitterSphere>();
+
     particleKeyFrames_ = std::make_unique<ParticleKeyFrames>();
 }
 
@@ -205,34 +207,34 @@ bool Emitter::Edit() {
 }
 
 void Emitter::Save(BinaryWriter& _writer) {
-    _writer.Write(isActive_);
-    _writer.Write(isLoop_);
+    _writer.Write("isActive", isActive_);
+    _writer.Write("isLoop", isLoop_);
 
-    _writer.Write(activeTime_);
-    _writer.Write(spawnParticleVal_);
-    _writer.Write(spawnCoolTime_);
+    _writer.Write("activeTime", activeTime_);
+    _writer.Write("spawnParticleVal", spawnParticleVal_);
+    _writer.Write("spawnCoolTime", spawnCoolTime_);
 
-    _writer.Write(modelDirectory_);
-    _writer.Write(modelFileName_);
-    _writer.Write(textureFileName_);
+    _writer.Write("modelDirectory", modelDirectory_);
+    _writer.Write("modelFileName", modelFileName_);
+    _writer.Write("textureFileName", textureFileName_);
 
-    _writer.Write(static_cast<int32_t>(blendMode_));
-    _writer.Write(particleIsBillBoard_);
-    _writer.Write(static_cast<int32_t>(shapeType_));
+    _writer.Write("blendMode", static_cast<int32_t>(blendMode_));
+    _writer.Write("particleIsBillBoard", particleIsBillBoard_);
+    _writer.Write("shapeType", static_cast<int32_t>(shapeType_));
     emitterSpawnShape_->Save(_writer);
 
-    _writer.Write(particleLifeTime_);
-    _writer.Write<4, float>(particleColor_);
-    _writer.Write<3, float>(startParticleVelocityMin_);
-    _writer.Write<3, float>(startParticleVelocityMax_);
-    _writer.Write<3, float>(updateParticleVelocityMin_);
-    _writer.Write<3, float>(updateParticleVelocityMax_);
-    _writer.Write<3, float>(startParticleScaleMin_);
-    _writer.Write<3, float>(startParticleScaleMax_);
-    _writer.Write<3, float>(updateParticleScaleMin_);
-    _writer.Write<3, float>(updateParticleScaleMax_);
+    _writer.Write("particleLifeTime", particleLifeTime_);
+    _writer.Write<4, float>("particleColor", particleColor_);
+    _writer.Write<3, float>("startParticleVelocityMin", startParticleVelocityMin_);
+    _writer.Write<3, float>("startParticleVelocityMax", startParticleVelocityMax_);
+    _writer.Write<3, float>("updateParticleVelocityMin", updateParticleVelocityMin_);
+    _writer.Write<3, float>("updateParticleVelocityMax", updateParticleVelocityMax_);
+    _writer.Write<3, float>("startParticleScaleMin", startParticleScaleMin_);
+    _writer.Write<3, float>("startParticleScaleMax", startParticleScaleMax_);
+    _writer.Write<3, float>("updateParticleScaleMin", updateParticleScaleMin_);
+    _writer.Write<3, float>("updateParticleScaleMax", updateParticleScaleMax_);
 
-    _writer.Write(updateSettings_);
+    _writer.Write("updateSettings", updateSettings_);
     if (updateSettings_ != 0) {
         if (particleKeyFrames_) {
             particleKeyFrames_->SaveKeyFrames(_writer);
@@ -241,30 +243,30 @@ void Emitter::Save(BinaryWriter& _writer) {
 }
 
 void Emitter::Load(BinaryReader& _reader) {
-    _reader.Read(isActive_);
-    _reader.Read(isLoop_);
+    _reader.Read("isActive", isActive_);
+    _reader.Read("isLoop", isLoop_);
 
-    _reader.Read(activeTime_);
-    _reader.Read(spawnParticleVal_);
-    _reader.Read(spawnCoolTime_);
+    _reader.Read("activeTime", activeTime_);
+    _reader.Read("spawnParticleVal", spawnParticleVal_);
+    _reader.Read("spawnCoolTime", spawnCoolTime_);
 
-    _reader.Read(modelDirectory_);
-    _reader.Read(modelFileName_);
+    _reader.Read("modelDirectory", modelDirectory_);
+    _reader.Read("modelFileName", modelFileName_);
     if (!modelFileName_.empty()) {
         particleModel_ = ModelManager::getInstance()->Create(modelDirectory_, modelFileName_);
     }
-    _reader.Read(textureFileName_);
+    _reader.Read("textureFileName", textureFileName_);
     if (!textureFileName_.empty()) {
         textureIndex_ = TextureManager::LoadTexture(textureFileName_);
     }
 
     int32_t blendMode;
-    _reader.Read(blendMode);
+    _reader.Read("blendMode", blendMode);
     blendMode_ = BlendMode(blendMode);
-    _reader.Read(particleIsBillBoard_);
+    _reader.Read("particleIsBillBoard", particleIsBillBoard_);
 
     int32_t shapeType;
-    _reader.Read(shapeType);
+    _reader.Read("shapeType", shapeType);
     shapeType_ = EmitterShapeType(shapeType);
     switch (shapeType_) {
     case EmitterShapeType::SPHERE:
@@ -285,22 +287,22 @@ void Emitter::Load(BinaryReader& _reader) {
     }
     emitterSpawnShape_->Load(_reader);
 
-    _reader.Read(particleLifeTime_);
-    _reader.Read<4, float>(particleColor_);
-    _reader.Read<3, float>(startParticleVelocityMin_);
-    _reader.Read<3, float>(startParticleVelocityMax_);
-    _reader.Read<3, float>(updateParticleVelocityMin_);
-    _reader.Read<3, float>(updateParticleVelocityMax_);
-    _reader.Read<3, float>(startParticleScaleMin_);
-    _reader.Read<3, float>(startParticleScaleMax_);
-    _reader.Read<3, float>(updateParticleScaleMin_);
-    _reader.Read<3, float>(updateParticleScaleMax_);
+    _reader.Read("particleLifeTime", particleLifeTime_);
+    _reader.Read<4, float>("particleColor", particleColor_);
+    _reader.Read<3, float>("startParticleVelocityMin", startParticleVelocityMin_);
+    _reader.Read<3, float>("startParticleVelocityMax", startParticleVelocityMax_);
+    _reader.Read<3, float>("updateParticleVelocityMin", updateParticleVelocityMin_);
+    _reader.Read<3, float>("updateParticleVelocityMax", updateParticleVelocityMax_);
+    _reader.Read<3, float>("startParticleScaleMin", startParticleScaleMin_);
+    _reader.Read<3, float>("startParticleScaleMax", startParticleScaleMax_);
+    _reader.Read<3, float>("updateParticleScaleMin", updateParticleScaleMin_);
+    _reader.Read<3, float>("updateParticleScaleMax", updateParticleScaleMax_);
 
-    _reader.Read(updateSettings_);
-    if (!particleKeyFrames_) {
-        particleKeyFrames_ = std::make_shared<ParticleKeyFrames>();
-    }
+    _reader.Read("updateSettings", updateSettings_);
     if (updateSettings_ != 0) {
+        if (!particleKeyFrames_) {
+            particleKeyFrames_ = std::make_shared<ParticleKeyFrames>();
+        }
         particleKeyFrames_->LoadKeyFrames(_reader);
     }
 
@@ -675,7 +677,7 @@ void Emitter::CalculateMaxSize() {
     float spawnRatePerSecond = spawnParticleVal_ / spawnCoolTime_;
 
     // 最大個数
-    particleMaxSize_ = (std::max<uint32_t>)(static_cast<uint32_t>(std::ceil(spawnRatePerSecond * particleLifeTime_)), spawnParticleVal_);
+    particleMaxSize_ = (std::max<uint32_t>)((std::max<uint32_t>)(static_cast<uint32_t>(std::ceil(spawnRatePerSecond * particleLifeTime_)), spawnParticleVal_), particleMaxSize_);
 }
 
 void Emitter::SpawnParticle() {
