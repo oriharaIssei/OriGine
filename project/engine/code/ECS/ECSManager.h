@@ -31,15 +31,13 @@ public:
 
     void ComponentArraysInitialize();
 
-    void RunInitialize() ;
+    void RunInitialize();
 
 private:
     EntityComponentSystemManager() {}
     ~EntityComponentSystemManager() {}
     EntityComponentSystemManager(const EntityComponentSystemManager&)            = delete;
     EntityComponentSystemManager* operator=(const EntityComponentSystemManager&) = delete;
-
-    void ShowEntityStack();
 
 private:
     /// <summary>
@@ -80,7 +78,7 @@ public: // ============== accessor ==============//
     }
 
     int32_t getActiveEntityCount() const {
-        return entities_.size() - freeEntityIndex_.size();
+        return static_cast<int32_t>(entities_.size() - freeEntityIndex_.size());
     }
 
     /// <summary>

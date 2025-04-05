@@ -306,7 +306,7 @@
     <ClInclude Include="engine\code\directX12\ShaderManager.h">
       <Filter>engine\code\directX12</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\editor\EngineEditor.h">
+    <ClInclude Include="engine\code\module\editor\EditorGroup.h">
       <Filter>engine\code\editor</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\component\particle\Particle.h">
@@ -437,6 +437,7 @@
     </ClInclude>
     <ClInclude Include="engine\code\system\render\ParticleRenderSystem.h" />
     <ClInclude Include="engine\code\ECS\ECSDebugger.h" />
+    <ClInclude Include="engine\code\module\debugger\DebuggerGroup.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\code\ECS\ECSEditor.cpp">
@@ -553,7 +554,7 @@
     <ClCompile Include="engine\code\directX12\ShaderManager.cpp">
       <Filter>engine\code\directX12</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\editor\EngineEditor.cpp">
+    <ClCompile Include="engine\code\module\editor\EditorGroup.cpp">
       <Filter>engine\code\editor</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\component\particle\Particle.cpp">
@@ -647,5 +648,6 @@
     <ClCompile Include="engine\code\system\render\ParticleRenderSystem.cpp" />
     <ClCompile Include="engine\code\module\debugger\IDebugger.h" />
     <ClCompile Include="engine\code\ECS\ECSDebugger.cpp" />
+    <ClCompile Include="engine\code\module\debugger\DebuggerGroup.cpp" />
   </ItemGroup>
 </Project>

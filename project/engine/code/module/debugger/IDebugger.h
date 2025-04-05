@@ -21,7 +21,7 @@ private:
 };
 
 template <typename T>
-concept IsDebugger = std::derived_from<T, IDebugger>;
+concept IsDebuggerGroup = std::derived_from<T, IDebugger>;
 
 class IDebugCommand {
 public:

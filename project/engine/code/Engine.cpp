@@ -100,26 +100,9 @@ void Engine::Initialize() {
     AnimationManager::getInstance()->Initialize();
     CameraManager::getInstance()->Initialize();
 
-    // Editor
-#ifdef _DEBUG
-    editor_                                  = EngineEditor::getInstance();
-    std::unique_ptr<LightEditor> lightEditor = std::make_unique<LightEditor>();
-    editor_->addEditor(std::move(lightEditor));
-    std::unique_ptr<MaterialEditor> materialEditor = std::make_unique<MaterialEditor>(materialManager_.get());
-    editor_->addEditor(std::move(materialEditor));
-    std::unique_ptr<ECSEditor> ecsEditor = std::make_unique<ECSEditor>();
-    editor_->addEditor(std::move(ecsEditor));
-    std::unique_ptr<GlobalVariablesEditor> globalVariables = std::make_unique<GlobalVariablesEditor>();
-    editor_->addEditor(std::move(globalVariables));
-
-    editor_->Initialize();
-#endif // _DEBUG
 }
 
 void Engine::Finalize() {
-#ifdef _DEBUG
-    editor_->Finalize();
-#endif // _DEBUG
 
     AnimationManager::getInstance()->Finalize();
     CameraManager::getInstance()->Finalize();
@@ -162,10 +145,6 @@ void Engine::BeginFrame() {
     PrimitiveDrawer::setBlendMode(BlendMode::Alpha);
     // Sprite::setBlendMode(BlendMode::Alpha);
     deltaTime_->Update();
-
-#ifdef _DEBUG
-    editor_->Update();
-#endif // _DEBUG
 
     lightManager_->Update();
 }

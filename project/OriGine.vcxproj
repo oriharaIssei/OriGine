@@ -107,6 +107,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="engine\code\module\debugger\DebuggerGroup.h" />
     <ClInclude Include="engine\code\ECS\ECSDebugger.h" />
     <ClInclude Include="engine\EngineInclude.h" />
     <ClInclude Include="engine\code\ECS\ECSEditor.h" />
@@ -155,7 +156,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\directX12\ResourceBarrierManager.h" />
     <ClInclude Include="engine\code\directX12\ShaderCompiler.h" />
     <ClInclude Include="engine\code\directX12\ShaderManager.h" />
-    <ClInclude Include="engine\code\editor\EngineEditor.h" />
+    <ClInclude Include="engine\code\module\editor\EditorGroup.h" />
     <ClInclude Include="engine\code\component\particle\Particle.h" />
     <ClInclude Include="engine\code\component\particle\emitter\Emitter.h" />
     <ClInclude Include="engine\code\component\particle\emitter\EmitterShape.h" />
@@ -201,6 +202,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="util\nameof.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="engine\code\module\debugger\DebuggerGroup.cpp" />
     <ClCompile Include="engine\code\ECS\ECSDebugger.cpp" />
     <ClCompile Include="engine\code\ECS\ECSEditor.cpp" />
     <ClCompile Include="engine\code\ECS\ECSManager.cpp" />
@@ -240,7 +242,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\directX12\ResourceBarrierManager.cpp" />
     <ClCompile Include="engine\code\directX12\ShaderCompiler.cpp" />
     <ClCompile Include="engine\code\directX12\ShaderManager.cpp" />
-    <ClCompile Include="engine\code\editor\EngineEditor.cpp" />
+    <ClCompile Include="engine\code\module\editor\EditorGroup.cpp" />
     <ClCompile Include="engine\code\component\particle\Particle.cpp" />
     <ClCompile Include="engine\code\component\particle\emitter\Emitter.cpp" />
     <ClCompile Include="engine\code\component\particle\emitter\EmitterShape.cpp" />

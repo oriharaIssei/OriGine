@@ -3,7 +3,7 @@
 #ifdef _DEBUG
 
 /// parent
-#include "module/debugger/IDebugger.h"
+#include "module/Debugger/IDebugger.h"
 
 /// stl
 #include <deque>

@@ -3,7 +3,7 @@
 /// engine
 // module
 #include "camera/CameraManager.h"
-#include "editor/EngineEditor.h"
+#include "module/editor/EditorGroup.h"
 #include "sceneManager/SceneManager.h"
 // dx12Object
 #include "engine/code/directX12/RenderTexture.h"
@@ -55,15 +55,12 @@ void EntityComponentSystemManager::Run() {
     }
 
 #ifdef _DEBUG
-    if (EngineEditor::getInstance()->isActive()) {
+    if (SceneManager::getInstance()->inDebugMode()) {
         // Debug,Edit 用システム追加予定
         CameraManager::getInstance()->DebugUpdate();
     } else {
 
-        // Debug,Edit 用システム追加予定
         CameraManager::getInstance()->DebugUpdate();
-
-        ShowEntityStack();
 
         // システムの更新
         for (auto& system : priorityOrderSystems_[int32_t(SystemType::Input)]) {
@@ -150,16 +147,6 @@ void EntityComponentSystemManager::RunInitialize() {
     for (auto& system : priorityOrderSystems_[int32_t(SystemType::Initialize)]) {
         system->Update();
     }
-}
-
-void EntityComponentSystemManager::ShowEntityStack() {
-    ImGui::Begin("EntityStack");
-    for (auto& entity : entities_) {
-        if (entity.isAlive_) {
-            ImGui::Text("EntityID : %d", entity.getID());
-        }
-    }
-    ImGui::End();
 }
 
 void EntityComponentSystemManager::resize(uint32_t _newSize) {

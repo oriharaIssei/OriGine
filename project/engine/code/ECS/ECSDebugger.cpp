@@ -21,7 +21,7 @@ void EntityDebugger::Initialize() {
 }
 
 void EntityDebugger::Update() {
-    ImGui::Begin("Entity Debugger");
+    ImGui::Begin("Entity DebuggerGroup");
     /// ===================================
     /// Active Entity List
     /// ===================================
@@ -35,7 +35,7 @@ void EntityDebugger::Update() {
             continue;
         }
         if (debugEntity_ == &entity) {
-            ImGui::Text("%s", entity.isUnique() ? entity.getDataType() : entity.getUniqueID());
+            ImGui::Text("%s", entity.isUnique() ? entity.getDataType().c_str() : entity.getUniqueID().c_str());
         }
         if (ImGui::Button(entity.isUnique() ? entity.getDataType().c_str() : entity.getUniqueID().c_str())) {
             debugEntity_ = const_cast<GameEntity*>(&entity);
@@ -44,7 +44,7 @@ void EntityDebugger::Update() {
                 if (compList->hasEntity(debugEntity_)) {
                     auto& compListRef = debugEntityComponents_[componentName];
 
-                    for (size_t i = 0; i < compList->getComponentSize(debugEntity_); ++i) {
+                    for (int32_t i = 0; i < compList->getComponentSize(debugEntity_); ++i) {
                         auto comp = compList->getComponent(debugEntity_, i);
                         if (comp == nullptr) {
                             continue;
@@ -61,7 +61,7 @@ void EntityDebugger::Update() {
     if (debugEntity_ != nullptr) {
         ImGui::Separator();
         ImGui::Text("Entity Info:");
-        ImGui::Text("UniqueID: %s", debugEntity_->getUniqueID());
+        ImGui::Text("UniqueID: %s", debugEntity_->getUniqueID().c_str());
         ImGui::Text("ID: %d", debugEntity_->getID());
         // 各コンポーネントの値を確認するためのUIを追加
         for (auto& [componentName, compList] : debugEntityComponents_) {
