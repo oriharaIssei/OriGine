@@ -55,7 +55,7 @@ void EntityComponentSystemManager::Run() {
     }
 
 #ifdef _DEBUG
-    if (SceneManager::getInstance()->inDebugMode()) {
+    if (SceneManager::getInstance()->inEditMode()) {
         // Debug,Edit 用システム追加予定
         CameraManager::getInstance()->DebugUpdate();
     } else {
