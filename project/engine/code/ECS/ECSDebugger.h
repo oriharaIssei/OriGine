@@ -45,7 +45,13 @@ public:
     void Finalize() override;
 
 private:
+    void SortPriorityOrderFromECSManager();
+    void SortPriorityOrderSystems(int32_t _systemTypeIndex);
+
+private:
     ECSManager* ecsManager_ = nullptr;
+
+    std::array<std::vector<std::pair<std::string, ISystem*>>, int32_t(SystemType::Count)> workSystemList_;
 };
 
 #endif //_DEBUG

@@ -7,6 +7,8 @@
 /// engine
 // ECS
 #include "ECS/Entity.h"
+// lib
+#include "lib/deltaTime/DeltaTime.h"
 
 /// <summary>
 /// システムの種類(この種類によって処理順序が決定する)
@@ -58,6 +60,11 @@ protected:
 protected:
     std::vector<GameEntity*> entities_;
 
+#ifdef _DEBUG
+    DeltaTime deltaTimer_;
+    float deltaTime_ = 0.0f; // deltaTime
+#endif // _DEBUG
+
 private:
     SystemType systemType_;
 
@@ -69,6 +76,9 @@ public: // ========================================== accessor =================
     }
     const std::vector<GameEntity*>& getEntities() const {
         return entities_;
+    }
+    int32_t getEntityCount() const {
+        return static_cast<int32_t>(entities_.size());
     }
 
     bool hasEntity(GameEntity* _entity) const {
@@ -95,6 +105,10 @@ public: // ========================================== accessor =================
     int32_t getPriority() const {
         return priority_;
     }
+
+#ifdef _DEBUG
+    float getDeltaTime() const { return deltaTime_; }
+#endif // _DEBUG
 };
 
 // Systemを継承しているかどうか
