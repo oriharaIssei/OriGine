@@ -29,6 +29,9 @@ void SceneInitialize(const std::string& _sceneName) {
     if (sceneManager->inDebugMode()) {
         ECSManager::getInstance()->RunInitialize();
     }
+   /* if (!EngineEditor::getInstance()->isActive()) {
+        ECSManager::getInstance()->RunInitialize();
+    }*/
 #else
     ECSManager::getInstance()->RunInitialize();
 #endif // _DEBUG
