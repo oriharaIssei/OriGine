@@ -296,7 +296,6 @@ void ECSEditor::WorkerSystemList() {
                 SortPriorityOrderFromECSManager(systemTypeIndex);
 
                 for (auto& [systemName, system] : systemByType) {
-                    ImGui::Indent();
 
                     systemLabel    = "##" + systemName + "_Priority";
                     systemPriority = system->getPriority();
@@ -332,9 +331,11 @@ void ECSEditor::WorkerSystemList() {
                     }
 
                     // Input Intで Priorityを変更 & 表示
+                    ImGui::PushItemWidth(78);
                     if (ImGui::InputInt(systemLabel.c_str(), &systemPriority)) {
                         system->setPriority(systemPriority);
                     }
+                    ImGui::PopItemWidth();
                     ImGui::SameLine();
                     ImGui::Text("%s", systemName.c_str());
                 }
@@ -350,8 +351,6 @@ void ECSEditor::WorkerSystemList() {
                         });
 
                     ecsManager_->SortPriorityOrderSystems(systemTypeIndex);
-
-                    ImGui::Unindent();
                 }
                 ImGui::Unindent();
             }
