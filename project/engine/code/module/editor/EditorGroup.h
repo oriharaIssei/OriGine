@@ -14,11 +14,13 @@
 #include <util/nameof.h>
 
 ///=============================================================================
-/// EngineEditor (Engine の 汎用的な editor郡)
+/// EditorGroup (Engine の 汎用的な editor郡)
 ///=============================================================================
-class EngineEditor {
+class EditorGroup {
+    friend class SceneManager;
+
 public:
-    static EngineEditor* getInstance();
+    static EditorGroup* getInstance();
 
     void Initialize();
     void Update();
@@ -39,18 +41,16 @@ public:
     }
 
 private:
-    EngineEditor();
-    EngineEditor(const EngineEditor&) = delete;
-    ~EngineEditor();
-    EngineEditor& operator=(const EngineEditor&) = delete;
-    EngineEditor& operator=(EngineEditor&&)      = delete;
+    EditorGroup();
+    EditorGroup(const EditorGroup&) = delete;
+    ~EditorGroup();
+    EditorGroup& operator=(const EditorGroup&) = delete;
+    EditorGroup& operator=(EditorGroup&&)      = delete;
 
 private:
     void ExecuteCommandRequests();
 
 private:
-    bool isActive_ = true;
-
     std::unordered_map<std::string, std::unique_ptr<IEditor>> editors_;
     std::unordered_map<IEditor*, bool> editorActive_;
 
@@ -59,9 +59,6 @@ private:
     std::list<std::unique_ptr<IEditCommand>>::iterator currentCommandItr_ = commandHistory_.end();
 
 public:
-    void setActive(bool active) { isActive_ = active; }
-    bool isActive() const { return isActive_; }
-
     template <IsEditor EditorClass>
     void addEditor(std::unique_ptr<EditorClass>&& editor) {
         std::string name                    = nameof<EditorClass>();

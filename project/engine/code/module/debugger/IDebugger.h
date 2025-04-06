@@ -6,12 +6,12 @@
 /// stl
 #include <concepts>
 
-class IEditor
+class IDebugger
     : public IModule {
 public:
-    IEditor()
+    IDebugger()
         : IModule() {}
-    virtual ~IEditor() {}
+    virtual ~IDebugger() {}
 
     virtual void Initialize() = 0;
     virtual void Update()     = 0;
@@ -20,10 +20,13 @@ public:
 private:
 };
 
-class IEditCommand {
+template <typename T>
+concept IsDebuggerGroup = std::derived_from<T, IDebugger>;
+
+class IDebugCommand {
 public:
-    IEditCommand() {}
-    virtual ~IEditCommand() {}
+    IDebugCommand() {}
+    virtual ~IDebugCommand() {}
 
     /// @brief コマンド実行
     virtual void Execute() = 0;
@@ -33,6 +36,3 @@ public:
 
 protected:
 };
-
-template <typename T>
-concept IsEditor = std::derived_from<T, IEditor>;

@@ -5,7 +5,7 @@
 
 /// engine
 // editor
-#include "editor/EngineEditor.h"
+#include "module/editor/EditorGroup.h"
 
 #ifdef _DEBUG
 
@@ -56,7 +56,7 @@ void ECSEditor::SelectEntity() {
             if (ImGui::Button("AddEntity")) {
                 auto command = std::make_unique<CreateEntityCommand>(this);
 
-                EngineEditor::getInstance()->pushCommand(std::move(command));
+                EditorGroup::getInstance()->pushCommand(std::move(command));
             }
 
             // 選ばれたエンティティが あれば 表示
@@ -99,13 +99,13 @@ void ECSEditor::SelectEntity() {
                         // unique な エンティティは データタイプを表示
                         if (ImGui::Button(entity.getDataType().c_str())) {
                             auto command = std::make_unique<SelectEntityCommand>(this, const_cast<GameEntity*>(&entity));
-                            EngineEditor::getInstance()->pushCommand(std::move(command));
+                            EditorGroup::getInstance()->pushCommand(std::move(command));
                         }
                     } else {
                         if (ImGui::Button(entity.getUniqueID().c_str())) {
                             auto command = std::make_unique<SelectEntityCommand>(this, const_cast<GameEntity*>(&entity));
 
-                            EngineEditor::getInstance()->pushCommand(std::move(command));
+                            EditorGroup::getInstance()->pushCommand(std::move(command));
                         }
                     }
                 }
@@ -116,7 +116,7 @@ void ECSEditor::SelectEntity() {
         if (ImGui::Button("Add Entity")) {
             auto command = std::make_unique<CreateEntityCommand>(this);
 
-            EngineEditor::getInstance()->pushCommand(std::move(command));
+            EditorGroup::getInstance()->pushCommand(std::move(command));
         }
         // 選ばれたエンティティが あれば表示
         if (!selectedEntities_.empty()) {
@@ -124,7 +124,7 @@ void ECSEditor::SelectEntity() {
             if (ImGui::Button("Group Erase")) {
                 auto command = std::make_unique<GroupEraseEntityCommand>(this);
 
-                EngineEditor::getInstance()->pushCommand(std::move(command));
+                EditorGroup::getInstance()->pushCommand(std::move(command));
             }
 
             ImGui::Spacing();
@@ -189,7 +189,7 @@ void ECSEditor::EditEntity() {
         if (ImGui::Button("Erase This")) {
             auto command = std::make_unique<EraseEntityCommand>(this, editEntity_);
 
-            EngineEditor::getInstance()->pushCommand(std::move(command));
+            EditorGroup::getInstance()->pushCommand(std::move(command));
 
             ImGui::End();
             return;
@@ -240,7 +240,7 @@ void ECSEditor::EditEntity() {
                 if (ImGui::Button(componentLabel.c_str())) {
                     // 遅延実行用に削除コマンドをプッシュ
                     auto command = std::make_unique<RemoveComponentCommand>(this, editEntity_, compTypeName, componentIndex);
-                    EngineEditor::getInstance()->pushCommand(std::move(command));
+                    EditorGroup::getInstance()->pushCommand(std::move(command));
                 }
                 ImGui::SameLine();
 
@@ -379,13 +379,13 @@ void ECSEditor::PopupEntityJoinWorkSystem(GameEntity* _entity, bool _isGroup) {
                         // GroupCommand経由に変更
                         auto command = std::make_unique<GroupJoinWorkSystemCommand>(this, systemName, system.get());
 
-                        EngineEditor::getInstance()->pushCommand(std::move(command));
+                        EditorGroup::getInstance()->pushCommand(std::move(command));
 
                     } else {
                         // commandから 実行
                         auto command = std::make_unique<JoinWorkSystemCommand>(this, _entity, systemName, system.get());
 
-                        EngineEditor::getInstance()->pushCommand(std::move(command));
+                        EditorGroup::getInstance()->pushCommand(std::move(command));
                     }
                     // 実行したら閉じる
                     popupJoinWorkSystem_.isOpen_ = false;
@@ -418,12 +418,12 @@ void ECSEditor::PopupEntityAddComponent(GameEntity* _entity, bool _isGroup) {
                 // GroupCommand経由に変更
                 auto command = std::make_unique<GroupAddComponentCommand>(this, componentTypeName);
 
-                EngineEditor::getInstance()->pushCommand(std::move(command));
+                EditorGroup::getInstance()->pushCommand(std::move(command));
             } else {
                 // commandから 実行
                 auto command = std::make_unique<AddComponentCommand>(this, _entity, componentTypeName);
 
-                EngineEditor::getInstance()->pushCommand(std::move(command));
+                EditorGroup::getInstance()->pushCommand(std::move(command));
             }
             // 実行したら閉じる
             popupAddComponent_.isOpen_ = false;
@@ -475,12 +475,12 @@ void ECSEditor::PopupEntityLeaveWorkSystem(GameEntity* _entity, bool _isGroup) {
                 // GroupCommand経由に変更
                 auto command = std::make_unique<GroupLeaveWorkSystemCommand>(this, leaveSystemName_, leaveSystem_);
 
-                EngineEditor::getInstance()->pushCommand(std::move(command));
+                EditorGroup::getInstance()->pushCommand(std::move(command));
             } else {
                 // commandから 実行
                 auto command = std::make_unique<LeaveWorkSystemCommand>(this, _entity, leaveSystemName_, leaveSystem_);
 
-                EngineEditor::getInstance()->pushCommand(std::move(command));
+                EditorGroup::getInstance()->pushCommand(std::move(command));
             }
 
             // 実行したら閉じる

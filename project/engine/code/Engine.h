@@ -13,7 +13,6 @@
 // module
 #include "component/material/light/lightManager.h"
 #include "component/material/Material.h"
-#include "editor/EngineEditor.h"
 #include "input/Input.h"
 #include "winApp/WinApp.h"
 // DirectX Object
@@ -72,10 +71,6 @@ private:
     std::unique_ptr<DxSwapChain> dxSwapChain_;
     std::unique_ptr<DxFence> dxFence_;
     std::unique_ptr<DxDsv> dxDsv_;
-
-#ifdef _DEBUG
-    EngineEditor* editor_ = nullptr;
-#endif // _DEBUG
 
     LightManager* lightManager_                       = nullptr;
     std::unique_ptr<MaterialManager> materialManager_ = nullptr;
