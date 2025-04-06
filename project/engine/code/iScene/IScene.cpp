@@ -41,9 +41,13 @@ void IScene::Initialize() {
     ECSManager::getInstance()->SortPriorityOrderSystems();
 
 #ifdef _DEBUG
-    if (!EngineEditor::getInstance()->isActive()) {
+    SceneManager* sceneManager = SceneManager::getInstance();
+    if (sceneManager->inDebugMode()) {
         ECSManager::getInstance()->RunInitialize();
     }
+   /* if (!EngineEditor::getInstance()->isActive()) {
+        ECSManager::getInstance()->RunInitialize();
+    }*/
 #else
     ECSManager::getInstance()->RunInitialize();
 #endif // _DEBUG
