@@ -1,6 +1,11 @@
 #include "ISystem.h"
 
 void ISystem::Update() {
+#ifdef _DEBUG
+    // 計測開始
+    deltaTimer_.Initialize();
+#endif
+
     if (entities_.empty()) {
         return;
     }
@@ -9,4 +14,10 @@ void ISystem::Update() {
     for (auto& entity : entities_) {
         UpdateEntity(entity);
     }
+
+#ifdef _DEBUG
+    // 計測終了
+    deltaTimer_.Update();
+    deltaTime_ = deltaTimer_.getDeltaTime();
+#endif
 }

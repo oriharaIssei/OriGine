@@ -291,10 +291,13 @@ void ECSEditor::WorkerSystemList() {
         for (auto& systemByType : workSystemList_) {
             // Typeごとで区切る
             if (ImGui::CollapsingHeader(SystemTypeString[systemTypeIndex].c_str())) {
+                ImGui::Indent();
 
                 SortPriorityOrderFromECSManager(systemTypeIndex);
 
                 for (auto& [systemName, system] : systemByType) {
+                    ImGui::Indent();
+
                     systemLabel    = "##" + systemName + "_Priority";
                     systemPriority = system->getPriority();
 
@@ -347,7 +350,10 @@ void ECSEditor::WorkerSystemList() {
                         });
 
                     ecsManager_->SortPriorityOrderSystems(systemTypeIndex);
+
+                    ImGui::Unindent();
                 }
+                ImGui::Unindent();
             }
             systemTypeIndex++;
         }

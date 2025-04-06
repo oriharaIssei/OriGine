@@ -21,7 +21,7 @@ void EntityDebugger::Initialize() {
 }
 
 void EntityDebugger::Update() {
-    ImGui::Begin("Entity DebuggerGroup");
+    ImGui::Begin("Entity Debugger");
     /// ===================================
     /// Active Entity List
     /// ===================================
@@ -36,8 +36,8 @@ void EntityDebugger::Update() {
         }
         if (debugEntity_ == &entity) {
             ImGui::Text("%s", entity.isUnique() ? entity.getDataType().c_str() : entity.getUniqueID().c_str());
-        }
-        if (ImGui::Button(entity.isUnique() ? entity.getDataType().c_str() : entity.getUniqueID().c_str())) {
+
+        } else if (ImGui::Button(entity.isUnique() ? entity.getDataType().c_str() : entity.getUniqueID().c_str())) {
             debugEntity_ = const_cast<GameEntity*>(&entity);
             debugEntityComponents_.clear();
             for (auto& [componentName, compList] : ecsManager_->getComponentArrayMap()) {
@@ -93,9 +93,84 @@ SystemDebugger::~SystemDebugger() {
 }
 void SystemDebugger::Initialize() {
     ecsManager_ = ECSManager::getInstance();
+
+    SortPriorityOrderFromECSManager();
+}
+
+void SystemDebugger::SortPriorityOrderFromECSManager() {
+    const auto& systemsArray = ecsManager_->getSystems();
+    int32_t systemTypeIndex  = 0;
+    for (const auto& sysMap : systemsArray) {
+        workSystemList_[systemTypeIndex].clear();
+        for (const auto& [sysName, sysPtr] : sysMap) {
+            // システム名とそのシステムに登録されているエンティティのリストを追加
+            workSystemList_[int32_t(sysPtr->getSystemType())].push_back(std::make_pair(sysName, sysPtr.get()));
+        }
+
+        std::sort(
+            workSystemList_[systemTypeIndex].begin(),
+            workSystemList_[systemTypeIndex].end(),
+            [](const std::pair<std::string, ISystem*>& a,
+                const std::pair<std::string, ISystem*>& b) {
+                return a.second->getPriority() < b.second->getPriority();
+            });
+
+        systemTypeIndex++;
+    }
+}
+
+void SystemDebugger::SortPriorityOrderSystems(int32_t _systemTypeIndex) {
+    workSystemList_[_systemTypeIndex].clear();
+
+    const auto& systemMap = ecsManager_->getSystemsBy(SystemType(_systemTypeIndex));
+    for (const auto& [sysName, sysPtr] : systemMap) {
+        // システム名とそのシステムに登録されているエンティティのリストを追加
+        workSystemList_[int32_t(sysPtr->getSystemType())].push_back(std::make_pair(sysName, sysPtr.get()));
+    }
+
+    std::sort(
+        workSystemList_[_systemTypeIndex].begin(),
+        workSystemList_[_systemTypeIndex].end(),
+        [](const std::pair<std::string, ISystem*>& a,
+            const std::pair<std::string, ISystem*>& b) {
+            return a.second->getPriority() < b.second->getPriority();
+        });
 }
 
 void SystemDebugger::Update() {
+    if (ImGui::Begin("System Debugger")) {
+        ImGui::Text("System List");
+        ImGui::Separator();
+        for (int32_t systemTypeIndex = 0; systemTypeIndex < int32_t(SystemType::Count); ++systemTypeIndex) {
+            if (ImGui::CollapsingHeader(SystemTypeString[systemTypeIndex].c_str())) {
+                SortPriorityOrderSystems(systemTypeIndex);
+
+                ImGui::Indent();
+                for (auto& [name, system] : workSystemList_[systemTypeIndex]) {
+                    if (ImGui::CollapsingHeader(name.c_str())) {
+                        ImGui::Indent();
+                        ImGui::Text("Name        : %s", name.c_str());
+                        ImGui::Text("System Type : %s", SystemTypeString[int32_t(system->getSystemType())].c_str());
+                        ImGui::Text("Priority    : %d", system->getPriority());
+                        ImGui::Text("Entity Count: %d", system->getEntityCount());
+                        ImGui::Text("Delta Time  : %.3f / ms", system->getDeltaTime());
+
+                        ImGui::Separator();
+                        ImGui::Text("Entities    :");
+                        for (auto& entity : system->getEntities()) {
+                            if (entity == nullptr) {
+                                continue;
+                            }
+                            ImGui::Text("%s", entity->getUniqueID().c_str());
+                        }
+                        ImGui::Unindent();
+                    }
+                }
+                ImGui::Unindent();
+            }
+        }
+    }
+    ImGui::End();
 }
 
 void SystemDebugger::Finalize() {
