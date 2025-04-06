@@ -55,28 +55,25 @@ void EntityComponentSystemManager::Run() {
     }
 
 #ifdef _DEBUG
-    if (SceneManager::getInstance()->inEditMode()) {
-        // Debug,Edit 用システム追加予定
-        CameraManager::getInstance()->DebugUpdate();
-    } else {
-
-        CameraManager::getInstance()->DebugUpdate();
-
-        // システムの更新
-        for (auto& system : priorityOrderSystems_[int32_t(SystemType::Input)]) {
-            system->Update();
-        }
-        for (auto& system : priorityOrderSystems_[int32_t(SystemType::StateTransition)]) {
-            system->Update();
-        }
-        for (auto& system : priorityOrderSystems_[int32_t(SystemType::Movement)]) {
-            system->Update();
-        }
-        for (auto& system : priorityOrderSystems_[int32_t(SystemType::Collision)]) {
-            system->Update();
-        }
-        for (auto& system : priorityOrderSystems_[int32_t(SystemType::Effect)]) {
-            system->Update();
+    if (SceneManager::getInstance()->inDebugMode()) {
+        // DebugState == Play の場合のみ 更新
+        if (SceneManager::getInstance()->debugIsPlay()) {
+            // システムの更新
+            for (auto& system : priorityOrderSystems_[int32_t(SystemType::Input)]) {
+                system->Update();
+            }
+            for (auto& system : priorityOrderSystems_[int32_t(SystemType::StateTransition)]) {
+                system->Update();
+            }
+            for (auto& system : priorityOrderSystems_[int32_t(SystemType::Movement)]) {
+                system->Update();
+            }
+            for (auto& system : priorityOrderSystems_[int32_t(SystemType::Collision)]) {
+                system->Update();
+            }
+            for (auto& system : priorityOrderSystems_[int32_t(SystemType::Effect)]) {
+                system->Update();
+            }
         }
     }
 
