@@ -30,6 +30,7 @@ static const std::string kEngineResourceDirectory      = "engine/resource";
 #include "system/movement/MoveSystemByRigidBody.h"
 #include "system/render/ParticleRenderSystem.h"
 #include "system/render/SpriteRenderSystem.h"
+#include "system/render/LineRenderSystem.h"
 #include "system/render/TexturedMeshRenderSystem.h"
 #endif // ENGINE_SYSTEMS
 

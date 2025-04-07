@@ -149,6 +149,7 @@ public:
         }
         uint32_t index = it->second;
         components_[index].push_back(std::move(*comp));
+        components_[index].back().Initialize(_hostEntity);
     }
 
     /// @brief デフォルト値によるコンポーネントの追加
@@ -161,6 +162,7 @@ public:
         }
         uint32_t index = it->second;
         components_[index].push_back(ComponentType());
+        components_[index].back().Initialize(_hostEntity);
     }
 
     virtual void insertComponent(GameEntity* _hostEntity, IComponent* _component, int32_t _index) override {
@@ -379,7 +381,7 @@ inline void ComponentArray<componentType>::SaveComponent(GameEntity* _entity, Bi
         return;
     }
 
-    std::string preGroupName                = _writer.getGroupName();
+    std::string preGroupName      = _writer.getGroupName();
     std::string componentTypeName = nameof<componentType>();
     _writer.WriteBeginGroup(preGroupName + componentTypeName);
 

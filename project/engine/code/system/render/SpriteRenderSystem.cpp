@@ -80,7 +80,7 @@ void SpriteRenderSystem::CreatePso() {
     rootParameters[1].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
     rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
     size_t rootIndex                   = shaderInfo.pushBackRootParameter(rootParameters[1]);
-    shaderInfo.SetDescriptorRange2Parameter(&descriptorRange, 1, rootIndex);
+    shaderInfo.setDescriptorRange2Parameter(&descriptorRange, 1, rootIndex);
 
     ///================================================
     /// InputElement の設定
@@ -101,7 +101,7 @@ void SpriteRenderSystem::CreatePso() {
     ///================================================
     /// RasterizerDesc の設定
     ///================================================
-    shaderInfo.ChangeCullMode(D3D12_CULL_MODE_NONE);
+    shaderInfo.changeCullMode(D3D12_CULL_MODE_NONE);
 
     ///================================================
     /// 生成

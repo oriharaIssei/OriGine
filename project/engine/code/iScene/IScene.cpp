@@ -55,22 +55,31 @@ void IScene::registerComponents() {
 
     ecsManager->registerComponent<Transform>();
     ecsManager->registerComponent<CameraTransform>();
-    ecsManager->registerComponent<ModelMeshRenderer>();
-    ecsManager->registerComponent<SpriteRenderer>();
+
+    ecsManager->registerComponent<Rigidbody>();
+
     ecsManager->registerComponent<AABBCollider>();
     ecsManager->registerComponent<SphereCollider>();
-    ecsManager->registerComponent<Rigidbody>();
+
     ecsManager->registerComponent<Emitter>();
+
+    ecsManager->registerComponent<ModelMeshRenderer>();
+    ecsManager->registerComponent<SpriteRenderer>();
+    ecsManager->registerComponent<LineRenderer>();
 }
 
 void IScene::registerSystems() {
     ECSManager* ecsManager = ECSManager::getInstance();
 
-    ecsManager->registerSystem<TexturedMeshRenderSystem>();
-    ecsManager->registerSystem<SpriteRenderSystem>();
-    ecsManager->registerSystem<CollisionCheckSystem>();
     ecsManager->registerSystem<MoveSystemByRigidBody>();
+
+    ecsManager->registerSystem<CollisionCheckSystem>();
+
     ecsManager->registerSystem<ParticleRenderSystem>();
+
+    ecsManager->registerSystem<SpriteRenderSystem>();
+    ecsManager->registerSystem<TexturedMeshRenderSystem>();
+    ecsManager->registerSystem<LineRenderSystem>();
 }
 
 void IScene::Finalize([[maybe_unused]] bool _isSave) {

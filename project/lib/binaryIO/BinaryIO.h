@@ -93,7 +93,14 @@ public:
     template <typename T>
     void Read(const std::string& _label, T& _data) {
         static_assert(std::is_trivially_copyable_v<T>, "T must be trivially copyable.");
-        const std::string& dataStr = readMap_[groupName_ + _label];
+
+        // 無いなら スキップ
+        auto dataItr = readMap_.find(groupName_ + _label);
+        if (dataItr == readMap_.end()) {
+            return;
+        }
+
+        const std::string& dataStr = dataItr->second;
         if (dataStr.size() != sizeof(T)) {
             throw std::runtime_error("Size mismatch when reading data.");
         }
@@ -147,7 +154,11 @@ inline void BinaryWriter::Write(const std::string& _label, const Vector<dim, val
 
 template <int dim, typename valueType>
 inline void BinaryReader::Read(const std::string& _label, Vector<dim, valueType>& _data) {
-    const std::string& dataStr = readMap_[groupName_ + _label];
+    auto dataItr = readMap_.find(groupName_ + _label);
+    if (dataItr == readMap_.end()) {
+        return;
+    }
+    const std::string& dataStr = dataItr->second;
     if (dataStr.size() != sizeof(valueType) * dim) {
         throw std::runtime_error("Size mismatch when reading Vector data.");
     }
