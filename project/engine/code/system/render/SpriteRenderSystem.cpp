@@ -152,8 +152,8 @@ void SpriteRenderSystem::UpdateEntity(GameEntity* _entity) {
             TextureManager::getDescriptorGpuHandle(renderer->getTextureNumber()));
 
         SpriteMesh& mesh = renderer->getMeshGroup()->at(0);
-        commandList->IASetVertexBuffers(0, 1, &mesh.vbView);
-        commandList->IASetIndexBuffer(&mesh.ibView);
+        commandList->IASetVertexBuffers(0, 1, &mesh.getVBView());
+        commandList->IASetIndexBuffer(&mesh.getIBView());
 
         renderer->getSpriteBuff().SetForRootParameter(commandList, 0);
 

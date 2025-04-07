@@ -339,9 +339,6 @@
     <ClInclude Include="engine\code\object3d\AnimationObject3d.h">
       <Filter>engine\code\object3d</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\primitiveDrawer\PrimitiveDrawer.h">
-      <Filter>engine\code\primitiveDrawer</Filter>
-    </ClInclude>
     <ClInclude Include="engine\code\sceneManager\SceneManager.h">
       <Filter>engine\code\sceneManager</Filter>
     </ClInclude>
@@ -438,6 +435,7 @@
     <ClInclude Include="engine\code\system\render\ParticleRenderSystem.h" />
     <ClInclude Include="engine\code\ECS\ECSDebugger.h" />
     <ClInclude Include="engine\code\module\debugger\DebuggerGroup.h" />
+    <ClInclude Include="engine\code\system\render\LineRenderSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\code\ECS\ECSEditor.cpp">
@@ -578,9 +576,6 @@
     <ClCompile Include="engine\code\object3d\AnimationObject3d.cpp">
       <Filter>engine\code\object3d</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\primitiveDrawer\PrimitiveDrawer.cpp">
-      <Filter>engine\code\primitiveDrawer</Filter>
-    </ClCompile>
     <ClCompile Include="engine\code\sceneManager\SceneManager.cpp">
       <Filter>engine\code\sceneManager</Filter>
     </ClCompile>
@@ -649,5 +644,6 @@
     <ClCompile Include="engine\code\module\debugger\IDebugger.h" />
     <ClCompile Include="engine\code\ECS\ECSDebugger.cpp" />
     <ClCompile Include="engine\code\module\debugger\DebuggerGroup.cpp" />
+    <ClCompile Include="engine\code\system\render\LineRenderSystem.cpp" />
   </ItemGroup>
 </Project>

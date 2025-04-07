@@ -654,14 +654,14 @@ void Emitter::Draw(ID3D12GraphicsCommandList* _commandList) {
             3,
             TextureManager::getDescriptorGpuHandle(textureIndex_));
 
-        _commandList->IASetVertexBuffers(0, 1, &mesh.vbView);
-        _commandList->IASetIndexBuffer(&mesh.ibView);
+        _commandList->IASetVertexBuffers(0, 1, &mesh.getVBView());
+        _commandList->IASetIndexBuffer(&mesh.getIBView());
 
         structuredTransform_.SetForRootParameter(_commandList, 0);
 
         material.material->SetForRootParameter(_commandList, 2);
         // 描画!!!
-        _commandList->DrawIndexedInstanced(UINT(mesh.indexSize), static_cast<UINT>(structuredTransform_.openData_.size()), 0, 0, 0);
+        _commandList->DrawIndexedInstanced(UINT(mesh.getIndexSize()), static_cast<UINT>(structuredTransform_.openData_.size()), 0, 0, 0);
     }
 }
 
