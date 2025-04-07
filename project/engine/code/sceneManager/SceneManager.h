@@ -56,12 +56,26 @@ private:
     EditorGroup* editorGroup_     = nullptr;
     DebuggerGroup* debuggerGroup_ = nullptr;
 
+    int32_t playIcon_   = 0;
+    int32_t rePlayIcon_ = 0;
+    int32_t stopIcon_   = 0;
+    int32_t pauseIcon_  = 0;
+    int32_t pauseCircleIcon_  = 0;
+
 private:
     enum class SceneState {
         Edit,
         Debug
     };
     SceneState currentSceneState_ = SceneState::Edit;
+
+    enum class DebugState {
+        Play,
+        Pause,
+        Stop,
+        RePlay
+    };
+    DebugState debugState_ = DebugState::Stop;
 #endif
 
 public:
@@ -74,10 +88,27 @@ public:
     const std::unordered_map<std::string, int32_t>& getScenes() const { return sceneIndexs_; }
 
     bool isChangeScene() const { return isChangeScene_; }
+
+#ifdef _DEBUG
     bool inDebugMode() const {
         return currentSceneState_ == SceneState::Debug;
     };
     bool inEditMode() const {
         return currentSceneState_ == SceneState::Edit;
     };
+
+    bool debugIsPlay() const {
+        return debugState_ == DebugState::Play;
+    };
+    bool debugIsPause() const {
+        return debugState_ == DebugState::Pause;
+    };
+    bool debugIsStop() const {
+        return debugState_ == DebugState::Stop;
+    };
+    bool debugIsRePlay() const {
+        return debugState_ == DebugState::RePlay;
+    };
+
+#endif // _DEBUG
 };

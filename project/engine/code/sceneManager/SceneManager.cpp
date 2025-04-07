@@ -6,6 +6,11 @@
 /// engine
 #include "ECS/ECSManager.h"
 #include "Engine.h"
+
+#define RESOURCE_DIRECTORY
+#define DELTA_TIME
+#include "EngineInclude.h"
+
 // directX12Object
 #include "directX12/DxRtvArrayManager.h"
 #include "directX12/DxSrvArrayManager.h"
@@ -14,6 +19,7 @@
 #include "camera/CameraManager.h"
 #include "module/debugger/DebuggerGroup.h"
 #include "module/editor/EditorGroup.h"
+#include "texture/TextureManager.h"
 
 /// math
 #include "math/Vector2.h"
@@ -43,6 +49,13 @@ void SceneManager::Initialize() {
 #ifdef _DEBUG
     editorGroup_   = EditorGroup::getInstance();
     debuggerGroup_ = DebuggerGroup::getInstance();
+
+    playIcon_        = TextureManager::LoadTexture(kEngineResourceDirectory + "/Texture/play.png");
+    rePlayIcon_      = TextureManager::LoadTexture(kEngineResourceDirectory + "/Texture/rePlay.png");
+    stopIcon_        = TextureManager::LoadTexture(kEngineResourceDirectory + "/Texture/stop.png");
+    pauseIcon_       = TextureManager::LoadTexture(kEngineResourceDirectory + "/Texture/pause.png");
+    pauseCircleIcon_ = TextureManager::LoadTexture(kEngineResourceDirectory + "/Texture/pauseCir.png");
+
 #endif // _DEBUG
 }
 
@@ -90,6 +103,8 @@ void SceneManager::Draw() {
 #ifdef _DEBUG
 #include "imgui/imgui.h"
 void SceneManager::DebugUpdate() {
+    static ImVec2 s_buttonIconSize(16, 16);
+
     ///=================================================================================================
     // Main DockSpace Window
     ///=================================================================================================
@@ -116,7 +131,8 @@ void SceneManager::DebugUpdate() {
     // SceneView
     ///=================================================================================================
     if (ImGui::Begin("SceneView")) {
-        ImGui::LabelText("SceneName", currentScene_->GetName().c_str());
+        ImGui::LabelText("Scene", currentScene_->GetName().c_str());
+
         ImGui::Image(reinterpret_cast<ImTextureID>(sceneView_->getSrvHandle().ptr), ImGui::GetWindowSize());
         if (ImGui::IsItemFocused()) {
             // Camera の操作 (SceneView が focusされているときだけ)
@@ -214,11 +230,25 @@ void SceneManager::DebugUpdate() {
             ImGui::EndMainMenuBar();
         }
 
+        if (ImGui::Begin("Debugger")) {
+            if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(TextureManager::getDescriptorGpuHandle(playIcon_).ptr), s_buttonIconSize)) {
+                // play
+                currentScene_->Finalize();
+                currentScene_->Initialize();
+                currentSceneState_ = SceneState::Debug;
+            }
+            ImGui::SameLine();
+            ImGui::Text("DeltaTime :%.4f", Engine::getInstance()->getDeltaTime());
+        }
+        ImGui::End();
+
         if (currentSceneState_ == SceneState::Debug) {
             // DebuggerGroup を終了
             debuggerGroup_->Finalize();
             // Editor を再初期化
             editorGroup_->Initialize();
+
+            debugState_ = DebugState::Play;
             break;
         }
 
@@ -249,7 +279,46 @@ void SceneManager::DebugUpdate() {
             ImGui::EndMainMenuBar();
         }
 
-        if (currentSceneState_ == SceneState::Edit) {
+        if (ImGui::Begin("Debugger")) {
+            if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(TextureManager::getDescriptorGpuHandle(stopIcon_).ptr), s_buttonIconSize)) {
+                // Stop
+                currentScene_->Finalize();
+                currentScene_->Initialize();
+                currentSceneState_ = SceneState::Edit;
+
+                debugState_ = DebugState::Stop;
+            }
+            ImGui::SameLine();
+            if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(TextureManager::getDescriptorGpuHandle(rePlayIcon_).ptr), s_buttonIconSize)) {
+                // RePlay
+                currentScene_->Finalize();
+                currentScene_->Initialize();
+                currentSceneState_ = SceneState::Debug;
+                debugState_        = DebugState::RePlay;
+            }
+            ImGui::SameLine();
+
+            if (debugState_ == DebugState::Play) {
+                if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(TextureManager::getDescriptorGpuHandle(pauseIcon_).ptr), s_buttonIconSize)) {
+                    // Pause
+                    debugState_ = DebugState::Pause;
+                }
+            } else {
+                // Pause のときは、PauseCircleIcon を表示
+                if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(TextureManager::getDescriptorGpuHandle(pauseCircleIcon_).ptr), s_buttonIconSize)) {
+                    // Pause
+                    debugState_ = DebugState::Play;
+                }
+                ImGui::SameLine();
+                ImGui::Text("Pause Now");
+            }
+
+            ImGui::SameLine();
+            ImGui::Text("DeltaTime :%.4f", Engine::getInstance()->getDeltaTime());
+        }
+        ImGui::End();
+
+        if (currentSceneState_ == SceneState::Edit || debugState_ == DebugState::RePlay) {
             // Editor を再初期化
             editorGroup_->Initialize();
 
