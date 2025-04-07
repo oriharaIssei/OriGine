@@ -47,6 +47,8 @@ void ProcessMeshData(TextureMesh& meshData, const std::vector<TextureVertexData>
     meshData.copyVertexData(vertices.data(), static_cast<uint32_t>(vertices.size()));
     // インデックスデータのコピー
     meshData.copyIndexData(indices.data(), static_cast<uint32_t>(indices.size()));
+
+    meshData.TransferData();
 }
 
 ModelNode ReadNode(aiNode* node) {
