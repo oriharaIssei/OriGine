@@ -55,7 +55,7 @@ void RenderTexture::Awake(){
 	rootParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	rootParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 	size_t rootParameterIndex = shaderInfo.pushBackRootParameter(rootParameter);
-	shaderInfo.SetDescriptorRange2Parameter(descriptorRange,1,rootParameterIndex);
+	shaderInfo.setDescriptorRange2Parameter(descriptorRange,1,rootParameterIndex);
 
 	///================================================
 	/// InputElement の設定

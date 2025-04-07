@@ -200,6 +200,7 @@ public:
         }
         uint32_t index = it->second;
         components_[index].push_back(_component);
+        components_[index].back().Initialize(_hostEntity);
     }
 
     /// @brief IComponent ポインタからコンポーネントの追加
@@ -213,6 +214,7 @@ public:
         }
         uint32_t index = it->second;
         components_[index].push_back(std::move(*comp));
+        components_[index].back().Initialize(_hostEntity);
     }
 
     /// @brief デフォルト値によるコンポーネントの追加
@@ -225,6 +227,7 @@ public:
         }
         uint32_t index = it->second;
         components_[index].push_back(Emitter(srvArray_.get()));
+        components_[index].back().Initialize(_hostEntity);
     }
 
     virtual void insertComponent(GameEntity* _hostEntity, IComponent* _component, int32_t _index) override {

@@ -56,7 +56,7 @@ void ParticleRenderSystem::CreatePso() {
     structuredRange[0].NumDescriptors                    = 1;
     structuredRange[0].RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
     structuredRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-    shaderInfo.SetDescriptorRange2Parameter(structuredRange, 1, 0);
+    shaderInfo.setDescriptorRange2Parameter(structuredRange, 1, 0);
     // 1 ... ViewProjection
     rootParameter[1].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
     rootParameter[1].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
@@ -78,7 +78,7 @@ void ParticleRenderSystem::CreatePso() {
     descriptorRange[0].NumDescriptors                    = 1;
     descriptorRange[0].RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
     descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-    shaderInfo.SetDescriptorRange2Parameter(descriptorRange, 1, rootParameterIndex);
+    shaderInfo.setDescriptorRange2Parameter(descriptorRange, 1, rootParameterIndex);
 
 #pragma endregion
 

@@ -214,9 +214,11 @@ public:
     }
     void setVertexSize(uint32_t _size) {
         vertexSize_ = _size;
+        vertexes_.resize(vertexSize_);
     }
     void setIndexSize(uint32_t _size) {
         indexSize_ = _size;
+        indexes_.resize(indexSize_);
     }
 
     const D3D12_VERTEX_BUFFER_VIEW& getVertexBufferView() const {

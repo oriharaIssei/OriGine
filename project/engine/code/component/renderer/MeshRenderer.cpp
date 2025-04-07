@@ -260,7 +260,13 @@ void CreateModelMeshRenderer(ModelMeshRenderer* _renderer, GameEntity* _hostEnti
     }
 }
 
-LineRenderer::LineRenderer() : MeshRenderer() {}
+LineRenderer::LineRenderer() : MeshRenderer() {
+    meshGroup_->push_back(Mesh<ColorVertexData>());
+    auto& mesh = meshGroup_->back();
+    mesh.Initialize(100, 100);
+    mesh.setVertexSize(0);
+    mesh.setIndexSize(0);
+}
 
 LineRenderer::LineRenderer(const std::vector<Mesh<ColorVertexData>>& _meshGroup)
     : MeshRenderer<Mesh<ColorVertexData>, ColorVertexData>(_meshGroup) {}
@@ -296,6 +302,8 @@ bool LineRenderer::Edit() {
 
     isChange |= ImGui::Checkbox("LineIsStrip", &lineIsStrip_);
 
+    isChange |= transformBuff_.openData_.Edit();
+
     for (auto& mesh : *meshGroup_) {
         label = "Mesh[" + std::to_string(meshIndex) + "]";
         if (ImGui::TreeNode(label.c_str())) {
@@ -314,23 +322,26 @@ bool LineRenderer::Edit() {
                 endColorLabel   = "end Color##" + std::to_string(lineIndex);
 
                 isChange |= ImGui::InputFloat3(startLabel.c_str(), vertex1.pos.v);
-                ImGui::SameLine();
                 isChange |= ImGui::InputFloat3(endLabel.c_str(), vertex2.pos.v);
-
+                ImGui::Spacing();
                 isChange |= ImGui::ColorEdit4(startColorLabel.c_str(), vertex1.color.v);
-                ImGui::SameLine();
                 isChange |= ImGui::ColorEdit4(endColorLabel.c_str(), vertex2.color.v);
 
                 ++lineIndex;
             }
             ImGui::TreePop();
 
+            mesh.TransferData();
             ++meshIndex;
         }
     }
 
     if (ImGui::Button("AddLine")) {
+
         Mesh<ColorVertexData>* mesh = &meshGroup_->back();
+        int32_t vertex1Index        = 0;
+        int32_t vertex2Index        = 1;
+
         // 1つのラインを追加
         if (mesh->getIndexCapacity() - mesh->getIndexSize() <= 0) {
             meshGroup_->emplace_back();
@@ -339,18 +350,25 @@ bool LineRenderer::Edit() {
             mesh = &meshGroup_->back();
             mesh->Initialize(100, 100);
 
-            // 今追加した分の 2
+            // 今追加した分の
             mesh->setVertexSize(2);
             mesh->setIndexSize(2);
         } else {
             mesh->setVertexSize(mesh->getVertexSize() + 2);
             mesh->setIndexSize(mesh->getIndexSize() + 2);
         }
+        // 頂点の初期化
+        vertex1Index = mesh->getVertexSize() - 2;
+        vertex2Index = mesh->getVertexSize() - 1;
 
-        mesh->vertexes_.emplace_back(ColorVertexData());
-        mesh->vertexes_.emplace_back(ColorVertexData());
-        mesh->indexes_.emplace_back(mesh->getVertexSize() - 2);
-        mesh->indexes_.emplace_back(mesh->getVertexSize() - 1);
+        mesh->vertexes_[vertex1Index].pos = Vector4(0.0f, 0.0f, 0.0f, 0.f);
+        mesh->vertexes_[vertex2Index].pos = Vector4(0.0f, 0.0f, 0.0f, 0.f);
+
+        mesh->vertexes_[vertex1Index].color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+        mesh->vertexes_[vertex2Index].color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+
+        mesh->indexes_[vertex1Index] = vertex1Index;
+        mesh->indexes_[vertex2Index] = vertex2Index;
 
         isChange = true;
     }
@@ -378,12 +396,12 @@ void LineRenderer::Save(BinaryWriter& _writer) {
         _writer.Write<uint32_t>(meshLabel + "_indexSize", mesh.getIndexSize());
         // vertex
         for (uint32_t vertIndex = 0; vertIndex < mesh.getVertexSize(); ++vertIndex) {
-            _writer.Write<4,float>("pos" + std::to_string(vertIndex), mesh.vertexes_[vertIndex].pos);
-            _writer.Write<4, float>("color" + std::to_string(vertIndex), mesh.vertexes_[vertIndex].color);
+            _writer.Write<4, float>(meshLabel + "pos" + std::to_string(vertIndex), mesh.vertexes_[vertIndex].pos);
+            _writer.Write<4, float>(meshLabel + "color" + std::to_string(vertIndex), mesh.vertexes_[vertIndex].color);
         }
         // index
         for (uint32_t indexNum = 0; indexNum < mesh.getIndexSize(); ++indexNum) {
-            _writer.Write<uint32_t>("indexData" + std::to_string(indexNum), mesh.indexes_[indexNum]);
+            _writer.Write<uint32_t>(meshLabel + "indexData" + std::to_string(indexNum), mesh.indexes_[indexNum]);
         }
     }
 }
@@ -411,16 +429,17 @@ void LineRenderer::Load(BinaryReader& _reader) {
         // vertex
         for (uint32_t vertIndex = 0; vertIndex < mesh.getVertexSize(); ++vertIndex) {
             ColorVertexData vertexData;
-            _reader.Read<4,float>("pos" + std::to_string(vertIndex), vertexData.pos);
-            _reader.Read<4, float>("color" + std::to_string(vertIndex), vertexData.color);
+            _reader.Read<4, float>(meshLabel + "pos" + std::to_string(vertIndex), vertexData.pos);
+            _reader.Read<4, float>(meshLabel + "color" + std::to_string(vertIndex), vertexData.color);
             mesh.vertexes_[vertIndex] = vertexData;
         }
         // index
         for (uint32_t indexNum = 0; indexNum < mesh.getIndexSize(); ++indexNum) {
             uint32_t indexData = 0;
-            _reader.Read<uint32_t>("indexData" + std::to_string(indexNum), indexData);
+            _reader.Read<uint32_t>(meshLabel + "indexData" + std::to_string(indexNum), indexData);
             mesh.indexes_[indexNum] = indexData;
         }
+        mesh.TransferData();
     }
 }
 void LineRenderer::Finalize() {
