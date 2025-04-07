@@ -57,3 +57,11 @@ void CameraTransform::UpdateMatrix() {
 
     projectionMat = MakeMatrix::PerspectiveFov(fovAngleY, aspectRatio, nearZ, farZ);
 }
+
+void CameraTransform::UpdateMatrixQuaterion() {
+    rotationQuaternion.normalize();
+    viewMat = MakeMatrix::Affine({1.0f, 1.0f, 1.0f}, rotationQuaternion, translate);
+    viewMat = viewMat.inverse();
+
+    projectionMat = MakeMatrix::PerspectiveFov(fovAngleY, aspectRatio, nearZ, farZ);
+}
