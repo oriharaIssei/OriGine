@@ -55,7 +55,7 @@ void SceneManager::Initialize() {
     stopIcon_        = TextureManager::LoadTexture(kEngineResourceDirectory + "/Texture/stop.png");
     pauseIcon_       = TextureManager::LoadTexture(kEngineResourceDirectory + "/Texture/pause.png");
     pauseCircleIcon_ = TextureManager::LoadTexture(kEngineResourceDirectory + "/Texture/pauseCir.png");
-
+    cameraIcon_      = TextureManager::LoadTexture(kEngineResourceDirectory + "/Texture/camera.png");
 #endif // _DEBUG
 }
 
@@ -134,10 +134,6 @@ void SceneManager::DebugUpdate() {
         ImGui::LabelText("Scene", currentScene_->GetName().c_str());
 
         ImGui::Image(reinterpret_cast<ImTextureID>(sceneView_->getSrvHandle().ptr), ImGui::GetWindowSize());
-        if (ImGui::IsItemFocused()) {
-            // Camera の操作 (SceneView が focusされているときだけ)
-            CameraManager::getInstance()->DebugUpdate();
-        }
     }
     ImGui::End();
 
@@ -257,6 +253,8 @@ void SceneManager::DebugUpdate() {
         ///=================================================================================================
         editorGroup_->Update();
 
+        CameraManager::getInstance()->DebugUpdate();
+
         break;
     case SceneManager::SceneState::Debug:
         if (ImGui::BeginMainMenuBar()) {
@@ -313,7 +311,19 @@ void SceneManager::DebugUpdate() {
                 ImGui::Text("Pause Now");
             }
 
-            ImGui::SameLine();
+            if (ImGui::ImageButton(
+                    reinterpret_cast<ImTextureID>(TextureManager::getDescriptorGpuHandle(cameraIcon_).ptr),
+                    s_buttonIconSize)) {
+                // DebugCamera
+                isUsingDebugCamera_ = !isUsingDebugCamera_;
+            }
+
+            if (isUsingDebugCamera_) {
+                ImGui::SameLine();
+                ImGui::Text("DebugCamera: On");
+                CameraManager::getInstance()->DebugUpdate();
+            }
+
             ImGui::Text("DeltaTime :%.4f", Engine::getInstance()->getDeltaTime());
         }
         ImGui::End();

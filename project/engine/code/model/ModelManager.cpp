@@ -40,18 +40,13 @@ struct hash<VertexKey> {
 
 #pragma region "LoadFunctions"
 void ProcessMeshData(TextureMesh& meshData, const std::vector<TextureVertexData>& vertices, const std::vector<uint32_t>& indices) {
-    TextureMesh textureMesh = TextureMesh();
 
-    // meshData.dataSize = static_cast<int32_t>(sizeof(TextureVertexData) * vertices.size());
+    meshData.Initialize(static_cast<UINT>(vertices.size()), static_cast<UINT>(indices.size()));
 
-    textureMesh.Initialize(static_cast<UINT>(vertices.size()), static_cast<UINT>(indices.size()));
-    memcpy(textureMesh.vertData, vertices.data(), vertices.size() * sizeof(TextureVertexData));
-
-    meshData = textureMesh;
-    memcpy(meshData.indexData, indices.data(), static_cast<UINT>(static_cast<size_t>(indices.size()) * sizeof(uint32_t)));
-
-    meshData.vertexSize = static_cast<int32_t>(vertices.size());
-    meshData.indexSize  = static_cast<int32_t>(indices.size());
+    // 頂点データのコピー
+    meshData.copyVertexData(vertices.data(), static_cast<uint32_t>(vertices.size()));
+    // インデックスデータのコピー
+    meshData.copyIndexData(indices.data(), static_cast<uint32_t>(indices.size()));
 }
 
 ModelNode ReadNode(aiNode* node) {

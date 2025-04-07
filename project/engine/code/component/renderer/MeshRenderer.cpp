@@ -221,155 +221,7 @@ void PrimitiveMeshRenderer::Initialize(GameEntity* _hostEntity) {
     }
 }
 
-// void PrimitiveMeshRenderer::Update() {
-//     for (auto& transform : meshTransformBuff_) {
-//         transform.openData_.Update();
-//         transform.ConvertToBuffer();
-//     }
-// }
-//
-// void PrimitiveMeshRenderer::Render() {
-//     IRendererComponentController* controller = RenderManager::getInstance()->getRendererController<PrimitiveMeshRendererController>();
-//     auto* commandList                        = controller->getDxCommand()->getCommandList();
-//
-//     uint32_t index = 0;
-//
-//     for (auto& mesh : *meshGroup_) {
-//         auto& material = meshMaterialBuff_[index];
-//
-//         IConstantBuffer<Transform>& meshTransform = meshTransformBuff_[index];
-//         meshTransform.ConvertToBuffer();
-//
-//         commandList->IASetVertexBuffers(0, 1, &mesh.vbView);
-//         commandList->IASetIndexBuffer(&mesh.ibView);
-//
-//         meshTransform.SetForRootParameter(commandList, 0);
-//
-//         material->SetForRootParameter(commandList, 2);
-//         // 描画!!!
-//         commandList->DrawIndexedInstanced(UINT(mesh.indexSize), 1, 0, 0, 0);
-//
-//         ++index;
-//     }
-// }
 #pragma endregion
-
-//----------------------------------------------------------------------------------------------------------
-// ↓ PrimitiveMeshContorller
-//----------------------------------------------------------------------------------------------------------
-// void PrimitiveMeshRendererController::StartRender() {
-//    auto* commandList = dxCommand_->getCommandList();
-//    commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
-//    commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
-//
-//    commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-//}
-//
-// void PrimitiveMeshRendererController::CreatePso() {
-//    ShaderManager* shaderManager = ShaderManager::getInstance();
-//    ///=================================================
-//    /// shader読み込み
-//    ///=================================================
-//
-//    shaderManager->LoadShader("Object3d.VS");
-//    shaderManager->LoadShader("Object3d.PS", shaderDirectory, L"ps_6_0");
-//
-//    ///=================================================
-//    /// shader情報の設定
-//    ///=================================================
-//    ShaderInfo primShaderInfo;
-//    primShaderInfo.vsKey = "Object3d.VS";
-//    primShaderInfo.psKey = "Object3d.PS";
-//
-// #pragma region "RootParameter"
-//    D3D12_ROOT_PARAMETER rootParameter[7]{};
-//    rootParameter[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-//    // PixelShaderで使う
-//    rootParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
-//    // レジスタ番号0 とバインド
-//    // register(b0) の 0. b11 なら 11
-//    rootParameter[0].Descriptor.ShaderRegister = 0;
-//    primShaderInfo.pushBackRootParameter(rootParameter[0]);
-//
-//    rootParameter[1].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
-//    rootParameter[1].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
-//    rootParameter[1].Descriptor.ShaderRegister = 2;
-//    primShaderInfo.pushBackRootParameter(rootParameter[1]);
-//
-//    rootParameter[2].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
-//    rootParameter[2].ShaderVisibility          = D3D12_SHADER_VISIBILITY_PIXEL;
-//    rootParameter[2].Descriptor.ShaderRegister = 0;
-//    primShaderInfo.pushBackRootParameter(rootParameter[2]);
-//
-//    rootParameter[3].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-//    rootParameter[3].ShaderVisibility          = D3D12_SHADER_VISIBILITY_PIXEL;
-//    rootParameter[3].Descriptor.ShaderRegister = 1; // t1 register for DirectionalLight StructuredBuffer
-//    primShaderInfo.pushBackRootParameter(rootParameter[3]);
-//
-//    // PointLight ... 4 (StructuredBuffer)
-//    rootParameter[4].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-//    rootParameter[4].ShaderVisibility          = D3D12_SHADER_VISIBILITY_PIXEL;
-//    rootParameter[4].Descriptor.ShaderRegister = 3; // t3 register for PointLight StructuredBuffer
-//    primShaderInfo.pushBackRootParameter(rootParameter[4]);
-//
-//    // SpotLight ... 5 (StructuredBuffer)
-//    rootParameter[5].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-//    rootParameter[5].ShaderVisibility          = D3D12_SHADER_VISIBILITY_PIXEL;
-//    rootParameter[5].Descriptor.ShaderRegister = 4; // t4 register for SpotLight StructuredBuffer
-//    primShaderInfo.pushBackRootParameter(rootParameter[5]);
-//    // lightCounts
-//    rootParameter[6].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
-//    rootParameter[6].ShaderVisibility          = D3D12_SHADER_VISIBILITY_PIXEL;
-//    rootParameter[6].Descriptor.ShaderRegister = 5;
-//    primShaderInfo.pushBackRootParameter(rootParameter[6]);
-//
-//    D3D12_DESCRIPTOR_RANGE directionalLightRange[1]            = {};
-//    directionalLightRange[0].BaseShaderRegister                = 1;
-//    directionalLightRange[0].NumDescriptors                    = 1;
-//    directionalLightRange[0].RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-//    directionalLightRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-//
-//    D3D12_DESCRIPTOR_RANGE pointLightRange[1]            = {};
-//    pointLightRange[0].BaseShaderRegister                = 3;
-//    pointLightRange[0].NumDescriptors                    = 1;
-//    pointLightRange[0].RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-//    pointLightRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-//
-//    D3D12_DESCRIPTOR_RANGE spotLightRange[1]            = {};
-//    spotLightRange[0].BaseShaderRegister                = 4;
-//    spotLightRange[0].NumDescriptors                    = 1;
-//    spotLightRange[0].RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-//    spotLightRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-//
-//    primShaderInfo.SetDescriptorRange2Parameter(directionalLightRange, 1, 3);
-//    primShaderInfo.SetDescriptorRange2Parameter(pointLightRange, 1, 4);
-//    primShaderInfo.SetDescriptorRange2Parameter(spotLightRange, 1, 5);
-// #pragma endregion
-//
-// #pragma region "Input Element"
-//    D3D12_INPUT_ELEMENT_DESC inputElementDesc = {};
-//    inputElementDesc.SemanticName             = "POSITION"; /*Semantics*/
-//    inputElementDesc.SemanticIndex            = 0; /*Semanticsの横に書いてある数字(今回はPOSITION0なので 0 )*/
-//    inputElementDesc.Format                   = DXGI_FORMAT_R32G32B32A32_FLOAT; // float 4
-//    inputElementDesc.AlignedByteOffset        = D3D12_APPEND_ALIGNED_ELEMENT;
-//    primShaderInfo.pushBackInputElementDesc(inputElementDesc);
-//
-//    inputElementDesc.SemanticName      = "NORMAL"; /*Semantics*/
-//    inputElementDesc.SemanticIndex     = 0;
-//    inputElementDesc.Format            = DXGI_FORMAT_R32G32B32_FLOAT;
-//    inputElementDesc.AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
-//    primShaderInfo.pushBackInputElementDesc(inputElementDesc);
-// #pragma endregion
-//
-//    ///=================================================
-//    /// BlendMode ごとの Pso作成
-//    ///=================================================
-//    primShaderInfo.topologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
-//    for (size_t i = 0; i < kBlendNum; ++i) {
-//        primShaderInfo.blendMode_       = static_cast<BlendMode>(i);
-//        pso_[primShaderInfo.blendMode_] = shaderManager->CreatePso("PrimitiveMesh_" + blendModeStr[i], primShaderInfo, dxDevice_->getDevice());
-//    }
-//};
 
 void CreateModelMeshRenderer(ModelMeshRenderer* _renderer, GameEntity* _hostEntity, const std::string& _directory, const std::string& _filenName) {
     _renderer->setParentTransform(getComponent<Transform>(_hostEntity));
@@ -406,4 +258,175 @@ void CreateModelMeshRenderer(ModelMeshRenderer* _renderer, GameEntity* _hostEnti
             break;
         }
     }
+}
+
+LineRenderer::LineRenderer() : MeshRenderer() {}
+
+LineRenderer::LineRenderer(const std::vector<Mesh<ColorVertexData>>& _meshGroup)
+    : MeshRenderer<Mesh<ColorVertexData>, ColorVertexData>(_meshGroup) {}
+
+LineRenderer::LineRenderer(const std::shared_ptr<std::vector<Mesh<ColorVertexData>>>& _meshGroup)
+    : MeshRenderer<Mesh<ColorVertexData>, ColorVertexData>(_meshGroup) {}
+
+LineRenderer::~LineRenderer() {}
+
+void LineRenderer::Initialize(GameEntity* _hostEntity) {
+    MeshRenderer::Initialize(_hostEntity);
+    Transform* entityTransform = getComponent<Transform>(_hostEntity);
+
+    transformBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+    transformBuff_.openData_.parent = entityTransform;
+    transformBuff_.openData_.Update();
+    transformBuff_.ConvertToBuffer();
+}
+
+bool LineRenderer::Edit() {
+    bool isChange = false;
+
+    std::string label;
+    int32_t meshIndex = 0;
+    int32_t lineIndex = 0;
+
+    std::string startLabel;
+    std::string endLabel;
+    std::string startColorLabel;
+    std::string endColorLabel;
+
+    isChange |= MeshRenderer::Edit();
+
+    isChange |= ImGui::Checkbox("LineIsStrip", &lineIsStrip_);
+
+    for (auto& mesh : *meshGroup_) {
+        label = "Mesh[" + std::to_string(meshIndex) + "]";
+        if (ImGui::TreeNode(label.c_str())) {
+
+            for (size_t i = 0; i < mesh.vertexes_.size(); i += 2) {
+                // 2つの頂点を更新
+                auto& vertex1 = mesh.vertexes_[i];
+                auto& vertex2 = mesh.vertexes_[i + 1];
+
+                std::string lineLabel = "Line[" + std::to_string(lineIndex) + "]";
+                ImGui::Text("%s", lineLabel.c_str());
+
+                startLabel      = "start##" + std::to_string(lineIndex);
+                endLabel        = "end##" + std::to_string(lineIndex);
+                startColorLabel = "start Color##" + std::to_string(lineIndex);
+                endColorLabel   = "end Color##" + std::to_string(lineIndex);
+
+                isChange |= ImGui::InputFloat3(startLabel.c_str(), vertex1.pos.v);
+                ImGui::SameLine();
+                isChange |= ImGui::InputFloat3(endLabel.c_str(), vertex2.pos.v);
+
+                isChange |= ImGui::ColorEdit4(startColorLabel.c_str(), vertex1.color.v);
+                ImGui::SameLine();
+                isChange |= ImGui::ColorEdit4(endColorLabel.c_str(), vertex2.color.v);
+
+                ++lineIndex;
+            }
+            ImGui::TreePop();
+
+            ++meshIndex;
+        }
+    }
+
+    if (ImGui::Button("AddLine")) {
+        Mesh<ColorVertexData>* mesh = &meshGroup_->back();
+        // 1つのラインを追加
+        if (mesh->getIndexCapacity() - mesh->getIndexSize() <= 0) {
+            meshGroup_->emplace_back();
+
+            // 新しいメッシュを作成
+            mesh = &meshGroup_->back();
+            mesh->Initialize(100, 100);
+
+            // 今追加した分の 2
+            mesh->setVertexSize(2);
+            mesh->setIndexSize(2);
+        } else {
+            mesh->setVertexSize(mesh->getVertexSize() + 2);
+            mesh->setIndexSize(mesh->getIndexSize() + 2);
+        }
+
+        mesh->vertexes_.emplace_back(ColorVertexData());
+        mesh->vertexes_.emplace_back(ColorVertexData());
+        mesh->indexes_.emplace_back(mesh->getVertexSize() - 2);
+        mesh->indexes_.emplace_back(mesh->getVertexSize() - 1);
+
+        isChange = true;
+    }
+
+    return isChange;
+}
+
+void LineRenderer::Save(BinaryWriter& _writer) {
+    MeshRenderer::Save(_writer);
+
+    _writer.Write<bool>("lineIsStrip", lineIsStrip_);
+
+    // transform
+    transformBuff_->Save(_writer);
+
+    // mesh
+    int32_t meshSize = static_cast<int32_t>(meshGroup_->size());
+    _writer.Write<int32_t>("meshSize", meshSize);
+    std::string meshLabel;
+    for (int32_t meshIndex = 0; meshIndex < meshSize; ++meshIndex) {
+        meshLabel  = "Mesh_" + std::to_string(meshIndex);
+        auto& mesh = (*meshGroup_)[meshIndex];
+
+        _writer.Write<uint32_t>(meshLabel + "_vertexSize", mesh.getVertexSize());
+        _writer.Write<uint32_t>(meshLabel + "_indexSize", mesh.getIndexSize());
+        // vertex
+        for (uint32_t vertIndex = 0; vertIndex < mesh.getVertexSize(); ++vertIndex) {
+            _writer.Write<4,float>("pos" + std::to_string(vertIndex), mesh.vertexes_[vertIndex].pos);
+            _writer.Write<4, float>("color" + std::to_string(vertIndex), mesh.vertexes_[vertIndex].color);
+        }
+        // index
+        for (uint32_t indexNum = 0; indexNum < mesh.getIndexSize(); ++indexNum) {
+            _writer.Write<uint32_t>("indexData" + std::to_string(indexNum), mesh.indexes_[indexNum]);
+        }
+    }
+}
+
+void LineRenderer::Load(BinaryReader& _reader) {
+    MeshRenderer::Load(_reader);
+
+    _reader.Read<bool>("lineIsStrip", lineIsStrip_);
+
+    transformBuff_->Load(_reader);
+
+    // mesh
+    int32_t meshSize = 0;
+    _reader.Read<int32_t>("meshSize", meshSize);
+    std::string meshLabel;
+    for (int32_t meshIndex = 0; meshIndex < meshSize; ++meshIndex) {
+        meshLabel           = "Mesh_" + std::to_string(meshIndex);
+        auto& mesh          = (*meshGroup_)[meshIndex];
+        uint32_t vertexSize = 0;
+        uint32_t indexSize  = 0;
+        _reader.Read<uint32_t>(meshLabel + "_vertexSize", vertexSize);
+        _reader.Read<uint32_t>(meshLabel + "_indexSize", indexSize);
+        mesh.setVertexSize(vertexSize);
+        mesh.setIndexSize(indexSize);
+        // vertex
+        for (uint32_t vertIndex = 0; vertIndex < mesh.getVertexSize(); ++vertIndex) {
+            ColorVertexData vertexData;
+            _reader.Read<4,float>("pos" + std::to_string(vertIndex), vertexData.pos);
+            _reader.Read<4, float>("color" + std::to_string(vertIndex), vertexData.color);
+            mesh.vertexes_[vertIndex] = vertexData;
+        }
+        // index
+        for (uint32_t indexNum = 0; indexNum < mesh.getIndexSize(); ++indexNum) {
+            uint32_t indexData = 0;
+            _reader.Read<uint32_t>("indexData" + std::to_string(indexNum), indexData);
+            mesh.indexes_[indexNum] = indexData;
+        }
+    }
+}
+void LineRenderer::Finalize() {
+    for (auto& mesh : *meshGroup_) {
+        mesh.Finalize();
+    }
+    meshGroup_.reset();
+    transformBuff_.Finalize();
 }

@@ -254,3 +254,46 @@ public:
         return meshMaterialBuff_[_meshIndex];
     }
 };
+
+//----------------------------------------- LineRenderer -----------------------------------------//
+class LineRenderer
+    : public MeshRenderer<Mesh<ColorVertexData>, ColorVertexData> {
+public:
+    LineRenderer();
+    LineRenderer(const std::vector<Mesh<ColorVertexData>>& _meshGroup);
+    LineRenderer(const std::shared_ptr<std::vector<Mesh<ColorVertexData>>>& _meshGroup);
+    ~LineRenderer();
+    ///< summary>
+    /// 初期化
+    ///</summary>
+    void Initialize(GameEntity* _hostEntity) override;
+
+    bool Edit() override;
+    void Save(BinaryWriter& _writer) override;
+    void Load(BinaryReader& _reader) override;
+
+    void Finalize() override;
+
+private:
+    IConstantBuffer<Transform> transformBuff_;
+    bool lineIsStrip_ = false;
+
+public:
+    //------------------------------ Transform ------------------------------//
+    const Transform& getTransform() const {
+        return transformBuff_.openData_;
+    }
+    void setTransform(const Transform& _transform) {
+        transformBuff_.openData_ = _transform;
+    }
+    /// <summary>
+    /// 親Transformを設定
+    /// </summary>
+    /// <param name="_parent"></param>
+    void setParentTransform(Transform* _parent) {
+        transformBuff_.openData_.parent = _parent;
+    }
+    IConstantBuffer<Transform>& getTransformBuff() {
+        return transformBuff_;
+    }
+};

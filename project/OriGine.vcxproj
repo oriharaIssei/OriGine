@@ -167,7 +167,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\module\IModule.h" />
     <ClInclude Include="engine\code\module\editor\IEditor.h" />
     <ClInclude Include="engine\code\object3d\AnimationObject3d.h" />
-    <ClInclude Include="engine\code\primitiveDrawer\PrimitiveDrawer.h" />
     <ClInclude Include="engine\code\sceneManager\SceneManager.h" />
     <ClInclude Include="engine\code\system\ISystem.h" />
     <ClInclude Include="engine\code\system\collision\CollisionCheckSystem.h" />
@@ -190,6 +189,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="lib\node\DefaultNodes.h" />
     <ClInclude Include="lib\node\OperatorNodes.h" />
     <ClInclude Include="lib\winApp\WinApp.h" />
+    <ClInclude Include="engine\code\system\render\LineRenderSystem.h" />
     <ClInclude Include="math\Matrix4x4.h" />
     <ClInclude Include="math\MyEasing.h" />
     <ClInclude Include="math\Quaternion.h" />
@@ -251,7 +251,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\model\ModelManager.cpp" />
     <ClCompile Include="engine\code\module\debugger\IDebugger.h" />
     <ClCompile Include="engine\code\object3d\AnimationObject3d.cpp" />
-    <ClCompile Include="engine\code\primitiveDrawer\PrimitiveDrawer.cpp" />
     <ClCompile Include="engine\code\sceneManager\SceneManager.cpp" />
     <ClCompile Include="engine\code\system\ISystem.cpp" />
     <ClCompile Include="engine\code\system\collision\CollisionCheckSystem.cpp" />
@@ -270,6 +269,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="lib\myFileSystem\MyFileSystem.cpp" />
     <ClCompile Include="lib\node\OperatorNodes.cpp" />
     <ClCompile Include="lib\winApp\WinApp.cpp" />
+    <ClCompile Include="engine\code\system\render\LineRenderSystem.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="math\Matrix4x4.cpp" />
     <ClCompile Include="math\MyEasing.cpp" />

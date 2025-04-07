@@ -31,12 +31,13 @@ void SpriteRenderer::Initialize(GameEntity* _hostEntity) {
     SpriteMesh& mesh = meshGroup_->at(0);
     mesh.Initialize(4, 6);
     // indexData
-    mesh.indexData[0] = 0;
-    mesh.indexData[1] = 1;
-    mesh.indexData[2] = 2;
-    mesh.indexData[3] = 1;
-    mesh.indexData[4] = 3;
-    mesh.indexData[5] = 2;
+    mesh.indexes_[0] = 0;
+    mesh.indexes_[1] = 1;
+    mesh.indexes_[2] = 2;
+    mesh.indexes_[3] = 1;
+    mesh.indexes_[4] = 3;
+    mesh.indexes_[5] = 2;
+    mesh.TransferData();
 
     // テクスチャの読み込みとサイズの適応
     if (!texturePath_.empty()) {
@@ -121,7 +122,7 @@ bool SpriteRenderer::Edit() {
     return isChange;
 
 #else
-return false;
+    return false;
 #endif // _DEBUG
 }
 
@@ -193,19 +194,21 @@ void SpriteRenderer::Update(const Matrix4x4& _viewPortMat) {
         bottom = -bottom;
     }
 
-    SpriteMesh& mesh     = meshGroup_->at(0);
-    mesh.vertData[0].pos = {left, bottom, 0.0f, 1.0f};
-    mesh.vertData[1].pos = {left, top, 0.0f, 1.0f};
-    mesh.vertData[2].pos = {right, bottom, 0.0f, 1.0f};
-    mesh.vertData[3].pos = {right, top, 0.0f, 1.0f};
+    SpriteMesh& mesh      = meshGroup_->at(0);
+    mesh.vertexes_[0].pos = {left, bottom, 0.0f, 1.0f};
+    mesh.vertexes_[1].pos = {left, top, 0.0f, 1.0f};
+    mesh.vertexes_[2].pos = {right, bottom, 0.0f, 1.0f};
+    mesh.vertexes_[3].pos = {right, top, 0.0f, 1.0f};
 
     float texLeft   = textureLeftTop_[X] / textureSize_[X];
     float texRight  = (textureLeftTop_[X] + textureSize_[X]) / textureSize_[X];
     float texTop    = textureLeftTop_[Y] / textureSize_[Y];
     float texBottom = (textureLeftTop_[Y] + textureSize_[Y]) / textureSize_[Y];
 
-    mesh.vertData[0].texcoord = {texLeft, texBottom};
-    mesh.vertData[1].texcoord = {texLeft, texTop};
-    mesh.vertData[2].texcoord = {texRight, texBottom};
-    mesh.vertData[3].texcoord = {texRight, texTop};
+    mesh.vertexes_[0].texcoord = {texLeft, texBottom};
+    mesh.vertexes_[1].texcoord = {texLeft, texTop};
+    mesh.vertexes_[2].texcoord = {texRight, texBottom};
+    mesh.vertexes_[3].texcoord = {texRight, texTop};
+
+    mesh.TransferData();
 }
