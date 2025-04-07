@@ -56,11 +56,14 @@ private:
     EditorGroup* editorGroup_     = nullptr;
     DebuggerGroup* debuggerGroup_ = nullptr;
 
-    int32_t playIcon_   = 0;
-    int32_t rePlayIcon_ = 0;
-    int32_t stopIcon_   = 0;
-    int32_t pauseIcon_  = 0;
-    int32_t pauseCircleIcon_  = 0;
+    int32_t playIcon_        = 0;
+    int32_t rePlayIcon_      = 0;
+    int32_t stopIcon_        = 0;
+    int32_t pauseIcon_       = 0;
+    int32_t pauseCircleIcon_ = 0;
+
+    int32_t cameraIcon_      = 0;
+    bool isUsingDebugCamera_ = false;
 
 private:
     enum class SceneState {
