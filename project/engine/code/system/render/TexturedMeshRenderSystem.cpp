@@ -256,8 +256,8 @@ void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
                 TextureManager::getDescriptorGpuHandle(renderer->getTextureNumber(index)));
 
             // ============================= Viewのセット ============================= //
-            commandList->IASetVertexBuffers(0, 1, &mesh.vbView);
-            commandList->IASetIndexBuffer(&mesh.ibView);
+            commandList->IASetVertexBuffers(0, 1, &mesh.getVBView());
+            commandList->IASetIndexBuffer(&mesh.getIBView());
 
             // ============================= Transformのセット ============================= //
             const IConstantBuffer<Transform>& meshTransform = renderer->getTransformBuff(index);
@@ -269,7 +269,7 @@ void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
             material->SetForRootParameter(commandList, 2);
 
             // ============================= 描画 ============================= //
-            commandList->DrawIndexedInstanced(UINT(mesh.indexSize), 1, 0, 0, 0);
+            commandList->DrawIndexedInstanced(UINT(mesh.getIndexSize()), 1, 0, 0, 0);
 
             ++index;
         }

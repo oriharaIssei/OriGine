@@ -9,7 +9,6 @@
 #include "directX12/DxSrvArrayManager.h"
 #include "imGuiManager/ImGuiManager.h"
 #include "model/ModelManager.h"
-#include "primitiveDrawer/PrimitiveDrawer.h"
 #include "texture/TextureManager.h"
 
 #ifdef _DEBUG
@@ -88,7 +87,6 @@ void Engine::Initialize() {
     lightManager_ = LightManager::getInstance();
     lightManager_->Initialize();
 
-    PrimitiveDrawer::Initialize();
     ModelManager::getInstance()->Initialize();
     RenderTexture::Awake();
 
@@ -113,7 +111,6 @@ void Engine::Finalize() {
     ImGuiManager::getInstance()->Finalize();
 #endif // _DEBUG
     ShaderManager::getInstance()->Finalize();
-    PrimitiveDrawer::Finalize();
     ModelManager::getInstance()->Finalize();
     TextureManager::Finalize();
 
@@ -140,9 +137,6 @@ void Engine::BeginFrame() {
     ImGuiManager::getInstance()->Begin();
 
     input_->Update();
-    PrimitiveDrawer::ResetInstanceVal();
-
-    PrimitiveDrawer::setBlendMode(BlendMode::Alpha);
     // Sprite::setBlendMode(BlendMode::Alpha);
     deltaTime_->Update();
 
