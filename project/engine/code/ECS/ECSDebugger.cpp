@@ -64,12 +64,16 @@ void EntityDebugger::Update() {
         ImGui::Text("UniqueID: %s", debugEntity_->getUniqueID().c_str());
         ImGui::Text("ID: %d", debugEntity_->getID());
         // 各コンポーネントの値を確認するためのUIを追加
-        for (auto& [componentName, compList] : debugEntityComponents_) {
-            if (ImGui::TreeNode(componentName.c_str())) {
-                for (size_t i = 0; i < compList.size(); ++i) {
+
+        std::string componentLabel;
+
+        for (auto& [compTypeName, compList] : debugEntityComponents_) {
+            for (size_t i = 0; i < compList.size(); ++i) {
+                componentLabel = compTypeName + "[" + std::to_string(i) + "]";
+                if (ImGui::TreeNode(compTypeName.c_str())) {
                     compList[i]->Edit();
+                    ImGui::TreePop();
                 }
-                ImGui::TreePop();
             }
         }
     } else {
