@@ -202,10 +202,10 @@ void IScene::SaveSceneEntity() {
     {
         int32_t entityID = 0;
         for (auto& entity : ecsManager->getEntities()) {
-            entityID = entity.getID();
-            if (entityID < 0) {
+            if (!entity.isAlive()) {
                 continue;
             }
+            entityID = entity.getID();
             activeEntities.push_front(ecsManager->getEntity(entityID));
         }
     }

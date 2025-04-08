@@ -79,6 +79,8 @@ void ECSEditor::SelectEntity() {
         if (ImGui::TreeNode("Active Entities")) {
             bool isEntitySelected  = false;
             std::string checkBoxID = "";
+            std::string entityName = "";
+
             for (auto& entity : ecsManager_->getEntities()) {
                 if (entity.isAlive()) {
                     isEntitySelected = false;
@@ -95,18 +97,10 @@ void ECSEditor::SelectEntity() {
 
                     ImGui::SameLine();
 
-                    if (entity.isUnique()) {
-                        // unique な エンティティは データタイプを表示
-                        if (ImGui::Button(entity.getDataType().c_str())) {
-                            auto command = std::make_unique<SelectEntityCommand>(this, const_cast<GameEntity*>(&entity));
-                            EditorGroup::getInstance()->pushCommand(std::move(command));
-                        }
-                    } else {
-                        if (ImGui::Button(entity.getUniqueID().c_str())) {
-                            auto command = std::make_unique<SelectEntityCommand>(this, const_cast<GameEntity*>(&entity));
-
-                            EditorGroup::getInstance()->pushCommand(std::move(command));
-                        }
+                    entityName = entity.isUnique() ? entity.getDataType() : entity.getUniqueID();
+                    if (ImGui::Button(entityName.c_str())) {
+                        auto command = std::make_unique<SelectEntityCommand>(this, const_cast<GameEntity*>(&entity));
+                        EditorGroup::getInstance()->pushCommand(std::move(command));
                     }
                 }
             }
@@ -160,7 +154,6 @@ void ECSEditor::SelectEntity() {
 void ECSEditor::EditEntity() {
     std::string label = "Entity Info";
 
-    std::string componentName = "UNKNOWN";
     if (ImGui::Begin("Entity Info")) {
         // Entityが選択されていなければ Skip
         if (editEntity_ == nullptr) {
@@ -201,7 +194,7 @@ void ECSEditor::EditEntity() {
         ImGui::Text("Entity Name       :");
         ImGui::SameLine();
         std::string dataType = editEntity_->getDataType();
-        ImGui::InputText("##entityName", &dataType[0], 256);
+        ImGui::InputText("##entityName", &dataType[0], sizeof(char) * 64);
         editEntity_->setDataType(dataType);
 
         ImGui::Text("Entity Is Unique  :");

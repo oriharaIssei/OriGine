@@ -60,8 +60,6 @@ void SceneManager::Initialize() {
 }
 
 void SceneManager::Finalize() {
-    ecsManager_->Finalize();
-
     // EditorModeのときだけ 保存する
     currentScene_->Finalize(inEditMode());
     scenes_.clear();
@@ -70,6 +68,8 @@ void SceneManager::Finalize() {
 
     sceneViewRtvArray_->Finalize();
     sceneViewSrvArray_->Finalize();
+
+    ecsManager_->Finalize();
 }
 
 void SceneManager::Update() {
