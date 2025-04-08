@@ -96,7 +96,7 @@ public:
         elementDescs_.push_back(elementDesc);
         return elementDescs_.size() - 1;
     }
-    void SetDescriptorRange2Parameter(const D3D12_DESCRIPTOR_RANGE* range, size_t numRanges, size_t rootParameterIndex) {
+    void setDescriptorRange2Parameter(const D3D12_DESCRIPTOR_RANGE* range, size_t numRanges, size_t rootParameterIndex) {
         // 動的に確保して管理する
         auto ranges = std::make_unique<D3D12_DESCRIPTOR_RANGE[]>(numRanges);
         std::copy(range, range + numRanges, ranges.get());
@@ -106,10 +106,10 @@ public:
         rootParameters_[rootParameterIndex].DescriptorTable.NumDescriptorRanges = static_cast<UINT>(numRanges);
     }
 
-    void ChangeCullMode(D3D12_CULL_MODE cullMode) {
+    void changeCullMode(D3D12_CULL_MODE cullMode) {
         rasterizerDesc.CullMode = cullMode;
     }
-    void ChangeFillMode(D3D12_FILL_MODE fillMode) {
+    void changeFillMode(D3D12_FILL_MODE fillMode) {
         rasterizerDesc.FillMode = fillMode;
     }
 

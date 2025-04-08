@@ -296,4 +296,12 @@ public:
     IConstantBuffer<Transform>& getTransformBuff() {
         return transformBuff_;
     }
+
+    //------------------------------ LineIsStrip ------------------------------//
+    bool isLineStrip() const {
+        return lineIsStrip_;
+    }
+    void setLineStrip(bool _isStrip) {
+        lineIsStrip_ = _isStrip;
+    }
 };

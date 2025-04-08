@@ -127,10 +127,10 @@ void TexturedMeshRenderSystem::CreatePso() {
     spotLightRange[0].RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
     spotLightRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-    texShaderInfo.SetDescriptorRange2Parameter(descriptorRange, 1, rootParameterIndex);
-    texShaderInfo.SetDescriptorRange2Parameter(directionalLightRange, 1, 3);
-    texShaderInfo.SetDescriptorRange2Parameter(pointLightRange, 1, 4);
-    texShaderInfo.SetDescriptorRange2Parameter(spotLightRange, 1, 5);
+    texShaderInfo.setDescriptorRange2Parameter(descriptorRange, 1, rootParameterIndex);
+    texShaderInfo.setDescriptorRange2Parameter(directionalLightRange, 1, 3);
+    texShaderInfo.setDescriptorRange2Parameter(pointLightRange, 1, 4);
+    texShaderInfo.setDescriptorRange2Parameter(spotLightRange, 1, 5);
 #pragma endregion
 
     ///=================================================

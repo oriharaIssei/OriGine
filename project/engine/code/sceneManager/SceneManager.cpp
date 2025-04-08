@@ -176,14 +176,22 @@ void SceneManager::DebugUpdate() {
                     ImGui::EndMenu();
                 }
                 if (ImGui::MenuItem("Save")) {
-                    currentScene_->SaveSceneEntity();
+                    currentScene_->Finalize();
+                    currentScene_->Initialize();
+
+                    // DebuggerGroup を終了
+                    debuggerGroup_->Finalize();
+                    // Editor を再初期化
+                    editorGroup_->Initialize();
                 }
                 if (ImGui::MenuItem("Reload")) {
                     currentScene_->Finalize();
                     currentScene_->Initialize();
 
+                    // DebuggerGroup を終了
+                    debuggerGroup_->Finalize();
                     // Editor を再初期化
-                    this->Initialize();
+                    editorGroup_->Initialize();
                 }
 
                 ImGui::EndMenu();

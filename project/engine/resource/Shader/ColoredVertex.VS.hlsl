@@ -18,5 +18,6 @@ ColoredVertexData main(ColoredVertexData input)
     ColoredVertexData output;
     float4x4 vpvMat = mul(mul(gWorldTransform.worldMat, gViewProjection.viewMat), gViewProjection.projectionMat);
     output.pos = mul(input.pos, vpvMat);
+    output.color = input.color;
     return output;
 }
