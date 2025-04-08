@@ -290,9 +290,6 @@ void ECSEditor::WorkerSystemList() {
 
                 for (auto& [systemName, system] : systemByType) {
 
-                    systemLabel    = "##" + systemName + "_Priority";
-                    systemPriority = system->getPriority();
-
                     // Drag & Drop Source
                     if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
                         ImGui::SetDragDropPayload("SYSTEM_PRIORITY", &systemPriority, sizeof(int));
@@ -323,8 +320,17 @@ void ECSEditor::WorkerSystemList() {
                         ImGui::EndDragDropTarget();
                     }
 
+
+                    systemLabel   = "##" + systemName + "isActive";
+                    bool isActive = system->isActive();
+                    ImGui::Checkbox(systemLabel.c_str(), &isActive);
+                    system->setIsActive(isActive);
+                    ImGui::SameLine();
+
                     // Input Intで Priorityを変更 & 表示
                     ImGui::PushItemWidth(78);
+                    systemLabel    = "##" + systemName + "_Priority";
+                    systemPriority = system->getPriority();
                     if (ImGui::InputInt(systemLabel.c_str(), &systemPriority)) {
                         system->setPriority(systemPriority);
                     }

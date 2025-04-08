@@ -176,11 +176,11 @@ public:
         return Vector2<valueType>(v[X], v[Y]);
     }
     operator Vector3<valueType>() const {
-        static_assert(dimension == 3, "Conversion only available for 2D vectors.");
+        static_assert(dimension == 3, "Conversion only available for 3D vectors.");
         return Vector3<valueType>(v[X], v[Y], v[Z]);
     }
     operator Vector4<valueType>() const {
-        static_assert(dimension == 4, "Conversion only available for 2D vectors.");
+        static_assert(dimension == 4, "Conversion only available for 4D vectors.");
         return Vector4<valueType>(v[X], v[Y], v[Z], v[W]);
     }
 

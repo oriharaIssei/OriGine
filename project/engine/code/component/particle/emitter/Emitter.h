@@ -358,6 +358,10 @@ public:
         return static_cast<int32_t>(components_[index].size());
     }
 
+    std::vector<std::vector<Emitter>>* getAllComponents() {
+        return &components_;
+    }
+
 protected:
     // ─────────────────────────────
     //  メンバ変数

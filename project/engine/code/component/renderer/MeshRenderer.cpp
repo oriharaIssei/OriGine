@@ -322,7 +322,9 @@ bool LineRenderer::Edit() {
                 endColorLabel   = "end Color##" + std::to_string(lineIndex);
 
                 isChange |= ImGui::InputFloat3(startLabel.c_str(), vertex1.pos.v);
+                vertex1.pos[W] = 1.f;
                 isChange |= ImGui::InputFloat3(endLabel.c_str(), vertex2.pos.v);
+                vertex2.pos[W] = 1.f;
                 ImGui::Spacing();
                 isChange |= ImGui::ColorEdit4(startColorLabel.c_str(), vertex1.color.v);
                 isChange |= ImGui::ColorEdit4(endColorLabel.c_str(), vertex2.color.v);

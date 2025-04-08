@@ -10,10 +10,6 @@
 #define RESOURCE_DIRECTORY
 // Ecs
 #define ENGINE_ECS
-// component
-// #define ENGINE_ECS
-// system
-// #define ENGINE_ECS
 
 /// directX12Object
 #include "directX12/DxRtvArrayManager.h"
@@ -76,10 +72,10 @@ void IScene::registerSystems() {
     ecsManager->registerSystem<CollisionCheckSystem>();
 
     ecsManager->registerSystem<ParticleRenderSystem>();
-
     ecsManager->registerSystem<SpriteRenderSystem>();
     ecsManager->registerSystem<TexturedMeshRenderSystem>();
     ecsManager->registerSystem<LineRenderSystem>();
+    ecsManager->registerSystem<ColliderRenderingSystem>();
 }
 
 void IScene::Finalize([[maybe_unused]] bool _isSave) {

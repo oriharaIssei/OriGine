@@ -26,8 +26,8 @@ struct Vector4 final
     // コンストラクタ
     Vector4(valueType xValue, valueType yValue, valueType zValue, valueType wValue)
         : Vector<4, valueType>({xValue, yValue, zValue, wValue}) {}
-    Vector4(int X, int Y, int Z, int W)
-        : Vector<4, valueType>({(valueType)X, (valueType)Y, (valueType)Z, (valueType)W}) {}
+    Vector4(int x, int y, int z, int w)
+        : Vector<4, valueType>({(valueType)x, (valueType)y, (valueType)z, (valueType)w}) {}
     Vector4(const Vector2<valueType>& xy, const Vector2<valueType>& zw)
         : Vector<4, valueType>({xy[X], xy[Y], zw[X], zw[Y]}) {}
     Vector4(valueType x, const Vector2<valueType>& yz, valueType w)

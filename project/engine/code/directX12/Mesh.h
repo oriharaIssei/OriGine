@@ -65,7 +65,7 @@ struct PrimitiveVertexData {
 };
 
 struct ColorVertexData {
-    Vec4f pos;
+    Vec4f pos = {0.f, 0.f, 0.f, 1.f};
     Vec4f color;
 
     ColorVertexData* operator=(const ColorVertexData& vert) {
@@ -90,12 +90,15 @@ public:
     /// VertexDataを設定後に実行
     /// </summary>
     /// <param name="vertexSize">総頂点数</param>
-    void Initialize(UINT _vertexCapacity, UINT _indexCapacity) {
+    void Initialize(
+        UINT _vertexCapacity,
+        UINT _indexCapacity) {
+
         this->vertexCapacity_ = static_cast<uint32_t>(_vertexCapacity);
         this->indexCapacity_  = static_cast<uint32_t>(_indexCapacity);
 
-        this->vertexSize_ = static_cast<uint32_t>(_vertexCapacity);
-        this->indexSize_  = static_cast<uint32_t>(_indexCapacity);
+        this->vertexSize_ = this->vertexCapacity_;
+        this->indexSize_  = this->indexCapacity_;
 
         if (this->vertexSize_ != 0) {
             vertexes_.resize(this->vertexSize_);
