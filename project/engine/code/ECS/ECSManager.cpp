@@ -50,7 +50,7 @@ void EntityComponentSystemManager::Run() {
         }
         // エンティティを無効化
         entity->id_       = -1;
-        entity->dataType_ = "";
+        entity->dataType_ = "UNKNOWN";
         entity->setIsAlive(false);
     }
 
