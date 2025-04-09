@@ -80,6 +80,8 @@ public:
     virtual void Save(BinaryWriter& _writer) = 0;
     virtual void Load(BinaryReader& _reader) = 0;
 
+    virtual void CalculateWorldShape() = 0;
+
     // virtual void StartCollision();
     // virtual void EndCollision();
 
@@ -125,6 +127,8 @@ public:
         _reader.Read<3, float>("max", shape_.max_);
     }
 
+    void CalculateWorldShape() override;
+
     void StartCollision() override {
         Collider::StartCollision();
 
@@ -132,8 +136,7 @@ public:
             return;
         }
 
-        this->worldShape_.min_ = Vec3f(transform_.worldMat[3]) + shape_.min_;
-        this->worldShape_.max_ = Vec3f(transform_.worldMat[3]) + shape_.max_;
+        
     };
     void EndCollision() override {
         Collider::EndCollision();
@@ -171,6 +174,8 @@ public:
         _reader.Read<3, float>("center", shape_.center_);
         _reader.Read("radius", shape_.radius_);
     }
+
+    void CalculateWorldShape() override;
 
     void StartCollision() override {
         Collider::StartCollision();

@@ -124,42 +124,57 @@ void CreateLineMeshByShape(
 
     auto calculatePoint = [&](float lat, float lon) -> Vector3f {
         return {
-            _shape.radius_ * std::cos(lat) * std::cos(lon),
-            _shape.radius_ * std::sin(lat),
-            _shape.radius_ * std::cos(lat) * std::sin(lon)};
+            _shape.center_[X] + _shape.radius_ * std::cos(lat) * std::cos(lon),
+            _shape.center_[Y] + _shape.radius_ * std::sin(lat),
+            _shape.center_[Z] + _shape.radius_ * std::cos(lat) * std::sin(lon)};
     };
 
-    Vec3f vertexes[sphereVertexSize]{};
-    uint32_t indices[sphereIndexSize]{};
-
-    for (uint32_t latIndex = 0; latIndex < sphereDivision; ++latIndex) {
+    // 緯線（緯度方向の円）を描画
+    for (uint32_t latIndex = 1; latIndex < sphereDivision; ++latIndex) {
         float lat = -std::numbers::pi_v<float> / 2.0f + kLatEvery * latIndex;
         for (uint32_t lonIndex = 0; lonIndex < sphereDivision; ++lonIndex) {
-            float lon = lonIndex * kLonEvery;
+            float lonA = lonIndex * kLonEvery;
+            float lonB = (lonIndex + 1) % sphereDivision * kLonEvery;
 
-            Vector3 pointA = calculatePoint(lat, lon);
-            Vector3 pointB = calculatePoint(lat + kLatEvery, lon);
-            Vector3 pointC = calculatePoint(lat, lon + kLonEvery);
+            Vector3f pointA = calculatePoint(lat, lonA);
+            Vector3f pointB = calculatePoint(lat, lonB);
 
-            vertexes[latIndex * sphereDivision + lonIndex]     = pointA;
-            vertexes[latIndex * sphereDivision + lonIndex + 1] = pointB;
-            vertexes[latIndex * sphereDivision + lonIndex + 2] = pointC;
+            // 頂点バッファにデータを格納
+            _mesh->vertexes_[_currentVertexesIndex] = ColorVertexData{Vec4f(pointA, 1.f), _color};
+            ++_currentVertexesIndex;
+            _mesh->vertexes_[_currentVertexesIndex] = ColorVertexData{Vec4f(pointB, 1.f), _color};
+            ++_currentVertexesIndex;
 
-            indices[latIndex * sphereDivision + lonIndex]     = latIndex * sphereDivision + lonIndex;
-            indices[latIndex * sphereDivision + lonIndex + 1] = latIndex * sphereDivision + lonIndex + 1;
-            indices[latIndex * sphereDivision + lonIndex + 2] = latIndex * sphereDivision + lonIndex + 2;
+            // インデックスバッファにデータを格納
+            _mesh->indexes_[_currentIndexesIndex] = _currentIndexesIndex;
+            ++_currentIndexesIndex;
+            _mesh->indexes_[_currentIndexesIndex] = _currentIndexesIndex;
+            ++_currentIndexesIndex;
         }
     }
 
-    // 頂点バッファにデータを格納
-    for (uint32_t vi = 0; vi < sphereVertexSize; ++vi) {
-        _mesh->vertexes_[_currentVertexesIndex] = ColorVertexData{Vec4f(vertexes[vi], 1.f), _color};
-        ++_currentVertexesIndex;
-    }
-    uint32_t startIndexesIndex = _currentIndexesIndex;
-    for (uint32_t ii = 0; ii < sphereIndexSize; ++ii) {
-        _mesh->indexes_[_currentIndexesIndex] = startIndexesIndex + indices[ii];
-        ++_currentIndexesIndex;
+    // 経線（経度方向の円）を描画
+    for (uint32_t lonIndex = 0; lonIndex < sphereDivision; ++lonIndex) {
+        float lon = lonIndex * kLonEvery;
+        for (uint32_t latIndex = 0; latIndex < sphereDivision; ++latIndex) {
+            float latA = -std::numbers::pi_v<float> / 2.0f + kLatEvery * latIndex;
+            float latB = -std::numbers::pi_v<float> / 2.0f + kLatEvery * (latIndex + 1);
+
+            Vector3f pointA = calculatePoint(latA, lon);
+            Vector3f pointB = calculatePoint(latB, lon);
+
+            // 頂点バッファにデータを格納
+            _mesh->vertexes_[_currentVertexesIndex] = ColorVertexData{Vec4f(pointA, 1.f), _color};
+            ++_currentVertexesIndex;
+            _mesh->vertexes_[_currentVertexesIndex] = ColorVertexData{Vec4f(pointB, 1.f), _color};
+            ++_currentVertexesIndex;
+
+            // インデックスバッファにデータを格納
+            _mesh->indexes_[_currentIndexesIndex] = _currentIndexesIndex;
+            ++_currentIndexesIndex;
+            _mesh->indexes_[_currentIndexesIndex] = _currentIndexesIndex;
+            ++_currentIndexesIndex;
+        }
     }
 }
 #pragma endregion
@@ -194,6 +209,7 @@ void ColliderRenderingSystem::CreateRenderMesh() { // AABB
                 // Capacityが足りなかったら 新しいMeshを作成する
                 if (aabbMeshItr_->getIndexCapacity() <= currentIndexesIndex
                     || aabbMeshItr_->getVertexCapacity() <= currentVertexesIndex) {
+                    aabbMeshItr_->TransferData();
                     ++aabbMeshItr_;
                     currentIndexesIndex  = 0;
                     currentVertexesIndex = 0;
@@ -203,12 +219,13 @@ void ColliderRenderingSystem::CreateRenderMesh() { // AABB
                         meshGroup->back().Initialize(ColliderRenderingSystem::defaultMeshCount_ * aabbVertexSize, ColliderRenderingSystem::defaultMeshCount_ * aabbIndexSize);
                     }
                 }
-
+                aabb.CalculateWorldShape();
                 // メッシュ作成
                 CreateLineMeshByShape<>(aabbMeshItr_._Ptr, *aabb.getWorldShape(), currentVertexesIndex, currentIndexesIndex, {1, 1, 1, 1});
             }
         }
     }
+    aabbMeshItr_->TransferData();
 
     // Sphere
     {
@@ -223,9 +240,12 @@ void ColliderRenderingSystem::CreateRenderMesh() { // AABB
                     continue;
                 }
 
+                sphere.CalculateWorldShape();
+
                 // Capacityが足りなかったら 新しいMeshを作成する
                 if (sphereMeshItr_->getIndexCapacity() <= currentIndexesIndex
                     || sphereMeshItr_->getVertexCapacity() <= currentVertexesIndex) {
+                    sphereMeshItr_->TransferData();
                     ++sphereMeshItr_;
                     currentIndexesIndex  = 0;
                     currentVertexesIndex = 0;
@@ -241,6 +261,7 @@ void ColliderRenderingSystem::CreateRenderMesh() { // AABB
             }
         }
     }
+    sphereMeshItr_->TransferData();
 }
 
 void ColliderRenderingSystem::RenderCall() {
