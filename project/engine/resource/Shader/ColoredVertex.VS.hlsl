@@ -12,9 +12,10 @@ struct WorldTransform
 };
 struct ViewProjection
 {
-    float4x4 viewMat;
-    float4x4 projectionMat;
-    
+    float3 cameraPos;
+    float4x4 view;
+    float4x4 viewTranspose;
+    float4x4 projection;
 };
 ConstantBuffer<WorldTransform> gWorldTransform : register(b0);
 ConstantBuffer<ViewProjection> gViewProjection : register(b1);
@@ -22,7 +23,7 @@ ConstantBuffer<ViewProjection> gViewProjection : register(b1);
 VsOutput main(ColoredVertexData input)
 {
     VsOutput output;
-    float4x4 vpvMat = mul(mul(gWorldTransform.worldMat, gViewProjection.viewMat), gViewProjection.projectionMat);
+    float4x4 vpvMat = mul(mul(gWorldTransform.worldMat, gViewProjection.view), gViewProjection.projection);
     output.pos = mul(input.pos, vpvMat);
     output.color = input.color;
     return output;
