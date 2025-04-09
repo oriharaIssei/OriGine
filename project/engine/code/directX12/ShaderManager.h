@@ -174,7 +174,7 @@ public:
     const Microsoft::WRL::ComPtr<IDxcBlob>& getShaderBlob(const std::string& key) {
         auto it = shaderBlobMap_.find(key);
         if (it == shaderBlobMap_.end()) {
-            throw std::runtime_error("Shader blob not found for key: " + key);
+            return nullptr;
         }
         return it->second;
     };

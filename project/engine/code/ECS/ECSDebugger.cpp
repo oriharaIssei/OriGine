@@ -145,12 +145,19 @@ void SystemDebugger::Update() {
     if (ImGui::Begin("System Debugger")) {
         ImGui::Text("System List");
         ImGui::Separator();
+        std::string systemLabel;
         for (int32_t systemTypeIndex = 0; systemTypeIndex < int32_t(SystemType::Count); ++systemTypeIndex) {
             if (ImGui::CollapsingHeader(SystemTypeString[systemTypeIndex].c_str())) {
                 SortPriorityOrderSystems(systemTypeIndex);
 
                 ImGui::Indent();
                 for (auto& [name, system] : workSystemList_[systemTypeIndex]) {
+                    systemLabel   = "##" + name + "isActive";
+                    bool isActive = system->isActive();
+                    ImGui::Checkbox(systemLabel.c_str(), &isActive);
+                    system->setIsActive(isActive);
+
+                    ImGui::SameLine();
                     if (ImGui::CollapsingHeader(name.c_str())) {
                         ImGui::Indent();
                         ImGui::Text("Name        : %s", name.c_str());

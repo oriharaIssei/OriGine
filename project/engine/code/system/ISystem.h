@@ -66,6 +66,7 @@ protected:
 #endif // _DEBUG
 
 private:
+    bool isActive_ = true;
     SystemType systemType_;
 
     int32_t priority_ = 0;
@@ -109,6 +110,13 @@ public: // ========================================== accessor =================
 #ifdef _DEBUG
     float getDeltaTime() const { return deltaTime_; }
 #endif // _DEBUG
+
+    bool isActive() const {
+        return isActive_;
+    }
+    void setIsActive(bool _isActive) {
+        isActive_ = _isActive;
+    }
 };
 
 // Systemを継承しているかどうか

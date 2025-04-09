@@ -107,6 +107,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="engine\code\system\render\ColliderRenderingSystem.h" />
     <ClInclude Include="engine\code\module\debugger\DebuggerGroup.h" />
     <ClInclude Include="engine\code\ECS\ECSDebugger.h" />
     <ClInclude Include="engine\EngineInclude.h" />
@@ -202,6 +203,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="util\nameof.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="engine\code\system\render\ColliderRenderingSystem.cpp" />
     <ClCompile Include="engine\code\module\debugger\DebuggerGroup.cpp" />
     <ClCompile Include="engine\code\ECS\ECSDebugger.cpp" />
     <ClCompile Include="engine\code\ECS\ECSEditor.cpp" />

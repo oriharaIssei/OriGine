@@ -60,18 +60,33 @@ void EntityComponentSystemManager::Run() {
         if (SceneManager::getInstance()->debugIsPlay()) {
             // システムの更新
             for (auto& system : priorityOrderSystems_[int32_t(SystemType::Input)]) {
+                if (!system->isActive()) {
+                    continue;
+                }
                 system->Update();
             }
             for (auto& system : priorityOrderSystems_[int32_t(SystemType::StateTransition)]) {
+                if (!system->isActive()) {
+                    continue;
+                }
                 system->Update();
             }
             for (auto& system : priorityOrderSystems_[int32_t(SystemType::Movement)]) {
+                if (!system->isActive()) {
+                    continue;
+                }
                 system->Update();
             }
             for (auto& system : priorityOrderSystems_[int32_t(SystemType::Collision)]) {
+                if (!system->isActive()) {
+                    continue;
+                }
                 system->Update();
             }
             for (auto& system : priorityOrderSystems_[int32_t(SystemType::Effect)]) {
+                if (!system->isActive()) {
+                    continue;
+                }
                 system->Update();
             }
         }
@@ -81,40 +96,68 @@ void EntityComponentSystemManager::Run() {
 
     sceneView->PreDraw();
     for (auto& system : priorityOrderSystems_[int32_t(SystemType::Render)]) {
+        if (!system->isActive()) {
+            continue;
+        }
         system->Update();
     }
     sceneView->PostDraw();
 
     for (auto& system : priorityOrderSystems_[int32_t(SystemType::PostRender)]) {
+        if (!system->isActive()) {
+            continue;
+        }
         system->Update();
     }
 
 #else
     // システムの更新
     for (auto& system : priorityOrderSystems_[int32_t(SystemType::Input)]) {
+        if (!system->isActive()) {
+            continue;
+        }
         system->Update();
     }
     for (auto& system : priorityOrderSystems_[int32_t(SystemType::StateTransition)]) {
+        if (!system->isActive()) {
+            continue;
+        }
         system->Update();
     }
     for (auto& system : priorityOrderSystems_[int32_t(SystemType::Movement)]) {
-        system->Update();
-    }
-    for (auto& system : priorityOrderSystems_[int32_t(SystemType::Physics)]) {
+        if (!system->isActive()) {
+            continue;
+        }
         system->Update();
     }
     for (auto& system : priorityOrderSystems_[int32_t(SystemType::Collision)]) {
+        if (!system->isActive()) {
+            continue;
+        }
+        system->Update();
+    }
+    for (auto& system : priorityOrderSystems_[int32_t(SystemType::Effect)]) {
+        if (!system->isActive()) {
+            continue;
+        }
         system->Update();
     }
 
     auto sceneView = SceneManager::getInstance()->getSceneView();
+
     sceneView->PreDraw();
     for (auto& system : priorityOrderSystems_[int32_t(SystemType::Render)]) {
+        if (!system->isActive()) {
+            continue;
+        }
         system->Update();
     }
     sceneView->PostDraw();
 
     for (auto& system : priorityOrderSystems_[int32_t(SystemType::PostRender)]) {
+        if (!system->isActive()) {
+            continue;
+        }
         system->Update();
     }
 #endif // _DEBUG
@@ -142,6 +185,9 @@ void EntityComponentSystemManager::ComponentArraysInitialize() {
 
 void EntityComponentSystemManager::RunInitialize() {
     for (auto& system : priorityOrderSystems_[int32_t(SystemType::Initialize)]) {
+        if (!system->isActive()) {
+            continue;
+        }
         system->Update();
     }
 }

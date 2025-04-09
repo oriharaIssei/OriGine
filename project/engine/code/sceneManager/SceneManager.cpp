@@ -178,20 +178,10 @@ void SceneManager::DebugUpdate() {
                 if (ImGui::MenuItem("Save")) {
                     currentScene_->Finalize();
                     currentScene_->Initialize();
-
-                    // DebuggerGroup を終了
-                    debuggerGroup_->Finalize();
-                    // Editor を再初期化
-                    editorGroup_->Initialize();
                 }
                 if (ImGui::MenuItem("Reload")) {
                     currentScene_->Finalize();
                     currentScene_->Initialize();
-
-                    // DebuggerGroup を終了
-                    debuggerGroup_->Finalize();
-                    // Editor を再初期化
-                    editorGroup_->Initialize();
                 }
 
                 ImGui::EndMenu();
@@ -217,13 +207,13 @@ void SceneManager::DebugUpdate() {
                 if (ImGui::BeginMenu("StartDebug")) {
                     if (ImGui::MenuItem("Startup Scene")) {
                         // 保存, ロード処理を行い, シーンを再読み込み
-                        SceneManager::getInstance()->changeScene(currentScene_->GetName());
+                        SerializedField<std::string> startupSceneName{"Settings", "Scene", "StartupSceneName"};
+                        SceneManager::getInstance()->changeScene(startupSceneName);
                         currentSceneState_ = SceneState::Debug;
                     }
                     if (ImGui::MenuItem("Current Scene")) {
                         const auto& scene = currentScene_;
-                        scene->Finalize();
-                        scene->Initialize();
+                        SceneManager::getInstance()->changeScene(scene->GetName());
 
                         currentSceneState_ = SceneState::Debug;
                     }
@@ -237,9 +227,10 @@ void SceneManager::DebugUpdate() {
         if (ImGui::Begin("Debugger")) {
             if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(TextureManager::getDescriptorGpuHandle(playIcon_).ptr), s_buttonIconSize)) {
                 // play
-                currentScene_->Finalize();
-                currentScene_->Initialize();
                 currentSceneState_ = SceneState::Debug;
+
+                const auto& scene  = currentScene_;
+                SceneManager::getInstance()->changeScene(scene->GetName());
             }
             ImGui::SameLine();
             ImGui::Text("DeltaTime :%.4f", Engine::getInstance()->getDeltaTime());
@@ -274,10 +265,6 @@ void SceneManager::DebugUpdate() {
                     ImGui::EndMenu();
                 }
                 if (ImGui::MenuItem("EndDebug")) {
-                    // ロード処理を行い, シーンを再読み込み
-                    currentScene_->Finalize(false);
-                    currentScene_->Initialize();
-
                     currentSceneState_ = SceneState::Edit;
                 }
                 ImGui::EndMenu();
@@ -288,17 +275,12 @@ void SceneManager::DebugUpdate() {
         if (ImGui::Begin("Debugger")) {
             if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(TextureManager::getDescriptorGpuHandle(stopIcon_).ptr), s_buttonIconSize)) {
                 // Stop
-                currentScene_->Finalize();
-                currentScene_->Initialize();
                 currentSceneState_ = SceneState::Edit;
-
                 debugState_ = DebugState::Stop;
             }
             ImGui::SameLine();
             if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(TextureManager::getDescriptorGpuHandle(rePlayIcon_).ptr), s_buttonIconSize)) {
                 // RePlay
-                currentScene_->Finalize();
-                currentScene_->Initialize();
                 currentSceneState_ = SceneState::Debug;
                 debugState_        = DebugState::RePlay;
             }
@@ -342,6 +324,9 @@ void SceneManager::DebugUpdate() {
 
             // DebuggerGroup を終了
             debuggerGroup_->Finalize();
+
+            currentScene_->Finalize();
+            currentScene_->Initialize();
             break;
         }
 

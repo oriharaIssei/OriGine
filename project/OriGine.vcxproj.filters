@@ -436,6 +436,7 @@
     <ClInclude Include="engine\code\ECS\ECSDebugger.h" />
     <ClInclude Include="engine\code\module\debugger\DebuggerGroup.h" />
     <ClInclude Include="engine\code\system\render\LineRenderSystem.h" />
+    <ClInclude Include="engine\code\system\render\ColliderRenderingSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\code\ECS\ECSEditor.cpp">
@@ -645,5 +646,6 @@
     <ClCompile Include="engine\code\ECS\ECSDebugger.cpp" />
     <ClCompile Include="engine\code\module\debugger\DebuggerGroup.cpp" />
     <ClCompile Include="engine\code\system\render\LineRenderSystem.cpp" />
+    <ClCompile Include="engine\code\system\render\ColliderRenderingSystem.cpp" />
   </ItemGroup>
 </Project>
