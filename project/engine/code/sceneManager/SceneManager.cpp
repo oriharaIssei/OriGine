@@ -229,7 +229,7 @@ void SceneManager::DebugUpdate() {
                 // play
                 currentSceneState_ = SceneState::Debug;
 
-                const auto& scene  = currentScene_;
+                const auto& scene = currentScene_;
                 SceneManager::getInstance()->changeScene(scene->GetName());
             }
             ImGui::SameLine();
@@ -276,7 +276,7 @@ void SceneManager::DebugUpdate() {
             if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(TextureManager::getDescriptorGpuHandle(stopIcon_).ptr), s_buttonIconSize)) {
                 // Stop
                 currentSceneState_ = SceneState::Edit;
-                debugState_ = DebugState::Stop;
+                debugState_        = DebugState::Stop;
             }
             ImGui::SameLine();
             if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(TextureManager::getDescriptorGpuHandle(rePlayIcon_).ptr), s_buttonIconSize)) {
@@ -325,7 +325,8 @@ void SceneManager::DebugUpdate() {
             // DebuggerGroup を終了
             debuggerGroup_->Finalize();
 
-            currentScene_->Finalize();
+            // 保存しない
+            currentScene_->Finalize(false);
             currentScene_->Initialize();
             break;
         }
