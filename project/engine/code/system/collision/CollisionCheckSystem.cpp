@@ -76,6 +76,9 @@ void CollisionCheckSystem::Update() {
     for (auto entity : entities_) {
         // AABB
         const auto& aabbColliders = getComponents<AABBCollider>(entity);
+        if (aabbColliders == nullptr) {
+            continue;
+        }
         for (auto collider = aabbColliders->begin();
             collider != aabbColliders->end();
             ++collider) {
@@ -83,6 +86,9 @@ void CollisionCheckSystem::Update() {
         }
         // Sphere
         const auto& sphereColliders = getComponents<SphereCollider>(entity);
+        if (sphereColliders == nullptr) {
+            continue;
+        }
         for (auto collider = sphereColliders->begin();
             collider != sphereColliders->end();
             ++collider) {
@@ -99,6 +105,9 @@ void CollisionCheckSystem::Update() {
     for (auto entity : entities_) {
         // AABB
         const auto& aabbColliders = getComponents<AABBCollider>(entity);
+        if (aabbColliders == nullptr) {
+            continue;
+        }
         for (auto collider = aabbColliders->begin();
             collider != aabbColliders->end();
             ++collider) {
@@ -106,6 +115,9 @@ void CollisionCheckSystem::Update() {
         }
         // Sphere
         const auto& sphereColliders = getComponents<SphereCollider>(entity);
+        if (sphereColliders == nullptr) {
+            continue;
+        }
         for (auto collider = sphereColliders->begin();
             collider != sphereColliders->end();
             ++collider) {
@@ -141,9 +153,20 @@ void CollisionCheckSystem::UpdateEntity(GameEntity* _entity) {
         auto bEntityAabbColliders   = getComponents<AABBCollider>(bEntity);
         auto bEntitySphereColliders = getComponents<SphereCollider>(bEntity);
 
-        checkCollisions(aEntityAabbColliders, bEntityAabbColliders, _entity, bEntity);
-        checkCollisions(aEntitySphereColliders, bEntitySphereColliders, _entity, bEntity);
-        checkCollisions(aEntityAabbColliders, bEntitySphereColliders, _entity, bEntity);
-        checkCollisions(aEntitySphereColliders, bEntityAabbColliders, _entity, bEntity);
+        if (aEntityAabbColliders) {
+            if (bEntityAabbColliders) {
+                checkCollisions(aEntityAabbColliders, bEntityAabbColliders, _entity, bEntity);
+            }
+            if (bEntitySphereColliders) {
+                checkCollisions(aEntityAabbColliders, bEntitySphereColliders, _entity, bEntity);
+            }
+        } else if (aEntitySphereColliders) {
+            if (bEntityAabbColliders) {
+                checkCollisions(aEntitySphereColliders, bEntityAabbColliders, _entity, bEntity);
+            }
+            if (bEntitySphereColliders) {
+                checkCollisions(aEntitySphereColliders, bEntitySphereColliders, _entity, bEntity);
+            }
+        }
     }
 }
