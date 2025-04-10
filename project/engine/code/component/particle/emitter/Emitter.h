@@ -196,7 +196,7 @@ public:
         auto it = entityIndexBind_.find(_hostEntity);
         if (it == entityIndexBind_.end()) {
             registerEntity(_hostEntity);
-            it = entityIndexBind_.find(_hostEntity);
+            return;
         }
         uint32_t index = it->second;
         components_[index].push_back(_component);
@@ -210,7 +210,7 @@ public:
         auto it = entityIndexBind_.find(_hostEntity);
         if (it == entityIndexBind_.end()) {
             registerEntity(_hostEntity);
-            it = entityIndexBind_.find(_hostEntity);
+            return;
         }
         uint32_t index = it->second;
         components_[index].push_back(std::move(*comp));
@@ -222,7 +222,6 @@ public:
         auto it = entityIndexBind_.find(_hostEntity);
         if (it == entityIndexBind_.end()) {
             registerEntity(_hostEntity);
-            it = entityIndexBind_.find(_hostEntity);
             return;
         }
         uint32_t index = it->second;
@@ -236,7 +235,7 @@ public:
         auto it = entityIndexBind_.find(_hostEntity);
         if (it == entityIndexBind_.end()) {
             registerEntity(_hostEntity);
-            it = entityIndexBind_.find(_hostEntity);
+            return;
         }
         uint32_t index = it->second;
         components_[index].insert(components_[index].begin() + _index, std::move(*comp));

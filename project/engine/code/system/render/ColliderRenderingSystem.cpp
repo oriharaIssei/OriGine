@@ -221,7 +221,7 @@ void ColliderRenderingSystem::CreateRenderMesh() { // AABB
                 }
                 aabb.CalculateWorldShape();
                 // メッシュ作成
-                CreateLineMeshByShape<>(aabbMeshItr_._Ptr, *aabb.getWorldShape(), currentVertexesIndex, currentIndexesIndex, {1, 1, 1, 1});
+                CreateLineMeshByShape<>(aabbMeshItr_._Ptr, aabb.getWorldShape(), currentVertexesIndex, currentIndexesIndex, {1, 1, 1, 1});
             }
         }
     }
@@ -257,7 +257,7 @@ void ColliderRenderingSystem::CreateRenderMesh() { // AABB
                 }
 
                 // メッシュ作成
-                CreateLineMeshByShape<>(sphereMeshItr_._Ptr, *sphere.getWorldShape(), currentVertexesIndex, currentIndexesIndex, {1, 1, 1, 1});
+                CreateLineMeshByShape<>(sphereMeshItr_._Ptr, sphere.getWorldShape(), currentVertexesIndex, currentIndexesIndex, {1, 1, 1, 1});
             }
         }
     }

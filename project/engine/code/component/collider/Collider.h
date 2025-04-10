@@ -38,6 +38,8 @@ public:
     virtual void Save(BinaryWriter& _writer) = 0;
     virtual void Load(BinaryReader& _reader) = 0;
 
+    virtual void CalculateWorldShape() = 0;
+
     virtual void StartCollision();
     virtual void EndCollision();
 
@@ -67,6 +69,8 @@ template <IsShape ShapeClass>
 class Collider
     : public ICollider {
 public:
+    using ShapeType = ShapeClass;
+
     Collider() {}
     void Initialize(GameEntity* _hostEntity) override {
         ICollider::Initialize(_hostEntity);
@@ -90,13 +94,18 @@ protected:
     ShapeClass worldShape_;
 
 public:
-    ShapeClass* getLocalShape() { return &shape_; }
-    ShapeClass* getWorldShape() { return &worldShape_; }
+    const ShapeClass& getLocalShape() { return shape_; }
+    const ShapeClass& getWorldShape() { return worldShape_; }
+
+    ShapeClass* getLocalShapePtr() { return &shape_; }
+    ShapeClass* getWorldShapePtr() { return &worldShape_; }
 };
 
 class AABBCollider
     : public Collider<AABB> {
 public:
+    using ShapeType = AABB;
+
     AABBCollider()
         : Collider<AABB>() {}
     ~AABBCollider() {}
@@ -128,24 +137,13 @@ public:
     }
 
     void CalculateWorldShape() override;
-
-    void StartCollision() override {
-        Collider::StartCollision();
-
-        if (!isActive_) {
-            return;
-        }
-
-        
-    };
-    void EndCollision() override {
-        Collider::EndCollision();
-    }
 };
 
 class SphereCollider
     : public Collider<Sphere> {
 public:
+    using ShapeType = Sphere;
+
     SphereCollider() : Collider<Sphere>() {}
     ~SphereCollider() {}
 
@@ -176,18 +174,4 @@ public:
     }
 
     void CalculateWorldShape() override;
-
-    void StartCollision() override {
-        Collider::StartCollision();
-
-        if (!isActive_) {
-            return;
-        }
-
-        this->worldShape_.center_ = Vec3f(transform_.worldMat[3]) + shape_.center_;
-        this->worldShape_.radius_ = shape_.radius_;
-    };
-    void EndCollision() override {
-        Collider::EndCollision();
-    }
 };

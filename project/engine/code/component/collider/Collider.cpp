@@ -7,6 +7,8 @@ void ICollider::Initialize(GameEntity* _hostEntity) {
 void ICollider::StartCollision() {
     this->preCollisionStateMap_ = this->collisionStateMap_;
     this->collisionStateMap_.clear();
+
+    CalculateWorldShape();
 }
 
 void ICollider::EndCollision() {
