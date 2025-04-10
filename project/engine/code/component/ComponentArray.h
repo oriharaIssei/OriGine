@@ -121,9 +121,7 @@ public:
         uint32_t index = static_cast<uint32_t>(components_.size());
         components_.push_back(std::vector<componentType>());
         components_.back().resize(_entitySize);
-        for (auto& comp : components_.back()) {
-            comp.Initialize(_entity);
-        }
+
         entityIndexBind_[_entity] = index;
     }
 
@@ -132,7 +130,7 @@ public:
         auto it = entityIndexBind_.find(_hostEntity);
         if (it == entityIndexBind_.end()) {
             registerEntity(_hostEntity);
-            it = entityIndexBind_.find(_hostEntity);
+            return;
         }
         uint32_t index = it->second;
         components_[index].push_back(_component);
@@ -145,7 +143,7 @@ public:
         auto it = entityIndexBind_.find(_hostEntity);
         if (it == entityIndexBind_.end()) {
             registerEntity(_hostEntity);
-            it = entityIndexBind_.find(_hostEntity);
+            return;
         }
         uint32_t index = it->second;
         components_[index].push_back(std::move(*comp));
@@ -157,7 +155,6 @@ public:
         auto it = entityIndexBind_.find(_hostEntity);
         if (it == entityIndexBind_.end()) {
             registerEntity(_hostEntity);
-            it = entityIndexBind_.find(_hostEntity);
             return;
         }
         uint32_t index = it->second;
@@ -171,7 +168,7 @@ public:
         auto it = entityIndexBind_.find(_hostEntity);
         if (it == entityIndexBind_.end()) {
             registerEntity(_hostEntity);
-            it = entityIndexBind_.find(_hostEntity);
+            return;
         }
         uint32_t index = it->second;
         components_[index].insert(components_[index].begin() + _index, std::move(*comp));

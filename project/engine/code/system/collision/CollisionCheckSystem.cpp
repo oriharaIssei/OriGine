@@ -70,29 +70,30 @@ void CollisionCheckSystem::Initialize() {
 }
 
 void CollisionCheckSystem::Update() {
+    eraseDeadEntity();
+
     entityItr_ = entities_.begin();
 
     // 衝突判定の記録開始処理
     for (auto entity : entities_) {
         // AABB
         const auto& aabbColliders = getComponents<AABBCollider>(entity);
-        if (aabbColliders == nullptr) {
-            continue;
+        if (aabbColliders) {
+            for (auto collider = aabbColliders->begin();
+                collider != aabbColliders->end();
+                ++collider) {
+                collider->StartCollision();
+            }
         }
-        for (auto collider = aabbColliders->begin();
-            collider != aabbColliders->end();
-            ++collider) {
-            collider->StartCollision();
-        }
+
         // Sphere
         const auto& sphereColliders = getComponents<SphereCollider>(entity);
-        if (sphereColliders == nullptr) {
-            continue;
-        }
-        for (auto collider = sphereColliders->begin();
-            collider != sphereColliders->end();
-            ++collider) {
-            collider->StartCollision();
+        if (sphereColliders) {
+            for (auto collider = sphereColliders->begin();
+                collider != sphereColliders->end();
+                ++collider) {
+                collider->StartCollision();
+            }
         }
     }
 
@@ -133,14 +134,14 @@ void CollisionCheckSystem::Finalize() {
 void CollisionCheckSystem::UpdateEntity(GameEntity* _entity) {
     ++entityItr_;
 
-    auto aEntityAabbColliders   = getComponents<AABBCollider>(_entity);
-    auto aEntitySphereColliders = getComponents<SphereCollider>(_entity);
+    auto* aEntityAabbColliders   = getComponents<AABBCollider>(_entity);
+    auto* aEntitySphereColliders = getComponents<SphereCollider>(_entity);
 
     // 2つのリスト間の衝突判定をまとめる
     auto checkCollisions = [&](auto& listA, auto& listB, GameEntity* aEntity, GameEntity* bEntity) {
         for (auto colliderA = listA->begin(); colliderA != listA->end(); ++colliderA) {
             for (auto colliderB = listB->begin(); colliderB != listB->end(); ++colliderB) {
-                if (CheckCollisionPair(colliderA->getWorldShape(), colliderB->getWorldShape())) {
+                if (CheckCollisionPair<>(colliderA->getWorldShape(), colliderB->getWorldShape())) {
                     colliderA->setCollisionState(bEntity);
                     colliderB->setCollisionState(aEntity);
                 }
