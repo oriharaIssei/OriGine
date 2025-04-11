@@ -435,8 +435,8 @@ void Emitter::EditParticle() {
         ImGui::Text("Max");
         ImGui::DragFloat3("##ParticleVelocityMax", startParticleVelocityMax_.v, 0.1f);
 
-        startParticleVelocityMin_ = (std::min)(startParticleVelocityMin_, startParticleVelocityMax_);
-        startParticleVelocityMax_ = (std::max)(startParticleVelocityMin_, startParticleVelocityMax_);
+        startParticleVelocityMin_ = Vector3f::ElementWiseMin(startParticleVelocityMin_, startParticleVelocityMax_);
+        startParticleVelocityMax_ = Vector3f::ElementWiseMax(startParticleVelocityMin_, startParticleVelocityMax_);
 
         int randomOrPerLifeTime    = (updateSettings_ & static_cast<int32_t>(ParticleUpdateType::VelocityPerLifeTime)) ? 2 : ((updateSettings_ & static_cast<int32_t>(ParticleUpdateType::VelocityRandom)) ? 1 : 0);
         int preRandomOrPerLifeTime = randomOrPerLifeTime;
@@ -456,6 +456,9 @@ void Emitter::EditParticle() {
             ImGui::Text("UpdateMax");
             ImGui::DragFloat3("##UpdateParticleVelocityMax", updateParticleVelocityMax_.v, 0.1f);
 
+            updateParticleVelocityMin_ = Vector3f::ElementWiseMin(updateParticleVelocityMin_, updateParticleVelocityMax_);
+            updateParticleVelocityMax_ = Vector3f::ElementWiseMax(updateParticleVelocityMin_, updateParticleVelocityMax_);
+
             updateSettings_ = (updateSettings_ & ~static_cast<int32_t>(ParticleUpdateType::VelocityPerLifeTime));
             updateSettings_ = (updateSettings_ | static_cast<int32_t>(ParticleUpdateType::VelocityRandom));
         } else if (preRandomOrPerLifeTime == 2 && randomOrPerLifeTime == 0) {
@@ -471,8 +474,8 @@ void Emitter::EditParticle() {
         ImGui::Text("Max");
         ImGui::DragFloat3("##ParticleScaleMax", startParticleScaleMax_.v, 0.1f);
 
-        startParticleScaleMin_ = (std::min)(startParticleScaleMin_, startParticleScaleMax_);
-        startParticleScaleMax_ = (std::max)(startParticleScaleMin_, startParticleScaleMax_);
+        startParticleScaleMin_ = Vector3f::ElementWiseMin(startParticleScaleMin_, startParticleScaleMax_);
+        startParticleScaleMax_ = Vector3f::ElementWiseMax(startParticleScaleMin_, startParticleScaleMax_);
 
         // curveかrandom か
         int randomOrPerLifeTime    = (updateSettings_ & static_cast<int32_t>(ParticleUpdateType::ScalePerLifeTime)) ? 2 : ((updateSettings_ & static_cast<int32_t>(ParticleUpdateType::ScaleRandom)) ? 1 : 0);
@@ -493,6 +496,9 @@ void Emitter::EditParticle() {
             ImGui::Text("UpdateMax");
             ImGui::DragFloat3("##UpdateParticleScaleMax", updateParticleScaleMax_.v, 0.1f);
 
+            updateParticleScaleMin_ = Vector3f::ElementWiseMin(updateParticleScaleMin_, updateParticleScaleMax_);
+            updateParticleScaleMax_ = Vector3f::ElementWiseMax(updateParticleScaleMin_, updateParticleScaleMax_);
+
             // ランダムなスケールを設定
             updateSettings_ = (updateSettings_ & ~static_cast<int32_t>(ParticleUpdateType::ScalePerLifeTime));
             updateSettings_ = (updateSettings_ | static_cast<int32_t>(ParticleUpdateType::ScaleRandom));
@@ -507,8 +513,8 @@ void Emitter::EditParticle() {
         ImGui::DragFloat3("##ParticleRotateMin", startParticleRotateMin_.v, 0.1f);
         ImGui::DragFloat3("##ParticleRotateMax", startParticleRotateMax_.v, 0.1f);
 
-        startParticleRotateMin_ = (std::min)(startParticleRotateMin_, startParticleRotateMax_);
-        startParticleRotateMax_ = (std::max)(startParticleRotateMin_, startParticleRotateMax_);
+        startParticleRotateMin_ = Vector3f::ElementWiseMin(startParticleRotateMin_, startParticleRotateMax_);
+        startParticleRotateMax_ = Vector3f::ElementWiseMax(startParticleRotateMin_, startParticleRotateMax_);
 
         int randomOrPerLifeTime    = (updateSettings_ & static_cast<int32_t>(ParticleUpdateType::RotatePerLifeTime)) ? 2 : ((updateSettings_ & static_cast<int32_t>(ParticleUpdateType::RotateRandom)) ? 1 : 0);
         int preRandomOrPerLifeTime = randomOrPerLifeTime;
@@ -527,6 +533,9 @@ void Emitter::EditParticle() {
             ImGui::DragFloat3("##UpdateParticleRotateMin", updateParticleRotateMin_.v, 0.1f);
             ImGui::Text("UpdateMax");
             ImGui::DragFloat3("##UpdateParticleRotateMax", updateParticleRotateMax_.v, 0.1f);
+
+            updateParticleRotateMin_ = Vector3f::ElementWiseMin(updateParticleRotateMin_, updateParticleRotateMax_);
+            updateParticleRotateMax_ = Vector3f::ElementWiseMax(updateParticleRotateMin_, updateParticleRotateMax_);
 
             updateSettings_ = (updateSettings_ & ~static_cast<int32_t>(ParticleUpdateType::RotatePerLifeTime));
             updateSettings_ = (updateSettings_ | static_cast<int32_t>(ParticleUpdateType::RotateRandom));

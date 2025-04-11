@@ -47,6 +47,10 @@ struct Vector4 final
     Vector4()
         : Vector<4, valueType>({0, 0, 0, 0}) {}
 
+    operator Vector<4, valueType>() const {
+        return Vector<4, valueType>(v[X], v[Y], v[Z], v[W]);
+    }
+
     // ベクトルの長さ
     valueType length() const { return std::sqrt(v[X] * v[X] + v[Y] * v[Y] + v[Z] * v[Z] + v[W] * v[W]); }
     static valueType Length(const Vector4& v) { return std::sqrt(v.v[X] * v.v[X] + v.v[Y] * v.v[Y] + v.v[Z] * v.v[Z] + v.v[W] * v.v[W]); }
@@ -71,6 +75,21 @@ struct Vector4 final
         if (len == 0)
             return v;
         return (v / len);
+    }
+
+    static Vector4 ElementWiseMin(Vector4 a, Vector4 b) {
+        return Vector4(
+            (std::min)(a[X], b[X]),
+            (std::min)(a[Y], b[Y]),
+            (std::min)(a[Z], b[Z]),
+            (std::min)(a[W], b[W]));
+    }
+    static Vector4 ElementWiseMax(Vector4 a, Vector4 b) {
+        return Vector4(
+            (std::max)(a[X], b[X]),
+            (std::max)(a[Y], b[Y]),
+            (std::max)(a[Z], b[Z]),
+            (std::max)(a[W], b[W]));
     }
 };
 

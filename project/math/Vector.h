@@ -1,5 +1,8 @@
 #pragma once
 
+/// stl
+#include <algorithm>
+#include <cmath>
 #include <type_traits>
 
 // indexNumbers
@@ -184,19 +187,19 @@ public:
         return Vector4<valueType>(v[X], v[Y], v[Z], v[W]);
     }
 
-    // Add serialization support
-    template <typename Writer>
-    void Write(Writer& writer) const {
-        for (int i = 0; i < dimension; i++) {
-            writer.Write(v[i]);
+    static Vector ElementWiseMin(Vector a, Vector b) {
+        Vector min;
+        for (int32_t i = 0; i < dim; i++) {
+            min[i] = (std::min)(a[i], b[i]);
         }
+        return min;
     }
-
-    template <typename Reader>
-    void Read(Reader& reader) {
-        for (int i = 0; i < dimension; i++) {
-            reader.Read(v[i]);
+    static Vector ElementWiseMax(Vector a, Vector b) {
+        Vector max;
+        for (int32_t i = 0; i < dim; i++) {
+            max[i] = (std::max)(a[i], b[i]);
         }
+        return max;
     }
 };
 

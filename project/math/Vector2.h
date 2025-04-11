@@ -11,6 +11,7 @@
 template <typename valueType = float>
 struct Vector2 final
     : Vector<2, valueType> {
+
     using Vector<2, valueType>::v;
     using Vector<2, valueType>::operator[];
     using Vector<2, valueType>::operator+;
@@ -34,6 +35,10 @@ struct Vector2 final
         : Vector<2, valueType>({ptr[0], ptr[1]}) {}
     Vector2()
         : Vector<2, valueType>({0, 0}) {}
+
+    operator Vector<2, valueType>() const {
+        return Vector<2, valueType>(v[X], v[Y]);
+    }
 
     // ベクトルの長さを計算
     valueType length() const { return std::sqrt(v[X] * v[X] + v[Y] * v[Y]); }
@@ -65,6 +70,17 @@ struct Vector2 final
         }
         Vector2 result = _v;
         return (result / length);
+    }
+
+    static Vector2 ElementWiseMin(Vector2 a, Vector2 b) {
+        return Vector2(
+            (std::min)(a[0], b[0]),
+            (std::min)(a[1], b[1]) );
+    }
+    static Vector2 ElementWiseMax(Vector2 a, Vector2 b) {
+        return Vector2(
+            (std::max)(a[0], b[0]),
+            (std::max)(a[1], b[1]) );
     }
 };
 

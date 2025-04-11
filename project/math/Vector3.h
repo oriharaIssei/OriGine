@@ -24,8 +24,8 @@ struct Vector3 final : Vector<3, valueType> {
     // コンストラクタ
     Vector3(valueType xValue, valueType yValue, valueType zValue)
         : Vector<3, valueType>({xValue, yValue, zValue}) {}
-    Vector3(int X, int Y, int Z)
-        : Vector<3, valueType>({(valueType)X, (valueType)Y, (valueType)Z}) {}
+    Vector3(int _x, int _y, int _z)
+        : Vector<3, valueType>({(valueType)_x, (valueType)_y, (valueType)_z}) {}
     Vector3(const Vector2<valueType>& xy, const valueType& z)
         : Vector<3, valueType>({xy[X], xy[Y], z}) {}
     Vector3(const valueType& x, const Vector2<valueType>& yz)
@@ -36,6 +36,10 @@ struct Vector3 final : Vector<3, valueType> {
         : Vector<3, valueType>({ptr[0], ptr[1], ptr[2]}) {}
     Vector3()
         : Vector<3, valueType>({0, 0, 0}) {}
+
+    operator Vector<3, valueType>() const {
+        return Vector<3, valueType>(v[X], v[Y], v[Z]);
+    }
 
     // ベクトルの長さ
     valueType length() const { return std::sqrt(v[X] * v[X] + v[Y] * v[Y] + v[Z] * v[Z]); }
@@ -78,6 +82,19 @@ struct Vector3 final : Vector<3, valueType> {
         if (len == 0)
             return v;
         return (v / len);
+    }
+
+    static Vector3 ElementWiseMin(Vector3 a, Vector3 b) {
+        return Vector3(
+            (std::min)(a.v[X], b.v[X]),
+            (std::min)(a.v[Y], b.v[Y]),
+            (std::min)(a.v[Z], b.v[Z]));
+    }
+    static Vector3 ElementWiseMax(Vector3 a, Vector3 b) {
+        return Vector3(
+            (std::max)(a.v[X], b.v[X]),
+            (std::max)(a.v[Y], b.v[Y]),
+            (std::max)(a.v[Z], b.v[Z]));
     }
 };
 

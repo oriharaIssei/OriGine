@@ -74,8 +74,8 @@ void EmitterOBB::Debug() {
     label = "##" + emitterShapeTypeWord_[int(type_)] + "_max";
     ImGui::DragFloat3(label.c_str(), max_.v, 0.1f);
 
-    min_ = Vec3f((std::min)(min_[X], max_[X]), (std::min)(min_[Y], max_[Y]), (std::min)(min_[Z], max_[Z]));
-    max_ = Vec3f((std::max)(min_[X], max_[X]), (std::max)(min_[Y], max_[Y]), (std::max)(min_[Z], max_[Z]));
+    min_ = Vector3f::ElementWiseMin(min_, max_);
+    max_ = Vector3f::ElementWiseMax(min_, max_);
 }
 #endif // _DEBUG
 
@@ -85,7 +85,7 @@ Vec3f EmitterOBB::getSpawnPos() {
     float randY               = randFloat.get();
     float randZ               = randFloat.get();
 
-    Vec3f diff = Vec3f(max_) - Vec3f(min_);
+    Vec3f diff = max_ - min_;
     if (spawnType_ == ParticleSpawnLocationType::Edge) {
         if (randX < 0.5f) {
             randX = 0.0f;
