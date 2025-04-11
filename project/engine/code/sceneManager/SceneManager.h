@@ -1,6 +1,7 @@
 #pragma once
 
 /// stl
+#include <array>
 #include <functional>
 #include <memory>
 #include <unordered_map>
@@ -9,7 +10,7 @@
 
 class IScene;
 
-class RenderTexture;
+#include "directX12/RenderTexture.h"
 class DxRtvArray;
 class DxSrvArray;
 
@@ -45,7 +46,8 @@ private:
 
     EntityComponentSystemManager* ecsManager_ = nullptr;
 
-    std::unique_ptr<RenderTexture> sceneView_;
+    std::array<std::unique_ptr<RenderTexture>, 2> sceneView_;
+    int32_t currentBackViewIndex_ = 0;
     std::shared_ptr<DxRtvArray> sceneViewRtvArray_;
     std::shared_ptr<DxSrvArray> sceneViewSrvArray_;
 
@@ -86,7 +88,7 @@ public:
     void addScene(const std::string& name, std::function<std::unique_ptr<IScene>()> _sceneMakeFunc);
     void changeScene(const std::string& name);
 
-    RenderTexture* getSceneView() const { return sceneView_.get(); }
+    RenderTexture* getSceneView() const { return sceneView_[currentBackViewIndex_].get(); }
 
     const std::unordered_map<std::string, int32_t>& getScenes() const { return sceneIndexs_; }
 

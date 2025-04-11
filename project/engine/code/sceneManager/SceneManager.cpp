@@ -14,7 +14,6 @@
 // directX12Object
 #include "directX12/DxRtvArrayManager.h"
 #include "directX12/DxSrvArrayManager.h"
-#include "directX12/RenderTexture.h"
 // module
 #include "camera/CameraManager.h"
 #include "module/debugger/DebuggerGroup.h"
@@ -35,16 +34,17 @@ SceneManager::SceneManager() {}
 SceneManager::~SceneManager() {}
 
 void SceneManager::Initialize() {
-    sceneViewRtvArray_ = DxRtvArrayManager::getInstance()->Create(1);
-    sceneViewSrvArray_ = DxSrvArrayManager::getInstance()->Create(1);
+    sceneViewRtvArray_ = DxRtvArrayManager::getInstance()->Create(2);
+    sceneViewSrvArray_ = DxSrvArrayManager::getInstance()->Create(2);
 
     ecsManager_ = EntityComponentSystemManager::getInstance();
     ecsManager_->Initialize();
 
-    sceneView_ = std::make_unique<RenderTexture>(Engine::getInstance()->getDxCommand(), sceneViewRtvArray_.get(), sceneViewSrvArray_.get());
-    /// TODO
-    // fix MagicNumber
-    sceneView_->Initialize({1280.0f, 720.0f}, DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, {0.0f, 0.0f, 0.0f, 1.0f});
+    for (auto& sceneView : sceneView_) {
+        sceneView = std::make_unique<RenderTexture>(Engine::getInstance()->getDxCommand(), sceneViewRtvArray_.get(), sceneViewSrvArray_.get());
+        sceneView->Initialize({1280.0f, 720.0f}, DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, {0.0f, 0.0f, 0.0f, 1.0f});
+    }
+    currentBackViewIndex_ = 0;
 
 #ifdef _DEBUG
     editorGroup_   = EditorGroup::getInstance();
@@ -63,8 +63,9 @@ void SceneManager::Finalize() {
     // EditorModeのときだけ 保存する
     currentScene_->Finalize(inEditMode());
     scenes_.clear();
-
-    sceneView_->Finalize();
+    for (auto& sceneView : sceneView_) {
+        sceneView->Finalize();
+    };
 
     sceneViewRtvArray_->Finalize();
     sceneViewSrvArray_->Finalize();
@@ -89,6 +90,7 @@ void SceneManager::Update() {
         SceneChange();
     }
 
+    currentBackViewIndex_ = (currentBackViewIndex_ + 1) % sceneView_.size();
     ecsManager_->Run();
 
     CameraManager::getInstance()->DataConvertToBuffer();
@@ -96,7 +98,7 @@ void SceneManager::Update() {
 
 void SceneManager::Draw() {
     Engine::getInstance()->ScreenPreDraw();
-    sceneView_->DrawTexture();
+    sceneView_[currentBackViewIndex_]->DrawTexture();
     Engine::getInstance()->ScreenPostDraw();
 }
 
@@ -133,7 +135,7 @@ void SceneManager::DebugUpdate() {
     if (ImGui::Begin("SceneView")) {
         ImGui::LabelText("Scene", currentScene_->GetName().c_str());
 
-        ImGui::Image(reinterpret_cast<ImTextureID>(sceneView_->getSrvHandle().ptr), ImGui::GetWindowSize());
+        ImGui::Image(reinterpret_cast<ImTextureID>(sceneView_[currentBackViewIndex_]->getSrvHandle().ptr), ImGui::GetWindowSize());
     }
     ImGui::End();
 
@@ -176,12 +178,10 @@ void SceneManager::DebugUpdate() {
                     ImGui::EndMenu();
                 }
                 if (ImGui::MenuItem("Save")) {
-                    currentScene_->Finalize();
-                    currentScene_->Initialize();
+                    currentScene_->SaveSceneEntity();
                 }
                 if (ImGui::MenuItem("Reload")) {
-                    currentScene_->Finalize();
-                    currentScene_->Initialize();
+                    changeScene(currentScene_->GetName());
                 }
 
                 ImGui::EndMenu();
@@ -229,8 +229,7 @@ void SceneManager::DebugUpdate() {
                 // play
                 currentSceneState_ = SceneState::Debug;
 
-                const auto& scene = currentScene_;
-                SceneManager::getInstance()->changeScene(scene->GetName());
+                SceneManager::getInstance()->changeScene(currentScene_->GetName());
             }
             ImGui::SameLine();
             ImGui::Text("DeltaTime :%.4f", Engine::getInstance()->getDeltaTime());
@@ -238,10 +237,11 @@ void SceneManager::DebugUpdate() {
         ImGui::End();
 
         if (currentSceneState_ == SceneState::Debug) {
-            // DebuggerGroup を終了
-            debuggerGroup_->Finalize();
-            // Editor を再初期化
-            editorGroup_->Initialize();
+            // DebuggerGroup 初期化
+            debuggerGroup_->Initialize();
+
+            // editorGroup を終了
+            editorGroup_->Finalize();
 
             debugState_ = DebugState::Play;
             break;
