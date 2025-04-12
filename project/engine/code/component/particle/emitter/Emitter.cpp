@@ -63,12 +63,7 @@ Emitter::Emitter(DxSrvArray* _srvArray) : IComponent(), srvArray_(_srvArray) {
     leftActiveTime_ = 0.0f;
 }
 
-Emitter::~Emitter() {
-    if (!particles_.empty()) {
-        particles_.clear();
-    }
-    structuredTransform_.Finalize();
-}
+Emitter::~Emitter() {}
 
 void Emitter::Initialize(GameEntity* /*_entity*/) {
     { // Initialize DrawingData Size
@@ -84,6 +79,13 @@ void Emitter::Initialize(GameEntity* /*_entity*/) {
     emitterSpawnShape_ = std::make_unique<EmitterSphere>();
 
     particleKeyFrames_ = std::make_unique<ParticleKeyFrames>();
+}
+
+void Emitter::Finalize() {
+    if (!particles_.empty()) {
+        particles_.clear();
+    }
+    structuredTransform_.Finalize();
 }
 
 void Emitter::Update(float deltaTime) {
@@ -663,13 +665,6 @@ void Emitter::Draw(ID3D12GraphicsCommandList* _commandList) {
         // 描画!!!
         _commandList->DrawIndexedInstanced(UINT(mesh.getIndexSize()), static_cast<UINT>(structuredTransform_.openData_.size()), 0, 0, 0);
     }
-}
-
-void Emitter::Finalize() {
-    if (!particles_.empty()) {
-        particles_.clear();
-    }
-    structuredTransform_.Finalize();
 }
 
 void Emitter::CalculateMaxSize() {

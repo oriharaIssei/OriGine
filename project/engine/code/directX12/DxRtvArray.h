@@ -21,7 +21,7 @@ public:
 						const Microsoft::WRL::ComPtr<ID3D12Resource> &resource);
 	void DestroyView(uint32_t index);
 
-	void ClearTarget(uint32_t index,ID3D12GraphicsCommandList* commandList,const float* color);
+	void ClearTarget(uint32_t index,ID3D12GraphicsCommandList* commandList,const float* color) const;
 
 private:
 	/// <summary>

@@ -22,15 +22,21 @@ void DxHeap::Initialize(ID3D12Device *device){
 	srvIncrementSize_ = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 }
 
-void DxHeap::CompactRtvHeap(ID3D12Device *device,std::vector<std::pair<D3D12_CPU_DESCRIPTOR_HANDLE,uint32_t>> &usedDescriptorsArrays){
-	D3D12_CPU_DESCRIPTOR_HANDLE dstHandle = srvHeap_->GetCPUDescriptorHandleForHeapStart();
+void DxHeap::CompactRtvHeap(ID3D12Device* device, std::vector<std::pair<D3D12_CPU_DESCRIPTOR_HANDLE, uint32_t>>& usedDescriptorsArrays) {
+    // RTV ヒープからハンドルを取得
+    D3D12_CPU_DESCRIPTOR_HANDLE dstHandle = rtvHeap_->GetCPUDescriptorHandleForHeapStart();
 
-	for(size_t i = 0; i < usedDescriptorsArrays.size(); ++i){
-		if(usedDescriptorsArrays[i].first.ptr != dstHandle.ptr){
-            device->CopyDescriptorsSimple(usedDescriptorsArrays[i].second, dstHandle, usedDescriptorsArrays[i].first, D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-		}
-		dstHandle.ptr += srvIncrementSize_ * usedDescriptorsArrays[i].second;
-	}
+    for (size_t i = 0; i < usedDescriptorsArrays.size(); ++i) {
+        if (usedDescriptorsArrays[i].first.ptr != dstHandle.ptr) {
+            // 正しいヒープタイプを指定
+            device->CopyDescriptorsSimple(
+                usedDescriptorsArrays[i].second,
+                dstHandle,
+                usedDescriptorsArrays[i].first,
+                D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+        }
+        dstHandle.ptr += rtvIncrementSize_ * usedDescriptorsArrays[i].second;
+    }
 }
 
 void DxHeap::CompactSrvHeap(ID3D12Device *device,std::vector<std::pair<D3D12_CPU_DESCRIPTOR_HANDLE,uint32_t>> &usedDescriptorsArrays){

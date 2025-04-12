@@ -200,6 +200,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="math\Vector4.h" />
     <ClInclude Include="math\shape\Shapes.h" />
     <ClInclude Include="engine\code\system\render\ParticleRenderSystem.h" />
+    <ClInclude Include="engine\code\component\particle\primitive\Primitive.h" />
     <ClInclude Include="util\nameof.h" />
   </ItemGroup>
   <ItemGroup>
@@ -277,6 +278,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="math\MyEasing.cpp" />
     <ClCompile Include="math\Quaternion.cpp" />
     <ClCompile Include="engine\code\system\render\ParticleRenderSystem.cpp" />
+    <ClCompile Include="engine\code\component\particle\primitive\Primitive.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex.vcxproj">
