@@ -91,7 +91,7 @@ void RenderTexture::Initialize(const Vec2f& textureSize,DXGI_FORMAT _format,cons
 	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 	rtvIndex_ = rtvArray_->CreateView(device,rtvDesc,resource_.getResource());
 
-	///===========================================================================
+	///========= ==================================================================
 	///  SRV の作成
 	///===========================================================================
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
