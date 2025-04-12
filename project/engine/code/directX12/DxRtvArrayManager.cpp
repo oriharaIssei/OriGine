@@ -49,7 +49,7 @@ uint32_t DxRtvArrayManager::SearchEmptyLocation(uint32_t size,std::shared_ptr<Dx
 
 		if(static_cast<int32_t>(heapCondition_[i].arraySize -= size) == 0){
 			// sizeがぴったりなら そこを使う
-			heapCondition_[i] = {dxRtvArray,size,i};
+            heapCondition_[i] = {dxRtvArray, size, currentLocation};
 		} else{
 			// size が違ったら 使う分だけ前詰めする
 			std::vector<ArrayCondition>::iterator itr = heapCondition_.begin() + i;
@@ -60,7 +60,7 @@ uint32_t DxRtvArrayManager::SearchEmptyLocation(uint32_t size,std::shared_ptr<Dx
 	}
 
 	// 前詰め処理
-	DxHeap::getInstance()->CompactDsvHeap(Engine::getInstance()->getDxDevice()->getDevice(),
+	DxHeap::getInstance()->CompactRtvHeap(Engine::getInstance()->getDxDevice()->getDevice(),
 										  usedArrays_);
 
 	///使われていないものを一箇所にまとめる
@@ -80,7 +80,7 @@ uint32_t DxRtvArrayManager::SearchEmptyLocation(uint32_t size,std::shared_ptr<Dx
 		}
 	}
 
-	if(endLocation + size >= DxHeap::srvHeapSize){
+	if(endLocation + size >= DxHeap::rtvHeapSize){
 		assert(false);
 		return 0;
 	}

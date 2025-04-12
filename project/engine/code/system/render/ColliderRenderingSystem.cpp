@@ -193,8 +193,8 @@ void ColliderRenderingSystem::Finalize() {
 
 void ColliderRenderingSystem::UpdateEntity(GameEntity* /*_entity*/) {}
 
-void ColliderRenderingSystem::CreateRenderMesh() { // AABB
-    {
+void ColliderRenderingSystem::CreateRenderMesh() { 
+    {// AABB
         auto& meshGroup               = aabbRenderer_.getMeshGroup();
         aabbMeshItr_                  = meshGroup->begin();
         uint32_t currentVertexesIndex = 0;
@@ -227,8 +227,8 @@ void ColliderRenderingSystem::CreateRenderMesh() { // AABB
     }
     aabbMeshItr_->TransferData();
 
-    // Sphere
-    {
+   
+    { // Sphere
         auto& meshGroup               = sphereRenderer_.getMeshGroup();
         sphereMeshItr_                = meshGroup->begin();
         uint32_t currentVertexesIndex = 0;

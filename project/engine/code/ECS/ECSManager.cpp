@@ -92,6 +92,8 @@ void EntityComponentSystemManager::Run() {
         }
     }
 
+    CameraManager::getInstance()->DataConvertToBuffer();
+
     auto sceneView = SceneManager::getInstance()->getSceneView();
 
     sceneView->PreDraw();

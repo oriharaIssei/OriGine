@@ -90,8 +90,6 @@ void SceneManager::Update() {
     }
 
     ecsManager_->Run();
-
-    CameraManager::getInstance()->DataConvertToBuffer();
 }
 
 void SceneManager::Draw() {
@@ -168,20 +166,23 @@ void SceneManager::DebugUpdate() {
                     for (auto& [name, index] : sceneManager->sceneIndexs_) {
                         if (ImGui::MenuItem(name.c_str())) {
                             sceneManager->changeScene(name);
+
                             // Editor を再初期化
-                            this->Initialize();
+                            editorGroup_->Finalize();
+                            editorGroup_->Initialize();
                             break;
                         }
                     }
                     ImGui::EndMenu();
                 }
                 if (ImGui::MenuItem("Save")) {
-                    currentScene_->Finalize();
-                    currentScene_->Initialize();
+                    currentScene_->SaveSceneEntity();
                 }
                 if (ImGui::MenuItem("Reload")) {
-                    currentScene_->Finalize();
-                    currentScene_->Initialize();
+                    this->changeScene(currentScene_->GetName());
+
+                    editorGroup_->Finalize();
+                    editorGroup_->Initialize();
                 }
 
                 ImGui::EndMenu();

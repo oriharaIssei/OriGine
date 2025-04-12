@@ -437,6 +437,7 @@
     <ClInclude Include="engine\code\module\debugger\DebuggerGroup.h" />
     <ClInclude Include="engine\code\system\render\LineRenderSystem.h" />
     <ClInclude Include="engine\code\system\render\ColliderRenderingSystem.h" />
+    <ClInclude Include="engine\code\component\particle\primitive\Primitive.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\code\ECS\ECSEditor.cpp">
@@ -647,5 +648,6 @@
     <ClCompile Include="engine\code\module\debugger\DebuggerGroup.cpp" />
     <ClCompile Include="engine\code\system\render\LineRenderSystem.cpp" />
     <ClCompile Include="engine\code\system\render\ColliderRenderingSystem.cpp" />
+    <ClCompile Include="engine\code\component\particle\primitive\Primitive.cpp" />
   </ItemGroup>
 </Project>

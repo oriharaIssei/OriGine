@@ -86,7 +86,7 @@ public: // メンバ関数
     void Load(BinaryReader& _reader) override;
 
 public: // メンバ変数
-    float radius_;
+    float radius_ = 0;
 };
 
 ///< summary>
@@ -107,9 +107,9 @@ struct EmitterOBB
     void Load(BinaryReader& _reader) override;
 
 public: // メンバ変数
-    Vec3f min_;
-    Vec3f max_;
-    Vec3f rotate_;
+    Vec3f min_    = {0.f, 0.f, 0.f};
+    Vec3f max_    = {0.f, 0.f, 0.f};
+    Vec3f rotate_ = {0.f, 0.f, 0.f};
 };
 
 ///< summary>
@@ -130,9 +130,9 @@ public: // メンバ関数
     void Load(BinaryReader& _reader) override;
 
 public: // メンバ変数
-    float radius_;
-    float length_;
-    Vec3f direction_;
+    float radius_    = 0.f;
+    float length_    = 0.f;
+    Vec3f direction_ = {0.f, 0.f, 0.f};
 };
 
 ///< summary>
@@ -154,7 +154,7 @@ public: // メンバ関数
     void Load(BinaryReader& _reader) override;
 
 public: // メンバ変数
-    float angle_;
-    float length_;
-    Vec3f direction_;
+    float angle_     = 0.f;
+    float length_    = 0.f;
+    Vec3f direction_ = {0.f, 0.f, 0.f};
 };

@@ -44,24 +44,28 @@ uint32_t DxSrvArrayManager::SearchEmptyLocation(uint32_t size, std::shared_ptr<D
             continue;
         }
 
+        // ref が 1 なら 初期化(このインスタンスが持っている 1だから 実質0)
         if (heapCondition_[i].dxSrvArray_.use_count() == 1) {
             heapCondition_[i].dxSrvArray_.reset();
             heapCondition_[i].dxSrvArray_ = nullptr;
         }
 
+        // 空きが 必要なものより小さければ locationを更新して 次へ
         if (heapCondition_[i].arraySize < size) {
             currentLocation += heapCondition_[i].arraySize;
             continue;
         }
 
-        if (static_cast<int32_t>(heapCondition_[i].arraySize -= size) == 0) {
-            // sizeがぴったりなら そこを使う
-            heapCondition_[i] = {dxSrvArray, size, i};
+        // sizeがぴったりなら そこを使う
+        if (static_cast<int32_t>(heapCondition_[i].arraySize - size) == 0) {
+            heapCondition_[i] = {dxSrvArray, size, currentLocation};
         } else {
             // size が違ったら 使う分だけ前詰めする
             std::vector<ArrayCondition>::iterator itr = heapCondition_.begin() + i;
             heapCondition_.insert(itr, {dxSrvArray, size, currentLocation});
-            heapCondition_[i + 1].arrayLocation = currentLocation;
+            // もともと大きかったものを 後ろに, サイズを使用した分 小さくする
+            heapCondition_[i + 1].arrayLocation = currentLocation + size;
+            heapCondition_[i + 1].arraySize -= size;
         }
         return heapCondition_[i].arrayLocation;
     }
