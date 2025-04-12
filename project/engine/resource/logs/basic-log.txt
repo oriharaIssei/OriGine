@@ -1,0 +1,190 @@
+[2025-04-12 23:20:22.078] [debug] Use Adapter : NVIDIA GeForce RTX 3060 Laptop GPU
+
+[2025-04-12 23:20:22.511] [debug] FeatureLevel : 12.2
+
+[2025-04-12 23:20:22.613] [debug] Begin CompileShader, pathengine/resource/Shader/CopyImage.VS.hlsl, profile : vs_6_0
+
+[2025-04-12 23:20:22.679] [error] Compile Succeeded, path : engine/resource/Shader/CopyImage.VS.hlsl, profile : vs_6_0
+
+[2025-04-12 23:20:22.679] [debug] Begin CompileShader, pathengine/resource/Shader/CopyImage.PS.hlsl, profile : ps_6_0
+
+[2025-04-12 23:20:22.693] [error] Compile Succeeded, path : engine/resource/Shader/CopyImage.PS.hlsl, profile : ps_6_0
+
+[2025-04-12 23:20:22.772] [debug] Begin CompileShader, pathengine/resource/Shader/Particle.VS.hlsl, profile : vs_6_0
+
+[2025-04-12 23:20:22.786] [error] Compile Succeeded, path : engine/resource/Shader/Particle.VS.hlsl, profile : vs_6_0
+
+[2025-04-12 23:20:22.786] [debug] Begin CompileShader, pathengine/resource/Shader/Particle.PS.hlsl, profile : ps_6_0
+
+[2025-04-12 23:20:22.801] [error] Compile Succeeded, path : engine/resource/Shader/Particle.PS.hlsl, profile : ps_6_0
+
+[2025-04-12 23:20:22.824] [debug] Begin CompileShader, pathengine/resource/Shader/Sprite.VS.hlsl, profile : vs_6_0
+
+[2025-04-12 23:20:22.837] [error] Compile Succeeded, path : engine/resource/Shader/Sprite.VS.hlsl, profile : vs_6_0
+
+[2025-04-12 23:20:22.837] [debug] Begin CompileShader, pathengine/resource/Shader/Sprite.PS.hlsl, profile : ps_6_0
+
+[2025-04-12 23:20:22.854] [error] Compile Succeeded, path : engine/resource/Shader/Sprite.PS.hlsl, profile : ps_6_0
+
+[2025-04-12 23:20:22.871] [debug] Begin CompileShader, pathengine/resource/Shader/Object3dTexture.VS.hlsl, profile : vs_6_0
+
+[2025-04-12 23:20:22.887] [error] Compile Succeeded, path : engine/resource/Shader/Object3dTexture.VS.hlsl, profile : vs_6_0
+
+[2025-04-12 23:20:22.887] [debug] Begin CompileShader, pathengine/resource/Shader/Object3dTexture.PS.hlsl, profile : ps_6_0
+
+[2025-04-12 23:20:22.913] [error] Compile Succeeded, path : engine/resource/Shader/Object3dTexture.PS.hlsl, profile : ps_6_0
+
+[2025-04-12 23:20:22.932] [debug] Begin CompileShader, pathengine/resource/Shader/ColoredVertex.VS.hlsl, profile : vs_6_0
+
+[2025-04-12 23:20:22.944] [error] Compile Succeeded, path : engine/resource/Shader/ColoredVertex.VS.hlsl, profile : vs_6_0
+
+[2025-04-12 23:20:22.945] [debug] Begin CompileShader, pathengine/resource/Shader/ColoredVertex.PS.hlsl, profile : ps_6_0
+
+[2025-04-12 23:20:22.948] [error] Compile Succeeded, path : engine/resource/Shader/ColoredVertex.PS.hlsl, profile : ps_6_0
+
+[2025-04-13 00:34:38.872] [debug] Use Adapter : NVIDIA GeForce RTX 3060 Laptop GPU
+
+[2025-04-13 00:34:39.447] [debug] FeatureLevel : 12.2
+
+[2025-04-13 00:34:39.448] [debug] Initialize DxHeap
+[2025-04-13 00:34:39.448] [debug] Create DescriptorHeap
+ Type : 2
+ NumDescriptors : 4
+[2025-04-13 00:34:39.449] [debug] Create DescriptorHeap
+ Type : 0
+ NumDescriptors : 256
+[2025-04-13 00:34:39.449] [debug] Create DescriptorHeap
+ Type : 3
+ NumDescriptors : 1
+[2025-04-13 00:34:39.449] [debug] RtvHeap IncrementSize : 32
+[2025-04-13 00:34:39.449] [debug] SrvHeap IncrementSize : 32
+[2025-04-13 00:34:39.449] [debug] DsvHeap IncrementSize : 8
+[2025-04-13 00:34:39.449] [debug] Initialize DxSrvArrayManager 
+ Size :256
+[2025-04-13 00:34:39.449] [debug] Initialize DxSrvArrayManager 
+ Size :4
+[2025-04-13 00:34:39.449] [debug] Initialize DxCommand 
+ CommandList  :main
+ CommandQueue :main
+[2025-04-13 00:34:39.551] [debug] Create DxRtvArray 
+ Size   :2
+[2025-04-13 00:34:39.551] [debug] Complate Create DxRtvArray 
+ Locate :0
+[2025-04-13 00:34:39.554] [debug] Initialize DxCommand 
+ CommandList  :main
+ CommandQueue :main
+[2025-04-13 00:34:39.555] [debug] Create DxSrvArray 
+ Size   :1
+[2025-04-13 00:34:39.555] [debug] Complate Create DxSrvArray 
+ Locate :0
+[2025-04-13 00:34:39.556] [debug] Create DxSrvArray 
+ Size   :128
+[2025-04-13 00:34:39.556] [debug] Complate Create DxSrvArray 
+ Locate :1
+[2025-04-13 00:34:39.557] [debug] Initialize DxCommand 
+ CommandList  :TextureManager
+ CommandQueue :TextureManager
+[2025-04-13 00:34:39.594] [debug] Create DxSrvArray 
+ Size   :3
+[2025-04-13 00:34:39.594] [debug] Complate Create DxSrvArray 
+ Locate :129
+[2025-04-13 00:34:39.594] [debug] Initialize DxCommand 
+ CommandList  :main
+ CommandQueue :main
+[2025-04-13 00:34:39.595] [debug] Begin CompileShader, pathengine/resource/Shader/CopyImage.VS.hlsl, profile : vs_6_0
+
+[2025-04-13 00:34:39.620] [debug] Compile Succeeded, path : engine/resource/Shader/CopyImage.VS.hlsl, profile : vs_6_0
+
+[2025-04-13 00:34:39.620] [debug] Begin CompileShader, pathengine/resource/Shader/CopyImage.PS.hlsl, profile : ps_6_0
+
+[2025-04-13 00:34:39.632] [debug] Compile Succeeded, path : engine/resource/Shader/CopyImage.PS.hlsl, profile : ps_6_0
+
+[2025-04-13 00:34:39.656] [debug] Create DxRtvArray 
+ Size   :1
+[2025-04-13 00:34:39.656] [debug] Complate Create DxRtvArray 
+ Locate :2
+[2025-04-13 00:34:39.657] [debug] Create DxSrvArray 
+ Size   :1
+[2025-04-13 00:34:39.657] [debug] Complate Create DxSrvArray 
+ Locate :132
+[2025-04-13 00:34:39.696] [debug] Create DxSrvArray 
+ Size   :64
+[2025-04-13 00:34:39.696] [debug] Complate Create DxSrvArray 
+ Locate :133
+[2025-04-13 00:34:39.697] [debug] Initialize DxCommand 
+ CommandList  :main
+ CommandQueue :main
+[2025-04-13 00:34:39.697] [debug] Begin CompileShader, pathengine/resource/Shader/Particle.VS.hlsl, profile : vs_6_0
+
+[2025-04-13 00:34:39.707] [debug] Compile Succeeded, path : engine/resource/Shader/Particle.VS.hlsl, profile : vs_6_0
+
+[2025-04-13 00:34:39.707] [debug] Begin CompileShader, pathengine/resource/Shader/Particle.PS.hlsl, profile : ps_6_0
+
+[2025-04-13 00:34:39.714] [debug] Compile Succeeded, path : engine/resource/Shader/Particle.PS.hlsl, profile : ps_6_0
+
+[2025-04-13 00:34:39.733] [debug] Initialize DxCommand 
+ CommandList  :main
+ CommandQueue :main
+[2025-04-13 00:34:39.733] [debug] Begin CompileShader, pathengine/resource/Shader/Sprite.VS.hlsl, profile : vs_6_0
+
+[2025-04-13 00:34:39.737] [debug] Compile Succeeded, path : engine/resource/Shader/Sprite.VS.hlsl, profile : vs_6_0
+
+[2025-04-13 00:34:39.737] [debug] Begin CompileShader, pathengine/resource/Shader/Sprite.PS.hlsl, profile : ps_6_0
+
+[2025-04-13 00:34:39.743] [debug] Compile Succeeded, path : engine/resource/Shader/Sprite.PS.hlsl, profile : ps_6_0
+
+[2025-04-13 00:34:39.770] [debug] Initialize DxCommand 
+ CommandList  :main
+ CommandQueue :main
+[2025-04-13 00:34:39.770] [debug] Begin CompileShader, pathengine/resource/Shader/Object3dTexture.VS.hlsl, profile : vs_6_0
+
+[2025-04-13 00:34:39.785] [debug] Compile Succeeded, path : engine/resource/Shader/Object3dTexture.VS.hlsl, profile : vs_6_0
+
+[2025-04-13 00:34:39.785] [debug] Begin CompileShader, pathengine/resource/Shader/Object3dTexture.PS.hlsl, profile : ps_6_0
+
+[2025-04-13 00:34:39.803] [debug] Compile Succeeded, path : engine/resource/Shader/Object3dTexture.PS.hlsl, profile : ps_6_0
+
+[2025-04-13 00:34:39.845] [debug] Initialize DxCommand 
+ CommandList  :main
+ CommandQueue :main
+[2025-04-13 00:34:39.845] [debug] Begin CompileShader, pathengine/resource/Shader/ColoredVertex.VS.hlsl, profile : vs_6_0
+
+[2025-04-13 00:34:39.857] [debug] Compile Succeeded, path : engine/resource/Shader/ColoredVertex.VS.hlsl, profile : vs_6_0
+
+[2025-04-13 00:34:39.857] [debug] Begin CompileShader, pathengine/resource/Shader/ColoredVertex.PS.hlsl, profile : ps_6_0
+
+[2025-04-13 00:34:39.861] [debug] Compile Succeeded, path : engine/resource/Shader/ColoredVertex.PS.hlsl, profile : ps_6_0
+
+[2025-04-13 00:34:39.882] [debug] Initialize DxCommand 
+ CommandList  :main
+ CommandQueue :main
+[2025-04-13 00:34:44.172] [debug] Finalize DxCommand 
+ CommandList Key  :main
+ CommandQueue Key :main
+[2025-04-13 00:34:44.172] [debug] Finalize DxCommand 
+ CommandList Key  :main
+ CommandQueue Key :main
+[2025-04-13 00:34:44.172] [debug] Finalize DxCommand 
+ CommandList Key  :main
+ CommandQueue Key :main
+[2025-04-13 00:34:44.172] [debug] Finalize DxCommand 
+ CommandList Key  :main
+ CommandQueue Key :main
+[2025-04-13 00:34:44.172] [debug] Finalize DxCommand 
+ CommandList Key  :main
+ CommandQueue Key :main
+[2025-04-13 00:34:44.179] [debug] Finalize DxCommand 
+ CommandList Key  :main
+ CommandQueue Key :main
+[2025-04-13 00:34:44.185] [debug] Finalize DxCommand 
+ CommandList Key  :main
+ CommandQueue Key :main
+[2025-04-13 00:34:44.186] [debug] Finalize DxCommand 
+ CommandList Key  :TextureManager
+ CommandQueue Key :TextureManager
+[2025-04-13 00:34:44.201] [debug] Finalize DxSrvArrayManager
+[2025-04-13 00:34:44.201] [debug] Finalize DxRtvArrayManager
+[2025-04-13 00:34:44.203] [debug] Finalize DxCommand 
+ CommandList Key  :main
+ CommandQueue Key :main
+[2025-04-13 00:34:44.217] [debug] Reset All DxCommand

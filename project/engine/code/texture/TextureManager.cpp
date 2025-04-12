@@ -1,33 +1,35 @@
 #include "TextureManager.h"
 
-///stl
-//io
+/// stl
+// io
 #include <iostream>
-//assert
+// assert
 #include <cassert>
-//etc
+// etc
 #include <combaseapi.h>
 
 /// externals
-//dx12
+// dx12
 #include "d3d12.h"
-#include "DirectXTex/DirectXTex.h"
 #include "DirectXTex/d3dx12.h"
+#include "DirectXTex/DirectXTex.h"
 
-///engine
+/// engine
 #include "Engine.h"
 #define RESOURCE_DIRECTORY
 #include "EngineInclude.h"
-//dx12Object
+// dx12Object
 #include "directX12/DxFunctionHelper.h"
 #include "directX12/DxHeap.h"
 #include "directX12/DxSrvArrayManager.h"
 #include "directX12/ResourceBarrierManager.h"
 #include "directX12/ShaderCompiler.h"
 
-//lib
+// lib
 #include "logger/Logger.h"
 
+// util
+#include "util/ConvertString.h"
 
 const uint32_t TextureManager::maxTextureSize_;
 std::shared_ptr<DxSrvArray> TextureManager::dxSrvArray_;
@@ -76,7 +78,7 @@ DirectX::ScratchImage Texture::Load(const std::string& filePath) {
     DirectX::ScratchImage image{};
 
     // テクスチャファイルを読み込む
-    std::wstring filePathW = Logger::ConvertString(filePath);
+    std::wstring filePathW = ConvertString(filePath);
     HRESULT hr             = DirectX::LoadFromWICFile(
         filePathW.c_str(),
         DirectX::WIC_FLAGS_FORCE_SRGB,
@@ -179,9 +181,9 @@ void TextureManager::Initialize() {
     queueDesc.NodeMask                 = 0;
 
     dxCommand_ = std::make_unique<DxCommand>();
-    dxCommand_->Initialize( "TextureManager", "TextureManager");
+    dxCommand_->Initialize("TextureManager", "TextureManager");
     // load中のテクスチャにはこれをはっつける
-    LoadTexture(kEngineResourceDirectory+"/Texture/white1x1.png");
+    LoadTexture(kEngineResourceDirectory + "/Texture/white1x1.png");
 }
 
 void TextureManager::Finalize() {
@@ -199,12 +201,15 @@ void TextureManager::Finalize() {
 }
 
 uint32_t TextureManager::LoadTexture(const std::string& filePath, std::function<void(uint32_t loadedIndex)> callBack) {
+    Logger::Trace("Load Texture \n Path : " + filePath);
+
     uint32_t index = 0;
     for (index = 0; index < textures_.size(); ++index) {
         if (textures_[index] == nullptr) {
             textures_[index] = std::make_unique<Texture>();
             break;
         } else if (filePath == textures_[index]->path) {
+            Logger::Trace("Already loaded texture: " + filePath);
             if (callBack) {
                 callBack(index);
             }
@@ -213,10 +218,10 @@ uint32_t TextureManager::LoadTexture(const std::string& filePath, std::function<
     }
 
     loadThread_->pushTask(
-        {.filePath     = filePath,
-         .textureIndex = index,
-         .texture      = textures_[index].get(),
-         .callBack     = callBack});
+        {.filePath        = filePath,
+            .textureIndex = index,
+            .texture      = textures_[index].get(),
+            .callBack     = callBack});
 
     return index;
 }
@@ -230,11 +235,17 @@ void TextureManager::UnloadTexture(uint32_t id) {
 
 #pragma region "LoadTask"
 void TextureManager::LoadTask::Update() {
+    DeltaTime timer;
+    timer.Initialize();
+
     std::weak_ptr<DxSrvArray> dxSrvArray = dxSrvArray_;
     texture->Initialize(filePath, dxSrvArray.lock());
 
     if (callBack) {
         callBack(textureIndex);
     }
+    timer.Update();
+
+    Logger::Trace("LoadedTexture \n Path        : " + filePath + "\n Lading Time : " + std::to_string(timer.getDeltaTime()));
 }
 #pragma endregion

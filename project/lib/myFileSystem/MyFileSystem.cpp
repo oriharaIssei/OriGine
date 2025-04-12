@@ -11,6 +11,9 @@
 // externals
 #include <Windows.h>
 
+//util
+#include "util/ConvertString.h"
+
 namespace fs = std::filesystem;
 
 std::list<std::pair<std::string, std::string>> MyFileSystem::SearchFile(const std::string& directory, const std::string& extension, bool withoutExtensionOutput) {
@@ -80,7 +83,7 @@ void MyFileSystem::SelectFolderDialog(const std::string& _defaultDirectory, std:
                     if (SUCCEEDED(hr)) {
                         // pszFilePath で入手されるのは フルパスなので それを _defaultDirectory からの相対パスに変換する
                         std::wstring wFullPath(pszFilePath);
-                        std::string fullPath  = Logger::ConvertString(wFullPath);
+                        std::string fullPath  = ConvertString(wFullPath);
                         fs::path relativePath = fs::relative(fullPath, _defaultDirectory);
                         _outPath              = relativePath.string();
                         CoTaskMemFree(pszFilePath);
@@ -95,7 +98,7 @@ void MyFileSystem::SelectFolderDialog(const std::string& _defaultDirectory, std:
             CoUninitialize();
         }
     } else {
-        Logger::OutputLog("CoInitializeEx failed with error: " + std::to_string(hr));
+        Logger::Error("CoInitializeEx failed with error: " + std::to_string(hr));
     }
 }
 
@@ -152,7 +155,7 @@ bool MyFileSystem::SelectFileDialog(
 
                     if (SUCCEEDED(hr)) {
                         std::wstring wFullPath(pszFilePath);
-                        std::string fullPath  = Logger::ConvertString(wFullPath);
+                        std::string fullPath  = ConvertString(wFullPath);
                         fs::path relativePath = fs::relative(fullPath, defaultDirectory);
                         fileDirectory         = relativePath.parent_path().string();
                         filename              = relativePath.filename().string();
@@ -174,7 +177,7 @@ bool MyFileSystem::SelectFileDialog(
             CoUninitialize();
         }
     } else {
-        Logger::OutputLog("CoInitializeEx failed with error: " + std::to_string(hr));
+        Logger::Debug("CoInitializeEx failed with error: " + std::to_string(hr));
     }
     return false;
 }

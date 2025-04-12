@@ -94,7 +94,10 @@
 			"codecvt": "cpp",
 			"coroutine": "cpp",
 			"resumable": "cpp",
-			"stack": "cpp"
+			"stack": "cpp",
+			"complex": "cpp",
+			"expected": "cpp",
+			"source_location": "cpp"
 		}
 	}
 }
