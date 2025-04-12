@@ -84,8 +84,6 @@ void IScene::Finalize([[maybe_unused]] bool _isSave) {
         SaveSceneEntity();
     }
 #endif
-    sceneRtvArray_.reset();
-    sceneSrvArray_.reset();
 
     ECSManager* ecsManager = ECSManager::getInstance();
     ecsManager->FinalizeSystems();

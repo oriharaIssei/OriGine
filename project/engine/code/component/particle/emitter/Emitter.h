@@ -79,10 +79,10 @@ private:
     std::shared_ptr<Model> particleModel_;
     IStructuredBuffer<ParticleTransform> structuredTransform_;
     //=============== Model & Texture ===============/
-    std::string modelDirectory_;
-    std::string modelFileName_;
-    std::string textureFileName_;
-    int32_t textureIndex_;
+    std::string modelDirectory_  = "";
+    std::string modelFileName_   = "";
+    std::string textureFileName_ = "";
+    int32_t textureIndex_        = 0;
 
     //=============== エミッター設定項目 ===============//
     BlendMode blendMode_ = BlendMode::None;

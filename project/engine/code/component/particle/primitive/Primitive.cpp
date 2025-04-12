@@ -71,6 +71,3 @@ void Sphere::createMesh() {
 
     mesh_->TransferData();
 }
-
-void Ring::createMesh() {
-}

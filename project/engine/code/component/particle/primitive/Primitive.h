@@ -255,3 +255,117 @@ private:
     float radius_ = 1.f;
     float uv_     = 1.f;
 };
+
+class Cylinder
+    : public IPrimitive {
+public:
+    Cylinder() : IPrimitive(PrimitiveType::Cylinder) {}
+    ~Cylinder() override {
+        mesh_.reset();
+    }
+
+    void Initialize() override {
+        vertexSize_ = 4 * division_ * division_;
+        indexSize_  = 4 * division_ * division_;
+        // mesh Init
+        mesh_ = std::make_shared<TextureMesh>();
+        mesh_->setName("Cylinder");
+        mesh_->Initialize(vertexSize_, indexSize_);
+        // create mesh
+        createMesh();
+    }
+
+    void createMesh() override;
+
+private:
+    uint32_t division_ = 16;
+    uint32_t vertexSize_;
+    uint32_t indexSize_;
+
+    float radius_ = 1.f;
+    float uv_     = 1.f;
+
+    float height_ = 1.f;
+};
+
+class Cone
+    : public IPrimitive {
+public:
+    Cone() : IPrimitive(PrimitiveType::Cone) {}
+    ~Cone() override {
+        mesh_.reset();
+    }
+    void Initialize() override {
+        vertexSize_ = 4 * division_ * division_;
+        indexSize_  = 4 * division_ * division_;
+        // mesh Init
+        mesh_ = std::make_shared<TextureMesh>();
+        mesh_->setName("Cone");
+        mesh_->Initialize(vertexSize_, indexSize_);
+        // create mesh
+        createMesh();
+    }
+
+    void createMesh() override;
+
+private:
+    uint32_t division_ = 16;
+    uint32_t vertexSize_;
+    uint32_t indexSize_;
+    float radius_ = 1.f;
+    float uv_     = 1.f;
+    float height_ = 1.f;
+};
+
+class Triangle
+    : public IPrimitive {
+public:
+    Triangle() : IPrimitive(PrimitiveType::Triangel) {}
+    ~Triangle() override {
+        mesh_.reset();
+    }
+    void Initialize() override {
+        // mesh Init
+        mesh_ = std::make_shared<TextureMesh>();
+        mesh_->setName("Triangle");
+        mesh_->Initialize(3, 3);
+        // create mesh
+        createMesh();
+    }
+    void createMesh() override;
+
+private:
+    Vec3f vertex_[3] = {
+        {0.f, 0.f, 0.f},
+        {1.f, 0.f, 0.f},
+        {0.f, 1.f, 0.f},
+    };
+    Vec3f normal_ = {0.f, 0.f, 1.f};
+    Vec2f uv_     = {0.f, 0.f};
+};
+
+class Box
+    : public IPrimitive {
+public:
+    Box() : IPrimitive(PrimitiveType::Box) {}
+    ~Box() override {
+        mesh_.reset();
+    }
+    void Initialize() override {
+        // mesh Init
+        mesh_ = std::make_shared<TextureMesh>();
+        mesh_->setName("Box");
+        mesh_->Initialize(vertexSize, indexSize);
+        // create mesh
+        createMesh();
+    }
+    void createMesh() override;
+
+private:
+    const uint32_t vertexSize = 8;
+    const uint32_t indexSize  = 24;
+
+    Vec3f size_ = {1.f, 1.f, 1.f};
+
+    Vec3f uv_ = {1.f, 1.f, 1.f};
+};
