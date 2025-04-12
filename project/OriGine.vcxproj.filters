@@ -438,6 +438,7 @@
     <ClInclude Include="engine\code\system\render\LineRenderSystem.h" />
     <ClInclude Include="engine\code\system\render\ColliderRenderingSystem.h" />
     <ClInclude Include="engine\code\component\particle\primitive\Primitive.h" />
+    <ClInclude Include="util\ConvertString.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\code\ECS\ECSEditor.cpp">
@@ -649,5 +650,6 @@
     <ClCompile Include="engine\code\system\render\LineRenderSystem.cpp" />
     <ClCompile Include="engine\code\system\render\ColliderRenderingSystem.cpp" />
     <ClCompile Include="engine\code\component\particle\primitive\Primitive.cpp" />
+    <ClCompile Include="util\ConvertString.cpp" />
   </ItemGroup>
 </Project>

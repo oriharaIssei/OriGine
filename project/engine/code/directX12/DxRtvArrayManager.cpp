@@ -1,9 +1,14 @@
 #include "DxRtvArrayManager.h"
 
+/// engine
 #include "Engine.h"
 
+// directX12 object
 #include "directX12/DxHeap.h"
 #include "directX12/DxRtvArray.h"
+
+/// lib
+#include "logger/Logger.h"
 
 DxRtvArrayManager* DxRtvArrayManager::getInstance() {
     static DxRtvArrayManager instance;
@@ -11,10 +16,13 @@ DxRtvArrayManager* DxRtvArrayManager::getInstance() {
 }
 
 void DxRtvArrayManager::Initialize() {
+    Logger::Debug("Initialize DxSrvArrayManager \n Size :" + std::to_string(DxHeap::rtvHeapSize));
     heapCondition_.push_back({nullptr, DxHeap::rtvHeapSize, 0});
 }
 
 void DxRtvArrayManager::Finalize() {
+    Logger::Debug("Finalize DxRtvArrayManager");
+
     for (size_t i = 0; i < heapCondition_.size(); i++) {
         if (heapCondition_[i].dxRtvArray_ == nullptr) {
             continue;
@@ -24,10 +32,14 @@ void DxRtvArrayManager::Finalize() {
 }
 
 std::shared_ptr<DxRtvArray> DxRtvArrayManager::Create(uint32_t size) {
+    Logger::Debug("Create DxRtvArray \n Size   :" + std::to_string(size));
+
     std::shared_ptr<DxRtvArray> dxRtvArray = std::make_shared<DxRtvArray>();
     uint32_t locate                        = SearchEmptyLocation(size, dxRtvArray);
     dxRtvArray->Initialize(size, locate);
-    heapCondition_.push_back({dxRtvArray, size, locate});
+
+    Logger::Debug("Complete Create DxRtvArray \n Locate :" + std::to_string(locate));
+
     return dxRtvArray;
 }
 
@@ -37,19 +49,29 @@ uint32_t DxRtvArrayManager::SearchEmptyLocation(uint32_t size, std::shared_ptr<D
     uint32_t currentLocation = 0;
 
     for (uint32_t i = 0; i < heapCondition_.size(); i++) {
+        // 既に使用されているもの (Nullか refが1以下のもの)
         if (heapCondition_[i].dxRtvArray_ != nullptr) {
             usedArrays_.push_back({dxHeap->getDsvCpuHandle(i), heapCondition_[i].arraySize});
             currentLocation += heapCondition_[i].arraySize;
             continue;
         }
+
+        // ref が 1 なら 初期化(このインスタンスが持っている 1だから 実質0)
+        if (heapCondition_[i].dxRtvArray_.use_count() == 1) {
+            heapCondition_[i].dxRtvArray_.reset();
+            heapCondition_[i].dxRtvArray_ = nullptr;
+        }
+        // 空きが 必要なものより小さければ locationを更新して 次へ
         if (heapCondition_[i].arraySize < size) {
             currentLocation += heapCondition_[i].arraySize;
             continue;
         }
 
-        if (static_cast<int32_t>(heapCondition_[i].arraySize - size) == 0) {
-            // sizeがぴったりなら そこを使う
-            heapCondition_[i] = {dxRtvArray, size, currentLocation};
+        // sizeがぴったりなら そこを使う
+        if (heapCondition_[i].arraySize == size) {
+            Logger::Debug("Find just Size Space \n Locate :" + std::to_string(currentLocation));
+
+            heapCondition_[i].dxRtvArray_ = dxRtvArray;
         } else {
             // size が違ったら 使う分だけ前詰めする
             std::vector<ArrayCondition>::iterator itr = heapCondition_.begin() + i;
@@ -83,6 +105,7 @@ uint32_t DxRtvArrayManager::SearchEmptyLocation(uint32_t size, std::shared_ptr<D
     }
 
     if (endLocation + size >= DxHeap::rtvHeapSize) {
+        Logger::Error("RtvHeap Size Over \n Size :" + std::to_string(size) + "\n EndLocation :" + std::to_string(endLocation));
         assert(false);
         return 0;
     }

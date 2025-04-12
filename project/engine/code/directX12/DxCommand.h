@@ -42,6 +42,9 @@ public:
 	void ExecuteCommand();
 	void ExecuteCommandAndPresent(IDXGISwapChain4 *swapChain);
 private:
+    std::string commandListKey_;
+    std::string commandQueueKey_;
+
 	/// <summary>
 	/// commandListに対してallocatorはほぼ1対1なのでcommandListとAllocatorは同じキーで管理すること
 	/// </summary>
