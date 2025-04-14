@@ -12,7 +12,10 @@
 #include "directX12/ShaderManager.h"
 #include "texture/TextureManager.h"
 
-/// lib
+// lib
+#include "logger/Logger.h"
+
+/// externals
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
@@ -212,9 +215,13 @@ std::shared_ptr<Model> ModelManager::Create(
 
     std::string filePath = directoryPath + "/" + filename;
 
+    Logger::Trace("Load Model \n Path : " + filePath);
+
     const auto itr = modelLibrary_.find(filePath);
     // すでに読み込まれている場合
     if (itr != modelLibrary_.end()) {
+        Logger::Trace("Model already loaded: " + filePath);
+
         auto* targetModelMesh = itr->second.get();
         while (true) {
             if (targetModelMesh->currentState_ == LoadState::Loaded) {
@@ -278,6 +285,9 @@ void ModelManager::pushBackDefaultMaterial(ModelMeshData* key, TexturedMaterial 
 }
 
 void ModelManager::LoadTask::Update() {
+    DeltaTime timer;
+    timer.Initialize();
+
     model->meshData_->currentState_ = LoadState::Unloaded;
 
     try {
@@ -303,9 +313,14 @@ void ModelManager::LoadTask::Update() {
         }
     }
 
+    // ロード完了後にコールバックを呼び出す
     if (callBack != nullptr) {
         callBack(model.get());
     }
 
     model->meshData_->currentState_ = LoadState::Loaded;
+
+    // ロード完了のログ
+    timer.Update();
+    Logger::Trace("Model Load Complete : " + this->directory + "/" + this->fileName + "\n Lading Time : " + std::to_string(timer.getDeltaTime()));
 }

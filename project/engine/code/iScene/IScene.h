@@ -38,13 +38,13 @@ private:
     std::string name_;
 
 public:
-    const std::string& GetName() const {
+    const std::string& getName() const {
         return name_;
     }
-    std::shared_ptr<DxRtvArray> GetSceneRtvArray() const {
+    std::shared_ptr<DxRtvArray> getSceneRtvArray() const {
         return sceneRtvArray_;
     }
-    std::shared_ptr<DxSrvArray> GetSceneSrvArray() const {
+    std::shared_ptr<DxSrvArray> getSceneSrvArray() const {
         return sceneSrvArray_;
     }
 };

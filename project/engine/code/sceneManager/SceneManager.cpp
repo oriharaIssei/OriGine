@@ -21,6 +21,9 @@
 #include "module/editor/EditorGroup.h"
 #include "texture/TextureManager.h"
 
+// lib
+#include "logger/Logger.h"
+
 /// math
 #include "math/Vector2.h"
 #include "math/Vector4.h"
@@ -75,7 +78,10 @@ void SceneManager::Finalize() {
 void SceneManager::Update() {
     auto SceneChange = [this]() {
         if (currentScene_) {
+            Logger::Trace(std::format("SceneChange\n PreviousScene : [ {} ] \n NextScene : [ {} ]", currentScene_->getName(), changingSceneName_));
             currentScene_->Finalize();
+        } else {
+            Logger::Trace(std::format("SceneChange\n Startup Scene : [ {} ] \n ", changingSceneName_));
         }
 
         currentScene_ = scenes_[sceneIndexs_[changingSceneName_]]();
@@ -129,7 +135,7 @@ void SceneManager::DebugUpdate() {
     // SceneView
     ///=================================================================================================
     if (ImGui::Begin("SceneView")) {
-        ImGui::LabelText("Scene", currentScene_->GetName().c_str());
+        ImGui::LabelText("Scene", currentScene_->getName().c_str());
 
         ImGui::Image(reinterpret_cast<ImTextureID>(sceneView_->getSrvHandle().ptr), ImGui::GetWindowSize());
     }
@@ -179,7 +185,7 @@ void SceneManager::DebugUpdate() {
                     currentScene_->SaveSceneEntity();
                 }
                 if (ImGui::MenuItem("Reload")) {
-                    this->changeScene(currentScene_->GetName());
+                    this->changeScene(currentScene_->getName());
 
                     editorGroup_->Finalize();
                     editorGroup_->Initialize();
@@ -214,7 +220,7 @@ void SceneManager::DebugUpdate() {
                     }
                     if (ImGui::MenuItem("Current Scene")) {
                         const auto& scene = currentScene_;
-                        SceneManager::getInstance()->changeScene(scene->GetName());
+                        SceneManager::getInstance()->changeScene(scene->getName());
 
                         currentSceneState_ = SceneState::Debug;
                     }
@@ -231,7 +237,7 @@ void SceneManager::DebugUpdate() {
                 currentSceneState_ = SceneState::Debug;
 
                 const auto& scene = currentScene_;
-                SceneManager::getInstance()->changeScene(scene->GetName());
+                SceneManager::getInstance()->changeScene(scene->getName());
             }
             ImGui::SameLine();
             ImGui::Text("DeltaTime :%.4f", Engine::getInstance()->getDeltaTime());

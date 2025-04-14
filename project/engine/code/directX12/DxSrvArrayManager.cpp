@@ -1,10 +1,14 @@
 #include "DxSrvArrayManager.h"
 
+/// engine
 #include "Engine.h"
 
-#include "directX12/DxCommand.h"
+// directX12 Object
 #include "directX12/DxHeap.h"
 #include "directX12/DxSrvArray.h"
+
+/// lib
+#include "logger/Logger.h"
 
 DxSrvArrayManager* DxSrvArrayManager::getInstance() {
     static DxSrvArrayManager instance;
@@ -12,10 +16,13 @@ DxSrvArrayManager* DxSrvArrayManager::getInstance() {
 }
 
 void DxSrvArrayManager::Initialize() {
+    Logger::Debug("Initialize DxSrvArrayManager \n Size :" + std::to_string(DxHeap::srvHeapSize));
     heapCondition_.push_back({nullptr, DxHeap::srvHeapSize, 0});
 }
 
 void DxSrvArrayManager::Finalize() {
+    Logger::Debug("Finalize DxSrvArrayManager");
+
     for (size_t i = 0; i < heapCondition_.size(); i++) {
         if (heapCondition_[i].dxSrvArray_ == nullptr) {
             continue;
@@ -25,9 +32,14 @@ void DxSrvArrayManager::Finalize() {
 }
 
 std::shared_ptr<DxSrvArray> DxSrvArrayManager::Create(uint32_t size) {
+    Logger::Debug("Create DxSrvArray \n Size   :" + std::to_string(size));
+
     std::shared_ptr<DxSrvArray> dxSrvArray = std::make_shared<DxSrvArray>();
     uint32_t locate                        = SearchEmptyLocation(size, dxSrvArray);
     dxSrvArray->Initialize(size, locate);
+
+    Logger::Debug("Complete Create DxSrvArray \n Locate :" + std::to_string(locate));
+
     return dxSrvArray;
 }
 
@@ -57,8 +69,10 @@ uint32_t DxSrvArrayManager::SearchEmptyLocation(uint32_t size, std::shared_ptr<D
         }
 
         // sizeがぴったりなら そこを使う
-        if (static_cast<int32_t>(heapCondition_[i].arraySize - size) == 0) {
-            heapCondition_[i] = {dxSrvArray, size, currentLocation};
+        if (heapCondition_[i].arraySize == size) {
+            Logger::Debug("Find just Size Space \n Locate :" + std::to_string(currentLocation));
+
+            heapCondition_[i].dxSrvArray_ = dxSrvArray;
         } else {
             // size が違ったら 使う分だけ前詰めする
             std::vector<ArrayCondition>::iterator itr = heapCondition_.begin() + i;
@@ -92,6 +106,7 @@ uint32_t DxSrvArrayManager::SearchEmptyLocation(uint32_t size, std::shared_ptr<D
     }
 
     if (endLocation + size >= DxHeap::srvHeapSize) {
+        Logger::Error("SrvHeap Size Over \n Size :" + std::to_string(size) + "\n EndLocation :" + std::to_string(endLocation));
         assert(false);
         return 0;
     }
