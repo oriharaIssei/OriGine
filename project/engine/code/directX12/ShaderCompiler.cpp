@@ -23,7 +23,7 @@ void ShaderCompiler::Initialize() {
 }
 
 IDxcBlob* ShaderCompiler::CompileShader(const std::wstring& filePath, const wchar_t* profile) {
-    Logger::Debug(std::format(L"Begin CompileShader, path{}, profile : {}\n", filePath, profile));
+    Logger::Debug(std::format(L"Begin CompileShader, path : {}, profile : {}\n", filePath, profile));
 
     HRESULT hr;
 

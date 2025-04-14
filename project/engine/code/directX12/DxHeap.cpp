@@ -23,8 +23,8 @@ void DxHeap::Initialize(ID3D12Device* device) {
     dsvHeap_ = CreateHeap(device, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, dsvHeapSize, false);
 
     rtvIncrementSize_ = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-    dsvIncrementSize_ = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
     srvIncrementSize_ = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+    dsvIncrementSize_ = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 
     Logger::Debug("RtvHeap IncrementSize : " + std::to_string(rtvIncrementSize_));
     Logger::Debug("SrvHeap IncrementSize : " + std::to_string(srvIncrementSize_));
@@ -52,13 +52,20 @@ void DxHeap::CompactRtvHeap(ID3D12Device* device, std::vector<std::pair<D3D12_CP
 
 void DxHeap::CompactSrvHeap(ID3D12Device* device, std::vector<std::pair<D3D12_CPU_DESCRIPTOR_HANDLE, uint32_t>>& usedDescriptorsArrays) {
     Logger::Debug("Run Compact Srv Heap Function");
-    D3D12_CPU_DESCRIPTOR_HANDLE dstHandle = srvHeap_->GetCPUDescriptorHandleForHeapStart();
+    
+    // RTV ヒープからハンドルを取得
+    D3D12_CPU_DESCRIPTOR_HANDLE dstHandle = rtvHeap_->GetCPUDescriptorHandleForHeapStart();
 
     for (size_t i = 0; i < usedDescriptorsArrays.size(); ++i) {
         if (usedDescriptorsArrays[i].first.ptr != dstHandle.ptr) {
-            device->CopyDescriptorsSimple(usedDescriptorsArrays[i].second, dstHandle, usedDescriptorsArrays[i].first, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+            // 正しいヒープタイプを指定
+            device->CopyDescriptorsSimple(
+                usedDescriptorsArrays[i].second,
+                dstHandle,
+                usedDescriptorsArrays[i].first,
+                D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
         }
-        dstHandle.ptr += srvIncrementSize_ * usedDescriptorsArrays[i].second;
+        dstHandle.ptr += rtvIncrementSize_ * usedDescriptorsArrays[i].second;
     }
 }
 

@@ -65,15 +65,14 @@ void Engine::Initialize() {
     DxSrvArrayManager::getInstance()->Initialize();
     DxRtvArrayManager::getInstance()->Initialize();
 
+    dxDsv_ = std::make_unique<DxDsv>();
+    dxDsv_->Initialize(dxDevice_->getDevice(), dxHeap->getDsvHeap(), window_->getWidth(), window_->getHeight());
+
     dxCommand_ = std::make_unique<DxCommand>();
     dxCommand_->Initialize("main", "main");
 
-
     dxSwapChain_ = std::make_unique<DxSwapChain>();
     dxSwapChain_->Initialize(window_.get(), dxDevice_.get(), dxCommand_.get());
-
-    dxDsv_ = std::make_unique<DxDsv>();
-    dxDsv_->Initialize(dxDevice_->getDevice(), dxHeap->getDsvHeap(), window_->getWidth(), window_->getHeight());
 
 
     dxFence_ = std::make_unique<DxFence>();

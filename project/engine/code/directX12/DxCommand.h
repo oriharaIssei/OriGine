@@ -29,8 +29,8 @@ public:
 	/// <summary>
 	/// Listとallocatorを同じキーで作る
 	/// </summary>
-	static void CreateCommandListWithAllocator(ID3D12Device *device,const std::string &listAndAllocatorKey,D3D12_COMMAND_LIST_TYPE listType);
-	static void CreateCommandQueue(ID3D12Device *device,const std::string &queueKey,D3D12_COMMAND_QUEUE_DESC desc);
+	static bool CreateCommandListWithAllocator(ID3D12Device *device,const std::string &listAndAllocatorKey,D3D12_COMMAND_LIST_TYPE listType);
+	static bool CreateCommandQueue(ID3D12Device *device,const std::string &queueKey,D3D12_COMMAND_QUEUE_DESC desc);
 private:
 	static std::unordered_map<std::string,Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>> commandListMap_;
 	static std::unordered_map<std::string,Microsoft::WRL::ComPtr<ID3D12CommandAllocator>> commandAllocatorMap_;
