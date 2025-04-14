@@ -3,6 +3,7 @@
 /// engine
 #include "ECS/ECSManager.h"
 #include "Engine.h"
+#include "sceneManager/SceneManager.h"
 
 // component
 #include "component/particle/emitter/Emitter.h"
@@ -139,27 +140,28 @@ void ParticleRenderSystem::StartRender() {
 
 void ParticleRenderSystem::UpdateEntity(GameEntity* _entity) {
     ID3D12GraphicsCommandList* commandList = dxCommand_->getCommandList();
-    const float deltaTime                  = Engine::getInstance()->getDeltaTime();
-    int32_t currentEmitterIndex            = 0;
-    Transform* parentTransform             = getComponent<Transform>(_entity);
 
-    while (true) {
-        Emitter* emitter = getComponent<Emitter>(_entity, currentEmitterIndex++);
-        if (emitter == nullptr) {
-            return;
-        }
-        if (!emitter->getIsActive()) {
+    Transform* parentTransform = getComponent<Transform>(_entity);
+
+    for (auto& comp : *getComponents<Emitter>(_entity)) {
+        if (!comp.getIsActive()) {
             continue;
         }
-        emitter->Update(deltaTime);
 
-        if (currentBlend_ != emitter->getBlendMode()) {
-            currentBlend_ = emitter->getBlendMode();
+#ifdef _DEBUG
+        if (SceneManager::getInstance()->inEditMode()) {
+            const float deltaTime = Engine::getInstance()->getDeltaTime();
+            comp.UpdateParticle(deltaTime);
+        }
+#endif
+
+        if (currentBlend_ != comp.getBlendMode()) {
+            currentBlend_ = comp.getBlendMode();
             commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
             commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
         }
 
-        emitter->setParent(parentTransform);
-        emitter->Draw(commandList);
+        comp.setParent(parentTransform);
+        comp.Draw(commandList);
     }
 }

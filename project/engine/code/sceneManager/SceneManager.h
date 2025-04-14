@@ -113,5 +113,9 @@ public:
         return debugState_ == DebugState::RePlay;
     };
 
+    bool isUsingDebugCamera() const {
+        return isUsingDebugCamera_;
+    };
+
 #endif // _DEBUG
 };

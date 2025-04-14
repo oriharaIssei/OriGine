@@ -53,12 +53,12 @@ static std::list<std::pair<std::string, std::string>> SearchTextureFile() {
 static std::list<std::pair<std::string, std::string>> objectFiles  = SearchModelFile();
 static std::list<std::pair<std::string, std::string>> textureFiles = SearchTextureFile();
 
-Emitter::Emitter() : IComponent() {
+Emitter::Emitter() : IComponent(), currentCoolTime_(0.f), leftActiveTime_(0.f) {
     isActive_       = false;
     leftActiveTime_ = 0.0f;
 }
 
-Emitter::Emitter(DxSrvArray* _srvArray) : IComponent(), srvArray_(_srvArray) {
+Emitter::Emitter(DxSrvArray* _srvArray) : IComponent(), srvArray_(_srvArray), currentCoolTime_(0.f), leftActiveTime_(0.f) {
     isActive_       = false;
     leftActiveTime_ = 0.0f;
 }
@@ -72,8 +72,9 @@ void Emitter::Initialize(GameEntity* /*_entity*/) {
     }
 
     { // Initialize Active State
-        isActive_       = true;
-        leftActiveTime_ = activeTime_;
+        isActive_        = true;
+        leftActiveTime_  = activeTime_;
+        currentCoolTime_ = 0.f;
     }
 
     emitterSpawnShape_ = std::make_unique<EmitterSphere>();
@@ -104,9 +105,13 @@ void Emitter::Update(float deltaTime) {
         }
     }
 
+    UpdateParticle(deltaTime);
+}
+
+void Emitter::UpdateParticle(float _deltaTime) {
     { // Particles Update
         for (auto& particle : particles_) {
-            particle->Update(deltaTime);
+            particle->Update(_deltaTime);
         }
         // isAliveでないもの は 消す
         std::erase_if(particles_, [](std::shared_ptr<Particle>& particle) {
@@ -115,10 +120,13 @@ void Emitter::Update(float deltaTime) {
     }
 
     { // Update Spawn
-        currentCoolTime_ -= deltaTime;
-        if (currentCoolTime_ <= 0.0f) {
-            currentCoolTime_ = spawnCoolTime_;
-            SpawnParticle();
+        currentCoolTime_ -= _deltaTime;
+        // leftActiveTimeが 0以上のときだけ
+        if (leftActiveTime_ > 0.f) {
+            if (currentCoolTime_ <= 0.0f) {
+                currentCoolTime_ = spawnCoolTime_;
+                SpawnParticle();
+            }
         }
     }
 
@@ -313,6 +321,9 @@ void Emitter::Load(BinaryReader& _reader) {
         structuredTransform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice(), srvArray_, particleMaxSize_);
         particles_.reserve(particleMaxSize_);
     }
+
+    leftActiveTime_  = activeTime_;
+    currentCoolTime_ = 0.f;
 }
 
 void Emitter::EditEmitter() {
@@ -460,7 +471,7 @@ void Emitter::EditParticle() {
 
             updateSettings_ = (updateSettings_ & ~static_cast<int32_t>(ParticleUpdateType::VelocityPerLifeTime));
             updateSettings_ = (updateSettings_ | static_cast<int32_t>(ParticleUpdateType::VelocityRandom));
-        } else if (preRandomOrPerLifeTime == 2 && randomOrPerLifeTime == 0) {
+        } else if (preRandomOrPerLifeTime != 0 && randomOrPerLifeTime == 0) {
             updateSettings_ = (updateSettings_ & ~static_cast<int32_t>(ParticleUpdateType::VelocityPerLifeTime));
             updateSettings_ = (updateSettings_ & ~static_cast<int32_t>(ParticleUpdateType::VelocityRandom));
         }
@@ -498,7 +509,7 @@ void Emitter::EditParticle() {
             // ランダムなスケールを設定
             updateSettings_ = (updateSettings_ & ~static_cast<int32_t>(ParticleUpdateType::ScalePerLifeTime));
             updateSettings_ = (updateSettings_ | static_cast<int32_t>(ParticleUpdateType::ScaleRandom));
-        } else if (preRandomOrPerLifeTime == 2 && randomOrPerLifeTime == 0) {
+        } else if (preRandomOrPerLifeTime != 0 && randomOrPerLifeTime == 0) {
             updateSettings_ = (updateSettings_ & ~static_cast<int32_t>(ParticleUpdateType::ScalePerLifeTime));
             updateSettings_ = (updateSettings_ & ~static_cast<int32_t>(ParticleUpdateType::ScaleRandom));
         }
@@ -532,7 +543,7 @@ void Emitter::EditParticle() {
 
             updateSettings_ = (updateSettings_ & ~static_cast<int32_t>(ParticleUpdateType::RotatePerLifeTime));
             updateSettings_ = (updateSettings_ | static_cast<int32_t>(ParticleUpdateType::RotateRandom));
-        } else if (preRandomOrPerLifeTime == 2 && randomOrPerLifeTime == 0) {
+        } else if (preRandomOrPerLifeTime != 0 && randomOrPerLifeTime == 0) {
             updateSettings_ = (updateSettings_ & ~static_cast<int32_t>(ParticleUpdateType::RotatePerLifeTime));
             updateSettings_ = (updateSettings_ & ~static_cast<int32_t>(ParticleUpdateType::RotateRandom));
         }
