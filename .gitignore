@@ -398,3 +398,4 @@ FodyWeavers.xsd
 /project/x64/Debug
 /project/x64/Release
 /project/OriGineApplication
+/project/engine/resource/logs
