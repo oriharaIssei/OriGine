@@ -18,6 +18,8 @@ void ParticleRenderSystem::Initialize() {
 }
 
 void ParticleRenderSystem::Update() {
+    eraseDeadEntity();
+
     StartRender();
     for (auto& entity : entities_) {
         UpdateEntity(entity);
