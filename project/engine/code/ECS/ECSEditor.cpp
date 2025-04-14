@@ -193,9 +193,17 @@ void ECSEditor::EditEntity() {
 
         ImGui::Text("Entity Name       :");
         ImGui::SameLine();
-        std::string dataType = editEntity_->getDataType();
-        ImGui::InputText("##entityName", &dataType[0], sizeof(char) * 64);
-        editEntity_->setDataType(dataType);
+
+        char buffer[64];
+        strncpy_s(buffer, editEntity_->getDataType().c_str(), sizeof(buffer) - 1);
+        buffer[sizeof(buffer) - 1] = '\0'; // 念のため終端文字を保証
+
+        // ImGui::InputText を使用
+        if (ImGui::InputText("##entityName", buffer, sizeof(buffer))) {
+            // 入力が変更された場合のみ更新
+            std::string newDataType(buffer);
+            editEntity_->setDataType(newDataType);
+        }
 
         ImGui::Text("Entity Is Unique  :");
         ImGui::SameLine();
@@ -586,7 +594,7 @@ void AddComponentCommand::Execute() {
         }
         // コンポーネントの追加
         addedComponentArray_->addComponent(entity_);
-        addedComponentArray_->getBackComponent(entity_)->Initialize(entity_); 
+        addedComponentArray_->getBackComponent(entity_)->Initialize(entity_);
 
         // 編集用 Component に追加
         if (entityIsEditEntity_) {
