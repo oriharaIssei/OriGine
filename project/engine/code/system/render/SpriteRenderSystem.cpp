@@ -22,6 +22,12 @@ void SpriteRenderSystem::Initialize() {
 }
 
 void SpriteRenderSystem::Update() {
+    eraseDeadEntity();
+
+    if (entities_.empty()) {
+        return;
+    }
+
     StartRender();
     for (auto& entity : entities_) {
         UpdateEntity(entity);
