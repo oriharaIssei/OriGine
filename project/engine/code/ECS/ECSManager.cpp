@@ -97,12 +97,14 @@ void EntityComponentSystemManager::Run() {
     auto sceneView = SceneManager::getInstance()->getSceneView();
 
     sceneView->PreDraw();
+
     for (auto& system : priorityOrderSystems_[int32_t(SystemType::Render)]) {
         if (!system->isActive()) {
             continue;
         }
         system->Update();
     }
+
     sceneView->PostDraw();
 
     for (auto& system : priorityOrderSystems_[int32_t(SystemType::PostRender)]) {
