@@ -245,10 +245,10 @@ void SceneManager::DebugUpdate() {
         ImGui::End();
 
         if (currentSceneState_ == SceneState::Debug) {
-            // DebuggerGroup を終了
-            debuggerGroup_->Finalize();
-            // Editor を再初期化
-            editorGroup_->Initialize();
+            // Editor を終了
+            editorGroup_->Finalize();
+            // DebuggerGroup を再初期化
+            debuggerGroup_->Initialize();
 
             debugState_ = DebugState::Play;
             break;
@@ -325,17 +325,26 @@ void SceneManager::DebugUpdate() {
         }
         ImGui::End();
 
-        if (currentSceneState_ == SceneState::Edit || debugState_ == DebugState::RePlay) {
+        if (currentSceneState_ == SceneState::Edit) {
             // Editor を再初期化
             editorGroup_->Initialize();
-
-            // DebuggerGroup を終了
-            debuggerGroup_->Finalize();
 
             // 保存しない
             currentScene_->Finalize(false);
             currentScene_->Initialize();
             break;
+        }
+        if (debugState_ == DebugState::RePlay) {
+            // シーンを再初期化
+            currentScene_->Finalize(false);
+            currentScene_->Initialize();
+
+            // DebuggerGroup を終了
+            debuggerGroup_->Finalize();
+            // DebuggerGroup を再初期化
+            debuggerGroup_->Initialize();
+
+            debugState_ = DebugState::Play;
         }
 
         ///=================================================================================================

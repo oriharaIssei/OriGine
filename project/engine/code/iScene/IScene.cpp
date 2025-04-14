@@ -71,6 +71,8 @@ void IScene::registerSystems() {
 
     ecsManager->registerSystem<CollisionCheckSystem>();
 
+    ecsManager->registerSystem<EmitterWorkSystem>();
+
     ecsManager->registerSystem<ParticleRenderSystem>();
     ecsManager->registerSystem<SpriteRenderSystem>();
     ecsManager->registerSystem<TexturedMeshRenderSystem>();
@@ -162,6 +164,7 @@ void IScene::LoadSceneEntity() {
             for (int32_t systemIndex = 0; systemIndex < systemSizeByType; systemIndex++) {
                 reader.ReadBeginGroup(SystemTypeString[systemTypeIndex] + std::to_string(systemIndex));
                 reader.Read<std::string>("Name", systemName);
+
                 auto itr = systemsByType.find(systemName);
 
                 if (itr != systemsByType.end()) {

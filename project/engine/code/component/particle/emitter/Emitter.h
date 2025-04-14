@@ -39,6 +39,7 @@ public:
     void Initialize(GameEntity* _entity) override;
     //! ToDo :: Update,Draw の削除
     void Update(float _deltaTime);
+    void UpdateParticle(float _deltaTime);
     void Draw(ID3D12GraphicsCommandList* _commandList);
 
     void Finalize() override;
@@ -51,6 +52,7 @@ public:
 
 private:
     void SpawnParticle();
+
 #ifdef _DEBUG
     void EditEmitter();
 
