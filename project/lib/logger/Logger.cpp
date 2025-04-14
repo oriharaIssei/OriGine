@@ -183,53 +183,89 @@ void GuiLogger::Initialize() {
 
 void GuiLogger::Update() {
 #ifdef _DEBUG
-    static bool show_log_window = true;
-    ImGui::Begin("Log Window", &show_log_window, ImGuiWindowFlags_MenuBar);
+    if (ImGui::Begin("Log Window", nullptr, ImGuiWindowFlags_MenuBar)) {
 
-    if (ImGui::BeginTable("LogTable", 3)) {
-        ImGui::TableSetupColumn("Time");
-        ImGui::TableSetupColumn("Level");
-        ImGui::TableSetupColumn("Message");
-        ImGui::TableHeadersRow();
+        logger_ = Logger::logger_;
 
-        // logger_->sinks() 内にある ImGuiLogSink からログ取得
-        for (auto& sink : logger_->sinks()) {
-            auto imguiSink = std::dynamic_pointer_cast<ImGuiLogSink>(sink);
-            if (imguiSink) {
-                const auto& logs = imguiSink->getLogMessages();
-                for (const auto& line : logs) {
-                    // パターン: [time] [level] message
-                    size_t time_start = line.find('[');
-                    size_t time_end   = line.find(']');
-                    std::string time_str;
-                    if (time_start != std::string::npos && time_end != std::string::npos) {
-                        time_str = line.substr(time_start + 1, time_end - time_start - 1);
+        ImGuiTableFlags tableFlags = ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollX;
+
+        if (ImGui::BeginTable("LogTable", 3, tableFlags)) {
+            ImGui::TableSetupColumn("Time");
+            ImGui::TableSetupColumn("Level");
+            ImGui::TableSetupColumn("Message");
+            ImGui::TableHeadersRow();
+
+            // logger_->sinks() 内にある ImGuiLogSink からログ取得
+            for (auto& sink : logger_->sinks()) {
+                auto imguiSink = std::dynamic_pointer_cast<ImGuiLogSink>(sink);
+                if (imguiSink) {
+                    const auto& logs = imguiSink->getLogMessages();
+                    for (const auto& line : logs) {
+                        // パターン: [time] [level] message
+                        size_t time_start = line.find('[');
+                        size_t time_end   = line.find(']');
+                        std::string time_str;
+                        if (time_start != std::string::npos && time_end != std::string::npos) {
+                            time_str = line.substr(time_start + 1, time_end - time_start - 1);
+                        }
+
+                        size_t level_start = line.find('[', time_end);
+                        size_t level_end   = line.find(']', level_start);
+                        std::string level_str;
+                        if (level_start != std::string::npos && level_end != std::string::npos) {
+                            level_str = line.substr(level_start + 1, level_end - level_start - 1);
+                        }
+
+                        std::string msg_str;
+                        if (level_end != std::string::npos && level_end + 2 < line.length()) {
+                            msg_str = line.substr(level_end + 2); // "] " の後
+                        }
+
+                        //! ToDo 背景色もレベルに応じて変わると良いかもね～
+                        // レベルに応じて色を設定
+                        ImVec4 color;
+                        if (level_str == "trace") {
+                            color = ImVec4(0.5f, 0.5f, 0.5f, 1.0f); // Gray
+                        } else if (level_str == "info") {
+                            color = ImVec4(0.0f, 1.0f, 0.0f, 1.0f); // Green
+                        } else if (level_str == "debug") {
+                            color = ImVec4(0.0f, 0.5f, 1.0f, 1.0f); // Blue
+                        } else if (level_str == "warn") {
+                            color = ImVec4(1.0f, 1.0f, 0.0f, 1.0f); // Yellow
+                        } else if (level_str == "error") {
+                            color = ImVec4(1.0f, 0.5f, 0.0f, 1.0f); // Orange
+                        } else if (level_str == "critical") {
+                            color = ImVec4(1.0f, 0.0f, 0.0f, 1.0f); // Red
+                        } else {
+                            color = ImVec4(1.0f, 1.0f, 1.0f, 1.0f); // Default White
+                        }
+
+                        ImGui::TableNextRow();
+                        ImGui::TableSetColumnIndex(0);
+                        ImGui::TextUnformatted(time_str.c_str());
+                        ImGui::TableSetColumnIndex(1);
+
+                        ImGui::PushStyleColor(ImGuiCol_Text, color);
+                        ImGui::TextUnformatted(level_str.c_str());
+                        ImGui::PopStyleColor();
+
+                        ImGui::TableSetColumnIndex(2);
+                        ImGui::TextUnformatted(msg_str.c_str());
+
+                        // セパレーターを追加
+                        ImGui::TableNextRow();
+                        ImGui::TableSetColumnIndex(0);
+                        ImGui::Separator();
+                        ImGui::TableSetColumnIndex(1);
+                        ImGui::Separator();
+                        ImGui::TableSetColumnIndex(2);
+                        ImGui::Separator();
                     }
-
-                    size_t level_start = line.find('[', time_end);
-                    size_t level_end   = line.find(']', level_start);
-                    std::string level_str;
-                    if (level_start != std::string::npos && level_end != std::string::npos) {
-                        level_str = line.substr(level_start + 1, level_end - level_start - 1);
-                    }
-
-                    std::string msg_str;
-                    if (level_end != std::string::npos && level_end + 2 < line.length()) {
-                        msg_str = line.substr(level_end + 2); // "] " の後
-                    }
-
-                    ImGui::TableNextRow();
-                    ImGui::TableSetColumnIndex(0);
-                    ImGui::TextUnformatted(time_str.c_str());
-                    ImGui::TableSetColumnIndex(1);
-                    ImGui::TextUnformatted(level_str.c_str());
-                    ImGui::TableSetColumnIndex(2);
-                    ImGui::TextUnformatted(msg_str.c_str());
                 }
             }
-        }
 
-        ImGui::EndTable();
+            ImGui::EndTable();
+        }
     }
 
     ImGui::End();
