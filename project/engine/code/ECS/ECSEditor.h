@@ -216,6 +216,7 @@ public:
         entityIsEditEntity_ = (entity_ == ecsEditor_->getEditEntity());
     }
     ~AddComponentCommand() {}
+
     void Execute() override;
     void Undo() override;
 

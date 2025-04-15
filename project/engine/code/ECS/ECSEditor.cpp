@@ -594,7 +594,6 @@ void AddComponentCommand::Execute() {
         }
         // コンポーネントの追加
         addedComponentArray_->addComponent(entity_);
-        addedComponentArray_->getBackComponent(entity_)->Initialize(entity_);
 
         // 編集用 Component に追加
         if (entityIsEditEntity_) {
@@ -754,7 +753,6 @@ void EraseEntityCommand::Undo() {
         if (compArrayItr != compMap.end()) {
             IComponentArray* componentArray = compArrayItr->second.get();
             componentArray->addComponent(addedEntityPtr);
-            componentArray->getBackComponent(addedEntityPtr)->Initialize(addedEntityPtr);
         }
     }
 
@@ -797,7 +795,6 @@ void RemoveComponentCommand::Undo() {
         IComponentArray* removedComponentArray_ = compArrayItr->second.get();
         // 追加
         removedComponentArray_->addComponent(entity_);
-        removedComponentArray_->getBackComponent(entity_)->Initialize(entity_);
 
         if (entityIsEditEntity_) {
             auto& editCOmponents = ecsEditor_->customEditComponents();
