@@ -119,7 +119,7 @@ void Sphere::createMesh() {
             vertexData[startVertexIndex + 2].pos[W]      = 1.0f;
             vertexData[startVertexIndex + 2].texCoord[X] = float(lonIndex + 1) / divisionReal;
             vertexData[startVertexIndex + 2].texCoord[Y] = 1.0f - float(latIndex) / divisionReal;
-            vertexData[startVertexIndex + 2].normal      = {vertexData[startVertexIndex + 2].pos.x, vertexData[startVertexIndex + 2].pos[Y], vertexData[startVertexIndex + 2].pos[Z]};
+            vertexData[startVertexIndex + 2].normal      = {vertexData[startVertexIndex + 2].pos[X], vertexData[startVertexIndex + 2].pos[Y], vertexData[startVertexIndex + 2].pos[Z]};
 
             // d 右上
             vertexData[startVertexIndex + 3].pos[X]      = std::cos(lat + kLatEvery) * std::cos(lon + kLonEvery);
