@@ -50,10 +50,11 @@ protected:
     std::map<GameEntity*, CollisionState> preCollisionStateMap_;
 
 public: // accessor
-    bool isActive() { return isActive_; }
+    bool isActive() const { return isActive_; }
     void setActive(bool _isActive) { isActive_ = _isActive; }
 
     const Transform& getTransform() const { return transform_; }
+    void setParent(Transform* _trans) { transform_.parent = _trans; }
 
     // 衝突状態の操作
     void setCollisionState(GameEntity* _other) {
