@@ -122,6 +122,10 @@ public:
         components_.push_back(std::vector<componentType>());
         components_.back().resize(_entitySize);
 
+        for (auto& comp : components_.back()) {
+            comp.Initialize(_entity);
+        }
+
         entityIndexBind_[_entity] = index;
     }
 
@@ -134,6 +138,7 @@ public:
         }
         uint32_t index = it->second;
         components_[index].push_back(_component);
+        components_[index].back().Initialize(_hostEntity);
     }
 
     /// @brief IComponent ポインタからコンポーネントの追加

@@ -21,7 +21,7 @@ enum class PrimitiveType {
     Torus, // トーラス
     Cylinder, // 円柱
     Cone, // 円錐
-    Triangel, // 三角形
+    Triangle, // 三角形
     Box // 立方体
 };
 
@@ -56,6 +56,9 @@ public: // accessor
     }
 };
 
+/// <summary>
+/// Plane(面)のPrimitiveクラス
+/// </summary>
 class Plane
     : public IPrimitive {
 public:
@@ -73,15 +76,7 @@ public:
         createMesh();
     }
 
-    void createMesh() override {
-        mesh_->setVertexData({{Vec4f(-size_[X], 0.0f, -size_[Y], 1.0f), Vec2f(0.0f, 0.0f), normal_},
-            {Vec4f(size_[X], 0.0f, -size_[Y], 1.0f), Vec2f(uv_[X], 0.0f), normal_},
-            {Vec4f(-size_[X], 0.0f, size_[Y], 1.0f), Vec2f(0.0f, uv_[Y]), normal_},
-            {Vec4f(size_[X], 0.0f, size_[Y], 1.0f), Vec2f(uv_[X], uv_[Y]), normal_}});
-        mesh_->setIndexData({2, 3, 1,
-            2, 1, 0});
-        mesh_->TransferData();
-    }
+    void createMesh() override;
 
 private:
     Vec2f size_   = {1.0f, 1.0f};
@@ -109,6 +104,9 @@ public: // accessor
     }
 };
 
+/// <summary>
+/// Circle(円)のPrimitiveクラス
+/// </summary>
 class Circle
     : public IPrimitive {
 public:
@@ -148,6 +146,9 @@ public: // accessor
     }
 };
 
+/// <summary>
+/// Ring(環)のPrimitiveクラス
+/// </summary>
 class Ring
     : public IPrimitive {
 public:
@@ -156,8 +157,8 @@ public:
         mesh_.reset();
     }
     void Initialize() override {
-        vertexSize_ = 4 * division_ * division_;
-        indexSize_  = 4 * division_ * division_;
+        vertexSize_ = 4 * division_;
+        indexSize_  = 6 * division_;
         // mesh Init
         mesh_ = std::make_shared<TextureMesh>();
         mesh_->setName("Ring");
@@ -172,12 +173,33 @@ private:
     uint32_t vertexSize_ = 0;
     uint32_t indexSize_  = 0;
 
-    float radius_      = 1.f;
+    float outerRadius_ = 1.f;
     float innerRadius_ = 0.5f;
-    float uv_          = 1.f;
-    float uvInner_     = 0.5f;
+
+public:
+    float getOuterRadius() const {
+        return outerRadius_;
+    }
+    void setOuterRadius(float _outerRadius) {
+        outerRadius_ = _outerRadius;
+    }
+    float getInnerRadius() const {
+        return innerRadius_;
+    }
+    void setInnerRadius(float _innerRadius) {
+        innerRadius_ = _innerRadius;
+    }
+    uint32_t getDivision() const {
+        return division_;
+    }
+    void setDivision(uint32_t _division) {
+        division_ = _division;
+    }
 };
 
+/// <summary>
+/// Sphere(球)のPrimitiveクラス
+/// </summary>
 class Sphere
     : public IPrimitive {
 public:
@@ -228,6 +250,9 @@ public: // accessor
     }
 };
 
+/// <summary>
+/// Torus(トーラス)のPrimitiveクラス
+/// </summary>
 class Torus
     : public IPrimitive {
 public:
@@ -320,7 +345,7 @@ private:
 class Triangle
     : public IPrimitive {
 public:
-    Triangle() : IPrimitive(PrimitiveType::Triangel) {}
+    Triangle() : IPrimitive(PrimitiveType::Triangle) {}
     ~Triangle() override {
         mesh_.reset();
     }
@@ -336,9 +361,9 @@ public:
 
 private:
     Vec3f vertex_[3] = {
-        {0.f, 0.f, 0.f},
         {1.f, 0.f, 0.f},
         {0.f, 1.f, 0.f},
+        {-1.f, 0.f, 0.f},
     };
     Vec3f normal_ = {0.f, 0.f, 1.f};
     Vec2f uv_     = {0.f, 0.f};
