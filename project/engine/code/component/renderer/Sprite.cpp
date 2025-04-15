@@ -143,6 +143,10 @@ void SpriteRenderer::Save(BinaryWriter& _writer) {
     _writer.Write<2, float>("scale", spriteBuff_->scale_);
     _writer.Write<float>("rotate", spriteBuff_->rotate_);
     _writer.Write<2, float>("translate", spriteBuff_->translate_);
+
+    _writer.Write<2, float>("uvScale", spriteBuff_->uvScale_);
+    _writer.Write<float>("uvRotate", spriteBuff_->uvRotate_);
+    _writer.Write<2, float>("uvTranslate", spriteBuff_->uvTranslate_);
 }
 
 void SpriteRenderer::Load(BinaryReader& _reader) {
@@ -165,6 +169,10 @@ void SpriteRenderer::Load(BinaryReader& _reader) {
     _reader.Read<2, float>("scale", spriteBuff_->scale_);
     _reader.Read<float>("rotate", spriteBuff_->rotate_);
     _reader.Read<2, float>("translate", spriteBuff_->translate_);
+
+    _reader.Read<2, float>("uvScale", spriteBuff_->uvScale_);
+    _reader.Read<float>("uvRotate", spriteBuff_->uvRotate_);
+    _reader.Read<2, float>("uvTranslate", spriteBuff_->uvTranslate_);
 }
 
 void SpriteRenderer::Finalize() {
