@@ -156,7 +156,7 @@ void ECSEditor::EditEntity() {
 
     if (ImGui::Begin("Entity Info")) {
         // Entityが選択されていなければ Skip
-        if (editEntity_ == nullptr) {
+        if (editEntity_ == nullptr || !editEntity_->isAlive()) {
             ImGui::Text("Entity is not selected.");
             ImGui::End();
             return;

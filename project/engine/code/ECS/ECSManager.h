@@ -139,29 +139,6 @@ public: // ============== accessor ==============//
     }
 
     /// <summary>
-    /// 有効なエンティティが後ろに来るようにソート
-    /// </summary>
-    void sortBackActiveEntities() {
-        // isAlive が true のエンティティを前に安定した順序で持ってくる
-        auto mid = std::stable_partition(entities_.begin(), entities_.end(), [](const GameEntity& entity) {
-            return !entity.isAlive_;
-        });
-
-        uint32_t index = 0;
-        freeEntityIndex_.clear();
-
-        // アクティブなエンティティに新しいIDを付与し、非アクティブなインデックスを freeEntityIndex_ に追加
-        for (auto it = entities_.begin(); it != entities_.end(); ++it) {
-            if (it >= mid) {
-                it->id_ = int32_t(index++);
-            } else {
-                freeEntityIndex_.push_back(index++);
-                it->id_ = -1;
-            }
-        }
-    }
-
-    /// <summary>
     /// エンティティにコンポーネントを追加する
     /// </summary>
     template <IsComponent componentType>
@@ -186,7 +163,9 @@ public: // ============== accessor ==============//
     /// 生きているエンティティを削除する
     /// </summary>
     void clearAliveEntities() {
-        auto removedItr = std::remove_if(entities_.begin(), entities_.end(), [](const GameEntity& entity) { return entity.isAlive_; });
+        auto removedItr = std::stable_partition(entities_.begin(), entities_.end(), [](const GameEntity& entity) {
+            return !entity.isAlive_;
+        });
         for (auto& itr = removedItr; itr != entities_.end(); ++removedItr) {
             freeEntityIndex_.push_back(itr->id_);
 
