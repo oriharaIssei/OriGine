@@ -50,7 +50,7 @@ protected:
     std::map<GameEntity*, CollisionState> preCollisionStateMap_;
 
 public: // accessor
-    bool isActive() { return isActive_; }
+    bool isActive() const { return isActive_; }
     void setActive(bool _isActive) { isActive_ = _isActive; }
 
     const Transform& getTransform() const { return transform_; }
