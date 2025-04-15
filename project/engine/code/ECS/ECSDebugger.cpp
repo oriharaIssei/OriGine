@@ -61,8 +61,8 @@ void EntityDebugger::Update() {
     if (debugEntity_ != nullptr) {
         ImGui::Separator();
         ImGui::Text("Entity Info:");
-        ImGui::Text("UniqueID: %s", debugEntity_->getUniqueID().c_str());
-        ImGui::Text("ID: %d", debugEntity_->getID());
+        ImGui::Text("UniqueID : %s", debugEntity_->getUniqueID().c_str());
+        ImGui::Text("ID       : %d", debugEntity_->getID());
         // 各コンポーネントの値を確認するためのUIを追加
 
         std::string componentLabel;

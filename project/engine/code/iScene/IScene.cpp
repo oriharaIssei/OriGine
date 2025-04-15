@@ -71,6 +71,8 @@ void IScene::registerSystems() {
 
     ecsManager->registerSystem<CollisionCheckSystem>();
 
+    ecsManager->registerSystem<EmitterWorkSystem>();
+
     ecsManager->registerSystem<ParticleRenderSystem>();
     ecsManager->registerSystem<SpriteRenderSystem>();
     ecsManager->registerSystem<TexturedMeshRenderSystem>();
@@ -122,6 +124,10 @@ void IScene::LoadSceneEntity() {
             reader.ReadBeginGroup("Entity" + std::to_string(entityIndex));
             reader.Read<std::string>("Name", entityName);
 
+            // 入力文字列を正規化
+            // 終端文字 の有り無しで 取得できない場合があったため,削除するように
+            entityName.erase(std::find(entityName.begin(), entityName.end(), '\0'), entityName.end());
+
             entityID     = ecsManager->registerEntity(entityName);
             loadedEntity = ecsManager->getEntity(entityID);
 
@@ -158,6 +164,7 @@ void IScene::LoadSceneEntity() {
             for (int32_t systemIndex = 0; systemIndex < systemSizeByType; systemIndex++) {
                 reader.ReadBeginGroup(SystemTypeString[systemTypeIndex] + std::to_string(systemIndex));
                 reader.Read<std::string>("Name", systemName);
+
                 auto itr = systemsByType.find(systemName);
 
                 if (itr != systemsByType.end()) {
@@ -220,7 +227,12 @@ void IScene::SaveSceneEntity() {
         auto entity = activeEntities.front();
         activeEntities.pop_front();
 
-        writer.Write<std::string>("Name", entity->getDataType());
+        std::string entityName = entity->getDataType();
+        // 入力文字列を正規化
+        // 終端文字 の有り無しで 取得できない場合があったため,削除するように
+        entityName.erase(std::find(entityName.begin(), entityName.end(), '\0'), entityName.end());
+
+        writer.Write<std::string>("Name", entityName);
         writer.Write<bool>("isUnique", entity->isUnique());
 
         hasComponentTypeArray.clear();
