@@ -78,6 +78,9 @@ void IScene::registerSystems() {
     ecsManager->registerSystem<TexturedMeshRenderSystem>();
     ecsManager->registerSystem<LineRenderSystem>();
     ecsManager->registerSystem<ColliderRenderingSystem>();
+
+    ecsManager->registerSystem<Grayscale>();
+    ecsManager->registerSystem<ScreenRenderingSystem>();
 }
 
 void IScene::Finalize([[maybe_unused]] bool _isSave) {
