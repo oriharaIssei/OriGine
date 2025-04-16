@@ -24,7 +24,7 @@
 
 struct TexturedMaterial {
     uint32_t textureNumber;
-    IConstantBuffer<Material>* material;
+    IConstantBuffer<Material> material;
 };
 
 struct ModelNode {
@@ -51,8 +51,8 @@ struct Model {
     using ModelMaterialData = std::vector<TexturedMaterial>;
     ModelMaterialData materialData_;
 
-    void setMaterialBuff(int32_t part, IConstantBuffer<Material>* buff) {
-        materialData_[part].material = buff;
+    void setMaterialBuff(int32_t part, Material _data) {
+        materialData_[part].material = _data;
     }
     void setTexture(int32_t part, uint32_t textureNumber) {
         materialData_[part].textureNumber = textureNumber;

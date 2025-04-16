@@ -252,7 +252,7 @@ void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
         auto& meshGroup = renderer->getMeshGroup();
         for (auto& mesh : *meshGroup) {
             // ============================= テクスチャの設定 ============================= //
-            
+
             commandList->SetGraphicsRootDescriptorTable(
                 7,
                 TextureManager::getDescriptorGpuHandle(renderer->getTextureNumber(index)));
@@ -267,8 +267,10 @@ void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
             meshTransform.SetForRootParameter(commandList, 0);
 
             // ============================= Materialのセット ============================= //
-            const auto& material = renderer->getMaterialBuff(index);
-            material->SetForRootParameter(commandList, 2);
+            auto& material = renderer->getMaterialBuff(index);
+            material.openData_.UpdateUvMatrix();
+            material.ConvertToBuffer();
+            material.SetForRootParameter(commandList, 2);
 
             // ============================= 描画 ============================= //
             commandList->DrawIndexedInstanced(UINT(mesh.getIndexSize()), 1, 0, 0, 0);

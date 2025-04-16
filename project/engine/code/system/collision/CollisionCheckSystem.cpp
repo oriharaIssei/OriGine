@@ -145,7 +145,13 @@ void CollisionCheckSystem::UpdateEntity(GameEntity* _entity) {
     // 2つのリスト間の衝突判定をまとめる
     auto checkCollisions = [&](auto& listA, auto& listB, GameEntity* aEntity, GameEntity* bEntity) {
         for (auto colliderA = listA->begin(); colliderA != listA->end(); ++colliderA) {
+            if (!colliderA->isActive()) {
+                continue;
+            }
             for (auto colliderB = listB->begin(); colliderB != listB->end(); ++colliderB) {
+                if (!colliderB->isActive()) {
+                    continue;
+                }
                 if (CheckCollisionPair<>(colliderA->getWorldShape(), colliderB->getWorldShape())) {
                     colliderA->setCollisionState(bEntity);
                     colliderB->setCollisionState(aEntity);
