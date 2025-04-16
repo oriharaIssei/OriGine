@@ -27,19 +27,24 @@ static const std::string kEngineResourceDirectory      = "engine/resource";
 #include "system/ISystem.h"
 
 #include "system/collision/CollisionCheckSystem.h"
-#include "system/movement/MoveSystemByRigidBody.h"
 #include "system/effect/EmitterWorkSystem.h"
+#include "system/movement/MoveSystemByRigidBody.h"
+#include "system/postRender/Grayscale.h"
+#include "system/postRender/ScreenRenderingSystem.h"
 #include "system/render/ColliderRenderingSystem.h"
 #include "system/render/LineRenderSystem.h"
 #include "system/render/ParticleRenderSystem.h"
 #include "system/render/SpriteRenderSystem.h"
 #include "system/render/TexturedMeshRenderSystem.h"
-#include "system/postRender/Grayscale.h"
-#include "system/postRender/ScreenRenderingSystem.h"
 #endif // ENGINE_SYSTEMS
 
 #ifdef ENGINE_COMPONENTS
 #include "component/IComponent.h"
+
+#include "component/material/light/DirectionalLight.h"
+#include "component/material/light/PointLight.h"
+#include "component/material/light/SpotLight.h"
+#include "component/material/Material.h"
 
 #include "component/collider/Collider.h"
 #include "component/particle/emitter/Emitter.h"

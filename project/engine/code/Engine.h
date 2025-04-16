@@ -72,8 +72,7 @@ private:
     std::unique_ptr<DxFence> dxFence_;
     std::unique_ptr<DxDsv> dxDsv_;
 
-    LightManager* lightManager_                       = nullptr;
-    std::unique_ptr<MaterialManager> materialManager_ = nullptr;
+    LightManager* lightManager_ = nullptr;
     // Time
     std::unique_ptr<DeltaTime> deltaTime_;
     float fps_ = 60.0f;
@@ -87,8 +86,6 @@ public:
     DxFence* getDxFence() const { return dxFence_.get(); }
 
     DxDsv* getDsv() const { return dxDsv_.get(); }
-
-    MaterialManager* getMaterialManager() const { return materialManager_.get(); }
 
     float getDeltaTime() const { return deltaTime_->getDeltaTime(); }
 

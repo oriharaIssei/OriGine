@@ -208,6 +208,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="util\nameof.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="engine\code\component\material\light\DirectionalLight.cpp" />
+    <ClCompile Include="engine\code\component\material\light\PointLight.cpp" />
+    <ClCompile Include="engine\code\component\material\light\SpotLight.cpp" />
     <ClCompile Include="engine\code\system\effect\EmitterWorkSystem.cpp" />
     <ClCompile Include="engine\code\system\postRender\ScreenRenderingSystem.cpp" />
     <ClCompile Include="engine\code\system\postRender\Grayscale.cpp" />

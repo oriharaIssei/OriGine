@@ -17,7 +17,6 @@
 
 // assets
 #include "Audio/Audio.h"
-#include "component/material/Material.h"
 
 // dx12Object
 #include "directX12/DxFunctionHelper.h"
@@ -90,8 +89,6 @@ void Engine::Initialize() {
     ModelManager::getInstance()->Initialize();
     RenderTexture::Awake();
 
-    materialManager_ = std::make_unique<MaterialManager>();
-
     deltaTime_ = std::make_unique<DeltaTime>();
     deltaTime_->Initialize();
 
@@ -105,7 +102,6 @@ void Engine::Finalize() {
     AnimationManager::getInstance()->Finalize();
     CameraManager::getInstance()->Finalize();
     lightManager_->Finalize();
-    materialManager_->Finalize();
 
 #ifdef _DEBUG
     ImGuiManager::getInstance()->Finalize();

@@ -264,6 +264,6 @@ void AnimationObject3d::setAnimation(std::unique_ptr<Animation>& animation) {
     animation_ = std::move(animation);
 }
 
-void AnimationObject3d::setMaterial(IConstantBuffer<Material>* material, uint32_t index) {
+void AnimationObject3d::setMaterial(Material material, uint32_t index) {
     model_->materialData_[index].material = material;
 }

@@ -188,7 +188,7 @@ void LoadModelFile(ModelMeshData* data, const std::string& directoryPath, const 
             textureIndex = TextureManager::LoadTexture(texturePath);
         }
 
-        ModelManager::getInstance()->pushBackDefaultMaterial(data, {textureIndex, Engine::getInstance()->getMaterialManager()->Create("white")});
+        ModelManager::getInstance()->pushBackDefaultMaterial(data, {textureIndex, IConstantBuffer<Material>()});
 
         // メッシュデータを処理
         ProcessMeshData(mesh, vertices, indices);
@@ -299,6 +299,11 @@ void ModelManager::LoadTask::Update() {
     }
 
     model->materialData_ = ModelManager::getInstance()->defaultMaterials_[model->meshData_];
+    for (auto& material : model->materialData_) {
+        material.material.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+        material.material->UpdateUvMatrix();
+        material.material.ConvertToBuffer();
+    }
 
     std::mutex mutex;
     for (auto& [name, data] : model->meshData_->meshGroup_) {

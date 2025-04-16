@@ -657,5 +657,8 @@
     <ClCompile Include="engine\code\system\effect\EmitterWorkSystem.cpp" />
     <ClCompile Include="engine\code\system\postRender\ScreenRenderingSystem.cpp" />
     <ClCompile Include="engine\code\system\postRender\Grayscale.cpp" />
+    <ClCompile Include="engine\code\component\material\light\DirectionalLight.cpp" />
+    <ClCompile Include="engine\code\component\material\light\PointLight.cpp" />
+    <ClCompile Include="engine\code\component\material\light\SpotLight.cpp" />
   </ItemGroup>
 </Project>

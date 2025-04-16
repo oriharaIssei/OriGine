@@ -70,5 +70,5 @@ public:
     void setNextAnimation(std::unique_ptr<Animation>& animation, const std::string& filename, float _lerpTime);
     void setNextAnimation(const std::string& directory, const std::string& filename, float _lerpTime);
 
-    void setMaterial(IConstantBuffer<Material>* material, uint32_t index = 0);
+    void setMaterial(Material material, uint32_t index = 0);
 };

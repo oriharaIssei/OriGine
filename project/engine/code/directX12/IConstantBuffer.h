@@ -21,6 +21,7 @@ public:
     IConstantBuffer(Args... args) {
         openData_ = constBuff(args...);
     }
+
     IConstantBuffer() {}
     ~IConstantBuffer() {}
 
