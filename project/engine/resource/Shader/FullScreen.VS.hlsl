@@ -1,4 +1,4 @@
-#include "CopyImage.hlsli"
+#include "FullScreen.hlsli"
 
 static const uint kNumVertex = 4;
 static const uint kNumVertexIndex = 6;

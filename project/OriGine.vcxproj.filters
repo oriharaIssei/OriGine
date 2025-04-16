@@ -440,6 +440,8 @@
     <ClInclude Include="engine\code\component\particle\primitive\Primitive.h" />
     <ClInclude Include="util\ConvertString.h" />
     <ClInclude Include="engine\code\system\effect\EmitterWorkSystem.h" />
+    <ClInclude Include="engine\code\system\postRender\ScreenRenderingSystem.h" />
+    <ClInclude Include="engine\code\system\postRender\Grayscale.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\code\ECS\ECSEditor.cpp">
@@ -653,5 +655,7 @@
     <ClCompile Include="engine\code\component\particle\primitive\Primitive.cpp" />
     <ClCompile Include="util\ConvertString.cpp" />
     <ClCompile Include="engine\code\system\effect\EmitterWorkSystem.cpp" />
+    <ClCompile Include="engine\code\system\postRender\ScreenRenderingSystem.cpp" />
+    <ClCompile Include="engine\code\system\postRender\Grayscale.cpp" />
   </ItemGroup>
 </Project>

@@ -108,6 +108,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="engine\code\system\effect\EmitterWorkSystem.h" />
+    <ClInclude Include="engine\code\system\postRender\ScreenRenderingSystem.h" />
+    <ClInclude Include="engine\code\system\postRender\Grayscale.h" />
     <ClInclude Include="util\ConvertString.h" />
     <ClInclude Include="engine\code\system\render\ColliderRenderingSystem.h" />
     <ClInclude Include="engine\code\module\debugger\DebuggerGroup.h" />
@@ -207,6 +209,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\code\system\effect\EmitterWorkSystem.cpp" />
+    <ClCompile Include="engine\code\system\postRender\ScreenRenderingSystem.cpp" />
+    <ClCompile Include="engine\code\system\postRender\Grayscale.cpp" />
     <ClCompile Include="util\ConvertString.cpp" />
     <ClCompile Include="engine\code\system\render\ColliderRenderingSystem.cpp" />
     <ClCompile Include="engine\code\module\debugger\DebuggerGroup.cpp" />

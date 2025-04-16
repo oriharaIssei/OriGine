@@ -197,6 +197,9 @@ void TexturedMeshRenderSystem::StartRender() {
 
     CameraManager::getInstance()->setBufferForRootParameter(commandList, 1);
     LightManager::getInstance()->SetForRootParameter(commandList);
+
+    ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
+    commandList->SetDescriptorHeaps(1, ppHeaps);
 }
 
 /// <summary>
@@ -249,8 +252,7 @@ void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
         auto& meshGroup = renderer->getMeshGroup();
         for (auto& mesh : *meshGroup) {
             // ============================= テクスチャの設定 ============================= //
-            ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
-            commandList->SetDescriptorHeaps(1, ppHeaps);
+            
             commandList->SetGraphicsRootDescriptorTable(
                 7,
                 TextureManager::getDescriptorGpuHandle(renderer->getTextureNumber(index)));
