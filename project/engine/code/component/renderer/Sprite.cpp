@@ -14,6 +14,9 @@
 #include "logger/Logger.h"
 #include "myFileSystem/MyFileSystem.h"
 
+/// math
+#include "math/Matrix4x4.h"
+
 #ifdef _DEBUG
 #include "imgui/imgui.h"
 #endif // _DEBUG
@@ -62,7 +65,7 @@ bool SpriteRenderer::Edit() {
     if (ImGui::Button("...")) {
         std::string directory;
         std::string fileName;
-        if (myFs::SelectFileDialog(kApplicationResourceDirectory, directory, fileName, {".png"})) {
+        if (myFs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {".png"})) {
             texturePath_ = kApplicationResourceDirectory + "/" + directory + "/" + fileName;
 
             // テクスチャの読み込みとサイズの適応

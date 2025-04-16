@@ -11,12 +11,12 @@
 // externals
 #include <Windows.h>
 
-//util
+// util
 #include "util/ConvertString.h"
 
 namespace fs = std::filesystem;
 
-std::list<std::pair<std::string, std::string>> MyFileSystem::SearchFile(const std::string& directory, const std::string& extension, bool withoutExtensionOutput) {
+std::list<std::pair<std::string, std::string>> MyFileSystem::searchFile(const std::string& directory, const std::string& extension, bool withoutExtensionOutput) {
     std::list<std::pair<std::string, std::string>> fileList;
     for (const auto& entry : fs::recursive_directory_iterator(directory)) {
         if (entry.is_regular_file() && entry.path().extension() == ('.' + extension)) {
@@ -30,7 +30,7 @@ std::list<std::pair<std::string, std::string>> MyFileSystem::SearchFile(const st
     return fileList;
 }
 
-std::list<std::string> MyFileSystem::SearchSubFolder(const std::string& directory) {
+std::list<std::string> MyFileSystem::searchSubFolder(const std::string& directory) {
     std::list<std::string> subFolders;
     for (const auto& entry : fs::recursive_directory_iterator(directory)) {
         if (fs::is_regular_file(entry)) {
@@ -40,11 +40,11 @@ std::list<std::string> MyFileSystem::SearchSubFolder(const std::string& director
     return subFolders;
 }
 
-bool MyFileSystem::CreateFolder(const std::string& directory) {
+bool MyFileSystem::createFolder(const std::string& directory) {
     return std::filesystem::create_directories(directory);
 }
 
-void MyFileSystem::SelectFolderDialog(const std::string& _defaultDirectory, std::string& _outPath) {
+void MyFileSystem::selectFolderDialog(const std::string& _defaultDirectory, std::string& _outPath) {
     HRESULT hr         = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
     bool coInitialized = SUCCEEDED(hr);
 
@@ -102,7 +102,7 @@ void MyFileSystem::SelectFolderDialog(const std::string& _defaultDirectory, std:
     }
 }
 
-bool MyFileSystem::SelectFileDialog(
+bool MyFileSystem::selectFileDialog(
     const std::string& defaultDirectory,
     std::string& fileDirectory,
     std::string& filename,
@@ -135,12 +135,16 @@ bool MyFileSystem::SelectFileDialog(
 
             // ファイルフィルターを設定
             if (!extensions.empty()) {
-                std::vector<COMDLG_FILTERSPEC> fileTypes;
+                std::wstring combinedFilter;
                 for (const auto& ext : extensions) {
-                    std::wstring filter = L"*." + std::wstring(ext.begin(), ext.end());
-                    fileTypes.push_back({L"Files", filter.c_str()});
+                    std::wstring wext(ext.begin(), ext.end());
+                    if (!combinedFilter.empty()) {
+                        combinedFilter += L";";
+                    }
+                    combinedFilter += L"*." + wext;
                 }
-                pFileOpen->SetFileTypes(static_cast<UINT>(fileTypes.size()), fileTypes.data());
+                COMDLG_FILTERSPEC fileTypeSpec = {L"Supported Files", combinedFilter.c_str()};
+                pFileOpen->SetFileTypes(1, &fileTypeSpec);
                 pFileOpen->SetFileTypeIndex(1); // デフォルトのファイルタイプを設定
             }
 

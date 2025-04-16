@@ -1,21 +1,21 @@
 #pragma once
 
-///stl
-//container
+/// stl
+// container
 #include <unordered_map>
-//string
+// string
 #include <string>
 
-///engine
-//assets
+/// engine
+// assets
 struct Model;
 struct ModelNode;
 
-//lib
+// lib
 #include "globalVariables/SerializedField.h"
-//math
+// math
+#include "math/Quaternion.h"
 #include "Matrix4x4.h"
-#include "Quaternion.h"
 #include "Vector3.h"
 
 /// <summary>
@@ -29,7 +29,7 @@ struct Keyframe {
     ~Keyframe() = default;
 
     float time; // キーフレームの時刻
-    T value;    // キーフレームの 値
+    T value; // キーフレームの 値
 };
 
 // ============= using ================= //
@@ -89,23 +89,23 @@ struct AnimationData {
 };
 
 namespace CalculateValue {
-    float LINEAR(
-        const std::vector<Keyframe<float>>& keyframes, float time);
-    Vec3f LINEAR(
-        const std::vector<KeyframeVector3>& keyframes, float time);
-    Vec4f LINEAR(
-        const std::vector<Keyframe<Vec4f>>& keyframes, float time);
-    Quaternion LINEAR(
-        const std::vector<KeyframeQuaternion>& keyframes, float time);
+float LINEAR(
+    const std::vector<Keyframe<float>>& keyframes, float time);
+Vec3f LINEAR(
+    const std::vector<KeyframeVector3>& keyframes, float time);
+Vec4f LINEAR(
+    const std::vector<Keyframe<Vec4f>>& keyframes, float time);
+Quaternion LINEAR(
+    const std::vector<KeyframeQuaternion>& keyframes, float time);
 
-    float Step(
-        const std::vector<Keyframe<float>>& keyframes, float time);
-    Vec3f Step(
-        const std::vector<KeyframeVector3>& keyframes, float time);
-    Vec4f Step(
-        const std::vector<Keyframe<Vec4f>>& keyframes, float time);
-    Quaternion Step(
-        const std::vector<KeyframeQuaternion>& keyframes, float time);
+float Step(
+    const std::vector<Keyframe<float>>& keyframes, float time);
+Vec3f Step(
+    const std::vector<KeyframeVector3>& keyframes, float time);
+Vec4f Step(
+    const std::vector<Keyframe<Vec4f>>& keyframes, float time);
+Quaternion Step(
+    const std::vector<KeyframeQuaternion>& keyframes, float time);
 } // namespace CalculateValue
 
 /// <summary>
