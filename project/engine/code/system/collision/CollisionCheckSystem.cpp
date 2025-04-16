@@ -76,12 +76,16 @@ void CollisionCheckSystem::Update() {
 
     // 衝突判定の記録開始処理
     for (auto entity : entities_) {
+        Transform* transform = getComponent<Transform>(entity);
+        transform->Update();
+
         // AABB
         const auto& aabbColliders = getComponents<AABBCollider>(entity);
         if (aabbColliders) {
             for (auto collider = aabbColliders->begin();
                 collider != aabbColliders->end();
                 ++collider) {
+                collider->setParent(transform);
                 collider->StartCollision();
             }
         }
@@ -92,6 +96,7 @@ void CollisionCheckSystem::Update() {
             for (auto collider = sphereColliders->begin();
                 collider != sphereColliders->end();
                 ++collider) {
+                collider->setParent(transform);
                 collider->StartCollision();
             }
         }

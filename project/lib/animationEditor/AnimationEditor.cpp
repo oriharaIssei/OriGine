@@ -34,10 +34,10 @@ AnimationEditor::~AnimationEditor() {}
 void AnimationEditor::Initialize() {
     // アニメーションリストを取得
     // json
-    animationSettingsFileList_ = myfs::SearchFile("resource/GlobalVariables/Animations", "json");
+    animationSettingsFileList_ = myfs::searchFile("resource/GlobalVariables/Animations", "json");
 
     // gltf
-    std::list<std::pair<std::string, std::string>> addFileList = myfs::SearchFile("resource", "gltf", false);
+    std::list<std::pair<std::string, std::string>> addFileList = myfs::searchFile("resource", "gltf", false);
     animationSettingsFileList_.insert(animationSettingsFileList_.end(), addFileList.begin(), addFileList.end());
 
     // editInstance を作成
@@ -61,10 +61,10 @@ void AnimationEditor::Update() {
                 if (ImGui::MenuItem("Reload")) {
                     //===================== アニメーションリストを取得 =====================//
                     // json
-                    animationSettingsFileList_ = myfs::SearchFile("resource/GlobalVariables/Animations", "json");
+                    animationSettingsFileList_ = myfs::searchFile("resource/GlobalVariables/Animations", "json");
 
                     // gltf
-                    std::list<std::pair<std::string, std::string>> addFileList = myfs::SearchFile("resource", "gltf", false);
+                    std::list<std::pair<std::string, std::string>> addFileList = myfs::searchFile("resource", "gltf", false);
                     animationSettingsFileList_.insert(animationSettingsFileList_.end(), addFileList.begin(), addFileList.end());
                 }
                 // 開く
@@ -180,8 +180,8 @@ void AnimationEditor::Update() {
             if (ImGui::BeginCombo("##TargetModel", currentEditAnimationSetting_->targetModelFileName->c_str())) {
                 // モデルリストを取得
                 {
-                    modelFileList_ = myfs::SearchFile("resource/Models", "gltf", false);
-                    modelFileList_.splice(modelFileList_.begin(), myfs::SearchFile("resource/Models", "obj", false));
+                    modelFileList_ = myfs::searchFile("resource/Models", "gltf", false);
+                    modelFileList_.splice(modelFileList_.begin(), myfs::searchFile("resource/Models", "obj", false));
                 }
                 for (const auto& [directory, filename] : modelFileList_) {
                     bool isSelected = currentEditAnimationSetting_->targetModelFileName == filename;
@@ -218,7 +218,7 @@ void AnimationEditor::Update() {
             ImGui::Text("AnimationDirectory : %s", currentEditAnimationSetting_->targetAnimationDirection->c_str());
             if (ImGui::Button("Select AnimationDirectory")) {
                 std::string newDirection = "";
-                myfs::SelectFolderDialog("resource", newDirection);
+                myfs::selectFolderDialog("resource", newDirection);
             }
         }
     }

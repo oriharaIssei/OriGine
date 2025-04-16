@@ -22,6 +22,7 @@
 #include "model/Model.h"
 
 // math
+#include "math/Matrix4x4.h"
 #include <cmath>
 
 #ifdef _DEBUG
@@ -30,10 +31,10 @@
 #endif // _DEBUG
 
 static std::list<std::pair<std::string, std::string>> SearchModelFile() {
-    std::list<std::pair<std::string, std::string>> modelFiles   = MyFileSystem::SearchFile(kEngineResourceDirectory, "obj", false);
-    std::list<std::pair<std::string, std::string>> gltfFiles    = MyFileSystem::SearchFile(kEngineResourceDirectory, "gltf", false);
-    std::list<std::pair<std::string, std::string>> appObjFiles  = MyFileSystem::SearchFile(kApplicationResourceDirectory, "obj", false);
-    std::list<std::pair<std::string, std::string>> appGltfFiles = MyFileSystem::SearchFile(kApplicationResourceDirectory, "gltf", false);
+    std::list<std::pair<std::string, std::string>> modelFiles   = MyFileSystem::searchFile(kEngineResourceDirectory, "obj", false);
+    std::list<std::pair<std::string, std::string>> gltfFiles    = MyFileSystem::searchFile(kEngineResourceDirectory, "gltf", false);
+    std::list<std::pair<std::string, std::string>> appObjFiles  = MyFileSystem::searchFile(kApplicationResourceDirectory, "obj", false);
+    std::list<std::pair<std::string, std::string>> appGltfFiles = MyFileSystem::searchFile(kApplicationResourceDirectory, "gltf", false);
 
     modelFiles.insert(modelFiles.end(), gltfFiles.begin(), gltfFiles.end());
     modelFiles.insert(modelFiles.end(), appObjFiles.begin(), appObjFiles.end());
@@ -43,8 +44,8 @@ static std::list<std::pair<std::string, std::string>> SearchModelFile() {
 }
 
 static std::list<std::pair<std::string, std::string>> SearchTextureFile() {
-    std::list<std::pair<std::string, std::string>> textureFiles = MyFileSystem::SearchFile(kEngineResourceDirectory, "png", false);
-    std::list<std::pair<std::string, std::string>> appPngFiles  = MyFileSystem::SearchFile(kApplicationResourceDirectory, "png", false);
+    std::list<std::pair<std::string, std::string>> textureFiles = MyFileSystem::searchFile(kEngineResourceDirectory, "png", false);
+    std::list<std::pair<std::string, std::string>> appPngFiles  = MyFileSystem::searchFile(kApplicationResourceDirectory, "png", false);
 
     textureFiles.insert(textureFiles.end(), appPngFiles.begin(), appPngFiles.end());
 

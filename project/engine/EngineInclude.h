@@ -34,6 +34,8 @@ static const std::string kEngineResourceDirectory      = "engine/resource";
 #include "system/render/ParticleRenderSystem.h"
 #include "system/render/SpriteRenderSystem.h"
 #include "system/render/TexturedMeshRenderSystem.h"
+#include "system/postRender/Grayscale.h"
+#include "system/postRender/ScreenRenderingSystem.h"
 #endif // ENGINE_SYSTEMS
 
 #ifdef ENGINE_COMPONENTS

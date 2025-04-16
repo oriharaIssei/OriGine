@@ -414,10 +414,12 @@ inline void ComponentArray<componentType>::LoadComponent(GameEntity* _entity, Bi
     _reader.Read<uint32_t>("size", size);
     registerEntity(_entity, size);
     auto& componentVec = components_[entityIndexBind_[const_cast<GameEntity*>(_entity)]];
+
     int32_t compIndex  = 0;
     for (auto& comp : componentVec) {
         _reader.ReadBeginGroup(preGroupName + componentTypeName + std::to_string(compIndex++));
         comp.Load(_reader);
     }
+
     _reader.ReadBeginGroup(preGroupName);
 }

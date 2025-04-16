@@ -41,7 +41,7 @@ static const std::array<std::string, static_cast<int>(SystemType::Count)> System
 
 class ISystem {
 public:
-    ISystem(SystemType _systemType) : systemType_(_systemType) {};
+    ISystem(SystemType _systemType, int32_t _priority = 0) : systemType_(_systemType), priority_(_priority) {};
     virtual ~ISystem() = default;
 
     virtual void Initialize() = 0;
@@ -55,7 +55,7 @@ public:
     }
 
 protected:
-    virtual void UpdateEntity(GameEntity* _entity) = 0;
+    virtual void UpdateEntity([[maybe_unused]]GameEntity* _entity){}
 
 protected:
     std::vector<GameEntity*> entities_;

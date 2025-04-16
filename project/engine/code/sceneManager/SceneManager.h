@@ -25,7 +25,6 @@ public:
     void Finalize();
 
     void Update();
-    void Draw();
 
 #ifdef _DEBUG
     void DebugUpdate();
@@ -45,7 +44,9 @@ private:
 
     EntityComponentSystemManager* ecsManager_ = nullptr;
 
+    /// SceneView
     std::unique_ptr<RenderTexture> sceneView_;
+
     std::shared_ptr<DxRtvArray> sceneViewRtvArray_;
     std::shared_ptr<DxSrvArray> sceneViewSrvArray_;
 
@@ -86,6 +87,8 @@ public:
     void addScene(const std::string& name, std::function<std::unique_ptr<IScene>()> _sceneMakeFunc);
     void changeScene(const std::string& name);
 
+    void executeSceneChange();
+
     RenderTexture* getSceneView() const { return sceneView_.get(); }
 
     const std::unordered_map<std::string, int32_t>& getScenes() const { return sceneIndexs_; }
@@ -116,6 +119,5 @@ public:
     bool isUsingDebugCamera() const {
         return isUsingDebugCamera_;
     };
-
 #endif // _DEBUG
 };

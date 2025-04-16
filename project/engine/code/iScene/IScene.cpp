@@ -81,6 +81,9 @@ void IScene::registerSystems() {
     ecsManager->registerSystem<TexturedMeshRenderSystem>();
     ecsManager->registerSystem<LineRenderSystem>();
     ecsManager->registerSystem<ColliderRenderingSystem>();
+
+    ecsManager->registerSystem<Grayscale>();
+    ecsManager->registerSystem<ScreenRenderingSystem>();
 }
 
 void IScene::Finalize([[maybe_unused]] bool _isSave) {
@@ -201,8 +204,6 @@ void IScene::SaveSceneEntity() {
 
     // 収集済みの有効なEntity数を書き込む (Load側と対応)
     std::list<GameEntity*> activeEntities;
-    // Entityを整理
-    ecsManager->sortBackActiveEntities();
     {
         int32_t entityID = 0;
         for (auto& entity : ecsManager->getEntities()) {
@@ -266,6 +267,8 @@ void IScene::SaveSceneEntity() {
 
             int32_t systemIndex_ = 0;
             for (const auto& [systemName, system] : systemsByType) {
+                system->eraseDeadEntity();
+
                 writer.WriteBeginGroup(SystemTypeString[systemTypeIndex] + std::to_string(systemIndex_++));
                 writer.Write<std::string>("Name", systemName);
                 writer.Write<int32_t>("priority", system->getPriority());

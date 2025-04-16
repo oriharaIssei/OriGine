@@ -114,7 +114,7 @@ bool ModelMeshRenderer::Edit() {
     if (ImGui::Button("Load")) {
         std::string directory;
         std::string fileName;
-        if (myfs::SelectFileDialog(kApplicationResourceDirectory, directory, fileName, {"obj", "gltf"})) {
+        if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"obj", "gltf"})) {
             directory_ = kApplicationResourceDirectory + "/" + directory;
             fileName_  = fileName;
 

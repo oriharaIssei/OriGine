@@ -38,8 +38,8 @@ SceneManager::SceneManager() {}
 SceneManager::~SceneManager() {}
 
 void SceneManager::Initialize() {
-    sceneViewRtvArray_ = DxRtvArrayManager::getInstance()->Create(1);
-    sceneViewSrvArray_ = DxSrvArrayManager::getInstance()->Create(1);
+    sceneViewRtvArray_ = DxRtvArrayManager::getInstance()->Create(4);
+    sceneViewSrvArray_ = DxSrvArrayManager::getInstance()->Create(4);
 
     ecsManager_ = EntityComponentSystemManager::getInstance();
     ecsManager_->Initialize();
@@ -47,7 +47,7 @@ void SceneManager::Initialize() {
     sceneView_ = std::make_unique<RenderTexture>(Engine::getInstance()->getDxCommand(), sceneViewRtvArray_.get(), sceneViewSrvArray_.get());
     /// TODO
     // fix MagicNumber
-    sceneView_->Initialize({1280.0f, 720.0f}, DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, {0.0f, 0.0f, 0.0f, 1.0f});
+    sceneView_->Initialize(4, {1280.0f, 720.0f}, DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, {0.0f, 0.0f, 0.0f, 1.0f});
 
 #ifdef _DEBUG
     editorGroup_   = EditorGroup::getInstance();
@@ -76,32 +76,12 @@ void SceneManager::Finalize() {
 }
 
 void SceneManager::Update() {
-    auto SceneChange = [this]() {
-        if (currentScene_) {
-            Logger::Trace(std::format("SceneChange\n PreviousScene : [ {} ] \n NextScene : [ {} ]", currentScene_->getName(), changingSceneName_));
-            currentScene_->Finalize();
-        } else {
-            Logger::Trace(std::format("SceneChange\n Startup Scene : [ {} ] \n ", changingSceneName_));
-        }
-
-        currentScene_ = scenes_[sceneIndexs_[changingSceneName_]]();
-        currentScene_->Initialize();
-
-        isChangeScene_ = false;
-    };
-
     if (isChangeScene_) {
         // SceneChange
-        SceneChange();
+        executeSceneChange();
     }
 
     ecsManager_->Run();
-}
-
-void SceneManager::Draw() {
-    Engine::getInstance()->ScreenPreDraw();
-    sceneView_->DrawTexture();
-    Engine::getInstance()->ScreenPostDraw();
 }
 
 #ifdef _DEBUG
@@ -137,7 +117,7 @@ void SceneManager::DebugUpdate() {
     if (ImGui::Begin("SceneView")) {
         ImGui::LabelText("Scene", currentScene_->getName().c_str());
 
-        ImGui::Image(reinterpret_cast<ImTextureID>(sceneView_->getSrvHandle().ptr), ImGui::GetWindowSize());
+        ImGui::Image(reinterpret_cast<ImTextureID>(sceneView_->getBackBufferSrvHandle().ptr), ImGui::GetWindowSize());
     }
     ImGui::End();
 
@@ -369,4 +349,18 @@ void SceneManager::addScene(
 void SceneManager::changeScene(const std::string& name) {
     changingSceneName_ = name;
     isChangeScene_     = true;
+}
+
+void SceneManager::executeSceneChange() {
+    if (currentScene_) {
+        Logger::Trace(std::format("SceneChange\n PreviousScene : [ {} ] \n NextScene : [ {} ]", currentScene_->getName(), changingSceneName_));
+        currentScene_->Finalize();
+    } else {
+        Logger::Trace(std::format("SceneChange\n Startup Scene : [ {} ] \n ", changingSceneName_));
+    }
+
+    currentScene_ = scenes_[sceneIndexs_[changingSceneName_]]();
+    currentScene_->Initialize();
+
+    isChangeScene_ = false;
 }
