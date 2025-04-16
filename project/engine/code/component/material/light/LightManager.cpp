@@ -1,7 +1,11 @@
 #include "LightManager.h"
 
+/// engine
 #include "Engine.h"
+// directX12 Object
 #include "directX12/DxSrvArrayManager.h"
+
+/// lib
 #include "globalVariables/GlobalVariables.h"
 
 #ifdef _DEBUG
@@ -13,10 +17,10 @@ LightManager::LightManager()
 LightManager::~LightManager() {}
 
 void LightManager::Initialize() {
-    ID3D12Device* device       = Engine::getInstance()->getDxDevice()->getDevice();
+    ID3D12Device* device = Engine::getInstance()->getDxDevice()->getDevice();
 
     ///========================================
-    ///作成個数を決める
+    /// 作成個数を決める
     ///========================================
 
     lightCounts_.CreateBuffer(device);
@@ -32,28 +36,26 @@ void LightManager::Initialize() {
     /// light 作成
     ///========================================
     /// Directional Light
-    directionalLights_.CreateBuffer(device, srvArray_.get(), lightCounts_.openData_.directionalLightNum);
-    for (int32_t i = 0; i < lightCounts_.openData_.directionalLightNum; i++) {
-        directionalLights_.openData_.push_back({"LightManager", i});
-    }
+    directionalLights_.CreateBuffer(device, srvArray_.get(), directionalLightSize_);
 
     /// Point Light
-    pointLights_.CreateBuffer(device, srvArray_.get(), lightCounts_.openData_.pointLightNum);
-    for (int32_t i = 0; i < lightCounts_.openData_.pointLightNum; i++) {
-        pointLights_.openData_.push_back({"LightManager", i});
-    }
+    pointLights_.CreateBuffer(device, srvArray_.get(), pointLightSize_);
 
     /// Spot Light
-    spotLights_.CreateBuffer(device, srvArray_.get(), lightCounts_.openData_.spotLightNum);
-    for (int32_t i = 0; i < lightCounts_.openData_.spotLightNum; i++) {
-        spotLights_.openData_.push_back({"LightManager", i});
-    }
+    spotLights_.CreateBuffer(device, srvArray_.get(), spotLightSize_);
 }
 
 void LightManager::Update() {
+    lightCounts_->directionalLightNum = static_cast<int32_t>(directionalLights_.openData_.size());
     directionalLights_.ConvertToBuffer();
+
+    lightCounts_->pointLightNum = static_cast<int32_t>(pointLights_.openData_.size());
     pointLights_.ConvertToBuffer();
+
+    lightCounts_->spotLightNum = static_cast<int32_t>(spotLights_.openData_.size());
     spotLights_.ConvertToBuffer();
+
+    lightCounts_.ConvertToBuffer();
 }
 
 void LightManager::Finalize() {
@@ -76,58 +78,23 @@ void LightManager::SetForRootParameter(ID3D12GraphicsCommandList* cmdList) {
     spotLights_.SetForRootParameter(cmdList, 5);
 }
 
-LightEditor::LightEditor()
-    : IEditor() {}
-LightEditor::~LightEditor() {}
-
-void LightEditor::Initialize() {
-    lightManager_ = LightManager::getInstance();
+void LightManager::pushDirectionalLight(const DirectionalLight& light) {
+    if (directionalLights_.openData_.size() >= directionalLights_.capacity()) {
+        return;
+    }
+    directionalLights_.openData_.push_back(light);
 }
 
-void LightEditor::Update() {
-#ifdef _DEBUG
-    int32_t lightIndex = 0;
-    std::string label  = "NULL";
-
-    for (auto& directionalLight : lightManager_->directionalLights_.openData_) {
-        label = "DirectionalLight_" + std::to_string(lightIndex);
-        ImGui::Begin(label.c_str());
-        ImGui::ColorEdit3("color", reinterpret_cast<float*>(directionalLight.color.operator Vec3f*()));
-        ImGui::SliderFloat("intensity", directionalLight.intensity, 0.0f, 1.0f);
-        ImGui::SliderFloat3("direction", reinterpret_cast<float*>(directionalLight.direction.operator Vec3f*()), -1.0f, 1.0f);
-        directionalLight.direction.setValue(directionalLight.direction->normalize());
-        ImGui::End();
-        ++lightIndex;
+void LightManager::pushPointLight(const PointLight& light) {
+    if (pointLights_.openData_.size() >= pointLights_.capacity()) {
+        return;
     }
+    pointLights_.openData_.push_back(light);
+}
 
-    lightIndex = 0;
-    label      = "NULL";
-    for (auto& pointLight : lightManager_->pointLights_.openData_) {
-        label = "PointLight" + std::to_string(lightIndex);
-        ImGui::Begin(label.c_str());
-        ImGui::ColorEdit3("color", reinterpret_cast<float*>(pointLight.color.operator Vec3f*()));
-        ImGui::SliderFloat("intensity", pointLight.intensity, 0.0f, 1.0f);
-        ImGui::DragFloat("decay", pointLight.decay, 0.1f, 0.0f);
-        ImGui::DragFloat3("pos", reinterpret_cast<float*>(pointLight.pos.operator Vec3f*()), 0.1f);
-        ImGui::DragFloat("radius", pointLight.radius, 0.1f, 0.0f);
-        ImGui::End();
-        ++lightIndex;
+void LightManager::pushSpotLight(const SpotLight& light) {
+    if (spotLights_.openData_.size() >= spotLights_.capacity()) {
+        return;
     }
-
-    for (auto& spotLight : lightManager_->spotLights_.openData_) {
-        label = "SpotLight" + std::to_string(lightIndex);
-        ImGui::Begin(label.c_str());
-        ImGui::ColorEdit3("color", reinterpret_cast<float*>(spotLight.color.operator Vec3f*()));
-        ImGui::SliderFloat("intensity", spotLight.intensity, 0.0f, 1.0f);
-        ImGui::DragFloat("decay", spotLight.decay, 0.1f, 0.0f);
-        ImGui::DragFloat("cosFalloffStart", spotLight.cosFalloffStart, 0.1f, 0.0f);
-        ImGui::DragFloat3("pos", reinterpret_cast<float*>(spotLight.pos.operator Vec3f*()), 0.1f);
-        ImGui::SliderFloat3("direction", reinterpret_cast<float*>(spotLight.direction.operator Vec3f*()), -1.0f, 1.0f);
-        spotLight.direction.setValue(spotLight.direction->normalize());
-        ImGui::DragFloat("distance", spotLight.distance, 0.1f, 0.0f);
-        ImGui::DragFloat("cosAngle", spotLight.cosAngle, 0.1f, 0.0f);
-        ImGui::End();
-        ++lightIndex;
-    }
-#endif // _DEBUG
+    spotLights_.openData_.push_back(light);
 }

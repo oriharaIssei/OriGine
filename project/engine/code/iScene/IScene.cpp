@@ -52,6 +52,10 @@ void IScene::registerComponents() {
     ecsManager->registerComponent<Transform>();
     ecsManager->registerComponent<CameraTransform>();
 
+    ecsManager->registerComponent<DirectionalLight>();
+    ecsManager->registerComponent<PointLight>();
+    ecsManager->registerComponent<SpotLight>();
+
     ecsManager->registerComponent<Rigidbody>();
 
     ecsManager->registerComponent<AABBCollider>();
@@ -176,6 +180,10 @@ void IScene::LoadSceneEntity() {
                     reader.Read<int32_t>("priority", priority);
                     itr->second->setPriority(priority);
 
+                    bool isActive = false;
+                    reader.Read<bool>("isActive", isActive);
+                    itr->second->setIsActive(isActive);
+
                     // entities
                     reader.Read<int32_t>("systemHasEntitySize", systemHasEntitySize);
                     for (int32_t j = 0; j < systemHasEntitySize; j++) {
@@ -269,6 +277,7 @@ void IScene::SaveSceneEntity() {
                 writer.WriteBeginGroup(SystemTypeString[systemTypeIndex] + std::to_string(systemIndex_++));
                 writer.Write<std::string>("Name", systemName);
                 writer.Write<int32_t>("priority", system->getPriority());
+                writer.Write<bool>("isActive", system->isActive());
                 writer.Write<int32_t>("systemHasEntitySize", static_cast<int32_t>(system->getEntities().size()));
 
                 int32_t joinedEntityIndex = 0;

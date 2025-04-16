@@ -3,28 +3,50 @@
 #include <d3d12.h>
 #include <wrl.h>
 
+/// stl
 #include <string>
 
-#include "lib/globalVariables/SerializedField.h"
+/// engine
+// ecs
+#include "component/IComponent.h"
 
+/// math
 #include "math/Vector3.h"
 #include "math/Vector4.h"
 
-struct PointLight {
+class PointLight : public IComponent {
 public:
-    PointLight(const std::string& scene, int32_t index) : color{scene, "PointLight" + std::to_string(index), "color"},
-                                                          pos{scene, "PointLight" + std::to_string(index), "pos"},
-                                                          intensity{scene, "PointLight" + std::to_string(index), "intensity"},
-                                                          radius{scene, "PointLight" + std::to_string(index), "radius"},
-                                                          decay{scene, "PointLight" + std::to_string(index), "decay"} {}
-
+    PointLight() {}
     ~PointLight() {}
 
-    SerializedField<Vec3f> color;
-    SerializedField<Vec3f> pos;
-    SerializedField<float> intensity;
-    SerializedField<float> radius;
-    SerializedField<float> decay;
+    void Initialize([[maybe_unused]] GameEntity* _entity) override {}
+    bool Edit() override;
+    void Save(BinaryWriter& _writer) override {
+        _writer.Write<bool>("isActive", isActive_);
+        _writer.Write<3, float>("color", color_);
+        _writer.Write<float>("intensity", intensity_);
+        _writer.Write<3, float>("pos", pos_);
+        _writer.Write<float>("radius", radius_);
+        _writer.Write<float>("decay", decay_);
+    }
+    void Load(BinaryReader& _reader) override {
+        _reader.Read<bool>("isActive", isActive_);
+        _reader.Read<3, float>("color", color_);
+        _reader.Read<float>("intensity", intensity_);
+        _reader.Read<3, float>("pos", pos_);
+        _reader.Read<float>("radius", radius_);
+        _reader.Read<float>("decay", decay_);
+    }
+    void Finalize() override {}
+
+private:
+    bool isActive_ = true;
+
+    Vec3f color_ = {1.f, 1.f, 1.f};
+    Vec3f pos_   = {0.f, 0.f, 0.f};
+    float intensity_ = 0.f;
+    float radius_ = 0.f;
+    float decay_ = 0.f;
 
 public:
     struct ConstantBuffer {
@@ -35,12 +57,27 @@ public:
         float decay; // 4 bytes
         float padding[3];
         ConstantBuffer& operator=(const PointLight& light) {
-            color     = light.color;
-            pos       = light.pos;
-            intensity = light.intensity;
-            radius    = light.radius;
-            decay     = light.decay;
+            color     = light.color_;
+            pos       = light.pos_;
+            intensity = light.intensity_;
+            radius    = light.radius_;
+            decay     = light.decay_;
             return *this;
         }
     };
+
+public: // access
+    bool isActive() const { return isActive_; }
+    void setActive(bool _isActive) { isActive_ = _isActive; }
+
+    Vec3f getColor() const { return color_; }
+    void setColor(const Vec3f& _color) { color_ = _color; }
+    Vec3f getPos() const { return pos_; }
+    void setPos(const Vec3f& _pos) { pos_ = _pos; }
+    float getIntensity() const { return intensity_; }
+    void setIntensity(float _intensity) { intensity_ = _intensity; }
+    float getRadius() const { return radius_; }
+    void setRadius(float _radius) { radius_ = _radius; }
+    float getDecay() const { return decay_; }
+    void setDecay(float _decay) { decay_ = _decay; }
 };

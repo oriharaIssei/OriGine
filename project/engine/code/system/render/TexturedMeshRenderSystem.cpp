@@ -185,6 +185,40 @@ void TexturedMeshRenderSystem::CreatePso() {
     }
 }
 
+void TexturedMeshRenderSystem::LightUpdate() {
+    auto* directionalLight = ECSManager::getInstance()->getComponentArray<DirectionalLight>();
+    auto* pointLight       = ECSManager::getInstance()->getComponentArray<PointLight>();
+    auto* spotLight        = ECSManager::getInstance()->getComponentArray<SpotLight>();
+
+    auto* lightManager = LightManager::getInstance();
+
+    lightManager->clearLights();
+
+    for (auto& lightVec : *directionalLight->getAllComponents()) {
+        for (auto& light : lightVec) {
+            if (light.isActive()) {
+                lightManager->pushDirectionalLight(light);
+            }
+        }
+    }
+    for (auto& lightVec : *pointLight->getAllComponents()) {
+        for (auto& light : lightVec) {
+            if (light.isActive()) {
+                lightManager->pushPointLight(light);
+            }
+        }
+    }
+    for (auto& lightVec : *spotLight->getAllComponents()) {
+        for (auto& light : lightVec) {
+            if (light.isActive()) {
+                lightManager->pushSpotLight(light);
+            }
+        }
+    }
+
+    LightManager::getInstance()->Update();
+}
+
 void TexturedMeshRenderSystem::StartRender() {
     currentBlend_ = BlendMode::Alpha;
 
@@ -196,6 +230,8 @@ void TexturedMeshRenderSystem::StartRender() {
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
     CameraManager::getInstance()->setBufferForRootParameter(commandList, 1);
+
+    LightUpdate();
     LightManager::getInstance()->SetForRootParameter(commandList);
 
     ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
