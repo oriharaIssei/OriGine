@@ -53,6 +53,7 @@ static const std::string kEngineResourceDirectory      = "engine/resource";
 #include "component/renderer/Sprite.h"
 #include "component/transform/CameraTransform.h"
 #include "component/transform/Transform.h"
+#include "audio/Audio.h"
 #endif // ENGINE_COMPONENTS
 
 #ifdef ENGINE_INPUT

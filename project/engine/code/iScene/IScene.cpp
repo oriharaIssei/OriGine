@@ -63,6 +63,8 @@ void IScene::registerComponents() {
 
     ecsManager->registerComponent<Emitter>();
 
+    ecsManager->registerComponent<Audio>();
+
     ecsManager->registerComponent<ModelMeshRenderer>();
     ecsManager->registerComponent<SpriteRenderer>();
     ecsManager->registerComponent<LineRenderer>();

@@ -1,58 +1,112 @@
 #pragma once
 
+/// api
 #include <xaudio2.h>
 
-#include <memory>
 #include <wrl.h>
-
+/// stl
+#include <memory>
 #include <stdint.h>
 #include <string>
 
-struct ChunkHeader{
-	char id[4];
-	int32_t size;
+/// engine
+#include "component/IComponent.h"
+
+struct ChunkHeader {
+    char id[4];
+    int32_t size;
 };
-struct RiffHeader{
-	ChunkHeader chunk;
-	char type[4];
+struct RiffHeader {
+    ChunkHeader chunk;
+    char type[4];
 };
-struct FormatChunk{
-	ChunkHeader chunk;
-	WAVEFORMATEX fmt;
+struct FormatChunk {
+    ChunkHeader chunk;
+    WAVEFORMATEX fmt;
 };
 
-struct SoundData{
-	WAVEFORMATEX wfex;
-	BYTE* pBuffer;
-	uint32_t bufferSize;
+struct SoundData {
+    WAVEFORMATEX wfex;
+    BYTE* pBuffer;
+    uint32_t bufferSize;
 };
 
-class Audio{
+class AudioClip {
 public:
-	static void StaticInitialize();
-	static void StaticFinalize();
+    SoundData data_;
+    bool isLoop_  = false;
+    float valume_ = 0.5f;
+    bool isPlay_  = false; // 再生するかどうか
+};
 
-	Audio(){}
-	~Audio(){}
+class Audio
+    : public IComponent {
+public:
+    static void StaticInitialize();
+    static void StaticFinalize();
 
-	void Initialize(const std::string& fileName);
+    Audio() {}
+    ~Audio() {}
 
-	void PlayTrigger();
-	void PlayLoop();
+    void Initialize(GameEntity* /*_entity*/) override {};
 
-	void Pause();
+    void Save(BinaryWriter& _writer) override {
+        _writer.Write("fileName", fileName_);
+        _writer.Write("isLoop", audioClip_.isLoop_);
+        _writer.Write("valume", audioClip_.valume_);
+        _writer.Write("isPlay", audioClip_.isPlay_);
+    };
+    void Load(BinaryReader& _reader) override {
+        _reader.Read("fileName", fileName_);
+        if (fileName_.empty()) {
+            audioClip_.data_ = LoadWave(fileName_);
+        }
 
-	void Finalize();
+        _reader.Read("isLoop", audioClip_.isLoop_);
+        _reader.Read("valume", audioClip_.valume_);
+        _reader.Read("isPlay", audioClip_.isPlay_);
+    };
+
+    bool Edit() override;
+
+    void Finalize() override;
+
+    void Play() {
+        if (audioClip_.isLoop_) {
+            PlayLoop();
+        } else {
+            PlayTrigger();
+        }
+    }
+
+    void Pause();
 
 private:
-	SoundData LoadWave(const std::string& fileName);
-	void SoundUnLoad();
+    void PlayTrigger();
+    void PlayLoop();
+
+    SoundData LoadWave(const std::string& fileName);
+    void SoundUnLoad();
+
 private:
-	static Microsoft::WRL::ComPtr<IXAudio2> xAudio2_;
-	static IXAudio2MasteringVoice* masterVoice_;
+    static Microsoft::WRL::ComPtr<IXAudio2> xAudio2_;
+    static IXAudio2MasteringVoice* masterVoice_;
 
-	SoundData soundData_;
-	IXAudio2SourceVoice* pSourceVoice_ = nullptr;
+    std::string fileName_;
 
-	bool isLoop_ = false;
+    AudioClip audioClip_;
+    IXAudio2SourceVoice* pSourceVoice_ = nullptr;
+
+public:
+    bool isPlaying() const {
+        if (pSourceVoice_ == nullptr) {
+            return false; // 再生用のソースボイスが存在しない場合は再生中ではない
+        }
+
+        XAUDIO2_VOICE_STATE state;
+        pSourceVoice_->GetState(&state);
+
+        // 再生中のバッファが存在する場合は再生中とみなす
+        return state.BuffersQueued > 0;
+    }
 };
