@@ -47,7 +47,7 @@ static const std::string kEngineResourceDirectory      = "engine/resource";
 #include "component/material/Material.h"
 
 #include "component/collider/Collider.h"
-#include "component/particle/emitter/Emitter.h"
+#include "component/effect/particle/emitter/Emitter.h"
 #include "component/physics/Rigidbody.h"
 #include "component/renderer/MeshRenderer.h"
 #include "component/renderer/Sprite.h"
