@@ -120,7 +120,7 @@
             "id": "directory",
             "type": "promptString",
             "description": "Enter the directory to create the class in",
-            "default": "project/code/"
+            "default": "project/"
         },
         {
             "id": "className",

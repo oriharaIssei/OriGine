@@ -107,14 +107,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="engine\code\system\effect\EmitterWorkSystem.h" />
-    <ClInclude Include="engine\code\system\postRender\ScreenRenderingSystem.h" />
-    <ClInclude Include="engine\code\system\postRender\Grayscale.h" />
-    <ClInclude Include="util\ConvertString.h" />
-    <ClInclude Include="engine\code\system\render\ColliderRenderingSystem.h" />
-    <ClInclude Include="engine\code\module\debugger\DebuggerGroup.h" />
-    <ClInclude Include="engine\code\ECS\ECSDebugger.h" />
     <ClInclude Include="engine\EngineInclude.h" />
+    <ClInclude Include="engine\code\ECS\ECSDebugger.h" />
     <ClInclude Include="engine\code\ECS\ECSEditor.h" />
     <ClInclude Include="engine\code\ECS\ECSManager.h" />
     <ClInclude Include="engine\code\ECS\Entity.h" />
@@ -129,6 +123,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\component\ComponentArray.h" />
     <ClInclude Include="engine\code\component\IComponent.h" />
     <ClInclude Include="engine\code\component\collider\Collider.h" />
+    <ClInclude Include="engine\code\component\effect\particle\Particle.h" />
+    <ClInclude Include="engine\code\component\effect\particle\emitter\Emitter.h" />
+    <ClInclude Include="engine\code\component\effect\particle\emitter\EmitterShape.h" />
+    <ClInclude Include="engine\code\component\effect\primitive\Primitive.h" />
     <ClInclude Include="engine\code\component\material\Material.h" />
     <ClInclude Include="engine\code\component\material\light\DirectionalLight.h" />
     <ClInclude Include="engine\code\component\material\light\LightManager.h" />
@@ -161,21 +159,26 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\directX12\ResourceBarrierManager.h" />
     <ClInclude Include="engine\code\directX12\ShaderCompiler.h" />
     <ClInclude Include="engine\code\directX12\ShaderManager.h" />
-    <ClInclude Include="engine\code\module\editor\EditorGroup.h" />
-    <ClInclude Include="engine\code\component\particle\Particle.h" />
-    <ClInclude Include="engine\code\component\particle\emitter\Emitter.h" />
-    <ClInclude Include="engine\code\component\particle\emitter\EmitterShape.h" />
     <ClInclude Include="engine\code\iScene\IScene.h" />
     <ClInclude Include="engine\code\input\Input.h" />
     <ClInclude Include="engine\code\model\Model.h" />
     <ClInclude Include="engine\code\model\ModelManager.h" />
     <ClInclude Include="engine\code\module\IModule.h" />
+    <ClInclude Include="engine\code\module\debugger\DebuggerGroup.h" />
+    <ClInclude Include="engine\code\module\debugger\IDebugger.h" />
+    <ClInclude Include="engine\code\module\editor\EditorGroup.h" />
     <ClInclude Include="engine\code\module\editor\IEditor.h" />
     <ClInclude Include="engine\code\object3d\AnimationObject3d.h" />
     <ClInclude Include="engine\code\sceneManager\SceneManager.h" />
     <ClInclude Include="engine\code\system\ISystem.h" />
     <ClInclude Include="engine\code\system\collision\CollisionCheckSystem.h" />
+    <ClInclude Include="engine\code\system\effect\EmitterWorkSystem.h" />
     <ClInclude Include="engine\code\system\movement\MoveSystemByRigidBody.h" />
+    <ClInclude Include="engine\code\system\postRender\Grayscale.h" />
+    <ClInclude Include="engine\code\system\postRender\ScreenRenderingSystem.h" />
+    <ClInclude Include="engine\code\system\render\ColliderRenderingSystem.h" />
+    <ClInclude Include="engine\code\system\render\LineRenderSystem.h" />
+    <ClInclude Include="engine\code\system\render\ParticleRenderSystem.h" />
     <ClInclude Include="engine\code\system\render\SpriteRenderSystem.h" />
     <ClInclude Include="engine\code\system\render\TexturedMeshRenderSystem.h" />
     <ClInclude Include="engine\code\texture\TextureManager.h" />
@@ -187,6 +190,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="lib\globalVariables\GlobalVariables.h" />
     <ClInclude Include="lib\globalVariables\SerializedField.h" />
     <ClInclude Include="lib\imGuiManager\ImGuiManager.h" />
+    <ClInclude Include="lib\logger\ImGuiLogSink.h" />
     <ClInclude Include="lib\logger\Logger.h" />
     <ClInclude Include="lib\myFileSystem\MyFileSystem.h" />
     <ClInclude Include="lib\myGui\MyGui.h" />
@@ -194,7 +198,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="lib\node\DefaultNodes.h" />
     <ClInclude Include="lib\node\OperatorNodes.h" />
     <ClInclude Include="lib\winApp\WinApp.h" />
-    <ClInclude Include="engine\code\system\render\LineRenderSystem.h" />
     <ClInclude Include="math\Matrix4x4.h" />
     <ClInclude Include="math\MyEasing.h" />
     <ClInclude Include="math\Quaternion.h" />
@@ -203,20 +206,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="math\Vector3.h" />
     <ClInclude Include="math\Vector4.h" />
     <ClInclude Include="math\shape\Shapes.h" />
-    <ClInclude Include="engine\code\system\render\ParticleRenderSystem.h" />
-    <ClInclude Include="engine\code\component\particle\primitive\Primitive.h" />
+    <ClInclude Include="util\ConvertString.h" />
     <ClInclude Include="util\nameof.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="engine\code\component\material\light\DirectionalLight.cpp" />
-    <ClCompile Include="engine\code\component\material\light\PointLight.cpp" />
-    <ClCompile Include="engine\code\component\material\light\SpotLight.cpp" />
-    <ClCompile Include="engine\code\system\effect\EmitterWorkSystem.cpp" />
-    <ClCompile Include="engine\code\system\postRender\ScreenRenderingSystem.cpp" />
-    <ClCompile Include="engine\code\system\postRender\Grayscale.cpp" />
-    <ClCompile Include="util\ConvertString.cpp" />
-    <ClCompile Include="engine\code\system\render\ColliderRenderingSystem.cpp" />
-    <ClCompile Include="engine\code\module\debugger\DebuggerGroup.cpp" />
     <ClCompile Include="engine\code\ECS\ECSDebugger.cpp" />
     <ClCompile Include="engine\code\ECS\ECSEditor.cpp" />
     <ClCompile Include="engine\code\ECS\ECSManager.cpp" />
@@ -230,8 +223,15 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\camera\gameCamera\GameCamera.cpp" />
     <ClCompile Include="engine\code\component\IComponent.cpp" />
     <ClCompile Include="engine\code\component\collider\Collider.cpp" />
+    <ClCompile Include="engine\code\component\effect\particle\Particle.cpp" />
+    <ClCompile Include="engine\code\component\effect\particle\emitter\Emitter.cpp" />
+    <ClCompile Include="engine\code\component\effect\particle\emitter\EmitterShape.cpp" />
+    <ClCompile Include="engine\code\component\effect\primitive\Primitive.cpp" />
     <ClCompile Include="engine\code\component\material\Material.cpp" />
+    <ClCompile Include="engine\code\component\material\light\DirectionalLight.cpp" />
     <ClCompile Include="engine\code\component\material\light\LightManager.cpp" />
+    <ClCompile Include="engine\code\component\material\light\PointLight.cpp" />
+    <ClCompile Include="engine\code\component\material\light\SpotLight.cpp" />
     <ClCompile Include="engine\code\component\physics\Rigidbody.cpp" />
     <ClCompile Include="engine\code\component\renderer\MeshRenderer.cpp" />
     <ClCompile Include="engine\code\component\renderer\Sprite.cpp" />
@@ -256,19 +256,22 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\directX12\ResourceBarrierManager.cpp" />
     <ClCompile Include="engine\code\directX12\ShaderCompiler.cpp" />
     <ClCompile Include="engine\code\directX12\ShaderManager.cpp" />
-    <ClCompile Include="engine\code\module\editor\EditorGroup.cpp" />
-    <ClCompile Include="engine\code\component\particle\Particle.cpp" />
-    <ClCompile Include="engine\code\component\particle\emitter\Emitter.cpp" />
-    <ClCompile Include="engine\code\component\particle\emitter\EmitterShape.cpp" />
     <ClCompile Include="engine\code\iScene\IScene.cpp" />
     <ClCompile Include="engine\code\input\Input.cpp" />
     <ClCompile Include="engine\code\model\ModelManager.cpp" />
-    <ClCompile Include="engine\code\module\debugger\IDebugger.h" />
+    <ClCompile Include="engine\code\module\debugger\DebuggerGroup.cpp" />
+    <ClCompile Include="engine\code\module\editor\EditorGroup.cpp" />
     <ClCompile Include="engine\code\object3d\AnimationObject3d.cpp" />
     <ClCompile Include="engine\code\sceneManager\SceneManager.cpp" />
     <ClCompile Include="engine\code\system\ISystem.cpp" />
     <ClCompile Include="engine\code\system\collision\CollisionCheckSystem.cpp" />
+    <ClCompile Include="engine\code\system\effect\EmitterWorkSystem.cpp" />
     <ClCompile Include="engine\code\system\movement\MoveSystemByRigidBody.cpp" />
+    <ClCompile Include="engine\code\system\postRender\Grayscale.cpp" />
+    <ClCompile Include="engine\code\system\postRender\ScreenRenderingSystem.cpp" />
+    <ClCompile Include="engine\code\system\render\ColliderRenderingSystem.cpp" />
+    <ClCompile Include="engine\code\system\render\LineRenderSystem.cpp" />
+    <ClCompile Include="engine\code\system\render\ParticleRenderSystem.cpp" />
     <ClCompile Include="engine\code\system\render\SpriteRenderSystem.cpp" />
     <ClCompile Include="engine\code\system\render\TexturedMeshRenderSystem.cpp" />
     <ClCompile Include="engine\code\texture\TextureManager.cpp" />
@@ -283,13 +286,11 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="lib\myFileSystem\MyFileSystem.cpp" />
     <ClCompile Include="lib\node\OperatorNodes.cpp" />
     <ClCompile Include="lib\winApp\WinApp.cpp" />
-    <ClCompile Include="engine\code\system\render\LineRenderSystem.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="math\Matrix4x4.cpp" />
     <ClCompile Include="math\MyEasing.cpp" />
     <ClCompile Include="math\Quaternion.cpp" />
-    <ClCompile Include="engine\code\system\render\ParticleRenderSystem.cpp" />
-    <ClCompile Include="engine\code\component\particle\primitive\Primitive.cpp" />
+    <ClCompile Include="util\ConvertString.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex.vcxproj">

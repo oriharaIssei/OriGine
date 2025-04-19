@@ -34,6 +34,18 @@
     <Filter Include="engine\code\component\collider">
       <UniqueIdentifier>{04D11501-F0F6-DF67-D93C-6533C5010534}</UniqueIdentifier>
     </Filter>
+    <Filter Include="engine\code\component\effect">
+      <UniqueIdentifier>{4388C97D-2F43-B929-D8FA-3174C49403BA}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\code\component\effect\particle">
+      <UniqueIdentifier>{C6E397B8-32A8-96A8-FB0D-C772679132DE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\code\component\effect\particle\emitter">
+      <UniqueIdentifier>{8F47CA94-FBB7-CC0D-C4D6-46963006050F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\code\component\effect\primitive">
+      <UniqueIdentifier>{8B88DCB6-77DA-B3A6-60F9-F0B64CEACC8F}</UniqueIdentifier>
+    </Filter>
     <Filter Include="engine\code\component\material">
       <UniqueIdentifier>{E56C2818-D192-F27E-BAD8-774AA69D174B}</UniqueIdentifier>
     </Filter>
@@ -52,30 +64,6 @@
     <Filter Include="engine\code\directX12">
       <UniqueIdentifier>{AAEB9D36-1658-5931-DF4B-F18E4B777B99}</UniqueIdentifier>
     </Filter>
-    <Filter Include="engine\code\editor">
-      <UniqueIdentifier>{3B49512A-272D-1280-908D-0CD37C90FC01}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="engine\code\effect">
-      <UniqueIdentifier>{C193732A-AD77-3480-16D8-2ED302DB1E02}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="engine\code\effect\editor">
-      <UniqueIdentifier>{F701C98A-63C4-FC14-AC74-8BA11876D5F2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="engine\code\effect\manager">
-      <UniqueIdentifier>{0B990B45-F7A8-B715-6062-1C344C91A6AE}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="engine\code\effect\particle">
-      <UniqueIdentifier>{04BDF1B5-70CA-1F9C-F9B0-1B8765BDEB52}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="engine\code\effect\particle\editor">
-      <UniqueIdentifier>{DAC1D9DC-C6FD-DC46-2F10-F53D1B6B8561}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="engine\code\effect\particle\emitter">
-      <UniqueIdentifier>{CD7E108D-3938-7B37-C297-95112E5031A7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="engine\code\effect\silhouette">
-      <UniqueIdentifier>{76985393-E2B0-3ABD-AB5D-CA561735CF56}</UniqueIdentifier>
-    </Filter>
     <Filter Include="engine\code\iScene">
       <UniqueIdentifier>{EBC06E32-D7A4-2F88-4005-2ADB2C081A0A}</UniqueIdentifier>
     </Filter>
@@ -88,14 +76,14 @@
     <Filter Include="engine\code\module">
       <UniqueIdentifier>{BAE1BE3D-A6C5-7F93-0F26-7AE6FB286A15}</UniqueIdentifier>
     </Filter>
+    <Filter Include="engine\code\module\debugger">
+      <UniqueIdentifier>{6E511CC5-DA5E-4AAB-6345-4696CF511662}</UniqueIdentifier>
+    </Filter>
     <Filter Include="engine\code\module\editor">
       <UniqueIdentifier>{D0BDC334-3C80-F7BE-8530-864BF131D09C}</UniqueIdentifier>
     </Filter>
     <Filter Include="engine\code\object3d">
       <UniqueIdentifier>{428FA5A5-2E1E-2F6F-D73C-436AC3AA3F15}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="engine\code\primitiveDrawer">
-      <UniqueIdentifier>{B26C1ACD-1E7A-48B3-A760-449E136D146A}</UniqueIdentifier>
     </Filter>
     <Filter Include="engine\code\sceneManager">
       <UniqueIdentifier>{1D4D72E8-0972-C168-32BD-A6F81E41C086}</UniqueIdentifier>
@@ -106,8 +94,14 @@
     <Filter Include="engine\code\system\collision">
       <UniqueIdentifier>{94C75AC3-8082-4A6F-293A-C3B915D494FF}</UniqueIdentifier>
     </Filter>
+    <Filter Include="engine\code\system\effect">
+      <UniqueIdentifier>{D584ADF9-4147-E183-8AF7-6F10F6F8B961}</UniqueIdentifier>
+    </Filter>
     <Filter Include="engine\code\system\movement">
       <UniqueIdentifier>{93AC5457-FFB9-823D-88A0-7E28F4AC4EF4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\code\system\postRender">
+      <UniqueIdentifier>{CE613A0A-3A7A-2134-0327-B1CD6FFEB5CD}</UniqueIdentifier>
     </Filter>
     <Filter Include="engine\code\system\render">
       <UniqueIdentifier>{88DBF217-F49D-26A2-3D4E-B52EA94FFF7F}</UniqueIdentifier>
@@ -168,6 +162,9 @@
     <ClInclude Include="engine\EngineInclude.h">
       <Filter>engine</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\ECS\ECSDebugger.h">
+      <Filter>engine\code\ECS</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\ECS\ECSEditor.h">
       <Filter>engine\code\ECS</Filter>
     </ClInclude>
@@ -209,6 +206,18 @@
     </ClInclude>
     <ClInclude Include="engine\code\component\collider\Collider.h">
       <Filter>engine\code\component\collider</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\component\effect\particle\Particle.h">
+      <Filter>engine\code\component\effect\particle</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\component\effect\particle\emitter\Emitter.h">
+      <Filter>engine\code\component\effect\particle\emitter</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\component\effect\particle\emitter\EmitterShape.h">
+      <Filter>engine\code\component\effect\particle\emitter</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\component\effect\primitive\Primitive.h">
+      <Filter>engine\code\component\effect\primitive</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\component\material\Material.h">
       <Filter>engine\code\component\material</Filter>
@@ -306,18 +315,6 @@
     <ClInclude Include="engine\code\directX12\ShaderManager.h">
       <Filter>engine\code\directX12</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\module\editor\EditorGroup.h">
-      <Filter>engine\code\editor</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\code\component\particle\Particle.h">
-      <Filter>engine\code\effect\particle</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\code\component\particle\emitter\Emitter.h">
-      <Filter>engine\code\effect\particle\emitter</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\code\component\particle\emitter\EmitterShape.h">
-      <Filter>engine\code\effect\particle\emitter</Filter>
-    </ClInclude>
     <ClInclude Include="engine\code\iScene\IScene.h">
       <Filter>engine\code\iScene</Filter>
     </ClInclude>
@@ -332,6 +329,15 @@
     </ClInclude>
     <ClInclude Include="engine\code\module\IModule.h">
       <Filter>engine\code\module</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\module\debugger\DebuggerGroup.h">
+      <Filter>engine\code\module\debugger</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\module\debugger\IDebugger.h">
+      <Filter>engine\code\module\debugger</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\module\editor\EditorGroup.h">
+      <Filter>engine\code\module\editor</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\module\editor\IEditor.h">
       <Filter>engine\code\module\editor</Filter>
@@ -348,8 +354,26 @@
     <ClInclude Include="engine\code\system\collision\CollisionCheckSystem.h">
       <Filter>engine\code\system\collision</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\system\effect\EmitterWorkSystem.h">
+      <Filter>engine\code\system\effect</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\system\movement\MoveSystemByRigidBody.h">
       <Filter>engine\code\system\movement</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\system\postRender\Grayscale.h">
+      <Filter>engine\code\system\postRender</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\system\postRender\ScreenRenderingSystem.h">
+      <Filter>engine\code\system\postRender</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\system\render\ColliderRenderingSystem.h">
+      <Filter>engine\code\system\render</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\system\render\LineRenderSystem.h">
+      <Filter>engine\code\system\render</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\system\render\ParticleRenderSystem.h">
+      <Filter>engine\code\system\render</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\system\render\SpriteRenderSystem.h">
       <Filter>engine\code\system\render</Filter>
@@ -383,6 +407,9 @@
     </ClInclude>
     <ClInclude Include="lib\imGuiManager\ImGuiManager.h">
       <Filter>lib\imGuiManager</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\logger\ImGuiLogSink.h">
+      <Filter>lib\logger</Filter>
     </ClInclude>
     <ClInclude Include="lib\logger\Logger.h">
       <Filter>lib\logger</Filter>
@@ -429,21 +456,17 @@
     <ClInclude Include="math\shape\Shapes.h">
       <Filter>math\shape</Filter>
     </ClInclude>
+    <ClInclude Include="util\ConvertString.h">
+      <Filter>util</Filter>
+    </ClInclude>
     <ClInclude Include="util\nameof.h">
       <Filter>util</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\system\render\ParticleRenderSystem.h" />
-    <ClInclude Include="engine\code\ECS\ECSDebugger.h" />
-    <ClInclude Include="engine\code\module\debugger\DebuggerGroup.h" />
-    <ClInclude Include="engine\code\system\render\LineRenderSystem.h" />
-    <ClInclude Include="engine\code\system\render\ColliderRenderingSystem.h" />
-    <ClInclude Include="engine\code\component\particle\primitive\Primitive.h" />
-    <ClInclude Include="util\ConvertString.h" />
-    <ClInclude Include="engine\code\system\effect\EmitterWorkSystem.h" />
-    <ClInclude Include="engine\code\system\postRender\ScreenRenderingSystem.h" />
-    <ClInclude Include="engine\code\system\postRender\Grayscale.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="engine\code\ECS\ECSDebugger.cpp">
+      <Filter>engine\code\ECS</Filter>
+    </ClCompile>
     <ClCompile Include="engine\code\ECS\ECSEditor.cpp">
       <Filter>engine\code\ECS</Filter>
     </ClCompile>
@@ -480,10 +503,31 @@
     <ClCompile Include="engine\code\component\collider\Collider.cpp">
       <Filter>engine\code\component\collider</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\component\effect\particle\Particle.cpp">
+      <Filter>engine\code\component\effect\particle</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\component\effect\particle\emitter\Emitter.cpp">
+      <Filter>engine\code\component\effect\particle\emitter</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\component\effect\particle\emitter\EmitterShape.cpp">
+      <Filter>engine\code\component\effect\particle\emitter</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\component\effect\primitive\Primitive.cpp">
+      <Filter>engine\code\component\effect\primitive</Filter>
+    </ClCompile>
     <ClCompile Include="engine\code\component\material\Material.cpp">
       <Filter>engine\code\component\material</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\component\material\light\DirectionalLight.cpp">
+      <Filter>engine\code\component\material\light</Filter>
+    </ClCompile>
     <ClCompile Include="engine\code\component\material\light\LightManager.cpp">
+      <Filter>engine\code\component\material\light</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\component\material\light\PointLight.cpp">
+      <Filter>engine\code\component\material\light</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\component\material\light\SpotLight.cpp">
       <Filter>engine\code\component\material\light</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\component\physics\Rigidbody.cpp">
@@ -558,18 +602,6 @@
     <ClCompile Include="engine\code\directX12\ShaderManager.cpp">
       <Filter>engine\code\directX12</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\module\editor\EditorGroup.cpp">
-      <Filter>engine\code\editor</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\code\component\particle\Particle.cpp">
-      <Filter>engine\code\effect\particle</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\code\component\particle\emitter\Emitter.cpp">
-      <Filter>engine\code\effect\particle\emitter</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\code\component\particle\emitter\EmitterShape.cpp">
-      <Filter>engine\code\effect\particle\emitter</Filter>
-    </ClCompile>
     <ClCompile Include="engine\code\iScene\IScene.cpp">
       <Filter>engine\code\iScene</Filter>
     </ClCompile>
@@ -578,6 +610,12 @@
     </ClCompile>
     <ClCompile Include="engine\code\model\ModelManager.cpp">
       <Filter>engine\code\model</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\module\debugger\DebuggerGroup.cpp">
+      <Filter>engine\code\module\debugger</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\module\editor\EditorGroup.cpp">
+      <Filter>engine\code\module\editor</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\object3d\AnimationObject3d.cpp">
       <Filter>engine\code\object3d</Filter>
@@ -591,8 +629,26 @@
     <ClCompile Include="engine\code\system\collision\CollisionCheckSystem.cpp">
       <Filter>engine\code\system\collision</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\system\effect\EmitterWorkSystem.cpp">
+      <Filter>engine\code\system\effect</Filter>
+    </ClCompile>
     <ClCompile Include="engine\code\system\movement\MoveSystemByRigidBody.cpp">
       <Filter>engine\code\system\movement</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\system\postRender\Grayscale.cpp">
+      <Filter>engine\code\system\postRender</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\system\postRender\ScreenRenderingSystem.cpp">
+      <Filter>engine\code\system\postRender</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\system\render\ColliderRenderingSystem.cpp">
+      <Filter>engine\code\system\render</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\system\render\LineRenderSystem.cpp">
+      <Filter>engine\code\system\render</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\system\render\ParticleRenderSystem.cpp">
+      <Filter>engine\code\system\render</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\system\render\SpriteRenderSystem.cpp">
       <Filter>engine\code\system\render</Filter>
@@ -646,19 +702,8 @@
     <ClCompile Include="math\Quaternion.cpp">
       <Filter>math</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\system\render\ParticleRenderSystem.cpp" />
-    <ClCompile Include="engine\code\module\debugger\IDebugger.h" />
-    <ClCompile Include="engine\code\ECS\ECSDebugger.cpp" />
-    <ClCompile Include="engine\code\module\debugger\DebuggerGroup.cpp" />
-    <ClCompile Include="engine\code\system\render\LineRenderSystem.cpp" />
-    <ClCompile Include="engine\code\system\render\ColliderRenderingSystem.cpp" />
-    <ClCompile Include="engine\code\component\particle\primitive\Primitive.cpp" />
-    <ClCompile Include="util\ConvertString.cpp" />
-    <ClCompile Include="engine\code\system\effect\EmitterWorkSystem.cpp" />
-    <ClCompile Include="engine\code\system\postRender\ScreenRenderingSystem.cpp" />
-    <ClCompile Include="engine\code\system\postRender\Grayscale.cpp" />
-    <ClCompile Include="engine\code\component\material\light\DirectionalLight.cpp" />
-    <ClCompile Include="engine\code\component\material\light\PointLight.cpp" />
-    <ClCompile Include="engine\code\component\material\light\SpotLight.cpp" />
+    <ClCompile Include="util\ConvertString.cpp">
+      <Filter>util</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

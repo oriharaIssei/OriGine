@@ -85,7 +85,7 @@ static const std::string kEngineResourceDirectory      = "engine/resource";
 #endif // MY_RANDOM
 
 #ifdef DELTA_TIME
-float getDeltaTime() const {
+float getMainDeltaTime() {
     return Engine::getInstance()->getDeltaTime();
 }
 #endif // DELTA_TIME
