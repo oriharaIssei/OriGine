@@ -184,11 +184,13 @@ public:
     void LoadComponent(GameEntity* _entity, BinaryReader& _reader) override;
 
     /// @brief エンティティ登録（メモリ確保）
-    void registerEntity(GameEntity* _entity, int32_t _entitySize = 1) override {
+    void registerEntity(GameEntity* _entity, int32_t _entitySize = 1, bool _doInitialize = true) override {
         uint32_t index = static_cast<uint32_t>(components_.size());
         components_.push_back(std::vector<Emitter>(_entitySize, srvArray_.get()));
-        for (auto& comp : components_.back()) {
-            comp.Initialize(_entity);
+        if (_doInitialize) {
+            for (auto& comp : components_.back()) {
+                comp.Initialize(_entity);
+            }
         }
         entityIndexBind_[_entity] = index;
     }
@@ -206,29 +208,33 @@ public:
     }
 
     /// @brief IComponent ポインタからコンポーネントの追加
-    void addComponent(GameEntity* _hostEntity, IComponent* _component) override {
+    void addComponent(GameEntity* _hostEntity, IComponent* _component, bool _doInitialize) override {
         const Emitter* comp = dynamic_cast<const Emitter*>(_component);
         assert(comp != nullptr && "Invalid component type passed to addComponent");
         auto it = entityIndexBind_.find(_hostEntity);
         if (it == entityIndexBind_.end()) {
-            registerEntity(_hostEntity);
+            registerEntity(_hostEntity, 1, _doInitialize);
             return;
         }
         uint32_t index = it->second;
         components_[index].push_back(std::move(*comp));
-        components_[index].back().Initialize(_hostEntity);
+        if (_doInitialize) {
+            components_[index].back().Initialize(_hostEntity);
+        }
     }
 
     /// @brief デフォルト値によるコンポーネントの追加
-    void addComponent(GameEntity* _hostEntity) override {
+    void addComponent(GameEntity* _hostEntity, bool _doInitialize) override {
         auto it = entityIndexBind_.find(_hostEntity);
         if (it == entityIndexBind_.end()) {
-            registerEntity(_hostEntity);
+            registerEntity(_hostEntity, 1, _doInitialize);
             return;
         }
         uint32_t index = it->second;
         components_[index].push_back(Emitter(srvArray_.get()));
-        components_[index].back().Initialize(_hostEntity);
+        if (_doInitialize) {
+            components_[index].back().Initialize(_hostEntity);
+        }
     }
 
     virtual void insertComponent(GameEntity* _hostEntity, IComponent* _component, int32_t _index) override {

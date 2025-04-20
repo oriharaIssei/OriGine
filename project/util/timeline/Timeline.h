@@ -6,7 +6,7 @@
 //container
 #include <vector>
 //string
-#include "animation/Animation.h"
+#include "component/animation/NodeAnimation.h"
 
 #include <string>
 

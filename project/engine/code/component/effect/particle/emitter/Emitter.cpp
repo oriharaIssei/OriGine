@@ -26,7 +26,7 @@
 #include <cmath>
 
 #ifdef _DEBUG
-#include "animationEditor/Timeline.h"
+#include "util/timeline/Timeline.h"
 #include "imgui/imgui.h"
 #endif // _DEBUG
 

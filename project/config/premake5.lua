@@ -120,7 +120,8 @@ project "OriGineApp"
     files { "application/**.h", "application/**.cpp" }
 
     includedirs {
-        "$(SolutionDir)application",
+        "$(ProjectDir)code",
+        "$(ProjectDir)",
         "$(SolutionDir)math",
         "$(SolutionDir)lib",
         "$(SolutionDir)engine/code/ECS",

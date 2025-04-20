@@ -113,8 +113,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\ECS\ECSManager.h" />
     <ClInclude Include="engine\code\ECS\Entity.h" />
     <ClInclude Include="engine\code\Engine.h" />
-    <ClInclude Include="engine\code\animation\Animation.h" />
-    <ClInclude Include="engine\code\animation\AnimationManager.h" />
+    <ClInclude Include="engine\code\component\animation\NodeAnimation.h" />
+    <ClInclude Include="engine\code\component\animation\AnimationManager.h" />
     <ClInclude Include="engine\code\assets\IAsset.h" />
     <ClInclude Include="engine\code\audio\Audio.h" />
     <ClInclude Include="engine\code\camera\CameraManager.h" />
@@ -168,7 +168,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\module\debugger\IDebugger.h" />
     <ClInclude Include="engine\code\module\editor\EditorGroup.h" />
     <ClInclude Include="engine\code\module\editor\IEditor.h" />
-    <ClInclude Include="engine\code\object3d\AnimationObject3d.h" />
     <ClInclude Include="engine\code\sceneManager\SceneManager.h" />
     <ClInclude Include="engine\code\system\ISystem.h" />
     <ClInclude Include="engine\code\system\collision\CollisionCheckSystem.h" />
@@ -182,9 +181,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\system\render\SpriteRenderSystem.h" />
     <ClInclude Include="engine\code\system\render\TexturedMeshRenderSystem.h" />
     <ClInclude Include="engine\code\texture\TextureManager.h" />
+    <ClInclude Include="util\timeline\Timeline.h" />
     <ClInclude Include="lib\Thread\Thread.h" />
-    <ClInclude Include="lib\animationEditor\AnimationEditor.h" />
-    <ClInclude Include="lib\animationEditor\Timeline.h" />
     <ClInclude Include="lib\binaryIO\BinaryIO.h" />
     <ClInclude Include="lib\deltaTime\DeltaTime.h" />
     <ClInclude Include="lib\globalVariables\GlobalVariables.h" />
@@ -214,8 +212,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\ECS\ECSEditor.cpp" />
     <ClCompile Include="engine\code\ECS\ECSManager.cpp" />
     <ClCompile Include="engine\code\Engine.cpp" />
-    <ClCompile Include="engine\code\animation\Animation.cpp" />
-    <ClCompile Include="engine\code\animation\AnimationManager.cpp" />
+    <ClCompile Include="engine\code\component\animation\NodeAnimation.cpp" />
+    <ClCompile Include="engine\code\component\animation\AnimationManager.cpp" />
     <ClCompile Include="engine\code\assets\IAsset.cpp" />
     <ClCompile Include="engine\code\audio\Audio.cpp" />
     <ClCompile Include="engine\code\camera\CameraManager.cpp" />
@@ -261,7 +259,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\model\ModelManager.cpp" />
     <ClCompile Include="engine\code\module\debugger\DebuggerGroup.cpp" />
     <ClCompile Include="engine\code\module\editor\EditorGroup.cpp" />
-    <ClCompile Include="engine\code\object3d\AnimationObject3d.cpp" />
     <ClCompile Include="engine\code\sceneManager\SceneManager.cpp" />
     <ClCompile Include="engine\code\system\ISystem.cpp" />
     <ClCompile Include="engine\code\system\collision\CollisionCheckSystem.cpp" />
@@ -275,9 +272,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\system\render\SpriteRenderSystem.cpp" />
     <ClCompile Include="engine\code\system\render\TexturedMeshRenderSystem.cpp" />
     <ClCompile Include="engine\code\texture\TextureManager.cpp" />
+    <ClCompile Include="util\timeline\Timeline.cpp" />
     <ClCompile Include="lib\Thread\Thread.cpp" />
-    <ClCompile Include="lib\animationEditor\AnimationEditor.cpp" />
-    <ClCompile Include="lib\animationEditor\Timeline.cpp" />
     <ClCompile Include="lib\binaryIO\BinaryIO.cpp" />
     <ClCompile Include="lib\deltaTime\DeltaTime.cpp" />
     <ClCompile Include="lib\globalVariables\GlobalVariables.cpp" />
