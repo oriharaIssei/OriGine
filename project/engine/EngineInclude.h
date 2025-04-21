@@ -30,7 +30,6 @@ static const std::string kEngineResourceDirectory      = "engine/resource";
 #include "system/effect/EmitterWorkSystem.h"
 #include "system/movement/MoveSystemByRigidBody.h"
 #include "system/postRender/Grayscale.h"
-#include "system/postRender/ScreenRenderingSystem.h"
 #include "system/render/ColliderRenderingSystem.h"
 #include "system/render/LineRenderSystem.h"
 #include "system/render/ParticleRenderSystem.h"
