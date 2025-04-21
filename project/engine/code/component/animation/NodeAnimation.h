@@ -10,13 +10,18 @@
 // assets
 struct Model;
 struct ModelNode;
+// component
+#include "component/IComponent.h"
 
-// lib
-#include "globalVariables/SerializedField.h"
-// math
+/// lib
+#include "Thread/Thread.h"
+/// math
 #include "math/Quaternion.h"
 #include "Matrix4x4.h"
+#include "Vector.h"
+#include "Vector2.h"
 #include "Vector3.h"
+#include "Vector4.h"
 
 /// <summary>
 /// 時間と紐づけられた値を表すクラス
@@ -47,7 +52,6 @@ using AnimationCurve = std::vector<Keyframe<T>>;
 enum class InterpolationType {
     LINEAR,
     STEP,
-    CUBICSPLINE,
 
     COUNT
 };
@@ -55,11 +59,11 @@ enum class InterpolationType {
 /// <summary>
 /// ノードによるアニメーションを行う曲線
 /// </summary>
-struct NodeAnimation {
-    NodeAnimation()  = default;
-    ~NodeAnimation() = default;
+struct AnimationNode {
+    AnimationNode()  = default;
+    ~AnimationNode() = default;
 
-    NodeAnimation(
+    AnimationNode(
         const AnimationCurve<Vec3f>& _scale,
         const AnimationCurve<Quaternion>& _rotate,
         const AnimationCurve<Vec3f>& _translate,
@@ -72,6 +76,7 @@ struct NodeAnimation {
     AnimationCurve<Vec3f> scale;
     AnimationCurve<Quaternion> rotate;
     AnimationCurve<Vec3f> translate;
+
     InterpolationType interpolationType = InterpolationType::LINEAR; // デフォルトはLINEAR
 };
 
@@ -85,12 +90,16 @@ struct AnimationData {
     ~AnimationData() = default;
 
     float duration = 0.0f;
-    std::unordered_map<std::string, NodeAnimation> nodeAnimations;
+    std::unordered_map<std::string, AnimationNode> animationNodes_;
+
+    LoadState loadState = LoadState::Unloaded;
 };
 
 namespace CalculateValue {
 float LINEAR(
     const std::vector<Keyframe<float>>& keyframes, float time);
+Vec2f LINEAR(
+    const std::vector<Keyframe<Vec2f>>& keyframes, float time);
 Vec3f LINEAR(
     const std::vector<KeyframeVector3>& keyframes, float time);
 Vec4f LINEAR(
@@ -100,6 +109,8 @@ Quaternion LINEAR(
 
 float Step(
     const std::vector<Keyframe<float>>& keyframes, float time);
+Vec2f Step(
+    const std::vector<Keyframe<Vec2f>>& keyframes, float time);
 Vec3f Step(
     const std::vector<KeyframeVector3>& keyframes, float time);
 Vec4f Step(
@@ -111,16 +122,22 @@ Quaternion Step(
 /// <summary>
 /// アニメーションの再生を行うクラス
 /// </summary>
-struct Animation {
-    Animation() = default;
-    Animation(AnimationData* _data)
-        : data(_data) {
-        duration = data->duration;
-    }
+class NodeAnimation
+    : public IComponent {
+public:
+    NodeAnimation() = default;
 
-    ~Animation() = default;
+    ~NodeAnimation() = default;
 
-    void Update(
+    void Initialize(GameEntity* _entity) override;
+
+    bool Edit() override;
+    void Save(BinaryWriter& _writer) override;
+    void Load(BinaryReader& _reader) override;
+
+    void Finalize() override;
+
+    void UpdateModel(
         float deltaTime,
         Model* model,
         const Matrix4x4& parentTransform);
@@ -137,46 +154,42 @@ private:
     void ApplyAnimationToNodes(
         ModelNode& node,
         const Matrix4x4& parentTransform,
-        const Animation* animation);
+        const NodeAnimation* animation);
 
 private:
-    AnimationData* data = nullptr;
-    //* アニメーションの再生時間(data にも あるが instance 毎に変更できるようにこちらで管理する)
-    float duration             = 0.0f; // (秒)
-    float currentAnimationTime = 0.0f; // アニメーション の 経過時間 (秒)
+    std::string directory_ = ""; // アニメーションファイルのディレクトリ
+    std::string fileName_  = ""; // アニメーションファイル名
 
-    bool isEnd_ = false; // アニメーションが終了したか
+    std::shared_ptr<AnimationData> data_ = nullptr;
+
+    //* アニメーションの再生時間(data にも あるが instance 毎に変更できるようにこちらで管理する)
+    float duration_             = 0.0f; // (秒)
+    float currentAnimationTime_ = 0.0f; // アニメーション の 経過時間 (秒)
+
+    bool isPlay_ = false; // アニメーションするかどうか
+    bool isEnd_  = false; // アニメーションが終了したか
+    bool isLoop_ = true; // ループするかどうか
 
 public:
+    bool isPlay() const { return isPlay_; }
+    void setPlay(bool _isPlay) { isPlay_ = _isPlay; }
+
     bool isEnd() const { return isEnd_; }
+    void setEnd(bool _isEnd) { isEnd_ = _isEnd; }
 
-    float getDuration() const { return duration; }
-    void setDuration(float _duration) { duration = _duration; }
+    bool isLoop() const { return isLoop_; }
+    void setLoop(bool _isLoop) { isLoop_ = _isLoop; }
 
-    float getCurrentAnimationTime() const { return currentAnimationTime; }
-    void setCurrentAnimationTime(float _currentAnimationTime) { currentAnimationTime = _currentAnimationTime; }
+    float getDuration() const { return duration_; }
+    void setDuration(float _duration) { duration_ = _duration; }
 
-    AnimationData* getData() const { return data; }
-    void setData(AnimationData* _data) { data = _data; }
+    float getCurrentAnimationTime() const { return currentAnimationTime_; }
+    void setCurrentAnimationTime(float _currentAnimationTime) { currentAnimationTime_ = _currentAnimationTime; }
+
+    AnimationData* getData() const { return data_.get(); }
+    void setData(std::shared_ptr<AnimationData> _data) { data_ = std::move(_data); }
 
     Vec3f getCurrentScale(const std::string& nodeName) const;
     Quaternion getCurrentRotate(const std::string& nodeName) const;
     Vec3f getCurrentTranslate(const std::string& nodeName) const;
-};
-
-struct AnimationSetting {
-    AnimationSetting(const std::string& _name)
-        : name(_name.c_str()),
-          targetModelDirection("Animations", _name, "targetModelDirection"),
-          targetModelFileName("Animations", _name, "targetModelFileName"),
-          targetAnimationDirection("Animations", _name, "targetAnimationDirection") {}
-    ~AnimationSetting() {}
-    // アニメーション名
-    std::string name;
-    // アニメーション対象のモデル名
-    SerializedField<std::string> targetModelDirection;
-    SerializedField<std::string> targetModelFileName;
-    // アニメーション対象のアニメーション名
-    SerializedField<std::string> targetAnimationDirection;
-    //! targetAnimationFileName_ = name; とする
 };

@@ -177,10 +177,10 @@
     <ClInclude Include="engine\code\Engine.h">
       <Filter>engine\code</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\animation\Animation.h">
+    <ClInclude Include="engine\code\component\animation\NodeAnimation.h">
       <Filter>engine\code\animation</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\animation\AnimationManager.h">
+    <ClInclude Include="engine\code\component\animation\AnimationManager.h">
       <Filter>engine\code\animation</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\assets\IAsset.h">
@@ -342,9 +342,6 @@
     <ClInclude Include="engine\code\module\editor\IEditor.h">
       <Filter>engine\code\module\editor</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\object3d\AnimationObject3d.h">
-      <Filter>engine\code\object3d</Filter>
-    </ClInclude>
     <ClInclude Include="engine\code\sceneManager\SceneManager.h">
       <Filter>engine\code\sceneManager</Filter>
     </ClInclude>
@@ -386,12 +383,6 @@
     </ClInclude>
     <ClInclude Include="lib\Thread\Thread.h">
       <Filter>lib\Thread</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\animationEditor\AnimationEditor.h">
-      <Filter>lib\animationEditor</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\animationEditor\Timeline.h">
-      <Filter>lib\animationEditor</Filter>
     </ClInclude>
     <ClInclude Include="lib\binaryIO\BinaryIO.h">
       <Filter>lib\binaryIO</Filter>
@@ -462,6 +453,7 @@
     <ClInclude Include="util\nameof.h">
       <Filter>util</Filter>
     </ClInclude>
+    <ClInclude Include="util\timeline\Timeline.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\code\ECS\ECSDebugger.cpp">
@@ -476,10 +468,10 @@
     <ClCompile Include="engine\code\Engine.cpp">
       <Filter>engine\code</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\animation\Animation.cpp">
+    <ClCompile Include="engine\code\component\animation\NodeAnimation.cpp">
       <Filter>engine\code\animation</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\animation\AnimationManager.cpp">
+    <ClCompile Include="engine\code\component\animation\AnimationManager.cpp">
       <Filter>engine\code\animation</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\assets\IAsset.cpp">
@@ -617,9 +609,6 @@
     <ClCompile Include="engine\code\module\editor\EditorGroup.cpp">
       <Filter>engine\code\module\editor</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\object3d\AnimationObject3d.cpp">
-      <Filter>engine\code\object3d</Filter>
-    </ClCompile>
     <ClCompile Include="engine\code\sceneManager\SceneManager.cpp">
       <Filter>engine\code\sceneManager</Filter>
     </ClCompile>
@@ -662,12 +651,6 @@
     <ClCompile Include="lib\Thread\Thread.cpp">
       <Filter>lib\Thread</Filter>
     </ClCompile>
-    <ClCompile Include="lib\animationEditor\AnimationEditor.cpp">
-      <Filter>lib\animationEditor</Filter>
-    </ClCompile>
-    <ClCompile Include="lib\animationEditor\Timeline.cpp">
-      <Filter>lib\animationEditor</Filter>
-    </ClCompile>
     <ClCompile Include="lib\binaryIO\BinaryIO.cpp">
       <Filter>lib\binaryIO</Filter>
     </ClCompile>
@@ -705,5 +688,6 @@
     <ClCompile Include="util\ConvertString.cpp">
       <Filter>util</Filter>
     </ClCompile>
+    <ClCompile Include="util\timeline\Timeline.cpp" />
   </ItemGroup>
 </Project>
