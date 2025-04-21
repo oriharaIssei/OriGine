@@ -47,7 +47,7 @@ private:
     std::vector<GameEntity> entities_;
     std::vector<uint32_t> freeEntityIndex_;
     std::map<std::string, GameEntity*> uniqueEntities_;
-    uint32_t entityCapacity_ = 100;
+    uint32_t entityCapacity_ = 500;
 
     std::queue<GameEntity*> deleteEntityQueue_;
 
