@@ -108,6 +108,113 @@ void IScene::Finalize([[maybe_unused]] bool _isSave) {
     ecsManager->clearAliveEntities();
 }
 
+//void IScene::LoadSceneEntity() {
+//    ECSManager* ecsManager = ECSManager::getInstance();
+//
+//    // ===================================== 読み込み開始 ===================================== //
+//    BinaryReader reader(kApplicationResourceDirectory + "/scene", name_ + ".scene");
+//    if (!reader.ReadFile()) {
+//        return;
+//    }
+//    // ------------------------------ エンティティ & component の読み込み ------------------------------//
+//    {
+//        GameEntity* loadedEntity = nullptr;
+//        int32_t entitySize       = 0;
+//        int32_t entityID         = 0;
+//        reader.Read<int32_t>("entitySize", entitySize);
+//        // エンティティの名前
+//        std::string entityName;
+//
+//        // Entityが持つComponentの種類の数
+//        int32_t hasComponentTypeSize                                           = 0;
+//        const std::map<std::string, std::unique_ptr<IComponentArray>>& compMap = ecsManager->getComponentArrayMap();
+//        // component の名前
+//        std::string componentTypeName;
+//
+//        for (int32_t entityIndex = 0; entityIndex < entitySize; ++entityIndex) {
+//            reader.ReadBeginGroup("Entity" + std::to_string(entityIndex));
+//            reader.Read<std::string>("Name", entityName);
+//
+//            // 入力文字列を正規化
+//            // 終端文字 の有り無しで 取得できない場合があったため,削除するように
+//            entityName.erase(std::find(entityName.begin(), entityName.end(), '\0'), entityName.end());
+//
+//            entityID     = ecsManager->registerEntity(entityName);
+//            loadedEntity = ecsManager->getEntity(entityID);
+//
+//            bool isUnique = false;
+//            reader.Read<bool>("isUnique", isUnique);
+//            if (isUnique) {
+//                ecsManager->registerUniqueEntity(entityName, loadedEntity);
+//            }
+//
+//            { // System
+//                int32_t belongingSystemCount = 0;
+//                reader.Read<int32_t>("belongingSystemCount", belongingSystemCount);
+//                for (int32_t i = 0; i < belongingSystemCount; ++i) {
+//                    std::string systemName;
+//                    int32_t typeIndex = 0;
+//                    reader.Read<int32_t>("System" + std::to_string(i) + "Type", typeIndex);
+//                    reader.Read<std::string>("System" + std::to_string(i) + "Name", systemName);
+//
+//                    ISystem* system = ecsManager->getSystem(SystemType(typeIndex), systemName);
+//
+//                    if (!system) {
+//                        continue;
+//                    }
+//                    system->addEntity(loadedEntity);
+//                }
+//            }
+//
+//            { // Component
+//                reader.Read<int32_t>("hasComponentTypeSize", hasComponentTypeSize);
+//
+//                for (int32_t componentIndex = 0; componentIndex < hasComponentTypeSize; ++componentIndex) {
+//                    componentTypeName = "";
+//                    reader.Read<std::string>("Component" + std::to_string(componentIndex) + "Name", componentTypeName);
+//                    auto itr = compMap.find(componentTypeName);
+//                    if (itr != compMap.end()) {
+//                        itr->second->LoadComponent(loadedEntity, reader);
+//                    }
+//                }
+//            }
+//            reader.ReadEndGroup();
+//        }
+//    }
+//    // ------------------------------- System の 読み込み -------------------------------//
+//    {
+//        int32_t systemSizeByType = 0;
+//        std::string systemName;
+//
+//        auto& systems           = ecsManager->getSystems();
+//        int32_t systemTypeIndex = 0;
+//        for (auto& systemsByType : systems) {
+//            reader.Read<int32_t>(SystemTypeString[systemTypeIndex] + "Size", systemSizeByType);
+//            for (int32_t systemIndex = 0; systemIndex < systemSizeByType; systemIndex++) {
+//                reader.ReadBeginGroup(SystemTypeString[systemTypeIndex] + std::to_string(systemIndex));
+//                reader.Read<std::string>("Name", systemName);
+//
+//                auto itr = systemsByType.find(systemName);
+//
+//                if (itr != systemsByType.end()) {
+//                    // priority
+//                    int32_t priority = 0;
+//                    reader.Read<int32_t>("priority", priority);
+//                    itr->second->setPriority(priority);
+//
+//                    bool isActive = false;
+//                    reader.Read<bool>("isActive", isActive);
+//                    itr->second->setIsActive(isActive);
+//                }
+//                reader.ReadEndGroup();
+//            }
+//            systemTypeIndex++;
+//        }
+//    }
+//    // 読み込み 終了
+//    reader.ReadEndGroup();
+//}
+
 void IScene::LoadSceneEntity() {
     ECSManager* ecsManager = ECSManager::getInstance();
 
@@ -204,6 +311,7 @@ void IScene::LoadSceneEntity() {
     reader.ReadEndGroup();
 }
 
+
 void IScene::SaveSceneEntity() {
     ECSManager* ecsManager = ECSManager::getInstance();
 
@@ -248,20 +356,42 @@ void IScene::SaveSceneEntity() {
         writer.Write<std::string>("Name", entityName);
         writer.Write<bool>("isUnique", entity->isUnique());
 
-        hasComponentTypeArray.clear();
-        for (const auto& [componentTypeName, componentArray] : componentArrayMap) {
-            if (!componentArray->hasEntity(entity)) {
-                continue;
+        { // 所属するSystemを保存
+            auto& systems     = ecsManager->getSystems();
+            int32_t typeIndex = 0;
+            std::vector<std::pair<int32_t, std::string>> belongingSystems;
+            for (const auto& systemsByType : systems) {
+                for (const auto& [systemName, system] : systemsByType) {
+                    if (system->hasEntity(entity)) {
+                        belongingSystems.push_back({typeIndex, systemName});
+                    }
+                }
+                typeIndex++;
             }
-            hasComponentTypeArray.push_back(std::make_pair(componentTypeName, componentArray.get()));
-        }
-        writer.Write<uint32_t>("hasComponentTypeSize", static_cast<uint32_t>(hasComponentTypeArray.size()));
-        int32_t componentIndex = 0;
-        for (const auto& [componentTypeName, componentArray] : hasComponentTypeArray) {
-            writer.Write<std::string>("Component" + std::to_string(componentIndex) + "Name", componentTypeName);
 
-            componentArray->SaveComponent(entity, writer);
-            ++componentIndex;
+            writer.Write<int32_t>("belongingSystemCount", static_cast<int32_t>(belongingSystems.size()));
+            for (size_t i = 0; i < belongingSystems.size(); ++i) {
+                writer.Write<int32_t>("System" + std::to_string(i) + "Type", belongingSystems[i].first);
+                writer.Write<std::string>("System" + std::to_string(i) + "Name", belongingSystems[i].second);
+            }
+        }
+
+        { // Componentを保存
+            hasComponentTypeArray.clear();
+            for (const auto& [componentTypeName, componentArray] : componentArrayMap) {
+                if (!componentArray->hasEntity(entity)) {
+                    continue;
+                }
+                hasComponentTypeArray.push_back(std::make_pair(componentTypeName, componentArray.get()));
+            }
+            writer.Write<uint32_t>("hasComponentTypeSize", static_cast<uint32_t>(hasComponentTypeArray.size()));
+            int32_t componentIndex = 0;
+            for (const auto& [componentTypeName, componentArray] : hasComponentTypeArray) {
+                writer.Write<std::string>("Component" + std::to_string(componentIndex) + "Name", componentTypeName);
+
+                componentArray->SaveComponent(entity, writer);
+                ++componentIndex;
+            }
         }
         writer.WriteEndGroup();
         entityIndex++;
@@ -282,16 +412,6 @@ void IScene::SaveSceneEntity() {
                 writer.Write<std::string>("Name", systemName);
                 writer.Write<int32_t>("priority", system->getPriority());
                 writer.Write<bool>("isActive", system->isActive());
-                writer.Write<int32_t>("systemHasEntitySize", static_cast<int32_t>(system->getEntities().size()));
-
-                int32_t joinedEntityIndex = 0;
-                for (const auto& entity : system->getEntities()) {
-                    if (entity->isAlive() == false) {
-                        continue;
-                    }
-
-                    writer.Write<int32_t>("entityID" + std::to_string(joinedEntityIndex++), entity->getID());
-                }
             }
             writer.WriteEndGroup();
             systemTypeIndex++;
