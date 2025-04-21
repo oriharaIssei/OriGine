@@ -113,8 +113,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\ECS\ECSManager.h" />
     <ClInclude Include="engine\code\ECS\Entity.h" />
     <ClInclude Include="engine\code\Engine.h" />
-    <ClInclude Include="engine\code\component\animation\NodeAnimation.h" />
-    <ClInclude Include="engine\code\component\animation\AnimationManager.h" />
     <ClInclude Include="engine\code\assets\IAsset.h" />
     <ClInclude Include="engine\code\audio\Audio.h" />
     <ClInclude Include="engine\code\camera\CameraManager.h" />
@@ -122,6 +120,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\camera\gameCamera\GameCamera.h" />
     <ClInclude Include="engine\code\component\ComponentArray.h" />
     <ClInclude Include="engine\code\component\IComponent.h" />
+    <ClInclude Include="engine\code\component\animation\AnimationManager.h" />
+    <ClInclude Include="engine\code\component\animation\NodeAnimation.h" />
     <ClInclude Include="engine\code\component\collider\Collider.h" />
     <ClInclude Include="engine\code\component\effect\particle\Particle.h" />
     <ClInclude Include="engine\code\component\effect\particle\emitter\Emitter.h" />
@@ -181,7 +181,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\system\render\SpriteRenderSystem.h" />
     <ClInclude Include="engine\code\system\render\TexturedMeshRenderSystem.h" />
     <ClInclude Include="engine\code\texture\TextureManager.h" />
-    <ClInclude Include="util\timeline\Timeline.h" />
     <ClInclude Include="lib\Thread\Thread.h" />
     <ClInclude Include="lib\binaryIO\BinaryIO.h" />
     <ClInclude Include="lib\deltaTime\DeltaTime.h" />
@@ -206,20 +205,21 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="math\shape\Shapes.h" />
     <ClInclude Include="util\ConvertString.h" />
     <ClInclude Include="util\nameof.h" />
+    <ClInclude Include="util\timeline\Timeline.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\code\ECS\ECSDebugger.cpp" />
     <ClCompile Include="engine\code\ECS\ECSEditor.cpp" />
     <ClCompile Include="engine\code\ECS\ECSManager.cpp" />
     <ClCompile Include="engine\code\Engine.cpp" />
-    <ClCompile Include="engine\code\component\animation\NodeAnimation.cpp" />
-    <ClCompile Include="engine\code\component\animation\AnimationManager.cpp" />
     <ClCompile Include="engine\code\assets\IAsset.cpp" />
     <ClCompile Include="engine\code\audio\Audio.cpp" />
     <ClCompile Include="engine\code\camera\CameraManager.cpp" />
     <ClCompile Include="engine\code\camera\debugCamera\DebugCamera.cpp" />
     <ClCompile Include="engine\code\camera\gameCamera\GameCamera.cpp" />
     <ClCompile Include="engine\code\component\IComponent.cpp" />
+    <ClCompile Include="engine\code\component\animation\AnimationManager.cpp" />
+    <ClCompile Include="engine\code\component\animation\NodeAnimation.cpp" />
     <ClCompile Include="engine\code\component\collider\Collider.cpp" />
     <ClCompile Include="engine\code\component\effect\particle\Particle.cpp" />
     <ClCompile Include="engine\code\component\effect\particle\emitter\Emitter.cpp" />
@@ -272,7 +272,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\system\render\SpriteRenderSystem.cpp" />
     <ClCompile Include="engine\code\system\render\TexturedMeshRenderSystem.cpp" />
     <ClCompile Include="engine\code\texture\TextureManager.cpp" />
-    <ClCompile Include="util\timeline\Timeline.cpp" />
     <ClCompile Include="lib\Thread\Thread.cpp" />
     <ClCompile Include="lib\binaryIO\BinaryIO.cpp" />
     <ClCompile Include="lib\deltaTime\DeltaTime.cpp" />
@@ -287,6 +286,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="math\MyEasing.cpp" />
     <ClCompile Include="math\Quaternion.cpp" />
     <ClCompile Include="util\ConvertString.cpp" />
+    <ClCompile Include="util\timeline\Timeline.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex.vcxproj">
