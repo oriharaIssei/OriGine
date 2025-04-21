@@ -82,6 +82,10 @@ void SceneManager::Update() {
     }
 
     ecsManager_->Run();
+
+    Engine::getInstance()->ScreenPreDraw();
+    sceneView_->DrawTexture();
+    Engine::getInstance()->ScreenPostDraw();
 }
 
 #ifdef _DEBUG
