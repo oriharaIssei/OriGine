@@ -142,9 +142,9 @@ public: // ============== accessor ==============//
     /// エンティティにコンポーネントを追加する
     /// </summary>
     template <IsComponent componentType>
-    void addComponent(uint32_t _entityIndex, const componentType& _component) {
+    void addComponent(uint32_t _entityIndex, const componentType& _component, bool _doInitialize = true) {
         ComponentArray<componentType>* componentArray = getComponentArray<componentType>();
-        componentArray->add(&entities_[_entityIndex], _component);
+        componentArray->add(&entities_[_entityIndex], _component, _doInitialize);
     }
 
     /// <summary>
@@ -261,13 +261,6 @@ public: // ============== accessor ==============//
         return systems_[int32_t(_systemType)];
     }
 
-    const std::vector<ISystem*>& getPriorityOrderSystems(SystemType _systemType) const {
-        return priorityOrderSystems_[int32_t(_systemType)];
-    }
-    std::vector<ISystem*>& customPriorityOrderSystems(SystemType _systemType) {
-        return priorityOrderSystems_[int32_t(_systemType)];
-    }
-
     template <IsSystem SystemDataType>
     SystemDataType* getSystem() const {
         std::string typeName = nameof<SystemDataType>();
@@ -279,6 +272,39 @@ public: // ============== accessor ==============//
             }
         }
         return nullptr;
+    }
+    template <IsSystem SystemDataType>
+    SystemDataType* getSystem(SystemType _systemType) const {
+        std::string typeName = nameof<SystemDataType>();
+        auto itr             = systems_[int32_t(_systemType)].find(typeName);
+        if (itr != systems_[int32_t(_systemType)].end()) {
+            return static_cast<SystemDataType*>(itr->second.get());
+        }
+        return nullptr;
+    }
+
+    ISystem* getSystem(const std::string& _name) const {
+        for (const auto& systemMap : systems_) {
+            auto itr = systemMap.find(_name);
+            if (itr != systemMap.end()) {
+                return itr->second.get();
+            }
+        }
+        return nullptr;
+    }
+    ISystem* getSystem(SystemType _systemType, const std::string& _name) const {
+        auto itr = systems_[int32_t(_systemType)].find(_name);
+        if (itr != systems_[int32_t(_systemType)].end()) {
+            return itr->second.get();
+        }
+        return nullptr;
+    }
+
+    const std::vector<ISystem*>& getPriorityOrderSystems(SystemType _systemType) const {
+        return priorityOrderSystems_[int32_t(_systemType)];
+    }
+    std::vector<ISystem*>& customPriorityOrderSystems(SystemType _systemType) {
+        return priorityOrderSystems_[int32_t(_systemType)];
     }
 
     template <IsSystem SystemDataType, typename... Args>
@@ -360,7 +386,7 @@ inline GameEntity* CreateEntity(const std::string& _dataType, ComponentArgs... _
     uint32_t entityIndex = ECSManager::getInstance()->registerEntity(_dataType);
     GameEntity* entity   = ECSManager::getInstance()->getEntity(entityIndex);
 
-    (ECSManager::getInstance()->template addComponent<ComponentArgs>(entityIndex, _args), ...);
+    (ECSManager::getInstance()->template addComponent<ComponentArgs>(entityIndex, _args, false), ...);
 
     // コンポーネントの初期化
     ([&entity]<typename T>() {
