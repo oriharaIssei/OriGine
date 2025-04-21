@@ -11,9 +11,7 @@ void ScreenRenderingSystem::Initialize() {
 }
 
 void ScreenRenderingSystem::Update() {
-    Engine::getInstance()->ScreenPreDraw();
-    SceneManager::getInstance()->getSceneView()->DrawTexture();
-    Engine::getInstance()->ScreenPostDraw();
+   
 }
 
 void ScreenRenderingSystem::Finalize() {}
