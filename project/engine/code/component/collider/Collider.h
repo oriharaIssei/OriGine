@@ -138,6 +138,20 @@ public:
     }
 
     void CalculateWorldShape() override;
+
+public: // accessor
+    const Vec3f& getLocalMin() const { return shape_.min_; }
+    void setLocal(const Vec3f& _min) { shape_.min_ = _min; }
+
+    const Vec3f& getLocalMax() const { return shape_.max_; }
+    void setLocal(const Vec3f& _max) { shape_.max_ = _max; }
+
+    const Vec3f& getWorldMin() const { return worldShape_.min_; }
+    void setWorld(const Vec3f& _min) { worldShape_.min_ = _min; }
+    const Vec3f& getWorldMax() const { return worldShape_.max_; }
+    void setWorld(const Vec3f& _max) { worldShape_.max_ = _max; }
+
+    const Vec3f& getWorldCenter() const { return (worldShape_.min_ + worldShape_.max_) * 0.5f; }
 };
 
 class SphereCollider
@@ -175,4 +189,13 @@ public:
     }
 
     void CalculateWorldShape() override;
+
+public: // accessor
+    const Vec3f& getLocalCenter() const { return shape_.center_; }
+    void setLocalCenter(const Vec3f& _center) { shape_.center_ = _center; }
+    const float& getLocalRadius() const { return shape_.radius_; }
+    void setLocalRadius(const float& _radius) { shape_.radius_ = _radius; }
+
+    const Vec3f& getWorldCenter() const { return worldShape_.center_; }
+    const float& getWorldRadius() const { return worldShape_.radius_; }
 };
