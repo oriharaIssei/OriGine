@@ -174,7 +174,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\system\effect\EmitterWorkSystem.h" />
     <ClInclude Include="engine\code\system\movement\MoveSystemByRigidBody.h" />
     <ClInclude Include="engine\code\system\postRender\Grayscale.h" />
-    <ClInclude Include="engine\code\system\postRender\ScreenRenderingSystem.h" />
     <ClInclude Include="engine\code\system\render\ColliderRenderingSystem.h" />
     <ClInclude Include="engine\code\system\render\LineRenderSystem.h" />
     <ClInclude Include="engine\code\system\render\ParticleRenderSystem.h" />
@@ -265,7 +264,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\system\effect\EmitterWorkSystem.cpp" />
     <ClCompile Include="engine\code\system\movement\MoveSystemByRigidBody.cpp" />
     <ClCompile Include="engine\code\system\postRender\Grayscale.cpp" />
-    <ClCompile Include="engine\code\system\postRender\ScreenRenderingSystem.cpp" />
     <ClCompile Include="engine\code\system\render\ColliderRenderingSystem.cpp" />
     <ClCompile Include="engine\code\system\render\LineRenderSystem.cpp" />
     <ClCompile Include="engine\code\system\render\ParticleRenderSystem.cpp" />

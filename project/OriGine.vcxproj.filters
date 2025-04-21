@@ -360,9 +360,6 @@
     <ClInclude Include="engine\code\system\postRender\Grayscale.h">
       <Filter>engine\code\system\postRender</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\system\postRender\ScreenRenderingSystem.h">
-      <Filter>engine\code\system\postRender</Filter>
-    </ClInclude>
     <ClInclude Include="engine\code\system\render\ColliderRenderingSystem.h">
       <Filter>engine\code\system\render</Filter>
     </ClInclude>
@@ -625,9 +622,6 @@
       <Filter>engine\code\system\movement</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\system\postRender\Grayscale.cpp">
-      <Filter>engine\code\system\postRender</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\code\system\postRender\ScreenRenderingSystem.cpp">
       <Filter>engine\code\system\postRender</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\system\render\ColliderRenderingSystem.cpp">

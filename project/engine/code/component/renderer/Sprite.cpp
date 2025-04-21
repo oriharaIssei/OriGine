@@ -65,7 +65,7 @@ bool SpriteRenderer::Edit() {
     if (ImGui::Button("...")) {
         std::string directory;
         std::string fileName;
-        if (myFs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {".png"})) {
+        if (myFs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"png"})) {
             texturePath_ = kApplicationResourceDirectory + "/" + directory + "/" + fileName;
 
             // テクスチャの読み込みとサイズの適応
