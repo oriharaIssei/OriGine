@@ -10,9 +10,6 @@
     <Filter Include="engine\code\ECS">
       <UniqueIdentifier>{4F6E4C74-BBF9-B938-C40A-3D2D30151639}</UniqueIdentifier>
     </Filter>
-    <Filter Include="engine\code\animation">
-      <UniqueIdentifier>{D4022BD4-406F-E6CE-0963-7E2C758E0837}</UniqueIdentifier>
-    </Filter>
     <Filter Include="engine\code\assets">
       <UniqueIdentifier>{E7521122-D336-D277-3C97-CCCA289ABCF9}</UniqueIdentifier>
     </Filter>
@@ -30,6 +27,9 @@
     </Filter>
     <Filter Include="engine\code\component">
       <UniqueIdentifier>{472248E5-B38E-03E0-7C82-9B3DE8AD2548}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\code\component\animation">
+      <UniqueIdentifier>{16C07369-82A3-82A9-8BA6-B0E5F70849FA}</UniqueIdentifier>
     </Filter>
     <Filter Include="engine\code\component\collider">
       <UniqueIdentifier>{04D11501-F0F6-DF67-D93C-6533C5010534}</UniqueIdentifier>
@@ -82,9 +82,6 @@
     <Filter Include="engine\code\module\editor">
       <UniqueIdentifier>{D0BDC334-3C80-F7BE-8530-864BF131D09C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="engine\code\object3d">
-      <UniqueIdentifier>{428FA5A5-2E1E-2F6F-D73C-436AC3AA3F15}</UniqueIdentifier>
-    </Filter>
     <Filter Include="engine\code\sceneManager">
       <UniqueIdentifier>{1D4D72E8-0972-C168-32BD-A6F81E41C086}</UniqueIdentifier>
     </Filter>
@@ -114,9 +111,6 @@
     </Filter>
     <Filter Include="lib\Thread">
       <UniqueIdentifier>{239FDD0F-0F57-1F5D-785E-F8B86435BA4D}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\animationEditor">
-      <UniqueIdentifier>{52C27DF5-BE23-5B03-4791-A1B5B3F191C2}</UniqueIdentifier>
     </Filter>
     <Filter Include="lib\binaryIO">
       <UniqueIdentifier>{E885C2AC-D4E8-5151-7D6E-8A0769B01DD4}</UniqueIdentifier>
@@ -156,6 +150,9 @@
     </Filter>
     <Filter Include="util">
       <UniqueIdentifier>{43339F7C-2F6A-A00D-D856-8610C46C1C0F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="util\timeline">
+      <UniqueIdentifier>{89AC1F52-F56C-9B88-BEA7-E4052A27E064}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -203,6 +200,12 @@
     </ClInclude>
     <ClInclude Include="engine\code\component\IComponent.h">
       <Filter>engine\code\component</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\component\animation\AnimationManager.h">
+      <Filter>engine\code\component\animation</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\component\animation\NodeAnimation.h">
+      <Filter>engine\code\component\animation</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\component\collider\Collider.h">
       <Filter>engine\code\component\collider</Filter>
@@ -496,6 +499,12 @@
     </ClCompile>
     <ClCompile Include="engine\code\component\IComponent.cpp">
       <Filter>engine\code\component</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\component\animation\AnimationManager.cpp">
+      <Filter>engine\code\component\animation</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\component\animation\NodeAnimation.cpp">
+      <Filter>engine\code\component\animation</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\component\collider\Collider.cpp">
       <Filter>engine\code\component\collider</Filter>
