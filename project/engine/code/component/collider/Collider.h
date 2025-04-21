@@ -141,15 +141,15 @@ public:
 
 public: // accessor
     const Vec3f& getLocalMin() const { return shape_.min_; }
-    void setLocal(const Vec3f& _min) { shape_.min_ = _min; }
+    void setLocalMin(const Vec3f& _min) { shape_.min_ = _min; }
 
     const Vec3f& getLocalMax() const { return shape_.max_; }
-    void setLocal(const Vec3f& _max) { shape_.max_ = _max; }
+    void setLocalMax(const Vec3f& _max) { shape_.max_ = _max; }
 
     const Vec3f& getWorldMin() const { return worldShape_.min_; }
-    void setWorld(const Vec3f& _min) { worldShape_.min_ = _min; }
+    void setWorldMin(const Vec3f& _min) { worldShape_.min_ = _min; }
     const Vec3f& getWorldMax() const { return worldShape_.max_; }
-    void setWorld(const Vec3f& _max) { worldShape_.max_ = _max; }
+    void setWorldMax(const Vec3f& _max) { worldShape_.max_ = _max; }
 
     const Vec3f& getWorldCenter() const { return (worldShape_.min_ + worldShape_.max_) * 0.5f; }
 };
@@ -197,5 +197,7 @@ public: // accessor
     void setLocalRadius(const float& _radius) { shape_.radius_ = _radius; }
 
     const Vec3f& getWorldCenter() const { return worldShape_.center_; }
+    void setWorldCenter(const Vec3f& _center) { worldShape_.center_ = _center; }
     const float& getWorldRadius() const { return worldShape_.radius_; }
+    void setWorldRadius(const float& _radius) { worldShape_.radius_ = _radius; }
 };
