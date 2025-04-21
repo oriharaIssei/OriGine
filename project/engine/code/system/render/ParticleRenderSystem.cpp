@@ -6,7 +6,7 @@
 #include "sceneManager/SceneManager.h"
 
 // component
-#include "component/particle/emitter/Emitter.h"
+#include "component/effect/particle/emitter/Emitter.h"
 
 // module
 #include "camera/CameraManager.h"

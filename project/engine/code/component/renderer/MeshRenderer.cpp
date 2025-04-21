@@ -33,12 +33,12 @@ ModelMeshRenderer::ModelMeshRenderer(const std::vector<TextureMesh>& _meshGroup)
         meshTextureNumber_.resize(meshGroup_->size());
     }
     for (size_t i = 0; i < meshGroup_->size(); ++i) {
-        meshTransformBuff_[i].CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
-
         meshTransformBuff_[i]->Update();
         meshTransformBuff_[i].ConvertToBuffer();
 
-        meshMaterialBuff_[i]  = Engine::getInstance()->getMaterialManager()->getMaterial("white");
+        meshMaterialBuff_[i] = IConstantBuffer<Material>(Material());
+        meshMaterialBuff_[i].CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+
         meshTextureNumber_[i] = 0;
     }
 }
@@ -60,7 +60,6 @@ ModelMeshRenderer::ModelMeshRenderer(const std::shared_ptr<std::vector<TextureMe
         meshTransformBuff_[i]->Update();
         meshTransformBuff_[i].ConvertToBuffer();
 
-        meshMaterialBuff_[i]  = Engine::getInstance()->getMaterialManager()->getMaterial("white");
         meshTextureNumber_[i] = 0;
     }
 }
@@ -74,7 +73,9 @@ void ModelMeshRenderer::Initialize(GameEntity* _hostEntity) {
     meshMaterialBuff_.resize(meshGroup_->size());
 
     for (int32_t i = 0; i < meshGroup_->size(); ++i) {
-
+        /// ---------------------------------------------------
+        // Transform
+        /// ---------------------------------------------------
         meshTransformBuff_[i].CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
         if (meshTransformBuff_[i]->parent == nullptr) {
             meshTransformBuff_[i]->parent = entityTransform;
@@ -82,6 +83,11 @@ void ModelMeshRenderer::Initialize(GameEntity* _hostEntity) {
 
         meshTransformBuff_[i].openData_.Update();
         meshTransformBuff_[i].ConvertToBuffer();
+
+        /// ---------------------------------------------------
+        // material
+        /// ---------------------------------------------------
+        meshMaterialBuff_[i].CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
     }
 }
 
@@ -130,8 +136,10 @@ bool ModelMeshRenderer::Edit() {
 
     std::string meshName = "Mesh";
     for (int32_t i = 0; i < meshGroup_->size(); ++i) {
-        meshName = "Mesh" + '[' + std::to_string(i) + "]";
+        meshName = std::format("Mesh [{}]", i);
         if (ImGui::CollapsingHeader(meshName.c_str())) {
+            ImGui::Indent();
+
             if (ImGui::TreeNode("Transform")) {
                 Transform& transform = meshTransformBuff_[i].openData_;
                 // Transform
@@ -141,10 +149,14 @@ bool ModelMeshRenderer::Edit() {
                 }
                 ImGui::TreePop();
             }
-            if (ImGui::TreeNode("Material")) {
 
+            if (ImGui::TreeNode("Material")) {
+                meshMaterialBuff_[i].openData_.DebugGui();
+                meshMaterialBuff_[i].ConvertToBuffer();
                 ImGui::TreePop();
             }
+
+            ImGui::Unindent();
         }
     }
     return isChange;
@@ -158,6 +170,24 @@ void ModelMeshRenderer::Save(BinaryWriter& _writer) {
 
     _writer.Write<std::string>("directory", directory_);
     _writer.Write<std::string>("fileName", fileName_);
+
+    const std::string& preWriterGroupName = _writer.getGroupName();
+    for (int32_t i = 0; i < meshGroup_->size(); ++i) {
+
+        _writer.WriteBeginGroup(preWriterGroupName + std::format("Mesh{}", i));
+
+        meshTransformBuff_[i].openData_.Save(_writer);
+
+        _writer.Write<3, float>("uvScale", meshMaterialBuff_[i].openData_.uvScale_);
+        _writer.Write<3, float>("uvRotate", meshMaterialBuff_[i].openData_.uvRotate_);
+        _writer.Write<3, float>("uvTranslate", meshMaterialBuff_[i].openData_.uvTranslate_);
+
+        _writer.Write<4, float>("color", meshMaterialBuff_[i].openData_.color_);
+
+        _writer.Write<int32_t>("enableLighting", meshMaterialBuff_[i].openData_.enableLighting_);
+        _writer.Write<float>("shininess", meshMaterialBuff_[i].openData_.shininess_);
+        _writer.Write<3, float>("specularColor", meshMaterialBuff_[i].openData_.specularColor_);
+    }
 }
 
 void ModelMeshRenderer::Load(BinaryReader& _reader) {
@@ -168,6 +198,20 @@ void ModelMeshRenderer::Load(BinaryReader& _reader) {
 
     if (!fileName_.empty()) {
         CreateModelMeshRenderer(this, hostEntity_, directory_, fileName_);
+
+        const std::string& preWriterGroupName = _reader.getGroupName();
+        for (int32_t i = 0; i < meshGroup_->size(); ++i) {
+            _reader.ReadBeginGroup(preWriterGroupName + std::format("Mesh{}", i));
+
+            meshTransformBuff_[i].openData_.Load(_reader);
+            _reader.Read<3, float>("uvScale", meshMaterialBuff_[i].openData_.uvScale_);
+            _reader.Read<3, float>("uvRotate", meshMaterialBuff_[i].openData_.uvRotate_);
+            _reader.Read<3, float>("uvTranslate", meshMaterialBuff_[i].openData_.uvTranslate_);
+            _reader.Read<4, float>("color", meshMaterialBuff_[i].openData_.color_);
+            _reader.Read<int32_t>("enableLighting", meshMaterialBuff_[i].openData_.enableLighting_);
+            _reader.Read<float>("shininess", meshMaterialBuff_[i].openData_.shininess_);
+            _reader.Read<3, float>("specularColor", meshMaterialBuff_[i].openData_.specularColor_);
+        }
     }
 }
 
@@ -188,7 +232,6 @@ PrimitiveMeshRenderer::PrimitiveMeshRenderer(const std::vector<PrimitiveMesh>& _
     }
     for (size_t i = 0; i < meshGroup_->size(); ++i) {
         meshTransformBuff_[i].CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
-        meshMaterialBuff_[i] = Engine::getInstance()->getMaterialManager()->getMaterial("white");
     }
 }
 
@@ -203,7 +246,6 @@ PrimitiveMeshRenderer::PrimitiveMeshRenderer(const std::shared_ptr<std::vector<P
     }
     for (size_t i = 0; i < meshGroup_->size(); ++i) {
         meshTransformBuff_[i].CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
-        meshMaterialBuff_[i] = Engine::getInstance()->getMaterialManager()->getMaterial("white");
     }
 }
 
@@ -247,7 +289,7 @@ void CreateModelMeshRenderer(ModelMeshRenderer* _renderer, GameEntity* _hostEnti
 
         // マテリアルの設定
         for (uint32_t i = 0; i < static_cast<uint32_t>(model->materialData_.size()); ++i) {
-            _renderer->setMaterialBuff(i, model->materialData_[i].material);
+            _renderer->setMaterialBuff(i, model->materialData_[i].material.openData_);
             _renderer->setTextureNumber(i, model->materialData_[i].textureNumber);
         }
         isLoaded = true;

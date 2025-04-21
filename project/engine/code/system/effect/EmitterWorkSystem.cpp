@@ -4,7 +4,7 @@
 // ECS
 #include "ECSManager.h"
 // component
-#include "component/particle/emitter/Emitter.h"
+#include "component/effect/particle/emitter/Emitter.h"
 
 #include "Engine.h"
 

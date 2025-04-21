@@ -22,23 +22,24 @@ void AnimationManager::Finalize() {
     loadThread_->Finalize();
 }
 
-std::unique_ptr<Animation> AnimationManager::Load(const std::string& directory, const std::string& filename) {
-    std::string filePath              = directory + "/" + filename;
-    std::unique_ptr<Animation> result = std::make_unique<Animation>();
+std::shared_ptr<AnimationData> AnimationManager::Load(const std::string& directory, const std::string& filename) {
+    std::string filePath                  = directory + "/" + filename;
+    std::shared_ptr<AnimationData> result = nullptr;
 
     auto animationIndex = animationDataLibrary_.find(filePath);
     if (animationIndex != animationDataLibrary_.end()) {
-        result->setData(animationData_[animationIndex->second].get());
-        result->setDuration(result->getData()->duration);
+        result = animationData_[animationIndex->second];
     } else {
         // 新しい ポインタを作成
-        animationData_.push_back(std::make_unique<AnimationData>());
+        animationData_.push_back(std::make_shared<AnimationData>());
         animationDataLibrary_[filePath] = static_cast<int>(animationData_.size() - 1);
+
+        result = animationData_.back();
 
         ///===========================================
         /// TaskThread に ロードタスクを追加
         ///===========================================
-        AnimationLoadTask task(directory, filename, animationData_.back().get(), result.get());
+        AnimationLoadTask task(directory, filename, animationData_.back());
         loadThread_->pushTask(task);
     }
     return result;
@@ -75,7 +76,7 @@ AnimationData AnimationManager::LoadGltfAnimationData(const std::string& directo
     ///=============================================
     for (uint32_t channelIndex = 0; channelIndex < animationAssimp->mNumChannels; ++channelIndex) {
         aiNodeAnim* nodeAnimationAssimp = animationAssimp->mChannels[channelIndex];
-        NodeAnimation& nodeAnimation    = result.nodeAnimations[nodeAnimationAssimp->mNodeName.C_Str()];
+        AnimationNode& nodeAnimation    = result.animationNodes_[nodeAnimationAssimp->mNodeName.C_Str()];
 
         // =============================== InterpolationType =============================== //
         nodeAnimation.interpolationType = static_cast<InterpolationType>(nodeAnimationAssimp->mPreState);
@@ -147,7 +148,7 @@ AnimationData AnimationManager::LoadMyAnimationData(const std::string& directory
         std::string nodeName(nodeNameLength, '\0');
         ifs.read(&nodeName[0], nodeNameLength);
 
-        NodeAnimation nodeAnimation;
+        AnimationNode nodeAnimation;
 
         // scale, rotate, translate の各アニメーションカーブを読み込み
         auto readCurve = [&ifs](auto& curve) {
@@ -164,7 +165,7 @@ AnimationData AnimationManager::LoadMyAnimationData(const std::string& directory
         readCurve(nodeAnimation.rotate);
         readCurve(nodeAnimation.translate);
 
-        animationData.nodeAnimations[nodeName] = nodeAnimation;
+        animationData.animationNodes_[nodeName] = nodeAnimation;
     }
 
     return animationData;
@@ -181,11 +182,11 @@ void AnimationManager::SaveAnimation(const std::string& directory, const std::st
     ofs.write(reinterpret_cast<const char*>(&animationData.duration), sizeof(animationData.duration));
 
     // nodeAnimations のサイズを保存
-    size_t nodeAnimationsSize = animationData.nodeAnimations.size();
+    size_t nodeAnimationsSize = animationData.animationNodes_.size();
     ofs.write(reinterpret_cast<const char*>(&nodeAnimationsSize), sizeof(nodeAnimationsSize));
 
     // 各ノードのアニメーションデータを保存
-    for (const auto& [nodeName, nodeAnimation] : animationData.nodeAnimations) {
+    for (const auto& [nodeName, nodeAnimation] : animationData.animationNodes_) {
         // ノード名の長さとノード名を保存
         size_t nodeNameLength = nodeName.size();
         ofs.write(reinterpret_cast<const char*>(&nodeNameLength), sizeof(nodeNameLength));
@@ -227,6 +228,4 @@ const AnimationData* AnimationManager::getAnimationData(const std::string& name)
 
 void AnimationManager::AnimationLoadTask::Update() {
     *animationData = AnimationManager::getInstance()->LoadAnimationData(directory, filename);
-    animation->setData(animationData);
-    animation->setDuration(animationData->duration);
 }

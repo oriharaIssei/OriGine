@@ -20,9 +20,9 @@
 #include "globalVariables/SerializedField.h"
 
 struct LightCounts {
-    SerializedField<int32_t> directionalLightNum{"LightManager", "LightCounts", "directionalLightNum"};
-    SerializedField<int32_t> pointLightNum{"LightManager", "LightCounts", "pointLightNum"};
-    SerializedField<int32_t> spotLightNum{"LightManager", "LightCounts", "spotLightNum"};
+    int32_t directionalLightNum = 0;
+    int32_t pointLightNum       = 0;
+    int32_t spotLightNum        = 0;
 
     struct ConstantBuffer {
         int32_t directionalLightNum;
@@ -38,12 +38,8 @@ struct LightCounts {
     };
 };
 
-class LightEditor;
-
 class LightManager
     : public IModule {
-    friend class LightEditor;
-
 public:
     static LightManager* getInstance() {
         static LightManager instance;
@@ -61,6 +57,10 @@ public:
     void SetForRootParameter(ID3D12GraphicsCommandList* cmdList);
 
 private:
+    SerializedField<int32_t> directionalLightSize_{"LightManager", "LightCounts", "directionalLightSize"};
+    SerializedField<int32_t> pointLightSize_{"LightManager", "LightCounts", "pointLightSize"};
+    SerializedField<int32_t> spotLightSize_{"LightManager", "LightCounts", "spotLightSize"};
+
     std::shared_ptr<DxSrvArray> srvArray_;
 
     IConstantBuffer<LightCounts> lightCounts_;
@@ -68,17 +68,23 @@ private:
     IStructuredBuffer<DirectionalLight> directionalLights_;
     IStructuredBuffer<PointLight> pointLights_;
     IStructuredBuffer<SpotLight> spotLights_;
-};
 
-class LightEditor
-    : public IEditor {
 public:
-    LightEditor();
-    ~LightEditor();
+    size_t getDirectionalLightCount() const { return directionalLights_.openData_.size(); }
+    size_t getPointLightCount() const { return pointLights_.openData_.size(); }
+    size_t getSpotLightCount() const { return spotLights_.openData_.size(); }
 
-    void Initialize();
-    void Update() override;
-    void Finalize()override{}
-private:
-    LightManager* lightManager_;
+    size_t getDirectionalLightCapacity() const { return directionalLights_.capacity(); }
+    size_t getPointLightCapacity() const { return pointLights_.capacity(); }
+    size_t getSpotLightCapacity() const { return spotLights_.capacity(); }
+
+    void pushDirectionalLight(const DirectionalLight& light);
+    void pushPointLight(const PointLight& light);
+    void pushSpotLight(const SpotLight& light);
+
+    void clearLights() {
+        directionalLights_.openData_.clear();
+        pointLights_.openData_.clear();
+        spotLights_.openData_.clear();
+    }
 };

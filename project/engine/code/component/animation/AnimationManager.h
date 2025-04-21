@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Animation.h"
+#include "NodeAnimation.h"
 #include "Matrix4x4.h"
+#include "model/Model.h"
 #include "Quaternion.h"
 #include "Thread/Thread.h"
 #include "Vector3.h"
-#include "model/Model.h"
 
 #include <memory>
 #include <string>
@@ -29,7 +29,7 @@ public:
     /// アニメーションの読み込み,作成
     ///< param name="directory">ディレクトリ</param>
     ///< param name="filename">ファイル名(format を つける .gltf)</param>
-    std::unique_ptr<Animation> Load(const std::string& directory, const std::string& filename);
+    std::shared_ptr<AnimationData> Load(const std::string& directory, const std::string& filename);
 
     /// <summary>
     /// アニメーションの保存
@@ -63,14 +63,13 @@ private:
     AnimationManager(const AnimationManager&)            = delete;
 
     struct AnimationLoadTask {
-        std::string directory        = "";
-        std::string filename         = "";
-        AnimationData* animationData = nullptr;
-        Animation* animation         = nullptr;
+        std::string directory                        = "";
+        std::string filename                         = "";
+        std::shared_ptr<AnimationData> animationData = nullptr;
 
         AnimationLoadTask() = default;
-        AnimationLoadTask(const std::string& _directory, const std::string& _filename, AnimationData* _animationData, Animation* _animation)
-            : directory(_directory), filename(_filename), animationData(_animationData), animation(_animation) {}
+        AnimationLoadTask(const std::string& _directory, const std::string& _filename, std::shared_ptr<AnimationData> _animationData)
+            : directory(_directory), filename(_filename), animationData(_animationData) {}
         ~AnimationLoadTask() = default;
 
         void Update();
@@ -80,14 +79,10 @@ private:
 
     // アニメーションデータのライブラリ
     std::unordered_map<std::string, int> animationDataLibrary_;
-    std::vector<std::unique_ptr<AnimationData>> animationData_;
-
-    // 再生中のアニメーション
-    std::vector<Animation*> playingAnimations_;
+    std::vector<std::shared_ptr<AnimationData>> animationData_;
 
 public:
     const AnimationData* getAnimationData(const std::string& name) const;
     const AnimationData* getAnimationData(int index) const { return animationData_[index].get(); }
 
-    void Play(Animation* animation) { playingAnimations_.push_back(animation); }
 };

@@ -150,6 +150,7 @@ void CollisionCheckSystem::UpdateEntity(GameEntity* _entity) {
             }
             for (auto colliderB = listB->begin(); colliderB != listB->end(); ++colliderB) {
                 if (!colliderB->isActive()) {
+                    continue;
                 }
                 if (CheckCollisionPair<>(colliderA->getWorldShape(), colliderB->getWorldShape())) {
                     colliderA->setCollisionState(bEntity);

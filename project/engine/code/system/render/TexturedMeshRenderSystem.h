@@ -21,9 +21,10 @@ public:
 protected:
     void CreatePso();
 
+    void LightUpdate();
     void StartRender();
-    void UpdateEntity(GameEntity* _entity) override;
 
+    void UpdateEntity(GameEntity* _entity) override;
 private:
     BlendMode currentBlend_ = BlendMode::Alpha;
 

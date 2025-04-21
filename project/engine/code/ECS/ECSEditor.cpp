@@ -247,7 +247,11 @@ void ECSEditor::EditEntity() {
 
                 componentLabel = compTypeName + "[" + std::to_string(componentIndex) + "]";
                 if (ImGui::CollapsingHeader(componentLabel.c_str())) {
+                    ImGui::Indent();
+
                     comp->Edit();
+
+                    ImGui::Unindent();
                 }
 
                 componentIndex++;

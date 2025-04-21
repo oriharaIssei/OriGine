@@ -58,13 +58,13 @@ public:
     virtual IComponent* getBackComponent(GameEntity* _entity) = 0;
 
     /// @brief エンティティを登録し、初期のコンポーネント領域を確保する
-    virtual void registerEntity(GameEntity* _entity, int32_t _entitySize = 1) = 0;
+    virtual void registerEntity(GameEntity* _entity, int32_t _entitySize = 1, bool _doInitialize = true) = 0;
 
     /// @brief IComponent を用いてコンポーネントを追加する
-    virtual void addComponent(GameEntity* _hostEntity, IComponent* _component) = 0;
+    virtual void addComponent(GameEntity* _hostEntity, IComponent* _component, bool _doInitialize = true) = 0;
 
     /// @brief デフォルト値によるコンポーネントを追加する
-    virtual void addComponent(GameEntity* _hostEntity) = 0;
+    virtual void addComponent(GameEntity* _hostEntity, bool _doInitialize = true) = 0;
 
     virtual void insertComponent(GameEntity* _hostEntity, IComponent* _component, int32_t _index) = 0;
     virtual void insertComponent(GameEntity* _hostEntity, int32_t _index)                         = 0;
@@ -117,54 +117,62 @@ public:
     void LoadComponent(GameEntity* _entity, BinaryReader& _reader) override;
 
     /// @brief エンティティ登録（メモリ確保）
-    void registerEntity(GameEntity* _entity, int32_t _entitySize = 1) override {
+    void registerEntity(GameEntity* _entity, int32_t _entitySize = 1, bool _doInitialize = true) override {
         uint32_t index = static_cast<uint32_t>(components_.size());
         components_.push_back(std::vector<componentType>());
         components_.back().resize(_entitySize);
 
-        for (auto& comp : components_.back()) {
-            comp.Initialize(_entity);
+        if (_doInitialize) {
+            for (auto& comp : components_.back()) {
+                comp.Initialize(_entity);
+            }
         }
 
         entityIndexBind_[_entity] = index;
     }
 
     /// @brief 値によるコンポーネントの追加
-    void add(GameEntity* _hostEntity, const componentType& _component) {
+    void add(GameEntity* _hostEntity, const componentType& _component, bool _doInitialize = true) {
         auto it = entityIndexBind_.find(_hostEntity);
         if (it == entityIndexBind_.end()) {
-            registerEntity(_hostEntity);
+            registerEntity(_hostEntity, 1, _doInitialize);
             return;
         }
         uint32_t index = it->second;
         components_[index].push_back(_component);
-        components_[index].back().Initialize(_hostEntity);
+        if (_doInitialize) {
+            components_[index].back().Initialize(_hostEntity);
+        }
     }
 
     /// @brief IComponent ポインタからコンポーネントの追加
-    void addComponent(GameEntity* _hostEntity, IComponent* _component) override {
+    void addComponent(GameEntity* _hostEntity, IComponent* _component, bool _doInitialize = true) override {
         const componentType* comp = dynamic_cast<const componentType*>(_component);
         assert(comp != nullptr && "Invalid component type passed to addComponent");
         auto it = entityIndexBind_.find(_hostEntity);
         if (it == entityIndexBind_.end()) {
-            registerEntity(_hostEntity);
+            registerEntity(_hostEntity, 1, _doInitialize);
             return;
         }
         uint32_t index = it->second;
         components_[index].push_back(std::move(*comp));
-        components_[index].back().Initialize(_hostEntity);
+        if (_doInitialize) {
+            components_[index].back().Initialize(_hostEntity);
+        }
     }
 
     /// @brief デフォルト値によるコンポーネントの追加
-    void addComponent(GameEntity* _hostEntity) override {
+    void addComponent(GameEntity* _hostEntity, bool _doInitialize = true) override {
         auto it = entityIndexBind_.find(_hostEntity);
         if (it == entityIndexBind_.end()) {
-            registerEntity(_hostEntity);
+            registerEntity(_hostEntity, 1,  _doInitialize);
             return;
         }
         uint32_t index = it->second;
         components_[index].push_back(ComponentType());
-        components_[index].back().Initialize(_hostEntity);
+        if (_doInitialize) {
+            components_[index].back().Initialize(_hostEntity);
+        }
     }
 
     virtual void insertComponent(GameEntity* _hostEntity, IComponent* _component, int32_t _index) override {
@@ -172,20 +180,23 @@ public:
         assert(comp != nullptr && "Invalid component type passed to addComponent");
         auto it = entityIndexBind_.find(_hostEntity);
         if (it == entityIndexBind_.end()) {
-            registerEntity(_hostEntity);
             return;
         }
         uint32_t index = it->second;
+        if (_index > components_[index].size()) {
+            return;
+        }
         components_[index].insert(components_[index].begin() + _index, std::move(*comp));
     }
     virtual void insertComponent(GameEntity* _hostEntity, int32_t _index) override {
         auto it = entityIndexBind_.find(_hostEntity);
         if (it == entityIndexBind_.end()) {
-            registerEntity(_hostEntity);
-            it = entityIndexBind_.find(_hostEntity);
             return;
         }
         uint32_t index = it->second;
+        if (_index > components_[index].size()) {
+            return;
+        }
         components_[index].insert(components_[index].begin() + _index, ComponentType());
     }
 
@@ -415,7 +426,7 @@ inline void ComponentArray<componentType>::LoadComponent(GameEntity* _entity, Bi
     registerEntity(_entity, size);
     auto& componentVec = components_[entityIndexBind_[const_cast<GameEntity*>(_entity)]];
 
-    int32_t compIndex  = 0;
+    int32_t compIndex = 0;
     for (auto& comp : componentVec) {
         _reader.ReadBeginGroup(preGroupName + componentTypeName + std::to_string(compIndex++));
         comp.Load(_reader);

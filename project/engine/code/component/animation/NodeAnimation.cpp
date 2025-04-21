@@ -1,21 +1,117 @@
-#include "Animation.h"
+#include "NodeAnimation.h"
 
-//assets
+/// engine
+#define RESOURCE_DIRECTORY
+#include "EngineInclude.h"
+// module
+#include "AnimationManager.h"
+
+// assets
 #include "model/Model.h"
 
-//math
+/// lib
+#include "myFileSystem/MyFileSystem.h"
+
+/// externals
+#ifdef _DEBUG
+#include <imgui/imgui.h>
+#endif // _DEBUG
+
+/// math
 #include <cmath>
 
-void Animation::Update(float deltaTime, Model* model, const Matrix4x4& parentTransform) {
+void NodeAnimation::Initialize(GameEntity* /*_entity*/) {
+    // 初期化
+    currentAnimationTime_ = 0.0f;
+    isEnd_                = false;
+
+    if (data_->animationNodes_.empty()) {
+        return;
+    }
+}
+
+bool NodeAnimation::Edit() {
+#ifdef _DEBUG
+    bool isChange = false;
+    if (ImGui::Button("Load File")) {
+        std::string directory, filename;
+        if (MyFileSystem::selectFileDialog(
+                kApplicationResourceDirectory,
+                directory,
+                filename,
+                {"gltf", "anm"})) {
+
+            data_ = AnimationManager::getInstance()->Load(kApplicationResourceDirectory + "/" + directory, filename);
+
+            directory_ = kApplicationResourceDirectory + "/" + directory;
+            fileName_  = filename;
+
+            duration_ = data_->duration;
+
+            isChange = true;
+        }
+    }
+
+    ImGui::Text("File Name : %s", fileName_.c_str());
+
+    isChange |= ImGui::Checkbox("isPlay", &isPlay_);
+
+    isChange |= ImGui::DragFloat("Duration", &duration_, 0.01f, 0.0f);
+
+    return isChange;
+#else
+    return false;
+#endif // _DEBUG
+}
+
+void NodeAnimation::Save(BinaryWriter& _writer) {
+    _writer.Write("isPlay", isPlay_);
+    _writer.Write("isLoop", isLoop_);
+    _writer.Write("duration", duration_);
+
+    _writer.Write("directory", directory_);
+    _writer.Write("fileName", fileName_);
+}
+
+void NodeAnimation::Load(BinaryReader& _reader) {
+    _reader.Read("isPlay", isPlay_);
+    _reader.Read("isLoop", isLoop_);
+    _reader.Read("duration", duration_);
+
+    _reader.Read("directory", directory_);
+    _reader.Read("fileName", fileName_);
+
+    if (!fileName_.empty()) {
+        data_ = AnimationManager::getInstance()->Load(directory_, fileName_);
+        while (true) {
+            if (data_->loadState == LoadState::Loaded) {
+                break;
+            }
+        }
+    }
+}
+
+void NodeAnimation::Finalize() {
+}
+
+void NodeAnimation::UpdateModel(float deltaTime, Model* model, const Matrix4x4& parentTransform) {
     {
+        // isLoop_ が false の場合,一度終了したら return
+        if (!isLoop_) {
+            if (isEnd_) {
+                return;
+            }
+        }
+
         isEnd_ = false;
         // 時間更新
-        currentAnimationTime += deltaTime;
+        currentAnimationTime_ += deltaTime;
 
         // リピート
-        if (currentAnimationTime > duration) {
-            isEnd_               = true;
-            currentAnimationTime = std::fmod(currentAnimationTime, duration);
+        if (currentAnimationTime_ > duration_) {
+            isEnd_                = true;
+            isPlay_               = false;
+            currentAnimationTime_ = std::fmod(currentAnimationTime_, duration_);
         }
     }
 
@@ -24,14 +120,14 @@ void Animation::Update(float deltaTime, Model* model, const Matrix4x4& parentTra
     }
 }
 
-Matrix4x4 Animation::CalculateNodeLocal(const std::string& nodeName) const {
-    auto it = data->nodeAnimations.find(nodeName);
-    if (it == data->nodeAnimations.end()) {
+Matrix4x4 NodeAnimation::CalculateNodeLocal(const std::string& nodeName) const {
+    auto it = data_->animationNodes_.find(nodeName);
+    if (it == data_->animationNodes_.end()) {
         // ノードに対応するアニメーションがない場合、単位行列を返す
         return MakeMatrix::Identity();
     }
 
-    const NodeAnimation& nodeAnimation = it->second;
+    const AnimationNode& nodeAnimation = it->second;
 
     Vec3f scale;
     Quaternion rotate;
@@ -39,14 +135,14 @@ Matrix4x4 Animation::CalculateNodeLocal(const std::string& nodeName) const {
 
     switch (nodeAnimation.interpolationType) {
     case InterpolationType::LINEAR:
-        scale     = CalculateValue::LINEAR(nodeAnimation.scale, currentAnimationTime);
-        rotate    = Quaternion::Normalize(CalculateValue::LINEAR(nodeAnimation.rotate, currentAnimationTime));
-        translate = CalculateValue::LINEAR(nodeAnimation.translate, currentAnimationTime);
+        scale     = CalculateValue::LINEAR(nodeAnimation.scale, currentAnimationTime_);
+        rotate    = Quaternion::Normalize(CalculateValue::LINEAR(nodeAnimation.rotate, currentAnimationTime_));
+        translate = CalculateValue::LINEAR(nodeAnimation.translate, currentAnimationTime_);
         break;
     case InterpolationType::STEP:
-        scale     = CalculateValue::Step(nodeAnimation.scale, currentAnimationTime);
-        rotate    = Quaternion::Normalize(CalculateValue::Step(nodeAnimation.rotate, currentAnimationTime));
-        translate = CalculateValue::Step(nodeAnimation.translate, currentAnimationTime);
+        scale     = CalculateValue::Step(nodeAnimation.scale, currentAnimationTime_);
+        rotate    = Quaternion::Normalize(CalculateValue::Step(nodeAnimation.rotate, currentAnimationTime_));
+        translate = CalculateValue::Step(nodeAnimation.translate, currentAnimationTime_);
         break;
     }
 
@@ -67,11 +163,9 @@ float CalculateValue::LINEAR(const std::vector<Keyframe<float>>& keyframes, floa
         size_t nextIndex = index + 1;
         // index と nextIndex の 2つを
         // 取得して 現時刻が 範囲内か
-        if (keyframes[index].time <= time &&
-            time <= keyframes[nextIndex].time) {
+        if (keyframes[index].time <= time && time <= keyframes[nextIndex].time) {
             // 範囲内 で 保管
-            float t = (time - keyframes[index].time) /
-                      (keyframes[nextIndex].time - keyframes[index].time);
+            float t = (time - keyframes[index].time) / (keyframes[nextIndex].time - keyframes[index].time);
             return std::lerp(keyframes[index].value, keyframes[nextIndex].value, t);
         }
     }
@@ -79,6 +173,32 @@ float CalculateValue::LINEAR(const std::vector<Keyframe<float>>& keyframes, floa
     // 最後の 値を返す
     return (*keyframes.rbegin()).value;
 }
+
+Vec2f CalculateValue::LINEAR(const std::vector<Keyframe<Vec2f>>& keyframes, float time) {
+    ///===========================================
+    /// 例外処理
+    ///===========================================
+    {
+        assert(!keyframes.empty());
+        if (keyframes.size() == 1 || time <= keyframes[0].time) {
+            return keyframes[0].value;
+        }
+    }
+    for (size_t index = 0; index < keyframes.size() - 1; ++index) {
+        size_t nextIndex = index + 1;
+        // index と nextIndex の 2つを
+        // 取得して 現時刻が 範囲内か
+        if (keyframes[index].time <= time && time <= keyframes[nextIndex].time) {
+            // 範囲内 で 保管
+            float t = (time - keyframes[index].time) / (keyframes[nextIndex].time - keyframes[index].time);
+            return Lerp(keyframes[index].value, keyframes[nextIndex].value, t);
+        }
+    }
+    // 登録されている時間より 後ろ
+    // 最後の 値を返す
+    return (*keyframes.rbegin()).value;
+}
+
 Vec3f CalculateValue::LINEAR(const std::vector<KeyframeVector3>& keyframes, float time) {
     ///===========================================
     /// 例外処理
@@ -95,11 +215,9 @@ Vec3f CalculateValue::LINEAR(const std::vector<KeyframeVector3>& keyframes, floa
 
         // index と nextIndex の 2つを
         // 取得して 現時刻が 範囲内か
-        if (keyframes[index].time <= time &&
-            time <= keyframes[nextIndex].time) {
+        if (keyframes[index].time <= time && time <= keyframes[nextIndex].time) {
             // 範囲内 で 保管
-            float t = (time - keyframes[index].time) /
-                      (keyframes[nextIndex].time - keyframes[index].time);
+            float t = (time - keyframes[index].time) / (keyframes[nextIndex].time - keyframes[index].time);
             return Lerp(keyframes[index].value, keyframes[nextIndex].value, t);
         }
     }
@@ -122,11 +240,9 @@ Vec4f CalculateValue::LINEAR(const std::vector<Keyframe<Vec4f>>& keyframes, floa
         size_t nextIndex = index + 1;
         // index と nextIndex の 2つを
         // 取得して 現時刻が 範囲内か
-        if (keyframes[index].time <= time &&
-            time <= keyframes[nextIndex].time) {
+        if (keyframes[index].time <= time && time <= keyframes[nextIndex].time) {
             // 範囲内 で 保管
-            float t = (time - keyframes[index].time) /
-                      (keyframes[nextIndex].time - keyframes[index].time);
+            float t = (time - keyframes[index].time) / (keyframes[nextIndex].time - keyframes[index].time);
             return Lerp(keyframes[index].value, keyframes[nextIndex].value, t);
         }
     }
@@ -149,8 +265,7 @@ Quaternion CalculateValue::LINEAR(const std::vector<KeyframeQuaternion>& keyfram
 
         // index と nextIndex の 2つを
         // 取得して 現時刻が 範囲内か
-        if (keyframes[index].time <= time &&
-            time <= keyframes[nextIndex].time) {
+        if (keyframes[index].time <= time && time <= keyframes[nextIndex].time) {
             // 範囲内 で 保管
             float t = (time - keyframes[index].time) / (keyframes[nextIndex].time - keyframes[index].time);
             return Slerp(keyframes[index].value, keyframes[nextIndex].value, t);
@@ -176,16 +291,27 @@ float CalculateValue::Step(const std::vector<Keyframe<float>>& keyframes, float 
         size_t nextIndex = index + 1;
         // index と nextIndex の 2つを
         // 取得して 現時刻が 範囲内か
-        if (keyframes[index].time <= time &&
-            time <= keyframes[nextIndex].time) {
+        if (keyframes[index].time <= time && time <= keyframes[nextIndex].time) {
             // 範囲内 で 保管
-            float t = (time - keyframes[index].time) /
-                      (keyframes[nextIndex].time - keyframes[index].time);
+            float t = (time - keyframes[index].time) / (keyframes[nextIndex].time - keyframes[index].time);
             return std::lerp(keyframes[index].value, keyframes[nextIndex].value, t);
         }
     }
     // 登録されている時間より 後ろ
     // 最後の 値を返す
+    return (*keyframes.rbegin()).value;
+}
+Vec2f CalculateValue::Step(const std::vector<Keyframe<Vec2f>>& keyframes, float time) {
+    assert(!keyframes.empty());
+    if (keyframes.size() == 1 || time <= keyframes[0].time) {
+        return keyframes[0].value;
+    }
+    for (size_t index = 0; index < keyframes.size() - 1; ++index) {
+        size_t nextIndex = index + 1;
+        if (keyframes[index].time <= time && time <= keyframes[nextIndex].time) {
+            return keyframes[index].value;
+        }
+    }
     return (*keyframes.rbegin()).value;
 }
 Vec3f CalculateValue::Step(const std::vector<KeyframeVector3>& keyframes, float time) {
@@ -228,10 +354,10 @@ Quaternion CalculateValue::Step(const std::vector<KeyframeQuaternion>& keyframes
     return (*keyframes.rbegin()).value;
 }
 
-void Animation::ApplyAnimationToNodes(
+void NodeAnimation::ApplyAnimationToNodes(
     ModelNode& node,
     const Matrix4x4& parentTransform,
-    const Animation* animation) {
+    const NodeAnimation* animation) {
     node.localMatrix          = animation->CalculateNodeLocal(node.name);
     Matrix4x4 globalTransform = parentTransform * node.localMatrix;
 
@@ -241,37 +367,37 @@ void Animation::ApplyAnimationToNodes(
     }
 }
 
-Vec3f Animation::getCurrentScale(const std::string& nodeName) const {
-    auto itr = data->nodeAnimations.find(nodeName);
-    if (itr == data->nodeAnimations.end()) {
+Vec3f NodeAnimation::getCurrentScale(const std::string& nodeName) const {
+    auto itr = data_->animationNodes_.find(nodeName);
+    if (itr == data_->animationNodes_.end()) {
         return Vec3f(1.0f, 1.0f, 1.0f);
     }
 
     if (itr->second.interpolationType == InterpolationType::STEP) {
-        return CalculateValue::Step(itr->second.scale, currentAnimationTime);
+        return CalculateValue::Step(itr->second.scale, currentAnimationTime_);
     }
-    return CalculateValue::LINEAR(itr->second.scale, currentAnimationTime);
+    return CalculateValue::LINEAR(itr->second.scale, currentAnimationTime_);
 }
 
-Quaternion Animation::getCurrentRotate(const std::string& nodeName) const {
-    auto itr = data->nodeAnimations.find(nodeName);
-    if (itr == data->nodeAnimations.end()) {
+Quaternion NodeAnimation::getCurrentRotate(const std::string& nodeName) const {
+    auto itr = data_->animationNodes_.find(nodeName);
+    if (itr == data_->animationNodes_.end()) {
         return Quaternion::Identity();
     }
 
     if (itr->second.interpolationType == InterpolationType::STEP) {
-        return CalculateValue::Step(itr->second.rotate, currentAnimationTime);
+        return CalculateValue::Step(itr->second.rotate, currentAnimationTime_);
     }
-    return CalculateValue::LINEAR(itr->second.rotate, currentAnimationTime);
+    return CalculateValue::LINEAR(itr->second.rotate, currentAnimationTime_);
 }
 
-Vec3f Animation::getCurrentTranslate(const std::string& nodeName) const {
-    auto itr = data->nodeAnimations.find(nodeName);
-    if (itr == data->nodeAnimations.end()) {
+Vec3f NodeAnimation::getCurrentTranslate(const std::string& nodeName) const {
+    auto itr = data_->animationNodes_.find(nodeName);
+    if (itr == data_->animationNodes_.end()) {
         return Vec3f(0.0f, 0.0f, 0.0f);
     }
     if (itr->second.interpolationType == InterpolationType::STEP) {
-        return CalculateValue::Step(itr->second.translate, currentAnimationTime);
+        return CalculateValue::Step(itr->second.translate, currentAnimationTime_);
     }
-    return CalculateValue::LINEAR(itr->second.translate, currentAnimationTime);
+    return CalculateValue::LINEAR(itr->second.translate, currentAnimationTime_);
 }

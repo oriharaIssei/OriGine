@@ -149,7 +149,7 @@ private:
     std::string fileName_;
 
     std::vector<IConstantBuffer<Transform>> meshTransformBuff_;
-    std::vector<IConstantBuffer<Material>*> meshMaterialBuff_;
+    std::vector<IConstantBuffer<Material>> meshMaterialBuff_;
     std::vector<uint32_t> meshTextureNumber_;
 
 public:
@@ -187,10 +187,13 @@ public:
     }
 
     //------------------------------ Material ------------------------------//
-    void setMaterialBuff(int32_t _meshIndex, IConstantBuffer<Material>* _buff) {
-        meshMaterialBuff_[_meshIndex] = _buff;
+    void setMaterialBuff(int32_t _meshIndex, Material _data) {
+        meshMaterialBuff_[_meshIndex].openData_ = _data;
     }
-    IConstantBuffer<Material>* getMaterialBuff(int32_t _meshIndex) const {
+    const IConstantBuffer<Material>& getMaterialBuff(int32_t _meshIndex) const {
+        return meshMaterialBuff_[_meshIndex];
+    }
+    IConstantBuffer<Material>& getMaterialBuff(int32_t _meshIndex) {
         return meshMaterialBuff_[_meshIndex];
     }
 
@@ -225,7 +228,7 @@ public:
 
 private:
     std::vector<IConstantBuffer<Transform>> meshTransformBuff_;
-    std::vector<IConstantBuffer<Material>*> meshMaterialBuff_;
+    std::vector<IConstantBuffer<Material>> meshMaterialBuff_;
 
 public:
     //------------------------------ Transform ------------------------------//
@@ -247,10 +250,10 @@ public:
     }
 
     //------------------------------ Material ------------------------------//
-    void setMaterialBuff(int32_t _meshIndex, IConstantBuffer<Material>* _buff) {
-        meshMaterialBuff_[_meshIndex] = _buff;
+    void setMaterialBuff(int32_t _meshIndex, Material _data) {
+        meshMaterialBuff_[_meshIndex].openData_ = _data;
     }
-    IConstantBuffer<Material>* getMaterialBuff(int32_t _meshIndex) const {
+    const IConstantBuffer<Material>& getMaterialBuff(int32_t _meshIndex) const {
         return meshMaterialBuff_[_meshIndex];
     }
 };
