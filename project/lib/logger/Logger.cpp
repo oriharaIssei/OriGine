@@ -75,14 +75,15 @@ void Logger::Initialize() {
         // debugレベル以上のログが出力された場合に flush する
 #ifdef _DEBUG
         logger_->flush_on(spdlog::level::trace);
-#else
-        logger_->flush_on(spdlog::level::debug);
-#endif
 
         // ImGui用のログ sink を追加
         auto imgui_sink = std::make_shared<ImGuiLogSink>();
         imgui_sink->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%l] %v");
         logger_->sinks().push_back(imgui_sink);
+
+#else
+        logger_->flush_on(spdlog::level::debug);
+#endif
 
     } catch (const spdlog::spdlog_ex& ex) {
         fprintf(stderr, "Logger initialization failed: %s\n", ex.what());
