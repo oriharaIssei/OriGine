@@ -1,6 +1,6 @@
 #pragma once
 
-#include "NodeAnimation.h"
+#include "ModelNodeAnimation.h"
 #include "Matrix4x4.h"
 #include "model/Model.h"
 #include "Quaternion.h"

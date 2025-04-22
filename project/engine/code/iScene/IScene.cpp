@@ -65,9 +65,11 @@ void IScene::registerComponents() {
 
     ecsManager->registerComponent<Audio>();
 
-    ecsManager->registerComponent<NodeAnimation>();
+    ecsManager->registerComponent<ModelNodeAnimation>();
+    ecsManager->registerComponent<PrimitiveNodeAnimation>();
 
     ecsManager->registerComponent<ModelMeshRenderer>();
+    ecsManager->registerComponent<PlaneRenderer>();
     ecsManager->registerComponent<SpriteRenderer>();
     ecsManager->registerComponent<LineRenderer>();
 }
@@ -80,6 +82,7 @@ void IScene::registerSystems() {
     ecsManager->registerSystem<CollisionCheckSystem>();
 
     ecsManager->registerSystem<EmitterWorkSystem>();
+    ecsManager->registerSystem<PrimitiveNodeAnimationWorkSystem>();
 
     ecsManager->registerSystem<ParticleRenderSystem>();
     ecsManager->registerSystem<SpriteRenderSystem>();
@@ -213,7 +216,6 @@ void IScene::LoadSceneEntity() {
     // 読み込み 終了
     reader.ReadEndGroup();
 }
-
 
 void IScene::SaveSceneEntity() {
     ECSManager* ecsManager = ECSManager::getInstance();

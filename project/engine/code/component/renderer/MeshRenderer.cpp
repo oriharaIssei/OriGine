@@ -217,54 +217,6 @@ void ModelMeshRenderer::Load(BinaryReader& _reader) {
 
 #pragma endregion
 
-#pragma region "PrimitiveMeshRenderer"
-PrimitiveMeshRenderer::PrimitiveMeshRenderer()
-    : MeshRenderer<PrimitiveMesh, PrimitiveVertexData>() {}
-
-PrimitiveMeshRenderer::PrimitiveMeshRenderer(const std::vector<PrimitiveMesh>& _meshGroup)
-    : MeshRenderer<PrimitiveMesh, PrimitiveVertexData>(_meshGroup) {
-
-    if (meshTransformBuff_.size() != meshGroup_->size()) {
-        meshTransformBuff_.resize(meshGroup_->size());
-    }
-    if (meshMaterialBuff_.size() != meshGroup_->size()) {
-        meshMaterialBuff_.resize(meshGroup_->size());
-    }
-    for (size_t i = 0; i < meshGroup_->size(); ++i) {
-        meshTransformBuff_[i].CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
-    }
-}
-
-PrimitiveMeshRenderer::PrimitiveMeshRenderer(const std::shared_ptr<std::vector<PrimitiveMesh>>& _meshGroup)
-    : MeshRenderer<PrimitiveMesh, PrimitiveVertexData>(_meshGroup) {
-
-    if (meshTransformBuff_.size() != meshGroup_->size()) {
-        meshTransformBuff_.resize(meshGroup_->size());
-    }
-    if (meshMaterialBuff_.size() != meshGroup_->size()) {
-        meshMaterialBuff_.resize(meshGroup_->size());
-    }
-    for (size_t i = 0; i < meshGroup_->size(); ++i) {
-        meshTransformBuff_[i].CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
-    }
-}
-
-PrimitiveMeshRenderer::~PrimitiveMeshRenderer() {}
-
-void PrimitiveMeshRenderer::Initialize(GameEntity* _hostEntity) {
-    Transform* entityTransform = getComponent<Transform>(_hostEntity);
-    for (int32_t i = 0; i < meshGroup_->size(); ++i) {
-        if (meshTransformBuff_[i]->parent == nullptr) {
-            meshTransformBuff_[i]->parent = entityTransform;
-        }
-
-        meshTransformBuff_[i].openData_.Update();
-        meshTransformBuff_[i].ConvertToBuffer();
-    }
-}
-
-#pragma endregion
-
 void CreateModelMeshRenderer(ModelMeshRenderer* _renderer, GameEntity* _hostEntity, const std::string& _directory, const std::string& _filenName) {
     _renderer->setParentTransform(getComponent<Transform>(_hostEntity));
 

@@ -177,7 +177,7 @@
     <ClInclude Include="engine\code\Engine.h">
       <Filter>engine\code</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\component\animation\NodeAnimation.h">
+    <ClInclude Include="engine\code\component\animation\ModelNodeAnimation.h">
       <Filter>engine\code\animation</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\component\animation\AnimationManager.h">
@@ -216,7 +216,7 @@
     <ClInclude Include="engine\code\component\effect\particle\emitter\EmitterShape.h">
       <Filter>engine\code\component\effect\particle\emitter</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\component\effect\primitive\Primitive.h">
+    <ClInclude Include="engine\code\component\renderer\primitive\Primitive.h">
       <Filter>engine\code\component\effect\primitive</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\component\material\Material.h">
@@ -451,6 +451,8 @@
       <Filter>util</Filter>
     </ClInclude>
     <ClInclude Include="util\timeline\Timeline.h" />
+    <ClInclude Include="engine\code\component\animation\PrimitiveNodeAnimation.h" />
+    <ClInclude Include="engine\code\system\effect\PrimitiveNodeAnimationWorkSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\code\ECS\ECSDebugger.cpp">
@@ -465,7 +467,7 @@
     <ClCompile Include="engine\code\Engine.cpp">
       <Filter>engine\code</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\component\animation\NodeAnimation.cpp">
+    <ClCompile Include="engine\code\component\animation\ModelNodeAnimation.cpp">
       <Filter>engine\code\animation</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\component\animation\AnimationManager.cpp">
@@ -501,7 +503,7 @@
     <ClCompile Include="engine\code\component\effect\particle\emitter\EmitterShape.cpp">
       <Filter>engine\code\component\effect\particle\emitter</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\component\effect\primitive\Primitive.cpp">
+    <ClCompile Include="engine\code\component\renderer\primitive\Primitive.cpp">
       <Filter>engine\code\component\effect\primitive</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\component\material\Material.cpp">
@@ -683,5 +685,7 @@
       <Filter>util</Filter>
     </ClCompile>
     <ClCompile Include="util\timeline\Timeline.cpp" />
+    <ClCompile Include="engine\code\component\animation\PrimitiveNodeAnimation.cpp" />
+    <ClCompile Include="engine\code\system\effect\PrimitiveNodeAnimationWorkSystem.cpp" />
   </ItemGroup>
 </Project>

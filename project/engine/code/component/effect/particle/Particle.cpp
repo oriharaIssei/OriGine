@@ -95,12 +95,12 @@ void Particle::setKeyFrames(int32_t updateSettings, ParticleKeyFrames* _keyFrame
 
     if (updateSettings & static_cast<int32_t>(ParticleUpdateType::ColorPerLifeTime)) {
         updateByCurves_.push_back([this]() {
-            transform_.color = CalculateValue::LINEAR(keyFrames_->colorCurve_, currentTime_);
+            transform_.color = CalculateValue::Linear(keyFrames_->colorCurve_, currentTime_);
         });
     }
     if (updateSettings & static_cast<int32_t>(ParticleUpdateType::ScalePerLifeTime)) {
         updateByCurves_.push_back([this]() {
-            transform_.scale = CalculateValue::LINEAR(keyFrames_->scaleCurve_, currentTime_) * scaleRatio_;
+            transform_.scale = CalculateValue::Linear(keyFrames_->scaleCurve_, currentTime_) * scaleRatio_;
         });
     } else if (updateSettings & static_cast<int32_t>(ParticleUpdateType::ScaleRandom)) {
         MyRandom::Float randomX(minUpdateScale_->v[X], maxUpdateScale_->v[X]);
@@ -111,7 +111,7 @@ void Particle::setKeyFrames(int32_t updateSettings, ParticleKeyFrames* _keyFrame
 
     if (updateSettings & static_cast<int32_t>(ParticleUpdateType::RotatePerLifeTime)) {
         updateByCurves_.push_back([this]() {
-            transform_.rotate = CalculateValue::LINEAR(keyFrames_->rotateCurve_, currentTime_);
+            transform_.rotate = CalculateValue::Linear(keyFrames_->rotateCurve_, currentTime_);
         });
     } else if (updateSettings & static_cast<int32_t>(ParticleUpdateType::RotateRandom)) {
         MyRandom::Float randomX(minUpdateRotate_->v[X], maxUpdateRotate_->v[X]);
@@ -124,7 +124,7 @@ void Particle::setKeyFrames(int32_t updateSettings, ParticleKeyFrames* _keyFrame
 
     if (updateSettings & static_cast<int32_t>(ParticleUpdateType::VelocityPerLifeTime)) {
         updateByCurves_.push_back([this]() {
-            velocity_ = CalculateValue::LINEAR(keyFrames_->velocityCurve_, currentTime_);
+            velocity_ = CalculateValue::Linear(keyFrames_->velocityCurve_, currentTime_);
         });
     } else if (updateSettings & static_cast<int32_t>(ParticleUpdateType::VelocityRandom)) {
         MyRandom::Float randomX(minUpdateVelocity_->v[X], maxUpdateVelocity_->v[X]);
@@ -135,17 +135,17 @@ void Particle::setKeyFrames(int32_t updateSettings, ParticleKeyFrames* _keyFrame
 
     if (updateSettings & static_cast<int32_t>(ParticleUpdateType::UvScalePerLifeTime)) {
         updateByCurves_.push_back([this]() {
-            transform_.uvScale = CalculateValue::LINEAR(keyFrames_->uvScaleCurve_, currentTime_);
+            transform_.uvScale = CalculateValue::Linear(keyFrames_->uvScaleCurve_, currentTime_);
         });
     }
     if (updateSettings & static_cast<int32_t>(ParticleUpdateType::UvRotatePerLifeTime)) {
         updateByCurves_.push_back([this]() {
-            transform_.uvRotate = CalculateValue::LINEAR(keyFrames_->uvRotateCurve_, currentTime_);
+            transform_.uvRotate = CalculateValue::Linear(keyFrames_->uvRotateCurve_, currentTime_);
         });
     }
     if (updateSettings & static_cast<int32_t>(ParticleUpdateType::UvTranslatePerLifeTime)) {
         updateByCurves_.push_back([this]() {
-            transform_.uvTranslate = CalculateValue::LINEAR(keyFrames_->uvTranslateCurve_, currentTime_);
+            transform_.uvTranslate = CalculateValue::Linear(keyFrames_->uvTranslateCurve_, currentTime_);
         });
     }
 }
@@ -175,58 +175,6 @@ void Particle::UpdateKeyFrameValues() {
 }
 
 #pragma region "ParticleKeyFrames"
-static void WriteCurve(const std::string& _curveName, const AnimationCurve<Vector3f>& curve, BinaryWriter& _writer) {
-    size_t size = curve.size();
-    _writer.Write(_curveName + "size", size);
-    int32_t index        = 0;
-    std::string indexStr = "";
-    for (const auto& keyframe : curve) {
-        indexStr = std::to_string(index++);
-
-        _writer.Write(_curveName + "time" + indexStr, keyframe.time);
-        _writer.Write<3, float>(_curveName + "value" + indexStr, keyframe.value);
-    }
-}
-
-static void WriteCurve(const std::string& _curveName, const AnimationCurve<Vector4f>& curve, BinaryWriter& _writer) {
-    size_t size = curve.size();
-    _writer.Write(_curveName + "size", size);
-    int32_t index        = 0;
-    std::string indexStr = "";
-    for (const auto& keyframe : curve) {
-        indexStr = std::to_string(index++);
-
-        _writer.Write(_curveName + "time" + indexStr, keyframe.time);
-        _writer.Write<4, float>(_curveName + "value" + indexStr, keyframe.value);
-    }
-}
-
-static void ReadCurve(const std::string& _curveName, AnimationCurve<Vector3f>& curve, BinaryReader& _reader) {
-    size_t size;
-    _reader.Read(_curveName + "size", size);
-    curve.resize(size);
-    int32_t index        = 0;
-    std::string indexStr = "";
-    for (auto& keyframe : curve) {
-        indexStr = std::to_string(index++);
-        _reader.Read(_curveName + "time" + indexStr, keyframe.time);
-        _reader.Read<3, float>(_curveName + "value" + indexStr, keyframe.value);
-    }
-}
-
-static void ReadCurve(const std::string& _curveName, AnimationCurve<Vector4f>& curve, BinaryReader& _reader) {
-    size_t size;
-    _reader.Read(_curveName + "size", size);
-    curve.resize(size);
-    int32_t index        = 0;
-    std::string indexStr = "";
-    for (auto& keyframe : curve) {
-        indexStr = std::to_string(index++);
-        _reader.Read(_curveName + "time" + indexStr, keyframe.time);
-        _reader.Read<4, float>(_curveName + "value" + indexStr, keyframe.value);
-    }
-}
-
 void ParticleKeyFrames::SaveKeyFrames(BinaryWriter& _writer) const {
     /*
         2. colorCurve_のkeyframesを書き込む(サイズ, 各キーフレーム)
