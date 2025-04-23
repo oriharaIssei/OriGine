@@ -1,4 +1,4 @@
-#include "Grayscale.h"
+#include "VignetteEffect.h"
 
 /// engine
 #include "Engine.h"
@@ -7,13 +7,13 @@
 // directX12
 #include "directX12/RenderTexture.h"
 
-void Grayscale::Initialize() {
+void VignetteEffect::Initialize() {
     dxCommand_ = std::make_unique<DxCommand>();
     dxCommand_->Initialize("main", "main");
     CreatePSO();
 }
 
-void Grayscale::Update() {
+void VignetteEffect::Update() {
     auto* sceneView = SceneManager::getInstance()->getSceneView();
 
     sceneView->PreDraw();
@@ -21,19 +21,19 @@ void Grayscale::Update() {
     sceneView->PostDraw();
 }
 
-void Grayscale::Finalize() {
+void VignetteEffect::Finalize() {
     dxCommand_->Finalize();
     dxCommand_.reset();
     pso_ = nullptr;
 }
 
-void Grayscale::CreatePSO() {
+void VignetteEffect::CreatePSO() {
     ShaderManager* shaderManager = ShaderManager::getInstance();
     shaderManager->LoadShader("FullScreen.VS");
-    shaderManager->LoadShader("Grayscale.PS", shaderDirectory, L"ps_6_0");
+    shaderManager->LoadShader("Vignette.PS", shaderDirectory, L"ps_6_0");
     ShaderInformation shaderInfo{};
     shaderInfo.vsKey = "FullScreen.VS";
-    shaderInfo.psKey = "Grayscale.PS";
+    shaderInfo.psKey = "Vignette.PS";
 
     ///================================================
     /// Sampler の設定
@@ -84,10 +84,10 @@ void Grayscale::CreatePSO() {
     depthStencilDesc.DepthEnable = false;
     shaderInfo.setDepthStencilDesc(depthStencilDesc);
 
-    pso_ = shaderManager->CreatePso("Grayscale", shaderInfo, Engine::getInstance()->getDxDevice()->getDevice());
+    pso_ = shaderManager->CreatePso("VignetteEffect", shaderInfo, Engine::getInstance()->getDxDevice()->getDevice());
 }
 
-void Grayscale::Render() {
+void VignetteEffect::Render() {
     auto* commandList = dxCommand_->getCommandList();
     auto* sceneView   = SceneManager::getInstance()->getSceneView();
 

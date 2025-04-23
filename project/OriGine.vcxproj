@@ -173,7 +173,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\system\collision\CollisionCheckSystem.h" />
     <ClInclude Include="engine\code\system\effect\EmitterWorkSystem.h" />
     <ClInclude Include="engine\code\system\movement\MoveSystemByRigidBody.h" />
-    <ClInclude Include="engine\code\system\postRender\Grayscale.h" />
+    <ClInclude Include="engine\code\system\postRender\GrayscaleEffect.h" />
     <ClInclude Include="engine\code\system\render\ColliderRenderingSystem.h" />
     <ClInclude Include="engine\code\system\render\LineRenderSystem.h" />
     <ClInclude Include="engine\code\system\render\ParticleRenderSystem.h" />
@@ -182,6 +182,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\texture\TextureManager.h" />
     <ClInclude Include="engine\code\component\animation\PrimitiveNodeAnimation.h" />
     <ClInclude Include="engine\code\system\effect\PrimitiveNodeAnimationWorkSystem.h" />
+    <ClInclude Include="engine\code\system\postRender\SmoothingEffect.h" />
     <ClInclude Include="util\timeline\Timeline.h" />
     <ClInclude Include="lib\Thread\Thread.h" />
     <ClInclude Include="lib\binaryIO\BinaryIO.h" />
@@ -207,7 +208,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="math\shape\Shapes.h" />
     <ClInclude Include="util\ConvertString.h" />
     <ClInclude Include="util\nameof.h" />
-    <ClInclude Include="engine\code\system\postRender\Vignette.h" />
+    <ClInclude Include="engine\code\system\postRender\VignetteEffect.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\code\ECS\ECSDebugger.cpp" />
@@ -266,7 +267,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\system\collision\CollisionCheckSystem.cpp" />
     <ClCompile Include="engine\code\system\effect\EmitterWorkSystem.cpp" />
     <ClCompile Include="engine\code\system\movement\MoveSystemByRigidBody.cpp" />
-    <ClCompile Include="engine\code\system\postRender\Grayscale.cpp" />
+    <ClCompile Include="engine\code\system\postRender\GrayscaleEffect.cpp" />
     <ClCompile Include="engine\code\system\render\ColliderRenderingSystem.cpp" />
     <ClCompile Include="engine\code\system\render\LineRenderSystem.cpp" />
     <ClCompile Include="engine\code\system\render\ParticleRenderSystem.cpp" />
@@ -275,6 +276,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\texture\TextureManager.cpp" />
     <ClCompile Include="engine\code\component\animation\PrimitiveNodeAnimation.cpp" />
     <ClCompile Include="engine\code\system\effect\PrimitiveNodeAnimationWorkSystem.cpp" />
+    <ClCompile Include="engine\code\system\postRender\SmoothingEffect.cpp" />
     <ClCompile Include="util\timeline\Timeline.cpp" />
     <ClCompile Include="lib\Thread\Thread.cpp" />
     <ClCompile Include="lib\binaryIO\BinaryIO.cpp" />
@@ -290,7 +292,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="math\MyEasing.cpp" />
     <ClCompile Include="math\Quaternion.cpp" />
     <ClCompile Include="util\ConvertString.cpp" />
-    <ClCompile Include="engine\code\system\postRender\Vignette.cpp" />
+    <ClCompile Include="engine\code\system\postRender\VignetteEffect.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex.vcxproj">

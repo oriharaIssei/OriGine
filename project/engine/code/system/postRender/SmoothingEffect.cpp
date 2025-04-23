@@ -1,4 +1,4 @@
-#include "Vignette.h"
+#include "SmoothingEffect.h"
 
 /// engine
 #include "Engine.h"
@@ -7,13 +7,17 @@
 // directX12
 #include "directX12/RenderTexture.h"
 
-void Vignette::Initialize() {
+void SmoothingEffect::Initialize() {
     dxCommand_ = std::make_unique<DxCommand>();
     dxCommand_->Initialize("main", "main");
     CreatePSO();
+
+    boxFilterSize_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+
+    setBoxFilterSize(5.f, 5.f);
 }
 
-void Vignette::Update() {
+void SmoothingEffect::Update() {
     auto* sceneView = SceneManager::getInstance()->getSceneView();
 
     sceneView->PreDraw();
@@ -21,19 +25,19 @@ void Vignette::Update() {
     sceneView->PostDraw();
 }
 
-void Vignette::Finalize() {
+void SmoothingEffect::Finalize() {
     dxCommand_->Finalize();
     dxCommand_.reset();
     pso_ = nullptr;
 }
 
-void Vignette::CreatePSO() {
+void SmoothingEffect::CreatePSO() {
     ShaderManager* shaderManager = ShaderManager::getInstance();
     shaderManager->LoadShader("FullScreen.VS");
-    shaderManager->LoadShader("Vignette.PS", shaderDirectory, L"ps_6_0");
+    shaderManager->LoadShader("Smoothing.PS", shaderDirectory, L"ps_6_0");
     ShaderInformation shaderInfo{};
     shaderInfo.vsKey = "FullScreen.VS";
-    shaderInfo.psKey = "Vignette.PS";
+    shaderInfo.psKey = "Smoothing.PS";
 
     ///================================================
     /// Sampler の設定
@@ -55,7 +59,15 @@ void Vignette::CreatePSO() {
     ///================================================
     /// RootParameter の設定
     ///================================================
-    // Texture だけ
+    // boxFilterSize
+    D3D12_ROOT_PARAMETER boxFilterSizeParam{};
+    // Transform ... 0
+    boxFilterSizeParam.ParameterType        = D3D12_ROOT_PARAMETER_TYPE_CBV;
+    boxFilterSizeParam.ShaderVisibility     = D3D12_SHADER_VISIBILITY_PIXEL;
+    boxFilterSizeParam.Descriptor.ShaderRegister = 0;
+    shaderInfo.pushBackRootParameter(boxFilterSizeParam);
+
+    // Texture
     D3D12_ROOT_PARAMETER rootParameter        = {};
     D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
     descriptorRange[0].BaseShaderRegister     = 0;
@@ -84,10 +96,10 @@ void Vignette::CreatePSO() {
     depthStencilDesc.DepthEnable = false;
     shaderInfo.setDepthStencilDesc(depthStencilDesc);
 
-    pso_ = shaderManager->CreatePso("Vignette", shaderInfo, Engine::getInstance()->getDxDevice()->getDevice());
+    pso_ = shaderManager->CreatePso("SmoothingEffect", shaderInfo, Engine::getInstance()->getDxDevice()->getDevice());
 }
 
-void Vignette::Render() {
+void SmoothingEffect::Render() {
     auto* commandList = dxCommand_->getCommandList();
     auto* sceneView   = SceneManager::getInstance()->getSceneView();
 
@@ -99,11 +111,16 @@ void Vignette::Render() {
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
     /// ================================================
+    /// Data
+    /// ================================================
+    boxFilterSize_.SetForRootParameter(commandList, 0);
+
+    /// ================================================
     /// Viewport の設定
     /// ================================================
     ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
-    commandList->SetGraphicsRootDescriptorTable(0, sceneView->getBackBufferSrvHandle());
+    commandList->SetGraphicsRootDescriptorTable(1, sceneView->getBackBufferSrvHandle());
 
     commandList->DrawInstanced(6, 1, 0, 0);
 }
