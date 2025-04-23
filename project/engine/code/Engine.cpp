@@ -2,8 +2,8 @@
 
 /// engine
 // module
-#include "component/animation/AnimationManager.h"
 #include "camera/CameraManager.h"
+#include "component/animation/AnimationManager.h"
 #include "component/material/light/LightManager.h"
 #include "directX12/DxRtvArrayManager.h"
 #include "directX12/DxSrvArrayManager.h"
@@ -26,7 +26,8 @@
 // lib
 #include "logger/Logger.h"
 
-// math
+/// util
+#include "util/ConvertString.h"
 
 #ifdef _DEBUG
 #include "imgui/imgui.h"
@@ -48,7 +49,11 @@ Engine* Engine::getInstance() {
 
 void Engine::Initialize() {
     window_ = std::make_unique<WinApp>();
-    window_->CreateGameWindow(L"LE2A_07_OriharaIssei_", WS_OVERLAPPEDWINDOW, 1280, 720);
+
+    SerializedField<std::string> windowTitle{"Settings", "Window", "Title"};
+    SerializedField<Vec2f> windowSize{"Settings", "Window", "Size"};
+
+    window_->CreateGameWindow(ConvertString(windowTitle).c_str(), WS_OVERLAPPEDWINDOW, int32_t(windowSize->v[X]), int32_t(windowSize->v[Y]));
 
     input_ = Input::getInstance();
     input_->Initialize();
@@ -73,7 +78,6 @@ void Engine::Initialize() {
     dxSwapChain_ = std::make_unique<DxSwapChain>();
     dxSwapChain_->Initialize(window_.get(), dxDevice_.get(), dxCommand_.get());
 
-
     dxFence_ = std::make_unique<DxFence>();
     dxFence_->Initialize(dxDevice_->getDevice());
 
@@ -94,7 +98,6 @@ void Engine::Initialize() {
 
     AnimationManager::getInstance()->Initialize();
     CameraManager::getInstance()->Initialize();
-
 }
 
 void Engine::Finalize() {

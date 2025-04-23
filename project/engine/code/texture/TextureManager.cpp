@@ -217,11 +217,21 @@ uint32_t TextureManager::LoadTexture(const std::string& filePath, std::function<
         }
     }
 
+#ifdef _DEBUG
     loadThread_->pushTask(
         {.filePath        = filePath,
             .textureIndex = index,
             .texture      = textures_[index].get(),
             .callBack     = callBack});
+#else
+    LoadTask task;
+    task.filePath     = filePath;
+    task.texture      = textures_[index].get();
+    task.textureIndex = index;
+    task.callBack     = callBack;
+
+    task->Update();
+#endif // DEBUG
 
     return index;
 }

@@ -37,6 +37,7 @@ class MeshRenderer
     : public IComponent {
 public:
     using VertexType = VertexDataType;
+    using MeshType   = MeshTemplate;
 
     MeshRenderer() { meshGroup_ = std::make_shared<std::vector<MeshTemplate>>(); }
     MeshRenderer(const std::vector<MeshTemplate>& _meshGroup) {
@@ -210,53 +211,6 @@ public:
 };
 
 void CreateModelMeshRenderer(ModelMeshRenderer* _renderer, GameEntity* _hostEntity, const std::string& _directory, const std::string& _filenName);
-
-//----------------------------------------- PrimitiveMeshRenderer -----------------------------------------//
-class PrimitiveMeshRenderer
-    : public MeshRenderer<PrimitiveMesh, PrimitiveVertexData> {
-public:
-    PrimitiveMeshRenderer();
-    PrimitiveMeshRenderer(const std::vector<PrimitiveMesh>& _meshGroup);
-    PrimitiveMeshRenderer(const std::shared_ptr<std::vector<PrimitiveMesh>>& _meshGroup);
-
-    ~PrimitiveMeshRenderer();
-
-    ///< summary>
-    /// 初期化
-    ///</summary>
-    void Initialize(GameEntity* _hostEntity) override;
-
-private:
-    std::vector<IConstantBuffer<Transform>> meshTransformBuff_;
-    std::vector<IConstantBuffer<Material>> meshMaterialBuff_;
-
-public:
-    //------------------------------ Transform ------------------------------//
-    const Transform& getTransform(int32_t _meshIndex) const {
-        return meshTransformBuff_[_meshIndex].openData_;
-    }
-    void setTransform(int32_t _meshIndex, const Transform& _transform) {
-        meshTransformBuff_[_meshIndex].openData_ = _transform;
-    }
-
-    /// <summary>
-    /// 親Transformを設定(すべてのメッシュに対して)
-    /// </summary>
-    /// <param name="_parent"></param>
-    void setParentTransform(Transform* _parent) {
-        for (auto& transformBuff : meshTransformBuff_) {
-            transformBuff.openData_.parent = _parent;
-        }
-    }
-
-    //------------------------------ Material ------------------------------//
-    void setMaterialBuff(int32_t _meshIndex, Material _data) {
-        meshMaterialBuff_[_meshIndex].openData_ = _data;
-    }
-    const IConstantBuffer<Material>& getMaterialBuff(int32_t _meshIndex) const {
-        return meshMaterialBuff_[_meshIndex];
-    }
-};
 
 //----------------------------------------- LineRenderer -----------------------------------------//
 class LineRenderer

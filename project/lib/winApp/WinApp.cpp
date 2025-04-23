@@ -32,8 +32,8 @@ void WinApp::CreateGameWindow(const wchar_t* title, UINT windowStyle, int32_t cl
     // COM初期化
     CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 
-    title_       = title;
-    windowStyle_ = windowStyle;
+    wideWindowTitle_ = title;
+    windowStyle_     = windowStyle;
 
     clientWidth_  = clientWidth;
     clientHeight_ = clientHeight;
@@ -55,7 +55,7 @@ void WinApp::CreateGameWindow(const wchar_t* title, UINT windowStyle, int32_t cl
     // ウィンドウオブジェクトの生成
     hwnd_ = CreateWindow(
         wndClass_->lpszClassName, // クラス名
-        title, // タイトルバーの文字
+        wideWindowTitle_.c_str(), // タイトルバーの文字
         windowStyle_, // タイトルバーと境界線があるウィンドウ
         CW_USEDEFAULT, // 表示X座標（OSに任せる）
         CW_USEDEFAULT, // 表示Y座標（OSに任せる）
@@ -82,10 +82,6 @@ void WinApp::TerminateGameWindow() {
 bool WinApp::ProcessMessage() {
     MSG msg{}; // メッセージ
 
-    while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) { // メッセージがある？
-        TranslateMessage(&msg); // キー入力メッセージの処理
-        DispatchMessage(&msg); // ウィンドウプロシージャにメッセージを送る
-    }
     while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) { // メッセージがある？
         TranslateMessage(&msg); // キー入力メッセージの処理
         DispatchMessage(&msg); // ウィンドウプロシージャにメッセージを送る

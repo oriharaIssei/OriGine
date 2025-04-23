@@ -346,7 +346,7 @@ public:
 
     const Vec2f& getCurrentMousePos() const { return currentMousePos_; }
     const Vec2f& getPreMousePos() const { return preMousePos_; }
-    Vec2f getMouseVelocity() const { return Vec2f(currentMousePos_ - preMousePos_); }
+    Vec2f getMouseVelocity() const { return currentMousePos_ - preMousePos_; }
 
     const Vec2f& getLStickVelocity() const { return currentLStickVelocity_; }
     const Vec2f& getPreLStickVelocity() const { return preLStickVelocity_; }

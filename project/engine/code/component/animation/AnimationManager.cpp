@@ -76,7 +76,7 @@ AnimationData AnimationManager::LoadGltfAnimationData(const std::string& directo
     ///=============================================
     for (uint32_t channelIndex = 0; channelIndex < animationAssimp->mNumChannels; ++channelIndex) {
         aiNodeAnim* nodeAnimationAssimp = animationAssimp->mChannels[channelIndex];
-        AnimationNode& nodeAnimation    = result.animationNodes_[nodeAnimationAssimp->mNodeName.C_Str()];
+        ModelAnimationNode& nodeAnimation    = result.animationNodes_[nodeAnimationAssimp->mNodeName.C_Str()];
 
         // =============================== InterpolationType =============================== //
         nodeAnimation.interpolationType = static_cast<InterpolationType>(nodeAnimationAssimp->mPreState);
@@ -148,7 +148,7 @@ AnimationData AnimationManager::LoadMyAnimationData(const std::string& directory
         std::string nodeName(nodeNameLength, '\0');
         ifs.read(&nodeName[0], nodeNameLength);
 
-        AnimationNode nodeAnimation;
+        ModelAnimationNode nodeAnimation;
 
         // scale, rotate, translate の各アニメーションカーブを読み込み
         auto readCurve = [&ifs](auto& curve) {

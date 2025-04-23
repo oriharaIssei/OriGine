@@ -6,7 +6,7 @@
 //container
 #include <vector>
 //string
-#include "component/animation/NodeAnimation.h"
+#include "component/animation/ModelNodeAnimation.h"
 
 #include <string>
 
@@ -50,6 +50,12 @@ bool EditKeyFrame(
     std::function<void(int)> _howEditItem = nullptr);
 bool EditKeyFrame(
     const std::string& _label,
+    AnimationCurve<Vec2f>& _keyFrames,
+    float _duration,
+    std::function<void(int)> _howEditItem = nullptr);
+
+bool EditKeyFrame(
+    const std::string& _label,
     AnimationCurve<Vec3f>& _keyFrames,
     float _duration,
     std::function<void(int)> _howEditItem = nullptr);
@@ -63,4 +69,11 @@ bool EditKeyFrame(
     AnimationCurve<Quaternion>& _keyFrames,
     float _duration,
     std::function<void(int)> _howEditItem = nullptr);
+
+bool EditColorKeyFrame(
+    const std::string& _label,
+    AnimationCurve<Vec4f>& _keyFrames,
+    float _duration,
+    std::function<void(int)> _howEditItem = nullptr);
+
 } // namespace ImGui

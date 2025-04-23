@@ -20,7 +20,6 @@ public:
         spdlog::memory_buf_t formatted;
         formatter_->format(msg, formatted);
         logMessages_.emplace_back(fmt::to_string(formatted));
-        // ※必要に応じてメッセージ数の上限処理を追加してください
     }
 
     void flush() override {}
