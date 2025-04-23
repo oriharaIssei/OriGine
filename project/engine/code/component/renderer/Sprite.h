@@ -94,6 +94,7 @@ private:
 
 public:
     uint32_t getTextureNumber() const { return textureNumber_; }
+    void setTexture(const std::string& _texturePath,bool _applyTextureSize);
 
     uint32_t getRenderingNum() const { return renderingPriority_; }
     void setRenderingNum(uint32_t num) { renderingPriority_ = num; }

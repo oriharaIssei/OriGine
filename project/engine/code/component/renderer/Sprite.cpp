@@ -183,6 +183,20 @@ void SpriteRenderer::Finalize() {
     spriteBuff_.Finalize();
 }
 
+void SpriteRenderer::setTexture(const std::string& _texturePath, bool _applyTextureSize) {
+    texturePath_ = _texturePath;
+    // テクスチャの読み込みとサイズの適応
+    if (_applyTextureSize) {
+        textureNumber_ = TextureManager::LoadTexture(texturePath_, [this](uint32_t loadIndex) {
+            const DirectX::TexMetadata& texData = TextureManager::getTexMetadata(loadIndex);
+            textureSize_                        = {static_cast<float>(texData.width), static_cast<float>(texData.height)};
+            spriteBuff_->scale_                 = textureSize_;
+        });
+    } else {
+        textureNumber_ = TextureManager::LoadTexture(texturePath_);
+    }
+}
+
 void SpriteRenderer::Update(const Matrix4x4& _viewPortMat) {
     //-------------------------------- ConstBufferの更新 --------------------------------//
     {
