@@ -9,7 +9,7 @@ void CameraTransform::Initialize(GameEntity* _hostEntity) {
 
 bool CameraTransform::Edit() {
     bool isChange = false;
-    isChange |= ImGui::DragFloat3("Rotate", rotate.v, 0.1f);
+    isChange |= ImGui::DragFloat4("Rotate", rotate.v, 0.1f);
     isChange |= ImGui::DragFloat3("Translate", translate.v, 0.1f);
 
     ImGui::Spacing();
@@ -25,18 +25,18 @@ bool CameraTransform::Edit() {
 }
 
 void CameraTransform::Save(BinaryWriter& _writer) {
-    _writer.Write<3, float>("rotate", rotate);
+    _writer.Write<4, float>("rotate", rotate);
     _writer.Write<3, float>("translate", translate);
 
-    _writer.Write("fovAngleY",fovAngleY);
-    _writer.Write("aspectRatio",aspectRatio);
+    _writer.Write("fovAngleY", fovAngleY);
+    _writer.Write("aspectRatio", aspectRatio);
 
     _writer.Write("nearZ", nearZ);
     _writer.Write("farZ", farZ);
 }
 
 void CameraTransform::Load(BinaryReader& _reader) {
-    _reader.Read<3, float>("rotate", rotate);
+    _reader.Read<4, float>("rotate", rotate);
     _reader.Read<3, float>("translate", translate);
 
     _reader.Read("fovAngleY", fovAngleY);
@@ -52,6 +52,7 @@ void CameraTransform::Finalize() {
 }
 
 void CameraTransform::UpdateMatrix() {
+    rotate  = rotate.normalize();
     viewMat = MakeMatrix::Affine({1.0f, 1.0f, 1.0f}, rotate, translate);
     viewMat = viewMat.inverse();
 
