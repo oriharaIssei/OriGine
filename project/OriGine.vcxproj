@@ -122,7 +122,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\camera\gameCamera\GameCamera.h" />
     <ClInclude Include="engine\code\component\ComponentArray.h" />
     <ClInclude Include="engine\code\component\IComponent.h" />
-    <ClInclude Include="engine\code\component\animation\AnimationManager.h" />
     <ClInclude Include="engine\code\component\animation\NodeAnimation.h" />
     <ClInclude Include="engine\code\component\collider\Collider.h" />
     <ClInclude Include="engine\code\component\effect\particle\Particle.h" />
@@ -185,7 +184,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\component\animation\PrimitiveNodeAnimation.h" />
     <ClInclude Include="engine\code\system\effect\PrimitiveNodeAnimationWorkSystem.h" />
     <ClInclude Include="engine\code\system\postRender\SmoothingEffect.h" />
-    <ClInclude Include="util\timeline\Timeline.h" />
     <ClInclude Include="lib\Thread\Thread.h" />
     <ClInclude Include="lib\binaryIO\BinaryIO.h" />
     <ClInclude Include="lib\deltaTime\DeltaTime.h" />
@@ -226,7 +224,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\camera\debugCamera\DebugCamera.cpp" />
     <ClCompile Include="engine\code\camera\gameCamera\GameCamera.cpp" />
     <ClCompile Include="engine\code\component\IComponent.cpp" />
-    <ClCompile Include="engine\code\component\animation\AnimationManager.cpp" />
     <ClCompile Include="engine\code\component\animation\NodeAnimation.cpp" />
     <ClCompile Include="engine\code\component\collider\Collider.cpp" />
     <ClCompile Include="engine\code\component\effect\particle\Particle.cpp" />
@@ -282,7 +279,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\component\animation\PrimitiveNodeAnimation.cpp" />
     <ClCompile Include="engine\code\system\effect\PrimitiveNodeAnimationWorkSystem.cpp" />
     <ClCompile Include="engine\code\system\postRender\SmoothingEffect.cpp" />
-    <ClCompile Include="util\timeline\Timeline.cpp" />
     <ClCompile Include="lib\Thread\Thread.cpp" />
     <ClCompile Include="lib\binaryIO\BinaryIO.cpp" />
     <ClCompile Include="lib\deltaTime\DeltaTime.cpp" />
