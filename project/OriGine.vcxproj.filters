@@ -357,7 +357,7 @@
     <ClInclude Include="engine\code\system\movement\MoveSystemByRigidBody.h">
       <Filter>engine\code\system\movement</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\system\postRender\Grayscale.h">
+    <ClInclude Include="engine\code\system\postRender\GrayscaleEffect.h">
       <Filter>engine\code\system\postRender</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\system\render\ColliderRenderingSystem.h">
@@ -453,7 +453,8 @@
     <ClInclude Include="util\timeline\Timeline.h" />
     <ClInclude Include="engine\code\component\animation\PrimitiveNodeAnimation.h" />
     <ClInclude Include="engine\code\system\effect\PrimitiveNodeAnimationWorkSystem.h" />
-    <ClInclude Include="engine\code\system\postRender\Vignette.h" />
+    <ClInclude Include="engine\code\system\postRender\VignetteEffect.h" />
+    <ClInclude Include="engine\code\system\postRender\SmoothingEffect.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\code\ECS\ECSDebugger.cpp">
@@ -624,7 +625,7 @@
     <ClCompile Include="engine\code\system\movement\MoveSystemByRigidBody.cpp">
       <Filter>engine\code\system\movement</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\system\postRender\Grayscale.cpp">
+    <ClCompile Include="engine\code\system\postRender\GrayscaleEffect.cpp">
       <Filter>engine\code\system\postRender</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\system\render\ColliderRenderingSystem.cpp">
@@ -688,6 +689,7 @@
     <ClCompile Include="util\timeline\Timeline.cpp" />
     <ClCompile Include="engine\code\component\animation\PrimitiveNodeAnimation.cpp" />
     <ClCompile Include="engine\code\system\effect\PrimitiveNodeAnimationWorkSystem.cpp" />
-    <ClCompile Include="engine\code\system\postRender\Vignette.cpp" />
+    <ClCompile Include="engine\code\system\postRender\VignetteEffect.cpp" />
+    <ClCompile Include="engine\code\system\postRender\SmoothingEffect.cpp" />
   </ItemGroup>
 </Project>

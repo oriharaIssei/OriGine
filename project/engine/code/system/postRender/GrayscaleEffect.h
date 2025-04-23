@@ -7,11 +7,11 @@
 #include "directX12/PipelineStateObj.h"
 #include "directX12/ShaderManager.h"
 
-class Vignette
+class GrayscaleEffect
     : public ISystem {
 public:
-    Vignette() : ISystem(SystemType::PostRender) {}
-    ~Vignette() override = default;
+    GrayscaleEffect() : ISystem(SystemType::PostRender) {}
+    ~GrayscaleEffect() override = default;
 
     void Initialize() override;
     void Update() override;
@@ -21,7 +21,6 @@ protected:
     void CreatePSO();
 
     void Render();
-
 protected:
     PipelineStateObj* pso_                = nullptr;
     std::unique_ptr<DxCommand> dxCommand_ = nullptr;
