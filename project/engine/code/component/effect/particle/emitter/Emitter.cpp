@@ -202,14 +202,10 @@ bool Emitter::Edit() {
         ImGui::TreePop();
     }
 
-    static float changingSrvSizeLeftTime       = 0.f;
-    static const float changingSrvSizeInterval = 2.f;
-    changingSrvSizeLeftTime -= 0.16f;
-    if (changingSrvSizeLeftTime < 0.0f) {
+    if (ImGui::Button("Calculate Particle MaxSize")) {
         CalculateMaxSize();
         if (structuredTransform_.capacity() <= particleMaxSize_) {
             structuredTransform_.resize(Engine::getInstance()->getDxDevice()->getDevice(), particleMaxSize_ * 2);
-            changingSrvSizeLeftTime = changingSrvSizeInterval;
         }
     }
 
@@ -246,6 +242,10 @@ void Emitter::Save(BinaryWriter& _writer) {
     _writer.Write<3, float>("startParticleScaleMax", startParticleScaleMax_);
     _writer.Write<3, float>("updateParticleScaleMin", updateParticleScaleMin_);
     _writer.Write<3, float>("updateParticleScaleMax", updateParticleScaleMax_);
+
+    _writer.Write<int>("transformInterpolationType", static_cast<int>(transformInterpolationType_));
+    _writer.Write<int>("colorInterpolationType", static_cast<int>(colorInterpolationType_));
+    _writer.Write<int>("uvInterpolationType", static_cast<int>(uvInterpolationType_));
 
     _writer.Write("updateSettings", updateSettings_);
     if (updateSettings_ != 0) {
@@ -318,6 +318,19 @@ void Emitter::Load(BinaryReader& _reader) {
         }
         particleKeyFrames_->LoadKeyFrames(_reader);
     }
+
+    // InterpolationType
+    int transformInterpolationType;
+    _reader.Read<int>("transformInterpolationType", transformInterpolationType);
+    transformInterpolationType_ = InterpolationType(transformInterpolationType);
+
+    int colorInterpolationType;
+    _reader.Read<int>("colorInterpolationType", colorInterpolationType);
+    colorInterpolationType_ = InterpolationType(colorInterpolationType);
+
+    int uvInterpolationType;
+    _reader.Read<int>("uvInterpolationType", uvInterpolationType);
+    uvInterpolationType_ = InterpolationType(uvInterpolationType);
 
     { // Initialize DrawingData Size
         CalculateMaxSize();
@@ -430,6 +443,9 @@ void Emitter::EditParticle() {
     }
 
     if (ImGui::TreeNode("Particle Color")) {
+
+        ImGui::Combo("ColorInterpolationType", reinterpret_cast<int*>(&colorInterpolationType_), "LINEAR\0STEP\0\0", static_cast<int>(InterpolationType::COUNT));
+
         ImGui::ColorEdit4("##Particle Color", particleColor_.v);
         // curveで変更するかどうか
         bool updatePerLifeTime    = (updateSettings_ & static_cast<int32_t>(ParticleUpdateType::ColorPerLifeTime)) != 0;
@@ -445,6 +461,8 @@ void Emitter::EditParticle() {
         }
         ImGui::TreePop();
     }
+
+    ImGui::Combo("TransformInterpolationType", reinterpret_cast<int*>(&colorInterpolationType_), "LINEAR\0STEP\0\0", static_cast<int>(InterpolationType::COUNT));
 
     if (ImGui::TreeNode("Particle Velocity")) {
         ImGui::Text("Min");
@@ -553,6 +571,8 @@ void Emitter::EditParticle() {
         }
         ImGui::TreePop();
     }
+
+    ImGui::Combo("UvInterpolationType", reinterpret_cast<int*>(&uvInterpolationType_), "LINEAR\0STEP\0\0", static_cast<int>(InterpolationType::COUNT));
 
     if (ImGui::TreeNode("Particle UV Scale")) {
         ImGui::DragFloat3("##ParticleUvScale", particleUvScale_.v, 0.1f);

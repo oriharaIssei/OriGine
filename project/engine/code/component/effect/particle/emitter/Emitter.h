@@ -119,6 +119,9 @@ private:
 
     std::shared_ptr<ParticleKeyFrames> particleKeyFrames_ = nullptr;
 
+    InterpolationType transformInterpolationType_ = InterpolationType::LINEAR;
+    InterpolationType colorInterpolationType_     = InterpolationType::LINEAR;
+    InterpolationType uvInterpolationType_        = InterpolationType::LINEAR;
     // ランダムな数値の範囲を設定するためのメンバ変数
     // ランダムではない場合 (min == max) になる
     Vec3f startParticleScaleMin_    = {1.f, 1.f, 1.f};

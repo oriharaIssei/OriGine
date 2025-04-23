@@ -54,7 +54,10 @@ public:
         const Vec3f& _maxRotate,
         float _lifeTime,
         const Vec3f& _direction,
-        const Vec3f& _velocity);
+        const Vec3f& _velocity,
+        InterpolationType _transform,
+        InterpolationType _color,
+        InterpolationType _uv);
     void Update(float _deltaTime);
     void UpdateKeyFrameValues();
 
@@ -83,6 +86,10 @@ protected:
     Vec3f* maxUpdateRotate_   = nullptr;
     Vec3f* minUpdateVelocity_ = nullptr;
     Vec3f* maxUpdateVelocity_ = nullptr;
+
+    InterpolationType transformInterpolationType_ = InterpolationType::LINEAR;
+    InterpolationType colorInterpolationType_     = InterpolationType::LINEAR;
+    InterpolationType uvInterpolationType_        = InterpolationType::LINEAR;
 
 public:
     void setKeyFrames(
