@@ -87,6 +87,7 @@ void IScene::registerSystems() {
     ecsManager->registerSystem<LineRenderSystem>();
     ecsManager->registerSystem<ColliderRenderingSystem>();
 
+    ecsManager->registerSystem<Vignette>();
     ecsManager->registerSystem<Grayscale>();
 }
 
@@ -213,7 +214,6 @@ void IScene::LoadSceneEntity() {
     // 読み込み 終了
     reader.ReadEndGroup();
 }
-
 
 void IScene::SaveSceneEntity() {
     ECSManager* ecsManager = ECSManager::getInstance();
