@@ -455,7 +455,7 @@ void Emitter::EditParticle() {
             updateSettings_ = (updateSettings_ | static_cast<int32_t>(ParticleUpdateType::ColorPerLifeTime));
 
             particleKeyFrames_->colorCurve_[0].value = particleColor_;
-            ImGui::EditKeyFrame("ColorLine", particleKeyFrames_->colorCurve_, particleLifeTime_);
+            ImGui::EditColorKeyFrame("ColorLine", particleKeyFrames_->colorCurve_, particleLifeTime_);
         } else if (preUpdatePerLifeTime && !updatePerLifeTime) {
             updateSettings_ = (updateSettings_ & ~static_cast<int32_t>(ParticleUpdateType::ColorPerLifeTime));
         }
@@ -758,7 +758,10 @@ void Emitter::SpawnParticle() {
             startParticleRotateMax_,
             particleLifeTime_,
             Vec3f(transform.translate - originPos_).normalize(),
-            velocity);
+            velocity,
+            transformInterpolationType_,
+            colorInterpolationType_,
+            uvInterpolationType_);
 
         if (updateSettings_ & int(ParticleUpdateType::VelocityRandom)) {
             spawnedParticle->setUpdateVelocityMinMax(&updateParticleVelocityMin_, &updateParticleVelocityMax_);
