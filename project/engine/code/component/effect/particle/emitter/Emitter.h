@@ -283,16 +283,12 @@ public:
         if (it == entityIndexBind_.end()) {
             return;
         }
-        uint32_t index = it->second;
-        auto& vec      = components_[index];
-        vec.erase(std::remove_if(vec.begin(), vec.end(), [vec, _componentIndex](Emitter& comp) {
-            bool isRemove = &vec[_componentIndex] == &comp;
-            if (isRemove) {
-                comp.Finalize();
-            }
-            return isRemove;
-        }),
-            vec.end());
+        uint32_t index            = it->second;
+        std::vector<Emitter>& vec = components_[index];
+
+        vec[_componentIndex].Finalize();
+
+        vec.erase(vec.begin() + _componentIndex);
     }
 
     void removeBackComponent(GameEntity* _hostEntity) override {
@@ -302,6 +298,7 @@ public:
         }
         uint32_t index = it->second;
         auto& vec      = components_[index];
+        vec.back().Finalize();
         vec.pop_back();
     }
 
