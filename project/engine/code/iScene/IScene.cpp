@@ -90,8 +90,9 @@ void IScene::registerSystems() {
     ecsManager->registerSystem<LineRenderSystem>();
     ecsManager->registerSystem<ColliderRenderingSystem>();
 
-    ecsManager->registerSystem<Vignette>();
-    ecsManager->registerSystem<Grayscale>();
+    ecsManager->registerSystem<VignetteEffect>();
+    ecsManager->registerSystem<GrayscaleEffect>();
+    ecsManager->registerSystem<SmoothingEffect>();
 }
 
 void IScene::Finalize([[maybe_unused]] bool _isSave) {

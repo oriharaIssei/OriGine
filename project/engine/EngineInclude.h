@@ -32,8 +32,9 @@ static const std::string kEngineResourceDirectory      = "engine/resource";
 #include "system/effect/PrimitiveNodeAnimationWorkSystem.h"
 #include "system/movement/MoveSystemByRigidBody.h"
 
-#include "system/postRender/Grayscale.h"
-#include "system/postRender/Vignette.h"
+#include "system/postRender/GrayscaleEffect.h"
+#include "system/postRender/VignetteEffect.h"
+#include "system/postRender/SmoothingEffect.h"
 
 #include "system/render/ColliderRenderingSystem.h"
 #include "system/render/LineRenderSystem.h"
@@ -45,12 +46,12 @@ static const std::string kEngineResourceDirectory      = "engine/resource";
 #ifdef ENGINE_COMPONENTS
 #include "component/IComponent.h"
 
+#include "component/animation/ModelNodeAnimation.h"
+#include "component/animation/PrimitiveNodeAnimation.h"
 #include "component/material/light/DirectionalLight.h"
 #include "component/material/light/PointLight.h"
 #include "component/material/light/SpotLight.h"
 #include "component/material/Material.h"
-#include "component/animation/ModelNodeAnimation.h"
-#include "component/animation/PrimitiveNodeAnimation.h"
 
 #include "component/collider/Collider.h"
 
@@ -59,8 +60,8 @@ static const std::string kEngineResourceDirectory      = "engine/resource";
 #include "component/physics/Rigidbody.h"
 
 #include "component/renderer/MeshRenderer.h"
-#include "component/renderer/Sprite.h"
 #include "component/renderer/primitive/Primitive.h"
+#include "component/renderer/Sprite.h"
 
 #include "component/transform/CameraTransform.h"
 #include "component/transform/Transform.h"
