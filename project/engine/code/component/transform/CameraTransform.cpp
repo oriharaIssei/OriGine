@@ -60,8 +60,8 @@ void CameraTransform::UpdateMatrix() {
 }
 
 void CameraTransform::UpdateMatrixQuaterion() {
-    rotationQuaternion.normalize();
-    viewMat = MakeMatrix::Affine({1.0f, 1.0f, 1.0f}, rotationQuaternion, translate);
+    rotate.normalize();
+    viewMat = MakeMatrix::Affine({1.0f, 1.0f, 1.0f}, rotate, translate);
     viewMat = viewMat.inverse();
 
     projectionMat = MakeMatrix::PerspectiveFov(fovAngleY, aspectRatio, nearZ, farZ);
