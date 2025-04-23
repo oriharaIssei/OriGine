@@ -142,7 +142,32 @@ Quaternion Quaternion::FromMatrix(const Matrix4x4& _rotateMat) {
         }
     }
 }
-Quaternion Quaternion::LockAt(const Vec3f& target, const Vec3f& up) { // Z軸を向けるべき方向にする
+
+Quaternion Quaternion::FromEulerAngles(float pitch, float yaw, float roll) {
+    // 半分の角度を計算
+    float halfPitch = pitch * 0.5f;
+    float halfYaw   = yaw * 0.5f;
+    float halfRoll  = roll * 0.5f;
+
+    // サインとコサインを計算
+    float sinPitch = sin(halfPitch);
+    float cosPitch = cos(halfPitch);
+    float sinYaw   = sin(halfYaw);
+    float cosYaw   = cos(halfYaw);
+    float sinRoll  = sin(halfRoll);
+    float cosRoll  = cos(halfRoll);
+
+    // クォータニオンを計算
+    Quaternion q;
+    q[X] = cosYaw * sinPitch * cosRoll + sinYaw * cosPitch * sinRoll;
+    q[Y] = sinYaw * cosPitch * cosRoll - cosYaw * sinPitch * sinRoll;
+    q[Z] = cosYaw * cosPitch * sinRoll - sinYaw * sinPitch * cosRoll;
+    q[W] = cosYaw * cosPitch * cosRoll + sinYaw * sinPitch * sinRoll;
+
+    return q;
+}
+
+Quaternion Quaternion::LookAt(const Vec3f& target, const Vec3f& up) { // Z軸を向けるべき方向にする
     Vec3f forward = Vec3f::Normalize(target);
 
     // 右ベクトルを計算（外積）

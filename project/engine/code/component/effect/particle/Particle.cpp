@@ -63,7 +63,7 @@ void Particle::Update(float _deltaTime) {
     Vec3f rotationAxis    = axisZ.cross(direction_).normalize();
     float angle           = std::acos(Vec3f(axisZ * direction_).dot() / (axisZ.length() * direction_.length()));
     Quaternion rotation   = Quaternion::RotateAxisAngle(rotationAxis, angle);
-    Vec3f rotatedVelocity = RotateVector(velocity_, rotation);
+    Vec3f rotatedVelocity = Quaternion::RotateVector(velocity_, rotation);
 
     // 回転させた velocity_ で移動
     Vec3f movement = rotatedVelocity * _deltaTime;

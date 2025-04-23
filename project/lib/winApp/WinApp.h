@@ -1,9 +1,16 @@
 #pragma once
+
+/// api
 #include <Windows.h>
 
-#include <string>
+/// stl
 #include <memory>
+#include <string>
 
+/// lib
+#include "globalVariables/SerializedField.h"
+
+/// math
 #include <cstdint>
 
 /// <summary>
@@ -11,29 +18,30 @@
 /// </summary>
 class WinApp {
 public:
-	static LRESULT WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
+    static LRESULT WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
-	WinApp() = default;
-	~WinApp();
+    WinApp() = default;
+    ~WinApp();
 
-	void CreateGameWindow(const wchar_t *title, UINT windowStyle,
-						  int32_t clientWidth, int32_t clientHeight);
+    void CreateGameWindow(const wchar_t* title, UINT windowStyle,
+        int32_t clientWidth, int32_t clientHeight);
 
-	void TerminateGameWindow();
+    void TerminateGameWindow();
 
-	bool ProcessMessage();
+    bool ProcessMessage();
+
 private:
-	HWND hwnd_ = nullptr;   // ウィンドウハンドル
-	std::unique_ptr<WNDCLASSEX> wndClass_ = nullptr; // ウィンドウクラス
-	UINT windowStyle_;
+    HWND hwnd_                            = nullptr; // ウィンドウハンドル
+    std::unique_ptr<WNDCLASSEX> wndClass_ = nullptr; // ウィンドウクラス
+    UINT windowStyle_;
 
-	std::wstring title_;//ウィンドウクラス名も兼ねている
-	int32_t clientWidth_, clientHeight_;
+    std::wstring wideWindowTitle_; // ウィンドウクラス名も兼ねている
+    int32_t clientWidth_, clientHeight_;
+
 public:
-	const HINSTANCE &getHInstance()const { return wndClass_->hInstance; }
-	const HWND &getHwnd()const { return hwnd_; }
+    const HINSTANCE& getHInstance() const { return wndClass_->hInstance; }
+    const HWND& getHwnd() const { return hwnd_; }
 
-	const int32_t &getWidth()const { return clientWidth_; }
-	const int32_t &getHeight()const { return clientHeight_; }
-
+    const int32_t& getWidth() const { return clientWidth_; }
+    const int32_t& getHeight() const { return clientHeight_; }
 };

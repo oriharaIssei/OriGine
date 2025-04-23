@@ -59,8 +59,6 @@ private:
     const Engine& operator=(const Engine&) = delete;
 
 private:
-    SerializedField<std::string> windowName_{"Engine", "Window", "Name"};
-
     // api
     std::unique_ptr<WinApp> window_;
     Input* input_;

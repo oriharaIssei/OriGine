@@ -121,14 +121,23 @@ struct Quaternion final
     Vec3f ToEulerAngles() const;
 
     // インライン関数として定義
-    friend inline Vec3f RotateVector(const Vec3f& v, const Quaternion& q) {
-        Quaternion r = Quaternion(v, 0.0f);
+    inline static Vec3f RotateVector(const Vec3f& vec, const Quaternion& q) {
+        Quaternion r = Quaternion(vec, 0.0f);
         r            = q * r * q.Conjugation();
+        return Vec3f(r[X], r[Y], r[Z]);
+    }
+    inline Vec3f RotateVector(const Vec3f& vec) const {
+        Quaternion r = Quaternion(vec, 0.0f);
+        r            = *this * r * this->Conjugation();
         return Vec3f(r[X], r[Y], r[Z]);
     }
 
     static Quaternion FromMatrix(const Matrix4x4& _rotateMat);
-    static Quaternion LockAt(const Vec3f& target, const Vec3f& up);
+    static Quaternion FromEulerAngles(float pitch, float yaw, float roll);
+    static Quaternion FromEulerAngles(const Vec3f& euler) {
+        return FromEulerAngles(euler[Y], euler[X], euler[Z]);
+    }
+    static Quaternion LookAt(const Vec3f& target, const Vec3f& up);
 };
 
 Quaternion operator*(float scalar, const Quaternion& q);

@@ -86,5 +86,6 @@ void DebugCamera::RotationState::Update() {
     Quaternion pitchRotation = Quaternion::RotateAxisAngle({1.0f, 0.0f, 0.0f}, pitch); // X軸回転
 
     // 現在の回転に新しい回転を適用
-    host_->cameraBuff_.rotate = yawRotation * pitchRotation * host_->cameraBuff_.rotate;
+    host_->cameraBuff_.rotate    = yawRotation * pitchRotation * host_->cameraBuff_.rotate;
+    host_->cameraBuff_.rotate[Z] = 0.f;
 }
