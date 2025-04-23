@@ -113,7 +113,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\ECS\ECSManager.h" />
     <ClInclude Include="engine\code\ECS\Entity.h" />
     <ClInclude Include="engine\code\Engine.h" />
-    <ClInclude Include="engine\code\component\animation\NodeAnimation.h" />
+    <ClInclude Include="engine\code\component\animation\ModelNodeAnimation.h" />
     <ClInclude Include="engine\code\component\animation\AnimationManager.h" />
     <ClInclude Include="engine\code\assets\IAsset.h" />
     <ClInclude Include="engine\code\audio\Audio.h" />
@@ -126,7 +126,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\component\effect\particle\Particle.h" />
     <ClInclude Include="engine\code\component\effect\particle\emitter\Emitter.h" />
     <ClInclude Include="engine\code\component\effect\particle\emitter\EmitterShape.h" />
-    <ClInclude Include="engine\code\component\effect\primitive\Primitive.h" />
+    <ClInclude Include="engine\code\component\renderer\primitive\Primitive.h" />
     <ClInclude Include="engine\code\component\material\Material.h" />
     <ClInclude Include="engine\code\component\material\light\DirectionalLight.h" />
     <ClInclude Include="engine\code\component\material\light\LightManager.h" />
@@ -180,6 +180,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\system\render\SpriteRenderSystem.h" />
     <ClInclude Include="engine\code\system\render\TexturedMeshRenderSystem.h" />
     <ClInclude Include="engine\code\texture\TextureManager.h" />
+    <ClInclude Include="engine\code\component\animation\PrimitiveNodeAnimation.h" />
+    <ClInclude Include="engine\code\system\effect\PrimitiveNodeAnimationWorkSystem.h" />
     <ClInclude Include="util\timeline\Timeline.h" />
     <ClInclude Include="lib\Thread\Thread.h" />
     <ClInclude Include="lib\binaryIO\BinaryIO.h" />
@@ -212,7 +214,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\ECS\ECSEditor.cpp" />
     <ClCompile Include="engine\code\ECS\ECSManager.cpp" />
     <ClCompile Include="engine\code\Engine.cpp" />
-    <ClCompile Include="engine\code\component\animation\NodeAnimation.cpp" />
+    <ClCompile Include="engine\code\component\animation\ModelNodeAnimation.cpp" />
     <ClCompile Include="engine\code\component\animation\AnimationManager.cpp" />
     <ClCompile Include="engine\code\assets\IAsset.cpp" />
     <ClCompile Include="engine\code\audio\Audio.cpp" />
@@ -224,7 +226,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\component\effect\particle\Particle.cpp" />
     <ClCompile Include="engine\code\component\effect\particle\emitter\Emitter.cpp" />
     <ClCompile Include="engine\code\component\effect\particle\emitter\EmitterShape.cpp" />
-    <ClCompile Include="engine\code\component\effect\primitive\Primitive.cpp" />
+    <ClCompile Include="engine\code\component\renderer\primitive\Primitive.cpp" />
     <ClCompile Include="engine\code\component\material\Material.cpp" />
     <ClCompile Include="engine\code\component\material\light\DirectionalLight.cpp" />
     <ClCompile Include="engine\code\component\material\light\LightManager.cpp" />
@@ -271,6 +273,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\system\render\SpriteRenderSystem.cpp" />
     <ClCompile Include="engine\code\system\render\TexturedMeshRenderSystem.cpp" />
     <ClCompile Include="engine\code\texture\TextureManager.cpp" />
+    <ClCompile Include="engine\code\component\animation\PrimitiveNodeAnimation.cpp" />
+    <ClCompile Include="engine\code\system\effect\PrimitiveNodeAnimationWorkSystem.cpp" />
     <ClCompile Include="util\timeline\Timeline.cpp" />
     <ClCompile Include="lib\Thread\Thread.cpp" />
     <ClCompile Include="lib\binaryIO\BinaryIO.cpp" />

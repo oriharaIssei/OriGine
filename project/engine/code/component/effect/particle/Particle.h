@@ -11,7 +11,7 @@
 
 /// engine
 // assets
-#include "component/animation/NodeAnimation.h" // KeyFrame に関する情報
+#include "component/animation/ModelNodeAnimation.h" // KeyFrame に関する情報
 // transform
 #include "component/transform/ParticleTransform.h"
 

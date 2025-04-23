@@ -29,7 +29,7 @@ static const std::string kEngineResourceDirectory      = "engine/resource";
 #include "system/collision/CollisionCheckSystem.h"
 
 #include "system/effect/EmitterWorkSystem.h"
-
+#include "system/effect/PrimitiveNodeAnimationWorkSystem.h"
 #include "system/movement/MoveSystemByRigidBody.h"
 
 #include "system/postRender/Grayscale.h"
@@ -49,8 +49,8 @@ static const std::string kEngineResourceDirectory      = "engine/resource";
 #include "component/material/light/PointLight.h"
 #include "component/material/light/SpotLight.h"
 #include "component/material/Material.h"
-
-#include "component/animation/NodeAnimation.h"
+#include "component/animation/ModelNodeAnimation.h"
+#include "component/animation/PrimitiveNodeAnimation.h"
 
 #include "component/collider/Collider.h"
 
@@ -60,6 +60,7 @@ static const std::string kEngineResourceDirectory      = "engine/resource";
 
 #include "component/renderer/MeshRenderer.h"
 #include "component/renderer/Sprite.h"
+#include "component/renderer/primitive/Primitive.h"
 
 #include "component/transform/CameraTransform.h"
 #include "component/transform/Transform.h"

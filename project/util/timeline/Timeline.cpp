@@ -474,7 +474,218 @@ bool EditKeyFrame(
                 // SliderPopup
                 if (ImGui::Button("Add Node")) {
                     _keyFrames.push_back(
-                        {currentTime, CalculateValue::LINEAR(_keyFrames, currentTime)});
+                        {currentTime, CalculateValue::Linear(_keyFrames, currentTime)});
+                    ImGui::CloseCurrentPopup();
+                    std::sort(
+                        _keyFrames.begin(),
+                        _keyFrames.end(),
+                        [](const auto& a, const auto& b) {
+                            return a.time < b.time;
+                        });
+                    return 0;
+                }
+                if (ImGui::Button("Cancel")) {
+                    ImGui::CloseCurrentPopup();
+                    return 0;
+                }
+
+                return 0;
+            };
+
+            sliderPopupUpdate();
+
+            EndPopup();
+        }
+    }
+
+    storage->SetInt(draggedIndexId, draggedIndex);
+    storage->SetInt(popUpIndexId, popUpIndex);
+    storage->SetFloat(draggedValueId, draggedValue);
+
+    return true;
+}
+
+bool EditKeyFrame(
+    const std::string& _label,
+    AnimationCurve<Vec2f>& _keyFrames,
+    float _duration,
+    std::function<void(int)> _howEditItem) {
+    ImGuiWindow* window = GetCurrentWindow();
+    if (window->SkipItems) {
+        return false;
+    }
+
+    ImGuiContext& g         = *GImGui;
+    const ImGuiStyle& style = g.Style;
+    const ImGuiID id        = window->GetID(_label.c_str());
+    const float width       = CalcItemWidth();
+
+    const ImVec2 label_size = CalcTextSize(_label.c_str(), NULL, true);
+    const ImRect frame_bb(window->DC.CursorPos, ImVec2(window->DC.CursorPos[X] + width, window->DC.CursorPos.y + 20.0f));
+    const ImRect total_bb(frame_bb.Min, ImVec2((label_size[X] > 0.0f ? style.ItemInnerSpacing[X] + label_size[X] : 0.0f) + frame_bb.Max[X], frame_bb.Max.y));
+
+    ItemSize(total_bb, style.FramePadding.y);
+    if (!ItemAdd(total_bb, id, &frame_bb)) {
+        return false;
+    }
+
+    const bool hovered        = ItemHoverable(frame_bb, id, g.LastItemData.InFlags);
+    bool temp_input_is_active = TempInputIsActive(id);
+    if (!temp_input_is_active) {
+        const bool clicked     = hovered && IsMouseClicked(0, id);
+        const bool make_active = (clicked || g.NavActivateId == id);
+        if (make_active && clicked)
+            SetKeyOwner(ImGuiKey_MouseLeft, id);
+        if (make_active) {
+            SetActiveID(id, window);
+            SetFocusID(id, window);
+            FocusWindow(window);
+            g.ActiveIdUsingNavDirMask |= (1 << ImGuiDir_Left) | (1 << ImGuiDir_Right);
+        }
+    }
+
+    if (temp_input_is_active) {
+        return false;
+    }
+
+    const ImU32 frame_col = GetColorU32(g.ActiveId == id ? ImGuiCol_FrameBgActive : hovered ? ImGuiCol_FrameBgHovered
+                                                                                            : ImGuiCol_FrameBg);
+    RenderNavHighlight(frame_bb, id);
+    RenderFrame(frame_bb.Min, frame_bb.Max, frame_col, true, g.Style.FrameRounding);
+
+    ImDrawList* draw_list   = GetWindowDrawList();
+    const float sliderWidth = frame_bb.Max[X] - frame_bb.Min[X];
+    const float buttonSize  = 10.0f;
+
+    ImGuiStorage* storage  = ImGui::GetStateStorage();
+    ImGuiID draggedIndexId = id + ImGui::GetID("draggedIndex");
+    ImGuiID draggedValueId = id + ImGui::GetID("draggedValue");
+    ImGuiID popUpIndexId   = id + ImGui::GetID("popUpIndex");
+
+    int draggedIndex   = storage->GetInt(draggedIndexId, -1);
+    float draggedValue = storage->GetFloat(draggedValueId, 0.0f);
+    int popUpIndex     = storage->GetInt(popUpIndexId, -1);
+
+    if (IsMouseReleased(0)) {
+        if (draggedIndex != -1) {
+            // ソートする
+            if (_keyFrames.size() > 1) {
+                // キーフレームによる ノードの順番を変更
+                std::sort(
+                    _keyFrames.begin(),
+                    _keyFrames.end(),
+                    [](const auto& a, const auto& b) {
+                        return a.time < b.time;
+                    });
+            }
+
+            draggedIndex = -1;
+        }
+    }
+
+    for (int i = 0; i < _keyFrames.size(); ++i) {
+        float t       = (_keyFrames[i].time) / (_duration);
+        float buttonX = frame_bb.Min[X] + t * sliderWidth;
+        ImVec2 buttonPos(buttonX - buttonSize * 0.5f, frame_bb.Min.y);
+        ImVec2 buttonEnd(buttonPos[X] + buttonSize, buttonPos.y + 20.0f);
+
+        ImRect buttonRect(buttonPos, buttonEnd);
+        bool isHovered = IsMouseHoveringRect(buttonRect.Min, buttonRect.Max);
+
+        if (isHovered) {
+            if (IsMouseClicked(0) && draggedIndex == -1) {
+                draggedIndex = i;
+                draggedValue = _keyFrames[i].time;
+                SetActiveID(id, window);
+                FocusWindow(window);
+            } else if (IsMouseClicked(1)) {
+                popUpIndex = i;
+                SetActiveID(id, window);
+                FocusWindow(window);
+                OpenPopup(std::string(_label + "node" + std::to_string(i)).c_str());
+            }
+        }
+
+        bool isActive = (draggedIndex == i);
+        if (isActive) {
+            if (IsMouseDragging(0)) {
+                float newT         = (GetMousePos()[X] - frame_bb.Min[X]) / sliderWidth;
+                newT               = ImClamp(newT, 0.0f, 1.0f);
+                _keyFrames[i].time = newT * _duration;
+            }
+        }
+
+        PushID(i);
+        draw_list->AddRectFilled(buttonRect.Min, buttonRect.Max, IM_COL32(200, 200, 200, 255), style.FrameRounding);
+        SetItemAllowOverlap();
+        PopID();
+    }
+
+    if (popUpIndex != -1) {
+        std::string popupId = _label + "node" + std::to_string(popUpIndex);
+        if (BeginPopup(popupId.c_str())) {
+
+            auto popupUpdadte = [&]() {
+                // NodeUpdate
+                ImGui::Text("NodeNumber : %d", popUpIndex);
+
+                if (ImGui::Button("Delete")) {
+                    if (_keyFrames.size() <= 1) {
+                        _keyFrames[0].time  = 0.0f;
+                        _keyFrames[0].value = {0.0f, 0.0f};
+                    }
+                    _keyFrames.erase(_keyFrames.begin() + popUpIndex);
+                    popUpIndex = 0;
+                }
+                if (ImGui::Button("Copy")) {
+                    _keyFrames.push_back(_keyFrames[popUpIndex]);
+
+                    _keyFrames.back().time += 0.01f;
+                    std::sort(
+                        _keyFrames.begin(),
+                        _keyFrames.end(),
+                        [](const auto& a, const auto& b) {
+                            return a.time < b.time;
+                        });
+                    popUpIndex += 1;
+                }
+                ImGui::Text("Time");
+                ImGui::DragFloat(
+                    std::string("##Time" + _label + std::to_string(popUpIndex)).c_str(),
+                    &_keyFrames[popUpIndex].time,
+                    0.1f);
+
+                ImGui::Spacing();
+
+                if (_howEditItem) {
+                    _howEditItem(popUpIndex);
+                } else {
+                    ImGui::Text("Value");
+                    ImGui::DragFloat2(
+                        std::string("##Value" + _label + std::to_string(popUpIndex)).c_str(),
+                        _keyFrames[popUpIndex].value.v,
+                        0.1f);
+                }
+            };
+            popupUpdadte();
+
+            EndPopup();
+        } else {
+            popUpIndex = -1;
+        }
+    } else {
+        bool isSliderHovered = IsMouseHoveringRect(frame_bb.Min, frame_bb.Max);
+        if (isSliderHovered && IsMouseClicked(1)) {
+            OpenPopup((_label + "slider").c_str());
+        }
+        if (BeginPopup((_label + "slider").c_str())) {
+            float currentTime = ((GetMousePos()[X] - frame_bb.Min[X]) / (frame_bb.Max[X] - frame_bb.Min[X])) * _duration;
+
+            auto sliderPopupUpdate = [&]() {
+                // SliderPopup
+                if (ImGui::Button("Add Node")) {
+                    _keyFrames.push_back(
+                        {currentTime, CalculateValue::Linear(_keyFrames, currentTime)});
                     ImGui::CloseCurrentPopup();
                     std::sort(
                         _keyFrames.begin(),
@@ -700,7 +911,7 @@ bool EditKeyFrame(
                 // SliderPopup
                 if (ImGui::Button("Add Node")) {
                     _keyFrames.push_back(
-                        {currentTime, CalculateValue::LINEAR(_keyFrames, currentTime)});
+                        {currentTime, CalculateValue::Linear(_keyFrames, currentTime)});
                     ImGui::CloseCurrentPopup();
                     std::sort(
                         _keyFrames.begin(),
@@ -931,7 +1142,7 @@ bool EditKeyFrame(
                 // SliderPopup
                 if (ImGui::Button("Add Node")) {
                     _keyFrames.push_back(
-                        {currentTime, CalculateValue::LINEAR(_keyFrames, currentTime)});
+                        {currentTime, CalculateValue::Linear(_keyFrames, currentTime)});
                     ImGui::CloseCurrentPopup();
                     std::sort(
                         _keyFrames.begin(),
@@ -1164,7 +1375,222 @@ bool EditKeyFrame(
                 // SliderPopup
                 if (ImGui::Button("Add Node")) {
                     _keyFrames.push_back(
-                        {currentTime, CalculateValue::LINEAR(_keyFrames, currentTime)});
+                        {currentTime, CalculateValue::Linear(_keyFrames, currentTime)});
+                    ImGui::CloseCurrentPopup();
+                    std::sort(
+                        _keyFrames.begin(),
+                        _keyFrames.end(),
+                        [](const auto& a, const auto& b) {
+                            return a.time < b.time;
+                        });
+                    return 0;
+                }
+                if (ImGui::Button("Cancel")) {
+                    ImGui::CloseCurrentPopup();
+                    return 0;
+                }
+
+                return 0;
+            };
+            sliderPopupUpdate();
+
+            EndPopup();
+        }
+    }
+
+    storage->SetInt(draggedIndexId, draggedIndex);
+    storage->SetInt(popUpIndexId, popUpIndex);
+    storage->SetFloat(draggedValueId, draggedValue);
+
+    return true;
+}
+
+bool EditColorKeyFrame(
+    const std::string& _label,
+    AnimationCurve<Vec4f>& _keyFrames,
+    float _duration,
+    std::function<void(int)> _howEditItem) {
+    ImGuiWindow* window = GetCurrentWindow();
+    if (window->SkipItems) {
+        return false;
+    }
+
+    ImGuiContext& g         = *GImGui;
+    const ImGuiStyle& style = g.Style;
+    const ImGuiID id        = window->GetID(_label.c_str());
+    const float width       = CalcItemWidth();
+
+    const ImVec2 label_size = CalcTextSize(_label.c_str(), NULL, true);
+    const ImRect frame_bb(window->DC.CursorPos, ImVec2(window->DC.CursorPos.x + width, window->DC.CursorPos[Y] + 20.0f));
+    const ImRect total_bb(frame_bb.Min, ImVec2((label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f) + frame_bb.Max.x, frame_bb.Max[Y]));
+
+    ItemSize(total_bb, style.FramePadding[Y]);
+    if (!ItemAdd(total_bb, id, &frame_bb)) {
+        return false;
+    }
+
+    const bool hovered        = ItemHoverable(frame_bb, id, g.LastItemData.InFlags);
+    bool temp_input_is_active = TempInputIsActive(id);
+    if (!temp_input_is_active) {
+        const bool clicked     = hovered && IsMouseClicked(0, id);
+        const bool make_active = (clicked || g.NavActivateId == id);
+        if (make_active && clicked)
+            SetKeyOwner(ImGuiKey_MouseLeft, id);
+        if (make_active) {
+            SetActiveID(id, window);
+            SetFocusID(id, window);
+            FocusWindow(window);
+            g.ActiveIdUsingNavDirMask |= (1 << ImGuiDir_Left) | (1 << ImGuiDir_Right);
+        }
+    }
+
+    if (temp_input_is_active) {
+        return false;
+    }
+
+    const ImU32 frame_col = GetColorU32(g.ActiveId == id ? ImGuiCol_FrameBgActive : hovered ? ImGuiCol_FrameBgHovered
+                                                                                            : ImGuiCol_FrameBg);
+    RenderNavHighlight(frame_bb, id);
+    RenderFrame(frame_bb.Min, frame_bb.Max, frame_col, true, g.Style.FrameRounding);
+
+    ImDrawList* draw_list   = GetWindowDrawList();
+    const float sliderWidth = frame_bb.Max.x - frame_bb.Min.x;
+    const float buttonSize  = 10.0f;
+
+    ImGuiStorage* storage  = ImGui::GetStateStorage();
+    ImGuiID draggedIndexId = id + ImGui::GetID("draggedIndex");
+    ImGuiID draggedValueId = id + ImGui::GetID("draggedValue");
+    ImGuiID popUpIndexId   = id + ImGui::GetID("popUpIndex");
+
+    int draggedIndex   = storage->GetInt(draggedIndexId, -1);
+    float draggedValue = storage->GetFloat(draggedValueId, 0.0f);
+    int popUpIndex     = storage->GetInt(popUpIndexId, -1);
+
+    if (IsMouseReleased(0)) {
+        if (draggedIndex != -1) {
+            // ソートする
+            if (_keyFrames.size() > 1) {
+                // キーフレームによる ノードの順番を変更
+                std::sort(
+                    _keyFrames.begin(),
+                    _keyFrames.end(),
+                    [](const auto& a, const auto& b) {
+                        return a.time < b.time;
+                    });
+            }
+
+            draggedIndex = -1;
+        }
+    }
+
+    for (int i = 0; i < _keyFrames.size(); ++i) {
+        float t       = (_keyFrames[i].time) / (_duration);
+        float buttonX = frame_bb.Min.x + t * sliderWidth;
+        ImVec2 buttonPos(buttonX - buttonSize * 0.5f, frame_bb.Min[Y]);
+        ImVec2 buttonEnd(buttonPos.x + buttonSize, buttonPos[Y] + 20.0f);
+
+        ImRect buttonRect(buttonPos, buttonEnd);
+        bool isHovered = IsMouseHoveringRect(buttonRect.Min, buttonRect.Max);
+
+        if (isHovered) {
+            if (IsMouseClicked(0) && draggedIndex == -1) {
+                draggedIndex = i;
+                draggedValue = _keyFrames[i].time;
+                SetActiveID(id, window);
+                FocusWindow(window);
+            } else if (IsMouseClicked(1)) {
+                popUpIndex = i;
+                SetActiveID(id, window);
+                FocusWindow(window);
+                OpenPopup(std::string(_label + "node" + std::to_string(i)).c_str());
+            }
+        }
+
+        bool isActive = (draggedIndex == i);
+        if (isActive) {
+            if (IsMouseDragging(0)) {
+                float newT         = (GetMousePos().x - frame_bb.Min.x) / sliderWidth;
+                newT               = ImClamp(newT, 0.0f, 1.0f);
+                _keyFrames[i].time = newT * _duration;
+            }
+        }
+
+        ImVec4 nodeColor = ImVec4(_keyFrames[i].value[X], _keyFrames[i].value[Y], _keyFrames[i].value[Z], _keyFrames[i].value[W]);
+
+        PushID(i);
+        draw_list->AddRectFilled(buttonRect.Min, buttonRect.Max, ImColor(nodeColor), style.FrameRounding);
+        SetItemAllowOverlap();
+        PopID();
+    }
+
+    if (popUpIndex != -1) {
+        std::string popupId = _label + "node" + std::to_string(popUpIndex);
+        if (BeginPopup(popupId.c_str())) {
+
+            auto popupUpdadte = [&]() {
+                // NodeUpdate
+                ImGui::Text("NodeNumber : %d", popUpIndex);
+
+                if (ImGui::Button("Delete")) {
+                    if (_keyFrames.size() <= 1) {
+                        _keyFrames[0].time  = 0.0f;
+                        _keyFrames[0].value = {0.0f, 0.0f, 0.0f, 0.0f};
+                        return 0;
+                    }
+                    _keyFrames.erase(_keyFrames.begin() + popUpIndex);
+                    popUpIndex = 0;
+                    return 0;
+                }
+                if (ImGui::Button("Copy")) {
+                    _keyFrames.push_back(_keyFrames[popUpIndex]);
+
+                    _keyFrames.back().time += 0.01f;
+                    std::sort(
+                        _keyFrames.begin(),
+                        _keyFrames.end(),
+                        [](const auto& a, const auto& b) {
+                            return a.time < b.time;
+                        });
+                    popUpIndex += 1;
+                    return 0;
+                }
+                ImGui::Text("Time");
+                ImGui::DragFloat(
+                    std::string("##Time" + _label + std::to_string(popUpIndex)).c_str(),
+                    &_keyFrames[popUpIndex].time,
+                    0.1f);
+
+                ImGui::Spacing();
+
+                if (_howEditItem) {
+                    _howEditItem(popUpIndex);
+                } else {
+                    ImGui::ColorEdit4(
+                        std::string("Color##" + _label + std::to_string(popUpIndex)).c_str(),
+                        &_keyFrames[popUpIndex].value[X], ImGuiColorEditFlags_AlphaPreviewHalf);
+                }
+
+                return 1;
+            };
+            popupUpdadte();
+
+            EndPopup();
+        } else {
+            popUpIndex = -1;
+        }
+    } else {
+        bool isSliderHovered = IsMouseHoveringRect(frame_bb.Min, frame_bb.Max);
+        if (isSliderHovered && IsMouseClicked(1)) {
+            OpenPopup((_label + "slider").c_str());
+        }
+        if (BeginPopup((_label + "slider").c_str())) {
+            float currentTime = ((GetMousePos()[X] - frame_bb.Min[X]) / (frame_bb.Max[X] - frame_bb.Min[X])) * _duration;
+
+            auto sliderPopupUpdate = [&]() {
+                // SliderPopup
+                if (ImGui::Button("Add Node")) {
+                    _keyFrames.push_back(
+                        {currentTime, CalculateValue::Linear(_keyFrames, currentTime)});
                     ImGui::CloseCurrentPopup();
                     std::sort(
                         _keyFrames.begin(),
