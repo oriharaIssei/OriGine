@@ -1,12 +1,15 @@
 #pragma once
 
+/// math
 #include "Vector.h"
 #include "Vector3.h"
+#include <Matrix4x4.h>
 
 /// <summary>
 /// 四元数
 /// </summary>
-struct Quaternion final : public Vector<4, float> {
+struct Quaternion final
+    : public Vector<4, float> {
     using Vector<4, float>::v;
     using Vector<4, float>::operator[];
     using Vector<4, float>::operator+;
@@ -123,6 +126,9 @@ struct Quaternion final : public Vector<4, float> {
         r            = q * r * q.Conjugation();
         return Vec3f(r[X], r[Y], r[Z]);
     }
+
+    static Quaternion FromMatrix(const Matrix4x4& _rotateMat);
+    static Quaternion LockAt(const Vec3f& target, const Vec3f& up);
 };
 
 Quaternion operator*(float scalar, const Quaternion& q);

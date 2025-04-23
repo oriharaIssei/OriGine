@@ -1,9 +1,10 @@
 #include "Quaternion.h"
 
+/// stl
 #include <algorithm>
+
+/// math
 #include <cmath>
-#include <iomanip>
-#include <iostream>
 #include <numbers>
 
 Quaternion Quaternion::Inverse(const Quaternion& q) {
@@ -96,6 +97,70 @@ Vec3f Quaternion::ToEulerAngles() const {
 
     return euler;
 }
+
+Quaternion Quaternion::FromMatrix(const Matrix4x4& _rotateMat) {
+    float trace = _rotateMat.m[0][0] + _rotateMat.m[1][1] + _rotateMat.m[2][2];
+
+    if (trace > 0.0f) {
+        float s    = std::sqrt(trace + 1.0f) * 2.0f;
+        float invS = 1.0f / s;
+
+        return Quaternion(
+            (_rotateMat.m[2][1] - _rotateMat.m[1][2]) * invS, // x
+            (_rotateMat.m[0][2] - _rotateMat.m[2][0]) * invS, // y
+            (_rotateMat.m[1][0] - _rotateMat.m[0][1]) * invS, // z
+            0.25f * s // w
+        );
+    } else {
+        if (_rotateMat.m[0][0] > _rotateMat.m[1][1] && _rotateMat.m[0][0] > _rotateMat.m[2][2]) {
+            float s    = std::sqrt(1.0f + _rotateMat.m[0][0] - _rotateMat.m[1][1] - _rotateMat.m[2][2]) * 2.0f;
+            float invS = 1.0f / s;
+
+            return Quaternion(
+                0.25f * s,
+                (_rotateMat.m[0][1] + _rotateMat.m[1][0]) * invS,
+                (_rotateMat.m[0][2] + _rotateMat.m[2][0]) * invS,
+                (_rotateMat.m[2][1] - _rotateMat.m[1][2]) * invS);
+        } else if (_rotateMat.m[1][1] > _rotateMat.m[2][2]) {
+            float s    = std::sqrt(1.0f + _rotateMat.m[1][1] - _rotateMat.m[0][0] - _rotateMat.m[2][2]) * 2.0f;
+            float invS = 1.0f / s;
+
+            return Quaternion(
+                (_rotateMat.m[0][1] + _rotateMat.m[1][0]) * invS,
+                0.25f * s,
+                (_rotateMat.m[1][2] + _rotateMat.m[2][1]) * invS,
+                (_rotateMat.m[0][2] - _rotateMat.m[2][0]) * invS);
+        } else {
+            float s    = std::sqrt(1.0f + _rotateMat.m[2][2] - _rotateMat.m[0][0] - _rotateMat.m[1][1]) * 2.0f;
+            float invS = 1.0f / s;
+
+            return Quaternion(
+                (_rotateMat.m[0][2] + _rotateMat.m[2][0]) * invS,
+                (_rotateMat.m[1][2] + _rotateMat.m[2][1]) * invS,
+                0.25f * s,
+                (_rotateMat.m[1][0] - _rotateMat.m[0][1]) * invS);
+        }
+    }
+}
+Quaternion Quaternion::LockAt(const Vec3f& target, const Vec3f& up) { // Z軸を向けるべき方向にする
+    Vec3f forward = Vec3f::Normalize(target);
+
+    // 右ベクトルを計算（外積）
+    Vec3f right = Vec3f::Normalize(Vec3f::Cross(up, forward));
+
+    // 上ベクトルを再計算
+    Vec3f newUp = Vec3f::Cross(forward, right);
+
+    // 回転行列を作成
+    Matrix4x4 lookAtMatrix = {
+        right[X], newUp[X], forward[X], 0.0f,
+        right[Y], newUp[Y], forward[Y], 0.0f,
+        right[Z], newUp[Z], forward[Z], 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f};
+
+    // 行列からクォータニオンに変換
+    return FromMatrix(lookAtMatrix);
+};
 
 Quaternion operator*(float scalar, const Quaternion& q) {
     return Quaternion(q * scalar);
