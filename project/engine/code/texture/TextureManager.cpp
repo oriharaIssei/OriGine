@@ -230,7 +230,7 @@ uint32_t TextureManager::LoadTexture(const std::string& filePath, std::function<
     task.textureIndex = index;
     task.callBack     = callBack;
 
-    task->Update();
+    task.Update();
 #endif // DEBUG
 
     return index;
