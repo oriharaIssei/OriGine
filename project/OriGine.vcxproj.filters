@@ -451,6 +451,7 @@
       <Filter>util</Filter>
     </ClInclude>
     <ClInclude Include="util\timeline\Timeline.h" />
+    <ClInclude Include="engine\code\system\postRender\Vignette.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\code\ECS\ECSDebugger.cpp">
@@ -683,5 +684,6 @@
       <Filter>util</Filter>
     </ClCompile>
     <ClCompile Include="util\timeline\Timeline.cpp" />
+    <ClCompile Include="engine\code\system\postRender\Vignette.cpp" />
   </ItemGroup>
 </Project>
