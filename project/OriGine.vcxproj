@@ -124,7 +124,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\camera\gameCamera\GameCamera.h" />
     <ClInclude Include="engine\code\component\ComponentArray.h" />
     <ClInclude Include="engine\code\component\IComponent.h" />
-    <ClInclude Include="engine\code\component\animation\NodeAnimation.h" />
     <ClInclude Include="engine\code\component\collider\Collider.h" />
     <ClInclude Include="engine\code\component\effect\particle\Particle.h" />
     <ClInclude Include="engine\code\component\effect\particle\emitter\Emitter.h" />
@@ -232,7 +231,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\camera\debugCamera\DebugCamera.cpp" />
     <ClCompile Include="engine\code\camera\gameCamera\GameCamera.cpp" />
     <ClCompile Include="engine\code\component\IComponent.cpp" />
-    <ClCompile Include="engine\code\component\animation\NodeAnimation.cpp" />
     <ClCompile Include="engine\code\component\collider\Collider.cpp" />
     <ClCompile Include="engine\code\component\effect\particle\Particle.cpp" />
     <ClCompile Include="engine\code\component\effect\particle\emitter\Emitter.cpp" />

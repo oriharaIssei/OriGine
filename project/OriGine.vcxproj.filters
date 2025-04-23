@@ -174,12 +174,6 @@
     <ClInclude Include="engine\code\Engine.h">
       <Filter>engine\code</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\component\animation\ModelNodeAnimation.h">
-      <Filter>engine\code\animation</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\code\component\animation\AnimationManager.h">
-      <Filter>engine\code\animation</Filter>
-    </ClInclude>
     <ClInclude Include="engine\code\assets\IAsset.h">
       <Filter>engine\code\assets</Filter>
     </ClInclude>
@@ -202,9 +196,6 @@
       <Filter>engine\code\component</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\component\animation\AnimationManager.h">
-      <Filter>engine\code\component\animation</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\code\component\animation\NodeAnimation.h">
       <Filter>engine\code\component\animation</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\component\collider\Collider.h">
@@ -476,12 +467,6 @@
     <ClCompile Include="engine\code\Engine.cpp">
       <Filter>engine\code</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\component\animation\ModelNodeAnimation.cpp">
-      <Filter>engine\code\animation</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\code\component\animation\AnimationManager.cpp">
-      <Filter>engine\code\animation</Filter>
-    </ClCompile>
     <ClCompile Include="engine\code\assets\IAsset.cpp">
       <Filter>engine\code\assets</Filter>
     </ClCompile>
@@ -501,9 +486,6 @@
       <Filter>engine\code\component</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\component\animation\AnimationManager.cpp">
-      <Filter>engine\code\component\animation</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\code\component\animation\NodeAnimation.cpp">
       <Filter>engine\code\component\animation</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\component\collider\Collider.cpp">
