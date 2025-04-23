@@ -244,14 +244,22 @@ std::shared_ptr<Model> ModelManager::Create(
 
     /// モデルデータを読み込む
     modelLibrary_[filePath] = std::make_unique<ModelMeshData>();
-
-    result            = std::make_unique<Model>();
-    result->meshData_ = modelLibrary_[filePath].get();
+    result                  = std::make_unique<Model>();
+    result->meshData_       = modelLibrary_[filePath].get();
+#ifdef _DEBUG
     loadThread_->pushTask(
         {.directory   = directoryPath,
             .fileName = filename,
             .model    = result,
             .callBack = callBack});
+#else
+    LoadTask task;
+    task.directory = directoryPath;
+    task.fileName  = filename;
+    task.model     = result;
+    task.callBack  = callBack;
+    task.Update();
+#endif // _DEBUG
 
     return result;
 }

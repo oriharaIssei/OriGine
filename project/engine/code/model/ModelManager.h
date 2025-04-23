@@ -18,10 +18,6 @@ struct ModelNode;
 struct ModelMeshData;
 struct TexturedMaterial;
 
-//component
-class AnimationObject3d;
-class Object3d;
-
 //dx12Object
 #include "directX12/DxCommand.h"
 #include "directX12/PipelineStateObj.h"
@@ -32,8 +28,6 @@ class Object3d;
 #include "Matrix4x4.h"
 
 class ModelManager {
-    friend class AnimationObject3d;
-    friend class Object3d;
 
 public:
     static ModelManager* getInstance();
