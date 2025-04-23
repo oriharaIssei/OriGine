@@ -27,10 +27,14 @@ static const std::string kEngineResourceDirectory      = "engine/resource";
 #include "system/ISystem.h"
 
 #include "system/collision/CollisionCheckSystem.h"
+
 #include "system/effect/EmitterWorkSystem.h"
 #include "system/effect/PrimitiveNodeAnimationWorkSystem.h"
 #include "system/movement/MoveSystemByRigidBody.h"
+
 #include "system/postRender/Grayscale.h"
+#include "system/postRender/Vignette.h"
+
 #include "system/render/ColliderRenderingSystem.h"
 #include "system/render/LineRenderSystem.h"
 #include "system/render/ParticleRenderSystem.h"
@@ -49,13 +53,18 @@ static const std::string kEngineResourceDirectory      = "engine/resource";
 #include "component/animation/PrimitiveNodeAnimation.h"
 
 #include "component/collider/Collider.h"
+
 #include "component/effect/particle/emitter/Emitter.h"
+
 #include "component/physics/Rigidbody.h"
+
 #include "component/renderer/MeshRenderer.h"
 #include "component/renderer/Sprite.h"
 #include "component/renderer/primitive/Primitive.h"
+
 #include "component/transform/CameraTransform.h"
 #include "component/transform/Transform.h"
+
 #include "audio/Audio.h"
 #endif // ENGINE_COMPONENTS
 

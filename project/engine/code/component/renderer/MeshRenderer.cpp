@@ -198,20 +198,20 @@ void ModelMeshRenderer::Load(BinaryReader& _reader) {
 
     if (!fileName_.empty()) {
         CreateModelMeshRenderer(this, hostEntity_, directory_, fileName_);
+    }
 
-        const std::string& preWriterGroupName = _reader.getGroupName();
-        for (int32_t i = 0; i < meshGroup_->size(); ++i) {
-            _reader.ReadBeginGroup(preWriterGroupName + std::format("Mesh{}", i));
+    const std::string& preWriterGroupName = _reader.getGroupName();
+    for (int32_t i = 0; i < meshGroup_->size(); ++i) {
+        _reader.ReadBeginGroup(preWriterGroupName + std::format("Mesh{}", i));
 
-            meshTransformBuff_[i].openData_.Load(_reader);
-            _reader.Read<3, float>("uvScale", meshMaterialBuff_[i].openData_.uvScale_);
-            _reader.Read<3, float>("uvRotate", meshMaterialBuff_[i].openData_.uvRotate_);
-            _reader.Read<3, float>("uvTranslate", meshMaterialBuff_[i].openData_.uvTranslate_);
-            _reader.Read<4, float>("color", meshMaterialBuff_[i].openData_.color_);
-            _reader.Read<int32_t>("enableLighting", meshMaterialBuff_[i].openData_.enableLighting_);
-            _reader.Read<float>("shininess", meshMaterialBuff_[i].openData_.shininess_);
-            _reader.Read<3, float>("specularColor", meshMaterialBuff_[i].openData_.specularColor_);
-        }
+        meshTransformBuff_[i].openData_.Load(_reader);
+        _reader.Read<3, float>("uvScale", meshMaterialBuff_[i].openData_.uvScale_);
+        _reader.Read<3, float>("uvRotate", meshMaterialBuff_[i].openData_.uvRotate_);
+        _reader.Read<3, float>("uvTranslate", meshMaterialBuff_[i].openData_.uvTranslate_);
+        _reader.Read<4, float>("color", meshMaterialBuff_[i].openData_.color_);
+        _reader.Read<int32_t>("enableLighting", meshMaterialBuff_[i].openData_.enableLighting_);
+        _reader.Read<float>("shininess", meshMaterialBuff_[i].openData_.shininess_);
+        _reader.Read<3, float>("specularColor", meshMaterialBuff_[i].openData_.specularColor_);
     }
 }
 
@@ -233,7 +233,6 @@ void CreateModelMeshRenderer(ModelMeshRenderer* _renderer, GameEntity* _hostEnti
             for (auto& child : _node->children) {
                 CreateMeshGroupFormNode(_meshRenderer, _model, &child);
             }
-            return;
         };
 
         CreateMeshGroupFormNode(_renderer, model, &model->meshData_->rootNode);

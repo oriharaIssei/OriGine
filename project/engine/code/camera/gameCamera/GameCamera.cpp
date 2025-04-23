@@ -1,7 +1,7 @@
 #include "GameCamera.h"
 
-#include "Vector3.h"
 #include "input/Input.h"
+#include "Vector3.h"
 
 #include <algorithm>
 
@@ -16,7 +16,7 @@ GameCamera::~GameCamera() {}
 
 void GameCamera::Initialize() {
     cameraTransform_.translate = {0.0f, 0.0f, -10.0f};
-    cameraTransform_.rotate    = {0.0f, 0.0f, 0.0f};
+    cameraTransform_.rotate    = Quaternion();
 }
 
 void GameCamera::Update() {
@@ -35,7 +35,7 @@ void GameCamera::Update() {
         cameraTransform_.rotate[Y] = std::lerp(cameraTransform_.rotate[Y], destinationAngleXY_[Y], rotateSensitivity_);
 
         Vec3f offset = OffstVector();
-        interTarget_   = Lerp(followTarget_->translate, interTarget_, rotateSensitivity_);
+        interTarget_ = Lerp(followTarget_->translate, interTarget_, rotateSensitivity_);
 
         cameraTransform_.translate = offset + interTarget_;
     }
@@ -43,5 +43,5 @@ void GameCamera::Update() {
 }
 
 Vec3f GameCamera::OffstVector() {
-    return TransformVector(followOffset_, MakeMatrix::RotateXYZ(cameraTransform_.rotate));
+    return TransformVector(followOffset_, MakeMatrix::RotateQuaternion(cameraTransform_.rotate));
 }

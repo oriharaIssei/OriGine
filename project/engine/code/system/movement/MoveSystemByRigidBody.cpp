@@ -26,7 +26,7 @@ void MoveSystemByRigidBody::UpdateEntity(GameEntity* _entity) {
 
     // 重力加速度
     if (rigidbody->getUseGravity()) {
-        acceleration[Y] -= gravity_;
+        acceleration[Y] -= gravity_ * rigidbody->getMass();
     }
 
     // 速度の更新

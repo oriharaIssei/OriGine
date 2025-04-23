@@ -26,8 +26,8 @@
 #include <cmath>
 
 #ifdef _DEBUG
-#include "util/timeline/Timeline.h"
 #include "imgui/imgui.h"
+#include "util/timeline/Timeline.h"
 #endif // _DEBUG
 
 static std::list<std::pair<std::string, std::string>> SearchModelFile() {
@@ -214,6 +214,8 @@ bool Emitter::Edit() {
     }
 
     return isChange;
+#else
+    return false;
 #endif // _DEBUG
 }
 
@@ -327,6 +329,7 @@ void Emitter::Load(BinaryReader& _reader) {
     currentCoolTime_ = 0.f;
 }
 
+#ifdef _DEBUG
 void Emitter::EditEmitter() {
     //======================== Emitter の 編集 ========================//
     if (ImGui::BeginCombo("BlendMode", blendModeStr[int(blendMode_)].c_str())) {
@@ -605,6 +608,7 @@ void Emitter::EditParticle() {
         ImGui::TreePop();
     }
 }
+#endif // _DEBUG
 
 void Emitter::Draw(ID3D12GraphicsCommandList* _commandList) {
     if (!particleModel_ || particleModel_->meshData_->currentState_ != LoadState::Loaded) {

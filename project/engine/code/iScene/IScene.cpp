@@ -90,6 +90,7 @@ void IScene::registerSystems() {
     ecsManager->registerSystem<LineRenderSystem>();
     ecsManager->registerSystem<ColliderRenderingSystem>();
 
+    ecsManager->registerSystem<Vignette>();
     ecsManager->registerSystem<Grayscale>();
 }
 

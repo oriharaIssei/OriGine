@@ -64,7 +64,12 @@ void SceneManager::Initialize() {
 
 void SceneManager::Finalize() {
     // EditorModeのときだけ 保存する
+#ifdef _DEBUG
     currentScene_->Finalize(inEditMode());
+#else
+    currentScene_->Finalize(false);
+#endif // _DEBUG
+
     scenes_.clear();
 
     sceneView_->Finalize();

@@ -453,6 +453,7 @@
     <ClInclude Include="util\timeline\Timeline.h" />
     <ClInclude Include="engine\code\component\animation\PrimitiveNodeAnimation.h" />
     <ClInclude Include="engine\code\system\effect\PrimitiveNodeAnimationWorkSystem.h" />
+    <ClInclude Include="engine\code\system\postRender\Vignette.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\code\ECS\ECSDebugger.cpp">
@@ -687,5 +688,6 @@
     <ClCompile Include="util\timeline\Timeline.cpp" />
     <ClCompile Include="engine\code\component\animation\PrimitiveNodeAnimation.cpp" />
     <ClCompile Include="engine\code\system\effect\PrimitiveNodeAnimationWorkSystem.cpp" />
+    <ClCompile Include="engine\code\system\postRender\Vignette.cpp" />
   </ItemGroup>
 </Project>
