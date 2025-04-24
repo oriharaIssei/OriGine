@@ -3,12 +3,14 @@
 /// stl
 #include <cassert>
 #include <fstream>
+#include <iostream>
 
 /// engine
 #define RESOURCE_DIRECTORY
 #include "EngineInclude.h"
 
 /// lib
+#include "logger/Logger.h"
 #include "myFileSystem/MyFileSystem.h"
 
 /// externals
@@ -77,7 +79,7 @@ void Audio::PlayLoop() {
     pSourceVoice_ = nullptr;
     result        = xAudio2_->CreateSourceVoice(&pSourceVoice_, &audioClip_.data_.wfex);
     assert(SUCCEEDED(result));
-    
+
     // 音量を設定
     pSourceVoice_->SetVolume(audioClip_.valume_);
 
@@ -179,8 +181,13 @@ SoundData Audio::LoadWave(const std::string& fileName) {
         assert(false);
     }
 
-    char* pBuff = new char[data.size];
-    file.read(pBuff, data.size);
+    char* pBuff = nullptr;
+    if (data.size > 0) {
+        pBuff = new char[data.size];
+        file.read(pBuff, data.size);
+    } else {
+        assert(false);
+    }
 
     file.close();
 
@@ -193,7 +200,11 @@ SoundData Audio::LoadWave(const std::string& fileName) {
 }
 
 void Audio::SoundUnLoad() {
-    delete[] audioClip_.data_.pBuffer;
+    if (audioClip_.data_.pBuffer) {
+        std::cout << "pBuffer address: " << static_cast<void*>(audioClip_.data_.pBuffer) << std::endl;
+        delete[] audioClip_.data_.pBuffer;
+        audioClip_.data_.pBuffer = nullptr;
+    }
     audioClip_.data_.bufferSize = 0;
     audioClip_.data_.wfex       = {};
 }

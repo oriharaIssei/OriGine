@@ -27,7 +27,7 @@ struct FormatChunk {
 
 struct SoundData {
     WAVEFORMATEX wfex;
-    BYTE* pBuffer;
+    BYTE* pBuffer = nullptr;
     uint32_t bufferSize;
 };
 
@@ -58,7 +58,7 @@ public:
     };
     void Load(BinaryReader& _reader) override {
         _reader.Read("fileName", fileName_);
-        if (fileName_.empty()) {
+        if (!fileName_.empty()) {
             audioClip_.data_ = LoadWave(fileName_);
         }
 
@@ -98,6 +98,11 @@ private:
     IXAudio2SourceVoice* pSourceVoice_ = nullptr;
 
 public:
+    void Load(const std::string& fileName) {
+        fileName_        = fileName;
+        audioClip_.data_ = LoadWave(fileName_);
+    }
+
     bool isPlaying() const {
         if (pSourceVoice_ == nullptr) {
             return false; // 再生用のソースボイスが存在しない場合は再生中ではない
