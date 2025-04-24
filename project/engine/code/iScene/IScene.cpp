@@ -41,9 +41,9 @@ void IScene::Initialize() {
     if (sceneManager->inDebugMode()) {
         ECSManager::getInstance()->RunInitialize();
     }
-   /* if (!EngineEditor::getInstance()->isActive()) {
-        ECSManager::getInstance()->RunInitialize();
-    }*/
+    /* if (!EngineEditor::getInstance()->isActive()) {
+         ECSManager::getInstance()->RunInitialize();
+     }*/
 #else
     ECSManager::getInstance()->RunInitialize();
 #endif // _DEBUG
@@ -90,13 +90,16 @@ void IScene::registerSystems() {
     ecsManager->registerSystem<ParticleRenderSystem>();
     ecsManager->registerSystem<SpriteRenderSystem>();
     ecsManager->registerSystem<TexturedMeshRenderSystem>();
+
+#ifdef _DEBUG
     ecsManager->registerSystem<LineRenderSystem>();
     ecsManager->registerSystem<ColliderRenderingSystem>();
+#endif // _DEBUG
 
     /// postEffect は 全て任意
-    //ecsManager->registerSystem<VignetteEffect>();
-    //ecsManager->registerSystem<GrayscaleEffect>();
-    //ecsManager->registerSystem<SmoothingEffect>();
+    // ecsManager->registerSystem<VignetteEffect>();
+    // ecsManager->registerSystem<GrayscaleEffect>();
+    // ecsManager->registerSystem<SmoothingEffect>();
 }
 
 void IScene::Finalize([[maybe_unused]] bool _isSave) {
