@@ -37,6 +37,15 @@ private:
     float duration_    = 0.0f; // (秒)
     float currentTime_ = 0.0f; // (秒)
 
+#ifdef _DEBUG
+    // 連番画像から uv Curveにするためのもの
+    Vec2f tileSize_            = {};
+    Vec2f textureSize_         = {};
+    float tilePerTime_         = 0.f;
+    float startAnimationTime_  = 0.f;
+    float animationTimeLength_ = 0.f;
+#endif // _DEBUG
+
     struct AnimationState {
         bool isLoop_ = false;
         bool isPlay_ = false;
