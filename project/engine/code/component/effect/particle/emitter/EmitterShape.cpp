@@ -74,8 +74,8 @@ void EmitterOBB::Debug() {
     label = "##" + emitterShapeTypeWord_[int(type_)] + "_max";
     ImGui::DragFloat3(label.c_str(), max_.v, 0.1f);
 
-    min_ = Vec3f((std::min)(min_[X], max_[X]), (std::min)(min_[Y], max_[Y]), (std::min)(min_[Z], max_[Z]));
-    max_ = Vec3f((std::max)(min_[X], max_[X]), (std::max)(min_[Y], max_[Y]), (std::max)(min_[Z], max_[Z]));
+    min_ = MinElement(max_, min_);
+    max_ = MaxElement(max_, min_);
 }
 #endif // _DEBUG
 

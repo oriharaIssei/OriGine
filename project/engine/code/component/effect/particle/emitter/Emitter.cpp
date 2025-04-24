@@ -478,8 +478,8 @@ void Emitter::EditParticle() {
         ImGui::Text("Max");
         ImGui::DragFloat3("##ParticleVelocityMax", startParticleVelocityMax_.v, 0.1f);
 
-        startParticleVelocityMin_ = (std::min)(startParticleVelocityMin_, startParticleVelocityMax_);
-        startParticleVelocityMax_ = (std::max)(startParticleVelocityMin_, startParticleVelocityMax_);
+        startParticleVelocityMin_ = MinElement(startParticleVelocityMin_, startParticleVelocityMax_);
+        startParticleVelocityMax_ = MaxElement(startParticleVelocityMin_, startParticleVelocityMax_);
 
         int randomOrPerLifeTime    = (updateSettings_ & static_cast<int32_t>(ParticleUpdateType::VelocityPerLifeTime)) ? 2 : ((updateSettings_ & static_cast<int32_t>(ParticleUpdateType::VelocityRandom)) ? 1 : 0);
         int preRandomOrPerLifeTime = randomOrPerLifeTime;
@@ -514,8 +514,8 @@ void Emitter::EditParticle() {
         ImGui::Text("Max");
         ImGui::DragFloat3("##ParticleScaleMax", startParticleScaleMax_.v, 0.1f);
 
-        startParticleScaleMin_ = (std::min)(startParticleScaleMin_, startParticleScaleMax_);
-        startParticleScaleMax_ = (std::max)(startParticleScaleMin_, startParticleScaleMax_);
+        startParticleScaleMin_ = MinElement(startParticleScaleMin_, startParticleScaleMax_);
+        startParticleScaleMax_ = MaxElement(startParticleScaleMin_, startParticleScaleMax_);
 
         // curveかrandom か
         int randomOrPerLifeTime    = (updateSettings_ & static_cast<int32_t>(ParticleUpdateType::ScalePerLifeTime)) ? 2 : ((updateSettings_ & static_cast<int32_t>(ParticleUpdateType::ScaleRandom)) ? 1 : 0);
@@ -550,8 +550,8 @@ void Emitter::EditParticle() {
         ImGui::DragFloat3("##ParticleRotateMin", startParticleRotateMin_.v, 0.1f);
         ImGui::DragFloat3("##ParticleRotateMax", startParticleRotateMax_.v, 0.1f);
 
-        startParticleRotateMin_ = (std::min)(startParticleRotateMin_, startParticleRotateMax_);
-        startParticleRotateMax_ = (std::max)(startParticleRotateMin_, startParticleRotateMax_);
+        startParticleRotateMin_ = MinElement(startParticleRotateMin_, startParticleRotateMax_);
+        startParticleRotateMax_ = MaxElement(startParticleRotateMin_, startParticleRotateMax_);
 
         int randomOrPerLifeTime    = (updateSettings_ & static_cast<int32_t>(ParticleUpdateType::RotatePerLifeTime)) ? 2 : ((updateSettings_ & static_cast<int32_t>(ParticleUpdateType::RotateRandom)) ? 1 : 0);
         int preRandomOrPerLifeTime = randomOrPerLifeTime;
