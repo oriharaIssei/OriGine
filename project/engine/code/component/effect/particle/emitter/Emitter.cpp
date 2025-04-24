@@ -243,6 +243,10 @@ void Emitter::Save(BinaryWriter& _writer) {
     _writer.Write<3, float>("updateParticleScaleMin", updateParticleScaleMin_);
     _writer.Write<3, float>("updateParticleScaleMax", updateParticleScaleMax_);
 
+    _writer.Write<3, float>("uvScale", particleUvScale_);
+    _writer.Write<3, float>("uvRotate", particleUvRotate_);
+    _writer.Write<3, float>("uvTranslate", particleUvTranslate_);
+
     _writer.Write<int>("transformInterpolationType", static_cast<int>(transformInterpolationType_));
     _writer.Write<int>("colorInterpolationType", static_cast<int>(colorInterpolationType_));
     _writer.Write<int>("uvInterpolationType", static_cast<int>(uvInterpolationType_));
@@ -310,6 +314,10 @@ void Emitter::Load(BinaryReader& _reader) {
     _reader.Read<3, float>("startParticleScaleMax", startParticleScaleMax_);
     _reader.Read<3, float>("updateParticleScaleMin", updateParticleScaleMin_);
     _reader.Read<3, float>("updateParticleScaleMax", updateParticleScaleMax_);
+
+    _reader.Read<3, float>("uvScale", particleUvScale_);
+    _reader.Read<3, float>("uvRotate", particleUvRotate_);
+    _reader.Read<3, float>("uvTranslate", particleUvTranslate_);
 
     _reader.Read("updateSettings", updateSettings_);
     if (updateSettings_ != 0) {
@@ -594,7 +602,8 @@ void Emitter::EditParticle() {
                 particleUvScale_ = Vector3f(tileSize_ / textureSize_, 0.f);
 
                 // uv Translate は Animation する
-                updateSettings_ = (updateSettings_ | static_cast<int32_t>(ParticleUpdateType::UvTranslatePerLifeTime));
+                updateSettings_      = (updateSettings_ | static_cast<int32_t>(ParticleUpdateType::UvTranslatePerLifeTime));
+                uvInterpolationType_ = InterpolationType::STEP;
 
                 // 最大タイル数と最大時間を計算
                 int32_t maxTilesX = int32_t(textureSize_[X] / tileSize_[X]);
@@ -610,6 +619,12 @@ void Emitter::EditParticle() {
                 float col              = float(startTileIndex % maxTilesX);
                 float row              = float(startTileIndex / maxTilesX);
 
+                // UV座標を計算
+                float x = col * (tileSize_[X] / textureSize_[X]);
+                float y = row * (tileSize_[Y] / textureSize_[Y]);
+
+                particleUvTranslate_ = Vector3f(x, y, 0.f);
+
                 int32_t tileNum = int32_t(animationTimeLength_ / tilePerTime_);
                 for (int32_t i = 0; i < tileNum; i++) {
                     float time = (tilePerTime_ * i);
@@ -621,8 +636,8 @@ void Emitter::EditParticle() {
                     }
 
                     // UV座標を計算
-                    float x = col * (tileSize_[X] / textureSize_[X]);
-                    float y = row * (tileSize_[Y] / textureSize_[Y]);
+                    x = col * (tileSize_[X] / textureSize_[X]);
+                    y = row * (tileSize_[Y] / textureSize_[Y]);
                     particleKeyFrames_->uvTranslateCurve_.emplace_back(time, Vector3f(x, y, 0.f));
                 }
             }
@@ -718,6 +733,9 @@ void Emitter::Draw(ID3D12GraphicsCommandList* _commandList) {
             Matrix4x4 translateMat = MakeMatrix::Translate(structuredTransform_.openData_[i].translate + originPos_);
             // ワールド行列を構築
             structuredTransform_.openData_[i].worldMat = scaleMat * rotateMat * translateMat;
+
+            structuredTransform_.openData_[i].uvMat = particles_[i]->getTransform().uvMat;
+            structuredTransform_.openData_[i].color = particles_[i]->getTransform().color;
         }
     } else {
         // 各パーティクルのワールド行列を計算
@@ -729,6 +747,9 @@ void Emitter::Draw(ID3D12GraphicsCommandList* _commandList) {
 
             // ワールド行列を構築
             structuredTransform_.openData_[i].worldMat = scaleMat * rotateMat * translateMat;
+
+            structuredTransform_.openData_[i].uvMat = particles_[i]->getTransform().uvMat;
+            structuredTransform_.openData_[i].color = particles_[i]->getTransform().color;
         }
     }
 

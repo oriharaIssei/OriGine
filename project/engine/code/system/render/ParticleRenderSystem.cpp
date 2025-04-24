@@ -92,14 +92,14 @@ void ParticleRenderSystem::CreatePso() {
     inputElementDesc.Format                   = DXGI_FORMAT_R32G32B32A32_FLOAT; // float 4
     inputElementDesc.AlignedByteOffset        = D3D12_APPEND_ALIGNED_ELEMENT;
     shaderInfo.pushBackInputElementDesc(inputElementDesc);
-    inputElementDesc.SemanticName      = "NORMAL"; /*Semantics*/
-    inputElementDesc.SemanticIndex     = 0; /*Semanticsの横に書いてある数字(今回はPOSITION0なので 0 )*/
-    inputElementDesc.Format            = DXGI_FORMAT_R32G32B32_FLOAT; // float 4
-    inputElementDesc.AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
-    shaderInfo.pushBackInputElementDesc(inputElementDesc);
     inputElementDesc.SemanticName      = "TEXCOORD"; /*Semantics*/
     inputElementDesc.SemanticIndex     = 0; /*Semanticsの横に書いてある数字(今回はPOSITION0なので 0 )*/
     inputElementDesc.Format            = DXGI_FORMAT_R32G32_FLOAT; // float 2
+    inputElementDesc.AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+    shaderInfo.pushBackInputElementDesc(inputElementDesc);
+    inputElementDesc.SemanticName      = "NORMAL"; /*Semantics*/
+    inputElementDesc.SemanticIndex     = 0; /*Semanticsの横に書いてある数字(今回はPOSITION0なので 0 )*/
+    inputElementDesc.Format            = DXGI_FORMAT_R32G32B32_FLOAT; // float 4
     inputElementDesc.AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
     shaderInfo.pushBackInputElementDesc(inputElementDesc);
 #pragma endregion

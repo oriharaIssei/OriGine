@@ -231,6 +231,13 @@ std::shared_ptr<Model> ModelManager::Create(
         result->meshData_     = targetModelMesh;
         result->materialData_ = defaultMaterials_[result->meshData_];
 
+        for (auto& materialData : result->materialData_) {
+            materialData.material.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+            materialData.material->UpdateUvMatrix();
+            materialData.material.ConvertToBuffer();
+
+        }
+
         for (auto& [name, data] : result->meshData_->meshGroup_) {
             result->transforms_[&data].Update();
         }
