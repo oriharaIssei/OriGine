@@ -363,7 +363,13 @@ void SceneManager::changeScene(const std::string& name) {
 void SceneManager::executeSceneChange() {
     if (currentScene_) {
         Logger::Trace(std::format("SceneChange\n PreviousScene : [ {} ] \n NextScene : [ {} ]", currentScene_->getName(), changingSceneName_));
-        currentScene_->Finalize();
+#ifdef _DEBUG
+       
+        currentScene_->Finalize(inEditMode());
+#else
+        currentScene_->Finalize(false);
+#endif // _DEBUG
+
     } else {
         Logger::Trace(std::format("SceneChange\n Startup Scene : [ {} ] \n ", changingSceneName_));
     }
