@@ -29,8 +29,43 @@ void SpriteRenderSystem::Update() {
     }
 
     StartRender();
+    std::vector<SpriteRenderer*> renderers;
     for (auto& entity : entities_) {
-        UpdateEntity(entity);
+        auto* entityRenderers = getComponents<SpriteRenderer>(entity);
+        for (auto& renderer : *entityRenderers) {
+            if (!renderer.isRender()) {
+                continue;
+            }
+            ///==============================
+            /// ConstBufferの更新
+            ///==============================
+            renderer.Update(viewPortMat_);
+            renderers.push_back(&renderer);
+        }
+    }
+    std::sort(renderers.begin(), renderers.end(), [](SpriteRenderer* a, SpriteRenderer* b) {
+        return a->getRenderingNum() < b->getRenderingNum();
+    });
+
+    auto commandList = dxCommand_->getCommandList();
+    for (auto& renderer : renderers) {
+        // ============================= テクスチャの設定 ============================= //
+        ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
+        commandList->SetDescriptorHeaps(1, ppHeaps);
+        commandList->SetGraphicsRootDescriptorTable(
+            1,
+            TextureManager::getDescriptorGpuHandle(renderer->getTextureNumber()));
+
+        SpriteMesh& mesh = renderer->getMeshGroup()->at(0);
+        commandList->IASetVertexBuffers(0, 1, &mesh.getVBView());
+        commandList->IASetIndexBuffer(&mesh.getIBView());
+
+        renderer->getSpriteBuff().SetForRootParameter(commandList, 0);
+
+        commandList->DrawIndexedInstanced(
+            6, 1, 0, 0, 0);
+
+        commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);
     }
 }
 
@@ -135,37 +170,4 @@ void SpriteRenderSystem::StartRender() {
     dxCommand_->getCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-void SpriteRenderSystem::UpdateEntity(GameEntity* _entity) {
-    auto commandList         = dxCommand_->getCommandList();
-    SpriteRenderer* renderer = getComponent<SpriteRenderer>(_entity);
-    if (!renderer) {
-        return;
-    }
-    ///==============================
-    /// ConstBufferの更新
-    ///==============================
-    renderer->Update(viewPortMat_);
-
-    ///==============================
-    /// 描画
-    ///==============================
-    {
-        // ============================= テクスチャの設定 ============================= //
-        ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
-        commandList->SetDescriptorHeaps(1, ppHeaps);
-        commandList->SetGraphicsRootDescriptorTable(
-            1,
-            TextureManager::getDescriptorGpuHandle(renderer->getTextureNumber()));
-
-        SpriteMesh& mesh = renderer->getMeshGroup()->at(0);
-        commandList->IASetVertexBuffers(0, 1, &mesh.getVBView());
-        commandList->IASetIndexBuffer(&mesh.getIBView());
-
-        renderer->getSpriteBuff().SetForRootParameter(commandList, 0);
-
-        commandList->DrawIndexedInstanced(
-            6, 1, 0, 0, 0);
-
-        commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);
-    }
-}
+void SpriteRenderSystem::UpdateEntity(GameEntity* /*_entity*/) {}
