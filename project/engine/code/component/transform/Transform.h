@@ -27,8 +27,6 @@ public:
     void Initialize(GameEntity* _entity) override;
     void Update();
     bool Edit() override;
-    void Save(BinaryWriter& _writer) override;
-    void Load(BinaryReader& _reader) override;
 
     void Finalize() override {};
 
@@ -49,3 +47,13 @@ public:
         }
     };
 };
+
+inline void from_json(const nlohmann::json& j, Transform& t) {
+    j.at("scale").get_to(t.scale);
+    j.at("rotate").get_to(t.rotate);
+    j.at("translate").get_to(t.translate);
+}
+
+inline void to_json(nlohmann::json& j, const Transform& t) {
+    j = nlohmann::json{{"scale", t.scale}, {"rotate", t.rotate}, {"translate", t.translate}};
+}

@@ -13,6 +13,9 @@
 
 struct Material
     : IAsset {
+    friend void to_json(nlohmann::json& j, const Material& m);
+    friend void from_json(const nlohmann::json& j, Material& m);
+
 public:
     Material() {}
     ~Material() {}

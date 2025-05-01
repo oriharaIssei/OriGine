@@ -15,6 +15,9 @@
 
 class SpotLight
     : public IComponent {
+    friend void to_json(nlohmann::json& j, const SpotLight& l);
+    friend void from_json(const nlohmann::json& j, SpotLight& l);
+
 public:
     SpotLight() {}
     ~SpotLight() {}
@@ -22,29 +25,6 @@ public:
     void Initialize([[maybe_unused]] GameEntity* _entity) override {}
 
     bool Edit() override;
-
-    void Save(BinaryWriter& _writer) override {
-        _writer.Write<bool>("isActive", isActive_);
-        _writer.Write<3, float>("color", color_);
-        _writer.Write<float>("intensity", intensity_);
-        _writer.Write<3, float>("pos", pos_);
-        _writer.Write<3, float>("direction", direction_);
-        _writer.Write<float>("distance", distance_);
-        _writer.Write<float>("decay", decay_);
-        _writer.Write<float>("cosAngle", cosAngle_);
-        _writer.Write<float>("cosFalloffStart", cosFalloffStart_);
-    }
-    void Load(BinaryReader& _reader) override {
-        _reader.Read<bool>("isActive", isActive_);
-        _reader.Read<3, float>("color", color_);
-        _reader.Read<float>("intensity", intensity_);
-        _reader.Read<3, float>("pos", pos_);
-        _reader.Read<3, float>("direction", direction_);
-        _reader.Read<float>("distance", distance_);
-        _reader.Read<float>("decay", decay_);
-        _reader.Read<float>("cosAngle", cosAngle_);
-        _reader.Read<float>("cosFalloffStart", cosFalloffStart_);
-    }
 
     void Finalize() override {}
 

@@ -24,30 +24,6 @@ bool CameraTransform::Edit() {
     return isChange;
 }
 
-void CameraTransform::Save(BinaryWriter& _writer) {
-    _writer.Write<4, float>("rotate", rotate);
-    _writer.Write<3, float>("translate", translate);
-
-    _writer.Write("fovAngleY", fovAngleY);
-    _writer.Write("aspectRatio", aspectRatio);
-
-    _writer.Write("nearZ", nearZ);
-    _writer.Write("farZ", farZ);
-}
-
-void CameraTransform::Load(BinaryReader& _reader) {
-    _reader.Read<4, float>("rotate", rotate);
-    _reader.Read<3, float>("translate", translate);
-
-    _reader.Read("fovAngleY", fovAngleY);
-    _reader.Read("aspectRatio", aspectRatio);
-
-    _reader.Read("nearZ", nearZ);
-    _reader.Read("farZ", farZ);
-
-    UpdateMatrix();
-}
-
 void CameraTransform::Finalize() {
 }
 
@@ -57,4 +33,25 @@ void CameraTransform::UpdateMatrix() {
     viewMat = viewMat.inverse();
 
     projectionMat = MakeMatrix::PerspectiveFov(fovAngleY, aspectRatio, nearZ, farZ);
+}
+
+void to_json(nlohmann::json& j, const CameraTransform& r) {
+    j = nlohmann::json{
+        {"rotate", r.rotate},
+        {"translate", r.translate},
+        {"fovAngleY", r.fovAngleY},
+        {"aspectRatio", r.aspectRatio},
+        {"nearZ", r.nearZ},
+        {"farZ", r.farZ},
+    };
+}
+
+void from_json(const nlohmann::json& j, CameraTransform& r) {
+    j.at("rotate").get_to(r.rotate);
+    j.at("translate").get_to(r.translate);
+    j.at("fovAngleY").get_to(r.fovAngleY);
+    j.at("aspectRatio").get_to(r.aspectRatio);
+    j.at("nearZ").get_to(r.nearZ);
+    j.at("farZ").get_to(r.farZ);
+    r.UpdateMatrix();
 }

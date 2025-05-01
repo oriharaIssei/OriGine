@@ -244,45 +244,45 @@ bool PrimitiveNodeAnimation::Edit() {
 #endif // _DEBUG
 }
 
-void PrimitiveNodeAnimation::Save(BinaryWriter& _writer) {
-    _writer.Write("duration", duration_);
-
-    _writer.Write("isLoop", transformAnimationState_.isLoop_);
-    _writer.Write("isPlay", transformAnimationState_.isPlay_);
-    _writer.Write("transformInterpolationType", transformInterpolationType_);
-
-    _writer.Write("uvIsLoop", materialAnimationState_.isLoop_);
-    _writer.Write("uvIsPlay", materialAnimationState_.isPlay_);
-    _writer.Write("colorInterpolationType", colorInterpolationType_);
-    _writer.Write("uvInterpolationType", uvInterpolationType_);
-
-    WriteCurve("scaleCurve", scaleCurve_, _writer);
-    WriteCurve("rotateCurve", rotateCurve_, _writer);
-    WriteCurve("translateCurve", translateCurve_, _writer);
-
-    WriteCurve("colorCurve", colorCurve_, _writer);
-    WriteCurve("uvScaleCurve", uvScaleCurve_, _writer);
-    WriteCurve("uvRotateCurve", uvRotateCurve_, _writer);
-    WriteCurve("uvTranslateCurve", uvTranslateCurve_, _writer);
-}
-
-void PrimitiveNodeAnimation::Load(BinaryReader& _reader) {
-    _reader.Read("duration", duration_);
-    _reader.Read("isLoop", transformAnimationState_.isLoop_);
-    _reader.Read("isPlay", transformAnimationState_.isPlay_);
-    _reader.Read("transformInterpolationType", transformInterpolationType_);
-    _reader.Read("uvIsLoop", materialAnimationState_.isLoop_);
-    _reader.Read("uvIsPlay", materialAnimationState_.isPlay_);
-    _reader.Read("colorInterpolationType", colorInterpolationType_);
-    _reader.Read("uvInterpolationType", uvInterpolationType_);
-    ReadCurve("scaleCurve", scaleCurve_, _reader);
-    ReadCurve("rotateCurve", rotateCurve_, _reader);
-    ReadCurve("translateCurve", translateCurve_, _reader);
-    ReadCurve("colorCurve", colorCurve_, _reader);
-    ReadCurve("uvScaleCurve", uvScaleCurve_, _reader);
-    ReadCurve("uvRotateCurve", uvRotateCurve_, _reader);
-    ReadCurve("uvTranslateCurve", uvTranslateCurve_, _reader);
-}
+//void PrimitiveNodeAnimation::Save(BinaryWriter& _writer) {
+//    _writer.Write("duration", duration_);
+//
+//    _writer.Write("isLoop", transformAnimationState_.isLoop_);
+//    _writer.Write("isPlay", transformAnimationState_.isPlay_);
+//    _writer.Write("transformInterpolationType", transformInterpolationType_);
+//
+//    _writer.Write("uvIsLoop", materialAnimationState_.isLoop_);
+//    _writer.Write("uvIsPlay", materialAnimationState_.isPlay_);
+//    _writer.Write("colorInterpolationType", colorInterpolationType_);
+//    _writer.Write("uvInterpolationType", uvInterpolationType_);
+//
+//    WriteCurve("scaleCurve", scaleCurve_, _writer);
+//    WriteCurve("rotateCurve", rotateCurve_, _writer);
+//    WriteCurve("translateCurve", translateCurve_, _writer);
+//
+//    WriteCurve("colorCurve", colorCurve_, _writer);
+//    WriteCurve("uvScaleCurve", uvScaleCurve_, _writer);
+//    WriteCurve("uvRotateCurve", uvRotateCurve_, _writer);
+//    WriteCurve("uvTranslateCurve", uvTranslateCurve_, _writer);
+//}
+//
+//void PrimitiveNodeAnimation::Load(BinaryReader& _reader) {
+//    _reader.Read("duration", duration_);
+//    _reader.Read("isLoop", transformAnimationState_.isLoop_);
+//    _reader.Read("isPlay", transformAnimationState_.isPlay_);
+//    _reader.Read("transformInterpolationType", transformInterpolationType_);
+//    _reader.Read("uvIsLoop", materialAnimationState_.isLoop_);
+//    _reader.Read("uvIsPlay", materialAnimationState_.isPlay_);
+//    _reader.Read("colorInterpolationType", colorInterpolationType_);
+//    _reader.Read("uvInterpolationType", uvInterpolationType_);
+//    ReadCurve("scaleCurve", scaleCurve_, _reader);
+//    ReadCurve("rotateCurve", rotateCurve_, _reader);
+//    ReadCurve("translateCurve", translateCurve_, _reader);
+//    ReadCurve("colorCurve", colorCurve_, _reader);
+//    ReadCurve("uvScaleCurve", uvScaleCurve_, _reader);
+//    ReadCurve("uvRotateCurve", uvRotateCurve_, _reader);
+//    ReadCurve("uvTranslateCurve", uvTranslateCurve_, _reader);
+//}
 
 void PrimitiveNodeAnimation::Finalize() {
     transformAnimationState_.isLoop_ = false;
@@ -393,4 +393,19 @@ void PrimitiveNodeAnimation::UpdateMaterialAnimation(Material* _material) {
     }
 
     _material->UpdateUvMatrix();
+}
+
+void to_json(nlohmann::json& _json, const PrimitiveNodeAnimation& _primitiveNodeAnimation) {
+    _json["duration"] = _primitiveNodeAnimation.duration_;
+    _json["isLoop"]   = _primitiveNodeAnimation.transformAnimationState_.isLoop_;
+    _json["isPlay"]   = _primitiveNodeAnimation.transformAnimationState_.isPlay_;
+    _json["uvIsLoop"] = _primitiveNodeAnimation.materialAnimationState_.isLoop_;
+    _json["uvIsPlay"] = _primitiveNodeAnimation.materialAnimationState_.isPlay_;
+}
+void from_json(const nlohmann::json& _json, PrimitiveNodeAnimation& _primitiveNodeAnimation) {
+    _json.at("duration").get_to(_primitiveNodeAnimation.duration_);
+    _json.at("isLoop").get_to(_primitiveNodeAnimation.transformAnimationState_.isLoop_);
+    _json.at("isPlay").get_to(_primitiveNodeAnimation.transformAnimationState_.isPlay_);
+    _json.at("uvIsLoop").get_to(_primitiveNodeAnimation.materialAnimationState_.isLoop_);
+    _json.at("uvIsPlay").get_to(_primitiveNodeAnimation.materialAnimationState_.isPlay_);
 }

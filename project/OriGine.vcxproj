@@ -185,7 +185,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\system\postRender\SmoothingEffect.h" />
     <ClInclude Include="util\timeline\Timeline.h" />
     <ClInclude Include="lib\Thread\Thread.h" />
-    <ClInclude Include="lib\binaryIO\BinaryIO.h" />
     <ClInclude Include="lib\deltaTime\DeltaTime.h" />
     <ClInclude Include="lib\globalVariables\GlobalVariables.h" />
     <ClInclude Include="lib\globalVariables\SerializedField.h" />
@@ -279,7 +278,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\system\postRender\SmoothingEffect.cpp" />
     <ClCompile Include="util\timeline\Timeline.cpp" />
     <ClCompile Include="lib\Thread\Thread.cpp" />
-    <ClCompile Include="lib\binaryIO\BinaryIO.cpp" />
     <ClCompile Include="lib\deltaTime\DeltaTime.cpp" />
     <ClCompile Include="lib\globalVariables\GlobalVariables.cpp" />
     <ClCompile Include="lib\imGuiManager\ImGuiManager.cpp" />

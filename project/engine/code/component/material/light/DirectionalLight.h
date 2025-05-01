@@ -16,6 +16,11 @@
 
 class DirectionalLight
     : public IComponent {
+
+    // to_json, from_json を friend として宣言
+    friend void to_json(nlohmann::json& j, const DirectionalLight& l);
+    friend void from_json(const nlohmann::json& j, DirectionalLight& l);
+
 public:
     DirectionalLight() : IComponent() {}
     ~DirectionalLight() {}
@@ -23,18 +28,6 @@ public:
     void Initialize([[maybe_unused]] GameEntity* _entity) override {}
 
     bool Edit() override;
-    void Save(BinaryWriter& _writer) override {
-        _writer.Write<bool>("isActive", isActive_);
-        _writer.Write<3, float>("color", color_);
-        _writer.Write<float>("intensity", intensity_);
-        _writer.Write<3, float>("direction", direction_);
-    }
-    void Load(BinaryReader& _reader) override {
-        _reader.Read<bool>("isActive", isActive_);
-        _reader.Read<3, float>("color", color_);
-        _reader.Read<float>("intensity", intensity_);
-        _reader.Read<3, float>("direction", direction_);
-    }
 
     void Finalize() override {}
 

@@ -208,3 +208,17 @@ void Audio::SoundUnLoad() {
     audioClip_.data_.bufferSize = 0;
     audioClip_.data_.wfex       = {};
 }
+
+void to_json(nlohmann::json& j, const Audio& t) {
+    j["fileName"] = t.fileName_;
+    j["isLoop"]   = t.audioClip_.isLoop_;
+    j["valume"]   = t.audioClip_.valume_;
+    j["isPlay"]   = t.audioClip_.isPlay_;
+}
+
+void from_json(const nlohmann::json& j, Audio& t) {
+    j.at("fileName").get_to(t.fileName_);
+    j.at("isLoop").get_to(t.audioClip_.isLoop_);
+    j.at("valume").get_to(t.audioClip_.valume_);
+    j.at("isPlay").get_to(t.audioClip_.isPlay_);
+}

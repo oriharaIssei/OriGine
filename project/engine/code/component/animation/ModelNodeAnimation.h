@@ -124,6 +124,9 @@ Quaternion Step(
 /// </summary>
 class ModelNodeAnimation
     : public IComponent {
+    friend void to_json(nlohmann::json& j, const ModelNodeAnimation& t);
+    friend void from_json(const nlohmann::json& j, ModelNodeAnimation& t);
+
 public:
     ModelNodeAnimation() = default;
 
@@ -132,8 +135,6 @@ public:
     void Initialize(GameEntity* _entity) override;
 
     bool Edit() override;
-    void Save(BinaryWriter& _writer) override;
-    void Load(BinaryReader& _reader) override;
 
     void Finalize() override;
 
@@ -198,125 +199,201 @@ public:
 // Write
 /// =====================================================
 inline void WriteCurve(const std::string& _curveName, const AnimationCurve<float>& curve, BinaryWriter& _writer) {
-    size_t size = curve.size();
-    _writer.Write(_curveName + "size", size);
+    _curveName;
+    curve;
+    _writer;
+    /* size_t size = curve.size();
+    _bin.setData("size", size);
+
     int32_t index        = 0;
     std::string indexStr = "";
     for (const auto& keyframe : curve) {
+        BinaryItem keyBin;
         indexStr = std::to_string(index++);
 
-        _writer.Write(_curveName + "time" + indexStr, keyframe.time);
-        _writer.Write<>(_curveName + "value" + indexStr, keyframe.value);
-    }
+        keyBin.setData("time", keyframe.time);
+        keyBin.setData("value", keyframe.value);
+
+        _bin.setData(_curveName + indexStr, keyBin);
+    }*/
 }
 inline void WriteCurve(const std::string& _curveName, const AnimationCurve<Vector2f>& curve, BinaryWriter& _writer) {
-    size_t size = curve.size();
-    _writer.Write(_curveName + "size", size);
+    _curveName;
+    curve;
+    _writer;
+    /* size_t size = curve.size();
+    _bin.setData("size", size);
+
     int32_t index        = 0;
     std::string indexStr = "";
     for (const auto& keyframe : curve) {
+        BinaryItem keyBin;
         indexStr = std::to_string(index++);
 
-        _writer.Write(_curveName + "time" + indexStr, keyframe.time);
-        _writer.Write<2, float>(_curveName + "value" + indexStr, keyframe.value);
-    }
+        keyBin.setData("time", keyframe.time);
+        keyBin.setData("value", keyframe.value);
+
+        _bin.setData(_curveName + indexStr, keyBin);
+    }*/
 }
 inline void WriteCurve(const std::string& _curveName, const AnimationCurve<Vector3f>& curve, BinaryWriter& _writer) {
-    size_t size = curve.size();
-    _writer.Write(_curveName + "size", size);
+    _curveName;
+    curve;
+    _writer;
+    /*size_t size = curve.size();
+    _bin.setData("size", size);
+
     int32_t index        = 0;
     std::string indexStr = "";
     for (const auto& keyframe : curve) {
+        BinaryItem keyBin;
         indexStr = std::to_string(index++);
 
-        _writer.Write(_curveName + "time" + indexStr, keyframe.time);
-        _writer.Write<3, float>(_curveName + "value" + indexStr, keyframe.value);
-    }
+        keyBin.setData("time", keyframe.time);
+        keyBin.setData("value", keyframe.value);
+
+        _bin.setData(_curveName + indexStr, keyBin);
+    }*/
 }
 inline void WriteCurve(const std::string& _curveName, const AnimationCurve<Vector4f>& curve, BinaryWriter& _writer) {
-    size_t size = curve.size();
-    _writer.Write(_curveName + "size", size);
+    _curveName;
+    curve;
+    _writer;
+    /*size_t size = curve.size();
+    _bin.setData("size", size);
+
     int32_t index        = 0;
     std::string indexStr = "";
     for (const auto& keyframe : curve) {
+        BinaryItem keyBin;
         indexStr = std::to_string(index++);
 
-        _writer.Write(_curveName + "time" + indexStr, keyframe.time);
-        _writer.Write<4, float>(_curveName + "value" + indexStr, keyframe.value);
-    }
+        keyBin.setData("time", keyframe.time);
+        keyBin.setData("value", keyframe.value);
+
+        _bin.setData(_curveName + indexStr, keyBin);
+    }*/
 }
 inline void WriteCurve(const std::string& _curveName, const AnimationCurve<Quaternion>& curve, BinaryWriter& _writer) {
-    size_t size = curve.size();
-    _writer.Write(_curveName + "size", size);
+    _curveName;
+    curve;
+    _writer;
+    /*size_t size = curve.size();
+    _bin.setData("size", size);
+
     int32_t index        = 0;
     std::string indexStr = "";
     for (const auto& keyframe : curve) {
+        BinaryItem keyBin;
         indexStr = std::to_string(index++);
-        _writer.Write(_curveName + "time" + indexStr, keyframe.time);
-        _writer.Write<4, float>(_curveName + "value" + indexStr, keyframe.value);
-    }
+
+        keyBin.setData("time", keyframe.time);
+        keyBin.setData("value", keyframe.value);
+
+        _bin.setData(_curveName + indexStr, keyBin);
+    }*/
 }
 
 /// =====================================================
 // Read
 /// =====================================================
 inline void ReadCurve(const std::string& _curveName, AnimationCurve<float>& curve, BinaryReader& _reader) {
-    size_t size;
-    _reader.Read(_curveName + "size", size);
+    _curveName;
+    curve;
+    _reader;
+    /*size_t size;
+    size = _bin.getData<size_t>("size");
     curve.resize(size);
+
     int32_t index        = 0;
     std::string indexStr = "";
     for (auto& keyframe : curve) {
-        indexStr = std::to_string(index++);
-        _reader.Read(_curveName + "time" + indexStr, keyframe.time);
-        _reader.Read(_curveName + "value" + indexStr, keyframe.value);
-    }
+        indexStr = std::to_string(index);
+
+        BinaryItem child = _bin.getChild(_curveName + indexStr);
+        keyframe.time    = child.getData<float>("time");
+        keyframe.value   = child.getData<float>("value");
+
+        ++index;
+    }*/
 }
 inline void ReadCurve(const std::string& _curveName, AnimationCurve<Vector2f>& curve, BinaryReader& _reader) {
-    size_t size;
-    _reader.Read(_curveName + "size", size);
+    _curveName;
+    curve;
+    _reader;
+    /* size_t size;
+    size = _bin.getData<size_t>("size");
     curve.resize(size);
+
     int32_t index        = 0;
     std::string indexStr = "";
     for (auto& keyframe : curve) {
-        indexStr = std::to_string(index++);
-        _reader.Read(_curveName + "time" + indexStr, keyframe.time);
-        _reader.Read<2, float>(_curveName + "value" + indexStr, keyframe.value);
-    }
+        indexStr = std::to_string(index);
+
+        BinaryItem child = _bin.getChild(_curveName + indexStr);
+        keyframe.time    = child.getData<float>("time");
+        keyframe.value   = child.getData<Vector2f>("value");
+
+        ++index;
+    }*/
 }
 inline void ReadCurve(const std::string& _curveName, AnimationCurve<Vector3f>& curve, BinaryReader& _reader) {
-    size_t size;
-    _reader.Read(_curveName + "size", size);
+    _curveName;
+    curve;
+    _reader;
+    /*size_t size;
+    size = _bin.getData<size_t>("size");
     curve.resize(size);
+
     int32_t index        = 0;
     std::string indexStr = "";
     for (auto& keyframe : curve) {
-        indexStr = std::to_string(index++);
-        _reader.Read(_curveName + "time" + indexStr, keyframe.time);
-        _reader.Read<3, float>(_curveName + "value" + indexStr, keyframe.value);
-    }
+        indexStr = std::to_string(index);
+
+        BinaryItem child = _bin.getChild(_curveName + indexStr);
+        keyframe.time    = child.getData<float>("time");
+        keyframe.value   = child.getData<Vector3f>("value");
+
+        ++index;
+    }*/
 }
 inline void ReadCurve(const std::string& _curveName, AnimationCurve<Vector4f>& curve, BinaryReader& _reader) {
-    size_t size;
-    _reader.Read(_curveName + "size", size);
+    _curveName;
+    curve;
+    _reader;
+    /*size_t size;
+    size = _bin.getData<size_t>("size");
     curve.resize(size);
+
     int32_t index        = 0;
     std::string indexStr = "";
     for (auto& keyframe : curve) {
-        indexStr = std::to_string(index++);
-        _reader.Read(_curveName + "time" + indexStr, keyframe.time);
-        _reader.Read<4, float>(_curveName + "value" + indexStr, keyframe.value);
-    }
+        indexStr = std::to_string(index);
+
+        BinaryItem child = _bin.getChild(_curveName + indexStr);
+        keyframe.time    = child.getData<float>("time");
+        keyframe.value   = child.getData<Vector4f>("value");
+
+        ++index;
+    }*/
 }
 inline void ReadCurve(const std::string& _curveName, AnimationCurve<Quaternion>& curve, BinaryReader& _reader) {
-    size_t size;
-    _reader.Read(_curveName + "size", size);
+    _curveName;
+    curve;
+    _reader;
+    /* size_t size;
+    size = _bin.getData<size_t>("size");
     curve.resize(size);
+
     int32_t index        = 0;
     std::string indexStr = "";
     for (auto& keyframe : curve) {
-        indexStr = std::to_string(index++);
-        _reader.Read(_curveName + "time" + indexStr, keyframe.time);
-        _reader.Read<4, float>(_curveName + "value" + indexStr, keyframe.value);
-    }
+        indexStr = std::to_string(index);
+
+        BinaryItem child = _bin.getChild(_curveName + indexStr);
+        keyframe.time    = child.getData<float>("time");
+        keyframe.value   = child.getData<Quaternion>("value");
+
+        ++index;
+    }*/
 }

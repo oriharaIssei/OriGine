@@ -19,15 +19,15 @@ struct SpriteVertexData {
 struct SpritConstBuffer {
     Vec4f color_ = {1.f, 1.f, 1.f, 1.f};
 
-    Vec2f scale_     = {1.f, 1.f};
-    float rotate_    = 0.f;
-    Vec2f translate_ = {0.f, 0.f};
-    Matrix4x4 worldMat_;
+    Vec2f scale_        = {1.f, 1.f};
+    float rotate_       = 0.f;
+    Vec2f translate_    = {0.f, 0.f};
+    Matrix4x4 worldMat_ = MakeMatrix::Identity();
 
     Vec2f uvScale_     = {1.f, 1.f};
     float uvRotate_    = 0.f;
     Vec2f uvTranslate_ = {0.f, 0.f};
-    Matrix4x4 uvMat_;
+    Matrix4x4 uvMat_   = MakeMatrix::Identity();
 
     void Update(const Matrix4x4& _vpMat) {
         worldMat_ = MakeMatrix::Affine({scale_, 1.0f}, {0.0f, 0.0f, rotate_}, {translate_, 0.0f}) * _vpMat;
@@ -54,6 +54,9 @@ using SpriteMesh = Mesh<SpriteVertexData>;
 //====================================== MeshRenderer ======================================//
 class SpriteRenderer
     : public MeshRenderer<SpriteMesh, SpriteVertexData> {
+    friend void to_json(nlohmann::json& j, const SpriteRenderer& r);
+    friend void from_json(const nlohmann::json& j, SpriteRenderer& r);
+
 public:
     SpriteRenderer() : MeshRenderer<SpriteMesh, SpriteVertexData>() {}
     ~SpriteRenderer() {}
@@ -64,8 +67,6 @@ public:
     void Initialize(GameEntity* _hostEntity) override;
 
     bool Edit() override;
-    void Save(BinaryWriter& _writer) override;
-    void Load(BinaryReader& _reader) override;
 
     /// <summary>
     /// 更新
@@ -94,7 +95,7 @@ private:
 
 public:
     uint32_t getTextureNumber() const { return textureNumber_; }
-    void setTexture(const std::string& _texturePath,bool _applyTextureSize);
+    void setTexture(const std::string& _texturePath, bool _applyTextureSize);
 
     uint32_t getRenderingNum() const { return renderingPriority_; }
     void setRenderingNum(uint32_t num) { renderingPriority_ = num; }

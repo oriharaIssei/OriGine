@@ -7,6 +7,9 @@
 /// lib
 #include <binaryIO/BinaryIO.h>
 
+/// externals
+#include <nlohmann/json.hpp>
+
 /// utility
 #include <util/nameof.h>
 
@@ -21,9 +24,8 @@ public:
 
     virtual void Initialize(GameEntity* _entity) = 0;
 
-    virtual bool Edit()                      = 0;
-    virtual void Save(BinaryWriter& _writer) = 0;
-    virtual void Load(BinaryReader& _reader) = 0;
+    virtual bool Edit() = 0;
+    virtual void Debug() { Edit(); }
 
     virtual void Finalize() = 0;
 };

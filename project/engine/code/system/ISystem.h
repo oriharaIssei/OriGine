@@ -55,7 +55,7 @@ public:
     }
 
 protected:
-    virtual void UpdateEntity([[maybe_unused]]GameEntity* _entity){}
+    virtual void UpdateEntity([[maybe_unused]] GameEntity* _entity) {}
 
 protected:
     std::vector<GameEntity*> entities_;
@@ -82,7 +82,7 @@ public: // ========================================== accessor =================
         return static_cast<int32_t>(entities_.size());
     }
 
-    bool hasEntity(GameEntity* _entity) const {
+    bool hasEntity(const GameEntity* _entity) const {
         return std::find(entities_.begin(), entities_.end(), _entity) != entities_.end();
     }
 
