@@ -15,6 +15,9 @@
 
 class PrimitiveNodeAnimation
     : public IComponent {
+    friend void to_json(nlohmann::json& _json, const PrimitiveNodeAnimation& _primitiveNodeAnimation);
+    friend void from_json(const nlohmann::json& _json, PrimitiveNodeAnimation& _primitiveNodeAnimation);
+
 public:
     PrimitiveNodeAnimation()           = default;
     ~PrimitiveNodeAnimation() override = default;
@@ -22,8 +25,6 @@ public:
     void Initialize(GameEntity* _entity) override;
 
     bool Edit() override;
-    void Save(BinaryWriter& _writer) override;
-    void Load(BinaryReader& _reader) override;
 
     void Finalize() override;
 

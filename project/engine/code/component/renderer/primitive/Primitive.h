@@ -469,6 +469,9 @@ public:
 
 class PlaneRenderer
     : public PrimitiveMeshRenderer<Plane> {
+    friend void to_json(nlohmann::json& j, const PlaneRenderer& r);
+    friend void from_json(const nlohmann::json& j, PlaneRenderer& r);
+
 public:
     PlaneRenderer() : PrimitiveMeshRenderer() {}
     PlaneRenderer(const std::vector<TextureMesh>& _meshGroup) : PrimitiveMeshRenderer(_meshGroup) {}
@@ -494,6 +497,4 @@ public:
     }
 
     bool Edit() override;
-    void Save(BinaryWriter& _writer) override;
-    void Load(BinaryReader& _reader) override;
 };

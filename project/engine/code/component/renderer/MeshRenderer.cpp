@@ -67,6 +67,10 @@ ModelMeshRenderer::ModelMeshRenderer(const std::shared_ptr<std::vector<TextureMe
 void ModelMeshRenderer::Initialize(GameEntity* _hostEntity) {
     MeshRenderer::Initialize(_hostEntity);
 
+    if (!fileName_.empty()) {
+        CreateModelMeshRenderer(this, hostEntity_, directory_, fileName_);
+    }
+
     Transform* entityTransform = getComponent<Transform>(_hostEntity);
     meshTransformBuff_.resize(meshGroup_->size());
     meshTextureNumber_.resize(meshGroup_->size());
@@ -165,57 +169,54 @@ bool ModelMeshRenderer::Edit() {
 #endif // _DEBUG
 }
 
-void ModelMeshRenderer::Save(BinaryWriter& _writer) {
-    MeshRenderer::Save(_writer);
-
-    _writer.Write<std::string>("directory", directory_);
-    _writer.Write<std::string>("fileName", fileName_);
-
-    const std::string& preWriterGroupName = _writer.getGroupName();
-    for (int32_t i = 0; i < meshGroup_->size(); ++i) {
-
-        _writer.WriteBeginGroup(preWriterGroupName + std::format("Mesh{}", i));
-
-        meshTransformBuff_[i].openData_.Save(_writer);
-
-        _writer.Write<3, float>("uvScale", meshMaterialBuff_[i].openData_.uvScale_);
-        _writer.Write<3, float>("uvRotate", meshMaterialBuff_[i].openData_.uvRotate_);
-        _writer.Write<3, float>("uvTranslate", meshMaterialBuff_[i].openData_.uvTranslate_);
-
-        _writer.Write<4, float>("color", meshMaterialBuff_[i].openData_.color_);
-
-        _writer.Write<int32_t>("enableLighting", meshMaterialBuff_[i].openData_.enableLighting_);
-        _writer.Write<float>("shininess", meshMaterialBuff_[i].openData_.shininess_);
-        _writer.Write<3, float>("specularColor", meshMaterialBuff_[i].openData_.specularColor_);
-    }
-}
-
-void ModelMeshRenderer::Load(BinaryReader& _reader) {
-    MeshRenderer::Load(_reader);
-
-    _reader.Read<std::string>("directory", directory_);
-    _reader.Read<std::string>("fileName", fileName_);
-
-    if (!fileName_.empty()) {
-        CreateModelMeshRenderer(this, hostEntity_, directory_, fileName_);
-    }
-
-    const std::string& preWriterGroupName = _reader.getGroupName();
-    for (int32_t i = 0; i < meshGroup_->size(); ++i) {
-        _reader.ReadBeginGroup(preWriterGroupName + std::format("Mesh{}", i));
-
-        meshTransformBuff_[i].openData_.Load(_reader);
-        _reader.Read<3, float>("uvScale", meshMaterialBuff_[i].openData_.uvScale_);
-        _reader.Read<3, float>("uvRotate", meshMaterialBuff_[i].openData_.uvRotate_);
-        _reader.Read<3, float>("uvTranslate", meshMaterialBuff_[i].openData_.uvTranslate_);
-        _reader.Read<4, float>("color", meshMaterialBuff_[i].openData_.color_);
-        _reader.Read<int32_t>("enableLighting", meshMaterialBuff_[i].openData_.enableLighting_);
-        _reader.Read<float>("shininess", meshMaterialBuff_[i].openData_.shininess_);
-        _reader.Read<3, float>("specularColor", meshMaterialBuff_[i].openData_.specularColor_);
-    }
-}
-
 #pragma endregion
+
+void to_json(nlohmann::json& j, const ModelMeshRenderer& r) {
+    j["isRender"]  = r.isRender_;
+    j["blendMode"] = static_cast<int32_t>(r.currentBlend_);
+
+    j["directory"] = r.directory_;
+    j["fileName"]  = r.fileName_;
+
+    nlohmann::json transformBufferDatas = nlohmann::json::array();
+    for (int32_t i = 0; i < r.meshGroup_->size(); ++i) {
+        nlohmann::json bufferData;
+        to_json(bufferData, r.meshTransformBuff_[i].openData_);
+        transformBufferDatas.push_back(bufferData);
+    }
+    j["transformBufferDatas"] = transformBufferDatas;
+
+    nlohmann::json materialBufferDatas = nlohmann::json::array();
+    for (int32_t i = 0; i < r.meshGroup_->size(); ++i) {
+        nlohmann::json bufferData;
+        to_json(bufferData, r.meshMaterialBuff_[i].openData_);
+        materialBufferDatas.push_back(bufferData);
+    }
+}
+
+void from_json(const nlohmann::json& j, ModelMeshRenderer& r) {
+    j.at("isRender").get_to(r.isRender_);
+    int32_t blendMode = 0;
+    j.at("blendMode").get_to(blendMode);
+    r.currentBlend_ = static_cast<BlendMode>(blendMode);
+
+    j.at("directory").get_to(r.directory_);
+    j.at("fileName").get_to(r.fileName_);
+
+    auto& transformBufferDatas = j.at("transformBufferDatas");
+    for (int32_t i = 0; i < r.meshGroup_->size(); ++i) {
+        Transform transform;
+        transformBufferDatas[i].get_to(transform);
+        r.meshTransformBuff_[i].openData_ = transform;
+    }
+
+    auto& materialBufferDatas = j.at("materialBufferDatas");
+    for (int32_t i = 0; i < r.meshGroup_->size(); ++i) {
+        Material material;
+        materialBufferDatas[i].get_to(material);
+        r.meshMaterialBuff_[i].openData_ = material;
+    }
+}
 
 void CreateModelMeshRenderer(ModelMeshRenderer* _renderer, GameEntity* _hostEntity, const std::string& _directory, const std::string& _filenName) {
     _renderer->setParentTransform(getComponent<Transform>(_hostEntity));
@@ -273,6 +274,7 @@ void LineRenderer::Initialize(GameEntity* _hostEntity) {
     MeshRenderer::Initialize(_hostEntity);
     Transform* entityTransform = getComponent<Transform>(_hostEntity);
 
+    // transform
     transformBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
     transformBuff_.openData_.parent = entityTransform;
     transformBuff_.openData_.Update();
@@ -371,72 +373,79 @@ bool LineRenderer::Edit() {
     return isChange;
 }
 
-void LineRenderer::Save(BinaryWriter& _writer) {
-    MeshRenderer::Save(_writer);
+void to_json(nlohmann::json& j, const LineRenderer& r) {
+    j["isRender"]    = r.isRender_;
+    j["blendMode"]   = static_cast<int32_t>(r.currentBlend_);
 
-    _writer.Write<bool>("lineIsStrip", lineIsStrip_);
+    j["lineIsStrip"] = r.lineIsStrip_;
 
     // transform
-    transformBuff_->Save(_writer);
+    nlohmann::json transformBufferData;
+    to_json(transformBufferData, r.transformBuff_.openData_);
+    j["transformBufferData"] = transformBufferData;
 
     // mesh
-    int32_t meshSize = static_cast<int32_t>(meshGroup_->size());
-    _writer.Write<int32_t>("meshSize", meshSize);
-    std::string meshLabel;
-    for (int32_t meshIndex = 0; meshIndex < meshSize; ++meshIndex) {
-        meshLabel  = "Mesh_" + std::to_string(meshIndex);
-        auto& mesh = (*meshGroup_)[meshIndex];
+    nlohmann::json meshGroupDatas = nlohmann::json::array();
+    for (uint32_t meshIndex = 0; meshIndex < r.meshGroup_->size(); ++meshIndex) {
+        nlohmann::json meshData;
 
-        _writer.Write<uint32_t>(meshLabel + "_vertexSize", mesh.getVertexSize());
-        _writer.Write<uint32_t>(meshLabel + "_indexSize", mesh.getIndexSize());
-        // vertex
-        for (uint32_t vertIndex = 0; vertIndex < mesh.getVertexSize(); ++vertIndex) {
-            _writer.Write<4, float>(meshLabel + "pos" + std::to_string(vertIndex), mesh.vertexes_[vertIndex].pos);
-            _writer.Write<4, float>(meshLabel + "color" + std::to_string(vertIndex), mesh.vertexes_[vertIndex].color);
+        meshData["vertexSize"] = r.meshGroup_->at(meshIndex).getVertexSize();
+        meshData["indexSize"]  = r.meshGroup_->at(meshIndex).getIndexSize();
+
+        meshData["vertexes"] = nlohmann::json::array();
+        for (uint32_t vertexIndex = 0; vertexIndex < r.meshGroup_->at(meshIndex).getVertexSize(); ++vertexIndex) {
+            nlohmann::json vertexData;
+            vertexData["pos"]   = r.meshGroup_->at(meshIndex).vertexes_[vertexIndex].pos;
+            vertexData["color"] = r.meshGroup_->at(meshIndex).vertexes_[vertexIndex].color;
+
+            meshData["vertexes"].emplace_back(vertexData);
         }
-        // index
-        for (uint32_t indexNum = 0; indexNum < mesh.getIndexSize(); ++indexNum) {
-            _writer.Write<uint32_t>(meshLabel + "indexData" + std::to_string(indexNum), mesh.indexes_[indexNum]);
+
+        meshData["indexes"] = nlohmann::json::array();
+        for (uint32_t indexIndex = 0; indexIndex < r.meshGroup_->at(meshIndex).getIndexSize(); ++indexIndex) {
+            nlohmann::json indexData;
+            indexData = r.meshGroup_->at(meshIndex).indexes_[indexIndex];
+            meshData["indexes"].emplace_back(indexData);
         }
+
+        meshGroupDatas.emplace_back(meshData);
+    }
+
+    j["meshGroupDatas"] = meshGroupDatas;
+}
+
+void from_json(const nlohmann::json& j, LineRenderer& r) {
+    j.at("isRender").get_to(r.isRender_);
+    int32_t blendMode = 0;
+    j.at("blendMode").get_to(blendMode);
+    r.currentBlend_ = static_cast<BlendMode>(blendMode);
+
+    j.at("lineIsStrip").get_to(r.lineIsStrip_);
+
+    // transform
+    j.at("transformBufferData").get_to(r.transformBuff_.openData_);
+
+    // mesh
+    auto& meshGroupDatas = j.at("meshGroupDatas");
+    for (auto& meshData : meshGroupDatas) {
+        Mesh<ColorVertexData> mesh;
+        mesh.setVertexSize(meshData.at("vertexSize"));
+        mesh.setIndexSize(meshData.at("indexSize"));
+        for (auto& vertexData : meshData.at("vertexes")) {
+            ColorVertexData vertex;
+            vertex.pos   = vertexData.at("pos");
+            vertex.color = vertexData.at("color");
+            mesh.vertexes_.emplace_back(vertex);
+        }
+        for (auto& indexData : meshData.at("indexes")) {
+            int32_t index;
+            index = indexData;
+            mesh.indexes_.emplace_back(index);
+        }
+        r.meshGroup_->emplace_back(mesh);
     }
 }
 
-void LineRenderer::Load(BinaryReader& _reader) {
-    MeshRenderer::Load(_reader);
-
-    _reader.Read<bool>("lineIsStrip", lineIsStrip_);
-
-    transformBuff_->Load(_reader);
-
-    // mesh
-    int32_t meshSize = 0;
-    _reader.Read<int32_t>("meshSize", meshSize);
-    std::string meshLabel;
-    for (int32_t meshIndex = 0; meshIndex < meshSize; ++meshIndex) {
-        meshLabel           = "Mesh_" + std::to_string(meshIndex);
-        auto& mesh          = (*meshGroup_)[meshIndex];
-        uint32_t vertexSize = 0;
-        uint32_t indexSize  = 0;
-        _reader.Read<uint32_t>(meshLabel + "_vertexSize", vertexSize);
-        _reader.Read<uint32_t>(meshLabel + "_indexSize", indexSize);
-        mesh.setVertexSize(vertexSize);
-        mesh.setIndexSize(indexSize);
-        // vertex
-        for (uint32_t vertIndex = 0; vertIndex < mesh.getVertexSize(); ++vertIndex) {
-            ColorVertexData vertexData;
-            _reader.Read<4, float>(meshLabel + "pos" + std::to_string(vertIndex), vertexData.pos);
-            _reader.Read<4, float>(meshLabel + "color" + std::to_string(vertIndex), vertexData.color);
-            mesh.vertexes_[vertIndex] = vertexData;
-        }
-        // index
-        for (uint32_t indexNum = 0; indexNum < mesh.getIndexSize(); ++indexNum) {
-            uint32_t indexData = 0;
-            _reader.Read<uint32_t>(meshLabel + "indexData" + std::to_string(indexNum), indexData);
-            mesh.indexes_[indexNum] = indexData;
-        }
-        mesh.TransferData();
-    }
-}
 void LineRenderer::Finalize() {
     for (auto& mesh : *meshGroup_) {
         mesh.Finalize();

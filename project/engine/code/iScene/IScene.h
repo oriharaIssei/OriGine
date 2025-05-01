@@ -17,9 +17,6 @@ public:
     virtual void Initialize();
     virtual void Finalize(bool _isSave = true);
 
-    virtual void LoadSceneEntity();
-    virtual void SaveSceneEntity();
-
 protected:
     /// <summary>
     /// シーン内で使用するComponentを登録する

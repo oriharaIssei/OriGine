@@ -1,8 +1,14 @@
 #pragma once
 
+/// stl
 #include <algorithm>
-#include <cmath>
 #include <type_traits>
+
+/// math
+#include <cmath>
+
+/// externals
+#include <nlohmann/json.hpp>
 
 // indexNumbers
 static const int X = 0;
@@ -264,3 +270,23 @@ inline Vector<dim, valueType> MaxElement(const Vector<dim, valueType>& a, const 
 
 template <int dimension, typename valueType>
 using Vec = Vector<dimension, valueType>;
+
+template <int dim, typename valueType>
+inline void to_json(nlohmann::json& j, const Vector<dim, valueType>& v) {
+    // VectorをJSON配列としてシリアライズ
+    j = nlohmann::json::array();
+    for (int i = 0; i < dim; ++i) {
+        j.push_back(v[i]);
+    }
+}
+
+template <int dim, typename valueType>
+inline void from_json(const nlohmann::json& j, Vector<dim, valueType>& v) {
+    // JSON配列をVectorにデシリアライズ
+    if (!j.is_array() || j.size() != dim) {
+        throw std::invalid_argument("JSON array size does not match Vector dimension");
+    }
+    for (int i = 0; i < dim; ++i) {
+        v[i] = j.at(i).get<valueType>();
+    }
+}

@@ -129,55 +129,6 @@ bool SpriteRenderer::Edit() {
 #endif // _DEBUG
 }
 
-void SpriteRenderer::Save(BinaryWriter& _writer) {
-    MeshRenderer<SpriteMesh, SpriteVertexData>::Save(_writer);
-
-    _writer.Write<uint32_t>("renderingPriority", renderingPriority_);
-
-    _writer.Write("texturePath", texturePath_);
-
-    _writer.Write<2, float>("textureLeftTop", textureLeftTop_);
-    _writer.Write<2, float>("textureSize", textureSize_);
-    _writer.Write<2, float>("anchorPoint", anchorPoint_);
-
-    _writer.Write<bool>("isFlipX", isFlipX_);
-    _writer.Write<bool>("isFlipY", isFlipY_);
-
-    _writer.Write<2, float>("scale", spriteBuff_->scale_);
-    _writer.Write<float>("rotate", spriteBuff_->rotate_);
-    _writer.Write<2, float>("translate", spriteBuff_->translate_);
-
-    _writer.Write<2, float>("uvScale", spriteBuff_->uvScale_);
-    _writer.Write<float>("uvRotate", spriteBuff_->uvRotate_);
-    _writer.Write<2, float>("uvTranslate", spriteBuff_->uvTranslate_);
-}
-
-void SpriteRenderer::Load(BinaryReader& _reader) {
-    MeshRenderer<SpriteMesh, SpriteVertexData>::Load(_reader);
-
-    _reader.Read<uint32_t>("renderingPriority", renderingPriority_);
-
-    _reader.Read("texturePath", texturePath_);
-    if (!texturePath_.empty()) {
-        textureNumber_ = TextureManager::LoadTexture(texturePath_);
-    }
-
-    _reader.Read<2, float>("textureLeftTop", textureLeftTop_);
-    _reader.Read<2, float>("textureSize", textureSize_);
-    _reader.Read<2, float>("anchorPoint", anchorPoint_);
-
-    _reader.Read<bool>("isFlipX", isFlipX_);
-    _reader.Read<bool>("isFlipY", isFlipY_);
-
-    _reader.Read<2, float>("scale", spriteBuff_->scale_);
-    _reader.Read<float>("rotate", spriteBuff_->rotate_);
-    _reader.Read<2, float>("translate", spriteBuff_->translate_);
-
-    _reader.Read<2, float>("uvScale", spriteBuff_->uvScale_);
-    _reader.Read<float>("uvRotate", spriteBuff_->uvRotate_);
-    _reader.Read<2, float>("uvTranslate", spriteBuff_->uvTranslate_);
-}
-
 void SpriteRenderer::Finalize() {
     MeshRenderer::Finalize();
     spriteBuff_.Finalize();
@@ -236,4 +187,37 @@ void SpriteRenderer::Update(const Matrix4x4& _viewPortMat) {
     mesh.vertexes_[3].texcoord = {texRight, texTop};
 
     mesh.TransferData();
+}
+
+void to_json(nlohmann::json& j, const SpriteRenderer& r) {
+    j = nlohmann::json{
+        {"renderingPriority", r.renderingPriority_},
+        {"texturePath", r.texturePath_},
+        {"textureLeftTop", r.textureLeftTop_},
+        {"textureSize", r.textureSize_},
+        {"anchorPoint", r.anchorPoint_},
+        {"isFlipX", r.isFlipX_},
+        {"isFlipY", r.isFlipY_},
+        {"scale", r.spriteBuff_->scale_},
+        {"rotate", r.spriteBuff_->rotate_},
+        {"translate", r.spriteBuff_->translate_},
+        {"uvScale", r.spriteBuff_->uvScale_},
+        {"uvRotate", r.spriteBuff_->uvRotate_},
+        {"uvTranslate", r.spriteBuff_->uvTranslate_}};
+}
+
+void from_json(const nlohmann::json& j, SpriteRenderer& r) {
+    j.at("renderingPriority").get_to(r.renderingPriority_);
+    j.at("texturePath").get_to(r.texturePath_);
+    j.at("textureLeftTop").get_to(r.textureLeftTop_);
+    j.at("textureSize").get_to(r.textureSize_);
+    j.at("anchorPoint").get_to(r.anchorPoint_);
+    j.at("isFlipX").get_to(r.isFlipX_);
+    j.at("isFlipY").get_to(r.isFlipY_);
+    j.at("scale").get_to(r.spriteBuff_->scale_);
+    j.at("rotate").get_to(r.spriteBuff_->rotate_);
+    j.at("translate").get_to(r.spriteBuff_->translate_);
+    j.at("uvScale").get_to(r.spriteBuff_->uvScale_);
+    j.at("uvRotate").get_to(r.spriteBuff_->uvRotate_);
+    j.at("uvTranslate").get_to(r.spriteBuff_->uvTranslate_);
 }

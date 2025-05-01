@@ -30,11 +30,19 @@ public:
     virtual void Initialize(uint32_t _size) = 0;
     virtual void Finalize()                 = 0;
 
-    /// @brief 指定エンティティのコンポーネントを BinaryWriter で保存する
-    virtual void SaveComponent(GameEntity* _entity, BinaryWriter& _writer) = 0;
+    /// <summary>
+    /// Entityが持つコンポーネントを保存する
+    /// </summary>
+    /// <param name="_entity">対象のエンティティ</param>
+    /// <param name="_json">情報を入れるための器,Binaryで保存するときはこれをBinaryItem に渡す</param>
+    virtual void SaveComponent(GameEntity* _entity, nlohmann::json& _json) = 0;
 
-    /// @brief 指定エンティティのコンポーネントを BinaryReader で読み込む
-    virtual void LoadComponent(GameEntity* _entity, BinaryReader& _reader) = 0;
+    /// <summary>
+    /// Entityのコンポーネントを読み込む
+    /// </summary>
+    /// <param name="_entity">対象のエンティティ</param>
+    /// <param name="_json">情報が入った器</param>
+    virtual void LoadComponent(GameEntity* _entity, nlohmann::json& _json) = 0;
 
     virtual void reserveEntity(GameEntity* _hostEntity, int32_t _entitySize) = 0;
 
@@ -111,10 +119,10 @@ public:
     }
 
     /// @brief コンポーネントの保存
-    void SaveComponent(GameEntity* _entity, BinaryWriter& _writer) override;
+    void SaveComponent(GameEntity* _entity, nlohmann::json& _json) override;
 
     /// @brief コンポーネントの読み込み
-    void LoadComponent(GameEntity* _entity, BinaryReader& _reader) override;
+    void LoadComponent(GameEntity* _entity, nlohmann::json& _json) override;
 
     /// @brief エンティティ登録（メモリ確保）
     void registerEntity(GameEntity* _entity, int32_t _entitySize = 1, bool _doInitialize = true) override {
@@ -389,45 +397,44 @@ public:
 };
 
 template <IsComponent componentType>
-inline void ComponentArray<componentType>::SaveComponent(GameEntity* _entity, BinaryWriter& _writer) {
+inline void ComponentArray<componentType>::SaveComponent(GameEntity* _entity, nlohmann::json& _json) {
     auto it = entityIndexBind_.find(_entity);
     if (it == entityIndexBind_.end()) {
         return;
     }
 
-    std::string preGroupName      = _writer.getGroupName();
-    std::string componentTypeName = nameof<componentType>();
-    _writer.WriteBeginGroup(preGroupName + componentTypeName);
+    nlohmann::json compVecJson = nlohmann::json::array();
 
     uint32_t index = it->second;
-    _writer.Write<uint32_t>("size", static_cast<uint32_t>(components_[index].size()));
-
-    int32_t compIndex = 0;
     for (auto& comp : components_[index]) {
-        _writer.WriteBeginGroup(preGroupName + componentTypeName + std::to_string(compIndex++));
-        comp.Save(_writer);
+        compVecJson.emplace_back(comp);
     }
 
-    _writer.WriteBeginGroup(preGroupName);
+    _json[nameof<componentType>()] = compVecJson;
 }
 
 template <IsComponent componentType>
-inline void ComponentArray<componentType>::LoadComponent(GameEntity* _entity, BinaryReader& _reader) {
-    std::string preGroupName = _reader.getGroupName();
+inline void ComponentArray<componentType>::LoadComponent(GameEntity* _entity, nlohmann::json& _json) {
+    auto it = entityIndexBind_.find(_entity);
+    if (it == entityIndexBind_.end()) {
+        // エンティティが登録されていない場合は新規登録
+        entityIndexBind_[_entity] = static_cast<uint32_t>(components_.size());
+        components_.emplace_back();
 
-    uint32_t size;
-    std::string componentTypeName = nameof<componentType>();
-    _reader.ReadBeginGroup(preGroupName + componentTypeName);
-
-    _reader.Read<uint32_t>("size", size);
-    registerEntity(_entity, size);
-    auto& componentVec = components_[entityIndexBind_[const_cast<GameEntity*>(_entity)]];
-
-    int32_t compIndex = 0;
-    for (auto& comp : componentVec) {
-        _reader.ReadBeginGroup(preGroupName + componentTypeName + std::to_string(compIndex++));
-        comp.Load(_reader);
+        it = entityIndexBind_.find(_entity);
     }
 
-    _reader.ReadBeginGroup(preGroupName);
+    uint32_t index = it->second;
+
+
+    // 現在のコンポーネントをクリア
+    components_[index].clear();
+
+    // JSON 配列からコンポーネントを読み込み
+    for (const auto& compJson : _json) {
+        componentType comp;
+        comp = compJson.get<componentType>(); // from_json が呼ばれる
+        comp.Initialize(_entity); // コンポーネントの初期化
+        components_[index].emplace_back(comp);
+    }
 }

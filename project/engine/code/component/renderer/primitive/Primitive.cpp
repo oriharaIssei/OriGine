@@ -215,39 +215,26 @@ bool PlaneRenderer::Edit() {
 #endif // _DEBUG
 }
 
-void PlaneRenderer::Save(BinaryWriter& _writer) {
-    MeshRenderer::Save(_writer);
-
-    _writer.Write<std::string>("textureDirectory", textureDirectory_);
-    _writer.Write<std::string>("textureFileName", textureFileName_);
-
-    transformBuff_.openData_.Save(_writer);
-
-    _writer.Write<4, float>("color", materialBuff_.openData_.color_);
-    _writer.Write<3, float>("uvScale", materialBuff_.openData_.uvScale_);
-    _writer.Write<3, float>("uvRotate", materialBuff_.openData_.uvRotate_);
-    _writer.Write<3, float>("uvTranslate", materialBuff_.openData_.uvTranslate_);
-    _writer.Write<int32_t>("enableLighting", materialBuff_.openData_.enableLighting_);
-    _writer.Write<float>("shininess", materialBuff_.openData_.shininess_);
-    _writer.Write<3, float>("specularColor", materialBuff_.openData_.specularColor_);
+void to_json(nlohmann::json& j, const PlaneRenderer& r) {
+    j["isRenderer"]       = r.isRender_;
+    j["blendMode"]        = static_cast<int32_t>(r.currentBlend_);
+    j["textureDirectory"] = r.textureDirectory_;
+    j["textureFileName"]  = r.textureFileName_;
+    to_json(j["transform"], r.transformBuff_.openData_);
+    to_json(j["material"], r.materialBuff_.openData_);
+    j["material"]     = r.materialBuff_.openData_;
+    j["textureIndex"] = r.textureIndex_;
 }
 
-void PlaneRenderer::Load(BinaryReader& _reader) {
-    MeshRenderer::Load(_reader);
-
-    _reader.Read<std::string>("textureDirectory", textureDirectory_);
-    _reader.Read<std::string>("textureFileName", textureFileName_);
-    if (!textureFileName_.empty()) { // テクスチャの読み込み
-        textureIndex_ = TextureManager::LoadTexture(textureDirectory_ + "/" + textureFileName_);
-    }
-
-    transformBuff_.openData_.Load(_reader);
-
-    _reader.Read<4, float>("color", materialBuff_.openData_.color_);
-    _reader.Read<3, float>("uvScale", materialBuff_.openData_.uvScale_);
-    _reader.Read<3, float>("uvRotate", materialBuff_.openData_.uvRotate_);
-    _reader.Read<3, float>("uvTranslate", materialBuff_.openData_.uvTranslate_);
-    _reader.Read<int32_t>("enableLighting", materialBuff_.openData_.enableLighting_);
-    _reader.Read<float>("shininess", materialBuff_.openData_.shininess_);
-    _reader.Read<3, float>("specularColor", materialBuff_.openData_.specularColor_);
+void from_json(const nlohmann::json& j, PlaneRenderer& r) {
+    j.at("isRenderer").get_to(r.isRender_);
+    int32_t blendMode = 0;
+    j.at("blendMode").get_to(blendMode);
+    r.currentBlend_ = static_cast<BlendMode>(blendMode);
+    j.at("textureDirectory").get_to(r.textureDirectory_);
+    j.at("textureFileName").get_to(r.textureFileName_);
+    from_json(j.at("transform"), r.transformBuff_.openData_);
+    from_json(j.at("material"), r.materialBuff_.openData_);
+    j.at("material").get_to(r.materialBuff_.openData_);
+    j.at("textureIndex").get_to(r.textureIndex_);
 }

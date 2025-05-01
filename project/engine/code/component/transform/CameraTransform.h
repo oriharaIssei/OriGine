@@ -15,6 +15,9 @@
 
 class CameraTransform
     : public IComponent {
+    friend void to_json(nlohmann::json& j, const CameraTransform& r);
+    friend void from_json(const nlohmann::json& j, CameraTransform& r);
+
 public:
     CameraTransform() {}
     ~CameraTransform() {}
@@ -22,8 +25,6 @@ public:
     void Initialize(GameEntity* _hostEntity = nullptr);
 
     bool Edit() override;
-    void Save(BinaryWriter& _writer) override;
-    void Load(BinaryReader& _reader) override;
 
     void Finalize() override;
 
