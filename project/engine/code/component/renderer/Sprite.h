@@ -78,7 +78,7 @@ public:
     void Finalize() override;
 
 private:
-    uint32_t renderingPriority_ = 1;
+    int32_t renderPriority_ = 1;
 
     IConstantBuffer<SpritConstBuffer> spriteBuff_;
 
@@ -97,8 +97,8 @@ public:
     uint32_t getTextureNumber() const { return textureNumber_; }
     void setTexture(const std::string& _texturePath, bool _applyTextureSize);
 
-    uint32_t getRenderingNum() const { return renderingPriority_; }
-    void setRenderingNum(uint32_t num) { renderingPriority_ = num; }
+    int32_t getRenderPriority() const { return renderPriority_; }
+    void setRenderPriority(int32_t num) { renderPriority_ = num; }
 
     const IConstantBuffer<SpritConstBuffer>& getSpriteBuff() const { return spriteBuff_; }
     IConstantBuffer<SpritConstBuffer>& getSpriteBuff() { return spriteBuff_; }

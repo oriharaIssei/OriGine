@@ -81,6 +81,9 @@ bool SpriteRenderer::Edit() {
 
     ImGui::Spacing();
 
+    ImGui::Text("RenderingPriority");
+    isChange |= ImGui::DragInt("##RenderingPriority", &renderPriority_, 1.0f, 0, 1000);
+
     ImGui::Text("TextureSize");
     isChange |= ImGui::DragFloat2("##TextureSize", textureSize_.v, 1.0f, 0.0f, 1000.0f);
 
@@ -191,7 +194,7 @@ void SpriteRenderer::Update(const Matrix4x4& _viewPortMat) {
 
 void to_json(nlohmann::json& j, const SpriteRenderer& r) {
     j = nlohmann::json{
-        {"renderingPriority", r.renderingPriority_},
+        {"renderingPriority", r.renderPriority_},
         {"texturePath", r.texturePath_},
         {"textureLeftTop", r.textureLeftTop_},
         {"textureSize", r.textureSize_},
@@ -207,7 +210,7 @@ void to_json(nlohmann::json& j, const SpriteRenderer& r) {
 }
 
 void from_json(const nlohmann::json& j, SpriteRenderer& r) {
-    j.at("renderingPriority").get_to(r.renderingPriority_);
+    j.at("renderingPriority").get_to(r.renderPriority_);
     j.at("texturePath").get_to(r.texturePath_);
     j.at("textureLeftTop").get_to(r.textureLeftTop_);
     j.at("textureSize").get_to(r.textureSize_);
