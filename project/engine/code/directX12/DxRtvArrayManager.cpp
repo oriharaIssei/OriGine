@@ -16,12 +16,12 @@ DxRtvArrayManager* DxRtvArrayManager::getInstance() {
 }
 
 void DxRtvArrayManager::Initialize() {
-    Logger::Debug("Initialize DxSrvArrayManager \n Size :" + std::to_string(DxHeap::rtvHeapSize));
+    LOG_DEBUG("Initialize DxSrvArrayManager \n Size :" + std::to_string(DxHeap::rtvHeapSize));
     heapCondition_.push_back({nullptr, DxHeap::rtvHeapSize, 0});
 }
 
 void DxRtvArrayManager::Finalize() {
-    Logger::Debug("Finalize DxRtvArrayManager");
+    LOG_DEBUG("Finalize DxRtvArrayManager");
 
     for (size_t i = 0; i < heapCondition_.size(); i++) {
         if (heapCondition_[i].dxRtvArray_ == nullptr) {
@@ -32,13 +32,13 @@ void DxRtvArrayManager::Finalize() {
 }
 
 std::shared_ptr<DxRtvArray> DxRtvArrayManager::Create(uint32_t size) {
-    Logger::Debug("Create DxRtvArray \n Size   :" + std::to_string(size));
+    LOG_DEBUG("Create DxRtvArray \n Size   :" + std::to_string(size));
 
     std::shared_ptr<DxRtvArray> dxRtvArray = std::make_shared<DxRtvArray>();
     uint32_t locate                        = SearchEmptyLocation(size, dxRtvArray);
     dxRtvArray->Initialize(size, locate);
 
-    Logger::Debug("Complete Create DxRtvArray \n Locate :" + std::to_string(locate));
+    LOG_DEBUG("Complete Create DxRtvArray \n Locate :" + std::to_string(locate));
 
     return dxRtvArray;
 }
@@ -69,7 +69,7 @@ uint32_t DxRtvArrayManager::SearchEmptyLocation(uint32_t size, std::shared_ptr<D
 
         // sizeがぴったりなら そこを使う
         if (heapCondition_[i].arraySize == size) {
-            Logger::Debug("Find just Size Space \n Locate :" + std::to_string(currentLocation));
+            LOG_DEBUG("Find just Size Space \n Locate :" + std::to_string(currentLocation));
 
             heapCondition_[i].dxRtvArray_ = dxRtvArray;
         } else {
@@ -105,7 +105,7 @@ uint32_t DxRtvArrayManager::SearchEmptyLocation(uint32_t size, std::shared_ptr<D
     }
 
     if (endLocation + size >= DxHeap::rtvHeapSize) {
-        Logger::Error("RtvHeap Size Over \n Size :" + std::to_string(size) + "\n EndLocation :" + std::to_string(endLocation));
+        LOG_ERROR("RtvHeap Size Over \n Size :" + std::to_string(size) + "\n EndLocation :" + std::to_string(endLocation));
         assert(false);
         return 0;
     }

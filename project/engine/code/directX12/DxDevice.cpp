@@ -35,7 +35,7 @@ void DxDevice::Initialize() {
 
         // ソフトウェアアダプタは弾く
         if (!(adapterDesc.Flags & DXGI_ADAPTER_FLAG3_SOFTWARE)) {
-            Logger::Debug(std::format(L"Use Adapter : {}\n", adapterDesc.Description));
+            LOG_DEBUG(std::format(L"Use Adapter : {}\n", adapterDesc.Description));
             break;
         }
         // ソフトウェアアダプタの場合は見つからなかったことにする
@@ -63,7 +63,7 @@ void DxDevice::Initialize() {
             useAdapter_.Get(), featureLevels[i], IID_PPV_ARGS(&device_));
         // 生成できたか確認
         if (SUCCEEDED(result)) {
-            Logger::Debug(std::format("FeatureLevel : {}\n", featrueLevelStrings[i]));
+            LOG_DEBUG(std::format("FeatureLevel : {}\n", featrueLevelStrings[i]));
             break; // 生成出来たらループを抜ける
         }
     }

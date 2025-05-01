@@ -44,7 +44,7 @@ void SpriteRenderSystem::Update() {
         }
     }
     std::sort(renderers.begin(), renderers.end(), [](SpriteRenderer* a, SpriteRenderer* b) {
-        return a->getRenderingNum() < b->getRenderingNum();
+        return a->getRenderPriority() < b->getRenderPriority();
     });
 
     auto commandList = dxCommand_->getCommandList();

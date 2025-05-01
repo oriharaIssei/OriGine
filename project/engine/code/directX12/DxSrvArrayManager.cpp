@@ -16,12 +16,12 @@ DxSrvArrayManager* DxSrvArrayManager::getInstance() {
 }
 
 void DxSrvArrayManager::Initialize() {
-    Logger::Debug("Initialize DxSrvArrayManager \n Size :" + std::to_string(DxHeap::srvHeapSize));
+    LOG_DEBUG("Initialize DxSrvArrayManager \n Size :" + std::to_string(DxHeap::srvHeapSize));
     heapCondition_.push_back({nullptr, DxHeap::srvHeapSize, 0});
 }
 
 void DxSrvArrayManager::Finalize() {
-    Logger::Debug("Finalize DxSrvArrayManager");
+    LOG_DEBUG("Finalize DxSrvArrayManager");
 
     for (size_t i = 0; i < heapCondition_.size(); i++) {
         if (heapCondition_[i].dxSrvArray_ == nullptr) {
@@ -32,13 +32,13 @@ void DxSrvArrayManager::Finalize() {
 }
 
 std::shared_ptr<DxSrvArray> DxSrvArrayManager::Create(uint32_t size) {
-    Logger::Debug("Create DxSrvArray \n Size   :" + std::to_string(size));
+    LOG_DEBUG("Create DxSrvArray \n Size   :" + std::to_string(size));
 
     std::shared_ptr<DxSrvArray> dxSrvArray = std::make_shared<DxSrvArray>();
     uint32_t locate                        = SearchEmptyLocation(size, dxSrvArray);
     dxSrvArray->Initialize(size, locate);
 
-    Logger::Debug("Complete Create DxSrvArray \n Locate :" + std::to_string(locate));
+    LOG_DEBUG("Complete Create DxSrvArray \n Locate :" + std::to_string(locate));
 
     return dxSrvArray;
 }
@@ -70,7 +70,7 @@ uint32_t DxSrvArrayManager::SearchEmptyLocation(uint32_t size, std::shared_ptr<D
 
         // sizeがぴったりなら そこを使う
         if (heapCondition_[i].arraySize == size) {
-            Logger::Debug("Find just Size Space \n Locate :" + std::to_string(currentLocation));
+            LOG_DEBUG("Find just Size Space \n Locate :" + std::to_string(currentLocation));
 
             heapCondition_[i].dxSrvArray_ = dxSrvArray;
         } else {
@@ -106,7 +106,7 @@ uint32_t DxSrvArrayManager::SearchEmptyLocation(uint32_t size, std::shared_ptr<D
     }
 
     if (endLocation + size >= DxHeap::srvHeapSize) {
-        Logger::Error("SrvHeap Size Over \n Size :" + std::to_string(size) + "\n EndLocation :" + std::to_string(endLocation));
+        LOG_ERROR("SrvHeap Size Over \n Size :" + std::to_string(size) + "\n EndLocation :" + std::to_string(endLocation));
         assert(false);
         return 0;
     }

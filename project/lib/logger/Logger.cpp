@@ -24,7 +24,7 @@
 
 std::shared_ptr<spdlog::logger> Logger::logger_ = nullptr;
 
-std::string getCurrentDateTime() {
+static std::string getCurrentDateTime() {
     // 現在時刻を取得
     auto now        = std::chrono::system_clock::now();
     auto time_t_now = std::chrono::system_clock::to_time_t(now);
@@ -68,8 +68,14 @@ void Logger::Initialize() {
         // ログレベルの設定
         spdlog::set_level(spdlog::level::trace);
 
-        // ログのフォーマットを設定 (出力される情報のフォーマット)
-        logger_->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%l] %v");
+        // ログのフォーマットを設定
+        /*
+        [%Y-%m-%d %H:%M:%S.%e] : 日付と時刻
+        [%l] : ログレベル
+        [%s:%# %!] : ソースファイル名、行番号、関数名
+        %v : ログメッセージ
+        */
+        logger_->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%l] [%s:%# %!] %v");
 
         // flush されるレベルを設定
         // debugレベル以上のログが出力された場合に flush する
@@ -78,7 +84,7 @@ void Logger::Initialize() {
 
         // ImGui用のログ sink を追加
         auto imgui_sink = std::make_shared<ImGuiLogSink>();
-        imgui_sink->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%l] %v");
+        imgui_sink->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%l] [%s:%# %!] %v");
         logger_->sinks().push_back(imgui_sink);
 
 #else
@@ -99,75 +105,75 @@ void Logger::Finalize() {
     }
 }
 
-void Logger::Trace(const std::string& message) {
+void Logger::Trace(const std::string& message, const char* file, const char* function, int line) {
     if (logger_) {
-        logger_->trace(message);
+        logger_->log(spdlog::source_loc{file, line, function}, spdlog::level::trace, message);
     }
 }
 
-void Logger::Info(const std::string& message) {
+void Logger::Info(const std::string& message, const char* file, const char* function, int line) {
     if (logger_) {
-        logger_->info(message);
+        logger_->log(spdlog::source_loc{file, line, function}, spdlog::level::info, message);
     }
 }
 
-void Logger::Debug(const std::string& message) {
+void Logger::Debug(const std::string& message, const char* file, const char* function, int line) {
     if (logger_) {
-        logger_->debug(message);
+        logger_->log(spdlog::source_loc{file, line, function}, spdlog::level::debug, message);
     }
 }
 
-void Logger::Warn(const std::string& message) {
+void Logger::Warn(const std::string& message, const char* file, const char* function, int line) {
     if (logger_) {
-        logger_->warn(message);
+        logger_->log(spdlog::source_loc{file, line, function}, spdlog::level::warn, message);
     }
 }
 
-void Logger::Error(const std::string& message) {
+void Logger::Error(const std::string& message, const char* file, const char* function, int line) {
     if (logger_) {
-        logger_->error(message);
+        logger_->log(spdlog::source_loc{file, line, function}, spdlog::level::err, message);
     }
 }
 
-void Logger::Critical(const std::string& message) {
+void Logger::Critical(const std::string& message, const char* file, const char* function, int line) {
     if (logger_) {
-        logger_->critical(message);
+        logger_->log(spdlog::source_loc{file, line, function}, spdlog::level::critical, message);
     }
 }
 
-void Logger::Trace(const std::wstring& message) {
+void Logger::Trace(const std::wstring& message, const char* file, const char* function, int line) {
     if (logger_) {
-        logger_->trace(ConvertString(message));
+        Trace(ConvertString(message),file,function,line);
     }
 }
 
-void Logger::Info(const std::wstring& message) {
+void Logger::Info(const std::wstring& message, const char* file, const char* function, int line) {
     if (logger_) {
-        logger_->info(ConvertString(message));
+        Info(ConvertString(message), file, function, line);
     }
 }
 
-void Logger::Debug(const std::wstring& message) {
+void Logger::Debug(const std::wstring& message, const char* file, const char* function, int line) {
     if (logger_) {
-        logger_->debug(ConvertString(message));
+        Debug(ConvertString(message), file, function, line);
     }
 }
 
-void Logger::Warn(const std::wstring& message) {
+void Logger::Warn(const std::wstring& message, const char* file, const char* function, int line) {
     if (logger_) {
-        logger_->warn(ConvertString(message));
+        Warn(ConvertString(message), file, function, line);
     }
 }
 
-void Logger::Error(const std::wstring& message) {
+void Logger::Error(const std::wstring& message, const char* file, const char* function, int line) {
     if (logger_) {
-        logger_->error(ConvertString(message));
+        Error(ConvertString(message), file, function, line);
     }
 }
 
-void Logger::Critical(const std::wstring& message) {
+void Logger::Critical(const std::wstring& message, const char* file, const char* function, int line) {
     if (logger_) {
-        logger_->critical(ConvertString(message));
+        Critical(ConvertString(message), file, function, line);
     }
 }
 
@@ -190,39 +196,64 @@ void GuiLogger::Update() {
 
         ImGuiTableFlags tableFlags = ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollX;
 
-        if (ImGui::BeginTable("LogTable", 3, tableFlags)) {
-            ImGui::TableSetupColumn("Time");
+        if (ImGui::BeginTable("LogTable", 6, tableFlags)) {
             ImGui::TableSetupColumn("Level");
             ImGui::TableSetupColumn("Message");
+            ImGui::TableSetupColumn("File");
+            ImGui::TableSetupColumn("Function");
+            ImGui::TableSetupColumn("Line");
+            ImGui::TableSetupColumn("Time");
             ImGui::TableHeadersRow();
 
-            // logger_->sinks() 内にある ImGuiLogSink からログ取得
-            for (auto& sink : logger_->sinks()) {
+           for (auto& sink : logger_->sinks()) {
                 auto imguiSink = std::dynamic_pointer_cast<ImGuiLogSink>(sink);
                 if (imguiSink) {
                     const auto& logs = imguiSink->getLogMessages();
                     for (const auto& line : logs) {
-                        // パターン: [time] [level] message
+                        // パターン: [level] message [file:line function] [time]
+                        std::string time_str, level_str, file_str, line_num_str, func_str, msg_str;
+
+                        // タイムスタンプの抽出
                         size_t time_start = line.find('[');
-                        size_t time_end   = line.find(']');
-                        std::string time_str;
+                        size_t time_end   = line.find(']', time_start);
                         if (time_start != std::string::npos && time_end != std::string::npos) {
                             time_str = line.substr(time_start + 1, time_end - time_start - 1);
                         }
 
-                        size_t level_start = line.find('[', time_end);
+                        // ログレベルの抽出
+                        size_t level_start = line.find('[', time_end + 1);
                         size_t level_end   = line.find(']', level_start);
-                        std::string level_str;
                         if (level_start != std::string::npos && level_end != std::string::npos) {
                             level_str = line.substr(level_start + 1, level_end - level_start - 1);
                         }
 
-                        std::string msg_str;
-                        if (level_end != std::string::npos && level_end + 2 < line.length()) {
-                            msg_str = line.substr(level_end + 2); // "] " の後
+                        // ファイル名の抽出
+                        size_t file_start = line.find('[', level_end + 1);
+                        size_t file_end   = line.find(':', file_start);
+                        if (file_start != std::string::npos && file_end != std::string::npos) {
+                            file_str = line.substr(file_start + 1, file_end - file_start - 1);
                         }
 
-                        //! ToDo 背景色もレベルに応じて変わると良いかもね～
+                        // 行番号の抽出
+                        size_t line_start = file_end + 1;
+                        size_t line_end   = line.find(' ', line_start);
+                        if (line_start != std::string::npos && line_end != std::string::npos) {
+                            line_num_str = line.substr(line_start, line_end - line_start);
+                        }
+
+                        // 関数名の抽出
+                        size_t func_start = line.find(' ', line_end) + 1;
+                        size_t func_end   = line.find(']', func_start);
+                        if (func_start != std::string::npos && func_end != std::string::npos) {
+                            func_str = line.substr(func_start, func_end - func_start);
+                        }
+
+                        // メッセージの抽出
+                        size_t msg_start = func_end + 2; // "] " の後
+                        if (msg_start < line.size()) {
+                            msg_str = line.substr(msg_start);
+                        }
+
                         // レベルに応じて色を設定
                         ImVec4 color;
                         if (level_str == "trace") {
@@ -243,24 +274,27 @@ void GuiLogger::Update() {
 
                         ImGui::TableNextRow();
                         ImGui::TableSetColumnIndex(0);
-                        ImGui::TextUnformatted(time_str.c_str());
-                        ImGui::TableSetColumnIndex(1);
-
                         ImGui::PushStyleColor(ImGuiCol_Text, color);
                         ImGui::TextUnformatted(level_str.c_str());
                         ImGui::PopStyleColor();
 
-                        ImGui::TableSetColumnIndex(2);
+                        ImGui::TableSetColumnIndex(1);
                         ImGui::TextUnformatted(msg_str.c_str());
+                        ImGui::TableSetColumnIndex(2);
+                        ImGui::TextUnformatted(file_str.c_str());
+                        ImGui::TableSetColumnIndex(3);
+                        ImGui::TextUnformatted(func_str.c_str());
+                        ImGui::TableSetColumnIndex(4);
+                        ImGui::TextUnformatted(line_num_str.c_str());
+                        ImGui::TableSetColumnIndex(5);
+                        ImGui::TextUnformatted(time_str.c_str());
 
                         // セパレーターを追加
                         ImGui::TableNextRow();
-                        ImGui::TableSetColumnIndex(0);
-                        ImGui::Separator();
-                        ImGui::TableSetColumnIndex(1);
-                        ImGui::Separator();
-                        ImGui::TableSetColumnIndex(2);
-                        ImGui::Separator();
+                        for (int i = 0; i < 6; ++i) {
+                            ImGui::TableSetColumnIndex(i);
+                            ImGui::Separator();
+                        }
                     }
                 }
             }

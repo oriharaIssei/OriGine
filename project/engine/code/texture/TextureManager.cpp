@@ -201,7 +201,7 @@ void TextureManager::Finalize() {
 }
 
 uint32_t TextureManager::LoadTexture(const std::string& filePath, std::function<void(uint32_t loadedIndex)> callBack) {
-    Logger::Trace("Load Texture \n Path : " + filePath);
+    LOG_TRACE("Load Texture \n Path : " + filePath);
 
     uint32_t index = 0;
     for (index = 0; index < textures_.size(); ++index) {
@@ -209,7 +209,7 @@ uint32_t TextureManager::LoadTexture(const std::string& filePath, std::function<
             textures_[index] = std::make_unique<Texture>();
             break;
         } else if (filePath == textures_[index]->path) {
-            Logger::Trace("Already loaded texture: " + filePath);
+            LOG_TRACE("Already loaded texture: " + filePath);
             if (callBack) {
                 callBack(index);
             }
@@ -256,6 +256,6 @@ void TextureManager::LoadTask::Update() {
     }
     timer.Update();
 
-    Logger::Trace("LoadedTexture \n Path        : " + filePath + "\n Lading Time : " + std::to_string(timer.getDeltaTime()));
+    LOG_TRACE("LoadedTexture \n Path        : " + filePath + "\n Lading Time : " + std::to_string(timer.getDeltaTime()));
 }
 #pragma endregion

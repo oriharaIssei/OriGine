@@ -36,7 +36,7 @@ void DxResource::CreateBufferResource(ID3D12Device* device, size_t sizeInBytes) 
         IID_PPV_ARGS(&resource_));
 
     if (FAILED(hr)) {
-        Logger::Critical("Failed to create buffer resource.\n massage :" + hr);
+        LOG_CRITICAL("Failed to create buffer resource.\n massage :" + hr);
         assert(false);
     }
 }
@@ -73,7 +73,7 @@ void DxResource::CreateRenderTextureResource(Microsoft::WRL::ComPtr<ID3D12Device
         IID_PPV_ARGS(&resource_));
 
     if (FAILED(hr)) {
-        Logger::Critical("Failed to create render texture resource.\n massage :" + hr);
+        LOG_CRITICAL("Failed to create render texture resource.\n massage :" + hr);
         assert(false);
     }
 }
@@ -107,7 +107,7 @@ void DxResource::CreateTextureResource(ID3D12Device* device, const DirectX::TexM
         IID_PPV_ARGS(&resource_));
 
     if (FAILED(hr)) {
-        Logger::Critical("Failed to create texture resource.\n massage :" + hr);
+        LOG_CRITICAL("Failed to create texture resource.\n massage :" + hr);
         assert(false);
     }
 }

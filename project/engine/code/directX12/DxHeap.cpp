@@ -17,7 +17,7 @@ void DxHeap::Initialize(ID3D12Device* device) {
     ///================================================
     ///	Heap の生成
     ///================================================
-    Logger::Debug("Initialize DxHeap");
+    LOG_DEBUG("Initialize DxHeap");
     rtvHeap_ = CreateHeap(device, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, rtvHeapSize, false);
     srvHeap_ = CreateHeap(device, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, srvHeapSize, true);
     dsvHeap_ = CreateHeap(device, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, dsvHeapSize, false);
@@ -26,13 +26,13 @@ void DxHeap::Initialize(ID3D12Device* device) {
     srvIncrementSize_ = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
     dsvIncrementSize_ = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 
-    Logger::Debug("RtvHeap IncrementSize : " + std::to_string(rtvIncrementSize_));
-    Logger::Debug("SrvHeap IncrementSize : " + std::to_string(srvIncrementSize_));
-    Logger::Debug("DsvHeap IncrementSize : " + std::to_string(dsvIncrementSize_));
+    LOG_DEBUG("RtvHeap IncrementSize : " + std::to_string(rtvIncrementSize_));
+    LOG_DEBUG("SrvHeap IncrementSize : " + std::to_string(srvIncrementSize_));
+    LOG_DEBUG("DsvHeap IncrementSize : " + std::to_string(dsvIncrementSize_));
 }
 
 void DxHeap::CompactRtvHeap(ID3D12Device* device, std::vector<std::pair<D3D12_CPU_DESCRIPTOR_HANDLE, uint32_t>>& usedDescriptorsArrays) {
-    Logger::Debug("Run Compact Rtv Heap Function");
+    LOG_DEBUG("Run Compact Rtv Heap Function");
 
     // RTV ヒープからハンドルを取得
     D3D12_CPU_DESCRIPTOR_HANDLE dstHandle = rtvHeap_->GetCPUDescriptorHandleForHeapStart();
@@ -51,7 +51,7 @@ void DxHeap::CompactRtvHeap(ID3D12Device* device, std::vector<std::pair<D3D12_CP
 }
 
 void DxHeap::CompactSrvHeap(ID3D12Device* device, std::vector<std::pair<D3D12_CPU_DESCRIPTOR_HANDLE, uint32_t>>& usedDescriptorsArrays) {
-    Logger::Debug("Run Compact Srv Heap Function");
+    LOG_DEBUG("Run Compact Srv Heap Function");
     
     // RTV ヒープからハンドルを取得
     D3D12_CPU_DESCRIPTOR_HANDLE dstHandle = rtvHeap_->GetCPUDescriptorHandleForHeapStart();
@@ -70,7 +70,7 @@ void DxHeap::CompactSrvHeap(ID3D12Device* device, std::vector<std::pair<D3D12_CP
 }
 
 void DxHeap::CompactDsvHeap(ID3D12Device* device, std::vector<std::pair<D3D12_CPU_DESCRIPTOR_HANDLE, uint32_t>>& usedDescriptorsArrays) {
-    Logger::Debug("Run Compact Dsv Heap Function");
+    LOG_DEBUG("Run Compact Dsv Heap Function");
 
     D3D12_CPU_DESCRIPTOR_HANDLE dstHandle = srvHeap_->GetCPUDescriptorHandleForHeapStart();
 
@@ -103,9 +103,9 @@ Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> DxHeap::CreateHeap(ID3D12Device* de
         IID_PPV_ARGS(&descriptorHeap));
 
     if (SUCCEEDED(hr)) {
-        Logger::Debug("Create DescriptorHeap\n Type : " + std::to_string(heapType) + "\n NumDescriptors : " + std::to_string(numDescriptors));
+        LOG_DEBUG("Create DescriptorHeap\n Type : " + std::to_string(heapType) + "\n NumDescriptors : " + std::to_string(numDescriptors));
     } else {
-        Logger::Critical("Failed to create descriptor heap\n Type : " + std::to_string(heapType) + "\n NumDescriptors : " + std::to_string(numDescriptors));
+        LOG_CRITICAL("Failed to create descriptor heap\n Type : " + std::to_string(heapType) + "\n NumDescriptors : " + std::to_string(numDescriptors));
         assert(false);
     }
 

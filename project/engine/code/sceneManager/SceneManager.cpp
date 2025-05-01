@@ -365,10 +365,10 @@ void SceneManager::changeScene(const std::string& name) {
 
 void SceneManager::executeSceneChange() {
     if (currentScene_) {
-        Logger::Trace(std::format("SceneChange\n PreviousScene : [ {} ] \n NextScene : [ {} ]", currentScene_->getName(), changingSceneName_));
+        LOG_TRACE(std::format("SceneChange\n PreviousScene : [ {} ] \n NextScene : [ {} ]", currentScene_->getName(), changingSceneName_));
         currentScene_->Finalize();
     } else {
-        Logger::Trace(std::format("SceneChange\n Startup Scene : [ {} ] \n ", changingSceneName_));
+        LOG_TRACE(std::format("SceneChange\n Startup Scene : [ {} ] \n ", changingSceneName_));
     }
 
     currentScene_ = scenes_[sceneIndexs_[changingSceneName_]]();
@@ -438,7 +438,7 @@ void SceneSerializer::SerializeFromJson(const std::string& _sceneName) {
     myfs::createFolder(directory_);
     std::ofstream ofs(directory_ + _sceneName + ".json");
     if (!ofs) {
-        Logger::Error("Failed to open JSON file for writing: " + _sceneName);
+        LOG_ERROR("Failed to open JSON file for writing: " + _sceneName);
         return;
     }
     ofs << std::setw(4) << jsonData << std::endl;
@@ -448,7 +448,7 @@ void SceneSerializer::SerializeFromJson(const std::string& _sceneName) {
 void SceneSerializer::DeserializeFromJson(const std::string& _sceneName) {
     std::ifstream ifs(directory_ + _sceneName + ".json");
     if (!ifs) {
-        Logger::Error("Failed to open JSON file for reading: " + _sceneName);
+        LOG_ERROR("Failed to open JSON file for reading: " + _sceneName);
         return;
     }
 
