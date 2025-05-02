@@ -396,8 +396,14 @@ public:
     }
 };
 
+// to_json が存在するかをチェックする concept
+template <typename T>
+concept HasToJson = requires(nlohmann::json& j, const T& t) {
+    { to_json(j, t) } -> std::same_as<void>;
+};
 template <IsComponent componentType>
 inline void ComponentArray<componentType>::SaveComponent(GameEntity* _entity, nlohmann::json& _json) {
+    static_assert(HasToJson<componentType>, "componentType must have a to_json function");
     auto it = entityIndexBind_.find(_entity);
     if (it == entityIndexBind_.end()) {
         return;
@@ -413,8 +419,13 @@ inline void ComponentArray<componentType>::SaveComponent(GameEntity* _entity, nl
     _json[nameof<componentType>()] = compVecJson;
 }
 
+template <typename T>
+concept HasFromJson = requires(const nlohmann::json& j, T& t) {
+    { from_json(j, t) } -> std::same_as<void>;
+};
 template <IsComponent componentType>
 inline void ComponentArray<componentType>::LoadComponent(GameEntity* _entity, nlohmann::json& _json) {
+    static_assert(HasFromJson<componentType>, "componentType must have a from_json function");
     auto it = entityIndexBind_.find(_entity);
     if (it == entityIndexBind_.end()) {
         // エンティティが登録されていない場合は新規登録
@@ -425,7 +436,6 @@ inline void ComponentArray<componentType>::LoadComponent(GameEntity* _entity, nl
     }
 
     uint32_t index = it->second;
-
 
     // 現在のコンポーネントをクリア
     components_[index].clear();
