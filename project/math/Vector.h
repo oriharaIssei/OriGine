@@ -1,6 +1,14 @@
 #pragma once
 
+/// stl
+#include <algorithm>
 #include <type_traits>
+
+/// math
+#include <cmath>
+
+/// externals
+#include <nlohmann/json.hpp>
 
 // indexNumbers
 static const int X = 0;
@@ -183,21 +191,6 @@ public:
         static_assert(dimension == 4, "Conversion only available for 4D vectors.");
         return Vector4<valueType>(v[X], v[Y], v[Z], v[W]);
     }
-
-    // Add serialization support
-    template <typename Writer>
-    void Write(Writer& writer) const {
-        for (int i = 0; i < dimension; i++) {
-            writer.Write(v[i]);
-        }
-    }
-
-    template <typename Reader>
-    void Read(Reader& reader) {
-        for (int i = 0; i < dimension; i++) {
-            reader.Read(v[i]);
-        }
-    }
 };
 
 template <int dim, typename valueType>
@@ -258,5 +251,42 @@ inline Vector<dim, valueType> lerp(const Vector<dim, valueType>& start, const Ve
     return start + (end - start) * t;
 }
 
+template <int dim, typename valueType>
+inline Vector<dim, valueType> MinElement(const Vector<dim, valueType>& a, const Vector<dim, valueType>& b) {
+    Vector<dim, valueType> result;
+    for (int32_t i = 0; i < dim; ++i) {
+        result[i] = (std::min)(a[i], b[i]);
+    }
+    return result;
+}
+template <int dim, typename valueType>
+inline Vector<dim, valueType> MaxElement(const Vector<dim, valueType>& a, const Vector<dim, valueType>& b) {
+    Vector<dim, valueType> result;
+    for (int32_t i = 0; i < dim; ++i) {
+        result[i] = (std::max)(a[i], b[i]);
+    }
+    return result;
+}
+
 template <int dimension, typename valueType>
 using Vec = Vector<dimension, valueType>;
+
+template <int dim, typename valueType>
+inline void to_json(nlohmann::json& j, const Vector<dim, valueType>& v) {
+    // VectorをJSON配列としてシリアライズ
+    j = nlohmann::json::array();
+    for (int i = 0; i < dim; ++i) {
+        j.push_back(v[i]);
+    }
+}
+
+template <int dim, typename valueType>
+inline void from_json(const nlohmann::json& j, Vector<dim, valueType>& v) {
+    // JSON配列をVectorにデシリアライズ
+    if (!j.is_array() || j.size() != dim) {
+        throw std::invalid_argument("JSON array size does not match Vector dimension");
+    }
+    for (int i = 0; i < dim; ++i) {
+        v[i] = j.at(i).get<valueType>();
+    }
+}

@@ -6,6 +6,9 @@
 #include "Vector4.h"
 
 struct ParticleTransform{
+    friend void to_json(nlohmann::json& j, const ParticleTransform& r);
+    friend void from_json(const nlohmann::json& j, ParticleTransform& r);
+
 	ParticleTransform() = default;
 
 	/// <summary>

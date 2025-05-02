@@ -34,9 +34,7 @@ public:
     virtual void Initialize(GameEntity* _hostEntity);
     virtual void Finalize() = 0;
 
-    virtual bool Edit()                      = 0;
-    virtual void Save(BinaryWriter& _writer) = 0;
-    virtual void Load(BinaryReader& _reader) = 0;
+    virtual bool Edit() = 0;
 
     virtual void CalculateWorldShape() = 0;
 
@@ -81,9 +79,7 @@ public:
         this->preCollisionStateMap_.clear();
     }
 
-    virtual bool Edit()                      = 0;
-    virtual void Save(BinaryWriter& _writer) = 0;
-    virtual void Load(BinaryReader& _reader) = 0;
+    virtual bool Edit() = 0;
 
     virtual void CalculateWorldShape() = 0;
 
@@ -104,6 +100,9 @@ public:
 
 class AABBCollider
     : public Collider<AABB> {
+    friend void to_json(nlohmann::json& _json, const AABBCollider& _primitiveNodeAnimation);
+    friend void from_json(const nlohmann::json& _json, AABBCollider& _primitiveNodeAnimation);
+
 public:
     using ShapeType = AABB;
 
@@ -126,16 +125,6 @@ public:
         }
         return isChange;
     }
-    void Save(BinaryWriter& _writer) override {
-        _writer.Write("isActive", isActive_);
-        _writer.Write<3, float>("min", shape_.min_);
-        _writer.Write<3, float>("max", shape_.max_);
-    }
-    void Load(BinaryReader& _reader) override {
-        _reader.Read("isActive", isActive_);
-        _reader.Read<3, float>("min", shape_.min_);
-        _reader.Read<3, float>("max", shape_.max_);
-    }
 
     void CalculateWorldShape() override;
 
@@ -156,6 +145,9 @@ public: // accessor
 
 class SphereCollider
     : public Collider<Sphere> {
+    friend void to_json(nlohmann::json& _json, const SphereCollider& _primitiveNodeAnimation);
+    friend void from_json(const nlohmann::json& _json, SphereCollider& _primitiveNodeAnimation);
+
 public:
     using ShapeType = Sphere;
 
@@ -176,16 +168,6 @@ public:
             ImGui::TreePop();
         }
         return isChange;
-    }
-    void Save(BinaryWriter& _writer) override {
-        _writer.Write("isActive", isActive_);
-        _writer.Write<3, float>("center", shape_.center_);
-        _writer.Write("radius", shape_.radius_);
-    }
-    void Load(BinaryReader& _reader) override {
-        _reader.Read("isActive", isActive_);
-        _reader.Read<3, float>("center", shape_.center_);
-        _reader.Read("radius", shape_.radius_);
     }
 
     void CalculateWorldShape() override;

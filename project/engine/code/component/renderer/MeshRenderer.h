@@ -35,6 +35,9 @@ template <typename MeshTemplate, typename VertexDataType>
     requires IsDerivedMesh<MeshTemplate, VertexDataType>
 class MeshRenderer
     : public IComponent {
+    friend void to_json(nlohmann::json& j, const MeshRenderer& r);
+    friend void from_json(const nlohmann::json& j, MeshRenderer& r);
+
 public:
     using VertexType = VertexDataType;
     using MeshType   = MeshTemplate;
@@ -52,18 +55,6 @@ public:
     }
 
     bool Edit() override { return false; }
-    void Save(BinaryWriter& _writer) override {
-        _writer.Write<int32_t>("blend", static_cast<int32_t>(currentBlend_));
-
-        _writer.Write<bool>("isRender", isRender_);
-    }
-    void Load(BinaryReader& _reader) override {
-        int32_t blend = 0;
-        _reader.Read<int32_t>("blend", blend);
-        currentBlend_ = static_cast<BlendMode>(blend);
-
-        _reader.Read<bool>("isRender", isRender_);
-    }
 
     virtual void Finalize() {
         for (auto& mesh : *meshGroup_) {
@@ -118,6 +109,9 @@ public: // ↓ Accessor
 
 class ModelMeshRenderer
     : public MeshRenderer<TextureMesh, TextureVertexData> {
+    friend void to_json(nlohmann::json& j, const ModelMeshRenderer& r);
+    friend void from_json(const nlohmann::json& j, ModelMeshRenderer& r);
+
 public:
     ModelMeshRenderer() {}
     ModelMeshRenderer(const std::vector<TextureMesh>& _meshGroup);
@@ -130,9 +124,6 @@ public:
     void Initialize(GameEntity* _hostEntity) override;
 
     bool Edit() override;
-
-    void Save(BinaryWriter& _writer) override;
-    void Load(BinaryReader& _reader) override;
 
     void Finalize() override {
         for (auto& mesh : *meshGroup_) {
@@ -215,6 +206,9 @@ void CreateModelMeshRenderer(ModelMeshRenderer* _renderer, GameEntity* _hostEnti
 //----------------------------------------- LineRenderer -----------------------------------------//
 class LineRenderer
     : public MeshRenderer<Mesh<ColorVertexData>, ColorVertexData> {
+    friend void to_json(nlohmann::json& j, const LineRenderer& r);
+    friend void from_json(const nlohmann::json& j, LineRenderer& r);
+
 public:
     LineRenderer();
     LineRenderer(const std::vector<Mesh<ColorVertexData>>& _meshGroup);
@@ -226,9 +220,6 @@ public:
     void Initialize(GameEntity* _hostEntity) override;
 
     bool Edit() override;
-    void Save(BinaryWriter& _writer) override;
-    void Load(BinaryReader& _reader) override;
-
     void Finalize() override;
 
 private:

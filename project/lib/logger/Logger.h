@@ -33,20 +33,29 @@ public:
     Initialize();
     static void Finalize();
 
-    static void Trace(const std::string& message);
-    static void Info(const std::string& message);
-    static void Debug(const std::string& message);
-    static void Warn(const std::string& message);
-    static void Error(const std::string& message);
-    static void Critical(const std::string& message);
+    static void Trace(const std::string& message, const char* file, const char* function, int line);
+    static void Info(const std::string& message, const char* file, const char* function, int line);
+    static void Debug(const std::string& message, const char* file, const char* function, int line);
+    static void Warn(const std::string& message, const char* file, const char* function, int line);
+    static void Error(const std::string& message, const char* file, const char* function, int line);
+    static void Critical(const std::string& message, const char* file, const char* function, int line);
 
-    static void Trace(const std::wstring& message);
-    static void Info(const std::wstring& message);
-    static void Debug(const std::wstring& message);
-    static void Warn(const std::wstring& message);
-    static void Error(const std::wstring& message);
-    static void Critical(const std::wstring& message);
+    static void Trace(const std::wstring& message, const char* file, const char* function, int line);
+    static void Info(const std::wstring& message, const char* file, const char* function, int line);
+    static void Debug(const std::wstring& message, const char* file, const char* function, int line);
+    static void Warn(const std::wstring& message, const char* file, const char* function, int line);
+    static void Error(const std::wstring& message, const char* file, const char* function, int line);
+    static void Critical(const std::wstring& message, const char* file, const char* function, int line);
+
 
 private:
     static std::shared_ptr<spdlog::logger> logger_;
 };
+
+// マクロで簡略化
+#define LOG_TRACE(msg) Logger::Trace(msg, __FILE__, __FUNCTION__, __LINE__)
+#define LOG_INFO(msg) Logger::Info(msg, __FILE__, __FUNCTION__, __LINE__)
+#define LOG_DEBUG(msg) Logger::Debug(msg, __FILE__, __FUNCTION__, __LINE__)
+#define LOG_WARN(msg) Logger::Warn(msg, __FILE__, __FUNCTION__, __LINE__)
+#define LOG_ERROR(msg) Logger::Error(msg, __FILE__, __FUNCTION__, __LINE__)
+#define LOG_CRITICAL(msg) Logger::Critical(msg, __FILE__, __FUNCTION__, __LINE__)

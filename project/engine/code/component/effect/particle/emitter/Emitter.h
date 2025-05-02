@@ -31,6 +31,10 @@ struct ParticleKeyFrames;
 class Emitter
     : public IComponent {
 
+    // to_json, from_json を friend として宣言
+    friend void to_json(nlohmann::json& j, const Emitter& e);
+    friend void from_json(const nlohmann::json& j, Emitter& e);
+
 public:
     Emitter();
     Emitter(DxSrvArray* _srvArray);
@@ -45,8 +49,6 @@ public:
     void Finalize() override;
 
     bool Edit() override;
-    void Save(BinaryWriter& _writer) override;
-    void Load(BinaryReader& _reader) override;
 
     void CalculateMaxSize();
 
@@ -190,10 +192,10 @@ public:
     }
 
     /// @brief コンポーネントの保存
-    void SaveComponent(GameEntity* _entity, BinaryWriter& _writer) override;
+    void SaveComponent(GameEntity* _entity, nlohmann::json& _json) override;
 
     /// @brief コンポーネントの読み込み
-    void LoadComponent(GameEntity* _entity, BinaryReader& _reader) override;
+    void LoadComponent(GameEntity* _entity, nlohmann::json& _json) override;
 
     /// @brief エンティティ登録（メモリ確保）
     void registerEntity(GameEntity* _entity, int32_t _entitySize = 1, bool _doInitialize = true) override {
@@ -459,44 +461,108 @@ public:
     }
 };
 
-inline void ComponentArray<Emitter>::SaveComponent(GameEntity* _entity, BinaryWriter& _writer) {
+inline void ComponentArray<Emitter>::SaveComponent(GameEntity* _entity, nlohmann::json& _json) {
     auto it = entityIndexBind_.find(_entity);
     if (it == entityIndexBind_.end()) {
         return;
     }
 
-    std::string preGroupName      = _writer.getGroupName();
-    std::string componentTypeName = "Emitter";
-    _writer.WriteBeginGroup(preGroupName + componentTypeName);
+    nlohmann::json compVecJson = nlohmann::json::array();
 
     uint32_t index = it->second;
-    _writer.Write<uint32_t>("size", static_cast<uint32_t>(components_[index].size()));
-
-    int32_t compIndex = 0;
     for (auto& comp : components_[index]) {
-        _writer.WriteBeginGroup(preGroupName + componentTypeName + std::to_string(compIndex++));
-        comp.Save(_writer);
+        compVecJson.emplace_back(comp);
     }
 
-    _writer.WriteBeginGroup(preGroupName);
+    _json[nameof<Emitter>()] = compVecJson;
 }
 
-inline void ComponentArray<Emitter>::LoadComponent(GameEntity* _entity, BinaryReader& _reader) {
-    std::string preGroupName = _reader.getGroupName();
+inline void from_json(const nlohmann::json& j, Emitter& e) {
+    j.at("blendMode").get_to(e.blendMode_);
+    j.at("isActive").get_to(e.isActive_);
+    j.at("isLoop").get_to(e.isLoop_);
+    j.at("activeTime").get_to(e.activeTime_);
+    j.at("leftActiveTime").get_to(e.leftActiveTime_);
+    j.at("spawnParticleVal").get_to(e.spawnParticleVal_);
+    j.at("shapeType").get_to(e.shapeType_);
+    j.at("currentCoolTime").get_to(e.currentCoolTime_);
+    j.at("spawnCoolTime").get_to(e.spawnCoolTime_);
+    j.at("particleLifeTime").get_to(e.particleLifeTime_);
+    j.at("particleIsBillBoard").get_to(e.particleIsBillBoard_);
+    j.at("particleColor").get_to(e.particleColor_);
+    j.at("particleUvScale").get_to(e.particleUvScale_);
+    j.at("particleUvRotate").get_to(e.particleUvRotate_);
+    j.at("particleUvTranslate").get_to(e.particleUvTranslate_);
+    j.at("updateSettings").get_to(e.updateSettings_);
+    j.at("startParticleScaleMin").get_to(e.startParticleScaleMin_);
+    j.at("startParticleScaleMax").get_to(e.startParticleScaleMax_);
+    j.at("startParticleRotateMin").get_to(e.startParticleRotateMin_);
+    j.at("startParticleRotateMax").get_to(e.startParticleRotateMax_);
+    j.at("startParticleVelocityMin").get_to(e.startParticleVelocityMin_);
+    j.at("startParticleVelocityMax").get_to(e.startParticleVelocityMax_);
+    j.at("updateParticleScaleMin").get_to(e.updateParticleScaleMin_);
+    j.at("updateParticleScaleMax").get_to(e.updateParticleScaleMax_);
+    j.at("updateParticleRotateMin").get_to(e.updateParticleRotateMin_);
+    j.at("updateParticleRotateMax").get_to(e.updateParticleRotateMax_);
+    j.at("updateParticleVelocityMin").get_to(e.updateParticleVelocityMin_);
+    j.at("updateParticleVelocityMax").get_to(e.updateParticleVelocityMax_);
+}
 
-    uint32_t size;
-    std::string componentTypeName = "Emitter";
-    _reader.ReadBeginGroup(preGroupName + componentTypeName);
+inline void to_json(nlohmann::json& j, const Emitter& e) {
+    j = nlohmann::json{
+        {"blendMode", e.blendMode_},
+        {"isActive", e.isActive_},
+        {"isLoop", e.isLoop_},
+        {"activeTime", e.activeTime_},
+        {"leftActiveTime", e.leftActiveTime_},
+        {"spawnParticleVal", e.spawnParticleVal_},
+        {"shapeType", e.shapeType_},
+        {"currentCoolTime", e.currentCoolTime_},
+        {"spawnCoolTime", e.spawnCoolTime_},
+        {"particleLifeTime", e.particleLifeTime_},
+        {"particleIsBillBoard", e.particleIsBillBoard_},
+        {"particleColor", e.particleColor_},
+        {"particleUvScale", e.particleUvScale_},
+        {"particleUvRotate", e.particleUvRotate_},
+        {"particleUvTranslate", e.particleUvTranslate_},
+        {"updateSettings", e.updateSettings_},
+        {"startParticleScaleMin", e.startParticleScaleMin_},
+        {"startParticleScaleMax", e.startParticleScaleMax_},
+        {"startParticleRotateMin", e.startParticleRotateMin_},
+        {"startParticleRotateMax", e.startParticleRotateMax_},
+        {"startParticleVelocityMin", e.startParticleVelocityMin_},
+        {"startParticleVelocityMax", e.startParticleVelocityMax_},
+        {"updateParticleScaleMin", e.updateParticleScaleMin_},
+        {"updateParticleScaleMax", e.updateParticleScaleMax_},
+        {"updateParticleRotateMin", e.updateParticleRotateMin_},
+        {"updateParticleRotateMax", e.updateParticleRotateMax_},
+        {"updateParticleVelocityMin", e.updateParticleVelocityMin_},
+        {"updateParticleVelocityMax", e.updateParticleVelocityMax_}};
+}
 
-    _reader.Read<uint32_t>("size", size);
-    registerEntity(_entity, size);
-    auto& componentVec = components_[entityIndexBind_[const_cast<GameEntity*>(_entity)]];
-    int32_t compIndex  = 0;
-    for (auto& comp : componentVec) {
-        _reader.ReadBeginGroup(preGroupName + componentTypeName + std::to_string(compIndex++));
-        comp.Load(_reader);
+inline void ComponentArray<Emitter>::LoadComponent(GameEntity* _entity, nlohmann::json& _json) {
+    // エンティティが登録されていない場合は終了
+    auto it = entityIndexBind_.find(_entity);
+    if (it == entityIndexBind_.end()) {
+        registerEntity(_entity, 1); // 必要に応じてエンティティを登録
+        it = entityIndexBind_.find(_entity);
     }
-    _reader.ReadBeginGroup(preGroupName);
-}
 
+    uint32_t index = it->second;
+
+    // JSON から対象のコンポーネント配列を取得
+    auto compVecJson = _json.find(nameof<Emitter>());
+    if (compVecJson == _json.end() || !compVecJson->is_array()) {
+        return; // 配列が存在しない場合は終了
+    }
+
+    // 現在のコンポーネントをクリア
+    components_[index].clear();
+
+    // JSON 配列からコンポーネントを読み込み
+    for (auto& compJson : *compVecJson) {
+        Emitter comp = compJson.get<Emitter>();
+        components_[index].emplace_back(comp);
+    }
+}
 #pragma endregion

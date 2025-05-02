@@ -78,9 +78,42 @@ void Emitter::Initialize(GameEntity* /*_entity*/) {
         currentCoolTime_ = 0.f;
     }
 
-    emitterSpawnShape_ = std::make_unique<EmitterSphere>();
+    // shape Type
+    switch (shapeType_) {
+    case EmitterShapeType::SPHERE:
+        emitterSpawnShape_ = std::make_shared<EmitterSphere>();
+        break;
+    case EmitterShapeType::OBB:
+        emitterSpawnShape_ = std::make_shared<EmitterOBB>();
+        break;
+    case EmitterShapeType::CAPSULE:
+        emitterSpawnShape_ = std::make_shared<EmitterCapsule>();
+        break;
+    case EmitterShapeType::CONE:
+        emitterSpawnShape_ = std::make_shared<EmitterCone>();
+        break;
+    default:
+        emitterSpawnShape_ = std::make_shared<EmitterSphere>();
+        break;
+    }
 
+    // keyFrames
     particleKeyFrames_ = std::make_unique<ParticleKeyFrames>();
+
+    // resource
+    if (!modelFileName_.empty()) {
+        particleModel_ = ModelManager::getInstance()->Create(modelDirectory_, modelFileName_);
+    }
+    if (!textureFileName_.empty()) {
+        textureIndex_ = TextureManager::LoadTexture(textureFileName_);
+    }
+
+    { // Initialize DrawingData Size
+        CalculateMaxSize();
+        structuredTransform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice(), srvArray_, particleMaxSize_);
+        particles_.reserve(particleMaxSize_);
+    }
+
 }
 
 void Emitter::Finalize() {
@@ -215,133 +248,6 @@ bool Emitter::Edit() {
 #endif // _DEBUG
 }
 
-void Emitter::Save(BinaryWriter& _writer) {
-    _writer.Write("isActive", isActive_);
-    _writer.Write("isLoop", isLoop_);
-
-    _writer.Write("activeTime", activeTime_);
-    _writer.Write("spawnParticleVal", spawnParticleVal_);
-    _writer.Write("spawnCoolTime", spawnCoolTime_);
-
-    _writer.Write("modelDirectory", modelDirectory_);
-    _writer.Write("modelFileName", modelFileName_);
-    _writer.Write("textureFileName", textureFileName_);
-
-    _writer.Write("blendMode", static_cast<int32_t>(blendMode_));
-    _writer.Write("particleIsBillBoard", particleIsBillBoard_);
-    _writer.Write("shapeType", static_cast<int32_t>(shapeType_));
-    emitterSpawnShape_->Save(_writer);
-
-    _writer.Write("particleLifeTime", particleLifeTime_);
-    _writer.Write<4, float>("particleColor", particleColor_);
-    _writer.Write<3, float>("startParticleVelocityMin", startParticleVelocityMin_);
-    _writer.Write<3, float>("startParticleVelocityMax", startParticleVelocityMax_);
-    _writer.Write<3, float>("updateParticleVelocityMin", updateParticleVelocityMin_);
-    _writer.Write<3, float>("updateParticleVelocityMax", updateParticleVelocityMax_);
-    _writer.Write<3, float>("startParticleScaleMin", startParticleScaleMin_);
-    _writer.Write<3, float>("startParticleScaleMax", startParticleScaleMax_);
-    _writer.Write<3, float>("updateParticleScaleMin", updateParticleScaleMin_);
-    _writer.Write<3, float>("updateParticleScaleMax", updateParticleScaleMax_);
-
-    _writer.Write<int>("transformInterpolationType", static_cast<int>(transformInterpolationType_));
-    _writer.Write<int>("colorInterpolationType", static_cast<int>(colorInterpolationType_));
-    _writer.Write<int>("uvInterpolationType", static_cast<int>(uvInterpolationType_));
-
-    _writer.Write("updateSettings", updateSettings_);
-    if (updateSettings_ != 0) {
-        if (particleKeyFrames_) {
-            particleKeyFrames_->SaveKeyFrames(_writer);
-        }
-    }
-}
-
-void Emitter::Load(BinaryReader& _reader) {
-    _reader.Read("isActive", isActive_);
-    _reader.Read("isLoop", isLoop_);
-
-    _reader.Read("activeTime", activeTime_);
-    _reader.Read("spawnParticleVal", spawnParticleVal_);
-    _reader.Read("spawnCoolTime", spawnCoolTime_);
-
-    _reader.Read("modelDirectory", modelDirectory_);
-    _reader.Read("modelFileName", modelFileName_);
-    if (!modelFileName_.empty()) {
-        particleModel_ = ModelManager::getInstance()->Create(modelDirectory_, modelFileName_);
-    }
-    _reader.Read("textureFileName", textureFileName_);
-    if (!textureFileName_.empty()) {
-        textureIndex_ = TextureManager::LoadTexture(textureFileName_);
-    }
-
-    int32_t blendMode;
-    _reader.Read("blendMode", blendMode);
-    blendMode_ = BlendMode(blendMode);
-    _reader.Read("particleIsBillBoard", particleIsBillBoard_);
-
-    int32_t shapeType;
-    _reader.Read("shapeType", shapeType);
-    shapeType_ = EmitterShapeType(shapeType);
-    switch (shapeType_) {
-    case EmitterShapeType::SPHERE:
-        emitterSpawnShape_ = std::make_shared<EmitterSphere>();
-        break;
-    case EmitterShapeType::OBB:
-        emitterSpawnShape_ = std::make_shared<EmitterOBB>();
-        break;
-    case EmitterShapeType::CAPSULE:
-        emitterSpawnShape_ = std::make_shared<EmitterCapsule>();
-        break;
-    case EmitterShapeType::CONE:
-        emitterSpawnShape_ = std::make_shared<EmitterCone>();
-        break;
-    default:
-        emitterSpawnShape_ = std::make_shared<EmitterSphere>();
-        break;
-    }
-    emitterSpawnShape_->Load(_reader);
-
-    _reader.Read("particleLifeTime", particleLifeTime_);
-    _reader.Read<4, float>("particleColor", particleColor_);
-    _reader.Read<3, float>("startParticleVelocityMin", startParticleVelocityMin_);
-    _reader.Read<3, float>("startParticleVelocityMax", startParticleVelocityMax_);
-    _reader.Read<3, float>("updateParticleVelocityMin", updateParticleVelocityMin_);
-    _reader.Read<3, float>("updateParticleVelocityMax", updateParticleVelocityMax_);
-    _reader.Read<3, float>("startParticleScaleMin", startParticleScaleMin_);
-    _reader.Read<3, float>("startParticleScaleMax", startParticleScaleMax_);
-    _reader.Read<3, float>("updateParticleScaleMin", updateParticleScaleMin_);
-    _reader.Read<3, float>("updateParticleScaleMax", updateParticleScaleMax_);
-
-    _reader.Read("updateSettings", updateSettings_);
-    if (updateSettings_ != 0) {
-        if (!particleKeyFrames_) {
-            particleKeyFrames_ = std::make_shared<ParticleKeyFrames>();
-        }
-        particleKeyFrames_->LoadKeyFrames(_reader);
-    }
-
-    // InterpolationType
-    int transformInterpolationType;
-    _reader.Read<int>("transformInterpolationType", transformInterpolationType);
-    transformInterpolationType_ = InterpolationType(transformInterpolationType);
-
-    int colorInterpolationType;
-    _reader.Read<int>("colorInterpolationType", colorInterpolationType);
-    colorInterpolationType_ = InterpolationType(colorInterpolationType);
-
-    int uvInterpolationType;
-    _reader.Read<int>("uvInterpolationType", uvInterpolationType);
-    uvInterpolationType_ = InterpolationType(uvInterpolationType);
-
-    { // Initialize DrawingData Size
-        CalculateMaxSize();
-        structuredTransform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice(), srvArray_, particleMaxSize_);
-        particles_.reserve(particleMaxSize_);
-    }
-
-    leftActiveTime_  = activeTime_;
-    currentCoolTime_ = 0.f;
-}
-
 #ifdef _DEBUG
 void Emitter::EditEmitter() {
     //======================== Emitter の 編集 ========================//
@@ -470,8 +376,8 @@ void Emitter::EditParticle() {
         ImGui::Text("Max");
         ImGui::DragFloat3("##ParticleVelocityMax", startParticleVelocityMax_.v, 0.1f);
 
-        startParticleVelocityMin_ = (std::min)(startParticleVelocityMin_, startParticleVelocityMax_);
-        startParticleVelocityMax_ = (std::max)(startParticleVelocityMin_, startParticleVelocityMax_);
+        startParticleVelocityMin_ = MinElement(startParticleVelocityMin_, startParticleVelocityMax_);
+        startParticleVelocityMax_ = MaxElement(startParticleVelocityMin_, startParticleVelocityMax_);
 
         int randomOrPerLifeTime    = (updateSettings_ & static_cast<int32_t>(ParticleUpdateType::VelocityPerLifeTime)) ? 2 : ((updateSettings_ & static_cast<int32_t>(ParticleUpdateType::VelocityRandom)) ? 1 : 0);
         int preRandomOrPerLifeTime = randomOrPerLifeTime;
@@ -506,8 +412,8 @@ void Emitter::EditParticle() {
         ImGui::Text("Max");
         ImGui::DragFloat3("##ParticleScaleMax", startParticleScaleMax_.v, 0.1f);
 
-        startParticleScaleMin_ = (std::min)(startParticleScaleMin_, startParticleScaleMax_);
-        startParticleScaleMax_ = (std::max)(startParticleScaleMin_, startParticleScaleMax_);
+        startParticleScaleMin_ = MinElement(startParticleScaleMin_, startParticleScaleMax_);
+        startParticleScaleMax_ = MaxElement(startParticleScaleMin_, startParticleScaleMax_);
 
         // curveかrandom か
         int randomOrPerLifeTime    = (updateSettings_ & static_cast<int32_t>(ParticleUpdateType::ScalePerLifeTime)) ? 2 : ((updateSettings_ & static_cast<int32_t>(ParticleUpdateType::ScaleRandom)) ? 1 : 0);
@@ -542,8 +448,8 @@ void Emitter::EditParticle() {
         ImGui::DragFloat3("##ParticleRotateMin", startParticleRotateMin_.v, 0.1f);
         ImGui::DragFloat3("##ParticleRotateMax", startParticleRotateMax_.v, 0.1f);
 
-        startParticleRotateMin_ = (std::min)(startParticleRotateMin_, startParticleRotateMax_);
-        startParticleRotateMax_ = (std::max)(startParticleRotateMin_, startParticleRotateMax_);
+        startParticleRotateMin_ = MinElement(startParticleRotateMin_, startParticleRotateMax_);
+        startParticleRotateMax_ = MaxElement(startParticleRotateMin_, startParticleRotateMax_);
 
         int randomOrPerLifeTime    = (updateSettings_ & static_cast<int32_t>(ParticleUpdateType::RotatePerLifeTime)) ? 2 : ((updateSettings_ & static_cast<int32_t>(ParticleUpdateType::RotateRandom)) ? 1 : 0);
         int preRandomOrPerLifeTime = randomOrPerLifeTime;
@@ -594,7 +500,8 @@ void Emitter::EditParticle() {
                 particleUvScale_ = Vector3f(tileSize_ / textureSize_, 0.f);
 
                 // uv Translate は Animation する
-                updateSettings_ = (updateSettings_ | static_cast<int32_t>(ParticleUpdateType::UvTranslatePerLifeTime));
+                updateSettings_      = (updateSettings_ | static_cast<int32_t>(ParticleUpdateType::UvTranslatePerLifeTime));
+                uvInterpolationType_ = InterpolationType::STEP;
 
                 // 最大タイル数と最大時間を計算
                 int32_t maxTilesX = int32_t(textureSize_[X] / tileSize_[X]);
@@ -610,6 +517,12 @@ void Emitter::EditParticle() {
                 float col              = float(startTileIndex % maxTilesX);
                 float row              = float(startTileIndex / maxTilesX);
 
+                // UV座標を計算
+                float x = col * (tileSize_[X] / textureSize_[X]);
+                float y = row * (tileSize_[Y] / textureSize_[Y]);
+
+                particleUvTranslate_ = Vector3f(x, y, 0.f);
+
                 int32_t tileNum = int32_t(animationTimeLength_ / tilePerTime_);
                 for (int32_t i = 0; i < tileNum; i++) {
                     float time = (tilePerTime_ * i);
@@ -621,8 +534,8 @@ void Emitter::EditParticle() {
                     }
 
                     // UV座標を計算
-                    float x = col * (tileSize_[X] / textureSize_[X]);
-                    float y = row * (tileSize_[Y] / textureSize_[Y]);
+                    x = col * (tileSize_[X] / textureSize_[X]);
+                    y = row * (tileSize_[Y] / textureSize_[Y]);
                     particleKeyFrames_->uvTranslateCurve_.emplace_back(time, Vector3f(x, y, 0.f));
                 }
             }
@@ -718,6 +631,9 @@ void Emitter::Draw(ID3D12GraphicsCommandList* _commandList) {
             Matrix4x4 translateMat = MakeMatrix::Translate(structuredTransform_.openData_[i].translate + originPos_);
             // ワールド行列を構築
             structuredTransform_.openData_[i].worldMat = scaleMat * rotateMat * translateMat;
+
+            structuredTransform_.openData_[i].uvMat = particles_[i]->getTransform().uvMat;
+            structuredTransform_.openData_[i].color = particles_[i]->getTransform().color;
         }
     } else {
         // 各パーティクルのワールド行列を計算
@@ -729,6 +645,9 @@ void Emitter::Draw(ID3D12GraphicsCommandList* _commandList) {
 
             // ワールド行列を構築
             structuredTransform_.openData_[i].worldMat = scaleMat * rotateMat * translateMat;
+
+            structuredTransform_.openData_[i].uvMat = particles_[i]->getTransform().uvMat;
+            structuredTransform_.openData_[i].color = particles_[i]->getTransform().color;
         }
     }
 

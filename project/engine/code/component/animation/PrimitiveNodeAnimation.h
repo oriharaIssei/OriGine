@@ -15,6 +15,9 @@
 
 class PrimitiveNodeAnimation
     : public IComponent {
+    friend void to_json(nlohmann::json& _json, const PrimitiveNodeAnimation& _primitiveNodeAnimation);
+    friend void from_json(const nlohmann::json& _json, PrimitiveNodeAnimation& _primitiveNodeAnimation);
+
 public:
     PrimitiveNodeAnimation()           = default;
     ~PrimitiveNodeAnimation() override = default;
@@ -22,8 +25,6 @@ public:
     void Initialize(GameEntity* _entity) override;
 
     bool Edit() override;
-    void Save(BinaryWriter& _writer) override;
-    void Load(BinaryReader& _reader) override;
 
     void Finalize() override;
 
@@ -36,6 +37,15 @@ protected:
 private:
     float duration_    = 0.0f; // (秒)
     float currentTime_ = 0.0f; // (秒)
+
+#ifdef _DEBUG
+    // 連番画像から uv Curveにするためのもの
+    Vec2f tileSize_            = {};
+    Vec2f textureSize_         = {};
+    float tilePerTime_         = 0.f;
+    float startAnimationTime_  = 0.f;
+    float animationTimeLength_ = 0.f;
+#endif // _DEBUG
 
     struct AnimationState {
         bool isLoop_ = false;

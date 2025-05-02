@@ -28,6 +28,15 @@ void ModelNodeAnimation::Initialize(GameEntity* /*_entity*/) {
     if (data_->animationNodes_.empty()) {
         return;
     }
+
+    if (!fileName_.empty()) {
+        data_ = AnimationManager::getInstance()->Load(directory_, fileName_);
+        while (true) {
+            if (data_->loadState == LoadState::Loaded) {
+                break;
+            }
+        }
+    }
 }
 
 bool ModelNodeAnimation::Edit() {
@@ -62,33 +71,6 @@ bool ModelNodeAnimation::Edit() {
 #else
     return false;
 #endif // _DEBUG
-}
-
-void ModelNodeAnimation::Save(BinaryWriter& _writer) {
-    _writer.Write("isPlay", isPlay_);
-    _writer.Write("isLoop", isLoop_);
-    _writer.Write("duration", duration_);
-
-    _writer.Write("directory", directory_);
-    _writer.Write("fileName", fileName_);
-}
-
-void ModelNodeAnimation::Load(BinaryReader& _reader) {
-    _reader.Read("isPlay", isPlay_);
-    _reader.Read("isLoop", isLoop_);
-    _reader.Read("duration", duration_);
-
-    _reader.Read("directory", directory_);
-    _reader.Read("fileName", fileName_);
-
-    if (!fileName_.empty()) {
-        data_ = AnimationManager::getInstance()->Load(directory_, fileName_);
-        while (true) {
-            if (data_->loadState == LoadState::Loaded) {
-                break;
-            }
-        }
-    }
 }
 
 void ModelNodeAnimation::Finalize() {
@@ -419,4 +401,23 @@ Vec3f ModelNodeAnimation::getCurrentTranslate(const std::string& nodeName) const
         return CalculateValue::Step(itr->second.translate, currentAnimationTime_);
     }
     return CalculateValue::Linear(itr->second.translate, currentAnimationTime_);
+}
+
+void to_json(nlohmann::json& j, const ModelNodeAnimation& t) {
+    j = nlohmann::json{
+        {"directory", t.directory_},
+        {"fileName", t.fileName_},
+        {"isPlay", t.isPlay_},
+        {"isLoop", t.isLoop_},
+        {"duration", t.duration_},
+        {"currentAnimationTime", t.currentAnimationTime_}};
+}
+
+void from_json(const nlohmann::json& j, ModelNodeAnimation& t) {
+    j.at("directory").get_to(t.directory_);
+    j.at("fileName").get_to(t.fileName_);
+    j.at("isPlay").get_to(t.isPlay_);
+    j.at("isLoop").get_to(t.isLoop_);
+    j.at("duration").get_to(t.duration_);
+    j.at("currentAnimationTime").get_to(t.currentAnimationTime_);
 }

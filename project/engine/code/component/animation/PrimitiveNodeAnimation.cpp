@@ -93,6 +93,64 @@ bool PrimitiveNodeAnimation::Edit() {
         ImGui::TreePop();
     }
 
+    if (ImGui::TreeNode("UvCurveGenerator Form TextureAnimation")) {
+        ImGui::DragFloat2("TileSize", tileSize_.v, 0.1f);
+        ImGui::DragFloat2("TextureSize", textureSize_.v, 0.1f);
+        ImGui::DragFloat("tilePerTime_", &tilePerTime_);
+        ImGui::DragFloat("StartAnimationTime", &startAnimationTime_, 0.1f, 0);
+        ImGui::DragFloat("AnimationTimeLength", &animationTimeLength_, 0.1f, 0);
+        if (ImGui::Button("Generate Curve")) {
+            duration_ = animationTimeLength_;
+
+            uvScaleCurve_.clear();
+            uvTranslateCurve_.clear();
+
+            // uvScale は Animation しない
+            uvScaleCurve_.emplace_back(0.f, Vector2f(tileSize_ / textureSize_));
+
+            // uv Translate は Animation する
+            uvInterpolationType_ = InterpolationType::STEP;
+
+            // 最大タイル数と最大時間を計算
+            int32_t maxTilesX = int32_t(textureSize_[X] / tileSize_[X]);
+            int32_t maxTilesY = int32_t(textureSize_[Y] / tileSize_[Y]);
+            int32_t maxTiles  = maxTilesX * maxTilesY;
+            float maxTime     = maxTiles * tilePerTime_;
+
+            // startAnimationTime_ を最大時間内に収める
+            startAnimationTime_ = fmod(startAnimationTime_, maxTime);
+
+            // 初期の col と row を計算
+            int32_t startTileIndex = int32_t(startAnimationTime_ / tilePerTime_);
+            float col              = float(startTileIndex % maxTilesX);
+            float row              = float(startTileIndex / maxTilesX);
+
+            // UV座標を計算
+            float x = col * (tileSize_[X] / textureSize_[X]);
+            float y = row * (tileSize_[Y] / textureSize_[Y]);
+
+            uvTranslateCurve_.emplace_back(0.f, Vector2f(x, y));
+
+            int32_t tileNum = int32_t(animationTimeLength_ / tilePerTime_);
+            for (int32_t i = 0; i < tileNum; i++) {
+                float time = (tilePerTime_ * i);
+
+                col += 1.f;
+                if (col >= maxTilesX) {
+                    col = 0.f;
+                    row += 1.f;
+                }
+
+                // UV座標を計算
+                x = col * (tileSize_[X] / textureSize_[X]);
+                y = row * (tileSize_[Y] / textureSize_[Y]);
+                uvTranslateCurve_.emplace_back(time, Vector2f(x, y));
+            }
+        }
+
+        ImGui::TreePop();
+    }
+
     if (ImGui::TreeNode("Material_Animation")) {
         isChange |= ImGui::Checkbox("MaterialAnimation Is Loop", &materialAnimationState_.isLoop_);
         isChange |= ImGui::Checkbox("MaterialAnimation Is Play", &materialAnimationState_.isPlay_);
@@ -176,6 +234,7 @@ bool PrimitiveNodeAnimation::Edit() {
 
             ImGui::EndTable();
         }
+
         ImGui::TreePop();
     }
 
@@ -185,45 +244,45 @@ bool PrimitiveNodeAnimation::Edit() {
 #endif // _DEBUG
 }
 
-void PrimitiveNodeAnimation::Save(BinaryWriter& _writer) {
-    _writer.Write("duration", duration_);
-
-    _writer.Write("isLoop", transformAnimationState_.isLoop_);
-    _writer.Write("isPlay", transformAnimationState_.isPlay_);
-    _writer.Write("transformInterpolationType", transformInterpolationType_);
-
-    _writer.Write("uvIsLoop", materialAnimationState_.isLoop_);
-    _writer.Write("uvIsPlay", materialAnimationState_.isPlay_);
-    _writer.Write("colorInterpolationType", colorInterpolationType_);
-    _writer.Write("uvInterpolationType", uvInterpolationType_);
-
-    WriteCurve("scaleCurve", scaleCurve_, _writer);
-    WriteCurve("rotateCurve", rotateCurve_, _writer);
-    WriteCurve("translateCurve", translateCurve_, _writer);
-
-    WriteCurve("colorCurve", colorCurve_, _writer);
-    WriteCurve("uvScaleCurve", uvScaleCurve_, _writer);
-    WriteCurve("uvRotateCurve", uvRotateCurve_, _writer);
-    WriteCurve("uvTranslateCurve", uvTranslateCurve_, _writer);
-}
-
-void PrimitiveNodeAnimation::Load(BinaryReader& _reader) {
-    _reader.Read("duration", duration_);
-    _reader.Read("isLoop", transformAnimationState_.isLoop_);
-    _reader.Read("isPlay", transformAnimationState_.isPlay_);
-    _reader.Read("transformInterpolationType", transformInterpolationType_);
-    _reader.Read("uvIsLoop", materialAnimationState_.isLoop_);
-    _reader.Read("uvIsPlay", materialAnimationState_.isPlay_);
-    _reader.Read("colorInterpolationType", colorInterpolationType_);
-    _reader.Read("uvInterpolationType", uvInterpolationType_);
-    ReadCurve("scaleCurve", scaleCurve_, _reader);
-    ReadCurve("rotateCurve", rotateCurve_, _reader);
-    ReadCurve("translateCurve", translateCurve_, _reader);
-    ReadCurve("colorCurve", colorCurve_, _reader);
-    ReadCurve("uvScaleCurve", uvScaleCurve_, _reader);
-    ReadCurve("uvRotateCurve", uvRotateCurve_, _reader);
-    ReadCurve("uvTranslateCurve", uvTranslateCurve_, _reader);
-}
+//void PrimitiveNodeAnimation::Save(BinaryWriter& _writer) {
+//    _writer.Write("duration", duration_);
+//
+//    _writer.Write("isLoop", transformAnimationState_.isLoop_);
+//    _writer.Write("isPlay", transformAnimationState_.isPlay_);
+//    _writer.Write("transformInterpolationType", transformInterpolationType_);
+//
+//    _writer.Write("uvIsLoop", materialAnimationState_.isLoop_);
+//    _writer.Write("uvIsPlay", materialAnimationState_.isPlay_);
+//    _writer.Write("colorInterpolationType", colorInterpolationType_);
+//    _writer.Write("uvInterpolationType", uvInterpolationType_);
+//
+//    WriteCurve("scaleCurve", scaleCurve_, _writer);
+//    WriteCurve("rotateCurve", rotateCurve_, _writer);
+//    WriteCurve("translateCurve", translateCurve_, _writer);
+//
+//    WriteCurve("colorCurve", colorCurve_, _writer);
+//    WriteCurve("uvScaleCurve", uvScaleCurve_, _writer);
+//    WriteCurve("uvRotateCurve", uvRotateCurve_, _writer);
+//    WriteCurve("uvTranslateCurve", uvTranslateCurve_, _writer);
+//}
+//
+//void PrimitiveNodeAnimation::Load(BinaryReader& _reader) {
+//    _reader.Read("duration", duration_);
+//    _reader.Read("isLoop", transformAnimationState_.isLoop_);
+//    _reader.Read("isPlay", transformAnimationState_.isPlay_);
+//    _reader.Read("transformInterpolationType", transformInterpolationType_);
+//    _reader.Read("uvIsLoop", materialAnimationState_.isLoop_);
+//    _reader.Read("uvIsPlay", materialAnimationState_.isPlay_);
+//    _reader.Read("colorInterpolationType", colorInterpolationType_);
+//    _reader.Read("uvInterpolationType", uvInterpolationType_);
+//    ReadCurve("scaleCurve", scaleCurve_, _reader);
+//    ReadCurve("rotateCurve", rotateCurve_, _reader);
+//    ReadCurve("translateCurve", translateCurve_, _reader);
+//    ReadCurve("colorCurve", colorCurve_, _reader);
+//    ReadCurve("uvScaleCurve", uvScaleCurve_, _reader);
+//    ReadCurve("uvRotateCurve", uvRotateCurve_, _reader);
+//    ReadCurve("uvTranslateCurve", uvTranslateCurve_, _reader);
+//}
 
 void PrimitiveNodeAnimation::Finalize() {
     transformAnimationState_.isLoop_ = false;
@@ -334,4 +393,19 @@ void PrimitiveNodeAnimation::UpdateMaterialAnimation(Material* _material) {
     }
 
     _material->UpdateUvMatrix();
+}
+
+void to_json(nlohmann::json& _json, const PrimitiveNodeAnimation& _primitiveNodeAnimation) {
+    _json["duration"] = _primitiveNodeAnimation.duration_;
+    _json["isLoop"]   = _primitiveNodeAnimation.transformAnimationState_.isLoop_;
+    _json["isPlay"]   = _primitiveNodeAnimation.transformAnimationState_.isPlay_;
+    _json["uvIsLoop"] = _primitiveNodeAnimation.materialAnimationState_.isLoop_;
+    _json["uvIsPlay"] = _primitiveNodeAnimation.materialAnimationState_.isPlay_;
+}
+void from_json(const nlohmann::json& _json, PrimitiveNodeAnimation& _primitiveNodeAnimation) {
+    _json.at("duration").get_to(_primitiveNodeAnimation.duration_);
+    _json.at("isLoop").get_to(_primitiveNodeAnimation.transformAnimationState_.isLoop_);
+    _json.at("isPlay").get_to(_primitiveNodeAnimation.transformAnimationState_.isPlay_);
+    _json.at("uvIsLoop").get_to(_primitiveNodeAnimation.materialAnimationState_.isLoop_);
+    _json.at("uvIsPlay").get_to(_primitiveNodeAnimation.materialAnimationState_.isPlay_);
 }

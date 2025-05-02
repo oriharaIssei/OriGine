@@ -33,3 +33,25 @@ void Material::DebugGui() {
     ImGui::ColorEdit3("specularColor", specularColor_.v);
 }
 #endif // _DEBUG
+
+void to_json(nlohmann::json& j, const Material& m) {
+    to_json<3,float>(j, m.uvScale_);
+    to_json<3, float>(j, m.uvRotate_);
+    to_json<3, float>(j, m.uvTranslate_);
+
+    to_json<4, float>(j, m.color_);
+
+    j["enableLighting"] = m.enableLighting_;
+    j["shininess"]      = m.shininess_;
+    to_json<3, float>(j, m.specularColor_);
+}
+
+void from_json(const nlohmann::json& j, Material& m) {
+    j.at("uvScale").get_to(m.uvScale_);
+    j.at("uvRotate").get_to(m.uvRotate_);
+    j.at("uvTranslate").get_to(m.uvTranslate_);
+    j.at("color").get_to(m.color_);
+    j.at("enableLighting").get_to(m.enableLighting_);
+    j.at("shininess").get_to(m.shininess_);
+    j.at("specularColor").get_to(m.specularColor_);
+}

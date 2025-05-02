@@ -14,39 +14,28 @@
 #include "math/Vector3.h"
 #include "math/Vector4.h"
 
-class PointLight : public IComponent {
+class PointLight
+    : public IComponent {
+    friend void to_json(nlohmann::json& j, const PointLight& l);
+    friend void from_json(const nlohmann::json& j, PointLight& l);
+
 public:
     PointLight() {}
     ~PointLight() {}
 
     void Initialize([[maybe_unused]] GameEntity* _entity) override {}
     bool Edit() override;
-    void Save(BinaryWriter& _writer) override {
-        _writer.Write<bool>("isActive", isActive_);
-        _writer.Write<3, float>("color", color_);
-        _writer.Write<float>("intensity", intensity_);
-        _writer.Write<3, float>("pos", pos_);
-        _writer.Write<float>("radius", radius_);
-        _writer.Write<float>("decay", decay_);
-    }
-    void Load(BinaryReader& _reader) override {
-        _reader.Read<bool>("isActive", isActive_);
-        _reader.Read<3, float>("color", color_);
-        _reader.Read<float>("intensity", intensity_);
-        _reader.Read<3, float>("pos", pos_);
-        _reader.Read<float>("radius", radius_);
-        _reader.Read<float>("decay", decay_);
-    }
+    
     void Finalize() override {}
 
 private:
     bool isActive_ = true;
 
-    Vec3f color_ = {1.f, 1.f, 1.f};
-    Vec3f pos_   = {0.f, 0.f, 0.f};
+    Vec3f color_     = {1.f, 1.f, 1.f};
+    Vec3f pos_       = {0.f, 0.f, 0.f};
     float intensity_ = 0.f;
-    float radius_ = 0.f;
-    float decay_ = 0.f;
+    float radius_    = 0.f;
+    float decay_     = 0.f;
 
 public:
     struct ConstantBuffer {

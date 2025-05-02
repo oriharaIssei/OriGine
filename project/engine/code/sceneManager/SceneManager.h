@@ -7,6 +7,13 @@
 // string
 #include <string>
 
+/// Engine
+#include "module/editor/IEditor.h"
+
+/// externals
+#include <binaryIO/BinaryIO.h>
+#include <nlohmann/json.hpp>
+
 class IScene;
 
 class RenderTexture;
@@ -120,4 +127,37 @@ public:
         return isUsingDebugCamera_;
     };
 #endif // _DEBUG
+};
+
+class SceneSerializer {
+public:
+    SceneSerializer() {}
+    ~SceneSerializer() {}
+
+    void Serialize(
+        const std::string& _sceneName) {
+        SerializeFromJson(_sceneName);
+    }
+
+    void Deserialize(
+        const std::string& _sceneName) {
+        DeserializeFromJson(_sceneName);
+    }
+
+private:
+    void SerializeFromJson(const std::string& _sceneName);
+    void DeserializeFromJson(const std::string& _sceneName);
+
+private:
+    static const std::string directory_;
+    nlohmann::json rootJson_;
+
+public:
+    const nlohmann::json& getRootJson() const {
+        return rootJson_;
+    }
+
+    void setRootJson(const nlohmann::json& _rootJson) {
+        rootJson_ = _rootJson;
+    }
 };

@@ -58,9 +58,6 @@ public: // メンバ関数
     virtual void Debug();
 #endif // _DEBUG
 
-    virtual void Save(BinaryWriter& _writer) = 0;
-    virtual void Load(BinaryReader& _reader) = 0;
-
     virtual Vec3f getSpawnPos() = 0;
 
 public:
@@ -73,6 +70,13 @@ public:
 ///</summary>
 struct EmitterSphere
     : EmitterShape {
+    friend void to_json(nlohmann::json& j, const EmitterSphere& r) {
+        j["radius"] = r.radius_;
+    }
+    friend void from_json(const nlohmann::json& j, EmitterSphere& r){
+        j.at("radius").get_to(r.radius_);
+    }
+
     EmitterSphere()
         : EmitterShape(EmitterShapeType::SPHERE) {}
 
@@ -81,9 +85,6 @@ public: // メンバ関数
     void Debug() override;
 #endif // _DEBUG
     Vec3f getSpawnPos() override;
-
-    void Save(BinaryWriter& _writer) override;
-    void Load(BinaryReader& _reader) override;
 
 public: // メンバ変数
     float radius_ = 0;
@@ -94,6 +95,17 @@ public: // メンバ変数
 ///</summary>
 struct EmitterOBB
     : EmitterShape {
+    friend void to_json(nlohmann::json& j, const EmitterOBB& r){
+        j["min"]    = r.min_;
+        j["max"]    = r.max_;
+        j["rotate"] = r.rotate_;
+    }
+    friend void from_json(const nlohmann::json& j, EmitterOBB& r){
+        j.at("min").get_to(r.min_);
+        j.at("max").get_to(r.max_);
+        j.at("rotate").get_to(r.rotate_);
+    }
+
     EmitterOBB()
         : EmitterShape(EmitterShapeType::OBB) {}
 // メンバ関数
@@ -102,9 +114,6 @@ struct EmitterOBB
 #endif // _DEBUG
 
     Vec3f getSpawnPos() override;
-
-    void Save(BinaryWriter& _writer) override;
-    void Load(BinaryReader& _reader) override;
 
 public: // メンバ変数
     Vec3f min_    = {0.f, 0.f, 0.f};
@@ -117,6 +126,17 @@ public: // メンバ変数
 ///</summary>
 struct EmitterCapsule
     : EmitterShape {
+    friend void to_json(nlohmann::json& j, const EmitterCapsule& r){
+        j["direction"] = r.direction_;
+        j["radius"]    = r.radius_;
+        j["length"]    = r.length_;
+    }
+    friend void from_json(const nlohmann::json& j, EmitterCapsule& r){
+        j.at("direction").get_to(r.direction_);
+        j.at("radius").get_to(r.radius_);
+        j.at("length").get_to(r.length_);
+    }
+
     EmitterCapsule()
         : EmitterShape(EmitterShapeType::CAPSULE) {}
 
@@ -125,9 +145,6 @@ public: // メンバ関数
     void Debug() override;
 #endif // _DEBUG
     Vec3f getSpawnPos() override;
-
-    void Save(BinaryWriter& _writer) override;
-    void Load(BinaryReader& _reader) override;
 
 public: // メンバ変数
     float radius_    = 0.f;
@@ -140,6 +157,17 @@ public: // メンバ変数
 ///</summary>
 struct EmitterCone
     : EmitterShape {
+    friend void to_json(nlohmann::json& j, const EmitterCone& r){
+        j["angle"]     = r.angle_;
+        j["length"]    = r.length_;
+        j["direction"] = r.direction_;
+    }
+    friend void from_json(const nlohmann::json& j, EmitterCone& r){
+        j.at("angle").get_to(r.angle_);
+        j.at("length").get_to(r.length_);
+        j.at("direction").get_to(r.direction_);
+    }
+
     EmitterCone()
         : EmitterShape(EmitterShapeType::CONE) {}
 
@@ -149,9 +177,6 @@ public: // メンバ関数
 #endif // _DEBUG
 
     Vec3f getSpawnPos() override;
-
-    void Save(BinaryWriter& _writer) override;
-    void Load(BinaryReader& _reader) override;
 
 public: // メンバ変数
     float angle_     = 0.f;

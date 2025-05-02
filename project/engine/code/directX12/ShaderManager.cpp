@@ -55,7 +55,7 @@ PipelineStateObj* ShaderManager::CreatePso(const std::string& key,
         &errorBlob);
 
     if (FAILED(result)) {
-        Logger::Error(reinterpret_cast<char*>(errorBlob->GetBufferPointer()));
+        LOG_ERROR(reinterpret_cast<char*>(errorBlob->GetBufferPointer()));
         assert(false);
     }
 

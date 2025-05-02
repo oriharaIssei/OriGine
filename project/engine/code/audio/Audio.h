@@ -41,6 +41,9 @@ public:
 
 class Audio
     : public IComponent {
+    friend void to_json(nlohmann::json& j, const Audio& t);
+    friend void from_json(const nlohmann::json& j, Audio& t);
+
 public:
     static void StaticInitialize();
     static void StaticFinalize();
@@ -48,23 +51,10 @@ public:
     Audio() {}
     ~Audio() {}
 
-    void Initialize(GameEntity* /*_entity*/) override {};
-
-    void Save(BinaryWriter& _writer) override {
-        _writer.Write("fileName", fileName_);
-        _writer.Write("isLoop", audioClip_.isLoop_);
-        _writer.Write("valume", audioClip_.valume_);
-        _writer.Write("isPlay", audioClip_.isPlay_);
-    };
-    void Load(BinaryReader& _reader) override {
-        _reader.Read("fileName", fileName_);
+    void Initialize(GameEntity* /*_entity*/) override {
         if (!fileName_.empty()) {
             audioClip_.data_ = LoadWave(fileName_);
         }
-
-        _reader.Read("isLoop", audioClip_.isLoop_);
-        _reader.Read("valume", audioClip_.valume_);
-        _reader.Read("isPlay", audioClip_.isPlay_);
     };
 
     bool Edit() override;

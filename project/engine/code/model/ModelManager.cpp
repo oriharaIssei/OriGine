@@ -215,12 +215,12 @@ std::shared_ptr<Model> ModelManager::Create(
 
     std::string filePath = directoryPath + "/" + filename;
 
-    Logger::Trace("Load Model \n Path : " + filePath);
+    LOG_TRACE("Load Model \n Path : " + filePath);
 
     const auto itr = modelLibrary_.find(filePath);
     // すでに読み込まれている場合
     if (itr != modelLibrary_.end()) {
-        Logger::Trace("Model already loaded: " + filePath);
+        LOG_TRACE("Model already loaded: " + filePath);
 
         auto* targetModelMesh = itr->second.get();
         while (true) {
@@ -230,6 +230,13 @@ std::shared_ptr<Model> ModelManager::Create(
         }
         result->meshData_     = targetModelMesh;
         result->materialData_ = defaultMaterials_[result->meshData_];
+
+        for (auto& materialData : result->materialData_) {
+            materialData.material.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+            materialData.material->UpdateUvMatrix();
+            materialData.material.ConvertToBuffer();
+
+        }
 
         for (auto& [name, data] : result->meshData_->meshGroup_) {
             result->transforms_[&data].Update();
@@ -335,5 +342,5 @@ void ModelManager::LoadTask::Update() {
 
     // ロード完了のログ
     timer.Update();
-    Logger::Trace("Model Load Complete : " + this->directory + "/" + this->fileName + "\n Lading Time : " + std::to_string(timer.getDeltaTime()));
+    LOG_TRACE("Model Load Complete : " + this->directory + "/" + this->fileName + "\n Lading Time : " + std::to_string(timer.getDeltaTime()));
 }

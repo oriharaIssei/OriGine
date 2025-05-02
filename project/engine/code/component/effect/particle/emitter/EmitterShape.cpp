@@ -54,12 +54,6 @@ Vec3f EmitterSphere::getSpawnPos() {
         return randDire * radius_;
     }
 }
-void EmitterSphere::Save(BinaryWriter& _writer) {
-    _writer.Write("ShapeRadius", radius_);
-}
-void EmitterSphere::Load(BinaryReader& _reader) {
-    _reader.Read("ShapeRadius", radius_);
-}
 #pragma endregion
 
 #pragma region "Obb"
@@ -74,8 +68,8 @@ void EmitterOBB::Debug() {
     label = "##" + emitterShapeTypeWord_[int(type_)] + "_max";
     ImGui::DragFloat3(label.c_str(), max_.v, 0.1f);
 
-    min_ = Vec3f((std::min)(min_[X], max_[X]), (std::min)(min_[Y], max_[Y]), (std::min)(min_[Z], max_[Z]));
-    max_ = Vec3f((std::max)(min_[X], max_[X]), (std::max)(min_[Y], max_[Y]), (std::max)(min_[Z], max_[Z]));
+    min_ = MinElement(max_, min_);
+    max_ = MaxElement(max_, min_);
 }
 #endif // _DEBUG
 
@@ -111,18 +105,6 @@ Vec3f EmitterOBB::getSpawnPos() {
     spawnPos = TransformVector(spawnPos, MakeMatrix::RotateXYZ(rotate_));
 
     return spawnPos;
-}
-
-void EmitterOBB::Save(BinaryWriter& _writer) {
-    _writer.Write<3, float>("ShapeMin", min_);
-    _writer.Write<3, float>("ShapeMax", max_);
-    _writer.Write<3, float>("ShapeRotate", rotate_);
-}
-
-void EmitterOBB::Load(BinaryReader& _reader) {
-    _reader.Read<3, float>("ShapeMin", min_);
-    _reader.Read<3, float>("ShapeMax", max_);
-    _reader.Read<3, float>("ShapeRotate", rotate_);
 }
 
 #pragma endregion
@@ -166,16 +148,6 @@ Vec3f EmitterCapsule::getSpawnPos() {
 
     return (Vec3f(direction_) * randDist) + (randDire * randRadius);
 }
-void EmitterCapsule::Save(BinaryWriter& _writer) {
-    _writer.Write<3, float>("ShapeDirection", direction_);
-    _writer.Write("ShapeRadius", radius_);
-    _writer.Write("ShapeLength", length_);
-}
-void EmitterCapsule::Load(BinaryReader& _reader) {
-    _reader.Read<3, float>("ShapeDirection", direction_);
-    _reader.Read("ShapeRadius", radius_);
-    _reader.Read("ShapeLength", length_);
-}
 #pragma endregion
 
 #pragma region "Cone"
@@ -215,15 +187,5 @@ Vec3f EmitterCone::getSpawnPos() {
     float randDist = randFloat.get();
 
     return (Vec3f(direction_) * randDist) + (randDire * randRadius);
-}
-void EmitterCone::Save(BinaryWriter& _writer) {
-    _writer.Write<3, float>("ShapeDirection", direction_);
-    _writer.Write("ShapeAngle", angle_);
-    _writer.Write("ShapeLength", length_);
-}
-void EmitterCone::Load(BinaryReader& _reader) {
-    _reader.Read<3, float>("ShapeDirection", direction_);
-    _reader.Read("ShapeAngle", angle_);
-    _reader.Read("ShapeLength", length_);
 }
 #pragma endregion
