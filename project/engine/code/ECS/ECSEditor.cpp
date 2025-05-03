@@ -75,38 +75,6 @@ void ECSEditor::SelectEntity() {
             ImGui::EndPopup();
         }
 
-        // Active Entities
-        if (ImGui::TreeNode("Active Entities")) {
-            bool isEntitySelected  = false;
-            std::string checkBoxID = "";
-            std::string entityName = "";
-
-            for (auto& entity : ecsManager_->getEntities()) {
-                if (entity.isAlive()) {
-                    isEntitySelected = false;
-                    isEntitySelected = std::find(selectedEntities_.begin(), selectedEntities_.end(), &entity) != selectedEntities_.end();
-
-                    checkBoxID = "##entitySelect_" + entity.getUniqueID();
-                    if (ImGui::Checkbox(checkBoxID.c_str(), &isEntitySelected)) {
-                        if (!isEntitySelected) {
-                            selectedEntities_.remove(&entity);
-                        } else {
-                            selectedEntities_.push_back(&entity);
-                        }
-                    }
-
-                    ImGui::SameLine();
-
-                    entityName = entity.isUnique() ? entity.getDataType() : entity.getUniqueID();
-                    if (ImGui::Button(entityName.c_str())) {
-                        auto command = std::make_unique<SelectEntityCommand>(this, const_cast<GameEntity*>(&entity));
-                        EditorGroup::getInstance()->pushCommand(std::move(command));
-                    }
-                }
-            }
-            ImGui::TreePop();
-        }
-
         if (ImGui::Button("Add Entity")) {
             auto command = std::make_unique<CreateEntityCommand>(this);
 
@@ -133,22 +101,52 @@ void ECSEditor::SelectEntity() {
             }
         }
 
-        // Inactive Entities
-        if (ImGui::TreeNode("Inactive Entities")) {
-            for (auto& entity : ecsManager_->getEntities()) {
-                // "Free" としてマークされたものをInactiveとする
-                if (!entity.isAlive()) {
-                    ImGui::Text("Inactive Entity");
+        ImGui::Separator();
+        ImGui::Text("Entity List");
+
+        static char searchBuffer[128] = ""; // 検索用のバッファ
+        ImGui::InputText("Search", searchBuffer, sizeof(searchBuffer));
+
+        // Active Entities
+        bool isEntitySelected  = false;
+        std::string checkBoxID = "";
+        std::string entityName = "";
+
+        for (auto& entity : ecsManager_->getEntities()) {
+            if (entity.isAlive()) {
+                entityName = entity.isUnique() ? entity.getDataType() : entity.getUniqueID();
+                // 検索フィルタリング
+                if (strlen(searchBuffer) > 0 && entityName.find(searchBuffer) == std::string::npos) {
+                    continue; // 検索文字列に一致しない場合はスキップ
+                }
+
+                isEntitySelected = false;
+                isEntitySelected = std::find(selectedEntities_.begin(), selectedEntities_.end(), &entity) != selectedEntities_.end();
+
+                checkBoxID = "##entitySelect_" + entity.getUniqueID();
+                if (ImGui::Checkbox(checkBoxID.c_str(), &isEntitySelected)) {
+                    if (!isEntitySelected) {
+                        selectedEntities_.remove(&entity);
+                    } else {
+                        selectedEntities_.push_back(&entity);
+                    }
+                }
+
+                ImGui::SameLine();
+
+                if (ImGui::Button(entityName.c_str())) {
+                    auto command = std::make_unique<SelectEntityCommand>(this, const_cast<GameEntity*>(&entity));
+                    EditorGroup::getInstance()->pushCommand(std::move(command));
                 }
             }
-            ImGui::TreePop();
         }
-    }
-    ImGui::End();
 
-    PopupEntityJoinWorkSystem(editEntity_, true);
-    PopupEntityAddComponent(editEntity_, true);
-    PopupEntityLeaveWorkSystem(editEntity_, true);
+        ImGui::End();
+
+        PopupEntityJoinWorkSystem(editEntity_, true);
+        PopupEntityAddComponent(editEntity_, true);
+        PopupEntityLeaveWorkSystem(editEntity_, true);
+    }
 }
 
 void ECSEditor::EditEntity() {
@@ -379,16 +377,44 @@ void ECSEditor::PopupEntityJoinWorkSystem(GameEntity* _entity, bool _isGroup) {
         return;
     }
 
+    static char searchBuffer[128] = ""; // 検索用のバッファ
     ImGui::Begin("Join Work System", &popupJoinWorkSystem_.isOpen_);
     if (popupJoinWorkSystem_.isOpen_ != false) {
         popupJoinWorkSystem_.isOpen_ = ImGui::IsWindowFocused();
     }
 
     ImGui::Text("Work Systems");
+
+    ImGui::Spacing();
+
+    // 検索欄
+    ImGui::InputText("Search##WorkSysterm", searchBuffer, sizeof(searchBuffer));
+    ImGui::Separator();
     int systemTypeIndex = 0;
     for (auto& systemByType : ecsManager_->getSystems()) {
+
+        // 検索に一致するシステムがあるかを確認
+        bool hasMatchingSystem = false;
+        for (auto& [systemName, system] : systemByType) {
+            if (strlen(searchBuffer) == 0 || systemName.find(searchBuffer) != std::string::npos) {
+                hasMatchingSystem = true;
+                break;
+            }
+        }
+
+        // 一致する場合は CollapsingHeader を開く
+        if (hasMatchingSystem) {
+            ImGui::SetNextItemOpen(true);
+        } else if (strlen(searchBuffer) != 0) {
+            ImGui::SetNextItemOpen(false);
+        }
+
         if (ImGui::CollapsingHeader(SystemTypeString[systemTypeIndex].c_str())) {
             for (auto& [systemName, system] : systemByType) {
+                // 検索フィルタリング
+                if (strlen(searchBuffer) > 0 && systemName.find(searchBuffer) == std::string::npos) {
+                    continue; // 検索文字列に一致しない場合はスキップ
+                }
                 if (ImGui::Button(systemName.c_str())) {
                     if (_isGroup) {
                         // GroupCommand経由に変更
@@ -426,8 +452,21 @@ void ECSEditor::PopupEntityAddComponent(GameEntity* _entity, bool _isGroup) {
     if (popupAddComponent_.isOpen_ != false) {
         popupAddComponent_.isOpen_ = ImGui::IsWindowFocused();
     }
+
+    ImGui::Spacing();
+
+    static char searchBuffer[128] = ""; // 検索用のバッファ
+    // 検索欄
+    ImGui::InputText("Search##AddComponent", searchBuffer, sizeof(searchBuffer));
+    ImGui::Separator();
+
     // コンポーネントの追加 → Command経由に変更
     for (auto& [componentTypeName, componentArray] : ecsManager_->getComponentArrayMap()) {
+        // 検索フィルタリング
+        if (strlen(searchBuffer) > 0 && componentTypeName.find(searchBuffer) == std::string::npos) {
+            continue; // 検索文字列に一致しない場合はスキップ
+        }
+
         if (ImGui::Button(componentTypeName.c_str())) {
             if (_isGroup) {
                 // GroupCommand経由に変更
@@ -457,7 +496,6 @@ void ECSEditor::PopupEntityLeaveWorkSystem(GameEntity* _entity, bool _isGroup) {
     }
 
     // IsGroup の場合, leaveSystemを決められるように
-
     ImGui::Begin("Leave Work System", &popupLeaveWorkSystem_.isOpen_);
     if (popupLeaveWorkSystem_.isOpen_ != false) {
         popupLeaveWorkSystem_.isOpen_ = ImGui::IsWindowFocused();
@@ -466,10 +504,35 @@ void ECSEditor::PopupEntityLeaveWorkSystem(GameEntity* _entity, bool _isGroup) {
     if (_isGroup) {
         if (!leaveSystem_) {
             ImGui::Text("Work Systems");
+            ImGui::Spacing();
+            static char searchBuffer[128] = ""; // 検索用のバッファ
+            // 検索欄
+            ImGui::InputText("Search##leaveSysterm", searchBuffer, sizeof(searchBuffer));
+
+            ImGui::Separator();
             int systemTypeIndex = 0;
             for (auto& systemByType : ecsManager_->getSystems()) {
                 if (ImGui::CollapsingHeader(SystemTypeString[systemTypeIndex].c_str())) {
+                    // 検索に一致するシステムがあるかを確認
+                    bool hasMatchingSystem = false;
                     for (auto& [systemName, system] : systemByType) {
+                        if (strlen(searchBuffer) == 0 || systemName.find(searchBuffer) != std::string::npos) {
+                            hasMatchingSystem = true;
+                            break;
+                        }
+                    }
+
+                    // 一致する場合は CollapsingHeader を開く
+                    if (hasMatchingSystem) {
+                        ImGui::SetNextItemOpen(true);
+                    } else if (strlen(searchBuffer) != 0) {
+                        ImGui::SetNextItemOpen(false);
+                    }
+
+                    for (auto& [systemName, system] : systemByType) {
+                        if (strlen(searchBuffer) == 0 || systemName.find(searchBuffer) != std::string::npos) {
+                            continue;
+                        }
                         if (ImGui::Button(systemName.c_str())) {
                             leaveSystemName_ = systemName;
                             leaveSystem_     = system.get();

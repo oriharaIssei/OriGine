@@ -35,15 +35,15 @@ void Material::DebugGui() {
 #endif // _DEBUG
 
 void to_json(nlohmann::json& j, const Material& m) {
-    to_json<3,float>(j, m.uvScale_);
-    to_json<3, float>(j, m.uvRotate_);
-    to_json<3, float>(j, m.uvTranslate_);
+    to_json<3, float>(j["uvScale"], m.uvScale_);
+    to_json<3, float>(j["uvRotate"], m.uvRotate_);
+    to_json<3, float>(j["uvTranslate"], m.uvTranslate_);
 
-    to_json<4, float>(j, m.color_);
+    to_json<4, float>(j["color"], m.color_);
 
-    j["enableLighting"] = m.enableLighting_;
+    j["enableLighting"] = static_cast<bool>(m.enableLighting_);
     j["shininess"]      = m.shininess_;
-    to_json<3, float>(j, m.specularColor_);
+    to_json<3, float>(j["specularColor"], m.specularColor_);
 }
 
 void from_json(const nlohmann::json& j, Material& m) {

@@ -136,6 +136,16 @@ public:
         }
     }
 
+    void InitializeTransformBuffer(GameEntity* _hostEntity) ;
+    void InitializeMaterialBuffer(GameEntity* _hostEntity) ;
+    void ResizeTransformBuffer2MeshGroupSize() {
+        meshTransformBuff_.resize(meshGroup_->size());
+    }
+    void ResizeMaterialBuffer2MeshGroupSize() {
+        meshMaterialBuff_.resize(meshGroup_->size());
+        meshTextureNumber_.resize(meshGroup_->size());
+    }
+
 private:
     std::string directory_;
     std::string fileName_;

@@ -235,7 +235,6 @@ std::shared_ptr<Model> ModelManager::Create(
             materialData.material.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
             materialData.material->UpdateUvMatrix();
             materialData.material.ConvertToBuffer();
-
         }
 
         for (auto& [name, data] : result->meshData_->meshGroup_) {
