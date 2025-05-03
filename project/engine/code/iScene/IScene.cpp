@@ -113,6 +113,7 @@ void IScene::Finalize([[maybe_unused]] bool _isSave) {
     ecsManager->clearComponentArrays();
 
     ecsManager->clearAliveEntities();
+    ecsManager->clearUniqueEntities();
 }
 
 // void IScene::LoadSceneEntity() {

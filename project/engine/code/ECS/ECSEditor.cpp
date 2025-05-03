@@ -209,7 +209,7 @@ void ECSEditor::EditEntity() {
         if (ImGui::Checkbox("##entityIsUnique", &isUnique)) {
             if (isUnique) {
                 // Unique に設定 (登録できたら true,重複などで登録できなければ false)
-                ecsManager_->registerUniqueEntity(editEntity_->getDataType(), editEntity_);
+                ecsManager_->registerUniqueEntity( editEntity_);
             } else {
                 // Unique から解除
                 ecsManager_->removeUniqueEntity(editEntity_->getDataType());

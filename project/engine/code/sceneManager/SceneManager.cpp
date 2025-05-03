@@ -467,7 +467,7 @@ void SceneSerializer::DeserializeFromJson(const std::string& _sceneName) {
 
         bool isUnique = entityData["isUnique"];
         if (isUnique) {
-            ecsManager->registerUniqueEntity(entityName, entity);
+            ecsManager->registerUniqueEntity(entity);
         }
 
         // 所属するシステムを読み込み
