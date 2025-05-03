@@ -169,6 +169,24 @@ bool ModelMeshRenderer::Edit() {
 #endif // _DEBUG
 }
 
+void ModelMeshRenderer::InitializeTransformBuffer(GameEntity* _hostEntity) {
+    hostEntity_ = _hostEntity;
+    meshTransformBuff_.resize(meshGroup_->size());
+    for (int32_t i = 0; i < meshGroup_->size(); ++i) {
+        meshTransformBuff_[i].CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+        meshTransformBuff_[i].openData_.parent = getComponent<Transform>(_hostEntity);
+        meshTransformBuff_[i].ConvertToBuffer();
+    }
+}
+
+void ModelMeshRenderer::InitializeMaterialBuffer(GameEntity* _hostEntity) {
+    hostEntity_ = _hostEntity;
+    meshMaterialBuff_.resize(meshGroup_->size());
+    for (int32_t i = 0; i < meshGroup_->size(); ++i) {
+        meshMaterialBuff_[i].CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+    }
+}
+
 #pragma endregion
 
 void to_json(nlohmann::json& j, const ModelMeshRenderer& r) {
@@ -192,6 +210,7 @@ void to_json(nlohmann::json& j, const ModelMeshRenderer& r) {
         to_json(bufferData, r.meshMaterialBuff_[i].openData_);
         materialBufferDatas.push_back(bufferData);
     }
+    j["materialBufferDatas"] = materialBufferDatas;
 }
 
 void from_json(const nlohmann::json& j, ModelMeshRenderer& r) {
@@ -223,7 +242,7 @@ void CreateModelMeshRenderer(ModelMeshRenderer* _renderer, GameEntity* _hostEnti
 
     bool isLoaded = false;
     // -------------------- Modelの読み込み --------------------//
-    ModelManager::getInstance()->Create(_directory, _filenName, [&_hostEntity, &_renderer, &isLoaded](Model* model) {
+    auto model = ModelManager::getInstance()->Create(_directory, _filenName, [&_hostEntity, &_renderer, &isLoaded](Model* model) {
         // 再帰ラムダをstd::functionとして定義
         std::function<void(ModelMeshRenderer*, Model*, ModelNode*)> CreateMeshGroupFormNode;
         CreateMeshGroupFormNode = [&](ModelMeshRenderer* _meshRenderer, Model* _model, ModelNode* _node) {
@@ -236,21 +255,28 @@ void CreateModelMeshRenderer(ModelMeshRenderer* _renderer, GameEntity* _hostEnti
             }
         };
 
+        // メッシュグループの作成
         CreateMeshGroupFormNode(_renderer, model, &model->meshData_->rootNode);
-        _renderer->Initialize(_hostEntity);
 
-        // マテリアルの設定
-        for (uint32_t i = 0; i < static_cast<uint32_t>(model->materialData_.size()); ++i) {
+        // Bufferの初期化
+        _renderer->ResizeMaterialBuffer2MeshGroupSize();
+        _renderer->ResizeTransformBuffer2MeshGroupSize();
+
+        _renderer->InitializeTransformBuffer(_hostEntity);
+        _renderer->InitializeMaterialBuffer(_hostEntity);
+
+        for (uint32_t i = 0; i < static_cast<uint32_t>(_renderer->getMeshSize()); ++i) {
+            // マテリアルの設定
             _renderer->setMaterialBuff(i, model->materialData_[i].material.openData_);
             _renderer->setTextureNumber(i, model->materialData_[i].textureNumber);
         }
+
         isLoaded = true;
     });
 
-    while (true) {
-        if (isLoaded) {
-            break;
-        }
+    // ロードが完了するまで待機
+    while (!isLoaded) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 }
 
@@ -374,8 +400,8 @@ bool LineRenderer::Edit() {
 }
 
 void to_json(nlohmann::json& j, const LineRenderer& r) {
-    j["isRender"]    = r.isRender_;
-    j["blendMode"]   = static_cast<int32_t>(r.currentBlend_);
+    j["isRender"]  = r.isRender_;
+    j["blendMode"] = static_cast<int32_t>(r.currentBlend_);
 
     j["lineIsStrip"] = r.lineIsStrip_;
 

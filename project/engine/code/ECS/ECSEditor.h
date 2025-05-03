@@ -34,7 +34,6 @@ private:
     void EditEntity();
     void WorkerSystemList();
 
-    /// <summary>
     ///  エンティティを WorkSystem に追加するためのポップアップ
     /// </summary>
     /// <param name="_entity"></param>
