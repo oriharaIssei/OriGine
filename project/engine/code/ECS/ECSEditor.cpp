@@ -75,38 +75,6 @@ void ECSEditor::SelectEntity() {
             ImGui::EndPopup();
         }
 
-        // Active Entities
-        if (ImGui::TreeNode("Active Entities")) {
-            bool isEntitySelected  = false;
-            std::string checkBoxID = "";
-            std::string entityName = "";
-
-            for (auto& entity : ecsManager_->getEntities()) {
-                if (entity.isAlive()) {
-                    isEntitySelected = false;
-                    isEntitySelected = std::find(selectedEntities_.begin(), selectedEntities_.end(), &entity) != selectedEntities_.end();
-
-                    checkBoxID = "##entitySelect_" + entity.getUniqueID();
-                    if (ImGui::Checkbox(checkBoxID.c_str(), &isEntitySelected)) {
-                        if (!isEntitySelected) {
-                            selectedEntities_.remove(&entity);
-                        } else {
-                            selectedEntities_.push_back(&entity);
-                        }
-                    }
-
-                    ImGui::SameLine();
-
-                    entityName = entity.isUnique() ? entity.getDataType() : entity.getUniqueID();
-                    if (ImGui::Button(entityName.c_str())) {
-                        auto command = std::make_unique<SelectEntityCommand>(this, const_cast<GameEntity*>(&entity));
-                        EditorGroup::getInstance()->pushCommand(std::move(command));
-                    }
-                }
-            }
-            ImGui::TreePop();
-        }
-
         if (ImGui::Button("Add Entity")) {
             auto command = std::make_unique<CreateEntityCommand>(this);
 
@@ -133,22 +101,52 @@ void ECSEditor::SelectEntity() {
             }
         }
 
-        // Inactive Entities
-        if (ImGui::TreeNode("Inactive Entities")) {
-            for (auto& entity : ecsManager_->getEntities()) {
-                // "Free" としてマークされたものをInactiveとする
-                if (!entity.isAlive()) {
-                    ImGui::Text("Inactive Entity");
+        ImGui::Separator();
+        ImGui::Text("Entity List");
+
+        static char searchBuffer[128] = ""; // 検索用のバッファ
+        ImGui::InputText("Search", searchBuffer, sizeof(searchBuffer));
+
+        // Active Entities
+        bool isEntitySelected  = false;
+        std::string checkBoxID = "";
+        std::string entityName = "";
+
+        for (auto& entity : ecsManager_->getEntities()) {
+            if (entity.isAlive()) {
+                entityName = entity.isUnique() ? entity.getDataType() : entity.getUniqueID();
+                // 検索フィルタリング
+                if (strlen(searchBuffer) > 0 && entityName.find(searchBuffer) == std::string::npos) {
+                    continue; // 検索文字列に一致しない場合はスキップ
+                }
+
+                isEntitySelected = false;
+                isEntitySelected = std::find(selectedEntities_.begin(), selectedEntities_.end(), &entity) != selectedEntities_.end();
+
+                checkBoxID = "##entitySelect_" + entity.getUniqueID();
+                if (ImGui::Checkbox(checkBoxID.c_str(), &isEntitySelected)) {
+                    if (!isEntitySelected) {
+                        selectedEntities_.remove(&entity);
+                    } else {
+                        selectedEntities_.push_back(&entity);
+                    }
+                }
+
+                ImGui::SameLine();
+
+                if (ImGui::Button(entityName.c_str())) {
+                    auto command = std::make_unique<SelectEntityCommand>(this, const_cast<GameEntity*>(&entity));
+                    EditorGroup::getInstance()->pushCommand(std::move(command));
                 }
             }
-            ImGui::TreePop();
         }
-    }
-    ImGui::End();
 
-    PopupEntityJoinWorkSystem(editEntity_, true);
-    PopupEntityAddComponent(editEntity_, true);
-    PopupEntityLeaveWorkSystem(editEntity_, true);
+        ImGui::End();
+
+        PopupEntityJoinWorkSystem(editEntity_, true);
+        PopupEntityAddComponent(editEntity_, true);
+        PopupEntityLeaveWorkSystem(editEntity_, true);
+    }
 }
 
 void ECSEditor::EditEntity() {
@@ -407,7 +405,7 @@ void ECSEditor::PopupEntityJoinWorkSystem(GameEntity* _entity, bool _isGroup) {
         // 一致する場合は CollapsingHeader を開く
         if (hasMatchingSystem) {
             ImGui::SetNextItemOpen(true);
-        } else {
+        } else if (strlen(searchBuffer) != 0) {
             ImGui::SetNextItemOpen(false);
         }
 
@@ -527,7 +525,7 @@ void ECSEditor::PopupEntityLeaveWorkSystem(GameEntity* _entity, bool _isGroup) {
                     // 一致する場合は CollapsingHeader を開く
                     if (hasMatchingSystem) {
                         ImGui::SetNextItemOpen(true);
-                    } else {
+                    } else if (strlen(searchBuffer) != 0) {
                         ImGui::SetNextItemOpen(false);
                     }
 
