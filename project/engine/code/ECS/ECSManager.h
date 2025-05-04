@@ -117,14 +117,14 @@ public: // ============== accessor ==============//
         }
         return itr->second;
     }
-    bool registerUniqueEntity(const std::string& _dataTypeName, GameEntity* _entity) {
+    bool registerUniqueEntity(GameEntity* _entity) {
         _entity->isUnique_ = true;
 
-        if (uniqueEntities_.find(_dataTypeName) != uniqueEntities_.end()) {
+        if (uniqueEntities_.find(_entity->dataType_) != uniqueEntities_.end()) {
             return false;
         }
 
-        uniqueEntities_[_dataTypeName] = _entity;
+        uniqueEntities_[_entity->dataType_] = _entity;
         return true;
     }
     void removeUniqueEntity(const std::string& _dataTypeName) {
@@ -154,9 +154,13 @@ public: // ============== accessor ==============//
         deleteEntityQueue_.push(_entityIndex);
     }
 
-    void clearEntity() {
+    void clearEntities() {
         entities_.clear();
         freeEntityIndex_.clear();
+    }
+
+    void clearUniqueEntities() {
+        uniqueEntities_.clear();
     }
 
     /// <summary>
@@ -406,8 +410,8 @@ inline GameEntity* getUniqueEntity(const std::string& _dataTypeName) {
     return ECSManager::getInstance()->getUniqueEntity(_dataTypeName);
 }
 
-inline bool registerUniqueEntity(const std::string& _dataTypeName, GameEntity* _entity) {
-    return ECSManager::getInstance()->registerUniqueEntity(_dataTypeName, _entity);
+inline bool registerUniqueEntity(GameEntity* _entity) {
+    return ECSManager::getInstance()->registerUniqueEntity(_entity);
 }
 
 inline void removeUniqueEntity(const std::string& _dataTypeName) {
