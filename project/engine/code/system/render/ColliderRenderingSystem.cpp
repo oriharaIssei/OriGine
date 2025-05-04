@@ -193,8 +193,8 @@ void ColliderRenderingSystem::Finalize() {
 
 void ColliderRenderingSystem::UpdateEntity(GameEntity* /*_entity*/) {}
 
-void ColliderRenderingSystem::CreateRenderMesh() { 
-    {// AABB
+void ColliderRenderingSystem::CreateRenderMesh() {
+    { // AABB
         auto& meshGroup               = aabbRenderer_.getMeshGroup();
         aabbMeshItr_                  = meshGroup->begin();
         uint32_t currentVertexesIndex = 0;
@@ -205,6 +205,9 @@ void ColliderRenderingSystem::CreateRenderMesh() {
                 if (!aabb.isActive()) {
                     continue;
                 }
+
+                // 形状更新
+                aabb.CalculateWorldShape();
 
                 // Capacityが足りなかったら 新しいMeshを作成する
                 if (aabbMeshItr_->getIndexCapacity() <= currentIndexesIndex
@@ -219,7 +222,19 @@ void ColliderRenderingSystem::CreateRenderMesh() {
                         meshGroup->back().Initialize(ColliderRenderingSystem::defaultMeshCount_ * aabbVertexSize, ColliderRenderingSystem::defaultMeshCount_ * aabbIndexSize);
                     }
                 }
-                aabb.CalculateWorldShape();
+
+                // 色の設定
+                Vec4f color = {1, 1, 1, 1};
+                auto& stateMap = aabb.getCollisionStateMap();
+                if (!stateMap.empty()) {
+                    for (auto& [entity, state] : stateMap) {
+                        if (state != CollisionState::None) {
+                            color = {1, 0, 0, 1};
+                            break; // 1つでも衝突していたら赤にする
+                        }
+                    }
+                }
+
                 // メッシュ作成
                 CreateLineMeshByShape<>(aabbMeshItr_._Ptr, aabb.getWorldShape(), currentVertexesIndex, currentIndexesIndex, {1, 1, 1, 1});
             }
@@ -227,7 +242,6 @@ void ColliderRenderingSystem::CreateRenderMesh() {
     }
     aabbMeshItr_->TransferData();
 
-   
     { // Sphere
         auto& meshGroup               = sphereRenderer_.getMeshGroup();
         sphereMeshItr_                = meshGroup->begin();
@@ -240,6 +254,7 @@ void ColliderRenderingSystem::CreateRenderMesh() {
                     continue;
                 }
 
+                // 形状更新
                 sphere.CalculateWorldShape();
 
                 // Capacityが足りなかったら 新しいMeshを作成する
@@ -256,6 +271,17 @@ void ColliderRenderingSystem::CreateRenderMesh() {
                     }
                 }
 
+                // 色の設定
+                Vec4f color    = {1, 1, 1, 1};
+                auto& stateMap = sphere.getCollisionStateMap();
+                if (!stateMap.empty()) {
+                    for (auto& [entity, state] : stateMap) {
+                        if (state != CollisionState::None) {
+                            color = {1, 0, 0, 1};
+                            break; // 1つでも衝突していたら赤にする
+                        }
+                    }
+                }
                 // メッシュ作成
                 CreateLineMeshByShape<>(sphereMeshItr_._Ptr, sphere.getWorldShape(), currentVertexesIndex, currentIndexesIndex, {1, 1, 1, 1});
             }
