@@ -24,18 +24,31 @@ Microsoft::WRL::ComPtr<IXAudio2> Audio::xAudio2_;
 IXAudio2MasteringVoice* Audio::masterVoice_;
 
 void Audio::StaticInitialize() {
+    LOG_DEBUG("Start Static Initialize Audio");
     HRESULT result;
 
     //===================================================================
     // XAudio2 エンジンインスタンス 作成
     //===================================================================
     result = XAudio2Create(&xAudio2_, 0, XAUDIO2_DEFAULT_PROCESSOR);
-    assert(SUCCEEDED(result));
+    if (FAILED(result)) {
+        LOG_CRITICAL("Failed to create XAudio2 engine: " + result);
+        assert(false);
+    }
     //===================================================================
     // MasteringVoice 作成
     //===================================================================
     result = xAudio2_->CreateMasteringVoice(&masterVoice_);
-    assert(SUCCEEDED(result));
+    if (FAILED(result)) {
+        LOG_CRITICAL("Failed to create mastering voice: " + result);
+        assert(false);
+    }
+
+    //===================================================================
+    // XAudio2 のバージョンを取得
+    //===================================================================
+
+    LOG_DEBUG("Complete Static Initialize Audio");
 }
 
 void Audio::StaticFinalize() {
@@ -44,17 +57,21 @@ void Audio::StaticFinalize() {
 }
 
 void Audio::PlayTrigger() {
-
     HRESULT result;
 
     if (pSourceVoice_) {
-        pSourceVoice_->DestroyVoice(); // 修正箇所
+        // 再生を停止し、バッファをクリア
+        pSourceVoice_->Stop(0);
+        pSourceVoice_->FlushSourceBuffers();
+        pSourceVoice_->DestroyVoice();
         pSourceVoice_ = nullptr;
     }
 
-    pSourceVoice_ = nullptr;
-    result        = xAudio2_->CreateSourceVoice(&pSourceVoice_, &audioClip_.data_.wfex);
-    assert(SUCCEEDED(result));
+    result = xAudio2_->CreateSourceVoice(&pSourceVoice_, &audioClip_.data_.wfex);
+    if (FAILED(result)) {
+        LOG_CRITICAL("Failed to create source voice: " + result);
+        assert(false);
+    }
 
     // 音量を設定
     pSourceVoice_->SetVolume(audioClip_.valume_);
@@ -65,20 +82,34 @@ void Audio::PlayTrigger() {
     buffer.Flags          = XAUDIO2_END_OF_STREAM;
 
     result = pSourceVoice_->SubmitSourceBuffer(&buffer);
+    if (FAILED(result)) {
+        LOG_CRITICAL("Failed to submit source buffer: " + result);
+        assert(false);
+    }
+
     result = pSourceVoice_->Start();
+    if (FAILED(result)) {
+        LOG_CRITICAL("Failed to start source voice: " + result);
+        assert(false);
+    }
 }
 
 void Audio::PlayLoop() {
     HRESULT result;
 
     if (pSourceVoice_) {
-        pSourceVoice_->DestroyVoice(); // 修正箇所
+        // 再生を停止し、バッファをクリア
+        pSourceVoice_->Stop(0);
+        pSourceVoice_->FlushSourceBuffers();
+        pSourceVoice_->DestroyVoice();
         pSourceVoice_ = nullptr;
     }
 
-    pSourceVoice_ = nullptr;
-    result        = xAudio2_->CreateSourceVoice(&pSourceVoice_, &audioClip_.data_.wfex);
-    assert(SUCCEEDED(result));
+    result = xAudio2_->CreateSourceVoice(&pSourceVoice_, &audioClip_.data_.wfex);
+    if (FAILED(result)) {
+        LOG_CRITICAL("Failed to create source voice: " + result);
+        assert(false);
+    }
 
     // 音量を設定
     pSourceVoice_->SetVolume(audioClip_.valume_);
@@ -86,15 +117,22 @@ void Audio::PlayLoop() {
     XAUDIO2_BUFFER buffer = {};
     buffer.pAudioData     = audioClip_.data_.pBuffer;
     buffer.AudioBytes     = audioClip_.data_.bufferSize;
-    buffer.Flags          = XAUDIO2_END_OF_STREAM; // バッファの終端を示す
-    buffer.LoopBegin      = 0; // ループの開始位置（先頭から）
-    buffer.LoopLength     = 0; // ループする範囲（全体）
-    buffer.LoopCount      = XAUDIO2_LOOP_INFINITE; // 無限ループ
+    buffer.Flags          = XAUDIO2_END_OF_STREAM;
+    buffer.LoopBegin      = 0;
+    buffer.LoopLength     = 0;
+    buffer.LoopCount      = XAUDIO2_LOOP_INFINITE;
 
     result = pSourceVoice_->SubmitSourceBuffer(&buffer);
-    result = pSourceVoice_->Start();
+    if (FAILED(result)) {
+        LOG_CRITICAL("Failed to submit source buffer: " + result);
+        assert(false);
+    }
 
-    assert(SUCCEEDED(result));
+    result = pSourceVoice_->Start();
+    if (FAILED(result)) {
+        LOG_CRITICAL("Failed to start source voice: " + result);
+        assert(false);
+    }
 }
 
 void Audio::Pause() {
@@ -132,6 +170,13 @@ bool Audio::Edit() {
 }
 
 void Audio::Finalize() {
+    if (pSourceVoice_) {
+        // 再生を停止し、バッファをクリア
+        pSourceVoice_->Stop(0);
+        pSourceVoice_->FlushSourceBuffers();
+        pSourceVoice_->DestroyVoice();
+        pSourceVoice_ = nullptr;
+    }
     SoundUnLoad();
 }
 
