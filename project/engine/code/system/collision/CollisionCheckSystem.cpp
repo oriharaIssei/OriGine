@@ -172,7 +172,8 @@ void CollisionCheckSystem::UpdateEntity(GameEntity* _entity) {
             if (bEntitySphereColliders) {
                 checkCollisions(aEntityAabbColliders, bEntitySphereColliders, _entity, bEntity);
             }
-        } else if (aEntitySphereColliders) {
+        }
+        if (aEntitySphereColliders) {
             if (bEntityAabbColliders) {
                 checkCollisions(aEntitySphereColliders, bEntityAabbColliders, _entity, bEntity);
             }

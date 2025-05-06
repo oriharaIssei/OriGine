@@ -15,7 +15,7 @@ public:
     virtual ~IScene();
 
     virtual void Initialize();
-    virtual void Finalize(bool _isSave = true);
+    virtual void Finalize();
 
 protected:
     /// <summary>
