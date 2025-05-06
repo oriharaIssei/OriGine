@@ -92,9 +92,8 @@ void IScene::registerSystems() {
     ecsManager->registerSystem<ColliderRenderingSystem>();
 
     /// postEffect は 全て任意
-    // ecsManager->registerSystem<VignetteEffect>();
-    // ecsManager->registerSystem<GrayscaleEffect>();
-    // ecsManager->registerSystem<SmoothingEffect>();
+    ecsManager->registerSystem<GrayscaleEffect>();
+    ecsManager->registerSystem<SmoothingEffect>();
 }
 
 void IScene::Finalize() {

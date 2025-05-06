@@ -30,7 +30,6 @@ protected:
 protected:
     std::shared_ptr<DxRtvArray> sceneRtvArray_;
     std::shared_ptr<DxSrvArray> sceneSrvArray_;
-
 private:
     std::string name_;
 

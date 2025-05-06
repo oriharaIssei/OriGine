@@ -1,4 +1,3 @@
-#include "Engine.h"
 
 /// engine
 // module
@@ -9,6 +8,7 @@
 #include "directX12/DxSrvArrayManager.h"
 #include "imGuiManager/ImGuiManager.h"
 #include "model/ModelManager.h"
+#include "sceneManager/SceneManager.h"
 #include "texture/TextureManager.h"
 
 #ifdef _DEBUG
@@ -133,6 +133,22 @@ bool Engine::ProcessMessage() {
 }
 
 void Engine::BeginFrame() {
+    if (window_->isReSized()) {
+        UINT width  = window_->getWidth();
+        UINT height = window_->getHeight();
+
+        // GPU の同期を確保
+        dxFence_->Signal(dxCommand_->getCommandQueue());
+        dxFence_->WaitForFence();
+
+        dxSwapChain_->ResizeBuffer(dxDevice_.get(), width, height);
+        dxDsv_->Resize(dxDevice_->getDevice(), DxHeap::getInstance()->getDsvHeap(), width, height);
+
+        SceneManager::getInstance()->getSceneView()->Resize(window_->getWindowSize());
+
+        window_->setIsReSized(false);
+    }
+
     ImGuiManager::getInstance()->Begin();
 
     input_->Update();

@@ -74,6 +74,7 @@ void RenderTexture::Awake() {
 }
 
 void RenderTexture::Initialize(int32_t _bufferCount, const Vec2f& textureSize, DXGI_FORMAT _format, const Vec4f& _clearColor) {
+    format_      = _format;
     bufferCount_ = _bufferCount;
     renderTargets_.resize(bufferCount_);
 
@@ -85,13 +86,18 @@ void RenderTexture::Initialize(int32_t _bufferCount, const Vec2f& textureSize, D
     ID3D12Device* device = Engine::getInstance()->getDxDevice()->getDevice();
 
     for (auto& renderTarget : renderTargets_) {
-        renderTarget.resource_.CreateRenderTextureResource(device, static_cast<uint32_t>(textureSize_[X]), static_cast<uint32_t>(textureSize_[Y]), _format, clearColor_);
+        renderTarget.resource_.CreateRenderTextureResource(
+            device,
+            static_cast<uint32_t>(textureSize_[X]),
+            static_cast<uint32_t>(textureSize_[Y]),
+            format_,
+            clearColor_);
 
         /// ------------------------------------------------------------------
         ///  RTV の作成
         /// ------------------------------------------------------------------
         D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
-        rtvDesc.Format         = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+        rtvDesc.Format         = format_;
         rtvDesc.ViewDimension  = D3D12_RTV_DIMENSION_TEXTURE2D;
         renderTarget.rtvIndex_ = rtvArray_->CreateView(device, rtvDesc, renderTarget.resource_.getResource());
 
@@ -99,7 +105,7 @@ void RenderTexture::Initialize(int32_t _bufferCount, const Vec2f& textureSize, D
         ///  SRV の作成
         ///------------------------------------------------------------------
         D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-        srvDesc.Format                  = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+        srvDesc.Format                  = format_;
         srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
         srvDesc.ViewDimension           = D3D12_SRV_DIMENSION_TEXTURE2D;
         srvDesc.Texture2D.MipLevels     = 1;
@@ -110,6 +116,60 @@ void RenderTexture::Initialize(int32_t _bufferCount, const Vec2f& textureSize, D
         ///  ResourceBarrierManager の登録
         /// ------------------------------------------------------------------
         ResourceBarrierManager::RegisterReosurce(renderTarget.resource_.getResource(), D3D12_RESOURCE_STATE_RENDER_TARGET);
+    }
+}
+
+void RenderTexture::Resize(const Vec2f& textureSize) {
+    if (Vec2f(textureSize_ - textureSize).lengthSq() < 0.1f) {
+        return;
+    }
+
+    frontBufferIndex_ = 0;
+    backBufferIndex_  = 0;
+    textureSize_      = textureSize;
+
+    // 古いリソースを解放
+    for (auto& target : renderTargets_) {
+        target.resource_.Finalize();
+        rtvArray_->DestroyView(target.rtvIndex_);
+        srvArray_->DestroyView(target.srvIndex_);
+    }
+
+    ID3D12Device* device = Engine::getInstance()->getDxDevice()->getDevice();
+
+    // 新しいリソースを作成
+    for (int i = 0; i < bufferCount_; ++i) {
+        renderTargets_[i].resource_.CreateRenderTextureResource(
+            device,
+            static_cast<uint32_t>(textureSize_[X]),
+            static_cast<uint32_t>(textureSize_[Y]),
+            format_,
+            clearColor_);
+
+        /// ------------------------------------------------------------------
+        ///  RTV の作成
+        /// ------------------------------------------------------------------
+        D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
+        rtvDesc.Format              = format_;
+        rtvDesc.ViewDimension       = D3D12_RTV_DIMENSION_TEXTURE2D;
+        renderTargets_[i].rtvIndex_ = rtvArray_->CreateView(device, rtvDesc, renderTargets_[i].resource_.getResource());
+
+        /// ------------------------------------------------------------------
+        ///  SRV の作成
+        ///------------------------------------------------------------------
+        D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+        srvDesc.Format                  = format_;
+        srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+        srvDesc.ViewDimension           = D3D12_SRV_DIMENSION_TEXTURE2D;
+        srvDesc.Texture2D.MipLevels     = 1;
+
+        renderTargets_[i].srvIndex_ = srvArray_->CreateView(device, srvDesc, renderTargets_[i].resource_.getResource());
+
+        /// ------------------------------------------------------------------
+        ///  ResourceBarrierManager の登録
+        /// ------------------------------------------------------------------
+
+        ResourceBarrierManager::RegisterReosurce(renderTargets_[i].resource_.getResource(), D3D12_RESOURCE_STATE_RENDER_TARGET);
     }
 }
 

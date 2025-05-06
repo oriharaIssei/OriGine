@@ -20,6 +20,21 @@ LRESULT WinApp::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
     case WM_DESTROY: // ウィンドウが破棄された
         PostQuitMessage(0); // OSに対して、アプリの終了を伝える
         return 0;
+
+    case WM_SIZE: // ウィンドウサイズが変更された
+        if (wparam != SIZE_MINIMIZED) { // 最小化時は無視
+            // ウィンドウに関連付けられた WinApp インスタンスを取得
+            WinApp* pThis = reinterpret_cast<WinApp*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+            if (pThis == nullptr) {
+                return DefWindowProc(hwnd, msg, wparam, lparam);
+            }
+
+            pThis->isReSized_    = true; // リサイズフラグを立てる
+            pThis->clientWidth_  = LOWORD(lparam); // ウィンドウの幅
+            pThis->clientHeight_ = HIWORD(lparam); // ウィンドウの高さ
+            pThis->windowSize_   = Vec2f(float(pThis->clientWidth_), float(pThis->clientHeight_));
+        }
+        return 0;
     }
     return DefWindowProc(hwnd, msg, wparam, lparam); // デフォルトの処理
 }
@@ -37,6 +52,7 @@ void WinApp::CreateGameWindow(const wchar_t* title, UINT windowStyle, int32_t cl
 
     clientWidth_  = clientWidth;
     clientHeight_ = clientHeight;
+    windowSize_   = Vec2f(float(clientWidth_), float(clientHeight_));
 
     // ウィンドウクラスの初期化
     wndClass_                = std::make_unique<WNDCLASSEX>();
@@ -65,6 +81,7 @@ void WinApp::CreateGameWindow(const wchar_t* title, UINT windowStyle, int32_t cl
         nullptr, // メニューハンドル
         wndClass_->hInstance, // 呼び出しアプリケーションハンドル
         nullptr); // オプション
+
     SetWindowLongPtr(hwnd_, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
 
     // ウィンドウ表示
