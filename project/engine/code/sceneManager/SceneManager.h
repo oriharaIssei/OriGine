@@ -134,10 +134,7 @@ public:
     SceneSerializer() {}
     ~SceneSerializer() {}
 
-    void Serialize(
-        const std::string& _sceneName) {
-        SerializeFromJson(_sceneName);
-    }
+    void Serialize(const std::string& _sceneName);
 
     void Deserialize(
         const std::string& _sceneName) {

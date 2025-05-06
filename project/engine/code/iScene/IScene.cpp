@@ -97,14 +97,7 @@ void IScene::registerSystems() {
     // ecsManager->registerSystem<SmoothingEffect>();
 }
 
-void IScene::Finalize([[maybe_unused]] bool _isSave) {
-#ifdef _DEBUG
-    if (_isSave) {
-        SceneSerializer serializer;
-        serializer.Serialize(this->name_);
-    }
-#endif
-
+void IScene::Finalize() {
     ECSManager* ecsManager = ECSManager::getInstance();
     ecsManager->FinalizeSystems();
     ecsManager->clearSystem();

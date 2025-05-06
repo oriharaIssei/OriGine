@@ -3,6 +3,9 @@
 // Interface
 #include "iScene/IScene.h"
 
+/// stl
+#include <format>
+
 /// engine
 #include "ECS/ECSManager.h"
 #include "Engine.h"
@@ -64,12 +67,7 @@ void SceneManager::Initialize() {
 }
 
 void SceneManager::Finalize() {
-    // EditorModeのときだけ 保存する
-#ifdef _DEBUG
-    currentScene_->Finalize(inEditMode());
-#else
-    currentScene_->Finalize(false);
-#endif // _DEBUG
+    currentScene_->Finalize();
 
     scenes_.clear();
 
@@ -161,6 +159,9 @@ void SceneManager::DebugUpdate() {
                     SceneManager* sceneManager = SceneManager::getInstance();
                     for (auto& [name, index] : sceneManager->sceneIndexs_) {
                         if (ImGui::MenuItem(name.c_str())) {
+                            SceneSerializer serializer;
+                            serializer.Serialize(currentScene_->getName());
+
                             sceneManager->changeScene(name);
 
                             // Editor を再初期化
@@ -237,6 +238,10 @@ void SceneManager::DebugUpdate() {
         ImGui::End();
 
         if (currentSceneState_ == SceneState::Debug) {
+            // シーンを保存
+            SceneSerializer serializer;
+            serializer.Serialize(currentScene_->getName());
+
             // Editor を終了
             editorGroup_->Finalize();
             // DebuggerGroup を再初期化
@@ -322,13 +327,13 @@ void SceneManager::DebugUpdate() {
             editorGroup_->Initialize();
 
             // 保存しない
-            currentScene_->Finalize(false);
+            currentScene_->Finalize();
             currentScene_->Initialize();
             break;
         }
         if (debugState_ == DebugState::RePlay) {
             // シーンを再初期化
-            currentScene_->Finalize(false);
+            currentScene_->Finalize();
             currentScene_->Initialize();
 
             // DebuggerGroup を終了
@@ -378,6 +383,20 @@ void SceneManager::executeSceneChange() {
 }
 
 const std::string SceneSerializer::directory_ = kApplicationResourceDirectory + "/scene/";
+
+void SceneSerializer::Serialize(const std::string& _sceneName) {
+    std::string message = std::format("{} save it?", _sceneName);
+
+    if (MessageBoxA(nullptr, message.c_str(), "SceneSerializer", MB_OKCANCEL) == IDOK) {
+
+        // 保存
+        SerializeFromJson(_sceneName);
+
+        message = std::format("{} saved", _sceneName);
+        MessageBoxA(nullptr, message.c_str(), "SceneSerializer", MB_OK);
+    }
+}
+
 void SceneSerializer::SerializeFromJson(const std::string& _sceneName) {
     ECSManager* ecsManager = ECSManager::getInstance();
     nlohmann::json jsonData;
