@@ -386,20 +386,27 @@ void SceneSerializer::SerializeFromJson(const std::string& _sceneName) {
     // Entity
     /// =====================================================
     auto& entities = ecsManager->getEntities();
+
+    std::list<GameEntity*> aliveEntities;
     for (auto& entity : entities) {
-        if (!entity.isAlive()) {
+        if (entity.isAlive()) {
+            aliveEntities.push_front(ecsManager->getEntity(entity.getID()));
+        }
+    }
+
+    for (auto& entity : aliveEntities) {
+        if (!entity->isAlive()) {
             continue;
         }
-        GameEntity* gameEntity = ecsManager->getEntity(entity.getID());
         nlohmann::json entityData;
-        entityData["Name"]     = gameEntity->getDataType();
-        entityData["isUnique"] = gameEntity->isUnique();
+        entityData["Name"]     = entity->getDataType();
+        entityData["isUnique"] = entity->isUnique();
 
         // 所属するシステムを保存
         const auto& systems = ecsManager->getSystems();
         for (const auto& systemsByType : systems) {
             for (const auto& [systemName, system] : systemsByType) {
-                if (system->hasEntity(gameEntity)) {
+                if (system->hasEntity(entity)) {
                     entityData["Systems"].push_back({{"SystemType", system->getSystemType()}, {"SystemName", systemName}});
                 }
             }
@@ -409,8 +416,8 @@ void SceneSerializer::SerializeFromJson(const std::string& _sceneName) {
         const auto& componentArrayMap = ecsManager->getComponentArrayMap();
         nlohmann::json componentsData;
         for (const auto& [componentTypeName, componentArray] : componentArrayMap) {
-            if (componentArray->hasEntity(gameEntity)) {
-                componentArray->SaveComponent(gameEntity, componentsData);
+            if (componentArray->hasEntity(entity)) {
+                componentArray->SaveComponent(entity, componentsData);
             }
         }
         entityData["Components"] = componentsData;
