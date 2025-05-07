@@ -123,9 +123,20 @@ void SceneManager::DebugUpdate() {
     // SceneView
     ///=================================================================================================
     if (ImGui::Begin("SceneView")) {
-        ImGui::LabelText("Scene", currentScene_->getName().c_str());
+        ImVec2 sceneViewSize = ImGui::GetContentRegionAvail();
 
-        ImGui::Image(reinterpret_cast<ImTextureID>(sceneView_->getBackBufferSrvHandle().ptr), ImGui::GetWindowSize());
+        // SceneView の元のアスペクト比を計算
+        constexpr float aspectRatio = 16.f / 9.f;
+
+        // アスペクト比を維持しながら新しいサイズを計算
+        if (sceneViewSize.x / sceneViewSize.y > aspectRatio) {
+            // 横幅が余る場合、高さを基準に計算
+            sceneViewSize.x = sceneViewSize.y * aspectRatio;
+        } else {
+            // 縦幅が余る場合、横幅を基準に計算
+            sceneViewSize.y = sceneViewSize.x / aspectRatio;
+        }
+        ImGui::Image(reinterpret_cast<ImTextureID>(sceneView_->getBackBufferSrvHandle().ptr),sceneViewSize);
     }
     ImGui::End();
 
@@ -508,7 +519,7 @@ void SceneSerializer::DeserializeFromJson(const std::string& _sceneName) {
 
         // コンポーネントを読み込み
         auto& componentArrayMap = ecsManager->getComponentArrayMap();
-        for (auto&[componentTypename,componentData] : entityData["Components"].items()) {
+        for (auto& [componentTypename, componentData] : entityData["Components"].items()) {
             auto itr = componentArrayMap.find(componentTypename);
             if (itr != componentArrayMap.end()) {
                 itr->second->LoadComponent(entity, componentData);
