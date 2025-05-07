@@ -94,6 +94,23 @@ void SceneManager::Update() {
 
 #ifdef _DEBUG
 #include "imgui/imgui.h"
+static Vec2f ConvertMouseToSceneView(const Vec2f& mousePos, const ImVec2& sceneViewPos, const ImVec2& sceneViewSize, const Vec2f& originalResolution) {
+    // SceneView 内での相対的なマウス座標を計算
+    float relativeX = mousePos[X] - sceneViewPos.x;
+    float relativeY = mousePos[Y] - sceneViewPos.y;
+
+    // SceneView のスケールを計算
+    float scaleX = originalResolution[X] / sceneViewSize.x;
+    float scaleY = originalResolution[Y] / sceneViewSize.y;
+
+    // ゲーム内の座標に変換
+    Vec2f gamePos;
+    gamePos[X] = relativeX * scaleX;
+    gamePos[Y] = relativeY * scaleY;
+
+    return gamePos;
+}
+
 void SceneManager::DebugUpdate() {
     static ImVec2 s_buttonIconSize(16, 16);
 
@@ -123,20 +140,29 @@ void SceneManager::DebugUpdate() {
     // SceneView
     ///=================================================================================================
     if (ImGui::Begin("SceneView")) {
+        ImVec2 sceneViewPos  = ImGui::GetCursorScreenPos(); // SceneView の左上のスクリーン座標
         ImVec2 sceneViewSize = ImGui::GetContentRegionAvail();
 
-        // SceneView の元のアスペクト比を計算
-        constexpr float aspectRatio = 16.f / 9.f;
+        // SceneView の元の解像度
+        Vec2f originalResolution = sceneView_->getTextureSize();
 
-        // アスペクト比を維持しながら新しいサイズを計算
+        // アスペクト比を維持しながらサイズを調整
+        constexpr float aspectRatio = 16.f / 9.f;
         if (sceneViewSize.x / sceneViewSize.y > aspectRatio) {
-            // 横幅が余る場合、高さを基準に計算
             sceneViewSize.x = sceneViewSize.y * aspectRatio;
         } else {
-            // 縦幅が余る場合、横幅を基準に計算
             sceneViewSize.y = sceneViewSize.x / aspectRatio;
         }
-        ImGui::Image(reinterpret_cast<ImTextureID>(sceneView_->getBackBufferSrvHandle().ptr),sceneViewSize);
+
+        // SceneView を描画
+        ImGui::Image(reinterpret_cast<ImTextureID>(sceneView_->getBackBufferSrvHandle().ptr), sceneViewSize);
+
+        // マウス座標を取得
+        Vec2f mousePos = Input::getInstance()->getCurrentMousePos();
+
+        // マウス座標をゲーム内の座標に変換
+        Vec2f gamePos = ConvertMouseToSceneView(mousePos, sceneViewPos, sceneViewSize, originalResolution);
+        Input::getInstance()->setVirtualMousePos(gamePos);
     }
     ImGui::End();
 

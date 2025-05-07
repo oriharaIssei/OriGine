@@ -50,10 +50,13 @@ void Input::Update() {
     mouse_->GetDeviceState(sizeof(DIMOUSESTATE2), &currentMouseState_);
 
     // マウスの位置を更新
-    preMousePos_     = currentMousePos_;
+    preMousePos_ = currentMousePos_;
     GetCursorPos(&mousePoint_);
     ScreenToClient(Engine::getInstance()->getWinApp()->getHwnd(), &mousePoint_);
     currentMousePos_ = Vec2f(static_cast<float>(mousePoint_.x), static_cast<float>(mousePoint_.y));
+    if (virtualMouseIsSynchronizedWithClientMouse_) {
+        virtualMousePos_ = currentMousePos_;
+    }
 
     // ゲームパッドの状態を更新
     prePadState_ = padState_;
