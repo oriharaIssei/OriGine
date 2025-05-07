@@ -183,6 +183,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\component\animation\PrimitiveNodeAnimation.h" />
     <ClInclude Include="engine\code\system\effect\PrimitiveNodeAnimationWorkSystem.h" />
     <ClInclude Include="engine\code\system\postRender\SmoothingEffect.h" />
+    <ClInclude Include="lib\gui\MyGui.h" />
     <ClInclude Include="util\timeline\Timeline.h" />
     <ClInclude Include="lib\Thread\Thread.h" />
     <ClInclude Include="lib\deltaTime\DeltaTime.h" />
@@ -192,7 +193,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="lib\logger\ImGuiLogSink.h" />
     <ClInclude Include="lib\logger\Logger.h" />
     <ClInclude Include="lib\myFileSystem\MyFileSystem.h" />
-    <ClInclude Include="lib\myGui\MyGui.h" />
     <ClInclude Include="lib\myRandom\MyRandom.h" />
     <ClInclude Include="lib\node\DefaultNodes.h" />
     <ClInclude Include="lib\node\OperatorNodes.h" />

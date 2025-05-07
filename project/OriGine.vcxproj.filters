@@ -402,9 +402,6 @@
     <ClInclude Include="lib\myFileSystem\MyFileSystem.h">
       <Filter>lib\myFileSystem</Filter>
     </ClInclude>
-    <ClInclude Include="lib\myGui\MyGui.h">
-      <Filter>lib\myGui</Filter>
-    </ClInclude>
     <ClInclude Include="lib\myRandom\MyRandom.h">
       <Filter>lib\myRandom</Filter>
     </ClInclude>
@@ -452,6 +449,7 @@
     <ClInclude Include="engine\code\system\effect\PrimitiveNodeAnimationWorkSystem.h" />
     <ClInclude Include="engine\code\system\postRender\VignetteEffect.h" />
     <ClInclude Include="engine\code\system\postRender\SmoothingEffect.h" />
+    <ClInclude Include="lib\gui\MyGui.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\code\ECS\ECSDebugger.cpp">
