@@ -494,6 +494,11 @@ public:
 
         // create _mesh
         createMesh(&mesh);
+
+        // loadTexture
+        if (!textureDirectory_.empty() && !textureFileName_.empty()) {
+            textureIndex_ = TextureManager::LoadTexture(textureDirectory_ + "/" + textureFileName_);
+        }
     }
 
     bool Edit() override;

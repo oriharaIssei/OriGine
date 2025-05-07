@@ -223,7 +223,6 @@ void to_json(nlohmann::json& j, const PlaneRenderer& r) {
     to_json(j["transform"], r.transformBuff_.openData_);
     to_json(j["material"], r.materialBuff_.openData_);
     j["material"]     = r.materialBuff_.openData_;
-    j["textureIndex"] = r.textureIndex_;
 }
 
 void from_json(const nlohmann::json& j, PlaneRenderer& r) {
@@ -236,5 +235,4 @@ void from_json(const nlohmann::json& j, PlaneRenderer& r) {
     from_json(j.at("transform"), r.transformBuff_.openData_);
     from_json(j.at("material"), r.materialBuff_.openData_);
     j.at("material").get_to(r.materialBuff_.openData_);
-    j.at("textureIndex").get_to(r.textureIndex_);
 }
