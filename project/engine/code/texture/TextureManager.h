@@ -1,27 +1,27 @@
 #pragma once
 
-///stl
-//memory
+/// stl
+// memory
 #include <memory>
-//container
+// container
 #include <array>
 #include <queue>
-//basic
+// basic
 #include <stdint.h>
 #include <string>
 
-///microsoft
+/// microsoft
 #include <wrl.h>
 
-///engine
+/// engine
 #include "assets/IAsset.h"
 #include "module/IModule.h"
-//dx12Object
+// dx12Object
 #include "directX12/DxCommand.h"
 #include "directX12/DxResource.h"
 #include "directX12/DxSrvArray.h"
 #include "directX12/PipelineStateObj.h"
-//lib
+// lib
 #include "Thread/Thread.h"
 
 struct Texture
@@ -63,12 +63,13 @@ public:
         std::function<void(uint32_t)> callBack;
         void Update();
     };
+
 private:
     static std::shared_ptr<DxSrvArray> dxSrvArray_;
     static std::array<std::unique_ptr<Texture>, maxTextureSize_> textures_;
 
     static std::unique_ptr<TaskThread<TextureManager::LoadTask>> loadThread_;
-    
+
     // バックグラウンドスレッド用
     static std::unique_ptr<DxCommand> dxCommand_;
 
@@ -76,7 +77,7 @@ public:
     static D3D12_GPU_DESCRIPTOR_HANDLE getDescriptorGpuHandle(uint32_t handleId) {
         DxHeap* heap   = DxHeap::getInstance();
         int32_t locate = 0;
-        if (textures_[handleId]->loadState == LoadState::Loaded) {
+        if (textures_[handleId] && textures_[handleId]->loadState == LoadState::Loaded) {
             locate = textures_[handleId]->resourceIndex;
         }
         return heap->getSrvGpuHandle(dxSrvArray_->getLocationOnHeap(textures_[locate]->resourceIndex));
