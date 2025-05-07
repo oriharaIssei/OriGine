@@ -143,7 +143,7 @@ void Logger::Critical(const std::string& message, const char* file, const char* 
 
 void Logger::Trace(const std::wstring& message, const char* file, const char* function, int line) {
     if (logger_) {
-        Trace(ConvertString(message),file,function,line);
+        Trace(ConvertString(message), file, function, line);
     }
 }
 
@@ -194,7 +194,7 @@ void GuiLogger::Update() {
 
         logger_ = Logger::logger_;
 
-        ImGuiTableFlags tableFlags = ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollX;
+        ImGuiTableFlags tableFlags = ImGuiTableFlags_RowBg | ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollX;
 
         if (ImGui::BeginTable("LogTable", 6, tableFlags)) {
             ImGui::TableSetupColumn("Level");
@@ -205,7 +205,7 @@ void GuiLogger::Update() {
             ImGui::TableSetupColumn("Time");
             ImGui::TableHeadersRow();
 
-           for (auto& sink : logger_->sinks()) {
+            for (auto& sink : logger_->sinks()) {
                 auto imguiSink = std::dynamic_pointer_cast<ImGuiLogSink>(sink);
                 if (imguiSink) {
                     const auto& logs = imguiSink->getLogMessages();
