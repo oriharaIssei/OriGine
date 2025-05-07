@@ -20,6 +20,53 @@ LRESULT WinApp::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
     case WM_DESTROY: // ウィンドウが破棄された
         PostQuitMessage(0); // OSに対して、アプリの終了を伝える
         return 0;
+
+    case WM_SIZING: {
+        WinApp* pThis = reinterpret_cast<WinApp*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+        if (pThis && pThis->windowResizeMode_ == WindowResizeMode::FIXED_ASPECT) {
+            RECT* rect = reinterpret_cast<RECT*>(lparam);
+            int width  = rect->right - rect->left;
+            int height = rect->bottom - rect->top;
+
+            float aspect = pThis->aspectRatio_;
+
+            switch (wparam) {
+            case WMSZ_LEFT:
+            case WMSZ_RIGHT:
+            case WMSZ_TOP:
+            case WMSZ_BOTTOM:
+            case WMSZ_TOPLEFT:
+            case WMSZ_TOPRIGHT:
+            case WMSZ_BOTTOMLEFT:
+            case WMSZ_BOTTOMRIGHT:
+                // 高さを基準に幅を再計算（またはその逆）
+                if (float(width) / height > aspect) {
+                    width = int(height * aspect);
+                } else {
+                    height = int(width / aspect);
+                }
+
+                rect->right  = rect->left + width;
+                rect->bottom = rect->top + height;
+                return TRUE;
+            }
+        }
+        break;
+    }
+    case WM_SIZE:
+        if (wparam != SIZE_MINIMIZED) {
+            WinApp* pThis = reinterpret_cast<WinApp*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+            if (pThis) {
+                pThis->isReSized_ = true;
+
+                pThis->clientWidth_  = LOWORD(lparam);
+                pThis->clientHeight_ = HIWORD(lparam);
+                pThis->windowSize_   = Vec2f(float(pThis->clientWidth_), float(pThis->clientHeight_));
+
+                // ここでは内部バッファの再構築などを行うだけに留める
+            }
+        }
+        break;
     }
     return DefWindowProc(hwnd, msg, wparam, lparam); // デフォルトの処理
 }
@@ -37,6 +84,8 @@ void WinApp::CreateGameWindow(const wchar_t* title, UINT windowStyle, int32_t cl
 
     clientWidth_  = clientWidth;
     clientHeight_ = clientHeight;
+    windowSize_   = Vec2f(float(clientWidth_), float(clientHeight_));
+    aspectRatio_  = windowSize_[X] / windowSize_[Y];
 
     // ウィンドウクラスの初期化
     wndClass_                = std::make_unique<WNDCLASSEX>();
@@ -65,6 +114,7 @@ void WinApp::CreateGameWindow(const wchar_t* title, UINT windowStyle, int32_t cl
         nullptr, // メニューハンドル
         wndClass_->hInstance, // 呼び出しアプリケーションハンドル
         nullptr); // オプション
+
     SetWindowLongPtr(hwnd_, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
 
     // ウィンドウ表示

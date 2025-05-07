@@ -35,4 +35,24 @@ protected:
 };
 
 template <typename T>
+class SetComamnd
+    : public IEditCommand {
+public:
+    SetComamnd(T* _target, const T& _value)
+        : target(_target), value(_value) {}
+    void Execute() override {
+        oldValue = *target;
+        *target  = value;
+    }
+    void Undo() override {
+        *target = oldValue;
+    }
+
+private:
+    T* target;
+    T value;
+    T oldValue;
+};
+
+template <typename T>
 concept IsEditor = std::derived_from<T, IEditor>;

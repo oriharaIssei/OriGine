@@ -191,7 +191,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="lib\logger\ImGuiLogSink.h" />
     <ClInclude Include="lib\logger\Logger.h" />
     <ClInclude Include="lib\myFileSystem\MyFileSystem.h" />
-    <ClInclude Include="lib\myGui\MyGui.h" />
     <ClInclude Include="lib\myRandom\MyRandom.h" />
     <ClInclude Include="lib\node\DefaultNodes.h" />
     <ClInclude Include="lib\node\OperatorNodes.h" />

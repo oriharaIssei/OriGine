@@ -105,9 +105,9 @@ enum class Key : uint32_t {
     F11 = DIK_F11,
     F12 = DIK_F12,
 
-    UP = DIK_UP,
-    DOWN = DIK_DOWN,
-    LEFT = DIK_LEFT,
+    UP    = DIK_UP,
+    DOWN  = DIK_DOWN,
+    LEFT  = DIK_LEFT,
     RIGHT = DIK_RIGHT,
 
     ESCAPE     = DIK_ESCAPE,
@@ -300,6 +300,8 @@ private:
     POINT mousePoint_;
     Vec2f currentMousePos_;
     Vec2f preMousePos_;
+    bool virtualMouseIsSynchronizedWithClientMouse_ = false;
+    Vec2f virtualMousePos_;
 
     // ゲームパッド とりあえず 一つだけ
     XINPUT_STATE padState_;
@@ -344,8 +346,11 @@ public:
     int getWheel() const { return static_cast<int>(currentMouseState_.lZ); }
     int getPreWheel() const { return static_cast<int>(preMouseState_.lZ); }
 
+    bool synchronizeVirtualMouseWithClientMouse() const { return virtualMouseIsSynchronizedWithClientMouse_; }
     const Vec2f& getCurrentMousePos() const { return currentMousePos_; }
     const Vec2f& getPreMousePos() const { return preMousePos_; }
+    const Vec2f& getVirtualMousePos() const { return virtualMousePos_; }
+    void setVirtualMousePos(const Vec2f& pos) { virtualMousePos_ = pos; }
     Vec2f getMouseVelocity() const { return currentMousePos_ - preMousePos_; }
 
     const Vec2f& getLStickVelocity() const { return currentLStickVelocity_; }

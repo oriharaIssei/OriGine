@@ -5,6 +5,7 @@
 
 #ifdef _DEBUG
 #include "imgui/imgui.h"
+#include "lib/gui/MyGui.h"
 #endif // _DEBUG
 
 Transform::Transform() {}
@@ -23,7 +24,7 @@ void Transform::Update() {
 
 bool Transform::Edit() {
 #ifdef _DEBUG
-    bool isChange = false;
+    bool isChange = false; 
     // --------------------------- scale --------------------------- //
     isChange |= ImGui::DragFloat3("Scale", this->scale.v, 0.01f);
     // --------------------------- rotate --------------------------- //

@@ -44,6 +44,7 @@ public:
     void Initialize();
     void Finalize();
     bool ProcessMessage();
+
     void BeginFrame();
     void EndFrame();
 

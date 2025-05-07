@@ -20,6 +20,8 @@ public:
 
     static void Awake();
     void Initialize(int32_t _bufferCount, const Vec2f& textureSize, DXGI_FORMAT format, const Vec4f& _clearColor);
+    void Resize(const Vec2f& textureSize);
+
     void Finalize();
 
     /// <summary>
@@ -43,6 +45,8 @@ private:
         uint32_t srvIndex_ = 0;
     };
 
+    DXGI_FORMAT format_ = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+
     std::vector<RenderTargetCombo> renderTargets_;
     int32_t backBufferIndex_  = 0;
     int32_t frontBufferIndex_ = 0;
@@ -57,6 +61,8 @@ private:
     Vec4f clearColor_;
 
 public:
+    const Vec2f& getTextureSize() const { return textureSize_; }
+
     // back
     ID3D12Resource* getBackBuffer() const { return renderTargets_[backBufferIndex_].resource_.getResource(); }
     D3D12_GPU_DESCRIPTOR_HANDLE getBackBufferSrvHandle() const { return DxHeap::getInstance()->getSrvGpuHandle(srvArray_->getLocationOnHeap(renderTargets_[backBufferIndex_].srvIndex_)); }
