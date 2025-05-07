@@ -61,6 +61,8 @@ private:
     Vec4f clearColor_;
 
 public:
+    const Vec2f& getTextureSize() const { return textureSize_; }
+
     // back
     ID3D12Resource* getBackBuffer() const { return renderTargets_[backBufferIndex_].resource_.getResource(); }
     D3D12_GPU_DESCRIPTOR_HANDLE getBackBufferSrvHandle() const { return DxHeap::getInstance()->getSrvGpuHandle(srvArray_->getLocationOnHeap(renderTargets_[backBufferIndex_].srvIndex_)); }

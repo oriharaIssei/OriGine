@@ -13,6 +13,16 @@
 /// math
 #include <cstdint>
 
+enum class WindowResizeMode {
+    NONE         = 0b0, // リサイズしない
+    FREE         = 0b1, // 自由にリサイズ
+    FIXED        = 0b10, // 固定サイズ
+    FIXED_WIDTH  = 0b100, // 幅を固定
+    FIXED_HEIGHT = 0b1000, // 高さを固定
+    FIXED_ASPECT = 0b10000, // アスペクト比を固定
+
+};
+
 /// <summary>
 /// ウィンドウズアプリケーション
 /// </summary>
@@ -36,12 +46,19 @@ private:
     UINT windowStyle_;
 
     std::wstring wideWindowTitle_; // ウィンドウクラス名も兼ねている
+    float aspectRatio_ = 0.0f; // アスペクト比
     Vec2f windowSize_; // ウィンドウサイズ
     int32_t clientWidth_, clientHeight_;
 
-    bool isReSized_ = false;
+    WindowResizeMode windowResizeMode_ = WindowResizeMode::FIXED_ASPECT;
+    bool isReSized_                    = false;
 
 public:
+    WindowResizeMode getWindowResizeMode() const { return windowResizeMode_; }
+    void setWindowResizeMode(WindowResizeMode _windowResizeMode) {
+        windowResizeMode_ = _windowResizeMode;
+    }
+
     bool isReSized() const { return isReSized_; }
     void setIsReSized(bool _isResized) { isReSized_ = _isResized; }
 
