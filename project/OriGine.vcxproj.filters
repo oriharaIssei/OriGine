@@ -444,12 +444,12 @@
     <ClInclude Include="util\nameof.h">
       <Filter>util</Filter>
     </ClInclude>
-    <ClInclude Include="util\timeline\Timeline.h" />
     <ClInclude Include="engine\code\component\animation\PrimitiveNodeAnimation.h" />
     <ClInclude Include="engine\code\system\effect\PrimitiveNodeAnimationWorkSystem.h" />
     <ClInclude Include="engine\code\system\postRender\VignetteEffect.h" />
     <ClInclude Include="engine\code\system\postRender\SmoothingEffect.h" />
     <ClInclude Include="lib\gui\MyGui.h" />
+    <ClInclude Include="engine\code\component\renderer\SkyBoxRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\code\ECS\ECSDebugger.cpp">
@@ -683,5 +683,6 @@
     <ClCompile Include="engine\code\system\effect\PrimitiveNodeAnimationWorkSystem.cpp" />
     <ClCompile Include="engine\code\system\postRender\VignetteEffect.cpp" />
     <ClCompile Include="engine\code\system\postRender\SmoothingEffect.cpp" />
+    <ClCompile Include="engine\code\component\renderer\SkyBoxRenderer.cpp" />
   </ItemGroup>
 </Project>
