@@ -9,7 +9,6 @@
 
 struct SkyBoxVertex {
     Vec4f position;
-    Vec2f texCoord;
 };
 
 class SkyBoxRenderer
