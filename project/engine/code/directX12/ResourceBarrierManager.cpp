@@ -1,5 +1,8 @@
 #include "ResourceBarrierManager.h"
 
+/// lib
+#include "logger/Logger.h"
+
 std::unordered_map<ID3D12Resource*,D3D12_RESOURCE_STATES> ResourceBarrierManager::resourceStates_;
 
 void ResourceBarrierManager::Barrier(ID3D12GraphicsCommandList* commandList,ID3D12Resource* resource,D3D12_RESOURCE_STATES stateAfter){
@@ -9,6 +12,8 @@ void ResourceBarrierManager::Barrier(ID3D12GraphicsCommandList* commandList,ID3D
 		RegisterReosurce(resource,D3D12_RESOURCE_STATE_COMMON);
 		it = resourceStates_.find(resource);
 
+        LOG_DEBUG("Register Barrier" + std::to_string((UINT64)resource) + "\n" + "stateBefore : " + std::to_string(it->second) + "\n" + "stateAfter  : " + std::to_string(stateAfter));
+
 		if(stateAfter == D3D12_RESOURCE_STATE_COMMON){
 			return;
 		}
@@ -17,6 +22,8 @@ void ResourceBarrierManager::Barrier(ID3D12GraphicsCommandList* commandList,ID3D
 	if(stateAfter == it->second){
 		return;
 	}
+
+    LOG_DEBUG("Barrier" + std::to_string((UINT64)resource) + "\n" + "stateBefore : " + std::to_string(it->second) + "\n" + "stateAfter  : " + std::to_string(stateAfter));
 
 	D3D12_RESOURCE_BARRIER barrier = {};
 	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;

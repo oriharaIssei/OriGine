@@ -24,16 +24,17 @@ void Transform::Update() {
 
 bool Transform::Edit() {
 #ifdef _DEBUG
-    bool isChange = false; 
+    bool isChange = false;
     // --------------------------- scale --------------------------- //
-    isChange |= ImGui::DragFloat3("Scale", this->scale.v, 0.01f);
+    isChange |= InputVectorGuiCommand("Scale", this->scale.v);
     // --------------------------- rotate --------------------------- //
-    if (ImGui::DragFloat4("Rotate", this->rotate.v, 0.01f)) {
+    Vec4f oldRotate = this->rotate;
+    if (InputVectorGui("Rotate", oldRotate.v)) {
         isChange     = true;
-        this->rotate = Quaternion::Normalize(this->rotate);
+        EditorGroup::getInstance()->pushCommand(std::make_unique<SetterComamnd<Quaternion>>(&this->rotate, Quaternion::Normalize(oldRotate)));
     }
     // --------------------------- translate --------------------------- //
-    isChange |= ImGui::DragFloat3("Translate", this->translate.v, 0.01f);
+    isChange |= InputVectorGuiCommand("Translate", this->translate.v);
 
     if (isChange) {
         this->Update();
