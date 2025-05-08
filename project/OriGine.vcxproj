@@ -184,7 +184,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\system\effect\PrimitiveNodeAnimationWorkSystem.h" />
     <ClInclude Include="engine\code\system\postRender\SmoothingEffect.h" />
     <ClInclude Include="lib\gui\MyGui.h" />
-    <ClInclude Include="util\timeline\Timeline.h" />
     <ClInclude Include="lib\Thread\Thread.h" />
     <ClInclude Include="lib\deltaTime\DeltaTime.h" />
     <ClInclude Include="lib\globalVariables\GlobalVariables.h" />

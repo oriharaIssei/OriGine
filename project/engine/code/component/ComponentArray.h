@@ -442,9 +442,7 @@ inline void ComponentArray<componentType>::LoadComponent(GameEntity* _entity, nl
 
     // JSON 配列からコンポーネントを読み込み
     for (const auto& compJson : _json) {
-        componentType comp;
-        comp = compJson.get<componentType>(); // from_json が呼ばれる
-        comp.Initialize(_entity); // コンポーネントの初期化
-        components_[index].emplace_back(comp);
+        components_[index].emplace_back(compJson.get<componentType>());
+        components_[index].back().Initialize(_entity); // コンポーネントの初期化
     }
 }

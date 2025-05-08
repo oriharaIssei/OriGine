@@ -35,10 +35,10 @@ protected:
 };
 
 template <typename T>
-class SetComamnd
+class SetterComamnd
     : public IEditCommand {
 public:
-    SetComamnd(T* _target, const T& _value)
+    SetterComamnd(T* _target, const T& _value)
         : target(_target), value(_value) {}
     void Execute() override {
         oldValue = *target;
