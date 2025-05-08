@@ -35,8 +35,6 @@ template <typename MeshTemplate, typename VertexDataType>
     requires IsDerivedMesh<MeshTemplate, VertexDataType>
 class MeshRenderer
     : public IComponent {
-    friend void to_json(nlohmann::json& j, const MeshRenderer& r);
-    friend void from_json(const nlohmann::json& j, MeshRenderer& r);
 
 public:
     using VertexType = VertexDataType;
