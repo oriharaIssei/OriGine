@@ -449,7 +449,9 @@
     <ClInclude Include="engine\code\system\effect\PrimitiveNodeAnimationWorkSystem.h" />
     <ClInclude Include="engine\code\system\postRender\VignetteEffect.h" />
     <ClInclude Include="engine\code\system\postRender\SmoothingEffect.h" />
-    <ClInclude Include="lib\gui\MyGui.h" />
+    <ClInclude Include="engine\code\component\animation\ModelNodeAnimation.h" />
+    <ClInclude Include="engine\code\component\animation\AnimationManager.h" />
+    <ClInclude Include="lib\myGui\MyGui.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\code\ECS\ECSDebugger.cpp">
@@ -683,5 +685,8 @@
     <ClCompile Include="engine\code\system\effect\PrimitiveNodeAnimationWorkSystem.cpp" />
     <ClCompile Include="engine\code\system\postRender\VignetteEffect.cpp" />
     <ClCompile Include="engine\code\system\postRender\SmoothingEffect.cpp" />
+    <ClCompile Include="engine\code\component\animation\ModelNodeAnimation.cpp" />
+    <ClCompile Include="engine\code\component\animation\AnimationManager.cpp" />
+    <ClCompile Include="lib\myGui\MyGui.cpp" />
   </ItemGroup>
 </Project>

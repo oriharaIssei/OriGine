@@ -175,8 +175,7 @@ public:
         components_.clear();
         entityIndexBind_.clear();
         components_.reserve(_size);
-
-        srvArray_ = DxSrvArrayManager::getInstance()->Create(64);
+        srvArray_ = DxSrvArrayManager::getInstance()->Create(256 + 64);
     }
     void Finalize() override {
 

@@ -16,6 +16,7 @@
 /// externals
 #ifdef _DEBUG
 #include "imgui/imgui.h"
+#include "myGui/MyGui.h"
 #endif
 
 #pragma comment(lib, "xaudio2.lib")
@@ -145,8 +146,9 @@ bool Audio::Edit() {
     if (ImGui::Button("LoadFile")) {
         std::string directory;
         if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName_, {"wav"})) {
-            fileName_        = kApplicationResourceDirectory + "/" + directory + "/" + fileName_;
-            audioClip_.data_ = LoadWave(fileName_);
+            EditorGroup::getInstance()->pushCommand(std::make_unique<SetterCommand<std::string>>(&fileName_, kApplicationResourceDirectory + "/" + directory + "/" + fileName_));
+
+            audioClip_.data_ = LoadWave(kApplicationResourceDirectory + "/" + directory + "/" + fileName_);
 
             if (audioClip_.data_.pBuffer) {
                 isEdit = true;
@@ -155,9 +157,9 @@ bool Audio::Edit() {
     }
 
     ImGui::Text("File:%s", fileName_.c_str());
-    isEdit |= ImGui::Checkbox("Loop", &audioClip_.isLoop_);
-    isEdit |= ImGui::SliderFloat("Volume", &audioClip_.valume_, 0.0f, 2.0f);
-    isEdit |= ImGui::Checkbox("Play", &audioClip_.isPlay_);
+    isEdit |= CheckBoxCommand("Loop", audioClip_.isLoop_);
+    isEdit |= SlideCommand("Volume", audioClip_.valume_, 0.0f, 2.0f);
+    isEdit |= CheckBoxCommand("Play", audioClip_.isPlay_);
 
     if (ImGui::Button("Test Play")) {
         Play();

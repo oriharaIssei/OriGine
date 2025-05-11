@@ -1,7 +1,10 @@
 #include "Rigidbody.h"
 
 /// externals
+#ifdef _DEBUG
 #include "imgui/imgui.h"
+#include "myGui/MyGui.h"
+#endif // _DEBUG
 
 Rigidbody::Rigidbody() {}
 
@@ -12,13 +15,13 @@ void Rigidbody::Initialize(GameEntity* _entity) {
 bool Rigidbody::Edit() {
     bool isChange = false;
 
-    isChange |= ImGui::InputFloat3("acceleration", acceleration_.v);
-    isChange |= ImGui::InputFloat3("velocity", velocity_.v);
+    DragVectorCommand("acceleration", acceleration_);
+    DragVectorCommand("velocity", velocity_);
 
     ImGui::Separator();
 
-    isChange |= ImGui::InputFloat("mass", &mass_);
-    isChange |= ImGui::Checkbox("useGravity", &useGravity_);
+    DragCommand("mass", mass_);
+    CheckBoxCommand("useGravity", useGravity_);
     return isChange;
 }
 

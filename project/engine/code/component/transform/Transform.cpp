@@ -5,7 +5,7 @@
 
 #ifdef _DEBUG
 #include "imgui/imgui.h"
-#include "lib/gui/MyGui.h"
+#include "mygui/MyGui.h"
 #endif // _DEBUG
 
 Transform::Transform() {}
@@ -26,15 +26,11 @@ bool Transform::Edit() {
 #ifdef _DEBUG
     bool isChange = false;
     // --------------------------- scale --------------------------- //
-    isChange |= InputVectorGuiCommand("Scale", this->scale.v);
+    isChange |= DragVectorCommand<3, float>("Scale", this->scale, 0.01f);
     // --------------------------- rotate --------------------------- //
-    Vec4f oldRotate = this->rotate;
-    if (InputVectorGui("Rotate", oldRotate.v)) {
-        isChange     = true;
-        EditorGroup::getInstance()->pushCommand(std::make_unique<SetterComamnd<Quaternion>>(&this->rotate, Quaternion::Normalize(oldRotate)));
-    }
+    isChange |= DragVectorCommand<4, float>("Rotate", this->rotate, 0.01f, {}, {}, "%.3f", [](Vector<4, float>* _r) { *_r = Quaternion::Normalize(*_r); });
     // --------------------------- translate --------------------------- //
-    isChange |= InputVectorGuiCommand("Translate", this->translate.v);
+    isChange |= DragVectorCommand<3,float>("Translate", this->translate, 0.01f);
 
     if (isChange) {
         this->Update();
