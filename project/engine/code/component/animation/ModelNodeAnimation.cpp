@@ -3,6 +3,7 @@
 /// engine
 #define RESOURCE_DIRECTORY
 #include "EngineInclude.h"
+#include "module/editor/EditorGroup.h"
 // module
 #include "AnimationManager.h"
 
@@ -15,6 +16,7 @@
 /// externals
 #ifdef _DEBUG
 #include <imgui/imgui.h>
+#include "myGui/MyGui.h"
 #endif // _DEBUG
 
 /// math
@@ -49,13 +51,22 @@ bool ModelNodeAnimation::Edit() {
                 directory,
                 filename,
                 {"gltf", "anm"})) {
+            // コマンドを作成
+            auto commandCombo = std::make_unique<CommandCombo>();
 
-            data_ = AnimationManager::getInstance()->Load(kApplicationResourceDirectory + "/" + directory, filename);
+            commandCombo->addCommand(std::make_shared<SetterCommand<std::string>>(&directory_, kApplicationResourceDirectory + "/" + directory));
+            commandCombo->addCommand(std::make_shared<SetterCommand<std::string>>(&fileName_, filename));
+            commandCombo->setFuncOnAfterCommand([this]() {
+                data_ = AnimationManager::getInstance()->Load(directory_ ,fileName_);
+                while (true) {
+                    if (data_->loadState == LoadState::Loaded) {
+                        break;
+                    }
+                }
+                duration_ = data_->duration;
+            });
 
-            directory_ = kApplicationResourceDirectory + "/" + directory;
-            fileName_  = filename;
-
-            duration_ = data_->duration;
+            EditorGroup::getInstance()->pushCommand(std::move(commandCombo));
 
             isChange = true;
         }
@@ -63,9 +74,9 @@ bool ModelNodeAnimation::Edit() {
 
     ImGui::Text("File Name : %s", fileName_.c_str());
 
-    isChange |= ImGui::Checkbox("isPlay", &isPlay_);
+    isChange |= CheckBoxCommand("isPlay", isPlay_);
 
-    isChange |= ImGui::DragFloat("Duration", &duration_, 0.01f, 0.0f);
+    isChange |= DragCommand("Duration", duration_, 0.01f, 0.0f);
 
     return isChange;
 #else

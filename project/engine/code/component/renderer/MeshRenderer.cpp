@@ -11,16 +11,69 @@
 
 #define RESOURCE_DIRECTORY
 #include "engine/EngineInclude.h"
+#include "module/editor/EditorGroup.h"
+#include "module/editor/IEditor.h"
 
 /// lib
 #include "myFileSystem/MyFileSystem.h"
 
+#ifdef _DEBUG
 #include "imgui/imgui.h"
+#include "myGui/MyGui.h"
+#endif // _DEBUG
 
 //----------------------------------------------------------------------------------------------------------
 // ↓ DefaultMeshRenderer
 //----------------------------------------------------------------------------------------------------------
 #pragma region "ModelMeshRenderer"
+void to_json(nlohmann::json& j, const ModelMeshRenderer& r) {
+    j["isRender"]  = r.isRender_;
+    j["blendMode"] = static_cast<int32_t>(r.currentBlend_);
+
+    j["directory"] = r.directory_;
+    j["fileName"]  = r.fileName_;
+
+    nlohmann::json transformBufferDatas = nlohmann::json::array();
+    for (int32_t i = 0; i < r.meshGroup_->size(); ++i) {
+        nlohmann::json bufferData;
+        to_json(bufferData, r.meshTransformBuff_[i].openData_);
+        transformBufferDatas.push_back(bufferData);
+    }
+    j["transformBufferDatas"] = transformBufferDatas;
+
+    nlohmann::json materialBufferDatas = nlohmann::json::array();
+    for (int32_t i = 0; i < r.meshGroup_->size(); ++i) {
+        nlohmann::json bufferData;
+        to_json(bufferData, r.meshMaterialBuff_[i].openData_);
+        materialBufferDatas.push_back(bufferData);
+    }
+    j["materialBufferDatas"] = materialBufferDatas;
+}
+
+void from_json(const nlohmann::json& j, ModelMeshRenderer& r) {
+    j.at("isRender").get_to(r.isRender_);
+    int32_t blendMode = 0;
+    j.at("blendMode").get_to(blendMode);
+    r.currentBlend_ = static_cast<BlendMode>(blendMode);
+
+    j.at("directory").get_to(r.directory_);
+    j.at("fileName").get_to(r.fileName_);
+
+    auto& transformBufferDatas = j.at("transformBufferDatas");
+    for (int32_t i = 0; i < r.meshGroup_->size(); ++i) {
+        Transform transform;
+        transformBufferDatas[i].get_to(transform);
+        r.meshTransformBuff_[i].openData_ = transform;
+    }
+
+    auto& materialBufferDatas = j.at("materialBufferDatas");
+    for (int32_t i = 0; i < r.meshGroup_->size(); ++i) {
+        Material material;
+        materialBufferDatas[i].get_to(material);
+        r.meshMaterialBuff_[i].openData_ = material;
+    }
+}
+
 ModelMeshRenderer::ModelMeshRenderer(const std::vector<TextureMesh>& _meshGroup)
     : MeshRenderer<TextureMesh, TextureVertexData>(_meshGroup) {
     if (meshTransformBuff_.size() != meshGroup_->size()) {
@@ -108,8 +161,8 @@ bool ModelMeshRenderer::Edit() {
             isSelected = blendModeName == blendModeStr[(int32_t)currentBlend_];
 
             if (ImGui::Selectable(blendModeName.c_str(), isSelected)) {
-                currentBlend_ = static_cast<BlendMode>(blendIndex);
-
+                EditorGroup::getInstance()->pushCommand(
+                    std::make_unique<SetterCommand<BlendMode>>(&currentBlend_, static_cast<BlendMode>(blendIndex)));
                 isChange = true;
                 break;
             }
@@ -125,12 +178,17 @@ bool ModelMeshRenderer::Edit() {
         std::string directory;
         std::string fileName;
         if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"obj", "gltf"})) {
-            directory_ = kApplicationResourceDirectory + "/" + directory;
-            fileName_  = fileName;
-
-            this->Finalize();
-            meshGroup_ = std::make_shared<std::vector<TextureMesh>>();
-            CreateModelMeshRenderer(this, this->hostEntity_, directory_, fileName_);
+            auto setDirectory = std::make_unique<SetterCommand<std::string>>(&directory_, kApplicationResourceDirectory + "/" + directory);
+            auto setName      = std::make_unique<SetterCommand<std::string>>(&fileName_, fileName);
+            CommandCombo commandCombo;
+            commandCombo.addCommand(std::move(setDirectory));
+            commandCombo.addCommand(std::move(setName));
+            commandCombo.setFuncOnAfterCommand([this]() {
+                this->Finalize();
+                meshGroup_ = std::make_shared<std::vector<TextureMesh>>();
+                CreateModelMeshRenderer(this, this->hostEntity_, this->directory_, this->fileName_);
+            });
+            EditorGroup::getInstance()->pushCommand(std::make_unique<CommandCombo>(commandCombo));
 
             isChange = true;
         }
@@ -189,54 +247,6 @@ void ModelMeshRenderer::InitializeMaterialBuffer(GameEntity* _hostEntity) {
 
 #pragma endregion
 
-void to_json(nlohmann::json& j, const ModelMeshRenderer& r) {
-    j["isRender"]  = r.isRender_;
-    j["blendMode"] = static_cast<int32_t>(r.currentBlend_);
-
-    j["directory"] = r.directory_;
-    j["fileName"]  = r.fileName_;
-
-    nlohmann::json transformBufferDatas = nlohmann::json::array();
-    for (int32_t i = 0; i < r.meshGroup_->size(); ++i) {
-        nlohmann::json bufferData;
-        to_json(bufferData, r.meshTransformBuff_[i].openData_);
-        transformBufferDatas.push_back(bufferData);
-    }
-    j["transformBufferDatas"] = transformBufferDatas;
-
-    nlohmann::json materialBufferDatas = nlohmann::json::array();
-    for (int32_t i = 0; i < r.meshGroup_->size(); ++i) {
-        nlohmann::json bufferData;
-        to_json(bufferData, r.meshMaterialBuff_[i].openData_);
-        materialBufferDatas.push_back(bufferData);
-    }
-    j["materialBufferDatas"] = materialBufferDatas;
-}
-
-void from_json(const nlohmann::json& j, ModelMeshRenderer& r) {
-    j.at("isRender").get_to(r.isRender_);
-    int32_t blendMode = 0;
-    j.at("blendMode").get_to(blendMode);
-    r.currentBlend_ = static_cast<BlendMode>(blendMode);
-
-    j.at("directory").get_to(r.directory_);
-    j.at("fileName").get_to(r.fileName_);
-
-    auto& transformBufferDatas = j.at("transformBufferDatas");
-    for (int32_t i = 0; i < r.meshGroup_->size(); ++i) {
-        Transform transform;
-        transformBufferDatas[i].get_to(transform);
-        r.meshTransformBuff_[i].openData_ = transform;
-    }
-
-    auto& materialBufferDatas = j.at("materialBufferDatas");
-    for (int32_t i = 0; i < r.meshGroup_->size(); ++i) {
-        Material material;
-        materialBufferDatas[i].get_to(material);
-        r.meshMaterialBuff_[i].openData_ = material;
-    }
-}
-
 void CreateModelMeshRenderer(ModelMeshRenderer* _renderer, GameEntity* _hostEntity, const std::string& _directory, const std::string& _filenName) {
     _renderer->setParentTransform(getComponent<Transform>(_hostEntity));
 
@@ -279,6 +289,66 @@ void CreateModelMeshRenderer(ModelMeshRenderer* _renderer, GameEntity* _hostEnti
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 }
+
+#pragma region "LineRenderer"
+/// <summary>
+/// LineRenderにLineを追加するコマンド
+/// </summary>
+class AddLineCommand
+    : public IEditCommand {
+public:
+    AddLineCommand(std::shared_ptr<std::vector<Mesh<ColorVertexData>>>& meshGroup)
+        : meshGroup_(meshGroup), addedMeshIndex_(-1), vertex1Index_(-1), vertex2Index_(-1) {}
+
+    void Execute() override {
+        Mesh<ColorVertexData>* mesh = &meshGroup_->back();
+
+        // 新しいメッシュが必要な場合
+        if (mesh->getIndexCapacity() - mesh->getIndexSize() <= 0) {
+            meshGroup_->emplace_back();
+            mesh = &meshGroup_->back();
+            mesh->Initialize(100, 100);
+
+            mesh->setVertexSize(2);
+            mesh->setIndexSize(2);
+
+            addedMeshIndex_ = static_cast<int32_t>(meshGroup_->size() - 1);
+        } else {
+            mesh->setVertexSize(mesh->getVertexSize() + 2);
+            mesh->setIndexSize(mesh->getIndexSize() + 2);
+        }
+
+        // 頂点の初期化
+        vertex1Index_ = mesh->getVertexSize() - 2;
+        vertex2Index_ = mesh->getVertexSize() - 1;
+
+        mesh->vertexes_[vertex1Index_].pos = Vector4(0.0f, 0.0f, 0.0f, 0.f);
+        mesh->vertexes_[vertex2Index_].pos = Vector4(0.0f, 0.0f, 0.0f, 0.f);
+
+        mesh->vertexes_[vertex1Index_].color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+        mesh->vertexes_[vertex2Index_].color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+
+        mesh->indexes_[vertex1Index_] = vertex1Index_;
+        mesh->indexes_[vertex2Index_] = vertex2Index_;
+    }
+
+    void Undo() override {
+        if (addedMeshIndex_ != -1) {
+            // 新しく追加したメッシュを削除
+            meshGroup_->pop_back();
+        } else {
+            Mesh<ColorVertexData>* mesh = &meshGroup_->back();
+            mesh->setVertexSize(mesh->getVertexSize() - 2);
+            mesh->setIndexSize(mesh->getIndexSize() - 2);
+        }
+    }
+
+private:
+    std::shared_ptr<std::vector<Mesh<ColorVertexData>>> meshGroup_;
+    int32_t addedMeshIndex_; // 新しく追加したメッシュのインデックス
+    int32_t vertex1Index_; // 追加した頂点1のインデックス
+    int32_t vertex2Index_; // 追加した頂点2のインデックス
+};
 
 LineRenderer::LineRenderer() : MeshRenderer() {
     meshGroup_->push_back(Mesh<ColorVertexData>());
@@ -342,13 +412,13 @@ bool LineRenderer::Edit() {
                 startColorLabel = "start Color##" + std::to_string(lineIndex);
                 endColorLabel   = "end Color##" + std::to_string(lineIndex);
 
-                isChange |= ImGui::InputFloat3(startLabel.c_str(), vertex1.pos.v);
+                isChange |= DragVectorCommand(startLabel.c_str(), vertex1.pos);
                 vertex1.pos[W] = 1.f;
-                isChange |= ImGui::InputFloat3(endLabel.c_str(), vertex2.pos.v);
+                isChange |= DragVectorCommand(endLabel.c_str(), vertex2.pos);
                 vertex2.pos[W] = 1.f;
                 ImGui::Spacing();
-                isChange |= ImGui::ColorEdit4(startColorLabel.c_str(), vertex1.color.v);
-                isChange |= ImGui::ColorEdit4(endColorLabel.c_str(), vertex2.color.v);
+                isChange |= ColorEditCommand(startColorLabel, vertex1.color);
+                isChange |= ColorEditCommand(endColorLabel, vertex2.color);
 
                 ++lineIndex;
             }
@@ -361,37 +431,8 @@ bool LineRenderer::Edit() {
 
     if (ImGui::Button("AddLine")) {
 
-        Mesh<ColorVertexData>* mesh = &meshGroup_->back();
-        int32_t vertex1Index        = 0;
-        int32_t vertex2Index        = 1;
-
-        // 1つのラインを追加
-        if (mesh->getIndexCapacity() - mesh->getIndexSize() <= 0) {
-            meshGroup_->emplace_back();
-
-            // 新しいメッシュを作成
-            mesh = &meshGroup_->back();
-            mesh->Initialize(100, 100);
-
-            // 今追加した分の
-            mesh->setVertexSize(2);
-            mesh->setIndexSize(2);
-        } else {
-            mesh->setVertexSize(mesh->getVertexSize() + 2);
-            mesh->setIndexSize(mesh->getIndexSize() + 2);
-        }
-        // 頂点の初期化
-        vertex1Index = mesh->getVertexSize() - 2;
-        vertex2Index = mesh->getVertexSize() - 1;
-
-        mesh->vertexes_[vertex1Index].pos = Vector4(0.0f, 0.0f, 0.0f, 0.f);
-        mesh->vertexes_[vertex2Index].pos = Vector4(0.0f, 0.0f, 0.0f, 0.f);
-
-        mesh->vertexes_[vertex1Index].color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
-        mesh->vertexes_[vertex2Index].color = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
-
-        mesh->indexes_[vertex1Index] = vertex1Index;
-        mesh->indexes_[vertex2Index] = vertex2Index;
+        auto command = std::make_unique<AddLineCommand>(meshGroup_);
+        EditorGroup::getInstance()->pushCommand(std::move(command));
 
         isChange = true;
     }
@@ -479,3 +520,5 @@ void LineRenderer::Finalize() {
     meshGroup_.reset();
     transformBuff_.Finalize();
 }
+
+#pragma endregion

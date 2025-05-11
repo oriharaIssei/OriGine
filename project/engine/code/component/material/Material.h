@@ -34,9 +34,9 @@ public:
 
     Vec4f color_ = {1.f, 1.f, 1.f, 1.f};
 
-    int32_t enableLighting_ = 0;
-    float shininess_        = 0.f;
-    Vec3f specularColor_    = {1.f, 1.f, 1.f};
+    bool enableLighting_ = 0;
+    float shininess_     = 0.f;
+    Vec3f specularColor_ = {1.f, 1.f, 1.f};
 
 public:
     struct ConstantBuffer {
@@ -48,7 +48,7 @@ public:
         Vec3f specularColor;
         ConstantBuffer& operator=(const Material& material) {
             color          = material.color_;
-            enableLighting = material.enableLighting_;
+            enableLighting = static_cast<uint32_t>(material.enableLighting_);
             uvTransform    = material.uvMat_;
             shininess      = material.shininess_;
             specularColor  = material.specularColor_;

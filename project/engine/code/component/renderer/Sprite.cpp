@@ -5,6 +5,8 @@
 
 /// engine
 #include "Engine.h"
+#include "module/editor/EditorGroup.h"
+#include "module/editor/IEditor.h"
 // directX12Object
 #include "directX12/DxFunctionHelper.h"
 #include <directX12/ShaderCompiler.h>
@@ -19,6 +21,7 @@
 
 #ifdef _DEBUG
 #include "imgui/imgui.h"
+#include "myGui/MyGui.h"
 #endif // _DEBUG
 
 void SpriteRenderer::Initialize(GameEntity* _hostEntity) {
@@ -66,14 +69,18 @@ bool SpriteRenderer::Edit() {
         std::string directory;
         std::string fileName;
         if (myFs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"png"})) {
-            texturePath_ = kApplicationResourceDirectory + "/" + directory + "/" + fileName;
-
-            // テクスチャの読み込みとサイズの適応
-            textureNumber_ = TextureManager::LoadTexture(texturePath_, [this](uint32_t loadIndex) {
-                const DirectX::TexMetadata& texData = TextureManager::getTexMetadata(loadIndex);
-                textureSize_                        = {static_cast<float>(texData.width), static_cast<float>(texData.height)};
-                spriteBuff_->scale_                 = textureSize_;
-            });
+            // コマンドを作成
+            auto command = std::make_unique<SetterCommand<std::string>>(
+                &texturePath_,
+                kApplicationResourceDirectory + "/" + directory + "/" + fileName,
+                [this](std::string* _fileName) {
+                    // テクスチャの読み込み
+                    textureNumber_ = TextureManager::LoadTexture(*_fileName, [this](uint32_t loadIndex) {
+                        const DirectX::TexMetadata& texData = TextureManager::getTexMetadata(loadIndex);
+                        textureSize_                        = {static_cast<float>(texData.width), static_cast<float>(texData.height)};
+                        spriteBuff_->scale_                 = textureSize_;
+                    });
+                });
 
             isChange = true;
         }
@@ -82,23 +89,23 @@ bool SpriteRenderer::Edit() {
     ImGui::Spacing();
 
     ImGui::Text("RenderingPriority");
-    isChange |= ImGui::DragInt("##RenderingPriority", &renderPriority_, 1.0f, 0, 1000);
+    isChange |= DragCommand("##RenderingPriority", renderPriority_, 1, 0, 1000);
 
     ImGui::Text("TextureSize");
-    isChange |= ImGui::DragFloat2("##TextureSize", textureSize_.v, 1.0f, 0.0f, 1000.0f);
+    isChange |= DragVectorCommand("##TextureSize", textureSize_, 1.0f, 0.0f, 1000.0f);
 
     ImGui::Text("TextureLeftTop");
-    isChange |= ImGui::DragFloat2("##TextureLeftTop", textureLeftTop_.v, 1.0f, 0.0f, 1000.0f);
+    isChange |= DragVectorCommand("##TextureLeftTop", textureLeftTop_, 1.0f, 0.0f, 1000.0f);
 
     ImGui::Text("AnchorPoint");
-    isChange |= ImGui::DragFloat2("##AnchorPoint", anchorPoint_.v, 0.01f, -1.0f, 1.0f);
+    isChange |= DragVectorCommand("##AnchorPoint", anchorPoint_,0.01f, -1.0f, 1.0f);
 
     ImGui::Spacing();
 
     ImGui::Text("Flip");
-    isChange |= ImGui::Checkbox("FlipX", &isFlipX_);
+    isChange |= CheckBoxCommand("FlipX", isFlipX_);
     ImGui::SameLine();
-    isChange |= ImGui::Checkbox("FlipY", &isFlipY_);
+    isChange |= CheckBoxCommand("FlipY", isFlipY_);
 
     ImGui::Spacing();
 
@@ -107,21 +114,21 @@ bool SpriteRenderer::Edit() {
 
     if (ImGui::TreeNode("UVTransform")) {
         ImGui::Text("UVScale");
-        isChange |= ImGui::DragFloat2("##UVScale", spriteBuff_->uvScale_.v, 0.01f, 0.0f, 1000.0f);
+        isChange |= DragVectorCommand("##UVScale", spriteBuff_->uvScale_, 0.01f, 0.0f, 1000.0f);
         ImGui::Text("UVRotate");
-        isChange |= ImGui::DragFloat("##UVRotate", &spriteBuff_->uvRotate_, 0.01f, 0.0f, 1000.0f);
+        isChange |= DragCommand("##UVRotate", spriteBuff_->uvRotate_, 0.01f, 0.0f, 1000.0f);
         ImGui::Text("UVTranslate");
-        isChange |= ImGui::DragFloat2("##UVTranslate", spriteBuff_->uvTranslate_.v, 0.01f, 0.0f, 1000.0f);
+        isChange |= DragVectorCommand("##UVTranslate", spriteBuff_->uvTranslate_, 0.01f, 0.0f, 1000.0f);
         ImGui::TreePop();
     }
 
     if (ImGui::TreeNode("SpriteTransform")) {
         ImGui::Text("Size(Scale)");
-        isChange |= ImGui::DragFloat2("##Scale", spriteBuff_->scale_.v, 0.01f, 0.0f, 1000.0f);
+        isChange |= DragVectorCommand("##Scale", spriteBuff_->scale_, 0.01f, 0.0f, 1000.0f);
         ImGui::Text("Rotate");
-        isChange |= ImGui::DragFloat("##Rotate", &spriteBuff_->rotate_, 0.01f, 0.0f, 1000.0f);
+        isChange |= DragCommand("##Rotate", spriteBuff_->rotate_, 0.01f, 0.0f, 1000.0f);
         ImGui::Text("Translate");
-        isChange |= ImGui::DragFloat2("##Translate", spriteBuff_->translate_.v, 0.01f, 0.0f, 1000.0f);
+        isChange |= DragVectorCommand("##Translate", spriteBuff_->translate_, 0.01f, 0.0f, 1000.0f);
         ImGui::TreePop();
     }
 

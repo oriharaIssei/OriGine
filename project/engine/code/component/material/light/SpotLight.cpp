@@ -2,34 +2,32 @@
 
 #ifdef _DEBUG
 #include "imgui/imgui.h"
+#include "myGui/MyGui.h"
 #endif // _DEBUG
 
 bool SpotLight::Edit() {
 #ifdef _DEBUG
     bool isChanged = false;
 
-    
-    isChanged |= ImGui::Checkbox("Active", &isActive_);
+    isChanged |= CheckBoxCommand("Active", isActive_);
 
     ImGui::Spacing();
 
-    isChanged |= ImGui::ColorEdit3("Color", color_.v);
-    isChanged |= ImGui::DragFloat("Intensity", &intensity_, 0.01f, 0.0f, 10.0f);
+    isChanged |= ColorEditCommand("Color", color_);
+    isChanged |= DragCommand<float>("Intensity", intensity_, 0.01f, 0.0f, 10.0f);
 
     ImGui::Spacing();
 
-    isChanged |= ImGui::DragFloat3("Position", pos_.v, 0.01f);
-    if (ImGui::DragFloat3("Direction", direction_.v, 0.01f)) {
-        direction_ = direction_.normalize();
-        isChanged  = true;
-    }
-    isChanged |= ImGui::DragFloat("Distance", &distance_, 0.01f, 0.0f, 10.0f);
-    isChanged |= ImGui::DragFloat("Decay", &decay_, 0.01f, 0.0f, 10.0f);
+    isChanged |= DragVectorCommand<3, float>("Position", pos_, 0.01f);
+    isChanged |= DragVectorCommand<3, float>("Direction", direction_, 0.01f, {}, {}, "%.3f", [](Vector<3, float>* _d) { *_d = Vec3f::Normalize(*_d); });
+
+    isChanged |= DragCommand<float>("Distance", distance_, 0.01f, 0.0f, 10.0f);
+    isChanged |= DragCommand<float>("Decay", decay_, 0.01f, 0.0f, 10.0f);
 
     ImGui::Spacing();
 
-    isChanged |= ImGui::DragFloat("CosAngle", &cosAngle_, 0.01f, 0.0f, 1.0f);
-    isChanged |= ImGui::DragFloat("CosFalloffStart", &cosFalloffStart_, 0.01f, 0.0f, 1.0f);
+    isChanged |= DragCommand<float>("CosAngle", cosAngle_, 0.01f, 0.0f, 1.0f);
+    isChanged |= DragCommand<float>("CosFalloffStart", cosFalloffStart_, 0.01f, 0.0f, 1.0f);
 
     return isChanged;
 #else

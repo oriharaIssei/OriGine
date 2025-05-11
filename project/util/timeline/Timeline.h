@@ -1,11 +1,11 @@
 #pragma once
 
-///stl
-//pointer
+/// stl
+// pointer
 #include <functional>
-//container
+// container
 #include <vector>
-//string
+// string
 #include "component/animation/ModelNodeAnimation.h"
 
 #include <string>
@@ -31,7 +31,7 @@ bool TimeLineButtons(
 
 bool TimeLineButtons(
     const std::string& _label,
-    std::vector<KeyFrame<int>>& _nodeTimes,
+    AnimationCurve<int>& _keyFrames,
     float _duration,
     std::function<void(float newNodeTime)> _updateOnNodeDragged = nullptr,
     std::function<void(float _currentTime)> _sliderPopupUpdate  = nullptr,
@@ -47,33 +47,39 @@ bool EditKeyFrame(
     const std::string& _label,
     AnimationCurve<float>& _keyFrames,
     float _duration,
+    float _defaultValue                   = 0.0f,
     std::function<void(int)> _howEditItem = nullptr);
 bool EditKeyFrame(
     const std::string& _label,
     AnimationCurve<Vec2f>& _keyFrames,
     float _duration,
+    const Vec2f& _defaultValue            = Vec2f(0.0f, 0.0f),
     std::function<void(int)> _howEditItem = nullptr);
 
 bool EditKeyFrame(
     const std::string& _label,
     AnimationCurve<Vec3f>& _keyFrames,
     float _duration,
+    const Vec3f& _defaultValue            = Vec3f(0.0f, 0.0f, 0.0f),
     std::function<void(int)> _howEditItem = nullptr);
 bool EditKeyFrame(
     const std::string& _label,
     AnimationCurve<Vec4f>& _keyFrames,
     float _duration,
+    const Vec4f& _defaultValue            = Vec4f(0.0f, 0.0f, 0.0f, 0.0f),
     std::function<void(int)> _howEditItem = nullptr);
 bool EditKeyFrame(
     const std::string& _label,
     AnimationCurve<Quaternion>& _keyFrames,
     float _duration,
+    const Quaternion& _defaultValue       = Quaternion(0.0f, 0.0f, 0.0f, 1.0f),
     std::function<void(int)> _howEditItem = nullptr);
 
 bool EditColorKeyFrame(
     const std::string& _label,
     AnimationCurve<Vec4f>& _keyFrames,
     float _duration,
+    const Vec4f& _defaultValue            = Vec4f(1.0f, 1.0f, 1.0f, 1.0f),
     std::function<void(int)> _howEditItem = nullptr);
 
 } // namespace ImGui

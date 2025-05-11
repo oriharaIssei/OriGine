@@ -55,6 +55,10 @@ enum class InterpolationType {
 
     COUNT
 };
+static const char* InterpolationTypeName[] = {
+    "LINEAR",
+    "STEP",
+};
 
 /// <summary>
 /// ノードによるアニメーションを行う曲線
