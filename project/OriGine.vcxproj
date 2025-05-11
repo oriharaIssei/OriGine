@@ -183,7 +183,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\component\animation\PrimitiveNodeAnimation.h" />
     <ClInclude Include="engine\code\system\effect\PrimitiveNodeAnimationWorkSystem.h" />
     <ClInclude Include="engine\code\system\postRender\SmoothingEffect.h" />
-    <ClInclude Include="lib\gui\MyGui.h" />
+    <ClInclude Include="lib\myGui\MyGui.h" />
     <ClInclude Include="lib\Thread\Thread.h" />
     <ClInclude Include="lib\deltaTime\DeltaTime.h" />
     <ClInclude Include="lib\globalVariables\GlobalVariables.h" />
@@ -276,6 +276,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\component\animation\PrimitiveNodeAnimation.cpp" />
     <ClCompile Include="engine\code\system\effect\PrimitiveNodeAnimationWorkSystem.cpp" />
     <ClCompile Include="engine\code\system\postRender\SmoothingEffect.cpp" />
+    <ClCompile Include="lib\myGui\MyGui.cpp" />
     <ClCompile Include="engine\code\component\renderer\SkyBoxRenderer.cpp" />
     <ClCompile Include="util\timeline\Timeline.cpp" />
     <ClCompile Include="lib\Thread\Thread.cpp" />

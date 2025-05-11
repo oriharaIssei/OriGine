@@ -6,9 +6,14 @@
 // algorithm
 #include <algorithm>
 
+/// engine
+#include "module/editor/EditorGroup.h"
+#include "module/editor/IEditor.h"
+
 /// lib
 #include "imgui/imgui.h"
 #include "imgui/imgui_internal.h"
+#include "myGui/MyGui.h"
 
 namespace ImGui {
 bool TimeLineButtons(
@@ -154,7 +159,7 @@ bool TimeLineButtons(
 
 bool TimeLineButtons(
     const std::string& _label,
-    std::vector<KeyFrame<int>>& _nodeTimes,
+    AnimationCurve<int>& _keyFrames,
     float _duration,
     std::function<void(float newNodeTime)> _updateOnNodeDragged,
     std::function<void(float _currentTime)> _sliderPopupUpdate,
@@ -217,13 +222,13 @@ bool TimeLineButtons(
 
     if (IsMouseReleased(0)) {
         if (draggedIndex != -1 && _updateOnNodeDragged) {
-            _updateOnNodeDragged(_nodeTimes[draggedIndex].time);
+            _updateOnNodeDragged(_keyFrames[draggedIndex].time);
             draggedIndex = -1;
         }
     }
 
-    for (int i = 0; i < _nodeTimes.size(); ++i) {
-        float t       = (_nodeTimes[i].time) / (_duration);
+    for (int i = 0; i < (int)_keyFrames.size(); ++i) {
+        float t       = (_keyFrames[i].time) / (_duration);
         float buttonX = frame_bb.Min[X] + t * sliderWidth;
         ImVec2 buttonPos(buttonX - buttonSize * 0.5f, frame_bb.Min.y);
         ImVec2 buttonEnd(buttonPos[X] + buttonSize, buttonPos.y + 20.0f);
@@ -234,7 +239,7 @@ bool TimeLineButtons(
         if (isHovered) {
             if (IsMouseClicked(0) && draggedIndex == -1) {
                 draggedIndex = i;
-                draggedValue = _nodeTimes[i].time;
+                draggedValue = _keyFrames[i].time;
                 SetActiveID(id, window);
                 FocusWindow(window);
             } else if (IsMouseClicked(1)) {
@@ -250,7 +255,7 @@ bool TimeLineButtons(
             if (IsMouseDragging(0)) {
                 float newT         = (GetMousePos()[X] - frame_bb.Min[X]) / sliderWidth;
                 newT               = ImClamp(newT, 0.0f, 1.0f);
-                _nodeTimes[i].time = newT * _duration;
+                _keyFrames[i].time = newT * _duration;
             }
         }
 
@@ -298,6 +303,7 @@ bool EditKeyFrame(
     const std::string& _label,
     AnimationCurve<float>& _keyFrames,
     float _duration,
+    float _defaultValue,
     std::function<void(int)> _howEditItem) {
     ImGuiWindow* window = GetCurrentWindow();
     if (window->SkipItems) {
@@ -372,7 +378,7 @@ bool EditKeyFrame(
         }
     }
 
-    for (int i = 0; i < _keyFrames.size(); ++i) {
+    for (int i = 0; i < (int)_keyFrames.size(); ++i) {
         float t       = (_keyFrames[i].time) / (_duration);
         float buttonX = frame_bb.Min[X] + t * sliderWidth;
         ImVec2 buttonPos(buttonX - buttonSize * 0.5f, frame_bb.Min.y);
@@ -398,9 +404,14 @@ bool EditKeyFrame(
         bool isActive = (draggedIndex == i);
         if (isActive) {
             if (IsMouseDragging(0)) {
-                float newT         = (GetMousePos()[X] - frame_bb.Min[X]) / sliderWidth;
-                newT               = ImClamp(newT, 0.0f, 1.0f);
-                _keyFrames[i].time = newT * _duration;
+                float newT = (GetMousePos()[X] - frame_bb.Min[X]) / sliderWidth;
+                newT       = ImClamp(newT, 0.0f, 1.0f);
+
+                auto command = std::make_unique<SetterCommand<float>>(
+                    &_keyFrames[i].time,
+                    float(newT * _duration));
+
+                EditorGroup::getInstance()->pushCommand(std::move(command));
             }
         }
 
@@ -414,35 +425,81 @@ bool EditKeyFrame(
         std::string popupId = _label + "node" + std::to_string(popUpIndex);
         if (BeginPopup(popupId.c_str())) {
 
-            auto popupUpdadte = [&]() {
+            auto popupUpdate = [&]() {
                 // NodeUpdate
                 ImGui::Text("NodeNumber : %d", popUpIndex);
 
                 if (ImGui::Button("Delete")) {
+                    // キーフレームを削除
                     if (_keyFrames.size() <= 1) {
-                        _keyFrames[0].time  = 0.0f;
-                        _keyFrames[0].value = 0.0f;
+                        // 最後のキーフレームを削除する場合は、デフォルト値を設定 (最低でも1つ以上要素を確保する)
+                        EditorGroup::getInstance()->pushCommand(std::make_unique<SetterCommand<KeyFrame<float>>>(
+                            &_keyFrames[popUpIndex],
+                            KeyFrame<float>(0.0f, _defaultValue)));
+                        return 0;
                     }
-                    _keyFrames.erase(_keyFrames.begin() + popUpIndex);
-                    popUpIndex = 0;
+                    // キーフレームを削除
+                    auto commandCombo = std::make_unique<CommandCombo>();
+                    commandCombo->addCommand(std::make_shared<EraseElementCommand<AnimationCurve<float>>>(&_keyFrames, _keyFrames.begin() + popUpIndex));
+                    commandCombo->setFuncOnAfterCommand([=]() {
+                        ImGuiStorage* _storage = ImGui::GetStateStorage();
+                        _storage->SetInt(popUpIndexId, -1);
+                    },
+                        false);
+                    commandCombo->setFuncOnAfterUndoCommand([=]() {
+                        ImGuiStorage* _storage = ImGui::GetStateStorage();
+                        _storage->SetInt(popUpIndexId, popUpIndex);
+                    });
+
+                    EditorGroup::getInstance()->pushCommand(std::move(commandCombo));
+                    return 0;
                 }
                 if (ImGui::Button("Copy")) {
-                    _keyFrames.push_back(_keyFrames[popUpIndex]);
+                    auto commandCombo = std::make_unique<CommandCombo>();
+                    commandCombo->addCommand(std::make_shared<AddElementCommand<AnimationCurve<float>>>(&_keyFrames, _keyFrames[popUpIndex]));
+                    commandCombo->addCommand(std::make_shared<SetterCommand<float>>(&_keyFrames.back().time, _keyFrames.back().time + 0.01f));
 
-                    _keyFrames.back().time += 0.01f;
-                    std::sort(
-                        _keyFrames.begin(),
-                        _keyFrames.end(),
-                        [](const auto& a, const auto& b) {
-                            return a.time < b.time;
+                    commandCombo->setFuncOnAfterCommand(
+                        [popUpIndexId, popUpIndex, &_keyFrames]() {
+                            ImGuiStorage* _storage = ImGui::GetStateStorage();
+                            _storage->SetInt(popUpIndexId, popUpIndex + 1);
+
+                            std::sort(
+                                _keyFrames.begin(),
+                                _keyFrames.end(),
+                                [](const auto& a, const auto& b) {
+                                    return a.time < b.time;
+                                });
+                        },
+                        false);
+                    commandCombo->setFuncOnAfterUndoCommand(
+                        [popUpIndexId, popUpIndex, &_keyFrames]() {
+                            ImGuiStorage* _storage = ImGui::GetStateStorage();
+                            _storage->SetInt(popUpIndexId, popUpIndex);
+
+                            std::sort(
+                                _keyFrames.begin(),
+                                _keyFrames.end(),
+                                [](const auto& a, const auto& b) {
+                                    return a.time < b.time;
+                                });
                         });
-                    popUpIndex += 1;
+
+                    EditorGroup::getInstance()->pushCommand(std::move(commandCombo));
+                    return 0;
                 }
                 ImGui::Text("Time");
-                ImGui::DragFloat(
-                    std::string("##Time" + _label + std::to_string(popUpIndex)).c_str(),
-                    &_keyFrames[popUpIndex].time,
-                    0.1f);
+                DragCommand<float>("##Time" + _label + std::to_string(popUpIndex),
+                    _keyFrames[popUpIndex].time,
+                    0.1f, {}, {}, "%.3f",
+                    [&_keyFrames](float* /*val*/) {
+                        std::sort(
+                            _keyFrames.begin(),
+                            _keyFrames.end(),
+                            [](const auto& a, const auto& b) {
+                                return a.time < b.time;
+                            });
+                    });
 
                 ImGui::Spacing();
 
@@ -450,13 +507,13 @@ bool EditKeyFrame(
                     _howEditItem(popUpIndex);
                 } else {
                     ImGui::Text("Value");
-                    ImGui::DragFloat(
-                        std::string("##Value" + _label + std::to_string(popUpIndex)).c_str(),
-                        &_keyFrames[popUpIndex].value,
+                    DragCommand("##Value" + _label + std::to_string(popUpIndex),
+                        _keyFrames[popUpIndex].value,
                         0.1f);
                 }
+                return 0;
             };
-            popupUpdadte();
+            popupUpdate();
 
             EndPopup();
         } else {
@@ -473,15 +530,20 @@ bool EditKeyFrame(
             auto sliderPopupUpdate = [&]() {
                 // SliderPopup
                 if (ImGui::Button("Add Node")) {
-                    _keyFrames.push_back(
-                        {currentTime, CalculateValue::Linear(_keyFrames, currentTime)});
+                    auto commandCombo = std::make_unique<CommandCombo>();
+                    commandCombo->addCommand(std::make_shared<AddElementCommand<AnimationCurve<float>>>(&_keyFrames, KeyFrame<float>(currentTime, CalculateValue::Linear(_keyFrames, currentTime))));
+                    commandCombo->addCommand(std::make_shared<SortCommand<AnimationCurve<float>>>(&_keyFrames, [](const auto& a, const auto& b) {
+                        return a.time < b.time;
+                    }));
+                    commandCombo->setFuncOnAfterCommand(
+                        [popUpIndexId, _keyFrames]() {
+                            ImGuiStorage* _storage = ImGui::GetStateStorage();
+                            _storage->SetInt(popUpIndexId, (int)_keyFrames.size() - 1);
+                        },
+                        true);
+                    EditorGroup::getInstance()->pushCommand(std::move(commandCombo));
+
                     ImGui::CloseCurrentPopup();
-                    std::sort(
-                        _keyFrames.begin(),
-                        _keyFrames.end(),
-                        [](const auto& a, const auto& b) {
-                            return a.time < b.time;
-                        });
                     return 0;
                 }
                 if (ImGui::Button("Cancel")) {
@@ -509,6 +571,7 @@ bool EditKeyFrame(
     const std::string& _label,
     AnimationCurve<Vec2f>& _keyFrames,
     float _duration,
+    const Vec2f& _defaultValue,
     std::function<void(int)> _howEditItem) {
     ImGuiWindow* window = GetCurrentWindow();
     if (window->SkipItems) {
@@ -583,7 +646,7 @@ bool EditKeyFrame(
         }
     }
 
-    for (int i = 0; i < _keyFrames.size(); ++i) {
+    for (int i = 0; i < (int)_keyFrames.size(); ++i) {
         float t       = (_keyFrames[i].time) / (_duration);
         float buttonX = frame_bb.Min[X] + t * sliderWidth;
         ImVec2 buttonPos(buttonX - buttonSize * 0.5f, frame_bb.Min.y);
@@ -609,9 +672,11 @@ bool EditKeyFrame(
         bool isActive = (draggedIndex == i);
         if (isActive) {
             if (IsMouseDragging(0)) {
-                float newT         = (GetMousePos()[X] - frame_bb.Min[X]) / sliderWidth;
-                newT               = ImClamp(newT, 0.0f, 1.0f);
-                _keyFrames[i].time = newT * _duration;
+                float newT   = (GetMousePos()[X] - frame_bb.Min[X]) / sliderWidth;
+                newT         = ImClamp(newT, 0.0f, 1.0f);
+                auto command = std::make_unique<SetterCommand<float>>(
+                    &_keyFrames[i].time,
+                    newT * _duration);
             }
         }
 
@@ -625,35 +690,79 @@ bool EditKeyFrame(
         std::string popupId = _label + "node" + std::to_string(popUpIndex);
         if (BeginPopup(popupId.c_str())) {
 
-            auto popupUpdadte = [&]() {
+            auto popupUpdate = [&]() {
                 // NodeUpdate
                 ImGui::Text("NodeNumber : %d", popUpIndex);
 
                 if (ImGui::Button("Delete")) {
                     if (_keyFrames.size() <= 1) {
-                        _keyFrames[0].time  = 0.0f;
-                        _keyFrames[0].value = {0.0f, 0.0f};
+                        // 最後のキーフレームを削除する場合は、デフォルト値を設定 (最低でも1つ以上要素を確保する)
+                        EditorGroup::getInstance()->pushCommand(std::make_unique<SetterCommand<KeyFrame<Vec2f>>>(
+                            &_keyFrames[popUpIndex],
+                            KeyFrame<Vec2f>(0.0f, _defaultValue)));
+                        return 0;
                     }
-                    _keyFrames.erase(_keyFrames.begin() + popUpIndex);
-                    popUpIndex = 0;
+                    auto commandCombo = std::make_unique<CommandCombo>();
+                    // キーフレームを削除
+                    commandCombo->addCommand(std::make_shared<EraseElementCommand<AnimationCurve<Vec2f>>>(&_keyFrames, _keyFrames.begin() + popUpIndex));
+                    commandCombo->setFuncOnAfterCommand([=]() {
+                        ImGuiStorage* _storage = ImGui::GetStateStorage();
+                        _storage->SetInt(popUpIndexId, -1);
+                    },
+                        false);
+                    commandCombo->setFuncOnAfterUndoCommand([=]() {
+                        ImGuiStorage* _storage = ImGui::GetStateStorage();
+                        _storage->SetInt(popUpIndexId, popUpIndex);
+                    });
+
+                    EditorGroup::getInstance()->pushCommand(std::move(commandCombo));
+                    return 0;
                 }
                 if (ImGui::Button("Copy")) {
-                    _keyFrames.push_back(_keyFrames[popUpIndex]);
+                    auto commandCombo = std::make_unique<CommandCombo>();
+                    commandCombo->addCommand(std::make_shared<AddElementCommand<AnimationCurve<Vec2f>>>(&_keyFrames, _keyFrames[popUpIndex]));
+                    commandCombo->addCommand(std::make_shared<SetterCommand<float>>(&_keyFrames.back().time, _keyFrames.back().time + 0.01f));
 
-                    _keyFrames.back().time += 0.01f;
-                    std::sort(
-                        _keyFrames.begin(),
-                        _keyFrames.end(),
-                        [](const auto& a, const auto& b) {
-                            return a.time < b.time;
+                    commandCombo->setFuncOnAfterCommand(
+                        [popUpIndexId, popUpIndex, &_keyFrames]() {
+                            ImGuiStorage* _storage = ImGui::GetStateStorage();
+                            _storage->SetInt(popUpIndexId, popUpIndex + 1);
+                            std::sort(
+                                _keyFrames.begin(),
+                                _keyFrames.end(),
+                                [](const auto& a, const auto& b) {
+                                    return a.time < b.time;
+                                });
+                        },
+                        false);
+                    commandCombo->setFuncOnAfterUndoCommand(
+                        [popUpIndexId, popUpIndex, &_keyFrames]() {
+                            ImGuiStorage* _storage = ImGui::GetStateStorage();
+                            _storage->SetInt(popUpIndexId, popUpIndex);
+                            std::sort(
+                                _keyFrames.begin(),
+                                _keyFrames.end(),
+                                [](const auto& a, const auto& b) {
+                                    return a.time < b.time;
+                                });
                         });
-                    popUpIndex += 1;
+                    EditorGroup::getInstance()->pushCommand(std::move(commandCombo));
+                    return 0;
                 }
+
                 ImGui::Text("Time");
-                ImGui::DragFloat(
-                    std::string("##Time" + _label + std::to_string(popUpIndex)).c_str(),
-                    &_keyFrames[popUpIndex].time,
-                    0.1f);
+                DragCommand<float>(
+                    "##Time" + _label + std::to_string(popUpIndex),
+                    _keyFrames[popUpIndex].time,
+                    0.1f, {}, {}, "%.3f",
+                    [&_keyFrames](float* /*val*/) {
+                        std::sort(
+                            _keyFrames.begin(),
+                            _keyFrames.end(),
+                            [](const auto& a, const auto& b) {
+                                return a.time < b.time;
+                            });
+                    });
 
                 ImGui::Spacing();
 
@@ -661,13 +770,14 @@ bool EditKeyFrame(
                     _howEditItem(popUpIndex);
                 } else {
                     ImGui::Text("Value");
-                    ImGui::DragFloat2(
-                        std::string("##Value" + _label + std::to_string(popUpIndex)).c_str(),
-                        _keyFrames[popUpIndex].value.v,
+                    DragVectorCommand<2, float>(
+                        "##Value" + _label + std::to_string(popUpIndex),
+                        _keyFrames[popUpIndex].value,
                         0.1f);
                 }
+                return 0;
             };
-            popupUpdadte();
+            popupUpdate();
 
             EndPopup();
         } else {
@@ -720,6 +830,7 @@ bool EditKeyFrame(
     const std::string& _label,
     AnimationCurve<Vec3f>& _keyFrames,
     float _duration,
+    const Vec3f& _defaultValue,
     std::function<void(int)> _howEditItem) {
     ImGuiWindow* window = GetCurrentWindow();
     if (window->SkipItems) {
@@ -794,7 +905,7 @@ bool EditKeyFrame(
         }
     }
 
-    for (int i = 0; i < _keyFrames.size(); ++i) {
+    for (int i = 0; i < (int)_keyFrames.size(); ++i) {
         float t       = (_keyFrames[i].time) / (_duration);
         float buttonX = frame_bb.Min.x + t * sliderWidth;
         ImVec2 buttonPos(buttonX - buttonSize * 0.5f, frame_bb.Min.y);
@@ -820,9 +931,12 @@ bool EditKeyFrame(
         bool isActive = (draggedIndex == i);
         if (isActive) {
             if (IsMouseDragging(0)) {
-                float newT         = (GetMousePos().x - frame_bb.Min.x) / sliderWidth;
-                newT               = ImClamp(newT, 0.0f, 1.0f);
-                _keyFrames[i].time = newT * _duration;
+                // キーフレームの時間を変更
+                float newT   = (GetMousePos().x - frame_bb.Min.x) / sliderWidth;
+                newT         = ImClamp(newT, 0.0f, 1.0f);
+                auto command = std::make_unique<SetterCommand<float>>(
+                    &_keyFrames[i].time,
+                    newT * _duration);
             }
         }
 
@@ -836,38 +950,61 @@ bool EditKeyFrame(
         std::string popupId = _label + "node" + std::to_string(popUpIndex);
         if (BeginPopup(popupId.c_str())) {
 
-            auto popupUpdadte = [&]() {
+            auto popupUpdate = [&]() {
                 // NodeUpdate
                 ImGui::Text("NodeNumber : %d", popUpIndex);
 
                 if (ImGui::Button("Delete")) {
+                    // キーフレームを削除
                     if (_keyFrames.size() <= 1) {
-                        _keyFrames[0].time  = 0.0f;
-                        _keyFrames[0].value = {0.0f, 0.0f, 0.0f};
+                        // 最後のキーフレームを削除する場合は、デフォルト値を設定 (最低でも1つ以上要素を確保する)
+                        EditorGroup::getInstance()->pushCommand(std::make_unique<SetterCommand<KeyFrame<Vec3f>>>(
+                            &_keyFrames[popUpIndex],
+                            KeyFrame<Vec3f>(0.0f, _defaultValue)));
                         return 0;
                     }
-                    _keyFrames.erase(_keyFrames.begin() + popUpIndex);
-                    popUpIndex = 0;
+                    // キーフレームを削除
+                    auto commandCombo = std::make_unique<CommandCombo>();
+                    commandCombo->addCommand(std::make_shared<EraseElementCommand<AnimationCurve<Vec3f>>>(&_keyFrames, _keyFrames.begin() + popUpIndex));
+                    commandCombo->setFuncOnAfterCommand([popUpIndexId]() {
+                        ImGuiStorage* _storage = ImGui::GetStateStorage();
+                        _storage->SetInt(popUpIndexId, -1);
+                    },
+                        false);
+                    commandCombo->setFuncOnAfterUndoCommand([popUpIndexId, popUpIndex]() {
+                        ImGuiStorage* _storage = ImGui::GetStateStorage();
+                        _storage->SetInt(popUpIndexId, popUpIndex);
+                    });
+                    EditorGroup::getInstance()->pushCommand(std::move(commandCombo));
                     return 0;
                 }
                 if (ImGui::Button("Copy")) {
-                    _keyFrames.push_back(_keyFrames[popUpIndex]);
+                    auto commandCombo = std::make_unique<CommandCombo>();
 
-                    _keyFrames.back().time += 0.01f;
-                    std::sort(
-                        _keyFrames.begin(),
-                        _keyFrames.end(),
-                        [](const auto& a, const auto& b) {
-                            return a.time < b.time;
-                        });
-                    popUpIndex += 1;
+                    commandCombo->addCommand(std::make_shared<AddElementCommand<AnimationCurve<Vec3f>>>(&_keyFrames, _keyFrames[popUpIndex]));
+
+                    commandCombo->addCommand(std::make_shared<SetterCommand<float>>(&_keyFrames.back().time, _keyFrames.back().time + 0.01f));
+                    commandCombo->setFuncOnAfterCommand(
+                        [popUpIndexId, _keyFrames]() {
+                            ImGuiStorage* _storage = ImGui::GetStateStorage();
+                            _storage->SetInt(popUpIndexId, (int)_keyFrames.size() - 1);
+                        },
+                        true);
                     return 0;
                 }
                 ImGui::Text("Time");
-                ImGui::DragFloat(
-                    std::string("##Time" + _label + std::to_string(popUpIndex)).c_str(),
-                    &_keyFrames[popUpIndex].time,
-                    0.1f);
+                DragCommand<float>(
+                    "##Time" + _label + std::to_string(popUpIndex),
+                    _keyFrames[popUpIndex].time,
+                    0.1f, {}, {}, "%.3f",
+                    [&_keyFrames](float* /*val*/) {
+                        std::sort(
+                            _keyFrames.begin(),
+                            _keyFrames.end(),
+                            [](const auto& a, const auto& b) {
+                                return a.time < b.time;
+                            });
+                    });
 
                 ImGui::Spacing();
 
@@ -875,26 +1012,25 @@ bool EditKeyFrame(
                     _howEditItem(popUpIndex);
                 } else {
                     ImGui::Text("X:");
-                    ImGui::DragFloat(
-                        std::string("##X" + _label + std::to_string(popUpIndex)).c_str(),
-                        &_keyFrames[popUpIndex].value[X],
+                    DragCommand<float>(
+                        "##X" + _label + std::to_string(popUpIndex),
+                        _keyFrames[popUpIndex].value[X],
                         0.1f);
                     ImGui::Text("Y:");
-
-                    ImGui::DragFloat(
-                        std::string("##Y" + _label + std::to_string(popUpIndex)).c_str(),
-                        &_keyFrames[popUpIndex].value[Y],
+                    DragCommand<float>(
+                        "##Y" + _label + std::to_string(popUpIndex),
+                        _keyFrames[popUpIndex].value[Y],
                         0.1f);
                     ImGui::Text("Z:");
-                    ImGui::DragFloat(
-                        std::string("##Z" + _label + std::to_string(popUpIndex)).c_str(),
-                        &_keyFrames[popUpIndex].value[Z],
+                    DragCommand<float>(
+                        "##Z" + _label + std::to_string(popUpIndex),
+                        _keyFrames[popUpIndex].value[Z],
                         0.1f);
                 }
 
                 return 1;
             };
-            popupUpdadte();
+            popupUpdate();
             EndPopup();
         } else {
             popUpIndex = -1;
@@ -945,6 +1081,7 @@ bool EditKeyFrame(
     const std::string& _label,
     AnimationCurve<Vec4f>& _keyFrames,
     float _duration,
+    const Vec4f& _defaultValue,
     std::function<void(int)> _howEditItem) {
     ImGuiWindow* window = GetCurrentWindow();
     if (window->SkipItems) {
@@ -1019,7 +1156,7 @@ bool EditKeyFrame(
         }
     }
 
-    for (int i = 0; i < _keyFrames.size(); ++i) {
+    for (int i = 0; i < (int)_keyFrames.size(); ++i) {
         float t       = (_keyFrames[i].time) / (_duration);
         float buttonX = frame_bb.Min.x + t * sliderWidth;
         ImVec2 buttonPos(buttonX - buttonSize * 0.5f, frame_bb.Min[Y]);
@@ -1061,38 +1198,69 @@ bool EditKeyFrame(
         std::string popupId = _label + "node" + std::to_string(popUpIndex);
         if (BeginPopup(popupId.c_str())) {
 
-            auto popupUpdadte = [&]() {
+            auto popupUpdate = [&]() {
                 // NodeUpdate
                 ImGui::Text("NodeNumber : %d", popUpIndex);
 
                 if (ImGui::Button("Delete")) {
                     if (_keyFrames.size() <= 1) {
-                        _keyFrames[0].time  = 0.0f;
-                        _keyFrames[0].value = {0.0f, 0.0f, 0.0f, 0.0f};
+                        // 最後のキーフレームを削除する場合は、デフォルト値を設定 (最低でも1つ以上要素を確保する)
+                        EditorGroup::getInstance()->pushCommand(std::make_unique<SetterCommand<KeyFrame<Vec4f>>>(
+                            &_keyFrames[popUpIndex],
+                            KeyFrame<Vec4f>(0.0f, _defaultValue)));
                         return 0;
                     }
-                    _keyFrames.erase(_keyFrames.begin() + popUpIndex);
-                    popUpIndex = 0;
+                    auto commandCombo = std::make_unique<CommandCombo>();
+                    // キーフレームを削除
+                    commandCombo->addCommand(std::make_shared<EraseElementCommand<AnimationCurve<Vec4f>>>(&_keyFrames, _keyFrames.begin() + popUpIndex));
+                    commandCombo->setFuncOnAfterCommand([popUpIndexId]() {
+                        ImGuiStorage* _storage = ImGui::GetStateStorage();
+                        _storage->SetInt(popUpIndexId, -1);
+                    },
+                        false);
+                    commandCombo->setFuncOnAfterUndoCommand([popUpIndexId, popUpIndex]() {
+                        ImGuiStorage* _storage = ImGui::GetStateStorage();
+                        _storage->SetInt(popUpIndexId, popUpIndex);
+                    });
+
+                    EditorGroup::getInstance()->pushCommand(std::move(commandCombo));
+
+                    ImGui::CloseCurrentPopup();
                     return 0;
                 }
                 if (ImGui::Button("Copy")) {
-                    _keyFrames.push_back(_keyFrames[popUpIndex]);
+                    auto commandCombo = std::make_unique<CommandCombo>();
+                    commandCombo->addCommand(std::make_shared<AddElementCommand<AnimationCurve<Vec4f>>>(&_keyFrames, _keyFrames[popUpIndex]));
+                    commandCombo->addCommand(std::make_shared<SetterCommand<float>>(&_keyFrames.back().time, _keyFrames.back().time + 0.01f));
 
-                    _keyFrames.back().time += 0.01f;
-                    std::sort(
-                        _keyFrames.begin(),
-                        _keyFrames.end(),
-                        [](const auto& a, const auto& b) {
-                            return a.time < b.time;
+                    commandCombo->setFuncOnAfterCommand(
+                        [popUpIndexId, &_keyFrames]() {
+                            ImGuiStorage* _storage = ImGui::GetStateStorage();
+                            _storage->SetInt(popUpIndexId, (int)_keyFrames.size() - 1);
+                        },
+                        true);
+
+                    commandCombo->setFuncOnAfterUndoCommand(
+                        [popUpIndexId, popUpIndex, &_keyFrames]() {
+                            ImGuiStorage* _storage = ImGui::GetStateStorage();
+                            _storage->SetInt(popUpIndexId, popUpIndex);
                         });
-                    popUpIndex += 1;
+                    EditorGroup::getInstance()->pushCommand(std::move(commandCombo));
                     return 0;
                 }
                 ImGui::Text("Time");
-                ImGui::DragFloat(
-                    std::string("##Time" + _label + std::to_string(popUpIndex)).c_str(),
-                    &_keyFrames[popUpIndex].time,
-                    0.1f);
+                DragCommand<float>(
+                    "##Time" + _label + std::to_string(popUpIndex),
+                    _keyFrames[popUpIndex].time,
+                    0.1f, {}, {}, "%.3f",
+                    [&_keyFrames](float* /*val*/) {
+                        std::sort(
+                            _keyFrames.begin(),
+                            _keyFrames.end(),
+                            [](const auto& a, const auto& b) {
+                                return a.time < b.time;
+                            });
+                    });
 
                 ImGui::Spacing();
 
@@ -1100,31 +1268,30 @@ bool EditKeyFrame(
                     _howEditItem(popUpIndex);
                 } else {
                     ImGui::Text("X:");
-                    ImGui::DragFloat(
-                        std::string("##X" + _label + std::to_string(popUpIndex)).c_str(),
-                        &_keyFrames[popUpIndex].value[X],
+                    DragCommand<float>(
+                        "##X" + _label + std::to_string(popUpIndex),
+                        _keyFrames[popUpIndex].value[X],
                         0.1f);
                     ImGui::Text("Y:");
-
-                    ImGui::DragFloat(
-                        std::string("##Y" + _label + std::to_string(popUpIndex)).c_str(),
-                        &_keyFrames[popUpIndex].value[Y],
+                    DragCommand<float>(
+                        "##Y" + _label + std::to_string(popUpIndex),
+                        _keyFrames[popUpIndex].value[Y],
                         0.1f);
                     ImGui::Text("Z:");
-                    ImGui::DragFloat(
-                        std::string("##Z" + _label + std::to_string(popUpIndex)).c_str(),
-                        &_keyFrames[popUpIndex].value[Z],
+                    DragCommand<float>(
+                        "##Z" + _label + std::to_string(popUpIndex),
+                        _keyFrames[popUpIndex].value[Z],
                         0.1f);
                     ImGui::Text("W:");
-                    ImGui::DragFloat(
-                        std::string("##W" + _label + std::to_string(popUpIndex)).c_str(),
-                        &_keyFrames[popUpIndex].value[W],
+                    DragCommand<float>(
+                        "##W" + _label + std::to_string(popUpIndex),
+                        _keyFrames[popUpIndex].value[W],
                         0.1f);
                 }
 
                 return 1;
             };
-            popupUpdadte();
+            popupUpdate();
 
             EndPopup();
         } else {
@@ -1176,6 +1343,7 @@ bool EditKeyFrame(
     const std::string& _label,
     AnimationCurve<Quaternion>& _keyFrames,
     float _duration,
+    const Quaternion& _defaultValue,
     std::function<void(int)> _howEditItem) {
     ImGuiWindow* window = GetCurrentWindow();
     if (window->SkipItems) {
@@ -1250,7 +1418,7 @@ bool EditKeyFrame(
         }
     }
 
-    for (int i = 0; i < _keyFrames.size(); ++i) {
+    for (int i = 0; i < (int)_keyFrames.size(); ++i) {
         float t       = (_keyFrames[i].time) / (_duration);
         float buttonX = frame_bb.Min[X] + t * sliderWidth;
         ImVec2 buttonPos(buttonX - buttonSize * 0.5f, frame_bb.Min[Y]);
@@ -1276,9 +1444,13 @@ bool EditKeyFrame(
         bool isActive = (draggedIndex == i);
         if (isActive) {
             if (IsMouseDragging(0)) {
-                float newT         = (GetMousePos()[X] - frame_bb.Min[X]) / sliderWidth;
-                newT               = ImClamp(newT, 0.0f, 1.0f);
-                _keyFrames[i].time = newT * _duration;
+                float newT = (GetMousePos()[X] - frame_bb.Min[X]) / sliderWidth;
+                newT       = ImClamp(newT, 0.0f, 1.0f);
+
+                // キーフレームの時間を変更
+                auto command = std::make_unique<SetterCommand<float>>(
+                    &_keyFrames[i].time,
+                    newT * _duration);
             }
         }
 
@@ -1292,38 +1464,74 @@ bool EditKeyFrame(
         std::string popupId = _label + "node" + std::to_string(popUpIndex);
         if (BeginPopup(popupId.c_str())) {
 
-            auto popupUpdadte = [&]() {
+            auto popupUpdate = [&]() {
                 // NodeUpdate
                 ImGui::Text("NodeNumber : %d", popUpIndex);
 
                 if (ImGui::Button("Delete")) {
+                    // キーフレームを削除
+
                     if (_keyFrames.size() <= 1) {
-                        _keyFrames[0].time  = 0.0f;
-                        _keyFrames[0].value = Quaternion(0.0f, 0.0f, 0.0f, 1.0f);
+                        // 最後のキーフレームを削除する場合は、デフォルト値を設定 (最低でも1つ以上要素を確保する)
+                        EditorGroup::getInstance()->pushCommand(std::make_unique<SetterCommand<KeyFrame<Quaternion>>>(
+                            &_keyFrames[popUpIndex],
+                            KeyFrame<Quaternion>(0.0f, _defaultValue)));
                         return 0;
                     }
-                    _keyFrames.erase(_keyFrames.begin() + popUpIndex);
-                    popUpIndex = 0;
+                    auto commandCombo = std::make_unique<CommandCombo>();
+                    // キーフレームを削除
+                    commandCombo->addCommand(std::make_shared<EraseElementCommand<AnimationCurve<Quaternion>>>(&_keyFrames, _keyFrames.begin() + popUpIndex));
+
+                    commandCombo->setFuncOnAfterCommand([popUpIndexId]() {
+                        ImGuiStorage* _storage = ImGui::GetStateStorage();
+                        _storage->SetInt(popUpIndexId, -1);
+                    },
+                        false);
+
+                    commandCombo->setFuncOnAfterUndoCommand([popUpIndexId, popUpIndex]() {
+                        ImGuiStorage* _storage = ImGui::GetStateStorage();
+                        _storage->SetInt(popUpIndexId, popUpIndex);
+                    });
+
+                    EditorGroup::getInstance()->pushCommand(std::move(commandCombo));
+
                     return 0;
                 }
                 if (ImGui::Button("Copy")) {
-                    _keyFrames.push_back(_keyFrames[popUpIndex]);
+                    auto commandCombo = std::make_unique<CommandCombo>();
+                    commandCombo->addCommand(std::make_shared<AddElementCommand<AnimationCurve<Quaternion>>>(&_keyFrames, _keyFrames[popUpIndex]));
 
-                    _keyFrames.back().time += 0.01f;
-                    std::sort(
-                        _keyFrames.begin(),
-                        _keyFrames.end(),
-                        [](const auto& a, const auto& b) {
-                            return a.time < b.time;
+                    commandCombo->addCommand(std::make_shared<SetterCommand<float>>(&_keyFrames.back().time, _keyFrames.back().time + 0.01f));
+
+                    commandCombo->setFuncOnAfterCommand(
+                        [popUpIndexId, &_keyFrames]() {
+                            ImGuiStorage* _storage = ImGui::GetStateStorage();
+                            _storage->SetInt(popUpIndexId, (int)_keyFrames.size() - 1);
+                        },
+                        true);
+
+                    commandCombo->setFuncOnAfterUndoCommand(
+                        [popUpIndexId, popUpIndex, &_keyFrames]() {
+                            ImGuiStorage* _storage = ImGui::GetStateStorage();
+                            _storage->SetInt(popUpIndexId, popUpIndex);
                         });
-                    popUpIndex += 1;
+
+                    EditorGroup::getInstance()->pushCommand(std::move(commandCombo));
                     return 0;
                 }
                 ImGui::Text("Time");
-                ImGui::DragFloat(
-                    std::string("##Time" + _label + std::to_string(popUpIndex)).c_str(),
-                    &_keyFrames[popUpIndex].time,
-                    0.1f);
+                DragCommand<float>(
+                    "##Time" + _label + std::to_string(popUpIndex),
+                    _keyFrames[popUpIndex].time,
+                    0.1f, {}, {}, "%.3f",
+                    [&_keyFrames](float* /*val*/) {
+                        std::sort(
+                            _keyFrames.begin(),
+                            _keyFrames.end(),
+                            [](const auto& a, const auto& b) {
+                                return a.time < b.time;
+                            });
+                    });
 
                 ImGui::Spacing();
 
@@ -1331,25 +1539,24 @@ bool EditKeyFrame(
                     _howEditItem(popUpIndex);
                 } else {
                     ImGui::Text("X:");
-                    ImGui::DragFloat(
-                        std::string("##X" + _label + std::to_string(popUpIndex)).c_str(),
-                        &_keyFrames[popUpIndex].value.v[X],
+                    DragCommand<float>(
+                        "##X" + _label + std::to_string(popUpIndex),
+                        _keyFrames[popUpIndex].value.v[X],
                         0.1f);
                     ImGui::Text("Y:");
-
-                    ImGui::DragFloat(
-                        std::string("##Y" + _label + std::to_string(popUpIndex)).c_str(),
-                        &_keyFrames[popUpIndex].value.v[Y],
+                    DragCommand<float>(
+                        "##Y" + _label + std::to_string(popUpIndex),
+                        _keyFrames[popUpIndex].value.v[Y],
                         0.1f);
                     ImGui::Text("Z:");
-                    ImGui::DragFloat(
-                        std::string("##Z" + _label + std::to_string(popUpIndex)).c_str(),
-                        &_keyFrames[popUpIndex].value.v[Z],
+                    DragCommand<float>(
+                        "##Z" + _label + std::to_string(popUpIndex),
+                        _keyFrames[popUpIndex].value.v[Z],
                         0.1f);
                     ImGui::Text("W:");
-                    ImGui::DragFloat(
-                        std::string("##W" + _label + std::to_string(popUpIndex)).c_str(),
-                        &_keyFrames[popUpIndex].value.v[W],
+                    DragCommand<float>(
+                        "##W" + _label + std::to_string(popUpIndex),
+                        _keyFrames[popUpIndex].value.v[W],
                         0.1f);
                     _keyFrames[popUpIndex].value = _keyFrames[popUpIndex].value.normalize();
                 }
@@ -1357,7 +1564,7 @@ bool EditKeyFrame(
                 _keyFrames[popUpIndex].value = _keyFrames[popUpIndex].value.normalize();
                 return 1;
             };
-            popupUpdadte();
+            popupUpdate();
 
             EndPopup();
         } else {
@@ -1409,6 +1616,7 @@ bool EditColorKeyFrame(
     const std::string& _label,
     AnimationCurve<Vec4f>& _keyFrames,
     float _duration,
+    const Vec4f& _defaultValue,
     std::function<void(int)> _howEditItem) {
     ImGuiWindow* window = GetCurrentWindow();
     if (window->SkipItems) {
@@ -1483,7 +1691,7 @@ bool EditColorKeyFrame(
         }
     }
 
-    for (int i = 0; i < _keyFrames.size(); ++i) {
+    for (int i = 0; i < (int)_keyFrames.size(); ++i) {
         float t       = (_keyFrames[i].time) / (_duration);
         float buttonX = frame_bb.Min.x + t * sliderWidth;
         ImVec2 buttonPos(buttonX - buttonSize * 0.5f, frame_bb.Min[Y]);
@@ -1509,13 +1717,16 @@ bool EditColorKeyFrame(
         bool isActive = (draggedIndex == i);
         if (isActive) {
             if (IsMouseDragging(0)) {
-                float newT         = (GetMousePos().x - frame_bb.Min.x) / sliderWidth;
-                newT               = ImClamp(newT, 0.0f, 1.0f);
-                _keyFrames[i].time = newT * _duration;
+                float newT = (GetMousePos().x - frame_bb.Min.x) / sliderWidth;
+                newT       = ImClamp(newT, 0.0f, 1.0f);
+                // キーフレームの時間を変更
+                auto command = std::make_unique<SetterCommand<float>>(
+                    &_keyFrames[i].time,
+                    newT * _duration);
             }
         }
 
-        ImVec4 nodeColor = ImVec4(_keyFrames[i].value[X], _keyFrames[i].value[Y], _keyFrames[i].value[Z], _keyFrames[i].value[W]);
+        ImVec4 nodeColor = ImVec4(_keyFrames[i].value[X], _keyFrames[i].value[Y], _keyFrames[i].value[Z], (std::max)(_keyFrames[i].value[W], 0.1f));
 
         PushID(i);
         draw_list->AddRectFilled(buttonRect.Min, buttonRect.Max, ImColor(nodeColor), style.FrameRounding);
@@ -1527,52 +1738,87 @@ bool EditColorKeyFrame(
         std::string popupId = _label + "node" + std::to_string(popUpIndex);
         if (BeginPopup(popupId.c_str())) {
 
-            auto popupUpdadte = [&]() {
+            auto popupUpdate = [&]() {
                 // NodeUpdate
                 ImGui::Text("NodeNumber : %d", popUpIndex);
 
                 if (ImGui::Button("Delete")) {
+                    // キーフレームを削除
+
                     if (_keyFrames.size() <= 1) {
-                        _keyFrames[0].time  = 0.0f;
-                        _keyFrames[0].value = {0.0f, 0.0f, 0.0f, 0.0f};
+                        // 最後のキーフレームを削除する場合は、デフォルト値を設定 (最低でも1つ以上要素を確保する)
+                        EditorGroup::getInstance()->pushCommand(std::make_unique<SetterCommand<KeyFrame<Vec4f>>>(
+                            &_keyFrames[popUpIndex],
+                            KeyFrame<Vec4f>(0.0f, _defaultValue)));
                         return 0;
                     }
-                    _keyFrames.erase(_keyFrames.begin() + popUpIndex);
-                    popUpIndex = 0;
+
+                    // キーフレームを削除
+
+                    auto commandCombo = std::make_unique<CommandCombo>();
+
+                    commandCombo->addCommand(std::make_shared<EraseElementCommand<AnimationCurve<Vec4f>>>(&_keyFrames, _keyFrames.begin() + popUpIndex));
+                    commandCombo->setFuncOnAfterCommand([popUpIndexId]() {
+                        ImGuiStorage* _storage = ImGui::GetStateStorage();
+                        _storage->SetInt(popUpIndexId, -1);
+                    },
+                        false);
+                    commandCombo->setFuncOnAfterUndoCommand([popUpIndexId, popUpIndex]() {
+                        ImGuiStorage* _storage = ImGui::GetStateStorage();
+                        _storage->SetInt(popUpIndexId, popUpIndex);
+                    });
+
+                    EditorGroup::getInstance()->pushCommand(std::move(commandCombo));
                     return 0;
                 }
                 if (ImGui::Button("Copy")) {
-                    _keyFrames.push_back(_keyFrames[popUpIndex]);
+                    auto commandCombo = std::make_unique<CommandCombo>();
+                    commandCombo->addCommand(std::make_shared<AddElementCommand<AnimationCurve<Vec4f>>>(&_keyFrames, _keyFrames[popUpIndex]));
+                    commandCombo->addCommand(std::make_shared<SetterCommand<float>>(&_keyFrames.back().time, _keyFrames.back().time + 0.01f));
+                    commandCombo->setFuncOnAfterCommand(
+                        [popUpIndexId, &_keyFrames]() {
+                            ImGuiStorage* _storage = ImGui::GetStateStorage();
+                            _storage->SetInt(popUpIndexId, (int)_keyFrames.size() - 1);
+                        },
+                        false);
 
-                    _keyFrames.back().time += 0.01f;
-                    std::sort(
-                        _keyFrames.begin(),
-                        _keyFrames.end(),
-                        [](const auto& a, const auto& b) {
-                            return a.time < b.time;
+                    commandCombo->setFuncOnAfterUndoCommand(
+                        [popUpIndexId, popUpIndex, &_keyFrames]() {
+                            ImGuiStorage* _storage = ImGui::GetStateStorage();
+                            _storage->SetInt(popUpIndexId, popUpIndex);
                         });
-                    popUpIndex += 1;
+
+                    EditorGroup::getInstance()->pushCommand(std::move(commandCombo));
+
                     return 0;
                 }
                 ImGui::Text("Time");
-                ImGui::DragFloat(
-                    std::string("##Time" + _label + std::to_string(popUpIndex)).c_str(),
-                    &_keyFrames[popUpIndex].time,
-                    0.1f);
+                DragCommand<float>(
+                    "##Time" + _label + std::to_string(popUpIndex),
+                    _keyFrames[popUpIndex].time,
+                    0.1f, {}, {}, "%.3f",
+                    [&_keyFrames](float* /*val*/) {
+                        std::sort(
+                            _keyFrames.begin(),
+                            _keyFrames.end(),
+                            [](const auto& a, const auto& b) {
+                                return a.time < b.time;
+                            });
+                    });
 
                 ImGui::Spacing();
 
                 if (_howEditItem) {
                     _howEditItem(popUpIndex);
                 } else {
-                    ImGui::ColorEdit4(
-                        std::string("Color##" + _label + std::to_string(popUpIndex)).c_str(),
-                        &_keyFrames[popUpIndex].value[X], ImGuiColorEditFlags_AlphaPreviewHalf);
+                    ColorEditCommand<4>(
+                        "Color##" + _label + std::to_string(popUpIndex),
+                        _keyFrames[popUpIndex].value);
                 }
 
                 return 1;
             };
-            popupUpdadte();
+            popupUpdate();
 
             EndPopup();
         } else {

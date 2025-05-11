@@ -2,22 +2,21 @@
 
 #ifdef _DEBUG
 #include "imgui/imgui.h"
+#include "myGui/MyGui.h"
 #endif // _DEBUG
 
 bool DirectionalLight::Edit() {
 #ifdef _DEBUG
     bool isChanged = false;
 
-    isChanged |= ImGui::Checkbox("Active", &isActive_);
+    isChanged |= CheckBoxCommand("Active", isActive_);
 
     ImGui::Spacing();
 
-    isChanged |= ImGui::ColorEdit3("Color", color_.v);
-    isChanged |= ImGui::DragFloat("Intensity", &intensity_, 0.01f, 0.0f, 10.0f);
-    if (ImGui::DragFloat3("Direction", direction_.v, 0.01f)) {
-        direction_ = direction_.normalize();
-        isChanged  = true;
-    }
+    isChanged |= ColorEditCommand("Color", color_);
+    isChanged |= DragCommand<float>("Intensity", intensity_, 0.01f, 0.1f);
+
+    DragVectorCommand<3, float>("Direction", direction_, 0.01f, {}, {}, "%.3f", [](Vector<3, float>* _d) { *_d = Vec3f(*_d).normalize(); });
 
     return isChanged;
 #else

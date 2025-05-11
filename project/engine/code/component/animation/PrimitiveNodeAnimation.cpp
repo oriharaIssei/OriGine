@@ -2,17 +2,128 @@
 
 /// engine
 #include "engine/code/Engine.h"
+#include "module/editor/EditorGroup.h"
+#include "module/editor/IEditor.h"
 
 /// gui
 #ifdef _DEBUG
 #include "imgui/imgui.h"
+#include "myGui/MyGui.h"
 #include "util/timeline/Timeline.h"
 #endif // _DEBUG
 
 void PrimitiveNodeAnimation::Initialize(GameEntity* /*_entity*/) {
     // Initialize animation state
-    currentTime_                     = 0.0f;
+    currentTime_ = 0.0f;
 }
+
+class GenerateUvAnimationCommand : public IEditCommand {
+public:
+    GenerateUvAnimationCommand(
+        float& duration,
+        AnimationCurve<Vec2f>& uvScaleCurve,
+        AnimationCurve<Vec2f>& uvTranslateCurve,
+        InterpolationType& uvInterpolationType,
+        const Vector2f& tileSize,
+        const Vector2f& textureSize,
+        float& tilePerTime,
+        float& startAnimationTime,
+        float& animationTimeLength)
+        : duration_(duration),
+          uvScaleCurve_(uvScaleCurve),
+          uvTranslateCurve_(uvTranslateCurve),
+          uvInterpolationType_(uvInterpolationType),
+          tileSize_(tileSize),
+          textureSize_(textureSize),
+          tilePerTime_(tilePerTime),
+          startAnimationTime_(startAnimationTime),
+          animationTimeLength_(animationTimeLength),
+          previousDuration_(duration),
+          previousUvScaleCurve_(uvScaleCurve),
+          previousUvTranslateCurve_(uvTranslateCurve),
+          previousUvInterpolationType_(uvInterpolationType) {}
+
+    void Execute() override {
+        // 現在の状態を保存
+        previousDuration_            = duration_;
+        previousUvScaleCurve_        = uvScaleCurve_;
+        previousUvTranslateCurve_    = uvTranslateCurve_;
+        previousUvInterpolationType_ = uvInterpolationType_;
+
+        // 新しい状態を生成
+        duration_ = animationTimeLength_;
+
+        uvScaleCurve_.clear();
+        uvTranslateCurve_.clear();
+
+        // uvScale は Animation しない
+        uvScaleCurve_.emplace_back(0.f, Vector2f(tileSize_ / textureSize_));
+
+        // uv Translate は Animation する
+        uvInterpolationType_ = InterpolationType::STEP;
+
+        // 最大タイル数と最大時間を計算
+        int32_t maxTilesX = int32_t(textureSize_[X] / tileSize_[X]);
+        int32_t maxTilesY = int32_t(textureSize_[Y] / tileSize_[Y]);
+        int32_t maxTiles  = maxTilesX * maxTilesY;
+        float maxTime     = maxTiles * tilePerTime_;
+
+        // startAnimationTime_ を最大時間内に収める
+        startAnimationTime_ = fmod(startAnimationTime_, maxTime);
+
+        // 初期の col と row を計算
+        int32_t startTileIndex = int32_t(startAnimationTime_ / tilePerTime_);
+        float col              = float(startTileIndex % maxTilesX);
+        float row              = float(startTileIndex / maxTilesX);
+
+        // UV座標を計算
+        float x = col * (tileSize_[X] / textureSize_[X]);
+        float y = row * (tileSize_[Y] / textureSize_[Y]);
+
+        uvTranslateCurve_.emplace_back(0.f, Vector2f(x, y));
+
+        int32_t tileNum = int32_t(animationTimeLength_ / tilePerTime_);
+        for (int32_t i = 0; i < tileNum; i++) {
+            float time = (tilePerTime_ * i);
+
+            col += 1.f;
+            if (col >= maxTilesX) {
+                col = 0.f;
+                row += 1.f;
+            }
+
+            // UV座標を計算
+            x = col * (tileSize_[X] / textureSize_[X]);
+            y = row * (tileSize_[Y] / textureSize_[Y]);
+            uvTranslateCurve_.emplace_back(time, Vector2f(x, y));
+        }
+    }
+
+    void Undo() override {
+        // 保存した状態に戻す
+        duration_            = previousDuration_;
+        uvScaleCurve_        = previousUvScaleCurve_;
+        uvTranslateCurve_    = previousUvTranslateCurve_;
+        uvInterpolationType_ = previousUvInterpolationType_;
+    }
+
+private:
+    float& duration_;
+    AnimationCurve<Vec2f>& uvScaleCurve_;
+    AnimationCurve<Vec2f>& uvTranslateCurve_;
+    InterpolationType& uvInterpolationType_;
+    const Vector2f& tileSize_;
+    const Vector2f& textureSize_;
+    float& tilePerTime_;
+    float& startAnimationTime_;
+    float& animationTimeLength_;
+
+    // Undo用に保存する以前の状態
+    float previousDuration_;
+    AnimationCurve<Vec2f> previousUvScaleCurve_;
+    AnimationCurve<Vec2f> previousUvTranslateCurve_;
+    InterpolationType previousUvInterpolationType_;
+};
 
 bool PrimitiveNodeAnimation::Edit() {
 #ifdef _DEBUG
@@ -22,12 +133,18 @@ bool PrimitiveNodeAnimation::Edit() {
 
     ImGuiTableFlags tableFlags = ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollX;
     if (ImGui::TreeNode("Transform_Animation")) {
-        isChange |= ImGui::Checkbox("TransformAnimation Is Loop", &transformAnimationState_.isLoop_);
-        isChange |= ImGui::Checkbox("TransformAnimation Is Play", &transformAnimationState_.isPlay_);
-        ImGui::Combo(
-            "TransformAnimation InterpolationType",
-            (int*)&transformInterpolationType_,
-            "LINEAR\0STEP\0\0");
+        isChange |= CheckBoxCommand("TransformAnimation Is Loop", transformAnimationState_.isLoop_);
+        isChange |= CheckBoxCommand("TransformAnimation Is Play", transformAnimationState_.isPlay_);
+
+        if (ImGui::BeginCombo("TransformAnimation InterpolationType", InterpolationTypeName[int(transformInterpolationType_)])) {
+            for (int i = 0; i < (int)InterpolationType::COUNT; ++i) {
+                if (ImGui::Selectable(InterpolationTypeName[i], transformInterpolationType_ == InterpolationType(i))) {
+                    EditorGroup::getInstance()->pushCommand(
+                        std::make_unique<SetterCommand<InterpolationType>>(&transformInterpolationType_, InterpolationType(i)));
+                }
+            }
+            ImGui::EndCombo();
+        }
 
         if (ImGui::BeginTable("TransformKeyFrames", 2, tableFlags)) {
             ImGui::TableSetupColumn("Name");
@@ -88,60 +205,25 @@ bool PrimitiveNodeAnimation::Edit() {
     }
 
     if (ImGui::TreeNode("UvCurveGenerator Form TextureAnimation")) {
-        ImGui::DragFloat2("TileSize", tileSize_.v, 0.1f);
-        ImGui::DragFloat2("TextureSize", textureSize_.v, 0.1f);
-        ImGui::DragFloat("tilePerTime_", &tilePerTime_);
-        ImGui::DragFloat("StartAnimationTime", &startAnimationTime_, 0.1f, 0);
-        ImGui::DragFloat("AnimationTimeLength", &animationTimeLength_, 0.1f, 0);
+        DragVectorCommand<2, float>("TileSize", tileSize_, 0.1f);
+        DragVectorCommand<2, float>("TextureSize", textureSize_, 0.1f);
+        DragCommand<float>("tilePerTime_", tilePerTime_);
+        DragCommand<float>("StartAnimationTime", startAnimationTime_, 0.1f, 0);
+        DragCommand<float>("AnimationTimeLength", animationTimeLength_, 0.1f, 0);
+
         if (ImGui::Button("Generate Curve")) {
-            duration_ = animationTimeLength_;
-
-            uvScaleCurve_.clear();
-            uvTranslateCurve_.clear();
-
-            // uvScale は Animation しない
-            uvScaleCurve_.emplace_back(0.f, Vector2f(tileSize_ / textureSize_));
-
-            // uv Translate は Animation する
-            uvInterpolationType_ = InterpolationType::STEP;
-
-            // 最大タイル数と最大時間を計算
-            int32_t maxTilesX = int32_t(textureSize_[X] / tileSize_[X]);
-            int32_t maxTilesY = int32_t(textureSize_[Y] / tileSize_[Y]);
-            int32_t maxTiles  = maxTilesX * maxTilesY;
-            float maxTime     = maxTiles * tilePerTime_;
-
-            // startAnimationTime_ を最大時間内に収める
-            startAnimationTime_ = fmod(startAnimationTime_, maxTime);
-
-            // 初期の col と row を計算
-            int32_t startTileIndex = int32_t(startAnimationTime_ / tilePerTime_);
-            float col              = float(startTileIndex % maxTilesX);
-            float row              = float(startTileIndex / maxTilesX);
-
-            // UV座標を計算
-            float x = col * (tileSize_[X] / textureSize_[X]);
-            float y = row * (tileSize_[Y] / textureSize_[Y]);
-
-            uvTranslateCurve_.emplace_back(0.f, Vector2f(x, y));
-
-            int32_t tileNum = int32_t(animationTimeLength_ / tilePerTime_);
-            for (int32_t i = 0; i < tileNum; i++) {
-                float time = (tilePerTime_ * i);
-
-                col += 1.f;
-                if (col >= maxTilesX) {
-                    col = 0.f;
-                    row += 1.f;
-                }
-
-                // UV座標を計算
-                x = col * (tileSize_[X] / textureSize_[X]);
-                y = row * (tileSize_[Y] / textureSize_[Y]);
-                uvTranslateCurve_.emplace_back(time, Vector2f(x, y));
-            }
+            EditorGroup::getInstance()->pushCommand(
+                std::make_unique<GenerateUvAnimationCommand>(
+                    duration_,
+                    uvScaleCurve_,
+                    uvTranslateCurve_,
+                    uvInterpolationType_,
+                    tileSize_,
+                    textureSize_,
+                    tilePerTime_,
+                    startAnimationTime_,
+                    animationTimeLength_));
         }
-
         ImGui::TreePop();
     }
 
@@ -149,14 +231,24 @@ bool PrimitiveNodeAnimation::Edit() {
         isChange |= ImGui::Checkbox("MaterialAnimation Is Loop", &materialAnimationState_.isLoop_);
         isChange |= ImGui::Checkbox("MaterialAnimation Is Play", &materialAnimationState_.isPlay_);
 
-        ImGui::Combo(
-            "MaterialAnimation InterpolationType",
-            (int*)&uvInterpolationType_,
-            "LINEAR\0STEP\0\0");
-        ImGui::Combo(
-            "Color InterpolationType",
-            (int*)&colorInterpolationType_,
-            "LINEAR\0STEP\0\0");
+        if (ImGui::BeginCombo("MaterialAnimation InterpolationType", InterpolationTypeName[int(uvInterpolationType_)])) {
+            for (int i = 0; i < (int)InterpolationType::COUNT; ++i) {
+                if (ImGui::Selectable(InterpolationTypeName[i], uvInterpolationType_ == InterpolationType(i))) {
+                    EditorGroup::getInstance()->pushCommand(
+                        std::make_unique<SetterCommand<InterpolationType>>(&uvInterpolationType_, InterpolationType(i)));
+                }
+            }
+            ImGui::EndCombo();
+        }
+        if (ImGui::BeginCombo("Color InterpolationType", InterpolationTypeName[int(colorInterpolationType_)])) {
+            for (int i = 0; i < (int)InterpolationType::COUNT; ++i) {
+                if (ImGui::Selectable(InterpolationTypeName[i], colorInterpolationType_ == InterpolationType(i))) {
+                    EditorGroup::getInstance()->pushCommand(
+                        std::make_unique<SetterCommand<InterpolationType>>(&colorInterpolationType_, InterpolationType(i)));
+                }
+            }
+            ImGui::EndCombo();
+        }
 
         if (ImGui::BeginTable("MaterialKeyFrames", 2, tableFlags)) {
             ImGui::TableSetupColumn("Name");
@@ -419,7 +511,6 @@ void to_json(nlohmann::json& _json, const PrimitiveNodeAnimation& _primitiveNode
     writeCurve("uvScaleCurve", _primitiveNodeAnimation.uvScaleCurve_);
     writeCurve("uvRotateCurve", _primitiveNodeAnimation.uvRotateCurve_);
     writeCurve("uvTranslateCurve", _primitiveNodeAnimation.uvTranslateCurve_);
-
 }
 void from_json(const nlohmann::json& _json, PrimitiveNodeAnimation& _primitiveNodeAnimation) {
     _json.at("duration").get_to(_primitiveNodeAnimation.duration_);
@@ -449,5 +540,4 @@ void from_json(const nlohmann::json& _json, PrimitiveNodeAnimation& _primitiveNo
     readCurve("uvScaleCurve", _primitiveNodeAnimation.uvScaleCurve_);
     readCurve("uvRotateCurve", _primitiveNodeAnimation.uvRotateCurve_);
     readCurve("uvTranslateCurve", _primitiveNodeAnimation.uvTranslateCurve_);
-
 }

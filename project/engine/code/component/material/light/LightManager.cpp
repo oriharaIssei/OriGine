@@ -8,10 +8,6 @@
 /// lib
 #include "globalVariables/GlobalVariables.h"
 
-#ifdef _DEBUG
-#include "imgui/imgui.h"
-#endif // _DEBUG
-
 LightManager::LightManager()
     : IModule() {}
 LightManager::~LightManager() {}

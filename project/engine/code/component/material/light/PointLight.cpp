@@ -2,24 +2,25 @@
 
 #ifdef _DEBUG
 #include "imgui/imgui.h"
+#include "myGui/MyGui.h"
 #endif // _DEBUG
 
 bool PointLight::Edit() {
 #ifdef _DEBUG
     bool isChanged = false;
 
-    isChanged |= ImGui::Checkbox("Active", &isActive_);
+    isChanged |= CheckBoxCommand("Active", isActive_);
 
     ImGui::Spacing();
 
-    isChanged |= ImGui::ColorEdit3("Color", color_.v);
-    isChanged |= ImGui::DragFloat("Intensity", &intensity_, 0.01f, 0.0f, 10.0f);
+    isChanged |= ColorEditCommand("Color", color_);
+    isChanged |= DragCommand<float>("Intensity", intensity_, 0.01f, 0.0f, 10.0f);
 
     ImGui::Spacing();
 
-    isChanged |= ImGui::DragFloat3("Position", pos_.v, 0.01f);
-    isChanged |= ImGui::DragFloat("Radius", &radius_, 0.01f, 0.0f, 10.0f);
-    isChanged |= ImGui::DragFloat("Decay", &decay_, 0.01f, 0.0f, 10.0f);
+    isChanged |= DragVectorCommand<3,float>("Position", pos_, 0.01f);
+    isChanged |= DragCommand<float>("Radius", radius_, 0.01f, 0.0f, 10.0f);
+    isChanged |= DragCommand<float>("Decay", decay_, 0.01f, 0.0f, 10.0f);
     return isChanged;
 #else
     return false;

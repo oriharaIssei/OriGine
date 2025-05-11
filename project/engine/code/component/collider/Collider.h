@@ -16,7 +16,10 @@
 #include "math/shape/Shapes.h"
 
 // external
+#ifdef _DEBUG
 #include "imgui/imgui.h"
+#include "myGui/MyGui.h"
+#endif // _DEBUG
 
 enum class CollisionState {
     None, // 衝突していない
@@ -112,11 +115,11 @@ public:
 
     bool Edit() override {
         bool isChange = false;
-        isChange      = ImGui::Checkbox("IsActive", &this->isActive_);
+        isChange      = CheckBoxCommand("IsActive", this->isActive_);
 
         if (ImGui::TreeNode("AABB")) {
-            isChange |= ImGui::InputFloat3("Min", shape_.min_.v);
-            isChange |= ImGui::InputFloat3("Max", shape_.max_.v);
+            isChange |= DragVectorCommand<3, float>("Min", this->shape_.min_, 0.01f);
+            isChange |= DragVectorCommand<3, float>("Max", this->shape_.max_, 0.01f);
             ImGui::TreePop();
         }
         if (ImGui::TreeNode("Transform")) {
@@ -156,11 +159,11 @@ public:
 
     bool Edit() override {
         bool isChange = false;
-        isChange      = ImGui::Checkbox("IsActive", &this->isActive_);
+        isChange      = CheckBoxCommand("IsActive", this->isActive_);
 
         if (ImGui::TreeNode("Sphere")) {
-            isChange |= ImGui::InputFloat3("Center", shape_.center_.v);
-            isChange |= ImGui::InputFloat("Radius", &shape_.radius_);
+            isChange |= DragVectorCommand<3, float>("Center", shape_.center_, 0.01f);
+            isChange |= DragCommand<float>("Radius", shape_.radius_, 0.01f);
             ImGui::TreePop();
         }
         if (ImGui::TreeNode("Transform")) {

@@ -1,14 +1,20 @@
 #include "Primitive.h"
 
+/// stl
+#include <memory>
+
 /// engine
 #define RESOURCE_DIRECTORY
 #include "EngineInclude.h"
+#include "module/editor/EditorGroup.h"
+#include "module/editor/IEditor.h"
 
 /// lib
 #include "myFileSystem/MyFileSystem.h"
 
 /// externals
 #ifdef _DEBUG
+#include "myGui/MyGui.h"
 #include <imgui/imgui.h>
 #endif // _DEBUG
 
@@ -183,16 +189,19 @@ bool PlaneRenderer::Edit() {
     bool isEdit = false;
 
     ImGui::Text("Texture Directory : %s", textureDirectory_.c_str());
-    ImGui::Text("Texture FileName : %s", textureFileName_.c_str());
+    ImGui::Text("Texture FileName  : %s", textureFileName_.c_str());
     if (ImGui::Button("LoadTexture")) {
         std::string directory = "";
         std::string fileName  = "";
         if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"png"})) {
-            textureDirectory_ = kApplicationResourceDirectory + "/" + directory;
-            textureFileName_  = fileName;
+            auto commandCombo = std::make_unique<CommandCombo>();
 
-            // テクスチャの読み込み
-            textureIndex_ = TextureManager::LoadTexture(textureDirectory_ + "/" + textureFileName_);
+            commandCombo->addCommand(std::make_shared<SetterCommand<std::string>>(&textureDirectory_, kApplicationResourceDirectory + "/" + directory));
+            commandCombo->addCommand(std::make_shared<SetterCommand<std::string>>(&textureFileName_, fileName));
+
+            commandCombo->setFuncOnAfterCommand([this]() { textureIndex_ = TextureManager::LoadTexture(textureDirectory_ + "/" + textureFileName_); }, true);
+
+            EditorGroup::getInstance()->pushCommand(std::move(commandCombo));
 
             isEdit = true;
         }
@@ -222,7 +231,7 @@ void to_json(nlohmann::json& j, const PlaneRenderer& r) {
     j["textureFileName"]  = r.textureFileName_;
     to_json(j["transform"], r.transformBuff_.openData_);
     to_json(j["material"], r.materialBuff_.openData_);
-    j["material"]     = r.materialBuff_.openData_;
+    j["material"] = r.materialBuff_.openData_;
 }
 
 void from_json(const nlohmann::json& j, PlaneRenderer& r) {
