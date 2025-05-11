@@ -276,6 +276,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\component\animation\PrimitiveNodeAnimation.cpp" />
     <ClCompile Include="engine\code\system\effect\PrimitiveNodeAnimationWorkSystem.cpp" />
     <ClCompile Include="engine\code\system\postRender\SmoothingEffect.cpp" />
+    <ClCompile Include="lib\myGui\MyGui.cpp" />
     <ClCompile Include="lib\Thread\Thread.cpp" />
     <ClCompile Include="lib\deltaTime\DeltaTime.cpp" />
     <ClCompile Include="lib\globalVariables\GlobalVariables.cpp" />
