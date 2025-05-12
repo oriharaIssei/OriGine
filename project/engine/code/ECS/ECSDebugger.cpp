@@ -164,7 +164,7 @@ void SystemDebugger::Update() {
                         ImGui::Text("System Type : %s", SystemTypeString[int32_t(system->getSystemType())].c_str());
                         ImGui::Text("Priority    : %d", system->getPriority());
                         ImGui::Text("Entity Count: %d", system->getEntityCount());
-                        ImGui::Text("Delta Time  : %.3f / ms", system->getDeltaTime());
+                        ImGui::Text("Running Time  : %.3f / ms", system->getRunningTime());
 
                         ImGui::Separator();
                         ImGui::Text("Entities    :");

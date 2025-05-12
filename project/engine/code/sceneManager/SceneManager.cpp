@@ -67,9 +67,7 @@ void SceneManager::Initialize() {
 }
 
 void SceneManager::Finalize() {
-    currentScene_->Finalize();
-
-    scenes_.clear();
+    SceneFinalize();
 
     sceneView_->Finalize();
 
@@ -147,7 +145,7 @@ void SceneManager::DebugUpdate() {
         Vec2f originalResolution = sceneView_->getTextureSize();
 
         // アスペクト比を維持しながらサイズを調整
-        constexpr float aspectRatio = 16.f / 9.f;
+        float aspectRatio = originalResolution[X] / originalResolution[Y];
         if (sceneViewSize.x / sceneViewSize.y > aspectRatio) {
             sceneViewSize.x = sceneViewSize.y * aspectRatio;
         } else {
@@ -180,12 +178,11 @@ void SceneManager::DebugUpdate() {
             /// ------------------------
             if (ImGui::BeginMenu("Scene")) {
                 if (ImGui::BeginMenu("Change Startup Scene")) {
-                    SceneManager* sceneManager = SceneManager::getInstance();
-                    SerializedField<std::string> startupSceneName("Settings", "Scene", "StartupSceneName");
-                    ImGui::Text("Startup Scene Name: %s", startupSceneName->c_str());
-                    for (auto& [name, index] : sceneManager->sceneIndexs_) {
+                    ImGui::Text("Startup Scene Name: %s", startupSceneName_->c_str());
+
+                    for (auto& [directory, name] : myfs::searchFile(kApplicationResourceDirectory + "/scene", "json")) {
                         if (ImGui::MenuItem(name.c_str())) {
-                            startupSceneName.setValue(name);
+                            startupSceneName_.setValue(name);
                             GlobalVariables::getInstance()->SaveFile("Settings", "Scene");
                             break;
                         }
@@ -194,10 +191,10 @@ void SceneManager::DebugUpdate() {
                 }
                 if (ImGui::BeginMenu("Change EditScene")) {
                     SceneManager* sceneManager = SceneManager::getInstance();
-                    for (auto& [name, index] : sceneManager->sceneIndexs_) {
+                    for (auto& [directory, name] : myfs::searchFile(kApplicationResourceDirectory + "/scene", "json")) {
                         if (ImGui::MenuItem(name.c_str())) {
                             SceneSerializer serializer;
-                            serializer.Serialize(currentScene_->getName());
+                            serializer.Serialize(currentSceneName_);
 
                             sceneManager->changeScene(name);
 
@@ -209,13 +206,48 @@ void SceneManager::DebugUpdate() {
                     }
                     ImGui::EndMenu();
                 }
+                if (ImGui::BeginMenu("Create NewScene")) {
+                    // シーンの新規作成
+                    ImGui::InputText("SceneName", newSceneName_, sizeof(newSceneName_));
+                    if (ImGui::Button("Create")) {
+                        // 重複 チェック
+                        for (auto& [directory, name] : myfs::searchFile(kApplicationResourceDirectory + "/scene", "json")) {
+                            if (name == newSceneName_) {
+                                std::string message = std::format("{} already exists", newSceneName_);
+                                MessageBoxA(nullptr, message.c_str(), "SceneSerializer", MB_OK);
+
+                                ImGui::EndMenu();
+                                ImGui::EndMenu();
+                                ImGui::EndMainMenuBar();
+                                return;
+                            }
+                        }
+
+                        std::string message = std::format("{} save it?", newSceneName_);
+                        if (MessageBoxA(nullptr, message.c_str(), "SceneSerializer", MB_OKCANCEL) == IDOK) {
+                            SceneFinalize();
+
+                            // シーンの新規作成
+                            // 最初はすべてのシステムをオンにする
+                            ecsManager_->AllActivateSystem();
+
+                            // 保存
+                            SceneSerializer serializer;
+                            serializer.SerializeFromJson(newSceneName_);
+                            message = std::format("{} saved", newSceneName_);
+
+                            MessageBoxA(nullptr, message.c_str(), "SceneSerializer", MB_OK);
+                        }
+                    }
+                    ImGui::EndMenu();
+                }
                 if (ImGui::MenuItem("Save")) {
                     // シーンの保存
                     SceneSerializer serializer;
-                    serializer.Serialize(currentScene_->getName());
+                    serializer.Serialize(currentSceneName_);
                 }
                 if (ImGui::MenuItem("Reload")) {
-                    this->changeScene(currentScene_->getName());
+                    this->changeScene(currentSceneName_);
 
                     editorGroup_->Finalize();
                     editorGroup_->Initialize();
@@ -244,13 +276,11 @@ void SceneManager::DebugUpdate() {
                 if (ImGui::BeginMenu("StartDebug")) {
                     if (ImGui::MenuItem("Startup Scene")) {
                         // 保存, ロード処理を行い, シーンを再読み込み
-                        SerializedField<std::string> startupSceneName{"Settings", "Scene", "StartupSceneName"};
-                        SceneManager::getInstance()->changeScene(startupSceneName);
+                        SceneManager::getInstance()->changeScene(startupSceneName_);
                         currentSceneState_ = SceneState::Debug;
                     }
                     if (ImGui::MenuItem("Current Scene")) {
-                        const auto& scene = currentScene_;
-                        SceneManager::getInstance()->changeScene(scene->getName());
+                        SceneManager::getInstance()->changeScene(currentSceneName_);
 
                         currentSceneState_ = SceneState::Debug;
                     }
@@ -266,8 +296,7 @@ void SceneManager::DebugUpdate() {
                 // play
                 currentSceneState_ = SceneState::Debug;
 
-                const auto& scene = currentScene_;
-                SceneManager::getInstance()->changeScene(scene->getName());
+                SceneManager::getInstance()->changeScene(currentSceneName_);
             }
             ImGui::SameLine();
             ImGui::Text("DeltaTime :%.4f", Engine::getInstance()->getDeltaTime());
@@ -277,7 +306,7 @@ void SceneManager::DebugUpdate() {
         if (currentSceneState_ == SceneState::Debug) {
             // シーンを保存
             SceneSerializer serializer;
-            serializer.Serialize(currentScene_->getName());
+            serializer.Serialize(currentSceneName_);
 
             // Editor を終了
             editorGroup_->Finalize();
@@ -364,14 +393,14 @@ void SceneManager::DebugUpdate() {
             editorGroup_->Initialize();
 
             // 保存しない
-            currentScene_->Finalize();
-            currentScene_->Initialize();
+            SceneFinalize();
+            SceneInitialize(currentSceneName_);
             break;
         }
         if (debugState_ == DebugState::RePlay) {
             // シーンを再初期化
-            currentScene_->Finalize();
-            currentScene_->Initialize();
+            SceneFinalize();
+            SceneInitialize(currentSceneName_);
 
             // DebuggerGroup を終了
             debuggerGroup_->Finalize();
@@ -393,11 +422,8 @@ void SceneManager::DebugUpdate() {
 }
 #endif
 
-void SceneManager::addScene(
-    const std::string& name,
-    std::function<std::unique_ptr<IScene>()> _sceneMakeFunc) {
-    sceneIndexs_[name] = static_cast<int32_t>(scenes_.size());
-    scenes_.push_back(std::move(_sceneMakeFunc));
+void SceneManager::sceneChange2StartupScene() {
+    changeScene(startupSceneName_->c_str());
 }
 
 void SceneManager::changeScene(const std::string& name) {
@@ -406,32 +432,35 @@ void SceneManager::changeScene(const std::string& name) {
 }
 
 void SceneManager::executeSceneChange() {
-    if (currentScene_) {
-        LOG_TRACE(std::format("SceneChange\n PreviousScene : [ {} ] \n NextScene : [ {} ]", currentScene_->getName(), changingSceneName_));
-        currentScene_->Finalize();
-    } else {
-        LOG_TRACE(std::format("SceneChange\n Startup Scene : [ {} ] \n ", changingSceneName_));
-    }
+    LOG_TRACE(std::format("SceneChange\n PreviousScene : [ {} ] \n NextScene : [ {} ]", currentSceneName_, changingSceneName_));
 
-    currentScene_ = scenes_[sceneIndexs_[changingSceneName_]]();
-    currentScene_->Initialize();
+    currentSceneName_ = changingSceneName_;
+
+    SceneFinalize();
+    SceneInitialize(currentSceneName_);
 
     isChangeScene_ = false;
 }
 
 const std::string SceneSerializer::directory_ = kApplicationResourceDirectory + "/scene/";
 
-void SceneSerializer::Serialize(const std::string& _sceneName) {
+bool SceneSerializer::Serialize(const std::string& _sceneName) {
     std::string message = std::format("{} save it?", _sceneName);
 
-    if (MessageBoxA(nullptr, message.c_str(), "SceneSerializer", MB_OKCANCEL) == IDOK) {
-
-        // 保存
-        SerializeFromJson(_sceneName);
-
-        message = std::format("{} saved", _sceneName);
-        MessageBoxA(nullptr, message.c_str(), "SceneSerializer", MB_OK);
+    if (MessageBoxA(nullptr, message.c_str(), "SceneSerializer", MB_OKCANCEL) != IDOK) {
+        return false;
     }
+
+    // 保存
+    SerializeFromJson(_sceneName);
+
+    message = std::format("{} saved", _sceneName);
+    MessageBoxA(nullptr, message.c_str(), "SceneSerializer", MB_OK);
+    return true;
+}
+
+void SceneSerializer::Deserialize(const std::string& _sceneName) {
+    DeserializeFromJson(_sceneName);
 }
 
 void SceneSerializer::SerializeFromJson(const std::string& _sceneName) {
@@ -488,9 +517,11 @@ void SceneSerializer::SerializeFromJson(const std::string& _sceneName) {
     for (const auto& systemsByType : systems) {
         nlohmann::json systemByType = nlohmann::json::object();
         for (const auto& [systemName, system] : systemsByType) {
+            if (!system->isActive()) {
+                continue;
+            }
             nlohmann::json systemData = nlohmann::json::object();
             systemData["Priority"]    = system->getPriority();
-            systemData["isActive"]    = system->isActive();
 
             systemByType[systemName] = systemData;
         }
@@ -563,7 +594,7 @@ void SceneSerializer::DeserializeFromJson(const std::string& _sceneName) {
             ISystem* systemPtr = ecsManager->getSystem(SystemType(systemTypeIndex), systemName);
             if (systemPtr) {
                 systemPtr->setPriority(system["Priority"]);
-                systemPtr->setIsActive(system["isActive"]);
+                ECSManager::getInstance()->ActivateSystem(systemName, SystemType(systemTypeIndex));
             }
         }
         systemTypeIndex++;
