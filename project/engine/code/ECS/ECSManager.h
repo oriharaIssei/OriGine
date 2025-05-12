@@ -60,7 +60,7 @@ private:
     /// </summary>
     std::array<std::map<std::string, std::unique_ptr<ISystem>>, int32_t(SystemType::Count)> systems_;
 
-    std::array<std::vector<ISystem*>, int32_t(SystemType::Count)> priorityOrderSystems_;
+    std::array<std::vector<ISystem*>, int32_t(SystemType::Count)> workSystems_;
 
 public: // ============== accessor ==============//
     void resize(uint32_t _newSize);
@@ -304,16 +304,15 @@ public: // ============== accessor ==============//
         return nullptr;
     }
 
-    const std::vector<ISystem*>& getPriorityOrderSystems(SystemType _systemType) const {
-        return priorityOrderSystems_[int32_t(_systemType)];
+    const std::vector<ISystem*>& getWorkSystems(SystemType _systemType) const {
+        return workSystems_[int32_t(_systemType)];
     }
-    std::vector<ISystem*>& customPriorityOrderSystems(SystemType _systemType) {
-        return priorityOrderSystems_[int32_t(_systemType)];
+    std::vector<ISystem*>& customWorkSystems(SystemType _systemType) {
+        return workSystems_[int32_t(_systemType)];
     }
 
     template <IsSystem SystemDataType, typename... Args>
     void registerSystem(Args... _args) {
-
         // システムの名前を取得
         std::string typeName = nameof<SystemDataType>();
 
@@ -328,30 +327,217 @@ public: // ============== accessor ==============//
         // システムを登録
         if (systems_[systemTypeIndex].find(typeName) == systems_[int32_t(systemType)].end()) {
             systems_[systemTypeIndex][typeName] = std::move(system);
-            priorityOrderSystems_[systemTypeIndex].push_back(systems_[systemTypeIndex][typeName].get());
+            workSystems_[systemTypeIndex].push_back(systems_[systemTypeIndex][typeName].get());
             return;
+        }
+    }
+    template <IsSystem SystemDataType>
+    bool unregisterSystem() {
+        std::string typeName = nameof<SystemDataType>();
+        for (int32_t i = 0; i < int32_t(SystemType::Count); ++i) {
+            auto itr = systems_[i].find(typeName);
+            if (itr != systems_[i].end()) {
+                // システムを削除
+                systems_[i].erase(itr);
+                return true;
+            }
+        }
+        // システムが見つからない場合は、falseを返す
+        return false;
+    }
+    template <IsSystem SystemDataType>
+    bool unregisterSystem(SystemType _type) {
+        std::string typeName    = nameof<SystemDataType>();
+        int32_t systemTypeIndex = int32_t(_type);
+        auto itr                = systems_[systemTypeIndex].find(typeName);
+        if (itr == systems_[systemTypeIndex].end()) {
+            // システムが見つからない場合は、falseを返す
+            return false;
+        }
+        // システムを削除
+        systems_[systemTypeIndex].erase(itr);
+        return true;
+    }
+
+    template <IsSystem SystemDataType>
+    bool RunSystem() {
+        std::string typeName = nameof<SystemDataType>();
+        for (int32_t i = 0; i < int32_t(SystemType::Count); ++i) {
+            auto itr = systems_[i].find(typeName);
+
+            if (itr != systems_[i].end()) {
+                auto workkingSystem = itr->second.get();
+                workkingSystem->setIsActive(true);
+
+                for (auto& system : workSystems_[i]) {
+                    if (system == workkingSystem) {
+                        // すでに登録されている場合は、更新しない
+                        return false;
+                    }
+                    if (system->getPriority() > workkingSystem->getPriority()) {
+                        workSystems_[i].insert(workSystems_[i].begin() + i, workkingSystem);
+                    }
+                }
+                return true;
+            }
+        }
+
+        // システムが見つからない場合は、falseを返す
+        return false;
+    }
+    template <IsSystem SystemDataType>
+    bool RunSystem(SystemType _type) {
+        std::string typeName    = nameof<SystemDataType>();
+        int32_t systemTypeIndex = int32_t(_type);
+        auto itr                = systems_[systemTypeIndex].find(typeName);
+
+        if (itr == systems_[systemTypeIndex].end()) {
+            // システムが見つからない場合は、falseを返す
+            return false;
+        }
+
+        auto workkingSystem = itr->second.get();
+        workkingSystem->setIsActive(true);
+
+        for (auto& system : workSystems_[systemTypeIndex]) {
+            if (system == workkingSystem) {
+                // すでに登録されている場合は、更新しない
+                return false;
+            }
+            if (system->getPriority() > workkingSystem->getPriority()) {
+                workSystems_[systemTypeIndex].insert(workSystems_[systemTypeIndex].begin() + systemTypeIndex, workkingSystem);
+            }
+        }
+        return true;
+    }
+    bool RunSystem(const std::string& _name) {
+        for (int32_t i = 0; i < int32_t(SystemType::Count); ++i) {
+            auto itr = systems_[i].find(_name);
+
+            if (itr != systems_[i].end()) {
+                auto workkingSystem = itr->second.get();
+                workkingSystem->setIsActive(true);
+
+                for (auto& system : workSystems_[i]) {
+                    if (system == workkingSystem) {
+                        // すでに登録されている場合は、更新しない
+                        return false;
+                    }
+                    if (system->getPriority() > workkingSystem->getPriority()) {
+                        workSystems_[i].insert(workSystems_[i].begin() + i, workkingSystem);
+                    }
+                }
+                return true;
+            }
+        }
+
+        // システムが見つからない場合は、falseを返す
+        return false;
+    }
+    bool RunSystem(const std::string& _name, SystemType _type) {
+        int32_t systemTypeIndex = int32_t(_type);
+        auto itr                = systems_[systemTypeIndex].find(_name);
+        if (itr == systems_[systemTypeIndex].end()) {
+            // システムが見つからない場合は、falseを返す
+            return false;
+        }
+        auto workkingSystem = itr->second.get();
+        workkingSystem->setIsActive(true);
+        for (auto& system : workSystems_[systemTypeIndex]) {
+            if (system == workkingSystem) {
+                // すでに登録されている場合は、更新しない
+                return false;
+            }
+            if (system->getPriority() > workkingSystem->getPriority()) {
+                workSystems_[systemTypeIndex].insert(workSystems_[systemTypeIndex].begin() + systemTypeIndex, workkingSystem);
+            }
+        }
+        return true;
+    }
+
+
+    template <IsSystem SystemDataType>
+    bool StopSystem() {
+        std::string typeName = nameof<SystemDataType>();
+        for (int32_t i = 0; i < int32_t(SystemType::Count); ++i) {
+            auto itr = systems_[i].find(typeName);
+            if (itr != systems_[i].end()) {
+                if (itr->second->isActive()) {
+                    itr->second->setIsActive(false);
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+        // システムが見つからない場合は、falseを返す
+        return false;
+    }
+    template <IsSystem SystemDataType>
+    bool StopSystem(SystemType _type) {
+        std::string typeName    = nameof<SystemDataType>();
+        int32_t systemTypeIndex = int32_t(_type);
+        auto itr                = systems_[systemTypeIndex].find(typeName);
+        if (itr == systems_[systemTypeIndex].end()) {
+            // システムが見つからない場合は、falseを返す
+            return false;
+        }
+        if (itr->second->isActive()) {
+            itr->second->setIsActive(false);
+            return true;
+        } else {
+            return false;
+        }
+    }
+    bool StopSystem(const std::string& _name) {
+        for (int32_t i = 0; i < int32_t(SystemType::Count); ++i) {
+            auto itr = systems_[i].find(_name);
+            if (itr != systems_[i].end()) {
+                if (itr->second->isActive()) {
+                    itr->second->setIsActive(false);
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+        // システムが見つからない場合は、falseを返す
+        return false;
+    }
+    bool StopSystem(const std::string& _name, SystemType _type) {
+        int32_t systemTypeIndex = int32_t(_type);
+        auto itr                = systems_[systemTypeIndex].find(_name);
+        if (itr == systems_[systemTypeIndex].end()) {
+            // システムが見つからない場合は、falseを返す
+            return false;
+        }
+        if (itr->second->isActive()) {
+            itr->second->setIsActive(false);
+            return true;
+        } else {
+            return false;
         }
     }
 
     void SortPriorityOrderSystems() {
         for (int32_t systemTypeIndex = 0; systemTypeIndex < int32_t(SystemType::Count); ++systemTypeIndex) {
             // sort
-            if (priorityOrderSystems_[systemTypeIndex].size() < 2) {
+            if (workSystems_[systemTypeIndex].size() < 2) {
                 continue;
             }
             std::sort(
-                priorityOrderSystems_[systemTypeIndex].begin(),
-                priorityOrderSystems_[systemTypeIndex].end(),
+                workSystems_[systemTypeIndex].begin(),
+                workSystems_[systemTypeIndex].end(),
                 [](ISystem* a, ISystem* b) { return a->getPriority() < b->getPriority(); });
         }
     }
     void SortPriorityOrderSystems(int32_t _systemTypeIndex) {
-        if (priorityOrderSystems_[_systemTypeIndex].size() < 1) {
+        if (workSystems_[_systemTypeIndex].size() < 1) {
             return;
         }
         std::sort(
-            priorityOrderSystems_[_systemTypeIndex].begin(),
-            priorityOrderSystems_[int32_t(_systemTypeIndex)].end(),
+            workSystems_[_systemTypeIndex].begin(),
+            workSystems_[int32_t(_systemTypeIndex)].end(),
             [](ISystem* a, ISystem* b) { return a->getPriority() < b->getPriority(); });
     }
 
@@ -362,12 +548,24 @@ public: // ============== accessor ==============//
             }
         }
     }
+    void FinalizeWorkSystems() {
+        for (auto& systemMap : workSystems_) {
+            for (auto& system : systemMap) {
+                system->Finalize();
+            }
+        }
+    }
 
     void clearSystem() {
         for (auto& systemMap : systems_) {
             systemMap.clear();
         }
-        for (auto& prioritySystems : priorityOrderSystems_) {
+        for (auto& prioritySystems : workSystems_) {
+            prioritySystems.clear();
+        }
+    }
+    void clearWorkSystems() {
+        for (auto& prioritySystems : workSystems_) {
             prioritySystems.clear();
         }
     }

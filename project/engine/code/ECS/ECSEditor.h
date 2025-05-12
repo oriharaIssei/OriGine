@@ -89,6 +89,9 @@ public:
     std::array<std::map<std::string, ISystem*>, int32_t(SystemType::Count)>& customEditEntitySystems() {
         return editEntitySystems_;
     }
+    std::array<std::vector<std::pair<std::string, ISystem*>>, int32_t(SystemType::Count)>& customWorkSystemList() {
+        return workSystemList_;
+    }
 
     // 選択されたエンティティを非 const ポインタとして取得するヘルパー
     std::vector<GameEntity*> getSelectedEntities() {
@@ -305,6 +308,37 @@ private:
     ISystem* system_ = nullptr;
 };
 
+class ChangingSystemActivityCommand
+    : public ECSEditorCommand {
+public:
+    ChangingSystemActivityCommand(ECSEditor* _ecsEditor, ISystem* _system, bool _isActive)
+        : ECSEditorCommand(_ecsEditor), system_(_system), isActive_(_isActive) {}
+    ~ChangingSystemActivityCommand() {}
+    void Execute() override;
+    void Undo() override;
+
+private:
+    ISystem* system_ = nullptr;
+    bool isActive_   = false;
+    std::vector<GameEntity*> entities_;
+};
+class ChangingSystemPriorityCommand
+    : public ECSEditorCommand {
+public:
+    ChangingSystemPriorityCommand(ECSEditor* _ecsEditor, ISystem* _system, int32_t _newPriority)
+        : ECSEditorCommand(_ecsEditor), system_(_system), newPriority_(_newPriority) {
+        oldPriority_ = system_->getPriority();
+    }
+    ~ChangingSystemPriorityCommand() {}
+    void Execute() override;
+    void Undo() override;
+
+private:
+    ISystem* system_     = nullptr;
+    int32_t newPriority_ = 0;
+    int32_t oldPriority_ = 0;
+};
+
 #pragma endregion
 
 #pragma region "Group Command"
@@ -441,7 +475,6 @@ private:
     std::vector<std::unique_ptr<IEditCommand>> childCommands_;
     size_t undoIndex_;
 };
-
 #pragma endregion
 
 #endif // _DEBUG
