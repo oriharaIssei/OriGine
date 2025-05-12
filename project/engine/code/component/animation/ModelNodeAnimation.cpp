@@ -64,7 +64,7 @@ bool ModelNodeAnimation::Edit() {
                     }
                 }
                 duration_ = data_->duration;
-            });
+            },true);
 
             EditorGroup::getInstance()->pushCommand(std::move(commandCombo));
 

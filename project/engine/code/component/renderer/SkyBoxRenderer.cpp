@@ -1,14 +1,26 @@
-#include "SkyBoxRenderer.h"
+#include "SkyboxRenderer.h"
 
 /// engine
 #define ENGINE_ECS
+#define ENGINE_EDITOR
+#define RESOURCE_DIRECTORY
 #include "EngineInclude.h"
+#include "texture/TextureManager.h"
 
-void SkyBoxRenderer::Initialize(GameEntity* _hostEntity) {
+/// lib
+#include "myFileSystem/MyFileSystem.h"
+
+/// externals
+#ifdef _DEBUG
+#include "myGui/MyGui.h"
+#include <imgui/imgui.h>
+#endif // _DEBUG
+
+void SkyboxRenderer::Initialize(GameEntity* _hostEntity) {
     MeshRenderer::Initialize(_hostEntity);
 
     /// mesh
-    meshGroup_->push_back(Mesh<SkyBoxVertex>());
+    meshGroup_->push_back(Mesh<SkyboxVertex>());
     auto& mesh = meshGroup_->back();
     mesh.Initialize(12, 24);
 
@@ -81,4 +93,62 @@ void SkyBoxRenderer::Initialize(GameEntity* _hostEntity) {
         21,
         23, // 下
     };
+
+    if (!filePath_.empty()) {
+        textureIndex_ = TextureManager::LoadTexture(filePath_);
+    }
+
+    transformBuff_->Initialize(_hostEntity);
+    transformBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+    materialBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+}
+
+bool SkyboxRenderer::Edit() {
+#ifdef _DEBUG
+
+    bool isChange = false;
+    ImGui::Text("FilePath : %s", filePath_.c_str());
+    if (ImGui::Button("load file")) {
+        std::string directory;
+        std::string filename;
+        myfs::selectFileDialog(kApplicationResourceDirectory, directory, filename, {"dds"});
+        if (!filename.empty()) {
+            auto commandCombo = std::make_unique<CommandCombo>();
+            commandCombo->addCommand(std::make_unique<SetterCommand<std::string>>(&filePath_, kApplicationResourceDirectory + "/" + directory + "filename"));
+            commandCombo->setFuncOnAfterCommand(
+                [this]() {
+                    textureIndex_ = TextureManager::LoadTexture(filePath_);
+                },
+                true);
+            EditorGroup::getInstance()->pushCommand(std::move(commandCombo));
+            isChange = true;
+        }
+    }
+
+    isChange |= DragVectorCommand("Color", materialBuff_.openData_.color);
+
+    return isChange;
+#else
+    return false;
+#endif // _DEBUG
+}
+
+void to_json(nlohmann::json& j, const SkyboxRenderer& c) {
+    j["filePath"]      = c.filePath_;
+    j["transformBuff"] = c.transformBuff_.openData_;
+    j["materialBuff"]  = c.materialBuff_.openData_;
+}
+
+void from_json(const nlohmann::json& j, SkyboxRenderer& c) {
+    j.at("filePath").get_to(c.filePath_);
+    j.at("transformBuff").get_to(c.transformBuff_.openData_);
+    j.at("materialBuff").get_to(c.materialBuff_.openData_);
+}
+
+void to_json(nlohmann::json& j, const SkyboxMaterial& c) {
+    j["color"] = c.color;
+}
+
+void from_json(const nlohmann::json& j, SkyboxMaterial& c) {
+    j.at("color").get_to(c.color);
 }

@@ -204,7 +204,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="math\Vector3.h" />
     <ClInclude Include="math\Vector4.h" />
     <ClInclude Include="math\shape\Shapes.h" />
-    <ClInclude Include="engine\code\component\renderer\SkyBoxRenderer.h" />
+    <ClInclude Include="engine\code\component\renderer\SkyboxRenderer.h" />
     <ClInclude Include="util\ConvertString.h" />
     <ClInclude Include="util\nameof.h" />
     <ClInclude Include="engine\code\system\postRender\VignetteEffect.h" />
@@ -277,7 +277,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\system\effect\PrimitiveNodeAnimationWorkSystem.cpp" />
     <ClCompile Include="engine\code\system\postRender\SmoothingEffect.cpp" />
     <ClCompile Include="lib\myGui\MyGui.cpp" />
-    <ClCompile Include="engine\code\component\renderer\SkyBoxRenderer.cpp" />
+    <ClCompile Include="engine\code\component\renderer\SkyboxRenderer.cpp" />
     <ClCompile Include="util\timeline\Timeline.cpp" />
     <ClCompile Include="lib\Thread\Thread.cpp" />
     <ClCompile Include="lib\deltaTime\DeltaTime.cpp" />

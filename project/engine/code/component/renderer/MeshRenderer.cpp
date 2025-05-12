@@ -187,7 +187,7 @@ bool ModelMeshRenderer::Edit() {
                 this->Finalize();
                 meshGroup_ = std::make_shared<std::vector<TextureMesh>>();
                 CreateModelMeshRenderer(this, this->hostEntity_, this->directory_, this->fileName_);
-            });
+            },true);
             EditorGroup::getInstance()->pushCommand(std::make_unique<CommandCombo>(commandCombo));
 
             isChange = true;

@@ -444,8 +444,7 @@ bool EditKeyFrame(
                     commandCombo->setFuncOnAfterCommand([=]() {
                         ImGuiStorage* _storage = ImGui::GetStateStorage();
                         _storage->SetInt(popUpIndexId, -1);
-                    },
-                        false);
+                    });
                     commandCombo->setFuncOnAfterUndoCommand([=]() {
                         ImGuiStorage* _storage = ImGui::GetStateStorage();
                         _storage->SetInt(popUpIndexId, popUpIndex);

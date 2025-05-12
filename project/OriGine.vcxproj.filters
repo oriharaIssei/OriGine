@@ -451,7 +451,7 @@
     <ClInclude Include="engine\code\component\animation\ModelNodeAnimation.h" />
     <ClInclude Include="engine\code\component\animation\AnimationManager.h" />
     <ClInclude Include="lib\myGui\MyGui.h" />
-    <ClInclude Include="engine\code\component\renderer\SkyBoxRenderer.h" />
+    <ClInclude Include="engine\code\component\renderer\SkyboxRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\code\ECS\ECSDebugger.cpp">
@@ -688,6 +688,6 @@
     <ClCompile Include="engine\code\component\animation\ModelNodeAnimation.cpp" />
     <ClCompile Include="engine\code\component\animation\AnimationManager.cpp" />
     <ClCompile Include="lib\myGui\MyGui.cpp" />
-    <ClCompile Include="engine\code\component\renderer\SkyBoxRenderer.cpp" />
+    <ClCompile Include="engine\code\component\renderer\SkyboxRenderer.cpp" />
   </ItemGroup>
 </Project>

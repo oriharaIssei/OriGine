@@ -4,6 +4,11 @@
 #include "Engine.h"
 #endif // ENGINE_INCLUDE
 
+#ifdef ENGINE_EDITOR
+#include "module/editor/EditorGorup.h"
+#include "module/editor/IEditor.h"
+#endif // ENGINE_EDITOR
+
 #ifdef RESOURCE_DIRECTORY
 #include <string>
 static const std::string kApplicationResourceDirectory = "application/resource";
@@ -33,8 +38,8 @@ static const std::string kEngineResourceDirectory      = "engine/resource";
 #include "system/movement/MoveSystemByRigidBody.h"
 
 #include "system/postRender/GrayscaleEffect.h"
-#include "system/postRender/VignetteEffect.h"
 #include "system/postRender/SmoothingEffect.h"
+#include "system/postRender/VignetteEffect.h"
 
 #include "system/render/ColliderRenderingSystem.h"
 #include "system/render/LineRenderSystem.h"
