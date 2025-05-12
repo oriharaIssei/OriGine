@@ -10,6 +10,9 @@
 /// Engine
 #include "module/editor/IEditor.h"
 
+/// lib
+#include "lib/globalVariables/SerializedField.h"
+
 /// externals
 #include <binaryIO/BinaryIO.h>
 #include <nlohmann/json.hpp>
@@ -44,8 +47,9 @@ private:
     SceneManager* operator=(const SceneManager&) = delete;
 
 private:
-    std::unique_ptr<IScene> currentScene_ = nullptr;
+    SerializedField<std::string> startupSceneName_ = SerializedField<std::string>("Settings", "Scene", "StartupSceneName");
 
+    std::string currentSceneName_  = "MyGame";
     bool isChangeScene_            = false;
     std::string changingSceneName_ = "";
 
@@ -56,9 +60,6 @@ private:
 
     std::shared_ptr<DxRtvArray> sceneViewRtvArray_;
     std::shared_ptr<DxSrvArray> sceneViewSrvArray_;
-
-    std::unordered_map<std::string, int32_t> sceneIndexs_;
-    std::vector<std::function<std::unique_ptr<IScene>()>> scenes_;
 
 #ifdef _DEBUG
     EditorGroup* editorGroup_     = nullptr;
@@ -90,15 +91,14 @@ private:
 #endif
 
 public:
-    IScene* getCurrentScene() const { return currentScene_.get(); }
-    void addScene(const std::string& name, std::function<std::unique_ptr<IScene>()> _sceneMakeFunc);
+    const std::string& getCurrentSceneName() const { return currentSceneName_; }
+
+    void sceneChange2StartupScene();
     void changeScene(const std::string& name);
 
     void executeSceneChange();
 
     RenderTexture* getSceneView() const { return sceneView_.get(); }
-
-    const std::unordered_map<std::string, int32_t>& getScenes() const { return sceneIndexs_; }
 
     bool isChangeScene() const { return isChangeScene_; }
 
