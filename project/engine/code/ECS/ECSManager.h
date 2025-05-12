@@ -360,7 +360,7 @@ public: // ============== accessor ==============//
     }
 
     template <IsSystem SystemDataType>
-    bool RunSystem() {
+    bool ActivateSystem() {
         std::string typeName = nameof<SystemDataType>();
         for (int32_t i = 0; i < int32_t(SystemType::Count); ++i) {
             auto itr = systems_[i].find(typeName);
@@ -386,7 +386,7 @@ public: // ============== accessor ==============//
         return false;
     }
     template <IsSystem SystemDataType>
-    bool RunSystem(SystemType _type) {
+    bool ActivateSystem(SystemType _type) {
         std::string typeName    = nameof<SystemDataType>();
         int32_t systemTypeIndex = int32_t(_type);
         auto itr                = systems_[systemTypeIndex].find(typeName);
@@ -410,51 +410,10 @@ public: // ============== accessor ==============//
         }
         return true;
     }
-    bool RunSystem(const std::string& _name) {
-        for (int32_t i = 0; i < int32_t(SystemType::Count); ++i) {
-            auto itr = systems_[i].find(_name);
+    bool ActivateSystem(const std::string& _name);
+    bool ActivateSystem(const std::string& _name, SystemType _type);
 
-            if (itr != systems_[i].end()) {
-                auto workkingSystem = itr->second.get();
-                workkingSystem->setIsActive(true);
-
-                for (auto& system : workSystems_[i]) {
-                    if (system == workkingSystem) {
-                        // すでに登録されている場合は、更新しない
-                        return false;
-                    }
-                    if (system->getPriority() > workkingSystem->getPriority()) {
-                        workSystems_[i].insert(workSystems_[i].begin() + i, workkingSystem);
-                    }
-                }
-                return true;
-            }
-        }
-
-        // システムが見つからない場合は、falseを返す
-        return false;
-    }
-    bool RunSystem(const std::string& _name, SystemType _type) {
-        int32_t systemTypeIndex = int32_t(_type);
-        auto itr                = systems_[systemTypeIndex].find(_name);
-        if (itr == systems_[systemTypeIndex].end()) {
-            // システムが見つからない場合は、falseを返す
-            return false;
-        }
-        auto workkingSystem = itr->second.get();
-        workkingSystem->setIsActive(true);
-        for (auto& system : workSystems_[systemTypeIndex]) {
-            if (system == workkingSystem) {
-                // すでに登録されている場合は、更新しない
-                return false;
-            }
-            if (system->getPriority() > workkingSystem->getPriority()) {
-                workSystems_[systemTypeIndex].insert(workSystems_[systemTypeIndex].begin() + systemTypeIndex, workkingSystem);
-            }
-        }
-        return true;
-    }
-
+    void AllActivateSystem();
 
     template <IsSystem SystemDataType>
     bool StopSystem() {
@@ -504,6 +463,8 @@ public: // ============== accessor ==============//
         // システムが見つからない場合は、falseを返す
         return false;
     }
+
+
     bool StopSystem(const std::string& _name, SystemType _type) {
         int32_t systemTypeIndex = int32_t(_type);
         auto itr                = systems_[systemTypeIndex].find(_name);

@@ -193,6 +193,63 @@ void EntityComponentSystemManager::resize(uint32_t _newSize) {
     entityCapacity_ = _newSize;
 }
 
+bool EntityComponentSystemManager::ActivateSystem(const std::string& _name) {
+    for (int32_t i = 0; i < int32_t(SystemType::Count); ++i) {
+        auto itr = systems_[i].find(_name);
+
+        if (itr != systems_[i].end()) {
+            auto workkingSystem = itr->second.get();
+            workkingSystem->setIsActive(true);
+
+            for (auto& system : workSystems_[i]) {
+                if (system == workkingSystem) {
+                    // すでに登録されている場合は、更新しない
+                    return false;
+                }
+                if (system->getPriority() > workkingSystem->getPriority()) {
+                    workSystems_[i].insert(workSystems_[i].begin() + i, workkingSystem);
+                }
+            }
+            return true;
+        }
+    }
+
+    // システムが見つからない場合は、falseを返す
+    return false;
+}
+
+bool EntityComponentSystemManager::ActivateSystem(const std::string& _name, SystemType _type) {
+    int32_t systemTypeIndex = int32_t(_type);
+    auto itr                = systems_[systemTypeIndex].find(_name);
+    if (itr == systems_[systemTypeIndex].end()) {
+        // システムが見つからない場合は、falseを返す
+        return false;
+    }
+    auto workkingSystem = itr->second.get();
+    workkingSystem->setIsActive(true);
+    for (auto& system : workSystems_[systemTypeIndex]) {
+        if (system == workkingSystem) {
+            // すでに登録されている場合は、更新しない
+            return false;
+        }
+        if (system->getPriority() > workkingSystem->getPriority()) {
+            workSystems_[systemTypeIndex].insert(workSystems_[systemTypeIndex].begin() + systemTypeIndex, workkingSystem);
+        }
+    }
+    return true;
+}
+
+void EntityComponentSystemManager::AllActivateSystem() {
+    for (int32_t i = 0; i < int32_t(SystemType::Count); ++i) {
+        if (!workSystems_[i].empty()) {
+            workSystems_[i].clear();
+        }
+        for (auto& [name,system] : systems_[i]) {
+            ActivateSystem(name, static_cast<SystemType>(i));
+        }
+    }
+}
+
 void DestroyEntity(GameEntity* _entity) {
     ECSManager::getInstance()->destroyEntity(_entity);
 }

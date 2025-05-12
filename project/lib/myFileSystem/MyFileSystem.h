@@ -16,6 +16,7 @@ public:
 
     static std::list<std::string> searchSubFolder(const std::string& directory);
 
+    static bool createFile(const std::string& filePath);
     static bool createFolder(const std::string& directory);
 
     static void selectFolderDialog(const std::string& _defaultDirectory, std::string& _outPath);
