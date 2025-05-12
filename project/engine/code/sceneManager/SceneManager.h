@@ -74,6 +74,8 @@ private:
     int32_t cameraIcon_      = 0;
     bool isUsingDebugCamera_ = false;
 
+    char newSceneName_[256] = "NewScene";
+
 private:
     enum class SceneState {
         Edit,
@@ -134,15 +136,25 @@ public:
     SceneSerializer() {}
     ~SceneSerializer() {}
 
-    void Serialize(const std::string& _sceneName);
+    /// <summary>
+    /// シーンを保存する(基本はこれを使う)
+    /// </summary>
+    bool Serialize(const std::string& _sceneName);
 
+    /// <summary>
+    /// シーンを読み込む(基本はこれを使う)
+    /// </summary>
     void Deserialize(
-        const std::string& _sceneName) {
-        DeserializeFromJson(_sceneName);
-    }
+        const std::string& _sceneName);
 
-private:
+    /// <summary>
+    /// シーンを保存する(警告なし)
+    /// </summary>
     void SerializeFromJson(const std::string& _sceneName);
+
+    /// <summary>
+    /// シーンを読み込む
+    /// </summary>
     void DeserializeFromJson(const std::string& _sceneName);
 
 private:

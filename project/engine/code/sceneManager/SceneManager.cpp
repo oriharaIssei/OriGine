@@ -206,6 +206,41 @@ void SceneManager::DebugUpdate() {
                     }
                     ImGui::EndMenu();
                 }
+                if (ImGui::BeginMenu("Create NewScene")) {
+                    // シーンの新規作成
+                    ImGui::InputText("SceneName", newSceneName_, sizeof(newSceneName_));
+                    if (ImGui::Button("Create")) {
+                        // 重複 チェック
+                        for (auto& [directory, name] : myfs::searchFile(kApplicationResourceDirectory + "/scene", "json")) {
+                            if (name == newSceneName_) {
+                                std::string message = std::format("{} already exists", newSceneName_);
+                                MessageBoxA(nullptr, message.c_str(), "SceneSerializer", MB_OK);
+
+                                ImGui::EndMenu();
+                                ImGui::EndMenu();
+                                ImGui::EndMainMenuBar();
+                                return;
+                            }
+                        }
+
+                        std::string message = std::format("{} save it?", newSceneName_);
+                        if (MessageBoxA(nullptr, message.c_str(), "SceneSerializer", MB_OKCANCEL) == IDOK) {
+                            SceneFinalize();
+
+                            // シーンの新規作成
+                            // 最初はすべてのシステムをオンにする
+                            ecsManager_->AllActivateSystem();
+
+                            // 保存
+                            SceneSerializer serializer;
+                            serializer.SerializeFromJson(newSceneName_);
+                            message = std::format("{} saved", newSceneName_);
+
+                            MessageBoxA(nullptr, message.c_str(), "SceneSerializer", MB_OK);
+                        }
+                    }
+                    ImGui::EndMenu();
+                }
                 if (ImGui::MenuItem("Save")) {
                     // シーンの保存
                     SceneSerializer serializer;
@@ -409,17 +444,23 @@ void SceneManager::executeSceneChange() {
 
 const std::string SceneSerializer::directory_ = kApplicationResourceDirectory + "/scene/";
 
-void SceneSerializer::Serialize(const std::string& _sceneName) {
+bool SceneSerializer::Serialize(const std::string& _sceneName) {
     std::string message = std::format("{} save it?", _sceneName);
 
-    if (MessageBoxA(nullptr, message.c_str(), "SceneSerializer", MB_OKCANCEL) == IDOK) {
-
-        // 保存
-        SerializeFromJson(_sceneName);
-
-        message = std::format("{} saved", _sceneName);
-        MessageBoxA(nullptr, message.c_str(), "SceneSerializer", MB_OK);
+    if (MessageBoxA(nullptr, message.c_str(), "SceneSerializer", MB_OKCANCEL) != IDOK) {
+        return false;
     }
+
+    // 保存
+    SerializeFromJson(_sceneName);
+
+    message = std::format("{} saved", _sceneName);
+    MessageBoxA(nullptr, message.c_str(), "SceneSerializer", MB_OK);
+    return true;
+}
+
+void SceneSerializer::Deserialize(const std::string& _sceneName) {
+    DeserializeFromJson(_sceneName);
 }
 
 void SceneSerializer::SerializeFromJson(const std::string& _sceneName) {
@@ -553,7 +594,7 @@ void SceneSerializer::DeserializeFromJson(const std::string& _sceneName) {
             ISystem* systemPtr = ecsManager->getSystem(SystemType(systemTypeIndex), systemName);
             if (systemPtr) {
                 systemPtr->setPriority(system["Priority"]);
-                ECSManager::getInstance()->RunSystem(systemName, SystemType(systemTypeIndex));
+                ECSManager::getInstance()->ActivateSystem(systemName, SystemType(systemTypeIndex));
             }
         }
         systemTypeIndex++;
