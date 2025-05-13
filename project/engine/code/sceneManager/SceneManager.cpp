@@ -67,8 +67,6 @@ void SceneManager::Initialize() {
 }
 
 void SceneManager::Finalize() {
-    SceneFinalize();
-
     sceneView_->Finalize();
 
     sceneViewRtvArray_->Finalize();
@@ -193,9 +191,6 @@ void SceneManager::DebugUpdate() {
                     SceneManager* sceneManager = SceneManager::getInstance();
                     for (auto& [directory, name] : myfs::searchFile(kApplicationResourceDirectory + "/scene", "json")) {
                         if (ImGui::MenuItem(name.c_str())) {
-                            SceneSerializer serializer;
-                            serializer.Serialize(currentSceneName_);
-
                             sceneManager->changeScene(name);
 
                             // Editor を再初期化
@@ -423,7 +418,9 @@ void SceneManager::DebugUpdate() {
 #endif
 
 void SceneManager::sceneChange2StartupScene() {
-    changeScene(startupSceneName_->c_str());
+    // シーンの初期化
+    currentSceneName_ = startupSceneName_->c_str();
+    SceneInitialize(currentSceneName_);
 }
 
 void SceneManager::changeScene(const std::string& name) {
@@ -437,6 +434,7 @@ void SceneManager::executeSceneChange() {
     currentSceneName_ = changingSceneName_;
 
     SceneFinalize();
+
     SceneInitialize(currentSceneName_);
 
     isChangeScene_ = false;

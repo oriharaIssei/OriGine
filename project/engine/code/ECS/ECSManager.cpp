@@ -27,32 +27,7 @@ void EntityComponentSystemManager::Run() {
     /// =================================================================================================
     // 削除予定のエンティティを削除
     /// =================================================================================================
-    while (!deleteEntityQueue_.empty()) {
-        GameEntity* entity = deleteEntityQueue_.front();
-        deleteEntityQueue_.pop();
-
-        // 無効ポインタにアクセスしないように 弾く
-        if (!entity) {
-            continue;
-        }
-
-        // component の 初期化
-        for (auto& [compTypeName, compArray] : componentArrays_) {
-            compArray->clearComponent(entity);
-        }
-
-        // エンティティIDを再利用可能にする
-        freeEntityIndex_.push_back(entity->getID());
-
-        // エンティティがユニークな場合は、ユニークエンティティから削除
-        if (entity->isUnique_) {
-            this->removeUniqueEntity(entity->dataType_);
-        }
-        // エンティティを無効化
-        entity->id_       = -1;
-        entity->dataType_ = "UNKNOWN";
-        entity->setIsAlive(false);
-    }
+    ExecuteEntitiesDelete();
 
 #ifdef _DEBUG
     if (SceneManager::getInstance()->inDebugMode()) {
@@ -132,7 +107,7 @@ void EntityComponentSystemManager::Run() {
 void EntityComponentSystemManager::Finalize() {
     // システムのクリア
     FinalizeWorkSystems();
-    clearWorkSystems();
+    clearAllSystems();
 
     // コンポーネントのクリア
     FinalizeComponentArrays();
@@ -155,6 +130,44 @@ void EntityComponentSystemManager::RunInitialize() {
             continue;
         }
         system->Update();
+    }
+}
+
+void EntityComponentSystemManager::ExecuteEntitiesDelete() {
+    while (!deleteEntityQueue_.empty()) {
+        GameEntity* entity = deleteEntityQueue_.front();
+        deleteEntityQueue_.pop();
+
+        // 無効ポインタにアクセスしないように 弾く
+        if (!entity) {
+            continue;
+        }
+
+        // component の 初期化
+        for (auto& [compTypeName, compArray] : componentArrays_) {
+            compArray->clearComponent(entity);
+            compArray->deleteEntity(entity);
+        }
+        // システムから除外
+        for (auto& systemByType : systems_) {
+            for (auto& [name, system] : systemByType) {
+                if (system->hasEntity(entity)) {
+                    system->removeEntity(entity);
+                }
+            }
+        }
+
+        // エンティティIDを再利用可能にする
+        freeEntityIndex_.push_back(entity->getID());
+
+        // エンティティがユニークな場合は、ユニークエンティティから削除
+        if (entity->isUnique_) {
+            this->removeUniqueEntity(entity->dataType_);
+        }
+        // エンティティを無効化
+        entity->id_       = -1;
+        entity->dataType_ = "UNKNOWN";
+        entity->setIsAlive(false);
     }
 }
 

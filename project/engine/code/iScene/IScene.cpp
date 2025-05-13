@@ -36,9 +36,9 @@ void SceneInitialize(const std::string& _sceneName) {
 
 void SceneFinalize() {
     ECSManager* ecsManager = ECSManager::getInstance();
-    //ecsManager->FinalizeSystems();
     ecsManager->clearWorkSystems();
 
     ecsManager->clearAliveEntities();
     ecsManager->clearUniqueEntities();
+    ecsManager->ExecuteEntitiesDelete();
 }

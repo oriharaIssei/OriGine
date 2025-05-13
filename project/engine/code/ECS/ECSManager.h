@@ -32,6 +32,7 @@ public:
     void ComponentArraysInitialize();
 
     void RunInitialize();
+    void ExecuteEntitiesDelete();
 
 private:
     EntityComponentSystemManager() {}
@@ -171,12 +172,7 @@ public: // ============== accessor ==============//
             return !entity.isAlive_;
         });
         for (auto& itr = removedItr; itr != entities_.end(); ++removedItr) {
-            freeEntityIndex_.push_back(itr->id_);
-
-            // エンティティを無効化
-            itr->id_       = -1;
-            itr->dataType_ = "UNKNOWN";
-            itr->isAlive_  = false;
+            destroyEntity(&*itr);
         }
     }
 
@@ -531,7 +527,7 @@ public: // ============== accessor ==============//
         }
     }
 
-    void clearSystem() {
+    void clearAllSystems() {
         for (auto& systemMap : systems_) {
             systemMap.clear();
         }
