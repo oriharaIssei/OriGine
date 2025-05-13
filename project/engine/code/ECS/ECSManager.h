@@ -360,7 +360,7 @@ public: // ============== accessor ==============//
     }
 
     template <IsSystem SystemDataType>
-    bool ActivateSystem() {
+    bool ActivateSystem(bool _doInit = true) {
         std::string typeName = nameof<SystemDataType>();
         for (int32_t i = 0; i < int32_t(SystemType::Count); ++i) {
             auto itr = systems_[i].find(typeName);
@@ -369,15 +369,15 @@ public: // ============== accessor ==============//
                 auto workkingSystem = itr->second.get();
                 workkingSystem->setIsActive(true);
 
-                for (auto& system : workSystems_[i]) {
-                    if (system == workkingSystem) {
-                        // すでに登録されている場合は、更新しない
-                        return false;
-                    }
-                    if (system->getPriority() > workkingSystem->getPriority()) {
-                        workSystems_[i].insert(workSystems_[i].begin() + i, workkingSystem);
-                    }
+                workSystems_[i].push_back(workkingSystem);
+                if (_doInit) {
+                    workSystems_[i].back()->Initialize();
                 }
+                std::sort(workSystems_[i].begin(), workSystems_[i].end(),
+                    [](ISystem* a, ISystem* b) {
+                        return a->getPriority() < b->getPriority();
+                    });
+
                 return true;
             }
         }
@@ -386,7 +386,7 @@ public: // ============== accessor ==============//
         return false;
     }
     template <IsSystem SystemDataType>
-    bool ActivateSystem(SystemType _type) {
+    bool ActivateSystem(SystemType _type, bool _doInit = true) {
         std::string typeName    = nameof<SystemDataType>();
         int32_t systemTypeIndex = int32_t(_type);
         auto itr                = systems_[systemTypeIndex].find(typeName);
@@ -399,21 +399,21 @@ public: // ============== accessor ==============//
         auto workkingSystem = itr->second.get();
         workkingSystem->setIsActive(true);
 
-        for (auto& system : workSystems_[systemTypeIndex]) {
-            if (system == workkingSystem) {
-                // すでに登録されている場合は、更新しない
-                return false;
-            }
-            if (system->getPriority() > workkingSystem->getPriority()) {
-                workSystems_[systemTypeIndex].insert(workSystems_[systemTypeIndex].begin() + systemTypeIndex, workkingSystem);
-            }
+        workSystems_[systemTypeIndex].push_back(workkingSystem);
+        if (_doInit) {
+            workSystems_[systemTypeIndex].back()->Initialize();
         }
+        std::sort(workSystems_[systemTypeIndex].begin(), workSystems_[systemTypeIndex].end(),
+            [](ISystem* a, ISystem* b) {
+                return a->getPriority() < b->getPriority();
+            });
+
         return true;
     }
-    bool ActivateSystem(const std::string& _name);
-    bool ActivateSystem(const std::string& _name, SystemType _type);
+    bool ActivateSystem(const std::string& _name, bool _doInit = true);
+    bool ActivateSystem(const std::string& _name, SystemType _type, bool _doInit = true);
 
-    void AllActivateSystem();
+    void AllActivateSystem(bool _doInit = true);
 
     template <IsSystem SystemDataType>
     bool StopSystem() {
@@ -464,7 +464,6 @@ public: // ============== accessor ==============//
         return false;
     }
 
-
     bool StopSystem(const std::string& _name, SystemType _type) {
         int32_t systemTypeIndex = int32_t(_type);
         auto itr                = systems_[systemTypeIndex].find(_name);
@@ -500,6 +499,21 @@ public: // ============== accessor ==============//
             workSystems_[_systemTypeIndex].begin(),
             workSystems_[int32_t(_systemTypeIndex)].end(),
             [](ISystem* a, ISystem* b) { return a->getPriority() < b->getPriority(); });
+    }
+
+    void InitializeSystems() {
+        for (auto& systemMap : systems_) {
+            for (auto& [systemID, system] : systemMap) {
+                system->Initialize();
+            }
+        }
+    }
+    void InitializeWorkSystems() {
+        for (auto& systemMap : workSystems_) {
+            for (auto&  system : systemMap) {
+                system->Initialize();
+            }
+        }
     }
 
     void FinalizeSystems() {
