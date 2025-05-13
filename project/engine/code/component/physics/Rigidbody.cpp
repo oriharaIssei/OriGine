@@ -15,12 +15,12 @@ void Rigidbody::Initialize(GameEntity* _entity) {
 bool Rigidbody::Edit() {
     bool isChange = false;
 
-    DragVectorCommand("acceleration", acceleration_);
-    DragVectorCommand("velocity", velocity_);
+    DragGuiVectorCommand("acceleration", acceleration_);
+    DragGuiVectorCommand("velocity", velocity_);
 
     ImGui::Separator();
 
-    DragCommand("mass", mass_);
+    DragGuiCommand("mass", mass_);
     CheckBoxCommand("useGravity", useGravity_);
     return isChange;
 }

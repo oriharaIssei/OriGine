@@ -12,20 +12,20 @@ void Material::UpdateUvMatrix() {
 #ifdef _DEBUG
 void Material::DebugGui() {
     ImGui::Text("Color");
-    ColorEditCommand("##color", color_);
+    ColorEditGuiCommand("##color", color_);
     ImGui::Text("uvScale");
-    DragVectorCommand<3, float>("##uvScale", uvScale_, 0.01f);
+    DragGuiVectorCommand<3, float>("##uvScale", uvScale_, 0.01f);
     ImGui::Text("uvRotate");
-    DragVectorCommand<3, float>("##uvRotate", uvRotate_, 0.01f);
+    DragGuiVectorCommand<3, float>("##uvRotate", uvRotate_, 0.01f);
     ImGui::Text("uvTranslate");
-    DragVectorCommand<3, float>("##uvTranslate", uvTranslate_, 0.01f);
+    DragGuiVectorCommand<3, float>("##uvTranslate", uvTranslate_, 0.01f);
     ImGui::Text("isLightUse");
     CheckBoxCommand("##isLightUse", enableLighting_);
 
     ImGui::Text("shininess");
     ImGui::DragFloat("##shininess", &shininess_, 0.01f);
     ImGui::Text("specularColor");
-    ColorEditCommand("##specularColor", specularColor_);
+    ColorEditGuiCommand("##specularColor", specularColor_);
 }
 #endif // _DEBUG
 

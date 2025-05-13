@@ -187,7 +187,8 @@ bool ModelMeshRenderer::Edit() {
                 this->Finalize();
                 meshGroup_ = std::make_shared<std::vector<TextureMesh>>();
                 CreateModelMeshRenderer(this, this->hostEntity_, this->directory_, this->fileName_);
-            });
+            },
+                true);
             EditorGroup::getInstance()->pushCommand(std::make_unique<CommandCombo>(commandCombo));
 
             isChange = true;
@@ -275,7 +276,7 @@ void CreateModelMeshRenderer(ModelMeshRenderer* _renderer, GameEntity* _hostEnti
         _renderer->InitializeTransformBuffer(_hostEntity);
         _renderer->InitializeMaterialBuffer(_hostEntity);
 
-        for (uint32_t i = 0; i < static_cast<uint32_t>(_renderer->getMeshSize()); ++i) {
+        for (uint32_t i = 0; i < static_cast<uint32_t>(_renderer->getMeshGroupSize()); ++i) {
             // マテリアルの設定
             _renderer->setMaterialBuff(i, model->materialData_[i].material.openData_);
             _renderer->setTextureNumber(i, model->materialData_[i].textureNumber);
@@ -412,13 +413,13 @@ bool LineRenderer::Edit() {
                 startColorLabel = "start Color##" + std::to_string(lineIndex);
                 endColorLabel   = "end Color##" + std::to_string(lineIndex);
 
-                isChange |= DragVectorCommand(startLabel.c_str(), vertex1.pos);
+                isChange |= DragGuiVectorCommand(startLabel.c_str(), vertex1.pos);
                 vertex1.pos[W] = 1.f;
-                isChange |= DragVectorCommand(endLabel.c_str(), vertex2.pos);
+                isChange |= DragGuiVectorCommand(endLabel.c_str(), vertex2.pos);
                 vertex2.pos[W] = 1.f;
                 ImGui::Spacing();
-                isChange |= ColorEditCommand(startColorLabel, vertex1.color);
-                isChange |= ColorEditCommand(endColorLabel, vertex2.color);
+                isChange |= ColorEditGuiCommand(startColorLabel, vertex1.color);
+                isChange |= ColorEditGuiCommand(endColorLabel, vertex2.color);
 
                 ++lineIndex;
             }

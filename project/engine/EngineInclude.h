@@ -4,6 +4,11 @@
 #include "Engine.h"
 #endif // ENGINE_INCLUDE
 
+#ifdef ENGINE_EDITOR
+#include "module/editor/EditorGroup.h"
+#include "module/editor/IEditor.h"
+#endif // ENGINE_EDITOR
+
 #ifdef RESOURCE_DIRECTORY
 #include <string>
 static const std::string kApplicationResourceDirectory = "application/resource";
@@ -33,14 +38,15 @@ static const std::string kEngineResourceDirectory      = "engine/resource";
 #include "system/movement/MoveSystemByRigidBody.h"
 
 #include "system/postRender/GrayscaleEffect.h"
-#include "system/postRender/VignetteEffect.h"
 #include "system/postRender/SmoothingEffect.h"
+#include "system/postRender/VignetteEffect.h"
 
 #include "system/render/ColliderRenderingSystem.h"
 #include "system/render/LineRenderSystem.h"
 #include "system/render/ParticleRenderSystem.h"
 #include "system/render/SpriteRenderSystem.h"
 #include "system/render/TexturedMeshRenderSystem.h"
+//#include "system/render/SkyboxRender.h"
 #endif // ENGINE_SYSTEMS
 
 #ifdef ENGINE_COMPONENTS
@@ -59,6 +65,7 @@ static const std::string kEngineResourceDirectory      = "engine/resource";
 
 #include "component/physics/Rigidbody.h"
 
+//#include "component/renderer/SkyboxRenderer.h"
 #include "component/renderer/MeshRenderer.h"
 #include "component/renderer/primitive/Primitive.h"
 #include "component/renderer/Sprite.h"
