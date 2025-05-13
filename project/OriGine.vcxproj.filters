@@ -43,9 +43,6 @@
     <Filter Include="engine\code\component\effect\particle\emitter">
       <UniqueIdentifier>{8F47CA94-FBB7-CC0D-C4D6-46963006050F}</UniqueIdentifier>
     </Filter>
-    <Filter Include="engine\code\component\effect\primitive">
-      <UniqueIdentifier>{8B88DCB6-77DA-B3A6-60F9-F0B64CEACC8F}</UniqueIdentifier>
-    </Filter>
     <Filter Include="engine\code\component\material">
       <UniqueIdentifier>{E56C2818-D192-F27E-BAD8-774AA69D174B}</UniqueIdentifier>
     </Filter>
@@ -57,6 +54,9 @@
     </Filter>
     <Filter Include="engine\code\component\renderer">
       <UniqueIdentifier>{ED8142DB-D9A7-0C42-C2ED-910DAEB2310E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\code\component\renderer\primitive">
+      <UniqueIdentifier>{B51E3106-A19B-2449-CA18-255DB6F4C0DC}</UniqueIdentifier>
     </Filter>
     <Filter Include="engine\code\component\transform">
       <UniqueIdentifier>{F2DE785B-5EC2-879B-67C5-B5D7D3274EEC}</UniqueIdentifier>
@@ -198,6 +198,12 @@
     <ClInclude Include="engine\code\component\animation\AnimationManager.h">
       <Filter>engine\code\component\animation</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\component\animation\ModelNodeAnimation.h">
+      <Filter>engine\code\component\animation</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\component\animation\PrimitiveNodeAnimation.h">
+      <Filter>engine\code\component\animation</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\component\collider\Collider.h">
       <Filter>engine\code\component\collider</Filter>
     </ClInclude>
@@ -209,9 +215,6 @@
     </ClInclude>
     <ClInclude Include="engine\code\component\effect\particle\emitter\EmitterShape.h">
       <Filter>engine\code\component\effect\particle\emitter</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\code\component\renderer\primitive\Primitive.h">
-      <Filter>engine\code\component\effect\primitive</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\component\material\Material.h">
       <Filter>engine\code\component\material</Filter>
@@ -234,8 +237,14 @@
     <ClInclude Include="engine\code\component\renderer\MeshRenderer.h">
       <Filter>engine\code\component\renderer</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\component\renderer\SkyBoxRenderer.h">
+      <Filter>engine\code\component\renderer</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\component\renderer\Sprite.h">
       <Filter>engine\code\component\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\component\renderer\primitive\Primitive.h">
+      <Filter>engine\code\component\renderer\primitive</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\component\transform\CameraTransform.h">
       <Filter>engine\code\component\transform</Filter>
@@ -348,10 +357,19 @@
     <ClInclude Include="engine\code\system\effect\EmitterWorkSystem.h">
       <Filter>engine\code\system\effect</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\system\effect\PrimitiveNodeAnimationWorkSystem.h">
+      <Filter>engine\code\system\effect</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\system\movement\MoveSystemByRigidBody.h">
       <Filter>engine\code\system\movement</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\system\postRender\GrayscaleEffect.h">
+      <Filter>engine\code\system\postRender</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\system\postRender\SmoothingEffect.h">
+      <Filter>engine\code\system\postRender</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\system\postRender\VignetteEffect.h">
       <Filter>engine\code\system\postRender</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\system\render\ColliderRenderingSystem.h">
@@ -361,6 +379,9 @@
       <Filter>engine\code\system\render</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\system\render\ParticleRenderSystem.h">
+      <Filter>engine\code\system\render</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\system\render\SkyboxRender.h">
       <Filter>engine\code\system\render</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\system\render\SpriteRenderSystem.h">
@@ -374,6 +395,9 @@
     </ClInclude>
     <ClInclude Include="lib\Thread\Thread.h">
       <Filter>lib\Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\binaryIO\BinaryIO.h">
+      <Filter>lib\binaryIO</Filter>
     </ClInclude>
     <ClInclude Include="lib\deltaTime\DeltaTime.h">
       <Filter>lib\deltaTime</Filter>
@@ -395,6 +419,9 @@
     </ClInclude>
     <ClInclude Include="lib\myFileSystem\MyFileSystem.h">
       <Filter>lib\myFileSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="lib\myGui\MyGui.h">
+      <Filter>lib\myGui</Filter>
     </ClInclude>
     <ClInclude Include="lib\myRandom\MyRandom.h">
       <Filter>lib\myRandom</Filter>
@@ -488,6 +515,12 @@
     <ClCompile Include="engine\code\component\animation\AnimationManager.cpp">
       <Filter>engine\code\component\animation</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\component\animation\ModelNodeAnimation.cpp">
+      <Filter>engine\code\component\animation</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\component\animation\PrimitiveNodeAnimation.cpp">
+      <Filter>engine\code\component\animation</Filter>
+    </ClCompile>
     <ClCompile Include="engine\code\component\collider\Collider.cpp">
       <Filter>engine\code\component\collider</Filter>
     </ClCompile>
@@ -499,9 +532,6 @@
     </ClCompile>
     <ClCompile Include="engine\code\component\effect\particle\emitter\EmitterShape.cpp">
       <Filter>engine\code\component\effect\particle\emitter</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\code\component\renderer\primitive\Primitive.cpp">
-      <Filter>engine\code\component\effect\primitive</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\component\material\Material.cpp">
       <Filter>engine\code\component\material</Filter>
@@ -524,8 +554,14 @@
     <ClCompile Include="engine\code\component\renderer\MeshRenderer.cpp">
       <Filter>engine\code\component\renderer</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\component\renderer\SkyBoxRenderer.cpp">
+      <Filter>engine\code\component\renderer</Filter>
+    </ClCompile>
     <ClCompile Include="engine\code\component\renderer\Sprite.cpp">
       <Filter>engine\code\component\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\component\renderer\primitive\Primitive.cpp">
+      <Filter>engine\code\component\renderer\primitive</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\component\transform\CameraTransform.cpp">
       <Filter>engine\code\component\transform</Filter>
@@ -617,10 +653,19 @@
     <ClCompile Include="engine\code\system\effect\EmitterWorkSystem.cpp">
       <Filter>engine\code\system\effect</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\system\effect\PrimitiveNodeAnimationWorkSystem.cpp">
+      <Filter>engine\code\system\effect</Filter>
+    </ClCompile>
     <ClCompile Include="engine\code\system\movement\MoveSystemByRigidBody.cpp">
       <Filter>engine\code\system\movement</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\system\postRender\GrayscaleEffect.cpp">
+      <Filter>engine\code\system\postRender</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\system\postRender\SmoothingEffect.cpp">
+      <Filter>engine\code\system\postRender</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\system\postRender\VignetteEffect.cpp">
       <Filter>engine\code\system\postRender</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\system\render\ColliderRenderingSystem.cpp">
@@ -630,6 +675,9 @@
       <Filter>engine\code\system\render</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\system\render\ParticleRenderSystem.cpp">
+      <Filter>engine\code\system\render</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\system\render\SkyboxRender.cpp">
       <Filter>engine\code\system\render</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\system\render\SpriteRenderSystem.cpp">
@@ -643,6 +691,9 @@
     </ClCompile>
     <ClCompile Include="lib\Thread\Thread.cpp">
       <Filter>lib\Thread</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\binaryIO\BinaryIO.cpp">
+      <Filter>lib\binaryIO</Filter>
     </ClCompile>
     <ClCompile Include="lib\deltaTime\DeltaTime.cpp">
       <Filter>lib\deltaTime</Filter>
@@ -658,6 +709,9 @@
     </ClCompile>
     <ClCompile Include="lib\myFileSystem\MyFileSystem.cpp">
       <Filter>lib\myFileSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="lib\myGui\MyGui.cpp">
+      <Filter>lib\myGui</Filter>
     </ClCompile>
     <ClCompile Include="lib\node\OperatorNodes.cpp">
       <Filter>lib\node</Filter>
