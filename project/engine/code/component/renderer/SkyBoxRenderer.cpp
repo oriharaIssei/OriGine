@@ -125,7 +125,7 @@ bool SkyboxRenderer::Edit() {
         }
     }
 
-    isChange |= DragVectorCommand("Color", materialBuff_.openData_.color);
+    isChange |= DragGuiVectorCommand("Color", materialBuff_.openData_.color);
 
     return isChange;
 #else

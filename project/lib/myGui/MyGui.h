@@ -184,7 +184,7 @@ bool InputVectorGui(const std::string& label, Vector<N, T>& value, const char* f
 }
 
 template <typename T>
-bool DragCommand(const std::string& label, T& value, float speed = 0.1f, T min = T(), T max = T(), const char* format = "%.3f", std::function<void(T*)> _afterFunc = nullptr) {
+bool DragGuiCommand(const std::string& label, T& value, float speed = 0.1f, T min = T(), T max = T(), const char* format = "%.3f", std::function<void(T*)> _afterFunc = nullptr) {
     static GuiValuePool<T> valuePool;
 
     DragGui(label, value, speed, min, max, format);
@@ -201,7 +201,7 @@ bool DragCommand(const std::string& label, T& value, float speed = 0.1f, T min =
     return false;
 }
 template <int N, typename T>
-bool DragVectorCommand(const std::string& label, Vector<N, T>& value, float speed = 0.1f, T min = T(), T max = T(), const char* format = "%.3f", std::function<void(Vector<N, T>*)> _afterFunc = nullptr) {
+bool DragGuiVectorCommand(const std::string& label, Vector<N, T>& value, float speed = 0.1f, T min = T(), T max = T(), const char* format = "%.3f", std::function<void(Vector<N, T>*)> _afterFunc = nullptr) {
     static GuiValuePool<Vector<N, T>> valuePool;
 
     DragVectorGui(label, value, speed, min, max, format);
@@ -304,8 +304,8 @@ bool ColorEditGui(const std::string& label, Vector<N, float>& value) {
 }
 
 template <int N>
-bool ColorEditCommand(const std::string& label, Vector<N, float>& value, std::function<void(Vector<N, float>*)> _afterFunc = nullptr) {
-    static_assert(N == 3 || N == 4, "ColorEditCommand only supports 3 or 4 components (RGB or RGBA).");
+bool ColorEditGuiCommand(const std::string& label, Vector<N, float>& value, std::function<void(Vector<N, float>*)> _afterFunc = nullptr) {
+    static_assert(N == 3 || N == 4, "ColorEditGuiCommand only supports 3 or 4 components (RGB or RGBA).");
 
     static GuiValuePool<Vector<N, float>> valuePool;
 

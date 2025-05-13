@@ -118,8 +118,8 @@ public:
         isChange      = CheckBoxCommand("IsActive", this->isActive_);
 
         if (ImGui::TreeNode("AABB")) {
-            isChange |= DragVectorCommand<3, float>("Min", this->shape_.min_, 0.01f);
-            isChange |= DragVectorCommand<3, float>("Max", this->shape_.max_, 0.01f);
+            isChange |= DragGuiVectorCommand<3, float>("Min", this->shape_.min_, 0.01f);
+            isChange |= DragGuiVectorCommand<3, float>("Max", this->shape_.max_, 0.01f);
             ImGui::TreePop();
         }
         if (ImGui::TreeNode("Transform")) {
@@ -162,8 +162,8 @@ public:
         isChange      = CheckBoxCommand("IsActive", this->isActive_);
 
         if (ImGui::TreeNode("Sphere")) {
-            isChange |= DragVectorCommand<3, float>("Center", shape_.center_, 0.01f);
-            isChange |= DragCommand<float>("Radius", shape_.radius_, 0.01f);
+            isChange |= DragGuiVectorCommand<3, float>("Center", shape_.center_, 0.01f);
+            isChange |= DragGuiCommand<float>("Radius", shape_.radius_, 0.01f);
             ImGui::TreePop();
         }
         if (ImGui::TreeNode("Transform")) {

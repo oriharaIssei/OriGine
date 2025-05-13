@@ -76,7 +76,7 @@ bool ModelNodeAnimation::Edit() {
 
     isChange |= CheckBoxCommand("isPlay", isPlay_);
 
-    isChange |= DragCommand("Duration", duration_, 0.01f, 0.0f);
+    isChange |= DragGuiCommand("Duration", duration_, 0.01f, 0.0f);
 
     return isChange;
 #else

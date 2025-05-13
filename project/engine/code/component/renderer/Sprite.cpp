@@ -89,16 +89,16 @@ bool SpriteRenderer::Edit() {
     ImGui::Spacing();
 
     ImGui::Text("RenderingPriority");
-    isChange |= DragCommand("##RenderingPriority", renderPriority_, 1, 0, 1000);
+    isChange |= DragGuiCommand("##RenderingPriority", renderPriority_, 1, 0, 1000);
 
     ImGui::Text("TextureSize");
-    isChange |= DragVectorCommand("##TextureSize", textureSize_, 1.0f, 0.0f, 1000.0f);
+    isChange |= DragGuiVectorCommand("##TextureSize", textureSize_, 1.0f, 0.0f, 1000.0f);
 
     ImGui::Text("TextureLeftTop");
-    isChange |= DragVectorCommand("##TextureLeftTop", textureLeftTop_, 1.0f, 0.0f, 1000.0f);
+    isChange |= DragGuiVectorCommand("##TextureLeftTop", textureLeftTop_, 1.0f, 0.0f, 1000.0f);
 
     ImGui::Text("AnchorPoint");
-    isChange |= DragVectorCommand("##AnchorPoint", anchorPoint_,0.01f, -1.0f, 1.0f);
+    isChange |= DragGuiVectorCommand("##AnchorPoint", anchorPoint_,0.01f, -1.0f, 1.0f);
 
     ImGui::Spacing();
 
@@ -114,21 +114,21 @@ bool SpriteRenderer::Edit() {
 
     if (ImGui::TreeNode("UVTransform")) {
         ImGui::Text("UVScale");
-        isChange |= DragVectorCommand("##UVScale", spriteBuff_->uvScale_, 0.01f, 0.0f, 1000.0f);
+        isChange |= DragGuiVectorCommand("##UVScale", spriteBuff_->uvScale_, 0.01f, 0.0f, 1000.0f);
         ImGui::Text("UVRotate");
-        isChange |= DragCommand("##UVRotate", spriteBuff_->uvRotate_, 0.01f, 0.0f, 1000.0f);
+        isChange |= DragGuiCommand("##UVRotate", spriteBuff_->uvRotate_, 0.01f, 0.0f, 1000.0f);
         ImGui::Text("UVTranslate");
-        isChange |= DragVectorCommand("##UVTranslate", spriteBuff_->uvTranslate_, 0.01f, 0.0f, 1000.0f);
+        isChange |= DragGuiVectorCommand("##UVTranslate", spriteBuff_->uvTranslate_, 0.01f, 0.0f, 1000.0f);
         ImGui::TreePop();
     }
 
     if (ImGui::TreeNode("SpriteTransform")) {
         ImGui::Text("Size(Scale)");
-        isChange |= DragVectorCommand("##Scale", spriteBuff_->scale_, 0.01f, 0.0f, 1000.0f);
+        isChange |= DragGuiVectorCommand("##Scale", spriteBuff_->scale_, 0.01f, 0.0f, 1000.0f);
         ImGui::Text("Rotate");
-        isChange |= DragCommand("##Rotate", spriteBuff_->rotate_, 0.01f, 0.0f, 1000.0f);
+        isChange |= DragGuiCommand("##Rotate", spriteBuff_->rotate_, 0.01f, 0.0f, 1000.0f);
         ImGui::Text("Translate");
-        isChange |= DragVectorCommand("##Translate", spriteBuff_->translate_, 0.01f, 0.0f, 1000.0f);
+        isChange |= DragGuiVectorCommand("##Translate", spriteBuff_->translate_, 0.01f, 0.0f, 1000.0f);
         ImGui::TreePop();
     }
 

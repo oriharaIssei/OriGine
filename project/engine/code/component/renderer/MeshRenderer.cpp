@@ -413,13 +413,13 @@ bool LineRenderer::Edit() {
                 startColorLabel = "start Color##" + std::to_string(lineIndex);
                 endColorLabel   = "end Color##" + std::to_string(lineIndex);
 
-                isChange |= DragVectorCommand(startLabel.c_str(), vertex1.pos);
+                isChange |= DragGuiVectorCommand(startLabel.c_str(), vertex1.pos);
                 vertex1.pos[W] = 1.f;
-                isChange |= DragVectorCommand(endLabel.c_str(), vertex2.pos);
+                isChange |= DragGuiVectorCommand(endLabel.c_str(), vertex2.pos);
                 vertex2.pos[W] = 1.f;
                 ImGui::Spacing();
-                isChange |= ColorEditCommand(startColorLabel, vertex1.color);
-                isChange |= ColorEditCommand(endColorLabel, vertex2.color);
+                isChange |= ColorEditGuiCommand(startColorLabel, vertex1.color);
+                isChange |= ColorEditGuiCommand(endColorLabel, vertex2.color);
 
                 ++lineIndex;
             }
