@@ -21,10 +21,6 @@ void ECSEditor::Initialize() {
 
     editEntity_ = nullptr;
 
-    for (int32_t i = 0; i < int32_t(SystemType::Count); i++) {
-        workSystemList_[i].clear();
-    }
-
     SortPriorityOrderFromECSManager();
 }
 
@@ -265,7 +261,7 @@ void ECSEditor::EditEntity() {
 
         for (int32_t systemTypeIndex = 0; systemTypeIndex < int32_t(SystemType::Count); ++systemTypeIndex) {
             if (ImGui::CollapsingHeader(SystemTypeString[systemTypeIndex].c_str())) {
-                for (auto& [systemName, system] : editEntitySystems_[systemTypeIndex]) {
+                for (auto& [systemName, system] : workSystemList_[systemTypeIndex]) {
                     // Popupで 処理するために保持
                     if (ImGui::Button(systemName.c_str())) {
                         popupLeaveWorkSystem_.isOpen_ = true;
@@ -288,7 +284,6 @@ void ECSEditor::WorkerSystemList() {
     if (ImGui::Begin("Worker System List")) {
         std::string systemLabel = "";
         int32_t systemTypeIndex = 0;
-        int systemPriority      = 0;
 
         for (auto& systemByType : workSystemList_) {
             // Typeごとで区切る
@@ -298,6 +293,11 @@ void ECSEditor::WorkerSystemList() {
                 SortPriorityOrderFromECSManager(systemTypeIndex);
 
                 for (auto& [systemName, system] : systemByType) {
+                    int32_t systemPriority    = system->getPriority();
+                    int32_t preSystemPriority = systemPriority;
+                    bool systemIsActive       = system->isActive();
+                    bool preSystemIsActive    = systemIsActive;
+                    systemLabel               = "##" + systemName + "isActive";
 
                     // Drag & Drop Source
                     if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
@@ -320,19 +320,17 @@ void ECSEditor::WorkerSystemList() {
                             // ドロップされた位置に基づいて優先度を調整
                             if (ImGui::IsMouseHoveringRect(itemRectMin, itemRectCenter)) {
                                 // 上側にドロップされた場合、優先度を減少
-                                system->setPriority(droppedPriority - 1);
+                                systemPriority = droppedPriority - 1;
                             } else if (ImGui::IsMouseHoveringRect(itemRectCenter, itemRectMax)) {
                                 // 下側にドロップされた場合、優先度を増加
-                                system->setPriority(droppedPriority + 1);
+                                systemPriority = droppedPriority + 1;
                             }
                         }
                         ImGui::EndDragDropTarget();
                     }
 
-                    systemLabel   = "##" + systemName + "isActive";
-                    bool isActive = system->isActive();
-                    ImGui::Checkbox(systemLabel.c_str(), &isActive);
-                    system->setIsActive(isActive);
+                    ImGui::Checkbox(systemLabel.c_str(), &systemIsActive);
+
                     ImGui::SameLine();
 
                     // Input Intで Priorityを変更 & 表示
@@ -345,20 +343,17 @@ void ECSEditor::WorkerSystemList() {
                     ImGui::PopItemWidth();
                     ImGui::SameLine();
                     ImGui::Text("%s", systemName.c_str());
+
+                    if (systemIsActive != preSystemIsActive) {
+                        auto command = std::make_unique<ChangingSystemActivityCommand>(this, system, systemIsActive);
+                        EditorGroup::getInstance()->pushCommand(std::move(command));
+                    }
+                    if (systemPriority != preSystemPriority) {
+                        auto command = std::make_unique<ChangingSystemPriorityCommand>(this, system, systemPriority);
+                        EditorGroup::getInstance()->pushCommand(std::move(command));
+                    }
                 }
 
-                if (systemByType.size() > 2) {
-                    // Sort
-                    std::sort(
-                        systemByType.begin(),
-                        systemByType.end(),
-                        [](const std::pair<std::string, ISystem*>& a,
-                            const std::pair<std::string, ISystem*>& b) {
-                            return a.second->getPriority() < b.second->getPriority();
-                        });
-
-                    ecsManager_->SortPriorityOrderSystems(systemTypeIndex);
-                }
                 ImGui::Unindent();
             }
             systemTypeIndex++;
@@ -899,3 +894,58 @@ void ChangeEntityDataTypeCommand::Undo() {
 }
 
 #endif // _DEBUG
+
+void ChangingSystemActivityCommand::Execute() {
+    // システムのアクティブ状態を変更
+    system_->setIsActive(isActive_);
+    entities_ = system_->getEntities();
+
+    for (auto& entity : entities_) {
+        system_->removeEntity(entity);
+    }
+}
+
+void ChangingSystemActivityCommand::Undo() {
+    // システムのアクティブ状態を戻す
+    system_->setIsActive(!isActive_);
+
+    for (auto& entity : entities_) {
+        system_->addEntity(entity);
+    }
+}
+
+void ChangingSystemPriorityCommand::Execute() {
+    // システムの優先度を変更
+    system_->setPriority(newPriority_);
+
+    int32_t systemTypeIndex = int32_t(system_->getSystemType());
+    auto& systemByType      = ecsEditor_->customWorkSystemList()[systemTypeIndex];
+    // Sort
+    std::sort(
+        systemByType.begin(),
+        systemByType.end(),
+        [](const std::pair<std::string, ISystem*>& a,
+            const std::pair<std::string, ISystem*>& b) {
+            return a.second->getPriority() < b.second->getPriority();
+        });
+
+    ECSManager::getInstance()->SortPriorityOrderSystems(systemTypeIndex);
+}
+
+void ChangingSystemPriorityCommand::Undo() {
+    // システムの優先度を戻す
+    system_->setPriority(oldPriority_);
+
+    int32_t systemTypeIndex = int32_t(system_->getSystemType());
+    auto& systemByType      = ecsEditor_->customWorkSystemList()[systemTypeIndex];
+    // Sort
+    std::sort(
+        systemByType.begin(),
+        systemByType.end(),
+        [](const std::pair<std::string, ISystem*>& a,
+            const std::pair<std::string, ISystem*>& b) {
+            return a.second->getPriority() < b.second->getPriority();
+        });
+
+    ECSManager::getInstance()->SortPriorityOrderSystems(systemTypeIndex);
+}

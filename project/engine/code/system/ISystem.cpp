@@ -18,6 +18,10 @@ void ISystem::Update() {
 #ifdef _DEBUG
     // 計測終了
     deltaTimer_.Update();
-    deltaTime_ = deltaTimer_.getDeltaTime();
+    runningTime_ = deltaTimer_.getDeltaTime();
 #endif
+}
+
+void ISystem::Edit() {
+
 }

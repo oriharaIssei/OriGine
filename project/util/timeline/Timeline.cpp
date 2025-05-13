@@ -444,8 +444,7 @@ bool EditKeyFrame(
                     commandCombo->setFuncOnAfterCommand([=]() {
                         ImGuiStorage* _storage = ImGui::GetStateStorage();
                         _storage->SetInt(popUpIndexId, -1);
-                    },
-                        false);
+                    });
                     commandCombo->setFuncOnAfterUndoCommand([=]() {
                         ImGuiStorage* _storage = ImGui::GetStateStorage();
                         _storage->SetInt(popUpIndexId, popUpIndex);
@@ -489,7 +488,7 @@ bool EditKeyFrame(
                     return 0;
                 }
                 ImGui::Text("Time");
-                DragCommand<float>("##Time" + _label + std::to_string(popUpIndex),
+                DragGuiCommand<float>("##Time" + _label + std::to_string(popUpIndex),
                     _keyFrames[popUpIndex].time,
                     0.1f, {}, {}, "%.3f",
                     [&_keyFrames](float* /*val*/) {
@@ -507,7 +506,7 @@ bool EditKeyFrame(
                     _howEditItem(popUpIndex);
                 } else {
                     ImGui::Text("Value");
-                    DragCommand("##Value" + _label + std::to_string(popUpIndex),
+                    DragGuiCommand("##Value" + _label + std::to_string(popUpIndex),
                         _keyFrames[popUpIndex].value,
                         0.1f);
                 }
@@ -751,7 +750,7 @@ bool EditKeyFrame(
                 }
 
                 ImGui::Text("Time");
-                DragCommand<float>(
+                DragGuiCommand<float>(
                     "##Time" + _label + std::to_string(popUpIndex),
                     _keyFrames[popUpIndex].time,
                     0.1f, {}, {}, "%.3f",
@@ -770,7 +769,7 @@ bool EditKeyFrame(
                     _howEditItem(popUpIndex);
                 } else {
                     ImGui::Text("Value");
-                    DragVectorCommand<2, float>(
+                    DragGuiVectorCommand<2, float>(
                         "##Value" + _label + std::to_string(popUpIndex),
                         _keyFrames[popUpIndex].value,
                         0.1f);
@@ -993,7 +992,7 @@ bool EditKeyFrame(
                     return 0;
                 }
                 ImGui::Text("Time");
-                DragCommand<float>(
+                DragGuiCommand<float>(
                     "##Time" + _label + std::to_string(popUpIndex),
                     _keyFrames[popUpIndex].time,
                     0.1f, {}, {}, "%.3f",
@@ -1012,17 +1011,17 @@ bool EditKeyFrame(
                     _howEditItem(popUpIndex);
                 } else {
                     ImGui::Text("X:");
-                    DragCommand<float>(
+                    DragGuiCommand<float>(
                         "##X" + _label + std::to_string(popUpIndex),
                         _keyFrames[popUpIndex].value[X],
                         0.1f);
                     ImGui::Text("Y:");
-                    DragCommand<float>(
+                    DragGuiCommand<float>(
                         "##Y" + _label + std::to_string(popUpIndex),
                         _keyFrames[popUpIndex].value[Y],
                         0.1f);
                     ImGui::Text("Z:");
-                    DragCommand<float>(
+                    DragGuiCommand<float>(
                         "##Z" + _label + std::to_string(popUpIndex),
                         _keyFrames[popUpIndex].value[Z],
                         0.1f);
@@ -1249,7 +1248,7 @@ bool EditKeyFrame(
                     return 0;
                 }
                 ImGui::Text("Time");
-                DragCommand<float>(
+                DragGuiCommand<float>(
                     "##Time" + _label + std::to_string(popUpIndex),
                     _keyFrames[popUpIndex].time,
                     0.1f, {}, {}, "%.3f",
@@ -1268,22 +1267,22 @@ bool EditKeyFrame(
                     _howEditItem(popUpIndex);
                 } else {
                     ImGui::Text("X:");
-                    DragCommand<float>(
+                    DragGuiCommand<float>(
                         "##X" + _label + std::to_string(popUpIndex),
                         _keyFrames[popUpIndex].value[X],
                         0.1f);
                     ImGui::Text("Y:");
-                    DragCommand<float>(
+                    DragGuiCommand<float>(
                         "##Y" + _label + std::to_string(popUpIndex),
                         _keyFrames[popUpIndex].value[Y],
                         0.1f);
                     ImGui::Text("Z:");
-                    DragCommand<float>(
+                    DragGuiCommand<float>(
                         "##Z" + _label + std::to_string(popUpIndex),
                         _keyFrames[popUpIndex].value[Z],
                         0.1f);
                     ImGui::Text("W:");
-                    DragCommand<float>(
+                    DragGuiCommand<float>(
                         "##W" + _label + std::to_string(popUpIndex),
                         _keyFrames[popUpIndex].value[W],
                         0.1f);
@@ -1520,7 +1519,7 @@ bool EditKeyFrame(
                     return 0;
                 }
                 ImGui::Text("Time");
-                DragCommand<float>(
+                DragGuiCommand<float>(
                     "##Time" + _label + std::to_string(popUpIndex),
                     _keyFrames[popUpIndex].time,
                     0.1f, {}, {}, "%.3f",
@@ -1539,22 +1538,22 @@ bool EditKeyFrame(
                     _howEditItem(popUpIndex);
                 } else {
                     ImGui::Text("X:");
-                    DragCommand<float>(
+                    DragGuiCommand<float>(
                         "##X" + _label + std::to_string(popUpIndex),
                         _keyFrames[popUpIndex].value.v[X],
                         0.1f);
                     ImGui::Text("Y:");
-                    DragCommand<float>(
+                    DragGuiCommand<float>(
                         "##Y" + _label + std::to_string(popUpIndex),
                         _keyFrames[popUpIndex].value.v[Y],
                         0.1f);
                     ImGui::Text("Z:");
-                    DragCommand<float>(
+                    DragGuiCommand<float>(
                         "##Z" + _label + std::to_string(popUpIndex),
                         _keyFrames[popUpIndex].value.v[Z],
                         0.1f);
                     ImGui::Text("W:");
-                    DragCommand<float>(
+                    DragGuiCommand<float>(
                         "##W" + _label + std::to_string(popUpIndex),
                         _keyFrames[popUpIndex].value.v[W],
                         0.1f);
@@ -1793,7 +1792,7 @@ bool EditColorKeyFrame(
                     return 0;
                 }
                 ImGui::Text("Time");
-                DragCommand<float>(
+                DragGuiCommand<float>(
                     "##Time" + _label + std::to_string(popUpIndex),
                     _keyFrames[popUpIndex].time,
                     0.1f, {}, {}, "%.3f",
@@ -1811,7 +1810,7 @@ bool EditColorKeyFrame(
                 if (_howEditItem) {
                     _howEditItem(popUpIndex);
                 } else {
-                    ColorEditCommand<4>(
+                    ColorEditGuiCommand<4>(
                         "Color##" + _label + std::to_string(popUpIndex),
                         _keyFrames[popUpIndex].value);
                 }

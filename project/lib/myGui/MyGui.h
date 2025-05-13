@@ -142,7 +142,7 @@ bool SlideVectorGui(const std::string& label, Vector<N, T>& value, T min = T(), 
     }
 }
 
-template <int N, typename T>
+template <typename T>
 bool InputGui(const std::string& label, T& value, const char* format = "%.3f") {
 
     if constexpr (std::is_same_v<T, int>) {
@@ -151,8 +151,9 @@ bool InputGui(const std::string& label, T& value, const char* format = "%.3f") {
         return ImGui::InputFloat(label.c_str(), &value, 0.0f, 0.0f, format);
     } else if constexpr (std::is_same_v<T, double>) {
         return ImGui::InputScalar(label.c_str(), ImGuiDataType_Double, &value, nullptr, nullptr, format);
+    } else {
+        return false; // サポートされていない型の場合
     }
-    return false; // サポートされていない型の場合
 }
 template <typename T, int N>
 bool InputVectorGui(const std::string& label, Vector<N, T>& value, const char* format = "%.3f") {
@@ -184,7 +185,7 @@ bool InputVectorGui(const std::string& label, Vector<N, T>& value, const char* f
 }
 
 template <typename T>
-bool DragCommand(const std::string& label, T& value, float speed = 0.1f, T min = T(), T max = T(), const char* format = "%.3f", std::function<void(T*)> _afterFunc = nullptr) {
+bool DragGuiCommand(const std::string& label, T& value, float speed = 0.1f, T min = T(), T max = T(), const char* format = "%.3f", std::function<void(T*)> _afterFunc = nullptr) {
     static GuiValuePool<T> valuePool;
 
     DragGui(label, value, speed, min, max, format);
@@ -201,7 +202,7 @@ bool DragCommand(const std::string& label, T& value, float speed = 0.1f, T min =
     return false;
 }
 template <int N, typename T>
-bool DragVectorCommand(const std::string& label, Vector<N, T>& value, float speed = 0.1f, T min = T(), T max = T(), const char* format = "%.3f", std::function<void(Vector<N, T>*)> _afterFunc = nullptr) {
+bool DragGuiVectorCommand(const std::string& label, Vector<N, T>& value, float speed = 0.1f, T min = T(), T max = T(), const char* format = "%.3f", std::function<void(Vector<N, T>*)> _afterFunc = nullptr) {
     static GuiValuePool<Vector<N, T>> valuePool;
 
     DragVectorGui(label, value, speed, min, max, format);
@@ -237,7 +238,7 @@ bool SlideCommand(const std::string& label, T& value, T min = T(), T max = T(), 
 }
 
 template <typename T, int N>
-bool SlideVectorCommand(const std::string& label, Vector<N, T>& value, T min = T(), T max = T(), const char* format = "%.3f", std::function<void(T*)> _afterFunc = nullptr) {
+bool SlideVectorCommand(const std::string& label, Vector<N, T>& value, T min = T(), T max = T(), const char* format = "%.3f", std::function<void(Vector<N, T>*)> _afterFunc = nullptr) {
     static GuiValuePool<Vector<N, T>> valuePool;
 
     SlideVectorGui(label, value, min, max, format);
@@ -254,7 +255,6 @@ bool SlideVectorCommand(const std::string& label, Vector<N, T>& value, T min = T
     return false;
 }
 
-// 原則 Inputのみ 使用する
 template <typename T>
 bool InputGuiCommand(const std::string& label, T& value, const char* format = "%.3f", std::function<void(T*)> _afterFunc = nullptr) {
     static GuiValuePool<T> valuePool;
@@ -273,7 +273,7 @@ bool InputGuiCommand(const std::string& label, T& value, const char* format = "%
     return false;
 }
 template <typename T, int N>
-bool InputVectorGuiCommand(const std::string& label, Vector<N, T>& value, const char* format = "%.3f", std::function<void(T*)> _afterFunc = nullptr) {
+bool InputVectorGuiCommand(const std::string& label, Vector<N, T>& value, const char* format = "%.3f", std::function<void(Vector<N, T>*)> _afterFunc = nullptr) {
     static GuiValuePool<Vector<N, T>> valuePool;
 
     InputVectorGui(label, value, format);
@@ -304,8 +304,8 @@ bool ColorEditGui(const std::string& label, Vector<N, float>& value) {
 }
 
 template <int N>
-bool ColorEditCommand(const std::string& label, Vector<N, float>& value, std::function<void(Vector<N, float>*)> _afterFunc = nullptr) {
-    static_assert(N == 3 || N == 4, "ColorEditCommand only supports 3 or 4 components (RGB or RGBA).");
+bool ColorEditGuiCommand(const std::string& label, Vector<N, float>& value, std::function<void(Vector<N, float>*)> _afterFunc = nullptr) {
+    static_assert(N == 3 || N == 4, "ColorEditGuiCommand only supports 3 or 4 components (RGB or RGBA).");
 
     static GuiValuePool<Vector<N, float>> valuePool;
 

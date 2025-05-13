@@ -13,21 +13,21 @@ bool SpotLight::Edit() {
 
     ImGui::Spacing();
 
-    isChanged |= ColorEditCommand("Color", color_);
-    isChanged |= DragCommand<float>("Intensity", intensity_, 0.01f, 0.0f, 10.0f);
+    isChanged |= ColorEditGuiCommand("Color", color_);
+    isChanged |= DragGuiCommand<float>("Intensity", intensity_, 0.01f, 0.0f, 10.0f);
 
     ImGui::Spacing();
 
-    isChanged |= DragVectorCommand<3, float>("Position", pos_, 0.01f);
-    isChanged |= DragVectorCommand<3, float>("Direction", direction_, 0.01f, {}, {}, "%.3f", [](Vector<3, float>* _d) { *_d = Vec3f::Normalize(*_d); });
+    isChanged |= DragGuiVectorCommand<3, float>("Position", pos_, 0.01f);
+    isChanged |= DragGuiVectorCommand<3, float>("Direction", direction_, 0.01f, {}, {}, "%.3f", [](Vector<3, float>* _d) { *_d = Vec3f::Normalize(*_d); });
 
-    isChanged |= DragCommand<float>("Distance", distance_, 0.01f, 0.0f, 10.0f);
-    isChanged |= DragCommand<float>("Decay", decay_, 0.01f, 0.0f, 10.0f);
+    isChanged |= DragGuiCommand<float>("Distance", distance_, 0.01f, 0.0f, 10.0f);
+    isChanged |= DragGuiCommand<float>("Decay", decay_, 0.01f, 0.0f, 10.0f);
 
     ImGui::Spacing();
 
-    isChanged |= DragCommand<float>("CosAngle", cosAngle_, 0.01f, 0.0f, 1.0f);
-    isChanged |= DragCommand<float>("CosFalloffStart", cosFalloffStart_, 0.01f, 0.0f, 1.0f);
+    isChanged |= DragGuiCommand<float>("CosAngle", cosAngle_, 0.01f, 0.0f, 1.0f);
+    isChanged |= DragGuiCommand<float>("CosFalloffStart", cosFalloffStart_, 0.01f, 0.0f, 1.0f);
 
     return isChanged;
 #else

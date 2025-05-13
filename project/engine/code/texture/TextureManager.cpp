@@ -58,11 +58,16 @@ void Texture::Initialize(const std::string& filePath, std::shared_ptr<DxSrvArray
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
     srvDesc.Format                  = metaData.format;
     srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-    srvDesc.ViewDimension           = D3D12_SRV_DIMENSION_TEXTURE2D;
-    srvDesc.Texture2D.MipLevels     = UINT(metaData.mipLevels);
 
-    /// SRV を作成する  の場所を決める
-    /// 先頭は ImGui が使用しているので その次を使う
+    if (metaData.IsCubemap()) {
+        srvDesc.ViewDimension                   = D3D12_SRV_DIMENSION_TEXTURECUBE;
+        srvDesc.TextureCube.MostDetailedMip     = 0;
+        srvDesc.TextureCube.MipLevels           = UINT_MAX;
+        srvDesc.TextureCube.ResourceMinLODClamp = 0.0f;
+    } else {
+        srvDesc.ViewDimension       = D3D12_SRV_DIMENSION_TEXTURE2D;
+        srvDesc.Texture2D.MipLevels = UINT(metaData.mipLevels);
+    }
 
     /// SRV の作成
     auto device   = Engine::getInstance()->getDxDevice()->getDevice();
@@ -79,11 +84,22 @@ DirectX::ScratchImage Texture::Load(const std::string& filePath) {
 
     // テクスチャファイルを読み込む
     std::wstring filePathW = ConvertString(filePath);
-    HRESULT hr             = DirectX::LoadFromWICFile(
-        filePathW.c_str(),
-        DirectX::WIC_FLAGS_FORCE_SRGB,
-        nullptr,
-        image);
+    HRESULT hr             = 0;
+
+    if (filePathW.ends_with(L".dds")) {
+        hr = DirectX::LoadFromDDSFile(
+            filePathW.c_str(),
+            DirectX::DDS_FLAGS_NONE,
+            nullptr,
+            image);
+    } else {
+        hr = DirectX::LoadFromWICFile(
+            filePathW.c_str(),
+            DirectX::WIC_FLAGS_FORCE_SRGB,
+            nullptr,
+            image);
+    }
+
     if (FAILED(hr)) {
         std::cerr << "Failed to load texture file: " << filePath << std::endl;
         assert(SUCCEEDED(hr));
@@ -91,7 +107,11 @@ DirectX::ScratchImage Texture::Load(const std::string& filePath) {
 
     DirectX::ScratchImage mipImages{};
 
-    // ミップマップの作成は画像が1x1以上の場合のみ行う
+    if (DirectX::IsCompressed(image.GetMetadata().format)) {
+        // 圧縮テクスチャの場合、MipMapを生成しない
+        mipImages = std::move(image);
+        return mipImages;
+    }
     if (image.GetMetadata().width > 1 && image.GetMetadata().height > 1) {
         hr = DirectX::GenerateMipMaps(
             image.GetImages(),

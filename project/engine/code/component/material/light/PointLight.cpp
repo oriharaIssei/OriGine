@@ -13,14 +13,14 @@ bool PointLight::Edit() {
 
     ImGui::Spacing();
 
-    isChanged |= ColorEditCommand("Color", color_);
-    isChanged |= DragCommand<float>("Intensity", intensity_, 0.01f, 0.0f, 10.0f);
+    isChanged |= ColorEditGuiCommand("Color", color_);
+    isChanged |= DragGuiCommand<float>("Intensity", intensity_, 0.01f, 0.0f, 10.0f);
 
     ImGui::Spacing();
 
-    isChanged |= DragVectorCommand<3,float>("Position", pos_, 0.01f);
-    isChanged |= DragCommand<float>("Radius", radius_, 0.01f, 0.0f, 10.0f);
-    isChanged |= DragCommand<float>("Decay", decay_, 0.01f, 0.0f, 10.0f);
+    isChanged |= DragGuiVectorCommand<3,float>("Position", pos_, 0.01f);
+    isChanged |= DragGuiCommand<float>("Radius", radius_, 0.01f, 0.0f, 10.0f);
+    isChanged |= DragGuiCommand<float>("Decay", decay_, 0.01f, 0.0f, 10.0f);
     return isChanged;
 #else
     return false;

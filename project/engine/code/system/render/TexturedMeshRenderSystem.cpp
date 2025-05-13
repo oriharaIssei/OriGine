@@ -265,7 +265,7 @@ void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
         ///==============================
         {
             Transform* entityTransfrom_ = getComponent<Transform>(_entity);
-            for (int32_t i = 0; i < renderer->getMeshSize(); ++i) {
+            for (int32_t i = 0; i < renderer->getMeshGroupSize(); ++i) {
                 auto& transform = renderer->getTransformBuff(i);
 
                 if (transform->parent == nullptr) {

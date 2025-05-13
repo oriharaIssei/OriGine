@@ -9,6 +9,13 @@ public:
     SerializedField(const std::string& scene, const std::string& group, const std::string& value) {
         value_ = GlobalVariables::getInstance()->addValue<T>(scene, group, value);
     }
+    SerializedField(const std::string& scene, const std::string& group, const std::string& value, const T& defaultValue) {
+        value_ = GlobalVariables::getInstance()->addValue<T>(scene, group, value);
+        // 値が nullptr の場合はデフォルト値を設定
+        if (!value_) {
+            setValue(defaultValue);
+        }
+    }
 
     // デストラクタ
     ~SerializedField() {}

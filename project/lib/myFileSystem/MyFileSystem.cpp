@@ -2,7 +2,8 @@
 
 /// stl
 #include <codecvt>
-#include <shlobj.h> // Add this include directive
+#include <shlobj.h>
+#include <fstream>
 #include <shobjidl.h>
 
 /// engine
@@ -38,6 +39,15 @@ std::list<std::string> MyFileSystem::searchSubFolder(const std::string& director
         }
     }
     return subFolders;
+}
+
+bool MyFileSystem::createFile(const std::string& filePath) {
+    std::ofstream file(filePath);
+    if (file) {
+        file.close();
+        return true;
+    }
+    return false;
 }
 
 bool MyFileSystem::createFolder(const std::string& directory) {

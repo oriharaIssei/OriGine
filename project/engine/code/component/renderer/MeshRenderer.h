@@ -31,12 +31,10 @@
 template <typename MeshTenplate, typename VertexDataType>
 concept IsDerivedMesh = std::derived_from<MeshTenplate, Mesh<VertexDataType>>;
 
-template <typename MeshTemplate, typename VertexDataType>
+template <typename MeshTemplate, typename VertexDataType = MeshTemplate::VertexType>
     requires IsDerivedMesh<MeshTemplate, VertexDataType>
 class MeshRenderer
     : public IComponent {
-    friend void to_json(nlohmann::json& j, const MeshRenderer& r);
-    friend void from_json(const nlohmann::json& j, MeshRenderer& r);
 
 public:
     using VertexType = VertexDataType;
@@ -89,6 +87,9 @@ public: // ↓ Accessor
         isRender_ = _isRender;
     }
     //------------------------------ MeshGroup ------------------------------//
+    int32_t getMeshGroupSize() const {
+        return static_cast<int32_t>(meshGroup_->size());
+    }
     const std::shared_ptr<std::vector<MeshTemplate>>& getMeshGroup() const {
         return meshGroup_;
     }
@@ -155,9 +156,6 @@ private:
     std::vector<uint32_t> meshTextureNumber_;
 
 public:
-    int32_t getMeshSize() const {
-        return static_cast<int32_t>(meshGroup_->size());
-    }
     //------------------------------ Transform ------------------------------//
     const Transform& getTransform(int32_t _meshIndex = 0) const {
         return meshTransformBuff_[_meshIndex].openData_;

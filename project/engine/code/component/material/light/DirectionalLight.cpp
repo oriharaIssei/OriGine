@@ -13,10 +13,10 @@ bool DirectionalLight::Edit() {
 
     ImGui::Spacing();
 
-    isChanged |= ColorEditCommand("Color", color_);
-    isChanged |= DragCommand<float>("Intensity", intensity_, 0.01f, 0.1f);
+    isChanged |= ColorEditGuiCommand("Color", color_);
+    isChanged |= DragGuiCommand<float>("Intensity", intensity_, 0.01f, 0.1f);
 
-    DragVectorCommand<3, float>("Direction", direction_, 0.01f, {}, {}, "%.3f", [](Vector<3, float>* _d) { *_d = Vec3f(*_d).normalize(); });
+    DragGuiVectorCommand<3, float>("Direction", direction_, 0.01f, {}, {}, "%.3f", [](Vector<3, float>* _d) { *_d = Vec3f(*_d).normalize(); });
 
     return isChanged;
 #else

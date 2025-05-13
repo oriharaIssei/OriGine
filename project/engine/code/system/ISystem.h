@@ -46,6 +46,7 @@ public:
 
     virtual void Initialize() = 0;
     virtual void Update();
+    virtual void Edit();
     virtual void Finalize() = 0;
 
     void eraseDeadEntity() {
@@ -62,7 +63,7 @@ protected:
 
 #ifdef _DEBUG
     DeltaTime deltaTimer_;
-    float deltaTime_ = 0.0f; // deltaTime
+    float runningTime_ = 0.0f; // deltaTime
 #endif // _DEBUG
 
 private:
@@ -108,7 +109,7 @@ public: // ========================================== accessor =================
     }
 
 #ifdef _DEBUG
-    float getDeltaTime() const { return deltaTime_; }
+    float getRunningTime() const { return runningTime_; }
 #endif // _DEBUG
 
     bool isActive() const {

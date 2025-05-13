@@ -205,11 +205,11 @@ bool PrimitiveNodeAnimation::Edit() {
     }
 
     if (ImGui::TreeNode("UvCurveGenerator Form TextureAnimation")) {
-        DragVectorCommand<2, float>("TileSize", tileSize_, 0.1f);
-        DragVectorCommand<2, float>("TextureSize", textureSize_, 0.1f);
-        DragCommand<float>("tilePerTime_", tilePerTime_);
-        DragCommand<float>("StartAnimationTime", startAnimationTime_, 0.1f, 0);
-        DragCommand<float>("AnimationTimeLength", animationTimeLength_, 0.1f, 0);
+        DragGuiVectorCommand<2, float>("TileSize", tileSize_, 0.1f);
+        DragGuiVectorCommand<2, float>("TextureSize", textureSize_, 0.1f);
+        DragGuiCommand<float>("tilePerTime_", tilePerTime_);
+        DragGuiCommand<float>("StartAnimationTime", startAnimationTime_, 0.1f, 0);
+        DragGuiCommand<float>("AnimationTimeLength", animationTimeLength_, 0.1f, 0);
 
         if (ImGui::Button("Generate Curve")) {
             EditorGroup::getInstance()->pushCommand(
