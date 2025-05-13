@@ -187,7 +187,8 @@ bool ModelMeshRenderer::Edit() {
                 this->Finalize();
                 meshGroup_ = std::make_shared<std::vector<TextureMesh>>();
                 CreateModelMeshRenderer(this, this->hostEntity_, this->directory_, this->fileName_);
-            },true);
+            },
+                true);
             EditorGroup::getInstance()->pushCommand(std::make_unique<CommandCombo>(commandCombo));
 
             isChange = true;
@@ -275,7 +276,7 @@ void CreateModelMeshRenderer(ModelMeshRenderer* _renderer, GameEntity* _hostEnti
         _renderer->InitializeTransformBuffer(_hostEntity);
         _renderer->InitializeMaterialBuffer(_hostEntity);
 
-        for (uint32_t i = 0; i < static_cast<uint32_t>(_renderer->getMeshSize()); ++i) {
+        for (uint32_t i = 0; i < static_cast<uint32_t>(_renderer->getMeshGroupSize()); ++i) {
             // マテリアルの設定
             _renderer->setMaterialBuff(i, model->materialData_[i].material.openData_);
             _renderer->setTextureNumber(i, model->materialData_[i].textureNumber);

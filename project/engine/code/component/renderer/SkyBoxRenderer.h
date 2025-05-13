@@ -46,6 +46,7 @@ private:
     int32_t textureIndex_ = 0;
 
 public:
+
     void setTextureIndex(int32_t _textureIndex) {
         textureIndex_ = _textureIndex;
     }
