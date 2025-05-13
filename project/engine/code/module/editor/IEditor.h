@@ -162,6 +162,7 @@ template <typename Container>
     requires HasErase<Container>
 class EraseElementCommand : public IEditCommand {
 public:
+    using ContainerType = Container;
     using Iterator = typename Container::iterator;
 
     EraseElementCommand(Container* container, Iterator it)

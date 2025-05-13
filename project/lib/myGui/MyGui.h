@@ -142,7 +142,7 @@ bool SlideVectorGui(const std::string& label, Vector<N, T>& value, T min = T(), 
     }
 }
 
-template <int N, typename T>
+template <typename T>
 bool InputGui(const std::string& label, T& value, const char* format = "%.3f") {
 
     if constexpr (std::is_same_v<T, int>) {
@@ -151,8 +151,9 @@ bool InputGui(const std::string& label, T& value, const char* format = "%.3f") {
         return ImGui::InputFloat(label.c_str(), &value, 0.0f, 0.0f, format);
     } else if constexpr (std::is_same_v<T, double>) {
         return ImGui::InputScalar(label.c_str(), ImGuiDataType_Double, &value, nullptr, nullptr, format);
+    } else {
+        return false; // サポートされていない型の場合
     }
-    return false; // サポートされていない型の場合
 }
 template <typename T, int N>
 bool InputVectorGui(const std::string& label, Vector<N, T>& value, const char* format = "%.3f") {
@@ -237,7 +238,7 @@ bool SlideCommand(const std::string& label, T& value, T min = T(), T max = T(), 
 }
 
 template <typename T, int N>
-bool SlideVectorCommand(const std::string& label, Vector<N, T>& value, T min = T(), T max = T(), const char* format = "%.3f", std::function<void(T*)> _afterFunc = nullptr) {
+bool SlideVectorCommand(const std::string& label, Vector<N, T>& value, T min = T(), T max = T(), const char* format = "%.3f", std::function<void(Vector<N, T>*)> _afterFunc = nullptr) {
     static GuiValuePool<Vector<N, T>> valuePool;
 
     SlideVectorGui(label, value, min, max, format);
@@ -254,7 +255,6 @@ bool SlideVectorCommand(const std::string& label, Vector<N, T>& value, T min = T
     return false;
 }
 
-// 原則 Inputのみ 使用する
 template <typename T>
 bool InputGuiCommand(const std::string& label, T& value, const char* format = "%.3f", std::function<void(T*)> _afterFunc = nullptr) {
     static GuiValuePool<T> valuePool;
@@ -273,7 +273,7 @@ bool InputGuiCommand(const std::string& label, T& value, const char* format = "%
     return false;
 }
 template <typename T, int N>
-bool InputVectorGuiCommand(const std::string& label, Vector<N, T>& value, const char* format = "%.3f", std::function<void(T*)> _afterFunc = nullptr) {
+bool InputVectorGuiCommand(const std::string& label, Vector<N, T>& value, const char* format = "%.3f", std::function<void(Vector<N, T>*)> _afterFunc = nullptr) {
     static GuiValuePool<Vector<N, T>> valuePool;
 
     InputVectorGui(label, value, format);
