@@ -261,7 +261,7 @@ void ECSEditor::EditEntity() {
 
         for (int32_t systemTypeIndex = 0; systemTypeIndex < int32_t(SystemType::Count); ++systemTypeIndex) {
             if (ImGui::CollapsingHeader(SystemTypeString[systemTypeIndex].c_str())) {
-                for (auto& [systemName, system] : workSystemList_[systemTypeIndex]) {
+                for (auto& [systemName, system] : editEntitySystems_[systemTypeIndex]) {
                     // Popupで 処理するために保持
                     if (ImGui::Button(systemName.c_str())) {
                         popupLeaveWorkSystem_.isOpen_ = true;

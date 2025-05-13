@@ -137,7 +137,7 @@ project "OriGineApp"
         "imgui"
     }
     warnings "Extra"
-    buildoptions { "/WX", "/utf-8" }
+    buildoptions { "/WX", "/utf-8","/bigobj" }
 
     filter "configurations:Debug"
         defines { "DEBUG", "_DEBUG" }

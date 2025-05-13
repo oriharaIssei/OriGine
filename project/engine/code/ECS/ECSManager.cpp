@@ -193,7 +193,7 @@ void EntityComponentSystemManager::resize(uint32_t _newSize) {
     entityCapacity_ = _newSize;
 }
 
-bool EntityComponentSystemManager::ActivateSystem(const std::string& _name) {
+bool EntityComponentSystemManager::ActivateSystem(const std::string& _name, bool _doInit) {
     for (int32_t i = 0; i < int32_t(SystemType::Count); ++i) {
         auto itr = systems_[i].find(_name);
 
@@ -201,15 +201,14 @@ bool EntityComponentSystemManager::ActivateSystem(const std::string& _name) {
             auto workkingSystem = itr->second.get();
             workkingSystem->setIsActive(true);
 
-            for (auto& system : workSystems_[i]) {
-                if (system == workkingSystem) {
-                    // すでに登録されている場合は、更新しない
-                    return false;
-                }
-                if (system->getPriority() > workkingSystem->getPriority()) {
-                    workSystems_[i].insert(workSystems_[i].begin() + i, workkingSystem);
-                }
+            workSystems_[i].push_back(workkingSystem);
+            if (_doInit) {
+                workSystems_[i].back()->Initialize();
             }
+            std::sort(workSystems_[i].begin(), workSystems_[i].end(),
+                [](ISystem* a, ISystem* b) {
+                    return a->getPriority() < b->getPriority();
+                });
             return true;
         }
     }
@@ -218,7 +217,7 @@ bool EntityComponentSystemManager::ActivateSystem(const std::string& _name) {
     return false;
 }
 
-bool EntityComponentSystemManager::ActivateSystem(const std::string& _name, SystemType _type) {
+bool EntityComponentSystemManager::ActivateSystem(const std::string& _name, SystemType _type, bool _doInit) {
     int32_t systemTypeIndex = int32_t(_type);
     auto itr                = systems_[systemTypeIndex].find(_name);
     if (itr == systems_[systemTypeIndex].end()) {
@@ -227,25 +226,26 @@ bool EntityComponentSystemManager::ActivateSystem(const std::string& _name, Syst
     }
     auto workkingSystem = itr->second.get();
     workkingSystem->setIsActive(true);
-    for (auto& system : workSystems_[systemTypeIndex]) {
-        if (system == workkingSystem) {
-            // すでに登録されている場合は、更新しない
-            return false;
-        }
-        if (system->getPriority() > workkingSystem->getPriority()) {
-            workSystems_[systemTypeIndex].insert(workSystems_[systemTypeIndex].begin() + systemTypeIndex, workkingSystem);
-        }
+
+    workSystems_[systemTypeIndex].push_back(workkingSystem);
+    if (_doInit) {
+        workSystems_[systemTypeIndex].back()->Initialize();
     }
+    std::sort(workSystems_[systemTypeIndex].begin(), workSystems_[systemTypeIndex].end(),
+        [](ISystem* a, ISystem* b) {
+            return a->getPriority() < b->getPriority();
+        });
+
     return true;
 }
 
-void EntityComponentSystemManager::AllActivateSystem() {
+void EntityComponentSystemManager::AllActivateSystem(bool _doInit) {
     for (int32_t i = 0; i < int32_t(SystemType::Count); ++i) {
         if (!workSystems_[i].empty()) {
             workSystems_[i].clear();
         }
-        for (auto& [name,system] : systems_[i]) {
-            ActivateSystem(name, static_cast<SystemType>(i));
+        for (auto& [name, system] : systems_[i]) {
+            ActivateSystem(name, static_cast<SystemType>(i), _doInit);
         }
     }
 }
