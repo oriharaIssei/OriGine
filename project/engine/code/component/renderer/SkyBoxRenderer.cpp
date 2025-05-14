@@ -37,17 +37,47 @@ void SkyboxRenderer::Initialize(GameEntity* _hostEntity) {
 
     mesh.indexes_ = {
         // 前
-        0, 1, 2, 2, 1, 3,
+        0,
+        1,
+        2,
+        2,
+        1,
+        3,
         // 後ろ
-        4, 6, 5, 7, 5, 6,
+        4,
+        6,
+        5,
+        7,
+        5,
+        6,
         // 右
-        1,5,3,3,5,7,
+        1,
+        5,
+        3,
+        3,
+        5,
+        7,
         // 左
-        0,2,4,6,4,2,
+        0,
+        2,
+        4,
+        6,
+        4,
+        2,
         // 上
-        4,5,0,0,5,1,
+        4,
+        5,
+        0,
+        0,
+        5,
+        1,
         // 下
-        2,3,6,7,6,3,
+        2,
+        3,
+        6,
+        7,
+        6,
+        3,
     };
 
     mesh.TransferData();
@@ -75,7 +105,9 @@ bool SkyboxRenderer::Edit() {
             commandCombo->addCommand(std::make_unique<SetterCommand<std::string>>(&filePath_, kApplicationResourceDirectory + "/" + directory + "/" + filename));
             commandCombo->setFuncOnAfterCommand(
                 [this]() {
-                    textureIndex_ = TextureManager::LoadTexture(filePath_);
+                    TextureManager::LoadTexture(filePath_, [this](uint32_t _newTextureIndex) {
+                        textureIndex_ = _newTextureIndex;
+                    });
                 },
                 true);
             EditorGroup::getInstance()->pushCommand(std::move(commandCombo));
