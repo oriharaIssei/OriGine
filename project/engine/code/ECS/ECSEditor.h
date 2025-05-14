@@ -311,15 +311,16 @@ private:
 class ChangingSystemActivityCommand
     : public ECSEditorCommand {
 public:
-    ChangingSystemActivityCommand(ECSEditor* _ecsEditor, ISystem* _system, bool _isActive)
-        : ECSEditorCommand(_ecsEditor), system_(_system), isActive_(_isActive) {}
+    ChangingSystemActivityCommand(ECSEditor* _ecsEditor, const std::string& _systemName, ISystem* _system, bool _isActive)
+        : ECSEditorCommand(_ecsEditor), system_(_system), systemName_(_systemName), isActive_(_isActive) {}
     ~ChangingSystemActivityCommand() {}
     void Execute() override;
     void Undo() override;
 
 private:
     ISystem* system_ = nullptr;
-    bool isActive_   = false;
+    std::string systemName_;
+    bool isActive_ = false;
     std::vector<GameEntity*> entities_;
 };
 class ChangingSystemPriorityCommand

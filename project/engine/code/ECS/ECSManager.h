@@ -323,7 +323,6 @@ public: // ============== accessor ==============//
         // システムを登録
         if (systems_[systemTypeIndex].find(typeName) == systems_[int32_t(systemType)].end()) {
             systems_[systemTypeIndex][typeName] = std::move(system);
-            workSystems_[systemTypeIndex].push_back(systems_[systemTypeIndex][typeName].get());
             return;
         }
     }
@@ -334,6 +333,7 @@ public: // ============== accessor ==============//
             auto itr = systems_[i].find(typeName);
             if (itr != systems_[i].end()) {
                 // システムを削除
+                workSystems_[i].erase(std::remove(workSystems_[i].begin(), workSystems_[i].end(), itr->second.get()), workSystems_[i].end());
                 systems_[i].erase(itr);
                 return true;
             }
@@ -351,6 +351,7 @@ public: // ============== accessor ==============//
             return false;
         }
         // システムを削除
+        workSystems_[systemTypeIndex].erase(std::remove(workSystems_[systemTypeIndex].begin(), workSystems_[systemTypeIndex].end(), itr->second.get()), workSystems_[systemTypeIndex].end());
         systems_[systemTypeIndex].erase(itr);
         return true;
     }
@@ -419,6 +420,9 @@ public: // ============== accessor ==============//
             if (itr != systems_[i].end()) {
                 if (itr->second->isActive()) {
                     itr->second->setIsActive(false);
+
+                    auto& systemsVector = workSystems_[i];
+                    systemsVector.erase(std::remove(systemsVector.begin(), systemsVector.end(), itr->second.get()), systemsVector.end());
                     return true;
                 } else {
                     return false;
@@ -439,6 +443,14 @@ public: // ============== accessor ==============//
         }
         if (itr->second->isActive()) {
             itr->second->setIsActive(false);
+
+            auto& systemsVector = workSystems_[systemTypeIndex];
+            systemsVector.erase(std::remove(
+                                    systemsVector.begin(),
+                                    systemsVector.end(),
+                                    itr->second.get()),
+                systemsVector.end());
+
             return true;
         } else {
             return false;
@@ -450,6 +462,8 @@ public: // ============== accessor ==============//
             if (itr != systems_[i].end()) {
                 if (itr->second->isActive()) {
                     itr->second->setIsActive(false);
+                    auto& systemsVector = workSystems_[i];
+                    systemsVector.erase(std::remove(systemsVector.begin(), systemsVector.end(), itr->second.get()), systemsVector.end());
                     return true;
                 } else {
                     return false;
@@ -469,6 +483,9 @@ public: // ============== accessor ==============//
         }
         if (itr->second->isActive()) {
             itr->second->setIsActive(false);
+            auto& systemsVector = workSystems_[systemTypeIndex];
+            systemsVector.erase(std::remove(systemsVector.begin(), systemsVector.end(), itr->second.get()), systemsVector.end());
+
             return true;
         } else {
             return false;
@@ -506,7 +523,7 @@ public: // ============== accessor ==============//
     }
     void InitializeWorkSystems() {
         for (auto& systemMap : workSystems_) {
-            for (auto&  system : systemMap) {
+            for (auto& system : systemMap) {
                 system->Initialize();
             }
         }
@@ -528,11 +545,11 @@ public: // ============== accessor ==============//
     }
 
     void clearAllSystems() {
-        for (auto& systemMap : systems_) {
-            systemMap.clear();
-        }
         for (auto& prioritySystems : workSystems_) {
             prioritySystems.clear();
+        }
+        for (auto& systemMap : systems_) {
+            systemMap.clear();
         }
     }
     void clearWorkSystems() {

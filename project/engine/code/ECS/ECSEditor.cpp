@@ -345,7 +345,7 @@ void ECSEditor::WorkerSystemList() {
                     ImGui::Text("%s", systemName.c_str());
 
                     if (systemIsActive != preSystemIsActive) {
-                        auto command = std::make_unique<ChangingSystemActivityCommand>(this, system, systemIsActive);
+                        auto command = std::make_unique<ChangingSystemActivityCommand>(this, systemName, system, systemIsActive);
                         EditorGroup::getInstance()->pushCommand(std::move(command));
                     }
                     if (systemPriority != preSystemPriority) {
@@ -898,6 +898,11 @@ void ChangeEntityDataTypeCommand::Undo() {
 void ChangingSystemActivityCommand::Execute() {
     // システムのアクティブ状態を変更
     system_->setIsActive(isActive_);
+    if (system_->isActive()) {
+        ECSManager::getInstance()->ActivateSystem(systemName_, system_->getSystemType(), false);
+    } else {
+        ECSManager::getInstance()->StopSystem(systemName_, system_->getSystemType());
+    }
     entities_ = system_->getEntities();
 
     for (auto& entity : entities_) {
@@ -908,6 +913,12 @@ void ChangingSystemActivityCommand::Execute() {
 void ChangingSystemActivityCommand::Undo() {
     // システムのアクティブ状態を戻す
     system_->setIsActive(!isActive_);
+
+    if (system_->isActive()) {
+        ECSManager::getInstance()->ActivateSystem(systemName_, system_->getSystemType(), false);
+    } else {
+        ECSManager::getInstance()->StopSystem(systemName_, system_->getSystemType());
+    }
 
     for (auto& entity : entities_) {
         system_->addEntity(entity);
