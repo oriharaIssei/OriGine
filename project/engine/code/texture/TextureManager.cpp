@@ -101,7 +101,9 @@ DirectX::ScratchImage Texture::Load(const std::string& filePath) {
     }
 
     if (FAILED(hr)) {
-        std::cerr << "Failed to load texture file: " << filePath << std::endl;
+        std::string errorMassage;
+        std::wcerr << L"Failed to load texture file: " << filePathW << L" hr=0x" << std::hex << hr << std::endl;
+        LOG_CRITICAL("Failed to load texture file: " + filePath + " hr=0x" + std::to_string(hr));
         assert(SUCCEEDED(hr));
     }
 
