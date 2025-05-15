@@ -102,7 +102,7 @@ Vec3f EmitterOBB::getSpawnPos() {
         min_[Y] + diff[Y] * randY,
         min_[Z] + diff[Z] * randZ);
 
-    spawnPos = TransformVector(spawnPos, MakeMatrix::RotateXYZ(rotate_));
+    spawnPos = spawnPos * MakeMatrix::RotateXYZ(rotate_);
 
     return spawnPos;
 }

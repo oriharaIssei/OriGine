@@ -1,5 +1,7 @@
 #include "DebugCamera.h"
 
+#include "input/Input.h"
+
 #ifdef _DEBUG
 #include "imgui/imgui.h"
 #endif // _DEBUG

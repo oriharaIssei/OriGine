@@ -43,5 +43,5 @@ void GameCamera::Update() {
 }
 
 Vec3f GameCamera::OffstVector() {
-    return TransformVector(followOffset_, MakeMatrix::RotateQuaternion(cameraTransform_.rotate));
+    return followOffset_ * MakeMatrix::RotateQuaternion(cameraTransform_.rotate);
 }

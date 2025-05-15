@@ -316,6 +316,9 @@ public:
     std::vector<std::vector<componentType>>* getAllComponents() {
         return &components_;
     }
+    std::map<GameEntity*, uint32_t>* getEntityIndexBind() {
+        return &entityIndexBind_;
+    }
 
 protected:
     // ─────────────────────────────

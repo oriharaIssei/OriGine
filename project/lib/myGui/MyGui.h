@@ -188,7 +188,7 @@ template <typename T>
 bool DragGuiCommand(const std::string& label, T& value, float speed = 0.1f, T min = T(), T max = T(), const char* format = "%.3f", std::function<void(T*)> _afterFunc = nullptr) {
     static GuiValuePool<T> valuePool;
 
-    DragGui(label, value, speed, min, max, format);
+    bool isChanging = DragGui(label, value, speed, min, max, format);
 
     if (ImGui::IsItemActive()) {
         valuePool.setValue(label, value);
@@ -196,16 +196,16 @@ bool DragGuiCommand(const std::string& label, T& value, float speed = 0.1f, T mi
         T newValue = value;
         value      = valuePool.popValue(label);
         EditorGroup::getInstance()->pushCommand(std::make_unique<SetterCommand<T>>(&value, newValue, _afterFunc));
-        return true;
+        isChanging = true;
     }
 
-    return false;
+    return isChanging;
 }
 template <int N, typename T>
 bool DragGuiVectorCommand(const std::string& label, Vector<N, T>& value, float speed = 0.1f, T min = T(), T max = T(), const char* format = "%.3f", std::function<void(Vector<N, T>*)> _afterFunc = nullptr) {
     static GuiValuePool<Vector<N, T>> valuePool;
 
-    DragVectorGui(label, value, speed, min, max, format);
+    bool isChanging = DragVectorGui(label, value, speed, min, max, format);
 
     if (ImGui::IsItemActive()) {
         valuePool.setValue(label, value);
@@ -213,17 +213,17 @@ bool DragGuiVectorCommand(const std::string& label, Vector<N, T>& value, float s
         Vector<N, T> newValue = value;
         value                 = valuePool.popValue(label);
         EditorGroup::getInstance()->pushCommand(std::make_unique<SetterCommand<Vector<N, T>>>(&value, newValue, _afterFunc));
-        return true;
+        isChanging = true;
     }
 
-    return false;
+    return isChanging;
 }
 
 template <typename T>
 bool SlideCommand(const std::string& label, T& value, T min = T(), T max = T(), const char* format = "%.3f", std::function<void(T*)> _afterFunc = nullptr) {
     static GuiValuePool<T> valuePool;
 
-    SlideGui(label, value, min, max, format);
+    bool isChanging = SlideGui(label, value, min, max, format);
 
     if (ImGui::IsItemActive()) {
         valuePool.setValue(label, value);
@@ -231,17 +231,17 @@ bool SlideCommand(const std::string& label, T& value, T min = T(), T max = T(), 
         T newValue = value;
         value      = valuePool.popValue(label);
         EditorGroup::getInstance()->pushCommand(std::make_unique<SetterCommand<T>>(&value, newValue, _afterFunc));
-        return true;
+        isChanging = true;
     }
 
-    return false;
+    return isChanging;
 }
 
 template <typename T, int N>
 bool SlideVectorCommand(const std::string& label, Vector<N, T>& value, T min = T(), T max = T(), const char* format = "%.3f", std::function<void(Vector<N, T>*)> _afterFunc = nullptr) {
     static GuiValuePool<Vector<N, T>> valuePool;
 
-    SlideVectorGui(label, value, min, max, format);
+    bool isChanging = SlideVectorGui(label, value, min, max, format);
 
     if (ImGui::IsItemActive()) {
         valuePool.setValue(label, value);
@@ -249,17 +249,17 @@ bool SlideVectorCommand(const std::string& label, Vector<N, T>& value, T min = T
         Vector<N, T> newValue = value;
         value                 = valuePool.popValue(label);
         EditorGroup::getInstance()->pushCommand(std::make_unique<SetterCommand<Vector<N, T>>>(&value, newValue, _afterFunc));
-        return true;
+        isChanging = true;
     }
 
-    return false;
+    return isChanging;
 }
 
 template <typename T>
 bool InputGuiCommand(const std::string& label, T& value, const char* format = "%.3f", std::function<void(T*)> _afterFunc = nullptr) {
     static GuiValuePool<T> valuePool;
 
-    InputGui(label, value, format);
+    bool isChanging = InputGui(label, value, format);
 
     if (ImGui::IsItemActive()) {
         valuePool.setValue(label, value);
@@ -267,16 +267,16 @@ bool InputGuiCommand(const std::string& label, T& value, const char* format = "%
         T newValue = value;
         value      = valuePool.popValue(label);
         EditorGroup::getInstance()->pushCommand(std::make_unique<SetterCommand<T>>(&value, newValue, _afterFunc));
-        return true;
+        isChanging = true;
     }
 
-    return false;
+    return isChanging;
 }
 template <typename T, int N>
 bool InputVectorGuiCommand(const std::string& label, Vector<N, T>& value, const char* format = "%.3f", std::function<void(Vector<N, T>*)> _afterFunc = nullptr) {
     static GuiValuePool<Vector<N, T>> valuePool;
 
-    InputVectorGui(label, value, format);
+    bool isChanging = InputVectorGui(label, value, format);
 
     if (ImGui::IsItemActive()) {
         valuePool.setValue(label, value);
@@ -284,10 +284,10 @@ bool InputVectorGuiCommand(const std::string& label, Vector<N, T>& value, const 
         Vector<N, T> newValue = value;
         value                 = valuePool.popValue(label);
         EditorGroup::getInstance()->pushCommand(std::make_unique<SetterCommand<Vector<N, T>>>(&value, newValue, _afterFunc));
-        return true;
+        isChanging = true;
     }
 
-    return false;
+    return isChanging;
 }
 
 template <int N>
@@ -309,7 +309,7 @@ bool ColorEditGuiCommand(const std::string& label, Vector<N, float>& value, std:
 
     static GuiValuePool<Vector<N, float>> valuePool;
 
-    ColorEditGui(label, value);
+    bool isChanging = ColorEditGui(label, value);
 
     if (ImGui::IsItemActive()) {
         valuePool.setValue(label, value);
@@ -317,10 +317,10 @@ bool ColorEditGuiCommand(const std::string& label, Vector<N, float>& value, std:
         Vector<N, float> newValue = value;
         value                     = valuePool.popValue(label);
         EditorGroup::getInstance()->pushCommand(std::make_unique<SetterCommand<Vector<N, float>>>(&value, newValue, _afterFunc));
-        return true;
+        isChanging = true;
     }
 
-    return false;
+    return isChanging;
 }
 
 bool CheckBoxCommand(const std::string& label, bool& value);

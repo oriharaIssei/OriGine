@@ -26,11 +26,11 @@ bool Transform::Edit() {
 #ifdef _DEBUG
     bool isChange = false;
     // --------------------------- scale --------------------------- //
-    isChange |= DragGuiVectorCommand<3, float>("Scale", this->scale, 0.01f);
+    isChange |= DragGuiVectorCommand<3, float>("Scale", this->scale, 0.01f, {}, {}, "%.3f", [this](Vector<3, float>*) { this->Update(); });
     // --------------------------- rotate --------------------------- //
-    isChange |= DragGuiVectorCommand<4, float>("Rotate", this->rotate, 0.01f, {}, {}, "%.3f", [](Vector<4, float>* _r) { *_r = Quaternion::Normalize(*_r); });
+    isChange |= DragGuiVectorCommand<4, float>("Rotate", this->rotate, 0.01f, {}, {}, "%.3f", [this](Vector<4, float>*) { this->Update(); });
     // --------------------------- translate --------------------------- //
-    isChange |= DragGuiVectorCommand<3,float>("Translate", this->translate, 0.01f);
+    isChange |= DragGuiVectorCommand<3, float>("Translate", this->translate, 0.01f, {}, {}, "%.3f", [this](Vector<3, float>*) { this->Update(); });
 
     if (isChange) {
         this->Update();

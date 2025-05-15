@@ -139,10 +139,10 @@ Matrix4x4 MakeMatrix::RotateQuaternion(const Quaternion& q) {
     float w2 = q.v[W] * q.v[W];
 
     return Matrix4x4(
-        {(w2 + x2 - y2 - z2), 2.0f * (xy + wz)   , 2.0f * (xz - wy)   , 0.0f,
-            2.0f * (xy - wz), (w2 - x2 + y2 - z2), 2.0f * (yz + wx)   , 0.0f,
-            2.0f * (xz + wy), 2.0f * (yz - wx)   , (w2 - x2 - y2 + z2), 0.0f,
-                        0.0f,                0.0f,                0.0f, 1.0f});
+        {(w2 + x2 - y2 - z2), 2.0f * (xy + wz), 2.0f * (xz - wy), 0.0f,
+            2.0f * (xy - wz), (w2 - x2 + y2 - z2), 2.0f * (yz + wx), 0.0f,
+            2.0f * (xz + wy), 2.0f * (yz - wx), (w2 - x2 - y2 + z2), 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f});
 }
 
 Matrix4x4 MakeMatrix::RotateAxisAngle(const Vec3f& axis, float angle) {
@@ -181,6 +181,32 @@ Vec3f TransformVector(const Vec3f& vec, const Matrix4x4& matrix) {
     return Vec3f(result[0] / result[3], result[1] / result[3], result[2] / result[3]);
 }
 
+Vec3f operator*(const Vec3f& vec, const Matrix4x4& matrix) {
+    float result[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+    float hcs[4]    = {vec[X], vec[Y], vec[Z], 1.0f};
+
+    for (int r = 0; r < 4; r++) {
+        for (int c = 0; c < 4; c++) {
+            result[r] += hcs[c] * matrix[c][r];
+        }
+    }
+
+    assert(result[3] != 0.0f);
+    return Vec3f(result[0] / result[3], result[1] / result[3], result[2] / result[3]);
+}
+
+Vec4f operator*(const Vec4f& vec, const Matrix4x4& matrix) {
+    Vec4f result = {0.0f, 0.0f, 0.0f, 0.0f};
+
+    for (int r = 0; r < 4; r++) {
+        for (int c = 0; c < 4; c++) {
+            result[r] += vec[c] * matrix[c][r];
+        }
+    }
+
+    return vec;
+}
+
 Vec3f TransformNormal(const Vec3f& v, const Matrix4x4& m) {
     // 平行移動を無視して計算
     Vec3f result = {
@@ -193,16 +219,28 @@ Vec3f TransformNormal(const Vec3f& v, const Matrix4x4& m) {
 }
 
 Matrix4x4 MakeMatrix::PerspectiveFov(const float& fovY, const float& aspectRatio, const float& nearClip, const float& farClip) {
-    const float cot = 1.0f / std::tanf(fovY / 2.0f);
+    const float cot = 1.0f / std::tanf(fovY * 0.5f);
     return Matrix4x4(
-        {(1.0f / aspectRatio) * cot, 0.0f, 0.0f, 0.0f, 0.0f, cot, 0.0f, 0.0f, 0.0f, 0.0f, farClip / (farClip - nearClip), 1.0f, 0.0f, 0.0f, (-nearClip * farClip) / (farClip - nearClip), 0.0f});
+        {(1.0f / aspectRatio) * cot, 0.0f, 0.0f, 0.0f,
+            0.0f, cot, 0.0f, 0.0f,
+            0.0f, 0.0f, farClip / (farClip - nearClip), 1.0f,
+            0.0f, 0.0f, (-nearClip * farClip) / (farClip - nearClip), 0.0f});
 }
 
 Matrix4x4 MakeMatrix::Orthographic(const float& left, const float& top, const float& right, const float& bottom, const float& nearClip, const float& farClip) {
     return Matrix4x4(
-        {2.0f / (right - left), 0.0f, 0.0f, 0.0f, 0.0f, 2.0f / (top - bottom), 0.0f, 0.0f, 0.0f, 0.0f, 1.0f / (farClip - nearClip), 0.0f, (left + right) / (left - right), (top + bottom) / (bottom - top), nearClip / (nearClip - farClip), 1.0f});
+        {2.0f / (right - left), 0.0f, 0.0f, 0.0f,
+            0.0f, 2.0f / (top - bottom), 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f / (farClip - nearClip), 0.0f,
+            (left + right) / (left - right), (top + bottom) / (bottom - top), nearClip / (nearClip - farClip), 1.0f});
 }
 
 Matrix4x4 MakeMatrix::ViewPort(const float& left, const float& top, const float& width, const float& height, const float& minDepth, const float& maxDepth) {
-    return Matrix4x4({width / 2.0f, 0.0f, 0.0f, 0.0f, 0.0f, -(height / 2.0f), 0.0f, 0.0f, 0.0f, 0.0f, maxDepth - minDepth, 0.0f, left + (width / 2.0f), top + (height / 2.0f), minDepth, 1.0f});
+    float halfWidth  = width * 0.5f;
+    float halfHeight = height * 0.5f;
+    return Matrix4x4(
+        {halfWidth, 0.0f, 0.0f, 0.0f,
+            0.0f, -halfHeight, 0.0f, 0.0f,
+            0.0f, 0.0f, maxDepth - minDepth, 0.0f,
+            left + halfWidth, top + halfHeight, minDepth, 1.0f});
 }

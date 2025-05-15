@@ -1,10 +1,10 @@
 #pragma once
 
-#include "input/Input.h"
-
 #include "component/transform/CameraTransform.h"
 
 #include <memory>
+
+class Input;
 
 class DebugCamera {
 #pragma region State

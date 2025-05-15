@@ -20,9 +20,8 @@ public:
     virtual void Initialize() = 0;
     virtual void Update()     = 0;
     virtual void Finalize()   = 0;
-
-private:
 };
+
 template <typename T>
 concept IsEditor = std::derived_from<T, IEditor>;
 
@@ -163,7 +162,7 @@ template <typename Container>
 class EraseElementCommand : public IEditCommand {
 public:
     using ContainerType = Container;
-    using Iterator = typename Container::iterator;
+    using Iterator      = typename Container::iterator;
 
     EraseElementCommand(Container* container, Iterator it)
         : container_(container), it_(it) {}

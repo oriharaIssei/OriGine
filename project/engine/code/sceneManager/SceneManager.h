@@ -76,6 +76,8 @@ private:
 
     char newSceneName_[256] = "NewScene";
 
+    bool sceneViewIsActive_ = false;
+
 private:
     enum class SceneState {
         Edit,
@@ -105,6 +107,8 @@ public:
     bool isChangeScene() const { return isChangeScene_; }
 
 #ifdef _DEBUG
+    bool getSceneViewActivity() const { return sceneViewIsActive_; }
+
     bool inDebugMode() const {
         return currentSceneState_ == SceneState::Debug;
     };

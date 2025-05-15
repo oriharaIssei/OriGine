@@ -52,9 +52,9 @@ void EntityComponentSystemManager::Run() {
         }
     }
 
-    if (!SceneManager::getInstance()->isUsingDebugCamera()) {
-        CameraManager::getInstance()->DataConvertToBuffer();
-    }
+    //if (!SceneManager::getInstance()->isUsingDebugCamera()) {
+    //    CameraManager::getInstance()->DataConvertToBuffer();
+    //}
 
     auto sceneView = SceneManager::getInstance()->getSceneView();
 

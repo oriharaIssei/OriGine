@@ -1,13 +1,22 @@
 #include "ECSEditor.h"
 
+#ifdef _DEBUG
+
 /// stl
 #include <algorithm>
 
 /// engine
+#include "camera/CameraManager.h"
+#include "Engine.h"
+#include "sceneManager/SceneManager.h"
+// component
+#include "component/transform/Transform.h"
+
 // editor
 #include "module/editor/EditorGroup.h"
 
-#ifdef _DEBUG
+// lib
+#include "input/Input.h"
 
 /// externals
 #include <imgui/imgui.h>
@@ -25,7 +34,9 @@ void ECSEditor::Initialize() {
 }
 
 void ECSEditor::Update() {
-    SelectEntity();
+    SelectEntityFromList();
+    SelectEntityFromSceneByMouse();
+
     EditEntity();
 
     WorkerSystemList();
@@ -41,7 +52,7 @@ void ECSEditor::Finalize() {
     }
 }
 
-void ECSEditor::SelectEntity() {
+void ECSEditor::SelectEntityFromList() {
     if (ImGui::Begin("Entities")) {
 
         // Command経由に変更
@@ -142,6 +153,88 @@ void ECSEditor::SelectEntity() {
     }
 
     ImGui::End();
+}
+
+void ECSEditor::SelectEntityFromSceneByMouse() {
+    Input* input = Input::getInstance();
+
+    // マウスの左ボタンが押されていなければ無視
+    if (!input->isReleaseMouseButton(MouseButton::LEFT)) {
+        return;
+    }
+    // sceneViewがアクティブでなければ無視
+    if (!SceneManager::getInstance()->getSceneViewActivity()) {
+        return;
+    }
+
+    static const float entitySizeOfCollision2Mouse = 10.f;
+
+    // WindowSizeを取得
+    const Vec2f& windowSize = Engine::getInstance()->getWinApp()->getWindowSize();
+    // マウスの位置を取得
+    const Vec2f& mousePos = input->getVirtualMousePos();
+    // マウスの位置がウィンドウの外に出ている場合は無視
+    if (mousePos[X] < 0.f || mousePos[Y] < 0.f || mousePos[X] > windowSize[X] || mousePos[Y] > windowSize[Y]) {
+        return;
+    }
+
+    ECSManager* ecsManager       = ECSManager::getInstance();
+    CameraManager* cameraManager = CameraManager::getInstance();
+    const auto& cameraTransform  = CameraManager::getInstance()->getTransform();
+
+    // First = Entity, Second = Distance Entity 2 Camera
+    std::list<std::pair<GameEntity*, float>> catchingEntity;
+
+    //// =====================================================
+    /// 選別
+    /// =====================================================
+    ComponentArray<Transform>* transformArray = ecsManager->getComponentArray<Transform>();
+    if (transformArray == nullptr) {
+        return;
+    }
+    const auto& entityIndexBindMap = transformArray->getEntityIndexBind();
+    for (auto bindItr = entityIndexBindMap->begin(), bindItrEnd = entityIndexBindMap->end(); bindItr != bindItrEnd; ++bindItr) {
+        auto& entityIndexBind    = *bindItr;
+        const auto& transformVec = transformArray->getComponents(entityIndexBind.first);
+        if (transformVec == nullptr) {
+            continue;
+        }
+        for (auto transformItr = transformVec->begin(), transformItrEnd = transformVec->end(); transformItr != transformItrEnd; ++transformItr) {
+            const Transform& transform = *transformItr;
+            Vec3f worldPos             = transform.worldMat[3];
+            Vec3f viewPos              = worldPos * cameraTransform.viewMat;
+            // カメラより 後方にある場合は無視
+            if (viewPos[Z] < 0.0f) {
+                continue;
+            }
+
+            // Entityの位置がウィンドウの外に出ている場合は無視
+            Vec2f screenPos = cameraManager->world2Screen(transform.worldMat);
+            if (screenPos[X] < 0.f || screenPos[Y] < 0.f || screenPos[X] > windowSize[X] || screenPos[Y] > windowSize[Y]) {
+                continue;
+            }
+
+            // マウスとの距離が 一定以内なら
+            float distance = Vec2f::LengthSq(screenPos - mousePos);
+            if (distance <= entitySizeOfCollision2Mouse * entitySizeOfCollision2Mouse) {
+                catchingEntity.push_back(std::make_pair(entityIndexBind.first, distance));
+            }
+        }
+    }
+
+    /// ===================================================
+    // 選択するエンティティを厳選
+    /// ===================================================
+    if (!catchingEntity.empty()) {
+        // 距離が近い順にソート
+        catchingEntity.sort([](const std::pair<GameEntity*, float>& a, const std::pair<GameEntity*, float>& b) {
+            return a.second < b.second;
+        });
+        // 一番近いエンティティを選択
+        auto& entity = catchingEntity.front().first;
+        auto command = std::make_unique<SelectEntityCommand>(this, entity);
+        EditorGroup::getInstance()->pushCommand(std::move(command));
+    }
 }
 
 void ECSEditor::EditEntity() {

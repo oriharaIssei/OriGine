@@ -30,7 +30,15 @@ public:
     void Finalize() override;
 
 private:
-    void SelectEntity();
+    /// <summary>
+    /// エンティティを選択する(エンティティのリストから)
+    /// </summary>
+    void SelectEntityFromList();
+    /// <summary>
+    /// エンティティを選択する(シーン上からマウスで)
+    /// </summary> 
+    void SelectEntityFromSceneByMouse();
+
     void EditEntity();
     void WorkerSystemList();
 

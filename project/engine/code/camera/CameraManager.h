@@ -16,6 +16,7 @@ public:
     static CameraManager* getInstance();
 
     void Initialize();
+    void UpdateMatrix();
     void DebugUpdate();
     void Finalize();
 
@@ -28,7 +29,13 @@ private:
 private:
     std::unique_ptr<DebugCamera> debugCamera_;
     IConstantBuffer<CameraTransform> cTransform_;
+
+    Matrix4x4 viewPortMat_;
+
 public:
+    const Matrix4x4& getViewPortMat() const { return viewPortMat_; }
+    Vec2f world2Screen(const Matrix4x4& _worldMat) const;
+
     const CameraTransform& getTransform() const { return cTransform_.openData_; }
     void setTransform(const CameraTransform& transform) { cTransform_.openData_ = transform; }
 

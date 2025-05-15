@@ -153,6 +153,9 @@ void SceneManager::DebugUpdate() {
         // SceneView を描画
         ImGui::Image(reinterpret_cast<ImTextureID>(sceneView_->getBackBufferSrvHandle().ptr), sceneViewSize);
 
+        // sceneViewのアクティブ状態を取得
+        sceneViewIsActive_ = ImGui::IsWindowFocused();
+
         // マウス座標を取得
         Vec2f mousePos = Input::getInstance()->getCurrentMousePos();
 

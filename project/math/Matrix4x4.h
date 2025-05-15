@@ -2,6 +2,7 @@
 
 #include <DirectXMath.h>
 #include <Vector3.h>
+#include <Vector4.h>
 
 struct Quaternion;
 
@@ -64,9 +65,9 @@ Matrix4x4 ViewPort(const float& left, const float& top, const float& width, cons
 } // namespace MakeMatrix
 
 Vec3f TransformVector(const Vec3f& vec, const Matrix4x4& matrix);
+
 // インライン関数として定義
-inline Vec3f operator*(const Vec3f& vec, const Matrix4x4& matrix) {
-    return TransformVector(vec, matrix);
-}
+Vec3f operator*(const Vec3f& vec, const Matrix4x4& matrix);
+Vec4f operator*(const Vec4f& vec, const Matrix4x4& matrix);
 
 Vec3f TransformNormal(const Vec3f& v, const Matrix4x4& m);
