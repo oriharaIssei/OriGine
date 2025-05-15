@@ -81,6 +81,7 @@ bool SpriteRenderer::Edit() {
                         spriteBuff_->scale_                 = textureSize_;
                     });
                 });
+            EditorGroup::getInstance()->pushCommand(std::move(command));
 
             isChange = true;
         }
@@ -89,7 +90,7 @@ bool SpriteRenderer::Edit() {
     ImGui::Spacing();
 
     ImGui::Text("RenderingPriority");
-    isChange |= DragGuiCommand("##RenderingPriority", renderPriority_, 1, 0, 1000);
+    isChange |= DragGuiCommand("##RenderingPriority", renderPriority_, 1, 0, 1000,"%d");
 
     ImGui::Text("TextureSize");
     isChange |= DragGuiVectorCommand("##TextureSize", textureSize_, 1.0f, 0.0f, 1000.0f);
@@ -98,7 +99,7 @@ bool SpriteRenderer::Edit() {
     isChange |= DragGuiVectorCommand("##TextureLeftTop", textureLeftTop_, 1.0f, 0.0f, 1000.0f);
 
     ImGui::Text("AnchorPoint");
-    isChange |= DragGuiVectorCommand("##AnchorPoint", anchorPoint_,0.01f, -1.0f, 1.0f);
+    isChange |= DragGuiVectorCommand("##AnchorPoint", anchorPoint_, 0.01f, -1.0f, 1.0f);
 
     ImGui::Spacing();
 
