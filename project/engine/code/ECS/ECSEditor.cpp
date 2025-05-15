@@ -342,10 +342,23 @@ void ECSEditor::WorkerSystemList() {
                     }
                     ImGui::PopItemWidth();
                     ImGui::SameLine();
+
+                    // システム名を左クリックでポップアップ
+                    std::string popupId = "SystemPopup_" + systemName;
                     ImGui::Text("%s", systemName.c_str());
+                    if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
+                        ImGui::OpenPopup(popupId.c_str());
+                    }
+
+                    // ポップアップ内容
+                    if (ImGui::BeginPopup(popupId.c_str())) {
+                        ImGui::Text("%s", systemName.c_str());
+                        system->Edit();
+                        ImGui::EndPopup();
+                    }
 
                     if (systemIsActive != preSystemIsActive) {
-                        auto command = std::make_unique<ChangingSystemActivityCommand>(this, systemName, system, systemIsActive);
+                        auto command = std::make_unique<ChangingSystemActivityCommand>(this, systemName, system);
                         EditorGroup::getInstance()->pushCommand(std::move(command));
                     }
                     if (systemPriority != preSystemPriority) {
@@ -897,32 +910,22 @@ void ChangeEntityDataTypeCommand::Undo() {
 
 void ChangingSystemActivityCommand::Execute() {
     // システムのアクティブ状態を変更
+    isActive_ = !system_->isActive();
+
     system_->setIsActive(isActive_);
     if (system_->isActive()) {
         ECSManager::getInstance()->ActivateSystem(systemName_, system_->getSystemType(), false);
     } else {
         ECSManager::getInstance()->StopSystem(systemName_, system_->getSystemType());
+        for (auto& entity : entities_) {
+            system_->removeEntity(entity);
+        }
     }
     entities_ = system_->getEntities();
-
-    for (auto& entity : entities_) {
-        system_->removeEntity(entity);
-    }
 }
 
 void ChangingSystemActivityCommand::Undo() {
-    // システムのアクティブ状態を戻す
-    system_->setIsActive(!isActive_);
-
-    if (system_->isActive()) {
-        ECSManager::getInstance()->ActivateSystem(systemName_, system_->getSystemType(), false);
-    } else {
-        ECSManager::getInstance()->StopSystem(systemName_, system_->getSystemType());
-    }
-
-    for (auto& entity : entities_) {
-        system_->addEntity(entity);
-    }
+    Execute();
 }
 
 void ChangingSystemPriorityCommand::Execute() {
