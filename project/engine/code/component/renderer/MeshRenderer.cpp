@@ -27,8 +27,10 @@
 //----------------------------------------------------------------------------------------------------------
 #pragma region "ModelMeshRenderer"
 void to_json(nlohmann::json& j, const ModelMeshRenderer& r) {
-    j["isRender"]  = r.isRender_;
-    j["blendMode"] = static_cast<int32_t>(r.currentBlend_);
+    j["isRender"]      = r.isRender_;
+    j["blendMode"]     = static_cast<int32_t>(r.currentBlend_);
+
+    j["meshGroupSize"] = r.meshGroup_->size();
 
     j["directory"] = r.directory_;
     j["fileName"]  = r.fileName_;
@@ -55,6 +57,10 @@ void from_json(const nlohmann::json& j, ModelMeshRenderer& r) {
     int32_t blendMode = 0;
     j.at("blendMode").get_to(blendMode);
     r.currentBlend_ = static_cast<BlendMode>(blendMode);
+
+    if (auto it = j.find("meshGorupSize"); it != j.end()) {
+        r.meshGroup_->resize(it->get<int32_t>());
+    }
 
     j.at("directory").get_to(r.directory_);
     j.at("fileName").get_to(r.fileName_);

@@ -26,6 +26,9 @@ void Material::DebugGui() {
     ImGui::DragFloat("##shininess", &shininess_, 0.01f);
     ImGui::Text("specularColor");
     ColorEditGuiCommand("##specularColor", specularColor_);
+
+    ImGui::Text("EnvironmentCoefficient");
+    DragGuiCommand("##EnvironmentCoefficient", environmentCoefficient_, 0.01f, 0.0f);
 }
 #endif // _DEBUG
 

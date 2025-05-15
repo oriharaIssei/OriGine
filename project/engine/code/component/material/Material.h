@@ -34,24 +34,27 @@ public:
 
     Vec4f color_ = {1.f, 1.f, 1.f, 1.f};
 
-    bool enableLighting_ = 0;
-    float shininess_     = 0.f;
-    Vec3f specularColor_ = {1.f, 1.f, 1.f};
+    bool enableLighting_          = false;
+    float shininess_              = 0.f;
+    float environmentCoefficient_ = 0.1f;
+    Vec3f specularColor_          = {1.f, 1.f, 1.f};
 
 public:
     struct ConstantBuffer {
         Vec4f color;
         uint32_t enableLighting;
-        float padding[3]; // 下記を参照
+        float padding[3];
         Matrix4x4 uvTransform;
         float shininess;
         Vec3f specularColor;
+        float environmentCoefficient;
         ConstantBuffer& operator=(const Material& material) {
-            color          = material.color_;
-            enableLighting = static_cast<uint32_t>(material.enableLighting_);
-            uvTransform    = material.uvMat_;
-            shininess      = material.shininess_;
-            specularColor  = material.specularColor_;
+            color                  = material.color_;
+            enableLighting         = static_cast<uint32_t>(material.enableLighting_);
+            uvTransform            = material.uvMat_;
+            shininess              = material.shininess_;
+            specularColor          = material.specularColor_;
+            environmentCoefficient = material.environmentCoefficient_;
             return *this;
         }
     };

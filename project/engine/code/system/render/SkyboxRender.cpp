@@ -51,8 +51,15 @@ void SkyboxRender::CreatePso() {
     texShaderInfo.vsKey = "Skybox.VS";
     texShaderInfo.psKey = "Skybox.PS";
 
+    ///=================================================
+    /// Depth
+    ///=================================================
+    texShaderInfo.customDepthStencilDesc().DepthEnable = true;
+    texShaderInfo.customDepthStencilDesc().DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO; // 書き込まない z = -1だから
+    texShaderInfo.customDepthStencilDesc().DepthFunc      = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+
 #pragma region "RootParameter"
-    D3D12_ROOT_PARAMETER rootParameter[8]{};
+    D3D12_ROOT_PARAMETER rootParameter[3]{};
     // Transform ... 0
     rootParameter[0].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
     rootParameter[0].ShaderVisibility          = D3D12_SHADER_VISIBILITY_VERTEX;
@@ -62,13 +69,13 @@ void SkyboxRender::CreatePso() {
     rootParameter[1].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
     rootParameter[1].ShaderVisibility          = D3D12_SHADER_VISIBILITY_PIXEL;
     rootParameter[1].Descriptor.ShaderRegister = 0;
-    texShaderInfo.pushBackRootParameter(rootParameter[2]);
+    texShaderInfo.pushBackRootParameter(rootParameter[1]);
 
     // Texture ... 2
     // DescriptorTable を使う
-    rootParameter[3].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-    rootParameter[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-    size_t rootParameterIndex         = texShaderInfo.pushBackRootParameter(rootParameter[3]);
+    rootParameter[2].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+    rootParameter[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+    size_t rootParameterIndex         = texShaderInfo.pushBackRootParameter(rootParameter[2]);
 
     D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
     descriptorRange[0].BaseShaderRegister     = 0;
@@ -100,6 +107,7 @@ void SkyboxRender::CreatePso() {
     ///=================================================
 
 #pragma region "InputElement"
+
     D3D12_INPUT_ELEMENT_DESC inputElementDesc = {};
     inputElementDesc.SemanticName             = "POSITION"; /*Semantics*/
     inputElementDesc.SemanticIndex            = 0; /*Semanticsの横に書いてある数字(今回はPOSITION0なので 0 )*/
@@ -131,8 +139,6 @@ void SkyboxRender::StartRender() {
     commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
 
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-    LightManager::getInstance()->SetForRootParameter(commandList);
 
     ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
@@ -177,15 +183,17 @@ void SkyboxRender::UpdateEntity(GameEntity* _entity) {
 
     // ============================= Transformのセット ============================= //
     IConstantBuffer<Transform>& meshTransform = renderer->getTransformBuff();
-    const Matrix4x4& viewMat                        = CameraManager::getInstance()->getTransform().viewMat;
-    const Matrix4x4& projMat                        = CameraManager::getInstance()->getTransform().projectionMat;
-    meshTransform->worldMat                         = meshTransform->worldMat * viewMat * projMat;
+    meshTransform->Update();
+    const Matrix4x4& viewMat = CameraManager::getInstance()->getTransform().viewMat;
+    const Matrix4x4& projMat = CameraManager::getInstance()->getTransform().projectionMat;
+    meshTransform->worldMat  = meshTransform->worldMat * viewMat * projMat;
+    meshTransform.ConvertToBuffer();
     meshTransform.SetForRootParameter(commandList, 0);
 
     // ============================= Materialのセット ============================= //
     auto& material = renderer->getMaterialBuff();
     material.ConvertToBuffer();
-    material.SetForRootParameter(commandList,1);
+    material.SetForRootParameter(commandList, 1);
 
     // ============================= 描画 ============================= //
     commandList->DrawIndexedInstanced(UINT(mesh.getIndexSize()), 1, 0, 0, 0);

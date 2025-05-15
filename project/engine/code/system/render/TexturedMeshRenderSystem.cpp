@@ -7,11 +7,12 @@
 #include "texture/TextureManager.h"
 
 // ECS
+#include "ECS/ECSManager.h"
 // component
 #include "component/material/light/LightManager.h"
 #include "component/renderer/MeshRenderer.h"
 #include "component/renderer/primitive/Primitive.h"
-#include "ECSManager.h"
+#include "component/renderer/SkyboxRenderer.h"
 
 void TexturedMeshRenderSystem::Initialize() {
     dxCommand_ = std::make_unique<DxCommand>();
@@ -56,7 +57,7 @@ void TexturedMeshRenderSystem::CreatePso() {
     texShaderInfo.psKey = "Object3dTexture.PS";
 
 #pragma region "RootParameter"
-    D3D12_ROOT_PARAMETER rootParameter[8]{};
+    D3D12_ROOT_PARAMETER rootParameter[9]{};
     // Transform ... 0
     rootParameter[0].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
     rootParameter[0].ShaderVisibility          = D3D12_SHADER_VISIBILITY_VERTEX;
@@ -100,18 +101,31 @@ void TexturedMeshRenderSystem::CreatePso() {
     // DescriptorTable を使う
     rootParameter[7].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
     rootParameter[7].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-    size_t rootParameterIndex         = texShaderInfo.pushBackRootParameter(rootParameter[7]);
+    size_t texturePramIndex           = texShaderInfo.pushBackRootParameter(rootParameter[7]);
+    // 環境テクスチャ ... 8
+    // DescriptorTable を使う
+    rootParameter[8].ParameterType      = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+    rootParameter[8].ShaderVisibility   = D3D12_SHADER_VISIBILITY_PIXEL;
+    size_t environmentTextureParamIndex = texShaderInfo.pushBackRootParameter(rootParameter[8]);
 
-    D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
-    descriptorRange[0].BaseShaderRegister     = 0;
-    descriptorRange[0].NumDescriptors         = 1;
+    D3D12_DESCRIPTOR_RANGE textureRange[1] = {};
+    textureRange[0].BaseShaderRegister     = 0;
+    textureRange[0].NumDescriptors         = 1;
     // SRV を扱うように設定
-    descriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+    textureRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
     // offset を自動計算するように 設定
-    descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+    textureRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+    D3D12_DESCRIPTOR_RANGE environmentTextureRange[1] = {};
+    environmentTextureRange[0].BaseShaderRegister     = 1;
+    environmentTextureRange[0].NumDescriptors         = 1;
+    // SRV を扱うように設定
+    environmentTextureRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+    // offset を自動計算するように 設定
+    environmentTextureRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
     D3D12_DESCRIPTOR_RANGE directionalLightRange[1]            = {};
-    directionalLightRange[0].BaseShaderRegister                = 1;
+    directionalLightRange[0].BaseShaderRegister                = 2;
     directionalLightRange[0].NumDescriptors                    = 1;
     directionalLightRange[0].RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
     directionalLightRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
@@ -128,7 +142,9 @@ void TexturedMeshRenderSystem::CreatePso() {
     spotLightRange[0].RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
     spotLightRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-    texShaderInfo.setDescriptorRange2Parameter(descriptorRange, 1, rootParameterIndex);
+    texShaderInfo.setDescriptorRange2Parameter(textureRange, 1, texturePramIndex);
+    texShaderInfo.setDescriptorRange2Parameter(environmentTextureRange, 1, environmentTextureParamIndex);
+
     texShaderInfo.setDescriptorRange2Parameter(directionalLightRange, 1, 3);
     texShaderInfo.setDescriptorRange2Parameter(pointLightRange, 1, 4);
     texShaderInfo.setDescriptorRange2Parameter(spotLightRange, 1, 5);
@@ -237,6 +253,16 @@ void TexturedMeshRenderSystem::StartRender() {
 
     ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
+
+    /// 環境テクスチャ
+    GameEntity* skyboxEntity = getUniqueEntity("Skybox");
+    if (!skyboxEntity) {
+        return;
+    }
+    SkyboxRenderer* skybox = getComponent<SkyboxRenderer>(skyboxEntity);
+    commandList->SetGraphicsRootDescriptorTable(
+        8,
+        TextureManager::getDescriptorGpuHandle(skybox->getTextureIndex()));
 }
 
 /// <summary>
