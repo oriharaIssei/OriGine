@@ -6,6 +6,7 @@
 #include "directX12/DxCommand.h"
 #include "directX12/PipelineStateObj.h"
 #include "directX12/ShaderManager.h"
+#include <component/effect/post/VignetteParam.h>
 
 class VignetteEffect
     : public ISystem {
@@ -15,11 +16,13 @@ public:
 
     void Initialize() override;
     void Update() override;
+    void UpdateEntity(GameEntity* _entity) override ;
     void Finalize();
 
 protected:
     void CreatePSO();
 
+    void RenderState();
     void Render();
 
 protected:

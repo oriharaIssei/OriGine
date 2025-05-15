@@ -453,6 +453,7 @@
     <ClInclude Include="lib\myGui\MyGui.h" />
     <ClInclude Include="engine\code\component\renderer\SkyboxRenderer.h" />
     <ClInclude Include="engine\code\system\render\SkyboxRender.h" />
+    <ClInclude Include="engine\code\component\effect\post\VignetteParam.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\code\ECS\ECSDebugger.cpp">
@@ -691,5 +692,6 @@
     <ClCompile Include="lib\myGui\MyGui.cpp" />
     <ClCompile Include="engine\code\component\renderer\SkyboxRenderer.cpp" />
     <ClCompile Include="engine\code\system\render\SkyboxRender.cpp" />
+    <ClCompile Include="engine\code\component\effect\post\VignetteParam.cpp" />
   </ItemGroup>
 </Project>

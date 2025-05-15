@@ -4,10 +4,16 @@
 // Vignette
 ///=============================================================================
 
-
 /// ------------------------------------------------------------------
 // buffers
 /// ------------------------------------------------------------------
+struct VignetteParams
+{
+    float4 color;
+    float scale;
+    float pow;
+};
+ConstantBuffer<VignetteParams> gVignetteParams : register(b0); // Vignette parameters
 Texture2D<float4> gTexture : register(t0); // input texture
 SamplerState gSampler : register(s0); // input sampler
 
@@ -19,13 +25,12 @@ PixelShaderOutput main(VertexShaderOutput input)
     PixelShaderOutput output;
     
     output.color = gTexture.Sample(gSampler, input.texCoords);
+    float2 correct = input.texCoords * (1.0f - input.texCoords.yx);
     
-    float2 correct = input.texCoords * (-1.0f - input.texCoords.yx);
+    float vignette = correct.x * correct.y * gVignetteParams.scale;
+
+    vignette = saturate(pow(vignette, gVignetteParams.pow));
     
-    float vignette = correct.x * correct.y * 16.0f;
-
-    vignette = saturate(pow(vignette, 0.8f));
-
-    output.color.rgb *= vignette;
+    output.color.rgb = lerp(gVignetteParams.color.rgb, output.color.rgb, vignette);
     return output;
 }

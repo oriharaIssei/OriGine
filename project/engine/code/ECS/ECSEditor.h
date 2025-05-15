@@ -69,6 +69,7 @@ private:
     ImGuiWindowPopUp popupAddComponent_;
 
     ImGuiWindowPopUp popupLeaveWorkSystem_;
+
     std::string leaveSystemName_;
     ISystem* leaveSystem_ = nullptr;
 
@@ -311,8 +312,8 @@ private:
 class ChangingSystemActivityCommand
     : public ECSEditorCommand {
 public:
-    ChangingSystemActivityCommand(ECSEditor* _ecsEditor, const std::string& _systemName, ISystem* _system, bool _isActive)
-        : ECSEditorCommand(_ecsEditor), system_(_system), systemName_(_systemName), isActive_(_isActive) {}
+    ChangingSystemActivityCommand(ECSEditor* _ecsEditor, const std::string& _systemName, ISystem* _system)
+        : ECSEditorCommand(_ecsEditor), system_(_system), systemName_(_systemName) {}
     ~ChangingSystemActivityCommand() {}
     void Execute() override;
     void Undo() override;
