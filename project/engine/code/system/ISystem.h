@@ -67,7 +67,7 @@ protected:
 #endif // _DEBUG
 
 private:
-    bool isActive_ = true;
+    bool isActive_ = false;
     SystemType systemType_;
 
     int32_t priority_ = 0;

@@ -1,8 +1,13 @@
 #include "VignetteEffect.h"
 
 /// engine
+#include "ECSManager.h"
 #include "Engine.h"
+#include "engine/EngineInclude.h"
 #include "sceneManager/SceneManager.h"
+
+// component
+#include "component/effect/post/VignetteParam.h"
 
 // directX12
 #include "directX12/RenderTexture.h"
@@ -16,9 +21,23 @@ void VignetteEffect::Initialize() {
 void VignetteEffect::Update() {
     auto* sceneView = SceneManager::getInstance()->getSceneView();
 
+    eraseDeadEntity();
+
+    RenderState();
+
     sceneView->PreDraw();
+    for (auto& entity : entities_) {
+        UpdateEntity(entity);
+    }
     Render();
+
     sceneView->PostDraw();
+}
+
+void VignetteEffect::UpdateEntity(GameEntity* _entity) {
+    auto* vignetteParam = getComponent<VignetteParam>(_entity);
+    vignetteParam->getVignetteBuffer().ConvertToBuffer();
+    vignetteParam->getVignetteBuffer().SetForRootParameter(dxCommand_->getCommandList(), 1);
 }
 
 void VignetteEffect::Finalize() {
@@ -56,7 +75,7 @@ void VignetteEffect::CreatePSO() {
     /// RootParameter の設定
     ///================================================
     // Texture だけ
-    D3D12_ROOT_PARAMETER rootParameter        = {};
+    D3D12_ROOT_PARAMETER rootParameter[2]     = {};
     D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
     descriptorRange[0].BaseShaderRegister     = 0;
     descriptorRange[0].NumDescriptors         = 1;
@@ -66,10 +85,14 @@ void VignetteEffect::CreatePSO() {
     descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
     // DescriptorTable を使う
-    rootParameter.ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-    rootParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-    size_t rootParameterIndex      = shaderInfo.pushBackRootParameter(rootParameter);
+    rootParameter[0].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+    rootParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+    size_t rootParameterIndex         = shaderInfo.pushBackRootParameter(rootParameter[0]);
     shaderInfo.setDescriptorRange2Parameter(descriptorRange, 1, rootParameterIndex);
+
+    rootParameter[1].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_CBV;
+    rootParameter[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+    shaderInfo.pushBackRootParameter(rootParameter[1]);
 
     ///================================================
     /// InputElement の設定
@@ -87,9 +110,8 @@ void VignetteEffect::CreatePSO() {
     pso_ = shaderManager->CreatePso("VignetteEffect", shaderInfo, Engine::getInstance()->getDxDevice()->getDevice());
 }
 
-void VignetteEffect::Render() {
+void VignetteEffect::RenderState() {
     auto* commandList = dxCommand_->getCommandList();
-    auto* sceneView   = SceneManager::getInstance()->getSceneView();
 
     /// ================================================
     /// pso set
@@ -97,6 +119,11 @@ void VignetteEffect::Render() {
     commandList->SetPipelineState(pso_->pipelineState.Get());
     commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+}
+
+void VignetteEffect::Render() {
+    auto* commandList = dxCommand_->getCommandList();
+    auto* sceneView   = SceneManager::getInstance()->getSceneView();
 
     /// ================================================
     /// Viewport の設定
