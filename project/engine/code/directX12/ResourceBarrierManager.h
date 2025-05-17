@@ -18,9 +18,7 @@ public:
 	// リソースの状態遷移バリアを生成
 	static void Barrier(ID3D12GraphicsCommandList* commandList,ID3D12Resource* resource,D3D12_RESOURCE_STATES stateAfter);
 
-	static void SetState(ID3D12Resource* resource,D3D12_RESOURCE_STATES stateAfter){
-		resourceStates_[resource] = stateAfter;
-	}
+	static void SetState(ID3D12Resource* resource,D3D12_RESOURCE_STATES stateAfter);
 
 private:
 	static std::unordered_map<ID3D12Resource*,D3D12_RESOURCE_STATES> resourceStates_;

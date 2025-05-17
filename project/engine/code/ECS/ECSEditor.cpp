@@ -906,7 +906,6 @@ void ChangeEntityDataTypeCommand::Undo() {
     entity_->setDataType(oldDataType_);
 }
 
-#endif // _DEBUG
 
 void ChangingSystemActivityCommand::Execute() {
     // システムのアクティブ状態を変更
@@ -963,3 +962,5 @@ void ChangingSystemPriorityCommand::Undo() {
 
     ECSManager::getInstance()->SortPriorityOrderSystems(systemTypeIndex);
 }
+
+#endif // _DEBUG

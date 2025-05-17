@@ -24,8 +24,11 @@ class DxRtvArray;
 class DxSrvArray;
 
 class EntityComponentSystemManager;
+
+#ifdef _DEBUG
 class EditorGroup;
 class DebuggerGroup;
+#endif // _DEBUG
 
 class SceneManager {
 public:
