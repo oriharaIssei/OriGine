@@ -115,7 +115,10 @@ public:
 
     bool Edit() override {
         bool isChange = false;
-        isChange      = CheckBoxCommand("IsActive", this->isActive_);
+
+#ifdef _DEBUG
+
+        isChange = CheckBoxCommand("IsActive", this->isActive_);
 
         if (ImGui::TreeNode("AABB")) {
             isChange |= DragGuiVectorCommand<3, float>("Min", this->shape_.min_, 0.01f);
@@ -126,6 +129,8 @@ public:
             isChange |= transform_.Edit();
             ImGui::TreePop();
         }
+
+#endif // _DEBUG
         return isChange;
     }
 
@@ -159,6 +164,7 @@ public:
 
     bool Edit() override {
         bool isChange = false;
+#ifdef _DEBUG
         isChange      = CheckBoxCommand("IsActive", this->isActive_);
 
         if (ImGui::TreeNode("Sphere")) {
@@ -170,6 +176,7 @@ public:
             isChange |= transform_.Edit();
             ImGui::TreePop();
         }
+#endif // _DEBUG
         return isChange;
     }
 

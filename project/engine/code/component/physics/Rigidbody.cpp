@@ -15,6 +15,8 @@ void Rigidbody::Initialize(GameEntity* _entity) {
 bool Rigidbody::Edit() {
     bool isChange = false;
 
+#ifdef _DEBUG
+
     DragGuiVectorCommand("acceleration", acceleration_);
     DragGuiVectorCommand("velocity", velocity_);
 
@@ -22,6 +24,9 @@ bool Rigidbody::Edit() {
 
     DragGuiCommand("mass", mass_);
     CheckBoxCommand("useGravity", useGravity_);
+
+#endif // _DEBUG
+
     return isChange;
 }
 

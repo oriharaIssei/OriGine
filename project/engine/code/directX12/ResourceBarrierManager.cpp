@@ -12,8 +12,6 @@ void ResourceBarrierManager::Barrier(ID3D12GraphicsCommandList* commandList,ID3D
 		RegisterReosurce(resource,D3D12_RESOURCE_STATE_COMMON);
 		it = resourceStates_.find(resource);
 
-        LOG_DEBUG("Register Barrier" + std::to_string((UINT64)resource) + "\n" + "stateBefore : " + std::to_string(it->second) + "\n" + "stateAfter  : " + std::to_string(stateAfter));
-
 		if(stateAfter == D3D12_RESOURCE_STATE_COMMON){
 			return;
 		}
@@ -36,4 +34,11 @@ void ResourceBarrierManager::Barrier(ID3D12GraphicsCommandList* commandList,ID3D
 	it->second = stateAfter;
 
 	commandList->ResourceBarrier(1,&barrier);
+}
+
+void ResourceBarrierManager::SetState(ID3D12Resource* resource, D3D12_RESOURCE_STATES stateAfter) {
+
+    LOG_DEBUG("Register Barrier" + std::to_string((UINT64)resource) + "\n" + "Registered State : " + std::to_string(stateAfter) + "\n");
+
+    resourceStates_[resource] = stateAfter;
 }
