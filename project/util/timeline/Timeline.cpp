@@ -354,26 +354,37 @@ bool EditKeyFrame(
     const float sliderWidth = frame_bb.Max[X] - frame_bb.Min[X];
     const float buttonSize  = 10.0f;
 
-    ImGuiStorage* storage  = ImGui::GetStateStorage();
-    ImGuiID draggedIndexId = id + ImGui::GetID("draggedIndex");
-    ImGuiID draggedValueId = id + ImGui::GetID("draggedValue");
-    ImGuiID popUpIndexId   = id + ImGui::GetID("popUpIndex");
+    ImGuiStorage* storage    = ImGui::GetStateStorage();
+    ImGuiID draggedIndexId   = id + ImGui::GetID("draggedIndex");
+    ImGuiID draggedValueId   = id + ImGui::GetID("draggedValue"); // Drag中の値
+    ImGuiID startDragValueId = id + ImGui::GetID("startDragValue"); // Drag開始時の値
+    ImGuiID popUpIndexId     = id + ImGui::GetID("popUpIndex");
 
-    int draggedIndex   = storage->GetInt(draggedIndexId, -1);
-    float draggedValue = storage->GetFloat(draggedValueId, 0.0f);
-    int popUpIndex     = storage->GetInt(popUpIndexId, -1);
+    int draggedIndex     = storage->GetInt(draggedIndexId, -1);
+    float draggedValue   = storage->GetFloat(draggedValueId, 0.0f);
+    float startDragValue = storage->GetFloat(startDragValueId, 0.f);
+    int popUpIndex       = storage->GetInt(popUpIndexId, -1);
 
     if (IsMouseReleased(0)) {
         if (draggedIndex != -1) {
             // ソートする
             if (_keyFrames.size() > 1) {
-                // キーフレームによる ノードの順番を変更
                 std::sort(
                     _keyFrames.begin(),
                     _keyFrames.end(),
                     [](const auto& a, const auto& b) {
                         return a.time < b.time;
                     });
+            }
+
+            // ここで undo/redo コマンドを push
+            if (draggedValue != startDragValue) {
+                _keyFrames[draggedIndex].time = startDragValue;
+                auto command                  = std::make_unique<SetterCommand<float>>(
+                    &_keyFrames[draggedIndex].time,
+                    draggedValue);
+
+                EditorGroup::getInstance()->pushCommand(std::move(command));
             }
 
             draggedIndex = -1;
@@ -391,8 +402,9 @@ bool EditKeyFrame(
 
         if (isHovered) {
             if (IsMouseClicked(0) && draggedIndex == -1) {
-                draggedIndex = i;
-                draggedValue = _keyFrames[i].time;
+                draggedIndex   = i;
+                startDragValue = _keyFrames[i].time;
+                draggedValue   = startDragValue;
                 SetActiveID(id, window);
                 FocusWindow(window);
             } else if (IsMouseClicked(1)) {
@@ -406,14 +418,9 @@ bool EditKeyFrame(
         bool isActive = (draggedIndex == i);
         if (isActive) {
             if (IsMouseDragging(0)) {
-                float newT = (GetMousePos()[X] - frame_bb.Min[X]) / sliderWidth;
-                newT       = ImClamp(newT, 0.0f, 1.0f);
-
-                auto command = std::make_unique<SetterCommand<float>>(
-                    &_keyFrames[i].time,
-                    float(newT * _duration));
-
-                EditorGroup::getInstance()->pushCommand(std::move(command));
+                float newT         = (GetMousePos()[X] - frame_bb.Min[X]) / sliderWidth;
+                newT               = ImClamp(newT, 0.0f, 1.0f);
+                _keyFrames[i].time = float(newT * _duration);
             }
         }
 
@@ -563,6 +570,7 @@ bool EditKeyFrame(
 
     storage->SetInt(draggedIndexId, draggedIndex);
     storage->SetInt(popUpIndexId, popUpIndex);
+    storage->SetFloat(startDragValueId, startDragValue);
     storage->SetFloat(draggedValueId, draggedValue);
 
     return true;
@@ -621,14 +629,16 @@ bool EditKeyFrame(
     const float sliderWidth = frame_bb.Max[X] - frame_bb.Min[X];
     const float buttonSize  = 10.0f;
 
-    ImGuiStorage* storage  = ImGui::GetStateStorage();
-    ImGuiID draggedIndexId = id + ImGui::GetID("draggedIndex");
-    ImGuiID draggedValueId = id + ImGui::GetID("draggedValue");
-    ImGuiID popUpIndexId   = id + ImGui::GetID("popUpIndex");
+    ImGuiStorage* storage    = ImGui::GetStateStorage();
+    ImGuiID draggedIndexId   = id + ImGui::GetID("draggedIndex");
+    ImGuiID draggedValueId   = id + ImGui::GetID("draggedValue"); // Drag中の値
+    ImGuiID startDragValueId = id + ImGui::GetID("startDragValue"); // Drag開始時の値
+    ImGuiID popUpIndexId     = id + ImGui::GetID("popUpIndex");
 
-    int draggedIndex   = storage->GetInt(draggedIndexId, -1);
-    float draggedValue = storage->GetFloat(draggedValueId, 0.0f);
-    int popUpIndex     = storage->GetInt(popUpIndexId, -1);
+    int draggedIndex     = storage->GetInt(draggedIndexId, -1);
+    float draggedValue   = storage->GetFloat(draggedValueId, 0.0f);
+    float startDragValue = storage->GetFloat(startDragValueId, 0.f);
+    int popUpIndex       = storage->GetInt(popUpIndexId, -1);
 
     if (IsMouseReleased(0)) {
         if (draggedIndex != -1) {
@@ -641,6 +651,14 @@ bool EditKeyFrame(
                     [](const auto& a, const auto& b) {
                         return a.time < b.time;
                     });
+            }
+
+            if (draggedValue != startDragValue) {
+                _keyFrames[draggedIndex].time = startDragValue;
+                auto command                  = std::make_unique<SetterCommand<float>>(
+                    &_keyFrames[draggedIndex].time,
+                    draggedValue);
+                EditorGroup::getInstance()->pushCommand(std::move(command));
             }
 
             draggedIndex = -1;
@@ -658,8 +676,9 @@ bool EditKeyFrame(
 
         if (isHovered) {
             if (IsMouseClicked(0) && draggedIndex == -1) {
-                draggedIndex = i;
-                draggedValue = _keyFrames[i].time;
+                draggedIndex   = i;
+                startDragValue = _keyFrames[i].time;
+                draggedValue   = startDragValue;
                 SetActiveID(id, window);
                 FocusWindow(window);
             } else if (IsMouseClicked(1)) {
@@ -673,11 +692,9 @@ bool EditKeyFrame(
         bool isActive = (draggedIndex == i);
         if (isActive) {
             if (IsMouseDragging(0)) {
-                float newT   = (GetMousePos()[X] - frame_bb.Min[X]) / sliderWidth;
-                newT         = ImClamp(newT, 0.0f, 1.0f);
-                auto command = std::make_unique<SetterCommand<float>>(
-                    &_keyFrames[i].time,
-                    newT * _duration);
+                float newT         = (GetMousePos()[X] - frame_bb.Min[X]) / sliderWidth;
+                newT               = ImClamp(newT, 0.0f, 1.0f);
+                _keyFrames[i].time = float(newT * _duration);
             }
         }
 
@@ -822,6 +839,7 @@ bool EditKeyFrame(
 
     storage->SetInt(draggedIndexId, draggedIndex);
     storage->SetInt(popUpIndexId, popUpIndex);
+    storage->SetFloat(startDragValueId, startDragValue);
     storage->SetFloat(draggedValueId, draggedValue);
 
     return true;
@@ -880,14 +898,16 @@ bool EditKeyFrame(
     const float sliderWidth = frame_bb.Max.x - frame_bb.Min.x;
     const float buttonSize  = 10.0f;
 
-    ImGuiStorage* storage  = ImGui::GetStateStorage();
-    ImGuiID draggedIndexId = id + ImGui::GetID("draggedIndex");
-    ImGuiID draggedValueId = id + ImGui::GetID("draggedValue");
-    ImGuiID popUpIndexId   = id + ImGui::GetID("popUpIndex");
+    ImGuiStorage* storage    = ImGui::GetStateStorage();
+    ImGuiID draggedIndexId   = id + ImGui::GetID("draggedIndex");
+    ImGuiID draggedValueId   = id + ImGui::GetID("draggedValue"); // Drag中の値
+    ImGuiID startDragValueId = id + ImGui::GetID("startDragValue"); // Drag開始時の値
+    ImGuiID popUpIndexId     = id + ImGui::GetID("popUpIndex");
 
-    int draggedIndex   = storage->GetInt(draggedIndexId, -1);
-    float draggedValue = storage->GetFloat(draggedValueId, 0.0f);
-    int popUpIndex     = storage->GetInt(popUpIndexId, -1);
+    int draggedIndex     = storage->GetInt(draggedIndexId, -1);
+    float draggedValue   = storage->GetFloat(draggedValueId, 0.0f);
+    float startDragValue = storage->GetFloat(startDragValueId, 0.f);
+    int popUpIndex       = storage->GetInt(popUpIndexId, -1);
 
     if (IsMouseReleased(0)) {
         if (draggedIndex != -1) {
@@ -900,6 +920,14 @@ bool EditKeyFrame(
                     [](const auto& a, const auto& b) {
                         return a.time < b.time;
                     });
+            }
+
+            if (draggedValue != startDragValue) {
+                _keyFrames[draggedIndex].time = startDragValue;
+                auto command                  = std::make_unique<SetterCommand<float>>(
+                    &_keyFrames[draggedIndex].time,
+                    draggedValue);
+                EditorGroup::getInstance()->pushCommand(std::move(command));
             }
 
             draggedIndex = -1;
@@ -917,8 +945,9 @@ bool EditKeyFrame(
 
         if (isHovered) {
             if (IsMouseClicked(0) && draggedIndex == -1) {
-                draggedIndex = i;
-                draggedValue = _keyFrames[i].time;
+                draggedIndex   = i;
+                startDragValue = _keyFrames[i].time;
+                draggedValue   = startDragValue;
                 SetActiveID(id, window);
                 FocusWindow(window);
             } else if (IsMouseClicked(1)) {
@@ -933,11 +962,9 @@ bool EditKeyFrame(
         if (isActive) {
             if (IsMouseDragging(0)) {
                 // キーフレームの時間を変更
-                float newT   = (GetMousePos().x - frame_bb.Min.x) / sliderWidth;
-                newT         = ImClamp(newT, 0.0f, 1.0f);
-                auto command = std::make_unique<SetterCommand<float>>(
-                    &_keyFrames[i].time,
-                    newT * _duration);
+                float newT         = (GetMousePos().x - frame_bb.Min.x) / sliderWidth;
+                newT               = ImClamp(newT, 0.0f, 1.0f);
+                _keyFrames[i].time = newT * _duration;
             }
         }
 
@@ -1073,6 +1100,7 @@ bool EditKeyFrame(
 
     storage->SetInt(draggedIndexId, draggedIndex);
     storage->SetInt(popUpIndexId, popUpIndex);
+    storage->SetFloat(startDragValueId, startDragValue);
     storage->SetFloat(draggedValueId, draggedValue);
 
     return true;
@@ -1133,11 +1161,13 @@ bool EditKeyFrame(
 
     ImGuiStorage* storage  = ImGui::GetStateStorage();
     ImGuiID draggedIndexId = id + ImGui::GetID("draggedIndex");
-    ImGuiID draggedValueId = id + ImGui::GetID("draggedValue");
+    ImGuiID draggedValueId = id + ImGui::GetID("draggedValue"); // Drag中の値
+    ImGuiID startDragValueId = id + ImGui::GetID("startDragValue"); // Drag開始時の値
     ImGuiID popUpIndexId   = id + ImGui::GetID("popUpIndex");
 
     int draggedIndex   = storage->GetInt(draggedIndexId, -1);
     float draggedValue = storage->GetFloat(draggedValueId, 0.0f);
+    float startDragValue = storage->GetFloat(startDragValueId, 0.f);
     int popUpIndex     = storage->GetInt(popUpIndexId, -1);
 
     if (IsMouseReleased(0)) {
@@ -1151,6 +1181,14 @@ bool EditKeyFrame(
                     [](const auto& a, const auto& b) {
                         return a.time < b.time;
                     });
+            }
+
+            if (draggedValue != startDragValue) {
+                _keyFrames[draggedIndex].time = startDragValue;
+                auto command                  = std::make_unique<SetterCommand<float>>(
+                    &_keyFrames[draggedIndex].time,
+                    draggedValue);
+                EditorGroup::getInstance()->pushCommand(std::move(command));
             }
 
             draggedIndex = -1;
@@ -1169,7 +1207,8 @@ bool EditKeyFrame(
         if (isHovered) {
             if (IsMouseClicked(0) && draggedIndex == -1) {
                 draggedIndex = i;
-                draggedValue = _keyFrames[i].time;
+                startDragValue = _keyFrames[i].time;
+                draggedValue   = startDragValue;
                 SetActiveID(id, window);
                 FocusWindow(window);
             } else if (IsMouseClicked(1)) {
@@ -1335,6 +1374,7 @@ bool EditKeyFrame(
 
     storage->SetInt(draggedIndexId, draggedIndex);
     storage->SetInt(popUpIndexId, popUpIndex);
+    storage->SetFloat(startDragValueId, startDragValue);
     storage->SetFloat(draggedValueId, draggedValue);
 
     return true;
@@ -1395,11 +1435,13 @@ bool EditKeyFrame(
 
     ImGuiStorage* storage  = ImGui::GetStateStorage();
     ImGuiID draggedIndexId = id + ImGui::GetID("draggedIndex");
-    ImGuiID draggedValueId = id + ImGui::GetID("draggedValue");
+    ImGuiID draggedValueId = id + ImGui::GetID("draggedValue"); // Drag中の値
+    ImGuiID startDragValueId = id + ImGui::GetID("startDragValue"); // Drag開始時の値
     ImGuiID popUpIndexId   = id + ImGui::GetID("popUpIndex");
 
     int draggedIndex   = storage->GetInt(draggedIndexId, -1);
     float draggedValue = storage->GetFloat(draggedValueId, 0.0f);
+    float startDragValue = storage->GetFloat(startDragValueId, 0.f);
     int popUpIndex     = storage->GetInt(popUpIndexId, -1);
 
     if (IsMouseReleased(0)) {
@@ -1413,6 +1455,14 @@ bool EditKeyFrame(
                     [](const auto& a, const auto& b) {
                         return a.time < b.time;
                     });
+            }
+
+            if (draggedValue != startDragValue) {
+                _keyFrames[draggedIndex].time = startDragValue;
+                auto command                  = std::make_unique<SetterCommand<float>>(
+                    &_keyFrames[draggedIndex].time,
+                    draggedValue);
+                EditorGroup::getInstance()->pushCommand(std::move(command));
             }
 
             draggedIndex = -1;
@@ -1431,7 +1481,8 @@ bool EditKeyFrame(
         if (isHovered) {
             if (IsMouseClicked(0) && draggedIndex == -1) {
                 draggedIndex = i;
-                draggedValue = _keyFrames[i].time;
+                startDragValue = _keyFrames[i].time;
+                draggedValue   = startDragValue;
                 SetActiveID(id, window);
                 FocusWindow(window);
             } else if (IsMouseClicked(1)) {
@@ -1448,10 +1499,7 @@ bool EditKeyFrame(
                 float newT = (GetMousePos()[X] - frame_bb.Min[X]) / sliderWidth;
                 newT       = ImClamp(newT, 0.0f, 1.0f);
 
-                // キーフレームの時間を変更
-                auto command = std::make_unique<SetterCommand<float>>(
-                    &_keyFrames[i].time,
-                    newT * _duration);
+                _keyFrames[i].time = newT * _duration;
             }
         }
 
@@ -1608,6 +1656,7 @@ bool EditKeyFrame(
 
     storage->SetInt(draggedIndexId, draggedIndex);
     storage->SetInt(popUpIndexId, popUpIndex);
+    storage->SetFloat(startDragValueId, startDragValue);
     storage->SetFloat(draggedValueId, draggedValue);
 
     return true;
@@ -1668,11 +1717,13 @@ bool EditColorKeyFrame(
 
     ImGuiStorage* storage  = ImGui::GetStateStorage();
     ImGuiID draggedIndexId = id + ImGui::GetID("draggedIndex");
-    ImGuiID draggedValueId = id + ImGui::GetID("draggedValue");
+    ImGuiID draggedValueId   = id + ImGui::GetID("draggedValue"); // Drag中の値
+    ImGuiID startDragValueId = id + ImGui::GetID("startDragValue"); // Drag開始時の値
     ImGuiID popUpIndexId   = id + ImGui::GetID("popUpIndex");
 
     int draggedIndex   = storage->GetInt(draggedIndexId, -1);
     float draggedValue = storage->GetFloat(draggedValueId, 0.0f);
+    float startDragValue = storage->GetFloat(startDragValueId, 0.f);
     int popUpIndex     = storage->GetInt(popUpIndexId, -1);
 
     if (IsMouseReleased(0)) {
@@ -1686,6 +1737,14 @@ bool EditColorKeyFrame(
                     [](const auto& a, const auto& b) {
                         return a.time < b.time;
                     });
+            }
+
+            if (draggedValue != startDragValue) {
+                _keyFrames[draggedIndex].time = startDragValue;
+                auto command                  = std::make_unique<SetterCommand<float>>(
+                    &_keyFrames[draggedIndex].time,
+                    draggedValue);
+                EditorGroup::getInstance()->pushCommand(std::move(command));
             }
 
             draggedIndex = -1;
@@ -1705,6 +1764,7 @@ bool EditColorKeyFrame(
             if (IsMouseClicked(0) && draggedIndex == -1) {
                 draggedIndex = i;
                 draggedValue = _keyFrames[i].time;
+                startDragValue = draggedValue;
                 SetActiveID(id, window);
                 FocusWindow(window);
             } else if (IsMouseClicked(1)) {
@@ -1720,10 +1780,7 @@ bool EditColorKeyFrame(
             if (IsMouseDragging(0)) {
                 float newT = (GetMousePos().x - frame_bb.Min.x) / sliderWidth;
                 newT       = ImClamp(newT, 0.0f, 1.0f);
-                // キーフレームの時間を変更
-                auto command = std::make_unique<SetterCommand<float>>(
-                    &_keyFrames[i].time,
-                    newT * _duration);
+                _keyFrames[i].time = newT * _duration;
             }
         }
 
@@ -1862,6 +1919,7 @@ bool EditColorKeyFrame(
 
     storage->SetInt(draggedIndexId, draggedIndex);
     storage->SetInt(popUpIndexId, popUpIndex);
+    storage->SetFloat(startDragValueId, startDragValue);
     storage->SetFloat(draggedValueId, draggedValue);
 
     return true;

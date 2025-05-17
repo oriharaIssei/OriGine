@@ -47,11 +47,6 @@ private:
     float animationTimeLength_ = 0.f;
 #endif // _DEBUG
 
-    struct AnimationState {
-        bool isLoop_ = false;
-        bool isPlay_ = false;
-        bool isEnd_  = false;
-    };
     AnimationState transformAnimationState_;
     AnimationState materialAnimationState_;
 

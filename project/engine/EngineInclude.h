@@ -33,15 +33,18 @@ static const std::string kEngineResourceDirectory      = "engine/resource";
 
 #include "system/collision/CollisionCheckSystem.h"
 
+#include "system/movement/MoveSystemByRigidBody.h"
+
 #include "system/effect/EmitterWorkSystem.h"
 #include "system/effect/PrimitiveNodeAnimationWorkSystem.h"
-#include "system/movement/MoveSystemByRigidBody.h"
+#include "system/effect/TextureEffectAnimation.h"
 
 #include "system/postRender/GrayscaleEffect.h"
 #include "system/postRender/SmoothingEffect.h"
 #include "system/postRender/VignetteEffect.h"
 
 #include "system/render/ColliderRenderingSystem.h"
+#include "system/render/EffectTexturedMeshRenderSystem.h"
 #include "system/render/LineRenderSystem.h"
 #include "system/render/ParticleRenderSystem.h"
 #include "system/render/SkyboxRender.h"
@@ -61,6 +64,7 @@ static const std::string kEngineResourceDirectory      = "engine/resource";
 
 #include "component/collider/Collider.h"
 
+#include "component/effect/TextureEffectParam.h"
 #include "component/effect/particle/emitter/Emitter.h"
 #include "component/effect/post/VignetteParam.h"
 
