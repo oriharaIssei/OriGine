@@ -54,7 +54,7 @@ public:
     void Update();
     void Finalize();
 
-    void SetForRootParameter(ID3D12GraphicsCommandList* cmdList);
+    void SetForRootParameter(ID3D12GraphicsCommandList* cmdList, int32_t _lightCountIndex, int32_t _directionalLightIndex, int32_t _pointLightIndex, int32_t _spotLightIndex);
 
 private:
     SerializedField<int32_t> directionalLightSize_{"LightManager", "LightCounts", "directionalLightSize"};

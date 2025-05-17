@@ -63,15 +63,20 @@ void LightManager::Finalize() {
     srvArray_->Finalize();
 }
 
-void LightManager::SetForRootParameter(ID3D12GraphicsCommandList* cmdList) {
-    lightCounts_.SetForRootParameter(cmdList, 6);
+void LightManager::SetForRootParameter(
+    ID3D12GraphicsCommandList* cmdList,
+    int32_t _lightCountIndex,
+    int32_t _directionalLightIndex,
+    int32_t _pointLightIndex,
+    int32_t _spotLightIndex) {
+    lightCounts_.SetForRootParameter(cmdList, _lightCountIndex);
 
     ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
     cmdList->SetDescriptorHeaps(1, ppHeaps);
 
-    directionalLights_.SetForRootParameter(cmdList, 3);
-    pointLights_.SetForRootParameter(cmdList, 4);
-    spotLights_.SetForRootParameter(cmdList, 5);
+    directionalLights_.SetForRootParameter(cmdList, _directionalLightIndex);
+    pointLights_.SetForRootParameter(cmdList, _pointLightIndex);
+    spotLights_.SetForRootParameter(cmdList, _spotLightIndex);
 }
 
 void LightManager::pushDirectionalLight(const DirectionalLight& light) {
