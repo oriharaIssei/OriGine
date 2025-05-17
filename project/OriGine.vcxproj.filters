@@ -469,11 +469,11 @@
       <Filter>util\timeline</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\component\effect\post\VignetteParam.h" />
-    <ClInclude Include="engine\code\system\render\EffectTexturedMeshRenderSystem.h" />
-    <ClInclude Include="engine\code\component\effect\TextureEffectParam.h" />
-    <ClInclude Include="engine\code\component\animation\AnimationData.h" />
     <ClInclude Include="util\timeline\Timeline.h" />
+    <ClInclude Include="engine\code\component\effect\TextureEffectParam.h" />
     <ClInclude Include="engine\code\system\effect\TextureEffectAnimation.h" />
+    <ClInclude Include="engine\code\system\render\EffectTexturedMeshRenderSystem.h" />
+    <ClInclude Include="engine\code\component\animation\AnimationData.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\code\ECS\ECSDebugger.cpp">
@@ -730,9 +730,9 @@
       <Filter>util\timeline</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\component\effect\post\VignetteParam.cpp" />
-    <ClCompile Include="engine\code\system\render\EffectTexturedMeshRenderSystem.cpp" />
     <ClCompile Include="engine\code\component\effect\TextureEffectParam.cpp" />
-    <ClCompile Include="engine\code\component\animation\AnimationData.cpp" />
     <ClCompile Include="engine\code\system\effect\TextureEffectAnimation.cpp" />
+    <ClCompile Include="engine\code\system\render\EffectTexturedMeshRenderSystem.cpp" />
+    <ClCompile Include="engine\code\component\animation\AnimationData.cpp" />
   </ItemGroup>
 </Project>

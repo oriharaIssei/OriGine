@@ -107,7 +107,11 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="engine\code\component\animation\AnimationData.h" />
     <ClInclude Include="engine\code\component\effect\post\VignetteParam.h" />
+    <ClInclude Include="engine\code\component\effect\TextureEffectParam.h" />
+    <ClInclude Include="engine\code\system\effect\TextureEffectAnimation.h" />
+    <ClInclude Include="engine\code\system\render\EffectTexturedMeshRenderSystem.h" />
     <ClInclude Include="engine\EngineInclude.h" />
     <ClInclude Include="engine\code\ECS\ECSDebugger.h" />
     <ClInclude Include="engine\code\ECS\ECSEditor.h" />
@@ -214,7 +218,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="util\timeline\Timeline.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="engine\code\component\animation\AnimationData.cpp" />
     <ClCompile Include="engine\code\component\effect\post\VignetteParam.cpp" />
+    <ClCompile Include="engine\code\component\effect\TextureEffectParam.cpp" />
     <ClCompile Include="engine\code\ECS\ECSDebugger.cpp" />
     <ClCompile Include="engine\code\ECS\ECSEditor.cpp" />
     <ClCompile Include="engine\code\ECS\ECSManager.cpp" />
@@ -269,6 +275,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\module\debugger\DebuggerGroup.cpp" />
     <ClCompile Include="engine\code\module\editor\EditorGroup.cpp" />
     <ClCompile Include="engine\code\sceneManager\SceneManager.cpp" />
+    <ClCompile Include="engine\code\system\effect\TextureEffectAnimation.cpp" />
     <ClCompile Include="engine\code\system\ISystem.cpp" />
     <ClCompile Include="engine\code\system\collision\CollisionCheckSystem.cpp" />
     <ClCompile Include="engine\code\system\effect\EmitterWorkSystem.cpp" />
@@ -278,6 +285,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\system\postRender\SmoothingEffect.cpp" />
     <ClCompile Include="engine\code\system\postRender\VignetteEffect.cpp" />
     <ClCompile Include="engine\code\system\render\ColliderRenderingSystem.cpp" />
+    <ClCompile Include="engine\code\system\render\EffectTexturedMeshRenderSystem.cpp" />
     <ClCompile Include="engine\code\system\render\LineRenderSystem.cpp" />
     <ClCompile Include="engine\code\system\render\ParticleRenderSystem.cpp" />
     <ClCompile Include="engine\code\system\render\SkyboxRender.cpp" />
