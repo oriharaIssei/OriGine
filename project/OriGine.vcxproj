@@ -107,6 +107,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="engine\code\component\animation\AnimationData.h" />
+    <ClInclude Include="engine\code\system\render\EffectTexturedMeshRenderSystem.h" />
     <ClInclude Include="engine\EngineInclude.h" />
     <ClInclude Include="engine\code\ECS\ECSDebugger.h" />
     <ClInclude Include="engine\code\ECS\ECSEditor.h" />
@@ -206,12 +208,17 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="math\shape\Shapes.h" />
     <ClInclude Include="engine\code\component\renderer\SkyboxRenderer.h" />
     <ClInclude Include="engine\code\system\render\SkyboxRender.h" />
+    <ClInclude Include="engine\code\component\effect\TextureEffectParam.h" />
+    <ClInclude Include="engine\code\system\effect\TextureEffectAnimation.h" />
     <ClInclude Include="util\ConvertString.h" />
     <ClInclude Include="util\nameof.h" />
     <ClInclude Include="engine\code\system\postRender\VignetteEffect.h" />
     <ClInclude Include="engine\code\component\effect\post\VignetteParam.h" />
+    <ClInclude Include="util\timeline\Timeline.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="engine\code\component\animation\AnimationData.cpp" />
+    <ClCompile Include="engine\code\system\render\EffectTexturedMeshRenderSystem.cpp" />
     <ClCompile Include="engine\code\ECS\ECSDebugger.cpp" />
     <ClCompile Include="engine\code\ECS\ECSEditor.cpp" />
     <ClCompile Include="engine\code\ECS\ECSManager.cpp" />
@@ -281,6 +288,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="lib\myGui\MyGui.cpp" />
     <ClCompile Include="engine\code\component\renderer\SkyboxRenderer.cpp" />
     <ClCompile Include="engine\code\system\render\SkyboxRender.cpp" />
+    <ClCompile Include="engine\code\component\effect\TextureEffectParam.cpp" />
+    <ClCompile Include="engine\code\system\effect\TextureEffectAnimation.cpp" />
     <ClCompile Include="util\timeline\Timeline.cpp" />
     <ClCompile Include="lib\Thread\Thread.cpp" />
     <ClCompile Include="lib\deltaTime\DeltaTime.cpp" />

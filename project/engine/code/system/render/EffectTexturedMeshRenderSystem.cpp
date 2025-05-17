@@ -1,4 +1,4 @@
-#include "TexturedMeshRenderSystem.h"
+#include "EffectTexturedMeshRenderSystem.h"
 
 /// engine
 #include "Engine.h"
@@ -9,19 +9,20 @@
 // ECS
 #include "ECS/ECSManager.h"
 // component
+#include "component/effect/TextureEffectParam.h"
 #include "component/material/light/LightManager.h"
 #include "component/renderer/MeshRenderer.h"
 #include "component/renderer/primitive/Primitive.h"
 #include "component/renderer/SkyboxRenderer.h"
 
-void TexturedMeshRenderSystem::Initialize() {
+void EffectTexturedMeshRenderSystem::Initialize() {
     dxCommand_ = std::make_unique<DxCommand>();
     dxCommand_->Initialize("main", "main");
 
     CreatePso();
 }
 
-void TexturedMeshRenderSystem::Update() {
+void EffectTexturedMeshRenderSystem::Update() {
     if (entities_.empty()) {
         return;
     }
@@ -34,11 +35,11 @@ void TexturedMeshRenderSystem::Update() {
     }
 }
 
-void TexturedMeshRenderSystem::Finalize() {
+void EffectTexturedMeshRenderSystem::Finalize() {
     dxCommand_->Finalize();
 }
 
-void TexturedMeshRenderSystem::CreatePso() {
+void EffectTexturedMeshRenderSystem::CreatePso() {
 
     ShaderManager* shaderManager = ShaderManager::getInstance();
     DxDevice* dxDevice           = Engine::getInstance()->getDxDevice();
@@ -47,17 +48,17 @@ void TexturedMeshRenderSystem::CreatePso() {
     /// shader読み込み
     ///=================================================
     shaderManager->LoadShader("Object3dTexture.VS");
-    shaderManager->LoadShader("Object3dTexture.PS", shaderDirectory, L"ps_6_0");
+    shaderManager->LoadShader("TextureEffect.PS", shaderDirectory, L"ps_6_0");
 
     ///=================================================
     /// shader情報の設定
     ///=================================================
     ShaderInfo texShaderInfo{};
     texShaderInfo.vsKey = "Object3dTexture.VS";
-    texShaderInfo.psKey = "Object3dTexture.PS";
+    texShaderInfo.psKey = "TextureEffect.PS";
 
 #pragma region "RootParameter"
-    D3D12_ROOT_PARAMETER rootParameter[9]{};
+    D3D12_ROOT_PARAMETER rootParameter[12]{};
     // Transform ... 0
     rootParameter[0].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
     rootParameter[0].ShaderVisibility          = D3D12_SHADER_VISIBILITY_VERTEX;
@@ -76,78 +77,95 @@ void TexturedMeshRenderSystem::CreatePso() {
 
     rootParameter[3].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
     rootParameter[3].ShaderVisibility          = D3D12_SHADER_VISIBILITY_PIXEL;
-    rootParameter[3].Descriptor.ShaderRegister = 1; // t1 register for DirectionalLight StructuredBuffer
+    rootParameter[3].Descriptor.ShaderRegister = 4; // t1 register for DirectionalLight StructuredBuffer
     directionalLightBufferIndex_               = (int32_t)texShaderInfo.pushBackRootParameter(rootParameter[3]);
 
     // PointLight ... 4 (StructuredBuffer)
     rootParameter[4].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
     rootParameter[4].ShaderVisibility          = D3D12_SHADER_VISIBILITY_PIXEL;
-    rootParameter[4].Descriptor.ShaderRegister = 3; // t3 register for PointLight StructuredBuffer
+    rootParameter[4].Descriptor.ShaderRegister = 5; // t3 register for PointLight StructuredBuffer
     pointLightBufferIndex_                     = (int32_t)texShaderInfo.pushBackRootParameter(rootParameter[4]);
 
     // SpotLight ... 5 (StructuredBuffer)
     rootParameter[5].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
     rootParameter[5].ShaderVisibility          = D3D12_SHADER_VISIBILITY_PIXEL;
-    rootParameter[5].Descriptor.ShaderRegister = 4; // t4 register for SpotLight StructuredBuffer
+    rootParameter[5].Descriptor.ShaderRegister = 6; // t4 register for SpotLight StructuredBuffer
     spotLightBufferIndex_                      = (int32_t)texShaderInfo.pushBackRootParameter(rootParameter[5]);
 
     // lightCounts ... 6
     rootParameter[6].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
     rootParameter[6].ShaderVisibility          = D3D12_SHADER_VISIBILITY_PIXEL;
-    rootParameter[6].Descriptor.ShaderRegister = 5;
+    rootParameter[6].Descriptor.ShaderRegister = 7;
     lightCountBufferIndex_                     = (int32_t)texShaderInfo.pushBackRootParameter(rootParameter[6]);
 
-    // Texture ... 7
+    // Main Texture ... 7
     // DescriptorTable を使う
     rootParameter[7].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
     rootParameter[7].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-    textureBufferIndex_               = (int32_t)texShaderInfo.pushBackRootParameter(rootParameter[7]);
-    // 環境テクスチャ ... 8
+    mainTextureBufferIndex_           = (int32_t)texShaderInfo.pushBackRootParameter(rootParameter[7]);
+    // Dissolve Texture ... 8
     // DescriptorTable を使う
     rootParameter[8].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
     rootParameter[8].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-    environmentTextureBufferIndex_    = (int32_t)texShaderInfo.pushBackRootParameter(rootParameter[8]);
+    dissolveTextureBufferIndex_       = (int32_t)texShaderInfo.pushBackRootParameter(rootParameter[8]);
+    // Mask Texture ... 9
+    // DescriptorTable を使う
+    rootParameter[9].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+    rootParameter[9].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+    maskTextureBufferIndex_           = (int32_t)texShaderInfo.pushBackRootParameter(rootParameter[9]);
+    // Distortion Texture ... 10
+    // DescriptorTable を使う
+    rootParameter[10].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+    rootParameter[10].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+    distortionTextureBufferIndex_      = (int32_t)texShaderInfo.pushBackRootParameter(rootParameter[10]);
 
-    D3D12_DESCRIPTOR_RANGE textureRange[1] = {};
-    textureRange[0].BaseShaderRegister     = 0;
-    textureRange[0].NumDescriptors         = 1;
-    // SRV を扱うように設定
-    textureRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-    // offset を自動計算するように 設定
-    textureRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+    // effectParam ... 11
+    rootParameter[11].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
+    rootParameter[11].ShaderVisibility          = D3D12_SHADER_VISIBILITY_PIXEL;
+    rootParameter[11].Descriptor.ShaderRegister = 8;
+    effectParameterBufferIndex_                 = (int32_t)texShaderInfo.pushBackRootParameter(rootParameter[11]);
 
-    D3D12_DESCRIPTOR_RANGE environmentTextureRange[1] = {};
-    environmentTextureRange[0].BaseShaderRegister     = 1;
-    environmentTextureRange[0].NumDescriptors         = 1;
-    // SRV を扱うように設定
-    environmentTextureRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-    // offset を自動計算するように 設定
-    environmentTextureRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+#pragma region "TextureDescriptorRange"
+    D3D12_DESCRIPTOR_RANGE textureRange[4] = {};
+    for (size_t i = 0; i < 4; i++) {
+        textureRange[i].BaseShaderRegister = (UINT)i;
+        textureRange[i].NumDescriptors     = 1;
+        // SRV を扱うように設定
+        textureRange[i].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+        // offset を自動計算するように 設定
+        textureRange[i].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+    }
 
+    texShaderInfo.setDescriptorRange2Parameter(&textureRange[0], 1, mainTextureBufferIndex_);
+    texShaderInfo.setDescriptorRange2Parameter(&textureRange[1], 1, dissolveTextureBufferIndex_);
+    texShaderInfo.setDescriptorRange2Parameter(&textureRange[2], 1, maskTextureBufferIndex_);
+    texShaderInfo.setDescriptorRange2Parameter(&textureRange[3], 1, distortionTextureBufferIndex_);
+#pragma endregion
+
+#pragma region "LightDescriptorRange"
     D3D12_DESCRIPTOR_RANGE directionalLightRange[1]            = {};
-    directionalLightRange[0].BaseShaderRegister                = 2;
+    directionalLightRange[0].BaseShaderRegister                = 4;
     directionalLightRange[0].NumDescriptors                    = 1;
     directionalLightRange[0].RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
     directionalLightRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
     D3D12_DESCRIPTOR_RANGE pointLightRange[1]            = {};
-    pointLightRange[0].BaseShaderRegister                = 3;
+    pointLightRange[0].BaseShaderRegister                = 5;
     pointLightRange[0].NumDescriptors                    = 1;
     pointLightRange[0].RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
     pointLightRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
     D3D12_DESCRIPTOR_RANGE spotLightRange[1]            = {};
-    spotLightRange[0].BaseShaderRegister                = 4;
+    spotLightRange[0].BaseShaderRegister                = 6;
     spotLightRange[0].NumDescriptors                    = 1;
     spotLightRange[0].RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
     spotLightRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-    texShaderInfo.setDescriptorRange2Parameter(textureRange, 1, textureBufferIndex_);
-    texShaderInfo.setDescriptorRange2Parameter(environmentTextureRange, 1, environmentTextureBufferIndex_);
-
     texShaderInfo.setDescriptorRange2Parameter(directionalLightRange, 1, directionalLightBufferIndex_);
     texShaderInfo.setDescriptorRange2Parameter(pointLightRange, 1, pointLightBufferIndex_);
     texShaderInfo.setDescriptorRange2Parameter(spotLightRange, 1, spotLightBufferIndex_);
+#pragma endregion
+
 #pragma endregion
 
     ///=================================================
@@ -198,11 +216,11 @@ void TexturedMeshRenderSystem::CreatePso() {
             continue;
         }
         texShaderInfo.blendMode_       = blend;
-        pso_[texShaderInfo.blendMode_] = shaderManager->CreatePso("TextureMesh_" + blendModeStr[i], texShaderInfo, dxDevice->getDevice());
+        pso_[texShaderInfo.blendMode_] = shaderManager->CreatePso("EffectTextured_" + blendModeStr[i], texShaderInfo, dxDevice->getDevice());
     }
 }
 
-void TexturedMeshRenderSystem::LightUpdate() {
+void EffectTexturedMeshRenderSystem::LightUpdate() {
     auto* directionalLight = ECSManager::getInstance()->getComponentArray<DirectionalLight>();
     auto* pointLight       = ECSManager::getInstance()->getComponentArray<PointLight>();
     auto* spotLight        = ECSManager::getInstance()->getComponentArray<SpotLight>();
@@ -236,7 +254,7 @@ void TexturedMeshRenderSystem::LightUpdate() {
     LightManager::getInstance()->Update();
 }
 
-void TexturedMeshRenderSystem::StartRender() {
+void EffectTexturedMeshRenderSystem::StartRender() {
     currentBlend_ = BlendMode::Alpha;
 
     ID3D12GraphicsCommandList* commandList = dxCommand_->getCommandList();
@@ -254,25 +272,37 @@ void TexturedMeshRenderSystem::StartRender() {
 
     ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
-
-    /// 環境テクスチャ
-    GameEntity* skyboxEntity = getUniqueEntity("Skybox");
-    if (!skyboxEntity) {
-        return;
-    }
-    SkyboxRenderer* skybox = getComponent<SkyboxRenderer>(skyboxEntity);
-    commandList->SetGraphicsRootDescriptorTable(
-        environmentTextureBufferIndex_,
-        TextureManager::getDescriptorGpuHandle(skybox->getTextureIndex()));
 }
 
 /// <summary>
 /// 描画
 /// </summary>
 /// <param name="_entity">描画対象オブジェクト</param>
-void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
+void EffectTexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
     auto* commandList      = dxCommand_->getCommandList();
     int32_t componentIndex = 0;
+
+    TextureEffectParam* effectParam = getComponent<TextureEffectParam>(_entity);
+    if (effectParam) {
+        // ============================= テクスチャの設定 ============================= //
+        // dissolve
+        commandList->SetGraphicsRootDescriptorTable(
+            dissolveTextureBufferIndex_,
+            TextureManager::getDescriptorGpuHandle(effectParam->getDissolveTexIndex()));
+        // mask
+        commandList->SetGraphicsRootDescriptorTable(
+            maskTextureBufferIndex_,
+            TextureManager::getDescriptorGpuHandle(effectParam->getMaskTexIndex()));
+        // distortion
+        commandList->SetGraphicsRootDescriptorTable(
+            distortionTextureBufferIndex_,
+            TextureManager::getDescriptorGpuHandle(effectParam->getDistortionTexIndex()));
+
+        // ============================= ConstantBuffer ============================= //
+       auto& paramBuff = effectParam->getEffectParamBuffer();
+        paramBuff.ConvertToBuffer();
+        paramBuff.SetForRootParameter(commandList, effectParameterBufferIndex_);
+    }
 
     // model
     while (true) {
@@ -319,7 +349,7 @@ void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
             // ============================= テクスチャの設定 ============================= //
 
             commandList->SetGraphicsRootDescriptorTable(
-                textureBufferIndex_,
+                mainTextureBufferIndex_,
                 TextureManager::getDescriptorGpuHandle(renderer->getTextureNumber(index)));
 
             // ============================= Viewのセット ============================= //
@@ -388,7 +418,7 @@ void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
             // ============================= テクスチャの設定 ============================= //
 
             commandList->SetGraphicsRootDescriptorTable(
-                textureBufferIndex_,
+                mainTextureBufferIndex_,
                 TextureManager::getDescriptorGpuHandle(renderer->getTextureIndex()));
 
             // ============================= Viewのセット ============================= //
