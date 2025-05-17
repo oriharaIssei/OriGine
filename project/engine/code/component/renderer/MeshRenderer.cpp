@@ -27,8 +27,8 @@
 //----------------------------------------------------------------------------------------------------------
 #pragma region "ModelMeshRenderer"
 void to_json(nlohmann::json& j, const ModelMeshRenderer& r) {
-    j["isRender"]      = r.isRender_;
-    j["blendMode"]     = static_cast<int32_t>(r.currentBlend_);
+    j["isRender"]  = r.isRender_;
+    j["blendMode"] = static_cast<int32_t>(r.currentBlend_);
 
     j["meshGroupSize"] = r.meshGroup_->size();
 
@@ -387,6 +387,8 @@ void LineRenderer::Initialize(GameEntity* _hostEntity) {
 bool LineRenderer::Edit() {
     bool isChange = false;
 
+#ifdef _DEBUG
+
     std::string label;
     int32_t meshIndex = 0;
     int32_t lineIndex = 0;
@@ -443,6 +445,8 @@ bool LineRenderer::Edit() {
 
         isChange = true;
     }
+
+#endif // DEBUG
 
     return isChange;
 }

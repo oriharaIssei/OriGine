@@ -15,6 +15,8 @@
 #include "imgui/imgui_internal.h"
 #include "myGui/MyGui.h"
 
+#ifdef _DEBUG
+
 namespace ImGui {
 bool TimeLineButtons(
     const std::string& _label,
@@ -1924,3 +1926,5 @@ bool EditColorKeyFrame(
 }
 
 } // namespace ImGui
+
+#endif // _DEBUG

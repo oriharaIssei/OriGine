@@ -1,5 +1,7 @@
 #include "MyGui.h"
 
+#ifdef _DEBUG
+
 bool CheckBoxCommand(const std::string& label, bool& value) {
     bool preValue = value;
     if (ImGui::Checkbox(label.c_str(), &preValue)) {
@@ -18,3 +20,4 @@ bool ButtonCommand(const std::string& label, bool& value) {
         return false;
     }
 }
+#endif // _DEBUG
