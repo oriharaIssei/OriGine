@@ -289,7 +289,10 @@ bool TextureEffectParam::Edit() {
             isChange |= DragGuiCommand("Dissolve_Duration", dissolveAnim_.duration, 0.01f, 0.0f);
 
             ImGui::Text("UV Scale");
-            isChange |= DragGuiVectorCommand<2, float>("DissolveUVScale", effectParamData_->dissolveUV.scale_, 0.01f);
+            isChange |= DragGuiVectorCommand<2, float>(
+                "DissolveUVScale",
+                effectParamData_->dissolveUV.scale_,
+                0.01f);
             isChange |= ImGui::EditKeyFrame("Dissolve_UV_Scale", dissolveAnim_.scale, dissolveAnim_.duration);
             if (!dissolveAnim_.scale.empty()) {
                 dissolveAnim_.scale.front().value = effectParamData_->dissolveUV.scale_;
@@ -421,6 +424,9 @@ bool TextureEffectParam::Edit() {
             ImGui::TreePop();
         }
     }
+
+    effectParamData_->UpdateTransform();
+
     return isChange;
 #else
     return false;
@@ -445,7 +451,7 @@ void TextureEffectParam::LoadMaskTexture(const std::string& path) {
 }
 
 void TextureEffectParamData::UpdateTransform() {
-    dissolveUVMat   = MakeMatrix::Affine({dissolveUV.scale_, 0.f}, {0.f, 0.f, dissolveUV.rotate_}, {dissolveUV.translate_, 0.f});
-    distortionUVMat = MakeMatrix::Affine({distortionUV.scale_, 0.f}, {0.f, 0.f, distortionUV.rotate_}, {distortionUV.translate_, 0.f});
-    maskUVMat       = MakeMatrix::Affine({maskUV.scale_, 0.f}, {0.f, 0.f, maskUV.rotate_}, {maskUV.translate_, 0.f});
+    dissolveUVMat   = MakeMatrix::Affine({dissolveUV.scale_, 1.f}, {0.f, 0.f, dissolveUV.rotate_}, {dissolveUV.translate_, 0.f});
+    distortionUVMat = MakeMatrix::Affine({distortionUV.scale_, 1.f}, {0.f, 0.f, distortionUV.rotate_}, {distortionUV.translate_, 0.f});
+    maskUVMat       = MakeMatrix::Affine({maskUV.scale_, 1.f}, {0.f, 0.f, maskUV.rotate_}, {maskUV.translate_, 0.f});
 }

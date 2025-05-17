@@ -140,17 +140,21 @@ PS_Output main(VertexShaderOutput input)
     float distortEnabled = useDistortion ? 1.0f : 0.0f;
 
 // UV
-    float2 finalUV = lerp(distortionUV.xy, distortedUV, distortEnabled);
+    float2 finalUV = lerp(mainUV, distortedUV, distortEnabled);
 
 // Color Sample
-    output.color = gMainTex.Sample(gSampler, finalUV);
+    output.color = gMainTex.Sample(gSampler, finalUV) * gMaterial.color;
     
     // まずはdissolveだけでclip
     clip(dissolveEnabled > 0.5f ? dissolveMask - 0.01f : 1.0f);
     // maskだけ
     clip(maskEnabled > 0.5f ? maskFactor - 0.01f : 1.0f);
-    float lightingEnabled = (float) (gMaterial.enableLighting != 0);
 
+    if (!gMaterial.enableLighting)
+    {
+        return output;
+    }
+    
     float3 lightingResult = float3(0.f, 0.f, 0.f);
     
     float3 normal = normalize(input.normal);
@@ -223,7 +227,7 @@ PS_Output main(VertexShaderOutput input)
     }
 
 // enableLighting が 0 の場合は textureColor のまま、1 ならライティング結果を使う
-    output.color.rgb += lightingResult * lightingEnabled;
+    output.color.rgb += lightingResult;
     
     return output;
 }
