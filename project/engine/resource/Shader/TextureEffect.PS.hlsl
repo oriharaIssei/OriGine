@@ -66,8 +66,9 @@ struct effectParam
     float4x4 mask_uv;
     float4x4 dissolve_uv;
     float4x4 distortion_uv;
-    float dissolve_Threshold;
+    float distortion_Bias;
     float distortion_Strength;
+    float dissolve_Threshold;
     
     int effect_Flags;
     
@@ -122,15 +123,15 @@ PS_Output main(VertexShaderOutput input)
     float maskValue = gMaskTex.Sample(gSampler, maskUV.xy).r;
     float maskFactor = step(0.5, maskValue); // 0 or 1
 
-// distortion は UV をずらす（Distortion も factor で制御）
+    // distortion は UV をずらす（Distortion も factor で制御）
     float4 distortionUV = mul(float4(input.texCoord, 0.0f, 1.0f), gEffectParam.distortion_uv);
-    float2 distortionOffset = (gDistortionTex.Sample(gSampler, distortionUV.xy).rg - 0.5f) * gEffectParam.distortion_Strength;
+    float2 distortionOffset = (gDistortionTex.Sample(gSampler, distortionUV.xy).rg - gEffectParam.distortion_Bias) * gEffectParam.distortion_Strength;
     float2 distortedUV = mainUV + distortionOffset;
 
-// 機能マスク（CPU から設定）
+    // 機能マスク（CPU から設定）
     uint effectFlags = gEffectParam.effect_Flags;
 
-// 条件分岐ではなく、重みを掛けることで切り替え
+    // 条件分岐ではなく、重みを掛けることで切り替え
     bool useDissolve = (effectFlags & EFFECT_DISSOLVE) != 0;
     bool useMask = (effectFlags & EFFECT_MASK) != 0;
     bool useDistortion = (effectFlags & EFFECT_DISTORTION) != 0;
