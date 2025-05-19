@@ -24,19 +24,20 @@ class BinaryReader;
 struct ParticleKeyFrames;
 
 enum class ParticleUpdateType {
-    None                   = 0,
+    None = 0,
+
     ScalePerLifeTime       = 0x1 << 1,
     ScaleRandom            = 0x1 << 2,
     RotatePerLifeTime      = 0x1 << 3,
     RotateRandom           = 0x1 << 4,
     VelocityPerLifeTime    = 0x1 << 5,
     VelocityRandom         = 0x1 << 6,
-    ColorPerLifeTime       = 0x1 << 7,
-    UvScalePerLifeTime     = 0x1 << 8,
-    UvRotatePerLifeTime    = 0x1 << 9,
-    UvTranslatePerLifeTime = 0x1 << 10,
-
-    RotateForward = 0x1 << 11,
+    UsingGravity           = 0x1 << 7,
+    ColorPerLifeTime       = 0x1 << 8,
+    UvScalePerLifeTime     = 0x1 << 9,
+    UvRotatePerLifeTime    = 0x1 << 10,
+    UvTranslatePerLifeTime = 0x1 << 11,
+    RotateForward          = 0x1 << 11,
 };
 
 class Particle {
@@ -73,6 +74,8 @@ protected:
     float lifeTime_    = 0.0f;
     float currentTime_ = 0.0f;
     bool isAlive_      = false;
+
+    float mass_ = 1.0f;
 
     ParticleKeyFrames* keyFrames_ = nullptr;
     std::vector<std::function<void()>> updateByCurves_;
@@ -111,6 +114,8 @@ public:
         minUpdateVelocity_ = _min;
         maxUpdateVelocity_ = _max;
     }
+
+    void setMass(float _mass) { mass_ = _mass; }
 };
 
 struct ParticleKeyFrames {

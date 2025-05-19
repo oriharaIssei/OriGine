@@ -26,7 +26,7 @@
 #include <cmath>
 
 #ifdef _DEBUG
-#include "imgui/imgui.h"
+#include "myGui/MyGui.h"
 #include "util/timeline/Timeline.h"
 #endif // _DEBUG
 
@@ -73,7 +73,6 @@ void Emitter::Initialize(GameEntity* /*_entity*/) {
     }
 
     { // Initialize Active State
-        isActive_        = true;
         leftActiveTime_  = activeTime_;
         currentCoolTime_ = 0.f;
     }
@@ -176,12 +175,15 @@ bool Emitter::Edit() {
 #ifdef _DEBUG
     bool isChange = false;
     ImGui::Checkbox("isActive", &isActive_);
+    ImGui::Checkbox("isLoop", &isLoop_);
+
+    if (ImGui::Button("Play")) {
+        leftActiveTime_ = activeTime_;
+        isActive_       = true;
+    }
     ImGui::SameLine();
     if (ImGui::Button("Stop")) {
-        isActive_ = false;
     }
-
-    ImGui::Checkbox("isLoop", &isLoop_);
 
     ImGui::Spacing();
 
@@ -221,19 +223,35 @@ bool Emitter::Edit() {
     }
 
     ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
 
     if (ImGui::TreeNode("ShapeType")) {
         EditShapeType();
         ImGui::TreePop();
     }
+
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+
     if (ImGui::TreeNode("Emitter")) {
         EditEmitter();
         ImGui::TreePop();
     }
+
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+
     if (ImGui::TreeNode("Particle")) {
         EditParticle();
         ImGui::TreePop();
     }
+
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
 
     if (ImGui::Button("Calculate Particle MaxSize")) {
         CalculateMaxSize();
@@ -255,7 +273,8 @@ void Emitter::EditEmitter() {
         for (int32_t i = 0; i < kBlendNum; i++) {
             bool isSelected = (blendMode_ == BlendMode(i)); // 現在選択中かどうか
             if (ImGui::Selectable(blendModeStr[i].c_str(), isSelected)) {
-                blendMode_ = BlendMode(i);
+                auto command = std::make_unique<SetterCommand<BlendMode>>(&blendMode_, (BlendMode)i);
+                EditorGroup::getInstance()->pushCommand(std::move(command));
                 break;
             }
         }
@@ -263,16 +282,14 @@ void Emitter::EditEmitter() {
     }
 
     ImGui::Text("EmitterActiveTime");
-    ImGui::DragFloat("##EmitterActiveTime", &activeTime_, 0.1f);
+    DragGuiCommand("##EmitterActiveTime", activeTime_, 0.1f);
     ImGui::Text("SpawnParticleVal");
-    if (ImGui::DragInt("##spawnParticleVal", &spawnParticleVal_, 1, 0)) {
-        CalculateMaxSize();
-    }
+    DragGuiCommand("##spawnParticleVal", spawnParticleVal_, 1, 0, 0, "%d");
 
-    ImGui::Checkbox("Particle Is BillBoard", &particleIsBillBoard_);
+    CheckBoxCommand("Particle Is BillBoard", particleIsBillBoard_);
 
     ImGui::Text("SpawnCoolTime");
-    ImGui::DragFloat("##SpawnCoolTime", &spawnCoolTime_, 0.1f, 0);
+    DragGuiCommand("##SpawnCoolTime", spawnCoolTime_, 0.1f, 0.f);
 }
 
 void Emitter::EditShapeType() {
@@ -282,24 +299,30 @@ void Emitter::EditShapeType() {
             bool isSelected = (shapeType_ == EmitterShapeType(i)); // 現在選択中かどうか
 
             if (ImGui::Selectable(emitterShapeTypeWord_[i].c_str(), isSelected)) {
-                shapeType_ = EmitterShapeType(i);
 
-                switch (shapeType_) {
-                case EmitterShapeType::SPHERE:
-                    emitterSpawnShape_ = std::make_shared<EmitterSphere>();
-                    break;
-                case EmitterShapeType::OBB:
-                    emitterSpawnShape_ = std::make_shared<EmitterOBB>();
-                    break;
-                case EmitterShapeType::CAPSULE:
-                    emitterSpawnShape_ = std::make_shared<EmitterCapsule>();
-                    break;
-                case EmitterShapeType::CONE:
-                    emitterSpawnShape_ = std::make_shared<EmitterCone>();
-                    break;
-                default:
-                    break;
-                }
+                auto command = std::make_unique<SetterCommand<EmitterShapeType>>(
+                    &shapeType_,
+                    EmitterShapeType(i),
+                    [this](EmitterShapeType* _newType) {
+                        switch (*_newType) {
+                        case EmitterShapeType::SPHERE:
+                            emitterSpawnShape_ = std::make_shared<EmitterSphere>();
+                            break;
+                        case EmitterShapeType::OBB:
+                            emitterSpawnShape_ = std::make_shared<EmitterOBB>();
+                            break;
+                        case EmitterShapeType::CAPSULE:
+                            emitterSpawnShape_ = std::make_shared<EmitterCapsule>();
+                            break;
+                        case EmitterShapeType::CONE:
+                            emitterSpawnShape_ = std::make_shared<EmitterCone>();
+                            break;
+                        default:
+                            break;
+                        }
+                    });
+
+                EditorGroup::getInstance()->pushCommand(std::move(command));
             }
 
             // 現在選択中の項目をハイライトする
@@ -318,57 +341,61 @@ void Emitter::EditShapeType() {
 }
 
 void Emitter::EditParticle() {
+    int32_t newFlag               = updateSettings_;
+    auto commandComboByChangeFlag = std::make_unique<CommandCombo>();
     //======================== Particle の 編集 ========================//
 
     ImGui::Text("ParticleLifeTime");
-    float preLifeTime = particleLifeTime_;
-    if (ImGui::DragFloat("##ParticleLifeTime", &particleLifeTime_, 0.1f, 0)) {
-        // 各Curveのノードの時間を変更前と同じ割合になるように
-        for (auto& colorNode : particleKeyFrames_->colorCurve_) {
-            colorNode.time = (colorNode.time / preLifeTime) * particleLifeTime_;
-        }
-        for (auto& speedNode : particleKeyFrames_->velocityCurve_) {
-            speedNode.time = (speedNode.time / preLifeTime) * particleLifeTime_;
-        }
-        for (auto& scaleNode : particleKeyFrames_->scaleCurve_) {
-            scaleNode.time = (scaleNode.time / preLifeTime) * particleLifeTime_;
-        }
-        for (auto& rotateNode : particleKeyFrames_->rotateCurve_) {
-            rotateNode.time = (rotateNode.time / preLifeTime) * particleLifeTime_;
-        }
+    DragGuiCommand<float>(
+        "##ParticleLifeTime",
+        particleLifeTime_,
+        0.1f, 0.f);
 
-        for (auto& uvScaleNode : particleKeyFrames_->uvScaleCurve_) {
-            uvScaleNode.time = (uvScaleNode.time / preLifeTime) * particleLifeTime_;
-        }
-        for (auto& uvRotateNode : particleKeyFrames_->uvRotateCurve_) {
-            uvRotateNode.time = (uvRotateNode.time / preLifeTime) * particleLifeTime_;
-        }
-        for (auto& uvTranslateNode : particleKeyFrames_->uvTranslateCurve_) {
-            uvTranslateNode.time = (uvTranslateNode.time / preLifeTime) * particleLifeTime_;
+    ImGui::Separator();
+
+    {
+        int newInterpolationType = static_cast<int>(colorInterpolationType_);
+        if (ImGui::Combo("ColorInterpolationType", &newInterpolationType, "LINEAR\0STEP\0\0", static_cast<int>(InterpolationType::COUNT))) {
+            auto command = std::make_unique<SetterCommand<InterpolationType>>(&colorInterpolationType_, (InterpolationType)newInterpolationType);
+            EditorGroup::getInstance()->pushCommand(std::move(command));
         }
     }
 
     if (ImGui::TreeNode("Particle Color")) {
+        ColorEditGuiCommand<4>(
+            "##Particle Color",
+            particleColor_,
+            [this](Vec<4, float>* _newColor) {
+                if (!particleKeyFrames_->colorCurve_.empty()) {
+                    particleKeyFrames_->colorCurve_[0].value = *_newColor;
+                }
+            });
 
-        ImGui::Combo("ColorInterpolationType", reinterpret_cast<int*>(&colorInterpolationType_), "LINEAR\0STEP\0\0", static_cast<int>(InterpolationType::COUNT));
-
-        ImGui::ColorEdit4("##Particle Color", particleColor_.v);
         // curveで変更するかどうか
-        bool updatePerLifeTime    = (updateSettings_ & static_cast<int32_t>(ParticleUpdateType::ColorPerLifeTime)) != 0;
+        bool updatePerLifeTime    = (newFlag & static_cast<int32_t>(ParticleUpdateType::ColorPerLifeTime)) != 0;
         bool preUpdatePerLifeTime = updatePerLifeTime;
+
         ImGui::Checkbox("UpdateColorPerLifeTime", &updatePerLifeTime);
         if (updatePerLifeTime) {
-            updateSettings_ = (updateSettings_ | static_cast<int32_t>(ParticleUpdateType::ColorPerLifeTime));
-
-            particleKeyFrames_->colorCurve_[0].value = particleColor_;
+            newFlag = (newFlag | static_cast<int32_t>(ParticleUpdateType::ColorPerLifeTime));
             ImGui::EditColorKeyFrame("ColorLine", particleKeyFrames_->colorCurve_, particleLifeTime_);
         } else if (preUpdatePerLifeTime && !updatePerLifeTime) {
-            updateSettings_ = (updateSettings_ & ~static_cast<int32_t>(ParticleUpdateType::ColorPerLifeTime));
+            newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::ColorPerLifeTime));
         }
         ImGui::TreePop();
     }
 
-    ImGui::Combo("TransformInterpolationType", reinterpret_cast<int*>(&colorInterpolationType_), "LINEAR\0STEP\0\0", static_cast<int>(InterpolationType::COUNT));
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+
+    {
+        int newInterpolationType = static_cast<int>(transformInterpolationType_);
+        if (ImGui::Combo("ColorInterpolationType", &newInterpolationType, "LINEAR\0STEP\0\0", static_cast<int>(InterpolationType::COUNT))) {
+            auto command = std::make_unique<SetterCommand<InterpolationType>>(&transformInterpolationType_, (InterpolationType)newInterpolationType);
+            EditorGroup::getInstance()->pushCommand(std::move(command));
+        }
+    }
 
     if (ImGui::TreeNode("Particle Velocity")) {
         ImGui::Text("Min");
@@ -379,17 +406,35 @@ void Emitter::EditParticle() {
         startParticleVelocityMin_ = MinElement(startParticleVelocityMin_, startParticleVelocityMax_);
         startParticleVelocityMax_ = MaxElement(startParticleVelocityMin_, startParticleVelocityMax_);
 
-        int randomOrPerLifeTime    = (updateSettings_ & static_cast<int32_t>(ParticleUpdateType::VelocityPerLifeTime)) ? 2 : ((updateSettings_ & static_cast<int32_t>(ParticleUpdateType::VelocityRandom)) ? 1 : 0);
+        int randomOrPerLifeTime    = (newFlag & static_cast<int32_t>(ParticleUpdateType::VelocityPerLifeTime)) ? 2 : ((newFlag & static_cast<int32_t>(ParticleUpdateType::VelocityRandom)) ? 1 : 0);
         int preRandomOrPerLifeTime = randomOrPerLifeTime;
         ImGui::RadioButton("Update Velocity None", &randomOrPerLifeTime, 0);
         ImGui::RadioButton("Update Velocity Random", &randomOrPerLifeTime, 1);
         ImGui::RadioButton("Update Velocity PerLifeTime", &randomOrPerLifeTime, 2);
-        if (randomOrPerLifeTime == 2) {
-            updateSettings_ = (updateSettings_ | static_cast<int32_t>(ParticleUpdateType::VelocityPerLifeTime));
-            updateSettings_ = (updateSettings_ & ~static_cast<int32_t>(ParticleUpdateType::VelocityRandom));
 
-            particleKeyFrames_->velocityCurve_[0].value = startParticleVelocityMax_;
-            ImGui::EditKeyFrame("SpeedLine", particleKeyFrames_->velocityCurve_, particleLifeTime_);
+        bool isUsingGravity = (newFlag & static_cast<int32_t>(ParticleUpdateType::UsingGravity));
+        if (ImGui::Checkbox("UsingGravity", &isUsingGravity)) {
+            newFlag = isUsingGravity
+                          ? newFlag | static_cast<int32_t>(ParticleUpdateType::UsingGravity)
+                          : newFlag & ~static_cast<int32_t>(ParticleUpdateType::UsingGravity);
+        }
+        if (isUsingGravity) {
+            newFlag = (newFlag | static_cast<int32_t>(ParticleUpdateType::UsingGravity));
+
+            DragGuiCommand<float>("Min Mass", randMass_[X], 0.1f, {}, {}, "%.3f", [this](float* _newVal) {
+                *_newVal = (std::min)(*_newVal, randMass_[Y]);
+            });
+
+            DragGuiCommand<float>("Max Mass", randMass_[Y], 0.1f, {}, {}, "%.3f", [this](float* _newVal) {
+                *_newVal = (std::max)(randMass_[X], *_newVal);
+            });
+        }
+
+        if (randomOrPerLifeTime == 2) {
+            newFlag = (newFlag | static_cast<int32_t>(ParticleUpdateType::VelocityPerLifeTime));
+            newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::VelocityRandom));
+
+            ImGui::EditKeyFrame("VelocityCurve", particleKeyFrames_->velocityCurve_, particleLifeTime_);
         } else if (randomOrPerLifeTime == 1) {
             // ランダムな速度を設定
             ImGui::Text("UpdateMin");
@@ -400,8 +445,8 @@ void Emitter::EditParticle() {
             updateSettings_ = (updateSettings_ & ~static_cast<int32_t>(ParticleUpdateType::VelocityPerLifeTime));
             updateSettings_ = (updateSettings_ | static_cast<int32_t>(ParticleUpdateType::VelocityRandom));
         } else if (preRandomOrPerLifeTime != 0 && randomOrPerLifeTime == 0) {
-            updateSettings_ = (updateSettings_ & ~static_cast<int32_t>(ParticleUpdateType::VelocityPerLifeTime));
-            updateSettings_ = (updateSettings_ & ~static_cast<int32_t>(ParticleUpdateType::VelocityRandom));
+            newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::VelocityPerLifeTime));
+            newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::VelocityRandom));
         }
         ImGui::TreePop();
     }
@@ -416,16 +461,17 @@ void Emitter::EditParticle() {
         startParticleScaleMax_ = MaxElement(startParticleScaleMin_, startParticleScaleMax_);
 
         // curveかrandom か
-        int randomOrPerLifeTime    = (updateSettings_ & static_cast<int32_t>(ParticleUpdateType::ScalePerLifeTime)) ? 2 : ((updateSettings_ & static_cast<int32_t>(ParticleUpdateType::ScaleRandom)) ? 1 : 0);
+        int randomOrPerLifeTime    = (newFlag & static_cast<int32_t>(ParticleUpdateType::ScalePerLifeTime)) ? 2 : ((newFlag & static_cast<int32_t>(ParticleUpdateType::ScaleRandom)) ? 1 : 0);
         int preRandomOrPerLifeTime = randomOrPerLifeTime;
+
         ImGui::RadioButton("Update Scale None", &randomOrPerLifeTime, 0);
         ImGui::RadioButton("Update Scale Random", &randomOrPerLifeTime, 1);
         ImGui::RadioButton("Update Scale PerLifeTime", &randomOrPerLifeTime, 2);
-        if (randomOrPerLifeTime == 2) {
-            updateSettings_ = (updateSettings_ | static_cast<int32_t>(ParticleUpdateType::ScalePerLifeTime));
-            updateSettings_ = (updateSettings_ & ~static_cast<int32_t>(ParticleUpdateType::ScaleRandom));
 
-            particleKeyFrames_->scaleCurve_[0].value = startParticleScaleMax_;
+        if (randomOrPerLifeTime == 2) {
+            newFlag = (newFlag | static_cast<int32_t>(ParticleUpdateType::ScalePerLifeTime));
+            newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::ScaleRandom));
+
             ImGui::EditKeyFrame("ScaleLine", particleKeyFrames_->scaleCurve_, particleLifeTime_);
         } else if (randomOrPerLifeTime == 1) {
             // ランダムなScaleを設定
@@ -435,11 +481,11 @@ void Emitter::EditParticle() {
             ImGui::DragFloat3("##UpdateParticleScaleMax", updateParticleScaleMax_.v, 0.1f);
 
             // ランダムなスケールを設定
-            updateSettings_ = (updateSettings_ & ~static_cast<int32_t>(ParticleUpdateType::ScalePerLifeTime));
-            updateSettings_ = (updateSettings_ | static_cast<int32_t>(ParticleUpdateType::ScaleRandom));
+            newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::ScalePerLifeTime));
+            newFlag = (newFlag | static_cast<int32_t>(ParticleUpdateType::ScaleRandom));
         } else if (preRandomOrPerLifeTime != 0 && randomOrPerLifeTime == 0) {
-            updateSettings_ = (updateSettings_ & ~static_cast<int32_t>(ParticleUpdateType::ScalePerLifeTime));
-            updateSettings_ = (updateSettings_ & ~static_cast<int32_t>(ParticleUpdateType::ScaleRandom));
+            newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::ScalePerLifeTime));
+            newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::ScaleRandom));
         }
         ImGui::TreePop();
     }
@@ -453,14 +499,15 @@ void Emitter::EditParticle() {
 
         int randomOrPerLifeTime    = (updateSettings_ & static_cast<int32_t>(ParticleUpdateType::RotatePerLifeTime)) ? 2 : ((updateSettings_ & static_cast<int32_t>(ParticleUpdateType::RotateRandom)) ? 1 : 0);
         int preRandomOrPerLifeTime = randomOrPerLifeTime;
+
         ImGui::RadioButton("Update Rotate None", &randomOrPerLifeTime, 0);
         ImGui::RadioButton("Update Rotate Random", &randomOrPerLifeTime, 1);
         ImGui::RadioButton("Update Rotate PerLifeTime", &randomOrPerLifeTime, 2);
-        if (randomOrPerLifeTime == 2) {
-            updateSettings_ = (updateSettings_ | static_cast<int32_t>(ParticleUpdateType::RotatePerLifeTime));
-            updateSettings_ = (updateSettings_ & ~static_cast<int32_t>(ParticleUpdateType::RotateRandom));
 
-            particleKeyFrames_->rotateCurve_[0].value = startParticleRotateMax_;
+        if (randomOrPerLifeTime == 2) {
+            newFlag = (newFlag | static_cast<int32_t>(ParticleUpdateType::RotatePerLifeTime));
+            newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::RotateRandom));
+
             ImGui::EditKeyFrame("RotateLine", particleKeyFrames_->rotateCurve_, particleLifeTime_);
         } else if (randomOrPerLifeTime == 1) {
             // ランダムな回転を設定
@@ -472,36 +519,41 @@ void Emitter::EditParticle() {
             updateSettings_ = (updateSettings_ & ~static_cast<int32_t>(ParticleUpdateType::RotatePerLifeTime));
             updateSettings_ = (updateSettings_ | static_cast<int32_t>(ParticleUpdateType::RotateRandom));
         } else if (preRandomOrPerLifeTime != 0 && randomOrPerLifeTime == 0) {
-            updateSettings_ = (updateSettings_ & ~static_cast<int32_t>(ParticleUpdateType::RotatePerLifeTime));
-            updateSettings_ = (updateSettings_ & ~static_cast<int32_t>(ParticleUpdateType::RotateRandom));
+            newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::RotatePerLifeTime));
+            newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::RotateRandom));
         }
         ImGui::TreePop();
     }
 
-    ImGui::Combo("UvInterpolationType", reinterpret_cast<int*>(&uvInterpolationType_), "LINEAR\0STEP\0\0", static_cast<int>(InterpolationType::COUNT));
-
+    ImGui::Spacing();
+    ImGui::Separator();
     ImGui::Spacing();
 
     if (ImGui::TreeNode("UvCurveGenerator Form TextureAnimation")) {
-        ImGui::DragFloat2("TileSize", tileSize_.v, 0.1f);
-        ImGui::DragFloat2("TextureSize", textureSize_.v, 0.1f);
-        ImGui::DragFloat("tilePerTime_", &tilePerTime_);
-        ImGui::DragFloat("StartAnimationTime", &startAnimationTime_, 0.1f, 0);
-        ImGui::DragFloat("AnimationTimeLength", &animationTimeLength_, 0.1f, 0);
+        DragGuiVectorCommand("TileSize", tileSize_, 0.1f);
+        DragGuiVectorCommand("TextureSize", textureSize_, 0.1f);
+        DragGuiCommand("tilePerTime_", tilePerTime_);
+        DragGuiCommand<float>("StartAnimationTime", startAnimationTime_, 0.1f, 0.f);
+        DragGuiCommand<float>("AnimationTimeLength", animationTimeLength_, 0.1f, 0.f);
         if (ImGui::Button("Generate Curve")) {
             if (particleKeyFrames_) {
                 particleLifeTime_ = animationTimeLength_;
 
-                particleKeyFrames_->uvScaleCurve_.clear();
-                particleKeyFrames_->uvTranslateCurve_.clear();
+                // すでにあるカーブを消す UV /scale,translate
+                commandComboByChangeFlag->addCommand(
+                    std::make_shared<ClearCommand<AnimationCurve<Vec3f>>>(&particleKeyFrames_->uvScaleCurve_));
+                commandComboByChangeFlag->addCommand(
+                    std::make_shared<ClearCommand<AnimationCurve<Vec3f>>>(&particleKeyFrames_->uvTranslateCurve_));
 
                 // uvScale は Animation しない
-                updateSettings_  = (updateSettings_ & ~static_cast<int32_t>(ParticleUpdateType::UvScalePerLifeTime));
-                particleUvScale_ = Vector3f(tileSize_ / textureSize_, 0.f);
+                newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::UvScalePerLifeTime));
+                commandComboByChangeFlag->addCommand(
+                    std::make_shared<SetterCommand<Vector3f>>(&particleUvScale_, Vector3f(tileSize_[X] / textureSize_[X], tileSize_[Y] / textureSize_[Y], 0.f)));
 
                 // uv Translate は Animation する
-                updateSettings_      = (updateSettings_ | static_cast<int32_t>(ParticleUpdateType::UvTranslatePerLifeTime));
-                uvInterpolationType_ = InterpolationType::STEP;
+                newFlag = (newFlag | static_cast<int32_t>(ParticleUpdateType::UvTranslatePerLifeTime));
+                commandComboByChangeFlag->addCommand(
+                    std::make_shared<SetterCommand<InterpolationType>>(&uvInterpolationType_, InterpolationType::STEP));
 
                 // 最大タイル数と最大時間を計算
                 int32_t maxTilesX = int32_t(textureSize_[X] / tileSize_[X]);
@@ -510,7 +562,8 @@ void Emitter::EditParticle() {
                 float maxTime     = maxTiles * tilePerTime_;
 
                 // startAnimationTime_ を最大時間内に収める
-                startAnimationTime_ = fmod(startAnimationTime_, maxTime);
+                commandComboByChangeFlag->addCommand(
+                    std::make_shared<SetterCommand<float>>(&startAnimationTime_, fmod(startAnimationTime_, maxTime)));
 
                 // 初期の col と row を計算
                 int32_t startTileIndex = int32_t(startAnimationTime_ / tilePerTime_);
@@ -521,8 +574,10 @@ void Emitter::EditParticle() {
                 float x = col * (tileSize_[X] / textureSize_[X]);
                 float y = row * (tileSize_[Y] / textureSize_[Y]);
 
-                particleUvTranslate_ = Vector3f(x, y, 0.f);
+                commandComboByChangeFlag->addCommand(
+                    std::make_shared<SetterCommand<Vector3f>>(&particleUvTranslate_, Vector3f(x, y, 0.f)));
 
+                AnimationCurve<Vec3f> uvTranslateCurve;
                 int32_t tileNum = int32_t(animationTimeLength_ / tilePerTime_);
                 for (int32_t i = 0; i < tileNum; i++) {
                     float time = (tilePerTime_ * i);
@@ -536,8 +591,10 @@ void Emitter::EditParticle() {
                     // UV座標を計算
                     x = col * (tileSize_[X] / textureSize_[X]);
                     y = row * (tileSize_[Y] / textureSize_[Y]);
-                    particleKeyFrames_->uvTranslateCurve_.emplace_back(time, Vector3f(x, y, 0.f));
+                    uvTranslateCurve.emplace_back(time, Vector3f(x, y, 0.f));
                 }
+                commandComboByChangeFlag->addCommand(
+                    std::make_shared<SetterCommand<AnimationCurve<Vec3f>>>(&particleKeyFrames_->uvTranslateCurve_, uvTranslateCurve));
             }
         }
 
@@ -545,59 +602,122 @@ void Emitter::EditParticle() {
     }
 
     ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+
+    {
+        int newInterpolationType = static_cast<int>(uvInterpolationType_);
+        if (ImGui::Combo("UvInterpolationType", &newInterpolationType, "LINEAR\0STEP\0\0", static_cast<int>(InterpolationType::COUNT))) {
+            auto command = std::make_unique<SetterCommand<InterpolationType>>(&uvInterpolationType_, (InterpolationType)newInterpolationType);
+            EditorGroup::getInstance()->pushCommand(std::move(command));
+        }
+    }
+
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
 
     if (ImGui::TreeNode("Particle UV Scale")) {
-        ImGui::DragFloat3("##ParticleUvScale", particleUvScale_.v, 0.1f);
-        bool updatePerLifeTime    = (updateSettings_ & static_cast<int32_t>(ParticleUpdateType::UvScalePerLifeTime)) != 0;
+        ImGui::Text("UVScale");
+        DragGuiVectorCommand<3, float>(
+            "##ParticleUvScale",
+            particleUvScale_,
+            0.1f,
+            {}, {},
+            "%.3f",
+            [this](Vec<3, float>* _newScale) {
+                if (!particleKeyFrames_->uvScaleCurve_.empty()) {
+                    particleKeyFrames_->uvScaleCurve_[0].value = *_newScale;
+                }
+            });
+
+        bool updatePerLifeTime    = (newFlag & static_cast<int32_t>(ParticleUpdateType::UvScalePerLifeTime)) != 0;
         bool preUpdatePerLifeTime = updatePerLifeTime;
         ImGui::Checkbox("Update UvScale PerLifeTime", &updatePerLifeTime);
         if (updatePerLifeTime) {
-            updateSettings_ = (updateSettings_ | static_cast<int32_t>(ParticleUpdateType::UvScalePerLifeTime));
+            newFlag = (newFlag | static_cast<int32_t>(ParticleUpdateType::UvScalePerLifeTime));
 
-            particleKeyFrames_->uvScaleCurve_[0].value = particleUvScale_;
             ImGui::EditKeyFrame("UvScaleLine", particleKeyFrames_->uvScaleCurve_, particleLifeTime_);
         } else if (preUpdatePerLifeTime && !updatePerLifeTime) {
-            particleKeyFrames_->uvScaleCurve_.clear();
-            particleKeyFrames_->uvScaleCurve_.emplace_back(0.0f, particleUvScale_);
-            updateSettings_ = (updateSettings_ & ~static_cast<int32_t>(ParticleUpdateType::UvScalePerLifeTime));
+            // すでにあるカーブを消す
+            auto comamndGroup = std::make_unique<CommandCombo>();
+            comamndGroup->addCommand(std::make_shared<ClearCommand<AnimationCurve<Vec3f>>>(&particleKeyFrames_->uvScaleCurve_));
+            comamndGroup->addCommand(std::make_shared<AddElementCommand<AnimationCurve<Vec3f>>>(&particleKeyFrames_->uvScaleCurve_, KeyFrame<Vec3f>(0.0f, particleUvScale_)));
+            EditorGroup::getInstance()->pushCommand(std::move(comamndGroup));
+
+            newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::UvScalePerLifeTime));
         }
         ImGui::TreePop();
     }
 
     if (ImGui::TreeNode("Particle UV Rotate")) {
-        ImGui::DragFloat3("##ParticleUvRotate", particleUvRotate_.v, 0.1f);
-        bool updatePerLifeTime    = (updateSettings_ & static_cast<int32_t>(ParticleUpdateType::UvRotatePerLifeTime)) != 0;
+        ImGui::Text("UVRotate");
+
+        DragGuiVectorCommand<3, float>(
+            "##ParticleUvRotate",
+            particleUvRotate_,
+            0.1f,
+            {}, {},
+            "%.3f",
+            [this](Vec<3, float>* _newUvRotate) {
+                particleKeyFrames_->uvRotateCurve_[0].value = *_newUvRotate;
+            });
+
+        bool updatePerLifeTime    = (newFlag & static_cast<int32_t>(ParticleUpdateType::UvRotatePerLifeTime)) != 0;
         bool preUpdatePerLifeTime = updatePerLifeTime;
+
         ImGui::Checkbox("Update UvRotate PerLifeTime", &updatePerLifeTime);
         if (updatePerLifeTime) {
-            updateSettings_ = (updateSettings_ | static_cast<int32_t>(ParticleUpdateType::UvRotatePerLifeTime));
+            newFlag = (newFlag | static_cast<int32_t>(ParticleUpdateType::UvRotatePerLifeTime));
 
-            particleKeyFrames_->uvRotateCurve_[0].value = particleUvRotate_;
             ImGui::EditKeyFrame("UvRotateLine", particleKeyFrames_->uvRotateCurve_, particleLifeTime_);
         } else if (preUpdatePerLifeTime && !updatePerLifeTime) {
-            particleKeyFrames_->uvRotateCurve_.clear();
-            particleKeyFrames_->uvRotateCurve_.emplace_back(0.0f, particleUvRotate_);
-            updateSettings_ = (updateSettings_ & ~static_cast<int32_t>(ParticleUpdateType::UvRotatePerLifeTime));
+            // すでにあるカーブを消す
+            auto comamndGroup = std::make_unique<CommandCombo>();
+            comamndGroup->addCommand(std::make_shared<ClearCommand<AnimationCurve<Vec3f>>>(&particleKeyFrames_->uvRotateCurve_));
+            comamndGroup->addCommand(std::make_shared<AddElementCommand<AnimationCurve<Vec3f>>>(&particleKeyFrames_->uvRotateCurve_, KeyFrame<Vec3f>(0.0f, particleUvRotate_)));
+            EditorGroup::getInstance()->pushCommand(std::move(comamndGroup));
+
+            newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::UvRotatePerLifeTime));
         }
         ImGui::TreePop();
     }
 
     if (ImGui::TreeNode("Particle UV Translate")) {
-        ImGui::DragFloat3("##ParticleUvTranslate", particleUvTranslate_.v, 0.1f);
-        bool updatePerLifeTime    = (updateSettings_ & static_cast<int32_t>(ParticleUpdateType::UvTranslatePerLifeTime)) != 0;
+        ImGui::Text("UVTranslate");
+        DragGuiVectorCommand<3, float>(
+            "##ParticleUvTranslate",
+            particleUvTranslate_,
+            0.1f,
+            {}, {},
+            "%.3f",
+            [this](Vec<3, float>* _newUVTranslate) {
+                particleKeyFrames_->uvTranslateCurve_[0].value = *_newUVTranslate;
+            });
+
+        bool updatePerLifeTime    = (newFlag & static_cast<int32_t>(ParticleUpdateType::UvTranslatePerLifeTime)) != 0;
         bool preUpdatePerLifeTime = updatePerLifeTime;
         ImGui::Checkbox("Update UvTransform PerLifeTime", &updatePerLifeTime);
         if (updatePerLifeTime) {
-            updateSettings_ = (updateSettings_ | static_cast<int32_t>(ParticleUpdateType::UvTranslatePerLifeTime));
+            newFlag = (newFlag | static_cast<int32_t>(ParticleUpdateType::UvTranslatePerLifeTime));
 
-            particleKeyFrames_->uvTranslateCurve_[0].value = particleUvTranslate_;
             ImGui::EditKeyFrame("UvTranslateLine", particleKeyFrames_->uvTranslateCurve_, particleLifeTime_);
         } else if (preUpdatePerLifeTime && !updatePerLifeTime) {
-            particleKeyFrames_->uvTranslateCurve_.clear();
-            particleKeyFrames_->uvTranslateCurve_.emplace_back(0.0f, particleUvTranslate_);
-            updateSettings_ = (updateSettings_ & ~static_cast<int32_t>(ParticleUpdateType::UvTranslatePerLifeTime));
+            // すでにあるカーブを消す
+            auto comamndGroup = std::make_unique<CommandCombo>();
+            comamndGroup->addCommand(std::make_shared<ClearCommand<AnimationCurve<Vec3f>>>(&particleKeyFrames_->uvTranslateCurve_));
+            comamndGroup->addCommand(std::make_shared<AddElementCommand<AnimationCurve<Vec3f>>>(&particleKeyFrames_->uvTranslateCurve_, KeyFrame<Vec3f>(0.0f, particleUvTranslate_)));
+            EditorGroup::getInstance()->pushCommand(std::move(comamndGroup));
+
+            newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::UvTranslatePerLifeTime));
         }
         ImGui::TreePop();
+    }
+
+    if (newFlag != updateSettings_) {
+        auto command = std::make_unique<SetterCommand<int32_t>>(&updateSettings_, newFlag);
+        EditorGroup::getInstance()->pushCommand(std::move(command));
+        EditorGroup::getInstance()->pushCommand(std::move(commandComboByChangeFlag));
     }
 }
 #endif // _DEBUG
@@ -744,12 +864,17 @@ void Emitter::SpawnParticle() {
         if (updateSettings_ & int(ParticleUpdateType::VelocityRandom)) {
             spawnedParticle->setUpdateVelocityMinMax(&updateParticleVelocityMin_, &updateParticleVelocityMax_);
         }
+        if (updateSettings_ & int(ParticleUpdateType::UsingGravity)) {
+            randX.setRange(randMass_[X], randMass_[Y]);
+            spawnedParticle->setMass(randX.get());
+        }
         if (updateSettings_ & int(ParticleUpdateType::ScaleRandom)) {
             spawnedParticle->setUpdateScaleMinMax(&updateParticleScaleMin_, &updateParticleScaleMax_);
         }
         if (updateSettings_ & int(ParticleUpdateType::RotateRandom)) {
             spawnedParticle->setUpdateRotateMinMax(&updateParticleRotateMin_, &updateParticleRotateMax_);
         }
+
         spawnedParticle->setKeyFrames(updateSettings_, particleKeyFrames_.get());
         spawnedParticle->UpdateKeyFrameValues();
     }

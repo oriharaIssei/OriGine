@@ -1808,6 +1808,7 @@ bool EditColorKeyFrame(
                         EditorGroup::getInstance()->pushCommand(std::make_unique<SetterCommand<KeyFrame<Vec4f>>>(
                             &_keyFrames[popUpIndex],
                             KeyFrame<Vec4f>(0.0f, _defaultValue)));
+                        popUpIndex = -1;
                         return 0;
                     }
 
@@ -1827,6 +1828,8 @@ bool EditColorKeyFrame(
                     });
 
                     EditorGroup::getInstance()->pushCommand(std::move(commandCombo));
+
+                    popUpIndex = -1;
                     return 0;
                 }
                 if (ImGui::Button("Copy")) {

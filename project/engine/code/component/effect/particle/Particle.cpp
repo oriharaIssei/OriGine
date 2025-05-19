@@ -11,6 +11,7 @@
 
 // lib
 #include "binaryIO/BinaryIO.h"
+#include "globalVariables/SerializedField.h"
 #include "myRandom/MyRandom.h"
 
 Particle::Particle() {}
@@ -66,18 +67,24 @@ void Particle::Update(float _deltaTime) {
         update();
     }
 
-    // direction_ を法線ベクトルとして velocity_ を回転させる
-    Vec3f rotationAxis    = axisZ.cross(direction_).normalize();
-    float angle           = std::acos(Vec3f(axisZ * direction_).dot() / (axisZ.length() * direction_.length()));
-    Quaternion rotation   = Quaternion::RotateAxisAngle(rotationAxis, angle);
-    Vec3f rotatedVelocity = Quaternion::RotateVector(velocity_, rotation);
+    transform_.translate += velocity_ * deltaTime_;
 
-    // 回転させた velocity_ で移動
-    Vec3f movement = rotatedVelocity * _deltaTime;
-    transform_.translate += movement;
+    //// direction_ を法線ベクトルとして velocity_ を回転させる
+    // Vec3f rotationAxis    = axisZ.cross(direction_).normalize();
+    // float angle           = std::acos(Vec3f(axisZ * direction_).dot() / (axisZ.length() * direction_.length()));
+    // Quaternion rotation   = Quaternion::RotateAxisAngle(rotationAxis, angle);
+    // Vec3f rotatedVelocity = Quaternion::RotateVector(velocity_, rotation);
+
+    //// 回転させた velocity_ で移動
+    // Vec3f movement = rotatedVelocity * _deltaTime;
+    // transform_.translate += movement;
 
     if (rotateForward_) {
         // 進行方向を向くように回転させる
+        Vec3f rotationAxis    = axisZ.cross(direction_).normalize();
+        float angle           = std::acos(Vec3f(axisZ * direction_).dot() / (axisZ.length() * direction_.length()));
+        Quaternion rotation   = Quaternion::RotateAxisAngle(rotationAxis, angle);
+        Vec3f rotatedVelocity = Quaternion::RotateVector(velocity_, rotation);
         if (rotatedVelocity.length() < 0.0f) {
             rotatedVelocity = direction_;
         }
@@ -162,6 +169,12 @@ void Particle::setKeyFrames(int32_t updateSettings, ParticleKeyFrames* _keyFrame
         MyRandom::Float randomY(minUpdateVelocity_->v[Y], maxUpdateVelocity_->v[Y]);
         MyRandom::Float randomZ(minUpdateVelocity_->v[Z], maxUpdateVelocity_->v[Z]);
         velocity_ += Vec3f(randomX.get(), randomY.get(), randomZ.get()) * deltaTime_;
+    }
+    if (updateSettings & static_cast<int32_t>(ParticleUpdateType::UsingGravity)) {
+        updateByCurves_.push_back([this]() {
+            SerializedField<float> gravity_ = SerializedField<float>("InGame", "Physics", "Gravity");
+            velocity_[Y] -= gravity_ * mass_ * deltaTime_;
+        });
     }
 
     if (updateSettings & static_cast<int32_t>(ParticleUpdateType::UvScalePerLifeTime)) {
