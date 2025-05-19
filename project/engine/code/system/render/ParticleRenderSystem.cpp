@@ -138,6 +138,9 @@ void ParticleRenderSystem::StartRender() {
     commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     CameraManager::getInstance()->setBufferForRootParameter(commandList, 1);
+
+    ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
+    commandList->SetDescriptorHeaps(1, ppHeaps);
 }
 
 void ParticleRenderSystem::UpdateEntity(GameEntity* _entity) {
@@ -151,6 +154,7 @@ void ParticleRenderSystem::UpdateEntity(GameEntity* _entity) {
         }
 
 #ifdef _DEBUG
+        comp.setParent(parentTransform);
         if (SceneManager::getInstance()->inEditMode()) {
             const float deltaTime = Engine::getInstance()->getDeltaTime();
             comp.UpdateParticle(deltaTime);
@@ -163,7 +167,6 @@ void ParticleRenderSystem::UpdateEntity(GameEntity* _entity) {
             commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
         }
 
-        comp.setParent(parentTransform);
         comp.Draw(commandList);
     }
 }

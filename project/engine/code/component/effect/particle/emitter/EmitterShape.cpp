@@ -29,7 +29,7 @@ void EmitterSphere::Debug() {
     EmitterShape::Debug();
     ImGui::Text("radius");
     std::string label = "##" + emitterShapeTypeWord_[int(type_)] + "_radius";
-    ImGui::DragFloat(label.c_str(), &radius_, 0.1f);
+    ImGui::DragFloat(label.c_str(), &radius_, 0.01f, 0.01f);
 }
 #endif // _DEBUG
 

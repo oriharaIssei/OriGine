@@ -10,6 +10,7 @@
 #include "directX12/DxSrvArrayManager.h"
 #include "directX12/IConstantBuffer.h"
 #include "directX12/IStructuredBuffer.h"
+#include "directX12/Mesh.h"
 #include "directX12/ShaderManager.h"
 // assets
 #include "component/material/Material.h"
@@ -80,11 +81,11 @@ private:
     /// <summary>
     /// 頂点とMaterial を 併せ持つ
     /// </summary>
-    std::shared_ptr<Model> particleModel_;
+    TextureMesh mesh_;
+    IConstantBuffer<Material> material_;
+
     IStructuredBuffer<ParticleTransform> structuredTransform_;
-    //=============== Model & Texture ===============/
-    std::string modelDirectory_  = "";
-    std::string modelFileName_   = "";
+    //=============== Texture ===============/
     std::string textureFileName_ = "";
     int32_t textureIndex_        = 0;
 
@@ -118,6 +119,8 @@ private:
     Vec3f particleUvTranslate_;
 
     int32_t updateSettings_ = 0;
+
+    Vec2f randMass_ = {1.f, 1.f};
 
     std::shared_ptr<ParticleKeyFrames> particleKeyFrames_ = nullptr;
 
@@ -191,10 +194,40 @@ public:
     }
 
     /// @brief コンポーネントの保存
-    void SaveComponent(GameEntity* _entity, nlohmann::json& _json) override;
+    void SaveComponent(GameEntity* _entity, nlohmann::json& _json) override {
+        static_assert(HasToJson<Emitter>, "Emitter must have a to_json function");
+        auto it = entityIndexBind_.find(_entity);
+        if (it == entityIndexBind_.end()) {
+            return;
+        }
+        nlohmann::json compVecJson = nlohmann::json::array();
+        uint32_t index             = it->second;
+        for (auto& comp : components_[index]) {
+            compVecJson.emplace_back(comp);
+        }
+        _json[nameof<Emitter>()] = compVecJson;
+    }
 
     /// @brief コンポーネントの読み込み
-    void LoadComponent(GameEntity* _entity, nlohmann::json& _json) override;
+    void LoadComponent(GameEntity* _entity, nlohmann::json& _json) override {
+        static_assert(HasFromJson<Emitter>, "Emitter must have a from_json function");
+        auto it = entityIndexBind_.find(_entity);
+        if (it == entityIndexBind_.end()) {
+            // エンティティが登録されていない場合は新規登録
+            entityIndexBind_[_entity] = static_cast<uint32_t>(components_.size());
+            components_.emplace_back();
+            it = entityIndexBind_.find(_entity);
+        }
+        uint32_t index = it->second;
+        // 現在のコンポーネントをクリア
+        components_[index].clear();
+        // JSON 配列からコンポーネントを読み込み
+        for (const auto& compJson : _json) {
+            components_[index].emplace_back(srvArray_.get());
+            from_json(compJson, components_[index].back());
+            components_[index].back().Initialize(_entity);
+        }
+    }
 
     /// @brief エンティティ登録（メモリ確保）
     void registerEntity(GameEntity* _entity, int32_t _entitySize = 1, bool _doInitialize = true) override {
@@ -216,7 +249,8 @@ public:
             return;
         }
         uint32_t index = it->second;
-        components_[index].push_back(_component);
+        components_[index].emplace_back(srvArray_.get());
+        components_[index].back() = _component;
         components_[index].back().Initialize(_hostEntity);
     }
 
@@ -230,7 +264,7 @@ public:
             return;
         }
         uint32_t index = it->second;
-        components_[index].push_back(std::move(*comp));
+        components_[index].emplace_back(std::move(*comp));
         if (_doInitialize) {
             components_[index].back().Initialize(_hostEntity);
         }
@@ -244,7 +278,7 @@ public:
             return;
         }
         uint32_t index = it->second;
-        components_[index].push_back(Emitter(srvArray_.get()));
+        components_[index].emplace_back(srvArray_.get());
         if (_doInitialize) {
             components_[index].back().Initialize(_hostEntity);
         }
@@ -460,108 +494,6 @@ public:
     }
 };
 
-inline void ComponentArray<Emitter>::SaveComponent(GameEntity* _entity, nlohmann::json& _json) {
-    auto it = entityIndexBind_.find(_entity);
-    if (it == entityIndexBind_.end()) {
-        return;
-    }
+// to_json が存在するかをチェックする concept
 
-    nlohmann::json compVecJson = nlohmann::json::array();
-
-    uint32_t index = it->second;
-    for (auto& comp : components_[index]) {
-        compVecJson.emplace_back(comp);
-    }
-
-    _json[nameof<Emitter>()] = compVecJson;
-}
-
-inline void from_json(const nlohmann::json& j, Emitter& e) {
-    j.at("blendMode").get_to(e.blendMode_);
-    j.at("isActive").get_to(e.isActive_);
-    j.at("isLoop").get_to(e.isLoop_);
-    j.at("activeTime").get_to(e.activeTime_);
-    j.at("leftActiveTime").get_to(e.leftActiveTime_);
-    j.at("spawnParticleVal").get_to(e.spawnParticleVal_);
-    j.at("shapeType").get_to(e.shapeType_);
-    j.at("currentCoolTime").get_to(e.currentCoolTime_);
-    j.at("spawnCoolTime").get_to(e.spawnCoolTime_);
-    j.at("particleLifeTime").get_to(e.particleLifeTime_);
-    j.at("particleIsBillBoard").get_to(e.particleIsBillBoard_);
-    j.at("particleColor").get_to(e.particleColor_);
-    j.at("particleUvScale").get_to(e.particleUvScale_);
-    j.at("particleUvRotate").get_to(e.particleUvRotate_);
-    j.at("particleUvTranslate").get_to(e.particleUvTranslate_);
-    j.at("updateSettings").get_to(e.updateSettings_);
-    j.at("startParticleScaleMin").get_to(e.startParticleScaleMin_);
-    j.at("startParticleScaleMax").get_to(e.startParticleScaleMax_);
-    j.at("startParticleRotateMin").get_to(e.startParticleRotateMin_);
-    j.at("startParticleRotateMax").get_to(e.startParticleRotateMax_);
-    j.at("startParticleVelocityMin").get_to(e.startParticleVelocityMin_);
-    j.at("startParticleVelocityMax").get_to(e.startParticleVelocityMax_);
-    j.at("updateParticleScaleMin").get_to(e.updateParticleScaleMin_);
-    j.at("updateParticleScaleMax").get_to(e.updateParticleScaleMax_);
-    j.at("updateParticleRotateMin").get_to(e.updateParticleRotateMin_);
-    j.at("updateParticleRotateMax").get_to(e.updateParticleRotateMax_);
-    j.at("updateParticleVelocityMin").get_to(e.updateParticleVelocityMin_);
-    j.at("updateParticleVelocityMax").get_to(e.updateParticleVelocityMax_);
-}
-
-inline void to_json(nlohmann::json& j, const Emitter& e) {
-    j = nlohmann::json{
-        {"blendMode", e.blendMode_},
-        {"isActive", e.isActive_},
-        {"isLoop", e.isLoop_},
-        {"activeTime", e.activeTime_},
-        {"leftActiveTime", e.leftActiveTime_},
-        {"spawnParticleVal", e.spawnParticleVal_},
-        {"shapeType", e.shapeType_},
-        {"currentCoolTime", e.currentCoolTime_},
-        {"spawnCoolTime", e.spawnCoolTime_},
-        {"particleLifeTime", e.particleLifeTime_},
-        {"particleIsBillBoard", e.particleIsBillBoard_},
-        {"particleColor", e.particleColor_},
-        {"particleUvScale", e.particleUvScale_},
-        {"particleUvRotate", e.particleUvRotate_},
-        {"particleUvTranslate", e.particleUvTranslate_},
-        {"updateSettings", e.updateSettings_},
-        {"startParticleScaleMin", e.startParticleScaleMin_},
-        {"startParticleScaleMax", e.startParticleScaleMax_},
-        {"startParticleRotateMin", e.startParticleRotateMin_},
-        {"startParticleRotateMax", e.startParticleRotateMax_},
-        {"startParticleVelocityMin", e.startParticleVelocityMin_},
-        {"startParticleVelocityMax", e.startParticleVelocityMax_},
-        {"updateParticleScaleMin", e.updateParticleScaleMin_},
-        {"updateParticleScaleMax", e.updateParticleScaleMax_},
-        {"updateParticleRotateMin", e.updateParticleRotateMin_},
-        {"updateParticleRotateMax", e.updateParticleRotateMax_},
-        {"updateParticleVelocityMin", e.updateParticleVelocityMin_},
-        {"updateParticleVelocityMax", e.updateParticleVelocityMax_}};
-}
-
-inline void ComponentArray<Emitter>::LoadComponent(GameEntity* _entity, nlohmann::json& _json) {
-    // エンティティが登録されていない場合は終了
-    auto it = entityIndexBind_.find(_entity);
-    if (it == entityIndexBind_.end()) {
-        registerEntity(_entity, 1); // 必要に応じてエンティティを登録
-        it = entityIndexBind_.find(_entity);
-    }
-
-    uint32_t index = it->second;
-
-    // JSON から対象のコンポーネント配列を取得
-    auto compVecJson = _json.find(nameof<Emitter>());
-    if (compVecJson == _json.end() || !compVecJson->is_array()) {
-        return; // 配列が存在しない場合は終了
-    }
-
-    // 現在のコンポーネントをクリア
-    components_[index].clear();
-
-    // JSON 配列からコンポーネントを読み込み
-    for (auto& compJson : *compVecJson) {
-        Emitter comp = compJson.get<Emitter>();
-        components_[index].emplace_back(comp);
-    }
-}
 #pragma endregion
