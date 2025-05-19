@@ -196,7 +196,26 @@ public:
     void SaveComponent(GameEntity* _entity, nlohmann::json& _json) override;
 
     /// @brief コンポーネントの読み込み
-    void LoadComponent(GameEntity* _entity, nlohmann::json& _json) override;
+    void LoadComponent(GameEntity* _entity, nlohmann::json& _json) override {
+        static_assert(HasFromJson<Emitter>, "Emitter must have a from_json function");
+        auto it = entityIndexBind_.find(_entity);
+        if (it == entityIndexBind_.end()) {
+            // エンティティが登録されていない場合は新規登録
+            entityIndexBind_[_entity] = static_cast<uint32_t>(components_.size());
+            components_.emplace_back();
+            it = entityIndexBind_.find(_entity);
+        }
+        uint32_t index = it->second;
+        // 現在のコンポーネントをクリア
+        components_[index].clear();
+        // JSON 配列からコンポーネントを読み込み
+        for (const auto& compJson : _json) {
+            Emitter emitter(srvArray_.get()); // 必要な引数でコンストラクタ呼び出し
+            from_json(compJson, emitter); // JSONから値を詰める
+            emitter.Initialize(_entity); // コンポーネントの初期化
+            components_[index].emplace_back(emitter);
+        }
+    }
 
     /// @brief エンティティ登録（メモリ確保）
     void registerEntity(GameEntity* _entity, int32_t _entitySize = 1, bool _doInitialize = true) override {

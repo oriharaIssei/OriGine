@@ -318,9 +318,9 @@ bool TextureEffectParam::Edit() {
     // Distortion
     ///===========================================
     if (isDistortion) {
-
         if (ImGui::TreeNode("Distortion")) {
             DragGuiCommand("DistortionStrength", effectParamData_->distortionStrength, 0.01f);
+            SlideCommand<float>("DistortionBias", effectParamData_->distortionBias,  0.0f, 1.f);
 
             ImGui::Separator();
 

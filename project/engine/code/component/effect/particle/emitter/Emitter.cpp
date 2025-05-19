@@ -98,8 +98,12 @@ void Emitter::Initialize(GameEntity* /*_entity*/) {
 
     // keyFrames
     particleKeyFrames_ = std::make_unique<ParticleKeyFrames>();
+    particleKeyFrames_ = std::make_unique<ParticleKeyFrames>();
 
     // resource
+    if (!modelFileName_.empty()) {
+        particleModel_ = ModelManager::getInstance()->Create(modelDirectory_, modelFileName_);
+    }
     if (!modelFileName_.empty()) {
         particleModel_ = ModelManager::getInstance()->Create(modelDirectory_, modelFileName_);
     }
@@ -112,7 +116,6 @@ void Emitter::Initialize(GameEntity* /*_entity*/) {
         structuredTransform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice(), srvArray_, particleMaxSize_);
         particles_.reserve(particleMaxSize_);
     }
-
 }
 
 void Emitter::Finalize() {
@@ -190,6 +193,20 @@ bool Emitter::Edit() {
     if (ImGui::Button("reload FileList")) {
         objectFiles  = SearchModelFile();
         textureFiles = SearchTextureFile();
+    }
+
+    ImGui::Text("Particle Model : ");
+    ImGui::SameLine();
+    if (ImGui::BeginCombo("ParticleModel", modelFileName_.c_str())) {
+        for (auto& fileName : objectFiles) {
+            bool isSelected = (fileName.second == modelFileName_); // 現在選択中かどうか
+            if (ImGui::Selectable(fileName.second.c_str(), isSelected)) {
+                particleModel_  = ModelManager::getInstance()->Create(fileName.first, fileName.second);
+                modelDirectory_ = fileName.first;
+                modelFileName_  = fileName.second;
+            }
+        }
+        ImGui::EndCombo();
     }
 
     ImGui::Text("Particle Model : ");
@@ -401,10 +418,15 @@ void Emitter::EditParticle() {
         ImGui::Text("Min");
         ImGui::DragFloat3("##ParticleVelocityMin", startParticleVelocityMin_.v, 0.1f);
         ImGui::Text("Max");
-        ImGui::DragFloat3("##ParticleVelocityMax", startParticleVelocityMax_.v, 0.1f);
-
-        startParticleVelocityMin_ = MinElement(startParticleVelocityMin_, startParticleVelocityMax_);
-        startParticleVelocityMax_ = MaxElement(startParticleVelocityMin_, startParticleVelocityMax_);
+        DragGuiVectorCommand<3, float>(
+            "##ParticleVelocityMax",
+            startParticleVelocityMax_,
+            0.1f,
+            {}, {},
+            "%.3f",
+            [this](Vec<3, float>* _newVec) {
+                *_newVec = MaxElement(startParticleVelocityMin_, *(_newVec));
+            });
 
         int randomOrPerLifeTime    = (newFlag & static_cast<int32_t>(ParticleUpdateType::VelocityPerLifeTime)) ? 2 : ((newFlag & static_cast<int32_t>(ParticleUpdateType::VelocityRandom)) ? 1 : 0);
         int preRandomOrPerLifeTime = randomOrPerLifeTime;
@@ -438,12 +460,28 @@ void Emitter::EditParticle() {
         } else if (randomOrPerLifeTime == 1) {
             // ランダムな速度を設定
             ImGui::Text("UpdateMin");
-            ImGui::DragFloat3("##UpdateParticleVelocityMin", updateParticleVelocityMin_.v, 0.1f);
-            ImGui::Text("UpdateMax");
-            ImGui::DragFloat3("##UpdateParticleVelocityMax", updateParticleVelocityMax_.v, 0.1f);
+            DragGuiVectorCommand<3, float>(
+                "##UpdateParticleVelocityMin",
+                updateParticleVelocityMin_,
+                0.1f,
+                {}, {},
+                "%.3f",
+                [this](Vec<3, float>* _newMin) {
+                    *_newMin = MinElement(*_newMin, updateParticleVelocityMax_);
+                });
 
-            updateSettings_ = (updateSettings_ & ~static_cast<int32_t>(ParticleUpdateType::VelocityPerLifeTime));
-            updateSettings_ = (updateSettings_ | static_cast<int32_t>(ParticleUpdateType::VelocityRandom));
+            ImGui::Text("UpdateMax");
+            DragGuiVectorCommand<3, float>(
+                "##UpdateParticleVelocityMax",
+                updateParticleVelocityMax_,
+                0.1f, {}, {},
+                "%.3f",
+                [this](Vec<3, float>* _newMax) {
+                    *_newMax = MaxElement(updateParticleVelocityMin_, *(_newMax));
+                });
+
+            newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::VelocityPerLifeTime));
+            newFlag = (newFlag | static_cast<int32_t>(ParticleUpdateType::VelocityRandom));
         } else if (preRandomOrPerLifeTime != 0 && randomOrPerLifeTime == 0) {
             newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::VelocityPerLifeTime));
             newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::VelocityRandom));
@@ -453,12 +491,27 @@ void Emitter::EditParticle() {
 
     if (ImGui::TreeNode("Particle Scale")) {
         ImGui::Text("Min");
-        ImGui::DragFloat3("##ParticleScaleMin", startParticleScaleMin_.v, 0.1f);
-        ImGui::Text("Max");
-        ImGui::DragFloat3("##ParticleScaleMax", startParticleScaleMax_.v, 0.1f);
+        DragGuiVectorCommand<3, float>(
+            "##ParticleScaleMin",
+            startParticleScaleMin_,
+            0.1f,
+            {}, {},
+            "%.3f",
+            [this](Vec<3, float>* _newMin) {
+                *_newMin                                 = MinElement(*_newMin, startParticleScaleMax_);
+                particleKeyFrames_->scaleCurve_[0].value = *_newMin;
+            });
 
-        startParticleScaleMin_ = MinElement(startParticleScaleMin_, startParticleScaleMax_);
-        startParticleScaleMax_ = MaxElement(startParticleScaleMin_, startParticleScaleMax_);
+        ImGui::Text("Max");
+        DragGuiVectorCommand<3, float>(
+            "##ParticleScaleMax",
+            startParticleScaleMax_,
+            0.1f,
+            {}, {},
+            "%.3f",
+            [this](Vec<3, float>* _newMax) {
+                *_newMax = MaxElement(startParticleScaleMin_, *(_newMax));
+            });
 
         // curveかrandom か
         int randomOrPerLifeTime    = (newFlag & static_cast<int32_t>(ParticleUpdateType::ScalePerLifeTime)) ? 2 : ((newFlag & static_cast<int32_t>(ParticleUpdateType::ScaleRandom)) ? 1 : 0);
@@ -476,10 +529,25 @@ void Emitter::EditParticle() {
         } else if (randomOrPerLifeTime == 1) {
             // ランダムなScaleを設定
             ImGui::Text("UpdateMin");
-            ImGui::DragFloat3("##UpdateParticleScaleMin", updateParticleScaleMin_.v, 0.1f);
+            DragGuiVectorCommand<3, float>(
+                "##UpdateParticleScaleMin",
+                updateParticleScaleMin_,
+                0.1f,
+                {}, {},
+                "%.3f",
+                [this](Vec<3, float>* _newMin) {
+                    *_newMin = MinElement(*_newMin, updateParticleScaleMax_);
+                });
             ImGui::Text("UpdateMax");
-            ImGui::DragFloat3("##UpdateParticleScaleMax", updateParticleScaleMax_.v, 0.1f);
-
+            DragGuiVectorCommand<3, float>(
+                "##UpdateParticleScaleMax",
+                updateParticleScaleMax_,
+                0.1f,
+                {}, {},
+                "%.3f",
+                [this](Vec<3, float>* _newMax) {
+                    *_newMax = MaxElement(updateParticleScaleMin_, *(_newMax));
+                });
             // ランダムなスケールを設定
             newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::ScalePerLifeTime));
             newFlag = (newFlag | static_cast<int32_t>(ParticleUpdateType::ScaleRandom));
@@ -491,10 +559,28 @@ void Emitter::EditParticle() {
     }
 
     if (ImGui::TreeNode("Particle Rotate")) {
-        ImGui::DragFloat3("##ParticleRotateMin", startParticleRotateMin_.v, 0.1f);
-        ImGui::DragFloat3("##ParticleRotateMax", startParticleRotateMax_.v, 0.1f);
+        ImGui::Text("Min");
+        DragGuiVectorCommand<3, float>(
+            "##ParticleRotateMin",
+            startParticleRotateMin_,
+            0.1f,
+            {}, {},
+            "%.3f",
+            [this](Vec<3, float>* _newMin) {
+                *_newMin                                  = MinElement(*_newMin, startParticleRotateMax_);
+                particleKeyFrames_->rotateCurve_[0].value = *_newMin;
+            });
 
-        startParticleRotateMin_ = MinElement(startParticleRotateMin_, startParticleRotateMax_);
+        ImGui::Text("Max");
+        DragGuiVectorCommand<3, float>(
+            "##ParticleRotateMax",
+            startParticleRotateMax_,
+            0.1f,
+            {}, {},
+            "%.3f",
+            [this](Vec<3, float>* _newMax) {
+                *_newMax = MaxElement(startParticleRotateMin_, *(_newMax));
+            });
         startParticleRotateMax_ = MaxElement(startParticleRotateMin_, startParticleRotateMax_);
 
         int randomOrPerLifeTime    = (updateSettings_ & static_cast<int32_t>(ParticleUpdateType::RotatePerLifeTime)) ? 2 : ((updateSettings_ & static_cast<int32_t>(ParticleUpdateType::RotateRandom)) ? 1 : 0);
@@ -512,12 +598,28 @@ void Emitter::EditParticle() {
         } else if (randomOrPerLifeTime == 1) {
             // ランダムな回転を設定
             ImGui::Text("UpdateMin");
-            ImGui::DragFloat3("##UpdateParticleRotateMin", updateParticleRotateMin_.v, 0.1f);
+            DragGuiVectorCommand<3, float>(
+                "##UpdateParticleRotateMin",
+                updateParticleRotateMin_,
+                0.1f,
+                {}, {},
+                "%.3f",
+                [this](Vec<3, float>* _newMin) {
+                    *_newMin = MinElement(*_newMin, updateParticleRotateMax_);
+                });
             ImGui::Text("UpdateMax");
-            ImGui::DragFloat3("##UpdateParticleRotateMax", updateParticleRotateMax_.v, 0.1f);
+            DragGuiVectorCommand<3, float>(
+                "##UpdateParticleRotateMax",
+                updateParticleRotateMax_,
+                0.1f,
+                {}, {},
+                "%.3f",
+                [this](Vec<3, float>* _newMax) {
+                    *_newMax = MaxElement(updateParticleRotateMin_, *(_newMax));
+                });
 
-            updateSettings_ = (updateSettings_ & ~static_cast<int32_t>(ParticleUpdateType::RotatePerLifeTime));
-            updateSettings_ = (updateSettings_ | static_cast<int32_t>(ParticleUpdateType::RotateRandom));
+            newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::RotatePerLifeTime));
+            newFlag = (newFlag | static_cast<int32_t>(ParticleUpdateType::RotateRandom));
         } else if (preRandomOrPerLifeTime != 0 && randomOrPerLifeTime == 0) {
             newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::RotatePerLifeTime));
             newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::RotateRandom));
@@ -727,6 +829,10 @@ void Emitter::Draw(ID3D12GraphicsCommandList* _commandList) {
         return;
     }
 
+    if (!particleModel_ || particleModel_->meshData_->currentState_ != LoadState::Loaded) {
+        return;
+    }
+
     const Matrix4x4& viewMat = CameraManager::getInstance()->getTransform().viewMat;
 
     Matrix4x4 rotateMat = {};
@@ -789,10 +895,25 @@ void Emitter::Draw(ID3D12GraphicsCommandList* _commandList) {
         _commandList->SetGraphicsRootDescriptorTable(
             3,
             TextureManager::getDescriptorGpuHandle(textureIndex_));
+        int32_t meshIndex = 0;
+        for (auto& [meshName, mesh] : particleModel_->meshData_->meshGroup_) {
 
-        _commandList->IASetVertexBuffers(0, 1, &mesh.getVBView());
-        _commandList->IASetIndexBuffer(&mesh.getIBView());
+            auto& material = particleModel_->materialData_[meshIndex];
+            _commandList->SetGraphicsRootDescriptorTable(
+                3,
+                TextureManager::getDescriptorGpuHandle(textureIndex_));
 
+            _commandList->IASetVertexBuffers(0, 1, &mesh.getVBView());
+            _commandList->IASetIndexBuffer(&mesh.getIBView());
+            _commandList->IASetVertexBuffers(0, 1, &mesh.getVBView());
+            _commandList->IASetIndexBuffer(&mesh.getIBView());
+
+            structuredTransform_.SetForRootParameter(_commandList, 0);
+
+            material.material.SetForRootParameter(_commandList, 2);
+            // 描画!!!
+            _commandList->DrawIndexedInstanced(UINT(mesh.getIndexSize()), static_cast<UINT>(structuredTransform_.openData_.size()), 0, 0, 0);
+        }
         structuredTransform_.SetForRootParameter(_commandList, 0);
 
         material.material.SetForRootParameter(_commandList, 2);
@@ -878,4 +999,124 @@ void Emitter::SpawnParticle() {
         spawnedParticle->setKeyFrames(updateSettings_, particleKeyFrames_.get());
         spawnedParticle->UpdateKeyFrameValues();
     }
+}
+
+void from_json(const nlohmann::json& j, Emitter& e) {
+    j.at("blendMode").get_to(e.blendMode_);
+
+    j.at("isActive").get_to(e.isActive_);
+    j.at("isLoop").get_to(e.isLoop_);
+
+    j.at("modelDirecotry").get_to(e.modelDirectory_);
+    j.at("modelFileName").get_to(e.modelFileName_);
+    j.at("textureFileName").get_to(e.textureFileName_);
+
+    j.at("activeTime").get_to(e.activeTime_);
+    j.at("spawnParticleVal").get_to(e.spawnParticleVal_);
+    j.at("shapeType").get_to(e.shapeType_);
+    j.at("spawnCoolTime").get_to(e.spawnCoolTime_);
+
+    j.at("particleLifeTime").get_to(e.particleLifeTime_);
+    j.at("particleIsBillBoard").get_to(e.particleIsBillBoard_);
+
+    j.at("particleColor").get_to(e.particleColor_);
+    j.at("particleUvScale").get_to(e.particleUvScale_);
+    j.at("particleUvRotate").get_to(e.particleUvRotate_);
+    j.at("particleUvTranslate").get_to(e.particleUvTranslate_);
+    j.at("updateSettings").get_to(e.updateSettings_);
+    j.at("startParticleScaleMin").get_to(e.startParticleScaleMin_);
+    j.at("startParticleScaleMax").get_to(e.startParticleScaleMax_);
+    j.at("startParticleRotateMin").get_to(e.startParticleRotateMin_);
+    j.at("startParticleRotateMax").get_to(e.startParticleRotateMax_);
+    j.at("startParticleVelocityMin").get_to(e.startParticleVelocityMin_);
+    j.at("startParticleVelocityMax").get_to(e.startParticleVelocityMax_);
+    j.at("updateParticleScaleMin").get_to(e.updateParticleScaleMin_);
+    j.at("updateParticleScaleMax").get_to(e.updateParticleScaleMax_);
+    j.at("updateParticleRotateMin").get_to(e.updateParticleRotateMin_);
+    j.at("updateParticleRotateMax").get_to(e.updateParticleRotateMax_);
+    j.at("updateParticleVelocityMin").get_to(e.updateParticleVelocityMin_);
+    j.at("updateParticleVelocityMax").get_to(e.updateParticleVelocityMax_);
+    j.at("randMass").get_to(e.randMass_);
+
+    auto curveLoad = [](const nlohmann::json& _curveJson, auto& _curve) {
+        for (auto& keyframeJson : _curveJson) {
+            typename std::remove_reference<decltype(_curve)>::type::value_type key;
+            keyframeJson.at("time").get_to(key.time);
+            keyframeJson.at("value").get_to(key.value);
+            _curve.push_back(key);
+        }
+    };
+
+    if (!e.particleKeyFrames_) {
+        e.particleKeyFrames_ = std::make_shared<ParticleKeyFrames>();
+    }
+    j.at("transformInterpolationType").get_to(e.transformInterpolationType_);
+    curveLoad(j.at("scaleCurve"), e.particleKeyFrames_->scaleCurve_);
+    curveLoad(j.at("rotateCurve"), e.particleKeyFrames_->rotateCurve_);
+    curveLoad(j.at("velocityCurve"), e.particleKeyFrames_->velocityCurve_);
+
+    j.at("colorInterpolationType").get_to(e.colorInterpolationType_);
+    curveLoad(j.at("colorCurve"), e.particleKeyFrames_->colorCurve_);
+
+    j.at("uvInterpolationType").get_to(e.uvInterpolationType_);
+    curveLoad(j.at("uvScaleCurve"), e.particleKeyFrames_->uvScaleCurve_);
+    curveLoad(j.at("uvRotateCurve"), e.particleKeyFrames_->uvRotateCurve_);
+    curveLoad(j.at("uvTranslateCurve"), e.particleKeyFrames_->uvTranslateCurve_);
+}
+
+void to_json(nlohmann::json& j, const Emitter& e) {
+    j = nlohmann::json{
+        {"blendMode", e.blendMode_},
+        {"isActive", e.isActive_},
+        {"isLoop", e.isLoop_},
+        {"activeTime", e.activeTime_},
+        {"spawnParticleVal", e.spawnParticleVal_},
+        {"shapeType", e.shapeType_},
+        {"modelDirecotry", e.modelDirectory_},
+        {"modelFileName", e.modelFileName_},
+        {"textureFileName", e.textureFileName_},
+        {"spawnCoolTime", e.spawnCoolTime_},
+        {"particleLifeTime", e.particleLifeTime_},
+        {"particleIsBillBoard", e.particleIsBillBoard_},
+        {"particleColor", e.particleColor_},
+        {"particleUvScale", e.particleUvScale_},
+        {"particleUvRotate", e.particleUvRotate_},
+        {"particleUvTranslate", e.particleUvTranslate_},
+        {"updateSettings", e.updateSettings_},
+        {"startParticleScaleMin", e.startParticleScaleMin_},
+        {"startParticleScaleMax", e.startParticleScaleMax_},
+        {"startParticleRotateMin", e.startParticleRotateMin_},
+        {"startParticleRotateMax", e.startParticleRotateMax_},
+        {"startParticleVelocityMin", e.startParticleVelocityMin_},
+        {"startParticleVelocityMax", e.startParticleVelocityMax_},
+        {"updateParticleScaleMin", e.updateParticleScaleMin_},
+        {"updateParticleScaleMax", e.updateParticleScaleMax_},
+        {"updateParticleRotateMin", e.updateParticleRotateMin_},
+        {"updateParticleRotateMax", e.updateParticleRotateMax_},
+        {"updateParticleVelocityMin", e.updateParticleVelocityMin_},
+        {"updateParticleVelocityMax", e.updateParticleVelocityMax_},
+        {"randMass", e.randMass_}};
+
+    auto curveSave = [](const auto& _curve) {
+        nlohmann::json curve = nlohmann::json::array();
+        for (auto& keyframe : _curve) {
+            nlohmann::json keyframeJson = {
+                {"time", keyframe.time},
+                {"value", keyframe.value}};
+            curve.push_back(keyframeJson);
+        }
+        return curve;
+    };
+    j["transformInterpolationType"] = e.transformInterpolationType_;
+    j["scaleCurve"]                 = curveSave(e.particleKeyFrames_->scaleCurve_);
+    j["rotateCurve"]                = curveSave(e.particleKeyFrames_->rotateCurve_);
+    j["velocityCurve"]              = curveSave(e.particleKeyFrames_->velocityCurve_);
+
+    j["colorInterpolationType"] = e.colorInterpolationType_;
+    j["colorCurve"]             = curveSave(e.particleKeyFrames_->colorCurve_);
+
+    j["uvInterpolationType"] = e.uvInterpolationType_;
+    j["uvScaleCurve"]        = curveSave(e.particleKeyFrames_->uvScaleCurve_);
+    j["uvRotateCurve"]       = curveSave(e.particleKeyFrames_->uvRotateCurve_);
+    j["uvTranslateCurve"]    = curveSave(e.particleKeyFrames_->uvTranslateCurve_);
 }
