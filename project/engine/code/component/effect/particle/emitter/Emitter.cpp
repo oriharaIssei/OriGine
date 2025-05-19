@@ -9,6 +9,8 @@
 #include "Engine.h"
 #define RESOURCE_DIRECTORY
 #include "EngineInclude.h"
+// component
+#include "component/renderer/primitive/Primitive.h"
 // module
 #include "camera/CameraManager.h"
 #include "directX12/ShaderManager.h"
@@ -98,12 +100,13 @@ void Emitter::Initialize(GameEntity* /*_entity*/) {
     }
 
     // keyFrames
-    particleKeyFrames_ = std::make_unique<ParticleKeyFrames>();
 
     // resource
-    if (!modelFileName_.empty()) {
-        particleModel_ = ModelManager::getInstance()->Create(modelDirectory_, modelFileName_);
-    }
+    Plane planeGenerater;
+    planeGenerater.createMesh(&mesh_);
+
+    material_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+
     if (!textureFileName_.empty()) {
         textureIndex_ = TextureManager::LoadTexture(textureFileName_);
     }
@@ -185,21 +188,6 @@ bool Emitter::Edit() {
         objectFiles  = SearchModelFile();
         textureFiles = SearchTextureFile();
     }
-
-    ImGui::Text("Particle Model : ");
-    ImGui::SameLine();
-    if (ImGui::BeginCombo("ParticleModel", modelFileName_.c_str())) {
-        for (auto& fileName : objectFiles) {
-            bool isSelected = (fileName.second == modelFileName_); // 現在選択中かどうか
-            if (ImGui::Selectable(fileName.second.c_str(), isSelected)) {
-                particleModel_  = ModelManager::getInstance()->Create(fileName.first, fileName.second);
-                modelDirectory_ = fileName.first;
-                modelFileName_  = fileName.second;
-            }
-        }
-        ImGui::EndCombo();
-    }
-
     {
         ImGui::Text("Texture :");
         ImGui::SameLine();
@@ -404,6 +392,9 @@ void Emitter::EditParticle() {
                 particleKeyFrames_->velocityCurve_[0].value = *_newVec;
             });
 
+        startParticleVelocityMin_ = MinElement(startParticleVelocityMin_, startParticleVelocityMax_);
+        particleKeyFrames_->velocityCurve_[0].value = startParticleVelocityMin_;
+
         ImGui::Text("Max");
         DragGuiVectorCommand<3, float>(
             "##ParticleVelocityMax",
@@ -414,6 +405,7 @@ void Emitter::EditParticle() {
             [this](Vec<3, float>* _newVec) {
                 *_newVec = MaxElement(startParticleVelocityMin_, *(_newVec));
             });
+        startParticleVelocityMax_ = MaxElement(startParticleVelocityMin_, startParticleVelocityMax_);
 
         int randomOrPerLifeTime    = (newFlag & static_cast<int32_t>(ParticleUpdateType::VelocityPerLifeTime)) ? 2 : ((newFlag & static_cast<int32_t>(ParticleUpdateType::VelocityRandom)) ? 1 : 0);
         int preRandomOrPerLifeTime = randomOrPerLifeTime;
@@ -457,6 +449,7 @@ void Emitter::EditParticle() {
                     *_newMin = MinElement(*_newMin, updateParticleVelocityMax_);
                 });
 
+            updateParticleVelocityMin_ = MinElement(updateParticleVelocityMin_, updateParticleVelocityMax_);
             ImGui::Text("UpdateMax");
             DragGuiVectorCommand<3, float>(
                 "##UpdateParticleVelocityMax",
@@ -466,6 +459,7 @@ void Emitter::EditParticle() {
                 [this](Vec<3, float>* _newMax) {
                     *_newMax = MaxElement(updateParticleVelocityMin_, *(_newMax));
                 });
+            updateParticleVelocityMax_ = MaxElement(updateParticleVelocityMin_, updateParticleVelocityMax_);
 
             newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::VelocityPerLifeTime));
             newFlag = (newFlag | static_cast<int32_t>(ParticleUpdateType::VelocityRandom));
@@ -488,6 +482,7 @@ void Emitter::EditParticle() {
                 *_newMin                                 = MinElement(*_newMin, startParticleScaleMax_);
                 particleKeyFrames_->scaleCurve_[0].value = *_newMin;
             });
+        startParticleScaleMin_ = MinElement(startParticleScaleMin_, startParticleScaleMax_);
 
         ImGui::Text("Max");
         DragGuiVectorCommand<3, float>(
@@ -499,6 +494,8 @@ void Emitter::EditParticle() {
             [this](Vec<3, float>* _newMax) {
                 *_newMax = MaxElement(startParticleScaleMin_, *(_newMax));
             });
+
+        startParticleScaleMax_ = MaxElement(startParticleScaleMin_, startParticleScaleMax_);
 
         // curveかrandom か
         int randomOrPerLifeTime    = (newFlag & static_cast<int32_t>(ParticleUpdateType::ScalePerLifeTime)) ? 2 : ((newFlag & static_cast<int32_t>(ParticleUpdateType::ScaleRandom)) ? 1 : 0);
@@ -525,6 +522,8 @@ void Emitter::EditParticle() {
                 [this](Vec<3, float>* _newMin) {
                     *_newMin = MinElement(*_newMin, updateParticleScaleMax_);
                 });
+            updateParticleScaleMin_ = MinElement(updateParticleScaleMin_, updateParticleScaleMax_);
+
             ImGui::Text("UpdateMax");
             DragGuiVectorCommand<3, float>(
                 "##UpdateParticleScaleMax",
@@ -535,6 +534,8 @@ void Emitter::EditParticle() {
                 [this](Vec<3, float>* _newMax) {
                     *_newMax = MaxElement(updateParticleScaleMin_, *(_newMax));
                 });
+            updateParticleScaleMax_ = MaxElement(updateParticleScaleMin_, updateParticleScaleMax_);
+
             // ランダムなスケールを設定
             newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::ScalePerLifeTime));
             newFlag = (newFlag | static_cast<int32_t>(ParticleUpdateType::ScaleRandom));
@@ -557,6 +558,8 @@ void Emitter::EditParticle() {
                 *_newMin                                  = MinElement(*_newMin, startParticleRotateMax_);
                 particleKeyFrames_->rotateCurve_[0].value = *_newMin;
             });
+        startParticleRotateMin_                   = MinElement(startParticleRotateMin_, startParticleRotateMax_);
+        particleKeyFrames_->rotateCurve_[0].value = startParticleRotateMin_;
 
         ImGui::Text("Max");
         DragGuiVectorCommand<3, float>(
@@ -568,6 +571,8 @@ void Emitter::EditParticle() {
             [this](Vec<3, float>* _newMax) {
                 *_newMax = MaxElement(startParticleRotateMin_, *(_newMax));
             });
+        startParticleRotateMax_ = MaxElement(startParticleRotateMin_, startParticleRotateMax_);
+
 
         int randomOrPerLifeTime    = (newFlag & static_cast<int32_t>(ParticleUpdateType::RotatePerLifeTime)) ? 2 : ((newFlag & static_cast<int32_t>(ParticleUpdateType::RotateRandom)) ? 1 : 0);
         int preRandomOrPerLifeTime = randomOrPerLifeTime;
@@ -593,6 +598,8 @@ void Emitter::EditParticle() {
                 [this](Vec<3, float>* _newMin) {
                     *_newMin = MinElement(*_newMin, updateParticleRotateMax_);
                 });
+            updateParticleRotateMin_ = MinElement(updateParticleRotateMin_, updateParticleRotateMax_);
+
             ImGui::Text("UpdateMax");
             DragGuiVectorCommand<3, float>(
                 "##UpdateParticleRotateMax",
@@ -603,6 +610,7 @@ void Emitter::EditParticle() {
                 [this](Vec<3, float>* _newMax) {
                     *_newMax = MaxElement(updateParticleRotateMin_, *(_newMax));
                 });
+            updateParticleRotateMax_ = MaxElement(updateParticleRotateMin_, updateParticleRotateMax_);
 
             newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::RotatePerLifeTime));
             newFlag = (newFlag | static_cast<int32_t>(ParticleUpdateType::RotateRandom));
@@ -811,10 +819,6 @@ void Emitter::EditParticle() {
 #endif // _DEBUG
 
 void Emitter::Draw(ID3D12GraphicsCommandList* _commandList) {
-    if (!particleModel_ || particleModel_->meshData_->currentState_ != LoadState::Loaded) {
-        return;
-    }
-
     const Matrix4x4& viewMat = CameraManager::getInstance()->getTransform().viewMat;
 
     Matrix4x4 rotateMat = {};
@@ -866,27 +870,21 @@ void Emitter::Draw(ID3D12GraphicsCommandList* _commandList) {
     }
 
     structuredTransform_.ConvertToBuffer();
+    structuredTransform_.SetForRootParameter(_commandList, 0);
 
     ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
     _commandList->SetDescriptorHeaps(1, ppHeaps);
 
-    int32_t meshIndex = 0;
-    for (auto& [meshName, mesh] : particleModel_->meshData_->meshGroup_) {
+    _commandList->SetGraphicsRootDescriptorTable(
+        3,
+        TextureManager::getDescriptorGpuHandle(textureIndex_));
 
-        auto& material = particleModel_->materialData_[meshIndex];
-        _commandList->SetGraphicsRootDescriptorTable(
-            3,
-            TextureManager::getDescriptorGpuHandle(textureIndex_));
+    _commandList->IASetVertexBuffers(0, 1, &mesh_.getVBView());
+    _commandList->IASetIndexBuffer(&mesh_.getIBView());
 
-        _commandList->IASetVertexBuffers(0, 1, &mesh.getVBView());
-        _commandList->IASetIndexBuffer(&mesh.getIBView());
-
-        structuredTransform_.SetForRootParameter(_commandList, 0);
-
-        material.material.SetForRootParameter(_commandList, 2);
-        // 描画!!!
-        _commandList->DrawIndexedInstanced(UINT(mesh.getIndexSize()), static_cast<UINT>(structuredTransform_.openData_.size()), 0, 0, 0);
-    }
+    material_.SetForRootParameter(_commandList, 2);
+    // 描画!!!
+    _commandList->DrawIndexedInstanced(UINT(mesh_.getIndexSize()), static_cast<UINT>(structuredTransform_.openData_.size()), 0, 0, 0);
 }
 
 void Emitter::CalculateMaxSize() {
@@ -974,8 +972,6 @@ void from_json(const nlohmann::json& j, Emitter& e) {
     j.at("isActive").get_to(e.isActive_);
     j.at("isLoop").get_to(e.isLoop_);
 
-    j.at("modelDirecotry").get_to(e.modelDirectory_);
-    j.at("modelFileName").get_to(e.modelFileName_);
     j.at("textureFileName").get_to(e.textureFileName_);
 
     j.at("activeTime").get_to(e.activeTime_);
@@ -1039,8 +1035,6 @@ void to_json(nlohmann::json& j, const Emitter& e) {
         {"activeTime", e.activeTime_},
         {"spawnParticleVal", e.spawnParticleVal_},
         {"shapeType", e.shapeType_},
-        {"modelDirecotry", e.modelDirectory_},
-        {"modelFileName", e.modelFileName_},
         {"textureFileName", e.textureFileName_},
         {"spawnCoolTime", e.spawnCoolTime_},
         {"particleLifeTime", e.particleLifeTime_},
