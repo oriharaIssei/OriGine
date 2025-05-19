@@ -127,6 +127,10 @@ concept HasPushFront = requires(T a, typename T::value_type v) {
 };
 
 template <typename T>
+concept HasClear = requires(T a) {
+    { a.clear() };
+};
+template <typename T>
 concept HasErase = requires(T a, typename T::iterator it) {
     { a.erase(it) };
 };
@@ -211,6 +215,31 @@ private:
     Container* container_;
     Compare comp_;
     std::vector<ValueType> backup_;
+};
+
+template <typename Container>
+    requires HasClear<Container>
+class ClearCommand : public IEditCommand {
+public:
+    using ValueType = typename Container::value_type;
+
+    ClearCommand(Container* container)
+        : container_(container) {}
+    void Execute() override {
+        // 元の順序を保存
+        backup_.assign(container_->begin(), container_->end());
+        container_->clear();
+    }
+    void Undo() override {
+        // 元の順序に戻す
+        if (container_) {
+            container_->assign(backup_.begin(), backup_.end());
+        }
+    }
+
+private:
+    Container* container_;
+    std::vector<typename Container::value_type> backup_;
 };
 
 #pragma endregion DefaultCommand
