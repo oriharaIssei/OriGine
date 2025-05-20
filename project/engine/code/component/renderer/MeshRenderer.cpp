@@ -256,8 +256,12 @@ void ModelMeshRenderer::InitializeMaterialBuffer(GameEntity* _hostEntity) {
 
 void CreateModelMeshRenderer(ModelMeshRenderer* _renderer, GameEntity* _hostEntity, const std::string& _directory, const std::string& _filenName) {
     _renderer->setParentTransform(getComponent<Transform>(_hostEntity));
-
     bool isLoaded = false;
+
+    if (!_renderer->getMeshGroup()->empty()) {
+        _renderer->getMeshGroup()->clear();
+    }
+
     // -------------------- Modelの読み込み --------------------//
     auto model = ModelManager::getInstance()->Create(_directory, _filenName, [&_hostEntity, &_renderer, &isLoaded](Model* model) {
         // 再帰ラムダをstd::functionとして定義
