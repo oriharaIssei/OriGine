@@ -54,6 +54,7 @@ public:
     void CalculateMaxSize();
 
     void PlayStart();
+    void PlayContinue();
     void PlayStop();
 
 private:

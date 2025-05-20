@@ -45,8 +45,8 @@ static std::list<std::pair<std::string, std::string>> textureFiles = SearchTextu
 Emitter::Emitter() : IComponent(), currentCoolTime_(0.f), leftActiveTime_(0.f) {
     ComponentArray<Emitter>* emittterArray = ECSManager::getInstance()->getInstance()->getComponentArray<Emitter>();
     srvArray_                              = emittterArray->getSrvArray();
-    isActive_       = false;
-    leftActiveTime_ = 0.0f;
+    isActive_                              = false;
+    leftActiveTime_                        = 0.0f;
 }
 
 Emitter::Emitter(DxSrvArray* _srvArray) : IComponent(), srvArray_(_srvArray), currentCoolTime_(0.f), leftActiveTime_(0.f) {
@@ -958,6 +958,10 @@ void Emitter::PlayStart() {
     currentCoolTime_ = 0.f;
 }
 
+void Emitter::PlayContinue() {
+    isActive_ = true;
+}
+
 void Emitter::PlayStop() {
     isActive_       = false;
     leftActiveTime_ = 0.f;
@@ -1010,18 +1014,34 @@ void from_json(const nlohmann::json& j, Emitter& e) {
     if (!e.particleKeyFrames_) {
         e.particleKeyFrames_ = std::make_shared<ParticleKeyFrames>();
     }
+
     j.at("transformInterpolationType").get_to(e.transformInterpolationType_);
-    curveLoad(j.at("scaleCurve"), e.particleKeyFrames_->scaleCurve_);
-    curveLoad(j.at("rotateCurve"), e.particleKeyFrames_->rotateCurve_);
-    curveLoad(j.at("velocityCurve"), e.particleKeyFrames_->velocityCurve_);
-
     j.at("colorInterpolationType").get_to(e.colorInterpolationType_);
-    curveLoad(j.at("colorCurve"), e.particleKeyFrames_->colorCurve_);
-
     j.at("uvInterpolationType").get_to(e.uvInterpolationType_);
-    curveLoad(j.at("uvScaleCurve"), e.particleKeyFrames_->uvScaleCurve_);
-    curveLoad(j.at("uvRotateCurve"), e.particleKeyFrames_->uvRotateCurve_);
-    curveLoad(j.at("uvTranslateCurve"), e.particleKeyFrames_->uvTranslateCurve_);
+
+    if (j.find("scaleCurve") != j.end()) {
+    curveLoad(j.at("scaleCurve"), e.particleKeyFrames_->scaleCurve_);
+    }
+    if (j.find("rotateCurve") != j.end()) {
+        curveLoad(j.at("rotateCurve"), e.particleKeyFrames_->rotateCurve_);
+    }
+    if (j.find("velocityCurve") != j.end()) {
+        curveLoad(j.at("velocityCurve"), e.particleKeyFrames_->velocityCurve_);
+    }
+
+    if (j.find("colorCurve") != j.end()) {
+        curveLoad(j.at("colorCurve"), e.particleKeyFrames_->colorCurve_);
+    }
+
+    if (j.find("uvScaleCurve") != j.end()) {
+        curveLoad(j.at("uvScaleCurve"), e.particleKeyFrames_->uvScaleCurve_);
+    }
+    if (j.find("uvRotateCurve") != j.end()) {
+        curveLoad(j.at("uvRotateCurve"), e.particleKeyFrames_->uvRotateCurve_);
+    }
+    if (j.find("uvTranslateCurve") != j.end()) {
+        curveLoad(j.at("uvTranslateCurve"), e.particleKeyFrames_->uvTranslateCurve_);
+    }
 }
 
 void to_json(nlohmann::json& j, const Emitter& e) {
@@ -1057,6 +1077,7 @@ void to_json(nlohmann::json& j, const Emitter& e) {
 
     auto curveSave = [](const auto& _curve) {
         nlohmann::json curve = nlohmann::json::array();
+
         for (auto& keyframe : _curve) {
             nlohmann::json keyframeJson = {
                 {"time", keyframe.time},
@@ -1065,16 +1086,19 @@ void to_json(nlohmann::json& j, const Emitter& e) {
         }
         return curve;
     };
+
     j["transformInterpolationType"] = e.transformInterpolationType_;
-    j["scaleCurve"]                 = curveSave(e.particleKeyFrames_->scaleCurve_);
-    j["rotateCurve"]                = curveSave(e.particleKeyFrames_->rotateCurve_);
-    j["velocityCurve"]              = curveSave(e.particleKeyFrames_->velocityCurve_);
+    j["colorInterpolationType"]     = e.colorInterpolationType_;
+    j["uvInterpolationType"]        = e.uvInterpolationType_;
+    if (e.particleKeyFrames_) {
+        j["scaleCurve"]    = curveSave(e.particleKeyFrames_->scaleCurve_);
+        j["rotateCurve"]   = curveSave(e.particleKeyFrames_->rotateCurve_);
+        j["velocityCurve"] = curveSave(e.particleKeyFrames_->velocityCurve_);
 
-    j["colorInterpolationType"] = e.colorInterpolationType_;
-    j["colorCurve"]             = curveSave(e.particleKeyFrames_->colorCurve_);
+        j["colorCurve"] = curveSave(e.particleKeyFrames_->colorCurve_);
 
-    j["uvInterpolationType"] = e.uvInterpolationType_;
-    j["uvScaleCurve"]        = curveSave(e.particleKeyFrames_->uvScaleCurve_);
-    j["uvRotateCurve"]       = curveSave(e.particleKeyFrames_->uvRotateCurve_);
-    j["uvTranslateCurve"]    = curveSave(e.particleKeyFrames_->uvTranslateCurve_);
+        j["uvScaleCurve"]     = curveSave(e.particleKeyFrames_->uvScaleCurve_);
+        j["uvRotateCurve"]    = curveSave(e.particleKeyFrames_->uvRotateCurve_);
+        j["uvTranslateCurve"] = curveSave(e.particleKeyFrames_->uvTranslateCurve_);
+    }
 }
