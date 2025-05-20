@@ -61,6 +61,8 @@ private:
     Vec4f clearColor_;
 
 public:
+    void setTextureName(const std::wstring& _name);
+
     const Vec2f& getTextureSize() const { return textureSize_; }
 
     // back

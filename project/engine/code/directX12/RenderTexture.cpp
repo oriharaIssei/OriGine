@@ -304,3 +304,9 @@ void RenderTexture::DrawTexture() {
 
     commandList->DrawInstanced(6, 1, 0, 0);
 }
+
+void RenderTexture::setTextureName(const std::wstring& _name) {
+    for (auto& renderTarget : renderTargets_) {
+        renderTarget.resource_.setName(_name + std::to_wstring(renderTarget.srvIndex_));
+    }
+}

@@ -115,3 +115,15 @@ void DxResource::CreateTextureResource(ID3D12Device* device, const DirectX::TexM
 void DxResource::Finalize() {
     resource_.Reset();
 }
+
+HRESULT DxResource::setName(const std::wstring& name) {
+    HRESULT result = 0;
+    if (resource_) {
+        result = resource_->SetName(name.c_str());
+    }
+    if (FAILED(result)) {
+        LOG_CRITICAL("Failed to set resource name.\n massage :" + result);
+        assert(false);
+    }
+    return result;
+}
