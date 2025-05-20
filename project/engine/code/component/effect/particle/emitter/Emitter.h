@@ -10,6 +10,7 @@
 #include "directX12/DxSrvArrayManager.h"
 #include "directX12/IConstantBuffer.h"
 #include "directX12/IStructuredBuffer.h"
+#include "directX12/Mesh.h"
 #include "directX12/ShaderManager.h"
 // assets
 #include "component/material/Material.h"
@@ -83,11 +84,11 @@ private:
     /// <summary>
     /// 頂点とMaterial を 併せ持つ
     /// </summary>
-    std::shared_ptr<Model> particleModel_;
+    TextureMesh mesh_;
+    IConstantBuffer<Material> material_;
+
     IStructuredBuffer<ParticleTransform> structuredTransform_;
-    //=============== Model & Texture ===============/
-    std::string modelDirectory_  = "";
-    std::string modelFileName_   = "";
+    //=============== Texture ===============/
     std::string textureFileName_ = "";
     int32_t textureIndex_        = 0;
 
@@ -236,10 +237,9 @@ public:
         components_[index].clear();
         // JSON 配列からコンポーネントを読み込み
         for (const auto& compJson : _json) {
-            Emitter emitter(srvArray_.get()); // 必要な引数でコンストラクタ呼び出し
-            from_json(compJson, emitter); // JSONから値を詰める
-            emitter.Initialize(_entity); // コンポーネントの初期化
-            components_[index].emplace_back(emitter);
+            components_[index].emplace_back(srvArray_.get());
+            from_json(compJson, components_[index].back());
+            components_[index].back().Initialize(_entity);
         }
     }
 
@@ -263,7 +263,8 @@ public:
             return;
         }
         uint32_t index = it->second;
-        components_[index].push_back(_component);
+        components_[index].emplace_back(srvArray_.get());
+        components_[index].back() = _component;
         components_[index].back().Initialize(_hostEntity);
     }
 
@@ -277,7 +278,7 @@ public:
             return;
         }
         uint32_t index = it->second;
-        components_[index].push_back(std::move(*comp));
+        components_[index].emplace_back(std::move(*comp));
         if (_doInitialize) {
             components_[index].back().Initialize(_hostEntity);
         }
@@ -291,7 +292,7 @@ public:
             return;
         }
         uint32_t index = it->second;
-        components_[index].push_back(Emitter(srvArray_.get()));
+        components_[index].emplace_back(srvArray_.get());
         if (_doInitialize) {
             components_[index].back().Initialize(_hostEntity);
         }

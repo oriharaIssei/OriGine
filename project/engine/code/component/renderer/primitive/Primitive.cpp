@@ -22,6 +22,7 @@
 /// Plane
 /// =====================================================
 void Plane::createMesh(TextureMesh* _mesh) {
+    _mesh->Initialize(4, 6);
     // XZ 平面を作成
     _mesh->setVertexData({{Vec4f(-size_[X], size_[Y], 0.0f, 1.0f), Vec2f(0.0f, 0.0f), normal_},
         {Vec4f(size_[X], size_[Y], 0.0f, 1.0f), Vec2f(uv_[X], 0.0f), normal_},
