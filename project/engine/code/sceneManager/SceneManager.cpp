@@ -49,6 +49,7 @@ void SceneManager::Initialize() {
     ecsManager_->Initialize();
 
     sceneView_ = std::make_unique<RenderTexture>(Engine::getInstance()->getDxCommand(), sceneViewRtvArray_.get(), sceneViewSrvArray_.get());
+    sceneView_->setTextureName(L"SceneViewTexture");
     /// TODO
     // fix MagicNumber
     sceneView_->Initialize(4, {1280.0f, 720.0f}, DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, {0.0f, 0.0f, 0.0f, 1.0f});
