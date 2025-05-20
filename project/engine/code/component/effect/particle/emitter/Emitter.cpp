@@ -32,19 +32,6 @@
 #include "util/timeline/Timeline.h"
 #endif // _DEBUG
 
-static std::list<std::pair<std::string, std::string>> SearchModelFile() {
-    std::list<std::pair<std::string, std::string>> modelFiles   = MyFileSystem::searchFile(kEngineResourceDirectory, "obj", false);
-    std::list<std::pair<std::string, std::string>> gltfFiles    = MyFileSystem::searchFile(kEngineResourceDirectory, "gltf", false);
-    std::list<std::pair<std::string, std::string>> appObjFiles  = MyFileSystem::searchFile(kApplicationResourceDirectory, "obj", false);
-    std::list<std::pair<std::string, std::string>> appGltfFiles = MyFileSystem::searchFile(kApplicationResourceDirectory, "gltf", false);
-
-    modelFiles.insert(modelFiles.end(), gltfFiles.begin(), gltfFiles.end());
-    modelFiles.insert(modelFiles.end(), appObjFiles.begin(), appObjFiles.end());
-    modelFiles.insert(modelFiles.end(), appGltfFiles.begin(), appGltfFiles.end());
-
-    return modelFiles;
-}
-
 static std::list<std::pair<std::string, std::string>> SearchTextureFile() {
     std::list<std::pair<std::string, std::string>> textureFiles = MyFileSystem::searchFile(kEngineResourceDirectory, "png", false);
     std::list<std::pair<std::string, std::string>> appPngFiles  = MyFileSystem::searchFile(kApplicationResourceDirectory, "png", false);
@@ -53,7 +40,6 @@ static std::list<std::pair<std::string, std::string>> SearchTextureFile() {
 
     return textureFiles;
 }
-static std::list<std::pair<std::string, std::string>> objectFiles  = SearchModelFile();
 static std::list<std::pair<std::string, std::string>> textureFiles = SearchTextureFile();
 
 Emitter::Emitter() : IComponent(), currentCoolTime_(0.f), leftActiveTime_(0.f) {
@@ -171,8 +157,8 @@ void Emitter::UpdateParticle(float _deltaTime) {
 bool Emitter::Edit() {
 #ifdef _DEBUG
     bool isChange = false;
-    ImGui::Checkbox("isActive", &isActive_);
-    ImGui::Checkbox("isLoop", &isLoop_);
+    CheckBoxCommand("isActive", isActive_);
+    CheckBoxCommand("isLoop", isLoop_);
 
     if (ImGui::Button("Play")) {
         leftActiveTime_ = activeTime_;
@@ -185,7 +171,6 @@ bool Emitter::Edit() {
     ImGui::Spacing();
 
     if (ImGui::Button("reload FileList")) {
-        objectFiles  = SearchModelFile();
         textureFiles = SearchTextureFile();
     }
     {
