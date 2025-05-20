@@ -43,6 +43,8 @@ static std::list<std::pair<std::string, std::string>> SearchTextureFile() {
 static std::list<std::pair<std::string, std::string>> textureFiles = SearchTextureFile();
 
 Emitter::Emitter() : IComponent(), currentCoolTime_(0.f), leftActiveTime_(0.f) {
+    ComponentArray<Emitter>* emittterArray = ECSManager::getInstance()->getInstance()->getComponentArray<Emitter>();
+    srvArray_                              = emittterArray->getSrvArray();
     isActive_       = false;
     leftActiveTime_ = 0.0f;
 }
