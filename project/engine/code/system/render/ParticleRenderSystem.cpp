@@ -145,9 +145,9 @@ void ParticleRenderSystem::StartRender() {
 
 void ParticleRenderSystem::UpdateEntity(GameEntity* _entity) {
     ID3D12GraphicsCommandList* commandList = dxCommand_->getCommandList();
-
+    
     Transform* parentTransform = getComponent<Transform>(_entity);
-
+    parentTransform;
     for (auto& comp : *getComponents<Emitter>(_entity)) {
         if (!comp.getIsActive()) {
             continue;

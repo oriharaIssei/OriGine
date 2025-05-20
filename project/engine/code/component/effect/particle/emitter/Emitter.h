@@ -157,6 +157,7 @@ public:
     bool getIsActive() const { return isActive_; };
 
     void setParent(Transform* _parent) { parent_ = _parent; }
+    void setIsActive(const float& is) { isActive_ = is; }
 };
 
 #pragma region

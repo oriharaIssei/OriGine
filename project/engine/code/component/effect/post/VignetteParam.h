@@ -50,7 +50,7 @@ private:
     IConstantBuffer<VignetteBufferParam> paramBuffer;
 
 public:
-    const IConstantBuffer<VignetteBufferParam>& getVignetteBuffer() const {
+     IConstantBuffer<VignetteBufferParam>& getVignetteBuffer()  {
         return paramBuffer;
     }
 
