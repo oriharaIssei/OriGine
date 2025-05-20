@@ -18,8 +18,8 @@ concept StructuredBuffer = requires {
 template <StructuredBuffer structBuff>
 class IStructuredBuffer {
 public:
-    IStructuredBuffer()  = default;
-    ~IStructuredBuffer() = default;
+    IStructuredBuffer() = default;
+    ~IStructuredBuffer() { Finalize(); }
 
     void CreateBuffer(ID3D12Device* device, DxSrvArray* srvArray, uint32_t elementCount);
     void Finalize() {

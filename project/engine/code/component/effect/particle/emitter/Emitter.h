@@ -10,7 +10,6 @@
 #include "directX12/DxSrvArrayManager.h"
 #include "directX12/IConstantBuffer.h"
 #include "directX12/IStructuredBuffer.h"
-#include "directX12/Mesh.h"
 #include "directX12/ShaderManager.h"
 // assets
 #include "component/material/Material.h"
@@ -53,6 +52,9 @@ public:
 
     void CalculateMaxSize();
 
+    void PlayStart();
+    void PlayStop();
+
 private:
     void SpawnParticle();
 
@@ -81,11 +83,11 @@ private:
     /// <summary>
     /// 頂点とMaterial を 併せ持つ
     /// </summary>
-    TextureMesh mesh_;
-    IConstantBuffer<Material> material_;
-
+    std::shared_ptr<Model> particleModel_;
     IStructuredBuffer<ParticleTransform> structuredTransform_;
-    //=============== Texture ===============/
+    //=============== Model & Texture ===============/
+    std::string modelDirectory_  = "";
+    std::string modelFileName_   = "";
     std::string textureFileName_ = "";
     int32_t textureIndex_        = 0;
 
@@ -153,8 +155,18 @@ private:
     Vec3f updateParticleVelocityMax_ = {0.f, 0.f, 0.f};
 
 public:
+    bool getIsActive() const { return isActive_; }
+    // void setIsActive(bool _isActive) { isActive_ = _isActive; } // PlayStart を使え
+    bool getIsLoop() const { return isLoop_; }
+    void setIsLoop(bool _isLoop) { isLoop_ = _isLoop; }
+
+    bool getIsBillBoard() const { return particleIsBillBoard_; }
+    void setIsBillBoard(bool _isBillBoard) { particleIsBillBoard_ = _isBillBoard; }
+
+    const Vec3f& getOriginePos() const { return originPos_; }
+    void setOriginePos(const Vec3f& _pos) { originPos_ = _pos; }
+
     BlendMode getBlendMode() const { return blendMode_; }
-    bool getIsActive() const { return isActive_; };
 
     void setParent(Transform* _parent) { parent_ = _parent; }
     void setIsActive(const float& is) { isActive_ = is; }
@@ -224,9 +236,10 @@ public:
         components_[index].clear();
         // JSON 配列からコンポーネントを読み込み
         for (const auto& compJson : _json) {
-            components_[index].emplace_back(srvArray_.get());
-            from_json(compJson, components_[index].back());
-            components_[index].back().Initialize(_entity);
+            Emitter emitter(srvArray_.get()); // 必要な引数でコンストラクタ呼び出し
+            from_json(compJson, emitter); // JSONから値を詰める
+            emitter.Initialize(_entity); // コンポーネントの初期化
+            components_[index].emplace_back(emitter);
         }
     }
 
@@ -250,8 +263,7 @@ public:
             return;
         }
         uint32_t index = it->second;
-        components_[index].emplace_back(srvArray_.get());
-        components_[index].back() = _component;
+        components_[index].push_back(_component);
         components_[index].back().Initialize(_hostEntity);
     }
 
@@ -265,7 +277,7 @@ public:
             return;
         }
         uint32_t index = it->second;
-        components_[index].emplace_back(std::move(*comp));
+        components_[index].push_back(std::move(*comp));
         if (_doInitialize) {
             components_[index].back().Initialize(_hostEntity);
         }
@@ -279,7 +291,7 @@ public:
             return;
         }
         uint32_t index = it->second;
-        components_[index].emplace_back(srvArray_.get());
+        components_[index].push_back(Emitter(srvArray_.get()));
         if (_doInitialize) {
             components_[index].back().Initialize(_hostEntity);
         }

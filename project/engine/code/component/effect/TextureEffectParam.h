@@ -36,6 +36,7 @@ struct TextureEffectParamData {
     Matrix4x4 maskUVMat;
 
     float distortionStrength = 0.f;
+    float distortionBias       = 0.f;
     float dissolveThreshold  = 0.f;
 
     void UpdateTransform();
@@ -44,8 +45,9 @@ struct TextureEffectParamData {
         Matrix4x4 maskUVMat;
         Matrix4x4 dissolveUVMat;
         Matrix4x4 distortionUVMat;
-        float dissolveThreshold;
+        float distortionBias;
         float distortionStrength;
+        float dissolveThreshold;
         int flag;
         int pad;
 
@@ -55,6 +57,7 @@ struct TextureEffectParamData {
             distortionUVMat    = transform.distortionUVMat;
             dissolveThreshold  = transform.dissolveThreshold;
             distortionStrength = transform.distortionStrength;
+            distortionBias     = transform.distortionBias;
             flag               = static_cast<int>(transform.effectFlag);
 
             return *this;
