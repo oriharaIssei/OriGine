@@ -965,6 +965,17 @@ void Emitter::SpawnParticle() {
     }
 }
 
+void Emitter::PlayStart() {
+    isActive_        = true;
+    leftActiveTime_  = activeTime_;
+    currentCoolTime_ = 0.f;
+}
+
+void Emitter::PlayStop() {
+    isActive_       = false;
+    leftActiveTime_ = 0.f;
+}
+
 void from_json(const nlohmann::json& j, Emitter& e) {
     j.at("blendMode").get_to(e.blendMode_);
 

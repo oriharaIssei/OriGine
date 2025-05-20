@@ -53,6 +53,21 @@ public:
     const IConstantBuffer<VignetteBufferParam>& getVignetteBuffer() const {
         return paramBuffer;
     }
+    const VignetteBufferParam& getVignetteBufferData() const {
+        return paramBuffer.openData_;
+    }
+    void setVignetteBufferData(const VignetteBufferParam& _p) {
+        paramBuffer.openData_ = _p;
+    }
+    void setVignetteColor(const Vector4<float>& _color) {
+        paramBuffer.openData_.color = _color;
+    }
+    void setVignetteScale(float _scale) {
+        paramBuffer.openData_.vignetteScale = _scale;
+    }
+    void setVignettePow(float _pow) {
+        paramBuffer.openData_.vignettePow = _pow;
+    }
 
     const VignetteBufferParam& getVignetteParam() const {
         return paramBuffer.openData_;

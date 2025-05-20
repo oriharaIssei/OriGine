@@ -53,6 +53,9 @@ public:
 
     void CalculateMaxSize();
 
+    void PlayStart();
+    void PlayStop();
+
 private:
     void SpawnParticle();
 
@@ -153,6 +156,17 @@ private:
     Vec3f updateParticleVelocityMax_ = {0.f, 0.f, 0.f};
 
 public:
+    bool getIsActive() const { return isActive_; }
+    // void setIsActive(bool _isActive) { isActive_ = _isActive; } // PlayStart を使え
+    bool getIsLoop() const { return isLoop_; }
+    void setIsLoop(bool _isLoop) { isLoop_ = _isLoop; }
+
+    bool getIsBillBoard() const { return particleIsBillBoard_; }
+    void setIsBillBoard(bool _isBillBoard) { particleIsBillBoard_ = _isBillBoard; }
+
+    const Vec3f& getOriginePos() const { return originPos_; }
+    void setOriginePos(const Vec3f& _pos) { originPos_ = _pos; }
+
     BlendMode getBlendMode() const { return blendMode_; }
     bool getIsActive() const { return isActive_; };
 
