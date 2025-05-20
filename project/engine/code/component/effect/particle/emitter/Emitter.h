@@ -442,6 +442,8 @@ public:
     //  アクセッサー
     // ─────────────────────────────
 
+    DxSrvArray* getSrvArray() { return srvArray_.get(); }
+
     /// @brief エンティティのコンポーネント数取得
     int32_t getComponentSize(GameEntity* _entity) override {
         auto it = entityIndexBind_.find(_entity);
