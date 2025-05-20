@@ -43,6 +43,9 @@
     <Filter Include="engine\code\component\effect\particle\emitter">
       <UniqueIdentifier>{8F47CA94-FBB7-CC0D-C4D6-46963006050F}</UniqueIdentifier>
     </Filter>
+    <Filter Include="engine\code\component\effect\post">
+      <UniqueIdentifier>{B8FBD960-246A-2FE0-6D53-EADFD900257C}</UniqueIdentifier>
+    </Filter>
     <Filter Include="engine\code\component\material">
       <UniqueIdentifier>{E56C2818-D192-F27E-BAD8-774AA69D174B}</UniqueIdentifier>
     </Filter>
@@ -195,6 +198,9 @@
     <ClInclude Include="engine\code\component\IComponent.h">
       <Filter>engine\code\component</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\component\animation\AnimationData.h">
+      <Filter>engine\code\component\animation</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\component\animation\AnimationManager.h">
       <Filter>engine\code\component\animation</Filter>
     </ClInclude>
@@ -207,6 +213,9 @@
     <ClInclude Include="engine\code\component\collider\Collider.h">
       <Filter>engine\code\component\collider</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\component\effect\TextureEffectParam.h">
+      <Filter>engine\code\component\effect</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\component\effect\particle\Particle.h">
       <Filter>engine\code\component\effect\particle</Filter>
     </ClInclude>
@@ -215,6 +224,9 @@
     </ClInclude>
     <ClInclude Include="engine\code\component\effect\particle\emitter\EmitterShape.h">
       <Filter>engine\code\component\effect\particle\emitter</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\component\effect\post\VignetteParam.h">
+      <Filter>engine\code\component\effect\post</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\component\material\Material.h">
       <Filter>engine\code\component\material</Filter>
@@ -360,6 +372,9 @@
     <ClInclude Include="engine\code\system\effect\PrimitiveNodeAnimationWorkSystem.h">
       <Filter>engine\code\system\effect</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\system\effect\TextureEffectAnimation.h">
+      <Filter>engine\code\system\effect</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\system\movement\MoveSystemByRigidBody.h">
       <Filter>engine\code\system\movement</Filter>
     </ClInclude>
@@ -373,6 +388,9 @@
       <Filter>engine\code\system\postRender</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\system\render\ColliderRenderingSystem.h">
+      <Filter>engine\code\system\render</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\system\render\EffectTexturedMeshRenderSystem.h">
       <Filter>engine\code\system\render</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\system\render\LineRenderSystem.h">
@@ -465,21 +483,9 @@
     <ClInclude Include="util\nameof.h">
       <Filter>util</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\component\animation\PrimitiveNodeAnimation.h" />
-    <ClInclude Include="engine\code\system\effect\PrimitiveNodeAnimationWorkSystem.h" />
-    <ClInclude Include="engine\code\system\postRender\VignetteEffect.h" />
-    <ClInclude Include="engine\code\system\postRender\SmoothingEffect.h" />
-    <ClInclude Include="engine\code\component\animation\ModelNodeAnimation.h" />
-    <ClInclude Include="engine\code\component\animation\AnimationManager.h" />
-    <ClInclude Include="lib\myGui\MyGui.h" />
-    <ClInclude Include="engine\code\component\renderer\SkyboxRenderer.h" />
-    <ClInclude Include="engine\code\system\render\SkyboxRender.h" />
-    <ClInclude Include="engine\code\component\effect\post\VignetteParam.h" />
-    <ClInclude Include="util\timeline\Timeline.h" />
-    <ClInclude Include="engine\code\component\effect\TextureEffectParam.h" />
-    <ClInclude Include="engine\code\system\effect\TextureEffectAnimation.h" />
-    <ClInclude Include="engine\code\system\render\EffectTexturedMeshRenderSystem.h" />
-    <ClInclude Include="engine\code\component\animation\AnimationData.h" />
+    <ClInclude Include="util\timeline\Timeline.h">
+      <Filter>util\timeline</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\code\ECS\ECSDebugger.cpp">
@@ -512,6 +518,9 @@
     <ClCompile Include="engine\code\component\IComponent.cpp">
       <Filter>engine\code\component</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\component\animation\AnimationData.cpp">
+      <Filter>engine\code\component\animation</Filter>
+    </ClCompile>
     <ClCompile Include="engine\code\component\animation\AnimationManager.cpp">
       <Filter>engine\code\component\animation</Filter>
     </ClCompile>
@@ -524,6 +533,9 @@
     <ClCompile Include="engine\code\component\collider\Collider.cpp">
       <Filter>engine\code\component\collider</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\component\effect\TextureEffectParam.cpp">
+      <Filter>engine\code\component\effect</Filter>
+    </ClCompile>
     <ClCompile Include="engine\code\component\effect\particle\Particle.cpp">
       <Filter>engine\code\component\effect\particle</Filter>
     </ClCompile>
@@ -532,6 +544,9 @@
     </ClCompile>
     <ClCompile Include="engine\code\component\effect\particle\emitter\EmitterShape.cpp">
       <Filter>engine\code\component\effect\particle\emitter</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\component\effect\post\VignetteParam.cpp">
+      <Filter>engine\code\component\effect\post</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\component\material\Material.cpp">
       <Filter>engine\code\component\material</Filter>
@@ -656,6 +671,9 @@
     <ClCompile Include="engine\code\system\effect\PrimitiveNodeAnimationWorkSystem.cpp">
       <Filter>engine\code\system\effect</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\system\effect\TextureEffectAnimation.cpp">
+      <Filter>engine\code\system\effect</Filter>
+    </ClCompile>
     <ClCompile Include="engine\code\system\movement\MoveSystemByRigidBody.cpp">
       <Filter>engine\code\system\movement</Filter>
     </ClCompile>
@@ -669,6 +687,9 @@
       <Filter>engine\code\system\postRender</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\system\render\ColliderRenderingSystem.cpp">
+      <Filter>engine\code\system\render</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\system\render\EffectTexturedMeshRenderSystem.cpp">
       <Filter>engine\code\system\render</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\system\render\LineRenderSystem.cpp">
@@ -732,20 +753,8 @@
     <ClCompile Include="util\ConvertString.cpp">
       <Filter>util</Filter>
     </ClCompile>
-    <ClCompile Include="util\timeline\Timeline.cpp" />
-    <ClCompile Include="engine\code\component\animation\PrimitiveNodeAnimation.cpp" />
-    <ClCompile Include="engine\code\system\effect\PrimitiveNodeAnimationWorkSystem.cpp" />
-    <ClCompile Include="engine\code\system\postRender\VignetteEffect.cpp" />
-    <ClCompile Include="engine\code\system\postRender\SmoothingEffect.cpp" />
-    <ClCompile Include="engine\code\component\animation\ModelNodeAnimation.cpp" />
-    <ClCompile Include="engine\code\component\animation\AnimationManager.cpp" />
-    <ClCompile Include="lib\myGui\MyGui.cpp" />
-    <ClCompile Include="engine\code\component\renderer\SkyboxRenderer.cpp" />
-    <ClCompile Include="engine\code\system\render\SkyboxRender.cpp" />
-    <ClCompile Include="engine\code\component\effect\post\VignetteParam.cpp" />
-    <ClCompile Include="engine\code\component\effect\TextureEffectParam.cpp" />
-    <ClCompile Include="engine\code\system\effect\TextureEffectAnimation.cpp" />
-    <ClCompile Include="engine\code\system\render\EffectTexturedMeshRenderSystem.cpp" />
-    <ClCompile Include="engine\code\component\animation\AnimationData.cpp" />
+    <ClCompile Include="util\timeline\Timeline.cpp">
+      <Filter>util\timeline</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
