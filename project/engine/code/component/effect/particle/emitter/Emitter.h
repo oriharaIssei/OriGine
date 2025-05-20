@@ -168,7 +168,6 @@ public:
     void setOriginePos(const Vec3f& _pos) { originPos_ = _pos; }
 
     BlendMode getBlendMode() const { return blendMode_; }
-    bool getIsActive() const { return isActive_; };
 
     void setParent(Transform* _parent) { parent_ = _parent; }
 };
