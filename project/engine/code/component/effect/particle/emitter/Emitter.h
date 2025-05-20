@@ -255,7 +255,7 @@ public:
     }
 
     /// @brief 値によるコンポーネントの追加
-    void add(GameEntity* _hostEntity, const Emitter& _component) {
+    void add(GameEntity* _hostEntity, const Emitter& _component, bool _doInit = true) {
         auto it = entityIndexBind_.find(_hostEntity);
         if (it == entityIndexBind_.end()) {
             registerEntity(_hostEntity);
@@ -264,7 +264,9 @@ public:
         uint32_t index = it->second;
         components_[index].emplace_back(srvArray_.get());
         components_[index].back() = _component;
-        components_[index].back().Initialize(_hostEntity);
+        if (_doInit) {
+            components_[index].back().Initialize(_hostEntity);
+        }
     }
 
     /// @brief IComponent ポインタからコンポーネントの追加
