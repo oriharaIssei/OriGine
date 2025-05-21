@@ -350,19 +350,19 @@ bool TextureEffectParam::Edit() {
             isChange |= DragGuiCommand("DistortionDuration", distortionAnim_.duration, 0.01f, 0.0f);
 
             ImGui::Text("UV Scale");
-            isChange |= DragGuiVectorCommand<2, float>("DistortionUVScale", effectParamData_->dissolveUV.scale_, 0.01f);
+            isChange |= DragGuiVectorCommand<2, float>("DistortionUVScale", effectParamData_->distortionUV.scale_, 0.01f);
             isChange |= ImGui::EditKeyFrame("Distortion_UV_Scale", distortionAnim_.scale, distortionAnim_.duration);
             if (!distortionAnim_.scale.empty()) {
                 distortionAnim_.scale.front().value = effectParamData_->distortionUV.scale_;
             }
             ImGui::Text("UV Rotate");
-            isChange |= DragGuiCommand<float>("DistortionUVRotate", effectParamData_->dissolveUV.rotate_, 0.01f);
+            isChange |= DragGuiCommand<float>("DistortionUVRotate", effectParamData_->distortionUV.rotate_, 0.01f);
             isChange |= ImGui::EditKeyFrame("Distortion_UV_Rotate", distortionAnim_.rotate, distortionAnim_.duration);
             if (!distortionAnim_.rotate.empty()) {
                 distortionAnim_.rotate.front().value = effectParamData_->distortionUV.rotate_;
             }
             ImGui::Text("UV Translate");
-            isChange |= DragGuiVectorCommand<2, float>("DistortionUVTranslate", effectParamData_->dissolveUV.translate_, 0.01f);
+            isChange |= DragGuiVectorCommand<2, float>("DistortionUVTranslate", effectParamData_->distortionUV.translate_, 0.01f);
             isChange |= ImGui::EditKeyFrame("Distortion_UV_Translate", distortionAnim_.translate, distortionAnim_.duration);
             if (!distortionAnim_.translate.empty()) {
                 distortionAnim_.translate.front().value = effectParamData_->distortionUV.translate_;

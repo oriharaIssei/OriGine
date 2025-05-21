@@ -299,7 +299,8 @@ void EffectTexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
             TextureManager::getDescriptorGpuHandle(effectParam->getDistortionTexIndex()));
 
         // ============================= ConstantBuffer ============================= //
-       auto& paramBuff = effectParam->getEffectParamBuffer();
+        auto& paramBuff = effectParam->getEffectParamBuffer();
+        paramBuff->UpdateTransform();
         paramBuff.ConvertToBuffer();
         paramBuff.SetForRootParameter(commandList, effectParameterBufferIndex_);
     }
