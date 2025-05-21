@@ -5,6 +5,7 @@
 
 /// engine
 #define RESOURCE_DIRECTORY
+#include "directX12/DxDebug.h"
 #include "engine/EngineInclude.h"
 
 /// externals
@@ -23,6 +24,7 @@
 #include "util/ConvertString.h"
 
 std::shared_ptr<spdlog::logger> Logger::logger_ = nullptr;
+DxDebug* Logger::dxDebug_                       = nullptr;
 
 static std::string getCurrentDateTime() {
     // 現在時刻を取得
@@ -175,6 +177,76 @@ void Logger::Critical(const std::wstring& message, const char* file, const char*
     if (logger_) {
         Critical(ConvertString(message), file, function, line);
     }
+}
+
+void Logger::DirectXLog(const char* file, const char* function, int line) {
+    if (!dxDebug_) {
+        Error("DxDebug is not initialized.", file, function, line);
+        return;
+    }
+    Microsoft::WRL::ComPtr<ID3D12InfoQueue> infoQueue = dxDebug_->getInfoQueue();
+    if (!infoQueue) {
+        Error("ID3D12InfoQueue is null.", file, function, line);
+        return;
+    }
+        UINT64 numMessages = infoQueue->GetNumStoredMessages();
+
+        for (UINT64 i = 0; i < numMessages; ++i) {
+            SIZE_T messageLength = 0;
+            infoQueue->GetMessage(i, nullptr, &messageLength);
+            std::vector<char> messageData(messageLength);
+            D3D12_MESSAGE* message = reinterpret_cast<D3D12_MESSAGE*>(messageData.data());
+            infoQueue->GetMessage(i, message, &messageLength);
+            D3D12_MESSAGE_SEVERITY severity = message->Severity;
+
+            std::string massageLevel = "WARNING";
+            switch (severity) {
+            case D3D12_MESSAGE_SEVERITY_CORRUPTION:
+                // 重大な破損
+                massageLevel = "CORRUPTION";
+
+                spdlog::critical("[D3D12][{}] {}",
+                    massageLevel,
+                    message->pDescription);
+
+                break;
+            case D3D12_MESSAGE_SEVERITY_ERROR:
+                // エラー
+                massageLevel = "ERROR";
+
+                spdlog::error("[D3D12][{}] {}",
+                    massageLevel,
+                    message->pDescription);
+
+                break;
+            case D3D12_MESSAGE_SEVERITY_WARNING:
+                // 警告
+                massageLevel = "WARNING";
+
+                spdlog::warn("[D3D12][{}] {}",
+                    massageLevel,
+                    message->pDescription);
+
+                break;
+
+            case D3D12_MESSAGE_SEVERITY_INFO:
+                // 情報
+                massageLevel = "INFO";
+                spdlog::info("[D3D12][{}] {}",
+                    massageLevel,
+                    message->pDescription);
+                break;
+            case D3D12_MESSAGE_SEVERITY_MESSAGE:
+                // 通常メッセージ
+                massageLevel = "MESSAGE";
+                spdlog::info("[D3D12][{}] {}",
+                    massageLevel,
+                    message->pDescription);
+                break;
+            }
+        }
+
+        infoQueue->ClearStoredMessages();
 }
 
 #pragma endregion
