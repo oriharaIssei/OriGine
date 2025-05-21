@@ -486,6 +486,8 @@
     <ClInclude Include="util\timeline\Timeline.h">
       <Filter>util\timeline</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\system\postRender\OutlineRender.h" />
+    <ClInclude Include="engine\code\directX12\DepthTexture.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\code\ECS\ECSDebugger.cpp">
@@ -756,5 +758,7 @@
     <ClCompile Include="util\timeline\Timeline.cpp">
       <Filter>util\timeline</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\system\postRender\OutlineRender.cpp" />
+    <ClCompile Include="engine\code\directX12\DepthTexture.cpp" />
   </ItemGroup>
 </Project>
