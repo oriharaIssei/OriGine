@@ -57,11 +57,12 @@ private:
     DxRtvArray* rtvArray_;
     DxSrvArray* srvArray_;
 
+    std::string textureName_ = "unknown rendertexture";
     Vec2f textureSize_;
     Vec4f clearColor_;
 
 public:
-    void setTextureName(const std::wstring& _name);
+    void setTextureName(const std::string& _name);
 
     const Vec2f& getTextureSize() const { return textureSize_; }
 

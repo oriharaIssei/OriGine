@@ -1,13 +1,21 @@
 #include "RenderTexture.h"
 
+/// engine
+#include "Engine.h"
+// directX12
 #include "directX12/DxFunctionHelper.h"
 #include "directX12/DxHeap.h"
 #include "directX12/ResourceBarrierManager.h"
 #include "directX12/ShaderManager.h"
 
-#include "Engine.h"
+/// externals
+#include "logger/Logger.h"
 
+/// math
 #include "Vector2.h"
+
+/// util
+#include "util/ConvertString.h"
 
 PipelineStateObj* RenderTexture::pso_;
 
@@ -117,6 +125,11 @@ void RenderTexture::Initialize(int32_t _bufferCount, const Vec2f& textureSize, D
         /// ------------------------------------------------------------------
         ResourceBarrierManager::RegisterReosurce(renderTarget.resource_.getResource(), D3D12_RESOURCE_STATE_RENDER_TARGET);
     }
+
+    std::wstring wName = ConvertString(textureName_);
+    for (auto& renderTarget : renderTargets_) {
+        renderTarget.resource_.setName(wName + std::to_wstring(renderTarget.srvIndex_));
+    }
 }
 
 void RenderTexture::Resize(const Vec2f& textureSize) {
@@ -168,8 +181,12 @@ void RenderTexture::Resize(const Vec2f& textureSize) {
         /// ------------------------------------------------------------------
         ///  ResourceBarrierManager の登録
         /// ------------------------------------------------------------------
-
         ResourceBarrierManager::RegisterReosurce(renderTargets_[i].resource_.getResource(), D3D12_RESOURCE_STATE_RENDER_TARGET);
+    }
+
+    std::wstring wName = ConvertString(textureName_);
+    for (auto& renderTarget : renderTargets_) {
+        renderTarget.resource_.setName(wName + std::to_wstring(renderTarget.srvIndex_));
     }
 }
 
@@ -280,6 +297,9 @@ void RenderTexture::PostDraw() {
     dxCommand_->CommandReset();
     ///===============================================================
 
+    // log
+    LOG_DX12();
+
     ///===============================================================
     /// bufferIndex の更新
     ///===============================================================
@@ -305,8 +325,10 @@ void RenderTexture::DrawTexture() {
     commandList->DrawInstanced(6, 1, 0, 0);
 }
 
-void RenderTexture::setTextureName(const std::wstring& _name) {
+void RenderTexture::setTextureName(const std::string& _name) {
+    textureName_       = _name;
+    std::wstring wName = ConvertString(_name);
     for (auto& renderTarget : renderTargets_) {
-        renderTarget.resource_.setName(_name + std::to_wstring(renderTarget.srvIndex_));
+        renderTarget.resource_.setName(wName + std::to_wstring(renderTarget.srvIndex_));
     }
 }
