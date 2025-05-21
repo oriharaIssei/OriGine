@@ -36,6 +36,7 @@ void DxDebug::InitializeDebugger() { // デバッグレイヤーをオンに
 }
 
 void DxDebug::FinalizeDebugger() {
+    infoQueue_.Reset();
     IDXGIDebug1* debug;
     if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&debug)))) {
         debug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_ALL);
