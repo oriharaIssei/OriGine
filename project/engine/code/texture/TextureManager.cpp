@@ -22,7 +22,7 @@
 #include "directX12/DxFunctionHelper.h"
 #include "directX12/DxHeap.h"
 #include "directX12/DxSrvArrayManager.h"
-#include "directX12/ResourceBarrierManager.h"
+#include "directX12/ResourceStateTracker.h"
 #include "directX12/ShaderCompiler.h"
 
 // lib
@@ -164,13 +164,14 @@ void Texture::UploadTextureData(DirectX::ScratchImage& mipImg, ID3D12Resource* r
 }
 void Texture::ExecuteCommand(ID3D12Resource* resource) {
     D3D12_RESOURCE_BARRIER barrier{};
+
     barrier.Type                   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
     barrier.Flags                  = D3D12_RESOURCE_BARRIER_FLAG_NONE;
     barrier.Transition.pResource   = resource;
     barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
     barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
     barrier.Transition.StateAfter  = D3D12_RESOURCE_STATE_GENERIC_READ;
-    TextureManager::dxCommand_->ResourceBarrier(1, &barrier);
+    TextureManager::dxCommand_->getResourceStateTracker()->DirectBarrier(TextureManager::dxCommand_->getCommandList(), resource, barrier);
 
     TextureManager::dxCommand_->Close();
 

@@ -161,7 +161,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\directX12\Mesh.h" />
     <ClInclude Include="engine\code\directX12\PipelineStateObj.h" />
     <ClInclude Include="engine\code\directX12\RenderTexture.h" />
-    <ClInclude Include="engine\code\directX12\ResourceBarrierManager.h" />
+    <ClInclude Include="engine\code\directX12\ResourceStateTracker.h" />
     <ClInclude Include="engine\code\directX12\ShaderCompiler.h" />
     <ClInclude Include="engine\code\directX12\ShaderManager.h" />
     <ClInclude Include="engine\code\iScene\IScene.h" />
@@ -218,6 +218,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="util\timeline\Timeline.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ENGINE\CODE\DIRECTX12\RESOURCEBARRIERMANAGER.CPP" />
     <ClCompile Include="engine\code\ECS\ECSDebugger.cpp" />
     <ClCompile Include="engine\code\ECS\ECSEditor.cpp" />
     <ClCompile Include="engine\code\ECS\ECSManager.cpp" />
@@ -266,7 +267,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\directX12\DxSwapChain.cpp" />
     <ClCompile Include="engine\code\directX12\PipelineStateObj.cpp" />
     <ClCompile Include="engine\code\directX12\RenderTexture.cpp" />
-    <ClCompile Include="engine\code\directX12\ResourceBarrierManager.cpp" />
+    <ClCompile Include="engine\code\directX12\ResourceStateTracker.cpp" />
     <ClCompile Include="engine\code\directX12\ShaderCompiler.cpp" />
     <ClCompile Include="engine\code\directX12\ShaderManager.cpp" />
     <ClCompile Include="engine\code\iScene\IScene.cpp" />

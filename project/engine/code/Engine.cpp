@@ -169,26 +169,26 @@ void Engine::ScreenPreDraw() {
 void Engine::ScreenPostDraw() {
     ImGuiManager::getInstance()->Draw();
 
-    HRESULT hr;
-    ID3D12GraphicsCommandList* commandList = dxCommand_->getCommandList();
     ///===============================================================
     ///	バリアの更新(描画->表示状態)
     ///===============================================================
-    ResourceBarrierManager::Barrier(
-        commandList,
+    dxCommand_->ResourceBarrier(
         dxSwapChain_->getCurrentBackBuffer(),
         D3D12_RESOURCE_STATE_PRESENT);
     ///===============================================================
 
     // コマンドの受付終了 -----------------------------------
-    hr = commandList->Close();
+    HRESULT result = dxCommand_->Close();
+    if (FAILED(result)) {
+        LOG_ERROR("Failed to close command list. HRESULT: " + std::to_string(result));
+        assert(false);
+    }
     //----------------------------------------------------
 
     ///===============================================================
     /// コマンドリストの実行
     ///===============================================================
-    ID3D12CommandList* ppHeaps[] = {commandList};
-    dxCommand_->getCommandQueue()->ExecuteCommandLists(1, ppHeaps);
+    dxCommand_->ExecuteCommand();
     ///===============================================================
 
     dxSwapChain_->Present();
