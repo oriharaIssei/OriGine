@@ -7,12 +7,15 @@
 #include "Engine.h"
 // directX12Object
 #include "directX12/DxFence.h"
+#include "directX12/ResourceStateTracker.h"
 
 /// lib
 #include "logger/Logger.h"
 
-std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>> DxCommand::commandListMap_;
-std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D12CommandAllocator>> DxCommand::commandAllocatorMap_;
+std::unordered_map<std::string,
+    std::tuple<Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>, Microsoft::WRL::ComPtr<ID3D12CommandAllocator>, ResourceStateTracker>>
+    DxCommand::commandListComboMap_;
+
 std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D12CommandQueue>> DxCommand::commandQueueMap_;
 
 DxCommand::DxCommand() {
@@ -24,17 +27,21 @@ DxCommand::~DxCommand() {
 bool DxCommand::CreateCommandListWithAllocator(ID3D12Device* device, const std::string& listAndAllocatorKey, D3D12_COMMAND_LIST_TYPE listType) {
     LOG_DEBUG("Create CommandList : " + listAndAllocatorKey);
 
-    HRESULT result = device->CreateCommandAllocator(
+    auto& commandListCombo = commandListComboMap_[listAndAllocatorKey];
+
+    auto& commandList      = std::get<0>(commandListCombo);
+    auto& commandAllocator = std::get<1>(commandListCombo);
+    HRESULT result         = device->CreateCommandAllocator(
         listType,
-        IID_PPV_ARGS(&commandAllocatorMap_[listAndAllocatorKey]));
+        IID_PPV_ARGS(&std::get<1>(commandListCombo)));
     assert(SUCCEEDED(result));
 
     result = device->CreateCommandList(
         0,
         listType,
-        commandAllocatorMap_[listAndAllocatorKey].Get(),
+        commandAllocator.Get(),
         nullptr,
-        IID_PPV_ARGS(&commandListMap_[listAndAllocatorKey]));
+        IID_PPV_ARGS(&commandList));
 
     if (FAILED(result)) {
         LOG_ERROR("Failed to create command list. HRESULT: " + std::to_string(result) + "\n listAndAllocatorKey : " + listAndAllocatorKey);
@@ -63,10 +70,10 @@ bool DxCommand::CreateCommandQueue(ID3D12Device* device, const std::string& queu
 };
 
 void DxCommand::Initialize(const std::string& commandListKey, const std::string& commandQueueKey) {
-    commandListKey_  = commandListKey;
-    commandQueueKey_ = commandQueueKey;
+    commandListComboKey_ = commandListKey;
+    commandQueueKey_     = commandQueueKey;
 
-    LOG_DEBUG("Initialize DxCommand \n CommandList  :" + commandListKey_ + "\n CommandQueue :" + commandQueueKey_ + "\n");
+    LOG_DEBUG("Initialize DxCommand \n CommandList  :" + commandListComboKey_ + "\n CommandQueue :" + commandQueueKey_ + "\n");
 
     ID3D12Device* device = Engine::getInstance()->getDxDevice()->getDevice();
     if (commandQueueMap_.count(commandQueueKey_) == 0) {
@@ -81,25 +88,27 @@ void DxCommand::Initialize(const std::string& commandListKey, const std::string&
     }
     commandQueue_ = commandQueueMap_[commandQueueKey_];
 
-    if (commandListMap_.count(commandListKey_) == 0) {
+    if (commandListComboMap_.count(commandListComboKey_) == 0) {
         ///================================================
         ///	CommandList & CommandAllocator の生成
         ///================================================
 
-        CreateCommandListWithAllocator(device, commandListKey_, D3D12_COMMAND_LIST_TYPE_DIRECT);
+        CreateCommandListWithAllocator(device, commandListComboKey_, D3D12_COMMAND_LIST_TYPE_DIRECT);
 
         ///================================================
     }
     /*-----見つかった場合-----*/
-    commandList_      = commandListMap_[commandListKey_];
-    commandAllocator_ = commandAllocatorMap_[commandListKey_];
+    auto& commandListCombo = commandListComboMap_[commandListComboKey_];
+    commandList_           = std::get<0>(commandListCombo);
+    commandAllocator_      = std::get<1>(commandListCombo);
+    resourceStateTracker_  = &std::get<2>(commandListCombo);
 }
 
 void DxCommand::Initialize(const std::string& commandListKey, const std::string& commandQueueKey, D3D12_COMMAND_LIST_TYPE listType) {
-    commandListKey_  = commandListKey;
-    commandQueueKey_ = commandQueueKey;
+    commandListComboKey_ = commandListKey;
+    commandQueueKey_     = commandQueueKey;
 
-    LOG_DEBUG("Initialize DxCommand \n CommandList  :" + commandListKey_ + "\n CommandQueue :" + commandQueueKey_ + "\n");
+    LOG_DEBUG("Initialize DxCommand \n CommandList  :" + commandListComboKey_ + "\n CommandQueue :" + commandQueueKey_ + "\n");
 
     ID3D12Device* device = Engine::getInstance()->getDxDevice()->getDevice();
 
@@ -109,11 +118,13 @@ void DxCommand::Initialize(const std::string& commandListKey, const std::string&
     }
     commandQueue_ = commandQueueMap_[commandQueueKey_];
 
-    if (commandListMap_.count(commandListKey_) == 0) {
-        CreateCommandListWithAllocator(device, commandListKey_, listType);
+    if (commandListComboMap_.count(commandListComboKey_) == 0) {
+        CreateCommandListWithAllocator(device, commandListComboKey_, listType);
     }
-    commandList_      = commandListMap_[commandListKey_];
-    commandAllocator_ = commandAllocatorMap_[commandListKey_];
+    auto& commandListCombo = commandListComboMap_[commandListComboKey_];
+    commandList_           = std::get<0>(commandListCombo);
+    commandAllocator_      = std::get<1>(commandListCombo);
+    resourceStateTracker_  = &std::get<2>(commandListCombo);
 }
 
 void DxCommand::CommandReset() {
@@ -131,13 +142,22 @@ void DxCommand::CommandReset() {
     }
 }
 
-void DxCommand::ResourceBarrier(UINT NumBarriers, const D3D12_RESOURCE_BARRIER* pBarriers) {
-    commandList_->ResourceBarrier(NumBarriers, pBarriers);
+void DxCommand::ResourceBarrier(ID3D12Resource* resource, D3D12_RESOURCE_STATES stateAfter) {
+    if (resourceStateTracker_) {
+        resourceStateTracker_->Barrier(commandList_.Get(), resource, stateAfter);
+    } else {
+        LOG_CRITICAL("ResourceStateTracker is not initialized.");
+    }
+}
+
+HRESULT DxCommand::Close() {
+    return commandList_->Close();
 }
 
 void DxCommand::ExecuteCommand() {
     ID3D12CommandList* commandLists[] = {commandList_.Get()};
     commandQueue_->ExecuteCommandLists(1, commandLists);
+    resourceStateTracker_->CommitLocalStatesToGlobal();
 }
 
 void DxCommand::ExecuteCommandAndPresent(IDXGISwapChain4* swapChain) {
@@ -154,14 +174,12 @@ void DxCommand::ExecuteCommandAndPresent(IDXGISwapChain4* swapChain) {
 
         assert(false);
     }
-
-    hr;
     ///===============================================================
 }
 
 void DxCommand::Finalize() {
     LOG_DEBUG(
-        "Finalize DxCommand \n CommandList Key  :" + commandListKey_ + "\n CommandQueue Key :" + commandQueueKey_ + "\n");
+        "Finalize DxCommand \n CommandList Key  :" + commandListComboKey_ + "\n CommandQueue Key :" + commandQueueKey_ + "\n");
 
     // 参照カウントを取得するための関数
     auto getRefCount = [](IUnknown* ptr) -> ULONG {
@@ -180,21 +198,16 @@ void DxCommand::Finalize() {
     ULONG allocatorRefCount = getRefCount(commandAllocator_.Get());
     ULONG queueRefCount     = getRefCount(commandQueue_.Get());
 
-    LOG_DEBUG(std::format("CommandList      Name {} RefCount : {}", commandListKey_, listRefCount));
-    LOG_DEBUG(std::format("CommandAllocator Name {} RefCount : {}", commandListKey_, allocatorRefCount));
+    LOG_DEBUG(std::format("CommandList      Name {} RefCount : {}", commandListComboKey_, listRefCount));
+    LOG_DEBUG(std::format("CommandAllocator Name {} RefCount : {}", commandListComboKey_, allocatorRefCount));
     LOG_DEBUG(std::format("CommandQueue     Name {} RefCount : {}", commandQueueKey_, queueRefCount));
 
     ///=====================================================
     // それぞれの ComPtr の参照カウントを確認して削除 (＝＝ 1 なのは 保持しているインスタンス分)
     ///=====================================================
     if (commandList_ && getRefCount(commandList_.Get()) == 1) {
-        LOG_DEBUG("Delete CommandList : " + commandListKey_);
-        commandListMap_.erase(commandListKey_);
-    }
-
-    if (commandAllocator_ && getRefCount(commandAllocator_.Get()) == 1) {
-        LOG_DEBUG("Delete CommandAllocator : " + commandListKey_);
-        commandAllocatorMap_.erase(commandListKey_);
+        LOG_DEBUG("Delete CommandList : " + commandListComboKey_);
+        commandListComboMap_.erase(commandListComboKey_);
     }
 
     if (commandQueue_ && getRefCount(commandQueue_.Get()) == 1) {
@@ -207,17 +220,17 @@ void DxCommand::Finalize() {
     commandAllocator_.Reset();
     commandQueue_.Reset();
 
-    commandListKey_  = "";
-    commandQueueKey_ = "";
+    commandListComboKey_ = "";
+    commandQueueKey_     = "";
 }
 
 void DxCommand::ResetAll() {
     LOG_DEBUG("Reset All DxCommand");
-    for (auto& list : commandListMap_) {
-        list.second.Reset();
-    }
-    for (auto& allocator : commandAllocatorMap_) {
-        allocator.second.Reset();
+    for (auto& [key, listCombo] : commandListComboMap_) {
+        auto& list      = std::get<0>(listCombo);
+        auto& allocator = std::get<1>(listCombo);
+        list.Reset();
+        allocator.Reset();
     }
     for (auto& queue : commandQueueMap_) {
         queue.second.Reset();

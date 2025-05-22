@@ -5,7 +5,7 @@
 // directX12
 #include "directX12/DxFunctionHelper.h"
 #include "directX12/DxHeap.h"
-#include "directX12/ResourceBarrierManager.h"
+#include "directX12/ResourceStateTracker.h"
 #include "directX12/ShaderManager.h"
 
 /// externals
@@ -121,9 +121,9 @@ void RenderTexture::Initialize(int32_t _bufferCount, const Vec2f& textureSize, D
         renderTarget.srvIndex_ = srvArray_->CreateView(device, srvDesc, renderTarget.resource_.getResource());
 
         /// ------------------------------------------------------------------
-        ///  ResourceBarrierManager の登録
+        ///  ResourceStateTracker の登録
         /// ------------------------------------------------------------------
-        ResourceBarrierManager::RegisterReosurce(renderTarget.resource_.getResource(), D3D12_RESOURCE_STATE_RENDER_TARGET);
+        ResourceStateTracker::RegisterReosurce(renderTarget.resource_.getResource(), D3D12_RESOURCE_STATE_RENDER_TARGET);
     }
 
     std::wstring wName = ConvertString(textureName_);
@@ -179,9 +179,9 @@ void RenderTexture::Resize(const Vec2f& textureSize) {
         renderTargets_[i].srvIndex_ = srvArray_->CreateView(device, srvDesc, renderTargets_[i].resource_.getResource());
 
         /// ------------------------------------------------------------------
-        ///  ResourceBarrierManager の登録
+        ///  ResourceStateTracker の登録
         /// ------------------------------------------------------------------
-        ResourceBarrierManager::RegisterReosurce(renderTargets_[i].resource_.getResource(), D3D12_RESOURCE_STATE_RENDER_TARGET);
+        ResourceStateTracker::RegisterReosurce(renderTargets_[i].resource_.getResource(), D3D12_RESOURCE_STATE_RENDER_TARGET);
     }
 
     std::wstring wName = ConvertString(textureName_);
@@ -210,8 +210,7 @@ void RenderTexture::PreDraw() {
     ///=========================================
     //	TransitionBarrier の 設定
     ///=========================================
-    ResourceBarrierManager::Barrier(
-        commandList,
+    dxCommand_->ResourceBarrier(
         getFrontBuffer(),
         D3D12_RESOURCE_STATE_RENDER_TARGET);
     commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
@@ -260,28 +259,28 @@ void RenderTexture::PreDraw() {
 
 void RenderTexture::PostDraw() {
     HRESULT hr;
-    ID3D12GraphicsCommandList* commandList = dxCommand_->getCommandList();
     DxFence* fence                         = Engine::getInstance()->getDxFence();
 
     ///===============================================================
     ///	バリアの更新(描画->表示状態)
     ///===============================================================
-    ResourceBarrierManager::Barrier(
-        commandList,
+    dxCommand_->ResourceBarrier(
         getFrontBuffer(),
         D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     ///===============================================================
 
     // コマンドの受付終了 -----------------------------------
-    hr = commandList->Close();
-    assert(SUCCEEDED(hr));
+    hr = dxCommand_->Close();
+    if (FAILED(hr)) {
+        LOG_ERROR("Failed to close command list. HRESULT: " + std::to_string(hr));
+        assert(false);
+    }
     //----------------------------------------------------
 
     ///===============================================================
     /// コマンドリストの実行
     ///===============================================================
-    ID3D12CommandList* ppHeaps[] = {commandList};
-    dxCommand_->getCommandQueue()->ExecuteCommandLists(1, ppHeaps);
+    dxCommand_->ExecuteCommand();
     ///===============================================================
 
     ///===============================================================

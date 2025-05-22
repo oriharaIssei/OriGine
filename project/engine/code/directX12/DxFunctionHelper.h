@@ -9,23 +9,22 @@
 #include "directX12/DxFence.h"
 #include "directX12/DxHeap.h"
 #include "directX12/DxSwapChain.h"
-#include "directX12/ResourceBarrierManager.h"
+#include "directX12/ResourceStateTracker.h"
 
 #include "Vector2.h"
 #include "Vector4.h"
 
-class DxFunctionHelper{
+class DxFunctionHelper {
 public:
+    static void SetViewportsAndScissor(const DxCommand* dxCommand, const WinApp* window);
+    static void SetViewportsAndScissor(const DxCommand* dxCommand, const Vec2f& rectSize);
 
-	static void SetViewportsAndScissor(const DxCommand* dxCommand,const WinApp* window);
-	static void SetViewportsAndScissor(const DxCommand* dxCommand,const Vec2f& rectSize);
+    static void SetRenderTargets(const DxCommand* dxCommand, const DxSwapChain* dxSwapChain);
+    static void SetRenderTargets(const DxCommand* dxCommand, D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle);
 
-	static void SetRenderTargets(const DxCommand* dxCommand,const DxSwapChain* dxSwapChain);
-	static void SetRenderTargets(const DxCommand* dxCommand,D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle);
+    static void PreDraw(DxCommand* dxCommand, const WinApp* window, const DxSwapChain* dxSwapChain);
+    static void PreDraw(DxCommand* dxCommand, const Vec2f& rectSize, const DxSwapChain* dxSwapChain);
 
-	static void PreDraw(const DxCommand* dxCommand,const WinApp* window,const DxSwapChain* dxSwapChain);
-	static void PreDraw(const DxCommand* dxCommand,const Vec2f& rectSize,const DxSwapChain* dxSwapChain);
-
-	static void PostDraw(DxCommand* dxCommands,DxFence* dxFence,DxSwapChain* dxSwapChain);
+    static void PostDraw(DxCommand* dxCommand, DxFence* dxFence, DxSwapChain* dxSwapChain);
 };
 using DxFH = DxFunctionHelper;
