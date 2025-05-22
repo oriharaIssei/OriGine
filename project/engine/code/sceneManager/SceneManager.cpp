@@ -52,7 +52,7 @@ void SceneManager::Initialize() {
     sceneView_->setTextureName("SceneViewTexture");
     /// TODO
     // fix MagicNumber
-    sceneView_->Initialize(4, {1280.0f, 720.0f}, DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, {0.0f, 0.0f, 0.0f, 1.0f});
+    sceneView_->Initialize(2, {1280.0f, 720.0f}, DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, {0.0f, 0.0f, 0.0f, 1.0f});
 
 #ifdef _DEBUG
     editorGroup_   = EditorGroup::getInstance();

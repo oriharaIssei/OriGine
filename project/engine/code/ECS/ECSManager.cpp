@@ -10,6 +10,7 @@
 
 /// externals
 #include "imgui/imgui.h"
+#include "logger/Logger.h"
 
 void EntityComponentSystemManager::Initialize() {
     // エンティティの初期化
@@ -158,6 +159,11 @@ void EntityComponentSystemManager::ExecuteEntitiesDelete() {
         }
 
         // エンティティIDを再利用可能にする
+        int32_t entityID = entity->getID();
+        if (entityID < 0) {
+            LOG_CRITICAL("The entity ID is invalid. \n EntityName :" + entity->dataType_);
+            continue;
+        }
         freeEntityIndex_.push_back(entity->getID());
 
         // エンティティがユニークな場合は、ユニークエンティティから削除

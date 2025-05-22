@@ -259,7 +259,7 @@ void RenderTexture::PreDraw() {
 
 void RenderTexture::PostDraw() {
     HRESULT hr;
-    DxFence* fence                         = Engine::getInstance()->getDxFence();
+    DxFence* fence = Engine::getInstance()->getDxFence();
 
     ///===============================================================
     ///	バリアの更新(描画->表示状態)
@@ -303,9 +303,8 @@ void RenderTexture::PostDraw() {
     /// bufferIndex の更新
     ///===============================================================
     if (bufferCount_ > 1) {
-        backBufferIndex_ = frontBufferIndex_;
-        frontBufferIndex_++;
-        frontBufferIndex_ = frontBufferIndex_ % bufferCount_;
+        backBufferIndex_  = frontBufferIndex_;
+        frontBufferIndex_ = (frontBufferIndex_ + 1) % bufferCount_;
     }
 }
 

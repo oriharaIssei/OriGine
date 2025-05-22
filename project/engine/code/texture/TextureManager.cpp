@@ -49,6 +49,11 @@ void Texture::Initialize(const std::string& filePath, std::shared_ptr<DxSrvArray
     DirectX::ScratchImage mipImages = Load(filePath);
     metaData                        = mipImages.GetMetadata();
     resource.CreateTextureResource(Engine::getInstance()->getDxDevice()->getDevice(), metaData);
+
+    // ファイル名をリソース名にセット（デバッグ用）
+    std::wstring wname = ConvertString(filePath);
+    resource.getResource()->SetName(wname.c_str());
+
     UploadTextureData(mipImages, resource.getResource());
 
     //==================================================
@@ -271,6 +276,7 @@ void TextureManager::LoadTask::Update() {
     DeltaTime timer;
     timer.Initialize();
 
+    std::lock_guard<std::mutex> lock(texture->mutex);
     std::weak_ptr<DxSrvArray> dxSrvArray = dxSrvArray_;
     texture->Initialize(filePath, dxSrvArray.lock());
 
