@@ -321,7 +321,7 @@
     <ClInclude Include="engine\code\directX12\RenderTexture.h">
       <Filter>engine\code\directX12</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\directX12\ResourceBarrierManager.h">
+    <ClInclude Include="engine\code\directX12\ResourceStateTracker.h">
       <Filter>engine\code\directX12</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\directX12\ShaderCompiler.h">
@@ -632,7 +632,7 @@
     <ClCompile Include="engine\code\directX12\RenderTexture.cpp">
       <Filter>engine\code\directX12</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\directX12\ResourceBarrierManager.cpp">
+    <ClCompile Include="engine\code\directX12\ResourceStateTracker.cpp">
       <Filter>engine\code\directX12</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\directX12\ShaderCompiler.cpp">
@@ -756,5 +756,6 @@
     <ClCompile Include="util\timeline\Timeline.cpp">
       <Filter>util\timeline</Filter>
     </ClCompile>
+    <ClCompile Include="ENGINE\CODE\DIRECTX12\RESOURCEBARRIERMANAGER.CPP" />
   </ItemGroup>
 </Project>
