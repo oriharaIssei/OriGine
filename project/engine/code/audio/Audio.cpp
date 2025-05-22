@@ -183,65 +183,58 @@ void Audio::Finalize() {
 }
 
 SoundData Audio::LoadWave(const std::string& fileName) {
-    //===================================================================
-    // file Open
-    //===================================================================
-    std::ifstream file;
-    file.open(fileName, std::ios_base::binary);
-    assert(file.is_open());
+    std::ifstream file(fileName, std::ios::binary);
+    if (!file.is_open()) {
+        LOG_ERROR("Failed to open file: " + fileName);
+        return {};
+    }
 
-    //===================================================================
-    // Load file
-    //===================================================================
     RiffHeader riff;
-    file.read((char*)&riff, sizeof(riff));
+    file.read(reinterpret_cast<char*>(&riff), sizeof(riff));
 
-    // ファイルが RIFF か チェック
-    if (strncmp(riff.chunk.id, "RIFF", 4) != 0) {
-        assert(false);
-    }
-    // フォーマットが WAVE か チェック
-    if (strncmp(riff.type, "WAVE", 4) != 0) {
-        assert(false);
+    if (strncmp(riff.chunk.id, "RIFF", 4) != 0 || strncmp(riff.type, "WAVE", 4) != 0) {
+        LOG_ERROR("Invalid RIFF or WAVE header");
+        return {};
     }
 
-    FormatChunk format = {};
-    file.read((char*)&format, sizeof(ChunkHeader));
-    // チャンクヘッダーの確認
-    if (strncmp(format.chunk.id, "fmt ", 4) != 0) {
-        assert(false);
-    }
-    // チャンク本体の 確認
-    assert(format.chunk.size <= sizeof(format.fmt));
+    FormatChunk format{};
+    ChunkHeader chunk;
 
-    file.read((char*)&format.fmt, format.chunk.size);
-    ChunkHeader data{};
-    file.read((char*)&data, sizeof(data));
-    if (strncmp(data.id, "JUNK", 4) == 0) {
-        // 読み取り位置を JUNKチャンク 終了位置まで 進める
-        file.seekg(data.size, std::ios_base::cur);
-        // 再読み込み
-        file.read((char*)&data, sizeof(data));
-    }
+    bool foundFmt     = false;
+    bool foundData    = false;
+    DWORD dataSize    = 0;
+    BYTE* pDataBuffer = nullptr;
 
-    if (strncmp(data.id, "data", 4) != 0) {
-        assert(false);
-    }
+    while (file.read(reinterpret_cast<char*>(&chunk), sizeof(chunk))) {
+        std::streampos nextChunk = file.tellg();
+        nextChunk += chunk.size;
 
-    char* pBuff = nullptr;
-    if (data.size > 0) {
-        pBuff = new char[data.size];
-        file.read(pBuff, data.size);
-    } else {
-        assert(false);
+        if (strncmp(chunk.id, "fmt ", 4) == 0) {
+            foundFmt = true;
+            file.read(reinterpret_cast<char*>(&format.fmt), chunk.size);
+        } else if (strncmp(chunk.id, "data", 4) == 0) {
+            foundData   = true;
+            pDataBuffer = new BYTE[chunk.size];
+            file.read(reinterpret_cast<char*>(pDataBuffer), chunk.size);
+            dataSize = chunk.size;
+        } else {
+            // 未使用のチャンクはスキップ
+            file.seekg(chunk.size, std::ios::cur);
+        }
+
+        file.seekg(nextChunk);
     }
 
-    file.close();
+    if (!foundFmt || !foundData) {
+        LOG_ERROR("Required fmt or data chunk not found");
+        delete[] pDataBuffer;
+        return {};
+    }
 
-    SoundData soundData  = {};
+    SoundData soundData{};
     soundData.wfex       = format.fmt;
-    soundData.pBuffer    = reinterpret_cast<BYTE*>(pBuff);
-    soundData.bufferSize = data.size;
+    soundData.pBuffer    = pDataBuffer;
+    soundData.bufferSize = dataSize;
 
     return soundData;
 }
