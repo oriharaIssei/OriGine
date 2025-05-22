@@ -30,8 +30,6 @@ void to_json(nlohmann::json& j, const ModelMeshRenderer& r) {
     j["isRender"]  = r.isRender_;
     j["blendMode"] = static_cast<int32_t>(r.currentBlend_);
 
-    j["meshGroupSize"] = r.meshGroup_->size();
-
     j["directory"] = r.directory_;
     j["fileName"]  = r.fileName_;
 
@@ -58,25 +56,19 @@ void from_json(const nlohmann::json& j, ModelMeshRenderer& r) {
     j.at("blendMode").get_to(blendMode);
     r.currentBlend_ = static_cast<BlendMode>(blendMode);
 
-    if (auto it = j.find("meshGorupSize"); it != j.end()) {
-        r.meshGroup_->resize(it->get<int32_t>());
-    }
-
     j.at("directory").get_to(r.directory_);
     j.at("fileName").get_to(r.fileName_);
 
     auto& transformBufferDatas = j.at("transformBufferDatas");
-    for (int32_t i = 0; i < r.meshGroup_->size(); ++i) {
-        Transform transform;
-        transformBufferDatas[i].get_to(transform);
-        r.meshTransformBuff_[i].openData_ = transform;
+    for (auto& transformData : transformBufferDatas) {
+        auto& backTransform     = r.meshTransformBuff_.emplace_back(IConstantBuffer<Transform>());
+        backTransform.openData_ = transformData;
     }
 
     auto& materialBufferDatas = j.at("materialBufferDatas");
-    for (int32_t i = 0; i < r.meshGroup_->size(); ++i) {
-        Material material;
-        materialBufferDatas[i].get_to(material);
-        r.meshMaterialBuff_[i].openData_ = material;
+    for (auto& materialData : materialBufferDatas) {
+        auto& backMaterial     = r.meshMaterialBuff_.emplace_back(IConstantBuffer<Material>());
+        backMaterial.openData_ = materialData;
     }
 }
 
@@ -127,17 +119,17 @@ void ModelMeshRenderer::Initialize(GameEntity* _hostEntity) {
     MeshRenderer::Initialize(_hostEntity);
 
     if (!fileName_.empty()) {
-        CreateModelMeshRenderer(this, hostEntity_, directory_, fileName_);
+        CreateModelMeshRenderer(this, hostEntity_, directory_, fileName_, false);
     }
 
+    InitializeTransformBuffer(_hostEntity);
+    InitializeMaterialBuffer(_hostEntity);
+
     Transform* entityTransform = getComponent<Transform>(_hostEntity);
-    meshTransformBuff_.resize(meshGroup_->size());
-    meshTextureNumber_.resize(meshGroup_->size());
-    meshMaterialBuff_.resize(meshGroup_->size());
 
     for (int32_t i = 0; i < meshGroup_->size(); ++i) {
         /// ---------------------------------------------------
-        // Transform
+        // Transform parent
         /// ---------------------------------------------------
         meshTransformBuff_[i].CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
         if (meshTransformBuff_[i]->parent == nullptr) {
@@ -146,11 +138,6 @@ void ModelMeshRenderer::Initialize(GameEntity* _hostEntity) {
 
         meshTransformBuff_[i].openData_.Update();
         meshTransformBuff_[i].ConvertToBuffer();
-
-        /// ---------------------------------------------------
-        // material
-        /// ---------------------------------------------------
-        meshMaterialBuff_[i].CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
     }
 }
 
@@ -246,7 +233,10 @@ void ModelMeshRenderer::InitializeTransformBuffer(GameEntity* _hostEntity) {
 
 void ModelMeshRenderer::InitializeMaterialBuffer(GameEntity* _hostEntity) {
     hostEntity_ = _hostEntity;
+
     meshMaterialBuff_.resize(meshGroup_->size());
+    meshTextureNumber_.resize(meshGroup_->size());
+
     for (int32_t i = 0; i < meshGroup_->size(); ++i) {
         meshMaterialBuff_[i].CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
     }
@@ -254,7 +244,7 @@ void ModelMeshRenderer::InitializeMaterialBuffer(GameEntity* _hostEntity) {
 
 #pragma endregion
 
-void CreateModelMeshRenderer(ModelMeshRenderer* _renderer, GameEntity* _hostEntity, const std::string& _directory, const std::string& _filenName) {
+void CreateModelMeshRenderer(ModelMeshRenderer* _renderer, GameEntity* _hostEntity, const std::string& _directory, const std::string& _filenName, bool _usingDefaultMaterial) {
     _renderer->setParentTransform(getComponent<Transform>(_hostEntity));
     bool isLoaded = false;
 
@@ -263,7 +253,7 @@ void CreateModelMeshRenderer(ModelMeshRenderer* _renderer, GameEntity* _hostEnti
     }
 
     // -------------------- Modelの読み込み --------------------//
-    auto model = ModelManager::getInstance()->Create(_directory, _filenName, [&_hostEntity, &_renderer, &isLoaded](Model* model) {
+    auto model = ModelManager::getInstance()->Create(_directory, _filenName, [&_hostEntity, &_renderer, &isLoaded, _usingDefaultMaterial](Model* model) {
         // 再帰ラムダをstd::functionとして定義
         std::function<void(ModelMeshRenderer*, Model*, ModelNode*)> CreateMeshGroupFormNode;
         CreateMeshGroupFormNode = [&](ModelMeshRenderer* _meshRenderer, Model* _model, ModelNode* _node) {
@@ -280,15 +270,18 @@ void CreateModelMeshRenderer(ModelMeshRenderer* _renderer, GameEntity* _hostEnti
         CreateMeshGroupFormNode(_renderer, model, &model->meshData_->rootNode);
 
         // Bufferの初期化
-        _renderer->ResizeMaterialBuffer2MeshGroupSize();
-        _renderer->ResizeTransformBuffer2MeshGroupSize();
-
         _renderer->InitializeTransformBuffer(_hostEntity);
         _renderer->InitializeMaterialBuffer(_hostEntity);
 
+        if (_usingDefaultMaterial) {
+            for (uint32_t i = 0; i < static_cast<uint32_t>(_renderer->getMeshGroupSize()); ++i) {
+                // マテリアルの設定
+                _renderer->setMaterialBuff(i, model->materialData_[i].material.openData_);
+            }
+        }
+        //! TODO : Textureを自由に設定できるように
+        // テクスチャの設定
         for (uint32_t i = 0; i < static_cast<uint32_t>(_renderer->getMeshGroupSize()); ++i) {
-            // マテリアルの設定
-            _renderer->setMaterialBuff(i, model->materialData_[i].material.openData_);
             _renderer->setTextureNumber(i, model->materialData_[i].textureNumber);
         }
 

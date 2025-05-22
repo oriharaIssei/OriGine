@@ -137,8 +137,8 @@ public:
         }
     }
 
-    void InitializeTransformBuffer(GameEntity* _hostEntity) ;
-    void InitializeMaterialBuffer(GameEntity* _hostEntity) ;
+    void InitializeTransformBuffer(GameEntity* _hostEntity);
+    void InitializeMaterialBuffer(GameEntity* _hostEntity);
     void ResizeTransformBuffer2MeshGroupSize() {
         meshTransformBuff_.resize(meshGroup_->size());
     }
@@ -209,7 +209,12 @@ public:
     }
 };
 
-void CreateModelMeshRenderer(ModelMeshRenderer* _renderer, GameEntity* _hostEntity, const std::string& _directory, const std::string& _filenName);
+void CreateModelMeshRenderer(
+    ModelMeshRenderer* _renderer,
+    GameEntity* _hostEntity,
+    const std::string& _directory,
+    const std::string& _filenName,
+    bool _usingDefaultMaterial = true);
 
 //----------------------------------------- LineRenderer -----------------------------------------//
 class LineRenderer
