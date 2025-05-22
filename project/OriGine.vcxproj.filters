@@ -474,6 +474,7 @@
     <ClInclude Include="engine\code\system\effect\TextureEffectAnimation.h" />
     <ClInclude Include="engine\code\system\render\EffectTexturedMeshRenderSystem.h" />
     <ClInclude Include="engine\code\component\animation\AnimationData.h" />
+    <ClInclude Include="engine\code\directX12\ResourceStateTracker.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\code\ECS\ECSDebugger.cpp">
@@ -734,5 +735,6 @@
     <ClCompile Include="engine\code\system\effect\TextureEffectAnimation.cpp" />
     <ClCompile Include="engine\code\system\render\EffectTexturedMeshRenderSystem.cpp" />
     <ClCompile Include="engine\code\component\animation\AnimationData.cpp" />
+    <ClCompile Include="engine\code\directX12\ResourceStateTracker.cpp" />
   </ItemGroup>
 </Project>

@@ -110,6 +110,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\component\animation\AnimationData.h" />
     <ClInclude Include="engine\code\component\effect\post\VignetteParam.h" />
     <ClInclude Include="engine\code\component\effect\TextureEffectParam.h" />
+    <ClInclude Include="engine\code\directX12\ResourceStateTracker.h" />
     <ClInclude Include="engine\code\system\effect\TextureEffectAnimation.h" />
     <ClInclude Include="engine\code\system\render\EffectTexturedMeshRenderSystem.h" />
     <ClInclude Include="engine\EngineInclude.h" />
@@ -221,6 +222,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\component\animation\AnimationData.cpp" />
     <ClCompile Include="engine\code\component\effect\post\VignetteParam.cpp" />
     <ClCompile Include="engine\code\component\effect\TextureEffectParam.cpp" />
+    <ClCompile Include="engine\code\directX12\ResourceStateTracker.cpp" />
     <ClCompile Include="engine\code\ECS\ECSDebugger.cpp" />
     <ClCompile Include="engine\code\ECS\ECSEditor.cpp" />
     <ClCompile Include="engine\code\ECS\ECSManager.cpp" />
