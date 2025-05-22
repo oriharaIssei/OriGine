@@ -21,8 +21,6 @@ void ResourceBarrierManager::Barrier(ID3D12GraphicsCommandList* commandList,ID3D
 		return;
 	}
 
-    LOG_DEBUG("Barrier" + std::to_string((UINT64)resource) + "\n" + "stateBefore : " + std::to_string(it->second) + "\n" + "stateAfter  : " + std::to_string(stateAfter));
-
 	D3D12_RESOURCE_BARRIER barrier = {};
 	barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
 	barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
