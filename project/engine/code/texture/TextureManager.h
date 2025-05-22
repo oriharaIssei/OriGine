@@ -29,6 +29,8 @@ struct Texture
     void Initialize(const std::string& filePath, std::shared_ptr<DxSrvArray> srvArray);
     void Finalize();
 
+    mutable std::mutex mutex;
+
     std::string path;
     DirectX::TexMetadata metaData;
     uint32_t resourceIndex;
@@ -77,9 +79,14 @@ public:
     static D3D12_GPU_DESCRIPTOR_HANDLE getDescriptorGpuHandle(uint32_t handleId) {
         DxHeap* heap   = DxHeap::getInstance();
         int32_t locate = 0;
-        if (textures_[handleId] && textures_[handleId]->loadState == LoadState::Loaded) {
+
+        // ロックが取れるまで待つ
+        std::lock_guard<std::mutex> lock(textures_[handleId]->mutex);
+
+        if (textures_[handleId]->loadState == LoadState::Loaded) {
             locate = textures_[handleId]->resourceIndex;
         }
+        // ロード中や未ロードの場合は必ずダミー（0番）を返す
         return heap->getSrvGpuHandle(dxSrvArray_->getLocationOnHeap(textures_[locate]->resourceIndex));
     }
 
