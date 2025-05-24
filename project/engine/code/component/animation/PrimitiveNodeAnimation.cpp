@@ -465,14 +465,14 @@ void PrimitiveNodeAnimation::UpdateMaterialAnimation(Material* _material) {
 
     switch (uvInterpolationType_) {
     case InterpolationType::LINEAR:
-        _material->uvScale_     = Vec3f(CalculateValue::Linear(uvScaleCurve_, currentTime_), 0.0f);
-        _material->uvRotate_    = Vec3f(0.0f, 0.0f, CalculateValue ::Linear(uvRotateCurve_, currentTime_));
-        _material->uvTranslate_ = Vec3f(CalculateValue::Linear(uvTranslateCurve_, currentTime_), 0.0f);
+        _material->uvTransform_.scale_     = CalculateValue::Linear(uvScaleCurve_, currentTime_);
+        _material->uvTransform_.rotate_    = CalculateValue ::Linear(uvRotateCurve_, currentTime_);
+        _material->uvTransform_.translate_ = CalculateValue::Linear(uvTranslateCurve_, currentTime_);
         break;
     case InterpolationType::STEP:
-        _material->uvScale_     = Vec3f(CalculateValue::Step(uvScaleCurve_, currentTime_), 0.0f);
-        _material->uvRotate_    = Vec3f(0.0f, 0.0f, CalculateValue::Step(uvRotateCurve_, currentTime_));
-        _material->uvTranslate_ = Vec3f(CalculateValue::Step(uvTranslateCurve_, currentTime_), 0.f);
+        _material->uvTransform_.scale_     = CalculateValue::Step(uvScaleCurve_, currentTime_);
+        _material->uvTransform_.rotate_    = CalculateValue ::Step(uvRotateCurve_, currentTime_);
+        _material->uvTransform_.translate_ = CalculateValue::Step(uvTranslateCurve_, currentTime_);
         break;
     default:
         break;
