@@ -42,8 +42,8 @@ SceneManager::SceneManager() {}
 SceneManager::~SceneManager() {}
 
 void SceneManager::Initialize() {
-    sceneViewRtvArray_ = DxRtvArrayManager::getInstance()->Create(4);
-    sceneViewSrvArray_ = DxSrvArrayManager::getInstance()->Create(4);
+    sceneViewRtvArray_ = DxRtvArrayManager::getInstance()->Create(2);
+    sceneViewSrvArray_ = DxSrvArrayManager::getInstance()->Create(2);
 
     ecsManager_ = EntityComponentSystemManager::getInstance();
     ecsManager_->Initialize();

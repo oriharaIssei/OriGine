@@ -19,12 +19,11 @@ enum class PrimitiveType {
     Plane, // 面
     Circle, // 円
     Ring, // 環(真ん中が空洞)
+    Box, // 立方体
     Sphere, // 球
-    Torus, // トーラス
-    Cylinder, // 円柱
-    Cone, // 円錐
-    Triangle, // 三角形
-    Box // 立方体
+    // Torus, // トーラス
+    // Cylinder, // 円柱
+    // Cone // 円錐
 };
 
 /// <summary>
@@ -162,6 +161,25 @@ public:
 };
 
 /// <summary>
+/// Box(立方体)のPrimitiveクラス
+/// </summary>
+class Box
+    : public IPrimitive {
+public:
+    Box() : IPrimitive(PrimitiveType::Box) {}
+    ~Box() override {}
+    void createMesh(TextureMesh* _mesh) override;
+
+private:
+    const uint32_t vertexSize = 8;
+    const uint32_t indexSize  = 24;
+
+    Vec3f size_ = {1.f, 1.f, 1.f};
+
+    Vec3f uv_ = {1.f, 1.f, 1.f};
+};
+
+/// <summary>
 /// Sphere(球)のPrimitiveクラス
 /// </summary>
 // class Sphere
@@ -211,7 +229,6 @@ public:
 /// <summary>
 /// Torus(トーラス)のPrimitiveクラス
 /// </summary>
-
 /*class Torus
     : public IPrimitive {
 public:
@@ -310,69 +327,6 @@ private:
     float radius_ = 1.f;
     float uv_     = 1.f;
     float height_ = 1.f;
-};
-*/
-
-/// <summary>
-/// Triangle(三角形)のPrimitiveクラス
-/// </summary>
-/*
-class Triangle
-    : public IPrimitive {
-public:
-    Triangle() : IPrimitive(PrimitiveType::Triangle) {}
-    ~Triangle() override {
-        mesh_.reset();
-    }
-    void Initialize() override {
-        // _mesh Init
-        mesh_ = std::make_shared<TextureMesh>();
-        mesh_->setName("Triangle");
-        mesh_->Initialize(3, 3);
-        // create _mesh
-        createMesh(TextureMesh* _mesh);
-    }
-    void createMesh(TextureMesh* _mesh) override;
-
-private:
-    Vec3f vertex_[3] = {
-        {1.f, 0.f, 0.f},
-        {0.f, 1.f, 0.f},
-        {-1.f, 0.f, 0.f},
-    };
-    Vec3f normal_ = {0.f, 0.f, 1.f};
-    Vec2f uv_     = {0.f, 0.f};
-};
-*/
-
-/// <summary>
-/// Box(立方体)のPrimitiveクラス
-/// </summary>
-/*
-class Box
-    : public IPrimitive {
-public:
-    Box() : IPrimitive(PrimitiveType::Box) {}
-    ~Box() override {
-        mesh_.reset();
-    }
-    void Initialize() override {
-        // _mesh Init
-        mesh_ = std::make_shared<TextureMesh>();
-        mesh_->setName("Box");
-        mesh_->Initialize(vertexSize, indexSize);
-        // create _mesh
-        createMesh(TextureMesh* _mesh);
-    }
-    void createMesh(TextureMesh* _mesh) override;
-
-private:
-    const uint32_t vertexSize = 8;
-    const uint32_t indexSize  = 24;
-
-    Vec3f size_ = {1.f, 1.f, 1.f};
-
-    Vec3f uv_ = {1.f, 1.f, 1.f};
 };
 */
 

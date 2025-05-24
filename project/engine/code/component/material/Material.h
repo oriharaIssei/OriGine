@@ -9,7 +9,15 @@
 /// math
 #include "Matrix4x4.h"
 #include "stdint.h"
+#include "Vector2.h"
+#include "Vector3.h"
 #include "Vector4.h"
+
+struct UVTransform {
+    Vec2f scale_     = Vec2f(1.f, 1.f);
+    float rotate_    = 0.f;
+    Vec2f translate_ = Vec2f(0.f, 0.f);
+};
 
 struct Material
     : IAsset {
@@ -27,10 +35,8 @@ public:
 #endif // _DEBUG
 
 public:
-    Vec3f uvScale_     = {1.f, 1.f, 1.f};
-    Vec3f uvRotate_    = {0.f, 0.f, 0.f};
-    Vec3f uvTranslate_ = {0.f, 0.f, 0.f};
-    Matrix4x4 uvMat_   = MakeMatrix::Identity();
+    UVTransform uvTransform_;
+    Matrix4x4 uvMat_ = MakeMatrix::Identity();
 
     Vec4f color_ = {1.f, 1.f, 1.f, 1.f};
 

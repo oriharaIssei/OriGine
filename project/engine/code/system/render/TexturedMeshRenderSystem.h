@@ -9,22 +9,30 @@
 // directX12Object
 #include "directX12/DxCommand.h"
 #include "directX12/ShaderManager.h"
+class ModelMeshRenderer;
+class PlaneRenderer;
 
 class TexturedMeshRenderSystem
     : public ISystem {
 public:
     TexturedMeshRenderSystem() : ISystem(SystemType::Render) {};
-    ~TexturedMeshRenderSystem() = default;    void Initialize() override;
+    ~TexturedMeshRenderSystem() = default;
+
+    void Initialize() override;
     void Update() override;
     void Finalize() override;
 
-protected:
     void CreatePso();
 
-    void LightUpdate();
     void StartRender();
 
     void UpdateEntity(GameEntity* _entity) override;
+
+    void RenderModelMesh(ID3D12GraphicsCommandList* _commandList, ModelMeshRenderer* _renderer);
+    void RenderPrimitiveMesh(ID3D12GraphicsCommandList* _commandList, PlaneRenderer* _renderer);
+
+protected:
+    void LightUpdate();
 
 private:
     BlendMode currentBlend_ = BlendMode::Alpha;

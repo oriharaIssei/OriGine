@@ -486,6 +486,8 @@
     <ClInclude Include="util\timeline\Timeline.h">
       <Filter>util\timeline</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\system\postRender\DistortionEffect.h" />
+    <ClInclude Include="engine\code\component\effect\post\DistortionEffectParam.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\code\ECS\ECSDebugger.cpp">
@@ -757,5 +759,7 @@
       <Filter>util\timeline</Filter>
     </ClCompile>
     <ClCompile Include="ENGINE\CODE\DIRECTX12\RESOURCEBARRIERMANAGER.CPP" />
+    <ClCompile Include="engine\code\system\postRender\DistortionEffect.cpp" />
+    <ClCompile Include="engine\code\component\effect\post\DistortionEffectParam.cpp" />
   </ItemGroup>
 </Project>
