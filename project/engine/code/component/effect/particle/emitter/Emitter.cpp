@@ -59,7 +59,6 @@ Emitter::~Emitter() {}
 void Emitter::Initialize(GameEntity* /*_entity*/) {
     { // Initialize DrawingData Size
         CalculateMaxSize();
-        structuredTransform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice(), srvArray_, particleMaxSize_);
         particles_.reserve(particleMaxSize_);
     }
 
@@ -90,10 +89,9 @@ void Emitter::Initialize(GameEntity* /*_entity*/) {
     // keyFrames
 
     // resource
-    Plane planeGenerater;
-    planeGenerater.createMesh(&mesh_);
-
-    material_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+    if (isActive_) {
+        CreateResource();
+    }
 
     if (!textureFileName_.empty()) {
         textureIndex_ = TextureManager::LoadTexture(textureFileName_);
@@ -164,10 +162,11 @@ bool Emitter::Edit() {
 
     if (ImGui::Button("Play")) {
         leftActiveTime_ = activeTime_;
-        isActive_       = true;
+        CreateResource();
     }
     ImGui::SameLine();
     if (ImGui::Button("Stop")) {
+        leftActiveTime_ = -1.f;
     }
 
     ImGui::Spacing();
@@ -249,6 +248,9 @@ void Emitter::EditEmitter() {
         }
         ImGui::EndCombo();
     }
+
+    ImGui::Text("EmitterOriginPos");
+    DragGuiVectorCommand<3, float>("##EmitterOriginPos", originPos_, 0.01f);
 
     ImGui::Text("EmitterActiveTime");
     DragGuiCommand("##EmitterActiveTime", activeTime_, 0.1f);
@@ -826,7 +828,7 @@ void Emitter::Draw(ID3D12GraphicsCommandList* _commandList) {
         for (size_t i = 0; i < particles_.size(); i++) {
             scaleMat = MakeMatrix::Scale(structuredTransform_.openData_[i].scale);
             // 平行移動行列を計算
-            Matrix4x4 translateMat = MakeMatrix::Translate(structuredTransform_.openData_[i].translate + originPos_);
+            Matrix4x4 translateMat = MakeMatrix::Translate(structuredTransform_.openData_[i].translate);
             // ワールド行列を構築
             structuredTransform_.openData_[i].worldMat = scaleMat * rotateMat * translateMat;
 
@@ -839,7 +841,7 @@ void Emitter::Draw(ID3D12GraphicsCommandList* _commandList) {
             scaleMat  = MakeMatrix::Scale(structuredTransform_.openData_[i].scale);
             rotateMat = MakeMatrix::RotateXYZ(structuredTransform_.openData_[i].rotate);
             // 平行移動行列を計算
-            Matrix4x4 translateMat = MakeMatrix::Translate(structuredTransform_.openData_[i].translate + originPos_);
+            Matrix4x4 translateMat = MakeMatrix::Translate(structuredTransform_.openData_[i].translate);
 
             // ワールド行列を構築
             structuredTransform_.openData_[i].worldMat = scaleMat * rotateMat * translateMat;
@@ -873,6 +875,19 @@ void Emitter::Draw(ID3D12GraphicsCommandList* _commandList) {
     _commandList->DrawIndexedInstanced(UINT(mesh_.getIndexSize()), static_cast<UINT>(structuredTransform_.openData_.size()), 0, 0, 0);
 }
 
+void Emitter::CreateResource() {
+    Plane planeGenerater;
+    if (!mesh_.getVertexBuffer().getResource()) {
+        planeGenerater.createMesh(&mesh_);
+    }
+    if (!structuredTransform_.getResource().getResource()) {
+        structuredTransform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice(), srvArray_, particleMaxSize_);
+    }
+    if (!material_.getResource().getResource()) {
+        material_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+    }
+}
+
 void Emitter::CalculateMaxSize() {
     // 1秒あたりの生成回数
     float spawnRatePerSecond = spawnParticleVal_ / spawnCoolTime_;
@@ -885,7 +900,17 @@ void Emitter::SpawnParticle() {
     // スポーンして良い数
     int32_t canSpawnParticleValue_ = (std::min<int32_t>)(spawnParticleVal_, static_cast<int32_t>(particleMaxSize_ - particles_.size()));
 
+    preWorldOriginPos_ = worldOriginPos_;
+    if (parent_) {
+        worldOriginPos_ = originPos_ * parent_->worldMat;
+    } else {
+        worldOriginPos_ = originPos_;
+    }
+
     for (int32_t i = 0; i < canSpawnParticleValue_; i++) {
+        Vec3f spawnPos = Lerp(preWorldOriginPos_, worldOriginPos_, float(i) / float(canSpawnParticleValue_));
+        spawnPos += emitterSpawnShape_->getSpawnPos();
+
         // 割りたてる Transform の 初期化
         structuredTransform_.openData_.push_back({});
         auto& transform = structuredTransform_.openData_.back();
@@ -910,7 +935,7 @@ void Emitter::SpawnParticle() {
         randY.setRange(startParticleRotateMin_.v[Y], startParticleRotateMax_.v[Y]);
         randZ.setRange(startParticleRotateMin_.v[Z], startParticleRotateMax_.v[Z]);
         transform.rotate    = {randX.get(), randY.get(), randZ.get()};
-        transform.translate = emitterSpawnShape_->getSpawnPos();
+        transform.translate = spawnPos;
 
         transform.uvScale     = particleUvScale_;
         transform.uvRotate    = particleUvRotate_;
@@ -956,6 +981,8 @@ void Emitter::PlayStart() {
     isActive_        = true;
     leftActiveTime_  = activeTime_;
     currentCoolTime_ = 0.f;
+
+    CreateResource();
 }
 
 void Emitter::PlayContinue() {
@@ -972,6 +999,8 @@ void from_json(const nlohmann::json& j, Emitter& e) {
 
     j.at("isActive").get_to(e.isActive_);
     j.at("isLoop").get_to(e.isLoop_);
+
+    j.at("originPos").get_to(e.originPos_);
 
     j.at("textureFileName").get_to(e.textureFileName_);
 
@@ -1020,7 +1049,7 @@ void from_json(const nlohmann::json& j, Emitter& e) {
     j.at("uvInterpolationType").get_to(e.uvInterpolationType_);
 
     if (j.find("scaleCurve") != j.end()) {
-    curveLoad(j.at("scaleCurve"), e.particleKeyFrames_->scaleCurve_);
+        curveLoad(j.at("scaleCurve"), e.particleKeyFrames_->scaleCurve_);
     }
     if (j.find("rotateCurve") != j.end()) {
         curveLoad(j.at("rotateCurve"), e.particleKeyFrames_->rotateCurve_);
@@ -1049,6 +1078,7 @@ void to_json(nlohmann::json& j, const Emitter& e) {
         {"blendMode", e.blendMode_},
         {"isActive", e.isActive_},
         {"isLoop", e.isLoop_},
+        {"originPos", e.originPos_},
         {"activeTime", e.activeTime_},
         {"spawnParticleVal", e.spawnParticleVal_},
         {"shapeType", e.shapeType_},

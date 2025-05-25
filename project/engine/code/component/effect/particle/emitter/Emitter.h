@@ -58,6 +58,8 @@ public:
     void PlayStop();
 
 private:
+    void CreateResource();
+
     void SpawnParticle();
 
 #ifdef _DEBUG
@@ -77,7 +79,10 @@ private:
     DxSrvArray* srvArray_ = nullptr;
 
     Transform* parent_        = nullptr;
+    Vec3f preWorldOriginPos_ = {0.f, 0.f, 0.f};
+    Vec3f worldOriginPos_    = {0.f, 0.f, 0.f};
     Vec3f originPos_          = {0.f, 0.f, 0.f};
+
     uint32_t particleMaxSize_ = 34;
 
     std::vector<std::shared_ptr<Particle>> particles_;
