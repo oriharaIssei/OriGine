@@ -37,48 +37,79 @@ void DxHeap::CompactRtvHeap(ID3D12Device* device, std::vector<std::pair<D3D12_CP
     // RTV ヒープからハンドルを取得
     D3D12_CPU_DESCRIPTOR_HANDLE dstHandle = rtvHeap_->GetCPUDescriptorHandleForHeapStart();
 
+    // 前詰め（左詰め）想定：先頭から順にコピー
     for (size_t i = 0; i < usedDescriptorsArrays.size(); ++i) {
+        // コピー元とコピー先が重なる場合は、CopyDescriptorsSimpleをスキップ
         if (usedDescriptorsArrays[i].first.ptr != dstHandle.ptr) {
-            // 正しいヒープタイプを指定
+            // コピー範囲が重複していないかチェック
+            SIZE_T srcStart = usedDescriptorsArrays[i].first.ptr;
+            SIZE_T srcEnd   = srcStart + SIZE_T(rtvIncrementSize_) * usedDescriptorsArrays[i].second;
+            SIZE_T dstStart = dstHandle.ptr;
+            SIZE_T dstEnd   = dstStart + SIZE_T(rtvIncrementSize_) * usedDescriptorsArrays[i].second;
+            // 範囲が重複していればスキップ（またはassert/エラー処理）
+            if ((dstStart < srcEnd) && (srcStart < dstEnd)) {
+                LOG_ERROR("CopyDescriptorsSimple: source and destination ranges overlap. Skipping copy.");
+                // 必要に応じてassert(false);やcontinue;
+                continue;
+            }
+
             device->CopyDescriptorsSimple(
                 usedDescriptorsArrays[i].second,
                 dstHandle,
                 usedDescriptorsArrays[i].first,
                 D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
         }
-        dstHandle.ptr += rtvIncrementSize_ * usedDescriptorsArrays[i].second;
+        dstHandle.ptr += SIZE_T(rtvIncrementSize_) * usedDescriptorsArrays[i].second;
     }
 }
-
 void DxHeap::CompactSrvHeap(ID3D12Device* device, std::vector<std::pair<D3D12_CPU_DESCRIPTOR_HANDLE, uint32_t>>& usedDescriptorsArrays) {
     LOG_DEBUG("Run Compact Srv Heap Function");
-    
-    // RTV ヒープからハンドルを取得
-    D3D12_CPU_DESCRIPTOR_HANDLE dstHandle = rtvHeap_->GetCPUDescriptorHandleForHeapStart();
+
+    D3D12_CPU_DESCRIPTOR_HANDLE dstHandle = srvHeap_->GetCPUDescriptorHandleForHeapStart();
 
     for (size_t i = 0; i < usedDescriptorsArrays.size(); ++i) {
         if (usedDescriptorsArrays[i].first.ptr != dstHandle.ptr) {
-            // 正しいヒープタイプを指定
+            SIZE_T srcStart = usedDescriptorsArrays[i].first.ptr;
+            SIZE_T srcEnd   = srcStart + SIZE_T(srvIncrementSize_) * usedDescriptorsArrays[i].second;
+            SIZE_T dstStart = dstHandle.ptr;
+            SIZE_T dstEnd   = dstStart + SIZE_T(srvIncrementSize_) * usedDescriptorsArrays[i].second;
+            if ((dstStart < srcEnd) && (srcStart < dstEnd)) {
+                LOG_ERROR("CopyDescriptorsSimple: source and destination ranges overlap. Skipping copy.");
+                continue;
+            }
+
             device->CopyDescriptorsSimple(
                 usedDescriptorsArrays[i].second,
                 dstHandle,
                 usedDescriptorsArrays[i].first,
                 D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
         }
-        dstHandle.ptr += rtvIncrementSize_ * usedDescriptorsArrays[i].second;
+        dstHandle.ptr += SIZE_T(srvIncrementSize_) * usedDescriptorsArrays[i].second;
     }
 }
-
 void DxHeap::CompactDsvHeap(ID3D12Device* device, std::vector<std::pair<D3D12_CPU_DESCRIPTOR_HANDLE, uint32_t>>& usedDescriptorsArrays) {
     LOG_DEBUG("Run Compact Dsv Heap Function");
 
-    D3D12_CPU_DESCRIPTOR_HANDLE dstHandle = srvHeap_->GetCPUDescriptorHandleForHeapStart();
+    D3D12_CPU_DESCRIPTOR_HANDLE dstHandle = dsvHeap_->GetCPUDescriptorHandleForHeapStart();
 
     for (size_t i = 0; i < usedDescriptorsArrays.size(); ++i) {
         if (usedDescriptorsArrays[i].first.ptr != dstHandle.ptr) {
-            device->CopyDescriptorsSimple(usedDescriptorsArrays[i].second, dstHandle, usedDescriptorsArrays[i].first, D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
+            SIZE_T srcStart = usedDescriptorsArrays[i].first.ptr;
+            SIZE_T srcEnd   = srcStart + SIZE_T(dsvIncrementSize_) * usedDescriptorsArrays[i].second;
+            SIZE_T dstStart = dstHandle.ptr;
+            SIZE_T dstEnd   = dstStart + SIZE_T(dsvIncrementSize_) * usedDescriptorsArrays[i].second;
+            if ((dstStart < srcEnd) && (srcStart < dstEnd)) {
+                LOG_ERROR("CopyDescriptorsSimple: source and destination ranges overlap. Skipping copy.");
+                continue;
+            }
+
+            device->CopyDescriptorsSimple(
+                usedDescriptorsArrays[i].second,
+                dstHandle,
+                usedDescriptorsArrays[i].first,
+                D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
         }
-        dstHandle.ptr += srvIncrementSize_ * usedDescriptorsArrays[i].second;
+        dstHandle.ptr += SIZE_T(dsvIncrementSize_) * usedDescriptorsArrays[i].second;
     }
 }
 

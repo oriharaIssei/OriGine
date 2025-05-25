@@ -16,7 +16,7 @@ DxRtvArrayManager* DxRtvArrayManager::getInstance() {
 }
 
 void DxRtvArrayManager::Initialize() {
-    LOG_DEBUG("Initialize DxSrvArrayManager \n Size :" + std::to_string(DxHeap::rtvHeapSize));
+    LOG_DEBUG("Initialize DxRtvArrayManager \n Size :" + std::to_string(DxHeap::rtvHeapSize));
     heapCondition_.push_back({nullptr, DxHeap::rtvHeapSize, 0});
 }
 
@@ -49,18 +49,19 @@ uint32_t DxRtvArrayManager::SearchEmptyLocation(uint32_t size, std::shared_ptr<D
     uint32_t currentLocation = 0;
 
     for (uint32_t i = 0; i < heapCondition_.size(); i++) {
-        // 既に使用されているもの (Nullか refが1以下のもの)
-        if (heapCondition_[i].dxRtvArray_ != nullptr) {
-            usedArrays_.push_back({dxHeap->getDsvCpuHandle(i), heapCondition_[i].arraySize});
-            currentLocation += heapCondition_[i].arraySize;
-            continue;
-        }
-
         // ref が 1 なら 初期化(このインスタンスが持っている 1だから 実質0)
         if (heapCondition_[i].dxRtvArray_.use_count() == 1) {
             heapCondition_[i].dxRtvArray_.reset();
             heapCondition_[i].dxRtvArray_ = nullptr;
         }
+
+        // 既に使用されているもの (Nullか refが1以下のもの)
+        if (heapCondition_[i].dxRtvArray_ != nullptr) {
+            usedArrays_.push_back({dxHeap->getRtvCpuHandle(i), heapCondition_[i].arraySize});
+            currentLocation += heapCondition_[i].arraySize;
+            continue;
+        }
+
         // 空きが 必要なものより小さければ locationを更新して 次へ
         if (heapCondition_[i].arraySize < size) {
             currentLocation += heapCondition_[i].arraySize;

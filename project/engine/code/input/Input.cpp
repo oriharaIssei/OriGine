@@ -82,3 +82,23 @@ void Input::Update() {
         }
     }
 }
+
+void Input::FixMousePos(const Vec2f& _fixedPos) {
+    isMousePosFixed_ = true;
+    RECT rect;
+    rect.left   = static_cast<LONG>(_fixedPos[X]);
+    rect.top    = static_cast<LONG>(_fixedPos[Y]);
+    rect.right  = static_cast<LONG>(_fixedPos[X]) + 1;
+    rect.bottom = static_cast<LONG>(_fixedPos[Y]) + 1;
+    ClipCursor(&rect);
+}
+
+void Input::FixMousePos(const Vec2d& _fixedPos) {
+    isMousePosFixed_ = true;
+    RECT rect;
+    rect.left   = static_cast<LONG>(_fixedPos[X]);
+    rect.top    = static_cast<LONG>(_fixedPos[Y]);
+    rect.right  = static_cast<LONG>(_fixedPos[X]) + 1;
+    rect.bottom = static_cast<LONG>(_fixedPos[Y]) + 1;
+    ClipCursor(&rect);
+}

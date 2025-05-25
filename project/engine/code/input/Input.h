@@ -292,16 +292,20 @@ private:
     BYTE keys_[256]                                       = {};
     BYTE preKeys_[256]                                    = {};
 
+    /// マウス
     Microsoft::WRL::ComPtr<IDirectInputDevice8> mouse_ = nullptr;
     DIMOUSESTATE2 currentMouseState_;
     DIMOUSESTATE2 preMouseState_;
-
-    // マウス座標
+    // 座標
     POINT mousePoint_;
     Vec2f currentMousePos_;
     Vec2f preMousePos_;
     bool virtualMouseIsSynchronizedWithClientMouse_ = false;
     Vec2f virtualMousePos_;
+    // マウスカーソルを隠すかどうか
+    bool isHideMouseCursor_ = false;
+    // マウス座標を固定するかどうか
+    bool isMousePosFixed_ = false;
 
     // ゲームパッド とりあえず 一つだけ
     XINPUT_STATE padState_;
@@ -315,6 +319,7 @@ private:
     Vec2f preRStickVelocity_     = {0.0f, 0.0f};
 
 public:
+    /// キーボード
     bool isPressKey(const uint32_t& key) const { return keys_[key]; }
     bool isPressKey(Key key) const { return keys_[static_cast<int32_t>(key)]; }
     bool isTriggerKey(const uint32_t& key) const { return (keys_[key] && !preKeys_[key]); }
@@ -328,6 +333,7 @@ public:
         return (!keys_[keyNum] && preKeys_[keyNum]);
     }
 
+    /// マウス
     bool isPressMouseButton(const uint32_t& _mouse) const { return currentMouseState_.rgbButtons[_mouse]; }
     bool isPressMouseButton(MouseButton mouse) const { return currentMouseState_.rgbButtons[static_cast<int32_t>(mouse)]; }
     bool isTriggerMouseButton(const uint32_t& _mouse) const { return currentMouseState_.rgbButtons[_mouse] && !preMouseState_.rgbButtons[_mouse]; }
@@ -350,9 +356,31 @@ public:
     const Vec2f& getCurrentMousePos() const { return currentMousePos_; }
     const Vec2f& getPreMousePos() const { return preMousePos_; }
     const Vec2f& getVirtualMousePos() const { return virtualMousePos_; }
+    /// <summary>
+    /// マウスの座標を固定する
+    /// </summary>
+    /// <param name="_fixedPos">固定座標(スクリーン座標系)</param>
+    void FixMousePos(const Vec2f& _fixedPos);
+    void FixMousePos(const Vec2d& _fixedPos);
+
+    /// <summary>
+    /// マウスの座標の固定を解除する
+    /// </summary>
+    void ReleaseMousePos() {
+        isMousePosFixed_ = false;
+        ClipCursor(NULL);
+    }
+
     void setVirtualMousePos(const Vec2f& pos) { virtualMousePos_ = pos; }
     Vec2f getMouseVelocity() const { return currentMousePos_ - preMousePos_; }
 
+    bool isHideMouseCursor() const { return isHideMouseCursor_; }
+    void setIsHideMouseCursor(bool _isHideCursor) {
+        isHideMouseCursor_ = _isHideCursor;
+        while (ShowCursor(BOOL(isHideMouseCursor_)) >= 0) {}
+    }
+
+    /// gamePad
     const Vec2f& getLStickVelocity() const { return currentLStickVelocity_; }
     const Vec2f& getPreLStickVelocity() const { return preLStickVelocity_; }
 

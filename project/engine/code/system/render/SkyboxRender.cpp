@@ -54,7 +54,7 @@ void SkyboxRender::CreatePso() {
     ///=================================================
     /// Depth
     ///=================================================
-    texShaderInfo.customDepthStencilDesc().DepthEnable = true;
+    texShaderInfo.customDepthStencilDesc().DepthEnable    = true;
     texShaderInfo.customDepthStencilDesc().DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO; // 書き込まない z = -1だから
     texShaderInfo.customDepthStencilDesc().DepthFunc      = D3D12_COMPARISON_FUNC_LESS_EQUAL;
 
@@ -183,9 +183,11 @@ void SkyboxRender::UpdateEntity(GameEntity* _entity) {
 
     // ============================= Transformのセット ============================= //
     IConstantBuffer<Transform>& meshTransform = renderer->getTransformBuff();
+    const CameraTransform& cameraTransform    = CameraManager::getInstance()->getTransform();
+    meshTransform->translate                  = cameraTransform.translate;
     meshTransform->Update();
-    const Matrix4x4& viewMat = CameraManager::getInstance()->getTransform().viewMat;
-    const Matrix4x4& projMat = CameraManager::getInstance()->getTransform().projectionMat;
+    const Matrix4x4& viewMat = cameraTransform.viewMat;
+    const Matrix4x4& projMat = cameraTransform.projectionMat;
     meshTransform->worldMat  = meshTransform->worldMat * viewMat * projMat;
     meshTransform.ConvertToBuffer();
     meshTransform.SetForRootParameter(commandList, 0);

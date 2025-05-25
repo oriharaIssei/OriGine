@@ -43,6 +43,30 @@ void TexturedMeshRenderSystem::CreatePso() {
     ShaderManager* shaderManager = ShaderManager::getInstance();
     DxDevice* dxDevice           = Engine::getInstance()->getDxDevice();
 
+    // 登録されているかどうかをチェック
+    if (shaderManager->IsRegistertedPipelineStateObj("TextureMesh_" + blendModeStr[0])) {
+        for (size_t i = 0; i < kBlendNum; ++i) {
+            BlendMode blend = static_cast<BlendMode>(i);
+            if (pso_[blend]) {
+                continue;
+            }
+            pso_[blend] = shaderManager->getPipelineStateObj("TextureMesh_" + blendModeStr[i]);
+        }
+
+        //! TODO : 自動化
+        transformBufferIndex_          = 0;
+        cameraBufferIndex_             = 1;
+        materialBufferIndex_           = 2;
+        directionalLightBufferIndex_   = 3;
+        pointLightBufferIndex_         = 4;
+        spotLightBufferIndex_          = 5;
+        lightCountBufferIndex_         = 6;
+        textureBufferIndex_            = 7;
+        environmentTextureBufferIndex_ = 8;
+
+        return;
+    }
+
     ///=================================================
     /// shader読み込み
     ///=================================================
@@ -324,7 +348,7 @@ void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
         /// Transformの更新
         ///==============================
         {
-            auto& transform             = renderer->getTransformBuff();
+            auto& transform = renderer->getTransformBuff();
 
             if (transform->parent == nullptr) {
                 transform->parent = entityTransfrom_;
