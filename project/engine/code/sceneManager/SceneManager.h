@@ -24,6 +24,7 @@ class DxRtvArray;
 class DxSrvArray;
 
 class EntityComponentSystemManager;
+class GameEntity;
 
 #ifdef _DEBUG
 class EditorGroup;
@@ -159,6 +160,9 @@ public:
     /// シーンを読み込む
     /// </summary>
     void DeserializeFromJson(const std::string& _sceneName);
+
+    void SaveEntity(GameEntity* _entity, const std::string& _directory);
+    GameEntity* LoadEntity(const std::string& _directory, const std::string& _dataType);
 
 private:
     static const std::string directory_;

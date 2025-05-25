@@ -599,3 +599,91 @@ void SceneSerializer::DeserializeFromJson(const std::string& _sceneName) {
         systemTypeIndex++;
     }
 }
+
+void SceneSerializer::SaveEntity(GameEntity* _entity, const std::string& _directory) {
+    if (!_entity || !_entity->isAlive()) {
+        return;
+    }
+
+    ECSManager* ecsManager = ECSManager::getInstance();
+    nlohmann::json entityData;
+
+    entityData["Name"]     = _entity->getDataType();
+    entityData["isUnique"] = _entity->isUnique();
+
+    // 所属するシステムを保存
+    const auto& systems = ecsManager->getSystems();
+    for (const auto& systemsByType : systems) {
+        for (const auto& [systemName, system] : systemsByType) {
+            if (system->hasEntity(_entity)) {
+                entityData["Systems"].push_back({{"SystemType", system->getSystemType()}, {"SystemName", systemName}});
+            }
+        }
+    }
+
+    // コンポーネントを保存
+    const auto& componentArrayMap = ecsManager->getComponentArrayMap();
+    nlohmann::json componentsData;
+    for (const auto& [componentTypeName, componentArray] : componentArrayMap) {
+        if (componentArray->hasEntity(_entity)) {
+            componentArray->SaveComponent(_entity, componentsData);
+        }
+    }
+    entityData["Components"] = componentsData;
+
+    // ディレクトリを作成
+    myFs::createFolder(_directory);
+    std::string filePath = _directory + "/" + _entity->getDataType() + ".ent";
+    // JSONファイルに書き込み
+    std::ofstream ofs(filePath);
+    if (!ofs) {
+        LOG_ERROR("Failed to open JSON file for writing: " + filePath);
+        return;
+    }
+    ofs << std::setw(4) << entityData << std::endl;
+    ofs.close();
+}
+
+GameEntity* SceneSerializer::LoadEntity(const std::string& _directory, const std::string& _dataType) {
+    std::string filePath = _directory + "/" + _dataType + ".ent";
+    std::ifstream ifs(filePath);
+    if (!ifs) {
+        LOG_ERROR("Failed to open JSON file for reading: " + filePath);
+        return nullptr;
+    }
+
+    nlohmann::json entityData;
+    ifs >> entityData;
+    ifs.close();
+
+    ECSManager* ecsManager = ECSManager::getInstance();
+    std::string entityName = entityData["Name"];
+    int32_t entityID       = ecsManager->registerEntity(entityName);
+    GameEntity* entity     = ecsManager->getEntity(entityID);
+
+    bool isUnique = entityData["isUnique"];
+    if (isUnique) {
+        ecsManager->registerUniqueEntity(entity);
+    }
+
+    // 所属するシステムを読み込み
+    for (auto& systemData : entityData["Systems"]) {
+        int32_t systemType     = systemData["SystemType"];
+        std::string systemName = systemData["SystemName"];
+        ISystem* system        = ecsManager->getSystem(SystemType(systemType), systemName);
+        if (system) {
+            system->addEntity(entity);
+        }
+    }
+
+    // コンポーネントを読み込み
+    auto& componentArrayMap = ecsManager->getComponentArrayMap();
+    for (auto& [componentTypename, componentData] : entityData["Components"].items()) {
+        auto itr = componentArrayMap.find(componentTypename);
+        if (itr != componentArrayMap.end()) {
+            itr->second->LoadComponent(entity, componentData);
+        }
+    }
+
+    return entity;
+}
