@@ -81,10 +81,10 @@ struct ColorVertexData {
 template <typename VertexDataType>
 class Mesh {
 public:
+    using VertexType = VertexDataType;
+
     Mesh() {};
     virtual ~Mesh() {};
-
-    using VertexType = VertexDataType;
 
     /// <summary>
     /// VertexDataを設定後に実行
@@ -200,6 +200,13 @@ public:
             indexSize_ = _size;
         }
         memcpy(indexes_.data(), _data, sizeof(uint32_t) * _size);
+    }
+
+    DxResource& getVertexBuffer() {
+        return vertBuff_;
+    }
+    DxResource& getIndexBuffer() {
+        return indexBuff_;
     }
 
     uint32_t getVertexCapacity() const {
