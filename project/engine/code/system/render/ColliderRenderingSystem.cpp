@@ -195,10 +195,17 @@ void ColliderRenderingSystem::UpdateEntity(GameEntity* /*_entity*/) {}
 
 void ColliderRenderingSystem::CreateRenderMesh() {
     { // AABB
-        auto& meshGroup               = aabbRenderer_.getMeshGroup();
-        aabbMeshItr_                  = meshGroup->begin();
+        auto& meshGroup = aabbRenderer_.getMeshGroup();
+
         uint32_t currentVertexesIndex = 0;
         uint32_t currentIndexesIndex  = 0;
+
+        for (auto meshItr = meshGroup->begin(); meshItr != meshGroup->end(); ++meshItr) {
+            meshItr->vertexes_.clear();
+            meshItr->indexes_.clear();
+        }
+
+        aabbMeshItr_ = meshGroup->begin();
 
         for (auto& aabbVec : *aabbColliders_->getAllComponents()) {
             for (auto& aabb : aabbVec) {
@@ -224,7 +231,7 @@ void ColliderRenderingSystem::CreateRenderMesh() {
                 }
 
                 // 色の設定
-                Vec4f color = {1, 1, 1, 1};
+                Vec4f color    = {1, 1, 1, 1};
                 auto& stateMap = aabb.getCollisionStateMap();
                 if (!stateMap.empty()) {
                     for (auto& [entity, state] : stateMap) {
@@ -244,9 +251,15 @@ void ColliderRenderingSystem::CreateRenderMesh() {
 
     { // Sphere
         auto& meshGroup               = sphereRenderer_.getMeshGroup();
-        sphereMeshItr_                = meshGroup->begin();
         uint32_t currentVertexesIndex = 0;
         uint32_t currentIndexesIndex  = 0;
+
+        for (auto meshItr = meshGroup->begin(); meshItr != meshGroup->end(); ++meshItr) {
+            meshItr->vertexes_.clear();
+            meshItr->indexes_.clear();
+        }
+
+        sphereMeshItr_                = meshGroup->begin();
 
         for (auto& sphereVec : *sphereColliders_->getAllComponents()) {
             for (auto& sphere : sphereVec) {
