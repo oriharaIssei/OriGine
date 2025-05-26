@@ -56,21 +56,15 @@ template <IsShape ShapeType>
 void CreateLineMeshByShape(
     Mesh<ColorVertexData>* _mesh,
     const ShapeType& _shape,
-    uint32_t& _currentVertexesIndex,
-    uint32_t& _currentIndexesIndex,
     const Vec4f& _color = {1.f, 1.f, 1.f, 1.f}) {
     _mesh;
     _shape;
-    _currentVertexesIndex;
-    _currentIndexesIndex;
 }
 
 template <>
 void CreateLineMeshByShape(
     Mesh<ColorVertexData>* _mesh,
     const AABB& _shape,
-    uint32_t& _currentVertexesIndex,
-    uint32_t& _currentIndexesIndex,
     const Vec4f& _color) {
 
     // AABBVertex
@@ -101,13 +95,11 @@ void CreateLineMeshByShape(
 
     // 頂点バッファにデータを格納
     for (uint32_t vi = 0; vi < aabbVertexSize; ++vi) {
-        _mesh->vertexes_[_currentVertexesIndex] = ColorVertexData{Vec4f(vertexes[vi], 1.f), _color};
-        ++_currentVertexesIndex;
+        _mesh->vertexes_.emplace_back(ColorVertexData{Vec4f(vertexes[vi], 1.f), _color});
     }
-    uint32_t startIndexesIndex = _currentIndexesIndex;
+    uint32_t startIndexesIndex = uint32_t(_mesh->indexes_.size());
     for (uint32_t ii = 0; ii < aabbIndexSize; ++ii) {
-        _mesh->indexes_[_currentIndexesIndex] = startIndexesIndex + indices[ii];
-        ++_currentIndexesIndex;
+        _mesh->indexes_.emplace_back(startIndexesIndex + indices[ii]);
     }
 }
 
@@ -115,8 +107,6 @@ template <>
 void CreateLineMeshByShape(
     Mesh<ColorVertexData>* _mesh,
     const Sphere& _shape,
-    uint32_t& _currentVertexesIndex,
-    uint32_t& _currentIndexesIndex,
     const Vec4f& _color) {
 
     const float kLatEvery = std::numbers::pi_v<float> / sphereDivisionReal; //* 緯度
@@ -140,16 +130,12 @@ void CreateLineMeshByShape(
             Vector3f pointB = calculatePoint(lat, lonB);
 
             // 頂点バッファにデータを格納
-            _mesh->vertexes_[_currentVertexesIndex] = ColorVertexData{Vec4f(pointA, 1.f), _color};
-            ++_currentVertexesIndex;
-            _mesh->vertexes_[_currentVertexesIndex] = ColorVertexData{Vec4f(pointB, 1.f), _color};
-            ++_currentVertexesIndex;
+            _mesh->vertexes_.emplace_back(ColorVertexData{Vec4f(pointA, 1.f), _color});
+            _mesh->vertexes_.emplace_back(ColorVertexData{Vec4f(pointB, 1.f), _color});
 
             // インデックスバッファにデータを格納
-            _mesh->indexes_[_currentIndexesIndex] = _currentIndexesIndex;
-            ++_currentIndexesIndex;
-            _mesh->indexes_[_currentIndexesIndex] = _currentIndexesIndex;
-            ++_currentIndexesIndex;
+            _mesh->indexes_.emplace_back((uint32_t)_mesh->indexes_.size());
+            _mesh->indexes_.emplace_back((uint32_t)_mesh->indexes_.size());
         }
     }
 
@@ -164,16 +150,12 @@ void CreateLineMeshByShape(
             Vector3f pointB = calculatePoint(latB, lon);
 
             // 頂点バッファにデータを格納
-            _mesh->vertexes_[_currentVertexesIndex] = ColorVertexData{Vec4f(pointA, 1.f), _color};
-            ++_currentVertexesIndex;
-            _mesh->vertexes_[_currentVertexesIndex] = ColorVertexData{Vec4f(pointB, 1.f), _color};
-            ++_currentVertexesIndex;
+            _mesh->vertexes_.emplace_back(ColorVertexData{Vec4f(pointA, 1.f), _color});
+            _mesh->vertexes_.emplace_back(ColorVertexData{Vec4f(pointB, 1.f), _color});
 
             // インデックスバッファにデータを格納
-            _mesh->indexes_[_currentIndexesIndex] = _currentIndexesIndex;
-            ++_currentIndexesIndex;
-            _mesh->indexes_[_currentIndexesIndex] = _currentIndexesIndex;
-            ++_currentIndexesIndex;
+            _mesh->indexes_.emplace_back((uint32_t)_mesh->indexes_.size());
+            _mesh->indexes_.emplace_back((uint32_t)_mesh->indexes_.size());
         }
     }
 }
@@ -197,12 +179,10 @@ void ColliderRenderingSystem::CreateRenderMesh() {
     { // AABB
         auto& meshGroup = aabbRenderer_.getMeshGroup();
 
-        uint32_t currentVertexesIndex = 0;
-        uint32_t currentIndexesIndex  = 0;
-
         for (auto meshItr = meshGroup->begin(); meshItr != meshGroup->end(); ++meshItr) {
             meshItr->vertexes_.clear();
             meshItr->indexes_.clear();
+            meshItr->TransferData();
         }
 
         aabbMeshItr_ = meshGroup->begin();
@@ -213,22 +193,19 @@ void ColliderRenderingSystem::CreateRenderMesh() {
                     continue;
                 }
 
-                // 形状更新
-                aabb.CalculateWorldShape();
-
                 // Capacityが足りなかったら 新しいMeshを作成する
-                if (aabbMeshItr_->getIndexCapacity() <= currentIndexesIndex
-                    || aabbMeshItr_->getVertexCapacity() <= currentVertexesIndex) {
+                if (aabbMeshItr_->getIndexCapacity() <= 0) {
                     aabbMeshItr_->TransferData();
                     ++aabbMeshItr_;
-                    currentIndexesIndex  = 0;
-                    currentVertexesIndex = 0;
                     if (aabbMeshItr_ == meshGroup->end()) {
                         aabbMeshItr_ = meshGroup->end();
                         meshGroup->push_back(Mesh<ColorVertexData>());
                         meshGroup->back().Initialize(ColliderRenderingSystem::defaultMeshCount_ * aabbVertexSize, ColliderRenderingSystem::defaultMeshCount_ * aabbIndexSize);
                     }
                 }
+
+                // 形状更新
+                aabb.CalculateWorldShape();
 
                 // 色の設定
                 Vec4f color    = {1, 1, 1, 1};
@@ -243,23 +220,21 @@ void ColliderRenderingSystem::CreateRenderMesh() {
                 }
 
                 // メッシュ作成
-                CreateLineMeshByShape<>(aabbMeshItr_._Ptr, aabb.getWorldShape(), currentVertexesIndex, currentIndexesIndex, {1, 1, 1, 1});
+                CreateLineMeshByShape<>(aabbMeshItr_._Ptr, aabb.getWorldShape(), {1, 1, 1, 1});
             }
         }
     }
     aabbMeshItr_->TransferData();
 
     { // Sphere
-        auto& meshGroup               = sphereRenderer_.getMeshGroup();
-        uint32_t currentVertexesIndex = 0;
-        uint32_t currentIndexesIndex  = 0;
+        auto& meshGroup = sphereRenderer_.getMeshGroup();
 
         for (auto meshItr = meshGroup->begin(); meshItr != meshGroup->end(); ++meshItr) {
             meshItr->vertexes_.clear();
             meshItr->indexes_.clear();
         }
 
-        sphereMeshItr_                = meshGroup->begin();
+        sphereMeshItr_ = meshGroup->begin();
 
         for (auto& sphereVec : *sphereColliders_->getAllComponents()) {
             for (auto& sphere : sphereVec) {
@@ -271,12 +246,9 @@ void ColliderRenderingSystem::CreateRenderMesh() {
                 sphere.CalculateWorldShape();
 
                 // Capacityが足りなかったら 新しいMeshを作成する
-                if (sphereMeshItr_->getIndexCapacity() <= currentIndexesIndex
-                    || sphereMeshItr_->getVertexCapacity() <= currentVertexesIndex) {
+                if (sphereMeshItr_->getIndexCapacity() <= 0) {
                     sphereMeshItr_->TransferData();
                     ++sphereMeshItr_;
-                    currentIndexesIndex  = 0;
-                    currentVertexesIndex = 0;
                     if (sphereMeshItr_ == meshGroup->end()) {
                         sphereMeshItr_ = meshGroup->end();
                         meshGroup->push_back(Mesh<ColorVertexData>());
@@ -296,7 +268,7 @@ void ColliderRenderingSystem::CreateRenderMesh() {
                     }
                 }
                 // メッシュ作成
-                CreateLineMeshByShape<>(sphereMeshItr_._Ptr, sphere.getWorldShape(), currentVertexesIndex, currentIndexesIndex, {1, 1, 1, 1});
+                CreateLineMeshByShape<>(sphereMeshItr_._Ptr, sphere.getWorldShape(), {1, 1, 1, 1});
             }
         }
     }
@@ -328,7 +300,7 @@ void ColliderRenderingSystem::RenderCall() {
         // 描画
         commandList->IASetVertexBuffers(0, 1, &mesh.getVertexBufferView());
         commandList->IASetIndexBuffer(&mesh.getIndexBufferView());
-        commandList->DrawIndexedInstanced(mesh.getIndexSize(), 1, 0, 0, 0);
+        commandList->DrawIndexedInstanced((UINT)mesh.indexes_.size(), 1, 0, 0, 0);
     }
 }
 

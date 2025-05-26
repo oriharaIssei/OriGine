@@ -82,6 +82,7 @@ template <typename VertexDataType>
 class Mesh {
 public:
     using VertexType = VertexDataType;
+    using IndexType  = uint32_t;
 
     Mesh() {};
     virtual ~Mesh() {};
@@ -94,11 +95,8 @@ public:
         UINT _vertexCapacity,
         UINT _indexCapacity) {
 
-        this->vertexCapacity_ = static_cast<uint32_t>(_vertexCapacity);
-        this->indexCapacity_  = static_cast<uint32_t>(_indexCapacity);
-
-        this->vertexSize_ = this->vertexCapacity_;
-        this->indexSize_  = this->indexCapacity_;
+        this->vertexSize_ = _vertexCapacity;
+        this->indexSize_  = _indexCapacity;
 
         if (this->vertexSize_ != 0) {
             vertexes_.resize(this->vertexSize_);
@@ -107,7 +105,7 @@ public:
 
             vertBuff_.CreateBufferResource(Engine::getInstance()->getDxDevice()->getDevice(), vertDataSize * this->vertexSize_);
             vbView_.BufferLocation = vertBuff_.getResource()->GetGPUVirtualAddress();
-            vbView_.SizeInBytes    = vertDataSize * this->vertexCapacity_;
+            vbView_.SizeInBytes    = vertDataSize * this->vertexSize_;
             vbView_.StrideInBytes  = vertDataSize;
             vertBuff_.getResource()->Map(0, nullptr, reinterpret_cast<void**>(&vertData_));
         }
@@ -118,7 +116,7 @@ public:
             UINT indexDataSize = sizeof(uint32_t);
             indexBuff_.CreateBufferResource(Engine::getInstance()->getDxDevice()->getDevice(), indexDataSize * this->indexSize_);
             ibView_.BufferLocation = indexBuff_.getResource()->GetGPUVirtualAddress();
-            ibView_.SizeInBytes    = indexDataSize * this->indexCapacity_;
+            ibView_.SizeInBytes    = indexDataSize * this->indexSize_;
             ibView_.Format         = DXGI_FORMAT_R32_UINT;
             indexBuff_.getResource()->Map(0, nullptr, reinterpret_cast<void**>(&indexData_));
         }
@@ -132,7 +130,36 @@ public:
 public:
     void TransferData() {
         if (this->vertexSize_ != 0) {
-            memcpy(vertData_, vertexes_.data(), sizeof(VertexDataType) * this->vertexSize_);
+            size_t validSize = vertexes_.size();
+            size_t totalSize = this->vertexSize_;
+
+            // 有効データをコピー
+            if (validSize > 0) {
+                memcpy(vertData_, vertexes_.data(), sizeof(VertexDataType) * validSize);
+            }
+            // 未使用領域をゼロクリア
+            if (validSize < totalSize) {
+                memset(
+                    reinterpret_cast<char*>(vertData_) + sizeof(VertexDataType) * validSize,
+                    0,
+                    sizeof(VertexDataType) * (totalSize - validSize));
+            }
+        }
+        if (this->indexSize_ != 0) {
+            size_t validSize = indexes_.size();
+            size_t totalSize = this->indexSize_;
+
+            // 有効データをコピー
+            if (validSize > 0) {
+                memcpy(indexData_, indexes_.data(), sizeof(uint32_t) * validSize);
+            }
+            // 未使用領域をゼロクリア
+            if (validSize < totalSize) {
+                memset(
+                    reinterpret_cast<char*>(indexData_) + sizeof(uint32_t) * validSize,
+                    0,
+                    sizeof(uint32_t) * (totalSize - validSize));
+            }
         }
         if (this->indexSize_ != 0) {
             memcpy(indexData_, indexes_.data(), sizeof(uint32_t) * this->indexSize_);
@@ -147,9 +174,6 @@ public:
 protected:
     VertexDataType* vertData_ = nullptr;
     uint32_t* indexData_      = nullptr;
-
-    uint32_t vertexCapacity_ = 0;
-    uint32_t indexCapacity_  = 0;
 
     uint32_t vertexSize_ = 0;
     uint32_t indexSize_  = 0;
@@ -181,23 +205,21 @@ public:
     }
 
     void copyVertexData(const VertexDataType* _data, uint32_t _size) {
-        if (vertexCapacity_ < _size) {
-            assert("vertexCapacity_ < _size");
+        if (vertexSize_ < _size) {
+            assert("vertexSize < _size");
         }
 
         if (_size > vertexes_.size()) {
             vertexes_.resize(_size);
-            vertexSize_ = _size;
         }
         memcpy(vertexes_.data(), _data, sizeof(VertexDataType) * _size);
     }
     void copyIndexData(const uint32_t* _data, uint32_t _size) {
-        if (indexCapacity_ < _size) {
+        if (indexSize_ < _size) {
             assert("indexCapacity_ < _size");
         }
         if (_size > indexes_.size()) {
             indexes_.resize(_size);
-            indexSize_ = _size;
         }
         memcpy(indexes_.data(), _data, sizeof(uint32_t) * _size);
     }
@@ -210,10 +232,10 @@ public:
     }
 
     uint32_t getVertexCapacity() const {
-        return vertexCapacity_;
+        return vertexSize_ - uint32_t(vertexes_.size());
     }
     uint32_t getIndexCapacity() const {
-        return indexCapacity_;
+        return indexSize_ - uint32_t(indexes_.size());
     }
 
     uint32_t getVertexSize() const {
