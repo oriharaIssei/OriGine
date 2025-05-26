@@ -1000,7 +1000,9 @@ void from_json(const nlohmann::json& j, Emitter& e) {
     j.at("isActive").get_to(e.isActive_);
     j.at("isLoop").get_to(e.isLoop_);
 
-    j.at("originPos").get_to(e.originPos_);
+    if (j.find("originPos") != j.end()) {
+        j.at("originPos").get_to(e.originPos_);
+    }
 
     j.at("textureFileName").get_to(e.textureFileName_);
 
