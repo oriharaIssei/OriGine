@@ -8,11 +8,14 @@
 // directX12
 #include "directX12/IConstantBuffer.h"
 // component
+#include "component/material/Material.h"
 #include "component/animation/AnimationData.h"
 
 /// math
 #include <Matrix4x4.h>
 #include <Vector2.h>
+
+
 
 struct TextureEffectParamData {
     enum class EffectFlag : int32_t {
@@ -23,11 +26,6 @@ struct TextureEffectParamData {
     };
     int32_t effectFlag = 0;
 
-    struct UVTransform {
-        Vec2f scale_     = {1.f, 1.f};
-        float rotate_    = 0.f;
-        Vec2f translate_ = {0.f, 0.f};
-    };
     UVTransform dissolveUV;
     Matrix4x4 dissolveUVMat;
     UVTransform distortionUV;
@@ -36,7 +34,7 @@ struct TextureEffectParamData {
     Matrix4x4 maskUVMat;
 
     float distortionStrength = 0.f;
-    float distortionBias       = 0.f;
+    float distortionBias     = 0.f;
     float dissolveThreshold  = 0.f;
 
     void UpdateTransform();

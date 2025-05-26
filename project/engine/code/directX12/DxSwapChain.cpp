@@ -88,7 +88,7 @@ void DxSwapChain::Present() {
 }
 
 void DxSwapChain::CurrentBackBufferClear(ID3D12GraphicsCommandList* commandList) const {
-    backBuffers_->ClearTarget(swapChain_->GetCurrentBackBufferIndex(), commandList, clearColor_);
+    backBuffers_->ClearTarget(swapChain_->GetCurrentBackBufferIndex(), commandList, clearColor_.v);
 }
 
 void DxSwapChain::ResizeBuffer(const DxDevice* device, UINT width, UINT height) {

@@ -43,6 +43,30 @@ void TexturedMeshRenderSystem::CreatePso() {
     ShaderManager* shaderManager = ShaderManager::getInstance();
     DxDevice* dxDevice           = Engine::getInstance()->getDxDevice();
 
+    // 登録されているかどうかをチェック
+    if (shaderManager->IsRegistertedPipelineStateObj("TextureMesh_" + blendModeStr[0])) {
+        for (size_t i = 0; i < kBlendNum; ++i) {
+            BlendMode blend = static_cast<BlendMode>(i);
+            if (pso_[blend]) {
+                continue;
+            }
+            pso_[blend] = shaderManager->getPipelineStateObj("TextureMesh_" + blendModeStr[i]);
+        }
+
+        //! TODO : 自動化
+        transformBufferIndex_          = 0;
+        cameraBufferIndex_             = 1;
+        materialBufferIndex_           = 2;
+        directionalLightBufferIndex_   = 3;
+        pointLightBufferIndex_         = 4;
+        spotLightBufferIndex_          = 5;
+        lightCountBufferIndex_         = 6;
+        textureBufferIndex_            = 7;
+        environmentTextureBufferIndex_ = 8;
+
+        return;
+    }
+
     ///=================================================
     /// shader読み込み
     ///=================================================
@@ -274,6 +298,9 @@ void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
     auto* commandList      = dxCommand_->getCommandList();
     int32_t componentIndex = 0;
 
+    //! TODO Rendering の 統一
+
+    Transform* entityTransfrom_ = getComponent<Transform>(_entity);
     // model
     while (true) {
         ModelMeshRenderer* renderer = getComponent<ModelMeshRenderer>(_entity, componentIndex);
@@ -286,62 +313,21 @@ void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
         if (!renderer->isRender()) {
             continue;
         }
-
         ///==============================
         /// Transformの更新
         ///==============================
         {
-            Transform* entityTransfrom_ = getComponent<Transform>(_entity);
-            for (int32_t i = 0; i < renderer->getMeshGroupSize(); ++i) {
-                auto& transform = renderer->getTransformBuff(i);
+            auto& transform = renderer->getTransformBuff();
 
-                if (transform->parent == nullptr) {
-                    transform->parent = entityTransfrom_;
-                }
-
-                transform.openData_.Update();
-                transform.ConvertToBuffer();
+            if (transform->parent == nullptr) {
+                transform->parent = entityTransfrom_;
             }
+
+            transform.openData_.Update();
+            transform.ConvertToBuffer();
         }
+        RenderModelMesh(commandList, renderer);
 
-        // BlendMode を 適応
-        BlendMode rendererBlend = renderer->getCurrentBlend();
-        if (rendererBlend != currentBlend_) {
-            currentBlend_ = rendererBlend;
-            commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
-            commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
-        }
-
-        uint32_t index = 0;
-
-        auto& meshGroup = renderer->getMeshGroup();
-        for (auto& mesh : *meshGroup) {
-            // ============================= テクスチャの設定 ============================= //
-
-            commandList->SetGraphicsRootDescriptorTable(
-                textureBufferIndex_,
-                TextureManager::getDescriptorGpuHandle(renderer->getTextureNumber(index)));
-
-            // ============================= Viewのセット ============================= //
-            commandList->IASetVertexBuffers(0, 1, &mesh.getVBView());
-            commandList->IASetIndexBuffer(&mesh.getIBView());
-
-            // ============================= Transformのセット ============================= //
-            const IConstantBuffer<Transform>& meshTransform = renderer->getTransformBuff(index);
-            meshTransform.ConvertToBuffer();
-            meshTransform.SetForRootParameter(commandList, transformBufferIndex_);
-
-            // ============================= Materialのセット ============================= //
-            auto& material = renderer->getMaterialBuff(index);
-            material.openData_.UpdateUvMatrix();
-            material.ConvertToBuffer();
-            material.SetForRootParameter(commandList, materialBufferIndex_);
-
-            // ============================= 描画 ============================= //
-            commandList->DrawIndexedInstanced(UINT(mesh.getIndexSize()), 1, 0, 0, 0);
-
-            ++index;
-        }
         componentIndex++;
     }
 
@@ -362,8 +348,7 @@ void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
         /// Transformの更新
         ///==============================
         {
-            Transform* entityTransfrom_ = getComponent<Transform>(_entity);
-            auto& transform             = renderer->getTransformBuff();
+            auto& transform = renderer->getTransformBuff();
 
             if (transform->parent == nullptr) {
                 transform->parent = entityTransfrom_;
@@ -373,45 +358,90 @@ void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
             transform.ConvertToBuffer();
         }
 
-        // BlendMode を 適応
-        BlendMode rendererBlend = renderer->getCurrentBlend();
-        if (rendererBlend != currentBlend_) {
-            currentBlend_ = rendererBlend;
-            commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
-            commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
-        }
-
-        uint32_t index = 0;
-
-        auto& meshGroup = renderer->getMeshGroup();
-        for (auto& mesh : *meshGroup) {
-            // ============================= テクスチャの設定 ============================= //
-
-            commandList->SetGraphicsRootDescriptorTable(
-                textureBufferIndex_,
-                TextureManager::getDescriptorGpuHandle(renderer->getTextureIndex()));
-
-            // ============================= Viewのセット ============================= //
-            commandList->IASetVertexBuffers(0, 1, &mesh.getVBView());
-            commandList->IASetIndexBuffer(&mesh.getIBView());
-
-            // ============================= Transformのセット ============================= //
-            const IConstantBuffer<Transform>& meshTransform = renderer->getTransformBuff();
-            meshTransform.ConvertToBuffer();
-            meshTransform.SetForRootParameter(commandList, transformBufferIndex_);
-
-            // ============================= Materialのセット ============================= //
-            auto& material = renderer->getMaterialBuff();
-            material.openData_.UpdateUvMatrix();
-            material.ConvertToBuffer();
-            material.SetForRootParameter(commandList, materialBufferIndex_);
-
-            // ============================= 描画 ============================= //
-            commandList->DrawIndexedInstanced(UINT(mesh.getIndexSize()), 1, 0, 0, 0);
-
-            ++index;
-        }
+        RenderPrimitiveMesh(commandList, renderer);
 
         componentIndex++;
+    }
+}
+
+void TexturedMeshRenderSystem::RenderModelMesh(ID3D12GraphicsCommandList* _commandList, ModelMeshRenderer* _renderer) {
+    // BlendMode を 適応
+    BlendMode _rendererBlend = _renderer->getCurrentBlend();
+    if (_rendererBlend != currentBlend_) {
+        currentBlend_ = _rendererBlend;
+        _commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
+        _commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
+    }
+
+    uint32_t index = 0;
+
+    auto& meshGroup = _renderer->getMeshGroup();
+    for (auto& mesh : *meshGroup) {
+        // ============================= テクスチャの設定 ============================= //
+
+        _commandList->SetGraphicsRootDescriptorTable(
+            textureBufferIndex_,
+            TextureManager::getDescriptorGpuHandle(_renderer->getTextureNumber(index)));
+
+        // ============================= Viewのセット ============================= //
+        _commandList->IASetVertexBuffers(0, 1, &mesh.getVBView());
+        _commandList->IASetIndexBuffer(&mesh.getIBView());
+
+        // ============================= Transformのセット ============================= //
+        const IConstantBuffer<Transform>& meshTransform = _renderer->getTransformBuff(index);
+        meshTransform.ConvertToBuffer();
+        meshTransform.SetForRootParameter(_commandList, transformBufferIndex_);
+
+        // ============================= Materialのセット ============================= //
+        auto& material = _renderer->getMaterialBuff(index);
+        material.openData_.UpdateUvMatrix();
+        material.ConvertToBuffer();
+        material.SetForRootParameter(_commandList, materialBufferIndex_);
+
+        // ============================= 描画 ============================= //
+        _commandList->DrawIndexedInstanced(UINT(mesh.getIndexSize()), 1, 0, 0, 0);
+
+        ++index;
+    }
+}
+
+void TexturedMeshRenderSystem::RenderPrimitiveMesh(ID3D12GraphicsCommandList* _commandList, PlaneRenderer* _renderer) {
+    // BlendMode を 適応
+    BlendMode rendererBlend = _renderer->getCurrentBlend();
+    if (rendererBlend != currentBlend_) {
+        currentBlend_ = rendererBlend;
+        _commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
+        _commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
+    }
+
+    uint32_t index = 0;
+
+    auto& meshGroup = _renderer->getMeshGroup();
+    for (auto& mesh : *meshGroup) {
+        // ============================= テクスチャの設定 ============================= //
+
+        _commandList->SetGraphicsRootDescriptorTable(
+            textureBufferIndex_,
+            TextureManager::getDescriptorGpuHandle(_renderer->getTextureIndex()));
+
+        // ============================= Viewのセット ============================= //
+        _commandList->IASetVertexBuffers(0, 1, &mesh.getVBView());
+        _commandList->IASetIndexBuffer(&mesh.getIBView());
+
+        // ============================= Transformのセット ============================= //
+        const IConstantBuffer<Transform>& meshTransform = _renderer->getTransformBuff();
+        meshTransform.ConvertToBuffer();
+        meshTransform.SetForRootParameter(_commandList, transformBufferIndex_);
+
+        // ============================= Materialのセット ============================= //
+        auto& material = _renderer->getMaterialBuff();
+        material.openData_.UpdateUvMatrix();
+        material.ConvertToBuffer();
+        material.SetForRootParameter(_commandList, materialBufferIndex_);
+
+        // ============================= 描画 ============================= //
+        _commandList->DrawIndexedInstanced(UINT(mesh.getIndexSize()), 1, 0, 0, 0);
+
+        ++index;
     }
 }

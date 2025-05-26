@@ -39,6 +39,7 @@ static const std::string kEngineResourceDirectory      = "engine/resource";
 #include "system/effect/PrimitiveNodeAnimationWorkSystem.h"
 #include "system/effect/TextureEffectAnimation.h"
 
+#include "system/postRender/DistortionEffect.h"
 #include "system/postRender/GrayscaleEffect.h"
 #include "system/postRender/SmoothingEffect.h"
 #include "system/postRender/VignetteEffect.h"
@@ -64,9 +65,10 @@ static const std::string kEngineResourceDirectory      = "engine/resource";
 
 #include "component/collider/Collider.h"
 
-#include "component/effect/TextureEffectParam.h"
 #include "component/effect/particle/emitter/Emitter.h"
+#include "component/effect/post/DistortionEffectParam.h"
 #include "component/effect/post/VignetteParam.h"
+#include "component/effect/TextureEffectParam.h"
 
 #include "component/physics/Rigidbody.h"
 

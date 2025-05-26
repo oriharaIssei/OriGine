@@ -20,7 +20,7 @@ void TextureEffectAnimation::UpdateEntity(GameEntity* _entity) {
         return;
     }
 
-    auto updateAnimation = [](TextureEffectParamData::UVTransform& _uvTrans,TextureEffectParam::UVAnimation& _uvAnim, AnimationState& _state) {
+    auto updateAnimation = [](UVTransform& _uvTrans,TextureEffectParam::UVAnimation& _uvAnim, AnimationState& _state) {
         if (_state.isPlay_) {
             _uvAnim.currentTime += getMainDeltaTime();
 

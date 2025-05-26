@@ -24,8 +24,8 @@ struct Vector3 final : Vector<3, valueType> {
     // コンストラクタ
     Vector3(valueType xValue, valueType yValue, valueType zValue)
         : Vector<3, valueType>({xValue, yValue, zValue}) {}
-    Vector3(int X, int Y, int Z)
-        : Vector<3, valueType>({(valueType)X, (valueType)Y, (valueType)Z}) {}
+    Vector3(int _x, int _y, int _z)
+        : Vector<3, valueType>({(valueType)_x, (valueType)_y, (valueType)_z}) {}
     Vector3(const Vector2<valueType>& xy, const valueType& z)
         : Vector<3, valueType>({xy[X], xy[Y], z}) {}
     Vector3(const valueType& x, const Vector2<valueType>& yz)

@@ -135,6 +135,7 @@ public:
     void Initialize();
     void Finalize();
     PipelineStateObj* CreatePso(const std::string& key, const ShaderInformation& shaderInfo, ID3D12Device* device);
+    bool LoadShader(const std::string& fileName, const std::string& directory = shaderDirectory, const wchar_t* profile = L"vs_6_0");
 
 private:
     ShaderManager() = default;
@@ -164,12 +165,20 @@ public:
         shaderBlobMap_.emplace(fileName, std::move(shaderBlob));
         return true;
     };
+    bool IsRegisteredShaderBlob(const std::string& fileName) const {
+        auto it = shaderBlobMap_.find(fileName);
+        if (it != shaderBlobMap_.end()) {
+            return true;
+        }
+        return false;
+    }
     void ForciblyRegisterShaderBlob(const std::string& fileName, Microsoft::WRL::ComPtr<IDxcBlob> shaderBlob) {
         shaderBlobMap_[fileName] = std::move(shaderBlob);
     };
 
-    bool LoadShader(const std::string& fileName, const std::string& directory = shaderDirectory, const wchar_t* profile = L"vs_6_0");
-
+    bool IsRegistertedPipelineStateObj(const std::string& key) const {
+        return psoMap_.find(key) != psoMap_.end();
+    }
     PipelineStateObj* getPipelineStateObj(const std::string& key) { return psoMap_[key].get(); }
     const Microsoft::WRL::ComPtr<IDxcBlob>& getShaderBlob(const std::string& key) {
         auto it = shaderBlobMap_.find(key);

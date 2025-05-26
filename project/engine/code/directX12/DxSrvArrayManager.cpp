@@ -49,17 +49,17 @@ uint32_t DxSrvArrayManager::SearchEmptyLocation(uint32_t size, std::shared_ptr<D
     uint32_t currentLocation = 0;
 
     for (uint32_t i = 0; i < heapCondition_.size(); i++) {
-        // 既に使用されているもの (Nullか refが1以下のもの)
-        if (heapCondition_[i].dxSrvArray_ != nullptr && heapCondition_[i].dxSrvArray_.use_count() > 1) {
-            usedArrays_.push_back({dxHeap->getSrvCpuHandle(i), heapCondition_[i].arraySize});
-            currentLocation += heapCondition_[i].arraySize;
-            continue;
-        }
-
         // ref が 1 なら 初期化(このインスタンスが持っている 1だから 実質0)
         if (heapCondition_[i].dxSrvArray_.use_count() == 1) {
             heapCondition_[i].dxSrvArray_.reset();
             heapCondition_[i].dxSrvArray_ = nullptr;
+        }
+
+        // 既に使用されているもの (Nullか refが1以下のもの)
+        if (heapCondition_[i].dxSrvArray_ != nullptr) {
+            usedArrays_.push_back({dxHeap->getSrvCpuHandle(i), heapCondition_[i].arraySize});
+            currentLocation += heapCondition_[i].arraySize;
+            continue;
         }
 
         // 空きが 必要なものより小さければ locationを更新して 次へ
