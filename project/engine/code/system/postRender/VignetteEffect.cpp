@@ -23,6 +23,10 @@ void VignetteEffect::Update() {
 
     eraseDeadEntity();
 
+    if (entities_.empty()) {
+        return;
+    }
+
     RenderState();
 
     sceneView->PreDraw();
