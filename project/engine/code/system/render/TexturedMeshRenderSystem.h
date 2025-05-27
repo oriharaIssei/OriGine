@@ -8,15 +8,21 @@
 /// engine
 // directX12Object
 #include "directX12/DxCommand.h"
+#include "directX12/IConstantBuffer.h"
+#include "directX12/Mesh.h"
 #include "directX12/ShaderManager.h"
+// component
+#include "component/material/Material.h"
+#include "component/transform/Transform.h"
+
 class ModelMeshRenderer;
 class PlaneRenderer;
 
 class TexturedMeshRenderSystem
     : public ISystem {
 public:
-    TexturedMeshRenderSystem() : ISystem(SystemType::Render) {};
-    ~TexturedMeshRenderSystem() = default;
+    TexturedMeshRenderSystem();
+    ~TexturedMeshRenderSystem();
 
     void Initialize() override;
     void Update() override;
@@ -27,6 +33,13 @@ public:
     void StartRender();
 
     void UpdateEntity(GameEntity* _entity) override;
+
+    void RenderingMesh(
+        ID3D12GraphicsCommandList* _commandList,
+        const TextureMesh& _mesh,
+        IConstantBuffer<Transform>& _transformBuff,
+        IConstantBuffer<Material>& _materialBuff,
+        uint32_t _textureIndex) const;
 
     void RenderModelMesh(ID3D12GraphicsCommandList* _commandList, ModelMeshRenderer* _renderer);
     void RenderPrimitiveMesh(ID3D12GraphicsCommandList* _commandList, PlaneRenderer* _renderer);
