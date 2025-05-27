@@ -33,16 +33,15 @@
 
 const uint32_t TextureManager::maxTextureSize_;
 std::shared_ptr<DxSrvArray> TextureManager::dxSrvArray_;
-std::array<std::unique_ptr<Texture>, TextureManager::maxTextureSize_> TextureManager::textures_;
-
+std::array<std::shared_ptr<Texture>, TextureManager::maxTextureSize_> TextureManager::textures_;
+std::mutex TextureManager::texturesMutex_;
 std::unique_ptr<TaskThread<TextureManager::LoadTask>> TextureManager::loadThread_;
 std::unique_ptr<DxCommand> TextureManager::dxCommand_;
 
 #pragma region Texture
 void Texture::Initialize(const std::string& filePath, std::shared_ptr<DxSrvArray> srvArray) {
-    loadState = LoadState::Loaded;
+    loadState = LoadState::Unloaded;
     path      = filePath;
-    DxResource resource;
     //==================================================
     // Textureを読み込んで転送する
     //==================================================
@@ -75,13 +74,14 @@ void Texture::Initialize(const std::string& filePath, std::shared_ptr<DxSrvArray
     }
 
     /// SRV の作成
-    auto device   = Engine::getInstance()->getDxDevice()->getDevice();
-    resourceIndex = srvArray->CreateView(device, srvDesc, resource.getResource());
-    loadState     = LoadState::Loaded;
+    auto device = Engine::getInstance()->getDxDevice()->getDevice();
+    srvIndex    = srvArray->CreateView(device, srvDesc, resource.getResource());
+    loadState   = LoadState::Loaded;
 }
 
 void Texture::Finalize() {
-    TextureManager::dxSrvArray_->DestroyView(resourceIndex);
+    resource.Finalize();
+    TextureManager::dxSrvArray_->DestroyView(srvIndex);
 }
 
 DirectX::ScratchImage Texture::Load(const std::string& filePath) {
@@ -138,7 +138,7 @@ DirectX::ScratchImage Texture::Load(const std::string& filePath) {
     return mipImages;
 }
 
-void Texture::UploadTextureData(DirectX::ScratchImage& mipImg, ID3D12Resource* resource) {
+void Texture::UploadTextureData(DirectX::ScratchImage& mipImg, ID3D12Resource* _resource) {
     std::vector<D3D12_SUBRESOURCE_DATA> subResources;
     auto dxDevice = Engine::getInstance()->getDxDevice();
 
@@ -150,7 +150,7 @@ void Texture::UploadTextureData(DirectX::ScratchImage& mipImg, ID3D12Resource* r
         subResources);
 
     uint64_t intermediateSize = GetRequiredIntermediateSize(
-        resource,
+        _resource,
         0,
         UINT(subResources.size()));
 
@@ -159,24 +159,25 @@ void Texture::UploadTextureData(DirectX::ScratchImage& mipImg, ID3D12Resource* r
 
     UpdateSubresources(
         TextureManager::dxCommand_->getCommandList(),
-        resource,
+        _resource,
         intermediateResource->getResource(),
         0,
         0,
         UINT(subResources.size()),
         subResources.data());
-    ExecuteCommand(resource);
+
+    ExecuteCommand(_resource);
 }
-void Texture::ExecuteCommand(ID3D12Resource* resource) {
+void Texture::ExecuteCommand(ID3D12Resource* _resource) {
     D3D12_RESOURCE_BARRIER barrier{};
 
     barrier.Type                   = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
     barrier.Flags                  = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-    barrier.Transition.pResource   = resource;
+    barrier.Transition.pResource   = _resource;
     barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
     barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
     barrier.Transition.StateAfter  = D3D12_RESOURCE_STATE_GENERIC_READ;
-    TextureManager::dxCommand_->getResourceStateTracker()->DirectBarrier(TextureManager::dxCommand_->getCommandList(), resource, barrier);
+    TextureManager::dxCommand_->getResourceStateTracker()->DirectBarrier(TextureManager::dxCommand_->getCommandList(), _resource, barrier);
 
     TextureManager::dxCommand_->Close();
 
@@ -232,16 +233,26 @@ uint32_t TextureManager::LoadTexture(const std::string& filePath, std::function<
     LOG_TRACE("Load Texture \n Path : " + filePath);
 
     uint32_t index = 0;
-    for (index = 0; index < textures_.size(); ++index) {
-        if (textures_[index] == nullptr) {
-            textures_[index] = std::make_unique<Texture>();
-            break;
-        } else if (filePath == textures_[index]->path) {
-            LOG_TRACE("Already loaded texture: " + filePath);
-            if (callBack) {
-                callBack(index);
+    {
+        std::lock_guard<std::mutex> lock(texturesMutex_); // 排他制御
+
+        for (index = 0; index < textures_.size(); ++index) {
+            if (textures_[index] == nullptr) {
+                textures_[index] = std::make_unique<Texture>();
+                break;
+            } else if (filePath == textures_[index]->path) {
+                LOG_TRACE("Already loaded texture: " + filePath);
+                if (callBack) {
+                    callBack(index);
+                }
+                return index;
             }
-            return index;
+        }
+
+        // Ensure index is within bounds
+        if (index >= maxTextureSize_) {
+            LOG_CRITICAL("Texture index exceeds maxTextureSize_ limit.");
+            assert(index < maxTextureSize_);
         }
     }
 
@@ -249,12 +260,12 @@ uint32_t TextureManager::LoadTexture(const std::string& filePath, std::function<
     loadThread_->pushTask(
         {.filePath        = filePath,
             .textureIndex = index,
-            .texture      = textures_[index].get(),
+            .texture      = textures_[index],
             .callBack     = callBack});
 #else
     LoadTask task;
     task.filePath     = filePath;
-    task.texture      = textures_[index].get();
+    task.texture      = textures_[index];
     task.textureIndex = index;
     task.callBack     = callBack;
 
@@ -265,7 +276,7 @@ uint32_t TextureManager::LoadTexture(const std::string& filePath, std::function<
 }
 
 void TextureManager::UnloadTexture(uint32_t id) {
-    dxSrvArray_->DestroyView(textures_[id]->resourceIndex);
+    dxSrvArray_->DestroyView(textures_[id]->srvIndex);
     textures_[id]->Finalize();
     textures_[id].reset();
 }

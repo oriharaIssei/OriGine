@@ -78,10 +78,10 @@ private:
 private:
     DxSrvArray* srvArray_ = nullptr;
 
-    Transform* parent_        = nullptr;
+    Transform* parent_       = nullptr;
     Vec3f preWorldOriginPos_ = {0.f, 0.f, 0.f};
     Vec3f worldOriginPos_    = {0.f, 0.f, 0.f};
-    Vec3f originPos_          = {0.f, 0.f, 0.f};
+    Vec3f originPos_         = {0.f, 0.f, 0.f};
 
     uint32_t particleMaxSize_ = 34;
 
@@ -197,7 +197,9 @@ public:
         components_.clear();
         entityIndexBind_.clear();
         components_.reserve(_size);
-        srvArray_ = DxSrvArrayManager::getInstance()->Create(256 + 64);
+        if (!srvArray_) {
+            srvArray_ = DxSrvArrayManager::getInstance()->Create(256 + 64);
+        }
     }
     void Finalize() override {
 
