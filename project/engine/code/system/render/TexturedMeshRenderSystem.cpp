@@ -311,6 +311,7 @@ void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
         }
         // 描画フラグが立っていないならスキップ
         if (!renderer->isRender()) {
+            ++componentIndex;
             continue;
         }
         ///==============================
@@ -341,6 +342,7 @@ void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
         }
         // 描画フラグが立っていないならスキップ
         if (!renderer->isRender()) {
+            ++componentIndex;
             continue;
         }
 
