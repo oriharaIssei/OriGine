@@ -173,7 +173,7 @@ void EntityComponentSystemManager::ExecuteEntitiesDelete() {
         // エンティティを無効化
         entity->id_       = -1;
         entity->dataType_ = "UNKNOWN";
-        entity->setIsAlive(false);
+        entity->isAlive_  = false;
     }
 }
 
