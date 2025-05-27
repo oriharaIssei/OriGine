@@ -332,6 +332,7 @@ void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
         componentIndex++;
     }
 
+    componentIndex = 0;
     // primitive
     while (true) {
         PlaneRenderer* renderer = getComponent<PlaneRenderer>(_entity, componentIndex);
