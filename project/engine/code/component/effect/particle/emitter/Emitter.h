@@ -83,7 +83,7 @@ private:
     Vec3f worldOriginPos_    = {0.f, 0.f, 0.f};
     Vec3f originPos_         = {0.f, 0.f, 0.f};
 
-    uint32_t particleMaxSize_ = 34;
+    uint32_t particleMaxSize_ = 12;
 
     std::vector<std::shared_ptr<Particle>> particles_;
 
@@ -217,7 +217,7 @@ public:
     /// @brief コンポーネントの保存
     void SaveComponent(GameEntity* _entity, nlohmann::json& _json) override {
         static_assert(HasToJson<Emitter>, "Emitter must have a to_json function");
-        auto it = entityIndexBind_.find(_entity);
+        auto it = entityIndexBind_.find(_entity->getID());
         if (it == entityIndexBind_.end()) {
             return;
         }
@@ -232,12 +232,12 @@ public:
     /// @brief コンポーネントの読み込み
     void LoadComponent(GameEntity* _entity, nlohmann::json& _json) override {
         static_assert(HasFromJson<Emitter>, "Emitter must have a from_json function");
-        auto it = entityIndexBind_.find(_entity);
+        auto it = entityIndexBind_.find(_entity->getID());
         if (it == entityIndexBind_.end()) {
             // エンティティが登録されていない場合は新規登録
-            entityIndexBind_[_entity] = static_cast<uint32_t>(components_.size());
+            entityIndexBind_[_entity->getID()] = static_cast<uint32_t>(components_.size());
             components_.emplace_back();
-            it = entityIndexBind_.find(_entity);
+            it = entityIndexBind_.find(_entity->getID());
         }
         uint32_t index = it->second;
         // 現在のコンポーネントをクリア
@@ -259,12 +259,12 @@ public:
                 comp.Initialize(_entity);
             }
         }
-        entityIndexBind_[_entity] = index;
+        entityIndexBind_[_entity->getID()] = index;
     }
 
     /// @brief 値によるコンポーネントの追加
     void add(GameEntity* _hostEntity, const Emitter& _component, bool _doInit = true) {
-        auto it = entityIndexBind_.find(_hostEntity);
+        auto it = entityIndexBind_.find(_hostEntity->getID());
         if (it == entityIndexBind_.end()) {
             registerEntity(_hostEntity);
             return;
@@ -281,7 +281,7 @@ public:
     void addComponent(GameEntity* _hostEntity, IComponent* _component, bool _doInitialize) override {
         const Emitter* comp = dynamic_cast<const Emitter*>(_component);
         assert(comp != nullptr && "Invalid component type passed to addComponent");
-        auto it = entityIndexBind_.find(_hostEntity);
+        auto it = entityIndexBind_.find(_hostEntity->getID());
         if (it == entityIndexBind_.end()) {
             registerEntity(_hostEntity, 1, _doInitialize);
             return;
@@ -295,7 +295,7 @@ public:
 
     /// @brief デフォルト値によるコンポーネントの追加
     void addComponent(GameEntity* _hostEntity, bool _doInitialize) override {
-        auto it = entityIndexBind_.find(_hostEntity);
+        auto it = entityIndexBind_.find(_hostEntity->getID());
         if (it == entityIndexBind_.end()) {
             registerEntity(_hostEntity, 1, _doInitialize);
             return;
@@ -310,7 +310,7 @@ public:
     virtual void insertComponent(GameEntity* _hostEntity, IComponent* _component, int32_t _index) override {
         const Emitter* comp = dynamic_cast<const Emitter*>(_component);
         assert(comp != nullptr && "Invalid component type passed to addComponent");
-        auto it = entityIndexBind_.find(_hostEntity);
+        auto it = entityIndexBind_.find(_hostEntity->getID());
         if (it == entityIndexBind_.end()) {
             registerEntity(_hostEntity);
             return;
@@ -319,10 +319,10 @@ public:
         components_[index].insert(components_[index].begin() + _index, std::move(*comp));
     }
     virtual void insertComponent(GameEntity* _hostEntity, int32_t _index) override {
-        auto it = entityIndexBind_.find(_hostEntity);
+        auto it = entityIndexBind_.find(_hostEntity->getID());
         if (it == entityIndexBind_.end()) {
             registerEntity(_hostEntity);
-            it = entityIndexBind_.find(_hostEntity);
+            it = entityIndexBind_.find(_hostEntity->getID());
             return;
         }
         uint32_t index = it->second;
@@ -330,7 +330,7 @@ public:
     }
 
     void reserveEntity(GameEntity* _hostEntity, int32_t _size) override {
-        auto it = entityIndexBind_.find(_hostEntity);
+        auto it = entityIndexBind_.find(_hostEntity->getID());
         if (it == entityIndexBind_.end()) {
             return;
         }
@@ -339,7 +339,7 @@ public:
     }
 
     void resizeEntity(GameEntity* _hostEntity, int32_t _size) override {
-        auto it = entityIndexBind_.find(_hostEntity);
+        auto it = entityIndexBind_.find(_hostEntity->getID());
         if (it == entityIndexBind_.end()) {
             return;
         }
@@ -349,7 +349,7 @@ public:
 
     /// @brief 指定インデックスのコンポーネント削除
     void removeComponent(GameEntity* _hostEntity, int32_t _componentIndex = 1) override {
-        auto it = entityIndexBind_.find(_hostEntity);
+        auto it = entityIndexBind_.find(_hostEntity->getID());
         if (it == entityIndexBind_.end()) {
             return;
         }
@@ -362,7 +362,7 @@ public:
     }
 
     void removeBackComponent(GameEntity* _hostEntity) override {
-        auto it = entityIndexBind_.find(_hostEntity);
+        auto it = entityIndexBind_.find(_hostEntity->getID());
         if (it == entityIndexBind_.end()) {
             return;
         }
@@ -374,7 +374,7 @@ public:
 
     /// @brief 指定エンティティの全コンポーネント削除
     void clearComponent(GameEntity* _hostEntity) override {
-        auto it = entityIndexBind_.find(_hostEntity);
+        auto it = entityIndexBind_.find(_hostEntity->getID());
         if (it == entityIndexBind_.end()) {
             return;
         }
@@ -398,7 +398,7 @@ public:
 
     /// @brief エンティティ削除（インデックス解放）
     void deleteEntity(GameEntity* _hostEntity) override {
-        auto it = entityIndexBind_.find(_hostEntity);
+        auto it = entityIndexBind_.find(_hostEntity->getID());
         if (it == entityIndexBind_.end()) {
             return;
         }
@@ -420,11 +420,11 @@ public:
     }
 
     bool hasEntity(GameEntity* _hostEntity) override {
-        return entityIndexBind_.find(_hostEntity) != entityIndexBind_.end();
+        return entityIndexBind_.find(_hostEntity->getID()) != entityIndexBind_.end();
     }
 
     int32_t entityCapacity(GameEntity* _hostEntity) const override {
-        auto it = entityIndexBind_.find(_hostEntity);
+        auto it = entityIndexBind_.find(_hostEntity->getID());
         if (it == entityIndexBind_.end()) {
             return 0;
         }
@@ -441,7 +441,7 @@ protected:
     //  メンバ変数
     // ─────────────────────────────
     std::vector<std::vector<Emitter>> components_;
-    std::map<GameEntity*, uint32_t> entityIndexBind_;
+    std::map<int32_t, uint32_t> entityIndexBind_; // ★ GameEntity* → int32_t
 
     std::shared_ptr<DxSrvArray> srvArray_ = nullptr;
 
@@ -454,7 +454,7 @@ public:
 
     /// @brief エンティティのコンポーネント数取得
     int32_t getComponentSize(GameEntity* _entity) override {
-        auto it = entityIndexBind_.find(_entity);
+        auto it = entityIndexBind_.find(_entity->getID());
         if (it == entityIndexBind_.end()) {
             return 0;
         }
@@ -463,7 +463,7 @@ public:
     }
     /// @brief エンティティごとのコンポーネント配列取得
     std::vector<Emitter>* getComponents(GameEntity* _entity) {
-        auto it = entityIndexBind_.find(_entity);
+        auto it = entityIndexBind_.find(_entity->getID());
         if (it == entityIndexBind_.end()) {
             return nullptr;
         }
@@ -477,7 +477,7 @@ public:
     }
     /// @brief エンティティの 末尾のコンポーネント取得
     IComponent* getBackComponent(GameEntity* _entity) override {
-        auto it = entityIndexBind_.find(_entity);
+        auto it = entityIndexBind_.find(_entity->getID());
         if (it == entityIndexBind_.end()) {
             return nullptr;
         }
@@ -487,7 +487,7 @@ public:
 
     /// @brief 動的コンポーネント取得
     Emitter* getDynamicComponent(GameEntity* _entity, uint32_t _index = 0) {
-        auto it = entityIndexBind_.find(_entity);
+        auto it = entityIndexBind_.find(_entity->getID());
         if (it == entityIndexBind_.end()) {
             return nullptr;
         }
@@ -500,7 +500,7 @@ public:
     }
     /// @brief 動的なコンポーネントの末尾を取得
     Emitter* getDynamicBackComponent(GameEntity* _entity) {
-        auto it = entityIndexBind_.find(_entity);
+        auto it = entityIndexBind_.find(_entity->getID());
         if (it == entityIndexBind_.end()) {
             return nullptr;
         }
@@ -510,7 +510,7 @@ public:
 
     /// @brief IComponent 型としてコンポーネント取得
     IComponent* getComponent(GameEntity* _entity, uint32_t _index = 0) override {
-        auto it = entityIndexBind_.find(_entity);
+        auto it = entityIndexBind_.find(_entity->getID());
         if (it == entityIndexBind_.end()) {
             return nullptr;
         }
