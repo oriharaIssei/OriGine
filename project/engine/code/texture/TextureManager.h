@@ -33,7 +33,8 @@ struct Texture
 
     std::string path;
     DirectX::TexMetadata metaData;
-    uint32_t resourceIndex;
+    DxResource resource;
+    uint32_t srvIndex;
 
     LoadState loadState = LoadState::Unloaded;
 
@@ -59,8 +60,8 @@ public:
 
     struct LoadTask {
         std::string filePath;
-        uint32_t textureIndex = 0;
-        Texture* texture      = nullptr;
+        uint32_t textureIndex            = 0;
+        std::shared_ptr<Texture> texture = nullptr;
 
         std::function<void(uint32_t)> callBack;
         void Update();
@@ -68,9 +69,11 @@ public:
 
 private:
     static std::shared_ptr<DxSrvArray> dxSrvArray_;
-    static std::array<std::unique_ptr<Texture>, maxTextureSize_> textures_;
+    static std::array<std::shared_ptr<Texture>, maxTextureSize_> textures_;
 
     static std::unique_ptr<TaskThread<TextureManager::LoadTask>> loadThread_;
+
+    static std::mutex texturesMutex_; // 追加
 
     // バックグラウンドスレッド用
     static std::unique_ptr<DxCommand> dxCommand_;
@@ -78,16 +81,16 @@ private:
 public:
     static D3D12_GPU_DESCRIPTOR_HANDLE getDescriptorGpuHandle(uint32_t handleId) {
         DxHeap* heap   = DxHeap::getInstance();
-        int32_t locate = 0;
+        uint32_t locate = 0;
 
         // ロックが取れるまで待つ
         std::lock_guard<std::mutex> lock(textures_[handleId]->mutex);
 
         if (textures_[handleId]->loadState == LoadState::Loaded) {
-            locate = textures_[handleId]->resourceIndex;
+            locate = handleId;
         }
         // ロード中や未ロードの場合は必ずダミー（0番）を返す
-        return heap->getSrvGpuHandle(dxSrvArray_->getLocationOnHeap(textures_[locate]->resourceIndex));
+        return heap->getSrvGpuHandle(dxSrvArray_->getLocationOnHeap(textures_[locate]->srvIndex));
     }
 
     static const DirectX::TexMetadata& getTexMetadata(uint32_t handleId) { return textures_[handleId]->metaData; }
