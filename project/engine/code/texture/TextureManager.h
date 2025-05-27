@@ -49,6 +49,9 @@ class TextureManager
     friend struct Texture;
 
 public:
+    TextureManager();
+    ~TextureManager() override;
+
     static void Initialize();
     static void Finalize();
 
@@ -70,28 +73,17 @@ public:
 private:
     static std::shared_ptr<DxSrvArray> dxSrvArray_;
     static std::array<std::shared_ptr<Texture>, maxTextureSize_> textures_;
+    static uint32_t dummyTextureIndex_;
 
     static std::unique_ptr<TaskThread<TextureManager::LoadTask>> loadThread_;
 
-    static std::mutex texturesMutex_; // 追加
+    static std::mutex texturesMutex_;
 
     // バックグラウンドスレッド用
     static std::unique_ptr<DxCommand> dxCommand_;
 
 public:
-    static D3D12_GPU_DESCRIPTOR_HANDLE getDescriptorGpuHandle(uint32_t handleId) {
-        DxHeap* heap   = DxHeap::getInstance();
-        uint32_t locate = 0;
-
-        // ロックが取れるまで待つ
-        std::lock_guard<std::mutex> lock(textures_[handleId]->mutex);
-
-        if (textures_[handleId]->loadState == LoadState::Loaded) {
-            locate = handleId;
-        }
-        // ロード中や未ロードの場合は必ずダミー（0番）を返す
-        return heap->getSrvGpuHandle(dxSrvArray_->getLocationOnHeap(textures_[locate]->srvIndex));
-    }
+    static D3D12_GPU_DESCRIPTOR_HANDLE getDescriptorGpuHandle(uint32_t handleId) ;
 
     static const DirectX::TexMetadata& getTexMetadata(uint32_t handleId) { return textures_[handleId]->metaData; }
 };
