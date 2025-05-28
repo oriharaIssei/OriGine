@@ -299,41 +299,11 @@ void ECSEditor::WorkerSystemList() {
                     bool preSystemIsActive    = systemIsActive;
                     systemLabel               = "##" + systemName + "isActive";
 
-                    // Drag & Drop Source
-                    if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
-                        ImGui::SetDragDropPayload("SYSTEM_PRIORITY", &systemPriority, sizeof(int));
-                        ImGui::Text("Dragging %s", systemName.c_str());
-                        ImGui::EndDragDropSource();
-                    }
-
-                    // Drag & Drop Target
-                    if (ImGui::BeginDragDropTarget()) {
-                        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("SYSTEM_PRIORITY")) {
-                            IM_ASSERT(payload->DataSize == sizeof(int) && "Payload data size mismatch.");
-                            int droppedPriority = *(const int*)payload->Data;
-
-                            // アイテムの中央を計算
-                            ImVec2 itemRectMin    = ImGui::GetItemRectMin();
-                            ImVec2 itemRectMax    = ImGui::GetItemRectMax();
-                            ImVec2 itemRectCenter = ImVec2((itemRectMin.x + itemRectMax.x) * 0.5f, (itemRectMin.y + itemRectMax.y) * 0.5f);
-
-                            // ドロップされた位置に基づいて優先度を調整
-                            if (ImGui::IsMouseHoveringRect(itemRectMin, itemRectCenter)) {
-                                // 上側にドロップされた場合、優先度を減少
-                                systemPriority = droppedPriority - 1;
-                            } else if (ImGui::IsMouseHoveringRect(itemRectCenter, itemRectMax)) {
-                                // 下側にドロップされた場合、優先度を増加
-                                systemPriority = droppedPriority + 1;
-                            }
-                        }
-                        ImGui::EndDragDropTarget();
-                    }
-
+                    // チェックボックス
                     ImGui::Checkbox(systemLabel.c_str(), &systemIsActive);
-
                     ImGui::SameLine();
 
-                    // Input Intで Priorityを変更 & 表示
+                    // Priority入力
                     ImGui::PushItemWidth(78);
                     systemLabel    = "##" + systemName + "_Priority";
                     systemPriority = system->getPriority();
@@ -343,20 +313,47 @@ void ECSEditor::WorkerSystemList() {
                     ImGui::PopItemWidth();
                     ImGui::SameLine();
 
-                    // システム名を左クリックでポップアップ
+                    // システム名をSelectableで表示（IDを持たせる）
+                    std::string selectableLabel = systemName + "##SystemName";
+                    bool selected               = false;
+                    ImGui::Selectable(selectableLabel.c_str(), &selected, ImGuiSelectableFlags_AllowDoubleClick);
+
+                    // Drag & Drop Source/TargetはSelectable直後で
+                    if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
+                        ImGui::SetDragDropPayload("SYSTEM_PRIORITY", &systemPriority, sizeof(int));
+                        ImGui::Text("Dragging %s", systemName.c_str());
+                        ImGui::EndDragDropSource();
+                    }
+                    if (ImGui::BeginDragDropTarget()) {
+                        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("SYSTEM_PRIORITY")) {
+                            IM_ASSERT(payload->DataSize == sizeof(int) && "Payload data size mismatch.");
+                            int droppedPriority = *(const int*)payload->Data;
+
+                            // ドロップ位置による優先度調整（Selectableの矩形を使う）
+                            ImVec2 itemRectMin    = ImGui::GetItemRectMin();
+                            ImVec2 itemRectMax    = ImGui::GetItemRectMax();
+                            ImVec2 itemRectCenter = ImVec2((itemRectMin.x + itemRectMax.x) * 0.5f, (itemRectMin.y + itemRectMax.y) * 0.5f);
+
+                            if (ImGui::IsMouseHoveringRect(itemRectMin, itemRectCenter)) {
+                                systemPriority = droppedPriority - 1;
+                            } else if (ImGui::IsMouseHoveringRect(itemRectCenter, itemRectMax)) {
+                                systemPriority = droppedPriority + 1;
+                            }
+                        }
+                        ImGui::EndDragDropTarget();
+                    }
+
                     std::string popupId = "SystemPopup_" + systemName;
-                    ImGui::Text("%s", systemName.c_str());
                     if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
                         ImGui::OpenPopup(popupId.c_str());
                     }
-
-                    // ポップアップ内容
                     if (ImGui::BeginPopup(popupId.c_str())) {
                         ImGui::Text("%s", systemName.c_str());
                         system->Edit();
                         ImGui::EndPopup();
                     }
 
+                    // コマンド発行
                     if (systemIsActive != preSystemIsActive) {
                         auto command = std::make_unique<ChangingSystemActivityCommand>(this, systemName, system);
                         EditorGroup::getInstance()->pushCommand(std::move(command));
@@ -905,7 +902,6 @@ void ChangeEntityDataTypeCommand::Undo() {
     // エンティティのデータタイプを戻す
     entity_->setDataType(oldDataType_);
 }
-
 
 void ChangingSystemActivityCommand::Execute() {
     // システムのアクティブ状態を変更

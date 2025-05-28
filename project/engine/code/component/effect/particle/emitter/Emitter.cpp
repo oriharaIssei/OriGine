@@ -876,8 +876,8 @@ void Emitter::Draw(ID3D12GraphicsCommandList* _commandList) {
 }
 
 void Emitter::CreateResource() {
-    Plane planeGenerater;
     if (!mesh_.getVertexBuffer().getResource()) {
+        Plane planeGenerater;
         planeGenerater.createMesh(&mesh_);
     }
     if (!structuredTransform_.getResource().getResource()) {
@@ -981,6 +981,9 @@ void Emitter::PlayStart() {
     isActive_        = true;
     leftActiveTime_  = activeTime_;
     currentCoolTime_ = 0.f;
+
+    worldOriginPos_    = originPos_;
+    preWorldOriginPos_ = worldOriginPos_;
 
     CreateResource();
 }

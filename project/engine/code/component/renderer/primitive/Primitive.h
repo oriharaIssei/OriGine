@@ -19,8 +19,8 @@ enum class PrimitiveType {
     Plane, // 面
     Circle, // 円
     Ring, // 環(真ん中が空洞)
-    Box, // 立方体
-    Sphere, // 球
+    // Box, // 立方体
+    // Sphere, // 球
     // Torus, // トーラス
     // Cylinder, // 円柱
     // Cone // 円錐
@@ -37,12 +37,29 @@ public:
     virtual void createMesh(TextureMesh* _mesh) = 0;
 
 protected:
+    int32_t vertexSize_ = 0; // 頂点数
+    int32_t indexSize_  = 0; // インデックス数
 private:
     PrimitiveType type_;
 
 public: // accessor
     PrimitiveType getType() const { return type_; }
+
+    int32_t getVertexSize() const {
+        return vertexSize_;
+    }
+    void setVertexSize(int32_t _size) {
+        vertexSize_ = _size;
+    }
+    int32_t getIndexSize() const {
+        return indexSize_;
+    }
+    void setIndexSize(int32_t _size) {
+        indexSize_ = _size;
+    }
 };
+
+#pragma region "PrimitiveData"
 
 /// <summary>
 /// Plane(面)のPrimitiveクラス
@@ -93,10 +110,8 @@ public:
     void createMesh(TextureMesh* _mesh) override;
 
 private:
-    uint32_t vertexSize_ = 32;
-    uint32_t indexSize_  = 32;
-
-    float radius_ = 1.f;
+    int32_t division_ = 16;
+    float radius_     = 1.f;
 
 public: // accessor
     float getRadius() const {
@@ -106,12 +121,6 @@ public: // accessor
         radius_ = _radius;
     }
 
-    uint32_t getVertexSize() const {
-        return vertexSize_;
-    }
-    void setVertexSize(uint32_t _vertexSize_) {
-        vertexSize_ = _vertexSize_;
-    }
     uint32_t getIndexSize() const {
         return indexSize_;
     }
@@ -160,175 +169,7 @@ public:
     }
 };
 
-/// <summary>
-/// Box(立方体)のPrimitiveクラス
-/// </summary>
-class Box
-    : public IPrimitive {
-public:
-    Box() : IPrimitive(PrimitiveType::Box) {}
-    ~Box() override {}
-    void createMesh(TextureMesh* _mesh) override;
-
-private:
-    const uint32_t vertexSize = 8;
-    const uint32_t indexSize  = 24;
-
-    Vec3f size_ = {1.f, 1.f, 1.f};
-
-    Vec3f uv_ = {1.f, 1.f, 1.f};
-};
-
-/// <summary>
-/// Sphere(球)のPrimitiveクラス
-/// </summary>
-// class Sphere
-//     : public IPrimitive {
-// public:
-//     Sphere() : IPrimitive(PrimitiveType::Sphere) {}
-//     ~Sphere() override {}
-//
-//     void createMesh(TextureMesh* _mesh) override;
-//
-// private:
-//     uint32_t division_ = 16;
-//
-//     Vec3f radius_ = {1.f, 1.f, 1.f};
-//     Vec3f uv_     = {1.f, 1.f, 1.f};
-//
-// public: // accessor
-//     const Vec3f& getRadius() const {
-//         return radius_;
-//     }
-//     void setRadius(const Vec3f& _radius) {
-//         radius_ = _radius;
-//     }
-//
-//     const Vec3f& getUV() const {
-//         return uv_;
-//     }
-//     void setUV(const Vec3f& _uv) {
-//         uv_ = _uv;
-//     }
-//
-//     uint32_t getDivision() const {
-//         return division_;
-//     }
-//     void setDivision(uint32_t _division) {
-//         division_ = _division;
-//     }
-//
-//     uint32_t getVertexSize() const {
-//         return 4 * division_ * division_;
-//     }
-//     uint32_t getIndexSize() const {
-//         return 4 * division_ * division_;
-//     }
-// };
-
-/// <summary>
-/// Torus(トーラス)のPrimitiveクラス
-/// </summary>
-/*class Torus
-    : public IPrimitive {
-public:
-    Torus() : IPrimitive(PrimitiveType::Torus) {}
-    ~Torus() override {
-        mesh_.reset();
-    }
-    void Initialize() override {
-        vertexSize_ = 4 * division_ * division_;
-        indexSize_  = 4 * division_ * division_;
-        // _mesh Init
-        mesh_ = std::make_shared<TextureMesh>();
-        mesh_->setName("Torus");
-        mesh_->Initialize(vertexSize_, indexSize_);
-        // create _mesh
-        createMesh(TextureMesh* _mesh);
-    }
-    void createMesh(TextureMesh* _mesh) override;
-
-private:
-    uint32_t division_ = 16;
-    uint32_t vertexSize_;
-    uint32_t indexSize_;
-
-    float radius_ = 1.f;
-    float uv_     = 1.f;
-};
-*/
-
-/// <summary>
-/// Cylinder(円柱)のPrimitiveクラス
-/// </summary>
-
-/*
-class Cylinder
-    : public IPrimitive {
-public:
-    Cylinder() : IPrimitive(PrimitiveType::Cylinder) {}
-    ~Cylinder() override {
-        mesh_.reset();
-    }
-
-    void Initialize() override {
-        vertexSize_ = 4 * division_ * division_;
-        indexSize_  = 4 * division_ * division_;
-        // _mesh Init
-        mesh_ = std::make_shared<TextureMesh>();
-        mesh_->setName("Cylinder");
-        mesh_->Initialize(vertexSize_, indexSize_);
-        // create _mesh
-        createMesh(TextureMesh* _mesh);
-    }
-
-    void createMesh(TextureMesh* _mesh) override;
-
-private:
-    uint32_t division_ = 16;
-    uint32_t vertexSize_;
-    uint32_t indexSize_;
-
-    float radius_ = 1.f;
-    float uv_     = 1.f;
-
-    float height_ = 1.f;
-};
-*/
-
-/// <summary>
-/// Cone(円錐)のPrimitiveクラス
-/// </summary>
-/*
-class Cone
-    : public IPrimitive {
-public:
-    Cone() : IPrimitive(PrimitiveType::Cone) {}
-    ~Cone() override {
-        mesh_.reset();
-    }
-    void Initialize() override {
-        vertexSize_ = 4 * division_ * division_;
-        indexSize_  = 4 * division_ * division_;
-        // _mesh Init
-        mesh_ = std::make_shared<TextureMesh>();
-        mesh_->setName("Cone");
-        mesh_->Initialize(vertexSize_, indexSize_);
-        // create _mesh
-        createMesh(TextureMesh* _mesh);
-    }
-
-    void createMesh(TextureMesh* _mesh) override;
-
-private:
-    uint32_t division_ = 16;
-    uint32_t vertexSize_;
-    uint32_t indexSize_;
-    float radius_ = 1.f;
-    float uv_     = 1.f;
-    float height_ = 1.f;
-};
-*/
+#pragma endregion
 
 template <typename T>
 concept IsPrimitive = std::derived_from<T, IPrimitive>;
@@ -421,6 +262,8 @@ public:
     }
 };
 
+#pragma region "PrimitiveRenderer"
+
 class PlaneRenderer
     : public PrimitiveMeshRenderer<Plane> {
     friend void to_json(nlohmann::json& j, const PlaneRenderer& r);
@@ -432,28 +275,25 @@ public:
     PlaneRenderer(const std::shared_ptr<std::vector<TextureMesh>>& _meshGroup) : PrimitiveMeshRenderer(_meshGroup) {}
     ~PlaneRenderer() override {}
 
-    void Initialize(GameEntity* _hostEntity) override {
-        _hostEntity;
-        // _mesh Init
-        if (!meshGroup_->empty()) {
-            meshGroup_->clear();
-        }
-
-        meshGroup_->emplace_back(MeshType());
-        auto& mesh = meshGroup_->back();
-        mesh.Initialize(4, 6);
-
-        transformBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
-        materialBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
-
-        // create _mesh
-        createMesh(&mesh);
-
-        // loadTexture
-        if (!textureDirectory_.empty() && !textureFileName_.empty()) {
-            textureIndex_ = TextureManager::LoadTexture(textureDirectory_ + "/" + textureFileName_);
-        }
-    }
+    void Initialize(GameEntity* _hostEntity) override;
 
     bool Edit() override;
 };
+
+class RingRenderer
+    : public PrimitiveMeshRenderer<Ring> {
+    friend void to_json(nlohmann::json& j, const RingRenderer& r);
+    friend void from_json(const nlohmann::json& j, RingRenderer& r);
+
+public:
+    RingRenderer() : PrimitiveMeshRenderer() {}
+    RingRenderer(const std::vector<TextureMesh>& _meshGroup) : PrimitiveMeshRenderer(_meshGroup) {}
+    RingRenderer(const std::shared_ptr<std::vector<TextureMesh>>& _meshGroup) : PrimitiveMeshRenderer(_meshGroup) {}
+    ~RingRenderer() override {}
+
+    void Initialize(GameEntity* _hostEntity) override;
+
+    bool Edit() override;
+};
+
+#pragma endregion

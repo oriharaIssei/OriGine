@@ -36,9 +36,6 @@ public:
     bool isAlive() const {
         return isAlive_;
     }
-    void setIsAlive(bool _isAlive) {
-        isAlive_ = _isAlive;
-    }
     bool isUnique() const {
         return isUnique_;
     }
