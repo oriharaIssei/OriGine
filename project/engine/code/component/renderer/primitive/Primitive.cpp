@@ -28,8 +28,13 @@ void Plane::createMesh(TextureMesh* _mesh) {
     indexSize_  = 6; // インデックス数
 
     if ((int32_t)_mesh->getIndexCapacity() < indexSize_) {
-        _mesh->Finalize();
+        // 必要なら Finalize
+        if (_mesh->getVertexBuffer().getResource()) {
+            _mesh->Finalize();
+        }
         _mesh->Initialize(vertexSize_, indexSize_);
+        _mesh->vertexes_.clear();
+        _mesh->indexes_.clear();
     }
 
     // XZ 平面を作成
@@ -60,12 +65,18 @@ void Ring::createMesh(TextureMesh* _mesh) {
     indexSize_  = division_ * 6; // 1つの円環は division_ * 6 インデックス
 
     if ((int32_t)_mesh->getIndexCapacity() < indexSize_) {
-        _mesh->Finalize();
+        // 必要なら Finalize
+        if (_mesh->getVertexBuffer().getResource()) {
+            _mesh->Finalize();
+        }
         _mesh->Initialize(vertexSize_, indexSize_);
+        _mesh->vertexes_.clear();
+        _mesh->indexes_.clear();
     }
 
     // 円環の頂点を計算
     for (uint32_t i = 0; i < division_; ++i) {
+
         float sin     = std::sin(radianPerDivide * static_cast<float>(i));
         float cos     = std::cos(radianPerDivide * static_cast<float>(i));
         float sinNext = std::sin(radianPerDivide * static_cast<float>(i + 1));
@@ -200,7 +211,6 @@ void RingRenderer::Initialize(GameEntity* _hostEntity) {
 
     meshGroup_->emplace_back(MeshType());
     auto& mesh = meshGroup_->back();
-    mesh.Initialize(4, 6);
 
     transformBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
     materialBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
@@ -260,34 +270,25 @@ bool RingRenderer::Edit() {
 
     // shape
     int32_t division = primitive_.getDivision();
-    if (DragGuiCommand<int32_t>("Division", division, 1, 1, 1000, "%d", [this](int32_t* _value) {
-            primitive_.setDivision(static_cast<uint32_t>(*_value));
-            createMesh(&meshGroup_->back());
-        })) {
-        primitive_.setDivision(static_cast<uint32_t>(division));
+    isEdit |= DragGuiCommand<int32_t>("Division", division, 1, 1, 1000, "%d", [this](int32_t* _value) {
+        primitive_.setDivision(static_cast<uint32_t>(*_value));
         createMesh(&meshGroup_->back());
-        isEdit = true;
-    }
+    });
+    primitive_.setDivision(static_cast<uint32_t>(division));
 
     float innerRadius = primitive_.getInnerRadius();
-    if (DragGuiCommand<float>("inner Radius", innerRadius, 0.01f, 0.01f, 100.f, "%.2f", [this](float* _value) {
-            primitive_.setOuterRadius(*_value);
-            createMesh(&meshGroup_->back());
-        })) {
-        primitive_.setInnerRadius(innerRadius);
+    isEdit |= DragGuiCommand<float>("inner Radius", innerRadius, 0.01f, 0.01f, 100.f, "%.2f", [this](float* _value) {
+        primitive_.setOuterRadius(*_value);
         createMesh(&meshGroup_->back());
-        isEdit = true;
-    }
+    });
+    primitive_.setInnerRadius(innerRadius);
 
     float outerRadius = primitive_.getOuterRadius();
-    if (DragGuiCommand<float>("outer Radius", outerRadius, 0.01f, 0.01f, 100.f, "%.2f", [this](float* _value) {
-            primitive_.setOuterRadius(*_value);
-            createMesh(&meshGroup_->back());
-        })) {
-        primitive_.setOuterRadius(outerRadius);
+    isEdit |= DragGuiCommand<float>("outer Radius", outerRadius, 0.01f, 0.01f, 100.f, "%.2f", [this](float* _value) {
+        primitive_.setOuterRadius(*_value);
         createMesh(&meshGroup_->back());
-        isEdit = true;
-    }
+    });
+    primitive_.setOuterRadius(outerRadius);
 
     ImGui::Spacing();
     ImGui::Separator();
