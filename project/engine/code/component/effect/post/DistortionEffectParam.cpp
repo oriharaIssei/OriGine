@@ -17,9 +17,13 @@ void DistortionParamData::UpdateUVMat() {
     uvMat = MakeMatrix::Affine({uvTransform.scale_, 1.f}, {0.f, 0.f, uvTransform.rotate_}, {uvTransform.translate_, 0.f});
 }
 
-void DistortionEffectParam::Initialize(GameEntity* /* _hostEntity*/) {
+void DistortionEffectParam::Initialize(GameEntity* _hostEntity) {
     effectParamData_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
     effectParamData_.ConvertToBuffer();
+
+    for (auto& [object, type] : distortionObjects_) {
+        object->Initialize(_hostEntity);
+    }
 }
 
 bool DistortionEffectParam::Edit() {
@@ -45,16 +49,58 @@ bool DistortionEffectParam::Edit() {
     int32_t objectIndex = 0;
     if (ImGui::TreeNode("Distortion Object")) {
         if (ImGui::Button("Add Object")) {
-            auto newObject = std::make_shared<PlaneRenderer>();
-            newObject->Initialize(nullptr);
-            auto command = std::make_unique<AddElementCommand<std::vector<std::shared_ptr<PlaneRenderer>>>>(&distortionObjects_, newObject);
-            EditorGroup::getInstance()->pushCommand(std::move(command));
-            isChanged = true;
+            ImGui::OpenPopup("AddObject");
         }
-        for (auto& obj : distortionObjects_) {
-            objectNodeName = "Distortion Object_" + std::to_string(objectIndex);
+
+        if (ImGui::BeginPopup("AddObject")) {
+            static PrimitiveType newObjectType;
+
+            if (ImGui::BeginCombo("PrimitiveType", PrimitiveTypeToString(newObjectType))) {
+                for (int32_t i = 0; i < int32_t(PrimitiveType::Count); ++i) {
+                    PrimitiveType selectType = (PrimitiveType)i;
+                    bool isSelected          = newObjectType == selectType;
+
+                    if (ImGui::Selectable(PrimitiveTypeToString(selectType), isSelected)) {
+                        EditorGroup::getInstance()->pushCommand(
+                            std::make_unique<SetterCommand<PrimitiveType>>(&newObjectType, selectType));
+                    }
+                    if (isSelected) {
+                        ImGui::SetItemDefaultFocus();
+                    }
+                }
+                ImGui::EndCombo();
+            }
+
+            if (ImGui::Button("Add")) {
+                std::shared_ptr<PrimitiveMeshRendererBase> newObject;
+                switch (newObjectType) {
+                case PrimitiveType::Plane:
+                    newObject = std::make_shared<PlaneRenderer>();
+                    break;
+                case PrimitiveType::Ring:
+                    newObject = std::make_shared<RingRenderer>();
+                    break;
+                default:
+                    LOG_ERROR("Unsupported Primitive Type for Distortion Object: " + std::to_string(int32_t(newObjectType)));
+                    break;
+                }
+                if (newObject) {
+                    newObject->Initialize(nullptr);
+
+                    auto command = std::make_unique<AddElementCommand<std::vector<std::pair<std::shared_ptr<PrimitiveMeshRendererBase>, PrimitiveType>>>>(
+                        &distortionObjects_, std::make_pair(newObject, newObjectType));
+                    EditorGroup::getInstance()->pushCommand(std::move(command));
+                    isChanged = true;
+                }
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::EndPopup();
+        }
+        for (auto& [obj, type] : distortionObjects_) {
+            objectNodeName = "Distortion Object_" + std::string(PrimitiveTypeToString(type)) + std::to_string(objectIndex);
             if (ImGui::Button(std::string("X##" + objectNodeName).c_str())) {
-                auto command = std::make_unique<EraseElementCommand<std::vector<std::shared_ptr<PlaneRenderer>>>>(&distortionObjects_, distortionObjects_.begin() + objectIndex);
+                auto command = std::make_unique<EraseElementCommand<std::vector<std::pair<std::shared_ptr<PrimitiveMeshRendererBase>, PrimitiveType>>>>(&distortionObjects_, distortionObjects_.begin() + objectIndex);
                 EditorGroup::getInstance()->pushCommand(std::move(command));
                 isChanged = true;
                 continue;
@@ -68,6 +114,7 @@ bool DistortionEffectParam::Edit() {
             }
             objectIndex++;
         }
+
         ImGui::TreePop();
     }
 
@@ -76,7 +123,7 @@ bool DistortionEffectParam::Edit() {
 }
 
 void DistortionEffectParam::Finalize() {
-    for (auto& obj : distortionObjects_) {
+    for (auto& [obj, type] : distortionObjects_) {
         if (obj) {
             obj->Finalize();
         }
@@ -94,9 +141,20 @@ void to_json(nlohmann::json& j, const DistortionEffectParam& param) {
     j["uvTranslate"] = param.effectParamData_->uvTransform.translate_;
 
     j["distortionObjects"] = nlohmann::json::array();
-    for (const auto& obj : param.distortionObjects_) {
-        nlohmann::json objectData;
-        objectData = *obj;
+    for (const auto& [obj, type] : param.distortionObjects_) {
+        nlohmann::json objectData = nlohmann::json::object();
+        objectData["objectType"]  = static_cast<int32_t>(type);
+        if (obj) {
+            // 型ごとに分岐してシリアライズ
+            switch (type) {
+            case PrimitiveType::Plane:
+                objectData["objectData"] = *std::static_pointer_cast<PlaneRenderer>(obj);
+                break;
+            case PrimitiveType::Ring:
+                objectData["objectData"] = *std::static_pointer_cast<RingRenderer>(obj);
+                break;
+            }
+        }
         j["distortionObjects"].push_back(objectData);
     }
 }
@@ -109,10 +167,19 @@ void from_json(const nlohmann::json& j, DistortionEffectParam& param) {
     j.at("uvRotate").get_to(param.effectParamData_->uvTransform.rotate_);
     j.at("uvTranslate").get_to(param.effectParamData_->uvTransform.translate_);
 
-    for (auto& obj : param.distortionObjects_) {
+    for (auto& obj : j["distortionObjects"]) {
         nlohmann::json objectData;
-        j.at("distortionObjects").get_to(objectData);
-        obj = std::make_shared<PlaneRenderer>();
-        *obj = objectData;
+        PrimitiveType objectType;
+        objectType = PrimitiveType(obj["objectType"]);
+
+        if (objectType == PrimitiveType::Plane) {
+            auto newObject = std::make_shared<PlaneRenderer>();
+            from_json(obj["objectData"], *newObject);
+            param.distortionObjects_.emplace_back(newObject, objectType);
+        } else if (objectType == PrimitiveType::Ring) {
+            auto newObject = std::make_shared<RingRenderer>();
+            from_json(obj["objectData"], *newObject);
+            param.distortionObjects_.emplace_back(newObject, objectType);
+        }
     }
 }

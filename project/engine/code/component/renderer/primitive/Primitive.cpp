@@ -18,6 +18,29 @@
 #include <imgui/imgui.h>
 #endif // _DEBUG
 
+const char* PrimitiveTypeToString(PrimitiveType _type) {
+    switch (_type) {
+    case PrimitiveType::Plane:
+        return "Plane";
+    case PrimitiveType::Ring:
+        return "Ring";
+    // case PrimitiveType::Circle:
+    //     return "Circle";
+    // case PrimitiveType::Box:
+    //     return "Box";
+    // case PrimitiveType::Sphere:
+    //     return "Sphere";
+    // case PrimitiveType::Torus:
+    //     return "Torus";
+    // case PrimitiveType::Cylinder:
+    //     return "Cylinder";
+    // case PrimitiveType::Cone:
+    //     return "Cone";
+    default:
+        return "Unknown";
+    }
+}
+
 #pragma region "PrimitiveData"
 
 /// =====================================================
@@ -176,6 +199,15 @@ bool PlaneRenderer::Edit() {
 #endif // _DEBUG
 }
 
+std::shared_ptr<PrimitiveMeshRendererBase> CreatePrimitiveRenderer(PrimitiveType _type) {
+    if (_type == PrimitiveType::Plane) {
+        return std::make_shared<PlaneRenderer>();
+    } else if (_type == PrimitiveType::Ring) {
+        return std::make_shared<RingRenderer>();
+    }
+    return std::shared_ptr<PrimitiveMeshRendererBase>();
+}
+
 void to_json(nlohmann::json& j, const PlaneRenderer& r) {
     j["isRenderer"]       = r.isRender_;
     j["blendMode"]        = static_cast<int32_t>(r.currentBlend_);
@@ -278,7 +310,7 @@ bool RingRenderer::Edit() {
 
     float innerRadius = primitive_.getInnerRadius();
     isEdit |= DragGuiCommand<float>("inner Radius", innerRadius, 0.01f, 0.01f, 100.f, "%.2f", [this](float* _value) {
-        primitive_.setOuterRadius(*_value);
+        primitive_.setInnerRadius(*_value);
         createMesh(&meshGroup_->back());
     });
     primitive_.setInnerRadius(innerRadius);
@@ -319,6 +351,9 @@ void to_json(nlohmann::json& j, const RingRenderer& r) {
     to_json(j["transform"], r.transformBuff_.openData_);
     to_json(j["material"], r.materialBuff_.openData_);
     j["material"] = r.materialBuff_.openData_;
+
+    j["InnerRadius"] = r.primitive_.getInnerRadius();
+    j["OuterRadius"] = r.primitive_.getOuterRadius();
 }
 
 void from_json(const nlohmann::json& j, RingRenderer& r) {
@@ -331,6 +366,13 @@ void from_json(const nlohmann::json& j, RingRenderer& r) {
     from_json(j.at("transform"), r.transformBuff_.openData_);
     from_json(j.at("material"), r.materialBuff_.openData_);
     j.at("material").get_to(r.materialBuff_.openData_);
+
+    float innerRadius = 0.f;
+    float outerRadius = 0.f;
+    j.at("InnerRadius").get_to(innerRadius);
+    j.at("OuterRadius").get_to(outerRadius);
+    r.primitive_.setInnerRadius(innerRadius);
+    r.primitive_.setOuterRadius(outerRadius);
 }
 
 #pragma endregion
