@@ -184,6 +184,46 @@ private:
 };
 
 /// <summary>
+/// エンティティをファイルから作成するコマンド
+/// </summary>
+class CreateEntityFromFileCommand
+    : public ECSEditorCommand {
+public:
+    CreateEntityFromFileCommand(ECSEditor* _ecsEditor, const std::string& _directory, const std::string& _dataTypeName)
+        : ECSEditorCommand(_ecsEditor), directory_(_directory), dataTypeName_(_dataTypeName) {}
+    ~CreateEntityFromFileCommand() {}
+
+    void Execute() override;
+    void Undo() override;
+
+private:
+    std::string directory_;
+    std::string dataTypeName_;
+
+    GameEntity* createdEntity = nullptr;
+
+    std::unique_ptr<SelectEntityCommand> selectCommand_;
+};
+
+/// <summary>
+/// エンティティをファイルに保存するコマンド
+/// </summary>
+class SaveEntityToFileCommand
+    : public ECSEditorCommand {
+public:
+    SaveEntityToFileCommand(ECSEditor* _ecsEditor, GameEntity* _entity, const std::string& _directory)
+        : ECSEditorCommand(_ecsEditor), entity_(_entity), directory_(_directory) {}
+    ~SaveEntityToFileCommand() {}
+
+    void Execute() override;
+    void Undo() override;
+
+private:
+    GameEntity* entity_ = nullptr;
+    std::string directory_;
+};
+
+/// <summary>
 /// エンティティの DataType を変更するコマンド
 /// </summary>
 class ChangeEntityDataTypeCommand
