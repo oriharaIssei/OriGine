@@ -18,11 +18,25 @@
 #include <imgui/imgui.h>
 #endif // _DEBUG
 
+#pragma region "PrimitiveData"
+
 /// =====================================================
 /// Plane
 /// =====================================================
 void Plane::createMesh(TextureMesh* _mesh) {
-    _mesh->Initialize(4, 6);
+    vertexSize_ = 4; // 頂点数
+    indexSize_  = 6; // インデックス数
+
+    if ((int32_t)_mesh->getIndexCapacity() < indexSize_) {
+        // 必要なら Finalize
+        if (_mesh->getVertexBuffer().getResource()) {
+            _mesh->Finalize();
+        }
+        _mesh->Initialize(vertexSize_, indexSize_);
+        _mesh->vertexes_.clear();
+        _mesh->indexes_.clear();
+    }
+
     // XZ 平面を作成
     _mesh->setVertexData({{Vec4f(-size_[X], size_[Y], 0.0f, 1.0f), Vec2f(0.0f, 0.0f), normal_},
         {Vec4f(size_[X], size_[Y], 0.0f, 1.0f), Vec2f(uv_[X], 0.0f), normal_},
@@ -35,34 +49,34 @@ void Plane::createMesh(TextureMesh* _mesh) {
 }
 
 /// =====================================================
-/// Circle
-/// =====================================================
-void Circle::createMesh(TextureMesh* _mesh) {
-    _mesh->vertexes_.clear();
-    _mesh->indexes_.clear();
-    // 円の頂点を計算
-    for (uint32_t i = 0; i < vertexSize_; ++i) {
-        float angle    = static_cast<float>(i) * 2.0f * std::numbers::pi_v<float> / static_cast<float>(vertexSize_);
-        Vector3f point = {radius_ * std::cos(angle), 0.f, radius_ * std::sin(angle)};
-        _mesh->vertexes_.emplace_back(TextureVertexData(Vec4f(point, 1.f), Vec2f(), point.normalize()));
-    }
-    // 円のインデックスを計算
-    for (uint32_t i = 0; i < indexSize_; ++i) {
-        _mesh->indexes_.emplace_back(i);
-    }
-    _mesh->TransferData();
-}
-
-/// =====================================================
 /// Ring
 /// =====================================================
 void Ring::createMesh(TextureMesh* _mesh) {
-    _mesh->vertexes_.clear();
-    _mesh->indexes_.clear();
+    if (!_mesh->vertexes_.empty()) {
+        _mesh->vertexes_.clear();
+    }
+    if (!_mesh->indexes_.empty()) {
+        _mesh->indexes_.clear();
+    }
 
     const float radianPerDivide = 2.0f * std::numbers::pi_v<float> / static_cast<float>(division_);
+
+    vertexSize_ = division_ * 4; // 1つの円環は division_ * 4 頂点
+    indexSize_  = division_ * 6; // 1つの円環は division_ * 6 インデックス
+
+    if ((int32_t)_mesh->getIndexCapacity() < indexSize_) {
+        // 必要なら Finalize
+        if (_mesh->getVertexBuffer().getResource()) {
+            _mesh->Finalize();
+        }
+        _mesh->Initialize(vertexSize_, indexSize_);
+        _mesh->vertexes_.clear();
+        _mesh->indexes_.clear();
+    }
+
     // 円環の頂点を計算
     for (uint32_t i = 0; i < division_; ++i) {
+
         float sin     = std::sin(radianPerDivide * static_cast<float>(i));
         float cos     = std::cos(radianPerDivide * static_cast<float>(i));
         float sinNext = std::sin(radianPerDivide * static_cast<float>(i + 1));
@@ -89,105 +103,42 @@ void Ring::createMesh(TextureMesh* _mesh) {
     _mesh->TransferData();
 }
 
-/// =====================================================
-/// Sphere
-/// =====================================================
-// void Sphere::createMesh(TextureMesh* _mesh) {
-//     _mesh->vertexes_.clear();
-//     _mesh->indexes_.clear();
-//
-//     auto& vertexData = _mesh->vertexes_;
-//     auto& indexData  = _mesh->indexes_;
-//
-//     float divisionReal    = static_cast<float>(division_);
-//     const float kLatEvery = std::numbers::pi_v<float> / divisionReal; // 緯度
-//     const float kLonEvery = 2.0f * std::numbers::pi_v<float> / divisionReal; // 経度
-//
-//     uint32_t startVertexIndex = 0;
-//     uint32_t startIndexIndex  = 0;
-//
-//     for (uint32_t latIndex = 0; latIndex < division_; ++latIndex) {
-//         float lat = -std::numbers::pi_v<float> / 2.0f + kLatEvery * latIndex; // theta
-//         // 経度方向に分割
-//         for (uint32_t lonIndex = 0; lonIndex < division_; ++lonIndex) {
-//             startVertexIndex = (latIndex * division_ + lonIndex) * 4;
-//             float lon        = lonIndex * kLonEvery; // fai
-//             // 頂点データを入力
-//             // a 左下
-//             vertexData[startVertexIndex].pos[0]      = std::cos(lat) * std::cos(lon);
-//             vertexData[startVertexIndex].pos[1]      = std::sin(lat);
-//             vertexData[startVertexIndex].pos[2]      = std::cos(lat) * std::sin(lon);
-//             vertexData[startVertexIndex].pos[3]      = 1.0f;
-//             vertexData[startVertexIndex].texCoord[0] = float(lonIndex) / divisionReal;
-//             vertexData[startVertexIndex].texCoord[1] = 1.0f - float(latIndex) / divisionReal;
-//             vertexData[startVertexIndex].normal      = {vertexData[startVertexIndex].pos[X], vertexData[startVertexIndex].pos[Y], vertexData[startVertexIndex].pos[Z]};
-//
-//             // b 左上
-//             vertexData[startVertexIndex + 1].pos[0]      = std::cos(lat + kLatEvery) * std::cos(lon);
-//             vertexData[startVertexIndex + 1].pos[1]      = std::sin(lat + kLatEvery);
-//             vertexData[startVertexIndex + 1].pos[2]      = std::cos(lat + kLatEvery) * std::sin(lon);
-//             vertexData[startVertexIndex + 1].pos[3]      = 1.0f;
-//             vertexData[startVertexIndex + 1].texCoord[0] = float(lonIndex) / divisionReal;
-//             vertexData[startVertexIndex + 1].texCoord[1] = 1.0f - float(latIndex + 1) / divisionReal;
-//             vertexData[startVertexIndex + 1].normal      = {vertexData[startVertexIndex + 1].pos[X], vertexData[startVertexIndex + 1].pos[Y], vertexData[startVertexIndex + 1].pos[Z]};
-//
-//             // c 右下
-//             vertexData[startVertexIndex + 2].pos[X]      = std::cos(lat) * std::cos(lon + kLonEvery);
-//             vertexData[startVertexIndex + 2].pos[Y]      = std::sin(lat);
-//             vertexData[startVertexIndex + 2].pos[Z]      = std::cos(lat) * std::sin(lon + kLonEvery);
-//             vertexData[startVertexIndex + 2].pos[W]      = 1.0f;
-//             vertexData[startVertexIndex + 2].texCoord[X] = float(lonIndex + 1) / divisionReal;
-//             vertexData[startVertexIndex + 2].texCoord[Y] = 1.0f - float(latIndex) / divisionReal;
-//             vertexData[startVertexIndex + 2].normal      = {vertexData[startVertexIndex + 2].pos[X], vertexData[startVertexIndex + 2].pos[Y], vertexData[startVertexIndex + 2].pos[Z]};
-//
-//             // d 右上
-//             vertexData[startVertexIndex + 3].pos[X]      = std::cos(lat + kLatEvery) * std::cos(lon + kLonEvery);
-//             vertexData[startVertexIndex + 3].pos[Y]      = std::sin(lat + kLatEvery);
-//             vertexData[startVertexIndex + 3].pos[Z]      = std::cos(lat + kLatEvery) * std::sin(lon + kLonEvery);
-//             vertexData[startVertexIndex + 3].pos[W]      = 1.0f;
-//             vertexData[startVertexIndex + 3].texCoord[X] = float(lonIndex + 1) / divisionReal;
-//             vertexData[startVertexIndex + 3].texCoord[Y] = 1.0f - float(latIndex + 1) / divisionReal;
-//             vertexData[startVertexIndex + 3].normal      = {vertexData[startVertexIndex + 3].pos[X], vertexData[startIndexIndex + 3].pos[Y], vertexData[startIndexIndex + 3].pos[Z]};
-//
-//             //
-//             startIndexIndex = (latIndex * division_ + lonIndex) * 6;
-//
-//             indexData[startIndexIndex]     = startIndexIndex;
-//             indexData[startIndexIndex + 1] = startIndexIndex + 1;
-//             indexData[startIndexIndex + 2] = startIndexIndex + 2;
-//
-//             indexData[startIndexIndex + 3] = startIndexIndex + 1;
-//             indexData[startIndexIndex + 4] = startIndexIndex + 3;
-//             indexData[startIndexIndex + 5] = startIndexIndex + 2;
-//         }
-//     }
-//
-//     _mesh->TransferData();
-// }
+#pragma endregion
+
+#pragma region "PrimitiveRenderer"
 
 /// =====================================================
-/// Triangle
+/// PlaneRenderer
 /// =====================================================
-// void Triangle::createMesh(TextureMesh* _mesh) {
-//     _mesh->vertexes_.clear();
-//     _mesh->indexes_.clear();
-//
-//     // 頂点バッファにデータを格納
-//     _mesh->vertexes_.emplace_back(TextureVertexData(Vec4f(vertex_[0], 1.f), Vec2f(uv_[0], uv_[1]), normal_));
-//     _mesh->vertexes_.emplace_back(TextureVertexData(Vec4f(vertex_[1], 1.f), Vec2f(uv_[0], uv_[1]), normal_));
-//     _mesh->vertexes_.emplace_back(TextureVertexData(Vec4f(vertex_[2], 1.f), Vec2f(uv_[0], uv_[1]), normal_));
-//
-//     // インデックスバッファにデータを格納
-//     _mesh->indexes_.emplace_back(0);
-//     _mesh->indexes_.emplace_back(1);
-//     _mesh->indexes_.emplace_back(2);
-//
-//     _mesh->TransferData();
-// }
+
+void PlaneRenderer::Initialize(GameEntity* /*_hostEntity*/) {
+
+    // _mesh Init
+    if (!meshGroup_->empty()) {
+        meshGroup_->clear();
+    }
+
+    meshGroup_->emplace_back(MeshType());
+    auto& mesh = meshGroup_->back();
+    mesh.Initialize(4, 6);
+
+    transformBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+    materialBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+
+    // create _mesh
+    createMesh(&mesh);
+
+    // loadTexture
+    if (!textureDirectory_.empty() && !textureFileName_.empty()) {
+        textureIndex_ = TextureManager::LoadTexture(textureDirectory_ + "/" + textureFileName_);
+    }
+}
 
 bool PlaneRenderer::Edit() {
 #ifdef _DEBUG
     bool isEdit = false;
+
+    MeshRenderer::Edit();
 
     ImGui::Text("Texture Directory : %s", textureDirectory_.c_str());
     ImGui::Text("Texture FileName  : %s", textureFileName_.c_str());
@@ -246,3 +197,140 @@ void from_json(const nlohmann::json& j, PlaneRenderer& r) {
     from_json(j.at("material"), r.materialBuff_.openData_);
     j.at("material").get_to(r.materialBuff_.openData_);
 }
+
+/// =====================================================
+// RingRenderer
+/// =====================================================
+
+void RingRenderer::Initialize(GameEntity* _hostEntity) {
+    _hostEntity;
+    // _mesh Init
+    if (!meshGroup_->empty()) {
+        meshGroup_->clear();
+    }
+
+    meshGroup_->emplace_back(MeshType());
+    auto& mesh = meshGroup_->back();
+
+    transformBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+    materialBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+
+    // create _mesh
+    createMesh(&mesh);
+
+    // loadTexture
+    if (!textureDirectory_.empty() && !textureFileName_.empty()) {
+        textureIndex_ = TextureManager::LoadTexture(textureDirectory_ + "/" + textureFileName_);
+    }
+}
+
+bool RingRenderer::Edit() {
+    bool isEdit = false;
+
+#ifdef _DEBUG
+    ImGui::Text("BlendMode :");
+    ImGui::SameLine();
+    if (ImGui::BeginCombo("##BlendMode", blendModeStr[(int32_t)currentBlend_].c_str())) {
+        bool isSelected    = false;
+        int32_t blendIndex = 0;
+        for (auto& blendModeName : blendModeStr) {
+            isSelected = blendModeName == blendModeStr[(int32_t)currentBlend_];
+
+            if (ImGui::Selectable(blendModeName.c_str(), isSelected)) {
+                EditorGroup::getInstance()->pushCommand(
+                    std::make_unique<SetterCommand<BlendMode>>(&currentBlend_, static_cast<BlendMode>(blendIndex)));
+                isEdit = true;
+                break;
+            }
+
+            blendIndex++;
+        }
+        ImGui::EndCombo();
+    }
+
+    // texture
+    ImGui::Text("Texture Directory : %s", textureDirectory_.c_str());
+    ImGui::Text("Texture FileName  : %s", textureFileName_.c_str());
+    if (ImGui::Button("LoadTexture")) {
+        std::string directory = "";
+        std::string fileName  = "";
+        if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"png"})) {
+            auto commandCombo = std::make_unique<CommandCombo>();
+            commandCombo->addCommand(std::make_shared<SetterCommand<std::string>>(&textureDirectory_, kApplicationResourceDirectory + "/" + directory));
+            commandCombo->addCommand(std::make_shared<SetterCommand<std::string>>(&textureFileName_, fileName));
+            commandCombo->setFuncOnAfterCommand([this]() { textureIndex_ = TextureManager::LoadTexture(textureDirectory_ + "/" + textureFileName_); }, true);
+            EditorGroup::getInstance()->pushCommand(std::move(commandCombo));
+            isEdit = true;
+        }
+    }
+
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+
+    // shape
+    int32_t division = primitive_.getDivision();
+    isEdit |= DragGuiCommand<int32_t>("Division", division, 1, 1, 1000, "%d", [this](int32_t* _value) {
+        primitive_.setDivision(static_cast<uint32_t>(*_value));
+        createMesh(&meshGroup_->back());
+    });
+    primitive_.setDivision(static_cast<uint32_t>(division));
+
+    float innerRadius = primitive_.getInnerRadius();
+    isEdit |= DragGuiCommand<float>("inner Radius", innerRadius, 0.01f, 0.01f, 100.f, "%.2f", [this](float* _value) {
+        primitive_.setOuterRadius(*_value);
+        createMesh(&meshGroup_->back());
+    });
+    primitive_.setInnerRadius(innerRadius);
+
+    float outerRadius = primitive_.getOuterRadius();
+    isEdit |= DragGuiCommand<float>("outer Radius", outerRadius, 0.01f, 0.01f, 100.f, "%.2f", [this](float* _value) {
+        primitive_.setOuterRadius(*_value);
+        createMesh(&meshGroup_->back());
+    });
+    primitive_.setOuterRadius(outerRadius);
+
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+
+    // buffer Datas
+    if (ImGui::TreeNode("Transform")) {
+        if (transformBuff_.openData_.Edit()) {
+            transformBuff_.ConvertToBuffer();
+        }
+        ImGui::TreePop();
+    }
+    if (ImGui::TreeNode("Material")) {
+        materialBuff_.openData_.DebugGui();
+        ImGui::TreePop();
+    }
+
+#endif // _DEBUG
+
+    return isEdit;
+};
+
+void to_json(nlohmann::json& j, const RingRenderer& r) {
+    j["isRenderer"]       = r.isRender_;
+    j["blendMode"]        = static_cast<int32_t>(r.currentBlend_);
+    j["textureDirectory"] = r.textureDirectory_;
+    j["textureFileName"]  = r.textureFileName_;
+    to_json(j["transform"], r.transformBuff_.openData_);
+    to_json(j["material"], r.materialBuff_.openData_);
+    j["material"] = r.materialBuff_.openData_;
+}
+
+void from_json(const nlohmann::json& j, RingRenderer& r) {
+    j.at("isRenderer").get_to(r.isRender_);
+    int32_t blendMode = 0;
+    j.at("blendMode").get_to(blendMode);
+    r.currentBlend_ = static_cast<BlendMode>(blendMode);
+    j.at("textureDirectory").get_to(r.textureDirectory_);
+    j.at("textureFileName").get_to(r.textureFileName_);
+    from_json(j.at("transform"), r.transformBuff_.openData_);
+    from_json(j.at("material"), r.materialBuff_.openData_);
+    j.at("material").get_to(r.materialBuff_.openData_);
+}
+
+#pragma endregion
