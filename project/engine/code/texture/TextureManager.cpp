@@ -34,6 +34,7 @@
 const uint32_t TextureManager::maxTextureSize_;
 std::shared_ptr<DxSrvArray> TextureManager::dxSrvArray_;
 std::array<std::shared_ptr<Texture>, TextureManager::maxTextureSize_> TextureManager::textures_;
+uint32_t TextureManager::dummyTextureIndex_;
 std::mutex TextureManager::texturesMutex_;
 std::unique_ptr<TaskThread<TextureManager::LoadTask>> TextureManager::loadThread_;
 std::unique_ptr<DxCommand> TextureManager::dxCommand_;
@@ -42,6 +43,7 @@ std::unique_ptr<DxCommand> TextureManager::dxCommand_;
 void Texture::Initialize(const std::string& filePath, std::shared_ptr<DxSrvArray> srvArray) {
     loadState = LoadState::Unloaded;
     path      = filePath;
+
     //==================================================
     // Textureを読み込んで転送する
     //==================================================
@@ -127,6 +129,7 @@ DirectX::ScratchImage Texture::Load(const std::string& filePath) {
             DirectX::TEX_FILTER_SRGB,
             0,
             mipImages);
+
         if (FAILED(hr)) {
             std::cerr << "Failed to generate mipmaps for: " << filePath << std::endl;
             assert(SUCCEEDED(hr));
@@ -167,6 +170,8 @@ void Texture::UploadTextureData(DirectX::ScratchImage& mipImg, ID3D12Resource* _
         subResources.data());
 
     ExecuteCommand(_resource);
+
+    intermediateResource->Finalize();
 }
 void Texture::ExecuteCommand(ID3D12Resource* _resource) {
     D3D12_RESOURCE_BARRIER barrier{};
@@ -195,6 +200,10 @@ void Texture::ExecuteCommand(ID3D12Resource* _resource) {
 #pragma endregion
 
 #pragma region "Manager"
+TextureManager::TextureManager() {}
+
+TextureManager::~TextureManager() {}
+
 void TextureManager::Initialize() {
     CoInitializeEx(0, COINIT_MULTITHREADED);
     dxSrvArray_ = DxSrvArrayManager::getInstance()->Create(maxTextureSize_);
@@ -212,7 +221,7 @@ void TextureManager::Initialize() {
     dxCommand_ = std::make_unique<DxCommand>();
     dxCommand_->Initialize("TextureManager", "TextureManager");
     // load中のテクスチャにはこれをはっつける
-    LoadTexture(kEngineResourceDirectory + "/Texture/white1x1.png");
+    dummyTextureIndex_ = LoadTexture(kEngineResourceDirectory + "/Texture/white1x1.png");
 }
 
 void TextureManager::Finalize() {
@@ -238,7 +247,7 @@ uint32_t TextureManager::LoadTexture(const std::string& filePath, std::function<
 
         for (index = 0; index < textures_.size(); ++index) {
             if (textures_[index] == nullptr) {
-                textures_[index] = std::make_unique<Texture>();
+                textures_[index] = std::make_shared<Texture>();
                 break;
             } else if (filePath == textures_[index]->path) {
                 LOG_TRACE("Already loaded texture: " + filePath);
@@ -279,6 +288,23 @@ void TextureManager::UnloadTexture(uint32_t id) {
     dxSrvArray_->DestroyView(textures_[id]->srvIndex);
     textures_[id]->Finalize();
     textures_[id].reset();
+}
+
+D3D12_GPU_DESCRIPTOR_HANDLE TextureManager::getDescriptorGpuHandle(uint32_t handleId) {
+    DxHeap* heap    = DxHeap::getInstance();
+    uint32_t locate = 0;
+
+    // ロックが取れるまで待つ
+    std::lock_guard<std::mutex> lock(textures_[handleId]->mutex);
+
+    if (textures_[handleId]->loadState == LoadState::Loaded) {
+        locate = textures_[handleId]->srvIndex;
+    } else {
+        // ロード中や未ロードの場合はダミーを返す
+        locate = textures_[dummyTextureIndex_]->srvIndex;
+    }
+    // ロード中や未ロードの場合は必ずダミー（0番）を返す
+    return heap->getSrvGpuHandle(dxSrvArray_->getLocationOnHeap(locate));
 }
 #pragma endregion
 

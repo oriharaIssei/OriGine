@@ -144,6 +144,7 @@ void ModelMeshRenderer::Initialize(GameEntity* _hostEntity) {
 bool ModelMeshRenderer::Edit() {
 #ifdef _DEBUG
     bool isChange = false;
+    CheckBoxCommand("isRender", isRender_);
 
     ImGui::Text("BlendMode :");
     ImGui::SameLine();
@@ -372,11 +373,14 @@ LineRenderer::~LineRenderer() {}
 
 void LineRenderer::Initialize(GameEntity* _hostEntity) {
     MeshRenderer::Initialize(_hostEntity);
-    Transform* entityTransform = getComponent<Transform>(_hostEntity);
-
-    // transform
     transformBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
-    transformBuff_.openData_.parent = entityTransform;
+
+    if (_hostEntity) {
+        // transform
+        Transform* entityTransform      = getComponent<Transform>(_hostEntity);
+        transformBuff_.openData_.parent = entityTransform;
+    }
+
     transformBuff_.openData_.Update();
     transformBuff_.ConvertToBuffer();
 }
