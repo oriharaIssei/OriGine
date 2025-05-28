@@ -11,20 +11,24 @@
 
 /// math
 #include <numbers>
+#include <stdint.h>
 #include <Vector2.h>
 #include <Vector3.h>
 #include <Vector4.h>
 
-enum class PrimitiveType {
+enum class PrimitiveType : int32_t {
     Plane, // 面
-    Circle, // 円
     Ring, // 環(真ん中が空洞)
-    // Box, // 立方体
-    // Sphere, // 球
-    // Torus, // トーラス
-    // Cylinder, // 円柱
-    // Cone // 円錐
+    // Circle, // 円
+    //  Box, // 立方体
+    //  Sphere, // 球
+    //  Torus, // トーラス
+    //  Cylinder, // 円柱
+    //  Cone // 円錐
+
+    Count
 };
+const char* PrimitiveTypeToString(PrimitiveType _type);
 
 /// <summary>
 /// 形状の基底クラス
@@ -99,37 +103,6 @@ public: // accessor
 };
 
 /// <summary>
-/// Circle(円)のPrimitiveクラス
-/// </summary>
-class Circle
-    : public IPrimitive {
-public:
-    Circle() : IPrimitive(PrimitiveType::Circle) {}
-    ~Circle() override {}
-
-    void createMesh(TextureMesh* _mesh) override;
-
-private:
-    int32_t division_ = 16;
-    float radius_     = 1.f;
-
-public: // accessor
-    float getRadius() const {
-        return radius_;
-    }
-    void setRadius(float _radius) {
-        radius_ = _radius;
-    }
-
-    uint32_t getIndexSize() const {
-        return indexSize_;
-    }
-    void setIndexSize(uint32_t _indexSize_) {
-        indexSize_ = _indexSize_;
-    }
-};
-
-/// <summary>
 /// Ring(環)のPrimitiveクラス
 /// </summary>
 class Ring
@@ -174,36 +147,22 @@ public:
 template <typename T>
 concept IsPrimitive = std::derived_from<T, IPrimitive>;
 
-template <IsPrimitive PrimType>
-class PrimitiveMeshRenderer
+/// <summary>
+/// PrimitiveRendererをポリモーフィズムで扱うための基底クラス
+/// </summary>
+class PrimitiveMeshRendererBase
     : public MeshRenderer<TextureMesh, TextureVertexData> {
 public:
-    PrimitiveMeshRenderer() : MeshRenderer() {}
-    PrimitiveMeshRenderer(const std::vector<TextureMesh>& _meshGroup) : MeshRenderer(_meshGroup) {}
-    PrimitiveMeshRenderer(const std::shared_ptr<std::vector<TextureMesh>>& _meshGroup) : MeshRenderer(_meshGroup) {}
-    ~PrimitiveMeshRenderer() override {
-    }
+    PrimitiveMeshRendererBase() : MeshRenderer() {}
+    PrimitiveMeshRendererBase(const std::vector<TextureMesh>& _meshGroup) : MeshRenderer(_meshGroup) {}
+    PrimitiveMeshRendererBase(const std::shared_ptr<std::vector<TextureMesh>>& _meshGroup) : MeshRenderer(_meshGroup) {}
 
-    void Initialize(GameEntity* _entity) = 0;
-
-    void Finalize() override {
-        for (auto& mesh : *meshGroup_) {
-            mesh.Finalize();
-        }
-        meshGroup_.reset();
-        transformBuff_.Finalize();
-        materialBuff_.Finalize();
-    }
-
-    using PrimitiveType = PrimType;
+    virtual ~PrimitiveMeshRendererBase()         = default;
+    virtual void Initialize(GameEntity* _entity) = 0;
+    virtual void Finalize()                      = 0;
+    virtual bool Edit()                          = 0;
 
 protected:
-    virtual void createMesh(TextureMesh* _mesh) {
-        primitive_.createMesh(_mesh);
-    }
-
-protected:
-    PrimType primitive_;
     IConstantBuffer<Transform> transformBuff_;
     IConstantBuffer<Material> materialBuff_;
 
@@ -212,13 +171,6 @@ protected:
     uint32_t textureIndex_ = 0;
 
 public:
-    const PrimType& getPrimitive() const {
-        return primitive_;
-    }
-    PrimType& getPrimitive() {
-        return primitive_;
-    }
-
     const Transform& getTransform() const {
         return transformBuff_.openData_;
     }
@@ -259,6 +211,48 @@ public:
         textureDirectory_ = _directory;
         textureFileName_  = _filename;
         textureIndex_     = TextureManager::LoadTexture(_directory + "/" + _filename);
+    }
+};
+
+std::shared_ptr<PrimitiveMeshRendererBase> CreatePrimitiveRenderer(PrimitiveType _type);
+
+template <IsPrimitive PrimType>
+class PrimitiveMeshRenderer
+    : public PrimitiveMeshRendererBase {
+public:
+    PrimitiveMeshRenderer() : PrimitiveMeshRendererBase() {}
+    PrimitiveMeshRenderer(const std::vector<TextureMesh>& _meshGroup) : PrimitiveMeshRendererBase(_meshGroup) {}
+    PrimitiveMeshRenderer(const std::shared_ptr<std::vector<TextureMesh>>& _meshGroup) : PrimitiveMeshRendererBase(_meshGroup) {}
+
+    ~PrimitiveMeshRenderer() override {}
+
+    void Initialize(GameEntity* _entity) = 0;
+
+    void Finalize() override {
+        for (auto& mesh : *meshGroup_) {
+            mesh.Finalize();
+        }
+        meshGroup_.reset();
+        transformBuff_.Finalize();
+        materialBuff_.Finalize();
+    }
+
+    using PrimitiveType = PrimType;
+
+protected:
+    virtual void createMesh(TextureMesh* _mesh) {
+        primitive_.createMesh(_mesh);
+    }
+
+protected:
+    PrimType primitive_;
+
+public:
+    const PrimType& getPrimitive() const {
+        return primitive_;
+    }
+    PrimType& getPrimitive() {
+        return primitive_;
     }
 };
 
