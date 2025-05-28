@@ -2,8 +2,8 @@
 
 /// stl
 #include <codecvt>
-#include <shlobj.h>
 #include <fstream>
+#include <shlobj.h>
 #include <shobjidl.h>
 
 /// engine
@@ -116,7 +116,8 @@ bool MyFileSystem::selectFileDialog(
     const std::string& defaultDirectory,
     std::string& fileDirectory,
     std::string& filename,
-    const std::vector<std::string>& extensions) {
+    const std::vector<std::string>& extensions,
+    bool withoutExtensionOutput) {
     HRESULT hr         = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
     bool coInitialized = SUCCEEDED(hr);
 
@@ -172,7 +173,11 @@ bool MyFileSystem::selectFileDialog(
                         std::string fullPath  = ConvertString(wFullPath);
                         fs::path relativePath = fs::relative(fullPath, defaultDirectory);
                         fileDirectory         = relativePath.parent_path().string();
-                        filename              = relativePath.filename().string();
+                        if (withoutExtensionOutput) {
+                            filename = relativePath.filename().stem().string();
+                        } else {
+                            filename = relativePath.filename().string();
+                        }
                         CoTaskMemFree(pszFilePath);
                         pItem->Release();
                         pFileOpen->Release();
