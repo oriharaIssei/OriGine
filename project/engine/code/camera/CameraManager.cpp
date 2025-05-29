@@ -24,10 +24,7 @@ void CameraManager::Initialize() {
 
 void CameraManager::DebugUpdate() {
     debugCamera_->Update();
-
-    cTransform_->UpdateMatrix();
-    // DebugCamera の 更新情報を 渡す
-    cTransform_->viewMat = debugCamera_->getCameraTransform().viewMat;
+    cTransform_.openData_ = debugCamera_->getCameraTransform();
     // 情報を Buffuer に 渡す
     cTransform_.ConvertToBuffer();
 }
