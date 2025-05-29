@@ -933,16 +933,24 @@ void ChangingSystemActivityCommand::Execute() {
     // システムのアクティブ状態を変更
     isActive_ = !system_->isActive();
 
-    system_->setIsActive(isActive_);
-    if (system_->isActive()) {
+    if (isActive_) {
         ECSManager::getInstance()->ActivateSystem(systemName_, system_->getSystemType(), false);
+        for (auto& entity : entities_) {
+            if (!entity) {
+                continue;
+            }
+            system_->addEntity(entity);
+        }
     } else {
         ECSManager::getInstance()->StopSystem(systemName_, system_->getSystemType());
+        entities_ = system_->getEntities();
         for (auto& entity : entities_) {
+            if (!entity) {
+                continue;
+            }
             system_->removeEntity(entity);
         }
     }
-    entities_ = system_->getEntities();
 }
 
 void ChangingSystemActivityCommand::Undo() {
