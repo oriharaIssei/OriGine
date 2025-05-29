@@ -87,6 +87,7 @@ private:
 
     Vec2f textureLeftTop_ = {0.0f, 0.0f};
     Vec2f textureSize_    = {0.0f, 0.0f};
+    Vec2f size_           = {0.0f, 0.0f}; // px
 
     Vec2f anchorPoint_ = {0.0f, 0.0f};
 
@@ -103,8 +104,11 @@ public:
     const IConstantBuffer<SpritConstBuffer>& getSpriteBuff() const { return spriteBuff_; }
     IConstantBuffer<SpritConstBuffer>& getSpriteBuff() { return spriteBuff_; }
 
-    void setSize(const Vec2f& size) { spriteBuff_->scale_ = size; }
-    const Vec2f& getSize() const { return spriteBuff_->scale_; }
+    void setSize(const Vec2f& size) { size_ = size; }
+    const Vec2f& getSize() const { return size_; }
+
+    void setScale(const Vec2f& scale) { spriteBuff_->scale_ = scale; }
+    const Vec2f& getScale() const { return spriteBuff_->scale_; }
 
     void setRotate(float rotate) { spriteBuff_->rotate_ = rotate; }
     float getRotate() const { return spriteBuff_->rotate_; }

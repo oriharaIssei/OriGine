@@ -37,6 +37,7 @@ static const std::string kEngineResourceDirectory      = "engine/resource";
 
 #include "system/effect/EmitterWorkSystem.h"
 #include "system/effect/PrimitiveNodeAnimationWorkSystem.h"
+#include "system/effect/SpriteAnimationSystem.h"
 #include "system/effect/TextureEffectAnimation.h"
 
 #include "system/postRender/DistortionEffect.h"
@@ -56,6 +57,7 @@ static const std::string kEngineResourceDirectory      = "engine/resource";
 #ifdef ENGINE_COMPONENTS
 #include "component/IComponent.h"
 
+#include "component/animation/SpriteAnimation.h"
 #include "component/animation/ModelNodeAnimation.h"
 #include "component/animation/PrimitiveNodeAnimation.h"
 #include "component/material/light/DirectionalLight.h"

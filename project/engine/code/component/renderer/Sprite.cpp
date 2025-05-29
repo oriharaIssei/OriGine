@@ -52,8 +52,8 @@ void SpriteRenderer::Initialize(GameEntity* _hostEntity) {
             if (textureSize_.lengthSq() == 0.0f) {
                 textureSize_ = {static_cast<float>(texData.width), static_cast<float>(texData.height)};
             }
-            if (spriteBuff_->scale_.lengthSq() == 0.0f) {
-                spriteBuff_->scale_ = textureSize_;
+            if (size_.lengthSq() == 0.0f) {
+                size_ = textureSize_;
             }
         });
     }
@@ -65,7 +65,21 @@ bool SpriteRenderer::Edit() {
 
     ImGui::Text("Texture Path : %s", texturePath_.c_str());
     ImGui::SameLine();
-    if (ImGui::Button("...")) {
+
+    auto askLoad = [this]() {
+        bool askLoad = false;
+        askLoad |= ImGui::Button("Load Texture");
+        static ImVec2 textureButtonSize = {32.f, 32.f};
+        askLoad |= ImGui::ImageButton(
+            reinterpret_cast<ImTextureID>(TextureManager::getDescriptorGpuHandle(textureNumber_).ptr),
+            textureButtonSize,
+            {0, 0}, {1, 1},
+            8);
+
+        return askLoad;
+    };
+
+    if (askLoad()) {
         std::string directory;
         std::string fileName;
         if (myFs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"png"})) {
@@ -78,7 +92,7 @@ bool SpriteRenderer::Edit() {
                     textureNumber_ = TextureManager::LoadTexture(*_fileName, [this](uint32_t loadIndex) {
                         const DirectX::TexMetadata& texData = TextureManager::getTexMetadata(loadIndex);
                         textureSize_                        = {static_cast<float>(texData.width), static_cast<float>(texData.height)};
-                        spriteBuff_->scale_                 = textureSize_;
+                        size_                               = textureSize_;
                     });
                 });
             EditorGroup::getInstance()->pushCommand(std::move(command));
@@ -90,7 +104,7 @@ bool SpriteRenderer::Edit() {
     ImGui::Spacing();
 
     ImGui::Text("RenderingPriority");
-    isChange |= DragGuiCommand("##RenderingPriority", renderPriority_, 1, 0, 1000,"%d");
+    isChange |= DragGuiCommand("##RenderingPriority", renderPriority_, 1, 0, 1000, "%d");
 
     ImGui::Text("TextureSize");
     isChange |= DragGuiVectorCommand("##TextureSize", textureSize_, 1.0f, 0.0f, 1000.0f);
@@ -100,6 +114,9 @@ bool SpriteRenderer::Edit() {
 
     ImGui::Text("AnchorPoint");
     isChange |= DragGuiVectorCommand("##AnchorPoint", anchorPoint_, 0.01f, -1.0f, 1.0f);
+
+    ImGui::Text("Size");
+    isChange |= DragGuiVectorCommand("##Size", size_, 1.0f, 0.0f);
 
     ImGui::Spacing();
 
@@ -124,7 +141,8 @@ bool SpriteRenderer::Edit() {
     }
 
     if (ImGui::TreeNode("SpriteTransform")) {
-        ImGui::Text("Size(Scale)");
+
+        ImGui::Text("Scale");
         isChange |= DragGuiVectorCommand("##Scale", spriteBuff_->scale_, 0.01f, 0.0f, 1000.0f);
         ImGui::Text("Rotate");
         isChange |= DragGuiCommand("##Rotate", spriteBuff_->rotate_, 0.01f, 0.0f, 1000.0f);
@@ -152,7 +170,7 @@ void SpriteRenderer::setTexture(const std::string& _texturePath, bool _applyText
         textureNumber_ = TextureManager::LoadTexture(texturePath_, [this](uint32_t loadIndex) {
             const DirectX::TexMetadata& texData = TextureManager::getTexMetadata(loadIndex);
             textureSize_                        = {static_cast<float>(texData.width), static_cast<float>(texData.height)};
-            spriteBuff_->scale_                 = textureSize_;
+            size_                               = textureSize_;
         });
     } else {
         textureNumber_ = TextureManager::LoadTexture(texturePath_);
@@ -167,10 +185,10 @@ void SpriteRenderer::Update(const Matrix4x4& _viewPortMat) {
         spriteBuff_.ConvertToBuffer();
     }
     //-------------------------------- メッシュの更新 --------------------------------//
-    float left   = -anchorPoint_[X];
-    float right  = 1.0f - anchorPoint_[X];
-    float top    = -anchorPoint_[Y];
-    float bottom = 1.0f - anchorPoint_[Y];
+    float left   = -anchorPoint_[X] * size_[X];
+    float right  = (1.0f - anchorPoint_[X]) * size_[X];
+    float top    = -anchorPoint_[Y] * size_[Y];
+    float bottom = (1.0f - anchorPoint_[Y]) * size_[Y];
 
     if (isFlipX_) {
         left  = -left;
@@ -210,6 +228,7 @@ void to_json(nlohmann::json& j, const SpriteRenderer& r) {
         {"isFlipX", r.isFlipX_},
         {"isFlipY", r.isFlipY_},
         {"scale", r.spriteBuff_->scale_},
+        {"size", r.size_},
         {"rotate", r.spriteBuff_->rotate_},
         {"translate", r.spriteBuff_->translate_},
         {"uvScale", r.spriteBuff_->uvScale_},
@@ -226,6 +245,9 @@ void from_json(const nlohmann::json& j, SpriteRenderer& r) {
     j.at("isFlipX").get_to(r.isFlipX_);
     j.at("isFlipY").get_to(r.isFlipY_);
     j.at("scale").get_to(r.spriteBuff_->scale_);
+    if (j.find("size") != j.end()) {
+        j.at("size").get_to(r.size_);
+    }
     j.at("rotate").get_to(r.spriteBuff_->rotate_);
     j.at("translate").get_to(r.spriteBuff_->translate_);
     j.at("uvScale").get_to(r.spriteBuff_->uvScale_);
