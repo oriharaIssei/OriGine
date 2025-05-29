@@ -38,6 +38,8 @@ enum class ParticleUpdateType {
     UvRotatePerLifeTime    = 0x1 << 10,
     UvTranslatePerLifeTime = 0x1 << 11,
     RotateForward          = 0x1 << 11,
+    UniformScaleRandom     = 0x1 << 12,
+    VelocityRotateForward  = 0x1 << 13
 };
 
 class Particle {
@@ -65,9 +67,11 @@ public:
 protected:
     ParticleTransform transform_;
 
-    Vec3f direction_    = {0.0f, 0.0f, 1.0f};
-    Vec3f velocity_     = {0.0f, 0.0f, 0.0f};
-    bool rotateForward_ = false;
+    Vec3f direction_ = {0.0f, 0.0f, 1.0f};
+    Vec3f velocity_  = {0.0f, 0.0f, 0.0f};
+
+    bool rotateForward_        = false;
+    bool velocityRotateFoward_ = false;
 
     float deltaTime_ = 0.0f;
 

@@ -305,6 +305,7 @@ void EffectTexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
         paramBuff.SetForRootParameter(commandList, effectParameterBufferIndex_);
     }
 
+    Transform* entityTransfrom_ = getComponent<Transform>(_entity);
     // model
     while (true) {
         ModelMeshRenderer* renderer = getComponent<ModelMeshRenderer>(_entity, componentIndex);
@@ -322,7 +323,6 @@ void EffectTexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
         /// Transformの更新
         ///==============================
         {
-            Transform* entityTransfrom_ = getComponent<Transform>(_entity);
             for (int32_t i = 0; i < renderer->getMeshGroupSize(); ++i) {
                 auto& transform = renderer->getTransformBuff(i);
 
@@ -376,7 +376,7 @@ void EffectTexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
         componentIndex++;
     }
 
-    // primitive
+    // plane
     while (true) {
         PlaneRenderer* renderer = getComponent<PlaneRenderer>(_entity, componentIndex);
 
@@ -393,8 +393,76 @@ void EffectTexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
         /// Transformの更新
         ///==============================
         {
-            Transform* entityTransfrom_ = getComponent<Transform>(_entity);
-            auto& transform             = renderer->getTransformBuff();
+            auto& transform = renderer->getTransformBuff();
+
+            if (transform->parent == nullptr) {
+                transform->parent = entityTransfrom_;
+            }
+
+            transform.openData_.Update();
+            transform.ConvertToBuffer();
+        }
+
+        // BlendMode を 適応
+        BlendMode rendererBlend = renderer->getCurrentBlend();
+        if (rendererBlend != currentBlend_) {
+            currentBlend_ = rendererBlend;
+            commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
+            commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
+        }
+
+        uint32_t index = 0;
+
+        auto& meshGroup = renderer->getMeshGroup();
+        for (auto& mesh : *meshGroup) {
+            // ============================= テクスチャの設定 ============================= //
+
+            commandList->SetGraphicsRootDescriptorTable(
+                mainTextureBufferIndex_,
+                TextureManager::getDescriptorGpuHandle(renderer->getTextureIndex()));
+
+            // ============================= Viewのセット ============================= //
+            commandList->IASetVertexBuffers(0, 1, &mesh.getVBView());
+            commandList->IASetIndexBuffer(&mesh.getIBView());
+
+            // ============================= Transformのセット ============================= //
+            const IConstantBuffer<Transform>& meshTransform = renderer->getTransformBuff();
+            meshTransform.ConvertToBuffer();
+            meshTransform.SetForRootParameter(commandList, transformBufferIndex_);
+
+            // ============================= Materialのセット ============================= //
+            auto& material = renderer->getMaterialBuff();
+            material.openData_.UpdateUvMatrix();
+            material.ConvertToBuffer();
+            material.SetForRootParameter(commandList, materialBufferIndex_);
+
+            // ============================= 描画 ============================= //
+            commandList->DrawIndexedInstanced(UINT(mesh.getIndexSize()), 1, 0, 0, 0);
+
+            ++index;
+        }
+
+        componentIndex++;
+    }
+
+    // ring
+    while (true) {
+        RingRenderer* renderer = getComponent<RingRenderer>(_entity, componentIndex);
+
+        // nullptr なら これ以上存在しないとして終了
+        if (!renderer) {
+            break;
+        }
+        // 描画フラグが立っていないならスキップ
+        if (!renderer->isRender()) {
+            continue;
+        }
+
+        ///==============================
+        /// Transformの更新
+        ///==============================
+        {
+            auto& transform = renderer->getTransformBuff();
 
             if (transform->parent == nullptr) {
                 transform->parent = entityTransfrom_;

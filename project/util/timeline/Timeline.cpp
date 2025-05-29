@@ -450,16 +450,9 @@ bool EditKeyFrame(
                     // キーフレームを削除
                     auto commandCombo = std::make_unique<CommandCombo>();
                     commandCombo->addCommand(std::make_shared<EraseElementCommand<AnimationCurve<float>>>(&_keyFrames, _keyFrames.begin() + popUpIndex));
-                    commandCombo->setFuncOnAfterCommand([=]() {
-                        ImGuiStorage* _storage = ImGui::GetStateStorage();
-                        _storage->SetInt(popUpIndexId, -1);
-                    });
-                    commandCombo->setFuncOnAfterUndoCommand([=]() {
-                        ImGuiStorage* _storage = ImGui::GetStateStorage();
-                        _storage->SetInt(popUpIndexId, popUpIndex);
-                    });
-
                     EditorGroup::getInstance()->pushCommand(std::move(commandCombo));
+
+                    popUpIndex = -1;
                     return 0;
                 }
                 if (ImGui::Button("Copy")) {
@@ -723,17 +716,9 @@ bool EditKeyFrame(
                     auto commandCombo = std::make_unique<CommandCombo>();
                     // キーフレームを削除
                     commandCombo->addCommand(std::make_shared<EraseElementCommand<AnimationCurve<Vec2f>>>(&_keyFrames, _keyFrames.begin() + popUpIndex));
-                    commandCombo->setFuncOnAfterCommand([=]() {
-                        ImGuiStorage* _storage = ImGui::GetStateStorage();
-                        _storage->SetInt(popUpIndexId, -1);
-                    },
-                        false);
-                    commandCombo->setFuncOnAfterUndoCommand([=]() {
-                        ImGuiStorage* _storage = ImGui::GetStateStorage();
-                        _storage->SetInt(popUpIndexId, popUpIndex);
-                    });
-
                     EditorGroup::getInstance()->pushCommand(std::move(commandCombo));
+
+                    popUpIndex = -1;
                     return 0;
                 }
                 if (ImGui::Button("Copy")) {
@@ -994,15 +979,8 @@ bool EditKeyFrame(
                     // キーフレームを削除
                     auto commandCombo = std::make_unique<CommandCombo>();
                     commandCombo->addCommand(std::make_shared<EraseElementCommand<AnimationCurve<Vec3f>>>(&_keyFrames, _keyFrames.begin() + popUpIndex));
-                    commandCombo->setFuncOnAfterCommand([popUpIndexId]() {
-                        ImGuiStorage* _storage = ImGui::GetStateStorage();
-                        _storage->SetInt(popUpIndexId, -1);
-                    },
-                        false);
-                    commandCombo->setFuncOnAfterUndoCommand([popUpIndexId, popUpIndex]() {
-                        ImGuiStorage* _storage = ImGui::GetStateStorage();
-                        _storage->SetInt(popUpIndexId, popUpIndex);
-                    });
+
+                    popUpIndex = -1;
                     EditorGroup::getInstance()->pushCommand(std::move(commandCombo));
                     return 0;
                 }
@@ -1159,16 +1137,16 @@ bool EditKeyFrame(
     const float sliderWidth = frame_bb.Max.x - frame_bb.Min.x;
     const float buttonSize  = 10.0f;
 
-    ImGuiStorage* storage  = ImGui::GetStateStorage();
-    ImGuiID draggedIndexId = id + ImGui::GetID("draggedIndex");
-    ImGuiID draggedValueId = id + ImGui::GetID("draggedValue"); // Drag中の値
+    ImGuiStorage* storage    = ImGui::GetStateStorage();
+    ImGuiID draggedIndexId   = id + ImGui::GetID("draggedIndex");
+    ImGuiID draggedValueId   = id + ImGui::GetID("draggedValue"); // Drag中の値
     ImGuiID startDragValueId = id + ImGui::GetID("startDragValue"); // Drag開始時の値
-    ImGuiID popUpIndexId   = id + ImGui::GetID("popUpIndex");
+    ImGuiID popUpIndexId     = id + ImGui::GetID("popUpIndex");
 
-    int draggedIndex   = storage->GetInt(draggedIndexId, -1);
-    float draggedValue = storage->GetFloat(draggedValueId, 0.0f);
+    int draggedIndex     = storage->GetInt(draggedIndexId, -1);
+    float draggedValue   = storage->GetFloat(draggedValueId, 0.0f);
     float startDragValue = storage->GetFloat(startDragValueId, 0.f);
-    int popUpIndex     = storage->GetInt(popUpIndexId, -1);
+    int popUpIndex       = storage->GetInt(popUpIndexId, -1);
 
     if (IsMouseReleased(0)) {
         if (draggedIndex != -1) {
@@ -1206,7 +1184,7 @@ bool EditKeyFrame(
 
         if (isHovered) {
             if (IsMouseClicked(0) && draggedIndex == -1) {
-                draggedIndex = i;
+                draggedIndex   = i;
                 startDragValue = _keyFrames[i].time;
                 draggedValue   = startDragValue;
                 SetActiveID(id, window);
@@ -1253,17 +1231,9 @@ bool EditKeyFrame(
                     auto commandCombo = std::make_unique<CommandCombo>();
                     // キーフレームを削除
                     commandCombo->addCommand(std::make_shared<EraseElementCommand<AnimationCurve<Vec4f>>>(&_keyFrames, _keyFrames.begin() + popUpIndex));
-                    commandCombo->setFuncOnAfterCommand([popUpIndexId]() {
-                        ImGuiStorage* _storage = ImGui::GetStateStorage();
-                        _storage->SetInt(popUpIndexId, -1);
-                    },
-                        false);
-                    commandCombo->setFuncOnAfterUndoCommand([popUpIndexId, popUpIndex]() {
-                        ImGuiStorage* _storage = ImGui::GetStateStorage();
-                        _storage->SetInt(popUpIndexId, popUpIndex);
-                    });
 
                     EditorGroup::getInstance()->pushCommand(std::move(commandCombo));
+                    popUpIndex = -1;
 
                     ImGui::CloseCurrentPopup();
                     return 0;
@@ -1433,16 +1403,16 @@ bool EditKeyFrame(
     const float sliderWidth = frame_bb.Max[X] - frame_bb.Min[X];
     const float buttonSize  = 10.0f;
 
-    ImGuiStorage* storage  = ImGui::GetStateStorage();
-    ImGuiID draggedIndexId = id + ImGui::GetID("draggedIndex");
-    ImGuiID draggedValueId = id + ImGui::GetID("draggedValue"); // Drag中の値
+    ImGuiStorage* storage    = ImGui::GetStateStorage();
+    ImGuiID draggedIndexId   = id + ImGui::GetID("draggedIndex");
+    ImGuiID draggedValueId   = id + ImGui::GetID("draggedValue"); // Drag中の値
     ImGuiID startDragValueId = id + ImGui::GetID("startDragValue"); // Drag開始時の値
-    ImGuiID popUpIndexId   = id + ImGui::GetID("popUpIndex");
+    ImGuiID popUpIndexId     = id + ImGui::GetID("popUpIndex");
 
-    int draggedIndex   = storage->GetInt(draggedIndexId, -1);
-    float draggedValue = storage->GetFloat(draggedValueId, 0.0f);
+    int draggedIndex     = storage->GetInt(draggedIndexId, -1);
+    float draggedValue   = storage->GetFloat(draggedValueId, 0.0f);
     float startDragValue = storage->GetFloat(startDragValueId, 0.f);
-    int popUpIndex     = storage->GetInt(popUpIndexId, -1);
+    int popUpIndex       = storage->GetInt(popUpIndexId, -1);
 
     if (IsMouseReleased(0)) {
         if (draggedIndex != -1) {
@@ -1480,7 +1450,7 @@ bool EditKeyFrame(
 
         if (isHovered) {
             if (IsMouseClicked(0) && draggedIndex == -1) {
-                draggedIndex = i;
+                draggedIndex   = i;
                 startDragValue = _keyFrames[i].time;
                 draggedValue   = startDragValue;
                 SetActiveID(id, window);
@@ -1531,19 +1501,9 @@ bool EditKeyFrame(
                     // キーフレームを削除
                     commandCombo->addCommand(std::make_shared<EraseElementCommand<AnimationCurve<Quaternion>>>(&_keyFrames, _keyFrames.begin() + popUpIndex));
 
-                    commandCombo->setFuncOnAfterCommand([popUpIndexId]() {
-                        ImGuiStorage* _storage = ImGui::GetStateStorage();
-                        _storage->SetInt(popUpIndexId, -1);
-                    },
-                        false);
-
-                    commandCombo->setFuncOnAfterUndoCommand([popUpIndexId, popUpIndex]() {
-                        ImGuiStorage* _storage = ImGui::GetStateStorage();
-                        _storage->SetInt(popUpIndexId, popUpIndex);
-                    });
-
                     EditorGroup::getInstance()->pushCommand(std::move(commandCombo));
 
+                    popUpIndex = -1;
                     return 0;
                 }
                 if (ImGui::Button("Copy")) {
@@ -1715,16 +1675,16 @@ bool EditColorKeyFrame(
     const float sliderWidth = frame_bb.Max.x - frame_bb.Min.x;
     const float buttonSize  = 10.0f;
 
-    ImGuiStorage* storage  = ImGui::GetStateStorage();
-    ImGuiID draggedIndexId = id + ImGui::GetID("draggedIndex");
+    ImGuiStorage* storage    = ImGui::GetStateStorage();
+    ImGuiID draggedIndexId   = id + ImGui::GetID("draggedIndex");
     ImGuiID draggedValueId   = id + ImGui::GetID("draggedValue"); // Drag中の値
     ImGuiID startDragValueId = id + ImGui::GetID("startDragValue"); // Drag開始時の値
-    ImGuiID popUpIndexId   = id + ImGui::GetID("popUpIndex");
+    ImGuiID popUpIndexId     = id + ImGui::GetID("popUpIndex");
 
-    int draggedIndex   = storage->GetInt(draggedIndexId, -1);
-    float draggedValue = storage->GetFloat(draggedValueId, 0.0f);
+    int draggedIndex     = storage->GetInt(draggedIndexId, -1);
+    float draggedValue   = storage->GetFloat(draggedValueId, 0.0f);
     float startDragValue = storage->GetFloat(startDragValueId, 0.f);
-    int popUpIndex     = storage->GetInt(popUpIndexId, -1);
+    int popUpIndex       = storage->GetInt(popUpIndexId, -1);
 
     if (IsMouseReleased(0)) {
         if (draggedIndex != -1) {
@@ -1762,8 +1722,8 @@ bool EditColorKeyFrame(
 
         if (isHovered) {
             if (IsMouseClicked(0) && draggedIndex == -1) {
-                draggedIndex = i;
-                draggedValue = _keyFrames[i].time;
+                draggedIndex   = i;
+                draggedValue   = _keyFrames[i].time;
                 startDragValue = draggedValue;
                 SetActiveID(id, window);
                 FocusWindow(window);
@@ -1778,8 +1738,8 @@ bool EditColorKeyFrame(
         bool isActive = (draggedIndex == i);
         if (isActive) {
             if (IsMouseDragging(0)) {
-                float newT = (GetMousePos().x - frame_bb.Min.x) / sliderWidth;
-                newT       = ImClamp(newT, 0.0f, 1.0f);
+                float newT         = (GetMousePos().x - frame_bb.Min.x) / sliderWidth;
+                newT               = ImClamp(newT, 0.0f, 1.0f);
                 _keyFrames[i].time = newT * _duration;
             }
         }
@@ -1817,16 +1777,7 @@ bool EditColorKeyFrame(
                     auto commandCombo = std::make_unique<CommandCombo>();
 
                     commandCombo->addCommand(std::make_shared<EraseElementCommand<AnimationCurve<Vec4f>>>(&_keyFrames, _keyFrames.begin() + popUpIndex));
-                    commandCombo->setFuncOnAfterCommand([popUpIndexId]() {
-                        ImGuiStorage* _storage = ImGui::GetStateStorage();
-                        _storage->SetInt(popUpIndexId, -1);
-                    },
-                        false);
-                    commandCombo->setFuncOnAfterUndoCommand([popUpIndexId, popUpIndex]() {
-                        ImGuiStorage* _storage = ImGui::GetStateStorage();
-                        _storage->SetInt(popUpIndexId, popUpIndex);
-                    });
-
+                    
                     EditorGroup::getInstance()->pushCommand(std::move(commandCombo));
 
                     popUpIndex = -1;

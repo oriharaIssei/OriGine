@@ -10,7 +10,9 @@
 /// engine
 // directX12
 #include "directX12/IConstantBuffer.h"
-class PlaneRenderer;
+class PrimitiveMeshRendererBase;
+enum class PrimitiveType : int32_t;
+
 // component
 #include "component/material/Material.h"
 
@@ -52,7 +54,7 @@ public:
 private:
     IConstantBuffer<DistortionParamData> effectParamData_;
 
-    std::vector<std::shared_ptr<PlaneRenderer>> distortionObjects_;
+    std::vector<std::pair<std::shared_ptr<PrimitiveMeshRendererBase>, PrimitiveType>> distortionObjects_;
 
 public:
     DistortionParamData& getEffectParamData() {
@@ -62,7 +64,7 @@ public:
         return effectParamData_;
     }
 
-    std::vector<std::shared_ptr<PlaneRenderer>>& getDistortionObjects() {
+    std::vector<std::pair<std::shared_ptr<PrimitiveMeshRendererBase>, PrimitiveType>>& getDistortionObjects() {
         return distortionObjects_;
     }
 };

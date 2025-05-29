@@ -468,13 +468,8 @@
     <ClInclude Include="util\timeline\Timeline.h">
       <Filter>util\timeline</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\component\effect\post\VignetteParam.h" />
-    <ClInclude Include="util\timeline\Timeline.h" />
-    <ClInclude Include="engine\code\component\effect\TextureEffectParam.h" />
-    <ClInclude Include="engine\code\system\effect\TextureEffectAnimation.h" />
-    <ClInclude Include="engine\code\system\render\EffectTexturedMeshRenderSystem.h" />
-    <ClInclude Include="engine\code\component\animation\AnimationData.h" />
-    <ClInclude Include="engine\code\directX12\ResourceStateTracker.h" />
+    <ClInclude Include="engine\code\system\postRender\DistortionEffect.h" />
+    <ClInclude Include="engine\code\component\effect\post\DistortionEffectParam.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\code\ECS\ECSDebugger.cpp">
@@ -730,11 +725,8 @@
     <ClCompile Include="util\timeline\Timeline.cpp">
       <Filter>util\timeline</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\component\effect\post\VignetteParam.cpp" />
-    <ClCompile Include="engine\code\component\effect\TextureEffectParam.cpp" />
-    <ClCompile Include="engine\code\system\effect\TextureEffectAnimation.cpp" />
-    <ClCompile Include="engine\code\system\render\EffectTexturedMeshRenderSystem.cpp" />
-    <ClCompile Include="engine\code\component\animation\AnimationData.cpp" />
-    <ClCompile Include="engine\code\directX12\ResourceStateTracker.cpp" />
+    <ClCompile Include="ENGINE\CODE\DIRECTX12\RESOURCEBARRIERMANAGER.CPP" />
+    <ClCompile Include="engine\code\system\postRender\DistortionEffect.cpp" />
+    <ClCompile Include="engine\code\component\effect\post\DistortionEffectParam.cpp" />
   </ItemGroup>
 </Project>

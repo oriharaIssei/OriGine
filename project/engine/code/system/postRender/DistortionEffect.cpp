@@ -45,7 +45,7 @@ void DistortionEffect::Update() {
     /// ================================================
     // Rendering Distortion Scene Texture
     /// ================================================
-    
+
     for (auto& entity : entities_) {
         UpdateEntity(entity);
     }
@@ -84,7 +84,7 @@ void DistortionEffect::UpdateEntity(GameEntity* _entity) {
         distortionSceneTexture_->PreDraw();
         texturedMeshRenderSystem_->StartRender();
 
-        for (auto& object : distortionEffectParam->getDistortionObjects()) {
+        for (auto& [object, type] : distortionEffectParam->getDistortionObjects()) {
 
             // nullptr なら これ以上存在しないとして終了
             if (!object) {
@@ -107,7 +107,13 @@ void DistortionEffect::UpdateEntity(GameEntity* _entity) {
                 transform.openData_.Update();
                 transform.ConvertToBuffer();
             }
-            texturedMeshRenderSystem_->RenderPrimitiveMesh(commandList, object.get());
+
+            texturedMeshRenderSystem_->RenderingMesh(
+                commandList,
+                object->getMeshGroup()->front(),
+                object->getTransformBuff(),
+                object->getMaterialBuff(),
+                object->getTextureIndex());
         }
 
         distortionSceneTexture_->PostDraw();
@@ -118,7 +124,7 @@ void DistortionEffect::UpdateEntity(GameEntity* _entity) {
         /// ----------------------------------------------------------
         /// pso set
         /// ----------------------------------------------------------
-        auto* sceneView                 = SceneManager::getInstance()->getSceneView();
+        auto* sceneView = SceneManager::getInstance()->getSceneView();
         sceneView->PreDraw();
 
         commandList->SetPipelineState(pso_->pipelineState.Get());

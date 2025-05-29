@@ -21,6 +21,13 @@ void to_json(nlohmann::json& j, const TextureEffectParam& param) {
     j["distortionTexPath"] = param.distortionTexPath_;
     j["maskTexPath"]       = param.maskTexPath_;
 
+    // uniqueParam
+    // dissolve
+    j["dissolveThreshold"] = param.effectParamData_->dissolveThreshold;
+    // distortion
+    j["distortionStrength"] = param.effectParamData_->distortionStrength;
+    j["distortionBias"]     = param.effectParamData_->distortionBias;
+
     /// ===============================================================
     // uv
     /// ===============================================================
@@ -42,10 +49,6 @@ void to_json(nlohmann::json& j, const TextureEffectParam& param) {
     maskUV["rotate"]      = param.effectParamData_->maskUV.rotate_;
     maskUV["translate"]   = param.effectParamData_->maskUV.translate_;
     j["maskUV"]           = maskUV;
-
-    // effectParamData
-    j["dissolveThreshold"]  = param.effectParamData_->dissolveThreshold;
-    j["distortionStrength"] = param.effectParamData_->distortionStrength;
 
     /// ===============================================================
     // animation
@@ -139,6 +142,7 @@ void from_json(const nlohmann::json& j, TextureEffectParam& param) {
     // effectParamData
     j.at("dissolveThreshold").get_to(param.effectParamData_->dissolveThreshold);
     j.at("distortionStrength").get_to(param.effectParamData_->distortionStrength);
+    j.at("distortionBias").get_to(param.effectParamData_->distortionBias);
 
     /// ===============================================================
     // animation
@@ -320,7 +324,7 @@ bool TextureEffectParam::Edit() {
     if (isDistortion) {
         if (ImGui::TreeNode("Distortion")) {
             DragGuiCommand("DistortionStrength", effectParamData_->distortionStrength, 0.01f);
-            SlideCommand<float>("DistortionBias", effectParamData_->distortionBias,  0.0f, 1.f);
+            SlideCommand<float>("DistortionBias", effectParamData_->distortionBias, 0.0f, 1.f);
 
             ImGui::Separator();
 

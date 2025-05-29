@@ -4,8 +4,14 @@
 #include <algorithm>
 
 /// engine
+#include "sceneManager/SceneManager.h"
+#define RESOURCE_DIRECTORY
+#include "EngineInclude.h"
 // editor
 #include "module/editor/EditorGroup.h"
+
+/// lib
+#include "myFileSystem/MyFileSystem.h"
 
 #ifdef _DEBUG
 
@@ -55,6 +61,15 @@ void ECSEditor::SelectEntity() {
                 EditorGroup::getInstance()->pushCommand(std::move(command));
             }
 
+            if (ImGui::Button("Add Entity From File")) {
+                std::string directory, fileName;
+                bool isSelected = myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"ent"}, true);
+                if (isSelected) {
+                    auto command = std::make_unique<CreateEntityFromFileCommand>(this, directory, fileName);
+                    EditorGroup::getInstance()->pushCommand(std::move(command));
+                }
+            }
+
             // 選ばれたエンティティが あれば 表示
             if (!selectedEntities_.empty()) {
                 if (ImGui::Button("Group Join Work System")) {
@@ -75,6 +90,15 @@ void ECSEditor::SelectEntity() {
             auto command = std::make_unique<CreateEntityCommand>(this);
 
             EditorGroup::getInstance()->pushCommand(std::move(command));
+        }
+        if (ImGui::Button("Add Entity From File")) {
+            std::string directory, fileName;
+            bool isSelected = myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"ent"}, true);
+            if (isSelected) {
+                auto command = std::make_unique<CreateEntityFromFileCommand>(this, directory, fileName);
+
+                EditorGroup::getInstance()->pushCommand(std::move(command));
+            }
         }
         // 選ばれたエンティティが あれば表示
         if (!selectedEntities_.empty()) {
@@ -100,7 +124,7 @@ void ECSEditor::SelectEntity() {
         ImGui::Separator();
         ImGui::Text("Entity List");
 
-        static char searchBuffer[128] = ""; // 検索用のバッファ
+        static char searchBuffer[256] = ""; // 検索用のバッファ
         ImGui::InputText("Search", searchBuffer, sizeof(searchBuffer));
 
         // Active Entities
@@ -171,7 +195,10 @@ void ECSEditor::EditEntity() {
             ImGui::EndPopup();
         }
 
-        // ID と Name の表示
+        if (ImGui::Button("Save To File")) {
+            auto command = std::make_unique<SaveEntityToFileCommand>(this, editEntity_, "entities");
+            EditorGroup::getInstance()->pushCommand(std::move(command));
+        }
         if (ImGui::Button("Erase This")) {
             auto command = std::make_unique<EraseEntityCommand>(this, editEntity_);
 
@@ -873,7 +900,6 @@ void RemoveComponentCommand::Undo() {
         }
     }
 }
-#pragma endregion // Commands
 
 void LeaveWorkSystemCommand::Execute() {
     // エンティティをシステムから離脱させる処理
@@ -959,4 +985,27 @@ void ChangingSystemPriorityCommand::Undo() {
     ECSManager::getInstance()->SortPriorityOrderSystems(systemTypeIndex);
 }
 
+void CreateEntityFromFileCommand::Execute() {
+    SceneSerializer loader;
+    createdEntity = loader.LoadEntity(kApplicationResourceDirectory + "/" + directory_, dataTypeName_);
+
+    if (!selectCommand_) {
+        selectCommand_ = std::make_unique<SelectEntityCommand>(ecsEditor_, createdEntity);
+    }
+    selectCommand_->Execute();
+}
+void CreateEntityFromFileCommand::Undo() {
+    selectCommand_->Undo();
+    DestroyEntity(createdEntity);
+}
+
+void SaveEntityToFileCommand::Execute() {
+    SceneSerializer serializer;
+    serializer.SaveEntity(entity_, kApplicationResourceDirectory + "/" + directory_);
+}
+
+void SaveEntityToFileCommand::Undo() {
+    myfs::deleteFile(kApplicationResourceDirectory + "/" + directory_ + entity_->getDataType() + ".ent");
+}
+#pragma endregion // Commands
 #endif // _DEBUG
