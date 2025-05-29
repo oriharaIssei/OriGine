@@ -67,27 +67,6 @@ void Emitter::Initialize(GameEntity* /*_entity*/) {
         currentCoolTime_ = 0.f;
     }
 
-    // shape Type
-    switch (shapeType_) {
-    case EmitterShapeType::SPHERE:
-        emitterSpawnShape_ = std::make_shared<EmitterSphere>();
-        break;
-    case EmitterShapeType::OBB:
-        emitterSpawnShape_ = std::make_shared<EmitterOBB>();
-        break;
-    case EmitterShapeType::CAPSULE:
-        emitterSpawnShape_ = std::make_shared<EmitterCapsule>();
-        break;
-    case EmitterShapeType::CONE:
-        emitterSpawnShape_ = std::make_shared<EmitterCone>();
-        break;
-    default:
-        emitterSpawnShape_ = std::make_shared<EmitterSphere>();
-        break;
-    }
-
-    // keyFrames
-
     // resource
     if (isActive_) {
         CreateResource();
@@ -398,9 +377,20 @@ void Emitter::EditParticle() {
 
         int randomOrPerLifeTime    = (newFlag & static_cast<int32_t>(ParticleUpdateType::VelocityPerLifeTime)) ? 2 : ((newFlag & static_cast<int32_t>(ParticleUpdateType::VelocityRandom)) ? 1 : 0);
         int preRandomOrPerLifeTime = randomOrPerLifeTime;
+
         ImGui::RadioButton("Update Velocity None", &randomOrPerLifeTime, 0);
         ImGui::RadioButton("Update Velocity Random", &randomOrPerLifeTime, 1);
         ImGui::RadioButton("Update Velocity PerLifeTime", &randomOrPerLifeTime, 2);
+
+        bool isUsingVelocityRotate = (newFlag & static_cast<int32_t>(ParticleUpdateType::VelocityRotateForward)) != 0;
+
+        if (ImGui::Checkbox("VelocityRotateForward", &isUsingVelocityRotate)) {
+            if (isUsingVelocityRotate) {
+                newFlag = (newFlag | static_cast<int32_t>(ParticleUpdateType::VelocityRotateForward));
+            } else {
+                newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::VelocityRotateForward));
+            }
+        }
 
         bool isUsingGravity = (newFlag & static_cast<int32_t>(ParticleUpdateType::UsingGravity));
         if (ImGui::Checkbox("UsingGravity", &isUsingGravity)) {
@@ -490,6 +480,15 @@ void Emitter::EditParticle() {
         int randomOrPerLifeTime    = (newFlag & static_cast<int32_t>(ParticleUpdateType::ScalePerLifeTime)) ? 2 : ((newFlag & static_cast<int32_t>(ParticleUpdateType::ScaleRandom)) ? 1 : 0);
         int preRandomOrPerLifeTime = randomOrPerLifeTime;
 
+        bool uniformScaleRandom = (newFlag & static_cast<int32_t>(ParticleUpdateType::UniformScaleRandom)) != 0;
+        if (ImGui::Checkbox("UniformScaleRandom", &uniformScaleRandom)) {
+            if (uniformScaleRandom) {
+                newFlag = (newFlag | static_cast<int32_t>(ParticleUpdateType::UniformScaleRandom));
+            } else {
+                newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::UniformScaleRandom));
+            }
+        }
+
         ImGui::RadioButton("Update Scale None", &randomOrPerLifeTime, 0);
         ImGui::RadioButton("Update Scale Random", &randomOrPerLifeTime, 1);
         ImGui::RadioButton("Update Scale PerLifeTime", &randomOrPerLifeTime, 2);
@@ -562,15 +561,22 @@ void Emitter::EditParticle() {
             });
         startParticleRotateMax_ = MaxElement(startParticleRotateMin_, startParticleRotateMax_);
 
-        int randomOrPerLifeTime    = (newFlag & static_cast<int32_t>(ParticleUpdateType::RotatePerLifeTime)) ? 2 : ((newFlag & static_cast<int32_t>(ParticleUpdateType::RotateRandom)) ? 1 : 0);
+        int randomOrPerLifeTime    = (newFlag & static_cast<int32_t>(ParticleUpdateType::RotateForward)) ? 3 : (newFlag & static_cast<int32_t>(ParticleUpdateType::RotatePerLifeTime)) ? 2
+                                                                                                                                                                                       : ((newFlag & static_cast<int32_t>(ParticleUpdateType::RotateRandom)) ? 1 : 0);
         int preRandomOrPerLifeTime = randomOrPerLifeTime;
 
         ImGui::RadioButton("Update Rotate None", &randomOrPerLifeTime, 0);
         ImGui::RadioButton("Update Rotate Random", &randomOrPerLifeTime, 1);
         ImGui::RadioButton("Update Rotate PerLifeTime", &randomOrPerLifeTime, 2);
+        ImGui::RadioButton("Update Rotate Forward", &randomOrPerLifeTime, 3);
 
-        if (randomOrPerLifeTime == 2) {
+        if (randomOrPerLifeTime == 3) {
+            newFlag = (newFlag | static_cast<int32_t>(ParticleUpdateType::RotateForward));
+            newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::RotatePerLifeTime));
+            newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::RotateRandom));
+        } else if (randomOrPerLifeTime == 2) {
             newFlag = (newFlag | static_cast<int32_t>(ParticleUpdateType::RotatePerLifeTime));
+            newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::RotateForward));
             newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::RotateRandom));
 
             ImGui::EditKeyFrame("RotateLine", particleKeyFrames_->rotateCurve_, particleLifeTime_);
@@ -600,9 +606,11 @@ void Emitter::EditParticle() {
                 });
             updateParticleRotateMax_ = MaxElement(updateParticleRotateMin_, updateParticleRotateMax_);
 
-            newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::RotatePerLifeTime));
             newFlag = (newFlag | static_cast<int32_t>(ParticleUpdateType::RotateRandom));
+            newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::RotatePerLifeTime));
+            newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::RotateForward));
         } else if (preRandomOrPerLifeTime != 0 && randomOrPerLifeTime == 0) {
+            newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::RotateForward));
             newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::RotatePerLifeTime));
             newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::RotateRandom));
         }
@@ -903,6 +911,8 @@ void Emitter::SpawnParticle() {
     preWorldOriginPos_ = worldOriginPos_;
     worldOriginPos_    = originPos_;
 
+    bool uniformScaleRandom = (updateSettings_ & int(ParticleUpdateType::UniformScaleRandom)) != 0;
+
     for (int32_t i = 0; i < canSpawnParticleValue_; i++) {
         Vec3f spawnPos = Lerp(preWorldOriginPos_, worldOriginPos_, float(i) / float(canSpawnParticleValue_));
         spawnPos += emitterSpawnShape_->getSpawnPos();
@@ -922,10 +932,19 @@ void Emitter::SpawnParticle() {
         randZ.setRange(startParticleVelocityMin_.v[Z], startParticleVelocityMax_.v[Z]);
         Vec3f velocity = {randX.get(), randY.get(), randZ.get()};
 
-        randX.setRange(startParticleScaleMin_.v[X], startParticleScaleMax_.v[X]);
-        randY.setRange(startParticleScaleMin_.v[Y], startParticleScaleMax_.v[Y]);
-        randZ.setRange(startParticleScaleMin_.v[Z], startParticleScaleMax_.v[Z]);
-        transform.scale = {randX.get(), randY.get(), randZ.get()};
+        if (uniformScaleRandom) {
+            Vec3f scaleBase    = startParticleScaleMin_.normalize();
+            float maxScaleRate = startParticleScaleMax_.length();
+            float minScaleRate = startParticleScaleMin_.length();
+            randX.setRange(minScaleRate, maxScaleRate);
+
+            transform.scale = scaleBase * randX.get();
+        } else {
+            randX.setRange(startParticleScaleMin_.v[X], startParticleScaleMax_.v[X]);
+            randY.setRange(startParticleScaleMin_.v[Y], startParticleScaleMax_.v[Y]);
+            randZ.setRange(startParticleScaleMin_.v[Z], startParticleScaleMax_.v[Z]);
+            transform.scale = {randX.get(), randY.get(), randZ.get()};
+        }
 
         randX.setRange(startParticleRotateMin_.v[X], startParticleRotateMax_.v[X]);
         randY.setRange(startParticleRotateMin_.v[Y], startParticleRotateMax_.v[Y]);
@@ -999,9 +1018,7 @@ void from_json(const nlohmann::json& j, Emitter& e) {
     j.at("isActive").get_to(e.isActive_);
     j.at("isLoop").get_to(e.isLoop_);
 
-    if (j.find("originPos") != j.end()) {
-        j.at("originPos").get_to(e.originPos_);
-    }
+    j.at("originPos").get_to(e.originPos_);
 
     j.at("textureFileName").get_to(e.textureFileName_);
 
@@ -1072,6 +1089,43 @@ void from_json(const nlohmann::json& j, Emitter& e) {
     if (j.find("uvTranslateCurve") != j.end()) {
         curveLoad(j.at("uvTranslateCurve"), e.particleKeyFrames_->uvTranslateCurve_);
     }
+
+    if (j.find("EmitterShape") != j.end()) {
+        nlohmann::json shapeJson = j["EmitterShape"];
+        switch (e.shapeType_) {
+        case EmitterShapeType::SPHERE: {
+            EmitterSphere sphereShape;
+            shapeJson.get_to(sphereShape);
+            e.emitterSpawnShape_ = std::make_shared<EmitterSphere>(sphereShape);
+            break;
+        }
+        case EmitterShapeType::OBB: {
+            EmitterOBB obbShape;
+            shapeJson.get_to(obbShape);
+            e.emitterSpawnShape_ = std::make_shared<EmitterOBB>(obbShape);
+            break;
+        }
+        case EmitterShapeType::CAPSULE: {
+            EmitterCapsule capsuleShape;
+            shapeJson.get_to(capsuleShape);
+            e.emitterSpawnShape_ = std::make_shared<EmitterCapsule>(capsuleShape);
+            break;
+        }
+        case EmitterShapeType::CONE: {
+            EmitterCone coneShape;
+            shapeJson.get_to(coneShape);
+            e.emitterSpawnShape_ = std::make_shared<EmitterCone>(coneShape);
+            break;
+        }
+        case EmitterShapeType::Count:
+            LOG_ERROR("EmitterShapeType is not defined. Please check the EmitterShapeType.");
+            break;
+        default:
+            break;
+        }
+    } else {
+        e.emitterSpawnShape_ = std::make_shared<EmitterSphere>();
+    }
 }
 
 void to_json(nlohmann::json& j, const Emitter& e) {
@@ -1105,6 +1159,57 @@ void to_json(nlohmann::json& j, const Emitter& e) {
         {"updateParticleVelocityMin", e.updateParticleVelocityMin_},
         {"updateParticleVelocityMax", e.updateParticleVelocityMax_},
         {"randMass", e.randMass_}};
+
+    nlohmann::json shapeJson = nlohmann::json::object();
+    if (e.emitterSpawnShape_) {
+        switch (e.emitterSpawnShape_->type_) {
+        case EmitterShapeType::SPHERE: {
+            EmitterSphere* sphereShape = dynamic_cast<EmitterSphere*>(e.emitterSpawnShape_.get());
+            if (sphereShape) {
+                shapeJson = *sphereShape;
+            } else {
+                LOG_ERROR("EmitterSphere is not Sphere type. Please check the emitterSpawnShape_ type.");
+            }
+            break;
+        }
+        case EmitterShapeType::OBB: {
+            EmitterOBB* obbShape = dynamic_cast<EmitterOBB*>(e.emitterSpawnShape_.get());
+
+            if (obbShape) {
+                shapeJson = *obbShape;
+            } else {
+                LOG_ERROR("EmitterOBB is not OBB type. Please check the emitterSpawnShape_ type.");
+            }
+
+            break;
+        }
+        case EmitterShapeType::CAPSULE: {
+            EmitterCapsule* capsuleShape = dynamic_cast<EmitterCapsule*>(e.emitterSpawnShape_.get());
+
+            if (capsuleShape) {
+                shapeJson = *capsuleShape;
+            } else {
+                LOG_ERROR("EmitterCapsule is not Capsule type. Please check the emitterSpawnShape_ type.");
+            }
+
+            break;
+        }
+        case EmitterShapeType::CONE: {
+
+            EmitterCone* coneShape = dynamic_cast<EmitterCone*>(e.emitterSpawnShape_.get());
+            if (coneShape) {
+                shapeJson = *coneShape;
+            } else {
+                LOG_ERROR("EmitterCone is not Cone type. Please check the emitterSpawnShape_ type.");
+            }
+
+            break;
+        }
+        default:
+            break;
+        }
+    }
+    j["EmitterShape"] = shapeJson;
 
     auto curveSave = [](const auto& _curve) {
         nlohmann::json curve = nlohmann::json::array();

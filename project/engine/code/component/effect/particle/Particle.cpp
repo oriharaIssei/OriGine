@@ -67,17 +67,14 @@ void Particle::Update(float _deltaTime) {
         update();
     }
 
-    transform_.translate += velocity_ * deltaTime_;
-
-    //// direction_ を法線ベクトルとして velocity_ を回転させる
-    // Vec3f rotationAxis    = axisZ.cross(direction_).normalize();
-    // float angle           = std::acos(Vec3f(axisZ * direction_).dot() / (axisZ.length() * direction_.length()));
-    // Quaternion rotation   = Quaternion::RotateAxisAngle(rotationAxis, angle);
-    // Vec3f rotatedVelocity = Quaternion::RotateVector(velocity_, rotation);
-
-    //// 回転させた velocity_ で移動
-    // Vec3f movement = rotatedVelocity * _deltaTime;
-    // transform_.translate += movement;
+    if (velocityRotateFoward_) {
+        Vec3f rotationAxis  = axisZ.cross(direction_).normalize();
+        float angle         = std::acos(Vec3f(axisZ * direction_).dot() / (axisZ.length() * direction_.length()));
+        Quaternion rotation = Quaternion::RotateAxisAngle(rotationAxis, angle);
+        transform_.translate += Quaternion::RotateVector(velocity_, rotation) * deltaTime_;
+    } else {
+        transform_.translate += velocity_ * deltaTime_;
+    }
 
     if (rotateForward_) {
         // 進行方向を向くように回転させる
@@ -176,6 +173,8 @@ void Particle::setKeyFrames(int32_t updateSettings, ParticleKeyFrames* _keyFrame
             velocity_[Y] -= gravity_ * mass_ * deltaTime_;
         });
     }
+    velocityRotateFoward_ =
+        (updateSettings & static_cast<int32_t>(ParticleUpdateType::VelocityRotateForward)) != 0;
 
     if (updateSettings & static_cast<int32_t>(ParticleUpdateType::UvScalePerLifeTime)) {
         if (uvInterpolationType_ == InterpolationType::LINEAR) {
