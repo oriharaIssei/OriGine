@@ -354,6 +354,7 @@ void to_json(nlohmann::json& j, const RingRenderer& r) {
 
     j["InnerRadius"] = r.primitive_.getInnerRadius();
     j["OuterRadius"] = r.primitive_.getOuterRadius();
+    j["division"]    = r.primitive_.getDivision();
 }
 
 void from_json(const nlohmann::json& j, RingRenderer& r) {
@@ -369,10 +370,13 @@ void from_json(const nlohmann::json& j, RingRenderer& r) {
 
     float innerRadius = 0.f;
     float outerRadius = 0.f;
+    int32_t divi      = 0;
     j.at("InnerRadius").get_to(innerRadius);
     j.at("OuterRadius").get_to(outerRadius);
+    j.at("division").get_to(divi);
     r.primitive_.setInnerRadius(innerRadius);
     r.primitive_.setOuterRadius(outerRadius);
+    r.primitive_.setDivision(divi);
 }
 
 #pragma endregion

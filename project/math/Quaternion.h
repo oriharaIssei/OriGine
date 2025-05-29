@@ -49,17 +49,6 @@ struct Quaternion final
         return Quaternion(vector[X], vector[Y], vector[Z], newW);
     }
 
-    // Quaternion operator*(const Quaternion& _q) const {
-    //     Quaternion q{
-    //         v[W] * _q[X] + v[X] * _q[W] + v[Y] * _q[Z] - v[Z] * _q[Y], // X'
-    //         v[W] * _q[Y] + v[Y] * _q[W] + v[Z] * _q[X] - v[X] * _q[Z], // Y'
-    //         v[W] * _q[Z] + v[Z] * _q[W] + v[X] * _q[Y] - v[Y] * _q[X], // Z'
-    //         v[W] * _q[W] - v[X] * _q[X] - v[Y] * _q[Y] - v[Z] * _q[Z]  // W'
-    //     };
-
-    //    return q;
-    //}
-
     Quaternion* operator*=(const Quaternion& _q) {
         Quaternion q = *this * _q;
         *this        = q;

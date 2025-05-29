@@ -488,6 +488,8 @@
     </ClInclude>
     <ClInclude Include="engine\code\system\postRender\DistortionEffect.h" />
     <ClInclude Include="engine\code\component\effect\post\DistortionEffectParam.h" />
+    <ClInclude Include="engine\code\component\animation\SpriteAnimation.h" />
+    <ClInclude Include="engine\code\system\effect\SpriteAnimationSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\code\ECS\ECSDebugger.cpp">
@@ -761,5 +763,7 @@
     <ClCompile Include="ENGINE\CODE\DIRECTX12\RESOURCEBARRIERMANAGER.CPP" />
     <ClCompile Include="engine\code\system\postRender\DistortionEffect.cpp" />
     <ClCompile Include="engine\code\component\effect\post\DistortionEffectParam.cpp" />
+    <ClCompile Include="engine\code\component\animation\SpriteAnimation.cpp" />
+    <ClCompile Include="engine\code\system\effect\SpriteAnimationSystem.cpp" />
   </ItemGroup>
 </Project>
