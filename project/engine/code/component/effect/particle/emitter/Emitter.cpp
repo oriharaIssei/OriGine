@@ -901,11 +901,7 @@ void Emitter::SpawnParticle() {
     int32_t canSpawnParticleValue_ = (std::min<int32_t>)(spawnParticleVal_, static_cast<int32_t>(particleMaxSize_ - particles_.size()));
 
     preWorldOriginPos_ = worldOriginPos_;
-    if (parent_) {
-        worldOriginPos_ = originPos_ * parent_->worldMat;
-    } else {
-        worldOriginPos_ = originPos_;
-    }
+    worldOriginPos_    = originPos_;
 
     for (int32_t i = 0; i < canSpawnParticleValue_; i++) {
         Vec3f spawnPos = Lerp(preWorldOriginPos_, worldOriginPos_, float(i) / float(canSpawnParticleValue_));
