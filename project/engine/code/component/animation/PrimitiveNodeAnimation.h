@@ -6,12 +6,10 @@
 #include <memory>
 
 /// engine
-// directX12
-#include "directX12/IConstantBuffer.h"
 // component
-#include "component/animation/ModelNodeAnimation.h"
-#include "component/renderer/primitive/Primitive.h"
-#include "component/transform/Transform.h"
+#include "component/animation/AnimationData.h"
+struct Material;
+struct Transform;
 
 class PrimitiveNodeAnimation
     : public IComponent {
@@ -29,6 +27,9 @@ public:
     void Finalize() override;
 
     void Update(float _deltaTime, Transform* _transform, Material* _material);
+
+    void PlayStart();
+    void Stop();
 
 protected:
     void UpdateTransformAnimation(Transform* _transform);
