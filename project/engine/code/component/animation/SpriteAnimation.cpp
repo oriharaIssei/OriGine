@@ -39,6 +39,7 @@ bool SpriteAnimation::Edit() {
         }
         ImGui::EndCombo();
     }
+    ImGui::Text("Color Animation KeyFrames");
     isEdit |= ImGui::EditKeyFrame(
         "##Color Animation",
         colorCurve_,
@@ -61,40 +62,25 @@ bool SpriteAnimation::Edit() {
 
     ImGui::Spacing();
 
-    if (ImGui::BeginTable("Transform Key Frames", 2, ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollX)) {
-        ImGui::TableSetupColumn("Name");
-        ImGui::TableSetupColumn("Edit");
-        ImGui::TableHeadersRow();
-        // Scale
-        ImGui::TableNextRow();
-        ImGui::TableSetColumnIndex(0);
-        ImGui::TextUnformatted("Scale");
-        ImGui::TableSetColumnIndex(1);
-        isEdit |= ImGui::EditKeyFrame(
-            "##Transform Animation Scale",
-            scaleCurve_,
-            duration_,
-            {1.f, 1.f});
-        // Rotate
-        ImGui::TableNextRow();
-        ImGui::TableSetColumnIndex(0);
-        ImGui::TextUnformatted("Rotate");
-        ImGui::TableSetColumnIndex(1);
-        isEdit |= ImGui::EditKeyFrame(
-            "##Transform Animation Rotate",
-            rotateCurve_,
-            duration_);
-        // Translate
-        ImGui::TableNextRow();
-        ImGui::TableSetColumnIndex(0);
-        ImGui::TextUnformatted("Translate");
-        ImGui::TableSetColumnIndex(1);
-        isEdit |= ImGui::EditKeyFrame(
-            "##Transform Animation Translate",
-            translateCurve_,
-            duration_);
-        ImGui::EndTable();
-    }
+    // Scale
+    ImGui::Text("Scale");
+    isEdit |= ImGui::EditKeyFrame(
+        "##Transform Animation Scale",
+        scaleCurve_,
+        duration_,
+        {1.f, 1.f});
+    // Rotate
+    ImGui::Text("Rotate");
+    isEdit |= ImGui::EditKeyFrame(
+        "##Transform Animation Rotate",
+        rotateCurve_,
+        duration_);
+    // Translate
+    ImGui::Text("Translate");
+    isEdit |= ImGui::EditKeyFrame(
+        "##Transform Animation Translate",
+        translateCurve_,
+        duration_);
 
     ImGui::Spacing();
     ImGui::SeparatorText("UV Animation");
@@ -112,41 +98,25 @@ bool SpriteAnimation::Edit() {
     }
 
     ImGui::Spacing();
-    if (ImGui::BeginTable("UV Key Frames", 2, ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollX)) {
-        ImGui::TableSetupColumn("Name");
-        ImGui::TableSetupColumn("Edit");
-        ImGui::TableHeadersRow();
-        // UV Scale
-        ImGui::TableNextRow();
-        ImGui::TableSetColumnIndex(0);
-        ImGui::TextUnformatted("UV Scale");
-        ImGui::TableSetColumnIndex(1);
-        isEdit |= ImGui::EditKeyFrame(
-            "##UV Animation Scale",
-            uvScaleCurve_,
-            duration_,
-            {1.f, 1.f});
-        // UV Rotate
-        ImGui::TableNextRow();
-        ImGui::TableSetColumnIndex(0);
-        ImGui::TextUnformatted("UV Rotate");
-        ImGui::TableSetColumnIndex(1);
-        isEdit |= ImGui::EditKeyFrame(
-            "##UV Animation Rotate",
-            uvRotateCurve_,
-            duration_);
-        // UV Translate
-        ImGui::TableNextRow();
-        ImGui::TableSetColumnIndex(0);
-        ImGui::TextUnformatted("UV Translate");
-        ImGui::TableSetColumnIndex(1);
-        isEdit |= ImGui::EditKeyFrame(
-            "##UV Animation Translate",
-            uvTranslateCurve_,
-            duration_);
-        ImGui::EndTable();
-    }
-
+    // UV Scale
+    ImGui::Text("UV Scale");
+    isEdit |= ImGui::EditKeyFrame(
+        "##UV Animation Scale",
+        uvScaleCurve_,
+        duration_,
+        {1.f, 1.f});
+    // UV Rotate
+    ImGui::Text("UV Rotate");
+    isEdit |= ImGui::EditKeyFrame(
+        "##UV Animation Rotate",
+        uvRotateCurve_,
+        duration_);
+    // UV Translate
+    ImGui::Text("UV Translate");
+    isEdit |= ImGui::EditKeyFrame(
+        "##UV Animation Translate",
+        uvTranslateCurve_,
+        duration_);
 #endif // _DEBUG
 
     return isEdit;
@@ -298,17 +268,17 @@ void from_json(const nlohmann::json& j, SpriteAnimation& r) {
     r.colorAnimationState_.isLoop_ = j["colorAnimationState"].value("isLoop", false);
     r.colorAnimationState_.isPlay_ = j["colorAnimationState"].value("isPlay", false);
     r.colorInterpolationType_      = InterpolationType(j.value("colorInterpolationType", int(InterpolationType::LINEAR)));
-    readCurve(j["colorCurve"], r.colorCurve_);
+    readCurve("colorCurve", r.colorCurve_);
     r.transformAnimationState_.isLoop_ = j["transformAnimationState"].value("isLoop", false);
     r.transformAnimationState_.isPlay_ = j["transformAnimationState"].value("isPlay", false);
     r.transformInterpolationType_      = InterpolationType(j.value("transformInterpolationType", int(InterpolationType::LINEAR)));
-    readCurve(j["scaleCurve"], r.scaleCurve_);
-    readCurve(j["rotateCurve"], r.rotateCurve_);
-    readCurve(j["translateCurve"], r.translateCurve_);
+    readCurve("scaleCurve", r.scaleCurve_);
+    readCurve("rotateCurve", r.rotateCurve_);
+    readCurve("translateCurve", r.translateCurve_);
     r.uvAnimationState_.isLoop_ = j["uvAnimationState"].value("isLoop", false);
     r.uvAnimationState_.isPlay_ = j["uvAnimationState"].value("isPlay", false);
     r.uvInterpolationType_      = InterpolationType(j.value("uvInterpolationType", int(InterpolationType::LINEAR)));
-    readCurve(j["uvScaleCurve"], r.uvScaleCurve_);
-    readCurve(j["uvRotateCurve"], r.uvRotateCurve_);
-    readCurve(j["uvTranslateCurve"], r.uvTranslateCurve_);
+    readCurve("uvScaleCurve", r.uvScaleCurve_);
+    readCurve("uvRotateCurve", r.uvRotateCurve_);
+    readCurve("uvTranslateCurve", r.uvTranslateCurve_);
 }
