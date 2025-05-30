@@ -67,10 +67,16 @@ CollisionCheckSystem::CollisionCheckSystem()
 CollisionCheckSystem::~CollisionCheckSystem() {}
 
 void CollisionCheckSystem::Initialize() {
+    entities_.reserve(ECSManager::getInstance()->getEntityCapacity());
 }
 
 void CollisionCheckSystem::Update() {
     eraseDeadEntity();
+
+    entities_.clear();
+    for (auto id : entityIDs_) {
+        entities_.emplace_back(getEntity(id));
+    }
 
     entityItr_ = entities_.begin();
 
@@ -133,7 +139,7 @@ void CollisionCheckSystem::Update() {
 }
 
 void CollisionCheckSystem::Finalize() {
-    entities_.clear();
+    entityIDs_.clear();
 }
 
 void CollisionCheckSystem::UpdateEntity(GameEntity* _entity) {

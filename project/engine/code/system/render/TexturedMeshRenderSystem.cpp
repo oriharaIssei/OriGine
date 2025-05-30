@@ -25,14 +25,14 @@ void TexturedMeshRenderSystem::Initialize() {
 }
 
 void TexturedMeshRenderSystem::Update() {
-    if (entities_.empty()) {
+    if (entityIDs_.empty()) {
         return;
     }
     ISystem::eraseDeadEntity();
 
     StartRender();
-
-    for (auto& entity : entities_) {
+    for (auto& id : entityIDs_) {
+        GameEntity* entity = getEntity(id);
         UpdateEntity(entity);
     }
 }

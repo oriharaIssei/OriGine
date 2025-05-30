@@ -168,7 +168,8 @@ void SystemDebugger::Update() {
 
                         ImGui::Separator();
                         ImGui::Text("Entities    :");
-                        for (auto& entity : system->getEntities()) {
+                        for (auto& id : system->getEntityIDs()) {
+                            GameEntity* entity = ecsManager_->getEntity(id);
                             if (entity == nullptr) {
                                 continue;
                             }

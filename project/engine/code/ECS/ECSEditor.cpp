@@ -71,7 +71,7 @@ void ECSEditor::SelectEntity() {
             }
 
             // 選ばれたエンティティが あれば 表示
-            if (!selectedEntities_.empty()) {
+            if (!selectedentityIDs_.empty()) {
                 if (ImGui::Button("Group Join Work System")) {
                     popupJoinWorkSystem_.isOpen_ = true;
                 }
@@ -101,7 +101,7 @@ void ECSEditor::SelectEntity() {
             }
         }
         // 選ばれたエンティティが あれば表示
-        if (!selectedEntities_.empty()) {
+        if (!selectedentityIDs_.empty()) {
 
             if (ImGui::Button("Group Erase")) {
                 auto command = std::make_unique<GroupEraseEntityCommand>(this);
@@ -141,14 +141,14 @@ void ECSEditor::SelectEntity() {
                 }
 
                 isEntitySelected = false;
-                isEntitySelected = std::find(selectedEntities_.begin(), selectedEntities_.end(), &entity) != selectedEntities_.end();
+                isEntitySelected = std::find(selectedentityIDs_.begin(), selectedentityIDs_.end(), &entity) != selectedentityIDs_.end();
 
                 checkBoxID = "##entitySelect_" + entity.getUniqueID();
                 if (ImGui::Checkbox(checkBoxID.c_str(), &isEntitySelected)) {
                     if (!isEntitySelected) {
-                        selectedEntities_.remove(&entity);
+                        selectedentityIDs_.remove(&entity);
                     } else {
-                        selectedEntities_.push_back(&entity);
+                        selectedentityIDs_.push_back(&entity);
                     }
                 }
 
@@ -404,7 +404,7 @@ void ECSEditor::PopupEntityJoinWorkSystem(GameEntity* _entity, bool _isGroup) {
         return;
     }
 
-    if (_isGroup == selectedEntities_.empty()) {
+    if (_isGroup == selectedentityIDs_.empty()) {
         return;
     }
 
@@ -475,7 +475,7 @@ void ECSEditor::PopupEntityAddComponent(GameEntity* _entity, bool _isGroup) {
         return;
     }
 
-    if (_isGroup == selectedEntities_.empty()) {
+    if (_isGroup == selectedentityIDs_.empty()) {
         return;
     }
 
@@ -522,7 +522,7 @@ void ECSEditor::PopupEntityLeaveWorkSystem(GameEntity* _entity, bool _isGroup) {
         return;
     };
 
-    if (_isGroup == selectedEntities_.empty()) {
+    if (_isGroup == selectedentityIDs_.empty()) {
         return;
     }
 
@@ -943,8 +943,10 @@ void ChangingSystemActivityCommand::Execute() {
         }
     } else {
         ECSManager::getInstance()->StopSystem(systemName_, system_->getSystemType());
-        entities_ = system_->getEntities();
-        for (auto& entity : entities_) {
+
+        entities_.clear();
+        for (auto& id : system_->getEntityIDs()) {
+            GameEntity* entity = ECSManager::getInstance()->getEntity(id);
             if (!entity) {
                 continue;
             }
