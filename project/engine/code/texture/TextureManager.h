@@ -83,7 +83,10 @@ private:
     static std::unique_ptr<DxCommand> dxCommand_;
 
 public:
-    static D3D12_GPU_DESCRIPTOR_HANDLE getDescriptorGpuHandle(uint32_t handleId) ;
+    static D3D12_GPU_DESCRIPTOR_HANDLE getDescriptorGpuHandle(uint32_t handleId);
 
     static const DirectX::TexMetadata& getTexMetadata(uint32_t handleId) { return textures_[handleId]->metaData; }
 };
+
+// engine/resource/ は含まれない
+const static std::string kDefaultWhiteTextureLocalPath = "/Texture/white1x1.png";
