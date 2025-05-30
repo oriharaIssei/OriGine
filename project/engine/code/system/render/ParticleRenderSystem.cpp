@@ -21,7 +21,8 @@ void ParticleRenderSystem::Update() {
     eraseDeadEntity();
 
     StartRender();
-    for (auto& entity : entities_) {
+    for (auto& id : entityIDs_) {
+        GameEntity* entity = getEntity(id);
         UpdateEntity(entity);
     }
 }

@@ -1,5 +1,9 @@
 #include "ISystem.h"
 
+/// engine
+// ecs
+#include "ECS/ECSManager.h"
+
 #ifdef _DEBUG
 #include "myGui/MyGui.h"
 #endif // _DEBUG
@@ -10,13 +14,14 @@ void ISystem::Update() {
     deltaTimer_.Initialize();
 #endif
 
-    if (entities_.empty()) {
+    if (entityIDs_.empty()) {
         return;
     }
 
     eraseDeadEntity();
 
-    for (auto& entity : entities_) {
+    for (auto& entityID : entityIDs_) {
+        GameEntity* entity = ECSManager::getInstance()->getEntity(entityID);
         UpdateEntity(entity);
     }
 
@@ -36,7 +41,7 @@ void ISystem::Edit() {
     ImGui::SetNextItemWidth(78);
     InputGuiCommand("Priority", priority_, "%d");
 
-    ImGui::Text("EntityCount: %d", static_cast<int>(entities_.size()));
+    ImGui::Text("EntityCount: %d", static_cast<int>(entityIDs_.size()));
 
     ImGui::Separator();
 
@@ -48,7 +53,8 @@ void ISystem::Edit() {
             ImGui::TableSetupColumn("Type");
             ImGui::TableHeadersRow();
 
-            for (auto& entity : entities_) {
+            for (auto& entityID : entityIDs_) {
+                GameEntity* entity = ECSManager::getInstance()->getEntity(entityID);
                 ImGui::TableNextRow();
                 ImGui::TableSetColumnIndex(0);
                 ImGui::Text("%d", entity->getID());
