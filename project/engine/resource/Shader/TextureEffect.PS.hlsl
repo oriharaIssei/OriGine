@@ -63,12 +63,14 @@ struct LightCounts
 
 struct effectParam
 {
-    float4x4 mask_uv;
     float4x4 dissolve_uv;
     float4x4 distortion_uv;
+    float4x4 mask_uv;
+    float4 dissolve_Color; // RGBA
+    float dissolve_edgeWidth;
+    float dissolve_Threshold;
     float distortion_Bias;
     float distortion_Strength;
-    float dissolve_Threshold;
     
     int effect_Flags;
     
@@ -118,6 +120,9 @@ PS_Output main(VertexShaderOutput input)
     
     float dissolveFactor = gDissolveTex.Sample(gSampler, dissolveUV.xy).r;
     float dissolveMask = step(gEffectParam.dissolve_Threshold, dissolveFactor); // 0 or 1
+    
+    float dissolveColorMask = step(gEffectParam.dissolve_Threshold, dissolveFactor + gEffectParam.dissolve_edgeWidth); // 0 or 1
+
 
     float4 maskUV = mul(float4(input.texCoord, 0.0f, 1.0f), gEffectParam.mask_uv);
     float maskValue = gMaskTex.Sample(gSampler, maskUV.xy).r;
@@ -136,21 +141,41 @@ PS_Output main(VertexShaderOutput input)
     bool useMask = (effectFlags & EFFECT_MASK) != 0;
     bool useDistortion = (effectFlags & EFFECT_DISTORTION) != 0;
 
-    float dissolveEnabled = useDissolve ? 1.0f : 0.0f;
-    float maskEnabled = useMask ? 1.0f : 0.0f;
-    float distortEnabled = useDistortion ? 1.0f : 0.0f;
-
-// UV
-    float2 finalUV = lerp(mainUV, distortedUV, distortEnabled);
-
-// Color Sample
-    output.color = gMainTex.Sample(gSampler, finalUV) * gMaterial.color;
+    float dissolveEnabled = lerp(0.0, 1.0, useDissolve);
+    float maskEnabled = lerp(0.0, 1.0, useMask);
+    float distortEnabled = lerp(0.0, 1.0, useDistortion);
     
-    // まずはdissolveだけでclip
-    clip(dissolveEnabled > 0.5f ? dissolveMask - 0.01f : 1.0f);
-    // maskだけ
-    clip(maskEnabled > 0.5f ? maskFactor - 0.01f : 1.0f);
-
+    // mask
+    clip(maskEnabled > 0.5f ? maskFactor - 0.001f : 1.0f);
+    
+    // UV
+    float2 finalUV = lerp(mainUV, distortedUV, distortEnabled);
+    
+    float4 finalColor = gMainTex.Sample(gSampler, finalUV) * gMaterial.color;
+    
+     // dissolve
+    if (dissolveEnabled)
+    {
+        if (!dissolveMask)
+        {
+            //dissolveColor の 適応
+            finalColor = lerp(float4(0.0f, 0.0f, 0.0f, 0.0f), gEffectParam.dissolve_Color, dissolveColorMask);
+        }
+    }
+    
+    if (finalColor.a < 0.0001f)
+    {
+        discard;
+    }
+    
+    
+    // Color Sample
+    output.color = finalColor;
+    
+    
+    /// ========================================
+    // lighting
+    /// =======================================
     if (!gMaterial.enableLighting)
     {
         return output;
