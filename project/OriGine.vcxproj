@@ -277,6 +277,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\directX12\ShaderManager.cpp" />
     <ClCompile Include="engine\code\iScene\IScene.cpp" />
     <ClCompile Include="engine\code\input\Input.cpp" />
+    <ClCompile Include="engine\code\model\Model.cpp" />
     <ClCompile Include="engine\code\model\ModelManager.cpp" />
     <ClCompile Include="engine\code\module\debugger\DebuggerGroup.cpp" />
     <ClCompile Include="engine\code\module\editor\EditorGroup.cpp" />

@@ -765,5 +765,6 @@
     <ClCompile Include="engine\code\component\effect\post\DistortionEffectParam.cpp" />
     <ClCompile Include="engine\code\component\animation\SpriteAnimation.cpp" />
     <ClCompile Include="engine\code\system\effect\SpriteAnimationSystem.cpp" />
+    <ClCompile Include="engine\code\model\Model.cpp" />
   </ItemGroup>
 </Project>

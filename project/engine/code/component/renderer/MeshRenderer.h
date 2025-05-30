@@ -144,16 +144,19 @@ public:
     }
     void ResizeMaterialBuffer2MeshGroupSize() {
         meshMaterialBuff_.resize(meshGroup_->size());
-        meshTextureNumber_.resize(meshGroup_->size());
+        meshTextureNumbers_.resize(meshGroup_->size(), 0);
+        textureFilePath_.resize(meshGroup_->size(), "");
     }
 
 private:
-    std::string directory_;
-    std::string fileName_;
+    std::string directory_ = "";
+    std::string fileName_  = "";
 
     std::vector<IConstantBuffer<Transform>> meshTransformBuff_;
     std::vector<IConstantBuffer<Material>> meshMaterialBuff_;
-    std::vector<uint32_t> meshTextureNumber_;
+
+    std::vector<std::string> textureFilePath_ = {};
+    std::vector<uint32_t> meshTextureNumbers_;
 
 public:
     //------------------------------ Transform ------------------------------//
@@ -199,13 +202,11 @@ public:
 
     //------------------------------ TextureNumber ------------------------------//
     uint32_t getTextureNumber(int32_t _meshIndex) const {
-        return meshTextureNumber_[_meshIndex];
-    }
-    void setTextureNumber(int32_t _meshIndex, uint32_t _textureNumber) {
-        meshTextureNumber_[_meshIndex] = _textureNumber;
+        return meshTextureNumbers_[_meshIndex];
     }
     void setTexture(int32_t _meshIndex, const std::string& _filename) {
-        meshTextureNumber_[_meshIndex] = TextureManager::LoadTexture(_filename);
+        textureFilePath_[_meshIndex]    = _filename;
+        meshTextureNumbers_[_meshIndex] = TextureManager::LoadTexture(textureFilePath_[_meshIndex]);
     }
 };
 
@@ -214,7 +215,8 @@ void CreateModelMeshRenderer(
     GameEntity* _hostEntity,
     const std::string& _directory,
     const std::string& _filenName,
-    bool _usingDefaultMaterial = true);
+    bool _usingDefaultMaterial = true,
+    bool _usingDefaultTexture  = true);
 
 //----------------------------------------- LineRenderer -----------------------------------------//
 class LineRenderer

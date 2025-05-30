@@ -14,8 +14,8 @@
 #include "directX12/IConstantBuffer.h"
 #include "directX12/Mesh.h"
 // component
-#include "component/transform/Transform.h"
 #include "component/material/Material.h"
+#include "component/transform/Transform.h"
 // lib
 #include "Thread/Thread.h"
 // math
@@ -23,6 +23,7 @@
 #include "Quaternion.h"
 
 struct TexturedMaterial {
+    std::string texturePath = "";
     uint32_t textureNumber;
     IConstantBuffer<Material> material;
 };
@@ -54,7 +55,20 @@ struct Model {
     void setMaterialBuff(int32_t part, Material _data) {
         materialData_[part].material = _data;
     }
-    void setTexture(int32_t part, uint32_t textureNumber) {
-        materialData_[part].textureNumber = textureNumber;
+    /// <summary>
+    /// 指定したメッシュのテクスチャをロードする
+    /// </summary>
+    /// <param name="part">メシュの番号</param>
+    /// <param name="_texturePath">テクスチャパス</param>
+    void loadTexture(int32_t part, const std::string& _texturePath);
+
+    /// <summary>
+    ///  <非推奨> 直接 指定したメッシュのテクスチャをセットする
+    /// </summary>
+    /// <param name="part"></param>
+    /// <param name="_textureNumber"></param>
+    void setTexture(int32_t part, uint32_t _textureNumber) {
+        materialData_[part].texturePath   = "";
+        materialData_[part].textureNumber = _textureNumber;
     }
 };

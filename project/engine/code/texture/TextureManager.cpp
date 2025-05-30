@@ -227,7 +227,7 @@ void TextureManager::Initialize() {
     dxCommand_ = std::make_unique<DxCommand>();
     dxCommand_->Initialize("TextureManager", "TextureManager");
     // load中のテクスチャにはこれをはっつける
-    dummyTextureIndex_ = LoadTexture(kEngineResourceDirectory + "/Texture/white1x1.png");
+    dummyTextureIndex_ = LoadTexture(kEngineResourceDirectory + kDefaultWhiteTextureLocalPath);
 }
 
 void TextureManager::Finalize() {
