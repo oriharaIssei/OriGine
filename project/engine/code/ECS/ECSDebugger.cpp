@@ -71,7 +71,7 @@ void EntityDebugger::Update() {
             for (size_t i = 0; i < compList.size(); ++i) {
                 componentLabel = compTypeName + "[" + std::to_string(i) + "]";
                 if (ImGui::TreeNode(compTypeName.c_str())) {
-                    compList[i]->Edit();
+                    compList[i]->Debug();
                     ImGui::TreePop();
                 }
             }
