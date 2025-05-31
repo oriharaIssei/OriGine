@@ -147,15 +147,14 @@ void ParticleRenderSystem::StartRender() {
 void ParticleRenderSystem::UpdateEntity(GameEntity* _entity) {
     ID3D12GraphicsCommandList* commandList = dxCommand_->getCommandList();
 
-    Transform* parentTransform = getComponent<Transform>(_entity);
-
     for (auto& comp : *getComponents<Emitter>(_entity)) {
         if (!comp.getIsActive()) {
             continue;
         }
 
-#ifdef _DEBUG
+        Transform* parentTransform = getComponent<Transform>(_entity);
         comp.setParent(parentTransform);
+#ifdef _DEBUG
         if (SceneManager::getInstance()->inEditMode()) {
             const float deltaTime = Engine::getInstance()->getDeltaTime();
             comp.UpdateParticle(deltaTime);
