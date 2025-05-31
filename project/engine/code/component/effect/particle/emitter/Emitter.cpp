@@ -23,6 +23,8 @@
 #include "EmitterShape.h"
 #include "model/Model.h"
 
+#include "logger/Logger.h"
+
 // math
 #include "math/Matrix4x4.h"
 #include <cmath>
@@ -89,9 +91,9 @@ void Emitter::Update(float deltaTime) {
         if (!isActive_) {
             return;
         }
-        leftActiveTime_ -= deltaTime;
         // Loop するなら スキップ
         if (!isLoop_) {
+            leftActiveTime_ -= deltaTime;
             // leftActiveTime が 0 以下で Particle が 全て消えたら
             if (leftActiveTime_ <= 0.0f && particles_.empty()) {
                 isActive_ = false;
@@ -404,10 +406,11 @@ void Emitter::EditParticle() {
             DragGuiCommand<float>("Min Mass", randMass_[X], 0.1f, {}, {}, "%.3f", [this](float* _newVal) {
                 *_newVal = (std::min)(*_newVal, randMass_[Y]);
             });
-
             DragGuiCommand<float>("Max Mass", randMass_[Y], 0.1f, {}, {}, "%.3f", [this](float* _newVal) {
                 *_newVal = (std::max)(randMass_[X], *_newVal);
             });
+            randMass_[X] = (std::min)(randMass_[X], randMass_[Y]);
+            randMass_[Y] = (std::max)(randMass_[X], randMass_[Y]);
         }
 
         if (randomOrPerLifeTime == 2) {
