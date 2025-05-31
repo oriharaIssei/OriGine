@@ -162,6 +162,8 @@ public:
     virtual void Finalize()                      = 0;
     virtual bool Edit()                          = 0;
 
+    virtual void createMesh(TextureMesh* _mesh) = 0;
+
 protected:
     IConstantBuffer<Transform> transformBuff_;
     IConstantBuffer<Material> materialBuff_;
@@ -171,7 +173,7 @@ protected:
     uint32_t textureIndex_ = 0;
 
 public:
-    const Transform& getTransform() const {
+    Transform& getTransform() {
         return transformBuff_.openData_;
     }
     void setTransform(const Transform& _transform) {
@@ -239,11 +241,11 @@ public:
 
     using PrimitiveType = PrimType;
 
-protected:
     virtual void createMesh(TextureMesh* _mesh) {
         primitive_.createMesh(_mesh);
     }
 
+protected:
 protected:
     PrimType primitive_;
 
