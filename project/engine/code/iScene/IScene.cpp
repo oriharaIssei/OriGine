@@ -41,7 +41,7 @@ void SceneFinalize() {
     ECSManager* ecsManager = ECSManager::getInstance();
     ecsManager->clearWorkSystems();
 
-    ecsManager->clearAliveEntities();
     ecsManager->clearUniqueEntities();
+    ecsManager->clearAliveEntities();
     ecsManager->ExecuteEntitiesDelete();
 }

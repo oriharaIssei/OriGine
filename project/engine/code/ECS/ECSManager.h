@@ -46,7 +46,7 @@ private:
     /// </summary>
     std::vector<GameEntity> entityes_;
     std::vector<uint32_t> freeEntityIndex_;
-    std::map<std::string, GameEntity*> uniqueentityIDs_;
+    std::map<std::string, uint32_t> uniqueentityIDs_;
     uint32_t entityCapacity_ = 500;
 
     std::queue<GameEntity*> deleteEntityQueue_;
@@ -111,12 +111,12 @@ public: // ============== accessor ==============//
         return &entityes_[_entityIndex];
     }
 
-    GameEntity* getUniqueEntity(const std::string& _dataTypeName) const {
+    GameEntity* getUniqueEntity(const std::string& _dataTypeName) {
         auto itr = uniqueentityIDs_.find(_dataTypeName);
         if (itr == uniqueentityIDs_.end()) {
             return nullptr;
         }
-        return itr->second;
+        return &entityes_[itr->second];
     }
     bool registerUniqueEntity(GameEntity* _entity) {
         _entity->isUnique_ = true;
@@ -125,13 +125,17 @@ public: // ============== accessor ==============//
             return false;
         }
 
-        uniqueentityIDs_[_entity->dataType_] = _entity;
+        uniqueentityIDs_[_entity->dataType_] = _entity->getID();
         return true;
     }
     void removeUniqueEntity(const std::string& _dataTypeName) {
-        if (uniqueentityIDs_[_dataTypeName]) {
-            uniqueentityIDs_[_dataTypeName]->isUnique_ = false;
+        auto itr = uniqueentityIDs_.find(_dataTypeName);
+        if (itr == uniqueentityIDs_.end()) {
+            return;
         }
+
+        GameEntity& uniqueEntity = entityes_[uniqueentityIDs_[_dataTypeName]];
+        uniqueEntity.isUnique_   = false;
         uniqueentityIDs_.erase(_dataTypeName);
     }
 
@@ -161,7 +165,11 @@ public: // ============== accessor ==============//
     }
 
     void clearUniqueEntities() {
-        uniqueentityIDs_.clear();
+        for (auto itr = uniqueentityIDs_.begin(); itr != uniqueentityIDs_.end();) {
+            GameEntity& uniqueEntity = entityes_[itr->second];
+            uniqueEntity.isUnique_   = false;
+            itr                      = uniqueentityIDs_.erase(itr);
+        }
     }
 
     /// <summary>
