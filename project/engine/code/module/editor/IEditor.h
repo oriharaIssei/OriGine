@@ -95,6 +95,9 @@ public:
         }
     }
     void Execute() override {
+        if (!target) {
+            return;
+        }
         oldValue = *target;
         *target  = value;
 
@@ -103,6 +106,9 @@ public:
         }
     }
     void Undo() override {
+        if (!target) {
+            return;
+        }
         *target = oldValue;
         if (funcOnAfterUndoExecute_) {
             funcOnAfterUndoExecute_(target);
@@ -167,7 +173,7 @@ template <typename Container>
 class EraseElementCommand : public IEditCommand {
 public:
     using ContainerType = Container;
-    using Iterator = typename Container::iterator;
+    using Iterator      = typename Container::iterator;
 
     EraseElementCommand(Container* container, Iterator it)
         : container_(container), it_(it) {}

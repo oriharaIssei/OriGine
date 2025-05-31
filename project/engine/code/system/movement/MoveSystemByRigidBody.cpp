@@ -6,6 +6,9 @@
 #define ENGINE_ECS
 #include "engine/EngineInclude.h"
 
+/// lib
+#include "logger/Logger.h"
+
 MoveSystemByRigidBody::MoveSystemByRigidBody() : ISystem(SystemType::Movement) {}
 
 MoveSystemByRigidBody::~MoveSystemByRigidBody() {}
@@ -19,6 +22,17 @@ void MoveSystemByRigidBody::UpdateEntity(GameEntity* _entity) {
     Transform* transform  = getComponent<Transform>(_entity);
 
     Rigidbody* rigidbody = getComponent<Rigidbody>(_entity);
+
+    bool resourceCheck = (transform != nullptr) && (rigidbody != nullptr);
+    if (!resourceCheck) {
+        if (!transform) {
+            LOG_ERROR(_entity->getUniqueID() + " doesn't have Transform");
+        }
+        if (!rigidbody) {
+            LOG_ERROR(_entity->getUniqueID() + "doesn't have Rigidbody");
+        }
+        return;
+    }
 
     /// --------------------------------------- 速度の更新 --------------------------------------- ///
     Vec3f acceleration = rigidbody->getAcceleration();

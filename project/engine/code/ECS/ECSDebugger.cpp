@@ -58,7 +58,7 @@ void EntityDebugger::Update() {
     ImGui::End();
 
     ImGui::Begin("Entity Info");
-    if (debugEntity_ != nullptr) {
+    if (debugEntity_ != nullptr && debugEntity_->isAlive()) {
         ImGui::Separator();
         ImGui::Text("Entity Info:");
         ImGui::Text("UniqueID : %s", debugEntity_->getUniqueID().c_str());
