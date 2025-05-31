@@ -861,6 +861,10 @@ void Emitter::Draw(ID3D12GraphicsCommandList* _commandList) {
     // パーティクルのスケール行列を事前計算
     Matrix4x4 scaleMat = MakeMatrix::Scale({1.0f, 1.0f, 1.0f});
 
+    if (particles_.empty()) {
+        return;
+    }
+
     if (particleIsBillBoard_) { // Bill Board
                                 // カメラの回転行列を取得し、平行移動成分をゼロにする
         Matrix4x4 cameraRotation = viewMat;
@@ -950,6 +954,9 @@ void Emitter::SpawnParticle() {
 
     preWorldOriginPos_ = worldOriginPos_;
     worldOriginPos_    = originPos_;
+    if (worldOriginPos_ != preWorldOriginPos_) {
+        LOG_DEBUG("Emitter::SpawnParticle: worldOriginPos_ changed");
+    }
 
     bool uniformScaleRandom = (updateSettings_ & int(ParticleUpdateType::UniformScaleRandom)) != 0;
 
