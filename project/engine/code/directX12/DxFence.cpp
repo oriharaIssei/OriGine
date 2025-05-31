@@ -17,6 +17,10 @@ void DxFence::Finalize() {
 	fence_.Reset();
 }
 
+void DxFence::Signal(ID3D12CommandQueue* commandQueue) {
+    commandQueue->Signal(fence_.Get(), ++fenceValue_);
+};
+
 void DxFence::WaitForFence() {
 	if(fence_->GetCompletedValue() < fenceValue_) {
 		HANDLE fenceEvent = CreateEvent(nullptr,false,false,nullptr);
