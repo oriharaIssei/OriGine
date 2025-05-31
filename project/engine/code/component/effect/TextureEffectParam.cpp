@@ -23,6 +23,8 @@ void to_json(nlohmann::json& j, const TextureEffectParam& param) {
 
     // uniqueParam
     // dissolve
+    j["dissolveColor"]     = param.effectParamData_->dissolveColor;
+    j["dissolveEdgeWidth"] = param.effectParamData_->dissolveEdgeWidth;
     j["dissolveThreshold"] = param.effectParamData_->dissolveThreshold;
     // distortion
     j["distortionStrength"] = param.effectParamData_->distortionStrength;
@@ -140,6 +142,13 @@ void from_json(const nlohmann::json& j, TextureEffectParam& param) {
     j.at("maskUV").at("translate").get_to(param.effectParamData_->maskUV.translate_);
 
     // effectParamData
+    if (j.find("dissolveColor") != j.end()) {
+        j.at("dissolveColor").get_to(param.effectParamData_->dissolveColor);
+    }
+    // effectParamData
+    if (j.find("dissolveEdgeWidth") != j.end()) {
+        j.at("dissolveEdgeWidth").get_to(param.effectParamData_->dissolveEdgeWidth);
+    }
     j.at("dissolveThreshold").get_to(param.effectParamData_->dissolveThreshold);
     j.at("distortionStrength").get_to(param.effectParamData_->distortionStrength);
     j.at("distortionBias").get_to(param.effectParamData_->distortionBias);
@@ -262,13 +271,14 @@ bool TextureEffectParam::Edit() {
     ///===========================================
     if (isDissolve) {
         if (ImGui::TreeNode("Dissolve")) {
-
-            DragGuiCommand("Dissolve Threshold", effectParamData_->dissolveThreshold, 0.01f);
-
-            ImGui::Separator();
-
             isChange |= CheckBoxCommand("Play##Dissolve", dissolveAnimState_.isPlay_);
             isChange |= CheckBoxCommand("Loop##Dissolve", dissolveAnimState_.isLoop_);
+
+            DragGuiCommand("Dissolve Threshold", effectParamData_->dissolveThreshold, 0.01f);
+            isChange |= DragGuiCommand("Dissolve Edge Width", effectParamData_->dissolveEdgeWidth, 0.001f, 0.0f, {}, "%.4f");
+            isChange |= ColorEditGuiCommand<4>("DissolveColor", effectParamData_->dissolveColor);
+
+            ImGui::Separator();
 
             ImGui::Text("Texture Path : %s", dissolveTexPath_.c_str());
             if (ImGui::Button("TextureLoad##Dissolve")) {
@@ -323,13 +333,13 @@ bool TextureEffectParam::Edit() {
     ///===========================================
     if (isDistortion) {
         if (ImGui::TreeNode("Distortion")) {
+            isChange |= CheckBoxCommand("Play##Distortion", distortionAnimState_.isPlay_);
+            isChange |= CheckBoxCommand("Loop##Distortion", distortionAnimState_.isLoop_);
+
             DragGuiCommand("DistortionStrength", effectParamData_->distortionStrength, 0.01f);
             SlideCommand<float>("DistortionBias", effectParamData_->distortionBias, 0.0f, 1.f);
 
             ImGui::Separator();
-
-            isChange |= CheckBoxCommand("Play##Distortion", distortionAnimState_.isPlay_);
-            isChange |= CheckBoxCommand("Loop##Distortion", distortionAnimState_.isLoop_);
 
             ImGui::Text("TexturePath :  %s", distortionTexPath_.c_str());
             if (ImGui::Button("TextureLoad##Distortion")) {
@@ -384,6 +394,8 @@ bool TextureEffectParam::Edit() {
         if (ImGui::TreeNode("Mask")) {
             isChange |= CheckBoxCommand("Play##Mask", maskAnimState_.isPlay_);
             isChange |= CheckBoxCommand("Loop##Mask", maskAnimState_.isLoop_);
+
+            ImGui::Separator();
 
             ImGui::Text("TexturePath : %s", maskTexPath_.c_str());
             if (ImGui::Button("TextureLoad##Mask")) {

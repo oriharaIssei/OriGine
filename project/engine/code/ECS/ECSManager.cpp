@@ -14,8 +14,8 @@
 
 void EntityComponentSystemManager::Initialize() {
     // エンティティの初期化
-    if (!entities_.empty()) {
-        entities_.clear();
+    if (!entityes_.empty()) {
+        entityes_.clear();
     }
     if (!freeEntityIndex_.empty()) {
         freeEntityIndex_.clear();
@@ -115,7 +115,7 @@ void EntityComponentSystemManager::Finalize() {
     clearComponentArrays();
 
     // エンティティのクリア
-    entities_.clear();
+    entityes_.clear();
     freeEntityIndex_.clear();
 }
 
@@ -178,20 +178,20 @@ void EntityComponentSystemManager::ExecuteEntitiesDelete() {
 }
 
 void EntityComponentSystemManager::resize(uint32_t _newSize) {
-    uint32_t oldSize = static_cast<uint32_t>(entities_.size());
+    uint32_t oldSize = static_cast<uint32_t>(entityes_.size());
 
     if (_newSize <= oldSize) {
         // 必要のないものを削除
-        std::erase_if(entities_, [](const GameEntity& entity) { return !entity.isAlive_; });
+        std::erase_if(entityes_, [](const GameEntity& entity) { return !entity.isAlive_; });
 
         // エンティティの使用容量より _newSize が小さい場合
-        if (entities_.size() >= _newSize) {
+        if (entityes_.size() >= _newSize) {
             assert(false);
         }
 
         // エンティティのIDを振り直す
         uint32_t entityIndex = 0;
-        for (auto& entity : entities_) {
+        for (auto& entity : entityes_) {
             entity.id_ = entityIndex;
             ++entityIndex;
         }
@@ -203,7 +203,7 @@ void EntityComponentSystemManager::resize(uint32_t _newSize) {
         }
     } else {
         // エンティティの容量を増やす
-        entities_.resize(_newSize);
+        entityes_.resize(_newSize);
 
         for (uint32_t i = oldSize; i < _newSize; ++i) {
             freeEntityIndex_.push_back(i);
@@ -267,6 +267,10 @@ void EntityComponentSystemManager::AllActivateSystem(bool _doInit) {
             ActivateSystem(name, static_cast<SystemType>(i), _doInit);
         }
     }
+}
+
+GameEntity* getEntity(int32_t _entityIndex) {
+    return ECSManager::getInstance()->getEntity(_entityIndex);
 }
 
 void DestroyEntity(GameEntity* _entity) {

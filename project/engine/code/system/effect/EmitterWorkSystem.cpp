@@ -11,7 +11,7 @@
 void EmitterWorkSystem::Initialize() {
 }
 void EmitterWorkSystem::Finalize() {
-    entities_.clear();
+    entityIDs_.clear();
 }
 
 void EmitterWorkSystem::UpdateEntity(GameEntity* _entity) {

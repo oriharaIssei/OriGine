@@ -13,7 +13,6 @@
 /// externals
 #ifdef _DEBUG
 #include "myGui/MyGui.h"
-#include <imgui/imgui.h>
 #endif // _DEBUG
 
 void SkyboxRenderer::Initialize(GameEntity* _hostEntity) {
@@ -115,7 +114,7 @@ bool SkyboxRenderer::Edit() {
         }
     }
 
-    isChange |= DragGuiVectorCommand("Color", materialBuff_.openData_.color);
+    isChange |= ColorEditGuiCommand("Color", materialBuff_.openData_.color);
 
     return isChange;
 #else

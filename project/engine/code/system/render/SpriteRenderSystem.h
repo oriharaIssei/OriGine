@@ -9,6 +9,8 @@
 // directX12Object
 #include "directX12/DxCommand.h"
 #include "directX12/ShaderManager.h"
+// component
+class SpriteRenderer;
 /// math
 #include "Matrix4x4.h"
 
@@ -27,6 +29,7 @@ protected:
     void UpdateEntity(GameEntity* _entity) override;
 
 private:
+    std::vector<SpriteRenderer*> renderers_;
     Matrix4x4 viewPortMat_;
 
     BlendMode currentBlend_ = BlendMode::Alpha;

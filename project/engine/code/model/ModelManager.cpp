@@ -42,7 +42,7 @@ struct hash<VertexKey> {
 } // namespace std
 
 #pragma region "LoadFunctions"
-void ProcessMeshData(TextureMesh& meshData, const std::vector<TextureVertexData>& vertices, const std::vector<uint32_t>& indices) {
+static void ProcessMeshData(TextureMesh& meshData, const std::vector<TextureVertexData>& vertices, const std::vector<uint32_t>& indices) {
 
     meshData.Initialize(static_cast<UINT>(vertices.size()), static_cast<UINT>(indices.size()));
 
@@ -179,16 +179,17 @@ void LoadModelFile(ModelMeshData* data, const std::string& directoryPath, const 
         // マテリアルとテクスチャの処理
         aiMaterial* material = scene->mMaterials[loadedMesh->mMaterialIndex];
         aiString textureFilePath;
-        uint32_t textureIndex = 0;
+        uint32_t textureIndex   = 0;
+        std::string texturePath = "";
         if (material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePath) == AI_SUCCESS) {
-            std::string texturePath = textureFilePath.C_Str();
+            texturePath = textureFilePath.C_Str();
             if ((texturePath.find("/") == std::string::npos)) {
                 texturePath = directoryPath + "/" + texturePath;
             }
             textureIndex = TextureManager::LoadTexture(texturePath);
         }
 
-        ModelManager::getInstance()->pushBackDefaultMaterial(data, {textureIndex, IConstantBuffer<Material>()});
+        ModelManager::getInstance()->pushBackDefaultMaterial(data, {texturePath, textureIndex, IConstantBuffer<Material>()});
 
         // メッシュデータを処理
         ProcessMeshData(mesh, vertices, indices);

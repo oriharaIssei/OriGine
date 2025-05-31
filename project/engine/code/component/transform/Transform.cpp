@@ -10,7 +10,9 @@
 
 Transform::Transform() {}
 
-void Transform::Initialize([[maybe_unused]] GameEntity* _entity) {}
+void Transform::Initialize([[maybe_unused]] GameEntity* _entity) {
+    this->Update();
+}
 
 void Transform::Update() {
     rotate = Quaternion::Normalize(rotate);
@@ -29,12 +31,11 @@ bool Transform::Edit() {
     isChange |= DragGuiVectorCommand<3, float>("Scale", this->scale, 0.01f);
     // --------------------------- rotate --------------------------- //
     isChange |= DragGuiVectorCommand<4, float>("Rotate", this->rotate, 0.01f, {}, {}, "%.3f", [](Vector<4, float>* _r) { *_r = Quaternion::Normalize(*_r); });
+    this->rotate = Quaternion::Normalize(this->rotate);
     // --------------------------- translate --------------------------- //
-    isChange |= DragGuiVectorCommand<3,float>("Translate", this->translate, 0.01f);
+    isChange |= DragGuiVectorCommand<3, float>("Translate", this->translate, 0.01f);
 
-    if (isChange) {
-        this->Update();
-    }
+    this->Update();
 
     return isChange;
 #else

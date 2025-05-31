@@ -31,6 +31,12 @@
 // util
 #include "util/ConvertString.h"
 
+static std::string NormalizePath(const std::string& path) {
+    std::string normalized = path;
+    std::replace(normalized.begin(), normalized.end(), '\\', '/');
+    return normalized;
+}
+
 const uint32_t TextureManager::maxTextureSize_;
 std::shared_ptr<DxSrvArray> TextureManager::dxSrvArray_;
 std::array<std::shared_ptr<Texture>, TextureManager::maxTextureSize_> TextureManager::textures_;
@@ -221,7 +227,7 @@ void TextureManager::Initialize() {
     dxCommand_ = std::make_unique<DxCommand>();
     dxCommand_->Initialize("TextureManager", "TextureManager");
     // load中のテクスチャにはこれをはっつける
-    dummyTextureIndex_ = LoadTexture(kEngineResourceDirectory + "/Texture/white1x1.png");
+    dummyTextureIndex_ = LoadTexture(kEngineResourceDirectory + kDefaultWhiteTextureLocalPath);
 }
 
 void TextureManager::Finalize() {
@@ -239,6 +245,7 @@ void TextureManager::Finalize() {
 }
 
 uint32_t TextureManager::LoadTexture(const std::string& filePath, std::function<void(uint32_t loadedIndex)> callBack) {
+    std::string normalizedPath = NormalizePath(filePath);
     LOG_TRACE("Load Texture \n Path : " + filePath);
 
     uint32_t index = 0;
@@ -249,8 +256,8 @@ uint32_t TextureManager::LoadTexture(const std::string& filePath, std::function<
             if (textures_[index] == nullptr) {
                 textures_[index] = std::make_shared<Texture>();
                 break;
-            } else if (filePath == textures_[index]->path) {
-                LOG_TRACE("Already loaded texture: " + filePath);
+            } else if (normalizedPath == textures_[index]->path) {
+                LOG_TRACE("Already loaded texture: " + normalizedPath);
                 if (callBack) {
                     callBack(index);
                 }
@@ -267,7 +274,7 @@ uint32_t TextureManager::LoadTexture(const std::string& filePath, std::function<
 
 #ifdef _DEBUG
     loadThread_->pushTask(
-        {.filePath        = filePath,
+        {.filePath        = normalizedPath,
             .textureIndex = index,
             .texture      = textures_[index],
             .callBack     = callBack});

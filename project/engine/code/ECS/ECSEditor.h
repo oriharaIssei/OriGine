@@ -53,7 +53,7 @@ private:
 private:
     ECSManager* ecsManager_ = nullptr;
 
-    std::list<const GameEntity*> selectedEntities_;
+    std::list<const GameEntity*> selectedentityIDs_;
     GameEntity* editEntity_ = nullptr;
     std::map<std::string, std::deque<IComponent*>> editEntityComponents_;
     std::array<std::map<std::string, ISystem*>, int32_t(SystemType::Count)> editEntitySystems_;
@@ -97,7 +97,7 @@ public:
     // 選択されたエンティティを非 const ポインタとして取得するヘルパー
     std::vector<GameEntity*> getSelectedEntities() {
         std::vector<GameEntity*> entities;
-        for (auto* e : selectedEntities_) {
+        for (auto* e : selectedentityIDs_) {
             entities.push_back(const_cast<GameEntity*>(e));
         }
         return entities;
@@ -390,16 +390,16 @@ class ECSGroupCommand
     : public ECSEditorCommand {
 public:
     ECSGroupCommand(ECSEditor* _ecsEditor) : ECSEditorCommand(_ecsEditor) {
-        entities_ = ecsEditor_->getSelectedEntities();
+        entityIDs_ = ecsEditor_->getSelectedEntities();
     }
     virtual ~ECSGroupCommand() {}
     void Execute() override {
-        for (auto* entity : entities_) {
+        for (auto* entity : entityIDs_) {
             ExecuteForEntity(entity);
         }
     }
     void Undo() override {
-        for (auto* entity : entities_) {
+        for (auto* entity : entityIDs_) {
             UndoForEntity(entity);
         }
     }
@@ -408,7 +408,7 @@ protected:
     virtual void ExecuteForEntity(GameEntity* entity) = 0;
     virtual void UndoForEntity(GameEntity* entity)    = 0;
 
-    std::vector<GameEntity*> entities_;
+    std::vector<GameEntity*> entityIDs_;
 };
 
 class GroupEraseEntityCommand : public ECSGroupCommand {

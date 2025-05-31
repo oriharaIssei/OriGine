@@ -8,14 +8,12 @@
 // directX12
 #include "directX12/IConstantBuffer.h"
 // component
-#include "component/material/Material.h"
 #include "component/animation/AnimationData.h"
+#include "component/material/Material.h"
 
 /// math
 #include <Matrix4x4.h>
 #include <Vector2.h>
-
-
 
 struct TextureEffectParamData {
     enum class EffectFlag : int32_t {
@@ -33,19 +31,23 @@ struct TextureEffectParamData {
     UVTransform maskUV;
     Matrix4x4 maskUVMat;
 
+    Vec4f dissolveColor      = {1.f, 1.f, 1.f, 1.f};
+    float dissolveEdgeWidth  = 0.f;
+    float dissolveThreshold  = 0.f;
     float distortionStrength = 0.f;
     float distortionBias     = 0.f;
-    float dissolveThreshold  = 0.f;
 
     void UpdateTransform();
 
     struct ConstantBuffer {
-        Matrix4x4 maskUVMat;
         Matrix4x4 dissolveUVMat;
         Matrix4x4 distortionUVMat;
+        Matrix4x4 maskUVMat;
+        Vec4f dissolveColor;
+        float dissolveEdgeWidth;
+        float dissolveThreshold;
         float distortionBias;
         float distortionStrength;
-        float dissolveThreshold;
         int flag;
         int pad;
 
@@ -53,6 +55,8 @@ struct TextureEffectParamData {
             maskUVMat          = transform.maskUVMat;
             dissolveUVMat      = transform.dissolveUVMat;
             distortionUVMat    = transform.distortionUVMat;
+            dissolveColor      = transform.dissolveColor;
+            dissolveEdgeWidth  = transform.dissolveEdgeWidth;
             dissolveThreshold  = transform.dissolveThreshold;
             distortionStrength = transform.distortionStrength;
             distortionBias     = transform.distortionBias;

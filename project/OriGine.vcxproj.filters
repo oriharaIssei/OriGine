@@ -43,6 +43,9 @@
     <Filter Include="engine\code\component\effect\particle\emitter">
       <UniqueIdentifier>{8F47CA94-FBB7-CC0D-C4D6-46963006050F}</UniqueIdentifier>
     </Filter>
+    <Filter Include="engine\code\component\effect\post">
+      <UniqueIdentifier>{B8FBD960-246A-2FE0-6D53-EADFD900257C}</UniqueIdentifier>
+    </Filter>
     <Filter Include="engine\code\component\material">
       <UniqueIdentifier>{E56C2818-D192-F27E-BAD8-774AA69D174B}</UniqueIdentifier>
     </Filter>
@@ -195,6 +198,9 @@
     <ClInclude Include="engine\code\component\IComponent.h">
       <Filter>engine\code\component</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\component\animation\AnimationData.h">
+      <Filter>engine\code\component\animation</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\component\animation\AnimationManager.h">
       <Filter>engine\code\component\animation</Filter>
     </ClInclude>
@@ -207,6 +213,9 @@
     <ClInclude Include="engine\code\component\collider\Collider.h">
       <Filter>engine\code\component\collider</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\component\effect\TextureEffectParam.h">
+      <Filter>engine\code\component\effect</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\component\effect\particle\Particle.h">
       <Filter>engine\code\component\effect\particle</Filter>
     </ClInclude>
@@ -215,6 +224,9 @@
     </ClInclude>
     <ClInclude Include="engine\code\component\effect\particle\emitter\EmitterShape.h">
       <Filter>engine\code\component\effect\particle\emitter</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\component\effect\post\VignetteParam.h">
+      <Filter>engine\code\component\effect\post</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\component\material\Material.h">
       <Filter>engine\code\component\material</Filter>
@@ -309,7 +321,7 @@
     <ClInclude Include="engine\code\directX12\RenderTexture.h">
       <Filter>engine\code\directX12</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\directX12\ResourceBarrierManager.h">
+    <ClInclude Include="engine\code\directX12\ResourceStateTracker.h">
       <Filter>engine\code\directX12</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\directX12\ShaderCompiler.h">
@@ -360,6 +372,9 @@
     <ClInclude Include="engine\code\system\effect\PrimitiveNodeAnimationWorkSystem.h">
       <Filter>engine\code\system\effect</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\system\effect\TextureEffectAnimation.h">
+      <Filter>engine\code\system\effect</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\system\movement\MoveSystemByRigidBody.h">
       <Filter>engine\code\system\movement</Filter>
     </ClInclude>
@@ -373,6 +388,9 @@
       <Filter>engine\code\system\postRender</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\system\render\ColliderRenderingSystem.h">
+      <Filter>engine\code\system\render</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\system\render\EffectTexturedMeshRenderSystem.h">
       <Filter>engine\code\system\render</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\system\render\LineRenderSystem.h">
@@ -470,6 +488,8 @@
     </ClInclude>
     <ClInclude Include="engine\code\system\postRender\DistortionEffect.h" />
     <ClInclude Include="engine\code\component\effect\post\DistortionEffectParam.h" />
+    <ClInclude Include="engine\code\component\animation\SpriteAnimation.h" />
+    <ClInclude Include="engine\code\system\effect\SpriteAnimationSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\code\ECS\ECSDebugger.cpp">
@@ -502,6 +522,9 @@
     <ClCompile Include="engine\code\component\IComponent.cpp">
       <Filter>engine\code\component</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\component\animation\AnimationData.cpp">
+      <Filter>engine\code\component\animation</Filter>
+    </ClCompile>
     <ClCompile Include="engine\code\component\animation\AnimationManager.cpp">
       <Filter>engine\code\component\animation</Filter>
     </ClCompile>
@@ -514,6 +537,9 @@
     <ClCompile Include="engine\code\component\collider\Collider.cpp">
       <Filter>engine\code\component\collider</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\component\effect\TextureEffectParam.cpp">
+      <Filter>engine\code\component\effect</Filter>
+    </ClCompile>
     <ClCompile Include="engine\code\component\effect\particle\Particle.cpp">
       <Filter>engine\code\component\effect\particle</Filter>
     </ClCompile>
@@ -522,6 +548,9 @@
     </ClCompile>
     <ClCompile Include="engine\code\component\effect\particle\emitter\EmitterShape.cpp">
       <Filter>engine\code\component\effect\particle\emitter</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\component\effect\post\VignetteParam.cpp">
+      <Filter>engine\code\component\effect\post</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\component\material\Material.cpp">
       <Filter>engine\code\component\material</Filter>
@@ -607,7 +636,7 @@
     <ClCompile Include="engine\code\directX12\RenderTexture.cpp">
       <Filter>engine\code\directX12</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\directX12\ResourceBarrierManager.cpp">
+    <ClCompile Include="engine\code\directX12\ResourceStateTracker.cpp">
       <Filter>engine\code\directX12</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\directX12\ShaderCompiler.cpp">
@@ -646,6 +675,9 @@
     <ClCompile Include="engine\code\system\effect\PrimitiveNodeAnimationWorkSystem.cpp">
       <Filter>engine\code\system\effect</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\system\effect\TextureEffectAnimation.cpp">
+      <Filter>engine\code\system\effect</Filter>
+    </ClCompile>
     <ClCompile Include="engine\code\system\movement\MoveSystemByRigidBody.cpp">
       <Filter>engine\code\system\movement</Filter>
     </ClCompile>
@@ -659,6 +691,9 @@
       <Filter>engine\code\system\postRender</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\system\render\ColliderRenderingSystem.cpp">
+      <Filter>engine\code\system\render</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\system\render\EffectTexturedMeshRenderSystem.cpp">
       <Filter>engine\code\system\render</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\system\render\LineRenderSystem.cpp">
@@ -728,5 +763,8 @@
     <ClCompile Include="ENGINE\CODE\DIRECTX12\RESOURCEBARRIERMANAGER.CPP" />
     <ClCompile Include="engine\code\system\postRender\DistortionEffect.cpp" />
     <ClCompile Include="engine\code\component\effect\post\DistortionEffectParam.cpp" />
+    <ClCompile Include="engine\code\component\animation\SpriteAnimation.cpp" />
+    <ClCompile Include="engine\code\system\effect\SpriteAnimationSystem.cpp" />
+    <ClCompile Include="engine\code\model\Model.cpp" />
   </ItemGroup>
 </Project>

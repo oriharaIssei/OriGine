@@ -44,9 +44,9 @@ private:
     /// <summary>
     /// エンティティ配列
     /// </summary>
-    std::vector<GameEntity> entities_;
+    std::vector<GameEntity> entityes_;
     std::vector<uint32_t> freeEntityIndex_;
-    std::map<std::string, GameEntity*> uniqueEntities_;
+    std::map<std::string, GameEntity*> uniqueentityIDs_;
     uint32_t entityCapacity_ = 500;
 
     std::queue<GameEntity*> deleteEntityQueue_;
@@ -79,7 +79,7 @@ public: // ============== accessor ==============//
     }
 
     int32_t getActiveEntityCount() const {
-        return static_cast<int32_t>(entities_.size() - freeEntityIndex_.size());
+        return static_cast<int32_t>(entityes_.size() - freeEntityIndex_.size());
     }
 
     /// <summary>
@@ -98,8 +98,8 @@ public: // ============== accessor ==============//
         uint32_t index = freeEntityIndex_.back();
         freeEntityIndex_.pop_back();
 
-        entities_[index]          = GameEntity(_entityDataType, index);
-        entities_[index].isAlive_ = true;
+        entityes_[index]          = GameEntity(_entityDataType, index);
+        entityes_[index].isAlive_ = true;
 
         return index;
     }
@@ -108,12 +108,12 @@ public: // ============== accessor ==============//
     /// エンティティを取得する
     /// </summary>
     GameEntity* getEntity(int32_t _entityIndex) {
-        return &entities_[_entityIndex];
+        return &entityes_[_entityIndex];
     }
 
     GameEntity* getUniqueEntity(const std::string& _dataTypeName) const {
-        auto itr = uniqueEntities_.find(_dataTypeName);
-        if (itr == uniqueEntities_.end()) {
+        auto itr = uniqueentityIDs_.find(_dataTypeName);
+        if (itr == uniqueentityIDs_.end()) {
             return nullptr;
         }
         return itr->second;
@@ -121,22 +121,22 @@ public: // ============== accessor ==============//
     bool registerUniqueEntity(GameEntity* _entity) {
         _entity->isUnique_ = true;
 
-        if (uniqueEntities_.find(_entity->dataType_) != uniqueEntities_.end()) {
+        if (uniqueentityIDs_.find(_entity->dataType_) != uniqueentityIDs_.end()) {
             return false;
         }
 
-        uniqueEntities_[_entity->dataType_] = _entity;
+        uniqueentityIDs_[_entity->dataType_] = _entity;
         return true;
     }
     void removeUniqueEntity(const std::string& _dataTypeName) {
-        if (uniqueEntities_[_dataTypeName]) {
-            uniqueEntities_[_dataTypeName]->isUnique_ = false;
+        if (uniqueentityIDs_[_dataTypeName]) {
+            uniqueentityIDs_[_dataTypeName]->isUnique_ = false;
         }
-        uniqueEntities_.erase(_dataTypeName);
+        uniqueentityIDs_.erase(_dataTypeName);
     }
 
     const std::vector<GameEntity>& getEntities() const {
-        return entities_;
+        return entityes_;
     }
 
     /// <summary>
@@ -145,7 +145,7 @@ public: // ============== accessor ==============//
     template <IsComponent componentType>
     void addComponent(uint32_t _entityIndex, const componentType& _component, bool _doInitialize = true) {
         ComponentArray<componentType>* componentArray = getComponentArray<componentType>();
-        componentArray->add(&entities_[_entityIndex], _component, _doInitialize);
+        componentArray->add(&entityes_[_entityIndex], _component, _doInitialize);
     }
 
     /// <summary>
@@ -156,22 +156,22 @@ public: // ============== accessor ==============//
     }
 
     void clearEntities() {
-        entities_.clear();
+        entityes_.clear();
         freeEntityIndex_.clear();
     }
 
     void clearUniqueEntities() {
-        uniqueEntities_.clear();
+        uniqueentityIDs_.clear();
     }
 
     /// <summary>
     /// 生きているエンティティを削除する
     /// </summary>
     void clearAliveEntities() {
-        auto removedItr = std::stable_partition(entities_.begin(), entities_.end(), [](const GameEntity& entity) {
+        auto removedItr = std::stable_partition(entityes_.begin(), entityes_.end(), [](const GameEntity& entity) {
             return !entity.isAlive_;
         });
-        for (auto& itr = removedItr; itr != entities_.end(); ++removedItr) {
+        for (auto& itr = removedItr; itr != entityes_.end(); ++removedItr) {
             destroyEntity(&*itr);
         }
     }
@@ -560,6 +560,8 @@ public: // ============== accessor ==============//
 };
 
 using ECSManager = EntityComponentSystemManager;
+
+GameEntity* getEntity(int32_t _entityIndex);
 
 template <IsComponent ComponentType>
 inline ComponentType* getComponent(GameEntity* _entity, int32_t _index = 0) {

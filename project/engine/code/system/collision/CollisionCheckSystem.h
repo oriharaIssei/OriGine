@@ -21,6 +21,7 @@ protected:
     void UpdateEntity(GameEntity* _entity) override;
 
 protected:
+    std::vector<GameEntity*> entities_;
     std::vector<GameEntity*>::iterator entityItr_;
 };
 

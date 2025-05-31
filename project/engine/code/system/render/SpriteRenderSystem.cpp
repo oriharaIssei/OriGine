@@ -24,13 +24,17 @@ void SpriteRenderSystem::Initialize() {
 void SpriteRenderSystem::Update() {
     eraseDeadEntity();
 
-    if (entities_.empty()) {
+    if (entityIDs_.empty()) {
         return;
     }
 
     StartRender();
-    std::vector<SpriteRenderer*> renderers;
-    for (auto& entity : entities_) {
+
+    // 前フレームの描画対象をクリア
+    renderers_.clear();
+
+    for (auto& id : entityIDs_) {
+        GameEntity* entity    = getEntity(id);
         auto* entityRenderers = getComponents<SpriteRenderer>(entity);
         for (auto& renderer : *entityRenderers) {
             if (!renderer.isRender()) {
@@ -40,15 +44,15 @@ void SpriteRenderSystem::Update() {
             /// ConstBufferの更新
             ///==============================
             renderer.Update(viewPortMat_);
-            renderers.push_back(&renderer);
+            renderers_.push_back(&renderer);
         }
     }
-    std::sort(renderers.begin(), renderers.end(), [](SpriteRenderer* a, SpriteRenderer* b) {
+    std::sort(renderers_.begin(), renderers_.end(), [](SpriteRenderer* a, SpriteRenderer* b) {
         return a->getRenderPriority() < b->getRenderPriority();
     });
 
     auto commandList = dxCommand_->getCommandList();
-    for (auto& renderer : renderers) {
+    for (auto& renderer : renderers_) {
         // ============================= テクスチャの設定 ============================= //
         ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
         commandList->SetDescriptorHeaps(1, ppHeaps);

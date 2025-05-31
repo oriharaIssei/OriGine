@@ -23,14 +23,15 @@ void VignetteEffect::Update() {
 
     eraseDeadEntity();
 
-    if (entities_.empty()) {
+    if (entityIDs_.empty()) {
         return;
     }
 
     RenderState();
 
     sceneView->PreDraw();
-    for (auto& entity : entities_) {
+    for (auto& id : entityIDs_) {
+        auto* entity = ECSManager::getInstance()->getEntity(id);
         UpdateEntity(entity);
     }
     Render();

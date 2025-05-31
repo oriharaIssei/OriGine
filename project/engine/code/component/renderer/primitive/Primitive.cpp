@@ -116,11 +116,11 @@ void Ring::createMesh(TextureMesh* _mesh) {
         // Index
         uint32_t startIndex = i * 4;
         _mesh->indexes_.emplace_back(startIndex);
-        _mesh->indexes_.emplace_back(startIndex + 1);
         _mesh->indexes_.emplace_back(startIndex + 2);
         _mesh->indexes_.emplace_back(startIndex + 1);
+        _mesh->indexes_.emplace_back(startIndex + 1);
+        _mesh->indexes_.emplace_back(startIndex + 2);
         _mesh->indexes_.emplace_back(startIndex + 3);
-        _mesh->indexes_.emplace_back(startIndex + 2);
     }
 
     _mesh->TransferData();
@@ -341,7 +341,7 @@ bool RingRenderer::Edit() {
 #endif // _DEBUG
 
     return isEdit;
-};
+}
 
 void to_json(nlohmann::json& j, const RingRenderer& r) {
     j["isRenderer"]       = r.isRender_;

@@ -46,7 +46,8 @@ void DistortionEffect::Update() {
     // Rendering Distortion Scene Texture
     /// ================================================
 
-    for (auto& entity : entities_) {
+    for (auto& id : entityIDs_) {
+        GameEntity* entity = getEntity(id);
         UpdateEntity(entity);
     }
 }

@@ -71,7 +71,7 @@ void EntityDebugger::Update() {
             for (size_t i = 0; i < compList.size(); ++i) {
                 componentLabel = compTypeName + "[" + std::to_string(i) + "]";
                 if (ImGui::TreeNode(compTypeName.c_str())) {
-                    compList[i]->Edit();
+                    compList[i]->Debug();
                     ImGui::TreePop();
                 }
             }
@@ -168,7 +168,8 @@ void SystemDebugger::Update() {
 
                         ImGui::Separator();
                         ImGui::Text("Entities    :");
-                        for (auto& entity : system->getEntities()) {
+                        for (auto& id : system->getEntityIDs()) {
+                            GameEntity* entity = ecsManager_->getEntity(id);
                             if (entity == nullptr) {
                                 continue;
                             }
