@@ -4,8 +4,8 @@
 // memory
 #include <memory>
 // container
-#include <array>
 #include <queue>
+#include <unordered_map>
 // basic
 #include <stdint.h>
 #include <string>
@@ -60,7 +60,7 @@ public:
     static void UnloadTexture(uint32_t id);
 
 public:
-    static const uint32_t maxTextureSize_ = 128 + 64;
+    static const uint32_t maxTextureSize_ = 192;
 
     struct LoadTask {
         std::string filePath;
@@ -74,6 +74,7 @@ public:
 private:
     static std::shared_ptr<DxSrvArray> dxSrvArray_;
     static std::array<std::shared_ptr<Texture>, maxTextureSize_> textures_;
+    static std::unordered_map<std::string, uint32_t> textureFileNameToIndexMap_;
     static uint32_t dummyTextureIndex_;
 
     static std::unique_ptr<TaskThread<TextureManager::LoadTask>> loadThread_;
@@ -85,8 +86,7 @@ private:
     static std::unique_ptr<DxFence> dxFence_;
 
 public:
-    static D3D12_GPU_DESCRIPTOR_HANDLE
-    getDescriptorGpuHandle(uint32_t handleId);
+    static D3D12_GPU_DESCRIPTOR_HANDLE getDescriptorGpuHandle(uint32_t handleId);
 
     static const DirectX::TexMetadata& getTexMetadata(uint32_t handleId) { return textures_[handleId]->metaData; }
 };

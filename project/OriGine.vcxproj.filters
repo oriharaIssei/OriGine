@@ -490,6 +490,7 @@
     <ClInclude Include="engine\code\component\effect\post\DistortionEffectParam.h" />
     <ClInclude Include="engine\code\component\animation\SpriteAnimation.h" />
     <ClInclude Include="engine\code\system\effect\SpriteAnimationSystem.h" />
+    <ClInclude Include="util\NormalizeString.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\code\ECS\ECSDebugger.cpp">
@@ -766,5 +767,6 @@
     <ClCompile Include="engine\code\component\animation\SpriteAnimation.cpp" />
     <ClCompile Include="engine\code\system\effect\SpriteAnimationSystem.cpp" />
     <ClCompile Include="engine\code\model\Model.cpp" />
+    <ClCompile Include="util\NormalizeString.cpp" />
   </ItemGroup>
 </Project>

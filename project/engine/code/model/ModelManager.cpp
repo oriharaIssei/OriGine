@@ -15,6 +15,9 @@
 // lib
 #include "logger/Logger.h"
 
+/// util
+#include "util/NormalizeString.h"
+
 /// externals
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
@@ -42,7 +45,7 @@ struct hash<VertexKey> {
 } // namespace std
 
 #pragma region "LoadFunctions"
-static void ProcessMeshData(TextureMesh& meshData, const std::vector<TextureVertexData>& vertices, const std::vector<uint32_t>& indices) {
+void ProcessMeshData(TextureMesh& meshData, const std::vector<TextureVertexData>& vertices, const std::vector<uint32_t>& indices) {
 
     meshData.Initialize(static_cast<UINT>(vertices.size()), static_cast<UINT>(indices.size()));
 
@@ -214,7 +217,7 @@ std::shared_ptr<Model> ModelManager::Create(
     std::function<void(Model*)> callBack) {
     std::shared_ptr<Model> result = std::make_unique<Model>();
 
-    std::string filePath = directoryPath + "/" + filename;
+    std::string filePath = normalizeString(directoryPath + "/" + filename);
 
     LOG_TRACE("Load Model \n Path : " + filePath);
 

@@ -219,6 +219,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\system\effect\SpriteAnimationSystem.h" />
     <ClInclude Include="util\ConvertString.h" />
     <ClInclude Include="util\nameof.h" />
+    <ClInclude Include="util\NormalizeString.h" />
     <ClInclude Include="util\timeline\Timeline.h" />
   </ItemGroup>
   <ItemGroup>
@@ -317,6 +318,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\component\animation\SpriteAnimation.cpp" />
     <ClCompile Include="engine\code\system\effect\SpriteAnimationSystem.cpp" />
     <ClCompile Include="util\ConvertString.cpp" />
+    <ClCompile Include="util\NormalizeString.cpp" />
     <ClCompile Include="util\timeline\Timeline.cpp" />
   </ItemGroup>
   <ItemGroup>

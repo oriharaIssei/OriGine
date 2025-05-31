@@ -30,15 +30,11 @@
 
 // util
 #include "util/ConvertString.h"
-
-static std::string NormalizePath(const std::string& path) {
-    std::string normalized = path;
-    std::replace(normalized.begin(), normalized.end(), '\\', '/');
-    return normalized;
-}
+#include "util/NormalizeString.h"
 
 const uint32_t TextureManager::maxTextureSize_;
 std::array<std::shared_ptr<Texture>, TextureManager::maxTextureSize_> TextureManager::textures_;
+std::unordered_map<std::string, uint32_t> TextureManager::textureFileNameToIndexMap_;
 std::shared_ptr<DxSrvArray> TextureManager::dxSrvArray_;
 std::mutex TextureManager::texturesMutex_;
 std::unique_ptr<TaskThread<TextureManager::LoadTask>> TextureManager::loadThread_;
@@ -180,6 +176,7 @@ void Texture::UploadTextureData(DirectX::ScratchImage& mipImg, ID3D12Resource* _
 
     intermediateResource->Finalize();
 }
+
 void Texture::ExecuteCommand(ID3D12Resource* _resource) {
     D3D12_RESOURCE_BARRIER barrier{};
 
@@ -221,8 +218,10 @@ void TextureManager::Initialize() {
     CoInitializeEx(0, COINIT_MULTITHREADED);
     dxSrvArray_ = DxSrvArrayManager::getInstance()->Create(maxTextureSize_);
 
+#ifdef _DEBUG
     loadThread_ = std::make_unique<TaskThread<LoadTask>>();
     loadThread_->Initialize(1);
+#endif // DEBUG
 
     // コマンドキュー、コマンドアロケーター、コマンドリストの初期化
     D3D12_COMMAND_QUEUE_DESC queueDesc = {};
@@ -256,64 +255,59 @@ void TextureManager::Finalize() {
 }
 
 uint32_t TextureManager::LoadTexture(const std::string& filePath, std::function<void(uint32_t loadedIndex)> callBack) {
-    std::string normalizedPath = NormalizePath(filePath);
+    std::string normalizedPath = normalizeString(filePath);
     LOG_TRACE("Load Texture \n Path : " + filePath);
 
     uint32_t index = 0;
-    uint32_t foundIndex = maxTextureSize_;
-    uint32_t emptyIndex = maxTextureSize_;
-
     {
         std::lock_guard<std::mutex> lock(texturesMutex_); // 排他制御
 
-        // 既存のテクスチャがあるか確認
-        for (uint32_t i = 0; i < textures_.size(); ++i) {
-            if (textures_[i] != nullptr) {
-                if (normalizedPath == textures_[i]->path) {
-                    foundIndex = i;
-                    break;
-                }
-            } else if (emptyIndex == maxTextureSize_) {
-                // 最初のnullptrのインデックスを記録
-                emptyIndex = i;
+        auto itr = textureFileNameToIndexMap_.find(normalizedPath);
+        if (itr != textureFileNameToIndexMap_.end()) {
+            // 既にロード済みのテクスチャがある場合
+            index = itr->second;
+            if (callBack) {
+                callBack(index);
             }
+            return index;
         }
 
-        if (foundIndex != maxTextureSize_) {
-            LOG_TRACE("Already loaded texture: " + normalizedPath);
-            if (callBack) {
-                callBack(foundIndex);
+        // 新規ロードの場合、マップに追加
+        for (auto& texture : textures_) {
+            if (texture == nullptr) {
+                break;
             }
-            return foundIndex;
+            ++index;
         }
+        textureFileNameToIndexMap_[normalizedPath] = index;
 
         // 空きスロットがなければエラー
-        if (emptyIndex == maxTextureSize_) {
+        if (textureFileNameToIndexMap_.size() >= maxTextureSize_) {
             LOG_CRITICAL("Texture index exceeds maxTextureSize_ limit.");
-            assert(emptyIndex < maxTextureSize_);
+            assert(false);
         }
 
         // 新しいテクスチャを作成
-        textures_[emptyIndex] = std::make_shared<Texture>();
-        index                 = emptyIndex;
+        textures_[index] = std::make_shared<Texture>();
     }
 
 #ifdef _DEBUG
     LoadTask task;
-    task.filePath     = filePath;
+    task.filePath     = normalizedPath;
     task.texture      = textures_[index];
     task.textureIndex = index;
     task.callBack     = callBack;
     task.Update();
 
-   /* loadThread_->pushTask(
-        {.filePath        = normalizedPath,
-            .textureIndex = index,
-            .texture      = textures_[index],
-            .callBack     = callBack});*/
+    /* loadThread_->pushTask(
+         {.filePath        = normalizedPath,
+             .textureIndex = index,
+             .texture      = textures_[index],
+             .callBack     = callBack});*/
+
 #else
     LoadTask task;
-    task.filePath     = filePath;
+    task.filePath     = normalizedPath;
     task.texture      = textures_[index];
     task.textureIndex = index;
     task.callBack     = callBack;
