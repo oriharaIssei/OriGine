@@ -1118,7 +1118,9 @@ void from_json(const nlohmann::json& j, Emitter& e) {
             break;
         }
         case EmitterShapeType::Count:
+#ifdef DEBUG
             LOG_ERROR("EmitterShapeType is not defined. Please check the EmitterShapeType.");
+#endif // DEBUG
             break;
         default:
             break;
@@ -1168,7 +1170,10 @@ void to_json(nlohmann::json& j, const Emitter& e) {
             if (sphereShape) {
                 shapeJson = *sphereShape;
             } else {
+#ifdef DEBUG
+
                 LOG_ERROR("EmitterSphere is not Sphere type. Please check the emitterSpawnShape_ type.");
+#endif // DEBUG
             }
             break;
         }
@@ -1178,7 +1183,9 @@ void to_json(nlohmann::json& j, const Emitter& e) {
             if (obbShape) {
                 shapeJson = *obbShape;
             } else {
+#ifdef DEBUG
                 LOG_ERROR("EmitterOBB is not OBB type. Please check the emitterSpawnShape_ type.");
+#endif // DEBUG
             }
 
             break;
@@ -1189,7 +1196,9 @@ void to_json(nlohmann::json& j, const Emitter& e) {
             if (capsuleShape) {
                 shapeJson = *capsuleShape;
             } else {
+#ifdef DEBUG
                 LOG_ERROR("EmitterCapsule is not Capsule type. Please check the emitterSpawnShape_ type.");
+#endif // DEBUG
             }
 
             break;
@@ -1200,7 +1209,9 @@ void to_json(nlohmann::json& j, const Emitter& e) {
             if (coneShape) {
                 shapeJson = *coneShape;
             } else {
+#ifdef DEBUG
                 LOG_ERROR("EmitterCone is not Cone type. Please check the emitterSpawnShape_ type.");
+#endif // DEBUG
             }
 
             break;
