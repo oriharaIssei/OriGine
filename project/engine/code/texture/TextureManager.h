@@ -18,6 +18,7 @@
 #include "module/IModule.h"
 // dx12Object
 #include "directX12/DxCommand.h"
+#include "directX12/DxFence.h"
 #include "directX12/DxResource.h"
 #include "directX12/DxSrvArray.h"
 #include "directX12/PipelineStateObj.h"
@@ -59,7 +60,7 @@ public:
     static void UnloadTexture(uint32_t id);
 
 public:
-    static const uint32_t maxTextureSize_ = 128;
+    static const uint32_t maxTextureSize_ = 128 + 64;
 
     struct LoadTask {
         std::string filePath;
@@ -81,9 +82,11 @@ private:
 
     // バックグラウンドスレッド用
     static std::unique_ptr<DxCommand> dxCommand_;
+    static std::unique_ptr<DxFence> dxFence_;
 
 public:
-    static D3D12_GPU_DESCRIPTOR_HANDLE getDescriptorGpuHandle(uint32_t handleId);
+    static D3D12_GPU_DESCRIPTOR_HANDLE
+    getDescriptorGpuHandle(uint32_t handleId);
 
     static const DirectX::TexMetadata& getTexMetadata(uint32_t handleId) { return textures_[handleId]->metaData; }
 };

@@ -38,12 +38,13 @@ static std::string NormalizePath(const std::string& path) {
 }
 
 const uint32_t TextureManager::maxTextureSize_;
-std::shared_ptr<DxSrvArray> TextureManager::dxSrvArray_;
 std::array<std::shared_ptr<Texture>, TextureManager::maxTextureSize_> TextureManager::textures_;
-uint32_t TextureManager::dummyTextureIndex_;
+std::shared_ptr<DxSrvArray> TextureManager::dxSrvArray_;
 std::mutex TextureManager::texturesMutex_;
 std::unique_ptr<TaskThread<TextureManager::LoadTask>> TextureManager::loadThread_;
 std::unique_ptr<DxCommand> TextureManager::dxCommand_;
+std::unique_ptr<DxFence> TextureManager::dxFence_;
+uint32_t TextureManager::dummyTextureIndex_;
 
 #pragma region Texture
 void Texture::Initialize(const std::string& filePath, std::shared_ptr<DxSrvArray> srvArray) {
@@ -190,17 +191,23 @@ void Texture::ExecuteCommand(ID3D12Resource* _resource) {
     barrier.Transition.StateAfter  = D3D12_RESOURCE_STATE_GENERIC_READ;
     TextureManager::dxCommand_->getResourceStateTracker()->DirectBarrier(TextureManager::dxCommand_->getCommandList(), _resource, barrier);
 
-    TextureManager::dxCommand_->Close();
+    HRESULT hr = TextureManager::dxCommand_->Close();
+    if (FAILED(hr)) {
+        LOG_ERROR("Failed to close command list. HRESULT: " + std::to_string(hr));
+        assert(false);
+    }
 
     TextureManager::dxCommand_->ExecuteCommand();
 
-    // フェンスを使ってGPUが完了するのを待つ
-    DxFence fence;
-    fence.Initialize(Engine::getInstance()->getDxDevice()->getDevice());
+    DxFence* fence = Engine::getInstance()->getDxFence();
+    fence->Signal(TextureManager::dxCommand_->getCommandQueue());
+    fence->WaitForFence();
 
-    fence.Signal(TextureManager::dxCommand_->getCommandQueue());
-    fence.WaitForFence();
     TextureManager::dxCommand_->CommandReset();
+
+    /*TextureManager::dxFence_->Signal(TextureManager::dxCommand_->getCommandQueue());
+    TextureManager::dxFence_->WaitForFence();
+    TextureManager::dxCommand_->CommandReset();*/
 }
 
 #pragma endregion
@@ -225,7 +232,11 @@ void TextureManager::Initialize() {
     queueDesc.NodeMask                 = 0;
 
     dxCommand_ = std::make_unique<DxCommand>();
-    dxCommand_->Initialize("TextureManager", "TextureManager");
+    dxCommand_->Initialize("main", "main");
+
+    dxFence_ = std::make_unique<DxFence>();
+    dxFence_->Initialize(Engine::getInstance()->getDxDevice()->getDevice());
+
     // load中のテクスチャにはこれをはっつける
     dummyTextureIndex_ = LoadTexture(kEngineResourceDirectory + kDefaultWhiteTextureLocalPath);
 }
@@ -249,35 +260,57 @@ uint32_t TextureManager::LoadTexture(const std::string& filePath, std::function<
     LOG_TRACE("Load Texture \n Path : " + filePath);
 
     uint32_t index = 0;
+    uint32_t foundIndex = maxTextureSize_;
+    uint32_t emptyIndex = maxTextureSize_;
+
     {
         std::lock_guard<std::mutex> lock(texturesMutex_); // 排他制御
 
-        for (index = 0; index < textures_.size(); ++index) {
-            if (textures_[index] == nullptr) {
-                textures_[index] = std::make_shared<Texture>();
-                break;
-            } else if (normalizedPath == textures_[index]->path) {
-                LOG_TRACE("Already loaded texture: " + normalizedPath);
-                if (callBack) {
-                    callBack(index);
+        // 既存のテクスチャがあるか確認
+        for (uint32_t i = 0; i < textures_.size(); ++i) {
+            if (textures_[i] != nullptr) {
+                if (normalizedPath == textures_[i]->path) {
+                    foundIndex = i;
+                    break;
                 }
-                return index;
+            } else if (emptyIndex == maxTextureSize_) {
+                // 最初のnullptrのインデックスを記録
+                emptyIndex = i;
             }
         }
 
-        // Ensure index is within bounds
-        if (index >= maxTextureSize_) {
-            LOG_CRITICAL("Texture index exceeds maxTextureSize_ limit.");
-            assert(index < maxTextureSize_);
+        if (foundIndex != maxTextureSize_) {
+            LOG_TRACE("Already loaded texture: " + normalizedPath);
+            if (callBack) {
+                callBack(foundIndex);
+            }
+            return foundIndex;
         }
+
+        // 空きスロットがなければエラー
+        if (emptyIndex == maxTextureSize_) {
+            LOG_CRITICAL("Texture index exceeds maxTextureSize_ limit.");
+            assert(emptyIndex < maxTextureSize_);
+        }
+
+        // 新しいテクスチャを作成
+        textures_[emptyIndex] = std::make_shared<Texture>();
+        index                 = emptyIndex;
     }
 
 #ifdef _DEBUG
-    loadThread_->pushTask(
+    LoadTask task;
+    task.filePath     = filePath;
+    task.texture      = textures_[index];
+    task.textureIndex = index;
+    task.callBack     = callBack;
+    task.Update();
+
+   /* loadThread_->pushTask(
         {.filePath        = normalizedPath,
             .textureIndex = index,
             .texture      = textures_[index],
-            .callBack     = callBack});
+            .callBack     = callBack});*/
 #else
     LoadTask task;
     task.filePath     = filePath;
