@@ -83,7 +83,6 @@ private:
 
     // バックグラウンドスレッド用
     static std::unique_ptr<DxCommand> dxCommand_;
-    static std::unique_ptr<DxFence> dxFence_;
 
 public:
     static D3D12_GPU_DESCRIPTOR_HANDLE getDescriptorGpuHandle(uint32_t handleId);

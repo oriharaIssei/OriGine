@@ -39,7 +39,6 @@ std::shared_ptr<DxSrvArray> TextureManager::dxSrvArray_;
 std::mutex TextureManager::texturesMutex_;
 std::unique_ptr<TaskThread<TextureManager::LoadTask>> TextureManager::loadThread_;
 std::unique_ptr<DxCommand> TextureManager::dxCommand_;
-std::unique_ptr<DxFence> TextureManager::dxFence_;
 uint32_t TextureManager::dummyTextureIndex_;
 
 #pragma region Texture
@@ -232,9 +231,6 @@ void TextureManager::Initialize() {
 
     dxCommand_ = std::make_unique<DxCommand>();
     dxCommand_->Initialize("main", "main");
-
-    dxFence_ = std::make_unique<DxFence>();
-    dxFence_->Initialize(Engine::getInstance()->getDxDevice()->getDevice());
 
     // load中のテクスチャにはこれをはっつける
     dummyTextureIndex_ = LoadTexture(kEngineResourceDirectory + kDefaultWhiteTextureLocalPath);
