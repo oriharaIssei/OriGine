@@ -77,7 +77,7 @@ private:
     static std::unordered_map<std::string, uint32_t> textureFileNameToIndexMap_;
     static uint32_t dummyTextureIndex_;
 
-    static std::unique_ptr<TaskThread<TextureManager::LoadTask>> loadThread_;
+    // static std::unique_ptr<TaskThread<TextureManager::LoadTask>> loadThread_;
 
     static std::mutex texturesMutex_;
 
