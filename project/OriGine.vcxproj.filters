@@ -491,6 +491,7 @@
     <ClInclude Include="engine\code\component\animation\SpriteAnimation.h" />
     <ClInclude Include="engine\code\system\effect\SpriteAnimationSystem.h" />
     <ClInclude Include="util\NormalizeString.h" />
+    <ClInclude Include="engine\code\system\render\BackGroundSpriteRenderSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\code\ECS\ECSDebugger.cpp">
@@ -768,5 +769,6 @@
     <ClCompile Include="engine\code\system\effect\SpriteAnimationSystem.cpp" />
     <ClCompile Include="engine\code\model\Model.cpp" />
     <ClCompile Include="util\NormalizeString.cpp" />
+    <ClCompile Include="engine\code\system\render\BackGroundSpriteRenderSystem.cpp" />
   </ItemGroup>
 </Project>
