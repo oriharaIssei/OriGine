@@ -1,30 +1,30 @@
 #pragma once
 
-///stl
-//memory
+/// stl
+// memory
 #include <functional>
 #include <memory>
-//contiainer
+// contiainer
 #include <array>
 #include <unordered_map>
 // basic class
 #include <string>
 
-///engine
-//assetes
+/// engine
+// assetes
 
 struct Model;
 struct ModelNode;
 struct ModelMeshData;
 struct TexturedMaterial;
 
-//dx12Object
+// dx12Object
 #include "directX12/DxCommand.h"
 #include "directX12/PipelineStateObj.h"
 #include "directX12/ShaderManager.h"
-//lib
+// lib
 #include "Thread/Thread.h"
-//math
+// math
 #include "Matrix4x4.h"
 
 class ModelManager {
@@ -56,7 +56,7 @@ private:
     };
 
 private:
-    std::unique_ptr<TaskThread<LoadTask>> loadThread_;
+    // std::unique_ptr<TaskThread<LoadTask>> loadThread_;
 
     std::unordered_map<std::string, std::unique_ptr<ModelMeshData>> modelLibrary_;
     std::unordered_map<ModelMeshData*, std::vector<TexturedMaterial>> defaultMaterials_;

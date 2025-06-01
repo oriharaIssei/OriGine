@@ -257,11 +257,17 @@ std::shared_ptr<Model> ModelManager::Create(
     result                  = std::make_unique<Model>();
     result->meshData_       = modelLibrary_[filePath].get();
 #ifdef _DEBUG
-    loadThread_->pushTask(
-        {.directory   = directoryPath,
-            .fileName = filename,
-            .model    = result,
-            .callBack = callBack});
+    /* loadThread_->pushTask(
+         {.directory   = directoryPath,
+             .fileName = filename,
+             .model    = result,
+             .callBack = callBack});*/
+    LoadTask task;
+    task.directory = directoryPath;
+    task.fileName  = filename;
+    task.model     = result;
+    task.callBack  = callBack;
+    task.Update();
 #else
     LoadTask task;
     task.directory = directoryPath;
@@ -275,8 +281,8 @@ std::shared_ptr<Model> ModelManager::Create(
 }
 
 void ModelManager::Initialize() {
-    loadThread_ = std::make_unique<TaskThread<ModelManager::LoadTask>>();
-    loadThread_->Initialize(1);
+    /*loadThread_ = std::make_unique<TaskThread<ModelManager::LoadTask>>();
+    loadThread_->Initialize(1);*/
 
     fovMa_           = std::make_unique<Matrix4x4>();
     Matrix4x4* maPtr = new Matrix4x4();
@@ -293,7 +299,7 @@ void ModelManager::Initialize() {
 }
 
 void ModelManager::Finalize() {
-    loadThread_->Finalize();
+    /*loadThread_->Finalize();*/
     dxCommand_->Finalize();
     modelLibrary_.clear();
 }
