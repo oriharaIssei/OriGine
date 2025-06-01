@@ -37,7 +37,7 @@ std::array<std::shared_ptr<Texture>, TextureManager::maxTextureSize_> TextureMan
 std::unordered_map<std::string, uint32_t> TextureManager::textureFileNameToIndexMap_;
 std::shared_ptr<DxSrvArray> TextureManager::dxSrvArray_;
 std::mutex TextureManager::texturesMutex_;
-std::unique_ptr<TaskThread<TextureManager::LoadTask>> TextureManager::loadThread_;
+// std::unique_ptr<TaskThread<TextureManager::LoadTask>> TextureManager::loadThread_;
 std::unique_ptr<DxCommand> TextureManager::dxCommand_;
 uint32_t TextureManager::dummyTextureIndex_;
 
@@ -218,8 +218,8 @@ void TextureManager::Initialize() {
     dxSrvArray_ = DxSrvArrayManager::getInstance()->Create(maxTextureSize_);
 
 #ifdef _DEBUG
-    loadThread_ = std::make_unique<TaskThread<LoadTask>>();
-    loadThread_->Initialize(1);
+    // loadThread_ = std::make_unique<TaskThread<LoadTask>>();
+    // loadThread_->Initialize(1);
 #endif // DEBUG
 
     // コマンドキュー、コマンドアロケーター、コマンドリストの初期化
@@ -237,7 +237,9 @@ void TextureManager::Initialize() {
 }
 
 void TextureManager::Finalize() {
-    loadThread_->Finalize();
+#ifdef _DEBUG
+    // loadThread_->Finalize();
+#endif // DEBUG
 
     CoUninitialize();
 
