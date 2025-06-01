@@ -52,6 +52,7 @@ static const std::string kEngineResourceDirectory      = "engine/resource";
 #include "system/render/SkyboxRender.h"
 #include "system/render/SpriteRenderSystem.h"
 #include "system/render/TexturedMeshRenderSystem.h"
+#include "system/render/BackGroundSpriteRenderSystem.h"
 #endif // ENGINE_SYSTEMS
 
 #ifdef ENGINE_COMPONENTS
