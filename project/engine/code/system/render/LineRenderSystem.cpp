@@ -97,9 +97,20 @@ void LineRenderSystem::UpdateEntity(GameEntity* _entity) {
 }
 
 void LineRenderSystem::CreatePso() {
-
     ShaderManager* shaderManager = ShaderManager::getInstance();
     DxDevice* dxDevice           = Engine::getInstance()->getDxDevice();
+
+    // 登録されているかどうかをチェック
+    if (shaderManager->IsRegistertedPipelineStateObj("LineMesh_" + blendModeStr[0])) {
+        for (size_t i = 0; i < kBlendNum; ++i) {
+            BlendMode blend = static_cast<BlendMode>(i);
+            if (pso_[blend]) {
+                continue;
+            }
+            pso_[blend] = shaderManager->getPipelineStateObj("LineMesh_" + blendModeStr[i]);
+        }
+        return;
+    }
 
     ///=================================================
     /// shader読み込み
@@ -159,7 +170,7 @@ void LineRenderSystem::CreatePso() {
             continue;
         }
         lineShaderInfo.blendMode_       = blend;
-        pso_[lineShaderInfo.blendMode_] = shaderManager->CreatePso("LineMeshMesh_" + blendModeStr[i], lineShaderInfo, dxDevice->getDevice());
+        pso_[lineShaderInfo.blendMode_] = shaderManager->CreatePso("LineMesh_" + blendModeStr[i], lineShaderInfo, dxDevice->getDevice());
     }
 }
 

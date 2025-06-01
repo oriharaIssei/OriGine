@@ -39,6 +39,18 @@ void SkyboxRender::CreatePso() {
     ShaderManager* shaderManager = ShaderManager::getInstance();
     DxDevice* dxDevice           = Engine::getInstance()->getDxDevice();
 
+     // 登録されているかどうかをチェック
+    if (shaderManager->IsRegistertedPipelineStateObj("Skybox_" + blendModeStr[0])) {
+        for (size_t i = 0; i < kBlendNum; ++i) {
+            BlendMode blend = static_cast<BlendMode>(i);
+            if (pso_[blend]) {
+                continue;
+            }
+            pso_[blend] = shaderManager->getPipelineStateObj("Skybox_" + blendModeStr[i]);
+        }
+        return;
+    }
+
     ///=================================================
     /// shader読み込み
     ///=================================================
@@ -127,7 +139,7 @@ void SkyboxRender::CreatePso() {
             continue;
         }
         texShaderInfo.blendMode_       = blend;
-        pso_[texShaderInfo.blendMode_] = shaderManager->CreatePso("Skybox" + blendModeStr[i], texShaderInfo, dxDevice->getDevice());
+        pso_[texShaderInfo.blendMode_] = shaderManager->CreatePso("Skybox_" + blendModeStr[i], texShaderInfo, dxDevice->getDevice());
     }
 }
 

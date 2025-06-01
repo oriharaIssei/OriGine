@@ -33,12 +33,26 @@ void ParticleRenderSystem::Finalize() {
 
 void ParticleRenderSystem::CreatePso() {
     ShaderManager* shaderManager = ShaderManager::getInstance();
+
+    // 登録されているかどうかをチェック
+    if (shaderManager->IsRegistertedPipelineStateObj("Particle_" + blendModeStr[0])) {
+        for (size_t i = 0; i < kBlendNum; ++i) {
+            BlendMode blend = static_cast<BlendMode>(i);
+            if (pso_[blend]) {
+                continue;
+            }
+            pso_[blend] = shaderManager->getPipelineStateObj("Particle_" + blendModeStr[i]);
+        }
+        return;
+    }
+
     ///=================================================
     /// shader読み込み
     ///=================================================
 
     shaderManager->LoadShader("Particle.VS");
     shaderManager->LoadShader("Particle.PS", shaderDirectory, L"ps_6_0");
+
 
     ///=================================================
     /// shader情報の設定
@@ -122,6 +136,8 @@ void ParticleRenderSystem::CreatePso() {
     shaderInfo.pushBackSamplerDesc(staticSampler);
     /// Sampler
     ///=================================================
+
+    shaderInfo.customDepthStencilDesc().DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
 
     ///=================================================
     /// BlendMode ごとの Pso作成

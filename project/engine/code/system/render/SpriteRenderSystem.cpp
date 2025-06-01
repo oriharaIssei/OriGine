@@ -81,6 +81,18 @@ void SpriteRenderSystem::CreatePso() {
 
     ShaderManager* shaderManager = ShaderManager::getInstance();
 
+    // 登録されているかどうかをチェック
+    if (shaderManager->IsRegistertedPipelineStateObj("Sprite_" + blendModeStr[0])) {
+        for (size_t i = 0; i < kBlendNum; ++i) {
+            BlendMode blend = static_cast<BlendMode>(i);
+            if (pso_[blend]) {
+                continue;
+            }
+            pso_[blend] = shaderManager->getPipelineStateObj("Sprite_" + blendModeStr[i]);
+        }
+        return;
+    }
+
     shaderManager->LoadShader("Sprite.VS");
     shaderManager->LoadShader("Sprite.PS", shaderDirectory, L"ps_6_0");
 
@@ -151,18 +163,10 @@ void SpriteRenderSystem::CreatePso() {
     ///================================================
     /// 生成
     ///================================================
-    std::string psoKeys[kBlendNum] = {
-        "Sprite_None",
-        "Sprite_Alpha",
-        "Sprite_Add",
-        "Sprite_Sub",
-        "Sprite_Multiply",
-        "Sprite_Screen"};
-
     for (size_t i = 0; i < kBlendNum; i++) {
         shaderInfo.blendMode_ = static_cast<BlendMode>(i);
 
-        pso_[shaderInfo.blendMode_] = shaderManager->CreatePso(psoKeys[i], shaderInfo, Engine::getInstance()->getDxDevice()->getDevice());
+        pso_[shaderInfo.blendMode_] = shaderManager->CreatePso("Sprite_" + blendModeStr[i], shaderInfo, Engine::getInstance()->getDxDevice()->getDevice());
     }
 }
 

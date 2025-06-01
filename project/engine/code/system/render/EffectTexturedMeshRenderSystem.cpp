@@ -45,6 +45,32 @@ void EffectTexturedMeshRenderSystem::CreatePso() {
     ShaderManager* shaderManager = ShaderManager::getInstance();
     DxDevice* dxDevice           = Engine::getInstance()->getDxDevice();
 
+    // 登録されているかどうかをチェック
+    if (shaderManager->IsRegistertedPipelineStateObj("EffectTextured_" + blendModeStr[0])) {
+        for (size_t i = 0; i < kBlendNum; ++i) {
+            BlendMode blend = static_cast<BlendMode>(i);
+            if (pso_[blend]) {
+                continue;
+            }
+            pso_[blend] = shaderManager->getPipelineStateObj("EffectTextured_" + blendModeStr[i]);
+        }
+
+        transformBufferIndex_ = 0;
+        cameraBufferIndex_    = 1;
+        materialBufferIndex_  = 2;
+        directionalLightBufferIndex_ = 3;
+        pointLightBufferIndex_       = 4;
+        spotLightBufferIndex_        = 5;
+        lightCountBufferIndex_       = 6;
+        mainTextureBufferIndex_      = 7;
+        dissolveTextureBufferIndex_  = 8;
+        maskTextureBufferIndex_      = 9;
+        distortionTextureBufferIndex_ = 10;
+        effectParameterBufferIndex_   = 11;
+
+        return;
+    }
+
     ///=================================================
     /// shader読み込み
     ///=================================================
@@ -76,6 +102,7 @@ void EffectTexturedMeshRenderSystem::CreatePso() {
     rootParameter[2].Descriptor.ShaderRegister = 0;
     materialBufferIndex_                       = (int32_t)texShaderInfo.pushBackRootParameter(rootParameter[2]);
 
+    // DirectionalLight ... 3 (StructuredBuffer)
     rootParameter[3].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
     rootParameter[3].ShaderVisibility          = D3D12_SHADER_VISIBILITY_PIXEL;
     rootParameter[3].Descriptor.ShaderRegister = 4; // t1 register for DirectionalLight StructuredBuffer
