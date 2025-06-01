@@ -49,11 +49,7 @@ public:
     virtual void Edit();
     virtual void Finalize() = 0;
 
-    void eraseDeadEntity() {
-        std::erase_if(entityIDs_, [](int32_t _entity) {
-            return _entity < 0;
-        });
-    }
+    void eraseDeadEntity();
 
 protected:
     virtual void UpdateEntity([[maybe_unused]] GameEntity* _entity) {}

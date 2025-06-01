@@ -8,6 +8,13 @@
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
+void ISystem::eraseDeadEntity() {
+    std::erase_if(entityIDs_, [](int32_t _entityID) {
+        GameEntity* entity = ECSManager::getInstance()->getEntity(_entityID);
+        return !entity || _entityID < 0;
+    });
+}
+
 void ISystem::Update() {
 #ifdef _DEBUG
     // 計測開始
