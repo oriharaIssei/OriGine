@@ -47,9 +47,9 @@ private:
     std::vector<GameEntity> entityes_;
     std::vector<uint32_t> freeEntityIndex_;
     std::map<std::string, uint32_t> uniqueentityIDs_;
-    uint32_t entityCapacity_ = 500;
+    uint32_t entityCapacity_ = 10000;
 
-    std::queue<GameEntity*> deleteEntityQueue_;
+    std::queue<uint32_t> deleteEntityQueue_;
 
     /// <summary>
     /// コンポーネント配列
@@ -119,11 +119,11 @@ public: // ============== accessor ==============//
         return &entityes_[itr->second];
     }
     bool registerUniqueEntity(GameEntity* _entity) {
-        _entity->isUnique_ = true;
-
         if (uniqueentityIDs_.find(_entity->dataType_) != uniqueentityIDs_.end()) {
             return false;
         }
+
+        _entity->isUnique_ = true;
 
         uniqueentityIDs_[_entity->dataType_] = _entity->getID();
         return true;
@@ -156,7 +156,7 @@ public: // ============== accessor ==============//
     /// エンティティを削除する
     /// </summary>
     void destroyEntity(GameEntity* _entityIndex) {
-        deleteEntityQueue_.push(_entityIndex);
+        deleteEntityQueue_.push(_entityIndex->getID());
     }
 
     void clearEntities() {
@@ -176,11 +176,11 @@ public: // ============== accessor ==============//
     /// 生きているエンティティを削除する
     /// </summary>
     void clearAliveEntities() {
-        auto removedItr = std::stable_partition(entityes_.begin(), entityes_.end(), [](const GameEntity& entity) {
-            return !entity.isAlive_;
-        });
-        for (auto& itr = removedItr; itr != entityes_.end(); ++removedItr) {
-            destroyEntity(&*itr);
+        for (auto& entity : entityes_) {
+            if (!entity.isAlive_) {
+                continue;
+            }
+            destroyEntity(&entity);
         }
     }
 

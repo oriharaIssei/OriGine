@@ -136,11 +136,13 @@ void EntityComponentSystemManager::RunInitialize() {
 
 void EntityComponentSystemManager::ExecuteEntitiesDelete() {
     while (!deleteEntityQueue_.empty()) {
-        GameEntity* entity = deleteEntityQueue_.front();
+        uint32_t deleteID = deleteEntityQueue_.front();
         deleteEntityQueue_.pop();
 
+        GameEntity* entity = &entityes_[deleteID];
+
         // 無効ポインタにアクセスしないように 弾く
-        if (!entity) {
+        if (!entity || !entity->isAlive()) {
             continue;
         }
 
@@ -152,9 +154,7 @@ void EntityComponentSystemManager::ExecuteEntitiesDelete() {
         // システムから除外
         for (auto& systemByType : systems_) {
             for (auto& [name, system] : systemByType) {
-                if (system->hasEntity(entity)) {
-                    system->removeEntity(entity);
-                }
+                system->removeEntity(entity);
             }
         }
 
@@ -164,7 +164,8 @@ void EntityComponentSystemManager::ExecuteEntitiesDelete() {
             LOG_CRITICAL("The entity ID is invalid. \n EntityName :" + entity->dataType_);
             continue;
         }
-        freeEntityIndex_.push_back(entity->getID());
+
+        freeEntityIndex_.insert(freeEntityIndex_.begin() + entity->getID(), entity->getID());
 
         // エンティティがユニークな場合は、ユニークエンティティから削除
         if (entity->isUnique_) {
@@ -198,15 +199,18 @@ void EntityComponentSystemManager::resize(uint32_t _newSize) {
 
         // freeEntityIndexを再構築
         freeEntityIndex_.clear();
-        for (uint32_t i = 0; i < _newSize; i++) {
+        for (uint32_t i = _newSize - 1;; --i) {
             freeEntityIndex_.push_back(i);
+            if (i == 0)
+                break;
         }
     } else {
         // エンティティの容量を増やす
         entityes_.resize(_newSize);
-
-        for (uint32_t i = oldSize; i < _newSize; ++i) {
+        for (uint32_t i = _newSize - 1;; --i) {
             freeEntityIndex_.push_back(i);
+            if (i == oldSize)
+                break;
         }
     }
     entityCapacity_ = _newSize;
