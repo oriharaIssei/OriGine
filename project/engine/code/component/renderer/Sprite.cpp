@@ -128,7 +128,7 @@ bool SpriteRenderer::Edit() {
     ImGui::Spacing();
 
     ImGui::Text("Color");
-    isChange |= ImGui::ColorEdit4("##Color", spriteBuff_->color_.v);
+    isChange |= ColorEditGuiCommand("##Color", spriteBuff_->color_);
 
     if (ImGui::TreeNode("UVTransform")) {
         ImGui::Text("UVScale");
@@ -227,6 +227,7 @@ void to_json(nlohmann::json& j, const SpriteRenderer& r) {
         {"anchorPoint", r.anchorPoint_},
         {"isFlipX", r.isFlipX_},
         {"isFlipY", r.isFlipY_},
+        {"color", r.spriteBuff_->color_},
         {"scale", r.spriteBuff_->scale_},
         {"size", r.size_},
         {"rotate", r.spriteBuff_->rotate_},
@@ -244,10 +245,11 @@ void from_json(const nlohmann::json& j, SpriteRenderer& r) {
     j.at("anchorPoint").get_to(r.anchorPoint_);
     j.at("isFlipX").get_to(r.isFlipX_);
     j.at("isFlipY").get_to(r.isFlipY_);
-    j.at("scale").get_to(r.spriteBuff_->scale_);
-    if (j.find("size") != j.end()) {
-        j.at("size").get_to(r.size_);
+    if (j.find("color") != j.end()) {
+        j.at("color").get_to(r.spriteBuff_->color_);
     }
+    j.at("scale").get_to(r.spriteBuff_->scale_);
+    j.at("size").get_to(r.size_);
     j.at("rotate").get_to(r.spriteBuff_->rotate_);
     j.at("translate").get_to(r.spriteBuff_->translate_);
     j.at("uvScale").get_to(r.spriteBuff_->uvScale_);
