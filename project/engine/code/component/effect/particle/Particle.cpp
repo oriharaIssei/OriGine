@@ -104,6 +104,7 @@ void Particle::setKeyFrames(int32_t updateSettings, ParticleKeyFrames* _keyFrame
 
     keyFrames_ = _keyFrames;
 
+    // color
     if (updateSettings & static_cast<int32_t>(ParticleUpdateType::ColorPerLifeTime)) {
         if (colorInterpolationType_ == InterpolationType::LINEAR) {
             updateByCurves_.push_back([this]() {
@@ -115,6 +116,8 @@ void Particle::setKeyFrames(int32_t updateSettings, ParticleKeyFrames* _keyFrame
             });
         }
     }
+
+    // scale
     if (updateSettings & static_cast<int32_t>(ParticleUpdateType::ScalePerLifeTime)) {
         if (transformInterpolationType_ == InterpolationType::LINEAR) {
             updateByCurves_.push_back([this]() {
@@ -126,12 +129,12 @@ void Particle::setKeyFrames(int32_t updateSettings, ParticleKeyFrames* _keyFrame
             });
         }
     } else if (updateSettings & static_cast<int32_t>(ParticleUpdateType::ScaleRandom)) {
-        MyRandom::Float randomX(minUpdateScale_->v[X], maxUpdateScale_->v[X]);
-        MyRandom::Float randomY(minUpdateScale_->v[Y], maxUpdateScale_->v[Y]);
-        MyRandom::Float randomZ(minUpdateScale_->v[Z], maxUpdateScale_->v[Z]);
-        transform_.scale += Vec3f(randomX.get(), randomY.get(), randomZ.get()) * deltaTime_;
+        updateByCurves_.push_back([this]() {
+            transform_.scale += updateScale_ * deltaTime_;
+        });
     }
 
+    // rotate
     if (updateSettings & static_cast<int32_t>(ParticleUpdateType::RotatePerLifeTime)) {
         if (transformInterpolationType_ == InterpolationType::LINEAR) {
             updateByCurves_.push_back([this]() {
@@ -143,14 +146,14 @@ void Particle::setKeyFrames(int32_t updateSettings, ParticleKeyFrames* _keyFrame
             });
         }
     } else if (updateSettings & static_cast<int32_t>(ParticleUpdateType::RotateRandom)) {
-        MyRandom::Float randomX(minUpdateRotate_->v[X], maxUpdateRotate_->v[X]);
-        MyRandom::Float randomY(minUpdateRotate_->v[Y], maxUpdateRotate_->v[Y]);
-        MyRandom::Float randomZ(minUpdateRotate_->v[Z], maxUpdateRotate_->v[Z]);
-        transform_.rotate += Vec3f(randomX.get(), randomY.get(), randomZ.get()) * deltaTime_;
+        updateByCurves_.push_back([this]() {
+            transform_.rotate += updateRotate_ * deltaTime_;
+        });
     } else if (updateSettings & static_cast<int32_t>(ParticleUpdateType::RotateForward)) {
         rotateForward_ = true;
     }
 
+    // velocity
     if (updateSettings & static_cast<int32_t>(ParticleUpdateType::VelocityPerLifeTime)) {
         if (transformInterpolationType_ == InterpolationType::LINEAR) {
             updateByCurves_.push_back([this]() {
@@ -162,10 +165,9 @@ void Particle::setKeyFrames(int32_t updateSettings, ParticleKeyFrames* _keyFrame
             });
         }
     } else if (updateSettings & static_cast<int32_t>(ParticleUpdateType::VelocityRandom)) {
-        MyRandom::Float randomX(minUpdateVelocity_->v[X], maxUpdateVelocity_->v[X]);
-        MyRandom::Float randomY(minUpdateVelocity_->v[Y], maxUpdateVelocity_->v[Y]);
-        MyRandom::Float randomZ(minUpdateVelocity_->v[Z], maxUpdateVelocity_->v[Z]);
-        velocity_ += Vec3f(randomX.get(), randomY.get(), randomZ.get()) * deltaTime_;
+        updateByCurves_.push_back([this]() {
+            velocity_ += updateVelocity_ * deltaTime_;
+        });
     }
     if (updateSettings & static_cast<int32_t>(ParticleUpdateType::UsingGravity)) {
         updateByCurves_.push_back([this]() {
@@ -176,6 +178,7 @@ void Particle::setKeyFrames(int32_t updateSettings, ParticleKeyFrames* _keyFrame
     velocityRotateFoward_ =
         (updateSettings & static_cast<int32_t>(ParticleUpdateType::VelocityRotateForward)) != 0;
 
+    // uvScale
     if (updateSettings & static_cast<int32_t>(ParticleUpdateType::UvScalePerLifeTime)) {
         if (uvInterpolationType_ == InterpolationType::LINEAR) {
             updateByCurves_.push_back([this]() {
@@ -187,6 +190,7 @@ void Particle::setKeyFrames(int32_t updateSettings, ParticleKeyFrames* _keyFrame
             });
         }
     }
+    // uvRotate
     if (updateSettings & static_cast<int32_t>(ParticleUpdateType::UvRotatePerLifeTime)) {
         if (uvInterpolationType_ == InterpolationType::LINEAR) {
             updateByCurves_.push_back([this]() {
@@ -198,6 +202,7 @@ void Particle::setKeyFrames(int32_t updateSettings, ParticleKeyFrames* _keyFrame
             });
         }
     }
+    // uvTranslate
     if (updateSettings & static_cast<int32_t>(ParticleUpdateType::UvTranslatePerLifeTime)) {
         if (uvInterpolationType_ == InterpolationType::LINEAR) {
             updateByCurves_.push_back([this]() {
@@ -208,30 +213,6 @@ void Particle::setKeyFrames(int32_t updateSettings, ParticleKeyFrames* _keyFrame
                 transform_.uvTranslate = CalculateValue::Step(keyFrames_->uvTranslateCurve_, currentTime_);
             });
         }
-    }
-}
-
-void Particle::UpdateKeyFrameValues() {
-    auto updateCurve = [](auto& curve, const auto& min, const auto& max) {
-        for (auto& keyframe : curve) {
-            for (int i = 0; i < 3; ++i) {
-                float range = max.v[i] - min.v[i];
-                if (range != 0) {
-                    float ratio         = (keyframe.value.v[i] - min.v[i]) / range;
-                    keyframe.value.v[i] = min.v[i] + ratio * range;
-                }
-            }
-        }
-    };
-
-    if (minUpdateScale_ && maxUpdateScale_) {
-        updateCurve(keyFrames_->scaleCurve_, *minUpdateScale_, *maxUpdateScale_);
-    }
-    if (minUpdateRotate_ && maxUpdateRotate_) {
-        updateCurve(keyFrames_->rotateCurve_, *minUpdateRotate_, *maxUpdateRotate_);
-    }
-    if (minUpdateVelocity_ && maxUpdateVelocity_) {
-        updateCurve(keyFrames_->velocityCurve_, *minUpdateVelocity_, *maxUpdateVelocity_);
     }
 }
 

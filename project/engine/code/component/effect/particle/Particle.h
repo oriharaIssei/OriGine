@@ -62,7 +62,6 @@ public:
         InterpolationType _color,
         InterpolationType _uv);
     void Update(float _deltaTime);
-    void UpdateKeyFrameValues();
 
 protected:
     ParticleTransform transform_;
@@ -87,12 +86,9 @@ protected:
     Vec3f rotateRatio_;
     Vec3f velocityRatio_;
 
-    Vec3f* minUpdateScale_    = nullptr;
-    Vec3f* maxUpdateScale_    = nullptr;
-    Vec3f* minUpdateRotate_   = nullptr;
-    Vec3f* maxUpdateRotate_   = nullptr;
-    Vec3f* minUpdateVelocity_ = nullptr;
-    Vec3f* maxUpdateVelocity_ = nullptr;
+    Vec3f updateScale_    = {0.f, 0.f, 0.f};
+    Vec3f updateVelocity_ = {0.f, 0.f, 0.f};
+    Vec3f updateRotate_   = {0.f, 0.f, 0.f};
 
     InterpolationType transformInterpolationType_ = InterpolationType::LINEAR;
     InterpolationType colorInterpolationType_     = InterpolationType::LINEAR;
@@ -106,17 +102,14 @@ public:
     const ParticleTransform& getTransform() const { return transform_; }
     bool getIsAlive() const { return isAlive_; }
 
-    void setUpdateScaleMinMax(Vec3f* _min, Vec3f* _max) {
-        minUpdateScale_ = _min;
-        maxUpdateScale_ = _max;
+    void setUpdateScale(Vec3f _updateScale) {
+        updateScale_ = _updateScale;
     }
-    void setUpdateRotateMinMax(Vec3f* _min, Vec3f* _max) {
-        minUpdateRotate_ = _min;
-        maxUpdateRotate_ = _max;
+    void setUpdateRotate(Vec3f _updateRotate) {
+        updateRotate_ = _updateRotate;
     }
-    void setUpdateVelocityMinMax(Vec3f* _min, Vec3f* _max) {
-        minUpdateVelocity_ = _min;
-        maxUpdateVelocity_ = _max;
+    void setUpdateVelocity(Vec3f _updateVelocity) {
+        updateVelocity_ = _updateVelocity;
     }
 
     void setMass(float _mass) { mass_ = _mass; }
