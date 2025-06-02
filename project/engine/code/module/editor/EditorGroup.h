@@ -40,6 +40,11 @@ public:
         }
     }
 
+    void clearCommandHistory() {
+        commandHistory_.clear();
+        currentCommandItr_ = commandHistory_.end();
+    }
+
 private:
     EditorGroup();
     EditorGroup(const EditorGroup&) = delete;

@@ -44,4 +44,8 @@ void SceneFinalize() {
     ecsManager->clearUniqueEntities();
     ecsManager->clearAliveEntities();
     ecsManager->ExecuteEntitiesDelete();
+
+#ifdef _DEBUG
+    EditorGroup::getInstance()->clearCommandHistory();
+#endif // _DEBUG
 }
