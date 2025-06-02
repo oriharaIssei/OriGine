@@ -165,7 +165,7 @@ void EntityComponentSystemManager::ExecuteEntitiesDelete() {
             continue;
         }
 
-        freeEntityIndex_.insert(freeEntityIndex_.begin() + entity->getID(), entity->getID());
+        freeEntityIndex_.insert(freeEntityIndex_.end() - entity->getID(), entity->getID());
 
         // エンティティがユニークな場合は、ユニークエンティティから削除
         if (entity->isUnique_) {

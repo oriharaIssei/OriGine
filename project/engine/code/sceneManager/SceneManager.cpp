@@ -474,7 +474,7 @@ void SceneSerializer::SerializeFromJson(const std::string& _sceneName) {
     std::list<GameEntity*> aliveEntities;
     for (auto& entity : entities) {
         if (entity.isAlive()) {
-            aliveEntities.push_front(ecsManager->getEntity(entity.getID()));
+            aliveEntities.push_back(ecsManager->getEntity(entity.getID()));
         }
     }
 
