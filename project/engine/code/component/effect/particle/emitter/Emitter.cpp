@@ -857,16 +857,17 @@ void Emitter::EditParticle() {
 void Emitter::Draw(ID3D12GraphicsCommandList* _commandList) {
     const Matrix4x4& viewMat = CameraManager::getInstance()->getTransform().viewMat;
 
-    Matrix4x4 rotateMat = {};
+    Matrix4x4 billboardMat = {};
     // パーティクルのスケール行列を事前計算
-    Matrix4x4 scaleMat = MakeMatrix::Scale({1.0f, 1.0f, 1.0f});
-
+    Matrix4x4 scaleMat     = MakeMatrix::Scale({1.0f, 1.0f, 1.0f});
+    Matrix4x4 rotateMat    = MakeMatrix::Identity();
+    Matrix4x4 translateMat = MakeMatrix::Identity();
     if (particles_.empty()) {
         return;
     }
 
     if (particleIsBillBoard_) { // Bill Board
-                                // カメラの回転行列を取得し、平行移動成分をゼロにする
+        // カメラの回転行列を取得し、平行移動成分をゼロにする
         Matrix4x4 cameraRotation = viewMat;
         cameraRotation[3][0]     = 0.0f;
         cameraRotation[3][1]     = 0.0f;
@@ -874,15 +875,17 @@ void Emitter::Draw(ID3D12GraphicsCommandList* _commandList) {
         cameraRotation[3][3]     = 1.0f;
 
         // カメラの回転行列を反転してワールド空間への変換行列を作成
-        rotateMat = cameraRotation.inverse();
+        billboardMat = cameraRotation.inverse();
 
         // 各パーティクルのワールド行列を計算
         for (size_t i = 0; i < particles_.size(); i++) {
-            scaleMat = MakeMatrix::Scale(structuredTransform_.openData_[i].scale);
-            // 平行移動行列を計算
-            Matrix4x4 translateMat = MakeMatrix::Translate(structuredTransform_.openData_[i].translate);
+            scaleMat     = MakeMatrix::Scale(structuredTransform_.openData_[i].scale);
+            rotateMat    = MakeMatrix::RotateXYZ(structuredTransform_.openData_[i].rotate);
+            translateMat = MakeMatrix::Translate(structuredTransform_.openData_[i].translate);
+
             // ワールド行列を構築
             structuredTransform_.openData_[i].worldMat = scaleMat * rotateMat * translateMat;
+            structuredTransform_.openData_[i].worldMat *= billboardMat;
 
             structuredTransform_.openData_[i].uvMat = particles_[i]->getTransform().uvMat;
             structuredTransform_.openData_[i].color = particles_[i]->getTransform().color;
@@ -890,10 +893,9 @@ void Emitter::Draw(ID3D12GraphicsCommandList* _commandList) {
     } else {
         // 各パーティクルのワールド行列を計算
         for (size_t i = 0; i < particles_.size(); i++) {
-            scaleMat  = MakeMatrix::Scale(structuredTransform_.openData_[i].scale);
-            rotateMat = MakeMatrix::RotateXYZ(structuredTransform_.openData_[i].rotate);
-            // 平行移動行列を計算
-            Matrix4x4 translateMat = MakeMatrix::Translate(structuredTransform_.openData_[i].translate);
+            scaleMat     = MakeMatrix::Scale(structuredTransform_.openData_[i].scale);
+            rotateMat    = MakeMatrix::RotateXYZ(structuredTransform_.openData_[i].rotate);
+            translateMat = MakeMatrix::Translate(structuredTransform_.openData_[i].translate);
 
             // ワールド行列を構築
             structuredTransform_.openData_[i].worldMat = scaleMat * rotateMat * translateMat;
@@ -1021,21 +1023,30 @@ void Emitter::SpawnParticle() {
             uvInterpolationType_);
 
         if (updateSettings_ & int(ParticleUpdateType::VelocityRandom)) {
-            spawnedParticle->setUpdateVelocityMinMax(&updateParticleVelocityMin_, &updateParticleVelocityMax_);
+
+            randX.setRange(updateParticleVelocityMin_.v[X], updateParticleVelocityMax_.v[X]);
+            randY.setRange(updateParticleVelocityMin_.v[Y], updateParticleVelocityMax_.v[Y]);
+            randZ.setRange(updateParticleVelocityMin_.v[Z], updateParticleVelocityMax_.v[Z]);
+            spawnedParticle->setUpdateVelocity(Vec3f(randX.get(), randY.get(), randZ.get()));
         }
         if (updateSettings_ & int(ParticleUpdateType::UsingGravity)) {
             randX.setRange(randMass_[X], randMass_[Y]);
             spawnedParticle->setMass(randX.get());
         }
         if (updateSettings_ & int(ParticleUpdateType::ScaleRandom)) {
-            spawnedParticle->setUpdateScaleMinMax(&updateParticleScaleMin_, &updateParticleScaleMax_);
+            randX.setRange(updateParticleScaleMin_.v[X], updateParticleScaleMax_.v[X]);
+            randY.setRange(updateParticleScaleMin_.v[Y], updateParticleScaleMax_.v[Y]);
+            randZ.setRange(updateParticleScaleMin_.v[Z], updateParticleScaleMax_.v[Z]);
+            spawnedParticle->setUpdateScale(Vec3f(randX.get(), randY.get(), randZ.get()));
         }
         if (updateSettings_ & int(ParticleUpdateType::RotateRandom)) {
-            spawnedParticle->setUpdateRotateMinMax(&updateParticleRotateMin_, &updateParticleRotateMax_);
+            randX.setRange(updateParticleRotateMin_.v[X], updateParticleRotateMax_.v[X]);
+            randY.setRange(updateParticleRotateMin_.v[Y], updateParticleRotateMax_.v[Y]);
+            randZ.setRange(updateParticleRotateMin_.v[Z], updateParticleRotateMax_.v[Z]);
+            spawnedParticle->setUpdateRotate(Vec3f(randX.get(), randY.get(), randZ.get()));
         }
 
         spawnedParticle->setKeyFrames(updateSettings_, particleKeyFrames_.get());
-        spawnedParticle->UpdateKeyFrameValues();
     }
 }
 

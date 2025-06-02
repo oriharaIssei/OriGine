@@ -29,6 +29,13 @@ struct ParticleKeyFrames;
 // shape
 #include "EmitterShape.h"
 
+enum class BillBoardType {
+    NONE = 0,
+    X    = 0x1 << 1,
+    Y    = 0x1 << 2,
+    Z    = 0x1 << 3
+};
+
 class Emitter
     : public IComponent {
 
