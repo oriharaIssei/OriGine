@@ -40,7 +40,7 @@ bool SpriteAnimation::Edit() {
         ImGui::EndCombo();
     }
     ImGui::Text("Color Animation KeyFrames");
-    isEdit |= ImGui::EditKeyFrame(
+    isEdit |= ImGui::EditColorKeyFrame(
         "##Color Animation",
         colorCurve_,
         duration_,
