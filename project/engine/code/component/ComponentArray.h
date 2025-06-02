@@ -294,6 +294,10 @@ public:
         return entityIndexBind_.find(_hostEntity->getID()) != entityIndexBind_.end();
     }
 
+    const std::map<int32_t, uint32_t>& getEntityIndexBind() const {
+        return entityIndexBind_;
+    }
+
     int32_t entityCapacity(GameEntity* _hostEntity) const override {
         auto it = entityIndexBind_.find(_hostEntity->getID());
         if (it == entityIndexBind_.end()) {

@@ -55,6 +55,9 @@ public:
         if (!fileName_.empty()) {
             audioClip_.data_ = LoadWave(fileName_);
         }
+        if (audioClip_.isPlay_) {
+            Play();
+        }
     };
 
     bool Edit() override;
