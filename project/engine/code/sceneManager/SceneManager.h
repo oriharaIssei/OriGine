@@ -65,6 +65,8 @@ private:
     std::shared_ptr<DxRtvArray> sceneViewRtvArray_;
     std::shared_ptr<DxSrvArray> sceneViewSrvArray_;
 
+    bool isExitGame_ = false;
+
 #ifdef _DEBUG
     EditorGroup* editorGroup_     = nullptr;
     DebuggerGroup* debuggerGroup_ = nullptr;
@@ -97,6 +99,9 @@ private:
 #endif
 
 public:
+    bool isExitGame() const { return isExitGame_; }
+    void setExitGame(bool exit) { isExitGame_ = exit; }
+
     const std::string& getCurrentSceneName() const { return currentSceneName_; }
 
     void sceneChange2StartupScene();

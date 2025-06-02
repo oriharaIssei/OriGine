@@ -463,8 +463,8 @@ void SceneSerializer::Deserialize(const std::string& _sceneName) {
 }
 
 void SceneSerializer::SerializeFromJson(const std::string& _sceneName) {
-    ECSManager* ecsManager = ECSManager::getInstance();
-    nlohmann::json jsonData;
+    ECSManager* ecsManager  = ECSManager::getInstance();
+    nlohmann::json jsonData = nlohmann::json::object();
 
     /// =====================================================
     // Entity
@@ -482,7 +482,7 @@ void SceneSerializer::SerializeFromJson(const std::string& _sceneName) {
         if (!entity->isAlive()) {
             continue;
         }
-        nlohmann::json entityData;
+        nlohmann::json entityData = nlohmann::json::object();
         entityData["Name"]     = entity->getDataType();
         entityData["isUnique"] = entity->isUnique();
 
