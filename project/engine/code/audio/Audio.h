@@ -11,6 +11,7 @@
 
 /// engine
 #include "component/IComponent.h"
+#include "system/ISystem.h"
 
 struct ChunkHeader {
     char id[4];
@@ -36,7 +37,6 @@ public:
     SoundData data_;
     bool isLoop_  = false;
     float valume_ = 0.5f;
-    bool isPlay_  = false; // 再生するかどうか
 };
 
 class Audio
@@ -54,9 +54,6 @@ public:
     void Initialize(GameEntity* /*_entity*/) override {
         if (!fileName_.empty()) {
             audioClip_.data_ = LoadWave(fileName_);
-        }
-        if (audioClip_.isPlay_) {
-            Play();
         }
     };
 
@@ -107,4 +104,16 @@ public:
         // 再生中のバッファが存在する場合は再生中とみなす
         return state.BuffersQueued > 0;
     }
+};
+
+class AudioInitializeSystem
+    : public ISystem {
+public:
+    AudioInitializeSystem();
+    ~AudioInitializeSystem() override;
+
+    void Initialize() override;
+    void Finalize() override;
+
+    void UpdateEntity(GameEntity* entity) override;
 };

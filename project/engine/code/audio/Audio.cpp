@@ -7,8 +7,8 @@
 
 /// engine
 #define RESOURCE_DIRECTORY
+#include "ECSManager.h"
 #include "EngineInclude.h"
-
 /// lib
 #include "logger/Logger.h"
 #include "myFileSystem/MyFileSystem.h"
@@ -24,6 +24,7 @@
 Microsoft::WRL::ComPtr<IXAudio2> Audio::xAudio2_;
 IXAudio2MasteringVoice* Audio::masterVoice_;
 
+#pragma region "Audio"
 void Audio::StaticInitialize() {
     LOG_DEBUG("Start Static Initialize Audio");
     HRESULT result;
@@ -159,8 +160,6 @@ bool Audio::Edit() {
     ImGui::Text("File:%s", fileName_.c_str());
     isEdit |= CheckBoxCommand("Loop", audioClip_.isLoop_);
     isEdit |= SlideCommand("Volume", audioClip_.valume_, 0.0f, 2.0f);
-    isEdit |= CheckBoxCommand("Play", audioClip_.isPlay_);
-
     if (ImGui::Button("Test Play")) {
         Play();
     }
@@ -253,12 +252,35 @@ void to_json(nlohmann::json& j, const Audio& t) {
     j["fileName"] = t.fileName_;
     j["isLoop"]   = t.audioClip_.isLoop_;
     j["valume"]   = t.audioClip_.valume_;
-    j["isPlay"]   = t.audioClip_.isPlay_;
 }
 
 void from_json(const nlohmann::json& j, Audio& t) {
     j.at("fileName").get_to(t.fileName_);
     j.at("isLoop").get_to(t.audioClip_.isLoop_);
     j.at("valume").get_to(t.audioClip_.valume_);
-    j.at("isPlay").get_to(t.audioClip_.isPlay_);
+}
+
+#pragma endregion "Audio"
+
+AudioInitializeSystem::AudioInitializeSystem() : ISystem(SystemType::Initialize) {};
+
+AudioInitializeSystem::~AudioInitializeSystem() {}
+
+void AudioInitializeSystem::Initialize() {}
+void AudioInitializeSystem::Finalize() {}
+
+void AudioInitializeSystem::UpdateEntity(GameEntity* entity) {
+    int32_t entityIndex = 0;
+
+    while (true) {
+        Audio* audio = getComponent<Audio>(entity, entityIndex);
+        if (!audio) {
+            return;
+        }
+
+        // 再生
+        audio->Play();
+
+        entityIndex++;
+    }
 }
