@@ -11,28 +11,19 @@
 
 /// engine
 // module
-#include "component/material/light/lightManager.h"
-#include "component/material/Material.h"
-#include "input/Input.h"
-#include "winApp/WinApp.h"
+class LightManager;
+class Input;
+class WinApp;
 // DirectX Object
-#include "directX12/DxCommand.h"
-#include "directX12/DxDevice.h"
-#include "directX12/DxDsv.h"
-#include "directX12/DxFence.h"
-#include "directX12/DxRtvArray.h"
-#include "directX12/DxSwapChain.h"
-#include "directX12/PipelineStateObj.h"
-#include "directX12/ShaderManager.h"
-// component
-// #include "object3d/Object3d.h"
-// etc
+class DxCommand;
+class DxDevice;
+class DxFence;
+class DxSwapChain;
+
+#include "directX12/DxDescriptor.h"
+#include "directX12/DxResource.h"
+
 #include "deltaTime/DeltaTime.h"
-// math
-#include "Matrix4x4.h"
-#include "Vector2.h"
-#include "Vector3.h"
-#include "Vector4.h"
 
 class Engine {
     friend class PrimitiveDrawer;
@@ -54,11 +45,12 @@ public:
     int LoadTexture(const std::string& filePath);
 
 private:
-    Engine() = default;
-    ~Engine() {};
+    Engine();
+    ~Engine();
     Engine(const Engine&)                  = delete;
     const Engine& operator=(const Engine&) = delete;
 
+    void CreateDsv();
 private:
     // api
     std::unique_ptr<WinApp> window_;
@@ -68,8 +60,13 @@ private:
     std::unique_ptr<DxDevice> dxDevice_;
     std::unique_ptr<DxCommand> dxCommand_;
     std::unique_ptr<DxSwapChain> dxSwapChain_;
+    DxResource dsvResource_;
+    std::shared_ptr<DxDsvDescriptor> dxDsv_;
     std::unique_ptr<DxFence> dxFence_;
-    std::unique_ptr<DxDsv> dxDsv_;
+    // resource
+    std::unique_ptr<DxDescriptorHeap<DxDescriptorHeapType::RTV>> rtvHeap_;
+    std::unique_ptr<DxDescriptorHeap<DxDescriptorHeapType::SRV>> srvHeap_;
+    std::unique_ptr<DxDescriptorHeap<DxDescriptorHeapType::DSV>> dsvHeap_;
 
     LightManager* lightManager_ = nullptr;
     // Time
@@ -84,7 +81,12 @@ public:
     DxSwapChain* getDxSwapChain() const { return dxSwapChain_.get(); }
     DxFence* getDxFence() const { return dxFence_.get(); }
 
-    DxDsv* getDsv() const { return dxDsv_.get(); }
+    DxDsvDescriptor* getDxDsv() const { return dxDsv_.get(); }
+    DxResource* getDsvResource() { return &dsvResource_; }
+
+    DxDescriptorHeap<DxDescriptorHeapType::RTV>* getRtvHeap() const { return rtvHeap_.get(); }
+    DxDescriptorHeap<DxDescriptorHeapType::SRV>* getSrvHeap() const { return srvHeap_.get(); }
+    DxDescriptorHeap<DxDescriptorHeapType::DSV>* getDsvHeap() const { return dsvHeap_.get(); }
 
     float getDeltaTime() const { return deltaTime_->getDeltaTime(); }
 

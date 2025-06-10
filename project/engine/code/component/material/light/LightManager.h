@@ -13,7 +13,7 @@
 #include "PointLight.h"
 #include "SpotLight.h"
 // directX12Object
-#include "directX12/DxSrvArray.h"
+#include "directX12/DxDescriptor.h"
 #include "directX12/IConstantBuffer.h"
 #include "directX12/IStructuredBuffer.h"
 // lib
@@ -54,14 +54,12 @@ public:
     void Update();
     void Finalize();
 
-    void SetForRootParameter(ID3D12GraphicsCommandList* cmdList, int32_t _lightCountIndex, int32_t _directionalLightIndex, int32_t _pointLightIndex, int32_t _spotLightIndex);
+    void SetForRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, int32_t _lightCountIndex, int32_t _directionalLightIndex, int32_t _pointLightIndex, int32_t _spotLightIndex);
 
 private:
     SerializedField<int32_t> directionalLightSize_{"LightManager", "LightCounts", "directionalLightSize"};
     SerializedField<int32_t> pointLightSize_{"LightManager", "LightCounts", "pointLightSize"};
     SerializedField<int32_t> spotLightSize_{"LightManager", "LightCounts", "spotLightSize"};
-
-    std::shared_ptr<DxSrvArray> srvArray_;
 
     IConstantBuffer<LightCounts> lightCounts_;
 

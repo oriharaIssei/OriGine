@@ -19,7 +19,7 @@ Particle::Particle() {}
 Particle::~Particle() {}
 
 void Particle::Initialize(
-    const ParticleTransform& _initialTransfrom,
+    const ParticleTransform& _initialTransform,
     const Vec3f& _minVelocity,
     const Vec3f& _maxVelocity,
     const Vec3f& _minScale,
@@ -32,7 +32,7 @@ void Particle::Initialize(
     InterpolationType _transform,
     InterpolationType _color,
     InterpolationType _uv) {
-    transform_ = _initialTransfrom;
+    transform_ = _initialTransform;
     transform_.UpdateMatrix();
 
     direction_ = _direction;

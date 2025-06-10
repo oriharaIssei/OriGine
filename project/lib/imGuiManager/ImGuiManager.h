@@ -6,34 +6,35 @@
 #include <d3d12.h>
 
 #include "directX12/DxCommand.h"
-#include "directX12/DxSrvArray.h"
+#include "directX12/DxDescriptor.h"
 
 class WinApp;
 class DxDevice;
 class DxSwapChain;
 class DxCommand;
 
-class ImGuiManager{
+class ImGuiManager {
 public:
-	static ImGuiManager* getInstance();
+    static ImGuiManager* getInstance();
 
-	void Initialize(const WinApp* window,const DxDevice* dxDevice,const DxSwapChain* dxSwapChain);
-	void Finalize();
+    void Initialize(const WinApp* window, const DxDevice* dxDevice, const DxSwapChain* dxSwapChain);
+    void Finalize();
 
-	void Begin();
-	void End();
+    void Begin();
+    void End();
 
-	void Draw();
+    void Draw();
+
 private:
-	ImGuiManager() = default;
-	~ImGuiManager() = default;
-	ImGuiManager(const ImGuiManager&) = delete;
-	const ImGuiManager& operator=(const ImGuiManager&) = delete;
+    ImGuiManager()                                     = default;
+    ~ImGuiManager()                                    = default;
+    ImGuiManager(const ImGuiManager&)                  = delete;
+    const ImGuiManager& operator=(const ImGuiManager&) = delete;
 #ifdef _DEBUG
 private:
-	// SRV用ヒープ
-	ID3D12DescriptorHeap* srvHeap_ = nullptr;
-	std::shared_ptr<DxSrvArray>dxSrvArray_;
-	std::unique_ptr<DxCommand> dxCommand_;
+    // SRV用ヒープ
+    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> srvHeap_ = nullptr;
+    std::shared_ptr<DxSrvDescriptor> srv_;
+    std::unique_ptr<DxCommand> dxCommand_;
 #endif // _DEBUG
 };

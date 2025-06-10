@@ -10,7 +10,7 @@
 /// lib
 #include "logger/Logger.h"
 
-void DxResource::CreateBufferResource(ID3D12Device* device, size_t sizeInBytes) {
+void DxResource::CreateBufferResource(Microsoft::WRL::ComPtr<ID3D12Device>device, size_t sizeInBytes) {
     // 頂点リソース用のヒープの設定
     D3D12_HEAP_PROPERTIES uploadHeapProperties{};
     uploadHeapProperties.Type = D3D12_HEAP_TYPE_UPLOAD; // UploadHeapを使う
@@ -57,7 +57,7 @@ void DxResource::CreateRenderTextureResource(Microsoft::WRL::ComPtr<ID3D12Device
     // VRAM 上に 生成
     heapProps.Type = D3D12_HEAP_TYPE_DEFAULT;
 
-    D3D12_CLEAR_VALUE clearValue;
+    D3D12_CLEAR_VALUE clearValue{};
     clearValue.Format   = format;
     clearValue.Color[0] = clearColor[X];
     clearValue.Color[1] = clearColor[Y];
@@ -78,7 +78,7 @@ void DxResource::CreateRenderTextureResource(Microsoft::WRL::ComPtr<ID3D12Device
     }
 }
 
-void DxResource::CreateTextureResource(ID3D12Device* device, const DirectX::TexMetadata& metadata) {
+void DxResource::CreateTextureResource(Microsoft::WRL::ComPtr<ID3D12Device>device, const DirectX::TexMetadata& metadata) {
     //================================================
     // 1. metadata を基に Resource を設定
     D3D12_RESOURCE_DESC resourceDesc{};
@@ -126,4 +126,68 @@ HRESULT DxResource::setName(const std::wstring& name) {
         assert(false);
     }
     return result;
+}
+
+void DxResourcePool::Initialize(uint32_t size) {
+    size_ = size;
+    resources_.resize(size_);
+    usedFlags_.resize(size_);
+    usedFlags_ = 0; // 初期化時は全て未使用に設定
+}
+
+void DxResourcePool::Finalize() {
+    for (auto& resource : resources_) {
+        if (resource.getResource()) {
+            resource.Finalize();
+        }
+    }
+}
+
+uint32_t DxResourcePool::addResource(const DxResource& resource) {
+    uint32_t index    = Allocate();
+    resources_[index] = resource;
+    return index;
+}
+
+void DxResourcePool::releaseResource(uint32_t index) {
+    if (index >= resources_.size()) {
+        LOG_ERROR("Index out of range in DxResourcePool");
+        throw std::out_of_range("Index out of range in DxResourcePool");
+    }
+
+    // finalize
+    if (resources_[index].getResource()) {
+        resources_[index].Finalize();
+    }
+
+    // リソースをクリア
+    resources_[index] = DxResource(); // リソースをクリア
+    setUsed(index, false); // 使用中フラグをクリア
+}
+
+bool DxResourcePool::isUsed(uint32_t index) const {
+    if (index >= usedFlags_.size()) {
+        LOG_ERROR("Index out of range in DxResourcePool");
+        throw std::out_of_range("Index out of range in DxResourcePool");
+    }
+    return usedFlags_.get(index);
+}
+
+void DxResourcePool::setUsed(uint32_t index, bool used) {
+    if (index >= usedFlags_.size()) {
+        LOG_ERROR("Index out of range in DxResourcePool");
+        throw std::out_of_range("Index out of range in DxResourcePool");
+    }
+    usedFlags_.set(index, used);
+}
+
+uint32_t DxResourcePool::Allocate() {
+    for (uint32_t i = 0; i < size_; ++i) {
+        if (!usedFlags_.get(i)) {
+            usedFlags_.set(i, true);
+            return i;
+        }
+    }
+    LOG_ERROR("No available resources in DxResourcePool");
+    throw std::runtime_error("No available resources in DxResourcePool");
 }

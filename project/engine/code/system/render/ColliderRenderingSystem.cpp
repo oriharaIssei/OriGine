@@ -2,6 +2,8 @@
 
 /// engine
 #include "Engine.h"
+// directX12Object
+#include "directX12/DxDevice.h"
 // module
 #include "camera/CameraManager.h"
 #include "texture/TextureManager.h"
@@ -276,7 +278,7 @@ void ColliderRenderingSystem::CreateRenderMesh() {
 }
 
 void ColliderRenderingSystem::RenderCall() {
-    auto* commandList = dxCommand_->getCommandList();
+    auto commandList = dxCommand_->getCommandList();
 
     ///==============================
     /// 描画
@@ -390,7 +392,7 @@ void ColliderRenderingSystem::CreatePso() {
 void ColliderRenderingSystem::StartRender() {
     currentBlend_ = BlendMode::Alpha;
 
-    auto* commandList = dxCommand_->getCommandList();
+    auto commandList = dxCommand_->getCommandList();
     commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
     commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);

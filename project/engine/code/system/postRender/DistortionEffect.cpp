@@ -12,10 +12,7 @@
 #include "system/render/TexturedMeshRenderSystem.h"
 
 // directX12
-#include "directX12/DxRtvArray.h"
-#include "directX12/DxRtvArrayManager.h"
-#include "directX12/DxSrvArray.h"
-#include "directX12/DxSrvArrayManager.h"
+#include "directX12/DxDevice.h"
 #include "directX12/RenderTexture.h"
 
 DistortionEffect::DistortionEffect() : ISystem(SystemType::PostRender) {}
@@ -26,10 +23,7 @@ void DistortionEffect::Initialize() {
     dxCommand_ = std::make_unique<DxCommand>();
     dxCommand_->Initialize("main", "main");
 
-    rtvArray_ = DxRtvArrayManager::getInstance()->Create(2);
-    srvArray_ = DxSrvArrayManager::getInstance()->Create(2);
-
-    distortionSceneTexture_ = std::make_unique<RenderTexture>(dxCommand_.get(), rtvArray_.get(), srvArray_.get());
+    distortionSceneTexture_ = std::make_unique<RenderTexture>(dxCommand_.get());
     distortionSceneTexture_->setTextureName("DistortionSceneTexture");
     distortionSceneTexture_->Initialize(2, Vec2f(1280, 720), DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, Vec4f(0.0f, 0.0f, 0.0f, 0.0f));
 
@@ -59,9 +53,6 @@ void DistortionEffect::Finalize() {
 
     distortionSceneTexture_->Finalize();
 
-    rtvArray_->Finalize();
-    srvArray_->Finalize();
-
     dxCommand_->Finalize();
     dxCommand_.reset();
 }
@@ -70,10 +61,10 @@ void DistortionEffect::UpdateEntity(GameEntity* _entity) {
     /// ================================================================================================
     // Rendering Distortion Scene Texture
     /// ================================================================================================
-    auto* commandList      = dxCommand_->getCommandList();
+    auto commandList       = dxCommand_->getCommandList();
     int32_t componentIndex = 0;
 
-    Transform* entityTransfrom_ = getComponent<Transform>(_entity);
+    Transform* entityTransform_ = getComponent<Transform>(_entity);
     while (true) {
         DistortionEffectParam* distortionEffectParam = getComponent<DistortionEffectParam>(_entity, componentIndex);
 
@@ -102,7 +93,7 @@ void DistortionEffect::UpdateEntity(GameEntity* _entity) {
                 auto& transform = object->getTransformBuff();
 
                 if (transform->parent == nullptr) {
-                    transform->parent = entityTransfrom_;
+                    transform->parent = entityTransform_;
                 }
 
                 transform.openData_.Update();
@@ -135,7 +126,7 @@ void DistortionEffect::UpdateEntity(GameEntity* _entity) {
         /// ----------------------------------------------------------
         /// set buffer
         /// ----------------------------------------------------------
-        ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
+        ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
         commandList->SetDescriptorHeaps(1, ppHeaps);
 
         commandList->SetGraphicsRootDescriptorTable(distortionTextureIndex_, distortionSceneTexture_->getBackBufferSrvHandle());

@@ -3,6 +3,7 @@
 /// engine
 #include "Engine.h"
 #include "texture/TextureManager.h"
+#include "directX12/DxDevice.h"
 // component
 #include "component/renderer/primitive/Primitive.h"
 

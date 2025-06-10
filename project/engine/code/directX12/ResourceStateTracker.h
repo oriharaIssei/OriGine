@@ -11,8 +11,8 @@
 /// </summary>
 class ResourceStateTracker {
 public:
-    static void RegisterReosurce(ID3D12Resource* resource, D3D12_RESOURCE_STATES initialState) {
-        globalResourceStates_[resource] = initialState;
+    static void RegisterReosurce(Microsoft::WRL::ComPtr<ID3D12Resource> resource, D3D12_RESOURCE_STATES initialState) {
+        globalResourceStates_[resource.Get()] = initialState;
     }
 
 private:
@@ -22,9 +22,9 @@ public:
     ResourceStateTracker()  = default;
     ~ResourceStateTracker() = default;
 
-    void RegisterReosurce2Local(ID3D12Resource* resource, D3D12_RESOURCE_STATES initialState) {
-        localResourceStates_[resource]  = initialState;
-        globalResourceStates_[resource] = initialState;
+    void RegisterResource2Local(Microsoft::WRL::ComPtr<ID3D12Resource> resource, D3D12_RESOURCE_STATES initialState) {
+        localResourceStates_[resource.Get()]  = initialState;
+        globalResourceStates_[resource.Get()] = initialState;
     }
 
     /// <summary>
@@ -33,9 +33,9 @@ public:
     /// <param name="commandList">リソースにバリアを張るCommandList</param>
     /// <param name="resource">バリアを張られるリソース</param>
     /// <param name="stateAfter">次のResourceState</param>
-    void Barrier(ID3D12GraphicsCommandList* commandList, ID3D12Resource* resource, D3D12_RESOURCE_STATES stateAfter);
+    void Barrier(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList, ID3D12Resource* resource, D3D12_RESOURCE_STATES stateAfter);
 
-    void DirectBarrier(ID3D12GraphicsCommandList* commandList, ID3D12Resource* resource, D3D12_RESOURCE_BARRIER barrier);
+    void DirectBarrier(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList, ID3D12Resource* resource, D3D12_RESOURCE_BARRIER barrier);
 
     /// <summary>
     /// ローカル状態をグローバル状態にコミットする

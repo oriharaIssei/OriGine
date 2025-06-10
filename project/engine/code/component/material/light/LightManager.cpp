@@ -3,7 +3,7 @@
 /// engine
 #include "Engine.h"
 // directX12 Object
-#include "directX12/DxSrvArrayManager.h"
+#include "directX12/DxDevice.h"
 
 /// lib
 #include "globalVariables/GlobalVariables.h"
@@ -13,7 +13,7 @@ LightManager::LightManager()
 LightManager::~LightManager() {}
 
 void LightManager::Initialize() {
-    ID3D12Device* device = Engine::getInstance()->getDxDevice()->getDevice();
+    Microsoft::WRL::ComPtr<ID3D12Device> device = Engine::getInstance()->getDxDevice()->getDevice();
 
     ///========================================
     /// 作成個数を決める
@@ -24,21 +24,16 @@ void LightManager::Initialize() {
     lightCounts_.ConvertToBuffer();
 
     ///========================================
-    /// srvArray 作成
-    ///========================================
-    srvArray_ = DxSrvArrayManager::getInstance()->Create(3);
-
-    ///========================================
     /// light 作成
     ///========================================
     /// Directional Light
-    directionalLights_.CreateBuffer(device, srvArray_.get(), directionalLightSize_);
+    directionalLights_.CreateBuffer(device, directionalLightSize_);
 
     /// Point Light
-    pointLights_.CreateBuffer(device, srvArray_.get(), pointLightSize_);
+    pointLights_.CreateBuffer(device, pointLightSize_);
 
     /// Spot Light
-    spotLights_.CreateBuffer(device, srvArray_.get(), spotLightSize_);
+    spotLights_.CreateBuffer(device, spotLightSize_);
 }
 
 void LightManager::Update() {
@@ -59,19 +54,17 @@ void LightManager::Finalize() {
     directionalLights_.Finalize();
     pointLights_.Finalize();
     spotLights_.Finalize();
-
-    srvArray_->Finalize();
 }
 
 void LightManager::SetForRootParameter(
-    ID3D12GraphicsCommandList* cmdList,
+    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList,
     int32_t _lightCountIndex,
     int32_t _directionalLightIndex,
     int32_t _pointLightIndex,
     int32_t _spotLightIndex) {
     lightCounts_.SetForRootParameter(cmdList, _lightCountIndex);
 
-    ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
+    ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
     cmdList->SetDescriptorHeaps(1, ppHeaps);
 
     directionalLights_.SetForRootParameter(cmdList, _directionalLightIndex);

@@ -1,13 +1,15 @@
 #pragma once
 
-#include "directX12/DxHeap.h"
-#include "directX12/DxResource.h"
-#include "directX12/DxSrvArray.h"
-
+/// stl
 #include <cstdint>
 #include <d3d12.h>
 #include <memory>
 #include <type_traits>
+
+/// engine
+#include "directX12/DxDescriptor.h"
+#include "directX12/DxResource.h"
+#include "Engine.h"
 
 template <typename T>
 concept StructuredBuffer = requires {
@@ -21,20 +23,15 @@ public:
     IStructuredBuffer()  = default;
     ~IStructuredBuffer() = default;
 
-    void CreateBuffer(ID3D12Device* device, DxSrvArray* srvArray, uint32_t elementCount);
-    void Finalize() {
-        if (srvArray_) {
-            srvArray_->DestroyView(srvIndex_);
-        }
-        buff_.Finalize();
-    }
+    void CreateBuffer(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t elementCount);
+    void Finalize();
+
     // 公開用変数（バッファのデータを保持）
     std::vector<structBuff> openData_;
 
 protected:
-    DxSrvArray* srvArray_ = nullptr;
-    int32_t srvIndex_     = 0;
     DxResource buff_;
+    std::shared_ptr<DxSrvDescriptor> srv_;
 
     // bind されたデータへのポインタ
     structBuff::ConstantBuffer* mappingData_ = nullptr;
@@ -43,21 +40,19 @@ protected:
 
 public:
     void ConvertToBuffer();
-    void SetForRootParameter(ID3D12GraphicsCommandList* cmdList, uint32_t rootParameterNum) const;
+    void SetForRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const;
 
-    void resize(ID3D12Device* device, uint32_t newElementCount);
-    void resizeForDataSize(ID3D12Device* device);
+    void resize(Microsoft::WRL::ComPtr<ID3D12Device>device, uint32_t newElementCount);
+    void resizeForDataSize(Microsoft::WRL::ComPtr<ID3D12Device>device);
     size_t size() const { return openData_.size(); }
     size_t capacity() const { return elementCount_; }
 
-    const DxResource& getResource() { return buff_; }
-    void setSrvArray(DxSrvArray* _srvArray) { srvArray_ = _srvArray; }
+    DxResource& getResource() { return buff_; }
 };
 
 template <StructuredBuffer structBuff>
-inline void IStructuredBuffer<structBuff>::CreateBuffer(ID3D12Device* device, DxSrvArray* srvArray, uint32_t elementCount) {
+inline void IStructuredBuffer<structBuff>::CreateBuffer(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t elementCount) {
     elementCount_ = elementCount;
-    srvArray_     = srvArray;
 
     if (elementCount_ == 0) {
         return;
@@ -78,11 +73,17 @@ inline void IStructuredBuffer<structBuff>::CreateBuffer(ID3D12Device* device, Dx
     viewDesc.Buffer.NumElements         = elementCount;
     viewDesc.Buffer.StructureByteStride = sizeof(structBuff::ConstantBuffer);
 
-    srvIndex_ = srvArray_->CreateView(device, viewDesc, buff_.getResource());
+    srv_ = Engine::getInstance()->getSrvHeap()->CreateDescriptor<>(viewDesc, &buff_);
 }
 
 template <StructuredBuffer structBuff>
-inline void IStructuredBuffer<structBuff>::resize(ID3D12Device* device, uint32_t newElementCount) {
+inline void IStructuredBuffer<structBuff>::Finalize() {
+    Engine::getInstance()->getSrvHeap()->ReleaseDescriptor(srv_);
+    buff_.Finalize();
+}
+
+template <StructuredBuffer structBuff>
+inline void IStructuredBuffer<structBuff>::resize(Microsoft::WRL::ComPtr<ID3D12Device>device, uint32_t newElementCount) {
     if (newElementCount == elementCount_ || newElementCount == 0) {
         return;
     }
@@ -106,12 +107,12 @@ inline void IStructuredBuffer<structBuff>::resize(ID3D12Device* device, uint32_t
         viewDesc.Buffer.NumElements         = elementCount_;
         viewDesc.Buffer.StructureByteStride = sizeof(structBuff::ConstantBuffer);
 
-        srvIndex_ = srvArray_->CreateView(device, viewDesc, buff_.getResource());
+        srv_ = Engine::getInstance()->getSrvHeap()->CreateDescriptor<>(viewDesc, &buff_);
     }
 }
 
 template <StructuredBuffer structBuff>
-inline void IStructuredBuffer<structBuff>::resizeForDataSize(ID3D12Device* device) {
+inline void IStructuredBuffer<structBuff>::resizeForDataSize(Microsoft::WRL::ComPtr<ID3D12Device>device) {
     int32_t newElementCount = static_cast<int32_t>(openData_.size());
     if (newElementCount == elementCount_ || newElementCount == 0) {
         return;
@@ -136,7 +137,7 @@ inline void IStructuredBuffer<structBuff>::resizeForDataSize(ID3D12Device* devic
         viewDesc.Buffer.NumElements         = elementCount_;
         viewDesc.Buffer.StructureByteStride = sizeof(structBuff::ConstantBuffer);
 
-        srvIndex_ = srvArray_->CreateView(device, viewDesc, buff_.getResource());
+        srv_ = Engine::getInstance()->getSrvHeap()->CreateDescriptor<>(viewDesc, &buff_);
     }
 }
 
@@ -148,6 +149,6 @@ inline void IStructuredBuffer<structBuff>::ConvertToBuffer() {
 }
 
 template <StructuredBuffer structBuff>
-inline void IStructuredBuffer<structBuff>::SetForRootParameter(ID3D12GraphicsCommandList* cmdList, uint32_t rootParameterNum) const {
-    cmdList->SetGraphicsRootDescriptorTable(rootParameterNum, DxHeap::getInstance()->getSrvGpuHandle(srvArray_->getLocationOnHeap(srvIndex_)));
+inline void IStructuredBuffer<structBuff>::SetForRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const {
+    cmdList->SetGraphicsRootDescriptorTable(rootParameterNum, srv_->getGpuHandle());
 }

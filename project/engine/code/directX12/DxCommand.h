@@ -9,6 +9,8 @@
 #include <d3d12.h>
 #include <dxgi1_6.h>
 
+#include "directX12/DxDescriptor.h"
+
 class DxFence;
 class ResourceStateTracker;
 
@@ -32,8 +34,8 @@ public:
     /// <summary>
     /// Listとallocatorを同じキーで作る
     /// </summary>
-    static bool CreateCommandListWithAllocator(ID3D12Device* device, const std::string& listAndAllocatorKey, D3D12_COMMAND_LIST_TYPE listType);
-    static bool CreateCommandQueue(ID3D12Device* device, const std::string& queueKey, D3D12_COMMAND_QUEUE_DESC desc);
+    static bool CreateCommandListWithAllocator(Microsoft::WRL::ComPtr<ID3D12Device>device, const std::string& listAndAllocatorKey, D3D12_COMMAND_LIST_TYPE listType);
+    static bool CreateCommandQueue(Microsoft::WRL::ComPtr<ID3D12Device>device, const std::string& queueKey, D3D12_COMMAND_QUEUE_DESC desc);
 
 private:
     static std::unordered_map<std::string,
@@ -44,10 +46,14 @@ private:
 
 public:
     void CommandReset();
-    void ResourceBarrier(ID3D12Resource* resource, D3D12_RESOURCE_STATES stateAfter);
+    void ResourceBarrier(Microsoft::WRL::ComPtr<ID3D12Resource> resource, D3D12_RESOURCE_STATES stateAfter);
+
     HRESULT Close();
+
     void ExecuteCommand();
     void ExecuteCommandAndPresent(IDXGISwapChain4* swapChain);
+
+    void ClearTarget(DxRtvDescriptor* _rtv,DxDsvDescriptor* _dsv,const Vec4f& _clearColor);
 
 private:
     std::string commandListComboKey_;
@@ -62,7 +68,7 @@ private:
     ResourceStateTracker* resourceStateTracker_                      = nullptr;
 
 public:
-    ID3D12GraphicsCommandList* getCommandList() const { return commandList_.Get(); }
+    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> getCommandList() const { return commandList_.Get(); }
     ID3D12CommandAllocator* getCommandAllocator() const { return commandAllocator_.Get(); }
     ID3D12CommandQueue* getCommandQueue() const { return commandQueue_.Get(); }
     ResourceStateTracker* getResourceStateTracker() const { return resourceStateTracker_; }

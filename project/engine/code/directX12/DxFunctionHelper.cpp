@@ -7,7 +7,7 @@
 #include "logger/Logger.h"
 
 void DxFunctionHelper::SetViewportsAndScissor(const DxCommand* dxCommand, const WinApp* window) {
-    ID3D12GraphicsCommandList* commandList = dxCommand->getCommandList();
+    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand->getCommandList();
     // ビューポートの設定
     D3D12_VIEWPORT viewPort{};
     viewPort.Width    = static_cast<float>(window->getWidth());
@@ -29,7 +29,7 @@ void DxFunctionHelper::SetViewportsAndScissor(const DxCommand* dxCommand, const 
 }
 
 void DxFunctionHelper::SetViewportsAndScissor(const DxCommand* dxCommand, const Vec2f& rectSize) {
-    ID3D12GraphicsCommandList* commandList = dxCommand->getCommandList();
+    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand->getCommandList();
     // ビューポートの設定
     D3D12_VIEWPORT viewPort{};
     viewPort.Width    = rectSize[X];
@@ -50,31 +50,31 @@ void DxFunctionHelper::SetViewportsAndScissor(const DxCommand* dxCommand, const 
     commandList->RSSetScissorRects(1, &scissorRect);
 }
 
-void DxFunctionHelper::SetRenderTargets(const DxCommand* dxCommand, const DxSwapChain* dxSwapChain) {
-    ID3D12GraphicsCommandList* commandList = dxCommand->getCommandList();
+void DxFunctionHelper::SetRenderTargets(const DxCommand* dxCommand, DxDsvDescriptor* dxDsv, const DxSwapChain* dxSwapChain) {
+    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand->getCommandList();
 
-    D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = DxHeap::getInstance()->getRtvCpuHandle(dxSwapChain->getCurrentBackBufferIndex());
-    D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = DxHeap::getInstance()->getDsvCpuHandle(0);
+    D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = dxSwapChain->getCurrentBackBufferRtv();
+    D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dxDsv->getCpuHandle();
     commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
 }
 
-void DxFunctionHelper::SetRenderTargets(const DxCommand* dxCommand, D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle) {
-    ID3D12GraphicsCommandList* commandList = dxCommand->getCommandList();
+void DxFunctionHelper::SetRenderTargets(const DxCommand* dxCommand, DxDsvDescriptor* dxDsv, D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle) {
+    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand->getCommandList();
 
-    D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = DxHeap::getInstance()->getDsvCpuHandle(0);
+    D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dxDsv->getCpuHandle();
     commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
 }
 
-void DxFunctionHelper::PreDraw(DxCommand* dxCommand, const WinApp* window, const DxSwapChain* swapChain) {
+void DxFunctionHelper::PreDraw(DxCommand* dxCommand, const WinApp* window, DxDsvDescriptor* dxDsv, const DxSwapChain* swapChain) {
     ///=========================================
     //	TransitionBarrierの設定
     ///=========================================
-    ID3D12GraphicsCommandList* commandList = dxCommand->getCommandList();
+    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand->getCommandList();
 
     dxCommand->ResourceBarrier(swapChain->getCurrentBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET);
 
-    D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = DxHeap::getInstance()->getRtvCpuHandle(swapChain->getCurrentBackBufferIndex());
-    D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = DxHeap::getInstance()->getDsvCpuHandle(0);
+    D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = swapChain->getCurrentBackBufferRtv();
+    D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dxDsv->getCpuHandle();
     commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
 
     // ビューポートの設定
@@ -96,21 +96,21 @@ void DxFunctionHelper::PreDraw(DxCommand* dxCommand, const WinApp* window, const
 
     commandList->RSSetScissorRects(1, &scissorRect);
 
-    swapChain->CurrentBackBufferClear(commandList);
+    swapChain->CurrentBackBufferClear(dxCommand, dxDsv);
 
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-void DxFunctionHelper::PreDraw(DxCommand* dxCommand, const Vec2f& rectSize, const DxSwapChain* dxSwapChain) {
+void DxFunctionHelper::PreDraw(DxCommand* dxCommand, const Vec2f& rectSize, DxDsvDescriptor* dxDsv, const DxSwapChain* dxSwapChain) {
     ///=========================================
     //	TransitionBarrierの設定
     ///=========================================
-    ID3D12GraphicsCommandList* commandList = dxCommand->getCommandList();
+    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand->getCommandList();
 
     dxCommand->ResourceBarrier(dxSwapChain->getCurrentBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET);
 
-    D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = DxHeap::getInstance()->getRtvCpuHandle(dxSwapChain->getCurrentBackBufferIndex());
-    D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = DxHeap::getInstance()->getDsvCpuHandle(0);
+    D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = dxSwapChain->getCurrentBackBufferRtv();
+    D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dxDsv->getCpuHandle();
     commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
 
     // ビューポートの設定
@@ -132,7 +132,7 @@ void DxFunctionHelper::PreDraw(DxCommand* dxCommand, const Vec2f& rectSize, cons
 
     commandList->RSSetScissorRects(1, &scissorRect);
 
-    dxSwapChain->CurrentBackBufferClear(dxCommand->getCommandList());
+    dxSwapChain->CurrentBackBufferClear(dxCommand, dxDsv);
 
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }

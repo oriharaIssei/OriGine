@@ -1,9 +1,5 @@
 #include "IScene.h"
 
-/// stl
-// container
-#include <list>
-
 /// engine
 #define ENGINE_INCLUDE
 #include "sceneManager/SceneManager.h"
@@ -11,11 +7,7 @@
 // Ecs
 #define ENGINE_ECS
 
-/// directX12Object
-#include "directX12/DxRtvArrayManager.h"
-#include "directX12/DxSrvArrayManager.h"
 // lib
-#include "lib/binaryIO/BinaryIO.h"
 
 #include "engine/EngineInclude.h"
 

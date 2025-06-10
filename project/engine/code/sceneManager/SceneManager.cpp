@@ -10,13 +10,12 @@
 #include "ECS/ECSManager.h"
 #include "Engine.h"
 
+#define ENGINE_INPUT
 #define RESOURCE_DIRECTORY
 #define DELTA_TIME
 #include "EngineInclude.h"
 
 // directX12Object
-#include "directX12/DxRtvArrayManager.h"
-#include "directX12/DxSrvArrayManager.h"
 #include "directX12/RenderTexture.h"
 // module
 #include "camera/CameraManager.h"
@@ -42,13 +41,10 @@ SceneManager::SceneManager() {}
 SceneManager::~SceneManager() {}
 
 void SceneManager::Initialize() {
-    sceneViewRtvArray_ = DxRtvArrayManager::getInstance()->Create(2);
-    sceneViewSrvArray_ = DxSrvArrayManager::getInstance()->Create(2);
-
     ecsManager_ = EntityComponentSystemManager::getInstance();
     ecsManager_->Initialize();
 
-    sceneView_ = std::make_unique<RenderTexture>(Engine::getInstance()->getDxCommand(), sceneViewRtvArray_.get(), sceneViewSrvArray_.get());
+    sceneView_ = std::make_unique<RenderTexture>(Engine::getInstance()->getDxCommand());
     sceneView_->setTextureName("SceneViewTexture");
     /// TODO
     // fix MagicNumber
@@ -69,9 +65,6 @@ void SceneManager::Initialize() {
 
 void SceneManager::Finalize() {
     sceneView_->Finalize();
-
-    sceneViewRtvArray_->Finalize();
-    sceneViewSrvArray_->Finalize();
 
     ecsManager_->Finalize();
 }

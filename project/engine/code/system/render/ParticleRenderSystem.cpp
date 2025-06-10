@@ -5,6 +5,9 @@
 #include "Engine.h"
 #include "sceneManager/SceneManager.h"
 
+// directX12
+#include "directX12/DxDevice.h"
+
 // component
 #include "component/effect/particle/emitter/Emitter.h"
 
@@ -52,7 +55,6 @@ void ParticleRenderSystem::CreatePso() {
 
     shaderManager->LoadShader("Particle.VS");
     shaderManager->LoadShader("Particle.PS", shaderDirectory, L"ps_6_0");
-
 
     ///=================================================
     /// shader情報の設定
@@ -149,19 +151,19 @@ void ParticleRenderSystem::CreatePso() {
 }
 
 void ParticleRenderSystem::StartRender() {
-    currentBlend_                          = BlendMode::Alpha;
-    ID3D12GraphicsCommandList* commandList = dxCommand_->getCommandList();
+    currentBlend_                                                 = BlendMode::Alpha;
+    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->getCommandList();
     commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
     commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     CameraManager::getInstance()->setBufferForRootParameter(commandList, 1);
 
-    ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
+    ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
 }
 
 void ParticleRenderSystem::UpdateEntity(GameEntity* _entity) {
-    ID3D12GraphicsCommandList* commandList = dxCommand_->getCommandList();
+    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->getCommandList();
 
     for (auto& comp : *getComponents<Emitter>(_entity)) {
         if (!comp.getIsActive()) {

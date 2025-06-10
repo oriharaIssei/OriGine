@@ -6,6 +6,8 @@
 #define RESOURCE_DIRECTORY
 #include "EngineInclude.h"
 #include "texture/TextureManager.h"
+// directX12
+#include "directX12/DxDevice.h"
 
 /// lib
 #include "myFileSystem/MyFileSystem.h"

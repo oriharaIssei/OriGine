@@ -48,7 +48,7 @@ public:
     virtual ~Particle();
 
     void Initialize(
-        const ParticleTransform& _initialTransfrom,
+        const ParticleTransform& _initialTransform,
         const Vec3f& _minVelocity,
         const Vec3f& _maxVelocity,
         const Vec3f& _minScale,

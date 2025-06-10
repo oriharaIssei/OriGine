@@ -8,7 +8,7 @@
 #include <d3d12.h>
 #include <dxgi1_6.h>
 
-#include "directX12/DxRtvArray.h"
+#include "directX12/DxDescriptor.h"
 #include <WinUser.h>
 
 /// math
@@ -19,32 +19,43 @@ class DxCommand;
 class WinApp;
 class DxSwapChain {
 public:
-   void Initialize(const WinApp* winApp, const DxDevice* device, const DxCommand* command);
-   void Finalize();
+    void Initialize(const WinApp* winApp, const DxDevice* device, const DxCommand* command);
+    void Finalize();
 
-   void Present();
+    void Present();
 
-   void CurrentBackBufferClear(ID3D12GraphicsCommandList* commandList) const;
+    void CurrentBackBufferClear(DxCommand* _commandList, DxDsvDescriptor* _dsv) const;
 
-   void ResizeBuffer(const DxDevice* device, UINT width, UINT height);
+    void ResizeBuffer(UINT width, UINT height);
 
 private:
-   Microsoft::WRL::ComPtr<IDXGISwapChain4> swapChain_;
+    Microsoft::WRL::ComPtr<IDXGISwapChain4> swapChain_;
 
-   std::shared_ptr<DxRtvArray> backBuffers_;
-   UINT bufferCount_;
+    std::vector<std::shared_ptr<DxRtvDescriptor>> backBuffers_;
+    std::vector<DxResource> backBufferResources_;
+    UINT bufferCount_;
 
-   UINT bufferWidth_  = 0;
-   UINT bufferHeight_ = 0;
+    UINT bufferWidth_  = 0;
+    UINT bufferHeight_ = 0;
 
-   const Vec4f clearColor_ = Vec4f{0.2f, 0.2f, 0.2f, 1.0f}; 
+    const Vec4f clearColor_ = Vec4f{0.2f, 0.2f, 0.2f, 1.0f};
 
 public:
-   UINT getBufferCount() const { return bufferCount_; }
-   UINT getCurrentBackBufferIndex() const { return swapChain_->GetCurrentBackBufferIndex(); }
+    UINT getBufferCount() const { return bufferCount_; }
+    UINT getCurrentBackBufferIndex() const { return swapChain_->GetCurrentBackBufferIndex(); }
 
-   IDXGISwapChain4* getSwapChain() const { return swapChain_.Get(); }
+    D3D12_CPU_DESCRIPTOR_HANDLE getCurrentBackBufferRtv() const {
+        return backBuffers_[swapChain_->GetCurrentBackBufferIndex()]->getCpuHandle();
+    }
+    D3D12_CPU_DESCRIPTOR_HANDLE getBackBufferRtv(UINT index) const {
+        if (index >= bufferCount_) {
+            throw std::out_of_range("Index out of range in DxSwapChain::getBackBufferRtv");
+        }
+        return backBuffers_[index]->getCpuHandle();
+    }
 
-   ID3D12Resource* getBackBuffer(UINT index) const { return backBuffers_->getRtv(index); }
-   ID3D12Resource* getCurrentBackBuffer() const { return backBuffers_->getRtv(swapChain_->GetCurrentBackBufferIndex()); }
+    IDXGISwapChain4* getSwapChain() const { return swapChain_.Get(); }
+
+    const Microsoft::WRL::ComPtr<ID3D12Resource>& getBackBuffer(UINT index) const { return backBufferResources_[index].getResource(); }
+    const Microsoft::WRL::ComPtr<ID3D12Resource>& getCurrentBackBuffer() const { return backBufferResources_[swapChain_->GetCurrentBackBufferIndex()].getResource(); }
 };

@@ -1,15 +1,21 @@
-
+#include "Engine.h"
 /// engine
+// directX12
+#include "directX12/DxCommand.h"
+#include "directX12/DxDevice.h"
+#include "directX12/DxFence.h"
+#include "directX12/DxSwapChain.h"
+
 // module
 #include "camera/CameraManager.h"
 #include "component/animation/AnimationManager.h"
 #include "component/material/light/LightManager.h"
-#include "directX12/DxRtvArrayManager.h"
-#include "directX12/DxSrvArrayManager.h"
 #include "imGuiManager/ImGuiManager.h"
+#include "input/Input.h"
 #include "model/ModelManager.h"
 #include "sceneManager/SceneManager.h"
 #include "texture/TextureManager.h"
+#include "winApp/WinApp.h"
 
 #ifdef _DEBUG
 #include "ECSEditor.h"
@@ -20,7 +26,6 @@
 
 // dx12Object
 #include "directX12/DxFunctionHelper.h"
-#include "directX12/DxHeap.h"
 #include "directX12/RenderTexture.h"
 
 // lib
@@ -47,6 +52,51 @@ Engine* Engine::getInstance() {
     return &instance;
 }
 
+Engine::Engine() {}
+
+Engine::~Engine() {}
+
+void Engine::CreateDsv() {
+    D3D12_RESOURCE_DESC resourceDesc{};
+    resourceDesc.Width            = UINT64(window_->getWidth());
+    resourceDesc.Height           = UINT64(window_->getHeight());
+    resourceDesc.MipLevels        = 1;
+    resourceDesc.DepthOrArraySize = 1;
+    resourceDesc.Format           = DXGI_FORMAT_D24_UNORM_S8_UINT;
+    resourceDesc.SampleDesc.Count = 1;
+    resourceDesc.Dimension        = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+    resourceDesc.Flags            = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+
+    // heap の設定
+    D3D12_HEAP_PROPERTIES heapProperties{};
+    heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
+
+    D3D12_CLEAR_VALUE depthClearValue{};
+    depthClearValue.DepthStencil.Depth = 1.0f; // 最大値でクリア
+    depthClearValue.Format             = DXGI_FORMAT_D24_UNORM_S8_UINT; // Resource と合わせる
+
+    HRESULT result = dxDevice_->getDevice()->CreateCommittedResource(
+        &heapProperties,
+        D3D12_HEAP_FLAG_NONE,
+        &resourceDesc,
+        D3D12_RESOURCE_STATE_DEPTH_WRITE,
+        &depthClearValue,
+        IID_PPV_ARGS(dsvResource_.getResourceRef().GetAddressOf()));
+
+    if (FAILED(result)) {
+        // エラーログを出力
+        LOG_ERROR("Failed to create depth stencil view resource.");
+        assert(false);
+    }
+
+    // DSV の設定
+    D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{};
+    dsvDesc.Format        = DXGI_FORMAT_D24_UNORM_S8_UINT; // resourceに合わせる
+    dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D; // 2d Texture
+
+    dxDsv_ = dsvHeap_->CreateDescriptor(dsvDesc, &dsvResource_);
+}
+
 void Engine::Initialize() {
     window_ = std::make_unique<WinApp>();
 
@@ -63,23 +113,23 @@ void Engine::Initialize() {
     dxDevice_ = std::make_unique<DxDevice>();
     dxDevice_->Initialize();
 
-    DxHeap* dxHeap = DxHeap::getInstance();
-    dxHeap->Initialize(dxDevice_->getDevice());
-
-    DxSrvArrayManager::getInstance()->Initialize();
-    DxRtvArrayManager::getInstance()->Initialize();
-
-    dxDsv_ = std::make_unique<DxDsv>();
-    dxDsv_->Initialize(dxDevice_->getDevice(), dxHeap->getDsvHeap(), window_->getWidth(), window_->getHeight());
-
     dxCommand_ = std::make_unique<DxCommand>();
     dxCommand_->Initialize("main", "main");
+
+    srvHeap_ = std::make_unique<DxDescriptorHeap<DxDescriptorHeapType::SRV>>(1024);
+    srvHeap_->Initialize(dxDevice_->getDevice());
+    rtvHeap_ = std::make_unique<DxDescriptorHeap<DxDescriptorHeapType::RTV>>(1024);
+    rtvHeap_->Initialize(dxDevice_->getDevice());
+    dsvHeap_ = std::make_unique<DxDescriptorHeap<DxDescriptorHeapType::DSV>>(16);
+    dsvHeap_->Initialize(dxDevice_->getDevice());
 
     dxSwapChain_ = std::make_unique<DxSwapChain>();
     dxSwapChain_->Initialize(window_.get(), dxDevice_.get(), dxCommand_.get());
 
     dxFence_ = std::make_unique<DxFence>();
     dxFence_->Initialize(dxDevice_->getDevice());
+
+    CreateDsv();
 
     ShaderManager::getInstance()->Initialize();
 
@@ -113,15 +163,16 @@ void Engine::Finalize() {
     ModelManager::getInstance()->Finalize();
     TextureManager::Finalize();
 
-    DxSrvArrayManager::getInstance()->Finalize();
-    DxRtvArrayManager::getInstance()->Finalize();
-    dxDsv_->Finalize();
-
-    DxHeap::getInstance()->Finalize();
     dxSwapChain_->Finalize();
     dxCommand_->Finalize();
     DxCommand::ResetAll();
     dxFence_->Finalize();
+
+    dsvHeap_->Finalize();
+    rtvHeap_->Finalize();
+    srvHeap_->Finalize();
+
+
     dxDevice_->Finalize();
 
     input_->Finalize();
@@ -141,8 +192,8 @@ void Engine::BeginFrame() {
         dxFence_->Signal(dxCommand_->getCommandQueue());
         dxFence_->WaitForFence();
 
-        dxSwapChain_->ResizeBuffer(dxDevice_.get(), width, height);
-        dxDsv_->Resize(dxDevice_->getDevice(), DxHeap::getInstance()->getDsvHeap(), width, height);
+        dxSwapChain_->ResizeBuffer(width, height);
+        // dxDsv_->Resize(dxDevice_->getDevice(), DxHeap::getInstance()->getDsvHeap(), width, height);
 
         SceneManager::getInstance()->getSceneView()->Resize(window_->getWindowSize());
 
@@ -163,7 +214,7 @@ void Engine::EndFrame() {
 }
 
 void Engine::ScreenPreDraw() {
-    DxFH::PreDraw(dxCommand_.get(), window_.get(), dxSwapChain_.get());
+    DxFH::PreDraw(dxCommand_.get(), window_.get(), dxDsv_.get(), dxSwapChain_.get());
 }
 
 void Engine::ScreenPostDraw() {
@@ -173,7 +224,7 @@ void Engine::ScreenPostDraw() {
     ///	バリアの更新(描画->表示状態)
     ///===============================================================
     dxCommand_->ResourceBarrier(
-        dxSwapChain_->getCurrentBackBuffer(),
+        dxSwapChain_->getCurrentBackBuffer().Get(),
         D3D12_RESOURCE_STATE_PRESENT);
     ///===============================================================
 

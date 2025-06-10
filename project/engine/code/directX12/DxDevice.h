@@ -16,5 +16,5 @@ private:
 public:
 	IDXGIFactory7* getDxgiFactory()const{ return dxgiFactory_.Get(); }
 	IDXGIAdapter4* getAdapter()const{ return useAdapter_.Get(); }
-	ID3D12Device* getDevice()const{ return device_.Get(); }
+	Microsoft::WRL::ComPtr<ID3D12Device>getDevice()const{ return device_.Get(); }
 };

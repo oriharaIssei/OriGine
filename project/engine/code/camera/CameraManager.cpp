@@ -1,6 +1,7 @@
 #include "CameraManager.h"
 
 #include "debugCamera/DebugCamera.h"
+#include "directX12/DxDevice.h"
 #include "Engine.h"
 
 CameraManager::CameraManager()

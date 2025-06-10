@@ -35,14 +35,14 @@ public:
     void UpdateEntity(GameEntity* _entity) override;
 
     void RenderingMesh(
-        ID3D12GraphicsCommandList* _commandList,
+        Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList,
         const TextureMesh& _mesh,
         IConstantBuffer<Transform>& _transformBuff,
         IConstantBuffer<Material>& _materialBuff,
         uint32_t _textureIndex) const;
 
-    void RenderModelMesh(ID3D12GraphicsCommandList* _commandList, ModelMeshRenderer* _renderer);
-    void RenderPrimitiveMesh(ID3D12GraphicsCommandList* _commandList, PlaneRenderer* _renderer);
+    void RenderModelMesh(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList, ModelMeshRenderer* _renderer);
+    void RenderPrimitiveMesh(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList, PlaneRenderer* _renderer);
 
 protected:
     void LightUpdate();

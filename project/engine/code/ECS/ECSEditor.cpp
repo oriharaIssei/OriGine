@@ -538,7 +538,7 @@ void ECSEditor::PopupEntityLeaveWorkSystem(GameEntity* _entity, bool _isGroup) {
             ImGui::Spacing();
             static char searchBuffer[128] = ""; // 検索用のバッファ
             // 検索欄
-            ImGui::InputText("Search##leaveSysterm", searchBuffer, sizeof(searchBuffer));
+            ImGui::InputText("Search##leaveSystem", searchBuffer, sizeof(searchBuffer));
 
             ImGui::Separator();
             int systemTypeIndex = 0;

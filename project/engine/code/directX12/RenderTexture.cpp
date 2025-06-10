@@ -3,8 +3,8 @@
 /// engine
 #include "Engine.h"
 // directX12
-#include "directX12/DxFunctionHelper.h"
-#include "directX12/DxHeap.h"
+#include "directX12/DxDevice.h"
+#include "directX12/DxFence.h"
 #include "directX12/ResourceStateTracker.h"
 #include "directX12/ShaderManager.h"
 
@@ -91,7 +91,7 @@ void RenderTexture::Initialize(int32_t _bufferCount, const Vec2f& textureSize, D
     ///===========================================================================
     /// RenderTexture Resource の作成
     ///===========================================================================
-    ID3D12Device* device = Engine::getInstance()->getDxDevice()->getDevice();
+    Microsoft::WRL::ComPtr<ID3D12Device> device = Engine::getInstance()->getDxDevice()->getDevice();
 
     for (auto& renderTarget : renderTargets_) {
         renderTarget.resource_.CreateRenderTextureResource(
@@ -105,9 +105,9 @@ void RenderTexture::Initialize(int32_t _bufferCount, const Vec2f& textureSize, D
         ///  RTV の作成
         /// ------------------------------------------------------------------
         D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
-        rtvDesc.Format         = format_;
-        rtvDesc.ViewDimension  = D3D12_RTV_DIMENSION_TEXTURE2D;
-        renderTarget.rtvIndex_ = rtvArray_->CreateView(device, rtvDesc, renderTarget.resource_.getResource());
+        rtvDesc.Format        = format_;
+        rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+        renderTarget.rtv_     = Engine::getInstance()->getRtvHeap()->CreateDescriptor(rtvDesc, &renderTarget.resource_);
 
         /// ------------------------------------------------------------------
         ///  SRV の作成
@@ -118,7 +118,7 @@ void RenderTexture::Initialize(int32_t _bufferCount, const Vec2f& textureSize, D
         srvDesc.ViewDimension           = D3D12_SRV_DIMENSION_TEXTURE2D;
         srvDesc.Texture2D.MipLevels     = 1;
 
-        renderTarget.srvIndex_ = srvArray_->CreateView(device, srvDesc, renderTarget.resource_.getResource());
+        renderTarget.srv_ = Engine::getInstance()->getSrvHeap()->CreateDescriptor(srvDesc, &renderTarget.resource_);
 
         /// ------------------------------------------------------------------
         ///  ResourceStateTracker の登録
@@ -127,8 +127,10 @@ void RenderTexture::Initialize(int32_t _bufferCount, const Vec2f& textureSize, D
     }
 
     std::wstring wName = ConvertString(textureName_);
+    int32_t index      = 0;
     for (auto& renderTarget : renderTargets_) {
-        renderTarget.resource_.setName(wName + std::to_wstring(renderTarget.srvIndex_));
+        renderTarget.resource_.setName(wName + std::to_wstring(index));
+        ++index;
     }
 }
 
@@ -144,12 +146,13 @@ void RenderTexture::Resize(const Vec2f& textureSize) {
     // 古いリソースを解放
     for (auto& target : renderTargets_) {
         target.resource_.Finalize();
-        rtvArray_->DestroyView(target.rtvIndex_);
-        srvArray_->DestroyView(target.srvIndex_);
+        Engine::getInstance()->getRtvHeap()->ReleaseDescriptor(target.rtv_);
+        Engine::getInstance()->getSrvHeap()->ReleaseDescriptor(target.srv_);
     }
 
-    ID3D12Device* device = Engine::getInstance()->getDxDevice()->getDevice();
+    Microsoft::WRL::ComPtr<ID3D12Device> device = Engine::getInstance()->getDxDevice()->getDevice();
 
+    std::wstring wName = ConvertString(textureName_);
     // 新しいリソースを作成
     for (int i = 0; i < bufferCount_; ++i) {
         renderTargets_[i].resource_.CreateRenderTextureResource(
@@ -163,10 +166,9 @@ void RenderTexture::Resize(const Vec2f& textureSize) {
         ///  RTV の作成
         /// ------------------------------------------------------------------
         D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
-        rtvDesc.Format              = format_;
-        rtvDesc.ViewDimension       = D3D12_RTV_DIMENSION_TEXTURE2D;
-        renderTargets_[i].rtvIndex_ = rtvArray_->CreateView(device, rtvDesc, renderTargets_[i].resource_.getResource());
-
+        rtvDesc.Format         = format_;
+        rtvDesc.ViewDimension  = D3D12_RTV_DIMENSION_TEXTURE2D;
+        renderTargets_[i].rtv_ = Engine::getInstance()->getRtvHeap()->CreateDescriptor(rtvDesc, &renderTargets_[i].resource_);
         /// ------------------------------------------------------------------
         ///  SRV の作成
         ///------------------------------------------------------------------
@@ -176,36 +178,32 @@ void RenderTexture::Resize(const Vec2f& textureSize) {
         srvDesc.ViewDimension           = D3D12_SRV_DIMENSION_TEXTURE2D;
         srvDesc.Texture2D.MipLevels     = 1;
 
-        renderTargets_[i].srvIndex_ = srvArray_->CreateView(device, srvDesc, renderTargets_[i].resource_.getResource());
+        renderTargets_[i].srv_ = Engine::getInstance()->getSrvHeap()->CreateDescriptor(srvDesc, &renderTargets_[i].resource_);
 
         /// ------------------------------------------------------------------
         ///  ResourceStateTracker の登録
         /// ------------------------------------------------------------------
         ResourceStateTracker::RegisterReosurce(renderTargets_[i].resource_.getResource(), D3D12_RESOURCE_STATE_RENDER_TARGET);
-    }
 
-    std::wstring wName = ConvertString(textureName_);
-    for (auto& renderTarget : renderTargets_) {
-        renderTarget.resource_.setName(wName + std::to_wstring(renderTarget.srvIndex_));
+        renderTargets_[i].resource_.setName(wName + std::to_wstring(i));
     }
 }
 
 void RenderTexture::Finalize() {
-    for (auto& rendertarget : renderTargets_) {
-        rendertarget.resource_.Finalize();
+    for (auto& renderTarget : renderTargets_) {
+        renderTarget.resource_.Finalize();
 
-        rtvArray_->DestroyView(rendertarget.rtvIndex_);
-        srvArray_->DestroyView(rendertarget.srvIndex_);
+        Engine::getInstance()->getRtvHeap()->ReleaseDescriptor(renderTarget.rtv_);
+        Engine::getInstance()->getSrvHeap()->ReleaseDescriptor(renderTarget.srv_);
     }
 }
 
-void RenderTexture::PreDraw() {
+void RenderTexture::PreDraw(DxDsvDescriptor* _dsv) {
 
-    ID3D12GraphicsCommandList* commandList = dxCommand_->getCommandList();
+    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->getCommandList();
 
-    DxHeap* heap                          = DxHeap::getInstance();
     D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = getFrontBufferRtvHandle();
-    D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = heap->getDsvCpuHandle(0);
+    D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = _dsv->getCpuHandle();
 
     ///=========================================
     //	TransitionBarrier の 設定
@@ -224,7 +222,7 @@ void RenderTexture::PreDraw() {
         clearColor_[Z],
         clearColor_[W]};
     commandList->ClearRenderTargetView(
-        rtvHandle, clearColor, 0, nullptr);
+        rtvHandle, clearColor_.v, 0, nullptr);
     ///=========================================
     //	Clear DSV
     ///=========================================
@@ -314,7 +312,7 @@ void RenderTexture::DrawTexture() {
     commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
     commandList->SetPipelineState(pso_->pipelineState.Get());
 
-    ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
+    ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
     commandList->SetGraphicsRootDescriptorTable(
         0,
@@ -326,7 +324,9 @@ void RenderTexture::DrawTexture() {
 void RenderTexture::setTextureName(const std::string& _name) {
     textureName_       = _name;
     std::wstring wName = ConvertString(_name);
+    int32_t index      = 0;
     for (auto& renderTarget : renderTargets_) {
-        renderTarget.resource_.setName(wName + std::to_wstring(renderTarget.srvIndex_));
+        renderTarget.resource_.setName(wName + std::to_wstring(index));
+        ++index;
     }
 }

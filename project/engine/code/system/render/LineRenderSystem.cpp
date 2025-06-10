@@ -2,6 +2,8 @@
 
 /// engine
 #include "Engine.h"
+// directX12Object
+#include "directX12/DxDevice.h"
 // module
 #include "camera/CameraManager.h"
 #include "texture/TextureManager.h"
@@ -38,7 +40,7 @@ void LineRenderSystem::Finalize() {
 }
 
 void LineRenderSystem::UpdateEntity(GameEntity* _entity) {
-    auto* commandList      = dxCommand_->getCommandList();
+    auto commandList      = dxCommand_->getCommandList();
     int32_t componentIndex = 0;
     while (true) {
         LineRenderer* renderer = getComponent<LineRenderer>(_entity, componentIndex++);
@@ -54,10 +56,10 @@ void LineRenderSystem::UpdateEntity(GameEntity* _entity) {
         /// Transformの更新
         ///==============================
         {
-            Transform* entityTransfrom_ = getComponent<Transform>(_entity);
+            Transform* entityTransform_ = getComponent<Transform>(_entity);
             auto& transform             = renderer->getTransformBuff();
             if (transform->parent == nullptr) {
-                transform->parent = entityTransfrom_;
+                transform->parent = entityTransform_;
             }
             transform.openData_.Update();
             transform.ConvertToBuffer();
@@ -178,7 +180,7 @@ void LineRenderSystem::StartRender() {
     currentBlend_ = BlendMode::Alpha;
     lineIsStrip_  = false;
 
-    auto* commandList = dxCommand_->getCommandList();
+    auto commandList = dxCommand_->getCommandList();
     commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
     commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);

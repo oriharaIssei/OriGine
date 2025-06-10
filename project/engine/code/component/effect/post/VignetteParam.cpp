@@ -3,6 +3,8 @@
 #define ENGINE_ECS
 #define ENGINE_INCLUDE
 #include "engine/EngineInclude.h"
+// directX12
+#include "directX12/DxDevice.h"
 
 #ifdef _DEBUG
 #include "imgui/imgui.h"
@@ -20,6 +22,7 @@ void VignetteParam::Finalize() {
 bool VignetteParam::Edit() {
     bool isEdit = false;
 #ifdef _DEBUG
+
     ImGui::Text("VignettePow");
     isEdit |= DragGuiCommand("##VignettePow", paramBuffer.openData_.vignettePow, 0.01f, 0.0f);
     ImGui::Text("VignetteScale");
