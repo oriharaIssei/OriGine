@@ -134,7 +134,7 @@ public:
 public:
     void Initialize();
     void Finalize();
-    PipelineStateObj* CreatePso(const std::string& key, const ShaderInformation& shaderInfo, ID3D12Device* device);
+    PipelineStateObj* CreatePso(const std::string& key, const ShaderInformation& shaderInfo, Microsoft::WRL::ComPtr<ID3D12Device>device);
     bool LoadShader(const std::string& fileName, const std::string& directory = shaderDirectory, const wchar_t* profile = L"vs_6_0");
 
 private:

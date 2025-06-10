@@ -4,13 +4,13 @@
 #include "Engine.h"
 #define RESOURCE_DIRECTORY
 #include "EngineInclude.h"
+// directX12Object
+#include "directX12/DxDevice.h"
 
 #include "winApp/WinApp.h"
 // dx21
 #include "directX12/DxCommand.h"
 #include "directX12/DxDevice.h"
-#include "directX12/DxHeap.h"
-#include "directX12/DxSrvArrayManager.h"
 #include "directX12/DxSwapChain.h"
 
 /// externals
@@ -27,14 +27,15 @@ ImGuiManager* ImGuiManager::getInstance() {
 
 void ImGuiManager::Initialize([[maybe_unused]] const WinApp* window, [[maybe_unused]] const DxDevice* dxDevice, [[maybe_unused]] const DxSwapChain* dxSwapChain) {
 #ifdef _DEBUG
-    srvHeap_ = DxHeap::getInstance()->getSrvHeap();
+    srvHeap_ = Engine::getInstance()->getSrvHeap()->getHeap();
 
     dxCommand_ = std::make_unique<DxCommand>();
     dxCommand_->Initialize("main", "main");
 
     // 先頭のDescriptorを使っている事になっているので合わせる
     // 追記，fontのテクスチャに使われているらしい
-    dxSrvArray_ = DxSrvArrayManager::getInstance()->Create(1);
+
+    srv_ = Engine::getInstance()->getSrvHeap()->AllocateDescriptor();
 
     ///=============================================
     /// imgui の初期化
@@ -44,10 +45,10 @@ void ImGuiManager::Initialize([[maybe_unused]] const WinApp* window, [[maybe_unu
     ImGui::StyleColorsDark();
     ImGui_ImplWin32_Init(window->getHwnd());
     ImGui_ImplDx12_Init(
-        dxDevice->getDevice(),
+        dxDevice->getDevice().Get(),
         dxSwapChain->getBufferCount(),
         DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
-        srvHeap_,
+        srvHeap_.Get(),
         srvHeap_->GetCPUDescriptorHandleForHeapStart(),
         srvHeap_->GetGPUDescriptorHandleForHeapStart());
     ImGuiIO& io = ImGui::GetIO();
@@ -64,7 +65,6 @@ void ImGuiManager::Initialize([[maybe_unused]] const WinApp* window, [[maybe_unu
 void ImGuiManager::Finalize() {
 #ifdef _DEBUG
     dxCommand_->Finalize();
-    dxSrvArray_->Finalize();
 
     ImGui_ImplDx12_Shutdown();
     ImGui_ImplWin32_Shutdown();
@@ -90,9 +90,9 @@ void ImGuiManager::Draw() {
     // 描画前準備
     ImGui::Render();
 
-    ID3D12DescriptorHeap* ppHeaps[] = {srvHeap_};
+    ID3D12DescriptorHeap* ppHeaps[] = {srvHeap_.Get()};
     dxCommand_->getCommandList()->SetDescriptorHeaps(1, ppHeaps);
 
-    ImGui_ImplDx12_RenderDrawData(ImGui::GetDrawData(), dxCommand_->getCommandList());
+    ImGui_ImplDx12_RenderDrawData(ImGui::GetDrawData(), dxCommand_->getCommandList().Get());
 #endif // _DEBUG
 }

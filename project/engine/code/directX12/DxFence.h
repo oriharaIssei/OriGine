@@ -6,7 +6,7 @@
 
 class DxFence {
 public:
-    void Initialize(ID3D12Device* device);
+    void Initialize(Microsoft::WRL::ComPtr<ID3D12Device> device);
     void Finalize();
     void Signal(ID3D12CommandQueue* commandQueue);
     void WaitForFence();

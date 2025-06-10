@@ -2,6 +2,8 @@
 
 /// engine
 #include "Engine.h"
+// directX12
+#include "directX12/DxDevice.h"
 // Ecs
 #include "ECSManager.h"
 // assets

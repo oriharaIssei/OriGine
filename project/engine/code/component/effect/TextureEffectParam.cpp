@@ -4,6 +4,7 @@
 #define RESOURCE_DIRECTORY
 #define ENGINE_INCLUDE
 #include "EngineInclude.h"
+#include "directX12/DxDevice.h"
 #include "texture/TextureManager.h"
 
 #ifdef _DEBUG

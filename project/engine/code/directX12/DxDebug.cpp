@@ -6,6 +6,7 @@
 
 /// engine
 #include "Engine.h"
+#include "directX12/DxDevice.h"
 
 /// lib
 #include "lib/logger/Logger.h"

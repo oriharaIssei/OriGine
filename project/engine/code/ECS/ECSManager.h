@@ -18,6 +18,9 @@
 // util
 #include "util/nameof.h"
 
+/// math
+#include <stdint.h>
+
 class EntityComponentSystemManager {
 public:
     static EntityComponentSystemManager* getInstance() {
@@ -85,24 +88,7 @@ public: // ============== accessor ==============//
     /// <summary>
     /// エンティティを作成する
     /// </summary>
-    uint32_t registerEntity(const std::string& _entityDataType) {
-        if (freeEntityIndex_.empty()) {
-            // 容量に空きが無い場合, 容量を増やす
-            // 2倍の容量にリサイズ
-            this->resize(entityCapacity_ * 2);
-
-            for (auto& [componentID, componentArray] : componentArrays_) {
-                componentArray->Initialize(entityCapacity_);
-            }
-        }
-        uint32_t index = freeEntityIndex_.back();
-        freeEntityIndex_.pop_back();
-
-        entityes_[index]          = GameEntity(_entityDataType, index);
-        entityes_[index].isAlive_ = true;
-
-        return index;
-    }
+    uint32_t registerEntity(const std::string& _entityDataType);
 
     /// <summary>
     /// エンティティを取得する

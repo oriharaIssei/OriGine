@@ -146,14 +146,14 @@ void SkyboxRender::CreatePso() {
 void SkyboxRender::StartRender() {
     currentBlend_ = BlendMode::Alpha;
 
-    ID3D12GraphicsCommandList* commandList = dxCommand_->getCommandList();
+    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->getCommandList();
 
     commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
     commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
 
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
+    ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
 }
 
@@ -162,7 +162,7 @@ void SkyboxRender::StartRender() {
 /// </summary>
 /// <param name="_entity">描画対象オブジェクト</param>
 void SkyboxRender::UpdateEntity(GameEntity* _entity) {
-    auto* commandList = dxCommand_->getCommandList();
+    auto commandList = dxCommand_->getCommandList();
 
     SkyboxRenderer* renderer = getComponent<SkyboxRenderer>(_entity);
 

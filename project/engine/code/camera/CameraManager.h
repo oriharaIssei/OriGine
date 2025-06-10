@@ -36,7 +36,7 @@ public:
     void DataConvertToBuffer() {
         cTransform_.ConvertToBuffer();
     }
-    void setBufferForRootParameter(ID3D12GraphicsCommandList* cmdList, uint32_t rootParameterNum) {
+    void setBufferForRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) {
         cTransform_.SetForRootParameter(cmdList, rootParameterNum);
     }
 };

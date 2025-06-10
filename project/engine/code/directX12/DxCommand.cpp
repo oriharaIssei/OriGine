@@ -6,6 +6,7 @@
 /// engine
 #include "Engine.h"
 // directX12Object
+#include "directX12/DxDevice.h"
 #include "directX12/DxFence.h"
 #include "directX12/ResourceStateTracker.h"
 
@@ -24,7 +25,7 @@ DxCommand::DxCommand() {
 DxCommand::~DxCommand() {
 }
 
-bool DxCommand::CreateCommandListWithAllocator(ID3D12Device* device, const std::string& listAndAllocatorKey, D3D12_COMMAND_LIST_TYPE listType) {
+bool DxCommand::CreateCommandListWithAllocator(Microsoft::WRL::ComPtr<ID3D12Device> device, const std::string& listAndAllocatorKey, D3D12_COMMAND_LIST_TYPE listType) {
     LOG_DEBUG("Create CommandList : " + listAndAllocatorKey);
 
     auto& commandListCombo = commandListComboMap_[listAndAllocatorKey];
@@ -52,7 +53,7 @@ bool DxCommand::CreateCommandListWithAllocator(ID3D12Device* device, const std::
     return true;
 }
 
-bool DxCommand::CreateCommandQueue(ID3D12Device* device, const std::string& queueKey, D3D12_COMMAND_QUEUE_DESC desc) {
+bool DxCommand::CreateCommandQueue(Microsoft::WRL::ComPtr<ID3D12Device> device, const std::string& queueKey, D3D12_COMMAND_QUEUE_DESC desc) {
     LOG_DEBUG("Create CommandQueue : " + queueKey);
 
     commandQueueMap_[queueKey] = nullptr;
@@ -75,7 +76,7 @@ void DxCommand::Initialize(const std::string& commandListKey, const std::string&
 
     LOG_DEBUG("Initialize DxCommand \n CommandList  :" + commandListComboKey_ + "\n CommandQueue :" + commandQueueKey_ + "\n");
 
-    ID3D12Device* device = Engine::getInstance()->getDxDevice()->getDevice();
+    Microsoft::WRL::ComPtr<ID3D12Device> device = Engine::getInstance()->getDxDevice()->getDevice();
     if (commandQueueMap_.count(commandQueueKey_) == 0) {
         ///================================================
         ///	CommandQueue の生成
@@ -110,7 +111,7 @@ void DxCommand::Initialize(const std::string& commandListKey, const std::string&
 
     LOG_DEBUG("Initialize DxCommand \n CommandList  :" + commandListComboKey_ + "\n CommandQueue :" + commandQueueKey_ + "\n");
 
-    ID3D12Device* device = Engine::getInstance()->getDxDevice()->getDevice();
+    Microsoft::WRL::ComPtr<ID3D12Device> device = Engine::getInstance()->getDxDevice()->getDevice();
 
     if (commandQueueMap_.count(commandQueueKey_) == 0) {
         D3D12_COMMAND_QUEUE_DESC commandQueueDesc{};
@@ -142,9 +143,9 @@ void DxCommand::CommandReset() {
     }
 }
 
-void DxCommand::ResourceBarrier(ID3D12Resource* resource, D3D12_RESOURCE_STATES stateAfter) {
+void DxCommand::ResourceBarrier(Microsoft::WRL::ComPtr<ID3D12Resource> resource, D3D12_RESOURCE_STATES stateAfter) {
     if (resourceStateTracker_) {
-        resourceStateTracker_->Barrier(commandList_.Get(), resource, stateAfter);
+        resourceStateTracker_->Barrier(commandList_.Get(), resource.Get(), stateAfter);
     } else {
         LOG_CRITICAL("ResourceStateTracker is not initialized.");
     }
@@ -175,6 +176,24 @@ void DxCommand::ExecuteCommandAndPresent(IDXGISwapChain4* swapChain) {
         assert(false);
     }
     ///===============================================================
+}
+
+void DxCommand::ClearTarget(DxRtvDescriptor* _rtv, DxDsvDescriptor* _dsv, const Vec4f& _clearColor) {
+
+    D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle           = _dsv->getCpuHandle();
+    D3D12_CPU_DESCRIPTOR_HANDLE backBufferRtvHandle = _rtv->getCpuHandle();
+
+    commandList_->OMSetRenderTargets(
+        1,
+        &backBufferRtvHandle,
+        false,
+        &dsvHandle);
+
+    commandList_->ClearRenderTargetView(
+        backBufferRtvHandle, _clearColor.v, 0, nullptr);
+
+    commandList_->ClearDepthStencilView(
+        dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 }
 
 void DxCommand::Finalize() {

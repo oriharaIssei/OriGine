@@ -18,16 +18,16 @@
 #include "module/IModule.h"
 // dx12Object
 #include "directX12/DxCommand.h"
+#include "directX12/DxDescriptor.h"
 #include "directX12/DxFence.h"
 #include "directX12/DxResource.h"
-#include "directX12/DxSrvArray.h"
 #include "directX12/PipelineStateObj.h"
 // lib
 #include "Thread/Thread.h"
 
 struct Texture
     : IAsset {
-    void Initialize(const std::string& filePath, std::shared_ptr<DxSrvArray> srvArray);
+    void Initialize(const std::string& filePath);
     void Finalize();
 
     mutable std::mutex mutex;
@@ -35,14 +35,14 @@ struct Texture
     std::string path;
     DirectX::TexMetadata metaData;
     DxResource resource;
-    uint32_t srvIndex;
+    std::shared_ptr<DxSrvDescriptor> srv;
 
     LoadState loadState = LoadState::Unloaded;
 
 private:
     DirectX::ScratchImage Load(const std::string& filePath);
-    void UploadTextureData(DirectX::ScratchImage& mipImg, ID3D12Resource* reosurce);
-    void ExecuteCommand(ID3D12Resource* resource);
+    void UploadTextureData(DirectX::ScratchImage& mipImg, Microsoft::WRL::ComPtr<ID3D12Resource> reosurce);
+    void ExecuteCommand(Microsoft::WRL::ComPtr<ID3D12Resource> resource);
 };
 
 class TextureManager
@@ -72,7 +72,6 @@ public:
     };
 
 private:
-    static std::shared_ptr<DxSrvArray> dxSrvArray_;
     static std::array<std::shared_ptr<Texture>, maxTextureSize_> textures_;
     static std::unordered_map<std::string, uint32_t> textureFileNameToIndexMap_;
     static uint32_t dummyTextureIndex_;

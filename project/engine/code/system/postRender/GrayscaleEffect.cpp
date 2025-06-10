@@ -5,7 +5,9 @@
 #include "sceneManager/SceneManager.h"
 
 // directX12
+#include "directX12/DxDevice.h"
 #include "directX12/RenderTexture.h"
+#include "directX12/DxCommand.h"
 
 void GrayscaleEffect::Initialize() {
     dxCommand_ = std::make_unique<DxCommand>();
@@ -88,8 +90,8 @@ void GrayscaleEffect::CreatePSO() {
 }
 
 void GrayscaleEffect::Render() {
-    auto* commandList = dxCommand_->getCommandList();
-    auto* sceneView   = SceneManager::getInstance()->getSceneView();
+    auto commandList = dxCommand_->getCommandList();
+    auto* sceneView  = SceneManager::getInstance()->getSceneView();
 
     /// ================================================
     /// pso set
@@ -101,7 +103,7 @@ void GrayscaleEffect::Render() {
     /// ================================================
     /// Viewport の設定
     /// ================================================
-    ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
+    ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
     commandList->SetGraphicsRootDescriptorTable(0, sceneView->getBackBufferSrvHandle());
 

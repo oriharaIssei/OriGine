@@ -5,7 +5,7 @@
 
 std::unordered_map<ID3D12Resource*, D3D12_RESOURCE_STATES> ResourceStateTracker::globalResourceStates_;
 
-void ResourceStateTracker::Barrier(ID3D12GraphicsCommandList* commandList, ID3D12Resource* resource, D3D12_RESOURCE_STATES stateAfter) {
+void ResourceStateTracker::Barrier(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList, ID3D12Resource* resource, D3D12_RESOURCE_STATES stateAfter) {
     // まずローカルを参照
     D3D12_RESOURCE_STATES stateBefore;
     auto it = localResourceStates_.find(resource);
@@ -34,8 +34,8 @@ void ResourceStateTracker::Barrier(ID3D12GraphicsCommandList* commandList, ID3D1
     commandList->ResourceBarrier(1, &barrier);
 }
 
-void ResourceStateTracker::DirectBarrier(ID3D12GraphicsCommandList* commandList, ID3D12Resource* resource, D3D12_RESOURCE_BARRIER barrier) {
-   localResourceStates_[resource] = barrier.Transition.StateAfter;
+void ResourceStateTracker::DirectBarrier(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList, ID3D12Resource* resource, D3D12_RESOURCE_BARRIER barrier) {
+    localResourceStates_[resource] = barrier.Transition.StateAfter;
 
     commandList->ResourceBarrier(1, &barrier);
 }

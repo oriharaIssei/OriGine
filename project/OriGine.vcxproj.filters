@@ -285,7 +285,7 @@
     <ClInclude Include="engine\code\directX12\DxFunctionHelper.h">
       <Filter>engine\code\directX12</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\directX12\DxHeap.h">
+    <ClInclude Include="engine\code\directX12\DxDescriptor.h">
       <Filter>engine\code\directX12</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\directX12\DxResource.h">
@@ -492,6 +492,8 @@
     <ClInclude Include="engine\code\system\effect\SpriteAnimationSystem.h" />
     <ClInclude Include="util\NormalizeString.h" />
     <ClInclude Include="engine\code\system\render\BackGroundSpriteRenderSystem.h" />
+    <ClInclude Include="util\BitArray.h" />
+    <ClInclude Include="util\EnumBitMask.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\code\ECS\ECSDebugger.cpp">
@@ -611,7 +613,7 @@
     <ClCompile Include="engine\code\directX12\DxFunctionHelper.cpp">
       <Filter>engine\code\directX12</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\directX12\DxHeap.cpp">
+    <ClCompile Include="engine\code\directX12\DxDescriptor.cpp">
       <Filter>engine\code\directX12</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\directX12\DxResource.cpp">

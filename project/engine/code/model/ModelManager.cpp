@@ -6,9 +6,11 @@
 
 /// engine
 #include "Engine.h"
+#include "winApp/WinApp.h"
 // assetes
 #include "Model.h"
 // dx12Object
+#include "directX12/DxDevice.h"
 #include "directX12/ShaderManager.h"
 #include "texture/TextureManager.h"
 

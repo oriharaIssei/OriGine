@@ -4,18 +4,17 @@
 #include <string>
 
 #include "directX12/DxCommand.h"
+#include "directX12/DxDescriptor.h"
 #include "directX12/DxResource.h"
-#include "directX12/DxRtvArray.h"
-#include "directX12/DxSrvArray.h"
+#include "directX12/PipelineStateObj.h"
+#include <Engine.h>
 
 #include "Vector2.h"
 #include "Vector4.h"
 
-#include "directX12/PipelineStateObj.h"
-
 class RenderTexture {
 public:
-    RenderTexture(DxCommand* dxCom, DxRtvArray* rtvArray, DxSrvArray* srvArray) : dxCommand_(dxCom), rtvArray_(rtvArray), srvArray_(srvArray) {}
+    RenderTexture(DxCommand* dxCom) : dxCommand_(dxCom) {}
     ~RenderTexture() = default;
 
     static void Awake();
@@ -27,7 +26,7 @@ public:
     /// <summary>
     /// RenderTexture への 書き込み準備
     /// </summary>
-    void PreDraw();
+    void PreDraw(DxDsvDescriptor* _dsv = Engine::getInstance()->getDxDsv());
     /// <summary>
     /// RenderTexture への 書き込み開始
     /// </summary>
@@ -41,8 +40,8 @@ private:
     struct RenderTargetCombo {
         DxResource resource_;
 
-        uint32_t rtvIndex_ = 0;
-        uint32_t srvIndex_ = 0;
+        std::shared_ptr<DxRtvDescriptor> rtv_;
+        std::shared_ptr<DxSrvDescriptor> srv_;
     };
 
     DXGI_FORMAT format_ = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
@@ -54,9 +53,6 @@ private:
 
     DxCommand* dxCommand_;
 
-    DxRtvArray* rtvArray_;
-    DxSrvArray* srvArray_;
-
     std::string textureName_ = "unknown rendertexture";
     Vec2f textureSize_;
     Vec4f clearColor_;
@@ -67,11 +63,11 @@ public:
     const Vec2f& getTextureSize() const { return textureSize_; }
 
     // back
-    ID3D12Resource* getBackBuffer() const { return renderTargets_[backBufferIndex_].resource_.getResource(); }
-    D3D12_GPU_DESCRIPTOR_HANDLE getBackBufferSrvHandle() const { return DxHeap::getInstance()->getSrvGpuHandle(srvArray_->getLocationOnHeap(renderTargets_[backBufferIndex_].srvIndex_)); }
-    D3D12_CPU_DESCRIPTOR_HANDLE getBackBufferRtvHandle() const { return DxHeap::getInstance()->getRtvCpuHandle(rtvArray_->getLocationOnHeap(renderTargets_[backBufferIndex_].rtvIndex_)); }
+    const Microsoft::WRL::ComPtr<ID3D12Resource>& getBackBuffer() const { return renderTargets_[backBufferIndex_].resource_.getResource(); }
+    D3D12_GPU_DESCRIPTOR_HANDLE getBackBufferSrvHandle() const { return renderTargets_[backBufferIndex_].srv_->getGpuHandle(); }
+    D3D12_CPU_DESCRIPTOR_HANDLE getBackBufferRtvHandle() const { return renderTargets_[backBufferIndex_].rtv_->getCpuHandle(); }
     // front
-    ID3D12Resource* getFrontBuffer() const { return renderTargets_[frontBufferIndex_].resource_.getResource(); }
-    D3D12_CPU_DESCRIPTOR_HANDLE getFrontBufferRtvHandle() const { return DxHeap::getInstance()->getRtvCpuHandle(rtvArray_->getLocationOnHeap(renderTargets_[frontBufferIndex_].rtvIndex_)); }
-    D3D12_GPU_DESCRIPTOR_HANDLE getFrontBufferSrvHandle() const { return DxHeap::getInstance()->getSrvGpuHandle(srvArray_->getLocationOnHeap(renderTargets_[frontBufferIndex_].srvIndex_)); }
+    const Microsoft::WRL::ComPtr<ID3D12Resource>& getFrontBuffer() const { return renderTargets_[frontBufferIndex_].resource_.getResource(); }
+    D3D12_GPU_DESCRIPTOR_HANDLE getFrontBufferSrvHandle() const { return renderTargets_[frontBufferIndex_].srv_->getGpuHandle(); }
+    D3D12_CPU_DESCRIPTOR_HANDLE getFrontBufferRtvHandle() const { return renderTargets_[frontBufferIndex_].rtv_->getCpuHandle(); }
 };

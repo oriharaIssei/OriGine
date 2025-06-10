@@ -8,6 +8,7 @@
 #include "ECS/ECSManager.h"
 #include "Engine.h"
 #define RESOURCE_DIRECTORY
+#include "directX12/DxDevice.h"
 #include "EngineInclude.h"
 // component
 #include "component/renderer/primitive/Primitive.h"
@@ -45,13 +46,6 @@ static std::list<std::pair<std::string, std::string>> SearchTextureFile() {
 static std::list<std::pair<std::string, std::string>> textureFiles = SearchTextureFile();
 
 Emitter::Emitter() : IComponent(), currentCoolTime_(0.f), leftActiveTime_(0.f) {
-    ComponentArray<Emitter>* emittterArray = ECSManager::getInstance()->getInstance()->getComponentArray<Emitter>();
-    srvArray_                              = emittterArray->getSrvArray();
-    isActive_                              = false;
-    leftActiveTime_                        = 0.0f;
-}
-
-Emitter::Emitter(DxSrvArray* _srvArray) : IComponent(), srvArray_(_srvArray), currentCoolTime_(0.f), leftActiveTime_(0.f) {
     isActive_       = false;
     leftActiveTime_ = 0.0f;
 }
@@ -854,7 +848,7 @@ void Emitter::EditParticle() {
 }
 #endif // _DEBUG
 
-void Emitter::Draw(ID3D12GraphicsCommandList* _commandList) {
+void Emitter::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList) {
     const Matrix4x4& viewMat = CameraManager::getInstance()->getTransform().viewMat;
 
     Matrix4x4 billboardMat = {};
@@ -914,9 +908,6 @@ void Emitter::Draw(ID3D12GraphicsCommandList* _commandList) {
     structuredTransform_.ConvertToBuffer();
     structuredTransform_.SetForRootParameter(_commandList, 0);
 
-    ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
-    _commandList->SetDescriptorHeaps(1, ppHeaps);
-
     _commandList->SetGraphicsRootDescriptorTable(
         3,
         TextureManager::getDescriptorGpuHandle(textureIndex_));
@@ -931,13 +922,13 @@ void Emitter::Draw(ID3D12GraphicsCommandList* _commandList) {
 
 void Emitter::CreateResource() {
     if (!mesh_.getVertexBuffer().getResource()) {
-        Plane planeGenerater;
-        planeGenerater.createMesh(&mesh_);
+        Plane planeGenerator;
+        planeGenerator.createMesh(&mesh_);
     }
-    if (!structuredTransform_.getResource().getResource()) {
-        structuredTransform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice(), srvArray_, particleMaxSize_);
+    if (!structuredTransform_.getResource().getResource().Get()) {
+        structuredTransform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice(), particleMaxSize_);
     }
-    if (!material_.getResource().getResource()) {
+    if (!material_.getResource().getResource().Get()) {
         material_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
     }
 }

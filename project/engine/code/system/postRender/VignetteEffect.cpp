@@ -3,13 +3,13 @@
 /// engine
 #include "ECSManager.h"
 #include "Engine.h"
-#include "engine/EngineInclude.h"
 #include "sceneManager/SceneManager.h"
 
 // component
 #include "component/effect/post/VignetteParam.h"
 
 // directX12
+#include "directX12/DxDevice.h"
 #include "directX12/RenderTexture.h"
 
 void VignetteEffect::Initialize() {
@@ -116,7 +116,7 @@ void VignetteEffect::CreatePSO() {
 }
 
 void VignetteEffect::RenderState() {
-    auto* commandList = dxCommand_->getCommandList();
+    auto commandList = dxCommand_->getCommandList();
 
     /// ================================================
     /// pso set
@@ -127,13 +127,13 @@ void VignetteEffect::RenderState() {
 }
 
 void VignetteEffect::Render() {
-    auto* commandList = dxCommand_->getCommandList();
-    auto* sceneView   = SceneManager::getInstance()->getSceneView();
+    auto commandList = dxCommand_->getCommandList();
+    auto* sceneView  = SceneManager::getInstance()->getSceneView();
 
     /// ================================================
     /// Viewport の設定
     /// ================================================
-    ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
+    ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
     commandList->SetGraphicsRootDescriptorTable(0, sceneView->getBackBufferSrvHandle());
 

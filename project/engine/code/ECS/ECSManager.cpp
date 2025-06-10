@@ -216,6 +216,25 @@ void EntityComponentSystemManager::resize(uint32_t _newSize) {
     entityCapacity_ = _newSize;
 }
 
+uint32_t EntityComponentSystemManager::registerEntity(const std::string& _entityDataType) {
+    if (freeEntityIndex_.empty()) {
+        // 容量に空きが無い場合, 容量を増やす
+        // 2倍の容量にリサイズ
+        resize(entityCapacity_ * 2);
+
+        for (auto& [componentID, componentArray] : componentArrays_) {
+            componentArray->Initialize(entityCapacity_);
+        }
+    }
+    uint32_t index = freeEntityIndex_.back();
+    freeEntityIndex_.pop_back();
+
+    entityes_[index]          = GameEntity(_entityDataType, index);
+    entityes_[index].isAlive_ = true;
+
+    return index;
+}
+
 bool EntityComponentSystemManager::ActivateSystem(const std::string& _name, bool _doInit) {
     for (int32_t i = 0; i < int32_t(SystemType::Count); ++i) {
         auto itr = systems_[i].find(_name);

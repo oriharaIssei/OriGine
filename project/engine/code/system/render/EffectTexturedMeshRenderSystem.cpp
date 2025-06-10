@@ -2,6 +2,8 @@
 
 /// engine
 #include "Engine.h"
+// directX12Object
+#include "directX12/DxDevice.h"
 // module
 #include "camera/CameraManager.h"
 #include "texture/TextureManager.h"
@@ -285,7 +287,7 @@ void EffectTexturedMeshRenderSystem::LightUpdate() {
 void EffectTexturedMeshRenderSystem::StartRender() {
     currentBlend_ = BlendMode::Alpha;
 
-    ID3D12GraphicsCommandList* commandList = dxCommand_->getCommandList();
+    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->getCommandList();
 
     commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
     commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
@@ -298,7 +300,7 @@ void EffectTexturedMeshRenderSystem::StartRender() {
     LightManager::getInstance()->SetForRootParameter(
         commandList, lightCountBufferIndex_, directionalLightBufferIndex_, pointLightBufferIndex_, spotLightBufferIndex_);
 
-    ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
+    ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
 }
 
@@ -307,7 +309,7 @@ void EffectTexturedMeshRenderSystem::StartRender() {
 /// </summary>
 /// <param name="_entity">描画対象オブジェクト</param>
 void EffectTexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
-    auto* commandList      = dxCommand_->getCommandList();
+    auto commandList      = dxCommand_->getCommandList();
     int32_t componentIndex = 0;
 
     TextureEffectParam* effectParam = getComponent<TextureEffectParam>(_entity);
@@ -333,7 +335,7 @@ void EffectTexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
         paramBuff.SetForRootParameter(commandList, effectParameterBufferIndex_);
     }
 
-    Transform* entityTransfrom_ = getComponent<Transform>(_entity);
+    Transform* entityTransform_ = getComponent<Transform>(_entity);
     // model
     while (true) {
         ModelMeshRenderer* renderer = getComponent<ModelMeshRenderer>(_entity, componentIndex);
@@ -355,7 +357,7 @@ void EffectTexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
                 auto& transform = renderer->getTransformBuff(i);
 
                 if (transform->parent == nullptr) {
-                    transform->parent = entityTransfrom_;
+                    transform->parent = entityTransform_;
                 }
 
                 transform.openData_.Update();
@@ -424,7 +426,7 @@ void EffectTexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
             auto& transform = renderer->getTransformBuff();
 
             if (transform->parent == nullptr) {
-                transform->parent = entityTransfrom_;
+                transform->parent = entityTransform_;
             }
 
             transform.openData_.Update();
@@ -493,7 +495,7 @@ void EffectTexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
             auto& transform = renderer->getTransformBuff();
 
             if (transform->parent == nullptr) {
-                transform->parent = entityTransfrom_;
+                transform->parent = entityTransform_;
             }
 
             transform.openData_.Update();

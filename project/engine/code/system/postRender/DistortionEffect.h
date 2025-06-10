@@ -12,8 +12,6 @@
 #include "directX12/ShaderManager.h"
 
 class RenderTexture;
-class DxSrvArray;
-class DxRtvArray;
 class TexturedMeshRenderSystem;
 
 class DistortionEffect
@@ -32,9 +30,6 @@ protected:
     void CreatePSO();
 
 protected:
-    std::shared_ptr<DxSrvArray> srvArray_ = nullptr;
-    std::shared_ptr<DxRtvArray> rtvArray_ = nullptr;
-
     std::unique_ptr<RenderTexture> distortionSceneTexture_ = nullptr;
 
     //! TODO : 専用の描画を用意する.

@@ -6,9 +6,11 @@
 /// engine
 #define RESOURCE_DIRECTORY
 #include "EngineInclude.h"
+// directX12
+#include "directX12/DxDevice.h"
+// module
 #include "module/editor/EditorGroup.h"
 #include "module/editor/IEditor.h"
-
 /// lib
 #include "myFileSystem/MyFileSystem.h"
 

@@ -2,6 +2,8 @@
 
 /// engine
 #include "Engine.h"
+// directX12Object
+#include "directX12/DxDevice.h"
 // module
 #include "camera/CameraManager.h"
 #include "texture/TextureManager.h"
@@ -54,7 +56,7 @@ void SpriteRenderSystem::Update() {
     auto commandList = dxCommand_->getCommandList();
     for (auto& renderer : renderers_) {
         // ============================= テクスチャの設定 ============================= //
-        ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
+        ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
         commandList->SetDescriptorHeaps(1, ppHeaps);
         commandList->SetGraphicsRootDescriptorTable(
             1,

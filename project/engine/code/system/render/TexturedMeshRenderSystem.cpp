@@ -2,6 +2,8 @@
 
 /// engine
 #include "Engine.h"
+// directX12Object
+#include "directX12/DxDevice.h"
 // module
 #include "camera/CameraManager.h"
 #include "texture/TextureManager.h"
@@ -266,7 +268,7 @@ void TexturedMeshRenderSystem::LightUpdate() {
 void TexturedMeshRenderSystem::StartRender() {
     currentBlend_ = BlendMode::Alpha;
 
-    ID3D12GraphicsCommandList* commandList = dxCommand_->getCommandList();
+    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->getCommandList();
 
     commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
     commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
@@ -279,7 +281,7 @@ void TexturedMeshRenderSystem::StartRender() {
     LightManager::getInstance()->SetForRootParameter(
         commandList, lightCountBufferIndex_, directionalLightBufferIndex_, pointLightBufferIndex_, spotLightBufferIndex_);
 
-    ID3D12DescriptorHeap* ppHeaps[] = {DxHeap::getInstance()->getSrvHeap()};
+    ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
 
     /// 環境テクスチャ
@@ -298,12 +300,12 @@ void TexturedMeshRenderSystem::StartRender() {
 /// </summary>
 /// <param name="_entity">描画対象オブジェクト</param>
 void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
-    auto* commandList      = dxCommand_->getCommandList();
+    auto commandList      = dxCommand_->getCommandList();
     int32_t componentIndex = 0;
 
     //! TODO Rendering の 統一
 
-    Transform* entityTransfrom_ = getComponent<Transform>(_entity);
+    Transform* entityTransform_ = getComponent<Transform>(_entity);
     // model
     while (true) {
         ModelMeshRenderer* renderer = getComponent<ModelMeshRenderer>(_entity, componentIndex);
@@ -324,7 +326,7 @@ void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
             auto& transform = renderer->getTransformBuff();
 
             if (transform->parent == nullptr) {
-                transform->parent = entityTransfrom_;
+                transform->parent = entityTransform_;
             }
 
             transform.openData_.Update();
@@ -357,7 +359,7 @@ void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
             auto& transform = renderer->getTransformBuff();
 
             if (transform->parent == nullptr) {
-                transform->parent = entityTransfrom_;
+                transform->parent = entityTransform_;
             }
 
             transform.openData_.Update();
@@ -401,7 +403,7 @@ void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
             auto& transform = renderer->getTransformBuff();
 
             if (transform->parent == nullptr) {
-                transform->parent = entityTransfrom_;
+                transform->parent = entityTransform_;
             }
 
             transform.openData_.Update();
@@ -428,7 +430,7 @@ void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
 }
 
 void TexturedMeshRenderSystem::RenderingMesh(
-    ID3D12GraphicsCommandList* _commandList,
+    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList,
     const TextureMesh& _mesh,
     IConstantBuffer<Transform>& _transformBuff,
     IConstantBuffer<Material>& _materialBuff,
@@ -457,7 +459,7 @@ void TexturedMeshRenderSystem::RenderingMesh(
     _commandList->DrawIndexedInstanced(UINT(_mesh.getIndexSize()), 1, 0, 0, 0);
 }
 
-void TexturedMeshRenderSystem::RenderModelMesh(ID3D12GraphicsCommandList* _commandList, ModelMeshRenderer* _renderer) {
+void TexturedMeshRenderSystem::RenderModelMesh(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList, ModelMeshRenderer* _renderer) {
     // BlendMode を 適応
     BlendMode _rendererBlend = _renderer->getCurrentBlend();
     if (_rendererBlend != currentBlend_) {
@@ -498,7 +500,7 @@ void TexturedMeshRenderSystem::RenderModelMesh(ID3D12GraphicsCommandList* _comma
     }
 }
 
-void TexturedMeshRenderSystem::RenderPrimitiveMesh(ID3D12GraphicsCommandList* _commandList, PlaneRenderer* _renderer) {
+void TexturedMeshRenderSystem::RenderPrimitiveMesh(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList, PlaneRenderer* _renderer) {
     // BlendMode を 適応
     BlendMode rendererBlend = _renderer->getCurrentBlend();
     if (rendererBlend != currentBlend_) {
