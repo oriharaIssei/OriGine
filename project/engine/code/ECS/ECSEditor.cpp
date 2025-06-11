@@ -8,7 +8,11 @@
 #define RESOURCE_DIRECTORY
 #include "EngineInclude.h"
 #include "input/Input.h"
+// directX12
+#include "directX12/RenderTexture.h"
+
 // transform
+#include "component/renderer/MeshRenderer.h"
 #include "component/transform/Transform.h"
 // editor
 #include "module/editor/EditorController.h"
@@ -41,6 +45,7 @@ void ECSEditor::Update() {
 
     WorkerSystemList();
 
+    SelectEntityFromCursol();
     GuizmoEdit();
 }
 
@@ -614,6 +619,85 @@ void ECSEditor::PopupEntityLeaveWorkSystem(GameEntity* _entity, bool _isGroup) {
     }
 
     ImGui::End();
+}
+
+void ECSEditor::SelectEntityFromCursol() {
+    Input* input = Input::getInstance();
+
+    /// 左クリックが Release された時のみ処理を行う
+    if (!input->isReleaseMouseButton(MouseButton::LEFT)) {
+        return;
+    }
+
+    const Vec2f& mousePosition = input->getVirtualMousePos();
+    if (mousePosition[X] < 0 || mousePosition[Y] < 0) {
+        return; // マウスがウィンドウ外にある場合は無視
+    }
+    const Vec2f& windowSize = SceneManager::getInstance()->getSceneView()->getTextureSize();
+    if (mousePosition[X] > windowSize[X] || mousePosition[Y] > windowSize[Y]) {
+        return;
+    }
+
+    ECSManager* ecsManager = ECSManager::getInstance();
+
+    const CameraTransform& cameraTransform = CameraManager::getInstance()->getTransform();
+
+    Matrix4x4 vpvpvMat = cameraTransform.viewMat
+                         * cameraTransform.projectionMat
+                         * MakeMatrix::ViewPort(0.0f, 0.0f, windowSize[X], windowSize[Y], 0.0f, 1.0f);
+
+    auto transformArray = ecsManager->getComponentArray<Transform>();
+    // auto modelMeshRendererArray = ecsManager->getComponentArray<ModelMeshRenderer>();
+
+    static const float kCursolRadius = 10.0f; // カーソルの半径
+    std::list<std::pair<GameEntity*, float>> entityZDistanceList;
+    for (auto& [entityIndex, transformVecIndex] : transformArray->getEntityIndexBind()) {
+        GameEntity* entity = ecsManager->getEntity(entityIndex);
+        if (!entity || !entity->isAlive()) {
+            continue; // エンティティが存在しない、または生存していない場合はスキップ
+        }
+
+        auto transformVec = transformArray->getComponents(entity);
+        for (auto itr = transformVec->begin(); itr != transformVec->end(); ++itr) {
+            const Transform& transform = *itr;
+
+            // 画面上の位置を取得
+            Vec2f screenPos = WorldToScreen(transform.worldMat[3], vpvpvMat);
+            if (screenPos[X] < -kCursolRadius || screenPos[Y] < -kCursolRadius) {
+                continue; // 画面外のエンティティは無視
+            }
+            if (screenPos[X] > windowSize[X] + kCursolRadius || screenPos[Y] > windowSize[Y] + kCursolRadius) {
+                continue; // 画面外のエンティティは無視
+            }
+
+            // マウス位置との距離を計算
+            float distance = Vec2f(screenPos - mousePosition).lengthSq();
+
+            if (distance > kCursolRadius * kCursolRadius) {
+                continue; // カーソルの半径外は無視
+            }
+
+            // Z軸の距離を計算
+            float zDistance = transform.worldMat[3][Z] - cameraTransform.translate[Z];
+            zDistance       = std::abs(zDistance); // Z軸の距離は絶対値を取る
+
+            // 距離とエンティティをリストに追加
+            entityZDistanceList.emplace_back(entity, zDistance);
+        }
+    }
+
+    if (entityZDistanceList.empty()) {
+        return;
+    }
+    // Z軸の距離でソート
+    entityZDistanceList.sort([](const std::pair<GameEntity*, float>& a, const std::pair<GameEntity*, float>& b) {
+        return a.second < b.second; // Z軸の距離が近い順にソート
+    });
+    // 最も近いエンティティを選択
+    GameEntity* closestEntity = entityZDistanceList.front().first;
+    // 選択されたエンティティを編集対象に設定
+    auto command = std::make_unique<SelectEntityCommand>(this, closestEntity);
+    EditorController::getInstance()->pushCommand(std::move(command));
 }
 
 void ECSEditor::GuizmoEdit() {

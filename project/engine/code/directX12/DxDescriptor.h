@@ -126,7 +126,6 @@ public:
     void ReleaseDescriptor(std::shared_ptr<DescriptorType> _descriptor) {
         if (!_descriptor) {
             LOG_ERROR("DxDescriptorHeap::ReleaseDescriptor: Descriptor is null");
-            throw std::invalid_argument("Descriptor is null");
         }
 
         uint32_t index = static_cast<uint32_t>((_descriptor->getCpuHandle().ptr - heap_->GetCPUDescriptorHandleForHeapStart().ptr) / descriptorIncrementSize_);
