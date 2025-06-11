@@ -123,7 +123,7 @@ void RenderTexture::Initialize(int32_t _bufferCount, const Vec2f& textureSize, D
         /// ------------------------------------------------------------------
         ///  ResourceStateTracker の登録
         /// ------------------------------------------------------------------
-        ResourceStateTracker::RegisterReosurce(renderTarget.resource_.getResource(), D3D12_RESOURCE_STATE_RENDER_TARGET);
+        ResourceStateTracker::RegisterResource(renderTarget.resource_.getResource(), D3D12_RESOURCE_STATE_RENDER_TARGET);
     }
 
     std::wstring wName = ConvertString(textureName_);
@@ -183,7 +183,7 @@ void RenderTexture::Resize(const Vec2f& textureSize) {
         /// ------------------------------------------------------------------
         ///  ResourceStateTracker の登録
         /// ------------------------------------------------------------------
-        ResourceStateTracker::RegisterReosurce(renderTargets_[i].resource_.getResource(), D3D12_RESOURCE_STATE_RENDER_TARGET);
+        ResourceStateTracker::RegisterResource(renderTargets_[i].resource_.getResource(), D3D12_RESOURCE_STATE_RENDER_TARGET);
 
         renderTargets_[i].resource_.setName(wName + std::to_wstring(i));
     }

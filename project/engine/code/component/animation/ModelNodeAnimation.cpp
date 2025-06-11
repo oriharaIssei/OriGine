@@ -3,7 +3,7 @@
 /// engine
 #define RESOURCE_DIRECTORY
 #include "EngineInclude.h"
-#include "module/editor/EditorGroup.h"
+#include "module/editor/EditorController.h"
 // module
 #include "AnimationManager.h"
 
@@ -66,7 +66,7 @@ bool ModelNodeAnimation::Edit() {
                 duration_ = data_->duration;
             },true);
 
-            EditorGroup::getInstance()->pushCommand(std::move(commandCombo));
+            EditorController::getInstance()->pushCommand(std::move(commandCombo));
 
             isChange = true;
         }

@@ -32,7 +32,7 @@ void DxSwapChain::Initialize(const WinApp* winApp, const DxDevice* device, const
 
     Microsoft::WRL::ComPtr<IDXGISwapChain1> swapChain1;
     HRESULT result = device->getDxgiFactory()->CreateSwapChainForHwnd(
-        command->getCommandQueue(),
+        command->getCommandQueue().Get(),
         winApp->getHwnd(), // 描画対象のWindowのハンドル
         &swapchainDesc,
         nullptr,

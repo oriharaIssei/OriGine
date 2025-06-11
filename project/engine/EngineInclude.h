@@ -5,7 +5,7 @@
 #endif // ENGINE_INCLUDE
 
 #ifdef ENGINE_EDITOR
-#include "module/editor/EditorGroup.h"
+#include "module/editor/EditorController.h"
 #include "module/editor/IEditor.h"
 #endif // ENGINE_EDITOR
 

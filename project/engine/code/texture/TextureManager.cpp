@@ -238,6 +238,7 @@ void TextureManager::Finalize() {
     for (auto& texture : textures_) {
         if (texture != nullptr) {
             texture->Finalize();
+            texture.reset();
         }
     }
 }

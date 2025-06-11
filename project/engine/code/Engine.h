@@ -26,7 +26,6 @@ class DxSwapChain;
 #include "deltaTime/DeltaTime.h"
 
 class Engine {
-    friend class PrimitiveDrawer;
 
 public:
     static Engine* getInstance();
@@ -51,6 +50,7 @@ private:
     const Engine& operator=(const Engine&) = delete;
 
     void CreateDsv();
+
 private:
     // api
     std::unique_ptr<WinApp> window_;

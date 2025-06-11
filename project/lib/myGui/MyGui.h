@@ -6,7 +6,7 @@
 #include <string>
 
 /// engine
-#include "module/editor/EditorGroup.h"
+#include "module/editor/EditorController.h"
 #include "module/editor/IEditor.h"
 
 /// lib
@@ -34,6 +34,7 @@ private:
 
 public:
     void setValue(const std::string& name, const T& value) {
+        // 値がすでに存在する場合は何もしない
         auto it = value_.find(name);
         if (it != value_.end()) {
             return;
@@ -195,7 +196,7 @@ bool DragGuiCommand(const std::string& label, T& value, float speed = 0.1f, T mi
     } else if (ImGui::IsItemDeactivatedAfterEdit()) {
         T newValue = value;
         value      = valuePool.popValue(label);
-        EditorGroup::getInstance()->pushCommand(std::make_unique<SetterCommand<T>>(&value, newValue, _afterFunc));
+        EditorController::getInstance()->pushCommand(std::make_unique<SetterCommand<T>>(&value, newValue, _afterFunc));
         return true;
     }
 
@@ -212,7 +213,7 @@ bool DragGuiVectorCommand(const std::string& label, Vector<N, T>& value, float s
     } else if (ImGui::IsItemDeactivatedAfterEdit()) {
         Vector<N, T> newValue = value;
         value                 = valuePool.popValue(label);
-        EditorGroup::getInstance()->pushCommand(std::make_unique<SetterCommand<Vector<N, T>>>(&value, newValue, _afterFunc));
+        EditorController::getInstance()->pushCommand(std::make_unique<SetterCommand<Vector<N, T>>>(&value, newValue, _afterFunc));
         return true;
     }
 
@@ -230,7 +231,7 @@ bool SlideCommand(const std::string& label, T& value, T min = T(), T max = T(), 
     } else if (ImGui::IsItemDeactivatedAfterEdit()) {
         T newValue = value;
         value      = valuePool.popValue(label);
-        EditorGroup::getInstance()->pushCommand(std::make_unique<SetterCommand<T>>(&value, newValue, _afterFunc));
+        EditorController::getInstance()->pushCommand(std::make_unique<SetterCommand<T>>(&value, newValue, _afterFunc));
         return true;
     }
 
@@ -248,7 +249,7 @@ bool SlideVectorCommand(const std::string& label, Vector<N, T>& value, T min = T
     } else if (ImGui::IsItemDeactivatedAfterEdit()) {
         Vector<N, T> newValue = value;
         value                 = valuePool.popValue(label);
-        EditorGroup::getInstance()->pushCommand(std::make_unique<SetterCommand<Vector<N, T>>>(&value, newValue, _afterFunc));
+        EditorController::getInstance()->pushCommand(std::make_unique<SetterCommand<Vector<N, T>>>(&value, newValue, _afterFunc));
         return true;
     }
 
@@ -266,7 +267,7 @@ bool InputGuiCommand(const std::string& label, T& value, const char* format = "%
     } else if (ImGui::IsItemDeactivatedAfterEdit()) {
         T newValue = value;
         value      = valuePool.popValue(label);
-        EditorGroup::getInstance()->pushCommand(std::make_unique<SetterCommand<T>>(&value, newValue, _afterFunc));
+        EditorController::getInstance()->pushCommand(std::make_unique<SetterCommand<T>>(&value, newValue, _afterFunc));
         return true;
     }
 
@@ -283,7 +284,7 @@ bool InputVectorGuiCommand(const std::string& label, Vector<N, T>& value, const 
     } else if (ImGui::IsItemDeactivatedAfterEdit()) {
         Vector<N, T> newValue = value;
         value                 = valuePool.popValue(label);
-        EditorGroup::getInstance()->pushCommand(std::make_unique<SetterCommand<Vector<N, T>>>(&value, newValue, _afterFunc));
+        EditorController::getInstance()->pushCommand(std::make_unique<SetterCommand<Vector<N, T>>>(&value, newValue, _afterFunc));
         return true;
     }
 
@@ -316,7 +317,7 @@ bool ColorEditGuiCommand(const std::string& label, Vector<N, float>& value, std:
     } else if (ImGui::IsItemDeactivatedAfterEdit()) {
         Vector<N, float> newValue = value;
         value                     = valuePool.popValue(label);
-        EditorGroup::getInstance()->pushCommand(std::make_unique<SetterCommand<Vector<N, float>>>(&value, newValue, _afterFunc));
+        EditorController::getInstance()->pushCommand(std::make_unique<SetterCommand<Vector<N, float>>>(&value, newValue, _afterFunc));
         return true;
     }
 

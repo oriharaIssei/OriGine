@@ -51,15 +51,8 @@ public:
 
 private:
     static std::shared_ptr<spdlog::logger> logger_;
-    static DxDebug* dxDebug_;
 
 public:
-    static void setDxDebug(DxDebug* dxDebug) {
-        dxDebug_ = dxDebug;
-    }
-    static DxDebug* getDxDebug() {
-        return dxDebug_;
-    }
 };
 
 // マクロで簡略化

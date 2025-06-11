@@ -11,8 +11,16 @@
 /// </summary>
 class ResourceStateTracker {
 public:
-    static void RegisterReosurce(Microsoft::WRL::ComPtr<ID3D12Resource> resource, D3D12_RESOURCE_STATES initialState) {
+    static void RegisterResource(Microsoft::WRL::ComPtr<ID3D12Resource> resource, D3D12_RESOURCE_STATES initialState) {
         globalResourceStates_[resource.Get()] = initialState;
+    }
+
+    static void UnregisterResource(ID3D12Resource* resource) {
+        globalResourceStates_.erase(resource);
+    }
+
+    static void ClearGlobalResourceStates() {
+        globalResourceStates_.clear();
     }
 
 private:

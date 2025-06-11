@@ -27,7 +27,7 @@ class EntityComponentSystemManager;
 class GameEntity;
 
 #ifdef _DEBUG
-class EditorGroup;
+class EditorController;
 class DebuggerGroup;
 #endif // _DEBUG
 
@@ -68,8 +68,8 @@ private:
     bool isExitGame_ = false;
 
 #ifdef _DEBUG
-    EditorGroup* editorGroup_     = nullptr;
-    DebuggerGroup* debuggerGroup_ = nullptr;
+    EditorController* editorController_ = nullptr;
+    DebuggerGroup* debuggerGroup_       = nullptr;
 
     int32_t playIcon_        = 0;
     int32_t rePlayIcon_      = 0;

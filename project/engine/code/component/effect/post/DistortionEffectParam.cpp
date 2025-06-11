@@ -62,7 +62,7 @@ bool DistortionEffectParam::Edit() {
                     bool isSelected          = newObjectType == selectType;
 
                     if (ImGui::Selectable(PrimitiveTypeToString(selectType), isSelected)) {
-                        EditorGroup::getInstance()->pushCommand(
+                        EditorController::getInstance()->pushCommand(
                             std::make_unique<SetterCommand<PrimitiveType>>(&newObjectType, selectType));
                     }
                     if (isSelected) {
@@ -90,7 +90,7 @@ bool DistortionEffectParam::Edit() {
 
                     auto command = std::make_unique<AddElementCommand<std::vector<std::pair<std::shared_ptr<PrimitiveMeshRendererBase>, PrimitiveType>>>>(
                         &distortionObjects_, std::make_pair(newObject, newObjectType));
-                    EditorGroup::getInstance()->pushCommand(std::move(command));
+                    EditorController::getInstance()->pushCommand(std::move(command));
                     isChanged = true;
                 }
                 ImGui::CloseCurrentPopup();
@@ -102,7 +102,7 @@ bool DistortionEffectParam::Edit() {
             objectNodeName = "Distortion Object_" + std::string(PrimitiveTypeToString(type)) + std::to_string(objectIndex);
             if (ImGui::Button(std::string("X##" + objectNodeName).c_str())) {
                 auto command = std::make_unique<EraseElementCommand<std::vector<std::pair<std::shared_ptr<PrimitiveMeshRendererBase>, PrimitiveType>>>>(&distortionObjects_, distortionObjects_.begin() + objectIndex);
-                EditorGroup::getInstance()->pushCommand(std::move(command));
+                EditorController::getInstance()->pushCommand(std::move(command));
                 isChanged = true;
                 continue;
             }

@@ -236,7 +236,7 @@ bool TextureEffectParam::Edit() {
             newFlag = effectParamData_->effectFlag & ~(int32_t)TextureEffectParamData::EffectFlag::Dissolve;
         }
         auto command = std::make_unique<SetterCommand<int32_t>>(&effectParamData_->effectFlag, newFlag);
-        EditorGroup::getInstance()->pushCommand(std::move(command));
+        EditorController::getInstance()->pushCommand(std::move(command));
 
         isChange = true;
     }
@@ -249,7 +249,7 @@ bool TextureEffectParam::Edit() {
             newFlag = effectParamData_->effectFlag & ~(int32_t)TextureEffectParamData::EffectFlag::Distortion;
         }
         auto command = std::make_unique<SetterCommand<int32_t>>(&effectParamData_->effectFlag, newFlag);
-        EditorGroup::getInstance()->pushCommand(std::move(command));
+        EditorController::getInstance()->pushCommand(std::move(command));
 
         isChange = true;
     }
@@ -262,7 +262,7 @@ bool TextureEffectParam::Edit() {
             newFlag = effectParamData_->effectFlag & ~(int32_t)TextureEffectParamData::EffectFlag::Mask;
         }
         auto command = std::make_unique<SetterCommand<int32_t>>(&effectParamData_->effectFlag, newFlag);
-        EditorGroup::getInstance()->pushCommand(std::move(command));
+        EditorController::getInstance()->pushCommand(std::move(command));
 
         isChange = true;
     }
@@ -296,7 +296,7 @@ bool TextureEffectParam::Edit() {
                     },
                         true);
 
-                    EditorGroup::getInstance()->pushCommand(std::move(commandCombo));
+                    EditorController::getInstance()->pushCommand(std::move(commandCombo));
                     isChange = true;
                 }
             }
@@ -356,7 +356,7 @@ bool TextureEffectParam::Edit() {
                         distortionTexIndex_ = TextureManager::LoadTexture(distortionTexPath_);
                     },
                         true);
-                    EditorGroup::getInstance()->pushCommand(std::move(commandCombo));
+                    EditorController::getInstance()->pushCommand(std::move(commandCombo));
 
                     isChange = true;
                 }
@@ -412,7 +412,7 @@ bool TextureEffectParam::Edit() {
                         maskTexIndex_ = TextureManager::LoadTexture(maskTexPath_);
                     },
                         true);
-                    EditorGroup::getInstance()->pushCommand(std::move(commandCombo));
+                    EditorController::getInstance()->pushCommand(std::move(commandCombo));
                     isChange = true;
                 }
             }

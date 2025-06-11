@@ -13,7 +13,7 @@
 
 #define RESOURCE_DIRECTORY
 #include "engine/EngineInclude.h"
-#include "module/editor/EditorGroup.h"
+#include "module/editor/EditorController.h"
 #include "module/editor/IEditor.h"
 
 /// lib
@@ -182,7 +182,7 @@ bool ModelMeshRenderer::Edit() {
             isSelected = blendModeName == blendModeStr[(int32_t)currentBlend_];
 
             if (ImGui::Selectable(blendModeName.c_str(), isSelected)) {
-                EditorGroup::getInstance()->pushCommand(
+                EditorController::getInstance()->pushCommand(
                     std::make_unique<SetterCommand<BlendMode>>(&currentBlend_, static_cast<BlendMode>(blendIndex)));
                 isChange = true;
                 break;
@@ -210,7 +210,7 @@ bool ModelMeshRenderer::Edit() {
                 CreateModelMeshRenderer(this, this->hostEntity_, this->directory_, this->fileName_);
             },
                 true);
-            EditorGroup::getInstance()->pushCommand(std::make_unique<CommandCombo>(commandCombo));
+            EditorController::getInstance()->pushCommand(std::make_unique<CommandCombo>(commandCombo));
 
             isChange = true;
         }
@@ -247,7 +247,7 @@ bool ModelMeshRenderer::Edit() {
                         meshTextureNumbers_[i] = TextureManager::LoadTexture(textureFilePath_[i]);
                     },
                         true);
-                    EditorGroup::getInstance()->pushCommand(std::make_unique<CommandCombo>(commandCombo));
+                    EditorController::getInstance()->pushCommand(std::make_unique<CommandCombo>(commandCombo));
 
                     isChange = true;
                 }
@@ -500,7 +500,7 @@ bool LineRenderer::Edit() {
     if (ImGui::Button("AddLine")) {
 
         auto command = std::make_unique<AddLineCommand>(meshGroup_);
-        EditorGroup::getInstance()->pushCommand(std::move(command));
+        EditorController::getInstance()->pushCommand(std::move(command));
 
         isChange = true;
     }

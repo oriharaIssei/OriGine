@@ -163,6 +163,8 @@ void Engine::Finalize() {
     ModelManager::getInstance()->Finalize();
     TextureManager::Finalize();
 
+    dsvResource_.Finalize();
+
     dxSwapChain_->Finalize();
     dxCommand_->Finalize();
     DxCommand::ResetAll();
@@ -172,11 +174,12 @@ void Engine::Finalize() {
     rtvHeap_->Finalize();
     srvHeap_->Finalize();
 
-
     dxDevice_->Finalize();
 
     input_->Finalize();
     Audio::StaticFinalize();
+
+    ResourceStateTracker::ClearGlobalResourceStates();
 }
 
 bool Engine::ProcessMessage() {

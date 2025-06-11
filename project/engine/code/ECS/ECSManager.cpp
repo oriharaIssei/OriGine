@@ -3,7 +3,7 @@
 /// engine
 // module
 #include "camera/CameraManager.h"
-#include "module/editor/EditorGroup.h"
+#include "module/editor/EditorController.h"
 #include "sceneManager/SceneManager.h"
 // dx12Object
 #include "engine/code/directX12/RenderTexture.h"

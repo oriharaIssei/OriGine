@@ -22,8 +22,7 @@ std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D12CommandQueue>> DxCo
 DxCommand::DxCommand() {
 }
 
-DxCommand::~DxCommand() {
-}
+DxCommand::~DxCommand() {}
 
 bool DxCommand::CreateCommandListWithAllocator(Microsoft::WRL::ComPtr<ID3D12Device> device, const std::string& listAndAllocatorKey, D3D12_COMMAND_LIST_TYPE listType) {
     LOG_DEBUG("Create CommandList : " + listAndAllocatorKey);
@@ -222,14 +221,14 @@ void DxCommand::Finalize() {
     LOG_DEBUG(std::format("CommandQueue     Name {} RefCount : {}", commandQueueKey_, queueRefCount));
 
     ///=====================================================
-    // それぞれの ComPtr の参照カウントを確認して削除 (＝＝ 1 なのは 保持しているインスタンス分)
+    // それぞれの ComPtr の参照カウントを確認して削除 (＝＝ 2 なのは this + static)
     ///=====================================================
-    if (commandList_ && getRefCount(commandList_.Get()) == 1) {
+    if (commandList_ && getRefCount(commandList_.Get()) == 2) {
         LOG_DEBUG("Delete CommandList : " + commandListComboKey_);
         commandListComboMap_.erase(commandListComboKey_);
     }
 
-    if (commandQueue_ && getRefCount(commandQueue_.Get()) == 1) {
+    if (commandQueue_ && getRefCount(commandQueue_.Get()) == 2) {
         LOG_DEBUG("Delete CommandQueue : " + commandQueueKey_);
         commandQueueMap_.erase(commandQueueKey_);
     }

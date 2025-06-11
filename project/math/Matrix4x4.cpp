@@ -92,6 +92,38 @@ Matrix4x4 Matrix4x4::Inverse(const Matrix4x4& m) {
     inverse.XMMATRIXToMatrix(DirectX::XMMatrixInverse(&det, thisMat));
     return inverse;
 }
+void Matrix4x4::ToFloatArray(const Matrix4x4& mat, float out[16]) {
+    for (int row = 0; row < 4; ++row) {
+        for (int col = 0; col < 4; ++col) {
+            out[col + row * 4] = mat.m[row][col]; // 行優先
+        }
+    }
+}
+void Matrix4x4::FromFloatArray(Matrix4x4& mat, const float in[16]) {
+    for (int row = 0; row < 4; ++row) {
+        for (int col = 0; col < 4; ++col) {
+            mat.m[row][col] = in[col + row * 4];
+        }
+    }
+}
+
+void Matrix4x4::DecomposeMatrixToComponents(const Matrix4x4& mat, Vec3f& outScale, Quaternion& outRotate, Vec3f& outTranslate) {
+    DirectX::XMMATRIX xmMat = DirectX::XMLoadFloat4x4(reinterpret_cast<const DirectX::XMFLOAT4X4*>(&mat));
+    DirectX::XMVECTOR scale, rotQuat, trans;
+    if (XMMatrixDecompose(&scale, &rotQuat, &trans, xmMat)) {
+        DirectX::XMStoreFloat3(reinterpret_cast<DirectX::XMFLOAT3*>(&outScale), scale);
+        DirectX::XMStoreFloat3(reinterpret_cast<DirectX::XMFLOAT3*>(&outTranslate), trans);
+        DirectX::XMFLOAT4 q;
+        XMStoreFloat4(&q, rotQuat);
+        outRotate = Quaternion(q.x, q.y, q.z, q.w);
+    } else {
+        // 失敗時は単位値をセット
+        outScale     = Vec3f(1, 1, 1);
+        outRotate    = Quaternion(0, 0, 0, 1);
+        outTranslate = Vec3f(0, 0, 0);
+    }
+}
+
 const Matrix4x4 MakeMatrix::Identity() {
     return Matrix4x4({1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f});
 }
@@ -139,10 +171,10 @@ Matrix4x4 MakeMatrix::RotateQuaternion(const Quaternion& q) {
     float w2 = q.v[W] * q.v[W];
 
     return Matrix4x4(
-        {(w2 + x2 - y2 - z2), 2.0f * (xy + wz)   , 2.0f * (xz - wy)   , 0.0f,
-            2.0f * (xy - wz), (w2 - x2 + y2 - z2), 2.0f * (yz + wx)   , 0.0f,
-            2.0f * (xz + wy), 2.0f * (yz - wx)   , (w2 - x2 - y2 + z2), 0.0f,
-                        0.0f,                0.0f,                0.0f, 1.0f});
+        {(w2 + x2 - y2 - z2), 2.0f * (xy + wz), 2.0f * (xz - wy), 0.0f,
+            2.0f * (xy - wz), (w2 - x2 + y2 - z2), 2.0f * (yz + wx), 0.0f,
+            2.0f * (xz + wy), 2.0f * (yz - wx), (w2 - x2 - y2 + z2), 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f});
 }
 
 Matrix4x4 MakeMatrix::RotateAxisAngle(const Vec3f& axis, float angle) {

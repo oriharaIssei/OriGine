@@ -8,7 +8,7 @@ class DxFence {
 public:
     void Initialize(Microsoft::WRL::ComPtr<ID3D12Device> device);
     void Finalize();
-    void Signal(ID3D12CommandQueue* commandQueue);
+    void Signal(Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue);
     void WaitForFence();
 
 private:
@@ -17,5 +17,6 @@ private:
     HANDLE fenceEvent_;
 
 public:
-    ID3D12Fence* getFence() const { return fence_.Get(); }
+    const Microsoft::WRL::ComPtr<ID3D12Fence>& getFence() const { return fence_; }
+    Microsoft::WRL::ComPtr<ID3D12Fence>& getFenceRef() { return fence_; }
 };

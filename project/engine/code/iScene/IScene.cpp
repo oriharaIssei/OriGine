@@ -38,6 +38,6 @@ void SceneFinalize() {
     ecsManager->ExecuteEntitiesDelete();
 
 #ifdef _DEBUG
-    EditorGroup::getInstance()->clearCommandHistory();
+    EditorController::getInstance()->clearCommandHistory();
 #endif // _DEBUG
 }
