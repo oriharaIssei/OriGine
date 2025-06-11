@@ -600,4 +600,7 @@ inline void removeUniqueEntity(const std::string& _dataTypeName) {
     ECSManager::getInstance()->removeUniqueEntity(_dataTypeName);
 }
 
+nlohmann::json EntityToJson(GameEntity* _entity);
+GameEntity* EntityFromJson(const nlohmann::json& _jsonData);
+
 void DestroyEntity(GameEntity* _entity);
