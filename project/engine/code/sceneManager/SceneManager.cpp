@@ -171,7 +171,7 @@ void SceneManager::DebugUpdate() {
         // Editor / DebuggerGroup
         ///=================================================================================================
         switch (currentSceneState_) {
-        case SceneManager::SceneState::Edit:
+        case SceneManager::SceneState::Edit: {
             ///=================================================================================================
             // MainMenuBar
             ///=================================================================================================
@@ -334,7 +334,8 @@ void SceneManager::DebugUpdate() {
             CameraManager::getInstance()->DebugUpdate();
 
             break;
-        case SceneManager::SceneState::Debug:
+        }
+        case SceneManager::SceneState::Debug: {
             if (ImGui::BeginMainMenuBar()) {
                 if (ImGui::BeginMenu("Debug")) {
                     if (ImGui::BeginMenu("DebuggerGroup")) {
@@ -425,6 +426,7 @@ void SceneManager::DebugUpdate() {
             debuggerGroup_->Update();
 
             break;
+        }
         default:
             break;
         }

@@ -206,7 +206,11 @@ public:
         return meshTextureNumbers_[_meshIndex];
     }
     void setTexture(int32_t _meshIndex, const std::string& _filename) {
-        textureFilePath_[_meshIndex]    = _filename;
+        textureFilePath_[_meshIndex] = _filename;
+        if (_filename.empty()) {
+            meshTextureNumbers_[_meshIndex] = 0;
+            return;
+        }
         meshTextureNumbers_[_meshIndex] = TextureManager::LoadTexture(textureFilePath_[_meshIndex]);
     }
 };
