@@ -50,6 +50,7 @@ private:
     /// <param name="_entity"></param>
     void PopupEntityLeaveWorkSystem(GameEntity* _entity, bool _isGroup);
 
+    void SelectEntityFromCursol();
     void GuizmoEdit();
 
 private:
