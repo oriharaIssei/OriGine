@@ -30,27 +30,19 @@ Matrix4x4 Matrix4x4::operator-(const Matrix4x4& another) const {
 }
 
 Matrix4x4 Matrix4x4::operator*(const Matrix4x4& another) const {
+    auto thisMat    = this->matrixToXMMATRIX();
+    auto anotherMat = another.matrixToXMMATRIX();
 
-    Matrix4x4 result;
+    DirectX::XMMATRIX result = DirectX::XMMatrixMultiply(thisMat, anotherMat);
 
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++) {
-            result.m[i][j] =
-                (m[i][0] * another.m[0][j]) + (m[i][1] * another.m[1][j]) + (m[i][2] * another.m[2][j]) + (m[i][3] * another.m[3][j]);
-        }
-    }
-
-    return result;
+    return Matrix4x4::XMMATRIXToMatrix(result);
 }
 
 Matrix4x4 Matrix4x4::operator*(const float& scalar) const {
-    Matrix4x4 result;
-    for (int row = 0; row < 4; row++) {
-        for (int col = 0; col < 4; col++) {
-            result.m[row][col] = this->m[row][col] * scalar;
-        }
-    }
-    return result;
+    DirectX::XMMATRIX thisMat   = this->matrixToXMMATRIX();
+    DirectX::XMMATRIX resultMat = DirectX::XMMatrixMultiply(thisMat, DirectX::XMMatrixScaling(scalar, scalar, scalar));
+
+    return XMMATRIXToMatrix(resultMat);
 }
 
 Matrix4x4* Matrix4x4::operator*=(const Matrix4x4& another) {
@@ -79,17 +71,17 @@ Matrix4x4 Matrix4x4::Transpose(const Matrix4x4& m) {
 }
 
 Matrix4x4 Matrix4x4::inverse() const {
-    DirectX::XMMATRIX thisMat = MatrixToXMMATRIX();
+    DirectX::XMMATRIX thisMat = matrixToXMMATRIX();
     DirectX::XMVECTOR det     = DirectX::XMMatrixDeterminant(thisMat);
     Matrix4x4 inverse;
-    inverse.XMMATRIXToMatrix(DirectX::XMMatrixInverse(&det, thisMat));
+    inverse.xmmatrixToMatrix(DirectX::XMMatrixInverse(&det, thisMat));
     return inverse;
 }
 Matrix4x4 Matrix4x4::Inverse(const Matrix4x4& m) {
-    DirectX::XMMATRIX thisMat = m.MatrixToXMMATRIX();
+    DirectX::XMMATRIX thisMat = m.matrixToXMMATRIX();
     DirectX::XMVECTOR det     = DirectX::XMMatrixDeterminant(thisMat);
     Matrix4x4 inverse;
-    inverse.XMMATRIXToMatrix(DirectX::XMMatrixInverse(&det, thisMat));
+    inverse.xmmatrixToMatrix(DirectX::XMMatrixInverse(&det, thisMat));
     return inverse;
 }
 void Matrix4x4::ToFloatArray(const Matrix4x4& mat, float out[16]) {
@@ -200,14 +192,13 @@ Matrix4x4 MakeMatrix::Affine(const Vec3f& scale, const Quaternion& rotate, const
 }
 
 Vec3f TransformVector(const Vec3f& vec, const Matrix4x4& matrix) {
-    float result[4] = {0.0f, 0.0f, 0.0f, 0.0f};
-    float hcs[4]    = {vec[X], vec[Y], vec[Z], 1.0f};
+    DirectX::XMVECTOR vecXM = DirectX::XMVectorSet(vec[X], vec[Y], vec[Z], 1.0f); // w=1
+    DirectX::XMMATRIX matXM = matrix.matrixToXMMATRIX();
 
-    for (int r = 0; r < 4; r++) {
-        for (int c = 0; c < 4; c++) {
-            result[r] += hcs[c] * matrix[c][r];
-        }
-    }
+    DirectX::XMVECTOR resultXM = DirectX::XMVector4Transform(vecXM, matXM);
+
+    float result[4];
+    DirectX::XMStoreFloat4(reinterpret_cast<DirectX::XMFLOAT4*>(result), resultXM);
 
     assert(result[3] != 0.0f);
     return Vec3f(result[0] / result[3], result[1] / result[3], result[2] / result[3]);
@@ -222,6 +213,14 @@ Vec3f TransformNormal(const Vec3f& v, const Matrix4x4& m) {
     };
 
     return result;
+}
+
+Vec2f WorldToScreen(const Vec3f& _worldPos, const Matrix4x4& _vpvpvMat) {
+    // ワールド座標をビュー変換
+    // ビュー空間からスクリーン空間へ変換
+    Vec3f screenSpace = TransformVector(_worldPos, _vpvpvMat);
+
+    return Vec2f(screenSpace[X], screenSpace[Y]);
 }
 
 Matrix4x4 MakeMatrix::PerspectiveFov(const float& fovY, const float& aspectRatio, const float& nearClip, const float& farClip) {

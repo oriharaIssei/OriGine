@@ -61,15 +61,20 @@ struct Matrix4x4 {
         DecomposeMatrixToComponents(*this, outScale, outRotate, outTranslate);
     }
 
-private:
-    DirectX::XMMATRIX MatrixToXMMATRIX() const {
-        return DirectX::XMLoadFloat4x4(reinterpret_cast<const DirectX::XMFLOAT4X4*>(this));
+    static DirectX::XMMATRIX MatrixToXMMATRIX(const Matrix4x4& _mat) {
+        return DirectX::XMLoadFloat4x4(reinterpret_cast<const DirectX::XMFLOAT4X4*>(&_mat));
+    }
+    DirectX::XMMATRIX matrixToXMMATRIX() const {
+        return MatrixToXMMATRIX(*this);
     }
 
-    Matrix4x4*
-    XMMATRIXToMatrix(const DirectX::XMMATRIX& xmmat) {
-        XMStoreFloat4x4(reinterpret_cast<DirectX::XMFLOAT4X4*>(this), xmmat);
-        return this;
+    static Matrix4x4 XMMATRIXToMatrix(const DirectX::XMMATRIX& _xmmat) {
+        Matrix4x4 result{};
+        XMStoreFloat4x4(reinterpret_cast<DirectX::XMFLOAT4X4*>(&result), _xmmat);
+        return result;
+    }
+    void xmmatrixToMatrix(const DirectX::XMMATRIX& _xmmat) {
+        *this = XMMATRIXToMatrix(_xmmat);
     }
 };
 
@@ -105,3 +110,5 @@ inline Vec3f operator*(const Vec3f& vec, const Matrix4x4& matrix) {
 }
 
 Vec3f TransformNormal(const Vec3f& v, const Matrix4x4& m);
+
+Vec2f WorldToScreen(const Vec3f& _worldPos, const Matrix4x4& _vpvpvMat);
