@@ -300,7 +300,7 @@ void TexturedMeshRenderSystem::StartRender() {
 /// </summary>
 /// <param name="_entity">描画対象オブジェクト</param>
 void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
-    auto commandList      = dxCommand_->getCommandList();
+    auto& commandList      = dxCommand_->getCommandList();
     int32_t componentIndex = 0;
 
     //! TODO Rendering の 統一

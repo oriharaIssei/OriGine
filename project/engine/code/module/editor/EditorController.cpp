@@ -43,7 +43,7 @@ void EditorController::ExecuteCommandRequests() {
         // command を実行
         command->Execute();
 
-        // coomand を history に追加
+        // command を history に追加
         commandHistory_.erase(currentCommandItr_, commandHistory_.end());
         commandHistory_.push_back(std::move(command));
         currentCommandItr_ = commandHistory_.end();

@@ -175,6 +175,10 @@ void SceneManager::DebugUpdate() {
             ///=================================================================================================
             // MainMenuBar
             ///=================================================================================================
+            auto SaveScene = [&]() {
+                SceneSerializer serializer;
+                serializer.Serialize(currentSceneName_);
+            };
             if (ImGui::BeginMainMenuBar()) {
                 /// ------------------------
                 // Scene
@@ -243,8 +247,7 @@ void SceneManager::DebugUpdate() {
                     }
                     if (ImGui::MenuItem("Save")) {
                         // シーンの保存
-                        SceneSerializer serializer;
-                        serializer.Serialize(currentSceneName_);
+                        SaveScene();
                     }
                     if (ImGui::MenuItem("Reload")) {
                         this->changeScene(currentSceneName_);
@@ -289,6 +292,12 @@ void SceneManager::DebugUpdate() {
                     ImGui::EndMenu();
                 }
                 ImGui::EndMainMenuBar();
+            }
+
+            Input* input = Input::getInstance();
+            if (input->isPressKey(Key::L_CTRL) && input->isTriggerKey(Key::S)) {
+                // Ctrl + S でシーンを保存
+                SaveScene();
             }
 
             if (ImGui::Begin("Debugger")) {

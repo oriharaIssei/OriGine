@@ -7,6 +7,7 @@
 #include "sceneManager/SceneManager.h"
 #define RESOURCE_DIRECTORY
 #include "EngineInclude.h"
+#include "input/Input.h"
 // transform
 #include "component/transform/Transform.h"
 // editor
@@ -629,7 +630,9 @@ void ECSEditor::GuizmoEdit() {
     }
 
     Transform* transform = getComponent<Transform>(editEntity_);
-
+    if (!transform) {
+        return;
+    }
     /// ==========================================
     // Guizmo Edit
 
@@ -644,6 +647,46 @@ void ECSEditor::GuizmoEdit() {
 
     // ギズモの操作タイプ
     static ImGuizmo::OPERATION currentGizmoOperation = ImGuizmo::TRANSLATE | ImGuizmo::SCALE | ImGuizmo::ROTATE;
+
+    [](ImGuizmo::OPERATION& _currentGizmoOperation) {
+        Input* input = Input::getInstance();
+        if (input->isPressKey(Key::L_SHIFT)) {
+            if (input->isPressKey(Key::S)) {
+                if (input->isPressKey(Key::X)) {
+                    _currentGizmoOperation = ImGuizmo::SCALE_X;
+                } else if (input->isPressKey(Key::Y)) {
+                    _currentGizmoOperation = ImGuizmo::SCALE_Y;
+                } else if (input->isPressKey(Key::Z)) {
+                    _currentGizmoOperation = ImGuizmo::SCALE_Z;
+                } else {
+                    _currentGizmoOperation = ImGuizmo::SCALE; // Shift + S でスケール
+                }
+            } else if (input->isPressKey(Key::R)) {
+                if (input->isPressKey(Key::X)) {
+                    _currentGizmoOperation = ImGuizmo::ROTATE_X;
+                } else if (input->isPressKey(Key::Y)) {
+                    _currentGizmoOperation = ImGuizmo::ROTATE_Y;
+                } else if (input->isPressKey(Key::Z)) {
+                    _currentGizmoOperation = ImGuizmo::ROTATE_Z;
+                } else {
+                    _currentGizmoOperation = ImGuizmo::ROTATE; // Shift + R で回転
+                }
+            } else if (input->isPressKey(Key::T)) {
+                if (input->isPressKey(Key::X)) {
+                    _currentGizmoOperation = ImGuizmo::TRANSLATE_X;
+                } else if (input->isPressKey(Key::Y)) {
+                    _currentGizmoOperation = ImGuizmo::TRANSLATE_Y;
+                } else if (input->isPressKey(Key::Z)) {
+                    _currentGizmoOperation = ImGuizmo::TRANSLATE_Z;
+                } else {
+                    _currentGizmoOperation = ImGuizmo::TRANSLATE; // Shift + T で移動
+                }
+            }
+
+        } else {
+            _currentGizmoOperation = ImGuizmo::TRANSLATE | ImGuizmo::SCALE | ImGuizmo::ROTATE;
+        }
+    }(currentGizmoOperation);
 
     // ギズモの描画・操作
     if (ImGuizmo::Manipulate(
