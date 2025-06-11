@@ -4,8 +4,10 @@
 #include <Engine.h>
 
 #ifdef _DEBUG
-#include "imgui/imgui.h"
+#include "camera/CameraManager.h"
+
 #include "mygui/MyGui.h"
+#include <imgui/ImGuizmo/ImGuizmo.h>
 #endif // _DEBUG
 
 Transform::Transform() {}
@@ -28,12 +30,12 @@ bool Transform::Edit() {
 #ifdef _DEBUG
     bool isChange = false;
     // --------------------------- scale --------------------------- //
-    isChange |= DragGuiVectorCommand<3, float>("Scale", this->scale, 0.01f);
+    isChange |= DragGuiVectorCommand<3, float>("Scale", this->scale, 0.01f, {}, {}, "%.3f", [this](Vector<3, float>* /*_s*/) { this->Update(); });
     // --------------------------- rotate --------------------------- //
-    isChange |= DragGuiVectorCommand<4, float>("Rotate", this->rotate, 0.01f, {}, {}, "%.3f", [](Vector<4, float>* _r) { *_r = Quaternion::Normalize(*_r); });
+    isChange |= DragGuiVectorCommand<4, float>("Rotate", this->rotate, 0.01f, {}, {}, "%.3f", [this](Vector<4, float>* _r) { *_r = Quaternion::Normalize(*_r);this->Update(); });
     this->rotate = Quaternion::Normalize(this->rotate);
     // --------------------------- translate --------------------------- //
-    isChange |= DragGuiVectorCommand<3, float>("Translate", this->translate, 0.01f);
+    isChange |= DragGuiVectorCommand<3, float>("Translate", this->translate, 0.01f, {}, {}, "%.3f", [this](Vector<3, float>* /*_t*/) { this->Update(); });
 
     this->Update();
 

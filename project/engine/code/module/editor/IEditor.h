@@ -86,20 +86,29 @@ template <typename T>
 class SetterCommand
     : public IEditCommand {
 public:
-    SetterCommand(T* _target, const T& _value, std::function<void(T*)> _funcOnAfterExecute = nullptr, bool _syncFuncOnAfter = true, std::function<void(T*)> _funcOnAfterUndo = nullptr)
-        : target(_target), value(_value), funcOnAfterExecute_(_funcOnAfterExecute) {
+    SetterCommand(T* _target, const T& _to, std::function<void(T*)> _funcOnAfterExecute = nullptr, bool _syncFuncOnAfter = true, std::function<void(T*)> _funcOnAfterUndo = nullptr)
+        : target(_target), to(_to), funcOnAfterExecute_(_funcOnAfterExecute) {
+        if (_syncFuncOnAfter) {
+            funcOnAfterUndoExecute_ = _funcOnAfterExecute;
+        } else {
+            funcOnAfterUndoExecute_ = _funcOnAfterUndo;
+        }
+        from = _target ? *_target : T(); // 初期値を設定
+    }
+    SetterCommand(T* _target, const T& _to, const T& _from, std::function<void(T*)> _funcOnAfterExecute = nullptr, bool _syncFuncOnAfter = true, std::function<void(T*)> _funcOnAfterUndo = nullptr)
+        : target(_target), to(_to), from(_from), funcOnAfterExecute_(_funcOnAfterExecute) {
         if (_syncFuncOnAfter) {
             funcOnAfterUndoExecute_ = _funcOnAfterExecute;
         } else {
             funcOnAfterUndoExecute_ = _funcOnAfterUndo;
         }
     }
+
     void Execute() override {
         if (!target) {
             return;
         }
-        oldValue = *target;
-        *target  = value;
+        *target = to;
 
         if (funcOnAfterExecute_) {
             funcOnAfterExecute_(target);
@@ -109,7 +118,7 @@ public:
         if (!target) {
             return;
         }
-        *target = oldValue;
+        *target = from;
         if (funcOnAfterUndoExecute_) {
             funcOnAfterUndoExecute_(target);
         }
@@ -119,8 +128,8 @@ private:
     std::function<void(T*)> funcOnAfterExecute_;
     std::function<void(T*)> funcOnAfterUndoExecute_;
     T* target;
-    T value;
-    T oldValue;
+    T to;
+    T from;
 };
 
 template <typename T>

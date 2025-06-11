@@ -218,7 +218,7 @@ void Emitter::EditEmitter() {
             bool isSelected = (blendMode_ == BlendMode(i)); // 現在選択中かどうか
             if (ImGui::Selectable(blendModeStr[i].c_str(), isSelected)) {
                 auto command = std::make_unique<SetterCommand<BlendMode>>(&blendMode_, (BlendMode)i);
-                EditorGroup::getInstance()->pushCommand(std::move(command));
+                EditorController::getInstance()->pushCommand(std::move(command));
                 break;
             }
         }
@@ -269,7 +269,7 @@ void Emitter::EditShapeType() {
                         }
                     });
 
-                EditorGroup::getInstance()->pushCommand(std::move(command));
+                EditorController::getInstance()->pushCommand(std::move(command));
             }
 
             // 現在選択中の項目をハイライトする
@@ -304,7 +304,7 @@ void Emitter::EditParticle() {
         int newInterpolationType = static_cast<int>(colorInterpolationType_);
         if (ImGui::Combo("ColorInterpolationType", &newInterpolationType, "LINEAR\0STEP\0\0", static_cast<int>(InterpolationType::COUNT))) {
             auto command = std::make_unique<SetterCommand<InterpolationType>>(&colorInterpolationType_, (InterpolationType)newInterpolationType);
-            EditorGroup::getInstance()->pushCommand(std::move(command));
+            EditorController::getInstance()->pushCommand(std::move(command));
         }
     }
 
@@ -347,7 +347,7 @@ void Emitter::EditParticle() {
         int newInterpolationType = static_cast<int>(transformInterpolationType_);
         if (ImGui::Combo("ColorInterpolationType", &newInterpolationType, "LINEAR\0STEP\0\0", static_cast<int>(InterpolationType::COUNT))) {
             auto command = std::make_unique<SetterCommand<InterpolationType>>(&transformInterpolationType_, (InterpolationType)newInterpolationType);
-            EditorGroup::getInstance()->pushCommand(std::move(command));
+            EditorController::getInstance()->pushCommand(std::move(command));
         }
     }
 
@@ -730,7 +730,7 @@ void Emitter::EditParticle() {
         int newInterpolationType = static_cast<int>(uvInterpolationType_);
         if (ImGui::Combo("UvInterpolationType", &newInterpolationType, "LINEAR\0STEP\0\0", static_cast<int>(InterpolationType::COUNT))) {
             auto command = std::make_unique<SetterCommand<InterpolationType>>(&uvInterpolationType_, (InterpolationType)newInterpolationType);
-            EditorGroup::getInstance()->pushCommand(std::move(command));
+            EditorController::getInstance()->pushCommand(std::move(command));
         }
     }
 
@@ -842,8 +842,8 @@ void Emitter::EditParticle() {
 
     if (newFlag != updateSettings_) {
         auto command = std::make_unique<SetterCommand<int32_t>>(&updateSettings_, newFlag);
-        EditorGroup::getInstance()->pushCommand(std::move(command));
-        EditorGroup::getInstance()->pushCommand(std::move(commandComboByChangeFlag));
+        EditorController::getInstance()->pushCommand(std::move(command));
+        EditorController::getInstance()->pushCommand(std::move(commandComboByChangeFlag));
     }
 }
 #endif // _DEBUG

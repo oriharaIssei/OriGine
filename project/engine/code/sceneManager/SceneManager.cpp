@@ -20,7 +20,7 @@
 // module
 #include "camera/CameraManager.h"
 #include "module/debugger/DebuggerGroup.h"
-#include "module/editor/EditorGroup.h"
+#include "module/editor/EditorController.h"
 #include "texture/TextureManager.h"
 
 // lib
@@ -51,8 +51,8 @@ void SceneManager::Initialize() {
     sceneView_->Initialize(2, {1280.0f, 720.0f}, DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, {0.0f, 0.0f, 0.0f, 1.0f});
 
 #ifdef _DEBUG
-    editorGroup_   = EditorGroup::getInstance();
-    debuggerGroup_ = DebuggerGroup::getInstance();
+    editorController_ = EditorController::getInstance();
+    debuggerGroup_    = DebuggerGroup::getInstance();
 
     playIcon_        = TextureManager::LoadTexture(kEngineResourceDirectory + "/Texture/play.png");
     rePlayIcon_      = TextureManager::LoadTexture(kEngineResourceDirectory + "/Texture/rePlay.png");
@@ -83,7 +83,9 @@ void SceneManager::Update() {
 }
 
 #ifdef _DEBUG
-#include "imgui/imgui.h"
+#include <imgui/imgui.h>
+#include <imgui/ImGuizmo/ImGuizmo.h>
+
 static Vec2f ConvertMouseToSceneView(const Vec2f& mousePos, const ImVec2& sceneViewPos, const ImVec2& sceneViewSize, const Vec2f& originalResolution) {
     // SceneView 内での相対的なマウス座標を計算
     float relativeX = mousePos[X] - sceneViewPos.x;
@@ -153,261 +155,281 @@ void SceneManager::DebugUpdate() {
         // マウス座標をゲーム内の座標に変換
         Vec2f gamePos = ConvertMouseToSceneView(mousePos, sceneViewPos, sceneViewSize, originalResolution);
         Input::getInstance()->setVirtualMousePos(gamePos);
-    }
-    ImGui::End();
 
-    ///=================================================================================================
-    // Editor / DebuggerGroup
-    ///=================================================================================================
-    switch (currentSceneState_) {
-    case SceneManager::SceneState::Edit:
+        // ImGuizmo のフレーム開始
+        ImGuizmo::BeginFrame();
+
+        // ImGuizmo の設定
+        ImGuizmo::SetOrthographic(false); // 透視投影かどうか
+        ImGuizmo::SetDrawlist();
+
+        // ImGuizmo のウィンドウサイズ・位置を設定
+        ImGuizmo::SetRect(sceneViewPos.x, sceneViewPos.y, sceneViewSize.x, sceneViewSize.y);
+
+        //! TODO : デカップリング
         ///=================================================================================================
-        // MainMenuBar
+        // Editor / DebuggerGroup
         ///=================================================================================================
-        if (ImGui::BeginMainMenuBar()) {
-            /// ------------------------
-            // Scene
-            /// ------------------------
-            if (ImGui::BeginMenu("Scene")) {
-                if (ImGui::BeginMenu("Change Startup Scene")) {
-                    ImGui::Text("Startup Scene Name: %s", startupSceneName_->c_str());
+        switch (currentSceneState_) {
+        case SceneManager::SceneState::Edit:
+            ///=================================================================================================
+            // MainMenuBar
+            ///=================================================================================================
+            auto SaveScene = [&]() {
+                SceneSerializer serializer;
+                serializer.Serialize(currentSceneName_);
+            };
+            if (ImGui::BeginMainMenuBar()) {
+                /// ------------------------
+                // Scene
+                /// ------------------------
+                if (ImGui::BeginMenu("Scene")) {
+                    if (ImGui::BeginMenu("Change Startup Scene")) {
+                        ImGui::Text("Startup Scene Name: %s", startupSceneName_->c_str());
 
-                    for (auto& [directory, name] : myfs::searchFile(kApplicationResourceDirectory + "/scene", "json")) {
-                        if (ImGui::MenuItem(name.c_str())) {
-                            startupSceneName_.setValue(name);
-                            GlobalVariables::getInstance()->SaveFile("Settings", "Scene");
-                            break;
-                        }
-                    }
-                    ImGui::EndMenu();
-                }
-                if (ImGui::BeginMenu("Change EditScene")) {
-                    SceneManager* sceneManager = SceneManager::getInstance();
-                    for (auto& [directory, name] : myfs::searchFile(kApplicationResourceDirectory + "/scene", "json")) {
-                        if (ImGui::MenuItem(name.c_str())) {
-                            sceneManager->changeScene(name);
-
-                            // Editor を再初期化
-                            editorGroup_->Finalize();
-                            editorGroup_->Initialize();
-                            break;
-                        }
-                    }
-                    ImGui::EndMenu();
-                }
-                if (ImGui::BeginMenu("Create NewScene")) {
-                    // シーンの新規作成
-                    ImGui::InputText("SceneName", newSceneName_, sizeof(newSceneName_));
-                    if (ImGui::Button("Create")) {
-                        // 重複 チェック
                         for (auto& [directory, name] : myfs::searchFile(kApplicationResourceDirectory + "/scene", "json")) {
-                            if (name == newSceneName_) {
-                                std::string message = std::format("{} already exists", newSceneName_);
-                                MessageBoxA(nullptr, message.c_str(), "SceneSerializer", MB_OK);
-
-                                ImGui::EndMenu();
-                                ImGui::EndMenu();
-                                ImGui::EndMainMenuBar();
-                                return;
+                            if (ImGui::MenuItem(name.c_str())) {
+                                startupSceneName_.setValue(name);
+                                GlobalVariables::getInstance()->SaveFile("Settings", "Scene");
+                                break;
                             }
                         }
+                        ImGui::EndMenu();
+                    }
+                    if (ImGui::BeginMenu("Change EditScene")) {
+                        SceneManager* sceneManager = SceneManager::getInstance();
+                        for (auto& [directory, name] : myfs::searchFile(kApplicationResourceDirectory + "/scene", "json")) {
+                            if (ImGui::MenuItem(name.c_str())) {
+                                sceneManager->changeScene(name);
 
-                        std::string message = std::format("{} save it?", newSceneName_);
-                        if (MessageBoxA(nullptr, message.c_str(), "SceneSerializer", MB_OKCANCEL) == IDOK) {
-                            SceneFinalize();
-
-                            // シーンの新規作成
-                            // 最初はすべてのシステムをオンにする
-                            ecsManager_->AllActivateSystem();
-
-                            // 保存
-                            SceneSerializer serializer;
-                            serializer.SerializeFromJson(newSceneName_);
-                            message = std::format("{} saved", newSceneName_);
-
-                            MessageBoxA(nullptr, message.c_str(), "SceneSerializer", MB_OK);
+                                // Editor を再初期化
+                                editorController_->Finalize();
+                                editorController_->Initialize();
+                                break;
+                            }
                         }
+                        ImGui::EndMenu();
+                    }
+                    if (ImGui::BeginMenu("Create NewScene")) {
+                        // シーンの新規作成
+                        ImGui::InputText("SceneName", newSceneName_, sizeof(newSceneName_));
+                        if (ImGui::Button("Create")) {
+                            // 重複 チェック
+                            for (auto& [directory, name] : myfs::searchFile(kApplicationResourceDirectory + "/scene", "json")) {
+                                if (name == newSceneName_) {
+                                    std::string message = std::format("{} already exists", newSceneName_);
+                                    MessageBoxA(nullptr, message.c_str(), "SceneSerializer", MB_OK);
+
+                                    ImGui::EndMenu();
+                                    ImGui::EndMenu();
+                                    ImGui::EndMainMenuBar();
+                                    return;
+                                }
+                            }
+
+                            std::string message = std::format("{} save it?", newSceneName_);
+                            if (MessageBoxA(nullptr, message.c_str(), "SceneSerializer", MB_OKCANCEL) == IDOK) {
+                                SceneFinalize();
+
+                                // シーンの新規作成
+                                // 最初はすべてのシステムをオンにする
+                                ecsManager_->AllActivateSystem();
+
+                                // 保存
+                                SceneSerializer serializer;
+                                serializer.SerializeFromJson(newSceneName_);
+                                message = std::format("{} saved", newSceneName_);
+
+                                MessageBoxA(nullptr, message.c_str(), "SceneSerializer", MB_OK);
+                            }
+                        }
+                        ImGui::EndMenu();
+                    }
+                    if (ImGui::MenuItem("Save")) {
+                        // シーンの保存
+                        SaveScene();
+                    }
+                    if (ImGui::MenuItem("Reload")) {
+                        this->changeScene(currentSceneName_);
+
+                        editorController_->Finalize();
+                        editorController_->Initialize();
+                    }
+
+                    ImGui::EndMenu();
+                }
+
+                /// ------------------------
+                // Editors
+                /// ------------------------
+                if (ImGui::BeginMenu("Editors")) {
+                    if (ImGui::BeginMenu("ActiveState")) {
+                        for (auto& [name, editor] : editorController_->editors_) {
+                            ImGui::Checkbox(name.c_str(), editorController_->editorActivity_[editor.get()]);
+                        }
+                        ImGui::EndMenu();
                     }
                     ImGui::EndMenu();
                 }
-                if (ImGui::MenuItem("Save")) {
-                    // シーンの保存
-                    SceneSerializer serializer;
-                    serializer.Serialize(currentSceneName_);
-                }
-                if (ImGui::MenuItem("Reload")) {
-                    this->changeScene(currentSceneName_);
 
-                    editorGroup_->Finalize();
-                    editorGroup_->Initialize();
-                }
+                /// ------------------------
+                // Debug
+                /// ------------------------
+                if (ImGui::BeginMenu("Debug")) {
+                    if (ImGui::BeginMenu("StartDebug")) {
+                        if (ImGui::MenuItem("Startup Scene")) {
+                            // 保存, ロード処理を行い, シーンを再読み込み
+                            SceneManager::getInstance()->changeScene(startupSceneName_);
+                            currentSceneState_ = SceneState::Debug;
+                        }
+                        if (ImGui::MenuItem("Current Scene")) {
+                            SceneManager::getInstance()->changeScene(currentSceneName_);
 
-                ImGui::EndMenu();
-            }
-
-            /// ------------------------
-            // Editors
-            /// ------------------------
-            if (ImGui::BeginMenu("Editors")) {
-                if (ImGui::BeginMenu("ActiveState")) {
-                    for (auto& [name, editor] : editorGroup_->editors_) {
-                        ImGui::Checkbox(name.c_str(), &editorGroup_->editorActive_[editor.get()]);
+                            currentSceneState_ = SceneState::Debug;
+                        }
+                        ImGui::EndMenu();
                     }
                     ImGui::EndMenu();
                 }
-                ImGui::EndMenu();
+                ImGui::EndMainMenuBar();
             }
 
-            /// ------------------------
-            // Debug
-            /// ------------------------
-            if (ImGui::BeginMenu("Debug")) {
-                if (ImGui::BeginMenu("StartDebug")) {
-                    if (ImGui::MenuItem("Startup Scene")) {
-                        // 保存, ロード処理を行い, シーンを再読み込み
-                        SceneManager::getInstance()->changeScene(startupSceneName_);
-                        currentSceneState_ = SceneState::Debug;
-                    }
-                    if (ImGui::MenuItem("Current Scene")) {
-                        SceneManager::getInstance()->changeScene(currentSceneName_);
+            Input* input = Input::getInstance();
+            if (input->isPressKey(Key::L_CTRL) && input->isTriggerKey(Key::S)) {
+                // Ctrl + S でシーンを保存
+                SaveScene();
+            }
 
-                        currentSceneState_ = SceneState::Debug;
-                    }
-                    ImGui::EndMenu();
+            if (ImGui::Begin("Debugger")) {
+                if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(TextureManager::getDescriptorGpuHandle(playIcon_).ptr), s_buttonIconSize)) {
+                    // play
+                    currentSceneState_ = SceneState::Debug;
+
+                    SceneManager::getInstance()->changeScene(currentSceneName_);
                 }
-                ImGui::EndMenu();
+                ImGui::SameLine();
+                ImGui::Text("DeltaTime :%.4f", Engine::getInstance()->getDeltaTime());
             }
-            ImGui::EndMainMenuBar();
-        }
+            ImGui::End();
 
-        if (ImGui::Begin("Debugger")) {
-            if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(TextureManager::getDescriptorGpuHandle(playIcon_).ptr), s_buttonIconSize)) {
-                // play
-                currentSceneState_ = SceneState::Debug;
+            if (currentSceneState_ == SceneState::Debug) {
+                // シーンを保存
+                SceneSerializer serializer;
+                serializer.Serialize(currentSceneName_);
 
-                SceneManager::getInstance()->changeScene(currentSceneName_);
+                // Editor を終了
+                editorController_->Finalize();
+                // DebuggerGroup を再初期化
+                debuggerGroup_->Initialize();
+
+                debugState_ = DebugState::Play;
+                break;
             }
-            ImGui::SameLine();
-            ImGui::Text("DeltaTime :%.4f", Engine::getInstance()->getDeltaTime());
-        }
-        ImGui::End();
 
-        if (currentSceneState_ == SceneState::Debug) {
-            // シーンを保存
-            SceneSerializer serializer;
-            serializer.Serialize(currentSceneName_);
+            ///=================================================================================================
+            // EditorGroup
+            ///=================================================================================================
+            editorController_->Update();
 
-            // Editor を終了
-            editorGroup_->Finalize();
-            // DebuggerGroup を再初期化
-            debuggerGroup_->Initialize();
+            CameraManager::getInstance()->DebugUpdate();
 
-            debugState_ = DebugState::Play;
             break;
-        }
-
-        ///=================================================================================================
-        // EditorGroup
-        ///=================================================================================================
-        editorGroup_->Update();
-
-        CameraManager::getInstance()->DebugUpdate();
-
-        break;
-    case SceneManager::SceneState::Debug:
-        if (ImGui::BeginMainMenuBar()) {
-            if (ImGui::BeginMenu("Debug")) {
-                if (ImGui::BeginMenu("DebuggerGroup")) {
-                    for (auto& [name, debugger] : debuggerGroup_->debuggersActive_) {
-                        ImGui::Checkbox(name.c_str(), &debuggerGroup_->debuggersActive_[name]);
+        case SceneManager::SceneState::Debug:
+            if (ImGui::BeginMainMenuBar()) {
+                if (ImGui::BeginMenu("Debug")) {
+                    if (ImGui::BeginMenu("DebuggerGroup")) {
+                        for (auto& [name, debugger] : debuggerGroup_->debuggersActive_) {
+                            ImGui::Checkbox(name.c_str(), &debuggerGroup_->debuggersActive_[name]);
+                        }
+                        ImGui::EndMenu();
+                    }
+                    if (ImGui::MenuItem("EndDebug")) {
+                        currentSceneState_ = SceneState::Edit;
                     }
                     ImGui::EndMenu();
                 }
-                if (ImGui::MenuItem("EndDebug")) {
+                ImGui::EndMainMenuBar();
+            }
+
+            if (ImGui::Begin("Debugger")) {
+                if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(TextureManager::getDescriptorGpuHandle(stopIcon_).ptr), s_buttonIconSize)) {
+                    // Stop
                     currentSceneState_ = SceneState::Edit;
-                }
-                ImGui::EndMenu();
-            }
-            ImGui::EndMainMenuBar();
-        }
-
-        if (ImGui::Begin("Debugger")) {
-            if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(TextureManager::getDescriptorGpuHandle(stopIcon_).ptr), s_buttonIconSize)) {
-                // Stop
-                currentSceneState_ = SceneState::Edit;
-                debugState_        = DebugState::Stop;
-            }
-            ImGui::SameLine();
-            if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(TextureManager::getDescriptorGpuHandle(rePlayIcon_).ptr), s_buttonIconSize)) {
-                // RePlay
-                currentSceneState_ = SceneState::Debug;
-                debugState_        = DebugState::RePlay;
-            }
-            ImGui::SameLine();
-
-            if (debugState_ == DebugState::Play) {
-                if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(TextureManager::getDescriptorGpuHandle(pauseIcon_).ptr), s_buttonIconSize)) {
-                    // Pause
-                    debugState_ = DebugState::Pause;
-                }
-            } else {
-                // Pause のときは、PauseCircleIcon を表示
-                if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(TextureManager::getDescriptorGpuHandle(pauseCircleIcon_).ptr), s_buttonIconSize)) {
-                    // Pause
-                    debugState_ = DebugState::Play;
+                    debugState_        = DebugState::Stop;
                 }
                 ImGui::SameLine();
-                ImGui::Text("Pause Now");
-            }
-
-            if (ImGui::ImageButton(
-                    reinterpret_cast<ImTextureID>(TextureManager::getDescriptorGpuHandle(cameraIcon_).ptr),
-                    s_buttonIconSize)) {
-                // DebugCamera
-                isUsingDebugCamera_ = !isUsingDebugCamera_;
-            }
-
-            if (isUsingDebugCamera_) {
+                if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(TextureManager::getDescriptorGpuHandle(rePlayIcon_).ptr), s_buttonIconSize)) {
+                    // RePlay
+                    currentSceneState_ = SceneState::Debug;
+                    debugState_        = DebugState::RePlay;
+                }
                 ImGui::SameLine();
-                ImGui::Text("DebugCamera: On");
-                CameraManager::getInstance()->DebugUpdate();
+
+                if (debugState_ == DebugState::Play) {
+                    if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(TextureManager::getDescriptorGpuHandle(pauseIcon_).ptr), s_buttonIconSize)) {
+                        // Pause
+                        debugState_ = DebugState::Pause;
+                    }
+                } else {
+                    // Pause のときは、PauseCircleIcon を表示
+                    if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(TextureManager::getDescriptorGpuHandle(pauseCircleIcon_).ptr), s_buttonIconSize)) {
+                        // Pause
+                        debugState_ = DebugState::Play;
+                    }
+                    ImGui::SameLine();
+                    ImGui::Text("Pause Now");
+                }
+
+                if (ImGui::ImageButton(
+                        reinterpret_cast<ImTextureID>(TextureManager::getDescriptorGpuHandle(cameraIcon_).ptr),
+                        s_buttonIconSize)) {
+                    // DebugCamera
+                    isUsingDebugCamera_ = !isUsingDebugCamera_;
+                }
+
+                if (isUsingDebugCamera_) {
+                    ImGui::SameLine();
+                    ImGui::Text("DebugCamera: On");
+                    CameraManager::getInstance()->DebugUpdate();
+                }
+
+                ImGui::Text("DeltaTime :%.4f", Engine::getInstance()->getDeltaTime());
+            }
+            ImGui::End();
+
+            if (currentSceneState_ == SceneState::Edit) {
+                // Editor を再初期化
+                editorController_->Initialize();
+
+                // 保存しない
+                SceneFinalize();
+                SceneInitialize(currentSceneName_);
+                break;
+            }
+            if (debugState_ == DebugState::RePlay) {
+                // シーンを再初期化
+                SceneFinalize();
+                SceneInitialize(currentSceneName_);
+
+                // DebuggerGroup を終了
+                debuggerGroup_->Finalize();
+                // DebuggerGroup を再初期化
+                debuggerGroup_->Initialize();
+
+                debugState_ = DebugState::Play;
             }
 
-            ImGui::Text("DeltaTime :%.4f", Engine::getInstance()->getDeltaTime());
-        }
-        ImGui::End();
+            ///=================================================================================================
+            // DebuggerGroup
+            ///=================================================================================================
+            debuggerGroup_->Update();
 
-        if (currentSceneState_ == SceneState::Edit) {
-            // Editor を再初期化
-            editorGroup_->Initialize();
-
-            // 保存しない
-            SceneFinalize();
-            SceneInitialize(currentSceneName_);
+            break;
+        default:
             break;
         }
-        if (debugState_ == DebugState::RePlay) {
-            // シーンを再初期化
-            SceneFinalize();
-            SceneInitialize(currentSceneName_);
-
-            // DebuggerGroup を終了
-            debuggerGroup_->Finalize();
-            // DebuggerGroup を再初期化
-            debuggerGroup_->Initialize();
-
-            debugState_ = DebugState::Play;
-        }
-
-        ///=================================================================================================
-        // DebuggerGroup
-        ///=================================================================================================
-        debuggerGroup_->Update();
-
-        break;
-    default:
-        break;
     }
+    ImGui::End();
 }
 #endif
 
@@ -476,8 +498,8 @@ void SceneSerializer::SerializeFromJson(const std::string& _sceneName) {
             continue;
         }
         nlohmann::json entityData = nlohmann::json::object();
-        entityData["Name"]     = entity->getDataType();
-        entityData["isUnique"] = entity->isUnique();
+        entityData["Name"]        = entity->getDataType();
+        entityData["isUnique"]    = entity->isUnique();
 
         // 所属するシステムを保存
         const auto& systems = ecsManager->getSystems();

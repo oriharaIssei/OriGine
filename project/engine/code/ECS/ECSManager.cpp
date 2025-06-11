@@ -3,7 +3,7 @@
 /// engine
 // module
 #include "camera/CameraManager.h"
-#include "module/editor/EditorGroup.h"
+#include "module/editor/EditorController.h"
 #include "sceneManager/SceneManager.h"
 // dx12Object
 #include "engine/code/directX12/RenderTexture.h"
@@ -294,6 +294,63 @@ void EntityComponentSystemManager::AllActivateSystem(bool _doInit) {
 
 GameEntity* getEntity(int32_t _entityIndex) {
     return ECSManager::getInstance()->getEntity(_entityIndex);
+}
+
+nlohmann::json EntityToJson(GameEntity* _entity) {
+    nlohmann::json json = nlohmann::json::object();
+    json["Name"]        = _entity->getDataType();
+    json["isUnique"]    = _entity->isUnique();
+
+    // 所属するシステムを保存
+    const auto& systems = ECSManager::getInstance()->getSystems();
+    for (const auto& systemsByType : systems) {
+        for (const auto& [systemName, system] : systemsByType) {
+            if (system->hasEntity(_entity)) {
+                json["Systems"].push_back({{"SystemType", system->getSystemType()}, {"SystemName", systemName}});
+            }
+        }
+    }
+
+    // コンポーネントを保存
+    const auto& componentArrayMap = ECSManager::getInstance()->getComponentArrayMap();
+    nlohmann::json componentsData;
+    for (const auto& [componentTypeName, componentArray] : componentArrayMap) {
+        if (componentArray->hasEntity(_entity)) {
+            componentArray->SaveComponent(_entity, componentsData);
+        }
+    }
+    json["Components"] = componentsData;
+
+    return json;
+}
+
+GameEntity* EntityFromJson(const nlohmann::json& _json) {
+    ECSManager* ecsManager = ECSManager::getInstance();
+    std::string entityName = _json["Name"];
+    int32_t entityID       = ecsManager->registerEntity(entityName);
+    GameEntity* entity     = ecsManager->getEntity(entityID);
+    bool isUnique          = _json["isUnique"];
+    if (isUnique) {
+        ecsManager->registerUniqueEntity(entity);
+    }
+    // 所属するシステムを読み込み
+    for (auto& systemData : _json["Systems"]) {
+        int32_t systemType     = systemData["SystemType"];
+        std::string systemName = systemData["SystemName"];
+        ISystem* system        = ecsManager->getSystem(SystemType(systemType), systemName);
+        if (system) {
+            system->addEntity(entity);
+        }
+    }
+    // コンポーネントを読み込み
+    auto& componentArrayMap = ecsManager->getComponentArrayMap();
+    for (auto& [componentTypename, componentData] : _json["Components"].items()) {
+        auto itr = componentArrayMap.find(componentTypename);
+        if (itr != componentArrayMap.end()) {
+            itr->second->LoadComponent(entity, componentData);
+        }
+    }
+    return entity;
 }
 
 void DestroyEntity(GameEntity* _entity) {

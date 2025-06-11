@@ -147,7 +147,7 @@ bool Audio::Edit() {
     if (ImGui::Button("LoadFile")) {
         std::string directory;
         if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName_, {"wav"})) {
-            EditorGroup::getInstance()->pushCommand(std::make_unique<SetterCommand<std::string>>(&fileName_, kApplicationResourceDirectory + "/" + directory + "/" + fileName_));
+            EditorController::getInstance()->pushCommand(std::make_unique<SetterCommand<std::string>>(&fileName_, kApplicationResourceDirectory + "/" + directory + "/" + fileName_));
 
             audioClip_.data_ = LoadWave(kApplicationResourceDirectory + "/" + directory + "/" + fileName_);
 

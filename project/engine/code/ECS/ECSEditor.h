@@ -50,6 +50,8 @@ private:
     /// <param name="_entity"></param>
     void PopupEntityLeaveWorkSystem(GameEntity* _entity, bool _isGroup);
 
+    void GuizmoEdit();
+
 private:
     ECSManager* ecsManager_ = nullptr;
 
@@ -137,7 +139,8 @@ public:
     void Undo() override;
 
 private:
-    GameEntity* createdEntity_ = nullptr;
+    GameEntity* createdEntity_  = nullptr;
+    GameEntity* prevEditEntity_ = nullptr;
 };
 
 /// <summary>
@@ -155,11 +158,9 @@ public:
     void Undo() override;
 
 private:
+    bool isEditEntity_        = false;
     GameEntity* erasedEntity_ = nullptr;
-    GameEntity erasedEntityBackup_;
-
-    std::vector<std::pair<std::string, IComponent*>> erasedEntityComponents_;
-    std::array<std::vector<std::pair<std::string, ISystem*>>, int32_t(SystemType::Count)> erasedEntitySystems_;
+    nlohmann::json erasedEntityBackup_;
 };
 
 /// <summary>
@@ -179,7 +180,8 @@ public:
     void Undo() override;
 
 private:
-    GameEntity* preEntity_  = nullptr;
+    GameEntity* preEntity_ = nullptr;
+
     GameEntity* nextEntity_ = nullptr;
 };
 

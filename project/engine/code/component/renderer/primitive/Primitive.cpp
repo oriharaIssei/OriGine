@@ -9,7 +9,7 @@
 // directX12
 #include "directX12/DxDevice.h"
 // module
-#include "module/editor/EditorGroup.h"
+#include "module/editor/EditorController.h"
 #include "module/editor/IEditor.h"
 /// lib
 #include "myFileSystem/MyFileSystem.h"
@@ -178,7 +178,7 @@ bool PlaneRenderer::Edit() {
 
             commandCombo->setFuncOnAfterCommand([this]() { textureIndex_ = TextureManager::LoadTexture(textureDirectory_ + "/" + textureFileName_); }, true);
 
-            EditorGroup::getInstance()->pushCommand(std::move(commandCombo));
+            EditorController::getInstance()->pushCommand(std::move(commandCombo));
 
             isEdit = true;
         }
@@ -271,7 +271,7 @@ bool RingRenderer::Edit() {
             isSelected = blendModeName == blendModeStr[(int32_t)currentBlend_];
 
             if (ImGui::Selectable(blendModeName.c_str(), isSelected)) {
-                EditorGroup::getInstance()->pushCommand(
+                EditorController::getInstance()->pushCommand(
                     std::make_unique<SetterCommand<BlendMode>>(&currentBlend_, static_cast<BlendMode>(blendIndex)));
                 isEdit = true;
                 break;
@@ -293,7 +293,7 @@ bool RingRenderer::Edit() {
             commandCombo->addCommand(std::make_shared<SetterCommand<std::string>>(&textureDirectory_, kApplicationResourceDirectory + "/" + directory));
             commandCombo->addCommand(std::make_shared<SetterCommand<std::string>>(&textureFileName_, fileName));
             commandCombo->setFuncOnAfterCommand([this]() { textureIndex_ = TextureManager::LoadTexture(textureDirectory_ + "/" + textureFileName_); }, true);
-            EditorGroup::getInstance()->pushCommand(std::move(commandCombo));
+            EditorController::getInstance()->pushCommand(std::move(commandCombo));
             isEdit = true;
         }
     }

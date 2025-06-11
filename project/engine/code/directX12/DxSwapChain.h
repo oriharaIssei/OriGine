@@ -57,5 +57,14 @@ public:
     IDXGISwapChain4* getSwapChain() const { return swapChain_.Get(); }
 
     const Microsoft::WRL::ComPtr<ID3D12Resource>& getBackBuffer(UINT index) const { return backBufferResources_[index].getResource(); }
+    Microsoft::WRL::ComPtr<ID3D12Resource> getBackBufferRef(UINT index) {
+        if (index >= backBufferResources_.size()) {
+            throw std::out_of_range("Index out of range in DxSwapChain::getBackBufferRef");
+        }
+        return backBufferResources_[index].getResource();
+    }
     const Microsoft::WRL::ComPtr<ID3D12Resource>& getCurrentBackBuffer() const { return backBufferResources_[swapChain_->GetCurrentBackBufferIndex()].getResource(); }
+    Microsoft::WRL::ComPtr<ID3D12Resource> getCurrentBackBufferRef() {
+        return backBufferResources_[swapChain_->GetCurrentBackBufferIndex()].getResource();
+    }
 };

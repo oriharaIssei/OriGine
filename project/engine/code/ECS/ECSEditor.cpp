@@ -7,16 +7,21 @@
 #include "sceneManager/SceneManager.h"
 #define RESOURCE_DIRECTORY
 #include "EngineInclude.h"
+#include "input/Input.h"
+// transform
+#include "component/transform/Transform.h"
 // editor
-#include "module/editor/EditorGroup.h"
+#include "module/editor/EditorController.h"
 
 /// lib
+#include "camera/CameraManager.h"
 #include "myFileSystem/MyFileSystem.h"
 
 #ifdef _DEBUG
 
 /// externals
-#include <imgui/imgui.h>
+#include "myGui/MyGui.h"
+#include <imgui/ImGuizmo/ImGuizmo.h>
 
 ECSEditor::ECSEditor() {}
 
@@ -35,6 +40,8 @@ void ECSEditor::Update() {
     EditEntity();
 
     WorkerSystemList();
+
+    GuizmoEdit();
 }
 
 void ECSEditor::Finalize() {
@@ -58,7 +65,7 @@ void ECSEditor::SelectEntity() {
             if (ImGui::Button("AddEntity")) {
                 auto command = std::make_unique<CreateEntityCommand>(this);
 
-                EditorGroup::getInstance()->pushCommand(std::move(command));
+                EditorController::getInstance()->pushCommand(std::move(command));
             }
 
             if (ImGui::Button("Add Entity From File")) {
@@ -66,7 +73,7 @@ void ECSEditor::SelectEntity() {
                 bool isSelected = myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"ent"}, true);
                 if (isSelected) {
                     auto command = std::make_unique<CreateEntityFromFileCommand>(this, directory, fileName);
-                    EditorGroup::getInstance()->pushCommand(std::move(command));
+                    EditorController::getInstance()->pushCommand(std::move(command));
                 }
             }
 
@@ -89,7 +96,7 @@ void ECSEditor::SelectEntity() {
         if (ImGui::Button("Add Entity")) {
             auto command = std::make_unique<CreateEntityCommand>(this);
 
-            EditorGroup::getInstance()->pushCommand(std::move(command));
+            EditorController::getInstance()->pushCommand(std::move(command));
         }
         if (ImGui::Button("Add Entity From File")) {
             std::string directory, fileName;
@@ -97,7 +104,7 @@ void ECSEditor::SelectEntity() {
             if (isSelected) {
                 auto command = std::make_unique<CreateEntityFromFileCommand>(this, directory, fileName);
 
-                EditorGroup::getInstance()->pushCommand(std::move(command));
+                EditorController::getInstance()->pushCommand(std::move(command));
             }
         }
         // 選ばれたエンティティが あれば表示
@@ -106,7 +113,7 @@ void ECSEditor::SelectEntity() {
             if (ImGui::Button("Group Erase")) {
                 auto command = std::make_unique<GroupEraseEntityCommand>(this);
 
-                EditorGroup::getInstance()->pushCommand(std::move(command));
+                EditorController::getInstance()->pushCommand(std::move(command));
             }
 
             ImGui::Spacing();
@@ -156,7 +163,7 @@ void ECSEditor::SelectEntity() {
 
                 if (ImGui::Button(entityName.c_str())) {
                     auto command = std::make_unique<SelectEntityCommand>(this, const_cast<GameEntity*>(&entity));
-                    EditorGroup::getInstance()->pushCommand(std::move(command));
+                    EditorController::getInstance()->pushCommand(std::move(command));
                 }
             }
         }
@@ -197,12 +204,12 @@ void ECSEditor::EditEntity() {
 
         if (ImGui::Button("Save To File")) {
             auto command = std::make_unique<SaveEntityToFileCommand>(this, editEntity_, "entities");
-            EditorGroup::getInstance()->pushCommand(std::move(command));
+            EditorController::getInstance()->pushCommand(std::move(command));
         }
         if (ImGui::Button("Erase This")) {
             auto command = std::make_unique<EraseEntityCommand>(this, editEntity_);
 
-            EditorGroup::getInstance()->pushCommand(std::move(command));
+            EditorController::getInstance()->pushCommand(std::move(command));
 
             ImGui::End();
             return;
@@ -261,7 +268,7 @@ void ECSEditor::EditEntity() {
                 if (ImGui::Button(componentLabel.c_str())) {
                     // 遅延実行用に削除コマンドをプッシュ
                     auto command = std::make_unique<RemoveComponentCommand>(this, editEntity_, compTypeName, componentIndex);
-                    EditorGroup::getInstance()->pushCommand(std::move(command));
+                    EditorController::getInstance()->pushCommand(std::move(command));
                 }
                 ImGui::SameLine();
 
@@ -383,11 +390,11 @@ void ECSEditor::WorkerSystemList() {
                     // コマンド発行
                     if (systemIsActive != preSystemIsActive) {
                         auto command = std::make_unique<ChangingSystemActivityCommand>(this, systemName, system);
-                        EditorGroup::getInstance()->pushCommand(std::move(command));
+                        EditorController::getInstance()->pushCommand(std::move(command));
                     }
                     if (systemPriority != preSystemPriority) {
                         auto command = std::make_unique<ChangingSystemPriorityCommand>(this, system, systemPriority);
-                        EditorGroup::getInstance()->pushCommand(std::move(command));
+                        EditorController::getInstance()->pushCommand(std::move(command));
                     }
                 }
 
@@ -451,13 +458,13 @@ void ECSEditor::PopupEntityJoinWorkSystem(GameEntity* _entity, bool _isGroup) {
                         // GroupCommand経由に変更
                         auto command = std::make_unique<GroupJoinWorkSystemCommand>(this, systemName, system.get());
 
-                        EditorGroup::getInstance()->pushCommand(std::move(command));
+                        EditorController::getInstance()->pushCommand(std::move(command));
 
                     } else {
                         // commandから 実行
                         auto command = std::make_unique<JoinWorkSystemCommand>(this, _entity, systemName, system.get());
 
-                        EditorGroup::getInstance()->pushCommand(std::move(command));
+                        EditorController::getInstance()->pushCommand(std::move(command));
                     }
                     // 実行したら閉じる
                     popupJoinWorkSystem_.isOpen_ = false;
@@ -503,12 +510,12 @@ void ECSEditor::PopupEntityAddComponent(GameEntity* _entity, bool _isGroup) {
                 // GroupCommand経由に変更
                 auto command = std::make_unique<GroupAddComponentCommand>(this, componentTypeName);
 
-                EditorGroup::getInstance()->pushCommand(std::move(command));
+                EditorController::getInstance()->pushCommand(std::move(command));
             } else {
                 // commandから 実行
                 auto command = std::make_unique<AddComponentCommand>(this, _entity, componentTypeName);
 
-                EditorGroup::getInstance()->pushCommand(std::move(command));
+                EditorController::getInstance()->pushCommand(std::move(command));
             }
             // 実行したら閉じる
             popupAddComponent_.isOpen_ = false;
@@ -584,12 +591,12 @@ void ECSEditor::PopupEntityLeaveWorkSystem(GameEntity* _entity, bool _isGroup) {
                 // GroupCommand経由に変更
                 auto command = std::make_unique<GroupLeaveWorkSystemCommand>(this, leaveSystemName_, leaveSystem_);
 
-                EditorGroup::getInstance()->pushCommand(std::move(command));
+                EditorController::getInstance()->pushCommand(std::move(command));
             } else {
                 // commandから 実行
                 auto command = std::make_unique<LeaveWorkSystemCommand>(this, _entity, leaveSystemName_, leaveSystem_);
 
-                EditorGroup::getInstance()->pushCommand(std::move(command));
+                EditorController::getInstance()->pushCommand(std::move(command));
             }
 
             // 実行したら閉じる
@@ -607,6 +614,135 @@ void ECSEditor::PopupEntityLeaveWorkSystem(GameEntity* _entity, bool _isGroup) {
     }
 
     ImGui::End();
+}
+
+void ECSEditor::GuizmoEdit() {
+    if (!editEntity_) {
+        return;
+    }
+
+    ECSManager* ecsManager = ECSManager::getInstance();
+    auto transformArray    = ecsManager->getComponentArray<Transform>();
+
+    // Transformを持っていないエンティティは Skip
+    if (!transformArray->hasEntity(editEntity_)) {
+        return;
+    }
+
+    Transform* transform = getComponent<Transform>(editEntity_);
+    if (!transform) {
+        return;
+    }
+    /// ==========================================
+    // Guizmo Edit
+
+    // 行列の用意
+    float matrix[16];
+    transform->worldMat.toFloatArray(matrix); // Transform の worldMat を float[16] に変換
+    // ビュー行列とプロジェクション行列の取得
+    float viewMatrix[16];
+    float projectionMatrix[16];
+    CameraManager::getInstance()->getTransform().viewMat.toFloatArray(viewMatrix); // カメラのビュー行列を取得
+    CameraManager::getInstance()->getTransform().projectionMat.toFloatArray(projectionMatrix); // カメラのプロジェクション行列を取得
+
+    // ギズモの操作タイプ
+    static ImGuizmo::OPERATION currentGizmoOperation = ImGuizmo::TRANSLATE | ImGuizmo::SCALE | ImGuizmo::ROTATE;
+
+    [](ImGuizmo::OPERATION& _currentGizmoOperation) {
+        Input* input = Input::getInstance();
+        if (input->isPressKey(Key::L_SHIFT)) {
+            if (input->isPressKey(Key::S)) {
+                if (input->isPressKey(Key::X)) {
+                    _currentGizmoOperation = ImGuizmo::SCALE_X;
+                } else if (input->isPressKey(Key::Y)) {
+                    _currentGizmoOperation = ImGuizmo::SCALE_Y;
+                } else if (input->isPressKey(Key::Z)) {
+                    _currentGizmoOperation = ImGuizmo::SCALE_Z;
+                } else {
+                    _currentGizmoOperation = ImGuizmo::SCALE; // Shift + S でスケール
+                }
+            } else if (input->isPressKey(Key::R)) {
+                if (input->isPressKey(Key::X)) {
+                    _currentGizmoOperation = ImGuizmo::ROTATE_X;
+                } else if (input->isPressKey(Key::Y)) {
+                    _currentGizmoOperation = ImGuizmo::ROTATE_Y;
+                } else if (input->isPressKey(Key::Z)) {
+                    _currentGizmoOperation = ImGuizmo::ROTATE_Z;
+                } else {
+                    _currentGizmoOperation = ImGuizmo::ROTATE; // Shift + R で回転
+                }
+            } else if (input->isPressKey(Key::T)) {
+                if (input->isPressKey(Key::X)) {
+                    _currentGizmoOperation = ImGuizmo::TRANSLATE_X;
+                } else if (input->isPressKey(Key::Y)) {
+                    _currentGizmoOperation = ImGuizmo::TRANSLATE_Y;
+                } else if (input->isPressKey(Key::Z)) {
+                    _currentGizmoOperation = ImGuizmo::TRANSLATE_Z;
+                } else {
+                    _currentGizmoOperation = ImGuizmo::TRANSLATE; // Shift + T で移動
+                }
+            }
+
+        } else {
+            _currentGizmoOperation = ImGuizmo::TRANSLATE | ImGuizmo::SCALE | ImGuizmo::ROTATE;
+        }
+    }(currentGizmoOperation);
+
+    // ギズモの描画・操作
+    if (ImGuizmo::Manipulate(
+            viewMatrix, // カメラのビュー行列(float[16])
+            projectionMatrix, // カメラのプロジェクション行列(float[16])
+            currentGizmoOperation,
+            ImGuizmo::LOCAL, // ローカル or ワールド
+            matrix)) {
+
+        // matrix から this->translate, this->rotate, this->scale を分解して反映
+        // 例: DecomposeMatrixToComponents(matrix, this->translate, this->rotate, this->scale);
+        transform->worldMat.fromFloatArray(matrix);
+
+        transform->worldMat.decomposeMatrixToComponents(transform->scale, transform->rotate, transform->translate);
+    }
+
+    /// ==========================================
+    // Editor Command
+    static bool wasUsingGuizmo = false;
+    bool isUsingGuizmo         = ImGuizmo::IsUsing();
+    static GuiValuePool<Vec3f> vec3fPool;
+    static GuiValuePool<Quaternion> quatPool;
+
+    // Guizmo Trigger
+    if (isUsingGuizmo) {
+        // ImGuizmoが使用中ならば、他の操作は無効化
+        ImGui::SetMouseCursor(ImGuiMouseCursor_Arrow);
+        if (!wasUsingGuizmo) {
+            vec3fPool.setValue(editEntity_->getUniqueID() + "Scale", transform->scale);
+            quatPool.setValue(editEntity_->getUniqueID() + "Rotation", transform->rotate);
+            vec3fPool.setValue(editEntity_->getUniqueID() + "Translate", transform->translate);
+        }
+    } else {
+        // ImGuizmoが使用されていない場合は、通常のマウスカーソルに戻す
+        ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+
+        if (wasUsingGuizmo) {
+            auto commandCombo = std::make_unique<CommandCombo>();
+
+            /// S,R,T を コマンドで更新するように
+            commandCombo->addCommand(std::make_unique<SetterCommand<Vec3f>>(&transform->scale, transform->scale, vec3fPool.popValue(editEntity_->getUniqueID() + "Scale")));
+            commandCombo->addCommand(std::make_unique<SetterCommand<Quaternion>>(&transform->rotate, transform->rotate, quatPool.popValue(editEntity_->getUniqueID() + "Rotation")));
+            commandCombo->addCommand(std::make_unique<SetterCommand<Vec3f>>(&transform->translate, transform->translate, vec3fPool.popValue(editEntity_->getUniqueID() + "Translate")));
+
+            commandCombo->setFuncOnAfterCommand(
+                [&transform]() {
+                    transform->Update();
+                },
+                true);
+
+            // push
+            EditorController::getInstance()->pushCommand(std::move(commandCombo));
+        }
+    }
+
+    wasUsingGuizmo = isUsingGuizmo;
 }
 
 void ECSEditor::SortPriorityOrderFromECSManager() {
@@ -654,6 +790,9 @@ void CreateEntityCommand::Execute() {
     ECSManager* ecsManager = ECSManager::getInstance();
     // エンティティ作成処理の抽出
     uint32_t addedEntity = ecsManager->registerEntity("Entity");
+
+    prevEditEntity_ = ecsEditor_->getEditEntity(); // 編集中のエンティティを保存
+
     ecsEditor_->setEditEntity(ecsManager->getEntity(addedEntity));
 
     ecsEditor_->customEditComponents().clear();
@@ -666,7 +805,7 @@ void CreateEntityCommand::Undo() {
     DestroyEntity(ecsEditor_->getEditEntity());
 
     // 編集中のエンティティをクリア
-    ecsEditor_->setEditEntity(nullptr);
+    ecsEditor_->setEditEntity(prevEditEntity_);
     // 編集中のコンポーネントをクリア
     ecsEditor_->customEditComponents().clear();
     // 編集中のシステムをクリア
@@ -736,6 +875,10 @@ void SelectEntityCommand::Execute() {
     auto& editComponents = ecsEditor_->customEditComponents();
     editComponents.clear();
 
+    if (!nextEntity_) {
+        return;
+    }
+
     ECSManager* ecsManager = ECSManager::getInstance();
     // エンティティに紐づくコンポーネントを取得
     for (auto& [componentTypeName, componentArray] : ecsManager->getComponentArrayMap()) {
@@ -771,6 +914,10 @@ void SelectEntityCommand::Undo() {
     auto& editComponents = ecsEditor_->customEditComponents();
     editComponents.clear();
 
+    if (!preEntity_) {
+        return;
+    }
+
     ECSManager* ecsManager = ECSManager::getInstance();
     // エンティティに紐づくコンポーネントを取得
     for (auto& [componentTypeName, componentArray] : ecsManager->getComponentArrayMap()) {
@@ -801,68 +948,23 @@ void SelectEntityCommand::Undo() {
 }
 
 void EraseEntityCommand::Execute() {
-    ECSManager* ecsManager = ECSManager::getInstance();
+    isEditEntity_ = ecsEditor_->getEditEntity() == erasedEntity_;
 
     // BackUp 用のデータを取得
-    erasedEntityBackup_ = *erasedEntity_;
-
-    // erasedEntity に紐づくコンポーネントを取得
-    for (auto& [componentTypeName, componentArray] : ecsManager->getComponentArrayMap()) {
-        int32_t index = 0;
-        while (true) {
-            IComponent* component = componentArray->getComponent(erasedEntity_, index);
-            if (component) {
-                erasedEntityComponents_.push_back(std::make_pair(componentTypeName + "(" + std::to_string(index) + ")", component));
-                index++;
-            } else {
-                break;
-            }
-        }
-    }
-
-    // erasedEntity に紐づくシステムを取得
-    for (int32_t systemTypeIndex = 0; systemTypeIndex < int32_t(SystemType::Count); ++systemTypeIndex) {
-        for (auto& [systemName, system] : ecsManager->getSystemsBy(SystemType(systemTypeIndex))) {
-            if (system->hasEntity(erasedEntity_)) {
-                erasedEntitySystems_[systemTypeIndex].push_back(std::make_pair(systemName, system.get()));
-            }
-        }
-    }
+    erasedEntityBackup_ = EntityToJson(erasedEntity_);
 
     // エンティティを削除
     DestroyEntity(erasedEntity_);
 
-    // 編集中のエンティティをクリア
-    auto command = std::make_unique<SelectEntityCommand>(ecsEditor_, nullptr);
+    if (isEditEntity_) {
+        ecsEditor_->setEditEntity(nullptr);
+    }
 }
 void EraseEntityCommand::Undo() {
-    ECSManager* ecsManager = ECSManager::getInstance();
-
-    // エンティティを再生成
-    uint32_t addedEntity       = ecsManager->registerEntity(erasedEntityBackup_.getDataType());
-    GameEntity* addedEntityPtr = ecsManager->getEntity(addedEntity);
-
-    // コンポーネントを追加
-    for (auto& [componentTypeName, component] : erasedEntityComponents_) {
-
-        auto& compMap     = ecsManager->getComponentArrayMap();
-        auto compArrayItr = compMap.find(componentTypeName);
-
-        if (compArrayItr != compMap.end()) {
-            IComponentArray* componentArray = compArrayItr->second.get();
-            componentArray->addComponent(addedEntityPtr);
-        }
+    erasedEntity_ = EntityFromJson(erasedEntityBackup_);
+    if (isEditEntity_) {
+        ecsEditor_->setEditEntity(erasedEntity_);
     }
-
-    // システムに参加
-    for (int32_t systemTypeIndex = 0; systemTypeIndex < int32_t(SystemType::Count); ++systemTypeIndex) {
-        for (auto& [systemName, system] : erasedEntitySystems_[systemTypeIndex]) {
-            system->addEntity(addedEntityPtr);
-        }
-    }
-
-    // 編集中のエンティティをセット
-    auto command = std::make_unique<SelectEntityCommand>(ecsEditor_, addedEntityPtr);
 }
 
 void RemoveComponentCommand::Execute() {

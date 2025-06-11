@@ -111,7 +111,7 @@ bool SkyboxRenderer::Edit() {
                     });
                 },
                 true);
-            EditorGroup::getInstance()->pushCommand(std::move(commandCombo));
+            EditorController::getInstance()->pushCommand(std::move(commandCombo));
             isChange = true;
         }
     }

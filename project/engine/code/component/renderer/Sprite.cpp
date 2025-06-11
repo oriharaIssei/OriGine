@@ -5,7 +5,7 @@
 
 /// engine
 #include "Engine.h"
-#include "module/editor/EditorGroup.h"
+#include "module/editor/EditorController.h"
 #include "module/editor/IEditor.h"
 // directX12Object
 #include "directX12/DxFunctionHelper.h"
@@ -95,7 +95,7 @@ bool SpriteRenderer::Edit() {
                         size_                               = textureSize_;
                     });
                 });
-            EditorGroup::getInstance()->pushCommand(std::move(command));
+            EditorController::getInstance()->pushCommand(std::move(command));
 
             isChange = true;
         }

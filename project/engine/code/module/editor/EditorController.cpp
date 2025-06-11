@@ -1,4 +1,4 @@
-#include "EditorGroup.h"
+#include "EditorController.h"
 
 #ifdef _DEBUG
 /// engine
@@ -7,6 +7,7 @@
 #include "component/material/light/LightManager.h"
 #include "component/material/Material.h"
 #include "sceneManager/SceneManager.h"
+#include "texture/TextureManager.h"
 // scene
 #include "iScene/IScene.h"
 // lib
@@ -17,15 +18,15 @@
 #include "imgui/imgui_impl_dx12.h"
 #include "imgui/imgui_impl_win32.h"
 
-EditorGroup::EditorGroup() {
+EditorController::EditorController() {
     // Constructor implementation
 }
 
-EditorGroup::~EditorGroup() {
+EditorController::~EditorController() {
     // Destructor implementation
 }
 
-void EditorGroup::ExecuteCommandRequests() {
+void EditorController::ExecuteCommandRequests() {
     while (true) {
         // request がなくなったら終了
         if (commandRequestQueue_.empty()) {
@@ -42,31 +43,31 @@ void EditorGroup::ExecuteCommandRequests() {
         // command を実行
         command->Execute();
 
-        // coomand を history に追加
+        // command を history に追加
         commandHistory_.erase(currentCommandItr_, commandHistory_.end());
         commandHistory_.push_back(std::move(command));
         currentCommandItr_ = commandHistory_.end();
     }
 }
 
-EditorGroup* EditorGroup::getInstance() {
-    static EditorGroup instance;
+EditorController* EditorController::getInstance() {
+    static EditorController instance;
     return &instance;
 }
 
-void EditorGroup::Initialize() {
+void EditorController::Initialize() {
     ///============================= Editor の初期化 ========================================
     for (auto& [editorName, editor] : editors_) {
         editor->Initialize();
     }
 }
 
-void EditorGroup::Update() {
+void EditorController::Update() {
     ///-------------------------------------------------------------------------------------------------
     // Editors Update
     ///-------------------------------------------------------------------------------------------------
     for (auto& [name, editor] : editors_) {
-        if (editorActive_[editor.get()]) {
+        if (editorActivity_[editor.get()]) {
             editor->Update();
         }
     }
@@ -96,7 +97,8 @@ void EditorGroup::Update() {
     }
 }
 
-void EditorGroup::Finalize() {
+void EditorController::Finalize() {
+    GlobalVariables::getInstance()->SaveFile(defaultSerializeSceneName_, defaultSerializeGroupName_);
     for (auto& [editorName, editor] : editors_) {
         editor->Finalize();
     }

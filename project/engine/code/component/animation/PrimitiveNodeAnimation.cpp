@@ -2,7 +2,7 @@
 
 /// engine
 #include "engine/code/Engine.h"
-#include "module/editor/EditorGroup.h"
+#include "module/editor/EditorController.h"
 #include "module/editor/IEditor.h"
 // component
 #include "component/material/Material.h"
@@ -142,7 +142,7 @@ bool PrimitiveNodeAnimation::Edit() {
         if (ImGui::BeginCombo("TransformAnimation InterpolationType", InterpolationTypeName[int(transformInterpolationType_)])) {
             for (int i = 0; i < (int)InterpolationType::COUNT; ++i) {
                 if (ImGui::Selectable(InterpolationTypeName[i], transformInterpolationType_ == InterpolationType(i))) {
-                    EditorGroup::getInstance()->pushCommand(
+                    EditorController::getInstance()->pushCommand(
                         std::make_unique<SetterCommand<InterpolationType>>(&transformInterpolationType_, InterpolationType(i)));
                 }
             }
@@ -215,7 +215,7 @@ bool PrimitiveNodeAnimation::Edit() {
         DragGuiCommand<float>("AnimationTimeLength", animationTimeLength_, 0.1f, 0);
 
         if (ImGui::Button("Generate Curve")) {
-            EditorGroup::getInstance()->pushCommand(
+            EditorController::getInstance()->pushCommand(
                 std::make_unique<GenerateUvAnimationCommand>(
                     duration_,
                     uvScaleCurve_,
@@ -237,7 +237,7 @@ bool PrimitiveNodeAnimation::Edit() {
         if (ImGui::BeginCombo("MaterialAnimation InterpolationType", InterpolationTypeName[int(uvInterpolationType_)])) {
             for (int i = 0; i < (int)InterpolationType::COUNT; ++i) {
                 if (ImGui::Selectable(InterpolationTypeName[i], uvInterpolationType_ == InterpolationType(i))) {
-                    EditorGroup::getInstance()->pushCommand(
+                    EditorController::getInstance()->pushCommand(
                         std::make_unique<SetterCommand<InterpolationType>>(&uvInterpolationType_, InterpolationType(i)));
                 }
             }
@@ -246,7 +246,7 @@ bool PrimitiveNodeAnimation::Edit() {
         if (ImGui::BeginCombo("Color InterpolationType", InterpolationTypeName[int(colorInterpolationType_)])) {
             for (int i = 0; i < (int)InterpolationType::COUNT; ++i) {
                 if (ImGui::Selectable(InterpolationTypeName[i], colorInterpolationType_ == InterpolationType(i))) {
-                    EditorGroup::getInstance()->pushCommand(
+                    EditorController::getInstance()->pushCommand(
                         std::make_unique<SetterCommand<InterpolationType>>(&colorInterpolationType_, InterpolationType(i)));
                 }
             }

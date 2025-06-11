@@ -169,7 +169,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\module\IModule.h" />
     <ClInclude Include="engine\code\module\debugger\DebuggerGroup.h" />
     <ClInclude Include="engine\code\module\debugger\IDebugger.h" />
-    <ClInclude Include="engine\code\module\editor\EditorGroup.h" />
+    <ClInclude Include="engine\code\module\editor\EditorController.h" />
     <ClInclude Include="engine\code\module\editor\IEditor.h" />
     <ClInclude Include="engine\code\sceneManager\SceneManager.h" />
     <ClInclude Include="engine\code\system\ISystem.h" />
@@ -274,7 +274,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\model\Model.cpp" />
     <ClCompile Include="engine\code\model\ModelManager.cpp" />
     <ClCompile Include="engine\code\module\debugger\DebuggerGroup.cpp" />
-    <ClCompile Include="engine\code\module\editor\EditorGroup.cpp" />
+    <ClCompile Include="engine\code\module\editor\EditorController.cpp" />
     <ClCompile Include="engine\code\sceneManager\SceneManager.cpp" />
     <ClCompile Include="engine\code\system\ISystem.cpp" />
     <ClCompile Include="engine\code\system\collision\CollisionCheckSystem.cpp" />

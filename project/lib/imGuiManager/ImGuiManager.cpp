@@ -4,20 +4,21 @@
 #include "Engine.h"
 #define RESOURCE_DIRECTORY
 #include "EngineInclude.h"
-// directX12Object
-#include "directX12/DxDevice.h"
 
 #include "winApp/WinApp.h"
-// dx21
+
+// directX12Object
 #include "directX12/DxCommand.h"
 #include "directX12/DxDevice.h"
 #include "directX12/DxSwapChain.h"
 
 /// externals
 #ifdef _DEBUG
-#include "imgui/imgui.h"
+#include <imgui/imgui.h>
 #include <imgui/imgui_impl_dx12.h>
 #include <imgui/imgui_impl_win32.h>
+#include <imgui/ImGuizmo/ImGuizmo.h>
+
 #endif // _DEBUG
 
 ImGuiManager* ImGuiManager::getInstance() {
@@ -59,6 +60,7 @@ void ImGuiManager::Initialize([[maybe_unused]] const WinApp* window, [[maybe_unu
 
     std::string fontPath = kEngineResourceDirectory + "/fonts/FiraMono-Regular.ttf";
     io.Fonts->AddFontFromFileTTF(fontPath.c_str(), 16.0f);
+
 #endif // _DEBUG
 }
 
@@ -69,6 +71,9 @@ void ImGuiManager::Finalize() {
     ImGui_ImplDx12_Shutdown();
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
+
+    Engine::getInstance()->getSrvHeap()->ReleaseDescriptor(srv_);
+    srvHeap_.Reset();
 #endif // _DEBUG
 }
 

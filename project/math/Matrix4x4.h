@@ -27,12 +27,47 @@ struct Matrix4x4 {
     Matrix4x4 inverse() const;
     static Matrix4x4 Inverse(const Matrix4x4& m);
 
+    static void ToFloatArray(const Matrix4x4& mat, float out[16]);
+    void toFloatArray(float out[16]) const {
+        return ToFloatArray(*this, out);
+    }
+    static void FromFloatArray(Matrix4x4& mat, const float in[16]);
+    void fromFloatArray(const float in[16]) {
+        FromFloatArray(*this, in);
+    }
+
+    /// <summary>
+    /// Matrixから srt (Scale, Rotate, Translate) の成分を抽出
+    /// </summary>
+    /// <param name="mat"></param>
+    /// <param name="outScale"></param>
+    /// <param name="outRotate"></param>
+    /// <param name="outTranslate"></param>
+    static void DecomposeMatrixToComponents(
+        const Matrix4x4& mat,
+        Vec3f& outScale,
+        Quaternion& outRotate,
+        Vec3f& outTranslate);
+    /// <summary>
+    /// Matrixから srt (Scale, Rotate, Translate) の成分を抽出
+    /// </summary>
+    /// <param name="outScale"></param>
+    /// <param name="outRotate"></param>
+    /// <param name="outTranslate"></param>
+    void decomposeMatrixToComponents(
+        Vec3f& outScale,
+        Quaternion& outRotate,
+        Vec3f& outTranslate) const {
+        DecomposeMatrixToComponents(*this, outScale, outRotate, outTranslate);
+    }
+
 private:
     DirectX::XMMATRIX MatrixToXMMATRIX() const {
         return DirectX::XMLoadFloat4x4(reinterpret_cast<const DirectX::XMFLOAT4X4*>(this));
     }
 
-    Matrix4x4* XMMATRIXToMatrix(const DirectX::XMMATRIX& xmmat) {
+    Matrix4x4*
+    XMMATRIXToMatrix(const DirectX::XMMATRIX& xmmat) {
         XMStoreFloat4x4(reinterpret_cast<DirectX::XMFLOAT4X4*>(this), xmmat);
         return this;
     }

@@ -17,6 +17,9 @@ public:
         }
     }
 
+    SerializedField()
+        : value_(nullptr) {}
+
     // デストラクタ
     ~SerializedField() {}
 
@@ -78,8 +81,6 @@ public:
     }
 
 private:
-    SerializedField()
-        : value_(nullptr) {}
     T* value_;
 };
 

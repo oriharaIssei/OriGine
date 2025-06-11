@@ -34,8 +34,8 @@ public:
     /// <summary>
     /// Listとallocatorを同じキーで作る
     /// </summary>
-    static bool CreateCommandListWithAllocator(Microsoft::WRL::ComPtr<ID3D12Device>device, const std::string& listAndAllocatorKey, D3D12_COMMAND_LIST_TYPE listType);
-    static bool CreateCommandQueue(Microsoft::WRL::ComPtr<ID3D12Device>device, const std::string& queueKey, D3D12_COMMAND_QUEUE_DESC desc);
+    static bool CreateCommandListWithAllocator(Microsoft::WRL::ComPtr<ID3D12Device> device, const std::string& listAndAllocatorKey, D3D12_COMMAND_LIST_TYPE listType);
+    static bool CreateCommandQueue(Microsoft::WRL::ComPtr<ID3D12Device> device, const std::string& queueKey, D3D12_COMMAND_QUEUE_DESC desc);
 
 private:
     static std::unordered_map<std::string,
@@ -53,7 +53,7 @@ public:
     void ExecuteCommand();
     void ExecuteCommandAndPresent(IDXGISwapChain4* swapChain);
 
-    void ClearTarget(DxRtvDescriptor* _rtv,DxDsvDescriptor* _dsv,const Vec4f& _clearColor);
+    void ClearTarget(DxRtvDescriptor* _rtv, DxDsvDescriptor* _dsv, const Vec4f& _clearColor);
 
 private:
     std::string commandListComboKey_;
@@ -68,8 +68,12 @@ private:
     ResourceStateTracker* resourceStateTracker_                      = nullptr;
 
 public:
-    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> getCommandList() const { return commandList_.Get(); }
-    ID3D12CommandAllocator* getCommandAllocator() const { return commandAllocator_.Get(); }
-    ID3D12CommandQueue* getCommandQueue() const { return commandQueue_.Get(); }
+    const Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& getCommandList() const { return commandList_; }
+    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& getCommandListRef() { return commandList_; }
+    const Microsoft::WRL::ComPtr<ID3D12CommandAllocator>& getCommandAllocator() const { return commandAllocator_; }
+    Microsoft::WRL::ComPtr<ID3D12CommandAllocator>& getCommandAllocatorRef() { return commandAllocator_; }
+    const Microsoft::WRL::ComPtr<ID3D12CommandQueue>& getCommandQueue() const { return commandQueue_; }
+    Microsoft::WRL::ComPtr<ID3D12CommandQueue>& getCommandQueueRef() { return commandQueue_; }
+
     ResourceStateTracker* getResourceStateTracker() const { return resourceStateTracker_; }
 };

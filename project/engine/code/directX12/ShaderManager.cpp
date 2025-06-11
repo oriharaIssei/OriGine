@@ -28,7 +28,7 @@ void ShaderManager::Finalize() {
 
 PipelineStateObj* ShaderManager::CreatePso(const std::string& key,
     const ShaderInformation& shaderInfo,
-    Microsoft::WRL::ComPtr<ID3D12Device>device) {
+    Microsoft::WRL::ComPtr<ID3D12Device> device) {
     std::unique_ptr<PipelineStateObj> pso;
     pso = std::make_unique<PipelineStateObj>();
     HRESULT result;

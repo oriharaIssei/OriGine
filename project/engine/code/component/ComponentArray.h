@@ -42,7 +42,7 @@ public:
     /// </summary>
     /// <param name="_entity">対象のエンティティ</param>
     /// <param name="_json">情報が入った器</param>
-    virtual void LoadComponent(GameEntity* _entity, nlohmann::json& _json) = 0;
+    virtual void LoadComponent(GameEntity* _entity, const nlohmann::json& _json) = 0;
 
     virtual void reserveEntity(GameEntity* _hostEntity, int32_t _entitySize) = 0;
 
@@ -122,7 +122,7 @@ public:
     void SaveComponent(GameEntity* _entity, nlohmann::json& _json) override;
 
     /// @brief コンポーネントの読み込み
-    void LoadComponent(GameEntity* _entity, nlohmann::json& _json) override;
+    void LoadComponent(GameEntity* _entity, const nlohmann::json& _json) override;
 
     /// @brief エンティティ登録（メモリ確保）
     void registerEntity(GameEntity* _entity, int32_t _entitySize = 1, bool _doInitialize = true) override {
@@ -418,7 +418,7 @@ concept HasFromJson = requires(const nlohmann::json& j, T& t) {
     { from_json(j, t) } -> std::same_as<void>;
 };
 template <IsComponent componentType>
-inline void ComponentArray<componentType>::LoadComponent(GameEntity* _entity, nlohmann::json& _json) {
+inline void ComponentArray<componentType>::LoadComponent(GameEntity* _entity, const nlohmann::json& _json) {
     static_assert(HasFromJson<componentType>, "componentType must have a from_json function");
     auto it = entityIndexBind_.find(_entity->getID());
     if (it == entityIndexBind_.end()) {

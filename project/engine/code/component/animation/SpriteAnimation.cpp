@@ -33,7 +33,7 @@ bool SpriteAnimation::Edit() {
     if (ImGui::BeginCombo("Color Interpolation Type", InterpolationTypeName[int(colorInterpolationType_)])) {
         for (int i = 0; i < (int)InterpolationType::COUNT; ++i) {
             if (ImGui::Selectable(InterpolationTypeName[i], colorInterpolationType_ == InterpolationType(i))) {
-                EditorGroup::getInstance()->pushCommand(
+                EditorController::getInstance()->pushCommand(
                     std::make_unique<SetterCommand<InterpolationType>>(&colorInterpolationType_, InterpolationType(i)));
             }
         }
@@ -53,7 +53,7 @@ bool SpriteAnimation::Edit() {
     if (ImGui::BeginCombo("Transform Interpolation Type", InterpolationTypeName[int(transformInterpolationType_)])) {
         for (int i = 0; i < (int)InterpolationType::COUNT; ++i) {
             if (ImGui::Selectable(InterpolationTypeName[i], transformInterpolationType_ == InterpolationType(i))) {
-                EditorGroup::getInstance()->pushCommand(
+                EditorController::getInstance()->pushCommand(
                     std::make_unique<SetterCommand<InterpolationType>>(&transformInterpolationType_, InterpolationType(i)));
             }
         }
@@ -90,7 +90,7 @@ bool SpriteAnimation::Edit() {
     if (ImGui::BeginCombo("UV Interpolation Type", InterpolationTypeName[int(uvInterpolationType_)])) {
         for (int i = 0; i < (int)InterpolationType::COUNT; ++i) {
             if (ImGui::Selectable(InterpolationTypeName[i], uvInterpolationType_ == InterpolationType(i))) {
-                EditorGroup::getInstance()->pushCommand(
+                EditorController::getInstance()->pushCommand(
                     std::make_unique<SetterCommand<InterpolationType>>(&uvInterpolationType_, InterpolationType(i)));
             }
         }

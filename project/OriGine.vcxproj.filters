@@ -276,9 +276,6 @@
     <ClInclude Include="engine\code\directX12\DxDevice.h">
       <Filter>engine\code\directX12</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\directX12\DxDsv.h">
-      <Filter>engine\code\directX12</Filter>
-    </ClInclude>
     <ClInclude Include="engine\code\directX12\DxFence.h">
       <Filter>engine\code\directX12</Filter>
     </ClInclude>
@@ -289,18 +286,6 @@
       <Filter>engine\code\directX12</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\directX12\DxResource.h">
-      <Filter>engine\code\directX12</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\code\directX12\DxRtvArray.h">
-      <Filter>engine\code\directX12</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\code\directX12\DxRtvArrayManager.h">
-      <Filter>engine\code\directX12</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\code\directX12\DxSrvArray.h">
-      <Filter>engine\code\directX12</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\code\directX12\DxSrvArrayManager.h">
       <Filter>engine\code\directX12</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\directX12\DxSwapChain.h">
@@ -351,7 +336,7 @@
     <ClInclude Include="engine\code\module\debugger\IDebugger.h">
       <Filter>engine\code\module\debugger</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\module\editor\EditorGroup.h">
+    <ClInclude Include="engine\code\module\editor\EditorController.h">
       <Filter>engine\code\module\editor</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\module\editor\IEditor.h">
@@ -604,9 +589,6 @@
     <ClCompile Include="engine\code\directX12\DxDevice.cpp">
       <Filter>engine\code\directX12</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\directX12\DxDsv.cpp">
-      <Filter>engine\code\directX12</Filter>
-    </ClCompile>
     <ClCompile Include="engine\code\directX12\DxFence.cpp">
       <Filter>engine\code\directX12</Filter>
     </ClCompile>
@@ -617,18 +599,6 @@
       <Filter>engine\code\directX12</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\directX12\DxResource.cpp">
-      <Filter>engine\code\directX12</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\code\directX12\DxRtvArray.cpp">
-      <Filter>engine\code\directX12</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\code\directX12\DxRtvArrayManager.cpp">
-      <Filter>engine\code\directX12</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\code\directX12\DxSrvArray.cpp">
-      <Filter>engine\code\directX12</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\code\directX12\DxSrvArrayManager.cpp">
       <Filter>engine\code\directX12</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\directX12\DxSwapChain.cpp">
@@ -661,7 +631,7 @@
     <ClCompile Include="engine\code\module\debugger\DebuggerGroup.cpp">
       <Filter>engine\code\module\debugger</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\module\editor\EditorGroup.cpp">
+    <ClCompile Include="engine\code\module\editor\EditorController.cpp">
       <Filter>engine\code\module\editor</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\sceneManager\SceneManager.cpp">

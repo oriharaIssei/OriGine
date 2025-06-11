@@ -132,7 +132,10 @@ public:
         uint32_t index = static_cast<uint32_t>((_descriptor->getCpuHandle().ptr - heap_->GetCPUDescriptorHandleForHeapStart().ptr) / descriptorIncrementSize_);
 
         usedFlags_.set(index, false); // 使用中フラグをクリア
+        descriptors_[index].reset();
         descriptors_[index] = nullptr; // ヒープから削除
+
+        _descriptor.reset();
     }
 
 protected:
@@ -168,8 +171,11 @@ protected:
 public:
     uint32_t getSize() const { return size_; }
 
-    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> getHeap() const { return heap_; }
-    Microsoft::WRL::ComPtr<ID3D12Device> getDevice() const { return device_; }
+    const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& getHeap() const { return heap_; }
+    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> getHeapRef() { return heap_; }
+    const Microsoft::WRL::ComPtr<ID3D12Device>& getDevice() const { return device_; }
+    Microsoft::WRL::ComPtr<ID3D12Device> getDeviceRef() { return device_; }
+
     void setDevice(Microsoft::WRL::ComPtr<ID3D12Device> device) { device_ = device; }
 
     DescriptorType* getDescriptor(uint32_t index) const {
@@ -222,6 +228,8 @@ inline void DxDescriptorHeap<Type>::Finalize() {
 
     size_                    = 0;
     descriptorIncrementSize_ = 0;
+    shaderVisible_           = false;
+
     descriptors_.clear();
     usedFlags_ = 0;
 }
