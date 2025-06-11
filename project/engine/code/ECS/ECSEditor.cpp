@@ -747,6 +747,9 @@ void CreateEntityCommand::Execute() {
     ECSManager* ecsManager = ECSManager::getInstance();
     // エンティティ作成処理の抽出
     uint32_t addedEntity = ecsManager->registerEntity("Entity");
+
+    prevEditEntity_ = ecsEditor_->getEditEntity(); // 編集中のエンティティを保存
+
     ecsEditor_->setEditEntity(ecsManager->getEntity(addedEntity));
 
     ecsEditor_->customEditComponents().clear();
@@ -759,7 +762,7 @@ void CreateEntityCommand::Undo() {
     DestroyEntity(ecsEditor_->getEditEntity());
 
     // 編集中のエンティティをクリア
-    ecsEditor_->setEditEntity(nullptr);
+    ecsEditor_->setEditEntity(prevEditEntity_);
     // 編集中のコンポーネントをクリア
     ecsEditor_->customEditComponents().clear();
     // 編集中のシステムをクリア
@@ -902,68 +905,23 @@ void SelectEntityCommand::Undo() {
 }
 
 void EraseEntityCommand::Execute() {
-    ECSManager* ecsManager = ECSManager::getInstance();
+    isEditEntity_ = ecsEditor_->getEditEntity() == erasedEntity_;
 
     // BackUp 用のデータを取得
-    erasedEntityBackup_ = *erasedEntity_;
-
-    // erasedEntity に紐づくコンポーネントを取得
-    for (auto& [componentTypeName, componentArray] : ecsManager->getComponentArrayMap()) {
-        int32_t index = 0;
-        while (true) {
-            IComponent* component = componentArray->getComponent(erasedEntity_, index);
-            if (component) {
-                erasedEntityComponents_.push_back(std::make_pair(componentTypeName + "(" + std::to_string(index) + ")", component));
-                index++;
-            } else {
-                break;
-            }
-        }
-    }
-
-    // erasedEntity に紐づくシステムを取得
-    for (int32_t systemTypeIndex = 0; systemTypeIndex < int32_t(SystemType::Count); ++systemTypeIndex) {
-        for (auto& [systemName, system] : ecsManager->getSystemsBy(SystemType(systemTypeIndex))) {
-            if (system->hasEntity(erasedEntity_)) {
-                erasedEntitySystems_[systemTypeIndex].push_back(std::make_pair(systemName, system.get()));
-            }
-        }
-    }
+    erasedEntityBackup_ = EntityToJson(erasedEntity_);
 
     // エンティティを削除
     DestroyEntity(erasedEntity_);
 
-    // 編集中のエンティティをクリア
-    auto command = std::make_unique<SelectEntityCommand>(ecsEditor_, nullptr);
+    if (isEditEntity_) {
+        ecsEditor_->setEditEntity(nullptr);
+    }
 }
 void EraseEntityCommand::Undo() {
-    ECSManager* ecsManager = ECSManager::getInstance();
-
-    // エンティティを再生成
-    uint32_t addedEntity       = ecsManager->registerEntity(erasedEntityBackup_.getDataType());
-    GameEntity* addedEntityPtr = ecsManager->getEntity(addedEntity);
-
-    // コンポーネントを追加
-    for (auto& [componentTypeName, component] : erasedEntityComponents_) {
-
-        auto& compMap     = ecsManager->getComponentArrayMap();
-        auto compArrayItr = compMap.find(componentTypeName);
-
-        if (compArrayItr != compMap.end()) {
-            IComponentArray* componentArray = compArrayItr->second.get();
-            componentArray->addComponent(addedEntityPtr);
-        }
+    erasedEntity_ = EntityFromJson(erasedEntityBackup_);
+    if (isEditEntity_) {
+        ecsEditor_->setEditEntity(erasedEntity_);
     }
-
-    // システムに参加
-    for (int32_t systemTypeIndex = 0; systemTypeIndex < int32_t(SystemType::Count); ++systemTypeIndex) {
-        for (auto& [systemName, system] : erasedEntitySystems_[systemTypeIndex]) {
-            system->addEntity(addedEntityPtr);
-        }
-    }
-
-    // 編集中のエンティティをセット
-    auto command = std::make_unique<SelectEntityCommand>(ecsEditor_, addedEntityPtr);
 }
 
 void RemoveComponentCommand::Execute() {
