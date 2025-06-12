@@ -102,5 +102,7 @@ void EditorController::Finalize() {
     for (auto& [editorName, editor] : editors_) {
         editor->Finalize();
     }
+
+    clearCommandHistory();
 }
 #endif // _DEBUG
