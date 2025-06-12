@@ -248,6 +248,7 @@ void SceneManager::DebugUpdate() {
                     if (ImGui::MenuItem("Save")) {
                         // シーンの保存
                         SaveScene();
+                        EditorController::getInstance()->clearCommandHistory();
                     }
                     if (ImGui::MenuItem("Reload")) {
                         this->changeScene(currentSceneName_);
