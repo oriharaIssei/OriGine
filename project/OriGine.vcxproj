@@ -19,13 +19,13 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v143</PlatformToolset>
@@ -41,18 +41,16 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LinkIncremental>true</LinkIncremental>
     <OutDir>..\generated\output\Debug\</OutDir>
     <IntDir>..\generated\obj\Debug\OriGine\</IntDir>
     <TargetName>OriGine</TargetName>
-    <TargetExt>.exe</TargetExt>
+    <TargetExt>.lib</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LinkIncremental>false</LinkIncremental>
     <OutDir>..\generated\output\Release\</OutDir>
     <IntDir>..\generated\obj\Release\OriGine\</IntDir>
     <TargetName>OriGine</TargetName>
-    <TargetExt>.exe</TargetExt>
+    <TargetExt>.lib</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -70,9 +68,11 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Lib>
       <AdditionalDependencies>assimp-vc143-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>externals\assimp\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-    </Link>
+    </Lib>
     <PostBuildEvent>
       <Command>copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxcompiler.dll" "$(TargetDir)dxcompiler.dll"
 copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dxil.dll"</Command>
@@ -98,18 +98,17 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <Lib>
       <AdditionalDependencies>assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>externals\assimp\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-    </Link>
+    </Lib>
     <PostBuildEvent>
       <Command>copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxcompiler.dll" "$(TargetDir)dxcompiler.dll"
 copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dxil.dll"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="engine\code\component\effect\post\DistortionEffectParam.h" />
-    <ClInclude Include="engine\code\system\postRender\DistortionEffect.h" />
-    <ClInclude Include="engine\code\system\render\BackGroundSpriteRenderSystem.h" />
     <ClInclude Include="engine\EngineInclude.h" />
     <ClInclude Include="engine\code\ECS\ECSDebugger.h" />
     <ClInclude Include="engine\code\ECS\ECSEditor.h" />
@@ -127,11 +126,13 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\component\animation\AnimationManager.h" />
     <ClInclude Include="engine\code\component\animation\ModelNodeAnimation.h" />
     <ClInclude Include="engine\code\component\animation\PrimitiveNodeAnimation.h" />
+    <ClInclude Include="engine\code\component\animation\SpriteAnimation.h" />
     <ClInclude Include="engine\code\component\collider\Collider.h" />
     <ClInclude Include="engine\code\component\effect\TextureEffectParam.h" />
     <ClInclude Include="engine\code\component\effect\particle\Particle.h" />
     <ClInclude Include="engine\code\component\effect\particle\emitter\Emitter.h" />
     <ClInclude Include="engine\code\component\effect\particle\emitter\EmitterShape.h" />
+    <ClInclude Include="engine\code\component\effect\post\DistortionEffectParam.h" />
     <ClInclude Include="engine\code\component\effect\post\VignetteParam.h" />
     <ClInclude Include="engine\code\component\material\Material.h" />
     <ClInclude Include="engine\code\component\material\light\DirectionalLight.h" />
@@ -148,10 +149,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\component\transform\Transform.h" />
     <ClInclude Include="engine\code\directX12\DxCommand.h" />
     <ClInclude Include="engine\code\directX12\DxDebug.h" />
+    <ClInclude Include="engine\code\directX12\DxDescriptor.h" />
     <ClInclude Include="engine\code\directX12\DxDevice.h" />
     <ClInclude Include="engine\code\directX12\DxFence.h" />
     <ClInclude Include="engine\code\directX12\DxFunctionHelper.h" />
-    <ClInclude Include="engine\code\directX12\DxDescriptor.h" />
     <ClInclude Include="engine\code\directX12\DxResource.h" />
     <ClInclude Include="engine\code\directX12\DxSwapChain.h" />
     <ClInclude Include="engine\code\directX12\IConstantBuffer.h" />
@@ -176,11 +177,14 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\system\collision\CollisionCheckSystem.h" />
     <ClInclude Include="engine\code\system\effect\EmitterWorkSystem.h" />
     <ClInclude Include="engine\code\system\effect\PrimitiveNodeAnimationWorkSystem.h" />
+    <ClInclude Include="engine\code\system\effect\SpriteAnimationSystem.h" />
     <ClInclude Include="engine\code\system\effect\TextureEffectAnimation.h" />
     <ClInclude Include="engine\code\system\movement\MoveSystemByRigidBody.h" />
+    <ClInclude Include="engine\code\system\postRender\DistortionEffect.h" />
     <ClInclude Include="engine\code\system\postRender\GrayscaleEffect.h" />
     <ClInclude Include="engine\code\system\postRender\SmoothingEffect.h" />
     <ClInclude Include="engine\code\system\postRender\VignetteEffect.h" />
+    <ClInclude Include="engine\code\system\render\BackGroundSpriteRenderSystem.h" />
     <ClInclude Include="engine\code\system\render\ColliderRenderingSystem.h" />
     <ClInclude Include="engine\code\system\render\EffectTexturedMeshRenderSystem.h" />
     <ClInclude Include="engine\code\system\render\LineRenderSystem.h" />
@@ -211,18 +215,14 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="math\Vector3.h" />
     <ClInclude Include="math\Vector4.h" />
     <ClInclude Include="math\shape\Shapes.h" />
-    <ClInclude Include="engine\code\component\animation\SpriteAnimation.h" />
-    <ClInclude Include="engine\code\system\effect\SpriteAnimationSystem.h" />
     <ClInclude Include="util\BitArray.h" />
     <ClInclude Include="util\ConvertString.h" />
     <ClInclude Include="util\EnumBitMask.h" />
-    <ClInclude Include="util\nameof.h" />
     <ClInclude Include="util\NormalizeString.h" />
+    <ClInclude Include="util\nameof.h" />
     <ClInclude Include="util\timeline\Timeline.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="engine\code\component\effect\post\DistortionEffectParam.cpp" />
-    <ClCompile Include="ENGINE\CODE\DIRECTX12\RESOURCEBARRIERMANAGER.CPP" />
     <ClCompile Include="engine\code\ECS\ECSDebugger.cpp" />
     <ClCompile Include="engine\code\ECS\ECSEditor.cpp" />
     <ClCompile Include="engine\code\ECS\ECSManager.cpp" />
@@ -237,11 +237,13 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\component\animation\AnimationManager.cpp" />
     <ClCompile Include="engine\code\component\animation\ModelNodeAnimation.cpp" />
     <ClCompile Include="engine\code\component\animation\PrimitiveNodeAnimation.cpp" />
+    <ClCompile Include="engine\code\component\animation\SpriteAnimation.cpp" />
     <ClCompile Include="engine\code\component\collider\Collider.cpp" />
     <ClCompile Include="engine\code\component\effect\TextureEffectParam.cpp" />
     <ClCompile Include="engine\code\component\effect\particle\Particle.cpp" />
     <ClCompile Include="engine\code\component\effect\particle\emitter\Emitter.cpp" />
     <ClCompile Include="engine\code\component\effect\particle\emitter\EmitterShape.cpp" />
+    <ClCompile Include="engine\code\component\effect\post\DistortionEffectParam.cpp" />
     <ClCompile Include="engine\code\component\effect\post\VignetteParam.cpp" />
     <ClCompile Include="engine\code\component\material\Material.cpp" />
     <ClCompile Include="engine\code\component\material\light\DirectionalLight.cpp" />
@@ -258,14 +260,15 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\component\transform\Transform.cpp" />
     <ClCompile Include="engine\code\directX12\DxCommand.cpp" />
     <ClCompile Include="engine\code\directX12\DxDebug.cpp" />
+    <ClCompile Include="engine\code\directX12\DxDescriptor.cpp" />
     <ClCompile Include="engine\code\directX12\DxDevice.cpp" />
     <ClCompile Include="engine\code\directX12\DxFence.cpp" />
     <ClCompile Include="engine\code\directX12\DxFunctionHelper.cpp" />
-    <ClCompile Include="engine\code\directX12\DxDescriptor.cpp" />
     <ClCompile Include="engine\code\directX12\DxResource.cpp" />
     <ClCompile Include="engine\code\directX12\DxSwapChain.cpp" />
     <ClCompile Include="engine\code\directX12\PipelineStateObj.cpp" />
     <ClCompile Include="engine\code\directX12\RenderTexture.cpp" />
+    <ClCompile Include="engine\code\directX12\ResourceBarrierManager.cpp" />
     <ClCompile Include="engine\code\directX12\ResourceStateTracker.cpp" />
     <ClCompile Include="engine\code\directX12\ShaderCompiler.cpp" />
     <ClCompile Include="engine\code\directX12\ShaderManager.cpp" />
@@ -280,13 +283,14 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\system\collision\CollisionCheckSystem.cpp" />
     <ClCompile Include="engine\code\system\effect\EmitterWorkSystem.cpp" />
     <ClCompile Include="engine\code\system\effect\PrimitiveNodeAnimationWorkSystem.cpp" />
+    <ClCompile Include="engine\code\system\effect\SpriteAnimationSystem.cpp" />
     <ClCompile Include="engine\code\system\effect\TextureEffectAnimation.cpp" />
     <ClCompile Include="engine\code\system\movement\MoveSystemByRigidBody.cpp" />
     <ClCompile Include="engine\code\system\postRender\DistortionEffect.cpp" />
     <ClCompile Include="engine\code\system\postRender\GrayscaleEffect.cpp" />
     <ClCompile Include="engine\code\system\postRender\SmoothingEffect.cpp" />
-    <ClCompile Include="engine\code\system\render\BackGroundSpriteRenderSystem.cpp" />
     <ClCompile Include="engine\code\system\postRender\VignetteEffect.cpp" />
+    <ClCompile Include="engine\code\system\render\BackGroundSpriteRenderSystem.cpp" />
     <ClCompile Include="engine\code\system\render\ColliderRenderingSystem.cpp" />
     <ClCompile Include="engine\code\system\render\EffectTexturedMeshRenderSystem.cpp" />
     <ClCompile Include="engine\code\system\render\LineRenderSystem.cpp" />
@@ -305,12 +309,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="lib\myGui\MyGui.cpp" />
     <ClCompile Include="lib\node\OperatorNodes.cpp" />
     <ClCompile Include="lib\winApp\WinApp.cpp" />
-    <ClCompile Include="main.cpp" />
     <ClCompile Include="math\Matrix4x4.cpp" />
     <ClCompile Include="math\MyEasing.cpp" />
     <ClCompile Include="math\Quaternion.cpp" />
-    <ClCompile Include="engine\code\component\animation\SpriteAnimation.cpp" />
-    <ClCompile Include="engine\code\system\effect\SpriteAnimationSystem.cpp" />
     <ClCompile Include="util\ConvertString.cpp" />
     <ClCompile Include="util\NormalizeString.cpp" />
     <ClCompile Include="util\timeline\Timeline.cpp" />
@@ -321,9 +322,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </ProjectReference>
     <ProjectReference Include="externals\imgui\imgui.vcxproj">
       <Project>{0098A80F-6CAC-D0C0-352E-7420A101CDF1}</Project>
-    </ProjectReference>
-    <ProjectReference Include="application\OriGineApp.vcxproj">
-      <Project>{D3DBAE91-BF93-F0DE-289B-C93A14728BCF}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

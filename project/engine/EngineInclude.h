@@ -11,8 +11,8 @@
 
 #ifdef RESOURCE_DIRECTORY
 #include <string>
-static const std::string kApplicationResourceDirectory = "application/resource";
-static const std::string kEngineResourceDirectory      = "engine/resource";
+static const std::string kApplicationResourceDirectory = "./application/resource";
+static const std::string kEngineResourceDirectory      = "./engine/resource";
 #endif // RESOURCE_DIRECTORY
 
 #ifdef ENGINE_SCENE
@@ -45,6 +45,7 @@ static const std::string kEngineResourceDirectory      = "engine/resource";
 #include "system/postRender/SmoothingEffect.h"
 #include "system/postRender/VignetteEffect.h"
 
+#include "system/render/BackGroundSpriteRenderSystem.h"
 #include "system/render/ColliderRenderingSystem.h"
 #include "system/render/EffectTexturedMeshRenderSystem.h"
 #include "system/render/LineRenderSystem.h"
@@ -52,15 +53,14 @@ static const std::string kEngineResourceDirectory      = "engine/resource";
 #include "system/render/SkyboxRender.h"
 #include "system/render/SpriteRenderSystem.h"
 #include "system/render/TexturedMeshRenderSystem.h"
-#include "system/render/BackGroundSpriteRenderSystem.h"
 #endif // ENGINE_SYSTEMS
 
 #ifdef ENGINE_COMPONENTS
 #include "component/IComponent.h"
 
-#include "component/animation/SpriteAnimation.h"
 #include "component/animation/ModelNodeAnimation.h"
 #include "component/animation/PrimitiveNodeAnimation.h"
+#include "component/animation/SpriteAnimation.h"
 #include "component/material/light/DirectionalLight.h"
 #include "component/material/light/PointLight.h"
 #include "component/material/light/SpotLight.h"

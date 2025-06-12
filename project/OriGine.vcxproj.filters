@@ -210,6 +210,9 @@
     <ClInclude Include="engine\code\component\animation\PrimitiveNodeAnimation.h">
       <Filter>engine\code\component\animation</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\component\animation\SpriteAnimation.h">
+      <Filter>engine\code\component\animation</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\component\collider\Collider.h">
       <Filter>engine\code\component\collider</Filter>
     </ClInclude>
@@ -224,6 +227,9 @@
     </ClInclude>
     <ClInclude Include="engine\code\component\effect\particle\emitter\EmitterShape.h">
       <Filter>engine\code\component\effect\particle\emitter</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\component\effect\post\DistortionEffectParam.h">
+      <Filter>engine\code\component\effect\post</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\component\effect\post\VignetteParam.h">
       <Filter>engine\code\component\effect\post</Filter>
@@ -273,6 +279,9 @@
     <ClInclude Include="engine\code\directX12\DxDebug.h">
       <Filter>engine\code\directX12</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\directX12\DxDescriptor.h">
+      <Filter>engine\code\directX12</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\directX12\DxDevice.h">
       <Filter>engine\code\directX12</Filter>
     </ClInclude>
@@ -280,9 +289,6 @@
       <Filter>engine\code\directX12</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\directX12\DxFunctionHelper.h">
-      <Filter>engine\code\directX12</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\code\directX12\DxDescriptor.h">
       <Filter>engine\code\directX12</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\directX12\DxResource.h">
@@ -357,11 +363,17 @@
     <ClInclude Include="engine\code\system\effect\PrimitiveNodeAnimationWorkSystem.h">
       <Filter>engine\code\system\effect</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\system\effect\SpriteAnimationSystem.h">
+      <Filter>engine\code\system\effect</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\system\effect\TextureEffectAnimation.h">
       <Filter>engine\code\system\effect</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\system\movement\MoveSystemByRigidBody.h">
       <Filter>engine\code\system\movement</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\system\postRender\DistortionEffect.h">
+      <Filter>engine\code\system\postRender</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\system\postRender\GrayscaleEffect.h">
       <Filter>engine\code\system\postRender</Filter>
@@ -371,6 +383,9 @@
     </ClInclude>
     <ClInclude Include="engine\code\system\postRender\VignetteEffect.h">
       <Filter>engine\code\system\postRender</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\system\render\BackGroundSpriteRenderSystem.h">
+      <Filter>engine\code\system\render</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\system\render\ColliderRenderingSystem.h">
       <Filter>engine\code\system\render</Filter>
@@ -462,7 +477,16 @@
     <ClInclude Include="math\shape\Shapes.h">
       <Filter>math\shape</Filter>
     </ClInclude>
+    <ClInclude Include="util\BitArray.h">
+      <Filter>util</Filter>
+    </ClInclude>
     <ClInclude Include="util\ConvertString.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="util\EnumBitMask.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="util\NormalizeString.h">
       <Filter>util</Filter>
     </ClInclude>
     <ClInclude Include="util\nameof.h">
@@ -471,14 +495,6 @@
     <ClInclude Include="util\timeline\Timeline.h">
       <Filter>util\timeline</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\system\postRender\DistortionEffect.h" />
-    <ClInclude Include="engine\code\component\effect\post\DistortionEffectParam.h" />
-    <ClInclude Include="engine\code\component\animation\SpriteAnimation.h" />
-    <ClInclude Include="engine\code\system\effect\SpriteAnimationSystem.h" />
-    <ClInclude Include="util\NormalizeString.h" />
-    <ClInclude Include="engine\code\system\render\BackGroundSpriteRenderSystem.h" />
-    <ClInclude Include="util\BitArray.h" />
-    <ClInclude Include="util\EnumBitMask.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\code\ECS\ECSDebugger.cpp">
@@ -523,6 +539,9 @@
     <ClCompile Include="engine\code\component\animation\PrimitiveNodeAnimation.cpp">
       <Filter>engine\code\component\animation</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\component\animation\SpriteAnimation.cpp">
+      <Filter>engine\code\component\animation</Filter>
+    </ClCompile>
     <ClCompile Include="engine\code\component\collider\Collider.cpp">
       <Filter>engine\code\component\collider</Filter>
     </ClCompile>
@@ -537,6 +556,9 @@
     </ClCompile>
     <ClCompile Include="engine\code\component\effect\particle\emitter\EmitterShape.cpp">
       <Filter>engine\code\component\effect\particle\emitter</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\component\effect\post\DistortionEffectParam.cpp">
+      <Filter>engine\code\component\effect\post</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\component\effect\post\VignetteParam.cpp">
       <Filter>engine\code\component\effect\post</Filter>
@@ -586,6 +608,9 @@
     <ClCompile Include="engine\code\directX12\DxDebug.cpp">
       <Filter>engine\code\directX12</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\directX12\DxDescriptor.cpp">
+      <Filter>engine\code\directX12</Filter>
+    </ClCompile>
     <ClCompile Include="engine\code\directX12\DxDevice.cpp">
       <Filter>engine\code\directX12</Filter>
     </ClCompile>
@@ -593,9 +618,6 @@
       <Filter>engine\code\directX12</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\directX12\DxFunctionHelper.cpp">
-      <Filter>engine\code\directX12</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\code\directX12\DxDescriptor.cpp">
       <Filter>engine\code\directX12</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\directX12\DxResource.cpp">
@@ -608,6 +630,9 @@
       <Filter>engine\code\directX12</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\directX12\RenderTexture.cpp">
+      <Filter>engine\code\directX12</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\directX12\ResourceBarrierManager.cpp">
       <Filter>engine\code\directX12</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\directX12\ResourceStateTracker.cpp">
@@ -624,6 +649,9 @@
     </ClCompile>
     <ClCompile Include="engine\code\input\Input.cpp">
       <Filter>engine\code\input</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\model\Model.cpp">
+      <Filter>engine\code\model</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\model\ModelManager.cpp">
       <Filter>engine\code\model</Filter>
@@ -649,11 +677,17 @@
     <ClCompile Include="engine\code\system\effect\PrimitiveNodeAnimationWorkSystem.cpp">
       <Filter>engine\code\system\effect</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\system\effect\SpriteAnimationSystem.cpp">
+      <Filter>engine\code\system\effect</Filter>
+    </ClCompile>
     <ClCompile Include="engine\code\system\effect\TextureEffectAnimation.cpp">
       <Filter>engine\code\system\effect</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\system\movement\MoveSystemByRigidBody.cpp">
       <Filter>engine\code\system\movement</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\system\postRender\DistortionEffect.cpp">
+      <Filter>engine\code\system\postRender</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\system\postRender\GrayscaleEffect.cpp">
       <Filter>engine\code\system\postRender</Filter>
@@ -663,6 +697,9 @@
     </ClCompile>
     <ClCompile Include="engine\code\system\postRender\VignetteEffect.cpp">
       <Filter>engine\code\system\postRender</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\system\render\BackGroundSpriteRenderSystem.cpp">
+      <Filter>engine\code\system\render</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\system\render\ColliderRenderingSystem.cpp">
       <Filter>engine\code\system\render</Filter>
@@ -718,7 +755,6 @@
     <ClCompile Include="lib\winApp\WinApp.cpp">
       <Filter>lib\winApp</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp" />
     <ClCompile Include="math\Matrix4x4.cpp">
       <Filter>math</Filter>
     </ClCompile>
@@ -731,16 +767,11 @@
     <ClCompile Include="util\ConvertString.cpp">
       <Filter>util</Filter>
     </ClCompile>
+    <ClCompile Include="util\NormalizeString.cpp">
+      <Filter>util</Filter>
+    </ClCompile>
     <ClCompile Include="util\timeline\Timeline.cpp">
       <Filter>util\timeline</Filter>
     </ClCompile>
-    <ClCompile Include="ENGINE\CODE\DIRECTX12\RESOURCEBARRIERMANAGER.CPP" />
-    <ClCompile Include="engine\code\system\postRender\DistortionEffect.cpp" />
-    <ClCompile Include="engine\code\component\effect\post\DistortionEffectParam.cpp" />
-    <ClCompile Include="engine\code\component\animation\SpriteAnimation.cpp" />
-    <ClCompile Include="engine\code\system\effect\SpriteAnimationSystem.cpp" />
-    <ClCompile Include="engine\code\model\Model.cpp" />
-    <ClCompile Include="util\NormalizeString.cpp" />
-    <ClCompile Include="engine\code\system\render\BackGroundSpriteRenderSystem.cpp" />
   </ItemGroup>
 </Project>

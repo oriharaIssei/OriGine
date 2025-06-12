@@ -9,11 +9,12 @@ workspace "OriGine"
     startproject "OriGine"
 
 project "OriGine"
-    kind "WindowedApp"
+    kind "StaticLib"
     language "C++"
     targetdir "../generated/output/%{cfg.buildcfg}/"
     objdir "../generated/obj/%{cfg.buildcfg}/OriGine/"
-
+    -- デバッグ時の作業ディレクトリを指定
+    debugdir "%{wks.location}"
     files { "**.h", "**.cpp"}
     removefiles  { "externals/**", "application/**"}
 
@@ -30,14 +31,12 @@ project "OriGine"
 
     dependson {
         "DirectXTex",
-        "imgui",
-        "OriGineApp"
+        "imgui"
         }
 
     links {
         "DirectXTex",
-        "imgui",
-        "OriGineApp"
+        "imgui"
     }
 
     defines {
@@ -99,6 +98,11 @@ project "imgui"
     targetdir "../generated/output/%{cfg.buildcfg}/"
     objdir "../generated/obj/%{cfg.buildcfg}/imgui/"
 
+    includedirs {
+        "$(ProjectDir)",
+        "$(ProjectDir)/imgui"
+    }
+
     files { "externals/imgui/**.h", "externals/imgui/**.cpp" }
 
     filter "system:windows"
@@ -112,11 +116,13 @@ project "imgui"
         staticruntime "On"
 
 project "OriGineApp"
-    kind "StaticLib"
+    kind "WindowedApp"
     language "C++"
     location "application"
     targetdir "../generated/output/%{cfg.buildcfg}/"
     objdir "../generated/obj/%{cfg.buildcfg}/OriGineApp/"
+    -- デバッグ時の作業ディレクトリを指定
+    debugdir "%{wks.location}"
     files { "application/**.h", "application/**.cpp" }
 
     includedirs {
@@ -133,6 +139,7 @@ project "OriGineApp"
     }
     dependson { "DirectXTex", "imgui" }
     links {
+        "OriGine",
         "DirectXTex",
         "imgui"
     }
