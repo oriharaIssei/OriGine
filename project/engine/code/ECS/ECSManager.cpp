@@ -161,7 +161,7 @@ void EntityComponentSystemManager::ExecuteEntitiesDelete() {
         // エンティティIDを再利用可能にする
         int32_t entityID = entity->getID();
         if (entityID < 0) {
-            LOG_CRITICAL("The entity ID is invalid. \n EntityName :" + entity->dataType_);
+            LOG_CRITICAL("The entity ID is invalid. \n EntityName : {} ", entity->dataType_);
             continue;
         }
 

@@ -270,7 +270,7 @@ void RenderTexture::PostDraw() {
     // コマンドの受付終了 -----------------------------------
     hr = dxCommand_->Close();
     if (FAILED(hr)) {
-        LOG_ERROR("Failed to close command list. HRESULT: " + std::to_string(hr));
+        LOG_ERROR("Failed to close command list. HRESULT: {}", std::to_string(hr));
         assert(false);
     }
     //----------------------------------------------------

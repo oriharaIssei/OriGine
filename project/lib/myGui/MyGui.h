@@ -51,7 +51,7 @@ public:
             value_.erase(it); // 値を削除
 
         } else {
-            LOG_ERROR("Value not found in pool: " + name + "Type :" + nameof<T>());
+            LOG_ERROR("Value not found in pool: {} \n Type : {}", name, nameof<T>());
         }
 
         return returnValue; // デフォルト値を返す

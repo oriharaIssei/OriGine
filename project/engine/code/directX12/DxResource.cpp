@@ -10,7 +10,7 @@
 /// lib
 #include "logger/Logger.h"
 
-void DxResource::CreateBufferResource(Microsoft::WRL::ComPtr<ID3D12Device>device, size_t sizeInBytes) {
+void DxResource::CreateBufferResource(Microsoft::WRL::ComPtr<ID3D12Device> device, size_t sizeInBytes) {
     // 頂点リソース用のヒープの設定
     D3D12_HEAP_PROPERTIES uploadHeapProperties{};
     uploadHeapProperties.Type = D3D12_HEAP_TYPE_UPLOAD; // UploadHeapを使う
@@ -36,7 +36,7 @@ void DxResource::CreateBufferResource(Microsoft::WRL::ComPtr<ID3D12Device>device
         IID_PPV_ARGS(&resource_));
 
     if (FAILED(hr)) {
-        LOG_CRITICAL("Failed to create buffer resource.\n massage :" + hr);
+        LOG_CRITICAL("Failed to create buffer resource.\n massage : {}", std::to_string(hr));
         assert(false);
     }
 }
@@ -73,12 +73,12 @@ void DxResource::CreateRenderTextureResource(Microsoft::WRL::ComPtr<ID3D12Device
         IID_PPV_ARGS(&resource_));
 
     if (FAILED(hr)) {
-        LOG_CRITICAL("Failed to create render texture resource.\n massage :" + hr);
+        LOG_CRITICAL("Failed to create render texture resource.\n massage :{}", std::to_string(hr));
         assert(false);
     }
 }
 
-void DxResource::CreateTextureResource(Microsoft::WRL::ComPtr<ID3D12Device>device, const DirectX::TexMetadata& metadata) {
+void DxResource::CreateTextureResource(Microsoft::WRL::ComPtr<ID3D12Device> device, const DirectX::TexMetadata& metadata) {
     //================================================
     // 1. metadata を基に Resource を設定
     D3D12_RESOURCE_DESC resourceDesc{};
@@ -107,7 +107,7 @@ void DxResource::CreateTextureResource(Microsoft::WRL::ComPtr<ID3D12Device>devic
         IID_PPV_ARGS(&resource_));
 
     if (FAILED(hr)) {
-        LOG_CRITICAL("Failed to create texture resource.\n massage :" + hr);
+        LOG_CRITICAL("Failed to create texture resource.\n massage : {}", std::to_string(hr));
         assert(false);
     }
 }
@@ -122,7 +122,7 @@ HRESULT DxResource::setName(const std::wstring& name) {
         result = resource_->SetName(name.c_str());
     }
     if (FAILED(result)) {
-        LOG_CRITICAL("Failed to set resource name.\n massage :" + result);
+        LOG_CRITICAL("Failed to set resource name.\n massage : {}", result);
         assert(false);
     }
     return result;

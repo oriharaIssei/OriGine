@@ -658,6 +658,9 @@ void ECSEditor::SelectEntityFromCursol() {
         }
 
         auto transformVec = transformArray->getComponents(entity);
+        if (!transformVec) {
+            continue;
+        }
         for (auto itr = transformVec->begin(); itr != transformVec->end(); ++itr) {
             const Transform& transform = *itr;
 

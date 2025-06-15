@@ -448,7 +448,7 @@ void SceneManager::changeScene(const std::string& name) {
 }
 
 void SceneManager::executeSceneChange() {
-    LOG_TRACE(std::format("SceneChange\n PreviousScene : [ {} ] \n NextScene : [ {} ]", currentSceneName_, changingSceneName_));
+    LOG_TRACE("SceneChange\n PreviousScene : [ {} ] \n NextScene : [ {} ]", currentSceneName_, changingSceneName_);
 
     currentSceneName_ = changingSceneName_;
 
@@ -549,7 +549,7 @@ void SceneSerializer::SerializeFromJson(const std::string& _sceneName) {
     myfs::createFolder(directory_);
     std::ofstream ofs(directory_ + _sceneName + ".json");
     if (!ofs) {
-        LOG_ERROR("Failed to open JSON file for writing: " + _sceneName);
+        LOG_ERROR("Failed to open JSON file for writing: {}", _sceneName);
         return;
     }
     ofs << std::setw(4) << jsonData << std::endl;
@@ -559,7 +559,7 @@ void SceneSerializer::SerializeFromJson(const std::string& _sceneName) {
 void SceneSerializer::DeserializeFromJson(const std::string& _sceneName) {
     std::ifstream ifs(directory_ + _sceneName + ".json");
     if (!ifs) {
-        LOG_ERROR("Failed to open JSON file for reading: " + _sceneName);
+        LOG_ERROR("Failed to open JSON file for reading: {}", _sceneName);
         return;
     }
 
@@ -655,7 +655,7 @@ void SceneSerializer::SaveEntity(GameEntity* _entity, const std::string& _direct
     // JSONファイルに書き込み
     std::ofstream ofs(filePath);
     if (!ofs) {
-        LOG_ERROR("Failed to open JSON file for writing: " + filePath);
+        LOG_ERROR("Failed to open JSON file for writing: {}", filePath);
         return;
     }
     ofs << std::setw(4) << entityData << std::endl;
@@ -666,7 +666,7 @@ GameEntity* SceneSerializer::LoadEntity(const std::string& _directory, const std
     std::string filePath = _directory + "/" + _dataType + ".ent";
     std::ifstream ifs(filePath);
     if (!ifs) {
-        LOG_ERROR("Failed to open JSON file for reading: " + filePath);
+        LOG_ERROR("Failed to open JSON file for reading: {}", filePath);
         return nullptr;
     }
 

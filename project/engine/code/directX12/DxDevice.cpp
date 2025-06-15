@@ -4,7 +4,8 @@
 #include "logger/Logger.h"
 #include <cassert>
 
-/// util"
+/// util
+#include "util/ConvertString.h"
 
 void DxDevice::Initialize() {
     HRESULT result;
@@ -35,7 +36,7 @@ void DxDevice::Initialize() {
 
         // ソフトウェアアダプタは弾く
         if (!(adapterDesc.Flags & DXGI_ADAPTER_FLAG3_SOFTWARE)) {
-            LOG_DEBUG(std::format(L"Use Adapter : {}\n", adapterDesc.Description));
+            LOG_DEBUG("Use Adapter : {}", ConvertString(adapterDesc.Description));
             break;
         }
         // ソフトウェアアダプタの場合は見つからなかったことにする
@@ -63,7 +64,7 @@ void DxDevice::Initialize() {
             useAdapter_.Get(), featureLevels[i], IID_PPV_ARGS(&device_));
         // 生成できたか確認
         if (SUCCEEDED(result)) {
-            LOG_DEBUG(std::format("FeatureLevel : {}\n", featrueLevelStrings[i]));
+            LOG_DEBUG("FeatureLevel : {}\n", featrueLevelStrings[i]);
             break; // 生成出来たらループを抜ける
         }
     }

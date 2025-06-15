@@ -108,7 +108,7 @@ void MyFileSystem::selectFolderDialog(const std::string& _defaultDirectory, std:
             CoUninitialize();
         }
     } else {
-        LOG_ERROR("CoInitializeEx failed with error: " + std::to_string(hr));
+        LOG_ERROR("CoInitializeEx failed with error: {}", std::to_string(hr));
     }
 }
 
@@ -196,7 +196,7 @@ bool MyFileSystem::selectFileDialog(
             CoUninitialize();
         }
     } else {
-        LOG_DEBUG("CoInitializeEx failed with error: " + std::to_string(hr));
+        LOG_DEBUG("CoInitializeEx failed with error: {}", std::to_string(hr));
     }
     return false;
 }

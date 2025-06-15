@@ -150,7 +150,7 @@ void DxFunctionHelper::PostDraw(DxCommand* dxCommand, DxFence* fence, DxSwapChai
     // コマンドの受付終了 -----------------------------------
     hr = dxCommand->Close();
     if (FAILED(hr)) {
-        LOG_ERROR("Failed to close command list. HRESULT: " + std::to_string(hr));
+        LOG_ERROR("Failed to close command list. HRESULT: {}", std::to_string(hr));
         assert(false);
     }
     //----------------------------------------------------

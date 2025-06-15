@@ -47,8 +47,8 @@ public:
 protected:
     bool isActive_ = true;
     Transform transform_;
-    std::map<GameEntity*, CollisionState> collisionStateMap_;
-    std::map<GameEntity*, CollisionState> preCollisionStateMap_;
+    std::map<int32_t, CollisionState> collisionStateMap_;
+    std::map<int32_t, CollisionState> preCollisionStateMap_;
 
 public: // accessor
     bool isActive() const { return isActive_; }
@@ -58,13 +58,13 @@ public: // accessor
     void setParent(Transform* _trans) { transform_.parent = _trans; }
 
     // 衝突状態の操作
-    void setCollisionState(GameEntity* _other) {
-        if (this->preCollisionStateMap_[_other] == CollisionState::None)
-            this->collisionStateMap_[_other] = CollisionState::Enter;
+    void setCollisionState(int32_t _otherId) {
+        if (this->preCollisionStateMap_[_otherId] == CollisionState::None)
+            this->collisionStateMap_[_otherId] = CollisionState::Enter;
         else
-            this->collisionStateMap_[_other] = CollisionState::Stay;
+            this->collisionStateMap_[_otherId] = CollisionState::Stay;
     }
-    const std::map<GameEntity*, CollisionState>& getCollisionStateMap() { return collisionStateMap_; }
+    const std::map<int32_t, CollisionState>& getCollisionStateMap() { return collisionStateMap_; }
 };
 
 template <IsShape ShapeClass>

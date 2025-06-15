@@ -8,6 +8,9 @@
 /// lib
 #include "logger/Logger.h"
 
+/// util
+#include "util/ConvertString.h"
+
 #pragma comment(lib, "dxcompiler.lib")
 
 void ShaderCompiler::Initialize() {
@@ -23,7 +26,7 @@ void ShaderCompiler::Initialize() {
 }
 
 IDxcBlob* ShaderCompiler::CompileShader(const std::wstring& filePath, const wchar_t* profile) {
-    LOG_DEBUG(std::format(L"Begin CompileShader, path : {}, profile : {}\n", filePath, profile));
+    LOG_DEBUG("Begin CompileShader, path : {}, profile : {}\n", ConvertString(filePath), ConvertString(profile));
 
     HRESULT hr;
 
@@ -65,7 +68,7 @@ IDxcBlob* ShaderCompiler::CompileShader(const std::wstring& filePath, const wcha
 
     if (shaderError != nullptr
         && shaderError->GetStringLength() != 0) {
-        LOG_ERROR(shaderError->GetStringPointer());
+        LOG_ERROR("{}", shaderError->GetStringPointer());
         assert(false);
     }
 
@@ -78,7 +81,7 @@ IDxcBlob* ShaderCompiler::CompileShader(const std::wstring& filePath, const wcha
         IID_PPV_ARGS(&shaderBlob),
         nullptr);
     assert(SUCCEEDED(hr));
-    LOG_DEBUG(std::format(L"Compile Succeeded, path : {}, profile : {}\n", filePath, profile));
+    LOG_DEBUG("Compile Succeeded, path : {}, profile : {}\n", ConvertString(filePath), ConvertString(profile));
 
     return shaderBlob;
 }

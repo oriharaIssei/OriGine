@@ -95,11 +95,12 @@ void CreateLineMeshByShape(
         2, 6,
         3, 7};
 
+    uint32_t startIndexesIndex = uint32_t(_mesh->vertexes_.size());
+
     // 頂点バッファにデータを格納
     for (uint32_t vi = 0; vi < aabbVertexSize; ++vi) {
         _mesh->vertexes_.emplace_back(ColorVertexData{Vec4f(vertexes[vi], 1.f), _color});
     }
-    uint32_t startIndexesIndex = uint32_t(_mesh->indexes_.size());
     for (uint32_t ii = 0; ii < aabbIndexSize; ++ii) {
         _mesh->indexes_.emplace_back(startIndexesIndex + indices[ii]);
     }
@@ -184,7 +185,6 @@ void ColliderRenderingSystem::CreateRenderMesh() {
         for (auto meshItr = meshGroup->begin(); meshItr != meshGroup->end(); ++meshItr) {
             meshItr->vertexes_.clear();
             meshItr->indexes_.clear();
-            meshItr->TransferData();
         }
 
         aabbMeshItr_ = meshGroup->begin();
@@ -194,6 +194,8 @@ void ColliderRenderingSystem::CreateRenderMesh() {
                 if (!aabb.isActive()) {
                     continue;
                 }
+                // 形状更新
+                aabb.CalculateWorldShape();
 
                 // Capacityが足りなかったら 新しいMeshを作成する
                 if (aabbMeshItr_->getIndexCapacity() <= 0) {
@@ -205,9 +207,6 @@ void ColliderRenderingSystem::CreateRenderMesh() {
                         meshGroup->back().Initialize(ColliderRenderingSystem::defaultMeshCount_ * aabbVertexSize, ColliderRenderingSystem::defaultMeshCount_ * aabbIndexSize);
                     }
                 }
-
-                // 形状更新
-                aabb.CalculateWorldShape();
 
                 // 色の設定
                 Vec4f color    = {1, 1, 1, 1};
@@ -222,7 +221,7 @@ void ColliderRenderingSystem::CreateRenderMesh() {
                 }
 
                 // メッシュ作成
-                CreateLineMeshByShape<>(aabbMeshItr_._Ptr, aabb.getWorldShape(), {1, 1, 1, 1});
+                CreateLineMeshByShape<>(aabbMeshItr_._Ptr, aabb.getWorldShape(), color);
             }
         }
     }
@@ -270,7 +269,7 @@ void ColliderRenderingSystem::CreateRenderMesh() {
                     }
                 }
                 // メッシュ作成
-                CreateLineMeshByShape<>(sphereMeshItr_._Ptr, sphere.getWorldShape(), {1, 1, 1, 1});
+                CreateLineMeshByShape<>(sphereMeshItr_._Ptr, sphere.getWorldShape(), color);
             }
         }
     }
@@ -285,24 +284,24 @@ void ColliderRenderingSystem::RenderCall() {
     ///==============================
     aabbRenderer_.getTransformBuff().SetForRootParameter(commandList, 0);
     for (auto& mesh : *aabbRenderer_.getMeshGroup()) {
-        if (mesh.getIndexSize() <= 0) {
+        if (mesh.indexes_.size() <= 0) {
             continue;
         }
         // 描画
         commandList->IASetVertexBuffers(0, 1, &mesh.getVertexBufferView());
         commandList->IASetIndexBuffer(&mesh.getIndexBufferView());
-        commandList->DrawIndexedInstanced(mesh.getIndexSize(), 1, 0, 0, 0);
+        commandList->DrawIndexedInstanced(static_cast<UINT>(mesh.indexes_.size()), 1, 0, 0, 0);
     }
 
     sphereRenderer_.getTransformBuff().SetForRootParameter(commandList, 0);
     for (auto& mesh : *sphereRenderer_.getMeshGroup()) {
-        if (mesh.getIndexSize() <= 0) {
+        if (mesh.indexes_.size() <= 0) {
             continue;
         }
         // 描画
         commandList->IASetVertexBuffers(0, 1, &mesh.getVertexBufferView());
         commandList->IASetIndexBuffer(&mesh.getIndexBufferView());
-        commandList->DrawIndexedInstanced((UINT)mesh.indexes_.size(), 1, 0, 0, 0);
+        commandList->DrawIndexedInstanced(static_cast<UINT>(mesh.indexes_.size()), 1, 0, 0, 0);
     }
 }
 

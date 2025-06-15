@@ -215,11 +215,11 @@ inline void DxDescriptorHeap<Type>::Initialize(Microsoft::WRL::ComPtr<ID3D12Devi
 template <DxDescriptorHeapType Type>
 inline void DxDescriptorHeap<Type>::Finalize() {
     if (!device_) {
-        LOG_ERROR("DxDescriptorHeap::Finalize: Device is not initialized \n Type :" + DxResourceTypeToString(DxResourceType(Type)));
+        LOG_ERROR("DxDescriptorHeap::Finalize: Device is not initialized \n Type : {}", DxResourceTypeToString(DxResourceType(Type)));
         return;
     }
     if (!heap_) {
-        LOG_ERROR("DxDescriptorHeap::Finalize: Heap is not initialized \n Type :" + DxResourceTypeToString(DxResourceType(Type)));
+        LOG_ERROR("DxDescriptorHeap::Finalize: Heap is not initialized \n Type : {}", DxResourceTypeToString(DxResourceType(Type)));
         return;
     }
     device_.Reset();

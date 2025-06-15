@@ -34,7 +34,7 @@ void Audio::StaticInitialize() {
     //===================================================================
     result = XAudio2Create(&xAudio2_, 0, XAUDIO2_DEFAULT_PROCESSOR);
     if (FAILED(result)) {
-        LOG_CRITICAL("Failed to create XAudio2 engine: " + result);
+        LOG_CRITICAL("Failed to create XAudio2 engine: {}", result);
         assert(false);
     }
     //===================================================================
@@ -42,7 +42,7 @@ void Audio::StaticInitialize() {
     //===================================================================
     result = xAudio2_->CreateMasteringVoice(&masterVoice_);
     if (FAILED(result)) {
-        LOG_CRITICAL("Failed to create mastering voice: " + result);
+        LOG_CRITICAL("Failed to create mastering voice: {}", result);
         assert(false);
     }
 
@@ -71,12 +71,12 @@ void Audio::PlayTrigger() {
 
     result = xAudio2_->CreateSourceVoice(&pSourceVoice_, &audioClip_.data_.wfex);
     if (FAILED(result)) {
-        LOG_CRITICAL("Failed to create source voice: " + result);
+        LOG_CRITICAL("Failed to create source voice: {}", result);
         assert(false);
     }
 
     // 音量を設定
-    pSourceVoice_->SetVolume(audioClip_.valume_);
+    pSourceVoice_->SetVolume(audioClip_.volume_);
 
     XAUDIO2_BUFFER buffer = {};
     buffer.pAudioData     = audioClip_.data_.pBuffer;
@@ -85,13 +85,13 @@ void Audio::PlayTrigger() {
 
     result = pSourceVoice_->SubmitSourceBuffer(&buffer);
     if (FAILED(result)) {
-        LOG_CRITICAL("Failed to submit source buffer: " + result);
+        LOG_CRITICAL("Failed to submit source buffer: {}", result);
         assert(false);
     }
 
     result = pSourceVoice_->Start();
     if (FAILED(result)) {
-        LOG_CRITICAL("Failed to start source voice: " + result);
+        LOG_CRITICAL("Failed to start source voice: {}", result);
         assert(false);
     }
 }
@@ -109,12 +109,12 @@ void Audio::PlayLoop() {
 
     result = xAudio2_->CreateSourceVoice(&pSourceVoice_, &audioClip_.data_.wfex);
     if (FAILED(result)) {
-        LOG_CRITICAL("Failed to create source voice: " + result);
+        LOG_CRITICAL("Failed to create source voice: {}", result);
         assert(false);
     }
 
     // 音量を設定
-    pSourceVoice_->SetVolume(audioClip_.valume_);
+    pSourceVoice_->SetVolume(audioClip_.volume_);
 
     XAUDIO2_BUFFER buffer = {};
     buffer.pAudioData     = audioClip_.data_.pBuffer;
@@ -126,13 +126,13 @@ void Audio::PlayLoop() {
 
     result = pSourceVoice_->SubmitSourceBuffer(&buffer);
     if (FAILED(result)) {
-        LOG_CRITICAL("Failed to submit source buffer: " + result);
+        LOG_CRITICAL("Failed to submit source buffer: {}", result);
         assert(false);
     }
 
     result = pSourceVoice_->Start();
     if (FAILED(result)) {
-        LOG_CRITICAL("Failed to start source voice: " + result);
+        LOG_CRITICAL("Failed to start source voice: {}", result);
         assert(false);
     }
 }
@@ -159,7 +159,7 @@ bool Audio::Edit() {
 
     ImGui::Text("File:%s", fileName_.c_str());
     isEdit |= CheckBoxCommand("Loop", audioClip_.isLoop_);
-    isEdit |= SlideCommand("Volume", audioClip_.valume_, 0.0f, 2.0f);
+    isEdit |= SlideCommand("Volume", audioClip_.volume_, 0.0f, 2.0f);
     if (ImGui::Button("Test Play")) {
         Play();
     }
@@ -184,7 +184,7 @@ void Audio::Finalize() {
 SoundData Audio::LoadWave(const std::string& fileName) {
     std::ifstream file(fileName, std::ios::binary);
     if (!file.is_open()) {
-        LOG_ERROR("Failed to open file: " + fileName);
+        LOG_ERROR("Failed to open file: {}", fileName);
         return {};
     }
 
@@ -251,13 +251,13 @@ void Audio::SoundUnLoad() {
 void to_json(nlohmann::json& j, const Audio& t) {
     j["fileName"] = t.fileName_;
     j["isLoop"]   = t.audioClip_.isLoop_;
-    j["valume"]   = t.audioClip_.valume_;
+    j["volume"]   = t.audioClip_.volume_;
 }
 
 void from_json(const nlohmann::json& j, Audio& t) {
     j.at("fileName").get_to(t.fileName_);
     j.at("isLoop").get_to(t.audioClip_.isLoop_);
-    j.at("valume").get_to(t.audioClip_.valume_);
+    j.at("volume").get_to(t.audioClip_.volume_);
 }
 
 #pragma endregion "Audio"

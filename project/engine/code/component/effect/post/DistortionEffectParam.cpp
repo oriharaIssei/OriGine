@@ -1,9 +1,9 @@
 #include "DistortionEffectParam.h"
 
 /// engine
+#include "directX12/DxDevice.h"
 #include "Engine.h"
 #include "texture/TextureManager.h"
-#include "directX12/DxDevice.h"
 // component
 #include "component/renderer/primitive/Primitive.h"
 
@@ -82,7 +82,7 @@ bool DistortionEffectParam::Edit() {
                     newObject = std::make_shared<RingRenderer>();
                     break;
                 default:
-                    LOG_ERROR("Unsupported Primitive Type for Distortion Object: " + std::to_string(int32_t(newObjectType)));
+                    LOG_ERROR("Unsupported Primitive Type for Distortion Object: {}", std::to_string(int32_t(newObjectType)));
                     break;
                 }
                 if (newObject) {

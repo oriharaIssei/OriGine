@@ -32,6 +32,7 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 #include "system/ISystem.h"
 
 #include "system/collision/CollisionCheckSystem.h"
+#include "system/collision/CollisionPushBackSystem.h"
 
 #include "system/movement/MoveSystemByRigidBody.h"
 
@@ -67,6 +68,7 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 #include "component/material/Material.h"
 
 #include "component/collider/Collider.h"
+#include "component/collider/CollisionPushBackInfo.h"
 
 #include "component/effect/particle/emitter/Emitter.h"
 #include "component/effect/post/DistortionEffectParam.h"

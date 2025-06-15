@@ -55,7 +55,10 @@ PipelineStateObj* ShaderManager::CreatePso(const std::string& key,
         &errorBlob);
 
     if (FAILED(result)) {
-        LOG_ERROR(reinterpret_cast<char*>(errorBlob->GetBufferPointer()));
+        std::string errMsg(
+            static_cast<const char*>(errorBlob->GetBufferPointer()),
+            errorBlob->GetBufferSize());
+        LOG_ERROR("D3D12SerializeRootSignature failed: {}", errMsg);
         assert(false);
     }
 

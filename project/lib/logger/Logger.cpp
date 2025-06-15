@@ -106,82 +106,46 @@ void Logger::Finalize() {
     }
 }
 
-void Logger::Trace(const std::string& message, const char* file, const char* function, int line) {
+void Logger::DirectTrace(const std::string& message, const char* file, const char* function, int line) {
     if (logger_) {
         logger_->log(spdlog::source_loc{file, line, function}, spdlog::level::trace, message);
     }
 }
 
-void Logger::Info(const std::string& message, const char* file, const char* function, int line) {
+void Logger::DirectInfo(const std::string& message, const char* file, const char* function, int line) {
     if (logger_) {
         logger_->log(spdlog::source_loc{file, line, function}, spdlog::level::info, message);
     }
 }
 
-void Logger::Debug(const std::string& message, const char* file, const char* function, int line) {
+void Logger::DirectDebug(const std::string& message, const char* file, const char* function, int line) {
     if (logger_) {
         logger_->log(spdlog::source_loc{file, line, function}, spdlog::level::debug, message);
     }
 }
 
-void Logger::Warn(const std::string& message, const char* file, const char* function, int line) {
+void Logger::DirectWarn(const std::string& message, const char* file, const char* function, int line) {
     if (logger_) {
         logger_->log(spdlog::source_loc{file, line, function}, spdlog::level::warn, message);
     }
 }
 
-void Logger::Error(const std::string& message, const char* file, const char* function, int line) {
+void Logger::DirectError(const std::string& message, const char* file, const char* function, int line) {
     if (logger_) {
         logger_->log(spdlog::source_loc{file, line, function}, spdlog::level::err, message);
     }
 }
 
-void Logger::Critical(const std::string& message, const char* file, const char* function, int line) {
+void Logger::DirectCritical(const std::string& message, const char* file, const char* function, int line) {
     if (logger_) {
         logger_->log(spdlog::source_loc{file, line, function}, spdlog::level::critical, message);
-    }
-}
-
-void Logger::Trace(const std::wstring& message, const char* file, const char* function, int line) {
-    if (logger_) {
-        Trace(ConvertString(message), file, function, line);
-    }
-}
-
-void Logger::Info(const std::wstring& message, const char* file, const char* function, int line) {
-    if (logger_) {
-        Info(ConvertString(message), file, function, line);
-    }
-}
-
-void Logger::Debug(const std::wstring& message, const char* file, const char* function, int line) {
-    if (logger_) {
-        Debug(ConvertString(message), file, function, line);
-    }
-}
-
-void Logger::Warn(const std::wstring& message, const char* file, const char* function, int line) {
-    if (logger_) {
-        Warn(ConvertString(message), file, function, line);
-    }
-}
-
-void Logger::Error(const std::wstring& message, const char* file, const char* function, int line) {
-    if (logger_) {
-        Error(ConvertString(message), file, function, line);
-    }
-}
-
-void Logger::Critical(const std::wstring& message, const char* file, const char* function, int line) {
-    if (logger_) {
-        Critical(ConvertString(message), file, function, line);
     }
 }
 
 void Logger::DirectXLog(const char* file, const char* function, int line) {
     Microsoft::WRL::ComPtr<ID3D12InfoQueue> infoQueue = DxDebug::getInstance()->getInfoQueue();
     if (!infoQueue) {
-        Error("ID3D12InfoQueue is null.", file, function, line);
+        LOG_ERROR("ID3D12InfoQueue is null.", file, function, line);
         return;
     }
     UINT64 numMessages = infoQueue->GetNumStoredMessages();

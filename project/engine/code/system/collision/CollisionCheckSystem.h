@@ -24,8 +24,3 @@ protected:
     std::vector<GameEntity*> entities_;
     std::vector<GameEntity*>::iterator entityItr_;
 };
-
-template <typename ShapeA, typename ShapeB>
-bool CheckCollisionPair([[maybe_unused]] const ShapeA& _shapeA, [[maybe_unused]] const ShapeB& _shapeB) {
-    return false;
-}
