@@ -82,8 +82,8 @@ struct Vector3 final : Vector<3, valueType> {
 };
 
 template <typename valueType>
-valueType Dot(const Vector3<valueType>& vec1, const Vector3<valueType>& vec2) {
-    return vec1.dot(vec2);
+inline Vector3<valueType> Reflect(const Vector3<valueType>& v, const Vector3<valueType>& normal) {
+    return v - 2.0f * (v.dot(normal)) * normal;
 }
 
 //=========== using ===========//

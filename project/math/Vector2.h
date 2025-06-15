@@ -68,6 +68,11 @@ struct Vector2 final
     }
 };
 
+template <typename valueType>
+inline Vector2<valueType> Reflect(const Vector2<valueType>& v, const Vector2<valueType>& normal) {
+    return v - 2.0f * (v.dot(normal)) * normal;
+}
+
 //=========== using ===========//
 template <typename valueType>
 using Vec2 = Vector2<valueType>;

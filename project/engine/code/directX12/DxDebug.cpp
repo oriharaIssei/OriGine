@@ -46,11 +46,8 @@ void DxDebug::CreateInfoQueue() {
         HRESULT result                                     = device->QueryInterface(IID_PPV_ARGS(infoQueue_.GetAddressOf()));
 
         if (FAILED(result)) {
-            _com_error err(result);
-            std::wstring msg = std::format(
-                L"ID3D12InfoQueue is not available. This is expected if the debug layer is not enabled. HRESULT: 0x{0:08X}, message: {1}",
-                static_cast<unsigned int>(result), err.ErrorMessage());
-            LOG_WARN(msg.c_str());
+            LOG_WARN("ID3D12InfoQueue is not available. This is expected if the debug layer is not enabled. HRESULT: 0x{0:08X}, message: {1}",
+                static_cast<unsigned int>(result), std::to_string(result));
             infoQueue_.Reset();
         } else {
             LOG_INFO("ID3D12InfoQueue is available.");

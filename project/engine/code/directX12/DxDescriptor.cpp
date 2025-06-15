@@ -17,7 +17,7 @@ D3D12_DESCRIPTOR_HEAP_TYPE DxDescriptorTypeToD3D12HeapType(DxDescriptorHeapType 
     }
 }
 
-Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> CreateHeap(Microsoft::WRL::ComPtr<ID3D12Device>device, D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible) {
+Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> CreateHeap(Microsoft::WRL::ComPtr<ID3D12Device> device, D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible) {
     HRESULT hr;
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> descriptorHeap = nullptr;
 
@@ -32,9 +32,9 @@ Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> CreateHeap(Microsoft::WRL::ComPtr<I
         IID_PPV_ARGS(&descriptorHeap));
 
     if (SUCCEEDED(hr)) {
-        LOG_DEBUG("Create DescriptorHeap\n Type : " + std::to_string(heapType) + "\n NumDescriptors : " + std::to_string(numDescriptors));
+        LOG_DEBUG("Create DescriptorHeap\n Type : {} \n NumDescriptors : {}", std::to_string(heapType), std::to_string(numDescriptors));
     } else {
-        LOG_CRITICAL("Failed to create descriptor heap\n Type : " + std::to_string(heapType) + "\n NumDescriptors : " + std::to_string(numDescriptors));
+        LOG_CRITICAL("Failed to create descriptor heap\n Type : {} \n NumDescriptors : {}", std::to_string(heapType), std::to_string(numDescriptors));
         assert(false);
     }
 

@@ -200,7 +200,10 @@ Vec3f TransformVector(const Vec3f& vec, const Matrix4x4& matrix) {
     float result[4];
     DirectX::XMStoreFloat4(reinterpret_cast<DirectX::XMFLOAT4*>(result), resultXM);
 
-    assert(result[3] != 0.0f);
+    if (result[3] == 0.0f) {
+        return Vec3f(0.f, 0.f, 0.f);
+    }
+
     return Vec3f(result[0] / result[3], result[1] / result[3], result[2] / result[3]);
 }
 

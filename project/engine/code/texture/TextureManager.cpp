@@ -110,7 +110,7 @@ DirectX::ScratchImage Texture::Load(const std::string& filePath) {
     if (FAILED(hr)) {
         std::string errorMassage;
         std::wcerr << L"Failed to load texture file: " << filePathW << L" hr=0x" << std::hex << hr << std::endl;
-        LOG_CRITICAL("Failed to load texture file: " + filePath + " hr=0x" + std::to_string(hr));
+        LOG_CRITICAL("Failed to load texture file: {} \n massage {}", filePath, std::to_string(hr));
         assert(SUCCEEDED(hr));
     }
 
@@ -187,7 +187,7 @@ void Texture::ExecuteCommand(Microsoft::WRL::ComPtr<ID3D12Resource> _resource) {
 
     HRESULT hr = TextureManager::dxCommand_->Close();
     if (FAILED(hr)) {
-        LOG_ERROR("Failed to close command list. HRESULT: " + std::to_string(hr));
+        LOG_ERROR("Failed to close command list. HRESULT: {}", std::to_string(hr));
         assert(false);
     }
 
@@ -245,7 +245,7 @@ void TextureManager::Finalize() {
 
 uint32_t TextureManager::LoadTexture(const std::string& filePath, std::function<void(uint32_t loadedIndex)> callBack) {
     std::string normalizedPath = normalizeString(filePath);
-    LOG_TRACE("Load Texture \n Path : " + filePath);
+    LOG_TRACE("Load Texture \n Path : {}", filePath);
 
     uint32_t index = 0;
     {
@@ -338,6 +338,7 @@ void TextureManager::LoadTask::Update() {
     }
     timer.Update();
 
-    LOG_TRACE("LoadedTexture \n Path        : " + filePath + "\n Lading Time : " + std::to_string(timer.getDeltaTime()));
+    LOG_TRACE("LoadedTexture \n Path        : {} \n Lading Time : " , filePath ,std::to_string(timer.getDeltaTime()));
 }
 #pragma endregion
+

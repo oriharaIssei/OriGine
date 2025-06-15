@@ -234,7 +234,7 @@ void Engine::ScreenPostDraw() {
     // コマンドの受付終了 -----------------------------------
     HRESULT result = dxCommand_->Close();
     if (FAILED(result)) {
-        LOG_ERROR("Failed to close command list. HRESULT: " + std::to_string(result));
+        LOG_ERROR("Failed to close command list. HRESULT: {}", std::to_string(result));
         assert(false);
     }
     //----------------------------------------------------

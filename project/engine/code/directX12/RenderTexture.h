@@ -15,6 +15,7 @@
 class RenderTexture {
 public:
     RenderTexture(DxCommand* dxCom) : dxCommand_(dxCom) {}
+    RenderTexture() = default;
     ~RenderTexture() = default;
 
     static void Awake();

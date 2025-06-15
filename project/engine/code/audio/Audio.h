@@ -36,7 +36,7 @@ class AudioClip {
 public:
     SoundData data_;
     bool isLoop_  = false;
-    float valume_ = 0.5f;
+    float volume_ = 0.5f;
 };
 
 class Audio

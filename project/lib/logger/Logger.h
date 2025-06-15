@@ -33,19 +33,39 @@ public:
     static void Initialize();
     static void Finalize();
 
-    static void Trace(const std::string& message, const char* file, const char* function, int line);
-    static void Info(const std::string& message, const char* file, const char* function, int line);
-    static void Debug(const std::string& message, const char* file, const char* function, int line);
-    static void Warn(const std::string& message, const char* file, const char* function, int line);
-    static void Error(const std::string& message, const char* file, const char* function, int line);
-    static void Critical(const std::string& message, const char* file, const char* function, int line);
+private:
+    static void DirectTrace(const std::string& message, const char* file, const char* function, int line);
+    static void DirectInfo(const std::string& message, const char* file, const char* function, int line);
+    static void DirectDebug(const std::string& message, const char* file, const char* function, int line);
+    static void DirectWarn(const std::string& message, const char* file, const char* function, int line);
+    static void DirectError(const std::string& message, const char* file, const char* function, int line);
+    static void DirectCritical(const std::string& message, const char* file, const char* function, int line);
 
-    static void Trace(const std::wstring& message, const char* file, const char* function, int line);
-    static void Info(const std::wstring& message, const char* file, const char* function, int line);
-    static void Debug(const std::wstring& message, const char* file, const char* function, int line);
-    static void Warn(const std::wstring& message, const char* file, const char* function, int line);
-    static void Error(const std::wstring& message, const char* file, const char* function, int line);
-    static void Critical(const std::wstring& message, const char* file, const char* function, int line);
+public:
+    template <typename... Args>
+    static void Trace(const char* file, const char* function, int line, std::format_string<Args...> fmt, Args&&... args) {
+        DirectTrace(std::format(fmt, std::forward<Args>(args)...), file, function, line);
+    }
+    template <typename... Args>
+    static void Info(const char* file, const char* function, int line, std::format_string<Args...> fmt, Args&&... args) {
+        DirectInfo(std::format(fmt, std::forward<Args>(args)...), file, function, line);
+    }
+    template <typename... Args>
+    static void Debug(const char* file, const char* function, int line, std::format_string<Args...> fmt, Args&&... args) {
+        DirectDebug(std::format(fmt, std::forward<Args>(args)...), file, function, line);
+    }
+    template <typename... Args>
+    static void Warn(const char* file, const char* function, int line, std::format_string<Args...> fmt, Args&&... args) {
+        DirectWarn(std::format(fmt, std::forward<Args>(args)...), file, function, line);
+    }
+    template <typename... Args>
+    static void Error(const char* file, const char* function, int line, std::format_string<Args...> fmt, Args&&... args) {
+        DirectError(std::format(fmt, std::forward<Args>(args)...), file, function, line);
+    }
+    template <typename... Args>
+    static void Critical(const char* file, const char* function, int line, std::format_string<Args...> fmt, Args&&... args) {
+        DirectCritical(std::format(fmt, std::forward<Args>(args)...), file, function, line);
+    }
 
     static void DirectXLog(const char* file, const char* function, int line);
 
@@ -56,11 +76,11 @@ public:
 };
 
 // マクロで簡略化
-#define LOG_TRACE(msg) Logger::Trace(msg, __FILE__, __FUNCTION__, __LINE__)
-#define LOG_INFO(msg) Logger::Info(msg, __FILE__, __FUNCTION__, __LINE__)
-#define LOG_DEBUG(msg) Logger::Debug(msg, __FILE__, __FUNCTION__, __LINE__)
-#define LOG_WARN(msg) Logger::Warn(msg, __FILE__, __FUNCTION__, __LINE__)
-#define LOG_ERROR(msg) Logger::Error(msg, __FILE__, __FUNCTION__, __LINE__)
-#define LOG_CRITICAL(msg) Logger::Critical(msg, __FILE__, __FUNCTION__, __LINE__)
+#define LOG_TRACE(fmt, ...) Logger::Trace(__FILE__, __FUNCTION__, __LINE__,fmt, ##__VA_ARGS__)
+#define LOG_INFO(fmt, ...) Logger::Info(__FILE__, __FUNCTION__, __LINE__, fmt, ##__VA_ARGS__)
+#define LOG_DEBUG(fmt, ...) Logger::Debug(__FILE__, __FUNCTION__, __LINE__, fmt, ##__VA_ARGS__)
+#define LOG_WARN(fmt, ...) Logger::Warn(__FILE__, __FUNCTION__, __LINE__, fmt, ##__VA_ARGS__)
+#define LOG_ERROR(fmt, ...) Logger::Error(__FILE__, __FUNCTION__, __LINE__, fmt, ##__VA_ARGS__)
+#define LOG_CRITICAL(fmt, ...) Logger::Critical(__FILE__, __FUNCTION__, __LINE__, fmt, ##__VA_ARGS__)
 
 #define LOG_DX12() Logger::DirectXLog(__FILE__, __FUNCTION__, __LINE__)
