@@ -28,7 +28,7 @@ void CollisionPushBackSystem::UpdateEntity(GameEntity* _entity) {
     }
 
     // PushBack処理
-    for (auto& [entityID, info] : collPushbackInfo->getCollisionStateMap()) {
+    for (auto& [entityID, info] : collPushbackInfo->getCollisionInfoMap()) {
         switch (collPushbackInfo->getPushBackType()) {
         case CollisionPushBackType::PushBack: {
             // ここでは単純に法線方向に押し戻す
