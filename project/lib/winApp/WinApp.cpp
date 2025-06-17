@@ -53,7 +53,7 @@ LRESULT WinApp::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
         }
         break;
     }
-    case WM_SIZE:
+    case WM_SIZE: {
         if (wparam != SIZE_MINIMIZED) {
             WinApp* pThis = reinterpret_cast<WinApp*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
             if (pThis) {
@@ -66,8 +66,28 @@ LRESULT WinApp::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
                 // ここでは内部バッファの再構築などを行うだけに留める
             }
         }
+
         break;
     }
+    case WM_SYSKEYDOWN:
+    case WM_SYSKEYUP:
+    case WM_KEYDOWN:
+    case WM_KEYUP:
+    case WM_IME_KEYDOWN:
+    case WM_IME_KEYUP:
+        if ((wparam == VK_MENU) || wparam == VK_F10) {
+
+            // SetUseHookWinProcReturnValue(TRUE);
+
+            // AltとF10を無視する.
+            return 0;
+        }
+        break;
+
+    default: // 他のメッセージはデフォルトの処理を行う
+        break;
+    }
+
     return DefWindowProc(hwnd, msg, wparam, lparam); // デフォルトの処理
 }
 
