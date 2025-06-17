@@ -121,6 +121,8 @@ bool CheckCollisionPair(
         axis       = Z;
     }
 
+    float overlapRate = 1.f / (float(aIsPushBack) + float(bIsPushBack));
+
     Vec3f aHalfSize = (_shapeA.max_ - _shapeA.min_) * 0.5f;
     Vec3f bHalfSize = (_shapeB.max_ - _shapeB.min_) * 0.5f;
     Vec3f aCenter   = _shapeA.min_ + aHalfSize;
@@ -135,11 +137,10 @@ bool CheckCollisionPair(
 
     // 重なり部分の中心＝衝突点
     Vec3f collPoint = {
-        overlapMinX + (overlapMaxX - overlapMinX) * 0.5f,
-        overlapMinY + (overlapMaxY - overlapMinY) * 0.5f,
-        overlapMinZ + (overlapMaxZ - overlapMinZ) * 0.5f};
+        overlapMinX + (overlapMaxX - overlapMinX) * overlapRate,
+        overlapMinY + (overlapMaxY - overlapMinY) * overlapRate,
+        overlapMinZ + (overlapMaxZ - overlapMinZ) * overlapRate};
 
-    float overlapRate = 1.f / (float(aIsPushBack) + float(bIsPushBack));
 
     if (aIsPushBack) {
         // 衝突時の処理

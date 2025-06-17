@@ -33,6 +33,11 @@ void CollisionPushBackSystem::UpdateEntity(GameEntity* _entity) {
         case CollisionPushBackType::PushBack: {
             // ここでは単純に法線方向に押し戻す
             transform->translate += info.collVec;
+
+            Rigidbody* rigidbody = getComponent<Rigidbody>(_entity);
+            rigidbody->setVelocity({0.0f, 0.0f, 0.0f});
+            rigidbody->setAcceleration({0.0f, 0.0f, 0.0f});
+
             break;
         }
         case CollisionPushBackType::Reflect: {

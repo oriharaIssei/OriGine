@@ -18,7 +18,7 @@ void MoveSystemByRigidBody::Initialize() {}
 void MoveSystemByRigidBody::Finalize() {}
 
 void MoveSystemByRigidBody::UpdateEntity(GameEntity* _entity) {
-    //const float deltaTime = Engine::getInstance()->getDeltaTime();
+    const float deltaTime = Engine::getInstance()->getDeltaTime();
     Transform* transform  = getComponent<Transform>(_entity);
 
     Rigidbody* rigidbody = getComponent<Rigidbody>(_entity);
@@ -44,13 +44,13 @@ void MoveSystemByRigidBody::UpdateEntity(GameEntity* _entity) {
     }
 
     // 速度の更新
-    velocity += acceleration /** deltaTime*/;
+    velocity += acceleration * deltaTime;
 
     rigidbody->setAcceleration(acceleration);
     rigidbody->setVelocity(velocity);
 
     /// --------------------------------------- 位置の更新 --------------------------------------- ///
-    transform->translate += velocity /** deltaTime*/;
+    transform->translate += velocity * deltaTime;
     // worldMatの更新
     transform->Update();
 }
