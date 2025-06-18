@@ -4,6 +4,7 @@
 #include "ECSManager.h"
 #include "Engine.h"
 #include "sceneManager/SceneManager.h"
+#include "winApp/WinApp.h"
 // component
 #include "component/effect/post/DistortionEffectParam.h"
 #include "component/renderer/primitive/Primitive.h"
@@ -25,7 +26,7 @@ void DistortionEffect::Initialize() {
 
     distortionSceneTexture_ = std::make_unique<RenderTexture>(dxCommand_.get());
     distortionSceneTexture_->setTextureName("DistortionSceneTexture");
-    distortionSceneTexture_->Initialize(2, Vec2f(1280, 720), DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, Vec4f(0.0f, 0.0f, 0.0f, 0.0f));
+    distortionSceneTexture_->Initialize(2, Engine::getInstance()->getWinApp()->getWindowSize(), DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, Vec4f(0.0f, 0.0f, 0.0f, 0.0f));
 
     CreatePSO();
 
@@ -35,6 +36,11 @@ void DistortionEffect::Initialize() {
 
 void DistortionEffect::Update() {
     eraseDeadEntity();
+
+    if (distortionSceneTexture_->getTextureSize() != Engine::getInstance()->getWinApp()->getWindowSize()) {
+        // サイズが変わったら再初期化
+        distortionSceneTexture_->Resize(Engine::getInstance()->getWinApp()->getWindowSize());
+    }
 
     /// ================================================
     // Rendering Distortion Scene Texture

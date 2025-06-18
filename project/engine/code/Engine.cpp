@@ -164,6 +164,7 @@ void Engine::Finalize() {
     TextureManager::Finalize();
 
     dsvResource_.Finalize();
+    dsvHeap_->ReleaseDescriptor(dxDsv_);
 
     dxSwapChain_->Finalize();
     dxCommand_->Finalize();
@@ -196,7 +197,10 @@ void Engine::BeginFrame() {
         dxFence_->WaitForFence();
 
         dxSwapChain_->ResizeBuffer(width, height);
-        // dxDsv_->Resize(dxDevice_->getDevice(), DxHeap::getInstance()->getDsvHeap(), width, height);
+
+        dsvResource_.Finalize();
+        dsvHeap_->ReleaseDescriptor(dxDsv_);
+        CreateDsv();
 
         SceneManager::getInstance()->getSceneView()->Resize(window_->getWindowSize());
 
@@ -206,7 +210,6 @@ void Engine::BeginFrame() {
     ImGuiManager::getInstance()->Begin();
 
     input_->Update();
-    // Sprite::setBlendMode(BlendMode::Alpha);
     deltaTime_->Update();
 
     lightManager_->Update();
