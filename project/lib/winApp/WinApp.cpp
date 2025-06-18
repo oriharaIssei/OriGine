@@ -24,47 +24,84 @@ LRESULT WinApp::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
     case WM_SIZING: {
         WinApp* pThis = reinterpret_cast<WinApp*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
         if (pThis && pThis->windowResizeMode_ == WindowResizeMode::FIXED_ASPECT) {
-            RECT* rect = reinterpret_cast<RECT*>(lparam);
-            int width  = rect->right - rect->left;
-            int height = rect->bottom - rect->top;
-
+            RECT* rect   = reinterpret_cast<RECT*>(lparam);
+            int width    = rect->right - rect->left;
+            int height   = rect->bottom - rect->top;
             float aspect = pThis->aspectRatio_;
 
             switch (wparam) {
-            case WMSZ_LEFT:
-            case WMSZ_RIGHT:
-            case WMSZ_TOP:
-            case WMSZ_BOTTOM:
-            case WMSZ_TOPLEFT:
-            case WMSZ_TOPRIGHT:
-            case WMSZ_BOTTOMLEFT:
-            case WMSZ_BOTTOMRIGHT:
-                // 高さを基準に幅を再計算（またはその逆）
-                if (float(width) / height > aspect) {
-                    width = int(height * aspect);
-                } else {
-                    height = int(width / aspect);
-                }
-
-                rect->right  = rect->left + width;
+            case WMSZ_RIGHT: {
+                // 右端のみを動かす
+                width        = rect->right - rect->left;
+                height       = int(width / aspect);
                 rect->bottom = rect->top + height;
-                return TRUE;
+                break;
             }
+            case WMSZ_LEFT: {
+                // 左端のみを動かす
+                width     = rect->right - rect->left;
+                height    = int(width / aspect);
+                rect->top = rect->bottom - height;
+                break;
+            }
+            case WMSZ_TOP: {
+                // 上端のみを動かす
+                height      = rect->bottom - rect->top;
+                width       = int(height * aspect);
+                rect->right = rect->left + width;
+                break;
+            }
+            case WMSZ_BOTTOM: {
+                // 下端のみを動かす
+                height      = rect->bottom - rect->top;
+                width       = int(height * aspect);
+                rect->right = rect->left + width;
+                break;
+            }
+            case WMSZ_TOPRIGHT: {
+                // 右上を動かす
+                width     = rect->right - rect->left;
+                height    = int(width / aspect);
+                rect->top = rect->bottom - height;
+                break;
+            }
+            case WMSZ_TOPLEFT: {
+                // 左上を動かす
+                width     = rect->right - rect->left;
+                height    = int(width / aspect);
+                rect->top = rect->bottom - height;
+                break;
+            }
+            case WMSZ_BOTTOMRIGHT: {
+                // 右下を動かす
+                width        = rect->right - rect->left;
+                height       = int(width / aspect);
+                rect->bottom = rect->top + height;
+                break;
+            }
+            case WMSZ_BOTTOMLEFT: {
+                // 左下を動かす
+                width        = rect->right - rect->left;
+                height       = int(width / aspect);
+                rect->bottom = rect->top + height;
+                break;
+            }
+            }
+            return TRUE;
         }
         break;
     }
     case WM_SIZE: {
+        WinApp* pThis = reinterpret_cast<WinApp*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+        if (pThis == nullptr) {
+            return DefWindowProc(hwnd, msg, wparam, lparam); // デフォルトの処理
+        }
         if (wparam != SIZE_MINIMIZED) {
-            WinApp* pThis = reinterpret_cast<WinApp*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
-            if (pThis) {
-                pThis->isReSized_ = true;
+            pThis->isReSized_ = true;
 
-                pThis->clientWidth_  = LOWORD(lparam);
-                pThis->clientHeight_ = HIWORD(lparam);
-                pThis->windowSize_   = Vec2f(float(pThis->clientWidth_), float(pThis->clientHeight_));
-
-                // ここでは内部バッファの再構築などを行うだけに留める
-            }
+            pThis->clientWidth_  = LOWORD(lparam);
+            pThis->clientHeight_ = HIWORD(lparam);
+            pThis->windowSize_   = Vec2f(float(pThis->clientWidth_), float(pThis->clientHeight_));
         }
 
         break;
@@ -83,11 +120,9 @@ LRESULT WinApp::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
             return 0;
         }
         break;
-
-    default: // 他のメッセージはデフォルトの処理を行う
+    default:
         break;
     }
-
     return DefWindowProc(hwnd, msg, wparam, lparam); // デフォルトの処理
 }
 

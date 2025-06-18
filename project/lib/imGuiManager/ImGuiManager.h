@@ -24,7 +24,6 @@ public:
     void End();
 
     void Draw();
-
 private:
     ImGuiManager()                                     = default;
     ~ImGuiManager()                                    = default;

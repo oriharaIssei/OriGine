@@ -13,6 +13,7 @@
 
 /// lib
 #include "logger/Logger.h"
+#include "util/ConvertString.h"
 
 void DxSwapChain::Initialize(const WinApp* winApp, const DxDevice* device, const DxCommand* command) {
     bufferWidth_  = winApp->getWidth();
@@ -39,14 +40,14 @@ void DxSwapChain::Initialize(const WinApp* winApp, const DxDevice* device, const
         nullptr,
         &swapChain1);
     if (FAILED(result)) {
-        LOG_CRITICAL("Failed to create swap chain.");
+        LOG_CRITICAL("Failed to create swap chain. \n Massage : {}", HrToString(result));
         assert(false);
     }
 
     // SwapChain4を得る
     result = swapChain1->QueryInterface(IID_PPV_ARGS(&swapChain_));
     if (FAILED(result)) {
-        LOG_CRITICAL("Failed to query swap chain interface.");
+        LOG_CRITICAL("Failed to query swap chain interface. \n Massage : {}", HrToString(result));
         assert(false);
     }
 
@@ -66,7 +67,7 @@ void DxSwapChain::Initialize(const WinApp* winApp, const DxDevice* device, const
             i, IID_PPV_ARGS(backBufferResources_[i].getResourceRef().GetAddressOf()));
 
         if (FAILED(result)) {
-            LOG_CRITICAL("Failed to get swap chain buffer.");
+            LOG_CRITICAL("Failed to get swap chain buffer. \n Massage : {}", HrToString(result));
             assert(false);
         }
 
@@ -111,10 +112,13 @@ void DxSwapChain::ResizeBuffer(UINT width, UINT height) {
     bufferHeight_ = height;
 
     // 古いバックバッファを解放
-    for (auto& backBuffer : backBuffers_) {
-        if (backBuffer) {
-            Engine::getInstance()->getRtvHeap()->ReleaseDescriptor(backBuffer);
+    auto* rtvHeap = Engine::getInstance()->getRtvHeap();
+    for (int i = 0; i < (int)bufferCount_; ++i) {
+        if (backBuffers_[i]) {
+            rtvHeap->ReleaseDescriptor(backBuffers_[i]);
+            backBuffers_[i].reset();
         }
+        backBufferResources_[i].Finalize();
     }
 
     // バッファのリサイズ
@@ -127,7 +131,7 @@ void DxSwapChain::ResizeBuffer(UINT width, UINT height) {
     );
 
     if (FAILED(result)) {
-        LOG_CRITICAL("Failed to Resize swap chain buffers.");
+        LOG_CRITICAL("Failed to Resize swap chain buffers. \n Massage : {}", HrToString(result));
         assert(false);
     }
 
@@ -140,11 +144,13 @@ void DxSwapChain::ResizeBuffer(UINT width, UINT height) {
         result = swapChain_->GetBuffer(i, IID_PPV_ARGS(backBufferResources_[i].getResourceRef().GetAddressOf()));
 
         if (FAILED(result)) {
-            LOG_CRITICAL("Failed to get swap chain buffer after Resize.");
+            LOG_CRITICAL("Failed to get swap chain buffer after Resize. \n Massage : {}", HrToString(result));
             assert(false);
         }
 
         // バッファに名前を付ける
-        backBuffers_[i] = Engine::getInstance()->getRtvHeap()->CreateDescriptor<>(rtvDesc, &backBufferResources_[i]);
+        backBuffers_[i] = rtvHeap->CreateDescriptor<>(rtvDesc, &backBufferResources_[i]);
+        std::wstring name = std::format(L"SwapChainBuffer[{}]", i);
+        backBufferResources_[i].setName(name.c_str());
     }
 }
