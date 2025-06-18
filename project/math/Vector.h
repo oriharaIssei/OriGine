@@ -11,15 +11,15 @@
 #include <nlohmann/json.hpp>
 
 // indexNumbers
-static const int X = 0;
-static const int Y = 1;
-static const int Z = 2;
-static const int W = 3;
+static constexpr int X = 0;
+static constexpr int Y = 1;
+static constexpr int Z = 2;
+static constexpr int W = 3;
 
-static const int R = 0;
-static const int G = 1;
-static const int B = 2;
-static const int A = 3;
+static constexpr int R = 0;
+static constexpr int G = 1;
+static constexpr int B = 2;
+static constexpr int A = 3;
 
 template <typename valueType>
 struct Vector2;
