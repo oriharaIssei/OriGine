@@ -12,6 +12,7 @@
 // component
 #include "component/material/light/LightManager.h"
 #include "component/renderer/MeshRenderer.h"
+#include "component/transform/Transform.h"
 #include "ECSManager.h"
 
 /// math
@@ -189,11 +190,22 @@ void ColliderRenderingSystem::CreateRenderMesh() {
 
         aabbMeshItr_ = meshGroup->begin();
 
-        for (auto& aabbVec : *aabbColliders_->getAllComponents()) {
-            for (auto& aabb : aabbVec) {
+        for (auto& [entityIdx, aabbIdx] : aabbColliders_->getEntityIndexBind()) {
+            GameEntity* entity = getEntity(entityIdx);
+            if (!entity) {
+                continue; // Entityが存在しない場合はスキップ
+            }
+
+            Transform* transform = getComponent<Transform>(entity);
+            if (!transform) {
+                transform->Update();
+            }
+
+            for (auto& aabb : *aabbColliders_->getComponents(entity)) {
                 if (!aabb.isActive()) {
                     continue;
                 }
+                aabb.setParent(transform);
                 // 形状更新
                 aabb.CalculateWorldShape();
 
@@ -212,7 +224,7 @@ void ColliderRenderingSystem::CreateRenderMesh() {
                 Vec4f color    = {1, 1, 1, 1};
                 auto& stateMap = aabb.getCollisionStateMap();
                 if (!stateMap.empty()) {
-                    for (auto& [entity, state] : stateMap) {
+                    for (auto& [collEntityIdx, state] : stateMap) {
                         if (state != CollisionState::None) {
                             color = {1, 0, 0, 1};
                             break; // 1つでも衝突していたら赤にする
@@ -237,12 +249,22 @@ void ColliderRenderingSystem::CreateRenderMesh() {
 
         sphereMeshItr_ = meshGroup->begin();
 
-        for (auto& sphereVec : *sphereColliders_->getAllComponents()) {
-            for (auto& sphere : sphereVec) {
+         for (auto& [entityIdx, sphereIdx] : sphereColliders_->getEntityIndexBind()) {
+            GameEntity* entity = getEntity(entityIdx);
+            if (!entity) {
+                continue; // Entityが存在しない場合はスキップ
+            }
+
+            Transform* transform = getComponent<Transform>(entity);
+            if (!transform) {
+                transform->Update();
+            }
+
+            for (auto& sphere : *sphereColliders_->getComponents(entity)) {
                 if (!sphere.isActive()) {
                     continue;
                 }
-
+                sphere.setParent(transform);
                 // 形状更新
                 sphere.CalculateWorldShape();
 
@@ -261,7 +283,7 @@ void ColliderRenderingSystem::CreateRenderMesh() {
                 Vec4f color    = {1, 1, 1, 1};
                 auto& stateMap = sphere.getCollisionStateMap();
                 if (!stateMap.empty()) {
-                    for (auto& [entity, state] : stateMap) {
+                    for (auto& [collEntityIdx, state] : stateMap) {
                         if (state != CollisionState::None) {
                             color = {1, 0, 0, 1};
                             break; // 1つでも衝突していたら赤にする
