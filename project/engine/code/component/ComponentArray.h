@@ -15,6 +15,8 @@
 #include "component/IComponent.h"
 #include "Entity.h"
 
+static constexpr uint32_t DEFAULT_COMPONENTARRAY_SIZE = 100;
+
 ///====================================================================================
 // IComponentArray Interface
 ///====================================================================================
@@ -27,7 +29,7 @@ public:
     virtual ~IComponentArray() = default;
 
     /// @brief 指定サイズで初期化する
-    virtual void Initialize(uint32_t _size) = 0;
+    virtual void Initialize(uint32_t _size = DEFAULT_COMPONENTARRAY_SIZE) = 0;
     virtual void Finalize()                 = 0;
 
     /// <summary>
@@ -440,3 +442,174 @@ inline void ComponentArray<componentType>::LoadComponent(GameEntity* _entity, co
         components_[index].back().Initialize(_entity); // コンポーネントの初期化
     }
 }
+
+/// <summary>
+/// Component Registry
+/// ComponentTypeは EXEにおいて一意であり,
+/// Sceneで実際に使用される実体 は ComponentRepository に格納される.
+/// </summary>
+class ComponentRegistry final {
+public:
+    static ComponentRegistry* getInstance() {
+        static ComponentRegistry instance;
+        return &instance;
+    }
+
+    template <IsComponent ComponentType>
+    void registerComponent(
+        std::function<std::unique_ptr<IComponentArray>()> _makeCloneFunc =
+            []() -> std::unique_ptr<IComponentArray> {
+            return std::make_unique<ComponentArray<ComponentType>>();
+        }) {
+        std::string typeName = nameof<ComponentType>();
+        if (componentArrays_.find(typeName) != componentArrays_.end()) {
+            LOG_WARN("ComponentRegistry: ComponentArray already registered for type: {}", typeName);
+        }
+
+        componentArrays_[typeName] = std::make_unique<ComponentArray<ComponentType>>();
+        componentArrays_[typeName]->Initialize();
+        cloneMaker_[typeName] = _makeCloneFunc;
+    }
+
+    template <IsComponent ComponentType>
+    ComponentArray<ComponentType>* getComponentArray() const {
+        std::string typeName = nameof<ComponentType>();
+        auto itr             = componentArrays_.find(typeName);
+        if (itr == componentArrays_.end()) {
+            LOG_ERROR("ComponentRegistry: ComponentArray not found for type: {}", typeName);
+            return nullptr;
+        }
+        return dynamic_cast<ComponentArray<ComponentType>*>(itr->second.get());
+    }
+    IComponentArray* getComponentArray(const std::string& _typeName) const {
+        auto itr = componentArrays_.find(_typeName);
+        if (itr == componentArrays_.end()) {
+            LOG_ERROR("ComponentRegistry: ComponentArray not found for type: {}", _typeName);
+            return nullptr;
+        }
+        return itr->second.get();
+    }
+
+    template <IsComponent ComponentType>
+    ComponentArray<ComponentType>* cloneComponentArray() {
+        std::string _typeName = nameof<ComponentType>();
+        auto itr              = cloneMaker_.find(_typeName);
+        if (itr == cloneMaker_.end()) {
+            LOG_ERROR("ComponentRegistry: Clone maker not found for type: {}", _typeName);
+            return nullptr;
+        }
+        return dynamic_cast<ComponentArray<ComponentType>*>(itr->second(_typeName));
+    }
+
+private:
+    ComponentRegistry()                                    = default;
+    ~ComponentRegistry()                                   = default;
+    ComponentRegistry(const ComponentRegistry&)            = delete;
+    ComponentRegistry& operator=(const ComponentRegistry&) = delete;
+
+private:
+    std::unordered_map<std::string, std::unique_ptr<IComponentArray>> componentArrays_;
+    std::unordered_map<std::string, std::function<std::unique_ptr<IComponentArray>()>> cloneMaker_; // コンポーネントのクローンを作成するための関数マップ
+};
+
+/// <summary>
+/// Component Repository
+/// ComponentRepositoryは実際にシーンで使用されるコンポーネントの実体を保持する.
+/// </summary>
+class ComponentRepository final {
+public:
+    ComponentRepository()  = default;
+    ~ComponentRepository() = default;
+
+    void clear() {
+        for (auto& [typeName, componentArray] : componentArrays_) {
+            componentArray->Finalize();
+        }
+        componentArrays_.clear();
+    }
+
+    template <IsComponent ComponentType>
+    void registerComponentArray() {
+        std::string typeName = nameof<ComponentType>();
+        if (componentArrays_.find(typeName) != componentArrays_.end()) {
+            LOG_WARN("ComponentRepository: ComponentArray already registered for type: {}", typeName);
+            return;
+        }
+        auto componentArray = ComponentRegistry::getInstance()->getComponentArray(typeName);
+        if (componentArray) {
+            componentArrays_[typeName] = std::move(ComponentRegistry::getInstance()->cloneComponentArray<ComponentType>());
+            componentArrays_[typeName]->Initialize(1000);
+        } else {
+            LOG_ERROR("ComponentRepository: ComponentArray not found for type: {}", typeName);
+        }
+    }
+    void unregisterComponentArray(const std::string& _typeName, bool _isFinalize = true) {
+        auto itr = componentArrays_.find(_typeName);
+        if (itr != componentArrays_.end()) {
+            if (_isFinalize) {
+                itr->second->Finalize();
+            }
+            componentArrays_.erase(itr);
+        }
+    }
+
+    template <IsComponent ComponentType>
+    ComponentArray<ComponentType>* getComponentArray() {
+        std::string typeName = nameof<ComponentType>();
+        auto itr             = componentArrays_.find(typeName);
+        if (itr == componentArrays_.end()) {
+            LOG_ERROR("ComponentRepository: ComponentArray not found for type: {}", typeName);
+            return nullptr;
+        }
+        return reinterpret_cast<ComponentArray<ComponentType>*>(itr->second.get());
+    }
+    IComponentArray* getComponentArray(const std::string& _typeName) {
+        auto itr = componentArrays_.find(_typeName);
+        if (itr == componentArrays_.end()) {
+            LOG_ERROR("ComponentRepository: ComponentArray not found for type: {}", _typeName);
+            return nullptr;
+        }
+        return itr->second.get();
+    }
+
+    template <IsComponent ComponentType>
+    std::vector<ComponentType>* getComponents(GameEntity* _entity) {
+        auto componentArray = getComponentArray<ComponentType>();
+        if (componentArray == nullptr) {
+            return nullptr;
+        }
+        return componentArray->getComponents(_entity);
+    }
+    template <IsComponent ComponentType>
+    ComponentType* getComponent(GameEntity* _entity, uint32_t _index = 0) {
+        auto componentArray = getComponentArray<ComponentType>();
+        if (componentArray == nullptr) {
+            return nullptr;
+        }
+        return componentArray->getDynamicComponent(_entity, _index);
+    }
+
+    template <IsComponent... ComponentType>
+    void registerEntity(GameEntity* _entity, bool _doInitialize = true) {
+        (this->getComponentArray<ComponentType>()->addComponent(_entity, _doInitialize), ...);
+    }
+    void removeEntity(GameEntity* _entity) {
+        for (auto& [typeName, componentArray] : componentArrays_) {
+            componentArray->deleteEntity(_entity);
+        }
+    }
+
+private:
+    std::unordered_map<std::string, std::unique_ptr<IComponentArray>> componentArrays_;
+
+public:
+    uint32_t getComponentCount() const {
+        return static_cast<uint32_t>(componentArrays_.size());
+    }
+    const std::unordered_map<std::string, std::unique_ptr<IComponentArray>>& getComponentArrayMap() const {
+        return componentArrays_;
+    }
+    std::unordered_map<std::string, std::unique_ptr<IComponentArray>>& getComponentArrayMapRef() {
+        return componentArrays_;
+    }
+};

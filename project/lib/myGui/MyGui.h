@@ -6,8 +6,8 @@
 #include <string>
 
 /// engine
-#include "module/editor/EditorController.h"
-#include "module/editor/IEditor.h"
+#include "editor/EditorController.h"
+#include "editor/IEditor.h"
 
 /// lib
 #include "logger/Logger.h"
@@ -40,6 +40,9 @@ public:
             return;
         }
         value_[name] = value;
+    }
+    bool hasValue(const std::string& name) const {
+        return value_.find(name) != value_.end();
     }
     T popValue(const std::string& name) {
         T returnValue{};

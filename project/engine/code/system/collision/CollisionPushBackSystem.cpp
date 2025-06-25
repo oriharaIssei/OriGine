@@ -4,7 +4,7 @@
 #include "component/collider/CollisionPushBackInfo.h"
 #include "component/physics/Rigidbody.h"
 #include "component/transform/Transform.h"
-#include "ECSManager.h"
+
 
 /// lib
 #include "logger/Logger.h"

@@ -54,4 +54,5 @@ private:
 public:
     void setViewTranslate(const Vec3f& translate) { cameraBuff_.translate = translate; }
     const CameraTransform& getCameraTransform() const { return cameraBuff_; }
+    CameraTransform& getCameraTransformRef(){ return cameraBuff_; }
 };

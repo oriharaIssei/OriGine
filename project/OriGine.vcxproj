@@ -64,6 +64,7 @@
       <AdditionalOptions>/WX /utf-8 %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -93,6 +94,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <AdditionalOptions>/WX /utf-8 %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -112,9 +114,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\system\collision\CollisionPushBackSystem.h" />
     <ClInclude Include="engine\code\component\collider\CollisionPushBackInfo.h" />
     <ClInclude Include="engine\EngineInclude.h" />
-    <ClInclude Include="engine\code\ECS\ECSDebugger.h" />
-    <ClInclude Include="engine\code\ECS\ECSEditor.h" />
-    <ClInclude Include="engine\code\ECS\ECSManager.h" />
     <ClInclude Include="engine\code\ECS\Entity.h" />
     <ClInclude Include="engine\code\Engine.h" />
     <ClInclude Include="engine\code\assets\IAsset.h" />
@@ -165,16 +164,16 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\directX12\ResourceStateTracker.h" />
     <ClInclude Include="engine\code\directX12\ShaderCompiler.h" />
     <ClInclude Include="engine\code\directX12\ShaderManager.h" />
-    <ClInclude Include="engine\code\iScene\IScene.h" />
+    <ClInclude Include="engine\code\scene\Scene.h" />
     <ClInclude Include="engine\code\input\Input.h" />
     <ClInclude Include="engine\code\model\Model.h" />
     <ClInclude Include="engine\code\model\ModelManager.h" />
     <ClInclude Include="engine\code\module\IModule.h" />
     <ClInclude Include="engine\code\module\debugger\DebuggerGroup.h" />
     <ClInclude Include="engine\code\module\debugger\IDebugger.h" />
-    <ClInclude Include="engine\code\module\editor\EditorController.h" />
-    <ClInclude Include="engine\code\module\editor\IEditor.h" />
-    <ClInclude Include="engine\code\sceneManager\SceneManager.h" />
+    <ClInclude Include="editor\EditorController.h" />
+    <ClInclude Include="editor\IEditor.h" />
+    <ClInclude Include="engine\code\scene\SceneManager.h" />
     <ClInclude Include="engine\code\system\ISystem.h" />
     <ClInclude Include="engine\code\system\collision\CollisionCheckSystem.h" />
     <ClInclude Include="engine\code\system\effect\EmitterWorkSystem.h" />
@@ -217,19 +216,20 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="math\Vector3.h" />
     <ClInclude Include="math\Vector4.h" />
     <ClInclude Include="math\shape\Shapes.h" />
+    <ClInclude Include="editor\SceneEditor.h" />
     <ClInclude Include="util\BitArray.h" />
     <ClInclude Include="util\ConvertString.h" />
+    <ClInclude Include="util\DiffValue.h" />
     <ClInclude Include="util\EnumBitMask.h" />
     <ClInclude Include="util\NormalizeString.h" />
     <ClInclude Include="util\nameof.h" />
     <ClInclude Include="util\timeline\Timeline.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="editor\IEditor.cpp" />
+    <ClCompile Include="engine\code\ECS\Entity.cpp" />
     <ClCompile Include="engine\code\system\collision\CollisionPushBackSystem.cpp" />
     <ClCompile Include="engine\code\component\collider\CollisionPushBackInfo.cpp" />
-    <ClCompile Include="engine\code\ECS\ECSDebugger.cpp" />
-    <ClCompile Include="engine\code\ECS\ECSEditor.cpp" />
-    <ClCompile Include="engine\code\ECS\ECSManager.cpp" />
     <ClCompile Include="engine\code\Engine.cpp" />
     <ClCompile Include="engine\code\assets\IAsset.cpp" />
     <ClCompile Include="engine\code\audio\Audio.cpp" />
@@ -276,13 +276,13 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\directX12\ResourceStateTracker.cpp" />
     <ClCompile Include="engine\code\directX12\ShaderCompiler.cpp" />
     <ClCompile Include="engine\code\directX12\ShaderManager.cpp" />
-    <ClCompile Include="engine\code\iScene\IScene.cpp" />
+    <ClCompile Include="engine\code\scene\Scene.cpp" />
     <ClCompile Include="engine\code\input\Input.cpp" />
     <ClCompile Include="engine\code\model\Model.cpp" />
     <ClCompile Include="engine\code\model\ModelManager.cpp" />
     <ClCompile Include="engine\code\module\debugger\DebuggerGroup.cpp" />
-    <ClCompile Include="engine\code\module\editor\EditorController.cpp" />
-    <ClCompile Include="engine\code\sceneManager\SceneManager.cpp" />
+    <ClCompile Include="editor\EditorController.cpp" />
+    <ClCompile Include="engine\code\scene\SceneManager.cpp" />
     <ClCompile Include="engine\code\system\ISystem.cpp" />
     <ClCompile Include="engine\code\system\collision\CollisionCheckSystem.cpp" />
     <ClCompile Include="engine\code\system\effect\EmitterWorkSystem.cpp" />
@@ -316,6 +316,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="math\Matrix4x4.cpp" />
     <ClCompile Include="math\MyEasing.cpp" />
     <ClCompile Include="math\Quaternion.cpp" />
+    <ClCompile Include="editor\SceneEditor.cpp" />
     <ClCompile Include="util\ConvertString.cpp" />
     <ClCompile Include="util\NormalizeString.cpp" />
     <ClCompile Include="util\timeline\Timeline.cpp" />

@@ -5,11 +5,14 @@
 /// ECS
 #define ENGINE_ECS
 #include "engine/EngineInclude.h"
+// component
+#include "component/physics/Rigidbody.h"
+#include "component/transform/Transform.h"
 
 /// lib
 #include "logger/Logger.h"
 
-MoveSystemByRigidBody::MoveSystemByRigidBody() : ISystem(SystemType::Movement) {}
+MoveSystemByRigidBody::MoveSystemByRigidBody() : ISystem(SystemCategory::Movement) {}
 
 MoveSystemByRigidBody::~MoveSystemByRigidBody() {}
 

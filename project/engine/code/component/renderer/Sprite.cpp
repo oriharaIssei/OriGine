@@ -5,8 +5,8 @@
 
 /// engine
 #include "Engine.h"
-#include "module/editor/EditorController.h"
-#include "module/editor/IEditor.h"
+#include "editor/EditorController.h"
+#include "editor/IEditor.h"
 // directX12Object
 #include "directX12/DxFunctionHelper.h"
 #include <directX12/ShaderCompiler.h>

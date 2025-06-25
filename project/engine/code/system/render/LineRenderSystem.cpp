@@ -12,7 +12,7 @@
 // component
 #include "component/material/light/LightManager.h"
 #include "component/renderer/MeshRenderer.h"
-#include "ECSManager.h"
+
 
 void LineRenderSystem::Initialize() {
     dxCommand_ = std::make_unique<DxCommand>();

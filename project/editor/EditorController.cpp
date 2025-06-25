@@ -2,14 +2,6 @@
 
 #ifdef _DEBUG
 /// engine
-// module
-#include "camera/CameraManager.h"
-#include "component/material/light/LightManager.h"
-#include "component/material/Material.h"
-#include "sceneManager/SceneManager.h"
-#include "texture/TextureManager.h"
-// scene
-#include "iScene/IScene.h"
 // lib
 #include "input/Input.h"
 
@@ -57,7 +49,7 @@ EditorController* EditorController::getInstance() {
 
 void EditorController::Initialize() {
     ///============================= Editor の初期化 ========================================
-    for (auto& [editorName, editor] : editors_) {
+    for (auto& [editorName, editor] : editorWindows_) {
         editor->Initialize();
     }
 }
@@ -66,10 +58,8 @@ void EditorController::Update() {
     ///-------------------------------------------------------------------------------------------------
     // Editors Update
     ///-------------------------------------------------------------------------------------------------
-    for (auto& [name, editor] : editors_) {
-        if (editorActivity_[editor.get()]) {
-            editor->Update();
-        }
+    for (auto& [name, editor] : editorWindows_) {
+            editor->DrawGui();
     }
 
     ///-------------------------------------------------------------------------------------------------
@@ -99,7 +89,7 @@ void EditorController::Update() {
 
 void EditorController::Finalize() {
     GlobalVariables::getInstance()->SaveFile(defaultSerializeSceneName_, defaultSerializeGroupName_);
-    for (auto& [editorName, editor] : editors_) {
+    for (auto& [editorName, editor] : editorWindows_) {
         editor->Finalize();
     }
 

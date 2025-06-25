@@ -5,7 +5,7 @@ class CollisionPushBackSystem
     : public ISystem {
 public:
     CollisionPushBackSystem()
-        : ISystem(SystemType::Collision) {}
+        : ISystem(SystemCategory::Collision) {}
     ~CollisionPushBackSystem() {}
 
     void Initialize() override;

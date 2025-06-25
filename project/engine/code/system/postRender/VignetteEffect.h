@@ -11,7 +11,7 @@
 class VignetteEffect
     : public ISystem {
 public:
-    VignetteEffect() : ISystem(SystemType::PostRender) {}
+    VignetteEffect() : ISystem(SystemCategory::PostRender) {}
     ~VignetteEffect() override = default;
 
     void Initialize() override;
@@ -22,7 +22,7 @@ public:
 protected:
     void CreatePSO();
 
-    void RenderState();
+    void BeginRender();
     void Render();
 
 protected:

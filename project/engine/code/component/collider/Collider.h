@@ -8,7 +8,7 @@
 
 /// engine
 /// ECS
-#include "ECSManager.h"
+
 // component
 #include "component/transform/Transform.h"
 

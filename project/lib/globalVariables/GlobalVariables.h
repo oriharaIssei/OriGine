@@ -9,7 +9,7 @@
 
 /// Engine
 // editor
-#include "module/editor/IEditor.h"
+#include "editor/IEditor.h"
 
 /// math
 #include "Vector2.h"
@@ -124,30 +124,30 @@ public:
     }
 #endif // _DEBUG
 };
-
-#ifdef _DEBUG
-class GlobalVariablesEditor
-    : public IEditor {
-public:
-    GlobalVariablesEditor()
-        : IEditor() {}
-    ~GlobalVariablesEditor() {}
-
-    void Initialize() override;
-    void Update() override;
-    void Finalize() override;
-
-private:
-    void ImGuiMenu();
-
-private:
-    GlobalVariables* globalVariables_ = nullptr;
-
-    std::string currentSceneName_ = "NULL";
-    int currentSceneNum_      = 0;
-
-    std::string currentGroupName_ = "NULL";
-    int currentGroupNum_          = 0;
-    GlobalVariables::Group* currentGroup_ = nullptr;
-};
-#endif // _DEBUG
+//
+//#ifdef _DEBUG
+//class GlobalVariablesEditor
+//    : public IEditor {
+//public:
+//    GlobalVariablesEditor()
+//        : IEditor() {}
+//    ~GlobalVariablesEditor() {}
+//
+//    void Initialize() override;
+//    void Update() override;
+//    void Finalize() override;
+//
+//private:
+//    void ImGuiMenu();
+//
+//private:
+//    GlobalVariables* globalVariables_ = nullptr;
+//
+//    std::string currentSceneName_ = "NULL";
+//    int currentSceneNum_          = 0;
+//
+//    std::string currentGroupName_         = "NULL";
+//    int currentGroupNum_                  = 0;
+//    GlobalVariables::Group* currentGroup_ = nullptr;
+//};
+//#endif // _DEBUG

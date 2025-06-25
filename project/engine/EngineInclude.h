@@ -5,8 +5,8 @@
 #endif // ENGINE_INCLUDE
 
 #ifdef ENGINE_EDITOR
-#include "module/editor/EditorController.h"
-#include "module/editor/IEditor.h"
+#include "editor/EditorController.h"
+#include "editor/IEditor.h"
 #endif // ENGINE_EDITOR
 
 #ifdef RESOURCE_DIRECTORY
@@ -16,16 +16,18 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 #endif // RESOURCE_DIRECTORY
 
 #ifdef ENGINE_SCENE
-#include "iScene/IScene.h"
-#include "sceneManager/SceneManager.h"
+#include "scene/Scene.h"
+#include "scene/SceneManager.h"
 #endif // ENGINE_SCENE
 
-#ifdef ENGINE_ECS
-#include "ECS/ECSManager.h"
-#include "ECS/Entity.h"
-
+#ifdef ENGEINE_ECS
+#define ENGINE_ENTITY
 #define ENGINE_SYSTEMS
 #define ENGINE_COMPONENTS
+#endif // ENGINE_ECS
+
+#ifdef ENGINE_ENTITY
+#include "ECS/Entity.h"
 #endif // ENGINE_ECS
 
 #ifdef ENGINE_SYSTEMS
@@ -117,6 +119,10 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 #endif // MY_RANDOM
 
 #ifdef DELTA_TIME
+#ifndef ENGINE_INCLUDE
+#include "Engine.h"
+#endif // !ENGINE_INCLUDE
+
 inline float getMainDeltaTime() {
     return Engine::getInstance()->getDeltaTime();
 }

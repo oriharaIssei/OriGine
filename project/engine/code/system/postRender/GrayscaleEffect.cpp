@@ -2,12 +2,12 @@
 
 /// engine
 #include "Engine.h"
-#include "sceneManager/SceneManager.h"
+#include "scene/Scene.h"
 
 // directX12
+#include "directX12/DxCommand.h"
 #include "directX12/DxDevice.h"
 #include "directX12/RenderTexture.h"
-#include "directX12/DxCommand.h"
 
 void GrayscaleEffect::Initialize() {
     dxCommand_ = std::make_unique<DxCommand>();
@@ -16,11 +16,7 @@ void GrayscaleEffect::Initialize() {
 }
 
 void GrayscaleEffect::Update() {
-    auto* sceneView = SceneManager::getInstance()->getSceneView();
-
-    sceneView->PreDraw();
     Render();
-    sceneView->PostDraw();
 }
 
 void GrayscaleEffect::Finalize() {
@@ -90,8 +86,8 @@ void GrayscaleEffect::CreatePSO() {
 }
 
 void GrayscaleEffect::Render() {
-    auto commandList = dxCommand_->getCommandList();
-    auto* sceneView  = SceneManager::getInstance()->getSceneView();
+    auto& commandList = dxCommand_->getCommandList();
+    auto* sceneView   = this->getScene()->getSceneView();
 
     /// ================================================
     /// pso set

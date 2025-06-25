@@ -4,7 +4,7 @@
 class PrimitiveNodeAnimationWorkSystem
     : public ISystem {
 public:
-    PrimitiveNodeAnimationWorkSystem() : ISystem(SystemType::Effect) {}
+    PrimitiveNodeAnimationWorkSystem() : ISystem(SystemCategory::Effect) {}
     ~PrimitiveNodeAnimationWorkSystem() override = default;
     void Initialize() override {}
     // void update() override;

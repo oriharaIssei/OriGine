@@ -9,7 +9,7 @@
 #include <unordered_map>
 
 /// engine
-#include "module/editor/IEditor.h"
+#include "IEditor.h"
 
 /// lib
 #include "globalVariables/SerializedField.h"
@@ -60,23 +60,32 @@ private:
     void ExecuteCommandRequests();
 
 private:
-    std::unordered_map<std::string, std::unique_ptr<IEditor>> editors_;
+    std::unordered_map<std::string, std::unique_ptr<Editor::Window>> editorWindows_;
     const std::string defaultSerializeSceneName_ = "Settings";
     const std::string defaultSerializeGroupName_ = "Editor";
-    std::unordered_map<IEditor*, SerializedField<bool>> editorActivity_;
+    std::unordered_map<Editor::Window*, SerializedField<bool>> editorActivity_;
 
     std::queue<std::unique_ptr<IEditCommand>> commandRequestQueue_;
     std::list<std::unique_ptr<IEditCommand>> commandHistory_;
     std::list<std::unique_ptr<IEditCommand>>::iterator currentCommandItr_ = commandHistory_.end();
 
 public:
-    template <IsEditor EditorClass>
-    void addEditor(std::unique_ptr<EditorClass>&& editor) {
-        std::string name                      = nameof<EditorClass>();
-        editors_[name]                        = std::move(editor);
-        editorActivity_[editors_[name].get()] = SerializedField<bool>(defaultSerializeSceneName_, defaultSerializeGroupName_, name, false);
+    template <EditorWindow EditorWindowClass>
+    EditorWindowClass* getWindow() {
+        std::string windowName = nameof<EditorWindowClass>();
+        auto itr               = editorWindows_.find(windowName);
+        if (itr == editorWindows_.end()) {
+            return nullptr;
+        }
+        return dynamic_cast<EditorWindowClass*>(itr->second.get());
     }
 
+    template <EditorWindow EditorWindowClass>
+    void addEditor(std::unique_ptr<EditorWindowClass>&& editor) {
+        std::string name                            = nameof<EditorWindowClass>();
+        editorWindows_[name]                        = std::move(editor);
+        editorActivity_[editorWindows_[name].get()] = SerializedField<bool>(defaultSerializeSceneName_, defaultSerializeGroupName_, name, false);
+    }
 
     void pushCommand(std::unique_ptr<IEditCommand>&& command) {
         commandRequestQueue_.push(std::move(command));

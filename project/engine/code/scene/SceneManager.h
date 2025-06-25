@@ -7,29 +7,16 @@
 // string
 #include <string>
 
-/// Engine
-#include "module/editor/IEditor.h"
-
+/// engine
+#include "component/ComponentArray.h"
+#include "ECS/Entity.h"
+#include "Scene.h"
 /// lib
 #include "lib/globalVariables/SerializedField.h"
 
 /// externals
 #include <binaryIO/BinaryIO.h>
 #include <nlohmann/json.hpp>
-
-class IScene;
-
-class RenderTexture;
-class DxRtvArray;
-class DxSrvArray;
-
-class EntityComponentSystemManager;
-class GameEntity;
-
-#ifdef _DEBUG
-class EditorController;
-class DebuggerGroup;
-#endif // _DEBUG
 
 class SceneManager {
 public:
@@ -41,7 +28,7 @@ public:
     void Update();
 
 #ifdef _DEBUG
-    void DebugUpdate();
+    // void DebugUpdate();
 #endif
 
 private:
@@ -53,24 +40,14 @@ private:
 private:
     SerializedField<std::string> startupSceneName_ = SerializedField<std::string>("Settings", "Scene", "StartupSceneName");
 
-    std::string currentSceneName_  = "MyGame";
+    std::unique_ptr<Scene> currentScene_ = nullptr;
+
     bool isChangeScene_            = false;
     std::string changingSceneName_ = "";
-
-    EntityComponentSystemManager* ecsManager_ = nullptr;
-
-    /// SceneView
-    std::unique_ptr<RenderTexture> sceneView_;
-
-    std::shared_ptr<DxRtvArray> sceneViewRtvArray_;
-    std::shared_ptr<DxSrvArray> sceneViewSrvArray_;
 
     bool isExitGame_ = false;
 
 #ifdef _DEBUG
-    EditorController* editorController_ = nullptr;
-    DebuggerGroup* debuggerGroup_       = nullptr;
-
     int32_t playIcon_        = 0;
     int32_t rePlayIcon_      = 0;
     int32_t stopIcon_        = 0;
@@ -96,82 +73,64 @@ private:
         RePlay
     };
     DebugState debugState_ = DebugState::Stop;
+
 #endif
 
 public:
-    bool isExitGame() const { return isExitGame_; }
+    Scene* getCurrentScene() {
+        return currentScene_.get();
+    }
+    bool isExitGame() const {
+        return isExitGame_;
+    }
     void setExitGame(bool exit) { isExitGame_ = exit; }
 
-    const std::string& getCurrentSceneName() const { return currentSceneName_; }
+    const std::string& getCurrentSceneName() const;
 
     void sceneChange2StartupScene();
     void changeScene(const std::string& name);
 
     void executeSceneChange();
 
-    RenderTexture* getSceneView() const { return sceneView_.get(); }
-
     bool isChangeScene() const { return isChangeScene_; }
-
-#ifdef _DEBUG
-    bool inDebugMode() const {
-        return currentSceneState_ == SceneState::Debug;
-    };
-    bool inEditMode() const {
-        return currentSceneState_ == SceneState::Edit;
-    };
-
-    bool debugIsPlay() const {
-        return debugState_ == DebugState::Play;
-    };
-    bool debugIsPause() const {
-        return debugState_ == DebugState::Pause;
-    };
-    bool debugIsStop() const {
-        return debugState_ == DebugState::Stop;
-    };
-    bool debugIsRePlay() const {
-        return debugState_ == DebugState::RePlay;
-    };
-
-    bool isUsingDebugCamera() const {
-        return isUsingDebugCamera_;
-    };
-#endif // _DEBUG
 };
 
 class SceneSerializer {
 public:
-    SceneSerializer() {}
-    ~SceneSerializer() {}
-
+    SceneSerializer(Scene* _targetScene);
+    ~SceneSerializer();
     /// <summary>
     /// シーンを保存する(基本はこれを使う)
     /// </summary>
-    bool Serialize(const std::string& _sceneName);
+    bool Serialize();
 
     /// <summary>
     /// シーンを読み込む(基本はこれを使う)
     /// </summary>
-    void Deserialize(
-        const std::string& _sceneName);
+    void Deserialize();
 
     /// <summary>
     /// シーンを保存する(警告なし)
     /// </summary>
-    void SerializeFromJson(const std::string& _sceneName);
+    void SerializeFromJson();
 
     /// <summary>
     /// シーンを読み込む
     /// </summary>
-    void DeserializeFromJson(const std::string& _sceneName);
+    void DeserializeFromJson();
 
-    void SaveEntity(GameEntity* _entity, const std::string& _directory);
+    void SaveEntity(int32_t _entityID, const std::string& _directory);
+    void EntityToJson(int32_t _entityID, nlohmann::json& entityData);
+
     GameEntity* LoadEntity(const std::string& _directory, const std::string& _dataType);
+    GameEntity* EntityFromJson(const nlohmann::json& _entityData);
+    GameEntity* EntityFromJson(int32_t _entityId,const nlohmann::json& _entityData);
 
 private:
     static const std::string directory_;
     nlohmann::json rootJson_;
+
+    Scene* targetScene_ = nullptr;
 
 public:
     const nlohmann::json& getRootJson() const {
@@ -182,3 +141,28 @@ public:
         rootJson_ = _rootJson;
     }
 };
+
+/// <summary>
+/// !!!非推奨!!!
+/// currentSceneの指定したEntityを取得
+/// </summary>
+/// <param name="_entityID"></param>
+/// <returns></returns>
+GameEntity* getSceneEntity(int32_t _entityID);
+/// <summary>
+/// !!!非推奨!!!
+/// currentSceneの指定した UniqueEntityを取得
+/// </summary>
+/// <param name="_name"></param>
+/// <returns></returns>
+GameEntity* getSceneUniqueEntity(const std::string& _name);
+
+template <IsComponent CompType>
+CompType* getSceneComponent(GameEntity* _entity, int32_t _compIdx = 0) {
+    if (!_entity) {
+        return nullptr;
+    }
+    Scene* currentScene = SceneManager::getInstance()->getCurrentScene();
+
+    return currentScene->getComponentRepositoryRef()->getComponent<CompType>(_entity, _compIdx);
+}

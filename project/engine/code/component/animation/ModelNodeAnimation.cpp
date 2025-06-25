@@ -2,8 +2,8 @@
 
 /// engine
 #define RESOURCE_DIRECTORY
+#include "editor/EditorController.h"
 #include "EngineInclude.h"
-#include "module/editor/EditorController.h"
 // module
 #include "AnimationManager.h"
 
@@ -15,8 +15,8 @@
 
 /// externals
 #ifdef _DEBUG
-#include <imgui/imgui.h>
 #include "myGui/MyGui.h"
+#include <imgui/imgui.h>
 #endif // _DEBUG
 
 /// math
@@ -24,7 +24,7 @@
 
 void ModelNodeAnimation::Initialize(GameEntity* /*_entity*/) {
     // 初期化
-    currentAnimationTime_ = 0.0f;
+    currentAnimationTime_  = 0.0f;
     animationState_.isEnd_ = false;
 
     if (data_->animationNodes_.empty()) {
@@ -57,14 +57,15 @@ bool ModelNodeAnimation::Edit() {
             commandCombo->addCommand(std::make_shared<SetterCommand<std::string>>(&directory_, kApplicationResourceDirectory + "/" + directory));
             commandCombo->addCommand(std::make_shared<SetterCommand<std::string>>(&fileName_, filename));
             commandCombo->setFuncOnAfterCommand([this]() {
-                data_ = AnimationManager::getInstance()->Load(directory_ ,fileName_);
+                data_ = AnimationManager::getInstance()->Load(directory_, fileName_);
                 while (true) {
                     if (data_->loadState == LoadState::Loaded) {
                         break;
                     }
                 }
                 duration_ = data_->duration;
-            },true);
+            },
+                true);
 
             EditorController::getInstance()->pushCommand(std::move(commandCombo));
 
@@ -102,9 +103,9 @@ void ModelNodeAnimation::UpdateModel(float deltaTime, Model* model, const Matrix
 
         // リピート
         if (currentAnimationTime_ > duration_) {
-            animationState_.isEnd_                = true;
-            animationState_.isPlay_               = false;
-            currentAnimationTime_ = std::fmod(currentAnimationTime_, duration_);
+            animationState_.isEnd_  = true;
+            animationState_.isPlay_ = false;
+            currentAnimationTime_   = std::fmod(currentAnimationTime_, duration_);
         }
     }
 

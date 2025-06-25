@@ -2,8 +2,8 @@
 
 /// engine
 #include "engine/code/Engine.h"
-#include "module/editor/EditorController.h"
-#include "module/editor/IEditor.h"
+#include "editor/EditorController.h"
+#include "editor/IEditor.h"
 // component
 #include "component/material/Material.h"
 #include "component/transform/Transform.h"

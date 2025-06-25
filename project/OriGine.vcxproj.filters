@@ -162,15 +162,6 @@
     <ClInclude Include="engine\EngineInclude.h">
       <Filter>engine</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\ECS\ECSDebugger.h">
-      <Filter>engine\code\ECS</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\code\ECS\ECSEditor.h">
-      <Filter>engine\code\ECS</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\code\ECS\ECSManager.h">
-      <Filter>engine\code\ECS</Filter>
-    </ClInclude>
     <ClInclude Include="engine\code\ECS\Entity.h">
       <Filter>engine\code\ECS</Filter>
     </ClInclude>
@@ -321,7 +312,7 @@
     <ClInclude Include="engine\code\directX12\ShaderManager.h">
       <Filter>engine\code\directX12</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\iScene\IScene.h">
+    <ClInclude Include="engine\code\scene\Scene.h">
       <Filter>engine\code\iScene</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\input\Input.h">
@@ -342,13 +333,7 @@
     <ClInclude Include="engine\code\module\debugger\IDebugger.h">
       <Filter>engine\code\module\debugger</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\module\editor\EditorController.h">
-      <Filter>engine\code\module\editor</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\code\module\editor\IEditor.h">
-      <Filter>engine\code\module\editor</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\code\sceneManager\SceneManager.h">
+    <ClInclude Include="engine\code\scene\SceneManager.h">
       <Filter>engine\code\sceneManager</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\system\ISystem.h">
@@ -497,17 +482,12 @@
     </ClInclude>
     <ClInclude Include="engine\code\component\collider\CollisionPushBackInfo.h" />
     <ClInclude Include="engine\code\system\collision\CollisionPushBackSystem.h" />
+    <ClInclude Include="editor\EditorController.h" />
+    <ClInclude Include="editor\IEditor.h" />
+    <ClInclude Include="editor\SceneEditor.h" />
+    <ClInclude Include="util\DiffValue.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="engine\code\ECS\ECSDebugger.cpp">
-      <Filter>engine\code\ECS</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\code\ECS\ECSEditor.cpp">
-      <Filter>engine\code\ECS</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\code\ECS\ECSManager.cpp">
-      <Filter>engine\code\ECS</Filter>
-    </ClCompile>
     <ClCompile Include="engine\code\Engine.cpp">
       <Filter>engine\code</Filter>
     </ClCompile>
@@ -646,7 +626,7 @@
     <ClCompile Include="engine\code\directX12\ShaderManager.cpp">
       <Filter>engine\code\directX12</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\iScene\IScene.cpp">
+    <ClCompile Include="engine\code\scene\Scene.cpp">
       <Filter>engine\code\iScene</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\input\Input.cpp">
@@ -661,10 +641,7 @@
     <ClCompile Include="engine\code\module\debugger\DebuggerGroup.cpp">
       <Filter>engine\code\module\debugger</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\module\editor\EditorController.cpp">
-      <Filter>engine\code\module\editor</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\code\sceneManager\SceneManager.cpp">
+    <ClCompile Include="engine\code\scene\SceneManager.cpp">
       <Filter>engine\code\sceneManager</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\system\ISystem.cpp">
@@ -777,5 +754,9 @@
     </ClCompile>
     <ClCompile Include="engine\code\component\collider\CollisionPushBackInfo.cpp" />
     <ClCompile Include="engine\code\system\collision\CollisionPushBackSystem.cpp" />
+    <ClCompile Include="editor\IEditor.cpp" />
+    <ClCompile Include="editor\EditorController.cpp" />
+    <ClCompile Include="editor\SceneEditor.cpp" />
+    <ClCompile Include="engine\code\ECS\Entity.cpp" />
   </ItemGroup>
 </Project>

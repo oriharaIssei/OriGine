@@ -10,7 +10,6 @@
 #include "winApp/WinApp.h"
 // ECS
 #include "component/renderer/Sprite.h"
-#include "ECS/ECSManager.h"
 
 void BackGroundSpriteRenderSystem::Initialize() {
     dxCommand_ = std::make_unique<DxCommand>();

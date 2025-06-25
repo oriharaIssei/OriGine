@@ -4,7 +4,7 @@
 class TextureEffectAnimation
     : public ISystem {
 public:
-    TextureEffectAnimation() : ISystem(SystemType::Effect){}
+    TextureEffectAnimation() : ISystem(SystemCategory::Effect){}
     ~TextureEffectAnimation() = default;
 
     void Initialize() override;

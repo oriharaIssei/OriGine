@@ -18,7 +18,7 @@
 class ColliderRenderingSystem
     : public ISystem {
 public:
-    ColliderRenderingSystem() : ISystem(SystemType::Render) {}
+    ColliderRenderingSystem() : ISystem(SystemCategory::Render) {}
     ~ColliderRenderingSystem() {}
 
     void Initialize() override;

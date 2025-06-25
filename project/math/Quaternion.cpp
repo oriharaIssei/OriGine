@@ -167,8 +167,8 @@ Quaternion Quaternion::FromEulerAngles(float pitch, float yaw, float roll) {
     return q;
 }
 
-Quaternion Quaternion::LookAt(const Vec3f& target, const Vec3f& up) { // Z軸を向けるべき方向にする
-    Vec3f forward = Vec3f::Normalize(target);
+Quaternion Quaternion::LookAt(const Vec3f& _forward, const Vec3f& up) { // Z軸を向けるべき方向にする
+    Vec3f forward = Vec3f::Normalize(_forward);
 
     // 右ベクトルを計算（外積）
     Vec3f right = Vec3f::Normalize(Vec3f::Cross(up, forward));

@@ -14,7 +14,7 @@
 class LineRenderSystem
     : public ISystem {
 public:
-    LineRenderSystem() : ISystem(SystemType::Render) {}
+    LineRenderSystem() : ISystem(SystemCategory::Render) {}
     ~LineRenderSystem() {}
 
     void Initialize() override;

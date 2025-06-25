@@ -8,7 +8,7 @@
 #include "component/animation/SpriteAnimation.h"
 #include "component/renderer/Sprite.h"
 
-SpriteAnimationSystem::SpriteAnimationSystem() : ISystem(SystemType::Effect) {}
+SpriteAnimationSystem::SpriteAnimationSystem() : ISystem(SystemCategory::Effect) {}
 
 SpriteAnimationSystem::~SpriteAnimationSystem() {}
 

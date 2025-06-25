@@ -4,7 +4,7 @@
 #include <algorithm>
 
 /// ECS
-#include "ECSManager.h"
+
 // component
 #include "component/collider/Collider.h"
 #include "component/collider/CollisionPushBackInfo.h"
@@ -231,13 +231,13 @@ bool CheckCollisionPair(
 #pragma endregion
 
 CollisionCheckSystem::CollisionCheckSystem()
-    : ISystem(SystemType::Collision) {
+    : ISystem(SystemCategory::Collision) {
 }
 
 CollisionCheckSystem::~CollisionCheckSystem() {}
 
 void CollisionCheckSystem::Initialize() {
-    entities_.reserve(ECSManager::getInstance()->getEntityCapacity());
+    entities_.reserve(100);
 }
 
 void CollisionCheckSystem::Update() {

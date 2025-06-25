@@ -5,16 +5,16 @@
 // directX12
 #include "directX12/DxDevice.h"
 // Ecs
-#include "ECSManager.h"
+
 // assets
 #include "model/Model.h"
 // manager
 #include "model/ModelManager.h"
 
 #define RESOURCE_DIRECTORY
+#include "editor/EditorController.h"
+#include "editor/IEditor.h"
 #include "engine/EngineInclude.h"
-#include "module/editor/EditorController.h"
-#include "module/editor/IEditor.h"
 
 /// lib
 #include "myFileSystem/MyFileSystem.h"
@@ -146,15 +146,10 @@ void ModelMeshRenderer::Initialize(GameEntity* _hostEntity) {
     InitializeTransformBuffer(_hostEntity);
     InitializeMaterialBuffer(_hostEntity);
 
-    Transform* entityTransform = getComponent<Transform>(_hostEntity);
-
     for (int32_t i = 0; i < meshGroup_->size(); ++i) {
         /// ---------------------------------------------------
         // Transform parent
         /// ---------------------------------------------------
-        if (meshTransformBuff_[i]->parent == nullptr) {
-            meshTransformBuff_[i]->parent = entityTransform;
-        }
 
         meshTransformBuff_[i].openData_.Update();
         meshTransformBuff_[i].ConvertToBuffer();
@@ -283,7 +278,6 @@ void ModelMeshRenderer::InitializeTransformBuffer(GameEntity* _hostEntity) {
     meshTransformBuff_.resize(meshGroup_->size());
     for (int32_t i = 0; i < meshGroup_->size(); ++i) {
         meshTransformBuff_[i].CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
-        meshTransformBuff_[i].openData_.parent = getComponent<Transform>(_hostEntity);
         meshTransformBuff_[i].ConvertToBuffer();
     }
 }
@@ -304,7 +298,6 @@ void ModelMeshRenderer::InitializeMaterialBuffer(GameEntity* _hostEntity) {
 #pragma endregion
 
 void CreateModelMeshRenderer(ModelMeshRenderer* _renderer, GameEntity* _hostEntity, const std::string& _directory, const std::string& _filenName, bool _usingDefaultMaterial, bool _usingDefaultTexture) {
-    _renderer->setParentTransform(getComponent<Transform>(_hostEntity));
     bool isLoaded = false;
 
     if (!_renderer->getMeshGroup()->empty()) {
@@ -432,12 +425,6 @@ LineRenderer::~LineRenderer() {}
 void LineRenderer::Initialize(GameEntity* _hostEntity) {
     MeshRenderer::Initialize(_hostEntity);
     transformBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
-
-    if (_hostEntity) {
-        // transform
-        Transform* entityTransform      = getComponent<Transform>(_hostEntity);
-        transformBuff_.openData_.parent = entityTransform;
-    }
 
     transformBuff_.openData_.Update();
     transformBuff_.ConvertToBuffer();

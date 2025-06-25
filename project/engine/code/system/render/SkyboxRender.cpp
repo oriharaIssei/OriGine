@@ -7,7 +7,7 @@
 #include "directX12/DxDevice.h"
 // ecs
 #include "component/renderer/SkyboxRenderer.h"
-#include "ECSManager.h"
+
 
 void SkyboxRender::Initialize() {
     dxCommand_ = std::make_unique<DxCommand>();

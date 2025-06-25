@@ -126,7 +126,7 @@ struct Quaternion final
     static Quaternion FromEulerAngles(const Vec3f& euler) {
         return FromEulerAngles(euler[Y], euler[X], euler[Z]);
     }
-    static Quaternion LookAt(const Vec3f& target, const Vec3f& up);
+    static Quaternion LookAt(const Vec3f& _forward, const Vec3f& up);
 };
 
 Quaternion operator*(float scalar, const Quaternion& q);

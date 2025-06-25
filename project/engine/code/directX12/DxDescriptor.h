@@ -166,7 +166,7 @@ protected:
     uint32_t descriptorIncrementSize_ = 0;
 
     std::vector<std::shared_ptr<DescriptorType>> descriptors_;
-    BitArray usedFlags_; // 使用中のフラグを管理するビット配列
+    BitArray<> usedFlags_; // 使用中のフラグを管理するビット配列
 public:
     uint32_t getSize() const { return size_; }
 

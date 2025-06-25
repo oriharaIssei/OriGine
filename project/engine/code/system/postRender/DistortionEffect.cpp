@@ -1,9 +1,9 @@
 #include "DistortionEffect.h"
 
 /// engine
-#include "ECSManager.h"
+
 #include "Engine.h"
-#include "sceneManager/SceneManager.h"
+#include "scene/SceneManager.h"
 #include "winApp/WinApp.h"
 // component
 #include "component/effect/post/DistortionEffectParam.h"
@@ -16,7 +16,7 @@
 #include "directX12/DxDevice.h"
 #include "directX12/RenderTexture.h"
 
-DistortionEffect::DistortionEffect() : ISystem(SystemType::PostRender) {}
+DistortionEffect::DistortionEffect() : ISystem(SystemCategory::PostRender) {}
 
 DistortionEffect::~DistortionEffect() {}
 
@@ -67,7 +67,7 @@ void DistortionEffect::UpdateEntity(GameEntity* _entity) {
     /// ================================================================================================
     // Rendering Distortion Scene Texture
     /// ================================================================================================
-    auto commandList       = dxCommand_->getCommandList();
+    auto& commandList      = dxCommand_->getCommandList();
     int32_t componentIndex = 0;
 
     Transform* entityTransform_ = getComponent<Transform>(_entity);
@@ -122,7 +122,7 @@ void DistortionEffect::UpdateEntity(GameEntity* _entity) {
         /// ----------------------------------------------------------
         /// pso set
         /// ----------------------------------------------------------
-        auto* sceneView = SceneManager::getInstance()->getSceneView();
+        auto* sceneView = this->getScene()->getSceneView();
         sceneView->PreDraw();
 
         commandList->SetPipelineState(pso_->pipelineState.Get());

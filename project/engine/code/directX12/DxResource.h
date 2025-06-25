@@ -98,7 +98,7 @@ private:
 private:
     uint32_t size_ = 0;
     std::vector<DxResource> resources_;
-    BitArray usedFlags_; // リソースが使用中かどうかを管理するビット配列
+    BitArray<std::uint32_t> usedFlags_; // リソースが使用中かどうかを管理するビット配列
 public:
     DxResource& getResource(uint32_t index) {
         if (index >= resources_.size()) {

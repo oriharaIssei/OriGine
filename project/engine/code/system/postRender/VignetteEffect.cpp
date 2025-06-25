@@ -1,9 +1,9 @@
 #include "VignetteEffect.h"
 
 /// engine
-#include "ECSManager.h"
+
 #include "Engine.h"
-#include "sceneManager/SceneManager.h"
+#include "scene/SceneManager.h"
 
 // component
 #include "component/effect/post/VignetteParam.h"
@@ -19,24 +19,19 @@ void VignetteEffect::Initialize() {
 }
 
 void VignetteEffect::Update() {
-    auto* sceneView = SceneManager::getInstance()->getSceneView();
-
     eraseDeadEntity();
 
     if (entityIDs_.empty()) {
         return;
     }
 
-    RenderState();
+    BeginRender();
 
-    sceneView->PreDraw();
     for (auto& id : entityIDs_) {
-        auto* entity = ECSManager::getInstance()->getEntity(id);
+        auto* entity = getEntity(id);
         UpdateEntity(entity);
     }
     Render();
-
-    sceneView->PostDraw();
 }
 
 void VignetteEffect::UpdateEntity(GameEntity* _entity) {
@@ -115,8 +110,8 @@ void VignetteEffect::CreatePSO() {
     pso_ = shaderManager->CreatePso("VignetteEffect", shaderInfo, Engine::getInstance()->getDxDevice()->getDevice());
 }
 
-void VignetteEffect::RenderState() {
-    auto commandList = dxCommand_->getCommandList();
+void VignetteEffect::BeginRender() {
+    auto& commandList = dxCommand_->getCommandList();
 
     /// ================================================
     /// pso set
@@ -127,8 +122,8 @@ void VignetteEffect::RenderState() {
 }
 
 void VignetteEffect::Render() {
-    auto commandList = dxCommand_->getCommandList();
-    auto* sceneView  = SceneManager::getInstance()->getSceneView();
+    auto& commandList = dxCommand_->getCommandList();
+    auto* sceneView  = this->getScene()->getSceneView();
 
     /// ================================================
     /// Viewport の設定

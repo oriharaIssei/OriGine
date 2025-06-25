@@ -9,7 +9,7 @@
 class ParticleRenderSystem
     : public ISystem {
 public:
-    ParticleRenderSystem() : ISystem(SystemType::Render) {}
+    ParticleRenderSystem() : ISystem(SystemCategory::Render) {}
     ~ParticleRenderSystem() = default;
 
     void Initialize() override;

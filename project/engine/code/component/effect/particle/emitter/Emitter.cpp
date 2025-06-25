@@ -5,7 +5,6 @@
 #include <array>
 
 /// engine
-#include "ECS/ECSManager.h"
 #include "Engine.h"
 #define RESOURCE_DIRECTORY
 #include "directX12/DxDevice.h"

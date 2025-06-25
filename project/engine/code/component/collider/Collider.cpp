@@ -1,8 +1,6 @@
 #include "Collider.h"
 
-void ICollider::Initialize(GameEntity* _hostEntity) {
-    this->transform_.parent = getComponent<Transform>(_hostEntity);
-}
+void ICollider::Initialize(GameEntity* /*_hostEntity*/) {}
 
 void ICollider::StartCollision() {
     this->preCollisionStateMap_ = this->collisionStateMap_;

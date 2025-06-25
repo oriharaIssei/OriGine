@@ -9,8 +9,8 @@
 // directX12
 #include "directX12/DxDevice.h"
 // module
-#include "module/editor/EditorController.h"
-#include "module/editor/IEditor.h"
+#include "editor/EditorController.h"
+#include "editor/IEditor.h"
 /// lib
 #include "myFileSystem/MyFileSystem.h"
 

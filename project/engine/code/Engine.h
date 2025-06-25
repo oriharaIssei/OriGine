@@ -73,6 +73,8 @@ private:
     std::unique_ptr<DeltaTime> deltaTime_;
     float fps_ = 60.0f;
 
+    std::vector<std::function<void(const Vec2f&)>> windowResizeEvents_;
+
 public:
     WinApp* getWinApp() { return window_.get(); }
 
@@ -91,4 +93,8 @@ public:
     float getDeltaTime() const { return deltaTime_->getDeltaTime(); }
 
     LightManager* getLightManager() const { return lightManager_; }
+
+    void addWindowResizeEvent(const std::function<void(const Vec2f&)>& event) {
+        windowResizeEvents_.push_back(event);
+    }
 };

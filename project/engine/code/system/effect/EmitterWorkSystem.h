@@ -5,7 +5,7 @@
 class EmitterWorkSystem
     : public ISystem {
 public:
-    EmitterWorkSystem() : ISystem(SystemType::Effect) {}
+    EmitterWorkSystem() : ISystem(SystemCategory::Effect) {}
     ~EmitterWorkSystem() {}
 
     void Initialize() override;

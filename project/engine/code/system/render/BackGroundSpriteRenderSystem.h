@@ -17,7 +17,7 @@ class SpriteRenderer;
 class BackGroundSpriteRenderSystem
     : public ISystem {
 public:
-    BackGroundSpriteRenderSystem() : ISystem(SystemType::Render) {};
+    BackGroundSpriteRenderSystem() : ISystem(SystemCategory::Render) {};
     ~BackGroundSpriteRenderSystem() = default;
     void Initialize() override;
     void Update() override;

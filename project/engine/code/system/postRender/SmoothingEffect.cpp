@@ -2,7 +2,7 @@
 
 /// engine
 #include "Engine.h"
-#include "sceneManager/SceneManager.h"
+#include "scene/SceneManager.h"
 
 // directX12
 #include "directX12/DxCommand.h"
@@ -20,11 +20,7 @@ void SmoothingEffect::Initialize() {
 }
 
 void SmoothingEffect::Update() {
-    auto* sceneView = SceneManager::getInstance()->getSceneView();
-
-    sceneView->PreDraw();
     Render();
-    sceneView->PostDraw();
 }
 
 void SmoothingEffect::Finalize() {
@@ -64,8 +60,8 @@ void SmoothingEffect::CreatePSO() {
     // boxFilterSize
     D3D12_ROOT_PARAMETER boxFilterSizeParam{};
     // Transform ... 0
-    boxFilterSizeParam.ParameterType        = D3D12_ROOT_PARAMETER_TYPE_CBV;
-    boxFilterSizeParam.ShaderVisibility     = D3D12_SHADER_VISIBILITY_PIXEL;
+    boxFilterSizeParam.ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
+    boxFilterSizeParam.ShaderVisibility          = D3D12_SHADER_VISIBILITY_PIXEL;
     boxFilterSizeParam.Descriptor.ShaderRegister = 0;
     shaderInfo.pushBackRootParameter(boxFilterSizeParam);
 
@@ -102,8 +98,8 @@ void SmoothingEffect::CreatePSO() {
 }
 
 void SmoothingEffect::Render() {
-    auto commandList = dxCommand_->getCommandList();
-    auto* sceneView   = SceneManager::getInstance()->getSceneView();
+    auto& commandList = dxCommand_->getCommandList();
+    auto sceneView    = this->getScene()->getSceneView();
 
     /// ================================================
     /// pso set

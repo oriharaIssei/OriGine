@@ -1,9 +1,8 @@
 #include "ParticleRenderSystem.h"
 
 /// engine
-#include "ECS/ECSManager.h"
 #include "Engine.h"
-#include "sceneManager/SceneManager.h"
+#include "scene/SceneManager.h"
 
 // directX12
 #include "directX12/DxDevice.h"
@@ -163,7 +162,7 @@ void ParticleRenderSystem::StartRender() {
 }
 
 void ParticleRenderSystem::UpdateEntity(GameEntity* _entity) {
-    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->getCommandList();
+    auto& commandList = dxCommand_->getCommandList();
 
     for (auto& comp : *getComponents<Emitter>(_entity)) {
         if (!comp.getIsActive()) {
@@ -172,12 +171,6 @@ void ParticleRenderSystem::UpdateEntity(GameEntity* _entity) {
 
         Transform* parentTransform = getComponent<Transform>(_entity);
         comp.setParent(parentTransform);
-#ifdef _DEBUG
-        if (SceneManager::getInstance()->inEditMode()) {
-            const float deltaTime = Engine::getInstance()->getDeltaTime();
-            comp.UpdateParticle(deltaTime);
-        }
-#endif
 
         if (currentBlend_ != comp.getBlendMode()) {
             currentBlend_ = comp.getBlendMode();

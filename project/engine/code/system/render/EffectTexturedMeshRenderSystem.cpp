@@ -9,7 +9,6 @@
 #include "texture/TextureManager.h"
 
 // ECS
-#include "ECS/ECSManager.h"
 // component
 #include "component/effect/TextureEffectParam.h"
 #include "component/material/light/LightManager.h"
@@ -251,9 +250,9 @@ void EffectTexturedMeshRenderSystem::CreatePso() {
 }
 
 void EffectTexturedMeshRenderSystem::LightUpdate() {
-    auto* directionalLight = ECSManager::getInstance()->getComponentArray<DirectionalLight>();
-    auto* pointLight       = ECSManager::getInstance()->getComponentArray<PointLight>();
-    auto* spotLight        = ECSManager::getInstance()->getComponentArray<SpotLight>();
+    auto* directionalLight = getComponentArray<DirectionalLight>();
+    auto* pointLight       = getComponentArray<PointLight>();
+    auto* spotLight        = getComponentArray<SpotLight>();
 
     auto* lightManager = LightManager::getInstance();
 

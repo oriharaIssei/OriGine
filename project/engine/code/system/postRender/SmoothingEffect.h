@@ -28,7 +28,7 @@ public:
 class SmoothingEffect
     : public ISystem {
 public:
-    SmoothingEffect() : ISystem(SystemType::PostRender) {}
+    SmoothingEffect() : ISystem(SystemCategory::PostRender) {}
     ~SmoothingEffect() override = default;
 
     void Initialize() override;

@@ -10,7 +10,7 @@
 class GrayscaleEffect
     : public ISystem {
 public:
-    GrayscaleEffect() : ISystem(SystemType::PostRender) {}
+    GrayscaleEffect() : ISystem(SystemCategory::PostRender) {}
     ~GrayscaleEffect() override = default;
 
     void Initialize() override;

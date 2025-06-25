@@ -9,14 +9,14 @@
 #include "texture/TextureManager.h"
 
 // ECS
-#include "ECS/ECSManager.h"
+
 // component
 #include "component/material/light/LightManager.h"
 #include "component/renderer/MeshRenderer.h"
 #include "component/renderer/primitive/Primitive.h"
 #include "component/renderer/SkyboxRenderer.h"
 
-TexturedMeshRenderSystem::TexturedMeshRenderSystem() : ISystem(SystemType::Render) {}
+TexturedMeshRenderSystem::TexturedMeshRenderSystem() : ISystem(SystemCategory::Render) {}
 TexturedMeshRenderSystem::~TexturedMeshRenderSystem() {};
 
 void TexturedMeshRenderSystem::Initialize() {
@@ -232,9 +232,9 @@ void TexturedMeshRenderSystem::CreatePso() {
 }
 
 void TexturedMeshRenderSystem::LightUpdate() {
-    auto* directionalLight = ECSManager::getInstance()->getComponentArray<DirectionalLight>();
-    auto* pointLight       = ECSManager::getInstance()->getComponentArray<PointLight>();
-    auto* spotLight        = ECSManager::getInstance()->getComponentArray<SpotLight>();
+    auto* directionalLight = getComponentArray<DirectionalLight>();
+    auto* pointLight       = getComponentArray<PointLight>();
+    auto* spotLight        = getComponentArray<SpotLight>();
 
     auto* lightManager = LightManager::getInstance();
 

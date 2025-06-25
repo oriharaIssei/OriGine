@@ -7,7 +7,7 @@
 
 /// engine
 #define RESOURCE_DIRECTORY
-#include "ECSManager.h"
+
 #include "EngineInclude.h"
 /// lib
 #include "logger/Logger.h"
@@ -262,7 +262,7 @@ void from_json(const nlohmann::json& j, Audio& t) {
 
 #pragma endregion "Audio"
 
-AudioInitializeSystem::AudioInitializeSystem() : ISystem(SystemType::Initialize) {};
+AudioInitializeSystem::AudioInitializeSystem() : ISystem(SystemCategory::Initialize) {};
 
 AudioInitializeSystem::~AudioInitializeSystem() {}
 

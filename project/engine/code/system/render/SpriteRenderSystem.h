@@ -17,7 +17,7 @@ class SpriteRenderer;
 class SpriteRenderSystem
     : public ISystem {
 public:
-    SpriteRenderSystem() : ISystem(SystemType::Render) {};
+    SpriteRenderSystem() : ISystem(SystemCategory::Render) {};
     ~SpriteRenderSystem() = default;
     void Initialize() override;
     void Update() override;

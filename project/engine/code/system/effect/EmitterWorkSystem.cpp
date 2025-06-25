@@ -2,7 +2,7 @@
 
 /// engine
 // ECS
-#include "ECSManager.h"
+
 // component
 #include "component/effect/particle/emitter/Emitter.h"
 

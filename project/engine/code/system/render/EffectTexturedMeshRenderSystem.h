@@ -13,7 +13,7 @@
 class EffectTexturedMeshRenderSystem
     : public ISystem {
 public:
-    EffectTexturedMeshRenderSystem() : ISystem(SystemType::Render) {};
+    EffectTexturedMeshRenderSystem() : ISystem(SystemCategory::Render) {};
     ~EffectTexturedMeshRenderSystem() = default;
 
     void Initialize() override;

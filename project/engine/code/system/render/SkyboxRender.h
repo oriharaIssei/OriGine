@@ -12,7 +12,7 @@
 class SkyboxRender
     : public ISystem {
 public:
-    SkyboxRender() : ISystem(SystemType::Render) {};
+    SkyboxRender() : ISystem(SystemCategory::Render) {};
     ~SkyboxRender() = default;
 
     void Initialize() override;

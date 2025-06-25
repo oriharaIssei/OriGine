@@ -13,7 +13,7 @@
 #include "component/material/light/LightManager.h"
 #include "component/renderer/MeshRenderer.h"
 #include "component/transform/Transform.h"
-#include "ECSManager.h"
+
 
 /// math
 #include <numbers>
@@ -36,7 +36,7 @@ void ColliderRenderingSystem::Initialize() {
     dxCommand_->Initialize("main", "main");
 
     //** AABB **//
-    aabbColliders_ = ECSManager::getInstance()->getComponentArray<AABBCollider>();
+    aabbColliders_ = getComponentArray<AABBCollider>();
     aabbRenderer_  = LineRenderer(std::vector<Mesh<ColorVertexData>>());
     aabbRenderer_.Initialize(nullptr);
     aabbRenderer_.getMeshGroup()->push_back(Mesh<ColorVertexData>());
@@ -44,7 +44,7 @@ void ColliderRenderingSystem::Initialize() {
     aabbMeshItr_ = aabbRenderer_.getMeshGroup()->begin();
 
     //** Sphere **//
-    sphereColliders_ = ECSManager::getInstance()->getComponentArray<SphereCollider>();
+    sphereColliders_ = getComponentArray<SphereCollider>();
     sphereRenderer_  = LineRenderer(std::vector<Mesh<ColorVertexData>>());
     sphereRenderer_.Initialize(nullptr);
     sphereRenderer_.getMeshGroup()->push_back(Mesh<ColorVertexData>());

@@ -10,7 +10,7 @@
 #include "winApp/WinApp.h"
 // ECS
 #include "component/renderer/Sprite.h"
-#include "ECS/ECSManager.h"
+
 
 void SpriteRenderSystem::Initialize() {
     dxCommand_ = std::make_unique<DxCommand>();

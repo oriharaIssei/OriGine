@@ -1,7 +1,7 @@
 #pragma once
 
 /// interface
-#include "module/editor/IEditor.h"
+#include "editor/IEditor.h"
 #include "module/IModule.h"
 
 /// stl
