@@ -198,3 +198,7 @@ bool WinApp::ProcessMessage() {
 
     return false;
 }
+
+void WinApp::UpdateActivity() {
+    isActive_ = GetForegroundWindow() == hwnd_;
+}

@@ -103,7 +103,15 @@ void Engine::Initialize() {
     SerializedField<std::string> windowTitle{"Settings", "Window", "Title"};
     SerializedField<Vec2f> windowSize{"Settings", "Window", "Size"};
 
-    window_->CreateGameWindow(ConvertString(windowTitle).c_str(), WS_OVERLAPPEDWINDOW, int32_t(windowSize->v[X]), int32_t(windowSize->v[Y]));
+    UINT windowStyle = 0;
+
+#ifdef _DEBUG
+    windowStyle = WS_OVERLAPPEDWINDOW;
+#else
+    windowStyle = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU;
+#endif // DEBUG
+
+    window_->CreateGameWindow(ConvertString(windowTitle).c_str(), windowStyle, int32_t(windowSize->v[X]), int32_t(windowSize->v[Y]));
 
     input_ = Input::getInstance();
     input_->Initialize();
@@ -188,6 +196,10 @@ bool Engine::ProcessMessage() {
 }
 
 void Engine::BeginFrame() {
+    window_->UpdateActivity();
+    if (!window_->isActive()) {
+        return;
+    }
     if (window_->isReSized()) {
         UINT width  = window_->getWidth();
         UINT height = window_->getHeight();
