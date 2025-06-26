@@ -70,16 +70,17 @@ void SceneManager::Finalize() {
 }
 
 void SceneManager::Update() {
-    if (isChangeScene_) {
-        // SceneChange
-        executeSceneChange();
-    }
 
     ecsManager_->Run();
 
     Engine::getInstance()->ScreenPreDraw();
     sceneView_->DrawTexture();
     Engine::getInstance()->ScreenPostDraw();
+
+    if (isChangeScene_) {
+        // SceneChange
+        executeSceneChange();
+    }
 }
 
 #ifdef _DEBUG

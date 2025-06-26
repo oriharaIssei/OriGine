@@ -11,8 +11,8 @@
 
 #ifdef RESOURCE_DIRECTORY
 #include <string>
-static const std::string kApplicationResourceDirectory = "./application/resource";
-static const std::string kEngineResourceDirectory      = "./engine/resource";
+inline const std::string kApplicationResourceDirectory = "./application/resource";
+inline const std::string kEngineResourceDirectory      = "./engine/resource";
 #endif // RESOURCE_DIRECTORY
 
 #ifdef ENGINE_SCENE
@@ -117,6 +117,7 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 #endif // MY_RANDOM
 
 #ifdef DELTA_TIME
+#include "Engine.h"
 inline float getMainDeltaTime() {
     return Engine::getInstance()->getDeltaTime();
 }

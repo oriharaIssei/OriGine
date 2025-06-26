@@ -225,7 +225,7 @@ bool DragGuiVectorCommand(const std::string& label, Vector<N, T>& value, float s
 }
 
 template <typename T>
-bool SlideCommand(const std::string& label, T& value, T min = T(), T max = T(), const char* format = "%.3f", std::function<void(T*)> _afterFunc = nullptr) {
+bool SlideGuiCommand(const std::string& label, T& value, T min = T(), T max = T(), const char* format = "%.3f", std::function<void(T*)> _afterFunc = nullptr) {
     static GuiValuePool<T> valuePool;
 
     bool result = false;

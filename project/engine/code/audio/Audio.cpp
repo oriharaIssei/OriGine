@@ -159,7 +159,7 @@ bool Audio::Edit() {
 
     ImGui::Text("File:%s", fileName_.c_str());
     isEdit |= CheckBoxCommand("Loop", audioClip_.isLoop_);
-    isEdit |= SlideCommand("Volume", audioClip_.volume_, 0.0f, 2.0f);
+    isEdit |= SlideGuiCommand("Volume", audioClip_.volume_, 0.0f, 2.0f);
     if (ImGui::Button("Test Play")) {
         Play();
     }
