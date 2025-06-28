@@ -922,7 +922,7 @@ void Emitter::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandLis
 
 void Emitter::CreateResource() {
     if (!mesh_.getVertexBuffer().getResource()) {
-        Plane planeGenerator;
+        Primitive::Plane planeGenerator;
         planeGenerator.createMesh(&mesh_);
     }
     if (!structuredTransform_.getResource().getResource().Get()) {
