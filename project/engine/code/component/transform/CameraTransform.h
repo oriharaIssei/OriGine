@@ -12,7 +12,6 @@
 #include <Matrix4x4.h>
 #include <Quaternion.h>
 #include <Vector3.h>
-#include <Quaternion.h>
 
 class CameraTransform
     : public IComponent {
@@ -30,10 +29,9 @@ public:
     void Finalize() override;
 
     void UpdateMatrix();
-    void UpdateMatrixQuaterion();
     // Vec3f scale;
     Quaternion rotate = Quaternion();
-    Vec3f translate       = {0.0f, 0.0f, 0.0f};
+    Vec3f translate   = {0.0f, 0.0f, 0.0f};
     Matrix4x4 viewMat;
 
     // 垂直方向視野角

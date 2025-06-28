@@ -497,6 +497,9 @@
     </ClInclude>
     <ClInclude Include="engine\code\component\collider\CollisionPushBackInfo.h" />
     <ClInclude Include="engine\code\system\collision\CollisionPushBackSystem.h" />
+    <ClInclude Include="engine\code\component\effect\CameraAction.h" />
+    <ClInclude Include="math\RotateUtil.h" />
+    <ClInclude Include="engine\code\system\effect\CameraActionSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\code\ECS\ECSDebugger.cpp">
@@ -777,5 +780,7 @@
     </ClCompile>
     <ClCompile Include="engine\code\component\collider\CollisionPushBackInfo.cpp" />
     <ClCompile Include="engine\code\system\collision\CollisionPushBackSystem.cpp" />
+    <ClCompile Include="engine\code\component\effect\CameraAction.cpp" />
+    <ClCompile Include="engine\code\system\effect\CameraActionSystem.cpp" />
   </ItemGroup>
 </Project>

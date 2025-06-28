@@ -111,6 +111,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="engine\code\system\effect\CameraActionSystem.h" />
+    <ClInclude Include="engine\code\component\effect\CameraAction.h" />
     <ClInclude Include="engine\code\system\collision\CollisionPushBackSystem.h" />
     <ClInclude Include="engine\code\component\collider\CollisionPushBackInfo.h" />
     <ClInclude Include="engine\EngineInclude.h" />
@@ -219,6 +221,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="math\Vector3.h" />
     <ClInclude Include="math\Vector4.h" />
     <ClInclude Include="math\shape\Shapes.h" />
+    <ClInclude Include="math\RotateUtil.h" />
     <ClInclude Include="util\BitArray.h" />
     <ClInclude Include="util\ConvertString.h" />
     <ClInclude Include="util\EnumBitMask.h" />
@@ -227,6 +230,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="util\timeline\Timeline.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="engine\code\system\effect\CameraActionSystem.cpp" />
+    <ClCompile Include="engine\code\component\effect\CameraAction.cpp" />
     <ClCompile Include="engine\code\system\collision\CollisionPushBackSystem.cpp" />
     <ClCompile Include="engine\code\component\collider\CollisionPushBackInfo.cpp" />
     <ClCompile Include="engine\code\ECS\ECSDebugger.cpp" />

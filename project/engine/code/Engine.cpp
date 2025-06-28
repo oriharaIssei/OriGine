@@ -195,11 +195,20 @@ bool Engine::ProcessMessage() {
     return window_->ProcessMessage();
 }
 
+constexpr float MAX_DELTATIME = 1.f / 30.f;
 void Engine::BeginFrame() {
+    deltaTime_->Update();
+    if (deltaTime_->getDeltaTime() > MAX_DELTATIME) {
+        deltaTime_->setDeltaTime(MAX_DELTATIME);
+    }
+
     window_->UpdateActivity();
+
+#ifndef _DEBUG
     if (!window_->isActive()) {
         return;
     }
+#endif // !_DEBUG
     if (window_->isReSized()) {
         UINT width  = window_->getWidth();
         UINT height = window_->getHeight();
@@ -222,7 +231,6 @@ void Engine::BeginFrame() {
     ImGuiManager::getInstance()->Begin();
 
     input_->Update();
-    deltaTime_->Update();
 
     lightManager_->Update();
 }
