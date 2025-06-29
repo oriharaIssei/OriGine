@@ -141,7 +141,6 @@ bool CheckCollisionPair(
         overlapMinY + (overlapMaxY - overlapMinY) * overlapRate,
         overlapMinZ + (overlapMaxZ - overlapMinZ) * overlapRate};
 
-
     if (aIsPushBack) {
         // 衝突時の処理
         CollisionPushBackInfo::Info info;
@@ -194,21 +193,33 @@ bool CheckCollisionPair(
 
     float overlapRate = 1.f / (float(aabbIsPushBack) + float(sphereIsPushBack));
 
-    Vec3f collVec = distance.normalize() * (_sphere.radius_ - distance.length());
-
     if (aabbIsPushBack) {
         // 衝突時の処理
         CollisionPushBackInfo::Info info;
         info.collPoint = _sphere.center_ + closest.normalize() * _sphere.radius_;
-        info.collVec   = collVec * overlapRate;
+        info.collVec   = (distance.normalize() * (_sphere.radius_ - distance.length())) * overlapRate;
 
         _aabbInfo->AddCollisionInfo(_sphereEntity->getID(), info);
     }
 
     if (sphereIsPushBack) {
+        Vec3f normal(0, 0, 0);
+        Vec3f diff = _sphere.center_ - closest;
+        float absX = std::abs(diff[X]);
+        float absY = std::abs(diff[Y]);
+        float absZ = std::abs(diff[Z]);
+
+        if (absX >= absY && absX >= absZ) {
+            normal[X] = (diff[X] > 0) ? 1.0f : -1.0f;
+        } else if (absY >= absX && absY >= absZ) {
+            normal[Y] = (diff[Y] > 0) ? 1.0f : -1.0f;
+        } else {
+            normal[Z] = (diff[Z] > 0) ? 1.0f : -1.0f;
+        }
+
         CollisionPushBackInfo::Info info;
         info.collPoint = closest;
-        info.collVec   = -collVec * overlapRate;
+        info.collVec   = normal * ((_sphere.radius_ - distance.length() * overlapRate));
 
         _sphereInfo->AddCollisionInfo(_aabbEntity->getID(), info);
     }
