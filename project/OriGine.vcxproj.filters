@@ -501,6 +501,8 @@
     <ClInclude Include="math\RotateUtil.h" />
     <ClInclude Include="engine\code\system\effect\CameraActionSystem.h" />
     <ClInclude Include="math\Sequence.h" />
+    <ClInclude Include="engine\code\component\effect\post\RadialBlurParam.h" />
+    <ClInclude Include="engine\code\system\postRender\RadialBlurEffect.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\code\ECS\ECSDebugger.cpp">
@@ -783,5 +785,10 @@
     <ClCompile Include="engine\code\system\collision\CollisionPushBackSystem.cpp" />
     <ClCompile Include="engine\code\component\effect\CameraAction.cpp" />
     <ClCompile Include="engine\code\system\effect\CameraActionSystem.cpp" />
+    <ClCompile Include="engine\code\component\effect\post\RadialBlurParam.cpp" />
+    <ClCompile Include="engine\code\system\postRender\RadialBlurEffect.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="engine\resource\Shader\RadialBlur.PS.hlsl" />
   </ItemGroup>
 </Project>

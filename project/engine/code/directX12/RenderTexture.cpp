@@ -307,7 +307,7 @@ void RenderTexture::PostDraw() {
 }
 
 void RenderTexture::DrawTexture() {
-    auto commandList = dxCommand_->getCommandList();
+    auto& commandList = dxCommand_->getCommandList();
 
     commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
     commandList->SetPipelineState(pso_->pipelineState.Get());

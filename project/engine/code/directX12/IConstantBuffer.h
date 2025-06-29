@@ -1,11 +1,17 @@
 #pragma once
 
-#include "directX12/DxResource.h"
-
+/// stl & api
 #include <cstdint>
 #include <d3d12.h>
 #include <memory>
 #include <type_traits>
+
+/// engine
+// directX12
+#include "directX12/DxResource.h"
+
+/// lib
+#include <logger/Logger.h>
 
 template <typename T>
 concept HasInConstantBuffer = requires {
@@ -44,11 +50,16 @@ protected:
     DxResource buff_;
 
 public:
-    const DxResource& getResource()const { return buff_; }
+    const DxResource& getResource() const { return buff_; }
 };
 
 template <HasInConstantBuffer constBuff>
 inline void IConstantBuffer<constBuff>::CreateBuffer(Microsoft::WRL::ComPtr<ID3D12Device> device) {
+    // リソースがすでに存在する場合は何もしない
+    if (buff_.getResourceRef().Get()) {
+        LOG_WARN("IConstantBuffer: Buffer resource already exists. Skipping creation.");
+        return;
+    }
     buff_.CreateBufferResource(device, sizeof(constBuff::ConstantBuffer));
     buff_.getResource()->Map(0, nullptr, reinterpret_cast<void**>(&mappingData_));
 
