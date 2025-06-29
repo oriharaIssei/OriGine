@@ -2,6 +2,8 @@
 
 #include <functional>
 
+#include <cmath>
+
 /// ==========================================
 // 数列
 /// ==========================================
@@ -28,16 +30,7 @@ T ArithmeticSequence(T _base, T _commonDifference, int _index) {
 /// <param name="_index">index</param>
 template <typename T>
 T GeometricSequence(T _base, T _commonRatio, int _index) {
-    return _base * pow(_commonRatio, _index - 1);
-}
-
-template <typename T>
-T DifferenceSequence(T _base, std::function<T(int)> _generalTerm, int _index) {
-    T result = _base;
-    for (int i = 1; i < _index; ++i) {
-        result += _generalTerm(i);
-    }
-    return result;
+    return _base * pow(_commonRatio, T(_index - 1));
 }
 
 /// <summary>
