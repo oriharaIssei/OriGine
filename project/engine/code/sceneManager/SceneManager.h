@@ -1,7 +1,5 @@
 #pragma once
 
-/// directX
-#include <d3d12.h>
 /// stl
 #include <functional>
 #include <memory>
@@ -81,7 +79,6 @@ private:
 
     int32_t cameraIcon_ = 0;
 
-    D3D12_GPU_DESCRIPTOR_HANDLE renderedSceneViewSrvHandle_;
     bool isUsingDebugCamera_ = false;
 
     char newSceneName_[256] = "NewScene";

@@ -75,9 +75,6 @@ void SceneManager::Update() {
 
     Engine::getInstance()->ScreenPreDraw();
 
-#ifdef _DEBUG
-    renderedSceneViewSrvHandle_ = sceneView_->getBackBufferSrvHandle();
-#endif // _DEBUG
     sceneView_->DrawTexture();
 
     Engine::getInstance()->ScreenPostDraw();
@@ -153,7 +150,7 @@ void SceneManager::DebugUpdate() {
         }
 
         // SceneView を描画
-        ImGui::Image(reinterpret_cast<ImTextureID>(renderedSceneViewSrvHandle_.ptr), sceneViewSize);
+        ImGui::Image(reinterpret_cast<ImTextureID>(sceneView_->getBackBufferSrvHandle().ptr), sceneViewSize);
 
         // マウス座標を取得
         Vec2f mousePos = Input::getInstance()->getCurrentMousePos();
