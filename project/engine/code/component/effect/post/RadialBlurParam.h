@@ -58,7 +58,8 @@ private:
 
 public:
     bool isActive() const { return isActive_; }
-    void setActive(bool active) { isActive_ = active; }
+    void Play();
+    void Stop();
 
     const Vec2f& getCenter() const { return constantBuffer_.openData_.center_; }
     void setCenter(const Vec2f& center) { constantBuffer_.openData_.center_ = center; }

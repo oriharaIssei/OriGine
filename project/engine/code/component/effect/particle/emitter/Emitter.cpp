@@ -71,6 +71,10 @@ void Emitter::Initialize(GameEntity* /*_entity*/) {
     if (!textureFileName_.empty()) {
         textureIndex_ = TextureManager::LoadTexture(textureFileName_);
     }
+
+    if (!particleKeyFrames_) {
+        particleKeyFrames_ = std::make_shared<ParticleKeyFrames>();
+    }
 }
 
 void Emitter::Finalize() {
@@ -133,7 +137,9 @@ void Emitter::UpdateParticle(float _deltaTime) {
 bool Emitter::Edit() {
 #ifdef _DEBUG
     bool isChange = false;
-    CheckBoxCommand("isActive", isActive_);
+    if (CheckBoxCommand("isActive", isActive_)) {
+        CreateResource();
+    }
     CheckBoxCommand("isLoop", isLoop_);
 
     if (ImGui::Button("Play")) {

@@ -820,6 +820,9 @@ void ECSEditor::GuizmoEdit() {
 
             commandCombo->setFuncOnAfterCommand(
                 [&transform]() {
+                    if (!transform) {
+                        return;
+                    }
                     transform->Update();
                 },
                 true);

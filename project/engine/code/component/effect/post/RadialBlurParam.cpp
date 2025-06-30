@@ -43,6 +43,16 @@ void RadialBlurParam::Finalize() {
     constantBuffer_.Finalize();
 }
 
+void RadialBlurParam::Play() {
+    isActive_ = true;
+    constantBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+    constantBuffer_.ConvertToBuffer();
+}
+void RadialBlurParam::Stop() {
+    isActive_ = false;
+    constantBuffer_.Finalize();
+}
+
 void to_json(nlohmann::json& j, const RadialBlurParam& param) {
     j = nlohmann::json{
         {"isActive", param.isActive_},
