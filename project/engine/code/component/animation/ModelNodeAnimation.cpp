@@ -27,7 +27,7 @@ void ModelNodeAnimation::Initialize(GameEntity* /*_entity*/) {
     currentAnimationTime_ = 0.0f;
     animationState_.isEnd_ = false;
 
-    if (data_->animationNodes_.empty()) {
+    if (!data_||data_->animationNodes_.empty()) {
         return;
     }
 
