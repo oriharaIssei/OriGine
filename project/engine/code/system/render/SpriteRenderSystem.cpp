@@ -38,6 +38,9 @@ void SpriteRenderSystem::Update() {
     for (auto& id : entityIDs_) {
         GameEntity* entity    = getEntity(id);
         auto* entityRenderers = getComponents<SpriteRenderer>(entity);
+        if (!entityRenderers) {
+            continue;
+        }
         for (auto& renderer : *entityRenderers) {
             if (!renderer.isRender()) {
                 continue;

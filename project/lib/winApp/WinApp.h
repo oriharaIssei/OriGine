@@ -40,6 +40,8 @@ public:
 
     bool ProcessMessage();
 
+    void UpdateActivity();
+
 private:
     HWND hwnd_                            = nullptr; // ウィンドウハンドル
     std::unique_ptr<WNDCLASSEX> wndClass_ = nullptr; // ウィンドウクラス
@@ -52,8 +54,10 @@ private:
 
     WindowResizeMode windowResizeMode_ = WindowResizeMode::FIXED_ASPECT;
     bool isReSized_                    = false;
+    bool isActive_                     = false; // アクティブ状態
 
 public:
+    bool isActive() const { return isActive_; }
     WindowResizeMode getWindowResizeMode() const { return windowResizeMode_; }
     void setWindowResizeMode(WindowResizeMode _windowResizeMode) {
         windowResizeMode_ = _windowResizeMode;

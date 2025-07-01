@@ -13,12 +13,25 @@ void PrimitiveNodeAnimationWorkSystem::UpdateEntity(GameEntity* _entity) {
     if (primitiveNodeAnimation == nullptr) {
         return;
     }
-    auto* primitive = getComponent<PlaneRenderer>(_entity);
+
+    PrimitiveMeshRendererBase* primitive = getComponent<PlaneRenderer>(_entity);
     if (primitive == nullptr) {
-        return;
+        primitive = getComponent<SphereRenderer>(_entity);
+        if (primitive == nullptr) {
+            primitive = getComponent<RingRenderer>(_entity);
+            if (primitive == nullptr) {
+                primitive = getComponent<BoxRenderer>(_entity);
+                if (primitive == nullptr) {
+                    primitive = getComponent<BoxRenderer>(_entity);
+                    if (primitive == nullptr) {
+                        return; // No primitive renderer found
+                    }
+                }
+            }
+        }
     }
     const float deltaTime = getMainDeltaTime();
-    
+
     primitiveNodeAnimation->Update(deltaTime, &primitive->getTransformBuff().openData_, &primitive->getMaterialBuff().openData_);
     primitive->getMaterialBuff().ConvertToBuffer();
 }

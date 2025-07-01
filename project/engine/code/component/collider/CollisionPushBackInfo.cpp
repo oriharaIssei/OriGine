@@ -27,7 +27,7 @@ bool CollisionPushBackInfo::Edit() {
         ImGui::EndCombo();
     }
 #endif // _DEBUG
-    return false;
+    return isChanged;
 }
 
 void CollisionPushBackInfo::ClearInfo() {

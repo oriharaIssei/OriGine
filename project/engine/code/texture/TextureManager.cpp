@@ -102,7 +102,7 @@ DirectX::ScratchImage Texture::Load(const std::string& filePath) {
     } else {
         hr = DirectX::LoadFromWICFile(
             filePathW.c_str(),
-            DirectX::WIC_FLAGS_FORCE_SRGB,
+            DirectX::WIC_FLAGS_FORCE_SRGB | DirectX::WIC_FLAGS_DEFAULT_SRGB,
             nullptr,
             image);
     }
@@ -338,7 +338,6 @@ void TextureManager::LoadTask::Update() {
     }
     timer.Update();
 
-    LOG_TRACE("LoadedTexture \n Path        : {} \n Lading Time : " , filePath ,std::to_string(timer.getDeltaTime()));
+    LOG_TRACE("LoadedTexture \n Path        : {} \n Lading Time : ", filePath, std::to_string(timer.getDeltaTime()));
 }
 #pragma endregion
-

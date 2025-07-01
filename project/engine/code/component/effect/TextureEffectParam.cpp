@@ -338,7 +338,7 @@ bool TextureEffectParam::Edit() {
             isChange |= CheckBoxCommand("Loop##Distortion", distortionAnimState_.isLoop_);
 
             DragGuiCommand("DistortionStrength", effectParamData_->distortionStrength, 0.01f);
-            SlideCommand<float>("DistortionBias", effectParamData_->distortionBias, 0.0f, 1.f);
+            SlideGuiCommand<float>("DistortionBias", effectParamData_->distortionBias, 0.0f, 1.f);
 
             ImGui::Separator();
 

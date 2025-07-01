@@ -126,6 +126,7 @@ public:
     void ReleaseDescriptor(std::shared_ptr<DescriptorType> _descriptor) {
         if (!_descriptor) {
             LOG_ERROR("DxDescriptorHeap::ReleaseDescriptor: Descriptor is null");
+            return;
         }
 
         uint32_t index = static_cast<uint32_t>((_descriptor->getCpuHandle().ptr - heap_->GetCPUDescriptorHandleForHeapStart().ptr) / descriptorIncrementSize_);
@@ -337,4 +338,3 @@ DxDescriptorHeap<DxDescriptorHeapType::UAV>::CreateDescriptor(const D3D12_UNORDE
 }
 
 #pragma endregion
-

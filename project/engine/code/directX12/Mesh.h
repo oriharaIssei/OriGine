@@ -8,6 +8,7 @@
 #include "Engine.h"
 // directX12
 #include "d3d12.h"
+#include "directX12/DxDevice.h"
 #include "directX12/DxResource.h"
 
 /// math

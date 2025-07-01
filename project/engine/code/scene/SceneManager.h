@@ -54,7 +54,8 @@ private:
     int32_t pauseIcon_       = 0;
     int32_t pauseCircleIcon_ = 0;
 
-    int32_t cameraIcon_      = 0;
+    int32_t cameraIcon_ = 0;
+
     bool isUsingDebugCamera_ = false;
 
     char newSceneName_[256] = "NewScene";

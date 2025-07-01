@@ -99,7 +99,15 @@ void Engine::Initialize() {
     SerializedField<std::string> windowTitle{"Settings", "Window", "Title"};
     SerializedField<Vec2f> windowSize{"Settings", "Window", "Size"};
 
-    window_->CreateGameWindow(ConvertString(windowTitle).c_str(), WS_OVERLAPPEDWINDOW, int32_t(windowSize->v[X]), int32_t(windowSize->v[Y]));
+    UINT windowStyle = 0;
+
+#ifdef _DEBUG
+    windowStyle = WS_OVERLAPPEDWINDOW;
+#else
+    windowStyle = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU;
+#endif // DEBUG
+
+    window_->CreateGameWindow(ConvertString(windowTitle).c_str(), windowStyle, int32_t(windowSize->v[X]), int32_t(windowSize->v[Y]));
 
     input_ = Input::getInstance();
     input_->Initialize();
@@ -183,7 +191,20 @@ bool Engine::ProcessMessage() {
     return window_->ProcessMessage();
 }
 
+constexpr float MAX_DELTATIME = 1.f / 30.f;
 void Engine::BeginFrame() {
+    deltaTime_->Update();
+    if (deltaTime_->getDeltaTime() > MAX_DELTATIME) {
+        deltaTime_->setDeltaTime(MAX_DELTATIME);
+    }
+
+    window_->UpdateActivity();
+
+#ifndef _DEBUG
+    if (!window_->isActive()) {
+        return;
+    }
+#endif // !_DEBUG
     if (window_->isReSized()) {
         // ウィンドウのサイズ変更時の処理
         LOG_INFO("Window resized to: {}x{}", window_->getWidth(), window_->getHeight());
@@ -214,7 +235,6 @@ void Engine::BeginFrame() {
     ImGuiManager::getInstance()->Begin();
 
     input_->Update();
-    deltaTime_->Update();
 
     lightManager_->Update();
 }

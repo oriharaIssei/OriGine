@@ -13,4 +13,9 @@ private:
 	std::chrono::high_resolution_clock::time_point preTime_;
 public:
 	float getDeltaTime()const{ return deltaTime_; }
+    /// <summary>
+    /// !!! 非推奨 !!!
+    /// </summary>
+    /// <param name="dt"></param>
+    void setDeltaTime(float dt) { deltaTime_ = dt; }
 };

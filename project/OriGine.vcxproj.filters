@@ -207,6 +207,12 @@
     <ClInclude Include="engine\code\component\collider\Collider.h">
       <Filter>engine\code\component\collider</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\component\collider\CollisionPushBackInfo.h">
+      <Filter>engine\code\component\collider</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\component\effect\CameraAction.h">
+      <Filter>engine\code\component\effect</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\component\effect\TextureEffectParam.h">
       <Filter>engine\code\component\effect</Filter>
     </ClInclude>
@@ -220,6 +226,9 @@
       <Filter>engine\code\component\effect\particle\emitter</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\component\effect\post\DistortionEffectParam.h">
+      <Filter>engine\code\component\effect\post</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\component\effect\post\RadialBlurParam.h">
       <Filter>engine\code\component\effect\post</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\component\effect\post\VignetteParam.h">
@@ -342,6 +351,12 @@
     <ClInclude Include="engine\code\system\collision\CollisionCheckSystem.h">
       <Filter>engine\code\system\collision</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\system\collision\CollisionPushBackSystem.h">
+      <Filter>engine\code\system\collision</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\system\effect\CameraActionSystem.h">
+      <Filter>engine\code\system\effect</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\system\effect\EmitterWorkSystem.h">
       <Filter>engine\code\system\effect</Filter>
     </ClInclude>
@@ -361,6 +376,9 @@
       <Filter>engine\code\system\postRender</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\system\postRender\GrayscaleEffect.h">
+      <Filter>engine\code\system\postRender</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\system\postRender\RadialBlurEffect.h">
       <Filter>engine\code\system\postRender</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\system\postRender\SmoothingEffect.h">
@@ -447,6 +465,12 @@
     <ClInclude Include="math\Quaternion.h">
       <Filter>math</Filter>
     </ClInclude>
+    <ClInclude Include="math\RotateUtil.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="math\Sequence.h">
+      <Filter>math</Filter>
+    </ClInclude>
     <ClInclude Include="math\Vector.h">
       <Filter>math</Filter>
     </ClInclude>
@@ -527,6 +551,12 @@
     <ClCompile Include="engine\code\component\collider\Collider.cpp">
       <Filter>engine\code\component\collider</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\component\collider\CollisionPushBackInfo.cpp">
+      <Filter>engine\code\component\collider</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\component\effect\CameraAction.cpp">
+      <Filter>engine\code\component\effect</Filter>
+    </ClCompile>
     <ClCompile Include="engine\code\component\effect\TextureEffectParam.cpp">
       <Filter>engine\code\component\effect</Filter>
     </ClCompile>
@@ -540,6 +570,9 @@
       <Filter>engine\code\component\effect\particle\emitter</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\component\effect\post\DistortionEffectParam.cpp">
+      <Filter>engine\code\component\effect\post</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\component\effect\post\RadialBlurParam.cpp">
       <Filter>engine\code\component\effect\post</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\component\effect\post\VignetteParam.cpp">
@@ -650,6 +683,12 @@
     <ClCompile Include="engine\code\system\collision\CollisionCheckSystem.cpp">
       <Filter>engine\code\system\collision</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\system\collision\CollisionPushBackSystem.cpp">
+      <Filter>engine\code\system\collision</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\system\effect\CameraActionSystem.cpp">
+      <Filter>engine\code\system\effect</Filter>
+    </ClCompile>
     <ClCompile Include="engine\code\system\effect\EmitterWorkSystem.cpp">
       <Filter>engine\code\system\effect</Filter>
     </ClCompile>
@@ -669,6 +708,9 @@
       <Filter>engine\code\system\postRender</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\system\postRender\GrayscaleEffect.cpp">
+      <Filter>engine\code\system\postRender</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\system\postRender\RadialBlurEffect.cpp">
       <Filter>engine\code\system\postRender</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\system\postRender\SmoothingEffect.cpp">

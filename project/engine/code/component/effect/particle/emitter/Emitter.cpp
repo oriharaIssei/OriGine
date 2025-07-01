@@ -70,6 +70,10 @@ void Emitter::Initialize(GameEntity* /*_entity*/) {
     if (!textureFileName_.empty()) {
         textureIndex_ = TextureManager::LoadTexture(textureFileName_);
     }
+
+    if (!particleKeyFrames_) {
+        particleKeyFrames_ = std::make_shared<ParticleKeyFrames>();
+    }
 }
 
 void Emitter::Finalize() {
@@ -132,7 +136,9 @@ void Emitter::UpdateParticle(float _deltaTime) {
 bool Emitter::Edit() {
 #ifdef _DEBUG
     bool isChange = false;
-    CheckBoxCommand("isActive", isActive_);
+    if (CheckBoxCommand("isActive", isActive_)) {
+        CreateResource();
+    }
     CheckBoxCommand("isLoop", isLoop_);
 
     if (ImGui::Button("Play")) {
@@ -921,7 +927,7 @@ void Emitter::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandLis
 
 void Emitter::CreateResource() {
     if (!mesh_.getVertexBuffer().getResource()) {
-        Plane planeGenerator;
+        Primitive::Plane planeGenerator;
         planeGenerator.createMesh(&mesh_);
     }
     if (!structuredTransform_.getResource().getResource().Get()) {

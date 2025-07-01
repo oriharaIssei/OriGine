@@ -20,8 +20,8 @@ enum class PrimitiveType : int32_t {
     Plane, // 面
     Ring, // 環(真ん中が空洞)
     // Circle, // 円
-    //  Box, // 立方体
-    //  Sphere, // 球
+    Box, // 立方体
+    Sphere, // 球
     //  Torus, // トーラス
     //  Cylinder, // 円柱
     //  Cone // 円錐
@@ -29,6 +29,7 @@ enum class PrimitiveType : int32_t {
     Count
 };
 const char* PrimitiveTypeToString(PrimitiveType _type);
+
 
 /// <summary>
 /// 形状の基底クラス
@@ -62,6 +63,8 @@ public: // accessor
         indexSize_ = _size;
     }
 };
+
+namespace Primitive {
 
 #pragma region "PrimitiveData"
 
@@ -141,6 +144,66 @@ public:
         division_ = _division;
     }
 };
+
+/// <summary>
+/// Box(立方体)のPrimitiveクラス
+/// </summary>
+class Box
+    : public IPrimitive {
+public:
+    Box() : IPrimitive(PrimitiveType::Box) {}
+    ~Box() override {}
+    void createMesh(TextureMesh* _mesh) override;
+
+private:
+    int32_t vertexSize_ = 8; // 立方体の頂点数
+    int32_t indexSize_  = 36; // 立方体のインデックス数
+    Vec3f size_         = {1.0f, 1.0f, 1.0f}; // サイズ
+public:
+    const Vec3f& getSize() const {
+        return size_;
+    }
+    void setSize(const Vec3f& _size) {
+        size_ = _size;
+    }
+};
+
+/// <summary>
+/// Sphere(球)のPrimitiveクラス
+/// </summary>
+class Sphere
+    : public IPrimitive {
+public:
+    Sphere() : IPrimitive(PrimitiveType::Sphere) {}
+    ~Sphere() override {}
+    void createMesh(TextureMesh* _mesh) override;
+
+private:
+    float radius_               = 1.0f; // 半径
+    uint32_t divisionLatitude_  = 8; // 緯度分割数
+    uint32_t divisionLongitude_ = 16; // 経度分割数
+public:
+    float getRadius() const {
+        return radius_;
+    }
+    void setRadius(float _radius) {
+        radius_ = _radius;
+    }
+    uint32_t getDivisionLatitude() const {
+        return divisionLatitude_;
+    }
+    void setDivisionLatitude(uint32_t _division) {
+        divisionLatitude_ = _division;
+    }
+    uint32_t getDivisionLongitude() const {
+        return divisionLongitude_;
+    }
+    void setDivisionLongitude(uint32_t _division) {
+        divisionLongitude_ = _division;
+    }
+};
+
+}
 
 #pragma endregion
 
@@ -261,7 +324,7 @@ public:
 #pragma region "PrimitiveRenderer"
 
 class PlaneRenderer
-    : public PrimitiveMeshRenderer<Plane> {
+    : public PrimitiveMeshRenderer<Primitive::Plane> {
     friend void to_json(nlohmann::json& j, const PlaneRenderer& r);
     friend void from_json(const nlohmann::json& j, PlaneRenderer& r);
 
@@ -277,7 +340,7 @@ public:
 };
 
 class RingRenderer
-    : public PrimitiveMeshRenderer<Ring> {
+    : public PrimitiveMeshRenderer<Primitive::Ring> {
     friend void to_json(nlohmann::json& j, const RingRenderer& r);
     friend void from_json(const nlohmann::json& j, RingRenderer& r);
 
@@ -289,6 +352,38 @@ public:
 
     void Initialize(GameEntity* _hostEntity) override;
 
+    bool Edit() override;
+};
+
+class BoxRenderer
+    : public PrimitiveMeshRenderer<Primitive::Box> {
+    friend void to_json(nlohmann::json& j, const BoxRenderer& r);
+    friend void from_json(const nlohmann::json& j, BoxRenderer& r);
+
+public:
+    BoxRenderer() : PrimitiveMeshRenderer() {}
+    BoxRenderer(const std::vector<TextureMesh>& _meshGroup) : PrimitiveMeshRenderer(_meshGroup) {}
+    BoxRenderer(const std::shared_ptr<std::vector<TextureMesh>>& _meshGroup) : PrimitiveMeshRenderer(_meshGroup) {}
+    ~BoxRenderer() override {}
+
+    void Initialize(GameEntity* _hostEntity) override;
+
+    bool Edit() override;
+};
+
+class SphereRenderer
+    : public PrimitiveMeshRenderer<Primitive::Sphere> {
+    friend void to_json(nlohmann::json& j, const SphereRenderer& r);
+    friend void from_json(const nlohmann::json& j, SphereRenderer& r);
+
+public:
+    SphereRenderer() : PrimitiveMeshRenderer() {}
+    SphereRenderer(const std::vector<TextureMesh>& _meshGroup) : PrimitiveMeshRenderer(_meshGroup) {}
+    SphereRenderer(const std::shared_ptr<std::vector<TextureMesh>>& _meshGroup) : PrimitiveMeshRenderer(_meshGroup) {}
+
+    ~SphereRenderer() override {}
+
+    void Initialize(GameEntity* _hostEntity) override;
     bool Edit() override;
 };
 
