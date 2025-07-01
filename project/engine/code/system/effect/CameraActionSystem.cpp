@@ -4,15 +4,12 @@
 #define DELTA_TIME
 #include "EngineInclude.h"
 
-/// ECS
-#include "ECSManager.h"
-
 // component
 #include "component/effect/CameraAction.h"
 #include "component/transform/CameraTransform.h"
 
 CameraActionSystem::CameraActionSystem()
-    : ISystem(SystemType::Effect) {}
+    : ISystem(SystemCategory::Effect) {}
 
 CameraActionSystem::~CameraActionSystem() {}
 

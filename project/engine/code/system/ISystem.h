@@ -184,15 +184,15 @@ public:
         systems_.clear();
     }
 
-    template <IsSystem SystemType>
+    template <IsSystem SystemCategory>
     void registerSystem() {
-        auto addedSystem = std::make_unique<SystemType>();
+        auto addedSystem = std::make_unique<SystemCategory>();
 
         if (addedSystem->getCategory() >= SystemCategory::Count) {
             LOG_ERROR("SystemRegistry: Invalid SystemCategory.");
             return;
         }
-        std::string systemName = nameof<SystemType>();
+        std::string systemName = nameof<SystemCategory>();
         if (systems_.find(systemName) != systems_.end()) {
             LOG_WARN("SystemRegistry: System already registered with name: {}", systemName);
             return;
@@ -209,15 +209,15 @@ public:
         }
         return itr->second.get();
     }
-    template <IsSystem SystemType>
-    SystemType* getSystem() const {
-        std::string systemName = nameof<SystemType>();
+    template <IsSystem SystemCategory>
+    SystemCategory* getSystem() const {
+        std::string systemName = nameof<SystemCategory>();
         auto itr               = systems_.find(systemName);
         if (itr == systems_.end()) {
             LOG_ERROR("SystemRegistry: System not found with name: {}", systemName);
             return nullptr;
         }
-        return dynamic_cast<SystemType*>(itr->second.get());
+        return dynamic_cast<SystemCategory*>(itr->second.get());
     }
 
 private:
@@ -322,31 +322,31 @@ public:
     }
 
     void registerSystem(const std::string& _systemName, bool _activate = true);
-    template <IsSystem SystemType>
+    template <IsSystem SystemCategory>
     void registerSystem(bool _activate = true) {
-        registerSystem(nameof<SystemType>(), _activate);
+        registerSystem(nameof<SystemCategory>(), _activate);
     }
     void unregisterSystem(const std::string& _systemName, bool _isFinalize = false);
-    template <IsSystem SystemType>
+    template <IsSystem SystemCategory>
     void unregisterSystem(bool _isFinalize = false) {
-        unregisterSystem(nameof<SystemType>());
+        unregisterSystem(nameof<SystemCategory>());
     }
 
     void ActivateSystem(const std::string& _systemName);
-    template <IsSystem SystemType>
+    template <IsSystem SystemCategory>
     void ActivateSystem() {
-        ActivateSystem(nameof<SystemType>());
+        ActivateSystem(nameof<SystemCategory>());
     }
     void DeactivateSystem(const std::string& _systemName);
-    template <IsSystem SystemType>
+    template <IsSystem SystemCategory>
     void DeactivateSystem() {
-        DeactivateSystem(nameof<SystemType>());
+        DeactivateSystem(nameof<SystemCategory>());
     }
 
-    template <IsSystem... SystemType>
+    template <IsSystem... SystemCategory>
     void registerEntity(GameEntity* _entity) {
         // 各システムにエンティティを登録
-        (getSystem<SystemType>()->addEntity(_entity), ...);
+        (getSystem<SystemCategory>()->addEntity(_entity), ...);
     }
     void removeEntityFromAllSystems(GameEntity* _entity) {
         // 各システムからエンティティを削除

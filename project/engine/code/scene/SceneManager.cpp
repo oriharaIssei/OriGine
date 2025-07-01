@@ -588,7 +588,7 @@ void SceneSerializer::DeserializeFromJson() {
         // 所属するシステムを読み込み
         auto& sceneSystems = systemRunner->getSystemsRef();
         for (auto& systemData : entityData["Systems"]) {
-            int32_t systemCategory = systemData["SystemType"];
+            int32_t systemCategory = systemData["SystemCategory"];
             std::string systemName = systemData["SystemName"];
             ISystem* system        = sceneSystems[systemCategory][systemName];
             if (system) {

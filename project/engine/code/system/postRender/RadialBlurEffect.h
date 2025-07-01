@@ -10,7 +10,7 @@ class RadialBlurParam;
 class RadialBlurEffect
     : public ISystem {
 public:
-    RadialBlurEffect() : ISystem(SystemType::PostRender) {}
+    RadialBlurEffect() : ISystem(SystemCategory::PostRender) {}
     ~RadialBlurEffect() override = default;
 
     void Initialize() override;
