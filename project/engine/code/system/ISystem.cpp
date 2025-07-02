@@ -40,6 +40,14 @@ IComponentArray* ISystem::getComponentArray(const std::string& _typeName) {
     return scene_->getComponentRepositoryRef()->getComponentArray(_typeName);
 }
 
+void ISystem::addComponent(GameEntity* _entity, const std::string& _typeName, IComponent* _component, bool _doInitialize) {
+    if (scene_ == nullptr) {
+        LOG_ERROR("ComponentRepository is not set.");
+        return;
+    }
+    scene_->getComponentRepositoryRef()->getComponentArray(_typeName)->addComponent(_entity, _component, _doInitialize);
+}
+
 void ISystem::Update() {
 #ifdef _DEBUG
     // 計測開始

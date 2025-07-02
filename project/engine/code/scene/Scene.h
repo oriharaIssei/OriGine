@@ -11,7 +11,7 @@
 class RenderTexture;
 /// ECS
 class EntityRepository;
-class ComponentRepository;
+#include "component/ComponentArray.h"
 class SystemRunner;
 
 class Scene {
@@ -67,4 +67,29 @@ public:
     /// エンティティを即時削除する
     /// </summary>
     void deleteEntity(int32_t entityId);
+
+    int32_t getActiveEntityCount() const {
+        return entityRepository_->getActiveEntityCount();
+    }
+    int32_t getInactiveEntityCount() const {
+        return entityRepository_->getInactiveEntityCount();
+    }
+
+    GameEntity* getEntity(int32_t entityId) const;
+    GameEntity* getUniqueEntity(const std::string& _dataType) const;
+
+    template <IsComponent ComponentType>
+    ComponentType* getComponent(int32_t entityId, uint32_t index = 0) const {
+        return componentRepository_->getComponent<ComponentType>(entityId, index);
+    }
+    IComponentArray* getComponentArray(const std::string& componentTypeName) const {
+        return componentRepository_->getComponentArray(componentTypeName);
+    }
+
+    bool addComponent(const std::string& _compTypeName, int32_t _entityId, bool _doInitialize = true) ;
+
+    template <IsComponent ComponentType>
+    ComponentArray<ComponentType>* getComponentArray() const {
+        return componentRepository_->getComponentArray<ComponentType>();
+    }
 };

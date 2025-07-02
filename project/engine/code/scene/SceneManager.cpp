@@ -53,10 +53,20 @@ void SceneManager::Initialize() {
     currentScene_->getSceneView()->Resize(Engine::getInstance()->getWinApp()->getWindowSize());
 
     Engine::getInstance()->addWindowResizeEvent(
-        [this](const Vec2f& newSize) {
-            if (currentScene_) {
-                currentScene_->getSceneView()->Resize(newSize);
+        [](const Vec2f& newSize) {
+            auto currentScene = SceneManager::getInstance()->getCurrentScene();
+            if (!currentScene) {
+                LOG_ERROR("Current scene is null. Cannot resize SceneView.");
+                return;
             }
+
+            auto sceneView = currentScene->getSceneView();
+            if (!sceneView) {
+                LOG_ERROR("SceneView is null. Cannot resize SceneView. CurrentSceneName : {}",currentScene->getName());
+                return;
+
+            }
+                sceneView->Resize(newSize);
         });
     // デバッグカメラの初期化
 }
@@ -588,7 +598,7 @@ void SceneSerializer::DeserializeFromJson() {
         // 所属するシステムを読み込み
         auto& sceneSystems = systemRunner->getSystemsRef();
         for (auto& systemData : entityData["Systems"]) {
-            int32_t systemCategory = systemData["SystemCategory"];
+            int32_t systemCategory = systemData["SystemType"];
             std::string systemName = systemData["SystemName"];
             ISystem* system        = sceneSystems[systemCategory][systemName];
             if (system) {

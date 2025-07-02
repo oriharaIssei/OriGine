@@ -27,7 +27,7 @@ void Scene::Initialize() {
     sceneView_->Initialize(2, Vec2f(1280.f, 720.f));
     sceneView_->setTextureName(name_ + "_SceneView");
 
-    entityRepository_    = std::make_unique<EntityRepository>();
+    entityRepository_ = std::make_unique<EntityRepository>();
     entityRepository_->Initialize();
     componentRepository_ = std::make_unique<ComponentRepository>();
     systemRunner_        = std::make_unique<SystemRunner>(this);
@@ -40,6 +40,9 @@ void Scene::Initialize() {
 }
 
 void Scene::Update() {
+    if (!systemRunner_) {
+        return;
+    }
     systemRunner_->UpdateCategory<SystemCategory::Input>();
     systemRunner_->UpdateCategory<SystemCategory::StateTransition>();
     systemRunner_->UpdateCategory<SystemCategory::Movement>();
@@ -109,3 +112,25 @@ ComponentRepository* Scene::getComponentRepositoryRef() { return componentReposi
 
 const SystemRunner* Scene::getSystemRunner() const { return systemRunner_.get(); }
 SystemRunner* Scene::getSystemRunnerRef() { return systemRunner_.get(); }
+
+GameEntity* Scene::getEntity(int32_t entityId) const {
+    return entityRepository_->getEntity(entityId);
+}
+
+GameEntity* Scene::getUniqueEntity(const std::string& _dataType) const {
+    if (!_dataType.empty()) {
+        return entityRepository_->getUniqueEntity(_dataType);
+    }
+    LOG_ERROR("Scene::getUniqueEntity: Data type is empty.");
+    return nullptr;
+}
+
+bool Scene::addComponent(const std::string& _compTypeName, int32_t _entityId, bool _doInitialize) {
+    GameEntity* entity = entityRepository_->getEntity(_entityId);
+    if (!entity) {
+        LOG_ERROR("Scene::addComponent: Entity with ID '{}' not found.", _entityId);
+        return false;
+    }
+    componentRepository_->addComponent(_compTypeName, entity, _doInitialize);
+    return true;
+}

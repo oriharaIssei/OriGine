@@ -30,7 +30,7 @@ public:
 
     /// @brief 指定サイズで初期化する
     virtual void Initialize(uint32_t _size = DEFAULT_COMPONENTARRAY_SIZE) = 0;
-    virtual void Finalize()                 = 0;
+    virtual void Finalize()                                               = 0;
 
     /// <summary>
     /// Entityが持つコンポーネントを保存する
@@ -491,14 +491,22 @@ public:
     }
 
     template <IsComponent ComponentType>
-    ComponentArray<ComponentType>* cloneComponentArray() {
+    std::unique_ptr<IComponentArray> cloneComponentArray() {
         std::string _typeName = nameof<ComponentType>();
         auto itr              = cloneMaker_.find(_typeName);
         if (itr == cloneMaker_.end()) {
             LOG_ERROR("ComponentRegistry: Clone maker not found for type: {}", _typeName);
             return nullptr;
         }
-        return dynamic_cast<ComponentArray<ComponentType>*>(itr->second(_typeName));
+        return itr->second();
+    }
+    std::unique_ptr<IComponentArray> cloneComponentArray(const std::string& _compTypeName) {
+        auto itr = cloneMaker_.find(_compTypeName);
+        if (itr == cloneMaker_.end()) {
+            LOG_ERROR("ComponentRegistry: Clone maker not found for type: {}", _compTypeName);
+            return nullptr;
+        }
+        return itr->second();
     }
 
 private:
@@ -510,6 +518,13 @@ private:
 private:
     std::unordered_map<std::string, std::unique_ptr<IComponentArray>> componentArrays_;
     std::unordered_map<std::string, std::function<std::unique_ptr<IComponentArray>()>> cloneMaker_; // コンポーネントのクローンを作成するための関数マップ
+public:
+    const std::unordered_map<std::string, std::unique_ptr<IComponentArray>>& getComponentArrayMap() const {
+        return componentArrays_;
+    }
+    std::unordered_map<std::string, std::unique_ptr<IComponentArray>>& getComponentArrayMapRef() {
+        return componentArrays_;
+    }
 };
 
 /// <summary>
@@ -529,11 +544,11 @@ public:
     }
 
     template <IsComponent ComponentType>
-    void registerComponentArray() {
+    bool registerComponentArray() {
         std::string typeName = nameof<ComponentType>();
         if (componentArrays_.find(typeName) != componentArrays_.end()) {
             LOG_WARN("ComponentRepository: ComponentArray already registered for type: {}", typeName);
-            return;
+            return false;
         }
         auto componentArray = ComponentRegistry::getInstance()->getComponentArray(typeName);
         if (componentArray) {
@@ -541,7 +556,24 @@ public:
             componentArrays_[typeName]->Initialize(1000);
         } else {
             LOG_ERROR("ComponentRepository: ComponentArray not found for type: {}", typeName);
+            return false;
         }
+        return true;
+    }
+    bool registerComponentArray(const std::string& _compTypeName) {
+        if (componentArrays_.find(_compTypeName) != componentArrays_.end()) {
+            LOG_WARN("ComponentRepository: ComponentArray already registered for type: {}", _compTypeName);
+            return false;
+        }
+        auto componentArray = ComponentRegistry::getInstance()->getComponentArray(_compTypeName);
+        if (componentArray) {
+            componentArrays_[_compTypeName] = std::move(ComponentRegistry::getInstance()->cloneComponentArray(_compTypeName));
+            componentArrays_[_compTypeName]->Initialize(1000);
+        } else {
+            LOG_ERROR("ComponentRepository: ComponentArray not found for type: {}", _compTypeName);
+            return false;
+        }
+        return true;
     }
     void unregisterComponentArray(const std::string& _typeName, bool _isFinalize = true) {
         auto itr = componentArrays_.find(_typeName);
@@ -558,16 +590,24 @@ public:
         std::string typeName = nameof<ComponentType>();
         auto itr             = componentArrays_.find(typeName);
         if (itr == componentArrays_.end()) {
-            LOG_ERROR("ComponentRepository: ComponentArray not found for type: {}", typeName);
-            return nullptr;
+            if (registerComponentArray<ComponentType>()) {
+                itr = componentArrays_.find(typeName);
+            } else {
+                LOG_ERROR("ComponentRepository: ComponentArray not found for type: {}", typeName);
+                return nullptr;
+            }
         }
         return reinterpret_cast<ComponentArray<ComponentType>*>(itr->second.get());
     }
     IComponentArray* getComponentArray(const std::string& _typeName) {
         auto itr = componentArrays_.find(_typeName);
         if (itr == componentArrays_.end()) {
-            LOG_ERROR("ComponentRepository: ComponentArray not found for type: {}", _typeName);
-            return nullptr;
+            if (registerComponentArray(_typeName)) {
+                itr = componentArrays_.find(_typeName);
+            } else {
+                LOG_ERROR("ComponentRepository: ComponentArray not found for type: {}", _typeName);
+                return nullptr;
+            }
         }
         return itr->second.get();
     }
@@ -590,8 +630,21 @@ public:
     }
 
     template <IsComponent... ComponentType>
-    void registerEntity(GameEntity* _entity, bool _doInitialize = true) {
+    void addComponent(GameEntity* _entity, bool _doInitialize = true) {
         (this->getComponentArray<ComponentType>()->addComponent(_entity, _doInitialize), ...);
+    }
+    void addComponent(const std::string& _compTypeName, GameEntity* _entity, bool _doInitialize = true) {
+        auto componentArray = getComponentArray(_compTypeName);
+        if (componentArray) {
+            componentArray->addComponent(_entity, _doInitialize);
+        } else {
+            LOG_ERROR("ComponentRepository: ComponentArray not found for type: {}", _compTypeName);
+        }
+    }
+    void addComponent(const std::vector<std::string>& _compTypeNames, GameEntity* _entity, bool _doInitialize = true) {
+        for (const auto& compTypeName : _compTypeNames) {
+            addComponent(compTypeName, _entity, _doInitialize);
+        }
     }
     void removeEntity(GameEntity* _entity) {
         for (auto& [typeName, componentArray] : componentArrays_) {

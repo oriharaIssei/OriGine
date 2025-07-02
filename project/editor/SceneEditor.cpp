@@ -460,35 +460,40 @@ void SelectAddComponentArea::setTargets(const std::list<int32_t>& _targets) {
 SelectAddComponentArea::ComponentListRegion::ComponentListRegion(SelectAddComponentArea* _parentArea) : Editor::Region(nameof(this)), parentArea_(_parentArea) {}
 SelectAddComponentArea::ComponentListRegion::~ComponentListRegion() {}
 
-void SelectAddComponentArea::ComponentListRegion::Initialize() {}
+void SelectAddComponentArea::ComponentListRegion::Initialize() {
+}
 
 void SelectAddComponentArea::ComponentListRegion::DrawGui() {
     std::string label = "Search##SelectAddComponent";
-    {
-        ImGui::InputText(label.c_str(), &searchBuff_[0], sizeof(char) * 256);
-        static GuiValuePool<std::string> entityNamePool;
-        if (ImGui::IsItemActive()) {
-            entityNamePool.setValue(label, searchBuff_);
-        } else if (ImGui::IsItemDeactivatedAfterEdit()) {
-            auto command = std::make_unique<SetterCommand<std::string>>(&searchBuff_, searchBuff_, entityNamePool.popValue(label));
-            EditorController::getInstance()->pushCommand(std::move(command));
-        }
-    }
-    auto currentScene       = EditorController::getInstance()->getWindow<SceneEditorWindow>()->getCurrentScene();
-    auto& componentArrayMap = currentScene->getComponentRepositoryRef()->getComponentArrayMap();
+
+    ImGui::InputText(label.c_str(), &searchBuff_[0], sizeof(char) * 256);
+    searchBuff_ = std::string(searchBuff_.c_str());
+
+    auto& componentRegistryMap = ComponentRegistry::getInstance()->getComponentArrayMap();
 
     // ImGuiのスタイルで選択色を設定（必要に応じてアプリ全体で設定してもOK）
     ImVec4 winSelectColor = ImVec4(0.26f, 0.59f, 0.98f, 1.0f); // Windows風の青
     ImGui::PushStyleColor(ImGuiCol_Header, winSelectColor);
     ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.26f, 0.59f, 0.98f, 0.8f));
     ImGui::PushStyleColor(ImGuiCol_HeaderActive, winSelectColor);
-    for (auto& [name, array] : componentArrayMap) {
+    for (auto& [name, array] : componentRegistryMap) {
+
+        if (searchBuff_.size() > 0) {
+            if (name.find(searchBuff_) == std::string::npos) {
+                continue; // 検索文字列に一致しない場合はスキップ
+            }
+        }
+
         // 選択状態か判定
         bool isSelected = std::find(parentArea_->componentTypeNames_.begin(), parentArea_->componentTypeNames_.end(), name) != parentArea_->componentTypeNames_.end();
 
         // Selectableで表示
         if (ImGui::Selectable(name.c_str(), isSelected)) {
             if (!isSelected) {
+                if (!ImGui::GetIO().KeyShift) {
+                    auto clearCommand = std::make_unique<ClearComponentTypeNames>(parentArea_);
+                    EditorController::getInstance()->pushCommand(std::move(clearCommand));
+                }
                 // まだ選択されていなければ追加
                 auto command = std::make_unique<AddComponentTypeNames>(parentArea_, name);
                 EditorController::getInstance()->pushCommand(std::move(command));
@@ -838,6 +843,9 @@ void EntityInspectorArea::ChangeEditEntityCommand::Execute() {
     inspectorArea_->entityComponentMap_.clear();
     inspectorArea_->systemMap_.fill({});
 
+    if (toId_ < 0) {
+        return;
+    }
     Scene* currentScene             = inspectorArea_->getParentWindow()->getCurrentScene();
     GameEntity* toEntity            = currentScene->getEntityRepositoryRef()->getEntity(toId_);
     inspectorArea_->editEntityName_ = toEntity->getDataType();
@@ -894,6 +902,10 @@ void EntityInspectorArea::ChangeEditEntityCommand::Undo() {
     inspectorArea_->editEntityId_ = fromId_;
     inspectorArea_->entityComponentMap_.clear();
     inspectorArea_->systemMap_.fill({});
+
+    if (fromId_ < 0) {
+        return;
+    }
 
     Scene* currentScene             = inspectorArea_->getParentWindow()->getCurrentScene();
     GameEntity* frontEntity         = currentScene->getEntityRepositoryRef()->getEntity(fromId_);
@@ -990,6 +1002,52 @@ void EntityInspectorArea::AddComponentCommand::Undo() {
         if (!components.empty()) {
             components.pop_back(); // 最後のコンポーネントを削除
         }
+    }
+}
+
+void EntityInspectorArea::RemoveComponentCommand::Execute() {
+    auto currentScene  = inspectorArea_->getParentWindow()->getCurrentScene();
+    GameEntity* entity = currentScene->getEntityRepositoryRef()->getEntity(inspectorArea_->editEntityId_);
+    if (!entity) {
+        LOG_ERROR("AddComponentCommand::Undo: Entity with ID '{}' not found.", inspectorArea_->editEntityId_);
+        return;
+    }
+    // コンポーネントの削除
+    IComponentArray* compArray = currentScene->getComponentRepositoryRef()->getComponentArray(componentTypeName_);
+    if (!compArray) {
+        LOG_ERROR("AddComponentCommand::Undo: ComponentArray '{}' not found.", componentTypeName_);
+        return;
+    }
+    compArray->removeComponent(entity, componentIndex_);
+
+    if (entity->getID() == inspectorArea_->editEntityId_) {
+        // コンポーネントをマップから削除
+        auto& components = inspectorArea_->entityComponentMap_[componentTypeName_];
+        if (!components.empty()) {
+            components.pop_back(); // 最後のコンポーネントを削除
+        }
+    }
+}
+
+void EntityInspectorArea::RemoveComponentCommand::Undo() {
+    auto currentScene  = inspectorArea_->getParentWindow()->getCurrentScene();
+    GameEntity* entity = currentScene->getEntityRepositoryRef()->getEntity(inspectorArea_->editEntityId_);
+    if (!entity) {
+        LOG_ERROR("AddComponentCommand::Execute: Entity with ID '{}' not found.", inspectorArea_->editEntityId_);
+        return;
+    }
+
+    // コンポーネントの追加
+    IComponentArray* compArray = currentScene->getComponentRepositoryRef()->getComponentArray(componentTypeName_);
+    compArray->addComponent(entity);
+    if (!compArray) {
+        LOG_ERROR("AddComponentCommand::Execute: Failed to add component '{}'. \n ", componentTypeName_);
+        return;
+    }
+
+    // コンポーネントをマップに追加
+    if (entity->getID() == inspectorArea_->editEntityId_) {
+        inspectorArea_->entityComponentMap_[componentTypeName_].emplace_back(compArray->getBackComponent(entity));
     }
 }
 
@@ -1304,19 +1362,35 @@ void SelectAddComponentArea::AddComponentsForTargetEntities::Execute() {
         LOG_ERROR("AddComponentsForTargetEntities::Execute: No current scene found.");
         return;
     }
+
+    auto window = EditorController::getInstance()->getWindow<SceneEditorWindow>();
+    if (!window) {
+        LOG_ERROR("AddComponentsForTargetEntities::Undo: No SceneEditorWindow found.");
+        return;
+    }
+    auto* entityInspectorArea = dynamic_cast<EntityInspectorArea*>(window->getArea(nameof<EntityInspectorArea>()).get()); // 選択状態をクリア
+    if (!entityInspectorArea) {
+        LOG_ERROR("AddComponentsForTargetEntities::Undo: EntityInspectorArea not found in SceneEditorWindow.");
+        return;
+    }
+
+    int32_t editEntityId = entityInspectorArea->getEditEntityId();
     for (const auto& entityId : parentArea_->targetEntityIds_) {
-        GameEntity* entity = currentScene->getEntityRepositoryRef()->getEntity(entityId);
+        GameEntity* entity = currentScene->getEntity(entityId);
         if (!entity) {
             LOG_ERROR("AddComponentsForTargetEntities::Execute: Entity with ID '{}' not found.", entityId);
             continue;
         }
-        for (const auto& componentTypeName : parentArea_->componentTypeNames_) {
-            IComponentArray* compArray = currentScene->getComponentRepositoryRef()->getComponentArray(componentTypeName);
-            if (!compArray) {
-                LOG_ERROR("AddComponentsForTargetEntities::Execute: ComponentArray '{}' not found.", componentTypeName);
-                continue;
+        if (editEntityId == entityId) {
+            for (const auto& componentTypeName : parentArea_->componentTypeNames_) {
+                currentScene->addComponent(componentTypeName, entityId, true);
+                auto addCompCommand = std::make_unique<EntityInspectorArea::AddComponentCommand>(entityInspectorArea, componentTypeName);
+                EditorController::getInstance()->pushCommand(std::move(addCompCommand));
             }
-            compArray->addComponent(entity);
+        } else {
+            for (const auto& componentTypeName : parentArea_->componentTypeNames_) {
+                currentScene->addComponent(componentTypeName, entityId, true);
+            }
         }
     }
 }
@@ -1327,20 +1401,47 @@ void SelectAddComponentArea::AddComponentsForTargetEntities::Undo() {
         LOG_ERROR("AddComponentsForTargetEntities::Undo: No current scene found.");
         return;
     }
+    auto window = EditorController::getInstance()->getWindow<SceneEditorWindow>();
+    if (!window) {
+        LOG_ERROR("AddComponentsForTargetEntities::Undo: No SceneEditorWindow found.");
+        return;
+    }
+    auto* entityInspectorArea = dynamic_cast<EntityInspectorArea*>(window->getArea(nameof<EntityInspectorArea>()).get()); // 選択状態をクリア
+    if (!entityInspectorArea) {
+        LOG_ERROR("AddComponentsForTargetEntities::Undo: EntityInspectorArea not found in SceneEditorWindow.");
+        return;
+    }
+    int32_t editEntityId = entityInspectorArea->getEditEntityId();
     for (const auto& entityId : parentArea_->targetEntityIds_) {
         GameEntity* entity = currentScene->getEntityRepositoryRef()->getEntity(entityId);
         if (!entity) {
             LOG_ERROR("AddComponentsForTargetEntities::Undo: Entity with ID '{}' not found.", entityId);
             continue;
         }
-        for (const auto& componentTypeName : parentArea_->componentTypeNames_) {
-            IComponentArray* compArray = currentScene->getComponentRepositoryRef()->getComponentArray(componentTypeName);
-            if (!compArray) {
-                LOG_ERROR("AddComponentsForTargetEntities::Undo: ComponentArray '{}' not found.", componentTypeName);
-                continue;
+        if (editEntityId == entityId) {
+            for (const auto& componentTypeName : parentArea_->componentTypeNames_) {
+                IComponentArray* compArray = currentScene->getComponentRepositoryRef()->getComponentArray(componentTypeName);
+                if (!compArray) {
+                    LOG_ERROR("AddComponentsForTargetEntities::Undo: ComponentArray '{}' not found.", componentTypeName);
+                    continue;
+                }
+                if (compArray->hasEntity(entity)) {
+                    compArray->removeComponent(entity, compArray->getComponentSize(entity) - 1); // 最後のコンポーネントを削除
+                    auto removeCompCommand = std::make_unique<EntityInspectorArea::RemoveComponentCommand>(entityInspectorArea, componentTypeName);
+                    EditorController::getInstance()->pushCommand(std::move(removeCompCommand));
+                }
             }
-            if (compArray->hasEntity(entity)) {
-                compArray->removeComponent(entity, compArray->getComponentSize(entity) - 1); // 最後のコンポーネントを削除
+
+        } else {
+            for (const auto& componentTypeName : parentArea_->componentTypeNames_) {
+                IComponentArray* compArray = currentScene->getComponentRepositoryRef()->getComponentArray(componentTypeName);
+                if (!compArray) {
+                    LOG_ERROR("AddComponentsForTargetEntities::Undo: ComponentArray '{}' not found.", componentTypeName);
+                    continue;
+                }
+                if (compArray->hasEntity(entity)) {
+                    compArray->removeComponent(entity, compArray->getComponentSize(entity) - 1); // 最後のコンポーネントを削除
+                }
             }
         }
     }

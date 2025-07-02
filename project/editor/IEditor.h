@@ -260,6 +260,14 @@ public:
 
     const std::unordered_map<std::string, std::shared_ptr<Area>>& getAreas() const { return areas_; }
     std::unordered_map<std::string, std::shared_ptr<Area>>& getAreasRef() { return areas_; }
+    std::shared_ptr<Area> getArea(const std::string& areaName) const {
+        auto it = areas_.find(areaName);
+        if (it != areas_.end()) {
+            return it->second;
+        }
+        LOG_INFO("Area with name '{}' not found in this window.", areaName);
+        return nullptr;
+    }
     void addArea(std::shared_ptr<Area> area, bool _isInit = true) {
         if (!area) {
             return; // nullptrチェック

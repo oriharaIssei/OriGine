@@ -1,9 +1,7 @@
 #include "RadialBlurEffect.h"
 
 /// engine
-#include "ECSManager.h"
 #include "Engine.h"
-#include "sceneManager/SceneManager.h"
 
 // component
 #include "component/effect/post/RadialBlurParam.h"
@@ -19,7 +17,7 @@ void RadialBlurEffect::Initialize() {
 }
 
 void RadialBlurEffect::Update() {
-    auto* sceneView = SceneManager::getInstance()->getSceneView();
+    auto* sceneView = getScene()->getSceneView();
 
     eraseDeadEntity();
 
@@ -30,12 +28,12 @@ void RadialBlurEffect::Update() {
     activeRadialBlurParams_.clear();
 
     for (auto& id : entityIDs_) {
-        auto* entity = ECSManager::getInstance()->getEntity(id);
+        auto* entity = getEntity(id);
 
-        int32_t size = ECSManager::getInstance()->getComponentArray<RadialBlurParam>()->getComponentSize(entity);
+        int32_t size = getComponentArray<RadialBlurParam>()->getComponentSize(entity);
         for (int32_t i = 0; i < size; ++i) {
             auto* radialBlurParam = getComponent<RadialBlurParam>(entity, i);
-            if (!radialBlurParam ||!radialBlurParam->isActive()) {
+            if (!radialBlurParam || !radialBlurParam->isActive()) {
                 continue;
             }
             activeRadialBlurParams_.emplace_back(radialBlurParam);
@@ -60,7 +58,7 @@ void RadialBlurEffect::Update() {
 }
 
 void RadialBlurEffect::UpdateEntity(GameEntity* _entity) {
-    int32_t size = ECSManager::getInstance()->getComponentArray<RadialBlurParam>()->getComponentSize(_entity);
+    int32_t size = getComponentArray<RadialBlurParam>()->getComponentSize(_entity);
     for (int32_t i = 0; i < size; ++i) {
         auto* radialBlurParam = getComponent<RadialBlurParam>(_entity, i);
         if (!radialBlurParam->isActive()) {
@@ -154,7 +152,7 @@ void RadialBlurEffect::RenderState() {
 
 void RadialBlurEffect::Render() {
     auto& commandList = dxCommand_->getCommandList();
-    auto* sceneView   = SceneManager::getInstance()->getSceneView();
+    auto* sceneView   = getScene()->getSceneView();
 
     /// ================================================
     /// Viewport の設定

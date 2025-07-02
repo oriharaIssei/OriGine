@@ -96,6 +96,16 @@ protected:
         return scene_->getComponentRepositoryRef()->getComponents<ComponentType>(_entity);
     }
 
+    void addComponent(GameEntity* _entity, const std::string& _typeName, IComponent* _component, bool _doInitialize = true);
+    template <IsComponent ComponentType>
+    void addComponent(GameEntity* _entity, ComponentType _component, bool _doInitialize = true) {
+        if (scene_ == nullptr) {
+            LOG_ERROR("ComponentRepository is not set.");
+            return;
+        }
+        getComponentArray<ComponentType>()->add(_entity, _component, _doInitialize);
+    }
+
 protected:
     std::vector<int32_t> entityIDs_;
 
@@ -184,15 +194,15 @@ public:
         systems_.clear();
     }
 
-    template <IsSystem SystemCategory>
+    template <IsSystem SystemClass>
     void registerSystem() {
-        auto addedSystem = std::make_unique<SystemCategory>();
+        auto addedSystem = std::make_unique<SystemClass>();
 
-        if (addedSystem->getCategory() >= SystemCategory::Count) {
+        if (addedSystem->getCategory() == SystemCategory::Count) {
             LOG_ERROR("SystemRegistry: Invalid SystemCategory.");
             return;
         }
-        std::string systemName = nameof<SystemCategory>();
+        std::string systemName = nameof<SystemClass>();
         if (systems_.find(systemName) != systems_.end()) {
             LOG_WARN("SystemRegistry: System already registered with name: {}", systemName);
             return;
@@ -209,15 +219,15 @@ public:
         }
         return itr->second.get();
     }
-    template <IsSystem SystemCategory>
-    SystemCategory* getSystem() const {
-        std::string systemName = nameof<SystemCategory>();
+    template <IsSystem SystemClass>
+    SystemClass* getSystem() const {
+        std::string systemName = nameof<SystemClass>();
         auto itr               = systems_.find(systemName);
         if (itr == systems_.end()) {
             LOG_ERROR("SystemRegistry: System not found with name: {}", systemName);
             return nullptr;
         }
-        return dynamic_cast<SystemCategory*>(itr->second.get());
+        return dynamic_cast<SystemClass*>(itr->second.get());
     }
 
 private:
@@ -343,10 +353,10 @@ public:
         DeactivateSystem(nameof<SystemCategory>());
     }
 
-    template <IsSystem... SystemCategory>
+    template <IsSystem... SystemClass>
     void registerEntity(GameEntity* _entity) {
         // 各システムにエンティティを登録
-        (getSystem<SystemCategory>()->addEntity(_entity), ...);
+        (getSystem<SystemClass>()->addEntity(_entity), ...);
     }
     void removeEntityFromAllSystems(GameEntity* _entity) {
         // 各システムからエンティティを削除

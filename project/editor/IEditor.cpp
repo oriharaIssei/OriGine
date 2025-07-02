@@ -116,11 +116,6 @@ void Editor::Window::DrawGui() {
     if (ImGui::Begin(title_.c_str(), &isOpen, window_flags)) {
         windowPos_  = ImGui::GetWindowPos();
         windowSize_ = ImGui::GetWindowSize();
-        ImGuiManager::getInstance()->pushFontMaterialIcon();
-        if (ImGui::Button(isMaximized_ ? "e5d0" : "e5d0")) {
-            isMaximized_ = !isMaximized_;
-        }
-        ImGui::PopFont();
 
         // DockSpaceを作成
         //! TODO : area Windowは 親ウィンドウにだけ Dockするようにしたい.

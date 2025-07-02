@@ -159,7 +159,9 @@ public:
     class AddComponentCommand
         : public IEditCommand {
     public:
-        AddComponentCommand(EntityInspectorArea* _inspector, const std::string& _compTypeName) : inspectorArea_(_inspector), componentTypeName_(_compTypeName) {}
+        AddComponentCommand(EntityInspectorArea* _inspector, const std::string& _compTypeName)
+            : inspectorArea_(_inspector), componentTypeName_(_compTypeName) {
+        }
         ~AddComponentCommand() override = default;
 
         void Execute() override;
@@ -168,7 +170,24 @@ public:
     private:
         EntityInspectorArea* inspectorArea_ = nullptr; // 親エリアへのポインタ
 
+        //nlohmann::json componentData_; // 追加するコンポーネントのデータ
         std::string componentTypeName_; // 追加するコンポーネントのタイプ名
+    };
+    class RemoveComponentCommand
+        : public IEditCommand {
+    public:
+        RemoveComponentCommand(EntityInspectorArea* _inspector, const std::string& _compTypeName, int32_t _compIndex)
+            : inspectorArea_(_inspector), componentTypeName_(_compTypeName) {}
+        ~RemoveComponentCommand() override = default;
+        void Execute() override;
+        void Undo() override;
+
+    private:
+        EntityInspectorArea* inspectorArea_ = nullptr; // 親エリアへのポインタ
+
+       // nlohmann::json componentData_; // 追加するコンポーネントのデータ
+        int32_t componentIndex_ = -1; // 削除するコンポーネントのインデックス
+        std::string componentTypeName_; // 削除するコンポーネントのタイプ名
     };
 
 protected:
@@ -340,7 +359,7 @@ protected:
     private:
         SelectAddComponentArea* parentArea_ = nullptr;
 
-        std::string searchBuff_;
+        std::string searchBuff_ = "";
     };
 
     /// ==========================================
@@ -422,8 +441,8 @@ protected:
     class AddComponentsForTargetEntities
         : public IEditCommand {
     public:
-        AddComponentsForTargetEntities(SelectAddComponentArea* _parentArea, const std::list<int32_t>& _targets, const std::vector<std::string>& _componentTypeNames)
-            : parentArea_(_parentArea), targetEntityIds_(_targets), componentTypeNames_(_componentTypeNames) {}
+        AddComponentsForTargetEntities(SelectAddComponentArea* _parentArea, const std::list<int32_t>& _targets)
+            : parentArea_(_parentArea), targetEntityIds_(_targets) {}
         ~AddComponentsForTargetEntities() override = default;
         void Execute() override;
         void Undo() override;
@@ -431,7 +450,7 @@ protected:
     private:
         SelectAddComponentArea* parentArea_ = nullptr; // 親エリアへのポインタ
         std::list<int32_t> targetEntityIds_; // 対象のエンティティIDリスト
-        std::vector<std::string> componentTypeNames_; // 追加するコンポーネントのタイプ名
+        //  std::vector<std::string> componentTypeNames_; // 追加するコンポーネントのタイプ名
     };
 
 private:
