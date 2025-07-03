@@ -8,9 +8,6 @@
 #include "directX12/RenderTexture.h"
 
 // Ecs
-#define ENGINE_ECS
-
-#include "component/ComponentArray.h"
 #include "ECS/Entity.h"
 #include "system/ISystem.h"
 
@@ -133,4 +130,30 @@ bool Scene::addComponent(const std::string& _compTypeName, int32_t _entityId, bo
     }
     componentRepository_->addComponent(_compTypeName, entity, _doInitialize);
     return true;
+}
+
+ISystem* Scene::getSystem(const std::string& _systemTypeName, SystemCategory _category) const {
+    if (systemRunner_) {
+        return systemRunner_->getSystem(_systemTypeName, _category);
+    }
+    LOG_ERROR("Scene::getSystem: SystemRunner is not initialized.");
+    return nullptr;
+}
+
+bool Scene::registerSystem(const std::string& _systemTypeName, bool _activity) {
+    if (systemRunner_) {
+        systemRunner_->registerSystem(_systemTypeName, _activity);
+        return true;
+    }
+    LOG_ERROR("Scene::registerSystem: SystemRunner is not initialized.");
+    return false;
+}
+
+bool Scene::unregisterSystem(const std::string& _systemTypeName, bool _activity) {
+    if (systemRunner_) {
+        systemRunner_->unregisterSystem(_systemTypeName, _activity);
+        return true;
+    }
+    LOG_ERROR("Scene::unregisterSystem: SystemRunner is not initialized.");
+    return false;
 }

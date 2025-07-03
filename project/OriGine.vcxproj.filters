@@ -508,8 +508,10 @@
     <ClInclude Include="engine\code\system\collision\CollisionPushBackSystem.h" />
     <ClInclude Include="editor\EditorController.h" />
     <ClInclude Include="editor\IEditor.h" />
-    <ClInclude Include="editor\SceneEditor.h" />
+    <ClInclude Include="editor\sceneEditor\SceneEditor.h" />
     <ClInclude Include="util\DiffValue.h" />
+    <ClInclude Include="editor\sceneEditor\EntityInspector.h" />
+    <ClInclude Include="editor\sceneEditor\SystemInspector.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\code\Engine.cpp">
@@ -798,7 +800,9 @@
     <ClCompile Include="engine\code\system\collision\CollisionPushBackSystem.cpp" />
     <ClCompile Include="editor\IEditor.cpp" />
     <ClCompile Include="editor\EditorController.cpp" />
-    <ClCompile Include="editor\SceneEditor.cpp" />
+    <ClCompile Include="editor\sceneEditor\SceneEditor.cpp" />
     <ClCompile Include="engine\code\ECS\Entity.cpp" />
+    <ClCompile Include="editor\sceneEditor\EntityInspector.cpp" />
+    <ClCompile Include="editor\sceneEditor\SystemInspector.cpp" />
   </ItemGroup>
 </Project>

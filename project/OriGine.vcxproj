@@ -198,6 +198,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\system\render\SpriteRenderSystem.h" />
     <ClInclude Include="engine\code\system\render\TexturedMeshRenderSystem.h" />
     <ClInclude Include="engine\code\texture\TextureManager.h" />
+    <ClInclude Include="editor\sceneEditor\EntityInspector.h" />
     <ClInclude Include="lib\Thread\Thread.h" />
     <ClInclude Include="lib\binaryIO\BinaryIO.h" />
     <ClInclude Include="lib\deltaTime\DeltaTime.h" />
@@ -222,7 +223,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="math\Vector3.h" />
     <ClInclude Include="math\Vector4.h" />
     <ClInclude Include="math\shape\Shapes.h" />
-    <ClInclude Include="editor\SceneEditor.h" />
+    <ClInclude Include="editor\sceneEditor\SceneEditor.h" />
+    <ClInclude Include="editor\sceneEditor\SystemInspector.h" />
     <ClInclude Include="util\BitArray.h" />
     <ClInclude Include="util\ConvertString.h" />
     <ClInclude Include="util\DiffValue.h" />
@@ -313,6 +315,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\system\render\SpriteRenderSystem.cpp" />
     <ClCompile Include="engine\code\system\render\TexturedMeshRenderSystem.cpp" />
     <ClCompile Include="engine\code\texture\TextureManager.cpp" />
+    <ClCompile Include="editor\sceneEditor\EntityInspector.cpp" />
     <ClCompile Include="lib\Thread\Thread.cpp" />
     <ClCompile Include="lib\binaryIO\BinaryIO.cpp" />
     <ClCompile Include="lib\deltaTime\DeltaTime.cpp" />
@@ -326,7 +329,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="math\Matrix4x4.cpp" />
     <ClCompile Include="math\MyEasing.cpp" />
     <ClCompile Include="math\Quaternion.cpp" />
-    <ClCompile Include="editor\SceneEditor.cpp" />
+    <ClCompile Include="editor\sceneEditor\SceneEditor.cpp" />
+    <ClCompile Include="editor\sceneEditor\SystemInspector.cpp" />
     <ClCompile Include="util\ConvertString.cpp" />
     <ClCompile Include="util\NormalizeString.cpp" />
     <ClCompile Include="util\timeline\Timeline.cpp" />

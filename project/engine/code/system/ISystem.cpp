@@ -223,6 +223,7 @@ void SystemRunner::AllUnregisterSystem(bool _isFinalize) {
 void SystemRunner::UpdateCategory(SystemCategory _category) {
     if (_category == SystemCategory::Count) {
         LOG_ERROR("SystemRegistry: Invalid SystemCategory.");
+        return;
     }
     for (auto pp_system : activeSystems_[static_cast<size_t>(_category)]) {
         auto p_system = *pp_system;
@@ -232,7 +233,7 @@ void SystemRunner::UpdateCategory(SystemCategory _category) {
     }
 }
 
-void SystemRunner::registerSystem(const std::string& _systemName, bool _activate) {
+void SystemRunner::registerSystem(const std::string& _systemName, bool _isInitalize, bool _activate) {
     auto* registerAskSystem = SystemRegistry::getInstance()->getSystem(_systemName);
     if (!registerAskSystem) {
         LOG_ERROR("SystemRunner: System not found with name: {}", _systemName);
@@ -243,6 +244,9 @@ void SystemRunner::registerSystem(const std::string& _systemName, bool _activate
     system->setScene(scene_);
     systems_[static_cast<size_t>(system->getCategory())][_systemName] = system;
 
+    if (_isInitalize) {
+        system->Initialize();
+    }
     if (_activate) {
         activeSystems_[static_cast<size_t>(system->getCategory())].emplace_back(&systems_[static_cast<size_t>(system->getCategory())][_systemName]);
         system->setIsActive(true);
@@ -250,22 +254,32 @@ void SystemRunner::registerSystem(const std::string& _systemName, bool _activate
 }
 
 void SystemRunner::unregisterSystem(const std::string& _systemName, bool _isFinalize) {
-    for (auto& systemByCategory : systems_) {
-        auto itr = systemByCategory.find(_systemName);
-        if (itr != systemByCategory.end()) {
-            if (itr->second) {
-                itr->second->setScene(nullptr);
-                itr->second->setIsActive(false);
-                if (_isFinalize) {
-                    itr->second->Finalize();
-                }
-            }
-            auto& activeCategorySystems = activeSystems_[static_cast<size_t>(itr->second->getCategory())];
-            activeCategorySystems.erase(std::remove(activeCategorySystems.begin(), activeCategorySystems.end(), &itr->second), activeCategorySystems.end());
-            systemByCategory.erase(itr);
-            break;
+    auto* unregisterAskSystem = SystemRegistry::getInstance()->getSystem(_systemName);
+    if (!unregisterAskSystem) {
+        LOG_ERROR("SystemRunner: System not found with name: {}", _systemName);
+        return;
+    }
+    SystemCategory category = unregisterAskSystem->getCategory();
+    if (category == SystemCategory::Count) {
+        LOG_ERROR("SystemRunner: Invalid SystemCategory.");
+        return;
+    }
+
+    auto itr = systems_[static_cast<size_t>(category)].find(_systemName);
+    if (itr == systems_[static_cast<size_t>(category)].end()) {
+        LOG_ERROR("SystemRunner: System not found with name: {}", _systemName);
+        return;
+    }
+    if (itr->second) {
+        itr->second->setScene(nullptr);
+        itr->second->setIsActive(false);
+        if (_isFinalize) {
+            itr->second->Finalize();
         }
     }
+    auto& activeCategorySystems = activeSystems_[static_cast<size_t>(itr->second->getCategory())];
+    activeCategorySystems.erase(std::remove(activeCategorySystems.begin(), activeCategorySystems.end(), &itr->second), activeCategorySystems.end());
+    systems_[static_cast<size_t>(category)].erase(itr);
 }
 
 void SystemRunner::ActivateSystem(const std::string& _systemName) {

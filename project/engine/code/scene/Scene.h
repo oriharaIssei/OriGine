@@ -13,6 +13,8 @@ class RenderTexture;
 class EntityRepository;
 #include "component/ComponentArray.h"
 class SystemRunner;
+class ISystem;
+enum class SystemCategory;
 
 class Scene {
     friend class SceneSerializer;
@@ -68,6 +70,9 @@ public:
     /// </summary>
     void deleteEntity(int32_t entityId);
 
+    /// ==========================================
+    // Entity 関係
+    /// ==========================================
     int32_t getActiveEntityCount() const {
         return entityRepository_->getActiveEntityCount();
     }
@@ -78,6 +83,9 @@ public:
     GameEntity* getEntity(int32_t entityId) const;
     GameEntity* getUniqueEntity(const std::string& _dataType) const;
 
+    /// ==========================================
+    // Component 関係
+    /// =========================================
     template <IsComponent ComponentType>
     ComponentType* getComponent(int32_t entityId, uint32_t index = 0) const {
         return componentRepository_->getComponent<ComponentType>(entityId, index);
@@ -86,10 +94,19 @@ public:
         return componentRepository_->getComponentArray(componentTypeName);
     }
 
-    bool addComponent(const std::string& _compTypeName, int32_t _entityId, bool _doInitialize = true) ;
+    bool addComponent(const std::string& _compTypeName, int32_t _entityId, bool _doInitialize = true);
 
     template <IsComponent ComponentType>
     ComponentArray<ComponentType>* getComponentArray() const {
         return componentRepository_->getComponentArray<ComponentType>();
     }
+
+    /// ==========================================
+    // System 関係
+    /// ==========================================
+
+    ISystem* getSystem(const std::string& _systemTypeName, SystemCategory _category) const;
+
+    bool registerSystem(const std::string& _systemTypeName, bool _activity   = true);
+    bool unregisterSystem(const std::string& _systemTypeName, bool _activity = true);
 };
