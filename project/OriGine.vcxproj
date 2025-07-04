@@ -223,6 +223,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="math\Vector3.h" />
     <ClInclude Include="math\Vector4.h" />
     <ClInclude Include="math\shape\Shapes.h" />
+    <ClInclude Include="engine\code\system\render\SkeletonRenderSystem.h" />
+    <ClInclude Include="engine\code\component\animation\SkinningAnimationComponent.h" />
+    <ClInclude Include="engine\code\system\effect\SkinningAnimationSystem.h" />
     <ClInclude Include="util\BitArray.h" />
     <ClInclude Include="util\ConvertString.h" />
     <ClInclude Include="util\EnumBitMask.h" />
@@ -326,6 +329,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="math\Matrix4x4.cpp" />
     <ClCompile Include="math\MyEasing.cpp" />
     <ClCompile Include="math\Quaternion.cpp" />
+    <ClCompile Include="engine\code\system\render\SkeletonRenderSystem.cpp" />
+    <ClCompile Include="engine\code\component\animation\SkinningAnimationComponent.cpp" />
+    <ClCompile Include="engine\code\system\effect\SkinningAnimationSystem.cpp" />
     <ClCompile Include="util\ConvertString.cpp" />
     <ClCompile Include="util\NormalizeString.cpp" />
     <ClCompile Include="util\timeline\Timeline.cpp" />

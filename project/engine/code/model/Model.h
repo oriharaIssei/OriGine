@@ -7,6 +7,7 @@
 #include <map>
 #include <vector>
 // basic class
+#include <optional>
 #include <string>
 
 /// engine
@@ -16,29 +17,62 @@
 // component
 #include "component/material/Material.h"
 #include "component/transform/Transform.h"
-// lib
-#include "Thread/Thread.h"
+
 // math
 #include "Matrix4x4.h"
 #include "Quaternion.h"
 
 struct TexturedMaterial {
     std::string texturePath = "";
-    uint32_t textureNumber;
+    uint32_t textureNumber  = 0;
+
     IConstantBuffer<Material> material;
 };
 
 struct ModelNode {
-    Matrix4x4 localMatrix;
     std::string name;
+
+    Transform transform;
+    Matrix4x4 localMatrix; // ローカル行列 (親の影響を受けない)
     std::vector<ModelNode> children;
 };
 
-struct ModelMeshData {
-    LoadState currentState_ = LoadState::Unloaded;
+struct Joint {
+    std::string name = "Unknown";
+    int32_t index    = -1; // Joint のインデックス
 
-    std::map<std::string, TextureMesh> meshGroup_;
+    Transform transform;
+    Matrix4x4 localMatrix; // ローカル行列 (親の影響を受けない)
+    Matrix4x4 skeletonSpaceMatrix; // スケルトン空間行列 (親の影響を受ける)
+
+    std::vector<int32_t> children;
+    std::optional<int32_t> parent;
+};
+struct Skeleton {
+    int32_t rootJointIndex = -1; // ルートジョイントのインデックス
+    std::map<std::string, int32_t> jointIndexBinder; // ジョイント名とインデックスのバインダー (名前からIndexを検索する)
+    std::vector<Joint> joints; // 所属しているジョイント
+
+    void Update() {
+        for (Joint& joint : this->joints) {
+            joint.localMatrix = MakeMatrix::Affine(joint.transform.scale, joint.transform.rotate, joint.transform.translate);
+
+            if (joint.parent.has_value()) {
+                joint.skeletonSpaceMatrix = joint.localMatrix * this->joints[*joint.parent].skeletonSpaceMatrix;
+            } else {
+                joint.skeletonSpaceMatrix = joint.localMatrix; // ルートジョイントはローカル行列がそのままスケルトン空間行列
+            }
+        }
+    }
+};
+
+struct ModelMeshData {
+    // LoadState currentState = LoadState::Unloaded;
+
+    std::map<std::string, TextureMesh> meshGroup;
+
     ModelNode rootNode;
+    std::optional<Skeleton> skeleton = std::nullopt; // スケルトンデータ
 };
 
 struct Model {
@@ -46,7 +80,7 @@ struct Model {
     ~Model() {}
     ModelMeshData* meshData_;
 
-    // Meshに対応した TransformBuffer
+    // Meshに対応した Transform
     std::map<TextureMesh*, Transform> transforms_;
 
     using ModelMaterialData = std::vector<TexturedMaterial>;

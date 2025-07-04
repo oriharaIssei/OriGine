@@ -232,11 +232,11 @@ public:
         return indexBuff_;
     }
 
-    uint32_t getVertexCapacity() const {
-        return vertexSize_ - uint32_t(vertexes_.size());
+    int32_t getVertexCapacity() const {
+        return int32_t(vertexSize_) - int32_t(vertexes_.size());
     }
-    uint32_t getIndexCapacity() const {
-        return indexSize_ - uint32_t(indexes_.size());
+    int32_t getIndexCapacity() const {
+        return int32_t(indexSize_) - int32_t(indexes_.size());
     }
 
     uint32_t getVertexSize() const {

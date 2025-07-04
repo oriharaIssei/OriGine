@@ -40,7 +40,7 @@ std::shared_ptr<AnimationData> AnimationManager::Load(const std::string& directo
         /// TaskThread に ロードタスクを追加
         ///===========================================
         AnimationLoadTask task(directory, filename, animationData_.back());
-        loadThread_->pushTask(task);
+        task.Update();
     }
     return result;
 }

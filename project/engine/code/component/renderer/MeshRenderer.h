@@ -12,7 +12,9 @@
 #include <concepts>
 
 /// engine
-// conmponent
+// assets
+#include "model/Model.h"
+// component
 #include "component/material/Material.h"
 #include "component/transform/Transform.h"
 // directX12Object
@@ -153,6 +155,8 @@ private:
     std::string directory_ = "";
     std::string fileName_  = "";
 
+   std::optional<Skeleton> skeleton_ = std::nullopt;
+
     std::vector<IConstantBuffer<Transform>> meshTransformBuff_;
     std::vector<IConstantBuffer<Material>> meshMaterialBuff_;
 
@@ -212,6 +216,23 @@ public:
             return;
         }
         meshTextureNumbers_[_meshIndex] = TextureManager::LoadTexture(textureFilePath_[_meshIndex]);
+    }
+
+    //------------------------------ Skeleton ------------------------------//
+    const std::optional<Skeleton>& getSkeleton() const {
+        return skeleton_;
+    }
+     std::optional<Skeleton>& getSkeletonRef()  {
+        return skeleton_;
+    }
+    void setSkeleton(const std::optional<Skeleton>& _skeleton) {
+        skeleton_ = _skeleton;
+    }
+    void moveSkeleton(Skeleton&& _skeleton) {
+        skeleton_ = std::move(_skeleton);
+    }
+    void setSkeleton(const Skeleton& _skeleton) {
+        skeleton_ = _skeleton;
     }
 };
 
