@@ -85,16 +85,14 @@ void SaveMenuItem::Initialize() {
 
 void SaveMenuItem::DrawGui() {
     bool isSelect = isSelected_.current();
-    bool isEnable = isEnable_.current();
 
-    if (ImGui::MenuItem(name_.c_str(), "ctl + s", &isSelect, &isEnable)) {
+    if (ImGui::MenuItem(name_.c_str(), "ctl + s", &isSelect)) {
         SceneSerializer serializer = SceneSerializer(saveScene_);
         LOG_DEBUG("SaveMenuItem : Saving scene '{}'.", saveScene_->getName());
         serializer.Serialize();
     }
 
     isSelected_.set(isSelect);
-    isEnable_.set(isEnable);
 }
 
 void SaveMenuItem::Finalize() {
@@ -116,8 +114,7 @@ void LoadMenuItem::Initialize() {
 
 void LoadMenuItem::DrawGui() {
     bool isSelect = isSelected_.current();
-    bool isEnable = isEnable_.current();
-    if (ImGui::MenuItem(name_.c_str(), "ctl + o", &isSelect, &isEnable)) {
+    if (ImGui::MenuItem(name_.c_str(), "ctl + o", &isSelect)) {
         // シーンのロード処理
 
         loadScene_->Finalize();
@@ -128,7 +125,6 @@ void LoadMenuItem::DrawGui() {
         LOG_DEBUG("LoadMenuItem : Loading scene '{}'.", loadScene_->getName());
     }
     isSelected_.set(isSelect);
-    isEnable_.set(isEnable);
 }
 
 void LoadMenuItem::Finalize() {
@@ -144,8 +140,7 @@ void CreateMenuItem::Initialize() {}
 
 void CreateMenuItem::DrawGui() {
     bool isSelect = isSelected_.current();
-    bool isEnable = isEnable_.current();
-    if (ImGui::MenuItem(name_.c_str(), nullptr, &isSelect, &isEnable)) {
+    if (ImGui::MenuItem(name_.c_str(), nullptr, &isSelect)) {
         ImGui::InputText("New Scene Name", &newSceneName_[0], sizeof(char) * 256);
         if (ImGui::Button("Create")) {
             auto scene = parentMenu_->getParentWindow()->getCurrentScene();
@@ -167,7 +162,6 @@ void CreateMenuItem::DrawGui() {
         name_ = "";
     }
     isSelected_.set(isSelect);
-    isEnable_.set(isEnable);
 }
 
 void CreateMenuItem::Finalize() {
@@ -227,8 +221,9 @@ void SceneViewArea::DrawScene() {
     CameraManager* cameraManager  = CameraManager::getInstance();
     CameraTransform prevTransform = cameraManager->getTransform();
 
-    auto* currentScene = parentWindow_->getCurrentScene();
     cameraManager->setTransform(debugCamera_->getCameraTransform());
+    cameraManager->DataConvertToBuffer();
+    auto* currentScene = parentWindow_->getCurrentScene();
     currentScene->Render();
     cameraManager->setTransform(prevTransform);
 }

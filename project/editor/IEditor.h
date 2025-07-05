@@ -60,24 +60,17 @@ public:
 protected:
     std::string name_           = "Unknown"; // MenuItemの名前
     DiffValue<bool> isSelected_ = false; // MenuItemが開いているかどうか
-    DiffValue<bool> isEnable_   = false; // MenuItemがフォーカスされているかどうか
 public:
     const std::string& getName() const { return name_; }
     void setName(const std::string& name) { name_ = name; }
 
     DiffValue<bool> isSelected() const { return isSelected_; }
+    DiffValue<bool>& isSelected() { return isSelected_; }
+
     void setSelected(bool _selected, bool _sync = false) {
         isSelected_.set(_selected);
         if (_sync) {
             isSelected_.sync();
-        }
-    }
-
-    DiffValue<bool> isEnable() const { return isEnable_; }
-    void setFocused(bool _enable, bool _sync = false) {
-        isEnable_.set(_enable);
-        if (_sync) {
-            isEnable_.sync();
         }
     }
 };
@@ -104,6 +97,7 @@ public:
     void setName(const std::string& name) { name_ = name; }
 
     DiffValue<bool> isOpen() const { return isOpen_; }
+    DiffValue<bool>& isOpenRef() { return isOpen_; }
     void setOpen(bool open, bool sync = false) {
         isOpen_.set(open);
         if (sync) {
@@ -243,6 +237,7 @@ public:
     void setTitle(const std::string& title) { title_ = title; }
 
     bool isOpen() const { return isOpen_.current(); }
+    DiffValue<bool>& isOpenRef() { return isOpen_; }
     void setOpen(bool open, bool sync = false) {
         isOpen_ = open;
         if (sync) {
@@ -251,6 +246,7 @@ public:
     }
 
     bool isFocused() const { return isFocused_.current(); }
+    DiffValue<bool>& isFocusedRef() { return isFocused_; }
     void setFocused(bool focused, bool sync = false) {
         isFocused_.set(focused);
         if (sync) {

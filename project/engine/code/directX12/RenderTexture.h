@@ -19,7 +19,7 @@ public:
     ~RenderTexture() = default;
 
     static void Awake();
-    void Initialize(int32_t _bufferCount, const Vec2f& textureSize, DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM, const Vec4f& _clearColor = {0.f, 0.f, 0.f, 1.f});
+    void Initialize(int32_t _bufferCount, const Vec2f& textureSize, DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, const Vec4f& _clearColor = {0.f, 0.f, 0.f, 1.f});
     void Resize(const Vec2f& textureSize);
 
     void Finalize();

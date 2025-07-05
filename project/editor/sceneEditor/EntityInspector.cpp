@@ -98,7 +98,10 @@ void EntityComponentRegion::DrawGui() {
     int32_t editEntityId = parentArea_->getEditEntityId();
     auto editEntity      = currentScene->getEntityRepositoryRef()->getEntity(editEntityId);
 
-    ImGui::Text("Entity Components");
+    if (!ImGui::CollapsingHeader("Entity Components", ImGuiTreeNodeFlags_DefaultOpen)) {
+        return;
+    }
+
     if (!editEntity) {
         return;
     }
@@ -141,8 +144,6 @@ void EntityComponentRegion::DrawGui() {
             ImGui::Unindent();
         }
     }
-
-    ImGui::Separator();
 }
 void EntityComponentRegion::Finalize() {}
 
@@ -155,7 +156,9 @@ void EntitySystemRegion::DrawGui() {
     int32_t editEntityId = parentArea_->getEditEntityId();
     auto editEntity      = currentScene->getEntityRepositoryRef()->getEntity(editEntityId);
 
-    ImGui::Text("Entity Systems");
+    if (!ImGui::CollapsingHeader("Entity Systems", ImGuiTreeNodeFlags_DefaultOpen)) {
+        return;
+    }
 
     if (!editEntity) {
         return;
@@ -264,6 +267,18 @@ void SelectAddComponentArea::ComponentListRegion::DrawGui() {
     ImGui::InputText(label.c_str(), &searchBuff_[0], sizeof(char) * 256);
     searchBuff_ = std::string(searchBuff_.c_str());
 
+    float parentHeight = ImGui::GetWindowHeight();
+    float itemHeight   = ImGui::GetItemRectSize().y * 2.f; // 直前のアイテムの高さ
+    float padding      = ImGui::GetStyle().WindowPadding.y * 6.f;
+
+    // 必要に応じてパディングを2倍（上下分）にする場合も
+    float childHeight = parentHeight - (itemHeight + padding);
+
+    ImGui::BeginChild(
+        "ComponentList",
+        ImVec2(0, childHeight),
+        ImGuiChildFlags_Border);
+
     auto& componentRegistryMap = ComponentRegistry::getInstance()->getComponentArrayMap();
 
     // ImGuiのスタイルで選択色を設定（必要に応じてアプリ全体で設定してもOK）
@@ -302,6 +317,10 @@ void SelectAddComponentArea::ComponentListRegion::DrawGui() {
 
     ImGui::PopStyleColor(3); // スタイルのポップ
 
+    ImGui::EndChild();
+
+    ImGui::Spacing();
+
     if (parentArea_->componentTypeNames_.empty()) {
         bool selected = false;
         ImGui::Selectable("OK", &selected, ImGuiSelectableFlags_Disabled);
@@ -323,8 +342,10 @@ void SelectAddComponentArea::ComponentListRegion::DrawGui() {
             parentArea_->isFocused_.set(false); // フォーカスを外す
         }
     }
+
     ImGui::SameLine();
-    if (ImGui::Button("cancel")) {
+
+    if (ImGui::Button("CANCEL")) {
         // キャンセルボタンが押された場合、選択をクリア
         auto clearEntitiesCommand = std::make_unique<ClearTargetEntities>(parentArea_);
         EditorController::getInstance()->pushCommand(std::move(clearEntitiesCommand));
@@ -393,7 +414,20 @@ void SelectAddSystemArea::SystemListRegion::Initialize() {
 void SelectAddSystemArea::SystemListRegion::DrawGui() {
     std::string label = "Search##SelectAddSystem";
     ImGui::InputText(label.c_str(), &searchBuff_[0], sizeof(char) * 256);
-    searchBuff_       = std::string(searchBuff_.c_str());
+    searchBuff_ = std::string(searchBuff_.c_str());
+
+    float parentHeight = ImGui::GetWindowHeight();
+    float itemHeight   = ImGui::GetItemRectSize().y * 2.f; // 直前のアイテムの高さ
+    float padding      = ImGui::GetStyle().WindowPadding.y * 6.f;
+
+    // 必要に応じてパディングを2倍（上下分）にする場合も
+    float childHeight = parentHeight - (itemHeight + padding);
+
+    ImGui::BeginChild(
+        "ComponentList",
+        ImVec2(0, childHeight),
+        ImGuiChildFlags_Border | ImGuiChildFlags_AlwaysUseWindowPadding);
+
     auto currentScene = EditorController::getInstance()->getWindow<SceneEditorWindow>()->getCurrentScene();
     auto& systemsMap  = currentScene->getSystemRunnerRef()->getSystemsRef();
 
@@ -457,6 +491,10 @@ void SelectAddSystemArea::SystemListRegion::DrawGui() {
     }
     ImGui::PopStyleColor(3);
 
+    ImGui::EndChild();
+
+    ImGui::Spacing();
+
     if (parentArea_->systemTypeNames_.empty()) {
         bool selected = false;
         ImGui::Selectable("OK", &selected, ImGuiSelectableFlags_Disabled);
@@ -473,7 +511,7 @@ void SelectAddSystemArea::SystemListRegion::DrawGui() {
         }
     }
     ImGui::SameLine();
-    if (ImGui::Button("cancel")) {
+    if (ImGui::Button("CANCEL")) {
         auto clearEntitiesCommand = std::make_unique<ClearTargetEntities>(parentArea_);
         EditorController::getInstance()->pushCommand(std::move(clearEntitiesCommand));
         auto clearSystemNamesCommand = std::make_unique<ClearSystemTypeNames>(parentArea_);

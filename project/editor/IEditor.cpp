@@ -90,26 +90,20 @@ void Editor::Window::DrawGui() {
     // Main DockSpace Window
     ///=================================================================================================
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
-    if (isMaximized_) {
-        ImGuiViewport* viewport = ImGui::GetMainViewport();
-        ImGui::SetNextWindowPos(viewport->Pos);
-        ImGui::SetNextWindowSize(viewport->Size);
 
-        ImGui::SetNextWindowViewport(viewport->ID);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+    ImGuiViewport* viewport = ImGui::GetMainViewport();
+    windowPos_              = viewport->Pos;
+    windowSize_             = viewport->Size;
 
-        window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-        window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-    } else {
-        const ImGuiStyle& style = ImGui::GetStyle();
-        float defaultRounding   = style.WindowRounding;
-        float defaultBorderSize = style.WindowBorderSize;
-        ImGui::SetNextWindowPos(windowPos_.toImVec2());
-        ImGui::SetNextWindowSize(windowSize_.toImVec2());
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, defaultRounding);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, defaultBorderSize);
-    }
+    ImGui::SetNextWindowPos(viewport->Pos);
+    ImGui::SetNextWindowSize(viewport->Size);
+
+    ImGui::SetNextWindowViewport(viewport->ID);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+
+    window_flags |= ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+    window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 
     bool isOpen = isOpen_.current();
     ImGui::PopStyleVar(2);
@@ -127,12 +121,16 @@ void Editor::Window::DrawGui() {
             for (auto& [name, menu] : menus_) {
                 if (menu) {
                     bool menuIsOpen = menu->isOpen().current();
-                    if (ImGui::BeginMenu(name.c_str(), menuIsOpen)) {
+                    if (ImGui::BeginMenu(name.c_str())) {
                         menu->setOpen(true);
                         menu->DrawGui();
                         ImGui::EndMenu();
                     }
-                    menu->setOpen(menuIsOpen);
+                    if (menu->isOpen().current() != menuIsOpen) {
+                        // メニューの開閉状態が変わった場合、コマンドを発行
+                        auto command = std::make_unique<WindowOpenCommand>(&menu->isOpenRef(), menuIsOpen);
+                        EditorController::getInstance()->pushCommand(std::move(command));
+                    }
                 }
             }
             ImGui::EndMenuBar();
