@@ -98,7 +98,7 @@ void Scene::deleteEntity(int32_t entityId) {
     // システムからエンティティを削除
     systemRunner_->removeEntityFromAllSystems(entity);
     // エンティティを削除
-    entityRepository_->unregisterEntity(entityId);
+    entityRepository_->removeEntity(entityId);
 }
 
 const EntityRepository* Scene::getEntityRepository() const { return entityRepository_.get(); }

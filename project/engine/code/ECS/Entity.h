@@ -168,7 +168,7 @@ public:
     /// <summary>
     /// Entity を登録する
     /// </summary>
-    int32_t registerEntity(const std::string& _dataType, bool _isUnique = false) {
+    int32_t CreateEntity(const std::string& _dataType, bool _isUnique = false) {
         int32_t entityIndex = allocateEntity();
         if (entityIndex < 0 || static_cast<uint32_t>(entityIndex) >= size_) {
             LOG_ERROR("EntityRepository: Invalid entity index allocated.");
@@ -191,7 +191,7 @@ public:
     /// <summary>
     /// Entity を指定したIndexに登録する
     /// </summary>
-    int32_t registerEntity(int32_t _id, const std::string& _dataType, bool _isUnique = false) {
+    int32_t CreateEntity(int32_t _id, const std::string& _dataType, bool _isUnique = false) {
         if (_id < 0 || static_cast<uint32_t>(_id) >= size_) {
             LOG_ERROR("EntityRepository: Invalid entity index allocated.");
             return -1;
@@ -219,7 +219,7 @@ public:
     /// <summary>
     /// Entity を削除する
     /// </summary>
-    bool unregisterEntity(int32_t _entityIndex) {
+    bool removeEntity(int32_t _entityIndex) {
         if (_entityIndex < 0 || static_cast<uint32_t>(_entityIndex) >= size_) {
             LOG_ERROR("EntityRepository: Invalid entity index to unregister.");
             return false;

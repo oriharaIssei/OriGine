@@ -413,14 +413,6 @@ void EntityHierarchy::ClearSelectedEntitiesCommand::Undo() {
 EntityHierarchy::CreateEntityCommand::CreateEntityCommand(HierarchyArea* _parentArea, const std::string& _entityName) {
     parentArea_       = _parentArea;
     entityName_       = _entityName;
-    auto currentScene = parentArea_->getParentWindow()->getCurrentScene();
-    if (!currentScene) {
-        LOG_ERROR("CreateEntityCommand::CreateEntityCommand: No current scene found.");
-        return;
-    }
-    SceneSerializer serializer(currentScene);
-    entityData_ = nlohmann::json::object();
-    serializer.EntityToJson(entityId_, entityData_);
 }
 
 void EntityHierarchy::CreateEntityCommand::Execute() {
@@ -429,10 +421,7 @@ void EntityHierarchy::CreateEntityCommand::Execute() {
         LOG_ERROR("CreateEntityCommand::Execute: No current scene found.");
         return;
     }
-    entityId_ = currentScene->getEntityRepositoryRef()->registerEntity(entityName_);
-
-    SceneSerializer serializer(currentScene);
-    serializer.EntityToJson(entityId_, entityData_);
+    entityId_ = currentScene->getEntityRepositoryRef()->CreateEntity(entityName_);
 
     LOG_DEBUG("CreateEntityCommand::Execute: Created entity with ID '{}'.", entityId_);
 }
@@ -443,13 +432,8 @@ void EntityHierarchy::CreateEntityCommand::Undo() {
         LOG_ERROR("CreateEntityCommand::Undo: No current scene found.");
         return;
     }
-    SceneSerializer serializer(currentScene);
-    GameEntity* entity = serializer.EntityFromJson(entityId_, entityData_);
 
-    if (!entity) {
-        LOG_ERROR("CreateEntityCommand::Undo: Failed to restore entity with ID '{}'.", entityId_);
-        return;
-    }
+    currentScene->getEntityRepositoryRef()->removeEntity(entityId_);
 
     LOG_DEBUG("CreateEntityCommand::Undo: Removed entity with ID '{}'.", entityId_);
 }

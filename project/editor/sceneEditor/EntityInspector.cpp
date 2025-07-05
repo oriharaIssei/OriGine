@@ -924,7 +924,7 @@ void EntityInfomationRegion::DeleteEntityCommand::Execute() {
     }
     SceneSerializer serializer(currentScene);
     serializer.EntityToJson(entityId_, entityData_);
-    currentScene->getEntityRepositoryRef()->unregisterEntity(entityId_);
+    currentScene->getEntityRepositoryRef()->removeEntity(entityId_);
     LOG_DEBUG("DeleteEntityCommand::Execute: Deleted entity with ID '{}'.", entityId_);
 }
 

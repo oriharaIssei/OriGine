@@ -208,7 +208,6 @@ public:
         HierarchyArea* parentArea_ = nullptr; // 親エリアへのポインタ
         std::string entityName_;
         int32_t entityId_ = -1; // 作成するエンティティの名前
-        nlohmann::json entityData_; // 作成するエンティティのデータ
     };
 
 private:
