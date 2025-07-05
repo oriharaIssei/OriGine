@@ -7,6 +7,7 @@
 
 /// engine
 #include "AnimationData.h"
+#include "model/Model.h"
 
 class SkinningAnimationComponent
     : public IComponent {
@@ -26,6 +27,16 @@ public:
     void Play();
     void Stop();
 
+    void CreateSkinnedVertex();
+    void DeleteSkinnedVertex();
+
+public:
+    struct UavBuffer {
+        std::shared_ptr<DxUavDescriptor> descriptor;
+        D3D12_VERTEX_BUFFER_VIEW vbView{};
+        DxResource buffer;
+    };
+
 private:
     GameEntity* entity_                = nullptr;
     int32_t bindModeMeshRendererIndex_ = -1;
@@ -38,10 +49,21 @@ private:
     float duration_                = 0.0f;
     float currentTime_             = 0.0f;
     float playbackSpeed_           = 1.0f; // 再生速度
+
+    std::vector<UavBuffer> skinnedVertexBuffer_; // スキニングされた頂点バッファ. size = meshSize
+
+    Skeleton skeleton_;
+
 public:
     const std::string& getDirectory() const { return directory_; }
     const std::string& getFileName() const { return fileName_; }
     const std::shared_ptr<AnimationData>& getAnimationData() const { return animationData_; }
+    const Skeleton& getSkeleton() const { return skeleton_; }
+    Skeleton& getSkeletonRef() { return skeleton_; }
+
+    const UavBuffer& getSkinnedVertexBuffer(int32_t index) const {
+        return skinnedVertexBuffer_.at(index);
+    }
 
     bool isPlay() const { return animationState_.isPlay_; }
     bool isLoop() const { return animationState_.isLoop_; }

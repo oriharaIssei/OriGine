@@ -10,6 +10,7 @@
 #include "directX12/DxCommand.h"
 #include "directX12/ShaderManager.h"
 // component
+#include "component/animation/SkinningAnimationComponent.h"
 #include "component/ComponentArray.h"
 #include "component/renderer/MeshRenderer.h"
 
@@ -49,7 +50,7 @@ protected:
         const Vec4f& _color);
 
 private:
-    ComponentArray<ModelMeshRenderer>* meshRendererArray_ = nullptr;
+    ComponentArray<SkinningAnimationComponent>* skinningAnimationArray_ = nullptr;
 
     LineRenderer jointRenderer_;
     std::vector<Mesh<ColorVertexData>>::iterator jointMeshItr_;

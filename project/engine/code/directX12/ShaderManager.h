@@ -71,6 +71,7 @@ public:
     D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlag = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
     std::string vsKey                            = ""; // Vertex Shader
     std::string psKey                            = ""; // Pixel Shader
+    std::string csKey                            = ""; // Compute Shader
     std::string dsKey                            = ""; // Domain Shader
     std::string hsKey                            = ""; // Hull Shader
     std::string gsKey                            = ""; // Geometry Shader

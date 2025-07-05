@@ -11,7 +11,6 @@
 // ECS
 // component
 #include "component/material/light/LightManager.h"
-#include "component/renderer/MeshRenderer.h"
 #include "component/transform/Transform.h"
 #include "ECSManager.h"
 
@@ -37,7 +36,7 @@ void SkeletonRenderSystem::Initialize() {
     dxCommand_->Initialize("main", "main");
 
     //** ModelMeshRenderer **//
-    meshRendererArray_ = ECSManager::getInstance()->getComponentArray<ModelMeshRenderer>();
+    skinningAnimationArray_ = ECSManager::getInstance()->getComponentArray<SkinningAnimationComponent>();
 
     //** JointMeshRenderer **//
     jointRenderer_ = LineRenderer(std::vector<Mesh<ColorVertexData>>());
@@ -86,7 +85,7 @@ void SkeletonRenderSystem::CreateRenderMesh() {
     jointMeshItr_ = jointMeshGroup->begin();
     boneMeshItr_  = boneMeshGroup->begin();
 
-    for (auto& [entityIdx, modelMeshIdx] : meshRendererArray_->getEntityIndexBind()) {
+    for (auto& [entityIdx, modelMeshIdx] : skinningAnimationArray_->getEntityIndexBind()) {
         GameEntity* entity = getEntity(entityIdx);
         if (!entity) {
             continue; // Entityが存在しない場合はスキップ
@@ -97,20 +96,13 @@ void SkeletonRenderSystem::CreateRenderMesh() {
             worldMat = transform->worldMat;
         }
 
-        auto modelMeshRenderers = meshRendererArray_->getComponents(entity);
-        if (!modelMeshRenderers) {
+        auto skinningAnimationComps = skinningAnimationArray_->getComponents(entity);
+        if (!skinningAnimationComps) {
             continue; // modelMeshRendererが存在しない場合はスキップ
         }
 
-        for (auto& modelMeshRenderer : *modelMeshRenderers) {
-            if (!modelMeshRenderer.isRender()) {
-                continue; // レンダリングしない場合はスキップ
-            }
-            if (!modelMeshRenderer.getSkeleton().has_value()) {
-                continue; // スケルトンが存在しない場合はスキップ
-            }
-
-            auto& skeleton = modelMeshRenderer.getSkeleton().value();
+        for (auto& skinningAnimationComp : *skinningAnimationComps) {
+            const auto& skeleton = skinningAnimationComp.getSkeleton();
 
             CreateMeshForChildren(
                 jointMeshGroup.get(),

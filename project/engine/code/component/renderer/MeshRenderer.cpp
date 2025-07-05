@@ -343,11 +343,6 @@ void CreateModelMeshRenderer(ModelMeshRenderer* _renderer, GameEntity* _hostEnti
             }
         }
 
-        // skeleton
-        if (model->meshData_->skeleton.has_value()) {
-            _renderer->setSkeleton(model->meshData_->skeleton);
-        }
-
         isLoaded = true;
     });
 

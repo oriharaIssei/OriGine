@@ -122,11 +122,98 @@ static Skeleton CreateSkeleton(const ModelNode& rootNode) {
     return skeleton;
 }
 
+static SkinCluster CreateSkinCluster(
+    const Microsoft::WRL::ComPtr<ID3D12Device>& _device,
+    aiMesh* _loadedMesh,
+    ModelMeshData* _meshData) {
+
+    // skinClusterData を初期化
+    for (uint32_t boneIndex = 0; boneIndex < _loadedMesh->mNumBones; ++boneIndex) {
+        aiBone* bone                     = _loadedMesh->mBones[boneIndex];
+        JointWeightData& jointWeightData = _meshData->jointWeightData[bone->mName.C_Str()];
+
+        /// バインドポーズ座標系での逆行列を設定
+        // decompose
+        aiMatrix4x4 bindPoseMatAssimp = bone->mOffsetMatrix.Inverse();
+        aiVector3D scale, translate;
+        aiQuaternion rotate;
+        bindPoseMatAssimp.Decompose(scale, rotate, translate);
+        // X軸反転 して Decomposeした値から 計算
+        Matrix4x4 bindPoseMatrix = MakeMatrix::Affine(
+            Vec3f(scale.x, scale.y, scale.z),
+            Quaternion(rotate.x, -rotate.y, -rotate.z, rotate.w),
+            Vec3f(-translate.x, translate.y, translate.z));
+        // 逆行列を 保持
+        jointWeightData.inverseBindPoseMat = bindPoseMatrix.inverse();
+
+        /// 頂点ウェイトの設定
+        jointWeightData.vertexWeights.resize(bone->mNumWeights);
+        for (uint32_t weightIndex = 0; weightIndex < bone->mNumWeights; ++weightIndex) {
+            aiVertexWeight& vertexWeight = bone->mWeights[weightIndex];
+            VertexWeightData& weightData = jointWeightData.vertexWeights[weightIndex];
+            weightData.weight            = vertexWeight.mWeight;
+            weightData.vertexIndex       = vertexWeight.mVertexId;
+        }
+    }
+
+    // SkinClusterData 作成
+    SkinCluster cluster;
+    const Skeleton& skeleton = _meshData->skeleton.value();
+
+    // skeletonMatrixPalette Buffer 作成
+    cluster.skeletonMatrixPaletteBuffer_.CreateBuffer(_device, uint32_t(skeleton.joints.size()));
+    cluster.skeletonMatrixPaletteBuffer_.openData_.resize(skeleton.joints.size());
+
+    // influence Buffer 作成
+    cluster.vertexInfluencesBuffer_.CreateBuffer(_device, _loadedMesh->mNumVertices);
+    cluster.vertexInfluencesBuffer_.openData_.resize(_loadedMesh->mNumVertices);
+
+    // inverseBindPoseMatrices を 初期化(単位行列で埋めとく)
+    cluster.inverseBindPoseMatrices.resize(skeleton.joints.size());
+    std::generate(cluster.inverseBindPoseMatrices.begin(), cluster.inverseBindPoseMatrices.end(), MakeMatrix::Identity);
+
+    // ModelData を 解析, Influence を 設定
+    for (const auto& jointWeight : _meshData->jointWeightData) {
+        // skeletonに 対応するジョイントが存在するか確認
+        auto jointIndexItr = skeleton.jointIndexBinder.find(jointWeight.first);
+
+        // 存在しない場合はスキップ
+        if (jointIndexItr == skeleton.jointIndexBinder.end()) {
+            continue;
+        }
+
+        // Jointのインデックスに対応する場所に inverseBindePoseMatrix を代入
+        cluster.inverseBindPoseMatrices[jointIndexItr->second] = jointWeight.second.inverseBindPoseMat;
+        for (const auto& vertexWeight : jointWeight.second.vertexWeights) {
+            auto& currentInfluence = cluster.vertexInfluencesBuffer_.openData_[vertexWeight.vertexIndex];
+            for (uint32_t i = 0; i < kNumMaxInfluence; ++i) {
+                // 空いているウェイトの場所に設定 (weight == 0 なら設定されていないとみなす)
+                if (currentInfluence.weights[i] == 0.f) {
+                    currentInfluence.weights[i]      = vertexWeight.weight;
+                    currentInfluence.jointIndices[i] = (*jointIndexItr).second;
+                    break;
+                }
+            }
+        }
+    }
+
+    cluster.skinningInfoBuffer_.CreateBuffer(_device);
+    cluster.skinningInfoBuffer_.openData_.vertexSize = _loadedMesh->mNumVertices;
+
+    cluster.skeletonMatrixPaletteBuffer_.ConvertToBuffer();
+    cluster.vertexInfluencesBuffer_.ConvertToBuffer();
+    cluster.skinningInfoBuffer_.ConvertToBuffer();
+
+    return cluster;
+}
+
 static void LoadModelFile(ModelMeshData* data, const std::string& directoryPath, const std::string& filename) {
     Assimp::Importer importer;
     std::string filePath = directoryPath + "/" + filename;
     const aiScene* scene = importer.ReadFile(filePath.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
     assert(scene->HasMeshes());
+
+    auto& device = Engine::getInstance()->getDxDevice()->getDeviceRef();
 
     std::unordered_map<VertexKey, uint32_t> vertexMap;
     std::vector<TextureVertexData> vertices;
@@ -199,6 +286,8 @@ static void LoadModelFile(ModelMeshData* data, const std::string& directoryPath,
 
         // メッシュデータを処理
         ProcessMeshData(mesh, vertices, indices);
+
+        data->skinClusterDataMap[mesh.getName()] = CreateSkinCluster(device, loadedMesh, data);
 
         // リセット
         vertices.clear();
@@ -305,6 +394,15 @@ void ModelManager::Finalize() {
 
 void ModelManager::pushBackDefaultMaterial(ModelMeshData* key, TexturedMaterial material) {
     defaultMaterials_[key].emplace_back(material);
+}
+
+ModelMeshData* ModelManager::getModelMeshData(const std::string& directoryPath, const std::string& filename) {
+    std::string filePath = normalizeString(directoryPath + "/" + filename);
+    auto it              = modelLibrary_.find(filePath);
+    if (it != modelLibrary_.end()) {
+        return it->second.get();
+    }
+    return nullptr;
 }
 
 void ModelManager::LoadTask::Update() {

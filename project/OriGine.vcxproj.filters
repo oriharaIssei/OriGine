@@ -522,6 +522,7 @@
     <ClInclude Include="engine\code\system\render\SkeletonRenderSystem.h" />
     <ClInclude Include="engine\code\component\animation\SkinningAnimationComponent.h" />
     <ClInclude Include="engine\code\system\effect\SkinningAnimationSystem.h" />
+    <ClInclude Include="engine\code\system\render\SkinningMeshRenderSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\code\ECS\ECSDebugger.cpp">
@@ -821,5 +822,6 @@
     <ClCompile Include="engine\code\system\render\SkeletonRenderSystem.cpp" />
     <ClCompile Include="engine\code\component\animation\SkinningAnimationComponent.cpp" />
     <ClCompile Include="engine\code\system\effect\SkinningAnimationSystem.cpp" />
+    <ClCompile Include="engine\code\system\render\SkinningMeshRenderSystem.cpp" />
   </ItemGroup>
 </Project>

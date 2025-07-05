@@ -155,8 +155,6 @@ private:
     std::string directory_ = "";
     std::string fileName_  = "";
 
-   std::optional<Skeleton> skeleton_ = std::nullopt;
-
     std::vector<IConstantBuffer<Transform>> meshTransformBuff_;
     std::vector<IConstantBuffer<Material>> meshMaterialBuff_;
 
@@ -164,6 +162,14 @@ private:
     std::vector<uint32_t> meshTextureNumbers_;
 
 public:
+    //------------------------------ File ------------------------------//
+    const std::string& getDirectory() const {
+        return directory_;
+    }
+    const std::string& getFileName() const {
+        return fileName_;
+    }
+
     //------------------------------ Transform ------------------------------//
     const Transform& getTransform(int32_t _meshIndex = 0) const {
         return meshTransformBuff_[_meshIndex].openData_;
@@ -216,23 +222,6 @@ public:
             return;
         }
         meshTextureNumbers_[_meshIndex] = TextureManager::LoadTexture(textureFilePath_[_meshIndex]);
-    }
-
-    //------------------------------ Skeleton ------------------------------//
-    const std::optional<Skeleton>& getSkeleton() const {
-        return skeleton_;
-    }
-     std::optional<Skeleton>& getSkeletonRef()  {
-        return skeleton_;
-    }
-    void setSkeleton(const std::optional<Skeleton>& _skeleton) {
-        skeleton_ = _skeleton;
-    }
-    void moveSkeleton(Skeleton&& _skeleton) {
-        skeleton_ = std::move(_skeleton);
-    }
-    void setSkeleton(const Skeleton& _skeleton) {
-        skeleton_ = _skeleton;
     }
 };
 
