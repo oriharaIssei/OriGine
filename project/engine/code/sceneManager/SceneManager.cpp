@@ -109,6 +109,8 @@ static Vec2f ConvertMouseToSceneView(const Vec2f& mousePos, const ImVec2& sceneV
 void SceneManager::DebugUpdate() {
     static ImVec2 s_buttonIconSize(16, 16);
 
+    currentSceneState_ = nextSceneState_;
+
     ///=================================================================================================
     // Main DockSpace Window
     ///=================================================================================================
@@ -284,12 +286,12 @@ void SceneManager::DebugUpdate() {
                         if (ImGui::MenuItem("Startup Scene")) {
                             // 保存, ロード処理を行い, シーンを再読み込み
                             SceneManager::getInstance()->changeScene(startupSceneName_);
-                            currentSceneState_ = SceneState::Debug;
+                            nextSceneState_ = SceneState::Debug;
                         }
                         if (ImGui::MenuItem("Current Scene")) {
                             SceneManager::getInstance()->changeScene(currentSceneName_);
 
-                            currentSceneState_ = SceneState::Debug;
+                            nextSceneState_ = SceneState::Debug;
                         }
                         ImGui::EndMenu();
                     }
@@ -307,7 +309,7 @@ void SceneManager::DebugUpdate() {
             if (ImGui::Begin("Debugger")) {
                 if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(TextureManager::getDescriptorGpuHandle(playIcon_).ptr), s_buttonIconSize)) {
                     // play
-                    currentSceneState_ = SceneState::Debug;
+                    nextSceneState_ = SceneState::Debug;
 
                     SceneManager::getInstance()->changeScene(currentSceneName_);
                 }
@@ -349,7 +351,7 @@ void SceneManager::DebugUpdate() {
                         ImGui::EndMenu();
                     }
                     if (ImGui::MenuItem("EndDebug")) {
-                        currentSceneState_ = SceneState::Edit;
+                        nextSceneState_ = SceneState::Edit;
                     }
                     ImGui::EndMenu();
                 }
@@ -359,14 +361,14 @@ void SceneManager::DebugUpdate() {
             if (ImGui::Begin("Debugger")) {
                 if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(TextureManager::getDescriptorGpuHandle(stopIcon_).ptr), s_buttonIconSize)) {
                     // Stop
-                    currentSceneState_ = SceneState::Edit;
-                    debugState_        = DebugState::Stop;
+                    nextSceneState_ = SceneState::Edit;
+                    debugState_     = DebugState::Stop;
                 }
                 ImGui::SameLine();
                 if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(TextureManager::getDescriptorGpuHandle(rePlayIcon_).ptr), s_buttonIconSize)) {
                     // RePlay
-                    currentSceneState_ = SceneState::Debug;
-                    debugState_        = DebugState::RePlay;
+                    nextSceneState_ = SceneState::Debug;
+                    debugState_     = DebugState::RePlay;
                 }
                 ImGui::SameLine();
 

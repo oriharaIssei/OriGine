@@ -16,14 +16,11 @@
 #include <util/EnumBitMask.h>
 
 enum class DxDescriptorHeapType {
-    RTV     = DxResourceType::Descriptor_RTV, // Render Target View
-    DSV     = DxResourceType::Descriptor_DSV, // Depth Stencil View
-    SRV     = DxResourceType::Descriptor_SRV, // Shader Resource View
-    UAV     = DxResourceType::Descriptor_UAV, // Unordered Access View
-    Sampler = DxResourceType::Descriptor_Sampler // Sampler
+    CBV_SRV_UAV = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, // Shader Resource View
+    Sampler     = D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, // Sampler
+    RTV         = D3D12_DESCRIPTOR_HEAP_TYPE_RTV, // Render Target View
+    DSV         = D3D12_DESCRIPTOR_HEAP_TYPE_DSV, // Depth Stencil View
 };
-
-D3D12_DESCRIPTOR_HEAP_TYPE DxDescriptorTypeToD3D12HeapType(DxDescriptorHeapType type);
 
 Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> CreateHeap(Microsoft::WRL::ComPtr<ID3D12Device> device, D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible);
 
@@ -55,8 +52,8 @@ public:
 
 using DxRtvDescriptor     = DxDescriptor<DxDescriptorHeapType::RTV>;
 using DxDsvDescriptor     = DxDescriptor<DxDescriptorHeapType::DSV>;
-using DxSrvDescriptor     = DxDescriptor<DxDescriptorHeapType::SRV>;
-using DxUavDescriptor     = DxDescriptor<DxDescriptorHeapType::UAV>;
+using DxSrvDescriptor     = DxDescriptor<DxDescriptorHeapType::CBV_SRV_UAV>;
+using DxUavDescriptor     = DxDescriptor<DxDescriptorHeapType::CBV_SRV_UAV>; // cbv,srv,uav は 同一Heapで作成するので 一旦同じということにしておく
 using DxSamplerDescriptor = DxDescriptor<DxDescriptorHeapType::Sampler>;
 
 template <DxDescriptorHeapType Type>
@@ -203,8 +200,8 @@ inline void DxDescriptorHeap<Type>::Initialize(Microsoft::WRL::ComPtr<ID3D12Devi
 
     device_ = _device;
 
-    D3D12_DESCRIPTOR_HEAP_TYPE heapType = DxDescriptorTypeToD3D12HeapType(Type);
-    shaderVisible_                      = (Type == DxDescriptorHeapType::SRV || Type == DxDescriptorHeapType::UAV || Type == DxDescriptorHeapType::Sampler);
+    D3D12_DESCRIPTOR_HEAP_TYPE heapType = D3D12_DESCRIPTOR_HEAP_TYPE(Type);
+    shaderVisible_                      = (Type == DxDescriptorHeapType::CBV_SRV_UAV || Type == DxDescriptorHeapType::Sampler);
     heap_                               = CreateHeap(device_.Get(), heapType, size_, shaderVisible_);
 
     descriptorIncrementSize_ = device_->GetDescriptorHandleIncrementSize(heapType);
@@ -236,7 +233,8 @@ inline void DxDescriptorHeap<Type>::Finalize() {
 
 using DxRtvHeap = DxDescriptorHeap<DxDescriptorHeapType::RTV>;
 using DxDsvHeap = DxDescriptorHeap<DxDescriptorHeapType::DSV>;
-using DxSrvHeap = DxDescriptorHeap<DxDescriptorHeapType::SRV>;
+using DxSrvHeap = DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>;
+
 
 #pragma region "CreateDescriptor"
 template <DxDescriptorHeapType Type>
@@ -248,8 +246,8 @@ DxDescriptorHeap<Type>::CreateDescriptor(const Desc& _desc, DxResource* _resourc
 
 template <>
 template <>
-inline std::shared_ptr<typename DxDescriptorHeap<DxDescriptorHeapType::SRV>::DescriptorType>
-DxDescriptorHeap<DxDescriptorHeapType::SRV>::CreateDescriptor(const D3D12_SHADER_RESOURCE_VIEW_DESC& _desc, DxResource* _resource) {
+inline std::shared_ptr<typename DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>::DescriptorType>
+DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>::CreateDescriptor(const D3D12_SHADER_RESOURCE_VIEW_DESC& _desc, DxResource* _resource) {
     if (!_resource) {
         LOG_ERROR("DxDescriptorHeap::CreateDescriptor: Resource is null");
         throw std::invalid_argument("Resource is null");
@@ -260,6 +258,25 @@ DxDescriptorHeap<DxDescriptorHeapType::SRV>::CreateDescriptor(const D3D12_SHADER
     device_->CreateShaderResourceView(_resource->getResource().Get(), &_desc, cpuHandle);
     auto descriptor = std::make_shared<DescriptorType>(_resource->getResource(), cpuHandle, gpuHandle);
     _resource->addType(DxResourceType::Descriptor_SRV); // リソースタイプを追加
+    descriptors_[index] = descriptor; // ヒープに追加
+    usedFlags_.set(index, true);
+    return descriptor;
+}
+
+template <>
+template <>
+inline std::shared_ptr<typename DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>::DescriptorType>
+DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>::CreateDescriptor(const D3D12_UNORDERED_ACCESS_VIEW_DESC& _desc, DxResource* _resource) {
+    if (!_resource) {
+        LOG_ERROR("DxDescriptorHeap::CreateDescriptor: Resource is null");
+        throw std::invalid_argument("Resource is null");
+    }
+    uint32_t index                        = Allocate();
+    D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = CalculateCpuHandle(index);
+    D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = CalculateGpuHandle(index);
+    device_->CreateUnorderedAccessView(_resource->getResource().Get(), nullptr, &_desc, cpuHandle);
+    auto descriptor = std::make_shared<DescriptorType>(_resource->getResource(), cpuHandle, gpuHandle);
+    _resource->addType(DxResourceType::Descriptor_UAV); // リソースタイプを追加
     descriptors_[index] = descriptor; // ヒープに追加
     usedFlags_.set(index, true);
     return descriptor;
@@ -313,25 +330,6 @@ DxDescriptorHeap<DxDescriptorHeapType::Sampler>::CreateDescriptor(const D3D12_SA
     D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = CalculateGpuHandle(index);
     device_->CreateSampler(&_desc, cpuHandle);
     auto descriptor     = std::make_shared<DescriptorType>(nullptr, cpuHandle, gpuHandle);
-    descriptors_[index] = descriptor; // ヒープに追加
-    usedFlags_.set(index, true);
-    return descriptor;
-}
-
-template <>
-template <>
-inline std::shared_ptr<typename DxDescriptorHeap<DxDescriptorHeapType::UAV>::DescriptorType>
-DxDescriptorHeap<DxDescriptorHeapType::UAV>::CreateDescriptor(const D3D12_UNORDERED_ACCESS_VIEW_DESC& _desc, DxResource* _resource) {
-    if (!_resource) {
-        LOG_ERROR("DxDescriptorHeap::CreateDescriptor: Resource is null");
-        throw std::invalid_argument("Resource is null");
-    }
-    uint32_t index                        = Allocate();
-    D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = CalculateCpuHandle(index);
-    D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = CalculateGpuHandle(index);
-    device_->CreateUnorderedAccessView(_resource->getResource().Get(), nullptr, &_desc, cpuHandle);
-    auto descriptor = std::make_shared<DescriptorType>(_resource->getResource(), cpuHandle, gpuHandle);
-    _resource->addType(DxResourceType::Descriptor_UAV); // リソースタイプを追加
     descriptors_[index] = descriptor; // ヒープに追加
     usedFlags_.set(index, true);
     return descriptor;

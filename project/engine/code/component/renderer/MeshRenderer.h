@@ -12,7 +12,9 @@
 #include <concepts>
 
 /// engine
-// conmponent
+// assets
+#include "model/Model.h"
+// component
 #include "component/material/Material.h"
 #include "component/transform/Transform.h"
 // directX12Object
@@ -160,6 +162,14 @@ private:
     std::vector<uint32_t> meshTextureNumbers_;
 
 public:
+    //------------------------------ File ------------------------------//
+    const std::string& getDirectory() const {
+        return directory_;
+    }
+    const std::string& getFileName() const {
+        return fileName_;
+    }
+
     //------------------------------ Transform ------------------------------//
     const Transform& getTransform(int32_t _meshIndex = 0) const {
         return meshTransformBuff_[_meshIndex].openData_;

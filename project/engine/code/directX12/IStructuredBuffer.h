@@ -42,12 +42,13 @@ public:
     void ConvertToBuffer();
     void SetForRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const;
 
-    void resize(Microsoft::WRL::ComPtr<ID3D12Device>device, uint32_t newElementCount);
-    void resizeForDataSize(Microsoft::WRL::ComPtr<ID3D12Device>device);
+    void resize(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t newElementCount);
+    void resizeForDataSize(Microsoft::WRL::ComPtr<ID3D12Device> device);
     size_t size() const { return openData_.size(); }
     size_t capacity() const { return elementCount_; }
 
     DxResource& getResource() { return buff_; }
+    std::shared_ptr<DxSrvDescriptor> getSrv() const { return srv_; }
 };
 
 template <StructuredBuffer structBuff>
@@ -83,7 +84,7 @@ inline void IStructuredBuffer<structBuff>::Finalize() {
 }
 
 template <StructuredBuffer structBuff>
-inline void IStructuredBuffer<structBuff>::resize(Microsoft::WRL::ComPtr<ID3D12Device>device, uint32_t newElementCount) {
+inline void IStructuredBuffer<structBuff>::resize(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t newElementCount) {
     if (newElementCount == elementCount_ || newElementCount == 0) {
         return;
     }
@@ -112,7 +113,7 @@ inline void IStructuredBuffer<structBuff>::resize(Microsoft::WRL::ComPtr<ID3D12D
 }
 
 template <StructuredBuffer structBuff>
-inline void IStructuredBuffer<structBuff>::resizeForDataSize(Microsoft::WRL::ComPtr<ID3D12Device>device) {
+inline void IStructuredBuffer<structBuff>::resizeForDataSize(Microsoft::WRL::ComPtr<ID3D12Device> device) {
     int32_t newElementCount = static_cast<int32_t>(openData_.size());
     if (newElementCount == elementCount_ || newElementCount == 0) {
         return;

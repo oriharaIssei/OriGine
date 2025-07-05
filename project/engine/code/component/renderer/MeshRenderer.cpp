@@ -6,8 +6,6 @@
 #include "directX12/DxDevice.h"
 // Ecs
 #include "ECSManager.h"
-// assets
-#include "model/Model.h"
 // manager
 #include "model/ModelManager.h"
 
@@ -169,8 +167,9 @@ void ModelMeshRenderer::Initialize(GameEntity* _hostEntity) {
 }
 
 bool ModelMeshRenderer::Edit() {
-#ifdef _DEBUG
     bool isChange = false;
+
+#ifdef _DEBUG
     CheckBoxCommand("isRender", isRender_);
 
     ImGui::Text("BlendMode :");
@@ -272,10 +271,10 @@ bool ModelMeshRenderer::Edit() {
             ImGui::Unindent();
         }
     }
-    return isChange;
-#else
-    return false;
+
 #endif // _DEBUG
+
+    return isChange;
 }
 
 void ModelMeshRenderer::InitializeTransformBuffer(GameEntity* _hostEntity) {
@@ -316,8 +315,8 @@ void CreateModelMeshRenderer(ModelMeshRenderer* _renderer, GameEntity* _hostEnti
         // 再帰ラムダをstd::functionとして定義
         std::function<void(ModelMeshRenderer*, Model*, ModelNode*)> CreateMeshGroupFormNode;
         CreateMeshGroupFormNode = [&](ModelMeshRenderer* _meshRenderer, Model* _model, ModelNode* _node) {
-            auto meshItr = _model->meshData_->meshGroup_.find(_node->name);
-            if (meshItr != _model->meshData_->meshGroup_.end()) {
+            auto meshItr = _model->meshData_->meshGroup.find(_node->name);
+            if (meshItr != _model->meshData_->meshGroup.end()) {
                 _meshRenderer->pushBackMesh(meshItr->second);
             }
             for (auto& child : _node->children) {
