@@ -197,11 +197,16 @@ void ColliderRenderingSystem::CreateRenderMesh() {
             }
 
             Transform* transform = getComponent<Transform>(entity);
-            if (!transform) {
+            if (transform) {
                 transform->Update();
             }
 
-            for (auto& aabb : *aabbColliders_->getComponents(entity)) {
+            auto colliders = aabbColliders_->getComponents(entity);
+            if (!colliders) {
+                continue; // AABBColliderが存在しない場合はスキップ
+            }
+            for (auto& aabb : *colliders) {
+                
                 if (!aabb.isActive()) {
                     continue;
                 }
@@ -256,11 +261,15 @@ void ColliderRenderingSystem::CreateRenderMesh() {
             }
 
             Transform* transform = getComponent<Transform>(entity);
-            if (!transform) {
+            if (transform) {
                 transform->Update();
             }
 
-            for (auto& sphere : *sphereColliders_->getComponents(entity)) {
+            auto colliders = sphereColliders_->getComponents(entity);
+            if (!colliders) {
+                continue; // sphereCollider が存在しない場合はスキップ
+            }
+            for (auto& sphere : *colliders) {
                 if (!sphere.isActive()) {
                     continue;
                 }

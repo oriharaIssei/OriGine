@@ -47,7 +47,7 @@ struct hash<VertexKey> {
 } // namespace std
 
 #pragma region "LoadFunctions"
-void ProcessMeshData(TextureMesh& meshData, const std::vector<TextureVertexData>& vertices, const std::vector<uint32_t>& indices) {
+static void ProcessMeshData(TextureMesh& meshData, const std::vector<TextureVertexData>& vertices, const std::vector<uint32_t>& indices) {
 
     meshData.Initialize(static_cast<UINT>(vertices.size()), static_cast<UINT>(indices.size()));
 
@@ -59,40 +59,22 @@ void ProcessMeshData(TextureMesh& meshData, const std::vector<TextureVertexData>
     meshData.TransferData();
 }
 
-ModelNode ReadNode(aiNode* node) {
+static ModelNode ReadNode(aiNode* node) {
     ModelNode result;
-    /// LocalMatrix の 取得
-    aiMatrix4x4 aiLocalMatrix = node->mTransformation;
-    /// 列ベクトル を 行ベクトル に
-    aiLocalMatrix.Transpose();
-    /// localMatrix を Copy
-    result.localMatrix[0][0] = aiLocalMatrix[0][0];
-    result.localMatrix[0][1] = aiLocalMatrix[0][1];
-    result.localMatrix[0][2] = aiLocalMatrix[0][2];
-    result.localMatrix[0][3] = aiLocalMatrix[0][3];
-
-    result.localMatrix[1][0] = aiLocalMatrix[1][0];
-    result.localMatrix[1][1] = aiLocalMatrix[1][1];
-    result.localMatrix[1][2] = aiLocalMatrix[1][2];
-    result.localMatrix[1][3] = aiLocalMatrix[1][3];
-
-    result.localMatrix[2][0] = aiLocalMatrix[2][0];
-    result.localMatrix[2][1] = aiLocalMatrix[2][1];
-    result.localMatrix[2][2] = aiLocalMatrix[2][2];
-    result.localMatrix[2][3] = aiLocalMatrix[2][3];
-
-    result.localMatrix[3][0] = aiLocalMatrix[3][0];
-    result.localMatrix[3][1] = aiLocalMatrix[3][1];
-    result.localMatrix[3][2] = aiLocalMatrix[3][2];
-    result.localMatrix[3][3] = aiLocalMatrix[3][3];
+    /// Transform の取得
+    aiVector3D aiScale, aiTranslate;
+    aiQuaternion aiRotate;
+    node->mTransformation.Decompose(aiScale, aiRotate, aiTranslate);
+    result.transform.scale     = Vec3f(aiScale.x, aiScale.y, aiScale.z);
+    result.transform.rotate    = Quaternion(aiRotate.x, -aiRotate.y, -aiRotate.z, aiRotate.w); // X軸反転
+    result.transform.translate = Vec3f(-aiTranslate.x, aiTranslate.y, aiTranslate.z); // X軸反転
+    result.localMatrix         = MakeMatrix::Affine(result.transform.scale, result.transform.rotate, result.transform.translate);
 
     /// Name を Copy
     result.name = node->mName.C_Str();
 
     /// Children を Copy
     result.children.resize(node->mNumChildren);
-
-    /// Children すべてを Copy
     for (uint32_t childIndex = 0; childIndex < node->mNumChildren; childIndex++) {
         result.children[childIndex] = ReadNode(node->mChildren[childIndex]);
     }
@@ -100,46 +82,152 @@ ModelNode ReadNode(aiNode* node) {
     return result;
 }
 
-void BuildMeshNodeMap(aiNode* node, std::unordered_map<unsigned int, std::string>& meshNodeMap) {
-    // 現在のノードが参照するすべてのメッシュに対してノード名を記録
-    for (unsigned int i = 0; i < node->mNumMeshes; ++i) {
-        meshNodeMap[node->mMeshes[i]] = node->mName.C_Str();
+static int32_t CreateJoint(
+    const ModelNode& node,
+    const std::optional<int32_t>& parent,
+    std::vector<Joint>& joints) {
+    Joint joint;
+
+    joint.name  = node.name;
+    joint.index = static_cast<int32_t>(joints.size());
+
+    joint.transform           = node.transform;
+    joint.localMatrix         = node.localMatrix;
+    joint.skeletonSpaceMatrix = MakeMatrix::Identity();
+
+    joint.parent = parent;
+
+    joints.push_back(joint);
+
+    for (const ModelNode& child : node.children) {
+        // 子ジョイントを再帰的に作成, そのインデックスを登録
+        int32_t childIndex = CreateJoint(child, joint.index, joints);
+        joints[joint.index].children.push_back(childIndex);
     }
 
-    // 子ノードを再帰的に処理
-    for (unsigned int i = 0; i < node->mNumChildren; ++i) {
-        BuildMeshNodeMap(node->mChildren[i], meshNodeMap);
+    return joint.index;
+}
+
+static Skeleton CreateSkeleton(const ModelNode& rootNode) {
+    Skeleton skeleton;
+    skeleton.rootJointIndex = CreateJoint(rootNode, {}, skeleton.joints);
+
+    // 名前とIndex を バインド
+    for (const Joint& joint : skeleton.joints) {
+        skeleton.jointIndexBinder.emplace(joint.name, joint.index);
     }
+
+    skeleton.Update();
+
+    return skeleton;
 }
 
-std::unordered_map<unsigned int, std::string> CreateMeshNodeMap(const aiScene* scene) {
-    std::unordered_map<unsigned int, std::string> meshNodeMap;
-    BuildMeshNodeMap(scene->mRootNode, meshNodeMap);
-    return meshNodeMap;
+static SkinCluster CreateSkinCluster(
+    const Microsoft::WRL::ComPtr<ID3D12Device>& _device,
+    aiMesh* _loadedMesh,
+    ModelMeshData* _meshData) {
+
+    // skinClusterData を初期化
+    for (uint32_t boneIndex = 0; boneIndex < _loadedMesh->mNumBones; ++boneIndex) {
+        aiBone* bone                     = _loadedMesh->mBones[boneIndex];
+        JointWeightData& jointWeightData = _meshData->jointWeightData[bone->mName.C_Str()];
+
+        /// バインドポーズ座標系での逆行列を設定
+        // decompose
+        aiMatrix4x4 bindPoseMatAssimp = bone->mOffsetMatrix.Inverse();
+        aiVector3D scale, translate;
+        aiQuaternion rotate;
+        bindPoseMatAssimp.Decompose(scale, rotate, translate);
+        // X軸反転 して Decomposeした値から 計算
+        Matrix4x4 bindPoseMatrix = MakeMatrix::Affine(
+            Vec3f(scale.x, scale.y, scale.z),
+            Quaternion(rotate.x, -rotate.y, -rotate.z, rotate.w),
+            Vec3f(-translate.x, translate.y, translate.z));
+        // 逆行列を 保持
+        jointWeightData.inverseBindPoseMat = bindPoseMatrix.inverse();
+
+        /// 頂点ウェイトの設定
+        jointWeightData.vertexWeights.resize(bone->mNumWeights);
+        for (uint32_t weightIndex = 0; weightIndex < bone->mNumWeights; ++weightIndex) {
+            aiVertexWeight& vertexWeight = bone->mWeights[weightIndex];
+            VertexWeightData& weightData = jointWeightData.vertexWeights[weightIndex];
+            weightData.weight            = vertexWeight.mWeight;
+            weightData.vertexIndex       = vertexWeight.mVertexId;
+        }
+    }
+
+    // SkinClusterData 作成
+    SkinCluster cluster;
+    const Skeleton& skeleton = _meshData->skeleton.value();
+
+    // skeletonMatrixPalette Buffer 作成
+    cluster.skeletonMatrixPaletteBuffer_.CreateBuffer(_device, uint32_t(skeleton.joints.size()));
+    cluster.skeletonMatrixPaletteBuffer_.openData_.resize(skeleton.joints.size());
+
+    // influence Buffer 作成
+    cluster.vertexInfluencesBuffer_.CreateBuffer(_device, _loadedMesh->mNumVertices);
+    cluster.vertexInfluencesBuffer_.openData_.resize(_loadedMesh->mNumVertices);
+
+    // inverseBindPoseMatrices を 初期化(単位行列で埋めとく)
+    cluster.inverseBindPoseMatrices.resize(skeleton.joints.size());
+    std::generate(cluster.inverseBindPoseMatrices.begin(), cluster.inverseBindPoseMatrices.end(), MakeMatrix::Identity);
+
+    // ModelData を 解析, Influence を 設定
+    for (const auto& jointWeight : _meshData->jointWeightData) {
+        // skeletonに 対応するジョイントが存在するか確認
+        auto jointIndexItr = skeleton.jointIndexBinder.find(jointWeight.first);
+
+        // 存在しない場合はスキップ
+        if (jointIndexItr == skeleton.jointIndexBinder.end()) {
+            continue;
+        }
+
+        // Jointのインデックスに対応する場所に inverseBindePoseMatrix を代入
+        cluster.inverseBindPoseMatrices[jointIndexItr->second] = jointWeight.second.inverseBindPoseMat;
+        for (const auto& vertexWeight : jointWeight.second.vertexWeights) {
+            auto& currentInfluence = cluster.vertexInfluencesBuffer_.openData_[vertexWeight.vertexIndex];
+            for (uint32_t i = 0; i < kNumMaxInfluence; ++i) {
+                // 空いているウェイトの場所に設定 (weight == 0 なら設定されていないとみなす)
+                if (currentInfluence.weights[i] == 0.f) {
+                    currentInfluence.weights[i]      = vertexWeight.weight;
+                    currentInfluence.jointIndices[i] = (*jointIndexItr).second;
+                    break;
+                }
+            }
+        }
+    }
+
+    cluster.skinningInfoBuffer_.CreateBuffer(_device);
+    cluster.skinningInfoBuffer_.openData_.vertexSize = _loadedMesh->mNumVertices;
+
+    cluster.skeletonMatrixPaletteBuffer_.ConvertToBuffer();
+    cluster.vertexInfluencesBuffer_.ConvertToBuffer();
+    cluster.skinningInfoBuffer_.ConvertToBuffer();
+
+    return cluster;
 }
 
-void LoadModelFile(ModelMeshData* data, const std::string& directoryPath, const std::string& filename) {
+static void LoadModelFile(ModelMeshData* data, const std::string& directoryPath, const std::string& filename) {
     Assimp::Importer importer;
     std::string filePath = directoryPath + "/" + filename;
     const aiScene* scene = importer.ReadFile(filePath.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
     assert(scene->HasMeshes());
 
+    auto& device = Engine::getInstance()->getDxDevice()->getDeviceRef();
+
     std::unordered_map<VertexKey, uint32_t> vertexMap;
     std::vector<TextureVertexData> vertices;
     std::vector<uint32_t> indices;
 
-    // ノードとメッシュの対応表を作成
-    std::unordered_map<unsigned int, std::string> meshNodeMap = CreateMeshNodeMap(scene);
-    for (const auto& [nodeIndex, nodeName] : meshNodeMap) {
-    }
-
     /// node 読み込み
     data->rootNode = ReadNode(scene->mRootNode);
+    // スケルトンの作成
+    data->skeleton = CreateSkeleton(data->rootNode);
 
     for (uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex) {
         aiMesh* loadedMesh = scene->mMeshes[meshIndex];
 
-        auto& mesh = data->meshGroup_[loadedMesh->mName.C_Str()] = TextureMesh();
+        auto& mesh = data->meshGroup[loadedMesh->mName.C_Str()] = TextureMesh();
 
         // 頂点データとインデックスデータの処理
         for (uint32_t faceIndex = 0; faceIndex < loadedMesh->mNumFaces; ++faceIndex) {
@@ -199,6 +287,8 @@ void LoadModelFile(ModelMeshData* data, const std::string& directoryPath, const 
         // メッシュデータを処理
         ProcessMeshData(mesh, vertices, indices);
 
+        data->skinClusterDataMap[mesh.getName()] = CreateSkinCluster(device, loadedMesh, data);
+
         // リセット
         vertices.clear();
         indices.clear();
@@ -229,11 +319,7 @@ std::shared_ptr<Model> ModelManager::Create(
         LOG_TRACE("Model already loaded: {}", filePath);
 
         auto* targetModelMesh = itr->second.get();
-        while (true) {
-            if (targetModelMesh->currentState_ == LoadState::Loaded) {
-                break;
-            }
-        }
+
         result->meshData_     = targetModelMesh;
         result->materialData_ = defaultMaterials_[result->meshData_];
 
@@ -243,7 +329,7 @@ std::shared_ptr<Model> ModelManager::Create(
             materialData.material.ConvertToBuffer();
         }
 
-        for (auto& [name, data] : result->meshData_->meshGroup_) {
+        for (auto& [name, data] : result->meshData_->meshGroup) {
             result->transforms_[&data].Update();
         }
 
@@ -310,11 +396,18 @@ void ModelManager::pushBackDefaultMaterial(ModelMeshData* key, TexturedMaterial 
     defaultMaterials_[key].emplace_back(material);
 }
 
+ModelMeshData* ModelManager::getModelMeshData(const std::string& directoryPath, const std::string& filename) {
+    std::string filePath = normalizeString(directoryPath + "/" + filename);
+    auto it              = modelLibrary_.find(filePath);
+    if (it != modelLibrary_.end()) {
+        return it->second.get();
+    }
+    return nullptr;
+}
+
 void ModelManager::LoadTask::Update() {
     DeltaTime timer;
     timer.Initialize();
-
-    model->meshData_->currentState_ = LoadState::Unloaded;
 
     try {
         LoadModelFile(model->meshData_, this->directory, this->fileName);
@@ -332,7 +425,7 @@ void ModelManager::LoadTask::Update() {
     }
 
     std::mutex mutex;
-    for (auto& [name, data] : model->meshData_->meshGroup_) {
+    for (auto& [name, data] : model->meshData_->meshGroup) {
         try {
             std::lock_guard<std::mutex> lock(mutex);
             model->transforms_[&data] = Transform();
@@ -348,8 +441,6 @@ void ModelManager::LoadTask::Update() {
     if (callBack != nullptr) {
         callBack(model.get());
     }
-
-    model->meshData_->currentState_ = LoadState::Loaded;
 
     // ロード完了のログ
     timer.Update();

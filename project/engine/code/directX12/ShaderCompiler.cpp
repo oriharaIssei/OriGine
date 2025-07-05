@@ -98,8 +98,12 @@ void ShaderCompiler::LoadShaderFile(const std::wstring& filePath, IDxcBlobEncodi
         filePath.c_str(),
         nullptr,
         &shaderSource);
-    assert(SUCCEEDED(hr));
-    hr;
+
+    if (FAILED(hr)) {
+        LOG_ERROR("Failed to load shader file: {}, HRESULT: {}", ConvertString(filePath), HrToString(hr));
+        assert(false);
+        return;
+    }
 
     // 読み込んだファイルの内容を設定する
     buf.Ptr      = shaderSource->GetBufferPointer();

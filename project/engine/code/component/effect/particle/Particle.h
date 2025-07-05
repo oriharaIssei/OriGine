@@ -128,10 +128,6 @@ struct ParticleKeyFrames {
     }
     ~ParticleKeyFrames() {}
 
-    //.pkf ファイルから読み込み
-    void SaveKeyFrames(BinaryWriter& _writer) const;
-    void LoadKeyFrames(BinaryReader& _reader);
-
     AnimationCurve<Vec4f> colorCurve_;
 
     AnimationCurve<Vec3f> scaleCurve_;

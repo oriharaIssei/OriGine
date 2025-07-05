@@ -15,14 +15,14 @@
 #include "component/material/Material.h"
 #include "component/transform/Transform.h"
 
+class SkinningAnimationComponent;
 class ModelMeshRenderer;
-class PlaneRenderer;
 
-class TexturedMeshRenderSystem
+class SkinningMeshRenderSystem
     : public ISystem {
 public:
-    TexturedMeshRenderSystem();
-    ~TexturedMeshRenderSystem();
+    SkinningMeshRenderSystem();
+    ~SkinningMeshRenderSystem();
 
     void Initialize() override;
     void Update() override;
@@ -34,15 +34,10 @@ public:
 
     void UpdateEntity(GameEntity* _entity) override;
 
-    void RenderingMesh(
+    void RenderModelMesh(
         Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList,
-        const TextureMesh& _mesh,
-        IConstantBuffer<Transform>& _transformBuff,
-        IConstantBuffer<Material>& _materialBuff,
-        uint32_t _textureIndex) const;
-
-    void RenderModelMesh(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList, ModelMeshRenderer* _renderer);
-    void RenderPrimitiveMesh(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList, PlaneRenderer* _renderer);
+        SkinningAnimationComponent* _skinningAnimationComponent,
+        ModelMeshRenderer* _renderer);
 
 protected:
     void LightUpdate();

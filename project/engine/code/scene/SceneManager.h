@@ -66,6 +66,7 @@ private:
         Debug
     };
     SceneState currentSceneState_ = SceneState::Edit;
+    SceneState nextSceneState_    = SceneState::Edit;
 
     enum class DebugState {
         Play,
