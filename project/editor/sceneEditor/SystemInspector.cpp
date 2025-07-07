@@ -37,6 +37,19 @@ void SystemInspectorArea::DrawGui() {
             return;
         }
 
+        if (ImGui::TreeNode("SystemCategoryActivity##SystemInspectorArea")) {
+            std::string label = "";
+            for (int32_t category = 0; category < static_cast<int32_t>(SystemCategory::Count); ++category) {
+                label         = SystemCategoryString[category] + "##SystemCategoryActivity";
+                bool activity = currentScene->getSystemRunner()->getCategoryActivity()[category];
+                if (ImGui::Checkbox(label.c_str(), &activity)) {
+                    auto command = std::make_unique<ChangeSystemCategoryActivity>(this, static_cast<SystemCategory>(category), currentScene->getSystemRunner()->getCategoryActivity()[category], activity);
+                    EditorController::getInstance()->pushCommand(std::move(command));
+                }
+            }
+            ImGui::TreePop();
+        }
+
         std::string label = "";
         label             = "Filter##" + currentScene->getName();
 
@@ -255,7 +268,6 @@ void SystemInspectorArea::ChangeSystemActivity::Execute() {
         currentScene->unregisterSystem(systemName_);
     }
 }
-
 void SystemInspectorArea::ChangeSystemActivity::Undo() {
     auto currentScene = inspectorArea_->getParentWindow()->getCurrentScene();
     if (!currentScene) {
@@ -288,6 +300,38 @@ void SystemInspectorArea::ChangeSearchFilter::Execute() {
 void SystemInspectorArea::ChangeSearchFilter::Undo() {
     inspectorArea_->searchBuffer_ = oldSearchBuffer_;
     LOG_DEBUG("ChangeSearchFilter::Undo: Reverted search filter to '{}'.", oldSearchBuffer_);
+}
+
+SystemInspectorArea::ChangeSystemCategoryActivity::ChangeSystemCategoryActivity(SystemInspectorArea* _inspectorArea, SystemCategory _category, bool _oldActivity, bool _newActivity)
+    : inspectorArea_(_inspectorArea), category_(_category), oldActivity_(_oldActivity), newActivity_(_newActivity) {}
+SystemInspectorArea::ChangeSystemCategoryActivity::~ChangeSystemCategoryActivity() {}
+
+void SystemInspectorArea::ChangeSystemCategoryActivity::Execute() {
+    auto currentScene = inspectorArea_->getParentWindow()->getCurrentScene();
+    if (!currentScene) {
+        LOG_ERROR("ChangeSystemCategoryActivity::Execute: No current scene found.");
+        return;
+    }
+    auto* systemRunner = currentScene->getSystemRunnerRef();
+    if (!systemRunner) {
+        LOG_ERROR("ChangeSystemCategoryActivity::Execute: No SystemRunner found in current scene.");
+        return;
+    }
+    systemRunner->setCategoryActivity(category_, newActivity_);
+}
+
+void SystemInspectorArea::ChangeSystemCategoryActivity::Undo() {
+    auto currentScene = inspectorArea_->getParentWindow()->getCurrentScene();
+    if (!currentScene) {
+        LOG_ERROR("ChangeSystemCategoryActivity::Undo: No current scene found.");
+        return;
+    }
+    auto* systemRunner = currentScene->getSystemRunnerRef();
+    if (!systemRunner) {
+        LOG_ERROR("ChangeSystemCategoryActivity::Undo: No SystemRunner found in current scene.");
+        return;
+    }
+    systemRunner->setCategoryActivity(category_, oldActivity_);
 }
 
 #pragma endregion

@@ -49,6 +49,20 @@ public:
         bool oldActivity_ = false; // 変更前のアクティビティ状態
         bool newActivity_ = true; // 変更後のアクティビティ状態
     };
+    class ChangeSystemCategoryActivity
+        : public IEditCommand {
+    public:
+        ChangeSystemCategoryActivity(SystemInspectorArea* _inspectorArea, SystemCategory _category, bool _oldActivity, bool _newActivity);
+        ~ChangeSystemCategoryActivity();
+        void Execute();
+        void Undo();
+
+    private:
+        SystemInspectorArea* inspectorArea_ = nullptr; // 親エリアへのポインタ
+        SystemCategory category_; // 対象のシステムカテゴリ
+        bool oldActivity_ = false; // 変更前のアクティビティ状態
+        bool newActivity_ = true; // 変更後のアクティビティ状態
+    };
 
     enum class FilterType : int32_t {
         NONE                     = 0b0, // フィルターなし

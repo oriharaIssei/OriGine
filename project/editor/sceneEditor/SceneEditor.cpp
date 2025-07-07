@@ -5,10 +5,15 @@
 #include "scene/SceneManager.h"
 #include "winApp/WinApp.h"
 
-// ecs
+#define RESOURCE_DIRECTORY
+#include "EngineInclude.h"
+
+/// ecs
+#include "ECS/Entity.h"
+// component
 #include "component/ComponentArray.h"
 #include "component/IComponent.h"
-#include "ECS/Entity.h"
+// system
 #include "system/ISystem.h"
 
 // directX12
@@ -25,6 +30,8 @@
 /// lib
 #include "myFileSystem/MyFileSystem.h"
 #include <myGui/MyGui.h>
+
+static const std::string sceneFolderPath = kApplicationResourceDirectory + "/scene";
 
 void SceneEditorWindow::Initialize() {
     currentScene_ = std::make_unique<Scene>(editSceneName_);
@@ -44,16 +51,24 @@ void SceneEditorWindow::Initialize() {
 }
 
 void SceneEditorWindow::Finalize() {
+
+    if (currentScene_) {
+        currentScene_->Finalize();
+    }
+
     // エリアの終了処理
     for (auto& [name, area] : areas_) {
         area->Finalize();
     }
     areas_.clear();
+
     // メニューの終了処理
     for (auto& [name, menu] : menus_) {
         menu->Finalize();
     }
     menus_.clear();
+
+    GlobalVariables::getInstance()->SaveFile("Settings", "SceneEditor");
 }
 
 #pragma region "Menus"
@@ -63,6 +78,7 @@ FileMenu::~FileMenu() {}
 void FileMenu::Initialize() {
     addMenuItem(std::make_unique<SaveMenuItem>(this));
     addMenuItem(std::make_unique<LoadMenuItem>(this));
+    addMenuItem(std::make_unique<CreateMenuItem>(this));
 }
 void FileMenu::Finalize() {
     for (auto& [name, item] : menuItems_) {
@@ -104,23 +120,26 @@ LoadMenuItem::LoadMenuItem(FileMenu* _parent)
 
 LoadMenuItem::~LoadMenuItem() {}
 
-void LoadMenuItem::Initialize() {
-    loadScene_ = parentMenu_->getParentWindow()->getCurrentScene();
-    if (!loadScene_) {
-        LOG_ERROR("LoadMenuItem: No current scene to load.");
-        return;
-    }
-}
+void LoadMenuItem::Initialize() {}
 
 void LoadMenuItem::DrawGui() {
     bool isSelect = isSelected_.current();
     if (ImGui::MenuItem(name_.c_str(), "ctl + o", &isSelect)) {
         // シーンのロード処理
+        std::string directory, filename;
+        if (!myfs::selectFileDialog(sceneFolderPath, directory, filename, {"json"}, true)) {
+            return;
+        }
 
-        loadScene_->Finalize();
+        std::unique_ptr<Scene> scene = std::make_unique<Scene>(filename);
+        scene->Initialize();
 
-        SceneSerializer serializer = SceneSerializer(loadScene_);
-        serializer.Deserialize();
+        SceneEditorWindow* sceneEditorWindow = EditorController::getInstance()->getWindow<SceneEditorWindow>();
+
+        SceneSerializer serializer = SceneSerializer(sceneEditorWindow->getCurrentScene());
+        serializer.Serialize();
+
+        sceneEditorWindow->changeScene(std::move(scene));
 
         LOG_DEBUG("LoadMenuItem : Loading scene '{}'.", loadScene_->getName());
     }
@@ -140,39 +159,35 @@ void CreateMenuItem::Initialize() {}
 
 void CreateMenuItem::DrawGui() {
     bool isSelect = isSelected_.current();
-    if (ImGui::MenuItem(name_.c_str(), nullptr, &isSelect)) {
-        ImGui::InputText("New Scene Name", &newSceneName_[0], sizeof(char) * 256);
-        if (ImGui::Button("Create")) {
-            auto scene = parentMenu_->getParentWindow()->getCurrentScene();
+    ImGui::MenuItem("Create NewScene", nullptr, &isSelect);
+    ImGui::InputText("New Scene Name", &newSceneName_[0], sizeof(char) * 256);
+    if (ImGui::Button("Create")) {
+        auto scene = parentMenu_->getParentWindow()->getCurrentScene();
 
-            SceneSerializer serializer = SceneSerializer(scene);
-            serializer.Serialize();
+        SceneSerializer serializer = SceneSerializer(scene);
+        serializer.Serialize();
 
-            scene->Finalize();
+        scene->Finalize();
 
-            auto newScene = std::make_unique<Scene>(newSceneName_);
-            newScene->Initialize();
-            parentMenu_->getParentWindow()->changeScene(std::move(newScene));
+        auto newScene = std::make_unique<Scene>(newSceneName_);
+        newScene->Initialize();
+        parentMenu_->getParentWindow()->changeScene(std::move(newScene));
 
-            // 初期化
-            EditorController::getInstance()->clearCommandHistory();
-            name_ = "";
-        }
-    } else {
-        name_ = "";
+        // 初期化
+        EditorController::getInstance()->clearCommandHistory();
+        newSceneName_ = "";
     }
     isSelected_.set(isSelect);
 }
 
-void CreateMenuItem::Finalize() {
-}
+void CreateMenuItem::Finalize() {}
 
 #pragma endregion
 
 #pragma region "SceneViewArea"
 
 SceneViewArea::SceneViewArea(SceneEditorWindow* _parentWindow)
-    : parentWindow_(_parentWindow), Editor::Area("SceneView") {}
+    : parentWindow_(_parentWindow), Editor::Area(nameof<SceneViewArea>()) {}
 
 void SceneViewArea::Initialize() {
     // DebugCameraの初期化
@@ -411,8 +426,8 @@ void EntityHierarchy::ClearSelectedEntitiesCommand::Undo() {
 }
 
 EntityHierarchy::CreateEntityCommand::CreateEntityCommand(HierarchyArea* _parentArea, const std::string& _entityName) {
-    parentArea_       = _parentArea;
-    entityName_       = _entityName;
+    parentArea_ = _parentArea;
+    entityName_ = _entityName;
 }
 
 void EntityHierarchy::CreateEntityCommand::Execute() {

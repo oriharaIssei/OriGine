@@ -14,7 +14,16 @@
 
 class RenderTexture {
 public:
-    RenderTexture(DxCommand* dxCom) : dxCommand_(dxCom) {}
+    RenderTexture(DxCommand* dxCom) {
+        std::string commandListKey  = "main";
+        std::string commandQueueKey = "main";
+        if (dxCom) {
+            commandListKey  = dxCom->getCommandListComboKey();
+            commandQueueKey = dxCom->getCommandQueueKey();
+        }
+        dxCommand_ = std::make_unique<DxCommand>();
+        dxCommand_->Initialize(commandListKey, commandQueueKey);
+    }
     RenderTexture()  = default;
     ~RenderTexture() = default;
 

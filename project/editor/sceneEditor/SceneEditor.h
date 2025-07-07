@@ -40,6 +40,7 @@ public:
         return currentScene_.get();
     }
     void changeScene(std::unique_ptr<Scene>&& _newScene) {
+        currentScene_->Finalize(); // 現在のシーンを終了処理
         currentScene_.reset();
         currentScene_ = std::move(_newScene);
     }

@@ -138,8 +138,7 @@ void SystemRunner::InitializeCategory(SystemCategory _category) {
 
 void SystemRunner::InitializeActiveSystems() {
     for (auto& systemByCategory : activeSystems_) {
-        for (auto pp_system : systemByCategory) {
-            auto* system = *pp_system;
+        for (auto system : systemByCategory) {
             if (system) {
                 system->Initialize();
             }
@@ -151,8 +150,7 @@ void SystemRunner::InitializeActiveCategory(SystemCategory _category) {
     if (_category == SystemCategory::Count) {
         LOG_ERROR("SystemRegistry: Invalid SystemCategory.");
     }
-    for (auto pp_system : activeSystems_[static_cast<size_t>(_category)]) {
-        auto* system = *pp_system;
+    for (auto system : activeSystems_[static_cast<size_t>(_category)]) {
         if (system) {
             system->Initialize();
         }
@@ -182,8 +180,7 @@ void SystemRunner::FinalizeCategory(SystemCategory _category) {
 
 void SystemRunner::FinalizeActiveSystems() {
     for (auto& systemByCategory : activeSystems_) {
-        for (auto pp_system : systemByCategory) {
-            auto* system = *pp_system;
+        for (auto system : systemByCategory) {
             if (system) {
                 system->Finalize();
             }
@@ -195,8 +192,7 @@ void SystemRunner::FinalizeActiveCategory(SystemCategory _category) {
     if (_category == SystemCategory::Count) {
         LOG_ERROR("SystemRegistry: Invalid SystemCategory.");
     }
-    for (auto pp_system : activeSystems_[static_cast<size_t>(_category)]) {
-        auto* system = *pp_system;
+    for (auto system : activeSystems_[static_cast<size_t>(_category)]) {
         if (system) {
             system->Finalize();
         }
@@ -206,34 +202,34 @@ void SystemRunner::FinalizeActiveCategory(SystemCategory _category) {
 void SystemRunner::AllUnregisterSystem(bool _isFinalize) {
     for (auto& systemByCategory : systems_) {
         for (auto& [systemName, system] : systemByCategory) {
-            if (system) {
-                system->setScene(nullptr);
-                system->setIsActive(false);
-                if (_isFinalize) {
-                    system->Finalize();
-                }
+            if (!system) {
+                continue;
+            }
+            system->setScene(nullptr);
+            system->setIsActive(false);
+            if (_isFinalize) {
+                system->Finalize();
             }
             auto& activeCategorySystems = activeSystems_[static_cast<size_t>(system->getCategory())];
-            activeCategorySystems.erase(std::remove(activeCategorySystems.begin(), activeCategorySystems.end(), &system), activeCategorySystems.end());
+            activeCategorySystems.erase(std::remove(activeCategorySystems.begin(), activeCategorySystems.end(), system), activeCategorySystems.end());
         }
         systemByCategory.clear();
     }
 }
 
 void SystemRunner::UpdateCategory(SystemCategory _category) {
-    if (_category == SystemCategory::Count) {
-        LOG_ERROR("SystemRegistry: Invalid SystemCategory.");
+    if (!categoryActivity[static_cast<size_t>(_category)]) {
         return;
     }
-    for (auto pp_system : activeSystems_[static_cast<size_t>(_category)]) {
-        auto p_system = *pp_system;
-        if (p_system) {
-            p_system->Update();
+
+    for (auto system : activeSystems_[static_cast<size_t>(_category)]) {
+        if (system) {
+            system->Update();
         }
     }
 }
 
-void SystemRunner::registerSystem(const std::string& _systemName, bool _isInitalize, bool _activate) {
+void SystemRunner::registerSystem(const std::string& _systemName, int32_t _priority , bool _isInitialize, bool _activate) {
     auto* registerAskSystem = SystemRegistry::getInstance()->getSystem(_systemName);
     if (!registerAskSystem) {
         LOG_ERROR("SystemRunner: System not found with name: {}", _systemName);
@@ -244,11 +240,13 @@ void SystemRunner::registerSystem(const std::string& _systemName, bool _isInital
     system->setScene(scene_);
     systems_[static_cast<size_t>(system->getCategory())][_systemName] = system;
 
-    if (_isInitalize) {
+    systems_[static_cast<size_t>(system->getCategory())][_systemName]->setPriority(_priority);
+
+    if (_isInitialize) {
         system->Initialize();
     }
     if (_activate) {
-        activeSystems_[static_cast<size_t>(system->getCategory())].emplace_back(&systems_[static_cast<size_t>(system->getCategory())][_systemName]);
+        activeSystems_[static_cast<size_t>(system->getCategory())].emplace_back(systems_[static_cast<size_t>(system->getCategory())][_systemName]);
         system->setIsActive(true);
     }
 }
@@ -278,7 +276,7 @@ void SystemRunner::unregisterSystem(const std::string& _systemName, bool _isFina
         }
     }
     auto& activeCategorySystems = activeSystems_[static_cast<size_t>(itr->second->getCategory())];
-    activeCategorySystems.erase(std::remove(activeCategorySystems.begin(), activeCategorySystems.end(), &itr->second), activeCategorySystems.end());
+    activeCategorySystems.erase(std::remove(activeCategorySystems.begin(), activeCategorySystems.end(), itr->second), activeCategorySystems.end());
     systems_[static_cast<size_t>(category)].erase(itr);
 }
 
@@ -289,7 +287,7 @@ void SystemRunner::ActivateSystem(const std::string& _systemName) {
         return;
     }
     ISystem* system = itr->second;
-    activeSystems_[static_cast<size_t>(system->getCategory())].push_back(&system);
+    activeSystems_[static_cast<size_t>(system->getCategory())].push_back(system);
 }
 
 void SystemRunner::DeactivateSystem(const std::string& _systemName) {
@@ -300,7 +298,7 @@ void SystemRunner::DeactivateSystem(const std::string& _systemName) {
     }
     ISystem* system     = itr->second;
     auto& activeSystems = activeSystems_[static_cast<size_t>(system->getCategory())];
-    activeSystems.erase(std::remove(activeSystems.begin(), activeSystems.end(), &system), activeSystems.end());
+    activeSystems.erase(std::remove(activeSystems.begin(), activeSystems.end(), system), activeSystems.end());
 }
 
 #pragma endregion

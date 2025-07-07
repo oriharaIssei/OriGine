@@ -89,6 +89,7 @@ void EditorController::Update() {
 
 void EditorController::Finalize() {
     GlobalVariables::getInstance()->SaveFile(defaultSerializeSceneName_, defaultSerializeGroupName_);
+
     for (auto& [editorName, editor] : editorWindows_) {
         editor->Finalize();
     }

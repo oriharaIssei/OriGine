@@ -21,8 +21,10 @@ DistortionEffect::DistortionEffect() : ISystem(SystemCategory::PostRender) {}
 DistortionEffect::~DistortionEffect() {}
 
 void DistortionEffect::Initialize() {
-    dxCommand_ = std::make_unique<DxCommand>();
-    dxCommand_->Initialize("main", "main");
+    if (!dxCommand_) {
+        dxCommand_ = std::make_unique<DxCommand>();
+        dxCommand_->Initialize("main", "main");
+    }
 
     distortionSceneTexture_ = std::make_unique<RenderTexture>(dxCommand_.get());
     distortionSceneTexture_->setTextureName("DistortionSceneTexture");
@@ -55,12 +57,15 @@ void DistortionEffect::Update() {
 void DistortionEffect::Finalize() {
     pso_ = nullptr;
 
+    if (dxCommand_) {
+        dxCommand_->Finalize();
+        dxCommand_.reset();
+        dxCommand_ = nullptr;
+    }
+
     texturedMeshRenderSystem_->Finalize();
 
     distortionSceneTexture_->Finalize();
-
-    dxCommand_->Finalize();
-    dxCommand_.reset();
 }
 
 void DistortionEffect::UpdateEntity(GameEntity* _entity) {

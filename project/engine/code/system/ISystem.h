@@ -331,10 +331,10 @@ public:
         UpdateCategory(Category);
     }
 
-    void registerSystem(const std::string& _systemName, bool _isInitalize = true, bool _activate = true);
-    template <IsSystem SystemCategory>
-    void registerSystem(bool _activate = true) {
-        registerSystem(nameof<SystemCategory>(), _activate);
+    void registerSystem(const std::string& _systemName, int32_t _priority = 0, bool _isInitalize = true, bool _activate = true);
+    template <IsSystem SystemClass>
+    void registerSystem(int32_t _priority = 0, bool _isInitalize = true, bool _activate = true) {
+        registerSystem(nameof<SystemClass>(), _priority, _isInitalize, _activate);
     }
     void unregisterSystem(const std::string& _systemName, bool _isFinalize = false);
     template <IsSystem SystemCategory>
@@ -392,10 +392,10 @@ public:
 private:
     Scene* scene_ = nullptr; // 所属するシーン
 
-    std::array<bool, static_cast<size_t>(SystemCategory::Count)> categoryActivity = {true};
+    std::array<bool, static_cast<size_t>(SystemCategory::Count)> categoryActivity = {true, true, true, true, true, true};
 
     std::array<std::unordered_map<std::string, ISystem*>, size_t(SystemCategory::Count)> systems_;
-    std::array<std::vector<ISystem**>, size_t(SystemCategory::Count)> activeSystems_;
+    std::array<std::vector<ISystem*>, size_t(SystemCategory::Count)> activeSystems_;
 
 public:
     const std::array<bool, static_cast<size_t>(SystemCategory::Count)>& getCategoryActivity() const {
@@ -408,6 +408,9 @@ public:
     bool getCategoryActivity() const {
         return categoryActivity[static_cast<size_t>(Category)];
     }
+    bool getCategoryActivity(SystemCategory Category) const {
+        return categoryActivity[static_cast<size_t>(Category)];
+    }
     template <>
     bool getCategoryActivity<SystemCategory::Count>() const {
         LOG_ERROR("SystemRunner: getCategoryActivity() called with invalid SystemCategory::Count.");
@@ -416,6 +419,9 @@ public:
     template <SystemCategory Category>
     void setCategoryActivity(bool _isActive) {
         categoryActivity[static_cast<size_t>(Category)] = _isActive;
+    }
+    void setCategoryActivity(SystemCategory _category, bool _isActive) {
+        categoryActivity[static_cast<size_t>(_category)] = _isActive;
     }
     template <>
     void setCategoryActivity<SystemCategory::Count>(bool /*_isActive*/) {
@@ -429,14 +435,14 @@ public:
         return systems_;
     }
 
-    const std::array<std::vector<ISystem**>, size_t(SystemCategory::Count)>& getActiveSystems() const {
+    const std::array<std::vector<ISystem*>, size_t(SystemCategory::Count)>& getActiveSystems() const {
         return activeSystems_;
     }
-    std::array<std::vector<ISystem**>, size_t(SystemCategory::Count)>& getActiveSystemsRef() {
+    std::array<std::vector<ISystem*>, size_t(SystemCategory::Count)>& getActiveSystemsRef() {
         return activeSystems_;
     }
 
-    const std::vector<ISystem**> getActiveSystems(SystemCategory _category) const {
+    const std::vector<ISystem*> getActiveSystems(SystemCategory _category) const {
         return activeSystems_[static_cast<size_t>(_category)];
     }
     template <SystemCategory Category>
