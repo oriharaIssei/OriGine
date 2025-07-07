@@ -107,7 +107,6 @@ void EntityComponentSystemManager::Run() {
 
 void EntityComponentSystemManager::Finalize() {
     // システムのクリア
-    FinalizeWorkSystems();
     clearAllSystems();
 
     // コンポーネントのクリア

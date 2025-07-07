@@ -109,7 +109,31 @@ static Vec2f ConvertMouseToSceneView(const Vec2f& mousePos, const ImVec2& sceneV
 void SceneManager::DebugUpdate() {
     static ImVec2 s_buttonIconSize(16, 16);
 
-    currentSceneState_ = nextSceneState_;
+    if (currentSceneState_ != nextSceneState_) {
+        // to EditMode
+        if (nextSceneState_ == SceneState::Edit) {
+            // DebuggerGroup を 終了
+            debuggerGroup_->Finalize();
+
+            // Editor を再初期化
+            editorController_->Initialize();
+
+            SceneManager::getInstance()->executeSceneChange();
+
+            debugState_ = DebugState::Stop;
+        } else { // to DebugMode
+            // Editor を終了
+            editorController_->Finalize();
+            // DebuggerGroup を再初期化
+            debuggerGroup_->Initialize();
+
+            SceneManager::getInstance()->executeSceneChange();
+
+            debugState_ = DebugState::Play;
+        }
+
+        currentSceneState_ = nextSceneState_;
+    }
 
     ///=================================================================================================
     // Main DockSpace Window
@@ -285,10 +309,18 @@ void SceneManager::DebugUpdate() {
                     if (ImGui::BeginMenu("StartDebug")) {
                         if (ImGui::MenuItem("Startup Scene")) {
                             // 保存, ロード処理を行い, シーンを再読み込み
+                            // // シーンを保存
+                            SceneSerializer serializer;
+                            serializer.Serialize(currentSceneName_);
+
                             SceneManager::getInstance()->changeScene(startupSceneName_);
                             nextSceneState_ = SceneState::Debug;
                         }
                         if (ImGui::MenuItem("Current Scene")) {
+                            // シーンを保存
+                            SceneSerializer serializer;
+                            serializer.Serialize(currentSceneName_);
+
                             SceneManager::getInstance()->changeScene(currentSceneName_);
 
                             nextSceneState_ = SceneState::Debug;
@@ -308,6 +340,10 @@ void SceneManager::DebugUpdate() {
 
             if (ImGui::Begin("Debugger")) {
                 if (ImGui::ImageButton(reinterpret_cast<ImTextureID>(TextureManager::getDescriptorGpuHandle(playIcon_).ptr), s_buttonIconSize)) {
+                    // シーンを保存
+                    SceneSerializer serializer;
+                    serializer.Serialize(currentSceneName_);
+
                     // play
                     nextSceneState_ = SceneState::Debug;
 
@@ -404,15 +440,6 @@ void SceneManager::DebugUpdate() {
             }
             ImGui::End();
 
-            if (currentSceneState_ == SceneState::Edit) {
-                // Editor を再初期化
-                editorController_->Initialize();
-
-                // 保存しない
-                SceneFinalize();
-                SceneInitialize(currentSceneName_);
-                break;
-            }
             if (debugState_ == DebugState::RePlay) {
                 // シーンを再初期化
                 SceneFinalize();
