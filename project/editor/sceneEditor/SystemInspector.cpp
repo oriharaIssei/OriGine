@@ -19,8 +19,14 @@ void SystemInspectorArea::Initialize() {
             LOG_ERROR("SystemInspectorArea::Initialize: System '{}' is null.", name);
             continue;
         }
-        int32_t category           = int32_t(system->getCategory());
-        systemMap_[category][name] = system.get();
+        int32_t category = int32_t(system->getCategory());
+        systemMap_[category].emplace_back(std::make_pair<>(name, system.get()));
+    }
+
+    for (auto& systemByCategory : systemMap_) {
+        std::sort(systemByCategory.begin(), systemByCategory.end(), [](const std::pair<std::string, ISystem*>& a, const std::pair<std::string, ISystem*>& b) {
+            return a.second->getPriority() < b.second->getPriority(); // Priority でソート
+        });
     }
 }
 
@@ -184,7 +190,7 @@ void SystemInspectorArea::SystemGui(const std::string& _systemName, ISystem* _sy
     ImGui::PushID(_systemName.c_str());
     bool isActive = _system->isActive();
 
-    if (ImGui::Checkbox("Active", &isActive)) {
+    if (ImGui::Checkbox("##Active", &isActive)) {
         auto command = std::make_unique<ChangeSystemActivity>(this, _systemName, _system->isActive(), isActive);
         EditorController::getInstance()->pushCommand(std::move(command));
     }
@@ -194,7 +200,7 @@ void SystemInspectorArea::SystemGui(const std::string& _systemName, ISystem* _sy
     constexpr int32_t inputPriorityBoxWidth = 76;
     ImGui::SetNextItemWidth(inputPriorityBoxWidth);
     int32_t priority = _system->getPriority();
-    if (ImGui::InputInt("Priority", &priority, 1)) {
+    if (ImGui::InputInt("##Priority", &priority, 1)) {
         auto command = std::make_unique<ChangeSystemPriority>(this, _systemName, _system->getPriority(), priority);
         EditorController::getInstance()->pushCommand(std::move(command));
     }
@@ -211,39 +217,44 @@ void SystemInspectorArea::SystemGui(const std::string& _systemName, ISystem* _sy
 SystemInspectorArea::ChangeSystemPriority::ChangeSystemPriority(SystemInspectorArea* _inspectorArea, const std::string& _systemName, int32_t _oldPriority, int32_t _newPriority)
     : inspectorArea_(_inspectorArea), systemName_(_systemName), oldPriority_(_oldPriority), newPriority_(_newPriority) {}
 void SystemInspectorArea::ChangeSystemPriority::Execute() {
-    auto currentScene = inspectorArea_->getParentWindow()->getCurrentScene();
-    if (!currentScene) {
-        LOG_ERROR("ChangeSystemPriority::Execute: No current scene found.");
+    SystemRegistry* systemRegistry = SystemRegistry::getInstance();
+
+    // exe 内に Systemが 登録されているか確認
+    auto systemItr = systemRegistry->getSystemsRef().find(systemName_);
+    if (systemItr == systemRegistry->getSystemsRef().end()) {
+        LOG_ERROR("ChangeSystemPriority::Execute: System '{}' not found.", systemName_);
         return;
     }
-    auto& systems = currentScene->getSystemRunnerRef()->getSystems();
-    for (auto& systemCategory : systems) {
-        auto systemItr = systemCategory.find(systemName_);
-        if (systemItr != systemCategory.end()) {
-            oldPriority_ = systemItr->second->getPriority();
-            systemItr->second->setPriority(newPriority_);
-            LOG_DEBUG("ChangeSystemPriority::Execute: Changed priority of system '{}' to {}.", systemName_, newPriority_);
-            return;
-        }
-    }
-    LOG_ERROR("ChangeSystemPriority::Execute: System '{}' not found.", systemName_);
+
+    systemItr->second->setPriority(newPriority_);
+
+    int32_t categoryIndex   = static_cast<int32_t>(systemItr->second->getCategory());
+    auto* systemsByCategory = &inspectorArea_->systemMap_[categoryIndex];
+    std::sort(systemsByCategory->begin(),
+        systemsByCategory->end(),
+        [](const std::pair<std::string, ISystem*>& a, const std::pair<std::string, ISystem*>& b) {
+            return a.second->getPriority() < b.second->getPriority(); // Priority でソート
+        });
 }
 void SystemInspectorArea::ChangeSystemPriority::Undo() {
-    auto currentScene = inspectorArea_->getParentWindow()->getCurrentScene();
-    if (!currentScene) {
-        LOG_ERROR("ChangeSystemPriority::Undo: No current scene found.");
+    SystemRegistry* systemRegistry = SystemRegistry::getInstance();
+
+    // exe 内に Systemが 登録されているか確認
+    auto systemItr = systemRegistry->getSystemsRef().find(systemName_);
+    if (systemItr == systemRegistry->getSystemsRef().end()) {
+        LOG_ERROR("ChangeSystemPriority::Execute: System '{}' not found.", systemName_);
         return;
     }
-    auto& systems = currentScene->getSystemRunnerRef()->getSystems();
-    for (auto& systemCategory : systems) {
-        auto systemItr = systemCategory.find(systemName_);
-        if (systemItr != systemCategory.end()) {
-            systemItr->second->setPriority(oldPriority_);
-            LOG_DEBUG("ChangeSystemPriority::Undo: Reverted priority of system '{}' to {}.", systemName_, oldPriority_);
-            return;
-        }
-    }
-    LOG_ERROR("ChangeSystemPriority::Undo: System '{}' not found.", systemName_);
+
+    systemItr->second->setPriority(oldPriority_);
+
+    int32_t categoryIndex   = static_cast<int32_t>(systemItr->second->getCategory());
+    auto* systemsByCategory = &inspectorArea_->systemMap_[categoryIndex];
+    std::sort(systemsByCategory->begin(),
+        systemsByCategory->end(),
+        [](const std::pair<std::string, ISystem*>& a, const std::pair<std::string, ISystem*>& b) {
+            return a.second->getPriority() < b.second->getPriority(); // Priority でソート
+        });
 }
 
 SystemInspectorArea::ChangeSystemActivity::ChangeSystemActivity(
@@ -261,9 +272,14 @@ void SystemInspectorArea::ChangeSystemActivity::Execute() {
         LOG_ERROR("ChangeSystemActivity::Execute: No current scene found.");
         return;
     }
+    auto* targetSystem = SystemRegistry::getInstance()->getSystem(systemName_);
+    if (!targetSystem) {
+        LOG_ERROR("ChangeSystemActivity::Execute: System '{}' not found in registry.", systemName_);
+        return;
+    }
     // true にする場合, SystemRegistry から システムを取得
     if (newActivity_) {
-        currentScene->registerSystem(systemName_);
+        currentScene->registerSystem(systemName_, targetSystem->getPriority());
     } else {
         currentScene->unregisterSystem(systemName_);
     }

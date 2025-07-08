@@ -107,6 +107,6 @@ public:
 
     ISystem* getSystem(const std::string& _systemTypeName, SystemCategory _category) const;
 
-    bool registerSystem(const std::string& _systemTypeName, bool _activity   = true);
-    bool unregisterSystem(const std::string& _systemTypeName, bool _activity = true);
+    bool registerSystem(const std::string& _systemTypeName, int32_t _priority = 0, bool _isInit = true, bool _activity = true);
+    bool unregisterSystem(const std::string& _systemTypeName, bool _isFinalize = true);
 };

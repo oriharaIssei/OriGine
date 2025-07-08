@@ -343,13 +343,18 @@ public:
     }
 
     void ActivateSystem(const std::string& _systemName);
-    template <IsSystem SystemCategory>
+    template <IsSystem SystemType>
     void ActivateSystem() {
-        ActivateSystem(nameof<SystemCategory>());
+        ActivateSystem( nameof<SystemType>());
     }
-    void DeactivateSystem(const std::string& _systemName);
+    void ActivateSystem(SystemCategory _category, const std::string& _systemName);
+    template <IsSystem SystemType>
+    void ActivateSystem(SystemCategory _category) {
+        ActivateSystem(_category, nameof<SystemType>());
+    }
+    void DeactivateSystem(SystemCategory _category, const std::string& _systemName);
     template <IsSystem SystemCategory>
-    void DeactivateSystem() {
+    void DeactivateSystem(SystemCategory _category) {
         DeactivateSystem(nameof<SystemCategory>());
     }
 
@@ -392,7 +397,7 @@ public:
 private:
     Scene* scene_ = nullptr; // 所属するシーン
 
-    std::array<bool, static_cast<size_t>(SystemCategory::Count)> categoryActivity = {true, true, true, true, true, true};
+    std::array<bool, static_cast<size_t>(SystemCategory::Count)> categoryActivity = {true, true, true, true, true, true, true, true};
 
     std::array<std::unordered_map<std::string, ISystem*>, size_t(SystemCategory::Count)> systems_;
     std::array<std::vector<ISystem*>, size_t(SystemCategory::Count)> activeSystems_;

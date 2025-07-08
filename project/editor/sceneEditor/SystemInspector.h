@@ -117,7 +117,7 @@ protected:
 
 protected:
     SceneEditorWindow* parentWindow_ = nullptr; // 親ウィンドウへのポインタ
-    std::array<std::unordered_map<std::string, ISystem*>, size_t(SystemCategory::Count)> systemMap_; // システムのマップ
+    std::array<std::vector<std::pair<std::string, ISystem*>>, size_t(SystemCategory::Count)> systemMap_; // システムのマップ
 
     const int32_t searchBufferSize_ = 256; // 検索バッファのサイズ
     std::string searchBuffer_; // 検索用のバッファ

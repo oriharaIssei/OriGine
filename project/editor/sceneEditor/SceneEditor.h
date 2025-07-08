@@ -81,7 +81,7 @@ public:
 
 private:
     FileMenu* parentMenu_ = nullptr; // 親メニューへのポインタ
-    Scene* saveScene_     = nullptr; // 保存するシーンへのポインタ
+
 };
 class LoadMenuItem
     : public Editor::MenuItem {

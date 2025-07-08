@@ -91,29 +91,22 @@ SaveMenuItem::SaveMenuItem(FileMenu* _parent)
     : Editor::MenuItem("Save"), parentMenu_(_parent) {}
 SaveMenuItem::~SaveMenuItem() {}
 
-void SaveMenuItem::Initialize() {
-    saveScene_ = parentMenu_->getParentWindow()->getCurrentScene();
-    if (!saveScene_) {
-        LOG_ERROR("SaveMenuItem: No current scene to save.");
-        return;
-    }
-}
+void SaveMenuItem::Initialize() {}
 
 void SaveMenuItem::DrawGui() {
-    bool isSelect = isSelected_.current();
+    bool isSelect = false;
 
     if (ImGui::MenuItem(name_.c_str(), "ctl + s", &isSelect)) {
-        SceneSerializer serializer = SceneSerializer(saveScene_);
-        LOG_DEBUG("SaveMenuItem : Saving scene '{}'.", saveScene_->getName());
+        auto* currentScene         = parentMenu_->getParentWindow()->getCurrentScene();
+        SceneSerializer serializer = SceneSerializer(currentScene);
+        LOG_DEBUG("SaveMenuItem : Saving scene '{}'.", currentScene->getName());
         serializer.Serialize();
     }
 
     isSelected_.set(isSelect);
 }
 
-void SaveMenuItem::Finalize() {
-    saveScene_ = nullptr; // 保存するシーンへのポインタをクリア
-}
+void SaveMenuItem::Finalize() {}
 
 LoadMenuItem::LoadMenuItem(FileMenu* _parent)
     : Editor::MenuItem("Load"), parentMenu_(_parent) {}
@@ -123,7 +116,7 @@ LoadMenuItem::~LoadMenuItem() {}
 void LoadMenuItem::Initialize() {}
 
 void LoadMenuItem::DrawGui() {
-    bool isSelect = isSelected_.current();
+    bool isSelect = false;
     if (ImGui::MenuItem(name_.c_str(), "ctl + o", &isSelect)) {
         // シーンのロード処理
         std::string directory, filename;
@@ -131,17 +124,16 @@ void LoadMenuItem::DrawGui() {
             return;
         }
 
+        SceneEditorWindow* sceneEditorWindow = EditorController::getInstance()->getWindow<SceneEditorWindow>();
+        SceneSerializer serializer           = SceneSerializer(sceneEditorWindow->getCurrentScene());
+        serializer.Serialize();
+
         std::unique_ptr<Scene> scene = std::make_unique<Scene>(filename);
         scene->Initialize();
 
-        SceneEditorWindow* sceneEditorWindow = EditorController::getInstance()->getWindow<SceneEditorWindow>();
-
-        SceneSerializer serializer = SceneSerializer(sceneEditorWindow->getCurrentScene());
-        serializer.Serialize();
+        LOG_DEBUG("LoadMenuItem : Loading scene '{}'.", scene->getName());
 
         sceneEditorWindow->changeScene(std::move(scene));
-
-        LOG_DEBUG("LoadMenuItem : Loading scene '{}'.", loadScene_->getName());
     }
     isSelected_.set(isSelect);
 }
@@ -158,25 +150,50 @@ CreateMenuItem::~CreateMenuItem() {}
 void CreateMenuItem::Initialize() {}
 
 void CreateMenuItem::DrawGui() {
-    bool isSelect = isSelected_.current();
-    ImGui::MenuItem("Create NewScene", nullptr, &isSelect);
-    ImGui::InputText("New Scene Name", &newSceneName_[0], sizeof(char) * 256);
-    if (ImGui::Button("Create")) {
-        auto scene = parentMenu_->getParentWindow()->getCurrentScene();
+    bool isSelect = false;
+    if (ImGui::BeginMenu("Create NewScene")) {
+        ImGui::InputText("New Scene Name", &newSceneName_[0], sizeof(char) * 256);
+        if (ImGui::Button("Create")) {
+            auto scenes = myfs::searchFile(SceneSerializer::SceneDirectory, {"json"});
 
-        SceneSerializer serializer = SceneSerializer(scene);
-        serializer.Serialize();
+            // 例: first がシーン名の場合
+            auto it = std::find_if(
+                scenes.begin(), scenes.end(),
+                [this](const std::pair<std::string, std::string>& scene) {
+                    return scene.second == newSceneName_;
+                });
 
-        scene->Finalize();
+            if (it != scenes.end()) {
+                LOG_ERROR("Scene with name '{}' already exists.", newSceneName_);
+                newSceneName_ = "";
+                ImGui::OpenPopup("Scene Exists");
+            } else {
+                auto scene = parentMenu_->getParentWindow()->getCurrentScene();
 
-        auto newScene = std::make_unique<Scene>(newSceneName_);
-        newScene->Initialize();
-        parentMenu_->getParentWindow()->changeScene(std::move(newScene));
+                SceneSerializer serializer = SceneSerializer(scene);
+                serializer.Serialize();
 
-        // 初期化
-        EditorController::getInstance()->clearCommandHistory();
-        newSceneName_ = "";
+                auto newScene = std::make_unique<Scene>(newSceneName_);
+                newScene->Initialize();
+                parentMenu_->getParentWindow()->changeScene(std::move(newScene));
+
+                // 初期化
+                EditorController::getInstance()->clearCommandHistory();
+                newSceneName_ = "";
+            }
+        }
+        ImGui::EndMenu();
     }
+
+    if (ImGui::BeginPopup("Scene Exists")) {
+        ImGui::Text("Scene with this name already exists.");
+        ImGui::Separator();
+        if (ImGui::Button("OK")) {
+            ImGui::CloseCurrentPopup();
+        }
+        ImGui::EndPopup();
+    }
+
     isSelected_.set(isSelect);
 }
 
@@ -239,6 +256,10 @@ void SceneViewArea::DrawScene() {
     cameraManager->setTransform(debugCamera_->getCameraTransform());
     cameraManager->DataConvertToBuffer();
     auto* currentScene = parentWindow_->getCurrentScene();
+
+    // effect systemの更新
+    currentScene->getSystemRunnerRef()->UpdateCategory(SystemCategory::Effect);
+    // 描画
     currentScene->Render();
     cameraManager->setTransform(prevTransform);
 }
@@ -299,7 +320,7 @@ void EntityHierarchy::DrawGui() {
 
     // 選択状態のエンティティIDを取得
     for (const auto& entity : entityRepository) {
-        if (!entity || !entity.isAlive()) {
+        if (!entity.isAlive()) {
             continue; // 無効なエンティティはスキップ
         }
 
@@ -611,6 +632,55 @@ void AddSystemCommand::Undo() {
         if (editEntityId == entityId) {
             auto itr = inspectorArea->getSystemMap()[int32_t(systemCategory_)].find(systemTypeName_);
             inspectorArea->getSystemMap()[int32_t(systemCategory_)].erase(itr);
+        }
+    }
+}
+
+RemoveSystemCommand::RemoveSystemCommand(const std::list<int32_t>& _entityIds, const std::string& _systemTypeName, SystemCategory _category)
+    : entityIds_(_entityIds), systemTypeName_(_systemTypeName), systemCategory_(_category) {}
+
+void RemoveSystemCommand::Execute() {
+    auto sceneEditorWindow = EditorController::getInstance()->getWindow<SceneEditorWindow>();
+    auto currentScene      = sceneEditorWindow->getCurrentScene();
+    auto inspectorArea     = dynamic_cast<EntityInspectorArea*>(sceneEditorWindow->getArea("EntityInspectorArea").get());
+    int32_t editEntityId   = inspectorArea->getEditEntityId();
+
+    if (!currentScene) {
+        LOG_ERROR("RemoveSystemCommand::Execute: No current scene found.");
+        return;
+    }
+    for (auto entityId : entityIds_) {
+        GameEntity* entity = currentScene->getEntityRepositoryRef()->getEntity(entityId);
+        if (!entity) {
+            LOG_ERROR("RemoveSystemCommand::Execute: Entity with ID '{}' not found.", entityId);
+            continue;
+        }
+        currentScene->getSystemRunnerRef()->removeEntity(systemTypeName_, entity);
+        if (editEntityId == entityId) {
+            auto itr = inspectorArea->getSystemMap()[int32_t(systemCategory_)].find(systemTypeName_);
+            inspectorArea->getSystemMap()[int32_t(systemCategory_)].erase(itr);
+        }
+    }
+}
+
+void RemoveSystemCommand::Undo() {
+    auto sceneEditorWindow = EditorController::getInstance()->getWindow<SceneEditorWindow>();
+    auto currentScene      = sceneEditorWindow->getCurrentScene();
+    auto inspectorArea     = dynamic_cast<EntityInspectorArea*>(sceneEditorWindow->getArea("EntityInspectorArea").get());
+    int32_t editEntityId   = inspectorArea->getEditEntityId();
+    if (!currentScene) {
+        LOG_ERROR("RemoveSystemCommand::Execute: No current scene found.");
+        return;
+    }
+    for (auto entityId : entityIds_) {
+        GameEntity* entity = currentScene->getEntityRepositoryRef()->getEntity(entityId);
+        if (!entity) {
+            LOG_ERROR("RemoveSystemCommand::Execute: Entity with ID '{}' not found.", entityId);
+            continue;
+        }
+        currentScene->getSystemRunnerRef()->registerEntity(systemTypeName_, entity);
+        if (editEntityId == entityId) {
+            inspectorArea->getSystemMap()[int32_t(systemCategory_)][systemTypeName_] = currentScene->getSystemRunnerRef()->getSystem(systemTypeName_, systemCategory_);
         }
     }
 }

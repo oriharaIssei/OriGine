@@ -143,18 +143,18 @@ ISystem* Scene::getSystem(const std::string& _systemTypeName, SystemCategory _ca
     return nullptr;
 }
 
-bool Scene::registerSystem(const std::string& _systemTypeName, bool _activity) {
+bool Scene::registerSystem(const std::string& _systemTypeName, int32_t _priority, bool _isInit, bool _activity) {
     if (systemRunner_) {
-        systemRunner_->registerSystem(_systemTypeName, _activity);
+        systemRunner_->registerSystem(_systemTypeName, _priority, _isInit, _activity);
         return true;
     }
     LOG_ERROR("Scene::registerSystem: SystemRunner is not initialized.");
     return false;
 }
 
-bool Scene::unregisterSystem(const std::string& _systemTypeName, bool _activity) {
+bool Scene::unregisterSystem(const std::string& _systemTypeName, bool _isFinalize) {
     if (systemRunner_) {
-        systemRunner_->unregisterSystem(_systemTypeName, _activity);
+        systemRunner_->unregisterSystem(_systemTypeName, _isFinalize);
         return true;
     }
     LOG_ERROR("Scene::unregisterSystem: SystemRunner is not initialized.");

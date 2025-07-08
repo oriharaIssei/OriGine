@@ -99,6 +99,9 @@ public:
 
 class SceneSerializer {
 public:
+    static const std::string SceneDirectory;
+
+public:
     SceneSerializer(Scene* _targetScene);
     ~SceneSerializer();
     /// <summary>
@@ -126,10 +129,9 @@ public:
 
     GameEntity* LoadEntity(const std::string& _directory, const std::string& _dataType);
     GameEntity* EntityFromJson(const nlohmann::json& _entityData);
-    GameEntity* EntityFromJson(int32_t _entityId,const nlohmann::json& _entityData);
+    GameEntity* EntityFromJson(int32_t _entityId, const nlohmann::json& _entityData);
 
 private:
-    static const std::string directory_;
     nlohmann::json rootJson_;
 
     Scene* targetScene_ = nullptr;

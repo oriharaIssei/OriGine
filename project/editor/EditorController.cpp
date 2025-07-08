@@ -56,10 +56,26 @@ void EditorController::Initialize() {
 
 void EditorController::Update() {
     ///-------------------------------------------------------------------------------------------------
+    // MainMenu Update
+    ///-------------------------------------------------------------------------------------------------
+    ImGui::BeginMainMenuBar();
+    for (auto& [menuName, menu] : mainMenus_) {
+        if (!menu) {
+            LOG_ERROR("Menu with name '{}' is nullptr.", menuName);
+            continue;
+        }
+        if (ImGui::BeginMenu(menu->getName().c_str())) {
+            menu->DrawGui();
+            ImGui::EndMenu();
+        }
+    }
+    ImGui::EndMainMenuBar();
+
+    ///-------------------------------------------------------------------------------------------------
     // Editors Update
     ///-------------------------------------------------------------------------------------------------
     for (auto& [name, editor] : editorWindows_) {
-            editor->DrawGui();
+        editor->DrawGui();
     }
 
     ///-------------------------------------------------------------------------------------------------

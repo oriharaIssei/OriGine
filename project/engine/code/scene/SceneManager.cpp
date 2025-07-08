@@ -35,6 +35,8 @@
 #include "math/Vector2.h"
 #include "math/Vector4.h"
 
+#pragma region "SceneManager"
+
 SceneManager* SceneManager::getInstance() {
     static SceneManager instance;
     return &instance;
@@ -116,7 +118,11 @@ void SceneManager::executeSceneChange() {
     isChangeScene_ = false;
 }
 
-const std::string SceneSerializer::directory_ = kApplicationResourceDirectory + "/scene/";
+#pragma endregion
+
+#pragma region "SceneSerializer"
+
+const std::string SceneSerializer::SceneDirectory = kApplicationResourceDirectory + "/scene/";
 
 SceneSerializer::SceneSerializer(Scene* _targetScene) : targetScene_(_targetScene) {}
 
@@ -228,8 +234,8 @@ void SceneSerializer::SerializeFromJson() {
     }
 
     // JSON ファイルに書き込み
-    myfs::createFolder(directory_);
-    std::ofstream ofs(directory_ + targetScene_->getName() + ".json");
+    myfs::createFolder(SceneDirectory);
+    std::ofstream ofs(SceneDirectory + targetScene_->getName() + ".json");
     if (!ofs) {
         LOG_ERROR("Failed to open JSON file for writing: {}", targetScene_->getName());
         return;
@@ -239,7 +245,7 @@ void SceneSerializer::SerializeFromJson() {
 }
 
 void SceneSerializer::DeserializeFromJson() {
-    std::ifstream ifs(directory_ + targetScene_->getName() + ".json");
+    std::ifstream ifs(SceneDirectory + targetScene_->getName() + ".json");
     if (!ifs) {
         LOG_ERROR("Failed to open JSON file for reading: {}", targetScene_->getName());
         return;
@@ -249,10 +255,10 @@ void SceneSerializer::DeserializeFromJson() {
     ifs >> jsonData;
     ifs.close();
 
-    auto& entityRepository        = targetScene_->entityRepository_;
-    auto& componentRepository     = targetScene_->componentRepository_;
-    auto& systemRunner            = targetScene_->systemRunner_;
-    auto& sceneSystems            = systemRunner->getSystemsRef();
+    auto& entityRepository    = targetScene_->entityRepository_;
+    auto& componentRepository = targetScene_->componentRepository_;
+    auto& systemRunner        = targetScene_->systemRunner_;
+    auto& sceneSystems        = systemRunner->getSystemsRef();
 
     /// =====================================================
     // System
@@ -305,7 +311,7 @@ void SceneSerializer::DeserializeFromJson() {
                 LOG_WARN("Don't Registered Component. Typename {}", componentTypename);
                 continue;
             }
-                comp->LoadComponent(entity, componentData);
+            comp->LoadComponent(entity, componentData);
         }
     }
 }
@@ -478,3 +484,5 @@ GameEntity* getSceneUniqueEntity(const std::string& _name) {
 
     return currentScene->getEntityRepositoryRef()->getUniqueEntity(_name);
 }
+
+#pragma endregion
