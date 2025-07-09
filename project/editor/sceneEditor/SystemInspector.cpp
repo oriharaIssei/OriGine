@@ -1,5 +1,7 @@
 #include "SystemInspector.h"
 
+#ifdef _DEBUG
+
 /// editor
 #include "editor/EditorController.h"
 #include "editor/sceneEditor/SceneEditor.h"
@@ -353,3 +355,5 @@ void SystemInspectorArea::ChangeSystemCategoryActivity::Undo() {
 #pragma endregion
 
 #pragma endregion
+
+#endif // _DEBUG

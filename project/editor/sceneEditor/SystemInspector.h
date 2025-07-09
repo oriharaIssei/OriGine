@@ -1,5 +1,8 @@
 #pragma once
 
+#ifdef _DEBUG
+
+
 #include "editor/IEditor.h"
 class SceneEditorWindow;
 
@@ -127,3 +130,5 @@ public:
         return parentWindow_;
     }
 };
+
+#endif // _DEBUG

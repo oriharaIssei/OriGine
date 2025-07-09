@@ -2,6 +2,8 @@
 
 #include "editor/IEditor.h"
 
+#ifdef _DEBUG
+
 /// stl
 #include <array>
 #include <list>
@@ -81,7 +83,6 @@ public:
 
 private:
     FileMenu* parentMenu_ = nullptr; // 親メニューへのポインタ
-
 };
 class LoadMenuItem
     : public Editor::MenuItem {
@@ -285,3 +286,46 @@ private:
     std::string systemTypeName_; // 削除するシステムのタイプ名
     SystemCategory systemCategory_; // システムのカテゴリ
 };
+
+class DevelopControlArea
+    : public Editor::Area {
+public:
+public:
+    DevelopControlArea(SceneEditorWindow* _parentWindow);
+    ~DevelopControlArea() override;
+
+    void Initialize() override;
+    // void DrawGui() override;
+    // void Finalize() override;
+
+    class ControlRegion
+        : public Editor::Region {
+    public:
+        ControlRegion(DevelopControlArea* _parentArea);
+        ~ControlRegion() override;
+        void Initialize() override;
+        void DrawGui() override;
+        void Finalize() override;
+
+    private:
+        DevelopControlArea* parentArea_ = nullptr; // 親エリアへのポインタ
+    };
+
+private:
+    SceneEditorWindow* parentWindow_ = nullptr; // 親ウィンドウへのポインタ
+
+    const std::string buildTool_        = "msbuild"; // ビルドツールの名前
+    const std::string projectDirectory_ = "project";
+    const std::string projectName_      = "OriGine.sln";
+    const std::string configuration     = "Develop";
+    const std::string platform          = "x64";
+
+    const std::string exePath_ = "../generated/" + configuration + "/ OriGineApp.exe "; // 実行ファイルのパス
+
+public:
+    SceneEditorWindow* getParentWindow() const {
+        return parentWindow_;
+    }
+};
+
+#endif // _DEBUG

@@ -344,6 +344,8 @@ void CreateModelMeshRenderer(ModelMeshRenderer* _renderer, GameEntity* _hostEnti
 }
 
 #pragma region "LineRenderer"
+#ifdef _DEBUG
+
 /// <summary>
 /// LineRenderにLineを追加するコマンド
 /// </summary>
@@ -402,6 +404,8 @@ private:
     int32_t vertex1Index_; // 追加した頂点1のインデックス
     int32_t vertex2Index_; // 追加した頂点2のインデックス
 };
+
+#endif // _DEBUG
 
 LineRenderer::LineRenderer() : MeshRenderer() {
     meshGroup_->push_back(Mesh<ColorVertexData>());

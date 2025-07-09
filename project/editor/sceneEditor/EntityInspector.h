@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef _DEBUG
+
 /// parent
 #include "editor/IEditor.h"
 
@@ -419,3 +421,5 @@ public:
     void clearTarget() { targetEntityIds_.clear(); }
     void setTargets(const std::list<int32_t>& _targets);
 };
+
+#endif // _DEBUG

@@ -1,5 +1,7 @@
 #include "EntityInspector.h"
 
+#ifdef _DEBUG
+
 /// engine
 // scene
 #include "scene/SceneManager.h"
@@ -943,3 +945,5 @@ void EntityInfomationRegion::DeleteEntityCommand::Undo() {
     }
     LOG_DEBUG("DeleteEntityCommand::Undo: Restored entity with ID '{}'.", entityId_);
 }
+
+#endif // _DEBUG

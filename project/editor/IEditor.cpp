@@ -4,7 +4,6 @@
 #include "EditorController.h"
 #include "imGuiManager/ImGuiManager.h"
 #include <imgui/imgui.h>
-#endif // DEBUG
 
 void Editor::Menu::DrawGui() {
     for (auto& [name, item] : menuItems_) {
@@ -212,3 +211,5 @@ void WindowFocusCommand::Undo() {
     windowOpenState_->set(!to_);
     windowOpenState_->sync();
 }
+
+#endif // DEBUG

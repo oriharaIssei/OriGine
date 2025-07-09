@@ -1,5 +1,7 @@
 #include "SceneEditor.h"
 
+#ifdef _DEBUG
+
 /// engine
 #include "Engine.h"
 #include "scene/SceneManager.h"
@@ -48,6 +50,9 @@ void SceneEditorWindow::Initialize() {
     addArea(std::make_unique<SystemInspectorArea>(this));
     addArea(std::make_unique<SelectAddComponentArea>(this));
     addArea(std::make_unique<SelectAddSystemArea>(this));
+    addArea(std::make_unique<SystemInspectorArea>(this));
+
+    //addArea(std::make_unique<DevelopControlArea>(this));
 }
 
 void SceneEditorWindow::Finalize() {
@@ -684,3 +689,59 @@ void RemoveSystemCommand::Undo() {
         }
     }
 }
+
+#pragma region "DevelopControlArea"
+DevelopControlArea::DevelopControlArea(SceneEditorWindow* _parentWindow)
+    : Editor::Area(nameof<DevelopControlArea>()), parentWindow_(_parentWindow) {}
+DevelopControlArea::~DevelopControlArea() {}
+
+void DevelopControlArea::Initialize() {
+    addRegion(std::make_shared<ControlRegion>(this));
+}
+
+DevelopControlArea::ControlRegion::ControlRegion(DevelopControlArea* _parentArea)
+    : Editor::Region(nameof<ControlRegion>()), parentArea_(_parentArea) {}
+
+DevelopControlArea::ControlRegion::~ControlRegion() {}
+
+void DevelopControlArea::ControlRegion::Initialize() {}
+
+void DevelopControlArea::ControlRegion::DrawGui() {
+    if (ImGui::Button("Build&Run Develop")) {
+        auto* currentScene = parentArea_->getParentWindow()->getCurrentScene();
+        if (!currentScene) {
+            LOG_ERROR("ControlRegion::DrawGui: No current scene found.");
+            return;
+        }
+        /// ==========================================
+        // Build
+        /// ==========================================
+        // ビルドコマンドの作成
+        std::string buildCommand =
+            parentArea_->buildTool_ + " "
+            + parentArea_->projectName_
+            + " /p:Configuration=" + parentArea_->configuration
+            + " /p:Platform=" + parentArea_->platform;
+        LOG_DEBUG("ControlRegion::DrawGui: Executing build command: {}", buildCommand);
+
+        // ビルドコマンドの実行
+        if (!RunProcessAndWait(buildCommand)) {
+            return;
+        }
+
+        /// ==========================================
+        // アプリケーション 実行
+        /// ==========================================
+        // 実行ファイルのパスを取得
+        std::string exePath = parentArea_->exePath_;
+        int32_t runResult   = std::system(exePath.c_str());
+        if (runResult != 0) {
+            LOG_ERROR("ControlRegion::DrawGui: Application run failed with error code {}", runResult);
+            return;
+        }
+    }
+}
+
+void DevelopControlArea::ControlRegion::Finalize() {}
+
+#endif

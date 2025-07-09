@@ -13,12 +13,7 @@
 #include "imgui/imgui.h"
 #include "myGui/MyGui.h"
 #include "util/timeline/Timeline.h"
-#endif // _DEBUG
 
-void PrimitiveNodeAnimation::Initialize(GameEntity* /*_entity*/) {
-    // Initialize animation state
-    currentTime_ = 0.0f;
-}
 
 class GenerateUvAnimationCommand : public IEditCommand {
 public:
@@ -127,6 +122,13 @@ private:
     AnimationCurve<Vec2f> previousUvTranslateCurve_;
     InterpolationType previousUvInterpolationType_;
 };
+
+#endif // _DEBUG
+
+void PrimitiveNodeAnimation::Initialize(GameEntity* /*_entity*/) {
+    // Initialize animation state
+    currentTime_ = 0.0f;
+}
 
 bool PrimitiveNodeAnimation::Edit() {
 #ifdef _DEBUG

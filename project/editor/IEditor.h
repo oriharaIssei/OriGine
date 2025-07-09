@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef _DEBUG
+
 /// parent
 #include "module/IModule.h"
 
@@ -20,6 +22,8 @@
 
 /// math
 #include <Vector2.h>
+
+
 
 namespace Editor {
 // Blenderを参考
@@ -586,3 +590,5 @@ private:
     bool to_ = true; // フォーカス後の状態
 };
 #pragma endregion DefaultCommand
+
+#endif // _DEBUG
