@@ -147,6 +147,20 @@ void Editor::Window::DrawGui() {
     ImGui::End();
 }
 
+void Editor::Window::Finalize() {
+    // エリアの終了処理
+    for (auto& [name, area] : areas_) {
+        area->Finalize();
+    }
+    areas_.clear();
+
+    // メニューの終了処理
+    for (auto& [name, menu] : menus_) {
+        menu->Finalize();
+    }
+    menus_.clear();
+}
+
 Vec2f ConvertMouseToGuiWindow(const Vec2f& _mousePos, const Vec2f& _guiWindowLT, const ImVec2& _guiWindowSize, const Vec2f& _originalResolution) {
     // SceneView 内での相対的なマウス座標を計算
     Vec2f relative = _mousePos - _guiWindowLT;

@@ -23,13 +23,10 @@
 /// math
 #include <Vector2.h>
 
-
-
 namespace Editor {
 // Blenderを参考
 // https://colorful-pico.net/introduction-to-addon-development-in-blender/2.7/html/chapter_99/00_Glossary.html
 // https://docs.blender.org/manual/ja/dev/interface/window_system/index.html
-//! TODO : AreaのRenderTextureにImGuiを描画する.
 
 /// <summary>
 /// GuiWindowの最小単位.ボタンやテキストフィールドなどのUI要素を持つところ.
@@ -218,7 +215,7 @@ public:
 
     virtual void Initialize() = 0;
     virtual void DrawGui();
-    virtual void Finalize() = 0;
+    virtual void Finalize();
 
 protected:
     void UpdateFocusAndOpenState();

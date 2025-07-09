@@ -512,6 +512,7 @@
     <ClInclude Include="util\DiffValue.h" />
     <ClInclude Include="editor\sceneEditor\EntityInspector.h" />
     <ClInclude Include="editor\sceneEditor\SystemInspector.h" />
+    <ClInclude Include="editor\setting\SettingWindow.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\code\Engine.cpp">
@@ -804,5 +805,6 @@
     <ClCompile Include="engine\code\ECS\Entity.cpp" />
     <ClCompile Include="editor\sceneEditor\EntityInspector.cpp" />
     <ClCompile Include="editor\sceneEditor\SystemInspector.cpp" />
+    <ClCompile Include="editor\setting\SettingWindow.cpp" />
   </ItemGroup>
 </Project>

@@ -275,6 +275,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="math\shape\Shapes.h" />
     <ClInclude Include="editor\sceneEditor\SceneEditor.h" />
     <ClInclude Include="editor\sceneEditor\SystemInspector.h" />
+    <ClInclude Include="editor\setting\SettingWindow.h" />
     <ClInclude Include="util\BitArray.h" />
     <ClInclude Include="util\ConvertString.h" />
     <ClInclude Include="util\DiffValue.h" />
@@ -381,6 +382,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="math\Quaternion.cpp" />
     <ClCompile Include="editor\sceneEditor\SceneEditor.cpp" />
     <ClCompile Include="editor\sceneEditor\SystemInspector.cpp" />
+    <ClCompile Include="editor\setting\SettingWindow.cpp" />
     <ClCompile Include="util\ConvertString.cpp" />
     <ClCompile Include="util\NormalizeString.cpp" />
     <ClCompile Include="util\timeline\Timeline.cpp" />

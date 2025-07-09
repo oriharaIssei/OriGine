@@ -50,7 +50,19 @@ EditorController* EditorController::getInstance() {
 void EditorController::Initialize() {
     ///============================= Editor の初期化 ========================================
     for (auto& [editorName, editor] : editorWindows_) {
+        if (!editor) {
+            LOG_ERROR("Editor with name '{}' is nullptr.", editorName);
+            continue;
+        }
         editor->Initialize();
+    }
+    ///============================= メインメニューの初期化 ========================================
+    for (auto& [menuName, menu] : mainMenus_) {
+        if (!menu) {
+            LOG_ERROR("Menu with name '{}' is nullptr.", menuName);
+            continue;
+        }
+        menu->Initialize();
     }
 }
 
