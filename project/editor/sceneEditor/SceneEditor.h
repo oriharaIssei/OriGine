@@ -320,7 +320,7 @@ private:
     const std::string configuration     = "Develop";
     const std::string platform          = "x64";
 
-    const std::string exePath_ = "../generated/" + configuration + "/ OriGineApp.exe "; // 実行ファイルのパス
+    const std::string exePath_ = projectDirectory_ + "../generated/output/" + configuration + "/OriGineApp.exe"; // 実行ファイルのパス
 
 public:
     SceneEditorWindow* getParentWindow() const {

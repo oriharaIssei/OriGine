@@ -7,6 +7,9 @@
 
 #include <vector>
 
+/// lib
+#include "logger/Logger.h"
+
 #ifdef _DEBUG
 #include "imgui/imgui.h"
 #include <imgui/imgui_impl_dx12.h>
@@ -210,7 +213,6 @@ void WinApp::UpdateActivity() {
     isActive_ = GetForegroundWindow() == hwnd_;
 }
 
-
 bool RunProcessAndWait(const std::string& command, const char* _currentDirectory) {
     std::string currentDirStr;
     if (!_currentDirectory) {
@@ -266,6 +268,7 @@ bool RunProcessAndWait(const std::string& command, const char* _currentDirectory
             sizeof(msgBuf),
             nullptr);
         fprintf(stderr, "CreateProcess failed with error code %lu: %s\n", error, msgBuf);
+        LOG_ERROR("CreateProcess failed with error code {}: {}", error, msgBuf);
         CloseHandle(hRead);
         CloseHandle(hWrite);
         return false;
@@ -297,9 +300,12 @@ bool RunProcessAndWait(const std::string& command, const char* _currentDirectory
 
     if (exitCode != 0) {
         fprintf(stderr, "Process exited with code %lu\n", exitCode);
+        LOG_ERROR("Process exited with code {}", exitCode);
+
         std::string output = oss.str();
         if (!output.empty()) {
             fprintf(stderr, "Process output:\n%s\n", output.c_str());
+            LOG_ERROR("Process output:\n{}", output);
         }
     }
 

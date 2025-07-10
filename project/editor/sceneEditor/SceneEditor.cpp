@@ -47,12 +47,11 @@ void SceneEditorWindow::Initialize() {
     addArea(std::make_unique<SceneViewArea>(this));
     addArea(std::make_unique<HierarchyArea>(this));
     addArea(std::make_unique<EntityInspectorArea>(this));
-    addArea(std::make_unique<SystemInspectorArea>(this));
     addArea(std::make_unique<SelectAddComponentArea>(this));
     addArea(std::make_unique<SelectAddSystemArea>(this));
     addArea(std::make_unique<SystemInspectorArea>(this));
 
-    //addArea(std::make_unique<DevelopControlArea>(this));
+    addArea(std::make_unique<DevelopControlArea>(this));
 }
 
 void SceneEditorWindow::Finalize() {
@@ -707,7 +706,7 @@ DevelopControlArea::ControlRegion::~ControlRegion() {}
 void DevelopControlArea::ControlRegion::Initialize() {}
 
 void DevelopControlArea::ControlRegion::DrawGui() {
-    if (ImGui::Button("Build&Run Develop")) {
+    if (ImGui::Button("Build Develop")) {
         auto* currentScene = parentArea_->getParentWindow()->getCurrentScene();
         if (!currentScene) {
             LOG_ERROR("ControlRegion::DrawGui: No current scene found.");
@@ -726,18 +725,19 @@ void DevelopControlArea::ControlRegion::DrawGui() {
 
         // ビルドコマンドの実行
         if (!RunProcessAndWait(buildCommand)) {
-            return;
+            LOG_ERROR("ControlRegion::DrawGui: Build command execution failed.");
         }
+    }
 
-        /// ==========================================
-        // アプリケーション 実行
-        /// ==========================================
-        // 実行ファイルのパスを取得
-        std::string exePath = parentArea_->exePath_;
-        int32_t runResult   = std::system(exePath.c_str());
-        if (runResult != 0) {
-            LOG_ERROR("ControlRegion::DrawGui: Application run failed with error code {}", runResult);
-            return;
+    if (ImGui::Button("Run")) {
+        std::string exePath = std::filesystem::current_path().string() + parentArea_->exePath_;
+        LOG_DEBUG("ControlRegion::DrawGui: Executing application at path: {}", exePath);
+        // アプリケーションの実行
+        int32_t result = std::system(exePath.c_str());
+        if (result != 0) {
+            LOG_ERROR("ControlRegion::DrawGui: Failed to run application. Error code: {}", result);
+        } else {
+            LOG_DEBUG("ControlRegion::DrawGui: Application executed successfully.");
         }
     }
 }

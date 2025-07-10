@@ -107,6 +107,7 @@ void EntityComponentRegion::DrawGui() {
     if (!editEntity) {
         return;
     }
+    ImGui::Indent();
 
     if (ImGui::Button("+ Component")) {
         auto selectAddComponentArea = parentArea_->getParentWindow()->getAreas().find("SelectAddComponentArea")->second.get();
@@ -146,6 +147,8 @@ void EntityComponentRegion::DrawGui() {
             ImGui::Unindent();
         }
     }
+
+    ImGui::Unindent();
 }
 void EntityComponentRegion::Finalize() {}
 
@@ -165,6 +168,8 @@ void EntitySystemRegion::DrawGui() {
     if (!editEntity) {
         return;
     }
+
+    ImGui::Indent();
 
     if (ImGui::Button("+ System")) {
         auto selectAddSystemArea = parentArea_->getParentWindow()->getAreas().find("SelectAddSystemArea")->second.get();
@@ -201,6 +206,8 @@ void EntitySystemRegion::DrawGui() {
             ImGui::Unindent();
         }
     }
+
+    ImGui::Unindent();
 }
 void EntitySystemRegion::Finalize() {}
 
