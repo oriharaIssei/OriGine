@@ -30,6 +30,40 @@ static void ApplyAnimation(Skeleton& _skeleton, AnimationData* _animationData, f
     }
 }
 
+static void ApplyBlendedAnimation(
+    Skeleton& _skeleton,
+    AnimationData* _animA, float _timeA,
+    AnimationData* _animB, float _timeB,
+    float blendWeight) {
+    for (size_t i = 0; i < _skeleton.joints.size(); ++i) {
+        Joint& joint = _skeleton.joints[i];
+        auto itA     = _animA->animationNodes_.find(joint.name);
+        auto itB     = _animB->animationNodes_.find(joint.name);
+
+        if (itA == _animA->animationNodes_.end() || itB == _animB->animationNodes_.end()) {
+            if (itA != _animA->animationNodes_.end()) {
+                const ModelAnimationNode& nodeAnimation = itA->second;
+                joint.transform.scale                   = CalculateValue::Linear(nodeAnimation.scale, _timeA);
+                joint.transform.rotate                  = CalculateValue::Linear(nodeAnimation.rotate, _timeA);
+                joint.transform.translate               = CalculateValue::Linear(nodeAnimation.translate, _timeA);
+            } else if (itB != _animB->animationNodes_.end()) {
+                const ModelAnimationNode& nodeAnimation = itB->second;
+                joint.transform.scale                   = CalculateValue::Linear(nodeAnimation.scale, _timeB);
+                joint.transform.rotate                  = CalculateValue::Linear(nodeAnimation.rotate, _timeB);
+                joint.transform.translate               = CalculateValue::Linear(nodeAnimation.translate, _timeB);
+            }
+            continue;
+        }
+
+        const ModelAnimationNode& nodeA = itA->second;
+        const ModelAnimationNode& nodeB = itB->second;
+
+        joint.transform.scale     = Lerp(CalculateValue::Linear(nodeA.scale, _timeA), CalculateValue::Linear(nodeB.scale, _timeB), blendWeight);
+        joint.transform.rotate    = Slerp(CalculateValue::Linear(nodeA.rotate, _timeA), CalculateValue::Linear(nodeB.rotate, _timeB), blendWeight);
+        joint.transform.translate = Lerp(CalculateValue::Linear(nodeA.translate, _timeA), CalculateValue::Linear(nodeB.translate, _timeB), blendWeight);
+    }
+}
+
 SkinningAnimationSystem::SkinningAnimationSystem()
     : ISystem(SystemType::Effect) {}
 SkinningAnimationSystem::~SkinningAnimationSystem() {}
@@ -46,12 +80,16 @@ void SkinningAnimationSystem::Update() {
     }
     ISystem::eraseDeadEntity();
 
+    usingCS_ = false;
+
     StartCS();
     for (auto& id : entityIDs_) {
         GameEntity* entity = getEntity(id);
         UpdateEntity(entity);
     }
-    ExecuteCS();
+    if (usingCS_) {
+        ExecuteCS();
+    }
 }
 
 void SkinningAnimationSystem::Finalize() {
@@ -72,31 +110,35 @@ void SkinningAnimationSystem::UpdateEntity(GameEntity* _entity) {
     const float deltaTime = getMainDeltaTime();
     for (int32_t i = 0; i < compSize; ++i) {
         auto* animationComponent = getComponent<SkinningAnimationComponent>(_entity, i);
+
         if (!animationComponent) {
             continue;
         }
-        if (!animationComponent->isPlay()) {
+
+        int32_t currentAnimationIndex = animationComponent->getCurrentAnimationIndex();
+        if (!animationComponent->isPlay(currentAnimationIndex)) {
             continue;
         }
         if (!animationComponent->getAnimationData()) {
             continue;
         }
 
-        animationComponent->setIsEnd(false);
+        animationComponent->setIsEnd(currentAnimationIndex, false);
 
         // アニメーションの更新
-        float currentTime = animationComponent->getCurrentTime();
-        currentTime += deltaTime * animationComponent->getPlaybackSpeed();
-        if (currentTime >= animationComponent->getDuration()) {
-            if (animationComponent->isLoop()) {
-                currentTime = std::fmod(currentTime, animationComponent->getDuration());
+        float currentTime = animationComponent->getCurrentTime(currentAnimationIndex);
+        currentTime += deltaTime * animationComponent->getPlaybackSpeed(currentAnimationIndex);
+        float duration = animationComponent->getDuration(currentAnimationIndex);
+        if (currentTime >= duration) {
+            if (animationComponent->isLoop(currentAnimationIndex)) {
+                currentTime = std::fmod(currentTime, duration);
             } else {
-                currentTime = animationComponent->getDuration();
-                animationComponent->setIsEnd(true);
+                currentTime = duration;
+                animationComponent->setIsEnd(currentAnimationIndex, true);
             }
         }
 
-        animationComponent->setCurrentTime(currentTime);
+        animationComponent->setCurrentTime(currentAnimationIndex, currentTime);
 
         // アニメーションの状態を更新
         auto* modelRenderer = getComponent<ModelMeshRenderer>(_entity, animationComponent->getBindModeMeshRendererIndex());
@@ -107,10 +149,52 @@ void SkinningAnimationSystem::UpdateEntity(GameEntity* _entity) {
 
         auto& clusterDataMap = ModelManager::getInstance()->getModelMeshData(modelRenderer->getDirectory(), modelRenderer->getFileName())->skinClusterDataMap;
         auto& skeleton       = animationComponent->getSkeletonRef();
-        ApplyAnimation(
-            skeleton,
-            animationComponent->getAnimationData().get(),
-            currentTime);
+
+        // アニメーションが遷移しているかどうか
+        if (animationComponent->isTransitioning()) {
+            // 遷移時間の 更新
+            int32_t nextAnimationIndex = animationComponent->getNextAnimationIndex();
+            if (nextAnimationIndex < 0 || nextAnimationIndex >= static_cast<int32_t>(animationComponent->getAnimationTable().size())) {
+                LOG_ERROR("Invalid next animation index: {}", nextAnimationIndex);
+                continue;
+            }
+
+            float transitionCurrentTime = animationComponent->getBlendCurrentTime();
+            transitionCurrentTime += deltaTime;
+
+            if (transitionCurrentTime >= animationComponent->getBlendTime()) {
+                transitionCurrentTime = animationComponent->getBlendTime();
+                animationComponent->endTransition(); // トランジションを終了
+            }
+            animationComponent->setBlendCurrentTime(transitionCurrentTime);
+
+            // 次のアニメーションの更新
+            float nextAnimationCurrentTime = animationComponent->getCurrentTime(nextAnimationIndex);
+            nextAnimationCurrentTime += deltaTime * animationComponent->getPlaybackSpeed(nextAnimationIndex);
+            float nextDuration = animationComponent->getDuration(nextAnimationIndex);
+            if (nextAnimationCurrentTime >= nextDuration) {
+                if (animationComponent->isLoop(currentAnimationIndex)) {
+                    nextAnimationCurrentTime = std::fmod(nextAnimationCurrentTime, nextDuration);
+                } else {
+                    nextAnimationCurrentTime = nextDuration;
+                    animationComponent->setIsEnd(nextAnimationIndex, true);
+                }
+            }
+            animationComponent->setCurrentTime(nextAnimationIndex, nextAnimationCurrentTime);
+
+            ApplyBlendedAnimation(
+                skeleton,
+                animationComponent->getAnimationData(currentAnimationIndex).get(),
+                currentTime,
+                animationComponent->getAnimationData(nextAnimationIndex).get(),
+                nextAnimationCurrentTime,
+                transitionCurrentTime / animationComponent->getBlendTime());
+        } else {
+            ApplyAnimation(
+                skeleton,
+                animationComponent->getAnimationData(currentAnimationIndex).get(),
+                currentTime);
+        }
         skeleton.Update();
 
         auto& commandList = dxCommand_->getCommandList();
@@ -147,6 +231,10 @@ void SkinningAnimationSystem::UpdateEntity(GameEntity* _entity) {
                 vertexInfluenceBufferIndex_,
                 clusterData.vertexInfluencesBuffer_.getSrv()->getGpuHandle());
 
+            clusterData.skinningInfoBuffer_->vertexSize =
+                mesh.getVBView().SizeInBytes / mesh.getVBView().StrideInBytes;
+            clusterData.skinningInfoBuffer_.ConvertToBuffer();
+
             commandList->SetComputeRootConstantBufferView(
                 gSkinningInformationBufferIndex_,
                 clusterData.skinningInfoBuffer_.getResource().getResource()->GetGPUVirtualAddress());
@@ -155,14 +243,17 @@ void SkinningAnimationSystem::UpdateEntity(GameEntity* _entity) {
                 skinnedVertexBuffer.buffer.getResource(),
                 D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
+            UINT dispatchCount = (clusterData.skinningInfoBuffer_->vertexSize + 1023) / 1024;
             commandList->Dispatch(
-                UINT(mesh.getVertexSize() + 1023) / 1024, // 1ワークグループあたり1024頂点を処理
+                dispatchCount, // 1ワークグループあたり1024頂点を処理
                 1,
                 1); // X方向に分割、YとZは1
 
             dxCommand_->ResourceBarrier(
                 skinnedVertexBuffer.buffer.getResource(),
                 D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+
+            usingCS_ = true;
         }
     }
 }

@@ -12,10 +12,14 @@ if (-not $TargetFolder) {
 New-Item -ItemType Directory -Path $TargetFolder -Force | Out-Null
 
 # 1. premake5.lua 実行
-& premake5 vs2022 --file=project/config/premake5.lua
+# & premake5 vs2022 --file=project/config/premake5.lua
 
 # 2. msbuildでC++ビルド
-msbuild project/OriGine.sln /p:Configuration=Release
+$msbuildProcess = Start-Process -FilePath "msbuild.exe" -ArgumentList "project/OriGine.sln /p:Configuration=Release" -NoNewWindow -Wait -PassThru
+if ($msbuildProcess.ExitCode -ne 0) {
+    Write-Warning "msbuildが失敗しました。終了コード: $($msbuildProcess.ExitCode)"
+    exit 1
+}
 
 # 3. .exeと.libをコピー
 $buildOutput = "generated/output/Release"

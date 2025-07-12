@@ -104,6 +104,10 @@ void SkeletonRenderSystem::CreateRenderMesh() {
         for (auto& skinningAnimationComp : *skinningAnimationComps) {
             const auto& skeleton = skinningAnimationComp.getSkeleton();
 
+            if (skeleton.joints.empty()) {
+                continue;
+            }
+
             CreateMeshForChildren(
                 jointMeshGroup.get(),
                 boneMeshGroup.get(),
@@ -211,6 +215,8 @@ void SkeletonRenderSystem::CreatePso() {
     lineShaderInfo.pushBackInputElementDesc(inputElementDesc);
 
 #pragma endregion
+
+    lineShaderInfo.customDepthStencilDesc().DepthEnable = false;
 
     // topology
     lineShaderInfo.topologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;

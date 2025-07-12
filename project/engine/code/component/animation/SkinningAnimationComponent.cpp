@@ -25,52 +25,103 @@
 void SkinningAnimationComponent::Initialize(GameEntity* _entity) {
     entity_ = _entity;
 
-    if (!directory_.empty() && !fileName_.empty()) {
-        Load(directory_, fileName_);
+    int32_t animationIndex = 0;
+    for (auto& animation : animationTable_) {
+
+        animation.currentTime_            = 0.0f;
+        animation.animationState_.isEnd_  = false;
+
+        animation.animationData_ = AnimationManager::getInstance()->Load(
+            kApplicationResourceDirectory + "/" + animation.directory_, animation.fileName_);
+
+        this->animationIndexBinder_[animation.fileName_] = animationIndex;
+        ++animationIndex;
     }
-    if (animationData_ != nullptr && animationState_.isPlay_) {
-        Play();
+
+    if (animationTable_[currentAnimationIndex_].animationState_.isPlay_) {
+        Play(currentAnimationIndex_);
     }
-    currentTime_ = 0;
 }
 
 bool SkinningAnimationComponent::Edit() {
     bool isChanged = false;
 
 #ifdef _DEBUG
-    ImGui::Text("Animation File: %s", fileName_.c_str());
-    if (ImGui::Button("Load")) {
-        std::string directory;
-        std::string fileName;
-        if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"gltf", "anm"})) {
-            auto setPath = std::make_unique<SetterCommand<std::string>>(&directory_, kApplicationResourceDirectory + "/" + directory);
-            auto setFile = std::make_unique<SetterCommand<std::string>>(&fileName_, fileName);
-            CommandCombo commandCombo;
-            commandCombo.addCommand(std::move(setPath));
-            commandCombo.addCommand(std::move(setFile));
-            commandCombo.setFuncOnAfterCommand([this]() {
-                animationData_ = AnimationManager::getInstance()->Load(directory_, fileName_);
-                duration_      = animationData_->duration;
-            },
-                true);
-            EditorController::getInstance()->pushCommand(std::make_unique<CommandCombo>(commandCombo));
-            isChanged = true;
-        }
-    }
-
-    if (animationData_) {
-        isChanged |= DragGuiCommand("Duration", duration_, 0.01f, 0.0f, 100.0f);
-
-        isChanged |= CheckBoxCommand("Play", animationState_.isPlay_);
-        isChanged |= CheckBoxCommand("Loop", animationState_.isLoop_);
-        isChanged |= DragGuiCommand("Playback Speed", playbackSpeed_, 0.01f, 0.0f);
-    }
-
     int32_t entityModelMeshRendererSize = ECSManager::getInstance()->getComponentArray<ModelMeshRenderer>()->getComponentSize(entity_);
     InputGuiCommand<int32_t>("Bind Mode MeshRenderer Index", bindModeMeshRendererIndex_, "%d",
         [entityModelMeshRendererSize](int32_t* _newVal) {
             *_newVal = std::clamp(*_newVal, 0, entityModelMeshRendererSize - 1);
         });
+
+    ImGui::SeparatorText("Animations");
+    if (ImGui::Button("+ add")) {
+        std::string directory;
+        std::string fileName;
+        if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"gltf", "anm"})) {
+            // 既に同じアニメーションが存在する場合は何もしない
+            auto itr = animationIndexBinder_.find(fileName);
+            if (itr == animationIndexBinder_.end()) {
+                // 新しいアニメーションを追加
+                auto newAnimation       = AnimationCombo{};
+                newAnimation.directory_ = directory;
+                newAnimation.fileName_  = fileName;
+
+                newAnimation.animationData_ = AnimationManager::getInstance()->Load(kApplicationResourceDirectory + "/" + directory, fileName);
+
+                newAnimation.duration_ = newAnimation.animationData_->duration;
+
+                auto commandCombo = std::make_unique<CommandCombo>();
+                commandCombo->addCommand(std::make_shared<AddElementCommand<std::vector<AnimationCombo>>>(&animationTable_, newAnimation));
+                commandCombo->setFuncOnAfterCommand([this, fileName]() {
+                    animationIndexBinder_[fileName] = static_cast<int32_t>(animationTable_.size()) - 1;
+                },
+                    true);
+                EditorController::getInstance()->pushCommand(std::move(commandCombo));
+                isChanged = true;
+            } else {
+                LOG_ERROR("Animation with name '{}' already exists.", fileName);
+            }
+        }
+    }
+    ImGui::Spacing();
+
+    std::string nodeLabel = "";
+    int32_t index         = 0;
+    for (auto& animation : animationTable_) {
+        nodeLabel = animation.fileName_;
+        if (ImGui::TreeNode(nodeLabel.c_str())) {
+            ImGui::Text("Animation File: %s", animation.fileName_.c_str());
+            if (ImGui::Button("Load")) {
+                std::string directory;
+                std::string fileName;
+                if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"gltf", "anm"})) {
+                    auto setPath = std::make_unique<SetterCommand<std::string>>(&animation.directory_, kApplicationResourceDirectory + "/" + directory);
+                    auto setFile = std::make_unique<SetterCommand<std::string>>(&animation.fileName_, fileName);
+                    CommandCombo commandCombo;
+                    commandCombo.addCommand(std::move(setPath));
+                    commandCombo.addCommand(std::move(setFile));
+                    commandCombo.setFuncOnAfterCommand([this, index]() {
+                        auto& animation          = animationTable_[index];
+                        animation.animationData_ = AnimationManager::getInstance()->Load(animation.directory_, animation.fileName_);
+                        animation.duration_      = animation.animationData_->duration;
+                    },
+                        true);
+                    EditorController::getInstance()->pushCommand(std::make_unique<CommandCombo>(commandCombo));
+                    isChanged = true;
+                }
+            }
+
+            if (animation.animationData_) {
+                isChanged |= DragGuiCommand("Duration", animation.duration_, 0.01f, 0.0f, 100.0f);
+
+                isChanged |= CheckBoxCommand("Play", animation.animationState_.isPlay_);
+                isChanged |= CheckBoxCommand("Loop", animation.animationState_.isLoop_);
+                isChanged |= DragGuiCommand("Playback Speed", animation.playbackSpeed_, 0.01f, 0.0f);
+            }
+
+            ImGui::TreePop();
+        }
+    }
 
 #endif // _DEBUG
 
@@ -78,38 +129,123 @@ bool SkinningAnimationComponent::Edit() {
 }
 
 void SkinningAnimationComponent::Finalize() {
-    animationData_.reset();
     DeleteSkinnedVertex();
+
+    animationIndexBinder_.clear();
+    animationTable_.clear();
+
+    currentAnimationIndex_ = 0;
+    blendingAnimationData_ = std::nullopt;
+
+    bindModeMeshRendererIndex_ = -1;
+
     entity_ = nullptr;
 }
 
-void SkinningAnimationComponent::Load(const std::string& directory, const std::string& fileName) {
-    directory_     = directory;
-    fileName_      = fileName;
-    animationData_ = AnimationManager::getInstance()->Load(directory_, fileName_);
+void SkinningAnimationComponent::addLoad(const std::string& directory, const std::string& fileName) {
+    if (directory.empty() || fileName.empty()) {
+        LOG_ERROR("Directory or fileName is empty.");
+        return;
+    }
+    // 既に同じアニメーションが存在する場合は何もしない
+    auto itr = animationIndexBinder_.find(fileName);
+    if (itr != animationIndexBinder_.end()) {
+        LOG_ERROR("Animation with name '{}' already exists.", fileName);
+        return;
+    }
+    // 新しいアニメーションを追加
+    auto& newAnimation      = animationTable_.emplace_back(AnimationCombo{});
+    newAnimation.directory_ = directory;
+    newAnimation.fileName_  = fileName;
+
+    newAnimation.animationData_ = AnimationManager::getInstance()->Load(kApplicationResourceDirectory + "/" + directory, fileName);
+
+    animationIndexBinder_[fileName] = static_cast<int32_t>(animationTable_.size()) - 1;
 }
 
 void SkinningAnimationComponent::Play() {
-    if (animationData_) {
-        animationState_.isPlay_ = true;
-        animationState_.isEnd_  = false;
-        currentTime_            = 0.0f;
+    auto& animation = animationTable_[currentAnimationIndex_];
 
-        CreateSkinnedVertex();
+    if (!animation.animationData_) {
+        animation.animationData_ = AnimationManager::getInstance()->Load(animation.directory_, animation.fileName_);
     }
+    animation.animationState_.isPlay_ = true;
+    animation.animationState_.isEnd_  = false;
+    animation.currentTime_            = 0.0f;
+
+    CreateSkinnedVertex();
+}
+
+void SkinningAnimationComponent::Play(int32_t index) {
+    if (index < 0 || index >= static_cast<int32_t>(animationTable_.size())) {
+        LOG_ERROR("Invalid animation index: {}", index);
+        return;
+    }
+    auto& animation = animationTable_[index];
+    if (!animation.animationData_) {
+        animation.animationData_ = AnimationManager::getInstance()->Load(animation.directory_, animation.fileName_);
+    }
+    animation.animationState_.isPlay_ = true;
+    animation.animationState_.isEnd_  = false;
+    animation.currentTime_            = 0.0f;
+
+    CreateSkinnedVertex();
+}
+
+void SkinningAnimationComponent::Play(const std::string& name) {
+    int32_t index = getAnimationIndex(name);
+    if (index < 0 || index >= static_cast<int32_t>(animationTable_.size())) {
+        LOG_ERROR("Invalid animation name: {}", name);
+        return;
+    }
+    Play(index);
+}
+
+void SkinningAnimationComponent::PlayNext(int32_t index, float _blendTime) {
+    if (index < 0 || index >= static_cast<int32_t>(animationTable_.size())) {
+        LOG_ERROR("Invalid animation index: {}", index);
+        return;
+    }
+
+    blendingAnimationData_ = AnimationBlendData{index, _blendTime, 0.0f};
+
+    auto& nextAnimation = animationTable_[blendingAnimationData_.value().targetAnimationIndex_];
+    if (!nextAnimation.animationData_) {
+        nextAnimation.animationData_ = AnimationManager::getInstance()->Load(nextAnimation.directory_, nextAnimation.fileName_);
+    }
+    nextAnimation.animationState_.isPlay_ = true;
+    nextAnimation.animationState_.isEnd_  = false;
+    nextAnimation.currentTime_            = 0.0f;
+}
+
+void SkinningAnimationComponent::PlayNext(const std::string& name, float _blendTime) {
+    int32_t index = getAnimationIndex(name);
+    if (index < 0 || index >= static_cast<int32_t>(animationTable_.size())) {
+        LOG_ERROR("Invalid animation name: {}", name);
+        return;
+    }
+    PlayNext(index, _blendTime);
 }
 
 void SkinningAnimationComponent::Stop() {
-    if (animationData_) {
-        animationState_.isPlay_ = false;
-        animationState_.isEnd_  = true;
-    }
+    auto& animation = animationTable_[currentAnimationIndex_];
+
+    animation.animationState_.isPlay_ = false;
+    animation.currentTime_            = 0.0f;
 }
 
 void SkinningAnimationComponent::CreateSkinnedVertex() {
+    DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>* uavHeap = Engine::getInstance()->getSrvHeap(); // cbv_srv_uav heap
+    auto& device                                                 = Engine::getInstance()->getDxDevice()->getDevice();
+
     ModelMeshRenderer* meshRenderer = getComponent<ModelMeshRenderer>(entity_, bindModeMeshRendererIndex_);
     if (!meshRenderer) {
         LOG_ERROR("MeshRenderer not found for SkinningAnimationComponent");
+        return;
+    }
+    ModelMeshData* modelMeshData = ModelManager::getInstance()->getModelMeshData(meshRenderer->getDirectory(), meshRenderer->getFileName());
+    if (!modelMeshData) {
+        LOG_ERROR("ModelMeshData not found for directory: {}, fileName: {}", meshRenderer->getDirectory(), meshRenderer->getFileName());
         return;
     }
     auto* meshGroup = meshRenderer->getMeshGroup().get();
@@ -122,18 +258,11 @@ void SkinningAnimationComponent::CreateSkinnedVertex() {
         return;
     }
 
-    DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>* uavHeap = Engine::getInstance()->getSrvHeap(); // cbv_srv_uav heap
-    auto& device                                                 = Engine::getInstance()->getDxDevice()->getDevice();
-    uint32_t meshGroupSize                                       = static_cast<uint32_t>(meshGroup->size());
-
-    ModelMeshData* modelMeshData = ModelManager::getInstance()->getModelMeshData(meshRenderer->getDirectory(), meshRenderer->getFileName());
-    if (!modelMeshData) {
-        LOG_ERROR("ModelMeshData not found for directory: {}, fileName: {}", meshRenderer->getDirectory(), meshRenderer->getFileName());
-        return;
-    }
-
-    // バッファ数が一致しない場合はリサイズ
+    uint32_t meshGroupSize = static_cast<uint32_t>(meshGroup->size());
+    // スキニングされた頂点バッファのサイズがメッシュグループのサイズと一致しない場合はリサイズ
     if (skinnedVertexBuffer_.size() != meshGroupSize) {
+
+        // バッファ数が一致しない場合はリサイズ
 
         if (skinnedVertexBuffer_.size() > meshGroupSize) {
             // 縮小時、削除されるバッファのFinalizeを呼ぶ
@@ -205,27 +334,37 @@ void SkinningAnimationComponent::DeleteSkinnedVertex() {
 }
 
 void to_json(nlohmann::json& j, const SkinningAnimationComponent& r) {
-    j["directory"] = r.directory_;
-    j["fileName"]  = r.fileName_;
-
     j["bindModeMeshRendererIndex"] = r.bindModeMeshRendererIndex_;
 
-    j["duration"] = r.duration_;
-
-    j["playbackSpeed"] = r.playbackSpeed_;
-    j["isPlay"]        = r.animationState_.isPlay_;
-    j["isLoop"]        = r.animationState_.isLoop_;
+    j["Animations"] = nlohmann::json::array();
+    for (const auto& animation : r.animationTable_) {
+        nlohmann::json animationJson;
+        animationJson["directory"]     = animation.directory_;
+        animationJson["fileName"]      = animation.fileName_;
+        animationJson["duration"]      = animation.duration_;
+        animationJson["playbackSpeed"] = animation.playbackSpeed_;
+        animationJson["isPlay"]        = animation.animationState_.isPlay_;
+        animationJson["isLoop"]        = animation.animationState_.isLoop_;
+        j["Animations"].push_back(animationJson);
+    }
 }
 
 void from_json(const nlohmann::json& j, SkinningAnimationComponent& r) {
-    j.at("directory").get_to(r.directory_);
-    j.at("fileName").get_to(r.fileName_);
-
     j.at("bindModeMeshRendererIndex").get_to(r.bindModeMeshRendererIndex_);
 
-    j.at("duration").get_to(r.duration_);
-
-    j.at("playbackSpeed").get_to(r.playbackSpeed_);
-    j.at("isPlay").get_to(r.animationState_.isPlay_);
-    j.at("isLoop").get_to(r.animationState_.isLoop_);
+    if (!r.animationTable_.empty()) {
+        r.animationTable_.clear();
+    }
+    if (j.contains("Animations")) {
+        for (const auto& animationJson : j.at("Animations")) {
+            SkinningAnimationComponent::AnimationCombo animation;
+            animation.directory_              = animationJson.at("directory").get<std::string>();
+            animation.fileName_               = animationJson.at("fileName").get<std::string>();
+            animation.duration_               = animationJson.at("duration").get<float>();
+            animation.playbackSpeed_          = animationJson.at("playbackSpeed").get<float>();
+            animation.animationState_.isPlay_ = animationJson.at("isPlay").get<bool>();
+            animation.animationState_.isLoop_ = animationJson.at("isLoop").get<bool>();
+            r.animationTable_.emplace_back(animation);
+        }
+    }
 }

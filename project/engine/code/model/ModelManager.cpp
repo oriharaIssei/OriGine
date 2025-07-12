@@ -122,7 +122,8 @@ static Skeleton CreateSkeleton(const ModelNode& rootNode) {
     return skeleton;
 }
 
-static SkinCluster CreateSkinCluster(
+static void CreateSkinCluster(
+    SkinCluster& _cluster,
     const Microsoft::WRL::ComPtr<ID3D12Device>& _device,
     aiMesh* _loadedMesh,
     ModelMeshData* _meshData) {
@@ -157,20 +158,19 @@ static SkinCluster CreateSkinCluster(
     }
 
     // SkinClusterData 作成
-    SkinCluster cluster;
     const Skeleton& skeleton = _meshData->skeleton.value();
 
     // skeletonMatrixPalette Buffer 作成
-    cluster.skeletonMatrixPaletteBuffer_.CreateBuffer(_device, uint32_t(skeleton.joints.size()));
-    cluster.skeletonMatrixPaletteBuffer_.openData_.resize(skeleton.joints.size());
+    _cluster.skeletonMatrixPaletteBuffer_.CreateBuffer(_device, uint32_t(skeleton.joints.size()));
+    _cluster.skeletonMatrixPaletteBuffer_.openData_.resize(skeleton.joints.size());
 
     // influence Buffer 作成
-    cluster.vertexInfluencesBuffer_.CreateBuffer(_device, _loadedMesh->mNumVertices);
-    cluster.vertexInfluencesBuffer_.openData_.resize(_loadedMesh->mNumVertices);
+    _cluster.vertexInfluencesBuffer_.CreateBuffer(_device, _loadedMesh->mNumVertices);
+    _cluster.vertexInfluencesBuffer_.openData_.resize(_loadedMesh->mNumVertices);
 
     // inverseBindPoseMatrices を 初期化(単位行列で埋めとく)
-    cluster.inverseBindPoseMatrices.resize(skeleton.joints.size());
-    std::generate(cluster.inverseBindPoseMatrices.begin(), cluster.inverseBindPoseMatrices.end(), MakeMatrix::Identity);
+    _cluster.inverseBindPoseMatrices.resize(skeleton.joints.size());
+    std::generate(_cluster.inverseBindPoseMatrices.begin(), _cluster.inverseBindPoseMatrices.end(), MakeMatrix::Identity);
 
     // ModelData を 解析, Influence を 設定
     for (const auto& jointWeight : _meshData->jointWeightData) {
@@ -183,9 +183,9 @@ static SkinCluster CreateSkinCluster(
         }
 
         // Jointのインデックスに対応する場所に inverseBindePoseMatrix を代入
-        cluster.inverseBindPoseMatrices[jointIndexItr->second] = jointWeight.second.inverseBindPoseMat;
+        _cluster.inverseBindPoseMatrices[jointIndexItr->second] = jointWeight.second.inverseBindPoseMat;
         for (const auto& vertexWeight : jointWeight.second.vertexWeights) {
-            auto& currentInfluence = cluster.vertexInfluencesBuffer_.openData_[vertexWeight.vertexIndex];
+            auto& currentInfluence = _cluster.vertexInfluencesBuffer_.openData_[vertexWeight.vertexIndex];
             for (uint32_t i = 0; i < kNumMaxInfluence; ++i) {
                 // 空いているウェイトの場所に設定 (weight == 0 なら設定されていないとみなす)
                 if (currentInfluence.weights[i] == 0.f) {
@@ -197,14 +197,12 @@ static SkinCluster CreateSkinCluster(
         }
     }
 
-    cluster.skinningInfoBuffer_.CreateBuffer(_device);
-    cluster.skinningInfoBuffer_.openData_.vertexSize = _loadedMesh->mNumVertices;
+    _cluster.skinningInfoBuffer_.CreateBuffer(_device);
+    _cluster.skinningInfoBuffer_.openData_.vertexSize = _loadedMesh->mNumVertices;
 
-    cluster.skeletonMatrixPaletteBuffer_.ConvertToBuffer();
-    cluster.vertexInfluencesBuffer_.ConvertToBuffer();
-    cluster.skinningInfoBuffer_.ConvertToBuffer();
-
-    return cluster;
+    _cluster.skeletonMatrixPaletteBuffer_.ConvertToBuffer();
+    _cluster.vertexInfluencesBuffer_.ConvertToBuffer();
+    _cluster.skinningInfoBuffer_.ConvertToBuffer();
 }
 
 static void LoadModelFile(ModelMeshData* data, const std::string& directoryPath, const std::string& filename) {
@@ -228,6 +226,7 @@ static void LoadModelFile(ModelMeshData* data, const std::string& directoryPath,
         aiMesh* loadedMesh = scene->mMeshes[meshIndex];
 
         auto& mesh = data->meshGroup[loadedMesh->mName.C_Str()] = TextureMesh();
+        mesh.setName(loadedMesh->mName.C_Str());
 
         // 頂点データとインデックスデータの処理
         for (uint32_t faceIndex = 0; faceIndex < loadedMesh->mNumFaces; ++faceIndex) {
@@ -287,7 +286,7 @@ static void LoadModelFile(ModelMeshData* data, const std::string& directoryPath,
         // メッシュデータを処理
         ProcessMeshData(mesh, vertices, indices);
 
-        data->skinClusterDataMap[mesh.getName()] = CreateSkinCluster(device, loadedMesh, data);
+        CreateSkinCluster(data->skinClusterDataMap[mesh.getName()], device, loadedMesh, data);
 
         // リセット
         vertices.clear();
