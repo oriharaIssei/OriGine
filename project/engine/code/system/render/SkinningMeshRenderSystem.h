@@ -35,6 +35,7 @@ public:
     void UpdateEntity(GameEntity* _entity) override;
 
     void RenderModelMesh(
+        Transform* _entityTransform,
         Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList,
         SkinningAnimationComponent* _skinningAnimationComponent,
         ModelMeshRenderer* _renderer);

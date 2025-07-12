@@ -30,6 +30,18 @@ bool Rigidbody::Edit() {
     return isChange;
 }
 
+void Rigidbody::Debug() {
+#ifdef _DEBUG
+    ImGui::DragFloat3("acceleration", acceleration_.v, 0.1f, 0, 0, "%.3f", ImGuiSliderFlags_ReadOnly);
+    ImGui::Text("acceleration Speed : %.3f", acceleration_.length());
+    ImGui::DragFloat3("velocity", velocity_.v, 0.1f, 0, 0, "%.3f", ImGuiSliderFlags_ReadOnly);
+    ImGui::Text("velocity Speed : %.3f", velocity_.length());
+    ImGui::Separator();
+    ImGui::DragFloat("Mass", &mass_, 0.1f, 0.f, 0.f, "%.3f", ImGuiSliderFlags_ReadOnly);
+    ImGui::Checkbox("Use Gravity", &useGravity_);
+#endif // _DEBUG
+}
+
 void Rigidbody::Finalize() {}
 
 void to_json(nlohmann::json& j, const Rigidbody& r) {

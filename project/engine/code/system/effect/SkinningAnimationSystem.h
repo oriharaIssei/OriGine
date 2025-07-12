@@ -30,6 +30,8 @@ private:
     std::unique_ptr<DxCommand> dxCommand_ = nullptr;
     PipelineStateObj* pso_                = nullptr;
 
+    bool usingCS_ = false;
+
     // rootParameter indices
     const int32_t outputVertexBufferIndex_         = 0;
     const int32_t inputVertexBufferIndex_          = 1;

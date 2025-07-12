@@ -17,7 +17,8 @@ public:
 
     void Initialize(GameEntity* _entity) override;
 
-    virtual bool Edit();
+    bool Edit();
+    void Debug();
 
     virtual void Finalize();
 

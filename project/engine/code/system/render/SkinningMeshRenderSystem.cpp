@@ -300,49 +300,40 @@ void SkinningMeshRenderSystem::StartRender() {
 /// </summary>
 /// <param name="_entity">描画対象オブジェクト</param>
 void SkinningMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
-    auto& commandList      = dxCommand_->getCommandList();
-    int32_t componentIndex = 0;
+    auto& commandList = dxCommand_->getCommandList();
 
     Transform* entityTransform_ = getComponent<Transform>(_entity);
-    // model
-    while (true) {
-        ModelMeshRenderer* renderer                            = getComponent<ModelMeshRenderer>(_entity, componentIndex);
-        SkinningAnimationComponent* skinningAnimationComponent = getComponent<SkinningAnimationComponent>(_entity, componentIndex);
 
+    int32_t componentSize =
+        (int32_t)ECSManager::getInstance()->getComponents<SkinningAnimationComponent>(_entity)->size();
+    for (int32_t i = 0; i < componentSize; ++i) {
+        SkinningAnimationComponent* skinningAnimationComponent = getComponent<SkinningAnimationComponent>(_entity, i);
+        if (!skinningAnimationComponent) {
+            continue;
+        }
+        ModelMeshRenderer* renderer = getComponent<ModelMeshRenderer>(_entity, skinningAnimationComponent->getBindModeMeshRendererIndex());
         // nullptr なら これ以上存在しないとして終了
         if (!renderer) {
-            break;
+            continue;
         }
         // 描画フラグが立っていないならスキップ
         if (!renderer->isRender()) {
-            ++componentIndex;
             continue;
         }
-        ///==============================
-        /// Transformの更新
-        ///==============================
-        {
-            auto& transform = renderer->getTransformBuff();
 
-            if (transform->parent == nullptr) {
-                transform->parent = entityTransform_;
-            }
-
-            transform.openData_.Update();
-            transform.ConvertToBuffer();
-        }
-        RenderModelMesh(commandList, skinningAnimationComponent, renderer);
-
-        componentIndex++;
+        RenderModelMesh(entityTransform_, commandList, skinningAnimationComponent, renderer);
     }
-
-    componentIndex = 0;
 }
 
 void SkinningMeshRenderSystem::RenderModelMesh(
+    Transform* _entityTransform,
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList,
     SkinningAnimationComponent* _skinningAnimationComponent,
     ModelMeshRenderer* _renderer) {
+
+    if (_skinningAnimationComponent->getSkinnedVertexBuffers().empty()) {
+        return;
+    }
 
     // BlendMode を 適応
     BlendMode _rendererBlend = _renderer->getCurrentBlend();
@@ -357,18 +348,24 @@ void SkinningMeshRenderSystem::RenderModelMesh(
 
     auto& meshGroup = _renderer->getMeshGroup();
     for (auto& mesh : *meshGroup) {
+
+        // ============================= Viewのセット ============================= //
+        _commandList->IASetVertexBuffers(0, 1, &_skinningAnimationComponent->getSkinnedVertexBuffer(index).vbView);
+        _commandList->IASetIndexBuffer(&mesh.getIBView());
         // ============================= テクスチャの設定 ============================= //
 
         _commandList->SetGraphicsRootDescriptorTable(
             textureBufferIndex_,
             TextureManager::getDescriptorGpuHandle(_renderer->getTextureNumber(index)));
 
-        // ============================= Viewのセット ============================= //
-        _commandList->IASetVertexBuffers(0, 1, &_skinningAnimationComponent->getSkinnedVertexBuffer(index).vbView);
-        _commandList->IASetIndexBuffer(&mesh.getIBView());
-
         // ============================= Transformのセット ============================= //
-        const IConstantBuffer<Transform>& meshTransform = _renderer->getTransformBuff(index);
+        IConstantBuffer<Transform>& meshTransform = _renderer->getTransformBuff(index);
+
+        if (meshTransform->parent == nullptr) {
+            meshTransform->parent = _entityTransform;
+        }
+
+        meshTransform->Update();
         meshTransform.ConvertToBuffer();
         meshTransform.SetForRootParameter(_commandList, transformBufferIndex_);
 
