@@ -327,6 +327,11 @@ void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
             ++componentIndex;
             continue;
         }
+        if (!renderer->getMeshGroup() || renderer->getMeshGroup()->empty()) {
+            ++componentIndex;
+            continue;
+        }
+
         ///==============================
         /// Transformの更新
         ///==============================

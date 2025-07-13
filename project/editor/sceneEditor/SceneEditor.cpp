@@ -131,6 +131,7 @@ void LoadMenuItem::DrawGui() {
         SceneEditorWindow* sceneEditorWindow = EditorController::getInstance()->getWindow<SceneEditorWindow>();
         SceneSerializer serializer           = SceneSerializer(sceneEditorWindow->getCurrentScene());
         serializer.Serialize();
+        sceneEditorWindow->getCurrentScene()->Finalize(); // 現在のシーンを終了処理
 
         std::unique_ptr<Scene> scene = std::make_unique<Scene>(filename);
         scene->Initialize();
@@ -729,11 +730,16 @@ void DevelopControlArea::ControlRegion::DrawGui() {
         }
     }
 
+    ImGui::SameLine();
+
     if (ImGui::Button("Run")) {
+        auto* currentScene  = parentArea_->getParentWindow()->getCurrentScene();
         std::string exePath = std::filesystem::current_path().string() + parentArea_->exePath_;
         LOG_DEBUG("ControlRegion::DrawGui: Executing application at path: {}", exePath);
+
+        std::string runCommand = exePath + " " + currentScene->getName(); // 実行ファイルパスと 実行する scene を送る
         // アプリケーションの実行
-        int32_t result = std::system(exePath.c_str());
+        int32_t result = std::system(runCommand.c_str());
         if (result != 0) {
             LOG_ERROR("ControlRegion::DrawGui: Failed to run application. Error code: {}", result);
         } else {

@@ -34,16 +34,6 @@
 #include "util/timeline/Timeline.h"
 #endif // _DEBUG
 
-static std::list<std::pair<std::string, std::string>> SearchTextureFile() {
-    std::list<std::pair<std::string, std::string>> textureFiles = MyFileSystem::searchFile(kEngineResourceDirectory, "png", false);
-    std::list<std::pair<std::string, std::string>> appPngFiles  = MyFileSystem::searchFile(kApplicationResourceDirectory, "png", false);
-
-    textureFiles.insert(textureFiles.end(), appPngFiles.begin(), appPngFiles.end());
-
-    return textureFiles;
-}
-static std::list<std::pair<std::string, std::string>> textureFiles = SearchTextureFile();
-
 Emitter::Emitter() : IComponent(), currentCoolTime_(0.f), leftActiveTime_(0.f) {
     isActive_       = false;
     leftActiveTime_ = 0.0f;
@@ -152,22 +142,21 @@ bool Emitter::Edit() {
 
     ImGui::Spacing();
 
-    if (ImGui::Button("reload FileList")) {
-        textureFiles = SearchTextureFile();
-    }
     {
-        ImGui::Text("Texture :");
+        ImGui::Text("Texture : %s", textureFileName_.c_str());
         ImGui::SameLine();
 
-        if (ImGui::BeginCombo("ParticleTexture", textureFileName_.c_str())) {
-            for (auto& fileName : textureFiles) {
-                bool isSelected = (fileName.second == textureFileName_); // 現在選択中かどうか
-                if (ImGui::Selectable(fileName.second.c_str(), isSelected)) {
-                    textureFileName_ = fileName.first + "/" + fileName.second;
-                    textureIndex_    = TextureManager::LoadTexture(textureFileName_);
-                }
+        if (ImGui::Button("Change Texture")) {
+            std::string directory, filename;
+            if (MyFileSystem::selectFileDialog(kApplicationResourceDirectory, directory, filename, {"png"})) {
+                std::string filePath = kApplicationResourceDirectory + "/" + directory + "/" + filename;
+                auto commandCombo = std::make_unique<CommandCombo>();
+                commandCombo->addCommand(
+                    std::make_shared<SetterCommand<std::string>>(&textureFileName_, filePath));
+                commandCombo->addCommand(
+                    std::make_shared<SetterCommand<int32_t>>(&textureIndex_, TextureManager::LoadTexture(filePath)));
+                EditorController::getInstance()->pushCommand(std::move(commandCombo));
             }
-            ImGui::EndCombo();
         }
     }
 

@@ -266,8 +266,8 @@ void SceneSerializer::DeserializeFromJson() {
     int32_t systemCategoryIndex = 0;
     nlohmann::json& systems     = jsonData["Systems"];
     for (auto& systemByType : systems) {
-        for (auto& [systemName, system] : systemByType.items()) {
-            systemRunner->registerSystem(systemName, system["Priority"]);
+        for (auto& system : systemByType) {
+            systemRunner->registerSystem(system["SystemName"], system["Priority"]);
         }
         ++systemCategoryIndex;
     }
@@ -294,7 +294,7 @@ void SceneSerializer::DeserializeFromJson() {
 
         // 所属するシステムを読み込み
         for (auto& systemData : entityData["Systems"]) {
-            int32_t systemCategory = systemData["SystemType"];
+            int32_t systemCategory = systemData["SystemCategory"];
             std::string systemName = systemData["SystemName"];
             ISystem* system        = sceneSystems[systemCategory][systemName];
             if (system) {

@@ -27,6 +27,8 @@ public:
 
     void Update();
 
+    void executeSceneChange();
+
 #ifdef _DEBUG
     // void DebugUpdate();
 #endif
@@ -47,41 +49,18 @@ private:
 
     bool isExitGame_ = false;
 
-#ifdef _DEBUG
-    int32_t playIcon_        = 0;
-    int32_t rePlayIcon_      = 0;
-    int32_t stopIcon_        = 0;
-    int32_t pauseIcon_       = 0;
-    int32_t pauseCircleIcon_ = 0;
-
-    int32_t cameraIcon_ = 0;
-
-    bool isUsingDebugCamera_ = false;
-
-    char newSceneName_[256] = "NewScene";
-
-private:
-    enum class SceneState {
-        Edit,
-        Debug
-    };
-    SceneState currentSceneState_ = SceneState::Edit;
-    SceneState nextSceneState_    = SceneState::Edit;
-
-    enum class DebugState {
-        Play,
-        Pause,
-        Stop,
-        RePlay
-    };
-    DebugState debugState_ = DebugState::Stop;
-
-#endif
-
 public:
     Scene* getCurrentScene() {
         return currentScene_.get();
     }
+
+    const SerializedField<std::string>& getStartupSceneName() const {
+        return startupSceneName_;
+    }
+    SerializedField<std::string>& getStartupSceneNameRef() {
+        return startupSceneName_;
+    }
+
     bool isExitGame() const {
         return isExitGame_;
     }
@@ -91,8 +70,6 @@ public:
 
     void sceneChange2StartupScene();
     void changeScene(const std::string& name);
-
-    void executeSceneChange();
 
     bool isChangeScene() const { return isChangeScene_; }
 };

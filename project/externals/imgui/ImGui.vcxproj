@@ -66,8 +66,8 @@
     <TargetExt>.lib</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Develop|x64'">
-    <OutDir>..\..\..\generated\output\Release\</OutDir>
-    <IntDir>..\..\..\generated\obj\Release\imgui\</IntDir>
+    <OutDir>..\..\..\generated\output\Develop\</OutDir>
+    <IntDir>..\..\..\generated\obj\Develop\imgui\</IntDir>
     <TargetName>imgui</TargetName>
     <TargetExt>.lib</TargetExt>
   </PropertyGroup>

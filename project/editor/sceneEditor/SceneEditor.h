@@ -42,7 +42,6 @@ public:
         return currentScene_.get();
     }
     void changeScene(std::unique_ptr<Scene>&& _newScene) {
-        currentScene_->Finalize(); // 現在のシーンを終了処理
         currentScene_.reset();
         currentScene_ = std::move(_newScene);
     }
@@ -320,7 +319,7 @@ private:
     const std::string configuration     = "Develop";
     const std::string platform          = "x64";
 
-    const std::string exePath_ = projectDirectory_ + "../generated/output/" + configuration + "/OriGineApp.exe"; // 実行ファイルのパス
+    const std::string exePath_ = "/../generated/output/" + configuration + "/OriGineApp.exe"; // 実行ファイルのパス
 
 public:
     SceneEditorWindow* getParentWindow() const {
