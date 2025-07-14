@@ -7,8 +7,6 @@
 // directX12Object
 #include "directX12/DxCommand.h"
 #include "directX12/ShaderManager.h"
-/// ECS
-#include "ECS/ECSManager.h"
 // component
 #include "component/animation/SkinningAnimationComponent.h"
 #include "component/renderer/MeshRenderer.h"
@@ -65,7 +63,7 @@ static void ApplyBlendedAnimation(
 }
 
 SkinningAnimationSystem::SkinningAnimationSystem()
-    : ISystem(SystemType::Effect) {}
+    : ISystem(SystemCategory::Effect) {}
 SkinningAnimationSystem::~SkinningAnimationSystem() {}
 
 void SkinningAnimationSystem::Initialize() {
@@ -105,7 +103,7 @@ void SkinningAnimationSystem::UpdateEntity(GameEntity* _entity) {
         return;
     }
 
-    int32_t compSize = ECSManager::getInstance()->getComponentArray<SkinningAnimationComponent>()->getComponentSize(_entity);
+    int32_t compSize = getComponentArray<SkinningAnimationComponent>()->getComponentSize(_entity);
 
     const float deltaTime = getMainDeltaTime();
     for (int32_t i = 0; i < compSize; ++i) {

@@ -12,13 +12,12 @@
 // component
 #include "component/material/light/LightManager.h"
 #include "component/transform/Transform.h"
-#include "ECSManager.h"
 
 /// math
 #include <numbers>
 
 SkeletonRenderSystem::SkeletonRenderSystem()
-    : ISystem(SystemType::Render) {}
+    : ISystem(SystemCategory::Render) {}
 
 SkeletonRenderSystem::~SkeletonRenderSystem() {}
 
@@ -36,7 +35,7 @@ void SkeletonRenderSystem::Initialize() {
     dxCommand_->Initialize("main", "main");
 
     //** ModelMeshRenderer **//
-    skinningAnimationArray_ = ECSManager::getInstance()->getComponentArray<SkinningAnimationComponent>();
+    skinningAnimationArray_ = getComponentArray<SkinningAnimationComponent>();
 
     //** JointMeshRenderer **//
     jointRenderer_ = LineRenderer(std::vector<Mesh<ColorVertexData>>());

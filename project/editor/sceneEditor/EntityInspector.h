@@ -323,12 +323,12 @@ public:
     /// ==========================================
     /// Command
     /// ==========================================
-    class AddSystemTypeNames
+    class AddSystemCategoryNames
         : public IEditCommand {
     public:
-        AddSystemTypeNames(SelectAddSystemArea* _parentArea, const std::string& _systemTypeName)
+        AddSystemCategoryNames(SelectAddSystemArea* _parentArea, const std::string& _systemTypeName)
             : parentArea_(_parentArea), systemTypeName_(_systemTypeName) {}
-        ~AddSystemTypeNames() override = default;
+        ~AddSystemCategoryNames() override = default;
         void Execute() override;
         void Undo() override;
 
@@ -336,12 +336,12 @@ public:
         SelectAddSystemArea* parentArea_ = nullptr; // 親エリアへのポインタ
         std::string systemTypeName_; // 追加するコンポーネントのタイプ名
     };
-    class RemoveSystemTypeNames
+    class RemoveSystemCategoryNames
         : public IEditCommand {
     public:
-        RemoveSystemTypeNames(SelectAddSystemArea* _parentArea, const std::string& _systemTypeName)
+        RemoveSystemCategoryNames(SelectAddSystemArea* _parentArea, const std::string& _systemTypeName)
             : parentArea_(_parentArea), systemTypeName_(_systemTypeName) {}
-        ~RemoveSystemTypeNames() override = default;
+        ~RemoveSystemCategoryNames() override = default;
         void Execute() override;
         void Undo() override;
 
@@ -349,12 +349,12 @@ public:
         SelectAddSystemArea* parentArea_ = nullptr; // 親エリアへのポインタ
         std::string systemTypeName_; // 削除するコンポーネントのタイプ名
     };
-    class ClearSystemTypeNames
+    class ClearSystemCategoryNames
         : public IEditCommand {
     public:
-        ClearSystemTypeNames(SelectAddSystemArea* _parentArea)
+        ClearSystemCategoryNames(SelectAddSystemArea* _parentArea)
             : parentArea_(_parentArea) {}
-        ~ClearSystemTypeNames() override = default;
+        ~ClearSystemCategoryNames() override = default;
 
         void Execute() override;
         void Undo() override;

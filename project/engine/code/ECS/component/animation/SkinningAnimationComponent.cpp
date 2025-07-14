@@ -8,12 +8,12 @@
 /// engine
 #include "AnimationManager.h"
 #include "EngineInclude.h"
+#include "Entity.h"
 #include "model/ModelManager.h"
 
 /// ECS
 // component
 #include "component/renderer/MeshRenderer.h"
-#include "ECS/ECSManager.h"
 
 /// lib
 #include "myFileSystem/MyFileSystem.h"
@@ -28,8 +28,8 @@ void SkinningAnimationComponent::Initialize(GameEntity* _entity) {
     int32_t animationIndex = 0;
     for (auto& animation : animationTable_) {
 
-        animation.currentTime_            = 0.0f;
-        animation.animationState_.isEnd_  = false;
+        animation.currentTime_           = 0.0f;
+        animation.animationState_.isEnd_ = false;
 
         animation.animationData_ = AnimationManager::getInstance()->Load(
             kApplicationResourceDirectory + "/" + animation.directory_, animation.fileName_);
@@ -47,7 +47,7 @@ bool SkinningAnimationComponent::Edit() {
     bool isChanged = false;
 
 #ifdef _DEBUG
-    int32_t entityModelMeshRendererSize = ECSManager::getInstance()->getComponentArray<ModelMeshRenderer>()->getComponentSize(entity_);
+    int32_t entityModelMeshRendererSize = getComponentArray<ModelMeshRenderer>()->getComponentSize(entity_);
     InputGuiCommand<int32_t>("Bind Mode MeshRenderer Index", bindModeMeshRendererIndex_, "%d",
         [entityModelMeshRendererSize](int32_t* _newVal) {
             *_newVal = std::clamp(*_newVal, 0, entityModelMeshRendererSize - 1);

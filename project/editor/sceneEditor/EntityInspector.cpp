@@ -460,13 +460,13 @@ void SelectAddSystemArea::SystemListRegion::DrawGui() {
                     if (ImGui::Selectable(name.c_str(), isSelected)) {
                         if (!isSelected) {
                             if (!ImGui::GetIO().KeyShift) {
-                                auto clearCommand = std::make_unique<ClearSystemTypeNames>(parentArea_);
+                                auto clearCommand = std::make_unique<ClearSystemCategoryNames>(parentArea_);
                                 EditorController::getInstance()->pushCommand(std::move(clearCommand));
                             }
-                            auto command = std::make_unique<AddSystemTypeNames>(parentArea_, name);
+                            auto command = std::make_unique<AddSystemCategoryNames>(parentArea_, name);
                             EditorController::getInstance()->pushCommand(std::move(command));
                         } else {
-                            auto command = std::make_unique<RemoveSystemTypeNames>(parentArea_, name);
+                            auto command = std::make_unique<RemoveSystemCategoryNames>(parentArea_, name);
                             EditorController::getInstance()->pushCommand(std::move(command));
                         }
                     }
@@ -485,13 +485,13 @@ void SelectAddSystemArea::SystemListRegion::DrawGui() {
                 if (ImGui::Selectable(name.c_str(), isSelected)) {
                     if (!isSelected) {
                         if (!ImGui::GetIO().KeyShift) {
-                            auto clearCommand = std::make_unique<ClearSystemTypeNames>(parentArea_);
+                            auto clearCommand = std::make_unique<ClearSystemCategoryNames>(parentArea_);
                             EditorController::getInstance()->pushCommand(std::move(clearCommand));
                         }
-                        auto command = std::make_unique<AddSystemTypeNames>(parentArea_, name);
+                        auto command = std::make_unique<AddSystemCategoryNames>(parentArea_, name);
                         EditorController::getInstance()->pushCommand(std::move(command));
                     } else {
-                        auto command = std::make_unique<RemoveSystemTypeNames>(parentArea_, name);
+                        auto command = std::make_unique<RemoveSystemCategoryNames>(parentArea_, name);
                         EditorController::getInstance()->pushCommand(std::move(command));
                     }
                 }
@@ -513,7 +513,7 @@ void SelectAddSystemArea::SystemListRegion::DrawGui() {
             EditorController::getInstance()->pushCommand(std::move(addSystemCommand));
             auto clearEntitiesCommand = std::make_unique<ClearTargetEntities>(parentArea_);
             EditorController::getInstance()->pushCommand(std::move(clearEntitiesCommand));
-            auto clearSystemNamesCommand = std::make_unique<ClearSystemTypeNames>(parentArea_);
+            auto clearSystemNamesCommand = std::make_unique<ClearSystemCategoryNames>(parentArea_);
             EditorController::getInstance()->pushCommand(std::move(clearSystemNamesCommand));
             parentArea_->isOpen_.set(false);
             parentArea_->isFocused_.set(false);
@@ -523,7 +523,7 @@ void SelectAddSystemArea::SystemListRegion::DrawGui() {
     if (ImGui::Button("CANCEL")) {
         auto clearEntitiesCommand = std::make_unique<ClearTargetEntities>(parentArea_);
         EditorController::getInstance()->pushCommand(std::move(clearEntitiesCommand));
-        auto clearSystemNamesCommand = std::make_unique<ClearSystemTypeNames>(parentArea_);
+        auto clearSystemNamesCommand = std::make_unique<ClearSystemCategoryNames>(parentArea_);
         EditorController::getInstance()->pushCommand(std::move(clearSystemNamesCommand));
         parentArea_->isOpen_.set(false);
         parentArea_->isFocused_.set(false);
@@ -780,42 +780,42 @@ void SelectAddComponentArea::ClearComponentTypeNames::Undo() {
     LOG_DEBUG("SelectAddComponentArea::ClearComponentTypeNames::Undo: Restored component type names.");
 }
 
-void SelectAddSystemArea::AddSystemTypeNames::Execute() {
+void SelectAddSystemArea::AddSystemCategoryNames::Execute() {
     parentArea_->systemTypeNames_.push_back(systemTypeName_);
-    LOG_DEBUG("SelectAddSystemArea::AddSystemTypeNames::Execute: Added system type name '{}'.", systemTypeName_);
+    LOG_DEBUG("SelectAddSystemArea::AddSystemCategoryNames::Execute: Added system type name '{}'.", systemTypeName_);
 }
 
-void SelectAddSystemArea::AddSystemTypeNames::Undo() {
+void SelectAddSystemArea::AddSystemCategoryNames::Undo() {
     std::string popName = parentArea_->systemTypeNames_.back();
     parentArea_->systemTypeNames_.pop_back();
-    LOG_DEBUG("SelectAddSystemArea::AddSystemTypeNames::Undo: Removed system type name '{}'.", popName);
+    LOG_DEBUG("SelectAddSystemArea::AddSystemCategoryNames::Undo: Removed system type name '{}'.", popName);
 }
 
-void SelectAddSystemArea::RemoveSystemTypeNames::Execute() {
+void SelectAddSystemArea::RemoveSystemCategoryNames::Execute() {
     auto& systemTypeNames = parentArea_->systemTypeNames_;
     auto it               = std::remove(systemTypeNames.begin(), systemTypeNames.end(), systemTypeName_);
     if (it != systemTypeNames.end()) {
         systemTypeNames.erase(it, systemTypeNames.end());
-        LOG_DEBUG("SelectAddSystemArea::RemoveSystemTypeNames::Execute: Removed system type name '{}'.", systemTypeName_);
+        LOG_DEBUG("SelectAddSystemArea::RemoveSystemCategoryNames::Execute: Removed system type name '{}'.", systemTypeName_);
     } else {
-        LOG_DEBUG("SelectAddSystemArea::RemoveSystemTypeNames::Execute: System type name '{}' not found.", systemTypeName_);
+        LOG_DEBUG("SelectAddSystemArea::RemoveSystemCategoryNames::Execute: System type name '{}' not found.", systemTypeName_);
     }
 }
 
-void SelectAddSystemArea::RemoveSystemTypeNames::Undo() {
+void SelectAddSystemArea::RemoveSystemCategoryNames::Undo() {
     parentArea_->systemTypeNames_.push_back(systemTypeName_);
-    LOG_DEBUG("SelectAddSystemArea::RemoveSystemTypeNames::Undo: Added system type name '{}' back.", systemTypeName_);
+    LOG_DEBUG("SelectAddSystemArea::RemoveSystemCategoryNames::Undo: Added system type name '{}' back.", systemTypeName_);
 }
 
-void SelectAddSystemArea::ClearSystemTypeNames::Execute() {
+void SelectAddSystemArea::ClearSystemCategoryNames::Execute() {
     systemTypeNames_ = parentArea_->systemTypeNames_; // 現在のシステムタイプ名を保存
     parentArea_->systemTypeNames_.clear(); // システムタイプ名をクリア
-    LOG_DEBUG("SelectAddSystemArea::ClearSystemTypeNames::Execute: Cleared system type names.");
+    LOG_DEBUG("SelectAddSystemArea::ClearSystemCategoryNames::Execute: Cleared system type names.");
 }
 
-void SelectAddSystemArea::ClearSystemTypeNames::Undo() {
+void SelectAddSystemArea::ClearSystemCategoryNames::Undo() {
     parentArea_->systemTypeNames_ = systemTypeNames_; // 保存したシステムタイプ名を復元
-    LOG_DEBUG("SelectAddSystemArea::ClearSystemTypeNames::Undo: Restored system type names.");
+    LOG_DEBUG("SelectAddSystemArea::ClearSystemCategoryNames::Undo: Restored system type names.");
 }
 
 void SelectAddSystemArea::SetTargeEntities::Execute() {

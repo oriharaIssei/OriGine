@@ -343,14 +343,14 @@ public:
     }
 
     void ActivateSystem(const std::string& _systemName);
-    template <IsSystem SystemType>
+    template <IsSystem SystemCategory>
     void ActivateSystem() {
-        ActivateSystem( nameof<SystemType>());
+        ActivateSystem( nameof<SystemCategory>());
     }
     void ActivateSystem(SystemCategory _category, const std::string& _systemName);
-    template <IsSystem SystemType>
+    template <IsSystem SystemCategory>
     void ActivateSystem(SystemCategory _category) {
-        ActivateSystem(_category, nameof<SystemType>());
+        ActivateSystem(_category, nameof<SystemCategory>());
     }
     void DeactivateSystem(SystemCategory _category, const std::string& _systemName);
     template <IsSystem SystemCategory>

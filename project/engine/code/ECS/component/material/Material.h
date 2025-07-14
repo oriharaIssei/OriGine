@@ -2,7 +2,6 @@
 
 /// engine
 // ECS
-#include "assets/IAsset.h"
 // directX12 object
 #include "directX12/IConstantBuffer.h"
 
@@ -19,8 +18,7 @@ struct UVTransform {
     Vec2f translate_ = Vec2f(0.f, 0.f);
 };
 
-struct Material
-    : IAsset {
+struct Material {
     friend void to_json(nlohmann::json& j, const Material& m);
     friend void from_json(const nlohmann::json& j, Material& m);
 

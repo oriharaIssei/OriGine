@@ -87,8 +87,21 @@ public:
     // Component 関係
     /// =========================================
     template <IsComponent ComponentType>
+    ComponentType* getComponent(GameEntity* _entity, uint32_t index = 0) const {
+        if (!_entity) {
+            LOG_ERROR("Scene::getComponent: Entity is null. EntityName :{}", nameof<ComponentType>());
+            return nullptr;
+        }
+        return componentRepository_->getComponent<ComponentType>(_entity, index);
+    }
+    template <IsComponent ComponentType>
     ComponentType* getComponent(int32_t entityId, uint32_t index = 0) const {
-        return componentRepository_->getComponent<ComponentType>(entityId, index);
+        GameEntity* entity = entityRepository_->getEntity(entityId);
+        if (!entity) {
+            LOG_ERROR("Scene::getComponent: Entity with ID {} not found.", entityId);
+            return nullptr;
+        }
+        return componentRepository_->getComponent<ComponentType>(entity, index);
     }
     IComponentArray* getComponentArray(const std::string& componentTypeName) const {
         return componentRepository_->getComponentArray(componentTypeName);

@@ -9,14 +9,13 @@
 #include "texture/TextureManager.h"
 
 // ECS
-#include "ECS/ECSManager.h"
 // component
 #include "component/animation/SkinningAnimationComponent.h"
 #include "component/material/light/LightManager.h"
 #include "component/renderer/MeshRenderer.h"
 #include "component/renderer/SkyBoxRenderer.h"
 
-SkinningMeshRenderSystem::SkinningMeshRenderSystem() : ISystem(SystemType::Render) {}
+SkinningMeshRenderSystem::SkinningMeshRenderSystem() : ISystem(SystemCategory::Render) {}
 SkinningMeshRenderSystem::~SkinningMeshRenderSystem() {};
 
 void SkinningMeshRenderSystem::Initialize() {
@@ -232,9 +231,9 @@ void SkinningMeshRenderSystem::CreatePso() {
 }
 
 void SkinningMeshRenderSystem::LightUpdate() {
-    auto* directionalLight = ECSManager::getInstance()->getComponentArray<DirectionalLight>();
-    auto* pointLight       = ECSManager::getInstance()->getComponentArray<PointLight>();
-    auto* spotLight        = ECSManager::getInstance()->getComponentArray<SpotLight>();
+    auto* directionalLight = getComponentArray<DirectionalLight>();
+    auto* pointLight       = getComponentArray<PointLight>();
+    auto* spotLight        = getComponentArray<SpotLight>();
 
     auto* lightManager = LightManager::getInstance();
 
@@ -305,7 +304,7 @@ void SkinningMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
     Transform* entityTransform_ = getComponent<Transform>(_entity);
 
     int32_t componentSize =
-        (int32_t)ECSManager::getInstance()->getComponents<SkinningAnimationComponent>(_entity)->size();
+        (int32_t)getComponents<SkinningAnimationComponent>(_entity)->size();
     for (int32_t i = 0; i < componentSize; ++i) {
         SkinningAnimationComponent* skinningAnimationComponent = getComponent<SkinningAnimationComponent>(_entity, i);
         if (!skinningAnimationComponent) {

@@ -38,6 +38,7 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 
 #include "system/movement/MoveSystemByRigidBody.h"
 
+#include "system/effect/SkinningAnimationSystem.h"
 #include "system/effect/EmitterWorkSystem.h"
 #include "system/effect/PrimitiveNodeAnimationWorkSystem.h"
 #include "system/effect/SpriteAnimationSystem.h"
@@ -47,12 +48,15 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 #include "system/postRender/GrayscaleEffect.h"
 #include "system/postRender/SmoothingEffect.h"
 #include "system/postRender/VignetteEffect.h"
+#include "system/postRender/RadialBlurEffect.h"
 
 #include "system/render/BackGroundSpriteRenderSystem.h"
 #include "system/render/ColliderRenderingSystem.h"
 #include "system/render/EffectTexturedMeshRenderSystem.h"
 #include "system/render/LineRenderSystem.h"
 #include "system/render/ParticleRenderSystem.h"
+#include "system/render/SkeletonRenderSystem.h"
+#include "system/render/SkinningMeshRenderSystem.h"
 #include "system/render/SkyboxRender.h"
 #include "system/render/SpriteRenderSystem.h"
 #include "system/render/TexturedMeshRenderSystem.h"
@@ -63,7 +67,9 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 
 #include "component/animation/ModelNodeAnimation.h"
 #include "component/animation/PrimitiveNodeAnimation.h"
+#include "component/animation/SkinningAnimationComponent.h"
 #include "component/animation/SpriteAnimation.h"
+
 #include "component/material/light/DirectionalLight.h"
 #include "component/material/light/PointLight.h"
 #include "component/material/light/SpotLight.h"
@@ -74,7 +80,12 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 
 #include "component/effect/particle/emitter/Emitter.h"
 #include "component/effect/post/DistortionEffectParam.h"
+#include "component/effect/post/GrayscaleEffectParam.h"
+#include "component/effect/post/RadialBlurParam.h"
+#include "component/effect/post/SmoothingEffectParam.h"
 #include "component/effect/post/VignetteParam.h"
+#include "component/effect/primitive/PlaneRenderer.h"
+#include "component/effect/primitive/Primitive.h"
 #include "component/effect/TextureEffectParam.h"
 
 #include "component/physics/Rigidbody.h"
