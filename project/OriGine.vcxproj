@@ -334,6 +334,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\component\animation\SkinningAnimationComponent.cpp" />
     <ClCompile Include="engine\code\system\effect\SkinningAnimationSystem.cpp" />
     <ClCompile Include="engine\code\system\render\SkinningMeshRenderSystem.cpp" />
+    <ClCompile Include="math\Sequence.cpp" />
     <ClCompile Include="util\ConvertString.cpp" />
     <ClCompile Include="util\NormalizeString.cpp" />
     <ClCompile Include="util\timeline\Timeline.cpp" />

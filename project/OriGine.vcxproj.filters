@@ -823,5 +823,6 @@
     <ClCompile Include="engine\code\component\animation\SkinningAnimationComponent.cpp" />
     <ClCompile Include="engine\code\system\effect\SkinningAnimationSystem.cpp" />
     <ClCompile Include="engine\code\system\render\SkinningMeshRenderSystem.cpp" />
+    <ClCompile Include="math\Sequence.cpp" />
   </ItemGroup>
 </Project>
