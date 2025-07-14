@@ -1,6 +1,8 @@
 #pragma once
 
 #include <functional>
+#include <stdexcept>
+#include <string>
 
 #include <cmath>
 
@@ -13,16 +15,7 @@ enum class CommonSequenceType {
     Geometric // 等比数列
 };
 namespace std {
-std::string to_string(CommonSequenceType _type) {
-    switch (_type) {
-    case CommonSequenceType::Arithmetic:
-        return "Arithmetic";
-    case CommonSequenceType::Geometric:
-        return "Geometric";
-    default:
-        return "Unknown";
-    }
-}
+string to_string(CommonSequenceType _type);
 }
 
 /// <summary>
