@@ -40,7 +40,7 @@ void MoveSystemByRigidBody::UpdateEntity(GameEntity* _entity) {
 
     // 重力加速度
     if (rigidbody->getUseGravity()) {
-        acceleration[Y] -= gravity_ * rigidbody->getMass();
+        acceleration[Y] -= (std::min)(gravity_ * rigidbody->getMass(),rigidbody->maxFallSpeed());
     }
 
     // 速度の更新
