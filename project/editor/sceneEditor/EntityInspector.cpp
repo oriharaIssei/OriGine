@@ -134,6 +134,13 @@ void EntityComponentRegion::DrawGui() {
                 for (const auto& component : components) {
                     label = componentTypeName + std::to_string(componentIndex);
 
+                    if (ImGui::Button(std::string("X##" + label).c_str())) {
+                        auto removeCommand = std::make_unique<RemoveComponentFromEditListCommand>(parentArea_, componentTypeName);
+                        EditorController::getInstance()->pushCommand(std::move(removeCommand));
+                        continue; // ボタンが押されたら次のコンポーネントへ
+                    }
+                    ImGui::SameLine();
+
                     if (ImGui::TreeNode(label.c_str())) {
                         component->Edit();
                         ImGui::TreePop();
@@ -151,6 +158,97 @@ void EntityComponentRegion::DrawGui() {
     ImGui::Unindent();
 }
 void EntityComponentRegion::Finalize() {}
+
+EntityComponentRegion::RemoveComponentFromEditListCommand::RemoveComponentFromEditListCommand(EntityInspectorArea* _parentArea, const std::string& _componentTypeName, int32_t _compIndex)
+    : parentArea_(_parentArea), componentTypeName_(_componentTypeName), componentIndex_(_compIndex) {
+    if (!parentArea_) {
+        LOG_ERROR("RemoveComponentFromEditListCommand: parentArea is null.");
+        return;
+    }
+    // 現在のコンポーネントデータを保存
+    auto* scene = parentArea_->getParentWindow()->getCurrentScene();
+    if (!scene) {
+        LOG_ERROR("RemoveComponentFromEditListCommand: Scene is null.");
+        return;
+    }
+    const auto& compArray = scene->getComponentArray(componentTypeName_);
+    if (compArray) {
+        GameEntity* editEntity = scene->getEntity(parentArea_->getEditEntityId());
+        if (editEntity) {
+            compArray->SaveComponent(editEntity, componentIndex_, componentData_);
+        } else {
+            LOG_ERROR("RemoveComponentFromEditListCommand: Edit entity is null.");
+        }
+    } else {
+        LOG_ERROR("RemoveComponentFromEditListCommand: Component array '{}' not found.", componentTypeName_);
+    }
+}
+void EntityComponentRegion::RemoveComponentFromEditListCommand::Execute() {
+    if (!parentArea_) {
+        LOG_ERROR("RemoveComponentFromEditListCommand: parentArea is null.");
+        return;
+    }
+    auto* scene = parentArea_->getParentWindow()->getCurrentScene();
+    if (!scene) {
+        LOG_ERROR("RemoveComponentFromEditListCommand: Scene is null.");
+        return;
+    }
+    scene->removeComponent(componentTypeName_, parentArea_->getEditEntityId(), componentIndex_);
+
+    // コンポーネントを削除した後、エンティティのコンポーネントマップからも削除
+    auto& entityComponentMap = parentArea_->getEntityComponentMap();
+    auto it                  = entityComponentMap.find(componentTypeName_);
+    if (it != entityComponentMap.end()) {
+        auto& components = it->second;
+        if (componentIndex_ < static_cast<int32_t>(components.size())) {
+            components.erase(components.begin() + componentIndex_);
+        } else {
+            LOG_ERROR("RemoveComponentFromEditListCommand: Component index out of range for type '{}'.", componentTypeName_);
+        }
+    } else {
+        LOG_ERROR("RemoveComponentFromEditListCommand: Component type '{}' not found in entity component map.", componentTypeName_);
+    }
+}
+
+void EntityComponentRegion::RemoveComponentFromEditListCommand::Undo() {
+    if (!parentArea_) {
+        LOG_ERROR("RemoveComponentFromEditListCommand: parentArea is null.");
+        return;
+    }
+    auto* scene = parentArea_->getParentWindow()->getCurrentScene();
+    if (!scene) {
+        LOG_ERROR("RemoveComponentFromEditListCommand: Scene is null.");
+        return;
+    }
+    GameEntity* editEntity = scene->getEntity(parentArea_->getEditEntityId());
+    if (editEntity) {
+        auto componentArray = scene->getComponentArray(componentTypeName_);
+        if (!componentArray) {
+            LOG_ERROR("RemoveComponentFromEditListCommand: Component array '{}' not found.", componentTypeName_);
+            return;
+        }
+
+        componentArray->insertComponent(editEntity, componentIndex_);
+        componentArray->LoadComponent(editEntity, componentIndex_, componentData_);
+
+        // コンポーネントをエンティティのコンポーネントマップに再追加
+        auto& entityComponentMap = parentArea_->getEntityComponentMap();
+        auto it                  = entityComponentMap.find(componentTypeName_);
+        if (it != entityComponentMap.end()) {
+            auto& components = it->second;
+            if (componentIndex_ < static_cast<int32_t>(components.size())) {
+                components.insert(components.begin() + componentIndex_, componentArray->getComponent(editEntity, componentIndex_));
+            } else {
+                LOG_ERROR("RemoveComponentFromEditListCommand: Component index out of range for type '{}'.", componentTypeName_);
+            }
+        } else {
+            LOG_ERROR("RemoveComponentFromEditListCommand: Component type '{}' not found in entity component map.", componentTypeName_);
+        }
+
+    } else {
+        LOG_ERROR("RemoveComponentFromEditListCommand: Edit entity is null.");
+    }
+}
 
 EntitySystemRegion::EntitySystemRegion(EntityInspectorArea* _parent)
     : Editor::Region(nameof<EntitySystemRegion>()), parentArea_(_parent) {}
@@ -954,3 +1052,58 @@ void EntityInfomationRegion::DeleteEntityCommand::Undo() {
 }
 
 #endif // _DEBUG
+
+RemoveComponentForEntityCommand::RemoveComponentForEntityCommand(Scene* _scene, const std::string& _componentTypeName, int32_t _entityId, int32_t _compIndex)
+    : scene_(_scene), componentTypeName_(_componentTypeName), entityId_(_entityId), compIndex_(_compIndex) {
+    if (!scene_) {
+        LOG_ERROR("RemoveComponentForEntityCommand: Scene is null.");
+        return;
+    }
+
+    if (entityId_ >= 0) {
+        GameEntity* entity = scene_->getEntityRepositoryRef()->getEntity(entityId_);
+        if (!entity) {
+            LOG_ERROR("RemoveComponentForEntityCommand: Entity with ID '{}' not found.", entityId_);
+            return;
+        }
+        const auto& compArray = scene_->getComponentArray(componentTypeName_);
+        compArray->SaveComponent(entity, compIndex_, componentData_);
+    }
+}
+
+void RemoveComponentForEntityCommand::Execute() {
+    if (!scene_) {
+        LOG_ERROR("RemoveComponentForEntityCommand::Execute: Scene is null.");
+        return;
+    }
+    GameEntity* entity = scene_->getEntityRepositoryRef()->getEntity(entityId_);
+    if (!entity) {
+        LOG_ERROR("RemoveComponentForEntityCommand::Execute: Entity with ID '{}' not found.", entityId_);
+        return;
+    }
+    const auto& compArray = scene_->getComponentArray(componentTypeName_);
+    if (!compArray) {
+        LOG_ERROR("RemoveComponentForEntityCommand::Execute: Component array '{}' not found.", componentTypeName_);
+        return;
+    }
+    compArray->removeComponent(entity, compIndex_);
+}
+
+void RemoveComponentForEntityCommand::Undo() {
+    if (!scene_) {
+        LOG_ERROR("RemoveComponentForEntityCommand::Undo: Scene is null.");
+        return;
+    }
+    GameEntity* entity = scene_->getEntityRepositoryRef()->getEntity(entityId_);
+    if (!entity) {
+        LOG_ERROR("RemoveComponentForEntityCommand::Undo: Entity with ID '{}' not found.", entityId_);
+        return;
+    }
+    const auto& compArray = scene_->getComponentArray(componentTypeName_);
+    if (!compArray) {
+        LOG_ERROR("RemoveComponentForEntityCommand::Undo: Component array '{}' not found.", componentTypeName_);
+        return;
+    }
+    compArray->insertComponent(entity, compIndex_);
+    compArray->LoadComponent(entity, compIndex_, componentData_);
+}

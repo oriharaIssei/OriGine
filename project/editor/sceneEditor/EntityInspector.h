@@ -149,6 +149,24 @@ public:
     void DrawGui() override;
     void Finalize() override;
 
+public:
+    class RemoveComponentFromEditListCommand
+        : public IEditCommand {
+    public:
+        RemoveComponentFromEditListCommand(EntityInspectorArea* _parentArea, const std::string& _componentTypeName,int32_t _compIndex);
+        ~RemoveComponentFromEditListCommand() override = default;
+        void Execute() override;
+        void Undo() override;
+
+    private:
+        EntityInspectorArea* parentArea_ = nullptr; // 親エリアへのポインタ
+
+        std::string componentTypeName_; // 削除するコンポーネントのタイプ名
+        int32_t componentIndex_ = 0; // 削除するコンポーネントのインデックス
+
+        nlohmann::json componentData_; // 削除するコンポーネントのデータ
+    };
+
 private:
     EntityInspectorArea* parentArea_ = nullptr; // 親エリアへのポインタ
 };
@@ -420,6 +438,22 @@ private:
 public:
     void clearTarget() { targetEntityIds_.clear(); }
     void setTargets(const std::list<int32_t>& _targets);
+};
+
+class RemoveComponentForEntityCommand
+    : public IEditCommand {
+public:
+    RemoveComponentForEntityCommand(Scene* _scene, const std::string& _componentTypeName, int32_t _entityId, int32_t _compIndex = 0);
+    ~RemoveComponentForEntityCommand() override = default;
+    void Execute() override;
+    void Undo() override;
+
+private:
+    Scene* scene_ = nullptr; // 対象シーン
+    std::string componentTypeName_; // 追加するコンポーネントのタイプ名
+    int32_t entityId_  = -1; // 対象のエンティティID
+    int32_t compIndex_ = 0; // 削除するコンポーネントのインデックス
+    nlohmann::json componentData_; // 削除するコンポーネントのデータ
 };
 
 #endif // _DEBUG

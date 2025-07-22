@@ -37,14 +37,16 @@ public:
     /// </summary>
     /// <param name="_entity">対象のエンティティ</param>
     /// <param name="_json">情報を入れるための器,Binaryで保存するときはこれをBinaryItem に渡す</param>
-    virtual void SaveComponent(GameEntity* _entity, nlohmann::json& _json) = 0;
+    virtual void SaveComponent(GameEntity* _entity, nlohmann::json& _json) const                     = 0;
+    virtual void SaveComponent(GameEntity* _entity, int32_t _compIndex, nlohmann::json& _json) const = 0;
 
     /// <summary>
     /// Entityのコンポーネントを読み込む
     /// </summary>
     /// <param name="_entity">対象のエンティティ</param>
     /// <param name="_json">情報が入った器</param>
-    virtual void LoadComponent(GameEntity* _entity, const nlohmann::json& _json) = 0;
+    virtual void LoadComponent(GameEntity* _entity, const nlohmann::json& _json)                     = 0;
+    virtual void LoadComponent(GameEntity* _entity, int32_t _compIndex, const nlohmann::json& _json) = 0;
 
     virtual void reserveEntity(GameEntity* _hostEntity, int32_t _entitySize) = 0;
 
@@ -80,7 +82,7 @@ public:
     virtual void insertComponent(GameEntity* _hostEntity, int32_t _index)                         = 0;
 
     /// @brief 指定エンティティの特定インデックスのコンポーネントを削除する
-    virtual void removeComponent(GameEntity* _hostEntity, int32_t _componentIndex = 1) = 0;
+    virtual void removeComponent(GameEntity* _hostEntity, int32_t _componentIndex = 0) = 0;
 
     /// @brief 末尾のエンティティを削除
     virtual void removeBackComponent(GameEntity* _hostEntity) = 0;
@@ -121,10 +123,12 @@ public:
     }
 
     /// @brief コンポーネントの保存
-    void SaveComponent(GameEntity* _entity, nlohmann::json& _json) override;
+    void SaveComponent(GameEntity* _entity, nlohmann::json& _json) const override;
+    void SaveComponent(GameEntity* _entity, int32_t _compIndex, nlohmann::json& _json) const override;
 
     /// @brief コンポーネントの読み込み
     void LoadComponent(GameEntity* _entity, const nlohmann::json& _json) override;
+    void LoadComponent(GameEntity* _entity, int32_t _compIndex, const nlohmann::json& _json) override;
 
     /// @brief エンティティ登録（メモリ確保）
     void registerEntity(GameEntity* _entity, int32_t _entitySize = 1, bool _doInitialize = true) override {
@@ -228,7 +232,7 @@ public:
         components_[index].reserve(_size);
     }
 
-    void removeComponent(GameEntity* _hostEntity, int32_t _componentIndex = 1) override {
+    void removeComponent(GameEntity* _hostEntity, int32_t _componentIndex) override {
         auto it = entityIndexBind_.find(_hostEntity->getID());
         if (it == entityIndexBind_.end()) {
             return;
@@ -398,7 +402,7 @@ concept HasToJson = requires(nlohmann::json& j, const T& t) {
     { to_json(j, t) } -> std::same_as<void>;
 };
 template <IsComponent componentType>
-inline void ComponentArray<componentType>::SaveComponent(GameEntity* _entity, nlohmann::json& _json) {
+inline void ComponentArray<componentType>::SaveComponent(GameEntity* _entity, nlohmann::json& _json) const {
     static_assert(HasToJson<componentType>, "componentType must have a to_json function");
     auto it = entityIndexBind_.find(_entity->getID());
     if (it == entityIndexBind_.end()) {
@@ -413,6 +417,21 @@ inline void ComponentArray<componentType>::SaveComponent(GameEntity* _entity, nl
     }
 
     _json[nameof<componentType>()] = compVecJson;
+}
+
+template <IsComponent componentType>
+inline void ComponentArray<componentType>::SaveComponent(GameEntity* _entity, int32_t _compIndex, nlohmann::json& _json) const {
+    static_assert(HasToJson<componentType>, "componentType must have a to_json function");
+    auto it = entityIndexBind_.find(_entity->getID());
+    if (it == entityIndexBind_.end()) {
+        return;
+    }
+    uint32_t index = it->second;
+    if (_compIndex < 0 || static_cast<uint32_t>(_compIndex) >= components_[index].size()) {
+        LOG_ERROR("ComponentArray::SaveComponent: Invalid component index: {}", _compIndex);
+        return;
+    }
+    _json[nameof<componentType>()] = components_[index][_compIndex];
 }
 
 template <typename T>
@@ -441,6 +460,23 @@ inline void ComponentArray<componentType>::LoadComponent(GameEntity* _entity, co
         components_[index].emplace_back(compJson.get<componentType>());
         components_[index].back().Initialize(_entity); // コンポーネントの初期化
     }
+}
+
+template <IsComponent componentType>
+inline void ComponentArray<componentType>::LoadComponent(GameEntity* _entity, int32_t _compIndex, const nlohmann::json& _json) {
+    static_assert(HasFromJson<componentType>, "componentType must have a from_json function");
+    auto it = entityIndexBind_.find(_entity->getID());
+    if (it == entityIndexBind_.end()) {
+        LOG_ERROR("ComponentArray::LoadComponent: Entity not found for ID: {}", _entity->getID());
+        return;
+    }
+    uint32_t index = it->second;
+    if (_compIndex < 0 || static_cast<uint32_t>(_compIndex) >= components_[index].size()) {
+        LOG_ERROR("ComponentArray::LoadComponent: Invalid component index: {}", _compIndex);
+        return;
+    }
+    components_[index][_compIndex] = _json.get<componentType>();
+    components_[index][_compIndex].Initialize(_entity); // コンポーネントの初期化
 }
 
 /// <summary>
@@ -646,7 +682,28 @@ public:
             addComponent(compTypeName, _entity, _doInitialize);
         }
     }
-    void removeEntity(GameEntity* _entity) {
+    void removeComponent(const std::string& _compTypeName, GameEntity* _entity, int32_t _compIndex = 0) {
+        auto componentArray = getComponentArray(_compTypeName);
+        if (componentArray) {
+            componentArray->removeComponent(_entity, _compIndex);
+        } else {
+            LOG_ERROR("ComponentRepository: ComponentArray not found for type: {}", _compTypeName);
+        }
+    }
+    template <IsComponent ComponentType>
+    void removeComponent(GameEntity* _entity, bool _doFinalize = true) {
+        auto componentArray = getComponentArray<ComponentType>();
+        if (componentArray) {
+            componentArray->removeComponent(_entity);
+            if (_doFinalize) {
+                componentArray->clearComponent(_entity);
+            }
+        } else {
+            LOG_ERROR("ComponentRepository: ComponentArray not found for type: {}", nameof<ComponentType>());
+        }
+    }
+
+    void deleteEntity(GameEntity* _entity) {
         for (auto& [typeName, componentArray] : componentArrays_) {
             componentArray->deleteEntity(_entity);
         }

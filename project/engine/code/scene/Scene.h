@@ -108,6 +108,7 @@ public:
     }
 
     bool addComponent(const std::string& _compTypeName, int32_t _entityId, bool _doInitialize = true);
+    bool removeComponent(const std::string& _compTypeName, int32_t _entityId, int32_t _componentIndex = 0);
 
     template <IsComponent ComponentType>
     ComponentArray<ComponentType>* getComponentArray() const {

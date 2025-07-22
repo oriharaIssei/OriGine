@@ -97,7 +97,7 @@ void Scene::deleteEntity(int32_t entityId) {
         return;
     }
     // コンポーネント を削除
-    componentRepository_->removeEntity(entity);
+    componentRepository_->deleteEntity(entity);
     // システムからエンティティを削除
     systemRunner_->removeEntityFromAllSystems(entity);
     // エンティティを削除
@@ -132,6 +132,16 @@ bool Scene::addComponent(const std::string& _compTypeName, int32_t _entityId, bo
         return false;
     }
     componentRepository_->addComponent(_compTypeName, entity, _doInitialize);
+    return true;
+}
+
+bool Scene::removeComponent(const std::string& _compTypeName, int32_t _entityId, int32_t _componentIndex) {
+    GameEntity* entity = entityRepository_->getEntity(_entityId);
+    if (!entity) {
+        LOG_ERROR("Scene::removeComponent: Entity with ID '{}' not found.", _entityId);
+        return false;
+    }
+    componentRepository_->removeComponent(_compTypeName, entity, _componentIndex);
     return true;
 }
 
