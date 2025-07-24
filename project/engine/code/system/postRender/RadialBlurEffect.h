@@ -21,7 +21,7 @@ public:
 protected:
     void CreatePSO();
 
-    void RenderState();
+    void RenderStart();
     void Render();
 
 protected:

@@ -1,24 +1,25 @@
-#include "VignetteEffect.h"
+#include "DissolveEffect.h"
 
 /// engine
 #include "ECSManager.h"
 #include "Engine.h"
 #include "sceneManager/SceneManager.h"
+#include "texture/TextureManager.h"
 
 // component
-#include "component/effect/post/VignetteParam.h"
+#include "component/effect/post/DissolveEffectParam.h"
 
 // directX12
 #include "directX12/DxDevice.h"
 #include "directX12/RenderTexture.h"
 
-void VignetteEffect::Initialize() {
+void DissolveEffect::Initialize() {
     dxCommand_ = std::make_unique<DxCommand>();
     dxCommand_->Initialize("main", "main");
     CreatePSO();
 }
 
-void VignetteEffect::Update() {
+void DissolveEffect::Update() {
     auto* sceneView = SceneManager::getInstance()->getSceneView();
 
     eraseDeadEntity();
@@ -39,25 +40,40 @@ void VignetteEffect::Update() {
     sceneView->PostDraw();
 }
 
-void VignetteEffect::UpdateEntity(GameEntity* _entity) {
-    auto* vignetteParam = getComponent<VignetteParam>(_entity);
-    vignetteParam->getVignetteBuffer().ConvertToBuffer();
-    vignetteParam->getVignetteBuffer().SetForRootParameter(dxCommand_->getCommandList(), 1);
+void DissolveEffect::UpdateEntity(GameEntity* _entity) {
+    int32_t compSize = ECSManager::getInstance()->getComponentArray<DissolveEffectParam>()->getComponentSize(_entity);
+
+    if (compSize <= 0) {
+        return; // コンポーネントがない場合は何もしない
+    }
+    auto& commandList = dxCommand_->getCommandList();
+
+    for (int32_t i = 0; i < compSize; i++) {
+        auto* dissolveEffectParam = getComponent<DissolveEffectParam>(_entity);
+        if (!dissolveEffectParam->isActive()) {
+            return;
+        }
+        commandList->SetGraphicsRootDescriptorTable(1,
+            TextureManager::getDescriptorGpuHandle(dissolveEffectParam->getTextureIndex()));
+
+        dissolveEffectParam->getDissolveBuffer().ConvertToBuffer();
+        dissolveEffectParam->getDissolveBuffer().SetForRootParameter(dxCommand_->getCommandList(), 2);
+    }
 }
 
-void VignetteEffect::Finalize() {
+void DissolveEffect::Finalize() {
     dxCommand_->Finalize();
     dxCommand_.reset();
     pso_ = nullptr;
 }
 
-void VignetteEffect::CreatePSO() {
+void DissolveEffect::CreatePSO() {
     ShaderManager* shaderManager = ShaderManager::getInstance();
     shaderManager->LoadShader("FullScreen.VS");
-    shaderManager->LoadShader("Vignette.PS", shaderDirectory, L"ps_6_0");
+    shaderManager->LoadShader("Dissolve.PS", shaderDirectory, L"ps_6_0");
     ShaderInformation shaderInfo{};
     shaderInfo.vsKey = "FullScreen.VS";
-    shaderInfo.psKey = "Vignette.PS";
+    shaderInfo.psKey = "Dissolve.PS";
 
     ///================================================
     /// Sampler の設定
@@ -80,24 +96,38 @@ void VignetteEffect::CreatePSO() {
     /// RootParameter の設定
     ///================================================
     // Texture だけ
-    D3D12_ROOT_PARAMETER rootParameter[2]     = {};
-    D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
-    descriptorRange[0].BaseShaderRegister     = 0;
-    descriptorRange[0].NumDescriptors         = 1;
+    D3D12_ROOT_PARAMETER rootParameter[3]    = {};
+    D3D12_DESCRIPTOR_RANGE sceneViewRange[1] = {};
+    sceneViewRange[0].BaseShaderRegister     = 0;
+    sceneViewRange[0].NumDescriptors         = 1;
     // SRV を扱うように設定
-    descriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+    sceneViewRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
     // offset を自動計算するように 設定
-    descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+    sceneViewRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
     // DescriptorTable を使う
     rootParameter[0].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
     rootParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-    size_t rootParameterIndex         = shaderInfo.pushBackRootParameter(rootParameter[0]);
-    shaderInfo.setDescriptorRange2Parameter(descriptorRange, 1, rootParameterIndex);
+    size_t sceneViewParamIdx          = shaderInfo.pushBackRootParameter(rootParameter[0]);
+    shaderInfo.setDescriptorRange2Parameter(sceneViewRange, 1, sceneViewParamIdx);
 
-    rootParameter[1].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_CBV;
+    D3D12_DESCRIPTOR_RANGE effectTexRange[1] = {};
+    effectTexRange[0].BaseShaderRegister     = 1;
+    effectTexRange[0].NumDescriptors         = 1;
+    // SRV を扱うように設定
+    effectTexRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+    // offset を自動計算するように 設定
+    effectTexRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+    // DescriptorTable を使う
+    rootParameter[1].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
     rootParameter[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-    shaderInfo.pushBackRootParameter(rootParameter[1]);
+    size_t effectTexParamIdx          = shaderInfo.pushBackRootParameter(rootParameter[1]);
+    shaderInfo.setDescriptorRange2Parameter(effectTexRange, 1, effectTexParamIdx);
+
+    rootParameter[2].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_CBV;
+    rootParameter[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+    shaderInfo.pushBackRootParameter(rootParameter[2]);
 
     ///================================================
     /// InputElement の設定
@@ -112,11 +142,11 @@ void VignetteEffect::CreatePSO() {
     depthStencilDesc.DepthEnable = false;
     shaderInfo.setDepthStencilDesc(depthStencilDesc);
 
-    pso_ = shaderManager->CreatePso("VignetteEffect", shaderInfo, Engine::getInstance()->getDxDevice()->getDevice());
+    pso_ = shaderManager->CreatePso("DissolveEffect", shaderInfo, Engine::getInstance()->getDxDevice()->getDevice());
 }
 
-void VignetteEffect::RenderStart() {
-    auto commandList = dxCommand_->getCommandList();
+void DissolveEffect::RenderStart() {
+    auto& commandList = dxCommand_->getCommandList();
 
     /// ================================================
     /// pso set
@@ -124,17 +154,19 @@ void VignetteEffect::RenderStart() {
     commandList->SetPipelineState(pso_->pipelineState.Get());
     commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+    ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
+    commandList->SetDescriptorHeaps(1, ppHeaps);
 }
 
-void VignetteEffect::Render() {
-    auto commandList = dxCommand_->getCommandList();
-    auto* sceneView  = SceneManager::getInstance()->getSceneView();
+void DissolveEffect::Render() {
+    auto& commandList = dxCommand_->getCommandList();
+    auto* sceneView   = SceneManager::getInstance()->getSceneView();
 
     /// ================================================
     /// Viewport の設定
     /// ================================================
-    ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
-    commandList->SetDescriptorHeaps(1, ppHeaps);
+
     commandList->SetGraphicsRootDescriptorTable(0, sceneView->getBackBufferSrvHandle());
 
     commandList->DrawInstanced(6, 1, 0, 0);

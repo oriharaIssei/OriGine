@@ -8,15 +8,15 @@
 #include "directX12/ShaderManager.h"
 #include <component/effect/post/VignetteParam.h>
 
-class VignetteEffect
+class DissolveEffect
     : public ISystem {
 public:
-    VignetteEffect() : ISystem(SystemType::PostRender) {}
-    ~VignetteEffect() override = default;
+    DissolveEffect() : ISystem(SystemType::PostRender) {}
+    ~DissolveEffect() override = default;
 
     void Initialize() override;
     void Update() override;
-    void UpdateEntity(GameEntity* _entity) override ;
+    void UpdateEntity(GameEntity* _entity) override;
     void Finalize();
 
 protected:

@@ -49,7 +49,7 @@ void RadialBlurEffect::Update() {
 
     for (auto& activeParam : activeRadialBlurParams_) {
         sceneView->PreDraw();
-        RenderState();
+        RenderStart();
 
         activeParam->getConstantBuffer().ConvertToBuffer();
         activeParam->getConstantBuffer().SetForRootParameter(dxCommand_->getCommandList(), 1);
@@ -141,7 +141,7 @@ void RadialBlurEffect::CreatePSO() {
     pso_ = shaderManager->CreatePso("RadialBlurEffect", shaderInfo, Engine::getInstance()->getDxDevice()->getDevice());
 }
 
-void RadialBlurEffect::RenderState() {
+void RadialBlurEffect::RenderStart() {
     auto& commandList = dxCommand_->getCommandList();
 
     /// ================================================

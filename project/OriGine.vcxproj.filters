@@ -523,6 +523,8 @@
     <ClInclude Include="engine\code\component\animation\SkinningAnimationComponent.h" />
     <ClInclude Include="engine\code\system\effect\SkinningAnimationSystem.h" />
     <ClInclude Include="engine\code\system\render\SkinningMeshRenderSystem.h" />
+    <ClInclude Include="engine\code\component\effect\post\DissolveEffectParam.h" />
+    <ClInclude Include="engine\code\system\postRender\DissolveEffect.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\code\ECS\ECSDebugger.cpp">
@@ -824,5 +826,7 @@
     <ClCompile Include="engine\code\system\effect\SkinningAnimationSystem.cpp" />
     <ClCompile Include="engine\code\system\render\SkinningMeshRenderSystem.cpp" />
     <ClCompile Include="math\Sequence.cpp" />
+    <ClCompile Include="engine\code\component\effect\post\DissolveEffectParam.cpp" />
+    <ClCompile Include="engine\code\system\postRender\DissolveEffect.cpp" />
   </ItemGroup>
 </Project>
