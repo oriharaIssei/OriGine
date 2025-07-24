@@ -41,11 +41,6 @@ inline const std::string kEngineResourceDirectory      = "./engine/resource";
 #include "system/effect/SpriteAnimationSystem.h"
 #include "system/effect/TextureEffectAnimation.h"
 
-#include "system/postRender/DistortionEffect.h"
-#include "system/postRender/GrayscaleEffect.h"
-#include "system/postRender/SmoothingEffect.h"
-#include "system/postRender/VignetteEffect.h"
-
 #include "system/render/BackGroundSpriteRenderSystem.h"
 #include "system/render/ColliderRenderingSystem.h"
 #include "system/render/EffectTexturedMeshRenderSystem.h"
@@ -54,6 +49,12 @@ inline const std::string kEngineResourceDirectory      = "./engine/resource";
 #include "system/render/SkyboxRender.h"
 #include "system/render/SpriteRenderSystem.h"
 #include "system/render/TexturedMeshRenderSystem.h"
+
+#include "system/postRender/DissolveEffect.h"
+#include "system/postRender/DistortionEffect.h"
+#include "system/postRender/GrayscaleEffect.h"
+#include "system/postRender/SmoothingEffect.h"
+#include "system/postRender/VignetteEffect.h"
 #endif // ENGINE_SYSTEMS
 
 #ifdef ENGINE_COMPONENTS
@@ -71,6 +72,7 @@ inline const std::string kEngineResourceDirectory      = "./engine/resource";
 #include "component/collider/CollisionPushBackInfo.h"
 
 #include "component/effect/particle/emitter/Emitter.h"
+#include "component/effect/post/DissolveEffectParam.h"
 #include "component/effect/post/DistortionEffectParam.h"
 #include "component/effect/post/VignetteParam.h"
 #include "component/effect/TextureEffectParam.h"
