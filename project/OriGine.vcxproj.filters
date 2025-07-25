@@ -525,6 +525,8 @@
     <ClInclude Include="engine\code\system\render\SkinningMeshRenderSystem.h" />
     <ClInclude Include="engine\code\component\effect\post\DissolveEffectParam.h" />
     <ClInclude Include="engine\code\system\postRender\DissolveEffect.h" />
+    <ClInclude Include="engine\code\system\postRender\RandomEffect.h" />
+    <ClInclude Include="engine\code\component\effect\post\RandomEffectParam.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\code\ECS\ECSDebugger.cpp">
@@ -828,5 +830,7 @@
     <ClCompile Include="math\Sequence.cpp" />
     <ClCompile Include="engine\code\component\effect\post\DissolveEffectParam.cpp" />
     <ClCompile Include="engine\code\system\postRender\DissolveEffect.cpp" />
+    <ClCompile Include="engine\code\system\postRender\RandomEffect.cpp" />
+    <ClCompile Include="engine\code\component\effect\post\RandomEffectParam.cpp" />
   </ItemGroup>
 </Project>
