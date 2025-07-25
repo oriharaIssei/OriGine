@@ -53,6 +53,7 @@ inline const std::string kEngineResourceDirectory      = "./engine/resource";
 #include "system/postRender/DissolveEffect.h"
 #include "system/postRender/DistortionEffect.h"
 #include "system/postRender/GrayscaleEffect.h"
+#include "system/postRender/RandomEffect.h"
 #include "system/postRender/SmoothingEffect.h"
 #include "system/postRender/VignetteEffect.h"
 #endif // ENGINE_SYSTEMS
@@ -74,6 +75,7 @@ inline const std::string kEngineResourceDirectory      = "./engine/resource";
 #include "component/effect/particle/emitter/Emitter.h"
 #include "component/effect/post/DissolveEffectParam.h"
 #include "component/effect/post/DistortionEffectParam.h"
+#include "component/effect/post/RandomEffectParam.h"
 #include "component/effect/post/VignetteParam.h"
 #include "component/effect/TextureEffectParam.h"
 

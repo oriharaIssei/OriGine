@@ -28,6 +28,27 @@ void DissolveEffect::Update() {
         return;
     }
 
+    // 実行する必要があるかチェック
+    bool allIsUnactive   = true;
+    auto* componentArray = ECSManager::getInstance()->getComponentArray<DissolveEffectParam>();
+    if (!componentArray) {
+        return;
+    }
+    for (auto& compVec : *componentArray->getAllComponents()) {
+        if (compVec.empty()) {
+            continue;
+        }
+        for (auto& comp : compVec) {
+            if (comp.isActive()) {
+                allIsUnactive = false;
+                break; // 1つでもアクティブなコンポーネントがあればループを抜ける
+            }
+        }
+    }
+    if (allIsUnactive) {
+        return; // 全てのコンポーネントが非アクティブなら何もしない
+    }
+
     RenderStart();
 
     sceneView->PreDraw();

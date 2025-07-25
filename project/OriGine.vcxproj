@@ -111,8 +111,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="engine\code\component\effect\post\RandomEffectParam.h" />
     <ClInclude Include="engine\code\system\postRender\DissolveEffect.h" />
     <ClInclude Include="engine\code\component\effect\post\DissolveEffectParam.h" />
+    <ClInclude Include="engine\code\system\postRender\RandomEffect.h" />
     <ClInclude Include="engine\EngineInclude.h" />
     <ClInclude Include="engine\code\ECS\ECSDebugger.h" />
     <ClInclude Include="engine\code\ECS\ECSEditor.h" />
@@ -239,6 +241,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="util\timeline\Timeline.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="engine\code\component\effect\post\RandomEffectParam.cpp" />
     <ClCompile Include="engine\code\system\postRender\DissolveEffect.cpp" />
     <ClCompile Include="engine\code\component\effect\post\DissolveEffectParam.cpp" />
     <ClCompile Include="engine\code\ECS\ECSDebugger.cpp" />
@@ -322,6 +325,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\system\render\SkyboxRender.cpp" />
     <ClCompile Include="engine\code\system\render\SpriteRenderSystem.cpp" />
     <ClCompile Include="engine\code\system\render\TexturedMeshRenderSystem.cpp" />
+    <ClCompile Include="engine\code\system\postRender\RandomEffect.cpp" />
     <ClCompile Include="engine\code\texture\TextureManager.cpp" />
     <ClCompile Include="lib\Thread\Thread.cpp" />
     <ClCompile Include="lib\binaryIO\BinaryIO.cpp" />

@@ -26,7 +26,14 @@ void DissolveEffectParam::Initialize(GameEntity* /*_entity*/) {
         paramBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
     }
 }
-void DissolveEffectParam::Finalize() {}
+void DissolveEffectParam::Finalize() {
+    if (isActive_) {
+        paramBuffer_.Finalize();
+    }
+    textureFilePath_.clear();
+    textureIndex_ = 0;
+    isActive_     = false;
+}
 
 void DissolveEffectParam::LoadTexture(const std::string& filePath) {
     if (filePath.empty()) {
