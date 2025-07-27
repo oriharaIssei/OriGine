@@ -82,6 +82,37 @@ public:
         return paramBuffer_;
     }
 
+    float getThreshold() const {
+        return paramBuffer_->threshold;
+    }
+    void setThreshold(float threshold) {
+        paramBuffer_->threshold = threshold;
+    }
+    float getEdgeWidth() const {
+        return paramBuffer_->edgeWidth;
+    }
+    void setEdgeWidth(float edgeWidth) {
+        paramBuffer_->edgeWidth = edgeWidth;
+    }
+    const Vec4f& getOutLineColor() const {
+        return paramBuffer_->outLineColor;
+    }
+    void setOutLineColor(const Vec4f& color) {
+        paramBuffer_->outLineColor = color;
+    }
+    const UVTransform& getUVTransform() const {
+        return paramBuffer_->uvTransform;
+    }
+    void getUvScale(const Vec2f& uvScale) {
+        paramBuffer_->uvTransform.scale_ = uvScale;
+    }
+    void setUvRotate(float rotate) {
+        paramBuffer_->uvTransform.rotate_ = rotate;
+    }
+    void setUvTranslate(const Vec2f& translate) {
+        paramBuffer_->uvTransform.translate_ = translate;
+    }
+
     uint32_t getTextureIndex() const {
         return textureIndex_;
     }

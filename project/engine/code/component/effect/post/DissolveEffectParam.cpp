@@ -54,7 +54,11 @@ bool DissolveEffectParam::Edit() {
 
 #ifdef _DEBUG
 
-    isEdited = CheckBoxCommand("Active", isActive_);
+    if (CheckBoxCommand("Active", isActive_)) {
+            // パラメータバッファの作成
+            paramBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+        isEdited = true;
+    }
     isEdited |= DragGuiCommand("Threshold", paramBuffer_->threshold, 0.001f, 0.0f, 1.0f, "%.4f");
     isEdited |= DragGuiCommand("Edge Width", paramBuffer_->edgeWidth, 0.001f, 0.0f, 1.0f, "%.4f");
     isEdited |= ColorEditGuiCommand("OutLine Color", paramBuffer_->outLineColor);
