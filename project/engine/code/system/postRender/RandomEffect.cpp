@@ -28,9 +28,9 @@ void RandomEffect::Update() {
         return;
     }
 
-    RenderStart();
-
     sceneView->PreDraw();
+    sceneView->DrawTexture();
+    RenderStart();
 
     for (auto& id : entityIDs_) {
         auto* entity = ECSManager::getInstance()->getEntity(id);
