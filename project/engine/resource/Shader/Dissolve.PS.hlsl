@@ -20,20 +20,19 @@ ConstantBuffer<DissolveParam> gDissolveParam : register(b0); // dissolve paramet
 PixelShaderOutput main(VertexShaderOutput input)
 {
     PixelShaderOutput output;
+    
     float4 transformedUV = mul(float4(input.texCoords, 0.0f, 1.0f), gDissolveParam.uvMat);
     float dissolveValue = gDissolveTexture.Sample(gSampler, transformedUV.xy).r;
 
-    if (dissolveValue < gDissolveParam.threshold)
-    {
-        discard;
-    }
-    
         // Apply outline effect
-    float edgeFactor = smoothstep(gDissolveParam.threshold,
-                                      gDissolveParam.threshold + gDissolveParam.edgeWidth,
-                                      dissolveValue);
     
-    output.color = lerp(gDissolveParam.outLineColor, gSceneTexture.Sample(gSampler, input.texCoords), edgeFactor);
+    float dissolveMask = step(gDissolveParam.threshold, dissolveValue); // 0 or 1
+    
+    float dissolveColorMask = step(gDissolveParam.threshold, dissolveValue + gDissolveParam.edgeWidth); // 0 or 1
 
+
+    
+    output.color = dissolveMask ? gSceneTexture.Sample(gSampler, input.texCoords) : lerp(float4(0.f, 0.f, 0.f, 0.f), gDissolveParam.outLineColor, dissolveColorMask);
+    
     return output;
 }

@@ -44,7 +44,11 @@ void DissolveEffect::Update() {
                 break; // 1つでもアクティブなコンポーネントがあればループを抜ける
             }
         }
+        if (!allIsUnactive) {
+            break; // 全てのコンポーネントが非アクティブなら何もしない
+        }
     }
+
     if (allIsUnactive) {
         return; // 全てのコンポーネントが非アクティブなら何もしない
     }
@@ -70,9 +74,9 @@ void DissolveEffect::UpdateEntity(GameEntity* _entity) {
     auto& commandList = dxCommand_->getCommandList();
 
     for (int32_t i = 0; i < compSize; i++) {
-        auto* dissolveEffectParam = getComponent<DissolveEffectParam>(_entity);
+        auto* dissolveEffectParam = getComponent<DissolveEffectParam>(_entity,i);
         if (!dissolveEffectParam->isActive()) {
-            return;
+            continue;
         }
         commandList->SetGraphicsRootDescriptorTable(1,
             TextureManager::getDescriptorGpuHandle(dissolveEffectParam->getTextureIndex()));
