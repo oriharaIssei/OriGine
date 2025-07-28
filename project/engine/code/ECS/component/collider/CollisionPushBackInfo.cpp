@@ -8,17 +8,16 @@ void CollisionPushBackInfo::Finalize() {
     collisionInfoMap_.clear();
 }
 
-bool CollisionPushBackInfo::Edit() {
-    bool isChanged = false;
+void CollisionPushBackInfo::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, const std::string& _parentLabel) {
 #ifdef _DEBUG
-    if (ImGui::BeginCombo("PushBackType", GetCollisionPushBackTypeName(pushBackType_))) {
+    std::string label = "PushBackType##" + _parentLabel;
+    if (ImGui::BeginCombo(label.c_str(), GetCollisionPushBackTypeName(pushBackType_))) {
         for (int i = 0; i < static_cast<int>(CollisionPushBackType::Count); ++i) {
             CollisionPushBackType type = static_cast<CollisionPushBackType>(i);
             bool isSelected            = (pushBackType_ == type);
             if (ImGui::Selectable(GetCollisionPushBackTypeName(type), isSelected)) {
                 auto command = std::make_unique<SetterCommand<CollisionPushBackType>>(&pushBackType_, type);
                 EditorController::getInstance()->pushCommand(std::move(command));
-                isChanged = true;
             }
             if (isSelected) {
                 ImGui::SetItemDefaultFocus();
@@ -27,7 +26,6 @@ bool CollisionPushBackInfo::Edit() {
         ImGui::EndCombo();
     }
 #endif // _DEBUG
-    return isChanged;
 }
 
 void CollisionPushBackInfo::ClearInfo() {

@@ -1,27 +1,30 @@
 #include "CameraTransform.h"
 
-#include <imgui/imgui.h>
+#ifdef _DEBUG
+#include <myGui/myGui.h>
+#endif
 
 void CameraTransform::Initialize(GameEntity* _hostEntity) {
     _hostEntity;
     UpdateMatrix();
 }
 
-bool CameraTransform::Edit() {
-    bool isChange = false;
-    isChange |= ImGui::DragFloat4("Rotate", rotate.v, 0.1f);
-    isChange |= ImGui::DragFloat3("Translate", translate.v, 0.1f);
+void CameraTransform::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, const std::string& _parentLabel) {
+#ifdef _DEBUG
+
+    DragGuiVectorCommand("Rotate##" + _parentLabel, rotate, 0.01f);
+    DragGuiVectorCommand("Translate##" + _parentLabel, translate, 0.01f);
 
     ImGui::Spacing();
 
-    isChange |= ImGui::DragFloat("FovAngleY", &fovAngleY, 0.1f);
-    isChange |= ImGui::DragFloat("AspectRatio", &aspectRatio, 0.1f);
-    isChange |= ImGui::DragFloat("NearZ", &nearZ, 0.1f);
-    isChange |= ImGui::DragFloat("FarZ", &farZ, 0.1f);
-    if (isChange) {
-        UpdateMatrix();
-    }
-    return isChange;
+    DragGuiCommand("FovAngleY##" + _parentLabel, fovAngleY, 0.1f);
+    DragGuiCommand("AspectRatio##" + _parentLabel, aspectRatio, 0.1f);
+    DragGuiCommand("NearZ##" + _parentLabel, nearZ, 0.1f);
+    DragGuiCommand("FarZ##" + _parentLabel, farZ, 0.1f);
+
+    UpdateMatrix();
+
+#endif // _DEBUG
 }
 
 void CameraTransform::Finalize() {

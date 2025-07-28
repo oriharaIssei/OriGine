@@ -304,15 +304,13 @@ void PlaneRenderer::Initialize(GameEntity* /*_hostEntity*/) {
     }
 }
 
-bool PlaneRenderer::Edit() {
+void PlaneRenderer::Edit(Scene* _scene, GameEntity* _entity, const std::string& _parentLabel) {
 #ifdef _DEBUG
-    bool isEdit = false;
-
-    MeshRenderer::Edit();
-
     ImGui::Text("Texture Directory : %s", textureDirectory_.c_str());
     ImGui::Text("Texture FileName  : %s", textureFileName_.c_str());
-    if (ImGui::Button("LoadTexture")) {
+
+    std::string label = "LoadTexture##" + _parentLabel;
+    if (ImGui::Button(label.c_str())) {
         std::string directory = "";
         std::string fileName  = "";
         if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"png"})) {
@@ -324,25 +322,20 @@ bool PlaneRenderer::Edit() {
             commandCombo->setFuncOnAfterCommand([this]() { textureIndex_ = TextureManager::LoadTexture(textureDirectory_ + "/" + textureFileName_); }, true);
 
             EditorController::getInstance()->pushCommand(std::move(commandCombo));
-
-            isEdit = true;
         }
     }
-
-    if (ImGui::TreeNode("Transform")) {
-        if (transformBuff_.openData_.Edit()) {
-            transformBuff_.ConvertToBuffer();
-        }
+    label = "Transform##" + _parentLabel;
+    if (ImGui::TreeNode(label.c_str())) {
+        transformBuff_.openData_.Edit(_scene, _entity, _parentLabel);
         ImGui::TreePop();
     }
-    if (ImGui::TreeNode("Material")) {
-        materialBuff_.openData_.DebugGui();
+    label = "Material##" + _parentLabel;
+    if (ImGui::TreeNode(label.c_str())) {
+        materialBuff_.openData_.DebugGui(_parentLabel);
+        materialBuff_.ConvertToBuffer();
         ImGui::TreePop();
     }
 
-    return isEdit;
-#else
-    return false;
 #endif // _DEBUG
 }
 
@@ -394,13 +387,12 @@ void RingRenderer::Initialize(GameEntity* _hostEntity) {
     }
 }
 
-bool RingRenderer::Edit() {
-    bool isEdit = false;
-
+void RingRenderer::Edit(Scene* _scene, GameEntity* _entity, const std::string& _parentLabel) {
 #ifdef _DEBUG
     ImGui::Text("BlendMode :");
     ImGui::SameLine();
-    if (ImGui::BeginCombo("##BlendMode", blendModeStr[(int32_t)currentBlend_].c_str())) {
+    std::string label = "##BlendMode" + _parentLabel;
+    if (ImGui::BeginCombo(label.c_str(), blendModeStr[(int32_t)currentBlend_].c_str())) {
         bool isSelected    = false;
         int32_t blendIndex = 0;
         for (auto& blendModeName : blendModeStr) {
@@ -409,7 +401,6 @@ bool RingRenderer::Edit() {
             if (ImGui::Selectable(blendModeName.c_str(), isSelected)) {
                 EditorController::getInstance()->pushCommand(
                     std::make_unique<SetterCommand<BlendMode>>(&currentBlend_, static_cast<BlendMode>(blendIndex)));
-                isEdit = true;
                 break;
             }
 
@@ -421,7 +412,8 @@ bool RingRenderer::Edit() {
     // texture
     ImGui::Text("Texture Directory : %s", textureDirectory_.c_str());
     ImGui::Text("Texture FileName  : %s", textureFileName_.c_str());
-    if (ImGui::Button("LoadTexture")) {
+    label = "LoadTexture##" + _parentLabel;
+    if (ImGui::Button(label.c_str())) {
         std::string directory = "";
         std::string fileName  = "";
         if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"png"})) {
@@ -430,31 +422,33 @@ bool RingRenderer::Edit() {
             commandCombo->addCommand(std::make_shared<SetterCommand<std::string>>(&textureFileName_, fileName));
             commandCombo->setFuncOnAfterCommand([this]() { textureIndex_ = TextureManager::LoadTexture(textureDirectory_ + "/" + textureFileName_); }, true);
             EditorController::getInstance()->pushCommand(std::move(commandCombo));
-            isEdit = true;
         }
     }
 
     ImGui::Spacing();
-    ImGui::Separator();
+    ImGui::SeparatorText("Shape");
     ImGui::Spacing();
 
     // shape
     int32_t division = primitive_.getDivision();
-    isEdit |= DragGuiCommand<int32_t>("Division", division, 1, 1, 1000, "%d", [this](int32_t* _value) {
+    label            = "Division##" + _parentLabel;
+    DragGuiCommand<int32_t>(label, division, 1, 1, 1000, "%d", [this](int32_t* _value) {
         primitive_.setDivision(static_cast<uint32_t>(*_value));
         createMesh(&meshGroup_->back());
     });
     primitive_.setDivision(static_cast<uint32_t>(division));
 
     float innerRadius = primitive_.getInnerRadius();
-    isEdit |= DragGuiCommand<float>("inner Radius", innerRadius, 0.01f, 0.01f, 100.f, "%.2f", [this](float* _value) {
+    label             = "InnerRadius##" + _parentLabel;
+    DragGuiCommand<float>(label, innerRadius, 0.01f, 0.01f, 100.f, "%.2f", [this](float* _value) {
         primitive_.setInnerRadius(*_value);
         createMesh(&meshGroup_->back());
     });
     primitive_.setInnerRadius(innerRadius);
 
     float outerRadius = primitive_.getOuterRadius();
-    isEdit |= DragGuiCommand<float>("outer Radius", outerRadius, 0.01f, 0.01f, 100.f, "%.2f", [this](float* _value) {
+    label             = "OuterRadius##" + _parentLabel;
+    DragGuiCommand<float>(label, outerRadius, 0.01f, 0.01f, 100.f, "%.2f", [this](float* _value) {
         primitive_.setOuterRadius(*_value);
         createMesh(&meshGroup_->back());
     });
@@ -465,20 +459,21 @@ bool RingRenderer::Edit() {
     ImGui::Spacing();
 
     // buffer Datas
-    if (ImGui::TreeNode("Transform")) {
-        if (transformBuff_.openData_.Edit()) {
-            transformBuff_.ConvertToBuffer();
-        }
+    label = "Transform##" + _parentLabel;
+    if (ImGui::TreeNode(label.c_str())) {
+        transformBuff_.openData_.Edit(_scene, _entity, _parentLabel);
+        transformBuff_.ConvertToBuffer();
+
         ImGui::TreePop();
     }
-    if (ImGui::TreeNode("Material")) {
-        materialBuff_.openData_.DebugGui();
+    label = "Material##" + _parentLabel;
+    if (ImGui::TreeNode(label.c_str())) {
+        materialBuff_.openData_.DebugGui(_parentLabel);
+        materialBuff_.ConvertToBuffer();
         ImGui::TreePop();
     }
 
 #endif // _DEBUG
-
-    return isEdit;
 }
 
 void to_json(nlohmann::json& j, const RingRenderer& r) {
@@ -543,13 +538,12 @@ void BoxRenderer::Initialize(GameEntity* _hostEntity) {
     }
 }
 
-bool BoxRenderer::Edit() {
-    bool isEdit = false;
-
+void BoxRenderer::Edit(Scene* _scene, GameEntity* _entity, const std::string& _parentLabel) {
 #ifdef _DEBUG
     ImGui::Text("BlendMode :");
     ImGui::SameLine();
-    if (ImGui::BeginCombo("##BlendMode", blendModeStr[(int32_t)currentBlend_].c_str())) {
+    std::string label = "##BlendMode" + _parentLabel;
+    if (ImGui::BeginCombo(label.c_str(), blendModeStr[(int32_t)currentBlend_].c_str())) {
         bool isSelected    = false;
         int32_t blendIndex = 0;
         for (auto& blendModeName : blendModeStr) {
@@ -558,11 +552,10 @@ bool BoxRenderer::Edit() {
             if (ImGui::Selectable(blendModeName.c_str(), isSelected)) {
                 EditorController::getInstance()->pushCommand(
                     std::make_unique<SetterCommand<BlendMode>>(&currentBlend_, static_cast<BlendMode>(blendIndex)));
-                isEdit = true;
                 break;
             }
 
-            blendIndex++;
+            ++blendIndex;
         }
         ImGui::EndCombo();
     }
@@ -570,7 +563,8 @@ bool BoxRenderer::Edit() {
     // texture
     ImGui::Text("Texture Directory : %s", textureDirectory_.c_str());
     ImGui::Text("Texture FileName  : %s", textureFileName_.c_str());
-    if (ImGui::Button("LoadTexture")) {
+    label = "LoadTexture##" + _parentLabel;
+    if (ImGui::Button(label.c_str())) {
         std::string directory = "";
         std::string fileName  = "";
         if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"png"})) {
@@ -579,7 +573,6 @@ bool BoxRenderer::Edit() {
             commandCombo->addCommand(std::make_shared<SetterCommand<std::string>>(&textureFileName_, fileName));
             commandCombo->setFuncOnAfterCommand([this]() { textureIndex_ = TextureManager::LoadTexture(textureDirectory_ + "/" + textureFileName_); }, true);
             EditorController::getInstance()->pushCommand(std::move(commandCombo));
-            isEdit = true;
         }
     }
 
@@ -589,7 +582,8 @@ bool BoxRenderer::Edit() {
 
     // shape
     Vec3f size = primitive_.getSize();
-    DragGuiVectorCommand<3, float>("Size", size, 0.01f, 0.01f, {}, "%.3f", [this](Vec<3, float>* _value) {
+    label      = "Size##" + _parentLabel;
+    DragGuiVectorCommand<3, float>(label.c_str(), size, 0.01f, 0.01f, {}, "%.3f", [this](Vec<3, float>* _value) {
         primitive_.setSize(*_value);
         createMesh(&meshGroup_->back());
     });
@@ -599,20 +593,21 @@ bool BoxRenderer::Edit() {
     ImGui::Spacing();
 
     // buffer Datas
-    if (ImGui::TreeNode("Transform")) {
-        if (transformBuff_.openData_.Edit()) {
-            transformBuff_.ConvertToBuffer();
-        }
+    label = "Transform##" + _parentLabel;
+    if (ImGui::TreeNode(label.c_str())) {
+        transformBuff_.openData_.Edit(_scene, _entity, _parentLabel);
+
+        transformBuff_.ConvertToBuffer();
         ImGui::TreePop();
     }
-    if (ImGui::TreeNode("Material")) {
-        materialBuff_.openData_.DebugGui();
+    label = "Material##" + _parentLabel;
+    if (ImGui::TreeNode(label.c_str())) {
+        materialBuff_.openData_.DebugGui(_parentLabel);
+        materialBuff_.ConvertToBuffer();
         ImGui::TreePop();
     }
 
 #endif // _DEBUG
-
-    return isEdit;
 }
 
 void to_json(nlohmann::json& j, const BoxRenderer& r) {
@@ -665,12 +660,12 @@ void SphereRenderer::Initialize(GameEntity* _hostEntity) {
     }
 }
 
-bool SphereRenderer::Edit() {
-    bool isEdit = false;
+void SphereRenderer::Edit(Scene* _scene, GameEntity* _entity, const std::string& _parentLabel) {
 #ifdef _DEBUG
     ImGui::Text("BlendMode :");
     ImGui::SameLine();
-    if (ImGui::BeginCombo("##BlendMode", blendModeStr[(int32_t)currentBlend_].c_str())) {
+    std::string label = "##BlendMode" + _parentLabel;
+    if (ImGui::BeginCombo(label.c_str(), blendModeStr[(int32_t)currentBlend_].c_str())) {
         bool isSelected    = false;
         int32_t blendIndex = 0;
         for (auto& blendModeName : blendModeStr) {
@@ -678,7 +673,6 @@ bool SphereRenderer::Edit() {
             if (ImGui::Selectable(blendModeName.c_str(), isSelected)) {
                 EditorController::getInstance()->pushCommand(
                     std::make_unique<SetterCommand<BlendMode>>(&currentBlend_, static_cast<BlendMode>(blendIndex)));
-                isEdit = true;
                 break;
             }
             blendIndex++;
@@ -688,7 +682,8 @@ bool SphereRenderer::Edit() {
     // texture
     ImGui::Text("Texture Directory : %s", textureDirectory_.c_str());
     ImGui::Text("Texture FileName  : %s", textureFileName_.c_str());
-    if (ImGui::Button("LoadTexture")) {
+    label = "LoadTexture##" + _parentLabel;
+    if (ImGui::Button(label.c_str())) {
         std::string directory = "";
         std::string fileName  = "";
         if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"png"})) {
@@ -697,7 +692,6 @@ bool SphereRenderer::Edit() {
             commandCombo->addCommand(std::make_shared<SetterCommand<std::string>>(&textureFileName_, fileName));
             commandCombo->setFuncOnAfterCommand([this]() { textureIndex_ = TextureManager::LoadTexture(textureDirectory_ + "/" + textureFileName_); }, true);
             EditorController::getInstance()->pushCommand(std::move(commandCombo));
-            isEdit = true;
         }
     }
     ImGui::Spacing();
@@ -706,18 +700,21 @@ bool SphereRenderer::Edit() {
     // shape
     int32_t divisionLatitude  = primitive_.getDivisionLatitude();
     int32_t divisionLongitude = primitive_.getDivisionLongitude();
-    isEdit |= DragGuiCommand<int32_t>("Division Latitude", divisionLatitude, 1, 1, 1000, "%d", [this](int32_t* _value) {
+    label                     = "Division Latitude##" + _parentLabel;
+    DragGuiCommand<int32_t>(label.c_str(), divisionLatitude, 1, 1, 1000, "%d", [this](int32_t* _value) {
         primitive_.setDivisionLatitude(*_value);
         createMesh(&meshGroup_->back());
     });
     primitive_.setDivisionLatitude(divisionLatitude);
-    isEdit |= DragGuiCommand<int32_t>("Division Longitude", divisionLongitude, 1, 1, 1000, "%d", [this](int32_t* _value) {
+    label = "Division Longitude##" + _parentLabel;
+    DragGuiCommand<int32_t>(label.c_str(), divisionLongitude, 1, 1, 1000, "%d", [this](int32_t* _value) {
         primitive_.setDivisionLongitude(*_value);
         createMesh(&meshGroup_->back());
     });
     primitive_.setDivisionLongitude(divisionLongitude);
     float radius = primitive_.getRadius();
-    isEdit |= DragGuiCommand<float>("Radius", radius, 0.01f, 0.01f, 100.f, "%.2f", [this](float* _value) {
+    label        = "Radius##" + _parentLabel;
+    DragGuiCommand<float>(label.c_str(), radius, 0.01f, 0.01f, 100.f, "%.2f", [this](float* _value) {
         primitive_.setRadius(*_value);
         createMesh(&meshGroup_->back());
     });
@@ -726,18 +723,20 @@ bool SphereRenderer::Edit() {
     ImGui::Separator();
     ImGui::Spacing();
     // buffer Datas
-    if (ImGui::TreeNode("Transform")) {
-        if (transformBuff_.openData_.Edit()) {
-            transformBuff_.ConvertToBuffer();
-        }
+   label = "Transform##" + _parentLabel;
+    if (ImGui::TreeNode(label.c_str())) {
+        transformBuff_.openData_.Edit(_scene, _entity, _parentLabel);
+        transformBuff_.ConvertToBuffer();
         ImGui::TreePop();
     }
-    if (ImGui::TreeNode("Material")) {
-        materialBuff_.openData_.DebugGui();
+
+    label = "Material##" + _parentLabel;
+    if (ImGui::TreeNode(label.c_str())) {
+        materialBuff_.openData_.DebugGui(_parentLabel);
+        materialBuff_.ConvertToBuffer();
         ImGui::TreePop();
     }
 #endif // _DEBUG
-    return isEdit;
 }
 
 void to_json(nlohmann::json& j, const SphereRenderer& r) {

@@ -12,12 +12,14 @@
 #endif // _DEBUG
 
 #ifdef _DEBUG
-void EmitterShape::Debug() {
+void EmitterShape::Debug(const std::string& _parentLabel) {
     ImGui::Text("SpawnType : %s", particleSpawnLocationTypeWord_[int(spawnType_)].c_str());
-    if (ImGui::RadioButton(particleSpawnLocationTypeWord_[int(ParticleSpawnLocationType::InBody)].c_str(), spawnType_ == ParticleSpawnLocationType::InBody)) {
+    std::string label = particleSpawnLocationTypeWord_[int(ParticleSpawnLocationType::InBody)] + "##" + _parentLabel;
+    if (ImGui::RadioButton(label.c_str(), spawnType_ == ParticleSpawnLocationType::InBody)) {
         spawnType_ = ParticleSpawnLocationType::InBody;
     }
-    if (ImGui::RadioButton(particleSpawnLocationTypeWord_[int(ParticleSpawnLocationType::Edge)].c_str(), spawnType_ == ParticleSpawnLocationType::Edge)) {
+    label = particleSpawnLocationTypeWord_[int(ParticleSpawnLocationType::Edge)] + "##" + _parentLabel;
+    if (ImGui::RadioButton(label.c_str(), spawnType_ == ParticleSpawnLocationType::Edge)) {
         spawnType_ = ParticleSpawnLocationType::Edge;
     }
 }
@@ -25,10 +27,10 @@ void EmitterShape::Debug() {
 
 #pragma region "Sphere"
 #ifdef _DEBUG
-void EmitterSphere::Debug() {
-    EmitterShape::Debug();
+void EmitterSphere::Debug(const std::string& _parentLabel) {
+    EmitterShape::Debug(_parentLabel);
     ImGui::Text("radius");
-    std::string label = "##" + emitterShapeTypeWord_[int(type_)] + "_radius";
+    std::string label = "##_radius" +_parentLabel;
     ImGui::DragFloat(label.c_str(), &radius_, 0.01f, 0.01f);
 }
 #endif // _DEBUG
@@ -58,14 +60,14 @@ Vec3f EmitterSphere::getSpawnPos() {
 
 #pragma region "Obb"
 #ifdef _DEBUG
-void EmitterOBB::Debug() {
-    EmitterShape::Debug();
+void EmitterOBB::Debug(const std::string& _parentLabel) {
+    EmitterShape::Debug(_parentLabel);
     ImGui::Text("min");
-    std::string label = "##" + emitterShapeTypeWord_[int(type_)] + "_min";
+    std::string label = "##" + _parentLabel + "_min";
     ImGui::DragFloat3(label.c_str(), min_.v, 0.1f);
 
     ImGui::Text("min");
-    label = "##" + emitterShapeTypeWord_[int(type_)] + "_max";
+    label = "##" + _parentLabel + "_max";
     ImGui::DragFloat3(label.c_str(), max_.v, 0.1f);
 
     min_ = MinElement(max_, min_);
@@ -111,20 +113,20 @@ Vec3f EmitterOBB::getSpawnPos() {
 
 #pragma region "Capsule"
 #ifdef _DEBUG
-void EmitterCapsule::Debug() {
-    EmitterShape::Debug();
+void EmitterCapsule::Debug(const std::string& _parentLabel) {
+    EmitterShape::Debug(_parentLabel);
     ImGui::Text("direction");
-    std::string label = "##" + emitterShapeTypeWord_[int(type_)] + "_direction";
+    std::string label = "##" + _parentLabel + "_direction";
     if (ImGui::DragFloat3(label.c_str(), direction_.v, 0.1f)) {
         direction_ = (direction_.normalize());
     }
 
     ImGui::Text("radius");
-    label = "##" + emitterShapeTypeWord_[int(type_)] + "_radius";
+    label = "##" + _parentLabel + "_radius";
     ImGui::DragFloat(label.c_str(), &radius_, 0.1f);
 
     ImGui::Text("length");
-    label = "##" + emitterShapeTypeWord_[int(type_)] + "_length";
+    label = "##" + _parentLabel + "_length";
     ImGui::DragFloat(label.c_str(), &length_, 0.1f);
 }
 
@@ -152,20 +154,20 @@ Vec3f EmitterCapsule::getSpawnPos() {
 
 #pragma region "Cone"
 #ifdef _DEBUG
-void EmitterCone::Debug() {
-    EmitterShape::Debug();
+void EmitterCone::Debug(const std::string& _parentLabel) {
+    EmitterShape::Debug(_parentLabel);
     ImGui::Text("direction");
-    std::string label = "##" + emitterShapeTypeWord_[int(type_)] + "_direction";
+    std::string label = "##" + _parentLabel + "_direction";
     if (ImGui::DragFloat3(label.c_str(), direction_.v, 0.1f)) {
         direction_ = (direction_.normalize());
     }
 
     ImGui::Text("angle");
-    label = "##" + emitterShapeTypeWord_[int(type_)] + "_angle";
+    label = "##" + _parentLabel + "_angle";
     ImGui::DragFloat(label.c_str(), &angle_, 0.1f);
 
     ImGui::Text("length");
-    label = "##" + emitterShapeTypeWord_[int(type_)] + "_length";
+    label = "##" + _parentLabel + "_length";
     ImGui::DragFloat(label.c_str(), &length_, 0.1f);
 }
 #endif // _DEBUG

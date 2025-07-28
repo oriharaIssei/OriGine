@@ -21,22 +21,18 @@ void RadialBlurParam::Initialize(GameEntity* /*_entity*/) {
     }
 }
 
-bool RadialBlurParam::Edit() {
-    bool isChanged = false;
+void RadialBlurParam::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, const std::string& _parentLabel) {
 
 #ifdef _DEBUG
-    isChanged |= CheckBoxCommand("Active", isActive_);
-    if (isChanged) {
+    if (CheckBoxCommand("Active##" + _parentLabel, isActive_)) {
         constantBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
         constantBuffer_.ConvertToBuffer();
     }
     ImGui::Spacing();
-    isChanged |= DragGuiVectorCommand("Center", constantBuffer_.openData_.center_);
-    isChanged |= DragGuiCommand("Width", constantBuffer_.openData_.width_, 0.01f);
+    DragGuiVectorCommand("Center##" + _parentLabel, constantBuffer_.openData_.center_);
+    DragGuiCommand("Width##" + _parentLabel, constantBuffer_.openData_.width_, 0.01f);
 
 #endif // _DEBUG
-
-    return isChanged;
 }
 
 void RadialBlurParam::Finalize() {

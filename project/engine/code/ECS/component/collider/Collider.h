@@ -37,7 +37,7 @@ public:
     virtual void Initialize(GameEntity* _hostEntity);
     virtual void Finalize() = 0;
 
-    virtual bool Edit() = 0;
+    virtual void Edit(Scene* _scene, GameEntity* _entity, const std::string& _parentLabel) = 0;
 
     virtual void CalculateWorldShape() = 0;
 
@@ -82,7 +82,7 @@ public:
         this->preCollisionStateMap_.clear();
     }
 
-    virtual bool Edit() = 0;
+    virtual void Edit(Scene* _scene, GameEntity* _entity, const std::string& _parentLabel) = 0;
 
     virtual void CalculateWorldShape() = 0;
 
@@ -113,25 +113,25 @@ public:
         : Collider<AABB>() {}
     ~AABBCollider() {}
 
-    bool Edit() override {
-        bool isChange = false;
+    void Edit(Scene* _scene, GameEntity* _entity, const std::string& _parentLabel) override {
 
 #ifdef _DEBUG
 
-        isChange = CheckBoxCommand("IsActive", this->isActive_);
+        CheckBoxCommand("IsActive", this->isActive_);
 
-        if (ImGui::TreeNode("AABB")) {
-            isChange |= DragGuiVectorCommand<3, float>("Min", this->shape_.min_, 0.01f);
-            isChange |= DragGuiVectorCommand<3, float>("Max", this->shape_.max_, 0.01f);
+        std::string label = "AABB##" + _parentLabel;
+        if (ImGui::TreeNode(label.c_str())) {
+            DragGuiVectorCommand<3, float>("Min##" + _parentLabel, this->shape_.min_, 0.01f);
+            DragGuiVectorCommand<3, float>("Max##" + _parentLabel, this->shape_.max_, 0.01f);
             ImGui::TreePop();
         }
-        if (ImGui::TreeNode("Transform")) {
-            isChange |= transform_.Edit();
+        label = "Transform##" + _parentLabel;
+        if (ImGui::TreeNode(label.c_str())) {
+            transform_.Edit(_scene, _entity, _parentLabel);
             ImGui::TreePop();
         }
 
 #endif // _DEBUG
-        return isChange;
     }
 
     void CalculateWorldShape() override;
@@ -162,22 +162,25 @@ public:
     SphereCollider() : Collider<Sphere>() {}
     ~SphereCollider() {}
 
-    bool Edit() override {
-        bool isChange = false;
-#ifdef _DEBUG
-        isChange      = CheckBoxCommand("IsActive", this->isActive_);
+    void Edit(Scene* _scene, GameEntity* _entity, const std::string& _parentLabel) override {
 
-        if (ImGui::TreeNode("Sphere")) {
-            isChange |= DragGuiVectorCommand<3, float>("Center", shape_.center_, 0.01f);
-            isChange |= DragGuiCommand<float>("Radius", shape_.radius_, 0.01f);
+#ifdef _DEBUG
+
+        CheckBoxCommand("IsActive", this->isActive_);
+
+        std::string label = "Sphere##" + _parentLabel;
+        if (ImGui::TreeNode(label.c_str())) {
+            DragGuiVectorCommand<3, float>("Center##" + _parentLabel, shape_.center_, 0.01f);
+            DragGuiCommand<float>("Radius##" + _parentLabel, shape_.radius_, 0.01f);
             ImGui::TreePop();
         }
-        if (ImGui::TreeNode("Transform")) {
-            isChange |= transform_.Edit();
+        label = "Transform##" + _parentLabel;
+        if (ImGui::TreeNode(label.c_str())) {
+            transform_.Edit(_scene, _entity, _parentLabel);
             ImGui::TreePop();
         }
+
 #endif // _DEBUG
-        return isChange;
     }
 
     void CalculateWorldShape() override;

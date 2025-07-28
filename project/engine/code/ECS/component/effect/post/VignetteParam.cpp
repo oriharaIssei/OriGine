@@ -19,19 +19,18 @@ void VignetteParam::Finalize() {
     paramBuffer.Finalize();
 }
 
-bool VignetteParam::Edit() {
-    bool isEdit = false;
+void VignetteParam::Edit(Scene* /*_scene*/,GameEntity*/* _entity*/,const std::string& _parentLabel) {
+    
 #ifdef _DEBUG
 
     ImGui::Text("VignettePow");
-    isEdit |= DragGuiCommand("##VignettePow", paramBuffer.openData_.vignettePow, 0.01f, 0.0f);
+    DragGuiCommand("##VignettePow" + _parentLabel, paramBuffer.openData_.vignettePow, 0.01f, 0.0f);
     ImGui::Text("VignetteScale");
-    isEdit |= DragGuiCommand("##VignetteScale", paramBuffer.openData_.vignetteScale, 0.01f, 0.0f);
+    DragGuiCommand("##VignetteScale" + _parentLabel, paramBuffer.openData_.vignetteScale, 0.01f, 0.0f);
     ImGui::Text("VignetteColor");
-    isEdit |= ColorEditGuiCommand("##VignetteColor", paramBuffer.openData_.color);
+    ColorEditGuiCommand("##VignetteColor" + _parentLabel, paramBuffer.openData_.color);
 
 #endif // _DEBUG
-    return isEdit;
 }
 
 void to_json(nlohmann::json& j, const VignetteParam& p) {

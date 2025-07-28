@@ -12,22 +12,19 @@ void Rigidbody::Initialize(GameEntity* _entity) {
     _entity;
 }
 
-bool Rigidbody::Edit() {
-    bool isChange = false;
+void Rigidbody::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, const std::string& _parentLabel) {
 
 #ifdef _DEBUG
 
-    DragGuiVectorCommand("acceleration", acceleration_);
-    DragGuiVectorCommand("velocity", velocity_);
+    DragGuiVectorCommand("acceleration##" + _parentLabel, acceleration_);
+    DragGuiVectorCommand("velocity##" + _parentLabel, velocity_);
 
     ImGui::Separator();
 
-    DragGuiCommand("mass", mass_);
-    CheckBoxCommand("useGravity", useGravity_);
+    DragGuiCommand("mass##" + _parentLabel, mass_);
+    CheckBoxCommand("useGravity##" + _parentLabel, useGravity_);
 
 #endif // _DEBUG
-
-    return isChange;
 }
 
 void Rigidbody::Debug() {

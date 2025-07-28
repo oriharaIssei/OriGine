@@ -27,36 +27,38 @@ void DistortionEffectParam::Initialize(GameEntity* _hostEntity) {
     }
 }
 
-bool DistortionEffectParam::Edit() {
-    bool isChanged = false;
+void DistortionEffectParam::Edit(Scene* _scene, GameEntity* _entity, const std::string& _parentLabel) {
+
 #ifdef DEBUG
-    isChanged |= DragGuiVectorCommand("UV Scale", effectParamData_->uvTransform.scale_);
-    isChanged |= DragGuiCommand("UV Rotate", effectParamData_->uvTransform.rotate_);
-    isChanged |= DragGuiVectorCommand("UV Translate", effectParamData_->uvTransform.translate_);
-    if (isChanged) {
-        effectParamData_->UpdateUVMat();
-        effectParamData_.ConvertToBuffer();
-    }
+    DragGuiVectorCommand("UV Scale##" + _parentLabel, effectParamData_->uvTransform.scale_);
+    DragGuiCommand("UV Rotate##" + _parentLabel, effectParamData_->uvTransform.rotate_);
+    DragGuiVectorCommand("UV Translate##" + _parentLabel, effectParamData_->uvTransform.translate_);
+
+    effectParamData_->UpdateUVMat();
+    effectParamData_.ConvertToBuffer();
 
     ImGui::Spacing();
 
-    DragGuiCommand("Distortion Bias", effectParamData_->distortionBias, 0.01f);
-    DragGuiCommand("Distortion Strength", effectParamData_->distortionStrength, 0.01f);
+    DragGuiCommand("Distortion Bias##" + _parentLabel, effectParamData_->distortionBias, 0.01f);
+    DragGuiCommand("Distortion Strength##" + _parentLabel, effectParamData_->distortionStrength, 0.01f);
 
     ImGui::Separator();
     ImGui::Spacing();
 
     std::string objectNodeName;
-    int32_t objectIndex = 0;
-    if (ImGui::TreeNode("Distortion Object")) {
-        if (ImGui::Button("Add Object")) {
-            ImGui::OpenPopup("AddObject");
+    int32_t objectIndex     = 0;
+    std::string objectLabel = "Distortion Object##" + _parentLabel;
+    if (ImGui::TreeNode(objectLabel.c_str())) {
+        objectLabel = "Add Object##" + _parentLabel;
+        if (ImGui::Button(objectLabel.c_str())) {
+            ImGui::OpenPopup(objectLabel.c_str());
         }
 
-        if (ImGui::BeginPopup("AddObject")) {
+        if (ImGui::BeginPopup(objectLabel.c_str())) {
             static PrimitiveType newObjectType;
 
-            if (ImGui::BeginCombo("PrimitiveType", PrimitiveTypeToString(newObjectType))) {
+            objectLabel = "PrimitiveType##" + _parentLabel;
+            if (ImGui::BeginCombo(objectLabel.c_str(), PrimitiveTypeToString(newObjectType))) {
                 for (int32_t i = 0; i < int32_t(PrimitiveType::Count); ++i) {
                     PrimitiveType selectType = (PrimitiveType)i;
                     bool isSelected          = newObjectType == selectType;
@@ -72,7 +74,8 @@ bool DistortionEffectParam::Edit() {
                 ImGui::EndCombo();
             }
 
-            if (ImGui::Button("Add")) {
+            objectLabel = "Add##" + _parentLabel;
+            if (ImGui::Button(objectLabel.c_str())) {
                 std::shared_ptr<PrimitiveMeshRendererBase> newObject;
                 switch (newObjectType) {
                 case PrimitiveType::Plane:
@@ -91,7 +94,6 @@ bool DistortionEffectParam::Edit() {
                     auto command = std::make_unique<AddElementCommand<std::vector<std::pair<std::shared_ptr<PrimitiveMeshRendererBase>, PrimitiveType>>>>(
                         &distortionObjects_, std::make_pair(newObject, newObjectType));
                     EditorController::getInstance()->pushCommand(std::move(command));
-                    isChanged = true;
                 }
                 ImGui::CloseCurrentPopup();
             }
@@ -103,24 +105,22 @@ bool DistortionEffectParam::Edit() {
             if (ImGui::Button(std::string("X##" + objectNodeName).c_str())) {
                 auto command = std::make_unique<EraseElementCommand<std::vector<std::pair<std::shared_ptr<PrimitiveMeshRendererBase>, PrimitiveType>>>>(&distortionObjects_, distortionObjects_.begin() + objectIndex);
                 EditorController::getInstance()->pushCommand(std::move(command));
-                isChanged = true;
                 continue;
             }
             ImGui::SameLine();
             if (ImGui::TreeNode(objectNodeName.c_str())) {
                 if (obj) {
-                    isChanged |= obj->Edit();
+                    obj->Edit(_scene, _entity, _parentLabel + objectNodeName);
                 }
                 ImGui::TreePop();
             }
-            objectIndex++;
+            ++objectIndex;
         }
 
         ImGui::TreePop();
     }
 
 #endif // DEBUG
-    return isChanged;
 }
 
 void DistortionEffectParam::Finalize() {

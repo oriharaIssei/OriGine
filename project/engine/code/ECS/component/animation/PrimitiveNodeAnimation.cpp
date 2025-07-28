@@ -130,16 +130,16 @@ void PrimitiveNodeAnimation::Initialize(GameEntity* /*_entity*/) {
     currentTime_ = 0.0f;
 }
 
-bool PrimitiveNodeAnimation::Edit() {
+void PrimitiveNodeAnimation::Edit(Scene* /*_scene*/,GameEntity* /*_entity*/,const std::string& _parentLabel) {
 #ifdef _DEBUG
-    bool isChange = false;
 
-    isChange |= ImGui::InputFloat("duration", &duration_);
+    std::string label = "duration##" + _parentLabel;
+    ImGui::InputFloat(label.c_str(), &duration_);
 
-    ImGuiTableFlags tableFlags = ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollX;
+    ImGuiTableFlags tableFlags = ImGuiTableFlags_ScrollX;
     if (ImGui::TreeNode("Transform_Animation")) {
-        isChange |= CheckBoxCommand("TransformAnimation Is Loop", transformAnimationState_.isLoop_);
-        isChange |= CheckBoxCommand("TransformAnimation Is Play", transformAnimationState_.isPlay_);
+       CheckBoxCommand("TransformAnimation Is Loop", transformAnimationState_.isLoop_);
+       CheckBoxCommand("TransformAnimation Is Play", transformAnimationState_.isPlay_);
 
         if (ImGui::BeginCombo("TransformAnimation InterpolationType", InterpolationTypeName[int(transformInterpolationType_)])) {
             for (int i = 0; i < (int)InterpolationType::COUNT; ++i) {
@@ -163,7 +163,7 @@ bool PrimitiveNodeAnimation::Edit() {
             ImGui::TableSetColumnIndex(0);
             ImGui::TextUnformatted("Scale");
             ImGui::TableSetColumnIndex(1);
-            isChange |= ImGui::EditKeyFrame(
+            ImGui::EditKeyFrame(
                 "##TransformAnimation Scale",
                 scaleCurve_,
                 duration_);
@@ -181,7 +181,7 @@ bool PrimitiveNodeAnimation::Edit() {
             ImGui::TableSetColumnIndex(0);
             ImGui::TextUnformatted("Rotate");
             ImGui::TableSetColumnIndex(1);
-            isChange |= ImGui::EditKeyFrame(
+          ImGui::EditKeyFrame(
                 "##TransformAnimation Rotate",
                 rotateCurve_,
                 duration_);
@@ -199,7 +199,7 @@ bool PrimitiveNodeAnimation::Edit() {
             ImGui::TableSetColumnIndex(0);
             ImGui::TextUnformatted("Transform");
             ImGui::TableSetColumnIndex(1);
-            isChange |= ImGui::EditKeyFrame(
+           ImGui::EditKeyFrame(
                 "##TransformAnimation Transform",
                 translateCurve_,
                 duration_);
@@ -233,8 +233,8 @@ bool PrimitiveNodeAnimation::Edit() {
     }
 
     if (ImGui::TreeNode("Material_Animation")) {
-        isChange |= ImGui::Checkbox("MaterialAnimation Is Loop", &materialAnimationState_.isLoop_);
-        isChange |= ImGui::Checkbox("MaterialAnimation Is Play", &materialAnimationState_.isPlay_);
+        ImGui::Checkbox("MaterialAnimation Is Loop", &materialAnimationState_.isLoop_);
+        ImGui::Checkbox("MaterialAnimation Is Play", &materialAnimationState_.isPlay_);
 
         if (ImGui::BeginCombo("MaterialAnimation InterpolationType", InterpolationTypeName[int(uvInterpolationType_)])) {
             for (int i = 0; i < (int)InterpolationType::COUNT; ++i) {
@@ -266,7 +266,7 @@ bool PrimitiveNodeAnimation::Edit() {
             ImGui::TableSetColumnIndex(0);
             ImGui::TextUnformatted("Color");
             ImGui::TableSetColumnIndex(1);
-            isChange |= ImGui::EditColorKeyFrame(
+           ImGui::EditColorKeyFrame(
                 "##MaterialAnimation Color",
                 colorCurve_,
                 duration_);
@@ -282,7 +282,7 @@ bool PrimitiveNodeAnimation::Edit() {
             ImGui::TableSetColumnIndex(0);
             ImGui::TextUnformatted("UV");
             ImGui::TableSetColumnIndex(1);
-            isChange |= ImGui::EditKeyFrame(
+             ImGui::EditKeyFrame(
                 "##MaterialAnimation UV Scale",
                 uvScaleCurve_,
                 duration_);
@@ -300,7 +300,7 @@ bool PrimitiveNodeAnimation::Edit() {
             ImGui::TableSetColumnIndex(0);
             ImGui::TextUnformatted("UV Rotate");
             ImGui::TableSetColumnIndex(1);
-            isChange |= ImGui::EditKeyFrame(
+            ImGui::EditKeyFrame(
                 "##MaterialAnimation UV Rotate",
                 uvRotateCurve_,
                 duration_);
@@ -318,7 +318,7 @@ bool PrimitiveNodeAnimation::Edit() {
             ImGui::TextUnformatted("UV Translate");
             ImGui::TableSetColumnIndex(1);
 
-            isChange |= ImGui::EditKeyFrame(
+            ImGui::EditKeyFrame(
                 "##MaterialAnimation UV Translate",
                 uvTranslateCurve_,
                 duration_);
@@ -329,9 +329,6 @@ bool PrimitiveNodeAnimation::Edit() {
         ImGui::TreePop();
     }
 
-    return isChange;
-#else
-    return false;
 #endif // _DEBUG
 }
 

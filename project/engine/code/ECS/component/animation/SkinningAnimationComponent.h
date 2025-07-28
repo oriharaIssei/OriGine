@@ -9,6 +9,8 @@
 #include "AnimationData.h"
 #include "model/Model.h"
 
+class Scene;
+
 class SkinningAnimationComponent
     : public IComponent {
     friend void to_json(nlohmann::json& j, const SkinningAnimationComponent& r);
@@ -19,7 +21,7 @@ public:
     ~SkinningAnimationComponent() override = default;
 
     void Initialize(GameEntity* _entity) override;
-    bool Edit();
+    void Edit(Scene* _scene, GameEntity* _entity, const std::string& _parentLabel);
     void Finalize() override;
 
     /// <summary>
@@ -30,14 +32,14 @@ public:
     void addLoad(const std::string& directory, const std::string& fileName);
 
     void Play();
-    void Play(int32_t index);
-    void Play(const std::string& name);
+    void Play( int32_t index);
+    void Play( const std::string& name);
     void PlayNext(int32_t index, float _blendTime = 0.1f);
     void PlayNext(const std::string& name, float _blendTime = -0.1f);
 
     void Stop();
 
-    void CreateSkinnedVertex();
+    void CreateSkinnedVertex(Scene* _scene);
     void DeleteSkinnedVertex();
 
 public:
@@ -53,6 +55,7 @@ private:
         std::string fileName_                         = "";
         std::shared_ptr<AnimationData> animationData_ = nullptr;
 
+        bool prePlay_                  = false; // 前のアニメーションの状態
         AnimationState animationState_ = {false, false, false}; // アニメーションの状態
         float duration_                = 0.0f;
         float currentTime_             = 0.0f;
@@ -159,6 +162,9 @@ public:
     void setIsPlay(int32_t _animationIndex = 0, bool isPlay = false) { animationTable_[_animationIndex].animationState_.isPlay_ = isPlay; }
     void setIsLoop(int32_t _animationIndex = 0, bool isLoop = false) { animationTable_[_animationIndex].animationState_.isLoop_ = isLoop; }
     void setIsEnd(int32_t _animationIndex = 0, bool isEnd = false) { animationTable_[_animationIndex].animationState_.isEnd_ = isEnd; }
+
+    bool isPrePlay(int32_t _animationIndex = 0) const { return animationTable_[_animationIndex].prePlay_; }
+    void setIsPrePlay(int32_t _animationIndex = 0, bool isPlay = false) { animationTable_[_animationIndex].prePlay_ = isPlay; }
 
     int32_t getBindModeMeshRendererIndex() const { return bindModeMeshRendererIndex_; }
     void setBindModeMeshRendererIndex(int32_t index) { bindModeMeshRendererIndex_ = index; }

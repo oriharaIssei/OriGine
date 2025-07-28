@@ -124,32 +124,32 @@ void EntityComponentRegion::DrawGui() {
         }
     }
 
+    Scene* editScene         = parentArea_->getParentWindow()->getCurrentScene();
     auto& entityComponentMap = parentArea_->getEntityComponentMap();
     for (const auto& [componentTypeName, components] : entityComponentMap) {
         if (ImGui::CollapsingHeader(componentTypeName.c_str())) {
             ImGui::Indent();
-            if (components.size() > 1) {
+            if (components.size() >= 1) {
                 int32_t componentIndex = 0;
                 std::string label      = "";
                 for (const auto& component : components) {
                     label = componentTypeName + std::to_string(componentIndex);
 
                     if (ImGui::Button(std::string("X##" + label).c_str())) {
-                        auto removeCommand = std::make_unique<RemoveComponentFromEditListCommand>(parentArea_, componentTypeName);
+                        auto removeCommand = std::make_unique<RemoveComponentFromEditListCommand>(parentArea_, componentTypeName, componentIndex);
                         EditorController::getInstance()->pushCommand(std::move(removeCommand));
                         continue; // ボタンが押されたら次のコンポーネントへ
                     }
                     ImGui::SameLine();
 
+                    label = std::format("{} : [{}]##{}", componentTypeName, std::to_string(componentIndex), editEntity->getUniqueID());
                     if (ImGui::TreeNode(label.c_str())) {
-                        component->Edit();
+                        component->Edit(editScene, editEntity, label);
                         ImGui::TreePop();
                     }
 
                     ++componentIndex;
                 }
-            } else {
-                components[0]->Edit();
             }
             ImGui::Unindent();
         }

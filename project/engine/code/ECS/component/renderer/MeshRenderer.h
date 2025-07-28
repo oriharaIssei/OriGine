@@ -55,7 +55,7 @@ public:
         hostEntity_ = _hostEntity;
     }
 
-    bool Edit() override { return false; }
+    void Edit(Scene* /*_scene*/,GameEntity* /*_entity*/,const std::string& /*_parentLabel*/) override{}
 
     virtual void Finalize() {
         for (auto& mesh : *meshGroup_) {
@@ -127,7 +127,7 @@ public:
     ///</summary>
     void Initialize(GameEntity* _hostEntity) override;
 
-    bool Edit() override;
+    void Edit(Scene* _scene,GameEntity* _entity,const std::string& _parentLabel) override;
 
     void Finalize() override {
         for (auto& mesh : *meshGroup_) {
@@ -249,7 +249,7 @@ public:
     ///</summary>
     void Initialize(GameEntity* _hostEntity) override;
 
-    bool Edit() override;
+    void Edit(Scene* _scene,GameEntity* _entity,const std::string& _parentLabel) override;
     void Finalize() override;
 
 private:

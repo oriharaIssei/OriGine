@@ -114,6 +114,11 @@ void SkinningAnimationSystem::UpdateEntity(GameEntity* _entity) {
         }
 
         int32_t currentAnimationIndex = animationComponent->getCurrentAnimationIndex();
+        if (!animationComponent->isPrePlay() && animationComponent->isPlay()) {
+            animationComponent->CreateSkinnedVertex(this->getScene());
+        }
+
+        animationComponent->setIsPrePlay(animationComponent->isPlay());
         if (!animationComponent->isPlay(currentAnimationIndex)) {
             continue;
         }

@@ -29,7 +29,7 @@ public:
     void UpdateUvMatrix();
 
 #ifdef _DEBUG
-    void DebugGui();
+    void DebugGui(const std::string& _parentLabel);
 #endif // _DEBUG
 
 public:

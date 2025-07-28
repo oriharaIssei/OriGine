@@ -9,9 +9,9 @@
 #include "model/ModelManager.h"
 
 #define RESOURCE_DIRECTORY
-#include "engine/EngineInclude.h"
 #include "editor/EditorController.h"
 #include "editor/IEditor.h"
+#include "engine/EngineInclude.h"
 
 /// lib
 #include "myFileSystem/MyFileSystem.h"
@@ -159,15 +159,15 @@ void ModelMeshRenderer::Initialize(GameEntity* _hostEntity) {
     }
 }
 
-bool ModelMeshRenderer::Edit() {
-    bool isChange = false;
-
+void ModelMeshRenderer::Edit(Scene* _scene, GameEntity* _entity, const std::string& _parentLabel) {
 #ifdef _DEBUG
-    CheckBoxCommand("isRender", isRender_);
+    std::string label = "isRender##" + _parentLabel;
+    CheckBoxCommand(label, isRender_);
 
     ImGui::Text("BlendMode :");
     ImGui::SameLine();
-    if (ImGui::BeginCombo("##BlendMode", blendModeStr[(int32_t)currentBlend_].c_str())) {
+    label = "##BlendMode" + _parentLabel;
+    if (ImGui::BeginCombo(label.c_str(), blendModeStr[(int32_t)currentBlend_].c_str())) {
         bool isSelected    = false;
         int32_t blendIndex = 0;
         for (auto& blendModeName : blendModeStr) {
@@ -176,7 +176,7 @@ bool ModelMeshRenderer::Edit() {
             if (ImGui::Selectable(blendModeName.c_str(), isSelected)) {
                 EditorController::getInstance()->pushCommand(
                     std::make_unique<SetterCommand<BlendMode>>(&currentBlend_, static_cast<BlendMode>(blendIndex)));
-                isChange = true;
+
                 break;
             }
 
@@ -187,7 +187,8 @@ bool ModelMeshRenderer::Edit() {
 
     ImGui::Text("Model File: %s", fileName_.c_str());
 
-    if (ImGui::Button("Load")) {
+    label = "LoadModel##" + _parentLabel;
+    if (ImGui::Button(label.c_str())) {
         std::string directory;
         std::string fileName;
         if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"obj", "gltf"})) {
@@ -203,24 +204,22 @@ bool ModelMeshRenderer::Edit() {
             },
                 true);
             EditorController::getInstance()->pushCommand(std::make_unique<CommandCombo>(commandCombo));
-
-            isChange = true;
         }
     }
 
     ImGui::Separator();
 
-    std::string meshName = "Mesh";
+    std::string meshName = "Mesh##" + _parentLabel;
     for (int32_t i = 0; i < meshGroup_->size(); ++i) {
-        meshName = std::format("Mesh [{}]", i);
+        meshName = std::format("Mesh [{}]##", i) + _parentLabel;
         if (ImGui::CollapsingHeader(meshName.c_str())) {
             ImGui::Indent();
 
-            auto askLoadTexture = [this, i]() {
-                bool ask = false;
-
-                ask = ImGui::Button("Load Texture");
-                ask = ImGui::ImageButton(
+            auto askLoadTexture = [this, i](const std::string& _parentLabel) {
+                bool ask          = false;
+                std::string label = "Load Texture##" + _parentLabel;
+                ask               = ImGui::Button(label.c_str());
+                ask               = ImGui::ImageButton(
                     ImTextureID(TextureManager::getDescriptorGpuHandle(meshTextureNumbers_[i]).ptr),
                     ImVec2(32, 32), ImVec2(0, 0), ImVec2(1, 1), 4, ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
 
@@ -228,7 +227,7 @@ bool ModelMeshRenderer::Edit() {
             };
 
             ImGui::Text("Texture Directory: %s", textureFilePath_[i].c_str());
-            if (askLoadTexture()) {
+            if (askLoadTexture(meshName)) {
                 std::string directory;
                 std::string fileName;
                 if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"png"})) {
@@ -240,23 +239,22 @@ bool ModelMeshRenderer::Edit() {
                     },
                         true);
                     EditorController::getInstance()->pushCommand(std::make_unique<CommandCombo>(commandCombo));
-
-                    isChange = true;
                 }
             };
 
-            if (ImGui::TreeNode("Transform")) {
+            label = "Transform##" + _parentLabel;
+            if (ImGui::TreeNode(label.c_str())) {
                 Transform& transform = meshTransformBuff_[i].openData_;
                 // Transform
-                if (transform.Edit()) {
-                    meshTransformBuff_[i].ConvertToBuffer();
-                    isChange = true;
-                }
+                transform.Edit(_scene, _entity, meshName);
+                meshTransformBuff_[i].ConvertToBuffer();
+
                 ImGui::TreePop();
             }
 
-            if (ImGui::TreeNode("Material")) {
-                meshMaterialBuff_[i].openData_.DebugGui();
+            label = "Material##" + _parentLabel;
+            if (ImGui::TreeNode(label.c_str())) {
+                meshMaterialBuff_[i].openData_.DebugGui(_parentLabel);
                 meshMaterialBuff_[i].ConvertToBuffer();
                 ImGui::TreePop();
             }
@@ -266,8 +264,6 @@ bool ModelMeshRenderer::Edit() {
     }
 
 #endif // _DEBUG
-
-    return isChange;
 }
 
 void ModelMeshRenderer::InitializeTransformBuffer(GameEntity* _hostEntity) {
@@ -431,8 +427,7 @@ void LineRenderer::Initialize(GameEntity* _hostEntity) {
     transformBuff_.ConvertToBuffer();
 }
 
-bool LineRenderer::Edit() {
-    bool isChange = false;
+void LineRenderer::Edit(Scene* _scene, GameEntity* _entity, const std::string& _parentLabel) {
 
 #ifdef _DEBUG
 
@@ -445,11 +440,9 @@ bool LineRenderer::Edit() {
     std::string startColorLabel;
     std::string endColorLabel;
 
-    isChange |= MeshRenderer::Edit();
+    ImGui::Checkbox("LineIsStrip", &lineIsStrip_);
 
-    isChange |= ImGui::Checkbox("LineIsStrip", &lineIsStrip_);
-
-    isChange |= transformBuff_.openData_.Edit();
+    transformBuff_.openData_.Edit(_scene, _entity, _parentLabel);
 
     for (auto& mesh : *meshGroup_) {
         label = "Mesh[" + std::to_string(meshIndex) + "]";
@@ -468,13 +461,13 @@ bool LineRenderer::Edit() {
                 startColorLabel = "start Color##" + std::to_string(lineIndex);
                 endColorLabel   = "end Color##" + std::to_string(lineIndex);
 
-                isChange |= DragGuiVectorCommand(startLabel.c_str(), vertex1.pos);
+                DragGuiVectorCommand(startLabel.c_str(), vertex1.pos);
                 vertex1.pos[W] = 1.f;
-                isChange |= DragGuiVectorCommand(endLabel.c_str(), vertex2.pos);
+                DragGuiVectorCommand(endLabel.c_str(), vertex2.pos);
                 vertex2.pos[W] = 1.f;
                 ImGui::Spacing();
-                isChange |= ColorEditGuiCommand(startColorLabel, vertex1.color);
-                isChange |= ColorEditGuiCommand(endColorLabel, vertex2.color);
+                ColorEditGuiCommand(startColorLabel, vertex1.color);
+                ColorEditGuiCommand(endColorLabel, vertex2.color);
 
                 ++lineIndex;
             }
@@ -489,13 +482,9 @@ bool LineRenderer::Edit() {
 
         auto command = std::make_unique<AddLineCommand>(meshGroup_);
         EditorController::getInstance()->pushCommand(std::move(command));
-
-        isChange = true;
     }
 
 #endif // DEBUG
-
-    return isChange;
 }
 
 void to_json(nlohmann::json& j, const LineRenderer& r) {

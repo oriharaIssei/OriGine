@@ -59,16 +59,16 @@ void SpriteRenderer::Initialize(GameEntity* _hostEntity) {
     }
 }
 
-bool SpriteRenderer::Edit() {
+void SpriteRenderer::Edit(Scene* /*_scene*/,GameEntity* /*_entity*/,const std::string& _parentLabel) {
 #ifdef _DEBUG
-    bool isChange = false;
 
     ImGui::Text("Texture Path : %s", texturePath_.c_str());
     ImGui::SameLine();
 
-    auto askLoad = [this]() {
+    auto askLoad = [this](const std::string& _parentLabel) {
         bool askLoad = false;
-        askLoad |= ImGui::Button("Load Texture");
+        std::string label = "LoadTexture##" + _parentLabel;
+        askLoad |= ImGui::Button(label.c_str());
         static ImVec2 textureButtonSize = {32.f, 32.f};
         askLoad |= ImGui::ImageButton(
             reinterpret_cast<ImTextureID>(TextureManager::getDescriptorGpuHandle(textureNumber_).ptr),
@@ -79,7 +79,7 @@ bool SpriteRenderer::Edit() {
         return askLoad;
     };
 
-    if (askLoad()) {
+    if (askLoad(_parentLabel)) {
         std::string directory;
         std::string fileName;
         if (myFs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"png"})) {
@@ -95,66 +95,61 @@ bool SpriteRenderer::Edit() {
                         size_                               = textureSize_;
                     });
                 });
-            EditorController::getInstance()->pushCommand(std::move(command));
 
-            isChange = true;
+            EditorController::getInstance()->pushCommand(std::move(command));
         }
     }
 
     ImGui::Spacing();
 
     ImGui::Text("RenderingPriority");
-    isChange |= DragGuiCommand("##RenderingPriority", renderPriority_, 1, 0, 1000, "%d");
+    DragGuiCommand("##RenderingPriority" + _parentLabel, renderPriority_, 1, 0, 1000, "%d");
 
     ImGui::Text("TextureSize");
-    isChange |= DragGuiVectorCommand("##TextureSize", textureSize_, 1.0f, 0.0f, 1000.0f);
+    DragGuiVectorCommand("##TextureSize" + _parentLabel, textureSize_, 1.0f, 0.0f, 1000.0f);
 
     ImGui::Text("TextureLeftTop");
-    isChange |= DragGuiVectorCommand("##TextureLeftTop", textureLeftTop_, 1.0f, 0.0f, 1000.0f);
+    DragGuiVectorCommand("##TextureLeftTop" + _parentLabel, textureLeftTop_, 1.0f, 0.0f, 1000.0f);
 
     ImGui::Text("AnchorPoint");
-    isChange |= DragGuiVectorCommand("##AnchorPoint", anchorPoint_, 0.01f, -1.0f, 1.0f);
+    DragGuiVectorCommand("##AnchorPoint" + _parentLabel, anchorPoint_, 0.01f, -1.0f, 1.0f);
 
     ImGui::Text("Size");
-    isChange |= DragGuiVectorCommand("##Size", size_, 1.0f, 0.0f);
+    DragGuiVectorCommand("##Size" + _parentLabel, size_, 1.0f, 0.0f);
 
     ImGui::Spacing();
 
     ImGui::Text("Flip");
-    isChange |= CheckBoxCommand("FlipX", isFlipX_);
+    CheckBoxCommand("##FlipX" + _parentLabel, isFlipX_);
     ImGui::SameLine();
-    isChange |= CheckBoxCommand("FlipY", isFlipY_);
+    CheckBoxCommand("##FlipY" + _parentLabel, isFlipY_);
 
     ImGui::Spacing();
 
     ImGui::Text("Color");
-    isChange |= ColorEditGuiCommand("##Color", spriteBuff_->color_);
+    ColorEditGuiCommand("##Color" + _parentLabel, spriteBuff_->color_);
 
     if (ImGui::TreeNode("UVTransform")) {
         ImGui::Text("UVScale");
-        isChange |= DragGuiVectorCommand("##UVScale", spriteBuff_->uvScale_, 0.01f);
+        DragGuiVectorCommand("##UVScale" + _parentLabel, spriteBuff_->uvScale_, 0.01f);
         ImGui::Text("UVRotate");
-        isChange |= DragGuiCommand("##UVRotate", spriteBuff_->uvRotate_, 0.01f);
+        DragGuiCommand("##UVRotate" + _parentLabel, spriteBuff_->uvRotate_, 0.01f);
         ImGui::Text("UVTranslate");
-        isChange |= DragGuiVectorCommand("##UVTranslate", spriteBuff_->uvTranslate_, 0.01f);
+        DragGuiVectorCommand("##UVTranslate" + _parentLabel, spriteBuff_->uvTranslate_, 0.01f);
         ImGui::TreePop();
     }
 
     if (ImGui::TreeNode("SpriteTransform")) {
 
         ImGui::Text("Scale");
-        isChange |= DragGuiVectorCommand("##Scale", spriteBuff_->scale_, 0.01f);
+        DragGuiVectorCommand("##Scale" + _parentLabel, spriteBuff_->scale_, 0.01f);
         ImGui::Text("Rotate");
-        isChange |= DragGuiCommand("##Rotate", spriteBuff_->rotate_, 0.01f);
+        DragGuiCommand("##Rotate" + _parentLabel, spriteBuff_->rotate_, 0.01f);
         ImGui::Text("Translate");
-        isChange |= DragGuiVectorCommand("##Translate", spriteBuff_->translate_, 0.01f);
+        DragGuiVectorCommand("##Translate" + _parentLabel, spriteBuff_->translate_, 0.01f);
         ImGui::TreePop();
     }
 
-    return isChange;
-
-#else
-    return false;
 #endif // _DEBUG
 }
 

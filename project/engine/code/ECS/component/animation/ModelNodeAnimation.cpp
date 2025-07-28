@@ -41,10 +41,10 @@ void ModelNodeAnimation::Initialize(GameEntity* /*_entity*/) {
     }
 }
 
-bool ModelNodeAnimation::Edit() {
+void ModelNodeAnimation::Edit(Scene* /*_scene*/,GameEntity* /*_entity*/,const std::string& _parentLabel) {
 #ifdef _DEBUG
-    bool isChange = false;
-    if (ImGui::Button("Load File")) {
+    std::string label = "Load File##" + _parentLabel;
+    if (ImGui::Button(label.c_str())) {
         std::string directory, filename;
         if (MyFileSystem::selectFileDialog(
                 kApplicationResourceDirectory,
@@ -68,20 +68,16 @@ bool ModelNodeAnimation::Edit() {
                 true);
 
             EditorController::getInstance()->pushCommand(std::move(commandCombo));
-
-            isChange = true;
         }
     }
 
     ImGui::Text("File Name : %s", fileName_.c_str());
 
-    isChange |= CheckBoxCommand("isPlay", animationState_.isPlay_);
+    label = "isPlay##" + _parentLabel;
+    CheckBoxCommand(label, animationState_.isPlay_);
+    label = "Duration##" + _parentLabel;
+    DragGuiCommand(label, duration_, 0.01f, 0.0f);
 
-    isChange |= DragGuiCommand("Duration", duration_, 0.01f, 0.0f);
-
-    return isChange;
-#else
-    return false;
 #endif // _DEBUG
 }
 

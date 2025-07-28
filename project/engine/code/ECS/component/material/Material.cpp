@@ -10,25 +10,27 @@ void Material::UpdateUvMatrix() {
 }
 
 #ifdef _DEBUG
-void Material::DebugGui() {
+void Material::DebugGui(const std::string& _parentLabel) {
     ImGui::Text("Color");
-    ColorEditGuiCommand("##color", color_);
+    ColorEditGuiCommand("##color" + _parentLabel, color_);
     ImGui::Text("uvScale");
-    DragGuiVectorCommand<2, float>("##uvScale", uvTransform_.scale_, 0.01f);
+    DragGuiVectorCommand<2, float>("##uvScale" + _parentLabel, uvTransform_.scale_, 0.01f);
     ImGui::Text("uvRotate");
-    DragGuiCommand<float>("##uvRotate", uvTransform_.rotate_, 0.01f);
+    DragGuiCommand<float>("##uvRotate" + _parentLabel, uvTransform_.rotate_, 0.01f);
     ImGui::Text("uvTranslate");
-    DragGuiVectorCommand<2, float>("##uvTranslate", uvTransform_.translate_, 0.01f);
+    DragGuiVectorCommand<2, float>("##uvTranslate" + _parentLabel, uvTransform_.translate_, 0.01f);
     ImGui::Text("isLightUse");
-    CheckBoxCommand("##isLightUse", enableLighting_);
+    CheckBoxCommand("##isLightUse" + _parentLabel, enableLighting_);
 
     ImGui::Text("shininess");
-    ImGui::DragFloat("##shininess", &shininess_, 0.01f);
+    std::string label = "##shininess" + _parentLabel;
+    ImGui::DragFloat(label.c_str(), &shininess_, 0.01f);
     ImGui::Text("specularColor");
-    ColorEditGuiCommand("##specularColor", specularColor_);
+    label = "##specularColor" + _parentLabel;
+    ColorEditGuiCommand(label.c_str(), specularColor_);
 
     ImGui::Text("EnvironmentCoefficient");
-    DragGuiCommand("##EnvironmentCoefficient", environmentCoefficient_, 0.01f, 0.0f);
+    DragGuiCommand("##EnvironmentCoefficient" + _parentLabel, environmentCoefficient_, 0.01f, 0.0f);
 }
 #endif // _DEBUG
 

@@ -22,7 +22,7 @@ public:
 
     void Initialize(GameEntity* _entity) override;
 
-    bool Edit() override;
+    void Edit(Scene* _scene,GameEntity* _entity,const std::string& _parentLabel) override;
 
     void Finalize() override;
 

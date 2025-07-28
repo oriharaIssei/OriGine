@@ -3,8 +3,8 @@
 /// engine
 #define RESOURCE_DIRECTORY
 #define ENGINE_INCLUDE
-#include "EngineInclude.h"
 #include "directX12/DxDevice.h"
+#include "EngineInclude.h"
 #include "texture/TextureManager.h"
 
 #ifdef _DEBUG
@@ -220,15 +220,15 @@ void TextureEffectParam::Initialize(GameEntity* /*_hostEntity*/) {
     effectParamData_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
 }
 
-bool TextureEffectParam::Edit() {
+void TextureEffectParam::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, const std::string& _parentLabel) {
 #ifdef _DEBUG
-    bool isChange = false;
 
     ///===========================================
     // Effect Flags
     ///===========================================
-    bool isDissolve = (effectParamData_->effectFlag & (int32_t)TextureEffectParamData::EffectFlag::Dissolve);
-    if (ImGui::Checkbox("is Dissolve", &isDissolve)) {
+    bool isDissolve   = (effectParamData_->effectFlag & (int32_t)TextureEffectParamData::EffectFlag::Dissolve);
+    std::string label = "is Dissolve##" + _parentLabel;
+    if (ImGui::Checkbox(label.c_str(), &isDissolve)) {
         int32_t newFlag;
         if (isDissolve) {
             newFlag = effectParamData_->effectFlag | (int32_t)TextureEffectParamData::EffectFlag::Dissolve;
@@ -237,11 +237,10 @@ bool TextureEffectParam::Edit() {
         }
         auto command = std::make_unique<SetterCommand<int32_t>>(&effectParamData_->effectFlag, newFlag);
         EditorController::getInstance()->pushCommand(std::move(command));
-
-        isChange = true;
     }
     bool isDistortion = (effectParamData_->effectFlag & (int32_t)TextureEffectParamData::EffectFlag::Distortion);
-    if (ImGui::Checkbox("is Distortion", &isDistortion)) {
+    label             = "is Distortion##" + _parentLabel;
+    if (ImGui::Checkbox(label.c_str(), &isDistortion)) {
         int32_t newFlag;
         if (isDistortion) {
             newFlag = effectParamData_->effectFlag | (int32_t)TextureEffectParamData::EffectFlag::Distortion;
@@ -250,11 +249,10 @@ bool TextureEffectParam::Edit() {
         }
         auto command = std::make_unique<SetterCommand<int32_t>>(&effectParamData_->effectFlag, newFlag);
         EditorController::getInstance()->pushCommand(std::move(command));
-
-        isChange = true;
     }
     bool isMask = (effectParamData_->effectFlag & (int32_t)TextureEffectParamData::EffectFlag::Mask);
-    if (ImGui::Checkbox("is Mask", &isMask)) {
+    label       = "is Mask##" + _parentLabel;
+    if (ImGui::Checkbox(label.c_str(), &isMask)) {
         int32_t newFlag;
         if (isMask) {
             newFlag = effectParamData_->effectFlag | (int32_t)TextureEffectParamData::EffectFlag::Mask;
@@ -263,8 +261,6 @@ bool TextureEffectParam::Edit() {
         }
         auto command = std::make_unique<SetterCommand<int32_t>>(&effectParamData_->effectFlag, newFlag);
         EditorController::getInstance()->pushCommand(std::move(command));
-
-        isChange = true;
     }
 
     ///===========================================
@@ -272,17 +268,23 @@ bool TextureEffectParam::Edit() {
     ///===========================================
     if (isDissolve) {
         if (ImGui::TreeNode("Dissolve")) {
-            isChange |= CheckBoxCommand("Play##Dissolve", dissolveAnimState_.isPlay_);
-            isChange |= CheckBoxCommand("Loop##Dissolve", dissolveAnimState_.isLoop_);
+            label = "Play##Dissolve" + _parentLabel;
+            CheckBoxCommand(label, dissolveAnimState_.isPlay_);
+            label = "Loop##Dissolve" + _parentLabel;
+            CheckBoxCommand(label, dissolveAnimState_.isLoop_);
 
-            DragGuiCommand("Dissolve Threshold", effectParamData_->dissolveThreshold, 0.01f);
-            isChange |= DragGuiCommand("Dissolve Edge Width", effectParamData_->dissolveEdgeWidth, 0.001f, 0.0f, {}, "%.4f");
-            isChange |= ColorEditGuiCommand<4>("DissolveColor", effectParamData_->dissolveColor);
+            label = "Dissolve Threshold##" + _parentLabel;
+            DragGuiCommand(label, effectParamData_->dissolveThreshold, 0.01f);
+            label = "Dissolve Edge Width##" + _parentLabel;
+            DragGuiCommand(label, effectParamData_->dissolveEdgeWidth, 0.001f, 0.0f, {}, "%.4f");
+            label = "Dissolve Color##" + _parentLabel;
+            ColorEditGuiCommand<4>(label, effectParamData_->dissolveColor);
 
             ImGui::Separator();
 
             ImGui::Text("Texture Path : %s", dissolveTexPath_.c_str());
-            if (ImGui::Button("TextureLoad##Dissolve")) {
+            label = "TextureLoad##Dissolve" + _parentLabel;
+            if (ImGui::Button(label.c_str())) {
                 std::string directory, filename;
                 if (MyFileSystem::selectFileDialog(
                         kApplicationResourceDirectory,
@@ -297,32 +299,43 @@ bool TextureEffectParam::Edit() {
                         true);
 
                     EditorController::getInstance()->pushCommand(std::move(commandCombo));
-                    isChange = true;
                 }
             }
 
-            isChange |= DragGuiCommand("Dissolve_Duration", dissolveAnim_.duration, 0.01f, 0.0f);
+            label = "DissolveDuration##" + _parentLabel;
+            DragGuiCommand(label.c_str(), dissolveAnim_.duration, 0.01f, 0.0f);
 
             ImGui::Text("UV Scale");
-            isChange |= DragGuiVectorCommand<2, float>(
-                "DissolveUVScale",
+            label = "DissolveUVScale##" + _parentLabel;
+            DragGuiVectorCommand<2, float>(
+                label,
                 effectParamData_->dissolveUV.scale_,
                 0.01f);
-            isChange |= ImGui::EditKeyFrame("Dissolve_UV_Scale", dissolveAnim_.scale, dissolveAnim_.duration);
+            ImGui::EditKeyFrame(label, dissolveAnim_.scale, dissolveAnim_.duration);
             if (!dissolveAnim_.scale.empty()) {
                 dissolveAnim_.scale.front().value = effectParamData_->dissolveUV.scale_;
+            } else {
+                dissolveAnim_.scale.push_back({0.f, effectParamData_->dissolveUV.scale_});
             }
+
             ImGui::Text("UV Rotate");
-            isChange |= DragGuiCommand<float>("DissolveUVRotate", effectParamData_->dissolveUV.rotate_, 0.01f);
-            isChange |= ImGui::EditKeyFrame("Dissolve_UV_Rotate", dissolveAnim_.rotate, dissolveAnim_.duration);
+            label = "DissolveUVRotate##" + _parentLabel;
+            DragGuiCommand<float>(label, effectParamData_->dissolveUV.rotate_, 0.01f);
+            ImGui::EditKeyFrame(label, dissolveAnim_.rotate, dissolveAnim_.duration);
             if (!dissolveAnim_.rotate.empty()) {
                 dissolveAnim_.rotate.front().value = effectParamData_->dissolveUV.rotate_;
+            } else {
+                dissolveAnim_.rotate.push_back({0.f, effectParamData_->dissolveUV.rotate_});
             }
+
             ImGui::Text("UV Translate");
-            isChange |= DragGuiVectorCommand<2, float>("DissolveUVTranslate", effectParamData_->dissolveUV.translate_, 0.01f);
-            isChange |= ImGui::EditKeyFrame("Dissolve_UV_Translate", dissolveAnim_.translate, dissolveAnim_.duration);
+            label = "DissolveUVTranslate##" + _parentLabel;
+            DragGuiVectorCommand<2, float>(label, effectParamData_->dissolveUV.translate_, 0.01f);
+            ImGui::EditKeyFrame(label, dissolveAnim_.translate, dissolveAnim_.duration);
             if (!dissolveAnim_.translate.empty()) {
                 dissolveAnim_.translate.front().value = effectParamData_->dissolveUV.translate_;
+            } else {
+                dissolveAnim_.translate.push_back({0.f, effectParamData_->dissolveUV.translate_});
             }
 
             ImGui::TreePop();
@@ -333,17 +346,23 @@ bool TextureEffectParam::Edit() {
     // Distortion
     ///===========================================
     if (isDistortion) {
-        if (ImGui::TreeNode("Distortion")) {
-            isChange |= CheckBoxCommand("Play##Distortion", distortionAnimState_.isPlay_);
-            isChange |= CheckBoxCommand("Loop##Distortion", distortionAnimState_.isLoop_);
+        label = "Distortion##" + _parentLabel;
+        if (ImGui::TreeNode(label.c_str())) {
+            label = "Play##Distortion" + _parentLabel;
+            CheckBoxCommand(label, distortionAnimState_.isPlay_);
+            label = "Loop##Distortion" + _parentLabel;
+            CheckBoxCommand(label, distortionAnimState_.isLoop_);
 
-            DragGuiCommand("DistortionStrength", effectParamData_->distortionStrength, 0.01f);
-            SlideGuiCommand<float>("DistortionBias", effectParamData_->distortionBias, 0.0f, 1.f);
+            label = "DistortionStrength##" + _parentLabel;
+            DragGuiCommand(label, effectParamData_->distortionStrength, 0.01f);
+            label = "DistortionBias##" + _parentLabel;
+            SlideGuiCommand<float>(label, effectParamData_->distortionBias, 0.0f, 1.f);
 
             ImGui::Separator();
 
             ImGui::Text("TexturePath :  %s", distortionTexPath_.c_str());
-            if (ImGui::Button("TextureLoad##Distortion")) {
+            label = "TextureLoad##Distortion" + _parentLabel;
+            if (ImGui::Button(label.c_str())) {
                 std::string directory, filename;
                 if (MyFileSystem::selectFileDialog(
                         kApplicationResourceDirectory,
@@ -357,28 +376,36 @@ bool TextureEffectParam::Edit() {
                     },
                         true);
                     EditorController::getInstance()->pushCommand(std::move(commandCombo));
-
-                    isChange = true;
                 }
             }
 
-            isChange |= DragGuiCommand("DistortionDuration", distortionAnim_.duration, 0.01f, 0.0f);
+            label = "DistortionDuration##" + _parentLabel;
+            DragGuiCommand(label, distortionAnim_.duration, 0.01f, 0.0f);
 
             ImGui::Text("UV Scale");
-            isChange |= DragGuiVectorCommand<2, float>("DistortionUVScale", effectParamData_->distortionUV.scale_, 0.01f);
-            isChange |= ImGui::EditKeyFrame("Distortion_UV_Scale", distortionAnim_.scale, distortionAnim_.duration);
+            label = "DistortionUVScale##" + _parentLabel;
+            DragGuiVectorCommand<2, float>(label, effectParamData_->distortionUV.scale_, 0.01f);
+            ImGui::EditKeyFrame(label, distortionAnim_.scale, distortionAnim_.duration);
             if (!distortionAnim_.scale.empty()) {
                 distortionAnim_.scale.front().value = effectParamData_->distortionUV.scale_;
+            } else {
+                distortionAnim_.scale.push_back({0.f, effectParamData_->distortionUV.scale_});
             }
+
             ImGui::Text("UV Rotate");
-            isChange |= DragGuiCommand<float>("DistortionUVRotate", effectParamData_->distortionUV.rotate_, 0.01f);
-            isChange |= ImGui::EditKeyFrame("Distortion_UV_Rotate", distortionAnim_.rotate, distortionAnim_.duration);
+            label = "DistortionUVRotate##" + _parentLabel;
+            DragGuiCommand<float>(label, effectParamData_->distortionUV.rotate_, 0.01f);
+            ImGui::EditKeyFrame(label, distortionAnim_.rotate, distortionAnim_.duration);
             if (!distortionAnim_.rotate.empty()) {
                 distortionAnim_.rotate.front().value = effectParamData_->distortionUV.rotate_;
+            } else {
+                distortionAnim_.rotate.push_back({0.f, effectParamData_->distortionUV.rotate_});
             }
+
             ImGui::Text("UV Translate");
-            isChange |= DragGuiVectorCommand<2, float>("DistortionUVTranslate", effectParamData_->distortionUV.translate_, 0.01f);
-            isChange |= ImGui::EditKeyFrame("Distortion_UV_Translate", distortionAnim_.translate, distortionAnim_.duration);
+            label = "DistortionUVTranslate##" + _parentLabel;
+            DragGuiVectorCommand<2, float>(label, effectParamData_->distortionUV.translate_, 0.01f);
+            ImGui::EditKeyFrame(label, distortionAnim_.translate, distortionAnim_.duration);
             if (!distortionAnim_.translate.empty()) {
                 distortionAnim_.translate.front().value = effectParamData_->distortionUV.translate_;
             }
@@ -391,21 +418,25 @@ bool TextureEffectParam::Edit() {
     // Mask
     ///===========================================
     if (isMask) {
-
-        if (ImGui::TreeNode("Mask")) {
-            isChange |= CheckBoxCommand("Play##Mask", maskAnimState_.isPlay_);
-            isChange |= CheckBoxCommand("Loop##Mask", maskAnimState_.isLoop_);
+        label = "Mask##" + _parentLabel;
+        if (ImGui::TreeNode(label.c_str())) {
+            label = "Play##Mask" + _parentLabel;
+            CheckBoxCommand(label, maskAnimState_.isPlay_);
+            label = "Loop##Mask" + _parentLabel;
+            CheckBoxCommand(label, maskAnimState_.isLoop_);
 
             ImGui::Separator();
 
             ImGui::Text("TexturePath : %s", maskTexPath_.c_str());
-            if (ImGui::Button("TextureLoad##Mask")) {
+            label = "TextureLoad##Mask" + _parentLabel;
+            if (ImGui::Button(label.c_str())) {
                 std::string directory, filename;
                 if (MyFileSystem::selectFileDialog(
                         kApplicationResourceDirectory,
                         directory,
                         filename,
                         {"png"})) {
+
                     auto commandCombo = std::make_unique<CommandCombo>();
                     commandCombo->addCommand(std::make_shared<SetterCommand<std::string>>(&maskTexPath_, kApplicationResourceDirectory + "/" + directory + "/" + filename));
                     commandCombo->setFuncOnAfterCommand([this]() {
@@ -413,29 +444,40 @@ bool TextureEffectParam::Edit() {
                     },
                         true);
                     EditorController::getInstance()->pushCommand(std::move(commandCombo));
-                    isChange = true;
                 }
             }
 
-            DragGuiCommand("MaskDuration", maskAnim_.duration, 0.01f, 0.0f);
+            label = "MaskDuration##" + _parentLabel;
+            DragGuiCommand(label, maskAnim_.duration, 0.01f, 0.0f);
 
             ImGui::Text("UV Scale");
-            isChange |= DragGuiVectorCommand<2, float>("MaskUVScale", effectParamData_->maskUV.scale_, 0.01f);
-            isChange |= ImGui::EditKeyFrame("Mask_UV_Scale", maskAnim_.scale, maskAnim_.duration);
+            label = "MaskUVScale##" + _parentLabel;
+            DragGuiVectorCommand<2, float>(label, effectParamData_->maskUV.scale_, 0.01f);
+            ImGui::EditKeyFrame(label, maskAnim_.scale, maskAnim_.duration);
             if (!maskAnim_.scale.empty()) {
                 maskAnim_.scale.front().value = effectParamData_->maskUV.scale_;
+            } else {
+                maskAnim_.scale.push_back({0.f, effectParamData_->maskUV.scale_});
             }
+
             ImGui::Text("UV Rotate");
-            isChange |= DragGuiCommand<float>("MaskUVRotate", effectParamData_->maskUV.rotate_, 0.01f);
-            isChange |= ImGui::EditKeyFrame("Mask_UV_Rotate", maskAnim_.rotate, maskAnim_.duration);
+            label = "MaskUVRotate##" + _parentLabel;
+            DragGuiCommand<float>(label, effectParamData_->maskUV.rotate_, 0.01f);
+            ImGui::EditKeyFrame(label, maskAnim_.rotate, maskAnim_.duration);
             if (!maskAnim_.rotate.empty()) {
                 maskAnim_.rotate.front().value = effectParamData_->maskUV.rotate_;
+            } else {
+                maskAnim_.rotate.push_back({0.f, effectParamData_->maskUV.rotate_});
             }
+
             ImGui::Text("UV Translate");
-            isChange |= DragGuiVectorCommand<2, float>("MaskUVTranslate", effectParamData_->maskUV.translate_, 0.01f);
-            isChange |= ImGui::EditKeyFrame("Mask_UV_Translate", maskAnim_.translate, maskAnim_.duration);
+            label = "MaskUVTranslate##" + _parentLabel;
+            DragGuiVectorCommand<2, float>(label, effectParamData_->maskUV.translate_, 0.01f);
+            ImGui::EditKeyFrame(label, maskAnim_.translate, maskAnim_.duration);
             if (!maskAnim_.translate.empty()) {
                 maskAnim_.translate.front().value = effectParamData_->maskUV.translate_;
+            } else {
+                maskAnim_.translate.push_back({0.f, effectParamData_->maskUV.translate_});
             }
 
             ImGui::TreePop();
@@ -444,9 +486,6 @@ bool TextureEffectParam::Edit() {
 
     effectParamData_->UpdateTransform();
 
-    return isChange;
-#else
-    return false;
 #endif // _DEBUG
 }
 

@@ -92,12 +92,12 @@ void SkyboxRenderer::Initialize(GameEntity* _hostEntity) {
     materialBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
 }
 
-bool SkyboxRenderer::Edit() {
+void SkyboxRenderer::Edit(Scene* /*_scene*/, GameEntity*/* _entity*/, const std::string& _parentLabel) {
 #ifdef _DEBUG
 
-    bool isChange = false;
     ImGui::Text("FilePath : %s", filePath_.c_str());
-    if (ImGui::Button("load file")) {
+    std::string label = "Load##" + _parentLabel;
+    if (ImGui::Button(label.c_str())) {
         std::string directory;
         std::string filename;
         myfs::selectFileDialog(kApplicationResourceDirectory, directory, filename, {"dds"});
@@ -112,15 +112,10 @@ bool SkyboxRenderer::Edit() {
                 },
                 true);
             EditorController::getInstance()->pushCommand(std::move(commandCombo));
-            isChange = true;
         }
     }
 
-    isChange |= ColorEditGuiCommand("Color", materialBuff_.openData_.color);
-
-    return isChange;
-#else
-    return false;
+    ColorEditGuiCommand("Color##" + _parentLabel, materialBuff_.openData_.color);
 #endif // _DEBUG
 }
 

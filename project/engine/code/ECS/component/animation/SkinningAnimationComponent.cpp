@@ -10,7 +10,7 @@
 #include "EngineInclude.h"
 #include "Entity.h"
 #include "model/ModelManager.h"
-
+#include "scene/Scene.h"
 /// ECS
 // component
 #include "component/renderer/MeshRenderer.h"
@@ -37,24 +37,21 @@ void SkinningAnimationComponent::Initialize(GameEntity* _entity) {
         this->animationIndexBinder_[animation.fileName_] = animationIndex;
         ++animationIndex;
     }
-
-    if (animationTable_[currentAnimationIndex_].animationState_.isPlay_) {
-        Play(currentAnimationIndex_);
-    }
 }
 
-bool SkinningAnimationComponent::Edit() {
-    bool isChanged = false;
-
+void SkinningAnimationComponent::Edit(Scene* _scene,GameEntity* /*_entity*/,const std::string& _parentLabel) {
+    
 #ifdef _DEBUG
-    int32_t entityModelMeshRendererSize = getComponentArray<ModelMeshRenderer>()->getComponentSize(entity_);
-    InputGuiCommand<int32_t>("Bind Mode MeshRenderer Index", bindModeMeshRendererIndex_, "%d",
+
+    int32_t entityModelMeshRendererSize = _scene->getComponentArray<ModelMeshRenderer>()->getComponentSize(entity_);
+    InputGuiCommand<int32_t>("Bind Mode MeshRenderer Index##" + _parentLabel, bindModeMeshRendererIndex_, "%d",
         [entityModelMeshRendererSize](int32_t* _newVal) {
             *_newVal = std::clamp(*_newVal, 0, entityModelMeshRendererSize - 1);
         });
 
     ImGui::SeparatorText("Animations");
-    if (ImGui::Button("+ add")) {
+    std::string label = "+ add" + _parentLabel;
+    if (ImGui::Button(label.c_str())) {
         std::string directory;
         std::string fileName;
         if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"gltf", "anm"})) {
@@ -77,7 +74,6 @@ bool SkinningAnimationComponent::Edit() {
                 },
                     true);
                 EditorController::getInstance()->pushCommand(std::move(commandCombo));
-                isChanged = true;
             } else {
                 LOG_ERROR("Animation with name '{}' already exists.", fileName);
             }
@@ -88,10 +84,12 @@ bool SkinningAnimationComponent::Edit() {
     std::string nodeLabel = "";
     int32_t index         = 0;
     for (auto& animation : animationTable_) {
-        nodeLabel = animation.fileName_;
+        nodeLabel = animation.fileName_ + "##" + _parentLabel;
         if (ImGui::TreeNode(nodeLabel.c_str())) {
             ImGui::Text("Animation File: %s", animation.fileName_.c_str());
-            if (ImGui::Button("Load")) {
+
+            nodeLabel = "Load" + animation.fileName_ + "##" + _parentLabel;
+            if (ImGui::Button(nodeLabel.c_str())) {
                 std::string directory;
                 std::string fileName;
                 if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"gltf", "anm"})) {
@@ -107,16 +105,15 @@ bool SkinningAnimationComponent::Edit() {
                     },
                         true);
                     EditorController::getInstance()->pushCommand(std::make_unique<CommandCombo>(commandCombo));
-                    isChanged = true;
                 }
             }
 
             if (animation.animationData_) {
-                isChanged |= DragGuiCommand("Duration", animation.duration_, 0.01f, 0.0f, 100.0f);
+                DragGuiCommand("Duration##" + _parentLabel, animation.duration_, 0.01f, 0.0f, 100.0f);
 
-                isChanged |= CheckBoxCommand("Play", animation.animationState_.isPlay_);
-                isChanged |= CheckBoxCommand("Loop", animation.animationState_.isLoop_);
-                isChanged |= DragGuiCommand("Playback Speed", animation.playbackSpeed_, 0.01f, 0.0f);
+                CheckBoxCommand("Play##" + _parentLabel, animation.animationState_.isPlay_);
+                CheckBoxCommand("Loop##" + _parentLabel, animation.animationState_.isLoop_);
+                DragGuiCommand("Playback Speed##" + _parentLabel, animation.playbackSpeed_, 0.01f, 0.0f);
             }
 
             ImGui::TreePop();
@@ -124,8 +121,6 @@ bool SkinningAnimationComponent::Edit() {
     }
 
 #endif // _DEBUG
-
-    return isChanged;
 }
 
 void SkinningAnimationComponent::Finalize() {
@@ -172,8 +167,6 @@ void SkinningAnimationComponent::Play() {
     animation.animationState_.isPlay_ = true;
     animation.animationState_.isEnd_  = false;
     animation.currentTime_            = 0.0f;
-
-    CreateSkinnedVertex();
 }
 
 void SkinningAnimationComponent::Play(int32_t index) {
@@ -186,10 +179,9 @@ void SkinningAnimationComponent::Play(int32_t index) {
         animation.animationData_ = AnimationManager::getInstance()->Load(animation.directory_, animation.fileName_);
     }
     animation.animationState_.isPlay_ = true;
+    animation.prePlay_                = false; // 前のアニメーションを停止
     animation.animationState_.isEnd_  = false;
     animation.currentTime_            = 0.0f;
-
-    CreateSkinnedVertex();
 }
 
 void SkinningAnimationComponent::Play(const std::string& name) {
@@ -201,7 +193,7 @@ void SkinningAnimationComponent::Play(const std::string& name) {
     Play(index);
 }
 
-void SkinningAnimationComponent::PlayNext(int32_t index, float _blendTime) {
+void SkinningAnimationComponent::PlayNext( int32_t index, float _blendTime) {
     if (index < 0 || index >= static_cast<int32_t>(animationTable_.size())) {
         LOG_ERROR("Invalid animation index: {}", index);
         return;
@@ -214,6 +206,7 @@ void SkinningAnimationComponent::PlayNext(int32_t index, float _blendTime) {
         nextAnimation.animationData_ = AnimationManager::getInstance()->Load(nextAnimation.directory_, nextAnimation.fileName_);
     }
     nextAnimation.animationState_.isPlay_ = true;
+    nextAnimation.prePlay_                = false; // 前のアニメーションを停止
     nextAnimation.animationState_.isEnd_  = false;
     nextAnimation.currentTime_            = 0.0f;
 }
@@ -234,11 +227,11 @@ void SkinningAnimationComponent::Stop() {
     animation.currentTime_            = 0.0f;
 }
 
-void SkinningAnimationComponent::CreateSkinnedVertex() {
+void SkinningAnimationComponent::CreateSkinnedVertex(Scene* _scene) {
     DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>* uavHeap = Engine::getInstance()->getSrvHeap(); // cbv_srv_uav heap
     auto& device                                                 = Engine::getInstance()->getDxDevice()->getDevice();
 
-    ModelMeshRenderer* meshRenderer = getComponent<ModelMeshRenderer>(entity_, bindModeMeshRendererIndex_);
+    ModelMeshRenderer* meshRenderer = _scene->getComponent<ModelMeshRenderer>(entity_, bindModeMeshRendererIndex_);
     if (!meshRenderer) {
         LOG_ERROR("MeshRenderer not found for SkinningAnimationComponent");
         return;

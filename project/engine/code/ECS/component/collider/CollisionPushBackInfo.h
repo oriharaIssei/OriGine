@@ -25,7 +25,7 @@ public:
     void Initialize(GameEntity* /*_hostEntity*/) override {}
     void Finalize() override;
 
-    bool Edit() override;
+    void Edit(Scene* _scene,GameEntity* _entity,const std::string& _parentLabel) override;
 
     void ClearInfo();
 

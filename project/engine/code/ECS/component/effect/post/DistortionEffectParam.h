@@ -48,7 +48,7 @@ public:
     ~DistortionEffectParam() override {}
 
     void Initialize(GameEntity* _hostEntity) override;
-    bool Edit();
+    void Edit(Scene* _scene,GameEntity* _entity,const std::string& _parentLabel);
     void Finalize();
 
 private:

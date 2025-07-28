@@ -80,12 +80,8 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 
 #include "component/effect/particle/emitter/Emitter.h"
 #include "component/effect/post/DistortionEffectParam.h"
-#include "component/effect/post/GrayscaleEffectParam.h"
 #include "component/effect/post/RadialBlurParam.h"
-#include "component/effect/post/SmoothingEffectParam.h"
 #include "component/effect/post/VignetteParam.h"
-#include "component/effect/primitive/PlaneRenderer.h"
-#include "component/effect/primitive/Primitive.h"
 #include "component/effect/TextureEffectParam.h"
 
 #include "component/physics/Rigidbody.h"

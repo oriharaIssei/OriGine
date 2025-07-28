@@ -19,18 +19,20 @@ void SpriteAnimation::Initialize(GameEntity* /*_hostEntity*/) {
     currentTime_ = 0.0f;
 }
 
-bool SpriteAnimation::Edit() {
-    bool isEdit = false;
-
+void SpriteAnimation::Edit(Scene* /*_scene*/,GameEntity*/* _entity*/,const std::string& _parentLabel) {
 #ifdef _DEBUG
-    isEdit = DragGuiCommand("Duration", duration_, 0.1f, 0.0f, 100.0f, "%.3f");
+    std::string label = "Duration##" + _parentLabel;
+    DragGuiCommand(label, duration_, 0.1f, 0.0f, 100.0f, "%.3f");
 
     ImGui::Spacing();
     ImGui::SeparatorText("Color Animation");
-    isEdit |= ImGui::Checkbox("Color Animation Is Loop", &colorAnimationState_.isLoop_);
-    isEdit |= ImGui::Checkbox("Color Animation Is Play", &colorAnimationState_.isPlay_);
+    label = "Color Animation Is Play##" + _parentLabel;
+    CheckBoxCommand(label, colorAnimationState_.isPlay_);
+    label = "Color Animation Is Loop##" + _parentLabel;
+    CheckBoxCommand(label, colorAnimationState_.isLoop_);
 
-    if (ImGui::BeginCombo("Color Interpolation Type", InterpolationTypeName[int(colorInterpolationType_)])) {
+    label = "Color Interpolation Type##" + _parentLabel;
+    if (ImGui::BeginCombo(label.c_str(), InterpolationTypeName[int(colorInterpolationType_)])) {
         for (int i = 0; i < (int)InterpolationType::COUNT; ++i) {
             if (ImGui::Selectable(InterpolationTypeName[i], colorInterpolationType_ == InterpolationType(i))) {
                 EditorController::getInstance()->pushCommand(
@@ -40,17 +42,22 @@ bool SpriteAnimation::Edit() {
         ImGui::EndCombo();
     }
     ImGui::Text("Color Animation KeyFrames");
-    isEdit |= ImGui::EditColorKeyFrame(
-        "##Color Animation",
+    label = "Color Animation ##" + _parentLabel;
+    ImGui::EditColorKeyFrame(
+        label,
         colorCurve_,
         duration_,
         {1.f, 1.f, 1.f, 1.f});
 
     ImGui::Spacing();
     ImGui::SeparatorText("Transform Animation");
-    isEdit |= ImGui::Checkbox("Transform Animation Is Loop", &transformAnimationState_.isLoop_);
-    isEdit |= ImGui::Checkbox("Transform Animation Is Play", &transformAnimationState_.isPlay_);
-    if (ImGui::BeginCombo("Transform Interpolation Type", InterpolationTypeName[int(transformInterpolationType_)])) {
+    label = "Transform Animation Is Play##" + _parentLabel;
+    CheckBoxCommand(label, transformAnimationState_.isPlay_);
+    label = "Transform Animation Is Loop##" + _parentLabel;
+    CheckBoxCommand(label, transformAnimationState_.isLoop_);
+
+    label = "Transform Interpolation Type##" + _parentLabel;
+    if (ImGui::BeginCombo(label.c_str(), InterpolationTypeName[int(transformInterpolationType_)])) {
         for (int i = 0; i < (int)InterpolationType::COUNT; ++i) {
             if (ImGui::Selectable(InterpolationTypeName[i], transformInterpolationType_ == InterpolationType(i))) {
                 EditorController::getInstance()->pushCommand(
@@ -64,30 +71,38 @@ bool SpriteAnimation::Edit() {
 
     // Scale
     ImGui::Text("Scale");
-    isEdit |= ImGui::EditKeyFrame(
-        "##Transform Animation Scale",
+    label = "##Transform Animation Scale" + _parentLabel;
+    ImGui::EditKeyFrame(
+        label,
         scaleCurve_,
         duration_,
         {1.f, 1.f});
+
     // Rotate
     ImGui::Text("Rotate");
-    isEdit |= ImGui::EditKeyFrame(
-        "##Transform Animation Rotate",
+    label = "##Transform Animation Rotate" + _parentLabel;
+    ImGui::EditKeyFrame(
+        label,
         rotateCurve_,
         duration_);
+
     // Translate
+    label = "##Transform Animation Translate" + _parentLabel;
     ImGui::Text("Translate");
-    isEdit |= ImGui::EditKeyFrame(
-        "##Transform Animation Translate",
+    ImGui::EditKeyFrame(
+        label,
         translateCurve_,
         duration_);
 
     ImGui::Spacing();
     ImGui::SeparatorText("UV Animation");
-    isEdit |= ImGui::Checkbox("UV Animation Is Loop", &uvAnimationState_.isLoop_);
-    isEdit |= ImGui::Checkbox("UV Animation Is Play", &uvAnimationState_.isPlay_);
+    label = "UV Animation Is Play##" + _parentLabel;
+    CheckBoxCommand(label, uvAnimationState_.isPlay_);
+    label = "UV Animation Is Loop##" + _parentLabel;
+    CheckBoxCommand(label, uvAnimationState_.isLoop_);
 
-    if (ImGui::BeginCombo("UV Interpolation Type", InterpolationTypeName[int(uvInterpolationType_)])) {
+    label = "UV Interpolation Type##" + _parentLabel;
+    if (ImGui::BeginCombo(label.c_str(), InterpolationTypeName[int(uvInterpolationType_)])) {
         for (int i = 0; i < (int)InterpolationType::COUNT; ++i) {
             if (ImGui::Selectable(InterpolationTypeName[i], uvInterpolationType_ == InterpolationType(i))) {
                 EditorController::getInstance()->pushCommand(
@@ -100,26 +115,28 @@ bool SpriteAnimation::Edit() {
     ImGui::Spacing();
     // UV Scale
     ImGui::Text("UV Scale");
-    isEdit |= ImGui::EditKeyFrame(
-        "##UV Animation Scale",
+    label = "##UV Animation Scale" + _parentLabel;
+    ImGui::EditKeyFrame(
+        label,
         uvScaleCurve_,
         duration_,
         {1.f, 1.f});
+
     // UV Rotate
     ImGui::Text("UV Rotate");
-    isEdit |= ImGui::EditKeyFrame(
-        "##UV Animation Rotate",
+    label = "##UV Animation Rotate" + _parentLabel;
+    ImGui::EditKeyFrame(
+        label,
         uvRotateCurve_,
         duration_);
     // UV Translate
     ImGui::Text("UV Translate");
-    isEdit |= ImGui::EditKeyFrame(
-        "##UV Animation Translate",
+    label = "##UV Animation Translate" + _parentLabel;
+    ImGui::EditKeyFrame(
+        label,
         uvTranslateCurve_,
         duration_);
 #endif // _DEBUG
-
-    return isEdit;
 }
 
 void SpriteAnimation::Finalize() {

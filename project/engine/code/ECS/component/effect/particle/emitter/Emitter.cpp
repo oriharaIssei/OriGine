@@ -123,20 +123,22 @@ void Emitter::UpdateParticle(float _deltaTime) {
     }
 }
 
-bool Emitter::Edit() {
+void Emitter::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, const std::string& _parentLabel) {
 #ifdef _DEBUG
-    bool isChange = false;
-    if (CheckBoxCommand("isActive", isActive_)) {
+
+    if (CheckBoxCommand("isActive##" + _parentLabel, isActive_)) {
         CreateResource();
     }
-    CheckBoxCommand("isLoop", isLoop_);
+    CheckBoxCommand("isLoop##" + _parentLabel, isLoop_);
 
-    if (ImGui::Button("Play")) {
+    std::string label = "Play##" + _parentLabel;
+    if (ImGui::Button(label.c_str())) {
         leftActiveTime_ = activeTime_;
         CreateResource();
     }
     ImGui::SameLine();
-    if (ImGui::Button("Stop")) {
+    label = "Stop##" + _parentLabel;
+    if (ImGui::Button(label.c_str())) {
         leftActiveTime_ = -1.f;
     }
 
@@ -146,11 +148,12 @@ bool Emitter::Edit() {
         ImGui::Text("Texture : %s", textureFileName_.c_str());
         ImGui::SameLine();
 
-        if (ImGui::Button("Change Texture")) {
+        label = "Change Texture##" + _parentLabel;
+        if (ImGui::Button(label.c_str())) {
             std::string directory, filename;
             if (MyFileSystem::selectFileDialog(kApplicationResourceDirectory, directory, filename, {"png"})) {
                 std::string filePath = kApplicationResourceDirectory + "/" + directory + "/" + filename;
-                auto commandCombo = std::make_unique<CommandCombo>();
+                auto commandCombo    = std::make_unique<CommandCombo>();
                 commandCombo->addCommand(
                     std::make_shared<SetterCommand<std::string>>(&textureFileName_, filePath));
                 commandCombo->addCommand(
@@ -160,35 +163,27 @@ bool Emitter::Edit() {
         }
     }
 
+    //======================== ShapeType の 編集 ========================//
     ImGui::Spacing();
-    ImGui::Separator();
-    ImGui::Spacing();
-
-    if (ImGui::TreeNode("ShapeType")) {
-        EditShapeType();
-        ImGui::TreePop();
-    }
-
-    ImGui::Spacing();
-    ImGui::Separator();
+    ImGui::SeparatorText("ShapeType");
     ImGui::Spacing();
 
-    if (ImGui::TreeNode("Emitter")) {
-        EditEmitter();
-        ImGui::TreePop();
-    }
+    EditShapeType(_parentLabel);
 
+    //======================== Emitter の 編集 ========================//
     ImGui::Spacing();
-    ImGui::Separator();
+    ImGui::SeparatorText("Emitter");
     ImGui::Spacing();
 
-    if (ImGui::TreeNode("Particle")) {
-        EditParticle();
-        ImGui::TreePop();
-    }
+    EditEmitter(_parentLabel);
 
+    //======================== Particle の 編集 ========================//
     ImGui::Spacing();
-    ImGui::Separator();
+    ImGui::SeparatorText("Particle");
+    ImGui::Spacing();
+
+    EditParticle(_parentLabel);
+
     ImGui::Spacing();
 
     if (ImGui::Button("Calculate Particle MaxSize")) {
@@ -198,16 +193,14 @@ bool Emitter::Edit() {
         }
     }
 
-    return isChange;
-#else
-    return false;
 #endif // _DEBUG
 }
 
 #ifdef _DEBUG
-void Emitter::EditEmitter() {
+void Emitter::EditEmitter(const std::string& _parentLabel) {
     //======================== Emitter の 編集 ========================//
-    if (ImGui::BeginCombo("BlendMode", blendModeStr[int(blendMode_)].c_str())) {
+    std::string label = "BlendMode##" + _parentLabel;
+    if (ImGui::BeginCombo(label.c_str(), blendModeStr[int(blendMode_)].c_str())) {
         for (int32_t i = 0; i < kBlendNum; i++) {
             bool isSelected = (blendMode_ == BlendMode(i)); // 現在選択中かどうか
             if (ImGui::Selectable(blendModeStr[i].c_str(), isSelected)) {
@@ -220,22 +213,28 @@ void Emitter::EditEmitter() {
     }
 
     ImGui::Text("EmitterOriginPos");
-    DragGuiVectorCommand<3, float>("##EmitterOriginPos", originPos_, 0.01f);
+    label = "##EmitterOriginPos" + _parentLabel;
+    DragGuiVectorCommand<3, float>(label, originPos_, 0.01f);
 
     ImGui::Text("EmitterActiveTime");
-    DragGuiCommand("##EmitterActiveTime", activeTime_, 0.1f);
+    label = "##EmitterActiveTime" + _parentLabel;
+    DragGuiCommand(label, activeTime_, 0.1f);
     ImGui::Text("SpawnParticleVal");
-    DragGuiCommand("##spawnParticleVal", spawnParticleVal_, 1, 0, 0, "%d");
+    label = "##SpawnParticleVal" + _parentLabel;
+    DragGuiCommand(label, spawnParticleVal_, 1, 0, 0, "%d");
 
-    CheckBoxCommand("Particle Is BillBoard", particleIsBillBoard_);
+    label = "Particle Is BillBoard##" + _parentLabel;
+    CheckBoxCommand(label, particleIsBillBoard_);
 
     ImGui::Text("SpawnCoolTime");
-    DragGuiCommand("##SpawnCoolTime", spawnCoolTime_, 0.1f, 0.f);
+    label = "##SpawnCoolTime" + _parentLabel;
+    DragGuiCommand(label, spawnCoolTime_, 0.1f, 0.f);
 }
 
-void Emitter::EditShapeType() {
+void Emitter::EditShapeType(const std::string& _parentLabel) {
     //======================== ShapeType の 切り替え ========================//
-    if (ImGui::BeginCombo("EmitterShapeType", emitterShapeTypeWord_[static_cast<int32_t>(shapeType_)].c_str())) {
+    std::string label = "EmitterShapeType##" + _parentLabel;
+    if (ImGui::BeginCombo(label.c_str(), emitterShapeTypeWord_[static_cast<int32_t>(shapeType_)].c_str())) {
         for (int32_t i = 0; i < shapeTypeCount; i++) {
             bool isSelected = (shapeType_ == EmitterShapeType(i)); // 現在選択中かどうか
 
@@ -277,34 +276,37 @@ void Emitter::EditShapeType() {
     //======================== ShapeType の 編集 ========================//
 
     if (emitterSpawnShape_) {
-        emitterSpawnShape_->Debug();
+        emitterSpawnShape_->Debug(_parentLabel);
     }
 }
 
-void Emitter::EditParticle() {
+void Emitter::EditParticle(const std::string& _parentLabel) {
     int32_t newFlag               = updateSettings_;
     auto commandComboByChangeFlag = std::make_unique<CommandCombo>();
     //======================== Particle の 編集 ========================//
 
     ImGui::Text("ParticleLifeTime");
+    std::string label = "##ParticleLifeTime" + _parentLabel;
     DragGuiCommand<float>(
-        "##ParticleLifeTime",
+        label,
         particleLifeTime_,
         0.1f, 0.f);
 
     ImGui::Separator();
 
     {
+        label                    = "ColorInterpolationType##" + _parentLabel;
         int newInterpolationType = static_cast<int>(colorInterpolationType_);
-        if (ImGui::Combo("ColorInterpolationType", &newInterpolationType, "LINEAR\0STEP\0\0", static_cast<int>(InterpolationType::COUNT))) {
+        if (ImGui::Combo(label.c_str(), &newInterpolationType, "LINEAR\0STEP\0\0", static_cast<int>(InterpolationType::COUNT))) {
             auto command = std::make_unique<SetterCommand<InterpolationType>>(&colorInterpolationType_, (InterpolationType)newInterpolationType);
             EditorController::getInstance()->pushCommand(std::move(command));
         }
     }
 
-    if (ImGui::TreeNode("Particle Color")) {
+    label = "Particle Color##" + _parentLabel;
+    if (ImGui::TreeNode(label.c_str())) {
         ColorEditGuiCommand<4>(
-            "##Particle Color",
+            label,
             particleColor_,
             [this](Vec<4, float>* _newColor) {
                 if (!particleKeyFrames_->colorCurve_.empty()) {
@@ -316,8 +318,9 @@ void Emitter::EditParticle() {
         bool updatePerLifeTime    = (newFlag & static_cast<int32_t>(ParticleUpdateType::ColorPerLifeTime)) != 0;
         bool preUpdatePerLifeTime = updatePerLifeTime;
 
-        ImGui::Checkbox("UpdateColorPerLifeTime", &updatePerLifeTime);
-        if (updatePerLifeTime) {
+        label = "UpdateColorPerLifeTime##" + _parentLabel;
+
+        if (ImGui::Checkbox(label.c_str(), &updatePerLifeTime)) {
             newFlag = (newFlag | static_cast<int32_t>(ParticleUpdateType::ColorPerLifeTime));
 
             if (particleKeyFrames_->colorCurve_.empty()) {
@@ -326,7 +329,8 @@ void Emitter::EditParticle() {
                 particleKeyFrames_->colorCurve_[0].value = particleColor_;
             }
 
-            ImGui::EditColorKeyFrame("ColorLine", particleKeyFrames_->colorCurve_, particleLifeTime_);
+            label = "ColorLine##" + _parentLabel;
+            ImGui::EditColorKeyFrame(label, particleKeyFrames_->colorCurve_, particleLifeTime_);
         } else if (preUpdatePerLifeTime /* && !updatePerLifeTime */) {
             newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::ColorPerLifeTime));
         }
@@ -339,16 +343,20 @@ void Emitter::EditParticle() {
 
     {
         int newInterpolationType = static_cast<int>(transformInterpolationType_);
-        if (ImGui::Combo("ColorInterpolationType", &newInterpolationType, "LINEAR\0STEP\0\0", static_cast<int>(InterpolationType::COUNT))) {
+        label                    = "ColorInterpolationType##" + _parentLabel;
+        if (ImGui::Combo(label.c_str(), &newInterpolationType, "LINEAR\0STEP\0\0", static_cast<int>(InterpolationType::COUNT))) {
             auto command = std::make_unique<SetterCommand<InterpolationType>>(&transformInterpolationType_, (InterpolationType)newInterpolationType);
             EditorController::getInstance()->pushCommand(std::move(command));
         }
     }
 
-    if (ImGui::TreeNode("Particle Velocity")) {
+    label = "Particle Velocity##" + _parentLabel;
+    if (ImGui::TreeNode(label.c_str())) {
         ImGui::Text("Min");
+        // 最小速度の設定
+        label = "##ParticleVelocityMin" + _parentLabel;
         DragGuiVectorCommand<3, float>(
-            "##ParticleVelocityMin",
+            label,
             startParticleVelocityMin_,
             0.1f,
             {}, {},
@@ -363,8 +371,10 @@ void Emitter::EditParticle() {
         startParticleVelocityMin_ = MinElement(startParticleVelocityMin_, startParticleVelocityMax_);
 
         ImGui::Text("Max");
+        // 最大速度の設定
+        label = "##ParticleVelocityMax" + _parentLabel;
         DragGuiVectorCommand<3, float>(
-            "##ParticleVelocityMax",
+            label,
             startParticleVelocityMax_,
             0.1f,
             {}, {},
@@ -377,13 +387,17 @@ void Emitter::EditParticle() {
         int randomOrPerLifeTime    = (newFlag & static_cast<int32_t>(ParticleUpdateType::VelocityPerLifeTime)) ? 2 : ((newFlag & static_cast<int32_t>(ParticleUpdateType::VelocityRandom)) ? 1 : 0);
         int preRandomOrPerLifeTime = randomOrPerLifeTime;
 
-        ImGui::RadioButton("Update Velocity None", &randomOrPerLifeTime, 0);
-        ImGui::RadioButton("Update Velocity Random", &randomOrPerLifeTime, 1);
-        ImGui::RadioButton("Update Velocity PerLifeTime", &randomOrPerLifeTime, 2);
+        label = "Update Velocity None##" + _parentLabel;
+        ImGui::RadioButton(label.c_str(), &randomOrPerLifeTime, 0);
+        label = "Update Velocity Random##" + _parentLabel;
+        ImGui::RadioButton(label.c_str(), &randomOrPerLifeTime, 1);
+        label = "Update Velocity PerLifeTime##" + _parentLabel;
+        ImGui::RadioButton(label.c_str(), &randomOrPerLifeTime, 2);
 
         bool isUsingVelocityRotate = (newFlag & static_cast<int32_t>(ParticleUpdateType::VelocityRotateForward)) != 0;
 
-        if (ImGui::Checkbox("VelocityRotateForward", &isUsingVelocityRotate)) {
+        label = "VelocityRotateForward##" + _parentLabel;
+        if (ImGui::Checkbox(label.c_str(), &isUsingVelocityRotate)) {
             if (isUsingVelocityRotate) {
                 newFlag = (newFlag | static_cast<int32_t>(ParticleUpdateType::VelocityRotateForward));
             } else {
@@ -392,7 +406,8 @@ void Emitter::EditParticle() {
         }
 
         bool isUsingGravity = (newFlag & static_cast<int32_t>(ParticleUpdateType::UsingGravity));
-        if (ImGui::Checkbox("UsingGravity", &isUsingGravity)) {
+        label               = "UsingGravity##" + _parentLabel;
+        if (ImGui::Checkbox(label.c_str(), &isUsingGravity)) {
             newFlag = isUsingGravity
                           ? newFlag | static_cast<int32_t>(ParticleUpdateType::UsingGravity)
                           : newFlag & ~static_cast<int32_t>(ParticleUpdateType::UsingGravity);
@@ -401,10 +416,12 @@ void Emitter::EditParticle() {
         if (isUsingGravity) {
             newFlag = (newFlag | static_cast<int32_t>(ParticleUpdateType::UsingGravity));
 
-            DragGuiCommand<float>("Min Mass", randMass_[X], 0.1f, {}, {}, "%.3f", [this](float* _newVal) {
+            label = "Min Mass##" + _parentLabel;
+            DragGuiCommand<float>(label, randMass_[X], 0.1f, {}, {}, "%.3f", [this](float* _newVal) {
                 *_newVal = (std::min)(*_newVal, randMass_[Y]);
             });
-            DragGuiCommand<float>("Max Mass", randMass_[Y], 0.1f, {}, {}, "%.3f", [this](float* _newVal) {
+            label = "Max Mass##" + _parentLabel;
+            DragGuiCommand<float>(label, randMass_[Y], 0.1f, {}, {}, "%.3f", [this](float* _newVal) {
                 *_newVal = (std::max)(randMass_[X], *_newVal);
             });
             randMass_[X] = (std::min)(randMass_[X], randMass_[Y]);
@@ -420,13 +437,14 @@ void Emitter::EditParticle() {
             } else {
                 particleKeyFrames_->velocityCurve_[0].value = startParticleVelocityMin_;
             }
-
-            ImGui::EditKeyFrame("VelocityCurve", particleKeyFrames_->velocityCurve_, particleLifeTime_);
+            label = "VelocityLine##" + _parentLabel;
+            ImGui::EditKeyFrame(label.c_str(), particleKeyFrames_->velocityCurve_, particleLifeTime_);
         } else if (randomOrPerLifeTime == 1) {
             // ランダムな速度を設定
             ImGui::Text("UpdateMin");
+            label = "##UpdateParticleVelocityMin" + _parentLabel;
             DragGuiVectorCommand<3, float>(
-                "##UpdateParticleVelocityMin",
+                label,
                 updateParticleVelocityMin_,
                 0.1f,
                 {}, {},
@@ -437,8 +455,9 @@ void Emitter::EditParticle() {
 
             updateParticleVelocityMin_ = MinElement(updateParticleVelocityMin_, updateParticleVelocityMax_);
             ImGui::Text("UpdateMax");
+            label = "##UpdateParticleVelocityMax" + _parentLabel;
             DragGuiVectorCommand<3, float>(
-                "##UpdateParticleVelocityMax",
+                label,
                 updateParticleVelocityMax_,
                 0.1f, {}, {},
                 "%.3f",
@@ -456,10 +475,12 @@ void Emitter::EditParticle() {
         ImGui::TreePop();
     }
 
-    if (ImGui::TreeNode("Particle Scale")) {
+    label = "Particle Scale##" + _parentLabel;
+    if (ImGui::TreeNode(label.c_str())) {
         ImGui::Text("Min");
+        label = "##ParticleScaleMin" + _parentLabel;
         DragGuiVectorCommand<3, float>(
-            "##ParticleScaleMin",
+            label,
             startParticleScaleMin_,
             0.1f,
             {}, {},
@@ -473,8 +494,9 @@ void Emitter::EditParticle() {
         startParticleScaleMin_ = MinElement(startParticleScaleMin_, startParticleScaleMax_);
 
         ImGui::Text("Max");
+        label = "##ParticleScaleMax" + _parentLabel;
         DragGuiVectorCommand<3, float>(
-            "##ParticleScaleMax",
+            label,
             startParticleScaleMax_,
             0.1f,
             {}, {},
@@ -490,7 +512,8 @@ void Emitter::EditParticle() {
         int preRandomOrPerLifeTime = randomOrPerLifeTime;
 
         bool uniformScaleRandom = (newFlag & static_cast<int32_t>(ParticleUpdateType::UniformScaleRandom)) != 0;
-        if (ImGui::Checkbox("UniformScaleRandom", &uniformScaleRandom)) {
+        label                   = "UniformScaleRandom##" + _parentLabel;
+        if (ImGui::Checkbox(label.c_str(), &uniformScaleRandom)) {
             if (uniformScaleRandom) {
                 newFlag = (newFlag | static_cast<int32_t>(ParticleUpdateType::UniformScaleRandom));
             } else {
@@ -498,9 +521,12 @@ void Emitter::EditParticle() {
             }
         }
 
-        ImGui::RadioButton("Update Scale None", &randomOrPerLifeTime, 0);
-        ImGui::RadioButton("Update Scale Random", &randomOrPerLifeTime, 1);
-        ImGui::RadioButton("Update Scale PerLifeTime", &randomOrPerLifeTime, 2);
+        label = "Update Scale None##" + _parentLabel;
+        ImGui::RadioButton(label.c_str(), &randomOrPerLifeTime, 0);
+        label = "Update Scale Random##" + _parentLabel;
+        ImGui::RadioButton(label.c_str(), &randomOrPerLifeTime, 1);
+        label = "Update Scale PerLifeTime##" + _parentLabel;
+        ImGui::RadioButton(label.c_str(), &randomOrPerLifeTime, 2);
 
         if (randomOrPerLifeTime == 2) {
             newFlag = (newFlag | static_cast<int32_t>(ParticleUpdateType::ScalePerLifeTime));
@@ -512,12 +538,14 @@ void Emitter::EditParticle() {
                 particleKeyFrames_->scaleCurve_[0].value = startParticleVelocityMin_;
             }
 
-            ImGui::EditKeyFrame("ScaleLine", particleKeyFrames_->scaleCurve_, particleLifeTime_);
+            label = "ScaleLine##" + _parentLabel;
+            ImGui::EditKeyFrame(label, particleKeyFrames_->scaleCurve_, particleLifeTime_);
         } else if (randomOrPerLifeTime == 1) {
             // ランダムなScaleを設定
             ImGui::Text("UpdateMin");
+            label = "##UpdateParticleScaleMin" + _parentLabel;
             DragGuiVectorCommand<3, float>(
-                "##UpdateParticleScaleMin",
+                label,
                 updateParticleScaleMin_,
                 0.1f,
                 {}, {},
@@ -528,8 +556,9 @@ void Emitter::EditParticle() {
             updateParticleScaleMin_ = MinElement(updateParticleScaleMin_, updateParticleScaleMax_);
 
             ImGui::Text("UpdateMax");
+            label = "##UpdateParticleScaleMax" + _parentLabel;
             DragGuiVectorCommand<3, float>(
-                "##UpdateParticleScaleMax",
+                label,
                 updateParticleScaleMax_,
                 0.1f,
                 {}, {},
@@ -551,8 +580,9 @@ void Emitter::EditParticle() {
 
     if (ImGui::TreeNode("Particle Rotate")) {
         ImGui::Text("Min");
+        label = "##ParticleRotateMin" + _parentLabel;
         DragGuiVectorCommand<3, float>(
-            "##ParticleRotateMin",
+            label,
             startParticleRotateMin_,
             0.1f,
             {}, {},
@@ -567,8 +597,9 @@ void Emitter::EditParticle() {
         startParticleRotateMin_ = MinElement(startParticleRotateMin_, startParticleRotateMax_);
 
         ImGui::Text("Max");
+        label = "##ParticleRotateMax" + _parentLabel;
         DragGuiVectorCommand<3, float>(
-            "##ParticleRotateMax",
+            label,
             startParticleRotateMax_,
             0.1f,
             {}, {},
@@ -578,14 +609,23 @@ void Emitter::EditParticle() {
             });
         startParticleRotateMax_ = MaxElement(startParticleRotateMin_, startParticleRotateMax_);
 
-        int randomOrPerLifeTime    = (newFlag & static_cast<int32_t>(ParticleUpdateType::RotateForward)) ? 3 : (newFlag & static_cast<int32_t>(ParticleUpdateType::RotatePerLifeTime)) ? 2
-                                                                                                                                                                                       : ((newFlag & static_cast<int32_t>(ParticleUpdateType::RotateRandom)) ? 1 : 0);
+        int randomOrPerLifeTime    = (newFlag & static_cast<int32_t>(ParticleUpdateType::RotateForward))
+                                         ? 3
+                                     : (newFlag & static_cast<int32_t>(ParticleUpdateType::RotatePerLifeTime))
+                                         ? 2
+                                         : ((newFlag & static_cast<int32_t>(ParticleUpdateType::RotateRandom))
+                                                   ? 1
+                                                   : 0);
         int preRandomOrPerLifeTime = randomOrPerLifeTime;
 
-        ImGui::RadioButton("Update Rotate None", &randomOrPerLifeTime, 0);
-        ImGui::RadioButton("Update Rotate Random", &randomOrPerLifeTime, 1);
-        ImGui::RadioButton("Update Rotate PerLifeTime", &randomOrPerLifeTime, 2);
-        ImGui::RadioButton("Update Rotate Forward", &randomOrPerLifeTime, 3);
+        label = "Update Rotate None##" + _parentLabel;
+        ImGui::RadioButton(label.c_str(), &randomOrPerLifeTime, 0);
+        label = "Update Rotate Random##" + _parentLabel;
+        ImGui::RadioButton(label.c_str(), &randomOrPerLifeTime, 1);
+        label = "Update Rotate PerLifeTime##" + _parentLabel;
+        ImGui::RadioButton(label.c_str(), &randomOrPerLifeTime, 2);
+        label = "Update Rotate Forward##" + _parentLabel;
+        ImGui::RadioButton(label.c_str(), &randomOrPerLifeTime, 3);
 
         if (randomOrPerLifeTime == 3) {
             newFlag = (newFlag | static_cast<int32_t>(ParticleUpdateType::RotateForward));
@@ -602,12 +642,14 @@ void Emitter::EditParticle() {
                 particleKeyFrames_->rotateCurve_[0].value = startParticleRotateMin_;
             }
 
-            ImGui::EditKeyFrame("RotateLine", particleKeyFrames_->rotateCurve_, particleLifeTime_);
+            label = "RotateLine##" + _parentLabel;
+            ImGui::EditKeyFrame(label, particleKeyFrames_->rotateCurve_, particleLifeTime_);
         } else if (randomOrPerLifeTime == 1) {
             // ランダムな回転を設定
             ImGui::Text("UpdateMin");
+            label = "##UpdateParticleRotateMin" + _parentLabel;
             DragGuiVectorCommand<3, float>(
-                "##UpdateParticleRotateMin",
+                label,
                 updateParticleRotateMin_,
                 0.1f,
                 {}, {},
@@ -618,8 +660,9 @@ void Emitter::EditParticle() {
             updateParticleRotateMin_ = MinElement(updateParticleRotateMin_, updateParticleRotateMax_);
 
             ImGui::Text("UpdateMax");
+            label = "##UpdateParticleRotateMax" + _parentLabel;
             DragGuiVectorCommand<3, float>(
-                "##UpdateParticleRotateMax",
+                label,
                 updateParticleRotateMax_,
                 0.1f,
                 {}, {},
@@ -644,13 +687,21 @@ void Emitter::EditParticle() {
     ImGui::Separator();
     ImGui::Spacing();
 
-    if (ImGui::TreeNode("UvCurveGenerator Form TextureAnimation")) {
-        DragGuiVectorCommand("TileSize", tileSize_, 0.1f);
-        DragGuiVectorCommand("TextureSize", textureSize_, 0.1f);
-        DragGuiCommand("tilePerTime_", tilePerTime_);
-        DragGuiCommand<float>("StartAnimationTime", startAnimationTime_, 0.1f, 0.f);
-        DragGuiCommand<float>("AnimationTimeLength", animationTimeLength_, 0.1f, 0.f);
-        if (ImGui::Button("Generate Curve")) {
+    label = "UvCurveGenerator Form TextureAnimation##" + _parentLabel;
+    if (ImGui::TreeNode(label.c_str())) {
+        label = "TileSize##" + _parentLabel;
+        DragGuiVectorCommand(label, tileSize_, 0.1f);
+        label = "TextureSize##" + _parentLabel;
+        DragGuiVectorCommand(label, textureSize_, 0.1f);
+        label = "TilePerTime##" + _parentLabel;
+        DragGuiCommand(label, tilePerTime_);
+        label = "StartAnimationTime##" + _parentLabel;
+        DragGuiCommand<float>(label, startAnimationTime_, 0.1f, 0.f);
+        label = "AnimationTimeLength##" + _parentLabel;
+        DragGuiCommand<float>(label, animationTimeLength_, 0.1f, 0.f);
+
+        label = "Generate Curve##" + _parentLabel;
+        if (ImGui::Button(label.c_str())) {
             if (particleKeyFrames_) {
                 particleLifeTime_ = animationTimeLength_;
 
@@ -722,7 +773,8 @@ void Emitter::EditParticle() {
 
     {
         int newInterpolationType = static_cast<int>(uvInterpolationType_);
-        if (ImGui::Combo("UvInterpolationType", &newInterpolationType, "LINEAR\0STEP\0\0", static_cast<int>(InterpolationType::COUNT))) {
+        label                    = "UvInterpolationType##" + _parentLabel;
+        if (ImGui::Combo(label.c_str(), &newInterpolationType, "LINEAR\0STEP\0\0", static_cast<int>(InterpolationType::COUNT))) {
             auto command = std::make_unique<SetterCommand<InterpolationType>>(&uvInterpolationType_, (InterpolationType)newInterpolationType);
             EditorController::getInstance()->pushCommand(std::move(command));
         }
@@ -732,10 +784,12 @@ void Emitter::EditParticle() {
     ImGui::Separator();
     ImGui::Spacing();
 
-    if (ImGui::TreeNode("Particle UV Scale")) {
+    label = "Particle UV Scale##" + _parentLabel;
+    if (ImGui::TreeNode(label.c_str())) {
         ImGui::Text("UVScale");
+        label = "##ParticleUvScale" + _parentLabel;
         DragGuiVectorCommand<3, float>(
-            "##ParticleUvScale",
+            label,
             particleUvScale_,
             0.1f,
             {}, {},
@@ -748,7 +802,8 @@ void Emitter::EditParticle() {
 
         bool updatePerLifeTime    = (newFlag & static_cast<int32_t>(ParticleUpdateType::UvScalePerLifeTime)) != 0;
         bool preUpdatePerLifeTime = updatePerLifeTime;
-        ImGui::Checkbox("Update UvScale PerLifeTime", &updatePerLifeTime);
+        label                     = "Update UvScale PerLifeTime##" + _parentLabel;
+        ImGui::Checkbox(label.c_str(), &updatePerLifeTime);
         if (updatePerLifeTime) {
             newFlag = (newFlag | static_cast<int32_t>(ParticleUpdateType::UvScalePerLifeTime));
 
@@ -767,9 +822,9 @@ void Emitter::EditParticle() {
 
     if (ImGui::TreeNode("Particle UV Rotate")) {
         ImGui::Text("UVRotate");
-
+        label = "##ParticleUvRotate" + _parentLabel;
         DragGuiVectorCommand<3, float>(
-            "##ParticleUvRotate",
+            label,
             particleUvRotate_,
             0.1f,
             {}, {},
@@ -783,7 +838,8 @@ void Emitter::EditParticle() {
         bool updatePerLifeTime    = (newFlag & static_cast<int32_t>(ParticleUpdateType::UvRotatePerLifeTime)) != 0;
         bool preUpdatePerLifeTime = updatePerLifeTime;
 
-        ImGui::Checkbox("Update UvRotate PerLifeTime", &updatePerLifeTime);
+        label = "Update UvRotate PerLifeTime##" + _parentLabel;
+        ImGui::Checkbox(label.c_str(), &updatePerLifeTime);
         if (updatePerLifeTime) {
             newFlag = (newFlag | static_cast<int32_t>(ParticleUpdateType::UvRotatePerLifeTime));
 
@@ -793,7 +849,8 @@ void Emitter::EditParticle() {
                 particleKeyFrames_->uvRotateCurve_[0].value = particleUvRotate_;
             }
 
-            ImGui::EditKeyFrame("UvRotateLine", particleKeyFrames_->uvRotateCurve_, particleLifeTime_);
+            label = "UvRotateLine##" + _parentLabel;
+            ImGui::EditKeyFrame(label, particleKeyFrames_->uvRotateCurve_, particleLifeTime_);
         } else if (preUpdatePerLifeTime && !updatePerLifeTime) {
 
             newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::UvRotatePerLifeTime));
@@ -801,10 +858,12 @@ void Emitter::EditParticle() {
         ImGui::TreePop();
     }
 
-    if (ImGui::TreeNode("Particle UV Translate")) {
+    label = "Particle UV Translate##" + _parentLabel;
+    if (ImGui::TreeNode(label.c_str())) {
         ImGui::Text("UVTranslate");
+        label = "##ParticleUvTranslate" + _parentLabel;
         DragGuiVectorCommand<3, float>(
-            "##ParticleUvTranslate",
+            label,
             particleUvTranslate_,
             0.1f,
             {}, {},
@@ -817,7 +876,8 @@ void Emitter::EditParticle() {
 
         bool updatePerLifeTime    = (newFlag & static_cast<int32_t>(ParticleUpdateType::UvTranslatePerLifeTime)) != 0;
         bool preUpdatePerLifeTime = updatePerLifeTime;
-        ImGui::Checkbox("Update UvTransform PerLifeTime", &updatePerLifeTime);
+        label                     = "Update UvTranslate PerLifeTime##" + _parentLabel;
+        ImGui::Checkbox(label.c_str(), &updatePerLifeTime);
         if (updatePerLifeTime) {
             newFlag = (newFlag | static_cast<int32_t>(ParticleUpdateType::UvTranslatePerLifeTime));
 
@@ -827,7 +887,8 @@ void Emitter::EditParticle() {
                 particleKeyFrames_->uvTranslateCurve_[0].value = particleUvTranslate_;
             }
 
-            ImGui::EditKeyFrame("UvTranslateLine", particleKeyFrames_->uvTranslateCurve_, particleLifeTime_);
+            label = "UvTranslateLine##" + _parentLabel;
+            ImGui::EditKeyFrame(label, particleKeyFrames_->uvTranslateCurve_, particleLifeTime_);
         } else if (preUpdatePerLifeTime && !updatePerLifeTime) {
             newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::UvTranslatePerLifeTime));
         }

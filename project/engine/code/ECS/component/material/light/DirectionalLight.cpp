@@ -5,22 +5,18 @@
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
-bool DirectionalLight::Edit() {
+void DirectionalLight::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, const std::string& _parentLabel) {
 #ifdef _DEBUG
-    bool isChanged = false;
 
-    isChanged |= CheckBoxCommand("Active", isActive_);
+    CheckBoxCommand("Active##" + _parentLabel, isActive_);
 
     ImGui::Spacing();
 
-    isChanged |= ColorEditGuiCommand("Color", color_);
-    isChanged |= DragGuiCommand<float>("Intensity", intensity_, 0.01f, 0.1f);
+    ColorEditGuiCommand("Color##" + _parentLabel, color_);
+    DragGuiCommand<float>("Intensity##" + _parentLabel, intensity_, 0.01f, 0.1f);
 
-    DragGuiVectorCommand<3, float>("Direction", direction_, 0.01f, {}, {}, "%.3f", [](Vector<3, float>* _d) { *_d = Vec3f(*_d).normalize(); });
-
-    return isChanged;
-#else
-    return false;
+    DragGuiVectorCommand<3, float>("Direction##" + _parentLabel, direction_, 0.01f, {}, {}, "%.3f", [](Vector<3, float>* _d) { *_d = Vec3f(*_d).normalize(); });
+    direction_ = direction_.normalize();
 #endif // _DEBUG
 }
 

@@ -26,21 +26,18 @@ void Transform::Update() {
     }
 }
 
-bool Transform::Edit() {
+void Transform::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, const std::string& _parentLabel) {
 #ifdef _DEBUG
-    bool isChange = false;
+
     // --------------------------- scale --------------------------- //
-    isChange |= DragGuiVectorCommand<3, float>("Scale", this->scale, 0.01f, {}, {}, "%.3f", [this](Vector<3, float>* /*_s*/) { this->Update(); });
+    DragGuiVectorCommand<3, float>("Scale##" + _parentLabel, this->scale, 0.01f, {}, {}, "%.3f", [this](Vector<3, float>* /*_s*/) { this->Update(); });
     // --------------------------- rotate --------------------------- //
-    isChange |= DragGuiVectorCommand<4, float>("Rotate", this->rotate, 0.01f, {}, {}, "%.3f", [this](Vector<4, float>* _r) { *_r = Quaternion::Normalize(*_r);this->Update(); });
+    DragGuiVectorCommand<4, float>("Rotate##" + _parentLabel, this->rotate, 0.01f, {}, {}, "%.3f", [this](Vector<4, float>* _r) { *_r = Quaternion::Normalize(*_r);this->Update(); });
     this->rotate = Quaternion::Normalize(this->rotate);
     // --------------------------- translate --------------------------- //
-    isChange |= DragGuiVectorCommand<3, float>("Translate", this->translate, 0.01f, {}, {}, "%.3f", [this](Vector<3, float>* /*_t*/) { this->Update(); });
+    DragGuiVectorCommand<3, float>("Translate##" + _parentLabel, this->translate, 0.01f, {}, {}, "%.3f", [this](Vector<3, float>* /*_t*/) { this->Update(); });
 
     this->Update();
 
-    return isChange;
-#else
-    return false;
 #endif // _DEBUG
 }

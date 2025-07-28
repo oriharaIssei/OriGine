@@ -51,7 +51,7 @@ public:
 
     void Finalize() override;
 
-    bool Edit() override;
+    void Edit(Scene* _scene,GameEntity* _entity,const std::string& _parentLabel) override;
 
     void CalculateMaxSize();
 
@@ -65,17 +65,17 @@ private:
     void SpawnParticle();
 
 #ifdef _DEBUG
-    void EditEmitter();
+    void EditEmitter(const std::string& _parentLabel);
 
     /// <summary>
     /// ShapeType に関する 編集項目
     /// </summary>
-    void EditShapeType();
+    void EditShapeType(const std::string& _parentLabel);
 
     /// <summary>
     /// Particle の 編集項目
     /// </summary>
-    void EditParticle();
+    void EditParticle(const std::string& _parentLabel);
 #endif // _DEBUG
 private:
     Transform* parent_       = nullptr;
@@ -124,8 +124,8 @@ private:
     //=============== パーティクル設定項目 ===============//
     Vec4f particleColor_   = {1.f, 1.f, 1.f, 1.f};
     Vec3f particleUvScale_ = {1.f, 1.f, 1.f};
-    Vec3f particleUvRotate_;
-    Vec3f particleUvTranslate_;
+    Vec3f particleUvRotate_ = {1.f, 1.f, 1.f};
+    Vec3f particleUvTranslate_ = {1.f, 1.f, 1.f};
 
     int32_t updateSettings_ = 0;
 

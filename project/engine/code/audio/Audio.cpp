@@ -141,32 +141,31 @@ void Audio::Pause() {
     pSourceVoice_->Stop(0);
 }
 
-bool Audio::Edit() {
+void Audio::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, const std::string& _parentLabel) {
 #ifdef _DEBUG
-    bool isEdit = false;
-    if (ImGui::Button("LoadFile")) {
+    std::string label = "LoadFile##" + _parentLabel;
+    if (ImGui::Button(label.c_str())) {
         std::string directory;
         if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName_, {"wav"})) {
             EditorController::getInstance()->pushCommand(std::make_unique<SetterCommand<std::string>>(&fileName_, kApplicationResourceDirectory + "/" + directory + "/" + fileName_));
 
             audioClip_.data_ = LoadWave(kApplicationResourceDirectory + "/" + directory + "/" + fileName_);
-
-            if (audioClip_.data_.pBuffer) {
-                isEdit = true;
-            }
         }
     }
 
     ImGui::Text("File:%s", fileName_.c_str());
-    isEdit |= CheckBoxCommand("Loop", audioClip_.isLoop_);
-    isEdit |= SlideGuiCommand("Volume", audioClip_.volume_, 0.0f, 2.0f);
-    if (ImGui::Button("Test Play")) {
+
+    CheckBoxCommand("Loop  ##" + _parentLabel, audioClip_.isLoop_);
+    SlideGuiCommand("Volume##" + _parentLabel, audioClip_.volume_, 0.0f, 2.0f);
+
+    label = "Play##" + _parentLabel;
+    if (ImGui::Button(label.c_str())) {
         Play();
     }
-
-    return isEdit;
-#else
-    return false;
+    label = "Pause##" + _parentLabel;
+    if (ImGui::Button(label.c_str())) {
+        Pause();
+    }
 #endif // _DEBUG
 }
 

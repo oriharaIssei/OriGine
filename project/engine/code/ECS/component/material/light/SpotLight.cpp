@@ -5,33 +5,30 @@
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
-bool SpotLight::Edit() {
+void SpotLight::Edit(Scene* /*_scene*/,GameEntity* /*_entity*/,const std::string& _parentLabel) {
 #ifdef _DEBUG
-    bool isChanged = false;
+    
 
-    isChanged |= CheckBoxCommand("Active", isActive_);
-
-    ImGui::Spacing();
-
-    isChanged |= ColorEditGuiCommand("Color", color_);
-    isChanged |= DragGuiCommand<float>("Intensity", intensity_, 0.01f, 0.0f, 10.0f);
+    CheckBoxCommand("Active##" + _parentLabel, isActive_);
 
     ImGui::Spacing();
 
-    isChanged |= DragGuiVectorCommand<3, float>("Position", pos_, 0.01f);
-    isChanged |= DragGuiVectorCommand<3, float>("Direction", direction_, 0.01f, {}, {}, "%.3f", [](Vector<3, float>* _d) { *_d = Vec3f::Normalize(*_d); });
-
-    isChanged |= DragGuiCommand<float>("Distance", distance_, 0.01f, 0.0f, 10.0f);
-    isChanged |= DragGuiCommand<float>("Decay", decay_, 0.01f, 0.0f, 10.0f);
+    ColorEditGuiCommand("Color##" + _parentLabel, color_);
+    DragGuiCommand<float>("Intensity##" + _parentLabel, intensity_, 0.01f, 0.0f, 10.0f);
 
     ImGui::Spacing();
 
-    isChanged |= DragGuiCommand<float>("CosAngle", cosAngle_, 0.01f, 0.0f, 1.0f);
-    isChanged |= DragGuiCommand<float>("CosFalloffStart", cosFalloffStart_, 0.01f, 0.0f, 1.0f);
+    DragGuiVectorCommand<3, float>("Position##" + _parentLabel, pos_, 0.01f);
+    DragGuiVectorCommand<3, float>("Direction##" + _parentLabel, direction_, 0.01f, {}, {}, "%.3f", [](Vector<3, float>* _d) { *_d = Vec3f::Normalize(*_d); });
 
-    return isChanged;
-#else
-    return false;
+    DragGuiCommand<float>("Distance##" + _parentLabel, distance_, 0.01f, 0.0f, 10.0f);
+    DragGuiCommand<float>("Decay##" + _parentLabel, decay_, 0.01f, 0.0f, 10.0f);
+
+    ImGui::Spacing();
+
+    DragGuiCommand<float>("CosAngle##" + _parentLabel, cosAngle_, 0.01f, 0.0f, 1.0f);
+    DragGuiCommand<float>("CosFalloffStart##" + _parentLabel, cosFalloffStart_, 0.01f, 0.0f, 1.0f);
+
 #endif // _DEBUG
 }
 

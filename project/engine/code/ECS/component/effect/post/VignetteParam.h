@@ -43,7 +43,7 @@ public:
 
     void Initialize(GameEntity* _entity);
 
-    bool Edit();
+    void Edit(Scene* _scene,GameEntity* _entity,const std::string& _parentLabel);
     void Finalize();
 
 private:
