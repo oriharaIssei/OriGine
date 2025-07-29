@@ -38,17 +38,19 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 
 #include "system/movement/MoveSystemByRigidBody.h"
 
-#include "system/effect/SkinningAnimationSystem.h"
 #include "system/effect/EmitterWorkSystem.h"
 #include "system/effect/PrimitiveNodeAnimationWorkSystem.h"
+#include "system/effect/SkinningAnimationSystem.h"
 #include "system/effect/SpriteAnimationSystem.h"
 #include "system/effect/TextureEffectAnimation.h"
 
+#include "system/postRender/DissolveEffect.h"
 #include "system/postRender/DistortionEffect.h"
 #include "system/postRender/GrayscaleEffect.h"
+#include "system/postRender/RadialBlurEffect.h"
+#include "system/postRender/RandomEffect.h"
 #include "system/postRender/SmoothingEffect.h"
 #include "system/postRender/VignetteEffect.h"
-#include "system/postRender/RadialBlurEffect.h"
 
 #include "system/render/BackGroundSpriteRenderSystem.h"
 #include "system/render/ColliderRenderingSystem.h"
@@ -60,6 +62,13 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 #include "system/render/SkyboxRender.h"
 #include "system/render/SpriteRenderSystem.h"
 #include "system/render/TexturedMeshRenderSystem.h"
+
+#include "system/postRender/DissolveEffect.h"
+#include "system/postRender/DistortionEffect.h"
+#include "system/postRender/GrayscaleEffect.h"
+#include "system/postRender/RandomEffect.h"
+#include "system/postRender/SmoothingEffect.h"
+#include "system/postRender/VignetteEffect.h"
 #endif // ENGINE_SYSTEMS
 
 #ifdef ENGINE_COMPONENTS
@@ -79,8 +88,10 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 #include "component/collider/CollisionPushBackInfo.h"
 
 #include "component/effect/particle/emitter/Emitter.h"
+#include "component/effect/post/DissolveEffectParam.h"
 #include "component/effect/post/DistortionEffectParam.h"
 #include "component/effect/post/RadialBlurParam.h"
+#include "component/effect/post/RandomEffectParam.h"
 #include "component/effect/post/VignetteParam.h"
 #include "component/effect/TextureEffectParam.h"
 

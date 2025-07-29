@@ -16,13 +16,13 @@ public:
 
     void Initialize() override;
     void Update() override;
-    void UpdateEntity(GameEntity* _entity) override ;
+    void UpdateEntity(GameEntity* _entity) override;
     void Finalize();
 
 protected:
     void CreatePSO();
 
-    void BeginRender();
+    void RenderStart();
     void Render();
 
 protected:

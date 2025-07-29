@@ -1,17 +1,18 @@
 #pragma once
-#include "system/ISystem.h" /// engine
+#include "system/ISystem.h"
 
+/// engine
 // drecitX12
 #include "directX12/DxCommand.h"
 #include "directX12/PipelineStateObj.h"
 #include "directX12/ShaderManager.h"
+#include <component/effect/post/VignetteParam.h>
 
-class RadialBlurParam;
-class RadialBlurEffect
+class DissolveEffect
     : public ISystem {
 public:
-    RadialBlurEffect() : ISystem(SystemCategory::PostRender) {}
-    ~RadialBlurEffect() override = default;
+    DissolveEffect() : ISystem(SystemType::PostRender) {}
+    ~DissolveEffect() override = default;
 
     void Initialize() override;
     void Update() override;
@@ -25,7 +26,6 @@ protected:
     void Render();
 
 protected:
-    std::list<RadialBlurParam*> activeRadialBlurParams_;
     PipelineStateObj* pso_                = nullptr;
     std::unique_ptr<DxCommand> dxCommand_ = nullptr;
 };

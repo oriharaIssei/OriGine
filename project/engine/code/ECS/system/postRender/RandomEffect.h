@@ -1,17 +1,22 @@
 #pragma once
-#include "system/ISystem.h" /// engine
+#include "system/ISystem.h"
 
+/// stl
+#include <memory>
+#include <unordered_map>
+
+/// engine
 // drecitX12
 #include "directX12/DxCommand.h"
 #include "directX12/PipelineStateObj.h"
 #include "directX12/ShaderManager.h"
+#include <component/effect/post/VignetteParam.h>
 
-class RadialBlurParam;
-class RadialBlurEffect
+class RandomEffect
     : public ISystem {
 public:
-    RadialBlurEffect() : ISystem(SystemCategory::PostRender) {}
-    ~RadialBlurEffect() override = default;
+    RandomEffect() : ISystem(SystemType::PostRender) {}
+    ~RandomEffect() override = default;
 
     void Initialize() override;
     void Update() override;
@@ -24,8 +29,11 @@ protected:
     void RenderStart();
     void Render();
 
+    void ChangeBlendMode(BlendMode mode);
+
 protected:
-    std::list<RadialBlurParam*> activeRadialBlurParams_;
-    PipelineStateObj* pso_                = nullptr;
+    BlendMode currentBlend_ = BlendMode::Alpha;
+
+    std::unordered_map<BlendMode, PipelineStateObj*> pso_;
     std::unique_ptr<DxCommand> dxCommand_ = nullptr;
 };

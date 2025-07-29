@@ -25,7 +25,7 @@ void VignetteEffect::Update() {
         return;
     }
 
-    BeginRender();
+    RenderStart();
 
     for (auto& id : entityIDs_) {
         auto* entity = getEntity(id);
@@ -110,8 +110,8 @@ void VignetteEffect::CreatePSO() {
     pso_ = shaderManager->CreatePso("VignetteEffect", shaderInfo, Engine::getInstance()->getDxDevice()->getDevice());
 }
 
-void VignetteEffect::BeginRender() {
-    auto& commandList = dxCommand_->getCommandList();
+void VignetteEffect::RenderStart() {
+    auto commandList = dxCommand_->getCommandList();
 
     /// ================================================
     /// pso set
@@ -123,7 +123,7 @@ void VignetteEffect::BeginRender() {
 
 void VignetteEffect::Render() {
     auto& commandList = dxCommand_->getCommandList();
-    auto* sceneView  = this->getScene()->getSceneView();
+    auto* sceneView   = this->getScene()->getSceneView();
 
     /// ================================================
     /// Viewport の設定
