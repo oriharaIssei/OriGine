@@ -10,7 +10,7 @@ void Material::UpdateUvMatrix() {
 }
 
 #ifdef _DEBUG
-void Material::DebugGui(const std::string& _parentLabel) {
+void Material::DebugGui([[maybe_unused]] const std::string& _parentLabel) {
     ImGui::Text("Color");
     ColorEditGuiCommand("##color" + _parentLabel, color_);
     ImGui::Text("uvScale");

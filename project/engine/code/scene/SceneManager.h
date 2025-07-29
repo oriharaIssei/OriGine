@@ -13,6 +13,7 @@
 #include "Scene.h"
 /// lib
 #include "lib/globalVariables/SerializedField.h"
+#include "lib/myFileSystem/MyFileSystem.h"
 
 /// externals
 #include <binaryIO/BinaryIO.h>
@@ -22,16 +23,16 @@ class SceneManager {
 public:
     static SceneManager* getInstance();
 
+    void Initialize(const std::string& _startScene);
     void Initialize();
     void Finalize();
 
     void Update();
 
+    /// <summary>
+    /// 即座にシーンを変更する(事前にnextSceneを指定する必要がある)
+    /// </summary>
     void executeSceneChange();
-
-#ifdef _DEBUG
-    // void DebugUpdate();
-#endif
 
 private:
     SceneManager();
@@ -40,6 +41,11 @@ private:
     SceneManager* operator=(const SceneManager&) = delete;
 
 private:
+#ifdef _DEVELOP
+    // Editorでの変更を検知する
+    std::unique_ptr<FileWatcher> fileWatcher_ = nullptr;
+#endif
+
     SerializedField<std::string> startupSceneName_ = SerializedField<std::string>("Settings", "Scene", "StartupSceneName");
 
     std::unique_ptr<Scene> currentScene_ = nullptr;
@@ -68,7 +74,6 @@ public:
 
     const std::string& getCurrentSceneName() const;
 
-    void sceneChange2StartupScene();
     void changeScene(const std::string& name);
 
     bool isChangeScene() const { return isChangeScene_; }

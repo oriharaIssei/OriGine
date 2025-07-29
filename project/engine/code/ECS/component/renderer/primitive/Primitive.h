@@ -223,7 +223,7 @@ public:
     virtual ~PrimitiveMeshRendererBase()         = default;
     virtual void Initialize(GameEntity* _entity) = 0;
     virtual void Finalize()                      = 0;
-    virtual void Edit(Scene* _scene,GameEntity* _entity,const std::string& _parentLabel)                          = 0;
+    virtual void Edit(Scene* _scene,GameEntity* _entity,[[maybe_unused]] const std::string& _parentLabel)                          = 0;
 
     virtual void createMesh(TextureMesh* _mesh) = 0;
 
@@ -336,7 +336,7 @@ public:
 
     void Initialize(GameEntity* _hostEntity) override;
 
-    void Edit(Scene* _scene,GameEntity* _entity,const std::string& _parentLabel) override;
+    void Edit(Scene* _scene,GameEntity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
 };
 
 class RingRenderer
@@ -352,7 +352,7 @@ public:
 
     void Initialize(GameEntity* _hostEntity) override;
 
-    void Edit(Scene* _scene,GameEntity* _entity,const std::string& _parentLabel) override;
+    void Edit(Scene* _scene,GameEntity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
 };
 
 class BoxRenderer
@@ -368,7 +368,7 @@ public:
 
     void Initialize(GameEntity* _hostEntity) override;
 
-    void Edit(Scene* _scene,GameEntity* _entity,const std::string& _parentLabel) override;
+    void Edit(Scene* _scene,GameEntity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
 };
 
 class SphereRenderer
@@ -384,7 +384,7 @@ public:
     ~SphereRenderer() override {}
 
     void Initialize(GameEntity* _hostEntity) override;
-    void Edit(Scene* _scene,GameEntity* _entity,const std::string& _parentLabel) override;
+    void Edit(Scene* _scene,GameEntity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
 };
 
 #pragma endregion

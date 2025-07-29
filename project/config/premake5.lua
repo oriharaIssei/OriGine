@@ -44,7 +44,7 @@ project "OriGine"
     }
 
     warnings "Extra"
-    buildoptions { "/WX", "/utf-8", "/MP" }
+    buildoptions { "/utf-8", "/MP" }
 
     filter "configurations:Debug"
         defines { "DEBUG", "_DEBUG" }
@@ -53,7 +53,13 @@ project "OriGine"
         libdirs { "externals/assimp/lib/Debug" }
         links { "assimp-vc143-mtd" }
         staticruntime "On"
-
+    filter "configurations:Develop"
+        defines { "DEVELOP", "_DEBUG" }
+        symbols "On"
+        runtime "Release" -- 開発用のリリースビルド
+        libdirs { "externals/assimp/lib/Release" }
+        links { "assimp-vc143-mt" }
+        staticruntime "On"
     filter "configurations:Release"
         defines { "NDEBUG" }
         optimize "Full"
@@ -144,7 +150,7 @@ project "OriGineApp"
         "imgui"
     }
     warnings "Extra"
-    buildoptions { "/WX", "/utf-8","/bigobj", "/MP" }
+    buildoptions { "/utf-8","/bigobj", "/MP" }
 
     filter "configurations:Debug"
         defines { "DEBUG", "_DEBUG" }
@@ -152,6 +158,14 @@ project "OriGineApp"
         runtime "Debug"
         libdirs { "externals/assimp/lib/Debug" }
         links { "assimp-vc143-mtd" }
+        staticruntime "On"
+
+    filter "configurations:Develop"
+        defines { "DEVELOP", "_DEBUG" }
+        symbols "On"
+        runtime "Release" -- 開発用のリリースビルド
+        libdirs { "externals/assimp/lib/Release" }
+        links { "assimp-vc143-mt" }
         staticruntime "On"
 
     filter "configurations:Release"

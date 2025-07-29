@@ -5,7 +5,7 @@
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
-void PointLight::Edit(Scene* /*_scene*/,GameEntity* /*_entity*/,const std::string& _parentLabel) {
+void PointLight::Edit(Scene* /*_scene*/,GameEntity* /*_entity*/,[[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     
     CheckBoxCommand("Active##" + _parentLabel, isActive_);

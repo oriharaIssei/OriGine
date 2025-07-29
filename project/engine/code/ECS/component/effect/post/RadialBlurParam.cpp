@@ -21,7 +21,7 @@ void RadialBlurParam::Initialize(GameEntity* /*_entity*/) {
     }
 }
 
-void RadialBlurParam::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, const std::string& _parentLabel) {
+void RadialBlurParam::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
 
 #ifdef _DEBUG
     if (CheckBoxCommand("Active##" + _parentLabel, isActive_)) {

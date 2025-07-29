@@ -34,6 +34,15 @@ public:
     void Initialize() override;
     void Finalize() override;
 
+    void InitializeMenus();
+    void InitializeAreas();
+    void InitializeScene(const std::string& _sceneName);
+    void InitializeScene();
+
+    void FinalizeMenus();
+    void FinalizeAreas();
+    void FinalizeScene();
+
 private:
     std::unique_ptr<Scene> currentScene_; // 現在のシーン
     SerializedField<std::string> editSceneName_ = SerializedField<std::string>("Settings", "SceneEditor", "editSceneName", "Game"); // 編集中のシーン名(保存する)

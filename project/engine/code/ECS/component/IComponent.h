@@ -25,8 +25,8 @@ public:
 
     virtual void Initialize(GameEntity* _entity) = 0;
 
-    virtual void Edit(Scene* _scene, GameEntity* _entity, const std::string& _parentLabel) = 0;
-    virtual void Debug(Scene* _scene, GameEntity* _entity, const std::string& _parentLabel) { Edit(_scene, _entity, _parentLabel); }
+    virtual void Edit(Scene* _scene, GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) = 0;
+    virtual void Debug(Scene* _scene, GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) { Edit(_scene, _entity, _parentLabel); }
 
     virtual void Finalize() = 0;
 };

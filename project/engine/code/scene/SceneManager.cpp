@@ -46,10 +46,9 @@ SceneManager::SceneManager() {}
 
 SceneManager::~SceneManager() {}
 
-void SceneManager::Initialize() {
+void SceneManager::Initialize(const std::string& _startScene) {
     // シーンの初期化
-    std::string startSceneName = startupSceneName_;
-    currentScene_              = std::make_unique<Scene>(startSceneName);
+    currentScene_ = std::make_unique<Scene>(_startScene);
     currentScene_->Initialize();
     // シーンビューの初期化
     currentScene_->getSceneView()->Resize(Engine::getInstance()->getWinApp()->getWindowSize());
@@ -69,12 +68,33 @@ void SceneManager::Initialize() {
             }
             sceneView->Resize(newSize);
         });
-    // デバッグカメラの初期化
+
+#ifdef _DEVELOP
+    fileWatcher_ = std::make_unique<FileWatcher>(kApplicationResourceDirectory + "/scene/" + _startScene + ".json");
+    fileWatcher_->Start();
+#endif // _DEVELOP
+}
+void SceneManager::Initialize() {
+    this->Initialize(startupSceneName_);
 }
 
-void SceneManager::Finalize() {}
+void SceneManager::Finalize() {
+#ifdef _DEVELOP
+    fileWatcher_->Stop();
+#endif // _DEVELOP
+}
 
 void SceneManager::Update() {
+#ifdef _DEVELOP
+    if (fileWatcher_->isChanged()) {
+        std::string currentSceneName = currentScene_->getName();
+        currentScene_->Finalize();
+        currentScene_ = std::make_unique<Scene>(currentSceneName);
+
+        currentScene_->Initialize();
+    }
+#endif // _DEVELOP
+
     if (isChangeScene_) {
         // SceneChange
         executeSceneChange();
@@ -91,12 +111,6 @@ void SceneManager::Update() {
 
 const std::string& SceneManager::getCurrentSceneName() const { return currentScene_->getName(); }
 
-void SceneManager::sceneChange2StartupScene() {
-    // シーンの初期化
-    currentScene_ = std::make_unique<Scene>(startupSceneName_);
-    SceneSerializer serializer(currentScene_.get());
-}
-
 void SceneManager::changeScene(const std::string& name) {
     changingSceneName_ = name;
     isChangeScene_     = true;
@@ -108,16 +122,17 @@ void SceneManager::executeSceneChange() {
     currentScene_->Finalize();
     currentScene_ = std::make_unique<Scene>(changingSceneName_);
 
-    {
-        SceneSerializer serializer(currentScene_.get());
-        serializer.Deserialize();
-    }
-
     currentScene_->Initialize();
+
+#ifdef _DEVELOP
+    // 監視対象を変更
+    fileWatcher_->Stop();
+    fileWatcher_->setFilePath(kApplicationResourceDirectory + "/scene/" + changingSceneName_ + ".json");
+    fileWatcher_->Start();
+#endif // _DEVELOP
 
     isChangeScene_ = false;
 }
-
 #pragma endregion
 
 #pragma region "SceneSerializer"

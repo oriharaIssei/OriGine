@@ -19,7 +19,7 @@ void SpriteAnimation::Initialize(GameEntity* /*_hostEntity*/) {
     currentTime_ = 0.0f;
 }
 
-void SpriteAnimation::Edit(Scene* /*_scene*/,GameEntity*/* _entity*/,const std::string& _parentLabel) {
+void SpriteAnimation::Edit(Scene* /*_scene*/, GameEntity* /* _entity*/, [[maybe_unused]] [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     std::string label = "Duration##" + _parentLabel;
     DragGuiCommand(label, duration_, 0.1f, 0.0f, 100.0f, "%.3f");

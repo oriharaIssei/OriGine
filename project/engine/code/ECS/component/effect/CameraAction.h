@@ -13,7 +13,7 @@ public:
     ~CameraAction();
 
     void Initialize(GameEntity* _entity) override;
-    void Edit(Scene* _scene,GameEntity* _entity,const std::string& _parentLabel) override;
+    void Edit(Scene* _scene,GameEntity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
     void Finalize() override;
 
     void Play() {

@@ -92,7 +92,7 @@ void SkyboxRenderer::Initialize(GameEntity* _hostEntity) {
     materialBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
 }
 
-void SkyboxRenderer::Edit(Scene* /*_scene*/, GameEntity*/* _entity*/, const std::string& _parentLabel) {
+void SkyboxRenderer::Edit(Scene* /*_scene*/, GameEntity*/* _entity*/, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     ImGui::Text("FilePath : %s", filePath_.c_str());

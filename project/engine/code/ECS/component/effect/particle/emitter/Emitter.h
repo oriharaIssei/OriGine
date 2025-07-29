@@ -51,7 +51,7 @@ public:
 
     void Finalize() override;
 
-    void Edit(Scene* _scene,GameEntity* _entity,const std::string& _parentLabel) override;
+    void Edit(Scene* _scene,GameEntity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
 
     void CalculateMaxSize();
 
@@ -65,17 +65,17 @@ private:
     void SpawnParticle();
 
 #ifdef _DEBUG
-    void EditEmitter(const std::string& _parentLabel);
+    void EditEmitter([[maybe_unused]] const std::string& _parentLabel);
 
     /// <summary>
     /// ShapeType に関する 編集項目
     /// </summary>
-    void EditShapeType(const std::string& _parentLabel);
+    void EditShapeType([[maybe_unused]] const std::string& _parentLabel);
 
     /// <summary>
     /// Particle の 編集項目
     /// </summary>
-    void EditParticle(const std::string& _parentLabel);
+    void EditParticle([[maybe_unused]] const std::string& _parentLabel);
 #endif // _DEBUG
 private:
     Transform* parent_       = nullptr;

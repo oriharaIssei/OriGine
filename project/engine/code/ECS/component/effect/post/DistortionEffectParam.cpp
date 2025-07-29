@@ -27,7 +27,7 @@ void DistortionEffectParam::Initialize(GameEntity* _hostEntity) {
     }
 }
 
-void DistortionEffectParam::Edit(Scene* _scene, GameEntity* _entity, const std::string& _parentLabel) {
+void DistortionEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
 
 #ifdef DEBUG
     DragGuiVectorCommand("UV Scale##" + _parentLabel, effectParamData_->uvTransform.scale_);

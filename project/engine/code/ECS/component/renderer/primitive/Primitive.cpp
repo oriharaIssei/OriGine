@@ -304,7 +304,7 @@ void PlaneRenderer::Initialize(GameEntity* /*_hostEntity*/) {
     }
 }
 
-void PlaneRenderer::Edit(Scene* _scene, GameEntity* _entity, const std::string& _parentLabel) {
+void PlaneRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     ImGui::Text("Texture Directory : %s", textureDirectory_.c_str());
     ImGui::Text("Texture FileName  : %s", textureFileName_.c_str());
@@ -387,7 +387,7 @@ void RingRenderer::Initialize(GameEntity* _hostEntity) {
     }
 }
 
-void RingRenderer::Edit(Scene* _scene, GameEntity* _entity, const std::string& _parentLabel) {
+void RingRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     ImGui::Text("BlendMode :");
     ImGui::SameLine();
@@ -538,7 +538,7 @@ void BoxRenderer::Initialize(GameEntity* _hostEntity) {
     }
 }
 
-void BoxRenderer::Edit(Scene* _scene, GameEntity* _entity, const std::string& _parentLabel) {
+void BoxRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     ImGui::Text("BlendMode :");
     ImGui::SameLine();
@@ -660,7 +660,7 @@ void SphereRenderer::Initialize(GameEntity* _hostEntity) {
     }
 }
 
-void SphereRenderer::Edit(Scene* _scene, GameEntity* _entity, const std::string& _parentLabel) {
+void SphereRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     ImGui::Text("BlendMode :");
     ImGui::SameLine();
@@ -723,7 +723,7 @@ void SphereRenderer::Edit(Scene* _scene, GameEntity* _entity, const std::string&
     ImGui::Separator();
     ImGui::Spacing();
     // buffer Datas
-   label = "Transform##" + _parentLabel;
+    label = "Transform##" + _parentLabel;
     if (ImGui::TreeNode(label.c_str())) {
         transformBuff_.openData_.Edit(_scene, _entity, _parentLabel);
         transformBuff_.ConvertToBuffer();

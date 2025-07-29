@@ -39,7 +39,7 @@ void SkinningAnimationComponent::Initialize(GameEntity* _entity) {
     }
 }
 
-void SkinningAnimationComponent::Edit(Scene* _scene,GameEntity* /*_entity*/,const std::string& _parentLabel) {
+void SkinningAnimationComponent::Edit([[maybe_unused]] Scene* _scene, GameEntity* /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
     
 #ifdef _DEBUG
 

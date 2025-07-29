@@ -66,7 +66,7 @@ public:
     ///</summary>
     void Initialize(GameEntity* _hostEntity) override;
 
-    void Edit(Scene* _scene,GameEntity* _entity,const std::string& _parentLabel) override;
+    void Edit(Scene* _scene,GameEntity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
 
     /// <summary>
     /// 更新

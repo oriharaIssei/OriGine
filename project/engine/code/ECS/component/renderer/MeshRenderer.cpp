@@ -159,7 +159,7 @@ void ModelMeshRenderer::Initialize(GameEntity* _hostEntity) {
     }
 }
 
-void ModelMeshRenderer::Edit(Scene* _scene, GameEntity* _entity, const std::string& _parentLabel) {
+void ModelMeshRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     std::string label = "isRender##" + _parentLabel;
     CheckBoxCommand(label, isRender_);
@@ -215,7 +215,7 @@ void ModelMeshRenderer::Edit(Scene* _scene, GameEntity* _entity, const std::stri
         if (ImGui::CollapsingHeader(meshName.c_str())) {
             ImGui::Indent();
 
-            auto askLoadTexture = [this, i](const std::string& _parentLabel) {
+            auto askLoadTexture = [this, i]([[maybe_unused]] const std::string& _parentLabel) {
                 bool ask          = false;
                 std::string label = "Load Texture##" + _parentLabel;
                 ask               = ImGui::Button(label.c_str());
@@ -427,7 +427,7 @@ void LineRenderer::Initialize(GameEntity* _hostEntity) {
     transformBuff_.ConvertToBuffer();
 }
 
-void LineRenderer::Edit(Scene* _scene, GameEntity* _entity, const std::string& _parentLabel) {
+void LineRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
 
 #ifdef _DEBUG
 

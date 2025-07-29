@@ -36,13 +36,30 @@
 static const std::string sceneFolderPath = kApplicationResourceDirectory + "/scene";
 
 void SceneEditorWindow::Initialize() {
-    currentScene_ = std::make_unique<Scene>(editSceneName_);
-    currentScene_->Initialize();
+    InitializeScene();
 
+    InitializeMenus();
+
+    InitializeAreas();
+}
+
+void SceneEditorWindow::Finalize() {
+
+    FinalizeScene();
+
+    FinalizeMenus();
+    FinalizeAreas();
+
+    GlobalVariables::getInstance()->SaveFile("Settings", "SceneEditor");
+}
+
+void SceneEditorWindow::InitializeMenus() {
     // メニューの初期化
     auto fileMenu = std::make_unique<FileMenu>(this);
     addMenu(std::move(fileMenu));
+}
 
+void SceneEditorWindow::InitializeAreas() {
     // エリアの初期化
     addArea(std::make_unique<SceneViewArea>(this));
     addArea(std::make_unique<HierarchyArea>(this));
@@ -50,29 +67,45 @@ void SceneEditorWindow::Initialize() {
     addArea(std::make_unique<SelectAddComponentArea>(this));
     addArea(std::make_unique<SelectAddSystemArea>(this));
     addArea(std::make_unique<SystemInspectorArea>(this));
-
     addArea(std::make_unique<DevelopControlArea>(this));
 }
 
-void SceneEditorWindow::Finalize() {
+void SceneEditorWindow::InitializeScene(const std::string& _sceneName) {
+    currentScene_ = std::make_unique<Scene>(_sceneName);
+    currentScene_->Initialize();
+}
 
-    if (currentScene_) {
-        currentScene_->Finalize();
+void SceneEditorWindow::InitializeScene() {
+    InitializeScene(editSceneName_);
+}
+
+void SceneEditorWindow::FinalizeMenus() {
+    if (menus_.empty()) {
+        return;
     }
-
-    // エリアの終了処理
-    for (auto& [name, area] : areas_) {
-        area->Finalize();
-    }
-    areas_.clear();
-
     // メニューの終了処理
     for (auto& [name, menu] : menus_) {
         menu->Finalize();
     }
     menus_.clear();
+}
 
-    GlobalVariables::getInstance()->SaveFile("Settings", "SceneEditor");
+void SceneEditorWindow::FinalizeAreas() {
+    if (areas_.empty()) {
+        return;
+    }
+    // エリアの終了処理
+    for (auto& [name, area] : areas_) {
+        area->Finalize();
+    }
+    areas_.clear();
+}
+
+void SceneEditorWindow::FinalizeScene() {
+    if (!currentScene_) {
+        return;
+    }
+    currentScene_->Finalize();
 }
 
 #pragma region "Menus"
@@ -139,6 +172,9 @@ void LoadMenuItem::DrawGui() {
         LOG_DEBUG("LoadMenuItem : Loading scene '{}'.", scene->getName());
 
         sceneEditorWindow->changeScene(std::move(scene));
+
+        sceneEditorWindow->FinalizeAreas();
+        sceneEditorWindow->InitializeAreas();
     }
     isSelected_.set(isSelect);
 }

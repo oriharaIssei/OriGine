@@ -29,8 +29,6 @@ void EntityInspectorArea::Finalize() {
         region.reset();
     }
     regions_.clear();
-
-    parentWindow_ = nullptr; // 親ウィンドウへのポインタをクリア
 }
 
 EntityInfomationRegion::EntityInfomationRegion(EntityInspectorArea* _parent)
@@ -1051,7 +1049,6 @@ void EntityInfomationRegion::DeleteEntityCommand::Undo() {
     LOG_DEBUG("DeleteEntityCommand::Undo: Restored entity with ID '{}'.", entityId_);
 }
 
-#endif // _DEBUG
 
 RemoveComponentForEntityCommand::RemoveComponentForEntityCommand(Scene* _scene, const std::string& _componentTypeName, int32_t _entityId, int32_t _compIndex)
     : scene_(_scene), componentTypeName_(_componentTypeName), entityId_(_entityId), compIndex_(_compIndex) {
@@ -1107,3 +1104,5 @@ void RemoveComponentForEntityCommand::Undo() {
     compArray->insertComponent(entity, compIndex_);
     compArray->LoadComponent(entity, compIndex_, componentData_);
 }
+
+#endif // _DEBUG

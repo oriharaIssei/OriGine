@@ -9,7 +9,7 @@ void CameraTransform::Initialize(GameEntity* _hostEntity) {
     UpdateMatrix();
 }
 
-void CameraTransform::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, const std::string& _parentLabel) {
+void CameraTransform::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     DragGuiVectorCommand("Rotate##" + _parentLabel, rotate, 0.01f);

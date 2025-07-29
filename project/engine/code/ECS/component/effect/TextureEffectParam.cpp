@@ -220,7 +220,7 @@ void TextureEffectParam::Initialize(GameEntity* /*_hostEntity*/) {
     effectParamData_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
 }
 
-void TextureEffectParam::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, const std::string& _parentLabel) {
+void TextureEffectParam::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     ///===========================================

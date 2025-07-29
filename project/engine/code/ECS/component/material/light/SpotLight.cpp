@@ -5,7 +5,7 @@
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
-void SpotLight::Edit(Scene* /*_scene*/,GameEntity* /*_entity*/,const std::string& _parentLabel) {
+void SpotLight::Edit(Scene* /*_scene*/,GameEntity* /*_entity*/,[[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     
 

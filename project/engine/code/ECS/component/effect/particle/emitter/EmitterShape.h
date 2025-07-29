@@ -55,7 +55,7 @@ struct EmitterShape {
 
 public: // メンバ関数
 #ifdef _DEBUG
-    virtual void Debug(const std::string& _parentLabel);
+    virtual void Debug([[maybe_unused]] const std::string& _parentLabel);
 #endif // _DEBUG
 
     virtual Vec3f getSpawnPos() = 0;
@@ -88,7 +88,7 @@ struct EmitterSphere
 
 public: // メンバ関数
 #ifdef _DEBUG
-    void Debug(const std::string& _parentLabel) override;
+    void Debug([[maybe_unused]] const std::string& _parentLabel) override;
 #endif // _DEBUG
     Vec3f getSpawnPos() override;
 
@@ -124,7 +124,7 @@ struct EmitterOBB
 
 // メンバ関数
 #ifdef _DEBUG
-    void Debug(const std::string& _parentLabel) override;
+    void Debug([[maybe_unused]] const std::string& _parentLabel) override;
 #endif // _DEBUG
 
     Vec3f getSpawnPos() override;
@@ -164,7 +164,7 @@ struct EmitterCapsule
 
 public: // メンバ関数
 #ifdef _DEBUG
-    void Debug(const std::string& _parentLabel) override;
+    void Debug([[maybe_unused]] const std::string& _parentLabel) override;
 #endif // _DEBUG
     Vec3f getSpawnPos() override;
 
@@ -203,7 +203,7 @@ struct EmitterCone
 
 public: // メンバ関数
 #ifdef _DEBUG
-    void Debug(const std::string& _parentLabel) override;
+    void Debug([[maybe_unused]] const std::string& _parentLabel) override;
 #endif // _DEBUG
 
     Vec3f getSpawnPos() override;

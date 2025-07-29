@@ -130,7 +130,7 @@ void PrimitiveNodeAnimation::Initialize(GameEntity* /*_entity*/) {
     currentTime_ = 0.0f;
 }
 
-void PrimitiveNodeAnimation::Edit(Scene* /*_scene*/,GameEntity* /*_entity*/,const std::string& _parentLabel) {
+void PrimitiveNodeAnimation::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, [[maybe_unused]] [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     std::string label = "duration##" + _parentLabel;

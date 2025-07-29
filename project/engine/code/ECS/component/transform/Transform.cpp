@@ -26,7 +26,7 @@ void Transform::Update() {
     }
 }
 
-void Transform::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, const std::string& _parentLabel) {
+void Transform::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     // --------------------------- scale --------------------------- //

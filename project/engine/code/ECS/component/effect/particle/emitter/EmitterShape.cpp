@@ -12,7 +12,7 @@
 #endif // _DEBUG
 
 #ifdef _DEBUG
-void EmitterShape::Debug(const std::string& _parentLabel) {
+void EmitterShape::Debug([[maybe_unused]] const std::string& _parentLabel) {
     ImGui::Text("SpawnType : %s", particleSpawnLocationTypeWord_[int(spawnType_)].c_str());
     std::string label = particleSpawnLocationTypeWord_[int(ParticleSpawnLocationType::InBody)] + "##" + _parentLabel;
     if (ImGui::RadioButton(label.c_str(), spawnType_ == ParticleSpawnLocationType::InBody)) {
@@ -27,7 +27,7 @@ void EmitterShape::Debug(const std::string& _parentLabel) {
 
 #pragma region "Sphere"
 #ifdef _DEBUG
-void EmitterSphere::Debug(const std::string& _parentLabel) {
+void EmitterSphere::Debug([[maybe_unused]] const std::string& _parentLabel) {
     EmitterShape::Debug(_parentLabel);
     ImGui::Text("radius");
     std::string label = "##_radius" +_parentLabel;
@@ -60,7 +60,7 @@ Vec3f EmitterSphere::getSpawnPos() {
 
 #pragma region "Obb"
 #ifdef _DEBUG
-void EmitterOBB::Debug(const std::string& _parentLabel) {
+void EmitterOBB::Debug([[maybe_unused]] const std::string& _parentLabel) {
     EmitterShape::Debug(_parentLabel);
     ImGui::Text("min");
     std::string label = "##" + _parentLabel + "_min";
@@ -113,7 +113,7 @@ Vec3f EmitterOBB::getSpawnPos() {
 
 #pragma region "Capsule"
 #ifdef _DEBUG
-void EmitterCapsule::Debug(const std::string& _parentLabel) {
+void EmitterCapsule::Debug([[maybe_unused]] const std::string& _parentLabel) {
     EmitterShape::Debug(_parentLabel);
     ImGui::Text("direction");
     std::string label = "##" + _parentLabel + "_direction";
@@ -154,7 +154,7 @@ Vec3f EmitterCapsule::getSpawnPos() {
 
 #pragma region "Cone"
 #ifdef _DEBUG
-void EmitterCone::Debug(const std::string& _parentLabel) {
+void EmitterCone::Debug([[maybe_unused]] const std::string& _parentLabel) {
     EmitterShape::Debug(_parentLabel);
     ImGui::Text("direction");
     std::string label = "##" + _parentLabel + "_direction";

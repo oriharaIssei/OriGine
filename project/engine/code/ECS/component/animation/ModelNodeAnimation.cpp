@@ -41,7 +41,7 @@ void ModelNodeAnimation::Initialize(GameEntity* /*_entity*/) {
     }
 }
 
-void ModelNodeAnimation::Edit(Scene* /*_scene*/,GameEntity* /*_entity*/,const std::string& _parentLabel) {
+void ModelNodeAnimation::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, [[maybe_unused]] [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     std::string label = "Load File##" + _parentLabel;
     if (ImGui::Button(label.c_str())) {

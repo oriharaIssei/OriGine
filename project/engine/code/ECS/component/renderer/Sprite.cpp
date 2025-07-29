@@ -59,13 +59,13 @@ void SpriteRenderer::Initialize(GameEntity* _hostEntity) {
     }
 }
 
-void SpriteRenderer::Edit(Scene* /*_scene*/,GameEntity* /*_entity*/,const std::string& _parentLabel) {
+void SpriteRenderer::Edit(Scene* /*_scene*/,GameEntity* /*_entity*/,[[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     ImGui::Text("Texture Path : %s", texturePath_.c_str());
     ImGui::SameLine();
 
-    auto askLoad = [this](const std::string& _parentLabel) {
+    auto askLoad = [this]([[maybe_unused]] const std::string& _parentLabel) {
         bool askLoad = false;
         std::string label = "LoadTexture##" + _parentLabel;
         askLoad |= ImGui::Button(label.c_str());
