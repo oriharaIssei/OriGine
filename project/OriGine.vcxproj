@@ -5,6 +5,10 @@
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Develop|x64">
+      <Configuration>Develop</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|x64">
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
@@ -24,6 +28,12 @@
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Develop|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
@@ -36,6 +46,9 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Develop|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
@@ -43,6 +56,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>..\generated\output\Debug\</OutDir>
     <IntDir>..\generated\obj\Debug\OriGine\</IntDir>
+    <TargetName>OriGine</TargetName>
+    <TargetExt>.lib</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Develop|x64'">
+    <OutDir>..\generated\output\Develop\</OutDir>
+    <IntDir>..\generated\obj\Develop\OriGine\</IntDir>
     <TargetName>OriGine</TargetName>
     <TargetExt>.lib</TargetExt>
   </PropertyGroup>
@@ -64,7 +83,6 @@
       <AdditionalOptions>/utf-8 /MP %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
-      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -73,6 +91,32 @@
     <Lib>
       <AdditionalDependencies>assimp-vc143-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>externals\assimp\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+    <PostBuildEvent>
+      <Command>copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxcompiler.dll" "$(TargetDir)dxcompiler.dll"
+copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dxil.dll"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Develop|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>_WINDOWS;DEVELOP;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)math;$(SolutionDir)lib;$(SolutionDir)engine\code\ECS;$(SolutionDir)engine\code;$(SolutionDir)engine;$(SolutionDir);$(SolutionDir)externals;$(SolutionDir)externals\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalOptions>/utf-8 /MP %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <ExternalWarningLevel>Level3</ExternalWarningLevel>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>externals\assimp\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <PostBuildEvent>
       <Command>copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxcompiler.dll" "$(TargetDir)dxcompiler.dll"
@@ -94,7 +138,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <AdditionalOptions>/utf-8 /MP %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
-      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -111,10 +154,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="engine\code\component\effect\post\RandomEffectParam.h" />
-    <ClInclude Include="engine\code\system\postRender\DissolveEffect.h" />
-    <ClInclude Include="engine\code\component\effect\post\DissolveEffectParam.h" />
-    <ClInclude Include="engine\code\system\postRender\RandomEffect.h" />
     <ClInclude Include="editor\EditorController.h" />
     <ClInclude Include="editor\IEditor.h" />
     <ClInclude Include="editor\sceneEditor\EntityInspector.h" />
@@ -138,8 +177,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\ECS\component\effect\particle\Particle.h" />
     <ClInclude Include="engine\code\ECS\component\effect\particle\emitter\Emitter.h" />
     <ClInclude Include="engine\code\ECS\component\effect\particle\emitter\EmitterShape.h" />
+    <ClInclude Include="engine\code\ECS\component\effect\post\DissolveEffectParam.h" />
     <ClInclude Include="engine\code\ECS\component\effect\post\DistortionEffectParam.h" />
     <ClInclude Include="engine\code\ECS\component\effect\post\RadialBlurParam.h" />
+    <ClInclude Include="engine\code\ECS\component\effect\post\RandomEffectParam.h" />
     <ClInclude Include="engine\code\ECS\component\effect\post\VignetteParam.h" />
     <ClInclude Include="engine\code\ECS\component\material\Material.h" />
     <ClInclude Include="engine\code\ECS\component\material\light\DirectionalLight.h" />
@@ -164,9 +205,11 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\ECS\system\effect\SpriteAnimationSystem.h" />
     <ClInclude Include="engine\code\ECS\system\effect\TextureEffectAnimation.h" />
     <ClInclude Include="engine\code\ECS\system\movement\MoveSystemByRigidBody.h" />
+    <ClInclude Include="engine\code\ECS\system\postRender\DissolveEffect.h" />
     <ClInclude Include="engine\code\ECS\system\postRender\DistortionEffect.h" />
     <ClInclude Include="engine\code\ECS\system\postRender\GrayscaleEffect.h" />
     <ClInclude Include="engine\code\ECS\system\postRender\RadialBlurEffect.h" />
+    <ClInclude Include="engine\code\ECS\system\postRender\RandomEffect.h" />
     <ClInclude Include="engine\code\ECS\system\postRender\SmoothingEffect.h" />
     <ClInclude Include="engine\code\ECS\system\postRender\VignetteEffect.h" />
     <ClInclude Include="engine\code\ECS\system\render\BackGroundSpriteRenderSystem.h" />
@@ -241,9 +284,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="util\timeline\Timeline.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="engine\code\ECS\component\effect\post\RandomEffectParam.cpp" />
-    <ClCompile Include="engine\code\ECS\system\postRender\DissolveEffect.cpp" />
-    <ClCompile Include="engine\code\ECS\component\effect\post\DissolveEffectParam.cpp" />
     <ClCompile Include="editor\EditorController.cpp" />
     <ClCompile Include="editor\IEditor.cpp" />
     <ClCompile Include="editor\sceneEditor\EntityInspector.cpp" />
@@ -265,8 +305,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\ECS\component\effect\particle\Particle.cpp" />
     <ClCompile Include="engine\code\ECS\component\effect\particle\emitter\Emitter.cpp" />
     <ClCompile Include="engine\code\ECS\component\effect\particle\emitter\EmitterShape.cpp" />
+    <ClCompile Include="engine\code\ECS\component\effect\post\DissolveEffectParam.cpp" />
     <ClCompile Include="engine\code\ECS\component\effect\post\DistortionEffectParam.cpp" />
     <ClCompile Include="engine\code\ECS\component\effect\post\RadialBlurParam.cpp" />
+    <ClCompile Include="engine\code\ECS\component\effect\post\RandomEffectParam.cpp" />
     <ClCompile Include="engine\code\ECS\component\effect\post\VignetteParam.cpp" />
     <ClCompile Include="engine\code\ECS\component\material\Material.cpp" />
     <ClCompile Include="engine\code\ECS\component\material\light\DirectionalLight.cpp" />
@@ -291,9 +333,11 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\ECS\system\effect\SpriteAnimationSystem.cpp" />
     <ClCompile Include="engine\code\ECS\system\effect\TextureEffectAnimation.cpp" />
     <ClCompile Include="engine\code\ECS\system\movement\MoveSystemByRigidBody.cpp" />
+    <ClCompile Include="engine\code\ECS\system\postRender\DissolveEffect.cpp" />
     <ClCompile Include="engine\code\ECS\system\postRender\DistortionEffect.cpp" />
     <ClCompile Include="engine\code\ECS\system\postRender\GrayscaleEffect.cpp" />
     <ClCompile Include="engine\code\ECS\system\postRender\RadialBlurEffect.cpp" />
+    <ClCompile Include="engine\code\ECS\system\postRender\RandomEffect.cpp" />
     <ClCompile Include="engine\code\ECS\system\postRender\SmoothingEffect.cpp" />
     <ClCompile Include="engine\code\ECS\system\postRender\VignetteEffect.cpp" />
     <ClCompile Include="engine\code\ECS\system\render\BackGroundSpriteRenderSystem.cpp" />

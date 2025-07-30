@@ -345,7 +345,7 @@ public:
     void ActivateSystem(const std::string& _systemName);
     template <IsSystem SystemCategory>
     void ActivateSystem() {
-        ActivateSystem( nameof<SystemCategory>());
+        ActivateSystem(nameof<SystemCategory>());
     }
     void ActivateSystem(SystemCategory _category, const std::string& _systemName);
     template <IsSystem SystemCategory>

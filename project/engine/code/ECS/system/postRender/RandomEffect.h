@@ -10,12 +10,11 @@
 #include "directX12/DxCommand.h"
 #include "directX12/PipelineStateObj.h"
 #include "directX12/ShaderManager.h"
-#include <component/effect/post/VignetteParam.h>
 
 class RandomEffect
     : public ISystem {
 public:
-    RandomEffect() : ISystem(SystemType::PostRender) {}
+    RandomEffect() : ISystem(SystemCategory::PostRender) {}
     ~RandomEffect() override = default;
 
     void Initialize() override;

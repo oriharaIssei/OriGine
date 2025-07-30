@@ -4,7 +4,7 @@ os.chdir(_SCRIPT_DIR .. "/..")
 workspace "OriGine"
 
     architecture "x86_64"
-    configurations { "Debug", "Release" }
+    configurations { "Debug", "Develop", "Release" }
 
     startproject "OriGine"
 

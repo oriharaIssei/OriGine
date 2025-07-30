@@ -8,7 +8,9 @@
 #include "directX12/ShaderManager.h"
 
 struct RandomEffectParamData {
-    float time = 0.f;
+    RandomEffectParamData()  = default;
+    ~RandomEffectParamData() = default;
+    float time               = 0.f;
     struct ConstantBuffer {
         float time = 0.f;
         ConstantBuffer& operator=(const RandomEffectParamData& param) {
@@ -20,6 +22,7 @@ struct RandomEffectParamData {
 
 class RandomEffectParam
     : public IComponent {
+public:
     friend void to_json(nlohmann::json& j, const RandomEffectParam& param);
     friend void from_json(const nlohmann::json& j, RandomEffectParam& param);
 
@@ -27,7 +30,7 @@ public:
     RandomEffectParam() {}
     ~RandomEffectParam() override {}
     void Initialize(GameEntity* _hostEntity) override;
-    bool Edit();
+    void Edit(Scene* _scene, GameEntity* _entity, const std::string& _parentLabel) override;
     void Finalize();
 
 private:
@@ -59,3 +62,16 @@ public:
         return effectParamData_;
     }
 };
+
+inline void to_json(nlohmann::json& j, const RandomEffectParam& param) {
+    j = nlohmann::json{
+        {"maxTime", param.maxTime_},
+        {"blendMode", static_cast<int>(param.blendMode_)}};
+}
+
+inline void from_json(const nlohmann::json& j, RandomEffectParam& param) {
+    j.at("maxTime").get_to(param.maxTime_);
+    int blendModeInt;
+    j.at("blendMode").get_to(blendModeInt);
+    param.blendMode_ = static_cast<BlendMode>(blendModeInt);
+}

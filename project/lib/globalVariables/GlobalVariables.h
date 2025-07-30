@@ -86,6 +86,28 @@ public:
         return std::get_if<T>(&group[itemName]);
     }
 
+    // アイテムを取得、存在しない場合は作成してそのポインタを返す
+    template <typename T>
+    T* addValue(const std::string& scene, const std::string& groupName, const std::string& itemName,const T& defaultValue) {
+        // グループを取得
+        auto& group = data_[scene][groupName];
+        // アイテムを検索
+        auto itemItr = group.find(itemName);
+
+        if (itemItr != group.end()) {
+            // 既存のアイテムが存在し、型が一致する場合はそのポインタを返す
+            if (auto* ptr = std::get_if<T>(&itemItr->second)) {
+                return ptr;
+            } else {
+                throw std::runtime_error("Type mismatch for existing item.");
+            }
+        }
+
+        // アイテムが存在しない場合は新規作成してポインタを返す
+        setValue(scene, groupName, itemName, defaultValue);
+        return std::get_if<T>(&group[itemName]);
+    }
+
     // アイテムの値を取得（const）
     template <typename T>
     T getValue(const std::string& scene, const std::string& groupName, const std::string& itemName) const {

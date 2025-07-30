@@ -22,6 +22,42 @@
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
+void to_json(nlohmann::json& j, const SkinningAnimationComponent& r) {
+    j["bindModeMeshRendererIndex"] = r.bindModeMeshRendererIndex_;
+
+    j["Animations"] = nlohmann::json::array();
+    for (const auto& animation : r.animationTable_) {
+        nlohmann::json animationJson;
+        animationJson["directory"]     = animation.directory_;
+        animationJson["fileName"]      = animation.fileName_;
+        animationJson["duration"]      = animation.duration_;
+        animationJson["playbackSpeed"] = animation.playbackSpeed_;
+        animationJson["isPlay"]        = animation.animationState_.isPlay_;
+        animationJson["isLoop"]        = animation.animationState_.isLoop_;
+        j["Animations"].push_back(animationJson);
+    }
+}
+
+void from_json(const nlohmann::json& j, SkinningAnimationComponent& r) {
+    j.at("bindModeMeshRendererIndex").get_to(r.bindModeMeshRendererIndex_);
+
+    if (!r.animationTable_.empty()) {
+        r.animationTable_.clear();
+    }
+    if (j.contains("Animations")) {
+        for (const auto& animationJson : j.at("Animations")) {
+            SkinningAnimationComponent::AnimationCombo animation;
+            animation.directory_              = animationJson.at("directory").get<std::string>();
+            animation.fileName_               = animationJson.at("fileName").get<std::string>();
+            animation.duration_               = animationJson.at("duration").get<float>();
+            animation.playbackSpeed_          = animationJson.at("playbackSpeed").get<float>();
+            animation.animationState_.isPlay_ = animationJson.at("isPlay").get<bool>();
+            animation.animationState_.isLoop_ = animationJson.at("isLoop").get<bool>();
+            r.animationTable_.emplace_back(animation);
+        }
+    }
+}
+
 void SkinningAnimationComponent::Initialize(GameEntity* _entity) {
     entity_ = _entity;
 
@@ -324,40 +360,4 @@ void SkinningAnimationComponent::DeleteSkinnedVertex() {
         skinnedVertex.buffer.Finalize();
     }
     skinnedVertexBuffer_.clear();
-}
-
-void to_json(nlohmann::json& j, const SkinningAnimationComponent& r) {
-    j["bindModeMeshRendererIndex"] = r.bindModeMeshRendererIndex_;
-
-    j["Animations"] = nlohmann::json::array();
-    for (const auto& animation : r.animationTable_) {
-        nlohmann::json animationJson;
-        animationJson["directory"]     = animation.directory_;
-        animationJson["fileName"]      = animation.fileName_;
-        animationJson["duration"]      = animation.duration_;
-        animationJson["playbackSpeed"] = animation.playbackSpeed_;
-        animationJson["isPlay"]        = animation.animationState_.isPlay_;
-        animationJson["isLoop"]        = animation.animationState_.isLoop_;
-        j["Animations"].push_back(animationJson);
-    }
-}
-
-void from_json(const nlohmann::json& j, SkinningAnimationComponent& r) {
-    j.at("bindModeMeshRendererIndex").get_to(r.bindModeMeshRendererIndex_);
-
-    if (!r.animationTable_.empty()) {
-        r.animationTable_.clear();
-    }
-    if (j.contains("Animations")) {
-        for (const auto& animationJson : j.at("Animations")) {
-            SkinningAnimationComponent::AnimationCombo animation;
-            animation.directory_              = animationJson.at("directory").get<std::string>();
-            animation.fileName_               = animationJson.at("fileName").get<std::string>();
-            animation.duration_               = animationJson.at("duration").get<float>();
-            animation.playbackSpeed_          = animationJson.at("playbackSpeed").get<float>();
-            animation.animationState_.isPlay_ = animationJson.at("isPlay").get<bool>();
-            animation.animationState_.isLoop_ = animationJson.at("isLoop").get<bool>();
-            r.animationTable_.emplace_back(animation);
-        }
-    }
 }

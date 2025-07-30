@@ -78,8 +78,6 @@ void EntityInfomationRegion::DrawGui() {
     if (ImGui::IsItemHovered()) {
         ImGui::SetTooltip("Unique entities cannot be duplicated.");
     }
-
-    ImGui::Separator();
 }
 void EntityInfomationRegion::Finalize() {}
 
@@ -98,9 +96,8 @@ void EntityComponentRegion::DrawGui() {
     int32_t editEntityId = parentArea_->getEditEntityId();
     auto editEntity      = currentScene->getEntityRepositoryRef()->getEntity(editEntityId);
 
-    if (!ImGui::CollapsingHeader("Entity Components", ImGuiTreeNodeFlags_DefaultOpen)) {
-        return;
-    }
+    ImGui::SeparatorText("Entity Components");
+    ImGui::Spacing();
 
     if (!editEntity) {
         return;
@@ -257,9 +254,8 @@ void EntitySystemRegion::DrawGui() {
     int32_t editEntityId = parentArea_->getEditEntityId();
     auto editEntity      = currentScene->getEntityRepositoryRef()->getEntity(editEntityId);
 
-    if (!ImGui::CollapsingHeader("Entity Systems", ImGuiTreeNodeFlags_DefaultOpen)) {
-        return;
-    }
+    ImGui::SeparatorText("Entity Systems");
+    ImGui::Spacing();
 
     if (!editEntity) {
         return;
@@ -1048,7 +1044,6 @@ void EntityInfomationRegion::DeleteEntityCommand::Undo() {
     }
     LOG_DEBUG("DeleteEntityCommand::Undo: Restored entity with ID '{}'.", entityId_);
 }
-
 
 RemoveComponentForEntityCommand::RemoveComponentForEntityCommand(Scene* _scene, const std::string& _componentTypeName, int32_t _entityId, int32_t _compIndex)
     : scene_(_scene), componentTypeName_(_componentTypeName), entityId_(_entityId), compIndex_(_compIndex) {

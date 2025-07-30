@@ -11,7 +11,7 @@
 class DissolveEffect
     : public ISystem {
 public:
-    DissolveEffect() : ISystem(SystemType::PostRender) {}
+    DissolveEffect() : ISystem(SystemCategory::PostRender) {}
     ~DissolveEffect() override = default;
 
     void Initialize() override;

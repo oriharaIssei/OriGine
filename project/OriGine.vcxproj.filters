@@ -225,10 +225,16 @@
     <ClInclude Include="engine\code\ECS\component\effect\particle\emitter\EmitterShape.h">
       <Filter>engine\code\ECS\component\effect\particle\emitter</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\effect\post\DissolveEffectParam.h">
+      <Filter>engine\code\ECS\component\effect\post</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\ECS\component\effect\post\DistortionEffectParam.h">
       <Filter>engine\code\ECS\component\effect\post</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\component\effect\post\RadialBlurParam.h">
+      <Filter>engine\code\ECS\component\effect\post</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\effect\post\RandomEffectParam.h">
       <Filter>engine\code\ECS\component\effect\post</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\component\effect\post\VignetteParam.h">
@@ -303,6 +309,9 @@
     <ClInclude Include="engine\code\ECS\system\movement\MoveSystemByRigidBody.h">
       <Filter>engine\code\ECS\system\movement</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\ECS\system\postRender\DissolveEffect.h">
+      <Filter>engine\code\ECS\system\postRender</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\ECS\system\postRender\DistortionEffect.h">
       <Filter>engine\code\ECS\system\postRender</Filter>
     </ClInclude>
@@ -310,6 +319,9 @@
       <Filter>engine\code\ECS\system\postRender</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\system\postRender\RadialBlurEffect.h">
+      <Filter>engine\code\ECS\system\postRender</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\system\postRender\RandomEffect.h">
       <Filter>engine\code\ECS\system\postRender</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\system\postRender\SmoothingEffect.h">
@@ -528,14 +540,6 @@
     <ClInclude Include="util\timeline\Timeline.h">
       <Filter>util\timeline</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\ECS\system\render\SkeletonRenderSystem.h" />
-    <ClInclude Include="engine\code\ECS\system\animation\SkinningAnimationComponent.h" />
-    <ClInclude Include="engine\code\ECS\system\effect\SkinningAnimationSystem.h" />
-    <ClInclude Include="engine\code\ECS\system\render\SkinningMeshRenderSystem.h" />
-    <ClInclude Include="engine\code\ECS\system\effect\post\DissolveEffectParam.h" />
-    <ClInclude Include="engine\code\ECS\system\postRender\DissolveEffect.h" />
-    <ClInclude Include="engine\code\ECS\system\postRender\RandomEffect.h" />
-    <ClInclude Include="engine\code\ECS\system\effect\post\RandomEffectParam.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="editor\EditorController.cpp">
@@ -601,10 +605,16 @@
     <ClCompile Include="engine\code\ECS\component\effect\particle\emitter\EmitterShape.cpp">
       <Filter>engine\code\ECS\component\effect\particle\emitter</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\ECS\component\effect\post\DissolveEffectParam.cpp">
+      <Filter>engine\code\ECS\component\effect\post</Filter>
+    </ClCompile>
     <ClCompile Include="engine\code\ECS\component\effect\post\DistortionEffectParam.cpp">
       <Filter>engine\code\ECS\component\effect\post</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\component\effect\post\RadialBlurParam.cpp">
+      <Filter>engine\code\ECS\component\effect\post</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\component\effect\post\RandomEffectParam.cpp">
       <Filter>engine\code\ECS\component\effect\post</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\component\effect\post\VignetteParam.cpp">
@@ -679,6 +689,9 @@
     <ClCompile Include="engine\code\ECS\system\movement\MoveSystemByRigidBody.cpp">
       <Filter>engine\code\ECS\system\movement</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\ECS\system\postRender\DissolveEffect.cpp">
+      <Filter>engine\code\ECS\system\postRender</Filter>
+    </ClCompile>
     <ClCompile Include="engine\code\ECS\system\postRender\DistortionEffect.cpp">
       <Filter>engine\code\ECS\system\postRender</Filter>
     </ClCompile>
@@ -686,6 +699,9 @@
       <Filter>engine\code\ECS\system\postRender</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\system\postRender\RadialBlurEffect.cpp">
+      <Filter>engine\code\ECS\system\postRender</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\system\postRender\RandomEffect.cpp">
       <Filter>engine\code\ECS\system\postRender</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\system\postRender\SmoothingEffect.cpp">
@@ -850,10 +866,5 @@
     <ClCompile Include="util\timeline\Timeline.cpp">
       <Filter>util\timeline</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\ECS\system\render\SkeletonRenderSystem.cpp" />
-    <ClCompile Include="engine\code\ECS\system\animation\SkinningAnimationComponent.cpp" />
-    <ClCompile Include="engine\code\ECS\system\effect\SkinningAnimationSystem.cpp" />
-    <ClCompile Include="engine\code\ECS\system\render\SkinningMeshRenderSystem.cpp" />
-    <ClCompile Include="math\Sequence.cpp" />
   </ItemGroup>
 </Project>

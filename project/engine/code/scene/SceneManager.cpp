@@ -226,15 +226,14 @@ void SceneSerializer::SerializeFromJson() {
         nlohmann::json systemsData = nlohmann::json::array();
 
         for (const auto& systemByCategory : systems) {
-            nlohmann::json systemDataByCategory = nlohmann::json::array();
+            nlohmann::json systemDataByCategory = nlohmann::json::object();
             for (const auto& [name, system] : systemByCategory) {
                 if (!system || !system->isActive()) {
                     continue; // 無効なシステムはスキップ
                 }
                 nlohmann::json systemData = nlohmann::json::object();
-                systemData["SystemName"]  = name;
                 systemData["Priority"]    = system->getPriority();
-                systemDataByCategory.push_back(systemData);
+                systemDataByCategory[name] = systemData;
             }
             systemsData.push_back(systemDataByCategory);
         }
@@ -281,8 +280,8 @@ void SceneSerializer::DeserializeFromJson() {
     int32_t systemCategoryIndex = 0;
     nlohmann::json& systems     = jsonData["Systems"];
     for (auto& systemByType : systems) {
-        for (auto& system : systemByType) {
-            systemRunner->registerSystem(system["SystemName"], system["Priority"]);
+        for (auto& [systemName, system] : systemByType.items()) {
+            systemRunner->registerSystem(systemName, system["Priority"]);
         }
         ++systemCategoryIndex;
     }

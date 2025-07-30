@@ -39,6 +39,7 @@ public:
 
 class RadialBlurParam
     : public IComponent {
+public:
     friend void to_json(nlohmann::json& j, const RadialBlurParam& param);
     friend void from_json(const nlohmann::json& j, RadialBlurParam& param);
 
@@ -48,12 +49,12 @@ public:
 
     void Initialize(GameEntity* _entity);
 
-    void Edit(Scene* _scene,GameEntity* _entity,[[maybe_unused]] const std::string& _parentLabel);
+    void Edit(Scene* _scene, GameEntity* _entity, const std::string& _parentLabel);
 
     void Finalize();
 
 private:
-    bool isActive_        = false;
+    bool isActive_ = false;
     IConstantBuffer<RadialBlurBufferParam> constantBuffer_;
 
 public:

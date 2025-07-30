@@ -74,18 +74,24 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 #ifdef ENGINE_COMPONENTS
 #include "component/IComponent.h"
 
-#include "component/animation/ModelNodeAnimation.h"
-#include "component/animation/PrimitiveNodeAnimation.h"
-#include "component/animation/SkinningAnimationComponent.h"
-#include "component/animation/SpriteAnimation.h"
+#include "audio/Audio.h"
+
+#include "component/transform/CameraTransform.h"
+#include "component/transform/Transform.h"
 
 #include "component/material/light/DirectionalLight.h"
 #include "component/material/light/PointLight.h"
 #include "component/material/light/SpotLight.h"
 #include "component/material/Material.h"
 
+#include "component/animation/ModelNodeAnimation.h"
+#include "component/animation/PrimitiveNodeAnimation.h"
+#include "component/animation/SkinningAnimationComponent.h"
+#include "component/animation/SpriteAnimation.h"
+
 #include "component/collider/Collider.h"
 #include "component/collider/CollisionPushBackInfo.h"
+#include "component/physics/Rigidbody.h"
 
 #include "component/effect/particle/emitter/Emitter.h"
 #include "component/effect/post/DissolveEffectParam.h"
@@ -95,17 +101,11 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 #include "component/effect/post/VignetteParam.h"
 #include "component/effect/TextureEffectParam.h"
 
-#include "component/physics/Rigidbody.h"
-
 #include "component/renderer/MeshRenderer.h"
 #include "component/renderer/primitive/Primitive.h"
 #include "component/renderer/SkyboxRenderer.h"
 #include "component/renderer/Sprite.h"
 
-#include "component/transform/CameraTransform.h"
-#include "component/transform/Transform.h"
-
-#include "audio/Audio.h"
 #endif // ENGINE_COMPONENTS
 
 #ifdef ENGINE_INPUT

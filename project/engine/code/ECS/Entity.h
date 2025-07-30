@@ -129,7 +129,7 @@ public:
     /// EntityIndex の 確保
     /// </summary>
     int32_t allocateEntity() {
-        if (entities_.size() >= size_) {
+        if (entityActiveBits_.getTrueCount() >= size_) {
             LOG_INFO("EntityRepository: Allocating more entities than current size. Resizing...");
             resize(size_ * 2);
         }
@@ -170,17 +170,12 @@ public:
     /// </summary>
     int32_t CreateEntity(const std::string& _dataType, bool _isUnique = false) {
         int32_t entityIndex = allocateEntity();
-        if (entityIndex < 0 || static_cast<uint32_t>(entityIndex) >= size_) {
-            LOG_ERROR("EntityRepository: Invalid entity index allocated.");
-            return -1;
-        }
 
         GameEntity& entity          = entities_[entityIndex];
         entity.id_                  = entityIndex;
         entity.dataType_            = _dataType;
         entity.isAlive_             = true;
         entity.isUnique_            = false;
-        uniqueEntityIDs_[_dataType] = entityIndex;
 
         if (_isUnique) {
             registerUniqueEntity(&entity);
@@ -260,6 +255,7 @@ public:
         return static_cast<uint32_t>(entityActiveBits_.getFalseCount());
     }
     void clear() {
+        size_ = 0;
         entities_.clear();
         entityActiveBits_.resize(0);
     }

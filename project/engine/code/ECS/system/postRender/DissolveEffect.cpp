@@ -1,9 +1,7 @@
 #include "DissolveEffect.h"
 
 /// engine
-#include "ECSManager.h"
 #include "Engine.h"
-#include "sceneManager/SceneManager.h"
 #include "texture/TextureManager.h"
 
 // component
@@ -20,7 +18,7 @@ void DissolveEffect::Initialize() {
 }
 
 void DissolveEffect::Update() {
-    auto* sceneView = SceneManager::getInstance()->getSceneView();
+    auto* sceneView = this->getScene()->getSceneView();
 
     eraseDeadEntity();
 
@@ -30,7 +28,7 @@ void DissolveEffect::Update() {
 
     // 実行する必要があるかチェック
     bool allIsUnactive   = true;
-    auto* componentArray = ECSManager::getInstance()->getComponentArray<DissolveEffectParam>();
+    auto* componentArray = getComponentArray<DissolveEffectParam>();
     if (!componentArray) {
         return;
     }
@@ -57,7 +55,7 @@ void DissolveEffect::Update() {
 
     sceneView->PreDraw();
     for (auto& id : entityIDs_) {
-        auto* entity = ECSManager::getInstance()->getEntity(id);
+        auto* entity = getEntity(id);
         UpdateEntity(entity);
     }
     Render();
@@ -66,7 +64,7 @@ void DissolveEffect::Update() {
 }
 
 void DissolveEffect::UpdateEntity(GameEntity* _entity) {
-    int32_t compSize = ECSManager::getInstance()->getComponentArray<DissolveEffectParam>()->getComponentSize(_entity);
+    int32_t compSize = getComponentArray<DissolveEffectParam>()->getComponentSize(_entity);
 
     if (compSize <= 0) {
         return; // コンポーネントがない場合は何もしない
@@ -186,7 +184,7 @@ void DissolveEffect::RenderStart() {
 
 void DissolveEffect::Render() {
     auto& commandList = dxCommand_->getCommandList();
-    auto* sceneView   = SceneManager::getInstance()->getSceneView();
+    auto* sceneView   = getScene()->getSceneView();
 
     /// ================================================
     /// Viewport の設定

@@ -7,16 +7,23 @@
 #include "component/renderer/MeshRenderer.h"
 
 // math
-#include "Vector2.h"
+#include <Vector2.h>
+#include <Vector4.h>
 
 //====================================== VertexData ======================================//
 struct SpriteVertexData {
+    SpriteVertexData()  = default;
+    ~SpriteVertexData() = default;
+
     Vec4f pos;
     Vec2f texcoord;
 };
 
 //====================================== ConstBuffer ======================================//
 struct SpritConstBuffer {
+    SpritConstBuffer()  = default;
+    ~SpritConstBuffer() = default;
+
     Vec4f color_ = {1.f, 1.f, 1.f, 1.f};
 
     Vec2f scale_        = {1.f, 1.f};
@@ -35,6 +42,9 @@ struct SpritConstBuffer {
     }
 
     struct ConstantBuffer {
+        ConstantBuffer()  = default;
+        ~ConstantBuffer() = default;
+
         Vec4f color_;
         Matrix4x4 mat_;
         Matrix4x4 uvMat_;
@@ -66,7 +76,7 @@ public:
     ///</summary>
     void Initialize(GameEntity* _hostEntity) override;
 
-    void Edit(Scene* _scene,GameEntity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, GameEntity* _entity, const std::string& _parentLabel) override;
 
     /// <summary>
     /// 更新
@@ -139,41 +149,3 @@ public:
     void setTextureSize(const Vec2f& size) { textureSize_ = size; }
     const Vec2f& getTextureSize() const { return textureSize_; }
 };
-
-//====================================== SpriteMeshController ======================================//
-// class SpriteRendererController
-//    : public RendererComponentController<SpriteRenderer> {
-// public:
-//    SpriteRendererController() : RendererComponentController<SpriteRenderer>() {}
-//    ~SpriteRendererController() {}
-//
-//    ///< summary>
-//    /// 初期化
-//    ///</summary>
-//    void Initialize() override;
-//
-// protected:
-//    ///< summary>
-//    /// 更新
-//    ///</summary>
-//    void Update() override;
-//    ///< summary>
-//    /// 描画開始
-//    ///</summary>
-//    void StartRender() override;
-//    ///< summary>
-//    /// 描画終了
-//    ///</summary>
-//    void EndRender() override{}
-//
-//    ///< summary>
-//    /// PipelineStateObjectを作成
-//    ///</summary>
-//    void CreatePso() override;
-//
-// private:
-//    Matrix4x4 viewPortMat_;
-//
-// public:
-//    const Matrix4x4& getViewPortMat() const { return viewPortMat_; }
-//};

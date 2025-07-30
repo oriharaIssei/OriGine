@@ -1,11 +1,10 @@
 #include "RandomEffect.h"
 
 /// engine
-#include "ECSManager.h"
 #include "Engine.h"
-#include "sceneManager/SceneManager.h"
 
 // component
+#include "component/ComponentArray.h"
 #include "component/effect/post/RandomEffectParam.h"
 
 // directX12
@@ -20,7 +19,7 @@ void RandomEffect::Initialize() {
 }
 
 void RandomEffect::Update() {
-    auto* sceneView = SceneManager::getInstance()->getSceneView();
+    auto* sceneView = getScene()->getSceneView();
 
     eraseDeadEntity();
 
@@ -33,7 +32,7 @@ void RandomEffect::Update() {
     RenderStart();
 
     for (auto& id : entityIDs_) {
-        auto* entity = ECSManager::getInstance()->getEntity(id);
+        auto* entity = getEntity(id);
         UpdateEntity(entity);
     }
 
@@ -43,7 +42,9 @@ void RandomEffect::Update() {
 }
 
 void RandomEffect::UpdateEntity(GameEntity* _entity) {
-    int32_t compSize = ECSManager::getInstance()->getComponentArray<RandomEffectParam>()->getComponentSize(_entity);
+    RandomEffectParam paramA;
+
+    int32_t compSize = getComponentArray<RandomEffectParam>()->getComponentSize(_entity);
     if (compSize <= 0) {
         return;
     }
@@ -52,7 +53,7 @@ void RandomEffect::UpdateEntity(GameEntity* _entity) {
     auto& commandList     = dxCommand_->getCommandList();
 
     for (int32_t i = 0; i < compSize; ++i) {
-        auto* param = ECSManager::getInstance()->getComponent<RandomEffectParam>(_entity, i);
+        auto* param = getComponent<RandomEffectParam>(_entity, i);
         if (param == nullptr) {
             continue;
         }

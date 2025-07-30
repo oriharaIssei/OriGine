@@ -12,6 +12,9 @@
 
 struct DissolveParamData {
 public:
+    DissolveParamData()  = default;
+    ~DissolveParamData() = default;
+
     float threshold    = 0.5f;
     float edgeWidth    = 0.1f;
     Vec4f outLineColor = Vec4f(1.0f, 1.0f, 1.0f, 1.0f);
@@ -54,7 +57,7 @@ public:
     void Initialize(GameEntity* _entity) override;
     void Finalize() override;
 
-    bool Edit() override;
+    void Edit(Scene* _scene, GameEntity* _entity, const std::string& _parentLabel) override;
 
     void LoadTexture(const std::string& filePath);
 
