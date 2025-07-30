@@ -47,12 +47,15 @@ public:
     void Update();
 
 private:
-    Input* input_                         = nullptr;
+    Vec2f startMousePos_;
     std::unique_ptr<IState> currentState_ = nullptr;
     CameraTransform cameraBuff_;
 
 public:
     void setViewTranslate(const Vec3f& translate) { cameraBuff_.translate = translate; }
     const CameraTransform& getCameraTransform() const { return cameraBuff_; }
-    CameraTransform& getCameraTransformRef(){ return cameraBuff_; }
+    CameraTransform& getCameraTransformRef() { return cameraBuff_; }
+
+    const Vec2f& getStartMousePos() const { return startMousePos_; }
+    void setStartMousePos(const Vec2f& pos) { startMousePos_ = pos; }
 };

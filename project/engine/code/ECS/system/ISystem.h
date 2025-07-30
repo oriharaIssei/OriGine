@@ -190,55 +190,42 @@ public:
         return &instance;
     }
 
-    void clearAll() {
-        systems_.clear();
-    }
-
     template <IsSystem SystemClass>
     void registerSystem() {
-        auto addedSystem = std::make_unique<SystemClass>();
-
-        if (addedSystem->getCategory() == SystemCategory::Count) {
-            LOG_ERROR("SystemRegistry: Invalid SystemCategory.");
-            return;
-        }
         std::string systemName = nameof<SystemClass>();
-        if (systems_.find(systemName) != systems_.end()) {
+        if (systemMaker_.find(systemName) != systemMaker_.end()) {
             LOG_WARN("SystemRegistry: System already registered with name: {}", systemName);
             return;
         }
 
-        systems_[systemName] = std::move(addedSystem);
+        systemMaker_[systemName] = [](Scene* scene) {
+            std::unique_ptr<ISystem> system = std::make_unique<SystemClass>();
+            system->setScene(scene);
+            return std::move(system);
+        };
     }
 
-    ISystem* getSystem(const std::string& _systemName) const {
-        auto itr = systems_.find(_systemName);
-        if (itr == systems_.end()) {
-            LOG_ERROR("SystemRegistry: System not found with name: {}", _systemName);
+    std::unique_ptr<ISystem> createSystem(const std::string& _systemTypeName, Scene* scene) {
+        auto itr = systemMaker_.find(_systemTypeName);
+        if (itr == systemMaker_.end()) {
+            LOG_ERROR("SystemRegistry: System '{}' not found.", _systemTypeName);
             return nullptr;
         }
-        return itr->second.get();
-    }
-    template <IsSystem SystemClass>
-    SystemClass* getSystem() const {
-        std::string systemName = nameof<SystemClass>();
-        auto itr               = systems_.find(systemName);
-        if (itr == systems_.end()) {
-            LOG_ERROR("SystemRegistry: System not found with name: {}", systemName);
-            return nullptr;
-        }
-        return dynamic_cast<SystemClass*>(itr->second.get());
+        return itr->second(scene);
     }
 
 private:
-    std::unordered_map<std::string, std::unique_ptr<ISystem>> systems_;
+    std::unordered_map<std::string, std::function<std::unique_ptr<ISystem>(Scene*)>> systemMaker_;
 
 public:
-    const std::unordered_map<std::string, std::unique_ptr<ISystem>>& getSystems() const {
-        return systems_;
+    const std::unordered_map<std::string, std::function<std::unique_ptr<ISystem>(Scene*)>>& getSystemMaker() const {
+        return systemMaker_;
     }
-    std::unordered_map<std::string, std::unique_ptr<ISystem>>& getSystemsRef() {
-        return systems_;
+    std::unordered_map<std::string, std::function<std::unique_ptr<ISystem>(Scene*)>>& getSystemsRef() {
+        return systemMaker_;
+    }
+    void clearAll() {
+        systemMaker_.clear();
     }
 };
 
@@ -343,19 +330,16 @@ public:
     }
 
     void ActivateSystem(const std::string& _systemName);
-    template <IsSystem SystemCategory>
+
+    template <IsSystem SystemClass>
     void ActivateSystem() {
-        ActivateSystem(nameof<SystemCategory>());
+        ActivateSystem(nameof<SystemClass>());
     }
-    void ActivateSystem(SystemCategory _category, const std::string& _systemName);
-    template <IsSystem SystemCategory>
-    void ActivateSystem(SystemCategory _category) {
-        ActivateSystem(_category, nameof<SystemCategory>());
-    }
-    void DeactivateSystem(SystemCategory _category, const std::string& _systemName);
-    template <IsSystem SystemCategory>
-    void DeactivateSystem(SystemCategory _category) {
-        DeactivateSystem(nameof<SystemCategory>());
+
+    void DeactivateSystem(const std::string& _systemName);
+    template <IsSystem SystemClass>
+    void DeactivateSystem() {
+        DeactivateSystem(nameof<SystemClass>());
     }
 
     template <IsSystem... SystemClass>
@@ -365,7 +349,13 @@ public:
     }
     void registerEntity(const std::string& _systemTypeName, GameEntity* _entity) {
         // システム名からシステムを取得し、エンティティを登録
-        ISystem* system = SystemRegistry::getInstance()->getSystem(_systemTypeName);
+        auto systemItr = systems_.find(_systemTypeName);
+        if (systemItr == systems_.end()) {
+            LOG_ERROR("SystemRunner: System '{}' not found .", _systemTypeName);
+            return;
+        }
+        ISystem* system = systemItr->second.get();
+
         if (system) {
             system->addEntity(_entity);
         } else {
@@ -373,8 +363,14 @@ public:
         }
     }
     void removeEntity(const std::string& _systemTypeName, GameEntity* _entity) {
+        // システム名からシステムを取得し、エンティティを登録
+        auto systemItr = systems_.find(_systemTypeName);
+        if (systemItr == systems_.end()) {
+            LOG_ERROR("SystemRunner: System '{}' not found .", _systemTypeName);
+            return;
+        }
         // システム名からシステムを取得し、エンティティを削除
-        ISystem* system = SystemRegistry::getInstance()->getSystem(_systemTypeName);
+        ISystem* system = systemItr->second.get();
         if (system) {
             system->removeEntity(_entity);
         } else {
@@ -384,13 +380,8 @@ public:
 
     void removeEntityFromAllSystems(GameEntity* _entity) {
         // 各システムからエンティティを削除
-        for (auto& systemByCategory : systems_) {
-            for (auto& [name, system] : systemByCategory) {
-                if (!system->hasEntity(_entity)) {
-                    continue;
-                }
-                system->removeEntity(_entity);
-            }
+        for (auto& [name, system] : systems_) {
+            system->removeEntity(_entity);
         }
     }
 
@@ -399,7 +390,7 @@ private:
 
     std::array<bool, static_cast<size_t>(SystemCategory::Count)> categoryActivity = {true, true, true, true, true, true, true, true};
 
-    std::array<std::unordered_map<std::string, ISystem*>, size_t(SystemCategory::Count)> systems_;
+    std::unordered_map<std::string, std::unique_ptr<ISystem>> systems_;
     std::array<std::vector<ISystem*>, size_t(SystemCategory::Count)> activeSystems_;
 
 public:
@@ -409,34 +400,17 @@ public:
     std::array<bool, static_cast<size_t>(SystemCategory::Count)>& getCategoryActivityRef() {
         return categoryActivity;
     }
-    template <SystemCategory Category>
-    bool getCategoryActivity() const {
-        return categoryActivity[static_cast<size_t>(Category)];
-    }
-    bool getCategoryActivity(SystemCategory Category) const {
-        return categoryActivity[static_cast<size_t>(Category)];
-    }
-    template <>
-    bool getCategoryActivity<SystemCategory::Count>() const {
-        LOG_ERROR("SystemRunner: getCategoryActivity() called with invalid SystemCategory::Count.");
-        return false;
-    }
-    template <SystemCategory Category>
-    void setCategoryActivity(bool _isActive) {
-        categoryActivity[static_cast<size_t>(Category)] = _isActive;
+    bool getCategoryActivity(SystemCategory category) const {
+        return categoryActivity[static_cast<size_t>(category)];
     }
     void setCategoryActivity(SystemCategory _category, bool _isActive) {
         categoryActivity[static_cast<size_t>(_category)] = _isActive;
     }
-    template <>
-    void setCategoryActivity<SystemCategory::Count>(bool /*_isActive*/) {
-        LOG_ERROR("SystemRunner: setCategoryActivity() called with invalid SystemCategory::Count.");
-    }
 
-    const std::array<std::unordered_map<std::string, ISystem*>, size_t(SystemCategory::Count)>& getSystems() const {
+    const std::unordered_map<std::string, std::unique_ptr<ISystem>>& getSystems() const {
         return systems_;
     }
-    std::array<std::unordered_map<std::string, ISystem*>, size_t(SystemCategory::Count)>& getSystemsRef() {
+    std::unordered_map<std::string, std::unique_ptr<ISystem>>& getSystemsRef() {
         return systems_;
     }
 
@@ -447,55 +421,29 @@ public:
         return activeSystems_;
     }
 
-    const std::vector<ISystem*> getActiveSystems(SystemCategory _category) const {
+    std::vector<ISystem*>& getActiveSystemsRef(SystemCategory _category) {
         return activeSystems_[static_cast<size_t>(_category)];
     }
-    template <SystemCategory Category>
-    const std::vector<ISystem**>& getActiveSystems() const {
-        return activeSystems_[static_cast<size_t>(Category)];
-    }
-    template <SystemCategory Category>
-    std::vector<ISystem**>& getActiveSystemsRef() {
-        return activeSystems_[static_cast<size_t>(Category)];
-    }
-    ISystem* getSystem(const std::string& _systemName, SystemCategory _category) const {
-        auto itr = systems_[static_cast<size_t>(_category)].find(_systemName);
-        if (itr == systems_[static_cast<size_t>(_category)].end()) {
-            LOG_ERROR("SystemRunner: System '{}' not found in category '{}'.", _systemName, SystemCategoryString[static_cast<int>(_category)]);
-            return nullptr;
-        }
-        return itr->second;
+    const std::vector<ISystem*>& getActiveSystems(SystemCategory category) const {
+        return activeSystems_[static_cast<size_t>(category)];
     }
     ISystem* getSystem(const std::string& _systemName) const {
-        for (const auto& systemCategory : systems_) {
-            auto itr = systemCategory.find(_systemName);
-            if (itr != systemCategory.end()) {
-                return itr->second;
-            }
+        auto itr = systems_.find(_systemName);
+        if (itr != systems_.end()) {
+            return itr->second.get();
         }
+
         LOG_ERROR("SystemRunner: System '{}' not found in any category.", _systemName);
         return nullptr;
     }
     template <IsSystem SystemClass>
-    SystemClass* getSystem(SystemCategory _category) const {
+    SystemClass* getSystem() const {
         std::string systemName = nameof<SystemClass>();
-        auto itr               = systems_[static_cast<size_t>(_category)].find(systemName);
-        if (itr == systems_[static_cast<size_t>(_category)].end()) {
-            LOG_ERROR("SystemRunner: System '{}' not found in category '{}'.", systemName, SystemCategoryString[static_cast<int>(_category)]);
+        auto itr               = systems_.find(systemName);
+        if (itr == systems_.end()) {
+            LOG_ERROR("SystemRunner: System '{}' not found .", systemName);
             return nullptr;
         }
         return dynamic_cast<SystemClass*>(itr->second);
-    }
-    template <IsSystem SystemClass>
-    SystemClass* getSystem() const {
-        std::string systemName = nameof<SystemClass>();
-        for (const auto& systemCategory : systems_) {
-            auto itr = systemCategory.find(systemName);
-            if (itr != systemCategory.end()) {
-                return dynamic_cast<SystemClass*>(itr->second);
-            }
-        }
-        LOG_ERROR("SystemRunner: System '{}' not found in any category.", systemName);
-        return nullptr;
     }
 };

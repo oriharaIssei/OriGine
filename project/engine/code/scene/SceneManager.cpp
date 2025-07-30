@@ -85,6 +85,15 @@ void SceneManager::Finalize() {
 }
 
 void SceneManager::Update() {
+
+    currentScene_->Update();
+
+    currentScene_->Render();
+
+    Engine::getInstance()->ScreenPreDraw();
+    currentScene_->getSceneView()->DrawTexture();
+    Engine::getInstance()->ScreenPostDraw();
+
 #ifdef _DEVELOP
     if (fileWatcher_->isChanged()) {
         std::string currentSceneName = currentScene_->getName();
@@ -98,15 +107,7 @@ void SceneManager::Update() {
     if (isChangeScene_) {
         // SceneChange
         executeSceneChange();
-    } else {
-        currentScene_->Update();
     }
-
-    currentScene_->Render();
-
-    Engine::getInstance()->ScreenPreDraw();
-    currentScene_->getSceneView()->DrawTexture();
-    Engine::getInstance()->ScreenPostDraw();
 }
 
 const std::string& SceneManager::getCurrentSceneName() const { return currentScene_->getName(); }
@@ -193,13 +194,11 @@ void SceneSerializer::SerializeFromJson() {
         {
             nlohmann::json systemsData = nlohmann::json::array();
             const auto& systems        = targetScene_->systemRunner_->getSystems();
-            for (const auto& systemByCategory : systems) {
-                for (const auto& [name, system] : systemByCategory) {
-                    if (system->hasEntity(entity)) {
-                        systemsData.push_back(
-                            {{"SystemCategory", system->getCategory()},
-                                {"SystemName", name}});
-                    }
+            for (const auto& [name, system] : systems) {
+                if (system->hasEntity(entity)) {
+                    systemsData.push_back(
+                        {{"SystemCategory", system->getCategory()},
+                            {"SystemName", name}});
                 }
             }
             entityData["Systems"] = systemsData;
@@ -222,21 +221,19 @@ void SceneSerializer::SerializeFromJson() {
     // System
     /// =====================================================
     {
-        const auto& systems        = targetScene_->systemRunner_->getSystems();
-        nlohmann::json systemsData = nlohmann::json::array();
+        const auto& systems                 = targetScene_->systemRunner_->getSystems();
+        nlohmann::json systemsData          = nlohmann::json::array();
+        nlohmann::json systemDataByCategory = nlohmann::json::object();
 
-        for (const auto& systemByCategory : systems) {
-            nlohmann::json systemDataByCategory = nlohmann::json::object();
-            for (const auto& [name, system] : systemByCategory) {
-                if (!system || !system->isActive()) {
-                    continue; // 無効なシステムはスキップ
-                }
-                nlohmann::json systemData = nlohmann::json::object();
-                systemData["Priority"]    = system->getPriority();
-                systemDataByCategory[name] = systemData;
+        for (const auto& [name, system] : systems) {
+            if (!system || !system->isActive()) {
+                continue; // 無効なシステムはスキップ
             }
-            systemsData.push_back(systemDataByCategory);
+            nlohmann::json systemData  = nlohmann::json::object();
+            systemData["Priority"]     = system->getPriority();
+            systemDataByCategory[name] = systemData;
         }
+        systemsData.push_back(systemDataByCategory);
 
         jsonData["Systems"] = systemsData;
 
@@ -281,7 +278,7 @@ void SceneSerializer::DeserializeFromJson() {
     nlohmann::json& systems     = jsonData["Systems"];
     for (auto& systemByType : systems) {
         for (auto& [systemName, system] : systemByType.items()) {
-            systemRunner->registerSystem(systemName, system["Priority"]);
+            systemRunner->registerSystem(systemName, system["Priority"], false);
         }
         ++systemCategoryIndex;
     }
@@ -308,13 +305,13 @@ void SceneSerializer::DeserializeFromJson() {
 
         // 所属するシステムを読み込み
         for (auto& systemData : entityData["Systems"]) {
-            int32_t systemCategory = systemData["SystemCategory"];
+            // int32_t systemCategory = systemData["SystemCategory"];
             std::string systemName = systemData["SystemName"];
-            ISystem* system        = sceneSystems[systemCategory][systemName];
+            ISystem* system        = sceneSystems[systemName].get();
             if (system) {
                 system->addEntity(entity);
             } else {
-                LOG_WARN("System not found: {} in category {}", systemName, systemCategory);
+                LOG_WARN("System not found: {}", systemName);
             }
         }
 
@@ -328,6 +325,8 @@ void SceneSerializer::DeserializeFromJson() {
             comp->LoadComponent(entity, componentData);
         }
     }
+
+    systemRunner->InitializeActiveSystems();
 }
 
 void SceneSerializer::SaveEntity(int32_t _entityID, const std::string& _directory) {
@@ -366,15 +365,13 @@ void SceneSerializer::EntityToJson(int32_t _entityID, nlohmann::json& entityData
     entityData["Systems"]    = nlohmann::json::array();
     auto& systemsJson        = entityData["Systems"];
     const auto& sceneSystems = targetScene_->systemRunner_->getSystems();
-    for (const auto& systemsByType : sceneSystems) {
-        for (const auto& [systemName, system] : systemsByType) {
-            if (!system) {
-                LOG_WARN("System not found: {}", systemName);
-                continue; // 無効なシステムはスキップ
-            }
-            if (system->hasEntity(_entity)) {
-                systemsJson.push_back({{"SystemCategory", system->getCategory()}, {"SystemName", systemName}});
-            }
+    for (const auto& [systemName, system] : sceneSystems) {
+        if (!system) {
+            LOG_WARN("System not found: {}", systemName);
+            continue; // 無効なシステムはスキップ
+        }
+        if (system->hasEntity(_entity)) {
+            systemsJson.push_back({{"SystemCategory", system->getCategory()}, {"SystemName", systemName}});
         }
     }
 
@@ -409,9 +406,9 @@ GameEntity* SceneSerializer::LoadEntity(const std::string& _directory, const std
     // 所属するシステムを読み込み
     auto& sceneSystems = targetScene_->systemRunner_->getSystemsRef();
     for (auto& systemData : entityData["Systems"]) {
-        int32_t systemCategory = systemData["SystemCategory"];
+        // int32_t systemCategory = systemData["SystemCategory"];
         std::string systemName = systemData["SystemName"];
-        ISystem* system        = sceneSystems[systemCategory][systemName];
+        ISystem* system        = sceneSystems[systemName].get();
         if (system) {
             system->addEntity(entity);
         }
@@ -440,7 +437,7 @@ GameEntity* SceneSerializer::EntityFromJson(const nlohmann::json& _entityData) {
     for (auto& systemData : _entityData.at("Systems")) {
         int32_t systemCategory = systemData.at("SystemCategory");
         std::string systemName = systemData.at("SystemName");
-        ISystem* system        = sceneSystems[systemCategory][systemName];
+        ISystem* system        = sceneSystems[systemName].get();
         if (system) {
             system->addEntity(entity);
         }
@@ -469,9 +466,9 @@ GameEntity* SceneSerializer::EntityFromJson(int32_t _entityId, const nlohmann::j
     // 所属するシステムを読み込み
     auto& sceneSystems = targetScene_->systemRunner_->getSystemsRef();
     for (auto& systemData : _entityData["Systems"]) {
-        int32_t systemCategory = systemData["SystemCategory"];
+        // int32_t systemCategory = systemData["SystemCategory"];
         std::string systemName = systemData["SystemName"];
-        ISystem* system        = sceneSystems[systemCategory][systemName];
+        ISystem* system        = sceneSystems[systemName].get();
         if (system) {
             system->addEntity(entity);
         }

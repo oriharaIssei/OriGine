@@ -15,6 +15,7 @@
 // component
 #include "component/ComponentArray.h"
 #include "component/IComponent.h"
+#include "component/transform/Transform.h"
 // system
 #include "system/ISystem.h"
 
@@ -32,6 +33,8 @@
 /// lib
 #include "myFileSystem/MyFileSystem.h"
 #include <myGui/MyGui.h>
+/// externals
+#include <imgui/ImGuizmo/ImGuizmo.h>
 
 static const std::string sceneFolderPath = kApplicationResourceDirectory + "/scene";
 
@@ -197,7 +200,6 @@ void CreateMenuItem::DrawGui() {
         if (ImGui::Button("Create")) {
             auto scenes = myfs::searchFile(SceneSerializer::SceneDirectory, {"json"});
 
-            // 例: first がシーン名の場合
             auto it = std::find_if(
                 scenes.begin(), scenes.end(),
                 [this](const std::pair<std::string, std::string>& scene) {
@@ -254,16 +256,18 @@ void SceneViewArea::Initialize() {
 }
 
 void SceneViewArea::DrawGui() {
-    bool isOpen = isOpen_.current();
+    bool isOpen        = isOpen_.current();
+    auto renderTexture = parentWindow_->getCurrentScene()->getSceneView();
+
     if (ImGui::Begin(name_.c_str(), &isOpen)) {
         areaSize_ = ImGui::GetContentRegionAvail();
 
-        auto renderTexture = parentWindow_->getCurrentScene()->getSceneView();
         if (areaSize_[X] >= 1.f && areaSize_[Y] >= 1.f && renderTexture->getTextureSize() != areaSize_) {
             renderTexture->Resize(areaSize_);
 
             float aspectRatio                                 = areaSize_[X] / areaSize_[Y];
             debugCamera_->getCameraTransformRef().aspectRatio = aspectRatio;
+            debugCamera_->Update();
         }
 
         if (isFocused_.current()) {
@@ -272,7 +276,10 @@ void SceneViewArea::DrawGui() {
 
         DrawScene();
 
+        ImVec2 imageLeftTop = ImGui::GetCursorScreenPos();
         ImGui::Image(reinterpret_cast<ImTextureID>(renderTexture->getBackBufferSrvHandle().ptr), areaSize_.toImVec2());
+
+        UseImGuizmo(imageLeftTop, renderTexture->getTextureSize());
 
         for (auto& [name, region] : regions_) {
             if (!region) {
@@ -303,6 +310,181 @@ void SceneViewArea::DrawScene() {
     // 描画
     currentScene->Render();
     cameraManager->setTransform(prevTransform);
+}
+
+static Vec2f ConvertMouseToSceneView(const Vec2f& mousePos, const ImVec2& sceneViewPos, const ImVec2& sceneViewSize, const Vec2f& originalResolution) {
+    // SceneView 内での相対的なマウス座標を計算
+    float relativeX = mousePos[X] - sceneViewPos.x;
+    float relativeY = mousePos[Y] - sceneViewPos.y;
+
+    // SceneView のスケールを計算
+    float scaleX = originalResolution[X] / sceneViewSize.x;
+    float scaleY = originalResolution[Y] / sceneViewSize.y;
+
+    // ゲーム内の座標に変換
+    Vec2f gamePos;
+    gamePos[X] = relativeX * scaleX;
+    gamePos[Y] = relativeY * scaleY;
+
+    return gamePos;
+}
+
+void SceneViewArea::UseImGuizmo(const ImVec2& _sceneViewPos, const Vec2f& _originalResolution) {
+    // マウス座標を取得
+    Vec2f mousePos = Input::getInstance()->getCurrentMousePos();
+
+    // マウス座標をゲーム内の座標に変換
+    Vec2f gamePos = ConvertMouseToSceneView(mousePos, _sceneViewPos, areaSize_.toImVec2(), _originalResolution);
+    Input::getInstance()->setVirtualMousePos(gamePos);
+
+    // ImGuizmo のフレーム開始
+    ImGuizmo::BeginFrame();
+
+    // ImGuizmo の設定
+    ImGuizmo::SetOrthographic(false); // 透視投影かどうか
+    ImGuizmo::SetDrawlist();
+
+    // ImGuizmo のウィンドウサイズ・位置を設定
+    ImGuizmo::SetRect(_sceneViewPos.x, _sceneViewPos.y, areaSize_[X], areaSize_[Y]);
+
+    Vec2f virtualMousePos = Input::getInstance()->getVirtualMousePos();
+
+    auto* currentScene       = parentWindow_->getCurrentScene();
+    auto entityInspectorArea = dynamic_cast<EntityInspectorArea*>(parentWindow_->getArea("EntityInspectorArea").get());
+    if (!entityInspectorArea) {
+        LOG_ERROR("EntityInspectorArea not found in SceneEditorWindow.");
+        return;
+    }
+
+    GameEntity* editEntity = currentScene->getEntity(entityInspectorArea->getEditEntityId());
+    if (!editEntity) {
+        return;
+    }
+
+    auto transformArray = currentScene->getComponentArray<Transform>();
+
+    // Transformを持っていないエンティティは Skip
+    if (!transformArray->hasEntity(editEntity)) {
+        return;
+    }
+
+    Transform* transform = currentScene->getComponent<Transform>(editEntity);
+    if (!transform) {
+        return;
+    }
+    /// ==========================================
+    // Guizmo Edit
+
+    // 行列の用意
+    float matrix[16];
+    transform->worldMat.toFloatArray(matrix); // Transform の worldMat を float[16] に変換
+    // ビュー行列とプロジェクション行列の取得
+    float viewMatrix[16];
+    float projectionMatrix[16];
+    debugCamera_->getCameraTransform().viewMat.toFloatArray(viewMatrix); // カメラのビュー行列を取得
+    debugCamera_->getCameraTransform().projectionMat.toFloatArray(projectionMatrix); // カメラのプロジェクション行列を取得
+
+    // ギズモの操作タイプ
+    static ImGuizmo::OPERATION currentGizmoOperation = ImGuizmo::TRANSLATE | ImGuizmo::SCALE | ImGuizmo::ROTATE;
+
+    [](ImGuizmo::OPERATION& _currentGizmoOperation) {
+        Input* input = Input::getInstance();
+        if (input->isPressKey(Key::L_SHIFT)) {
+            if (input->isPressKey(Key::S)) {
+                if (input->isPressKey(Key::X)) {
+                    _currentGizmoOperation = ImGuizmo::SCALE_X;
+                } else if (input->isPressKey(Key::Y)) {
+                    _currentGizmoOperation = ImGuizmo::SCALE_Y;
+                } else if (input->isPressKey(Key::Z)) {
+                    _currentGizmoOperation = ImGuizmo::SCALE_Z;
+                } else {
+                    _currentGizmoOperation = ImGuizmo::SCALE; // Shift + S でスケール
+                }
+            } else if (input->isPressKey(Key::R)) {
+                if (input->isPressKey(Key::X)) {
+                    _currentGizmoOperation = ImGuizmo::ROTATE_X;
+                } else if (input->isPressKey(Key::Y)) {
+                    _currentGizmoOperation = ImGuizmo::ROTATE_Y;
+                } else if (input->isPressKey(Key::Z)) {
+                    _currentGizmoOperation = ImGuizmo::ROTATE_Z;
+                } else {
+                    _currentGizmoOperation = ImGuizmo::ROTATE; // Shift + R で回転
+                }
+            } else if (input->isPressKey(Key::T)) {
+                if (input->isPressKey(Key::X)) {
+                    _currentGizmoOperation = ImGuizmo::TRANSLATE_X;
+                } else if (input->isPressKey(Key::Y)) {
+                    _currentGizmoOperation = ImGuizmo::TRANSLATE_Y;
+                } else if (input->isPressKey(Key::Z)) {
+                    _currentGizmoOperation = ImGuizmo::TRANSLATE_Z;
+                } else {
+                    _currentGizmoOperation = ImGuizmo::TRANSLATE; // Shift + T で移動
+                }
+            }
+
+        } else {
+            _currentGizmoOperation = ImGuizmo::TRANSLATE | ImGuizmo::SCALE | ImGuizmo::ROTATE;
+        }
+    }(currentGizmoOperation);
+
+    // ギズモの描画・操作
+    if (ImGuizmo::Manipulate(
+            viewMatrix, // カメラのビュー行列(float[16])
+            projectionMatrix, // カメラのプロジェクション行列(float[16])
+            currentGizmoOperation,
+            ImGuizmo::LOCAL, // ローカル or ワールド
+            matrix)) {
+
+        // matrix から this->translate, this->rotate, this->scale を分解して反映
+        // 例: DecomposeMatrixToComponents(matrix, this->translate, this->rotate, this->scale);
+        transform->worldMat.fromFloatArray(matrix);
+
+        transform->worldMat.decomposeMatrixToComponents(transform->scale, transform->rotate, transform->translate);
+    }
+
+    /// ==========================================
+    // Editor Command
+    static bool wasUsingGuizmo = false;
+    bool isUsingGuizmo         = ImGuizmo::IsUsing();
+    static GuiValuePool<Vec3f> vec3fPool;
+    static GuiValuePool<Quaternion> quatPool;
+
+    // Guizmo Trigger
+    if (isUsingGuizmo) {
+        // ImGuizmoが使用中ならば、他の操作は無効化
+        ImGui::SetMouseCursor(ImGuiMouseCursor_Arrow);
+        if (!wasUsingGuizmo) {
+            vec3fPool.setValue(editEntity->getUniqueID() + "Scale", transform->scale);
+            quatPool.setValue(editEntity->getUniqueID() + "Rotation", transform->rotate);
+            vec3fPool.setValue(editEntity->getUniqueID() + "Translate", transform->translate);
+        }
+    } else {
+        // ImGuizmoが使用されていない場合は、通常のマウスカーソルに戻す
+        ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+
+        if (wasUsingGuizmo) {
+            auto commandCombo = std::make_unique<CommandCombo>();
+
+            /// S,R,T を コマンドで更新するように
+            commandCombo->addCommand(std::make_unique<SetterCommand<Vec3f>>(&transform->scale, transform->scale, vec3fPool.popValue(editEntity->getUniqueID() + "Scale")));
+            commandCombo->addCommand(std::make_unique<SetterCommand<Quaternion>>(&transform->rotate, transform->rotate, quatPool.popValue(editEntity->getUniqueID() + "Rotation")));
+            commandCombo->addCommand(std::make_unique<SetterCommand<Vec3f>>(&transform->translate, transform->translate, vec3fPool.popValue(editEntity->getUniqueID() + "Translate")));
+
+            commandCombo->setFuncOnAfterCommand(
+                [transform]() {
+                    if (!transform) {
+                        return;
+                    }
+                    transform->Update();
+                },
+                true);
+
+            // push
+            EditorController::getInstance()->pushCommand(std::move(commandCombo));
+        }
+    }
+
+    wasUsingGuizmo = isUsingGuizmo;
 }
 
 void SceneViewArea::Finalize() {
@@ -648,7 +830,7 @@ void AddSystemCommand::Execute() {
         currentScene->getSystemRunnerRef()->registerEntity(systemTypeName_, entity);
 
         if (editEntityId == entityId) {
-            inspectorArea->getSystemMap()[int32_t(systemCategory_)][systemTypeName_] = currentScene->getSystemRunnerRef()->getSystem(systemTypeName_, systemCategory_);
+            inspectorArea->getSystemMap()[int32_t(systemCategory_)][systemTypeName_] = currentScene->getSystemRunnerRef()->getSystem(systemTypeName_);
         }
     }
 }
@@ -721,7 +903,7 @@ void RemoveSystemCommand::Undo() {
         }
         currentScene->getSystemRunnerRef()->registerEntity(systemTypeName_, entity);
         if (editEntityId == entityId) {
-            inspectorArea->getSystemMap()[int32_t(systemCategory_)][systemTypeName_] = currentScene->getSystemRunnerRef()->getSystem(systemTypeName_, systemCategory_);
+            inspectorArea->getSystemMap()[int32_t(systemCategory_)][systemTypeName_] = currentScene->getSystemRunnerRef()->getSystem(systemTypeName_);
         }
     }
 }

@@ -15,19 +15,17 @@ SystemInspectorArea::SystemInspectorArea(SceneEditorWindow* _window) : Editor::A
 SystemInspectorArea::~SystemInspectorArea() {}
 
 void SystemInspectorArea::Initialize() {
+    auto scene       = parentWindow_->getCurrentScene();
     auto& allSystems = SystemRegistry::getInstance()->getSystemsRef();
-    for (auto& [name, system] : allSystems) {
-        if (!system) {
-            LOG_ERROR("SystemInspectorArea::Initialize: System '{}' is null.", name);
-            continue;
-        }
-        int32_t category = int32_t(system->getCategory());
-        systemMap_[category].emplace_back(std::make_pair<>(name, system.get()));
+    for (auto& [name, createSystemFunc] : allSystems) {
+        auto createdScene = createSystemFunc(scene);
+        int32_t category  = int32_t(createdScene->getCategory());
+        systemMap_[category].emplace_back(std::make_pair<>(name, 0));
     }
 
     for (auto& systemByCategory : systemMap_) {
-        std::sort(systemByCategory.begin(), systemByCategory.end(), [](const std::pair<std::string, ISystem*>& a, const std::pair<std::string, ISystem*>& b) {
-            return a.second->getPriority() < b.second->getPriority(); // Priority でソート
+        std::sort(systemByCategory.begin(), systemByCategory.end(), [](const std::pair<std::string, int32_t>& a, const std::pair<std::string, int32_t>& b) {
+            return a.second < b.second; // Priority でソート
         });
     }
 }
@@ -62,26 +60,9 @@ void SystemInspectorArea::DrawGui() {
         label             = "Filter##" + currentScene->getName();
 
         int32_t filter                        = static_cast<int32_t>(filter_);
-        constexpr int32_t categoryFilterStart = 3;
-        bool activeFilter                     = (filter_ & FilterType::ACTIVE) != 0;
-        bool inactiveFilter                   = (filter_ & FilterType::INACTIVE) != 0;
-
+        constexpr int32_t categoryFilterStart = int32_t(FilterType::CATEGORY_INITIALIZE) - 1;
         if (ImGui::TreeNode(label.c_str())) {
             constexpr int32_t categoryMask = ~((1 << (categoryFilterStart + 1)) - 1); // 0b11111100...
-
-            ImGui::Checkbox("Active##SystemInspectorArea::FilterType", &activeFilter);
-            ImGui::Checkbox("Inactive##SystemInspectorArea::FilterType", &inactiveFilter);
-
-            if (activeFilter) {
-                filter |= int32_t(FilterType::ACTIVE);
-            } else {
-                filter &= ~int32_t(FilterType::ACTIVE);
-            }
-            if (inactiveFilter) {
-                filter |= int32_t(FilterType::INACTIVE);
-            } else {
-                filter &= ~int32_t(FilterType::INACTIVE);
-            }
 
             ImGui::Separator();
 
@@ -130,20 +111,11 @@ void SystemInspectorArea::DrawGui() {
         }
 
         bool searchFilter = (filter_ & FilterType::SEARCH) != 0;
-        for (size_t i = 0; i < systemMap_.size(); ++i) {
+        for (int32_t i = 0; i < systemMap_.size(); ++i) {
             if (searchFilter) {
-                for (const auto& [systemName, system] : systemMap_[i]) {
-                    if (!system) {
-                        LOG_ERROR("SystemInspectorArea::DrawGui: System '{}' is null.", systemName);
-                        continue;
-                    }
+                for (auto& [systemName, priority] : systemMap_[i]) {
                     if (systemName.find(searchBuffer_) != std::string::npos) {
-                        if (activeFilter && !system->isActive()) {
-                            continue; // アクティブフィルタに合致しない場合はスキップ
-                        } else if (inactiveFilter && system->isActive()) {
-                            continue; // 非アクティブフィルタに合致しない場合はスキップ
-                        }
-                        SystemGui(systemName, system);
+                        SystemGui(i, systemName, priority);
                     }
                 }
 
@@ -155,26 +127,19 @@ void SystemInspectorArea::DrawGui() {
                 if (ImGui::CollapsingHeader(SystemCategoryString[i].c_str())) {
 
                     ImGui::Indent();
-                    for (auto& [systemName, system] : systemMap_[i]) {
-                        if (!system) {
-                            LOG_ERROR("SystemInspectorArea::DrawGui: System '{}' is null.", systemName);
-                            continue;
-                        }
-                        if (activeFilter) {
-                            if (!system->isActive()) {
-                                continue; // アクティブフィルタに合致しない場合はスキップ
-                            }
-                        } else if (inactiveFilter) {
-                            if (system->isActive()) {
-                                continue; // 非アクティブフィルタに合致しない場合はスキップ
-                            }
-                        }
-                        SystemGui(systemName, system);
+                    for (auto& [systemName, priority] : systemMap_[i]) {
+                        SystemGui(i, systemName, priority);
                     }
                     ImGui::Unindent();
                 }
             }
         }
+    }
+
+    for (auto& systemByCategory : systemMap_) {
+        std::sort(systemByCategory.begin(), systemByCategory.end(), [](const std::pair<std::string, int32_t>& a, const std::pair<std::string, int32_t>& b) {
+            return a.second < b.second; // Priority でソート
+        });
     }
 
     isOpen_.set(isOpen);
@@ -188,28 +153,56 @@ void SystemInspectorArea::Finalize() {
     Editor::Area::Finalize();
 }
 
-void SystemInspectorArea::SystemGui(const std::string& _systemName, ISystem* _system) {
+void SystemInspectorArea::SystemGui(int32_t _categoryInt, const std::string& _systemName, int32_t& _priority) {
+    auto currentScene = parentWindow_->getCurrentScene();
+    if (!currentScene) {
+        LOG_ERROR("SystemInspectorArea::SystemGui: No current scene found.");
+        return;
+    }
+
     ImGui::PushID(_systemName.c_str());
-    bool isActive = _system->isActive();
 
-    if (ImGui::Checkbox("##Active", &isActive)) {
-        auto command = std::make_unique<ChangeSystemActivity>(this, _systemName, _system->isActive(), isActive);
-        EditorController::getInstance()->pushCommand(std::move(command));
-    }
+    auto* system = currentScene->getSystem(_systemName);
+    if (system) {
+        bool isActive = system->isActive();
 
-    ImGui::SameLine();
+        if (ImGui::Checkbox("##Active", &isActive)) {
+            auto command = std::make_unique<ChangeSystemActivity>(this, _systemName, system->getPriority(), system->isActive(), isActive);
+            EditorController::getInstance()->pushCommand(std::move(command));
+        }
 
-    constexpr int32_t inputPriorityBoxWidth = 76;
-    ImGui::SetNextItemWidth(inputPriorityBoxWidth);
-    int32_t priority = _system->getPriority();
-    if (ImGui::InputInt("##Priority", &priority, 1)) {
-        auto command = std::make_unique<ChangeSystemPriority>(this, _systemName, _system->getPriority(), priority);
-        EditorController::getInstance()->pushCommand(std::move(command));
-    }
+        ImGui::SameLine();
 
-    ImGui::SameLine();
+        constexpr int32_t inputPriorityBoxWidth = 76;
+        ImGui::SetNextItemWidth(inputPriorityBoxWidth);
+        int32_t priority = system->getPriority();
+        if (ImGui::InputInt("##Priority", &priority, 1)) {
+            auto command = std::make_unique<ChangeSystemPriority>(this, _systemName, system->getPriority(), priority);
+            EditorController::getInstance()->pushCommand(std::move(command));
+        }
 
-    ImGui::Text("%s", _systemName.c_str());
+        _priority = priority; // 更新された優先度をアイテムに反映
+
+        ImGui::SameLine();
+
+        ImGui::Text("%s", _systemName.c_str());
+
+    } else {
+        bool isActive = false;
+        _priority     = 9999;
+        if (ImGui::Checkbox("##Active", &isActive)) {
+            currentScene->registerSystem(_systemName, 0); // 0 はデフォルトの優先度
+            auto command = std::make_unique<ChangeSystemActivity>(this, _systemName, 0, false, true);
+            EditorController::getInstance()->pushCommand(std::move(command));
+
+            _priority = 0;
+            systemMap_[_categoryInt].emplace_back(std::make_pair(_systemName, _priority));
+        }
+
+        ImGui::SameLine();
+
+        ImGui::Text("%s", _systemName.c_str());
+    };
 
     ImGui::PopID();
 }
@@ -219,11 +212,11 @@ void SystemInspectorArea::SystemGui(const std::string& _systemName, ISystem* _sy
 SystemInspectorArea::ChangeSystemPriority::ChangeSystemPriority(SystemInspectorArea* _inspectorArea, const std::string& _systemName, int32_t _oldPriority, int32_t _newPriority)
     : inspectorArea_(_inspectorArea), systemName_(_systemName), oldPriority_(_oldPriority), newPriority_(_newPriority) {}
 void SystemInspectorArea::ChangeSystemPriority::Execute() {
-    SystemRegistry* systemRegistry = SystemRegistry::getInstance();
+    auto* systemRunner = inspectorArea_->getParentWindow()->getCurrentScene()->getSystemRunner();
 
     // exe 内に Systemが 登録されているか確認
-    auto systemItr = systemRegistry->getSystemsRef().find(systemName_);
-    if (systemItr == systemRegistry->getSystemsRef().end()) {
+    auto systemItr = systemRunner->getSystems().find(systemName_);
+    if (systemItr == systemRunner->getSystems().end()) {
         LOG_ERROR("ChangeSystemPriority::Execute: System '{}' not found.", systemName_);
         return;
     }
@@ -232,18 +225,19 @@ void SystemInspectorArea::ChangeSystemPriority::Execute() {
 
     int32_t categoryIndex   = static_cast<int32_t>(systemItr->second->getCategory());
     auto* systemsByCategory = &inspectorArea_->systemMap_[categoryIndex];
+
     std::sort(systemsByCategory->begin(),
         systemsByCategory->end(),
-        [](const std::pair<std::string, ISystem*>& a, const std::pair<std::string, ISystem*>& b) {
-            return a.second->getPriority() < b.second->getPriority(); // Priority でソート
+        [](const std::pair<std::string, int32_t>& a, const std::pair<std::string, int32_t>& b) {
+            return a.second < b.second; // Priority でソート
         });
 }
 void SystemInspectorArea::ChangeSystemPriority::Undo() {
-    SystemRegistry* systemRegistry = SystemRegistry::getInstance();
+    auto* systemRunner = inspectorArea_->getParentWindow()->getCurrentScene()->getSystemRunner();
 
     // exe 内に Systemが 登録されているか確認
-    auto systemItr = systemRegistry->getSystemsRef().find(systemName_);
-    if (systemItr == systemRegistry->getSystemsRef().end()) {
+    auto systemItr = systemRunner->getSystems().find(systemName_);
+    if (systemItr == systemRunner->getSystems().end()) {
         LOG_ERROR("ChangeSystemPriority::Execute: System '{}' not found.", systemName_);
         return;
     }
@@ -254,18 +248,20 @@ void SystemInspectorArea::ChangeSystemPriority::Undo() {
     auto* systemsByCategory = &inspectorArea_->systemMap_[categoryIndex];
     std::sort(systemsByCategory->begin(),
         systemsByCategory->end(),
-        [](const std::pair<std::string, ISystem*>& a, const std::pair<std::string, ISystem*>& b) {
-            return a.second->getPriority() < b.second->getPriority(); // Priority でソート
+        [](const std::pair<std::string, int32_t>& a, const std::pair<std::string, int32_t>& b) {
+            return a.second < b.second; // Priority でソート
         });
 }
 
 SystemInspectorArea::ChangeSystemActivity::ChangeSystemActivity(
     SystemInspectorArea* _inspectorArea,
     const std::string& _systemName,
+    int32_t _systemPriority,
     bool _oldActivity,
     bool _newActivity)
     : inspectorArea_(_inspectorArea),
       systemName_(_systemName),
+      systemPriority_(_systemPriority),
       oldActivity_(_oldActivity),
       newActivity_(_newActivity) {}
 void SystemInspectorArea::ChangeSystemActivity::Execute() {
@@ -274,14 +270,9 @@ void SystemInspectorArea::ChangeSystemActivity::Execute() {
         LOG_ERROR("ChangeSystemActivity::Execute: No current scene found.");
         return;
     }
-    auto* targetSystem = SystemRegistry::getInstance()->getSystem(systemName_);
-    if (!targetSystem) {
-        LOG_ERROR("ChangeSystemActivity::Execute: System '{}' not found in registry.", systemName_);
-        return;
-    }
     // true にする場合, SystemRegistry から システムを取得
     if (newActivity_) {
-        currentScene->registerSystem(systemName_, targetSystem->getPriority());
+        currentScene->registerSystem(systemName_, systemPriority_);
     } else {
         currentScene->unregisterSystem(systemName_);
     }
@@ -294,7 +285,7 @@ void SystemInspectorArea::ChangeSystemActivity::Undo() {
     }
     // false にする場合, SystemRegistry から システムを取得
     if (oldActivity_) {
-        currentScene->registerSystem(systemName_);
+        currentScene->registerSystem(systemName_, systemPriority_);
     } else {
         currentScene->unregisterSystem(systemName_);
     }

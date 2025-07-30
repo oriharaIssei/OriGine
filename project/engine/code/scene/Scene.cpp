@@ -52,7 +52,7 @@ void Scene::Render() {
     sceneView_->PostDraw();
 
     int32_t postRenderInt = static_cast<int32_t>(SystemCategory::PostRender);
-    if (systemRunner_->getActiveSystems()[postRenderInt].empty() || !systemRunner_->getCategoryActivity<SystemCategory::PostRender>()) {
+    if (systemRunner_->getActiveSystems()[postRenderInt].empty() || !systemRunner_->getCategoryActivity(SystemCategory::PostRender)) {
         return;
     }
     sceneView_->PreDraw();
@@ -145,9 +145,9 @@ bool Scene::removeComponent(const std::string& _compTypeName, int32_t _entityId,
     return true;
 }
 
-ISystem* Scene::getSystem(const std::string& _systemTypeName, SystemCategory _category) const {
+ISystem* Scene::getSystem(const std::string& _systemTypeName) const {
     if (systemRunner_) {
-        return systemRunner_->getSystem(_systemTypeName, _category);
+        return systemRunner_->getSystem(_systemTypeName);
     }
     LOG_ERROR("Scene::getSystem: SystemRunner is not initialized.");
     return nullptr;

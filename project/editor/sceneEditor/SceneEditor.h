@@ -133,6 +133,7 @@ public:
 
 private:
     void DrawScene();
+    void UseImGuizmo(const ImVec2& _sceneViewPos, const Vec2f& _originalResolution);
 
 private:
     SceneEditorWindow* parentWindow_; // 親ウィンドウへのポインタ

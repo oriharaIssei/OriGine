@@ -2,7 +2,6 @@
 
 #ifdef _DEBUG
 
-
 #include "editor/IEditor.h"
 class SceneEditorWindow;
 
@@ -41,7 +40,7 @@ public:
     class ChangeSystemActivity
         : public IEditCommand {
     public:
-        ChangeSystemActivity(SystemInspectorArea* _inspectorArea, const std::string& _systemName, bool _oldActivity, bool _newActivity);
+        ChangeSystemActivity(SystemInspectorArea* _inspectorArea, const std::string& _systemName, int32_t _systemPriority_, bool _oldActivity, bool _newActivity);
         ~ChangeSystemActivity() override = default;
         void Execute() override;
         void Undo() override;
@@ -49,8 +48,9 @@ public:
     private:
         SystemInspectorArea* inspectorArea_ = nullptr; // 親エリアへのポインタ
         std::string systemName_; // 対象のシステム名
-        bool oldActivity_ = false; // 変更前のアクティビティ状態
-        bool newActivity_ = true; // 変更後のアクティビティ状態
+        int32_t systemPriority_ = 0;
+        bool oldActivity_       = false; // 変更前のアクティビティ状態
+        bool newActivity_       = true; // 変更後のアクティビティ状態
     };
     class ChangeSystemCategoryActivity
         : public IEditCommand {
@@ -69,18 +69,16 @@ public:
 
     enum class FilterType : int32_t {
         NONE                     = 0b0, // フィルターなし
-        ACTIVE                   = 0b1 << 1,
-        INACTIVE                 = 0b1 << 2,
-        CATEGORY_INITIALIZE      = 0b1 << 3,
-        CATEGORY_INPUT           = 0b1 << 4,
-        CATEGORY_STATETRANSITION = 0b1 << 5,
-        CATEGORY_MOVEMENT        = 0b1 << 6,
-        CATEGORY_COLLISION       = 0b1 << 7,
-        CATEGORY_EFFECT          = 0b1 << 8,
-        CATEGORY_RENER           = 0b1 << 9,
-        CATEGORY_POSTRENDER      = 0b1 << 10,
+        CATEGORY_INITIALIZE      = 0b1 << 1,
+        CATEGORY_INPUT           = 0b1 << 2,
+        CATEGORY_STATETRANSITION = 0b1 << 3,
+        CATEGORY_MOVEMENT        = 0b1 << 4,
+        CATEGORY_COLLISION       = 0b1 << 5,
+        CATEGORY_EFFECT          = 0b1 << 6,
+        CATEGORY_RENER           = 0b1 << 7,
+        CATEGORY_POSTRENDER      = 0b1 << 8,
         CATEGORY_ALL             = static_cast<int32_t>(CATEGORY_INITIALIZE) | static_cast<int32_t>(CATEGORY_INPUT) | static_cast<int32_t>(CATEGORY_STATETRANSITION) | static_cast<int32_t>(CATEGORY_MOVEMENT) | static_cast<int32_t>(CATEGORY_COLLISION) | static_cast<int32_t>(CATEGORY_EFFECT) | static_cast<int32_t>(CATEGORY_RENER) | static_cast<int32_t>(CATEGORY_POSTRENDER),
-        SEARCH                   = 0b1 << 11, // 検索フィルター
+        SEARCH                   = 0b1 << 9, // 検索フィルター
     };
     class ChangeSystemFilter
         : public IEditCommand {
@@ -116,11 +114,11 @@ public:
     };
 
 protected:
-    void SystemGui(const std::string& _systemName, ISystem* _system); // システムのGUIを描画
+    void SystemGui(int32_t _categoryInt, const std::string& _systemName, int32_t& _priority); // システムのGUIを描画
 
 protected:
     SceneEditorWindow* parentWindow_ = nullptr; // 親ウィンドウへのポインタ
-    std::array<std::vector<std::pair<std::string, ISystem*>>, size_t(SystemCategory::Count)> systemMap_; // システムのマップ
+    std::array<std::vector<std::pair<std::string, int32_t>>, size_t(SystemCategory::Count)> systemMap_; // システムのマップ
 
     const int32_t searchBufferSize_ = 256; // 検索バッファのサイズ
     std::string searchBuffer_; // 検索用のバッファ
@@ -128,6 +126,9 @@ protected:
 public:
     SceneEditorWindow* getParentWindow() const {
         return parentWindow_;
+    }
+    const std::array<std::vector<std::pair<std::string, int32_t>>, size_t(SystemCategory::Count)>& getSystemMap() const {
+        return systemMap_;
     }
 };
 

@@ -79,11 +79,11 @@ public:
     }
 };
 
-class EntityInfomationRegion
+class EntityInformationRegion
     : public Editor::Region {
 public:
-    EntityInfomationRegion(EntityInspectorArea* _parent);
-    ~EntityInfomationRegion() override;
+    EntityInformationRegion(EntityInspectorArea* _parent);
+    ~EntityInformationRegion() override;
 
     void Initialize() override;
     void DrawGui() override;
