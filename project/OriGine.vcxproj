@@ -5,6 +5,10 @@
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Develop|x64">
+      <Configuration>Develop</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|x64">
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
@@ -24,6 +28,12 @@
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Develop|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
@@ -36,6 +46,9 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Develop|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
@@ -43,6 +56,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>..\generated\output\Debug\</OutDir>
     <IntDir>..\generated\obj\Debug\OriGine\</IntDir>
+    <TargetName>OriGine</TargetName>
+    <TargetExt>.lib</TargetExt>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Develop|x64'">
+    <OutDir>..\generated\output\Develop\</OutDir>
+    <IntDir>..\generated\obj\Develop\OriGine\</IntDir>
     <TargetName>OriGine</TargetName>
     <TargetExt>.lib</TargetExt>
   </PropertyGroup>
@@ -61,10 +80,9 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <AdditionalOptions>/WX /utf-8 /MP %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/utf-8 /MP %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
-      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -73,6 +91,32 @@
     <Lib>
       <AdditionalDependencies>assimp-vc143-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>externals\assimp\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
+    <PostBuildEvent>
+      <Command>copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxcompiler.dll" "$(TargetDir)dxcompiler.dll"
+copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dxil.dll"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Develop|x64'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>_WINDOWS;DEVELOP;_DEVELOP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)math;$(SolutionDir)lib;$(SolutionDir)engine\code\ECS;$(SolutionDir)engine\code;$(SolutionDir)engine;$(SolutionDir);$(SolutionDir)externals;$(SolutionDir)externals\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalOptions>/utf-8 /MP %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <ExternalWarningLevel>Level3</ExternalWarningLevel>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Lib>
+      <AdditionalDependencies>assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>externals\assimp\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <PostBuildEvent>
       <Command>copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxcompiler.dll" "$(TargetDir)dxcompiler.dll"
@@ -91,10 +135,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <MinimalRebuild>false</MinimalRebuild>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalOptions>/WX /utf-8 /MP %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/utf-8 /MP %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
-      <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -111,51 +154,78 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="engine\code\component\effect\post\RandomEffectParam.h" />
-    <ClInclude Include="engine\code\system\postRender\DissolveEffect.h" />
-    <ClInclude Include="engine\code\component\effect\post\DissolveEffectParam.h" />
-    <ClInclude Include="engine\code\system\postRender\RandomEffect.h" />
+    <ClInclude Include="editor\EditorController.h" />
+    <ClInclude Include="editor\IEditor.h" />
+    <ClInclude Include="editor\sceneEditor\EntityInspector.h" />
+    <ClInclude Include="editor\sceneEditor\SceneEditor.h" />
+    <ClInclude Include="editor\sceneEditor\SystemInspector.h" />
+    <ClInclude Include="editor\setting\SettingWindow.h" />
     <ClInclude Include="engine\EngineInclude.h" />
-    <ClInclude Include="engine\code\ECS\ECSDebugger.h" />
-    <ClInclude Include="engine\code\ECS\ECSEditor.h" />
-    <ClInclude Include="engine\code\ECS\ECSManager.h" />
     <ClInclude Include="engine\code\ECS\Entity.h" />
+    <ClInclude Include="engine\code\ECS\component\ComponentArray.h" />
+    <ClInclude Include="engine\code\ECS\component\IComponent.h" />
+    <ClInclude Include="engine\code\ECS\component\animation\AnimationData.h" />
+    <ClInclude Include="engine\code\ECS\component\animation\AnimationManager.h" />
+    <ClInclude Include="engine\code\ECS\component\animation\ModelNodeAnimation.h" />
+    <ClInclude Include="engine\code\ECS\component\animation\PrimitiveNodeAnimation.h" />
+    <ClInclude Include="engine\code\ECS\component\animation\SkinningAnimationComponent.h" />
+    <ClInclude Include="engine\code\ECS\component\animation\SpriteAnimation.h" />
+    <ClInclude Include="engine\code\ECS\component\collider\Collider.h" />
+    <ClInclude Include="engine\code\ECS\component\collider\CollisionPushBackInfo.h" />
+    <ClInclude Include="engine\code\ECS\component\effect\CameraAction.h" />
+    <ClInclude Include="engine\code\ECS\component\effect\TextureEffectParam.h" />
+    <ClInclude Include="engine\code\ECS\component\effect\particle\Particle.h" />
+    <ClInclude Include="engine\code\ECS\component\effect\particle\emitter\Emitter.h" />
+    <ClInclude Include="engine\code\ECS\component\effect\particle\emitter\EmitterShape.h" />
+    <ClInclude Include="engine\code\ECS\component\effect\post\DissolveEffectParam.h" />
+    <ClInclude Include="engine\code\ECS\component\effect\post\DistortionEffectParam.h" />
+    <ClInclude Include="engine\code\ECS\component\effect\post\RadialBlurParam.h" />
+    <ClInclude Include="engine\code\ECS\component\effect\post\RandomEffectParam.h" />
+    <ClInclude Include="engine\code\ECS\component\effect\post\VignetteParam.h" />
+    <ClInclude Include="engine\code\ECS\component\material\Material.h" />
+    <ClInclude Include="engine\code\ECS\component\material\light\DirectionalLight.h" />
+    <ClInclude Include="engine\code\ECS\component\material\light\LightManager.h" />
+    <ClInclude Include="engine\code\ECS\component\material\light\PointLight.h" />
+    <ClInclude Include="engine\code\ECS\component\material\light\SpotLight.h" />
+    <ClInclude Include="engine\code\ECS\component\physics\Rigidbody.h" />
+    <ClInclude Include="engine\code\ECS\component\renderer\MeshRenderer.h" />
+    <ClInclude Include="engine\code\ECS\component\renderer\SkyBoxRenderer.h" />
+    <ClInclude Include="engine\code\ECS\component\renderer\Sprite.h" />
+    <ClInclude Include="engine\code\ECS\component\renderer\primitive\Primitive.h" />
+    <ClInclude Include="engine\code\ECS\component\transform\CameraTransform.h" />
+    <ClInclude Include="engine\code\ECS\component\transform\ParticleTransform.h" />
+    <ClInclude Include="engine\code\ECS\component\transform\Transform.h" />
+    <ClInclude Include="engine\code\ECS\system\ISystem.h" />
+    <ClInclude Include="engine\code\ECS\system\collision\CollisionCheckSystem.h" />
+    <ClInclude Include="engine\code\ECS\system\collision\CollisionPushBackSystem.h" />
+    <ClInclude Include="engine\code\ECS\system\effect\CameraActionSystem.h" />
+    <ClInclude Include="engine\code\ECS\system\effect\EmitterWorkSystem.h" />
+    <ClInclude Include="engine\code\ECS\system\effect\PrimitiveNodeAnimationWorkSystem.h" />
+    <ClInclude Include="engine\code\ECS\system\effect\SkinningAnimationSystem.h" />
+    <ClInclude Include="engine\code\ECS\system\effect\SpriteAnimationSystem.h" />
+    <ClInclude Include="engine\code\ECS\system\effect\TextureEffectAnimation.h" />
+    <ClInclude Include="engine\code\ECS\system\movement\MoveSystemByRigidBody.h" />
+    <ClInclude Include="engine\code\ECS\system\postRender\DissolveEffect.h" />
+    <ClInclude Include="engine\code\ECS\system\postRender\DistortionEffect.h" />
+    <ClInclude Include="engine\code\ECS\system\postRender\GrayscaleEffect.h" />
+    <ClInclude Include="engine\code\ECS\system\postRender\RadialBlurEffect.h" />
+    <ClInclude Include="engine\code\ECS\system\postRender\RandomEffect.h" />
+    <ClInclude Include="engine\code\ECS\system\postRender\SmoothingEffect.h" />
+    <ClInclude Include="engine\code\ECS\system\postRender\VignetteEffect.h" />
+    <ClInclude Include="engine\code\ECS\system\render\BackGroundSpriteRenderSystem.h" />
+    <ClInclude Include="engine\code\ECS\system\render\ColliderRenderingSystem.h" />
+    <ClInclude Include="engine\code\ECS\system\render\EffectTexturedMeshRenderSystem.h" />
+    <ClInclude Include="engine\code\ECS\system\render\LineRenderSystem.h" />
+    <ClInclude Include="engine\code\ECS\system\render\ParticleRenderSystem.h" />
+    <ClInclude Include="engine\code\ECS\system\render\SkeletonRenderSystem.h" />
+    <ClInclude Include="engine\code\ECS\system\render\SkinningMeshRenderSystem.h" />
+    <ClInclude Include="engine\code\ECS\system\render\SkyboxRender.h" />
+    <ClInclude Include="engine\code\ECS\system\render\SpriteRenderSystem.h" />
+    <ClInclude Include="engine\code\ECS\system\render\TexturedMeshRenderSystem.h" />
     <ClInclude Include="engine\code\Engine.h" />
-    <ClInclude Include="engine\code\assets\IAsset.h" />
     <ClInclude Include="engine\code\audio\Audio.h" />
     <ClInclude Include="engine\code\camera\CameraManager.h" />
     <ClInclude Include="engine\code\camera\debugCamera\DebugCamera.h" />
-    <ClInclude Include="engine\code\camera\gameCamera\GameCamera.h" />
-    <ClInclude Include="engine\code\component\ComponentArray.h" />
-    <ClInclude Include="engine\code\component\IComponent.h" />
-    <ClInclude Include="engine\code\component\animation\AnimationData.h" />
-    <ClInclude Include="engine\code\component\animation\AnimationManager.h" />
-    <ClInclude Include="engine\code\component\animation\ModelNodeAnimation.h" />
-    <ClInclude Include="engine\code\component\animation\PrimitiveNodeAnimation.h" />
-    <ClInclude Include="engine\code\component\animation\SpriteAnimation.h" />
-    <ClInclude Include="engine\code\component\collider\Collider.h" />
-    <ClInclude Include="engine\code\component\collider\CollisionPushBackInfo.h" />
-    <ClInclude Include="engine\code\component\effect\CameraAction.h" />
-    <ClInclude Include="engine\code\component\effect\TextureEffectParam.h" />
-    <ClInclude Include="engine\code\component\effect\particle\Particle.h" />
-    <ClInclude Include="engine\code\component\effect\particle\emitter\Emitter.h" />
-    <ClInclude Include="engine\code\component\effect\particle\emitter\EmitterShape.h" />
-    <ClInclude Include="engine\code\component\effect\post\DistortionEffectParam.h" />
-    <ClInclude Include="engine\code\component\effect\post\RadialBlurParam.h" />
-    <ClInclude Include="engine\code\component\effect\post\VignetteParam.h" />
-    <ClInclude Include="engine\code\component\material\Material.h" />
-    <ClInclude Include="engine\code\component\material\light\DirectionalLight.h" />
-    <ClInclude Include="engine\code\component\material\light\LightManager.h" />
-    <ClInclude Include="engine\code\component\material\light\PointLight.h" />
-    <ClInclude Include="engine\code\component\material\light\SpotLight.h" />
-    <ClInclude Include="engine\code\component\physics\Rigidbody.h" />
-    <ClInclude Include="engine\code\component\renderer\MeshRenderer.h" />
-    <ClInclude Include="engine\code\component\renderer\SkyBoxRenderer.h" />
-    <ClInclude Include="engine\code\component\renderer\Sprite.h" />
-    <ClInclude Include="engine\code\component\renderer\primitive\Primitive.h" />
-    <ClInclude Include="engine\code\component\transform\CameraTransform.h" />
-    <ClInclude Include="engine\code\component\transform\ParticleTransform.h" />
-    <ClInclude Include="engine\code\component\transform\Transform.h" />
     <ClInclude Include="engine\code\directX12\DxCommand.h" />
     <ClInclude Include="engine\code\directX12\DxDebug.h" />
     <ClInclude Include="engine\code\directX12\DxDescriptor.h" />
@@ -172,38 +242,14 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\directX12\ResourceStateTracker.h" />
     <ClInclude Include="engine\code\directX12\ShaderCompiler.h" />
     <ClInclude Include="engine\code\directX12\ShaderManager.h" />
-    <ClInclude Include="engine\code\iScene\IScene.h" />
     <ClInclude Include="engine\code\input\Input.h" />
     <ClInclude Include="engine\code\model\Model.h" />
     <ClInclude Include="engine\code\model\ModelManager.h" />
     <ClInclude Include="engine\code\module\IModule.h" />
     <ClInclude Include="engine\code\module\debugger\DebuggerGroup.h" />
     <ClInclude Include="engine\code\module\debugger\IDebugger.h" />
-    <ClInclude Include="engine\code\module\editor\EditorController.h" />
-    <ClInclude Include="engine\code\module\editor\IEditor.h" />
-    <ClInclude Include="engine\code\sceneManager\SceneManager.h" />
-    <ClInclude Include="engine\code\system\ISystem.h" />
-    <ClInclude Include="engine\code\system\collision\CollisionCheckSystem.h" />
-    <ClInclude Include="engine\code\system\collision\CollisionPushBackSystem.h" />
-    <ClInclude Include="engine\code\system\effect\CameraActionSystem.h" />
-    <ClInclude Include="engine\code\system\effect\EmitterWorkSystem.h" />
-    <ClInclude Include="engine\code\system\effect\PrimitiveNodeAnimationWorkSystem.h" />
-    <ClInclude Include="engine\code\system\effect\SpriteAnimationSystem.h" />
-    <ClInclude Include="engine\code\system\effect\TextureEffectAnimation.h" />
-    <ClInclude Include="engine\code\system\movement\MoveSystemByRigidBody.h" />
-    <ClInclude Include="engine\code\system\postRender\DistortionEffect.h" />
-    <ClInclude Include="engine\code\system\postRender\GrayscaleEffect.h" />
-    <ClInclude Include="engine\code\system\postRender\RadialBlurEffect.h" />
-    <ClInclude Include="engine\code\system\postRender\SmoothingEffect.h" />
-    <ClInclude Include="engine\code\system\postRender\VignetteEffect.h" />
-    <ClInclude Include="engine\code\system\render\BackGroundSpriteRenderSystem.h" />
-    <ClInclude Include="engine\code\system\render\ColliderRenderingSystem.h" />
-    <ClInclude Include="engine\code\system\render\EffectTexturedMeshRenderSystem.h" />
-    <ClInclude Include="engine\code\system\render\LineRenderSystem.h" />
-    <ClInclude Include="engine\code\system\render\ParticleRenderSystem.h" />
-    <ClInclude Include="engine\code\system\render\SkyboxRender.h" />
-    <ClInclude Include="engine\code\system\render\SpriteRenderSystem.h" />
-    <ClInclude Include="engine\code\system\render\TexturedMeshRenderSystem.h" />
+    <ClInclude Include="engine\code\scene\Scene.h" />
+    <ClInclude Include="engine\code\scene\SceneManager.h" />
     <ClInclude Include="engine\code\texture\TextureManager.h" />
     <ClInclude Include="lib\Thread\Thread.h" />
     <ClInclude Include="lib\binaryIO\BinaryIO.h" />
@@ -229,59 +275,85 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="math\Vector3.h" />
     <ClInclude Include="math\Vector4.h" />
     <ClInclude Include="math\shape\Shapes.h" />
-    <ClInclude Include="engine\code\system\render\SkeletonRenderSystem.h" />
-    <ClInclude Include="engine\code\component\animation\SkinningAnimationComponent.h" />
-    <ClInclude Include="engine\code\system\effect\SkinningAnimationSystem.h" />
-    <ClInclude Include="engine\code\system\render\SkinningMeshRenderSystem.h" />
     <ClInclude Include="util\BitArray.h" />
     <ClInclude Include="util\ConvertString.h" />
+    <ClInclude Include="util\DiffValue.h" />
     <ClInclude Include="util\EnumBitMask.h" />
     <ClInclude Include="util\NormalizeString.h" />
     <ClInclude Include="util\nameof.h" />
     <ClInclude Include="util\timeline\Timeline.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="engine\code\component\effect\post\RandomEffectParam.cpp" />
-    <ClCompile Include="engine\code\system\postRender\DissolveEffect.cpp" />
-    <ClCompile Include="engine\code\component\effect\post\DissolveEffectParam.cpp" />
-    <ClCompile Include="engine\code\ECS\ECSDebugger.cpp" />
-    <ClCompile Include="engine\code\ECS\ECSEditor.cpp" />
-    <ClCompile Include="engine\code\ECS\ECSManager.cpp" />
+    <ClCompile Include="editor\EditorController.cpp" />
+    <ClCompile Include="editor\IEditor.cpp" />
+    <ClCompile Include="editor\sceneEditor\EntityInspector.cpp" />
+    <ClCompile Include="editor\sceneEditor\SceneEditor.cpp" />
+    <ClCompile Include="editor\sceneEditor\SystemInspector.cpp" />
+    <ClCompile Include="editor\setting\SettingWindow.cpp" />
+    <ClCompile Include="engine\code\ECS\Entity.cpp" />
+    <ClCompile Include="engine\code\ECS\component\IComponent.cpp" />
+    <ClCompile Include="engine\code\ECS\component\animation\AnimationData.cpp" />
+    <ClCompile Include="engine\code\ECS\component\animation\AnimationManager.cpp" />
+    <ClCompile Include="engine\code\ECS\component\animation\ModelNodeAnimation.cpp" />
+    <ClCompile Include="engine\code\ECS\component\animation\PrimitiveNodeAnimation.cpp" />
+    <ClCompile Include="engine\code\ECS\component\animation\SkinningAnimationComponent.cpp" />
+    <ClCompile Include="engine\code\ECS\component\animation\SpriteAnimation.cpp" />
+    <ClCompile Include="engine\code\ECS\component\collider\Collider.cpp" />
+    <ClCompile Include="engine\code\ECS\component\collider\CollisionPushBackInfo.cpp" />
+    <ClCompile Include="engine\code\ECS\component\effect\CameraAction.cpp" />
+    <ClCompile Include="engine\code\ECS\component\effect\TextureEffectParam.cpp" />
+    <ClCompile Include="engine\code\ECS\component\effect\particle\Particle.cpp" />
+    <ClCompile Include="engine\code\ECS\component\effect\particle\emitter\Emitter.cpp" />
+    <ClCompile Include="engine\code\ECS\component\effect\particle\emitter\EmitterShape.cpp" />
+    <ClCompile Include="engine\code\ECS\component\effect\post\DissolveEffectParam.cpp" />
+    <ClCompile Include="engine\code\ECS\component\effect\post\DistortionEffectParam.cpp" />
+    <ClCompile Include="engine\code\ECS\component\effect\post\RadialBlurParam.cpp" />
+    <ClCompile Include="engine\code\ECS\component\effect\post\RandomEffectParam.cpp" />
+    <ClCompile Include="engine\code\ECS\component\effect\post\VignetteParam.cpp" />
+    <ClCompile Include="engine\code\ECS\component\material\Material.cpp" />
+    <ClCompile Include="engine\code\ECS\component\material\light\DirectionalLight.cpp" />
+    <ClCompile Include="engine\code\ECS\component\material\light\LightManager.cpp" />
+    <ClCompile Include="engine\code\ECS\component\material\light\PointLight.cpp" />
+    <ClCompile Include="engine\code\ECS\component\material\light\SpotLight.cpp" />
+    <ClCompile Include="engine\code\ECS\component\physics\Rigidbody.cpp" />
+    <ClCompile Include="engine\code\ECS\component\renderer\MeshRenderer.cpp" />
+    <ClCompile Include="engine\code\ECS\component\renderer\SkyBoxRenderer.cpp" />
+    <ClCompile Include="engine\code\ECS\component\renderer\Sprite.cpp" />
+    <ClCompile Include="engine\code\ECS\component\renderer\primitive\Primitive.cpp" />
+    <ClCompile Include="engine\code\ECS\component\transform\CameraTransform.cpp" />
+    <ClCompile Include="engine\code\ECS\component\transform\ParticleTransform.cpp" />
+    <ClCompile Include="engine\code\ECS\component\transform\Transform.cpp" />
+    <ClCompile Include="engine\code\ECS\system\ISystem.cpp" />
+    <ClCompile Include="engine\code\ECS\system\collision\CollisionCheckSystem.cpp" />
+    <ClCompile Include="engine\code\ECS\system\collision\CollisionPushBackSystem.cpp" />
+    <ClCompile Include="engine\code\ECS\system\effect\CameraActionSystem.cpp" />
+    <ClCompile Include="engine\code\ECS\system\effect\EmitterWorkSystem.cpp" />
+    <ClCompile Include="engine\code\ECS\system\effect\PrimitiveNodeAnimationWorkSystem.cpp" />
+    <ClCompile Include="engine\code\ECS\system\effect\SkinningAnimationSystem.cpp" />
+    <ClCompile Include="engine\code\ECS\system\effect\SpriteAnimationSystem.cpp" />
+    <ClCompile Include="engine\code\ECS\system\effect\TextureEffectAnimation.cpp" />
+    <ClCompile Include="engine\code\ECS\system\movement\MoveSystemByRigidBody.cpp" />
+    <ClCompile Include="engine\code\ECS\system\postRender\DissolveEffect.cpp" />
+    <ClCompile Include="engine\code\ECS\system\postRender\DistortionEffect.cpp" />
+    <ClCompile Include="engine\code\ECS\system\postRender\GrayscaleEffect.cpp" />
+    <ClCompile Include="engine\code\ECS\system\postRender\RadialBlurEffect.cpp" />
+    <ClCompile Include="engine\code\ECS\system\postRender\RandomEffect.cpp" />
+    <ClCompile Include="engine\code\ECS\system\postRender\SmoothingEffect.cpp" />
+    <ClCompile Include="engine\code\ECS\system\postRender\VignetteEffect.cpp" />
+    <ClCompile Include="engine\code\ECS\system\render\BackGroundSpriteRenderSystem.cpp" />
+    <ClCompile Include="engine\code\ECS\system\render\ColliderRenderingSystem.cpp" />
+    <ClCompile Include="engine\code\ECS\system\render\EffectTexturedMeshRenderSystem.cpp" />
+    <ClCompile Include="engine\code\ECS\system\render\LineRenderSystem.cpp" />
+    <ClCompile Include="engine\code\ECS\system\render\ParticleRenderSystem.cpp" />
+    <ClCompile Include="engine\code\ECS\system\render\SkeletonRenderSystem.cpp" />
+    <ClCompile Include="engine\code\ECS\system\render\SkinningMeshRenderSystem.cpp" />
+    <ClCompile Include="engine\code\ECS\system\render\SkyboxRender.cpp" />
+    <ClCompile Include="engine\code\ECS\system\render\SpriteRenderSystem.cpp" />
+    <ClCompile Include="engine\code\ECS\system\render\TexturedMeshRenderSystem.cpp" />
     <ClCompile Include="engine\code\Engine.cpp" />
-    <ClCompile Include="engine\code\assets\IAsset.cpp" />
     <ClCompile Include="engine\code\audio\Audio.cpp" />
     <ClCompile Include="engine\code\camera\CameraManager.cpp" />
     <ClCompile Include="engine\code\camera\debugCamera\DebugCamera.cpp" />
-    <ClCompile Include="engine\code\camera\gameCamera\GameCamera.cpp" />
-    <ClCompile Include="engine\code\component\IComponent.cpp" />
-    <ClCompile Include="engine\code\component\animation\AnimationData.cpp" />
-    <ClCompile Include="engine\code\component\animation\AnimationManager.cpp" />
-    <ClCompile Include="engine\code\component\animation\ModelNodeAnimation.cpp" />
-    <ClCompile Include="engine\code\component\animation\PrimitiveNodeAnimation.cpp" />
-    <ClCompile Include="engine\code\component\animation\SpriteAnimation.cpp" />
-    <ClCompile Include="engine\code\component\collider\Collider.cpp" />
-    <ClCompile Include="engine\code\component\collider\CollisionPushBackInfo.cpp" />
-    <ClCompile Include="engine\code\component\effect\CameraAction.cpp" />
-    <ClCompile Include="engine\code\component\effect\TextureEffectParam.cpp" />
-    <ClCompile Include="engine\code\component\effect\particle\Particle.cpp" />
-    <ClCompile Include="engine\code\component\effect\particle\emitter\Emitter.cpp" />
-    <ClCompile Include="engine\code\component\effect\particle\emitter\EmitterShape.cpp" />
-    <ClCompile Include="engine\code\component\effect\post\DistortionEffectParam.cpp" />
-    <ClCompile Include="engine\code\component\effect\post\RadialBlurParam.cpp" />
-    <ClCompile Include="engine\code\component\effect\post\VignetteParam.cpp" />
-    <ClCompile Include="engine\code\component\material\Material.cpp" />
-    <ClCompile Include="engine\code\component\material\light\DirectionalLight.cpp" />
-    <ClCompile Include="engine\code\component\material\light\LightManager.cpp" />
-    <ClCompile Include="engine\code\component\material\light\PointLight.cpp" />
-    <ClCompile Include="engine\code\component\material\light\SpotLight.cpp" />
-    <ClCompile Include="engine\code\component\physics\Rigidbody.cpp" />
-    <ClCompile Include="engine\code\component\renderer\MeshRenderer.cpp" />
-    <ClCompile Include="engine\code\component\renderer\SkyBoxRenderer.cpp" />
-    <ClCompile Include="engine\code\component\renderer\Sprite.cpp" />
-    <ClCompile Include="engine\code\component\renderer\primitive\Primitive.cpp" />
-    <ClCompile Include="engine\code\component\transform\CameraTransform.cpp" />
-    <ClCompile Include="engine\code\component\transform\ParticleTransform.cpp" />
-    <ClCompile Include="engine\code\component\transform\Transform.cpp" />
     <ClCompile Include="engine\code\directX12\DxCommand.cpp" />
     <ClCompile Include="engine\code\directX12\DxDebug.cpp" />
     <ClCompile Include="engine\code\directX12\DxDescriptor.cpp" />
@@ -296,36 +368,12 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\directX12\ResourceStateTracker.cpp" />
     <ClCompile Include="engine\code\directX12\ShaderCompiler.cpp" />
     <ClCompile Include="engine\code\directX12\ShaderManager.cpp" />
-    <ClCompile Include="engine\code\iScene\IScene.cpp" />
     <ClCompile Include="engine\code\input\Input.cpp" />
     <ClCompile Include="engine\code\model\Model.cpp" />
     <ClCompile Include="engine\code\model\ModelManager.cpp" />
     <ClCompile Include="engine\code\module\debugger\DebuggerGroup.cpp" />
-    <ClCompile Include="engine\code\module\editor\EditorController.cpp" />
-    <ClCompile Include="engine\code\sceneManager\SceneManager.cpp" />
-    <ClCompile Include="engine\code\system\ISystem.cpp" />
-    <ClCompile Include="engine\code\system\collision\CollisionCheckSystem.cpp" />
-    <ClCompile Include="engine\code\system\collision\CollisionPushBackSystem.cpp" />
-    <ClCompile Include="engine\code\system\effect\CameraActionSystem.cpp" />
-    <ClCompile Include="engine\code\system\effect\EmitterWorkSystem.cpp" />
-    <ClCompile Include="engine\code\system\effect\PrimitiveNodeAnimationWorkSystem.cpp" />
-    <ClCompile Include="engine\code\system\effect\SpriteAnimationSystem.cpp" />
-    <ClCompile Include="engine\code\system\effect\TextureEffectAnimation.cpp" />
-    <ClCompile Include="engine\code\system\movement\MoveSystemByRigidBody.cpp" />
-    <ClCompile Include="engine\code\system\postRender\DistortionEffect.cpp" />
-    <ClCompile Include="engine\code\system\postRender\GrayscaleEffect.cpp" />
-    <ClCompile Include="engine\code\system\postRender\RadialBlurEffect.cpp" />
-    <ClCompile Include="engine\code\system\postRender\SmoothingEffect.cpp" />
-    <ClCompile Include="engine\code\system\postRender\VignetteEffect.cpp" />
-    <ClCompile Include="engine\code\system\render\BackGroundSpriteRenderSystem.cpp" />
-    <ClCompile Include="engine\code\system\render\ColliderRenderingSystem.cpp" />
-    <ClCompile Include="engine\code\system\render\EffectTexturedMeshRenderSystem.cpp" />
-    <ClCompile Include="engine\code\system\render\LineRenderSystem.cpp" />
-    <ClCompile Include="engine\code\system\render\ParticleRenderSystem.cpp" />
-    <ClCompile Include="engine\code\system\render\SkyboxRender.cpp" />
-    <ClCompile Include="engine\code\system\render\SpriteRenderSystem.cpp" />
-    <ClCompile Include="engine\code\system\render\TexturedMeshRenderSystem.cpp" />
-    <ClCompile Include="engine\code\system\postRender\RandomEffect.cpp" />
+    <ClCompile Include="engine\code\scene\Scene.cpp" />
+    <ClCompile Include="engine\code\scene\SceneManager.cpp" />
     <ClCompile Include="engine\code\texture\TextureManager.cpp" />
     <ClCompile Include="lib\Thread\Thread.cpp" />
     <ClCompile Include="lib\binaryIO\BinaryIO.cpp" />
@@ -340,10 +388,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="math\Matrix4x4.cpp" />
     <ClCompile Include="math\MyEasing.cpp" />
     <ClCompile Include="math\Quaternion.cpp" />
-    <ClCompile Include="engine\code\system\render\SkeletonRenderSystem.cpp" />
-    <ClCompile Include="engine\code\component\animation\SkinningAnimationComponent.cpp" />
-    <ClCompile Include="engine\code\system\effect\SkinningAnimationSystem.cpp" />
-    <ClCompile Include="engine\code\system\render\SkinningMeshRenderSystem.cpp" />
     <ClCompile Include="math\Sequence.cpp" />
     <ClCompile Include="util\ConvertString.cpp" />
     <ClCompile Include="util\NormalizeString.cpp" />

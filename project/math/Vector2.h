@@ -4,6 +4,8 @@
 
 #include <cmath>
 
+#include <imgui/imgui.h>
+
 //=====================================
 // x&yをもつ単位
 //=====================================
@@ -66,6 +68,20 @@ struct Vector2 final
         Vector2 result = _v;
         return (result / length);
     }
+
+#ifdef _DEBUG
+    Vector2& operator=(const ImVec2& another) {
+        this->v[X] = another.x;
+        this->v[Y] = another.y;
+        return *this;
+    }
+    ImVec2 toImVec2() const {
+        ImVec2 result;
+        result.x = this->v[X];
+        result.y = this->v[Y];
+        return result;
+    }
+#endif // DEBUG
 };
 
 template <typename valueType>

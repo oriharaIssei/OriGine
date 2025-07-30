@@ -4,7 +4,7 @@ os.chdir(_SCRIPT_DIR .. "/..")
 workspace "OriGine"
 
     architecture "x86_64"
-    configurations { "Debug", "Release" }
+    configurations { "Debug", "Develop", "Release" }
 
     startproject "OriGine"
 
@@ -44,7 +44,7 @@ project "OriGine"
     }
 
     warnings "Extra"
-    buildoptions { "/WX", "/utf-8", "/MP" }
+    buildoptions { "/utf-8", "/MP" }
 
     filter "configurations:Debug"
         defines { "DEBUG", "_DEBUG" }
@@ -53,7 +53,13 @@ project "OriGine"
         libdirs { "externals/assimp/lib/Debug" }
         links { "assimp-vc143-mtd" }
         staticruntime "On"
-
+    filter "configurations:Develop"
+        defines { "DEVELOP", "_DEVELOP" }
+        symbols "On"
+        runtime "Release" -- 開発用のリリースビルド
+        libdirs { "externals/assimp/lib/Release" }
+        links { "assimp-vc143-mt" }
+        staticruntime "On"
     filter "configurations:Release"
         defines { "NDEBUG" }
         optimize "Full"
@@ -73,12 +79,14 @@ project "OriGine"
 project "DirectXTex"
     kind "StaticLib"
     language "C++"
+
     location "externals/DirectXTex/"
     targetdir "../generated/output/%{cfg.buildcfg}/"
     objdir "../generated/obj/%{cfg.buildcfg}/DirectXTex/"
     targetname "DirectXTex"
     files { "externals/DirectXTex/**.h", "externals/DirectXTex/**.cpp" }
     includedirs { "$(ProjectDir)","$(ProjectDir)Shaders/Compiled" }
+
     filter "system:windows"
         cppdialect "C++20"
         systemversion "latest"
@@ -86,6 +94,10 @@ project "DirectXTex"
          runtime "Debug"       -- Debug ランタイム (MTd) を使用
          symbols "On"
          staticruntime "On"
+     filter "configurations:Develop"
+        runtime "Release" -- 開発用のリリースビルド
+        symbols "On"
+        staticruntime "On"
     filter "configurations:Release"
          runtime "Release"     -- Release ランタイム (MT) を使用
          optimize "Full"
@@ -108,10 +120,10 @@ project "imgui"
     filter "system:windows"
         cppdialect "C++20"
         systemversion "latest"
-
     filter "configurations:Debug"
         staticruntime "On"
-
+    filter "configurations:Develop"
+        staticruntime "On"
     filter "configurations:Release"
         staticruntime "On"
 
@@ -144,7 +156,7 @@ project "OriGineApp"
         "imgui"
     }
     warnings "Extra"
-    buildoptions { "/WX", "/utf-8","/bigobj", "/MP" }
+    buildoptions { "/utf-8","/bigobj", "/MP" }
 
     filter "configurations:Debug"
         defines { "DEBUG", "_DEBUG" }
@@ -152,6 +164,14 @@ project "OriGineApp"
         runtime "Debug"
         libdirs { "externals/assimp/lib/Debug" }
         links { "assimp-vc143-mtd" }
+        staticruntime "On"
+
+    filter "configurations:Develop"
+        defines { "DEVELOP", "_DEVELOP" }
+        symbols "On"
+        runtime "Release" -- 開発用のリリースビルド
+        libdirs { "externals/assimp/lib/Release" }
+        links { "assimp-vc143-mt" }
         staticruntime "On"
 
     filter "configurations:Release"

@@ -88,6 +88,10 @@ void RenderTexture::Initialize(int32_t _bufferCount, const Vec2f& textureSize, D
 
     textureSize_ = textureSize;
     clearColor_  = _clearColor;
+
+    dxCommand_ = std::make_unique<DxCommand>();
+    dxCommand_->Initialize("main", "main");
+
     ///===========================================================================
     /// RenderTexture Resource の作成
     ///===========================================================================
@@ -196,6 +200,8 @@ void RenderTexture::Finalize() {
         Engine::getInstance()->getRtvHeap()->ReleaseDescriptor(renderTarget.rtv_);
         Engine::getInstance()->getSrvHeap()->ReleaseDescriptor(renderTarget.srv_);
     }
+
+    dxCommand_->Finalize();
 }
 
 void RenderTexture::PreDraw(DxDsvDescriptor* _dsv) {
@@ -319,6 +325,13 @@ void RenderTexture::DrawTexture() {
         getBackBufferSrvHandle());
 
     commandList->DrawInstanced(6, 1, 0, 0);
+}
+
+void RenderTexture::setDxCommand(std::unique_ptr<DxCommand>&& _dxCommand) {
+    dxCommand_->Finalize();
+    dxCommand_.reset();
+
+    dxCommand_ = std::move(_dxCommand);
 }
 
 void RenderTexture::setTextureName(const std::string& _name) {

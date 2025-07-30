@@ -40,6 +40,14 @@ public:
     constexpr bool operator<=(EnumBitmask rhs) const noexcept { return value_ <= rhs.value_; }
     constexpr bool operator>(EnumBitmask rhs) const noexcept { return value_ > rhs.value_; }
     constexpr bool operator>=(EnumBitmask rhs) const noexcept { return value_ >= rhs.value_; }
+
+    constexpr bool operator==(UnderlyingType rhs) const noexcept { return value_ == rhs; }
+    constexpr bool operator!=(UnderlyingType rhs) const noexcept { return value_ != rhs; }
+    constexpr bool operator<(UnderlyingType rhs) const noexcept { return value_ < rhs; }
+    constexpr bool operator<=(UnderlyingType rhs) const noexcept { return value_ <= rhs; }
+    constexpr bool operator>(UnderlyingType rhs) const noexcept { return value_ > rhs; }
+    constexpr bool operator>=(UnderlyingType rhs) const noexcept { return value_ >= rhs; }
+
     constexpr EnumBitmask& operator=(EnumType e) noexcept {
         value_ = static_cast<UnderlyingType>(e);
         return *this;
@@ -59,7 +67,6 @@ public:
 
     // Enum値取得
     constexpr EnumType toEnum() const noexcept { return static_cast<E>(value_); }
-
 
 protected:
     UnderlyingType value_;

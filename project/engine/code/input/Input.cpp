@@ -86,6 +86,7 @@ void Input::Update() {
 
 void Input::FixMousePos(const Vec2f& _fixedPos) {
     isMousePosFixed_ = true;
+    
     RECT rect;
     rect.left   = static_cast<LONG>(_fixedPos[X]);
     rect.top    = static_cast<LONG>(_fixedPos[Y]);

@@ -1,5 +1,15 @@
 #include "winApp/WinApp.h"
 
+/// stl
+#include <filesystem>
+#include <iostream>
+#include <sstream>
+
+#include <vector>
+
+/// lib
+#include "logger/Logger.h"
+
 #ifdef _DEBUG
 #include "imgui/imgui.h"
 #include <imgui/imgui_impl_dx12.h>
@@ -201,4 +211,106 @@ bool WinApp::ProcessMessage() {
 
 void WinApp::UpdateActivity() {
     isActive_ = GetForegroundWindow() == hwnd_;
+}
+
+bool RunProcessAndWait(const std::string& command, const char* _currentDirectory) {
+    std::string currentDirStr;
+    if (!_currentDirectory) {
+        std::filesystem::path current = std::filesystem::current_path();
+        currentDirStr                 = current.string();
+        _currentDirectory             = currentDirStr.c_str();
+    }
+
+    // パイプ作成（標準出力・標準エラー用）
+    SECURITY_ATTRIBUTES saAttr  = {};
+    saAttr.nLength              = sizeof(SECURITY_ATTRIBUTES);
+    saAttr.bInheritHandle       = TRUE;
+    saAttr.lpSecurityDescriptor = nullptr;
+
+    HANDLE hRead = nullptr, hWrite = nullptr;
+    if (!CreatePipe(&hRead, &hWrite, &saAttr, 0)) {
+        fprintf(stderr, "Failed to create pipe\n");
+        return false;
+    }
+    // 親プロセスで読み取り側は継承しない
+    SetHandleInformation(hRead, HANDLE_FLAG_INHERIT, 0);
+
+    STARTUPINFOA si = {sizeof(si)};
+    si.dwFlags      = STARTF_USESTDHANDLES;
+    si.hStdOutput   = hWrite;
+    si.hStdError    = hWrite;
+    si.hStdInput    = GetStdHandle(STD_INPUT_HANDLE);
+
+    PROCESS_INFORMATION pi;
+
+    std::vector<char> cmdLine(command.size() + 1);
+    strcpy_s(cmdLine.data(), cmdLine.size(), command.c_str());
+
+    if (!CreateProcessA(
+            nullptr,
+            cmdLine.data(),
+            nullptr,
+            nullptr,
+            TRUE, // パイプを継承するためTRUE
+            0,
+            nullptr,
+            _currentDirectory,
+            &si,
+            &pi)) {
+        DWORD error = GetLastError();
+        char msgBuf[256];
+        FormatMessageA(
+            FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+            nullptr,
+            error,
+            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+            msgBuf,
+            sizeof(msgBuf),
+            nullptr);
+        fprintf(stderr, "CreateProcess failed with error code %lu: %s\n", error, msgBuf);
+        LOG_ERROR("CreateProcess failed with error code {}: {}", error, msgBuf);
+        CloseHandle(hRead);
+        CloseHandle(hWrite);
+        return false;
+    }
+
+    // 子プロセスでのみ使うので親で書き込み側を閉じる
+    CloseHandle(hWrite);
+
+    // 出力を読み取る
+    std::ostringstream oss;
+    char buffer[4096];
+    DWORD bytesRead = 0;
+    BOOL success    = FALSE;
+    while (true) {
+        success = ReadFile(hRead, buffer, sizeof(buffer) - 1, &bytesRead, nullptr);
+        if (!success || bytesRead == 0)
+            break;
+        buffer[bytesRead] = '\0';
+        oss << buffer;
+    }
+    CloseHandle(hRead);
+
+    // プロセスの終了を待機
+    WaitForSingleObject(pi.hProcess, INFINITE);
+
+    // プロセスの終了コードを取得
+    DWORD exitCode = 0;
+    GetExitCodeProcess(pi.hProcess, &exitCode);
+
+    if (exitCode != 0) {
+        fprintf(stderr, "Process exited with code %lu\n", exitCode);
+        LOG_ERROR("Process exited with code {}", exitCode);
+
+        std::string output = oss.str();
+        if (!output.empty()) {
+            fprintf(stderr, "Process output:\n%s\n", output.c_str());
+            LOG_ERROR("Process output:\n{}", output);
+        }
+    }
+
+    CloseHandle(pi.hProcess);
+    CloseHandle(pi.hThread);
+
+    return exitCode == 0;
 }

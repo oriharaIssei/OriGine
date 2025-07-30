@@ -196,6 +196,20 @@ void DxCommand::ClearTarget(DxRtvDescriptor* _rtv, DxDsvDescriptor* _dsv, const 
 }
 
 void DxCommand::Finalize() {
+    if (!commandList_) {
+        LOG_ERROR("DxCommand::Finalize: CommandList is not initialized.");
+        return;
+    }
+    if (!commandAllocator_) {
+        LOG_ERROR("DxCommand::Finalize: CommandAllocator is not initialized.");
+        return;
+    }
+    if (!commandQueue_) {
+        LOG_ERROR("DxCommand::Finalize: CommandQueue is not initialized.");
+        return;
+    }
+
+
     LOG_DEBUG(
         "Finalize DxCommand \n CommandList Key : {} \n CommandQueue Key :{}",commandListComboKey_, commandQueueKey_);
 
