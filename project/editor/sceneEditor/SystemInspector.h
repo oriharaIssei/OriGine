@@ -114,7 +114,7 @@ public:
     };
 
 protected:
-    void SystemGui(int32_t _categoryInt, const std::string& _systemName, int32_t& _priority); // システムのGUIを描画
+    void SystemGui(const std::string& _systemName, int32_t& _priority); // システムのGUIを描画
 
 protected:
     SceneEditorWindow* parentWindow_ = nullptr; // 親ウィンドウへのポインタ

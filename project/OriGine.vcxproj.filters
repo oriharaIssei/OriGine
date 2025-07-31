@@ -540,6 +540,9 @@
     <ClInclude Include="util\timeline\Timeline.h">
       <Filter>util\timeline</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\effect\particle\gpuParticle\GpuParticle.h" />
+    <ClInclude Include="engine\code\ECS\system\Initialize\GpuParticleInitialize.h" />
+    <ClInclude Include="engine\code\ECS\system\render\GpuParticleRenderSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="editor\EditorController.cpp">
@@ -866,5 +869,8 @@
     <ClCompile Include="util\timeline\Timeline.cpp">
       <Filter>util\timeline</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\ECS\component\effect\particle\gpuParticle\GpuParticle.cpp" />
+    <ClCompile Include="engine\code\ECS\system\Initialize\GpuParticleInitialize.cpp" />
+    <ClCompile Include="engine\code\ECS\system\render\GpuParticleRenderSystem.cpp" />
   </ItemGroup>
 </Project>

@@ -6,3 +6,21 @@ struct VertexShaderOutput {
     
     float4 color : COLOR0;
 };
+
+/// ============================
+// For GPU Particle 
+/// ============================
+struct GPUParticleData
+{
+    float3 scale;
+    float3 translate;
+    float lifeTime;
+    float3 velocity;
+    float currentTime;
+    float4 color;
+};
+struct PerView
+{
+    float4x4 viewProjection;
+    float4x4 billboardMat;
+};

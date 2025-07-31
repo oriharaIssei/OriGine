@@ -343,6 +343,7 @@ void SkinningAnimationSystem::CreatePSO() {
     pso_ = shaderManager->CreatePso(psoKey, shaderInfo, dxDevice->getDevice());
 }
 
+
 void SkinningAnimationSystem::StartCS() {
     if (!pso_) {
         LOG_ERROR("PSO is not created for SkinningAnimationSystem");

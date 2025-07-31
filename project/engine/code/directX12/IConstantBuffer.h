@@ -60,7 +60,8 @@ inline void IConstantBuffer<constBuff>::CreateBuffer(Microsoft::WRL::ComPtr<ID3D
         LOG_WARN("IConstantBuffer: Buffer resource already exists. Skipping creation.");
         return;
     }
-    buff_.CreateBufferResource(device, sizeof(constBuff::ConstantBuffer));
+
+        buff_.CreateBufferResource(device, sizeof(constBuff::ConstantBuffer));
     buff_.getResource()->Map(0, nullptr, reinterpret_cast<void**>(&mappingData_));
 
     buff_.setType(DxResourceType::Buffer_Constant);
