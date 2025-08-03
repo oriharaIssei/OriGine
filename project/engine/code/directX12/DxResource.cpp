@@ -40,10 +40,10 @@ void DxResource::CreateBufferResource(Microsoft::WRL::ComPtr<ID3D12Device> devic
     }
 }
 
-void DxResource::CreateUAVBuffer(Microsoft::WRL::ComPtr<ID3D12Device> device, size_t sizeInBytes, D3D12_RESOURCE_FLAGS flags) {
+void DxResource::CreateUAVBuffer(Microsoft::WRL::ComPtr<ID3D12Device> device, size_t sizeInBytes, D3D12_RESOURCE_FLAGS flags, D3D12_HEAP_TYPE heapType) {
     // Heap Properties の設定
     D3D12_HEAP_PROPERTIES heapProps{};
-    heapProps.Type = D3D12_HEAP_TYPE_DEFAULT; // VRAM 上に生成
+    heapProps.Type = heapType; // VRAM 上に生成
 
     // Resource Desc の設定
     resourceDesc_.Dimension        = D3D12_RESOURCE_DIMENSION_BUFFER; // バッファリソース

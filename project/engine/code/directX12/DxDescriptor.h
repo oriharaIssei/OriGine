@@ -187,7 +187,7 @@ public:
             LOG_ERROR("Index out of range in DxDescriptorHeap");
             throw std::out_of_range("Index out of range in DxDescriptorHeap");
         }
-        descriptors_[index] = descriptor.cpuHandle;
+        descriptors_[index] = std::make_shared<DescriptorType>(descriptor);
         usedFlags_.set(index, true);
     }
 };
@@ -234,7 +234,6 @@ inline void DxDescriptorHeap<Type>::Finalize() {
 using DxRtvHeap = DxDescriptorHeap<DxDescriptorHeapType::RTV>;
 using DxDsvHeap = DxDescriptorHeap<DxDescriptorHeapType::DSV>;
 using DxSrvHeap = DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>;
-
 
 #pragma region "CreateDescriptor"
 template <DxDescriptorHeapType Type>

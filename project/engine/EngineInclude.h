@@ -33,28 +33,24 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 #ifdef ENGINE_SYSTEMS
 #include "system/ISystem.h"
 
+#include "system/Initialize/GpuParticleInitialize.h"
+
 #include "system/collision/CollisionCheckSystem.h"
 #include "system/collision/CollisionPushBackSystem.h"
 
 #include "system/movement/MoveSystemByRigidBody.h"
 
 #include "system/effect/EmitterWorkSystem.h"
+#include "system/effect/GpuParticleEmitterWorkSystem.h"
 #include "system/effect/PrimitiveNodeAnimationWorkSystem.h"
 #include "system/effect/SkinningAnimationSystem.h"
 #include "system/effect/SpriteAnimationSystem.h"
 #include "system/effect/TextureEffectAnimation.h"
 
-#include "system/postRender/DissolveEffect.h"
-#include "system/postRender/DistortionEffect.h"
-#include "system/postRender/GrayscaleEffect.h"
-#include "system/postRender/RadialBlurEffect.h"
-#include "system/postRender/RandomEffect.h"
-#include "system/postRender/SmoothingEffect.h"
-#include "system/postRender/VignetteEffect.h"
-
 #include "system/render/BackGroundSpriteRenderSystem.h"
 #include "system/render/ColliderRenderingSystem.h"
 #include "system/render/EffectTexturedMeshRenderSystem.h"
+#include "system/render/GpuParticleRenderSystem.h"
 #include "system/render/LineRenderSystem.h"
 #include "system/render/ParticleRenderSystem.h"
 #include "system/render/SkeletonRenderSystem.h"
@@ -66,6 +62,7 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 #include "system/postRender/DissolveEffect.h"
 #include "system/postRender/DistortionEffect.h"
 #include "system/postRender/GrayscaleEffect.h"
+#include "system/postRender/RadialBlurEffect.h"
 #include "system/postRender/RandomEffect.h"
 #include "system/postRender/SmoothingEffect.h"
 #include "system/postRender/VignetteEffect.h"
@@ -94,6 +91,7 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 #include "component/physics/Rigidbody.h"
 
 #include "component/effect/particle/emitter/Emitter.h"
+#include "component/effect/particle/gpuParticle/GpuParticle.h"
 #include "component/effect/post/DissolveEffectParam.h"
 #include "component/effect/post/DistortionEffectParam.h"
 #include "component/effect/post/RadialBlurParam.h"

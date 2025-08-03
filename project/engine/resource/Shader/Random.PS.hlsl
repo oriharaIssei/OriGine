@@ -1,15 +1,10 @@
 #include "FullScreen.hlsli"
 
+#include "Random.hlsli"
+
 ///=============================================================================
 // Random
 ///=============================================================================
-
-float random(float3 _input)
-{
-    float random = dot(_input, float3(12.9898, 78.233, 37.719));
-    random = frac(sin(random) * 143758.5453);
-    return random;
-}
 
 /// ------------------------------------------------------------------
 // buffers
@@ -26,7 +21,7 @@ ConstantBuffer<RandomParam> gRandomParams : register(b0); // Random parameters
 PixelShaderOutput main(VertexShaderOutput input)
 {
     PixelShaderOutput output;
-    float randomValue = random(float3(input.texCoords, 0.0) * gRandomParams.time);
+    float randomValue = rand2dTo1d(input.texCoords * gRandomParams.time);
     output.color = float4(randomValue, randomValue, randomValue, 1.0);
     
     return output;

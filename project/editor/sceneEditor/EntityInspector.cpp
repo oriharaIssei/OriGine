@@ -549,9 +549,10 @@ void SelectAddSystemArea::SystemListRegion::DrawGui() {
         ImVec2(0, childHeight),
         ImGuiChildFlags_Border | ImGuiChildFlags_AlwaysUseWindowPadding);
 
-    auto currentScene    = EditorController::getInstance()->getWindow<SceneEditorWindow>()->getCurrentScene();
-    auto systemInspector = dynamic_cast<SystemInspectorArea*>(EditorController::getInstance()->getWindow<SceneEditorWindow>()->getArea(nameof<SystemInspectorArea>()).get());
-    auto& systemsMap     = systemInspector->getSystemMap();
+    auto sceneEditorWindow = EditorController::getInstance()->getWindow<SceneEditorWindow>();
+    auto currentScene      = sceneEditorWindow->getCurrentScene();
+    auto systemInspector   = dynamic_cast<SystemInspectorArea*>(sceneEditorWindow->getArea(nameof<SystemInspectorArea>()).get());
+    auto& systemsMap       = systemInspector->getSystemMap();
 
     ImVec4 winSelectColor = ImVec4(0.26f, 0.59f, 0.98f, 1.0f);
     ImGui::PushStyleColor(ImGuiCol_Header, winSelectColor);
@@ -569,6 +570,15 @@ void SelectAddSystemArea::SystemListRegion::DrawGui() {
             if (ImGui::CollapsingHeader(categoryName.c_str())) {
                 ImGui::Indent();
                 for (auto& [name, priority] : systemsByCategory) {
+                    ISystem* system = currentScene->getSystem(name);
+
+                    if (!system) {
+                        continue;
+                    }
+                    if (!system->isActive()) {
+                        continue;
+                    }
+
                     bool isSelected = std::find(parentArea_->systemTypeNames_.begin(), parentArea_->systemTypeNames_.end(), name) != parentArea_->systemTypeNames_.end();
                     if (ImGui::Selectable(name.c_str(), isSelected)) {
                         if (!isSelected) {
@@ -592,8 +602,19 @@ void SelectAddSystemArea::SystemListRegion::DrawGui() {
         for (size_t i = 0; i < systemsMap.size(); ++i) {
             auto& systemsByCategory = systemsMap[i];
             for (auto& [name, priority] : systemsByCategory) {
-                if (name.find(searchBuff_) == std::string::npos)
+                ISystem* system = currentScene->getSystem(name);
+
+                if (!system) {
                     continue;
+                }
+                if (!system->isActive()) {
+                    continue;
+                }
+
+                if (name.find(searchBuff_) == std::string::npos) {
+                    continue;
+                }
+
                 bool isSelected = std::find(parentArea_->systemTypeNames_.begin(), parentArea_->systemTypeNames_.end(), name) != parentArea_->systemTypeNames_.end();
                 if (ImGui::Selectable(name.c_str(), isSelected)) {
                     if (!isSelected) {

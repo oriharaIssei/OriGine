@@ -115,7 +115,7 @@ void SystemInspectorArea::DrawGui() {
             if (searchFilter) {
                 for (auto& [systemName, priority] : systemMap_[i]) {
                     if (systemName.find(searchBuffer_) != std::string::npos) {
-                        SystemGui(i, systemName, priority);
+                        SystemGui( systemName, priority);
                     }
                 }
 
@@ -128,7 +128,7 @@ void SystemInspectorArea::DrawGui() {
 
                     ImGui::Indent();
                     for (auto& [systemName, priority] : systemMap_[i]) {
-                        SystemGui(i, systemName, priority);
+                        SystemGui( systemName, priority);
                     }
                     ImGui::Unindent();
                 }
@@ -153,7 +153,7 @@ void SystemInspectorArea::Finalize() {
     Editor::Area::Finalize();
 }
 
-void SystemInspectorArea::SystemGui(int32_t _categoryInt, const std::string& _systemName, int32_t& _priority) {
+void SystemInspectorArea::SystemGui( const std::string& _systemName, int32_t& _priority) {
     auto currentScene = parentWindow_->getCurrentScene();
     if (!currentScene) {
         LOG_ERROR("SystemInspectorArea::SystemGui: No current scene found.");
@@ -195,8 +195,8 @@ void SystemInspectorArea::SystemGui(int32_t _categoryInt, const std::string& _sy
             auto command = std::make_unique<ChangeSystemActivity>(this, _systemName, 0, false, true);
             EditorController::getInstance()->pushCommand(std::move(command));
 
-            _priority = 0;
-            systemMap_[_categoryInt].emplace_back(std::make_pair(_systemName, _priority));
+            ImGui::PopID();
+            return;
         }
 
         ImGui::SameLine();

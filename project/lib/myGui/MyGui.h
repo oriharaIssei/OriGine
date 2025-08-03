@@ -70,6 +70,8 @@ bool DragGui(const std::string& label, T& value, float speed = 0.1f, T min = T()
         return ImGui::DragFloat(label.c_str(), &value, speed, min, max, format);
     } else if constexpr (std::is_same_v<T, double>) {
         return ImGui::DragScalar(label.c_str(), ImGuiDataType_Double, &value, speed, &min, &max, format);
+    } else if constexpr (std::is_same_v<T, unsigned int>) {
+        return ImGui::DragScalar(label.c_str(), ImGuiDataType_U32, &value, speed, &min, &max, format);
     } else {
         return false; // サポートされていない型の場合
     }
@@ -99,6 +101,13 @@ bool DragVectorGui(const std::string& label, Vector<N, T>& value, float speed = 
             return ImGui::DragScalarN(label.c_str(), ImGuiDataType_Double, value.v, 3, speed, &min, &max, format);
         if constexpr (N == 4)
             return ImGui::DragScalarN(label.c_str(), ImGuiDataType_Double, value.v, 4, speed, &min, &max, format);
+    } else if constexpr (std::is_same_v<T, unsigned int>) {
+        if constexpr (N == 2)
+            return ImGui::DragScalarN(label.c_str(), ImGuiDataType_U32, value.v, 2, speed, &min, &max, format);
+        if constexpr (N == 3)
+            return ImGui::DragScalarN(label.c_str(), ImGuiDataType_U32, value.v, 3, speed, &min, &max, format);
+        if constexpr (N == 4)
+            return ImGui::DragScalarN(label.c_str(), ImGuiDataType_U32, value.v, 4, speed, &min, &max, format);
     } else {
         return false; // サポートされていない型の場合
     }
@@ -113,6 +122,8 @@ bool SlideGui(const std::string& label, T& value, T min = T(), T max = T(), cons
         return ImGui::SliderFloat(label.c_str(), &value, min, max, format);
     } else if constexpr (std::is_same_v<T, double>) {
         return ImGui::SliderScalar(label.c_str(), ImGuiDataType_Double, &value, &min, &max, format);
+    } else if constexpr (std::is_same_v<T, unsigned int>) {
+        return ImGui::SliderScalar(label.c_str(), ImGuiDataType_U32, &value, &min, &max, format);
     } else {
         return false; // サポートされていない型の場合
     }
@@ -141,6 +152,13 @@ bool SlideVectorGui(const std::string& label, Vector<N, T>& value, T min = T(), 
             return ImGui::SliderScalarN(label.c_str(), ImGuiDataType_Double, value.v, 3, &min, &max, format);
         if constexpr (N == 4)
             return ImGui::SliderScalarN(label.c_str(), ImGuiDataType_Double, value.v, 4, &min, &max, format);
+    } else if constexpr (std::is_same_v<T, unsigned int>) {
+        if constexpr (N == 2)
+            return ImGui::SliderScalarN(label.c_str(), ImGuiDataType_U32, value.v, 2, &min, &max, format);
+        if constexpr (N == 3)
+            return ImGui::SliderScalarN(label.c_str(), ImGuiDataType_U32, value.v, 3, &min, &max, format);
+        if constexpr (N == 4)
+            return ImGui::SliderScalarN(label.c_str(), ImGuiDataType_U32, value.v, 4, &min, &max, format);
     } else {
         return false; // サポートされていない型の場合
     }
@@ -155,6 +173,8 @@ bool InputGui(const std::string& label, T& value, const char* format = "%.3f") {
         return ImGui::InputFloat(label.c_str(), &value, 0.0f, 0.0f, format);
     } else if constexpr (std::is_same_v<T, double>) {
         return ImGui::InputScalar(label.c_str(), ImGuiDataType_Double, &value, nullptr, nullptr, format);
+    } else if constexpr (std::is_same_v<T, unsigned int>) {
+        return ImGui::InputScalar(label.c_str(), ImGuiDataType_U32, &value, nullptr, nullptr, format);
     } else {
         return false; // サポートされていない型の場合
     }
@@ -183,6 +203,13 @@ bool InputVectorGui(const std::string& label, Vector<N, T>& value, const char* f
             return ImGui::InputScalarN(label.c_str(), ImGuiDataType_Double, value.v, 3, nullptr, nullptr, format);
         if constexpr (N == 4)
             return ImGui::InputScalarN(label.c_str(), ImGuiDataType_Double, value.v, 4, nullptr, nullptr, format);
+    } else if constexpr (std::is_same_v<T, unsigned int>) {
+        if constexpr (N == 2)
+            return ImGui::InputScalarN(label.c_str(), ImGuiDataType_U32, value.v, 2, nullptr, nullptr, format);
+        if constexpr (N == 3)
+            return ImGui::InputScalarN(label.c_str(), ImGuiDataType_U32, value.v, 3, nullptr, nullptr, format);
+        if constexpr (N == 4)
+            return ImGui::InputScalarN(label.c_str(), ImGuiDataType_U32, value.v, 4, nullptr, nullptr, format);
     } else {
         return false; // サポートされていない型の場合
     }

@@ -1,53 +1,77 @@
-#include "ParticleRenderSystem.h"
+#include "GpuParticleRenderSystem.h"
 
 /// engine
 #include "Engine.h"
+
+#include "camera/CameraManager.h"
 #include "scene/SceneManager.h"
+#include "texture/TextureManager.h"
 
 // directX12
 #include "directX12/DxDevice.h"
 
-// component
-#include "component/effect/particle/emitter/Emitter.h"
-
-// module
-#include "camera/CameraManager.h"
-
-void ParticleRenderSystem::Initialize() {
+void GpuParticleRenderSystem::Initialize() {
     dxCommand_ = std::make_unique<DxCommand>();
     dxCommand_->Initialize("main", "main");
     CreatePso();
+
+    perViewBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
 }
 
-void ParticleRenderSystem::Update() {
+void GpuParticleRenderSystem::Update() {
     eraseDeadEntity();
 
-    if (!entityIDs_.empty()) {
+    if (entityIDs_.empty()) {
         return;
     }
 
     StartRender();
+
+    const CameraTransform& cameraTransform = CameraManager::getInstance()->getTransform();
+    // カメラの回転行列を取得し、平行移動成分をゼロにする
+    Matrix4x4 cameraRotationMat = cameraTransform.viewMat;
+    cameraRotationMat[3][0]     = 0.0f;
+    cameraRotationMat[3][1]     = 0.0f;
+    cameraRotationMat[3][2]     = 0.0f;
+    cameraRotationMat[3][3]     = 1.0f;
+
+    // カメラの回転行列を反転してワールド空間への変換行列を作成
+    perViewBuffer_->billboardMat      = cameraRotationMat.inverse();
+    perViewBuffer_->viewProjectionMat = cameraTransform.viewMat * cameraTransform.projectionMat;
+    perViewBuffer_.ConvertToBuffer();
+
+    perViewBuffer_.SetForRootParameter(dxCommand_->getCommandList(), 1);
+
     for (auto& id : entityIDs_) {
         GameEntity* entity = getEntity(id);
         UpdateEntity(entity);
     }
 }
 
-void ParticleRenderSystem::Finalize() {
+void GpuParticleRenderSystem::Finalize() {
     dxCommand_->Finalize();
+
+    for (auto& pso : pso_) {
+        if (pso.second) {
+            pso.second->Finalize();
+        }
+    }
+    pso_.clear();
+
+    perViewBuffer_.Finalize();
 }
 
-void ParticleRenderSystem::CreatePso() {
+void GpuParticleRenderSystem::CreatePso() {
     ShaderManager* shaderManager = ShaderManager::getInstance();
 
     // 登録されているかどうかをチェック
-    if (shaderManager->IsRegistertedPipelineStateObj("Particle_" + blendModeStr[0])) {
+    if (shaderManager->IsRegistertedPipelineStateObj("GpuParticle_" + blendModeStr[0])) {
         for (size_t i = 0; i < kBlendNum; ++i) {
             BlendMode blend = static_cast<BlendMode>(i);
             if (pso_[blend]) {
                 continue;
             }
-            pso_[blend] = shaderManager->getPipelineStateObj("Particle_" + blendModeStr[i]);
+            pso_[blend] = shaderManager->getPipelineStateObj("GpuParticle_" + blendModeStr[i]);
         }
         return;
     }
@@ -56,14 +80,14 @@ void ParticleRenderSystem::CreatePso() {
     /// shader読み込み
     ///=================================================
 
-    shaderManager->LoadShader("Particle.VS");
+    shaderManager->LoadShader("GpuParticle.VS");
     shaderManager->LoadShader("Particle.PS", shaderDirectory, L"ps_6_0");
 
     ///=================================================
     /// shader情報の設定
     ///=================================================
     ShaderInfo shaderInfo;
-    shaderInfo.vsKey = "Particle.VS";
+    shaderInfo.vsKey = "GpuParticle.VS";
     shaderInfo.psKey = "Particle.PS";
 
 #pragma region "RootParameter"
@@ -80,22 +104,23 @@ void ParticleRenderSystem::CreatePso() {
     structuredRange[0].RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
     structuredRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
     shaderInfo.setDescriptorRange2Parameter(structuredRange, 1, 0);
-    // 1 ... ViewProjection
+
+    // 1 ... PerView
     rootParameter[1].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
-    rootParameter[1].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
-    rootParameter[1].Descriptor.ShaderRegister = 1;
+    rootParameter[1].ShaderVisibility          = D3D12_SHADER_VISIBILITY_VERTEX;
+    rootParameter[1].Descriptor.ShaderRegister = 0;
     shaderInfo.pushBackRootParameter(rootParameter[1]);
     // 2 ... Material
     rootParameter[2].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
     rootParameter[2].ShaderVisibility          = D3D12_SHADER_VISIBILITY_PIXEL;
     rootParameter[2].Descriptor.ShaderRegister = 0;
     shaderInfo.pushBackRootParameter(rootParameter[2]);
+
     // 3 ... Texture
     // DescriptorTable を使う
-    rootParameter[3].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-    rootParameter[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-    size_t rootParameterIndex         = shaderInfo.pushBackRootParameter(rootParameter[3]);
-
+    rootParameter[3].ParameterType                       = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+    rootParameter[3].ShaderVisibility                    = D3D12_SHADER_VISIBILITY_PIXEL;
+    size_t rootParameterIndex                            = shaderInfo.pushBackRootParameter(rootParameter[3]);
     D3D12_DESCRIPTOR_RANGE descriptorRange[1]            = {};
     descriptorRange[0].BaseShaderRegister                = 0;
     descriptorRange[0].NumDescriptors                    = 1;
@@ -153,28 +178,24 @@ void ParticleRenderSystem::CreatePso() {
     }
 }
 
-void ParticleRenderSystem::StartRender() {
+void GpuParticleRenderSystem::StartRender() {
     currentBlend_                                                 = BlendMode::Alpha;
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->getCommandList();
     commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
     commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    CameraManager::getInstance()->setBufferForRootParameter(commandList, 1);
 
     ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
 }
 
-void ParticleRenderSystem::UpdateEntity(GameEntity* _entity) {
+void GpuParticleRenderSystem::UpdateEntity(GameEntity* _entity) {
     auto& commandList = dxCommand_->getCommandList();
 
-    for (auto& comp : *getComponents<Emitter>(_entity)) {
-        if (!comp.getIsActive()) {
+    for (auto& comp : *getComponents<GpuParticleEmitter>(_entity)) {
+        if (!comp.isActive()) {
             continue;
         }
-
-        Transform* parentTransform = getComponent<Transform>(_entity);
-        comp.setParent(parentTransform);
 
         if (currentBlend_ != comp.getBlendMode()) {
             currentBlend_ = comp.getBlendMode();
@@ -182,6 +203,22 @@ void ParticleRenderSystem::UpdateEntity(GameEntity* _entity) {
             commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
         }
 
-        comp.Draw(commandList);
+        commandList->SetGraphicsRootDescriptorTable(
+            0,
+            comp.getParticleSrvDescriptor()->getGpuHandle());
+
+        comp.getMaterialBuffer().ConvertToBuffer();
+        comp.getMaterialBuffer().SetForRootParameter(commandList, 2);
+
+        commandList->SetGraphicsRootDescriptorTable(
+            3,
+            TextureManager::getDescriptorGpuHandle(comp.getTextureIndex()));
+
+        const auto& particleMesh = comp.getMesh();
+        commandList->IASetVertexBuffers(0, 1, &particleMesh.getVBView());
+        commandList->IASetIndexBuffer(&particleMesh.getIBView());
+
+        // 描画!!!
+        commandList->DrawIndexedInstanced(UINT(particleMesh.getIndexSize()), static_cast<UINT>(comp.getParticleSize()), 0, 0, 0);
     }
 }

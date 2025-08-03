@@ -20,10 +20,12 @@ concept StructuredBuffer = requires {
 template <StructuredBuffer structBuff>
 class IStructuredBuffer {
 public:
+    using StructuredBufferType = typename structBuff::ConstantBuffer;
+
     IStructuredBuffer()  = default;
     ~IStructuredBuffer() = default;
 
-    void CreateBuffer(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t elementCount);
+    void CreateBuffer(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t elementCount, bool _withUAV = false);
     void Finalize();
 
     // 公開用変数（バッファのデータを保持）
@@ -34,7 +36,7 @@ protected:
     std::shared_ptr<DxSrvDescriptor> srv_;
 
     // bind されたデータへのポインタ
-    structBuff::ConstantBuffer* mappingData_ = nullptr;
+    StructuredBufferType* mappingData_ = nullptr;
 
     uint32_t elementCount_ = 0;
 
@@ -52,15 +54,19 @@ public:
 };
 
 template <StructuredBuffer structBuff>
-inline void IStructuredBuffer<structBuff>::CreateBuffer(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t elementCount) {
+inline void IStructuredBuffer<structBuff>::CreateBuffer(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t elementCount, bool _withUAV) {
     elementCount_ = elementCount;
 
     if (elementCount_ == 0) {
         return;
     }
 
-    size_t bufferSize = sizeof(typename structBuff::ConstantBuffer) * elementCount_;
-    buff_.CreateBufferResource(device, bufferSize);
+    size_t bufferSize = sizeof(StructuredBufferType) * elementCount_;
+    if (_withUAV) {
+        buff_.CreateUAVBuffer(device, bufferSize, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_HEAP_TYPE_UPLOAD);
+    } else {
+        buff_.CreateBufferResource(device, bufferSize);
+    }
     buff_.getResource()->Map(0, nullptr, reinterpret_cast<void**>(&mappingData_));
 
     openData_.reserve(elementCount);
@@ -72,7 +78,7 @@ inline void IStructuredBuffer<structBuff>::CreateBuffer(Microsoft::WRL::ComPtr<I
     viewDesc.Buffer.FirstElement        = 0;
     viewDesc.Buffer.Flags               = D3D12_BUFFER_SRV_FLAG_NONE;
     viewDesc.Buffer.NumElements         = elementCount;
-    viewDesc.Buffer.StructureByteStride = sizeof(structBuff::ConstantBuffer);
+    viewDesc.Buffer.StructureByteStride = sizeof(StructuredBufferType);
 
     srv_ = Engine::getInstance()->getSrvHeap()->CreateDescriptor<>(viewDesc, &buff_);
 }
@@ -95,7 +101,7 @@ inline void IStructuredBuffer<structBuff>::resize(Microsoft::WRL::ComPtr<ID3D12D
     { // 新しいバッファを作成
         elementCount_ = newElementCount;
 
-        size_t bufferSize = sizeof(typename structBuff::ConstantBuffer) * elementCount_;
+        size_t bufferSize = sizeof(StructuredBufferType) * elementCount_;
         buff_.CreateBufferResource(device, bufferSize);
         buff_.getResource()->Map(0, nullptr, reinterpret_cast<void**>(&mappingData_));
 
@@ -106,7 +112,7 @@ inline void IStructuredBuffer<structBuff>::resize(Microsoft::WRL::ComPtr<ID3D12D
         viewDesc.Buffer.FirstElement        = 0;
         viewDesc.Buffer.Flags               = D3D12_BUFFER_SRV_FLAG_NONE;
         viewDesc.Buffer.NumElements         = elementCount_;
-        viewDesc.Buffer.StructureByteStride = sizeof(structBuff::ConstantBuffer);
+        viewDesc.Buffer.StructureByteStride = sizeof(StructuredBufferType);
 
         srv_ = Engine::getInstance()->getSrvHeap()->CreateDescriptor<>(viewDesc, &buff_);
     }
@@ -125,7 +131,7 @@ inline void IStructuredBuffer<structBuff>::resizeForDataSize(Microsoft::WRL::Com
     { // 新しいバッファを作成
         elementCount_ = newElementCount;
 
-        size_t bufferSize = sizeof(typename structBuff::ConstantBuffer) * elementCount_;
+        size_t bufferSize = sizeof(StructuredBufferType) * elementCount_;
         buff_.CreateBufferResource(device, bufferSize);
         buff_.getResource()->Map(0, nullptr, reinterpret_cast<void**>(&mappingData_));
 
@@ -136,7 +142,7 @@ inline void IStructuredBuffer<structBuff>::resizeForDataSize(Microsoft::WRL::Com
         viewDesc.Buffer.FirstElement        = 0;
         viewDesc.Buffer.Flags               = D3D12_BUFFER_SRV_FLAG_NONE;
         viewDesc.Buffer.NumElements         = elementCount_;
-        viewDesc.Buffer.StructureByteStride = sizeof(structBuff::ConstantBuffer);
+        viewDesc.Buffer.StructureByteStride = sizeof(StructuredBufferType);
 
         srv_ = Engine::getInstance()->getSrvHeap()->CreateDescriptor<>(viewDesc, &buff_);
     }
