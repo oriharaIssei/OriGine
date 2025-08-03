@@ -63,17 +63,21 @@ void GpuParticleInitialize::UpdateEntity(GameEntity* _entity) {
 
         commandList->SetComputeRootDescriptorTable(
             particleBufferIndex_,
-            gpuParticleEmitter.getUavDescriptor()->getGpuHandle());
+            gpuParticleEmitter.getParticleUavDescriptor()->getGpuHandle());
+
+        commandList->SetComputeRootDescriptorTable(
+            freeIndexBufferIndex_,
+            gpuParticleEmitter.getFreeIndexUavDescriptor()->getGpuHandle());
+
+        commandList->SetComputeRootDescriptorTable(
+            freeListBufferIndex_,
+            gpuParticleEmitter.getFreeListUavDescriptor()->getGpuHandle());
 
         UINT dispatchCount = (gpuParticleEmitter.getParticleSize() + 1023) / 1024;
         commandList->Dispatch(
             dispatchCount, // 1ワークグループあたり1024頂点を処理
             1,
             1); // X方向に分割、YとZは1
-
-        dxCommand_->ResourceBarrier(
-            gpuParticleEmitter.getResource().getResource(),
-            D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
 
         usingCS_ = true;
     }
@@ -109,7 +113,7 @@ void GpuParticleInitialize::CreatePSO() {
 
 #pragma region "ROOT_PARAMETER"
 
-    D3D12_ROOT_PARAMETER rootParameters[1]                = {};
+    D3D12_ROOT_PARAMETER rootParameters[3]                = {};
     rootParameters[particleBufferIndex_].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
     rootParameters[particleBufferIndex_].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
     shaderInfo.pushBackRootParameter(rootParameters[particleBufferIndex_]);
@@ -121,6 +125,30 @@ void GpuParticleInitialize::CreatePSO() {
     particleDescriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
     shaderInfo.setDescriptorRange2Parameter(
         particleDescriptorRange, 1, particleBufferIndex_);
+
+    rootParameters[freeIndexBufferIndex_].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+    rootParameters[freeIndexBufferIndex_].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+    shaderInfo.pushBackRootParameter(rootParameters[freeIndexBufferIndex_]);
+
+    D3D12_DESCRIPTOR_RANGE freeIndexDescriptorRange[1]           = {};
+    freeIndexDescriptorRange[0].BaseShaderRegister                = 1; // u1
+    freeIndexDescriptorRange[0].NumDescriptors                    = 1;
+    freeIndexDescriptorRange[0].RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
+    freeIndexDescriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+    shaderInfo.setDescriptorRange2Parameter(
+        freeIndexDescriptorRange, 1, freeIndexBufferIndex_);
+
+    rootParameters[freeListBufferIndex_].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+    rootParameters[freeListBufferIndex_].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+    shaderInfo.pushBackRootParameter(rootParameters[freeListBufferIndex_]);
+
+    D3D12_DESCRIPTOR_RANGE freeListDescriptorRange[1]            = {};
+    freeListDescriptorRange[0].BaseShaderRegister                = 2; // u2
+    freeListDescriptorRange[0].NumDescriptors                    = 1;
+    freeListDescriptorRange[0].RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
+    freeListDescriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+    shaderInfo.setDescriptorRange2Parameter(
+        freeListDescriptorRange, 1, freeListBufferIndex_);
 
 #pragma endregion
 

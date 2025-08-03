@@ -35,5 +35,7 @@ private:
 
     bool usingCS_ = false;
 
-    int32_t particleBufferIndex_ = 0;
+    const int32_t particleBufferIndex_  = 0;
+    const int32_t freeIndexBufferIndex_ = 1;
+    const int32_t freeListBufferIndex_  = 2;
 };

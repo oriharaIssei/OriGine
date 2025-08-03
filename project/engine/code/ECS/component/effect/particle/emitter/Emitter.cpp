@@ -248,8 +248,8 @@ void Emitter::EditShapeType([[maybe_unused]] const std::string& _parentLabel) {
                         case EmitterShapeType::SPHERE:
                             emitterSpawnShape_ = std::make_shared<EmitterSphere>();
                             break;
-                        case EmitterShapeType::OBB:
-                            emitterSpawnShape_ = std::make_shared<EmitterOBB>();
+                        case EmitterShapeType::BOX:
+                            emitterSpawnShape_ = std::make_shared<EmitterBox>();
                             break;
                         case EmitterShapeType::CAPSULE:
                             emitterSpawnShape_ = std::make_shared<EmitterCapsule>();
@@ -967,10 +967,11 @@ void Emitter::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandLis
         3,
         TextureManager::getDescriptorGpuHandle(textureIndex_));
 
+    material_.SetForRootParameter(_commandList, 2);
+
     _commandList->IASetVertexBuffers(0, 1, &mesh_.getVBView());
     _commandList->IASetIndexBuffer(&mesh_.getIBView());
 
-    material_.SetForRootParameter(_commandList, 2);
     // 描画!!!
     _commandList->DrawIndexedInstanced(UINT(mesh_.getIndexSize()), static_cast<UINT>(structuredTransform_.openData_.size()), 0, 0, 0);
 }
@@ -1203,10 +1204,10 @@ void from_json(const nlohmann::json& j, Emitter& e) {
             e.emitterSpawnShape_ = std::make_shared<EmitterSphere>(sphereShape);
             break;
         }
-        case EmitterShapeType::OBB: {
-            EmitterOBB obbShape;
+        case EmitterShapeType::BOX: {
+            EmitterBox obbShape;
             shapeJson.get_to(obbShape);
-            e.emitterSpawnShape_ = std::make_shared<EmitterOBB>(obbShape);
+            e.emitterSpawnShape_ = std::make_shared<EmitterBox>(obbShape);
             break;
         }
         case EmitterShapeType::CAPSULE: {
@@ -1276,13 +1277,13 @@ void to_json(nlohmann::json& j, const Emitter& e) {
             }
             break;
         }
-        case EmitterShapeType::OBB: {
-            EmitterOBB* obbShape = dynamic_cast<EmitterOBB*>(e.emitterSpawnShape_.get());
+        case EmitterShapeType::BOX: {
+            EmitterBox* obbShape = dynamic_cast<EmitterBox*>(e.emitterSpawnShape_.get());
 
             if (obbShape) {
                 shapeJson = *obbShape;
             } else {
-                LOG_ERROR("EmitterOBB is not OBB type. Please check the emitterSpawnShape_ type.");
+                LOG_ERROR("EmitterBox is not OBB type. Please check the emitterSpawnShape_ type.");
             }
 
             break;

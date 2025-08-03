@@ -150,6 +150,14 @@ void DxCommand::ResourceBarrier(Microsoft::WRL::ComPtr<ID3D12Resource> resource,
     }
 }
 
+void DxCommand::ResourceDirectBarrier(Microsoft::WRL::ComPtr<ID3D12Resource> resource, D3D12_RESOURCE_BARRIER barrier) {
+    if (resourceStateTracker_) {
+        resourceStateTracker_->DirectBarrier(commandList_.Get(), resource.Get(), barrier);
+    } else {
+        LOG_CRITICAL("ResourceStateTracker is not initialized.");
+    }
+}
+
 HRESULT DxCommand::Close() {
     return commandList_->Close();
 }

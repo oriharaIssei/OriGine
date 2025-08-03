@@ -18,7 +18,7 @@ class BinaryReader;
 ///</summary>
 enum class EmitterShapeType : int32_t {
     SPHERE,
-    OBB,
+    BOX,
     CAPSULE,
     CONE,
 
@@ -99,15 +99,15 @@ public: // メンバ変数
 ///< summary>
 /// Obb 形状
 ///</summary>
-struct EmitterOBB
+struct EmitterBox
     : EmitterShape {
-    friend void to_json(nlohmann::json& j, const EmitterOBB& r) {
+    friend void to_json(nlohmann::json& j, const EmitterBox& r) {
         j["min"]    = r.min_;
         j["max"]    = r.max_;
         j["rotate"] = r.rotate_;
         j["spawnType"] = (int32_t)r.spawnType_;
     }
-    friend void from_json(const nlohmann::json& j, EmitterOBB& r) {
+    friend void from_json(const nlohmann::json& j, EmitterBox& r) {
         j.at("min").get_to(r.min_);
         j.at("max").get_to(r.max_);
         j.at("rotate").get_to(r.rotate_);
@@ -119,8 +119,8 @@ struct EmitterOBB
         }
     }
 
-    EmitterOBB()
-        : EmitterShape(EmitterShapeType::OBB) {}
+    EmitterBox()
+        : EmitterShape(EmitterShapeType::BOX) {}
 
 // メンバ関数
 #ifdef _DEBUG

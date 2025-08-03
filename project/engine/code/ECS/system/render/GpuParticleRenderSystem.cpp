@@ -205,11 +205,20 @@ void GpuParticleRenderSystem::UpdateEntity(GameEntity* _entity) {
 
         commandList->SetGraphicsRootDescriptorTable(
             0,
-            comp.getSrvDescriptor()->getGpuHandle());
+            comp.getParticleSrvDescriptor()->getGpuHandle());
+
         comp.getMaterialBuffer().ConvertToBuffer();
         comp.getMaterialBuffer().SetForRootParameter(commandList, 2);
+
         commandList->SetGraphicsRootDescriptorTable(
             3,
             TextureManager::getDescriptorGpuHandle(comp.getTextureIndex()));
+
+        const auto& particleMesh = comp.getMesh();
+        commandList->IASetVertexBuffers(0, 1, &particleMesh.getVBView());
+        commandList->IASetIndexBuffer(&particleMesh.getIBView());
+
+        // 描画!!!
+        commandList->DrawIndexedInstanced(UINT(particleMesh.getIndexSize()), static_cast<UINT>(comp.getParticleSize()), 0, 0, 0);
     }
 }

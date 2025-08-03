@@ -10,6 +10,7 @@ struct VertexShaderOutput {
 /// ============================
 // For GPU Particle 
 /// ============================
+
 struct GPUParticleData
 {
     float3 scale;

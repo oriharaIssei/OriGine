@@ -58,9 +58,9 @@ Vec3f EmitterSphere::getSpawnPos() {
 }
 #pragma endregion
 
-#pragma region "Obb"
+#pragma region "Box"
 #ifdef _DEBUG
-void EmitterOBB::Debug([[maybe_unused]] const std::string& _parentLabel) {
+void EmitterBox::Debug([[maybe_unused]] const std::string& _parentLabel) {
     EmitterShape::Debug(_parentLabel);
     ImGui::Text("min");
     std::string label = "##" + _parentLabel + "_min";
@@ -75,7 +75,7 @@ void EmitterOBB::Debug([[maybe_unused]] const std::string& _parentLabel) {
 }
 #endif // _DEBUG
 
-Vec3f EmitterOBB::getSpawnPos() {
+Vec3f EmitterBox::getSpawnPos() {
     MyRandom::Float randFloat = MyRandom::Float(0.0f, 1.0f);
     float randX               = randFloat.get();
     float randY               = randFloat.get();

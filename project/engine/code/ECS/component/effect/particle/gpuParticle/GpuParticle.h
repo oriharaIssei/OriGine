@@ -10,8 +10,8 @@
 #include "directX12/DxDescriptor.h"
 #include "directX12/IConstantBuffer.h"
 #include "directX12/IStructuredBuffer.h"
+#include "directX12/Mesh.h"
 #include "directX12/ShaderManager.h"
-
 /// ECS
 // component
 #include "component/material/Material.h"
@@ -48,6 +48,90 @@ struct GpuParticleData {
         }
     };
 };
+struct GpuParticleEmitSphere {
+    Vec3f center = Vec3f(0.f, 0.f, 0.f);
+    Vec3f size   = Vec3f(0.f, 0.f, 0.f);
+
+    Vec3f minVelocity = Vec3f(0.f, 0.f, 0.f);
+    Vec3f maxVelocity = Vec3f(0.f, 0.f, 0.f);
+
+    Vec3f minScale = Vec3f(1.f, 1.f, 1.f);
+    Vec3f maxScale = Vec3f(1.f, 1.f, 1.f);
+
+    Vec3f minColor = Vec3f(1.f, 1.f, 1.f);
+    Vec3f maxColor = Vec3f(1.f, 1.f, 1.f);
+
+    uint32_t minParticleCount = 1; // 最小パーティクル数
+    uint32_t maxParticleCount = 1; // 最大パーティクル数
+
+    float minLifeParticleTime = 0.f; // 最小残り時間
+    float maxLifeParticleTime = 0.f; // 最大残り時間
+
+    float frequency     = 0.f;
+    float frequencyTime = 0.f;
+    uint32_t isEmit     = 0; // 0:emitしない, 1:emitする
+
+    uint32_t isBox      = 0; // 0:球形, 1:立方体
+    uint32_t isEmitEdge = 0; // 0:範囲内全てからEmit, 1:エッジからemitする
+
+    struct ConstantBuffer {
+        Vec3f minColor            = Vec3f(1.f, 1.f, 1.f);
+        float minLifeParticleTime = 0.f; // 最小残り時間
+        Vec3f maxColor            = Vec3f(1.f, 1.f, 1.f);
+        float maxLifeParticleTime = 0.f; // 最大残り時間
+
+        // 16バイト: center + minParticleCount
+        Vec3f center              = Vec3f(0.f, 0.f, 0.f);
+        uint32_t minParticleCount = 1;
+
+        // 16バイト: size + maxParticleCount
+        Vec3f size                = Vec3f(0.f, 0.f, 0.f);
+        uint32_t maxParticleCount = 1;
+
+        // 16バイト: minVelocity + isBox
+        Vec3f minVelocity = Vec3f(0.f, 0.f, 0.f);
+        uint32_t isBox    = 0;
+
+        // 16バイト: maxVelocity + isEmit
+        Vec3f maxVelocity = Vec3f(0.f, 0.f, 0.f);
+        uint32_t isEmit   = 0;
+
+        // 16バイト: minScale + isEmitEdge
+        Vec3f minScale      = Vec3f(1.f, 1.f, 1.f);
+        uint32_t isEmitEdge = 0;
+
+        // 16バイト: maxScale + pad
+        Vec3f maxScale = Vec3f(1.f, 1.f, 1.f);
+        float pad;
+
+        ConstantBuffer& operator=(const GpuParticleEmitSphere& other) {
+            minColor            = other.minColor;
+            minLifeParticleTime = other.minLifeParticleTime;
+            maxColor            = other.maxColor;
+            maxLifeParticleTime = other.maxLifeParticleTime;
+
+            center           = other.center;
+            minParticleCount = other.minParticleCount;
+
+            size             = other.size;
+            maxParticleCount = other.maxParticleCount;
+
+            minVelocity = other.minVelocity;
+            isBox       = other.isBox;
+
+            maxVelocity = other.maxVelocity;
+            isEmit      = other.isEmit;
+
+            minScale   = other.minScale;
+            isEmitEdge = other.isEmitEdge;
+
+            maxScale = other.maxScale;
+
+            return *this;
+        }
+    };
+};
+
 struct PerView {
     Matrix4x4 viewProjectionMat;
     Matrix4x4 billboardMat;
@@ -94,11 +178,19 @@ private:
     BlendMode blendMode_   = BlendMode::Alpha;
     uint32_t particleSize_ = 1024;
 
-    DxResource dxResource_;
-    std::shared_ptr<DxSrvDescriptor> srvDescriptor_ = nullptr;
-    std::shared_ptr<DxUavDescriptor> uavDescriptor_ = nullptr;
+    TextureMesh mesh_;
+
+    DxResource particleResource_;
+    std::shared_ptr<DxSrvDescriptor> particleSrvDescriptor_ = nullptr;
+    std::shared_ptr<DxUavDescriptor> particleUavDescriptor_ = nullptr;
+
+    DxResource freeListResource_;
+    std::shared_ptr<DxUavDescriptor> freeListUavDescriptor_ = nullptr;
+    DxResource freeIndexResource_;
+    std::shared_ptr<DxUavDescriptor> freeIndexUavDescriptor_ = nullptr;
 
     IConstantBuffer<Material> materialBuffer_;
+    IConstantBuffer<GpuParticleEmitSphere> shapeBuffer_;
 
     std::string texturePath_ = "";
     uint32_t textureIndex_   = 0;
@@ -107,16 +199,39 @@ public:
     bool isActive() const { return isActive_; }
     uint32_t getParticleSize() const { return particleSize_; }
     BlendMode getBlendMode() const { return blendMode_; }
-    const DxResource& getResource() const { return dxResource_; }
 
-    std::shared_ptr<DxSrvDescriptor> getSrvDescriptor() const {
-        return srvDescriptor_;
+    const TextureMesh& getMesh() const { return mesh_; }
+    TextureMesh& getMeshRef() { return mesh_; }
+
+    const DxResource& getParticleResource() const { return particleResource_; }
+    std::shared_ptr<DxSrvDescriptor> getParticleSrvDescriptor() const {
+        return particleSrvDescriptor_;
     }
-    std::shared_ptr<DxUavDescriptor> getUavDescriptor() const {
-        return uavDescriptor_;
+    std::shared_ptr<DxUavDescriptor> getParticleUavDescriptor() const {
+        return particleUavDescriptor_;
+    }
+
+    const DxResource& getFreeIndexResource() const { return freeIndexResource_; }
+    std::shared_ptr<DxUavDescriptor> getFreeIndexUavDescriptor() const {
+        return freeIndexUavDescriptor_;
+    }
+
+    const DxResource& getFreeListResource() const { return freeListResource_; }
+    std::shared_ptr<DxUavDescriptor> getFreeListUavDescriptor() const {
+        return freeListUavDescriptor_;
     }
 
     const IConstantBuffer<Material>& getMaterialBuffer() const { return materialBuffer_; }
+    const IConstantBuffer<GpuParticleEmitSphere>& getShapeBuffer() const {
+        return shapeBuffer_;
+    }
+
+    const GpuParticleEmitSphere& getShapeBufferData() const {
+        return shapeBuffer_.openData_;
+    }
+    GpuParticleEmitSphere& getShapeBufferDataRef() {
+        return shapeBuffer_.openData_;
+    }
 
     const std::string& getTexturePath() const { return texturePath_; }
     uint32_t getTextureIndex() const { return textureIndex_; }

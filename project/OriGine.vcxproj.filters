@@ -543,6 +543,7 @@
     <ClInclude Include="engine\code\ECS\component\effect\particle\gpuParticle\GpuParticle.h" />
     <ClInclude Include="engine\code\ECS\system\Initialize\GpuParticleInitialize.h" />
     <ClInclude Include="engine\code\ECS\system\render\GpuParticleRenderSystem.h" />
+    <ClInclude Include="engine\code\ECS\system\effect\GpuParticleEmitterWorkSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="editor\EditorController.cpp">
@@ -872,5 +873,6 @@
     <ClCompile Include="engine\code\ECS\component\effect\particle\gpuParticle\GpuParticle.cpp" />
     <ClCompile Include="engine\code\ECS\system\Initialize\GpuParticleInitialize.cpp" />
     <ClCompile Include="engine\code\ECS\system\render\GpuParticleRenderSystem.cpp" />
+    <ClCompile Include="engine\code\ECS\system\effect\GpuParticleEmitterWorkSystem.cpp" />
   </ItemGroup>
 </Project>

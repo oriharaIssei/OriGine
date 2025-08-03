@@ -211,7 +211,13 @@ public:
             LOG_ERROR("SystemRegistry: System '{}' not found.", _systemTypeName);
             return nullptr;
         }
-        return itr->second(scene);
+        auto system = itr->second(scene);
+        if (system) {
+            return std::move(system);
+        } else {
+            LOG_ERROR("SystemRegistry: Failed to create system '{}'.", _systemTypeName);
+            return nullptr;
+        }
     }
 
 private:

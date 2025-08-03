@@ -35,7 +35,13 @@ public:
     void Finalize() { buff_.Finalize(); }
 
     void ConvertToBuffer() const;
-    void SetForRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const;
+    void SetForRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const {
+        cmdList->SetGraphicsRootConstantBufferView(rootParameterNum, buff_.getResource()->GetGPUVirtualAddress());
+    }
+
+    void SetForComputeRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const {
+        cmdList->SetComputeRootConstantBufferView(rootParameterNum, buff_.getResource()->GetGPUVirtualAddress());
+    }
 
     // 公開用変数
     constBuff openData_;
@@ -61,7 +67,7 @@ inline void IConstantBuffer<constBuff>::CreateBuffer(Microsoft::WRL::ComPtr<ID3D
         return;
     }
 
-        buff_.CreateBufferResource(device, sizeof(constBuff::ConstantBuffer));
+    buff_.CreateBufferResource(device, sizeof(constBuff::ConstantBuffer));
     buff_.getResource()->Map(0, nullptr, reinterpret_cast<void**>(&mappingData_));
 
     buff_.setType(DxResourceType::Buffer_Constant);
@@ -70,9 +76,4 @@ inline void IConstantBuffer<constBuff>::CreateBuffer(Microsoft::WRL::ComPtr<ID3D
 template <HasInConstantBuffer constBuff>
 inline void IConstantBuffer<constBuff>::ConvertToBuffer() const {
     *mappingData_ = openData_;
-}
-
-template <HasInConstantBuffer constBuff>
-inline void IConstantBuffer<constBuff>::SetForRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const {
-    cmdList->SetGraphicsRootConstantBufferView(rootParameterNum, buff_.getResource()->GetGPUVirtualAddress());
 }

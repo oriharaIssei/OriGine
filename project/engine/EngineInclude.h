@@ -41,6 +41,7 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 #include "system/movement/MoveSystemByRigidBody.h"
 
 #include "system/effect/EmitterWorkSystem.h"
+#include "system/effect/GpuParticleEmitterWorkSystem.h"
 #include "system/effect/PrimitiveNodeAnimationWorkSystem.h"
 #include "system/effect/SkinningAnimationSystem.h"
 #include "system/effect/SpriteAnimationSystem.h"

@@ -12,7 +12,7 @@ void ISystem::eraseDeadEntity() {
     auto* entityRepository_ = scene_->getEntityRepositoryRef();
     std::erase_if(entityIDs_, [&entityRepository_](int32_t _entityID) {
         GameEntity* entity = entityRepository_->getEntity(_entityID);
-        return !entity || _entityID < 0;
+        return !entity || !entity->isAlive();
     });
 }
 
@@ -186,7 +186,13 @@ void SystemRunner::FinalizeActiveCategory(SystemCategory _category) {
     if (_category == SystemCategory::Count) {
         LOG_ERROR("SystemRegistry: Invalid SystemCategory.");
     }
-    for (auto system : activeSystems_[static_cast<size_t>(_category)]) {
+
+    auto categoryIndex = static_cast<size_t>(_category);
+    if (categoryIndex >= activeSystems_.size()) {
+        LOG_ERROR("SystemRunner: Invalid SystemCategory index: {}", categoryIndex);
+        return;
+    }
+    for (auto system : activeSystems_[categoryIndex]) {
         if (system) {
             system->Finalize();
         }
@@ -223,7 +229,7 @@ void SystemRunner::UpdateCategory(SystemCategory _category) {
 }
 
 void SystemRunner::registerSystem(const std::string& _systemName, int32_t _priority, bool _isInitialize, bool _activate) {
-    auto itr           = systems_.find(_systemName);
+    auto itr = systems_.find(_systemName);
 
     if (itr == systems_.end()) {
         auto createdSystem = SystemRegistry::getInstance()->createSystem(_systemName, this->scene_);
@@ -242,12 +248,9 @@ void SystemRunner::registerSystem(const std::string& _systemName, int32_t _prior
     } else {
         LOG_WARN("SystemRunner: System '{}' is already registered.", _systemName);
     }
-   
-    if (_activate) {
-        ISystem* system = systems_[_systemName].get();
 
-        activeSystems_[static_cast<size_t>(system->getCategory())].emplace_back(system);
-        system->setIsActive(true);
+    if (_activate) {
+        ActivateSystem(_systemName);
     }
 }
 
@@ -264,9 +267,8 @@ void SystemRunner::unregisterSystem(const std::string& _systemName, bool _isFina
             itr->second->Finalize();
         }
     }
-    auto& activeCategorySystems = activeSystems_[static_cast<size_t>(itr->second->getCategory())];
-    activeCategorySystems.erase(std::remove(activeCategorySystems.begin(), activeCategorySystems.end(), itr->second.get()), activeCategorySystems.end());
-    systems_.erase(itr);
+
+    DeactivateSystem(_systemName);
 }
 
 void SystemRunner::ActivateSystem(const std::string& _systemName) {
@@ -283,7 +285,15 @@ void SystemRunner::ActivateSystem(const std::string& _systemName) {
         LOG_WARN("SystemRunner: System '{}' is already active in category '{}'.", _systemName, SystemCategoryString[categoryIndex]);
         return;
     }
-    activeSystems.insert(activeSystems.begin() + system->getPriority(), system);
+
+    system->setIsActive(true);
+    activeSystems.emplace_back(system);
+    std::sort(
+        activeSystems.begin(),
+        activeSystems.end(),
+        [](const ISystem* a, const ISystem* b) {
+            return a->getPriority() < b->getPriority(); // priorityが低い順（降順）
+        });
 }
 
 void SystemRunner::DeactivateSystem(const std::string& _systemName) {
@@ -300,7 +310,15 @@ void SystemRunner::DeactivateSystem(const std::string& _systemName) {
         LOG_WARN("SystemRunner: System '{}' is not active in category '{}'.", _systemName, SystemCategoryString[categoryIndex]);
         return;
     }
-    activeSystems.erase(std::remove(activeSystems.begin(), activeSystems.end(), system), activeSystems.end());
+
+    system->setIsActive(false);
+
+    if (!activeSystems.empty()) {
+        auto it = std::remove(activeSystems.begin(), activeSystems.end(), system);
+        if (it != activeSystems.end()) {
+            activeSystems.erase(it, activeSystems.end());
+        }
+    }
 }
 
 #pragma endregion

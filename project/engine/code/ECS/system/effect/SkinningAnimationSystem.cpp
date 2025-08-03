@@ -80,14 +80,13 @@ void SkinningAnimationSystem::Update() {
 
     usingCS_ = false;
 
-    StartCS();
     for (auto& id : entityIDs_) {
         GameEntity* entity = getEntity(id);
         UpdateEntity(entity);
     }
-    if (usingCS_) {
-        ExecuteCS();
-    }
+    /*  if (usingCS_) {
+          ExecuteCS();
+      }*/
 }
 
 void SkinningAnimationSystem::Finalize() {
@@ -118,7 +117,7 @@ void SkinningAnimationSystem::UpdateEntity(GameEntity* _entity) {
             animationComponent->CreateSkinnedVertex(this->getScene());
         }
 
-        animationComponent->setIsPrePlay(animationComponent->isPlay());
+        animationComponent->setIsPrePlay(currentAnimationIndex, animationComponent->isPlay());
         if (!animationComponent->isPlay(currentAnimationIndex)) {
             continue;
         }
@@ -203,6 +202,8 @@ void SkinningAnimationSystem::UpdateEntity(GameEntity* _entity) {
         auto& commandList = dxCommand_->getCommandList();
         auto& meshGroup   = modelRenderer->getMeshGroup();
 
+        StartCS();
+
         int32_t meshSize = static_cast<int32_t>(meshGroup->size());
         for (int32_t meshIdx = 0; meshIdx < meshSize; ++meshIdx) {
             auto& mesh = meshGroup->at(meshIdx);
@@ -247,6 +248,7 @@ void SkinningAnimationSystem::UpdateEntity(GameEntity* _entity) {
                 D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
             UINT dispatchCount = (clusterData.skinningInfoBuffer_->vertexSize + 1023) / 1024;
+
             commandList->Dispatch(
                 dispatchCount, // 1ワークグループあたり1024頂点を処理
                 1,
@@ -258,6 +260,8 @@ void SkinningAnimationSystem::UpdateEntity(GameEntity* _entity) {
 
             usingCS_ = true;
         }
+
+        ExecuteCS();
     }
 }
 
@@ -342,7 +346,6 @@ void SkinningAnimationSystem::CreatePSO() {
     /// ==========================================
     pso_ = shaderManager->CreatePso(psoKey, shaderInfo, dxDevice->getDevice());
 }
-
 
 void SkinningAnimationSystem::StartCS() {
     if (!pso_) {

@@ -435,7 +435,7 @@ GameEntity* SceneSerializer::EntityFromJson(const nlohmann::json& _entityData) {
     // 所属するシステムを読み込み
     auto& sceneSystems = targetScene_->systemRunner_->getSystemsRef();
     for (auto& systemData : _entityData.at("Systems")) {
-        int32_t systemCategory = systemData.at("SystemCategory");
+        // int32_t systemCategory = systemData.at("SystemCategory");
         std::string systemName = systemData.at("SystemName");
         ISystem* system        = sceneSystems[systemName].get();
         if (system) {

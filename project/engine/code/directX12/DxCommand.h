@@ -47,6 +47,7 @@ private:
 public:
     void CommandReset();
     void ResourceBarrier(Microsoft::WRL::ComPtr<ID3D12Resource> resource, D3D12_RESOURCE_STATES stateAfter);
+    void ResourceDirectBarrier(Microsoft::WRL::ComPtr<ID3D12Resource> resource, D3D12_RESOURCE_BARRIER barrier);
 
     HRESULT Close();
 
