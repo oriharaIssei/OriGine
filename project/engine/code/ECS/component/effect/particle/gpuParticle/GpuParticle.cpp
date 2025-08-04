@@ -129,8 +129,8 @@ void GpuParticleEmitter::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, [[mayb
 
         ImGui::Spacing();
 
-        std::string label = "Sphere##" + _parentLabel;
-        int shapeType     = shapeBuffer_->isBox ? 1 : 0; // 0:球形, 1:立方体
+        label         = "Sphere##" + _parentLabel;
+        int shapeType = shapeBuffer_->isBox ? 1 : 0; // 0:球形, 1:立方体
         ImGui::RadioButton(label.c_str(), &shapeType, 0);
         label = "Box##" + _parentLabel;
         ImGui::RadioButton(label.c_str(), &shapeType, 1);

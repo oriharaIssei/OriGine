@@ -20,5 +20,5 @@ protected:
     void UpdateEntity(GameEntity* _entity) override;
 
 protected:
-    SerializedField<float> gravity_ = SerializedField<float>("InGame", "Physics", "Gravity");
+    SerializedField<float> gravity_ = SerializedField<float>("Settings", "Physics", "Gravity");
 };
