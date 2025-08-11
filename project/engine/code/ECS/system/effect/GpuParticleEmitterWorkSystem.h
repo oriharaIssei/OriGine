@@ -4,10 +4,14 @@
 
 /// stl
 #include <memory>
+#include <vector>
 
 /// engine
 // directX12
 #include "directX12/IConstantBuffer.h"
+
+/// ECS
+#include "ECS/component/effect/particle/gpuParticle/GpuParticle.h"
 
 class DxCommand;
 struct PipelineStateObj;
@@ -38,8 +42,9 @@ public:
     void Update() override;
     void Finalize();
 
-    void UpdateEntity(GameEntity* entity) override;
-    void EmitParticle(GameEntity* entity);
+    void UpdateEntity(GameEntity* /*entity*/) override {}
+    void UpdateParticle(GpuParticleEmitter* _emitter);
+    void EmitParticle(GpuParticleEmitter* entity);
 
 protected:
     void CreatePso();
@@ -54,15 +59,15 @@ private:
     PipelineStateObj* emitGpuParticlePso_   = nullptr;
     PipelineStateObj* updateGpuParticlePso_ = nullptr;
 
+    std::vector<GpuParticleEmitter*> workEmitters_;
+
     std::unique_ptr<DxCommand> dxCommand_;
 
     IConstantBuffer<PerFrame> perFrameBuffer_;
 
-    // particlesData と perFrame は Emitと Updateの両方で使用されるため 並んでいたほうが都合がいい
-    // freeList , freeIndex も
     const int32_t particlesDataIndex   = 0;
     const int32_t freeIndexBufferIndex = 1;
     const int32_t freeListBufferIndex  = 2;
-    const int32_t perFrameBufferIndex  = 3;
-    const int32_t emitterShapeIndex    = 4;
+    const int32_t emitterShapeIndex    = 3;
+    const int32_t perFrameBufferIndex  = 4;
 };

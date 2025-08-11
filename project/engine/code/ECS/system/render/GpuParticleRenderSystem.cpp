@@ -16,12 +16,14 @@ void GpuParticleRenderSystem::Initialize() {
     CreatePso();
 
     perViewBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+
+    activeEmitter_.resize(100);
 }
 
 void GpuParticleRenderSystem::Update() {
     eraseDeadEntity();
 
-    if (entityIDs_.empty()) {
+    if (!isRendering()) {
         return;
     }
 
@@ -187,6 +189,26 @@ void GpuParticleRenderSystem::StartRender() {
 
     ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
+}
+
+bool GpuParticleRenderSystem::isRendering() {
+    if (entityIDs_.empty()) {
+        return true;
+    }
+
+    for (const auto& id : entityIDs_) {
+        GameEntity* entity = getEntity(id);
+        if (!entity) {
+            continue;
+        }
+        for (auto& comp : *getComponents<GpuParticleEmitter>(entity)) {
+            if (comp.isActive()) {
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 void GpuParticleRenderSystem::UpdateEntity(GameEntity* _entity) {

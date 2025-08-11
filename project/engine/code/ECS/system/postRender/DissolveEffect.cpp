@@ -72,7 +72,7 @@ void DissolveEffect::UpdateEntity(GameEntity* _entity) {
     auto& commandList = dxCommand_->getCommandList();
 
     for (int32_t i = 0; i < compSize; i++) {
-        auto* dissolveEffectParam = getComponent<DissolveEffectParam>(_entity,i);
+        auto* dissolveEffectParam = getComponent<DissolveEffectParam>(_entity, i);
         if (!dissolveEffectParam->isActive()) {
             continue;
         }
@@ -85,8 +85,9 @@ void DissolveEffect::UpdateEntity(GameEntity* _entity) {
 }
 
 void DissolveEffect::Finalize() {
-    dxCommand_->Finalize();
-    dxCommand_.reset();
+    if (dxCommand_) {
+        dxCommand_.reset();
+    }
     pso_ = nullptr;
 }
 

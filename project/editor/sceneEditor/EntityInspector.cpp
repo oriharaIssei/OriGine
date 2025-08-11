@@ -53,6 +53,7 @@ void EntityInformationRegion::DrawGui() {
 
         auto changeEditEntityCommand = std::make_unique<EntityInspectorArea::ChangeEditEntityCommand>(parentArea_, -1, editEntityId);
         EditorController::getInstance()->pushCommand(std::move(changeEditEntityCommand));
+
     }
 
     ImGui::Spacing();

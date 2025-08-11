@@ -66,8 +66,8 @@ protected:
     // システム内で使用するであろう 便利関数群
     /// ==========================================
 
-    GameEntity* getEntity(int32_t _entityID);
-    GameEntity* getUniqueEntity(const std::string& _dataTypeName);
+    GameEntity* getEntity(int32_t _entityID) ;
+    GameEntity* getUniqueEntity(const std::string& _dataTypeName) ;
 
     IComponentArray* getComponentArray(const std::string& _typeName);
     template <IsComponent ComponentType>

@@ -73,6 +73,11 @@ void GpuParticleInitialize::UpdateEntity(GameEntity* _entity) {
             freeListBufferIndex_,
             gpuParticleEmitter.getFreeListUavDescriptor()->getGpuHandle());
 
+        gpuParticleEmitter.getShapeBuffer().ConvertToBuffer();
+        gpuParticleEmitter.getShapeBuffer().SetForComputeRootParameter(
+            commandList.Get(),
+            emitterShapeIndex);
+
         UINT dispatchCount = (gpuParticleEmitter.getParticleSize() + 1023) / 1024;
         commandList->Dispatch(
             dispatchCount, // 1ワークグループあたり1024頂点を処理
@@ -113,7 +118,7 @@ void GpuParticleInitialize::CreatePSO() {
 
 #pragma region "ROOT_PARAMETER"
 
-    D3D12_ROOT_PARAMETER rootParameters[3]                = {};
+    D3D12_ROOT_PARAMETER rootParameters[4]                = {};
     rootParameters[particleBufferIndex_].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
     rootParameters[particleBufferIndex_].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
     shaderInfo.pushBackRootParameter(rootParameters[particleBufferIndex_]);
@@ -130,7 +135,7 @@ void GpuParticleInitialize::CreatePSO() {
     rootParameters[freeIndexBufferIndex_].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
     shaderInfo.pushBackRootParameter(rootParameters[freeIndexBufferIndex_]);
 
-    D3D12_DESCRIPTOR_RANGE freeIndexDescriptorRange[1]           = {};
+    D3D12_DESCRIPTOR_RANGE freeIndexDescriptorRange[1]            = {};
     freeIndexDescriptorRange[0].BaseShaderRegister                = 1; // u1
     freeIndexDescriptorRange[0].NumDescriptors                    = 1;
     freeIndexDescriptorRange[0].RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
@@ -149,6 +154,11 @@ void GpuParticleInitialize::CreatePSO() {
     freeListDescriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
     shaderInfo.setDescriptorRange2Parameter(
         freeListDescriptorRange, 1, freeListBufferIndex_);
+
+    rootParameters[emitterShapeIndex].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
+    rootParameters[emitterShapeIndex].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
+    rootParameters[emitterShapeIndex].Descriptor.ShaderRegister = 0; // b0
+    shaderInfo.pushBackRootParameter(rootParameters[emitterShapeIndex]);
 
 #pragma endregion
 

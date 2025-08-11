@@ -19,6 +19,9 @@ void VignetteEffect::Initialize() {
 }
 
 void VignetteEffect::Update() {
+    if (!getScene()) {
+        return;
+    }
     eraseDeadEntity();
 
     if (entityIDs_.empty()) {
@@ -41,8 +44,10 @@ void VignetteEffect::UpdateEntity(GameEntity* _entity) {
 }
 
 void VignetteEffect::Finalize() {
-    dxCommand_->Finalize();
-    dxCommand_.reset();
+    if (dxCommand_) {
+        dxCommand_->Finalize();
+        dxCommand_.reset();
+    }
     pso_ = nullptr;
 }
 

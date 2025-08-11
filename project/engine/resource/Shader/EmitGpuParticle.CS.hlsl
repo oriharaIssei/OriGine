@@ -2,43 +2,16 @@
 
 #include "Random.hlsli"
 
-static const int kMaxParticleSize = 1024;
-
-struct EmitterShape
-{
-    float3 minColor;
-    float minLifeTime;
-    float3 maxColor;
-    float maxLifeTime;
-    
-    float3 center;
-    uint minCount;
-
-    float3 size;
-    uint maxCount;
-
-    float3 minVelocity;
-    uint isBox;
-
-    float3 maxVelocity;
-    uint emit;
-
-    float3 minScale;
-    uint isEdge;
-    float3 maxScale;
-    float pad2;
-};
-
 struct PerFrame
 {
     float time;
     float deltaTime;
 };
 
-ConstantBuffer<EmitterShape> gEmitteShape : register(b0);
+ConstantBuffer<GpuEmitterShape> gEmitteShape : register(b0);
 ConstantBuffer<PerFrame> gPerFrame : register(b1);
 
-RWStructuredBuffer<GPUParticleData> gParticles : register(u0);
+RWStructuredBuffer<GpuParticleData> gParticles : register(u0);
 RWStructuredBuffer<int> gFreeListIndex : register(u1);
 RWStructuredBuffer<uint> gFreeList : register(u2);
 
@@ -57,18 +30,19 @@ void main(uint3 DTid : SV_DispatchThreadID)
             int perticleIndex = 0;
             InterlockedAdd(gFreeListIndex[0], -1, perticleIndex);
 
-            if (perticleIndex >= kMaxParticleSize || perticleIndex >= 0)
+            if (perticleIndex >= gEmitteShape.particleSize || perticleIndex <= 0)
             {
                 InterlockedAdd(gFreeListIndex[0], 1);
                 break; // Avoid exceeding the maximum particle size
             }
             
-            GPUParticleData particle = (GPUParticleData) 0;
+            GpuParticleData particle = (GpuParticleData) 0;
             
             particle.scale = randGen.Generate3d(gEmitteShape.minScale, gEmitteShape.maxScale);
             particle.velocity = randGen.Generate3d(gEmitteShape.minVelocity, gEmitteShape.maxVelocity);
             particle.color = float4(randGen.Generate3d(gEmitteShape.minColor, gEmitteShape.maxColor), 1.0f);
-            particle.lifeTime = randGen.Generate1d(gEmitteShape.minLifeTime, gEmitteShape.maxLifeTime);
+            particle.maxLifeTime = randGen.Generate1d(gEmitteShape.minLifeTime, gEmitteShape.maxLifeTime);
+            particle.lifeTime = particle.maxLifeTime;
 
             float3 halfSize = gEmitteShape.size * 0.5f;
             /// Box
