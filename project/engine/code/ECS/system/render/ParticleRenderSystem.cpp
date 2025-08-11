@@ -22,7 +22,7 @@ void ParticleRenderSystem::Initialize() {
 void ParticleRenderSystem::Update() {
     eraseDeadEntity();
 
-    if (!entityIDs_.empty()) {
+    if (entityIDs_.empty()) {
         return;
     }
 

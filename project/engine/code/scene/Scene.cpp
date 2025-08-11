@@ -56,6 +56,7 @@ void Scene::Render() {
         return;
     }
     sceneView_->PreDraw();
+    sceneView_->DrawTexture();
     systemRunner_->UpdateCategory<SystemCategory::PostRender>();
     sceneView_->PostDraw();
 }

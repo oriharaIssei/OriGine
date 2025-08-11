@@ -169,6 +169,8 @@ void LoadMenuItem::DrawGui() {
         serializer.Serialize();
         sceneEditorWindow->getCurrentScene()->Finalize(); // 現在のシーンを終了処理
 
+        sceneEditorWindow->getEditSceneName().setValue(filename);
+
         std::unique_ptr<Scene> scene = std::make_unique<Scene>(filename);
         scene->Initialize();
 
@@ -178,6 +180,8 @@ void LoadMenuItem::DrawGui() {
 
         sceneEditorWindow->FinalizeAreas();
         sceneEditorWindow->InitializeAreas();
+
+        EditorController::getInstance()->clearCommandHistory();
     }
     isSelected_.set(isSelect);
 }

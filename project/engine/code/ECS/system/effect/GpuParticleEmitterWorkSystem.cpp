@@ -2,17 +2,12 @@
 
 /// engine
 #define ENGINE_INCLUDE
-#define DELTA_TIME
-#include "EngineInclude.h"
+#include <EngineInclude.h>
 // DirectX12
 #include "directX12/DxCommand.h"
 #include "directX12/DxDevice.h"
 #include "directX12/DxFence.h"
 #include "directX12/ShaderManager.h"
-
-/// ECS
-// component
-#include "component/effect/particle/gpuParticle/GpuParticle.h"
 
 GpuParticleEmitterWorkSystem::GpuParticleEmitterWorkSystem() : ISystem(SystemCategory::Effect) {}
 
@@ -23,6 +18,8 @@ void GpuParticleEmitterWorkSystem::Initialize() {
     dxCommand_->Initialize("main", "main");
     perFrameBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
 
+    workEmitters_.reserve(100);
+
     CreatePso();
 }
 
@@ -32,10 +29,32 @@ void GpuParticleEmitterWorkSystem::Update() {
     }
     ISystem::eraseDeadEntity();
 
+    /// Update する必要があるかどうか調べる
+    {
+        if (!workEmitters_.empty()) {
+            workEmitters_.clear();
+        }
+
+        auto* emitterArray = getComponentArray<GpuParticleEmitter>();
+        if (!emitterArray) {
+            return; // エミッターが存在しない場合は何もしない
+        }
+        for (auto& componentVec : *emitterArray->getAllComponents()) {
+            for (auto& comp : componentVec) {
+                if (comp.isActive()) {
+                    workEmitters_.push_back(&comp);
+                }
+            }
+        }
+        if (workEmitters_.empty()) {
+            return; // アクティブなエミッターがない場合は何もしない
+        }
+    }
+
     /// ==========================================
     // PerFrame Buffer Update
     /// ==========================================
-    perFrameBuffer_->deltaTime = getMainDeltaTime();
+    perFrameBuffer_->deltaTime = Engine::getInstance()->getDeltaTime();
     perFrameBuffer_->time      = perFrameBuffer_->deltaTime;
     perFrameBuffer_.ConvertToBuffer();
 
@@ -43,26 +62,24 @@ void GpuParticleEmitterWorkSystem::Update() {
     // Emit CS
     /// ==========================================
     StartCS(emitGpuParticlePso_);
-    for (auto& id : entityIDs_) {
-        GameEntity* entity = getEntity(id);
-        if (!entity) {
-            continue;
+    for (auto& emitter : workEmitters_) {
+        if (!emitter) {
+            continue; // エミッターが無効な場合はスキップ
         }
-        EmitParticle(entity);
+        EmitParticle(emitter);
     }
-    ExecuteCS();
 
     /// ==========================================
     // Update CS
     /// ==========================================
     StartCS(updateGpuParticlePso_);
-    for (auto& id : entityIDs_) {
-        GameEntity* entity = getEntity(id);
-        if (!entity) {
-            continue;
+    for (auto& emitter : workEmitters_) {
+        if (!emitter) {
+            continue; // エミッターが無効な場合はスキップ
         }
-        UpdateEntity(entity);
+        UpdateParticle(emitter);
     }
+
     ExecuteCS();
 }
 
@@ -84,113 +101,89 @@ void GpuParticleEmitterWorkSystem::Finalize() {
     }
 }
 
-void GpuParticleEmitterWorkSystem::UpdateEntity(GameEntity* entity) {
+void GpuParticleEmitterWorkSystem::UpdateParticle(GpuParticleEmitter* _emitter) {
     auto& commandList = dxCommand_->getCommandList();
-    auto emitterVec   = getComponents<GpuParticleEmitter>(entity);
 
-    for (auto emitterItr = emitterVec->begin();
-        emitterItr != emitterVec->end();
-        ++emitterItr) {
-        auto& emitter = *emitterItr;
+    commandList->SetComputeRootDescriptorTable(
+        particlesDataIndex,
+        _emitter->getParticleUavDescriptor()->getGpuHandle());
 
-        if (!emitter.isActive()) {
-            continue; // パーティクルエミッターがアクティブでない場合はスキップ
-        }
+    commandList->SetComputeRootDescriptorTable(
+        freeIndexBufferIndex,
+        _emitter->getFreeIndexUavDescriptor()->getGpuHandle());
 
-        commandList->SetComputeRootDescriptorTable(
-            particlesDataIndex,
-            emitter.getParticleUavDescriptor()->getGpuHandle());
+    commandList->SetComputeRootDescriptorTable(
+        freeListBufferIndex,
+        _emitter->getFreeListUavDescriptor()->getGpuHandle());
 
-        commandList->SetComputeRootDescriptorTable(
-            freeIndexBufferIndex,
-            emitter.getFreeIndexUavDescriptor()->getGpuHandle());
+    dxCommand_->ResourceBarrier(
+        _emitter->getParticleResource().getResource(),
+        D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
 
-        commandList->SetComputeRootDescriptorTable(
-            freeListBufferIndex,
-            emitter.getFreeListUavDescriptor()->getGpuHandle());
+    D3D12_RESOURCE_BARRIER particleResourceBarrier = {};
+    particleResourceBarrier.Type                   = D3D12_RESOURCE_BARRIER_TYPE_UAV;
+    particleResourceBarrier.Flags                  = D3D12_RESOURCE_BARRIER_FLAG_NONE;
 
-        dxCommand_->ResourceBarrier(
-            emitter.getParticleResource().getResource(),
-            D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+    dxCommand_->ResourceDirectBarrier(
+        _emitter->getFreeListResource().getResource(), particleResourceBarrier);
 
-        D3D12_RESOURCE_BARRIER particleResourceBarrier = {};
-        particleResourceBarrier.Type                   = D3D12_RESOURCE_BARRIER_TYPE_UAV;
-        particleResourceBarrier.Flags                  = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+    dxCommand_->ResourceDirectBarrier(
+        _emitter->getFreeIndexResource().getResource(), particleResourceBarrier);
 
-        dxCommand_->ResourceDirectBarrier(
-            emitter.getFreeListResource().getResource(), particleResourceBarrier);
-
-        dxCommand_->ResourceDirectBarrier(
-            emitter.getFreeIndexResource().getResource(), particleResourceBarrier);
-
-        UINT dispatchCount = (emitter.getParticleSize() + 1023) / 1024;
-        commandList->Dispatch(
-            dispatchCount, // 1ワークグループあたり1024頂点を処理
-            1, 1);
-    }
+    UINT dispatchCount = (_emitter->getParticleSize() + 1023) / 1024;
+    commandList->Dispatch(
+        dispatchCount, // 1ワークグループあたり1024頂点を処理
+        1, 1);
 }
 
-void GpuParticleEmitterWorkSystem::EmitParticle(GameEntity* entity) {
+void GpuParticleEmitterWorkSystem::EmitParticle(GpuParticleEmitter* _emitter) {
     auto& commandList = dxCommand_->getCommandList();
-    auto emitterVec   = getComponents<GpuParticleEmitter>(entity);
 
-    if (!emitterVec) {
-        return;
+    auto& emitterData = _emitter->getShapeBufferDataRef();
+    emitterData.frequency -= perFrameBuffer_->deltaTime;
+    emitterData.isEmit = 0;
+
+    if (emitterData.frequency < 0.0f) {
+        emitterData.frequency = emitterData.frequencyTime;
+        emitterData.isEmit    = 1;
     }
 
-    for (auto emitterItr = emitterVec->begin();
-        emitterItr != emitterVec->end();
-        ++emitterItr) {
-        auto& emitter = *emitterItr;
+    auto& buffer = _emitter->getShapeBuffer();
+    buffer.ConvertToBuffer();
 
-        if (!emitter.isActive()) {
-            continue; // パーティクルエミッターがアクティブでない場合はスキップ
-        }
+    buffer.SetForComputeRootParameter(
+        dxCommand_->getCommandList(), emitterShapeIndex);
 
-        auto& emitterData = emitter.getShapeBufferDataRef();
-        emitterData.frequency -= perFrameBuffer_->deltaTime;
-        emitterData.isEmit = 0;
-        if (emitterData.frequency < 0.0f) {
-            emitterData.frequency = emitterData.frequencyTime;
-            emitterData.isEmit    = 1;
-        }
+    buffer.ConvertToBuffer();
+    buffer.SetForComputeRootParameter(
+        dxCommand_->getCommandList(), emitterShapeIndex);
 
-        emitter.getShapeBuffer().ConvertToBuffer();
+    commandList->SetComputeRootDescriptorTable(
+        particlesDataIndex,
+        _emitter->getParticleUavDescriptor()->getGpuHandle());
 
-        emitter.getShapeBuffer().SetForComputeRootParameter(
-            dxCommand_->getCommandList(), emitterShapeIndex);
+    commandList->SetComputeRootDescriptorTable(
+        freeIndexBufferIndex,
+        _emitter->getFreeIndexUavDescriptor()->getGpuHandle());
 
-        emitter.getShapeBuffer().ConvertToBuffer();
-        emitter.getShapeBuffer().SetForComputeRootParameter(
-            dxCommand_->getCommandList(), emitterShapeIndex);
+    commandList->SetComputeRootDescriptorTable(
+        freeListBufferIndex,
+        _emitter->getFreeListUavDescriptor()->getGpuHandle());
 
-        commandList->SetComputeRootDescriptorTable(
-            particlesDataIndex,
-            emitter.getParticleUavDescriptor()->getGpuHandle());
+    D3D12_RESOURCE_BARRIER particleResourceBarrier = {};
+    particleResourceBarrier.Type                   = D3D12_RESOURCE_BARRIER_TYPE_UAV;
+    particleResourceBarrier.Flags                  = D3D12_RESOURCE_BARRIER_FLAG_NONE;
 
-        commandList->SetComputeRootDescriptorTable(
-            freeIndexBufferIndex,
-            emitter.getFreeIndexUavDescriptor()->getGpuHandle());
+    dxCommand_->ResourceDirectBarrier(
+        _emitter->getParticleResource().getResource(), particleResourceBarrier);
 
-        commandList->SetComputeRootDescriptorTable(
-            freeListBufferIndex,
-            emitter.getFreeListUavDescriptor()->getGpuHandle());
+    dxCommand_->ResourceDirectBarrier(
+        _emitter->getFreeListResource().getResource(), particleResourceBarrier);
 
-        D3D12_RESOURCE_BARRIER particleResourceBarrier = {};
-        particleResourceBarrier.Type                   = D3D12_RESOURCE_BARRIER_TYPE_UAV;
-        particleResourceBarrier.Flags                  = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+    dxCommand_->ResourceDirectBarrier(
+        _emitter->getFreeIndexResource().getResource(), particleResourceBarrier);
 
-        dxCommand_->ResourceDirectBarrier(
-            emitter.getParticleResource().getResource(), particleResourceBarrier);
-
-        dxCommand_->ResourceDirectBarrier(
-            emitter.getFreeListResource().getResource(), particleResourceBarrier);
-
-        dxCommand_->ResourceDirectBarrier(
-            emitter.getFreeIndexResource().getResource(), particleResourceBarrier);
-
-        commandList->Dispatch(1, 1, 1); // Emitter 一つにつき 1 スレッドで処理
-    }
+    commandList->Dispatch(1, 1, 1); // Emitter 一つにつき 1 スレッドで処理
 }
 
 void GpuParticleEmitterWorkSystem::CreatePso() {
@@ -262,15 +255,15 @@ void GpuParticleEmitterWorkSystem::CreateEmitGpuParticlePso() {
     shaderInfo.setDescriptorRange2Parameter(
         freeListDescriptorRange, 1, freeListBufferIndex);
 
-    rootParameters[perFrameBufferIndex].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
-    rootParameters[perFrameBufferIndex].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
-    rootParameters[perFrameBufferIndex].Descriptor.ShaderRegister = 1; // b1
-    shaderInfo.pushBackRootParameter(rootParameters[perFrameBufferIndex]);
-
     rootParameters[emitterShapeIndex].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
     rootParameters[emitterShapeIndex].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
     rootParameters[emitterShapeIndex].Descriptor.ShaderRegister = 0; // b0
     shaderInfo.pushBackRootParameter(rootParameters[emitterShapeIndex]);
+
+    rootParameters[perFrameBufferIndex].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
+    rootParameters[perFrameBufferIndex].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
+    rootParameters[perFrameBufferIndex].Descriptor.ShaderRegister = 1; // b1
+    shaderInfo.pushBackRootParameter(rootParameters[perFrameBufferIndex]);
 
 #pragma endregion
 
@@ -282,7 +275,7 @@ void GpuParticleEmitterWorkSystem::CreateEmitGpuParticlePso() {
 
 void GpuParticleEmitterWorkSystem::CreateUpdateGpuParticlePso() {
     constexpr const char* psoKey          = "UpdateGpuParticle.CS";
-    constexpr int32_t kRootParameterCount = 4;
+    constexpr int32_t kRootParameterCount = 5;
 
     if (updateGpuParticlePso_) {
         return; // PSOが既に作成されている場合は何もしない
@@ -344,10 +337,16 @@ void GpuParticleEmitterWorkSystem::CreateUpdateGpuParticlePso() {
     shaderInfo.setDescriptorRange2Parameter(
         freeListDescriptorRange, 1, freeListBufferIndex);
 
+    rootParameters[emitterShapeIndex].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
+    rootParameters[emitterShapeIndex].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
+    rootParameters[emitterShapeIndex].Descriptor.ShaderRegister = 0; // b0
+    shaderInfo.pushBackRootParameter(rootParameters[emitterShapeIndex]);
+
     rootParameters[perFrameBufferIndex].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
     rootParameters[perFrameBufferIndex].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
-    rootParameters[perFrameBufferIndex].Descriptor.ShaderRegister = 0; // b0
+    rootParameters[perFrameBufferIndex].Descriptor.ShaderRegister = 1; // b0
     shaderInfo.pushBackRootParameter(rootParameters[perFrameBufferIndex]);
+
 #pragma endregion
 
     /// ==========================================

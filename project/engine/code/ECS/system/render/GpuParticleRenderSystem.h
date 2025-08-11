@@ -1,6 +1,9 @@
 #pragma once
 #include "system/ISystem.h"
 
+/// stl
+#include <vector>
+
 /// engine
 // directX12Object
 #include "directX12/DxCommand.h"
@@ -10,6 +13,8 @@
 /// ECS/
 // component
 #include "component/effect/particle/gpuParticle/GpuParticle.h"
+
+class GpuParticleEmitter;
 
 class GpuParticleRenderSystem
     : public ISystem {
@@ -25,6 +30,7 @@ protected:
     void CreatePso();
 
     void StartRender();
+    bool isRendering();
     void UpdateEntity(GameEntity* _entity) override;
 
 private:
@@ -32,6 +38,8 @@ private:
 
     std::unique_ptr<DxCommand> dxCommand_ = nullptr;
     std::unordered_map<BlendMode, PipelineStateObj*> pso_;
+
+    std::vector<GpuParticleEmitter> activeEmitter_;
 
     IConstantBuffer<PerView> perViewBuffer_;
 };

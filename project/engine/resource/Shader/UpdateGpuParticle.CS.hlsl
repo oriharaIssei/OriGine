@@ -2,25 +2,24 @@
 
 #include "Random.hlsli"
 
-static const int kMaxParticleSize = 1024;
-
 struct PerFrame
 {
     float time;
     float deltaTime;
 };
 
-ConstantBuffer<PerFrame> gPerFrame : register(b0);
-
-RWStructuredBuffer<GPUParticleData> gParticles : register(u0);
+RWStructuredBuffer<GpuParticleData> gParticles : register(u0);
 RWStructuredBuffer<int> gFreeListIndex : register(u1);
 RWStructuredBuffer<uint> gFreeList : register(u2);
+
+ConstantBuffer<GpuEmitterShape> gEmitteShape : register(b0);
+ConstantBuffer<PerFrame> gPerFrame : register(b1);
 
 [numthreads(1024, 1, 1)]
 void main(uint3 DTid : SV_DispatchThreadID)
 {
     uint perticleIndex = DTid.x;
-    if (perticleIndex >= kMaxParticleSize)
+    if (perticleIndex >= gEmitteShape.particleSize)
     {
         return; // Avoid exceeding the maximum particle size
     }
@@ -30,7 +29,7 @@ void main(uint3 DTid : SV_DispatchThreadID)
         int freeIndex = 0;
         InterlockedAdd(gFreeListIndex[0], 1, freeIndex);
 
-        if ((freeIndex + 1) < kMaxParticleSize)
+        if ((freeIndex + 1) < gEmitteShape.particleSize)
         {
             gFreeList[freeIndex] = perticleIndex; // Update the free list
         }
@@ -46,6 +45,6 @@ void main(uint3 DTid : SV_DispatchThreadID)
 
     gParticles[perticleIndex].translate += gParticles[perticleIndex].velocity * gPerFrame.deltaTime;
 
-    gParticles[perticleIndex].color.a = 1.f - (gParticles[perticleIndex].currentTime / gParticles[perticleIndex].lifeTime);
+    gParticles[perticleIndex].color.a = gParticles[perticleIndex].lifeTime / gParticles[perticleIndex].maxLifeTime;
     
 }

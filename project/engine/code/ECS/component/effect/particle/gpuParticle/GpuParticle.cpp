@@ -39,12 +39,27 @@ void GpuParticleEmitter::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, [[mayb
         }
     }
 
+    DragGuiCommand<uint32_t>(
+        "ParticleSize##" + _parentLabel,
+        shapeBuffer_->particleSize,
+        1.f,
+        1,0,
+        "%6d"
+    );
+
     ImGui::Spacing();
 
     std::string label = "Material##" + _parentLabel;
     if (ImGui::TreeNode(label.c_str())) {
 
-        materialBuffer_->DebugGui(_parentLabel);
+        ImGui::Text("Color");
+        ColorEditGuiCommand("##color" + _parentLabel, materialBuffer_->color_);
+        ImGui::Text("uvScale");
+        DragGuiVectorCommand<2, float>("##uvScale" + _parentLabel, materialBuffer_->uvTransform_.scale_, 0.01f);
+        ImGui::Text("uvRotate");
+        DragGuiCommand<float>("##uvRotate" + _parentLabel, materialBuffer_->uvTransform_.rotate_, 0.01f);
+        ImGui::Text("uvTranslate");
+        DragGuiVectorCommand<2, float>("##uvTranslate" + _parentLabel, materialBuffer_->uvTransform_.translate_, 0.01f);
 
         ImGui::Spacing();
 
@@ -78,11 +93,42 @@ void GpuParticleEmitter::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, [[mayb
         ImGui::TreePop();
     }
 
-    label = " Shape##" + _parentLabel;
+    label = " Emitter##" + _parentLabel;
 
     if (ImGui::TreeNode(label.c_str())) {
+        ImGui::SeparatorText("Emitter Shape");
         DragGuiVectorCommand("Center##" + _parentLabel, shapeBuffer_->center);
         DragGuiVectorCommand("Size##" + _parentLabel, shapeBuffer_->size, 0.01f, 0.001f);
+
+        label         = "Sphere##" + _parentLabel;
+        int shapeType = shapeBuffer_->isBox ? 1 : 0; // 0:球形, 1:立方体
+        ImGui::RadioButton(label.c_str(), &shapeType, 0);
+        label = "Box##" + _parentLabel;
+        ImGui::RadioButton(label.c_str(), &shapeType, 1);
+
+        if (shapeType != (int)shapeBuffer_->isBox) {
+            auto command = std::make_unique<SetterCommand<uint32_t>>(&shapeBuffer_->isBox, (uint32_t)shapeType);
+            EditorController::getInstance()->pushCommand(std::move(command));
+        }
+
+        ImGui::Spacing();
+
+        label           = "isEmitEdge##" + _parentLabel;
+        bool isEmitEdge = shapeBuffer_->isEmitEdge != 0;
+        if (ImGui::Checkbox(label.c_str(), &isEmitEdge)) {
+            auto command = std::make_unique<SetterCommand<uint32_t>>(&shapeBuffer_->isEmitEdge, (uint32_t)isEmitEdge);
+            EditorController::getInstance()->pushCommand(std::move(command));
+        }
+        ImGui::Spacing();
+
+        label = "Emit##" + _parentLabel;
+        if (ImGui::Button(label.c_str())) {
+            shapeBuffer_->frequency = 0.f; // Emitボタンを押したら、frequencyをリセット
+        }
+
+        ImGui::Spacing();
+
+        ImGui::SeparatorText("Particle Data");
 
         ImGui::Spacing();
 
@@ -90,8 +136,8 @@ void GpuParticleEmitter::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, [[mayb
 
         ImGui::Spacing();
 
-        DragGuiCommand<uint32_t>("MinEmitParticleCount##" + _parentLabel, shapeBuffer_->minParticleCount, 1.f, 0, particleSize_, "%3d");
-        DragGuiCommand<uint32_t>("MaxEmitParticleCount##" + _parentLabel, shapeBuffer_->maxParticleCount, 1.f, 0, particleSize_, "%3d");
+        DragGuiCommand<uint32_t>("MinEmitParticleCount##" + _parentLabel, shapeBuffer_->minParticleCount, 1.f, 0, shapeBuffer_->particleSize, "%3d");
+        DragGuiCommand<uint32_t>("MaxEmitParticleCount##" + _parentLabel, shapeBuffer_->maxParticleCount, 1.f, 0, shapeBuffer_->particleSize, "%3d");
 
         shapeBuffer_->maxParticleCount = (std::max)(shapeBuffer_->minParticleCount, shapeBuffer_->maxParticleCount);
         shapeBuffer_->minParticleCount = (std::min)(shapeBuffer_->minParticleCount, shapeBuffer_->maxParticleCount);
@@ -126,28 +172,6 @@ void GpuParticleEmitter::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, [[mayb
 
         shapeBuffer_->minColor = MinElement(shapeBuffer_->minColor, shapeBuffer_->maxColor);
         shapeBuffer_->maxColor = MaxElement(shapeBuffer_->minColor, shapeBuffer_->maxColor);
-
-        ImGui::Spacing();
-
-        label         = "Sphere##" + _parentLabel;
-        int shapeType = shapeBuffer_->isBox ? 1 : 0; // 0:球形, 1:立方体
-        ImGui::RadioButton(label.c_str(), &shapeType, 0);
-        label = "Box##" + _parentLabel;
-        ImGui::RadioButton(label.c_str(), &shapeType, 1);
-
-        if (shapeType != (int)shapeBuffer_->isBox) {
-            auto command = std::make_unique<SetterCommand<uint32_t>>(&shapeBuffer_->isBox, (uint32_t)shapeType);
-            EditorController::getInstance()->pushCommand(std::move(command));
-        }
-
-        ImGui::Spacing();
-
-        label           = "Emit##" + _parentLabel;
-        bool isEmitEdge = shapeBuffer_->isEmitEdge != 0;
-        if (ImGui::Checkbox(label.c_str(), &isEmitEdge)) {
-            auto command = std::make_unique<SetterCommand<uint32_t>>(&shapeBuffer_->isEmitEdge, (uint32_t)isEmitEdge);
-            EditorController::getInstance()->pushCommand(std::move(command));
-        }
 
         ImGui::TreePop();
     }
@@ -216,7 +240,7 @@ void GpuParticleEmitter::CreateBuffer() {
     if (!particleResource_.getResource()) {
         particleResource_.CreateUAVBuffer(
             dxDevice->getDevice(),
-            sizeof(GpuParticleData::ConstantBuffer) * particleSize_,
+            sizeof(GpuParticleData::ConstantBuffer) * shapeBuffer_->particleSize,
             D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
             D3D12_HEAP_TYPE_DEFAULT);
     }
@@ -229,7 +253,7 @@ void GpuParticleEmitter::CreateBuffer() {
         srvDesc.Shader4ComponentMapping    = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
         srvDesc.ViewDimension              = D3D12_SRV_DIMENSION_BUFFER;
         srvDesc.Buffer.FirstElement        = 0;
-        srvDesc.Buffer.NumElements         = particleSize_;
+        srvDesc.Buffer.NumElements         = shapeBuffer_->particleSize;
         srvDesc.Buffer.StructureByteStride = sizeof(GpuParticleData::ConstantBuffer);
         particleSrvDescriptor_             = srvuavHeap->CreateDescriptor(srvDesc, &particleResource_);
     }
@@ -242,7 +266,7 @@ void GpuParticleEmitter::CreateBuffer() {
         uavDesc.Format                      = DXGI_FORMAT_UNKNOWN; // UAVはフォーマットを持たない
         uavDesc.ViewDimension               = D3D12_UAV_DIMENSION_BUFFER;
         uavDesc.Buffer.FirstElement         = 0;
-        uavDesc.Buffer.NumElements          = particleSize_;
+        uavDesc.Buffer.NumElements          = shapeBuffer_->particleSize;
         uavDesc.Buffer.CounterOffsetInBytes = 0; // カウンターオフセットは0
         uavDesc.Buffer.Flags                = D3D12_BUFFER_UAV_FLAG_NONE; // 特にフラグは必要ない
         uavDesc.Buffer.StructureByteStride  = sizeof(GpuParticleData::ConstantBuffer);
@@ -253,7 +277,7 @@ void GpuParticleEmitter::CreateBuffer() {
     if (!freeIndexResource_.getResource()) {
         freeIndexResource_.CreateUAVBuffer(
             dxDevice->getDevice(),
-            sizeof(int) * particleSize_,
+            sizeof(int) * shapeBuffer_->particleSize,
             D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
             D3D12_HEAP_TYPE_DEFAULT);
     }
@@ -264,7 +288,7 @@ void GpuParticleEmitter::CreateBuffer() {
         uavDesc.Format                      = DXGI_FORMAT_UNKNOWN; // UAVはフォーマットを持たない
         uavDesc.ViewDimension               = D3D12_UAV_DIMENSION_BUFFER;
         uavDesc.Buffer.FirstElement         = 0;
-        uavDesc.Buffer.NumElements          = particleSize_;
+        uavDesc.Buffer.NumElements          = shapeBuffer_->particleSize;
         uavDesc.Buffer.CounterOffsetInBytes = 0; // カウンターオフセットは0
         uavDesc.Buffer.Flags                = D3D12_BUFFER_UAV_FLAG_NONE; // 特にフラグは必要ない
         uavDesc.Buffer.StructureByteStride  = sizeof(int);
@@ -275,7 +299,7 @@ void GpuParticleEmitter::CreateBuffer() {
     if (!freeListResource_.getResource()) {
         freeListResource_.CreateUAVBuffer(
             dxDevice->getDevice(),
-            sizeof(int) * particleSize_,
+            sizeof(int) * shapeBuffer_->particleSize,
             D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
             D3D12_HEAP_TYPE_DEFAULT);
     }
@@ -286,7 +310,7 @@ void GpuParticleEmitter::CreateBuffer() {
         uavDesc.Format                      = DXGI_FORMAT_UNKNOWN; // UAVはフォーマットを持たない
         uavDesc.ViewDimension               = D3D12_UAV_DIMENSION_BUFFER;
         uavDesc.Buffer.FirstElement         = 0;
-        uavDesc.Buffer.NumElements          = particleSize_;
+        uavDesc.Buffer.NumElements          = shapeBuffer_->particleSize;
         uavDesc.Buffer.CounterOffsetInBytes = 0; // カウンターオフセットは0
         uavDesc.Buffer.Flags                = D3D12_BUFFER_UAV_FLAG_NONE; // 特にフラグは必要ない
         uavDesc.Buffer.StructureByteStride  = sizeof(int);
@@ -305,7 +329,7 @@ void GpuParticleEmitter::LoadTexture(const std::string& _path) {
 void to_json(nlohmann::json& j, const GpuParticleEmitter& p) {
     j = nlohmann::json{
         {"isActive", p.isActive_},
-        {"particleSize", p.particleSize_},
+        {"particleSize", p.shapeBuffer_->particleSize},
         {"texturePath", p.texturePath_},
         {"Material", p.materialBuffer_.openData_},
         {"center", p.shapeBuffer_->center},
@@ -329,7 +353,7 @@ void to_json(nlohmann::json& j, const GpuParticleEmitter& p) {
 
 void from_json(const nlohmann::json& j, GpuParticleEmitter& p) {
     j.at("isActive").get_to(p.isActive_);
-    j.at("particleSize").get_to(p.particleSize_);
+    j.at("particleSize").get_to(p.shapeBuffer_->particleSize);
     j.at("texturePath").get_to(p.texturePath_);
 
     j.at("Material").get_to(p.materialBuffer_.openData_);

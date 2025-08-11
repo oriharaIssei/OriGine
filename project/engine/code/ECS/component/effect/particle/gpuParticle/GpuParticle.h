@@ -27,7 +27,7 @@ struct GpuParticleData {
     Vec3f translate;
     float lifeTime;
     Vec3f velocity;
-    float currentTime;
+    float maxTime;
     Vec4f color;
 
     struct ConstantBuffer {
@@ -35,14 +35,14 @@ struct GpuParticleData {
         Vec3f translate;
         float lifeTime;
         Vec3f velocity;
-        float currentTime;
+        float maxTime;
         Vec4f color;
         ConstantBuffer& operator=(const GpuParticleData& other) {
             scale       = other.scale;
             translate   = other.translate;
             lifeTime    = other.lifeTime;
             velocity    = other.velocity;
-            currentTime = other.currentTime;
+            maxTime = other.maxTime;
             color       = other.color;
             return *this;
         }
@@ -74,6 +74,8 @@ struct GpuParticleEmitSphere {
     uint32_t isBox      = 0; // 0:球形, 1:立方体
     uint32_t isEmitEdge = 0; // 0:範囲内全てからEmit, 1:エッジからemitする
 
+    uint32_t particleSize = 1024; // パーティクルのサイズ
+
     struct ConstantBuffer {
         Vec3f minColor            = Vec3f(1.f, 1.f, 1.f);
         float minLifeParticleTime = 0.f; // 最小残り時間
@@ -101,8 +103,8 @@ struct GpuParticleEmitSphere {
         uint32_t isEmitEdge = 0;
 
         // 16バイト: maxScale + pad
-        Vec3f maxScale = Vec3f(1.f, 1.f, 1.f);
-        float pad;
+        Vec3f maxScale        = Vec3f(1.f, 1.f, 1.f);
+        uint32_t particleSize = 1024; // パーティクルのサイズ
 
         ConstantBuffer& operator=(const GpuParticleEmitSphere& other) {
             minColor            = other.minColor;
@@ -125,7 +127,8 @@ struct GpuParticleEmitSphere {
             minScale   = other.minScale;
             isEmitEdge = other.isEmitEdge;
 
-            maxScale = other.maxScale;
+            maxScale     = other.maxScale;
+            particleSize = other.particleSize;
 
             return *this;
         }
@@ -174,9 +177,8 @@ public:
     void Stop();
 
 private:
-    bool isActive_         = false;
-    BlendMode blendMode_   = BlendMode::Alpha;
-    uint32_t particleSize_ = 1024;
+    bool isActive_       = false;
+    BlendMode blendMode_ = BlendMode::Alpha;
 
     TextureMesh mesh_;
 
@@ -197,7 +199,7 @@ private:
 
 public:
     bool isActive() const { return isActive_; }
-    uint32_t getParticleSize() const { return particleSize_; }
+    uint32_t getParticleSize() const { return shapeBuffer_->particleSize; }
     BlendMode getBlendMode() const { return blendMode_; }
 
     const TextureMesh& getMesh() const { return mesh_; }
