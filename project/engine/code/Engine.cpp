@@ -13,13 +13,9 @@
 #include "imGuiManager/ImGuiManager.h"
 #include "input/Input.h"
 #include "model/ModelManager.h"
-#include "sceneManager/SceneManager.h"
+#include "scene/SceneManager.h"
 #include "texture/TextureManager.h"
 #include "winApp/WinApp.h"
-
-#ifdef _DEBUG
-#include "ECSEditor.h"
-#endif // _DEBUG
 
 // assets
 #include "Audio/Audio.h"
@@ -124,9 +120,9 @@ void Engine::Initialize() {
     dxCommand_ = std::make_unique<DxCommand>();
     dxCommand_->Initialize("main", "main");
 
-    srvHeap_ = std::make_unique<DxDescriptorHeap<DxDescriptorHeapType::SRV>>(1024);
+    srvHeap_ = std::make_unique<DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>>(1024);
     srvHeap_->Initialize(dxDevice_->getDevice());
-    rtvHeap_ = std::make_unique<DxDescriptorHeap<DxDescriptorHeapType::RTV>>(1024);
+    rtvHeap_ = std::make_unique<DxDescriptorHeap<DxDescriptorHeapType::RTV>>(16);
     rtvHeap_->Initialize(dxDevice_->getDevice());
     dsvHeap_ = std::make_unique<DxDescriptorHeap<DxDescriptorHeapType::DSV>>(16);
     dsvHeap_->Initialize(dxDevice_->getDevice());
@@ -210,8 +206,15 @@ void Engine::BeginFrame() {
     }
 #endif // !_DEBUG
     if (window_->isReSized()) {
+        // ウィンドウのサイズ変更時の処理
+        LOG_INFO("Window resized to: {}x{}", window_->getWidth(), window_->getHeight());
+
         UINT width  = window_->getWidth();
         UINT height = window_->getHeight();
+
+        for (auto& event : windowResizeEvents_) {
+            event(Vec2f{float(width), float(height)});
+        }
 
         // GPU の同期を確保
         dxFence_->Signal(dxCommand_->getCommandQueue());
@@ -223,7 +226,8 @@ void Engine::BeginFrame() {
         dsvHeap_->ReleaseDescriptor(dxDsv_);
         CreateDsv();
 
-        SceneManager::getInstance()->getSceneView()->Resize(window_->getWindowSize());
+        // addEvent
+       // SceneManager::getInstance()->getSceneView()->Resize(window_->getWindowSize());
 
         window_->setIsReSized(false);
     }

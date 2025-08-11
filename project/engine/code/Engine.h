@@ -65,13 +65,15 @@ private:
     std::unique_ptr<DxFence> dxFence_;
     // resource
     std::unique_ptr<DxDescriptorHeap<DxDescriptorHeapType::RTV>> rtvHeap_;
-    std::unique_ptr<DxDescriptorHeap<DxDescriptorHeapType::SRV>> srvHeap_;
+    std::unique_ptr<DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>> srvHeap_;
     std::unique_ptr<DxDescriptorHeap<DxDescriptorHeapType::DSV>> dsvHeap_;
 
     LightManager* lightManager_ = nullptr;
     // Time
     std::unique_ptr<DeltaTime> deltaTime_;
     float fps_ = 60.0f;
+
+    std::vector<std::function<void(const Vec2f&)>> windowResizeEvents_;
 
 public:
     WinApp* getWinApp() { return window_.get(); }
@@ -85,10 +87,13 @@ public:
     DxResource* getDsvResource() { return &dsvResource_; }
 
     DxDescriptorHeap<DxDescriptorHeapType::RTV>* getRtvHeap() const { return rtvHeap_.get(); }
-    DxDescriptorHeap<DxDescriptorHeapType::SRV>* getSrvHeap() const { return srvHeap_.get(); }
-    DxDescriptorHeap<DxDescriptorHeapType::DSV>* getDsvHeap() const { return dsvHeap_.get(); }
+    DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>* getSrvHeap() const { return srvHeap_.get(); }
 
     float getDeltaTime() const { return deltaTime_->getDeltaTime(); }
 
     LightManager* getLightManager() const { return lightManager_; }
+
+    void addWindowResizeEvent(const std::function<void(const Vec2f&)>& event) {
+        windowResizeEvents_.push_back(event);
+    }
 };

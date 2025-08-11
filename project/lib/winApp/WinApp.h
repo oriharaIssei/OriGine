@@ -74,3 +74,8 @@ public:
     const int32_t& getWidth() const { return clientWidth_; }
     const int32_t& getHeight() const { return clientHeight_; }
 };
+
+/// <summary>
+/// コマンドラインでプロセスを実行し、完了を待つ
+/// </summary>
+bool RunProcessAndWait(const std::string& command, const char* _currentDirectory = nullptr);

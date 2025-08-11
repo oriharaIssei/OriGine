@@ -5,31 +5,35 @@
 #endif // ENGINE_INCLUDE
 
 #ifdef ENGINE_EDITOR
-#include "module/editor/EditorController.h"
-#include "module/editor/IEditor.h"
+#include "editor/EditorController.h"
+#include "editor/IEditor.h"
 #endif // ENGINE_EDITOR
 
 #ifdef RESOURCE_DIRECTORY
 #include <string>
-inline const std::string kApplicationResourceDirectory = "./application/resource";
-inline const std::string kEngineResourceDirectory      = "./engine/resource";
+static const std::string kApplicationResourceDirectory = "./application/resource";
+static const std::string kEngineResourceDirectory      = "./engine/resource";
 #endif // RESOURCE_DIRECTORY
 
 #ifdef ENGINE_SCENE
-#include "iScene/IScene.h"
-#include "sceneManager/SceneManager.h"
+#include "scene/Scene.h"
+#include "scene/SceneManager.h"
 #endif // ENGINE_SCENE
 
-#ifdef ENGINE_ECS
-#include "ECS/ECSManager.h"
-#include "ECS/Entity.h"
-
+#ifdef ENGEINE_ECS
+#define ENGINE_ENTITY
 #define ENGINE_SYSTEMS
 #define ENGINE_COMPONENTS
 #endif // ENGINE_ECS
 
+#ifdef ENGINE_ENTITY
+#include "ECS/Entity.h"
+#endif // ENGINE_ECS
+
 #ifdef ENGINE_SYSTEMS
 #include "system/ISystem.h"
+
+#include "system/Initialize/GpuParticleInitialize.h"
 
 #include "system/collision/CollisionCheckSystem.h"
 #include "system/collision/CollisionPushBackSystem.h"
@@ -37,55 +41,69 @@ inline const std::string kEngineResourceDirectory      = "./engine/resource";
 #include "system/movement/MoveSystemByRigidBody.h"
 
 #include "system/effect/EmitterWorkSystem.h"
+#include "system/effect/GpuParticleEmitterWorkSystem.h"
 #include "system/effect/PrimitiveNodeAnimationWorkSystem.h"
+#include "system/effect/SkinningAnimationSystem.h"
 #include "system/effect/SpriteAnimationSystem.h"
 #include "system/effect/TextureEffectAnimation.h"
-
-#include "system/postRender/DistortionEffect.h"
-#include "system/postRender/GrayscaleEffect.h"
-#include "system/postRender/SmoothingEffect.h"
-#include "system/postRender/VignetteEffect.h"
 
 #include "system/render/BackGroundSpriteRenderSystem.h"
 #include "system/render/ColliderRenderingSystem.h"
 #include "system/render/EffectTexturedMeshRenderSystem.h"
+#include "system/render/GpuParticleRenderSystem.h"
 #include "system/render/LineRenderSystem.h"
 #include "system/render/ParticleRenderSystem.h"
+#include "system/render/SkeletonRenderSystem.h"
+#include "system/render/SkinningMeshRenderSystem.h"
 #include "system/render/SkyboxRender.h"
 #include "system/render/SpriteRenderSystem.h"
 #include "system/render/TexturedMeshRenderSystem.h"
+
+#include "system/postRender/DissolveEffect.h"
+#include "system/postRender/DistortionEffect.h"
+#include "system/postRender/GrayscaleEffect.h"
+#include "system/postRender/RadialBlurEffect.h"
+#include "system/postRender/RandomEffect.h"
+#include "system/postRender/SmoothingEffect.h"
+#include "system/postRender/VignetteEffect.h"
 #endif // ENGINE_SYSTEMS
 
 #ifdef ENGINE_COMPONENTS
 #include "component/IComponent.h"
 
-#include "component/animation/ModelNodeAnimation.h"
-#include "component/animation/PrimitiveNodeAnimation.h"
-#include "component/animation/SpriteAnimation.h"
+#include "audio/Audio.h"
+
+#include "component/transform/CameraTransform.h"
+#include "component/transform/Transform.h"
+
 #include "component/material/light/DirectionalLight.h"
 #include "component/material/light/PointLight.h"
 #include "component/material/light/SpotLight.h"
 #include "component/material/Material.h"
 
+#include "component/animation/ModelNodeAnimation.h"
+#include "component/animation/PrimitiveNodeAnimation.h"
+#include "component/animation/SkinningAnimationComponent.h"
+#include "component/animation/SpriteAnimation.h"
+
 #include "component/collider/Collider.h"
 #include "component/collider/CollisionPushBackInfo.h"
+#include "component/physics/Rigidbody.h"
 
 #include "component/effect/particle/emitter/Emitter.h"
+#include "component/effect/particle/gpuParticle/GpuParticle.h"
+#include "component/effect/post/DissolveEffectParam.h"
 #include "component/effect/post/DistortionEffectParam.h"
+#include "component/effect/post/RadialBlurParam.h"
+#include "component/effect/post/RandomEffectParam.h"
 #include "component/effect/post/VignetteParam.h"
 #include "component/effect/TextureEffectParam.h"
-
-#include "component/physics/Rigidbody.h"
 
 #include "component/renderer/MeshRenderer.h"
 #include "component/renderer/primitive/Primitive.h"
 #include "component/renderer/SkyboxRenderer.h"
 #include "component/renderer/Sprite.h"
 
-#include "component/transform/CameraTransform.h"
-#include "component/transform/Transform.h"
-
-#include "audio/Audio.h"
 #endif // ENGINE_COMPONENTS
 
 #ifdef ENGINE_INPUT
@@ -117,7 +135,10 @@ inline const std::string kEngineResourceDirectory      = "./engine/resource";
 #endif // MY_RANDOM
 
 #ifdef DELTA_TIME
+#ifndef ENGINE_INCLUDE
 #include "Engine.h"
+#endif // !ENGINE_INCLUDE
+
 inline float getMainDeltaTime() {
     return Engine::getInstance()->getDeltaTime();
 }

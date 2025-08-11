@@ -163,6 +163,28 @@ PipelineStateObj* ShaderManager::CreatePso(const std::string& key,
     ///=================================================
     /// GRAPHICS_PIPELINE_STATE_DESC 初期化
     ///=================================================
+    // cs か graphics pipeline state かを判定
+    if (!shaderInfo.csKey.empty()) {
+        D3D12_COMPUTE_PIPELINE_STATE_DESC computeStateDesc{};
+        computeStateDesc.CS = {
+            shaderBlobMap_[shaderInfo.csKey]->GetBufferPointer(),
+            shaderBlobMap_[shaderInfo.csKey]->GetBufferSize()};
+        computeStateDesc.pRootSignature = pso->rootSignature.Get();
+        result                          = device->CreateComputePipelineState(
+            &computeStateDesc,
+            IID_PPV_ARGS(&pso->pipelineState));
+
+        if (FAILED(result)) {
+            LOG_ERROR("CreateComputePipelineState failed: {}", HrToString(result));
+            assert(false);
+        }
+
+        psoMap_[key] = std::move(pso);
+        LOG_INFO("Compute Pipeline State Object created: {}", key);
+
+        return psoMap_[key].get();
+    }
+
     D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineStateDesc{};
 
     if (!shaderInfo.vsKey.empty()) {
@@ -211,7 +233,11 @@ PipelineStateObj* ShaderManager::CreatePso(const std::string& key,
     result = device->CreateGraphicsPipelineState(
         &pipelineStateDesc,
         IID_PPV_ARGS(&pso->pipelineState));
-    assert(SUCCEEDED(result));
+
+    if (FAILED(result)) {
+        LOG_ERROR("CreateGraphicsPipelineState failed: {}", HrToString(result));
+        assert(SUCCEEDED(result));
+    };
 
     psoMap_[key] = std::move(pso);
 

@@ -1,8 +1,14 @@
 #pragma once
 
-#include <filesystem>
+/// stl
+// container
 #include <list>
+// string
+#include <filesystem>
 #include <string>
+// thread
+#include <thread>
+#include <atomic>
 
 class MyFileSystem {
 public:
@@ -30,3 +36,37 @@ public:
 
 using myfs = MyFileSystem;
 using myFs = MyFileSystem;
+
+class FileWatcher {
+public:
+    FileWatcher(const std::string& _filePath, int32_t _intervalMs = 1000);
+    ~FileWatcher();
+
+    void Start();
+    void Stop();
+
+private:
+    void watchLoop();
+
+private:
+    std::string filePath_;
+    int32_t intervalMs_;
+    std::atomic<bool> isChanged_ = false;
+    std::atomic<bool> isRunning_ = false;
+    std::thread watcherThread_;
+    std::filesystem::file_time_type lastWriteTime_;
+
+public:
+    const std::string& getFilePath() const { return filePath_; }
+    void setFilePath(const std::string& _filePath) {
+        filePath_      = _filePath;
+        lastWriteTime_ = std::filesystem::last_write_time(filePath_);
+    }
+    bool isChanged() {
+        bool changed = isChanged_;
+        if (changed) {
+            isChanged_ = false; // 一度チェックしたらフラグをリセット
+        }
+        return changed;
+    }
+};

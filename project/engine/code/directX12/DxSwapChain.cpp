@@ -149,7 +149,7 @@ void DxSwapChain::ResizeBuffer(UINT width, UINT height) {
         }
 
         // バッファに名前を付ける
-        backBuffers_[i] = rtvHeap->CreateDescriptor<>(rtvDesc, &backBufferResources_[i]);
+        backBuffers_[i]   = rtvHeap->CreateDescriptor<>(rtvDesc, &backBufferResources_[i]);
         std::wstring name = std::format(L"SwapChainBuffer[{}]", i);
         backBufferResources_[i].setName(name.c_str());
     }

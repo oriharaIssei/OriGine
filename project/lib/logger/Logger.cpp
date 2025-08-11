@@ -40,6 +40,18 @@ static std::string getCurrentDateTime() {
     return oss.str();
 }
 
+static std::string getCurrentConfigString() {
+#if defined(_DEBUG)
+    return "Debug";
+#elif defined(_DEVELOP)
+    return "Develop";
+#elif defined(NDEBUG)
+    return "Release";
+#else
+    return "Unknown";
+#endif
+}
+
 #pragma region "Logger"
 void Logger::Initialize() {
     try {
@@ -62,7 +74,7 @@ void Logger::Initialize() {
         // logger の作成 (ファイルも作成してくれる)
         logger_ = spdlog::rotating_logger_mt(
             "defaultLog", // logger名
-            logFolder + "/" + logFileName, // ログファイル名
+            logFolder + "/" + logFileName + "_" + getCurrentConfigString(), // ログファイル名
             kMaxFileSize, // ログファイルサイズ
             kMaxFiles); // ログファイル数
 

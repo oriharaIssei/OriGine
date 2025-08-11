@@ -55,6 +55,7 @@ public:
     ~DxResource() = default;
 
     void CreateBufferResource(Microsoft::WRL::ComPtr<ID3D12Device> device, size_t sizeInBytes);
+    void CreateUAVBuffer(Microsoft::WRL::ComPtr<ID3D12Device> device, size_t sizeInBytes, D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_HEAP_TYPE heapType = D3D12_HEAP_TYPE_DEFAULT);
     void CreateRenderTextureResource(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t width, uint32_t height, DXGI_FORMAT format, const Vec4f& clearColor);
     void CreateTextureResource(Microsoft::WRL::ComPtr<ID3D12Device> device, const DirectX::TexMetadata& metadata);
 
@@ -63,12 +64,22 @@ public:
 private:
     Microsoft::WRL::ComPtr<ID3D12Resource> resource_ = nullptr;
     EnumBitmask<DxResourceType> type_                = DxResourceType::Unknown; // リソースの種類
+    D3D12_RESOURCE_DESC resourceDesc_{}; // リソースの詳細情報
 
 public:
+    const EnumBitmask<DxResourceType>& getType() const { return type_; }
     void setType(DxResourceType _type) { type_ = EnumBitmask(_type); }
     void addType(DxResourceType _type) { type_ |= EnumBitmask(_type); }
+
+    bool isValid() const { return resource_ != nullptr; } // リソースが有効かどうかを確認
     const Microsoft::WRL::ComPtr<ID3D12Resource>& getResource() const { return resource_; }
     Microsoft::WRL::ComPtr<ID3D12Resource>& getResourceRef() { return resource_; }
+
+    const D3D12_RESOURCE_DESC& getResourceDesc() const { return resourceDesc_; }
+    UINT64 sizeInBytes() const { return resourceDesc_.Width; } // バッファのサイズを取得
+    UINT64 width() const { return resourceDesc_.Width; } // テクスチャの幅を取得
+    UINT height() const { return resourceDesc_.Height; } // テクスチャの高さを取得
+
     HRESULT setName(const std::wstring& name);
 };
 
@@ -98,7 +109,7 @@ private:
 private:
     uint32_t size_ = 0;
     std::vector<DxResource> resources_;
-    BitArray usedFlags_; // リソースが使用中かどうかを管理するビット配列
+    BitArray<std::uint32_t> usedFlags_; // リソースが使用中かどうかを管理するビット配列
 public:
     DxResource& getResource(uint32_t index) {
         if (index >= resources_.size()) {

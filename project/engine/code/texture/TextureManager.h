@@ -14,7 +14,6 @@
 #include <wrl.h>
 
 /// engine
-#include "assets/IAsset.h"
 #include "module/IModule.h"
 // dx12Object
 #include "directX12/DxCommand.h"
@@ -25,8 +24,7 @@
 // lib
 #include "Thread/Thread.h"
 
-struct Texture
-    : IAsset {
+struct Texture {
     void Initialize(const std::string& filePath);
     void Finalize();
 

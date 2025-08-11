@@ -595,7 +595,7 @@ inline void     ImBitArraySetBitRange(ImU32* arr, int n, int n2) // Works on ran
 
 typedef ImU32* ImBitArrayPtr; // Name for use in structs
 
-// Helper: ImBitArray class (wrapper over ImBitArray functions)
+// Helper: ImBitArray<> class (wrapper over ImBitArray<> functions)
 // Store 1-bit per value.
 template<int BITCOUNT, int OFFSET = 0>
 struct ImBitArray

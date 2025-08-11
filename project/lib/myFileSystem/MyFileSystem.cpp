@@ -212,3 +212,61 @@ std::uintmax_t MyFileSystem::deleteFolder(const std::string& path) {
 std::uintmax_t MyFileSystem::deleteFile(const std::string& filePath) {
     return fs::remove(filePath);
 }
+
+FileWatcher::FileWatcher(const std::string& _filePath, int32_t _intervalMs)
+    : filePath_(_filePath), intervalMs_(_intervalMs), isChanged_(false), isRunning_(false) {
+    // file が 存在するか
+    if (fs::exists(filePath_)) {
+        // 最終編集時間を取得
+        lastWriteTime_ = fs::last_write_time(filePath_);
+    } else {
+        LOG_ERROR("FileWatcher: File does not exist: {}", filePath_);
+    }
+}
+
+FileWatcher::~FileWatcher() {
+    Stop();
+    if (isRunning_) {
+        watcherThread_.join();
+    }
+}
+
+void FileWatcher::Start() {
+    if (isRunning_) {
+        LOG_WARN("FileWatcher is already running. FilePath : {}", filePath_);
+        return;
+    }
+    isRunning_     = true;
+    watcherThread_ = std::thread(&FileWatcher::watchLoop, this);
+}
+void FileWatcher::Stop() {
+    isRunning_ = false;
+    if (watcherThread_.joinable()) {
+        watcherThread_.join();
+    }
+}
+
+void FileWatcher::watchLoop() {
+    while (isRunning_) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(intervalMs_));
+
+        if (isChanged_) {
+            continue; // ファイルが一度変更されてから Userが確認するまでの間はチェックしない
+        }
+        // ファイルの存在チェック
+        if (!fs::exists(filePath_)) {
+            LOG_WARN("FileWatcher: File does not exist: {}", filePath_);
+            continue;
+        }
+
+        // 最終編集時間を取得して比較
+        auto currentWriteTime = fs::last_write_time(filePath_);
+        if (currentWriteTime != lastWriteTime_) {
+            lastWriteTime_ = currentWriteTime;
+            isChanged_     = true;
+            LOG_INFO("FileWatcher: File changed: {}", filePath_);
+        } else {
+            isChanged_ = false;
+        }
+    }
+}
