@@ -13,7 +13,7 @@
 /// engine
 #include "IEditor.h"
 
-/// lib
+
 #include "globalVariables/SerializedField.h"
 
 /// util

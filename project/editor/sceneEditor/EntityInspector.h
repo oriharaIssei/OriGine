@@ -341,12 +341,12 @@ public:
     /// ==========================================
     /// Command
     /// ==========================================
-    class AddSystemCategoryNames
+    class AddSystemNames
         : public IEditCommand {
     public:
-        AddSystemCategoryNames(SelectAddSystemArea* _parentArea, const std::string& _systemTypeName)
+        AddSystemNames(SelectAddSystemArea* _parentArea, const std::string& _systemTypeName)
             : parentArea_(_parentArea), systemTypeName_(_systemTypeName) {}
-        ~AddSystemCategoryNames() override = default;
+        ~AddSystemNames() override = default;
         void Execute() override;
         void Undo() override;
 
@@ -354,12 +354,12 @@ public:
         SelectAddSystemArea* parentArea_ = nullptr; // 親エリアへのポインタ
         std::string systemTypeName_; // 追加するコンポーネントのタイプ名
     };
-    class RemoveSystemCategoryNames
+    class RemoveSystemNames
         : public IEditCommand {
     public:
-        RemoveSystemCategoryNames(SelectAddSystemArea* _parentArea, const std::string& _systemTypeName)
+        RemoveSystemNames(SelectAddSystemArea* _parentArea, const std::string& _systemTypeName)
             : parentArea_(_parentArea), systemTypeName_(_systemTypeName) {}
-        ~RemoveSystemCategoryNames() override = default;
+        ~RemoveSystemNames() override = default;
         void Execute() override;
         void Undo() override;
 
@@ -367,12 +367,12 @@ public:
         SelectAddSystemArea* parentArea_ = nullptr; // 親エリアへのポインタ
         std::string systemTypeName_; // 削除するコンポーネントのタイプ名
     };
-    class ClearSystemCategoryNames
+    class ClearSystemNames
         : public IEditCommand {
     public:
-        ClearSystemCategoryNames(SelectAddSystemArea* _parentArea)
+        ClearSystemNames(SelectAddSystemArea* _parentArea)
             : parentArea_(_parentArea) {}
-        ~ClearSystemCategoryNames() override = default;
+        ~ClearSystemNames() override = default;
 
         void Execute() override;
         void Undo() override;

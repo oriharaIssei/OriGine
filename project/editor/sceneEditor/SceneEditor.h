@@ -19,7 +19,7 @@
 enum class SystemCategory;
 // camera
 class DebugCamera;
-/// lib
+
 #include "globalVariables/SerializedField.h"
 
 // util

@@ -32,7 +32,11 @@ void SystemInspectorArea::Initialize() {
 
 void SystemInspectorArea::DrawGui() {
     bool isOpen = isOpen_.current();
+    if (!isOpen) {
+        return;
+    }
     if (ImGui::Begin(name_.c_str(), &isOpen)) {
+
         areaSize_ = ImGui::GetContentRegionAvail();
         ImGui::Text("System Inspector Area");
         ImGui::Separator();
@@ -40,6 +44,7 @@ void SystemInspectorArea::DrawGui() {
 
         if (!currentScene) {
             ImGui::Text("No current scene found.");
+            ImGui::End();
             return;
         }
 
@@ -115,7 +120,7 @@ void SystemInspectorArea::DrawGui() {
             if (searchFilter) {
                 for (auto& [systemName, priority] : systemMap_[i]) {
                     if (systemName.find(searchBuffer_) != std::string::npos) {
-                        SystemGui( systemName, priority);
+                        SystemGui(systemName, priority);
                     }
                 }
 
@@ -128,18 +133,18 @@ void SystemInspectorArea::DrawGui() {
 
                     ImGui::Indent();
                     for (auto& [systemName, priority] : systemMap_[i]) {
-                        SystemGui( systemName, priority);
+                        SystemGui(systemName, priority);
                     }
                     ImGui::Unindent();
                 }
             }
         }
-    }
 
-    for (auto& systemByCategory : systemMap_) {
-        std::sort(systemByCategory.begin(), systemByCategory.end(), [](const std::pair<std::string, int32_t>& a, const std::pair<std::string, int32_t>& b) {
-            return a.second < b.second; // Priority でソート
-        });
+        for (auto& systemByCategory : systemMap_) {
+            std::sort(systemByCategory.begin(), systemByCategory.end(), [](const std::pair<std::string, int32_t>& a, const std::pair<std::string, int32_t>& b) {
+                return a.second < b.second; // Priority でソート
+            });
+        }
     }
 
     isOpen_.set(isOpen);
@@ -153,7 +158,7 @@ void SystemInspectorArea::Finalize() {
     Editor::Area::Finalize();
 }
 
-void SystemInspectorArea::SystemGui( const std::string& _systemName, int32_t& _priority) {
+void SystemInspectorArea::SystemGui(const std::string& _systemName, int32_t& _priority) {
     auto currentScene = parentWindow_->getCurrentScene();
     if (!currentScene) {
         LOG_ERROR("SystemInspectorArea::SystemGui: No current scene found.");
@@ -211,6 +216,7 @@ void SystemInspectorArea::SystemGui( const std::string& _systemName, int32_t& _p
 
 SystemInspectorArea::ChangeSystemPriority::ChangeSystemPriority(SystemInspectorArea* _inspectorArea, const std::string& _systemName, int32_t _oldPriority, int32_t _newPriority)
     : inspectorArea_(_inspectorArea), systemName_(_systemName), oldPriority_(_oldPriority), newPriority_(_newPriority) {}
+
 void SystemInspectorArea::ChangeSystemPriority::Execute() {
     auto* systemRunner = inspectorArea_->getParentWindow()->getCurrentScene()->getSystemRunner();
 
@@ -232,6 +238,7 @@ void SystemInspectorArea::ChangeSystemPriority::Execute() {
             return a.second < b.second; // Priority でソート
         });
 }
+
 void SystemInspectorArea::ChangeSystemPriority::Undo() {
     auto* systemRunner = inspectorArea_->getParentWindow()->getCurrentScene()->getSystemRunner();
 
@@ -264,6 +271,7 @@ SystemInspectorArea::ChangeSystemActivity::ChangeSystemActivity(
       systemPriority_(_systemPriority),
       oldActivity_(_oldActivity),
       newActivity_(_newActivity) {}
+
 void SystemInspectorArea::ChangeSystemActivity::Execute() {
     auto currentScene = inspectorArea_->getParentWindow()->getCurrentScene();
     if (!currentScene) {
@@ -277,6 +285,7 @@ void SystemInspectorArea::ChangeSystemActivity::Execute() {
         currentScene->unregisterSystem(systemName_);
     }
 }
+
 void SystemInspectorArea::ChangeSystemActivity::Undo() {
     auto currentScene = inspectorArea_->getParentWindow()->getCurrentScene();
     if (!currentScene) {

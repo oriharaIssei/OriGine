@@ -2,9 +2,6 @@
 
 #ifdef _DEBUG
 
-/// parent
-#include "module/IModule.h"
-
 /// stl
 #include <algorithm>
 #include <concepts>
@@ -14,7 +11,9 @@
 #include <unordered_map>
 #include <vector>
 
-/// lib
+/// editor
+#include <imgui/imgui.h>
+// logger
 #include "logger/Logger.h"
 
 /// util
@@ -210,7 +209,8 @@ public:
 /// </summary>
 class Window {
 public:
-    Window(const std::string& _title) : title_(_title) {}
+    Window(const std::string& _title)
+        : title_(_title){}
     virtual ~Window() {};
 
     virtual void Initialize() = 0;
@@ -225,11 +225,17 @@ protected:
     DiffValue<bool> isOpen_    = true;
     DiffValue<bool> isFocused_ = false; // Windowがフォーカスされているかどうか
 
-    /// Windowのサイズと位置
-    Vec2f windowSize_ = Vec2f(1280.f, 720.f); // Windowのサイズ
-    Vec2f windowPos_  = Vec2f(0.f, 0.f); // Windowの位置
-    bool isMaximized_ = false; // Windowが最大化されているかどうか
-    bool isMinimized_ = false; // Windowが最小化されているかどうか
+    bool initializedDockSpace_ = false; // DockSpaceの初期化が完了しているかどうか
+
+    /// Window
+    ImGuiWindowFlags windowFlags_ =
+        ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+    ImGuiDockNodeFlags dockFlags_ = ImGuiDockNodeFlags_None; // DockSpaceのフラグ
+
+    Vec2f windowSize_             = Vec2f(1280.f, 720.f); // Windowのサイズ
+    Vec2f windowPos_              = Vec2f(0.f, 0.f); // Windowの位置
+    bool isMaximized_             = false; // Windowが最大化されているかどうか
+    bool isMinimized_             = false; // Windowが最小化されているかどうか
 
     std::unordered_map<std::string, std::shared_ptr<Area>> areas_; // Windowに含まれるArea
     std::unordered_map<std::string, std::shared_ptr<Menu>> menus_; // Windowに含まれるMenu

@@ -30,7 +30,6 @@
 #include "editor/sceneEditor/EntityInspector.h"
 #include "editor/sceneEditor/SystemInspector.h"
 
-/// lib
 #include "myFileSystem/MyFileSystem.h"
 #include <myGui/MyGui.h>
 /// externals
@@ -260,10 +259,19 @@ void SceneViewArea::Initialize() {
 }
 
 void SceneViewArea::DrawGui() {
-    bool isOpen        = isOpen_.current();
+    bool isOpen = isOpen_.current();
+
+    if (!isOpen) {
+        isOpen_.set(isOpen);
+        isFocused_.set(ImGui::IsWindowFocused());
+        UpdateFocusAndOpenState();
+        return;
+    }
+
     auto renderTexture = parentWindow_->getCurrentScene()->getSceneView();
 
     if (ImGui::Begin(name_.c_str(), &isOpen)) {
+
         areaSize_ = ImGui::GetContentRegionAvail();
 
         if (areaSize_[X] >= 1.f && areaSize_[Y] >= 1.f && renderTexture->getTextureSize() != areaSize_) {
