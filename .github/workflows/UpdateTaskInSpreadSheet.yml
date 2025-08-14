@@ -7,16 +7,26 @@ on:
 jobs:
   update-task:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Extract Task ID
+      - name: Extract Task ID from PR title
         run: |
           PR_TITLE="${{ github.event.pull_request.title }}"
+          # "##123" のような形式から数字部分だけ抽出
           TASK_ID=$(echo "$PR_TITLE" | grep -oP '(?<=##)\d+')
+          if [ -z "$TASK_ID" ]; then
+            echo "❌ タスクIDがPRタイトルから取得できませんでした"
+            exit 1
+          fi
           echo "TASK_ID=$TASK_ID" >> $GITHUB_ENV
+          echo "📌 取得したタスクID: $TASK_ID"
 
-      - name: Call GAS
+      - name: Call GAS (Complete Task)
         run: |
-          curl -X POST "https://script.google.com/macros/s/AKfycbwNsCGP0Rs_jUa-yckCp0muV1mKKTuHf28EjhkkE3NRNyd4uoukabE25X7ZrkoRucwx/exec" \
+          curl -s -X POST "${{ secrets.GAS_URL }}" \
                -H "Content-Type: application/json" \
-               -d "{\"taskId\":\"${TASK_ID}\"}"
+               -d "{\"mode\":\"complete\",\"taskId\":\"${TASK_ID}\"}" \
+            | tee response.json
+          echo "📡 GASレスポンス:"
+          cat response.json
 
