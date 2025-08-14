@@ -10,6 +10,9 @@
 void DebugCamera::Initialize() {
     currentState_.reset(new Neutral(this));
 }
+void DebugCamera::Finalize() {
+    currentState_.reset();
+}
 
 void DebugCamera::DebugUpdate() {
 #ifdef _DEBUG
