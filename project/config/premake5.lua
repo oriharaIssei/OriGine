@@ -20,7 +20,7 @@ project "OriGine"
 
     includedirs {
         "$(SolutionDir)math",
-        "$(SolutionDir)lib",
+        "$(SolutionDir)util",
         "$(SolutionDir)engine/code/ECS",
         "$(SolutionDir)engine/code",
         "$(SolutionDir)engine",
@@ -141,7 +141,7 @@ project "OriGineApp"
         "$(ProjectDir)code",
         "$(ProjectDir)",
         "$(SolutionDir)math",
-        "$(SolutionDir)lib",
+        "$(SolutionDir)util",
         "$(SolutionDir)engine/code/ECS",
         "$(SolutionDir)engine/code",
         "$(SolutionDir)engine",
