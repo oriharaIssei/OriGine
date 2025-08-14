@@ -14,12 +14,9 @@ AnimationManager::~AnimationManager() {
 }
 
 void AnimationManager::Initialize() {
-    loadThread_ = std::make_unique<TaskThread<AnimationLoadTask>>();
-    loadThread_->Initialize(1);
 }
 
 void AnimationManager::Finalize() {
-    loadThread_->Finalize();
 }
 
 std::shared_ptr<AnimationData> AnimationManager::Load(const std::string& directory, const std::string& filename) {
@@ -75,8 +72,8 @@ AnimationData AnimationManager::LoadGltfAnimationData(const std::string& directo
     /// ノードアニメーションの解析
     ///=============================================
     for (uint32_t channelIndex = 0; channelIndex < animationAssimp->mNumChannels; ++channelIndex) {
-        aiNodeAnim* nodeAnimationAssimp = animationAssimp->mChannels[channelIndex];
-        ModelAnimationNode& nodeAnimation    = result.animationNodes_[nodeAnimationAssimp->mNodeName.C_Str()];
+        aiNodeAnim* nodeAnimationAssimp   = animationAssimp->mChannels[channelIndex];
+        ModelAnimationNode& nodeAnimation = result.animationNodes_[nodeAnimationAssimp->mNodeName.C_Str()];
 
         // =============================== InterpolationType =============================== //
         nodeAnimation.interpolationType = static_cast<InterpolationType>(nodeAnimationAssimp->mPreState);
@@ -226,6 +223,6 @@ const AnimationData* AnimationManager::getAnimationData(const std::string& name)
     return nullptr;
 }
 
-void AnimationManager::AnimationLoadTask::Update() {
+void AnimationManager::AnimationLoadTask::Update() const {
     *animationData = AnimationManager::getInstance()->LoadAnimationData(directory, filename);
 }

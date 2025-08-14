@@ -14,8 +14,6 @@ struct ModelNode;
 // component
 #include "component/IComponent.h"
 
-/// lib
-#include "Thread/Thread.h"
 /// math
 #include "math/Quaternion.h"
 #include "Matrix4x4.h"

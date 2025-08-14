@@ -10,7 +10,7 @@
 #include "editor/EditorController.h"
 #include "editor/IEditor.h"
 
-/// lib
+
 #include "imgui/imgui.h"
 #include "imgui/imgui_internal.h"
 #include "myGui/MyGui.h"

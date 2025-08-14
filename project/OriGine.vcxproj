@@ -76,7 +76,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <PreprocessorDefinitions>_WINDOWS;DEBUG;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)math;$(SolutionDir)lib;$(SolutionDir)engine\code\ECS;$(SolutionDir)engine\code;$(SolutionDir)engine;$(SolutionDir);$(SolutionDir)externals;$(SolutionDir)externals\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)math;$(SolutionDir)util;$(SolutionDir)engine\code\ECS;$(SolutionDir)engine\code;$(SolutionDir)engine;$(SolutionDir);$(SolutionDir)externals;$(SolutionDir)externals\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -102,7 +102,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <PreprocessorDefinitions>_WINDOWS;DEVELOP;_DEVELOP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)math;$(SolutionDir)lib;$(SolutionDir)engine\code\ECS;$(SolutionDir)engine\code;$(SolutionDir)engine;$(SolutionDir);$(SolutionDir)externals;$(SolutionDir)externals\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)math;$(SolutionDir)util;$(SolutionDir)engine\code\ECS;$(SolutionDir)engine\code;$(SolutionDir)engine;$(SolutionDir);$(SolutionDir)externals;$(SolutionDir)externals\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -128,7 +128,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <PreprocessorDefinitions>_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)math;$(SolutionDir)lib;$(SolutionDir)engine\code\ECS;$(SolutionDir)engine\code;$(SolutionDir)engine;$(SolutionDir);$(SolutionDir)externals;$(SolutionDir)externals\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)math;$(SolutionDir)util;$(SolutionDir)engine\code\ECS;$(SolutionDir)engine\code;$(SolutionDir)engine;$(SolutionDir);$(SolutionDir)externals;$(SolutionDir)externals\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -177,6 +177,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\ECS\component\effect\particle\Particle.h" />
     <ClInclude Include="engine\code\ECS\component\effect\particle\emitter\Emitter.h" />
     <ClInclude Include="engine\code\ECS\component\effect\particle\emitter\EmitterShape.h" />
+    <ClInclude Include="engine\code\ECS\component\effect\particle\gpuParticle\GpuParticle.h" />
     <ClInclude Include="engine\code\ECS\component\effect\post\DissolveEffectParam.h" />
     <ClInclude Include="engine\code\ECS\component\effect\post\DistortionEffectParam.h" />
     <ClInclude Include="engine\code\ECS\component\effect\post\RadialBlurParam.h" />
@@ -196,10 +197,12 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\ECS\component\transform\ParticleTransform.h" />
     <ClInclude Include="engine\code\ECS\component\transform\Transform.h" />
     <ClInclude Include="engine\code\ECS\system\ISystem.h" />
+    <ClInclude Include="engine\code\ECS\system\Initialize\GpuParticleInitialize.h" />
     <ClInclude Include="engine\code\ECS\system\collision\CollisionCheckSystem.h" />
     <ClInclude Include="engine\code\ECS\system\collision\CollisionPushBackSystem.h" />
     <ClInclude Include="engine\code\ECS\system\effect\CameraActionSystem.h" />
     <ClInclude Include="engine\code\ECS\system\effect\EmitterWorkSystem.h" />
+    <ClInclude Include="engine\code\ECS\system\effect\GpuParticleEmitterWorkSystem.h" />
     <ClInclude Include="engine\code\ECS\system\effect\PrimitiveNodeAnimationWorkSystem.h" />
     <ClInclude Include="engine\code\ECS\system\effect\SkinningAnimationSystem.h" />
     <ClInclude Include="engine\code\ECS\system\effect\SpriteAnimationSystem.h" />
@@ -215,6 +218,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\ECS\system\render\BackGroundSpriteRenderSystem.h" />
     <ClInclude Include="engine\code\ECS\system\render\ColliderRenderingSystem.h" />
     <ClInclude Include="engine\code\ECS\system\render\EffectTexturedMeshRenderSystem.h" />
+    <ClInclude Include="engine\code\ECS\system\render\GpuParticleRenderSystem.h" />
     <ClInclude Include="engine\code\ECS\system\render\LineRenderSystem.h" />
     <ClInclude Include="engine\code\ECS\system\render\ParticleRenderSystem.h" />
     <ClInclude Include="engine\code\ECS\system\render\SkeletonRenderSystem.h" />
@@ -242,33 +246,16 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\directX12\ResourceStateTracker.h" />
     <ClInclude Include="engine\code\directX12\ShaderCompiler.h" />
     <ClInclude Include="engine\code\directX12\ShaderManager.h" />
+    <ClInclude Include="engine\code\imGuiManager\ImGuiManager.h" />
     <ClInclude Include="engine\code\input\Input.h" />
+    <ClInclude Include="engine\code\logger\ImGuiLogSink.h" />
+    <ClInclude Include="engine\code\logger\Logger.h" />
     <ClInclude Include="engine\code\model\Model.h" />
     <ClInclude Include="engine\code\model\ModelManager.h" />
-    <ClInclude Include="engine\code\module\IModule.h" />
-    <ClInclude Include="engine\code\module\debugger\DebuggerGroup.h" />
-    <ClInclude Include="engine\code\module\debugger\IDebugger.h" />
     <ClInclude Include="engine\code\scene\Scene.h" />
     <ClInclude Include="engine\code\scene\SceneManager.h" />
     <ClInclude Include="engine\code\texture\TextureManager.h" />
-    <ClInclude Include="engine\code\ECS\component\effect\particle\gpuParticle\GpuParticle.h" />
-    <ClInclude Include="engine\code\ECS\system\Initialize\GpuParticleInitialize.h" />
-    <ClInclude Include="engine\code\ECS\system\render\GpuParticleRenderSystem.h" />
-    <ClInclude Include="engine\code\ECS\system\effect\GpuParticleEmitterWorkSystem.h" />
-    <ClInclude Include="lib\Thread\Thread.h" />
-    <ClInclude Include="lib\binaryIO\BinaryIO.h" />
-    <ClInclude Include="lib\deltaTime\DeltaTime.h" />
-    <ClInclude Include="lib\globalVariables\GlobalVariables.h" />
-    <ClInclude Include="lib\globalVariables\SerializedField.h" />
-    <ClInclude Include="lib\imGuiManager\ImGuiManager.h" />
-    <ClInclude Include="lib\logger\ImGuiLogSink.h" />
-    <ClInclude Include="lib\logger\Logger.h" />
-    <ClInclude Include="lib\myFileSystem\MyFileSystem.h" />
-    <ClInclude Include="lib\myGui\MyGui.h" />
-    <ClInclude Include="lib\myRandom\MyRandom.h" />
-    <ClInclude Include="lib\node\DefaultNodes.h" />
-    <ClInclude Include="lib\node\OperatorNodes.h" />
-    <ClInclude Include="lib\winApp\WinApp.h" />
+    <ClInclude Include="engine\code\winApp\WinApp.h" />
     <ClInclude Include="math\Matrix4x4.h" />
     <ClInclude Include="math\MyEasing.h" />
     <ClInclude Include="math\Quaternion.h" />
@@ -284,7 +271,16 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="util\DiffValue.h" />
     <ClInclude Include="util\EnumBitMask.h" />
     <ClInclude Include="util\NormalizeString.h" />
+    <ClInclude Include="util\binaryIO\BinaryIO.h" />
+    <ClInclude Include="util\deltaTime\DeltaTime.h" />
+    <ClInclude Include="util\globalVariables\GlobalVariables.h" />
+    <ClInclude Include="util\globalVariables\SerializedField.h" />
+    <ClInclude Include="util\myFileSystem\MyFileSystem.h" />
+    <ClInclude Include="util\myGui\MyGui.h" />
+    <ClInclude Include="util\myRandom\MyRandom.h" />
     <ClInclude Include="util\nameof.h" />
+    <ClInclude Include="util\node\DefaultNodes.h" />
+    <ClInclude Include="util\node\OperatorNodes.h" />
     <ClInclude Include="util\timeline\Timeline.h" />
   </ItemGroup>
   <ItemGroup>
@@ -309,6 +305,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\ECS\component\effect\particle\Particle.cpp" />
     <ClCompile Include="engine\code\ECS\component\effect\particle\emitter\Emitter.cpp" />
     <ClCompile Include="engine\code\ECS\component\effect\particle\emitter\EmitterShape.cpp" />
+    <ClCompile Include="engine\code\ECS\component\effect\particle\gpuParticle\GpuParticle.cpp" />
     <ClCompile Include="engine\code\ECS\component\effect\post\DissolveEffectParam.cpp" />
     <ClCompile Include="engine\code\ECS\component\effect\post\DistortionEffectParam.cpp" />
     <ClCompile Include="engine\code\ECS\component\effect\post\RadialBlurParam.cpp" />
@@ -328,10 +325,12 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\ECS\component\transform\ParticleTransform.cpp" />
     <ClCompile Include="engine\code\ECS\component\transform\Transform.cpp" />
     <ClCompile Include="engine\code\ECS\system\ISystem.cpp" />
+    <ClCompile Include="engine\code\ECS\system\Initialize\GpuParticleInitialize.cpp" />
     <ClCompile Include="engine\code\ECS\system\collision\CollisionCheckSystem.cpp" />
     <ClCompile Include="engine\code\ECS\system\collision\CollisionPushBackSystem.cpp" />
     <ClCompile Include="engine\code\ECS\system\effect\CameraActionSystem.cpp" />
     <ClCompile Include="engine\code\ECS\system\effect\EmitterWorkSystem.cpp" />
+    <ClCompile Include="engine\code\ECS\system\effect\GpuParticleEmitterWorkSystem.cpp" />
     <ClCompile Include="engine\code\ECS\system\effect\PrimitiveNodeAnimationWorkSystem.cpp" />
     <ClCompile Include="engine\code\ECS\system\effect\SkinningAnimationSystem.cpp" />
     <ClCompile Include="engine\code\ECS\system\effect\SpriteAnimationSystem.cpp" />
@@ -347,6 +346,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\ECS\system\render\BackGroundSpriteRenderSystem.cpp" />
     <ClCompile Include="engine\code\ECS\system\render\ColliderRenderingSystem.cpp" />
     <ClCompile Include="engine\code\ECS\system\render\EffectTexturedMeshRenderSystem.cpp" />
+    <ClCompile Include="engine\code\ECS\system\render\GpuParticleRenderSystem.cpp" />
     <ClCompile Include="engine\code\ECS\system\render\LineRenderSystem.cpp" />
     <ClCompile Include="engine\code\ECS\system\render\ParticleRenderSystem.cpp" />
     <ClCompile Include="engine\code\ECS\system\render\SkeletonRenderSystem.cpp" />
@@ -372,33 +372,27 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\directX12\ResourceStateTracker.cpp" />
     <ClCompile Include="engine\code\directX12\ShaderCompiler.cpp" />
     <ClCompile Include="engine\code\directX12\ShaderManager.cpp" />
+    <ClCompile Include="engine\code\imGuiManager\ImGuiManager.cpp" />
     <ClCompile Include="engine\code\input\Input.cpp" />
+    <ClCompile Include="engine\code\logger\Logger.cpp" />
     <ClCompile Include="engine\code\model\Model.cpp" />
     <ClCompile Include="engine\code\model\ModelManager.cpp" />
-    <ClCompile Include="engine\code\module\debugger\DebuggerGroup.cpp" />
     <ClCompile Include="engine\code\scene\Scene.cpp" />
     <ClCompile Include="engine\code\scene\SceneManager.cpp" />
     <ClCompile Include="engine\code\texture\TextureManager.cpp" />
-    <ClCompile Include="engine\code\ECS\component\effect\particle\gpuParticle\GpuParticle.cpp" />
-    <ClCompile Include="engine\code\ECS\system\Initialize\GpuParticleInitialize.cpp" />
-    <ClCompile Include="engine\code\ECS\system\render\GpuParticleRenderSystem.cpp" />
-    <ClCompile Include="engine\code\ECS\system\effect\GpuParticleEmitterWorkSystem.cpp" />
-    <ClCompile Include="lib\Thread\Thread.cpp" />
-    <ClCompile Include="lib\binaryIO\BinaryIO.cpp" />
-    <ClCompile Include="lib\deltaTime\DeltaTime.cpp" />
-    <ClCompile Include="lib\globalVariables\GlobalVariables.cpp" />
-    <ClCompile Include="lib\imGuiManager\ImGuiManager.cpp" />
-    <ClCompile Include="lib\logger\Logger.cpp" />
-    <ClCompile Include="lib\myFileSystem\MyFileSystem.cpp" />
-    <ClCompile Include="lib\myGui\MyGui.cpp" />
-    <ClCompile Include="lib\node\OperatorNodes.cpp" />
-    <ClCompile Include="lib\winApp\WinApp.cpp" />
+    <ClCompile Include="engine\code\winApp\WinApp.cpp" />
     <ClCompile Include="math\Matrix4x4.cpp" />
     <ClCompile Include="math\MyEasing.cpp" />
     <ClCompile Include="math\Quaternion.cpp" />
     <ClCompile Include="math\Sequence.cpp" />
     <ClCompile Include="util\ConvertString.cpp" />
     <ClCompile Include="util\NormalizeString.cpp" />
+    <ClCompile Include="util\binaryIO\BinaryIO.cpp" />
+    <ClCompile Include="util\deltaTime\DeltaTime.cpp" />
+    <ClCompile Include="util\globalVariables\GlobalVariables.cpp" />
+    <ClCompile Include="util\myFileSystem\MyFileSystem.cpp" />
+    <ClCompile Include="util\myGui\MyGui.cpp" />
+    <ClCompile Include="util\node\OperatorNodes.cpp" />
     <ClCompile Include="util\timeline\Timeline.cpp" />
   </ItemGroup>
   <ItemGroup>

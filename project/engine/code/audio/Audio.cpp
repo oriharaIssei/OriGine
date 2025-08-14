@@ -9,7 +9,7 @@
 #define RESOURCE_DIRECTORY
 
 #include "EngineInclude.h"
-/// lib
+
 #include "logger/Logger.h"
 #include "myFileSystem/MyFileSystem.h"
 

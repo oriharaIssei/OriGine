@@ -6,7 +6,7 @@
 #include "component/transform/Transform.h"
 
 
-/// lib
+
 #include "logger/Logger.h"
 
 void CollisionPushBackSystem::Initialize() {

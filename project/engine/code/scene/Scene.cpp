@@ -35,6 +35,13 @@ void Scene::Initialize() {
     systemRunner_->UpdateCategory<SystemCategory::Initialize>();
 }
 
+void Scene::InitializeECS() {
+    entityRepository_ = std::make_unique<EntityRepository>();
+    entityRepository_->Initialize();
+    componentRepository_ = std::make_unique<ComponentRepository>();
+    systemRunner_        = std::make_unique<SystemRunner>(this);
+}
+
 void Scene::Update() {
     if (!systemRunner_) {
         return;

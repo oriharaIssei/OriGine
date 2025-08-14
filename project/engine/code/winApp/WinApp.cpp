@@ -7,7 +7,7 @@
 
 #include <vector>
 
-/// lib
+
 #include "logger/Logger.h"
 
 #ifdef _DEBUG

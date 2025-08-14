@@ -5,7 +5,6 @@
 #include <unordered_map>
 
 /// engine
-#include "Thread/Thread.h"
 
 /// math
 #include <Quaternion.h>
@@ -13,7 +12,7 @@
 #include <Vector3.h>
 #include <Vector4.h>
 
-/// lib
+
 #include "binaryIO/BinaryIO.h"
 
 /// <summary>
@@ -95,8 +94,6 @@ struct AnimationData {
 
     float duration = 0.0f;
     std::unordered_map<std::string, ModelAnimationNode> animationNodes_;
-
-    LoadState loadState = LoadState::Unloaded;
 };
 
 namespace CalculateValue {

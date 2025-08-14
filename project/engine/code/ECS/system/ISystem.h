@@ -14,8 +14,8 @@
 #include "component/IComponent.h"
 #include "ECS/Entity.h"
 
-/// lib
-#include "lib/deltaTime/DeltaTime.h"
+
+#include "util/deltaTime/DeltaTime.h"
 #include "logger/Logger.h"
 
 /// <summary>

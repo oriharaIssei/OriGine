@@ -10,7 +10,7 @@
 // ECS
 class EntityRepository;
 
-/// lib
+
 #include "logger/Logger.h"
 
 // util

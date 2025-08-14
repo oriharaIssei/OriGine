@@ -13,8 +13,8 @@
 #include <dinput.h>
 #include <Xinput.h>
 
-// lib
-#include "lib/globalVariables/SerializedField.h"
+
+#include "util/globalVariables/SerializedField.h"
 // math
 #include <math/Vector2.h>
 

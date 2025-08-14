@@ -5,11 +5,10 @@
 // directX12 Object
 #include "directX12/DxDevice.h"
 
-/// lib
+
 #include "globalVariables/GlobalVariables.h"
 
-LightManager::LightManager()
-    : IModule() {}
+LightManager::LightManager() {}
 LightManager::~LightManager() {}
 
 void LightManager::Initialize() {

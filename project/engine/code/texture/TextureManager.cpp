@@ -24,7 +24,6 @@
 #include "directX12/ResourceStateTracker.h"
 #include "directX12/ShaderCompiler.h"
 
-// lib
 #include "logger/Logger.h"
 
 // util
@@ -34,15 +33,12 @@
 const uint32_t TextureManager::maxTextureSize_;
 std::array<std::shared_ptr<Texture>, TextureManager::maxTextureSize_> TextureManager::textures_;
 std::unordered_map<std::string, uint32_t> TextureManager::textureFileNameToIndexMap_;
-std::mutex TextureManager::texturesMutex_;
-// std::unique_ptr<TaskThread<TextureManager::LoadTask>> TextureManager::loadThread_;
 std::unique_ptr<DxCommand> TextureManager::dxCommand_;
 uint32_t TextureManager::dummyTextureIndex_;
 
 #pragma region Texture
 void Texture::Initialize(const std::string& filePath) {
-    loadState = LoadState::Unloaded;
-    path      = filePath;
+    path = filePath;
 
     //==================================================
     // Textureを読み込んで転送する
@@ -78,7 +74,6 @@ void Texture::Initialize(const std::string& filePath) {
     /// SRV の作成
     auto device = Engine::getInstance()->getDxDevice()->getDevice();
     srv         = Engine::getInstance()->getSrvHeap()->CreateDescriptor(srvDesc, &resource);
-    loadState   = LoadState::Loaded;
 }
 
 void Texture::Finalize() {
@@ -249,8 +244,6 @@ uint32_t TextureManager::LoadTexture(const std::string& filePath, std::function<
 
     uint32_t index = 0;
     {
-        std::lock_guard<std::mutex> lock(texturesMutex_); // 排他制御
-
         auto itr = textureFileNameToIndexMap_.find(normalizedPath);
         if (itr != textureFileNameToIndexMap_.end()) {
             // 既にロード済みのテクスチャがある場合
@@ -316,9 +309,7 @@ void TextureManager::UnloadTexture(uint32_t id) {
 D3D12_GPU_DESCRIPTOR_HANDLE TextureManager::getDescriptorGpuHandle(uint32_t handleId) {
     uint32_t locate = dummyTextureIndex_;
 
-    if (textures_[handleId]->loadState == LoadState::Loaded) {
-        locate = handleId;
-    }
+    locate = handleId;
 
     // ロード中や未ロードの場合は必ずダミー（0番）を返す
     return textures_[locate]->srv->getGpuHandle();
@@ -330,7 +321,6 @@ void TextureManager::LoadTask::Update() {
     DeltaTime timer;
     timer.Initialize();
 
-    std::lock_guard<std::mutex> lock(texture->mutex);
     texture->Initialize(filePath);
 
     if (callBack) {

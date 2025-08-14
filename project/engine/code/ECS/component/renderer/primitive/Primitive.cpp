@@ -11,7 +11,7 @@
 // module
 #include "editor/EditorController.h"
 #include "editor/IEditor.h"
-/// lib
+
 #include "myFileSystem/MyFileSystem.h"
 
 /// externals

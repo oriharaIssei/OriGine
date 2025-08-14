@@ -12,7 +12,7 @@
 #include <directX12/ShaderCompiler.h>
 // assets
 #include "texture/TextureManager.h"
-// lib
+
 #include "logger/Logger.h"
 #include "myFileSystem/MyFileSystem.h"
 

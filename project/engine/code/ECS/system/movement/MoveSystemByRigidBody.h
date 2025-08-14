@@ -3,8 +3,8 @@
 #include "system/ISystem.h"
 
 /// engine
-// lib
-#include "lib/globalVariables/SerializedField.h"
+
+#include "util/globalVariables/SerializedField.h"
 
 class MoveSystemByRigidBody
     : public ISystem {

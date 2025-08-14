@@ -14,7 +14,7 @@
 #include "directX12/ShaderManager.h"
 #include "texture/TextureManager.h"
 
-// lib
+
 #include "logger/Logger.h"
 
 /// util

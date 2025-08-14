@@ -37,6 +37,9 @@
     <Filter Include="engine\code\ECS\component\effect\particle\emitter">
       <UniqueIdentifier>{D9F8DC12-45BF-392F-8E1A-C891FA1FA893}</UniqueIdentifier>
     </Filter>
+    <Filter Include="engine\code\ECS\component\effect\particle\gpuParticle">
+      <UniqueIdentifier>{BF3D7C73-2B5A-6E64-F431-DBD1600DD825}</UniqueIdentifier>
+    </Filter>
     <Filter Include="engine\code\ECS\component\effect\post">
       <UniqueIdentifier>{02EE7839-6EB2-7729-3718-A8F3A39B135F}</UniqueIdentifier>
     </Filter>
@@ -60,6 +63,9 @@
     </Filter>
     <Filter Include="engine\code\ECS\system">
       <UniqueIdentifier>{A366968F-8F60-BFE1-78CD-55F26466254E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\code\ECS\system\Initialize">
+      <UniqueIdentifier>{E424EA7C-5093-3FFC-997C-FAFB052A3598}</UniqueIdentifier>
     </Filter>
     <Filter Include="engine\code\ECS\system\collision">
       <UniqueIdentifier>{9EA31C15-8AF4-0757-B358-F6189F089BC0}</UniqueIdentifier>
@@ -88,17 +94,17 @@
     <Filter Include="engine\code\directX12">
       <UniqueIdentifier>{AAEB9D36-1658-5931-DF4B-F18E4B777B99}</UniqueIdentifier>
     </Filter>
+    <Filter Include="engine\code\imGuiManager">
+      <UniqueIdentifier>{8A24C19B-7649-101C-9F94-F5AB8B180F3A}</UniqueIdentifier>
+    </Filter>
     <Filter Include="engine\code\input">
       <UniqueIdentifier>{64CFC4BB-D0E5-C251-195D-4E7385B293D9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="engine\code\logger">
+      <UniqueIdentifier>{D4216B3B-C005-2C91-2966-26E415691613}</UniqueIdentifier>
+    </Filter>
     <Filter Include="engine\code\model">
       <UniqueIdentifier>{A5880DBC-119F-0B52-5A16-9773C66BDCD9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="engine\code\module">
-      <UniqueIdentifier>{BAE1BE3D-A6C5-7F93-0F26-7AE6FB286A15}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="engine\code\module\debugger">
-      <UniqueIdentifier>{6E511CC5-DA5E-4AAB-6345-4696CF511662}</UniqueIdentifier>
     </Filter>
     <Filter Include="engine\code\scene">
       <UniqueIdentifier>{828C73BC-EEA2-7152-371A-FD73A36F42DA}</UniqueIdentifier>
@@ -106,41 +112,8 @@
     <Filter Include="engine\code\texture">
       <UniqueIdentifier>{05B288FA-7113-6608-FA80-ACBA66E19CC7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="lib">
-      <UniqueIdentifier>{3C8C880B-A895-887C-3111-9F7C9D19947C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\Thread">
-      <UniqueIdentifier>{239FDD0F-0F57-1F5D-785E-F8B86435BA4D}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\binaryIO">
-      <UniqueIdentifier>{E885C2AC-D4E8-5151-7D6E-8A0769B01DD4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\deltaTime">
-      <UniqueIdentifier>{A4FD1A0E-10BE-9644-D9F8-DFC14578DB20}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\globalVariables">
-      <UniqueIdentifier>{35EDECEA-A14E-CAF8-2ABC-10AB961C01B8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\imGuiManager">
-      <UniqueIdentifier>{A1222B4E-8D1B-4AA0-B64D-2F25A2A529AC}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\logger">
-      <UniqueIdentifier>{AB1A5248-97D2-9395-00DA-6CF1ECB02E86}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\myFileSystem">
-      <UniqueIdentifier>{9655D5B4-824E-F406-AB80-D98B97D8D312}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\myGui">
-      <UniqueIdentifier>{164502EB-82AF-B661-CBED-6707379794B6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\myRandom">
-      <UniqueIdentifier>{3280E761-1EE3-7606-C768-AFBCB3AA4289}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\node">
-      <UniqueIdentifier>{914846A2-7D15-A1AD-A62E-8F55925AD63B}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lib\winApp">
-      <UniqueIdentifier>{FA7C9161-E634-D3AE-4F3C-AC0A3B136E9F}</UniqueIdentifier>
+    <Filter Include="engine\code\winApp">
+      <UniqueIdentifier>{2384AA54-0F68-6BAA-78C8-65FD64CB552C}</UniqueIdentifier>
     </Filter>
     <Filter Include="math">
       <UniqueIdentifier>{CF809A7C-BBB7-9B0D-64A4-811050BA170F}</UniqueIdentifier>
@@ -150,6 +123,27 @@
     </Filter>
     <Filter Include="util">
       <UniqueIdentifier>{43339F7C-2F6A-A00D-D856-8610C46C1C0F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="util\binaryIO">
+      <UniqueIdentifier>{CF048FB7-3BC5-0AEE-0400-546B707F4FCA}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="util\deltaTime">
+      <UniqueIdentifier>{6B597772-5727-6B78-40BB-DB9E2C2847DD}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="util\globalVariables">
+      <UniqueIdentifier>{3CC266EE-2851-F0B7-D16F-04B3BDDD005E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="util\myFileSystem">
+      <UniqueIdentifier>{FDEF043E-6906-03D4-B27D-8EF51ED3D35B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="util\myGui">
+      <UniqueIdentifier>{5DD511AD-498D-53FA-B294-2C569E6BEEEA}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="util\myRandom">
+      <UniqueIdentifier>{19FFB36C-85BF-2FA3-4EFA-7820BA79747F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="util\node">
+      <UniqueIdentifier>{F86BF1CE-64D6-A545-AD14-57EB19BE839A}</UniqueIdentifier>
     </Filter>
     <Filter Include="util\timeline">
       <UniqueIdentifier>{89AC1F52-F56C-9B88-BEA7-E4052A27E064}</UniqueIdentifier>
@@ -225,6 +219,9 @@
     <ClInclude Include="engine\code\ECS\component\effect\particle\emitter\EmitterShape.h">
       <Filter>engine\code\ECS\component\effect\particle\emitter</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\effect\particle\gpuParticle\GpuParticle.h">
+      <Filter>engine\code\ECS\component\effect\particle\gpuParticle</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\ECS\component\effect\post\DissolveEffectParam.h">
       <Filter>engine\code\ECS\component\effect\post</Filter>
     </ClInclude>
@@ -282,6 +279,9 @@
     <ClInclude Include="engine\code\ECS\system\ISystem.h">
       <Filter>engine\code\ECS\system</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\ECS\system\Initialize\GpuParticleInitialize.h">
+      <Filter>engine\code\ECS\system\Initialize</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\ECS\system\collision\CollisionCheckSystem.h">
       <Filter>engine\code\ECS\system\collision</Filter>
     </ClInclude>
@@ -292,6 +292,9 @@
       <Filter>engine\code\ECS\system\effect</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\system\effect\EmitterWorkSystem.h">
+      <Filter>engine\code\ECS\system\effect</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\system\effect\GpuParticleEmitterWorkSystem.h">
       <Filter>engine\code\ECS\system\effect</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\system\effect\PrimitiveNodeAnimationWorkSystem.h">
@@ -337,6 +340,9 @@
       <Filter>engine\code\ECS\system\render</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\system\render\EffectTexturedMeshRenderSystem.h">
+      <Filter>engine\code\ECS\system\render</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\system\render\GpuParticleRenderSystem.h">
       <Filter>engine\code\ECS\system\render</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\system\render\LineRenderSystem.h">
@@ -420,23 +426,23 @@
     <ClInclude Include="engine\code\directX12\ShaderManager.h">
       <Filter>engine\code\directX12</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\imGuiManager\ImGuiManager.h">
+      <Filter>engine\code\imGuiManager</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\input\Input.h">
       <Filter>engine\code\input</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\logger\ImGuiLogSink.h">
+      <Filter>engine\code\logger</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\logger\Logger.h">
+      <Filter>engine\code\logger</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\model\Model.h">
       <Filter>engine\code\model</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\model\ModelManager.h">
       <Filter>engine\code\model</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\code\module\IModule.h">
-      <Filter>engine\code\module</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\code\module\debugger\DebuggerGroup.h">
-      <Filter>engine\code\module\debugger</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\code\module\debugger\IDebugger.h">
-      <Filter>engine\code\module\debugger</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\scene\Scene.h">
       <Filter>engine\code\scene</Filter>
@@ -447,47 +453,8 @@
     <ClInclude Include="engine\code\texture\TextureManager.h">
       <Filter>engine\code\texture</Filter>
     </ClInclude>
-    <ClInclude Include="lib\Thread\Thread.h">
-      <Filter>lib\Thread</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\binaryIO\BinaryIO.h">
-      <Filter>lib\binaryIO</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\deltaTime\DeltaTime.h">
-      <Filter>lib\deltaTime</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\globalVariables\GlobalVariables.h">
-      <Filter>lib\globalVariables</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\globalVariables\SerializedField.h">
-      <Filter>lib\globalVariables</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\imGuiManager\ImGuiManager.h">
-      <Filter>lib\imGuiManager</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\logger\ImGuiLogSink.h">
-      <Filter>lib\logger</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\logger\Logger.h">
-      <Filter>lib\logger</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\myFileSystem\MyFileSystem.h">
-      <Filter>lib\myFileSystem</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\myGui\MyGui.h">
-      <Filter>lib\myGui</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\myRandom\MyRandom.h">
-      <Filter>lib\myRandom</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\node\DefaultNodes.h">
-      <Filter>lib\node</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\node\OperatorNodes.h">
-      <Filter>lib\node</Filter>
-    </ClInclude>
-    <ClInclude Include="lib\winApp\WinApp.h">
-      <Filter>lib\winApp</Filter>
+    <ClInclude Include="engine\code\winApp\WinApp.h">
+      <Filter>engine\code\winApp</Filter>
     </ClInclude>
     <ClInclude Include="math\Matrix4x4.h">
       <Filter>math</Filter>
@@ -534,16 +501,39 @@
     <ClInclude Include="util\NormalizeString.h">
       <Filter>util</Filter>
     </ClInclude>
+    <ClInclude Include="util\binaryIO\BinaryIO.h">
+      <Filter>util\binaryIO</Filter>
+    </ClInclude>
+    <ClInclude Include="util\deltaTime\DeltaTime.h">
+      <Filter>util\deltaTime</Filter>
+    </ClInclude>
+    <ClInclude Include="util\globalVariables\GlobalVariables.h">
+      <Filter>util\globalVariables</Filter>
+    </ClInclude>
+    <ClInclude Include="util\globalVariables\SerializedField.h">
+      <Filter>util\globalVariables</Filter>
+    </ClInclude>
+    <ClInclude Include="util\myFileSystem\MyFileSystem.h">
+      <Filter>util\myFileSystem</Filter>
+    </ClInclude>
+    <ClInclude Include="util\myGui\MyGui.h">
+      <Filter>util\myGui</Filter>
+    </ClInclude>
+    <ClInclude Include="util\myRandom\MyRandom.h">
+      <Filter>util\myRandom</Filter>
+    </ClInclude>
     <ClInclude Include="util\nameof.h">
       <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="util\node\DefaultNodes.h">
+      <Filter>util\node</Filter>
+    </ClInclude>
+    <ClInclude Include="util\node\OperatorNodes.h">
+      <Filter>util\node</Filter>
     </ClInclude>
     <ClInclude Include="util\timeline\Timeline.h">
       <Filter>util\timeline</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\ECS\component\effect\particle\gpuParticle\GpuParticle.h" />
-    <ClInclude Include="engine\code\ECS\system\Initialize\GpuParticleInitialize.h" />
-    <ClInclude Include="engine\code\ECS\system\render\GpuParticleRenderSystem.h" />
-    <ClInclude Include="engine\code\ECS\system\effect\GpuParticleEmitterWorkSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="editor\EditorController.cpp">
@@ -609,6 +599,9 @@
     <ClCompile Include="engine\code\ECS\component\effect\particle\emitter\EmitterShape.cpp">
       <Filter>engine\code\ECS\component\effect\particle\emitter</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\ECS\component\effect\particle\gpuParticle\GpuParticle.cpp">
+      <Filter>engine\code\ECS\component\effect\particle\gpuParticle</Filter>
+    </ClCompile>
     <ClCompile Include="engine\code\ECS\component\effect\post\DissolveEffectParam.cpp">
       <Filter>engine\code\ECS\component\effect\post</Filter>
     </ClCompile>
@@ -666,6 +659,9 @@
     <ClCompile Include="engine\code\ECS\system\ISystem.cpp">
       <Filter>engine\code\ECS\system</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\ECS\system\Initialize\GpuParticleInitialize.cpp">
+      <Filter>engine\code\ECS\system\Initialize</Filter>
+    </ClCompile>
     <ClCompile Include="engine\code\ECS\system\collision\CollisionCheckSystem.cpp">
       <Filter>engine\code\ECS\system\collision</Filter>
     </ClCompile>
@@ -676,6 +672,9 @@
       <Filter>engine\code\ECS\system\effect</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\system\effect\EmitterWorkSystem.cpp">
+      <Filter>engine\code\ECS\system\effect</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\system\effect\GpuParticleEmitterWorkSystem.cpp">
       <Filter>engine\code\ECS\system\effect</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\system\effect\PrimitiveNodeAnimationWorkSystem.cpp">
@@ -721,6 +720,9 @@
       <Filter>engine\code\ECS\system\render</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\system\render\EffectTexturedMeshRenderSystem.cpp">
+      <Filter>engine\code\ECS\system\render</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\system\render\GpuParticleRenderSystem.cpp">
       <Filter>engine\code\ECS\system\render</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\system\render\LineRenderSystem.cpp">
@@ -798,17 +800,20 @@
     <ClCompile Include="engine\code\directX12\ShaderManager.cpp">
       <Filter>engine\code\directX12</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\imGuiManager\ImGuiManager.cpp">
+      <Filter>engine\code\imGuiManager</Filter>
+    </ClCompile>
     <ClCompile Include="engine\code\input\Input.cpp">
       <Filter>engine\code\input</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\logger\Logger.cpp">
+      <Filter>engine\code\logger</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\model\Model.cpp">
       <Filter>engine\code\model</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\model\ModelManager.cpp">
       <Filter>engine\code\model</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\code\module\debugger\DebuggerGroup.cpp">
-      <Filter>engine\code\module\debugger</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\scene\Scene.cpp">
       <Filter>engine\code\scene</Filter>
@@ -819,35 +824,8 @@
     <ClCompile Include="engine\code\texture\TextureManager.cpp">
       <Filter>engine\code\texture</Filter>
     </ClCompile>
-    <ClCompile Include="lib\Thread\Thread.cpp">
-      <Filter>lib\Thread</Filter>
-    </ClCompile>
-    <ClCompile Include="lib\binaryIO\BinaryIO.cpp">
-      <Filter>lib\binaryIO</Filter>
-    </ClCompile>
-    <ClCompile Include="lib\deltaTime\DeltaTime.cpp">
-      <Filter>lib\deltaTime</Filter>
-    </ClCompile>
-    <ClCompile Include="lib\globalVariables\GlobalVariables.cpp">
-      <Filter>lib\globalVariables</Filter>
-    </ClCompile>
-    <ClCompile Include="lib\imGuiManager\ImGuiManager.cpp">
-      <Filter>lib\imGuiManager</Filter>
-    </ClCompile>
-    <ClCompile Include="lib\logger\Logger.cpp">
-      <Filter>lib\logger</Filter>
-    </ClCompile>
-    <ClCompile Include="lib\myFileSystem\MyFileSystem.cpp">
-      <Filter>lib\myFileSystem</Filter>
-    </ClCompile>
-    <ClCompile Include="lib\myGui\MyGui.cpp">
-      <Filter>lib\myGui</Filter>
-    </ClCompile>
-    <ClCompile Include="lib\node\OperatorNodes.cpp">
-      <Filter>lib\node</Filter>
-    </ClCompile>
-    <ClCompile Include="lib\winApp\WinApp.cpp">
-      <Filter>lib\winApp</Filter>
+    <ClCompile Include="engine\code\winApp\WinApp.cpp">
+      <Filter>engine\code\winApp</Filter>
     </ClCompile>
     <ClCompile Include="math\Matrix4x4.cpp">
       <Filter>math</Filter>
@@ -867,12 +845,26 @@
     <ClCompile Include="util\NormalizeString.cpp">
       <Filter>util</Filter>
     </ClCompile>
+    <ClCompile Include="util\binaryIO\BinaryIO.cpp">
+      <Filter>util\binaryIO</Filter>
+    </ClCompile>
+    <ClCompile Include="util\deltaTime\DeltaTime.cpp">
+      <Filter>util\deltaTime</Filter>
+    </ClCompile>
+    <ClCompile Include="util\globalVariables\GlobalVariables.cpp">
+      <Filter>util\globalVariables</Filter>
+    </ClCompile>
+    <ClCompile Include="util\myFileSystem\MyFileSystem.cpp">
+      <Filter>util\myFileSystem</Filter>
+    </ClCompile>
+    <ClCompile Include="util\myGui\MyGui.cpp">
+      <Filter>util\myGui</Filter>
+    </ClCompile>
+    <ClCompile Include="util\node\OperatorNodes.cpp">
+      <Filter>util\node</Filter>
+    </ClCompile>
     <ClCompile Include="util\timeline\Timeline.cpp">
       <Filter>util\timeline</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\ECS\component\effect\particle\gpuParticle\GpuParticle.cpp" />
-    <ClCompile Include="engine\code\ECS\system\Initialize\GpuParticleInitialize.cpp" />
-    <ClCompile Include="engine\code\ECS\system\render\GpuParticleRenderSystem.cpp" />
-    <ClCompile Include="engine\code\ECS\system\effect\GpuParticleEmitterWorkSystem.cpp" />
   </ItemGroup>
 </Project>

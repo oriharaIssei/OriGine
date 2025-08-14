@@ -11,7 +11,7 @@
 #include "component/animation/SkinningAnimationComponent.h"
 #include "component/renderer/MeshRenderer.h"
 
-/// lib
+
 #include "logger/Logger.h"
 
 static void ApplyAnimation(Skeleton& _skeleton, AnimationData* _animationData, float _animationTime) {

@@ -9,7 +9,7 @@
 #include "editor/EditorController.h"
 #include "editor/IEditor.h"
 
-/// lib
+
 #include "logger/Logger.h"
 
 /// util

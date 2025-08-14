@@ -7,7 +7,7 @@
 // component
 #include "component/renderer/primitive/Primitive.h"
 
-/// lib
+
 #include "myFileSystem/MyFileSystem.h"
 
 #ifdef _DEBUG

@@ -9,7 +9,7 @@
 #include "component/physics/Rigidbody.h"
 #include "component/transform/Transform.h"
 
-/// lib
+
 #include "logger/Logger.h"
 
 MoveSystemByRigidBody::MoveSystemByRigidBody() : ISystem(SystemCategory::Movement) {}

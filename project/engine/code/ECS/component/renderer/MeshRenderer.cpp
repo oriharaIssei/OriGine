@@ -13,7 +13,7 @@
 #include "editor/IEditor.h"
 #include "engine/EngineInclude.h"
 
-/// lib
+
 #include "myFileSystem/MyFileSystem.h"
 
 #ifdef _DEBUG

@@ -16,22 +16,23 @@ class SystemRunner;
 class ISystem;
 enum class SystemCategory;
 
-class Scene {
+class Scene final {
     friend class SceneSerializer;
 
 public:
     Scene(const std::string& _name);
-    virtual ~Scene();
+    ~Scene();
 
     // シーンの初期化
-    virtual void Initialize();
+    void Initialize();
     // シーンの更新
-    virtual void Update();
+    void Update();
     // シーンの描画
-    virtual void Render();
+    void Render();
     // シーンの終了処理
-    virtual void Finalize();
+    void Finalize();
 
+    void InitializeECS();
 protected:
     void ExecuteDeleteEntities();
 

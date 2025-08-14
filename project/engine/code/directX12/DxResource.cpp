@@ -7,7 +7,7 @@
 // directX12 object
 #include "directX12/DxDevice.h"
 
-/// lib
+
 #include "logger/Logger.h"
 
 void DxResource::CreateBufferResource(Microsoft::WRL::ComPtr<ID3D12Device> device, size_t sizeInBytes) {

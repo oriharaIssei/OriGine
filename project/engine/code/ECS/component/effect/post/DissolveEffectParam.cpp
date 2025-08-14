@@ -9,7 +9,7 @@
 
 #include "texture/TextureManager.h"
 
-/// lib
+
 #include "myFileSystem/MyFileSystem.h"
 
 #ifdef _DEBUG

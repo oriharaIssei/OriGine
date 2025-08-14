@@ -9,6 +9,7 @@
 /// engine
 #include "Engine.h"
 #include "winApp/WinApp.h"
+#include "logger/Logger.h"
 
 #define ENGINE_INPUT
 #define RESOURCE_DIRECTORY
@@ -24,11 +25,8 @@
 // module
 #include "camera/CameraManager.h"
 #include "editor/EditorController.h"
-#include "module/debugger/DebuggerGroup.h"
 #include "texture/TextureManager.h"
-
-// lib
-#include "logger/Logger.h"
+// util
 #include "myFileSystem/MyFileSystem.h"
 
 /// math
