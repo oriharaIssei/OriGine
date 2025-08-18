@@ -9,7 +9,6 @@
 #include "editor/EditorController.h"
 #include "editor/IEditor.h"
 
-
 #include "logger/Logger.h"
 
 /// util
@@ -60,6 +59,10 @@ public:
         return returnValue; // デフォルト値を返す
     }
 };
+
+namespace ImGui {
+bool InputText(const char* label, std::string* str, ImGuiInputTextFlags flags = 0) ;
+}
 
 template <typename T>
 bool DragGui(const std::string& label, T& value, float speed = 0.1f, T min = T(), T max = T(), const char* format = "%.3f") {

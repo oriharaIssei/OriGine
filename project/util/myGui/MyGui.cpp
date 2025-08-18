@@ -2,6 +2,17 @@
 
 #ifdef _DEBUG
 
+bool ImGui::InputText(const char* label, std::string* str, ImGuiInputTextFlags flags) {
+    char buf[256];
+    strncpy(buf, str->c_str(), sizeof(buf));
+    buf[sizeof(buf) - 1] = '\0';
+    if (ImGui::InputText(label, buf, sizeof(buf), flags)) {
+        *str = buf;
+        return true;
+    }
+    return false;
+}
+
 bool CheckBoxCommand(const std::string& label, bool& value) {
     bool preValue = value;
     if (ImGui::Checkbox(label.c_str(), &preValue)) {
