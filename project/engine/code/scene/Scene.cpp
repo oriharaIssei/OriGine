@@ -20,14 +20,9 @@ Scene::Scene(const std::string& _name) {
 Scene::~Scene() {}
 
 void Scene::Initialize() {
-    sceneView_ = std::make_unique<RenderTexture>();
-    sceneView_->Initialize(2, Vec2f(1280.f, 720.f));
-    sceneView_->setTextureName(name_ + "_SceneView");
+    InitializeSceneView();
 
-    entityRepository_ = std::make_unique<EntityRepository>();
-    entityRepository_->Initialize();
-    componentRepository_ = std::make_unique<ComponentRepository>();
-    systemRunner_        = std::make_unique<SystemRunner>(this);
+    InitializeECS();
 
     SceneSerializer thisSerializer = SceneSerializer(this);
     thisSerializer.Deserialize();
@@ -40,6 +35,12 @@ void Scene::InitializeECS() {
     entityRepository_->Initialize();
     componentRepository_ = std::make_unique<ComponentRepository>();
     systemRunner_        = std::make_unique<SystemRunner>(this);
+}
+
+void Scene::InitializeSceneView() {
+    sceneView_ = std::make_unique<RenderTexture>();
+    sceneView_->Initialize(2, Vec2f(1280.f, 720.f));
+    sceneView_->setTextureName(name_ + "_SceneView");
 }
 
 void Scene::Update() {

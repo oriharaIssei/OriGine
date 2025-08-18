@@ -33,6 +33,7 @@ public:
     void Finalize();
 
     void InitializeECS();
+    void InitializeSceneView();
 protected:
     void ExecuteDeleteEntities();
 
