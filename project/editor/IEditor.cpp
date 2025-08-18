@@ -51,13 +51,13 @@ void Editor::Area::Finalize() {
 }
 
 void Editor::Area::UpdateFocusAndOpenState() {
-   /* if (isFocused_.isTrigger()) {
-        auto command = std::make_unique<WindowFocusCommand>(name_, &isFocused_, true);
-        EditorController::getInstance()->pushCommand(std::move(command));
-    } else if (isFocused_.isRelease()) {
-        auto command = std::make_unique<WindowFocusCommand>(name_, &isFocused_, false);
-        EditorController::getInstance()->pushCommand(std::move(command));
-    }*/
+    /* if (isFocused_.isTrigger()) {
+         auto command = std::make_unique<WindowFocusCommand>(name_, &isFocused_, true);
+         EditorController::getInstance()->pushCommand(std::move(command));
+     } else if (isFocused_.isRelease()) {
+         auto command = std::make_unique<WindowFocusCommand>(name_, &isFocused_, false);
+         EditorController::getInstance()->pushCommand(std::move(command));
+     }*/
 
     if (isOpen_.isChanged()) {
         if (isOpen_.isTrigger()) {
@@ -97,11 +97,10 @@ void Editor::Window::DrawGui() {
     ///=================================================================================================
 
     ImGuiViewport* viewport = ImGui::GetMainViewport();
-    windowPos_              = viewport->Pos;
-    windowSize_             = viewport->Size;
-
-    ImGui::SetNextWindowPos(viewport->Pos);
-    ImGui::SetNextWindowSize(viewport->Size);
+    if (isMaximized_) {
+        ImGui::SetNextWindowPos(viewport->Pos);
+        ImGui::SetNextWindowSize(viewport->Size);
+    }
 
     ImGui::SetNextWindowViewport(viewport->ID);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);

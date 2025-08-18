@@ -43,6 +43,8 @@ void SceneEditorWindow::Initialize() {
     InitializeMenus();
 
     InitializeAreas();
+
+    isMaximized_ = true; // 初期状態で最大化
 }
 
 void SceneEditorWindow::Finalize() {
@@ -288,9 +290,9 @@ void SceneViewArea::DrawGui() {
 
         DrawScene();
 
-        ImVec2 imageLeftTop = ImGui::GetCursorScreenPos();
         ImGui::Image(reinterpret_cast<ImTextureID>(renderTexture->getBackBufferSrvHandle().ptr), areaSize_.toImVec2());
 
+        ImVec2 imageLeftTop = ImGui::GetCursorScreenPos();
         UseImGuizmo(imageLeftTop, renderTexture->getTextureSize());
 
         for (auto& [name, region] : regions_) {
