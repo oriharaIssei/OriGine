@@ -8,8 +8,8 @@
 
 /// engine
 #include "Engine.h"
-#include "winApp/WinApp.h"
 #include "logger/Logger.h"
+#include "winApp/WinApp.h"
 
 #define ENGINE_INPUT
 #define RESOURCE_DIRECTORY
@@ -175,7 +175,7 @@ void SceneSerializer::SerializeFromJson() {
 
     std::list<GameEntity*> aliveEntities;
     for (auto& entity : entities->getEntitiesRef()) {
-        if (entity.isAlive()) {
+        if (entity.isAlive() && entity.shouldSave()) {
             aliveEntities.push_back(&entity);
         }
     }

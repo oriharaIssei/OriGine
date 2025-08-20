@@ -107,6 +107,24 @@ public:
         bool oldValue_ = false; // 変更前のユニーク性の値
         bool newValue_ = true; // 変更後のユニーク性の値
     };
+    class ChangeEntityShouldSave
+        : public IEditCommand {
+    public:
+        ChangeEntityShouldSave(EntityInspectorArea* _inspectorArea, int32_t _entityID, bool _oldValue)
+            : inspectorArea_(_inspectorArea), entityId_(_entityID), oldValue_(_oldValue), newValue_(!oldValue_) {}
+        ~ChangeEntityShouldSave() override = default;
+        void Execute() override;
+        void Undo() override;
+
+    private:
+        EntityInspectorArea* inspectorArea_ = nullptr; // 親エリアへのポインタ
+
+        int32_t entityId_ = -1; // 対象のエンティティID
+
+        bool oldValue_ = false;
+        bool newValue_ = true;
+    };
+
     class ChangeEntityName
         : public IEditCommand {
     public:

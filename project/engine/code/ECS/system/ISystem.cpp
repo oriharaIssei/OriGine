@@ -32,6 +32,14 @@ GameEntity* ISystem::getUniqueEntity(const std::string& _dataTypeName) {
     return scene_->getEntityRepositoryRef()->getUniqueEntity(_dataTypeName);
 }
 
+int32_t ISystem::CreateEntity(const std::string& _dataTypeName, bool _isUnique) {
+    if (scene_ == nullptr) {
+        LOG_ERROR("EntityRepository is not set.");
+        return -1;
+    }
+    return scene_->getEntityRepositoryRef()->CreateEntity(_dataTypeName, _isUnique);
+}
+
 IComponentArray* ISystem::getComponentArray(const std::string& _typeName) {
     if (scene_ == nullptr) {
         LOG_ERROR("ComponentRepository is not set.");

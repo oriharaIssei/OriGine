@@ -220,6 +220,21 @@ public:
         std::string entityName_;
         int32_t entityId_ = -1; // 作成するエンティティの名前
     };
+    class LoadEntityCommand
+        : public IEditCommand {
+    public:
+        LoadEntityCommand(HierarchyArea* _parentArea, const std::string& _directory,const std::string& _entityName);
+        ~LoadEntityCommand() override = default;
+
+        void Execute() override;
+        void Undo() override;
+
+    private:
+        std::string directory_ ;
+        HierarchyArea* parentArea_ = nullptr; // 親エリアへのポインタ
+        std::string entityName_;
+        int32_t entityId_ = -1; // 作成するエンティティの名前
+    };
 
 private:
     HierarchyArea* parentArea_ = nullptr; // 親エリアへのポインタ
