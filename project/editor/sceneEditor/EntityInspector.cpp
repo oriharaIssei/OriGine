@@ -3,6 +3,8 @@
 #ifdef _DEBUG
 
 /// engine
+#define RESOURCE_DIRECTORY
+#include "EngineInclude.h"
 // scene
 #include "scene/SceneManager.h"
 
@@ -55,6 +57,11 @@ void EntityInformationRegion::DrawGui() {
         EditorController::getInstance()->pushCommand(std::move(changeEditEntityCommand));
     }
 
+    if (ImGui::Button("SaveForFile")) {
+        SceneSerializer serializer(currentScene);
+        serializer.SaveEntity(editEntityId, kApplicationResourceDirectory + "/entity");
+    }
+
     ImGui::Spacing();
     ImGui::Separator();
     ImGui::Spacing();
@@ -78,6 +85,12 @@ void EntityInformationRegion::DrawGui() {
 
     if (ImGui::IsItemHovered()) {
         ImGui::SetTooltip("Unique entities cannot be duplicated.");
+    }
+
+    bool shouldSave = editEntity->shouldSave();
+    if (ImGui::Checkbox("Should Save", &shouldSave)) {
+        auto command = std::make_unique<ChangeEntityShouldSave>(parentArea_, editEntityId, shouldSave);
+        EditorController::getInstance()->pushCommand(std::move(command));
     }
 }
 void EntityInformationRegion::Finalize() {}
@@ -851,6 +864,30 @@ void EntityInformationRegion::ChangeEntityUniqueness::Undo() {
     } else {
         currentScene->getEntityRepositoryRef()->unregisterUniqueEntity(entity->getDataType());
     }
+}
+
+void EntityInformationRegion::ChangeEntityShouldSave::Execute() {
+    auto currentScene  = inspectorArea_->getParentWindow()->getCurrentScene();
+    GameEntity* entity = currentScene->getEntityRepositoryRef()->getEntity(entityId_);
+
+    if (!entity) {
+        LOG_ERROR("Entity with ID '{}' not found.", entityId_);
+        return;
+    }
+
+    entity->setShouldSave(newValue_);
+}
+
+void EntityInformationRegion::ChangeEntityShouldSave::Undo() {
+    auto currentScene  = inspectorArea_->getParentWindow()->getCurrentScene();
+    GameEntity* entity = currentScene->getEntityRepositoryRef()->getEntity(entityId_);
+
+    if (!entity) {
+        LOG_ERROR("Entity with ID '{}' not found.", entityId_);
+        return;
+    }
+
+    entity->setShouldSave(oldValue_);
 }
 
 void EntityInformationRegion::ChangeEntityName::Execute() {
