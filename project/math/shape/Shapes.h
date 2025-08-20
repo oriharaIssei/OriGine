@@ -24,6 +24,16 @@ struct AABB
     Vec3f max_ = {0.f, 0.f, 0.f};
 };
 
+struct OBB
+    : public IShape {
+    OBB() {}
+    OBB(const Vec3f& _center, const Vec3f& _halfSize, const Vec3f& _rotation) 
+        : center_(_center), halfSize_(_halfSize), rotation_(_rotation) {}
+    Vec3f center_ = {0.f, 0.f, 0.f};
+    Vec3f halfSize_ = {0.f, 0.f, 0.f};
+    Vec3f rotation_ = {0.f, 0.f, 0.f}; // Rotation in radians
+};
+
 struct Sphere
     : public IShape {
     Sphere(){}
