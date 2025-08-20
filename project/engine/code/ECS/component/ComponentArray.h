@@ -149,7 +149,14 @@ public:
     void add(GameEntity* _hostEntity, const componentType& _component, bool _doInitialize = true) {
         auto it = entityIndexBind_.find(_hostEntity->getID());
         if (it == entityIndexBind_.end()) {
-            registerEntity(_hostEntity, 1, _doInitialize);
+            uint32_t index = static_cast<uint32_t>(components_.size());
+            components_.push_back(std::vector<componentType>());
+            components_[index].push_back(_component);
+            if (_doInitialize) {
+                components_[index].back().Initialize(_hostEntity);
+            }
+
+            entityIndexBind_[_hostEntity->getID()] = index;
             return;
         }
         uint32_t index = it->second;
@@ -164,7 +171,14 @@ public:
         assert(comp != nullptr && "Invalid component type passed to addComponent");
         auto it = entityIndexBind_.find(_hostEntity->getID());
         if (it == entityIndexBind_.end()) {
-            registerEntity(_hostEntity, 1, _doInitialize);
+            uint32_t index = static_cast<uint32_t>(components_.size());
+            components_.push_back(std::vector<componentType>());
+            components_[index].push_back(std::move(*comp));
+            if (_doInitialize) {
+                components_[index].back().Initialize(_hostEntity);
+            }
+
+            entityIndexBind_[_hostEntity->getID()] = index;
             return;
         }
         uint32_t index = it->second;
