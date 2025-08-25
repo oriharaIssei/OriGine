@@ -37,7 +37,7 @@ public:
     virtual void Initialize(GameEntity* _hostEntity);
     virtual void Finalize() = 0;
 
-    virtual void Edit(Scene* _scene, GameEntity* _entity,  const std::string& _parentLabel) = 0;
+    virtual void Edit(Scene* _scene, GameEntity* _entity, const std::string& _parentLabel) = 0;
 
     virtual void CalculateWorldShape() = 0;
 
@@ -82,7 +82,7 @@ public:
         this->preCollisionStateMap_.clear();
     }
 
-    virtual void Edit(Scene* _scene, GameEntity* _entity,  const std::string& _parentLabel) = 0;
+    virtual void Edit(Scene* _scene, GameEntity* _entity, const std::string& _parentLabel) = 0;
 
     virtual void CalculateWorldShape() = 0;
 
@@ -113,26 +113,7 @@ public:
         : Collider<AABB>() {}
     ~AABBCollider() {}
 
-    void Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] GameEntity* _entity, [[maybe_unused]] [[maybe_unused]] const std::string& _parentLabel) override {
-
-#ifdef _DEBUG
-
-        CheckBoxCommand("IsActive", this->isActive_);
-
-        std::string label = "AABB##" + _parentLabel;
-        if (ImGui::TreeNode(label.c_str())) {
-            DragGuiVectorCommand<3, float>("Min##" + _parentLabel, this->shape_.min_, 0.01f);
-            DragGuiVectorCommand<3, float>("Max##" + _parentLabel, this->shape_.max_, 0.01f);
-            ImGui::TreePop();
-        }
-        label = "Transform##" + _parentLabel;
-        if (ImGui::TreeNode(label.c_str())) {
-            transform_.Edit(_scene, _entity, _parentLabel);
-            ImGui::TreePop();
-        }
-
-#endif // _DEBUG
-    }
+    void Edit( Scene* _scene, GameEntity* _entity, const std::string& _parentLabel) override;
 
     void CalculateWorldShape() override;
 
@@ -162,26 +143,7 @@ public:
     SphereCollider() : Collider<Sphere>() {}
     ~SphereCollider() {}
 
-    void Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) override {
-
-#ifdef _DEBUG
-
-        CheckBoxCommand("IsActive", this->isActive_);
-
-        std::string label = "Sphere##" + _parentLabel;
-        if (ImGui::TreeNode(label.c_str())) {
-            DragGuiVectorCommand<3, float>("Center##" + _parentLabel, shape_.center_, 0.01f);
-            DragGuiCommand<float>("Radius##" + _parentLabel, shape_.radius_, 0.01f);
-            ImGui::TreePop();
-        }
-        label = "Transform##" + _parentLabel;
-        if (ImGui::TreeNode(label.c_str())) {
-            transform_.Edit(_scene, _entity, _parentLabel);
-            ImGui::TreePop();
-        }
-
-#endif // _DEBUG
-    }
+    void Edit(Scene* _scene, GameEntity* _entity, const std::string& _parentLabel) override;
 
     void CalculateWorldShape() override;
 
@@ -195,4 +157,30 @@ public: // accessor
     void setWorldCenter(const Vec3f& _center) { worldShape_.center_ = _center; }
     const float& getWorldRadius() const { return worldShape_.radius_; }
     void setWorldRadius(const float& _radius) { worldShape_.radius_ = _radius; }
+};
+
+class OBBCollider
+    : public Collider<OBB> {
+    friend void to_json(nlohmann::json& _json, const OBBCollider& _primitiveNodeAnimation);
+    friend void from_json(const nlohmann::json& _json, OBBCollider& _primitiveNodeAnimation);
+
+public:
+    using ShapeType = OBB;
+    OBBCollider() : Collider<OBB>() {}
+    ~OBBCollider() {}
+
+
+    void Edit(Scene* _scene, GameEntity* _entity, const std::string& _parentLabel) override;
+    void CalculateWorldShape() override;
+
+public: // accessor
+    const Vec3f& getLocalCenter() const { return shape_.center_; }
+    void setLocalCenter(const Vec3f& _center) { shape_.center_ = _center; }
+    const Vec3f& getLocalHalfSize() const { return shape_.halfSize_; }
+    void setLocalHalfSize(const Vec3f& _halfSize) { shape_.halfSize_ = _halfSize; }
+    const Vec3f& getWorldCenter() const { return worldShape_.center_; }
+    void setWorldCenter(const Vec3f& _center) { worldShape_.center_ = _center; }
+    const Vec3f& getWorldHalfSize() const { return worldShape_.halfSize_; }
+    void setWorldHalfSize(const Vec3f& _halfSize) { worldShape_.halfSize_ = _halfSize; }
+
 };

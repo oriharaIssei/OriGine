@@ -4,6 +4,7 @@
 #include <concepts>
 
 /// math
+#include "Orientation.h"
 #include "Vector2.h"
 #include "Vector3.h"
 #include "Vector4.h"
@@ -27,16 +28,16 @@ struct AABB
 struct OBB
     : public IShape {
     OBB() {}
-    OBB(const Vec3f& _center, const Vec3f& _halfSize, const Vec3f& _rotation) 
-        : center_(_center), halfSize_(_halfSize), rotation_(_rotation) {}
-    Vec3f center_ = {0.f, 0.f, 0.f};
-    Vec3f halfSize_ = {0.f, 0.f, 0.f};
-    Vec3f rotation_ = {0.f, 0.f, 0.f}; // Rotation in radians
+    OBB(const Vec3f& _center, const Vec3f& _halfSize, const Orientation& _orientations)
+        : center_(_center), halfSize_(_halfSize), orientations_(_orientations) {}
+    Vec3f center_             = {0.f, 0.f, 0.f};
+    Vec3f halfSize_           = {0.f, 0.f, 0.f};
+    Orientation orientations_ = Orientation::Identity();
 };
 
 struct Sphere
     : public IShape {
-    Sphere(){}
+    Sphere() {}
     Sphere(const Vec3f& _center, float _radius) : center_(_center), radius_(_radius) {}
 
     Vec3f center_ = {0.f, 0.f, 0.f};

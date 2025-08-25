@@ -48,6 +48,7 @@ void SceneEditorWindow::Initialize() {
 }
 
 void SceneEditorWindow::Finalize() {
+    editSceneName_.setValue(currentScene_->getName());
 
     FinalizeScene();
 
@@ -201,7 +202,8 @@ void CreateMenuItem::Initialize() {}
 void CreateMenuItem::DrawGui() {
     bool isSelect = false;
     if (ImGui::BeginMenu("Create NewScene")) {
-        ImGui::InputText("New Scene Name", &newSceneName_[0], sizeof(char) * 256);
+        ImGui::InputText("New Scene Name", &newSceneName_);
+
         if (ImGui::Button("Create")) {
             auto scenes = myfs::searchFile(SceneSerializer::SceneDirectory, {"json"});
 

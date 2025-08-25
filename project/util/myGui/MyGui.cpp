@@ -3,13 +3,17 @@
 #ifdef _DEBUG
 
 bool ImGui::InputText(const char* label, std::string* str, ImGuiInputTextFlags flags) {
-    char buf[256];
-    strncpy(buf, str->c_str(), sizeof(buf));
-    buf[sizeof(buf) - 1] = '\0';
-    if (ImGui::InputText(label, buf, sizeof(buf), flags)) {
-        *str = buf;
+    // バッファサイズを 現在のstr + 64 or 256 にする
+    size_t bufSize = std::max<size_t>(str->size() + 64, 256);
+    std::vector<char> buf(bufSize);
+    strncpy(buf.data(), str->c_str(), buf.size());
+    buf[buf.size() - 1] = '\0';
+
+    if (ImGui::InputText(label, buf.data(), buf.size(), flags)) {
+        *str = buf.data();
         return true;
     }
+    return false;
     return false;
 }
 
