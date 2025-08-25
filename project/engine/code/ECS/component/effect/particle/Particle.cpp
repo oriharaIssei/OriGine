@@ -9,7 +9,7 @@
 // transform
 #include "component/transform/ParticleTransform.h"
 
-// lib
+
 #include "binaryIO/BinaryIO.h"
 #include "globalVariables/SerializedField.h"
 #include "myRandom/MyRandom.h"

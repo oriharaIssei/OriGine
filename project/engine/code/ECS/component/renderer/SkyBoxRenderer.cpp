@@ -9,7 +9,7 @@
 // directX12
 #include "directX12/DxDevice.h"
 
-/// lib
+
 #include "myFileSystem/MyFileSystem.h"
 
 /// externals

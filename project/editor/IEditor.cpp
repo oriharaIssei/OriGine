@@ -3,7 +3,7 @@
 #ifdef DEBUG
 #include "EditorController.h"
 #include "imGuiManager/ImGuiManager.h"
-#include <imgui/imgui.h>
+#include <imgui/imgui_internal.h>
 
 void Editor::Menu::DrawGui() {
     for (auto& [name, item] : menuItems_) {
@@ -16,9 +16,18 @@ void Editor::Menu::DrawGui() {
 
 void Editor::Area::DrawGui() {
     bool isOpen = isOpen_.current();
+
+    if (!isOpen) {
+        isOpen_.set(isOpen);
+        isFocused_.set(ImGui::IsWindowFocused());
+        UpdateFocusAndOpenState();
+        return; // ウィンドウが開いていない場合はここで終了
+    }
+
     if (ImGui::Begin(name_.c_str(), &isOpen)) {
         areaSize_ = ImGui::GetContentRegionAvail();
 
+        // regions_ 描画
         for (auto& [name, region] : regions_) {
             if (region) {
                 ImGui::BeginGroup();
@@ -31,7 +40,6 @@ void Editor::Area::DrawGui() {
     isOpen_.set(isOpen);
     isFocused_.set(ImGui::IsWindowFocused());
     UpdateFocusAndOpenState();
-
     ImGui::End();
 }
 
@@ -43,15 +51,14 @@ void Editor::Area::Finalize() {
 }
 
 void Editor::Area::UpdateFocusAndOpenState() {
-    if (isFocused_.isChanged()) {
-        if (isFocused_.isTrigger()) {
-            auto command = std::make_unique<WindowFocusCommand>(name_, &isOpen_, true);
-            EditorController::getInstance()->pushCommand(std::move(command));
-        } else if (isFocused_.isRelease()) {
-            auto command = std::make_unique<WindowFocusCommand>(name_, &isOpen_, false);
-            EditorController::getInstance()->pushCommand(std::move(command));
-        }
-    }
+    /* if (isFocused_.isTrigger()) {
+         auto command = std::make_unique<WindowFocusCommand>(name_, &isFocused_, true);
+         EditorController::getInstance()->pushCommand(std::move(command));
+     } else if (isFocused_.isRelease()) {
+         auto command = std::make_unique<WindowFocusCommand>(name_, &isFocused_, false);
+         EditorController::getInstance()->pushCommand(std::move(command));
+     }*/
+
     if (isOpen_.isChanged()) {
         if (isOpen_.isTrigger()) {
             auto command = std::make_unique<WindowOpenCommand>(&isOpen_, true);
@@ -66,10 +73,10 @@ void Editor::Area::UpdateFocusAndOpenState() {
 void Editor::Window::UpdateFocusAndOpenState() {
     if (isFocused_.isChanged()) {
         if (isFocused_.isTrigger()) {
-            auto command = std::make_unique<WindowFocusCommand>(title_, &isOpen_, true);
+            auto command = std::make_unique<WindowFocusCommand>(title_, &isFocused_, true);
             EditorController::getInstance()->pushCommand(std::move(command));
         } else if (isFocused_.isRelease()) {
-            auto command = std::make_unique<WindowFocusCommand>(title_, &isOpen_, false);
+            auto command = std::make_unique<WindowFocusCommand>(title_, &isFocused_, false);
             EditorController::getInstance()->pushCommand(std::move(command));
         }
     }
@@ -88,61 +95,57 @@ void Editor::Window::DrawGui() {
     ///=================================================================================================
     // Main DockSpace Window
     ///=================================================================================================
-    ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
 
     ImGuiViewport* viewport = ImGui::GetMainViewport();
-    windowPos_              = viewport->Pos;
-    windowSize_             = viewport->Size;
-
-    ImGui::SetNextWindowPos(viewport->Pos);
-    ImGui::SetNextWindowSize(viewport->Size);
+    if (isMaximized_) {
+        ImGui::SetNextWindowPos(viewport->Pos);
+        ImGui::SetNextWindowSize(viewport->Size);
+    }
 
     ImGui::SetNextWindowViewport(viewport->ID);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-
-    window_flags |= ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-    window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+    ImGui::PopStyleVar(2);
 
     bool isOpen = isOpen_.current();
-    ImGui::PopStyleVar(2);
-    if (ImGui::Begin(title_.c_str(), &isOpen, window_flags)) {
+    if (!isOpen) {
+        return; // ウィンドウが開いていない場合はここで終了
+    }
+
+    if (ImGui::Begin(title_.c_str(), &isOpen, windowFlags_)) {
+
         windowPos_  = ImGui::GetWindowPos();
         windowSize_ = ImGui::GetWindowSize();
 
-        // DockSpaceを作成
-        //! TODO : area Windowは 親ウィンドウにだけ Dockするようにしたい.
-        ImGuiID dockspace_id = ImGui::GetID(title_.c_str());
-        ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None);
+        // 固有のDockSpace ID
+        ImGuiID dockspaceID = ImGui::GetID((title_ + "_DockSpace").c_str());
 
-        // メニューバーの描画
+        ImGui::DockSpace(dockspaceID, ImVec2(0, 0), dockFlags_);
+
+        // メニュー
         if (ImGui::BeginMenuBar()) {
             for (auto& [name, menu] : menus_) {
-                if (menu) {
-                    bool menuIsOpen = menu->isOpen().current();
-                    if (ImGui::BeginMenu(name.c_str())) {
-                        menu->setOpen(true);
-                        menu->DrawGui();
-                        ImGui::EndMenu();
-                    }
-                    if (menu->isOpen().current() != menuIsOpen) {
-                        // メニューの開閉状態が変わった場合、コマンドを発行
-                        auto command = std::make_unique<WindowOpenCommand>(&menu->isOpenRef(), menuIsOpen);
-                        EditorController::getInstance()->pushCommand(std::move(command));
-                    }
+                if (menu && ImGui::BeginMenu(name.c_str())) {
+                    menu->setOpen(true);
+                    menu->DrawGui();
+                    ImGui::EndMenu();
                 }
             }
             ImGui::EndMenuBar();
         }
 
+        // 子ウィンドウ描画
         for (auto& [name, area] : areas_) {
             if (area) {
+                // 子ウィンドウに親DockSpace IDを渡す
                 area->DrawGui();
             }
         }
     }
+
     isOpen_.set(isOpen);
     isFocused_.set(ImGui::IsWindowFocused());
+    UpdateFocusAndOpenState();
 
     ImGui::End();
 }

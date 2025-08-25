@@ -4,7 +4,7 @@
 #include "Matrix4x4.h"
 #include "model/Model.h"
 #include "Quaternion.h"
-#include "Thread/Thread.h"
+
 #include "Vector3.h"
 
 #include <memory>
@@ -72,10 +72,8 @@ private:
             : directory(_directory), filename(_filename), animationData(_animationData) {}
         ~AnimationLoadTask() = default;
 
-        void Update();
+        void Update() const;
     };
-
-    std::unique_ptr<TaskThread<AnimationLoadTask>> loadThread_ = nullptr;
 
     // アニメーションデータのライブラリ
     std::unordered_map<std::string, int> animationDataLibrary_;

@@ -17,7 +17,7 @@
 #include "ImGuiLogSink.h"
 #endif //_DEBUG
 
-/// lib
+
 #include "myFileSystem/MyFileSystem.h"
 
 /// util

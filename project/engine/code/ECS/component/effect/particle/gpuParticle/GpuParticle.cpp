@@ -10,8 +10,8 @@
 // component
 #include "component/renderer/primitive/Primitive.h" // Mesh の生成に使用
 
-/// lib
-#include "lib/myFileSystem/MyFileSystem.h"
+
+#include "util/myFileSystem/MyFileSystem.h"
 #ifdef _DEBUG
 #include "myGui/MyGui.h"
 #endif // _DEBUG

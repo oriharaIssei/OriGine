@@ -10,7 +10,6 @@
 // assets
 #include "model/Model.h"
 
-/// lib
 #include "myFileSystem/MyFileSystem.h"
 
 /// externals
@@ -27,17 +26,12 @@ void ModelNodeAnimation::Initialize(GameEntity* /*_entity*/) {
     currentAnimationTime_  = 0.0f;
     animationState_.isEnd_ = false;
 
-    if (!data_||data_->animationNodes_.empty()) {
+    if (!data_ || data_->animationNodes_.empty()) {
         return;
     }
 
     if (!fileName_.empty()) {
         data_ = AnimationManager::getInstance()->Load(directory_, fileName_);
-        while (true) {
-            if (data_->loadState == LoadState::Loaded) {
-                break;
-            }
-        }
     }
 }
 
@@ -58,11 +52,7 @@ void ModelNodeAnimation::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, [[mayb
             commandCombo->addCommand(std::make_shared<SetterCommand<std::string>>(&fileName_, filename));
             commandCombo->setFuncOnAfterCommand([this]() {
                 data_ = AnimationManager::getInstance()->Load(directory_, fileName_);
-                while (true) {
-                    if (data_->loadState == LoadState::Loaded) {
-                        break;
-                    }
-                }
+
                 duration_ = data_->duration;
             },
                 true);

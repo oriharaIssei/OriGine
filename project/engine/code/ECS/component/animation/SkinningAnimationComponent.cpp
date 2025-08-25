@@ -15,7 +15,7 @@
 // component
 #include "component/renderer/MeshRenderer.h"
 
-/// lib
+
 #include "myFileSystem/MyFileSystem.h"
 
 #ifdef _DEBUG

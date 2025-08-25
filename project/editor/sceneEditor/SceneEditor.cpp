@@ -30,7 +30,6 @@
 #include "editor/sceneEditor/EntityInspector.h"
 #include "editor/sceneEditor/SystemInspector.h"
 
-/// lib
 #include "myFileSystem/MyFileSystem.h"
 #include <myGui/MyGui.h>
 /// externals
@@ -44,6 +43,8 @@ void SceneEditorWindow::Initialize() {
     InitializeMenus();
 
     InitializeAreas();
+
+    isMaximized_ = true; // 初期状態で最大化
 }
 
 void SceneEditorWindow::Finalize() {
@@ -260,10 +261,19 @@ void SceneViewArea::Initialize() {
 }
 
 void SceneViewArea::DrawGui() {
-    bool isOpen        = isOpen_.current();
+    bool isOpen = isOpen_.current();
+
+    if (!isOpen) {
+        isOpen_.set(isOpen);
+        isFocused_.set(ImGui::IsWindowFocused());
+        UpdateFocusAndOpenState();
+        return;
+    }
+
     auto renderTexture = parentWindow_->getCurrentScene()->getSceneView();
 
     if (ImGui::Begin(name_.c_str(), &isOpen)) {
+
         areaSize_ = ImGui::GetContentRegionAvail();
 
         if (areaSize_[X] >= 1.f && areaSize_[Y] >= 1.f && renderTexture->getTextureSize() != areaSize_) {
@@ -280,9 +290,9 @@ void SceneViewArea::DrawGui() {
 
         DrawScene();
 
-        ImVec2 imageLeftTop = ImGui::GetCursorScreenPos();
         ImGui::Image(reinterpret_cast<ImTextureID>(renderTexture->getBackBufferSrvHandle().ptr), areaSize_.toImVec2());
 
+        ImVec2 imageLeftTop = ImGui::GetCursorScreenPos();
         UseImGuizmo(imageLeftTop, renderTexture->getTextureSize());
 
         for (auto& [name, region] : regions_) {
@@ -538,6 +548,17 @@ void EntityHierarchy::DrawGui() {
         auto command = std::make_unique<CreateEntityCommand>(parentArea_, "Entity");
         EditorController::getInstance()->pushCommand(std::move(command));
     }
+    if (ImGui::Button("+ EntityFromFile")) {
+        // 選択されているエンティティを削除
+        SceneSerializer serializer(currentScene);
+        std::string directory, filename;
+        if (!myfs::selectFileDialog(kApplicationResourceDirectory + "/entities", directory, filename, {"json"}, true)) {
+            return; // キャンセルされた場合は何もしない
+        }
+        // ファイルからエンティティを読み込む
+        auto command = std::make_unique<LoadEntityCommand>(parentArea_, kApplicationResourceDirectory + "/entities" + directory, filename);
+        EditorController::getInstance()->pushCommand(std::move(command));
+    }
 
     // ImGuiのスタイルで選択色を設定（必要に応じてアプリ全体で設定してもOK）
     ImVec4 winSelectColor = ImVec4(0.26f, 0.59f, 0.98f, 1.0f); // Windows風の青
@@ -677,18 +698,17 @@ EntityHierarchy::CreateEntityCommand::CreateEntityCommand(HierarchyArea* _parent
     parentArea_ = _parentArea;
     entityName_ = _entityName;
 }
-
 void EntityHierarchy::CreateEntityCommand::Execute() {
     auto currentScene = parentArea_->getParentWindow()->getCurrentScene();
     if (!currentScene) {
         LOG_ERROR("CreateEntityCommand::Execute: No current scene found.");
         return;
     }
+
     entityId_ = currentScene->getEntityRepositoryRef()->CreateEntity(entityName_);
 
     LOG_DEBUG("CreateEntityCommand::Execute: Created entity with ID '{}'.", entityId_);
 }
-
 void EntityHierarchy::CreateEntityCommand::Undo() {
     auto currentScene = parentArea_->getParentWindow()->getCurrentScene();
     if (!currentScene) {
@@ -696,9 +716,39 @@ void EntityHierarchy::CreateEntityCommand::Undo() {
         return;
     }
 
-    currentScene->getEntityRepositoryRef()->removeEntity(entityId_);
+    currentScene->deleteEntity(entityId_);
 
     LOG_DEBUG("CreateEntityCommand::Undo: Removed entity with ID '{}'.", entityId_);
+}
+
+EntityHierarchy::LoadEntityCommand::LoadEntityCommand(HierarchyArea* _parentArea, const std::string& _directory, const std::string& _entityName) {
+    parentArea_ = _parentArea;
+    directory_  = _directory;
+    entityName_ = _entityName;
+}
+void EntityHierarchy::LoadEntityCommand::Execute() {
+    auto currentScene = parentArea_->getParentWindow()->getCurrentScene();
+    if (!currentScene) {
+        LOG_ERROR("No current scene found.");
+        return;
+    }
+
+    SceneSerializer serializer(currentScene);
+    GameEntity* createdEntity = serializer.LoadEntity(directory_, entityName_);
+    entityId_                 = createdEntity->getID();
+
+    LOG_DEBUG("Created entity with ID '{}'.", entityId_);
+}
+void EntityHierarchy::LoadEntityCommand::Undo() {
+    auto currentScene = parentArea_->getParentWindow()->getCurrentScene();
+    if (!currentScene) {
+        LOG_ERROR("No current scene found.");
+        return;
+    }
+
+    currentScene->deleteEntity(entityId_);
+
+    LOG_DEBUG("Removed entity with ID '{}'.", entityId_);
 }
 
 void AddComponentCommand::Execute() {

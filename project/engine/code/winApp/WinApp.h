@@ -7,7 +7,7 @@
 #include <memory>
 #include <string>
 
-/// lib
+
 #include "globalVariables/SerializedField.h"
 
 /// math

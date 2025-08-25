@@ -3,7 +3,7 @@
 /// stl
 #include <cassert>
 
-/// lib
+
 #include "logger/Logger.h"
 
 void DxFunctionHelper::SetViewportsAndScissor(const DxCommand* dxCommand, const WinApp* window) {

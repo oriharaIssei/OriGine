@@ -1,31 +1,32 @@
-name: Send Task Update to GAS
+name: Update Task via GAS
 
 on:
   pull_request:
-    types:
-      - closed
+    types: [opened, edited, reopened]
+
 jobs:
   update-task:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-
-      - name: Extract PR Details
-        id: pr_details
+      - name: Extract Task ID from PR title
         run: |
-          PR_MESSAGE="${{ github.event.pull_request.body }}"
-          TASK_ID=$(echo "$PR_MESSAGE" | grep -oP '(?<=\[)\d+(?=,)' || echo "UNKNOWN")
-          STATUS=$(echo "$PR_MESSAGE" | grep -oP '(?<=,)\w+(?=\])' || echo "UNKNOWN")
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          # "##123" のような形式から数字部分だけ抽出
+          TASK_ID=$(echo "$PR_TITLE" | grep -oP '(?<=##)\d+')
+          if [ -z "$TASK_ID" ]; then
+            echo "❌ タスクIDがPRタイトルから取得できませんでした"
+            exit 1
+          fi
           echo "TASK_ID=$TASK_ID" >> $GITHUB_ENV
-          echo "STATUS=$STATUS" >> $GITHUB_ENV
-          echo "DONE_DATE=$(date -u +'%Y-%m-%d')" >> $GITHUB_ENV
+          echo "📌 取得したタスクID: $TASK_ID"
 
-      - name: Send Data to GAS
+      - name: Call GAS (Complete Task)
         run: |
-          curl -X POST "$GAS_WEBHOOK_URL" \
-            -H "Content-Type: application/json" \
-            -d "{\"taskId\":\"$TASK_ID\",\"doneDate\":\"$DONE_DATE\",\"status\":\"$STATUS\",\"executeName\":\"UpdateTaskState\"}"
-        env:
-          GAS_WEBHOOK_URL: "https://script.google.com/macros/s/AKfycby8hlwndN3BzjJYAuac3QCRosCh_e4ke5gZd84EOLZjcLuvjPAFdRNx-GGBK1TkdQ86/exec"
+          curl -s -X POST "${{ secrets.GAS_URL }}" \
+               -H "Content-Type: application/json" \
+               -d "{\"mode\":\"complete\",\"taskId\":\"${TASK_ID}\"}" \
+            | tee response.json
+          echo "📡 GASレスポンス:"
+          cat response.json
+

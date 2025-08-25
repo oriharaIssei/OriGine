@@ -22,8 +22,8 @@ struct TexturedMaterial;
 #include "directX12/DxCommand.h"
 #include "directX12/PipelineStateObj.h"
 #include "directX12/ShaderManager.h"
-// lib
-#include "Thread/Thread.h"
+
+
 // math
 #include "Matrix4x4.h"
 

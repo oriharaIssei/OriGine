@@ -5,20 +5,17 @@
 #include <memory>
 #include <string>
 
-#include "module/debugger/IDebugger.h"
-
 /// externals
 #include "spdlog/spdlog.h"
 
-class GuiLogger
-    : public IDebugger {
+class GuiLogger{
 public:
     GuiLogger();
-    ~GuiLogger() override;
+    ~GuiLogger() ;
 
-    void Initialize() override;
-    void Update() override;
-    void Finalize() override;
+    void Initialize() ;
+    void Update() ;
+    void Finalize() ;
 
 private:
     std::shared_ptr<spdlog::logger> logger_;

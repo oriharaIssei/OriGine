@@ -8,6 +8,7 @@
 
 /// engine
 #include "Engine.h"
+#include "logger/Logger.h"
 #include "winApp/WinApp.h"
 
 #define ENGINE_INPUT
@@ -24,11 +25,8 @@
 // module
 #include "camera/CameraManager.h"
 #include "editor/EditorController.h"
-#include "module/debugger/DebuggerGroup.h"
 #include "texture/TextureManager.h"
-
-// lib
-#include "logger/Logger.h"
+// util
 #include "myFileSystem/MyFileSystem.h"
 
 /// math
@@ -177,7 +175,7 @@ void SceneSerializer::SerializeFromJson() {
 
     std::list<GameEntity*> aliveEntities;
     for (auto& entity : entities->getEntitiesRef()) {
-        if (entity.isAlive()) {
+        if (entity.isAlive() && entity.shouldSave()) {
             aliveEntities.push_back(&entity);
         }
     }

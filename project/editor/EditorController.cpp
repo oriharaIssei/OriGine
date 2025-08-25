@@ -2,7 +2,7 @@
 
 #ifdef _DEBUG
 /// engine
-// lib
+
 #include "input/Input.h"
 
 // externals

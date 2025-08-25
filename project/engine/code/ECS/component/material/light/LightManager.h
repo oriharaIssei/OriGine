@@ -2,7 +2,6 @@
 
 /// interface
 #include "editor/IEditor.h"
-#include "module/IModule.h"
 
 /// stl
 #include <memory>
@@ -16,7 +15,7 @@
 #include "directX12/DxDescriptor.h"
 #include "directX12/IConstantBuffer.h"
 #include "directX12/IStructuredBuffer.h"
-// lib
+
 #include "globalVariables/SerializedField.h"
 
 struct LightCounts {
@@ -38,8 +37,7 @@ struct LightCounts {
     };
 };
 
-class LightManager
-    : public IModule {
+class LightManager {
 public:
     static LightManager* getInstance() {
         static LightManager instance;

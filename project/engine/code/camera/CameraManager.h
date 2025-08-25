@@ -6,12 +6,11 @@
 /// engine
 #include "component/transform/CameraTransform.h"
 #include "directX12/IConstantBuffer.h"
-#include "module/IModule.h"
+
 
 class DebugCamera;
 
-class CameraManager
-    : public IModule {
+class CameraManager{
 public:
     static CameraManager* getInstance();
 

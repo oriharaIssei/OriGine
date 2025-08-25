@@ -3,6 +3,8 @@
 #ifdef _DEBUG
 
 /// engine
+#define RESOURCE_DIRECTORY
+#include "EngineInclude.h"
 // scene
 #include "scene/SceneManager.h"
 
@@ -53,7 +55,11 @@ void EntityInformationRegion::DrawGui() {
 
         auto changeEditEntityCommand = std::make_unique<EntityInspectorArea::ChangeEditEntityCommand>(parentArea_, -1, editEntityId);
         EditorController::getInstance()->pushCommand(std::move(changeEditEntityCommand));
+    }
 
+    if (ImGui::Button("SaveForFile")) {
+        SceneSerializer serializer(currentScene);
+        serializer.SaveEntity(editEntityId, kApplicationResourceDirectory + "/entity");
     }
 
     ImGui::Spacing();
@@ -79,6 +85,12 @@ void EntityInformationRegion::DrawGui() {
 
     if (ImGui::IsItemHovered()) {
         ImGui::SetTooltip("Unique entities cannot be duplicated.");
+    }
+
+    bool shouldSave = editEntity->shouldSave();
+    if (ImGui::Checkbox("Should Save", &shouldSave)) {
+        auto command = std::make_unique<ChangeEntityShouldSave>(parentArea_, editEntityId, shouldSave);
+        EditorController::getInstance()->pushCommand(std::move(command));
     }
 }
 void EntityInformationRegion::Finalize() {}
@@ -311,9 +323,23 @@ void EntitySystemRegion::DrawGui() {
         if (ImGui::CollapsingHeader(SystemCategoryString[i].c_str())) {
             ImGui::Indent();
             for (auto& [systemName, system] : systems) {
-                if (ImGui::TreeNode(systemName.c_str())) {
-                    system->Edit();
-                    ImGui::TreePop();
+                std::string popupId = "ConfirmRemoveSystem##" + systemName;
+                if (ImGui::Button(systemName.c_str())) {
+                    ImGui::OpenPopup(popupId.c_str());
+                }
+                if (ImGui::BeginPopup(popupId.c_str())) {
+                    ImGui::Text("Are you sure you want to remove the system '%s'?", systemName.c_str());
+                    if (ImGui::Button("Yes")) {
+                        std::list<int32_t> editEntityIds = {editEntityId};
+                        auto command                     = std::make_unique<RemoveSystemCommand>(editEntityIds, systemName, system->getCategory());
+                        EditorController::getInstance()->pushCommand(std::move(command));
+                        ImGui::CloseCurrentPopup();
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button("No")) {
+                        ImGui::CloseCurrentPopup();
+                    }
+                    ImGui::EndPopup();
                 }
             }
             ImGui::Unindent();
@@ -340,28 +366,32 @@ void SelectAddComponentArea::Initialize() {
 
 void SelectAddComponentArea::DrawGui() {
     bool isOpen = isOpen_.current();
+
     if (!isOpen) {
+        isOpen_.set(isOpen);
+        isFocused_.set(ImGui::IsWindowFocused());
+        UpdateFocusAndOpenState();
         return;
     }
 
-    ImGui::Begin(name_.c_str(), &isOpen);
-    if (!ImGui::IsWindowFocused()) {
-        ImGui::SetWindowFocus(); // このウィンドウを最前面に
+    if (ImGui::Begin(name_.c_str(), &isOpen)) {
+        if (!ImGui::IsWindowFocused()) {
+            ImGui::SetWindowFocus(); // このウィンドウを最前面に
+        }
+
+        areaSize_ = ImGui::GetWindowSize();
+
+        for (auto& [name, region] : regions_) {
+            if (region) {
+                ImGui::BeginGroup();
+                region->DrawGui();
+                ImGui::EndGroup();
+            }
+        }
     }
 
     isOpen_.set(isOpen);
     isFocused_.set(ImGui::IsWindowFocused());
-
-    areaSize_ = ImGui::GetWindowSize();
-
-    for (auto& [name, region] : regions_) {
-        if (region) {
-            ImGui::BeginGroup();
-            region->DrawGui();
-            ImGui::EndGroup();
-        }
-    }
-
     UpdateFocusAndOpenState();
 
     ImGui::End();
@@ -494,28 +524,32 @@ void SelectAddSystemArea::Initialize() {
 }
 void SelectAddSystemArea::DrawGui() {
     bool isOpen = isOpen_.current();
+
     if (!isOpen) {
+        isOpen_.set(isOpen);
+        isFocused_.set(ImGui::IsWindowFocused());
+        UpdateFocusAndOpenState();
         return;
     }
 
-    ImGui::Begin(name_.c_str(), &isOpen);
-    if (!ImGui::IsWindowFocused()) {
-        ImGui::SetWindowFocus(); // このウィンドウを最前面に
+    if (ImGui::Begin(name_.c_str(), &isOpen)) {
+        if (!ImGui::IsWindowFocused()) {
+            ImGui::SetWindowFocus(); // このウィンドウを最前面に
+        }
+
+        areaSize_ = ImGui::GetWindowSize();
+
+        for (auto& [name, region] : regions_) {
+            if (region) {
+                ImGui::BeginGroup();
+                region->DrawGui();
+                ImGui::EndGroup();
+            }
+        }
     }
 
     isOpen_.set(isOpen);
     isFocused_.set(ImGui::IsWindowFocused());
-
-    areaSize_ = ImGui::GetWindowSize();
-
-    for (auto& [name, region] : regions_) {
-        if (region) {
-            ImGui::BeginGroup();
-            region->DrawGui();
-            ImGui::EndGroup();
-        }
-    }
-
     UpdateFocusAndOpenState();
 
     ImGui::End();
@@ -584,13 +618,13 @@ void SelectAddSystemArea::SystemListRegion::DrawGui() {
                     if (ImGui::Selectable(name.c_str(), isSelected)) {
                         if (!isSelected) {
                             if (!ImGui::GetIO().KeyShift) {
-                                auto clearCommand = std::make_unique<ClearSystemCategoryNames>(parentArea_);
+                                auto clearCommand = std::make_unique<ClearSystemNames>(parentArea_);
                                 EditorController::getInstance()->pushCommand(std::move(clearCommand));
                             }
-                            auto command = std::make_unique<AddSystemCategoryNames>(parentArea_, name);
+                            auto command = std::make_unique<AddSystemNames>(parentArea_, name);
                             EditorController::getInstance()->pushCommand(std::move(command));
                         } else {
-                            auto command = std::make_unique<RemoveSystemCategoryNames>(parentArea_, name);
+                            auto command = std::make_unique<RemoveSystemNames>(parentArea_, name);
                             EditorController::getInstance()->pushCommand(std::move(command));
                         }
                     }
@@ -620,13 +654,13 @@ void SelectAddSystemArea::SystemListRegion::DrawGui() {
                 if (ImGui::Selectable(name.c_str(), isSelected)) {
                     if (!isSelected) {
                         if (!ImGui::GetIO().KeyShift) {
-                            auto clearCommand = std::make_unique<ClearSystemCategoryNames>(parentArea_);
+                            auto clearCommand = std::make_unique<ClearSystemNames>(parentArea_);
                             EditorController::getInstance()->pushCommand(std::move(clearCommand));
                         }
-                        auto command = std::make_unique<AddSystemCategoryNames>(parentArea_, name);
+                        auto command = std::make_unique<AddSystemNames>(parentArea_, name);
                         EditorController::getInstance()->pushCommand(std::move(command));
                     } else {
-                        auto command = std::make_unique<RemoveSystemCategoryNames>(parentArea_, name);
+                        auto command = std::make_unique<RemoveSystemNames>(parentArea_, name);
                         EditorController::getInstance()->pushCommand(std::move(command));
                     }
                 }
@@ -648,7 +682,7 @@ void SelectAddSystemArea::SystemListRegion::DrawGui() {
             EditorController::getInstance()->pushCommand(std::move(addSystemCommand));
             auto clearEntitiesCommand = std::make_unique<ClearTargetEntities>(parentArea_);
             EditorController::getInstance()->pushCommand(std::move(clearEntitiesCommand));
-            auto clearSystemNamesCommand = std::make_unique<ClearSystemCategoryNames>(parentArea_);
+            auto clearSystemNamesCommand = std::make_unique<ClearSystemNames>(parentArea_);
             EditorController::getInstance()->pushCommand(std::move(clearSystemNamesCommand));
             parentArea_->isOpen_.set(false);
             parentArea_->isFocused_.set(false);
@@ -658,7 +692,7 @@ void SelectAddSystemArea::SystemListRegion::DrawGui() {
     if (ImGui::Button("CANCEL")) {
         auto clearEntitiesCommand = std::make_unique<ClearTargetEntities>(parentArea_);
         EditorController::getInstance()->pushCommand(std::move(clearEntitiesCommand));
-        auto clearSystemNamesCommand = std::make_unique<ClearSystemCategoryNames>(parentArea_);
+        auto clearSystemNamesCommand = std::make_unique<ClearSystemNames>(parentArea_);
         EditorController::getInstance()->pushCommand(std::move(clearSystemNamesCommand));
         parentArea_->isOpen_.set(false);
         parentArea_->isFocused_.set(false);
@@ -832,6 +866,30 @@ void EntityInformationRegion::ChangeEntityUniqueness::Undo() {
     }
 }
 
+void EntityInformationRegion::ChangeEntityShouldSave::Execute() {
+    auto currentScene  = inspectorArea_->getParentWindow()->getCurrentScene();
+    GameEntity* entity = currentScene->getEntityRepositoryRef()->getEntity(entityId_);
+
+    if (!entity) {
+        LOG_ERROR("Entity with ID '{}' not found.", entityId_);
+        return;
+    }
+
+    entity->setShouldSave(newValue_);
+}
+
+void EntityInformationRegion::ChangeEntityShouldSave::Undo() {
+    auto currentScene  = inspectorArea_->getParentWindow()->getCurrentScene();
+    GameEntity* entity = currentScene->getEntityRepositoryRef()->getEntity(entityId_);
+
+    if (!entity) {
+        LOG_ERROR("Entity with ID '{}' not found.", entityId_);
+        return;
+    }
+
+    entity->setShouldSave(oldValue_);
+}
+
 void EntityInformationRegion::ChangeEntityName::Execute() {
     auto currentScene  = inspectorArea_->getParentWindow()->getCurrentScene();
     GameEntity* entity = currentScene->getEntityRepositoryRef()->getEntity(entityId_);
@@ -914,42 +972,42 @@ void SelectAddComponentArea::ClearComponentTypeNames::Undo() {
     LOG_DEBUG("SelectAddComponentArea::ClearComponentTypeNames::Undo: Restored component type names.");
 }
 
-void SelectAddSystemArea::AddSystemCategoryNames::Execute() {
+void SelectAddSystemArea::AddSystemNames::Execute() {
     parentArea_->systemTypeNames_.push_back(systemTypeName_);
-    LOG_DEBUG("SelectAddSystemArea::AddSystemCategoryNames::Execute: Added system type name '{}'.", systemTypeName_);
+    LOG_DEBUG("SelectAddSystemArea::AddSystemNames::Execute: Added system type name '{}'.", systemTypeName_);
 }
 
-void SelectAddSystemArea::AddSystemCategoryNames::Undo() {
+void SelectAddSystemArea::AddSystemNames::Undo() {
     std::string popName = parentArea_->systemTypeNames_.back();
     parentArea_->systemTypeNames_.pop_back();
-    LOG_DEBUG("SelectAddSystemArea::AddSystemCategoryNames::Undo: Removed system type name '{}'.", popName);
+    LOG_DEBUG("SelectAddSystemArea::AddSystemNames::Undo: Removed system type name '{}'.", popName);
 }
 
-void SelectAddSystemArea::RemoveSystemCategoryNames::Execute() {
+void SelectAddSystemArea::RemoveSystemNames::Execute() {
     auto& systemTypeNames = parentArea_->systemTypeNames_;
     auto it               = std::remove(systemTypeNames.begin(), systemTypeNames.end(), systemTypeName_);
     if (it != systemTypeNames.end()) {
         systemTypeNames.erase(it, systemTypeNames.end());
-        LOG_DEBUG("SelectAddSystemArea::RemoveSystemCategoryNames::Execute: Removed system type name '{}'.", systemTypeName_);
+        LOG_DEBUG("SelectAddSystemArea::RemoveSystemNames::Execute: Removed system type name '{}'.", systemTypeName_);
     } else {
-        LOG_DEBUG("SelectAddSystemArea::RemoveSystemCategoryNames::Execute: System type name '{}' not found.", systemTypeName_);
+        LOG_DEBUG("SelectAddSystemArea::RemoveSystemNames::Execute: System type name '{}' not found.", systemTypeName_);
     }
 }
 
-void SelectAddSystemArea::RemoveSystemCategoryNames::Undo() {
+void SelectAddSystemArea::RemoveSystemNames::Undo() {
     parentArea_->systemTypeNames_.push_back(systemTypeName_);
-    LOG_DEBUG("SelectAddSystemArea::RemoveSystemCategoryNames::Undo: Added system type name '{}' back.", systemTypeName_);
+    LOG_DEBUG("SelectAddSystemArea::RemoveSystemNames::Undo: Added system type name '{}' back.", systemTypeName_);
 }
 
-void SelectAddSystemArea::ClearSystemCategoryNames::Execute() {
+void SelectAddSystemArea::ClearSystemNames::Execute() {
     systemTypeNames_ = parentArea_->systemTypeNames_; // 現在のシステムタイプ名を保存
     parentArea_->systemTypeNames_.clear(); // システムタイプ名をクリア
-    LOG_DEBUG("SelectAddSystemArea::ClearSystemCategoryNames::Execute: Cleared system type names.");
+    LOG_DEBUG("SelectAddSystemArea::ClearSystemNames::Execute: Cleared system type names.");
 }
 
-void SelectAddSystemArea::ClearSystemCategoryNames::Undo() {
+void SelectAddSystemArea::ClearSystemNames::Undo() {
     parentArea_->systemTypeNames_ = systemTypeNames_; // 保存したシステムタイプ名を復元
-    LOG_DEBUG("SelectAddSystemArea::ClearSystemCategoryNames::Undo: Restored system type names.");
+    LOG_DEBUG("SelectAddSystemArea::ClearSystemNames::Undo: Restored system type names.");
 }
 
 void SelectAddSystemArea::SetTargeEntities::Execute() {

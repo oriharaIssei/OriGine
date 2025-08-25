@@ -10,7 +10,7 @@
 #include "directX12/DxFence.h"
 #include "directX12/ResourceStateTracker.h"
 
-/// lib
+
 #include "logger/Logger.h"
 
 std::unordered_map<std::string,

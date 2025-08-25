@@ -67,14 +67,21 @@ void MyFileSystem::selectFolderDialog(const std::string& _defaultDirectory, std:
             pFileOpen->SetOptions(FOS_PICKFOLDERS | FOS_FORCEFILESYSTEM);
 
             // デフォルトディレクトリを設定
-            if (!_defaultDirectory.empty()) {
+            // 起動時のカレントディレクトリを基準にする
+            fs::path projectRoot = fs::current_path();
+
+            // プロジェクトルートからの相対パスを絶対パスに変換
+            fs::path absPath = fs::absolute(projectRoot / _defaultDirectory);
+
+            // それを SetDefaultFolder に渡す
+            if (!absPath.empty()) {
                 PIDLIST_ABSOLUTE pidl;
-                hr = SHParseDisplayName(std::wstring(_defaultDirectory.begin(), _defaultDirectory.end()).c_str(), NULL, &pidl, 0, NULL);
+                HRESULT hr = SHParseDisplayName(absPath.wstring().c_str(), NULL, &pidl, 0, NULL);
                 if (SUCCEEDED(hr)) {
                     IShellItem* psi;
                     hr = SHCreateShellItem(NULL, NULL, pidl, &psi);
                     if (SUCCEEDED(hr)) {
-                        pFileOpen->SetFolder(psi);
+                        pFileOpen->SetDefaultFolder(psi);
                         psi->Release();
                     }
                     CoTaskMemFree(pidl);
@@ -92,11 +99,19 @@ void MyFileSystem::selectFolderDialog(const std::string& _defaultDirectory, std:
 
                     if (SUCCEEDED(hr)) {
                         // pszFilePath で入手されるのは フルパスなので それを _defaultDirectory からの相対パスに変換する
+                        // 選択結果のフルパス
                         std::wstring wFullPath(pszFilePath);
-                        std::string fullPath  = ConvertString(wFullPath);
-                        fs::path relativePath = fs::relative(fullPath, _defaultDirectory);
-                        _outPath              = relativePath.string();
-                        CoTaskMemFree(pszFilePath);
+                        std::string fullPath = ConvertString(wFullPath);
+
+                        // 基準パスを絶対パスに変換
+                        fs::path basePath = fs::absolute(_defaultDirectory);
+
+                        // 相対パスに変換
+                        fs::path relativePath = fs::relative(fullPath, basePath);
+
+                        // 出力
+                        _outPath = relativePath.string();
+
                     }
                     pItem->Release();
                 }
@@ -130,14 +145,21 @@ bool MyFileSystem::selectFileDialog(
             pFileOpen->SetOptions(FOS_FORCEFILESYSTEM);
 
             // デフォルトディレクトリを設定
-            if (!defaultDirectory.empty()) {
+            // 起動時のカレントディレクトリを基準にする
+            fs::path projectRoot = fs::current_path();
+
+            // プロジェクトルートからの相対パスを絶対パスに変換
+            fs::path absPath = fs::absolute(projectRoot / defaultDirectory);
+
+            // それを SetDefaultFolder に渡す
+            if (!absPath.empty()) {
                 PIDLIST_ABSOLUTE pidl;
-                hr = SHParseDisplayName(std::wstring(defaultDirectory.begin(), defaultDirectory.end()).c_str(), NULL, &pidl, 0, NULL);
+                HRESULT hr = SHParseDisplayName(absPath.wstring().c_str(), NULL, &pidl, 0, NULL);
                 if (SUCCEEDED(hr)) {
                     IShellItem* psi;
                     hr = SHCreateShellItem(NULL, NULL, pidl, &psi);
                     if (SUCCEEDED(hr)) {
-                        pFileOpen->SetFolder(psi);
+                        pFileOpen->SetDefaultFolder(psi);
                         psi->Release();
                     }
                     CoTaskMemFree(pidl);

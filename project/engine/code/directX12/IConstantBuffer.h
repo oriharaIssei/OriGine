@@ -10,7 +10,7 @@
 // directX12
 #include "directX12/DxResource.h"
 
-/// lib
+
 #include <logger/Logger.h>
 
 template <typename T>

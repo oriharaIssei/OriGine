@@ -1,7 +1,6 @@
 #include "EmitterShape.h"
 
-/// lib
-#include "binaryIO/BinaryIO.h"
+
 #include "myRandom/MyRandom.h"
 
 /// math

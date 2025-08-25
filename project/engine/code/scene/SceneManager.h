@@ -11,9 +11,9 @@
 #include "component/ComponentArray.h"
 #include "ECS/Entity.h"
 #include "Scene.h"
-/// lib
-#include "lib/globalVariables/SerializedField.h"
-#include "lib/myFileSystem/MyFileSystem.h"
+
+#include "util/globalVariables/SerializedField.h"
+#include "util/myFileSystem/MyFileSystem.h"
 
 /// externals
 #include <binaryIO/BinaryIO.h>

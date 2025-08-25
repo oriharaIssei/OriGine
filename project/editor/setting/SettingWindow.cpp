@@ -5,8 +5,7 @@
 /// editor
 #include "editor/EditorController.h"
 
-/// lib
-#include "lib/globalVariables/GlobalVariables.h"
+#include "util/globalVariables/GlobalVariables.h"
 // util
 #include "util/nameof.h"
 
@@ -21,76 +20,13 @@ void SettingWindow::Initialize() {
     isOpen_.set(false);
     isOpen_.sync();
 
+    windowFlags_ = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoDocking;
+
     addArea(std::make_shared<WindowSettingArea>());
     addArea(std::make_shared<ProjectSettingArea>());
 
     EditorController::getInstance()->addMainMenu(
         std::make_unique<SettingsMenu>());
-}
-
-void SettingWindow::DrawGui() {
-    bool isOpen = isOpen_.current();
-    if (!isOpen) {
-        // ウィンドウが閉じられた場合、ウィンドウの状態を更新
-        isOpen_.set(false);
-        isFocused_.set(false);
-        return;
-    }
-    ///=================================================================================================
-    // Main DockSpace Window
-    ///=================================================================================================
-    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking;
-
-    ImGuiViewport* viewport = ImGui::GetMainViewport();
-    windowPos_              = viewport->Pos;
-    windowSize_             = viewport->Size;
-
-    ImGui::SetNextWindowPos(viewport->Pos);
-    ImGui::SetNextWindowSize(viewport->Size);
-
-    ImGui::SetNextWindowViewport(viewport->ID);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-
-    window_flags |= ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoDocking;
-
-    ImGui::PopStyleVar(2);
-
-    ImGui::Begin(title_.c_str(), &isOpen, window_flags);
-
-    windowPos_  = ImGui::GetWindowPos();
-    windowSize_ = ImGui::GetWindowSize();
-
-    // DockSpaceを作成
-    //! TODO : area Windowは 親ウィンドウにだけ Dockするようにしたい.
-    ImGuiID dockspace_id = ImGui::GetID(title_.c_str());
-    ImGui::DockSpace(
-        dockspace_id,
-        ImVec2(0.0f, 0.0f),
-        ImGuiDockNodeFlags_NoUndocking | ImGuiDockNodeFlags_NoSplit);
-
-    bool isChildFocused       = false;
-    std::string frontAreaName = "";
-    for (auto& [name, area] : areas_) {
-        if (area) {
-            area->DrawGui();
-            isChildFocused |= area->isFocused().current();
-            if (area->isOpen().current()) {
-                frontAreaName = name;
-            }
-        }
-    }
-
-    // ウィンドウのフォーカス状態を更新
-    if (!isChildFocused) {
-        // 子ウィンドウがフォーカスされていない場合、ウィンドウのフォーカス状態を更新
-        ImGui::SetWindowFocus(frontAreaName.c_str());
-    }
-
-    isOpen_.set(isOpen);
-    isFocused_.set(ImGui::IsWindowFocused());
-
-    ImGui::End();
 }
 
 void SettingWindow::Finalize() {

@@ -14,28 +14,22 @@
 #include <wrl.h>
 
 /// engine
-#include "module/IModule.h"
+
 // dx12Object
 #include "directX12/DxCommand.h"
 #include "directX12/DxDescriptor.h"
 #include "directX12/DxFence.h"
 #include "directX12/DxResource.h"
 #include "directX12/PipelineStateObj.h"
-// lib
-#include "Thread/Thread.h"
 
 struct Texture {
     void Initialize(const std::string& filePath);
     void Finalize();
 
-    mutable std::mutex mutex;
-
     std::string path;
     DirectX::TexMetadata metaData;
     DxResource resource;
     std::shared_ptr<DxSrvDescriptor> srv;
-
-    LoadState loadState = LoadState::Unloaded;
 
 private:
     DirectX::ScratchImage Load(const std::string& filePath);
@@ -43,13 +37,12 @@ private:
     void ExecuteCommand(Microsoft::WRL::ComPtr<ID3D12Resource> resource);
 };
 
-class TextureManager
-    : public IModule {
+class TextureManager {
     friend struct Texture;
 
 public:
     TextureManager();
-    ~TextureManager() override;
+    ~TextureManager();
 
     static void Initialize();
     static void Finalize();
@@ -73,10 +66,6 @@ private:
     static std::array<std::shared_ptr<Texture>, maxTextureSize_> textures_;
     static std::unordered_map<std::string, uint32_t> textureFileNameToIndexMap_;
     static uint32_t dummyTextureIndex_;
-
-    // static std::unique_ptr<TaskThread<TextureManager::LoadTask>> loadThread_;
-
-    static std::mutex texturesMutex_;
 
     // バックグラウンドスレッド用
     static std::unique_ptr<DxCommand> dxCommand_;

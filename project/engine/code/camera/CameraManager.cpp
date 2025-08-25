@@ -4,8 +4,7 @@
 #include "directX12/DxDevice.h"
 #include "Engine.h"
 
-CameraManager::CameraManager()
-    : IModule() {}
+CameraManager::CameraManager(){}
 CameraManager::~CameraManager() {}
 
 CameraManager* CameraManager::getInstance() {

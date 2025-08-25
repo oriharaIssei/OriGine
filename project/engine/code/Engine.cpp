@@ -24,7 +24,7 @@
 #include "directX12/DxFunctionHelper.h"
 #include "directX12/RenderTexture.h"
 
-// lib
+
 #include "logger/Logger.h"
 
 /// util

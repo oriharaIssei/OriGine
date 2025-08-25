@@ -10,7 +10,6 @@
 // ECS
 class EntityRepository;
 
-/// lib
 #include "logger/Logger.h"
 
 // util
@@ -38,11 +37,14 @@ public:
     }
 
 private:
-    int32_t id_           = -1;
     std::string dataType_ = "UNKNOWN";
 
+    int32_t id_           = -1;
     bool isAlive_  = false;
     bool isUnique_ = false;
+#ifdef _DEBUG
+    bool shouldSave_ = true;
+#endif // _DEBUG
 
 public:
     bool isAlive() const {
@@ -51,6 +53,15 @@ public:
     bool isUnique() const {
         return isUnique_;
     }
+
+#ifdef _DEBUG
+    bool shouldSave() const {
+        return shouldSave_;
+    }
+    void setShouldSave(bool _shouldSave) {
+        shouldSave_ = _shouldSave;
+    }
+#endif // _DEBUG
 
     void deleteEntity() {
         isAlive_ = false;
@@ -171,11 +182,11 @@ public:
     int32_t CreateEntity(const std::string& _dataType, bool _isUnique = false) {
         int32_t entityIndex = allocateEntity();
 
-        GameEntity& entity          = entities_[entityIndex];
-        entity.id_                  = entityIndex;
-        entity.dataType_            = _dataType;
-        entity.isAlive_             = true;
-        entity.isUnique_            = false;
+        GameEntity& entity = entities_[entityIndex];
+        entity.id_         = entityIndex;
+        entity.dataType_   = _dataType;
+        entity.isAlive_    = true;
+        entity.isUnique_   = false;
 
         if (_isUnique) {
             registerUniqueEntity(&entity);

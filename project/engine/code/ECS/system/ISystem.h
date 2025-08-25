@@ -14,8 +14,8 @@
 #include "component/IComponent.h"
 #include "ECS/Entity.h"
 
-/// lib
-#include "lib/deltaTime/DeltaTime.h"
+
+#include "util/deltaTime/DeltaTime.h"
 #include "logger/Logger.h"
 
 /// <summary>
@@ -67,7 +67,8 @@ protected:
     /// ==========================================
 
     GameEntity* getEntity(int32_t _entityID) ;
-    GameEntity* getUniqueEntity(const std::string& _dataTypeName) ;
+    GameEntity* getUniqueEntity(const std::string& _dataTypeName);
+    int32_t CreateEntity(const std::string& _dataTypeName,bool _isUnique = false);
 
     IComponentArray* getComponentArray(const std::string& _typeName);
     template <IsComponent ComponentType>

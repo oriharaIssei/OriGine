@@ -4,8 +4,8 @@
 /// parent
 #include "editor/IEditor.h"
 
-/// lib
-#include "lib/globalVariables/SerializedField.h"
+/// util
+#include "util/globalVariables/SerializedField.h"
 
 /// math
 #include <math/Vector2.h>
@@ -43,7 +43,6 @@ public:
     ~SettingWindow() override;
 
     void Initialize() override;
-    void DrawGui() override;
     void Finalize() override;
 };
 

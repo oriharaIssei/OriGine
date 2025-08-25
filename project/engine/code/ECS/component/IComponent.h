@@ -4,9 +4,6 @@
 #include <concepts>
 #include <string>
 
-/// lib
-#include <binaryIO/BinaryIO.h>
-
 /// externals
 #include <nlohmann/json.hpp>
 

@@ -9,11 +9,10 @@
 #include <format>
 
 /// engine
-#include "directX12/DxDevice.h"
 #include "Engine.h"
-
-/// lib
-#include "lib/logger/Logger.h"
+#include "logger/Logger.h"
+// directX12 object
+#include "directX12/DxDevice.h"
 
 void DxDebug::InitializeDebugger() { // デバッグレイヤーをオンに
     if (debugController_) {

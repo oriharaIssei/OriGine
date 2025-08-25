@@ -9,9 +9,11 @@
 #include <vector>
 
 /// engine
+#include <logger/Logger.h>
+// directX12
+#include <directX12/DxDevice.h>
 #include <directX12/DxResource.h>
-// lib / util
-#include <lib/logger/Logger.h>
+// util
 #include <util/BitArray.h>
 #include <util/EnumBitMask.h>
 
