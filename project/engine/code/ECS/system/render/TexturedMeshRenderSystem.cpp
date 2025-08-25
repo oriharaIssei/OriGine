@@ -440,6 +440,44 @@ void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
 
         componentIndex++;
     }
+    // box
+    while (true) {
+        BoxRenderer* renderer = getComponent<BoxRenderer>(_entity, componentIndex);
+        // nullptr なら これ以上存在しないとして終了
+        if (!renderer) {
+            break;
+        }
+        // 描画フラグが立っていないならスキップ
+        if (!renderer->isRender()) {
+            continue;
+        }
+        ///==============================
+        /// Transformの更新
+        ///==============================
+        {
+            auto& transform = renderer->getTransformBuff();
+            if (transform->parent == nullptr) {
+                transform->parent = entityTransform_;
+            }
+            transform.openData_.Update();
+            transform.ConvertToBuffer();
+        }
+        // BlendMode を 適応
+        BlendMode rendererBlend = renderer->getCurrentBlend();
+        if (rendererBlend != currentBlend_) {
+            currentBlend_ = rendererBlend;
+            commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
+            commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
+        }
+        auto& mesh = renderer->getMeshGroup()->front();
+        RenderingMesh(
+            commandList,
+            mesh,
+            renderer->getTransformBuff(),
+            renderer->getMaterialBuff(),
+            renderer->getTextureIndex());
+        componentIndex++;
+    }
 }
 
 void TexturedMeshRenderSystem::RenderingMesh(

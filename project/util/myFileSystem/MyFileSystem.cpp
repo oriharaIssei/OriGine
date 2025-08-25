@@ -76,7 +76,7 @@ void MyFileSystem::selectFolderDialog(const std::string& _defaultDirectory, std:
             // それを SetDefaultFolder に渡す
             if (!absPath.empty()) {
                 PIDLIST_ABSOLUTE pidl;
-                HRESULT hr = SHParseDisplayName(absPath.wstring().c_str(), NULL, &pidl, 0, NULL);
+                hr = SHParseDisplayName(absPath.wstring().c_str(), NULL, &pidl, 0, NULL);
                 if (SUCCEEDED(hr)) {
                     IShellItem* psi;
                     hr = SHCreateShellItem(NULL, NULL, pidl, &psi);
@@ -111,7 +111,6 @@ void MyFileSystem::selectFolderDialog(const std::string& _defaultDirectory, std:
 
                         // 出力
                         _outPath = relativePath.string();
-
                     }
                     pItem->Release();
                 }
@@ -154,7 +153,7 @@ bool MyFileSystem::selectFileDialog(
             // それを SetDefaultFolder に渡す
             if (!absPath.empty()) {
                 PIDLIST_ABSOLUTE pidl;
-                HRESULT hr = SHParseDisplayName(absPath.wstring().c_str(), NULL, &pidl, 0, NULL);
+                hr = SHParseDisplayName(absPath.wstring().c_str(), NULL, &pidl, 0, NULL);
                 if (SUCCEEDED(hr)) {
                     IShellItem* psi;
                     hr = SHCreateShellItem(NULL, NULL, pidl, &psi);
