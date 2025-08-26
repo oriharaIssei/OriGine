@@ -10,7 +10,7 @@ struct Orientation {
 
     static Orientation Identity();
 
-    void SetRotation(const Quaternion& q) {
+    void setRotation(const Quaternion& q) {
         rot = q.normalize();
         UpdateAxes();
     }
