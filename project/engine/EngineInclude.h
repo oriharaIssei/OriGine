@@ -33,6 +33,9 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 #ifdef ENGINE_SYSTEMS
 #include "system/ISystem.h"
 
+#include "system/movement/SubSceneUpdate.h"
+#include "system/postRender/SubSceneRender.h"
+
 #include "system/Initialize/GpuParticleInitialize.h"
 
 #include "system/collision/CollisionCheckSystem.h"
@@ -72,6 +75,8 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 #include "component/IComponent.h"
 
 #include "audio/Audio.h"
+
+#include "component/SubScene.h"
 
 #include "component/transform/CameraTransform.h"
 #include "component/transform/Transform.h"

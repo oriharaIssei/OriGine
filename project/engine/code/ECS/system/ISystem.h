@@ -32,7 +32,7 @@ enum class SystemCategory {
     Effect, // エフェクト処理
 
     Render, // 更新処理のあとに 描画処理
-    PostRender, // 描画処理のあとに 後処理
+    PostRender, // 描画処理のあとに 処理
 
     Count
 };
