@@ -13,7 +13,6 @@
 /// engine
 #include "IEditor.h"
 
-
 #include "globalVariables/SerializedField.h"
 
 /// util
@@ -74,6 +73,8 @@ private:
     std::list<std::unique_ptr<IEditCommand>>::iterator currentCommandItr_ = commandHistory_.end();
 
 public:
+    const std::unordered_map<std::string, std::unique_ptr<Editor::Window>>& getEditorWindows() const { return editorWindows_; }
+
     template <EditorWindow EditorWindowClass>
     EditorWindowClass* getWindow() {
         std::string windowName = nameof<EditorWindowClass>();
