@@ -29,6 +29,13 @@ void ShaderManager::Finalize() {
 PipelineStateObj* ShaderManager::CreatePso(const std::string& key,
     const ShaderInformation& shaderInfo,
     Microsoft::WRL::ComPtr<ID3D12Device> device) {
+
+    // すでに存在するならそれを返す
+    auto it = psoMap_.find(key);
+    if (it != psoMap_.end()) {
+        return it->second.get();
+    }
+
     std::unique_ptr<PipelineStateObj> pso;
     pso = std::make_unique<PipelineStateObj>();
     HRESULT result;
