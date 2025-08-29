@@ -325,6 +325,9 @@ Vec2f ConvertMouseToGuiWindow(const Vec2f& _mousePos, const Vec2f& _guiWindowLT,
 template <typename EditorWindowClass>
 concept EditorWindow = std::derived_from<EditorWindowClass, Editor::Window>;
 
+template <typename EditorAreaClass>
+concept EditorArea = std::derived_from<EditorAreaClass, Editor::Area>;
+
 template <typename EditorMenuClass>
 concept EditorMenu = std::derived_from<EditorMenuClass, Editor::Menu>;
 
