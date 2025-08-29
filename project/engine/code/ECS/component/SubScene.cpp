@@ -10,6 +10,9 @@
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
+SubScene::SubScene() {}
+SubScene::~SubScene() {}
+
 void SubScene::Initialize(GameEntity* /*_entity*/) {
     if (!sceneName_.empty() && isActive_) {
         Load(sceneName_);
@@ -21,17 +24,19 @@ void SubScene::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] GameEntity*
 
     CheckBoxCommand("IsActive##" + _parentLabel, isActive_);
 
-    std::string sceneName = sceneName_;
-    std::list<std::pair<std::string, std::string>> sceneList = myfs::searchFile(kApplicationResourceDirectory + "/scene","scene");
-    std::string label                                        = "SceneName##" + _parentLabel;
-    if (ImGui::BeginCombo(label.c_str(),sceneName_.c_str())) {
+    std::string label = "SceneName##" + _parentLabel;
+    if (ImGui::BeginCombo(label.c_str(), sceneName_.c_str())) {
+        std::list<std::pair<std::string, std::string>> sceneList = myfs::searchFile(kApplicationResourceDirectory + "/scene", "json");
         for (const auto& scene : sceneList) {
-            bool isSelected = (sceneName == scene.second);
+            bool isSelected = (sceneName_ == scene.second);
             if (ImGui::Selectable(scene.second.c_str(), isSelected)) {
-                sceneName = scene.second;
-                if (isActive_) {
-                    Load(sceneName);
-                }
+                auto command = std::make_unique<SetterCommand<std::string>>(&sceneName_, scene.second, [this](std::string* _newScene) {
+                    if (this) {
+                        Unload();
+                        Load(*_newScene);
+                    }
+                });
+                EditorController::getInstance()->pushCommand(std::move(command));
             }
             if (isSelected) {
                 ImGui::SetItemDefaultFocus();
@@ -39,7 +44,6 @@ void SubScene::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] GameEntity*
         }
         ImGui::EndCombo();
     }
-
 #endif // _DEBUG
 }
 
