@@ -36,11 +36,16 @@ void SubSceneRender::EndRender() {
 void SubSceneRender::UpdateEntity(GameEntity* _entity) {
     auto subScenes = getComponents<SubScene>(_entity);
     for (auto& subScene : *subScenes) {
-        if (subScene.isActive()) {
-            auto scene = subScene.getSubSceneRef();
-            scene->Render();
-
-            scenes_.push_back(scene);
+        if (!subScene.isActive()) {
+            continue;
         }
+        auto scene = subScene.getSubSceneRef();
+        if (!scene) {
+            continue;
+        }
+
+        scene->Render();
+
+        scenes_.push_back(scene.get());
     }
 }

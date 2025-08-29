@@ -15,7 +15,7 @@ void SubSceneUpdate::UpdateEntity(GameEntity* _entity) {
         if (subScene.isActive() == false) {
             continue;
         }
-        Scene* scene = subScene.getSubSceneRef();
+        auto scene = subScene.getSubSceneRef();
         if (scene) {
             scene->Update();
         }
