@@ -236,7 +236,7 @@ void SystemRunner::UpdateCategory(SystemCategory _category) {
     }
 }
 
-void SystemRunner::registerSystem(const std::string& _systemName, int32_t _priority, bool _isInitialize, bool _activate) {
+void SystemRunner::registerSystem(const std::string& _systemName, int32_t _priority, bool _activate) {
     auto itr = systems_.find(_systemName);
 
     if (itr == systems_.end()) {
@@ -246,11 +246,10 @@ void SystemRunner::registerSystem(const std::string& _systemName, int32_t _prior
             return;
         }
 
-        createdSystem->setPriority(_priority);
+        createdSystem->setScene(scene_);
 
-        if (_isInitialize) {
-            createdSystem->Initialize();
-        }
+        createdSystem->setPriority(_priority);
+        createdSystem->Initialize();
 
         systems_[_systemName] = std::move(createdSystem);
     } else {
@@ -262,7 +261,7 @@ void SystemRunner::registerSystem(const std::string& _systemName, int32_t _prior
     }
 }
 
-void SystemRunner::unregisterSystem(const std::string& _systemName, bool _isFinalize) {
+void SystemRunner::unregisterSystem(const std::string& _systemName) {
     auto itr = systems_.find(_systemName);
     if (itr == systems_.end()) {
         LOG_ERROR("SystemRunner: System not found with name: {}", _systemName);
@@ -271,9 +270,6 @@ void SystemRunner::unregisterSystem(const std::string& _systemName, bool _isFina
     if (itr->second) {
         itr->second->setScene(nullptr);
         itr->second->setIsActive(false);
-        if (_isFinalize) {
-            itr->second->Finalize();
-        }
     }
 
     DeactivateSystem(_systemName);
