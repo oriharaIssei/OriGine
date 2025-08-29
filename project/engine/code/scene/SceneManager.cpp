@@ -243,10 +243,7 @@ void SceneSerializer::DeserializeFromJson() {
     ifs >> jsonData;
     ifs.close();
 
-    auto& entityRepository    = targetScene_->entityRepository_;
-    auto& componentRepository = targetScene_->componentRepository_;
     auto& systemRunner        = targetScene_->systemRunner_;
-    auto& sceneSystems        = systemRunner->getSystemsRef();
 
     /// =====================================================
     // System
