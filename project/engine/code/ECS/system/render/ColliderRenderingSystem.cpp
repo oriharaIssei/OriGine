@@ -14,7 +14,6 @@
 #include "component/renderer/MeshRenderer.h"
 #include "component/transform/Transform.h"
 
-
 /// math
 #include <numbers>
 
@@ -23,6 +22,10 @@ const int32_t ColliderRenderingSystem::defaultMeshCount_ = 1000;
 // ** AABB **//
 static const uint32_t aabbVertexSize = 8;
 static const uint32_t aabbIndexSize  = 24;
+
+//** OBB **//
+static const uint32_t obbVertexSize = 8;
+static const uint32_t obbIndexSize  = 24;
 
 //** Sphere **//
 static const uint32_t sphereDivision  = 8;
@@ -42,6 +45,14 @@ void ColliderRenderingSystem::Initialize() {
     aabbRenderer_.getMeshGroup()->push_back(Mesh<ColorVertexData>());
     aabbRenderer_.getMeshGroup()->back().Initialize(ColliderRenderingSystem::defaultMeshCount_ * aabbVertexSize, ColliderRenderingSystem::defaultMeshCount_ * aabbIndexSize);
     aabbMeshItr_ = aabbRenderer_.getMeshGroup()->begin();
+
+    //** OBB **//
+    obbColliders_ = getComponentArray<OBBCollider>();
+    obbRenderer_  = LineRenderer(std::vector<Mesh<ColorVertexData>>());
+    obbRenderer_.Initialize(nullptr);
+    obbRenderer_.getMeshGroup()->push_back(Mesh<ColorVertexData>());
+    obbRenderer_.getMeshGroup()->back().Initialize(ColliderRenderingSystem::defaultMeshCount_ * obbVertexSize, ColliderRenderingSystem::defaultMeshCount_ * obbIndexSize);
+    obbMeshItr_ = obbRenderer_.getMeshGroup()->begin();
 
     //** Sphere **//
     sphereColliders_ = getComponentArray<SphereCollider>();
@@ -103,6 +114,52 @@ void CreateLineMeshByShape(
         _mesh->vertexes_.emplace_back(ColorVertexData{Vec4f(vertexes[vi], 1.f), _color});
     }
     for (uint32_t ii = 0; ii < aabbIndexSize; ++ii) {
+        _mesh->indexes_.emplace_back(startIndexesIndex + indices[ii]);
+    }
+}
+
+template <>
+void CreateLineMeshByShape(
+    Mesh<ColorVertexData>* _mesh,
+    const OBB& _shape,
+    const Vec4f& _color) {
+    // OBBの8頂点を計算
+    Vector3f halfSizes  = _shape.halfSize_;
+    Vector3f corners[8] = {
+        {-halfSizes[X], -halfSizes[Y], -halfSizes[Z]},
+        {halfSizes[X], -halfSizes[Y], -halfSizes[Z]},
+        {halfSizes[X], halfSizes[Y], -halfSizes[Z]},
+        {-halfSizes[X], halfSizes[Y], -halfSizes[Z]},
+        {-halfSizes[X], -halfSizes[Y], halfSizes[Z]},
+        {halfSizes[X], -halfSizes[Y], halfSizes[Z]},
+        {halfSizes[X], halfSizes[Y], halfSizes[Z]},
+        {-halfSizes[X], halfSizes[Y], halfSizes[Z]}};
+
+    // 回転と位置を適用
+    Matrix4x4 rotationMatrix = MakeMatrix::RotateQuaternion(_shape.orientations_.rot);
+    for (auto& corner : corners) {
+        corner = corner * rotationMatrix + _shape.center_;
+    }
+    // OBBIndex
+    uint32_t indices[obbIndexSize]{
+        0, 1,
+        1, 2,
+        2, 3,
+        3, 0,
+        4, 5,
+        5, 6,
+        6, 7,
+        7, 4,
+        0, 4,
+        1, 5,
+        2, 6,
+        3, 7};
+    uint32_t startIndexesIndex = uint32_t(_mesh->vertexes_.size());
+    // 頂点バッファにデータを格納
+    for (uint32_t vi = 0; vi < obbVertexSize; ++vi) {
+        _mesh->vertexes_.emplace_back(ColorVertexData{Vec4f(corners[vi], 1.f), _color});
+    }
+    for (uint32_t ii = 0; ii < obbIndexSize; ++ii) {
         _mesh->indexes_.emplace_back(startIndexesIndex + indices[ii]);
     }
 }
@@ -206,7 +263,7 @@ void ColliderRenderingSystem::CreateRenderMesh() {
                 continue; // AABBColliderが存在しない場合はスキップ
             }
             for (auto& aabb : *colliders) {
-                
+
                 if (!aabb.isActive()) {
                     continue;
                 }
@@ -244,6 +301,70 @@ void ColliderRenderingSystem::CreateRenderMesh() {
     }
     aabbMeshItr_->TransferData();
 
+    { // OBB
+        auto& meshGroup = obbRenderer_.getMeshGroup();
+
+        for (auto meshItr = meshGroup->begin(); meshItr != meshGroup->end(); ++meshItr) {
+            meshItr->vertexes_.clear();
+            meshItr->indexes_.clear();
+        }
+
+        obbMeshItr_ = meshGroup->begin();
+
+        for (auto& [entityIdx, obbIdx] : obbColliders_->getEntityIndexBind()) {
+            GameEntity* entity = getEntity(entityIdx);
+            if (!entity) {
+                continue; // Entityが存在しない場合はスキップ
+            }
+
+            Transform* transform = getComponent<Transform>(entity);
+            if (transform) {
+                transform->Update();
+            }
+
+            auto colliders = obbColliders_->getComponents(entity);
+            if (!colliders) {
+                continue; // AABBColliderが存在しない場合はスキップ
+            }
+            for (auto& obb : *colliders) {
+
+                if (!obb.isActive()) {
+                    continue;
+                }
+                obb.setParent(transform);
+                // 形状更新
+                obb.CalculateWorldShape();
+
+                // Capacityが足りなかったら 新しいMeshを作成する
+                if (obbMeshItr_->getIndexCapacity() <= 0) {
+                    obbMeshItr_->TransferData();
+                    ++obbMeshItr_;
+                    if (obbMeshItr_ == meshGroup->end()) {
+                        obbMeshItr_ = meshGroup->end();
+                        meshGroup->push_back(Mesh<ColorVertexData>());
+                        meshGroup->back().Initialize(ColliderRenderingSystem::defaultMeshCount_ * obbVertexSize, ColliderRenderingSystem::defaultMeshCount_ * obbIndexSize);
+                    }
+                }
+
+                // 色の設定
+                Vec4f color    = {1, 1, 1, 1};
+                auto& stateMap = obb.getCollisionStateMap();
+                if (!stateMap.empty()) {
+                    for (auto& [collEntityIdx, state] : stateMap) {
+                        if (state != CollisionState::None) {
+                            color = {1, 0, 0, 1};
+                            break; // 1つでも衝突していたら赤にする
+                        }
+                    }
+                }
+
+                // メッシュ作成
+                CreateLineMeshByShape<>(obbMeshItr_._Ptr, obb.getWorldShape(), color);
+            }
+        }
+    }
+    obbMeshItr_->TransferData();
+
     { // Sphere
         auto& meshGroup = sphereRenderer_.getMeshGroup();
 
@@ -254,7 +375,7 @@ void ColliderRenderingSystem::CreateRenderMesh() {
 
         sphereMeshItr_ = meshGroup->begin();
 
-         for (auto& [entityIdx, sphereIdx] : sphereColliders_->getEntityIndexBind()) {
+        for (auto& [entityIdx, sphereIdx] : sphereColliders_->getEntityIndexBind()) {
             GameEntity* entity = getEntity(entityIdx);
             if (!entity) {
                 continue; // Entityが存在しない場合はスキップ
@@ -315,6 +436,17 @@ void ColliderRenderingSystem::RenderCall() {
     ///==============================
     aabbRenderer_.getTransformBuff().SetForRootParameter(commandList, 0);
     for (auto& mesh : *aabbRenderer_.getMeshGroup()) {
+        if (mesh.indexes_.size() <= 0) {
+            continue;
+        }
+        // 描画
+        commandList->IASetVertexBuffers(0, 1, &mesh.getVertexBufferView());
+        commandList->IASetIndexBuffer(&mesh.getIndexBufferView());
+        commandList->DrawIndexedInstanced(static_cast<UINT>(mesh.indexes_.size()), 1, 0, 0, 0);
+    }
+
+    obbRenderer_.getTransformBuff().SetForRootParameter(commandList, 0);
+    for (auto& mesh : *obbRenderer_.getMeshGroup()) {
         if (mesh.indexes_.size() <= 0) {
             continue;
         }

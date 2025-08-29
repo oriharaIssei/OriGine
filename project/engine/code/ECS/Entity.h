@@ -39,12 +39,10 @@ public:
 private:
     std::string dataType_ = "UNKNOWN";
 
-    int32_t id_           = -1;
-    bool isAlive_  = false;
-    bool isUnique_ = false;
-#ifdef _DEBUG
+    int32_t id_      = -1;
+    bool isAlive_    = false;
+    bool isUnique_   = false;
     bool shouldSave_ = true;
-#endif // _DEBUG
 
 public:
     bool isAlive() const {
@@ -54,14 +52,12 @@ public:
         return isUnique_;
     }
 
-#ifdef _DEBUG
     bool shouldSave() const {
         return shouldSave_;
     }
     void setShouldSave(bool _shouldSave) {
         shouldSave_ = _shouldSave;
     }
-#endif // _DEBUG
 
     void deleteEntity() {
         isAlive_ = false;

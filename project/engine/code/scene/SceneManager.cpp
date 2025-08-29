@@ -174,6 +174,7 @@ void SceneSerializer::SerializeFromJson() {
     auto& entities = targetScene_->entityRepository_;
 
     std::list<GameEntity*> aliveEntities;
+    
     for (auto& entity : entities->getEntitiesRef()) {
         if (entity.isAlive() && entity.shouldSave()) {
             aliveEntities.push_back(&entity);
@@ -243,8 +244,10 @@ void SceneSerializer::SerializeFromJson() {
     }
 
     // JSON ファイルに書き込み
+    std::string sceneFilePath = SceneDirectory + targetScene_->getName() + ".json";
+    myfs::deleteFile(sceneFilePath);
     myfs::createFolder(SceneDirectory);
-    std::ofstream ofs(SceneDirectory + targetScene_->getName() + ".json");
+    std::ofstream ofs(sceneFilePath);
     if (!ofs) {
         LOG_ERROR("Failed to open JSON file for writing: {}", targetScene_->getName());
         return;
@@ -396,32 +399,7 @@ GameEntity* SceneSerializer::LoadEntity(const std::string& _directory, const std
     ifs >> entityData;
     ifs.close();
 
-    std::string entityName = entityData["Name"];
-    bool isUnique          = entityData["isUnique"];
-    int32_t entityID       = targetScene_->entityRepository_->CreateEntity(entityName, isUnique);
-    GameEntity* entity     = targetScene_->entityRepository_->getEntity(entityID);
-
-    // 所属するシステムを読み込み
-    auto& sceneSystems = targetScene_->systemRunner_->getSystemsRef();
-    for (auto& systemData : entityData["Systems"]) {
-        // int32_t systemCategory = systemData["SystemCategory"];
-        std::string systemName = systemData["SystemName"];
-        ISystem* system        = sceneSystems[systemName].get();
-        if (system) {
-            system->addEntity(entity);
-        }
-    }
-
-    // コンポーネントを読み込み
-    auto& componentArrayMap = targetScene_->componentRepository_->getComponentArrayMapRef();
-    for (auto& [componentTypename, componentData] : entityData["Components"].items()) {
-        auto itr = componentArrayMap.find(componentTypename);
-        if (itr != componentArrayMap.end()) {
-            itr->second->LoadComponent(entity, componentData);
-        }
-    }
-
-    return entity;
+    return EntityFromJson(entityData);
 }
 
 GameEntity* SceneSerializer::EntityFromJson(const nlohmann::json& _entityData) {
@@ -441,12 +419,13 @@ GameEntity* SceneSerializer::EntityFromJson(const nlohmann::json& _entityData) {
         }
     }
     // コンポーネントを読み込み
-    auto& componentArrayMap = targetScene_->componentRepository_->getComponentArrayMapRef();
-    for (auto& [componentTypename, componentData] : _entityData.at("Components").items()) {
-        auto itr = componentArrayMap.find(componentTypename);
-        if (itr != componentArrayMap.end()) {
-            itr->second->LoadComponent(entity, componentData);
+    for (auto& [componentTypename, componentData] : _entityData["Components"].items()) {
+        auto comp = targetScene_->componentRepository_->getComponentArray(componentTypename);
+        if (!comp) {
+            LOG_WARN("Don't Registered Component. Typename {}", componentTypename);
+            continue;
         }
+        comp->LoadComponent(entity, componentData);
     }
     return entity;
 }

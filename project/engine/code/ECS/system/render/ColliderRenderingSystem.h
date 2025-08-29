@@ -37,11 +37,14 @@ protected:
     void StartRender();
 
 private:
-    ComponentArray<AABBCollider>* aabbColliders_     = nullptr;
+    ComponentArray<AABBCollider>* aabbColliders_ = nullptr;
+    ComponentArray<OBBCollider>* obbColliders_ = nullptr;
     ComponentArray<SphereCollider>* sphereColliders_ = nullptr;
 
     LineRenderer aabbRenderer_;
     std::vector<Mesh<ColorVertexData>>::iterator aabbMeshItr_;
+    LineRenderer obbRenderer_;
+    std::vector<Mesh<ColorVertexData>>::iterator obbMeshItr_;
     LineRenderer sphereRenderer_;
     std::vector<Mesh<ColorVertexData>>::iterator sphereMeshItr_;
 
