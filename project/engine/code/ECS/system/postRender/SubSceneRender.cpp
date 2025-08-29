@@ -23,6 +23,10 @@ void SubSceneRender::Update() {
 }
 
 void SubSceneRender::EndRender() {
+    if (scenes_.empty()) {
+        return;
+    }
+
     auto currentSceneView = getScene()->getSceneView();
 
     currentSceneView->PreDraw();
