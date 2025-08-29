@@ -474,22 +474,6 @@ void ColliderRenderingSystem::CreatePso() {
     DxDevice* dxDevice           = Engine::getInstance()->getDxDevice();
 
     ///=================================================
-    /// 作成されているかチェック
-    ///=================================================
-    bool isLoaded = true;
-    for (size_t i = 0; i < kBlendNum; ++i) {
-        BlendMode blend = static_cast<BlendMode>(i);
-        pso_[blend]     = shaderManager->getPipelineStateObj("LineMeshMesh_" + blendModeStr[i]);
-
-        if (!pso_[blend]) {
-            isLoaded = false;
-        }
-    }
-    if (isLoaded) {
-        return;
-    }
-
-    ///=================================================
     /// shader読み込み
     ///=================================================
     shaderManager->LoadShader("ColoredVertex.VS");

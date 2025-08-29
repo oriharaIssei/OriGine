@@ -14,9 +14,8 @@
 #include "component/IComponent.h"
 #include "ECS/Entity.h"
 
-
-#include "util/deltaTime/DeltaTime.h"
 #include "logger/Logger.h"
+#include "util/deltaTime/DeltaTime.h"
 
 /// <summary>
 /// システムの種類(この種類によって処理順序が決定する)
@@ -32,7 +31,7 @@ enum class SystemCategory {
     Effect, // エフェクト処理
 
     Render, // 更新処理のあとに 描画処理
-    PostRender, // 描画処理のあとに 後処理
+    PostRender, // 描画処理のあとに 処理
 
     Count
 };
@@ -66,9 +65,9 @@ protected:
     // システム内で使用するであろう 便利関数群
     /// ==========================================
 
-    GameEntity* getEntity(int32_t _entityID) ;
+    GameEntity* getEntity(int32_t _entityID);
     GameEntity* getUniqueEntity(const std::string& _dataTypeName);
-    int32_t CreateEntity(const std::string& _dataTypeName,bool _isUnique = false);
+    int32_t CreateEntity(const std::string& _dataTypeName, bool _isUnique = false);
 
     IComponentArray* getComponentArray(const std::string& _typeName);
     template <IsComponent ComponentType>
@@ -325,35 +324,82 @@ public:
         UpdateCategory(Category);
     }
 
-    void registerSystem(const std::string& _systemName, int32_t _priority = 0, bool _isInitalize = true, bool _activate = true);
+    /// <summary>
+    /// システムを登録する
+    /// </summary>
+    /// <param name="_systemName">登録するシステム名</param>
+    /// <param name="_priority">実行優先順位</param>
+    /// <param name="_isActivate">Activeにするかどうか</param>
+    void registerSystem(const std::string& _systemName, int32_t _priority = 0, bool _isActivate = true);
+    /// <summary>
+    /// システムを登録する
+    /// </summary>
+    /// <typeparam name="SystemClass">登録するシステムクラス</typeparam>
+    /// <param name="_priority">実行優先順位</param>
+    /// <param name="_isActivate">Activeにするかどうか</param>
     template <IsSystem SystemClass>
-    void registerSystem(int32_t _priority = 0, bool _isInitalize = true, bool _activate = true) {
-        registerSystem(nameof<SystemClass>(), _priority, _isInitalize, _activate);
+    void registerSystem(int32_t _priority = 0, bool _activate = true) {
+        registerSystem(nameof<SystemClass>(), _priority, _activate);
     }
-    void unregisterSystem(const std::string& _systemName, bool _isFinalize = false);
+
+    /// <summary>
+    /// 登録を解除する
+    /// </summary>
+    /// <param name="_systemName">登録解除するシステム名</param>
+    void unregisterSystem(const std::string& _systemName);
+    /// <summary>
+    /// 登録を解除する
+    /// </summary>
+    /// <typeparam name="SystemCategory">解除するシステムクラス</typeparam>
     template <IsSystem SystemCategory>
-    void unregisterSystem(bool _isFinalize = false) {
+    void unregisterSystem() {
         unregisterSystem(nameof<SystemCategory>());
     }
 
+    /// <summary>
+    /// 指定したシステムをアクティブにする
+    /// </summary>
+    /// <param name="_systemName">アクティブにするシステムの名前</param>
     void ActivateSystem(const std::string& _systemName);
 
+    /// <summary>
+    /// 指定したシステムをアクティブにする
+    /// </summary>
+    /// <typeparam name="SystemClass">アクティブにするシステムクラス</typeparam>
     template <IsSystem SystemClass>
     void ActivateSystem() {
         ActivateSystem(nameof<SystemClass>());
     }
 
+    /// <summary>
+    /// 指定されたシステムを非アクティブ化します。
+    /// </summary>
+    /// <param name="_systemName">非アクティブ化するシステムの名前。</param>
     void DeactivateSystem(const std::string& _systemName);
+    /// <summary>
+    /// 指定されたシステムを非アクティブ化します。
+    /// </summary>
+    /// <typeparam name="SystemClass">非アクティブ化するシステムクラス</typeparam>
     template <IsSystem SystemClass>
     void DeactivateSystem() {
         DeactivateSystem(nameof<SystemClass>());
     }
 
+    /// <summary>
+    /// 指定したシステムにエンティティを登録する
+    /// </summary>
+    /// <typeparam name="...SystemClass">エンティティを追加するシステムクラスたち</typeparam>
+    /// <param name="_entity"></param>
     template <IsSystem... SystemClass>
     void registerEntity(GameEntity* _entity) {
         // 各システムにエンティティを登録
         (getSystem<SystemClass>()->addEntity(_entity), ...);
     }
+    /// <summary>
+    /// 指定したシステムにエンティティを登録する
+    /// </summary>
+    /// <param name="_systemTypeName">エンティティを追加するシステムの名前</param>
+    /// <param name="_entity"></param>
     void registerEntity(const std::string& _systemTypeName, GameEntity* _entity) {
         // システム名からシステムを取得し、エンティティを登録
         auto systemItr = systems_.find(_systemTypeName);
@@ -369,6 +415,12 @@ public:
             LOG_ERROR("SystemRunner: System '{}' not found.", _systemTypeName);
         }
     }
+
+    /// <summary>
+    /// 指定されたシステムからエンティティを削除します。
+    /// </summary>
+    /// <param name="_systemTypeName">エンティティを削除する対象のシステム名。</param>
+    /// <param name="_entity">削除するGameEntityオブジェクトへのポインタ。</param>
     void removeEntity(const std::string& _systemTypeName, GameEntity* _entity) {
         // システム名からシステムを取得し、エンティティを登録
         auto systemItr = systems_.find(_systemTypeName);

@@ -267,6 +267,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="math\Vector3.h" />
     <ClInclude Include="math\Vector4.h" />
     <ClInclude Include="math\shape\Shapes.h" />
+    <ClInclude Include="engine\code\ECS\component\SubScene.h" />
+    <ClInclude Include="engine\code\ECS\system\movement\SubSceneUpdate.h" />
+    <ClInclude Include="engine\code\ECS\system\postRender\SubSceneRender.h" />
     <ClInclude Include="util\BitArray.h" />
     <ClInclude Include="util\ConvertString.h" />
     <ClInclude Include="util\DiffValue.h" />
@@ -387,6 +390,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="math\Orientation.cpp" />
     <ClCompile Include="math\Quaternion.cpp" />
     <ClCompile Include="math\Sequence.cpp" />
+    <ClCompile Include="engine\code\ECS\component\SubScene.cpp" />
+    <ClCompile Include="engine\code\ECS\system\movement\SubSceneUpdate.cpp" />
+    <ClCompile Include="engine\code\ECS\system\postRender\SubSceneRender.cpp" />
     <ClCompile Include="util\ConvertString.cpp" />
     <ClCompile Include="util\NormalizeString.cpp" />
     <ClCompile Include="util\binaryIO\BinaryIO.cpp" />

@@ -174,7 +174,7 @@ void SceneSerializer::SerializeFromJson() {
     auto& entities = targetScene_->entityRepository_;
 
     std::list<GameEntity*> aliveEntities;
-    
+
     for (auto& entity : entities->getEntitiesRef()) {
         if (entity.isAlive() && entity.shouldSave()) {
             aliveEntities.push_back(&entity);
@@ -186,32 +186,8 @@ void SceneSerializer::SerializeFromJson() {
             continue;
         }
         nlohmann::json entityData = nlohmann::json::object();
-        entityData["Name"]        = entity->getDataType();
-        entityData["isUnique"]    = entity->isUnique();
 
-        // 所属するシステムを保存
-        {
-            nlohmann::json systemsData = nlohmann::json::array();
-            const auto& systems        = targetScene_->systemRunner_->getSystems();
-            for (const auto& [name, system] : systems) {
-                if (system->hasEntity(entity)) {
-                    systemsData.push_back(
-                        {{"SystemCategory", system->getCategory()},
-                            {"SystemName", name}});
-                }
-            }
-            entityData["Systems"] = systemsData;
-        }
-
-        // コンポーネントを保存
-        const auto& componentRepository = targetScene_->componentRepository_;
-        nlohmann::json componentsData;
-        for (const auto& [componentTypeName, componentArray] : componentRepository->getComponentArrayMap()) {
-            if (componentArray->hasEntity(entity)) {
-                componentArray->SaveComponent(entity, componentsData);
-            }
-        }
-        entityData["Components"] = componentsData;
+        EntityToJson(entity->getID(), entityData);
 
         jsonData["Entities"].push_back(entityData);
     }
@@ -279,7 +255,7 @@ void SceneSerializer::DeserializeFromJson() {
     nlohmann::json& systems     = jsonData["Systems"];
     for (auto& systemByType : systems) {
         for (auto& [systemName, system] : systemByType.items()) {
-            systemRunner->registerSystem(systemName, system["Priority"], false);
+            systemRunner->registerSystem(systemName, system["Priority"], true);
         }
         ++systemCategoryIndex;
     }
@@ -298,33 +274,7 @@ void SceneSerializer::DeserializeFromJson() {
     // Entity
     /// =====================================================
     for (auto& entityData : jsonData["Entities"]) {
-        std::string entityName = entityData["Name"];
-        bool isUnique          = entityData["isUnique"];
-
-        int32_t entityID   = entityRepository->CreateEntity(entityName, isUnique);
-        GameEntity* entity = entityRepository->getEntity(entityID);
-
-        // 所属するシステムを読み込み
-        for (auto& systemData : entityData["Systems"]) {
-            // int32_t systemCategory = systemData["SystemCategory"];
-            std::string systemName = systemData["SystemName"];
-            ISystem* system        = sceneSystems[systemName].get();
-            if (system) {
-                system->addEntity(entity);
-            } else {
-                LOG_WARN("System not found: {}", systemName);
-            }
-        }
-
-        // コンポーネントを読み込み
-        for (auto& [componentTypename, componentData] : entityData["Components"].items()) {
-            auto comp = componentRepository->getComponentArray(componentTypename);
-            if (!comp) {
-                LOG_WARN("Don't Registered Component. Typename {}", componentTypename);
-                continue;
-            }
-            comp->LoadComponent(entity, componentData);
-        }
+        EntityFromJson(entityData);
     }
 
     systemRunner->InitializeActiveSystems();

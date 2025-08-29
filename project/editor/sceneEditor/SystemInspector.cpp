@@ -168,7 +168,7 @@ void SystemInspectorArea::SystemGui(const std::string& _systemName, int32_t& _pr
     ImGui::PushID(_systemName.c_str());
 
     auto* system = currentScene->getSystem(_systemName);
-    if (system) {
+    if (system && system->isActive()) {
         bool isActive = system->isActive();
 
         if (ImGui::Checkbox("##Active", &isActive)) {

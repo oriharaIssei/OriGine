@@ -535,6 +535,9 @@
       <Filter>util\timeline</Filter>
     </ClInclude>
     <ClInclude Include="math\Orientation.h" />
+    <ClInclude Include="engine\code\ECS\component\SubScene.h" />
+    <ClInclude Include="engine\code\ECS\system\movement\SubSceneUpdate.h" />
+    <ClInclude Include="engine\code\ECS\system\postRender\SubSceneRender.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="editor\EditorController.cpp">
@@ -868,5 +871,8 @@
       <Filter>util\timeline</Filter>
     </ClCompile>
     <ClCompile Include="math\Orientation.cpp" />
+    <ClCompile Include="engine\code\ECS\component\SubScene.cpp" />
+    <ClCompile Include="engine\code\ECS\system\movement\SubSceneUpdate.cpp" />
+    <ClCompile Include="engine\code\ECS\system\postRender\SubSceneRender.cpp" />
   </ItemGroup>
 </Project>

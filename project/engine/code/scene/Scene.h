@@ -34,6 +34,7 @@ public:
 
     void InitializeECS();
     void InitializeSceneView();
+
 protected:
     void ExecuteDeleteEntities();
 
@@ -123,6 +124,6 @@ public:
 
     ISystem* getSystem(const std::string& _systemTypeName) const;
 
-    bool registerSystem(const std::string& _systemTypeName, int32_t _priority = 0, bool _isInit = true, bool _activity = true);
-    bool unregisterSystem(const std::string& _systemTypeName, bool _isFinalize = true);
+    bool registerSystem(const std::string& _systemTypeName, int32_t _priority = 0, bool _activity = true);
+    bool unregisterSystem(const std::string& _systemTypeName);
 };
