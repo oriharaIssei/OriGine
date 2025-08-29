@@ -14,8 +14,8 @@ class SubScene
     friend void from_json(const nlohmann::json& j, SubScene& scene);
 
 public:
-    SubScene()           = default;
-    ~SubScene() override = default;
+    SubScene();
+    ~SubScene() override;
 
     void Initialize(GameEntity* _entity) override;
     void Edit(Scene* _scene, GameEntity* _entity, const std::string& _parentLabel) override;
@@ -37,11 +37,11 @@ private:
     bool isActive_ = false;
 
     std::string sceneName_           = "";
-    std::unique_ptr<Scene> subScene_ = nullptr;
+    std::shared_ptr<Scene> subScene_ = nullptr;
 
 public:
     const Scene* getSubScene() const { return subScene_.get(); }
-    Scene* getSubSceneRef() { return subScene_.get(); }
+    std::shared_ptr<Scene> getSubSceneRef() { return subScene_; }
     const std::string& getSceneName() const { return sceneName_; }
 
     bool isActive() const { return isActive_; }
