@@ -68,6 +68,7 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 #include "system/postRender/RadialBlurEffect.h"
 #include "system/postRender/RandomEffect.h"
 #include "system/postRender/SmoothingEffect.h"
+#include "system/postRender/SpeedlineEffect.h"
 #include "system/postRender/VignetteEffect.h"
 #endif // ENGINE_SYSTEMS
 
@@ -101,6 +102,7 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 #include "component/effect/post/DistortionEffectParam.h"
 #include "component/effect/post/RadialBlurParam.h"
 #include "component/effect/post/RandomEffectParam.h"
+#include "component/effect/post/SpeedlineEffectParam.h"
 #include "component/effect/post/VignetteParam.h"
 #include "component/effect/TextureEffectParam.h"
 
