@@ -66,6 +66,9 @@ PipelineStateObj* ShaderManager::CreatePso(const std::string& key,
             static_cast<const char*>(errorBlob->GetBufferPointer()),
             errorBlob->GetBufferSize());
         LOG_ERROR("D3D12SerializeRootSignature failed: {}", errMsg);
+
+        OutputDebugStringA(("D3D12SerializeRootSignature failed: " + errMsg + "\n").c_str());
+
         assert(false);
     }
 
@@ -177,12 +180,17 @@ PipelineStateObj* ShaderManager::CreatePso(const std::string& key,
             shaderBlobMap_[shaderInfo.csKey]->GetBufferPointer(),
             shaderBlobMap_[shaderInfo.csKey]->GetBufferSize()};
         computeStateDesc.pRootSignature = pso->rootSignature.Get();
-        result                          = device->CreateComputePipelineState(
+
+        result = device->CreateComputePipelineState(
             &computeStateDesc,
             IID_PPV_ARGS(&pso->pipelineState));
 
         if (FAILED(result)) {
-            LOG_ERROR("CreateComputePipelineState failed: {}", HrToString(result));
+            std::string resultString = HrToString(result);
+            LOG_ERROR("CreateComputePipelineState failed: {}", resultString);
+
+            OutputDebugStringA(("CreateComputePipelineState failed:\n" + resultString + "\n").c_str());
+
             assert(false);
         }
 
@@ -242,7 +250,9 @@ PipelineStateObj* ShaderManager::CreatePso(const std::string& key,
         IID_PPV_ARGS(&pso->pipelineState));
 
     if (FAILED(result)) {
-        LOG_ERROR("CreateGraphicsPipelineState failed: {}", HrToString(result));
+        std::string resultString = HrToString(result);
+        LOG_ERROR("CreateGraphicsPipelineState failed: {}", resultString);
+        OutputDebugStringA(("CreateGraphicsPipelineState" + resultString + "\n").c_str());
         assert(SUCCEEDED(result));
     };
 
