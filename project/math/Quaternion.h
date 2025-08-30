@@ -24,16 +24,16 @@ struct Quaternion final
     using Vector<4, float>::operator==;
     using Vector<4, float>::operator!=;
 
-    Quaternion() {}
-    Quaternion(const Vector<4, float>& vec) : Vector<4, float>(vec) {}
-    Quaternion(float _x, float _y, float _z, float _w)
+    constexpr Quaternion() : Vector<4, float>() {}
+    constexpr Quaternion(const Vector<4, float>& vec) : Vector<4, float>(vec) {}
+    constexpr Quaternion(float _x, float _y, float _z, float _w)
         : Vector<4, float>(_x, _y, _z, _w) {}
-    Quaternion(const Vec3f& v, float _w)
+    constexpr Quaternion(const Vec3f& v, float _w)
         : Vector<4, float>(v[X], v[Y], v[Z], _w) {}
-    Quaternion(const Quaternion& q)
+    constexpr Quaternion(const Quaternion& q)
         : Vector<4, float>(q[X], q[Y], q[Z], q[W]) {}
 
-    Quaternion operator*(const Quaternion& q2) const {
+    constexpr Quaternion operator*(const Quaternion& q2) const {
         Vec3f v1 = Vec3f(this->v[X], this->v[Y], this->v[Z]);
         Vec3f v2 = Vec3f(q2[X], q2[Y], q2[Z]);
         // 修正: ドット積はv1とv2の間で計算する
@@ -55,7 +55,7 @@ struct Quaternion final
         return this;
     }
 
-    Quaternion operator*(float scalar) const {
+    constexpr Quaternion operator*(float scalar) const {
         return Quaternion(
             v[X] * scalar,
             v[Y] * scalar,
@@ -68,24 +68,24 @@ struct Quaternion final
         return this;
     }
 
-    static Quaternion Identity() {
+    static constexpr Quaternion Identity() {
         return Quaternion(
             0.0f,
             0.0f,
             0.0f,
             1.0f);
     }
-    static Quaternion Inverse(const Quaternion& q);
-    Quaternion inverse() const;
+    static constexpr Quaternion Inverse(const Quaternion& q);
+    constexpr Quaternion inverse() const;
 
-    static Quaternion Conjugation(const Quaternion& q) {
+    static constexpr Quaternion Conjugation(const Quaternion& q) {
         return Quaternion(
             -q[X],
             -q[Y],
             -q[Z],
             q[W]);
     }
-    Quaternion Conjugation() const {
+    constexpr Quaternion Conjugation() const {
         return Quaternion(
             -this->v[X],
             -this->v[Y],
@@ -96,40 +96,123 @@ struct Quaternion final
     static float Norm(const Quaternion& q);
     float norm() const;
 
-    static float NormSq(const Quaternion& q);
-    float normSq() const;
+    static constexpr float NormSq(const Quaternion& q);
+    constexpr float normSq() const;
 
     static Quaternion Normalize(const Quaternion& q);
     Quaternion normalize() const;
 
-    static float Dot(const Quaternion& q0, const Quaternion& v);
-    float dot(const Quaternion& q) const;
-
-    static Quaternion RotateAxisAngle(const Vec3f& axis, float angle);
+    static constexpr float Dot(const Quaternion& q0, const Quaternion& v);
+    constexpr float dot(const Quaternion& q) const;
 
     Vec3f ToEulerAngles() const;
 
     // インライン関数として定義
-    inline static Vec3f RotateVector(const Vec3f& vec, const Quaternion& q) {
-        Quaternion r = Quaternion(vec, 0.0f);
-        r            = q * r * q.Conjugation();
-        return Vec3f(r[X], r[Y], r[Z]);
-    }
-    inline Vec3f RotateVector(const Vec3f& vec) const {
+    static Vec3f RotateVector(const Vec3f& vec, const Quaternion& q);
+    constexpr Vec3f RotateVector(const Vec3f& vec) const {
         Quaternion r = Quaternion(vec, 0.0f);
         r            = *this * r * this->Conjugation();
         return Vec3f(r[X], r[Y], r[Z]);
     }
 
-    static Quaternion FromMatrix(const Matrix4x4& _rotateMat);
-    static Quaternion FromEulerAngles(float pitch, float yaw, float roll);
-    static Quaternion FromEulerAngles(const Vec3f& euler) {
+   inline static constexpr Quaternion RotateAxisAngle(const Vec3f& axis, float angle) {
+        float halfAngle = angle / 2.0f;
+        return Quaternion(
+            axis * sinf(halfAngle),
+            cosf(halfAngle));
+    }
+   inline static constexpr Quaternion FromMatrix(const Matrix4x4& _rotateMat) {
+        float trace = _rotateMat.m[0][0] + _rotateMat.m[1][1] + _rotateMat.m[2][2];
+
+        if (trace > 0.0f) {
+            float s    = std::sqrt(trace + 1.0f) * 2.0f;
+            float invS = 1.0f / s;
+
+            return Quaternion(
+                (_rotateMat.m[2][1] - _rotateMat.m[1][2]) * invS, // x
+                (_rotateMat.m[0][2] - _rotateMat.m[2][0]) * invS, // y
+                (_rotateMat.m[1][0] - _rotateMat.m[0][1]) * invS, // z
+                0.25f * s // w
+            );
+        } else {
+            if (_rotateMat.m[0][0] > _rotateMat.m[1][1] && _rotateMat.m[0][0] > _rotateMat.m[2][2]) {
+                float s    = std::sqrt(1.0f + _rotateMat.m[0][0] - _rotateMat.m[1][1] - _rotateMat.m[2][2]) * 2.0f;
+                float invS = 1.0f / s;
+
+                return Quaternion(
+                    0.25f * s,
+                    (_rotateMat.m[0][1] + _rotateMat.m[1][0]) * invS,
+                    (_rotateMat.m[0][2] + _rotateMat.m[2][0]) * invS,
+                    (_rotateMat.m[2][1] - _rotateMat.m[1][2]) * invS);
+            } else if (_rotateMat.m[1][1] > _rotateMat.m[2][2]) {
+                float s    = std::sqrt(1.0f + _rotateMat.m[1][1] - _rotateMat.m[0][0] - _rotateMat.m[2][2]) * 2.0f;
+                float invS = 1.0f / s;
+
+                return Quaternion(
+                    (_rotateMat.m[0][1] + _rotateMat.m[1][0]) * invS,
+                    0.25f * s,
+                    (_rotateMat.m[1][2] + _rotateMat.m[2][1]) * invS,
+                    (_rotateMat.m[0][2] - _rotateMat.m[2][0]) * invS);
+            } else {
+                float s    = std::sqrt(1.0f + _rotateMat.m[2][2] - _rotateMat.m[0][0] - _rotateMat.m[1][1]) * 2.0f;
+                float invS = 1.0f / s;
+
+                return Quaternion(
+                    (_rotateMat.m[0][2] + _rotateMat.m[2][0]) * invS,
+                    (_rotateMat.m[1][2] + _rotateMat.m[2][1]) * invS,
+                    0.25f * s,
+                    (_rotateMat.m[1][0] - _rotateMat.m[0][1]) * invS);
+            }
+        }
+    }
+   inline static Quaternion FromEulerAngles(float pitch, float yaw, float roll) {
+        // 半分の角度を計算
+        float halfPitch = pitch * 0.5f;
+        float halfYaw   = yaw * 0.5f;
+        float halfRoll  = roll * 0.5f;
+
+        // サインとコサインを計算
+        float sinPitch = sin(halfPitch);
+        float cosPitch = cos(halfPitch);
+        float sinYaw   = sin(halfYaw);
+        float cosYaw   = cos(halfYaw);
+        float sinRoll  = sin(halfRoll);
+        float cosRoll  = cos(halfRoll);
+
+        // クォータニオンを計算
+        Quaternion q;
+        q[X] = cosYaw * sinPitch * cosRoll + sinYaw * cosPitch * sinRoll;
+        q[Y] = sinYaw * cosPitch * cosRoll - cosYaw * sinPitch * sinRoll;
+        q[Z] = cosYaw * cosPitch * sinRoll - sinYaw * sinPitch * cosRoll;
+        q[W] = cosYaw * cosPitch * cosRoll + sinYaw * sinPitch * sinRoll;
+
+        return q;
+    }
+   inline static Quaternion FromEulerAngles(const Vec3f& euler) {
         return FromEulerAngles(euler[Y], euler[X], euler[Z]);
     }
-    static Quaternion LookAt(const Vec3f& _forward, const Vec3f& up);
+   inline static constexpr Quaternion LookAt(const Vec3f& _forward, const Vec3f& up) { // Z軸を向けるべき方向にする
+        Vec3f forward = Vec3f::Normalize(_forward);
+
+        // 右ベクトルを計算（外積）
+        Vec3f right = Vec3f::Normalize(Vec3f::Cross(up, forward));
+
+        // 上ベクトルを再計算
+        Vec3f newUp = Vec3f::Cross(forward, right);
+
+        // 回転行列を作成
+        Matrix4x4 lookAtMatrix = {
+            right[X], newUp[X], forward[X], 0.0f,
+            right[Y], newUp[Y], forward[Y], 0.0f,
+            right[Z], newUp[Z], forward[Z], 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f};
+
+        // 行列からクォータニオンに変換
+        return FromMatrix(lookAtMatrix);
+    };
 };
 
-Quaternion operator*(float scalar, const Quaternion& q);
-Quaternion operator/(float scalar, const Quaternion& q);
+constexpr Quaternion operator*(float scalar, const Quaternion& q);
+constexpr Quaternion operator/(float scalar, const Quaternion& q);
 
 Quaternion Slerp(const Quaternion& q0, const Quaternion& v, float t);

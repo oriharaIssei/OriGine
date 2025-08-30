@@ -30,115 +30,114 @@ struct Vector4;
 
 template <int dimension, typename valueType>
 struct Vector {
-    Vector() {
-        for (int i = 0; i < dimension; i++)
-            v[i] = 0;
+    // デフォルトコンストラクタ
+    constexpr Vector() : v{} {} // ゼロ初期化
+
+    // コピーコンストラクタ
+    constexpr Vector(const Vector& other) {
+        for (int i = 0; i < dimension; i++) {
+            v[i] = other.v[i];
+        }
     }
 
-    Vector(const Vector& other) {
-        for (int i = 0; i < dimension; i++)
-            v[i] = other.v[i];
-    }
+    // 可変長引数コンストラクタ
     template <typename... Args>
-    Vector(Args... args) {
-        // 初期化子と Vector の次元が一致しているかをチェック
-        static_assert(sizeof...(args) == dimension, "The number of arguments must be equal to the dimension of the vector.");
-        valueType argArray[] = {static_cast<valueType>(args)...};
-        for (int i = 0; i < dimension; i++)
-            v[i] = argArray[i];
+    constexpr Vector(Args... args) : v{static_cast<valueType>(args)...} {
+        static_assert(sizeof...(args) == dimension,
+            "The number of arguments must be equal to the dimension of the vector.");
     }
 
 public:
     // メンバ変数
-    static const int dim = dimension;
-    valueType v[dimension];
+    static constexpr int dim = dimension;
+    valueType v[dim];
 
 public:
     // 演算子のオーバーロード
     // accessor
-    valueType& operator[](int index) { return v[index]; }
-    const valueType& operator[](int index) const { return v[index]; }
+    constexpr valueType& operator[](std::size_t i) { return v[i]; }
+    constexpr const valueType& operator[](std::size_t i) const { return v[i]; }
 
     // plus
-    Vector operator+(const Vector& other) const {
+    constexpr Vector operator+(const Vector& other) const {
         Vector result;
-        for (int i = 0; i < dimension; i++) {
+        for (int i = 0; i < dim; i++) {
             result.v[i] = v[i] + other.v[i];
         }
         return result;
     }
     Vector* operator+=(const Vector& other) {
-        for (int i = 0; i < dimension; i++) {
+        for (int i = 0; i < dim; i++) {
             v[i] += other.v[i];
         }
         return this;
     }
     // minus
-    Vector operator-(const Vector& other) const {
+    constexpr Vector operator-(const Vector& other) const {
         Vector result;
-        for (int i = 0; i < dimension; i++) {
+        for (int i = 0; i < dim; i++) {
             result.v[i] = v[i] - other.v[i];
         }
 
         return result;
     }
-    Vector operator-() const {
+    constexpr Vector operator-() const {
         Vector result;
-        for (int i = 0; i < dimension; i++) {
+        for (int i = 0; i < dim; i++) {
             result.v[i] = -v[i];
         }
         return result;
     }
     Vector* operator-=(const Vector& other) {
-        for (int i = 0; i < dimension; i++) {
+        for (int i = 0; i < dim; i++) {
             v[i] -= other.v[i];
         }
         return this;
     }
     // multiply
-    Vector operator*(const valueType& scalar) const {
+    constexpr Vector operator*(const valueType& scalar) const {
         Vector result;
-        for (int i = 0; i < dimension; i++) {
+        for (int i = 0; i < dim; i++) {
             result.v[i] = v[i] * scalar;
         }
         return result;
     }
     Vector* operator*=(const Vector& other) {
-        for (int i = 0; i < dimension; i++) {
+        for (int i = 0; i < dim; i++) {
             v[i] *= other.v[i];
         }
         return this;
     }
     Vector* operator*=(const valueType& scalar) {
-        for (int i = 0; i < dimension; i++) {
+        for (int i = 0; i < dim; i++) {
             v[i] *= scalar;
         }
         return this;
     }
     // divide
-    Vector operator/(const valueType& scalar) const {
+    constexpr Vector operator/(const valueType& scalar) const {
         Vector result;
         if (scalar != 0) {
-            for (int i = 0; i < dimension; i++)
+            for (int i = 0; i < dim; i++)
                 result.v[i] = v[i] / scalar;
         } else {
-            for (int i = 0; i < dimension; i++)
+            for (int i = 0; i < dim; i++)
                 result.v[i] = 0;
         }
         return result;
     }
     Vector* operator/=(const valueType& scalar) {
         if (scalar != 0) {
-            for (int i = 0; i < dimension; i++)
+            for (int i = 0; i < dim; i++)
                 v[i] /= scalar;
         } else {
-            for (int i = 0; i < dimension; i++)
+            for (int i = 0; i < dim; i++)
                 v[i] = 0;
         }
         return this;
     }
     Vector* operator/=(const Vector& other) {
-        for (int i = 0; i < dimension; i++) {
+        for (int i = 0; i < dim; i++) {
             if (other.v[i] != 0) {
                 v[i] /= other.v[i];
             } else {
@@ -149,46 +148,46 @@ public:
     }
 
     // equal
-    bool operator==(const Vector& other) const {
-        for (int i = 0; i < dimension; i++)
+    constexpr bool operator==(const Vector& other) const {
+        for (int i = 0; i < dim; i++)
             if (v[i] != other.v[i])
                 return false;
         return true;
     }
     // not equal
-    bool operator!=(const Vector& other) const {
+    constexpr bool operator!=(const Vector& other) const {
         return !(*this == other);
     }
 
-    bool operator<(const Vector& other) const {
-        for (int i = 0; i < dimension; i++)
+    constexpr bool operator<(const Vector& other) const {
+        for (int i = 0; i < dim; i++)
             if (v[i] >= other.v[i])
                 return false;
         return true;
     }
-    bool operator>(const Vector& other) const {
-        for (int i = 0; i < dimension; i++)
+    constexpr bool operator>(const Vector& other) const {
+        for (int i = 0; i < dim; i++)
             if (v[i] <= other.v[i])
                 return false;
         return true;
     }
 
-    Vector& operator=(const Vector& other) {
-        for (int i = 0; i < dimension; i++)
+    constexpr Vector& operator=(const Vector& other) {
+        for (int i = 0; i < dim; i++)
             v[i] = other.v[i];
         return *this;
     }
 
-    operator Vector2<valueType>() const {
-        static_assert(dimension == 2, "Conversion only available for 2D vectors.");
+    constexpr operator Vector2<valueType>() const {
+        static_assert(dim == 2, "Conversion only available for 2D vectors.");
         return Vector2<valueType>(v[X], v[Y]);
     }
-    operator Vector3<valueType>() const {
-        static_assert(dimension == 3, "Conversion only available for 3D vectors.");
+    constexpr operator Vector3<valueType>() const {
+        static_assert(dim == 3, "Conversion only available for 3D vectors.");
         return Vector3<valueType>(v[X], v[Y], v[Z]);
     }
-    operator Vector4<valueType>() const {
-        static_assert(dimension == 4, "Conversion only available for 4D vectors.");
+    constexpr operator Vector4<valueType>() const {
+        static_assert(dim == 4, "Conversion only available for 4D vectors.");
         return Vector4<valueType>(v[X], v[Y], v[Z], v[W]);
     }
 };
