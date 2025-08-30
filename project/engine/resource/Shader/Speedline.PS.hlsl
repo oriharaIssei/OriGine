@@ -64,7 +64,8 @@ PixelShaderOutput main(VertexShaderOutput input)
     // ================================
     // 3. 合成 アルファブレンド
     // ================================
-    output.color = lerp(sceneColor, float4(radialColor, 1.0), radialAlpha);
+    output.color.rgb = lerp(sceneColor.rgb, radialColor, radialAlpha);
+    output.color.a = 1.f;
 
     return output;
 }
