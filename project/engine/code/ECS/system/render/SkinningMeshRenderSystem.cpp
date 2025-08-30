@@ -302,6 +302,7 @@ void SkinningMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
     auto& commandList = dxCommand_->getCommandList();
 
     Transform* entityTransform_ = getComponent<Transform>(_entity);
+    entityTransform_->Update();
 
     int32_t componentSize =
         (int32_t)getComponents<SkinningAnimationComponent>(_entity)->size();

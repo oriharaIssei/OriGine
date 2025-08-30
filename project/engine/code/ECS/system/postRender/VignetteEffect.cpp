@@ -33,8 +33,10 @@ void VignetteEffect::Update() {
     for (auto& id : entityIDs_) {
         auto* entity = getEntity(id);
         UpdateEntity(entity);
+        Render();
     }
-    Render();
+
+    RenderEnd();
 }
 
 void VignetteEffect::UpdateEntity(GameEntity* _entity) {
@@ -124,6 +126,12 @@ void VignetteEffect::RenderStart() {
     commandList->SetPipelineState(pso_->pipelineState.Get());
     commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+    /// ================================================
+    // SceneView の準備
+    /// ================================================
+    auto* sceneView = this->getScene()->getSceneView();
+    sceneView->PreDraw();
 }
 
 void VignetteEffect::Render() {
@@ -138,4 +146,9 @@ void VignetteEffect::Render() {
     commandList->SetGraphicsRootDescriptorTable(0, sceneView->getBackBufferSrvHandle());
 
     commandList->DrawInstanced(6, 1, 0, 0);
+}
+
+void VignetteEffect::RenderEnd() {
+    auto* sceneView = this->getScene()->getSceneView();
+    sceneView->PostDraw();
 }

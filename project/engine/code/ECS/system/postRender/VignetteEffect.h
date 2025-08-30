@@ -1,6 +1,9 @@
 #pragma once
 #include "system/ISystem.h"
 
+///stl
+#include <memory>
+
 /// engine
 // drecitX12
 #include "directX12/DxCommand.h"
@@ -24,6 +27,7 @@ protected:
 
     void RenderStart();
     void Render();
+    void RenderEnd();
 
 protected:
     PipelineStateObj* pso_                = nullptr;

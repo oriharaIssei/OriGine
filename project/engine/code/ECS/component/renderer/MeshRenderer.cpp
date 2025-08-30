@@ -13,7 +13,6 @@
 #include "editor/IEditor.h"
 #include "engine/EngineInclude.h"
 
-
 #include "myFileSystem/MyFileSystem.h"
 
 #ifdef _DEBUG
@@ -219,7 +218,7 @@ void ModelMeshRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Ga
                 bool ask          = false;
                 std::string label = "Load Texture##" + _parentLabel;
                 ask               = ImGui::Button(label.c_str());
-                ask               = ImGui::ImageButton(
+                ask |= ImGui::ImageButton(
                     ImTextureID(TextureManager::getDescriptorGpuHandle(meshTextureNumbers_[i]).ptr),
                     ImVec2(32, 32), ImVec2(0, 0), ImVec2(1, 1), 4, ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
 
