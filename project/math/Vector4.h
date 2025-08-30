@@ -80,3 +80,10 @@ using Vec4f    = Vector4<float>;
 
 using Vector4d = Vector4<double>;
 using Vec4d    = Vector4<double>;
+
+//=========== Color ===========//
+constexpr Vec4f WHITE = Vec4f(1.f, 1.f, 1.f, 1.f);
+constexpr Vec4f BLACK = Vec4f(0.f, 0.f, 0.f, 1.f);
+constexpr Vec4f RED   = Vec4f(1.f, 0.f, 0.f, 1.f);
+constexpr Vec4f GREEN = Vec4f(0.f, 1.f, 0.f, 1.f);
+constexpr Vec4f BLUE  = Vec4f(0.f, 0.f, 1.f, 1.f);
