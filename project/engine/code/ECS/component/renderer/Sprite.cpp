@@ -4,9 +4,9 @@
 #include <algorithm>
 
 /// engine
-#include "Engine.h"
 #include "editor/EditorController.h"
 #include "editor/IEditor.h"
+#include "Engine.h"
 // directX12Object
 #include "directX12/DxFunctionHelper.h"
 #include <directX12/ShaderCompiler.h>
@@ -59,14 +59,14 @@ void SpriteRenderer::Initialize(GameEntity* _hostEntity) {
     }
 }
 
-void SpriteRenderer::Edit(Scene* /*_scene*/,GameEntity* /*_entity*/,[[maybe_unused]] const std::string& _parentLabel) {
+void SpriteRenderer::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     ImGui::Text("Texture Path : %s", texturePath_.c_str());
     ImGui::SameLine();
 
     auto askLoad = [this]([[maybe_unused]] const std::string& _parentLabel) {
-        bool askLoad = false;
+        bool askLoad      = false;
         std::string label = "LoadTexture##" + _parentLabel;
         askLoad |= ImGui::Button(label.c_str());
         static ImVec2 textureButtonSize = {32.f, 32.f};
@@ -102,17 +102,18 @@ void SpriteRenderer::Edit(Scene* /*_scene*/,GameEntity* /*_entity*/,[[maybe_unus
 
     ImGui::Spacing();
 
+    CheckBoxCommand("isRendering##" + _parentLabel, isRender_);
     ImGui::Text("RenderingPriority");
     DragGuiCommand("##RenderingPriority" + _parentLabel, renderPriority_, 1, 0, 1000, "%d");
 
-    ImGui::Text("TextureSize");
-    DragGuiVectorCommand("##TextureSize" + _parentLabel, textureSize_, 1.0f, 0.0f, 1000.0f);
+    ImGui::Text("AnchorPoint");
+    DragGuiVectorCommand("##AnchorPoint" + _parentLabel, anchorPoint_, 0.01f, -1.0f, 1.0f);
 
     ImGui::Text("TextureLeftTop");
     DragGuiVectorCommand("##TextureLeftTop" + _parentLabel, textureLeftTop_, 1.0f, 0.0f, 1000.0f);
 
-    ImGui::Text("AnchorPoint");
-    DragGuiVectorCommand("##AnchorPoint" + _parentLabel, anchorPoint_, 0.01f, -1.0f, 1.0f);
+    ImGui::Text("TextureSize");
+    DragGuiVectorCommand("##TextureSize" + _parentLabel, textureSize_, 1.0f, 0.0f, 1000.0f);
 
     ImGui::Text("Size");
     DragGuiVectorCommand("##Size" + _parentLabel, size_, 1.0f, 0.0f);
@@ -120,24 +121,13 @@ void SpriteRenderer::Edit(Scene* /*_scene*/,GameEntity* /*_entity*/,[[maybe_unus
     ImGui::Spacing();
 
     ImGui::Text("Flip");
-    CheckBoxCommand("##FlipX" + _parentLabel, isFlipX_);
-    ImGui::SameLine();
-    CheckBoxCommand("##FlipY" + _parentLabel, isFlipY_);
+    CheckBoxCommand("X##flip" + _parentLabel, isFlipX_);
+    CheckBoxCommand("Y##flip" + _parentLabel, isFlipY_);
 
     ImGui::Spacing();
 
     ImGui::Text("Color");
     ColorEditGuiCommand("##Color" + _parentLabel, spriteBuff_->color_);
-
-    if (ImGui::TreeNode("UVTransform")) {
-        ImGui::Text("UVScale");
-        DragGuiVectorCommand("##UVScale" + _parentLabel, spriteBuff_->uvScale_, 0.01f);
-        ImGui::Text("UVRotate");
-        DragGuiCommand("##UVRotate" + _parentLabel, spriteBuff_->uvRotate_, 0.01f);
-        ImGui::Text("UVTranslate");
-        DragGuiVectorCommand("##UVTranslate" + _parentLabel, spriteBuff_->uvTranslate_, 0.01f);
-        ImGui::TreePop();
-    }
 
     if (ImGui::TreeNode("SpriteTransform")) {
 
@@ -147,6 +137,16 @@ void SpriteRenderer::Edit(Scene* /*_scene*/,GameEntity* /*_entity*/,[[maybe_unus
         DragGuiCommand("##Rotate" + _parentLabel, spriteBuff_->rotate_, 0.01f);
         ImGui::Text("Translate");
         DragGuiVectorCommand("##Translate" + _parentLabel, spriteBuff_->translate_, 0.01f);
+        ImGui::TreePop();
+    }
+
+    if (ImGui::TreeNode("UVTransform")) {
+        ImGui::Text("UVScale");
+        DragGuiVectorCommand("##UVScale" + _parentLabel, spriteBuff_->uvScale_, 0.01f);
+        ImGui::Text("UVRotate");
+        DragGuiCommand("##UVRotate" + _parentLabel, spriteBuff_->uvRotate_, 0.01f);
+        ImGui::Text("UVTranslate");
+        DragGuiVectorCommand("##UVTranslate" + _parentLabel, spriteBuff_->uvTranslate_, 0.01f);
         ImGui::TreePop();
     }
 
@@ -215,6 +215,7 @@ void SpriteRenderer::Update(const Matrix4x4& _viewPortMat) {
 
 void to_json(nlohmann::json& j, const SpriteRenderer& r) {
     j = nlohmann::json{
+        {"isRender", r.isRender_},
         {"renderingPriority", r.renderPriority_},
         {"texturePath", r.texturePath_},
         {"textureLeftTop", r.textureLeftTop_},
@@ -233,6 +234,9 @@ void to_json(nlohmann::json& j, const SpriteRenderer& r) {
 }
 
 void from_json(const nlohmann::json& j, SpriteRenderer& r) {
+    if (j.find("isRender") != j.end()) {
+        j.at("isRender").get_to(r.isRender_);
+    }
     j.at("renderingPriority").get_to(r.renderPriority_);
     j.at("texturePath").get_to(r.texturePath_);
     j.at("textureLeftTop").get_to(r.textureLeftTop_);
@@ -240,9 +244,7 @@ void from_json(const nlohmann::json& j, SpriteRenderer& r) {
     j.at("anchorPoint").get_to(r.anchorPoint_);
     j.at("isFlipX").get_to(r.isFlipX_);
     j.at("isFlipY").get_to(r.isFlipY_);
-    if (j.find("color") != j.end()) {
-        j.at("color").get_to(r.spriteBuff_->color_);
-    }
+    j.at("color").get_to(r.spriteBuff_->color_);
     j.at("scale").get_to(r.spriteBuff_->scale_);
     j.at("size").get_to(r.size_);
     j.at("rotate").get_to(r.spriteBuff_->rotate_);

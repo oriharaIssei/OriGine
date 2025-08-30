@@ -223,14 +223,14 @@ public:
     class LoadEntityCommand
         : public IEditCommand {
     public:
-        LoadEntityCommand(HierarchyArea* _parentArea, const std::string& _directory,const std::string& _entityName);
+        LoadEntityCommand(HierarchyArea* _parentArea, const std::string& _directory, const std::string& _entityName);
         ~LoadEntityCommand() override = default;
 
         void Execute() override;
         void Undo() override;
 
     private:
-        std::string directory_ ;
+        std::string directory_;
         HierarchyArea* parentArea_ = nullptr; // 親エリアへのポインタ
         std::string entityName_;
         int32_t entityId_ = -1; // 作成するエンティティの名前
@@ -239,6 +239,7 @@ public:
 private:
     HierarchyArea* parentArea_ = nullptr; // 親エリアへのポインタ
     std::list<int32_t> selectedEntityIds_; // 選択されているオブジェクトのIDリスト
+    std::string searchBuff_ = ""; // 検索バッファ
 public:
     const std::list<int32_t>& getSelectedEntityIds() const {
         return selectedEntityIds_;

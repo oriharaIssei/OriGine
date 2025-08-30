@@ -531,15 +531,15 @@ EntityHierarchy::~EntityHierarchy() {}
 void EntityHierarchy::Initialize() {}
 
 void EntityHierarchy::DrawGui() {
-    ImGui::Text("Entity Hierarchy");
+    ImGui::SeparatorText("Entity Hierarchy");
     auto currentScene = parentArea_->getParentWindow()->getCurrentScene();
     if (!currentScene) {
-        ImGui::Text("No current scene found.");
+        ImGui::SeparatorText("No current scene found.");
         return;
     }
     auto& entityRepository = currentScene->getEntityRepositoryRef()->getEntities();
     if (entityRepository.empty()) {
-        ImGui::Text("No entities in the current scene.");
+        ImGui::SeparatorText("No entities in the current scene.");
         return;
     }
 
@@ -554,13 +554,17 @@ void EntityHierarchy::DrawGui() {
         // 選択されているエンティティを削除
         SceneSerializer serializer(currentScene);
         std::string directory, filename;
-        if (!myfs::selectFileDialog(kApplicationResourceDirectory + "/entities", directory, filename, {"json"}, true)) {
+        if (!myfs::selectFileDialog(kApplicationResourceDirectory + "/entities", directory, filename, {"ent"}, true)) {
             return; // キャンセルされた場合は何もしない
         }
         // ファイルからエンティティを読み込む
         auto command = std::make_unique<LoadEntityCommand>(parentArea_, kApplicationResourceDirectory + "/entities" + directory, filename);
         EditorController::getInstance()->pushCommand(std::move(command));
     }
+
+    ImGui::InputText("Search", &searchBuff_, ImGuiInputTextFlags_EnterReturnsTrue);
+
+    ImGui::SeparatorText("Entities");
 
     // ImGuiのスタイルで選択色を設定（必要に応じてアプリ全体で設定してもOK）
     ImVec4 winSelectColor = ImVec4(0.26f, 0.59f, 0.98f, 1.0f); // Windows風の青
@@ -569,52 +573,107 @@ void EntityHierarchy::DrawGui() {
     ImGui::PushStyleColor(ImGuiCol_HeaderActive, winSelectColor);
 
     // 選択状態のエンティティIDを取得
-    for (const auto& entity : entityRepository) {
-        if (!entity.isAlive()) {
-            continue; // 無効なエンティティはスキップ
-        }
+    if (searchBuff_.empty()) {
+        for (const auto& entity : entityRepository) {
+            if (!entity.isAlive()) {
+                continue; // 無効なエンティティはスキップ
+            }
 
-        int32_t entityId     = entity.getID();
-        std::string uniqueId = entity.getUniqueID();
+            int32_t entityId     = entity.getID();
+            std::string uniqueId = entity.getUniqueID();
 
-        // 選択状態か判定
-        bool isSelected = std::find(selectedEntityIds_.begin(), selectedEntityIds_.end(), entityId) != selectedEntityIds_.end();
+            // 選択状態か判定
+            bool isSelected = std::find(selectedEntityIds_.begin(), selectedEntityIds_.end(), entityId) != selectedEntityIds_.end();
 
-        // Selectableで表示
-        if (ImGui::Selectable(uniqueId.c_str(), isSelected)) {
-            // Shiftキーで複数選択、そうでなければ単一選択
-            if (ImGui::GetIO().KeyShift) {
-                if (!isSelected) {
-                    // まだ選択されていなければ追加
-                    auto command = std::make_unique<AddSelectedEntitiesCommand>(this, entityId);
-                    EditorController::getInstance()->pushCommand(std::move(command));
+            // Selectableで表示
+            if (ImGui::Selectable(uniqueId.c_str(), isSelected)) {
+                // Shiftキーで複数選択、そうでなければ単一選択
+                if (ImGui::GetIO().KeyShift) {
+                    if (!isSelected) {
+                        // まだ選択されていなければ追加
+                        auto command = std::make_unique<AddSelectedEntitiesCommand>(this, entityId);
+                        EditorController::getInstance()->pushCommand(std::move(command));
+                    } else {
+                        // すでに選択されていれば解除
+                        auto command = std::make_unique<RemoveSelectedEntitiesCommand>(this, entityId);
+                        EditorController::getInstance()->pushCommand(std::move(command));
+                    }
                 } else {
-                    // すでに選択されていれば解除
-                    auto command = std::make_unique<RemoveSelectedEntitiesCommand>(this, entityId);
-                    EditorController::getInstance()->pushCommand(std::move(command));
-                }
-            } else {
-                // Shiftキーが押されていない場合は選択をクリアしてから追加
-                auto clearCommand = std::make_unique<ClearSelectedEntitiesCommand>(this);
-                EditorController::getInstance()->pushCommand(std::move(clearCommand));
-                auto addCommand = std::make_unique<AddSelectedEntitiesCommand>(this, entityId);
-                EditorController::getInstance()->pushCommand(std::move(addCommand));
+                    // Shiftキーが押されていない場合は選択をクリアしてから追加
+                    auto clearCommand = std::make_unique<ClearSelectedEntitiesCommand>(this);
+                    EditorController::getInstance()->pushCommand(std::move(clearCommand));
+                    auto addCommand = std::make_unique<AddSelectedEntitiesCommand>(this, entityId);
+                    EditorController::getInstance()->pushCommand(std::move(addCommand));
 
-                auto& parentWindowHasAreas  = parentArea_->getParentWindow()->getAreas();
-                auto entityInspectorAreaItr = parentWindowHasAreas.find("EntityInspectorArea");
-                if (entityInspectorAreaItr == parentWindowHasAreas.end()) {
-                    LOG_ERROR("EntityInspectorArea not found in parent window.");
-                    ImGui::PopStyleColor(3);
-                    return;
+                    auto& parentWindowHasAreas  = parentArea_->getParentWindow()->getAreas();
+                    auto entityInspectorAreaItr = parentWindowHasAreas.find("EntityInspectorArea");
+                    if (entityInspectorAreaItr == parentWindowHasAreas.end()) {
+                        LOG_ERROR("EntityInspectorArea not found in parent window.");
+                        ImGui::PopStyleColor(3);
+                        return;
+                    }
+                    auto entityInspectorArea = dynamic_cast<EntityInspectorArea*>(entityInspectorAreaItr->second.get());
+                    if (!entityInspectorArea) {
+                        LOG_ERROR("EntityInspectorArea not found in parent window.");
+                        ImGui::PopStyleColor(3);
+                        return;
+                    }
+                    auto changedEditEntity = std::make_unique<EntityInspectorArea::ChangeEditEntityCommand>(entityInspectorArea, entityId, entityInspectorArea->getEditEntityId());
+                    EditorController::getInstance()->pushCommand(std::move(changedEditEntity));
                 }
-                auto entityInspectorArea = dynamic_cast<EntityInspectorArea*>(entityInspectorAreaItr->second.get());
-                if (!entityInspectorArea) {
-                    LOG_ERROR("EntityInspectorArea not found in parent window.");
-                    ImGui::PopStyleColor(3);
-                    return;
+            }
+        }
+    } else {
+        for (const auto& entity : entityRepository) {
+            if (!entity.isAlive()) {
+                continue; // 無効なエンティティはスキップ
+            }
+            if (entity.getUniqueID().find(searchBuff_) == std::string::npos) {
+                continue; // 検索文字列にマッチしないエンティティはスキップ
+            }
+
+            int32_t entityId     = entity.getID();
+            std::string uniqueId = entity.getUniqueID();
+
+            // 選択状態か判定
+            bool isSelected = std::find(selectedEntityIds_.begin(), selectedEntityIds_.end(), entityId) != selectedEntityIds_.end();
+
+            // Selectableで表示
+            if (ImGui::Selectable(uniqueId.c_str(), isSelected)) {
+                // Shiftキーで複数選択、そうでなければ単一選択
+                if (ImGui::GetIO().KeyShift) {
+                    if (!isSelected) {
+                        // まだ選択されていなければ追加
+                        auto command = std::make_unique<AddSelectedEntitiesCommand>(this, entityId);
+                        EditorController::getInstance()->pushCommand(std::move(command));
+                    } else {
+                        // すでに選択されていれば解除
+                        auto command = std::make_unique<RemoveSelectedEntitiesCommand>(this, entityId);
+                        EditorController::getInstance()->pushCommand(std::move(command));
+                    }
+                } else {
+                    // Shiftキーが押されていない場合は選択をクリアしてから追加
+                    auto clearCommand = std::make_unique<ClearSelectedEntitiesCommand>(this);
+                    EditorController::getInstance()->pushCommand(std::move(clearCommand));
+                    auto addCommand = std::make_unique<AddSelectedEntitiesCommand>(this, entityId);
+                    EditorController::getInstance()->pushCommand(std::move(addCommand));
+
+                    auto& parentWindowHasAreas  = parentArea_->getParentWindow()->getAreas();
+                    auto entityInspectorAreaItr = parentWindowHasAreas.find("EntityInspectorArea");
+                    if (entityInspectorAreaItr == parentWindowHasAreas.end()) {
+                        LOG_ERROR("EntityInspectorArea not found in parent window.");
+                        ImGui::PopStyleColor(3);
+                        return;
+                    }
+                    auto entityInspectorArea = dynamic_cast<EntityInspectorArea*>(entityInspectorAreaItr->second.get());
+                    if (!entityInspectorArea) {
+                        LOG_ERROR("EntityInspectorArea not found in parent window.");
+                        ImGui::PopStyleColor(3);
+                        return;
+                    }
+                    auto changedEditEntity = std::make_unique<EntityInspectorArea::ChangeEditEntityCommand>(entityInspectorArea, entityId, entityInspectorArea->getEditEntityId());
+                    EditorController::getInstance()->pushCommand(std::move(changedEditEntity));
                 }
-                auto changedEditEntity = std::make_unique<EntityInspectorArea::ChangeEditEntityCommand>(entityInspectorArea, entityId, entityInspectorArea->getEditEntityId());
-                EditorController::getInstance()->pushCommand(std::move(changedEditEntity));
             }
         }
     }
