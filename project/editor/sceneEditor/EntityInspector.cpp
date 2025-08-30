@@ -69,7 +69,7 @@ void EntityInformationRegion::DrawGui() {
     ImGui::Text("Entity ID  : %d", editEntityId);
     {
         std::string label = "EntityName##" + std::to_string(editEntityId);
-        ImGui::InputText(label.c_str(), &parentArea_->getEditEntityNameRef()[0], sizeof(char) * 256);
+        ImGui::InputText(label.c_str(), &parentArea_->getEditEntityNameRef());
 
         if (ImGui::IsItemDeactivatedAfterEdit()) {
             auto command = std::make_unique<ChangeEntityName>(parentArea_, editEntityId, parentArea_->getEditEntityName());
@@ -89,7 +89,7 @@ void EntityInformationRegion::DrawGui() {
 
     bool shouldSave = editEntity->shouldSave();
     if (ImGui::Checkbox("Should Save", &shouldSave)) {
-        auto command = std::make_unique<ChangeEntityShouldSave>(parentArea_, editEntityId, shouldSave);
+        auto command = std::make_unique<ChangeEntityShouldSave>(parentArea_, editEntityId, !shouldSave/*変更前に戻す*/);
         EditorController::getInstance()->pushCommand(std::move(command));
     }
 }
