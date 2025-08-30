@@ -271,6 +271,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\ECS\component\SubScene.h" />
     <ClInclude Include="engine\code\ECS\system\movement\SubSceneUpdate.h" />
     <ClInclude Include="engine\code\ECS\system\postRender\SubSceneRender.h" />
+    <ClInclude Include="engine\code\ECS\component\effect\post\SpeedlineEffectParam.h" />
+    <ClInclude Include="engine\code\ECS\system\postRender\SpeedlineEffect.h" />
     <ClInclude Include="util\BitArray.h" />
     <ClInclude Include="util\ConvertString.h" />
     <ClInclude Include="util\DiffValue.h" />
@@ -395,6 +397,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\ECS\component\SubScene.cpp" />
     <ClCompile Include="engine\code\ECS\system\movement\SubSceneUpdate.cpp" />
     <ClCompile Include="engine\code\ECS\system\postRender\SubSceneRender.cpp" />
+    <ClCompile Include="engine\code\ECS\component\effect\post\SpeedlineEffectParam.cpp" />
+    <ClCompile Include="engine\code\ECS\system\postRender\SpeedlineEffect.cpp" />
     <ClCompile Include="util\ConvertString.cpp" />
     <ClCompile Include="util\NormalizeString.cpp" />
     <ClCompile Include="util\binaryIO\BinaryIO.cpp" />
