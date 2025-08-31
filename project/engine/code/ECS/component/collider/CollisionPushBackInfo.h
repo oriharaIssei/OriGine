@@ -11,6 +11,7 @@ enum class CollisionPushBackType {
     None     = 0,
     PushBack = 1, // 衝突時に押し戻す
     Reflect  = 2, // 衝突時に反射する
+    Ghost    = 3, // 衝突を無視する (貫通する)
 
     Count
 };
@@ -25,7 +26,7 @@ public:
     void Initialize(GameEntity* /*_hostEntity*/) override {}
     void Finalize() override;
 
-    void Edit(Scene* _scene,GameEntity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
 
     void ClearInfo();
 

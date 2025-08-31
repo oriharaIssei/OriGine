@@ -52,8 +52,12 @@ bool CheckCollisionPair(
         return false;
     }
 
-    bool aIsPushBack = _aInfo && _aInfo->getPushBackType() != CollisionPushBackType::None;
-    bool bIsPushBack = _bInfo && _bInfo->getPushBackType() != CollisionPushBackType::None;
+    if (!_aInfo || !_bInfo) {
+        return true;
+    }
+
+    bool aIsPushBack = _bInfo->getPushBackType() != CollisionPushBackType::None;
+    bool bIsPushBack = _aInfo->getPushBackType() != CollisionPushBackType::None;
 
     if (!aIsPushBack && !bIsPushBack) {
         return true; // 衝突情報がない場合は何もしない
@@ -64,20 +68,17 @@ bool CheckCollisionPair(
     Vec3f collNormal      = distance.normalize();
     float overlapDistance = (_shapeA.radius_ + _shapeB.radius_) - distance.length();
 
-    if (aIsPushBack) {
-        // 衝突時の処理
-        CollisionPushBackInfo::Info info;
-        info.collVec   = collNormal * overlapDistance * overlapRate;
-        info.collPoint = _shapeA.center_ + info.collVec.normalize() * _shapeA.radius_;
-        _aInfo->AddCollisionInfo(_entityB->getID(), info);
-    }
-    if (bIsPushBack) {
-        // 衝突時の処理
-        CollisionPushBackInfo::Info info;
-        info.collVec   = -collNormal * overlapDistance * overlapRate;
-        info.collPoint = _shapeB.center_ + info.collVec.normalize() * _shapeB.radius_;
-        _bInfo->AddCollisionInfo(_entityA->getID(), info);
-    }
+    // 衝突時の処理
+    CollisionPushBackInfo::Info aInfo;
+    aInfo.collVec   = collNormal * overlapDistance * overlapRate;
+    aInfo.collPoint = _shapeA.center_ + aInfo.collVec.normalize() * _shapeA.radius_;
+    _aInfo->AddCollisionInfo(_entityB->getID(), aInfo);
+
+    // 衝突時の処理
+    CollisionPushBackInfo::Info bInfo;
+    bInfo.collVec   = -collNormal * overlapDistance * overlapRate;
+    bInfo.collPoint = _shapeB.center_ + bInfo.collVec.normalize() * _shapeB.radius_;
+    _bInfo->AddCollisionInfo(_entityA->getID(), bInfo);
 
     return true;
 }
@@ -113,45 +114,41 @@ bool CheckCollisionPair(
         return false;
     }
 
-    bool aabbIsPushBack   = _aabbInfo && _aabbInfo->getPushBackType() != CollisionPushBackType::None;
-    bool sphereIsPushBack = _sphereInfo && _sphereInfo->getPushBackType() != CollisionPushBackType::None;
-
-    if (!aabbIsPushBack && !sphereIsPushBack) {
-        return true; // 衝突情報がない場合は何もしない
+    if (!_aabbInfo || !_sphereInfo) {
+        return true;
     }
+
+    bool aabbIsPushBack   = _sphereInfo && _sphereInfo->getPushBackType() != CollisionPushBackType::None;
+    bool sphereIsPushBack = _aabbInfo && _aabbInfo->getPushBackType() != CollisionPushBackType::None;
 
     float overlapRate = 1.f / (float(aabbIsPushBack) + float(sphereIsPushBack));
 
-    if (aabbIsPushBack) {
-        // 衝突時の処理
-        CollisionPushBackInfo::Info info;
-        info.collPoint = _sphere.center_ + closest.normalize() * _sphere.radius_;
-        info.collVec   = (distance.normalize() * (_sphere.radius_ - distance.length())) * overlapRate;
+    // 衝突時の処理
+    CollisionPushBackInfo::Info aInfo;
+    aInfo.collPoint = _sphere.center_ + closest.normalize() * _sphere.radius_;
+    aInfo.collVec   = (distance.normalize() * (_sphere.radius_ - distance.length())) * overlapRate;
 
-        _aabbInfo->AddCollisionInfo(_sphereEntity->getID(), info);
+    _aabbInfo->AddCollisionInfo(_sphereEntity->getID(), aInfo);
+
+    Vec3f normal(0, 0, 0);
+    Vec3f diff = _sphere.center_ - closest;
+    float absX = std::abs(diff[X]);
+    float absY = std::abs(diff[Y]);
+    float absZ = std::abs(diff[Z]);
+
+    if (absX >= absY && absX >= absZ) {
+        normal[X] = (diff[X] > 0) ? 1.0f : -1.0f;
+    } else if (absY >= absX && absY >= absZ) {
+        normal[Y] = (diff[Y] > 0) ? 1.0f : -1.0f;
+    } else {
+        normal[Z] = (diff[Z] > 0) ? 1.0f : -1.0f;
     }
 
-    if (sphereIsPushBack) {
-        Vec3f normal(0, 0, 0);
-        Vec3f diff = _sphere.center_ - closest;
-        float absX = std::abs(diff[X]);
-        float absY = std::abs(diff[Y]);
-        float absZ = std::abs(diff[Z]);
+    CollisionPushBackInfo::Info bInfo;
+    bInfo.collPoint = closest;
+    bInfo.collVec   = normal * ((_sphere.radius_ - distance.length() * overlapRate));
 
-        if (absX >= absY && absX >= absZ) {
-            normal[X] = (diff[X] > 0) ? 1.0f : -1.0f;
-        } else if (absY >= absX && absY >= absZ) {
-            normal[Y] = (diff[Y] > 0) ? 1.0f : -1.0f;
-        } else {
-            normal[Z] = (diff[Z] > 0) ? 1.0f : -1.0f;
-        }
-
-        CollisionPushBackInfo::Info info;
-        info.collPoint = closest;
-        info.collVec   = normal * ((_sphere.radius_ - distance.length() * overlapRate));
-
-        _sphereInfo->AddCollisionInfo(_aabbEntity->getID(), info);
-    }
+    _sphereInfo->AddCollisionInfo(_aabbEntity->getID(), bInfo);
 
     return true;
 };
@@ -240,18 +237,26 @@ bool CheckCollisionPair(
     Vec3f worldCollPoint = obbCenter + (localCollPoint * rotMat);
 
     // --- PushBack 情報を登録 ---
-    if (_aInfo) {
-        CollisionPushBackInfo::Info info;
-        info.collVec   = worldCollVec;
-        info.collPoint = worldCollPoint;
-        _aInfo->AddCollisionInfo(_entityB->getID(), info);
+    if (!_aInfo || !_bInfo) {
+        return true;
     }
-    if (_bInfo) {
-        CollisionPushBackInfo::Info info;
-        info.collVec   = -worldCollVec;
-        info.collPoint = worldCollPoint;
-        _bInfo->AddCollisionInfo(_entityA->getID(), info);
-    }
+    bool aIsPushBack = _aInfo->getPushBackType() != CollisionPushBackType::None;
+    bool bIsPushBack = _bInfo->getPushBackType() != CollisionPushBackType::None;
+
+    float overlapRate = 1.f / (float(aIsPushBack) + float(bIsPushBack));
+
+    Vec3f direction = worldCollVec.normalize();
+    float length    = worldCollVec.length();
+
+    CollisionPushBackInfo::Info aInfo;
+    aInfo.collVec   = direction * (length * overlapRate);
+    aInfo.collPoint = worldCollPoint;
+    _aInfo->AddCollisionInfo(_entityB->getID(), aInfo);
+
+    CollisionPushBackInfo::Info bInfo;
+    bInfo.collVec   = direction * -(length * overlapRate);
+    bInfo.collPoint = worldCollPoint;
+    _bInfo->AddCollisionInfo(_entityA->getID(), bInfo);
 
     return true;
 };
@@ -302,10 +307,7 @@ bool CheckCollisionPair(
         return false;
     }
 
-    bool aIsPushBack = _aInfo && _aInfo->getPushBackType() != CollisionPushBackType::None;
-    bool bIsPushBack = _bInfo && _bInfo->getPushBackType() != CollisionPushBackType::None;
-
-    if (!aIsPushBack && !bIsPushBack) {
+    if (!_aInfo || !_bInfo) {
         return true; // 衝突情報がない場合は何もしない
     }
 
@@ -336,6 +338,9 @@ bool CheckCollisionPair(
         axis       = Z;
     }
 
+    bool aIsPushBack = _aInfo->getPushBackType() != CollisionPushBackType::None;
+    bool bIsPushBack = _bInfo->getPushBackType() != CollisionPushBackType::None;
+
     float overlapRate = 1.f / (float(aIsPushBack) + float(bIsPushBack));
 
     Vec3f aHalfSize = (_shapeA.max_ - _shapeA.min_) * 0.5f;
@@ -356,26 +361,22 @@ bool CheckCollisionPair(
         overlapMinY + (overlapMaxY - overlapMinY) * overlapRate,
         overlapMinZ + (overlapMaxZ - overlapMinZ) * overlapRate};
 
-    if (aIsPushBack) {
-        // 衝突時の処理
-        CollisionPushBackInfo::Info info;
-        info.collVec       = Vec3f(0, 0, 0);
-        info.collVec[axis] = (minOverlap * overlapRate) * dir;
+    // 衝突時の処理
+    CollisionPushBackInfo::Info ainfo;
+    ainfo.collVec       = Vec3f(0, 0, 0);
+    ainfo.collVec[axis] = (minOverlap * overlapRate) * dir;
 
-        info.collPoint = collPoint;
+    ainfo.collPoint = collPoint;
 
-        _aInfo->AddCollisionInfo(_entityB->getID(), info);
-    }
+    _aInfo->AddCollisionInfo(_entityB->getID(), ainfo);
 
-    if (bIsPushBack) {
-        CollisionPushBackInfo::Info info;
-        info.collVec       = Vec3f(0, 0, 0);
-        info.collVec[axis] = (minOverlap * overlapRate) * -dir;
+    CollisionPushBackInfo::Info bInfo;
+    bInfo.collVec       = Vec3f(0, 0, 0);
+    bInfo.collVec[axis] = (minOverlap * overlapRate) * -dir;
 
-        info.collPoint = collPoint;
+    bInfo.collPoint = collPoint;
 
-        _bInfo->AddCollisionInfo(_entityA->getID(), info);
-    }
+    _bInfo->AddCollisionInfo(_entityA->getID(), bInfo);
 
     return true;
 }
@@ -475,7 +476,7 @@ bool CheckCollisionPair(
 
     // 法線の向きを補正
     Vec3f collNormal = minAxis;
-    if (Vec3f(pB - pA).dot(collNormal) < 0){
+    if (Vec3f(pB - pA).dot(collNormal) < 0) {
         collNormal = -collNormal;
     }
 
@@ -489,25 +490,23 @@ bool CheckCollisionPair(
     Vec3f collVec = collNormal * penetration;
 
     // === PushBack 情報 ===
-    bool aIsPushBack = _aInfo && _aInfo->getPushBackType() != CollisionPushBackType::None;
-    bool bIsPushBack = _bInfo && _bInfo->getPushBackType() != CollisionPushBackType::None;
-    if (!aIsPushBack && !bIsPushBack)
+    if (!_aInfo || !_bInfo) {
         return true;
+    }
+    bool aIsPushBack = _aInfo->getPushBackType() != CollisionPushBackType::None;
+    bool bIsPushBack = _bInfo->getPushBackType() != CollisionPushBackType::None;
 
     float overlapRate = 1.f / (float(aIsPushBack) + float(bIsPushBack));
 
-    if (aIsPushBack) {
-        CollisionPushBackInfo::Info info;
-        info.collVec   = -collVec * overlapRate;
-        info.collPoint = collPoint;
-        _aInfo->AddCollisionInfo(_entityB->getID(), info);
-    }
-    if (bIsPushBack) {
-        CollisionPushBackInfo::Info info;
-        info.collVec   = collVec * overlapRate;
-        info.collPoint = collPoint;
-        _bInfo->AddCollisionInfo(_entityA->getID(), info);
-    }
+    CollisionPushBackInfo::Info ainfo;
+    ainfo.collVec   = -collVec * overlapRate;
+    ainfo.collPoint = collPoint;
+    _aInfo->AddCollisionInfo(_entityB->getID(), ainfo);
+
+    CollisionPushBackInfo::Info binfo;
+    binfo.collVec   = collVec * overlapRate;
+    binfo.collPoint = collPoint;
+    _bInfo->AddCollisionInfo(_entityA->getID(), binfo);
 
     return true;
 }

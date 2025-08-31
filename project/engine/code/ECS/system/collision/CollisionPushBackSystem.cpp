@@ -5,8 +5,6 @@
 #include "component/physics/Rigidbody.h"
 #include "component/transform/Transform.h"
 
-
-
 #include "logger/Logger.h"
 
 void CollisionPushBackSystem::Initialize() {
@@ -23,20 +21,16 @@ void CollisionPushBackSystem::UpdateEntity(GameEntity* _entity) {
         LOG_ERROR("CollisionPushBackSystem: Entity {} has no Transform or CollisionPushBackInfo component.", _entity->getID());
         return;
     }
-    if (collPushbackInfo->getPushBackType() == CollisionPushBackType::None) {
-        return;
-    }
 
     // PushBack処理
     for (auto& [entityID, info] : collPushbackInfo->getCollisionInfoMap()) {
-        switch (collPushbackInfo->getPushBackType()) {
+        GameEntity* otherEntity                      = getEntity(entityID);
+        CollisionPushBackInfo* otherCollPushbackInfo = getComponent<CollisionPushBackInfo>(otherEntity);
+
+        switch (otherCollPushbackInfo->getPushBackType()) {
         case CollisionPushBackType::PushBack: {
             // ここでは単純に法線方向に押し戻す
             transform->translate += info.collVec;
-
-            // Rigidbody* rigidbody = getComponent<Rigidbody>(_entity);
-            // rigidbody->setVelocity({0.0f, 0.0f, 0.0f});
-            // rigidbody->setAcceleration({0.0f, 0.0f, 0.0f});
 
             break;
         }
