@@ -243,7 +243,7 @@ void SceneSerializer::DeserializeFromJson() {
     ifs >> jsonData;
     ifs.close();
 
-    auto& systemRunner        = targetScene_->systemRunner_;
+    auto& systemRunner = targetScene_->systemRunner_;
 
     /// =====================================================
     // System
@@ -273,8 +273,6 @@ void SceneSerializer::DeserializeFromJson() {
     for (auto& entityData : jsonData["Entities"]) {
         EntityFromJson(entityData);
     }
-
-    systemRunner->InitializeActiveSystems();
 }
 
 void SceneSerializer::SaveEntity(int32_t _entityID, const std::string& _directory) {

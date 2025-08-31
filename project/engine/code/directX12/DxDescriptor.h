@@ -31,9 +31,11 @@ struct DxDescriptor {
     static constexpr DxDescriptorHeapType HeapType = Type;
 
     DxDescriptor(
+        uint32_t _index,
         Microsoft::WRL::ComPtr<ID3D12Resource> _resource = nullptr,
         D3D12_CPU_DESCRIPTOR_HANDLE _cpuHandle           = 0,
-        D3D12_GPU_DESCRIPTOR_HANDLE _gpuHandle           = 0) : resource_(_resource),
+        D3D12_GPU_DESCRIPTOR_HANDLE _gpuHandle           = 0) : index_(_index),
+                                                      resource_(_resource),
                                                       cpuHandle(_cpuHandle),
                                                       gpuHandle(_gpuHandle) {}
     ~DxDescriptor() {}
@@ -42,10 +44,13 @@ protected:
     D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle            = 0; // CPU側のハンドル
     D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle            = 0; // GPU側のハンドル
     Microsoft::WRL::ComPtr<ID3D12Resource> resource_ = nullptr; // リソースへの参照
+    uint32_t index_                                  = 0; // ヒープ内のインデックス
 public:
     D3D12_CPU_DESCRIPTOR_HANDLE getCpuHandle() const { return cpuHandle; }
     D3D12_GPU_DESCRIPTOR_HANDLE getGpuHandle() const { return gpuHandle; }
     Microsoft::WRL::ComPtr<ID3D12Resource> getResource() const { return resource_; }
+
+    uint32_t getIndex() const { return index_; }
 
     void setCpuHandle(D3D12_CPU_DESCRIPTOR_HANDLE handle) { cpuHandle = handle; }
     void setGpuHandle(D3D12_GPU_DESCRIPTOR_HANDLE handle) { gpuHandle = handle; }
@@ -122,14 +127,13 @@ public:
         return descriptor;
     }
 
-    void ReleaseDescriptor(std::shared_ptr<DescriptorType> _descriptor) {
+    void ReleaseDescriptor(std::shared_ptr<DescriptorType>& _descriptor) {
         if (!_descriptor) {
             LOG_ERROR("DxDescriptorHeap::ReleaseDescriptor: Descriptor is null");
             return;
         }
 
-        uint32_t index = static_cast<uint32_t>((_descriptor->getCpuHandle().ptr - heap_->GetCPUDescriptorHandleForHeapStart().ptr) / descriptorIncrementSize_);
-
+        uint32_t index = _descriptor->getIndex();
         usedFlags_.set(index, false); // 使用中フラグをクリア
         descriptors_[index].reset();
         descriptors_[index] = nullptr; // ヒープから削除
@@ -257,10 +261,14 @@ DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>::CreateDescriptor(const D3D1
     D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = CalculateCpuHandle(index);
     D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = CalculateGpuHandle(index);
     device_->CreateShaderResourceView(_resource->getResource().Get(), &_desc, cpuHandle);
-    auto descriptor = std::make_shared<DescriptorType>(_resource->getResource(), cpuHandle, gpuHandle);
+
+    auto descriptor = std::make_shared<DescriptorType>(index, _resource->getResource(), cpuHandle, gpuHandle);
     _resource->addType(DxResourceType::Descriptor_SRV); // リソースタイプを追加
+
     descriptors_[index] = descriptor; // ヒープに追加
+
     usedFlags_.set(index, true);
+
     return descriptor;
 }
 
@@ -276,7 +284,7 @@ DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>::CreateDescriptor(const D3D1
     D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = CalculateCpuHandle(index);
     D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = CalculateGpuHandle(index);
     device_->CreateUnorderedAccessView(_resource->getResource().Get(), nullptr, &_desc, cpuHandle);
-    auto descriptor = std::make_shared<DescriptorType>(_resource->getResource(), cpuHandle, gpuHandle);
+    auto descriptor = std::make_shared<DescriptorType>(index, _resource->getResource(), cpuHandle, gpuHandle);
     _resource->addType(DxResourceType::Descriptor_UAV); // リソースタイプを追加
     descriptors_[index] = descriptor; // ヒープに追加
     usedFlags_.set(index, true);
@@ -296,7 +304,7 @@ DxDescriptorHeap<DxDescriptorHeapType::RTV>::CreateDescriptor(const D3D12_RENDER
     // D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = CalculateGpuHandle(index);
 
     device_->CreateRenderTargetView(_resource->getResource().Get(), &_desc, cpuHandle);
-    auto descriptor = std::make_shared<DescriptorType>(_resource->getResource(), cpuHandle, D3D12_GPU_DESCRIPTOR_HANDLE());
+    auto descriptor = std::make_shared<DescriptorType>(index, _resource->getResource(), cpuHandle, D3D12_GPU_DESCRIPTOR_HANDLE());
     _resource->addType(DxResourceType::Descriptor_RTV); // リソースタイプを追加
     descriptors_[index] = descriptor; // ヒープに追加
     usedFlags_.set(index, true);
@@ -315,7 +323,7 @@ DxDescriptorHeap<DxDescriptorHeapType::DSV>::CreateDescriptor(const D3D12_DEPTH_
     D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = CalculateCpuHandle(index);
     // D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = CalculateGpuHandle(index);
     device_->CreateDepthStencilView(_resource->getResource().Get(), &_desc, cpuHandle);
-    auto descriptor = std::make_shared<DescriptorType>(_resource->getResource(), cpuHandle, D3D12_GPU_DESCRIPTOR_HANDLE());
+    auto descriptor = std::make_shared<DescriptorType>(index, _resource->getResource(), cpuHandle, D3D12_GPU_DESCRIPTOR_HANDLE());
     _resource->addType(DxResourceType::Descriptor_DSV); // リソースタイプを追加
     descriptors_[index] = descriptor; // ヒープに追加
     usedFlags_.set(index, true);
@@ -330,7 +338,7 @@ DxDescriptorHeap<DxDescriptorHeapType::Sampler>::CreateDescriptor(const D3D12_SA
     D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = CalculateCpuHandle(index);
     D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = CalculateGpuHandle(index);
     device_->CreateSampler(&_desc, cpuHandle);
-    auto descriptor     = std::make_shared<DescriptorType>(nullptr, cpuHandle, gpuHandle);
+    auto descriptor     = std::make_shared<DescriptorType>(index, nullptr, cpuHandle, gpuHandle);
     descriptors_[index] = descriptor; // ヒープに追加
     usedFlags_.set(index, true);
     return descriptor;

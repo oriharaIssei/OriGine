@@ -27,8 +27,8 @@ void DistortionEffect::Initialize() {
     }
 
     distortionSceneTexture_ = std::make_unique<RenderTexture>(dxCommand_.get());
-    distortionSceneTexture_->setTextureName("DistortionSceneTexture");
     distortionSceneTexture_->Initialize(2, Engine::getInstance()->getWinApp()->getWindowSize(), DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, Vec4f(0.0f, 0.0f, 0.0f, 0.0f));
+    distortionSceneTexture_->setTextureName("DistortionSceneTexture");
 
     CreatePSO();
 
@@ -66,6 +66,7 @@ void DistortionEffect::Finalize() {
     texturedMeshRenderSystem_->Finalize();
 
     distortionSceneTexture_->Finalize();
+    distortionSceneTexture_.reset();
 }
 
 void DistortionEffect::UpdateEntity(GameEntity* _entity) {

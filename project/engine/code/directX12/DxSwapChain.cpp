@@ -11,7 +11,6 @@
 #include "directX12/DxDevice.h"
 #include "directX12/DxFunctionHelper.h"
 
-
 #include "logger/Logger.h"
 #include "util/ConvertString.h"
 

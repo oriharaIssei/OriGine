@@ -194,11 +194,16 @@ void RenderTexture::Resize(const Vec2f& textureSize) {
 }
 
 void RenderTexture::Finalize() {
+    auto srvHeap = Engine::getInstance()->getSrvHeap();
+    auto rtvHeap = Engine::getInstance()->getRtvHeap();
     for (auto& renderTarget : renderTargets_) {
         renderTarget.resource_.Finalize();
 
-        Engine::getInstance()->getRtvHeap()->ReleaseDescriptor(renderTarget.rtv_);
-        Engine::getInstance()->getSrvHeap()->ReleaseDescriptor(renderTarget.srv_);
+        rtvHeap->ReleaseDescriptor(renderTarget.rtv_);
+        srvHeap->ReleaseDescriptor(renderTarget.srv_);
+
+        renderTarget.rtv_.reset();
+        renderTarget.srv_.reset();
     }
 
     dxCommand_->Finalize();

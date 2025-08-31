@@ -270,6 +270,7 @@ void SystemRunner::unregisterSystem(const std::string& _systemName) {
     if (itr->second) {
         itr->second->setScene(nullptr);
         itr->second->setIsActive(false);
+        itr->second->Finalize();
     }
 
     DeactivateSystem(_systemName);
@@ -282,7 +283,8 @@ void SystemRunner::ActivateSystem(const std::string& _systemName) {
         return;
     }
 
-    ISystem* system      = itr->second.get();
+    ISystem* system = itr->second.get();
+
     size_t categoryIndex = static_cast<size_t>(system->getCategory());
     auto& activeSystems  = activeSystems_[categoryIndex];
     if (std::find(activeSystems.begin(), activeSystems.end(), system) != activeSystems.end()) {
