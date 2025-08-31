@@ -149,16 +149,19 @@ void SpriteAnimation::UpdateSpriteAnimation(float _deltaTime, SpriteRenderer* _s
         if (colorAnimationState_.isLoop_) {
             currentTime_ = 0.0f;
         } else {
-            colorAnimationState_.isEnd_ = true;
+            colorAnimationState_.isPlay_ = false;
+            colorAnimationState_.isEnd_  = true;
         }
         if (transformAnimationState_.isLoop_) {
             currentTime_ = 0.0f;
         } else {
+            transformAnimationState_.isPlay_ = false;
             transformAnimationState_.isEnd_ = true;
         }
         if (uvAnimationState_.isLoop_) {
             currentTime_ = 0.0f;
         } else {
+            uvAnimationState_.isPlay_ = false;
             uvAnimationState_.isEnd_ = true;
         }
     }
@@ -234,6 +237,27 @@ void SpriteAnimation::Stop() {
     transformAnimationState_.isPlay_ = false;
     uvAnimationState_.isEnd_         = true;
     uvAnimationState_.isPlay_        = false;
+}
+
+void SpriteAnimation::PlayColorAnimation() {
+    // Reset current time
+    currentTime_                 = 0.0f;
+    colorAnimationState_.isEnd_  = false;
+    colorAnimationState_.isPlay_ = true;
+}
+
+void SpriteAnimation::PlayTransformAnimation() {
+    // Reset current time
+    currentTime_                     = 0.0f;
+    transformAnimationState_.isEnd_  = false;
+    transformAnimationState_.isPlay_ = true;
+}
+
+void SpriteAnimation::PlayUVAnimation() {
+    // Reset current time
+    currentTime_              = 0.0f;
+    uvAnimationState_.isEnd_  = false;
+    uvAnimationState_.isPlay_ = true;
 }
 
 void to_json(nlohmann::json& j, const SpriteAnimation& r) {

@@ -59,10 +59,6 @@ bool CheckCollisionPair(
     bool aIsPushBack = _bInfo->getPushBackType() != CollisionPushBackType::None;
     bool bIsPushBack = _aInfo->getPushBackType() != CollisionPushBackType::None;
 
-    if (!aIsPushBack && !bIsPushBack) {
-        return true; // 衝突情報がない場合は何もしない
-    }
-
     float overlapRate = 1.f / (float(aIsPushBack) + float(bIsPushBack));
 
     Vec3f collNormal      = distance.normalize();

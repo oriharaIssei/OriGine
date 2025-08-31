@@ -22,13 +22,17 @@ public:
     ~SpriteAnimation() override;
 
     void Initialize(GameEntity* _hostEntity) override;
-    void Edit(Scene* _scene,GameEntity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
     void Finalize() override;
 
     void UpdateSpriteAnimation(float _deltaTime, SpriteRenderer* _spriteRenderer);
 
     void PlayStart();
     void Stop();
+
+    void PlayColorAnimation();
+    void PlayTransformAnimation();
+    void PlayUVAnimation();
 
 private:
     float duration_    = 0.0f; // (秒)

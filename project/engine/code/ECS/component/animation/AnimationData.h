@@ -49,9 +49,9 @@ enum class InterpolationType {
 };
 
 struct AnimationState {
-    bool isLoop_ = false;
     bool isPlay_ = false;
     bool isEnd_  = false;
+    bool isLoop_ = false;
 };
 
 static const char* InterpolationTypeName[] = {
