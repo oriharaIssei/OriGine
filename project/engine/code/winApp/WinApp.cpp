@@ -7,7 +7,6 @@
 
 #include <vector>
 
-
 #include "logger/Logger.h"
 
 #ifdef _DEBUG
@@ -25,14 +24,29 @@ LRESULT WinApp::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
     }
 #endif // _DEBUG
 
+    WinApp* pThis = reinterpret_cast<WinApp*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+
     // ウィンドウに起こったイベントに対して行う処理
     switch (msg) {
     case WM_DESTROY: // ウィンドウが破棄された
         PostQuitMessage(0); // OSに対して、アプリの終了を伝える
         return 0;
 
+    case WM_SYSCOMMAND:
+        if ((wparam & 0xFFF0) == SC_MAXIMIZE) {
+            if (pThis) {
+                pThis->ToggleFullscreen(true);
+            }
+            return 0;
+        } else if ((wparam & 0xFFF0) == SC_RESTORE) {
+            if (pThis) {
+                pThis->ToggleFullscreen(false);
+            }
+            return 0;
+        }
+        break;
+
     case WM_SIZING: {
-        WinApp* pThis = reinterpret_cast<WinApp*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
         if (pThis && pThis->windowResizeMode_ == WindowResizeMode::FIXED_ASPECT) {
             RECT* rect   = reinterpret_cast<RECT*>(lparam);
             int width    = rect->right - rect->left;
@@ -102,7 +116,6 @@ LRESULT WinApp::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
         break;
     }
     case WM_SIZE: {
-        WinApp* pThis = reinterpret_cast<WinApp*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
         if (pThis == nullptr) {
             return DefWindowProc(hwnd, msg, wparam, lparam); // デフォルトの処理
         }
@@ -119,14 +132,14 @@ LRESULT WinApp::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
     case WM_SYSKEYDOWN:
     case WM_SYSKEYUP:
     case WM_KEYDOWN:
+        if (wparam == VK_F11 && pThis) {
+            pThis->ToggleFullscreen(!pThis->isFullscreen_);
+            return 0;
+        }
     case WM_KEYUP:
     case WM_IME_KEYDOWN:
     case WM_IME_KEYUP:
         if ((wparam == VK_MENU) || wparam == VK_F10) {
-
-            // SetUseHookWinProcReturnValue(TRUE);
-
-            // AltとF10を無視する.
             return 0;
         }
         break;
@@ -139,6 +152,34 @@ LRESULT WinApp::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 WinApp::~WinApp() {
     CloseWindow(hwnd_);
 }
+void WinApp::ToggleFullscreen(bool _enable) {
+    if (_enable && !isFullscreen_) {
+        // 今の位置を保存
+        GetWindowRect(hwnd_, &windowRect_);
+
+        // スタイル変更 (ボーダーレス)
+        SetWindowLong(hwnd_, GWL_STYLE, WS_POPUP | WS_VISIBLE);
+
+        // モニタの解像度いっぱいに広げる
+        int width  = GetSystemMetrics(SM_CXSCREEN);
+        int height = GetSystemMetrics(SM_CYSCREEN);
+        SetWindowPos(hwnd_, HWND_TOP, 0, 0, width, height,
+            SWP_FRAMECHANGED | SWP_SHOWWINDOW);
+
+        isFullscreen_ = true;
+    } else if (!_enable && isFullscreen_) {
+        // スタイルを戻す
+        SetWindowLong(hwnd_, GWL_STYLE, WS_OVERLAPPEDWINDOW | WS_VISIBLE);
+
+        SetWindowPos(hwnd_, HWND_TOP,
+            windowRect_.left, windowRect_.top,
+            windowRect_.right - windowRect_.left,
+            windowRect_.bottom - windowRect_.top,
+            SWP_FRAMECHANGED | SWP_SHOWWINDOW);
+
+        isFullscreen_ = false;
+    }
+};
 
 void WinApp::CreateGameWindow(const wchar_t* title, UINT windowStyle, int32_t clientWidth, int32_t clientHeight) {
     // COM初期化

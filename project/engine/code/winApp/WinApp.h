@@ -7,7 +7,6 @@
 #include <memory>
 #include <string>
 
-
 #include "globalVariables/SerializedField.h"
 
 /// math
@@ -20,7 +19,6 @@ enum class WindowResizeMode {
     FIXED_WIDTH  = 0b100, // 幅を固定
     FIXED_HEIGHT = 0b1000, // 高さを固定
     FIXED_ASPECT = 0b10000, // アスペクト比を固定
-
 };
 
 /// <summary>
@@ -42,17 +40,21 @@ public:
 
     void UpdateActivity();
 
+    void ToggleFullscreen(bool enable);
+
 private:
     HWND hwnd_                            = nullptr; // ウィンドウハンドル
     std::unique_ptr<WNDCLASSEX> wndClass_ = nullptr; // ウィンドウクラス
     UINT windowStyle_;
 
     std::wstring wideWindowTitle_; // ウィンドウクラス名も兼ねている
+    RECT windowRect_{};
     float aspectRatio_ = 0.0f; // アスペクト比
     Vec2f windowSize_; // ウィンドウサイズ
     int32_t clientWidth_, clientHeight_;
 
     WindowResizeMode windowResizeMode_ = WindowResizeMode::FIXED_ASPECT;
+    bool isFullscreen_                 = false; // フルスクリーンモードかどうか
     bool isReSized_                    = false;
     bool isActive_                     = false; // アクティブ状態
 
