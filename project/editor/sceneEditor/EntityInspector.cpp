@@ -176,7 +176,7 @@ void EntityComponentRegion::DrawGui() {
 
                 ImGui::Text("%s", componentTypeName.c_str());
 
-                label = std::format("##{} : [{}]{}", componentTypeName, std::to_string(0), editEntity->getUniqueID());
+                label = std::format("{}:[{}]{}", componentTypeName, std::to_string(0), editEntity->getUniqueID());
                 component->Edit(editScene, editEntity, label);
             }
             ImGui::Unindent();
