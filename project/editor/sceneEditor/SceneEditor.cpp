@@ -294,8 +294,12 @@ void SceneViewArea::DrawGui() {
 
         ImGui::Image(reinterpret_cast<ImTextureID>(renderTexture->getBackBufferSrvHandle().ptr), areaSize_.toImVec2());
 
-        ImVec2 imageLeftTop = ImGui::GetCursorScreenPos();
-        UseImGuizmo(imageLeftTop, renderTexture->getTextureSize());
+        ImVec2 imageLeftTop  = ImGui::GetItemRectMin();
+        ImVec2 imageRightBot = ImGui::GetItemRectMax();
+        Vec2f imageSize     = {imageRightBot.x - imageLeftTop.x,
+                imageRightBot.y - imageLeftTop.y};
+
+        UseImGuizmo(imageLeftTop, imageSize);
 
         for (auto& [name, region] : regions_) {
             if (!region) {
@@ -443,16 +447,13 @@ void SceneViewArea::UseImGuizmo(const ImVec2& _sceneViewPos, const Vec2f& _origi
         }
     }(currentGizmoOperation);
 
-    // ギズモの描画・操作
     if (ImGuizmo::Manipulate(
-            viewMatrix, // カメラのビュー行列(float[16])
-            projectionMatrix, // カメラのプロジェクション行列(float[16])
+            viewMatrix,
+            projectionMatrix,
             currentGizmoOperation,
-            ImGuizmo::LOCAL, // ローカル or ワールド
+            ImGuizmo::LOCAL,
             matrix)) {
 
-        // matrix から this->translate, this->rotate, this->scale を分解して反映
-        // 例: DecomposeMatrixToComponents(matrix, this->translate, this->rotate, this->scale);
         transform->worldMat.fromFloatArray(matrix);
 
         transform->worldMat.decomposeMatrixToComponents(transform->scale, transform->rotate, transform->translate);
