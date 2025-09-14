@@ -225,11 +225,6 @@ void Engine::BeginFrame() {
         dsvResource_.Finalize();
         dsvHeap_->ReleaseDescriptor(dxDsv_);
         CreateDsv();
-
-        // addEvent
-       // SceneManager::getInstance()->getSceneView()->Resize(window_->getWindowSize());
-
-        window_->setIsReSized(false);
     }
 
     ImGuiManager::getInstance()->Begin();

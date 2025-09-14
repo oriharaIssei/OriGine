@@ -90,7 +90,7 @@ public:
         D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = CalculateCpuHandle(index);
         D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = CalculateGpuHandle(index);
 
-        std::shared_ptr<DescriptorType> descriptor = std::make_unique<DescriptorType>(_resource->getResource().Get(), cpuHandle, gpuHandle);
+        std::shared_ptr<DescriptorType> descriptor = std::make_unique<DescriptorType>(index, _resource->getResource().Get(), cpuHandle, gpuHandle);
 
         usedFlags_.set(index, true); // 使用中フラグをセット
 
@@ -107,7 +107,7 @@ public:
         D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = CalculateCpuHandle(index);
         D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = CalculateGpuHandle(index);
 
-        std::shared_ptr<DescriptorType> descriptor = std::make_unique<DescriptorType>(_resource.Get(), cpuHandle, gpuHandle);
+        std::shared_ptr<DescriptorType> descriptor = std::make_unique<DescriptorType>(index, _resource.Get(), cpuHandle, gpuHandle);
 
         usedFlags_.set(index, true); // 使用中フラグをセット
 
@@ -120,7 +120,7 @@ public:
         D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = CalculateCpuHandle(index);
         D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = CalculateGpuHandle(index);
 
-        std::shared_ptr<DescriptorType> descriptor = std::make_unique<DescriptorType>(nullptr, cpuHandle, gpuHandle);
+        std::shared_ptr<DescriptorType> descriptor = std::make_unique<DescriptorType>(index, nullptr, cpuHandle, gpuHandle);
 
         usedFlags_.set(index, true); // 使用中フラグをセット
 
