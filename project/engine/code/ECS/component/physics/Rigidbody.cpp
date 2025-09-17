@@ -18,6 +18,7 @@ void Rigidbody::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, [[maybe_unused]
 
     DragGuiVectorCommand("acceleration##" + _parentLabel, acceleration_);
     DragGuiVectorCommand("velocity##" + _parentLabel, velocity_);
+    DragGuiCommand("maxXZSpeed##" + _parentLabel, maxXZSpeed_);
 
     ImGui::Separator();
 
@@ -45,6 +46,7 @@ void Rigidbody::Finalize() {}
 void to_json(nlohmann::json& j, const Rigidbody& r) {
     j["acceleration"] = r.acceleration_;
     j["velocity"]     = r.velocity_;
+    j["maxXZSpeed"]   = r.maxXZSpeed_;
     j["mass"]         = r.mass_;
     j["useGravity"]   = r.useGravity_;
     j["maxFallSpeed"] = r.maxFallSpeed_;
@@ -52,6 +54,10 @@ void to_json(nlohmann::json& j, const Rigidbody& r) {
 void from_json(const nlohmann::json& j, Rigidbody& r) {
     j.at("acceleration").get_to(r.acceleration_);
     j.at("velocity").get_to(r.velocity_);
+    if (j.contains("maxXZSpeed")) {
+        j.at("maxXZSpeed").get_to(r.maxXZSpeed_);
+    }
+
     j.at("mass").get_to(r.mass_);
     j.at("useGravity").get_to(r.useGravity_);
     if (j.contains("maxFallSpeed")) {

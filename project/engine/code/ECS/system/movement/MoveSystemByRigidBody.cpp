@@ -9,7 +9,6 @@
 #include "component/physics/Rigidbody.h"
 #include "component/transform/Transform.h"
 
-
 #include "logger/Logger.h"
 
 MoveSystemByRigidBody::MoveSystemByRigidBody() : ISystem(SystemCategory::Movement) {}
@@ -43,13 +42,26 @@ void MoveSystemByRigidBody::UpdateEntity(GameEntity* _entity) {
 
     // 重力加速度
     if (rigidbody->getUseGravity()) {
-        acceleration[Y] -= (std::min)(gravity_ * rigidbody->getMass(),rigidbody->maxFallSpeed());
+        acceleration[Y] -= (std::min)(gravity_ * rigidbody->getMass(), rigidbody->maxFallSpeed());
     }
+    rigidbody->setAcceleration(acceleration);
 
     // 速度の更新
     velocity += acceleration * deltaTime;
 
-    rigidbody->setAcceleration(acceleration);
+    // xz 平面の速度制限
+    Vec2f xz           = Vec2f(velocity[X], velocity[Z]);
+    float limitXZSpeed = rigidbody->getMaxXZSpeed();
+    if (xz.lengthSq() >= limitXZSpeed * limitXZSpeed) {
+        xz          = xz.normalize() * limitXZSpeed;
+        velocity[X] = xz[X];
+        velocity[Z] = xz[Y];
+    }
+    float maxFallSpeed = rigidbody->maxFallSpeed();
+    if (velocity[Y] * velocity[Y] >= maxFallSpeed * maxFallSpeed) {
+        velocity[Y] = (velocity[Y] > 0) ? maxFallSpeed : -maxFallSpeed;
+    }
+
     rigidbody->setVelocity(velocity);
 
     /// --------------------------------------- 位置の更新 --------------------------------------- ///

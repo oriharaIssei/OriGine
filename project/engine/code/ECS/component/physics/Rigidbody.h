@@ -17,7 +17,7 @@ public:
 
     void Initialize(GameEntity* _entity) override;
 
-    void Edit(Scene* _scene,GameEntity* _entity,[[maybe_unused]] const std::string& _parentLabel);
+    void Edit(Scene* _scene, GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel);
     void Debug();
 
     virtual void Finalize();
@@ -25,6 +25,7 @@ public:
 private:
     Vec3f acceleration_ = Vec3f(0.0f, 0.0f, 0.0f);
     Vec3f velocity_     = Vec3f(0.0f, 0.0f, 0.0f);
+    float maxXZSpeed_ = 100.0f; // XZ 平面の最大速度
 
     bool useGravity_    = false;
     float mass_         = 1.0f;
@@ -50,6 +51,8 @@ public: // accsessor
         }
         velocity_[_index] = _velo;
     }
+    float getMaxXZSpeed() const { return maxXZSpeed_; }
+    void setMaxXZSpeed(float _maxXZSpeed) { maxXZSpeed_ = _maxXZSpeed; }
 
     bool getUseGravity() const { return useGravity_; }
     void setUseGravity(const bool _isGravity) { useGravity_ = _isGravity; }
