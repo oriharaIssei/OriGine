@@ -7,9 +7,6 @@
 // directX12
 #include "directX12/DxDevice.h"
 
-// component
-#include "component/effect/particle/emitter/Emitter.h"
-
 // module
 #include "camera/CameraManager.h"
 
@@ -17,6 +14,11 @@ void ParticleRenderSystem::Initialize() {
     dxCommand_ = std::make_unique<DxCommand>();
     dxCommand_->Initialize("main", "main");
     CreatePso();
+
+    for (size_t i = 0; i < kBlendNum; ++i) {
+        BlendMode blend = static_cast<BlendMode>(i);
+        activeEmittersByBlendMode_[blend].reserve(100);
+    }
 }
 
 void ParticleRenderSystem::Update() {
@@ -26,10 +28,69 @@ void ParticleRenderSystem::Update() {
         return;
     }
 
-    StartRender();
+    activeEmittersByBlendMode_.clear();
+
     for (auto& id : entityIDs_) {
         GameEntity* entity = getEntity(id);
-        UpdateEntity(entity);
+        DispatchRenderer(entity);
+    }
+
+    // アクティブなエミッターが一つもなければ終了
+    bool isSkip = true;
+    for (const auto& [_, emitters] : activeEmittersByBlendMode_) {
+        if (!emitters.empty()) {
+            isSkip = false;
+            break;
+        }
+    }
+    if (isSkip) {
+        return;
+    }
+
+
+    for (size_t i = 0; i < kBlendNum; ++i) {
+        BlendMode blend = static_cast<BlendMode>(i);
+        RenderingBy(blend);
+    }
+}
+
+void ParticleRenderSystem::DispatchRenderer(GameEntity* _entity) {
+    if (_entity == nullptr) {
+        return;
+    }
+    Transform* transform           = getComponent<Transform>(_entity);
+    std::vector<Emitter>* emitters = getComponents<Emitter>(_entity);
+    if (emitters == nullptr) {
+        return;
+    }
+    for (auto& emitter : *emitters) {
+        if (!emitter.IsActive()) {
+            return;
+        }
+        BlendMode blend = emitter.getBlendMode();
+        emitter.setParent(transform);
+        activeEmittersByBlendMode_[blend].push_back(&emitter);
+    }
+}
+void ParticleRenderSystem::RenderingBy(BlendMode _blend) {
+    auto& emitters = activeEmittersByBlendMode_[_blend];
+    if (emitters.empty()) {
+        return;
+    }
+    // PSOセット
+    dxCommand_->getCommandList()->SetPipelineState(pso_[_blend]->pipelineState.Get());
+    // RootSignatureセット
+    dxCommand_->getCommandList()->SetGraphicsRootSignature(pso_[_blend]->rootSignature.Get());
+
+    StartRender();
+
+    // プリミティブトポロジーの設定
+    dxCommand_->getCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    for (auto* emitter : emitters) {
+        if (emitter == nullptr) {
+            continue;
+        }
+        emitter->Draw(dxCommand_->getCommandList());
     }
 }
 
@@ -154,34 +215,10 @@ void ParticleRenderSystem::CreatePso() {
 }
 
 void ParticleRenderSystem::StartRender() {
-    currentBlend_                                                 = BlendMode::Alpha;
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->getCommandList();
-    commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
-    commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     CameraManager::getInstance()->setBufferForRootParameter(commandList, 1);
 
     ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
-}
-
-void ParticleRenderSystem::UpdateEntity(GameEntity* _entity) {
-    auto& commandList = dxCommand_->getCommandList();
-
-    for (auto& comp : *getComponents<Emitter>(_entity)) {
-        if (!comp.getIsActive()) {
-            continue;
-        }
-
-        Transform* parentTransform = getComponent<Transform>(_entity);
-        comp.setParent(parentTransform);
-
-        if (currentBlend_ != comp.getBlendMode()) {
-            currentBlend_ = comp.getBlendMode();
-            commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
-            commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
-        }
-
-        comp.Draw(commandList);
-    }
 }

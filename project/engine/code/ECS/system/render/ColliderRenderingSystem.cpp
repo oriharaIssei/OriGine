@@ -223,9 +223,22 @@ void CreateLineMeshByShape(
 #pragma endregion
 
 void ColliderRenderingSystem::Update() {
-    StartRender();
-
     CreateRenderMesh();
+
+    bool isRendering = false;
+    // aabb
+    isRendering = !aabbRenderer_.getMeshGroup()->empty() || !aabbRenderer_.getMeshGroup()->front().indexes_.empty();
+    // sphere
+    isRendering |= !sphereRenderer_.getMeshGroup()->empty() || !sphereRenderer_.getMeshGroup()->front().indexes_.empty();
+    // obb
+    isRendering |= !obbRenderer_.getMeshGroup()->empty() || !obbRenderer_.getMeshGroup()->front().indexes_.empty();
+
+    // 描画するものがなかったらスキップ
+    if (!isRendering) {
+        return;
+    }
+
+    StartRender();
 
     RenderCall();
 }
@@ -525,22 +538,14 @@ void ColliderRenderingSystem::CreatePso() {
     ///=================================================
     /// BlendMode ごとの Psoを作成
     ///=================================================
-    for (size_t i = 0; i < kBlendNum; ++i) {
-        BlendMode blend = static_cast<BlendMode>(i);
-        if (pso_[blend]) {
-            continue;
-        }
-        lineShaderInfo.blendMode_       = blend;
-        pso_[lineShaderInfo.blendMode_] = shaderManager->CreatePso("LineMeshMesh_" + blendModeStr[i], lineShaderInfo, dxDevice->getDevice());
-    }
+   
+        pso_ = shaderManager->CreatePso("LineMesh_" + blendModeStr[int32_t(BlendMode::Alpha)], lineShaderInfo, dxDevice->getDevice());
 }
 
 void ColliderRenderingSystem::StartRender() {
-    currentBlend_ = BlendMode::Alpha;
-
     auto commandList = dxCommand_->getCommandList();
-    commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
-    commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
+    commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
+    commandList->SetPipelineState(pso_->pipelineState.Get());
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 
     CameraManager::getInstance()->setBufferForRootParameter(commandList, 1);

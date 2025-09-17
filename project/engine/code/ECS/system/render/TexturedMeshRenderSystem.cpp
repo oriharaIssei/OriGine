@@ -32,10 +32,115 @@ void TexturedMeshRenderSystem::Update() {
     }
     ISystem::eraseDeadEntity();
 
-    StartRender();
+    activeModelMeshRenderer_.clear();
+    activePrimitiveMeshRenderer_.clear();
+
     for (auto& id : entityIDs_) {
         GameEntity* entity = getEntity(id);
-        UpdateEntity(entity);
+        DispatchRenderer(entity);
+    }
+
+    bool isSkip = true;
+    for (size_t i = 0; i < kBlendNum; ++i) {
+        BlendMode blend = static_cast<BlendMode>(i);
+        if (!activeModelMeshRenderer_[blend].empty() || !activePrimitiveMeshRenderer_[blend].empty()) {
+            isSkip = false;
+            break;
+        }
+    }
+    if (isSkip) {
+        return;
+    }
+
+    for (size_t i = 0; i < kBlendNum; ++i) {
+        BlendMode blend = static_cast<BlendMode>(i);
+        RenderingBy(blend);
+    }
+}
+
+void TexturedMeshRenderSystem::DispatchRenderer(GameEntity* _entity) {
+    auto modelMeshRenderers = getComponents<ModelMeshRenderer>(_entity);
+    auto entityTransform   = getComponent<Transform>(_entity);
+
+    if (modelMeshRenderers) {
+        for (auto& renderer : *modelMeshRenderers) {
+            if (!renderer.isRender()) {
+                continue;
+            }
+
+            ///==============================
+            /// Transformの更新
+            ///==============================
+            auto& transform = renderer.getTransformBuff();
+
+            if (transform->parent == nullptr) {
+                transform->parent = entityTransform;
+            }
+
+            transform.openData_.Update();
+            transform.ConvertToBuffer();
+
+            ///==============================
+            /// push_back
+            ///==============================
+            BlendMode blendMode = renderer.getCurrentBlend();
+            activeModelMeshRenderer_[blendMode].push_back(&renderer);
+        }
+    }
+
+    auto dispatchPrimitive = [this, _entity,entityTransform](auto renderers) {
+        if (renderers) {
+            for (auto& renderer : *renderers) {
+                if (!renderer.isRender()) {
+                    continue;
+                }
+
+                ///==============================
+                /// Transformの更新
+                ///==============================
+                auto& transform = renderer.getTransformBuff();
+
+                if (transform->parent == nullptr) {
+                    transform->parent = entityTransform;
+                }
+
+                transform.openData_.Update();
+                transform.ConvertToBuffer();
+
+                BlendMode blendMode = renderer.getCurrentBlend();
+                activePrimitiveMeshRenderer_[blendMode].push_back(&renderer);
+            }
+        }
+    };
+    dispatchPrimitive(getComponents<PlaneRenderer>(_entity));
+    dispatchPrimitive(getComponents<RingRenderer>(_entity));
+    dispatchPrimitive(getComponents<BoxRenderer>(_entity));
+    dispatchPrimitive(getComponents<SphereRenderer>(_entity));
+}
+
+void TexturedMeshRenderSystem::RenderingBy(BlendMode _blendMode) {
+    bool isSkip = activeModelMeshRenderer_.empty() && activePrimitiveMeshRenderer_.empty();
+    if (isSkip) {
+        return;
+    }
+
+    auto commandList = dxCommand_->getCommandList();
+    commandList->SetPipelineState(pso_[_blendMode]->pipelineState.Get());
+    commandList->SetGraphicsRootSignature(pso_[_blendMode]->rootSignature.Get());
+
+    StartRender();
+
+    // model
+    if (!activeModelMeshRenderer_.empty()) {
+        for (auto& renderer : activeModelMeshRenderer_[_blendMode]) {
+            RenderModelMesh(commandList, renderer);
+        }
+    }
+    // primitive
+    if (!activePrimitiveMeshRenderer_.empty()) {
+        for (auto& renderer : activePrimitiveMeshRenderer_[_blendMode]) {
+            RenderPrimitiveMesh(commandList, renderer);
+        }
     }
 }
 
@@ -274,12 +379,7 @@ void TexturedMeshRenderSystem::LightUpdate() {
 }
 
 void TexturedMeshRenderSystem::StartRender() {
-    currentBlend_ = BlendMode::Alpha;
-
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->getCommandList();
-
-    commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
-    commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
 
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -378,13 +478,6 @@ void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
             transform.openData_.Update();
             transform.ConvertToBuffer();
         }
-        // BlendMode を 適応
-        BlendMode rendererBlend = renderer->getCurrentBlend();
-        if (rendererBlend != currentBlend_) {
-            currentBlend_ = rendererBlend;
-            commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
-            commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
-        }
 
         auto& mesh = renderer->getMeshGroup()->front();
         RenderingMesh(
@@ -422,13 +515,6 @@ void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
             transform.openData_.Update();
             transform.ConvertToBuffer();
         }
-        // BlendMode を 適応
-        BlendMode rendererBlend = renderer->getCurrentBlend();
-        if (rendererBlend != currentBlend_) {
-            currentBlend_ = rendererBlend;
-            commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
-            commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
-        }
 
         auto& mesh = renderer->getMeshGroup()->front();
         RenderingMesh(
@@ -461,13 +547,6 @@ void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
             }
             transform.openData_.Update();
             transform.ConvertToBuffer();
-        }
-        // BlendMode を 適応
-        BlendMode rendererBlend = renderer->getCurrentBlend();
-        if (rendererBlend != currentBlend_) {
-            currentBlend_ = rendererBlend;
-            commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
-            commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
         }
         auto& mesh = renderer->getMeshGroup()->front();
         RenderingMesh(
@@ -511,14 +590,6 @@ void TexturedMeshRenderSystem::RenderingMesh(
 }
 
 void TexturedMeshRenderSystem::RenderModelMesh(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList, ModelMeshRenderer* _renderer) {
-    // BlendMode を 適応
-    BlendMode _rendererBlend = _renderer->getCurrentBlend();
-    if (_rendererBlend != currentBlend_) {
-        currentBlend_ = _rendererBlend;
-        _commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
-        _commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
-    }
-
     uint32_t index = 0;
 
     auto& meshGroup = _renderer->getMeshGroup();
@@ -551,20 +622,18 @@ void TexturedMeshRenderSystem::RenderModelMesh(Microsoft::WRL::ComPtr<ID3D12Grap
     }
 }
 
-void TexturedMeshRenderSystem::RenderPrimitiveMesh(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList, PlaneRenderer* _renderer) {
-    // BlendMode を 適応
-    BlendMode rendererBlend = _renderer->getCurrentBlend();
-    if (rendererBlend != currentBlend_) {
-        currentBlend_ = rendererBlend;
-        _commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
-        _commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
-    }
-
+void TexturedMeshRenderSystem::RenderPrimitiveMesh(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList, PrimitiveMeshRendererBase* _renderer) const {
     auto& mesh = _renderer->getMeshGroup()->front();
-    RenderingMesh(
+    this->RenderingMesh(
         _commandList,
         mesh,
         _renderer->getTransformBuff(),
         _renderer->getMaterialBuff(),
         _renderer->getTextureIndex());
+}
+
+void TexturedMeshRenderSystem::SettingPSO(BlendMode _blend) {
+    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->getCommandList();
+    commandList->SetGraphicsRootSignature(pso_[_blend]->rootSignature.Get());
+    commandList->SetPipelineState(pso_[_blend]->pipelineState.Get());
 }

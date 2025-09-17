@@ -162,7 +162,7 @@ private:
     Vec3f updateParticleVelocityMax_ = {0.f, 0.f, 0.f};
 
 public:
-    bool getIsActive() const { return isActive_; }
+    bool IsActive() const { return isActive_; }
     // void setIsActive(bool _isActive) { isActive_ = _isActive; } // PlayStart を使え
     bool getIsLoop() const { return isLoop_; }
     void setIsLoop(bool _isLoop) { isLoop_ = _isLoop; }

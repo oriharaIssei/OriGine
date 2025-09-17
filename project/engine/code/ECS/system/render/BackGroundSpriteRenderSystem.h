@@ -26,13 +26,13 @@ public:
 protected:
     void CreatePso();
     void StartRender();
+    void RenderingBy(BlendMode blendMode);
+
     void UpdateEntity(GameEntity* _entity) override;
 
 private:
-    std::vector<SpriteRenderer*> renderers_;
+    std::unordered_map<BlendMode, std::vector<SpriteRenderer*>> renderersByBlend_;
     Matrix4x4 viewPortMat_;
-
-    BlendMode currentBlend_ = BlendMode::Alpha;
 
     std::unique_ptr<DxCommand> dxCommand_ = nullptr;
     std::unordered_map<BlendMode, PipelineStateObj*> pso_;

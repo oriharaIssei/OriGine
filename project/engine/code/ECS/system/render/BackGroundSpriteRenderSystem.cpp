@@ -29,11 +29,10 @@ void BackGroundSpriteRenderSystem::Update() {
         return;
     }
 
-    StartRender();
-
     // 前フレームの描画対象をクリア
-    renderers_.clear();
+    renderersByBlend_.clear();
 
+    bool isRendering = false;
     for (auto& id : entityIDs_) {
         GameEntity* entity    = getEntity(id);
         auto* entityRenderers = getComponents<SpriteRenderer>(entity);
@@ -45,18 +44,44 @@ void BackGroundSpriteRenderSystem::Update() {
             /// ConstBufferの更新
             ///==============================
             renderer.Update(viewPortMat_);
-            renderers_.push_back(&renderer);
+            renderersByBlend_[renderer.getCurrentBlend()].push_back(&renderer);
+
+            isRendering = true;
         }
     }
-    std::sort(renderers_.begin(), renderers_.end(), [](SpriteRenderer* a, SpriteRenderer* b) {
-        return a->getRenderPriority() < b->getRenderPriority();
-    });
+
+    for (auto& [blend, renderers] : renderersByBlend_) {
+        std::sort(renderers.begin(), renderers.end(), [](SpriteRenderer* a, SpriteRenderer* b) {
+            return a->getRenderPriority() < b->getRenderPriority();
+        });
+    }
+
+    // skip
+    if (!isRendering) {
+        return;
+    }
+
+    for (size_t i = 0; i < kBlendNum; ++i) {
+        BlendMode blend = static_cast<BlendMode>(i);
+        RenderingBy(blend);
+    }
+}
+
+void BackGroundSpriteRenderSystem::RenderingBy(BlendMode blendMode) {
+    if (renderersByBlend_[blendMode].empty()) {
+        return;
+    }
 
     auto commandList = dxCommand_->getCommandList();
-    for (auto& renderer : renderers_) {
+    // PSOの設定
+    commandList->SetGraphicsRootSignature(pso_[blendMode]->rootSignature.Get());
+    commandList->SetPipelineState(pso_[blendMode]->pipelineState.Get());
+
+    StartRender();
+
+    // 描画
+    for (auto& renderer : renderersByBlend_[blendMode]) {
         // ============================= テクスチャの設定 ============================= //
-        ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
-        commandList->SetDescriptorHeaps(1, ppHeaps);
         commandList->SetGraphicsRootDescriptorTable(
             1,
             TextureManager::getDescriptorGpuHandle(renderer->getTextureNumber()));
@@ -101,14 +126,12 @@ void BackGroundSpriteRenderSystem::CreatePso() {
     shaderInfo.vsKey = "Sprite.VS";
     shaderInfo.psKey = "Sprite.PS";
 
-    
     ///=================================================
     /// Depth
     ///=================================================
     shaderInfo.customDepthStencilDesc().DepthEnable    = true;
     shaderInfo.customDepthStencilDesc().DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO; // 書き込まない z = -1だから
     shaderInfo.customDepthStencilDesc().DepthFunc      = D3D12_COMPARISON_FUNC_LESS_EQUAL;
-
 
     ///================================================
     /// Sampler の設定
@@ -181,10 +204,10 @@ void BackGroundSpriteRenderSystem::CreatePso() {
 }
 
 void BackGroundSpriteRenderSystem::StartRender() {
-    auto commandList     = dxCommand_->getCommandList();
-    auto currentBlendPso = pso_[currentBlend_];
-    commandList->SetGraphicsRootSignature(currentBlendPso->rootSignature.Get());
-    commandList->SetPipelineState(currentBlendPso->pipelineState.Get());
+    auto commandList = dxCommand_->getCommandList();
+
+    ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
+    commandList->SetDescriptorHeaps(1, ppHeaps);
     dxCommand_->getCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 

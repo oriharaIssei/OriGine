@@ -13,12 +13,16 @@
 #include "component/material/light/LightManager.h"
 #include "component/renderer/MeshRenderer.h"
 
-
 void LineRenderSystem::Initialize() {
     dxCommand_ = std::make_unique<DxCommand>();
     dxCommand_->Initialize("main", "main");
 
     CreatePso();
+
+    for (size_t i = 0; i < kBlendNum; ++i) {
+        BlendMode blend = static_cast<BlendMode>(i);
+        activeLineRenderersByBlendMode_[blend].reserve(100);
+    }
 }
 
 void LineRenderSystem::Update() {
@@ -27,20 +31,95 @@ void LineRenderSystem::Update() {
     }
     ISystem::eraseDeadEntity();
 
-    StartRender();
+    activeLineRenderersByBlendMode_.clear();
 
     for (auto& id : entityIDs_) {
         GameEntity* entity = getEntity(id);
-        UpdateEntity(entity);
+        DispatchRenderer(entity);
     }
+
+    // アクティブなレンダラーが一つもなければ終了
+    bool isSkip = true;
+    for (const auto& [_, renderers] : activeLineRenderersByBlendMode_) {
+        if (!renderers.empty()) {
+            isSkip = false;
+            break;
+        }
+    }
+
+
+    if (isSkip) {
+        return;
+    }
+
+    StartRender();
+
+    for (size_t i = 0; i < kBlendNum; ++i) {
+        BlendMode blend = static_cast<BlendMode>(i);
+        RenderingBy(blend);
+    }
+
 }
 
 void LineRenderSystem::Finalize() {
     dxCommand_->Finalize();
 }
 
+void LineRenderSystem::DispatchRenderer(GameEntity* _entity) {
+    std::vector<LineRenderer>* renderers = getComponents<LineRenderer>(_entity);
+    if (!renderers) {
+        return;
+    }
+
+    for (auto& renderer : *renderers) {
+        // 描画フラグが立っていないならスキップ
+        if (!renderer.isRender()) {
+            continue;
+        }
+        ///==============================
+        /// Transformの更新
+        ///==============================
+        Transform* entityTransform_ = getComponent<Transform>(_entity);
+        for (int32_t i = 0; i < renderer.getMeshGroupSize(); ++i) {
+            auto& transform = renderer.getTransformBuff();
+            if (transform->parent == nullptr) {
+                transform->parent = entityTransform_;
+            }
+            transform.openData_.Update();
+            transform.ConvertToBuffer();
+        }
+        // BlendMode を 適応
+        BlendMode rendererBlend = renderer.getCurrentBlend();
+        this->activeLineRenderersByBlendMode_[rendererBlend].push_back(renderer);
+    }
+}
+void LineRenderSystem::RenderingBy(BlendMode _blend) {
+    bool isSkip = activeLineRenderersByBlendMode_[_blend].empty();
+    if (isSkip) {
+        return;
+    }
+    ///==============================
+    // BlendMode を 適応
+    ///==============================
+    auto& commandList = dxCommand_->getCommandListRef();
+    commandList->SetGraphicsRootSignature(pso_[_blend]->rootSignature.Get());
+    commandList->SetPipelineState(pso_[_blend]->pipelineState.Get());
+
+    for (auto& renderer : activeLineRenderersByBlendMode_[_blend]) {
+        for (auto& mesh : *renderer.getMeshGroup()) {
+            if (mesh.getIndexSize() <= 0) {
+                continue;
+            }
+            // 描画
+            commandList->IASetVertexBuffers(0, 1, &mesh.getVertexBufferView());
+            commandList->IASetIndexBuffer(&mesh.getIndexBufferView());
+            commandList->DrawIndexedInstanced(mesh.getIndexSize(), 1, 0, 0, 0);
+        }
+    }
+}
+
 void LineRenderSystem::UpdateEntity(GameEntity* _entity) {
-    auto commandList      = dxCommand_->getCommandList();
+    auto commandList       = dxCommand_->getCommandList();
     int32_t componentIndex = 0;
     while (true) {
         LineRenderer* renderer = getComponent<LineRenderer>(_entity, componentIndex++);
@@ -69,14 +148,6 @@ void LineRenderSystem::UpdateEntity(GameEntity* _entity) {
         ///==============================
         /// 描画
         ///==============================
-
-        if (currentBlend_ != renderer->getCurrentBlend()) {
-            currentBlend_ = renderer->getCurrentBlend();
-
-            commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
-            commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
-        }
-
         if (lineIsStrip_ != renderer->isLineStrip()) {
             lineIsStrip_ = renderer->isLineStrip();
             if (lineIsStrip_) {
@@ -177,13 +248,16 @@ void LineRenderSystem::CreatePso() {
 }
 
 void LineRenderSystem::StartRender() {
-    currentBlend_ = BlendMode::Alpha;
-    lineIsStrip_  = false;
+    lineIsStrip_ = false;
 
     auto commandList = dxCommand_->getCommandList();
-    commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
-    commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 
     CameraManager::getInstance()->setBufferForRootParameter(commandList, 1);
+}
+
+void LineRenderSystem::settingPSO(BlendMode _blend) {
+    auto commandList = dxCommand_->getCommandList();
+    commandList->SetGraphicsRootSignature(pso_[_blend]->rootSignature.Get());
+    commandList->SetPipelineState(pso_[_blend]->pipelineState.Get());
 }

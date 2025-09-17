@@ -16,7 +16,7 @@
 #include "component/transform/Transform.h"
 
 class ModelMeshRenderer;
-class PlaneRenderer;
+class PrimitiveMeshRendererBase;
 
 class TexturedMeshRenderSystem
     : public ISystem {
@@ -42,13 +42,18 @@ public:
         uint32_t _textureIndex) const;
 
     void RenderModelMesh(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList, ModelMeshRenderer* _renderer);
-    void RenderPrimitiveMesh(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList, PlaneRenderer* _renderer);
+    void RenderPrimitiveMesh(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList, PrimitiveMeshRendererBase* _renderer) const;
 
+    void SettingPSO(BlendMode _blend);
 protected:
     void LightUpdate();
 
+    void DispatchRenderer(GameEntity* _entity);
+    void RenderingBy(BlendMode _blendMode);
+
 private:
-    BlendMode currentBlend_ = BlendMode::Alpha;
+    std::unordered_map<BlendMode, std::vector<ModelMeshRenderer*>> activeModelMeshRenderer_;
+    std::unordered_map<BlendMode, std::vector<PrimitiveMeshRendererBase*>> activePrimitiveMeshRenderer_;
 
     std::unique_ptr<DxCommand> dxCommand_ = nullptr;
     std::unordered_map<BlendMode, PipelineStateObj*> pso_;

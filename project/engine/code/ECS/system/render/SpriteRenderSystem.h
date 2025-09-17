@@ -28,11 +28,12 @@ protected:
     void StartRender();
     void UpdateEntity(GameEntity* _entity) override;
 
-private:
-    std::vector<SpriteRenderer*> renderers_;
-    Matrix4x4 viewPortMat_;
+    void DispatchRenderer(GameEntity* _entity);
+    void RenderingBy(BlendMode _blendMode);
 
-    BlendMode currentBlend_ = BlendMode::Alpha;
+private:
+    std::unordered_map<BlendMode, std::vector<SpriteRenderer*>> renderers_;
+    Matrix4x4 viewPortMat_;
 
     std::unique_ptr<DxCommand> dxCommand_ = nullptr;
     std::unordered_map<BlendMode, PipelineStateObj*> pso_;

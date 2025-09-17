@@ -205,6 +205,7 @@ void Engine::BeginFrame() {
         return;
     }
 #endif // !_DEBUG
+
     if (window_->isReSized()) {
         // ウィンドウのサイズ変更時の処理
         LOG_INFO("Window resized to: {}x{}", window_->getWidth(), window_->getHeight());
@@ -225,6 +226,8 @@ void Engine::BeginFrame() {
         dsvResource_.Finalize();
         dsvHeap_->ReleaseDescriptor(dxDsv_);
         CreateDsv();
+
+        window_->setIsReSized(false);
     }
 
     ImGuiManager::getInstance()->Begin();

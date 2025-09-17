@@ -6,6 +6,9 @@
 #include <memory>
 #include <unordered_map>
 
+/// component
+#include "component/renderer/MeshRenderer.h"
+
 /// engine
 // directX12Object
 #include "directX12/DxCommand.h"
@@ -23,16 +26,19 @@ public:
 
     void UpdateEntity(GameEntity* _entity) override;
     void StartRender();
-
+    void settingPSO(BlendMode _blend);
 private:
     void CreatePso();
 
+    void DispatchRenderer(GameEntity* _entity);
+    void RenderingBy(BlendMode _blend);
+
 private:
-    BlendMode currentBlend_ = BlendMode::Alpha;
     bool lineIsStrip_       = false;
 
     std::unique_ptr<DxCommand> dxCommand_ = nullptr;
     std::unordered_map<BlendMode, PipelineStateObj*> pso_;
+    std::unordered_map<BlendMode, std::vector<LineRenderer>> activeLineRenderersByBlendMode_;
 
 public:
     DxCommand* getDxCommand() {

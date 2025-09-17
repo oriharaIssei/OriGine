@@ -11,7 +11,6 @@
 // ECS
 #include "component/renderer/Sprite.h"
 
-
 void SpriteRenderSystem::Initialize() {
     dxCommand_ = std::make_unique<DxCommand>();
     dxCommand_->Initialize("main", "main");
@@ -30,51 +29,71 @@ void SpriteRenderSystem::Update() {
         return;
     }
 
-    StartRender();
-
     // 前フレームの描画対象をクリア
     renderers_.clear();
 
     for (auto& id : entityIDs_) {
-        GameEntity* entity    = getEntity(id);
-        auto* entityRenderers = getComponents<SpriteRenderer>(entity);
-        if (!entityRenderers) {
-            continue;
-        }
-        for (auto& renderer : *entityRenderers) {
-            if (!renderer.isRender()) {
-                continue;
-            }
-            ///==============================
-            /// ConstBufferの更新
-            ///==============================
-            renderer.Update(viewPortMat_);
-            renderers_.push_back(&renderer);
-        }
+        GameEntity* entity = getEntity(id);
+        DispatchRenderer(entity);
     }
-    std::sort(renderers_.begin(), renderers_.end(), [](SpriteRenderer* a, SpriteRenderer* b) {
-        return a->getRenderPriority() < b->getRenderPriority();
-    });
+
+    // アクティブなレンダラーが一つもなければ終了
+    bool isSkip = true;
+    for (auto& [blend, emitters] : renderers_) {
+        if (!emitters.empty()) {
+            isSkip = false;
+        }
+        std::sort(emitters.begin(), emitters.end(), [](SpriteRenderer* a, SpriteRenderer* b) {
+            return a->getRenderPriority() < b->getRenderPriority();
+        });
+    }
+    if (isSkip) {
+        return;
+    }
+
+    for (size_t i = 0; i < kBlendNum; ++i) {
+        BlendMode blend = static_cast<BlendMode>(i);
+        RenderingBy(blend);
+    }
+}
+
+void SpriteRenderSystem::DispatchRenderer(GameEntity* _entity) {
+    std::vector<SpriteRenderer>* renderers = getComponents<SpriteRenderer>(_entity);
+
+    if (!renderers) {
+        return;
+    }
+    for (auto& renderer : *renderers) {
+        if (!renderer.isRender()) {
+            return;
+        }
+        renderers_[renderer.getCurrentBlend()].push_back(&renderer);
+    }
+}
+void SpriteRenderSystem::RenderingBy(BlendMode _blendMode) {
+    if (renderers_[_blendMode].empty()) {
+        return;
+    }
 
     auto commandList = dxCommand_->getCommandList();
-    for (auto& renderer : renderers_) {
+    auto pso         = pso_[_blendMode];
+    commandList->SetGraphicsRootSignature(pso->rootSignature.Get());
+    commandList->SetPipelineState(pso->pipelineState.Get());
+
+    StartRender();
+
+    dxCommand_->getCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    for (auto& renderer : renderers_[_blendMode]) {
         // ============================= テクスチャの設定 ============================= //
-        ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
-        commandList->SetDescriptorHeaps(1, ppHeaps);
         commandList->SetGraphicsRootDescriptorTable(
             1,
             TextureManager::getDescriptorGpuHandle(renderer->getTextureNumber()));
-
         SpriteMesh& mesh = renderer->getMeshGroup()->at(0);
         commandList->IASetVertexBuffers(0, 1, &mesh.getVBView());
         commandList->IASetIndexBuffer(&mesh.getIBView());
-
         renderer->getSpriteBuff().SetForRootParameter(commandList, 0);
-
         commandList->DrawIndexedInstanced(
             6, 1, 0, 0, 0);
-
-        commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);
     }
 }
 
@@ -176,11 +195,11 @@ void SpriteRenderSystem::CreatePso() {
 }
 
 void SpriteRenderSystem::StartRender() {
-    auto commandList     = dxCommand_->getCommandList();
-    auto currentBlendPso = pso_[currentBlend_];
-    commandList->SetGraphicsRootSignature(currentBlendPso->rootSignature.Get());
-    commandList->SetPipelineState(currentBlendPso->pipelineState.Get());
+    auto commandList = dxCommand_->getCommandList();
     dxCommand_->getCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+    ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
+    commandList->SetDescriptorHeaps(1, ppHeaps);
 }
 
 void SpriteRenderSystem::UpdateEntity(GameEntity* /*_entity*/) {}

@@ -23,6 +23,7 @@ void SkinningMeshRenderSystem::Initialize() {
     dxCommand_->Initialize("main", "main");
 
     CreatePso();
+
 }
 
 void SkinningMeshRenderSystem::Update() {
@@ -31,10 +32,67 @@ void SkinningMeshRenderSystem::Update() {
     }
     ISystem::eraseDeadEntity();
 
-    StartRender();
+    activeRenderersByBlendMode_.clear();
+
     for (auto& id : entityIDs_) {
         GameEntity* entity = getEntity(id);
-        UpdateEntity(entity);
+        DispatchRenderer(entity);
+    }
+
+    // アクティブなレンダラーが一つもなければ終了
+    bool isSkip = true;
+    for (const auto& [blend, emitters] : activeRenderersByBlendMode_) {
+        if (!emitters.empty()) {
+            isSkip = false;
+            break;
+        }
+    }
+    if (isSkip) {
+        return;
+    }
+
+    for (size_t i = 0; i < kBlendNum; ++i) {
+        BlendMode blend = static_cast<BlendMode>(i);
+        RenderingBy(blend);
+    }
+
+}
+
+void SkinningMeshRenderSystem::DispatchRenderer(GameEntity* _entity){
+    auto* skinningAnimationComponents = getComponents<SkinningAnimationComponent>(_entity);
+    if (skinningAnimationComponents == nullptr) {
+        return;
+    }
+    auto* entityTransform = getComponent<Transform>(_entity);
+
+    for (auto& skinningAnimation : *skinningAnimationComponents) {
+        ModelMeshRenderer* renderer = getComponent<ModelMeshRenderer>(_entity, skinningAnimation.getBindModeMeshRendererIndex());
+        if (renderer == nullptr) {
+            continue;
+        }
+        if (!renderer->isRender()) {
+            continue;
+        }
+        RenderingData data{&skinningAnimation, renderer, entityTransform};
+        activeRenderersByBlendMode_[renderer->getCurrentBlend()].push_back(data);
+    }
+}
+
+void SkinningMeshRenderSystem::RenderingBy(BlendMode _blendMode) {
+    auto& renderers = activeRenderersByBlendMode_[_blendMode];
+    if (renderers.empty()) {
+        return;
+    }
+    auto commandList = dxCommand_->getCommandList();
+    // PSOセット
+    commandList->SetPipelineState(pso_[_blendMode]->pipelineState.Get());
+    // RootSignatureセット
+    commandList->SetGraphicsRootSignature(pso_[_blendMode]->rootSignature.Get());
+
+    StartRender();
+
+    for (auto& data : renderers) {
+        RenderModelMesh(data._entityTransform, commandList, data._skinningAnimationComponent, data._renderer);
     }
 }
 
@@ -264,13 +322,11 @@ void SkinningMeshRenderSystem::LightUpdate() {
     LightManager::getInstance()->Update();
 }
 
+
+
 void SkinningMeshRenderSystem::StartRender() {
-    currentBlend_ = BlendMode::Alpha;
 
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->getCommandList();
-
-    commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
-    commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
 
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -329,19 +385,10 @@ void SkinningMeshRenderSystem::RenderModelMesh(
     Transform* _entityTransform,
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList,
     SkinningAnimationComponent* _skinningAnimationComponent,
-    ModelMeshRenderer* _renderer) {
+    ModelMeshRenderer* _renderer) const {
 
     if (_skinningAnimationComponent->getSkinnedVertexBuffers().empty()) {
         return;
-    }
-
-    // BlendMode を 適応
-    BlendMode _rendererBlend = _renderer->getCurrentBlend();
-
-    if (_rendererBlend != currentBlend_) {
-        currentBlend_ = _rendererBlend;
-        _commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
-        _commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
     }
 
     uint32_t index = 0;

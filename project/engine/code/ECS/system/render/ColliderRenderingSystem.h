@@ -48,8 +48,6 @@ private:
     LineRenderer sphereRenderer_;
     std::vector<Mesh<ColorVertexData>>::iterator sphereMeshItr_;
 
-    BlendMode currentBlend_ = BlendMode::Alpha;
-
     std::unique_ptr<DxCommand> dxCommand_ = nullptr;
-    std::unordered_map<BlendMode, PipelineStateObj*> pso_;
+    PipelineStateObj* pso_;
 };

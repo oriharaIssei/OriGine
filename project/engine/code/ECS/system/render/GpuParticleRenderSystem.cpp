@@ -17,7 +17,12 @@ void GpuParticleRenderSystem::Initialize() {
 
     perViewBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
 
-    activeEmitter_.resize(100);
+    activeEmitterByBlendMode_[BlendMode::None].reserve(100);
+    activeEmitterByBlendMode_[BlendMode::Normal].reserve(100);
+    activeEmitterByBlendMode_[BlendMode::Add].reserve(100);
+    activeEmitterByBlendMode_[BlendMode::Sub].reserve(100);
+    activeEmitterByBlendMode_[BlendMode::Multiply].reserve(100);
+    activeEmitterByBlendMode_[BlendMode::Screen].reserve(100);
 }
 
 void GpuParticleRenderSystem::Update() {
@@ -44,10 +49,13 @@ void GpuParticleRenderSystem::Update() {
 
     perViewBuffer_.SetForRootParameter(dxCommand_->getCommandList(), 1);
 
-    for (auto& id : entityIDs_) {
-        GameEntity* entity = getEntity(id);
-        UpdateEntity(entity);
-    }
+    RenderingBy(BlendMode::None);
+    RenderingBy(BlendMode::Normal);
+    RenderingBy(BlendMode::Add);
+    RenderingBy(BlendMode::Sub);
+    RenderingBy(BlendMode::Multiply);
+    RenderingBy(BlendMode::Screen);
+
 }
 
 void GpuParticleRenderSystem::Finalize() {
@@ -181,10 +189,7 @@ void GpuParticleRenderSystem::CreatePso() {
 }
 
 void GpuParticleRenderSystem::StartRender() {
-    currentBlend_                                                 = BlendMode::Alpha;
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->getCommandList();
-    commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
-    commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
     ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
@@ -192,10 +197,13 @@ void GpuParticleRenderSystem::StartRender() {
 }
 
 bool GpuParticleRenderSystem::isRendering() {
+    activeEmitterByBlendMode_.clear();
+
     if (entityIDs_.empty()) {
         return true;
     }
 
+    bool anyActive = false;
     for (const auto& id : entityIDs_) {
         GameEntity* entity = getEntity(id);
         if (!entity) {
@@ -203,44 +211,42 @@ bool GpuParticleRenderSystem::isRendering() {
         }
         for (auto& comp : *getComponents<GpuParticleEmitter>(entity)) {
             if (comp.isActive()) {
-                return true;
+                activeEmitterByBlendMode_[comp.getBlendMode()].emplace_back(&comp);
+                anyActive = true;
             }
         }
     }
 
-    return false;
+    return anyActive;
 }
 
-void GpuParticleRenderSystem::UpdateEntity(GameEntity* _entity) {
+void GpuParticleRenderSystem::RenderingBy(BlendMode _blendMode) {
+    if (activeEmitterByBlendMode_[_blendMode].empty()) {
+        return;
+    }
+
     auto& commandList = dxCommand_->getCommandList();
 
-    for (auto& comp : *getComponents<GpuParticleEmitter>(_entity)) {
-        if (!comp.isActive()) {
-            continue;
-        }
+    commandList->SetGraphicsRootSignature(pso_[_blendMode]->rootSignature.Get());
+    commandList->SetPipelineState(pso_[_blendMode]->pipelineState.Get());
 
-        if (currentBlend_ != comp.getBlendMode()) {
-            currentBlend_ = comp.getBlendMode();
-            commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
-            commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
-        }
-
+    for (auto& emitter : activeEmitterByBlendMode_[_blendMode]) {
         commandList->SetGraphicsRootDescriptorTable(
             0,
-            comp.getParticleSrvDescriptor()->getGpuHandle());
+            emitter->getParticleSrvDescriptor()->getGpuHandle());
 
-        comp.getMaterialBuffer().ConvertToBuffer();
-        comp.getMaterialBuffer().SetForRootParameter(commandList, 2);
+        emitter->getMaterialBuffer().ConvertToBuffer();
+        emitter->getMaterialBuffer().SetForRootParameter(commandList, 2);
 
         commandList->SetGraphicsRootDescriptorTable(
             3,
-            TextureManager::getDescriptorGpuHandle(comp.getTextureIndex()));
+            TextureManager::getDescriptorGpuHandle(emitter->getTextureIndex()));
 
-        const auto& particleMesh = comp.getMesh();
+        const auto& particleMesh = emitter->getMesh();
         commandList->IASetVertexBuffers(0, 1, &particleMesh.getVBView());
         commandList->IASetIndexBuffer(&particleMesh.getIBView());
 
         // 描画!!!
-        commandList->DrawIndexedInstanced(UINT(particleMesh.getIndexSize()), static_cast<UINT>(comp.getParticleSize()), 0, 0, 0);
+        commandList->DrawIndexedInstanced(UINT(particleMesh.getIndexSize()), static_cast<UINT>(emitter->getParticleSize()), 0, 0, 0);
     }
 }

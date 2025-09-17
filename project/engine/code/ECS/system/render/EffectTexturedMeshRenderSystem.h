@@ -4,8 +4,13 @@
 /// stl
 #include <memory>
 #include <unordered_map>
+#include <vector>
 
 /// engine
+#include "component/renderer/MeshRenderer.h"
+#include "component/renderer/primitive/Primitive.h"
+#include "Entity.h"
+
 // directX12Object
 #include "directX12/DxCommand.h"
 #include "directX12/ShaderManager.h"
@@ -28,19 +33,25 @@ protected:
 
     void UpdateEntity(GameEntity* _entity) override;
 
+    void DispatchRenderer(GameEntity* _entity);
+    void RenderingBy(BlendMode _blendMode);
+
 private:
     BlendMode currentBlend_ = BlendMode::Alpha;
+
+    std::unordered_map<BlendMode, std::vector<std::pair<GameEntity*, ModelMeshRenderer*>>> activeModelRenderersByBlendMode_;
+    std::unordered_map<BlendMode, std::vector<std::pair<GameEntity*, PrimitiveMeshRendererBase*>>> activePrimitiveRenderersByBlendMode_;
 
     std::unique_ptr<DxCommand> dxCommand_ = nullptr;
     std::unordered_map<BlendMode, PipelineStateObj*> pso_;
 
-    int32_t transformBufferIndex_         = 0;
-    int32_t cameraBufferIndex_            = 0;
-    int32_t materialBufferIndex_          = 0;
-    int32_t directionalLightBufferIndex_  = 0;
-    int32_t pointLightBufferIndex_        = 0;
-    int32_t spotLightBufferIndex_         = 0;
-    int32_t lightCountBufferIndex_        = 0;
+    int32_t transformBufferIndex_        = 0;
+    int32_t cameraBufferIndex_           = 0;
+    int32_t materialBufferIndex_         = 0;
+    int32_t directionalLightBufferIndex_ = 0;
+    int32_t pointLightBufferIndex_       = 0;
+    int32_t spotLightBufferIndex_        = 0;
+    int32_t lightCountBufferIndex_       = 0;
 
     int32_t mainTextureBufferIndex_       = 0;
     int32_t maskTextureBufferIndex_       = 0;

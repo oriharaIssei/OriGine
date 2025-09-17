@@ -4,6 +4,7 @@
 /// stl
 #include <memory>
 #include <unordered_map>
+#include <vector>
 
 /// engine
 // directX12Object
@@ -12,7 +13,9 @@
 #include "directX12/Mesh.h"
 #include "directX12/ShaderManager.h"
 // component
+#include "component/animation/SkinningAnimationComponent.h"
 #include "component/material/Material.h"
+#include "component/renderer/MeshRenderer.h"
 #include "component/transform/Transform.h"
 
 class SkinningAnimationComponent;
@@ -38,14 +41,21 @@ public:
         Transform* _entityTransform,
         Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList,
         SkinningAnimationComponent* _skinningAnimationComponent,
-        ModelMeshRenderer* _renderer);
+        ModelMeshRenderer* _renderer) const;
 
 protected:
     void LightUpdate();
 
-private:
-    BlendMode currentBlend_ = BlendMode::Alpha;
+    void DispatchRenderer(GameEntity* _entity);
+    void RenderingBy(BlendMode _blendMode);
 
+private:
+    struct RenderingData {
+        SkinningAnimationComponent* _skinningAnimationComponent;
+        ModelMeshRenderer* _renderer;
+        Transform* _entityTransform;
+    };
+    std::unordered_map<BlendMode, std::vector<RenderingData>> activeRenderersByBlendMode_;
     std::unique_ptr<DxCommand> dxCommand_ = nullptr;
     std::unordered_map<BlendMode, PipelineStateObj*> pso_;
 

@@ -86,6 +86,7 @@ void DistortionEffect::UpdateEntity(GameEntity* _entity) {
         }
 
         distortionSceneTexture_->PreDraw();
+        texturedMeshRenderSystem_->SettingPSO(BlendMode::Alpha);
         texturedMeshRenderSystem_->StartRender();
 
         for (auto& [object, type] : distortionEffectParam->getDistortionObjects()) {

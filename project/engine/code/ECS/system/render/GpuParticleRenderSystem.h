@@ -31,15 +31,14 @@ protected:
 
     void StartRender();
     bool isRendering();
-    void UpdateEntity(GameEntity* _entity) override;
+    void RenderingBy(BlendMode _blendMode);
+    void UpdateEntity(GameEntity* /*_entity*/) override{}
 
 private:
-    BlendMode currentBlend_ = BlendMode::Alpha;
-
     std::unique_ptr<DxCommand> dxCommand_ = nullptr;
     std::unordered_map<BlendMode, PipelineStateObj*> pso_;
 
-    std::vector<GpuParticleEmitter> activeEmitter_;
+     std::unordered_map < BlendMode, std::vector<GpuParticleEmitter*>> activeEmitterByBlendMode_;
 
     IConstantBuffer<PerView> perViewBuffer_;
 };
