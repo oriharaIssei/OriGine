@@ -284,7 +284,9 @@ void SystemRunner::ActivateSystem(const std::string& _systemName) {
     }
 
     ISystem* system = itr->second.get();
-
+    if (!system) {
+        return;
+    }
     size_t categoryIndex = static_cast<size_t>(system->getCategory());
     auto& activeSystems  = activeSystems_[categoryIndex];
     if (std::find(activeSystems.begin(), activeSystems.end(), system) != activeSystems.end()) {

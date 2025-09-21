@@ -47,6 +47,35 @@ void SceneEditorWindow::Initialize() {
     isMaximized_ = true; // 初期状態で最大化
 }
 
+void SceneEditorWindow::DrawGui() {
+    if (isSceneChanged_) {
+        LoadNextScene();
+        isSceneChanged_ = false;
+    } else {
+        Editor::Window::DrawGui();
+    }
+}
+void SceneEditorWindow::LoadNextScene() {
+    if (nextSceneName_.empty()) {
+        LOG_ERROR("Next scene name is empty.");
+        return;
+    }
+    FinalizeScene();
+    FinalizeMenus();
+    FinalizeAreas();
+
+    EditorController::getInstance()->clearCommandHistory();
+
+    InitializeScene(nextSceneName_);
+    InitializeMenus();
+    InitializeAreas();
+
+    editSceneName_.setValue(currentScene_->getName());
+    GlobalVariables::getInstance()->SaveFile("Settings", "SceneEditor");
+
+    nextSceneName_ = "";
+}
+
 void SceneEditorWindow::Finalize() {
     editSceneName_.setValue(currentScene_->getName());
 
@@ -167,23 +196,7 @@ void LoadMenuItem::DrawGui() {
         }
 
         SceneEditorWindow* sceneEditorWindow = EditorController::getInstance()->getWindow<SceneEditorWindow>();
-        SceneSerializer serializer           = SceneSerializer(sceneEditorWindow->getCurrentScene());
-        serializer.Serialize();
-        sceneEditorWindow->getCurrentScene()->Finalize(); // 現在のシーンを終了処理
-
-        sceneEditorWindow->getEditSceneName().setValue(filename);
-
-        std::unique_ptr<Scene> scene = std::make_unique<Scene>(filename);
-        scene->Initialize();
-
-        LOG_DEBUG("LoadMenuItem : Loading scene '{}'.", scene->getName());
-
-        sceneEditorWindow->changeScene(std::move(scene));
-
-        sceneEditorWindow->FinalizeAreas();
-        sceneEditorWindow->InitializeAreas();
-
-        EditorController::getInstance()->clearCommandHistory();
+        sceneEditorWindow->changeScene(filename);
     }
     isSelected_.set(isSelect);
 }
@@ -225,7 +238,7 @@ void CreateMenuItem::DrawGui() {
 
                 auto newScene = std::make_unique<Scene>(newSceneName_);
                 newScene->Initialize();
-                parentMenu_->getParentWindow()->changeScene(std::move(newScene));
+                parentMenu_->getParentWindow()->changeScene(newSceneName_);
 
                 // 初期化
                 EditorController::getInstance()->clearCommandHistory();
@@ -296,8 +309,8 @@ void SceneViewArea::DrawGui() {
 
         ImVec2 imageLeftTop  = ImGui::GetItemRectMin();
         ImVec2 imageRightBot = ImGui::GetItemRectMax();
-        Vec2f imageSize     = {imageRightBot.x - imageLeftTop.x,
-                imageRightBot.y - imageLeftTop.y};
+        Vec2f imageSize      = {imageRightBot.x - imageLeftTop.x,
+                 imageRightBot.y - imageLeftTop.y};
 
         UseImGuizmo(imageLeftTop, imageSize);
 

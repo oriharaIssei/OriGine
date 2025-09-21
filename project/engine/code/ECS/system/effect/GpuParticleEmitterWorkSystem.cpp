@@ -202,7 +202,7 @@ void GpuParticleEmitterWorkSystem::CreateEmitGpuParticlePso() {
     ShaderManager* shaderManager = ShaderManager::getInstance();
     DxDevice* dxDevice           = Engine::getInstance()->getDxDevice();
 
-    if (shaderManager->IsRegistertedPipelineStateObj(psoKey)) {
+    if (shaderManager->IsRegisteredPipelineStateObj(psoKey)) {
         emitGpuParticlePso_ = shaderManager->getPipelineStateObj(psoKey);
         return; // PSOが既に登録されている場合はそれを使用
     }
@@ -284,7 +284,7 @@ void GpuParticleEmitterWorkSystem::CreateUpdateGpuParticlePso() {
     ShaderManager* shaderManager = ShaderManager::getInstance();
     DxDevice* dxDevice           = Engine::getInstance()->getDxDevice();
 
-    if (shaderManager->IsRegistertedPipelineStateObj(psoKey)) {
+    if (shaderManager->IsRegisteredPipelineStateObj(psoKey)) {
         updateGpuParticlePso_ = shaderManager->getPipelineStateObj(psoKey);
         return; // PSOが既に登録されている場合はそれを使用
     }

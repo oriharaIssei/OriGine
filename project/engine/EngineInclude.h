@@ -61,6 +61,7 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 #include "system/render/SkyboxRender.h"
 #include "system/render/SpriteRenderSystem.h"
 #include "system/render/TexturedMeshRenderSystem.h"
+#include "system/render/VelocityRenderingSystem.h"
 
 #include "system/postRender/DissolveEffect.h"
 #include "system/postRender/DistortionEffect.h"

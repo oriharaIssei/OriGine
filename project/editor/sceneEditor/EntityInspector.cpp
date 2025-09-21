@@ -59,7 +59,7 @@ void EntityInformationRegion::DrawGui() {
 
     if (ImGui::Button("SaveForFile")) {
         SceneSerializer serializer(currentScene);
-        serializer.SaveEntity(editEntityId, kApplicationResourceDirectory + "/entity");
+        serializer.SaveEntity(editEntityId, kApplicationResourceDirectory + "/entities");
     }
 
     ImGui::Spacing();
@@ -1125,7 +1125,7 @@ void EntityInformationRegion::DeleteEntityCommand::Execute() {
     }
     SceneSerializer serializer(currentScene);
     serializer.EntityToJson(entityId_, entityData_);
-    currentScene->getEntityRepositoryRef()->removeEntity(entityId_);
+    currentScene->deleteEntity(entityId_);
     LOG_DEBUG("DeleteEntityCommand::Execute: Deleted entity with ID '{}'.", entityId_);
 }
 

@@ -161,6 +161,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="editor\sceneEditor\SceneEditor.h" />
     <ClInclude Include="editor\sceneEditor\SystemInspector.h" />
     <ClInclude Include="editor\setting\SettingWindow.h" />
+    <ClInclude Include="engine\code\ECS\system\render\VelocityRenderingSystem.h" />
     <ClInclude Include="engine\EngineInclude.h" />
     <ClInclude Include="engine\code\ECS\Entity.h" />
     <ClInclude Include="engine\code\ECS\component\ComponentArray.h" />
@@ -362,6 +363,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\ECS\system\render\SkyboxRender.cpp" />
     <ClCompile Include="engine\code\ECS\system\render\SpriteRenderSystem.cpp" />
     <ClCompile Include="engine\code\ECS\system\render\TexturedMeshRenderSystem.cpp" />
+    <ClCompile Include="engine\code\ECS\system\render\VelocityRenderingSystem.cpp" />
     <ClCompile Include="engine\code\Engine.cpp" />
     <ClCompile Include="engine\code\audio\Audio.cpp" />
     <ClCompile Include="engine\code\camera\CameraManager.cpp" />

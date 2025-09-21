@@ -47,7 +47,6 @@ void ParticleRenderSystem::Update() {
         return;
     }
 
-
     for (size_t i = 0; i < kBlendNum; ++i) {
         BlendMode blend = static_cast<BlendMode>(i);
         RenderingBy(blend);
@@ -102,7 +101,7 @@ void ParticleRenderSystem::CreatePso() {
     ShaderManager* shaderManager = ShaderManager::getInstance();
 
     // 登録されているかどうかをチェック
-    if (shaderManager->IsRegistertedPipelineStateObj("Particle_" + blendModeStr[0])) {
+    /*if (shaderManager->IsRegisteredPipelineStateObj("Particle_" + blendModeStr[0])) {
         for (size_t i = 0; i < kBlendNum; ++i) {
             BlendMode blend = static_cast<BlendMode>(i);
             if (pso_[blend]) {
@@ -111,7 +110,7 @@ void ParticleRenderSystem::CreatePso() {
             pso_[blend] = shaderManager->getPipelineStateObj("Particle_" + blendModeStr[i]);
         }
         return;
-    }
+    }*/
 
     ///=================================================
     /// shader読み込み

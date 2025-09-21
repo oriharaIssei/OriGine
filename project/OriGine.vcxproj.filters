@@ -541,6 +541,7 @@
     <ClInclude Include="editor\window\EditorWindowMenu.h" />
     <ClInclude Include="engine\code\ECS\component\effect\post\SpeedlineEffectParam.h" />
     <ClInclude Include="engine\code\ECS\system\postRender\SpeedlineEffect.h" />
+    <ClInclude Include="engine\code\ECS\system\render\VelocityRenderingSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="editor\EditorController.cpp">
@@ -880,5 +881,6 @@
     <ClCompile Include="editor\window\EditorWindowMenu.cpp" />
     <ClCompile Include="engine\code\ECS\component\effect\post\SpeedlineEffectParam.cpp" />
     <ClCompile Include="engine\code\ECS\system\postRender\SpeedlineEffect.cpp" />
+    <ClCompile Include="engine\code\ECS\system\render\VelocityRenderingSystem.cpp" />
   </ItemGroup>
 </Project>

@@ -162,7 +162,7 @@ void SkeletonRenderSystem::CreatePso() {
     bool isLoaded = true;
     for (size_t i = 0; i < kBlendNum; ++i) {
         BlendMode blend = static_cast<BlendMode>(i);
-        pso_[blend]     = shaderManager->getPipelineStateObj("LineMeshMesh_" + blendModeStr[i]);
+        pso_[blend]     = shaderManager->getPipelineStateObj("LineMesh_" + blendModeStr[i]);
 
         if (!pso_[blend]) {
             isLoaded = false;
@@ -228,11 +228,8 @@ void SkeletonRenderSystem::CreatePso() {
     ///=================================================
     for (size_t i = 0; i < kBlendNum; ++i) {
         BlendMode blend = static_cast<BlendMode>(i);
-        if (pso_[blend]) {
-            continue;
-        }
         lineShaderInfo.blendMode_       = blend;
-        pso_[lineShaderInfo.blendMode_] = shaderManager->CreatePso("LineMeshMesh_" + blendModeStr[i], lineShaderInfo, dxDevice->getDevice());
+        pso_[lineShaderInfo.blendMode_] = shaderManager->CreatePso("LineMesh_" + blendModeStr[i], lineShaderInfo, dxDevice->getDevice());
     }
 }
 

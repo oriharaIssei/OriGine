@@ -264,3 +264,11 @@ PipelineStateObj* ShaderManager::CreatePso(const std::string& key,
 bool ShaderManager::LoadShader(const std::string& fileName, const std::string& directory, const wchar_t* profile) {
     return RegisterShaderBlob(fileName, shaderCompiler_->CompileShader(ConvertString(directory + '/' + fileName + ".hlsl"), profile));
 }
+
+PipelineStateObj* ShaderManager::getPipelineStateObj(const std::string& key) {
+    auto it = psoMap_.find(key);
+    if (it == psoMap_.end()) {
+        return nullptr;
+    }
+    return it->second.get();
+}

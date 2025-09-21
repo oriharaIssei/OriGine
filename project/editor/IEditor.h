@@ -210,7 +210,7 @@ public:
 class Window {
 public:
     Window(const std::string& _title)
-        : title_(_title){}
+        : title_(_title) {}
     virtual ~Window() {};
 
     virtual void Initialize() = 0;
@@ -232,17 +232,16 @@ protected:
         ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
     ImGuiDockNodeFlags dockFlags_ = ImGuiDockNodeFlags_None; // DockSpaceのフラグ
 
-    Vec2f windowSize_             = Vec2f(1280.f, 720.f); // Windowのサイズ
-    Vec2f windowPos_              = Vec2f(0.f, 0.f); // Windowの位置
-    bool isMaximized_             = false; // Windowが最大化されているかどうか
-    bool isMinimized_             = false; // Windowが最小化されているかどうか
+    Vec2f windowSize_ = Vec2f(1280.f, 720.f); // Windowのサイズ
+    Vec2f windowPos_  = Vec2f(0.f, 0.f); // Windowの位置
+    bool isMaximized_ = false; // Windowが最大化されているかどうか
+    bool isMinimized_ = false; // Windowが最小化されているかどうか
 
     std::unordered_map<std::string, std::shared_ptr<Area>> areas_; // Windowに含まれるArea
     std::unordered_map<std::string, std::shared_ptr<Menu>> menus_; // Windowに含まれるMenu
 public:
     const std::string& getTitle() const { return title_; }
     void setTitle(const std::string& title) { title_ = title; }
-
     bool isOpen() const { return isOpen_.current(); }
     DiffValue<bool>& isOpenRef() { return isOpen_; }
     void setOpen(bool open, bool sync = false) {
@@ -260,6 +259,20 @@ public:
             isFocused_.sync();
         }
     }
+
+    ImGuiWindowFlags getWindowFlags() const { return windowFlags_; }
+    void setWindowFlags(ImGuiWindowFlags flags) { windowFlags_ = flags; }
+    void addWindowFlags(ImGuiWindowFlags flags) { windowFlags_ |= flags; }
+    void removeWindowFlags(ImGuiWindowFlags flags) { windowFlags_ &= ~flags; }
+    ImGuiDockNodeFlags getDockFlags() const { return dockFlags_; }
+    void setDockFlags(ImGuiDockNodeFlags flags) { dockFlags_ = flags; }
+    void addDockFlags(ImGuiDockNodeFlags flags) { dockFlags_ |= flags; }
+    void removeDockFlags(ImGuiDockNodeFlags flags) { dockFlags_ &= ~flags; }
+
+    const Vec2f& getWindowSize() const { return windowSize_; }
+    const Vec2f& getWindowPos() const { return windowPos_; }
+    // void setWindowSize(const Vec2f& size) { windowSize_ = size; } ImGui で制御されているため setしても変更できない
+    // void setWindowPos(const Vec2f& pos) { windowPos_ = pos; }
 
     const std::unordered_map<std::string, std::shared_ptr<Area>>& getAreas() const { return areas_; }
     std::unordered_map<std::string, std::shared_ptr<Area>>& getAreasRef() { return areas_; }

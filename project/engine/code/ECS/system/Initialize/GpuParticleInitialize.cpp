@@ -98,7 +98,7 @@ void GpuParticleInitialize::CreatePSO() {
     ShaderManager* shaderManager = ShaderManager::getInstance();
     DxDevice* dxDevice           = Engine::getInstance()->getDxDevice();
 
-    if (shaderManager->IsRegistertedPipelineStateObj(psoKey)) {
+    if (shaderManager->IsRegisteredPipelineStateObj(psoKey)) {
         pso_ = shaderManager->getPipelineStateObj(psoKey);
         return; // PSOが既に登録されている場合はそれを使用
     }

@@ -59,14 +59,14 @@ void Scene::Render() {
     systemRunner_->UpdateCategory<SystemCategory::Render>();
     sceneView_->PostDraw();
 
-   /* int32_t postRenderInt = static_cast<int32_t>(SystemCategory::PostRender);
+    int32_t postRenderInt = static_cast<int32_t>(SystemCategory::PostRender);
     if (systemRunner_->getActiveSystems()[postRenderInt].empty() || !systemRunner_->getCategoryActivity(SystemCategory::PostRender)) {
         return;
     }
     sceneView_->PreDraw();
     sceneView_->DrawTexture();
     systemRunner_->UpdateCategory<SystemCategory::PostRender>();
-    sceneView_->PostDraw();*/
+    sceneView_->PostDraw();
 }
 
 void Scene::Finalize() {

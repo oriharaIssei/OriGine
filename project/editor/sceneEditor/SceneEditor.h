@@ -32,6 +32,7 @@ public:
     SceneEditorWindow() : Editor::Window(nameof<SceneEditorWindow>()) {}
     ~SceneEditorWindow() {}
     void Initialize() override;
+    void DrawGui() override;
     void Finalize() override;
 
     void InitializeMenus();
@@ -44,15 +45,20 @@ public:
     void FinalizeScene();
 
 private:
+    void LoadNextScene();
+
+private:
     std::unique_ptr<Scene> currentScene_; // 現在のシーン
+    bool isSceneChanged_                        = false; // シーンが変更されたかどうか
+    std::string nextSceneName_                  = ""; // 次に読み込むシーン名
     SerializedField<std::string> editSceneName_ = SerializedField<std::string>("Settings", "SceneEditor", "editSceneName", "Game"); // 編集中のシーン名(保存する)
 public:
     Scene* getCurrentScene() {
         return currentScene_.get();
     }
-    void changeScene(std::unique_ptr<Scene>&& _newScene) {
-        currentScene_.reset();
-        currentScene_ = std::move(_newScene);
+    void changeScene(const std::string& _nextScene) {
+        nextSceneName_  = _nextScene;
+        isSceneChanged_ = true;
     }
     SerializedField<std::string>& getEditSceneName() {
         return editSceneName_;

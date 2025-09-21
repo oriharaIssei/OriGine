@@ -40,9 +40,10 @@ void SpriteRenderSystem::Update() {
     // アクティブなレンダラーが一つもなければ終了
     bool isSkip = true;
     for (auto& [blend, emitters] : renderers_) {
-        if (!emitters.empty()) {
-            isSkip = false;
+        if (emitters.empty()) {
+            continue;
         }
+        isSkip = false;
         std::sort(emitters.begin(), emitters.end(), [](SpriteRenderer* a, SpriteRenderer* b) {
             return a->getRenderPriority() < b->getRenderPriority();
         });
@@ -106,7 +107,7 @@ void SpriteRenderSystem::CreatePso() {
     ShaderManager* shaderManager = ShaderManager::getInstance();
 
     // 登録されているかどうかをチェック
-    if (shaderManager->IsRegistertedPipelineStateObj("Sprite_" + blendModeStr[0])) {
+    if (shaderManager->IsRegisteredPipelineStateObj("Sprite_" + blendModeStr[0])) {
         for (size_t i = 0; i < kBlendNum; ++i) {
             BlendMode blend = static_cast<BlendMode>(i);
             if (pso_[blend]) {

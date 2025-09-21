@@ -177,10 +177,10 @@ public:
         shaderBlobMap_[fileName] = std::move(shaderBlob);
     };
 
-    bool IsRegistertedPipelineStateObj(const std::string& key) const {
+    bool IsRegisteredPipelineStateObj(const std::string& key) const {
         return psoMap_.find(key) != psoMap_.end();
     }
-    PipelineStateObj* getPipelineStateObj(const std::string& key) { return psoMap_[key].get(); }
+    PipelineStateObj* getPipelineStateObj(const std::string& key);
     const Microsoft::WRL::ComPtr<IDxcBlob>& getShaderBlob(const std::string& key) {
         auto it = shaderBlobMap_.find(key);
         if (it == shaderBlobMap_.end()) {

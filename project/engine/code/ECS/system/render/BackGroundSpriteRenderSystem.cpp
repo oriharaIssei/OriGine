@@ -108,7 +108,7 @@ void BackGroundSpriteRenderSystem::CreatePso() {
     ShaderManager* shaderManager = ShaderManager::getInstance();
 
     // 登録されているかどうかをチェック
-    if (shaderManager->IsRegistertedPipelineStateObj("BackGroundSprite_" + blendModeStr[0])) {
+    if (shaderManager->IsRegisteredPipelineStateObj("BackGroundSprite_" + blendModeStr[0])) {
         for (size_t i = 0; i < kBlendNum; ++i) {
             BlendMode blend = static_cast<BlendMode>(i);
             if (pso_[blend]) {

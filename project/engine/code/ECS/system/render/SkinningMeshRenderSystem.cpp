@@ -106,7 +106,7 @@ void SkinningMeshRenderSystem::CreatePso() {
     DxDevice* dxDevice           = Engine::getInstance()->getDxDevice();
 
     // 登録されているかどうかをチェック
-    if (shaderManager->IsRegistertedPipelineStateObj("TextureMesh_" + blendModeStr[0])) {
+    if (shaderManager->IsRegisteredPipelineStateObj("TextureMesh_" + blendModeStr[0])) {
         for (size_t i = 0; i < kBlendNum; ++i) {
             BlendMode blend = static_cast<BlendMode>(i);
             if (pso_[blend]) {
