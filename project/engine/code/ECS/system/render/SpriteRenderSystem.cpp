@@ -85,6 +85,7 @@ void SpriteRenderSystem::RenderingBy(BlendMode _blendMode) {
 
     dxCommand_->getCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     for (auto& renderer : renderers_[_blendMode]) {
+        renderer->Update(viewPortMat_);
         // ============================= テクスチャの設定 ============================= //
         commandList->SetGraphicsRootDescriptorTable(
             1,

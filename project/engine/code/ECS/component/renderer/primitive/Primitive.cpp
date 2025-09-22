@@ -173,18 +173,20 @@ void Box::createMesh(TextureMesh* _mesh) {
     // インデックスデータを設定
     std::vector<uint32_t> indices;
     indices.reserve(indexSize_);
-    // 前面
-    indices.insert(indices.end(), {0, 1, 2, 1, 3, 2});
-    // 背面
-    indices.insert(indices.end(), {4, 6, 5, 5, 6, 7});
-    // 左面
-    indices.insert(indices.end(), {0, 2, 4, 2, 6, 4});
-    // 右面
-    indices.insert(indices.end(), {1, 5, 3, 3, 5, 7});
-    // 上面
-    indices.insert(indices.end(), {2, 3, 6, 3, 7, 6});
-    // 下面
-    indices.insert(indices.end(), {0, 4, 1, 1, 4, 5});
+
+    // 前面 (z = min) : 外向き -Z
+    indices.insert(indices.end(), {0, 2, 1, 1, 2, 3});
+    // 背面 (z = max) : 外向き +Z
+    indices.insert(indices.end(), {4, 5, 6, 5, 7, 6});
+    // 左面 (x = min) : 外向き -X
+    indices.insert(indices.end(), {0, 4, 2, 2, 4, 6});
+    // 右面 (x = max) : 外向き +X
+    indices.insert(indices.end(), {1, 3, 5, 3, 7, 5});
+    // 上面 (y = max) : 外向き +Y
+    indices.insert(indices.end(), {2, 6, 3, 3, 6, 7});
+    // 下面 (y = min) : 外向き -Y
+    indices.insert(indices.end(), {0, 1, 4, 1, 5, 4});
+
     _mesh->setIndexData(indices);
 
     _mesh->TransferData();
@@ -199,10 +201,20 @@ void Sphere::createMesh(TextureMesh* _mesh) {
     const uint32_t longitudeDiv = divisionLongitude_; // 経度分割数
     const float radius          = radius_;
 
-    // 頂点・インデックスバッファ初期化
-    _mesh->vertexes_.clear();
-    _mesh->indexes_.clear();
+    // 頂点数・インデックス数を記録
+    vertexSize_ = static_cast<int32_t>((latitudeDiv + 1) * (longitudeDiv + 1));
+    indexSize_  = static_cast<int32_t>(latitudeDiv * longitudeDiv) * 6;
 
+    // 頂点・インデックスバッファ初期化
+    if ((int32_t)_mesh->getIndexCapacity() < indexSize_) {
+        // 必要なら Finalize
+        if (_mesh->getVertexBuffer().getResource()) {
+            _mesh->Finalize();
+        }
+        _mesh->Initialize(vertexSize_, indexSize_);
+        _mesh->vertexes_.clear();
+        _mesh->indexes_.clear();
+    }
     // 頂点生成
     for (uint32_t lat = 0; lat <= latitudeDiv; ++lat) {
         float theta    = float(lat) * std::numbers::pi_v<float> / float(latitudeDiv); // 0 ~ pi
@@ -243,10 +255,6 @@ void Sphere::createMesh(TextureMesh* _mesh) {
             _mesh->indexes_.emplace_back(next + 1);
         }
     }
-
-    // 頂点数・インデックス数を記録
-    vertexSize_ = static_cast<int32_t>(_mesh->vertexes_.size());
-    indexSize_  = static_cast<int32_t>(_mesh->indexes_.size());
 
     _mesh->TransferData();
 }
@@ -648,12 +656,15 @@ void SphereRenderer::Initialize(GameEntity* _hostEntity) {
     if (!meshGroup_->empty()) {
         meshGroup_->clear();
     }
-    meshGroup_->emplace_back(MeshType());
-    auto& mesh = meshGroup_->back();
+
     transformBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
     materialBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+
+    meshGroup_->emplace_back(MeshType());
+    auto& mesh = meshGroup_->back();
     // create _mesh
     createMesh(&mesh);
+
     // loadTexture
     if (!textureDirectory_.empty() && !textureFileName_.empty()) {
         textureIndex_ = TextureManager::LoadTexture(textureDirectory_ + "/" + textureFileName_);

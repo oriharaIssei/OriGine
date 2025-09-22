@@ -29,6 +29,7 @@ void EffectTexturedMeshRenderSystem::Update() {
     ISystem::eraseDeadEntity();
 
     activeModelRenderersByBlendMode_.clear();
+    activePrimitiveRenderersByBlendMode_.clear();
 
     for (auto& id : entityIDs_) {
         GameEntity* entity = getEntity(id);
@@ -36,10 +37,17 @@ void EffectTexturedMeshRenderSystem::Update() {
     }
 
     // アクティブなレンダラーが一つもなければ終了
-    if (activeModelRenderersByBlendMode_.empty() && activePrimitiveRenderersByBlendMode_.empty()) {
+    bool isSkip = true;
+    for (size_t i = 0; i < kBlendNum; ++i) {
+        BlendMode blend = static_cast<BlendMode>(i);
+        if (!activeModelRenderersByBlendMode_[blend].empty() || !activePrimitiveRenderersByBlendMode_[blend].empty()) {
+            isSkip = false;
+            break;
+        }
+    }
+    if (isSkip) {
         return;
     }
-
 
     for (size_t i = 0; i < kBlendNum; ++i) {
         BlendMode blend = static_cast<BlendMode>(i);
@@ -380,6 +388,7 @@ void EffectTexturedMeshRenderSystem::DispatchRenderer(GameEntity* _entity) {
 
     dispatchMultiMesh(getComponents<ModelMeshRenderer>(_entity));
     dispatchPrimitive(getComponents<PlaneRenderer>(_entity));
+    dispatchPrimitive(getComponents<RingRenderer>(_entity));
     dispatchPrimitive(getComponents<BoxRenderer>(_entity));
     dispatchPrimitive(getComponents<SphereRenderer>(_entity));
 }

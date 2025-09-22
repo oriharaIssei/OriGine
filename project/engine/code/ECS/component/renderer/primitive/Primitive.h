@@ -309,7 +309,6 @@ public:
     }
 
 protected:
-protected:
     PrimType primitive_;
 
 public:
