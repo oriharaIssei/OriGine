@@ -115,13 +115,23 @@ struct Quaternion final
         return Vec3f(r[X], r[Y], r[Z]);
     }
 
-   inline static constexpr Quaternion RotateAxisAngle(const Vec3f& axis, float angle) {
+    inline static constexpr Quaternion RotateAxisAngle(const Vec3f& axis, float angle) {
         float halfAngle = angle / 2.0f;
         return Quaternion(
             axis * sinf(halfAngle),
             cosf(halfAngle));
     }
-   inline static constexpr Quaternion FromMatrix(const Matrix4x4& _rotateMat) {
+    inline static const Quaternion RotateAxisVector(const Vec3f& _from, const Vec3f& _to) {
+        float angle = std::acosf(_from.Dot(_to));
+        Vec3f axis  = _from.cross(_to).normalize();
+
+        float halfAngle = angle / 2.0f;
+        return Quaternion(
+            axis * sinf(halfAngle),
+            cosf(halfAngle));
+    }
+
+    inline static constexpr Quaternion FromMatrix(const Matrix4x4& _rotateMat) {
         float trace = _rotateMat.m[0][0] + _rotateMat.m[1][1] + _rotateMat.m[2][2];
 
         if (trace > 0.0f) {
@@ -165,7 +175,7 @@ struct Quaternion final
             }
         }
     }
-   inline static Quaternion FromEulerAngles(float pitch, float yaw, float roll) {
+    inline static Quaternion FromEulerAngles(float pitch, float yaw, float roll) {
         // 半分の角度を計算
         float halfPitch = pitch * 0.5f;
         float halfYaw   = yaw * 0.5f;
@@ -188,10 +198,10 @@ struct Quaternion final
 
         return q;
     }
-   inline static Quaternion FromEulerAngles(const Vec3f& euler) {
+    inline static Quaternion FromEulerAngles(const Vec3f& euler) {
         return FromEulerAngles(euler[Y], euler[X], euler[Z]);
     }
-   inline static constexpr Quaternion LookAt(const Vec3f& _forward, const Vec3f& up) { // Z軸を向けるべき方向にする
+    inline static constexpr Quaternion LookAt(const Vec3f& _forward, const Vec3f& up) { // Z軸を向けるべき方向にする
         Vec3f forward = Vec3f::Normalize(_forward);
 
         // 右ベクトルを計算（外積）
