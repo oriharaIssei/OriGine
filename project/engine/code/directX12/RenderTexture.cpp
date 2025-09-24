@@ -210,8 +210,10 @@ void RenderTexture::Finalize() {
 }
 
 void RenderTexture::PreDraw(DxDsvDescriptor* _dsv) {
-
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->getCommandList();
+
+    ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
+    commandList->SetDescriptorHeaps(1, ppHeaps);
 
     D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = getFrontBufferRtvHandle();
     D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = _dsv->getCpuHandle();
@@ -325,6 +327,7 @@ void RenderTexture::DrawTexture() {
 
     ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
+
     commandList->SetGraphicsRootDescriptorTable(
         0,
         getBackBufferSrvHandle());

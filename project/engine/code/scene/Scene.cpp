@@ -63,10 +63,7 @@ void Scene::Render() {
     if (systemRunner_->getActiveSystems()[postRenderInt].empty() || !systemRunner_->getCategoryActivity(SystemCategory::PostRender)) {
         return;
     }
-    sceneView_->PreDraw();
-    sceneView_->DrawTexture();
     systemRunner_->UpdateCategory<SystemCategory::PostRender>();
-    sceneView_->PostDraw();
 }
 
 void Scene::Finalize() {
