@@ -573,7 +573,7 @@ void CollisionCheckSystem::Update() {
     for (auto entity : entities_) {
         Transform* transform = getComponent<Transform>(entity);
         if (transform) {
-            transform->Update();
+            transform->UpdateMatrix();
         }
 
         // AABB

@@ -25,7 +25,8 @@ public:
     ~Transform() {}
 
     void Initialize(GameEntity* _entity) override;
-    void Update();
+    void UpdateMatrix();
+    Quaternion CalculateWorldRotate() const;
     void Edit(Scene* _scene,GameEntity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
 
     void Finalize() override {};

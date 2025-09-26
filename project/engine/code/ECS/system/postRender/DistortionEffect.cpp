@@ -109,7 +109,7 @@ void DistortionEffect::UpdateEntity(GameEntity* _entity) {
                     transform->parent = entityTransform_;
                 }
 
-                transform.openData_.Update();
+                transform->UpdateMatrix();
                 transform.ConvertToBuffer();
             }
 

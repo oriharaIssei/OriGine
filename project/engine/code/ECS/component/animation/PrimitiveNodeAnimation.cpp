@@ -421,7 +421,7 @@ void PrimitiveNodeAnimation::UpdateTransformAnimation(Transform* _transform) {
     default:
         break;
     }
-    _transform->Update();
+    _transform->UpdateMatrix();
 }
 
 void PrimitiveNodeAnimation::UpdateMaterialAnimation(Material* _material) {

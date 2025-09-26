@@ -77,7 +77,7 @@ void TexturedMeshRenderSystem::DispatchRenderer(GameEntity* _entity) {
                 transform->parent = entityTransform;
             }
 
-            transform.openData_.Update();
+            transform->UpdateMatrix();
             transform.ConvertToBuffer();
 
             ///==============================
@@ -104,7 +104,7 @@ void TexturedMeshRenderSystem::DispatchRenderer(GameEntity* _entity) {
                     transform->parent = entityTransform;
                 }
 
-                transform.openData_.Update();
+                transform->UpdateMatrix();
                 transform.ConvertToBuffer();
 
                 BlendMode blendMode = renderer.getCurrentBlend();
@@ -442,7 +442,7 @@ void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
                 transform->parent = entityTransform_;
             }
 
-            transform.openData_.Update();
+            transform->UpdateMatrix();
             transform.ConvertToBuffer();
         }
         RenderModelMesh(commandList, renderer);
@@ -475,7 +475,7 @@ void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
                 transform->parent = entityTransform_;
             }
 
-            transform.openData_.Update();
+            transform->UpdateMatrix();
             transform.ConvertToBuffer();
         }
 
@@ -512,7 +512,7 @@ void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
                 transform->parent = entityTransform_;
             }
 
-            transform.openData_.Update();
+            transform->UpdateMatrix();
             transform.ConvertToBuffer();
         }
 
@@ -545,7 +545,7 @@ void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
             if (transform->parent == nullptr) {
                 transform->parent = entityTransform_;
             }
-            transform.openData_.Update();
+            transform->UpdateMatrix();
             transform.ConvertToBuffer();
         }
         auto& mesh = renderer->getMeshGroup()->front();
@@ -576,7 +576,7 @@ void TexturedMeshRenderSystem::RenderingMesh(
     _commandList->IASetIndexBuffer(&_mesh.getIBView());
 
     // ============================= Transformのセット ============================= //
-    _transformBuff->Update();
+    _transformBuff->UpdateMatrix();
     _transformBuff.ConvertToBuffer();
     _transformBuff.SetForRootParameter(_commandList, transformBufferIndex_);
 

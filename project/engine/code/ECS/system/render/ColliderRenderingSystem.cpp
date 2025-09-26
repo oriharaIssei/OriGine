@@ -268,7 +268,7 @@ void ColliderRenderingSystem::CreateRenderMesh() {
 
             Transform* transform = getComponent<Transform>(entity);
             if (transform) {
-                transform->Update();
+                transform->UpdateMatrix();
             }
 
             auto colliders = aabbColliders_->getComponents(entity);
@@ -332,7 +332,7 @@ void ColliderRenderingSystem::CreateRenderMesh() {
 
             Transform* transform = getComponent<Transform>(entity);
             if (transform) {
-                transform->Update();
+                transform->UpdateMatrix();
             }
 
             auto colliders = obbColliders_->getComponents(entity);
@@ -396,7 +396,7 @@ void ColliderRenderingSystem::CreateRenderMesh() {
 
             Transform* transform = getComponent<Transform>(entity);
             if (transform) {
-                transform->Update();
+                transform->UpdateMatrix();
             }
 
             auto colliders = sphereColliders_->getComponents(entity);

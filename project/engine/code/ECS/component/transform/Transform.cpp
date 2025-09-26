@@ -13,16 +13,22 @@
 Transform::Transform() {}
 
 void Transform::Initialize([[maybe_unused]] GameEntity* _entity) {
-    this->Update();
+    this->UpdateMatrix();
 }
 
-void Transform::Update() {
-    rotate = Quaternion::Normalize(rotate);
-    // 修正: 局所変換行列を作成
+void Transform::UpdateMatrix() {
+    rotate   = Quaternion::Normalize(rotate);
     worldMat = MakeMatrix::Affine(scale, rotate, translate);
-    // 修正: 親の行列との乗算順序を変更 (親行列を左側に乗算)
     if (parent) {
         worldMat *= parent->worldMat;
+    }
+}
+
+Quaternion Transform::CalculateWorldRotate() const {
+    if (parent) {
+        return Quaternion::Normalize(parent->CalculateWorldRotate() * rotate);
+    } else {
+        return Quaternion::Normalize(rotate);
     }
 }
 
@@ -30,14 +36,14 @@ void Transform::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, [[maybe_unused]
 #ifdef _DEBUG
 
     // --------------------------- scale --------------------------- //
-    DragGuiVectorCommand<3, float>("Scale##" + _parentLabel, this->scale, 0.01f, {}, {}, "%.3f", [this](Vector<3, float>* /*_s*/) { this->Update(); });
+    DragGuiVectorCommand<3, float>("Scale##" + _parentLabel, this->scale, 0.01f, {}, {}, "%.3f", [this](Vector<3, float>* /*_s*/) { this->UpdateMatrix(); });
     // --------------------------- rotate --------------------------- //
-    DragGuiVectorCommand<4, float>("Rotate##" + _parentLabel, this->rotate, 0.01f, {}, {}, "%.3f", [this](Vector<4, float>* _r) { *_r = Quaternion::Normalize(*_r);this->Update(); });
+    DragGuiVectorCommand<4, float>("Rotate##" + _parentLabel, this->rotate, 0.01f, {}, {}, "%.3f", [this](Vector<4, float>* _r) { *_r = Quaternion::Normalize(*_r);this->UpdateMatrix(); });
     this->rotate = Quaternion::Normalize(this->rotate);
     // --------------------------- translate --------------------------- //
-    DragGuiVectorCommand<3, float>("Translate##" + _parentLabel, this->translate, 0.01f, {}, {}, "%.3f", [this](Vector<3, float>* /*_t*/) { this->Update(); });
+    DragGuiVectorCommand<3, float>("Translate##" + _parentLabel, this->translate, 0.01f, {}, {}, "%.3f", [this](Vector<3, float>* /*_t*/) { this->UpdateMatrix(); });
 
-    this->Update();
+    this->UpdateMatrix();
 
 #endif // _DEBUG
 }

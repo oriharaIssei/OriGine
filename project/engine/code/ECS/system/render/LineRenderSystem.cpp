@@ -85,7 +85,7 @@ void LineRenderSystem::DispatchRenderer(GameEntity* _entity) {
             if (transform->parent == nullptr) {
                 transform->parent = entityTransform_;
             }
-            transform.openData_.Update();
+            transform->UpdateMatrix();
             transform.ConvertToBuffer();
         }
         // BlendMode を 適応
@@ -140,7 +140,7 @@ void LineRenderSystem::UpdateEntity(GameEntity* _entity) {
             if (transform->parent == nullptr) {
                 transform->parent = entityTransform_;
             }
-            transform.openData_.Update();
+            transform->UpdateMatrix();
             transform.ConvertToBuffer();
             transform.SetForRootParameter(commandList, 0);
         }

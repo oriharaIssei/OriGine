@@ -23,7 +23,6 @@ void SkinningMeshRenderSystem::Initialize() {
     dxCommand_->Initialize("main", "main");
 
     CreatePso();
-
 }
 
 void SkinningMeshRenderSystem::Update() {
@@ -55,10 +54,9 @@ void SkinningMeshRenderSystem::Update() {
         BlendMode blend = static_cast<BlendMode>(i);
         RenderingBy(blend);
     }
-
 }
 
-void SkinningMeshRenderSystem::DispatchRenderer(GameEntity* _entity){
+void SkinningMeshRenderSystem::DispatchRenderer(GameEntity* _entity) {
     auto* skinningAnimationComponents = getComponents<SkinningAnimationComponent>(_entity);
     if (skinningAnimationComponents == nullptr) {
         return;
@@ -322,8 +320,6 @@ void SkinningMeshRenderSystem::LightUpdate() {
     LightManager::getInstance()->Update();
 }
 
-
-
 void SkinningMeshRenderSystem::StartRender() {
 
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->getCommandList();
@@ -357,8 +353,8 @@ void SkinningMeshRenderSystem::StartRender() {
 void SkinningMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
     auto& commandList = dxCommand_->getCommandList();
 
-    Transform* entityTransform_ = getComponent<Transform>(_entity);
-    entityTransform_->Update();
+    Transform* entityTransform = getComponent<Transform>(_entity);
+    entityTransform->UpdateMatrix();
 
     int32_t componentSize =
         (int32_t)getComponents<SkinningAnimationComponent>(_entity)->size();
@@ -377,7 +373,7 @@ void SkinningMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
             continue;
         }
 
-        RenderModelMesh(entityTransform_, commandList, skinningAnimationComponent, renderer);
+        RenderModelMesh(entityTransform, commandList, skinningAnimationComponent, renderer);
     }
 }
 
@@ -412,7 +408,7 @@ void SkinningMeshRenderSystem::RenderModelMesh(
             meshTransform->parent = _entityTransform;
         }
 
-        meshTransform->Update();
+        meshTransform->UpdateMatrix();
         meshTransform.ConvertToBuffer();
         meshTransform.SetForRootParameter(_commandList, transformBufferIndex_);
 

@@ -67,5 +67,5 @@ void MoveSystemByRigidBody::UpdateEntity(GameEntity* _entity) {
     /// --------------------------------------- 位置の更新 --------------------------------------- ///
     transform->translate += velocity * deltaTime;
     // worldMatの更新
-    transform->Update();
+    transform->UpdateMatrix();
 }

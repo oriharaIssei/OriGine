@@ -505,7 +505,7 @@ void SceneViewArea::UseImGuizmo(const ImVec2& _sceneViewPos, const Vec2f& _origi
                     if (!transform) {
                         return;
                     }
-                    transform->Update();
+                    transform->UpdateMatrix();
                 },
                 true);
 

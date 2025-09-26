@@ -50,7 +50,7 @@ void AABBCollider::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] GameEnt
 }
 
 void AABBCollider::CalculateWorldShape() {
-    transform_.Update();
+    transform_.UpdateMatrix();
     this->worldShape_.min_ = Vec3f(transform_.worldMat[3]) + shape_.min_;
     this->worldShape_.max_ = Vec3f(transform_.worldMat[3]) + shape_.max_;
 }
@@ -88,7 +88,7 @@ void SphereCollider::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] GameE
 }
 
 void SphereCollider::CalculateWorldShape() {
-    transform_.Update();
+    transform_.UpdateMatrix();
     this->worldShape_.center_ = Vec3f(transform_.worldMat[3]) + shape_.center_;
     this->worldShape_.radius_ = shape_.radius_;
 }
@@ -140,9 +140,9 @@ void OBBCollider::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] GameEnti
 };
 
 void OBBCollider::CalculateWorldShape() {
-    transform_.Update();
+    transform_.UpdateMatrix();
     this->worldShape_.center_           = Vec3f(transform_.worldMat[3]) + shape_.center_;
     this->worldShape_.halfSize_         = shape_.halfSize_;
-    this->worldShape_.orientations_.rot = shape_.orientations_.rot * transform_.rotate;
+    this->worldShape_.orientations_.rot = shape_.orientations_.rot * transform_.CalculateWorldRotate();
     this->worldShape_.orientations_.UpdateAxes();
 }

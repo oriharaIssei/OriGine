@@ -198,7 +198,7 @@ void SkyboxRender::UpdateEntity(GameEntity* _entity) {
     IConstantBuffer<Transform>& meshTransform = renderer->getTransformBuff();
     const CameraTransform& cameraTransform    = CameraManager::getInstance()->getTransform();
     meshTransform->translate                  = cameraTransform.translate;
-    meshTransform->Update();
+    meshTransform->UpdateMatrix();
     const Matrix4x4& viewMat = cameraTransform.viewMat;
     const Matrix4x4& projMat = cameraTransform.projectionMat;
     meshTransform->worldMat  = meshTransform->worldMat * viewMat * projMat;

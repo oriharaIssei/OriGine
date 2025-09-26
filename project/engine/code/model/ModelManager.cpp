@@ -329,7 +329,7 @@ std::shared_ptr<Model> ModelManager::Create(
         }
 
         for (auto& [name, data] : result->meshData_->meshGroup) {
-            result->transforms_[&data].Update();
+            result->transforms_[&data].UpdateMatrix();
         }
 
         if (callBack != nullptr) {
@@ -428,7 +428,7 @@ void ModelManager::LoadTask::Update() {
         try {
             std::lock_guard<std::mutex> lock(mutex);
             model->transforms_[&data] = Transform();
-            model->transforms_[&data].Update();
+            model->transforms_[&data].UpdateMatrix();
         } catch (const std::exception& e) {
             // エラーハンドリング
             std::cerr << "Error creating or updating buffer: " << e.what() << std::endl;

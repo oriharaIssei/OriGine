@@ -98,7 +98,7 @@ ModelMeshRenderer::ModelMeshRenderer(const std::vector<TextureMesh>& _meshGroup)
         textureFilePath_.resize(meshGroup_->size(), "");
     }
     for (size_t i = 0; i < meshGroup_->size(); ++i) {
-        meshTransformBuff_[i]->Update();
+        meshTransformBuff_[i]->UpdateMatrix();
         meshTransformBuff_[i].ConvertToBuffer();
 
         meshMaterialBuff_[i] = IConstantBuffer<Material>(Material());
@@ -124,7 +124,7 @@ ModelMeshRenderer::ModelMeshRenderer(const std::shared_ptr<std::vector<TextureMe
     for (size_t i = 0; i < meshGroup_->size(); ++i) {
         meshTransformBuff_[i].CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
 
-        meshTransformBuff_[i]->Update();
+        meshTransformBuff_[i]->UpdateMatrix();
         meshTransformBuff_[i].ConvertToBuffer();
 
         meshTextureNumbers_[i] = 0;
@@ -146,7 +146,7 @@ void ModelMeshRenderer::Initialize(GameEntity* _hostEntity) {
         /// ---------------------------------------------------
         // Transform parent
         /// ---------------------------------------------------
-        meshTransformBuff_[i].openData_.Update();
+        meshTransformBuff_[i].openData_.UpdateMatrix();
         meshTransformBuff_[i].ConvertToBuffer();
     }
 
@@ -422,7 +422,7 @@ void LineRenderer::Initialize(GameEntity* _hostEntity) {
     MeshRenderer::Initialize(_hostEntity);
     transformBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
 
-    transformBuff_.openData_.Update();
+    transformBuff_.openData_.UpdateMatrix();
     transformBuff_.ConvertToBuffer();
 }
 
