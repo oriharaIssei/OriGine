@@ -5,6 +5,7 @@
 
 /// math
 #include <cmath>
+#include <Matrix4x4.h>
 #include <numbers>
 
 constexpr Quaternion Quaternion::Inverse(const Quaternion& q) {
@@ -96,6 +97,111 @@ Vec3f Quaternion::RotateVector(const Vec3f& vec, const Quaternion& q) {
     r            = q * r * q.Conjugation();
     return Vec3f(r[X], r[Y], r[Z]);
 }
+
+const Quaternion Quaternion::RotateAxisVector(const Vec3f& _from, const Vec3f& _to) {
+    float angle = std::acosf(_from.dot(_to));
+    Vec3f axis  = _from.cross(_to).normalize();
+
+    float halfAngle = angle / 2.0f;
+    return Quaternion(
+        axis * sinf(halfAngle),
+        cosf(halfAngle));
+}
+
+const Quaternion Quaternion::FromNormalVector(const Vec3f& _normal, const Vec3f& _up) {
+    Vec3f from = _up.normalize();
+    Vec3f to   = _normal.normalize();
+
+    float dot = from.dot(to);
+    // 数値誤差対策
+    dot = std::clamp(dot, -1.0f, 1.0f);
+
+    if (std::abs(dot - 1.0f) < 1e-6f) {
+        // ほぼ同じ方向 → 回転不要
+        return Quaternion::Identity();
+    }
+
+    if (std::abs(dot + 1.0f) < 1e-6f) {
+        // 真逆方向 → 180度回転
+        // from と直交する任意の軸を求める
+        Vec3f axis = Vec3f::Cross(from, Vec3f(1.0f, 0.0f, 0.0f));
+        if (axis.lengthSq() < 1e-6f) {
+            // 万一 from が (1,0,0) と平行なら別の軸を選ぶ
+            axis = Vec3f::Cross(from, Vec3f(0.0f, 1.0f, 0.0f));
+        }
+        axis = axis.normalize();
+        return Quaternion::RotateAxisAngle(axis, std::numbers::pi_v<float>);
+    }
+
+    Vec3f axis  = Vec3f::Cross(from, to).normalize();
+    float angle = std::acos(dot);
+    return Quaternion::RotateAxisAngle(axis, angle);
+}
+
+Quaternion Quaternion::FromMatrix(const Matrix4x4& _rotateMat) {
+    float trace = _rotateMat.m[0][0] + _rotateMat.m[1][1] + _rotateMat.m[2][2];
+
+    if (trace > 0.0f) {
+        float s    = std::sqrt(trace + 1.0f) * 2.0f;
+        float invS = 1.0f / s;
+
+        return Quaternion(
+            (_rotateMat.m[2][1] - _rotateMat.m[1][2]) * invS, // x
+            (_rotateMat.m[0][2] - _rotateMat.m[2][0]) * invS, // y
+            (_rotateMat.m[1][0] - _rotateMat.m[0][1]) * invS, // z
+            0.25f * s // w
+        );
+    } else {
+        if (_rotateMat.m[0][0] > _rotateMat.m[1][1] && _rotateMat.m[0][0] > _rotateMat.m[2][2]) {
+            float s    = std::sqrt(1.0f + _rotateMat.m[0][0] - _rotateMat.m[1][1] - _rotateMat.m[2][2]) * 2.0f;
+            float invS = 1.0f / s;
+
+            return Quaternion(
+                0.25f * s,
+                (_rotateMat.m[0][1] + _rotateMat.m[1][0]) * invS,
+                (_rotateMat.m[0][2] + _rotateMat.m[2][0]) * invS,
+                (_rotateMat.m[2][1] - _rotateMat.m[1][2]) * invS);
+        } else if (_rotateMat.m[1][1] > _rotateMat.m[2][2]) {
+            float s    = std::sqrt(1.0f + _rotateMat.m[1][1] - _rotateMat.m[0][0] - _rotateMat.m[2][2]) * 2.0f;
+            float invS = 1.0f / s;
+
+            return Quaternion(
+                (_rotateMat.m[0][1] + _rotateMat.m[1][0]) * invS,
+                0.25f * s,
+                (_rotateMat.m[1][2] + _rotateMat.m[2][1]) * invS,
+                (_rotateMat.m[0][2] - _rotateMat.m[2][0]) * invS);
+        } else {
+            float s    = std::sqrt(1.0f + _rotateMat.m[2][2] - _rotateMat.m[0][0] - _rotateMat.m[1][1]) * 2.0f;
+            float invS = 1.0f / s;
+
+            return Quaternion(
+                (_rotateMat.m[0][2] + _rotateMat.m[2][0]) * invS,
+                (_rotateMat.m[1][2] + _rotateMat.m[2][1]) * invS,
+                0.25f * s,
+                (_rotateMat.m[1][0] - _rotateMat.m[0][1]) * invS);
+        }
+    }
+}
+
+Quaternion Quaternion::LookAt(const Vec3f& _forward, const Vec3f& up) { // Z軸を向けるべき方向にする
+    Vec3f forward = Vec3f::Normalize(_forward);
+
+    // 右ベクトルを計算（外積）
+    Vec3f right = Vec3f::Normalize(Vec3f::Cross(up, forward));
+
+    // 上ベクトルを再計算
+    Vec3f newUp = Vec3f::Cross(forward, right);
+
+    // 回転行列を作成
+    Matrix4x4 lookAtMatrix = {
+        right[X], newUp[X], forward[X], 0.0f,
+        right[Y], newUp[Y], forward[Y], 0.0f,
+        right[Z], newUp[Z], forward[Z], 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f};
+
+    // 行列からクォータニオンに変換
+    return FromMatrix(lookAtMatrix);
+};
 
 constexpr Quaternion operator*(float scalar, const Quaternion& q) {
     return Quaternion(q * scalar);

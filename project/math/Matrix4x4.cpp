@@ -116,6 +116,17 @@ void Matrix4x4::DecomposeMatrixToComponents(const Matrix4x4& mat, Vec3f& outScal
     }
 }
 
+Quaternion Matrix4x4::DecomposeMatrixToQuaternion(const Matrix4x4& _mat) {
+    Quaternion result;
+    DirectX::XMMATRIX xmMat = DirectX::XMLoadFloat4x4(reinterpret_cast<const DirectX::XMFLOAT4X4*>(&_mat));
+    DirectX::XMVECTOR q     = DirectX::XMQuaternionRotationMatrix(xmMat);
+    DirectX::XMFLOAT4 qf;
+    DirectX::XMStoreFloat4(&qf, q);
+    result = Quaternion(qf.x, qf.y, qf.z, qf.w);
+
+    return result;
+}
+
 const Matrix4x4 MakeMatrix::Identity() {
     return Matrix4x4({1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f});
 }
@@ -178,7 +189,7 @@ Matrix4x4 MakeMatrix::RotateAxisAngle(const Vec3f& axis, float angle) {
 }
 
 Matrix4x4 MakeMatrix::RotateAxisAngle(const Vec3f& fromV, const Vec3f& toV) {
-    float angle = std::acosf(fromV.Dot(toV));
+    float angle = std::acosf(fromV.dot(toV));
     Vec3f axis  = fromV.cross(toV).normalize();
     return MakeMatrix::RotateAxisAngle(axis, angle);
 }

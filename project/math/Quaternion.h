@@ -3,7 +3,8 @@
 /// math
 #include "Vector.h"
 #include "Vector3.h"
-#include <Matrix4x4.h>
+
+struct Matrix4x4;
 
 /// <summary>
 /// 四元数
@@ -121,60 +122,11 @@ struct Quaternion final
             axis * sinf(halfAngle),
             cosf(halfAngle));
     }
-    inline static const Quaternion RotateAxisVector(const Vec3f& _from, const Vec3f& _to) {
-        float angle = std::acosf(_from.Dot(_to));
-        Vec3f axis  = _from.cross(_to).normalize();
+    static const Quaternion RotateAxisVector(const Vec3f& _from, const Vec3f& _to);
 
-        float halfAngle = angle / 2.0f;
-        return Quaternion(
-            axis * sinf(halfAngle),
-            cosf(halfAngle));
-    }
+    static const Quaternion FromNormalVector(const Vec3f& _normal, const Vec3f& _up);
 
-    inline static constexpr Quaternion FromMatrix(const Matrix4x4& _rotateMat) {
-        float trace = _rotateMat.m[0][0] + _rotateMat.m[1][1] + _rotateMat.m[2][2];
-
-        if (trace > 0.0f) {
-            float s    = std::sqrt(trace + 1.0f) * 2.0f;
-            float invS = 1.0f / s;
-
-            return Quaternion(
-                (_rotateMat.m[2][1] - _rotateMat.m[1][2]) * invS, // x
-                (_rotateMat.m[0][2] - _rotateMat.m[2][0]) * invS, // y
-                (_rotateMat.m[1][0] - _rotateMat.m[0][1]) * invS, // z
-                0.25f * s // w
-            );
-        } else {
-            if (_rotateMat.m[0][0] > _rotateMat.m[1][1] && _rotateMat.m[0][0] > _rotateMat.m[2][2]) {
-                float s    = std::sqrt(1.0f + _rotateMat.m[0][0] - _rotateMat.m[1][1] - _rotateMat.m[2][2]) * 2.0f;
-                float invS = 1.0f / s;
-
-                return Quaternion(
-                    0.25f * s,
-                    (_rotateMat.m[0][1] + _rotateMat.m[1][0]) * invS,
-                    (_rotateMat.m[0][2] + _rotateMat.m[2][0]) * invS,
-                    (_rotateMat.m[2][1] - _rotateMat.m[1][2]) * invS);
-            } else if (_rotateMat.m[1][1] > _rotateMat.m[2][2]) {
-                float s    = std::sqrt(1.0f + _rotateMat.m[1][1] - _rotateMat.m[0][0] - _rotateMat.m[2][2]) * 2.0f;
-                float invS = 1.0f / s;
-
-                return Quaternion(
-                    (_rotateMat.m[0][1] + _rotateMat.m[1][0]) * invS,
-                    0.25f * s,
-                    (_rotateMat.m[1][2] + _rotateMat.m[2][1]) * invS,
-                    (_rotateMat.m[0][2] - _rotateMat.m[2][0]) * invS);
-            } else {
-                float s    = std::sqrt(1.0f + _rotateMat.m[2][2] - _rotateMat.m[0][0] - _rotateMat.m[1][1]) * 2.0f;
-                float invS = 1.0f / s;
-
-                return Quaternion(
-                    (_rotateMat.m[0][2] + _rotateMat.m[2][0]) * invS,
-                    (_rotateMat.m[1][2] + _rotateMat.m[2][1]) * invS,
-                    0.25f * s,
-                    (_rotateMat.m[1][0] - _rotateMat.m[0][1]) * invS);
-            }
-        }
-    }
+    inline static Quaternion FromMatrix(const Matrix4x4& _rotateMat);
     inline static Quaternion FromEulerAngles(float pitch, float yaw, float roll) {
         // 半分の角度を計算
         float halfPitch = pitch * 0.5f;
@@ -201,25 +153,7 @@ struct Quaternion final
     inline static Quaternion FromEulerAngles(const Vec3f& euler) {
         return FromEulerAngles(euler[Y], euler[X], euler[Z]);
     }
-    inline static constexpr Quaternion LookAt(const Vec3f& _forward, const Vec3f& up) { // Z軸を向けるべき方向にする
-        Vec3f forward = Vec3f::Normalize(_forward);
-
-        // 右ベクトルを計算（外積）
-        Vec3f right = Vec3f::Normalize(Vec3f::Cross(up, forward));
-
-        // 上ベクトルを再計算
-        Vec3f newUp = Vec3f::Cross(forward, right);
-
-        // 回転行列を作成
-        Matrix4x4 lookAtMatrix = {
-            right[X], newUp[X], forward[X], 0.0f,
-            right[Y], newUp[Y], forward[Y], 0.0f,
-            right[Z], newUp[Z], forward[Z], 0.0f,
-            0.0f, 0.0f, 0.0f, 1.0f};
-
-        // 行列からクォータニオンに変換
-        return FromMatrix(lookAtMatrix);
-    };
+    static Quaternion LookAt(const Vec3f& _forward, const Vec3f& up);
 };
 
 constexpr Quaternion operator*(float scalar, const Quaternion& q);

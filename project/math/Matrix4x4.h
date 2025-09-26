@@ -1,9 +1,8 @@
 #pragma once
 
 #include <DirectXMath.h>
+#include <Quaternion.h>
 #include <Vector3.h>
-
-struct Quaternion;
 
 struct Matrix4x4 {
     float m[4][4];
@@ -59,6 +58,11 @@ struct Matrix4x4 {
         Quaternion& outRotate,
         Vec3f& outTranslate) const {
         DecomposeMatrixToComponents(*this, outScale, outRotate, outTranslate);
+    }
+
+    static Quaternion DecomposeMatrixToQuaternion(const Matrix4x4& _mat);
+    Quaternion decomposeMatrixToQuaternion() const {
+        return DecomposeMatrixToQuaternion(*this);
     }
 
     static DirectX::XMMATRIX MatrixToXMMATRIX(const Matrix4x4& _mat) {
