@@ -35,4 +35,20 @@ bool ButtonCommand(const std::string& label, bool& value) {
         return false;
     }
 }
+Vec2f ConvertMouseToSceneView(const Vec2f& mousePos, const ImVec2& sceneViewPos, const ImVec2& sceneViewSize, const Vec2f& originalResolution) {
+    // SceneView 内での相対的なマウス座標を計算
+    float relativeX = mousePos[X] - sceneViewPos.x;
+    float relativeY = mousePos[Y] - sceneViewPos.y;
+
+    // SceneView のスケールを計算
+    float scaleX = originalResolution[X] / sceneViewSize.x;
+    float scaleY = originalResolution[Y] / sceneViewSize.y;
+
+    // ゲーム内の座標に変換
+    Vec2f gamePos;
+    gamePos[X] = relativeX * scaleX;
+    gamePos[Y] = relativeY * scaleY;
+
+    return gamePos;
+}
 #endif // _DEBUG
