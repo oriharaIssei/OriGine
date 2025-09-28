@@ -10,6 +10,9 @@
     <Filter Include="editor\setting">
       <UniqueIdentifier>{D9053C78-C5D3-2F7E-AE67-A0A49AD40BE3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="editor\window">
+      <UniqueIdentifier>{3396D15A-9F56-4D91-6891-960ED410926D}</UniqueIdentifier>
+    </Filter>
     <Filter Include="engine">
       <UniqueIdentifier>{FBDB78FB-E77D-A3D1-D038-B725BC792A22}</UniqueIdentifier>
     </Filter>
@@ -168,6 +171,9 @@
     <ClInclude Include="editor\setting\SettingWindow.h">
       <Filter>editor\setting</Filter>
     </ClInclude>
+    <ClInclude Include="editor\window\EditorWindowMenu.h">
+      <Filter>editor\window</Filter>
+    </ClInclude>
     <ClInclude Include="engine\EngineInclude.h">
       <Filter>engine</Filter>
     </ClInclude>
@@ -178,6 +184,9 @@
       <Filter>engine\code\ECS\component</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\component\IComponent.h">
+      <Filter>engine\code\ECS\component</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\SubScene.h">
       <Filter>engine\code\ECS\component</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\component\animation\AnimationData.h">
@@ -232,6 +241,9 @@
       <Filter>engine\code\ECS\component\effect\post</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\component\effect\post\RandomEffectParam.h">
+      <Filter>engine\code\ECS\component\effect\post</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\effect\post\SpeedlineEffectParam.h">
       <Filter>engine\code\ECS\component\effect\post</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\component\effect\post\VignetteParam.h">
@@ -312,6 +324,9 @@
     <ClInclude Include="engine\code\ECS\system\movement\MoveSystemByRigidBody.h">
       <Filter>engine\code\ECS\system\movement</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\ECS\system\movement\SubSceneUpdate.h">
+      <Filter>engine\code\ECS\system\movement</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\ECS\system\postRender\DissolveEffect.h">
       <Filter>engine\code\ECS\system\postRender</Filter>
     </ClInclude>
@@ -328,6 +343,12 @@
       <Filter>engine\code\ECS\system\postRender</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\system\postRender\SmoothingEffect.h">
+      <Filter>engine\code\ECS\system\postRender</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\system\postRender\SpeedlineEffect.h">
+      <Filter>engine\code\ECS\system\postRender</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\system\postRender\SubSceneRender.h">
       <Filter>engine\code\ECS\system\postRender</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\system\postRender\VignetteEffect.h">
@@ -364,6 +385,9 @@
       <Filter>engine\code\ECS\system\render</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\system\render\TexturedMeshRenderSystem.h">
+      <Filter>engine\code\ECS\system\render</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\system\render\VelocityRenderingSystem.h">
       <Filter>engine\code\ECS\system\render</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\Engine.h">
@@ -462,6 +486,9 @@
     <ClInclude Include="math\MyEasing.h">
       <Filter>math</Filter>
     </ClInclude>
+    <ClInclude Include="math\Orientation.h">
+      <Filter>math</Filter>
+    </ClInclude>
     <ClInclude Include="math\Quaternion.h">
       <Filter>math</Filter>
     </ClInclude>
@@ -534,14 +561,6 @@
     <ClInclude Include="util\timeline\Timeline.h">
       <Filter>util\timeline</Filter>
     </ClInclude>
-    <ClInclude Include="math\Orientation.h" />
-    <ClInclude Include="engine\code\ECS\component\SubScene.h" />
-    <ClInclude Include="engine\code\ECS\system\movement\SubSceneUpdate.h" />
-    <ClInclude Include="engine\code\ECS\system\postRender\SubSceneRender.h" />
-    <ClInclude Include="editor\window\EditorWindowMenu.h" />
-    <ClInclude Include="engine\code\ECS\component\effect\post\SpeedlineEffectParam.h" />
-    <ClInclude Include="engine\code\ECS\system\postRender\SpeedlineEffect.h" />
-    <ClInclude Include="engine\code\ECS\system\render\VelocityRenderingSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="editor\EditorController.cpp">
@@ -562,10 +581,16 @@
     <ClCompile Include="editor\setting\SettingWindow.cpp">
       <Filter>editor\setting</Filter>
     </ClCompile>
+    <ClCompile Include="editor\window\EditorWindowMenu.cpp">
+      <Filter>editor\window</Filter>
+    </ClCompile>
     <ClCompile Include="engine\code\ECS\Entity.cpp">
       <Filter>engine\code\ECS</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\component\IComponent.cpp">
+      <Filter>engine\code\ECS\component</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\component\SubScene.cpp">
       <Filter>engine\code\ECS\component</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\component\animation\AnimationData.cpp">
@@ -620,6 +645,9 @@
       <Filter>engine\code\ECS\component\effect\post</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\component\effect\post\RandomEffectParam.cpp">
+      <Filter>engine\code\ECS\component\effect\post</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\component\effect\post\SpeedlineEffectParam.cpp">
       <Filter>engine\code\ECS\component\effect\post</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\component\effect\post\VignetteParam.cpp">
@@ -700,6 +728,9 @@
     <ClCompile Include="engine\code\ECS\system\movement\MoveSystemByRigidBody.cpp">
       <Filter>engine\code\ECS\system\movement</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\ECS\system\movement\SubSceneUpdate.cpp">
+      <Filter>engine\code\ECS\system\movement</Filter>
+    </ClCompile>
     <ClCompile Include="engine\code\ECS\system\postRender\DissolveEffect.cpp">
       <Filter>engine\code\ECS\system\postRender</Filter>
     </ClCompile>
@@ -716,6 +747,12 @@
       <Filter>engine\code\ECS\system\postRender</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\system\postRender\SmoothingEffect.cpp">
+      <Filter>engine\code\ECS\system\postRender</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\system\postRender\SpeedlineEffect.cpp">
+      <Filter>engine\code\ECS\system\postRender</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\system\postRender\SubSceneRender.cpp">
       <Filter>engine\code\ECS\system\postRender</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\system\postRender\VignetteEffect.cpp">
@@ -752,6 +789,9 @@
       <Filter>engine\code\ECS\system\render</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\system\render\TexturedMeshRenderSystem.cpp">
+      <Filter>engine\code\ECS\system\render</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\system\render\VelocityRenderingSystem.cpp">
       <Filter>engine\code\ECS\system\render</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\Engine.cpp">
@@ -841,6 +881,9 @@
     <ClCompile Include="math\MyEasing.cpp">
       <Filter>math</Filter>
     </ClCompile>
+    <ClCompile Include="math\Orientation.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
     <ClCompile Include="math\Quaternion.cpp">
       <Filter>math</Filter>
     </ClCompile>
@@ -874,13 +917,5 @@
     <ClCompile Include="util\timeline\Timeline.cpp">
       <Filter>util\timeline</Filter>
     </ClCompile>
-    <ClCompile Include="math\Orientation.cpp" />
-    <ClCompile Include="engine\code\ECS\component\SubScene.cpp" />
-    <ClCompile Include="engine\code\ECS\system\movement\SubSceneUpdate.cpp" />
-    <ClCompile Include="engine\code\ECS\system\postRender\SubSceneRender.cpp" />
-    <ClCompile Include="editor\window\EditorWindowMenu.cpp" />
-    <ClCompile Include="engine\code\ECS\component\effect\post\SpeedlineEffectParam.cpp" />
-    <ClCompile Include="engine\code\ECS\system\postRender\SpeedlineEffect.cpp" />
-    <ClCompile Include="engine\code\ECS\system\render\VelocityRenderingSystem.cpp" />
   </ItemGroup>
 </Project>

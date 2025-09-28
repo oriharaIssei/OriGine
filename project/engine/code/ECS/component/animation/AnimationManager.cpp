@@ -13,11 +13,9 @@ AnimationManager::~AnimationManager() {
     // Destructor implementation
 }
 
-void AnimationManager::Initialize() {
-}
+void AnimationManager::Initialize() {}
 
-void AnimationManager::Finalize() {
-}
+void AnimationManager::Finalize() {}
 
 std::shared_ptr<AnimationData> AnimationManager::Load(const std::string& directory, const std::string& filename) {
     std::string filePath                  = directory + "/" + filename;

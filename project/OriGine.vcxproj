@@ -127,7 +127,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
-      <PreprocessorDefinitions>_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WINDOWS;NDEBUG;_RELEASE;RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)math;$(SolutionDir)util;$(SolutionDir)engine\code\ECS;$(SolutionDir)engine\code;$(SolutionDir)engine;$(SolutionDir);$(SolutionDir)externals;$(SolutionDir)externals\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -154,18 +154,18 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="editor\window\EditorWindowMenu.h" />
     <ClInclude Include="editor\EditorController.h" />
     <ClInclude Include="editor\IEditor.h" />
     <ClInclude Include="editor\sceneEditor\EntityInspector.h" />
     <ClInclude Include="editor\sceneEditor\SceneEditor.h" />
     <ClInclude Include="editor\sceneEditor\SystemInspector.h" />
     <ClInclude Include="editor\setting\SettingWindow.h" />
-    <ClInclude Include="engine\code\ECS\system\render\VelocityRenderingSystem.h" />
+    <ClInclude Include="editor\window\EditorWindowMenu.h" />
     <ClInclude Include="engine\EngineInclude.h" />
     <ClInclude Include="engine\code\ECS\Entity.h" />
     <ClInclude Include="engine\code\ECS\component\ComponentArray.h" />
     <ClInclude Include="engine\code\ECS\component\IComponent.h" />
+    <ClInclude Include="engine\code\ECS\component\SubScene.h" />
     <ClInclude Include="engine\code\ECS\component\animation\AnimationData.h" />
     <ClInclude Include="engine\code\ECS\component\animation\AnimationManager.h" />
     <ClInclude Include="engine\code\ECS\component\animation\ModelNodeAnimation.h" />
@@ -184,6 +184,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\ECS\component\effect\post\DistortionEffectParam.h" />
     <ClInclude Include="engine\code\ECS\component\effect\post\RadialBlurParam.h" />
     <ClInclude Include="engine\code\ECS\component\effect\post\RandomEffectParam.h" />
+    <ClInclude Include="engine\code\ECS\component\effect\post\SpeedlineEffectParam.h" />
     <ClInclude Include="engine\code\ECS\component\effect\post\VignetteParam.h" />
     <ClInclude Include="engine\code\ECS\component\material\Material.h" />
     <ClInclude Include="engine\code\ECS\component\material\light\DirectionalLight.h" />
@@ -210,12 +211,15 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\ECS\system\effect\SpriteAnimationSystem.h" />
     <ClInclude Include="engine\code\ECS\system\effect\TextureEffectAnimation.h" />
     <ClInclude Include="engine\code\ECS\system\movement\MoveSystemByRigidBody.h" />
+    <ClInclude Include="engine\code\ECS\system\movement\SubSceneUpdate.h" />
     <ClInclude Include="engine\code\ECS\system\postRender\DissolveEffect.h" />
     <ClInclude Include="engine\code\ECS\system\postRender\DistortionEffect.h" />
     <ClInclude Include="engine\code\ECS\system\postRender\GrayscaleEffect.h" />
     <ClInclude Include="engine\code\ECS\system\postRender\RadialBlurEffect.h" />
     <ClInclude Include="engine\code\ECS\system\postRender\RandomEffect.h" />
     <ClInclude Include="engine\code\ECS\system\postRender\SmoothingEffect.h" />
+    <ClInclude Include="engine\code\ECS\system\postRender\SpeedlineEffect.h" />
+    <ClInclude Include="engine\code\ECS\system\postRender\SubSceneRender.h" />
     <ClInclude Include="engine\code\ECS\system\postRender\VignetteEffect.h" />
     <ClInclude Include="engine\code\ECS\system\render\BackGroundSpriteRenderSystem.h" />
     <ClInclude Include="engine\code\ECS\system\render\ColliderRenderingSystem.h" />
@@ -228,6 +232,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\ECS\system\render\SkyboxRender.h" />
     <ClInclude Include="engine\code\ECS\system\render\SpriteRenderSystem.h" />
     <ClInclude Include="engine\code\ECS\system\render\TexturedMeshRenderSystem.h" />
+    <ClInclude Include="engine\code\ECS\system\render\VelocityRenderingSystem.h" />
     <ClInclude Include="engine\code\Engine.h" />
     <ClInclude Include="engine\code\audio\Audio.h" />
     <ClInclude Include="engine\code\camera\CameraManager.h" />
@@ -269,11 +274,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="math\Vector3.h" />
     <ClInclude Include="math\Vector4.h" />
     <ClInclude Include="math\shape\Shapes.h" />
-    <ClInclude Include="engine\code\ECS\component\SubScene.h" />
-    <ClInclude Include="engine\code\ECS\system\movement\SubSceneUpdate.h" />
-    <ClInclude Include="engine\code\ECS\system\postRender\SubSceneRender.h" />
-    <ClInclude Include="engine\code\ECS\component\effect\post\SpeedlineEffectParam.h" />
-    <ClInclude Include="engine\code\ECS\system\postRender\SpeedlineEffect.h" />
     <ClInclude Include="util\BitArray.h" />
     <ClInclude Include="util\ConvertString.h" />
     <ClInclude Include="util\DiffValue.h" />
@@ -292,15 +292,16 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="util\timeline\Timeline.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="editor\window\EditorWindowMenu.cpp" />
     <ClCompile Include="editor\EditorController.cpp" />
     <ClCompile Include="editor\IEditor.cpp" />
     <ClCompile Include="editor\sceneEditor\EntityInspector.cpp" />
     <ClCompile Include="editor\sceneEditor\SceneEditor.cpp" />
     <ClCompile Include="editor\sceneEditor\SystemInspector.cpp" />
     <ClCompile Include="editor\setting\SettingWindow.cpp" />
+    <ClCompile Include="editor\window\EditorWindowMenu.cpp" />
     <ClCompile Include="engine\code\ECS\Entity.cpp" />
     <ClCompile Include="engine\code\ECS\component\IComponent.cpp" />
+    <ClCompile Include="engine\code\ECS\component\SubScene.cpp" />
     <ClCompile Include="engine\code\ECS\component\animation\AnimationData.cpp" />
     <ClCompile Include="engine\code\ECS\component\animation\AnimationManager.cpp" />
     <ClCompile Include="engine\code\ECS\component\animation\ModelNodeAnimation.cpp" />
@@ -319,6 +320,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\ECS\component\effect\post\DistortionEffectParam.cpp" />
     <ClCompile Include="engine\code\ECS\component\effect\post\RadialBlurParam.cpp" />
     <ClCompile Include="engine\code\ECS\component\effect\post\RandomEffectParam.cpp" />
+    <ClCompile Include="engine\code\ECS\component\effect\post\SpeedlineEffectParam.cpp" />
     <ClCompile Include="engine\code\ECS\component\effect\post\VignetteParam.cpp" />
     <ClCompile Include="engine\code\ECS\component\material\Material.cpp" />
     <ClCompile Include="engine\code\ECS\component\material\light\DirectionalLight.cpp" />
@@ -345,12 +347,15 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\ECS\system\effect\SpriteAnimationSystem.cpp" />
     <ClCompile Include="engine\code\ECS\system\effect\TextureEffectAnimation.cpp" />
     <ClCompile Include="engine\code\ECS\system\movement\MoveSystemByRigidBody.cpp" />
+    <ClCompile Include="engine\code\ECS\system\movement\SubSceneUpdate.cpp" />
     <ClCompile Include="engine\code\ECS\system\postRender\DissolveEffect.cpp" />
     <ClCompile Include="engine\code\ECS\system\postRender\DistortionEffect.cpp" />
     <ClCompile Include="engine\code\ECS\system\postRender\GrayscaleEffect.cpp" />
     <ClCompile Include="engine\code\ECS\system\postRender\RadialBlurEffect.cpp" />
     <ClCompile Include="engine\code\ECS\system\postRender\RandomEffect.cpp" />
     <ClCompile Include="engine\code\ECS\system\postRender\SmoothingEffect.cpp" />
+    <ClCompile Include="engine\code\ECS\system\postRender\SpeedlineEffect.cpp" />
+    <ClCompile Include="engine\code\ECS\system\postRender\SubSceneRender.cpp" />
     <ClCompile Include="engine\code\ECS\system\postRender\VignetteEffect.cpp" />
     <ClCompile Include="engine\code\ECS\system\render\BackGroundSpriteRenderSystem.cpp" />
     <ClCompile Include="engine\code\ECS\system\render\ColliderRenderingSystem.cpp" />
@@ -396,11 +401,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="math\Orientation.cpp" />
     <ClCompile Include="math\Quaternion.cpp" />
     <ClCompile Include="math\Sequence.cpp" />
-    <ClCompile Include="engine\code\ECS\component\SubScene.cpp" />
-    <ClCompile Include="engine\code\ECS\system\movement\SubSceneUpdate.cpp" />
-    <ClCompile Include="engine\code\ECS\system\postRender\SubSceneRender.cpp" />
-    <ClCompile Include="engine\code\ECS\component\effect\post\SpeedlineEffectParam.cpp" />
-    <ClCompile Include="engine\code\ECS\system\postRender\SpeedlineEffect.cpp" />
     <ClCompile Include="util\ConvertString.cpp" />
     <ClCompile Include="util\NormalizeString.cpp" />
     <ClCompile Include="util\binaryIO\BinaryIO.cpp" />
