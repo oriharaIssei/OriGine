@@ -1,7 +1,5 @@
 #pragma once
 
-#ifdef _DEBUG
-
 /// stl
 #include <functional>
 #include <list>
@@ -115,5 +113,3 @@ public:
         commandRequestQueue_.push(std::move(command));
     }
 };
-
-#endif // _DEBUG

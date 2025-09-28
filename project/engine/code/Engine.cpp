@@ -24,15 +24,10 @@
 #include "directX12/DxFunctionHelper.h"
 #include "directX12/RenderTexture.h"
 
-
 #include "logger/Logger.h"
 
 /// util
 #include "util/ConvertString.h"
-
-#ifdef _DEBUG
-#include "imgui/imgui.h"
-#endif // _DEBUG
 
 #define _USE_MATH_DEFINES
 #include <cmath>
@@ -93,6 +88,8 @@ void Engine::CreateDsv() {
     dxDsv_ = dsvHeap_->CreateDescriptor(dsvDesc, &dsvResource_);
 }
 
+bool Engine::getWindowIsActive() const { return window_->isActive(); }
+
 void Engine::Initialize() {
     window_ = std::make_unique<WinApp>();
 
@@ -101,11 +98,7 @@ void Engine::Initialize() {
 
     UINT windowStyle = 0;
 
-#ifdef _DEBUG
     windowStyle = WS_OVERLAPPEDWINDOW;
-#else
-    windowStyle = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU;
-#endif // DEBUG
 
     window_->CreateGameWindow(ConvertString(windowTitle).c_str(), windowStyle, int32_t(windowSize->v[X]), int32_t(windowSize->v[Y]));
 
@@ -160,9 +153,8 @@ void Engine::Finalize() {
     CameraManager::getInstance()->Finalize();
     lightManager_->Finalize();
 
-#ifdef _DEBUG
     ImGuiManager::getInstance()->Finalize();
-#endif // _DEBUG
+
     ShaderManager::getInstance()->Finalize();
     ModelManager::getInstance()->Finalize();
     TextureManager::Finalize();
@@ -200,11 +192,11 @@ void Engine::BeginFrame() {
 
     window_->UpdateActivity();
 
-#ifndef _DEBUG
+    ImGuiManager::getInstance()->Begin();
+
     if (!window_->isActive()) {
         return;
     }
-#endif // !_DEBUG
 
     if (window_->isReSized()) {
         // ウィンドウのサイズ変更時の処理
@@ -229,8 +221,6 @@ void Engine::BeginFrame() {
 
         window_->setIsReSized(false);
     }
-
-    ImGuiManager::getInstance()->Begin();
 
     input_->Update();
 

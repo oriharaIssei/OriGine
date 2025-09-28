@@ -1,8 +1,5 @@
 #pragma once
 
-#ifdef _DEBUG
-
-/// stl
 #include <algorithm>
 #include <concepts>
 #include <functional>
@@ -610,4 +607,3 @@ private:
 };
 #pragma endregion DefaultCommand
 
-#endif // _DEBUG

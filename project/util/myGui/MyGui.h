@@ -1,6 +1,5 @@
 #pragma once
 
-#ifdef _DEBUG
 /// stl
 #include <memory>
 #include <string>
@@ -61,7 +60,7 @@ public:
 };
 
 namespace ImGui {
-bool InputText(const char* label, std::string* str, ImGuiInputTextFlags flags = 0) ;
+bool InputText(const char* label, std::string* str, ImGuiInputTextFlags flags = 0);
 }
 
 template <typename T>
@@ -371,6 +370,3 @@ bool CheckBoxCommand(const std::string& label, bool& value);
 bool ButtonCommand(const std::string& label, bool& value);
 
 Vec2f ConvertMouseToSceneView(const Vec2f& mousePos, const ImVec2& sceneViewPos, const ImVec2& sceneViewSize, const Vec2f& originalResolution);
-
-
-#endif // _DEBUG

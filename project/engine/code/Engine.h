@@ -77,6 +77,7 @@ private:
 
 public:
     WinApp* getWinApp() { return window_.get(); }
+    bool getWindowIsActive()const;
 
     DxDevice* getDxDevice() const { return dxDevice_.get(); }
     DxCommand* getDxCommand() const { return dxCommand_.get(); }

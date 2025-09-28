@@ -1,7 +1,5 @@
 #include "MyGui.h"
 
-#ifdef _DEBUG
-
 bool ImGui::InputText(const char* label, std::string* str, ImGuiInputTextFlags flags) {
     // バッファサイズを 現在のstr + 64 or 256 にする
     size_t bufSize = std::max<size_t>(str->size() + 64, 256);
@@ -51,4 +49,3 @@ Vec2f ConvertMouseToSceneView(const Vec2f& mousePos, const ImVec2& sceneViewPos,
 
     return gamePos;
 }
-#endif // _DEBUG

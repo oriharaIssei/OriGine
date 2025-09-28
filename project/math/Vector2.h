@@ -68,7 +68,6 @@ struct Vector2 final
         return (result / length);
     }
 
-#ifdef _DEBUG
     constexpr Vector2& operator=(const ImVec2& another) {
         this->v[X] = another.x;
         this->v[Y] = another.y;
@@ -80,7 +79,6 @@ struct Vector2 final
         result.y = this->v[Y];
         return result;
     }
-#endif // DEBUG
 };
 
 template <typename valueType>

@@ -1,6 +1,5 @@
 #include "EditorController.h"
 
-#ifdef _DEBUG
 /// engine
 
 #include "input/Input.h"
@@ -124,4 +123,3 @@ void EditorController::Finalize() {
 
     clearCommandHistory();
 }
-#endif // _DEBUG

@@ -13,13 +13,10 @@
 #include "directX12/DxSwapChain.h"
 
 /// externals
-#ifdef _DEBUG
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_dx12.h>
 #include <imgui/imgui_impl_win32.h>
 #include <imgui/ImGuizmo/ImGuizmo.h>
-
-#endif // _DEBUG
 
 ImGuiManager* ImGuiManager::getInstance() {
     static ImGuiManager instance;
@@ -27,7 +24,6 @@ ImGuiManager* ImGuiManager::getInstance() {
 }
 
 void ImGuiManager::Initialize([[maybe_unused]] const WinApp* window, [[maybe_unused]] const DxDevice* dxDevice, [[maybe_unused]] const DxSwapChain* dxSwapChain) {
-#ifdef _DEBUG
     srvHeap_ = Engine::getInstance()->getSrvHeap()->getHeap();
 
     dxCommand_ = std::make_unique<DxCommand>();
@@ -67,11 +63,9 @@ void ImGuiManager::Initialize([[maybe_unused]] const WinApp* window, [[maybe_unu
         16.0f // フォントサイズ
     );
 
-#endif // _DEBUG
 }
 
 void ImGuiManager::Finalize() {
-#ifdef _DEBUG
     dxCommand_->Finalize();
 
     ImGui_ImplDx12_Shutdown();
@@ -80,24 +74,18 @@ void ImGuiManager::Finalize() {
 
     Engine::getInstance()->getSrvHeap()->ReleaseDescriptor(srv_);
     srvHeap_.Reset();
-#endif // _DEBUG
 }
 
 void ImGuiManager::Begin() {
-#ifdef _DEBUG
     ImGui_ImplDx12_NewFrame();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
-#endif // _DEBUG
 }
 
 void ImGuiManager::End() {
-#ifdef _DEBUG
-#endif
 }
 
 void ImGuiManager::Draw() {
-#ifdef _DEBUG
     // 描画前準備
     ImGui::Render();
 
@@ -105,5 +93,4 @@ void ImGuiManager::Draw() {
     dxCommand_->getCommandList()->SetDescriptorHeaps(1, ppHeaps);
 
     ImGui_ImplDx12_RenderDrawData(ImGui::GetDrawData(), dxCommand_->getCommandList().Get());
-#endif // _DEBUG
 }

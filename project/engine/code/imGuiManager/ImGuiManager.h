@@ -13,9 +13,7 @@ class DxDevice;
 class DxSwapChain;
 class DxCommand;
 
-#ifdef _DEBUG
 struct ImFont;
-#endif // _DEBUG
 
 class ImGuiManager{
 public:
@@ -33,7 +31,6 @@ private:
     ~ImGuiManager()                                    = default;
     ImGuiManager(const ImGuiManager&)                  = delete;
     const ImGuiManager& operator=(const ImGuiManager&) = delete;
-#ifdef _DEBUG
 private:
     // SRV用ヒープ
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> srvHeap_ = nullptr;
@@ -60,5 +57,4 @@ public:
     void pushFontMaterialIcon(){
         ImGui::PushFont(materialIconFont_);
     }
-#endif // _DEBUG
 };
