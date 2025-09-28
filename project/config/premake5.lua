@@ -61,7 +61,7 @@ project "OriGine"
         links { "assimp-vc143-mt" }
         staticruntime "On"
     filter "configurations:Release"
-        defines { "NDEBUG" }
+        defines { "NDEBUG","_RELEASE","RELEASE" }
         optimize "Full"
         runtime "Release"
         libdirs { "externals/assimp/lib/Release" }
@@ -175,7 +175,7 @@ project "OriGineApp"
         staticruntime "On"
 
     filter "configurations:Release"
-        defines { "NDEBUG" }
+        defines { "NDEBUG", "_RELEASE", "RELEASE" }
         optimize "Full"
         runtime "Release"
         libdirs { "externals/assimp/lib/Release" }
