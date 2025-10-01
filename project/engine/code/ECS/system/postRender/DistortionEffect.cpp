@@ -65,8 +65,10 @@ void DistortionEffect::Finalize() {
 
     texturedMeshRenderSystem_->Finalize();
 
-    distortionSceneTexture_->Finalize();
-    distortionSceneTexture_.reset();
+    if (distortionSceneTexture_) {
+        distortionSceneTexture_->Finalize();
+        distortionSceneTexture_.reset();
+    }
 }
 
 void DistortionEffect::UpdateEntity(GameEntity* _entity) {

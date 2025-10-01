@@ -106,6 +106,24 @@ public:
         }
         return componentRepository_->getComponent<ComponentType>(entity, index);
     }
+    template <IsComponent ComponentType>
+    std::vector<ComponentType*> getComponents(GameEntity* _entity, const std::string& componentTypeName) const {
+        if (!_entity) {
+            LOG_ERROR("Scene::getComponents: Entity is null. EntityName :{}", componentTypeName);
+            return {};
+        }
+        return componentRepository_->getComponents(_entity, componentTypeName);
+    }
+    template <IsComponent ComponentType>
+    std::vector<ComponentType*> getComponents(int32_t entityId, const std::string& componentTypeName) const {
+        GameEntity* entity = entityRepository_->getEntity(entityId);
+        if (!entity) {
+            LOG_ERROR("Scene::getComponents: Entity with ID {} not found.", entityId);
+            return {};
+        }
+        return componentRepository_->getComponents(entity, componentTypeName);
+    }
+
     IComponentArray* getComponentArray(const std::string& componentTypeName) const {
         return componentRepository_->getComponentArray(componentTypeName);
     }
