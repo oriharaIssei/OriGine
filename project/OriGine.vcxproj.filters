@@ -561,6 +561,8 @@
     <ClInclude Include="util\timeline\Timeline.h">
       <Filter>util\timeline</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\EntityReferenceList.h" />
+    <ClInclude Include="engine\code\ECS\system\Initialize\ResolveEntityReferences.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="editor\EditorController.cpp">
@@ -917,5 +919,7 @@
     <ClCompile Include="util\timeline\Timeline.cpp">
       <Filter>util\timeline</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\ECS\component\EntityReferenceList.cpp" />
+    <ClCompile Include="engine\code\ECS\system\Initialize\ResolveEntityReferences.cpp" />
   </ItemGroup>
 </Project>

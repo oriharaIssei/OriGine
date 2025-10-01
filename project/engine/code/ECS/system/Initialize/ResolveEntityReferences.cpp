@@ -22,7 +22,12 @@ void ResolveEntityReferences::UpdateEntity(GameEntity* _entity) {
 
     for (auto& entityRefList : *entityRefListArray) {
         for (const auto& [directory, filename] : entityRefList.getEntityFileList()) {
+#ifdef _DEBUG
+            GameEntity* loadedEntity = serializer.LoadEntity(directory, filename);
+            loadedEntity->setShouldSave(false); // 読み込んだEntityは保存しない
+#else
             serializer.LoadEntity(directory, filename);
+#endif // _DEBUG
         }
     }
 }
