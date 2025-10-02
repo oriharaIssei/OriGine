@@ -503,6 +503,25 @@ public:
             LOG_ERROR("SystemRunner: System '{}' not found .", systemName);
             return nullptr;
         }
-        return dynamic_cast<SystemClass*>(itr->second);
+        return dynamic_cast<SystemClass*>(itr->second.get());
+    }
+    ISystem* getSystemRef(const std::string& _systemName) {
+        auto itr = systems_.find(_systemName);
+        if (itr != systems_.end()) {
+            return itr->second.get();
+        }
+
+        LOG_ERROR("SystemRunner: System '{}' not found in any category.", _systemName);
+        return nullptr;
+    }
+    template <IsSystem SystemClass>
+    SystemClass* getSystemRef() {
+        std::string systemName = nameof<SystemClass>();
+        auto itr               = systems_.find(systemName);
+        if (itr == systems_.end()) {
+            LOG_ERROR("SystemRunner: System '{}' not found .", systemName);
+            return nullptr;
+        }
+        return dynamic_cast<SystemClass*>(itr->second.get());
     }
 };
