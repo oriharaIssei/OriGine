@@ -3,11 +3,12 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 env:
-  # 新しいソリューションファイルのパス
-  SOLUTION_FILE_PATH: project/OriGine.vcxproj
-  # Visual Studio の構成 (Debug/Release)
+  SOLUTION_FILE_PATH: project/OriGine.sln
   CONFIGURATION: Release
 
 jobs:
@@ -15,9 +16,11 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      # リポジトリをクローン
+      # リポジトリをクローン (サブモジュールも取得)
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          submodules: true
 
       # MSBuild をセットアップ
       - name: Add MSBuild to PATH
@@ -25,20 +28,8 @@ jobs:
         with:
           msbuild-architecture: x64
 
-      # 必要なディレクトリを作成
-      - name: Create necessary directories
+      # Release ビルド
+      - name: Build Release
         run: |
-          mkdir -p generated/obj/OriGine/Debug
-          mkdir -p generated/outputs/Debug
+          msbuild ${{ env.SOLUTION_FILE_PATH }} /p:Platform=x64 /p:Configuration=${{ env.CONFIGURATION }}
 
-      # 環境変数のデバッグ (オプション)
-      - name: Debug Environment Variables
-        run: |
-          echo "Current Directory: $(pwd)"
-          echo "SOLUTION_FILE_PATH=${{ env.SOLUTION_FILE_PATH }}"
-          echo "CONFIGURATION=${{ env.CONFIGURATION }}"
-
-      # ビルド
-      - name: Build
-        run: |
-          msbuild ${{ env.SOLUTION_FILE_PATH }} /p:Platform=x64 /p:Configuration=${{ env.CONFIGURATION }} /p:SolutionDir=$(pwd)\
