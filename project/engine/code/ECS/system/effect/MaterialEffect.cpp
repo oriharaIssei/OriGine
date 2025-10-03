@@ -77,13 +77,13 @@ void MaterialEffect::UpdateEntity(GameEntity* _entity) {
         // 最終的に tempRenderTexture_ にエフェクトがかかったテクスチャが入っているので
         // Component に 渡す
         dxCommand_->ResourceBarrier(tempRenderTexture_->getBackBuffer(), D3D12_RESOURCE_STATE_COPY_SOURCE);
-        dxCommand_->ResourceBarrier(effectedTextureResource, D3D12_RESOURCE_STATE_COPY_DEST);
+        dxCommand_->ResourceBarrier(effectedTextureResource->getResource(), D3D12_RESOURCE_STATE_COPY_DEST);
 
         // コピー
         commandList->CopyResource(effectedTextureResource->getResource().Get(), tempRenderTexture_->getBackBuffer().Get());
 
         // 状態を戻す
-        dxCommand_->ResourceBarrier(effectedTextureResource, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+        dxCommand_->ResourceBarrier(effectedTextureResource->getResource(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
         dxCommand_->ResourceBarrier(tempRenderTexture_->getBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET);
     }
 }

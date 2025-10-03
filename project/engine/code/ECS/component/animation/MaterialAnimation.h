@@ -1,5 +1,5 @@
 #pragma once
-/// parent
+
 #include "component/IComponent.h"
 
 /// stl
@@ -9,16 +9,15 @@
 // component
 #include "component/animation/AnimationData.h"
 struct Material;
-struct Transform;
 
-class PrimitiveNodeAnimation
+class MaterialAnimation
     : public IComponent {
-    friend void to_json(nlohmann::json& _json, const PrimitiveNodeAnimation& _primitiveNodeAnimation);
-    friend void from_json(const nlohmann::json& _json, PrimitiveNodeAnimation& _primitiveNodeAnimation);
+    friend void to_json(nlohmann::json& _json, const MaterialAnimation& _primitiveNodeAnimation);
+    friend void from_json(const nlohmann::json& _json, MaterialAnimation& _primitiveNodeAnimation);
 
 public:
-    PrimitiveNodeAnimation()           = default;
-    ~PrimitiveNodeAnimation() override = default;
+    MaterialAnimation()           = default;
+    ~MaterialAnimation() override = default;
 
     void Initialize(GameEntity* _entity) override;
 
@@ -26,28 +25,44 @@ public:
 
     void Finalize() override;
 
-    void Update(float _deltaTime, Transform* _transform);
+    void Update(float _deltaTime, Material* _material);
 
     void PlayStart();
     void Stop();
 
 protected:
-    void UpdateTransformAnimation(Transform* _transform);
+    void UpdateMaterialAnimation(Material* _material);
 
 private:
     float duration_    = 0.0f; // (秒)
     float currentTime_ = 0.0f; // (秒)
 
+#ifdef _DEBUG
+    // 連番画像から uv Curveにするためのもの
+    Vec2f tileSize_            = {};
+    Vec2f textureSize_         = {};
+    float tilePerTime_         = 0.f;
+    float startAnimationTime_  = 0.f;
+    float animationTimeLength_ = 0.f;
+#endif // _DEBUG
+
     AnimationState animationState_;
+
+    int32_t materialIndex_ = 0; // 対象のマテリアルインデックス
 
     InterpolationType interpolationType_ = InterpolationType::LINEAR;
 
-    /// transform animation
-    AnimationCurve<Vec3f> scaleCurve_;
-    AnimationCurve<Quaternion> rotateCurve_;
-    AnimationCurve<Vec3f> translateCurve_;
+    /// material animation
+    AnimationCurve<Vec4f> colorCurve_;
+    // uv
+    AnimationCurve<Vec2f> uvScaleCurve_;
+    AnimationCurve<float> uvRotateCurve_;
+    AnimationCurve<Vec2f> uvTranslateCurve_;
 
 public:
+    int32_t getMaterialIndex() const { return materialIndex_; }
+    void setMaterialIndex(int32_t _materialIndex) { materialIndex_ = _materialIndex; }
+
     float getDuration() const { return duration_; }
     float getCurrentTime() const { return currentTime_; }
     void setDuration(float _duration) { duration_ = _duration; }
@@ -60,6 +75,6 @@ public:
     void setAnimationIsPlay(bool _isPlay) { animationState_.isPlay_ = _isPlay; }
     void setAnimationIsEnd(bool _isEnd) { animationState_.isEnd_ = _isEnd; }
 
-    InterpolationType getTransformInterpolationType() const { return interpolationType_; }
-    void setInterpolationType(InterpolationType _interpolationType) { interpolationType_ = _interpolationType; }
+    InterpolationType getInterpolationType() const { return interpolationType_; }
+    void setInterpolationType(InterpolationType _uvInterpolationType) { interpolationType_ = _uvInterpolationType; }
 };

@@ -60,7 +60,7 @@ void TexturedMeshRenderSystem::Update() {
 
 void TexturedMeshRenderSystem::DispatchRenderer(GameEntity* _entity) {
     auto modelMeshRenderers = getComponents<ModelMeshRenderer>(_entity);
-    auto entityTransform   = getComponent<Transform>(_entity);
+    auto entityTransform    = getComponent<Transform>(_entity);
 
     if (modelMeshRenderers) {
         for (auto& renderer : *modelMeshRenderers) {
@@ -88,7 +88,7 @@ void TexturedMeshRenderSystem::DispatchRenderer(GameEntity* _entity) {
         }
     }
 
-    auto dispatchPrimitive = [this, _entity,entityTransform](auto renderers) {
+    auto dispatchPrimitive = [this, _entity, entityTransform](auto renderers) {
         if (renderers) {
             for (auto& renderer : *renderers) {
                 if (!renderer.isRender()) {
@@ -411,9 +411,9 @@ void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
     auto& commandList      = dxCommand_->getCommandList();
     int32_t componentIndex = 0;
 
-    //! TODO Rendering の 統一
-
     Transform* entityTransform_ = getComponent<Transform>(_entity);
+
+    auto materials = getComponents<Material>(_entity);
     // model
     while (true) {
         ModelMeshRenderer* renderer = getComponent<ModelMeshRenderer>(_entity, componentIndex);
@@ -445,6 +445,7 @@ void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
             transform->UpdateMatrix();
             transform.ConvertToBuffer();
         }
+
         RenderModelMesh(commandList, renderer);
 
         componentIndex++;
@@ -479,13 +480,38 @@ void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
             transform.ConvertToBuffer();
         }
 
+        /// ==============================
+        /// Materialの更新
+        /// ==============================
+        D3D12_GPU_DESCRIPTOR_HANDLE textureHandle = {};
+        {
+            int32_t textureIndex = renderer->getTextureIndex();
+            textureHandle        = TextureManager::getDescriptorGpuHandle(textureIndex);
+
+            auto& materialBuff    = renderer->getMaterialBuff();
+            int32_t materialIndex = renderer->getMaterialIndex();
+
+            if (materials && materialIndex >= 0 && materialIndex < static_cast<int32_t>(materials->size())) {
+                auto& material = (*materials)[materialIndex];
+                material.UpdateUvMatrix();
+                materialBuff.ConvertToBuffer(material);
+
+                if (material.hasCustomTexture()) {
+                    textureHandle = material.getCustomTexture()->srv_.getGpuHandle();
+                }
+
+            } else {
+                materialBuff.ConvertToBuffer(Material());
+            }
+        }
+
         auto& mesh = renderer->getMeshGroup()->front();
         RenderingMesh(
             commandList,
             mesh,
             renderer->getTransformBuff(),
             renderer->getMaterialBuff(),
-            renderer->getTextureIndex());
+            textureHandle);
 
         componentIndex++;
     }
@@ -516,13 +542,38 @@ void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
             transform.ConvertToBuffer();
         }
 
+        /// ==============================
+        /// Materialの更新
+        /// ==============================
+        D3D12_GPU_DESCRIPTOR_HANDLE textureHandle = {};
+        {
+            int32_t textureIndex = renderer->getTextureIndex();
+            textureHandle        = TextureManager::getDescriptorGpuHandle(textureIndex);
+
+            auto& materialBuff    = renderer->getMaterialBuff();
+            int32_t materialIndex = renderer->getMaterialIndex();
+
+            if (materials && materialIndex >= 0 && materialIndex < static_cast<int32_t>(materials->size())) {
+                auto& material = (*materials)[materialIndex];
+                material.UpdateUvMatrix();
+                materialBuff.ConvertToBuffer(material);
+
+                if (material.hasCustomTexture()) {
+                    textureHandle = material.getCustomTexture()->srv_.getGpuHandle();
+                }
+
+            } else {
+                materialBuff.ConvertToBuffer(Material());
+            }
+        }
+
         auto& mesh = renderer->getMeshGroup()->front();
         RenderingMesh(
             commandList,
             mesh,
             renderer->getTransformBuff(),
             renderer->getMaterialBuff(),
-            renderer->getTextureIndex());
+            textureHandle);
 
         componentIndex++;
     }
@@ -548,13 +599,40 @@ void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
             transform->UpdateMatrix();
             transform.ConvertToBuffer();
         }
+
+        /// ==============================
+        /// Materialの更新
+        /// ==============================
+        D3D12_GPU_DESCRIPTOR_HANDLE textureHandle = {};
+        {
+            int32_t textureIndex = renderer->getTextureIndex();
+            textureHandle        = TextureManager::getDescriptorGpuHandle(textureIndex);
+
+            auto& materialBuff    = renderer->getMaterialBuff();
+            int32_t materialIndex = renderer->getMaterialIndex();
+
+            if (materials && materialIndex >= 0 && materialIndex < static_cast<int32_t>(materials->size())) {
+                auto& material = (*materials)[materialIndex];
+                material.UpdateUvMatrix();
+                materialBuff.ConvertToBuffer(material);
+
+                if (material.hasCustomTexture()) {
+                    textureHandle = material.getCustomTexture()->srv_.getGpuHandle();
+                }
+
+            } else {
+                materialBuff.ConvertToBuffer(Material());
+            }
+        }
+
         auto& mesh = renderer->getMeshGroup()->front();
         RenderingMesh(
             commandList,
             mesh,
             renderer->getTransformBuff(),
             renderer->getMaterialBuff(),
-            renderer->getTextureIndex());
+            textureHandle);
+
         componentIndex++;
     }
 }
@@ -564,12 +642,12 @@ void TexturedMeshRenderSystem::RenderingMesh(
     const TextureMesh& _mesh,
     IConstantBuffer<Transform>& _transformBuff,
     IConstantBuffer<Material>& _materialBuff,
-    uint32_t _textureIndex) const {
+    D3D12_GPU_DESCRIPTOR_HANDLE _textureHandle) const {
     // ============================= テクスチャの設定 ============================= //
 
     _commandList->SetGraphicsRootDescriptorTable(
         textureBufferIndex_,
-        TextureManager::getDescriptorGpuHandle(_textureIndex));
+        _textureHandle);
 
     // ============================= Viewのセット ============================= //
     _commandList->IASetVertexBuffers(0, 1, &_mesh.getVBView());
@@ -589,31 +667,70 @@ void TexturedMeshRenderSystem::RenderingMesh(
     _commandList->DrawIndexedInstanced(UINT(_mesh.getIndexSize()), 1, 0, 0, 0);
 }
 
+void TexturedMeshRenderSystem::RenderingMesh(
+    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList,
+    const TextureMesh& _mesh,
+    IConstantBuffer<Transform>& _transformBuff,
+    SimpleConstantBuffer<Material>& _materialBuff,
+    D3D12_GPU_DESCRIPTOR_HANDLE _textureHandle) const {
+    // ============================= テクスチャの設定 ============================= //
+
+    _commandList->SetGraphicsRootDescriptorTable(
+        textureBufferIndex_,
+        _textureHandle);
+
+    // ============================= Viewのセット ============================= //
+    _commandList->IASetVertexBuffers(0, 1, &_mesh.getVBView());
+    _commandList->IASetIndexBuffer(&_mesh.getIBView());
+
+    // ============================= Transformのセット ============================= //
+    _transformBuff->UpdateMatrix();
+    _transformBuff.ConvertToBuffer();
+    _transformBuff.SetForRootParameter(_commandList, transformBufferIndex_);
+
+    // ============================= Materialのセット ============================= //
+    _materialBuff.SetForRootParameter(_commandList, materialBufferIndex_);
+
+    // ============================= 描画 ============================= //
+    _commandList->DrawIndexedInstanced(UINT(_mesh.getIndexSize()), 1, 0, 0, 0);
+}
+
 void TexturedMeshRenderSystem::RenderModelMesh(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList, ModelMeshRenderer* _renderer) {
     uint32_t index = 0;
 
     auto& meshGroup = _renderer->getMeshGroup();
     for (auto& mesh : *meshGroup) {
-        // ============================= テクスチャの設定 ============================= //
-
-        _commandList->SetGraphicsRootDescriptorTable(
-            textureBufferIndex_,
-            TextureManager::getDescriptorGpuHandle(_renderer->getTextureNumber(index)));
+        D3D12_GPU_DESCRIPTOR_HANDLE textureHandle       = TextureManager::getDescriptorGpuHandle(_renderer->getTextureNumber(index));
+        const IConstantBuffer<Transform>& meshTransform = _renderer->getTransformBuff(index);
+        auto& materialBuff                              = _renderer->getMaterialBuff(index);
+        Material* material                              = nullptr;
+        int32_t materialIndex                           = _renderer->getMaterialIndex(index);
 
         // ============================= Viewのセット ============================= //
         _commandList->IASetVertexBuffers(0, 1, &mesh.getVBView());
         _commandList->IASetIndexBuffer(&mesh.getIBView());
 
         // ============================= Transformのセット ============================= //
-        const IConstantBuffer<Transform>& meshTransform = _renderer->getTransformBuff(index);
         meshTransform.ConvertToBuffer();
         meshTransform.SetForRootParameter(_commandList, transformBufferIndex_);
 
         // ============================= Materialのセット ============================= //
-        auto& material = _renderer->getMaterialBuff(index);
-        material.openData_.UpdateUvMatrix();
-        material.ConvertToBuffer();
-        material.SetForRootParameter(_commandList, materialBufferIndex_);
+        if (materialIndex >= 0) {
+            material = getComponent<Material>(_renderer->getHostEntity(), static_cast<uint32_t>(materialIndex));
+            material->UpdateUvMatrix();
+            materialBuff.ConvertToBuffer(*material);
+
+            if (material->hasCustomTexture()) {
+                textureHandle = material->getCustomTexture()->srv_.getGpuHandle();
+            }
+        }
+
+        materialBuff.SetForRootParameter(_commandList, materialBufferIndex_);
+
+        // ============================= テクスチャの設定 ============================= //
+
+        _commandList->SetGraphicsRootDescriptorTable(
+            textureBufferIndex_, textureHandle);
 
         // ============================= 描画 ============================= //
         _commandList->DrawIndexedInstanced(UINT(mesh.getIndexSize()), 1, 0, 0, 0);
@@ -622,14 +739,31 @@ void TexturedMeshRenderSystem::RenderModelMesh(Microsoft::WRL::ComPtr<ID3D12Grap
     }
 }
 
-void TexturedMeshRenderSystem::RenderPrimitiveMesh(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList, PrimitiveMeshRendererBase* _renderer) const {
+void TexturedMeshRenderSystem::RenderPrimitiveMesh(
+    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList,
+    PrimitiveMeshRendererBase* _renderer) {
     auto& mesh = _renderer->getMeshGroup()->front();
+
+    D3D12_GPU_DESCRIPTOR_HANDLE textureHandle = TextureManager::getDescriptorGpuHandle(0);
+    auto& materialBuff                        = _renderer->getMaterialBuff();
+    Material* material                        = nullptr;
+    int32_t materialIndex                     = _renderer->getMaterialIndex();
+    // ============================= Materialのセット ============================= //
+    if (materialIndex >= 0) {
+        material = getComponent<Material>(_renderer->getHostEntity(), static_cast<uint32_t>(materialIndex));
+        material->UpdateUvMatrix();
+        materialBuff.ConvertToBuffer(*material);
+
+        if (material->hasCustomTexture()) {
+            textureHandle = material->getCustomTexture()->srv_.getGpuHandle();
+        }
+    }
     this->RenderingMesh(
         _commandList,
         mesh,
         _renderer->getTransformBuff(),
         _renderer->getMaterialBuff(),
-        _renderer->getTextureIndex());
+        textureHandle);
 }
 
 void TexturedMeshRenderSystem::SettingPSO(BlendMode _blend) {

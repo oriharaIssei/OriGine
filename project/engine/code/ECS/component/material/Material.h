@@ -1,9 +1,15 @@
 #pragma once
 
+/// stl
+#include <optional>
+
 /// engine
-// ECS
 // directX12 object
+#include "directX12/DxDescriptor.h"
 #include "directX12/IConstantBuffer.h"
+
+/// ecs
+#include "component/IComponent.h"
 
 /// math
 #include "Matrix4x4.h"
@@ -18,19 +24,26 @@ struct UVTransform {
     Vec2f translate_ = Vec2f(0.f, 0.f);
 };
 
-struct Material {
+struct Material
+    : public IComponent {
     friend void to_json(nlohmann::json& j, const Material& m);
     friend void from_json(const nlohmann::json& j, Material& m);
 
 public:
     Material() {}
-    ~Material() {}
+    ~Material()override {}
 
     void UpdateUvMatrix();
 
-#ifdef _DEBUG
-    void DebugGui([[maybe_unused]] const std::string& _parentLabel);
-#endif // _DEBUG
+    void Initialize([[maybe_unused]] GameEntity* _entity) override;
+    void Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] GameEntity* _entity, const std::string& _parentLabel) override;
+    void Finalize() override;
+
+public:
+    struct CustomTextureData {
+        DxSrvDescriptor srv_;
+        DxResource resource_;
+    };
 
 public:
     UVTransform uvTransform_;
@@ -42,6 +55,17 @@ public:
     float shininess_              = 0.f;
     float environmentCoefficient_ = 0.1f;
     Vec3f specularColor_          = {1.f, 1.f, 1.f};
+
+private:
+    std::optional<CustomTextureData> customTexture_;
+
+public:
+    bool hasCustomTexture() const { return customTexture_.has_value(); }
+    const std::optional<CustomTextureData>& getCustomTexture() const { return customTexture_; }
+    void setCustomTexture(const DxSrvDescriptor& srv, const DxResource& resource) {
+        customTexture_.emplace(CustomTextureData{srv, resource});
+    }
+    void resetCustomTexture() { customTexture_.reset(); }
 
 public:
     struct ConstantBuffer {

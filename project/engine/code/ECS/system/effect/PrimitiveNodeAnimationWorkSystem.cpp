@@ -13,6 +13,7 @@ void PrimitiveNodeAnimationWorkSystem::UpdateEntity(GameEntity* _entity) {
     if (primitiveNodeAnimation == nullptr) {
         return;
     }
+    const float deltaTime = getMainDeltaTime();
 
     PrimitiveMeshRendererBase* primitive = getComponent<PlaneRenderer>(_entity);
     if (primitive == nullptr) {
@@ -30,8 +31,6 @@ void PrimitiveNodeAnimationWorkSystem::UpdateEntity(GameEntity* _entity) {
             }
         }
     }
-    const float deltaTime = getMainDeltaTime();
 
-    primitiveNodeAnimation->Update(deltaTime, &primitive->getTransformBuff().openData_, &primitive->getMaterialBuff().openData_);
-    primitive->getMaterialBuff().ConvertToBuffer();
+    primitiveNodeAnimation->Update(deltaTime, &primitive->getTransformBuff().openData_);
 }

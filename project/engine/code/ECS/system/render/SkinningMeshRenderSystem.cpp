@@ -12,6 +12,7 @@
 // component
 #include "component/animation/SkinningAnimationComponent.h"
 #include "component/material/light/LightManager.h"
+#include "component/material/Material.h"
 #include "component/renderer/MeshRenderer.h"
 #include "component/renderer/SkyBoxRenderer.h"
 
@@ -381,7 +382,7 @@ void SkinningMeshRenderSystem::RenderModelMesh(
     Transform* _entityTransform,
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList,
     SkinningAnimationComponent* _skinningAnimationComponent,
-    ModelMeshRenderer* _renderer) const {
+    ModelMeshRenderer* _renderer) {
 
     if (_skinningAnimationComponent->getSkinnedVertexBuffers().empty()) {
         return;
@@ -391,19 +392,17 @@ void SkinningMeshRenderSystem::RenderModelMesh(
 
     auto& meshGroup = _renderer->getMeshGroup();
     for (auto& mesh : *meshGroup) {
+        D3D12_GPU_DESCRIPTOR_HANDLE textureHandle = TextureManager::getDescriptorGpuHandle(_renderer->getTextureNumber(index));
+        IConstantBuffer<Transform>& meshTransform = _renderer->getTransformBuff(index);
+        auto& materialBuff                        = _renderer->getMaterialBuff(index);
+        Material* material                        = nullptr;
+        int32_t materialIndex                     = _renderer->getMaterialIndex(index);
 
         // ============================= Viewのセット ============================= //
         _commandList->IASetVertexBuffers(0, 1, &_skinningAnimationComponent->getSkinnedVertexBuffer(index).vbView);
         _commandList->IASetIndexBuffer(&mesh.getIBView());
-        // ============================= テクスチャの設定 ============================= //
-
-        _commandList->SetGraphicsRootDescriptorTable(
-            textureBufferIndex_,
-            TextureManager::getDescriptorGpuHandle(_renderer->getTextureNumber(index)));
 
         // ============================= Transformのセット ============================= //
-        IConstantBuffer<Transform>& meshTransform = _renderer->getTransformBuff(index);
-
         if (meshTransform->parent == nullptr) {
             meshTransform->parent = _entityTransform;
         }
@@ -413,10 +412,20 @@ void SkinningMeshRenderSystem::RenderModelMesh(
         meshTransform.SetForRootParameter(_commandList, transformBufferIndex_);
 
         // ============================= Materialのセット ============================= //
-        auto& material = _renderer->getMaterialBuff(index);
-        material.openData_.UpdateUvMatrix();
-        material.ConvertToBuffer();
-        material.SetForRootParameter(_commandList, materialBufferIndex_);
+
+        if (materialIndex >= 0) {
+            material = getComponent<Material>(_renderer->getHostEntity(), static_cast<uint32_t>(materialIndex));
+            material->UpdateUvMatrix();
+            materialBuff.ConvertToBuffer(*material);
+
+            if (material->hasCustomTexture()) {
+                textureHandle = material->getCustomTexture()->srv_.getGpuHandle();
+            }
+        }
+        // ============================= テクスチャの設定 ============================= //
+        _commandList->SetGraphicsRootDescriptorTable(
+            textureBufferIndex_,
+            textureHandle);
 
         // ============================= 描画 ============================= //
         _commandList->DrawIndexedInstanced(UINT(mesh.getIndexSize()), 1, 0, 0, 0);

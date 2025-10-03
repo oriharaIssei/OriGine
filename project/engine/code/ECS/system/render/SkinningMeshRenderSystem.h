@@ -41,7 +41,7 @@ public:
         Transform* _entityTransform,
         Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList,
         SkinningAnimationComponent* _skinningAnimationComponent,
-        ModelMeshRenderer* _renderer) const;
+        ModelMeshRenderer* _renderer);
 
 protected:
     void LightUpdate();

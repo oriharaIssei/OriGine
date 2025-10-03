@@ -967,7 +967,7 @@ void Emitter::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandLis
         3,
         TextureManager::getDescriptorGpuHandle(textureIndex_));
 
-    material_.SetForRootParameter(_commandList, 2);
+    materialBuffer_.SetForRootParameter(_commandList, 2);
 
     _commandList->IASetVertexBuffers(0, 1, &mesh_.getVBView());
     _commandList->IASetIndexBuffer(&mesh_.getIBView());
@@ -984,8 +984,8 @@ void Emitter::CreateResource() {
     if (!structuredTransform_.getResource().getResource().Get()) {
         structuredTransform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice(), particleMaxSize_);
     }
-    if (!material_.getResource().getResource().Get()) {
-        material_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+    if (!materialBuffer_.getResource().getResource().Get()) {
+        materialBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
     }
 }
 

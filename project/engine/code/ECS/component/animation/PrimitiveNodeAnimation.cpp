@@ -1,9 +1,9 @@
 #include "PrimitiveNodeAnimation.h"
 
 /// engine
-#include "engine/code/Engine.h"
 #include "editor/EditorController.h"
 #include "editor/IEditor.h"
+#include "engine/code/Engine.h"
 // component
 #include "component/material/Material.h"
 #include "component/transform/Transform.h"
@@ -13,7 +13,6 @@
 #include "imgui/imgui.h"
 #include "myGui/MyGui.h"
 #include "util/timeline/Timeline.h"
-
 
 class GenerateUvAnimationCommand : public IEditCommand {
 public:
@@ -137,271 +136,129 @@ void PrimitiveNodeAnimation::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, [[
     ImGui::InputFloat(label.c_str(), &duration_);
 
     ImGuiTableFlags tableFlags = ImGuiTableFlags_ScrollX;
-    if (ImGui::TreeNode("Transform_Animation")) {
-       CheckBoxCommand("TransformAnimation Is Loop", transformAnimationState_.isLoop_);
-       CheckBoxCommand("TransformAnimation Is Play", transformAnimationState_.isPlay_);
 
-        if (ImGui::BeginCombo("TransformAnimation InterpolationType", InterpolationTypeName[int(transformInterpolationType_)])) {
-            for (int i = 0; i < (int)InterpolationType::COUNT; ++i) {
-                if (ImGui::Selectable(InterpolationTypeName[i], transformInterpolationType_ == InterpolationType(i))) {
-                    EditorController::getInstance()->pushCommand(
-                        std::make_unique<SetterCommand<InterpolationType>>(&transformInterpolationType_, InterpolationType(i)));
-                }
+    CheckBoxCommand("Is Loop", animationState_.isLoop_);
+    CheckBoxCommand("Is Play", animationState_.isPlay_);
+
+    if (ImGui::BeginCombo("TransformAnimation InterpolationType", InterpolationTypeName[int(interpolationType_)])) {
+        for (int i = 0; i < (int)InterpolationType::COUNT; ++i) {
+            if (ImGui::Selectable(InterpolationTypeName[i], interpolationType_ == InterpolationType(i))) {
+                EditorController::getInstance()->pushCommand(
+                    std::make_unique<SetterCommand<InterpolationType>>(&interpolationType_, InterpolationType(i)));
             }
-            ImGui::EndCombo();
         }
-
-        if (ImGui::BeginTable("TransformKeyFrames", 2, tableFlags)) {
-            ImGui::TableSetupColumn("Name");
-            ImGui::TableSetupColumn("Edit");
-            ImGui::TableHeadersRow();
-
-            /// =====================================================
-            // scale
-            // =====================================================
-            ImGui::TableNextRow();
-            ImGui::TableSetColumnIndex(0);
-            ImGui::TextUnformatted("Scale");
-            ImGui::TableSetColumnIndex(1);
-            ImGui::EditKeyFrame(
-                "##TransformAnimation Scale",
-                scaleCurve_,
-                duration_);
-
-            ImGui::TableNextRow();
-            ImGui::TableSetColumnIndex(0);
-            ImGui::Separator();
-            ImGui::TableSetColumnIndex(1);
-            ImGui::Separator();
-
-            /// =====================================================
-            // rotate
-            // =====================================================
-            ImGui::TableNextRow();
-            ImGui::TableSetColumnIndex(0);
-            ImGui::TextUnformatted("Rotate");
-            ImGui::TableSetColumnIndex(1);
-          ImGui::EditKeyFrame(
-                "##TransformAnimation Rotate",
-                rotateCurve_,
-                duration_);
-
-            ImGui::TableNextRow();
-            ImGui::TableSetColumnIndex(0);
-            ImGui::Separator();
-            ImGui::TableSetColumnIndex(1);
-            ImGui::Separator();
-
-            /// =====================================================
-            // transform
-            // =====================================================
-            ImGui::TableNextRow();
-            ImGui::TableSetColumnIndex(0);
-            ImGui::TextUnformatted("Transform");
-            ImGui::TableSetColumnIndex(1);
-           ImGui::EditKeyFrame(
-                "##TransformAnimation Transform",
-                translateCurve_,
-                duration_);
-
-            ImGui::EndTable();
-        }
-        ImGui::TreePop();
+        ImGui::EndCombo();
     }
 
-    if (ImGui::TreeNode("UvCurveGenerator Form TextureAnimation")) {
-        DragGuiVectorCommand<2, float>("TileSize", tileSize_, 0.1f);
-        DragGuiVectorCommand<2, float>("TextureSize", textureSize_, 0.1f);
-        DragGuiCommand<float>("tilePerTime_", tilePerTime_);
-        DragGuiCommand<float>("StartAnimationTime", startAnimationTime_, 0.1f, 0);
-        DragGuiCommand<float>("AnimationTimeLength", animationTimeLength_, 0.1f, 0);
+    if (ImGui::BeginTable("TransformKeyFrames", 2, tableFlags)) {
+        ImGui::TableSetupColumn("Name");
+        ImGui::TableSetupColumn("Edit");
+        ImGui::TableHeadersRow();
 
-        if (ImGui::Button("Generate Curve")) {
-            EditorController::getInstance()->pushCommand(
-                std::make_unique<GenerateUvAnimationCommand>(
-                    duration_,
-                    uvScaleCurve_,
-                    uvTranslateCurve_,
-                    uvInterpolationType_,
-                    tileSize_,
-                    textureSize_,
-                    tilePerTime_,
-                    startAnimationTime_,
-                    animationTimeLength_));
-        }
-        ImGui::TreePop();
-    }
+        /// =====================================================
+        // scale
+        // =====================================================
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        ImGui::TextUnformatted("Scale");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::EditKeyFrame(
+            "##TransformAnimation Scale",
+            scaleCurve_,
+            duration_);
 
-    if (ImGui::TreeNode("Material_Animation")) {
-        ImGui::Checkbox("MaterialAnimation Is Loop", &materialAnimationState_.isLoop_);
-        ImGui::Checkbox("MaterialAnimation Is Play", &materialAnimationState_.isPlay_);
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        ImGui::Separator();
+        ImGui::TableSetColumnIndex(1);
+        ImGui::Separator();
 
-        if (ImGui::BeginCombo("MaterialAnimation InterpolationType", InterpolationTypeName[int(uvInterpolationType_)])) {
-            for (int i = 0; i < (int)InterpolationType::COUNT; ++i) {
-                if (ImGui::Selectable(InterpolationTypeName[i], uvInterpolationType_ == InterpolationType(i))) {
-                    EditorController::getInstance()->pushCommand(
-                        std::make_unique<SetterCommand<InterpolationType>>(&uvInterpolationType_, InterpolationType(i)));
-                }
-            }
-            ImGui::EndCombo();
-        }
-        if (ImGui::BeginCombo("Color InterpolationType", InterpolationTypeName[int(colorInterpolationType_)])) {
-            for (int i = 0; i < (int)InterpolationType::COUNT; ++i) {
-                if (ImGui::Selectable(InterpolationTypeName[i], colorInterpolationType_ == InterpolationType(i))) {
-                    EditorController::getInstance()->pushCommand(
-                        std::make_unique<SetterCommand<InterpolationType>>(&colorInterpolationType_, InterpolationType(i)));
-                }
-            }
-            ImGui::EndCombo();
-        }
+        /// =====================================================
+        // rotate
+        // =====================================================
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        ImGui::TextUnformatted("Rotate");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::EditKeyFrame(
+            "##TransformAnimation Rotate",
+            rotateCurve_,
+            duration_);
 
-        if (ImGui::BeginTable("MaterialKeyFrames", 2, tableFlags)) {
-            ImGui::TableSetupColumn("Name");
-            ImGui::TableSetupColumn("Edit");
-            ImGui::TableHeadersRow();
-            /// =====================================================
-            // color
-            // =====================================================
-            ImGui::TableNextRow();
-            ImGui::TableSetColumnIndex(0);
-            ImGui::TextUnformatted("Color");
-            ImGui::TableSetColumnIndex(1);
-           ImGui::EditColorKeyFrame(
-                "##MaterialAnimation Color",
-                colorCurve_,
-                duration_);
-            ImGui::TableNextRow();
-            ImGui::TableSetColumnIndex(0);
-            ImGui::Separator();
-            ImGui::TableSetColumnIndex(1);
-            ImGui::Separator();
-            /// =====================================================
-            // uv Scale
-            // =====================================================
-            ImGui::TableNextRow();
-            ImGui::TableSetColumnIndex(0);
-            ImGui::TextUnformatted("UV");
-            ImGui::TableSetColumnIndex(1);
-             ImGui::EditKeyFrame(
-                "##MaterialAnimation UV Scale",
-                uvScaleCurve_,
-                duration_);
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        ImGui::Separator();
+        ImGui::TableSetColumnIndex(1);
+        ImGui::Separator();
 
-            ImGui::TableNextRow();
-            ImGui::TableSetColumnIndex(0);
-            ImGui::Separator();
-            ImGui::TableSetColumnIndex(1);
-            ImGui::Separator();
+        /// =====================================================
+        // transform
+        // =====================================================
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        ImGui::TextUnformatted("Transform");
+        ImGui::TableSetColumnIndex(1);
+        ImGui::EditKeyFrame(
+            "##TransformAnimation Transform",
+            translateCurve_,
+            duration_);
 
-            /// =====================================================
-            // uv Rotate
-            // =====================================================
-            ImGui::TableNextRow();
-            ImGui::TableSetColumnIndex(0);
-            ImGui::TextUnformatted("UV Rotate");
-            ImGui::TableSetColumnIndex(1);
-            ImGui::EditKeyFrame(
-                "##MaterialAnimation UV Rotate",
-                uvRotateCurve_,
-                duration_);
-            ImGui::TableNextRow();
-            ImGui::TableSetColumnIndex(0);
-            ImGui::Separator();
-            ImGui::TableSetColumnIndex(1);
-            ImGui::Separator();
-
-            /// =====================================================
-            // uv Translate
-            // =====================================================
-            ImGui::TableNextRow();
-            ImGui::TableSetColumnIndex(0);
-            ImGui::TextUnformatted("UV Translate");
-            ImGui::TableSetColumnIndex(1);
-
-            ImGui::EditKeyFrame(
-                "##MaterialAnimation UV Translate",
-                uvTranslateCurve_,
-                duration_);
-
-            ImGui::EndTable();
-        }
-
-        ImGui::TreePop();
+        ImGui::EndTable();
     }
 
 #endif // _DEBUG
 }
 
 void PrimitiveNodeAnimation::Finalize() {
-    transformAnimationState_.isLoop_ = false;
-    transformAnimationState_.isPlay_ = false;
-    transformAnimationState_.isEnd_  = false;
-    materialAnimationState_.isLoop_  = false;
-    materialAnimationState_.isPlay_  = false;
-    materialAnimationState_.isEnd_   = false;
-    currentTime_                     = 0.0f;
+    animationState_.isLoop_         = false;
+    animationState_.isPlay_         = false;
+    animationState_.isEnd_          = false;
+    currentTime_                    = 0.0f;
 
     scaleCurve_.clear();
     rotateCurve_.clear();
     translateCurve_.clear();
-
-    colorCurve_.clear();
-    uvScaleCurve_.clear();
-    uvRotateCurve_.clear();
-    uvTranslateCurve_.clear();
 }
 
-void PrimitiveNodeAnimation::Update(float _deltaTime, Transform* _transform, Material* _material) {
-    transformAnimationState_.isEnd_ = false;
+void PrimitiveNodeAnimation::Update(float _deltaTime, Transform* _transform) {
+    animationState_.isEnd_ = false;
 
     currentTime_ += _deltaTime;
     if (currentTime_ >= duration_) {
-        if (transformAnimationState_.isLoop_) {
+        if (animationState_.isLoop_) {
             currentTime_ = 0.0f;
         } else {
-            transformAnimationState_.isEnd_  = true;
-            transformAnimationState_.isPlay_ = false;
-        }
-        if (materialAnimationState_.isLoop_) {
-            currentTime_ = 0.0f;
-        } else {
-            materialAnimationState_.isEnd_  = true;
-            materialAnimationState_.isPlay_ = false;
+            animationState_.isEnd_  = true;
+            animationState_.isPlay_ = false;
         }
     }
 
     UpdateTransformAnimation(_transform);
-    UpdateMaterialAnimation(_material);
 }
 
 void PrimitiveNodeAnimation::PlayStart() {
     currentTime_ = 0.f;
 
-    transformAnimationState_.isEnd_  = false;
-    transformAnimationState_.isPlay_ = true;
-
-    materialAnimationState_.isEnd_  = false;
-    materialAnimationState_.isPlay_ = true;
+    animationState_.isEnd_  = false;
+    animationState_.isPlay_ = true;
 }
 
 void PrimitiveNodeAnimation::Stop() {
-    currentTime_                     = 0.f;
-    transformAnimationState_.isEnd_  = true;
-    transformAnimationState_.isPlay_ = false;
-    materialAnimationState_.isEnd_   = true;
-    materialAnimationState_.isPlay_  = false;
+    currentTime_                    = 0.f;
+    animationState_.isEnd_          = true;
+    animationState_.isPlay_         = false;
 }
 
 void PrimitiveNodeAnimation::UpdateTransformAnimation(Transform* _transform) {
-    if (!transformAnimationState_.isLoop_) {
-        if (!transformAnimationState_.isPlay_) {
+    if (!animationState_.isLoop_) {
+        if (!animationState_.isPlay_) {
             return;
         }
     }
 
-    transformAnimationState_.isEnd_ = false;
+    animationState_.isEnd_ = false;
 
-    switch (transformInterpolationType_) {
+    switch (interpolationType_) {
     case InterpolationType::LINEAR:
         // scale
         _transform->scale = CalculateValue::Linear(scaleCurve_, currentTime_);
@@ -423,50 +280,10 @@ void PrimitiveNodeAnimation::UpdateTransformAnimation(Transform* _transform) {
     }
     _transform->UpdateMatrix();
 }
-
-void PrimitiveNodeAnimation::UpdateMaterialAnimation(Material* _material) {
-    if (materialAnimationState_.isLoop_) {
-        if (!materialAnimationState_.isPlay_) {
-            return;
-        }
-    }
-    materialAnimationState_.isEnd_ = false;
-
-    switch (colorInterpolationType_) {
-    case InterpolationType::LINEAR:
-        _material->color_ = CalculateValue::Linear(colorCurve_, currentTime_);
-        break;
-    case InterpolationType::STEP:
-        _material->color_ = CalculateValue::Step(colorCurve_, currentTime_);
-        break;
-    default:
-        break;
-    }
-
-    switch (uvInterpolationType_) {
-    case InterpolationType::LINEAR:
-        _material->uvTransform_.scale_     = CalculateValue::Linear(uvScaleCurve_, currentTime_);
-        _material->uvTransform_.rotate_    = CalculateValue ::Linear(uvRotateCurve_, currentTime_);
-        _material->uvTransform_.translate_ = CalculateValue::Linear(uvTranslateCurve_, currentTime_);
-        break;
-    case InterpolationType::STEP:
-        _material->uvTransform_.scale_     = CalculateValue::Step(uvScaleCurve_, currentTime_);
-        _material->uvTransform_.rotate_    = CalculateValue ::Step(uvRotateCurve_, currentTime_);
-        _material->uvTransform_.translate_ = CalculateValue::Step(uvTranslateCurve_, currentTime_);
-        break;
-    default:
-        break;
-    }
-
-    _material->UpdateUvMatrix();
-}
-
 void to_json(nlohmann::json& _json, const PrimitiveNodeAnimation& _primitiveNodeAnimation) {
     _json["duration"] = _primitiveNodeAnimation.duration_;
-    _json["isLoop"]   = _primitiveNodeAnimation.transformAnimationState_.isLoop_;
-    _json["isPlay"]   = _primitiveNodeAnimation.transformAnimationState_.isPlay_;
-    _json["uvIsLoop"] = _primitiveNodeAnimation.materialAnimationState_.isLoop_;
-    _json["uvIsPlay"] = _primitiveNodeAnimation.materialAnimationState_.isPlay_;
+    _json["isLoop"]   = _primitiveNodeAnimation.animationState_.isLoop_;
+    _json["isPlay"]   = _primitiveNodeAnimation.animationState_.isPlay_;
 
     auto writeCurve = [&_json](const std::string& _name, const auto& _curve) {
         nlohmann::json curveJson = nlohmann::json::array();
@@ -479,26 +296,15 @@ void to_json(nlohmann::json& _json, const PrimitiveNodeAnimation& _primitiveNode
         _json[_name] = curveJson;
     };
 
-    _json["transformInterpolationType"] = _primitiveNodeAnimation.transformInterpolationType_;
+    _json["transformInterpolationType"] = _primitiveNodeAnimation.interpolationType_;
     writeCurve("scaleCurve", _primitiveNodeAnimation.scaleCurve_);
     writeCurve("rotateCurve", _primitiveNodeAnimation.rotateCurve_);
     writeCurve("translateCurve", _primitiveNodeAnimation.translateCurve_);
-
-    _json["colorInterpolationType"] = _primitiveNodeAnimation.colorInterpolationType_;
-    writeCurve("colorCurve", _primitiveNodeAnimation.colorCurve_);
-
-    _json["uvInterpolationType"] = _primitiveNodeAnimation.uvInterpolationType_;
-    writeCurve("uvScaleCurve", _primitiveNodeAnimation.uvScaleCurve_);
-    writeCurve("uvRotateCurve", _primitiveNodeAnimation.uvRotateCurve_);
-    writeCurve("uvTranslateCurve", _primitiveNodeAnimation.uvTranslateCurve_);
 }
 void from_json(const nlohmann::json& _json, PrimitiveNodeAnimation& _primitiveNodeAnimation) {
     _json.at("duration").get_to(_primitiveNodeAnimation.duration_);
-    _json.at("isLoop").get_to(_primitiveNodeAnimation.transformAnimationState_.isLoop_);
-    _json.at("isPlay").get_to(_primitiveNodeAnimation.transformAnimationState_.isPlay_);
-
-    _json.at("uvIsLoop").get_to(_primitiveNodeAnimation.materialAnimationState_.isLoop_);
-    _json.at("uvIsPlay").get_to(_primitiveNodeAnimation.materialAnimationState_.isPlay_);
+    _json.at("isLoop").get_to(_primitiveNodeAnimation.animationState_.isLoop_);
+    _json.at("isPlay").get_to(_primitiveNodeAnimation.animationState_.isPlay_);
 
     auto readCurve = [&_json](const std::string& _name, auto& _curve) {
         for (const auto& keyJson : _json.at(_name)) {
@@ -508,16 +314,8 @@ void from_json(const nlohmann::json& _json, PrimitiveNodeAnimation& _primitiveNo
             _curve.push_back(key);
         }
     };
-    _json.at("transformInterpolationType").get_to(_primitiveNodeAnimation.transformInterpolationType_);
+    _json.at("transformInterpolationType").get_to(_primitiveNodeAnimation.interpolationType_);
     readCurve("scaleCurve", _primitiveNodeAnimation.scaleCurve_);
     readCurve("rotateCurve", _primitiveNodeAnimation.rotateCurve_);
     readCurve("translateCurve", _primitiveNodeAnimation.translateCurve_);
-
-    _json.at("colorInterpolationType").get_to(_primitiveNodeAnimation.colorInterpolationType_);
-    readCurve("colorCurve", _primitiveNodeAnimation.colorCurve_);
-
-    _json.at("uvInterpolationType").get_to(_primitiveNodeAnimation.uvInterpolationType_);
-    readCurve("uvScaleCurve", _primitiveNodeAnimation.uvScaleCurve_);
-    readCurve("uvRotateCurve", _primitiveNodeAnimation.uvRotateCurve_);
-    readCurve("uvTranslateCurve", _primitiveNodeAnimation.uvTranslateCurve_);
 }

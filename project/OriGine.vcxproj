@@ -161,6 +161,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="editor\sceneEditor\SystemInspector.h" />
     <ClInclude Include="editor\setting\SettingWindow.h" />
     <ClInclude Include="editor\window\EditorWindowMenu.h" />
+    <ClInclude Include="engine\code\directX12\SimpleStructuredBuffer.h" />
     <ClInclude Include="engine\code\ECS\component\EntityReferenceList.h" />
     <ClInclude Include="engine\EngineInclude.h" />
     <ClInclude Include="engine\code\ECS\Entity.h" />
@@ -224,7 +225,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\ECS\system\postRender\VignetteEffect.h" />
     <ClInclude Include="engine\code\ECS\system\render\BackGroundSpriteRenderSystem.h" />
     <ClInclude Include="engine\code\ECS\system\render\ColliderRenderingSystem.h" />
-    <ClInclude Include="engine\code\ECS\system\render\EffectTexturedMeshRenderSystem.h" />
     <ClInclude Include="engine\code\ECS\system\render\GpuParticleRenderSystem.h" />
     <ClInclude Include="engine\code\ECS\system\render\LineRenderSystem.h" />
     <ClInclude Include="engine\code\ECS\system\render\ParticleRenderSystem.h" />
@@ -266,6 +266,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\winApp\WinApp.h" />
     <ClInclude Include="engine\code\ECS\component\effect\MaterialEffectPipeLine.h" />
     <ClInclude Include="engine\code\ECS\system\effect\MaterialEffect.h" />
+    <ClInclude Include="engine\code\ECS\component\animation\MaterialAnimation.h" />
+    <ClInclude Include="engine\code\ECS\system\effect\MaterialAnimationWorkSystem.h" />
     <ClInclude Include="math\Matrix4x4.h" />
     <ClInclude Include="math\MyEasing.h" />
     <ClInclude Include="math\Orientation.h" />
@@ -278,6 +280,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="math\Vector4.h" />
     <ClInclude Include="math\shape\Shapes.h" />
     <ClInclude Include="engine\code\ECS\system\Initialize\ResolveEntityReferences.h" />
+    <ClInclude Include="engine\code\directX12\SimpleConstantBuffer.h" />
     <ClInclude Include="util\BitArray.h" />
     <ClInclude Include="util\ConvertString.h" />
     <ClInclude Include="util\DiffValue.h" />
@@ -364,7 +367,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\ECS\system\postRender\VignetteEffect.cpp" />
     <ClCompile Include="engine\code\ECS\system\render\BackGroundSpriteRenderSystem.cpp" />
     <ClCompile Include="engine\code\ECS\system\render\ColliderRenderingSystem.cpp" />
-    <ClCompile Include="engine\code\ECS\system\render\EffectTexturedMeshRenderSystem.cpp" />
     <ClCompile Include="engine\code\ECS\system\render\GpuParticleRenderSystem.cpp" />
     <ClCompile Include="engine\code\ECS\system\render\LineRenderSystem.cpp" />
     <ClCompile Include="engine\code\ECS\system\render\ParticleRenderSystem.cpp" />
@@ -403,6 +405,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\winApp\WinApp.cpp" />
     <ClCompile Include="engine\code\ECS\component\effect\MaterialEffectPipeLine.cpp" />
     <ClCompile Include="engine\code\ECS\system\effect\MaterialEffect.cpp" />
+    <ClCompile Include="engine\code\ECS\component\animation\MaterialAnimation.cpp" />
+    <ClCompile Include="engine\code\ECS\system\effect\MaterialAnimationWorkSystem.cpp" />
     <ClCompile Include="math\Matrix4x4.cpp" />
     <ClCompile Include="math\MyEasing.cpp" />
     <ClCompile Include="math\Orientation.cpp" />

@@ -14,7 +14,6 @@
 #include "directX12/ShaderManager.h"
 #include "texture/TextureManager.h"
 
-
 #include "logger/Logger.h"
 
 /// util
@@ -402,6 +401,21 @@ ModelMeshData* ModelManager::getModelMeshData(const std::string& directoryPath, 
         return it->second.get();
     }
     return nullptr;
+}
+
+const std::vector<TexturedMaterial>& ModelManager::getDefaultMaterials(ModelMeshData* key) const {
+    static std::vector<TexturedMaterial> empty;
+    auto it = defaultMaterials_.find(key);
+    if (it != defaultMaterials_.end()) {
+        return it->second;
+    }
+    return empty;
+}
+
+const std::vector<TexturedMaterial>& ModelManager::getDefaultMaterials(const std::string& directoryPath, const std::string& filename) const {
+    std::string filePath = normalizeString(directoryPath + "/" + filename);
+    auto it              = modelLibrary_.find(filePath);
+    return getDefaultMaterials(it->second.get());
 }
 
 void ModelManager::LoadTask::Update() {

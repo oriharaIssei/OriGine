@@ -9,8 +9,21 @@ void Material::UpdateUvMatrix() {
     uvMat_ = MakeMatrix::Affine({uvTransform_.scale_, 1}, {0.f, 0.f, uvTransform_.rotate_}, {uvTransform_.translate_, 0.f});
 }
 
+void Material::Initialize(GameEntity* /*_entity*/) {
+    uvTransform_ = {};
+    uvMat_       = MakeMatrix::Identity();
+
+    color_ = {1.f, 1.f, 1.f, 1.f};
+
+    enableLighting_         = false;
+    shininess_              = 0.f;
+    environmentCoefficient_ = 0.1f;
+    specularColor_          = {1.f, 1.f, 1.f};
+}
+
+void Material::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
-void Material::DebugGui([[maybe_unused]] const std::string& _parentLabel) {
+
     ImGui::Text("Color");
     ColorEditGuiCommand("##color" + _parentLabel, color_);
     ImGui::Text("uvScale");
@@ -31,8 +44,20 @@ void Material::DebugGui([[maybe_unused]] const std::string& _parentLabel) {
 
     ImGui::Text("EnvironmentCoefficient");
     DragGuiCommand("##EnvironmentCoefficient" + _parentLabel, environmentCoefficient_, 0.01f, 0.0f);
-}
 #endif // _DEBUG
+}
+
+void Material::Finalize() {
+    uvTransform_ = {};
+    uvMat_       = MakeMatrix::Identity();
+
+    color_ = {1.f, 1.f, 1.f, 1.f};
+
+    enableLighting_         = false;
+    shininess_              = 0.f;
+    environmentCoefficient_ = 0.1f;
+    specularColor_          = {1.f, 1.f, 1.f};
+}
 
 void to_json(nlohmann::json& j, const Material& m) {
     to_json<2, float>(j["uvScale"], m.uvTransform_.scale_);

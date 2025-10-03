@@ -160,12 +160,9 @@ void DistortionEffect::RenderEffectObjectScene(
             transform.ConvertToBuffer();
         }
 
-        texturedMeshRenderSystem_->RenderingMesh(
+        texturedMeshRenderSystem_->RenderPrimitiveMesh(
             _commandList,
-            object->getMeshGroup()->front(),
-            object->getTransformBuff(),
-            object->getMaterialBuff(),
-            object->getTextureIndex());
+            object.get());
     }
 
     distortionSceneTexture_->PostDraw();
