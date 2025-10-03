@@ -6,7 +6,7 @@ on:
 
 env:
   # .sln ではなく .vcxproj を指定
-  PROJECT_FILE_PATH: project/application/OriGine.vcxproj
+  PROJECT_FILE_PATH: project/OriGine.vcxproj
   # Visual Studio の構成 (Debug/Release)
   CONFIGURATION: Debug
 
