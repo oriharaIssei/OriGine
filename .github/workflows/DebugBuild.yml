@@ -5,8 +5,8 @@ on:
       - main
 
 env:
-  # 新しいソリューションファイルのパス
-  SOLUTION_FILE_PATH: project/OriGine.sln
+  # .sln ではなく .vcxproj を指定
+  PROJECT_FILE_PATH: project/application/OriGine.vcxproj
   # Visual Studio の構成 (Debug/Release)
   CONFIGURATION: Debug
 
@@ -35,10 +35,10 @@ jobs:
       - name: Debug Environment Variables
         run: |
           echo "Current Directory: $(pwd)"
-          echo "SOLUTION_FILE_PATH=${{ env.SOLUTION_FILE_PATH }}"
+          echo "PROJECT_FILE_PATH=${{ env.PROJECT_FILE_PATH }}"
           echo "CONFIGURATION=${{ env.CONFIGURATION }}"
 
       # ビルド
       - name: Build
         run: |
-          msbuild ${{ env.SOLUTION_FILE_PATH }} /p:Platform=x64 /p:Configuration=${{ env.CONFIGURATION }} /p:SolutionDir=$(pwd)\
+          msbuild ${{ env.PROJECT_FILE_PATH }} /p:Platform=x64 /p:Configuration=${{ env.CONFIGURATION }}

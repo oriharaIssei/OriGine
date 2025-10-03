@@ -6,7 +6,7 @@ on:
 
 env:
   # 新しいソリューションファイルのパス
-  SOLUTION_FILE_PATH: project/OriGine.sln
+  SOLUTION_FILE_PATH: project/OriGine.vcxproj
   # Visual Studio の構成 (Debug/Release)
   CONFIGURATION: Release
 
