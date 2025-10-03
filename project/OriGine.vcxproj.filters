@@ -563,6 +563,8 @@
     </ClInclude>
     <ClInclude Include="engine\code\ECS\component\EntityReferenceList.h" />
     <ClInclude Include="engine\code\ECS\system\Initialize\ResolveEntityReferences.h" />
+    <ClInclude Include="engine\code\ECS\component\effect\MaterialEffectPipeLine.h" />
+    <ClInclude Include="engine\code\ECS\system\effect\MaterialEffect.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="editor\EditorController.cpp">
@@ -921,5 +923,7 @@
     </ClCompile>
     <ClCompile Include="engine\code\ECS\component\EntityReferenceList.cpp" />
     <ClCompile Include="engine\code\ECS\system\Initialize\ResolveEntityReferences.cpp" />
+    <ClCompile Include="engine\code\ECS\component\effect\MaterialEffectPipeLine.cpp" />
+    <ClCompile Include="engine\code\ECS\system\effect\MaterialEffect.cpp" />
   </ItemGroup>
 </Project>

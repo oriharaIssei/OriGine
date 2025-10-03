@@ -58,7 +58,6 @@ void DissolveEffect::Update() {
         auto* entity = getEntity(id);
         UpdateEntity(entity);
     }
-    Render();
 
     sceneView->PostDraw();
 }
@@ -81,6 +80,8 @@ void DissolveEffect::UpdateEntity(GameEntity* _entity) {
 
         dissolveEffectParam->getDissolveBuffer().ConvertToBuffer();
         dissolveEffectParam->getDissolveBuffer().SetForRootParameter(dxCommand_->getCommandList(), 2);
+
+        Render();
     }
 }
 
@@ -89,6 +90,18 @@ void DissolveEffect::Finalize() {
         dxCommand_.reset();
     }
     pso_ = nullptr;
+}
+
+void DissolveEffect::EffectEntity(RenderTexture* _output, GameEntity* _entity) {
+    if (!_output) {
+        return;
+    }
+    RenderStart();
+    _output->PreDraw();
+
+    UpdateEntity(_entity);
+
+    _output->PostDraw();
 }
 
 void DissolveEffect::CreatePSO() {

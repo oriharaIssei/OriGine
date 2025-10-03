@@ -19,6 +19,17 @@
 
 PipelineStateObj* RenderTexture::pso_;
 
+RenderTexture::RenderTexture(DxCommand* dxCom) {
+    std::string commandListKey  = "main";
+    std::string commandQueueKey = "main";
+    if (dxCom) {
+        commandListKey  = dxCom->getCommandListComboKey();
+        commandQueueKey = dxCom->getCommandQueueKey();
+    }
+    dxCommand_ = std::make_unique<DxCommand>();
+    dxCommand_->Initialize(commandListKey, commandQueueKey);
+}
+
 void RenderTexture::Awake() {
     ShaderManager* shaderManager = ShaderManager::getInstance();
 
@@ -331,6 +342,22 @@ void RenderTexture::DrawTexture() {
     commandList->SetGraphicsRootDescriptorTable(
         0,
         getBackBufferSrvHandle());
+
+    commandList->DrawInstanced(6, 1, 0, 0);
+}
+
+void RenderTexture::DrawTexture(D3D12_GPU_DESCRIPTOR_HANDLE _srvHandle) {
+    auto& commandList = dxCommand_->getCommandList();
+
+    commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
+    commandList->SetPipelineState(pso_->pipelineState.Get());
+
+    ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
+    commandList->SetDescriptorHeaps(1, ppHeaps);
+
+    commandList->SetGraphicsRootDescriptorTable(
+        0,
+        _srvHandle);
 
     commandList->DrawInstanced(6, 1, 0, 0);
 }

@@ -19,6 +19,11 @@ public:
     void UpdateEntity(GameEntity* _entity) override;
     void Finalize();
 
+    /// <summary>
+    /// 単一エフェクトに対してエフェクトをかけ, RenderTextureに出力する
+    /// </summary>
+    void EffectEntity(RenderTexture* _output,GameEntity* _entity);
+
 protected:
     void CreatePSO();
 

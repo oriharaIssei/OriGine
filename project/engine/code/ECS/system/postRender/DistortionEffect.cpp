@@ -87,43 +87,8 @@ void DistortionEffect::UpdateEntity(GameEntity* _entity) {
             break;
         }
 
-        distortionSceneTexture_->PreDraw();
-        texturedMeshRenderSystem_->SettingPSO(BlendMode::Alpha);
-        texturedMeshRenderSystem_->StartRender();
+        RenderEffectObjectScene(commandList, entityTransform_, distortionEffectParam);
 
-        for (auto& [object, type] : distortionEffectParam->getDistortionObjects()) {
-
-            // nullptr なら これ以上存在しないとして終了
-            if (!object) {
-                break;
-            }
-            // 描画フラグが立っていないならスキップ
-            if (!object->isRender()) {
-                continue;
-            }
-            ///==============================
-            /// Transformの更新
-            ///==============================
-            {
-                auto& transform = object->getTransformBuff();
-
-                if (transform->parent == nullptr) {
-                    transform->parent = entityTransform_;
-                }
-
-                transform->UpdateMatrix();
-                transform.ConvertToBuffer();
-            }
-
-            texturedMeshRenderSystem_->RenderingMesh(
-                commandList,
-                object->getMeshGroup()->front(),
-                object->getTransformBuff(),
-                object->getMaterialBuff(),
-                object->getTextureIndex());
-        }
-
-        distortionSceneTexture_->PostDraw();
         /// ================================================================================================
         // post Process
         /// ================================================================================================
@@ -161,6 +126,101 @@ void DistortionEffect::UpdateEntity(GameEntity* _entity) {
 
         ++componentIndex;
     }
+}
+
+void DistortionEffect::RenderEffectObjectScene(
+    const Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& _commandList,
+    Transform* _entityTransform,
+    DistortionEffectParam* _param) {
+    distortionSceneTexture_->PreDraw();
+    texturedMeshRenderSystem_->SettingPSO(BlendMode::Alpha);
+    texturedMeshRenderSystem_->StartRender();
+
+    for (auto& [object, type] : _param->getDistortionObjects()) {
+
+        // nullptr なら これ以上存在しないとして終了
+        if (!object) {
+            break;
+        }
+        // 描画フラグが立っていないならスキップ
+        if (!object->isRender()) {
+            continue;
+        }
+        ///==============================
+        /// Transformの更新
+        ///==============================
+        {
+            auto& transform = object->getTransformBuff();
+
+            if (transform->parent == nullptr) {
+                transform->parent = _entityTransform;
+            }
+
+            transform->UpdateMatrix();
+            transform.ConvertToBuffer();
+        }
+
+        texturedMeshRenderSystem_->RenderingMesh(
+            _commandList,
+            object->getMeshGroup()->front(),
+            object->getTransformBuff(),
+            object->getMaterialBuff(),
+            object->getTextureIndex());
+    }
+
+    distortionSceneTexture_->PostDraw();
+}
+
+void DistortionEffect::EffectEntity(RenderTexture* _output, GameEntity* _entity, int32_t _textureId) {
+    if (_output == nullptr) {
+        LOG_ERROR("Output RenderTexture is nullptr");
+        return;
+    }
+    auto& commandList = dxCommand_->getCommandList();
+
+    _output->PreDraw();
+
+    DistortionEffectParam* distortionEffectParam = getComponent<DistortionEffectParam>(_entity);
+
+    // nullptr なら これ以上存在しないとして終了
+    if (!distortionEffectParam) {
+        LOG_ERROR("Output RenderTexture is nullptr");
+        _output->PostDraw();
+        return;
+    }
+    bool isUsingObjectScene = (_textureId < 0);
+    if (isUsingObjectScene) {
+        RenderEffectObjectScene(commandList, getComponent<Transform>(_entity), distortionEffectParam);
+    }
+
+    commandList->SetPipelineState(pso_->pipelineState.Get());
+    commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
+    commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+    /// ----------------------------------------------------------
+    /// set buffer
+    /// ----------------------------------------------------------
+    ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
+    commandList->SetDescriptorHeaps(1, ppHeaps);
+
+    if (isUsingObjectScene) {
+        commandList->SetGraphicsRootDescriptorTable(distortionTextureIndex_, distortionSceneTexture_->getBackBufferSrvHandle());
+    } else {
+        commandList->SetGraphicsRootDescriptorTable(distortionTextureIndex_, TextureManager::getDescriptorGpuHandle(distortionTextureIndex_));
+    }
+
+    commandList->SetGraphicsRootDescriptorTable(sceneTextureIndex_, _output->getBackBufferSrvHandle());
+
+    distortionEffectParam->getEffectParamBuffer()->UpdateUVMat();
+    distortionEffectParam->getEffectParamBuffer().ConvertToBuffer();
+    distortionEffectParam->getEffectParamBuffer().SetForRootParameter(commandList, distortionParamIndex_);
+
+    /// ----------------------------------------------------------
+    /// Draw
+    /// ----------------------------------------------------------
+    commandList->DrawInstanced(6, 1, 0, 0);
+
+    _output->PostDraw();
 }
 
 void DistortionEffect::CreatePSO() {
