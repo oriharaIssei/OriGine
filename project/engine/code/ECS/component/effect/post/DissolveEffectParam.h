@@ -3,6 +3,7 @@
 
 /// engine
 #include "directX12/IConstantBuffer.h"
+#include "directX12/SimpleConstantBuffer.h"
 
 /// component
 #include "component/material/Material.h"
@@ -19,8 +20,6 @@ public:
     float edgeWidth    = 0.1f;
     Vec4f outLineColor = Vec4f(1.0f, 1.0f, 1.0f, 1.0f);
 
-    UVTransform uvTransform;
-
 public:
     struct ConstantBuffer {
         ConstantBuffer() = default;
@@ -29,16 +28,11 @@ public:
         float edgeWidth;
         float pad[2];
         Vec4f outLineColor;
-        Matrix4x4 uvMat;
 
         ConstantBuffer& operator=(const DissolveParamData& data) {
             threshold    = data.threshold;
             edgeWidth    = data.edgeWidth;
             outLineColor = data.outLineColor;
-            uvMat        = MakeMatrix::Affine(
-                Vec3f(data.uvTransform.scale_, 1.f),
-                Vec3f(0.f, 0.f, data.uvTransform.rotate_),
-                Vec3f(data.uvTransform.translate_, 0.f));
 
             return *this;
         }
@@ -73,6 +67,9 @@ private:
     std::string textureFilePath_ = ""; // テクスチャのファイルパス
     uint32_t textureIndex_       = 0;
 
+    int32_t materialIndex_ = -1; // マテリアルコンポーネントのインデックス
+    SimpleConstantBuffer<UVTransform> uvTransformBuffer_;
+
 public:
     bool isActive() const {
         return isActive_;
@@ -83,6 +80,17 @@ public:
     }
     IConstantBuffer<DissolveParamData>& getDissolveBufferRef() {
         return paramBuffer_;
+    }
+
+    SimpleConstantBuffer<UVTransform>& getUVTransformBuffer() {
+        return uvTransformBuffer_;
+    }
+
+    int32_t getMaterialIndex() const {
+        return materialIndex_;
+    }
+    void setMaterialIndex(int32_t index) {
+        materialIndex_ = index;
     }
 
     float getThreshold() const {
@@ -102,18 +110,6 @@ public:
     }
     void setOutLineColor(const Vec4f& color) {
         paramBuffer_->outLineColor = color;
-    }
-    const UVTransform& getUVTransform() const {
-        return paramBuffer_->uvTransform;
-    }
-    void getUvScale(const Vec2f& uvScale) {
-        paramBuffer_->uvTransform.scale_ = uvScale;
-    }
-    void setUvRotate(float rotate) {
-        paramBuffer_->uvTransform.rotate_ = rotate;
-    }
-    void setUvTranslate(const Vec2f& translate) {
-        paramBuffer_->uvTransform.translate_ = translate;
     }
 
     uint32_t getTextureIndex() const {

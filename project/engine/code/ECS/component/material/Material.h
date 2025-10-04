@@ -22,6 +22,11 @@ struct UVTransform {
     Vec2f scale_     = Vec2f(1.f, 1.f);
     float rotate_    = 0.f;
     Vec2f translate_ = Vec2f(0.f, 0.f);
+    struct ConstantBuffer {
+        Matrix4x4 uvTransform;
+
+        ConstantBuffer& operator=(const UVTransform& _transform);
+    };
 };
 
 struct Material
@@ -31,7 +36,7 @@ struct Material
 
 public:
     Material() {}
-    ~Material()override {}
+    ~Material() override {}
 
     void UpdateUvMatrix();
 
@@ -39,9 +44,13 @@ public:
     void Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] GameEntity* _entity, const std::string& _parentLabel) override;
     void Finalize() override;
 
+    void CreateCustomTextureFromTextureFile(const std::string& _directory, const std::string& _filename);
+    void CreateCustomTextureFromTextureFile(int32_t textureIndex);
+
 public:
     struct CustomTextureData {
-        DxSrvDescriptor srv_;
+        CustomTextureData() = default;
+        std::shared_ptr<DxSrvDescriptor> srv_;
         DxResource resource_;
     };
 
@@ -62,8 +71,12 @@ private:
 public:
     bool hasCustomTexture() const { return customTexture_.has_value(); }
     const std::optional<CustomTextureData>& getCustomTexture() const { return customTexture_; }
-    void setCustomTexture(const DxSrvDescriptor& srv, const DxResource& resource) {
-        customTexture_.emplace(CustomTextureData{srv, resource});
+    void setCustomTexture(std::shared_ptr<DxSrvDescriptor> _srv, const DxResource& _resource) {
+        if (!customTexture_) {
+            customTexture_.emplace(CustomTextureData());
+        }
+        customTexture_->srv_      = _srv;
+        customTexture_->resource_ = _resource;
     }
     void resetCustomTexture() { customTexture_.reset(); }
 

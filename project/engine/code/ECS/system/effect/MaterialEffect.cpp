@@ -6,6 +6,7 @@
 /// ECS
 #include "component/effect/post/DissolveEffectParam.h"
 #include "component/effect/post/DistortionEffectParam.h"
+#include "component/material/Material.h"
 
 MaterialEffect::MaterialEffect() : ISystem(SystemCategory::Effect) {}
 
@@ -13,16 +14,48 @@ MaterialEffect::~MaterialEffect() {}
 
 void MaterialEffect::Initialize() {
     dxCommand_ = std::make_unique<DxCommand>();
-    DxCommand::CreateCommandListWithAllocator(Engine::getInstance()->getDxDevice()->getDevice(), "MaterialEffect", D3D12_COMMAND_LIST_TYPE_COPY);
-    dxCommand_->Initialize("MaterialEffect", "MaterialEffect");
+    dxCommand_->Initialize("main", "main");
 
-    tempRenderTexture_ = std::make_unique<RenderTexture>();
-    tempRenderTexture_->Initialize(2, Vec2f(1280.f, 1280.f));
+    for (auto& tempRenderTexture : tempRenderTextures_) {
+        tempRenderTexture = std::make_unique<RenderTexture>(dxCommand_.get());
+        tempRenderTexture->Initialize(2, Vec2f(512.f, 512.f));
+    }
 
     dissolveEffect_ = std::make_unique<DissolveEffect>();
+    dissolveEffect_->setScene(this->getScene());
     dissolveEffect_->Initialize();
     distortionEffect_ = std::make_unique<DistortionEffect>();
+    distortionEffect_->setScene(this->getScene());
     distortionEffect_->Initialize();
+}
+
+void MaterialEffect::Update() {
+    eraseDeadEntity();
+
+    if (entityIDs_.empty()) {
+        return;
+    }
+
+    // 前フレームの描画対象をクリア
+    effectPipelines_.clear();
+
+    for (auto& id : entityIDs_) {
+        GameEntity* entity = getEntity(id);
+        DispatchComponents(entity);
+    }
+
+    // アクティブなレンダラーが一つもなければ終了
+    if (effectPipelines_.empty()) {
+        return;
+    }
+
+    std::sort(effectPipelines_.begin(), effectPipelines_.end(), [](std::pair<GameEntity*, MaterialEffectPipeLine*>& a, std::pair<GameEntity*, MaterialEffectPipeLine*>& b) {
+        return a.second->getPriority() < b.second->getPriority();
+    });
+
+    for (auto& [entity, pipeline] : effectPipelines_) {
+        UpdateEffectPipeline(entity, pipeline);
+    }
 }
 
 void MaterialEffect::Finalize() {
@@ -36,56 +69,114 @@ void MaterialEffect::Finalize() {
         distortionEffect_.reset();
         distortionEffect_ = nullptr;
     }
-    if (tempRenderTexture_) {
-        tempRenderTexture_->Finalize();
-        tempRenderTexture_.reset();
-        tempRenderTexture_ = nullptr;
+
+    for (auto& tempRenderTexture : tempRenderTextures_) {
+        tempRenderTexture = std::make_unique<RenderTexture>(dxCommand_.get());
     }
 }
 
-void MaterialEffect::UpdateEntity(GameEntity* _entity) {
-    auto commandList             = dxCommand_->getCommandList();
+void MaterialEffect::DispatchComponents(GameEntity* _entity) {
     auto materialEffectPipeLines = getComponents<MaterialEffectPipeLine>(_entity);
     if (!materialEffectPipeLines) {
         return;
     }
     for (auto& pipeline : *materialEffectPipeLines) {
-        if (!pipeline.isActive()) { // active じゃなかったらスルー
+        if (!pipeline.isActive()) {
             continue;
         }
-        DxResource* effectedTextureResource = &pipeline.getEffectedTextureResource();
-
-        if (!effectedTextureResource->getResource()) {
+        Material* material = getComponent<Material>(_entity, pipeline.getMaterialIndex());
+        if (!material) { // Material が存在しなかったらスルー
             continue;
         }
-
-        // 必要ならサイズを合わせる
-        if (tempRenderTexture_->getTextureSize() != pipeline.getTextureSize()) {
-            tempRenderTexture_->Resize(pipeline.getTextureSize());
+        int32_t baseTextureId = pipeline.getBaseTextureId();
+        if (baseTextureId < 0) {
+            continue;
         }
-        // tempRenderTexture_ に baseTexture を描画
-        tempRenderTexture_->DrawTexture(TextureManager::getDescriptorGpuHandle(pipeline.getBaseTextureId()));
-
-        const auto& effectEntityDataList = pipeline.getEffectEntityIdList();
-        for (auto id : effectEntityDataList) {
-            GameEntity* effectEntity = getEntity(id.entityID);
-            if (!effectEntity) { // エンティティが存在しなかったらスルー
-                continue;
-            }
-            TextureEffect(effectEntity, id.effectType, tempRenderTexture_.get());
-        }
-        // 最終的に tempRenderTexture_ にエフェクトがかかったテクスチャが入っているので
-        // Component に 渡す
-        dxCommand_->ResourceBarrier(tempRenderTexture_->getBackBuffer(), D3D12_RESOURCE_STATE_COPY_SOURCE);
-        dxCommand_->ResourceBarrier(effectedTextureResource->getResource(), D3D12_RESOURCE_STATE_COPY_DEST);
-
-        // コピー
-        commandList->CopyResource(effectedTextureResource->getResource().Get(), tempRenderTexture_->getBackBuffer().Get());
-
-        // 状態を戻す
-        dxCommand_->ResourceBarrier(effectedTextureResource->getResource(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-        dxCommand_->ResourceBarrier(tempRenderTexture_->getBackBuffer(), D3D12_RESOURCE_STATE_RENDER_TARGET);
+        effectPipelines_.emplace_back(std::make_pair(_entity, &pipeline));
     }
+}
+
+void MaterialEffect::UpdateEffectPipeline(GameEntity* _entity, MaterialEffectPipeLine* _pipeline) {
+    auto commandList = dxCommand_->getCommandList();
+
+    Material* material    = getComponent<Material>(_entity, _pipeline->getMaterialIndex());
+    int32_t baseTextureId = _pipeline->getBaseTextureId();
+
+    if (!material->hasCustomTexture()) {
+        material->CreateCustomTextureFromTextureFile(_pipeline->getBaseTextureId());
+    }
+    auto effectedTextureResource = &material->getCustomTexture()->resource_;
+    Vec2f textureSize            = {(float)effectedTextureResource->width(), (float)effectedTextureResource->height()};
+
+    DirectX::TexMetadata metaData = TextureManager::getTexMetadata(baseTextureId);
+    metaData.format               = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+    metaData.mipLevels            = 1;
+
+    auto tempRenderTexture = tempRenderTextures_[currentTempRTIndex_].get();
+    if (tempRenderTexture->getTextureSize() != textureSize) {
+        tempRenderTexture->Resize(textureSize);
+    }
+
+    // tempRenderTexture_ に baseTexture を描画
+    tempRenderTexture->PreDraw();
+    tempRenderTexture->DrawTexture(TextureManager::getDescriptorGpuHandle(_pipeline->getBaseTextureId()));
+    tempRenderTexture->PostDraw();
+
+    const auto& effectEntityDataList = _pipeline->getEffectEntityIdList();
+    for (auto id : effectEntityDataList) {
+        GameEntity* effectEntity = getEntity(id.entityID);
+        if (!effectEntity) { // エンティティが存在しなかったらスルー
+            continue;
+        }
+        TextureEffect(effectEntity, id.effectType, tempRenderTexture);
+    }
+    // 最終的に tempRenderTexture_ にエフェクトがかかったテクスチャが入っているので
+    // Component に 渡す
+    dxCommand_->ResourceBarrier(effectedTextureResource->getResource(), D3D12_RESOURCE_STATE_COPY_DEST);
+    dxCommand_->ResourceBarrier(tempRenderTexture->getBackBuffer(), D3D12_RESOURCE_STATE_COPY_SOURCE);
+
+    // コピー
+    commandList->CopyResource(effectedTextureResource->getResource().Get(), tempRenderTexture->getBackBuffer().Get());
+
+    // 状態を戻す
+    dxCommand_->ResourceBarrier(tempRenderTexture->getBackBuffer(), D3D12_RESOURCE_STATE_COMMON);
+    dxCommand_->ResourceBarrier(effectedTextureResource->getResource(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+
+    ExecuteCommand();
+
+    currentTempRTIndex_ = (currentTempRTIndex_ + 1) % static_cast<int32_t>(tempRenderTextures_.size());
+}
+
+void MaterialEffect::ExecuteCommand() {
+    HRESULT result;
+    DxFence* fence = Engine::getInstance()->getDxFence();
+
+    // コマンドの受付終了 -----------------------------------
+    result = dxCommand_->Close();
+    if (FAILED(result)) {
+        LOG_ERROR("Failed to close command list. HRESULT: {}", std::to_string(result));
+        assert(false);
+    }
+    //----------------------------------------------------
+
+    ///===============================================================
+    /// コマンドリストの実行
+    ///===============================================================
+    dxCommand_->ExecuteCommand();
+    ///===============================================================
+
+    ///===============================================================
+    /// コマンドリストの実行を待つ
+    ///===============================================================
+    fence->Signal(dxCommand_->getCommandQueue());
+    fence->WaitForFence();
+    ///===============================================================
+
+    ///===============================================================
+    /// リセット
+    ///===============================================================
+    dxCommand_->CommandReset();
+    ///===============================================================
 }
 
 void MaterialEffect::TextureEffect(GameEntity* _entity, MaterialEffectType _type, RenderTexture* _output) {

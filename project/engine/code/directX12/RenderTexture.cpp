@@ -92,7 +92,11 @@ void RenderTexture::Awake() {
     pso_ = shaderManager->CreatePso("FullScreen", shaderInfo, Engine::getInstance()->getDxDevice()->getDevice());
 }
 
-void RenderTexture::Initialize(int32_t _bufferCount, const Vec2f& textureSize, DXGI_FORMAT _format, const Vec4f& _clearColor) {
+void RenderTexture::Initialize(
+    int32_t _bufferCount,
+    const Vec2f& textureSize,
+    DXGI_FORMAT _format,
+    const Vec4f& _clearColor) {
     format_      = _format;
     bufferCount_ = _bufferCount;
     renderTargets_.resize(bufferCount_);
@@ -147,6 +151,10 @@ void RenderTexture::Initialize(int32_t _bufferCount, const Vec2f& textureSize, D
         renderTarget.resource_.setName(wName + std::to_wstring(index));
         ++index;
     }
+}
+
+void RenderTexture::Initialize(int32_t _bufferCount, const DirectX::TexMetadata& _metaData, const Vec4f& _clearColor) {
+    Initialize(_bufferCount, Vec2f(float(_metaData.width), float(_metaData.height)), _metaData.format, _clearColor);
 }
 
 void RenderTexture::Resize(const Vec2f& textureSize) {

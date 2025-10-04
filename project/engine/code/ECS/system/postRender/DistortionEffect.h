@@ -33,7 +33,7 @@ public:
     /// <summary>
     /// 単一エフェクトに対してエフェクトをかけ, RenderTextureに出力する
     /// </summary>
-    void EffectEntity(RenderTexture* _output, GameEntity* _entity, int32_t _textureId = -1);
+    void EffectEntity(RenderTexture* _output, GameEntity* _entity);
 
 protected:
     void RenderEffectObjectScene(
@@ -55,4 +55,5 @@ protected:
     int32_t distortionTextureIndex_ = 0;
     int32_t sceneTextureIndex_      = 0;
     int32_t distortionParamIndex_   = 0;
+    int32_t materialIndex_          = 0;
 };

@@ -95,11 +95,13 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 #include "component/animation/PrimitiveNodeAnimation.h"
 #include "component/animation/SkinningAnimationComponent.h"
 #include "component/animation/SpriteAnimation.h"
+#include "component/animation/MaterialAnimation.h"
 
 #include "component/collider/Collider.h"
 #include "component/collider/CollisionPushBackInfo.h"
 #include "component/physics/Rigidbody.h"
 
+#include "component/effect/MaterialEffectPipeLine.h"
 #include "component/effect/particle/emitter/Emitter.h"
 #include "component/effect/particle/gpuParticle/GpuParticle.h"
 #include "component/effect/post/DissolveEffectParam.h"

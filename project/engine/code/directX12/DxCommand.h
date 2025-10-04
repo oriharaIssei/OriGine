@@ -39,7 +39,9 @@ public:
 
 private:
     static std::unordered_map<std::string,
-        std::tuple<Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>, Microsoft::WRL::ComPtr<ID3D12CommandAllocator>, ResourceStateTracker>>
+        std::tuple<Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>,
+            Microsoft::WRL::ComPtr<ID3D12CommandAllocator>,
+            ResourceStateTracker>>
         commandListComboMap_;
 
     static std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D12CommandQueue>> commandQueueMap_;

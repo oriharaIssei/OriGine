@@ -2,8 +2,24 @@
 
 /// engine
 #define ENGINE_INCLUDE
+#define RESOURCE_DIRECTORY
 #include "EngineInclude.h"
+#include "scene/Scene.h"
 #include "texture/TextureManager.h"
+
+/// ECS
+#include "component/effect/post/DissolveEffectParam.h"
+#include "component/effect/post/DistortionEffectParam.h"
+#include "component/material/Material.h"
+
+/// util
+#include "myFileSystem/MyFileSystem.h"
+
+/// editor
+#ifdef _DEBUG
+#include "editor/IEditor.h"
+#include "myGui/MyGui.h"
+#endif // _DEBUG
 
 MaterialEffectPipeLine::MaterialEffectPipeLine() {}
 
@@ -15,41 +31,142 @@ void MaterialEffectPipeLine::Initialize(GameEntity* /*_entity*/) {
     }
 }
 
-void MaterialEffectPipeLine::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) {}
+void MaterialEffectPipeLine::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
+
+    auto askLoadTexture = [this]([[maybe_unused]] const std::string& _parentLabel) {
+        bool ask          = false;
+        std::string label = "Load Texture##" + _parentLabel;
+        ask               = ImGui::Button(label.c_str());
+        ask |= ImGui::ImageButton(
+            ImTextureID(TextureManager::getDescriptorGpuHandle(baseTextureId_).ptr),
+            ImVec2(32, 32), ImVec2(0, 0), ImVec2(1, 1), 4, ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
+
+        return ask;
+    };
+    ImGui::Text("Texture Directory: %s", baseTexturePath_.c_str());
+    if (askLoadTexture(_parentLabel)) {
+        std::string directory;
+        std::string fileName;
+        if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"png"})) {
+            auto setPath = std::make_unique<SetterCommand<std::string>>(&baseTexturePath_, kApplicationResourceDirectory + "/" + directory + "/" + fileName);
+            CommandCombo commandCombo;
+            commandCombo.addCommand(std::move(setPath));
+            commandCombo.setFuncOnAfterCommand([this]() {
+                baseTextureId_ = TextureManager::LoadTexture(baseTexturePath_);
+            },
+                true);
+            EditorController::getInstance()->pushCommand(std::make_unique<CommandCombo>(commandCombo));
+        }
+    };
+
+    std::string label          = "MaterialIndex##" + _parentLabel;
+    auto materials             = _scene->getComponents<Material>(_entity);
+    int32_t entityMaterialSize = materials != nullptr ? static_cast<int32_t>(materials->size()) : 0;
+
+    if (entityMaterialSize <= 0) {
+        ImGui::InputInt(label.c_str(), &materialIndex_, 0, 0, ImGuiInputTextFlags_ReadOnly);
+    } else {
+        InputGuiCommand(label, materialIndex_);
+        materialIndex_ = std::clamp(materialIndex_, 0, entityMaterialSize - 1);
+    }
+    label = "Material##" + _parentLabel;
+    if (ImGui::TreeNode(label.c_str())) {
+        if (materials != nullptr && materialIndex_ >= 0 && materialIndex_ < materials->size()) {
+            (*materials)[materialIndex_].Edit(_scene, _entity, label);
+        } else {
+            ImGui::Text("Material is null.");
+        }
+        ImGui::TreePop();
+    }
+
+    InputGuiCommand("isActive##" + _parentLabel, isActive_);
+    InputGuiCommand("priority##" + _parentLabel, priority_);
+
+    label = "AddEffectEntity##" + _parentLabel;
+    if (ImGui::Button(label.c_str())) {
+        auto command = std::make_unique<AddElementCommand<std::vector<EffectEntityData>>>(&effectEntityIdList_, MaterialEffectPipeLine::EffectEntityData());
+        EditorController::getInstance()->pushCommand(std::move(command));
+    }
+    ImGui::SameLine();
+    label = "ClearEffectEntity##" + _parentLabel;
+    if (ImGui::Button(label.c_str())) {
+        auto command = std::make_unique<ClearCommand<std::vector<EffectEntityData>>>(&effectEntityIdList_);
+        EditorController::getInstance()->pushCommand(std::move(command));
+    }
+
+    /// Effectを持っているEntity一覧
+    std::vector<std::vector<int32_t>> effectEntityIds;
+    effectEntityIds.emplace_back(std::vector<int32_t>());
+    effectEntityIds[0].reserve(10);
+    for (auto& indexBind : _scene->getComponentArray<DissolveEffectParam>()->getEntityIndexBind()) {
+        effectEntityIds[0].emplace_back(indexBind.first);
+    }
+    effectEntityIds.emplace_back(std::vector<int32_t>());
+    effectEntityIds[1].reserve(10);
+    for (auto& indexBind : _scene->getComponentArray<DistortionEffectParam>()->getEntityIndexBind()) {
+        effectEntityIds[1].emplace_back(indexBind.first);
+    }
+
+    ImGui::Spacing();
+
+    for (size_t i = 0; i < effectEntityIdList_.size(); ++i) {
+        std::string effectLabel = "EffectType##" + std::to_string(i) + _parentLabel;
+        int32_t effectTypeInt   = static_cast<int32_t>(effectEntityIdList_[i].effectType);
+        if (ImGui::BeginCombo(effectLabel.c_str(), materialEffectString[effectTypeInt].c_str())) {
+            for (int j = 0; j < static_cast<int>(MaterialEffectType::Count); ++j) {
+                bool isSelected = (effectTypeInt == j);
+                if (ImGui::Selectable(materialEffectString[j].c_str(), isSelected)) {
+                    auto command = std::make_unique<SetterCommand<MaterialEffectType>>(
+                        &effectEntityIdList_[i].effectType,
+                        static_cast<MaterialEffectType>(j));
+                    EditorController::getInstance()->pushCommand(std::move(command));
+                }
+                if (isSelected) {
+                    ImGui::SetItemDefaultFocus();
+                }
+            }
+            ImGui::EndCombo();
+        }
+
+        std::string removeButtonLabel = "X##" + std::to_string(i) + _parentLabel;
+        if (ImGui::Button(removeButtonLabel.c_str())) {
+            auto command = std::make_unique<EraseElementCommand<std::vector<EffectEntityData>>>(&effectEntityIdList_, effectEntityIdList_.begin() + i);
+            EditorController::getInstance()->pushCommand(std::move(command));
+        }
+        ImGui::SameLine();
+
+        std::string entityIdLabel = "EntityID##" + std::to_string(i) + _parentLabel;
+        std::string entityName    = _scene->getEntity(effectEntityIdList_[i].entityID) != nullptr ? std::to_string(effectEntityIdList_[i].entityID) : "NULL";
+        if (ImGui::BeginCombo(entityIdLabel.c_str(), entityName.c_str())) {
+            for (int j = 0; j < effectEntityIds[effectTypeInt].size(); ++j) {
+                bool isSelected = (effectEntityIdList_[i].entityID == effectEntityIds[effectTypeInt][j]);
+                if (ImGui::Selectable(_scene->getEntity(effectEntityIds[effectTypeInt][j])->getUniqueID().c_str(), isSelected)) {
+                    auto command = std::make_unique<SetterCommand<int32_t>>(
+                        &effectEntityIdList_[i].entityID,
+                        effectEntityIds[effectTypeInt][j]);
+                    EditorController::getInstance()->pushCommand(std::move(command));
+                }
+                if (isSelected) {
+                    ImGui::SetItemDefaultFocus();
+                }
+            }
+            ImGui::EndCombo();
+        }
+    }
+}
 
 void MaterialEffectPipeLine::Finalize() {}
 
 void MaterialEffectPipeLine::LoadBaseTexture(const std::string& _path) {
     baseTexturePath_ = _path;
     baseTextureId_   = TextureManager::LoadTexture(baseTexturePath_);
-
-    CreateEffectedTextureResourceByBaseTexture();
-}
-
-void MaterialEffectPipeLine::CreateEffectedTextureResourceByBaseTexture() {
-    // Resource & SRV の作成
-    const DirectX::TexMetadata& metaData = TextureManager::getTexMetadata(baseTextureId_);
-    effectedTextureResource_.CreateTextureResource(
-        Engine::getInstance()->getDxDevice()->getDevice(),
-        metaData);
-
-    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-    srvDesc.Format                  = metaData.format;
-    srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-    srvDesc.ViewDimension           = D3D12_SRV_DIMENSION_TEXTURE2D;
-    srvDesc.Texture2D.MipLevels     = UINT(metaData.mipLevels);
-
-    /// SRV の作成
-    effectedTextureSrv_ = Engine::getInstance()->getSrvHeap()->CreateDescriptor(srvDesc, &effectedTextureResource_);
-
-    // テクスチャサイズの取得
-    textureSize_[X] = static_cast<float>(metaData.width);
-    textureSize_[Y] = static_cast<float>(metaData.height);
 }
 
 void to_json(nlohmann::json& j, const MaterialEffectPipeLine& c) {
     j["baseTexturePath"] = c.baseTexturePath_;
     j["isActive"]        = c.isActive_;
+    j["priority"]        = c.priority_;
+    j["materialIndex"]   = c.materialIndex_;
 
     nlohmann::json effectList = nlohmann::json::array();
     for (const auto& effectData : c.effectEntityIdList_) {
@@ -62,12 +179,15 @@ void to_json(nlohmann::json& j, const MaterialEffectPipeLine& c) {
 }
 
 void from_json(const nlohmann::json& j, MaterialEffectPipeLine& c) {
-    if (j.contains("baseTexturePath")) {
-        j.at("baseTexturePath").get_to(c.baseTexturePath_);
+    j.at("baseTexturePath").get_to(c.baseTexturePath_);
+
+    j.at("isActive").get_to(c.isActive_);
+    if (j.contains("priority")) {
+        j.at("priority").get_to(c.priority_);
     }
-    if (j.contains("isActive")) {
-        j.at("isActive").get_to(c.isActive_);
-    }
+
+    j.at("materialIndex").get_to(c.materialIndex_);
+
     c.effectEntityIdList_.clear();
     if (j.contains("effectEntityIdList")) {
         for (const auto& effectJson : j.at("effectEntityIdList")) {
@@ -83,7 +203,5 @@ void from_json(const nlohmann::json& j, MaterialEffectPipeLine& c) {
             c.effectEntityIdList_.push_back(effectData);
         }
     }
-    if (!c.baseTexturePath_.empty()) {
-        c.LoadBaseTexture(c.baseTexturePath_);
-    }
+    c.LoadBaseTexture(c.baseTexturePath_);
 }

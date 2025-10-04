@@ -146,12 +146,13 @@ void MaterialAnimation::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Ga
 
     ImGui::Spacing();
 
-    CheckBoxCommand("Is Loop", animationState_.isLoop_);
-    CheckBoxCommand("Is Play", animationState_.isPlay_);
+    CheckBoxCommand("Is Loop##" + _parentLabel, animationState_.isLoop_);
+    CheckBoxCommand("Is Play##" + _parentLabel, animationState_.isPlay_);
 
     ImGui::Spacing();
 
-    if (ImGui::BeginCombo("InterpolationType", InterpolationTypeName[int(interpolationType_)])) {
+    label = "InterpolationType##" + _parentLabel;
+    if (ImGui::BeginCombo(label.c_str(), InterpolationTypeName[int(interpolationType_)])) {
         for (int i = 0; i < (int)InterpolationType::COUNT; ++i) {
             if (ImGui::Selectable(InterpolationTypeName[i], interpolationType_ == InterpolationType(i))) {
                 EditorController::getInstance()->pushCommand(
@@ -163,8 +164,8 @@ void MaterialAnimation::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Ga
 
     ImGui::Spacing();
 
-    ImGuiTableFlags tableFlags = ImGuiTableFlags_ScrollX;
-    if (ImGui::TreeNode("UvCurveGenerator Form TextureAnimation")) {
+    label = "UvCurveGenerator Form TextureAnimation##" + _parentLabel;
+    if (ImGui::TreeNode(label.c_str())) {
         DragGuiVectorCommand<2, float>("TileSize", tileSize_, 0.1f);
         DragGuiVectorCommand<2, float>("TextureSize", textureSize_, 0.1f);
         DragGuiCommand<float>("tilePerTime_", tilePerTime_);
@@ -187,20 +188,12 @@ void MaterialAnimation::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Ga
         ImGui::TreePop();
     }
 
-    if (ImGui::TreeNode("Material_Animation")) {
-        ImGui::Checkbox("MaterialAnimation Is Loop", &animationState_.isLoop_);
-        ImGui::Checkbox("MaterialAnimation Is Play", &animationState_.isPlay_);
+    label = "Material Animation##" + _parentLabel;
 
-        if (ImGui::BeginCombo("MaterialAnimation InterpolationType", InterpolationTypeName[int(interpolationType_)])) {
-            for (int i = 0; i < (int)InterpolationType::COUNT; ++i) {
-                if (ImGui::Selectable(InterpolationTypeName[i], interpolationType_ == InterpolationType(i))) {
-                    EditorController::getInstance()->pushCommand(
-                        std::make_unique<SetterCommand<InterpolationType>>(&interpolationType_, InterpolationType(i)));
-                }
-            }
-            ImGui::EndCombo();
-        }
-        if (ImGui::BeginTable("MaterialKeyFrames", 2, tableFlags)) {
+    ImGuiTableFlags tableFlags = ImGuiTableFlags_ScrollX;
+    if (ImGui::TreeNode(label.c_str())) {
+        label = "MaterialKeyFrames##" + _parentLabel;
+        if (ImGui::BeginTable(label.c_str(), 2, tableFlags)) {
             ImGui::TableSetupColumn("Name");
             ImGui::TableSetupColumn("Edit");
             ImGui::TableHeadersRow();
@@ -212,7 +205,7 @@ void MaterialAnimation::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Ga
             ImGui::TextUnformatted("Color");
             ImGui::TableSetColumnIndex(1);
             ImGui::EditColorKeyFrame(
-                "##MaterialAnimation Color",
+                " Color" + _parentLabel,
                 colorCurve_,
                 duration_);
             ImGui::TableNextRow();
@@ -225,12 +218,13 @@ void MaterialAnimation::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Ga
             // =====================================================
             ImGui::TableNextRow();
             ImGui::TableSetColumnIndex(0);
-            ImGui::TextUnformatted("UV");
+            ImGui::TextUnformatted("UV Scale");
             ImGui::TableSetColumnIndex(1);
             ImGui::EditKeyFrame(
-                "##MaterialAnimation UV Scale",
+                " UV Scale" + _parentLabel,
                 uvScaleCurve_,
-                duration_);
+                duration_,
+                Vec2f(1.f, 1.f));
 
             ImGui::TableNextRow();
             ImGui::TableSetColumnIndex(0);
@@ -246,7 +240,7 @@ void MaterialAnimation::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Ga
             ImGui::TextUnformatted("UV Rotate");
             ImGui::TableSetColumnIndex(1);
             ImGui::EditKeyFrame(
-                "##MaterialAnimation UV Rotate",
+                " UV Rotate" + _parentLabel,
                 uvRotateCurve_,
                 duration_);
             ImGui::TableNextRow();
@@ -264,12 +258,13 @@ void MaterialAnimation::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Ga
             ImGui::TableSetColumnIndex(1);
 
             ImGui::EditKeyFrame(
-                "##MaterialAnimation UV Translate",
+                "##MaterialAnimation UV Translate##" + _parentLabel,
                 uvTranslateCurve_,
                 duration_);
 
             ImGui::EndTable();
         }
+        ImGui::TreePop();
     }
 #endif // _DEBUG
 }
@@ -324,31 +319,31 @@ void MaterialAnimation::UpdateMaterialAnimation(Material* _material) {
 
     switch (interpolationType_) {
     case InterpolationType::LINEAR:
-        if (colorCurve_.empty()) {
+        if (!colorCurve_.empty()) {
             _material->color_ = CalculateValue::Linear(colorCurve_, currentTime_);
         }
-        if (uvScaleCurve_.empty()) {
+        if (!uvScaleCurve_.empty()) {
             _material->uvTransform_.scale_ = CalculateValue::Linear(uvScaleCurve_, currentTime_);
         }
-        if (uvRotateCurve_.empty()) {
+        if (!uvRotateCurve_.empty()) {
             _material->uvTransform_.rotate_ = CalculateValue::Linear(uvRotateCurve_, currentTime_);
         }
-        if (uvTranslateCurve_.empty()) {
+        if (!uvTranslateCurve_.empty()) {
             _material->uvTransform_.translate_ = CalculateValue::Linear(uvTranslateCurve_, currentTime_);
         }
 
         break;
     case InterpolationType::STEP:
-        if (colorCurve_.empty()) {
+        if (!colorCurve_.empty()) {
             _material->color_ = CalculateValue::Step(colorCurve_, currentTime_);
         }
-        if (uvScaleCurve_.empty()) {
+        if (!uvScaleCurve_.empty()) {
             _material->uvTransform_.scale_ = CalculateValue::Step(uvScaleCurve_, currentTime_);
         }
-        if (uvRotateCurve_.empty()) {
+        if (!uvRotateCurve_.empty()) {
             _material->uvTransform_.rotate_ = CalculateValue::Step(uvRotateCurve_, currentTime_);
         }
-        if (uvTranslateCurve_.empty()) {
+        if (!uvTranslateCurve_.empty()) {
             _material->uvTransform_.translate_ = CalculateValue::Step(uvTranslateCurve_, currentTime_);
         }
         break;
@@ -359,10 +354,10 @@ void MaterialAnimation::UpdateMaterialAnimation(Material* _material) {
     _material->UpdateUvMatrix();
 }
 
-void to_json(nlohmann::json& _json, const MaterialAnimation& _MaterialAnimation) {
-    _json["duration"] = _MaterialAnimation.duration_;
-    _json["isLoop"]   = _MaterialAnimation.animationState_.isLoop_;
-    _json["isPlay"]   = _MaterialAnimation.animationState_.isPlay_;
+void to_json(nlohmann::json& _json, const MaterialAnimation& _animation) {
+    _json["duration"] = _animation.duration_;
+    _json["isLoop"]   = _animation.animationState_.isLoop_;
+    _json["isPlay"]   = _animation.animationState_.isPlay_;
     auto writeCurve   = [&_json](const std::string& _name, const auto& _curve) {
         nlohmann::json curveJson = nlohmann::json::array();
         for (const auto& key : _curve) {
@@ -374,15 +369,16 @@ void to_json(nlohmann::json& _json, const MaterialAnimation& _MaterialAnimation)
         _json[_name] = curveJson;
     };
 
-    _json["InterpolationType"] = _MaterialAnimation.interpolationType_;
-    writeCurve("uvScaleCurve", _MaterialAnimation.uvScaleCurve_);
-    writeCurve("uvRotateCurve", _MaterialAnimation.uvRotateCurve_);
-    writeCurve("uvTranslateCurve", _MaterialAnimation.uvTranslateCurve_);
+    _json["InterpolationType"] = _animation.interpolationType_;
+    writeCurve("colorCurve", _animation.colorCurve_);
+    writeCurve("uvScaleCurve", _animation.uvScaleCurve_);
+    writeCurve("uvRotateCurve", _animation.uvRotateCurve_);
+    writeCurve("uvTranslateCurve", _animation.uvTranslateCurve_);
 }
-void from_json(const nlohmann::json& _json, MaterialAnimation& _MaterialAnimation) {
-    _json.at("duration").get_to(_MaterialAnimation.duration_);
-    _json.at("isLoop").get_to(_MaterialAnimation.animationState_.isLoop_);
-    _json.at("isPlay").get_to(_MaterialAnimation.animationState_.isPlay_);
+void from_json(const nlohmann::json& _json, MaterialAnimation& _animation) {
+    _json.at("duration").get_to(_animation.duration_);
+    _json.at("isLoop").get_to(_animation.animationState_.isLoop_);
+    _json.at("isPlay").get_to(_animation.animationState_.isPlay_);
 
     auto readCurve = [&_json](const std::string& _name, auto& _curve) {
         for (const auto& keyJson : _json.at(_name)) {
@@ -392,10 +388,11 @@ void from_json(const nlohmann::json& _json, MaterialAnimation& _MaterialAnimatio
             _curve.push_back(key);
         }
     };
-    _json.at("InterpolationType").get_to(_MaterialAnimation.interpolationType_);
-    readCurve("colorCurve", _MaterialAnimation.colorCurve_);
+    _json.at("InterpolationType").get_to(_animation.interpolationType_);
 
-    readCurve("uvScaleCurve", _MaterialAnimation.uvScaleCurve_);
-    readCurve("uvRotateCurve", _MaterialAnimation.uvRotateCurve_);
-    readCurve("uvTranslateCurve", _MaterialAnimation.uvTranslateCurve_);
+   // readCurve("colorCurve", _animation.colorCurve_);
+
+    readCurve("uvScaleCurve", _animation.uvScaleCurve_);
+    readCurve("uvRotateCurve", _animation.uvRotateCurve_);
+    readCurve("uvTranslateCurve", _animation.uvTranslateCurve_);
 }

@@ -1,6 +1,7 @@
 #pragma once
 #include "system/ISystem.h"
 
+#include <array>
 #include <memory>
 
 /// engine
@@ -22,19 +23,31 @@ public:
     MaterialEffect();
     ~MaterialEffect() override;
     void Initialize() override;
+    void Update();
     void Finalize() override;
 
 private:
-    void UpdateEntity(GameEntity* _entity) override;
+    /// <summary>
+    /// 使用していない
+    /// </summary>
+    void UpdateEntity(GameEntity* /*_entity*/) override {}
+
+    void DispatchComponents(GameEntity* _entity);
+    void UpdateEffectPipeline(GameEntity* _entity, MaterialEffectPipeLine* _pipeline);
     /// <summary>
     /// TextureにEffectをかける
     /// </summary>
     void TextureEffect(GameEntity* _entity, MaterialEffectType _type, RenderTexture* _output);
 
-private:
-    std::unique_ptr<DxCommand> dxCommand_ = nullptr;
+    void ExecuteCommand();
 
-    std::unique_ptr<RenderTexture> tempRenderTexture_ = nullptr;
+private:
+    std::unique_ptr<DxCommand> dxCommand_ = nullptr; // Direct
+
+    int32_t currentTempRTIndex_                                       = 0;
+    std::array<std::unique_ptr<RenderTexture>, 2> tempRenderTextures_ = {nullptr, nullptr};
+
+    std::vector<std::pair<GameEntity*, MaterialEffectPipeLine*>> effectPipelines_;
 
     std::unique_ptr<DissolveEffect> dissolveEffect_     = nullptr;
     std::unique_ptr<DistortionEffect> distortionEffect_ = nullptr;

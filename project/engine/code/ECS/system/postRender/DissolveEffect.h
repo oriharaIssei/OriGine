@@ -1,4 +1,5 @@
 #pragma once
+#pragma once
 #include "system/ISystem.h"
 
 /// engine
@@ -28,7 +29,7 @@ protected:
     void CreatePSO();
 
     void RenderStart();
-    void Render();
+    void Render(D3D12_GPU_DESCRIPTOR_HANDLE _viewHandle);
 
 protected:
     PipelineStateObj* pso_                = nullptr;

@@ -262,7 +262,7 @@ void ModelMeshRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Ga
             int32_t entityMaterialSize = materials != nullptr ? static_cast<int32_t>(materials->size()) : 0;
 
             InputGuiCommand(label, materialIndex);
-            materialIndex = std::clamp(materialIndex, -1, entityMaterialSize);
+            materialIndex = std::clamp(materialIndex, -1, entityMaterialSize - 1);
             if (materialIndex >= 0) {
                 label = "Material##" + _parentLabel;
                 if (ImGui::TreeNode(label.c_str())) {
@@ -339,12 +339,6 @@ void CreateModelMeshRenderer(ModelMeshRenderer* _renderer, GameEntity* _hostEnti
         // メッシュグループの作成
         CreateMeshGroupFormNode(_renderer, model, &model->meshData_->rootNode);
 
-        if (_usingDefaultTexture) {
-            for (uint32_t i = 0; i < static_cast<uint32_t>(_renderer->getMeshGroupSize()); ++i) {
-                _renderer->setTexture(i, model->materialData_[i].texturePath);
-            }
-        }
-
         isLoaded = true;
     });
 
@@ -384,6 +378,9 @@ void InitializeMaterialFromModelFile(ModelMeshRenderer* _renderer, Scene* _scene
             }
             materials->operator[](materialIndex) = defaultModelMaterial[i].material.openData_;
         }
+    }
+    for (uint32_t i = 0; i < static_cast<uint32_t>(_renderer->getMeshGroupSize()); ++i) {
+        _renderer->setTexture(i, defaultModelMaterial[i].texturePath);
     }
 }
 

@@ -2,19 +2,23 @@
 #include "component/IComponent.h"
 
 /// stl
+#include <array>
 #include <memory>
+#include <string>
 
 //// engine
 // directX12
 #include "directX12/DxDescriptor.h"
 
 enum class MaterialEffectType {
-    None,
     Dissolve,
     Distortion,
 
     Count
 };
+static const std::array<std::string, static_cast<int32_t>(MaterialEffectType::Count)> materialEffectString{
+    "Dissolve",
+    "Distortion"};
 
 class MaterialEffectPipeLine
     : public IComponent {
@@ -35,33 +39,28 @@ public:
     void ClearEffectEntity() { effectEntityIdList_.clear(); }
 
 private:
-    void CreateEffectedTextureResourceByBaseTexture();
-
-private:
     struct EffectEntityData {
-        MaterialEffectType effectType = MaterialEffectType::None;
+        MaterialEffectType effectType = MaterialEffectType::Dissolve;
         int32_t entityID              = -1;
     };
     std::vector<EffectEntityData> effectEntityIdList_ = {};
 
-    bool isActive_ = true;
+    int32_t priority_ = 0;
+    bool isActive_    = true;
+    // 結果テクスチャを保持し,BaseTextureを animationさせるMaterialのIndex
+    int32_t materialIndex_ = -1;
+    // Effectをかける テクスチャ
+    int32_t baseTextureId_ = 0;
 
-    std::string baseTexturePath_                         = "";
-    int32_t baseTextureId_                               = -1;
-    DxResource effectedTextureResource_                  = {};
-    std::shared_ptr<DxSrvDescriptor> effectedTextureSrv_ = nullptr;
-
-    Vec2f textureSize_ = {0.f, 0.f};
+    std::string baseTexturePath_ = "";
 
 public:
+    int32_t getPriority() const { return priority_; }
     bool isActive() const { return isActive_; }
     void setActive(bool active) { isActive_ = active; }
 
-    std::shared_ptr<DxSrvDescriptor> getEffectedTextureSrv() const { return effectedTextureSrv_; }
-    void setEffectedTextureSrv(std::shared_ptr<DxSrvDescriptor> srv) { effectedTextureSrv_ = srv; }
-    DxResource& getEffectedTextureResource() { return effectedTextureResource_; }
-
-    const Vec2f& getTextureSize() const { return textureSize_; }
+    int32_t getMaterialIndex() const { return materialIndex_; }
+    void setMaterialIndex(int32_t index) { materialIndex_ = index; }
 
     int32_t getBaseTextureId() const { return baseTextureId_; }
     const std::vector<EffectEntityData>& getEffectEntityIdList() const { return effectEntityIdList_; }
