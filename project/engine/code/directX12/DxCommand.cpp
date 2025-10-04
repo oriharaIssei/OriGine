@@ -10,7 +10,6 @@
 #include "directX12/DxFence.h"
 #include "directX12/ResourceStateTracker.h"
 
-
 #include "logger/Logger.h"
 
 std::unordered_map<std::string,
@@ -217,9 +216,8 @@ void DxCommand::Finalize() {
         return;
     }
 
-
     LOG_DEBUG(
-        "Finalize DxCommand \n CommandList Key : {} \n CommandQueue Key :{}",commandListComboKey_, commandQueueKey_);
+        "Finalize DxCommand \n CommandList Key : {} \n CommandQueue Key :{}", commandListComboKey_, commandQueueKey_);
 
     // 参照カウントを取得するための関数
     auto getRefCount = [](IUnknown* ptr) -> ULONG {

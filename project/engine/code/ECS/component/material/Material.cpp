@@ -1,16 +1,42 @@
 #include "Material.h"
 
+/// engine
+#include "Engine.h"
+#include "texture/TextureManager.h"
+// directX12
+#include "directX12/DxCommand.h"
+#include "directX12/ResourceStateTracker.h"
+
+/// editor
 #ifdef _DEBUG
 #include "imgui/imgui.h"
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
+UVTransform::ConstantBuffer& UVTransform::ConstantBuffer::operator=(const UVTransform& _transform) {
+    uvTransform = MakeMatrix::Affine({_transform.scale_, 1}, {0.f, 0.f, _transform.rotate_}, {_transform.translate_, 0.f});
+    return *this;
+}
+
 void Material::UpdateUvMatrix() {
     uvMat_ = MakeMatrix::Affine({uvTransform_.scale_, 1}, {0.f, 0.f, uvTransform_.rotate_}, {uvTransform_.translate_, 0.f});
 }
 
+void Material::Initialize(GameEntity* /*_entity*/) {
+    uvTransform_ = {};
+    uvMat_       = MakeMatrix::Identity();
+
+    color_ = {1.f, 1.f, 1.f, 1.f};
+
+    enableLighting_         = false;
+    shininess_              = 0.f;
+    environmentCoefficient_ = 0.1f;
+    specularColor_          = {1.f, 1.f, 1.f};
+}
+
+void Material::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
-void Material::DebugGui([[maybe_unused]] const std::string& _parentLabel) {
+
     ImGui::Text("Color");
     ColorEditGuiCommand("##color" + _parentLabel, color_);
     ImGui::Text("uvScale");
@@ -31,8 +57,51 @@ void Material::DebugGui([[maybe_unused]] const std::string& _parentLabel) {
 
     ImGui::Text("EnvironmentCoefficient");
     DragGuiCommand("##EnvironmentCoefficient" + _parentLabel, environmentCoefficient_, 0.01f, 0.0f);
-}
 #endif // _DEBUG
+}
+
+void Material::Finalize() {
+    uvTransform_ = {};
+    uvMat_       = MakeMatrix::Identity();
+
+    color_ = {1.f, 1.f, 1.f, 1.f};
+
+    enableLighting_         = false;
+    shininess_              = 0.f;
+    environmentCoefficient_ = 0.1f;
+    specularColor_          = {1.f, 1.f, 1.f};
+}
+
+void Material::CreateCustomTextureFromTextureFile(const std::string& _directory, const std::string& _filename) {
+    // metadataの取得
+    int32_t textureId = TextureManager::LoadTexture(_directory + _filename);
+    CreateCustomTextureFromTextureFile(textureId);
+}
+
+void Material::CreateCustomTextureFromTextureFile(int32_t textureIndex) {
+    DirectX::TexMetadata metaData = TextureManager::getTexMetadata(textureIndex);
+    metaData.format               = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+    metaData.mipLevels            = 1;
+
+    // Resource & SRV の作成
+    customTexture_.emplace(Material::CustomTextureData());
+
+    customTexture_->resource_.CreateTextureResource(
+        Engine::getInstance()->getDxDevice()->getDevice(),
+        metaData);
+
+    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+    srvDesc.Format                  = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+    srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+    srvDesc.ViewDimension           = D3D12_SRV_DIMENSION_TEXTURE2D;
+    srvDesc.Texture2D.MipLevels     = 1;
+
+    /// SRV の作成
+    customTexture_->srv_ = Engine::getInstance()->getSrvHeap()->CreateDescriptor(srvDesc, &customTexture_->resource_);
+
+    /// Set ResourceStateTracker
+    ResourceStateTracker::RegisterResource(customTexture_->resource_.getResource(), D3D12_RESOURCE_STATE_COPY_DEST);
+}
 
 void to_json(nlohmann::json& j, const Material& m) {
     to_json<2, float>(j["uvScale"], m.uvTransform_.scale_);

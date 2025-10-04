@@ -7,8 +7,10 @@
 
 /// engine
 // directX12Object
-#include "directX12/DxCommand.h"
 #include "directX12/IConstantBuffer.h"
+#include "directX12/SimpleConstantBuffer.h"
+
+#include "directX12/DxCommand.h"
 #include "directX12/Mesh.h"
 #include "directX12/ShaderManager.h"
 // component
@@ -39,12 +41,20 @@ public:
         const TextureMesh& _mesh,
         IConstantBuffer<Transform>& _transformBuff,
         IConstantBuffer<Material>& _materialBuff,
-        uint32_t _textureIndex) const;
+        D3D12_GPU_DESCRIPTOR_HANDLE _textureHandle) const;
+
+    void RenderingMesh(
+        Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList,
+        const TextureMesh& _mesh,
+        IConstantBuffer<Transform>& _transformBuff,
+        SimpleConstantBuffer<Material>& _materialBuff,
+        D3D12_GPU_DESCRIPTOR_HANDLE _textureHandle) const;
 
     void RenderModelMesh(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList, ModelMeshRenderer* _renderer);
-    void RenderPrimitiveMesh(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList, PrimitiveMeshRendererBase* _renderer) const;
+    void RenderPrimitiveMesh(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList, PrimitiveMeshRendererBase* _renderer);
 
     void SettingPSO(BlendMode _blend);
+
 protected:
     void LightUpdate();
 

@@ -92,7 +92,7 @@ public:
     template <IsComponent ComponentType>
     ComponentType* getComponent(GameEntity* _entity, uint32_t index = 0) const {
         if (!_entity) {
-            LOG_ERROR("Scene::getComponent: Entity is null. EntityName :{}", nameof<ComponentType>());
+            LOG_ERROR("Entity is null. EntityName :{}", nameof<ComponentType>());
             return nullptr;
         }
         return componentRepository_->getComponent<ComponentType>(_entity, index);
@@ -101,27 +101,23 @@ public:
     ComponentType* getComponent(int32_t entityId, uint32_t index = 0) const {
         GameEntity* entity = entityRepository_->getEntity(entityId);
         if (!entity) {
-            LOG_ERROR("Scene::getComponent: Entity with ID {} not found.", entityId);
+            LOG_ERROR("Entity with ID {} not found.", entityId);
             return nullptr;
         }
         return componentRepository_->getComponent<ComponentType>(entity, index);
     }
     template <IsComponent ComponentType>
-    std::vector<ComponentType*> getComponents(GameEntity* _entity, const std::string& componentTypeName) const {
-        if (!_entity) {
-            LOG_ERROR("Scene::getComponents: Entity is null. EntityName :{}", componentTypeName);
-            return {};
-        }
-        return componentRepository_->getComponents(_entity, componentTypeName);
+    std::vector<ComponentType>* getComponents(GameEntity* _entity) const {
+        return componentRepository_->getComponents<ComponentType>(_entity);
     }
     template <IsComponent ComponentType>
-    std::vector<ComponentType*> getComponents(int32_t entityId, const std::string& componentTypeName) const {
+    std::vector<ComponentType>* getComponents(int32_t entityId) const {
         GameEntity* entity = entityRepository_->getEntity(entityId);
         if (!entity) {
-            LOG_ERROR("Scene::getComponents: Entity with ID {} not found.", entityId);
+            LOG_ERROR("Entity with ID {} not found.", entityId);
             return {};
         }
-        return componentRepository_->getComponents(entity, componentTypeName);
+        return componentRepository_->getComponents<ComponentType>(entity);
     }
 
     IComponentArray* getComponentArray(const std::string& componentTypeName) const {

@@ -2,6 +2,9 @@
 
 /// engine
 #include "Engine.h"
+#include "scene/Scene.h"
+/// ecs
+#include "component/ComponentArray.h"
 // directX12
 #include "directX12/DxDevice.h"
 
@@ -42,10 +45,10 @@ void to_json(nlohmann::json& j, const ModelMeshRenderer& r) {
     nlohmann::json materialBufferDatas = nlohmann::json::array();
     for (int32_t i = 0; i < r.meshGroup_->size(); ++i) {
         nlohmann::json bufferData;
-        to_json(bufferData, r.meshMaterialBuff_[i].openData_);
+        to_json(bufferData, r.meshMaterialBuff_[i].first);
         materialBufferDatas.push_back(bufferData);
     }
-    j["materialBufferDatas"] = materialBufferDatas;
+    j["materialIndexDatas"] = materialBufferDatas;
 
     nlohmann::json texturePaths = nlohmann::json::array();
     for (const auto& texturePath : r.textureFilePath_) {
@@ -69,10 +72,10 @@ void from_json(const nlohmann::json& j, ModelMeshRenderer& r) {
         backTransform.openData_ = transformData;
     }
 
-    auto& materialBufferDatas = j.at("materialBufferDatas");
+    auto& materialBufferDatas = j.at("materialIndexDatas");
     for (auto& materialData : materialBufferDatas) {
-        auto& backMaterial     = r.meshMaterialBuff_.emplace_back(IConstantBuffer<Material>());
-        backMaterial.openData_ = materialData;
+        auto& backMaterial = r.meshMaterialBuff_.emplace_back(std::make_pair(-1, SimpleConstantBuffer<Material>()));
+        backMaterial.first = materialData;
     }
 
     if (j.find("textureFilePath") != j.end()) {
@@ -101,8 +104,9 @@ ModelMeshRenderer::ModelMeshRenderer(const std::vector<TextureMesh>& _meshGroup)
         meshTransformBuff_[i]->UpdateMatrix();
         meshTransformBuff_[i].ConvertToBuffer();
 
-        meshMaterialBuff_[i] = IConstantBuffer<Material>(Material());
-        meshMaterialBuff_[i].CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+        meshMaterialBuff_[i].second = SimpleConstantBuffer<Material>();
+        meshMaterialBuff_[i].second.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+        meshMaterialBuff_[i].second.ConvertToBuffer(Material());
 
         meshTextureNumbers_[i] = 0;
         textureFilePath_[i]    = "";
@@ -136,7 +140,7 @@ void ModelMeshRenderer::Initialize(GameEntity* _hostEntity) {
     MeshRenderer::Initialize(_hostEntity);
 
     if (!fileName_.empty()) {
-        CreateModelMeshRenderer(this, hostEntity_, directory_, fileName_, false, false);
+        CreateModelMeshRenderer(this, hostEntity_, directory_, fileName_, false);
     }
 
     InitializeTransformBuffer(_hostEntity);
@@ -190,16 +194,17 @@ void ModelMeshRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Ga
     if (ImGui::Button(label.c_str())) {
         std::string directory;
         std::string fileName;
-        if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"obj", "gltf","dds"})) {
+        if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"obj", "gltf", "dds"})) {
             auto setDirectory = std::make_unique<SetterCommand<std::string>>(&directory_, kApplicationResourceDirectory + "/" + directory);
             auto setName      = std::make_unique<SetterCommand<std::string>>(&fileName_, fileName);
             CommandCombo commandCombo;
             commandCombo.addCommand(std::move(setDirectory));
             commandCombo.addCommand(std::move(setName));
-            commandCombo.setFuncOnAfterCommand([this]() {
+            commandCombo.setFuncOnAfterCommand([this, _scene]() {
                 this->Finalize();
                 meshGroup_ = std::make_shared<std::vector<TextureMesh>>();
                 CreateModelMeshRenderer(this, this->hostEntity_, this->directory_, this->fileName_);
+                InitializeMaterialFromModelFile(this, _scene, this->hostEntity_, this->directory_, this->fileName_);
             },
                 true);
             EditorController::getInstance()->pushCommand(std::make_unique<CommandCombo>(commandCombo));
@@ -251,13 +256,20 @@ void ModelMeshRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Ga
                 ImGui::TreePop();
             }
 
-            label = "Material##" + _parentLabel;
-            if (ImGui::TreeNode(label.c_str())) {
-                meshMaterialBuff_[i].openData_.DebugGui(_parentLabel);
-                meshMaterialBuff_[i].ConvertToBuffer();
-                ImGui::TreePop();
-            }
+            label                      = "MaterialIndex##" + _parentLabel;
+            int32_t& materialIndex     = meshMaterialBuff_[i].first;
+            auto materials             = _scene->getComponents<Material>(_entity);
+            int32_t entityMaterialSize = materials != nullptr ? static_cast<int32_t>(materials->size()) : 0;
 
+            InputGuiCommand(label, materialIndex);
+            materialIndex = std::clamp(materialIndex, -1, entityMaterialSize - 1);
+            if (materialIndex >= 0) {
+                label = "Material##" + _parentLabel;
+                if (ImGui::TreeNode(label.c_str())) {
+                    materials->operator[](materialIndex).Edit(_scene, _entity, meshName);
+                    ImGui::TreePop();
+                }
+            }
             ImGui::Unindent();
         }
     }
@@ -274,6 +286,20 @@ void ModelMeshRenderer::InitializeTransformBuffer(GameEntity* _hostEntity) {
     }
 }
 
+void ModelMeshRenderer::InitializeMaterialBufferWithMaterialIndex(GameEntity* _hostEntity) {
+    hostEntity_ = _hostEntity;
+
+    meshMaterialBuff_.resize(meshGroup_->size());
+
+    textureFilePath_.resize(meshGroup_->size(), "");
+    meshTextureNumbers_.resize(meshGroup_->size(), 0);
+
+    for (int32_t i = 0; i < meshGroup_->size(); ++i) {
+        meshMaterialBuff_[i].first = -1;
+        meshMaterialBuff_[i].second.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+    }
+}
+
 void ModelMeshRenderer::InitializeMaterialBuffer(GameEntity* _hostEntity) {
     hostEntity_ = _hostEntity;
 
@@ -283,13 +309,13 @@ void ModelMeshRenderer::InitializeMaterialBuffer(GameEntity* _hostEntity) {
     meshTextureNumbers_.resize(meshGroup_->size(), 0);
 
     for (int32_t i = 0; i < meshGroup_->size(); ++i) {
-        meshMaterialBuff_[i].CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+        meshMaterialBuff_[i].second.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
     }
 }
 
 #pragma endregion
 
-void CreateModelMeshRenderer(ModelMeshRenderer* _renderer, GameEntity* _hostEntity, const std::string& _directory, const std::string& _filenName, bool _usingDefaultMaterial, bool _usingDefaultTexture) {
+void CreateModelMeshRenderer(ModelMeshRenderer* _renderer, GameEntity* _hostEntity, const std::string& _directory, const std::string& _fileName, bool _usingDefaultTexture) {
     bool isLoaded = false;
 
     if (!_renderer->getMeshGroup()->empty()) {
@@ -297,7 +323,7 @@ void CreateModelMeshRenderer(ModelMeshRenderer* _renderer, GameEntity* _hostEnti
     }
 
     // -------------------- Modelの読み込み --------------------//
-    auto model = ModelManager::getInstance()->Create(_directory, _filenName, [&_hostEntity, &_renderer, &isLoaded, _usingDefaultMaterial, _usingDefaultTexture](Model* model) {
+    auto model = ModelManager::getInstance()->Create(_directory, _fileName, [&_hostEntity, &_renderer, &isLoaded, _usingDefaultTexture](Model* model) {
         // 再帰ラムダをstd::functionとして定義
         std::function<void(ModelMeshRenderer*, Model*, ModelNode*)> CreateMeshGroupFormNode;
         CreateMeshGroupFormNode = [&](ModelMeshRenderer* _meshRenderer, Model* _model, ModelNode* _node) {
@@ -313,28 +339,48 @@ void CreateModelMeshRenderer(ModelMeshRenderer* _renderer, GameEntity* _hostEnti
         // メッシュグループの作成
         CreateMeshGroupFormNode(_renderer, model, &model->meshData_->rootNode);
 
-        // Bufferの初期化
-        _renderer->InitializeTransformBuffer(_hostEntity);
-
-        if (_usingDefaultMaterial) {
-            _renderer->InitializeMaterialBuffer(_hostEntity);
-            for (uint32_t i = 0; i < static_cast<uint32_t>(_renderer->getMeshGroupSize()); ++i) {
-                // マテリアルの設定
-                _renderer->setMaterialBuff(i, model->materialData_[i].material.openData_);
-            }
-        }
-        if (_usingDefaultTexture) {
-            for (uint32_t i = 0; i < static_cast<uint32_t>(_renderer->getMeshGroupSize()); ++i) {
-                _renderer->setTexture(i, model->materialData_[i].texturePath);
-            }
-        }
-
         isLoaded = true;
     });
 
     // ロードが完了するまで待機
     while (!isLoaded) {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+}
+void InitializeMaterialFromModelFile(ModelMeshRenderer* _renderer, Scene* _scene, GameEntity* _hostEntity, const std::string& _directory, const std::string& _fileName) {
+    if (!_renderer->getMeshGroup()->empty()) {
+        _renderer->getMeshGroup()->clear();
+    }
+
+    // -------------------- Modelの取得 --------------------//
+    const auto& defaultModelMaterial = ModelManager::getInstance()->getDefaultMaterials(_directory, _fileName);
+
+    // -------------------- Materialの初期化 --------------------//
+    auto materialArray = _scene->getComponentArray<Material>();
+    auto materials     = materialArray->getComponents(_hostEntity);
+    // Bufferの初期化
+    _renderer->InitializeMaterialBuffer(_hostEntity);
+    // nullptr の場合は,生成から
+    if (materials == nullptr) {
+        for (int32_t i = 0; i < static_cast<int32_t>(_renderer->getMeshGroupSize()); ++i) {
+            // 生成&初期化
+            int32_t createdMaterialIndex = materialArray->add(_hostEntity, defaultModelMaterial[i].material.openData_);
+            _renderer->setMaterialIndex(i, createdMaterialIndex);
+        }
+    } else {
+        for (int32_t i = 0; i < static_cast<int32_t>(_renderer->getMeshGroupSize()); ++i) {
+            // マテリアルの設定
+            int32_t materialIndex = _renderer->getMaterialIndex(i);
+            if (materialIndex < 0) {
+                int32_t createdMaterialIndex = materialArray->add(_hostEntity, defaultModelMaterial[i].material.openData_);
+                _renderer->setMaterialIndex(i, createdMaterialIndex);
+                continue;
+            }
+            materials->operator[](materialIndex) = defaultModelMaterial[i].material.openData_;
+        }
+    }
+    for (uint32_t i = 0; i < static_cast<uint32_t>(_renderer->getMeshGroupSize()); ++i) {
+        _renderer->setTexture(i, defaultModelMaterial[i].texturePath);
     }
 }
 

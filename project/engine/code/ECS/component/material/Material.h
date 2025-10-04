@@ -1,9 +1,15 @@
 #pragma once
 
+/// stl
+#include <optional>
+
 /// engine
-// ECS
 // directX12 object
+#include "directX12/DxDescriptor.h"
 #include "directX12/IConstantBuffer.h"
+
+/// ecs
+#include "component/IComponent.h"
 
 /// math
 #include "Matrix4x4.h"
@@ -16,21 +22,37 @@ struct UVTransform {
     Vec2f scale_     = Vec2f(1.f, 1.f);
     float rotate_    = 0.f;
     Vec2f translate_ = Vec2f(0.f, 0.f);
+    struct ConstantBuffer {
+        Matrix4x4 uvTransform;
+
+        ConstantBuffer& operator=(const UVTransform& _transform);
+    };
 };
 
-struct Material {
+struct Material
+    : public IComponent {
     friend void to_json(nlohmann::json& j, const Material& m);
     friend void from_json(const nlohmann::json& j, Material& m);
 
 public:
     Material() {}
-    ~Material() {}
+    ~Material() override {}
 
     void UpdateUvMatrix();
 
-#ifdef _DEBUG
-    void DebugGui([[maybe_unused]] const std::string& _parentLabel);
-#endif // _DEBUG
+    void Initialize([[maybe_unused]] GameEntity* _entity) override;
+    void Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] GameEntity* _entity, const std::string& _parentLabel) override;
+    void Finalize() override;
+
+    void CreateCustomTextureFromTextureFile(const std::string& _directory, const std::string& _filename);
+    void CreateCustomTextureFromTextureFile(int32_t textureIndex);
+
+public:
+    struct CustomTextureData {
+        CustomTextureData() = default;
+        std::shared_ptr<DxSrvDescriptor> srv_;
+        DxResource resource_;
+    };
 
 public:
     UVTransform uvTransform_;
@@ -42,6 +64,21 @@ public:
     float shininess_              = 0.f;
     float environmentCoefficient_ = 0.1f;
     Vec3f specularColor_          = {1.f, 1.f, 1.f};
+
+private:
+    std::optional<CustomTextureData> customTexture_;
+
+public:
+    bool hasCustomTexture() const { return customTexture_.has_value(); }
+    const std::optional<CustomTextureData>& getCustomTexture() const { return customTexture_; }
+    void setCustomTexture(std::shared_ptr<DxSrvDescriptor> _srv, const DxResource& _resource) {
+        if (!customTexture_) {
+            customTexture_.emplace(CustomTextureData());
+        }
+        customTexture_->srv_      = _srv;
+        customTexture_->resource_ = _resource;
+    }
+    void resetCustomTexture() { customTexture_.reset(); }
 
 public:
     struct ConstantBuffer {

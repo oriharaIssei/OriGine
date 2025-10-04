@@ -50,10 +50,11 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 #include "system/effect/SkinningAnimationSystem.h"
 #include "system/effect/SpriteAnimationSystem.h"
 #include "system/effect/TextureEffectAnimation.h"
+#include "system/effect/MaterialAnimationWorkSystem.h"
+#include "system/effect/MaterialEffect.h"
 
 #include "system/render/BackGroundSpriteRenderSystem.h"
 #include "system/render/ColliderRenderingSystem.h"
-#include "system/render/EffectTexturedMeshRenderSystem.h"
 #include "system/render/GpuParticleRenderSystem.h"
 #include "system/render/LineRenderSystem.h"
 #include "system/render/ParticleRenderSystem.h"
@@ -94,11 +95,13 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 #include "component/animation/PrimitiveNodeAnimation.h"
 #include "component/animation/SkinningAnimationComponent.h"
 #include "component/animation/SpriteAnimation.h"
+#include "component/animation/MaterialAnimation.h"
 
 #include "component/collider/Collider.h"
 #include "component/collider/CollisionPushBackInfo.h"
 #include "component/physics/Rigidbody.h"
 
+#include "component/effect/MaterialEffectPipeLine.h"
 #include "component/effect/particle/emitter/Emitter.h"
 #include "component/effect/particle/gpuParticle/GpuParticle.h"
 #include "component/effect/post/DissolveEffectParam.h"

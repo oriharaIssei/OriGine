@@ -122,7 +122,7 @@ void Engine::Initialize() {
 
     srvHeap_ = std::make_unique<DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>>(1024);
     srvHeap_->Initialize(dxDevice_->getDevice());
-    rtvHeap_ = std::make_unique<DxDescriptorHeap<DxDescriptorHeapType::RTV>>(16);
+    rtvHeap_ = std::make_unique<DxDescriptorHeap<DxDescriptorHeapType::RTV>>(18);
     rtvHeap_->Initialize(dxDevice_->getDevice());
     dsvHeap_ = std::make_unique<DxDescriptorHeap<DxDescriptorHeapType::DSV>>(16);
     dsvHeap_->Initialize(dxDevice_->getDevice());

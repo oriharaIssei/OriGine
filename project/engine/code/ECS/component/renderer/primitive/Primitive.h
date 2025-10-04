@@ -30,7 +30,6 @@ enum class PrimitiveType : int32_t {
 };
 const char* PrimitiveTypeToString(PrimitiveType _type);
 
-
 /// <summary>
 /// 形状の基底クラス
 /// </summary>
@@ -220,16 +219,17 @@ public:
     PrimitiveMeshRendererBase(const std::vector<TextureMesh>& _meshGroup) : MeshRenderer(_meshGroup) {}
     PrimitiveMeshRendererBase(const std::shared_ptr<std::vector<TextureMesh>>& _meshGroup) : MeshRenderer(_meshGroup) {}
 
-    virtual ~PrimitiveMeshRendererBase()         = default;
-    virtual void Initialize(GameEntity* _entity) = 0;
-    virtual void Finalize()                      = 0;
-    virtual void Edit(Scene* _scene,GameEntity* _entity,[[maybe_unused]] const std::string& _parentLabel)                          = 0;
+    virtual ~PrimitiveMeshRendererBase()                                                                    = default;
+    virtual void Initialize(GameEntity* _entity)                                                            = 0;
+    virtual void Finalize()                                                                                 = 0;
+    virtual void Edit(Scene* _scene, GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) = 0;
 
     virtual void createMesh(TextureMesh* _mesh) = 0;
 
 protected:
     IConstantBuffer<Transform> transformBuff_;
-    IConstantBuffer<Material> materialBuff_;
+    int32_t materialIndex_ = -1;
+    SimpleConstantBuffer<Material> materialBuff_;
 
     std::string textureDirectory_;
     std::string textureFileName_;
@@ -242,11 +242,11 @@ public:
     void setTransform(const Transform& _transform) {
         transformBuff_.openData_ = _transform;
     }
-    const Material& getMaterial() const {
-        return materialBuff_.openData_;
+    int32_t getMaterialIndex() const {
+        return materialIndex_;
     }
-    void setMaterial(const Material& _material) {
-        materialBuff_.openData_ = _material;
+    void setMaterialIndex(int32_t _index) {
+        materialIndex_ = _index;
     }
 
     const IConstantBuffer<Transform>& getTransformBuff() const {
@@ -255,10 +255,10 @@ public:
     IConstantBuffer<Transform>& getTransformBuff() {
         return transformBuff_;
     }
-    const IConstantBuffer<Material>& getMaterialBuff() const {
+    const SimpleConstantBuffer<Material>& getMaterialBuff() const {
         return materialBuff_;
     }
-    IConstantBuffer<Material>& getMaterialBuff() {
+    SimpleConstantBuffer<Material>& getMaterialBuff() {
         return materialBuff_;
     }
 
@@ -335,7 +335,7 @@ public:
 
     void Initialize(GameEntity* _hostEntity) override;
 
-    void Edit(Scene* _scene,GameEntity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
 };
 
 class RingRenderer
@@ -351,7 +351,7 @@ public:
 
     void Initialize(GameEntity* _hostEntity) override;
 
-    void Edit(Scene* _scene,GameEntity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
 };
 
 class BoxRenderer
@@ -367,7 +367,7 @@ public:
 
     void Initialize(GameEntity* _hostEntity) override;
 
-    void Edit(Scene* _scene,GameEntity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
 };
 
 class SphereRenderer
@@ -383,7 +383,7 @@ public:
     ~SphereRenderer() override {}
 
     void Initialize(GameEntity* _hostEntity) override;
-    void Edit(Scene* _scene,GameEntity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
 };
 
 #pragma endregion

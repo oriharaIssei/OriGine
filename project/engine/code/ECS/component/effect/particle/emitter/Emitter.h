@@ -6,10 +6,10 @@
 
 /// engine
 // dx12object
-#include "directX12/IConstantBuffer.h"
 #include "directX12/IStructuredBuffer.h"
 #include "directX12/Mesh.h"
 #include "directX12/ShaderManager.h"
+#include "directX12/SimpleConstantBuffer.h"
 // assets
 #include "component/material/Material.h"
 struct ParticleKeyFrames;
@@ -51,7 +51,7 @@ public:
 
     void Finalize() override;
 
-    void Edit(Scene* _scene,GameEntity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
 
     void CalculateMaxSize();
 
@@ -91,7 +91,9 @@ private:
     /// 頂点とMaterial を 併せ持つ
     /// </summary>
     TextureMesh mesh_;
-    IConstantBuffer<Material> material_;
+
+    int32_t materialIndex_ = -1;
+    SimpleConstantBuffer<Material> materialBuffer_;
 
     IStructuredBuffer<ParticleTransform> structuredTransform_;
     //=============== Texture ===============/
@@ -122,9 +124,9 @@ private:
     bool particleIsBillBoard_ = true;
 
     //=============== パーティクル設定項目 ===============//
-    Vec4f particleColor_   = {1.f, 1.f, 1.f, 1.f};
-    Vec3f particleUvScale_ = {1.f, 1.f, 1.f};
-    Vec3f particleUvRotate_ = {1.f, 1.f, 1.f};
+    Vec4f particleColor_       = {1.f, 1.f, 1.f, 1.f};
+    Vec3f particleUvScale_     = {1.f, 1.f, 1.f};
+    Vec3f particleUvRotate_    = {1.f, 1.f, 1.f};
     Vec3f particleUvTranslate_ = {1.f, 1.f, 1.f};
 
     int32_t updateSettings_ = 0;
@@ -170,8 +172,8 @@ public:
     bool getIsBillBoard() const { return particleIsBillBoard_; }
     void setIsBillBoard(bool _isBillBoard) { particleIsBillBoard_ = _isBillBoard; }
 
-    const Vec3f& getOriginePos() const { return originPos_; }
-    void setOriginePos(const Vec3f& _pos) { originPos_ = _pos; }
+    const Vec3f& getOriginPos() const { return originPos_; }
+    void setOriginPos(const Vec3f& _pos) { originPos_ = _pos; }
 
     BlendMode getBlendMode() const { return blendMode_; }
 

@@ -1,4 +1,5 @@
 #pragma once
+#pragma once
 #include "system/ISystem.h"
 
 /// engine
@@ -19,11 +20,16 @@ public:
     void UpdateEntity(GameEntity* _entity) override;
     void Finalize();
 
+    /// <summary>
+    /// 単一エフェクトに対してエフェクトをかけ, RenderTextureに出力する
+    /// </summary>
+    void EffectEntity(RenderTexture* _output,GameEntity* _entity);
+
 protected:
     void CreatePSO();
 
     void RenderStart();
-    void Render();
+    void Render(D3D12_GPU_DESCRIPTOR_HANDLE _viewHandle);
 
 protected:
     PipelineStateObj* pso_                = nullptr;

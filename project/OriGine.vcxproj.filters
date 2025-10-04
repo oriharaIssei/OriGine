@@ -360,9 +360,6 @@
     <ClInclude Include="engine\code\ECS\system\render\ColliderRenderingSystem.h">
       <Filter>engine\code\ECS\system\render</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\ECS\system\render\EffectTexturedMeshRenderSystem.h">
-      <Filter>engine\code\ECS\system\render</Filter>
-    </ClInclude>
     <ClInclude Include="engine\code\ECS\system\render\GpuParticleRenderSystem.h">
       <Filter>engine\code\ECS\system\render</Filter>
     </ClInclude>
@@ -563,6 +560,12 @@
     </ClInclude>
     <ClInclude Include="engine\code\ECS\component\EntityReferenceList.h" />
     <ClInclude Include="engine\code\ECS\system\Initialize\ResolveEntityReferences.h" />
+    <ClInclude Include="engine\code\ECS\component\effect\MaterialEffectPipeLine.h" />
+    <ClInclude Include="engine\code\ECS\system\effect\MaterialEffect.h" />
+    <ClInclude Include="engine\code\directX12\SimpleConstantBuffer.h" />
+    <ClInclude Include="engine\code\directX12\SimpleStructuredBuffer.h" />
+    <ClInclude Include="engine\code\ECS\component\animation\MaterialAnimation.h" />
+    <ClInclude Include="engine\code\ECS\system\effect\MaterialAnimationWorkSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="editor\EditorController.cpp">
@@ -766,9 +769,6 @@
     <ClCompile Include="engine\code\ECS\system\render\ColliderRenderingSystem.cpp">
       <Filter>engine\code\ECS\system\render</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\ECS\system\render\EffectTexturedMeshRenderSystem.cpp">
-      <Filter>engine\code\ECS\system\render</Filter>
-    </ClCompile>
     <ClCompile Include="engine\code\ECS\system\render\GpuParticleRenderSystem.cpp">
       <Filter>engine\code\ECS\system\render</Filter>
     </ClCompile>
@@ -921,5 +921,9 @@
     </ClCompile>
     <ClCompile Include="engine\code\ECS\component\EntityReferenceList.cpp" />
     <ClCompile Include="engine\code\ECS\system\Initialize\ResolveEntityReferences.cpp" />
+    <ClCompile Include="engine\code\ECS\component\effect\MaterialEffectPipeLine.cpp" />
+    <ClCompile Include="engine\code\ECS\system\effect\MaterialEffect.cpp" />
+    <ClCompile Include="engine\code\ECS\component\animation\MaterialAnimation.cpp" />
+    <ClCompile Include="engine\code\ECS\system\effect\MaterialAnimationWorkSystem.cpp" />
   </ItemGroup>
 </Project>

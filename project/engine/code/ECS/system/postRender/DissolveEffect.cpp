@@ -58,29 +58,40 @@ void DissolveEffect::Update() {
         auto* entity = getEntity(id);
         UpdateEntity(entity);
     }
-    Render();
 
     sceneView->PostDraw();
 }
 
 void DissolveEffect::UpdateEntity(GameEntity* _entity) {
-    int32_t compSize = getComponentArray<DissolveEffectParam>()->getComponentSize(_entity);
+    auto effectParams = getComponents<DissolveEffectParam>(_entity);
 
-    if (compSize <= 0) {
+    if (!effectParams) {
         return; // コンポーネントがない場合は何もしない
     }
-    auto& commandList = dxCommand_->getCommandList();
+    auto& commandList     = dxCommand_->getCommandList();
+    const auto& sceneView = getScene()->getSceneView();
 
-    for (int32_t i = 0; i < compSize; i++) {
-        auto* dissolveEffectParam = getComponent<DissolveEffectParam>(_entity, i);
-        if (!dissolveEffectParam->isActive()) {
+    for (auto& param : *effectParams) {
+        if (!param.isActive()) {
             continue;
         }
         commandList->SetGraphicsRootDescriptorTable(1,
-            TextureManager::getDescriptorGpuHandle(dissolveEffectParam->getTextureIndex()));
+            TextureManager::getDescriptorGpuHandle(param.getTextureIndex()));
 
-        dissolveEffectParam->getDissolveBuffer().ConvertToBuffer();
-        dissolveEffectParam->getDissolveBuffer().SetForRootParameter(dxCommand_->getCommandList(), 2);
+        param.getDissolveBuffer().ConvertToBuffer();
+        param.getDissolveBuffer().SetForRootParameter(dxCommand_->getCommandList(), 2);
+
+        int32_t materialIndex = param.getMaterialIndex();
+        auto& uvTransBuff     = param.getUVTransformBuffer();
+        if (materialIndex >= 0) {
+            Material* material = getComponent<Material>(_entity, materialIndex);
+            material->UpdateUvMatrix();
+
+            uvTransBuff.ConvertToBuffer(material->uvTransform_);
+        }
+        uvTransBuff.SetForRootParameter(commandList, 3);
+
+        Render(sceneView->getBackBufferSrvHandle());
     }
 }
 
@@ -89,6 +100,52 @@ void DissolveEffect::Finalize() {
         dxCommand_.reset();
     }
     pso_ = nullptr;
+}
+
+void DissolveEffect::EffectEntity(RenderTexture* _output, GameEntity* _entity) {
+    if (!_output) {
+        return;
+    }
+    RenderStart();
+    _output->PreDraw();
+
+    auto effectParams = getComponents<DissolveEffectParam>(_entity);
+
+    if (!effectParams) {
+        return; // コンポーネントがない場合は何もしない
+    }
+    auto& commandList = dxCommand_->getCommandList();
+
+    for (auto& param : *effectParams) {
+        if (!param.isActive()) {
+            continue;
+        }
+        D3D12_GPU_DESCRIPTOR_HANDLE srvHandle = TextureManager::getDescriptorGpuHandle(param.getTextureIndex());
+
+        int32_t materialIndex = param.getMaterialIndex();
+        auto& uvTransBuff     = param.getUVTransformBuffer();
+        if (materialIndex >= 0) {
+            Material* material = getComponent<Material>(_entity, materialIndex);
+            material->UpdateUvMatrix();
+
+            uvTransBuff.ConvertToBuffer(material->uvTransform_);
+
+            if (material->hasCustomTexture()) {
+                srvHandle = material->getCustomTexture()->srv_->getGpuHandle();
+            }
+        }
+        commandList->SetGraphicsRootDescriptorTable(1,
+            srvHandle);
+
+        param.getDissolveBuffer().ConvertToBuffer();
+        param.getDissolveBuffer().SetForRootParameter(dxCommand_->getCommandList(), 2);
+
+        uvTransBuff.SetForRootParameter(commandList, 3);
+
+        Render(_output->getBackBufferSrvHandle());
+    }
+
+    _output->PostDraw();
 }
 
 void DissolveEffect::CreatePSO() {
@@ -120,7 +177,7 @@ void DissolveEffect::CreatePSO() {
     /// RootParameter の設定
     ///================================================
     // Texture だけ
-    D3D12_ROOT_PARAMETER rootParameter[3]    = {};
+    D3D12_ROOT_PARAMETER rootParameter[4]    = {};
     D3D12_DESCRIPTOR_RANGE sceneViewRange[1] = {};
     sceneViewRange[0].BaseShaderRegister     = 0;
     sceneViewRange[0].NumDescriptors         = 1;
@@ -153,6 +210,11 @@ void DissolveEffect::CreatePSO() {
     rootParameter[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
     shaderInfo.pushBackRootParameter(rootParameter[2]);
 
+    rootParameter[3].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
+    rootParameter[3].ShaderVisibility          = D3D12_SHADER_VISIBILITY_PIXEL;
+    rootParameter[3].Descriptor.ShaderRegister = 1;
+    shaderInfo.pushBackRootParameter(rootParameter[3]);
+
     ///================================================
     /// InputElement の設定
     ///================================================
@@ -183,15 +245,14 @@ void DissolveEffect::RenderStart() {
     commandList->SetDescriptorHeaps(1, ppHeaps);
 }
 
-void DissolveEffect::Render() {
+void DissolveEffect::Render(D3D12_GPU_DESCRIPTOR_HANDLE _viewHandle) {
     auto& commandList = dxCommand_->getCommandList();
-    auto* sceneView   = getScene()->getSceneView();
 
     /// ================================================
     /// Viewport の設定
     /// ================================================
 
-    commandList->SetGraphicsRootDescriptorTable(0, sceneView->getBackBufferSrvHandle());
+    commandList->SetGraphicsRootDescriptorTable(0, _viewHandle);
 
     commandList->DrawInstanced(6, 1, 0, 0);
 }

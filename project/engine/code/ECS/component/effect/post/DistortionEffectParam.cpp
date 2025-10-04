@@ -3,10 +3,10 @@
 /// engine
 #include "directX12/DxDevice.h"
 #include "Engine.h"
+#include "scene/Scene.h"
 #include "texture/TextureManager.h"
 // component
 #include "component/renderer/primitive/Primitive.h"
-
 
 #include "myFileSystem/MyFileSystem.h"
 
@@ -14,28 +14,49 @@
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
-void DistortionParamData::UpdateUVMat() {
-    uvMat = MakeMatrix::Affine({uvTransform.scale_, 1.f}, {0.f, 0.f, uvTransform.rotate_}, {uvTransform.translate_, 0.f});
-}
-
 void DistortionEffectParam::Initialize(GameEntity* _hostEntity) {
     effectParamData_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
     effectParamData_.ConvertToBuffer();
+    uvTransformBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+    uvTransformBuffer_.ConvertToBuffer(UVTransform());
 
-    for (auto& [object, type] : distortionObjects_) {
-        object->Initialize(_hostEntity);
+    if (use3dObjectList_) {
+        for (auto& [object, type] : distortionObjects_) {
+            object->Initialize(_hostEntity);
+        }
+    } else {
+        if (!texturePath_.empty()) {
+            textureIndex_ = TextureManager::LoadTexture(texturePath_);
+        }
     }
+}
+
+void DistortionEffectParam::LoadTexture(const std::string& _path) {
+    if (_path.empty()) {
+        return;
+    }
+    texturePath_  = _path;
+    textureIndex_ = TextureManager::LoadTexture(texturePath_);
 }
 
 void DistortionEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
 
 #ifdef DEBUG
-    DragGuiVectorCommand("UV Scale##" + _parentLabel, effectParamData_->uvTransform.scale_);
-    DragGuiCommand("UV Rotate##" + _parentLabel, effectParamData_->uvTransform.rotate_);
-    DragGuiVectorCommand("UV Translate##" + _parentLabel, effectParamData_->uvTransform.translate_);
+    CheckBoxCommand("Active##" + _parentLabel, isActive_);
+    CheckBoxCommand("Use 3D Object##" + _parentLabel, use3dObjectList_);
 
-    effectParamData_->UpdateUVMat();
-    effectParamData_.ConvertToBuffer();
+    ImGui::Spacing();
+
+    std::string label          = "MaterialIndex##" + _parentLabel;
+    auto materials             = _scene->getComponents<Material>(_entity);
+    int32_t entityMaterialSize = materials != nullptr ? static_cast<int32_t>(materials->size()) : 0;
+
+    if (entityMaterialSize <= 0) {
+        ImGui::InputInt(label.c_str(), &materialIndex_, 0, 0, ImGuiInputTextFlags_ReadOnly);
+    } else {
+        InputGuiCommand(label, materialIndex_);
+        materialIndex_ = std::clamp(materialIndex_, 0, entityMaterialSize - 1);
+    }
 
     ImGui::Spacing();
 
@@ -43,81 +64,116 @@ void DistortionEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]
     DragGuiCommand("Distortion Strength##" + _parentLabel, effectParamData_->distortionStrength, 0.01f);
 
     ImGui::Separator();
-    ImGui::Spacing();
 
-    std::string objectNodeName;
-    int32_t objectIndex     = 0;
-    std::string objectLabel = "Distortion Object##" + _parentLabel;
-    if (ImGui::TreeNode(objectLabel.c_str())) {
-        objectLabel = "Add Object##" + _parentLabel;
-        if (ImGui::Button(objectLabel.c_str())) {
-            ImGui::OpenPopup(objectLabel.c_str());
-        }
+    if (use3dObjectList_) {
+        ImGui::Spacing();
 
-        if (ImGui::BeginPopup(objectLabel.c_str())) {
-            static PrimitiveType newObjectType;
-
-            objectLabel = "PrimitiveType##" + _parentLabel;
-            if (ImGui::BeginCombo(objectLabel.c_str(), PrimitiveTypeToString(newObjectType))) {
-                for (int32_t i = 0; i < int32_t(PrimitiveType::Count); ++i) {
-                    PrimitiveType selectType = (PrimitiveType)i;
-                    bool isSelected          = newObjectType == selectType;
-
-                    if (ImGui::Selectable(PrimitiveTypeToString(selectType), isSelected)) {
-                        EditorController::getInstance()->pushCommand(
-                            std::make_unique<SetterCommand<PrimitiveType>>(&newObjectType, selectType));
-                    }
-                    if (isSelected) {
-                        ImGui::SetItemDefaultFocus();
-                    }
-                }
-                ImGui::EndCombo();
-            }
-
-            objectLabel = "Add##" + _parentLabel;
+        // TODO : 3DObjectのを別のコンポーネントにする
+        std::string objectNodeName;
+        int32_t objectIndex     = 0;
+        std::string objectLabel = "Distortion Object##" + _parentLabel;
+        if (ImGui::TreeNode(objectLabel.c_str())) {
+            objectLabel = "Add Object##" + _parentLabel;
             if (ImGui::Button(objectLabel.c_str())) {
-                std::shared_ptr<PrimitiveMeshRendererBase> newObject;
-                switch (newObjectType) {
-                case PrimitiveType::Plane:
-                    newObject = std::make_shared<PlaneRenderer>();
-                    break;
-                case PrimitiveType::Ring:
-                    newObject = std::make_shared<RingRenderer>();
-                    break;
-                default:
-                    LOG_ERROR("Unsupported Primitive Type for Distortion Object: {}", std::to_string(int32_t(newObjectType)));
-                    break;
-                }
-                if (newObject) {
-                    newObject->Initialize(nullptr);
+                ImGui::OpenPopup(objectLabel.c_str());
+            }
 
-                    auto command = std::make_unique<AddElementCommand<std::vector<std::pair<std::shared_ptr<PrimitiveMeshRendererBase>, PrimitiveType>>>>(
-                        &distortionObjects_, std::make_pair(newObject, newObjectType));
+            if (ImGui::BeginPopup(objectLabel.c_str())) {
+                static PrimitiveType newObjectType;
+
+                objectLabel = "PrimitiveType##" + _parentLabel;
+                if (ImGui::BeginCombo(objectLabel.c_str(), PrimitiveTypeToString(newObjectType))) {
+                    for (int32_t i = 0; i < int32_t(PrimitiveType::Count); ++i) {
+                        PrimitiveType selectType = (PrimitiveType)i;
+                        bool isSelected          = newObjectType == selectType;
+
+                        if (ImGui::Selectable(PrimitiveTypeToString(selectType), isSelected)) {
+                            EditorController::getInstance()->pushCommand(
+                                std::make_unique<SetterCommand<PrimitiveType>>(&newObjectType, selectType));
+                        }
+                        if (isSelected) {
+                            ImGui::SetItemDefaultFocus();
+                        }
+                    }
+                    ImGui::EndCombo();
+                }
+
+                objectLabel = "Add##" + _parentLabel;
+                if (ImGui::Button(objectLabel.c_str())) {
+                    std::shared_ptr<PrimitiveMeshRendererBase> newObject;
+                    switch (newObjectType) {
+                    case PrimitiveType::Plane:
+                        newObject = std::make_shared<PlaneRenderer>();
+                        break;
+                    case PrimitiveType::Ring:
+                        newObject = std::make_shared<RingRenderer>();
+                        break;
+                    default:
+                        LOG_ERROR("Unsupported Primitive Type for Distortion Object: {}", std::to_string(int32_t(newObjectType)));
+                        break;
+                    }
+                    if (newObject) {
+                        newObject->Initialize(nullptr);
+
+                        auto command = std::make_unique<AddElementCommand<std::vector<std::pair<std::shared_ptr<PrimitiveMeshRendererBase>, PrimitiveType>>>>(
+                            &distortionObjects_, std::make_pair(newObject, newObjectType));
+                        EditorController::getInstance()->pushCommand(std::move(command));
+                    }
+                    ImGui::CloseCurrentPopup();
+                }
+
+                ImGui::EndPopup();
+            }
+            for (auto& [obj, type] : distortionObjects_) {
+                objectNodeName = "Distortion Object_" + std::string(PrimitiveTypeToString(type)) + std::to_string(objectIndex);
+                if (ImGui::Button(std::string("X##" + objectNodeName).c_str())) {
+                    auto command = std::make_unique<EraseElementCommand<std::vector<std::pair<std::shared_ptr<PrimitiveMeshRendererBase>, PrimitiveType>>>>(&distortionObjects_, distortionObjects_.begin() + objectIndex);
                     EditorController::getInstance()->pushCommand(std::move(command));
+                    continue;
                 }
-                ImGui::CloseCurrentPopup();
+                ImGui::SameLine();
+                if (ImGui::TreeNode(objectNodeName.c_str())) {
+                    if (obj) {
+                        obj->Edit(_scene, _entity, _parentLabel + objectNodeName);
+                    }
+                    ImGui::TreePop();
+                }
+                ++objectIndex;
             }
 
-            ImGui::EndPopup();
+            ImGui::TreePop();
         }
-        for (auto& [obj, type] : distortionObjects_) {
-            objectNodeName = "Distortion Object_" + std::string(PrimitiveTypeToString(type)) + std::to_string(objectIndex);
-            if (ImGui::Button(std::string("X##" + objectNodeName).c_str())) {
-                auto command = std::make_unique<EraseElementCommand<std::vector<std::pair<std::shared_ptr<PrimitiveMeshRendererBase>, PrimitiveType>>>>(&distortionObjects_, distortionObjects_.begin() + objectIndex);
-                EditorController::getInstance()->pushCommand(std::move(command));
-                continue;
-            }
-            ImGui::SameLine();
-            if (ImGui::TreeNode(objectNodeName.c_str())) {
-                if (obj) {
-                    obj->Edit(_scene, _entity, _parentLabel + objectNodeName);
-                }
-                ImGui::TreePop();
-            }
-            ++objectIndex;
+    } else {
+        // object not use
+        if (!distortionObjects_.empty()) {
+            distortionObjects_.clear();
         }
 
-        ImGui::TreePop();
+        auto askLoadTexture = [this]([[maybe_unused]] const std::string& _parentLabel) {
+            bool ask          = false;
+            std::string label = "Load Texture##" + _parentLabel;
+            ask               = ImGui::Button(label.c_str());
+            ask |= ImGui::ImageButton(
+                ImTextureID(TextureManager::getDescriptorGpuHandle(textureIndex_).ptr),
+                ImVec2(32, 32), ImVec2(0, 0), ImVec2(1, 1), 4, ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
+
+            return ask;
+        };
+        ImGui::Text("Texture Directory: %s", texturePath_.c_str());
+        if (askLoadTexture(_parentLabel)) {
+            std::string directory;
+            std::string fileName;
+            if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"png"})) {
+                auto setPath = std::make_unique<SetterCommand<std::string>>(&texturePath_, kApplicationResourceDirectory + "/" + directory + "/" + fileName);
+                CommandCombo commandCombo;
+                commandCombo.addCommand(std::move(setPath));
+                commandCombo.setFuncOnAfterCommand([this]() {
+                    textureIndex_ = TextureManager::LoadTexture(texturePath_);
+                },
+                    true);
+                EditorController::getInstance()->pushCommand(std::make_unique<CommandCombo>(commandCombo));
+            }
+        };
     }
 
 #endif // DEBUG
@@ -137,26 +193,30 @@ void to_json(nlohmann::json& j, const DistortionEffectParam& param) {
     j["distortionBias"]     = param.effectParamData_->distortionBias;
     j["distortionStrength"] = param.effectParamData_->distortionStrength;
 
-    j["uvScale"]     = param.effectParamData_->uvTransform.scale_;
-    j["uvRotate"]    = param.effectParamData_->uvTransform.rotate_;
-    j["uvTranslate"] = param.effectParamData_->uvTransform.translate_;
+    j["isActive"]        = param.isActive_;
+    j["use3dObjectList"] = param.use3dObjectList_;
+    j["materialIndex"]   = param.materialIndex_;
 
-    j["distortionObjects"] = nlohmann::json::array();
-    for (const auto& [obj, type] : param.distortionObjects_) {
-        nlohmann::json objectData = nlohmann::json::object();
-        objectData["objectType"]  = static_cast<int32_t>(type);
-        if (obj) {
-            // 型ごとに分岐してシリアライズ
-            switch (type) {
-            case PrimitiveType::Plane:
-                objectData["objectData"] = *std::static_pointer_cast<PlaneRenderer>(obj);
-                break;
-            case PrimitiveType::Ring:
-                objectData["objectData"] = *std::static_pointer_cast<RingRenderer>(obj);
-                break;
+    if (param.use3dObjectList_) {
+        j["distortionObjects"] = nlohmann::json::array();
+        for (const auto& [obj, type] : param.distortionObjects_) {
+            nlohmann::json objectData = nlohmann::json::object();
+            objectData["objectType"]  = static_cast<int32_t>(type);
+            if (obj) {
+                // 型ごとに分岐してシリアライズ
+                switch (type) {
+                case PrimitiveType::Plane:
+                    objectData["objectData"] = *std::static_pointer_cast<PlaneRenderer>(obj);
+                    break;
+                case PrimitiveType::Ring:
+                    objectData["objectData"] = *std::static_pointer_cast<RingRenderer>(obj);
+                    break;
+                }
             }
+            j["distortionObjects"].push_back(objectData);
         }
-        j["distortionObjects"].push_back(objectData);
+    } else {
+        j["textuerPath"] = param.texturePath_;
     }
 }
 
@@ -164,23 +224,38 @@ void from_json(const nlohmann::json& j, DistortionEffectParam& param) {
     j.at("distortionBias").get_to(param.effectParamData_->distortionBias);
     j.at("distortionStrength").get_to(param.effectParamData_->distortionStrength);
 
-    j.at("uvScale").get_to(param.effectParamData_->uvTransform.scale_);
-    j.at("uvRotate").get_to(param.effectParamData_->uvTransform.rotate_);
-    j.at("uvTranslate").get_to(param.effectParamData_->uvTransform.translate_);
+    if (j.contains("materialIndex")) {
+        j.at("materialIndex").get_to(param.materialIndex_);
+    }
+    if (j.contains("isActive")) {
+        j.at("isActive").get_to(param.isActive_);
+    }
 
-    for (auto& obj : j["distortionObjects"]) {
-        nlohmann::json objectData;
-        PrimitiveType objectType;
-        objectType = PrimitiveType(obj["objectType"]);
+    if (j.contains("use3dObjectList")) {
+        j.at("use3dObjectList").get_to(param.use3dObjectList_);
+    } else {
+        param.use3dObjectList_ = true; // 以前のデータとの互換性のため、use3dObjectList_が無い場合はtrueにする
+    }
 
-        if (objectType == PrimitiveType::Plane) {
-            auto newObject = std::make_shared<PlaneRenderer>();
-            from_json(obj["objectData"], *newObject);
-            param.distortionObjects_.emplace_back(newObject, objectType);
-        } else if (objectType == PrimitiveType::Ring) {
-            auto newObject = std::make_shared<RingRenderer>();
-            from_json(obj["objectData"], *newObject);
-            param.distortionObjects_.emplace_back(newObject, objectType);
+    if (param.use3dObjectList_) {
+        for (auto& obj : j["distortionObjects"]) {
+            nlohmann::json objectData;
+            PrimitiveType objectType;
+            objectType = PrimitiveType(obj["objectType"]);
+
+            if (objectType == PrimitiveType::Plane) {
+                auto newObject = std::make_shared<PlaneRenderer>();
+                from_json(obj["objectData"], *newObject);
+                param.distortionObjects_.emplace_back(newObject, objectType);
+            } else if (objectType == PrimitiveType::Ring) {
+                auto newObject = std::make_shared<RingRenderer>();
+                from_json(obj["objectData"], *newObject);
+                param.distortionObjects_.emplace_back(newObject, objectType);
+            }
+        }
+    } else {
+        if (j.contains("textuerPath")) {
+            j.at("textuerPath").get_to(param.texturePath_);
         }
     }
 }

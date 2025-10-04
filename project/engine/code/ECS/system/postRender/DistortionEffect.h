@@ -10,8 +10,12 @@
 #include "directX12/DxCommand.h"
 #include "directX12/PipelineStateObj.h"
 #include "directX12/ShaderManager.h"
-
 class RenderTexture;
+
+/// ECS
+struct Transform;
+class DistortionEffectParam;
+
 class TexturedMeshRenderSystem;
 
 class DistortionEffect
@@ -26,7 +30,17 @@ public:
 
     void UpdateEntity(GameEntity* _entity) override;
 
+    /// <summary>
+    /// 単一エフェクトに対してエフェクトをかけ, RenderTextureに出力する
+    /// </summary>
+    void EffectEntity(RenderTexture* _output, GameEntity* _entity);
+
 protected:
+    void RenderEffectObjectScene(
+        const Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& _commandList,
+        Transform* _entityTransform,
+        DistortionEffectParam* _param);
+
     void CreatePSO();
 
 protected:
@@ -41,4 +55,5 @@ protected:
     int32_t distortionTextureIndex_ = 0;
     int32_t sceneTextureIndex_      = 0;
     int32_t distortionParamIndex_   = 0;
+    int32_t materialIndex_          = 0;
 };

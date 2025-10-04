@@ -19,6 +19,17 @@
 
 PipelineStateObj* RenderTexture::pso_;
 
+RenderTexture::RenderTexture(DxCommand* dxCom) {
+    std::string commandListKey  = "main";
+    std::string commandQueueKey = "main";
+    if (dxCom) {
+        commandListKey  = dxCom->getCommandListComboKey();
+        commandQueueKey = dxCom->getCommandQueueKey();
+    }
+    dxCommand_ = std::make_unique<DxCommand>();
+    dxCommand_->Initialize(commandListKey, commandQueueKey);
+}
+
 void RenderTexture::Awake() {
     ShaderManager* shaderManager = ShaderManager::getInstance();
 
@@ -81,7 +92,11 @@ void RenderTexture::Awake() {
     pso_ = shaderManager->CreatePso("FullScreen", shaderInfo, Engine::getInstance()->getDxDevice()->getDevice());
 }
 
-void RenderTexture::Initialize(int32_t _bufferCount, const Vec2f& textureSize, DXGI_FORMAT _format, const Vec4f& _clearColor) {
+void RenderTexture::Initialize(
+    int32_t _bufferCount,
+    const Vec2f& textureSize,
+    DXGI_FORMAT _format,
+    const Vec4f& _clearColor) {
     format_      = _format;
     bufferCount_ = _bufferCount;
     renderTargets_.resize(bufferCount_);
@@ -136,6 +151,10 @@ void RenderTexture::Initialize(int32_t _bufferCount, const Vec2f& textureSize, D
         renderTarget.resource_.setName(wName + std::to_wstring(index));
         ++index;
     }
+}
+
+void RenderTexture::Initialize(int32_t _bufferCount, const DirectX::TexMetadata& _metaData, const Vec4f& _clearColor) {
+    Initialize(_bufferCount, Vec2f(float(_metaData.width), float(_metaData.height)), _metaData.format, _clearColor);
 }
 
 void RenderTexture::Resize(const Vec2f& textureSize) {
@@ -331,6 +350,22 @@ void RenderTexture::DrawTexture() {
     commandList->SetGraphicsRootDescriptorTable(
         0,
         getBackBufferSrvHandle());
+
+    commandList->DrawInstanced(6, 1, 0, 0);
+}
+
+void RenderTexture::DrawTexture(D3D12_GPU_DESCRIPTOR_HANDLE _srvHandle) {
+    auto& commandList = dxCommand_->getCommandList();
+
+    commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
+    commandList->SetPipelineState(pso_->pipelineState.Get());
+
+    ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
+    commandList->SetDescriptorHeaps(1, ppHeaps);
+
+    commandList->SetGraphicsRootDescriptorTable(
+        0,
+        _srvHandle);
 
     commandList->DrawInstanced(6, 1, 0, 0);
 }

@@ -6,6 +6,7 @@
 /// engine
 #define RESOURCE_DIRECTORY
 #include "EngineInclude.h"
+#include "scene/Scene.h"
 // directX12
 #include "directX12/DxDevice.h"
 // module
@@ -334,14 +335,25 @@ void PlaneRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] GameEn
     }
     label = "Transform##" + _parentLabel;
     if (ImGui::TreeNode(label.c_str())) {
-        transformBuff_.openData_.Edit(_scene, _entity, _parentLabel);
+        transformBuff_.openData_.Edit(_scene, _entity, "Transform" + _parentLabel);
         ImGui::TreePop();
     }
-    label = "Material##" + _parentLabel;
-    if (ImGui::TreeNode(label.c_str())) {
-        materialBuff_.openData_.DebugGui(_parentLabel);
-        materialBuff_.ConvertToBuffer();
-        ImGui::TreePop();
+
+    ImGui::Spacing();
+
+    label                      = "MaterialIndex##" + _parentLabel;
+    auto materials             = _scene->getComponents<Material>(_entity);
+    int32_t entityMaterialSize = materials != nullptr ? static_cast<int32_t>(materials->size()) : 0;
+    InputGuiCommand(label, materialIndex_);
+
+    materialIndex_ = std::clamp(materialIndex_, -1, entityMaterialSize);
+    if (materialIndex_ >= 0) {
+        label = "Material##" + _parentLabel;
+        if (ImGui::TreeNode(label.c_str())) {
+            materials->operator[](materialIndex_).Edit(_scene, _entity, "Material" + _parentLabel);
+            materialBuff_.ConvertToBuffer(materials->operator[](materialIndex_));
+            ImGui::TreePop();
+        }
     }
 
 #endif // _DEBUG
@@ -353,8 +365,7 @@ void to_json(nlohmann::json& j, const PlaneRenderer& r) {
     j["textureDirectory"] = r.textureDirectory_;
     j["textureFileName"]  = r.textureFileName_;
     to_json(j["transform"], r.transformBuff_.openData_);
-    to_json(j["material"], r.materialBuff_.openData_);
-    j["material"] = r.materialBuff_.openData_;
+    j["materialIndex"] = r.materialIndex_;
 }
 
 void from_json(const nlohmann::json& j, PlaneRenderer& r) {
@@ -365,8 +376,9 @@ void from_json(const nlohmann::json& j, PlaneRenderer& r) {
     j.at("textureDirectory").get_to(r.textureDirectory_);
     j.at("textureFileName").get_to(r.textureFileName_);
     from_json(j.at("transform"), r.transformBuff_.openData_);
-    from_json(j.at("material"), r.materialBuff_.openData_);
-    j.at("material").get_to(r.materialBuff_.openData_);
+    if (j.find("materialIndex") != j.end()) {
+        r.materialIndex_ = j.at("materialIndex");
+    }
 }
 
 /// =====================================================
@@ -474,11 +486,20 @@ void RingRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] GameEnt
 
         ImGui::TreePop();
     }
-    label = "Material##" + _parentLabel;
-    if (ImGui::TreeNode(label.c_str())) {
-        materialBuff_.openData_.DebugGui(_parentLabel);
-        materialBuff_.ConvertToBuffer();
-        ImGui::TreePop();
+
+    label                      = "MaterialIndex##" + _parentLabel;
+    auto materials             = _scene->getComponents<Material>(_entity);
+    int32_t entityMaterialSize = materials != nullptr ? static_cast<int32_t>(materials->size()) : 0;
+    InputGuiCommand(label, materialIndex_);
+
+    materialIndex_ = std::clamp(materialIndex_, -1, entityMaterialSize);
+    if (materialIndex_ >= 0) {
+        label = "Material##" + _parentLabel;
+        if (ImGui::TreeNode(label.c_str())) {
+            materials->operator[](materialIndex_).Edit(_scene, _entity, "Material" + _parentLabel);
+            materialBuff_.ConvertToBuffer(materials->operator[](materialIndex_));
+            ImGui::TreePop();
+        }
     }
 
 #endif // _DEBUG
@@ -490,8 +511,7 @@ void to_json(nlohmann::json& j, const RingRenderer& r) {
     j["textureDirectory"] = r.textureDirectory_;
     j["textureFileName"]  = r.textureFileName_;
     to_json(j["transform"], r.transformBuff_.openData_);
-    to_json(j["material"], r.materialBuff_.openData_);
-    j["material"] = r.materialBuff_.openData_;
+    j["materialIndex"] = r.materialIndex_;
 
     j["InnerRadius"] = r.primitive_.getInnerRadius();
     j["OuterRadius"] = r.primitive_.getOuterRadius();
@@ -506,8 +526,9 @@ void from_json(const nlohmann::json& j, RingRenderer& r) {
     j.at("textureDirectory").get_to(r.textureDirectory_);
     j.at("textureFileName").get_to(r.textureFileName_);
     from_json(j.at("transform"), r.transformBuff_.openData_);
-    from_json(j.at("material"), r.materialBuff_.openData_);
-    j.at("material").get_to(r.materialBuff_.openData_);
+    if (j.find("materialIndex") != j.end()) {
+        r.materialIndex_ = j.at("materialIndex");
+    }
 
     float innerRadius = 0.f;
     float outerRadius = 0.f;
@@ -608,11 +629,20 @@ void BoxRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] GameEnti
         transformBuff_.ConvertToBuffer();
         ImGui::TreePop();
     }
-    label = "Material##" + _parentLabel;
-    if (ImGui::TreeNode(label.c_str())) {
-        materialBuff_.openData_.DebugGui(_parentLabel);
-        materialBuff_.ConvertToBuffer();
-        ImGui::TreePop();
+
+    label                      = "MaterialIndex##" + _parentLabel;
+    auto materials             = _scene->getComponents<Material>(_entity);
+    int32_t entityMaterialSize = materials != nullptr ? static_cast<int32_t>(materials->size()) : 0;
+    InputGuiCommand(label, materialIndex_);
+
+    materialIndex_ = std::clamp(materialIndex_, -1, entityMaterialSize);
+    if (materialIndex_ >= 0) {
+        label = "Material##" + _parentLabel;
+        if (ImGui::TreeNode(label.c_str())) {
+            materials->operator[](materialIndex_).Edit(_scene, _entity, "Material" + _parentLabel);
+            materialBuff_.ConvertToBuffer(materials->operator[](materialIndex_));
+            ImGui::TreePop();
+        }
     }
 
 #endif // _DEBUG
@@ -624,8 +654,7 @@ void to_json(nlohmann::json& j, const BoxRenderer& r) {
     j["textureDirectory"] = r.textureDirectory_;
     j["textureFileName"]  = r.textureFileName_;
     to_json(j["transform"], r.transformBuff_.openData_);
-    to_json(j["material"], r.materialBuff_.openData_);
-    j["material"] = r.materialBuff_.openData_;
+    j["materialIndex"] = r.materialIndex_;
 
     j["size"] = r.primitive_.getSize();
 }
@@ -638,8 +667,9 @@ void from_json(const nlohmann::json& j, BoxRenderer& r) {
     j.at("textureDirectory").get_to(r.textureDirectory_);
     j.at("textureFileName").get_to(r.textureFileName_);
     from_json(j.at("transform"), r.transformBuff_.openData_);
-    from_json(j.at("material"), r.materialBuff_.openData_);
-    j.at("material").get_to(r.materialBuff_.openData_);
+    if (j.find("materialIndex") != j.end()) {
+        r.materialIndex_ = j.at("materialIndex");
+    }
 
     Vec3f size = {1.0f, 1.0f, 1.0f};
     j.at("size").get_to(size);
@@ -741,11 +771,19 @@ void SphereRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] GameE
         ImGui::TreePop();
     }
 
-    label = "Material##" + _parentLabel;
-    if (ImGui::TreeNode(label.c_str())) {
-        materialBuff_.openData_.DebugGui(_parentLabel);
-        materialBuff_.ConvertToBuffer();
-        ImGui::TreePop();
+    label                      = "MaterialIndex##" + _parentLabel;
+    auto materials             = _scene->getComponents<Material>(_entity);
+    int32_t entityMaterialSize = materials != nullptr ? static_cast<int32_t>(materials->size()) : 0;
+    InputGuiCommand(label, materialIndex_);
+
+    materialIndex_ = std::clamp(materialIndex_, -1, entityMaterialSize);
+    if (materialIndex_ >= 0) {
+        label = "Material##" + _parentLabel;
+        if (ImGui::TreeNode(label.c_str())) {
+            materials->operator[](materialIndex_).Edit(_scene, _entity, "Material" + _parentLabel);
+            materialBuff_.ConvertToBuffer(materials->operator[](materialIndex_));
+            ImGui::TreePop();
+        }
     }
 #endif // _DEBUG
 }
@@ -756,8 +794,7 @@ void to_json(nlohmann::json& j, const SphereRenderer& r) {
     j["textureDirectory"] = r.textureDirectory_;
     j["textureFileName"]  = r.textureFileName_;
     to_json(j["transform"], r.transformBuff_.openData_);
-    to_json(j["material"], r.materialBuff_.openData_);
-    j["material"]          = r.materialBuff_.openData_;
+    j["materialIndex"]     = r.materialIndex_;
     j["radius"]            = r.primitive_.getRadius();
     j["divisionLatitude"]  = r.primitive_.getDivisionLatitude();
     j["divisionLongitude"] = r.primitive_.getDivisionLongitude();
@@ -770,8 +807,9 @@ void from_json(const nlohmann::json& j, SphereRenderer& r) {
     j.at("textureDirectory").get_to(r.textureDirectory_);
     j.at("textureFileName").get_to(r.textureFileName_);
     from_json(j.at("transform"), r.transformBuff_.openData_);
-    from_json(j.at("material"), r.materialBuff_.openData_);
-    j.at("material").get_to(r.materialBuff_.openData_);
+    if (j.find("materialIndex") != j.end()) {
+        r.materialIndex_ = j.at("materialIndex");
+    }
     float radius              = 1.0f;
     int32_t divisionLatitude  = 10;
     int32_t divisionLongitude = 10;

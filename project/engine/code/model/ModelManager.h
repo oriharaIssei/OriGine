@@ -64,4 +64,6 @@ private:
 public:
     void pushBackDefaultMaterial(ModelMeshData* key, TexturedMaterial material);
     ModelMeshData* getModelMeshData(const std::string& directoryPath, const std::string& filename);
+    const std::vector<TexturedMaterial>& getDefaultMaterials(ModelMeshData* key) const;
+    const std::vector<TexturedMaterial>& getDefaultMaterials(const std::string& directoryPath, const std::string& filename) const;
 };
