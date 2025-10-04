@@ -265,6 +265,12 @@ void Sphere::createMesh(TextureMesh* _mesh) {
 
 #pragma region "PrimitiveRenderer"
 
+void PrimitiveMeshRendererBase::LoadTexture(const std::string& _directory, const std::string& _filename) {
+    textureDirectory_ = _directory;
+    textureFileName_  = _filename;
+    textureIndex_     = TextureManager::LoadTexture(_directory + "/" + _filename);
+}
+
 std::shared_ptr<PrimitiveMeshRendererBase> CreatePrimitiveRenderer(PrimitiveType _type) {
     switch (_type) {
     case PrimitiveType::Plane:
@@ -290,7 +296,8 @@ std::shared_ptr<PrimitiveMeshRendererBase> CreatePrimitiveRenderer(PrimitiveType
 /// PlaneRenderer
 /// =====================================================
 
-void PlaneRenderer::Initialize(GameEntity* /*_hostEntity*/) {
+void PlaneRenderer::Initialize(GameEntity* _hostEntity) {
+    MeshRenderer::Initialize(_hostEntity);
 
     // _mesh Init
     if (!meshGroup_->empty()) {
@@ -386,7 +393,8 @@ void from_json(const nlohmann::json& j, PlaneRenderer& r) {
 /// =====================================================
 
 void RingRenderer::Initialize(GameEntity* _hostEntity) {
-    _hostEntity;
+    MeshRenderer::Initialize(_hostEntity);
+
     // _mesh Init
     if (!meshGroup_->empty()) {
         meshGroup_->clear();
@@ -546,7 +554,8 @@ void from_json(const nlohmann::json& j, RingRenderer& r) {
 /// =====================================================
 
 void BoxRenderer::Initialize(GameEntity* _hostEntity) {
-    _hostEntity;
+    MeshRenderer::Initialize(_hostEntity);
+
     // _mesh Init
     if (!meshGroup_->empty()) {
         meshGroup_->clear();
@@ -681,7 +690,8 @@ void from_json(const nlohmann::json& j, BoxRenderer& r) {
 /// =====================================================
 
 void SphereRenderer::Initialize(GameEntity* _hostEntity) {
-    _hostEntity;
+    MeshRenderer::Initialize(_hostEntity);
+
     // _mesh Init
     if (!meshGroup_->empty()) {
         meshGroup_->clear();

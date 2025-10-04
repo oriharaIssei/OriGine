@@ -226,6 +226,8 @@ public:
 
     virtual void createMesh(TextureMesh* _mesh) = 0;
 
+    void LoadTexture(const std::string& _directory, const std::string& _filename);
+
 protected:
     IConstantBuffer<Transform> transformBuff_;
     int32_t materialIndex_ = -1;
@@ -272,11 +274,7 @@ public:
     uint32_t getTextureIndex() const {
         return textureIndex_;
     }
-    void loadTexture(const std::string& _directory, const std::string& _filename) {
-        textureDirectory_ = _directory;
-        textureFileName_  = _filename;
-        textureIndex_     = TextureManager::LoadTexture(_directory + "/" + _filename);
-    }
+
 };
 
 std::shared_ptr<PrimitiveMeshRendererBase> CreatePrimitiveRenderer(PrimitiveType _type);

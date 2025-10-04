@@ -415,13 +415,19 @@ void SkinningMeshRenderSystem::RenderModelMesh(
 
         if (materialIndex >= 0) {
             material = getComponent<Material>(_renderer->getHostEntity(), static_cast<uint32_t>(materialIndex));
-            material->UpdateUvMatrix();
-            materialBuff.ConvertToBuffer(*material);
+            if (material) {
+                material->UpdateUvMatrix();
+                materialBuff.ConvertToBuffer(*material);
 
-            if (material->hasCustomTexture()) {
-                textureHandle = material->getCustomTexture()->srv_->getGpuHandle();
+                if (material->hasCustomTexture()) {
+                    textureHandle = material->getCustomTexture()->srv_->getGpuHandle();
+                }
+            } else {
+                materialBuff.ConvertToBuffer(Material());
             }
         }
+        materialBuff.SetForRootParameter(_commandList, materialBufferIndex_);
+
         // ============================= テクスチャの設定 ============================= //
         _commandList->SetGraphicsRootDescriptorTable(
             textureBufferIndex_,

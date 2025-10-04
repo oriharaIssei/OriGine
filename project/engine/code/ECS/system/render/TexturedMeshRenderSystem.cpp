@@ -513,7 +513,7 @@ void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
             renderer->getMaterialBuff(),
             textureHandle);
 
-        componentIndex++;
+        ++componentIndex;
     }
     // ring
     while (true) {
@@ -525,6 +525,7 @@ void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
         }
         // 描画フラグが立っていないならスキップ
         if (!renderer->isRender()) {
+            ++componentIndex;
             continue;
         }
 
@@ -561,7 +562,6 @@ void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
                 if (material.hasCustomTexture()) {
                     textureHandle = material.getCustomTexture()->srv_->getGpuHandle();
                 }
-
             } else {
                 materialBuff.ConvertToBuffer(Material());
             }
@@ -744,7 +744,8 @@ void TexturedMeshRenderSystem::RenderPrimitiveMesh(
     PrimitiveMeshRendererBase* _renderer) {
     auto& mesh = _renderer->getMeshGroup()->front();
 
-    D3D12_GPU_DESCRIPTOR_HANDLE textureHandle = TextureManager::getDescriptorGpuHandle(0);
+    D3D12_GPU_DESCRIPTOR_HANDLE textureHandle = TextureManager::getDescriptorGpuHandle(_renderer->getTextureIndex());
+
     auto& materialBuff                        = _renderer->getMaterialBuff();
     Material* material                        = nullptr;
     int32_t materialIndex                     = _renderer->getMaterialIndex();

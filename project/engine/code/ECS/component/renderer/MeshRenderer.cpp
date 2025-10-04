@@ -72,10 +72,12 @@ void from_json(const nlohmann::json& j, ModelMeshRenderer& r) {
         backTransform.openData_ = transformData;
     }
 
-    auto& materialBufferDatas = j.at("materialIndexDatas");
-    for (auto& materialData : materialBufferDatas) {
-        auto& backMaterial = r.meshMaterialBuff_.emplace_back(std::make_pair(-1, SimpleConstantBuffer<Material>()));
-        backMaterial.first = materialData;
+    if (j.find("materialIndexDatas") != j.end()) {
+        auto& materialBufferDatas = j.at("materialIndexDatas");
+        for (auto& materialData : materialBufferDatas) {
+            auto& backMaterial = r.meshMaterialBuff_.emplace_back(std::make_pair(-1, SimpleConstantBuffer<Material>()));
+            backMaterial.first = materialData;
+        }
     }
 
     if (j.find("textureFilePath") != j.end()) {
