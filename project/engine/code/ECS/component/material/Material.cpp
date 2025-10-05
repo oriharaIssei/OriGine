@@ -62,6 +62,12 @@ void Material::Finalize() {
     shininess_              = 0.f;
     environmentCoefficient_ = 0.1f;
     specularColor_          = {1.f, 1.f, 1.f};
+
+    if (customTexture_.has_value()) {
+        customTexture_->resource_.Finalize();
+        auto srvHeap = Engine::getInstance()->getSrvHeap();
+        srvHeap->ReleaseDescriptor(customTexture_->srv_);
+    }
 }
 
 void Material::CreateCustomTextureFromTextureFile(const std::string& _directory, const std::string& _filename) {

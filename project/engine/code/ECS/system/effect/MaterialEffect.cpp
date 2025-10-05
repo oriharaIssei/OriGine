@@ -71,7 +71,9 @@ void MaterialEffect::Finalize() {
     }
 
     for (auto& tempRenderTexture : tempRenderTextures_) {
-        tempRenderTexture = std::make_unique<RenderTexture>(dxCommand_.get());
+        if (tempRenderTexture) {
+            tempRenderTexture->Finalize();
+        }
     }
 }
 

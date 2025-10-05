@@ -27,16 +27,15 @@ void DissolveEffect::Update() {
     }
 
     // 実行する必要があるかチェック
-    bool allIsUnactive   = true;
-    auto* componentArray = getComponentArray<DissolveEffectParam>();
-    if (!componentArray) {
-        return;
-    }
-    for (auto& compVec : *componentArray->getAllComponents()) {
-        if (compVec.empty()) {
+    bool allIsUnactive = true;
+
+    for (auto& entityId : entityIDs_) {
+        GameEntity* entity = getEntity(entityId);
+        auto* compVec      = getComponents<DissolveEffectParam>(entity);
+        if (!compVec || compVec->empty()) {
             continue;
         }
-        for (auto& comp : compVec) {
+        for (auto& comp : *compVec) {
             if (comp.isActive()) {
                 allIsUnactive = false;
                 break; // 1つでもアクティブなコンポーネントがあればループを抜ける

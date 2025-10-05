@@ -79,6 +79,7 @@ void DistortionEffect::UpdateEntity(GameEntity* _entity) {
     auto distortionEffectParams = getComponents<DistortionEffectParam>(_entity);
     if (!distortionEffectParams) {
         LOG_WARN("Not found DistortionEffectParam Component. EntityID :{}", _entity->getID());
+        return;
     }
     Transform* entityTransform_ = getComponent<Transform>(_entity);
 
@@ -255,7 +256,6 @@ void DistortionEffect::EffectEntity(RenderTexture* _output, GameEntity* _entity)
 
         _output->PostDraw();
     }
-
 }
 
 void DistortionEffect::CreatePSO() {

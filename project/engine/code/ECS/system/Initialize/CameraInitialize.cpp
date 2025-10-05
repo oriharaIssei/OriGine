@@ -19,4 +19,5 @@ void CameraInitialize::UpdateEntity(GameEntity* _entity) {
 
     cameraTransform->UpdateMatrix();
     CameraManager::getInstance()->setTransform(*cameraTransform);
+    CameraManager::getInstance()->DataConvertToBuffer();
 }
