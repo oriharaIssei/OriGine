@@ -154,7 +154,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="engine\code\ECS\system\Initialize\CameraInitialize.h" />
     <ClInclude Include="editor\EditorController.h" />
     <ClInclude Include="editor\IEditor.h" />
     <ClInclude Include="editor\sceneEditor\EntityInspector.h" />
@@ -162,15 +161,15 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="editor\sceneEditor\SystemInspector.h" />
     <ClInclude Include="editor\setting\SettingWindow.h" />
     <ClInclude Include="editor\window\EditorWindowMenu.h" />
-    <ClInclude Include="engine\code\directX12\SimpleStructuredBuffer.h" />
-    <ClInclude Include="engine\code\ECS\component\EntityReferenceList.h" />
     <ClInclude Include="engine\EngineInclude.h" />
     <ClInclude Include="engine\code\ECS\Entity.h" />
     <ClInclude Include="engine\code\ECS\component\ComponentArray.h" />
+    <ClInclude Include="engine\code\ECS\component\EntityReferenceList.h" />
     <ClInclude Include="engine\code\ECS\component\IComponent.h" />
     <ClInclude Include="engine\code\ECS\component\SubScene.h" />
     <ClInclude Include="engine\code\ECS\component\animation\AnimationData.h" />
     <ClInclude Include="engine\code\ECS\component\animation\AnimationManager.h" />
+    <ClInclude Include="engine\code\ECS\component\animation\MaterialAnimation.h" />
     <ClInclude Include="engine\code\ECS\component\animation\ModelNodeAnimation.h" />
     <ClInclude Include="engine\code\ECS\component\animation\PrimitiveNodeAnimation.h" />
     <ClInclude Include="engine\code\ECS\component\animation\SkinningAnimationComponent.h" />
@@ -178,6 +177,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\ECS\component\collider\Collider.h" />
     <ClInclude Include="engine\code\ECS\component\collider\CollisionPushBackInfo.h" />
     <ClInclude Include="engine\code\ECS\component\effect\CameraAction.h" />
+    <ClInclude Include="engine\code\ECS\component\effect\MaterialEffectPipeLine.h" />
     <ClInclude Include="engine\code\ECS\component\effect\TextureEffectParam.h" />
     <ClInclude Include="engine\code\ECS\component\effect\particle\Particle.h" />
     <ClInclude Include="engine\code\ECS\component\effect\particle\emitter\Emitter.h" />
@@ -203,12 +203,16 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\ECS\component\transform\ParticleTransform.h" />
     <ClInclude Include="engine\code\ECS\component\transform\Transform.h" />
     <ClInclude Include="engine\code\ECS\system\ISystem.h" />
+    <ClInclude Include="engine\code\ECS\system\Initialize\CameraInitialize.h" />
     <ClInclude Include="engine\code\ECS\system\Initialize\GpuParticleInitialize.h" />
+    <ClInclude Include="engine\code\ECS\system\Initialize\ResolveEntityReferences.h" />
     <ClInclude Include="engine\code\ECS\system\collision\CollisionCheckSystem.h" />
     <ClInclude Include="engine\code\ECS\system\collision\CollisionPushBackSystem.h" />
     <ClInclude Include="engine\code\ECS\system\effect\CameraActionSystem.h" />
     <ClInclude Include="engine\code\ECS\system\effect\EmitterWorkSystem.h" />
     <ClInclude Include="engine\code\ECS\system\effect\GpuParticleEmitterWorkSystem.h" />
+    <ClInclude Include="engine\code\ECS\system\effect\MaterialAnimationWorkSystem.h" />
+    <ClInclude Include="engine\code\ECS\system\effect\MaterialEffect.h" />
     <ClInclude Include="engine\code\ECS\system\effect\PrimitiveNodeAnimationWorkSystem.h" />
     <ClInclude Include="engine\code\ECS\system\effect\SkinningAnimationSystem.h" />
     <ClInclude Include="engine\code\ECS\system\effect\SpriteAnimationSystem.h" />
@@ -255,6 +259,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\directX12\ResourceStateTracker.h" />
     <ClInclude Include="engine\code\directX12\ShaderCompiler.h" />
     <ClInclude Include="engine\code\directX12\ShaderManager.h" />
+    <ClInclude Include="engine\code\directX12\SimpleConstantBuffer.h" />
+    <ClInclude Include="engine\code\directX12\SimpleStructuredBuffer.h" />
     <ClInclude Include="engine\code\imGuiManager\ImGuiManager.h" />
     <ClInclude Include="engine\code\input\Input.h" />
     <ClInclude Include="engine\code\logger\ImGuiLogSink.h" />
@@ -265,10 +271,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\scene\SceneManager.h" />
     <ClInclude Include="engine\code\texture\TextureManager.h" />
     <ClInclude Include="engine\code\winApp\WinApp.h" />
-    <ClInclude Include="engine\code\ECS\component\effect\MaterialEffectPipeLine.h" />
-    <ClInclude Include="engine\code\ECS\system\effect\MaterialEffect.h" />
-    <ClInclude Include="engine\code\ECS\component\animation\MaterialAnimation.h" />
-    <ClInclude Include="engine\code\ECS\system\effect\MaterialAnimationWorkSystem.h" />
     <ClInclude Include="math\Matrix4x4.h" />
     <ClInclude Include="math\MyEasing.h" />
     <ClInclude Include="math\Orientation.h" />
@@ -280,8 +282,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="math\Vector3.h" />
     <ClInclude Include="math\Vector4.h" />
     <ClInclude Include="math\shape\Shapes.h" />
-    <ClInclude Include="engine\code\ECS\system\Initialize\ResolveEntityReferences.h" />
-    <ClInclude Include="engine\code\directX12\SimpleConstantBuffer.h" />
     <ClInclude Include="util\BitArray.h" />
     <ClInclude Include="util\ConvertString.h" />
     <ClInclude Include="util\DiffValue.h" />
@@ -300,7 +300,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="util\timeline\Timeline.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="engine\code\ECS\system\Initialize\CameraInitialize.cpp" />
     <ClCompile Include="editor\EditorController.cpp" />
     <ClCompile Include="editor\IEditor.cpp" />
     <ClCompile Include="editor\sceneEditor\EntityInspector.cpp" />
@@ -308,12 +307,13 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="editor\sceneEditor\SystemInspector.cpp" />
     <ClCompile Include="editor\setting\SettingWindow.cpp" />
     <ClCompile Include="editor\window\EditorWindowMenu.cpp" />
-    <ClCompile Include="engine\code\ECS\component\EntityReferenceList.cpp" />
     <ClCompile Include="engine\code\ECS\Entity.cpp" />
+    <ClCompile Include="engine\code\ECS\component\EntityReferenceList.cpp" />
     <ClCompile Include="engine\code\ECS\component\IComponent.cpp" />
     <ClCompile Include="engine\code\ECS\component\SubScene.cpp" />
     <ClCompile Include="engine\code\ECS\component\animation\AnimationData.cpp" />
     <ClCompile Include="engine\code\ECS\component\animation\AnimationManager.cpp" />
+    <ClCompile Include="engine\code\ECS\component\animation\MaterialAnimation.cpp" />
     <ClCompile Include="engine\code\ECS\component\animation\ModelNodeAnimation.cpp" />
     <ClCompile Include="engine\code\ECS\component\animation\PrimitiveNodeAnimation.cpp" />
     <ClCompile Include="engine\code\ECS\component\animation\SkinningAnimationComponent.cpp" />
@@ -321,6 +321,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\ECS\component\collider\Collider.cpp" />
     <ClCompile Include="engine\code\ECS\component\collider\CollisionPushBackInfo.cpp" />
     <ClCompile Include="engine\code\ECS\component\effect\CameraAction.cpp" />
+    <ClCompile Include="engine\code\ECS\component\effect\MaterialEffectPipeLine.cpp" />
     <ClCompile Include="engine\code\ECS\component\effect\TextureEffectParam.cpp" />
     <ClCompile Include="engine\code\ECS\component\effect\particle\Particle.cpp" />
     <ClCompile Include="engine\code\ECS\component\effect\particle\emitter\Emitter.cpp" />
@@ -346,12 +347,16 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\ECS\component\transform\ParticleTransform.cpp" />
     <ClCompile Include="engine\code\ECS\component\transform\Transform.cpp" />
     <ClCompile Include="engine\code\ECS\system\ISystem.cpp" />
+    <ClCompile Include="engine\code\ECS\system\Initialize\CameraInitialize.cpp" />
     <ClCompile Include="engine\code\ECS\system\Initialize\GpuParticleInitialize.cpp" />
+    <ClCompile Include="engine\code\ECS\system\Initialize\ResolveEntityReferences.cpp" />
     <ClCompile Include="engine\code\ECS\system\collision\CollisionCheckSystem.cpp" />
     <ClCompile Include="engine\code\ECS\system\collision\CollisionPushBackSystem.cpp" />
     <ClCompile Include="engine\code\ECS\system\effect\CameraActionSystem.cpp" />
     <ClCompile Include="engine\code\ECS\system\effect\EmitterWorkSystem.cpp" />
     <ClCompile Include="engine\code\ECS\system\effect\GpuParticleEmitterWorkSystem.cpp" />
+    <ClCompile Include="engine\code\ECS\system\effect\MaterialAnimationWorkSystem.cpp" />
+    <ClCompile Include="engine\code\ECS\system\effect\MaterialEffect.cpp" />
     <ClCompile Include="engine\code\ECS\system\effect\PrimitiveNodeAnimationWorkSystem.cpp" />
     <ClCompile Include="engine\code\ECS\system\effect\SkinningAnimationSystem.cpp" />
     <ClCompile Include="engine\code\ECS\system\effect\SpriteAnimationSystem.cpp" />
@@ -405,16 +410,11 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\scene\SceneManager.cpp" />
     <ClCompile Include="engine\code\texture\TextureManager.cpp" />
     <ClCompile Include="engine\code\winApp\WinApp.cpp" />
-    <ClCompile Include="engine\code\ECS\component\effect\MaterialEffectPipeLine.cpp" />
-    <ClCompile Include="engine\code\ECS\system\effect\MaterialEffect.cpp" />
-    <ClCompile Include="engine\code\ECS\component\animation\MaterialAnimation.cpp" />
-    <ClCompile Include="engine\code\ECS\system\effect\MaterialAnimationWorkSystem.cpp" />
     <ClCompile Include="math\Matrix4x4.cpp" />
     <ClCompile Include="math\MyEasing.cpp" />
     <ClCompile Include="math\Orientation.cpp" />
     <ClCompile Include="math\Quaternion.cpp" />
     <ClCompile Include="math\Sequence.cpp" />
-    <ClCompile Include="engine\code\ECS\system\Initialize\ResolveEntityReferences.cpp" />
     <ClCompile Include="util\ConvertString.cpp" />
     <ClCompile Include="util\NormalizeString.cpp" />
     <ClCompile Include="util\binaryIO\BinaryIO.cpp" />

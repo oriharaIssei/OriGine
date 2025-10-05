@@ -183,6 +183,9 @@
     <ClInclude Include="engine\code\ECS\component\ComponentArray.h">
       <Filter>engine\code\ECS\component</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\EntityReferenceList.h">
+      <Filter>engine\code\ECS\component</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\ECS\component\IComponent.h">
       <Filter>engine\code\ECS\component</Filter>
     </ClInclude>
@@ -193,6 +196,9 @@
       <Filter>engine\code\ECS\component\animation</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\component\animation\AnimationManager.h">
+      <Filter>engine\code\ECS\component\animation</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\animation\MaterialAnimation.h">
       <Filter>engine\code\ECS\component\animation</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\component\animation\ModelNodeAnimation.h">
@@ -214,6 +220,9 @@
       <Filter>engine\code\ECS\component\collider</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\component\effect\CameraAction.h">
+      <Filter>engine\code\ECS\component\effect</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\effect\MaterialEffectPipeLine.h">
       <Filter>engine\code\ECS\component\effect</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\component\effect\TextureEffectParam.h">
@@ -291,7 +300,13 @@
     <ClInclude Include="engine\code\ECS\system\ISystem.h">
       <Filter>engine\code\ECS\system</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\ECS\system\Initialize\CameraInitialize.h">
+      <Filter>engine\code\ECS\system\Initialize</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\ECS\system\Initialize\GpuParticleInitialize.h">
+      <Filter>engine\code\ECS\system\Initialize</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\system\Initialize\ResolveEntityReferences.h">
       <Filter>engine\code\ECS\system\Initialize</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\system\collision\CollisionCheckSystem.h">
@@ -307,6 +322,12 @@
       <Filter>engine\code\ECS\system\effect</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\system\effect\GpuParticleEmitterWorkSystem.h">
+      <Filter>engine\code\ECS\system\effect</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\system\effect\MaterialAnimationWorkSystem.h">
+      <Filter>engine\code\ECS\system\effect</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\system\effect\MaterialEffect.h">
       <Filter>engine\code\ECS\system\effect</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\system\effect\PrimitiveNodeAnimationWorkSystem.h">
@@ -447,6 +468,12 @@
     <ClInclude Include="engine\code\directX12\ShaderManager.h">
       <Filter>engine\code\directX12</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\directX12\SimpleConstantBuffer.h">
+      <Filter>engine\code\directX12</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\directX12\SimpleStructuredBuffer.h">
+      <Filter>engine\code\directX12</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\imGuiManager\ImGuiManager.h">
       <Filter>engine\code\imGuiManager</Filter>
     </ClInclude>
@@ -558,15 +585,6 @@
     <ClInclude Include="util\timeline\Timeline.h">
       <Filter>util\timeline</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\ECS\component\EntityReferenceList.h" />
-    <ClInclude Include="engine\code\ECS\system\Initialize\ResolveEntityReferences.h" />
-    <ClInclude Include="engine\code\ECS\component\effect\MaterialEffectPipeLine.h" />
-    <ClInclude Include="engine\code\ECS\system\effect\MaterialEffect.h" />
-    <ClInclude Include="engine\code\directX12\SimpleConstantBuffer.h" />
-    <ClInclude Include="engine\code\directX12\SimpleStructuredBuffer.h" />
-    <ClInclude Include="engine\code\ECS\component\animation\MaterialAnimation.h" />
-    <ClInclude Include="engine\code\ECS\system\effect\MaterialAnimationWorkSystem.h" />
-    <ClInclude Include="engine\code\ECS\system\Initialize\CameraInitialize.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="editor\EditorController.cpp">
@@ -593,6 +611,9 @@
     <ClCompile Include="engine\code\ECS\Entity.cpp">
       <Filter>engine\code\ECS</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\ECS\component\EntityReferenceList.cpp">
+      <Filter>engine\code\ECS\component</Filter>
+    </ClCompile>
     <ClCompile Include="engine\code\ECS\component\IComponent.cpp">
       <Filter>engine\code\ECS\component</Filter>
     </ClCompile>
@@ -603,6 +624,9 @@
       <Filter>engine\code\ECS\component\animation</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\component\animation\AnimationManager.cpp">
+      <Filter>engine\code\ECS\component\animation</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\component\animation\MaterialAnimation.cpp">
       <Filter>engine\code\ECS\component\animation</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\component\animation\ModelNodeAnimation.cpp">
@@ -624,6 +648,9 @@
       <Filter>engine\code\ECS\component\collider</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\component\effect\CameraAction.cpp">
+      <Filter>engine\code\ECS\component\effect</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\component\effect\MaterialEffectPipeLine.cpp">
       <Filter>engine\code\ECS\component\effect</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\component\effect\TextureEffectParam.cpp">
@@ -701,7 +728,13 @@
     <ClCompile Include="engine\code\ECS\system\ISystem.cpp">
       <Filter>engine\code\ECS\system</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\ECS\system\Initialize\CameraInitialize.cpp">
+      <Filter>engine\code\ECS\system\Initialize</Filter>
+    </ClCompile>
     <ClCompile Include="engine\code\ECS\system\Initialize\GpuParticleInitialize.cpp">
+      <Filter>engine\code\ECS\system\Initialize</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\system\Initialize\ResolveEntityReferences.cpp">
       <Filter>engine\code\ECS\system\Initialize</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\system\collision\CollisionCheckSystem.cpp">
@@ -717,6 +750,12 @@
       <Filter>engine\code\ECS\system\effect</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\system\effect\GpuParticleEmitterWorkSystem.cpp">
+      <Filter>engine\code\ECS\system\effect</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\system\effect\MaterialAnimationWorkSystem.cpp">
+      <Filter>engine\code\ECS\system\effect</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\system\effect\MaterialEffect.cpp">
       <Filter>engine\code\ECS\system\effect</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\system\effect\PrimitiveNodeAnimationWorkSystem.cpp">
@@ -920,12 +959,5 @@
     <ClCompile Include="util\timeline\Timeline.cpp">
       <Filter>util\timeline</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\ECS\component\EntityReferenceList.cpp" />
-    <ClCompile Include="engine\code\ECS\system\Initialize\ResolveEntityReferences.cpp" />
-    <ClCompile Include="engine\code\ECS\component\effect\MaterialEffectPipeLine.cpp" />
-    <ClCompile Include="engine\code\ECS\system\effect\MaterialEffect.cpp" />
-    <ClCompile Include="engine\code\ECS\component\animation\MaterialAnimation.cpp" />
-    <ClCompile Include="engine\code\ECS\system\effect\MaterialAnimationWorkSystem.cpp" />
-    <ClCompile Include="engine\code\ECS\system\Initialize\CameraInitialize.cpp" />
   </ItemGroup>
 </Project>
