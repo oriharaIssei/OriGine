@@ -23,15 +23,7 @@ void Material::UpdateUvMatrix() {
 }
 
 void Material::Initialize(GameEntity* /*_entity*/) {
-    uvTransform_ = {};
-    uvMat_       = MakeMatrix::Identity();
-
-    color_ = {1.f, 1.f, 1.f, 1.f};
-
-    enableLighting_         = false;
-    shininess_              = 0.f;
-    environmentCoefficient_ = 0.1f;
-    specularColor_          = {1.f, 1.f, 1.f};
+    UpdateUvMatrix();
 }
 
 void Material::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) {

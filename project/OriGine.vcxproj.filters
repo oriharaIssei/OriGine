@@ -566,6 +566,7 @@
     <ClInclude Include="engine\code\directX12\SimpleStructuredBuffer.h" />
     <ClInclude Include="engine\code\ECS\component\animation\MaterialAnimation.h" />
     <ClInclude Include="engine\code\ECS\system\effect\MaterialAnimationWorkSystem.h" />
+    <ClInclude Include="engine\code\ECS\system\Initialize\CameraInitialize.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="editor\EditorController.cpp">
@@ -925,5 +926,6 @@
     <ClCompile Include="engine\code\ECS\system\effect\MaterialEffect.cpp" />
     <ClCompile Include="engine\code\ECS\component\animation\MaterialAnimation.cpp" />
     <ClCompile Include="engine\code\ECS\system\effect\MaterialAnimationWorkSystem.cpp" />
+    <ClCompile Include="engine\code\ECS\system\Initialize\CameraInitialize.cpp" />
   </ItemGroup>
 </Project>

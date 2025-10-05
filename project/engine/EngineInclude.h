@@ -36,6 +36,7 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 #include "system/movement/SubSceneUpdate.h"
 #include "system/postRender/SubSceneRender.h"
 
+#include "system/Initialize/CameraInitialize.h"
 #include "system/Initialize/GpuParticleInitialize.h"
 #include "system/Initialize/ResolveEntityReferences.h"
 
@@ -46,12 +47,12 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 
 #include "system/effect/EmitterWorkSystem.h"
 #include "system/effect/GpuParticleEmitterWorkSystem.h"
+#include "system/effect/MaterialAnimationWorkSystem.h"
+#include "system/effect/MaterialEffect.h"
 #include "system/effect/PrimitiveNodeAnimationWorkSystem.h"
 #include "system/effect/SkinningAnimationSystem.h"
 #include "system/effect/SpriteAnimationSystem.h"
 #include "system/effect/TextureEffectAnimation.h"
-#include "system/effect/MaterialAnimationWorkSystem.h"
-#include "system/effect/MaterialEffect.h"
 
 #include "system/render/BackGroundSpriteRenderSystem.h"
 #include "system/render/ColliderRenderingSystem.h"
@@ -91,11 +92,11 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 #include "component/material/light/SpotLight.h"
 #include "component/material/Material.h"
 
+#include "component/animation/MaterialAnimation.h"
 #include "component/animation/ModelNodeAnimation.h"
 #include "component/animation/PrimitiveNodeAnimation.h"
 #include "component/animation/SkinningAnimationComponent.h"
 #include "component/animation/SpriteAnimation.h"
-#include "component/animation/MaterialAnimation.h"
 
 #include "component/collider/Collider.h"
 #include "component/collider/CollisionPushBackInfo.h"

@@ -56,7 +56,7 @@ void DissolveEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] 
 
     if (CheckBoxCommand("Active##" + _parentLabel, isActive_)) {
         // パラメータバッファの作成
-        paramBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+        Play();
     }
 
     ImGui::Spacing();
