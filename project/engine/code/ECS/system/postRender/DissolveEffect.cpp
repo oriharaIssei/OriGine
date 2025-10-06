@@ -91,6 +91,9 @@ void DissolveEffect::UpdateEntity(GameEntity* _entity) {
             }
         }
 
+        ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
+        commandList->SetDescriptorHeaps(1, ppHeaps);
+
         commandList->SetGraphicsRootDescriptorTable(1,
             srvHandle);
 
@@ -141,6 +144,9 @@ void DissolveEffect::EffectEntity(RenderTexture* _output, GameEntity* _entity) {
                 srvHandle = material->getCustomTexture()->srv_->getGpuHandle();
             }
         }
+
+        ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
+        commandList->SetDescriptorHeaps(1, ppHeaps);
 
         commandList->SetGraphicsRootDescriptorTable(1,srvHandle);
 
@@ -247,9 +253,6 @@ void DissolveEffect::RenderStart() {
     commandList->SetPipelineState(pso_->pipelineState.Get());
     commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-    ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
-    commandList->SetDescriptorHeaps(1, ppHeaps);
 }
 
 void DissolveEffect::Render(D3D12_GPU_DESCRIPTOR_HANDLE _viewHandle) {

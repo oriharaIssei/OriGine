@@ -46,7 +46,7 @@ private:
     std::unique_ptr<DxCommand> dxCommand_ = nullptr; // Direct
 
     int32_t currentTempRTIndex_                                       = 0;
-    std::array<std::unique_ptr<RenderTexture>, 3> tempRenderTextures_ = {nullptr, nullptr};
+    std::array<std::unique_ptr<RenderTexture>,2> tempRenderTextures_ = {nullptr, nullptr};
 
     std::vector<std::pair<GameEntity*, MaterialEffectPipeLine*>> effectPipelines_;
 

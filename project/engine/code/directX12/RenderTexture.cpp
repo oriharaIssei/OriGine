@@ -158,7 +158,7 @@ void RenderTexture::Initialize(int32_t _bufferCount, const DirectX::TexMetadata&
 }
 
 void RenderTexture::Resize(const Vec2f& textureSize) {
-    if (Vec2f(textureSize_ - textureSize).lengthSq() < 0.1f) {
+    if (fabs(textureSize_[X] - textureSize[X]) < 1.0f && fabs(textureSize_[Y] - textureSize[Y]) < 1.0f) {
         return;
     }
 
