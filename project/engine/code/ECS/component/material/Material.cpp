@@ -18,6 +18,12 @@ UVTransform::ConstantBuffer& UVTransform::ConstantBuffer::operator=(const UVTran
     return *this;
 }
 
+ColorAndUvTransform::ConstantBuffer& ColorAndUvTransform::ConstantBuffer::operator=(const ColorAndUvTransform& _data) {
+    color       = _data.color_;
+    uvTransform = MakeMatrix::Affine({_data.uvTransform_.scale_, 1}, {0.f, 0.f, _data.uvTransform_.rotate_}, {_data.uvTransform_.translate_, 0.f});
+    return *this;
+}
+
 void Material::UpdateUvMatrix() {
     uvMat_ = MakeMatrix::Affine({uvTransform_.scale_, 1}, {0.f, 0.f, uvTransform_.rotate_}, {uvTransform_.translate_, 0.f});
 }

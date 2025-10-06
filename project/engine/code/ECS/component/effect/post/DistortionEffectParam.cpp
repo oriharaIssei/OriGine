@@ -17,8 +17,8 @@
 void DistortionEffectParam::Initialize(GameEntity* _hostEntity) {
     effectParamData_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
     effectParamData_.ConvertToBuffer();
-    uvTransformBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
-    uvTransformBuffer_.ConvertToBuffer(UVTransform());
+    materialBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+    materialBuffer_.ConvertToBuffer(ColorAndUvTransform());
 
     if (use3dObjectList_) {
         for (auto& [object, type] : distortionObjects_) {
@@ -60,8 +60,8 @@ void DistortionEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]
 
     ImGui::Spacing();
 
-    DragGuiCommand("Distortion Bias##" + _parentLabel, effectParamData_->distortionBias, 0.01f);
-    DragGuiCommand("Distortion Strength##" + _parentLabel, effectParamData_->distortionStrength, 0.01f);
+    DragGuiVectorCommand("Distortion Bias##" + _parentLabel, effectParamData_->distortionBias, 0.01f);
+    DragGuiVectorCommand("Distortion Strength##" + _parentLabel, effectParamData_->distortionStrength, 0.01f);
 
     ImGui::Separator();
 
@@ -221,8 +221,8 @@ void to_json(nlohmann::json& j, const DistortionEffectParam& param) {
 }
 
 void from_json(const nlohmann::json& j, DistortionEffectParam& param) {
-    j.at("distortionBias").get_to(param.effectParamData_->distortionBias);
-    j.at("distortionStrength").get_to(param.effectParamData_->distortionStrength);
+    param.effectParamData_->distortionBias     = j.value("distortionBias", Vec2f());
+    param.effectParamData_->distortionStrength = j.value("distortionStrength", Vec2f());
 
     if (j.contains("materialIndex")) {
         j.at("materialIndex").get_to(param.materialIndex_);

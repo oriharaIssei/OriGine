@@ -61,7 +61,7 @@ public:
 };
 
 namespace ImGui {
-bool InputText(const char* label, std::string* str, ImGuiInputTextFlags flags = 0) ;
+bool InputText(const char* label, std::string* str, ImGuiInputTextFlags flags = 0);
 }
 
 template <typename T>
@@ -372,5 +372,9 @@ bool ButtonCommand(const std::string& label, bool& value);
 
 Vec2f ConvertMouseToSceneView(const Vec2f& mousePos, const ImVec2& sceneViewPos, const ImVec2& sceneViewSize, const Vec2f& originalResolution);
 
+bool AskLoadTextureButton(int32_t _texIndex, const std::string& _parentLabel);
+
+bool OpenFileDialogAndSetCommand(const std::string& _baseDirectory, std::string& _outputDirectory, std::string& _outputFileName, const std::vector<std::string>& _extension, bool _withoutExtension = false, bool _withoutBaseDirectory = false);
+bool OpenFileDialogAndSetCommand(const std::string& _baseDirectory, std::string& _outputPath, const std::vector<std::string>& _extension, bool _withoutExtension = false, bool _withoutBaseDirectory = false);
 
 #endif // _DEBUG

@@ -2,6 +2,9 @@
 
 #ifdef _DEBUG
 
+#include "myFileSystem/MyFileSystem.h"
+#include "texture/TextureManager.h"
+
 bool ImGui::InputText(const char* label, std::string* str, ImGuiInputTextFlags flags) {
     // バッファサイズを 現在のstr + 64 or 256 にする
     size_t bufSize = std::max<size_t>(str->size() + 64, 256);
@@ -51,4 +54,58 @@ Vec2f ConvertMouseToSceneView(const Vec2f& mousePos, const ImVec2& sceneViewPos,
 
     return gamePos;
 }
+
+bool AskLoadTextureButton(int32_t _texIndex, const std::string& _parentLabel) {
+    bool ask          = false;
+    std::string label = "Load Texture##" + _parentLabel;
+    _texIndex         = (std::max)(_texIndex, 0);
+    ask               = ImGui::Button(label.c_str());
+
+    ask |= ImGui::ImageButton(
+        ImTextureID(TextureManager::getDescriptorGpuHandle(_texIndex).ptr),
+        ImVec2(32, 32), ImVec2(0, 0), ImVec2(1, 1), 4, ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
+    return ask;
+}
+bool OpenFileDialogAndSetCommand(const std::string& _baseDirectory, std::string& _outputDirectory, std::string& _outputFileName, const std::vector<std::string>& _extension, bool _withoutExtension, bool _withoutBaseDirectory) {
+    std::string directory, fileName;
+    if (myfs::selectFileDialog(_baseDirectory, directory, fileName, _extension, _withoutExtension)) {
+        std::string setDirectory = "";
+        if (_withoutBaseDirectory) {
+            setDirectory = directory;
+        } else {
+            setDirectory = _baseDirectory + "/" + directory;
+        }
+
+        auto setDirCommand                         = std::make_unique<SetterCommand<std::string>>(&_outputDirectory, setDirectory);
+        auto setFileCommand                        = std::make_unique<SetterCommand<std::string>>(&_outputFileName, fileName);
+        std::unique_ptr<CommandCombo> commandCombo = std::make_unique<CommandCombo>();
+        commandCombo->addCommand(std::move(setDirCommand));
+        commandCombo->addCommand(std::move(setFileCommand));
+
+        EditorController::getInstance()->pushCommand(std::move(commandCombo));
+
+        return true;
+    }
+    return false;
+}
+
+bool OpenFileDialogAndSetCommand(const std::string& _baseDirectory, std::string& _outputPath, const std::vector<std::string>& _extension, bool _withoutExtension, bool _withoutBaseDirectory) {
+    std::string directory, fileName;
+    if (myfs::selectFileDialog(_baseDirectory, directory, fileName, _extension, _withoutExtension)) {
+        std::string setPath = "";
+        if (_withoutBaseDirectory) {
+            setPath = directory + "/" + fileName;
+        } else {
+            setPath = _baseDirectory + "/" + directory + "/" + fileName;
+        }
+
+        auto setPathCommand = std::make_unique<SetterCommand<std::string>>(&_outputPath, setPath);
+
+        EditorController::getInstance()->pushCommand(std::move(setPathCommand));
+
+        return true;
+    }
+    return false;
+}
+
 #endif // _DEBUG

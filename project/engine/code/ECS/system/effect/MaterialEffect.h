@@ -13,6 +13,7 @@
 /// system
 #include "system/postRender/DissolveEffect.h"
 #include "system/postRender/DistortionEffect.h"
+#include "system/postRender/GradationEffect.h"
 
 /// <summary>
 /// Material にPostEffectをかけるためのSystem
@@ -45,10 +46,11 @@ private:
     std::unique_ptr<DxCommand> dxCommand_ = nullptr; // Direct
 
     int32_t currentTempRTIndex_                                       = 0;
-    std::array<std::unique_ptr<RenderTexture>, 2> tempRenderTextures_ = {nullptr, nullptr};
+    std::array<std::unique_ptr<RenderTexture>, 3> tempRenderTextures_ = {nullptr, nullptr};
 
     std::vector<std::pair<GameEntity*, MaterialEffectPipeLine*>> effectPipelines_;
 
     std::unique_ptr<DissolveEffect> dissolveEffect_     = nullptr;
     std::unique_ptr<DistortionEffect> distortionEffect_ = nullptr;
+    std::unique_ptr<GradationEffect> gradationEffect_   = nullptr;
 };

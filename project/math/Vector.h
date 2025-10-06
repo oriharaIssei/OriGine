@@ -8,6 +8,7 @@
 #include <cmath>
 
 /// externals
+#include <logger/Logger.h>
 #include <nlohmann/json.hpp>
 
 // indexNumbers
@@ -283,7 +284,11 @@ template <int dim, typename valueType>
 inline void from_json(const nlohmann::json& j, Vector<dim, valueType>& v) {
     // JSON配列をVectorにデシリアライズ
     if (!j.is_array() || j.size() != dim) {
-        throw std::invalid_argument("JSON array size does not match Vector dimension");
+        for (int i = 0; i < dim; ++i) {
+            v[i] = valueType(0);
+        }
+        LOG_ERROR("JSON array size does not match Vector dimension. content: {}", j.dump());
+        return;
     }
     for (int i = 0; i < dim; ++i) {
         v[i] = j.at(i).get<valueType>();

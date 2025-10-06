@@ -6,6 +6,7 @@
 /// ECS
 #include "component/effect/post/DissolveEffectParam.h"
 #include "component/effect/post/DistortionEffectParam.h"
+#include "component/effect/post/GradationTextureComponent.h"
 #include "component/material/Material.h"
 
 MaterialEffect::MaterialEffect() : ISystem(SystemCategory::Effect) {}
@@ -27,6 +28,9 @@ void MaterialEffect::Initialize() {
     distortionEffect_ = std::make_unique<DistortionEffect>();
     distortionEffect_->setScene(this->getScene());
     distortionEffect_->Initialize();
+    gradationEffect_ = std::make_unique<GradationEffect>();
+    gradationEffect_->setScene(this->getScene());
+    gradationEffect_->Initialize();
 }
 
 void MaterialEffect::Update() {
@@ -195,6 +199,14 @@ void MaterialEffect::TextureEffect(GameEntity* _entity, MaterialEffectType _type
         auto distortionParam = getComponent<DistortionEffectParam>(_entity);
         if (distortionParam) {
             distortionEffect_->EffectEntity(_output, _entity);
+        }
+    } break;
+    case MaterialEffectType::Gradation: {
+        auto gradationParam = getComponent<GradationTextureComponent>(_entity);
+        if (gradationParam) {
+            if (gradationParam->isActive()) {
+                gradationEffect_->EffectEntity(_output, _entity);
+            }
         }
     } break;
     default:

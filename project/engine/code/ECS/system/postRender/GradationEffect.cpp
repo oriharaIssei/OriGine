@@ -1,23 +1,23 @@
-#include "DissolveEffect.h"
+#include "GradationEffect.h"
 
 /// engine
 #include "Engine.h"
 #include "texture/TextureManager.h"
 
 // component
-#include "component/effect/post/DissolveEffectParam.h"
+#include "component/effect/post/GradationTextureComponent.h"
 
 // directX12
 #include "directX12/DxDevice.h"
 #include "directX12/RenderTexture.h"
 
-void DissolveEffect::Initialize() {
+void GradationEffect::Initialize() {
     dxCommand_ = std::make_unique<DxCommand>();
     dxCommand_->Initialize("main", "main");
     CreatePSO();
 }
 
-void DissolveEffect::Update() {
+void GradationEffect::Update() {
     auto* sceneView = this->getScene()->getSceneView();
 
     eraseDeadEntity();
@@ -31,7 +31,7 @@ void DissolveEffect::Update() {
 
     for (auto& entityId : entityIDs_) {
         GameEntity* entity = getEntity(entityId);
-        auto* compVec      = getComponents<DissolveEffectParam>(entity);
+        auto* compVec      = getComponents<GradationTextureComponent>(entity);
         if (!compVec || compVec->empty()) {
             continue;
         }
@@ -61,107 +61,38 @@ void DissolveEffect::Update() {
     sceneView->PostDraw();
 }
 
-void DissolveEffect::UpdateEntity(GameEntity* _entity) {
-    auto effectParams = getComponents<DissolveEffectParam>(_entity);
-
-    if (!effectParams) {
-        return; // コンポーネントがない場合は何もしない
-    }
-    auto& commandList     = dxCommand_->getCommandList();
-    const auto& sceneView = getScene()->getSceneView();
-
-    for (auto& param : *effectParams) {
-        if (!param.isActive()) {
-            continue;
-        }
-        D3D12_GPU_DESCRIPTOR_HANDLE srvHandle = TextureManager::getDescriptorGpuHandle(param.getTextureIndex());
-
-        auto& paramBuff = param.getDissolveBuffer();
-        paramBuff.ConvertToBuffer();
-
-        int32_t materialIndex = param.getMaterialIndex();
-        auto& materialBuff    = param.getMaterialBuffer();
-        if (materialIndex >= 0) {
-            Material* material = getComponent<Material>(_entity, materialIndex);
-            material->UpdateUvMatrix();
-
-            materialBuff.ConvertToBuffer(ColorAndUvTransform(material->color_, material->uvTransform_));
-            if (material->hasCustomTexture()) {
-                srvHandle = material->getCustomTexture()->srv_->getGpuHandle();
-            }
-        }
-
-        commandList->SetGraphicsRootDescriptorTable(1,
-            srvHandle);
-
-        paramBuff.SetForRootParameter(dxCommand_->getCommandList(), 2);
-
-        materialBuff.SetForRootParameter(commandList, 3);
-
-        Render(sceneView->getBackBufferSrvHandle());
-    }
+void GradationEffect::UpdateEntity(GameEntity* _entity) {
+    auto* sceneView = this->getScene()->getSceneView();
+    SetupComponentAndRender(_entity, dxCommand_->getCommandList(), sceneView->getBackBufferSrvHandle());
 }
 
-void DissolveEffect::Finalize() {
+void GradationEffect::Finalize() {
     if (dxCommand_) {
         dxCommand_.reset();
     }
     pso_ = nullptr;
 }
 
-void DissolveEffect::EffectEntity(RenderTexture* _output, GameEntity* _entity) {
+void GradationEffect::EffectEntity(RenderTexture* _output, GameEntity* _entity) {
     if (!_output) {
         return;
     }
+
     RenderStart();
     _output->PreDraw();
 
-    auto effectParams = getComponents<DissolveEffectParam>(_entity);
-
-    if (!effectParams) {
-        return; // コンポーネントがない場合は何もしない
-    }
-    auto& commandList = dxCommand_->getCommandList();
-
-    for (auto& param : *effectParams) {
-        if (!param.isActive()) {
-            continue;
-        }
-        D3D12_GPU_DESCRIPTOR_HANDLE srvHandle = TextureManager::getDescriptorGpuHandle(param.getTextureIndex());
-
-        int32_t materialIndex = param.getMaterialIndex();
-        auto& materialBuff    = param.getMaterialBuffer();
-        if (materialIndex >= 0) {
-            Material* material = getComponent<Material>(_entity, materialIndex);
-            material->UpdateUvMatrix();
-
-            materialBuff.ConvertToBuffer(ColorAndUvTransform(material->color_, material->uvTransform_));
-
-            if (material->hasCustomTexture()) {
-                srvHandle = material->getCustomTexture()->srv_->getGpuHandle();
-            }
-        }
-
-        commandList->SetGraphicsRootDescriptorTable(1,srvHandle);
-
-        param.getDissolveBuffer().ConvertToBuffer();
-        param.getDissolveBuffer().SetForRootParameter(dxCommand_->getCommandList(), 2);
-
-        materialBuff.SetForRootParameter(commandList, 3);
-
-        Render(_output->getBackBufferSrvHandle());
-    }
+    SetupComponentAndRender(_entity, dxCommand_->getCommandList(), _output->getBackBufferSrvHandle());
 
     _output->PostDraw();
 }
 
-void DissolveEffect::CreatePSO() {
+void GradationEffect::CreatePSO() {
     ShaderManager* shaderManager = ShaderManager::getInstance();
     shaderManager->LoadShader("FullScreen.VS");
-    shaderManager->LoadShader("Dissolve.PS", shaderDirectory, L"ps_6_0");
+    shaderManager->LoadShader("Gradation.PS", shaderDirectory, L"ps_6_0");
     ShaderInformation shaderInfo{};
     shaderInfo.vsKey = "FullScreen.VS";
-    shaderInfo.psKey = "Dissolve.PS";
+    shaderInfo.psKey = "Gradation.PS";
 
     ///================================================
     /// Sampler の設定
@@ -235,10 +166,10 @@ void DissolveEffect::CreatePSO() {
     depthStencilDesc.DepthEnable = false;
     shaderInfo.setDepthStencilDesc(depthStencilDesc);
 
-    pso_ = shaderManager->CreatePso("DissolveEffect", shaderInfo, Engine::getInstance()->getDxDevice()->getDevice());
+    pso_ = shaderManager->CreatePso("GradationEffect", shaderInfo, Engine::getInstance()->getDxDevice()->getDevice());
 }
 
-void DissolveEffect::RenderStart() {
+void GradationEffect::RenderStart() {
     auto& commandList = dxCommand_->getCommandList();
 
     /// ================================================
@@ -252,14 +183,50 @@ void DissolveEffect::RenderStart() {
     commandList->SetDescriptorHeaps(1, ppHeaps);
 }
 
-void DissolveEffect::Render(D3D12_GPU_DESCRIPTOR_HANDLE _viewHandle) {
+void GradationEffect::SetupComponentAndRender(GameEntity* _entity, const Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _cmdList, D3D12_GPU_DESCRIPTOR_HANDLE _defaultHandle) {
+    auto effectParams = getComponents<GradationTextureComponent>(_entity);
+
+    if (!effectParams) {
+        return; // コンポーネントがない場合は何もしない
+    }
+    for (auto& param : *effectParams) {
+        if (!param.isActive()) {
+            continue;
+        }
+        D3D12_GPU_DESCRIPTOR_HANDLE texHandle = TextureManager::getDescriptorGpuHandle(param.getTextureIndex());
+
+        auto& paramBuff = param.getParamBuff();
+        paramBuff.ConvertToBuffer();
+        paramBuff.SetForRootParameter(_cmdList, 2);
+
+        int32_t materialIndex = param.getMaterialIndex();
+        auto& uvTransBuff     = param.getMaterialBuff();
+        if (materialIndex >= 0) {
+            Material* material = getComponent<Material>(_entity, materialIndex);
+            material->UpdateUvMatrix();
+
+            uvTransBuff.ConvertToBuffer(ColorAndUvTransform(material->color_, material->uvTransform_));
+
+            if (material->hasCustomTexture()) {
+                texHandle = material->getCustomTexture()->srv_->getGpuHandle();
+            }
+        }
+        uvTransBuff.SetForRootParameter(_cmdList, 3);
+
+        _cmdList->SetGraphicsRootDescriptorTable(0, texHandle);
+
+        Render(_defaultHandle);
+    }
+}
+
+void GradationEffect::Render(D3D12_GPU_DESCRIPTOR_HANDLE _viewHandle) {
     auto& commandList = dxCommand_->getCommandList();
 
     /// ================================================
     /// Viewport の設定
     /// ================================================
 
-    commandList->SetGraphicsRootDescriptorTable(0, _viewHandle);
+    commandList->SetGraphicsRootDescriptorTable(1, _viewHandle);
 
     commandList->DrawInstanced(6, 1, 0, 0);
 }

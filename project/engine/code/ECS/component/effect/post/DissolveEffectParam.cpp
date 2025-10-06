@@ -24,7 +24,7 @@ void DissolveEffectParam::Initialize(GameEntity* /*_entity*/) {
 
     if (isActive_) {
         paramBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
-        uvTransformBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+        materialBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
     }
 }
 void DissolveEffectParam::Finalize() {
@@ -48,7 +48,7 @@ void DissolveEffectParam::Play() {
     isActive_ = true;
     // buff の作成
     paramBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
-    uvTransformBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+    materialBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
 }
 
 void DissolveEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) {

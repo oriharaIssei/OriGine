@@ -8,11 +8,11 @@
 #include "directX12/ShaderManager.h"
 #include <component/effect/post/VignetteParam.h>
 
-class DissolveEffect
+class GradationEffect
     : public ISystem {
 public:
-    DissolveEffect() : ISystem(SystemCategory::PostRender) {}
-    ~DissolveEffect() override = default;
+    GradationEffect() : ISystem(SystemCategory::PostRender) {}
+    ~GradationEffect() override = default;
 
     void Initialize() override;
     void Update() override;
@@ -22,12 +22,13 @@ public:
     /// <summary>
     /// 単一エフェクトに対してエフェクトをかけ, RenderTextureに出力する
     /// </summary>
-    void EffectEntity(RenderTexture* _output,GameEntity* _entity);
+    void EffectEntity(RenderTexture* _output, GameEntity* _entity);
 
 protected:
     void CreatePSO();
 
     void RenderStart();
+    void SetupComponentAndRender(GameEntity* _entity, const Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _cmdList, D3D12_GPU_DESCRIPTOR_HANDLE _viewHandle);
     void Render(D3D12_GPU_DESCRIPTOR_HANDLE _viewHandle);
 
 protected:

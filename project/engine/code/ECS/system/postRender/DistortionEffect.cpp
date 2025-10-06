@@ -110,25 +110,30 @@ void DistortionEffect::UpdateEntity(GameEntity* _entity) {
         /// ----------------------------------------------------------
         /// set buffer
         /// ----------------------------------------------------------
+        ///
+        int32_t materialIndex = effectParam.getMaterialIndex();
+        auto& materialBuff    = effectParam.getMaterialBuffer();
+        if (materialIndex >= 0) {
+            Material* material = getComponent<Material>(_entity, materialIndex);
+            material->UpdateUvMatrix();
+
+            materialBuff.ConvertToBuffer(ColorAndUvTransform(material->color_, material->uvTransform_));
+
+            if (material->hasCustomTexture()) {
+                srvHandle = material->getCustomTexture()->srv_->getGpuHandle();
+            }
+        }
+        materialBuff.SetForRootParameter(commandList, materialIndex_);
+
+        effectParam.getEffectParamBuffer().ConvertToBuffer();
+        effectParam.getEffectParamBuffer().SetForRootParameter(commandList, distortionParamIndex_);
+
         ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
         commandList->SetDescriptorHeaps(1, ppHeaps);
 
         commandList->SetGraphicsRootDescriptorTable(distortionTextureIndex_, srvHandle);
 
         commandList->SetGraphicsRootDescriptorTable(sceneTextureIndex_, sceneView->getBackBufferSrvHandle());
-
-        int32_t materialIndex = effectParam.getMaterialIndex();
-        auto& uvTransBuff     = effectParam.getUVTransformBuffer();
-        if (materialIndex >= 0) {
-            Material* material = getComponent<Material>(_entity, materialIndex);
-            material->UpdateUvMatrix();
-
-            uvTransBuff.ConvertToBuffer(material->uvTransform_);
-        }
-        uvTransBuff.SetForRootParameter(commandList, materialIndex_);
-
-        effectParam.getEffectParamBuffer().ConvertToBuffer();
-        effectParam.getEffectParamBuffer().SetForRootParameter(commandList, distortionParamIndex_);
 
         /// ----------------------------------------------------------
         /// Draw
@@ -188,6 +193,7 @@ void DistortionEffect::EffectEntity(RenderTexture* _output, GameEntity* _entity)
     auto* distortionEffectParams = getComponents<DistortionEffectParam>(_entity);
     if (!distortionEffectParams) {
         LOG_WARN("Not found DistortionEffectParam Component. EntityID :{}", _entity->getID());
+        return;
     }
     bool isSkip = true;
 
@@ -226,18 +232,18 @@ void DistortionEffect::EffectEntity(RenderTexture* _output, GameEntity* _entity)
         /// ----------------------------------------------------------
 
         int32_t materialIndex = effectParam.getMaterialIndex();
-        auto& uvTransBuff     = effectParam.getUVTransformBuffer();
+        auto& materialBuff    = effectParam.getMaterialBuffer();
         if (materialIndex >= 0) {
             Material* material = getComponent<Material>(_entity, materialIndex);
             material->UpdateUvMatrix();
 
-            uvTransBuff.ConvertToBuffer(material->uvTransform_);
+            materialBuff.ConvertToBuffer(ColorAndUvTransform(material->color_, material->uvTransform_));
 
             if (material->hasCustomTexture()) {
                 srvHandle = material->getCustomTexture()->srv_->getGpuHandle();
             }
         }
-        uvTransBuff.SetForRootParameter(commandList, materialIndex_);
+        materialBuff.SetForRootParameter(commandList, materialIndex_);
 
         effectParam.getEffectParamBuffer().ConvertToBuffer();
         effectParam.getEffectParamBuffer().SetForRootParameter(commandList, distortionParamIndex_);

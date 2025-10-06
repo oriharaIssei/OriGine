@@ -221,32 +221,12 @@ void ModelMeshRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Ga
         if (ImGui::CollapsingHeader(meshName.c_str())) {
             ImGui::Indent();
 
-            auto askLoadTexture = [this, i]([[maybe_unused]] const std::string& _parentLabel) {
-                bool ask          = false;
-                std::string label = "Load Texture##" + _parentLabel;
-                ask               = ImGui::Button(label.c_str());
-                ask |= ImGui::ImageButton(
-                    ImTextureID(TextureManager::getDescriptorGpuHandle(meshTextureNumbers_[i]).ptr),
-                    ImVec2(32, 32), ImVec2(0, 0), ImVec2(1, 1), 4, ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
-
-                return ask;
-            };
-
             ImGui::Text("Texture Directory: %s", textureFilePath_[i].c_str());
-            if (askLoadTexture(meshName)) {
-                std::string directory;
-                std::string fileName;
-                if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"png"})) {
-                    auto setPath = std::make_unique<SetterCommand<std::string>>(&textureFilePath_[i], kApplicationResourceDirectory + "/" + directory + "/" + fileName);
-                    CommandCombo commandCombo;
-                    commandCombo.addCommand(std::move(setPath));
-                    commandCombo.setFuncOnAfterCommand([this, i]() {
-                        meshTextureNumbers_[i] = TextureManager::LoadTexture(textureFilePath_[i]);
-                    },
-                        true);
-                    EditorController::getInstance()->pushCommand(std::make_unique<CommandCombo>(commandCombo));
+            if (AskLoadTextureButton(meshTextureNumbers_[i], meshName)) {
+                if (OpenFileDialogAndSetCommand(kApplicationResourceDirectory, textureFilePath_[i], {"png"})) {
+                    meshTextureNumbers_[i] = TextureManager::LoadTexture(textureFilePath_[i]);
                 }
-            };
+            }
 
             label = "Transform##" + _parentLabel;
             if (ImGui::TreeNode(label.c_str())) {
