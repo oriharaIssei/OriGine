@@ -13,12 +13,14 @@
 enum class MaterialEffectType {
     Dissolve,
     Distortion,
+    Gradation,
 
     Count
 };
 static const std::array<std::string, static_cast<int32_t>(MaterialEffectType::Count)> materialEffectString{
     "Dissolve",
-    "Distortion"};
+    "Distortion",
+    "Gradation"};
 
 class MaterialEffectPipeLine
     : public IComponent {

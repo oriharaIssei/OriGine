@@ -68,7 +68,7 @@ private:
     uint32_t textureIndex_       = 0;
 
     int32_t materialIndex_ = -1; // マテリアルコンポーネントのインデックス
-    SimpleConstantBuffer<UVTransform> uvTransformBuffer_;
+    SimpleConstantBuffer<ColorAndUvTransform> materialBuffer_;
 
 public:
     bool isActive() const {
@@ -82,8 +82,8 @@ public:
         return paramBuffer_;
     }
 
-    SimpleConstantBuffer<UVTransform>& getUVTransformBuffer() {
-        return uvTransformBuffer_;
+    SimpleConstantBuffer<ColorAndUvTransform>& getMaterialBuffer() {
+        return materialBuffer_;
     }
 
     int32_t getMaterialIndex() const {

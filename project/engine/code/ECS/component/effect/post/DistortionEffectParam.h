@@ -17,13 +17,16 @@ enum class PrimitiveType : int32_t;
 // component
 #include "component/material/Material.h"
 
+/// math
+#include "math/Vector2.h"
+
 struct DistortionParamData {
-    float distortionBias     = 0.f;
-    float distortionStrength = 0.f;
+    Vec2f distortionBias     = Vec2f(0.f,0.f);
+    Vec2f distortionStrength = Vec2f(0.f,0.f);
 
     struct ConstantBuffer {
-        float distortionBias;
-        float distortionStrength;
+        Vec2f distortionBias;
+        Vec2f distortionStrength;
         ConstantBuffer& operator=(const DistortionParamData& transform) {
             distortionBias     = transform.distortionBias;
             distortionStrength = transform.distortionStrength;
@@ -57,7 +60,7 @@ private:
     std::string texturePath_ = "";
 
     IConstantBuffer<DistortionParamData> effectParamData_;
-    SimpleConstantBuffer<UVTransform> uvTransformBuffer_;
+    SimpleConstantBuffer<ColorAndUvTransform> materialBuffer_;
 
     std::vector<std::pair<std::shared_ptr<PrimitiveMeshRendererBase>, PrimitiveType>> distortionObjects_;
 
@@ -80,8 +83,8 @@ public:
     IConstantBuffer<DistortionParamData>& getEffectParamBuffer() {
         return effectParamData_;
     }
-    SimpleConstantBuffer<UVTransform>& getUVTransformBuffer() {
-        return uvTransformBuffer_;
+    SimpleConstantBuffer<ColorAndUvTransform>& getMaterialBuffer() {
+        return materialBuffer_;
     }
 
     std::vector<std::pair<std::shared_ptr<PrimitiveMeshRendererBase>, PrimitiveType>>& getDistortionObjects() {

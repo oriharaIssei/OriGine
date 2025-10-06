@@ -14,6 +14,7 @@ struct DissolveParam
 /// material
 struct Material
 {
+    float4 color;
     float4x4 uvMat;
 };
 
@@ -27,15 +28,13 @@ PixelShaderOutput main(VertexShaderOutput input)
 {
     PixelShaderOutput output;
     float4 transformedUV = mul(float4(input.texCoords, 0.0f, 1.0f), gMaterial.uvMat);
-    float dissolveValue = gDissolveTexture.Sample(gSampler, transformedUV.xy).r;
+    float4 textureColor = gMaterial.color * gDissolveTexture.Sample(gSampler, transformedUV.xy);
+    float dissolveValue = textureColor.r * textureColor.a;
 
-        // Apply outline effect
-    
+    // Apply outline effect
     float dissolveMask = step(gDissolveParam.threshold, dissolveValue); // 0 or 1
     
     float dissolveColorMask = step(gDissolveParam.threshold, dissolveValue + gDissolveParam.edgeWidth); // 0 or 1
-
-
     
     output.color = dissolveMask ? gSceneTexture.Sample(gSampler, input.texCoords) : lerp(float4(0.f, 0.f, 0.f, 0.f), gDissolveParam.outLineColor, dissolveColorMask);
     

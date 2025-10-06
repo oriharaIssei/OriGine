@@ -22,10 +22,24 @@ struct UVTransform {
     Vec2f scale_     = Vec2f(1.f, 1.f);
     float rotate_    = 0.f;
     Vec2f translate_ = Vec2f(0.f, 0.f);
+
     struct ConstantBuffer {
         Matrix4x4 uvTransform;
 
         ConstantBuffer& operator=(const UVTransform& _transform);
+    };
+};
+
+struct ColorAndUvTransform {
+    ColorAndUvTransform() = default;
+    ColorAndUvTransform(const Vec4f& _color, const UVTransform& _uvTransform) : color_(_color), uvTransform_(_uvTransform) {}
+    Vec4f color_ = {1.f, 1.f, 1.f, 1.f};
+    UVTransform uvTransform_;
+
+    struct ConstantBuffer {
+        Vec4f color;
+        Matrix4x4 uvTransform;
+        ConstantBuffer& operator=(const ColorAndUvTransform& _data);
     };
 };
 

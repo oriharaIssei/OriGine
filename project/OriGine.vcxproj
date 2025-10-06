@@ -271,6 +271,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\scene\SceneManager.h" />
     <ClInclude Include="engine\code\texture\TextureManager.h" />
     <ClInclude Include="engine\code\winApp\WinApp.h" />
+    <ClInclude Include="engine\code\ECS\component\effect\post\GradationTextureComponent.h" />
+    <ClInclude Include="engine\code\ECS\system\postRender\GradationEffect.h" />
+    <ClInclude Include="math\mathEnv.h" />
     <ClInclude Include="math\Matrix4x4.h" />
     <ClInclude Include="math\MyEasing.h" />
     <ClInclude Include="math\Orientation.h" />
@@ -410,6 +413,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\scene\SceneManager.cpp" />
     <ClCompile Include="engine\code\texture\TextureManager.cpp" />
     <ClCompile Include="engine\code\winApp\WinApp.cpp" />
+    <ClCompile Include="engine\code\ECS\component\effect\post\GradationTextureComponent.cpp" />
+    <ClCompile Include="engine\code\ECS\system\postRender\GradationEffect.cpp" />
     <ClCompile Include="math\Matrix4x4.cpp" />
     <ClCompile Include="math\MyEasing.cpp" />
     <ClCompile Include="math\Orientation.cpp" />

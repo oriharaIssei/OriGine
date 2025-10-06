@@ -585,6 +585,9 @@
     <ClInclude Include="util\timeline\Timeline.h">
       <Filter>util\timeline</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\effect\post\GradationTextureComponent.h" />
+    <ClInclude Include="math\mathEnv.h" />
+    <ClInclude Include="engine\code\ECS\system\postRender\GradationEffect.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="editor\EditorController.cpp">
@@ -959,5 +962,7 @@
     <ClCompile Include="util\timeline\Timeline.cpp">
       <Filter>util\timeline</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\ECS\component\effect\post\GradationTextureComponent.cpp" />
+    <ClCompile Include="engine\code\ECS\system\postRender\GradationEffect.cpp" />
   </ItemGroup>
 </Project>

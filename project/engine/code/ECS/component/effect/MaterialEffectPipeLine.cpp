@@ -10,6 +10,7 @@
 /// ECS
 #include "component/effect/post/DissolveEffectParam.h"
 #include "component/effect/post/DistortionEffectParam.h"
+#include "component/effect/post/GradationTextureComponent.h"
 #include "component/material/Material.h"
 
 /// util
@@ -88,7 +89,7 @@ void MaterialEffectPipeLine::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused
         auto command = std::make_unique<AddElementCommand<std::vector<EffectEntityData>>>(&effectEntityIdList_, MaterialEffectPipeLine::EffectEntityData());
         EditorController::getInstance()->pushCommand(std::move(command));
     }
-    ImGui::SameLine();
+
     label = "ClearEffectEntity##" + _parentLabel;
     if (ImGui::Button(label.c_str())) {
         auto command = std::make_unique<ClearCommand<std::vector<EffectEntityData>>>(&effectEntityIdList_);
@@ -97,6 +98,7 @@ void MaterialEffectPipeLine::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused
 
     /// Effectを持っているEntity一覧
     std::vector<std::vector<int32_t>> effectEntityIds;
+
     effectEntityIds.emplace_back(std::vector<int32_t>());
     effectEntityIds[0].reserve(10);
     for (auto& indexBind : _scene->getComponentArray<DissolveEffectParam>()->getEntityIndexBind()) {
@@ -106,6 +108,11 @@ void MaterialEffectPipeLine::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused
     effectEntityIds[1].reserve(10);
     for (auto& indexBind : _scene->getComponentArray<DistortionEffectParam>()->getEntityIndexBind()) {
         effectEntityIds[1].emplace_back(indexBind.first);
+    }
+    effectEntityIds.emplace_back(std::vector<int32_t>());
+    effectEntityIds[2].reserve(10);
+    for (auto& indexBind : _scene->getComponentArray<GradationTextureComponent>()->getEntityIndexBind()) {
+        effectEntityIds[2].emplace_back(indexBind.first);
     }
 
     ImGui::Spacing();
