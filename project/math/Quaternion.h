@@ -129,7 +129,7 @@ struct Quaternion final
 
     static const Quaternion FromNormalVector(const Vec3f& _normal, const Vec3f& _up);
 
-    inline static Quaternion FromMatrix(const Matrix4x4& _rotateMat);
+    static Quaternion FromMatrix(const Matrix4x4& _rotateMat);
     inline static Quaternion FromEulerAngles(float pitch, float yaw, float roll) {
         // 半分の角度を計算
         float halfPitch = pitch * 0.5f;

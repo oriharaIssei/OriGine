@@ -71,44 +71,45 @@ constexpr float Quaternion::dot(const Quaternion& q) const {
 Vec3f Quaternion::ToEulerAngles() const {
     Vec3f euler;
 
-    // Roll (x-axis rotation)
-    float sinr_cosp = 2.0f * (v[W] * v[X] + v[Y] * v[Z]);
-    float cosr_cosp = 1.0f - 2.0f * (v[X] * v[X] + v[Y] * v[Y]);
-    euler[X]        = std::atan2(sinr_cosp, cosr_cosp);
+    // Yaw (Y-axis rotation)
+    float siny_cosp = 2.0f * (v[W] * v[Y] + v[X] * v[Z]);
+    float cosy_cosp = 1.0f - 2.0f * (v[Y] * v[Y] + v[Z] * v[Z]);
+    euler[Y]        = std::atan2(siny_cosp, cosy_cosp);
 
-    // Pitch (y-axis rotation)
-    float sinp = 2.0f * (v[W] * v[Y] - v[Z] * v[X]);
+    // Pitch (X-axis rotation)
+    float sinp = 2.0f * (v[W] * v[X] - v[Y] * v[Z]);
     if (std::abs(sinp) >= 1.0f) {
-        euler[Y] = std::copysign(std::numbers::pi_v<float> / 2.0f, sinp);
+        euler[X] = std::copysign(std::numbers::pi_v<float> / 2.0f, sinp);
     } else {
-        euler[Y] = std::asin(sinp);
+        euler[X] = std::asin(sinp);
     }
 
-    // v[Y] av[W] (z-axis rotation)
-    float siny_cosp = 2.0f * (v[W] * v[Z] + v[X] * v[Y]);
-    float cosy_cosp = 1.0f - 2.0f * (v[Y] * v[Y] + v[Z] * v[Z]);
-    euler[Z]        = std::atan2(siny_cosp, cosy_cosp);
+    // Roll (Z-axis rotation)
+    float sinr_cosp = 2.0f * (v[W] * v[Z] - v[X] * v[Y]);
+    float cosr_cosp = 1.0f - 2.0f * (v[Z] * v[Z] + v[X] * v[X]);
+    euler[Z]        = std::atan2(sinr_cosp, cosr_cosp);
 
     return euler;
 }
 
 float Quaternion::ToPitch() const {
-    float sinp = 2.0f * (v[W] * v[Y] - v[Z] * v[X]);
+    float sinp = 2.0f * (v[W] * v[X] - v[Y] * v[Z]);
     if (std::abs(sinp) >= 1.0f) {
         return std::copysign(std::numbers::pi_v<float> / 2.0f, sinp);
-    } else {
-        return std::asin(sinp);
     }
+    return std::asin(sinp);
 }
+
 float Quaternion::ToYaw() const {
-    float sinyCosp = 2.0f * (v[W] * v[Z] + v[X] * v[Y]);
-    float cosyCosp = 1.0f - 2.0f * (v[Y] * v[Y] + v[Z] * v[Z]);
-    return std::atan2(sinyCosp, cosyCosp);
+    float siny_cosp = 2.0f * (v[W] * v[Y] + v[X] * v[Z]);
+    float cosy_cosp = 1.0f - 2.0f * (v[Y] * v[Y] + v[Z] * v[Z]);
+    return std::atan2(siny_cosp, cosy_cosp);
 }
+
 float Quaternion::ToRoll() const {
-    float sinrCosp = 2.0f * (v[W] * v[X] + v[Y] * v[Z]);
-    float cosrCosp = 1.0f - 2.0f * (v[X] * v[X] + v[Y] * v[Y]);
-    return std::atan2(sinrCosp, cosrCosp);
+    float sinr_cosp = 2.0f * (v[W] * v[Z] - v[X] * v[Y]);
+    float cosr_cosp = 1.0f - 2.0f * (v[Z] * v[Z] + v[X] * v[X]);
+    return std::atan2(sinr_cosp, cosr_cosp);
 }
 
 Vec3f Quaternion::RotateVector(const Vec3f& vec, const Quaternion& q) {
