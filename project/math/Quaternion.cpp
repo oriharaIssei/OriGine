@@ -79,7 +79,7 @@ Vec3f Quaternion::ToEulerAngles() const {
     // Pitch (y-axis rotation)
     float sinp = 2.0f * (v[W] * v[Y] - v[Z] * v[X]);
     if (std::abs(sinp) >= 1.0f) {
-        euler[Y] = std::copysign(std::numbers::pi_v<float> / 2.0f, sinp); // use 90 degrees if out of range
+        euler[Y] = std::copysign(std::numbers::pi_v<float> / 2.0f, sinp);
     } else {
         euler[Y] = std::asin(sinp);
     }
@@ -90,6 +90,25 @@ Vec3f Quaternion::ToEulerAngles() const {
     euler[Z]        = std::atan2(siny_cosp, cosy_cosp);
 
     return euler;
+}
+
+float Quaternion::ToPitch() const {
+    float sinp = 2.0f * (v[W] * v[Y] - v[Z] * v[X]);
+    if (std::abs(sinp) >= 1.0f) {
+        return std::copysign(std::numbers::pi_v<float> / 2.0f, sinp);
+    } else {
+        return std::asin(sinp);
+    }
+}
+float Quaternion::ToYaw() const {
+    float sinyCosp = 2.0f * (v[W] * v[Z] + v[X] * v[Y]);
+    float cosyCosp = 1.0f - 2.0f * (v[Y] * v[Y] + v[Z] * v[Z]);
+    return std::atan2(sinyCosp, cosyCosp);
+}
+float Quaternion::ToRoll() const {
+    float sinrCosp = 2.0f * (v[W] * v[X] + v[Y] * v[Z]);
+    float cosrCosp = 1.0f - 2.0f * (v[X] * v[X] + v[Y] * v[Y]);
+    return std::atan2(sinrCosp, cosrCosp);
 }
 
 Vec3f Quaternion::RotateVector(const Vec3f& vec, const Quaternion& q) {

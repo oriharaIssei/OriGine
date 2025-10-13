@@ -52,8 +52,8 @@ void DebugCamera::Neutral::Update() {
 }
 
 void DebugCamera::TranslationState::Update() {
-    Input* input = Input::getInstance();
-    // input->FixMousePos(host_->startMousePos_);
+    Input* input                      = Input::getInstance();
+    constexpr Vec3f kMouseSensitivity = {0.01f, 0.01f, 0.007f};
 
     uint32_t state = 0;
     bool a         = input->isPreWheel();
@@ -63,28 +63,33 @@ void DebugCamera::TranslationState::Update() {
     state *= c;
     Vec3f velo = {};
 
+    Vector3 inputVal = {input->getMouseVelocity(), (float)input->getPreWheel()};
+    inputVal         = inputVal * kMouseSensitivity;
+
     switch ((TranslationType)state) {
     case NONE:
         host_->currentState_.reset(new Neutral(host_));
         return;
     case Z_WHEEL:
-        velo = {0.0f, 0.0f, (float)input->getPreWheel() * 0.007f};
+        velo = {0.0f, 0.0f, inputVal[Z]};
         break;
     case XY_MOUSEMOVE:
-        velo = {input->getMouseVelocity() * 0.01f, 0.0f};
+        velo = {input->getMouseVelocity(), 0.0f};
         break;
     case XYZ_ALL:
-        velo = {input->getMouseVelocity() * 0.01f, (float)input->getPreWheel() * 0.007f};
+        velo = {inputVal[X], inputVal[Y], (float)input->getPreWheel() * 0.007f};
         break;
     default:
         break;
     }
+
     velo[Y] *= -1.0f;
 
     host_->cameraBuff_.translate += velo * MakeMatrix::RotateQuaternion(host_->cameraBuff_.rotate);
 }
 
 void DebugCamera::RotationState::Update() {
+    constexpr float kMouseSensitivity = 0.01f;
     Input* input = Input::getInstance();
 
     // input->FixMousePos(host_->startMousePos_);
@@ -96,8 +101,8 @@ void DebugCamera::RotationState::Update() {
 
     // マウスの動きから回転量を取得
     Vec2f mouseVelocity = input->getMouseVelocity();
-    float yaw           = mouseVelocity[X] * 0.01f; // Y軸回転（水平）
-    float pitch         = mouseVelocity[Y] * 0.01f; // X軸回転（垂直）
+    float yaw           = mouseVelocity[X] * kMouseSensitivity; // Y軸回転（水平）
+    float pitch         = mouseVelocity[Y] * kMouseSensitivity; // X軸回転（垂直）
 
     // クォータニオンを生成
     Quaternion yawRotation   = Quaternion::RotateAxisAngle({0.0f, 1.0f, 0.0f}, yaw); // Y軸回転

@@ -79,9 +79,6 @@ void Scene::Finalize() {
         sceneView_->Finalize();
         sceneView_.reset();
     }
-    auto rtvHeap = Engine::getInstance()->getRtvHeap();
-    if (rtvHeap) {
-    }
 }
 
 void Scene::ExecuteDeleteEntities() {

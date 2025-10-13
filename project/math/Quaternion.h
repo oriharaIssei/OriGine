@@ -107,6 +107,9 @@ struct Quaternion final
     constexpr float dot(const Quaternion& q) const;
 
     Vec3f ToEulerAngles() const;
+    float ToPitch() const;
+    float ToYaw() const;
+    float ToRoll() const;
 
     // インライン関数として定義
     static Vec3f RotateVector(const Vec3f& vec, const Quaternion& q);
