@@ -13,7 +13,6 @@
 #include <dinput.h>
 #include <Xinput.h>
 
-
 #include "util/globalVariables/SerializedField.h"
 // math
 #include <math/Vector2.h>
@@ -297,15 +296,11 @@ private:
     DIMOUSESTATE2 currentMouseState_;
     DIMOUSESTATE2 preMouseState_;
     // 座標
-    POINT mousePoint_;
     Vec2f currentMousePos_;
     Vec2f preMousePos_;
+    Vec2f mouseVelocity_;
     bool virtualMouseIsSynchronizedWithClientMouse_ = false;
     Vec2f virtualMousePos_;
-    // マウスカーソルを隠すかどうか
-    bool isHideMouseCursor_ = false;
-    // マウス座標を固定するかどうか
-    bool isMousePosFixed_ = false;
 
     // ゲームパッド とりあえず 一つだけ
     XINPUT_STATE padState_;
@@ -360,25 +355,17 @@ public:
     /// マウスの座標を固定する
     /// </summary>
     /// <param name="_fixedPos">固定座標(スクリーン座標系)</param>
-    void FixMousePos(const Vec2f& _fixedPos);
-    void FixMousePos(const Vec2d& _fixedPos);
-
-    /// <summary>
-    /// マウスの座標の固定を解除する
-    /// </summary>
-    void ReleaseMousePos() {
-        isMousePosFixed_ = false;
-        ClipCursor(NULL);
-    }
+    void SetMousePos(const Vec2f& _fixedPos);
+    void SetMousePos(const Vec2d& _fixedPos);
 
     void setVirtualMousePos(const Vec2f& pos) { virtualMousePos_ = pos; }
-    Vec2f getMouseVelocity() const { return currentMousePos_ - preMousePos_; }
+    Vec2f getMouseVelocity() const { return mouseVelocity_; }
 
-    bool isHideMouseCursor() const { return isHideMouseCursor_; }
-    void setIsHideMouseCursor(bool _isHideCursor) {
-        isHideMouseCursor_ = _isHideCursor;
-        while (ShowCursor(BOOL(isHideMouseCursor_)) >= 0) {}
-    }
+    /// <summary>
+    /// マウスを表示する/非表示にする
+    /// </summary>
+    /// <param name="_isShow">true = 表示,false = 非表示</param>
+    void ShowMouseCursor(bool _isShow);
 
     /// gamePad
     const Vec2f& getLStickVelocity() const { return currentLStickVelocity_; }

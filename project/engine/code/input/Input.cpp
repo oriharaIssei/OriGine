@@ -52,9 +52,12 @@ void Input::Update() {
 
     // マウスの位置を更新
     preMousePos_ = currentMousePos_;
-    GetCursorPos(&mousePoint_);
-    ScreenToClient(Engine::getInstance()->getWinApp()->getHwnd(), &mousePoint_);
-    currentMousePos_ = Vec2f(static_cast<float>(mousePoint_.x), static_cast<float>(mousePoint_.y));
+    POINT mousePoint;
+    GetCursorPos(&mousePoint);
+    ScreenToClient(Engine::getInstance()->getWinApp()->getHwnd(), &mousePoint);
+    currentMousePos_ = Vec2f(static_cast<float>(mousePoint.x), static_cast<float>(mousePoint.y));
+    mouseVelocity_   = preMousePos_ - currentMousePos_;
+
     if (virtualMouseIsSynchronizedWithClientMouse_) {
         virtualMousePos_ = currentMousePos_;
     }
@@ -84,23 +87,14 @@ void Input::Update() {
     }
 }
 
-void Input::FixMousePos(const Vec2f& _fixedPos) {
-    isMousePosFixed_ = true;
-    
-    RECT rect;
-    rect.left   = static_cast<LONG>(_fixedPos[X]);
-    rect.top    = static_cast<LONG>(_fixedPos[Y]);
-    rect.right  = static_cast<LONG>(_fixedPos[X]) + 1;
-    rect.bottom = static_cast<LONG>(_fixedPos[Y]) + 1;
-    ClipCursor(&rect);
+void Input::SetMousePos(const Vec2f& _fixedPos) {
+    SetCursorPos(static_cast<int>(_fixedPos[X]), static_cast<int>(_fixedPos[Y]));
 }
 
-void Input::FixMousePos(const Vec2d& _fixedPos) {
-    isMousePosFixed_ = true;
-    RECT rect;
-    rect.left   = static_cast<LONG>(_fixedPos[X]);
-    rect.top    = static_cast<LONG>(_fixedPos[Y]);
-    rect.right  = static_cast<LONG>(_fixedPos[X]) + 1;
-    rect.bottom = static_cast<LONG>(_fixedPos[Y]) + 1;
-    ClipCursor(&rect);
+void Input::SetMousePos(const Vec2d& _fixedPos) {
+    SetCursorPos(static_cast<int>(_fixedPos[X]), static_cast<int>(_fixedPos[Y]));
+}
+
+void Input::ShowMouseCursor(bool _isShow) {
+    ShowCursor(_isShow);
 }
