@@ -35,7 +35,7 @@ enum class PadButton : uint32_t {
     A          = XINPUT_GAMEPAD_A,
     B          = XINPUT_GAMEPAD_B,
     X          = XINPUT_GAMEPAD_X,
-    Y          = XINPUT_GAMEPAD_Y,
+    Y          = XINPUT_GAMEPAD_Y
 };
 static std::map<PadButton, std::string> padButtonNameMap = {
     {PadButton::UP, "UP"},

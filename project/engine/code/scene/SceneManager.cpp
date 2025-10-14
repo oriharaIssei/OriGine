@@ -83,7 +83,17 @@ void SceneManager::Finalize() {
 }
 
 void SceneManager::Update() {
+#ifdef _DEVELOP
+    if (fileWatcher_->isChanged()) {
+        this->changeScene(currentScene_->getName());
+    }
+#endif // _DEVELOP
 
+    if (isChangeScene_) {
+        // SceneChange
+        executeSceneChange();
+        return;
+    }
     currentScene_->Update();
 
     currentScene_->Render();
@@ -91,21 +101,6 @@ void SceneManager::Update() {
     Engine::getInstance()->ScreenPreDraw();
     currentScene_->getSceneView()->DrawTexture();
     Engine::getInstance()->ScreenPostDraw();
-
-#ifdef _DEVELOP
-    if (fileWatcher_->isChanged()) {
-        std::string currentSceneName = currentScene_->getName();
-        currentScene_->Finalize();
-        currentScene_ = std::make_unique<Scene>(currentSceneName);
-
-        currentScene_->Initialize();
-    }
-#endif // _DEVELOP
-
-    if (isChangeScene_) {
-        // SceneChange
-        executeSceneChange();
-    }
 }
 
 const std::string& SceneManager::getCurrentSceneName() const { return currentScene_->getName(); }
