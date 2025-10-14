@@ -56,7 +56,7 @@ void Input::Update() {
     GetCursorPos(&mousePoint);
     ScreenToClient(Engine::getInstance()->getWinApp()->getHwnd(), &mousePoint);
     currentMousePos_ = Vec2f(static_cast<float>(mousePoint.x), static_cast<float>(mousePoint.y));
-    mouseVelocity_   = preMousePos_ - currentMousePos_;
+    mouseVelocity_   = currentMousePos_ - preMousePos_;
 
     if (virtualMouseIsSynchronizedWithClientMouse_) {
         virtualMousePos_ = currentMousePos_;
@@ -87,12 +87,14 @@ void Input::Update() {
     }
 }
 
-void Input::SetMousePos(const Vec2f& _fixedPos) {
-    SetCursorPos(static_cast<int>(_fixedPos[X]), static_cast<int>(_fixedPos[Y]));
-}
+void Input::setMousePos(const Vec2f& _fixedPos) {
+    POINT fixPos;
+    fixPos.x = LONG(_fixedPos[X]);
+    fixPos.y = LONG(_fixedPos[Y]);
 
-void Input::SetMousePos(const Vec2d& _fixedPos) {
-    SetCursorPos(static_cast<int>(_fixedPos[X]), static_cast<int>(_fixedPos[Y]));
+    ClientToScreen(Engine::getInstance()->getWinApp()->getHwnd(), &fixPos);
+    SetCursorPos(static_cast<int>(fixPos.x), static_cast<int>(fixPos.y));
+    currentMousePos_ = _fixedPos;
 }
 
 void Input::ShowMouseCursor(bool _isShow) {

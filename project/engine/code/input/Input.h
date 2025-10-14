@@ -355,8 +355,7 @@ public:
     /// マウスの座標を固定する
     /// </summary>
     /// <param name="_fixedPos">固定座標(スクリーン座標系)</param>
-    void SetMousePos(const Vec2f& _fixedPos);
-    void SetMousePos(const Vec2d& _fixedPos);
+    void setMousePos(const Vec2f& _fixedPos);
 
     void setVirtualMousePos(const Vec2f& pos) { virtualMousePos_ = pos; }
     Vec2f getMouseVelocity() const { return mouseVelocity_; }
