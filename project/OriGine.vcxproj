@@ -203,9 +203,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\ECS\component\transform\ParticleTransform.h" />
     <ClInclude Include="engine\code\ECS\component\transform\Transform.h" />
     <ClInclude Include="engine\code\ECS\system\ISystem.h" />
-    <ClInclude Include="engine\code\ECS\system\Initialize\CameraInitialize.h" />
-    <ClInclude Include="engine\code\ECS\system\Initialize\GpuParticleInitialize.h" />
-    <ClInclude Include="engine\code\ECS\system\Initialize\ResolveEntityReferences.h" />
+    <ClInclude Include="engine\code\ECS\system\initialize\CameraInitialize.h" />
+    <ClInclude Include="engine\code\ECS\system\initialize\GpuParticleInitialize.h" />
+    <ClInclude Include="engine\code\ECS\system\initialize\ResolveEntityReferences.h" />
     <ClInclude Include="engine\code\ECS\system\collision\CollisionCheckSystem.h" />
     <ClInclude Include="engine\code\ECS\system\collision\CollisionPushBackSystem.h" />
     <ClInclude Include="engine\code\ECS\system\effect\CameraActionSystem.h" />
@@ -285,6 +285,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="math\Vector3.h" />
     <ClInclude Include="math\Vector4.h" />
     <ClInclude Include="math\shape\Shapes.h" />
+    <ClInclude Include="engine\code\ECS\system\initialize\RegisterWindowResizeEvent.h" />
     <ClInclude Include="util\BitArray.h" />
     <ClInclude Include="util\ConvertString.h" />
     <ClInclude Include="util\DiffValue.h" />
@@ -350,9 +351,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\ECS\component\transform\ParticleTransform.cpp" />
     <ClCompile Include="engine\code\ECS\component\transform\Transform.cpp" />
     <ClCompile Include="engine\code\ECS\system\ISystem.cpp" />
-    <ClCompile Include="engine\code\ECS\system\Initialize\CameraInitialize.cpp" />
-    <ClCompile Include="engine\code\ECS\system\Initialize\GpuParticleInitialize.cpp" />
-    <ClCompile Include="engine\code\ECS\system\Initialize\ResolveEntityReferences.cpp" />
+    <ClCompile Include="engine\code\ECS\system\initialize\CameraInitialize.cpp" />
+    <ClCompile Include="engine\code\ECS\system\initialize\GpuParticleInitialize.cpp" />
+    <ClCompile Include="engine\code\ECS\system\initialize\ResolveEntityReferences.cpp" />
     <ClCompile Include="engine\code\ECS\system\collision\CollisionCheckSystem.cpp" />
     <ClCompile Include="engine\code\ECS\system\collision\CollisionPushBackSystem.cpp" />
     <ClCompile Include="engine\code\ECS\system\effect\CameraActionSystem.cpp" />
@@ -420,6 +421,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="math\Orientation.cpp" />
     <ClCompile Include="math\Quaternion.cpp" />
     <ClCompile Include="math\Sequence.cpp" />
+    <ClCompile Include="engine\code\ECS\system\initialize\RegisterWindowResizeEvent.cpp" />
     <ClCompile Include="util\ConvertString.cpp" />
     <ClCompile Include="util\NormalizeString.cpp" />
     <ClCompile Include="util\binaryIO\BinaryIO.cpp" />

@@ -36,9 +36,10 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 #include "system/movement/SubSceneUpdate.h"
 #include "system/postRender/SubSceneRender.h"
 
-#include "system/Initialize/CameraInitialize.h"
-#include "system/Initialize/GpuParticleInitialize.h"
-#include "system/Initialize/ResolveEntityReferences.h"
+#include "system/initialize/CameraInitialize.h"
+#include "system/initialize/GpuParticleInitialize.h"
+#include "system/initialize/RegisterWindowResizeEvent.h"
+#include "system/initialize/ResolveEntityReferences.h"
 
 #include "system/collision/CollisionCheckSystem.h"
 #include "system/collision/CollisionPushBackSystem.h"

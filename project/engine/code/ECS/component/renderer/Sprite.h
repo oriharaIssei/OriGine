@@ -87,6 +87,10 @@ public:
     /// </summary>
     void Finalize() override;
 
+    void CalculateWindowRatioPosAndSize();
+    void CalculateWindowRatioPosAndSize(const Vec2f& _newWindowSize);
+    void CalculatePosRatioAndSizeRatio();
+
 private:
     int32_t renderPriority_ = 1;
 
@@ -98,6 +102,10 @@ private:
     Vec2f textureLeftTop_ = {0.0f, 0.0f};
     Vec2f textureSize_    = {0.0f, 0.0f};
     Vec2f size_           = {0.0f, 0.0f}; // px
+
+    Vec2f defaultWindowSize_ = {0.f, 0.f}; // 画面の基準サイズ(これに対する比率で位置とサイズを決定)
+    Vec2f windowRatioPos_    = {0.f, 0.f}; // 画面のサイズに対する位置(基本 0 ~ 1)
+    Vec2f windowRatioSize_   = {0.f, 0.f}; // 画面のサイズに対するサイズ(基本 0 ~ 1)
 
     Vec2f anchorPoint_ = {0.0f, 0.0f};
 

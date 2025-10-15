@@ -232,6 +232,7 @@ static std::map<Key, std::string> keyNameMap = {
     {Key::L_ALT, "L_ALT"},
     {Key::SPACE, "SPACE"},
     {Key::CAPITAL, "CAPITAL"},
+
     {Key::F1, "F1"},
     {Key::F2, "F2"},
     {Key::F3, "F3"},
@@ -244,6 +245,12 @@ static std::map<Key, std::string> keyNameMap = {
     {Key::F10, "F10"},
     {Key::F11, "F11"},
     {Key::F12, "F12"},
+
+    {Key::UP, "UP"},
+    {Key::DOWN, "DOWN"},
+    {Key::LEFT, "LEFT"},
+    {Key::RIGHT, "RIGHT"},
+
     {Key::NUMLOCK, "NUMLOCK"},
     {Key::SCROLL, "SCROLL"},
     {Key::NUMPAD7, "NUMPAD7"},

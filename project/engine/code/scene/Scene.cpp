@@ -13,9 +13,7 @@
 
 #include "engine/EngineInclude.h"
 
-Scene::Scene(const std::string& _name) {
-    name_ = _name;
-}
+Scene::Scene(const std::string& _name, Scene* _parent) : parent_(_parent), name_(_name) {}
 
 Scene::~Scene() {}
 

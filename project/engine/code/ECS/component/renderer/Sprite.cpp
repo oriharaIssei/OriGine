@@ -61,6 +61,12 @@ void SpriteRenderer::Initialize(GameEntity* _hostEntity) {
 
 void SpriteRenderer::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
+    auto realNumberAfterFunc = [this](Vector<2, float>* /*_newVal*/) {
+        CalculatePosRatioAndSizeRatio();
+    };
+    auto ratioAfterFunc = [this](Vector<2, float>* /*_newVal*/) {
+        CalculateWindowRatioPosAndSize(defaultWindowSize_);
+    };
 
     ImGui::Text("Texture Path : %s", texturePath_.c_str());
     ImGui::SameLine();
@@ -116,7 +122,15 @@ void SpriteRenderer::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, [[maybe_un
     DragGuiVectorCommand("##TextureSize" + _parentLabel, textureSize_, 1.0f, 0.0f, 1000.0f);
 
     ImGui::Text("Size");
-    DragGuiVectorCommand("##Size" + _parentLabel, size_, 1.0f, 0.0f);
+    if (DragGuiVectorCommand<2, float>("##Size" + _parentLabel, size_, 1.f, 0.0f, 0.f, "%.1f", realNumberAfterFunc)) {
+        CalculatePosRatioAndSizeRatio();
+    }
+
+    ImGui::Text("WindowRatioSize");
+    ImGui::SameLine();
+    if (DragGuiVectorCommand<2, float>("##WindowRatioSize" + _parentLabel, windowRatioSize_, 0.001f, 0.0f, 0.f, "%.4f", ratioAfterFunc)) {
+        CalculateWindowRatioPosAndSize();
+    }
 
     ImGui::Spacing();
 
@@ -129,6 +143,8 @@ void SpriteRenderer::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, [[maybe_un
     ImGui::Text("Color");
     ColorEditGuiCommand("##Color" + _parentLabel, spriteBuff_->color_);
 
+    ImGui::Spacing();
+
     if (ImGui::TreeNode("SpriteTransform")) {
 
         ImGui::Text("Scale");
@@ -136,9 +152,19 @@ void SpriteRenderer::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, [[maybe_un
         ImGui::Text("Rotate");
         DragGuiCommand("##Rotate" + _parentLabel, spriteBuff_->rotate_, 0.01f);
         ImGui::Text("Translate");
-        DragGuiVectorCommand("##Translate" + _parentLabel, spriteBuff_->translate_, 0.01f);
+        if (DragGuiVectorCommand<2, float>("##Translate" + _parentLabel, spriteBuff_->translate_, 0.01f, 0.0f, 0.f, "%.3f", realNumberAfterFunc)) {
+            CalculatePosRatioAndSizeRatio();
+        }
+        ImGui::Text("WindowRatioPos");
+        ImGui::SameLine();
+        if (DragGuiVectorCommand<2, float>("##WindowRatioPos" + _parentLabel, windowRatioPos_, 0.001f, 0.0f, 0.f, "%.4f", ratioAfterFunc)) {
+            CalculateWindowRatioPosAndSize();
+        }
+
         ImGui::TreePop();
     }
+
+    ImGui::Spacing();
 
     if (ImGui::TreeNode("UVTransform")) {
         ImGui::Text("UVScale");
@@ -147,6 +173,7 @@ void SpriteRenderer::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, [[maybe_un
         DragGuiCommand("##UVRotate" + _parentLabel, spriteBuff_->uvRotate_, 0.01f);
         ImGui::Text("UVTranslate");
         DragGuiVectorCommand("##UVTranslate" + _parentLabel, spriteBuff_->uvTranslate_, 0.01f);
+
         ImGui::TreePop();
     }
 
@@ -156,6 +183,32 @@ void SpriteRenderer::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, [[maybe_un
 void SpriteRenderer::Finalize() {
     MeshRenderer::Finalize();
     spriteBuff_.Finalize();
+}
+
+void SpriteRenderer::CalculateWindowRatioPosAndSize() {
+    if (windowRatioSize_.lengthSq() != 0.0f) {
+        size_ = {defaultWindowSize_[X] * windowRatioSize_[X], defaultWindowSize_[Y] * windowRatioSize_[Y]};
+    }
+    if (windowRatioPos_.lengthSq() != 0.0f) {
+        spriteBuff_->translate_ = {defaultWindowSize_[X] * windowRatioPos_[X], defaultWindowSize_[Y] * windowRatioPos_[Y]};
+    }
+}
+
+void SpriteRenderer::CalculateWindowRatioPosAndSize(const Vec2f& _newWindowSize) {
+    defaultWindowSize_ = _newWindowSize;
+    CalculateWindowRatioPosAndSize();
+}
+
+void SpriteRenderer::CalculatePosRatioAndSizeRatio() {
+    if (defaultWindowSize_.lengthSq() == 0.0f) {
+        return;
+    }
+    if (size_.lengthSq() != 0.0f) {
+        windowRatioSize_ = {size_[X] / defaultWindowSize_[X], size_[Y] / defaultWindowSize_[Y]};
+    }
+    if (spriteBuff_->translate_.lengthSq() != 0.0f) {
+        windowRatioPos_ = {spriteBuff_->translate_[X] / defaultWindowSize_[X], spriteBuff_->translate_[Y] / defaultWindowSize_[Y]};
+    }
 }
 
 void SpriteRenderer::setTexture(const std::string& _texturePath, bool _applyTextureSize) {
@@ -226,6 +279,9 @@ void to_json(nlohmann::json& j, const SpriteRenderer& r) {
         {"color", r.spriteBuff_->color_},
         {"scale", r.spriteBuff_->scale_},
         {"size", r.size_},
+        {"defaultWindowSize", r.defaultWindowSize_},
+        {"windowRatioPos", r.windowRatioPos_},
+        {"windowRatioSize", r.windowRatioSize_},
         {"rotate", r.spriteBuff_->rotate_},
         {"translate", r.spriteBuff_->translate_},
         {"uvScale", r.spriteBuff_->uvScale_},
@@ -234,22 +290,48 @@ void to_json(nlohmann::json& j, const SpriteRenderer& r) {
 }
 
 void from_json(const nlohmann::json& j, SpriteRenderer& r) {
-    if (j.find("isRender") != j.end()) {
-        j.at("isRender").get_to(r.isRender_);
-    }
+    j.at("isRender").get_to(r.isRender_);
     j.at("renderingPriority").get_to(r.renderPriority_);
+
     j.at("texturePath").get_to(r.texturePath_);
+
     j.at("textureLeftTop").get_to(r.textureLeftTop_);
     j.at("textureSize").get_to(r.textureSize_);
+    j.at("size").get_to(r.size_);
     j.at("anchorPoint").get_to(r.anchorPoint_);
+
     j.at("isFlipX").get_to(r.isFlipX_);
     j.at("isFlipY").get_to(r.isFlipY_);
+
     j.at("color").get_to(r.spriteBuff_->color_);
+
     j.at("scale").get_to(r.spriteBuff_->scale_);
-    j.at("size").get_to(r.size_);
     j.at("rotate").get_to(r.spriteBuff_->rotate_);
     j.at("translate").get_to(r.spriteBuff_->translate_);
+
     j.at("uvScale").get_to(r.spriteBuff_->uvScale_);
     j.at("uvRotate").get_to(r.spriteBuff_->uvRotate_);
     j.at("uvTranslate").get_to(r.spriteBuff_->uvTranslate_);
+
+    if (j.find("defaultWindowSize") != j.end()) {
+        j.at("defaultWindowSize").get_to(r.defaultWindowSize_);
+    } else {
+        r.defaultWindowSize_ = Engine::getInstance()->getWinApp()->getWindowSize();
+    }
+    if (j.find("windowRatioSize") != j.end()) {
+        j.at("windowRatioSize").get_to(r.windowRatioSize_);
+        if (r.defaultWindowSize_.lengthSq() != 0.0f) {
+            r.size_ = {r.defaultWindowSize_[X] * r.windowRatioSize_[X], r.defaultWindowSize_[Y] * r.windowRatioSize_[Y]};
+        }
+    } else {
+        r.windowRatioSize_ = {r.size_[X] / r.defaultWindowSize_[X], r.size_[Y] / r.defaultWindowSize_[Y]};
+    }
+    if (j.find("windowRatioPos") != j.end()) {
+        j.at("windowRatioPos").get_to(r.windowRatioPos_);
+        if (r.defaultWindowSize_.lengthSq() != 0.0f) {
+            r.spriteBuff_->translate_ = {r.defaultWindowSize_[X] * r.windowRatioPos_[X], r.defaultWindowSize_[Y] * r.windowRatioPos_[Y]};
+        }
+    } else {
+        r.windowRatioPos_ = {r.spriteBuff_->translate_[X] / r.defaultWindowSize_[X], r.spriteBuff_->translate_[Y] / r.defaultWindowSize_[Y]};
+    }
 }

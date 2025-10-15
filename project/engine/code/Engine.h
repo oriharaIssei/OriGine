@@ -93,7 +93,21 @@ public:
 
     LightManager* getLightManager() const { return lightManager_; }
 
-    void addWindowResizeEvent(const std::function<void(const Vec2f&)>& event) {
+    /// <summary>
+    /// WindowResize時に呼ばれるイベントを登録する
+    /// </summary>
+    /// <param name="event">イベント関数</param>
+    /// <returns>イベントのインデックス</returns>
+    int32_t addWindowResizeEvent(const std::function<void(const Vec2f&)>& event) {
         windowResizeEvents_.push_back(event);
+        return static_cast<int32_t>(windowResizeEvents_.size() - 1);
+    }
+
+    void removeWindowResizeEvent(int32_t index) {
+        if (index < 0 || index >= static_cast<int32_t>(windowResizeEvents_.size())) {
+            LOG_WARN("Invalid window resize event index: {}", index);
+            return;
+        }
+        windowResizeEvents_.erase(windowResizeEvents_.begin() + index);
     }
 };
