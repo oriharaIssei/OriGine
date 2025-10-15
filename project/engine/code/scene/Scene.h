@@ -39,6 +39,7 @@ protected:
     void ExecuteDeleteEntities();
 
 protected:
+    bool isActive_                            = false;
     std::string name_                         = "NULL";
     std::unique_ptr<RenderTexture> sceneView_ = nullptr;
 
@@ -49,6 +50,9 @@ protected:
     std::list<int32_t> deleteEntities_; // 削除予定のエンティティIDリスト
 
 public:
+    bool isActive() const { return isActive_; }
+    void setActive(bool _isActive) { isActive_ = _isActive; }
+
     const std::string& getName() const { return name_; }
     RenderTexture* getSceneView() const { return sceneView_.get(); }
 

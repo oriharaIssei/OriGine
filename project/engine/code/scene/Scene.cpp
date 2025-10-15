@@ -13,11 +13,13 @@
 
 #include "engine/EngineInclude.h"
 
-Scene::Scene(const std::string& _name, Scene* _parent) : parent_(_parent), name_(_name) {}
+Scene::Scene(const std::string& _name) : name_(_name) {}
 
 Scene::~Scene() {}
 
 void Scene::Initialize() {
+    isActive_ = true;
+
     InitializeSceneView();
 
     InitializeECS();
@@ -77,6 +79,8 @@ void Scene::Finalize() {
         sceneView_->Finalize();
         sceneView_.reset();
     }
+
+    isActive_ = false;
 }
 
 void Scene::ExecuteDeleteEntities() {

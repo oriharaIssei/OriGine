@@ -17,6 +17,9 @@ void SubSceneUpdate::UpdateEntity(GameEntity* _entity) {
         }
         auto scene = subScene.getSubSceneRef();
         if (scene) {
+            if (!scene->isActive()) {
+                subScene.Deactivate();
+            }
             scene->Update();
         }
     }
