@@ -67,14 +67,14 @@
     <Filter Include="engine\code\ECS\system">
       <UniqueIdentifier>{A366968F-8F60-BFE1-78CD-55F26466254E}</UniqueIdentifier>
     </Filter>
-    <Filter Include="engine\code\ECS\system\Initialize">
-      <UniqueIdentifier>{E424EA7C-5093-3FFC-997C-FAFB052A3598}</UniqueIdentifier>
-    </Filter>
     <Filter Include="engine\code\ECS\system\collision">
       <UniqueIdentifier>{9EA31C15-8AF4-0757-B358-F6189F089BC0}</UniqueIdentifier>
     </Filter>
     <Filter Include="engine\code\ECS\system\effect">
       <UniqueIdentifier>{1FCD8B28-8BE5-7252-5492-02ECC06907EC}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\code\ECS\system\initialize">
+      <UniqueIdentifier>{04493CFE-70B7-917D-B9A0-4C7D254E8719}</UniqueIdentifier>
     </Filter>
     <Filter Include="engine\code\ECS\system\movement">
       <UniqueIdentifier>{5D2FE6B6-C912-F5F6-D215-23333E78BB47}</UniqueIdentifier>
@@ -246,6 +246,9 @@
     <ClInclude Include="engine\code\ECS\component\effect\post\DistortionEffectParam.h">
       <Filter>engine\code\ECS\component\effect\post</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\effect\post\GradationTextureComponent.h">
+      <Filter>engine\code\ECS\component\effect\post</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\ECS\component\effect\post\RadialBlurParam.h">
       <Filter>engine\code\ECS\component\effect\post</Filter>
     </ClInclude>
@@ -300,15 +303,6 @@
     <ClInclude Include="engine\code\ECS\system\ISystem.h">
       <Filter>engine\code\ECS\system</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\ECS\system\initialize\CameraInitialize.h">
-      <Filter>engine\code\ECS\system\Initialize</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\code\ECS\system\initialize\GpuParticleInitialize.h">
-      <Filter>engine\code\ECS\system\Initialize</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\code\ECS\system\initialize\ResolveEntityReferences.h">
-      <Filter>engine\code\ECS\system\Initialize</Filter>
-    </ClInclude>
     <ClInclude Include="engine\code\ECS\system\collision\CollisionCheckSystem.h">
       <Filter>engine\code\ECS\system\collision</Filter>
     </ClInclude>
@@ -342,6 +336,18 @@
     <ClInclude Include="engine\code\ECS\system\effect\TextureEffectAnimation.h">
       <Filter>engine\code\ECS\system\effect</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\ECS\system\initialize\CameraInitialize.h">
+      <Filter>engine\code\ECS\system\initialize</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\system\initialize\GpuParticleInitialize.h">
+      <Filter>engine\code\ECS\system\initialize</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\system\initialize\RegisterWindowResizeEvent.h">
+      <Filter>engine\code\ECS\system\initialize</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\system\initialize\ResolveEntityReferences.h">
+      <Filter>engine\code\ECS\system\initialize</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\ECS\system\movement\MoveSystemByRigidBody.h">
       <Filter>engine\code\ECS\system\movement</Filter>
     </ClInclude>
@@ -352,6 +358,9 @@
       <Filter>engine\code\ECS\system\postRender</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\system\postRender\DistortionEffect.h">
+      <Filter>engine\code\ECS\system\postRender</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\system\postRender\GradationEffect.h">
       <Filter>engine\code\ECS\system\postRender</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\system\postRender\GrayscaleEffect.h">
@@ -534,6 +543,9 @@
     <ClInclude Include="math\Vector4.h">
       <Filter>math</Filter>
     </ClInclude>
+    <ClInclude Include="math\mathEnv.h">
+      <Filter>math</Filter>
+    </ClInclude>
     <ClInclude Include="math\shape\Shapes.h">
       <Filter>math\shape</Filter>
     </ClInclude>
@@ -585,10 +597,6 @@
     <ClInclude Include="util\timeline\Timeline.h">
       <Filter>util\timeline</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\ECS\component\effect\post\GradationTextureComponent.h" />
-    <ClInclude Include="math\mathEnv.h" />
-    <ClInclude Include="engine\code\ECS\system\postRender\GradationEffect.h" />
-    <ClInclude Include="engine\code\ECS\system\initialize\RegisterWindowResizeEvent.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="editor\EditorController.cpp">
@@ -678,6 +686,9 @@
     <ClCompile Include="engine\code\ECS\component\effect\post\DistortionEffectParam.cpp">
       <Filter>engine\code\ECS\component\effect\post</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\ECS\component\effect\post\GradationTextureComponent.cpp">
+      <Filter>engine\code\ECS\component\effect\post</Filter>
+    </ClCompile>
     <ClCompile Include="engine\code\ECS\component\effect\post\RadialBlurParam.cpp">
       <Filter>engine\code\ECS\component\effect\post</Filter>
     </ClCompile>
@@ -732,15 +743,6 @@
     <ClCompile Include="engine\code\ECS\system\ISystem.cpp">
       <Filter>engine\code\ECS\system</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\ECS\system\initialize\CameraInitialize.cpp">
-      <Filter>engine\code\ECS\system\Initialize</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\code\ECS\system\initialize\GpuParticleInitialize.cpp">
-      <Filter>engine\code\ECS\system\Initialize</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\code\ECS\system\initialize\ResolveEntityReferences.cpp">
-      <Filter>engine\code\ECS\system\Initialize</Filter>
-    </ClCompile>
     <ClCompile Include="engine\code\ECS\system\collision\CollisionCheckSystem.cpp">
       <Filter>engine\code\ECS\system\collision</Filter>
     </ClCompile>
@@ -774,6 +776,18 @@
     <ClCompile Include="engine\code\ECS\system\effect\TextureEffectAnimation.cpp">
       <Filter>engine\code\ECS\system\effect</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\ECS\system\initialize\CameraInitialize.cpp">
+      <Filter>engine\code\ECS\system\initialize</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\system\initialize\GpuParticleInitialize.cpp">
+      <Filter>engine\code\ECS\system\initialize</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\system\initialize\RegisterWindowResizeEvent.cpp">
+      <Filter>engine\code\ECS\system\initialize</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\system\initialize\ResolveEntityReferences.cpp">
+      <Filter>engine\code\ECS\system\initialize</Filter>
+    </ClCompile>
     <ClCompile Include="engine\code\ECS\system\movement\MoveSystemByRigidBody.cpp">
       <Filter>engine\code\ECS\system\movement</Filter>
     </ClCompile>
@@ -784,6 +798,9 @@
       <Filter>engine\code\ECS\system\postRender</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\system\postRender\DistortionEffect.cpp">
+      <Filter>engine\code\ECS\system\postRender</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\system\postRender\GradationEffect.cpp">
       <Filter>engine\code\ECS\system\postRender</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\system\postRender\GrayscaleEffect.cpp">
@@ -963,8 +980,5 @@
     <ClCompile Include="util\timeline\Timeline.cpp">
       <Filter>util\timeline</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\ECS\component\effect\post\GradationTextureComponent.cpp" />
-    <ClCompile Include="engine\code\ECS\system\postRender\GradationEffect.cpp" />
-    <ClCompile Include="engine\code\ECS\system\initialize\RegisterWindowResizeEvent.cpp" />
   </ItemGroup>
 </Project>
