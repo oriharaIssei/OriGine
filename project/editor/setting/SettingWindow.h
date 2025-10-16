@@ -43,25 +43,26 @@ public:
     ~SettingWindow() override;
 
     void Initialize() override;
+    void DrawGui() override;
     void Finalize() override;
 };
 
-class WindowSettingArea
+class SettingWindowArea
     : public Editor::Area {
 public:
-    WindowSettingArea();
-    ~WindowSettingArea() override;
+    SettingWindowArea();
+    ~SettingWindowArea() override;
     void Initialize() override;
     void Finalize() override;
 };
-class WindowSettingRegion
+class SettingWindowRegion
     : public Editor::Region {
 public:
     static const std::string kGlobalVariablesGroupName;
 
 public:
-    WindowSettingRegion();
-    ~WindowSettingRegion() override;
+    SettingWindowRegion();
+    ~SettingWindowRegion() override;
     void Initialize() override;
     void DrawGui() override;
     void Finalize() override;

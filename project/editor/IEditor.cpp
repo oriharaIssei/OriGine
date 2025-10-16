@@ -164,6 +164,16 @@ void Editor::Window::Finalize() {
     menus_.clear();
 }
 
+void Editor::Window::WindowOpenMassage() {
+    auto command = std::make_unique<WindowOpenCommand>(&isOpen_, true);
+    EditorController::getInstance()->pushCommand(std::move(command));
+}
+
+void Editor::Window::WindowCloseMassage() {
+    auto command = std::make_unique<WindowOpenCommand>(&isOpen_, false);
+    EditorController::getInstance()->pushCommand(std::move(command));
+}
+
 Vec2f ConvertMouseToGuiWindow(const Vec2f& _mousePos, const Vec2f& _guiWindowLT, const ImVec2& _guiWindowSize, const Vec2f& _originalResolution) {
     // SceneView 内での相対的なマウス座標を計算
     Vec2f relative = _mousePos - _guiWindowLT;

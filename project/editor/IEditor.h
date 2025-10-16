@@ -217,6 +217,9 @@ public:
     virtual void DrawGui();
     virtual void Finalize();
 
+    void WindowOpenMassage();
+    void WindowCloseMassage();
+
 protected:
     void UpdateFocusAndOpenState();
 

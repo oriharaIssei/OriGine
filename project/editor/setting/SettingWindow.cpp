@@ -10,7 +10,7 @@
 #include "util/nameof.h"
 
 const std::string SettingWindow::kGlobalVariablesSceneName       = "Settings";
-const std::string WindowSettingRegion::kGlobalVariablesGroupName = "Window";
+const std::string SettingWindowRegion::kGlobalVariablesGroupName = "Window";
 
 SettingWindow::SettingWindow()
     : Editor::Window(nameof<SettingWindow>()) {}
@@ -20,46 +20,67 @@ void SettingWindow::Initialize() {
     isOpen_.set(false);
     isOpen_.sync();
 
-    windowFlags_ = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoDocking;
+    windowFlags_ = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking;
 
-    addArea(std::make_shared<WindowSettingArea>());
+    addArea(std::make_shared<SettingWindowArea>());
     addArea(std::make_shared<ProjectSettingArea>());
 
     EditorController::getInstance()->addMainMenu(
         std::make_unique<SettingsMenu>());
 }
 
+void SettingWindow::DrawGui() {
+    if (isOpen_.current()) {
+        // 開いている間はずっとフォーカスする
+        // Areaを含めて、どれか一つでもフォーカスされていれば良い
+        bool isAnyOneFocused = isFocused_.current();
+        if (!isAnyOneFocused) {
+            for (const auto& areaPair : areas_) {
+                if (areaPair.second->isFocused().current()) {
+                    isAnyOneFocused = true;
+                    break;
+                }
+            }
+        }
+        if (!isAnyOneFocused) {
+            ImGui::SetNextWindowFocus();
+        }
+    }
+
+    Editor::Window::DrawGui();
+}
+
 void SettingWindow::Finalize() {
     Editor::Window::Finalize();
 }
 
-#pragma region "WindowSetting"
+#pragma region "SettingWindow"
 
-WindowSettingArea::WindowSettingArea()
-    : Editor::Area(nameof<WindowSettingArea>()) {}
-WindowSettingArea::~WindowSettingArea() {}
+SettingWindowArea::SettingWindowArea()
+    : Editor::Area(nameof<SettingWindowArea>()) {}
+SettingWindowArea::~SettingWindowArea() {}
 
-void WindowSettingArea::Initialize() {
-    addRegion(std::make_shared<WindowSettingRegion>());
+void SettingWindowArea::Initialize() {
+    addRegion(std::make_shared<SettingWindowRegion>());
 }
 
-void WindowSettingArea::Finalize() {}
+void SettingWindowArea::Finalize() {}
 
-WindowSettingRegion::WindowSettingRegion()
-    : Editor::Region(nameof<WindowSettingRegion>()) {}
-WindowSettingRegion::~WindowSettingRegion() {}
+SettingWindowRegion::SettingWindowRegion()
+    : Editor::Region(nameof<SettingWindowRegion>()) {}
+SettingWindowRegion::~SettingWindowRegion() {}
 
-void WindowSettingRegion::Initialize() {
+void SettingWindowRegion::Initialize() {
     GlobalVariables* globalVariables = GlobalVariables::getInstance();
     // ウィンドウのタイトルとサイズを更新
     windowTitle_ = globalVariables->getValue<std::string>(
-        SettingWindow::kGlobalVariablesSceneName, WindowSettingRegion::kGlobalVariablesGroupName, "Title");
+        SettingWindow::kGlobalVariablesSceneName, SettingWindowRegion::kGlobalVariablesGroupName, "Title");
     windowSize_ = globalVariables->getValue<Vec2f>(
         SettingWindow::kGlobalVariablesSceneName,
-        WindowSettingRegion::kGlobalVariablesGroupName,
+        SettingWindowRegion::kGlobalVariablesGroupName,
         "Size");
 }
-void WindowSettingRegion::DrawGui() {
+void SettingWindowRegion::DrawGui() {
     ImGui::InputText("Window Title", &windowTitle_[0], sizeof(char) * 256);
     ImGui::InputFloat2("Window Size", windowSize_.v, "%4.0f");
 
@@ -70,37 +91,37 @@ void WindowSettingRegion::DrawGui() {
         // ウィンドウのタイトルとサイズを更新
         globalVariables->setValue<std::string>(
             SettingWindow::kGlobalVariablesSceneName,
-            WindowSettingRegion::kGlobalVariablesGroupName,
+            SettingWindowRegion::kGlobalVariablesGroupName,
             "Title",
             windowTitle_);
         globalVariables->setValue<Vec2f>(
             SettingWindow::kGlobalVariablesSceneName,
-            WindowSettingRegion::kGlobalVariablesGroupName,
+            SettingWindowRegion::kGlobalVariablesGroupName,
             "Size",
             windowSize_);
 
         globalVariables->SaveFile(
             SettingWindow::kGlobalVariablesSceneName,
-            WindowSettingRegion::kGlobalVariablesGroupName);
+            SettingWindowRegion::kGlobalVariablesGroupName);
     }
     if (ImGui::Button("Cancel")) {
         // 設定をリセット
         GlobalVariables* globalVariables = GlobalVariables::getInstance();
         // ウィンドウのタイトルとサイズを更新
         windowTitle_ = globalVariables->getValue<std::string>(
-            SettingWindow::kGlobalVariablesSceneName, WindowSettingRegion::kGlobalVariablesGroupName, "Title");
+            SettingWindow::kGlobalVariablesSceneName, SettingWindowRegion::kGlobalVariablesGroupName, "Title");
         windowSize_ = globalVariables->getValue<Vec2f>(
             SettingWindow::kGlobalVariablesSceneName,
-            WindowSettingRegion::kGlobalVariablesGroupName,
+            SettingWindowRegion::kGlobalVariablesGroupName,
             "Size");
 
         SettingWindow* settingWindow = EditorController::getInstance()->getWindow<SettingWindow>();
-        // ウィンドウの状態を更新
-        settingWindow->setOpen(false);
+        // ウィンドウを閉じる
+        settingWindow->WindowCloseMassage();
     }
 }
 
-void WindowSettingRegion::Finalize() {}
+void SettingWindowRegion::Finalize() {}
 
 #pragma endregion
 
@@ -182,8 +203,8 @@ void ProjectSettingRegion::DrawGui() {
             "Gravity");
 
         SettingWindow* settingWindow = EditorController::getInstance()->getWindow<SettingWindow>();
-        // ウィンドウの状態を更新
-        settingWindow->setOpen(false);
+        // ウィンドウを閉じる
+        settingWindow->WindowCloseMassage();
     }
 }
 
@@ -217,8 +238,7 @@ void SettingsWindowOpen::DrawGui() {
 
     if (ImGui::MenuItem("Settings", nullptr, &isOpenSettingWindow, !isOpenSettingWindow)) {
         // SettingsWindowを開く
-        settingWindow->setOpen(true);
-        settingWindow->setFocused(true);
+        settingWindow->WindowOpenMassage();
     }
 }
 
