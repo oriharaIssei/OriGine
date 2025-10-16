@@ -2,6 +2,8 @@
 
 /// engine
 #include "engine.h"
+// directX12
+#include "directX12/RenderTexture.h"
 
 /// component
 #include "component/renderer/Sprite.h"
@@ -9,7 +11,18 @@
 RegisterWindowResizeEvent::RegisterWindowResizeEvent() : ISystem(SystemCategory::Initialize) {}
 
 void RegisterWindowResizeEvent::Initialize() {
-    Engine* engine         = Engine::getInstance();
+    Engine* engine = Engine::getInstance();
+
+#ifndef _DEBUG
+    auto sceneViewResizeEvent = [this](const Vec2f& size) {
+        auto currentScene = getScene();
+        if (currentScene) {
+            currentScene->getSceneView()->Resize(size);
+        }
+    };
+    sceneViewResizeEventIndex_ = engine->addWindowResizeEvent(sceneViewResizeEvent);
+#endif // _DEBUG
+
     auto spriteResizeEvent = [this](const Vec2f& size) {
         auto currentScene = getScene();
         if (currentScene) {
@@ -30,6 +43,12 @@ void RegisterWindowResizeEvent::Finalize() {
         engine->removeWindowResizeEvent(spriteResizeEventIndex_);
         spriteResizeEventIndex_ = -1;
     }
+#ifndef _DEBUG
+    if (sceneViewResizeEventIndex_ != -1) {
+        engine->removeWindowResizeEvent(sceneViewResizeEventIndex_);
+        sceneViewResizeEventIndex_ = -1;
+    }
+#endif // _DEBUG
 }
 
 void RegisterWindowResizeEvent::UpdateEntity(GameEntity* /*_entity*/) {

@@ -23,5 +23,6 @@ private:
     void UpdateEntity(GameEntity* _entity) override;
 
 private:
-    int32_t spriteResizeEventIndex_ = -1;
+    int32_t spriteResizeEventIndex_    = -1;
+    int32_t sceneViewResizeEventIndex_ = -1;
 };

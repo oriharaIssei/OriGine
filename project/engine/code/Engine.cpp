@@ -24,7 +24,6 @@
 #include "directX12/DxFunctionHelper.h"
 #include "directX12/RenderTexture.h"
 
-
 #include "logger/Logger.h"
 
 /// util
@@ -213,10 +212,6 @@ void Engine::BeginFrame() {
         UINT width  = window_->getWidth();
         UINT height = window_->getHeight();
 
-        for (auto& event : windowResizeEvents_) {
-            event(Vec2f{float(width), float(height)});
-        }
-
         // GPU の同期を確保
         dxFence_->Signal(dxCommand_->getCommandQueue());
         dxFence_->WaitForFence();
@@ -226,6 +221,10 @@ void Engine::BeginFrame() {
         dsvResource_.Finalize();
         dsvHeap_->ReleaseDescriptor(dxDsv_);
         CreateDsv();
+
+        for (auto& event : windowResizeEvents_) {
+            event(Vec2f{float(width), float(height)});
+        }
 
         window_->setIsReSized(false);
     }

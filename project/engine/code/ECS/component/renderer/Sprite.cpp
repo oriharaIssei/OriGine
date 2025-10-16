@@ -57,6 +57,8 @@ void SpriteRenderer::Initialize(GameEntity* _hostEntity) {
             }
         });
     }
+
+    CalculateWindowRatioPosAndSize(Engine::getInstance()->getWinApp()->getWindowSize());
 }
 
 void SpriteRenderer::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {

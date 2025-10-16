@@ -52,6 +52,15 @@ void SpriteRenderSystem::Update() {
         return;
     }
 
+    ///=========================================================
+    // OrthographicMat の再計算(Resizeされる可能性)
+    ///=========================================================
+    WinApp* window = Engine::getInstance()->getWinApp();
+    viewPortMat_   = MakeMatrix::Orthographic(0, 0, (float)window->getWidth(), (float)window->getHeight(), 0.0f, 100.0f);
+
+    ///=========================================================
+    // 描画
+    ///=========================================================
     for (size_t i = 0; i < kBlendNum; ++i) {
         BlendMode blend = static_cast<BlendMode>(i);
         RenderingBy(blend);

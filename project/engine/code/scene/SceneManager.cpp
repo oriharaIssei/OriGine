@@ -51,22 +51,6 @@ void SceneManager::Initialize(const std::string& _startScene) {
     // シーンビューの初期化
     currentScene_->getSceneView()->Resize(Engine::getInstance()->getWinApp()->getWindowSize());
 
-    Engine::getInstance()->addWindowResizeEvent(
-        [](const Vec2f& newSize) {
-            auto currentScene = SceneManager::getInstance()->getCurrentScene();
-            if (!currentScene) {
-                LOG_ERROR("Current scene is null. Cannot resize SceneView.");
-                return;
-            }
-
-            auto sceneView = currentScene->getSceneView();
-            if (!sceneView) {
-                LOG_ERROR("SceneView is null. Cannot resize SceneView. CurrentSceneName : {}", currentScene->getName());
-                return;
-            }
-            sceneView->Resize(newSize);
-        });
-
 #ifdef _DEVELOP
     fileWatcher_ = std::make_unique<FileWatcher>(kApplicationResourceDirectory + "/scene/" + _startScene + ".json");
     fileWatcher_->Start();
