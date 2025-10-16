@@ -75,7 +75,7 @@ void SpriteRenderSystem::DispatchRenderer(GameEntity* _entity) {
     }
     for (auto& renderer : *renderers) {
         if (!renderer.isRender()) {
-            return;
+            continue;
         }
         renderers_[renderer.getCurrentBlend()].push_back(&renderer);
     }
