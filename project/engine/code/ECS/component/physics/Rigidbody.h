@@ -6,6 +6,9 @@
 /// math
 #include "Vector3.h"
 
+/// <summary>
+/// Rigidbody コンポーネント
+/// </summary>
 class Rigidbody
     : public IComponent {
     friend void to_json(nlohmann::json& j, const Rigidbody& r);

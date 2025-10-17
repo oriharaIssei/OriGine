@@ -304,7 +304,6 @@ void MaterialAnimation::PlayStart() {
 }
 
 void MaterialAnimation::Stop() {
-    currentTime_            = 0.f;
     animationState_.isEnd_  = true;
     animationState_.isPlay_ = false;
 }

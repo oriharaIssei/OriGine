@@ -2,7 +2,7 @@
 
 /// engine
 // directX12
-#include "directX12/IConstantBuffer.h"
+#include "IConstantBuffer.h"
 
 /// <summary>
 /// IConstantBufferのOpenDataが無いバージョン
@@ -15,17 +15,28 @@ public:
     SimpleConstantBuffer() {}
     ~SimpleConstantBuffer() {}
 
+    /// <summary>
+    /// Bufferの作成
+    /// </summary>
+    /// <param name="device"></param>
     void CreateBuffer(Microsoft::WRL::ComPtr<ID3D12Device> device);
+    /// <summary>
+    /// 終了処理
+    /// </summary>
     void Finalize() { buff_.Finalize(); }
 
+    /// <summary>
+    /// データをBufferに変換してセット
+    /// </summary>
     void ConvertToBuffer(const constBuff& _inputData) const;
-    void SetForRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const {
-        cmdList->SetGraphicsRootConstantBufferView(rootParameterNum, buff_.getResource()->GetGPUVirtualAddress());
-    }
-
-    void SetForComputeRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const {
-        cmdList->SetComputeRootConstantBufferView(rootParameterNum, buff_.getResource()->GetGPUVirtualAddress());
-    }
+    /// <summary>
+    /// RootParameterにセット (Graphics)
+    /// </summary>
+    void SetForRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const;
+    /// <summary>
+    /// RootParameterにセット (Compute)
+    /// </summary>
+    void SetForComputeRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const;
 
 protected:
     // bind されたデータ
@@ -53,4 +64,14 @@ inline void SimpleConstantBuffer<constBuff>::CreateBuffer(Microsoft::WRL::ComPtr
 template <HasInConstantBuffer constBuff>
 inline void SimpleConstantBuffer<constBuff>::ConvertToBuffer(const constBuff& _inputData) const {
     *mappingData_ = _inputData;
+}
+
+template <HasInConstantBuffer constBuff>
+inline void SimpleConstantBuffer<constBuff>::SetForRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const {
+    cmdList->SetGraphicsRootConstantBufferView(rootParameterNum, buff_.getResource()->GetGPUVirtualAddress());
+}
+
+template <HasInConstantBuffer constBuff>
+inline void SimpleConstantBuffer<constBuff>::SetForComputeRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const {
+    cmdList->SetComputeRootConstantBufferView(rootParameterNum, buff_.getResource()->GetGPUVirtualAddress());
 }

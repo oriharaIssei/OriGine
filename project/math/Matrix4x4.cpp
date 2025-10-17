@@ -128,7 +128,11 @@ Quaternion Matrix4x4::DecomposeMatrixToQuaternion(const Matrix4x4& _mat) {
 }
 
 const Matrix4x4 MakeMatrix::Identity() {
-    return Matrix4x4({1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f});
+    return Matrix4x4(
+        {1.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 1.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f});
 }
 
 Matrix4x4 MakeMatrix::Translate(const Vec3f& vec) {

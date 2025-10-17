@@ -4,6 +4,7 @@
 #include <wrl.h>
 
 #include "DirectXTex/DirectXTex.h"
+class DxDevice;
 
 #include "Vector4.h"
 #include <stdint.h>
@@ -48,17 +49,38 @@ static std::string DxResourceTypeToString(DxResourceType type) {
     }
 }
 
-class DxDevice;
+/// <summary>
+/// DirectX12 リソースの WrapperClass
+/// </summary>
 class DxResource {
 public:
     DxResource()  = default;
     ~DxResource() = default;
 
+    /// <summary>
+    /// BufferResource として 作成
+    /// </summary>
+    /// <param name="device"></param>
+    /// <param name="sizeInBytes">bufferのサイズ</param>
     void CreateBufferResource(Microsoft::WRL::ComPtr<ID3D12Device> device, size_t sizeInBytes);
+    /// <summary>
+    /// UAVBufferResource として 作成
+    /// </summary>
     void CreateUAVBuffer(Microsoft::WRL::ComPtr<ID3D12Device> device, size_t sizeInBytes, D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_HEAP_TYPE heapType = D3D12_HEAP_TYPE_DEFAULT);
+    /// <summary>
+    /// RenderTextureResource として 作成
+    /// </summary>
     void CreateRenderTextureResource(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t width, uint32_t height, DXGI_FORMAT format, const Vec4f& clearColor);
+    /// <summary>
+    /// TextureResource として 作成
+    /// </summary>
+    /// <param name="device"></param>
+    /// <param name="metadata"></param>
     void CreateTextureResource(Microsoft::WRL::ComPtr<ID3D12Device> device, const DirectX::TexMetadata& metadata);
 
+    /// <summary>
+    /// 終了処理
+    /// </summary>
     void Finalize();
 
 private:
@@ -68,10 +90,14 @@ private:
 
 public:
     const EnumBitmask<DxResourceType>& getType() const { return type_; }
-    void setType(DxResourceType _type) { type_ = EnumBitmask(_type); }
     void addType(DxResourceType _type) { type_ |= EnumBitmask(_type); }
+    void setType(DxResourceType _type) { type_ = EnumBitmask(_type); }
 
-    bool isValid() const { return resource_ != nullptr; } // リソースが有効かどうかを確認
+    /// <summary>
+    /// Resourceが有効かどうかを確認
+    /// </summary>
+    /// <returns></returns>
+    bool isValid() const { return resource_ != nullptr; } 
     const Microsoft::WRL::ComPtr<ID3D12Resource>& getResource() const { return resource_; }
     Microsoft::WRL::ComPtr<ID3D12Resource>& getResourceRef() { return resource_; }
 
@@ -81,41 +107,4 @@ public:
     UINT height() const { return resourceDesc_.Height; } // テクスチャの高さを取得
 
     HRESULT setName(const std::wstring& name);
-};
-
-class DxResourcePool {
-public:
-    DxResourcePool()  = default;
-    ~DxResourcePool() = default;
-
-    void Initialize(uint32_t size);
-    void Finalize();
-
-    uint32_t addResource(const DxResource& resource);
-
-    void releaseResource(uint32_t index);
-
-    void clear() {
-        resources_.clear();
-        usedFlags_ = 0;
-        size_      = 0;
-    }
-
-private:
-    bool isUsed(uint32_t index) const;
-    void setUsed(uint32_t index, bool used);
-    uint32_t Allocate();
-
-private:
-    uint32_t size_ = 0;
-    std::vector<DxResource> resources_;
-    BitArray<std::uint32_t> usedFlags_; // リソースが使用中かどうかを管理するビット配列
-public:
-    DxResource& getResource(uint32_t index) {
-        if (index >= resources_.size()) {
-            throw std::out_of_range("Index out of range in DxResourcePool");
-        }
-        return resources_[index];
-    }
-    uint32_t getResourceCount() const { return static_cast<uint32_t>(resources_.size()); }
 };

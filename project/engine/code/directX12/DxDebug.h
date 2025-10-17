@@ -4,6 +4,9 @@
 
 #include <d3d12.h>
 
+/// <summary>
+/// DirectX12 をデバッグするためのクラス. デストラクタ時にReportLiveObjectsを呼び出す.
+/// </summary>
 class DxDebug {
 public:
     static DxDebug* getInstance() {
@@ -11,9 +14,18 @@ public:
         return &instance;
     }
 
+    /// <summary>
+    /// デバッグレイヤーの有効化等の初期化処理
+    /// </summary>
     void InitializeDebugger();
+    /// <summary>
+    /// 終了処理. ReportLiveObjectsを呼び出す.
+    /// </summary>
     void FinalizeDebugger();
 
+    /// <summary>
+    /// ID3D12InfoQueueの作成. デバッグレイヤーが有効化されていないと失敗する.
+    /// </summary>
     void CreateInfoQueue();
 
 private:

@@ -10,6 +10,9 @@
 #include "component/animation/AnimationData.h"
 struct Material;
 
+/// <summary>
+/// Materialをアニメーションさせるコンポーネント
+/// </summary>
 class MaterialAnimation
     : public IComponent {
     friend void to_json(nlohmann::json& _json, const MaterialAnimation& _primitiveNodeAnimation);
@@ -27,7 +30,13 @@ public:
 
     void Update(float _deltaTime, Material* _material);
 
+    /// <summary>
+    /// アニメーションを最初から再生する
+    /// </summary>
     void PlayStart();
+    /// <summary>
+    /// アニメーションを停止する
+    /// </summary>
     void Stop();
 
 protected:

@@ -16,6 +16,9 @@
 #include "Matrix4x4.h"
 #include "Quaternion.h"
 
+/// <summary>
+/// Transform コンポーネント(3次元)
+/// </summary>
 struct Transform
     : public IComponent {
 public:

@@ -10,7 +10,7 @@
 #include "directX12/DxDescriptor.h"
 #include "directX12/IConstantBuffer.h"
 #include "directX12/IStructuredBuffer.h"
-#include "directX12/Mesh.h"
+#include "directX12/mesh/Mesh.h"
 #include "directX12/ShaderManager.h"
 /// ECS
 // component

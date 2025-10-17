@@ -24,12 +24,31 @@ enum class DxDescriptorHeapType {
     DSV         = D3D12_DESCRIPTOR_HEAP_TYPE_DSV, // Depth Stencil View
 };
 
+/// <summary>
+/// Heapを作成する Helper関数
+/// </summary>
+/// <param name="device"></param>
+/// <param name="heapType"></param>
+/// <param name="numDescriptors"></param>
+/// <param name="shaderVisible"></param>
+/// <returns></returns>
 Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> CreateHeap(Microsoft::WRL::ComPtr<ID3D12Device> device, D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible);
 
+/// <summary>
+/// Descriptor 1つを表すクラス
+/// </summary>
+/// <typeparam name="Type"></typeparam>
 template <DxDescriptorHeapType Type>
 struct DxDescriptor {
     static constexpr DxDescriptorHeapType HeapType = Type;
 
+    /// <summary>
+    /// コンストラクタ
+    /// </summary>
+    /// <param name="_index">Heap内での自身のインデックス</param>
+    /// <param name="_resource">DescriptorのResource</param>
+    /// <param name="_cpuHandle"></param>
+    /// <param name="_gpuHandle"></param>
     DxDescriptor(
         uint32_t _index,
         Microsoft::WRL::ComPtr<ID3D12Resource> _resource = nullptr,
@@ -63,6 +82,9 @@ using DxSrvDescriptor     = DxDescriptor<DxDescriptorHeapType::CBV_SRV_UAV>;
 using DxUavDescriptor     = DxDescriptor<DxDescriptorHeapType::CBV_SRV_UAV>; // cbv,srv,uav は 同一Heapで作成するので 一旦同じということにしておく
 using DxSamplerDescriptor = DxDescriptor<DxDescriptorHeapType::Sampler>;
 
+/// <summary>
+/// Descriptor Heapを表すクラス. Descriptorの生成、削除管理を行う
+/// </summary>
 template <DxDescriptorHeapType Type>
 class DxDescriptorHeap {
 public:
@@ -75,14 +97,25 @@ public:
     void Initialize(Microsoft::WRL::ComPtr<ID3D12Device> _device);
     void Finalize();
 
-    // void CompactHeap();
 
+    /// <summary>
+    /// Descriptorを作成する
+    /// </summary>
+    /// <typeparam name="Desc"></typeparam>
+    /// <param name="_desc"></param>
+    /// <param name="_resource"></param>
+    /// <returns></returns>
     template <typename Desc>
     std::shared_ptr<DescriptorType> CreateDescriptor(const Desc& _desc, DxResource* _resource);
 
+    /// <summary>
+    /// Descriptorを割り当てる
+    /// </summary>
+    /// <param name="_resource"></param>
+    /// <returns></returns>
     std::shared_ptr<DescriptorType> AllocateDescriptor(DxResource* _resource) {
         if (!_resource) {
-            LOG_ERROR("DxDescriptorHeap::AllocateDescriptor: Resource is null");
+            LOG_ERROR("Resource is null");
             throw std::invalid_argument("Resource is null");
         }
 
@@ -97,9 +130,14 @@ public:
         return descriptor;
     }
 
+    /// <summary>
+    /// Descriptor を割り当てる
+    /// </summary>
+    /// <param name="_resource"></param>
+    /// <returns></returns>
     std::shared_ptr<DescriptorType> AllocateDescriptor(Microsoft::WRL::ComPtr<ID3D12Resource> _resource) {
         if (!_resource) {
-            LOG_ERROR("DxDescriptorHeap::AllocateDescriptor: Resource is null");
+            LOG_ERROR("Resource is null");
             throw std::invalid_argument("Resource is null");
         }
 
@@ -114,6 +152,9 @@ public:
         return descriptor;
     }
 
+    /// <summary>
+    /// Descriptor を割り当てる (Resource無し)
+    /// </summary> 
     std::shared_ptr<DescriptorType> AllocateDescriptor() {
 
         uint32_t index                        = Allocate();
@@ -127,6 +168,9 @@ public:
         return descriptor;
     }
 
+    /// <summary>
+    /// Descriptorを解放する
+    /// </summary> 
     void ReleaseDescriptor(std::shared_ptr<DescriptorType>& _descriptor) {
         if (!_descriptor) {
             LOG_ERROR("DxDescriptorHeap::ReleaseDescriptor: Descriptor is null");

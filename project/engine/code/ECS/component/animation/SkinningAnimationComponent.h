@@ -11,6 +11,9 @@
 
 class Scene;
 
+/// <summary>
+/// スキニングアニメーションコンポーネント
+/// </summary>
 class SkinningAnimationComponent
     : public IComponent {
     friend void to_json(nlohmann::json& j, const SkinningAnimationComponent& r);
@@ -21,7 +24,7 @@ public:
     ~SkinningAnimationComponent() override = default;
 
     void Initialize(GameEntity* _entity) override;
-    void Edit(Scene* _scene, GameEntity* _entity,  const std::string& _parentLabel);
+    void Edit(Scene* _scene, GameEntity* _entity, const std::string& _parentLabel);
     void Finalize() override;
 
     /// <summary>
@@ -31,15 +34,45 @@ public:
     /// <param name="fileName"></param>
     void addLoad(const std::string& directory, const std::string& fileName);
 
+    /// <summary>
+    /// currentAnimationIndex_ のアニメーションを再生する
+    /// </summary>
     void Play();
-    void Play( int32_t index);
-    void Play( const std::string& name);
+    /// <summary>
+    /// 指定したインデックスのアニメーションを再生する
+    /// </summary>
+    /// <param name="index">animationのIndexを指定する</param>
+    void Play(int32_t index);
+    /// <summary>
+    /// 指定した名前のアニメーションを再生する
+    /// </summary>
+    /// <param name="name">animationの名前を指定する</param>
+    void Play(const std::string& name);
+    /// <summary>
+    /// 指定したインデックスのアニメーションを次のアニメーションにセットする
+    /// </summary>
+    /// <param name="index">nextAnimationのIndexを指定する</param>
+    /// <param name="_blendTime">ブレンドにかける時間(秒)</param>
     void PlayNext(int32_t index, float _blendTime = 0.1f);
+    /// <summary>
+    /// 指定した名前のアニメーションを次のアニメーションにセットする
+    /// </summary>
+    /// <param name="name">nextAnimationの名前を指定する</param>
+    /// <param name="_blendTime">ブレンドにかける時間(秒)</param>
     void PlayNext(const std::string& name, float _blendTime = -0.1f);
 
+    /// <summary>
+    /// 再生中のアニメーションを停止する
+    /// </summary>
     void Stop();
 
+    /// <summary>
+    /// スキニングされた頂点バッファを作成する
+    /// </summary>
     void CreateSkinnedVertex(Scene* _scene);
+    /// <summary>
+    /// スキニングされた頂点バッファを削除する
+    /// </summary>
     void DeleteSkinnedVertex();
 
 public:

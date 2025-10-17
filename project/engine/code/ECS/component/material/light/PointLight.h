@@ -14,6 +14,9 @@
 #include "math/Vector3.h"
 #include "math/Vector4.h"
 
+/// <summary>
+/// Point Light
+/// </summary>
 class PointLight
     : public IComponent {
     friend void to_json(nlohmann::json& j, const PointLight& l);

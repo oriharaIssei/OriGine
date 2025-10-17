@@ -14,7 +14,7 @@
 // dx12Object
 #include "directX12/IConstantBuffer.h"
 #include "directX12/IStructuredBuffer.h"
-#include "directX12/Mesh.h"
+#include "directX12/mesh/Mesh.h"
 // component
 #include "component/material/Material.h"
 #include "component/transform/Transform.h"

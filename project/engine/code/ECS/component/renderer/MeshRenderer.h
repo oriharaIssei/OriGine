@@ -16,9 +16,9 @@
 #include "component/material/Material.h"
 #include "component/transform/Transform.h"
 // directX12Object
-#include "directX12/Mesh.h"
+#include "directX12/mesh/Mesh.h"
 #include "directX12/ShaderManager.h"
-#include "directX12/SimpleConstantBuffer.h"
+#include "directX12/buffer/SimpleConstantBuffer.h"
 // module
 #include "texture/TextureManager.h"
 

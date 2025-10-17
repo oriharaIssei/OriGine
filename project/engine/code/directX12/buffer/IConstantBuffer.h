@@ -10,9 +10,11 @@
 // directX12
 #include "directX12/DxResource.h"
 
-
 #include <logger/Logger.h>
 
+/// <summary>
+/// 内部宣言で ConstantBuffer 型を持つことを要求するコンセプト
+/// </summary>
 template <typename T>
 concept HasInConstantBuffer = requires {
     typename T::ConstantBuffer;
@@ -20,6 +22,10 @@ concept HasInConstantBuffer = requires {
     { std::declval<typename T::ConstantBuffer>() = std::declval<const T&>() } -> std::same_as<typename T::ConstantBuffer&>;
 };
 
+/// <summary>
+/// ConstantBufferと外部データを保持するクラス
+/// </summary>
+/// <typeparam name="constBuff"></typeparam>
 template <HasInConstantBuffer constBuff>
 class IConstantBuffer {
 public:
@@ -31,18 +37,31 @@ public:
     IConstantBuffer() {}
     ~IConstantBuffer() {}
 
+    /// <summary>
+    /// ConstantBuffer用のバッファを作成する
+    /// </summary>
+    /// <param name="device"></param>
     void CreateBuffer(Microsoft::WRL::ComPtr<ID3D12Device> device);
-    void Finalize() { buff_.Finalize(); }
+    /// <summary>
+    /// 終了処理
+    /// </summary>
+    inline void Finalize();
 
+    /// <summary>
+    /// openData_ の内容を GPU 用バッファに変換する
     void ConvertToBuffer() const;
-    void SetForRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const {
-        cmdList->SetGraphicsRootConstantBufferView(rootParameterNum, buff_.getResource()->GetGPUVirtualAddress());
-    }
+    /// <summary>
+    /// グラフィックス用ルートパラメータにConstantBufferをセット
+    /// </summary>
+    void SetForRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const;
+    /// <summary>
+    /// コンピュート用ルートパラメータにConstantBufferをセット
+    /// </summary>
+    /// <param name="cmdList"></param>
+    /// <param name="rootParameterNum"></param>
+    void SetForComputeRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const;
 
-    void SetForComputeRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const {
-        cmdList->SetComputeRootConstantBufferView(rootParameterNum, buff_.getResource()->GetGPUVirtualAddress());
-    }
-
+public:
     // 公開用変数
     constBuff openData_;
     // openData_ のアクセス
@@ -74,6 +93,22 @@ inline void IConstantBuffer<constBuff>::CreateBuffer(Microsoft::WRL::ComPtr<ID3D
 }
 
 template <HasInConstantBuffer constBuff>
+inline void IConstantBuffer<constBuff>::Finalize() {
+    if (buff_.isValid()) {
+        buff_.Finalize();
+    }
+}
+template <HasInConstantBuffer constBuff>
 inline void IConstantBuffer<constBuff>::ConvertToBuffer() const {
     *mappingData_ = openData_;
+}
+
+template <HasInConstantBuffer constBuff>
+inline void IConstantBuffer<constBuff>::SetForRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const {
+    cmdList->SetGraphicsRootConstantBufferView(rootParameterNum, buff_.getResource()->GetGPUVirtualAddress());
+}
+
+template <HasInConstantBuffer constBuff>
+inline void IConstantBuffer<constBuff>::SetForComputeRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const {
+    cmdList->SetComputeRootConstantBufferView(rootParameterNum, buff_.getResource()->GetGPUVirtualAddress());
 }

@@ -5,8 +5,14 @@
 
 #include <dxcapi.h>
 
+/// <summary>
+/// ShaderのCompileを行うクラス
+/// </summary>
 class ShaderCompiler {
 public:
+    /// <summary>
+    /// 初期化処理
+    /// </summary>
 	void Initialize();
 	/// <summary>
 	/// DxCを使ってShaderをCompileする
@@ -15,6 +21,9 @@ public:
 	/// <param name="profile">CompilerにしようするProfile</param>
 	/// <returns></returns>
 	IDxcBlob* CompileShader(const std::wstring& filePath,const wchar_t* profile);
+    /// <summary>
+    /// 終了処理
+    /// </summary>
 	void Finalize();
 private:
 	Microsoft::WRL::ComPtr<IDxcUtils> dxcUtils_ = nullptr;

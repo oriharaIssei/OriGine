@@ -7,9 +7,9 @@
 /// engine
 // dx12object
 #include "directX12/IStructuredBuffer.h"
-#include "directX12/Mesh.h"
+#include "directX12/mesh/Mesh.h"
 #include "directX12/ShaderManager.h"
-#include "directX12/SimpleConstantBuffer.h"
+#include "directX12/buffer/SimpleConstantBuffer.h"
 // assets
 #include "component/material/Material.h"
 struct ParticleKeyFrames;

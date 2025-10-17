@@ -12,6 +12,9 @@ class SpriteRenderer;
 #include <Vector2.h>
 #include <Vector4.h>
 
+/// <summary>
+/// Spriteをアニメーションさせるコンポーネント
+/// </summary>
 class SpriteAnimation
     : public IComponent {
     friend void to_json(nlohmann::json& j, const SpriteAnimation& r);
@@ -27,11 +30,26 @@ public:
 
     void UpdateSpriteAnimation(float _deltaTime, SpriteRenderer* _spriteRenderer);
 
+    /// <summary>
+    /// Animation を開始する
+    /// </summary>
     void PlayStart();
+    /// <summary>
+    /// Animation を停止する
+    /// </summary>
     void Stop();
 
+    /// <summary>
+    /// Color Animation を再生する
+    /// </summary>
     void PlayColorAnimation();
+    /// <summary>
+    /// Transform Animation を再生する
+    /// </summary>
     void PlayTransformAnimation();
+    /// <summary>
+    /// UV Animation を再生する
+    /// </summary>
     void PlayUVAnimation();
 
 private:

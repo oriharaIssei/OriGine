@@ -4,6 +4,9 @@
 
 #include "d3d12.h"
 
+/// <summary>
+/// DirectX12 Fence の WrapperClass
+/// </summary>
 class DxFence {
 public:
     void Initialize(Microsoft::WRL::ComPtr<ID3D12Device> device);

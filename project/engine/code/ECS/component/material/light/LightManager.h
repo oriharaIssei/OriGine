@@ -12,12 +12,15 @@
 #include "PointLight.h"
 #include "SpotLight.h"
 // directX12Object
+#include "directX12/buffer/IConstantBuffer.h"
+#include "directX12/buffer/IStructuredBuffer.h"
 #include "directX12/DxDescriptor.h"
-#include "directX12/IConstantBuffer.h"
-#include "directX12/IStructuredBuffer.h"
 
 #include "globalVariables/SerializedField.h"
 
+/// <summary>
+/// ライトの数を管理する構造体
+/// </summary>
 struct LightCounts {
     int32_t directionalLightNum = 0;
     int32_t pointLightNum       = 0;
@@ -37,6 +40,9 @@ struct LightCounts {
     };
 };
 
+/// <summary>
+/// ライトを管理するクラス
+/// </summary>
 class LightManager {
 public:
     static LightManager* getInstance() {
@@ -74,10 +80,24 @@ public:
     size_t getPointLightCapacity() const { return pointLights_.capacity(); }
     size_t getSpotLightCapacity() const { return spotLights_.capacity(); }
 
+    /// <summary>
+    /// DirectionalLightを追加する
+    /// </summary>
+    /// <param name="light"></param>
     void pushDirectionalLight(const DirectionalLight& light);
+    /// <summary>
+    /// PointLightを追加する
+    /// </summary>
     void pushPointLight(const PointLight& light);
+    /// <summary>
+    /// SpotLightを追加する
+    /// </summary>
+    /// <param name="light"></param>
     void pushSpotLight(const SpotLight& light);
 
+    /// <summary>
+    /// Lightをclearする
+    /// </summary>
     void clearLights() {
         directionalLights_.openData_.clear();
         pointLights_.openData_.clear();

@@ -11,12 +11,19 @@
 #include "directX12/DxResource.h"
 #include "Engine.h"
 
+/// <summary>
+/// StructuredBuffer コンセプト
+/// </summary>
 template <typename T>
 concept StructuredBuffer = requires {
     typename T::ConstantBuffer;
     requires std::is_copy_assignable_v<typename T::ConstantBuffer>;
     { std::declval<typename T::ConstantBuffer>() = std::declval<const T&>() } -> std::same_as<typename T::ConstantBuffer&>;
 };
+
+/// <summary>
+/// StructuredBufferと 外部データ(vector)を保持するクラス
+/// </summary>
 template <StructuredBuffer structBuff>
 class IStructuredBuffer {
 public:
@@ -25,7 +32,16 @@ public:
     IStructuredBuffer()  = default;
     ~IStructuredBuffer() = default;
 
+    /// <summary>
+    /// StructuredBuffer用のバッファを作成する
+    /// </summary>
+    /// <param name="device"></param>
+    /// <param name="elementCount"></param>
+    /// <param name="_withUAV"></param>
     void CreateBuffer(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t elementCount, bool _withUAV = false);
+    /// <summary>
+    /// 終了処理
+    /// </summary>
     void Finalize();
 
     // 公開用変数（バッファのデータを保持）
@@ -41,17 +57,31 @@ protected:
     uint32_t elementCount_ = 0;
 
 public:
+    /// <summary>
+    /// データをバッファに変換する
+    /// </summary>
     void ConvertToBuffer();
+    /// <summary>
+    /// ルートパラメータにセットする
+    /// </summary>
     void SetForRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const;
 
+    /// <summary>
+    /// バッファのサイズを変更する
+    /// </summary>
     void resize(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t newElementCount);
+    /// <summary>
+    /// openData_ のサイズに合わせてバッファをリサイズする
+    /// </summary>
     void resizeForDataSize(Microsoft::WRL::ComPtr<ID3D12Device> device);
+
     size_t size() const { return openData_.size(); }
     size_t capacity() const { return elementCount_; }
 
     DxResource& getResource() { return buff_; }
     std::shared_ptr<DxSrvDescriptor> getSrv() const { return srv_; }
 };
+
 
 template <StructuredBuffer structBuff>
 inline void IStructuredBuffer<structBuff>::CreateBuffer(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t elementCount, bool _withUAV) {

@@ -453,15 +453,6 @@
     <ClInclude Include="engine\code\directX12\DxSwapChain.h">
       <Filter>engine\code\directX12</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\directX12\IConstantBuffer.h">
-      <Filter>engine\code\directX12</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\code\directX12\IStructuredBuffer.h">
-      <Filter>engine\code\directX12</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\code\directX12\Mesh.h">
-      <Filter>engine\code\directX12</Filter>
-    </ClInclude>
     <ClInclude Include="engine\code\directX12\PipelineStateObj.h">
       <Filter>engine\code\directX12</Filter>
     </ClInclude>
@@ -475,12 +466,6 @@
       <Filter>engine\code\directX12</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\directX12\ShaderManager.h">
-      <Filter>engine\code\directX12</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\code\directX12\SimpleConstantBuffer.h">
-      <Filter>engine\code\directX12</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\code\directX12\SimpleStructuredBuffer.h">
       <Filter>engine\code\directX12</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\imGuiManager\ImGuiManager.h">
@@ -546,7 +531,7 @@
     <ClInclude Include="math\mathEnv.h">
       <Filter>math</Filter>
     </ClInclude>
-    <ClInclude Include="math\shape\Shapes.h">
+    <ClInclude Include="math\bounds\base\IBounds.h">
       <Filter>math\shape</Filter>
     </ClInclude>
     <ClInclude Include="util\BitArray.h">
@@ -597,6 +582,33 @@
     <ClInclude Include="util\timeline\Timeline.h">
       <Filter>util\timeline</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\collider\AABBCollider.h" />
+    <ClInclude Include="engine\code\directX12\mesh\DefaultVertexData.h" />
+    <ClInclude Include="engine\code\directX12\buffer\IConstantBuffer.h" />
+    <ClInclude Include="engine\code\directX12\buffer\IStructuredBuffer.h" />
+    <ClInclude Include="engine\code\directX12\mesh\Mesh.h" />
+    <ClInclude Include="engine\code\directX12\buffer\SimpleConstantBuffer.h" />
+    <ClInclude Include="engine\code\directX12\buffer\SimpleStructuredBuffer.h" />
+    <ClInclude Include="engine\code\ECS\component\collision\collider\AABBCollider.h" />
+    <ClInclude Include="engine\code\ECS\component\collision\collider\Collider.h" />
+    <ClInclude Include="engine\code\ECS\component\collision\CollisionPushBackInfo.h" />
+    <ClInclude Include="engine\code\ECS\component\collision\collider\SphereCollider.h" />
+    <ClInclude Include="engine\code\ECS\component\collision\collider\OBBCollider.h" />
+    <ClInclude Include="engine\code\ECS\component\renderer\primitive\base\PrimitiveType.h" />
+    <ClInclude Include="engine\code\ECS\component\renderer\primitive\base\IPrimitive.h" />
+    <ClInclude Include="engine\code\ECS\component\renderer\primitive\shape\Plane.h" />
+    <ClInclude Include="engine\code\ECS\component\renderer\primitive\shape\Ring.h" />
+    <ClInclude Include="engine\code\ECS\component\renderer\primitive\shape\Box.h" />
+    <ClInclude Include="engine\code\ECS\component\renderer\primitive\shape\Sphere.h" />
+    <ClInclude Include="math\bounds\AABB.h" />
+    <ClInclude Include="math\bounds\OBB.h" />
+    <ClInclude Include="math\bounds\Sphere.h" />
+    <ClInclude Include="geometry\base\IGeometry.h" />
+    <ClInclude Include="geometry\base\GeometryType.h" />
+    <ClInclude Include="geometry\shape\Box.h" />
+    <ClInclude Include="geometry\shape\Plane.h" />
+    <ClInclude Include="geometry\shape\Ring.h" />
+    <ClInclude Include="geometry\shape\Sphere.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="editor\EditorController.cpp">
@@ -899,9 +911,6 @@
     <ClCompile Include="engine\code\directX12\RenderTexture.cpp">
       <Filter>engine\code\directX12</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\directX12\ResourceBarrierManager.cpp">
-      <Filter>engine\code\directX12</Filter>
-    </ClCompile>
     <ClCompile Include="engine\code\directX12\ResourceStateTracker.cpp">
       <Filter>engine\code\directX12</Filter>
     </ClCompile>
@@ -980,5 +989,17 @@
     <ClCompile Include="util\timeline\Timeline.cpp">
       <Filter>util\timeline</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\ECS\component\collider\AABBCollider.cpp" />
+    <ClCompile Include="engine\code\ECS\component\collision\collider\AABBCollider.cpp" />
+    <ClCompile Include="engine\code\ECS\component\collision\collider\Collider.cpp" />
+    <ClCompile Include="engine\code\ECS\component\collision\CollisionPushBackInfo.cpp" />
+    <ClCompile Include="engine\code\ECS\component\collision\collider\SphereCollider.cpp" />
+    <ClCompile Include="engine\code\ECS\component\collision\collider\OBBCollider.cpp" />
+    <ClCompile Include="engine\code\ECS\component\renderer\primitive\base\PrimitiveType.cpp" />
+    <ClCompile Include="engine\code\ECS\component\renderer\primitive\shape\Plane.cpp" />
+    <ClCompile Include="engine\code\ECS\component\renderer\primitive\shape\Ring.cpp" />
+    <ClCompile Include="engine\code\ECS\component\renderer\primitive\shape\Box.cpp" />
+    <ClCompile Include="engine\code\ECS\component\renderer\primitive\shape\Sphere.cpp" />
+    <ClCompile Include="geometry\base\GeometryType.cpp" />
   </ItemGroup>
 </Project>

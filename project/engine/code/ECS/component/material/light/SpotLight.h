@@ -13,6 +13,9 @@
 #include "Vector3.h"
 #include "Vector4.h"
 
+/// <summary>
+/// Spot Light
+/// </summary>
 class SpotLight
     : public IComponent {
     friend void to_json(nlohmann::json& j, const SpotLight& l);

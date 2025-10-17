@@ -3,7 +3,7 @@
 
 /// engine
 #include "directX12/IConstantBuffer.h"
-#include "directX12/SimpleConstantBuffer.h"
+#include "directX12/buffer/SimpleConstantBuffer.h"
 
 /// component
 #include "component/material/Material.h"

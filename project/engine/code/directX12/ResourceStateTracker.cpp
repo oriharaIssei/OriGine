@@ -5,6 +5,23 @@
 
 std::unordered_map<ID3D12Resource*, D3D12_RESOURCE_STATES> ResourceStateTracker::globalResourceStates_;
 
+void ResourceStateTracker::RegisterResource(Microsoft::WRL::ComPtr<ID3D12Resource> resource, D3D12_RESOURCE_STATES initialState) {
+    globalResourceStates_[resource.Get()] = initialState;
+}
+
+void ResourceStateTracker::UnregisterResource(ID3D12Resource* resource) {
+    globalResourceStates_.erase(resource);
+}
+
+void ResourceStateTracker::ClearGlobalResourceStates() {
+    globalResourceStates_.clear();
+}
+
+void ResourceStateTracker::RegisterResource2Local(Microsoft::WRL::ComPtr<ID3D12Resource> resource, D3D12_RESOURCE_STATES initialState) {
+    localResourceStates_[resource.Get()]  = initialState;
+    globalResourceStates_[resource.Get()] = initialState;
+}
+
 void ResourceStateTracker::Barrier(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList, ID3D12Resource* resource, D3D12_RESOURCE_STATES stateAfter) {
     // まずローカルを参照
     D3D12_RESOURCE_STATES stateBefore;

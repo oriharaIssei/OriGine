@@ -11,6 +11,9 @@
 struct Material;
 struct Transform;
 
+/// <summary>
+/// PrimtiveをNode単位でアニメーションさせるコンポーネント
+/// </summary>
 class PrimitiveNodeAnimation
     : public IComponent {
     friend void to_json(nlohmann::json& _json, const PrimitiveNodeAnimation& _primitiveNodeAnimation);
@@ -32,6 +35,10 @@ public:
     void Stop();
 
 protected:
+    /// <summary>
+    /// Transformに対してアニメーションを適用する
+    /// </summary>
+    /// <param name="_transform"></param>
     void UpdateTransformAnimation(Transform* _transform);
 
 private:

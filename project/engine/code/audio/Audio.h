@@ -13,6 +13,7 @@
 #include "component/IComponent.h"
 #include "system/ISystem.h"
 
+
 struct ChunkHeader {
     char id[4];
     int32_t size;
@@ -39,6 +40,9 @@ public:
     float volume_ = 0.5f;
 };
 
+/// <summary>
+/// 音を再生するためのコンポーネント
+/// </summary>
 class Audio
     : public IComponent {
     friend void to_json(nlohmann::json& j, const Audio& t);
