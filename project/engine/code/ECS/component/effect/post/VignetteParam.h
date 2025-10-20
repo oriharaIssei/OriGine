@@ -3,7 +3,7 @@
 
 /// engine
 // DirectX12
-#include "directX12/IConstantBuffer.h"
+#include "directX12/buffer/IConstantBuffer.h"
 
 /// math
 #include "Vector4.h"
@@ -41,9 +41,9 @@ public:
     VignetteParam()           = default;
     ~VignetteParam() override = default;
 
-    void Initialize(GameEntity* _entity);
+    void Initialize(Entity* _entity);
 
-    void Edit(Scene* _scene,GameEntity* _entity,[[maybe_unused]] const std::string& _parentLabel);
+    void Edit(Scene* _scene,Entity* _entity,[[maybe_unused]] const std::string& _parentLabel);
     void Finalize();
 
 private:

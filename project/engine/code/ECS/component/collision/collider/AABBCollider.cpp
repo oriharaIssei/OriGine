@@ -11,7 +11,7 @@ void from_json(const nlohmann::json& _json, AABBCollider& _a) {
     _json.at("transform").get_to(_a.transform_);
 }
 
-void AABBCollider::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
+void AABBCollider::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     CheckBoxCommand("IsActive", this->isActive_);

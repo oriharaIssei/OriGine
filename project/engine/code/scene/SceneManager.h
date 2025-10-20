@@ -9,7 +9,7 @@
 
 /// engine
 #include "component/ComponentArray.h"
-#include "ECS/Entity.h"
+#include "entity/Entity.h"
 #include "Scene.h"
 
 #include "util/globalVariables/SerializedField.h"
@@ -109,9 +109,9 @@ public:
     void SaveEntity(int32_t _entityID, const std::string& _directory);
     void EntityToJson(int32_t _entityID, nlohmann::json& entityData);
 
-    GameEntity* LoadEntity(const std::string& _directory, const std::string& _dataType);
-    GameEntity* EntityFromJson(const nlohmann::json& _entityData);
-    GameEntity* EntityFromJson(int32_t _entityId, const nlohmann::json& _entityData);
+    Entity* LoadEntity(const std::string& _directory, const std::string& _dataType);
+    Entity* EntityFromJson(const nlohmann::json& _entityData);
+    Entity* EntityFromJson(int32_t _entityId, const nlohmann::json& _entityData);
 
 private:
     nlohmann::json rootJson_;
@@ -127,28 +127,3 @@ public:
         rootJson_ = _rootJson;
     }
 };
-
-/// <summary>
-/// !!!非推奨!!!
-/// currentSceneの指定したEntityを取得
-/// </summary>
-/// <param name="_entityID"></param>
-/// <returns></returns>
-GameEntity* getSceneEntity(int32_t _entityID);
-/// <summary>
-/// !!!非推奨!!!
-/// currentSceneの指定した UniqueEntityを取得
-/// </summary>
-/// <param name="_name"></param>
-/// <returns></returns>
-GameEntity* getSceneUniqueEntity(const std::string& _name);
-
-template <IsComponent CompType>
-CompType* getSceneComponent(GameEntity* _entity, int32_t _compIdx = 0) {
-    if (!_entity) {
-        return nullptr;
-    }
-    Scene* currentScene = SceneManager::getInstance()->getCurrentScene();
-
-    return currentScene->getComponentRepositoryRef()->getComponent<CompType>(_entity, _compIdx);
-}

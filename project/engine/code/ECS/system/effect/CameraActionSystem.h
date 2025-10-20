@@ -1,6 +1,9 @@
 #pragma once
 #include "system/ISystem.h"
 
+/// <summary>
+/// CameraAction を再生するシステム
+/// </summary>
 class CameraActionSystem
     : public ISystem {
 public:
@@ -11,5 +14,5 @@ public:
     void Finalize();
 
 protected:
-    void UpdateEntity(GameEntity* _entity);
+    void UpdateEntity(Entity* _entity);
 };

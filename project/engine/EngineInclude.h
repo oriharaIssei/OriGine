@@ -27,11 +27,13 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 #endif // ENGINE_ECS
 
 #ifdef ENGINE_ENTITY
-#include "ECS/Entity.h"
+#include "entity/Entity.h"
 #endif // ENGINE_ECS
 
 #ifdef ENGINE_SYSTEMS
 #include "system/ISystem.h"
+#include "system/SystemRegistry.h"
+#include "system/SystemRunner.h"
 
 #include "system/movement/SubSceneUpdate.h"
 #include "system/postRender/SubSceneRender.h"
@@ -53,7 +55,6 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 #include "system/effect/PrimitiveNodeAnimationWorkSystem.h"
 #include "system/effect/SkinningAnimationSystem.h"
 #include "system/effect/SpriteAnimationSystem.h"
-#include "system/effect/TextureEffectAnimation.h"
 
 #include "system/render/BackGroundSpriteRenderSystem.h"
 #include "system/render/ColliderRenderingSystem.h"
@@ -79,6 +80,9 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 #endif // ENGINE_SYSTEMS
 
 #ifdef ENGINE_COMPONENTS
+#include "component/ComponentArray.h"
+#include "component/ComponentRegistry.h"
+#include "component/ComponentRepository.h"
 #include "component/IComponent.h"
 
 #include "audio/Audio.h"
@@ -100,8 +104,12 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 #include "component/animation/SkinningAnimationComponent.h"
 #include "component/animation/SpriteAnimation.h"
 
-#include "component/collider/Collider.h"
-#include "component/collider/CollisionPushBackInfo.h"
+#include "component/collision/collider/AABBCollider.h"
+#include "component/collision/collider/Collider.h"
+#include "component/collision/collider/OBBCollider.h"
+#include "component/collision/collider/SphereCollider.h"
+
+#include "component/collision/CollisionPushBackInfo.h"
 #include "component/physics/Rigidbody.h"
 
 #include "component/effect/MaterialEffectPipeLine.h"
@@ -114,10 +122,14 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 #include "component/effect/post/RandomEffectParam.h"
 #include "component/effect/post/SpeedlineEffectParam.h"
 #include "component/effect/post/VignetteParam.h"
-#include "component/effect/TextureEffectParam.h"
 
 #include "component/renderer/MeshRenderer.h"
-#include "component/renderer/primitive/Primitive.h"
+#include "component/renderer/primitive/base/PrimitiveMeshRendererBase.h"
+#include "component/renderer/primitive/BoxRenderer.h"
+#include "component/renderer/primitive/PlaneRenderer.h"
+#include "component/renderer/primitive/RingRenderer.h"
+#include "component/renderer/primitive/SphereRenderer.h"
+
 #include "component/renderer/SkyboxRenderer.h"
 #include "component/renderer/Sprite.h"
 

@@ -25,6 +25,9 @@
 
 const std::string shaderDirectory = "engine/resource/Shader";
 
+/// <summary>
+/// ブレンドモード
+/// </summary>
 enum class BlendMode {
     None     = 0,
     Normal   = 1,

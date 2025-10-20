@@ -9,6 +9,9 @@
 #include "component/physics/Rigidbody.h"
 #include "component/transform/Transform.h"
 
+/// <summary>
+/// Velocityを描画するシステム
+/// </summary>
 class VelocityRenderingSystem : public ISystem {
 public:
     VelocityRenderingSystem() : ISystem(SystemCategory::Render) {}
@@ -21,10 +24,19 @@ public:
     static const int32_t defaultMeshCount_;
 
 private:
+    /// <summary>
+    /// Velocityの情報を元に描画用メッシュを作成
+    /// </summary>
     void CreateRenderMesh();
+    /// <summary>
+    /// 描画開始処理
+    /// </summary>
+    void StartRender();
+    /// <summary>
+    /// 描画コール
+    /// </summary>
     void RenderCall();
     void CreatePso();
-    void StartRender();
 
 private:
     ComponentArray<Rigidbody>* rigidbodies_ = nullptr;

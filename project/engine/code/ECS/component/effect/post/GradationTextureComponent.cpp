@@ -29,7 +29,7 @@ void from_json(const nlohmann::json& j, GradationTextureComponent& _g) {
     _g.paramBuff_.openData_.outputChannel = static_cast<ColorChannel>(j.value("outputChannel", 0));
 }
 
-void GradationTextureComponent::Initialize(GameEntity* /*_entity*/) {
+void GradationTextureComponent::Initialize(Entity* /*_entity*/) {
     auto& device = Engine::getInstance()->getDxDevice()->getDevice();
     paramBuff_.CreateBuffer(device);
     materialBuff_.CreateBuffer(device);
@@ -39,7 +39,7 @@ void GradationTextureComponent::Initialize(GameEntity* /*_entity*/) {
     }
 }
 
-void GradationTextureComponent::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
+void GradationTextureComponent::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     InputGuiCommand("isActive##" + _parentLabel, isActive_);

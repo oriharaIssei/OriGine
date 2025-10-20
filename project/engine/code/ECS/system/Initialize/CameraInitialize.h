@@ -2,6 +2,9 @@
 
 #include "system/ISystem.h"
 
+/// <summary>
+/// シーン初期化時にカメラを指定したCameraTransformで初期化するシステム
+/// </summary>
 class CameraInitialize
     : public ISystem {
 public:
@@ -12,5 +15,5 @@ public:
     void Finalize() override;
 
 private:
-    void UpdateEntity(GameEntity* _entity) override;
+    void UpdateEntity(Entity* _entity) override;
 };

@@ -2,7 +2,7 @@
 
 /// engine
 // ECS
-#include "Entity.h"
+#include "entity/Entity.h"
 
 IComponent::IComponent() {}
 

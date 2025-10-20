@@ -23,9 +23,9 @@ public:
     PrimitiveNodeAnimation()           = default;
     ~PrimitiveNodeAnimation() override = default;
 
-    void Initialize(GameEntity* _entity) override;
+    void Initialize(Entity* _entity) override;
 
-    void Edit(Scene* _scene, GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
 
     void Finalize() override;
 

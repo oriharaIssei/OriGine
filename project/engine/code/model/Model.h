@@ -12,8 +12,8 @@
 
 /// engine
 // dx12Object
-#include "directX12/IConstantBuffer.h"
-#include "directX12/IStructuredBuffer.h"
+#include "directX12/buffer/IConstantBuffer.h"
+#include "directX12/buffer/IStructuredBuffer.h"
 #include "directX12/mesh/Mesh.h"
 // component
 #include "component/material/Material.h"

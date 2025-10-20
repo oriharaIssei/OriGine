@@ -25,7 +25,7 @@ void SkyboxRender::Update() {
     StartRender();
 
     for (auto& id : entityIDs_) {
-        GameEntity* entity = getEntity(id);
+        Entity* entity = getEntity(id);
         UpdateEntity(entity);
     }
 }
@@ -161,7 +161,7 @@ void SkyboxRender::StartRender() {
 /// 描画
 /// </summary>
 /// <param name="_entity">描画対象オブジェクト</param>
-void SkyboxRender::UpdateEntity(GameEntity* _entity) {
+void SkyboxRender::UpdateEntity(Entity* _entity) {
     auto commandList = dxCommand_->getCommandList();
 
     SkyboxRenderer* renderer = getComponent<SkyboxRenderer>(_entity);

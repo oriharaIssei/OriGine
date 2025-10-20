@@ -8,7 +8,7 @@
 
 /// engine
 // directX12
-#include "directX12/IConstantBuffer.h"
+#include "directX12/buffer/IConstantBuffer.h"
 
 /// ECS
 #include "ECS/component/effect/particle/gpuParticle/GpuParticle.h"
@@ -32,6 +32,10 @@ struct PerFrame {
     };
 };
 
+/// <summary>
+/// GpuParticleEmitterを処理するシステム
+/// GPU上でパーティクルの更新と発生を行う
+/// </summary>
 class GpuParticleEmitterWorkSystem
     : public ISystem {
 public:
@@ -42,7 +46,7 @@ public:
     void Update() override;
     void Finalize();
 
-    void UpdateEntity(GameEntity* /*entity*/) override {}
+    void UpdateEntity(Entity* /*entity*/) override {}
     void UpdateParticle(GpuParticleEmitter* _emitter);
     void EmitParticle(GpuParticleEmitter* entity);
 
@@ -51,8 +55,14 @@ protected:
     void CreateEmitGpuParticlePso();
     void CreateUpdateGpuParticlePso();
 
+    /// <summary>
+    /// コンピュートシェーダーの開始処理
+    /// </summary>
     void StartCS(PipelineStateObj* _pso);
 
+    /// <summary>
+    /// コンピュートシェーダー の終了処理
+    /// </summary>
     void ExecuteCS();
 
 private:

@@ -25,9 +25,9 @@ public:
     CameraTransform() {}
     ~CameraTransform() {}
 
-    void Initialize(GameEntity* _hostEntity = nullptr);
+    void Initialize(Entity* _hostEntity = nullptr);
 
-    void Edit(Scene* _scene,GameEntity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
+    void Edit(Scene* _scene,Entity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
 
     void Finalize() override;
 

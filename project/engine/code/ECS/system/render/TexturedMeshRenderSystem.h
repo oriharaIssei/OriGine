@@ -7,7 +7,7 @@
 
 /// engine
 // directX12Object
-#include "directX12/IConstantBuffer.h"
+#include "directX12/buffer/IConstantBuffer.h"
 #include "directX12/buffer/SimpleConstantBuffer.h"
 
 #include "directX12/DxCommand.h"
@@ -20,6 +20,9 @@
 class ModelMeshRenderer;
 class PrimitiveMeshRendererBase;
 
+/// <summary>
+/// Texture付きのメッシュ(TextureMesh)を描画するシステム
+/// </summary>
 class TexturedMeshRenderSystem
     : public ISystem {
 public:
@@ -32,10 +35,21 @@ public:
 
     void CreatePso();
 
+    /// <summary>
+    /// レンダリング開始処理
+    /// </summary>
     void StartRender();
 
-    void UpdateEntity(GameEntity* _entity) override;
+    void UpdateEntity(Entity* _entity) override;
 
+    /// <summary>
+    /// メッシュを描画する
+    /// </summary>
+    /// <param name="_commandList"></param>
+    /// <param name="_mesh"></param>
+    /// <param name="_transformBuff"></param>
+    /// <param name="_materialBuff"></param>
+    /// <param name="_textureHandle"></param>
     void RenderingMesh(
         Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList,
         const TextureMesh& _mesh,
@@ -43,6 +57,9 @@ public:
         IConstantBuffer<Material>& _materialBuff,
         D3D12_GPU_DESCRIPTOR_HANDLE _textureHandle) const;
 
+    /// <summary>
+    /// メッシュを描画する (マテリアルバッファをSimpleConstantBufferで渡す版)
+    /// </summary>
     void RenderingMesh(
         Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList,
         const TextureMesh& _mesh,
@@ -50,7 +67,13 @@ public:
         SimpleConstantBuffer<Material>& _materialBuff,
         D3D12_GPU_DESCRIPTOR_HANDLE _textureHandle) const;
 
+    /// <summary>
+    /// ModelMeshRendererを描画する
+    /// </summary>
     void RenderModelMesh(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList, ModelMeshRenderer* _renderer);
+    /// <summary>
+    /// PrimitiveMeshRendererを描画する
+    /// </summary>
     void RenderPrimitiveMesh(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList, PrimitiveMeshRendererBase* _renderer);
 
     void SettingPSO(BlendMode _blend);
@@ -58,7 +81,13 @@ public:
 protected:
     void LightUpdate();
 
-    void DispatchRenderer(GameEntity* _entity);
+    /// <summary>
+    /// レンダラーをディスパッチする
+    /// </summary>
+    void DispatchRenderer(Entity* _entity);
+    /// <summary>
+    /// ブレンドモードごとにレンダリングを行う
+    /// </summary>
     void RenderingBy(BlendMode _blendMode);
 
 private:

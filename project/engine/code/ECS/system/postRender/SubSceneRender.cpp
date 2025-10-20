@@ -37,7 +37,7 @@ void SubSceneRender::EndRender() {
     currentSceneView->PostDraw();
 }
 
-void SubSceneRender::UpdateEntity(GameEntity* _entity) {
+void SubSceneRender::UpdateEntity(Entity* _entity) {
     auto subScenes = getComponents<SubScene>(_entity);
     for (auto& subScene : *subScenes) {
         if (!subScene.isActive()) {

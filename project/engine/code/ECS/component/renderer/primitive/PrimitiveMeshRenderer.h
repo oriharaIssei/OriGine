@@ -17,7 +17,7 @@ public:
 
     ~PrimitiveMeshRenderer() override {}
 
-    void Initialize(GameEntity* _entity) = 0;
+    void Initialize(Entity* _entity) = 0;
 
     inline void Finalize() override;
 

@@ -18,7 +18,7 @@
 #include <imgui/imgui.h>
 #endif // _DEBUG
 
-void PlaneRenderer::Initialize(GameEntity* _hostEntity) {
+void PlaneRenderer::Initialize(Entity* _hostEntity) {
     MeshRenderer::Initialize(_hostEntity);
 
     // _mesh Init
@@ -42,7 +42,7 @@ void PlaneRenderer::Initialize(GameEntity* _hostEntity) {
     }
 }
 
-void PlaneRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
+void PlaneRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     ImGui::Text("Texture Directory : %s", textureDirectory_.c_str());
     ImGui::Text("Texture FileName  : %s", textureFileName_.c_str());

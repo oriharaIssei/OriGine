@@ -55,13 +55,13 @@ public:
     Audio() {}
     ~Audio() {}
 
-    void Initialize(GameEntity* /*_entity*/) override {
+    void Initialize(Entity* /*_entity*/) override {
         if (!fileName_.empty()) {
             audioClip_.data_ = LoadWave(fileName_);
         }
     };
 
-    void Edit(Scene* _scene,GameEntity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
+    void Edit(Scene* _scene,Entity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
 
     void Finalize() override;
 
@@ -119,5 +119,5 @@ public:
     void Initialize() override;
     void Finalize() override;
 
-    void UpdateEntity(GameEntity* entity) override;
+    void UpdateEntity(Entity* entity) override;
 };

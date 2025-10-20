@@ -14,6 +14,7 @@ void RegisterWindowResizeEvent::Initialize() {
     Engine* engine = Engine::getInstance();
 
 #ifndef _DEBUG
+    // シーンビューのリサイズイベント登録
     auto sceneViewResizeEvent = [this](const Vec2f& size) {
         auto currentScene = getScene();
         if (currentScene) {
@@ -23,6 +24,7 @@ void RegisterWindowResizeEvent::Initialize() {
     sceneViewResizeEventIndex_ = engine->addWindowResizeEvent(sceneViewResizeEvent);
 #endif // _DEBUG
 
+    // スプライトのリサイズイベント登録
     auto spriteResizeEvent = [this](const Vec2f& size) {
         auto currentScene = getScene();
         if (currentScene) {
@@ -51,5 +53,5 @@ void RegisterWindowResizeEvent::Finalize() {
 #endif // _DEBUG
 }
 
-void RegisterWindowResizeEvent::UpdateEntity(GameEntity* /*_entity*/) {
+void RegisterWindowResizeEvent::UpdateEntity(Entity* /*_entity*/) {
 }

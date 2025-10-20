@@ -1,19 +1,17 @@
 #include "CollisionPushBackSystem.h"
 
 /// ecs
-#include "component/collider/CollisionPushBackInfo.h"
+#include "component/collision/CollisionPushBackInfo.h"
 #include "component/physics/Rigidbody.h"
 #include "component/transform/Transform.h"
 
 #include "logger/Logger.h"
 
-void CollisionPushBackSystem::Initialize() {
-}
+void CollisionPushBackSystem::Initialize() {}
 
-void CollisionPushBackSystem::Finalize() {
-}
+void CollisionPushBackSystem::Finalize() {}
 
-void CollisionPushBackSystem::UpdateEntity(GameEntity* _entity) {
+void CollisionPushBackSystem::UpdateEntity(Entity* _entity) {
     Transform* transform                    = getComponent<Transform>(_entity);
     CollisionPushBackInfo* collPushbackInfo = getComponent<CollisionPushBackInfo>(_entity);
 
@@ -24,7 +22,7 @@ void CollisionPushBackSystem::UpdateEntity(GameEntity* _entity) {
 
     // PushBack処理
     for (auto& [entityID, info] : collPushbackInfo->getCollisionInfoMap()) {
-        GameEntity* otherEntity                      = getEntity(entityID);
+        Entity* otherEntity                      = getEntity(entityID);
         CollisionPushBackInfo* otherCollPushbackInfo = getComponent<CollisionPushBackInfo>(otherEntity);
 
         switch (otherCollPushbackInfo->getPushBackType()) {

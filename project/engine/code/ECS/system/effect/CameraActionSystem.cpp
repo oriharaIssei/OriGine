@@ -16,22 +16,27 @@ CameraActionSystem::~CameraActionSystem() {}
 void CameraActionSystem::Initialize() {}
 void CameraActionSystem::Finalize() {}
 
-void CameraActionSystem::UpdateEntity(GameEntity* _entity) {
+void CameraActionSystem::UpdateEntity(Entity* _entity) {
     auto action = getComponent<CameraAction>(_entity);
     auto camera = getComponent<CameraTransform>(_entity);
 
+    // コンポーネントが存在しない場合は処理を抜ける
     if (!action || !camera) {
         return;
     }
 
+    // 再生中でなければ処理を抜ける
     if (!action->isPlaying()) {
         return;
     }
 
+    // アニメーション時間を進める
     float currentTime = action->getCurrentTime();
     currentTime -= getMainDeltaTime();
     action->setCurrentTime(currentTime);
 
+    // アニメーション終了判定
+    // ループ設定されている場合は最初から再生
     if (currentTime <= 0.f) {
         if (action->isLooping()) {
             action->Play();

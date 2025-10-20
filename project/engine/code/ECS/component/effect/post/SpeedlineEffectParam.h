@@ -3,7 +3,7 @@
 
 /// engine
 // directX12
-#include "directX12/IConstantBuffer.h"
+#include "directX12/buffer/IConstantBuffer.h"
 
 /// math
 #include "Vector2.h"
@@ -47,8 +47,8 @@ class SpeedlineEffectParam
 public:
     SpeedlineEffectParam()           = default;
     ~SpeedlineEffectParam() override = default;
-    void Initialize(GameEntity* _entity);
-    void Edit(Scene* _scene, GameEntity* _entity, const std::string& _parentLabel);
+    void Initialize(Entity* _entity);
+    void Edit(Scene* _scene, Entity* _entity, const std::string& _parentLabel);
     void Finalize();
 
     void Play();

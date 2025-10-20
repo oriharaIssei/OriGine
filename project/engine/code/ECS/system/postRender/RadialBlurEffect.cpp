@@ -57,7 +57,7 @@ void RadialBlurEffect::Update() {
     }
 }
 
-void RadialBlurEffect::UpdateEntity(GameEntity* _entity) {
+void RadialBlurEffect::UpdateEntity(Entity* _entity) {
     int32_t size = getComponentArray<RadialBlurParam>()->getComponentSize(_entity);
     for (int32_t i = 0; i < size; ++i) {
         auto* radialBlurParam = getComponent<RadialBlurParam>(_entity, i);

@@ -14,11 +14,12 @@ GpuParticleEmitterWorkSystem::GpuParticleEmitterWorkSystem() : ISystem(SystemCat
 GpuParticleEmitterWorkSystem::~GpuParticleEmitterWorkSystem() {}
 
 void GpuParticleEmitterWorkSystem::Initialize() {
+    constexpr int32_t initialReserveCount = 100;
     dxCommand_ = std::make_unique<DxCommand>();
     dxCommand_->Initialize("main", "main");
     perFrameBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
 
-    workEmitters_.reserve(100);
+    workEmitters_.reserve(initialReserveCount);
 
     CreatePso();
 }

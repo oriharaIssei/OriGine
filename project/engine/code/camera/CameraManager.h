@@ -5,7 +5,7 @@
 
 /// engine
 #include "component/transform/CameraTransform.h"
-#include "directX12/IConstantBuffer.h"
+#include "directX12/buffer/IConstantBuffer.h"
 
 
 class DebugCamera;

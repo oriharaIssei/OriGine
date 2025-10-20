@@ -18,7 +18,7 @@
 #include <imgui/imgui.h>
 #endif // _DEBUG
 
-void BoxRenderer::Initialize(GameEntity* _hostEntity) {
+void BoxRenderer::Initialize(Entity* _hostEntity) {
     MeshRenderer::Initialize(_hostEntity);
 
     // _mesh Init
@@ -41,7 +41,7 @@ void BoxRenderer::Initialize(GameEntity* _hostEntity) {
     }
 }
 
-void BoxRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
+void BoxRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     ImGui::Text("BlendMode :");
     ImGui::SameLine();

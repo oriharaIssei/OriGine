@@ -1,6 +1,6 @@
 #include "Collider.h"
 
-void ICollider::Initialize(GameEntity* /*_hostEntity*/) {}
+void ICollider::Initialize(Entity* /*_hostEntity*/) {}
 
 void ICollider::StartCollision() {
     this->preCollisionStateMap_ = this->collisionStateMap_;

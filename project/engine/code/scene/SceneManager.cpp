@@ -17,8 +17,9 @@
 #include "EngineInclude.h"
 // ecs
 #include "component/ComponentArray.h"
-#include "ECS/Entity.h"
+#include "entity/Entity.h"
 #include "system/ISystem.h"
+#include "system/SystemRunner.h"
 
 // directX12Object
 #include "directX12/RenderTexture.h"
@@ -152,7 +153,7 @@ void SceneSerializer::SerializeFromJson() {
     /// =====================================================
     auto& entities = targetScene_->entityRepository_;
 
-    std::list<GameEntity*> aliveEntities;
+    std::list<Entity*> aliveEntities;
 
     for (auto& entity : entities->getEntitiesRef()) {
         if (entity.isAlive() && entity.shouldSave()) {
@@ -255,7 +256,7 @@ void SceneSerializer::DeserializeFromJson() {
 }
 
 void SceneSerializer::SaveEntity(int32_t _entityID, const std::string& _directory) {
-    GameEntity* _entity = targetScene_->entityRepository_->getEntity(_entityID);
+    Entity* _entity = targetScene_->entityRepository_->getEntity(_entityID);
 
     if (!_entity || !_entity->isAlive()) {
         return;
@@ -278,7 +279,7 @@ void SceneSerializer::SaveEntity(int32_t _entityID, const std::string& _director
 }
 
 void SceneSerializer::EntityToJson(int32_t _entityID, nlohmann::json& entityData) {
-    GameEntity* _entity = targetScene_->entityRepository_->getEntity(_entityID);
+    Entity* _entity = targetScene_->entityRepository_->getEntity(_entityID);
     if (!_entity || !_entity->isAlive()) {
         return;
     }
@@ -311,7 +312,7 @@ void SceneSerializer::EntityToJson(int32_t _entityID, nlohmann::json& entityData
     entityData["Components"] = componentsData;
 }
 
-GameEntity* SceneSerializer::LoadEntity(const std::string& _directory, const std::string& _dataType) {
+Entity* SceneSerializer::LoadEntity(const std::string& _directory, const std::string& _dataType) {
     std::string filePath = _directory + "/" + _dataType + ".ent";
     std::ifstream ifs(filePath);
     if (!ifs) {
@@ -326,11 +327,11 @@ GameEntity* SceneSerializer::LoadEntity(const std::string& _directory, const std
     return EntityFromJson(entityData);
 }
 
-GameEntity* SceneSerializer::EntityFromJson(const nlohmann::json& _entityData) {
+Entity* SceneSerializer::EntityFromJson(const nlohmann::json& _entityData) {
     std::string entityName = _entityData.at("Name");
     bool isUnique          = _entityData.at("isUnique");
     int32_t entityID       = targetScene_->entityRepository_->CreateEntity(entityName, isUnique);
-    GameEntity* entity     = targetScene_->entityRepository_->getEntity(entityID);
+    Entity* entity         = targetScene_->entityRepository_->getEntity(entityID);
 
     // 所属するシステムを読み込み
     auto& sceneSystems = targetScene_->systemRunner_->getSystemsRef();
@@ -354,7 +355,7 @@ GameEntity* SceneSerializer::EntityFromJson(const nlohmann::json& _entityData) {
     return entity;
 }
 
-GameEntity* SceneSerializer::EntityFromJson(int32_t _entityId, const nlohmann::json& _entityData) {
+Entity* SceneSerializer::EntityFromJson(int32_t _entityId, const nlohmann::json& _entityData) {
     std::string entityName = _entityData["Name"];
     bool isUnique          = _entityData["isUnique"];
     int32_t entityID       = targetScene_->entityRepository_->CreateEntity(_entityId, entityName, isUnique);
@@ -362,7 +363,7 @@ GameEntity* SceneSerializer::EntityFromJson(int32_t _entityId, const nlohmann::j
         LOG_ERROR("Failed to register entity with ID: {}", _entityId);
         return nullptr;
     }
-    GameEntity* entity = targetScene_->entityRepository_->getEntity(entityID);
+    Entity* entity = targetScene_->entityRepository_->getEntity(entityID);
 
     // 所属するシステムを読み込み
     auto& sceneSystems = targetScene_->systemRunner_->getSystemsRef();
@@ -383,18 +384,6 @@ GameEntity* SceneSerializer::EntityFromJson(int32_t _entityId, const nlohmann::j
         }
     }
     return entity;
-}
-
-GameEntity* getSceneEntity(int32_t _entityID) {
-    Scene* currentScene = SceneManager::getInstance()->getCurrentScene();
-
-    return currentScene->getEntityRepositoryRef()->getEntity(_entityID);
-}
-
-GameEntity* getSceneUniqueEntity(const std::string& _name) {
-    Scene* currentScene = SceneManager::getInstance()->getCurrentScene();
-
-    return currentScene->getEntityRepositoryRef()->getUniqueEntity(_name);
 }
 
 #pragma endregion

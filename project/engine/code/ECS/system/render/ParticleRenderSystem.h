@@ -14,6 +14,9 @@
 // component
 #include "component/effect/particle/emitter/Emitter.h"
 
+/// <summary>
+/// パーティクル描画システム
+/// </summary>
 class ParticleRenderSystem
     : public ISystem {
 public:
@@ -27,15 +30,24 @@ public:
 protected:
     void CreatePso();
 
+    /// <summary>
+    /// レンダー開始処理
+    /// </summary>
     void StartRender();
-    void DispatchRenderer(GameEntity* _entity);
+    /// <summary>
+    /// 描画するものを振り分ける
+    /// </summary>
+    void DispatchRenderer(Entity* _entity);
+    /// <summary>
+    /// ブレンドモードごとに描画処理を行う
+    /// </summary>
     void RenderingBy(BlendMode _blend);
 
     /// <summary>
     /// 使用していない
     /// </summary>
     /// <param name=""></param>
-    void UpdateEntity(GameEntity* /*_entity*/) override{}
+    void UpdateEntity(Entity* /*_entity*/) override{}
 
 private:
     std::unordered_map<BlendMode, std::vector<Emitter*>> activeEmittersByBlendMode_;

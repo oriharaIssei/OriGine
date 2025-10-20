@@ -13,8 +13,13 @@
 // component
 #include "component/material/light/LightManager.h"
 #include "component/renderer/MeshRenderer.h"
-#include "component/renderer/primitive/Primitive.h"
+#include "component/renderer/primitive/base/PrimitiveMeshRendererBase.h"
 #include "component/renderer/SkyboxRenderer.h"
+// primitives
+#include "component/renderer/primitive/BoxRenderer.h"
+#include "component/renderer/primitive/PlaneRenderer.h"
+#include "component/renderer/primitive/RingRenderer.h"
+#include "component/renderer/primitive/SphereRenderer.h"
 
 TexturedMeshRenderSystem::TexturedMeshRenderSystem() : ISystem(SystemCategory::Render) {}
 TexturedMeshRenderSystem::~TexturedMeshRenderSystem() {};
@@ -36,7 +41,7 @@ void TexturedMeshRenderSystem::Update() {
     activePrimitiveMeshRenderer_.clear();
 
     for (auto& id : entityIDs_) {
-        GameEntity* entity = getEntity(id);
+        Entity* entity = getEntity(id);
         DispatchRenderer(entity);
     }
 
@@ -58,7 +63,7 @@ void TexturedMeshRenderSystem::Update() {
     }
 }
 
-void TexturedMeshRenderSystem::DispatchRenderer(GameEntity* _entity) {
+void TexturedMeshRenderSystem::DispatchRenderer(Entity* _entity) {
     auto modelMeshRenderers = getComponents<ModelMeshRenderer>(_entity);
     auto entityTransform    = getComponent<Transform>(_entity);
 
@@ -393,7 +398,7 @@ void TexturedMeshRenderSystem::StartRender() {
     commandList->SetDescriptorHeaps(1, ppHeaps);
 
     /// 環境テクスチャ
-    GameEntity* skyboxEntity = getUniqueEntity("Skybox");
+    Entity* skyboxEntity = getUniqueEntity("Skybox");
     if (!skyboxEntity) {
         return;
     }
@@ -407,7 +412,7 @@ void TexturedMeshRenderSystem::StartRender() {
 /// 描画
 /// </summary>
 /// <param name="_entity">描画対象オブジェクト</param>
-void TexturedMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
+void TexturedMeshRenderSystem::UpdateEntity(Entity* _entity) {
     auto& commandList      = dxCommand_->getCommandList();
     int32_t componentIndex = 0;
 
@@ -746,9 +751,9 @@ void TexturedMeshRenderSystem::RenderPrimitiveMesh(
 
     D3D12_GPU_DESCRIPTOR_HANDLE textureHandle = TextureManager::getDescriptorGpuHandle(_renderer->getTextureIndex());
 
-    auto& materialBuff                        = _renderer->getMaterialBuff();
-    Material* material                        = nullptr;
-    int32_t materialIndex                     = _renderer->getMaterialIndex();
+    auto& materialBuff    = _renderer->getMaterialBuff();
+    Material* material    = nullptr;
+    int32_t materialIndex = _renderer->getMaterialIndex();
     // ============================= Materialのセット ============================= //
     if (materialIndex >= 0) {
         material = getComponent<Material>(_renderer->getHostEntity(), static_cast<uint32_t>(materialIndex));

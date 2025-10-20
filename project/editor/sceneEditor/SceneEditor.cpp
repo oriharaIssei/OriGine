@@ -11,13 +11,14 @@
 #include "EngineInclude.h"
 
 /// ecs
-#include "ECS/Entity.h"
+#include "entity/Entity.h"
 // component
 #include "component/ComponentArray.h"
 #include "component/IComponent.h"
 #include "component/transform/Transform.h"
 // system
 #include "system/ISystem.h"
+#include "system/SystemRunner.h"
 
 // directX12
 #include "directX12/RenderTexture.h"
@@ -372,7 +373,7 @@ void SceneViewArea::UseImGuizmo(const ImVec2& _sceneViewPos, const Vec2f& _origi
         return;
     }
 
-    GameEntity* editEntity = currentScene->getEntity(entityInspectorArea->getEditEntityId());
+    Entity* editEntity = currentScene->getEntity(entityInspectorArea->getEditEntityId());
     if (!editEntity) {
         return;
     }
@@ -792,8 +793,8 @@ void EntityHierarchy::LoadEntityCommand::Execute() {
     }
 
     SceneSerializer serializer(currentScene);
-    GameEntity* createdEntity = serializer.LoadEntity(directory_, entityName_);
-    entityId_                 = createdEntity->getID();
+    Entity* createdEntity = serializer.LoadEntity(directory_, entityName_);
+    entityId_             = createdEntity->getID();
 
     LOG_DEBUG("Created entity with ID '{}'.", entityId_);
 }
@@ -816,7 +817,7 @@ void AddComponentCommand::Execute() {
     int32_t editEntityId   = inspectorArea->getEditEntityId();
 
     for (auto entityId : entityIds_) {
-        GameEntity* entity = currentScene->getEntityRepositoryRef()->getEntity(entityId);
+        Entity* entity = currentScene->getEntityRepositoryRef()->getEntity(entityId);
         if (!entity) {
             LOG_ERROR("Entity with ID '{}' not found.", entityId);
             return;
@@ -844,7 +845,7 @@ void AddComponentCommand::Undo() {
     int32_t editEntityId   = inspectorArea->getEditEntityId();
 
     for (auto entityId : entityIds_) {
-        GameEntity* entity = currentScene->getEntityRepositoryRef()->getEntity(entityId);
+        Entity* entity = currentScene->getEntityRepositoryRef()->getEntity(entityId);
         if (!entity) {
             LOG_ERROR("Entity with ID '{}' not found.", entityId);
             return;
@@ -873,7 +874,7 @@ void RemoveComponentCommand::Execute() {
     auto inspectorArea     = dynamic_cast<EntityInspectorArea*>(sceneEditorWindow->getArea("EntityInspectorArea").get());
     int32_t editEntityId   = inspectorArea->getEditEntityId();
 
-    GameEntity* entity = currentScene->getEntityRepositoryRef()->getEntity(entityId_);
+    Entity* entity = currentScene->getEntityRepositoryRef()->getEntity(entityId_);
     if (!entity) {
         LOG_ERROR("Entity with ID '{}' not found.", entityId_);
         return;
@@ -901,7 +902,7 @@ void RemoveComponentCommand::Undo() {
     auto inspectorArea     = dynamic_cast<EntityInspectorArea*>(sceneEditorWindow->getArea("EntityInspectorArea").get());
     int32_t editEntityId   = inspectorArea->getEditEntityId();
 
-    GameEntity* entity = currentScene->getEntityRepositoryRef()->getEntity(entityId_);
+    Entity* entity = currentScene->getEntityRepositoryRef()->getEntity(entityId_);
     if (!entity) {
         LOG_ERROR("Entity with ID '{}' not found.", entityId_);
         return;
@@ -934,7 +935,7 @@ void AddSystemCommand::Execute() {
         return;
     }
     for (auto entityId : entityIds_) {
-        GameEntity* entity = currentScene->getEntityRepositoryRef()->getEntity(entityId);
+        Entity* entity = currentScene->getEntityRepositoryRef()->getEntity(entityId);
         if (!entity) {
             LOG_ERROR("AddSystemCommand::Execute: Entity with ID '{}' not found.", entityId);
             continue;
@@ -957,7 +958,7 @@ void AddSystemCommand::Undo() {
         return;
     }
     for (auto entityId : entityIds_) {
-        GameEntity* entity = currentScene->getEntityRepositoryRef()->getEntity(entityId);
+        Entity* entity = currentScene->getEntityRepositoryRef()->getEntity(entityId);
         if (!entity) {
             LOG_ERROR("AddSystemCommand::Execute: Entity with ID '{}' not found.", entityId);
             continue;
@@ -985,7 +986,7 @@ void RemoveSystemCommand::Execute() {
         return;
     }
     for (auto entityId : entityIds_) {
-        GameEntity* entity = currentScene->getEntityRepositoryRef()->getEntity(entityId);
+        Entity* entity = currentScene->getEntityRepositoryRef()->getEntity(entityId);
         if (!entity) {
             LOG_ERROR("RemoveSystemCommand::Execute: Entity with ID '{}' not found.", entityId);
             continue;
@@ -1008,7 +1009,7 @@ void RemoveSystemCommand::Undo() {
         return;
     }
     for (auto entityId : entityIds_) {
-        GameEntity* entity = currentScene->getEntityRepositoryRef()->getEntity(entityId);
+        Entity* entity = currentScene->getEntityRepositoryRef()->getEntity(entityId);
         if (!entity) {
             LOG_ERROR("RemoveSystemCommand::Execute: Entity with ID '{}' not found.", entityId);
             continue;

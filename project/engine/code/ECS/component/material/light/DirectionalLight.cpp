@@ -5,7 +5,7 @@
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
-void DirectionalLight::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
+void DirectionalLight::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     CheckBoxCommand("Active##" + _parentLabel, isActive_);

@@ -11,7 +11,7 @@
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
-void VignetteParam::Initialize(GameEntity* /*_entity*/) {
+void VignetteParam::Initialize(Entity* /*_entity*/) {
     paramBuffer.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
 }
 
@@ -19,7 +19,7 @@ void VignetteParam::Finalize() {
     paramBuffer.Finalize();
 }
 
-void VignetteParam::Edit(Scene* /*_scene*/,GameEntity*/* _entity*/,[[maybe_unused]] const std::string& _parentLabel) {
+void VignetteParam::Edit(Scene* /*_scene*/,Entity*/* _entity*/,[[maybe_unused]] const std::string& _parentLabel) {
     
 #ifdef _DEBUG
 

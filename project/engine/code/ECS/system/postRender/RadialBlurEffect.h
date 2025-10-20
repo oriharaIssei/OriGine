@@ -7,6 +7,9 @@
 #include "directX12/ShaderManager.h"
 
 class RadialBlurParam;
+
+/// <summary>
+/// Radial Blur をかけるシステム
 class RadialBlurEffect
     : public ISystem {
 public:
@@ -15,13 +18,19 @@ public:
 
     void Initialize() override;
     void Update() override;
-    void UpdateEntity(GameEntity* _entity) override;
+    void UpdateEntity(Entity* _entity) override;
     void Finalize();
 
 protected:
     void CreatePSO();
 
+    /// <summary>
+    /// 描画準備システム
+    /// </summary>
     void RenderStart();
+    /// <summary>
+    /// 描画システム
+    /// </summary>
     void Render();
 
 protected:

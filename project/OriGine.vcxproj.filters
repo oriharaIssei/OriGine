@@ -28,8 +28,11 @@
     <Filter Include="engine\code\ECS\component\animation">
       <UniqueIdentifier>{E0973D68-4C51-A812-D5B0-C2EC41695E82}</UniqueIdentifier>
     </Filter>
-    <Filter Include="engine\code\ECS\component\collider">
-      <UniqueIdentifier>{8ED7BECA-7A13-C234-E325-DA2BCF806A4F}</UniqueIdentifier>
+    <Filter Include="engine\code\ECS\component\collision">
+      <UniqueIdentifier>{0C14A222-78CD-0CCD-012D-27A76DE5C23C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\code\ECS\component\collision\collider">
+      <UniqueIdentifier>{69905061-55A3-50BA-FE8C-2DA7EA7EED07}</UniqueIdentifier>
     </Filter>
     <Filter Include="engine\code\ECS\component\effect">
       <UniqueIdentifier>{4D648BCF-39B5-7611-6219-65D34EC9097B}</UniqueIdentifier>
@@ -61,8 +64,17 @@
     <Filter Include="engine\code\ECS\component\renderer\primitive">
       <UniqueIdentifier>{BF5953C7-AB6C-5320-5456-300D4048F06D}</UniqueIdentifier>
     </Filter>
+    <Filter Include="engine\code\ECS\component\renderer\primitive\base">
+      <UniqueIdentifier>{C93166AF-35F8-C2CB-7E53-512EEA583130}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\code\ECS\component\renderer\primitive\shape">
+      <UniqueIdentifier>{5F97639D-4B2B-5945-B4EF-B2F9A0A29337}</UniqueIdentifier>
+    </Filter>
     <Filter Include="engine\code\ECS\component\transform">
       <UniqueIdentifier>{BCB6425A-2870-AD04-B1CF-C7DE1D886374}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\code\ECS\entity">
+      <UniqueIdentifier>{DB7F276E-C779-50C0-B0E6-E6D09C7FB62C}</UniqueIdentifier>
     </Filter>
     <Filter Include="engine\code\ECS\system">
       <UniqueIdentifier>{A366968F-8F60-BFE1-78CD-55F26466254E}</UniqueIdentifier>
@@ -97,6 +109,12 @@
     <Filter Include="engine\code\directX12">
       <UniqueIdentifier>{AAEB9D36-1658-5931-DF4B-F18E4B777B99}</UniqueIdentifier>
     </Filter>
+    <Filter Include="engine\code\directX12\buffer">
+      <UniqueIdentifier>{737E2865-5F39-1811-08F1-905BF48A62A1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\code\directX12\mesh">
+      <UniqueIdentifier>{C6C7259D-B2D7-D16D-1B91-368C07C0C006}</UniqueIdentifier>
+    </Filter>
     <Filter Include="engine\code\imGuiManager">
       <UniqueIdentifier>{8A24C19B-7649-101C-9F94-F5AB8B180F3A}</UniqueIdentifier>
     </Filter>
@@ -118,11 +136,23 @@
     <Filter Include="engine\code\winApp">
       <UniqueIdentifier>{2384AA54-0F68-6BAA-78C8-65FD64CB552C}</UniqueIdentifier>
     </Filter>
+    <Filter Include="geometry">
+      <UniqueIdentifier>{5154C4F3-3D21-1FFF-663A-0DA75266548D}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="geometry\base">
+      <UniqueIdentifier>{9B9714A0-0758-90D6-D092-D9533C12D5B2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="geometry\shape">
+      <UniqueIdentifier>{71B7DEA3-5D85-D2A9-4619-43D03286AE0E}</UniqueIdentifier>
+    </Filter>
     <Filter Include="math">
       <UniqueIdentifier>{CF809A7C-BBB7-9B0D-64A4-811050BA170F}</UniqueIdentifier>
     </Filter>
-    <Filter Include="math\shape">
-      <UniqueIdentifier>{6FCACFDA-5B82-1128-C489-EA83B060AC18}</UniqueIdentifier>
+    <Filter Include="math\bounds">
+      <UniqueIdentifier>{8900AB0D-F5B5-2303-7EAA-1DDAEA5E1A07}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="math\bounds\base">
+      <UniqueIdentifier>{D3A6A793-BF9F-C6E5-E8D1-AB6AD429A6F1}</UniqueIdentifier>
     </Filter>
     <Filter Include="util">
       <UniqueIdentifier>{43339F7C-2F6A-A00D-D856-8610C46C1C0F}</UniqueIdentifier>
@@ -177,10 +207,13 @@
     <ClInclude Include="engine\EngineInclude.h">
       <Filter>engine</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\ECS\Entity.h">
-      <Filter>engine\code\ECS</Filter>
-    </ClInclude>
     <ClInclude Include="engine\code\ECS\component\ComponentArray.h">
+      <Filter>engine\code\ECS\component</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\ComponentRegistry.h">
+      <Filter>engine\code\ECS\component</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\ComponentRepository.h">
       <Filter>engine\code\ECS\component</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\component\EntityReferenceList.h">
@@ -213,19 +246,25 @@
     <ClInclude Include="engine\code\ECS\component\animation\SpriteAnimation.h">
       <Filter>engine\code\ECS\component\animation</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\ECS\component\collider\Collider.h">
-      <Filter>engine\code\ECS\component\collider</Filter>
+    <ClInclude Include="engine\code\ECS\component\collision\CollisionPushBackInfo.h">
+      <Filter>engine\code\ECS\component\collision</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\ECS\component\collider\CollisionPushBackInfo.h">
-      <Filter>engine\code\ECS\component\collider</Filter>
+    <ClInclude Include="engine\code\ECS\component\collision\collider\AABBCollider.h">
+      <Filter>engine\code\ECS\component\collision\collider</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\collision\collider\Collider.h">
+      <Filter>engine\code\ECS\component\collision\collider</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\collision\collider\OBBCollider.h">
+      <Filter>engine\code\ECS\component\collision\collider</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\collision\collider\SphereCollider.h">
+      <Filter>engine\code\ECS\component\collision\collider</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\component\effect\CameraAction.h">
       <Filter>engine\code\ECS\component\effect</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\component\effect\MaterialEffectPipeLine.h">
-      <Filter>engine\code\ECS\component\effect</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\code\ECS\component\effect\TextureEffectParam.h">
       <Filter>engine\code\ECS\component\effect</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\component\effect\particle\Particle.h">
@@ -288,8 +327,41 @@
     <ClInclude Include="engine\code\ECS\component\renderer\Sprite.h">
       <Filter>engine\code\ECS\component\renderer</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\ECS\component\renderer\primitive\Primitive.h">
+    <ClInclude Include="engine\code\ECS\component\renderer\primitive\BoxRenderer.h">
       <Filter>engine\code\ECS\component\renderer\primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\renderer\primitive\PlaneRenderer.h">
+      <Filter>engine\code\ECS\component\renderer\primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\renderer\primitive\PrimitiveMeshRenderer.h">
+      <Filter>engine\code\ECS\component\renderer\primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\renderer\primitive\RingRenderer.h">
+      <Filter>engine\code\ECS\component\renderer\primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\renderer\primitive\SphereRenderer.h">
+      <Filter>engine\code\ECS\component\renderer\primitive</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\renderer\primitive\base\IPrimitive.h">
+      <Filter>engine\code\ECS\component\renderer\primitive\base</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\renderer\primitive\base\PrimitiveMeshRendererBase.h">
+      <Filter>engine\code\ECS\component\renderer\primitive\base</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\renderer\primitive\base\PrimitiveType.h">
+      <Filter>engine\code\ECS\component\renderer\primitive\base</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\renderer\primitive\shape\Box.h">
+      <Filter>engine\code\ECS\component\renderer\primitive\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\renderer\primitive\shape\Plane.h">
+      <Filter>engine\code\ECS\component\renderer\primitive\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\renderer\primitive\shape\Ring.h">
+      <Filter>engine\code\ECS\component\renderer\primitive\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\renderer\primitive\shape\Sphere.h">
+      <Filter>engine\code\ECS\component\renderer\primitive\shape</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\component\transform\CameraTransform.h">
       <Filter>engine\code\ECS\component\transform</Filter>
@@ -300,8 +372,26 @@
     <ClInclude Include="engine\code\ECS\component\transform\Transform.h">
       <Filter>engine\code\ECS\component\transform</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\ECS\entity\Entity.h">
+      <Filter>engine\code\ECS\entity</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\entity\EntityRepository.h">
+      <Filter>engine\code\ECS\entity</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\ECS\system\ISystem.h">
       <Filter>engine\code\ECS\system</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\system\SystemCategory.h">
+      <Filter>engine\code\ECS\system</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\system\SystemRegistry.h">
+      <Filter>engine\code\ECS\system</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\system\SystemRunner.h">
+      <Filter>engine\code\ECS\system</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\system\collision\CollisionCheckPairFunc.h">
+      <Filter>engine\code\ECS\system\collision</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\system\collision\CollisionCheckSystem.h">
       <Filter>engine\code\ECS\system\collision</Filter>
@@ -331,9 +421,6 @@
       <Filter>engine\code\ECS\system\effect</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\system\effect\SpriteAnimationSystem.h">
-      <Filter>engine\code\ECS\system\effect</Filter>
-    </ClInclude>
-    <ClInclude Include="engine\code\ECS\system\effect\TextureEffectAnimation.h">
       <Filter>engine\code\ECS\system\effect</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\system\initialize\CameraInitialize.h">
@@ -468,6 +555,24 @@
     <ClInclude Include="engine\code\directX12\ShaderManager.h">
       <Filter>engine\code\directX12</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\directX12\buffer\IConstantBuffer.h">
+      <Filter>engine\code\directX12\buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\directX12\buffer\IStructuredBuffer.h">
+      <Filter>engine\code\directX12\buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\directX12\buffer\SimpleConstantBuffer.h">
+      <Filter>engine\code\directX12\buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\directX12\buffer\SimpleStructuredBuffer.h">
+      <Filter>engine\code\directX12\buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\directX12\mesh\DefaultVertexData.h">
+      <Filter>engine\code\directX12\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\directX12\mesh\Mesh.h">
+      <Filter>engine\code\directX12\mesh</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\imGuiManager\ImGuiManager.h">
       <Filter>engine\code\imGuiManager</Filter>
     </ClInclude>
@@ -497,6 +602,24 @@
     </ClInclude>
     <ClInclude Include="engine\code\winApp\WinApp.h">
       <Filter>engine\code\winApp</Filter>
+    </ClInclude>
+    <ClInclude Include="geometry\base\GeometryType.h">
+      <Filter>geometry\base</Filter>
+    </ClInclude>
+    <ClInclude Include="geometry\base\IGeometry.h">
+      <Filter>geometry\base</Filter>
+    </ClInclude>
+    <ClInclude Include="geometry\shape\Box.h">
+      <Filter>geometry\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="geometry\shape\Plane.h">
+      <Filter>geometry\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="geometry\shape\Ring.h">
+      <Filter>geometry\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="geometry\shape\Sphere.h">
+      <Filter>geometry\shape</Filter>
     </ClInclude>
     <ClInclude Include="math\Matrix4x4.h">
       <Filter>math</Filter>
@@ -528,11 +651,20 @@
     <ClInclude Include="math\Vector4.h">
       <Filter>math</Filter>
     </ClInclude>
-    <ClInclude Include="math\mathEnv.h">
-      <Filter>math</Filter>
+    <ClInclude Include="math\bounds\AABB.h">
+      <Filter>math\bounds</Filter>
+    </ClInclude>
+    <ClInclude Include="math\bounds\OBB.h">
+      <Filter>math\bounds</Filter>
+    </ClInclude>
+    <ClInclude Include="math\bounds\Sphere.h">
+      <Filter>math\bounds</Filter>
     </ClInclude>
     <ClInclude Include="math\bounds\base\IBounds.h">
-      <Filter>math\shape</Filter>
+      <Filter>math\bounds\base</Filter>
+    </ClInclude>
+    <ClInclude Include="math\mathEnv.h">
+      <Filter>math</Filter>
     </ClInclude>
     <ClInclude Include="util\BitArray.h">
       <Filter>util</Filter>
@@ -582,33 +714,6 @@
     <ClInclude Include="util\timeline\Timeline.h">
       <Filter>util\timeline</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\ECS\component\collider\AABBCollider.h" />
-    <ClInclude Include="engine\code\directX12\mesh\DefaultVertexData.h" />
-    <ClInclude Include="engine\code\directX12\buffer\IConstantBuffer.h" />
-    <ClInclude Include="engine\code\directX12\buffer\IStructuredBuffer.h" />
-    <ClInclude Include="engine\code\directX12\mesh\Mesh.h" />
-    <ClInclude Include="engine\code\directX12\buffer\SimpleConstantBuffer.h" />
-    <ClInclude Include="engine\code\directX12\buffer\SimpleStructuredBuffer.h" />
-    <ClInclude Include="engine\code\ECS\component\collision\collider\AABBCollider.h" />
-    <ClInclude Include="engine\code\ECS\component\collision\collider\Collider.h" />
-    <ClInclude Include="engine\code\ECS\component\collision\CollisionPushBackInfo.h" />
-    <ClInclude Include="engine\code\ECS\component\collision\collider\SphereCollider.h" />
-    <ClInclude Include="engine\code\ECS\component\collision\collider\OBBCollider.h" />
-    <ClInclude Include="engine\code\ECS\component\renderer\primitive\base\PrimitiveType.h" />
-    <ClInclude Include="engine\code\ECS\component\renderer\primitive\base\IPrimitive.h" />
-    <ClInclude Include="engine\code\ECS\component\renderer\primitive\shape\Plane.h" />
-    <ClInclude Include="engine\code\ECS\component\renderer\primitive\shape\Ring.h" />
-    <ClInclude Include="engine\code\ECS\component\renderer\primitive\shape\Box.h" />
-    <ClInclude Include="engine\code\ECS\component\renderer\primitive\shape\Sphere.h" />
-    <ClInclude Include="math\bounds\AABB.h" />
-    <ClInclude Include="math\bounds\OBB.h" />
-    <ClInclude Include="math\bounds\Sphere.h" />
-    <ClInclude Include="geometry\base\IGeometry.h" />
-    <ClInclude Include="geometry\base\GeometryType.h" />
-    <ClInclude Include="geometry\shape\Box.h" />
-    <ClInclude Include="geometry\shape\Plane.h" />
-    <ClInclude Include="geometry\shape\Ring.h" />
-    <ClInclude Include="geometry\shape\Sphere.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="editor\EditorController.cpp">
@@ -632,8 +737,11 @@
     <ClCompile Include="editor\window\EditorWindowMenu.cpp">
       <Filter>editor\window</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\ECS\Entity.cpp">
-      <Filter>engine\code\ECS</Filter>
+    <ClCompile Include="engine\code\ECS\component\ComponentRegistry.cpp">
+      <Filter>engine\code\ECS\component</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\component\ComponentRepository.cpp">
+      <Filter>engine\code\ECS\component</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\component\EntityReferenceList.cpp">
       <Filter>engine\code\ECS\component</Filter>
@@ -665,19 +773,25 @@
     <ClCompile Include="engine\code\ECS\component\animation\SpriteAnimation.cpp">
       <Filter>engine\code\ECS\component\animation</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\ECS\component\collider\Collider.cpp">
-      <Filter>engine\code\ECS\component\collider</Filter>
+    <ClCompile Include="engine\code\ECS\component\collision\CollisionPushBackInfo.cpp">
+      <Filter>engine\code\ECS\component\collision</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\ECS\component\collider\CollisionPushBackInfo.cpp">
-      <Filter>engine\code\ECS\component\collider</Filter>
+    <ClCompile Include="engine\code\ECS\component\collision\collider\AABBCollider.cpp">
+      <Filter>engine\code\ECS\component\collision\collider</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\component\collision\collider\Collider.cpp">
+      <Filter>engine\code\ECS\component\collision\collider</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\component\collision\collider\OBBCollider.cpp">
+      <Filter>engine\code\ECS\component\collision\collider</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\component\collision\collider\SphereCollider.cpp">
+      <Filter>engine\code\ECS\component\collision\collider</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\component\effect\CameraAction.cpp">
       <Filter>engine\code\ECS\component\effect</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\component\effect\MaterialEffectPipeLine.cpp">
-      <Filter>engine\code\ECS\component\effect</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\code\ECS\component\effect\TextureEffectParam.cpp">
       <Filter>engine\code\ECS\component\effect</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\component\effect\particle\Particle.cpp">
@@ -740,8 +854,38 @@
     <ClCompile Include="engine\code\ECS\component\renderer\Sprite.cpp">
       <Filter>engine\code\ECS\component\renderer</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\ECS\component\renderer\primitive\Primitive.cpp">
+    <ClCompile Include="engine\code\ECS\component\renderer\primitive\BoxRenderer.cpp">
       <Filter>engine\code\ECS\component\renderer\primitive</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\component\renderer\primitive\PlaneRenderer.cpp">
+      <Filter>engine\code\ECS\component\renderer\primitive</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\component\renderer\primitive\PrimitiveMeshRenderer.cpp">
+      <Filter>engine\code\ECS\component\renderer\primitive</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\component\renderer\primitive\RingRenderer.cpp">
+      <Filter>engine\code\ECS\component\renderer\primitive</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\component\renderer\primitive\SphereRenderer.cpp">
+      <Filter>engine\code\ECS\component\renderer\primitive</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\component\renderer\primitive\base\PrimitiveMeshRendererBase.cpp">
+      <Filter>engine\code\ECS\component\renderer\primitive\base</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\component\renderer\primitive\base\PrimitiveType.cpp">
+      <Filter>engine\code\ECS\component\renderer\primitive\base</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\component\renderer\primitive\shape\Box.cpp">
+      <Filter>engine\code\ECS\component\renderer\primitive\shape</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\component\renderer\primitive\shape\Plane.cpp">
+      <Filter>engine\code\ECS\component\renderer\primitive\shape</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\component\renderer\primitive\shape\Ring.cpp">
+      <Filter>engine\code\ECS\component\renderer\primitive\shape</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\component\renderer\primitive\shape\Sphere.cpp">
+      <Filter>engine\code\ECS\component\renderer\primitive\shape</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\component\transform\CameraTransform.cpp">
       <Filter>engine\code\ECS\component\transform</Filter>
@@ -752,8 +896,23 @@
     <ClCompile Include="engine\code\ECS\component\transform\Transform.cpp">
       <Filter>engine\code\ECS\component\transform</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\ECS\entity\EntityRepository.cpp">
+      <Filter>engine\code\ECS\entity</Filter>
+    </ClCompile>
     <ClCompile Include="engine\code\ECS\system\ISystem.cpp">
       <Filter>engine\code\ECS\system</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\system\SystemCategory.cpp">
+      <Filter>engine\code\ECS\system</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\system\SystemRegistry.cpp">
+      <Filter>engine\code\ECS\system</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\system\SystemRunner.cpp">
+      <Filter>engine\code\ECS\system</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\system\collision\CollisionCheckPairFunc.cpp">
+      <Filter>engine\code\ECS\system\collision</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\system\collision\CollisionCheckSystem.cpp">
       <Filter>engine\code\ECS\system\collision</Filter>
@@ -783,9 +942,6 @@
       <Filter>engine\code\ECS\system\effect</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\system\effect\SpriteAnimationSystem.cpp">
-      <Filter>engine\code\ECS\system\effect</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\code\ECS\system\effect\TextureEffectAnimation.cpp">
       <Filter>engine\code\ECS\system\effect</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\system\initialize\CameraInitialize.cpp">
@@ -947,6 +1103,9 @@
     <ClCompile Include="engine\code\winApp\WinApp.cpp">
       <Filter>engine\code\winApp</Filter>
     </ClCompile>
+    <ClCompile Include="geometry\base\GeometryType.cpp">
+      <Filter>geometry\base</Filter>
+    </ClCompile>
     <ClCompile Include="math\Matrix4x4.cpp">
       <Filter>math</Filter>
     </ClCompile>
@@ -989,17 +1148,5 @@
     <ClCompile Include="util\timeline\Timeline.cpp">
       <Filter>util\timeline</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\ECS\component\collider\AABBCollider.cpp" />
-    <ClCompile Include="engine\code\ECS\component\collision\collider\AABBCollider.cpp" />
-    <ClCompile Include="engine\code\ECS\component\collision\collider\Collider.cpp" />
-    <ClCompile Include="engine\code\ECS\component\collision\CollisionPushBackInfo.cpp" />
-    <ClCompile Include="engine\code\ECS\component\collision\collider\SphereCollider.cpp" />
-    <ClCompile Include="engine\code\ECS\component\collision\collider\OBBCollider.cpp" />
-    <ClCompile Include="engine\code\ECS\component\renderer\primitive\base\PrimitiveType.cpp" />
-    <ClCompile Include="engine\code\ECS\component\renderer\primitive\shape\Plane.cpp" />
-    <ClCompile Include="engine\code\ECS\component\renderer\primitive\shape\Ring.cpp" />
-    <ClCompile Include="engine\code\ECS\component\renderer\primitive\shape\Box.cpp" />
-    <ClCompile Include="engine\code\ECS\component\renderer\primitive\shape\Sphere.cpp" />
-    <ClCompile Include="geometry\base\GeometryType.cpp" />
   </ItemGroup>
 </Project>

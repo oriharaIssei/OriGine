@@ -12,7 +12,7 @@ public:
     SphereCollider() : Collider<math::bounds::Sphere>() {}
     ~SphereCollider() {}
 
-    void Edit(Scene* _scene, GameEntity* _entity, const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, Entity* _entity, const std::string& _parentLabel) override;
 
     void CalculateWorldShape() override;
 

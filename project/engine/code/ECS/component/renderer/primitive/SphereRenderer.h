@@ -16,6 +16,6 @@ public:
 
     ~SphereRenderer() override {}
 
-    void Initialize(GameEntity* _hostEntity) override;
-    void Edit(Scene* _scene, GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
+    void Initialize(Entity* _hostEntity) override;
+    void Edit(Scene* _scene, Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
 };

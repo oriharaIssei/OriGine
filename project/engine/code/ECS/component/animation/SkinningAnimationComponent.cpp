@@ -8,7 +8,7 @@
 /// engine
 #include "AnimationManager.h"
 #include "EngineInclude.h"
-#include "Entity.h"
+#include "entity/Entity.h"
 #include "model/ModelManager.h"
 #include "scene/Scene.h"
 /// ECS
@@ -58,7 +58,7 @@ void from_json(const nlohmann::json& j, SkinningAnimationComponent& r) {
     }
 }
 
-void SkinningAnimationComponent::Initialize(GameEntity* _entity) {
+void SkinningAnimationComponent::Initialize(Entity* _entity) {
     entity_ = _entity;
 
     int32_t animationIndex = 0;
@@ -75,7 +75,7 @@ void SkinningAnimationComponent::Initialize(GameEntity* _entity) {
     }
 }
 
-void SkinningAnimationComponent::Edit([[maybe_unused]] Scene* _scene, GameEntity* /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
+void SkinningAnimationComponent::Edit([[maybe_unused]] Scene* _scene, Entity* /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
     
 #ifdef _DEBUG
 

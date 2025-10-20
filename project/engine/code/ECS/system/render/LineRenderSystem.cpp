@@ -34,7 +34,7 @@ void LineRenderSystem::Update() {
     activeLineRenderersByBlendMode_.clear();
 
     for (auto& id : entityIDs_) {
-        GameEntity* entity = getEntity(id);
+        Entity* entity = getEntity(id);
         DispatchRenderer(entity);
     }
 
@@ -65,7 +65,7 @@ void LineRenderSystem::Finalize() {
     dxCommand_->Finalize();
 }
 
-void LineRenderSystem::DispatchRenderer(GameEntity* _entity) {
+void LineRenderSystem::DispatchRenderer(Entity* _entity) {
     std::vector<LineRenderer>* renderers = getComponents<LineRenderer>(_entity);
     if (!renderers) {
         return;
@@ -118,7 +118,7 @@ void LineRenderSystem::RenderingBy(BlendMode _blend) {
     }
 }
 
-void LineRenderSystem::UpdateEntity(GameEntity* _entity) {
+void LineRenderSystem::UpdateEntity(Entity* _entity) {
     auto commandList       = dxCommand_->getCommandList();
     int32_t componentIndex = 0;
     while (true) {

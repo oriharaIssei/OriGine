@@ -5,6 +5,10 @@
 #include <string>
 #include <vector>
 
+/// <summary>
+/// エンティティ参照リストコンポーネント
+/// 他のエンティティファイルへの参照を保持するコンポーネント
+/// </summary>
 class EntityReferenceList : public IComponent {
     friend void to_json(nlohmann::json& j, const EntityReferenceList& c);
     friend void from_json(const nlohmann::json& j, EntityReferenceList& c);
@@ -12,8 +16,8 @@ class EntityReferenceList : public IComponent {
 public:
     EntityReferenceList();
     ~EntityReferenceList() override;
-    void Initialize(GameEntity* _entity) override;
-    void Edit(Scene* _scene, GameEntity* _entity, const std::string& _parentLabel) override;
+    void Initialize(Entity* _entity) override;
+    void Edit(Scene* _scene, Entity* _entity, const std::string& _parentLabel) override;
     void Finalize() override;
 
 private:

@@ -2,7 +2,7 @@
 
 /// Engine
 // directX12
-#include "directX12/IStructuredBuffer.h"
+#include "directX12/buffer/IStructuredBuffer.h"
 
 template <StructuredBuffer structBuff>
 class SimpleStructuredBuffer {

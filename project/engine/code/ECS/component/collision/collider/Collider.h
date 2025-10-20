@@ -34,10 +34,10 @@ public:
     ICollider() {}
     virtual ~ICollider() {}
 
-    virtual void Initialize(GameEntity* _hostEntity);
+    virtual void Initialize(Entity* _hostEntity);
     virtual void Finalize() = 0;
 
-    virtual void Edit(Scene* _scene, GameEntity* _entity, const std::string& _parentLabel) = 0;
+    virtual void Edit(Scene* _scene, Entity* _entity, const std::string& _parentLabel) = 0;
 
     virtual void CalculateWorldShape() = 0;
 
@@ -72,7 +72,7 @@ class Collider
     : public ICollider {
 public:
     Collider() {}
-    void Initialize(GameEntity* _hostEntity) override {
+    void Initialize(Entity* _hostEntity) override {
         ICollider::Initialize(_hostEntity);
     }
     void Finalize() override {
@@ -80,7 +80,7 @@ public:
         this->preCollisionStateMap_.clear();
     }
 
-    virtual void Edit(Scene* _scene, GameEntity* _entity, const std::string& _parentLabel) = 0;
+    virtual void Edit(Scene* _scene, Entity* _entity, const std::string& _parentLabel) = 0;
 
     virtual void CalculateWorldShape() = 0;
 

@@ -13,13 +13,13 @@
 SubScene::SubScene() {}
 SubScene::~SubScene() {}
 
-void SubScene::Initialize(GameEntity* /*_entity*/) {
+void SubScene::Initialize(Entity* /*_entity*/) {
     if (!sceneName_.empty() && isActive_) {
         Load(sceneName_);
     }
 }
 
-void SubScene::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
+void SubScene::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     CheckBoxCommand("IsActive##" + _parentLabel, isActive_);

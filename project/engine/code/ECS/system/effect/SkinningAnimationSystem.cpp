@@ -81,7 +81,7 @@ void SkinningAnimationSystem::Update() {
     usingCS_ = false;
 
     for (auto& id : entityIDs_) {
-        GameEntity* entity = getEntity(id);
+        Entity* entity = getEntity(id);
         UpdateEntity(entity);
     }
     /*  if (usingCS_) {
@@ -97,7 +97,7 @@ void SkinningAnimationSystem::Finalize() {
     pso_ = nullptr;
 }
 
-void SkinningAnimationSystem::UpdateEntity(GameEntity* _entity) {
+void SkinningAnimationSystem::UpdateEntity(Entity* _entity) {
     if (!_entity) {
         return;
     }

@@ -23,10 +23,10 @@ class CollisionPushBackInfo
     friend void from_json(const nlohmann::json& j, CollisionPushBackInfo& info);
 
 public:
-    void Initialize(GameEntity* /*_hostEntity*/) override {}
+    void Initialize(Entity* /*_hostEntity*/) override {}
     void Finalize() override;
 
-    void Edit(Scene* _scene, GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
 
     void ClearInfo();
 

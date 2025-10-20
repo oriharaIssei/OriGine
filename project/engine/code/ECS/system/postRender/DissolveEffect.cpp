@@ -30,7 +30,7 @@ void DissolveEffect::Update() {
     bool allIsUnactive = true;
 
     for (auto& entityId : entityIDs_) {
-        GameEntity* entity = getEntity(entityId);
+        Entity* entity = getEntity(entityId);
         auto* compVec      = getComponents<DissolveEffectParam>(entity);
         if (!compVec || compVec->empty()) {
             continue;
@@ -61,7 +61,7 @@ void DissolveEffect::Update() {
     sceneView->PostDraw();
 }
 
-void DissolveEffect::UpdateEntity(GameEntity* _entity) {
+void DissolveEffect::UpdateEntity(Entity* _entity) {
     auto effectParams = getComponents<DissolveEffectParam>(_entity);
 
     if (!effectParams) {
@@ -112,7 +112,7 @@ void DissolveEffect::Finalize() {
     pso_ = nullptr;
 }
 
-void DissolveEffect::EffectEntity(RenderTexture* _output, GameEntity* _entity) {
+void DissolveEffect::EffectEntity(RenderTexture* _output, Entity* _entity) {
     if (!_output) {
         return;
     }

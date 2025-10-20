@@ -5,6 +5,9 @@
 /// engine
 #define RESOURCE_DIRECTORY
 #include "EngineInclude.h"
+/// ECS
+#include "system/SystemRunner.h"
+
 // scene
 #include "scene/SceneManager.h"
 
@@ -89,7 +92,7 @@ void EntityInformationRegion::DrawGui() {
 
     bool shouldSave = editEntity->shouldSave();
     if (ImGui::Checkbox("Should Save", &shouldSave)) {
-        auto command = std::make_unique<ChangeEntityShouldSave>(parentArea_, editEntityId, !shouldSave/*変更前に戻す*/);
+        auto command = std::make_unique<ChangeEntityShouldSave>(parentArea_, editEntityId, !shouldSave /*変更前に戻す*/);
         EditorController::getInstance()->pushCommand(std::move(command));
     }
 }
@@ -201,7 +204,7 @@ EntityComponentRegion::RemoveComponentFromEditListCommand::RemoveComponentFromEd
     }
     const auto& compArray = scene->getComponentArray(componentTypeName_);
     if (compArray) {
-        GameEntity* editEntity = scene->getEntity(parentArea_->getEditEntityId());
+        Entity* editEntity = scene->getEntity(parentArea_->getEditEntityId());
         if (editEntity) {
             compArray->SaveComponent(editEntity, componentIndex_, componentData_);
         } else {
@@ -248,7 +251,7 @@ void EntityComponentRegion::RemoveComponentFromEditListCommand::Undo() {
         LOG_ERROR("RemoveComponentFromEditListCommand: Scene is null.");
         return;
     }
-    GameEntity* editEntity = scene->getEntity(parentArea_->getEditEntityId());
+    Entity* editEntity = scene->getEntity(parentArea_->getEditEntityId());
     if (editEntity) {
         auto componentArray = scene->getComponentArray(componentTypeName_);
         if (!componentArray) {
@@ -723,7 +726,7 @@ void EntityInspectorArea::ChangeEditEntityCommand::Execute() {
         return;
     }
     Scene* currentScene             = inspectorArea_->getParentWindow()->getCurrentScene();
-    GameEntity* toEntity            = currentScene->getEntityRepositoryRef()->getEntity(toId_);
+    Entity* toEntity                = currentScene->getEntityRepositoryRef()->getEntity(toId_);
     inspectorArea_->editEntityName_ = toEntity->getDataType();
 
     if (toEntityData_.empty()) {
@@ -784,7 +787,7 @@ void EntityInspectorArea::ChangeEditEntityCommand::Undo() {
     }
 
     Scene* currentScene             = inspectorArea_->getParentWindow()->getCurrentScene();
-    GameEntity* frontEntity         = currentScene->getEntityRepositoryRef()->getEntity(fromId_);
+    Entity* frontEntity             = currentScene->getEntityRepositoryRef()->getEntity(fromId_);
     inspectorArea_->editEntityName_ = frontEntity->getDataType();
 
     if (fromEntityData_.empty()) {
@@ -835,8 +838,8 @@ void EntityInspectorArea::ChangeEditEntityCommand::Undo() {
 }
 
 void EntityInformationRegion::ChangeEntityUniqueness::Execute() {
-    auto currentScene  = inspectorArea_->getParentWindow()->getCurrentScene();
-    GameEntity* entity = currentScene->getEntityRepositoryRef()->getEntity(entityId_);
+    auto currentScene = inspectorArea_->getParentWindow()->getCurrentScene();
+    Entity* entity    = currentScene->getEntityRepositoryRef()->getEntity(entityId_);
 
     if (!entity) {
         LOG_ERROR("ChangeEntityUniqueness::Execute: Entity with ID '{}' not found.", entityId_);
@@ -851,8 +854,8 @@ void EntityInformationRegion::ChangeEntityUniqueness::Execute() {
 }
 
 void EntityInformationRegion::ChangeEntityUniqueness::Undo() {
-    auto currentScene  = inspectorArea_->getParentWindow()->getCurrentScene();
-    GameEntity* entity = currentScene->getEntityRepositoryRef()->getEntity(entityId_);
+    auto currentScene = inspectorArea_->getParentWindow()->getCurrentScene();
+    Entity* entity    = currentScene->getEntityRepositoryRef()->getEntity(entityId_);
 
     if (!entity) {
         LOG_ERROR("ChangeEntityUniqueness::Execute: Entity with ID '{}' not found.", entityId_);
@@ -867,8 +870,8 @@ void EntityInformationRegion::ChangeEntityUniqueness::Undo() {
 }
 
 void EntityInformationRegion::ChangeEntityShouldSave::Execute() {
-    auto currentScene  = inspectorArea_->getParentWindow()->getCurrentScene();
-    GameEntity* entity = currentScene->getEntityRepositoryRef()->getEntity(entityId_);
+    auto currentScene = inspectorArea_->getParentWindow()->getCurrentScene();
+    Entity* entity    = currentScene->getEntityRepositoryRef()->getEntity(entityId_);
 
     if (!entity) {
         LOG_ERROR("Entity with ID '{}' not found.", entityId_);
@@ -879,8 +882,8 @@ void EntityInformationRegion::ChangeEntityShouldSave::Execute() {
 }
 
 void EntityInformationRegion::ChangeEntityShouldSave::Undo() {
-    auto currentScene  = inspectorArea_->getParentWindow()->getCurrentScene();
-    GameEntity* entity = currentScene->getEntityRepositoryRef()->getEntity(entityId_);
+    auto currentScene = inspectorArea_->getParentWindow()->getCurrentScene();
+    Entity* entity    = currentScene->getEntityRepositoryRef()->getEntity(entityId_);
 
     if (!entity) {
         LOG_ERROR("Entity with ID '{}' not found.", entityId_);
@@ -891,8 +894,8 @@ void EntityInformationRegion::ChangeEntityShouldSave::Undo() {
 }
 
 void EntityInformationRegion::ChangeEntityName::Execute() {
-    auto currentScene  = inspectorArea_->getParentWindow()->getCurrentScene();
-    GameEntity* entity = currentScene->getEntityRepositoryRef()->getEntity(entityId_);
+    auto currentScene = inspectorArea_->getParentWindow()->getCurrentScene();
+    Entity* entity    = currentScene->getEntityRepositoryRef()->getEntity(entityId_);
     if (!entity) {
         LOG_ERROR("ChangeEntityName::Execute: Entity with ID '{}' not found.", entityId_);
         return;
@@ -906,8 +909,8 @@ void EntityInformationRegion::ChangeEntityName::Execute() {
 }
 
 void EntityInformationRegion::ChangeEntityName::Undo() {
-    auto currentScene  = inspectorArea_->getParentWindow()->getCurrentScene();
-    GameEntity* entity = currentScene->getEntityRepositoryRef()->getEntity(entityId_);
+    auto currentScene = inspectorArea_->getParentWindow()->getCurrentScene();
+    Entity* entity    = currentScene->getEntityRepositoryRef()->getEntity(entityId_);
     if (!entity) {
         LOG_ERROR("ChangeEntityName::Undo: Entity with ID '{}' not found.", entityId_);
         return;
@@ -1044,7 +1047,7 @@ void SelectAddSystemArea::AddSystemsForTargetEntities::Execute() {
     }
     int32_t editEntityId = entityInspectorArea->getEditEntityId();
     for (const auto& entityId : parentArea_->targetEntityIds_) {
-        GameEntity* entity = currentScene->getEntity(entityId);
+        Entity* entity = currentScene->getEntity(entityId);
         if (!entity) {
             LOG_ERROR("Entity with ID '{}' not found.", entityId);
             continue;
@@ -1083,7 +1086,7 @@ void SelectAddSystemArea::AddSystemsForTargetEntities::Undo() {
     }
     int32_t editEntityId = entityInspectorArea->getEditEntityId();
     for (const auto& entityId : parentArea_->targetEntityIds_) {
-        GameEntity* entity = currentScene->getEntity(entityId);
+        Entity* entity = currentScene->getEntity(entityId);
         if (!entity) {
             LOG_ERROR("Entity with ID '{}' not found.", entityId);
             continue;
@@ -1118,7 +1121,7 @@ void EntityInformationRegion::DeleteEntityCommand::Execute() {
         LOG_ERROR("DeleteEntityCommand::Execute: No current scene found.");
         return;
     }
-    GameEntity* entity = currentScene->getEntityRepositoryRef()->getEntity(entityId_);
+    Entity* entity = currentScene->getEntityRepositoryRef()->getEntity(entityId_);
     if (!entity) {
         LOG_ERROR("DeleteEntityCommand::Execute: Entity with ID '{}' not found.", entityId_);
         return;
@@ -1137,7 +1140,7 @@ void EntityInformationRegion::DeleteEntityCommand::Undo() {
     }
 
     SceneSerializer serializer(currentScene);
-    GameEntity* entity = serializer.EntityFromJson(entityId_, entityData_);
+    Entity* entity = serializer.EntityFromJson(entityId_, entityData_);
     if (!entity) {
         LOG_ERROR("DeleteEntityCommand::Undo: Failed to restore entity with ID '{}'.", entityId_);
         return;
@@ -1153,7 +1156,7 @@ RemoveComponentForEntityCommand::RemoveComponentForEntityCommand(Scene* _scene, 
     }
 
     if (entityId_ >= 0) {
-        GameEntity* entity = scene_->getEntityRepositoryRef()->getEntity(entityId_);
+        Entity* entity = scene_->getEntityRepositoryRef()->getEntity(entityId_);
         if (!entity) {
             LOG_ERROR("RemoveComponentForEntityCommand: Entity with ID '{}' not found.", entityId_);
             return;
@@ -1168,7 +1171,7 @@ void RemoveComponentForEntityCommand::Execute() {
         LOG_ERROR("RemoveComponentForEntityCommand::Execute: Scene is null.");
         return;
     }
-    GameEntity* entity = scene_->getEntityRepositoryRef()->getEntity(entityId_);
+    Entity* entity = scene_->getEntityRepositoryRef()->getEntity(entityId_);
     if (!entity) {
         LOG_ERROR("RemoveComponentForEntityCommand::Execute: Entity with ID '{}' not found.", entityId_);
         return;
@@ -1186,7 +1189,7 @@ void RemoveComponentForEntityCommand::Undo() {
         LOG_ERROR("RemoveComponentForEntityCommand::Undo: Scene is null.");
         return;
     }
-    GameEntity* entity = scene_->getEntityRepositoryRef()->getEntity(entityId_);
+    Entity* entity = scene_->getEntityRepositoryRef()->getEntity(entityId_);
     if (!entity) {
         LOG_ERROR("RemoveComponentForEntityCommand::Undo: Entity with ID '{}' not found.", entityId_);
         return;

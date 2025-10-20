@@ -23,8 +23,8 @@ public:
     SkinningAnimationComponent()           = default;
     ~SkinningAnimationComponent() override = default;
 
-    void Initialize(GameEntity* _entity) override;
-    void Edit(Scene* _scene, GameEntity* _entity, const std::string& _parentLabel);
+    void Initialize(Entity* _entity) override;
+    void Edit(Scene* _scene, Entity* _entity, const std::string& _parentLabel);
     void Finalize() override;
 
     /// <summary>
@@ -101,7 +101,7 @@ private:
     };
 
 private:
-    GameEntity* entity_                = nullptr;
+    Entity* entity_                = nullptr;
     int32_t bindModeMeshRendererIndex_ = -1;
 
     std::unordered_map<std::string, int32_t> animationIndexBinder_;

@@ -15,6 +15,9 @@
 // component
 #include "component/effect/post/SpeedlineEffectParam.h"
 
+/// <summary>
+/// スピードラインを描画するシステム
+/// </summary>
 class SpeedlineEffect
     : public ISystem {
 public:
@@ -23,14 +26,23 @@ public:
 
     void Initialize() override;
     void Update() override;
-    void UpdateEntity(GameEntity* _entity) override;
+    void UpdateEntity(Entity* _entity) override;
     void Finalize();
 
 protected:
     void CreatePSO();
 
+    /// <summary>
+    /// 描画準備処理
+    /// </summary>
     void RenderStart();
+    /// <summary>
+    /// コンポーネント描画処理
+    /// </summary>
     void Render(SpeedlineEffectParam* _param);
+    /// <summary>
+    /// 描画終了処理
+    /// </summary>
     void RenderEnd();
 
 protected:

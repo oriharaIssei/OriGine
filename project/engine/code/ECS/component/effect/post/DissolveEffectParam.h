@@ -2,7 +2,7 @@
 #include "component/IComponent.h"
 
 /// engine
-#include "directX12/IConstantBuffer.h"
+#include "directX12/buffer/IConstantBuffer.h"
 #include "directX12/buffer/SimpleConstantBuffer.h"
 
 /// component
@@ -48,10 +48,10 @@ public:
     DissolveEffectParam()           = default;
     ~DissolveEffectParam() override = default;
 
-    void Initialize(GameEntity* _entity) override;
+    void Initialize(Entity* _entity) override;
     void Finalize() override;
 
-    void Edit(Scene* _scene, GameEntity* _entity, const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, Entity* _entity, const std::string& _parentLabel) override;
 
     void LoadTexture(const std::string& filePath);
 

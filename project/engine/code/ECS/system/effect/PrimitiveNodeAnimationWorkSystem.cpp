@@ -6,9 +6,12 @@
 #include "EngineInclude.h"
 // component
 #include "component/animation/PrimitiveNodeAnimation.h"
-#include "component/renderer/primitive/Primitive.h"
+#include "component/renderer/primitive/BoxRenderer.h"
+#include "component/renderer/primitive/PlaneRenderer.h"
+#include "component/renderer/primitive/RingRenderer.h"
+#include "component/renderer/primitive/SphereRenderer.h"
 
-void PrimitiveNodeAnimationWorkSystem::UpdateEntity(GameEntity* _entity) {
+void PrimitiveNodeAnimationWorkSystem::UpdateEntity(Entity* _entity) {
     auto* primitiveNodeAnimation = getComponent<PrimitiveNodeAnimation>(_entity);
     if (primitiveNodeAnimation == nullptr) {
         return;
@@ -23,10 +26,7 @@ void PrimitiveNodeAnimationWorkSystem::UpdateEntity(GameEntity* _entity) {
             if (primitive == nullptr) {
                 primitive = getComponent<BoxRenderer>(_entity);
                 if (primitive == nullptr) {
-                    primitive = getComponent<BoxRenderer>(_entity);
-                    if (primitive == nullptr) {
-                        return; // No primitive renderer found
-                    }
+                    return; // No primitive renderer found
                 }
             }
         }

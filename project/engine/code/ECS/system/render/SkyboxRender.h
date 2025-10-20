@@ -9,6 +9,9 @@
 #include "directX12/DxCommand.h"
 #include "directX12/ShaderManager.h"
 
+/// <summary>
+/// Skybox描画システム
+/// </summary>
 class SkyboxRender
     : public ISystem {
 public:
@@ -20,11 +23,14 @@ public:
     void Finalize() override;
 
 protected:
+    /// <summary>
+    /// 描画開始処理
+    /// </summary>
     void CreatePso();
 
     void StartRender();
 
-    void UpdateEntity(GameEntity* _entity) override;
+    void UpdateEntity(Entity* _entity) override;
 
 private:
     BlendMode currentBlend_ = BlendMode::Alpha;

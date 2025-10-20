@@ -5,7 +5,7 @@
 
 /// engine
 // directX12
-#include "directX12/IConstantBuffer.h"
+#include "directX12/buffer/IConstantBuffer.h"
 
 /// math
 #include "math/Vector2.h"
@@ -47,9 +47,9 @@ public:
     RadialBlurParam();
     ~RadialBlurParam();
 
-    void Initialize(GameEntity* _entity);
+    void Initialize(Entity* _entity);
 
-    void Edit(Scene* _scene, GameEntity* _entity, const std::string& _parentLabel);
+    void Edit(Scene* _scene, Entity* _entity, const std::string& _parentLabel);
 
     void Finalize();
 

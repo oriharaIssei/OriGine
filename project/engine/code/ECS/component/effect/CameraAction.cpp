@@ -10,9 +10,9 @@ CameraAction::CameraAction() {}
 
 CameraAction::~CameraAction() {}
 
-void CameraAction::Initialize(GameEntity* /*_entity*/) {}
+void CameraAction::Initialize(Entity* /*_entity*/) {}
 
-void CameraAction::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, [[maybe_unused]] [[maybe_unused]] const std::string& _parentLabel) {
+void CameraAction::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_unused]] [[maybe_unused]] const std::string& _parentLabel) {
   
 #ifdef DEBUG
     std::string label = "AnimationState##" + _parentLabel;

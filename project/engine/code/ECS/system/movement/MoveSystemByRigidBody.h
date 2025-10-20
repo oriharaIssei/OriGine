@@ -6,6 +6,9 @@
 
 #include "util/globalVariables/SerializedField.h"
 
+/// <summary>
+/// Rigidbody によるTransformの移動を行うシステム
+/// </summary>
 class MoveSystemByRigidBody
     : public ISystem {
 public:
@@ -17,7 +20,7 @@ public:
     void Finalize() override;
 
 protected:
-    void UpdateEntity(GameEntity* _entity) override;
+    void UpdateEntity(Entity* _entity) override;
 
 protected:
     SerializedField<float> gravity_ = SerializedField<float>("Settings", "Physics", "Gravity");

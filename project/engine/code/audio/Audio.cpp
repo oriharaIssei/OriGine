@@ -141,7 +141,7 @@ void Audio::Pause() {
     pSourceVoice_->Stop(0);
 }
 
-void Audio::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, [[maybe_unused]] [[maybe_unused]] const std::string& _parentLabel) {
+void Audio::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_unused]] [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     std::string label = "LoadFile##" + _parentLabel;
     if (ImGui::Button(label.c_str())) {
@@ -268,7 +268,7 @@ AudioInitializeSystem::~AudioInitializeSystem() {}
 void AudioInitializeSystem::Initialize() {}
 void AudioInitializeSystem::Finalize() {}
 
-void AudioInitializeSystem::UpdateEntity(GameEntity* entity) {
+void AudioInitializeSystem::UpdateEntity(Entity* entity) {
     int32_t entityIndex = 0;
 
     while (true) {

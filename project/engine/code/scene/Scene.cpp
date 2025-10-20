@@ -8,10 +8,12 @@
 #include "directX12/RenderTexture.h"
 
 // Ecs
-#include "ECS/Entity.h"
+#include "entity/Entity.h"
 #include "system/ISystem.h"
 
+#include "component/ComponentRepository.h"
 #include "engine/EngineInclude.h"
+#include "system/SystemRunner.h"
 
 Scene::Scene(const std::string& _name) : name_(_name) {}
 
@@ -99,7 +101,7 @@ void Scene::addDeleteEntity(int32_t entityId) {
 }
 
 void Scene::deleteEntity(int32_t entityId) {
-    GameEntity* entity = entityRepository_->getEntity(entityId);
+    Entity* entity = entityRepository_->getEntity(entityId);
     if (!entity || !entity->isAlive()) {
         LOG_ERROR("Failed Delte Entity : {}", entityId);
         return;
@@ -121,11 +123,11 @@ ComponentRepository* Scene::getComponentRepositoryRef() { return componentReposi
 const SystemRunner* Scene::getSystemRunner() const { return systemRunner_.get(); }
 SystemRunner* Scene::getSystemRunnerRef() { return systemRunner_.get(); }
 
-GameEntity* Scene::getEntity(int32_t entityId) const {
+Entity* Scene::getEntity(int32_t entityId) const {
     return entityRepository_->getEntity(entityId);
 }
 
-GameEntity* Scene::getUniqueEntity(const std::string& _dataType) const {
+Entity* Scene::getUniqueEntity(const std::string& _dataType) const {
     if (!_dataType.empty()) {
         return entityRepository_->getUniqueEntity(_dataType);
     }
@@ -134,7 +136,7 @@ GameEntity* Scene::getUniqueEntity(const std::string& _dataType) const {
 }
 
 bool Scene::addComponent(const std::string& _compTypeName, int32_t _entityId, bool _doInitialize) {
-    GameEntity* entity = entityRepository_->getEntity(_entityId);
+    Entity* entity = entityRepository_->getEntity(_entityId);
     if (!entity) {
         LOG_ERROR("Scene::addComponent: Entity with ID '{}' not found.", _entityId);
         return false;
@@ -144,7 +146,7 @@ bool Scene::addComponent(const std::string& _compTypeName, int32_t _entityId, bo
 }
 
 bool Scene::removeComponent(const std::string& _compTypeName, int32_t _entityId, int32_t _componentIndex) {
-    GameEntity* entity = entityRepository_->getEntity(_entityId);
+    Entity* entity = entityRepository_->getEntity(_entityId);
     if (!entity) {
         LOG_ERROR("Scene::removeComponent: Entity with ID '{}' not found.", _entityId);
         return false;

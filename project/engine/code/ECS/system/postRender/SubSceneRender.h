@@ -7,6 +7,9 @@
 /// engine
 #include "scene/Scene.h"
 
+/// <summary>
+/// サブシーンのレンダリングを行うシステム
+/// </summary>
 class SubSceneRender
 : public ISystem{
     public:
@@ -18,7 +21,7 @@ class SubSceneRender
     void EndRender();
 
 protected:
-    void UpdateEntity(GameEntity* _entity) override;
+    void UpdateEntity(Entity* _entity) override;
 
 private:
     std::vector<Scene*> scenes_;

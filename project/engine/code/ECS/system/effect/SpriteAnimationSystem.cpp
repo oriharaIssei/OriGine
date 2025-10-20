@@ -16,7 +16,7 @@ void SpriteAnimationSystem::Initialize() {}
 
 void SpriteAnimationSystem::Finalize() {}
 
-void SpriteAnimationSystem::UpdateEntity(GameEntity* _entity) {
+void SpriteAnimationSystem::UpdateEntity(Entity* _entity) {
     auto spriteAnimations          = getComponents<SpriteAnimation>(_entity);
     SpriteRenderer* spriteRenderer = getComponent<SpriteRenderer>(_entity);
 

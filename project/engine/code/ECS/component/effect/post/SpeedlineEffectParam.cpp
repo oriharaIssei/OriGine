@@ -16,7 +16,7 @@
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
-void SpeedlineEffectParam::Initialize(GameEntity*) {
+void SpeedlineEffectParam::Initialize(Entity*) {
     if (isActive_) {
         cBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
     }
@@ -25,7 +25,7 @@ void SpeedlineEffectParam::Initialize(GameEntity*) {
     }
 }
 
-void SpeedlineEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
+void SpeedlineEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     if (CheckBoxCommand("isActive##" + _parentLabel, isActive_)) {
         Play();

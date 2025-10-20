@@ -66,8 +66,8 @@ public:
     /// </summary>
     void UpdateUvMatrix();
 
-    void Initialize([[maybe_unused]] GameEntity* _entity) override;
-    void Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] GameEntity* _entity, const std::string& _parentLabel) override;
+    void Initialize([[maybe_unused]] Entity* _entity) override;
+    void Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, const std::string& _parentLabel) override;
     void Finalize() override;
 
     /// <summary>

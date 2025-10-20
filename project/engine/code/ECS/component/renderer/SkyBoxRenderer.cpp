@@ -17,7 +17,7 @@
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
-void SkyboxRenderer::Initialize(GameEntity* _hostEntity) {
+void SkyboxRenderer::Initialize(Entity* _hostEntity) {
     MeshRenderer::Initialize(_hostEntity);
 
     /// mesh
@@ -92,7 +92,7 @@ void SkyboxRenderer::Initialize(GameEntity* _hostEntity) {
     materialBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
 }
 
-void SkyboxRenderer::Edit(Scene* /*_scene*/, GameEntity*/* _entity*/, [[maybe_unused]] const std::string& _parentLabel) {
+void SkyboxRenderer::Edit(Scene* /*_scene*/, Entity*/* _entity*/, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     ImGui::Text("FilePath : %s", filePath_.c_str());

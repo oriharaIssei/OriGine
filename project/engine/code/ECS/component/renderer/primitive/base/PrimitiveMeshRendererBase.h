@@ -15,9 +15,9 @@ public:
     PrimitiveMeshRendererBase(const std::shared_ptr<std::vector<TextureMesh>>& _meshGroup) : MeshRenderer(_meshGroup) {}
 
     virtual ~PrimitiveMeshRendererBase()                                                                    = default;
-    virtual void Initialize(GameEntity* _entity)                                                            = 0;
+    virtual void Initialize(Entity* _entity)                                                            = 0;
     virtual void Finalize()                                                                                 = 0;
-    virtual void Edit(Scene* _scene, GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) = 0;
+    virtual void Edit(Scene* _scene, Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) = 0;
 
     /// <summary>
     /// 自身のプリミティブ情報をもとにメッシュを作成する

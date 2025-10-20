@@ -4,12 +4,12 @@
 #include <myGui/myGui.h>
 #endif
 
-void CameraTransform::Initialize(GameEntity* _hostEntity) {
+void CameraTransform::Initialize(Entity* _hostEntity) {
     _hostEntity;
     UpdateMatrix();
 }
 
-void CameraTransform::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
+void CameraTransform::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     DragGuiVectorCommand("Rotate##" + _parentLabel, rotate, 0.01f);

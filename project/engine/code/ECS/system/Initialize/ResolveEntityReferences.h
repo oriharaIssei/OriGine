@@ -1,6 +1,9 @@
 #pragma once
 #include "system/ISystem.h"
 
+/// <summary>
+/// EntityReferenceListのEntityファイルを読み込むシステム
+/// </summary>
 class ResolveEntityReferences
     : public ISystem {
 public:
@@ -10,5 +13,5 @@ public:
     void Finalize() override;
 
 private:
-    void UpdateEntity(GameEntity* _entity) override;
+    void UpdateEntity(Entity* _entity) override;
 };

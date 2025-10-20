@@ -50,11 +50,11 @@ public:
 
     virtual ~MeshRenderer() {}
 
-    virtual void Initialize(GameEntity* _hostEntity) {
+    virtual void Initialize(Entity* _hostEntity) {
         hostEntity_ = _hostEntity;
     }
 
-    void Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, const std::string& /*_parentLabel*/) override {}
+    void Edit(Scene* /*_scene*/, Entity* /*_entity*/, const std::string& /*_parentLabel*/) override {}
 
     virtual void Finalize() {
         for (auto& mesh : *meshGroup_) {
@@ -64,7 +64,7 @@ public:
     }
 
 protected:
-    GameEntity* hostEntity_ = nullptr;
+    Entity* hostEntity_ = nullptr;
 
     BlendMode currentBlend_ = BlendMode::Alpha;
 
@@ -73,7 +73,7 @@ protected:
     std::shared_ptr<std::vector<MeshTemplate>> meshGroup_;
 
 public: // ↓ Accessor
-    GameEntity* getHostEntity() const {
+    Entity* getHostEntity() const {
         return hostEntity_;
     }
 
@@ -128,9 +128,9 @@ public:
     ///< summary>
     /// 初期化
     ///</summary>
-    void Initialize(GameEntity* _hostEntity) override;
+    void Initialize(Entity* _hostEntity) override;
 
-    void Edit(Scene* _scene, GameEntity* _entity, const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, Entity* _entity, const std::string& _parentLabel) override;
 
     void Finalize() override {
         for (auto& mesh : *meshGroup_) {
@@ -143,9 +143,9 @@ public:
         }
     }
 
-    void InitializeTransformBuffer(GameEntity* _hostEntity);
-    void InitializeMaterialBuffer(GameEntity* _hostEntity);
-    void InitializeMaterialBufferWithMaterialIndex(GameEntity* _hostEntity);
+    void InitializeTransformBuffer(Entity* _hostEntity);
+    void InitializeMaterialBuffer(Entity* _hostEntity);
+    void InitializeMaterialBufferWithMaterialIndex(Entity* _hostEntity);
     void ResizeTransformBuffer2MeshGroupSize() {
         meshTransformBuff_.resize(meshGroup_->size());
     }
@@ -235,14 +235,14 @@ public:
 
 void CreateModelMeshRenderer(
     ModelMeshRenderer* _renderer,
-    GameEntity* _hostEntity,
+    Entity* _hostEntity,
     const std::string& _directory,
     const std::string& _filenName,
     bool _usingDefaultTexture = true);
 void InitializeMaterialFromModelFile(
     ModelMeshRenderer* _renderer,
     Scene* _scene,
-    GameEntity* _hostEntity,
+    Entity* _hostEntity,
     const std::string& _directory,
     const std::string& _fileName);
 
@@ -260,9 +260,9 @@ public:
     ///< summary>
     /// 初期化
     ///</summary>
-    void Initialize(GameEntity* _hostEntity) override;
+    void Initialize(Entity* _hostEntity) override;
 
-    void Edit(Scene* _scene, GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
     void Finalize() override;
 
 private:

@@ -1,7 +1,7 @@
 #pragma once
 
 // directX12Object
-#include "directX12/IConstantBuffer.h"
+#include "directX12/buffer/IConstantBuffer.h"
 #include "directX12/mesh/Mesh.h"
 // component
 #include "component/renderer/MeshRenderer.h"
@@ -74,9 +74,9 @@ public:
     ///< summary>
     /// 初期化
     ///</summary>
-    void Initialize(GameEntity* _hostEntity) override;
+    void Initialize(Entity* _hostEntity) override;
 
-    void Edit(Scene* _scene, GameEntity* _entity, const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, Entity* _entity, const std::string& _parentLabel) override;
 
     /// <summary>
     /// 更新

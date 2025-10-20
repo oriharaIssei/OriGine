@@ -12,6 +12,9 @@
 class DxCommand;
 struct PipelineStateObj;
 
+/// <summary>
+/// GpuParticle の初期化を行うシステム
+/// </summary>
 class GpuParticleInitialize
     : public ISystem {
 public:
@@ -23,10 +26,16 @@ public:
     void Finalize();
 
 protected:
-    void UpdateEntity(GameEntity* _entity) override;
+    void UpdateEntity(Entity* _entity) override;
 
     void CreatePSO();
+    /// <summary>
+    /// コンピュートシェーダーによる初期化
+    /// </summary>
     void StartCS();
+    /// <summary>
+    /// コンピュートシェーダーの実行
+    /// </summary>
     void ExecuteCS();
 
 private:

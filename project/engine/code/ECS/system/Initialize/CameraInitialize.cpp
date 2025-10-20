@@ -11,7 +11,7 @@ CameraInitialize::~CameraInitialize() {}
 void CameraInitialize::Initialize() {}
 void CameraInitialize::Finalize() {}
 
-void CameraInitialize::UpdateEntity(GameEntity* _entity) {
+void CameraInitialize::UpdateEntity(Entity* _entity) {
     CameraTransform* cameraTransform = getComponent<CameraTransform>(_entity);
     if (!cameraTransform) {
         return;

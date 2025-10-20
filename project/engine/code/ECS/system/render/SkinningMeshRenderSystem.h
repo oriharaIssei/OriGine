@@ -8,8 +8,8 @@
 
 /// engine
 // directX12Object
+#include "directX12/buffer/IConstantBuffer.h"
 #include "directX12/DxCommand.h"
-#include "directX12/IConstantBuffer.h"
 #include "directX12/mesh/Mesh.h"
 #include "directX12/ShaderManager.h"
 // component
@@ -21,6 +21,9 @@
 class SkinningAnimationComponent;
 class ModelMeshRenderer;
 
+/// <summary>
+/// スキニングメッシュレンダリングシステム
+/// </summary>
 class SkinningMeshRenderSystem
     : public ISystem {
 public:
@@ -33,10 +36,19 @@ public:
 
     void CreatePso();
 
+    /// <summary>
+    /// 描画開始処理
+    /// </summary>
     void StartRender();
 
-    void UpdateEntity(GameEntity* _entity) override;
-
+    void UpdateEntity(Entity* _entity) override;
+    /// <summary>
+    /// ModelMeshのレンダリング
+    /// </summary>
+    /// <param name="_entityTransform"></param>
+    /// <param name="_commandList"></param>
+    /// <param name="_skinningAnimationComponent"></param>
+    /// <param name="_renderer"></param>
     void RenderModelMesh(
         Transform* _entityTransform,
         Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList,
@@ -46,7 +58,14 @@ public:
 protected:
     void LightUpdate();
 
-    void DispatchRenderer(GameEntity* _entity);
+    /// <summary>
+    /// 描画する情報によって振り分ける
+    /// </summary>
+    /// <param name="_entity"></param>
+    void DispatchRenderer(Entity* _entity);
+    /// <summary>
+    /// Blendmodeごとに描画する
+    /// </summary>
     void RenderingBy(BlendMode _blendMode);
 
 private:

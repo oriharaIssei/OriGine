@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <string>
 
 #include <cstdint>
@@ -15,6 +16,17 @@ enum class PrimitiveType : int32_t {
     //  Cone // 円錐
 
     Count
+};
+
+static const std::array<std::string, static_cast<int32_t>(PrimitiveType::Count)> kPrimitiveTypes = {
+    "Plane",
+    "Ring",
+    // PrimitiveType::Circle,
+    "Box",
+    "Sphere",
+    // PrimitiveType::Torus,
+    // PrimitiveType::Cylinder,
+    // PrimitiveType::Cone,
 };
 
 namespace std {

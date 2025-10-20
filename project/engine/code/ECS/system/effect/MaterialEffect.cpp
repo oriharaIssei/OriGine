@@ -44,7 +44,7 @@ void MaterialEffect::Update() {
     effectPipelines_.clear();
 
     for (auto& id : entityIDs_) {
-        GameEntity* entity = getEntity(id);
+        Entity* entity = getEntity(id);
         DispatchComponents(entity);
     }
 
@@ -53,7 +53,7 @@ void MaterialEffect::Update() {
         return;
     }
 
-    std::sort(effectPipelines_.begin(), effectPipelines_.end(), [](std::pair<GameEntity*, MaterialEffectPipeLine*>& a, std::pair<GameEntity*, MaterialEffectPipeLine*>& b) {
+    std::sort(effectPipelines_.begin(), effectPipelines_.end(), [](std::pair<Entity*, MaterialEffectPipeLine*>& a, std::pair<Entity*, MaterialEffectPipeLine*>& b) {
         return a.second->getPriority() < b.second->getPriority();
     });
 
@@ -81,7 +81,7 @@ void MaterialEffect::Finalize() {
     }
 }
 
-void MaterialEffect::DispatchComponents(GameEntity* _entity) {
+void MaterialEffect::DispatchComponents(Entity* _entity) {
     auto materialEffectPipeLines = getComponents<MaterialEffectPipeLine>(_entity);
     if (!materialEffectPipeLines) {
         return;
@@ -102,7 +102,7 @@ void MaterialEffect::DispatchComponents(GameEntity* _entity) {
     }
 }
 
-void MaterialEffect::UpdateEffectPipeline(GameEntity* _entity, MaterialEffectPipeLine* _pipeline) {
+void MaterialEffect::UpdateEffectPipeline(Entity* _entity, MaterialEffectPipeLine* _pipeline) {
     auto commandList = dxCommand_->getCommandList();
 
     Material* material    = getComponent<Material>(_entity, _pipeline->getMaterialIndex());
@@ -130,7 +130,7 @@ void MaterialEffect::UpdateEffectPipeline(GameEntity* _entity, MaterialEffectPip
 
     const auto& effectEntityDataList = _pipeline->getEffectEntityIdList();
     for (auto id : effectEntityDataList) {
-        GameEntity* effectEntity = getEntity(id.entityID);
+        Entity* effectEntity = getEntity(id.entityID);
         if (!effectEntity) { // エンティティが存在しなかったらスルー
             continue;
         }
@@ -185,7 +185,7 @@ void MaterialEffect::ExecuteCommand() {
     ///===============================================================
 }
 
-void MaterialEffect::TextureEffect(GameEntity* _entity, MaterialEffectType _type, RenderTexture* _output) {
+void MaterialEffect::TextureEffect(Entity* _entity, MaterialEffectType _type, RenderTexture* _output) {
     switch (_type) {
     case MaterialEffectType::Dissolve: {
         auto dissolveParam = getComponent<DissolveEffectParam>(_entity);
