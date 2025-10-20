@@ -18,6 +18,9 @@ class DistortionEffectParam;
 
 class TexturedMeshRenderSystem;
 
+/// <summary>
+/// 歪みエフェクトをかけるシステム
+/// </summary>
 class DistortionEffect
     : public ISystem {
 public:
@@ -28,14 +31,17 @@ public:
     void Update() override;
     void Finalize();
 
-    void UpdateEntity(GameEntity* _entity) override;
+    void UpdateEntity(Entity* _entity) override;
 
     /// <summary>
     /// 単一エフェクトに対してエフェクトをかけ, RenderTextureに出力する
     /// </summary>
-    void EffectEntity(RenderTexture* _output, GameEntity* _entity);
+    void EffectEntity(RenderTexture* _output, Entity* _entity);
 
 protected:
+    /// <summary>
+    /// コンポーネントの持つエフェクトオブジェクトのシーンを描画する
+    /// </summary>
     void RenderEffectObjectScene(
         const Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& _commandList,
         Transform* _entityTransform,

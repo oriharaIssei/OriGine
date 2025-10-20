@@ -10,7 +10,7 @@
 #include "directX12/DxDevice.h"
 #include "EngineInclude.h"
 // component
-#include "component/renderer/primitive/Primitive.h"
+#include "component/renderer/primitive/shape/Plane.h"
 // module
 #include "camera/CameraManager.h"
 #include "directX12/ShaderManager.h"
@@ -41,7 +41,7 @@ Emitter::Emitter() : IComponent(), currentCoolTime_(0.f), leftActiveTime_(0.f) {
 
 Emitter::~Emitter() {}
 
-void Emitter::Initialize(GameEntity* /*_entity*/) {
+void Emitter::Initialize(Entity* /*_entity*/) {
     { // Initialize DrawingData Size
         CalculateMaxSize();
         particles_.reserve(particleMaxSize_);
@@ -123,7 +123,7 @@ void Emitter::UpdateParticle(float _deltaTime) {
     }
 }
 
-void Emitter::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
+void Emitter::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     if (CheckBoxCommand("isActive##" + _parentLabel, isActive_)) {

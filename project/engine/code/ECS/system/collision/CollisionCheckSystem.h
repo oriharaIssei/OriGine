@@ -3,10 +3,9 @@
 /// parent
 #include "system/ISystem.h"
 
-/// ECS
-// component
-struct Transform;
-
+/// <summary>
+/// 衝突判定システム
+/// </summary>
 class CollisionCheckSystem
     : public ISystem {
 public:
@@ -18,9 +17,9 @@ public:
     void Finalize() override;
 
 protected:
-    void UpdateEntity(GameEntity* _entity) override;
+    void UpdateEntity(Entity* _entity) override;
 
 protected:
-    std::vector<GameEntity*> entities_;
-    std::vector<GameEntity*>::iterator entityItr_;
+    std::vector<Entity*> entities_;
+    std::vector<Entity*>::iterator entityItr_;
 };

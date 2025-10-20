@@ -12,9 +12,16 @@
 #include "directX12/DxCommand.h"
 #include "directX12/ShaderManager.h"
 // component
-#include "component/collider/Collider.h"
+#include "component/collision/collider/Collider.h"
 #include "component/renderer/MeshRenderer.h"
+//colliderType
+#include "component/collision/collider/AABBCollider.h"
+#include "component/collision/collider/SphereCollider.h"
+#include "component/collision/collider/OBBCollider.h"
 
+/// <summary>
+/// Colliderのレンダリングを行うシステム(Debug用)
+/// </summary>
 class ColliderRenderingSystem
     : public ISystem {
 public:
@@ -28,7 +35,7 @@ public:
     static const int32_t defaultMeshCount_;
 
 protected:
-    void UpdateEntity(GameEntity* /*_entity*/) override;
+    void UpdateEntity(Entity* /*_entity*/) override;
 
     void CreateRenderMesh();
     void RenderCall();

@@ -26,13 +26,13 @@ MaterialEffectPipeLine::MaterialEffectPipeLine() {}
 
 MaterialEffectPipeLine::~MaterialEffectPipeLine() {}
 
-void MaterialEffectPipeLine::Initialize(GameEntity* /*_entity*/) {
+void MaterialEffectPipeLine::Initialize(Entity* /*_entity*/) {
     if (!baseTexturePath_.empty()) {
         LoadBaseTexture(baseTexturePath_);
     }
 }
 
-void MaterialEffectPipeLine::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
+void MaterialEffectPipeLine::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     auto askLoadTexture = [this]([[maybe_unused]] const std::string& _parentLabel) {

@@ -16,7 +16,7 @@
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
-void DissolveEffectParam::Initialize(GameEntity* /*_entity*/) {
+void DissolveEffectParam::Initialize(Entity* /*_entity*/) {
 
     if (!textureFilePath_.empty()) {
         textureIndex_ = TextureManager::LoadTexture(textureFilePath_);
@@ -51,7 +51,7 @@ void DissolveEffectParam::Play() {
     materialBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
 }
 
-void DissolveEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
+void DissolveEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     if (CheckBoxCommand("Active##" + _parentLabel, isActive_)) {

@@ -205,7 +205,7 @@ bool GpuParticleRenderSystem::isRendering() {
 
     bool anyActive = false;
     for (const auto& id : entityIDs_) {
-        GameEntity* entity = getEntity(id);
+        Entity* entity = getEntity(id);
         if (!entity) {
             continue;
         }

@@ -24,7 +24,7 @@
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
-void SpriteRenderer::Initialize(GameEntity* _hostEntity) {
+void SpriteRenderer::Initialize(Entity* _hostEntity) {
     MeshRenderer::Initialize(_hostEntity);
 
     // buffer作成
@@ -61,7 +61,7 @@ void SpriteRenderer::Initialize(GameEntity* _hostEntity) {
     CalculateWindowRatioPosAndSize(Engine::getInstance()->getWinApp()->getWindowSize());
 }
 
-void SpriteRenderer::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
+void SpriteRenderer::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     auto realNumberAfterFunc = [this](Vector<2, float>* /*_newVal*/) {
         CalculatePosRatioAndSizeRatio();

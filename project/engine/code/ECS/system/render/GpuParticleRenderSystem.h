@@ -7,7 +7,7 @@
 /// engine
 // directX12Object
 #include "directX12/DxCommand.h"
-#include "directX12/IConstantBuffer.h"
+#include "directX12/buffer/IConstantBuffer.h"
 #include "directX12/ShaderManager.h"
 
 /// ECS/
@@ -16,6 +16,9 @@
 
 class GpuParticleEmitter;
 
+/// <summary>
+/// Gpuパーティクル描画システム
+/// </summary>
 class GpuParticleRenderSystem
     : public ISystem {
 public:
@@ -28,11 +31,19 @@ public:
 
 protected:
     void CreatePso();
-
+    /// <summary>
+    /// レンダリング開始処理
+    /// </summary>
     void StartRender();
+    /// <summary>
+    /// レンダリングを行うかどうか
+    /// </summary>
     bool isRendering();
+    /// <summary>
+    /// 指定されたブレンドモードでレンダリングを行う
+    /// </summary>
     void RenderingBy(BlendMode _blendMode);
-    void UpdateEntity(GameEntity* /*_entity*/) override{}
+    void UpdateEntity(Entity* /*_entity*/) override{}
 
 private:
     std::unique_ptr<DxCommand> dxCommand_ = nullptr;

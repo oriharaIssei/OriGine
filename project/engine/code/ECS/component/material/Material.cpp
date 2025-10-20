@@ -28,11 +28,11 @@ void Material::UpdateUvMatrix() {
     uvMat_ = MakeMatrix::Affine({uvTransform_.scale_, 1}, {0.f, 0.f, uvTransform_.rotate_}, {uvTransform_.translate_, 0.f});
 }
 
-void Material::Initialize(GameEntity* /*_entity*/) {
+void Material::Initialize(Entity* /*_entity*/) {
     UpdateUvMatrix();
 }
 
-void Material::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
+void Material::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     ImGui::Text("Color");

@@ -14,7 +14,7 @@ void EmitterWorkSystem::Finalize() {
     entityIDs_.clear();
 }
 
-void EmitterWorkSystem::UpdateEntity(GameEntity* _entity) {
+void EmitterWorkSystem::UpdateEntity(Entity* _entity) {
     // _entityがnullptrの場合は何もしない
     if (!_entity) {
         return;

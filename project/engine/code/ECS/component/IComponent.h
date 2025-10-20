@@ -10,7 +10,7 @@
 /// utility
 #include <util/nameof.h>
 
-class GameEntity;
+class Entity;
 class Scene;
 ///< summary>
 /// 1コンポーネントを表すクラス(基底クラス)
@@ -20,10 +20,10 @@ public:
     IComponent();
     virtual ~IComponent();
 
-    virtual void Initialize(GameEntity* _entity) = 0;
+    virtual void Initialize(Entity* _entity) = 0;
 
-    virtual void Edit(Scene* _scene, GameEntity* _entity,  const std::string& _parentLabel) = 0;
-    virtual void Debug(Scene* _scene, GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) { Edit(_scene, _entity, _parentLabel); }
+    virtual void Edit(Scene* _scene, Entity* _entity,  const std::string& _parentLabel) = 0;
+    virtual void Debug(Scene* _scene, Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) { Edit(_scene, _entity, _parentLabel); }
 
     virtual void Finalize() = 0;
 };

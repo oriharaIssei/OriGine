@@ -10,22 +10,43 @@
 
 #include "directX12/DxDescriptor.h"
 #include <WinUser.h>
+class DxDevice;
+class DxCommand;
+class WinApp;
 
 /// math
 #include "Vector4.h"
 
-class DxDevice;
-class DxCommand;
-class WinApp;
+/// <summary>
+/// SwapChainの管理クラス
+/// </summary>
 class DxSwapChain {
 public:
+    /// <summary>
+    /// 初期化処理
+    /// </summary>
+    /// <param name="winApp"></param>
+    /// <param name="device"></param>
+    /// <param name="command"></param>
     void Initialize(const WinApp* winApp, const DxDevice* device, const DxCommand* command);
+    /// <summary>
+    /// 終了処理
+    /// </summary>
     void Finalize();
 
+    /// <summary>
+    /// バッファの入れ替え
+    /// </summary>
     void Present();
 
+    /// <summary>
+    /// 現在のバックバッファをクリア
+    /// </summary>
     void CurrentBackBufferClear(DxCommand* _commandList, DxDsvDescriptor* _dsv) const;
 
+    /// <summary>
+    /// バックバッファのリサイズ
+    /// </summary> 
     void ResizeBuffer(UINT width, UINT height);
 
 private:

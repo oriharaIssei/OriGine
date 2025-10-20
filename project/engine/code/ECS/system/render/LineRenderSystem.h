@@ -14,6 +14,9 @@
 #include "directX12/DxCommand.h"
 #include "directX12/ShaderManager.h"
 
+/// <summary>
+/// 線の描画を行うシステム
+/// </summary>
 class LineRenderSystem
     : public ISystem {
 public:
@@ -24,13 +27,20 @@ public:
     void Update() override;
     void Finalize() override;
 
-    void UpdateEntity(GameEntity* _entity) override;
+    void UpdateEntity(Entity* _entity) override;
     void StartRender();
     void settingPSO(BlendMode _blend);
 private:
     void CreatePso();
 
-    void DispatchRenderer(GameEntity* _entity);
+    /// <summary>
+    /// 描画する物を登録
+    /// </summary>
+    /// <param name="_entity"></param>
+    void DispatchRenderer(Entity* _entity);
+    /// <summary>
+    /// ブレンドモードごとに描画
+    /// </summary> 
     void RenderingBy(BlendMode _blend);
 
 private:

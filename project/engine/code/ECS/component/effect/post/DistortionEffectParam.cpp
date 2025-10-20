@@ -6,7 +6,10 @@
 #include "scene/Scene.h"
 #include "texture/TextureManager.h"
 // component
-#include "component/renderer/primitive/Primitive.h"
+#include "component/renderer/primitive/base/PrimitiveMeshRendererBase.h"
+#include "component/renderer/primitive/base/PrimitiveType.h"
+#include "component/renderer/primitive/PlaneRenderer.h"
+#include "component/renderer/primitive/RingRenderer.h"
 
 #include "myFileSystem/MyFileSystem.h"
 
@@ -14,7 +17,7 @@
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
-void DistortionEffectParam::Initialize(GameEntity* _hostEntity) {
+void DistortionEffectParam::Initialize(Entity* _hostEntity) {
     effectParamData_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
     effectParamData_.ConvertToBuffer();
     materialBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
@@ -39,7 +42,7 @@ void DistortionEffectParam::LoadTexture(const std::string& _path) {
     textureIndex_ = TextureManager::LoadTexture(texturePath_);
 }
 
-void DistortionEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
+void DistortionEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
 
 #ifdef DEBUG
     CheckBoxCommand("Active##" + _parentLabel, isActive_);
@@ -82,12 +85,12 @@ void DistortionEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]
                 static PrimitiveType newObjectType;
 
                 objectLabel = "PrimitiveType##" + _parentLabel;
-                if (ImGui::BeginCombo(objectLabel.c_str(), PrimitiveTypeToString(newObjectType))) {
+                if (ImGui::BeginCombo(objectLabel.c_str(), std::to_string(newObjectType).c_str())) {
                     for (int32_t i = 0; i < int32_t(PrimitiveType::Count); ++i) {
                         PrimitiveType selectType = (PrimitiveType)i;
                         bool isSelected          = newObjectType == selectType;
 
-                        if (ImGui::Selectable(PrimitiveTypeToString(selectType), isSelected)) {
+                        if (ImGui::Selectable(std::to_string(selectType).c_str(), isSelected)) {
                             EditorController::getInstance()->pushCommand(
                                 std::make_unique<SetterCommand<PrimitiveType>>(&newObjectType, selectType));
                         }
@@ -125,7 +128,7 @@ void DistortionEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]
                 ImGui::EndPopup();
             }
             for (auto& [obj, type] : distortionObjects_) {
-                objectNodeName = "Distortion Object_" + std::string(PrimitiveTypeToString(type)) + std::to_string(objectIndex);
+                objectNodeName = "Distortion Object_" + std::to_string(type) + std::to_string(objectIndex);
                 if (ImGui::Button(std::string("X##" + objectNodeName).c_str())) {
                     auto command = std::make_unique<EraseElementCommand<std::vector<std::pair<std::shared_ptr<PrimitiveMeshRendererBase>, PrimitiveType>>>>(&distortionObjects_, distortionObjects_.begin() + objectIndex);
                     EditorController::getInstance()->pushCommand(std::move(command));
@@ -210,6 +213,9 @@ void to_json(nlohmann::json& j, const DistortionEffectParam& param) {
                     break;
                 case PrimitiveType::Ring:
                     objectData["objectData"] = *std::static_pointer_cast<RingRenderer>(obj);
+                    break;
+                default:
+                    LOG_ERROR("Unsupported Primitive Type for Distortion Object: {}", std::to_string(int32_t(type)));
                     break;
                 }
             }

@@ -13,13 +13,23 @@
 #include "Vector4.h"
 #include <cstdint>
 
+/// <summary>
+/// RTVとSRVを持つレンダーターゲット用テクスチャ
+/// </summary>
 class RenderTexture {
 public:
     RenderTexture(DxCommand* dxCom);
     RenderTexture()  = default;
     ~RenderTexture() = default;
 
+    /// <summary>
+    /// Exe起動時に一度だけ呼ばれる.
+    /// </summary>
     static void Awake();
+
+    /// <summary>
+    /// 初期化処理
+    /// </summary>
     void Initialize(
         int32_t _bufferCount,
         const Vec2f& textureSize,
@@ -27,8 +37,14 @@ public:
         const Vec4f& _clearColor = {0.f, 0.f, 0.f, 1.f});
     void Initialize(int32_t _bufferCount, const DirectX::TexMetadata& _metaData, const Vec4f& _clearColor = {0.f, 0.f, 0.f, 1.f});
 
+    /// <summary>
+    /// リサイズ処理
+    /// </summary>
     void Resize(const Vec2f& textureSize);
 
+    /// <summary>
+    /// 終了処理
+    /// </summary>
     void Finalize();
 
     /// <summary>

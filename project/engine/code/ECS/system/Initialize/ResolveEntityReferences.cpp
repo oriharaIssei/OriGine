@@ -12,7 +12,8 @@ void ResolveEntityReferences::Initialize() {}
 
 void ResolveEntityReferences::Finalize() {}
 
-void ResolveEntityReferences::UpdateEntity(GameEntity* _entity) {
+void ResolveEntityReferences::UpdateEntity(Entity* _entity) {
+    // EntityReferenceListコンポーネントを取得
     auto* entityRefListArray = getComponents<EntityReferenceList>(_entity);
     if (entityRefListArray == nullptr) {
         return;
@@ -20,10 +21,11 @@ void ResolveEntityReferences::UpdateEntity(GameEntity* _entity) {
 
     SceneSerializer serializer(getScene());
 
+    // EntityReferenceListに登録されているEntityファイルを読み込む
     for (auto& entityRefList : *entityRefListArray) {
         for (const auto& [directory, filename] : entityRefList.getEntityFileList()) {
 #ifdef _DEBUG
-            GameEntity* loadedEntity = serializer.LoadEntity(directory, filename);
+            Entity* loadedEntity = serializer.LoadEntity(directory, filename);
             loadedEntity->setShouldSave(false); // 読み込んだEntityは保存しない
 #else
             serializer.LoadEntity(directory, filename);

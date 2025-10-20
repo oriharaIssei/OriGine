@@ -1,13 +1,20 @@
 #include "VelocityRenderingSystem.h"
 
+///engine
 #include "camera/CameraManager.h"
-#include "directX12/DxDevice.h"
 #include "Engine.h"
-#include <numbers>
+//directX12
+#include "directX12/DxDevice.h"
+
+///math
+#include "math/mathEnv.h"
 
 const int32_t VelocityRenderingSystem::defaultMeshCount_ = 1000;
 
 void VelocityRenderingSystem::Initialize() {
+    constexpr int32_t kMeshVertexSize = 8;
+    constexpr int32_t kMeshIndexSize  = 8;
+
     dxCommand_ = std::make_unique<DxCommand>();
     dxCommand_->Initialize("main", "main");
 
@@ -17,8 +24,8 @@ void VelocityRenderingSystem::Initialize() {
     velocityRenderer_.Initialize(nullptr);
     velocityRenderer_.getMeshGroup()->push_back(Mesh<ColorVertexData>());
     velocityRenderer_.getMeshGroup()->back().Initialize(
-        VelocityRenderingSystem::defaultMeshCount_ * 8, // 頂点数 (線 + 矢印分)
-        VelocityRenderingSystem::defaultMeshCount_ * 8 // インデックス数
+        VelocityRenderingSystem::defaultMeshCount_ * kMeshVertexSize, // 頂点数 (線 + 矢印分)
+        VelocityRenderingSystem::defaultMeshCount_ * kMeshIndexSize // インデックス数
     );
     velocityMeshItr_ = velocityRenderer_.getMeshGroup()->begin();
 
@@ -41,6 +48,9 @@ void VelocityRenderingSystem::Finalize() {
 }
 
 void VelocityRenderingSystem::CreateRenderMesh() {
+    constexpr float kSideAngleRate = 0.2f;
+    constexpr float kArrowLengthRate = 0.3f;
+
     auto& meshGroup = velocityRenderer_.getMeshGroup();
     for (auto& mesh : *meshGroup) {
         mesh.vertexes_.clear();
@@ -53,7 +63,7 @@ void VelocityRenderingSystem::CreateRenderMesh() {
     }
 
     for (auto& [entityIdx, rbIdx] : rigidbodies_->getEntityIndexBind()) {
-        GameEntity* entity = getEntity(entityIdx);
+        Entity* entity = getEntity(entityIdx);
         if (!entity) {
             continue;
         }
@@ -67,7 +77,7 @@ void VelocityRenderingSystem::CreateRenderMesh() {
         Vec3f pos = transform->worldMat[3];
         Vec3f vel = rigidbody->getVelocity();
 
-        if (vel.lengthSq() < 1e-6f) {
+        if (vel.lengthSq() < kEpsilon) {
             continue; // ゼロベクトルならスキップ
         }
 
@@ -83,14 +93,14 @@ void VelocityRenderingSystem::CreateRenderMesh() {
 
         // 矢印
         Vec3f dir  = vel.normalize();
-        Vec3f side = Vec3f::Cross(dir, {0, 1, 0});
-        if (side.lengthSq() < 1e-6f) {
-            side = Vec3f::Cross(dir, {1, 0, 0});
+        Vec3f side = Vec3f::Cross(dir, axisY);
+        if (side.lengthSq() < kEpsilon) {
+            side = Vec3f::Cross(dir, axisX);
         }
-        side = side.normalize() * 0.2f;
+        side = side.normalize() * kSideAngleRate;
 
-        Vec3f arrowL = end - dir * 0.3f + side;
-        Vec3f arrowR = end - dir * 0.3f - side;
+        Vec3f arrowL = end - dir * kArrowLengthRate + side;
+        Vec3f arrowR = end - dir * kArrowLengthRate - side;
 
         uint32_t idxBase = (uint32_t)velocityMeshItr_->vertexes_.size();
         velocityMeshItr_->vertexes_.push_back({Vec4f(end, 1.f), Vec4f(0, 0, 1, 1)});

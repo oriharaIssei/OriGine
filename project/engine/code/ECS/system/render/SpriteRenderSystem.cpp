@@ -33,7 +33,7 @@ void SpriteRenderSystem::Update() {
     renderers_.clear();
 
     for (auto& id : entityIDs_) {
-        GameEntity* entity = getEntity(id);
+        Entity* entity = getEntity(id);
         DispatchRenderer(entity);
     }
 
@@ -67,7 +67,7 @@ void SpriteRenderSystem::Update() {
     }
 }
 
-void SpriteRenderSystem::DispatchRenderer(GameEntity* _entity) {
+void SpriteRenderSystem::DispatchRenderer(Entity* _entity) {
     std::vector<SpriteRenderer>* renderers = getComponents<SpriteRenderer>(_entity);
 
     if (!renderers) {
@@ -213,4 +213,4 @@ void SpriteRenderSystem::StartRender() {
     commandList->SetDescriptorHeaps(1, ppHeaps);
 }
 
-void SpriteRenderSystem::UpdateEntity(GameEntity* /*_entity*/) {}
+void SpriteRenderSystem::UpdateEntity(Entity* /*_entity*/) {}

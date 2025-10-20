@@ -5,6 +5,9 @@
 #include "d3d12.h"
 #include "dxgi1_6.h"
 
+/// <summary>
+/// device,adapter,factory の管理クラス
+/// </summary>
 class DxDevice {
 public:
     void Initialize();

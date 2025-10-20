@@ -6,10 +6,10 @@
 
 /// engine
 // dx12object
-#include "directX12/IStructuredBuffer.h"
-#include "directX12/Mesh.h"
+#include "directX12/buffer/IStructuredBuffer.h"
+#include "directX12/buffer/SimpleConstantBuffer.h"
+#include "directX12/mesh/Mesh.h"
 #include "directX12/ShaderManager.h"
-#include "directX12/SimpleConstantBuffer.h"
 // assets
 #include "component/material/Material.h"
 struct ParticleKeyFrames;
@@ -43,7 +43,7 @@ public:
     Emitter();
     ~Emitter();
 
-    void Initialize(GameEntity* _entity) override;
+    void Initialize(Entity* _entity) override;
     //! ToDo :: Update,Draw の削除
     void Update(float _deltaTime);
     void UpdateParticle(float _deltaTime);
@@ -51,7 +51,7 @@ public:
 
     void Finalize() override;
 
-    void Edit(Scene* _scene, GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
 
     void CalculateMaxSize();
 

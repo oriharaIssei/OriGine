@@ -23,7 +23,7 @@ struct ModelNode;
 #include "Vector4.h"
 
 /// <summary>
-/// アニメーションの再生を行うクラス
+/// ModelNodeアニメーションの再生を行うクラス
 /// </summary>
 class ModelNodeAnimation
     : public IComponent {
@@ -34,8 +34,8 @@ public:
     ModelNodeAnimation() = default;
     ~ModelNodeAnimation() = default;
 
-    void Initialize(GameEntity* _entity) override;
-    void Edit(Scene* _scene,GameEntity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
+    void Initialize(Entity* _entity) override;
+    void Edit(Scene* _scene,Entity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
     void Finalize() override;
 
     void UpdateModel(
@@ -44,6 +44,9 @@ public:
         const Matrix4x4& parentTransform);
 
 private:
+    /// <summary>
+    /// Nodeアニメーションの現在のローカル行列を計算
+    /// </summary>
     Matrix4x4 CalculateNodeLocal(const std::string& nodeName) const;
 
     /// <summary>

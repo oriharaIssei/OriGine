@@ -138,7 +138,7 @@ ModelMeshRenderer::ModelMeshRenderer(const std::shared_ptr<std::vector<TextureMe
     }
 }
 
-void ModelMeshRenderer::Initialize(GameEntity* _hostEntity) {
+void ModelMeshRenderer::Initialize(Entity* _hostEntity) {
     MeshRenderer::Initialize(_hostEntity);
 
     if (!fileName_.empty()) {
@@ -164,7 +164,7 @@ void ModelMeshRenderer::Initialize(GameEntity* _hostEntity) {
     }
 }
 
-void ModelMeshRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
+void ModelMeshRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     std::string label = "isRender##" + _parentLabel;
     CheckBoxCommand(label, isRender_);
@@ -259,7 +259,7 @@ void ModelMeshRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Ga
 #endif // _DEBUG
 }
 
-void ModelMeshRenderer::InitializeTransformBuffer(GameEntity* _hostEntity) {
+void ModelMeshRenderer::InitializeTransformBuffer(Entity* _hostEntity) {
     hostEntity_ = _hostEntity;
     meshTransformBuff_.resize(meshGroup_->size());
     for (int32_t i = 0; i < meshGroup_->size(); ++i) {
@@ -268,7 +268,7 @@ void ModelMeshRenderer::InitializeTransformBuffer(GameEntity* _hostEntity) {
     }
 }
 
-void ModelMeshRenderer::InitializeMaterialBufferWithMaterialIndex(GameEntity* _hostEntity) {
+void ModelMeshRenderer::InitializeMaterialBufferWithMaterialIndex(Entity* _hostEntity) {
     hostEntity_ = _hostEntity;
 
     meshMaterialBuff_.resize(meshGroup_->size());
@@ -282,7 +282,7 @@ void ModelMeshRenderer::InitializeMaterialBufferWithMaterialIndex(GameEntity* _h
     }
 }
 
-void ModelMeshRenderer::InitializeMaterialBuffer(GameEntity* _hostEntity) {
+void ModelMeshRenderer::InitializeMaterialBuffer(Entity* _hostEntity) {
     hostEntity_ = _hostEntity;
 
     meshMaterialBuff_.resize(meshGroup_->size());
@@ -297,7 +297,7 @@ void ModelMeshRenderer::InitializeMaterialBuffer(GameEntity* _hostEntity) {
 
 #pragma endregion
 
-void CreateModelMeshRenderer(ModelMeshRenderer* _renderer, GameEntity* _hostEntity, const std::string& _directory, const std::string& _fileName, bool _usingDefaultTexture) {
+void CreateModelMeshRenderer(ModelMeshRenderer* _renderer, Entity* _hostEntity, const std::string& _directory, const std::string& _fileName, bool _usingDefaultTexture) {
     bool isLoaded = false;
 
     if (!_renderer->getMeshGroup()->empty()) {
@@ -329,7 +329,7 @@ void CreateModelMeshRenderer(ModelMeshRenderer* _renderer, GameEntity* _hostEnti
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 }
-void InitializeMaterialFromModelFile(ModelMeshRenderer* _renderer, Scene* _scene, GameEntity* _hostEntity, const std::string& _directory, const std::string& _fileName) {
+void InitializeMaterialFromModelFile(ModelMeshRenderer* _renderer, Scene* _scene, Entity* _hostEntity, const std::string& _directory, const std::string& _fileName) {
     if (!_renderer->getMeshGroup()->empty()) {
         _renderer->getMeshGroup()->clear();
     }
@@ -446,7 +446,7 @@ LineRenderer::LineRenderer(const std::shared_ptr<std::vector<Mesh<ColorVertexDat
 
 LineRenderer::~LineRenderer() {}
 
-void LineRenderer::Initialize(GameEntity* _hostEntity) {
+void LineRenderer::Initialize(Entity* _hostEntity) {
     MeshRenderer::Initialize(_hostEntity);
     transformBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
 
@@ -454,7 +454,7 @@ void LineRenderer::Initialize(GameEntity* _hostEntity) {
     transformBuff_.ConvertToBuffer();
 }
 
-void LineRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
+void LineRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
 
 #ifdef _DEBUG
 

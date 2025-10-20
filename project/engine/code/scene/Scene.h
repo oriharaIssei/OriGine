@@ -10,12 +10,16 @@
 // directX12
 class RenderTexture;
 /// ECS
-class EntityRepository;
 #include "component/ComponentArray.h"
+#include "component/ComponentRepository.h"
+#include "entity/EntityRepository.h"
 class SystemRunner;
 class ISystem;
 enum class SystemCategory;
 
+/// <summary>
+/// 1場面を表すクラス
+/// </summary>
 class Scene final {
     friend class SceneSerializer;
 
@@ -87,42 +91,22 @@ public:
         return entityRepository_->getInactiveEntityCount();
     }
 
-    GameEntity* getEntity(int32_t entityId) const;
-    GameEntity* getUniqueEntity(const std::string& _dataType) const;
+    Entity* getEntity(int32_t entityId) const;
+    Entity* getUniqueEntity(const std::string& _dataType) const;
 
     /// ==========================================
     // Component 関係
     /// =========================================
     template <IsComponent ComponentType>
-    ComponentType* getComponent(GameEntity* _entity, uint32_t index = 0) const {
-        if (!_entity) {
-            LOG_ERROR("Entity is null. EntityName :{}", nameof<ComponentType>());
-            return nullptr;
-        }
-        return componentRepository_->getComponent<ComponentType>(_entity, index);
-    }
+    ComponentType* getComponent(Entity* _entity, uint32_t index = 0) const ;
     template <IsComponent ComponentType>
-    ComponentType* getComponent(int32_t entityId, uint32_t index = 0) const {
-        GameEntity* entity = entityRepository_->getEntity(entityId);
-        if (!entity) {
-            LOG_ERROR("Entity with ID {} not found.", entityId);
-            return nullptr;
-        }
-        return componentRepository_->getComponent<ComponentType>(entity, index);
-    }
+    ComponentType* getComponent(int32_t entityId, uint32_t index = 0) const ;
     template <IsComponent ComponentType>
-    std::vector<ComponentType>* getComponents(GameEntity* _entity) const {
+    std::vector<ComponentType>* getComponents(Entity* _entity) const {
         return componentRepository_->getComponents<ComponentType>(_entity);
     }
     template <IsComponent ComponentType>
-    std::vector<ComponentType>* getComponents(int32_t entityId) const {
-        GameEntity* entity = entityRepository_->getEntity(entityId);
-        if (!entity) {
-            LOG_ERROR("Entity with ID {} not found.", entityId);
-            return {};
-        }
-        return componentRepository_->getComponents<ComponentType>(entity);
-    }
+    std::vector<ComponentType>* getComponents(int32_t entityId) const;
 
     IComponentArray* getComponentArray(const std::string& componentTypeName) const {
         return componentRepository_->getComponentArray(componentTypeName);
@@ -145,3 +129,32 @@ public:
     bool registerSystem(const std::string& _systemTypeName, int32_t _priority = 0, bool _activity = true);
     bool unregisterSystem(const std::string& _systemTypeName);
 };
+
+template <IsComponent ComponentType>
+inline ComponentType* Scene::getComponent(Entity* _entity, uint32_t index) const {
+    if (!_entity) {
+        LOG_ERROR("Entity is null. EntityName :{}", nameof<ComponentType>());
+        return nullptr;
+    }
+    return componentRepository_->getComponent<ComponentType>(_entity, index);
+}
+
+template <IsComponent ComponentType>
+inline ComponentType* Scene::getComponent(int32_t entityId, uint32_t index) const {
+    Entity* entity = entityRepository_->getEntity(entityId);
+    if (!entity) {
+        LOG_ERROR("Entity with ID {} not found.", entityId);
+        return nullptr;
+    }
+    return componentRepository_->getComponent<ComponentType>(entity, index);
+}
+
+template <IsComponent ComponentType>
+inline std::vector<ComponentType>* Scene::getComponents(int32_t entityId) const {
+    Entity* entity = entityRepository_->getEntity(entityId);
+    if (!entity) {
+        LOG_ERROR("Entity with ID {} not found.", entityId);
+        return {};
+    }
+    return componentRepository_->getComponents<ComponentType>(entity);
+}

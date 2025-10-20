@@ -13,6 +13,9 @@
 #include <Quaternion.h>
 #include <Vector3.h>
 
+/// <summary>
+/// CameraTransform コンポーネント
+/// </summary>
 class CameraTransform
     : public IComponent {
     friend void to_json(nlohmann::json& j, const CameraTransform& r);
@@ -22,9 +25,9 @@ public:
     CameraTransform() {}
     ~CameraTransform() {}
 
-    void Initialize(GameEntity* _hostEntity = nullptr);
+    void Initialize(Entity* _hostEntity = nullptr);
 
-    void Edit(Scene* _scene,GameEntity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
+    void Edit(Scene* _scene,Entity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
 
     void Finalize() override;
 
@@ -32,7 +35,7 @@ public:
     // Vec3f scale;
     Quaternion rotate = Quaternion();
     Vec3f translate   = {0.0f, 0.0f, 0.0f};
-    Matrix4x4 viewMat;
+    Matrix4x4 viewMat = MakeMatrix::Identity();
 
     // 垂直方向視野角
     float fovAngleY = 45.0f * 3.141592654f / 180.0f;
@@ -42,7 +45,7 @@ public:
     float nearZ = 0.1f;
     // 深度限界（奥側）
     float farZ = 1000.0f;
-    Matrix4x4 projectionMat;
+    Matrix4x4 projectionMat = MakeMatrix::Identity();
 
 public:
     struct ConstantBuffer {

@@ -15,6 +15,7 @@
 #include "component/transform/Transform.h"
 
 /// math
+#include "math/bounds/base/IBounds.h"
 #include <numbers>
 
 const int32_t ColliderRenderingSystem::defaultMeshCount_ = 1000;
@@ -66,11 +67,18 @@ void ColliderRenderingSystem::Initialize() {
 }
 
 #pragma region "CreateLineMesh"
-template <IsShape ShapeType>
+/// <summary>
+/// Bounds形状からラインメッシュを作成
+/// </summary>
+/// <typeparam name="ShapeType">形状クラス</typeparam>
+/// <param name="_mesh">出力先</param>
+/// <param name="_shape">形状情報</param>
+/// <param name="_color">メッシュの色</param>
+template <math::bounds::IsBounds ShapeType>
 void CreateLineMeshByShape(
     Mesh<ColorVertexData>* _mesh,
     const ShapeType& _shape,
-    const Vec4f& _color = {1.f, 1.f, 1.f, 1.f}) {
+    const Vec4f& _color = WHITE) {
     _mesh;
     _shape;
 }
@@ -78,7 +86,7 @@ void CreateLineMeshByShape(
 template <>
 void CreateLineMeshByShape(
     Mesh<ColorVertexData>* _mesh,
-    const AABB& _shape,
+    const math::bounds::AABB& _shape,
     const Vec4f& _color) {
 
     // AABBVertex
@@ -121,7 +129,7 @@ void CreateLineMeshByShape(
 template <>
 void CreateLineMeshByShape(
     Mesh<ColorVertexData>* _mesh,
-    const OBB& _shape,
+    const math::bounds::OBB& _shape,
     const Vec4f& _color) {
     // OBBの8頂点を計算
     Vector3f halfSizes  = _shape.halfSize_;
@@ -167,7 +175,7 @@ void CreateLineMeshByShape(
 template <>
 void CreateLineMeshByShape(
     Mesh<ColorVertexData>* _mesh,
-    const Sphere& _shape,
+    const math::bounds::Sphere& _shape,
     const Vec4f& _color) {
 
     const float kLatEvery = std::numbers::pi_v<float> / sphereDivisionReal; //* 緯度
@@ -247,7 +255,7 @@ void ColliderRenderingSystem::Finalize() {
     dxCommand_->Finalize();
 }
 
-void ColliderRenderingSystem::UpdateEntity(GameEntity* /*_entity*/) {}
+void ColliderRenderingSystem::UpdateEntity(Entity* /*_entity*/) {}
 
 void ColliderRenderingSystem::CreateRenderMesh() {
     { // AABB
@@ -261,7 +269,7 @@ void ColliderRenderingSystem::CreateRenderMesh() {
         aabbMeshItr_ = meshGroup->begin();
 
         for (auto& [entityIdx, aabbIdx] : aabbColliders_->getEntityIndexBind()) {
-            GameEntity* entity = getEntity(entityIdx);
+            Entity* entity = getEntity(entityIdx);
             if (!entity) {
                 continue; // Entityが存在しない場合はスキップ
             }
@@ -325,7 +333,7 @@ void ColliderRenderingSystem::CreateRenderMesh() {
         obbMeshItr_ = meshGroup->begin();
 
         for (auto& [entityIdx, obbIdx] : obbColliders_->getEntityIndexBind()) {
-            GameEntity* entity = getEntity(entityIdx);
+            Entity* entity = getEntity(entityIdx);
             if (!entity) {
                 continue; // Entityが存在しない場合はスキップ
             }
@@ -389,7 +397,7 @@ void ColliderRenderingSystem::CreateRenderMesh() {
         sphereMeshItr_ = meshGroup->begin();
 
         for (auto& [entityIdx, sphereIdx] : sphereColliders_->getEntityIndexBind()) {
-            GameEntity* entity = getEntity(entityIdx);
+            Entity* entity = getEntity(entityIdx);
             if (!entity) {
                 continue; // Entityが存在しない場合はスキップ
             }
@@ -538,8 +546,8 @@ void ColliderRenderingSystem::CreatePso() {
     ///=================================================
     /// BlendMode ごとの Psoを作成
     ///=================================================
-   
-        pso_ = shaderManager->CreatePso("LineMesh_" + blendModeStr[int32_t(BlendMode::Alpha)], lineShaderInfo, dxDevice->getDevice());
+
+    pso_ = shaderManager->CreatePso("LineMesh_" + blendModeStr[int32_t(BlendMode::Alpha)], lineShaderInfo, dxDevice->getDevice());
 }
 
 void ColliderRenderingSystem::StartRender() {

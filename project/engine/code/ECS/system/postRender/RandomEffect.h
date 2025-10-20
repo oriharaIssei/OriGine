@@ -11,6 +11,9 @@
 #include "directX12/PipelineStateObj.h"
 #include "directX12/ShaderManager.h"
 
+/// <summary>
+/// ランダムエフェクトシステム
+/// </summary>
 class RandomEffect
     : public ISystem {
 public:
@@ -19,15 +22,21 @@ public:
 
     void Initialize() override;
     void Update() override;
-    void UpdateEntity(GameEntity* _entity) override;
+    void UpdateEntity(Entity* _entity) override;
     void Finalize();
 
 protected:
     void CreatePSO();
 
+    /// <summary>
+    /// 描画準備
+    /// </summary>
     void RenderStart();
     void Render();
 
+    /// <summary>
+    /// ブレンドモード変更
+    /// </summary>
     void ChangeBlendMode(BlendMode mode);
 
 protected:

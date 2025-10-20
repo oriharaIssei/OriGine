@@ -20,7 +20,7 @@ private:
     /// 実行しない(Initializeですべてを行う)
     /// </summary>
     /// <param name="_entity"></param>
-    void UpdateEntity(GameEntity* _entity) override;
+    void UpdateEntity(Entity* _entity) override;
 
 private:
     int32_t spriteResizeEventIndex_    = -1;

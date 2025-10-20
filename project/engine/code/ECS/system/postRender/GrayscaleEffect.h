@@ -7,6 +7,9 @@
 #include "directX12/PipelineStateObj.h"
 #include "directX12/ShaderManager.h"
 
+/// <summary>
+/// グレースケール を画面全体にかけるエフェクト
+/// </summary>
 class GrayscaleEffect
     : public ISystem {
 public:

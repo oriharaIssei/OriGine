@@ -11,6 +11,9 @@
 struct Material;
 struct Transform;
 
+/// <summary>
+/// PrimtiveをNode単位でアニメーションさせるコンポーネント
+/// </summary>
 class PrimitiveNodeAnimation
     : public IComponent {
     friend void to_json(nlohmann::json& _json, const PrimitiveNodeAnimation& _primitiveNodeAnimation);
@@ -20,9 +23,9 @@ public:
     PrimitiveNodeAnimation()           = default;
     ~PrimitiveNodeAnimation() override = default;
 
-    void Initialize(GameEntity* _entity) override;
+    void Initialize(Entity* _entity) override;
 
-    void Edit(Scene* _scene, GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
 
     void Finalize() override;
 
@@ -32,6 +35,10 @@ public:
     void Stop();
 
 protected:
+    /// <summary>
+    /// Transformに対してアニメーションを適用する
+    /// </summary>
+    /// <param name="_transform"></param>
     void UpdateTransformAnimation(Transform* _transform);
 
 private:

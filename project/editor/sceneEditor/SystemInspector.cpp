@@ -2,6 +2,11 @@
 
 #ifdef _DEBUG
 
+/// ECS
+// system
+#include "system/SystemRegistry.h"
+#include "system/SystemRunner.h"
+
 /// editor
 #include "editor/EditorController.h"
 #include "editor/sceneEditor/SceneEditor.h"

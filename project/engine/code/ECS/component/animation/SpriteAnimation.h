@@ -12,6 +12,9 @@ class SpriteRenderer;
 #include <Vector2.h>
 #include <Vector4.h>
 
+/// <summary>
+/// Spriteをアニメーションさせるコンポーネント
+/// </summary>
 class SpriteAnimation
     : public IComponent {
     friend void to_json(nlohmann::json& j, const SpriteAnimation& r);
@@ -21,17 +24,32 @@ public:
     SpriteAnimation();
     ~SpriteAnimation() override;
 
-    void Initialize(GameEntity* _hostEntity) override;
-    void Edit(Scene* _scene, GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
+    void Initialize(Entity* _hostEntity) override;
+    void Edit(Scene* _scene, Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
     void Finalize() override;
 
     void UpdateSpriteAnimation(float _deltaTime, SpriteRenderer* _spriteRenderer);
 
+    /// <summary>
+    /// Animation を開始する
+    /// </summary>
     void PlayStart();
+    /// <summary>
+    /// Animation を停止する
+    /// </summary>
     void Stop();
 
+    /// <summary>
+    /// Color Animation を再生する
+    /// </summary>
     void PlayColorAnimation();
+    /// <summary>
+    /// Transform Animation を再生する
+    /// </summary>
     void PlayTransformAnimation();
+    /// <summary>
+    /// UV Animation を再生する
+    /// </summary>
     void PlayUVAnimation();
 
 private:

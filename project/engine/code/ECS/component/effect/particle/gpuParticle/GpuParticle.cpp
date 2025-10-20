@@ -8,15 +8,14 @@
 #include "directX12/DxDevice.h"
 
 // component
-#include "component/renderer/primitive/Primitive.h" // Mesh の生成に使用
-
+#include "component/renderer/primitive/shape/Plane.h"
 
 #include "util/myFileSystem/MyFileSystem.h"
 #ifdef _DEBUG
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
-void GpuParticleEmitter::Initialize(GameEntity* /*_entity*/) {
+void GpuParticleEmitter::Initialize(Entity* /*_entity*/) {
     Primitive::Plane plane;
     plane.createMesh(&mesh_);
 
@@ -29,7 +28,7 @@ void GpuParticleEmitter::Initialize(GameEntity* /*_entity*/) {
     }
 }
 
-void GpuParticleEmitter::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
+void GpuParticleEmitter::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     if (CheckBoxCommand("IsActive##" + _parentLabel, isActive_)) {

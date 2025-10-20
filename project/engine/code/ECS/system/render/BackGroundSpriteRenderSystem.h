@@ -14,6 +14,9 @@ class SpriteRenderer;
 /// math
 #include "Matrix4x4.h"
 
+/// <summary>
+/// 背景スプライトの描画を行うシステム
+/// </summary>
 class BackGroundSpriteRenderSystem
     : public ISystem {
 public:
@@ -26,9 +29,13 @@ public:
 protected:
     void CreatePso();
     void StartRender();
+    /// <summary>
+    /// BlendModeごとに描画を行う
+    /// </summary>
+    /// <param name="blendMode"></param>
     void RenderingBy(BlendMode blendMode);
 
-    void UpdateEntity(GameEntity* _entity) override;
+    void UpdateEntity(Entity* _entity) override;
 
 private:
     std::unordered_map<BlendMode, std::vector<SpriteRenderer*>> renderersByBlend_;

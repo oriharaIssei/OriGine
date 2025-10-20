@@ -3,8 +3,8 @@
 
 /// engine
 // drecitX12
+#include "directX12/buffer/IConstantBuffer.h"
 #include "directX12/DxCommand.h"
-#include "directX12/IConstantBuffer.h"
 #include "directX12/PipelineStateObj.h"
 #include "directX12/ShaderManager.h"
 
@@ -25,6 +25,9 @@ public:
     };
 };
 
+/// <summary>
+/// SmoothingEffect をかけるシステム
+/// </summary>
 class SmoothingEffect
     : public ISystem {
 public:

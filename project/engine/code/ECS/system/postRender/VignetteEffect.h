@@ -11,6 +11,9 @@
 #include "directX12/ShaderManager.h"
 #include <component/effect/post/VignetteParam.h>
 
+/// <summary>
+/// ヴィネットエフェクト
+/// </summary>
 class VignetteEffect
     : public ISystem {
 public:
@@ -19,14 +22,23 @@ public:
 
     void Initialize() override;
     void Update() override;
-    void UpdateEntity(GameEntity* _entity) override;
+    void UpdateEntity(Entity* _entity) override;
     void Finalize();
 
 protected:
     void CreatePSO();
 
+    /// <summary>
+    /// 描画準備処理
+    /// </summary>
     void RenderStart();
+    /// <summary>
+    /// 描画
+    /// </summary>
     void Render();
+    /// <summary>
+    /// 描画終了処理
+    /// </summary>
     void RenderEnd();
 
 protected:

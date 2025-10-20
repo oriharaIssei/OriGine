@@ -39,7 +39,7 @@ void VignetteEffect::Update() {
     RenderEnd();
 }
 
-void VignetteEffect::UpdateEntity(GameEntity* _entity) {
+void VignetteEffect::UpdateEntity(Entity* _entity) {
     auto* vignetteParam = getComponent<VignetteParam>(_entity);
     vignetteParam->getVignetteBuffer().ConvertToBuffer();
     vignetteParam->getVignetteBuffer().SetForRootParameter(dxCommand_->getCommandList(), 1);

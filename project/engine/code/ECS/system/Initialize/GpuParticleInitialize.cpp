@@ -31,7 +31,7 @@ void GpuParticleInitialize::Update() {
 
     StartCS();
     for (auto& id : entityIDs_) {
-        GameEntity* entity = getEntity(id);
+        Entity* entity = getEntity(id);
         UpdateEntity(entity);
     }
     if (usingCS_) {
@@ -47,7 +47,7 @@ void GpuParticleInitialize::Finalize() {
     pso_ = nullptr;
 }
 
-void GpuParticleInitialize::UpdateEntity(GameEntity* _entity) {
+void GpuParticleInitialize::UpdateEntity(Entity* _entity) {
     auto& commandList = dxCommand_->getCommandList();
 
     auto gpuParticleVec = getComponents<GpuParticleEmitter>(_entity);

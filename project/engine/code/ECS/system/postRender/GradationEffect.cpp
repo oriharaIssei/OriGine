@@ -30,7 +30,7 @@ void GradationEffect::Update() {
     bool allIsUnactive = true;
 
     for (auto& entityId : entityIDs_) {
-        GameEntity* entity = getEntity(entityId);
+        Entity* entity = getEntity(entityId);
         auto* compVec      = getComponents<GradationTextureComponent>(entity);
         if (!compVec || compVec->empty()) {
             continue;
@@ -61,7 +61,7 @@ void GradationEffect::Update() {
     sceneView->PostDraw();
 }
 
-void GradationEffect::UpdateEntity(GameEntity* _entity) {
+void GradationEffect::UpdateEntity(Entity* _entity) {
     auto* sceneView = this->getScene()->getSceneView();
     SetupComponentAndRender(_entity, dxCommand_->getCommandList(), sceneView->getBackBufferSrvHandle());
 }
@@ -73,7 +73,7 @@ void GradationEffect::Finalize() {
     pso_ = nullptr;
 }
 
-void GradationEffect::EffectEntity(RenderTexture* _output, GameEntity* _entity) {
+void GradationEffect::EffectEntity(RenderTexture* _output, Entity* _entity) {
     if (!_output) {
         return;
     }
@@ -183,7 +183,7 @@ void GradationEffect::RenderStart() {
     commandList->SetDescriptorHeaps(1, ppHeaps);
 }
 
-void GradationEffect::SetupComponentAndRender(GameEntity* _entity, const Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _cmdList, D3D12_GPU_DESCRIPTOR_HANDLE _defaultHandle) {
+void GradationEffect::SetupComponentAndRender(Entity* _entity, const Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _cmdList, D3D12_GPU_DESCRIPTOR_HANDLE _defaultHandle) {
     auto effectParams = getComponents<GradationTextureComponent>(_entity);
 
     if (!effectParams) {

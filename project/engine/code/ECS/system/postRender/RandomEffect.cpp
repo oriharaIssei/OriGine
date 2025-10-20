@@ -41,7 +41,7 @@ void RandomEffect::Update() {
     sceneView->PostDraw();
 }
 
-void RandomEffect::UpdateEntity(GameEntity* _entity) {
+void RandomEffect::UpdateEntity(Entity* _entity) {
     RandomEffectParam paramA;
 
     int32_t compSize = getComponentArray<RandomEffectParam>()->getComponentSize(_entity);

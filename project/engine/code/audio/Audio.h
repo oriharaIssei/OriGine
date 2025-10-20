@@ -13,6 +13,7 @@
 #include "component/IComponent.h"
 #include "system/ISystem.h"
 
+
 struct ChunkHeader {
     char id[4];
     int32_t size;
@@ -39,6 +40,9 @@ public:
     float volume_ = 0.5f;
 };
 
+/// <summary>
+/// 音を再生するためのコンポーネント
+/// </summary>
 class Audio
     : public IComponent {
     friend void to_json(nlohmann::json& j, const Audio& t);
@@ -51,13 +55,13 @@ public:
     Audio() {}
     ~Audio() {}
 
-    void Initialize(GameEntity* /*_entity*/) override {
+    void Initialize(Entity* /*_entity*/) override {
         if (!fileName_.empty()) {
             audioClip_.data_ = LoadWave(fileName_);
         }
     };
 
-    void Edit(Scene* _scene,GameEntity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
+    void Edit(Scene* _scene,Entity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
 
     void Finalize() override;
 
@@ -115,5 +119,5 @@ public:
     void Initialize() override;
     void Finalize() override;
 
-    void UpdateEntity(GameEntity* entity) override;
+    void UpdateEntity(Entity* entity) override;
 };

@@ -265,6 +265,22 @@ bool ShaderManager::LoadShader(const std::string& fileName, const std::string& d
     return RegisterShaderBlob(fileName, shaderCompiler_->CompileShader(ConvertString(directory + '/' + fileName + ".hlsl"), profile));
 }
 
+bool ShaderManager::RegisterShaderBlob(const std::string& fileName, Microsoft::WRL::ComPtr<IDxcBlob> shaderBlob) {
+    auto it = shaderBlobMap_.find(fileName);
+    if (it != shaderBlobMap_.end()) {
+        return false;
+    }
+    shaderBlobMap_.emplace(fileName, std::move(shaderBlob));
+    return true;
+}
+bool ShaderManager::IsRegisteredShaderBlob(const std::string& fileName) const {
+    auto it = shaderBlobMap_.find(fileName);
+    if (it != shaderBlobMap_.end()) {
+        return true;
+    }
+    return false;
+}
+
 PipelineStateObj* ShaderManager::getPipelineStateObj(const std::string& key) {
     auto it = psoMap_.find(key);
     if (it == psoMap_.end()) {
@@ -272,3 +288,11 @@ PipelineStateObj* ShaderManager::getPipelineStateObj(const std::string& key) {
     }
     return it->second.get();
 }
+
+const Microsoft::WRL::ComPtr<IDxcBlob>& ShaderManager::getShaderBlob(const std::string& key) {
+    auto it = shaderBlobMap_.find(key);
+    if (it == shaderBlobMap_.end()) {
+        return nullptr;
+    }
+    return it->second;
+};

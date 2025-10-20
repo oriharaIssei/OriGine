@@ -25,6 +25,9 @@
 
 const std::string shaderDirectory = "engine/resource/Shader";
 
+/// <summary>
+/// ブレンドモード
+/// </summary>
 enum class BlendMode {
     None     = 0,
     Normal   = 1,
@@ -48,6 +51,9 @@ static const std::array<std::string, kBlendNum> blendModeStr = {
     "Screen"};
 
 class ShaderManager;
+/// <summary>
+/// PSOを生成するための情報をまとめたクラス
+/// </summary>
 class ShaderInformation {
     friend class ShaderManager;
 
@@ -125,6 +131,9 @@ public:
 };
 using ShaderInfo = ShaderInformation;
 
+/// <summary>
+/// Shader管理クラス
+/// </summary>
 class ShaderManager {
 public:
     static ShaderManager* getInstance() {
@@ -133,9 +142,22 @@ public:
     }
 
 public:
+    /// <summary>
+    /// 初期化処理
+    /// </summary>
     void Initialize();
+    /// <summary>
+    /// 終了処理
+    /// </summary>
     void Finalize();
+    /// <summary>
+    /// PSOを生成する
+    /// </summary>
+    /// <param name="key">生成したPSOを表すKey.(すでにそのkeyが埋まっている場合はKeyの中身を返す)</param>
     PipelineStateObj* CreatePso(const std::string& key, const ShaderInformation& shaderInfo, Microsoft::WRL::ComPtr<ID3D12Device> device);
+    /// <summary>
+    /// Shaderを読み込んで登録する
+    /// </summary>
     bool LoadShader(const std::string& fileName, const std::string& directory = shaderDirectory, const wchar_t* profile = L"vs_6_0");
 
 private:
@@ -150,6 +172,7 @@ private:
     std::unordered_map<std::string, std::unique_ptr<PipelineStateObj>> psoMap_;
 
 public:
+
     ShaderCompiler* getShaderCompiler() const { return shaderCompiler_.get(); }
 
     /// <summary>
@@ -158,21 +181,8 @@ public:
     /// <param name="key"></param>
     /// <param name="shaderBlob"></param>
     /// <returns> 登録できたら true </returns>
-    bool RegisterShaderBlob(const std::string& fileName, Microsoft::WRL::ComPtr<IDxcBlob> shaderBlob) {
-        auto it = shaderBlobMap_.find(fileName);
-        if (it != shaderBlobMap_.end()) {
-            return false;
-        }
-        shaderBlobMap_.emplace(fileName, std::move(shaderBlob));
-        return true;
-    };
-    bool IsRegisteredShaderBlob(const std::string& fileName) const {
-        auto it = shaderBlobMap_.find(fileName);
-        if (it != shaderBlobMap_.end()) {
-            return true;
-        }
-        return false;
-    }
+    bool RegisterShaderBlob(const std::string& fileName, Microsoft::WRL::ComPtr<IDxcBlob> shaderBlob);
+    bool IsRegisteredShaderBlob(const std::string& fileName) const;
     void ForciblyRegisterShaderBlob(const std::string& fileName, Microsoft::WRL::ComPtr<IDxcBlob> shaderBlob) {
         shaderBlobMap_[fileName] = std::move(shaderBlob);
     };
@@ -181,11 +191,5 @@ public:
         return psoMap_.find(key) != psoMap_.end();
     }
     PipelineStateObj* getPipelineStateObj(const std::string& key);
-    const Microsoft::WRL::ComPtr<IDxcBlob>& getShaderBlob(const std::string& key) {
-        auto it = shaderBlobMap_.find(key);
-        if (it == shaderBlobMap_.end()) {
-            return nullptr;
-        }
-        return it->second;
-    };
+    const Microsoft::WRL::ComPtr<IDxcBlob>& getShaderBlob(const std::string& key);
 };

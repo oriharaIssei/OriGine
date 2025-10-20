@@ -13,730 +13,560 @@
 /// engine
 // ECS
 #include "component/IComponent.h"
-#include "Entity.h"
+#include "entity/Entity.h"
+
+/// external
+#include "logger/Logger.h"
 
 static constexpr uint32_t DEFAULT_COMPONENTARRAY_SIZE = 100;
 
-///====================================================================================
+//====================================================================
 // IComponentArray Interface
-///====================================================================================
-/// <summary>
-/// ECS の各コンポーネント配列を統一的に管理するためのインターフェース。
-/// </summary>
+//====================================================================
 class IComponentArray {
 public:
     IComponentArray()          = default;
     virtual ~IComponentArray() = default;
 
-    /// @brief 指定サイズで初期化する
     virtual void Initialize(uint32_t _size = DEFAULT_COMPONENTARRAY_SIZE) = 0;
     virtual void Finalize()                                               = 0;
 
     /// <summary>
-    /// Entityが持つコンポーネントを保存する
+    /// 指定したエンティティのコンポーネントを _json に保存する
     /// </summary>
-    /// <param name="_entity">対象のエンティティ</param>
-    /// <param name="_json">情報を入れるための器,Binaryで保存するときはこれをBinaryItem に渡す</param>
-    virtual void SaveComponent(GameEntity* _entity, nlohmann::json& _json) const                     = 0;
-    virtual void SaveComponent(GameEntity* _entity, int32_t _compIndex, nlohmann::json& _json) const = 0;
-
+    /// <param name="_entity">保存するコンポーネントをを持つエンティティ</param>
+    /// <param name="_json">保存先</param>
+    virtual void SaveComponent(Entity* _entity, nlohmann::json& _json) const = 0;
     /// <summary>
-    /// Entityのコンポーネントを読み込む
+    /// 指定したエンティティの指定したインデックスのコンポーネントを _json に保存する
     /// </summary>
-    /// <param name="_entity">対象のエンティティ</param>
-    /// <param name="_json">情報が入った器</param>
-    virtual void LoadComponent(GameEntity* _entity, const nlohmann::json& _json)                     = 0;
-    virtual void LoadComponent(GameEntity* _entity, int32_t _compIndex, const nlohmann::json& _json) = 0;
+    /// <param name="_entity">保存するコンポーネントを持つエンティティ</param>
+    /// <param name="_compIndex">保存するコンポーネントのインデックス</param>
+    /// <param name="_json">保存先</param>
+    virtual void SaveComponent(Entity* _entity, int32_t _compIndex, nlohmann::json& _json) const = 0;
 
-    virtual void reserveEntity(GameEntity* _hostEntity, int32_t _entitySize) = 0;
+    virtual void LoadComponent(Entity* _entity, const nlohmann::json& _json)                     = 0;
+    virtual void LoadComponent(Entity* _entity, int32_t _compIndex, const nlohmann::json& _json) = 0;
 
-    virtual void resizeEntity(GameEntity* _hostEntity, int32_t _entitySize) = 0;
+    virtual void reserveEntity(Entity* _hostEntity, int32_t _entitySize) = 0;
+    virtual void resizeEntity(Entity* _hostEntity, int32_t _entitySize)  = 0;
 
-    /// @brief 登録されている全コンポーネント配列をクリアする
-    virtual void clear() = 0;
+    virtual void clear()                                                   = 0;
+    virtual void clearComponent(Entity* _hostEntity)                       = 0;
+    virtual int32_t getComponentSize(Entity* _entity)                      = 0;
+    virtual IComponent* getComponent(Entity* _entity, uint32_t _index = 0) = 0;
 
-    /// @brief 指定エンティティの全コンポーネントをクリアする
-    virtual void clearComponent(GameEntity* _hostEntity) = 0;
-
-    /// @brief 指定エンティティのコンポーネント数を取得する
-    virtual int32_t getComponentSize(GameEntity* _entity) = 0;
-
-    /// @brief 指定エンティティのコンポーネントを取得する
-    virtual IComponent* getComponent(GameEntity* _entity, uint32_t _index = 0) = 0;
-
-    virtual IComponent* getFrontComponent(GameEntity* _entity) {
+    virtual IComponent* getFrontComponent(Entity* _entity) {
         return getComponent(_entity, 0);
     }
-    virtual IComponent* getBackComponent(GameEntity* _entity) = 0;
+    virtual IComponent* getBackComponent(Entity* _entity) = 0;
 
-    /// @brief エンティティを登録し、初期のコンポーネント領域を確保する
-    virtual void registerEntity(GameEntity* _entity, int32_t _entitySize = 1, bool _doInitialize = true) = 0;
+    virtual void registerEntity(Entity* _entity, int32_t _entitySize = 1, bool _doInitialize = true)     = 0;
+    virtual int32_t addComponent(Entity* _hostEntity, IComponent* _component, bool _doInitialize = true) = 0;
+    virtual int32_t addComponent(Entity* _hostEntity, bool _doInitialize = true)                         = 0;
 
-    /// @brief IComponent を用いてコンポーネントを追加する
-    virtual int32_t addComponent(GameEntity* _hostEntity, IComponent* _component, bool _doInitialize = true) = 0;
+    virtual void insertComponent(Entity* _hostEntity, IComponent* _component, int32_t _index) = 0;
+    virtual void insertComponent(Entity* _hostEntity, int32_t _index)                         = 0;
 
-    /// @brief デフォルト値によるコンポーネントを追加する
-    virtual int32_t addComponent(GameEntity* _hostEntity, bool _doInitialize = true) = 0;
+    virtual void removeComponent(Entity* _hostEntity, int32_t _componentIndex = 0) = 0;
+    virtual void removeBackComponent(Entity* _hostEntity)                          = 0;
+    virtual void deleteEntity(Entity* _hostEntity)                                 = 0;
 
-    virtual void insertComponent(GameEntity* _hostEntity, IComponent* _component, int32_t _index) = 0;
-    virtual void insertComponent(GameEntity* _hostEntity, int32_t _index)                         = 0;
-
-    /// @brief 指定エンティティの特定インデックスのコンポーネントを削除する
-    virtual void removeComponent(GameEntity* _hostEntity, int32_t _componentIndex = 0) = 0;
-
-    /// @brief 末尾のエンティティを削除
-    virtual void removeBackComponent(GameEntity* _hostEntity) = 0;
-
-    /// @brief エンティティの全コンポーネントを削除し、インデックスを解放する
-    virtual void deleteEntity(GameEntity* _hostEntity) = 0;
-
-    virtual bool hasEntity(GameEntity* _hostEntity) = 0;
-
-    /// @brief エンティティのコンポーネント数を取得する
-    virtual int32_t entityCapacity(GameEntity* _hostEntity) const = 0;
+    virtual bool hasEntity(Entity* _hostEntity) const         = 0;
+    virtual int32_t entityCapacity(Entity* _hostEntity) const = 0;
 };
 
-///====================================================================================
+//====================================================================
 // ComponentArray
-///====================================================================================
+//====================================================================
 template <IsComponent componentType>
-class ComponentArray
-    : public IComponentArray {
+class ComponentArray : public IComponentArray {
 public:
     using ComponentType = componentType;
 
-    // コンストラクタ・デストラクタ
-    ComponentArray()          = default;
-    virtual ~ComponentArray() = default;
+    ComponentArray()           = default;
+    ~ComponentArray() override = default;
 
     // ─────────────────────────────
     //  基本関数
     // ─────────────────────────────
-    /// @brief 内部データの初期化
-    void Initialize(uint32_t _size) override {
-        components_.clear();
-        entityIndexBind_.clear();
-        components_.reserve(_size);
-    }
-    void Finalize() {
-        clear();
-    }
+    void Initialize(uint32_t _size) override;
+    void Finalize() override;
 
-    /// @brief コンポーネントの保存
-    void SaveComponent(GameEntity* _entity, nlohmann::json& _json) const override;
-    void SaveComponent(GameEntity* _entity, int32_t _compIndex, nlohmann::json& _json) const override;
+    // ─────────────────────────────
+    //  エンティティ操作
+    // ─────────────────────────────
+    void registerEntity(Entity* _entity, int32_t _entitySize = 1, bool _doInitialize = true) override;
+    void reserveEntity(Entity* _hostEntity, int32_t _size) override;
+    void resizeEntity(Entity* _hostEntity, int32_t _size) override;
+    void deleteEntity(Entity* _hostEntity) override;
 
-    /// @brief コンポーネントの読み込み
-    void LoadComponent(GameEntity* _entity, const nlohmann::json& _json) override;
-    void LoadComponent(GameEntity* _entity, int32_t _compIndex, const nlohmann::json& _json) override;
+    // ─────────────────────────────
+    //  コンポーネント追加・挿入
+    // ─────────────────────────────
+    int32_t addComponent(Entity* _hostEntity, IComponent* _component, bool _doInitialize = true) override;
+    int32_t addComponent(Entity* _hostEntity, bool _doInitialize = true) override;
+    int32_t add(Entity* _hostEntity, const componentType& _component, bool _doInitialize = true);
 
-    /// @brief エンティティ登録（メモリ確保）
-    void registerEntity(GameEntity* _entity, int32_t _entitySize = 1, bool _doInitialize = true) override {
-        uint32_t index = static_cast<uint32_t>(components_.size());
-        components_.push_back(std::vector<componentType>());
-        components_.back().resize(_entitySize);
+    void insertComponent(Entity* _hostEntity, IComponent* _component, int32_t _index) override;
+    void insertComponent(Entity* _hostEntity, int32_t _index) override;
 
-        if (_doInitialize) {
-            for (auto& comp : components_.back()) {
-                comp.Initialize(_entity);
-            }
-        }
+    // ─────────────────────────────
+    //  コンポーネント削除・クリア
+    // ─────────────────────────────
+    void removeComponent(Entity* _hostEntity, int32_t _componentIndex = 0) override;
+    void removeBackComponent(Entity* _hostEntity) override;
+    void clearComponent(Entity* _hostEntity) override;
+    void clear() override;
 
-        entityIndexBind_[_entity->getID()] = index;
-    }
-
-    /// @brief 値によるコンポーネントの追加
-    int32_t add(GameEntity* _hostEntity, const componentType& _component, bool _doInitialize = true) {
-        auto it = entityIndexBind_.find(_hostEntity->getID());
-        if (it == entityIndexBind_.end()) {
-            uint32_t index = static_cast<uint32_t>(components_.size());
-            components_.push_back(std::vector<componentType>());
-            components_[index].push_back(_component);
-            if (_doInitialize) {
-                components_[index].back().Initialize(_hostEntity);
-            }
-
-            entityIndexBind_[_hostEntity->getID()] = index;
-            return 0;
-        }
-        uint32_t index = it->second;
-        components_[index].push_back(_component);
-        if (_doInitialize) {
-            components_[index].back().Initialize(_hostEntity);
-        }
-        return static_cast<int32_t>(components_[index].size() - 1);
-    }
-
-    int32_t addComponent(GameEntity* _hostEntity, IComponent* _component, bool _doInitialize = true) override {
-        const componentType* comp = dynamic_cast<const componentType*>(_component);
-        assert(comp != nullptr && "Invalid component type passed to addComponent");
-        auto it = entityIndexBind_.find(_hostEntity->getID());
-        if (it == entityIndexBind_.end()) {
-            uint32_t index = static_cast<uint32_t>(components_.size());
-            components_.push_back(std::vector<componentType>());
-            components_[index].push_back(std::move(*comp));
-            if (_doInitialize) {
-                components_[index].back().Initialize(_hostEntity);
-            }
-
-            entityIndexBind_[_hostEntity->getID()] = index;
-            return 0;
-        }
-        uint32_t index = it->second;
-        components_[index].push_back(std::move(*comp));
-        if (_doInitialize) {
-            components_[index].back().Initialize(_hostEntity);
-        }
-        return static_cast<int32_t>(components_[index].size() - 1);
-    }
-
-    int32_t addComponent(GameEntity* _hostEntity, bool _doInitialize = true) override {
-        auto it = entityIndexBind_.find(_hostEntity->getID());
-        if (it == entityIndexBind_.end()) {
-            registerEntity(_hostEntity, 1, _doInitialize);
-            return 0;
-        }
-        uint32_t index = it->second;
-        components_[index].push_back(ComponentType());
-        if (_doInitialize) {
-            components_[index].back().Initialize(_hostEntity);
-        }
-        return static_cast<int32_t>(components_[index].size() - 1);
-    }
-
-    virtual void insertComponent(GameEntity* _hostEntity, IComponent* _component, int32_t _index) override {
-        const componentType* comp = dynamic_cast<const componentType*>(_component);
-        assert(comp != nullptr && "Invalid component type passed to addComponent");
-        auto it = entityIndexBind_.find(_hostEntity->getID());
-        if (it == entityIndexBind_.end()) {
-            return;
-        }
-        uint32_t index = it->second;
-        if (_index > components_[index].size()) {
-            return;
-        }
-        components_[index].insert(components_[index].begin() + _index, std::move(*comp));
-    }
-    virtual void insertComponent(GameEntity* _hostEntity, int32_t _index) override {
-        auto it = entityIndexBind_.find(_hostEntity->getID());
-        if (it == entityIndexBind_.end()) {
-            return;
-        }
-        uint32_t index = it->second;
-        if (_index > components_[index].size()) {
-            return;
-        }
-        components_[index].insert(components_[index].begin() + _index, ComponentType());
-    }
-
-    void reserveEntity(GameEntity* _hostEntity, int32_t _size) override {
-        auto it = entityIndexBind_.find(_hostEntity->getID());
-        if (it == entityIndexBind_.end()) {
-            return;
-        }
-
-        uint32_t index = it->second;
-        components_[index].reserve(_size);
-    }
-
-    void resizeEntity(GameEntity* _hostEntity, int32_t _size) override {
-        auto it = entityIndexBind_.find(_hostEntity->getID());
-        if (it == entityIndexBind_.end()) {
-            return;
-        }
-
-        uint32_t index = it->second;
-        components_[index].reserve(_size);
-    }
-
-    void removeComponent(GameEntity* _hostEntity, int32_t _componentIndex) override {
-        auto it = entityIndexBind_.find(_hostEntity->getID());
-        if (it == entityIndexBind_.end()) {
-            return;
-        }
-        uint32_t index                  = it->second;
-        std::vector<ComponentType>& vec = components_[index];
-
-        vec[_componentIndex].Finalize();
-
-        vec.erase(vec.begin() + _componentIndex);
-    }
-
-    void removeBackComponent(GameEntity* _hostEntity) override {
-        auto it = entityIndexBind_.find(_hostEntity->getID());
-        if (it == entityIndexBind_.end()) {
-            return;
-        }
-        uint32_t index = it->second;
-        auto& vec      = components_[index];
-        vec.back().Finalize();
-        vec.pop_back();
-    }
-
-    void clearComponent(GameEntity* _hostEntity) override {
-        auto it = entityIndexBind_.find(_hostEntity->getID());
-        if (it == entityIndexBind_.end()) {
-            return;
-        }
-        uint32_t index = it->second;
-        for (auto& comp : components_[index]) {
-            comp.Finalize();
-        }
-        components_[index].clear();
-    }
-
-    void clear() override {
-        for (auto& compArray : components_) {
-            for (auto& comp : compArray) {
-                comp.Finalize();
-            }
-        }
-        components_.clear();
-        entityIndexBind_.clear();
-    }
-
-    void deleteEntity(GameEntity* _hostEntity) override {
-        auto it = entityIndexBind_.find(_hostEntity->getID());
-        if (it == entityIndexBind_.end()) {
-            return;
-        }
-        uint32_t index = it->second;
-        for (auto& comp : components_[index]) {
-            comp.Finalize();
-        }
-        components_.erase(components_.begin() + index);
-        entityIndexBind_.erase(it);
-        for (auto& pair : entityIndexBind_) {
-            if (pair.second > index) {
-                pair.second--;
-            }
-        }
-    }
-
-    bool hasEntity(GameEntity* _hostEntity) override {
-        return entityIndexBind_.find(_hostEntity->getID()) != entityIndexBind_.end();
-    }
-
-    const std::map<int32_t, uint32_t>& getEntityIndexBind() const {
-        return entityIndexBind_;
-    }
-
-    int32_t entityCapacity(GameEntity* _hostEntity) const override {
-        auto it = entityIndexBind_.find(_hostEntity->getID());
-        if (it == entityIndexBind_.end()) {
-            return 0;
-        }
-        uint32_t index = it->second;
-        return static_cast<int32_t>(components_[index].capacity());
-    }
-
-    std::vector<std::vector<componentType>>* getAllComponents() {
-        return &components_;
-    }
+    // ─────────────────────────────
+    //  保存・読み込み
+    // ─────────────────────────────
+    void SaveComponent(Entity* _entity, nlohmann::json& _json) const override;
+    void SaveComponent(Entity* _entity, int32_t _compIndex, nlohmann::json& _json) const override;
+    void LoadComponent(Entity* _entity, const nlohmann::json& _json) override;
+    void LoadComponent(Entity* _entity, int32_t _compIndex, const nlohmann::json& _json) override;
 
 protected:
-    // ─────────────────────────────
-    //  メンバ変数
-    // ─────────────────────────────
     std::vector<std::vector<componentType>> components_;
-    std::map<int32_t, uint32_t> entityIndexBind_; // ★ GameEntity* → int32_t
+    std::map<int32_t, uint32_t> entityIndexBind_;
 
 public:
     // ─────────────────────────────
-    //  アクセッサー
+    //  状態取得
     // ─────────────────────────────
+    bool hasEntity(Entity* _hostEntity) const override;
+    int32_t entityCapacity(Entity* _hostEntity) const override;
 
-    /// @brief エンティティのコンポーネント数取得
-    int32_t getComponentSize(GameEntity* _entity) override {
-        auto it = entityIndexBind_.find(_entity->getID());
-        if (it == entityIndexBind_.end()) {
-            return 0;
-        }
-        uint32_t index = it->second;
-        return static_cast<int32_t>(components_[index].size());
-    }
-    /// @brief エンティティごとのコンポーネント配列取得
-    std::vector<componentType>* getComponents(GameEntity* _entity) {
-        auto it = entityIndexBind_.find(_entity->getID());
-        if (it == entityIndexBind_.end()) {
-            return nullptr;
-        }
-        uint32_t index = it->second;
-        return components_[index].empty() ? nullptr : &components_[index];
-    }
+    // ─────────────────────────────
+    //  アクセッサ
+    // ─────────────────────────────
+    int32_t getComponentSize(Entity* _entity) override;
+    std::vector<componentType>* getComponents(Entity* _entity);
+    IComponent* getComponent(Entity* _entity, uint32_t _index = 0) override;
+    IComponent* getBackComponent(Entity* _entity) override;
 
-    /// @brief エンティティの 先頭のコンポーネント取得
-    IComponent* getFrontComponent(GameEntity* _entity) override {
-        return getComponent(_entity, 0);
-    }
-    /// @brief エンティティの 末尾のコンポーネント取得
-    IComponent* getBackComponent(GameEntity* _entity) override {
-        auto it = entityIndexBind_.find(_entity->getID());
-        if (it == entityIndexBind_.end()) {
-            return nullptr;
-        }
-        uint32_t index = it->second;
-        return components_[index].empty() ? nullptr : static_cast<IComponent*>(&components_[index].back());
-    }
+    componentType* getDynamicComponent(Entity* _entity, uint32_t _index = 0);
+    componentType* getDynamicFrontComponent(Entity* _entity);
+    componentType* getDynamicBackComponent(Entity* _entity);
 
-    /// @brief 動的コンポーネント取得
-    componentType* getDynamicComponent(GameEntity* _entity, uint32_t _index = 0) {
-        auto it = entityIndexBind_.find(_entity->getID());
-        if (it == entityIndexBind_.end()) {
-            return nullptr;
-        }
-        uint32_t index = it->second;
-        return components_[index].size() <= _index ? nullptr : &components_[index][_index];
-    }
-    /// @brief 動的なコンポーネントの先頭を取得
-    componentType* getDynamicFrontComponent(GameEntity* _entity) {
-        return getDynamicComponent(_entity, 0);
-    }
-    /// @brief 動的なコンポーネントの末尾を取得
-    componentType* getDynamicBackComponent(GameEntity* _entity) {
-        auto it = entityIndexBind_.find(_entity->getID());
-        if (it == entityIndexBind_.end()) {
-            return nullptr;
-        }
-        uint32_t index = it->second;
-        return components_[index].empty() ? nullptr : &components_[index].back();
-    }
-
-    /// @brief IComponent 型としてコンポーネント取得
-    IComponent* getComponent(GameEntity* _entity, uint32_t _index = 0) override {
-        auto it = entityIndexBind_.find(_entity->getID());
-        if (it == entityIndexBind_.end()) {
-            return nullptr;
-        }
-        uint32_t index = it->second;
-        return components_[index].size() <= _index ? nullptr : &components_[index][_index];
-    }
+    std::vector<std::vector<componentType>>* getAllComponents() { return &components_; }
+    const std::map<int32_t, uint32_t>& getEntityIndexBind() const { return entityIndexBind_; }
 };
 
-// to_json が存在するかをチェックする concept
-template <typename T>
-concept HasToJson = requires(nlohmann::json& j, const T& t) {
-    { to_json(j, t) } -> std::same_as<void>;
-};
 template <IsComponent componentType>
-inline void ComponentArray<componentType>::SaveComponent(GameEntity* _entity, nlohmann::json& _json) const {
-    static_assert(HasToJson<componentType>, "componentType must have a to_json function");
-    auto it = entityIndexBind_.find(_entity->getID());
+void ComponentArray<componentType>::Initialize(uint32_t _size) {
+    components_.clear();
+    entityIndexBind_.clear();
+    components_.reserve(_size);
+}
+
+template <IsComponent componentType>
+void ComponentArray<componentType>::Finalize() {
+    clear();
+}
+
+template <IsComponent componentType>
+void ComponentArray<componentType>::registerEntity(Entity* _entity, int32_t _entitySize, bool _doInitialize) {
+    uint32_t index = static_cast<uint32_t>(components_.size());
+
+    auto& added = components_.emplace_back(std::vector<componentType>());
+
+    added.resize(_entitySize);
+    if (_doInitialize) {
+        for (auto& comp : added) {
+            comp.Initialize(_entity);
+        }
+    }
+    entityIndexBind_[_entity->getID()] = index;
+}
+
+template <IsComponent componentType>
+void ComponentArray<componentType>::reserveEntity(Entity* _hostEntity, int32_t _size) {
+    auto it = entityIndexBind_.find(_hostEntity->getID());
+    // エンティティが存在しない場合は何もしない
+    if (it == entityIndexBind_.end()) {
+        return;
+    }
+    components_[it->second].reserve(_size);
+}
+
+template <IsComponent componentType>
+void ComponentArray<componentType>::resizeEntity(Entity* _hostEntity, int32_t _size) {
+    auto it = entityIndexBind_.find(_hostEntity->getID());
+    // エンティティが存在しない場合は何もしない
+    if (it == entityIndexBind_.end()) {
+        return;
+    }
+    components_[it->second].resize(_size);
+}
+
+template <IsComponent componentType>
+void ComponentArray<componentType>::deleteEntity(Entity* _hostEntity) {
+    auto it = entityIndexBind_.find(_hostEntity->getID());
+    // エンティティが存在しない場合は何もしない
     if (it == entityIndexBind_.end()) {
         return;
     }
 
-    nlohmann::json compVecJson = nlohmann::json::array();
+    // コンポーネントのFinalizeを呼び出す
+    uint32_t index = it->second;
+    for (auto& comp : components_[index]) {
+        comp.Finalize();
+    }
+
+    // コンポーネント配列とマッピングを削除
+    components_.erase(components_.begin() + index);
+    entityIndexBind_.erase(it);
+
+    // インデックスを更新
+    for (auto& [_, mappedIndex] : entityIndexBind_) {
+        if (mappedIndex > index) {
+            --mappedIndex;
+        }
+    }
+}
+
+template <IsComponent componentType>
+int32_t ComponentArray<componentType>::add(Entity* _hostEntity, const componentType& _component, bool _doInitialize) {
+    auto it = entityIndexBind_.find(_hostEntity->getID());
+    // エンティティが存在しない場合は新規登録
+    if (it == entityIndexBind_.end()) {
+        uint32_t index = static_cast<uint32_t>(components_.size());
+        components_.push_back({_component});
+        if (_doInitialize) {
+            components_.back().back().Initialize(_hostEntity);
+        }
+        entityIndexBind_[_hostEntity->getID()] = index;
+        // 追加したコンポーネントのインデックスを返す
+        return 0;
+    }
 
     uint32_t index = it->second;
+    components_[index].push_back(_component);
+    if (_doInitialize) {
+        components_[index].back().Initialize(_hostEntity);
+    }
+    // 追加したコンポーネントのインデックスを返す
+    return static_cast<int32_t>(components_[index].size() - 1);
+}
+
+template <IsComponent componentType>
+int32_t ComponentArray<componentType>::addComponent(Entity* _hostEntity, IComponent* _component, bool _doInitialize) {
+    const componentType* comp = dynamic_cast<const componentType*>(_component);
+
+    assert(comp && "Invalid component type passed to addComponent");
+
+    // エンティティが存在しない場合は新規登録
+    auto it = entityIndexBind_.find(_hostEntity->getID());
+    if (it == entityIndexBind_.end()) {
+        uint32_t index = static_cast<uint32_t>(components_.size());
+
+        // components_ に新しいベクターを追加し、そのベクターにコンポーネントを追加
+        components_.push_back({std::move(*comp)});
+        if (_doInitialize) {
+            components_.back().back().Initialize(_hostEntity);
+        }
+        entityIndexBind_[_hostEntity->getID()] = index;
+
+        return 0;
+    }
+    uint32_t index = it->second;
+    components_[index].push_back(std::move(*comp));
+    if (_doInitialize) {
+        components_[index].back().Initialize(_hostEntity);
+    }
+    return static_cast<int32_t>(components_[index].size() - 1);
+}
+
+template <IsComponent componentType>
+int32_t ComponentArray<componentType>::addComponent(Entity* _hostEntity, bool _doInitialize) {
+    auto it = entityIndexBind_.find(_hostEntity->getID());
+    if (it == entityIndexBind_.end()) {
+        registerEntity(_hostEntity, 1, _doInitialize);
+        return 0;
+    }
+    uint32_t index = it->second;
+    components_[index].push_back(ComponentType());
+    if (_doInitialize) {
+        components_[index].back().Initialize(_hostEntity);
+    }
+    return static_cast<int32_t>(components_[index].size() - 1);
+}
+
+template <IsComponent componentType>
+void ComponentArray<componentType>::insertComponent(Entity* _hostEntity, IComponent* _component, int32_t _index) {
+    const componentType* comp = dynamic_cast<const componentType*>(_component);
+    assert(comp && "Invalid component type passed to insertComponent");
+    // エンティティが存在しない場合は何もしない
+    auto it = entityIndexBind_.find(_hostEntity->getID());
+    if (it == entityIndexBind_.end()) {
+        return;
+    }
+
+    // インデックスが不正な場合は何もしない
+    uint32_t index = it->second;
+    if (_index > static_cast<int32_t>(components_[index].size())) {
+        return;
+    }
+
+    // コンポーネントを挿入
+    components_[index].insert(components_[index].begin() + _index, std::move(*comp));
+}
+
+template <IsComponent componentType>
+void ComponentArray<componentType>::insertComponent(Entity* _hostEntity, int32_t _index) {
+    // エンティティが存在しない場合は何もしない
+    auto it = entityIndexBind_.find(_hostEntity->getID());
+    if (it == entityIndexBind_.end()) {
+        return;
+    }
+    // インデックスが不正な場合は何もしない
+    uint32_t index = it->second;
+    if (_index > static_cast<int32_t>(components_[index].size())) {
+        return;
+    }
+    // コンポーネントを挿入
+    components_[index].insert(components_[index].begin() + _index, ComponentType());
+}
+
+template <IsComponent componentType>
+void ComponentArray<componentType>::removeComponent(Entity* _hostEntity, int32_t _componentIndex) {
+    // エンティティが存在しない場合は何もしない
+    auto it = entityIndexBind_.find(_hostEntity->getID());
+    if (it == entityIndexBind_.end()) {
+        return;
+    }
+    // インデックスが不正な場合は何もしない
+    uint32_t index = it->second;
+    auto& vec      = components_[index];
+    if (_componentIndex < 0 || _componentIndex >= static_cast<int32_t>(vec.size())) {
+        return;
+    }
+
+    // コンポーネントを削除
+    vec[_componentIndex].Finalize();
+    vec.erase(vec.begin() + _componentIndex);
+}
+
+template <IsComponent componentType>
+void ComponentArray<componentType>::removeBackComponent(Entity* _hostEntity) {
+    // エンティティが存在しない場合は何もしない
+    auto it = entityIndexBind_.find(_hostEntity->getID());
+    if (it == entityIndexBind_.end()) {
+        return;
+    }
+
+    // 末尾コンポーネントを削除
+    uint32_t index = it->second;
+    auto& vec      = components_[index];
+    if (!vec.empty()) {
+        vec.back().Finalize();
+        vec.pop_back();
+    }
+}
+
+template <IsComponent componentType>
+void ComponentArray<componentType>::clearComponent(Entity* _hostEntity) {
+    // エンティティが存在しない場合は何もしない
+    auto it = entityIndexBind_.find(_hostEntity->getID());
+    if (it == entityIndexBind_.end()) {
+        return;
+    }
+    // コンポーネントをクリア
+    uint32_t index = it->second;
+    for (auto& comp : components_[index]) {
+        comp.Finalize();
+    }
+    components_[index].clear();
+}
+
+template <IsComponent componentType>
+void ComponentArray<componentType>::clear() {
+    // 全コンポーネントをクリア
+    for (auto& compArray : components_) {
+        for (auto& comp : compArray) {
+            comp.Finalize();
+        }
+    }
+    components_.clear();
+    entityIndexBind_.clear();
+}
+
+template <IsComponent componentType>
+void ComponentArray<componentType>::SaveComponent(Entity* _entity, nlohmann::json& _json) const {
+    // エンティティが存在しない場合は何もしない
+    auto it = entityIndexBind_.find(_entity->getID());
+    if (it == entityIndexBind_.end()) {
+        return;
+    }
+    // コンポーネントを保存
+    nlohmann::json compVecJson = nlohmann::json::array();
+    uint32_t index             = it->second;
     for (auto& comp : components_[index]) {
         compVecJson.emplace_back(comp);
     }
-
     _json[nameof<componentType>()] = compVecJson;
 }
 
 template <IsComponent componentType>
-inline void ComponentArray<componentType>::SaveComponent(GameEntity* _entity, int32_t _compIndex, nlohmann::json& _json) const {
-    static_assert(HasToJson<componentType>, "componentType must have a to_json function");
+void ComponentArray<componentType>::SaveComponent(Entity* _entity, int32_t _compIndex, nlohmann::json& _json) const {
+    // エンティティが存在しない場合は何もしない
     auto it = entityIndexBind_.find(_entity->getID());
     if (it == entityIndexBind_.end()) {
         return;
     }
+
+    // コンポーネントを保存
     uint32_t index = it->second;
     if (_compIndex < 0 || static_cast<uint32_t>(_compIndex) >= components_[index].size()) {
-        LOG_ERROR("ComponentArray::SaveComponent: Invalid component index: {}", _compIndex);
+        LOG_ERROR("Invalid component index: {}", _compIndex);
         return;
     }
     _json[nameof<componentType>()] = components_[index][_compIndex];
 }
 
-template <typename T>
-concept HasFromJson = requires(const nlohmann::json& j, T& t) {
-    { from_json(j, t) } -> std::same_as<void>;
-};
 template <IsComponent componentType>
-inline void ComponentArray<componentType>::LoadComponent(GameEntity* _entity, const nlohmann::json& _json) {
-    static_assert(HasFromJson<componentType>, "componentType must have a from_json function");
+void ComponentArray<componentType>::LoadComponent(Entity* _entity, const nlohmann::json& _json) {
+    // エンティティが存在しない場合は新規登録
     auto it = entityIndexBind_.find(_entity->getID());
     if (it == entityIndexBind_.end()) {
-        // エンティティが登録されていない場合は新規登録
         entityIndexBind_[_entity->getID()] = static_cast<uint32_t>(components_.size());
         components_.emplace_back();
-
         it = entityIndexBind_.find(_entity->getID());
     }
-
+    // コンポーネントを読み込み
     uint32_t index = it->second;
-
-    // 現在のコンポーネントをクリア
     components_[index].clear();
-
-    // JSON 配列からコンポーネントを読み込み
     for (const auto& compJson : _json) {
         components_[index].emplace_back(compJson.get<componentType>());
-        components_[index].back().Initialize(_entity); // コンポーネントの初期化
+        components_[index].back().Initialize(_entity);
     }
 }
 
 template <IsComponent componentType>
-inline void ComponentArray<componentType>::LoadComponent(GameEntity* _entity, int32_t _compIndex, const nlohmann::json& _json) {
-    static_assert(HasFromJson<componentType>, "componentType must have a from_json function");
+void ComponentArray<componentType>::LoadComponent(Entity* _entity, int32_t _compIndex, const nlohmann::json& _json) {
+    // エンティティが存在しない場合は何もしない
     auto it = entityIndexBind_.find(_entity->getID());
     if (it == entityIndexBind_.end()) {
-        LOG_ERROR("ComponentArray::LoadComponent: Entity not found for ID: {}", _entity->getID());
+        LOG_ERROR("Entity not found for ID: {}", _entity->getID());
         return;
     }
+    // コンポーネントを読み込み
     uint32_t index = it->second;
     if (_compIndex < 0 || static_cast<uint32_t>(_compIndex) >= components_[index].size()) {
-        LOG_ERROR("ComponentArray::LoadComponent: Invalid component index: {}", _compIndex);
+        LOG_ERROR("Invalid component index: {}", _compIndex);
         return;
     }
     components_[index][_compIndex] = _json.get<componentType>();
-    components_[index][_compIndex].Initialize(_entity); // コンポーネントの初期化
+    components_[index][_compIndex].Initialize(_entity);
 }
 
-/// <summary>
-/// Component Registry
-/// ComponentTypeは EXEにおいて一意であり,
-/// Sceneで実際に使用される実体 は ComponentRepository に格納される.
-/// </summary>
-class ComponentRegistry final {
-public:
-    static ComponentRegistry* getInstance() {
-        static ComponentRegistry instance;
-        return &instance;
+template <IsComponent componentType>
+bool ComponentArray<componentType>::hasEntity(Entity* _hostEntity) const {
+    return entityIndexBind_.contains(_hostEntity->getID());
+}
+
+template <IsComponent componentType>
+int32_t ComponentArray<componentType>::entityCapacity(Entity* _hostEntity) const {
+    auto it = entityIndexBind_.find(_hostEntity->getID());
+    if (it == entityIndexBind_.end()) {
+        return 0;
+    }
+    return static_cast<int32_t>(components_[it->second].capacity());
+}
+
+template <IsComponent componentType>
+int32_t ComponentArray<componentType>::getComponentSize(Entity* _entity) {
+    auto it = entityIndexBind_.find(_entity->getID());
+    if (it == entityIndexBind_.end()) {
+        return 0;
+    }
+    return static_cast<int32_t>(components_[it->second].size());
+}
+
+template <IsComponent componentType>
+std::vector<componentType>* ComponentArray<componentType>::getComponents(Entity* _entity) {
+    // エンティティが存在しない場合は nullptr を返す
+    auto it = entityIndexBind_.find(_entity->getID());
+    if (it == entityIndexBind_.end()) {
+        return nullptr;
+    }
+    uint32_t index = it->second;
+    // コンポーネントが存在しない場合は nullptr を返す
+    if (components_[index].empty()) {
+        return nullptr;
     }
 
-    template <IsComponent ComponentType>
-    void registerComponent(
-        std::function<std::unique_ptr<IComponentArray>()> _makeCloneFunc =
-            []() -> std::unique_ptr<IComponentArray> {
-            return std::make_unique<ComponentArray<ComponentType>>();
-        }) {
-        std::string typeName = nameof<ComponentType>();
-        if (componentArrays_.find(typeName) != componentArrays_.end()) {
-            LOG_WARN("ComponentRegistry: ComponentArray already registered for type: {}", typeName);
-        }
+    return &components_[index];
+}
 
-        componentArrays_[typeName] = std::make_unique<ComponentArray<ComponentType>>();
-        componentArrays_[typeName]->Initialize();
-        cloneMaker_[typeName] = _makeCloneFunc;
+template <IsComponent componentType>
+IComponent* ComponentArray<componentType>::getComponent(Entity* _entity, uint32_t _index) {
+    // エンティティが存在しない場合は nullptr を返す
+    auto it = entityIndexBind_.find(_entity->getID());
+    if (it == entityIndexBind_.end()) {
+        return nullptr;
     }
 
-    template <IsComponent ComponentType>
-    ComponentArray<ComponentType>* getComponentArray() const {
-        std::string typeName = nameof<ComponentType>();
-        auto itr             = componentArrays_.find(typeName);
-        if (itr == componentArrays_.end()) {
-            LOG_ERROR("ComponentRegistry: ComponentArray not found for type: {}", typeName);
-            return nullptr;
-        }
-        return dynamic_cast<ComponentArray<ComponentType>*>(itr->second.get());
-    }
-    IComponentArray* getComponentArray(const std::string& _typeName) const {
-        auto itr = componentArrays_.find(_typeName);
-        if (itr == componentArrays_.end()) {
-            LOG_ERROR("ComponentRegistry: ComponentArray not found for type: {}", _typeName);
-            return nullptr;
-        }
-        return itr->second.get();
+    // インデックスが不正な場合は nullptr を返す
+    uint32_t index = it->second;
+    if (components_[index].size() <= _index) {
+        return nullptr;
     }
 
-    template <IsComponent ComponentType>
-    std::unique_ptr<IComponentArray> cloneComponentArray() {
-        std::string _typeName = nameof<ComponentType>();
-        auto itr              = cloneMaker_.find(_typeName);
-        if (itr == cloneMaker_.end()) {
-            LOG_ERROR("ComponentRegistry: Clone maker not found for type: {}", _typeName);
-            return nullptr;
-        }
-        return itr->second();
-    }
-    std::unique_ptr<IComponentArray> cloneComponentArray(const std::string& _compTypeName) {
-        auto itr = cloneMaker_.find(_compTypeName);
-        if (itr == cloneMaker_.end()) {
-            LOG_ERROR("ComponentRegistry: Clone maker not found for type: {}", _compTypeName);
-            return nullptr;
-        }
-        return itr->second();
+    return &components_[index][_index];
+}
+
+template <IsComponent componentType>
+IComponent* ComponentArray<componentType>::getBackComponent(Entity* _entity) {
+    // エンティティが存在しない場合は nullptr を返す
+    auto it = entityIndexBind_.find(_entity->getID());
+    if (it == entityIndexBind_.end()) {
+        return nullptr;
     }
 
-private:
-    ComponentRegistry()                                    = default;
-    ~ComponentRegistry()                                   = default;
-    ComponentRegistry(const ComponentRegistry&)            = delete;
-    ComponentRegistry& operator=(const ComponentRegistry&) = delete;
-
-private:
-    std::unordered_map<std::string, std::unique_ptr<IComponentArray>> componentArrays_;
-    std::unordered_map<std::string, std::function<std::unique_ptr<IComponentArray>()>> cloneMaker_; // コンポーネントのクローンを作成するための関数マップ
-public:
-    const std::unordered_map<std::string, std::unique_ptr<IComponentArray>>& getComponentArrayMap() const {
-        return componentArrays_;
-    }
-    std::unordered_map<std::string, std::unique_ptr<IComponentArray>>& getComponentArrayMapRef() {
-        return componentArrays_;
-    }
-};
-
-/// <summary>
-/// Component Repository
-/// ComponentRepositoryは実際にシーンで使用されるコンポーネントの実体を保持する.
-/// </summary>
-class ComponentRepository final {
-public:
-    ComponentRepository()  = default;
-    ~ComponentRepository() = default;
-
-    void clear() {
-        for (auto& [typeName, componentArray] : componentArrays_) {
-            componentArray->Finalize();
-        }
-        componentArrays_.clear();
+    // コンポーネントが存在しない場合は nullptr を返す
+    uint32_t index = it->second;
+    if (components_[index].empty()) {
+        return nullptr;
     }
 
-    template <IsComponent ComponentType>
-    bool registerComponentArray() {
-        std::string typeName = nameof<ComponentType>();
-        if (componentArrays_.find(typeName) != componentArrays_.end()) {
-            LOG_WARN("ComponentRepository: ComponentArray already registered for type: {}", typeName);
-            return false;
-        }
-        auto componentArray = ComponentRegistry::getInstance()->getComponentArray(typeName);
-        if (componentArray) {
-            componentArrays_[typeName] = std::move(ComponentRegistry::getInstance()->cloneComponentArray<ComponentType>());
-            componentArrays_[typeName]->Initialize(1000);
-        } else {
-            LOG_ERROR("ComponentRepository: ComponentArray not found for type: {}", typeName);
-            return false;
-        }
-        return true;
+    return &components_[index].back();
+}
+
+template <IsComponent componentType>
+componentType* ComponentArray<componentType>::getDynamicComponent(Entity* _entity, uint32_t _index) {
+    // エンティティが存在しない場合は nullptr を返す
+    auto it = entityIndexBind_.find(_entity->getID());
+    if (it == entityIndexBind_.end()) {
+        return nullptr;
     }
-    bool registerComponentArray(const std::string& _compTypeName) {
-        if (componentArrays_.find(_compTypeName) != componentArrays_.end()) {
-            LOG_WARN("ComponentRepository: ComponentArray already registered for type: {}", _compTypeName);
-            return false;
-        }
-        auto componentArray = ComponentRegistry::getInstance()->getComponentArray(_compTypeName);
-        if (componentArray) {
-            componentArrays_[_compTypeName] = std::move(ComponentRegistry::getInstance()->cloneComponentArray(_compTypeName));
-            componentArrays_[_compTypeName]->Initialize(1000);
-        } else {
-            LOG_ERROR("ComponentRepository: ComponentArray not found for type: {}", _compTypeName);
-            return false;
-        }
-        return true;
-    }
-    void unregisterComponentArray(const std::string& _typeName, bool _isFinalize = true) {
-        auto itr = componentArrays_.find(_typeName);
-        if (itr != componentArrays_.end()) {
-            if (_isFinalize) {
-                itr->second->Finalize();
-            }
-            componentArrays_.erase(itr);
-        }
+    // インデックスが不正な場合は nullptr を返す
+    uint32_t index = it->second;
+    if (components_[index].size() <= _index) {
+        return nullptr;
     }
 
-    template <IsComponent ComponentType>
-    ComponentArray<ComponentType>* getComponentArray() {
-        std::string typeName = nameof<ComponentType>();
-        auto itr             = componentArrays_.find(typeName);
-        if (itr == componentArrays_.end()) {
-            if (registerComponentArray<ComponentType>()) {
-                itr = componentArrays_.find(typeName);
-            } else {
-                LOG_ERROR("ComponentRepository: ComponentArray not found for type: {}", typeName);
-                return nullptr;
-            }
-        }
-        return reinterpret_cast<ComponentArray<ComponentType>*>(itr->second.get());
-    }
-    IComponentArray* getComponentArray(const std::string& _typeName) {
-        auto itr = componentArrays_.find(_typeName);
-        if (itr == componentArrays_.end()) {
-            if (registerComponentArray(_typeName)) {
-                itr = componentArrays_.find(_typeName);
-            } else {
-                LOG_ERROR("ComponentRepository: ComponentArray not found for type: {}", _typeName);
-                return nullptr;
-            }
-        }
-        return itr->second.get();
-    }
+    return &components_[index][_index];
+}
 
-    template <IsComponent ComponentType>
-    std::vector<ComponentType>* getComponents(GameEntity* _entity) {
-        auto componentArray = getComponentArray<ComponentType>();
-        if (componentArray == nullptr) {
-            return nullptr;
-        }
-        return componentArray->getComponents(_entity);
-    }
-    template <IsComponent ComponentType>
-    ComponentType* getComponent(GameEntity* _entity, uint32_t _index = 0) {
-        auto componentArray = getComponentArray<ComponentType>();
-        if (componentArray == nullptr) {
-            return nullptr;
-        }
-        return componentArray->getDynamicComponent(_entity, _index);
-    }
+template <IsComponent componentType>
+componentType* ComponentArray<componentType>::getDynamicFrontComponent(Entity* _entity) {
+    return getDynamicComponent(_entity, 0);
+}
 
-    template <IsComponent... ComponentType>
-    void addComponent(GameEntity* _entity, bool _doInitialize = true) {
-        (this->getComponentArray<ComponentType>()->addComponent(_entity, _doInitialize), ...);
+template <IsComponent componentType>
+componentType* ComponentArray<componentType>::getDynamicBackComponent(Entity* _entity) {
+    // エンティティが存在しない場合は nullptr を返す
+    auto it = entityIndexBind_.find(_entity->getID());
+    if (it == entityIndexBind_.end()) {
+        return nullptr;
     }
-    void addComponent(const std::string& _compTypeName, GameEntity* _entity, bool _doInitialize = true) {
-        auto componentArray = getComponentArray(_compTypeName);
-        if (componentArray) {
-            componentArray->addComponent(_entity, _doInitialize);
-        } else {
-            LOG_ERROR("ComponentRepository: ComponentArray not found for type: {}", _compTypeName);
-        }
+    // コンポーネントが存在しない場合は nullptr を返す
+    uint32_t index = it->second;
+    if (components_[index].empty()) {
+        return nullptr;
     }
-    void addComponent(const std::vector<std::string>& _compTypeNames, GameEntity* _entity, bool _doInitialize = true) {
-        for (const auto& compTypeName : _compTypeNames) {
-            addComponent(compTypeName, _entity, _doInitialize);
-        }
-    }
-    void removeComponent(const std::string& _compTypeName, GameEntity* _entity, int32_t _compIndex = 0) {
-        auto componentArray = getComponentArray(_compTypeName);
-        if (componentArray) {
-            componentArray->removeComponent(_entity, _compIndex);
-        } else {
-            LOG_ERROR("ComponentRepository: ComponentArray not found for type: {}", _compTypeName);
-        }
-    }
-    template <IsComponent ComponentType>
-    void removeComponent(GameEntity* _entity, bool _doFinalize = true) {
-        auto componentArray = getComponentArray<ComponentType>();
-        if (componentArray) {
-            componentArray->removeComponent(_entity);
-            if (_doFinalize) {
-                componentArray->clearComponent(_entity);
-            }
-        } else {
-            LOG_ERROR("ComponentRepository: ComponentArray not found for type: {}", nameof<ComponentType>());
-        }
-    }
-
-    void deleteEntity(GameEntity* _entity) {
-        for (auto& [typeName, componentArray] : componentArrays_) {
-            componentArray->deleteEntity(_entity);
-        }
-    }
-
-private:
-    std::unordered_map<std::string, std::unique_ptr<IComponentArray>> componentArrays_;
-
-public:
-    uint32_t getComponentCount() const {
-        return static_cast<uint32_t>(componentArrays_.size());
-    }
-    const std::unordered_map<std::string, std::unique_ptr<IComponentArray>>& getComponentArrayMap() const {
-        return componentArrays_;
-    }
-    std::unordered_map<std::string, std::unique_ptr<IComponentArray>>& getComponentArrayMapRef() {
-        return componentArrays_;
-    }
-};
+    return &components_[index].back();
+}

@@ -12,7 +12,7 @@
 
 Transform::Transform() {}
 
-void Transform::Initialize([[maybe_unused]] GameEntity* _entity) {
+void Transform::Initialize([[maybe_unused]] Entity* _entity) {
     this->UpdateMatrix();
 }
 
@@ -32,7 +32,7 @@ Quaternion Transform::CalculateWorldRotate() const {
     }
 }
 
-void Transform::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
+void Transform::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     // --------------------------- scale --------------------------- //

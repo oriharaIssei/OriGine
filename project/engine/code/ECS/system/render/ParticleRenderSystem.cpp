@@ -31,7 +31,7 @@ void ParticleRenderSystem::Update() {
     activeEmittersByBlendMode_.clear();
 
     for (auto& id : entityIDs_) {
-        GameEntity* entity = getEntity(id);
+        Entity* entity = getEntity(id);
         DispatchRenderer(entity);
     }
 
@@ -53,7 +53,7 @@ void ParticleRenderSystem::Update() {
     }
 }
 
-void ParticleRenderSystem::DispatchRenderer(GameEntity* _entity) {
+void ParticleRenderSystem::DispatchRenderer(Entity* _entity) {
     if (_entity == nullptr) {
         return;
     }

@@ -31,14 +31,14 @@ private:
     /// <summary>
     /// 使用していない
     /// </summary>
-    void UpdateEntity(GameEntity* /*_entity*/) override {}
+    void UpdateEntity(Entity* /*_entity*/) override {}
 
-    void DispatchComponents(GameEntity* _entity);
-    void UpdateEffectPipeline(GameEntity* _entity, MaterialEffectPipeLine* _pipeline);
+    void DispatchComponents(Entity* _entity);
+    void UpdateEffectPipeline(Entity* _entity, MaterialEffectPipeLine* _pipeline);
     /// <summary>
     /// TextureにEffectをかける
     /// </summary>
-    void TextureEffect(GameEntity* _entity, MaterialEffectType _type, RenderTexture* _output);
+    void TextureEffect(Entity* _entity, MaterialEffectType _type, RenderTexture* _output);
 
     void ExecuteCommand();
 
@@ -48,7 +48,7 @@ private:
     int32_t currentTempRTIndex_                                       = 0;
     std::array<std::unique_ptr<RenderTexture>,2> tempRenderTextures_ = {nullptr, nullptr};
 
-    std::vector<std::pair<GameEntity*, MaterialEffectPipeLine*>> effectPipelines_;
+    std::vector<std::pair<Entity*, MaterialEffectPipeLine*>> effectPipelines_;
 
     std::unique_ptr<DissolveEffect> dissolveEffect_     = nullptr;
     std::unique_ptr<DistortionEffect> distortionEffect_ = nullptr;

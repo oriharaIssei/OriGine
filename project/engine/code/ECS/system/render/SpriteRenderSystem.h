@@ -14,6 +14,9 @@ class SpriteRenderer;
 /// math
 #include "Matrix4x4.h"
 
+/// <summary>
+/// Spriteの描画を行うシステム
+/// </summary>
 class SpriteRenderSystem
     : public ISystem {
 public:
@@ -25,10 +28,20 @@ public:
 
 protected:
     void CreatePso();
+    /// <summary>
+    /// 描画開始処理
+    /// </summary>
     void StartRender();
-    void UpdateEntity(GameEntity* _entity) override;
+    void UpdateEntity(Entity* _entity) override;
 
-    void DispatchRenderer(GameEntity* _entity);
+    /// <summary>
+    /// 描画情報によって振り分ける
+    /// </summary>
+    void DispatchRenderer(Entity* _entity);
+
+    /// <summary>
+    /// ブレンドモードごとに描画を行う
+    /// </summary>
     void RenderingBy(BlendMode _blendMode);
 
 private:

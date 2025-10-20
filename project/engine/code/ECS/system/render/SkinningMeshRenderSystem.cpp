@@ -35,7 +35,7 @@ void SkinningMeshRenderSystem::Update() {
     activeRenderersByBlendMode_.clear();
 
     for (auto& id : entityIDs_) {
-        GameEntity* entity = getEntity(id);
+        Entity* entity = getEntity(id);
         DispatchRenderer(entity);
     }
 
@@ -57,7 +57,7 @@ void SkinningMeshRenderSystem::Update() {
     }
 }
 
-void SkinningMeshRenderSystem::DispatchRenderer(GameEntity* _entity) {
+void SkinningMeshRenderSystem::DispatchRenderer(Entity* _entity) {
     auto* skinningAnimationComponents = getComponents<SkinningAnimationComponent>(_entity);
     if (skinningAnimationComponents == nullptr) {
         return;
@@ -337,7 +337,7 @@ void SkinningMeshRenderSystem::StartRender() {
     commandList->SetDescriptorHeaps(1, ppHeaps);
 
     /// 環境テクスチャ
-    GameEntity* skyboxEntity = getUniqueEntity("Skybox");
+    Entity* skyboxEntity = getUniqueEntity("Skybox");
     if (!skyboxEntity) {
         return;
     }
@@ -351,7 +351,7 @@ void SkinningMeshRenderSystem::StartRender() {
 /// 描画
 /// </summary>
 /// <param name="_entity">描画対象オブジェクト</param>
-void SkinningMeshRenderSystem::UpdateEntity(GameEntity* _entity) {
+void SkinningMeshRenderSystem::UpdateEntity(Entity* _entity) {
     auto& commandList = dxCommand_->getCommandList();
 
     Transform* entityTransform = getComponent<Transform>(_entity);

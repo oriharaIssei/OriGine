@@ -9,9 +9,15 @@
 #include "math/Vector4.h"
 #include <DirectXMath.h>
 
+/// <summary>
+/// 天空箱用頂点データ
+/// </summary>
 struct SkyboxVertex {
     Vec4f position;
 };
+/// <summary>
+/// 天空箱用マテリアルデータ
+/// </summary>
 struct SkyboxMaterial {
     friend void to_json(nlohmann::json& j, const SkyboxMaterial& c);
     friend void from_json(const nlohmann::json& j, SkyboxMaterial& c);
@@ -26,6 +32,9 @@ struct SkyboxMaterial {
     };
 };
 
+/// <summary>
+/// 天空箱レンダラーコンポーネント
+/// </summary>
 class SkyboxRenderer
     : public MeshRenderer<Mesh<SkyboxVertex>, SkyboxVertex> {
     friend void to_json(nlohmann::json& j, const SkyboxRenderer& c);
@@ -35,8 +44,8 @@ public:
     SkyboxRenderer() : MeshRenderer() {}
     ~SkyboxRenderer() {}
 
-    void Initialize(GameEntity* _hostEntity) override;
-    void Edit(Scene* _scene,GameEntity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
+    void Initialize(Entity* _hostEntity) override;
+    void Edit(Scene* _scene,Entity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
 
 private:
     std::string filePath_;

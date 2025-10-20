@@ -16,9 +16,9 @@ EntityReferenceList::EntityReferenceList() {
 EntityReferenceList::~EntityReferenceList() {
 }
 
-void EntityReferenceList::Initialize(GameEntity* /*_entity*/) {}
+void EntityReferenceList::Initialize(Entity* /*_entity*/) {}
 
-void EntityReferenceList::Edit(Scene* /*_scene*/, GameEntity* /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
+void EntityReferenceList::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     std::string label = "##" + _parentLabel;

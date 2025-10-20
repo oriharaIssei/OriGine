@@ -34,7 +34,7 @@ void BackGroundSpriteRenderSystem::Update() {
 
     bool isRendering = false;
     for (auto& id : entityIDs_) {
-        GameEntity* entity    = getEntity(id);
+        Entity* entity    = getEntity(id);
         auto* entityRenderers = getComponents<SpriteRenderer>(entity);
         for (auto& renderer : *entityRenderers) {
             if (!renderer.isRender()) {
@@ -211,4 +211,4 @@ void BackGroundSpriteRenderSystem::StartRender() {
     dxCommand_->getCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-void BackGroundSpriteRenderSystem::UpdateEntity(GameEntity* /*_entity*/) {}
+void BackGroundSpriteRenderSystem::UpdateEntity(Entity* /*_entity*/) {}

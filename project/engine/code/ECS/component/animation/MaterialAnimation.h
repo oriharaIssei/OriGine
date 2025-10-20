@@ -10,6 +10,9 @@
 #include "component/animation/AnimationData.h"
 struct Material;
 
+/// <summary>
+/// Materialをアニメーションさせるコンポーネント
+/// </summary>
 class MaterialAnimation
     : public IComponent {
     friend void to_json(nlohmann::json& _json, const MaterialAnimation& _primitiveNodeAnimation);
@@ -19,15 +22,21 @@ public:
     MaterialAnimation()           = default;
     ~MaterialAnimation() override = default;
 
-    void Initialize(GameEntity* _entity) override;
+    void Initialize(Entity* _entity) override;
 
-    void Edit(Scene* _scene, GameEntity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
 
     void Finalize() override;
 
     void Update(float _deltaTime, Material* _material);
 
+    /// <summary>
+    /// アニメーションを最初から再生する
+    /// </summary>
     void PlayStart();
+    /// <summary>
+    /// アニメーションを停止する
+    /// </summary>
     void Stop();
 
 protected:

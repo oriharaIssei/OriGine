@@ -9,6 +9,9 @@
 struct PipelineStateObj;
 class DxCommand;
 
+/// <summary>
+/// SkinningAnimation を再生するシステム
+/// </summary>
 class SkinningAnimationSystem
     : public ISystem {
 public:
@@ -20,10 +23,16 @@ public:
     void Finalize();
 
 protected:
-    void UpdateEntity(GameEntity* _entity) override;
+    void UpdateEntity(Entity* _entity) override;
 
     void CreatePSO();
+    /// <summary>
+    /// コンピュートシェーダーを開始する
+    /// </summary>
     void StartCS();
+    /// <summary>
+    /// コンピュートシェーダーを実行する
+    /// </summary>
     void ExecuteCS();
 
 private:

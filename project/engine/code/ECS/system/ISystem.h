@@ -1,10 +1,8 @@
 #pragma once
 
 /// stl
-#include <array>
 #include <memory>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 /// engine
@@ -12,40 +10,18 @@
 // ECS
 #include "component/ComponentArray.h"
 #include "component/IComponent.h"
-#include "ECS/Entity.h"
+#include "entity/Entity.h"
+#include "ECS/system/SystemCategory.h"
 
+/// external
 #include "logger/Logger.h"
+/// util
 #include "util/deltaTime/DeltaTime.h"
 
 /// <summary>
-/// システムの種類(この種類によって処理順序が決定する)
+/// System Interface
+/// SystemはECSの処理単位であり, EntityとComponentを操作してゲームロジックを実装する.
 /// </summary>
-enum class SystemCategory {
-    Initialize, // 初期化処理
-
-    Input, // Userによる入力に対する処理
-    StateTransition, // 入力等による状態遷移の処理
-    Movement, // 移動や行動の処理
-    Collision, // 衝突判定処理
-
-    Effect, // エフェクト処理
-
-    Render, // 更新処理のあとに 描画処理
-    PostRender, // 描画処理のあとに 処理
-
-    Count
-};
-
-static const std::array<std::string, static_cast<int>(SystemCategory::Count)> SystemCategoryString = {
-    "Initialize",
-    "Input",
-    "StateTransition",
-    "Movement",
-    "Collision",
-    "Effect",
-    "Render",
-    "PostRender"};
-
 class ISystem {
 public:
     ISystem(SystemCategory _category, int32_t _priority = 0) : category_(_category), priority_(_priority) {};
@@ -59,14 +35,14 @@ public:
     void eraseDeadEntity();
 
 protected:
-    virtual void UpdateEntity([[maybe_unused]] GameEntity* _entity) {}
+    virtual void UpdateEntity([[maybe_unused]] Entity* _entity) {}
 
     /// ==========================================
     // システム内で使用するであろう 便利関数群
     /// ==========================================
 
-    GameEntity* getEntity(int32_t _entityID);
-    GameEntity* getUniqueEntity(const std::string& _dataTypeName);
+    Entity* getEntity(int32_t _entityID);
+    Entity* getUniqueEntity(const std::string& _dataTypeName);
     int32_t CreateEntity(const std::string& _dataTypeName, bool _isUnique = false);
 
     IComponentArray* getComponentArray(const std::string& _typeName);
@@ -80,7 +56,7 @@ protected:
     }
 
     template <IsComponent ComponentType>
-    ComponentType* getComponent(GameEntity* _entity, uint32_t _index = 0) {
+    ComponentType* getComponent(Entity* _entity, uint32_t _index = 0) {
         if (scene_ == nullptr) {
             LOG_ERROR("ComponentRepository is not set.");
             return nullptr;
@@ -88,7 +64,7 @@ protected:
         return scene_->getComponentRepositoryRef()->getComponent<ComponentType>(_entity, _index);
     }
     template <IsComponent ComponentType>
-    std::vector<ComponentType>* getComponents(GameEntity* _entity) {
+    std::vector<ComponentType>* getComponents(Entity* _entity) {
         if (scene_ == nullptr) {
             LOG_ERROR("ComponentRepository is not set.");
             return nullptr;
@@ -96,9 +72,9 @@ protected:
         return scene_->getComponentRepositoryRef()->getComponents<ComponentType>(_entity);
     }
 
-    void addComponent(GameEntity* _entity, const std::string& _typeName, IComponent* _component, bool _doInitialize = true);
+    void addComponent(Entity* _entity, const std::string& _typeName, IComponent* _component, bool _doInitialize = true);
     template <IsComponent ComponentType>
-    void addComponent(GameEntity* _entity, ComponentType _component, bool _doInitialize = true) {
+    void addComponent(Entity* _entity, ComponentType _component, bool _doInitialize = true) {
         if (scene_ == nullptr) {
             LOG_ERROR("ComponentRepository is not set.");
             return;
@@ -138,18 +114,18 @@ public: // ========================================== accessor =================
         return static_cast<int32_t>(entityIDs_.size());
     }
 
-    bool hasEntity(const GameEntity* _entity) const {
+    bool hasEntity(const Entity* _entity) const {
         return std::find(entityIDs_.begin(), entityIDs_.end(), _entity->getID()) != entityIDs_.end();
     }
 
-    void addEntity(GameEntity* _entity) {
+    void addEntity(Entity* _entity) {
         // 重複登録を防ぐ
         if (std::find(entityIDs_.begin(), entityIDs_.end(), _entity->getID()) != entityIDs_.end()) {
             return;
         }
         entityIDs_.push_back(_entity->getID());
     }
-    void removeEntity(GameEntity* _entity) {
+    void removeEntity(Entity* _entity) {
         entityIDs_.erase(std::remove(entityIDs_.begin(), entityIDs_.end(), _entity->getID()), entityIDs_.end());
     }
     void clearEntities() {
@@ -179,349 +155,3 @@ public: // ========================================== accessor =================
 template <typename T>
 concept IsSystem = std::is_base_of<ISystem, T>::value;
 
-/// <summary>
-/// System Registry
-/// SystemRegistryはシステムの登録, 削除, 取得などを行う.
-/// </summary>
-class SystemRegistry final {
-public:
-    static SystemRegistry* getInstance() {
-        static SystemRegistry instance;
-        return &instance;
-    }
-
-    template <IsSystem SystemClass>
-    void registerSystem() {
-        std::string systemName = nameof<SystemClass>();
-        if (systemMaker_.find(systemName) != systemMaker_.end()) {
-            LOG_WARN("SystemRegistry: System already registered with name: {}", systemName);
-            return;
-        }
-
-        systemMaker_[systemName] = [](Scene* scene) {
-            std::unique_ptr<ISystem> system = std::make_unique<SystemClass>();
-            system->setScene(scene);
-            return std::move(system);
-        };
-    }
-
-    std::unique_ptr<ISystem> createSystem(const std::string& _systemTypeName, Scene* scene) {
-        auto itr = systemMaker_.find(_systemTypeName);
-        if (itr == systemMaker_.end()) {
-            LOG_ERROR("SystemRegistry: System '{}' not found.", _systemTypeName);
-            return nullptr;
-        }
-        auto system = itr->second(scene);
-        if (system) {
-            return std::move(system);
-        } else {
-            LOG_ERROR("SystemRegistry: Failed to create system '{}'.", _systemTypeName);
-            return nullptr;
-        }
-    }
-
-private:
-    std::unordered_map<std::string, std::function<std::unique_ptr<ISystem>(Scene*)>> systemMaker_;
-
-public:
-    const std::unordered_map<std::string, std::function<std::unique_ptr<ISystem>(Scene*)>>& getSystemMaker() const {
-        return systemMaker_;
-    }
-    std::unordered_map<std::string, std::function<std::unique_ptr<ISystem>(Scene*)>>& getSystemsRef() {
-        return systemMaker_;
-    }
-    void clearAll() {
-        systemMaker_.clear();
-    }
-};
-
-/// <summary>
-/// System Runner
-/// Systemを実際に実行するクラス.
-/// System Registry から システムを借りてくる.
-/// </summary>
-class SystemRunner final {
-public:
-    SystemRunner(Scene* _scene);
-    ~SystemRunner();
-
-    /// <summary>
-    /// SystemのActive状態関係なく,全てのSystemを初期化する.
-    /// </summary>
-    void InitializeAllCategory();
-    /// <summary>
-    /// SystemのActive状態関係なく,指定したカテゴリのSystemを初期化する.
-    /// </summary>
-    void InitializeCategory(SystemCategory _category);
-    /// <summary>
-    /// SystemのActive状態関係なく,指定したカテゴリのSystemを初期化する.
-    /// </summary>
-    template <SystemCategory Category>
-    void InitializeCategory() {
-        InitializeCategory(Category);
-    }
-
-    /// <summary>
-    /// !!!非推奨!!!
-    /// ActiveなSystemをすべて初期化する
-    /// </summary>
-    void InitializeActiveSystems();
-
-    /// <summary>
-    /// !!!非推奨!!!
-    /// 指定したカテゴリのActiveなSystemを初期化する
-    /// </summary>
-    void InitializeActiveCategory(SystemCategory _category);
-    /// <summary>
-    /// !!!非推奨!!!
-    /// 指定したカテゴリのActiveなSystemを初期化する
-    /// </summary>
-    template <SystemCategory Category>
-    void InitializeActiveCategory() {
-        InitializeActiveCategory(Category);
-    }
-
-    /// <summary>
-    /// SystemのActive状態に関わらず,全てのSystemを終了する.
-    /// </summary>
-    void FinalizeAllCategory();
-    /// <summary>
-    /// SystemのActive状態に関わらず,指定したカテゴリのSystemを終了する.
-    /// / </summary>
-    void FinalizeCategory(SystemCategory _category);
-    /// <summary>
-    /// SystemのActive状態に関わらず,指定したカテゴリのSystemを終了する.
-    /// </summary>
-    template <SystemCategory Category>
-    void FinalizeCategory() {
-        FinalizeCategory(Category);
-    }
-
-    /// <summary>
-    /// !!!非推奨!!!
-    /// ActiveなSystemをすべて終了する
-    /// </summary>
-    void FinalizeActiveSystems();
-    /// <summary>
-    /// !!!非推奨!!!
-    /// 指定したカテゴリのActiveなSystemを終了する
-    /// </summary>
-    void FinalizeActiveCategory(SystemCategory _category);
-    /// <summary>
-    /// !!!非推奨!!!
-    /// 指定したカテゴリのActiveなSystemを終了する
-    /// </summary>
-    template <SystemCategory Category>
-    void FinalizeActiveCategory() {
-        FinalizeActiveCategory(Category);
-    }
-
-    void AllUnregisterSystem(bool _isFinalize = false);
-
-    void UpdateCategory(SystemCategory _category);
-    template <SystemCategory Category>
-    void UpdateCategory() {
-        UpdateCategory(Category);
-    }
-
-    /// <summary>
-    /// システムを登録する
-    /// </summary>
-    /// <param name="_systemName">登録するシステム名</param>
-    /// <param name="_priority">実行優先順位</param>
-    /// <param name="_isActivate">Activeにするかどうか</param>
-    void registerSystem(const std::string& _systemName, int32_t _priority = 0, bool _isActivate = true);
-    /// <summary>
-    /// システムを登録する
-    /// </summary>
-    /// <typeparam name="SystemClass">登録するシステムクラス</typeparam>
-    /// <param name="_priority">実行優先順位</param>
-    /// <param name="_isActivate">Activeにするかどうか</param>
-    template <IsSystem SystemClass>
-    void registerSystem(int32_t _priority = 0, bool _activate = true) {
-        registerSystem(nameof<SystemClass>(), _priority, _activate);
-    }
-
-    /// <summary>
-    /// 登録を解除する
-    /// </summary>
-    /// <param name="_systemName">登録解除するシステム名</param>
-    void unregisterSystem(const std::string& _systemName);
-    /// <summary>
-    /// 登録を解除する
-    /// </summary>
-    /// <typeparam name="SystemCategory">解除するシステムクラス</typeparam>
-    template <IsSystem SystemCategory>
-    void unregisterSystem() {
-        unregisterSystem(nameof<SystemCategory>());
-    }
-
-    /// <summary>
-    /// 指定したシステムをアクティブにする
-    /// </summary>
-    /// <param name="_systemName">アクティブにするシステムの名前</param>
-    void ActivateSystem(const std::string& _systemName);
-
-    /// <summary>
-    /// 指定したシステムをアクティブにする
-    /// </summary>
-    /// <typeparam name="SystemClass">アクティブにするシステムクラス</typeparam>
-    template <IsSystem SystemClass>
-    void ActivateSystem() {
-        ActivateSystem(nameof<SystemClass>());
-    }
-
-    /// <summary>
-    /// 指定されたシステムを非アクティブ化します。
-    /// </summary>
-    /// <param name="_systemName">非アクティブ化するシステムの名前。</param>
-    void DeactivateSystem(const std::string& _systemName);
-    /// <summary>
-    /// 指定されたシステムを非アクティブ化します。
-    /// </summary>
-    /// <typeparam name="SystemClass">非アクティブ化するシステムクラス</typeparam>
-    template <IsSystem SystemClass>
-    void DeactivateSystem() {
-        DeactivateSystem(nameof<SystemClass>());
-    }
-
-    /// <summary>
-    /// 指定したシステムにエンティティを登録する
-    /// </summary>
-    /// <typeparam name="...SystemClass">エンティティを追加するシステムクラスたち</typeparam>
-    /// <param name="_entity"></param>
-    template <IsSystem... SystemClass>
-    void registerEntity(GameEntity* _entity) {
-        // 各システムにエンティティを登録
-        (getSystem<SystemClass>()->addEntity(_entity), ...);
-    }
-    /// <summary>
-    /// 指定したシステムにエンティティを登録する
-    /// </summary>
-    /// <param name="_systemTypeName">エンティティを追加するシステムの名前</param>
-    /// <param name="_entity"></param>
-    void registerEntity(const std::string& _systemTypeName, GameEntity* _entity) {
-        // システム名からシステムを取得し、エンティティを登録
-        auto systemItr = systems_.find(_systemTypeName);
-        if (systemItr == systems_.end()) {
-            LOG_ERROR("SystemRunner: System '{}' not found .", _systemTypeName);
-            return;
-        }
-        ISystem* system = systemItr->second.get();
-
-        if (system) {
-            system->addEntity(_entity);
-        } else {
-            LOG_ERROR("SystemRunner: System '{}' not found.", _systemTypeName);
-        }
-    }
-
-    /// <summary>
-    /// 指定されたシステムからエンティティを削除します。
-    /// </summary>
-    /// <param name="_systemTypeName">エンティティを削除する対象のシステム名。</param>
-    /// <param name="_entity">削除するGameEntityオブジェクトへのポインタ。</param>
-    void removeEntity(const std::string& _systemTypeName, GameEntity* _entity) {
-        // システム名からシステムを取得し、エンティティを登録
-        auto systemItr = systems_.find(_systemTypeName);
-        if (systemItr == systems_.end()) {
-            LOG_ERROR("SystemRunner: System '{}' not found .", _systemTypeName);
-            return;
-        }
-        // システム名からシステムを取得し、エンティティを削除
-        ISystem* system = systemItr->second.get();
-        if (system) {
-            system->removeEntity(_entity);
-        } else {
-            LOG_ERROR("SystemRunner: System '{}' not found.", _systemTypeName);
-        }
-    }
-
-    void removeEntityFromAllSystems(GameEntity* _entity) {
-        // 各システムからエンティティを削除
-        for (auto& [name, system] : systems_) {
-            system->removeEntity(_entity);
-        }
-    }
-
-private:
-    Scene* scene_ = nullptr; // 所属するシーン
-
-    std::array<bool, static_cast<size_t>(SystemCategory::Count)> categoryActivity = {true, true, true, true, true, true, true, true};
-
-    std::unordered_map<std::string, std::unique_ptr<ISystem>> systems_;
-    std::array<std::vector<ISystem*>, size_t(SystemCategory::Count)> activeSystems_;
-
-public:
-    const std::array<bool, static_cast<size_t>(SystemCategory::Count)>& getCategoryActivity() const {
-        return categoryActivity;
-    }
-    std::array<bool, static_cast<size_t>(SystemCategory::Count)>& getCategoryActivityRef() {
-        return categoryActivity;
-    }
-    bool getCategoryActivity(SystemCategory category) const {
-        return categoryActivity[static_cast<size_t>(category)];
-    }
-    void setCategoryActivity(SystemCategory _category, bool _isActive) {
-        categoryActivity[static_cast<size_t>(_category)] = _isActive;
-    }
-
-    const std::unordered_map<std::string, std::unique_ptr<ISystem>>& getSystems() const {
-        return systems_;
-    }
-    std::unordered_map<std::string, std::unique_ptr<ISystem>>& getSystemsRef() {
-        return systems_;
-    }
-
-    const std::array<std::vector<ISystem*>, size_t(SystemCategory::Count)>& getActiveSystems() const {
-        return activeSystems_;
-    }
-    std::array<std::vector<ISystem*>, size_t(SystemCategory::Count)>& getActiveSystemsRef() {
-        return activeSystems_;
-    }
-
-    std::vector<ISystem*>& getActiveSystemsRef(SystemCategory _category) {
-        return activeSystems_[static_cast<size_t>(_category)];
-    }
-    const std::vector<ISystem*>& getActiveSystems(SystemCategory category) const {
-        return activeSystems_[static_cast<size_t>(category)];
-    }
-    ISystem* getSystem(const std::string& _systemName) const {
-        auto itr = systems_.find(_systemName);
-        if (itr != systems_.end()) {
-            return itr->second.get();
-        }
-
-        LOG_ERROR("SystemRunner: System '{}' not found in any category.", _systemName);
-        return nullptr;
-    }
-    template <IsSystem SystemClass>
-    SystemClass* getSystem() const {
-        std::string systemName = nameof<SystemClass>();
-        auto itr               = systems_.find(systemName);
-        if (itr == systems_.end()) {
-            LOG_ERROR("SystemRunner: System '{}' not found .", systemName);
-            return nullptr;
-        }
-        return dynamic_cast<SystemClass*>(itr->second.get());
-    }
-    ISystem* getSystemRef(const std::string& _systemName) {
-        auto itr = systems_.find(_systemName);
-        if (itr != systems_.end()) {
-            return itr->second.get();
-        }
-
-        LOG_ERROR("SystemRunner: System '{}' not found in any category.", _systemName);
-        return nullptr;
-    }
-    template <IsSystem SystemClass>
-    SystemClass* getSystemRef() {
-        std::string systemName = nameof<SystemClass>();
-        auto itr               = systems_.find(systemName);
-        if (itr == systems_.end()) {
-            LOG_ERROR("SystemRunner: System '{}' not found .", systemName);
-            return nullptr;
-        }
-        return dynamic_cast<SystemClass*>(itr->second.get());
-    }
-};

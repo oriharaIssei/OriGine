@@ -8,7 +8,7 @@
 #include "component/animation/MaterialAnimation.h"
 #include "component/material/Material.h"
 
-void MaterialAnimationWorkSystem::UpdateEntity(GameEntity* _entity) {
+void MaterialAnimationWorkSystem::UpdateEntity(Entity* _entity) {
     auto* materialAnimations = getComponents<MaterialAnimation>(_entity);
     if (materialAnimations == nullptr) {
         return;

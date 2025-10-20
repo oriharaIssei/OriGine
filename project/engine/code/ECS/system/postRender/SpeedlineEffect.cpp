@@ -48,7 +48,7 @@ void SpeedlineEffect::Update() {
     RenderEnd();
 }
 
-void SpeedlineEffect::UpdateEntity(GameEntity* _entity) {
+void SpeedlineEffect::UpdateEntity(Entity* _entity) {
     auto* speedlineParam = getComponent<SpeedlineEffectParam>(_entity);
     speedlineParam->getBuffer().ConvertToBuffer();
     speedlineParam->getBuffer().SetForRootParameter(dxCommand_->getCommandList(), 1);

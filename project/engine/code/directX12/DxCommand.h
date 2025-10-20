@@ -14,6 +14,9 @@
 class DxFence;
 class ResourceStateTracker;
 
+/// <summary>
+/// CommandList,Allocator,CommandQueue を組み合わせて管理する
+/// </summary>
 class DxCommand {
 public:
     DxCommand();
@@ -27,17 +30,31 @@ public:
     /// <param name="commandQueueKey"></param>
     void Initialize(const std::string& commandListKey, const std::string& commandQueueKey);
     void Initialize(const std::string& commandListKey, const std::string& commandQueueKey, D3D12_COMMAND_LIST_TYPE listType);
+    /// <summary>
+    /// 終了処理
+    /// </summary>
     void Finalize();
 
 public:
+    /// <summary>
+    /// 全てのCommandList,Allocator,CommandQueueを破棄する
+    /// </summary>
     static void ResetAll();
     /// <summary>
     /// Listとallocatorを同じキーで作る
     /// </summary>
     static bool CreateCommandListWithAllocator(Microsoft::WRL::ComPtr<ID3D12Device> device, const std::string& listAndAllocatorKey, D3D12_COMMAND_LIST_TYPE listType);
+    /// <summary>
+    /// Queueを作る
+    /// </summary>
+    /// <param name="device"></param>
+    /// <param name="queueKey"></param>
+    /// <param name="desc"></param>
+    /// <returns></returns>
     static bool CreateCommandQueue(Microsoft::WRL::ComPtr<ID3D12Device> device, const std::string& queueKey, D3D12_COMMAND_QUEUE_DESC desc);
 
 private:
+    /// 一元管理用
     static std::unordered_map<std::string,
         std::tuple<Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>,
             Microsoft::WRL::ComPtr<ID3D12CommandAllocator>,

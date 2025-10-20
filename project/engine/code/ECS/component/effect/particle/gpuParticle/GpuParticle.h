@@ -7,10 +7,10 @@
 
 /// engine
 // directX12 Object
+#include "directX12/buffer/IConstantBuffer.h"
+#include "directX12/buffer/IStructuredBuffer.h"
 #include "directX12/DxDescriptor.h"
-#include "directX12/IConstantBuffer.h"
-#include "directX12/IStructuredBuffer.h"
-#include "directX12/Mesh.h"
+#include "directX12/mesh/Mesh.h"
 #include "directX12/ShaderManager.h"
 /// ECS
 // component
@@ -38,12 +38,12 @@ struct GpuParticleData {
         float maxTime;
         Vec4f color;
         ConstantBuffer& operator=(const GpuParticleData& other) {
-            scale       = other.scale;
-            translate   = other.translate;
-            lifeTime    = other.lifeTime;
-            velocity    = other.velocity;
-            maxTime = other.maxTime;
-            color       = other.color;
+            scale     = other.scale;
+            translate = other.translate;
+            lifeTime  = other.lifeTime;
+            velocity  = other.velocity;
+            maxTime   = other.maxTime;
+            color     = other.color;
             return *this;
         }
     };
@@ -160,9 +160,9 @@ public:
     GpuParticleEmitter()  = default;
     ~GpuParticleEmitter() = default;
 
-    void Initialize(GameEntity* _entity) override;
+    void Initialize(Entity* _entity) override;
 
-    void Edit(Scene* _scene, GameEntity* _entity, const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, Entity* _entity, const std::string& _parentLabel) override;
 
     void Finalize() override;
 

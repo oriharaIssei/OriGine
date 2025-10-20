@@ -5,8 +5,8 @@
 
 /// engine
 // directX12 object
+#include "directX12/buffer/IConstantBuffer.h"
 #include "directX12/DxDescriptor.h"
-#include "directX12/IConstantBuffer.h"
 
 /// ecs
 #include "component/IComponent.h"
@@ -18,6 +18,9 @@
 #include "Vector3.h"
 #include "Vector4.h"
 
+/// <summary>
+/// UVTransform
+/// </summary>
 struct UVTransform {
     Vec2f scale_     = Vec2f(1.f, 1.f);
     float rotate_    = 0.f;
@@ -30,6 +33,9 @@ struct UVTransform {
     };
 };
 
+/// <summary>
+/// ColorとUVTransformの組み合わせ
+/// </summary>
 struct ColorAndUvTransform {
     ColorAndUvTransform() = default;
     ColorAndUvTransform(const Vec4f& _color, const UVTransform& _uvTransform) : color_(_color), uvTransform_(_uvTransform) {}
@@ -43,6 +49,9 @@ struct ColorAndUvTransform {
     };
 };
 
+/// <summary>
+/// Materialコンポーネント
+/// </summary>
 struct Material
     : public IComponent {
     friend void to_json(nlohmann::json& j, const Material& m);
@@ -52,16 +61,31 @@ public:
     Material() {}
     ~Material() override {}
 
+    /// <summary>
+    /// UVTransformを計算してuvMat_に格納する
+    /// </summary>
     void UpdateUvMatrix();
 
-    void Initialize([[maybe_unused]] GameEntity* _entity) override;
-    void Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] GameEntity* _entity, const std::string& _parentLabel) override;
+    void Initialize([[maybe_unused]] Entity* _entity) override;
+    void Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, const std::string& _parentLabel) override;
     void Finalize() override;
 
+    /// <summary>
+    /// CustomTextureを指定したファイルから作成する
+    /// </summary>
+    /// <param name="_directory"></param>
+    /// <param name="_filename"></param>
     void CreateCustomTextureFromTextureFile(const std::string& _directory, const std::string& _filename);
+    /// <summary>
+    /// CustomTextureを指定したテクスチャから作成する
+    /// </summary>
+    /// <param name="textureIndex">TextureManagerが持っているテクスチャのインデックス</param>
     void CreateCustomTextureFromTextureFile(int32_t textureIndex);
 
 public:
+    /// <summary>
+    /// CustomTextureを表すデータ. textureと大差ないが、Material固有のものとして扱うために分けている
+    /// </summary>
     struct CustomTextureData {
         CustomTextureData() = default;
         std::shared_ptr<DxSrvDescriptor> srv_;

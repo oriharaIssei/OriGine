@@ -13,6 +13,9 @@
 #include "Vector2.h"
 #include "Vector4.h"
 
+/// <summary>
+/// DirectX12 関数群 ヘルパークラス
+/// </summary>
 class DxFunctionHelper {
 public:
     static void SetViewportsAndScissor(const DxCommand* dxCommand, const WinApp* window);

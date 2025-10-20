@@ -7,7 +7,7 @@
 #include "winApp/WinApp.h"
 // component
 #include "component/effect/post/DistortionEffectParam.h"
-#include "component/renderer/primitive/Primitive.h"
+#include "component/renderer/primitive/PlaneRenderer.h"
 #include "component/transform/Transform.h"
 // system
 #include "system/render/TexturedMeshRenderSystem.h"
@@ -49,7 +49,7 @@ void DistortionEffect::Update() {
     /// ================================================
 
     for (auto& id : entityIDs_) {
-        GameEntity* entity = getEntity(id);
+        Entity* entity = getEntity(id);
         UpdateEntity(entity);
     }
 }
@@ -71,7 +71,7 @@ void DistortionEffect::Finalize() {
     }
 }
 
-void DistortionEffect::UpdateEntity(GameEntity* _entity) {
+void DistortionEffect::UpdateEntity(Entity* _entity) {
     /// ================================================================================================
     // Rendering Distortion Scene Texture
     /// ================================================================================================
@@ -149,6 +149,7 @@ void DistortionEffect::RenderEffectObjectScene(
     Transform* _entityTransform,
     DistortionEffectParam* _param) {
 
+    // オブジェクトシーンテクスチャへの描画開始
     distortionSceneTexture_->PreDraw();
     texturedMeshRenderSystem_->SettingPSO(BlendMode::Alpha);
     texturedMeshRenderSystem_->StartRender();
@@ -184,7 +185,7 @@ void DistortionEffect::RenderEffectObjectScene(
     distortionSceneTexture_->PostDraw();
 }
 
-void DistortionEffect::EffectEntity(RenderTexture* _output, GameEntity* _entity) {
+void DistortionEffect::EffectEntity(RenderTexture* _output, Entity* _entity) {
     if (_output == nullptr) {
         LOG_ERROR("Output RenderTexture is nullptr");
         return;

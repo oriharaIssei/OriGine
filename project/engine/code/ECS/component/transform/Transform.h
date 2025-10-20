@@ -16,6 +16,9 @@
 #include "Matrix4x4.h"
 #include "Quaternion.h"
 
+/// <summary>
+/// Transform コンポーネント(3次元)
+/// </summary>
 struct Transform
     : public IComponent {
 public:
@@ -24,10 +27,10 @@ public:
         : scale(_scale), rotate(_rotate), translate(_translate), worldMat(MakeMatrix::Identity()) {}
     ~Transform() {}
 
-    void Initialize(GameEntity* _entity) override;
+    void Initialize(Entity* _entity) override;
     void UpdateMatrix();
     Quaternion CalculateWorldRotate() const;
-    void Edit(Scene* _scene,GameEntity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
+    void Edit(Scene* _scene,Entity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
 
     void Finalize() override {};
 

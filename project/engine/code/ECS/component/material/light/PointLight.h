@@ -14,6 +14,9 @@
 #include "math/Vector3.h"
 #include "math/Vector4.h"
 
+/// <summary>
+/// Point Light
+/// </summary>
 class PointLight
     : public IComponent {
     friend void to_json(nlohmann::json& j, const PointLight& l);
@@ -23,8 +26,8 @@ public:
     PointLight() {}
     ~PointLight() {}
 
-    void Initialize([[maybe_unused]] GameEntity* _entity) override {}
-    void Edit(Scene* _scene,GameEntity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
+    void Initialize([[maybe_unused]] Entity* _entity) override {}
+    void Edit(Scene* _scene,Entity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
     
     void Finalize() override {}
 

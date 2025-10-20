@@ -2,6 +2,9 @@
 
 #include "system/ISystem.h"
 
+/// <summary>
+/// エミッターの動作を管理するシステム
+/// </summary>
 class EmitterWorkSystem
     : public ISystem {
 public:
@@ -13,5 +16,5 @@ public:
     void Finalize() override;
 
 protected:
-    void UpdateEntity(GameEntity* _entity) override;
+    void UpdateEntity(Entity* _entity) override;
 };

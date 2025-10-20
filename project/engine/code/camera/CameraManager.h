@@ -5,11 +5,14 @@
 
 /// engine
 #include "component/transform/CameraTransform.h"
-#include "directX12/IConstantBuffer.h"
+#include "directX12/buffer/IConstantBuffer.h"
 
 
 class DebugCamera;
 
+/// <summary>
+/// カメラを管理するクラス. cTransform_を通してカメラの情報をGPUに送る.
+/// </summary>
 class CameraManager{
 public:
     static CameraManager* getInstance();

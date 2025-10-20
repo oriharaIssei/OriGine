@@ -85,7 +85,7 @@ void SkeletonRenderSystem::CreateRenderMesh() {
     boneMeshItr_  = boneMeshGroup->begin();
 
     for (auto& [entityIdx, modelMeshIdx] : skinningAnimationArray_->getEntityIndexBind()) {
-        GameEntity* entity = getEntity(entityIdx);
+        Entity* entity = getEntity(entityIdx);
         if (!entity) {
             continue; // Entityが存在しない場合はスキップ
         }

@@ -14,6 +14,9 @@
 #include "math/Vector3.h"
 #include "math/Vector4.h"
 
+/// <summary>
+/// DirectionalLight
+/// </summary>
 class DirectionalLight
     : public IComponent {
 
@@ -25,9 +28,9 @@ public:
     DirectionalLight() : IComponent() {}
     ~DirectionalLight() {}
 
-    void Initialize([[maybe_unused]] GameEntity* _entity) override {}
+    void Initialize([[maybe_unused]] Entity* _entity) override {}
 
-    void Edit(Scene* _scene,GameEntity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
 
     void Finalize() override {}
 
