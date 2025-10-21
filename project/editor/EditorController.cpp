@@ -10,12 +10,27 @@
 #include "imgui/imgui_impl_dx12.h"
 #include "imgui/imgui_impl_win32.h"
 
-EditorController::EditorController() {
-    // Constructor implementation
+EditorController::EditorController() {}
+
+EditorController::~EditorController() {}
+
+void EditorController::Undo() {
+    if (currentCommandItr_ != commandHistory_.begin()) {
+        --currentCommandItr_;
+        (*currentCommandItr_)->Undo();
+    }
 }
 
-EditorController::~EditorController() {
-    // Destructor implementation
+void EditorController::Redo() {
+    if (currentCommandItr_ != commandHistory_.end()) {
+        (*currentCommandItr_)->Execute();
+        ++currentCommandItr_;
+    }
+}
+
+void EditorController::clearCommandHistory() {
+    commandHistory_.clear();
+    currentCommandItr_ = commandHistory_.end();
 }
 
 void EditorController::ExecuteCommandRequests() {

@@ -18,9 +18,9 @@
 /// util
 #include <util/nameof.h>
 
-///=============================================================================
-/// EditorController (Engine の 汎用的な editor郡)
-///=============================================================================
+/// <summary>
+/// Editorの制御クラス
+/// </summary>
 class EditorController {
     friend class SceneManager;
 
@@ -31,24 +31,14 @@ public:
     void Update();
     void Finalize();
 
-    void Undo() {
-        if (currentCommandItr_ != commandHistory_.begin()) {
-            --currentCommandItr_;
-            (*currentCommandItr_)->Undo();
-        }
-    }
+    void Undo();
 
-    void Redo() {
-        if (currentCommandItr_ != commandHistory_.end()) {
-            (*currentCommandItr_)->Execute();
-            ++currentCommandItr_;
-        }
-    }
+    void Redo();
 
-    void clearCommandHistory() {
-        commandHistory_.clear();
-        currentCommandItr_ = commandHistory_.end();
-    }
+    /// <summary>
+    /// Command履歴のクリア
+    /// </summary>
+    void clearCommandHistory();
 
 private:
     EditorController();
@@ -58,6 +48,9 @@ private:
     EditorController& operator=(EditorController&&)      = delete;
 
 private:
+    /// <summary>
+    /// 1フレームで蓄えたCommandの実行
+    /// </summary>
     void ExecuteCommandRequests();
 
 private:

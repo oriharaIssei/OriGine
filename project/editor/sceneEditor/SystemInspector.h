@@ -13,6 +13,9 @@ class SceneEditorWindow;
 /// util
 #include "util/EnumBitMask.h"
 
+/// <summary>
+/// システムを表示・編集するエリア
+/// </summary>
 class SystemInspectorArea
     : public Editor::Area {
 public:
@@ -23,6 +26,9 @@ public:
     void Finalize() override;
 
 public:
+    /// <summary>
+    /// システムの実行優先度を変更するコマンド
+    /// </summary>
     class ChangeSystemPriority
         : public IEditCommand {
     public:
@@ -37,6 +43,9 @@ public:
         int32_t oldPriority_ = 0; // 変更前の優先度
         int32_t newPriority_ = 0; // 変更後の優先度
     };
+    /// <summary>
+    /// システムのアクティビティ状態を変更するコマンド
+    /// </summary>
     class ChangeSystemActivity
         : public IEditCommand {
     public:
@@ -52,6 +61,9 @@ public:
         bool oldActivity_       = false; // 変更前のアクティビティ状態
         bool newActivity_       = true; // 変更後のアクティビティ状態
     };
+    /// <summary>
+    /// システムカテゴリのアクティビティ状態を変更するコマンド
+    /// </summary>
     class ChangeSystemCategoryActivity
         : public IEditCommand {
     public:
@@ -80,6 +92,9 @@ public:
         CATEGORY_ALL             = static_cast<int32_t>(CATEGORY_INITIALIZE) | static_cast<int32_t>(CATEGORY_INPUT) | static_cast<int32_t>(CATEGORY_STATETRANSITION) | static_cast<int32_t>(CATEGORY_MOVEMENT) | static_cast<int32_t>(CATEGORY_COLLISION) | static_cast<int32_t>(CATEGORY_EFFECT) | static_cast<int32_t>(CATEGORY_RENER) | static_cast<int32_t>(CATEGORY_POSTRENDER),
         SEARCH                   = 0b1 << 9, // 検索フィルター
     };
+    /// <summary>
+    /// システムを表示するフィルターを変更するコマンド
+    /// </summary>
     class ChangeSystemFilter
         : public IEditCommand {
     public:
@@ -96,6 +111,9 @@ public:
         int32_t oldFilter_; // 変更前のフィルター
         int32_t newFilter_; // 変更後のフィルター
     };
+    /// <summary>
+    /// 検索フィルターを変更するコマンド
+    /// </summary>
     class ChangeSearchFilter
         : public IEditCommand {
     public:

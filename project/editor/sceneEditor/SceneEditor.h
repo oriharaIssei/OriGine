@@ -26,6 +26,9 @@ class DebugCamera;
 #include "util/EnumBitMask.h"
 #include "util/nameof.h"
 
+/// <summary>
+/// 1つのシーンを編集するためのウィンドウ(Editor)
+/// </summary>
 class SceneEditorWindow
     : public Editor::Window {
 public:
@@ -85,6 +88,9 @@ public:
         return parentWindow_;
     }
 };
+/// <summary>
+/// シーンファイルを保存するメニューアイテム
+/// </summary>
 class SaveMenuItem
     : public Editor::MenuItem {
 public:
@@ -98,6 +104,9 @@ public:
 private:
     FileMenu* parentMenu_ = nullptr; // 親メニューへのポインタ
 };
+/// <summary>
+/// シーンファイルを読み込むメニューアイテム
+/// </summary>
 class LoadMenuItem
     : public Editor::MenuItem {
 public:
@@ -112,6 +121,9 @@ private:
     FileMenu* parentMenu_ = nullptr; // 親メニューへのポインタ
     Scene* loadScene_     = nullptr; // 保存するシーンへのポインタ
 };
+/// <summary>
+/// シーンファイルを新規作成するメニューアイテム
+/// </summary>
 class CreateMenuItem
     : public Editor::MenuItem {
 public:
@@ -129,6 +141,9 @@ private:
 
 #pragma endregion
 
+/// <summary>
+/// シーンビューエリア(シーンのDebug描画を確認する)
+/// </summary>
 class SceneViewArea
     : public Editor::Area {
 public:
@@ -147,6 +162,9 @@ private:
     std::unique_ptr<DebugCamera> debugCamera_; // デバッグカメラ
 };
 
+/// <summary>
+/// Entityの一覧を表示・操作するエリア
+/// </summary>
 class HierarchyArea
     : public Editor::Area {
 public:
@@ -165,6 +183,9 @@ public:
     }
 };
 
+/// <summary>
+/// Entityの一覧を表示・操作するリージョン(HierarchyAreaで動作する)
+/// </summary>
 class EntityHierarchy
     : public Editor::Region {
 public:
@@ -175,6 +196,9 @@ public:
     void Finalize() override;
 
 public:
+    /// <summary>
+    /// 編集するEntityを追加するコマンド
+    /// </summary>
     class AddSelectedEntitiesCommand
         : public IEditCommand {
     public:
@@ -187,6 +211,9 @@ public:
         EntityHierarchy* hierarchy_ = nullptr; // 親エリアへのポインタ
         int32_t addedEntityId_      = -1; // 追加されたエンティティID
     };
+    /// <summary>
+    /// 編集するEntityを削除するコマンド
+    /// </summary>
     class RemoveSelectedEntitiesCommand
         : public IEditCommand {
     public:
@@ -199,6 +226,9 @@ public:
         EntityHierarchy* hierarchy_ = nullptr; // 親エリアへのポインタ
         int32_t removedEntityId_    = -1; // 削除されたエンティティID
     };
+    /// <summary>
+    /// 編集するEntityの選択をクリアするコマンド
+    /// </summary>
     class ClearSelectedEntitiesCommand
         : public IEditCommand {
     public:
@@ -212,6 +242,9 @@ public:
         std::list<int32_t> previousSelectedEntityIds_; // 以前の選択されたエンティティIDのリスト
     };
 
+    /// <summary>
+    /// エンティティを作成するコマンド
+    /// </summary>
     class CreateEntityCommand
         : public IEditCommand {
     public:
@@ -226,6 +259,9 @@ public:
         std::string entityName_;
         int32_t entityId_ = -1; // 作成するエンティティの名前
     };
+    /// <summary>
+    /// エンティティをファイルから読み込むコマンド
+    /// </summary>
     class LoadEntityCommand
         : public IEditCommand {
     public:
@@ -259,6 +295,9 @@ public:
     }
 };
 
+/// <summary>
+/// コンポーネントを追加するコマンド
+/// </summary>
 class AddComponentCommand
     : public IEditCommand {
 public:
@@ -274,6 +313,9 @@ private:
     std::list<int32_t> entityIds_;
     std::string componentTypeName_; // 追加するコンポーネントのタイプ名
 };
+/// <summary>
+/// コンポーネントを削除するコマンド
+/// </summary>
 class RemoveComponentCommand
     : public IEditCommand {
 public:
@@ -291,6 +333,9 @@ private:
     std::string componentTypeName_; // 削除するコンポーネントのタイプ名
 };
 
+/// <summary>
+/// システムを追加するコマンド
+/// </summary>
 class AddSystemCommand
     : public IEditCommand {
 public:
@@ -304,6 +349,9 @@ private:
     std::string systemTypeName_; // 追加するシステムのタイプ名
     SystemCategory systemCategory_; // システムのカテゴリ
 };
+/// <summary>
+/// システムを削除するコマンド
+/// </summary>
 class RemoveSystemCommand
     : public IEditCommand {
 public:
@@ -318,6 +366,12 @@ private:
     SystemCategory systemCategory_; // システムのカテゴリ
 };
 
+/// <summary>
+/// 開発用コントロールエリア
+/// </summary>
+/// <remarks>
+/// Developをビルド・実行するためのエリア
+/// </remarks>
 class DevelopControlArea
     : public Editor::Area {
 public:

@@ -10,6 +10,9 @@
 /// math
 #include <math/Vector2.h>
 
+/// <summary>
+/// 設定メニュー
+/// </summary>
 class SettingsMenu
     : public Editor::Menu {
 public:
@@ -20,6 +23,9 @@ public:
 
 private:
 };
+/// <summary>
+/// 設定ウィンドウを開くメニューアイテム
+/// </summary>
 class SettingsWindowOpen
     : public Editor::MenuItem {
 public:
@@ -32,6 +38,9 @@ public:
 private:
 };
 
+/// <summary>
+/// 設定ウィンドウ
+/// </summary>
 class SettingWindow
     : public Editor::Window {
 public:
@@ -47,6 +56,9 @@ public:
     void Finalize() override;
 };
 
+/// <summary>
+/// 設定ウィンドウ内のエリア
+/// </summary>
 class SettingWindowArea
     : public Editor::Area {
 public:
@@ -72,6 +84,9 @@ private:
     Vec2f windowSize_        = Vec2f(1280.f, 720.f); // ウィンドウのサイズ
 };
 
+/// <summary>
+/// プロジェクト設定エリア
+/// </summary>
 class ProjectSettingArea
     : public Editor::Area {
 public:
@@ -80,7 +95,9 @@ public:
     void Initialize() override;
     void Finalize() override;
 };
-
+/// <summary>
+/// プロジェクト設定リージョン
+/// </summary>
 class ProjectSettingRegion
     : public Editor::Region {
 public:

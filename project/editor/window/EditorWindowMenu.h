@@ -11,6 +11,9 @@
 /// util
 #include "util/nameof.h"
 
+/// <summary>
+/// EditorWindowのメニュー
+/// </summary>
 class EditorWindowMenu
     : public Editor::Menu {
 public:
@@ -20,6 +23,10 @@ public:
     void Finalize() override;
 };
 
+/// <summary>
+/// ウィンドウを開くためのメニューアイテム
+/// </summary>
+/// <typeparam name="EditorWindowType"></typeparam>
 template <EditorWindow EditorWindowType>
 class WindowItem
     : public Editor::MenuItem {
