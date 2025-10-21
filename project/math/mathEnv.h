@@ -63,16 +63,11 @@ constexpr float kFullAngle     = kTao; // 360度
 /// </summary>
 /// <param name="radian"></param>
 /// <returns></returns>
-float radianToDegree(float radian) {
-    return radian * kRad2Deg;
-}
+float radianToDegree(float radian);
 /// <summary>
 /// Degree を Radian に変換
 /// </summary>
-float degreeToRadian(float degree) {
-    return degree * kDeg2Rad;
-}
-
+float degreeToRadian(float degree) ;
 
 /// ----------------------------------------------
 /// 軸列挙（Transformなどと独立して）

@@ -1145,5 +1145,6 @@
     <ClCompile Include="util\timeline\Timeline.cpp">
       <Filter>util\timeline</Filter>
     </ClCompile>
+    <ClCompile Include="math\mathEnv.cpp" />
   </ItemGroup>
 </Project>
