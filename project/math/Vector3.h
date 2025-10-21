@@ -5,6 +5,10 @@
 
 #include <cmath>
 
+/// <summary>
+/// 3次元ベクトル
+/// </summary>
+/// <typeparam name="valueType"></typeparam>
 template <typename valueType = float>
 struct Vector3 final : Vector<3, valueType> {
     using Vector<3, valueType>::v;
@@ -36,15 +40,21 @@ struct Vector3 final : Vector<3, valueType> {
     constexpr Vector3(const valueType* ptr)
         : Vector<3, valueType>({ptr[0], ptr[1], ptr[2]}) {}
 
-    // ベクトルの長さ
+    /// <summary>
+    /// ベクトルの長さを計算
+    /// </summary>
+    /// <returns>ベクトルの長さ</returns>
     constexpr valueType length() const { return std::sqrt(v[X] * v[X] + v[Y] * v[Y] + v[Z] * v[Z]); }
     static constexpr valueType Length(const Vector3& v) { return std::sqrt(v.v[X] * v.v[X] + v.v[Y] * v.v[Y] + v.v[Z] * v.v[Z]); }
-
-    // ベクトルの長さの二乗
+    /// <summary>
+    /// ベクトルの長さの二乗を計算
+    /// </summary>
     constexpr valueType lengthSq() const { return (v[X] * v[X] + v[Y] * v[Y] + v[Z] * v[Z]); }
     static constexpr valueType LengthSq(const Vector3& v) { return (v.v[X] * v.v[X] + v.v[Y] * v.v[Y] + v.v[Z] * v.v[Z]); }
 
-    // 内積
+    /// <summary>
+    /// 内積を計算
+    /// </summary>
     constexpr valueType dot() const { return v[X] * v[X] + v[Y] * v[Y] + v[Z] * v[Z]; }
     constexpr valueType dot(const Vector3<valueType>& vec) const {
         return v[X] * vec.v[X] + v[Y] * vec.v[Y] + v[Z] * vec.v[Z];
@@ -54,7 +64,11 @@ struct Vector3 final : Vector<3, valueType> {
         return v.dot(vec);
     }
 
-    // 外積
+    /// <summary>
+    /// 外積を計算
+    /// </summary>
+    /// <param name="another"></param>
+    /// <returns></returns>
     constexpr Vector3 cross(const Vector3& another) const {
         return Vector3(
             v[Y] * another.v[Z] - v[Z] * another.v[Y],
@@ -65,7 +79,9 @@ struct Vector3 final : Vector<3, valueType> {
         return v.cross(another);
     }
 
-    // 正規化
+    /// <summary>
+    /// 正規化
+    /// </summary>
     constexpr Vector3 normalize() const {
         valueType len = length();
         if (len == 0)
@@ -80,6 +96,9 @@ struct Vector3 final : Vector<3, valueType> {
     }
 };
 
+/// <summary>
+/// 反射ベクトルを計算
+/// </summary>
 template <typename valueType>
 inline Vector3<valueType> Reflect(const Vector3<valueType>& v, const Vector3<valueType>& normal) {
     return v - 2.0f * (v.dot(normal)) * normal;

@@ -6,6 +6,10 @@
 
 #include <cmath>
 
+/// <summary>
+/// 四次元ベクトル
+/// </summary>
+/// <typeparam name="valueType"></typeparam>
 template <typename valueType = float>
 struct Vector4 final
     : Vector<4, valueType> {
@@ -44,19 +48,31 @@ struct Vector4 final
     constexpr Vector4(const valueType* ptr)
         : Vector<4, valueType>({ptr[0], ptr[1], ptr[2], ptr[3]}) {}
 
-    // ベクトルの長さ
+    /// <summary>
+    /// ベクトルの長さを計算
+    /// </summary>
     constexpr valueType length() const { return std::sqrt(v[X] * v[X] + v[Y] * v[Y] + v[Z] * v[Z] + v[W] * v[W]); }
     static constexpr valueType Length(const Vector4& v) { return std::sqrt(v.v[X] * v.v[X] + v.v[Y] * v.v[Y] + v.v[Z] * v.v[Z] + v.v[W] * v.v[W]); }
 
-    // ベクトルの長さの二乗
+    /// <summary>
+    /// ベクトルの長さの二乗を計算
+    /// </summary>
+    /// <returns></returns>
     constexpr valueType lengthSq() const { return (v[X] * v[X] + v[Y] * v[Y] + v[Z] * v[Z] + v[W] * v[W]); }
     static constexpr valueType LengthSq(const Vector4& v) { return (v.v[X] * v.v[X] + v.v[Y] * v.v[Y] + v.v[Z] * v.v[Z] + v.v[W] * v.v[W]); }
 
-    // 内積
+    /// <summary>
+    /// 内積を計算
+    /// </summary>
+    /// <param name="another"></param>
+    /// <returns></returns>
     constexpr valueType dot(const Vector4& another) const { return (v[X] * another.v[X]) + (v[Y] * another.v[Y]) + (v[Z] * another.v[Z]) + (v[W] * another.v[W]); }
     static constexpr valueType Dot(const Vector4& v, const Vector4& another) { return (v.v[X] * another.v[X]) + (v.v[Y] * another.v[Y]) + (v.v[Z] * another.v[Z]) + (v.v[W] * another.v[W]); }
 
-    // 正規化
+    /// <summary>
+    /// 正規化
+    /// </summary>
+    /// <returns></returns>
     constexpr Vector4 normalize() const {
         valueType len = length();
         if (len == 0)

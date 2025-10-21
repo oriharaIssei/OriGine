@@ -29,6 +29,11 @@ struct Vector3;
 template <typename valueType>
 struct Vector4;
 
+/// <summary>
+/// ベクトル構造体(直接の使用は非推奨 Vector2などWrapperを使用すること)
+/// </summary>
+/// <typeparam name="valueType">数値クラス</typeparam>
+/// <typeparam name="dimension">次元</typeparam>
 template <int dimension, typename valueType>
 struct Vector {
     // デフォルトコンストラクタ

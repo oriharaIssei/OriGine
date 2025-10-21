@@ -1,9 +1,11 @@
 #include "CameraAction.h"
 
 #ifdef DEBUG
-#include "math/RotateUtil.h"
+///gui
 #include "myGui/MyGui.h"
 #include "util/timeline/Timeline.h"
+///math
+#include <math/mathEnv.h>
 #endif // DEBUG
 
 CameraAction::CameraAction() {}
@@ -13,7 +15,7 @@ CameraAction::~CameraAction() {}
 void CameraAction::Initialize(Entity* /*_entity*/) {}
 
 void CameraAction::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_unused]] [[maybe_unused]] const std::string& _parentLabel) {
-  
+
 #ifdef DEBUG
     std::string label = "AnimationState##" + _parentLabel;
     if (ImGui::TreeNode(label.c_str())) {
@@ -54,7 +56,6 @@ void CameraAction::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_unused]]
         duration_,
         1000.0f);
 
-    
     ImGui::Text("Rotation Animation");
     ImGui::EditKeyFrame(
         "Rotation Animation##" + _parentLabel,
@@ -69,7 +70,6 @@ void CameraAction::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_unused]]
         duration_);
 
 #endif // DEBUG
-
 }
 
 void CameraAction::Finalize() {}
@@ -120,5 +120,4 @@ void from_json(const nlohmann::json& j, CameraAction& action) {
     curveLoad(j.at("farZCurve"), action.farZCurve_);
     curveLoad(j.at("positionCurve"), action.positionCurve_);
     curveLoad(j.at("rotationCurve"), action.rotationCurve_);
-
 }

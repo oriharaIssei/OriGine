@@ -304,7 +304,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="math\MyEasing.h" />
     <ClInclude Include="math\Orientation.h" />
     <ClInclude Include="math\Quaternion.h" />
-    <ClInclude Include="math\RotateUtil.h" />
     <ClInclude Include="math\Sequence.h" />
     <ClInclude Include="math\Vector.h" />
     <ClInclude Include="math\Vector2.h" />

@@ -58,6 +58,22 @@ constexpr float kRightAngle    = kHalfPi; // 90度
 constexpr float kStraightAngle = kPi; // 180度
 constexpr float kFullAngle     = kTao; // 360度
 
+/// <summary>
+/// Radian を Degree に変換
+/// </summary>
+/// <param name="radian"></param>
+/// <returns></returns>
+float radianToDegree(float radian) {
+    return radian * kRad2Deg;
+}
+/// <summary>
+/// Degree を Radian に変換
+/// </summary>
+float degreeToRadian(float degree) {
+    return degree * kDeg2Rad;
+}
+
+
 /// ----------------------------------------------
 /// 軸列挙（Transformなどと独立して）
 enum class Axis : uint8_t {

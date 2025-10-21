@@ -4,6 +4,9 @@
 #include <Quaternion.h>
 #include <Vector3.h>
 
+/// <summary>
+/// オリエンテーション情報
+/// </summary>
 struct Orientation {
     Vec3f axis[3];
     Quaternion rot;

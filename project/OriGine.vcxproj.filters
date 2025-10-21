@@ -633,9 +633,6 @@
     <ClInclude Include="math\Quaternion.h">
       <Filter>math</Filter>
     </ClInclude>
-    <ClInclude Include="math\RotateUtil.h">
-      <Filter>math</Filter>
-    </ClInclude>
     <ClInclude Include="math\Sequence.h">
       <Filter>math</Filter>
     </ClInclude>
