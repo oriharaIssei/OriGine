@@ -10,6 +10,9 @@
 #include <thread>
 #include <atomic>
 
+/// <summary>
+/// std::filesystemを自分用にわかりやすくラップしたクラス
+/// </summary>
 class MyFileSystem {
 public:
     /// <summary>

@@ -9,6 +9,9 @@
 #include "Vector2.h"
 #include "Vector4.h"
 
+/// <summary>
+/// SpeedlineEffectのパラメーター情報(GPUに送る情報)
+/// </summary>
 struct SpeedlineBufferParamData {
     Vec2f screenCenterUV = {0.5f, 0.5f};
     float intensity      = 0.1f;
@@ -39,6 +42,9 @@ struct SpeedlineBufferParamData {
     };
 };
 
+/// <summary>
+/// SpeedlineEffectのパラメーター
+/// </summary>
 class SpeedlineEffectParam
     : public IComponent {
     friend void to_json(nlohmann::json& j, const SpeedlineEffectParam& p);

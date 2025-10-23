@@ -16,6 +16,9 @@
 /// math
 #include "mathEnv.h"
 
+/// <summary>
+/// Gradation のパラメーター情報(GPUに送る情報)
+/// </summary>
 struct GradationParam {
     ColorChannel inputChannel  = ColorChannel::R;
     ColorChannel outputChannel = ColorChannel::R;
@@ -32,6 +35,9 @@ struct GradationParam {
     };
 };
 
+/// <summary>
+/// GradiationTextureEffectのパラメーター
+/// </summary>
 class GradationTextureComponent
     : public IComponent {
     friend void to_json(nlohmann::json& j, const GradationTextureComponent& _g);
@@ -45,6 +51,10 @@ public:
     void Edit(Scene* _scene, Entity* _entity, const std::string& _parentLabel) override;
     void Finalize() override;
 
+    /// <summary>
+    /// Gradationテクスチャの読み込み
+    /// </summary>
+    /// <param name="_texturePath"></param>
     void LoadTexture(const std::string& _texturePath);
 
 private:

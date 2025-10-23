@@ -34,17 +34,30 @@ void Material::Initialize(Entity* /*_entity*/) {
 
 void Material::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
+    constexpr float kCustomTextureSize = 32.f;
+
+    if(customTexture_.has_value()){
+        ImGui::Image(reinterpret_cast<ImTextureID>(customTexture_->srv_->getGpuHandle().ptr), {kCustomTextureSize, kCustomTextureSize});
+        ImGui::Spacing();
+    }
 
     ImGui::Text("Color");
     ColorEditGuiCommand("##color" + _parentLabel, color_);
+
+    ImGui::Spacing();
+
     ImGui::Text("uvScale");
     DragGuiVectorCommand<2, float>("##uvScale" + _parentLabel, uvTransform_.scale_, 0.01f);
     ImGui::Text("uvRotate");
     DragGuiCommand<float>("##uvRotate" + _parentLabel, uvTransform_.rotate_, 0.01f);
     ImGui::Text("uvTranslate");
     DragGuiVectorCommand<2, float>("##uvTranslate" + _parentLabel, uvTransform_.translate_, 0.01f);
+
+    ImGui::Spacing();
+
     ImGui::Text("isLightUse");
     CheckBoxCommand("##isLightUse" + _parentLabel, enableLighting_);
+
 
     ImGui::Text("shininess");
     std::string label = "##shininess" + _parentLabel;

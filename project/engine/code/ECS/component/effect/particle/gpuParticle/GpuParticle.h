@@ -22,6 +22,9 @@
 #include <math/Vector3.h>
 #include <math/Vector4.h>
 
+/// <summary>
+/// GPUで使用するParticleの情報
+/// </summary>
 struct GpuParticleData {
     Vec3f scale;
     Vec3f translate;
@@ -48,6 +51,9 @@ struct GpuParticleData {
         }
     };
 };
+/// <summary>
+/// GPUParticleを生成する形状の情報
+/// </summary>
 struct GpuParticleEmitSphere {
     Vec3f center = Vec3f(0.f, 0.f, 0.f);
     Vec3f size   = Vec3f(0.f, 0.f, 0.f);
@@ -135,6 +141,9 @@ struct GpuParticleEmitSphere {
     };
 };
 
+/// <summary>
+/// ビューごとの定数バッファ
+/// </summary>
 struct PerView {
     Matrix4x4 viewProjectionMat;
     Matrix4x4 billboardMat;
@@ -151,6 +160,9 @@ struct PerView {
     };
 };
 
+/// <summary>
+/// GPUパーティクルをGPUで処理するエミッタコンポーネント
+/// </summary>
 class GpuParticleEmitter
     : public IComponent {
     friend void to_json(nlohmann::json& j, const GpuParticleEmitter& p);
@@ -171,9 +183,19 @@ public:
     /// </summary>
     void CreateBuffer();
 
+    /// <summary>
+    /// Particleのテクスチャを読み込む
+    /// </summary>
+    /// <param name="_path"></param>
     void LoadTexture(const std::string& _path);
 
+    /// <summary>
+    /// 再生を開始
+    /// </summary>
     void Play();
+    /// <summary>
+    /// 再生を停止
+    /// </summary>
     void Stop();
 
 private:

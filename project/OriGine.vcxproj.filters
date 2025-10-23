@@ -702,12 +702,6 @@
     <ClInclude Include="util\nameof.h">
       <Filter>util</Filter>
     </ClInclude>
-    <ClInclude Include="util\node\DefaultNodes.h">
-      <Filter>util\node</Filter>
-    </ClInclude>
-    <ClInclude Include="util\node\OperatorNodes.h">
-      <Filter>util\node</Filter>
-    </ClInclude>
     <ClInclude Include="util\timeline\Timeline.h">
       <Filter>util\timeline</Filter>
     </ClInclude>
@@ -1138,9 +1132,6 @@
     </ClCompile>
     <ClCompile Include="util\myGui\MyGui.cpp">
       <Filter>util\myGui</Filter>
-    </ClCompile>
-    <ClCompile Include="util\node\OperatorNodes.cpp">
-      <Filter>util\node</Filter>
     </ClCompile>
     <ClCompile Include="util\timeline\Timeline.cpp">
       <Filter>util\timeline</Filter>

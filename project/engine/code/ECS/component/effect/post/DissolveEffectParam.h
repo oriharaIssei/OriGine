@@ -11,6 +11,9 @@
 /// math
 #include <math/Vector4.h>
 
+/// <summary>
+/// Dissolveエフェクトのパラメーター情報(GPUに送るやつ)
+/// </summary>
 struct DissolveParamData {
 public:
     DissolveParamData()  = default;
@@ -39,6 +42,9 @@ public:
     };
 };
 
+/// <summary>
+/// DissolveEffectのパラメーター
+/// </summary>
 class DissolveEffectParam
     : public IComponent {
     friend void to_json(nlohmann::json& j, const DissolveEffectParam& param);
@@ -55,7 +61,13 @@ public:
 
     void LoadTexture(const std::string& filePath);
 
+    /// <summary>
+    /// エフェクトを有効化
+    /// </summary>
     void Play();
+    /// <summary>
+    /// Effectを無効化
+    /// </summary>
     void Stop() {
         isActive_ = false;
     }

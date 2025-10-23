@@ -327,8 +327,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="util\myGui\MyGui.h" />
     <ClInclude Include="util\myRandom\MyRandom.h" />
     <ClInclude Include="util\nameof.h" />
-    <ClInclude Include="util\node\DefaultNodes.h" />
-    <ClInclude Include="util\node\OperatorNodes.h" />
     <ClInclude Include="util\timeline\Timeline.h" />
   </ItemGroup>
   <ItemGroup>
@@ -475,7 +473,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="util\globalVariables\GlobalVariables.cpp" />
     <ClCompile Include="util\myFileSystem\MyFileSystem.cpp" />
     <ClCompile Include="util\myGui\MyGui.cpp" />
-    <ClCompile Include="util\node\OperatorNodes.cpp" />
     <ClCompile Include="util\timeline\Timeline.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -8,6 +8,9 @@
 /// math
 #include "Vector4.h"
 
+/// <summary>
+/// Vignette の パラメーター情報(GPUに送るもの)
+/// </summary>
 class VignetteBufferParam {
 public:
     VignetteBufferParam()  = default;
@@ -32,6 +35,9 @@ public:
     };
 };
 
+/// <summary>
+/// VignetteEffectのパラメーター
+/// </summary>
 class VignetteParam
     : public IComponent {
     friend void to_json(nlohmann::json& j, const VignetteParam& p);

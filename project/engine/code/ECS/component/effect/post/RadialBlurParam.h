@@ -10,6 +10,9 @@
 /// math
 #include "math/Vector2.h"
 
+/// <summary>
+/// RadialBlur の パラメーター情報(GPUに送るもの)
+/// </summary>
 class RadialBlurBufferParam {
 public:
     RadialBlurBufferParam() {}
@@ -37,6 +40,9 @@ public:
     float width_  = 0.0f;
 };
 
+/// <summary>
+/// RadialBlurのパラメーター
+/// </summary>
 class RadialBlurParam
     : public IComponent {
 public:

@@ -5,6 +5,10 @@
 
 #define variable_name(x) #x
 
+/// <summary>
+/// 型名を文字列で取得する
+/// </summary>
+/// <typeparam name="T">変換対象の型</typeparam>
 template <typename T>
 constexpr std::string nameof(){
     std::string name = typeid(T).name();
@@ -19,6 +23,10 @@ constexpr std::string nameof(){
     return name;
 }
 
+/// <summary>
+/// 型名を文字列で取得する
+/// </summary>
+/// <typeparam name="T">変換対象の型</typeparam>
 template <typename T>
 constexpr std::string nameof(const T& /*_t*/){
     std::string name = typeid(T).name();
@@ -33,6 +41,10 @@ constexpr std::string nameof(const T& /*_t*/){
     return name;
 }
 
+/// <summary>
+/// 型名を文字列で取得する
+/// </summary>
+/// <typeparam name="T">変換対象の型</typeparam>
 template <typename T>
 constexpr std::string nameof(T* /*_t*/){
     std::string name = typeid(T).name();

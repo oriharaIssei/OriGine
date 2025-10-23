@@ -7,6 +7,9 @@
 #include "directX12/buffer/IConstantBuffer.h"
 #include "directX12/ShaderManager.h"
 
+/// <summary>
+/// RandomEffectのパラメーター情報(GPUに送る情報)
+/// </summary>
 struct RandomEffectParamData {
     RandomEffectParamData()  = default;
     ~RandomEffectParamData() = default;
@@ -20,6 +23,9 @@ struct RandomEffectParamData {
     };
 };
 
+/// <summary>
+/// RandomEffectのパラメーター
+/// </summary>
 class RandomEffectParam
     : public IComponent {
 public:

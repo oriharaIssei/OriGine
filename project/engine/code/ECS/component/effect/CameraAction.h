@@ -3,6 +3,9 @@
 
 #include "component/animation/AnimationData.h"
 
+/// <summary>
+/// カメラをアニメーションさせるコンポーネント
+/// </summary>
 class CameraAction
     : public IComponent {
     friend void to_json(nlohmann::json& j, const CameraAction& action);

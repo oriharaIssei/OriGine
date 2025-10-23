@@ -21,6 +21,10 @@
 /// math
 #include "math/Vector.h"
 
+/// <summary>
+/// 値を一時的に保存するプール
+/// </summary>
+/// <typeparam name="T"></typeparam>
 template <typename T>
 class GuiValuePool {
 public:
@@ -64,6 +68,17 @@ namespace ImGui {
 bool InputText(const char* label, std::string* str, ImGuiInputTextFlags flags = 0);
 }
 
+/// <summary>
+/// ImGui::Drag を型Tに対応させたラッパー
+/// </summary>
+/// <typeparam name="T"></typeparam>
+/// <param name="label"></param>
+/// <param name="value"></param>
+/// <param name="speed"></param>
+/// <param name="min"></param>
+/// <param name="max"></param>
+/// <param name="format"></param>
+/// <returns></returns>
 template <typename T>
 bool DragGui(const std::string& label, T& value, float speed = 0.1f, T min = T(), T max = T(), const char* format = "%.3f") {
 
@@ -80,6 +95,18 @@ bool DragGui(const std::string& label, T& value, float speed = 0.1f, T min = T()
     }
 }
 
+/// <summary>
+/// ImGui::Drag を型TのN次元ベクトルに対応させたラッパー
+/// </summary>
+/// <typeparam name="T"></typeparam>
+/// <typeparam name="N"></typeparam>
+/// <param name="label"></param>
+/// <param name="value"></param>
+/// <param name="speed"></param>
+/// <param name="min"></param>
+/// <param name="max"></param>
+/// <param name="format"></param>
+/// <returns></returns>
 template <int N, typename T>
 bool DragVectorGui(const std::string& label, Vector<N, T>& value, float speed = 0.1f, T min = T(), T max = T(), const char* format = "%.3f") {
 
@@ -116,6 +143,16 @@ bool DragVectorGui(const std::string& label, Vector<N, T>& value, float speed = 
     }
 }
 
+/// <summary>
+/// ImGui::Slider を型Tに対応させたラッパー
+/// </summary>
+/// <typeparam name="T"></typeparam>
+/// <param name="label"></param>
+/// <param name="value"></param>
+/// <param name="min"></param>
+/// <param name="max"></param>
+/// <param name="format"></param>
+/// <returns></returns>
 template <typename T>
 bool SlideGui(const std::string& label, T& value, T min = T(), T max = T(), const char* format = "%.3f") {
 
@@ -131,6 +168,18 @@ bool SlideGui(const std::string& label, T& value, T min = T(), T max = T(), cons
         return false; // サポートされていない型の場合
     }
 }
+
+/// <summary>
+/// ImGui::Slider を型TのN次元ベクトルに対応させたラッパー
+/// </summary>
+/// <typeparam name="T"></typeparam>
+/// <typeparam name="N"></typeparam>
+/// <param name="label"></param>
+/// <param name="value"></param>
+/// <param name="min"></param>
+/// <param name="max"></param>
+/// <param name="format"></param>
+/// <returns></returns>
 template <typename T, int N>
 bool SlideVectorGui(const std::string& label, Vector<N, T>& value, T min = T(), T max = T(), const char* format = "%.3f") {
 
@@ -167,6 +216,14 @@ bool SlideVectorGui(const std::string& label, Vector<N, T>& value, T min = T(), 
     }
 }
 
+/// <summary>
+/// ImGui::Input を型Tに対応させたラッパー
+/// </summary>
+/// <typeparam name="T"></typeparam>
+/// <param name="label"></param>
+/// <param name="value"></param>
+/// <param name="format"></param>
+/// <returns></returns>
 template <typename T>
 bool InputGui(const std::string& label, T& value, const char* format = "%.3f") {
 
@@ -182,6 +239,9 @@ bool InputGui(const std::string& label, T& value, const char* format = "%.3f") {
         return false; // サポートされていない型の場合
     }
 }
+/// <summary>
+/// ImGui::Input を型TのN次元ベクトルに対応させたラッパー
+/// </summary>
 template <typename T, int N>
 bool InputVectorGui(const std::string& label, Vector<N, T>& value, const char* format = "%.3f") {
 
@@ -217,7 +277,18 @@ bool InputVectorGui(const std::string& label, Vector<N, T>& value, const char* f
         return false; // サポートされていない型の場合
     }
 }
-
+/// <summary>
+/// ImGui::Drag を型Tに対応させたコマンド付き(Undo/Redoを可能にするための)ラッパー
+/// </summary>
+/// <typeparam name="T"></typeparam>
+/// <param name="label"></param>
+/// <param name="value"></param>
+/// <param name="speed"></param>
+/// <param name="min"></param>
+/// <param name="max"></param>
+/// <param name="format"></param>
+/// <param name="_afterFunc"></param>
+/// <returns></returns>
 template <typename T>
 bool DragGuiCommand(const std::string& label, T& value, float speed = 0.1f, T min = T(), T max = T(), const char* format = "%.3f", std::function<void(T*)> _afterFunc = nullptr) {
     static GuiValuePool<T> valuePool;
@@ -236,6 +307,19 @@ bool DragGuiCommand(const std::string& label, T& value, float speed = 0.1f, T mi
 
     return result;
 }
+/// <summary>
+/// ImGui::Drag を型TのN次元ベクトルに対応させたコマンド付き(Undo/Redoを可能にするための)ラッパー
+/// </summary>
+/// <typeparam name="T"></typeparam>
+/// <typeparam name="N"></typeparam>
+/// <param name="label"></param>
+/// <param name="value"></param>
+/// <param name="speed"></param>
+/// <param name="min"></param>
+/// <param name="max"></param>
+/// <param name="format"></param>
+/// <param name="_afterFunc"></param>
+/// <returns></returns>
 template <int N, typename T>
 bool DragGuiVectorCommand(const std::string& label, Vector<N, T>& value, float speed = 0.1f, T min = T(), T max = T(), const char* format = "%.3f", std::function<void(Vector<N, T>*)> _afterFunc = nullptr) {
     static GuiValuePool<Vector<N, T>> valuePool;
@@ -257,6 +341,17 @@ bool DragGuiVectorCommand(const std::string& label, Vector<N, T>& value, float s
     return false;
 }
 
+/// <summary>
+/// ImGui::Slider を型Tに対応させたコマンド付き(Undo/Redoを可能にするための)ラッパー
+/// </summary>
+/// <typeparam name="T"></typeparam>
+/// <param name="label"></param>
+/// <param name="value"></param>
+/// <param name="min"></param>
+/// <param name="max"></param>
+/// <param name="format"></param>
+/// <param name="_afterFunc"></param>
+/// <returns></returns>
 template <typename T>
 bool SlideGuiCommand(const std::string& label, T& value, T min = T(), T max = T(), const char* format = "%.3f", std::function<void(T*)> _afterFunc = nullptr) {
     static GuiValuePool<T> valuePool;
@@ -276,6 +371,18 @@ bool SlideGuiCommand(const std::string& label, T& value, T min = T(), T max = T(
     return result;
 }
 
+/// <summary>
+/// ImGui::Slider を型TのN次元ベクトルに対応させたコマンド付き(Undo/Redoを可能にするための)ラッパー
+/// </summary>
+/// <typeparam name="T"></typeparam>
+/// <typeparam name="N"></typeparam>
+/// <param name="label"></param>
+/// <param name="value"></param>
+/// <param name="min"></param>
+/// <param name="max"></param>
+/// <param name="format"></param>
+/// <param name="_afterFunc"></param>
+/// <returns></returns>
 template <typename T, int N>
 bool SlideVectorCommand(const std::string& label, Vector<N, T>& value, T min = T(), T max = T(), const char* format = "%.3f", std::function<void(Vector<N, T>*)> _afterFunc = nullptr) {
     static GuiValuePool<Vector<N, T>> valuePool;
@@ -295,6 +402,15 @@ bool SlideVectorCommand(const std::string& label, Vector<N, T>& value, T min = T
     return result;
 }
 
+/// <summary>
+/// ImGui::Input を型Tに対応させたコマンド付き(Undo/Redoを可能にするための)ラッパー
+/// </summary>
+/// <typeparam name="T"></typeparam>
+/// <param name="label"></param>
+/// <param name="value"></param>
+/// <param name="format"></param>
+/// <param name="_afterFunc"></param>
+/// <returns></returns>
 template <typename T>
 bool InputGuiCommand(const std::string& label, T& value, const char* format = "%.3f", std::function<void(T*)> _afterFunc = nullptr) {
     static GuiValuePool<T> valuePool;
@@ -313,6 +429,16 @@ bool InputGuiCommand(const std::string& label, T& value, const char* format = "%
 
     return result;
 }
+/// <summary>
+/// ImGui::Input を型TのN次元ベクトルに対応させたコマンド付き(Undo/Redoを可能にするための)ラッパー
+/// </summary>
+/// <typeparam name="T"></typeparam>
+/// <typeparam name="N"></typeparam>
+/// <param name="label"></param>
+/// <param name="value"></param>
+/// <param name="format"></param>
+/// <param name="_afterFunc"></param>
+/// <returns></returns>
 template <typename T, int N>
 bool InputVectorGuiCommand(const std::string& label, Vector<N, T>& value, const char* format = "%.3f", std::function<void(Vector<N, T>*)> _afterFunc = nullptr) {
     static GuiValuePool<Vector<N, T>> valuePool;
@@ -332,6 +458,13 @@ bool InputVectorGuiCommand(const std::string& label, Vector<N, T>& value, const 
     return result;
 }
 
+/// <summary>
+/// ImGui::ColorEdit を型Nの3または4次元ベクトルに対応させたラッパー
+/// </summary>
+/// <typeparam name="N"></typeparam>
+/// <param name="label"></param>
+/// <param name="value"></param>
+/// <returns></returns>
 template <int N>
 bool ColorEditGui(const std::string& label, Vector<N, float>& value) {
     static_assert(N == 3 || N == 4, "ColorEditGui only supports 3 or 4 components (RGB or RGBA).");
@@ -345,6 +478,14 @@ bool ColorEditGui(const std::string& label, Vector<N, float>& value) {
     }
 }
 
+/// <summary>
+/// ImGui::ColorEdit を型Nの3または4次元ベクトルに対応させたコマンド付き(Undo/Redoを可能にするための)ラッパー
+/// </summary>
+/// <typeparam name="N"></typeparam>
+/// <param name="label"></param>
+/// <param name="value"></param>
+/// <param name="_afterFunc"></param>
+/// <returns></returns>
 template <int N>
 bool ColorEditGuiCommand(const std::string& label, Vector<N, float>& value, std::function<void(Vector<N, float>*)> _afterFunc = nullptr) {
     static_assert(N == 3 || N == 4, "ColorEditGuiCommand only supports 3 or 4 components (RGB or RGBA).");
@@ -366,15 +507,62 @@ bool ColorEditGuiCommand(const std::string& label, Vector<N, float>& value, std:
     return result;
 }
 
+/// <summary>
+/// ImGui::CheckBox をboolに対応させたコマンド付き(Undo/Redoを可能にするための)ラッパー
+/// </summary>
+/// <param name="label"></param>
+/// <param name="value"></param>
+/// <returns></returns>
 bool CheckBoxCommand(const std::string& label, bool& value);
 
+/// <summary>
+/// ImGui::Button をboolに対応させたコマンド付き(Undo/Redoを可能にするための)ラッパー
+/// </summary>
+/// <param name="label"></param>
+/// <param name="value"></param>
+/// <returns></returns>
 bool ButtonCommand(const std::string& label, bool& value);
 
+/// <summary>
+/// マウス座標をシーンビューの座標に変換する
+/// </summary>
+/// <param name="mousePos"></param>
+/// <param name="sceneViewPos"></param>
+/// <param name="sceneViewSize"></param>
+/// <param name="originalResolution"></param>
+/// <returns></returns>
 Vec2f ConvertMouseToSceneView(const Vec2f& mousePos, const ImVec2& sceneViewPos, const ImVec2& sceneViewSize, const Vec2f& originalResolution);
 
+/// <summary>
+/// テクスチャ読み込みボタンを表示する
+/// </summary>
+/// <param name="_texIndex"></param>
+/// <param name="_parentLabel"></param>
+/// <returns></returns>
 bool AskLoadTextureButton(int32_t _texIndex, const std::string& _parentLabel);
 
-bool OpenFileDialogAndSetCommand(const std::string& _baseDirectory, std::string& _outputDirectory, std::string& _outputFileName, const std::vector<std::string>& _extension, bool _withoutExtension = false, bool _withoutBaseDirectory = false);
-bool OpenFileDialogAndSetCommand(const std::string& _baseDirectory, std::string& _outputPath, const std::vector<std::string>& _extension, bool _withoutExtension = false, bool _withoutBaseDirectory = false);
+/// <summary>
+/// dialogを開いてファイルを選択させる(directoryとfilenameを分ける)
+/// </summary>
+/// <param name="_baseDirectory"></param>
+/// <param name="_outputDirectory"></param>
+/// <param name="_outputFileName"></param>
+/// <param name="_extension">対象のファイル拡張子</param>
+/// <param name="_withoutExtension">出力に拡張子を含めるかどうか. true = 含めない,false = 含める</param>
+/// <param name="_withoutBaseDirectory">出力に_baseDirectoryを含めるかどうか. true ＝ 含めない, false = 含める</param>
+/// <returns>選択に成功したかどうか. true = 成功した, false = 失敗した</returns>
+bool OpenFileDialog(const std::string& _baseDirectory, std::string& _outputDirectory, std::string& _outputFileName, const std::vector<std::string>& _extension, bool _withoutExtension, bool _withoutBaseDirectory);
+ 
+
+/// <summary>
+/// dialogを開いてファイルを選択させる(directoryとfilenameを合わせる)
+/// </summary>
+/// <param name="_baseDirectory"></param>
+/// <param name="_outputPath">出力</param>
+/// <param name="_extension">対象のファイル拡張子</param>
+/// <param name="_withoutExtension">出力に拡張子を含めるかどうか. true = 含めない,false = 含める</param>
+/// <param name="_withoutBaseDirectory">出力に_baseDirectoryを含めるかどうか. true ＝ 含めない, false = 含める</param>
+/// <returns>選択に成功したかどうか. true = 成功した, false = 失敗した</returns>
+bool OpenFileDialog(const std::string& _baseDirectory, std::string& _outputPath, const std::vector<std::string>& _extension, bool _withoutExtension = false, bool _withoutBaseDirectory = false);
 
 #endif // _DEBUG

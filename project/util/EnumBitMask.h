@@ -2,6 +2,10 @@
 
 #include <type_traits>
 
+/// <summary>
+/// 列挙型のビットマスクを扱うためのクラス
+/// </summary>
+/// <typeparam name="E"></typeparam>
 template <typename E>
 class EnumBitmask {
     using EnumType       = E;

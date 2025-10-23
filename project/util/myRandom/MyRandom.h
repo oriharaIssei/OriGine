@@ -8,6 +8,10 @@
 namespace MyRandom{
 	static std::mt19937_64 engine(std::chrono::system_clock::now().time_since_epoch().count());
 
+    
+    /// <summary>
+    /// Int 型の乱数を生成するクラス
+    /// </summary>
 	class Int{
 	private:
 		std::uniform_int_distribution<int32_t> distribution;
@@ -25,6 +29,9 @@ namespace MyRandom{
 		}
 	};
 
+    /// <summary>
+    /// Float 型の乱数を生成するクラス
+    /// </summary>
 	class Float{
 	private:
 		std::uniform_real_distribution<float> distribution;

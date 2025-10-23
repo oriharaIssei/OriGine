@@ -30,9 +30,26 @@ class GlobalVariables {
 public:
     static GlobalVariables* getInstance();
 
+    /// <summary>
+    /// GlobalVariablesのデータをすべて読み込む
+    /// </summary>
     void LoadAllFile();
+    /// <summary>
+    /// Jsonファイルからデータを読み込む
+    /// </summary>
+    /// <param name="scene">入力元のシーン名(フォルダー)</param>
+    /// <param name="groupName">入力元のグループ名(ファイル)</param>
     void LoadFile(const std::string& scene, const std::string& groupName);
+    /// <summary>
+    /// GlobalVariablesのシーン(フォルダー)を保存する
+    /// </summary>
+    /// <param name="scene">保存するシーン名(フォルダー)</param>
     void SaveScene(const std::string& scene);
+    /// <summary>
+    /// Jsonファイルにデータを保存する
+    /// </summary>
+    /// <param name="scene">保存するデータが所属するシーン名(フォルダー)</param>
+    /// <param name="groupName">保存するグループ名(ファイル)</param>
     void SaveFile(const std::string& scene, const std::string& groupName);
 
 private:

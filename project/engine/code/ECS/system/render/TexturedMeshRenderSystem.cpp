@@ -69,7 +69,7 @@ void TexturedMeshRenderSystem::DispatchRenderer(Entity* _entity) {
 
     if (modelMeshRenderers) {
         for (auto& renderer : *modelMeshRenderers) {
-            if (!renderer.isRender()) {
+            if (renderer.getMeshGroup()->empty() || !renderer.isRender()) {
                 continue;
             }
 

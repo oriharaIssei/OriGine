@@ -36,12 +36,15 @@ bool TimeLineButtons(
     std::function<void(float newNodeTime)> _updateOnNodeDragged = nullptr,
     std::function<void(float _currentTime)> _sliderPopupUpdate  = nullptr,
     std::function<bool(int nodeIndex)> _nodePopupUpdate         = nullptr);
+
 /// <summary>
-/// AnimationCurve<>を編集
+/// animationCurveをKeyFrameエディタで編集する
 /// </summary>
-/// <param name="_label">ラベル</param>
+/// <param name="_label"></param>
 /// <param name="_keyFrames">編集対象</param>
-/// <param name="_duration">総合時間</param>
+/// <param name="_duration">アニメーションの全体時間</param>
+/// <param name="_defaultValue">nodeを初期化する際に使用する値</param>
+/// <param name="_howEditItem">値を編集するための関数</param>
 /// <returns></returns>
 bool EditKeyFrame(
     const std::string& _label,
@@ -49,6 +52,15 @@ bool EditKeyFrame(
     float _duration,
     float _defaultValue                   = 0.0f,
     std::function<void(int)> _howEditItem = nullptr);
+
+/// <summary>
+/// animationCurveをKeyFrameエディタで編集する
+/// </summary>
+/// <param name="_label"></param>
+/// <param name="_keyFrames">編集対象</param>
+/// <param name="_duration">アニメーションの全体時間</param>
+/// <param name="_defaultValue">nodeを初期化する際に使用する値</param>
+/// <param name="_howEditItem">値を編集するための関数</param>
 bool EditKeyFrame(
     const std::string& _label,
     AnimationCurve<Vec2f>& _keyFrames,
@@ -56,18 +68,44 @@ bool EditKeyFrame(
     const Vec2f& _defaultValue            = Vec2f(0.0f, 0.0f),
     std::function<void(int)> _howEditItem = nullptr);
 
+/// <summary>
+/// animationCurveをKeyFrameエディタで編集する
+/// </summary>
+/// <param name="_label"></param>
+/// <param name="_keyFrames">編集対象</param>
+/// <param name="_duration">アニメーションの全体時間</param>
+/// <param name="_defaultValue">nodeを初期化する際に使用する値</param>
+/// <param name="_howEditItem">値を編集するための関数</param>
 bool EditKeyFrame(
     const std::string& _label,
     AnimationCurve<Vec3f>& _keyFrames,
     float _duration,
     const Vec3f& _defaultValue            = Vec3f(0.0f, 0.0f, 0.0f),
     std::function<void(int)> _howEditItem = nullptr);
+
+/// <summary>
+/// animationCurveをKeyFrameエディタで編集する
+/// </summary>
+/// <param name="_label"></param>
+/// <param name="_keyFrames">編集対象</param>
+/// <param name="_duration">アニメーションの全体時間</param>
+/// <param name="_defaultValue">nodeを初期化する際に使用する値</param>
+/// <param name="_howEditItem">値を編集するための関数</param>
 bool EditKeyFrame(
     const std::string& _label,
     AnimationCurve<Vec4f>& _keyFrames,
     float _duration,
     const Vec4f& _defaultValue            = Vec4f(0.0f, 0.0f, 0.0f, 0.0f),
     std::function<void(int)> _howEditItem = nullptr);
+
+/// <summary>
+/// animationCurveをKeyFrameエディタで編集する
+/// </summary>
+/// <param name="_label"></param>
+/// <param name="_keyFrames">編集対象</param>
+/// <param name="_duration">アニメーションの全体時間</param>
+/// <param name="_defaultValue">nodeを初期化する際に使用する値</param>
+/// <param name="_howEditItem">値を編集するための関数</param>
 bool EditKeyFrame(
     const std::string& _label,
     AnimationCurve<Quaternion>& _keyFrames,
@@ -75,6 +113,14 @@ bool EditKeyFrame(
     const Quaternion& _defaultValue       = Quaternion(0.0f, 0.0f, 0.0f, 1.0f),
     std::function<void(int)> _howEditItem = nullptr);
 
+/// <summary>
+/// animationCurve(Color)をKeyFrameエディタで編集する
+/// </summary>
+/// <param name="_label"></param>
+/// <param name="_keyFrames">編集対象</param>
+/// <param name="_duration">アニメーションの全体時間</param>
+/// <param name="_defaultValue">nodeを初期化する際に使用する値</param>
+/// <param name="_howEditItem">値を編集するための関数</param>
 bool EditColorKeyFrame(
     const std::string& _label,
     AnimationCurve<Vec4f>& _keyFrames,

@@ -10,6 +10,9 @@
 #include <spdlog/sinks/sink.h>
 #include <spdlog/spdlog.h>
 
+/// <summary>
+/// ImGui表示用のログシンク
+/// </summary>
 class ImGuiLogSink : public spdlog::sinks::sink {
 public:
     ImGuiLogSink()           = default;

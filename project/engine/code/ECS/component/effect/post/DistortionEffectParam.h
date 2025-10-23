@@ -20,6 +20,9 @@ enum class PrimitiveType : int32_t;
 /// math
 #include "math/Vector2.h"
 
+/// <summary>
+/// Distortion Effectのパラメーター情報(GPUに送る)
+/// </summary>
 struct DistortionParamData {
     Vec2f distortionBias     = Vec2f(0.f,0.f);
     Vec2f distortionStrength = Vec2f(0.f,0.f);
@@ -35,6 +38,9 @@ struct DistortionParamData {
     };
 };
 
+/// <summary>
+/// DistortionEffect の パラメーター
+/// </summary>
 class DistortionEffectParam
     : public IComponent {
     friend void to_json(nlohmann::json& j, const DistortionEffectParam& param);

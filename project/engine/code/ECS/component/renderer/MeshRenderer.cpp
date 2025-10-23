@@ -223,8 +223,14 @@ void ModelMeshRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] En
 
             ImGui::Text("Texture Directory: %s", textureFilePath_[i].c_str());
             if (AskLoadTextureButton(meshTextureNumbers_[i], meshName)) {
-                if (OpenFileDialogAndSetCommand(kApplicationResourceDirectory, textureFilePath_[i], {"png"})) {
-                    meshTextureNumbers_[i] = TextureManager::LoadTexture(textureFilePath_[i]);
+                std::string outputPath = "";
+                if (OpenFileDialog(kApplicationResourceDirectory, outputPath, {"png"})) {
+                    auto setPathCommand = std::make_unique<SetterCommand<std::string>>(&textureFilePath_[i], outputPath,
+                        [this, i](std::string* _path) {
+                            meshTextureNumbers_[i] = TextureManager::LoadTexture(*_path);
+                        });
+
+                    EditorController::getInstance()->pushCommand(std::move(setPathCommand));
                 }
             }
 

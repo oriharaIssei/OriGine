@@ -32,6 +32,9 @@ enum class BillBoardType {
     Z    = 0x1 << 3
 };
 
+/// <summary>
+/// Particleを生成、管理するコンポーネント
+/// </summary>
 class Emitter
     : public IComponent {
 
@@ -53,15 +56,30 @@ public:
 
     void Edit(Scene* _scene, Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
 
+    /// <summary>
+    /// 生成される Particle の 最大数を計算する
+    /// </summary>
     void CalculateMaxSize();
 
+    /// <summary>
+    /// 0から再生を開始する
+    /// </summary>
     void PlayStart();
+    /// <summary>
+    /// 途中から再生を開始する
+    /// </summary>
     void PlayContinue();
+    /// <summary>
+    /// 再生を止める
+    /// </summary>
     void PlayStop();
 
 private:
     void CreateResource();
 
+    /// <summary>
+    /// パーティクルを生成する
+    /// </summary>
     void SpawnParticle();
 
 #ifdef _DEBUG

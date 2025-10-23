@@ -13,23 +13,54 @@
 // BinaryFile の Input / Output
 ///====================================================================================
 
+/// <summary>
+/// Binaryの書き込みをするクラス
+/// </summary>
 class BinaryWriter {
 public:
+    /// <summary>
+    /// Binaryの書き込みをするクラス
+    /// </summary>
+    /// <param name="_directory">出力先のディレクトリ</param>
+    /// <param name="_fileName">出力先のファイル名</param>
     BinaryWriter(const std::string& _directory, const std::string& _fileName) : directory_(_directory), fileName_(_fileName) {}
     ~BinaryWriter() {};
 
+    /// <summary>
+    /// 書き込み開始
+    /// </summary>
     void WriteBegin();
+    /// <summary>
+    /// 書き込み終了 & 出力
+    /// </summary>
     void WriteEnd();
 
+    /// <summary>
+    /// Groupの開始
+    /// </summary>
+    /// <param name="_groupName"></param>
     void WriteBeginGroup(const std::string& _groupName) {
         groupName_ = _groupName;
     }
+    /// <summary>
+    /// Groupの終了
+    /// </summary>
     void WriteEndGroup() {
         groupName_ = "";
     }
 
+    /// <summary>
+    /// 1行書き込み
+    /// </summary>
+    /// <param name="_line">書き込む内容</param>
     void WriteLine(const std::string& _line);
 
+    /// <summary>
+    /// 値を書き込み
+    /// </summary>
+    /// <typeparam name="T">書き込む値のタイプ(数値 or 文字 型)</typeparam>
+    /// <param name="_label">値のラベル(読み込みの際に特定する)</param>
+    /// <param name="_data">値</param>
     template <typename T>
     void Write(const std::string& _label, const T& _data) {
         static_assert(std::is_trivially_copyable_v<T>, "T must be trivially copyable.");
@@ -44,10 +75,21 @@ public:
         }
     };
 
+    /// <summary>
+    /// vector<dim,type> の書き込み
+    /// </summary>
+    /// <typeparam name="valueType">vectorの値の型</typeparam>
+    /// <typeparam name="dim">次元数</typeparam>
+    /// <param name="_label">値のラベル(読み込みの際に特定する)</param>
+    /// <param name="_data">値</param>
     template <int dim, typename valueType>
     void Write(const std::string& _label, const Vector<dim, valueType>& _data);
 
 protected:
+    /// <summary>
+    /// ラベルを書き込み (Groupを適応する)
+    /// </summary>
+    /// <param name="_label"></param>
     void WriteLabel(const std::string& _label) {
         size_t length = _label.size();
         fileStream_.write(reinterpret_cast<const char*>(&length), sizeof(size_t));

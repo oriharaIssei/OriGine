@@ -22,6 +22,9 @@ static const std::array<std::string, static_cast<int32_t>(MaterialEffectType::Co
     "Distortion",
     "Gradation"};
 
+/// <summary>
+/// Materialに設定したエフェクトを掛けるためのパイプライン
+/// </summary>
 class MaterialEffectPipeLine
     : public IComponent {
     friend void to_json(nlohmann::json& j, const MaterialEffectPipeLine& c);
@@ -34,7 +37,16 @@ public:
     void Edit(Scene* _scene, Entity* _entity, const std::string& _parentLabel) override;
     void Finalize() override;
 
+    /// <summary>
+    /// Effectをかけられるテクスチャを読み込む
+    /// </summary>
+    /// <param name="_path"></param>
     void LoadBaseTexture(const std::string& _path);
+    /// <summary>
+    /// EffectをかけるEntityを追加
+    /// </summary>
+    /// <param name="_type"></param>
+    /// <param name="_entityID"></param>
     void AddEffectEntity(MaterialEffectType _type, int32_t _entityID) {
         effectEntityIdList_.push_back(EffectEntityData{_type, _entityID});
     }

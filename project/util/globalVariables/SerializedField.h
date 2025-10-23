@@ -2,6 +2,10 @@
 
 #include "GlobalVariables.h"
 
+/// <summary>
+/// GlobalVariablesを介してシリアライズされる値
+/// </summary>
+/// <typeparam name="T"></typeparam>
 template <typename T>
 class SerializedField {
 public:
@@ -23,12 +27,23 @@ public:
     // デストラクタ
     ~SerializedField() {}
 
+    /// <summary>
+    /// 実態がないSerializedFieldを作成する
+    /// </summary>
+    /// <returns></returns>
     static SerializedField CreateNull() {
         return SerializedField<T>();
     }
 
-    // 値を読み取る
+    /// <summary>
+    /// 値を読み取る
+    /// </summary>
+    /// <returns></returns>
     const T* operator->() const { return value_; }
+    /// <summary>
+    /// 値を読み取る
+    /// </summary>
+    /// <returns></returns>
     const T* GetValue() const {
         return value_;
     }
@@ -65,6 +80,11 @@ public:
         return value_ && (*value_ != other);
     }
 
+    /// <summary>
+    /// 値の型が一致する場合に別の型として取得する
+    /// </summary>
+    /// <typeparam name="U"></typeparam>
+    /// <returns></returns>
     template <typename U>
     U as() const {
         if (value_) {
