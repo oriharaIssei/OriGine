@@ -227,18 +227,18 @@ void GpuParticleEmitter::CreateBuffer() {
 
     // materialBuffer が未作成の場合は、バッファを生成
     if (!materialBuffer_.getResource().getResource()) {
-        materialBuffer_.CreateBuffer(dxDevice->getDevice());
+        materialBuffer_.CreateBuffer(dxDevice->device_);
         materialBuffer_.ConvertToBuffer();
     }
 
     if (!shapeBuffer_.getResource().getResource()) {
-        shapeBuffer_.CreateBuffer(dxDevice->getDevice());
+        shapeBuffer_.CreateBuffer(dxDevice->device_);
     }
 
     // particleResource が未作成の場合は、UAVバッファを生成
     if (!particleResource_.getResource()) {
         particleResource_.CreateUAVBuffer(
-            dxDevice->getDevice(),
+            dxDevice->device_,
             sizeof(GpuParticleData::ConstantBuffer) * shapeBuffer_->particleSize,
             D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
             D3D12_HEAP_TYPE_DEFAULT);
@@ -275,7 +275,7 @@ void GpuParticleEmitter::CreateBuffer() {
     // freeIndexResource が未作成の場合は、UAVバッファを生成
     if (!freeIndexResource_.getResource()) {
         freeIndexResource_.CreateUAVBuffer(
-            dxDevice->getDevice(),
+            dxDevice->device_,
             sizeof(int) * shapeBuffer_->particleSize,
             D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
             D3D12_HEAP_TYPE_DEFAULT);
@@ -297,7 +297,7 @@ void GpuParticleEmitter::CreateBuffer() {
     // freeListResource が未作成の場合は、UAVバッファを生成
     if (!freeListResource_.getResource()) {
         freeListResource_.CreateUAVBuffer(
-            dxDevice->getDevice(),
+            dxDevice->device_,
             sizeof(int) * shapeBuffer_->particleSize,
             D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
             D3D12_HEAP_TYPE_DEFAULT);

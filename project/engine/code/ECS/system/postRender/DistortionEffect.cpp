@@ -343,5 +343,5 @@ void DistortionEffect::CreatePSO() {
     depthStencilDesc.DepthEnable = false;
     shaderInfo.setDepthStencilDesc(depthStencilDesc);
 
-    pso_ = shaderManager->CreatePso("DistortionEffect", shaderInfo, Engine::getInstance()->getDxDevice()->getDevice());
+    pso_ = shaderManager->CreatePso("DistortionEffect", shaderInfo, Engine::getInstance()->getDxDevice()->device_);
 }

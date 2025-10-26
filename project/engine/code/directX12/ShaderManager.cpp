@@ -16,6 +16,7 @@ void ShaderManager::Initialize() {
 }
 
 void ShaderManager::Finalize() {
+    // PSO解放
     for (auto& pso : psoMap_) {
         pso.second->Finalize();
         pso.second.reset();
@@ -61,6 +62,7 @@ PipelineStateObj* ShaderManager::CreatePso(const std::string& key,
         &signatureBlob,
         &errorBlob);
 
+    // エラー処理
     if (FAILED(result)) {
         std::string errMsg(
             static_cast<const char*>(errorBlob->GetBufferPointer()),
@@ -72,6 +74,7 @@ PipelineStateObj* ShaderManager::CreatePso(const std::string& key,
         assert(false);
     }
 
+    // RootSignatureの生成
     device->CreateRootSignature(
         0,
         signatureBlob->GetBufferPointer(),
@@ -92,83 +95,8 @@ PipelineStateObj* ShaderManager::CreatePso(const std::string& key,
     D3D12_BLEND_DESC blendDesc{};
     blendDesc.RenderTarget[0] = {}; // RenderTarget[0] を初期化
 
-    switch (shaderInfo.blendMode_) {
-    case BlendMode::None:
-        blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-        break;
-    case BlendMode::Normal:
-        blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-        blendDesc.AlphaToCoverageEnable                 = false;
-        blendDesc.IndependentBlendEnable                = false;
-        blendDesc.RenderTarget[0].BlendEnable           = true;
-        blendDesc.RenderTarget[0].LogicOpEnable         = false;
-        blendDesc.RenderTarget[0].SrcBlend              = D3D12_BLEND_SRC_ALPHA;
-        blendDesc.RenderTarget[0].DestBlend             = D3D12_BLEND_INV_SRC_ALPHA;
-        blendDesc.RenderTarget[0].BlendOp               = D3D12_BLEND_OP_ADD;
-        blendDesc.RenderTarget[0].SrcBlendAlpha         = D3D12_BLEND_ONE;
-        blendDesc.RenderTarget[0].DestBlendAlpha        = D3D12_BLEND_ZERO;
-        blendDesc.RenderTarget[0].BlendOpAlpha          = D3D12_BLEND_OP_ADD;
-        blendDesc.RenderTarget[0].LogicOp               = D3D12_LOGIC_OP_NOOP;
-        break;
-    case BlendMode::Add:
-        blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-        blendDesc.AlphaToCoverageEnable                 = false;
-        blendDesc.IndependentBlendEnable                = false;
-        blendDesc.RenderTarget[0].BlendEnable           = true;
-        blendDesc.RenderTarget[0].LogicOpEnable         = false;
-        blendDesc.RenderTarget[0].SrcBlend              = D3D12_BLEND_SRC_ALPHA;
-        blendDesc.RenderTarget[0].BlendOp               = D3D12_BLEND_OP_ADD;
-        blendDesc.RenderTarget[0].DestBlend             = D3D12_BLEND_ONE;
-        blendDesc.RenderTarget[0].SrcBlendAlpha         = D3D12_BLEND_ONE;
-        blendDesc.RenderTarget[0].DestBlendAlpha        = D3D12_BLEND_ZERO;
-        blendDesc.RenderTarget[0].BlendOpAlpha          = D3D12_BLEND_OP_ADD;
-        blendDesc.RenderTarget[0].LogicOp               = D3D12_LOGIC_OP_NOOP;
-        break;
-    case BlendMode::Sub:
-        blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-        blendDesc.AlphaToCoverageEnable                 = false;
-        blendDesc.IndependentBlendEnable                = false;
-        blendDesc.RenderTarget[0].BlendEnable           = true;
-        blendDesc.RenderTarget[0].LogicOpEnable         = false;
-        blendDesc.RenderTarget[0].SrcBlend              = D3D12_BLEND_SRC_ALPHA;
-        blendDesc.RenderTarget[0].BlendOp               = D3D12_BLEND_OP_REV_SUBTRACT;
-        blendDesc.RenderTarget[0].DestBlend             = D3D12_BLEND_ONE;
-        blendDesc.RenderTarget[0].SrcBlendAlpha         = D3D12_BLEND_ONE;
-        blendDesc.RenderTarget[0].DestBlendAlpha        = D3D12_BLEND_ZERO;
-        blendDesc.RenderTarget[0].BlendOpAlpha          = D3D12_BLEND_OP_ADD;
-        blendDesc.RenderTarget[0].LogicOp               = D3D12_LOGIC_OP_NOOP;
-        break;
-    case BlendMode::Multiply:
-        blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-        blendDesc.AlphaToCoverageEnable                 = false;
-        blendDesc.IndependentBlendEnable                = false;
-        blendDesc.RenderTarget[0].BlendEnable           = true;
-        blendDesc.RenderTarget[0].LogicOpEnable         = false;
-        blendDesc.RenderTarget[0].SrcBlend              = D3D12_BLEND_ZERO;
-        blendDesc.RenderTarget[0].BlendOp               = D3D12_BLEND_OP_ADD;
-        blendDesc.RenderTarget[0].DestBlend             = D3D12_BLEND_SRC_COLOR;
-        blendDesc.RenderTarget[0].SrcBlendAlpha         = D3D12_BLEND_ONE;
-        blendDesc.RenderTarget[0].DestBlendAlpha        = D3D12_BLEND_ZERO;
-        blendDesc.RenderTarget[0].BlendOpAlpha          = D3D12_BLEND_OP_ADD;
-        blendDesc.RenderTarget[0].LogicOp               = D3D12_LOGIC_OP_NOOP;
-        break;
-    case BlendMode::Screen:
-        blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-        blendDesc.AlphaToCoverageEnable                 = false;
-        blendDesc.IndependentBlendEnable                = false;
-        blendDesc.RenderTarget[0].BlendEnable           = true;
-        blendDesc.RenderTarget[0].LogicOpEnable         = false;
-        blendDesc.RenderTarget[0].SrcBlend              = D3D12_BLEND_INV_DEST_COLOR;
-        blendDesc.RenderTarget[0].BlendOp               = D3D12_BLEND_OP_ADD;
-        blendDesc.RenderTarget[0].DestBlend             = D3D12_BLEND_ONE;
-        blendDesc.RenderTarget[0].SrcBlendAlpha         = D3D12_BLEND_ONE;
-        blendDesc.RenderTarget[0].DestBlendAlpha        = D3D12_BLEND_ZERO;
-        blendDesc.RenderTarget[0].BlendOpAlpha          = D3D12_BLEND_OP_ADD;
-        blendDesc.RenderTarget[0].LogicOp               = D3D12_LOGIC_OP_NOOP;
-        break;
-    default:
-        break;
-    }
+   blendDesc =  CreateBlendDescByBlendMode(shaderInfo.blendMode_);
+
 
     ///=================================================
     /// GRAPHICS_PIPELINE_STATE_DESC 初期化

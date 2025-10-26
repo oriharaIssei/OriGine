@@ -265,7 +265,7 @@ void SkinningAnimationComponent::Stop() {
 
 void SkinningAnimationComponent::CreateSkinnedVertex(Scene* _scene) {
     DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>* uavHeap = Engine::getInstance()->getSrvHeap(); // cbv_srv_uav heap
-    auto& device                                                 = Engine::getInstance()->getDxDevice()->getDevice();
+    auto& device                                                 = Engine::getInstance()->getDxDevice()->device_;
 
     ModelMeshRenderer* meshRenderer = _scene->getComponent<ModelMeshRenderer>(entity_, bindModeMeshRendererIndex_);
     if (!meshRenderer) {

@@ -12,7 +12,7 @@
 #endif // _DEBUG
 
 void VignetteParam::Initialize(Entity* /*_entity*/) {
-    paramBuffer.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+    paramBuffer.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
 }
 
 void VignetteParam::Finalize() {

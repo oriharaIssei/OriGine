@@ -130,7 +130,7 @@ void RandomEffect::CreatePSO() {
     for (size_t i = 0; i < static_cast<size_t>(BlendMode::Count); ++i) {
         BlendMode blendMode   = static_cast<BlendMode>(i);
         shaderInfo.blendMode_ = blendMode;
-        pso_[blendMode]       = shaderManager->CreatePso("RandomEffect_" + blendModeStr[i], shaderInfo, Engine::getInstance()->getDxDevice()->getDevice());
+        pso_[blendMode]       = shaderManager->CreatePso("RandomEffect_" + blendModeStr[i], shaderInfo, Engine::getInstance()->getDxDevice()->device_);
     }
 }
 

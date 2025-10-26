@@ -189,7 +189,7 @@ void Emitter::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_unused]] cons
     if (ImGui::Button("Calculate Particle MaxSize")) {
         CalculateMaxSize();
         if (structuredTransform_.capacity() <= particleMaxSize_) {
-            structuredTransform_.resize(Engine::getInstance()->getDxDevice()->getDevice(), particleMaxSize_ * 2);
+            structuredTransform_.resize(Engine::getInstance()->getDxDevice()->device_, particleMaxSize_ * 2);
         }
     }
 
@@ -982,10 +982,10 @@ void Emitter::CreateResource() {
         planeGenerator.createMesh(&mesh_);
     }
     if (!structuredTransform_.getResource().getResource().Get()) {
-        structuredTransform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice(), particleMaxSize_);
+        structuredTransform_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_, particleMaxSize_);
     }
     if (!materialBuffer_.getResource().getResource().Get()) {
-        materialBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+        materialBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
     }
 }
 

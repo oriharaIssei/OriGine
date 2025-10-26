@@ -87,20 +87,24 @@ template <StructuredBuffer structBuff>
 inline void IStructuredBuffer<structBuff>::CreateBuffer(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t elementCount, bool _withUAV) {
     elementCount_ = elementCount;
 
+    // 要素数が0なら何もしない
     if (elementCount_ == 0) {
         return;
     }
 
+    // サイズに合わせてバッファを作成
     size_t bufferSize = sizeof(StructuredBufferType) * elementCount_;
-    if (_withUAV) {
+    if (_withUAV) { // UAV付きバッファを作成
         buff_.CreateUAVBuffer(device, bufferSize, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_HEAP_TYPE_UPLOAD);
-    } else {
+    } else { // 通常のバッファを作成
         buff_.CreateBufferResource(device, bufferSize);
     }
     buff_.getResource()->Map(0, nullptr, reinterpret_cast<void**>(&mappingData_));
 
+    // vectorの容量を確保
     openData_.reserve(elementCount);
 
+    // SRV作成
     D3D12_SHADER_RESOURCE_VIEW_DESC viewDesc{};
     viewDesc.Format                     = DXGI_FORMAT_UNKNOWN;
     viewDesc.Shader4ComponentMapping    = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
@@ -121,6 +125,7 @@ inline void IStructuredBuffer<structBuff>::Finalize() {
 
 template <StructuredBuffer structBuff>
 inline void IStructuredBuffer<structBuff>::resize(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t newElementCount) {
+    // 要素数が変わらない、または0なら何もしない
     if (newElementCount == elementCount_ || newElementCount == 0) {
         return;
     }
@@ -150,6 +155,8 @@ inline void IStructuredBuffer<structBuff>::resize(Microsoft::WRL::ComPtr<ID3D12D
 
 template <StructuredBuffer structBuff>
 inline void IStructuredBuffer<structBuff>::resizeForDataSize(Microsoft::WRL::ComPtr<ID3D12Device> device) {
+    // 要素数が変わらない、または0なら何もしない
+    // 要素数は openData_ のサイズに合わせる
     int32_t newElementCount = static_cast<int32_t>(openData_.size());
     if (newElementCount == elementCount_ || newElementCount == 0) {
         return;

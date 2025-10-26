@@ -125,11 +125,11 @@ PixelShaderOutput main(VertexShaderOutput input)
         discard;
     }
     
+    output.color = textureColor;
     // ToDo
     // if の削除
     if (gMaterial.enableLighting == 0)
     {
-        output.color = textureColor;
         return output; // skip
     }
     

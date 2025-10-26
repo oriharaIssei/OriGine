@@ -4,7 +4,7 @@
 #include "directX12/DxDevice.h"
 #include "Engine.h"
 
-CameraManager::CameraManager(){}
+CameraManager::CameraManager() {}
 CameraManager::~CameraManager() {}
 
 CameraManager* CameraManager::getInstance() {
@@ -13,13 +13,17 @@ CameraManager* CameraManager::getInstance() {
 }
 
 void CameraManager::Initialize() {
-    cTransform_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+    // bufferを生成
+    cTransform_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
     cTransform_->Initialize();
     cTransform_->UpdateMatrix();
     cTransform_.ConvertToBuffer();
 
+#ifndef _RELEASE
+    // デバッグカメラの初期化
     debugCamera_ = std::make_unique<DebugCamera>();
     debugCamera_->Initialize();
+#endif // _RELEASE
 }
 
 void CameraManager::DebugUpdate() {

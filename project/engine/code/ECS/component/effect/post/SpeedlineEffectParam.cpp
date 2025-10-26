@@ -18,7 +18,7 @@
 
 void SpeedlineEffectParam::Initialize(Entity*) {
     if (isActive_) {
-        cBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+        cBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
     }
     if (!radialTextureFilePath_.empty()) {
         LoadRadialTexture(radialTextureFilePath_);
@@ -73,7 +73,7 @@ void SpeedlineEffectParam::Play() {
         return;
     }
     isActive_ = true;
-    cBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+    cBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
 }
 
 void SpeedlineEffectParam::Stop() {

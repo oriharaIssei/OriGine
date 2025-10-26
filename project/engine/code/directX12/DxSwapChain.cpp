@@ -31,7 +31,7 @@ void DxSwapChain::Initialize(const WinApp* winApp, const DxDevice* device, const
     swapchainDesc.SwapEffect       = DXGI_SWAP_EFFECT_FLIP_DISCARD; // モニタに移したら中身を破棄する
 
     Microsoft::WRL::ComPtr<IDXGISwapChain1> swapChain1;
-    HRESULT result = device->getDxgiFactory()->CreateSwapChainForHwnd(
+    HRESULT result = device->dxgiFactory_->CreateSwapChainForHwnd(
         command->getCommandQueue().Get(),
         winApp->getHwnd(), // 描画対象のWindowのハンドル
         &swapchainDesc,
@@ -43,7 +43,7 @@ void DxSwapChain::Initialize(const WinApp* winApp, const DxDevice* device, const
         assert(false);
     }
 
-    // SwapChain4を得る
+    // swapChain1から SwapChain4を得る
     result = swapChain1->QueryInterface(IID_PPV_ARGS(&swapChain_));
     if (FAILED(result)) {
         LOG_CRITICAL("Failed to query swap chain interface. \n Massage : {}", HrToString(result));

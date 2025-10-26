@@ -17,7 +17,7 @@ void GpuParticleEmitterWorkSystem::Initialize() {
     constexpr int32_t initialReserveCount = 100;
     dxCommand_ = std::make_unique<DxCommand>();
     dxCommand_->Initialize("main", "main");
-    perFrameBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+    perFrameBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
 
     workEmitters_.reserve(initialReserveCount);
 
@@ -271,7 +271,7 @@ void GpuParticleEmitterWorkSystem::CreateEmitGpuParticlePso() {
     /// ==========================================
     // PSOの作成
     /// ==========================================
-    emitGpuParticlePso_ = shaderManager->CreatePso(psoKey, shaderInfo, dxDevice->getDevice());
+    emitGpuParticlePso_ = shaderManager->CreatePso(psoKey, shaderInfo, dxDevice->device_);
 }
 
 void GpuParticleEmitterWorkSystem::CreateUpdateGpuParticlePso() {
@@ -353,7 +353,7 @@ void GpuParticleEmitterWorkSystem::CreateUpdateGpuParticlePso() {
     /// ==========================================
     // PSOの作成
     /// ==========================================
-    updateGpuParticlePso_ = shaderManager->CreatePso(psoKey, shaderInfo, dxDevice->getDevice());
+    updateGpuParticlePso_ = shaderManager->CreatePso(psoKey, shaderInfo, dxDevice->device_);
 }
 
 void GpuParticleEmitterWorkSystem::StartCS(PipelineStateObj* _pso) {

@@ -29,8 +29,8 @@ enum class DxDescriptorHeapType {
 /// </summary>
 /// <param name="device"></param>
 /// <param name="heapType"></param>
-/// <param name="numDescriptors"></param>
-/// <param name="shaderVisible"></param>
+/// <param name="numDescriptors">Heapが持てるDescriptorの数</param>
+/// <param name="shaderVisible">shaderから参照可能なのかどうか. true = 参照可能/false = 参照不可能</param>
 /// <returns></returns>
 Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> CreateHeap(Microsoft::WRL::ComPtr<ID3D12Device> device, D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible);
 
@@ -114,15 +114,18 @@ public:
     /// <param name="_resource"></param>
     /// <returns></returns>
     std::shared_ptr<DescriptorType> AllocateDescriptor(DxResource* _resource) {
+        // リソースが無効な場合は例外を投げる
         if (!_resource) {
             LOG_ERROR("Resource is null");
             throw std::invalid_argument("Resource is null");
         }
 
+        // Descriptorを割り当て
         uint32_t index                        = Allocate();
         D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = CalculateCpuHandle(index);
         D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = CalculateGpuHandle(index);
 
+        // Descriptorを割り当てた場所に作成
         std::shared_ptr<DescriptorType> descriptor = std::make_unique<DescriptorType>(index, _resource->getResource().Get(), cpuHandle, gpuHandle);
 
         usedFlags_.set(index, true); // 使用中フラグをセット
@@ -136,15 +139,18 @@ public:
     /// <param name="_resource"></param>
     /// <returns></returns>
     std::shared_ptr<DescriptorType> AllocateDescriptor(Microsoft::WRL::ComPtr<ID3D12Resource> _resource) {
+        // リソースが無効な場合は例外を投げる
         if (!_resource) {
             LOG_ERROR("Resource is null");
             throw std::invalid_argument("Resource is null");
         }
 
+        // Descriptorを割り当て
         uint32_t index                        = Allocate();
         D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = CalculateCpuHandle(index);
         D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = CalculateGpuHandle(index);
 
+        // Descriptorを割り当てた場所に作成
         std::shared_ptr<DescriptorType> descriptor = std::make_unique<DescriptorType>(index, _resource.Get(), cpuHandle, gpuHandle);
 
         usedFlags_.set(index, true); // 使用中フラグをセット
@@ -156,11 +162,12 @@ public:
     /// Descriptor を割り当てる (Resource無し)
     /// </summary> 
     std::shared_ptr<DescriptorType> AllocateDescriptor() {
-
+        // Descriptorを割り当て
         uint32_t index                        = Allocate();
         D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = CalculateCpuHandle(index);
         D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = CalculateGpuHandle(index);
 
+        // Descriptorを割り当てた場所に作成
         std::shared_ptr<DescriptorType> descriptor = std::make_unique<DescriptorType>(index, nullptr, cpuHandle, gpuHandle);
 
         usedFlags_.set(index, true); // 使用中フラグをセット
@@ -172,23 +179,29 @@ public:
     /// Descriptorを解放する
     /// </summary> 
     void ReleaseDescriptor(std::shared_ptr<DescriptorType>& _descriptor) {
+        // Descriptorが無効な場合は何もしない
         if (!_descriptor) {
             LOG_ERROR("DxDescriptorHeap::ReleaseDescriptor: Descriptor is null");
             return;
         }
 
+
         uint32_t index = _descriptor->getIndex();
-        usedFlags_.set(index, false); // 使用中フラグをクリア
+        // 使用中フラグをクリア
+        usedFlags_.set(index, false);
+        // ヒープから削除
         descriptors_[index].reset();
-        descriptors_[index] = nullptr; // ヒープから削除
+        descriptors_[index] = nullptr; 
 
         _descriptor.reset();
     }
 
 protected:
     uint32_t Allocate() {
+        // 空いているDescriptorを探す
         for (uint32_t i = 0; i < size_; ++i) {
             if (!usedFlags_.get(i)) {
+                // 空いているDescriptorを埋めて返す
                 usedFlags_.set(i, true);
                 return i;
             }
@@ -199,6 +212,7 @@ protected:
 
     D3D12_CPU_DESCRIPTOR_HANDLE CalculateCpuHandle(uint32_t index) const { return D3D12_CPU_DESCRIPTOR_HANDLE(index * descriptorIncrementSize_ + heap_->GetCPUDescriptorHandleForHeapStart().ptr); }
     D3D12_GPU_DESCRIPTOR_HANDLE CalculateGpuHandle(uint32_t index) const {
+        // Shaderから参照できないHeapの場合は0を返す
         if (!shaderVisible_) {
             return D3D12_GPU_DESCRIPTOR_HANDLE{0};
         }
@@ -221,11 +235,11 @@ public:
     const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& getHeap() const { return heap_; }
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> getHeapRef() { return heap_; }
     const Microsoft::WRL::ComPtr<ID3D12Device>& getDevice() const { return device_; }
-    Microsoft::WRL::ComPtr<ID3D12Device> getDeviceRef() { return device_; }
 
     void setDevice(Microsoft::WRL::ComPtr<ID3D12Device> device) { device_ = device; }
 
     DescriptorType* getDescriptor(uint32_t index) const {
+        // インデックスが範囲外の場合は例外を投げる
         if (index >= descriptors_.size()) {
             LOG_ERROR("Index out of range in DxDescriptorHeap");
             throw std::out_of_range("Index out of range in DxDescriptorHeap");
@@ -233,6 +247,7 @@ public:
         return descriptors_[index].get();
     }
     void setDescriptor(uint32_t index, const DescriptorType& descriptor) {
+        // インデックスが範囲外の場合は例外を投げる
         if (index >= descriptors_.size()) {
             LOG_ERROR("Index out of range in DxDescriptorHeap");
             throw std::out_of_range("Index out of range in DxDescriptorHeap");
@@ -244,24 +259,30 @@ public:
 
 template <DxDescriptorHeapType Type>
 inline void DxDescriptorHeap<Type>::Initialize(Microsoft::WRL::ComPtr<ID3D12Device> _device) {
+    // デバイスが無効な場合は例外を投げる
     if (!_device) {
         throw std::invalid_argument("Device cannot be null");
     }
 
     device_ = _device;
 
+    // ヒープを作成
     D3D12_DESCRIPTOR_HEAP_TYPE heapType = D3D12_DESCRIPTOR_HEAP_TYPE(Type);
+    // シェーダーから参照可能かどうかを設定 (参照可能なのは CBV_SRV_UAV もしくは Samplerのみ)
     shaderVisible_                      = (Type == DxDescriptorHeapType::CBV_SRV_UAV || Type == DxDescriptorHeapType::Sampler);
     heap_                               = CreateHeap(device_.Get(), heapType, size_, shaderVisible_);
 
+    // ディスクリプタのインクリメントサイズを取得
     descriptorIncrementSize_ = device_->GetDescriptorHandleIncrementSize(heapType);
 
+    // ディスクリプタ配列と使用中フラグ配列を初期化
     descriptors_.resize(size_);
     usedFlags_ = BitArray(size_);
 }
 
 template <DxDescriptorHeapType Type>
 inline void DxDescriptorHeap<Type>::Finalize() {
+    // デバイスまたはヒープが無効な場合は何もしない
     if (!device_) {
         LOG_ERROR("DxDescriptorHeap::Finalize: Device is not initialized \n Type : {}", DxResourceTypeToString(DxResourceType(Type)));
         return;
@@ -270,6 +291,7 @@ inline void DxDescriptorHeap<Type>::Finalize() {
         LOG_ERROR("DxDescriptorHeap::Finalize: Heap is not initialized \n Type : {}", DxResourceTypeToString(DxResourceType(Type)));
         return;
     }
+
     device_.Reset();
     heap_.Reset();
 
@@ -290,6 +312,7 @@ template <DxDescriptorHeapType Type>
 template <typename Desc>
 inline std::shared_ptr<typename DxDescriptorHeap<Type>::DescriptorType>
 DxDescriptorHeap<Type>::CreateDescriptor(const Desc& _desc, DxResource* _resource) {
+    // デフォルト実装はエラーを出す
     LOG_CRITICAL("DxDescriptorHeap::CreateDescriptor: Not implemented for this type");
 }
 
@@ -297,15 +320,19 @@ template <>
 template <>
 inline std::shared_ptr<typename DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>::DescriptorType>
 DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>::CreateDescriptor(const D3D12_SHADER_RESOURCE_VIEW_DESC& _desc, DxResource* _resource) {
+    // リソースが無効な場合は例外を投げる
     if (!_resource) {
         LOG_ERROR("DxDescriptorHeap::CreateDescriptor: Resource is null");
         throw std::invalid_argument("Resource is null");
     }
+
+    // Descriptorを割り当て & SRV作成
     uint32_t index                        = Allocate();
     D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = CalculateCpuHandle(index);
     D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = CalculateGpuHandle(index);
     device_->CreateShaderResourceView(_resource->getResource().Get(), &_desc, cpuHandle);
 
+    // Descriptorを作成
     auto descriptor = std::make_shared<DescriptorType>(index, _resource->getResource(), cpuHandle, gpuHandle);
     _resource->addType(DxResourceType::Descriptor_SRV); // リソースタイプを追加
 
@@ -320,18 +347,25 @@ template <>
 template <>
 inline std::shared_ptr<typename DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>::DescriptorType>
 DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>::CreateDescriptor(const D3D12_UNORDERED_ACCESS_VIEW_DESC& _desc, DxResource* _resource) {
+    // リソースが無効な場合は例外を投げる
     if (!_resource) {
         LOG_ERROR("DxDescriptorHeap::CreateDescriptor: Resource is null");
         throw std::invalid_argument("Resource is null");
     }
+
+    // Descriptorを割り当て & UAV作成
     uint32_t index                        = Allocate();
     D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = CalculateCpuHandle(index);
     D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = CalculateGpuHandle(index);
     device_->CreateUnorderedAccessView(_resource->getResource().Get(), nullptr, &_desc, cpuHandle);
+
+    // Descriptorを作成
     auto descriptor = std::make_shared<DescriptorType>(index, _resource->getResource(), cpuHandle, gpuHandle);
     _resource->addType(DxResourceType::Descriptor_UAV); // リソースタイプを追加
+
     descriptors_[index] = descriptor; // ヒープに追加
     usedFlags_.set(index, true);
+
     return descriptor;
 }
 
@@ -339,19 +373,24 @@ template <>
 template <>
 inline std::shared_ptr<typename DxDescriptorHeap<DxDescriptorHeapType::RTV>::DescriptorType>
 DxDescriptorHeap<DxDescriptorHeapType::RTV>::CreateDescriptor(const D3D12_RENDER_TARGET_VIEW_DESC& _desc, DxResource* _resource) {
+    // リソースが無効な場合は例外を投げる
     if (!_resource) {
         LOG_ERROR("DxDescriptorHeap::CreateDescriptor: Resource is null");
         throw std::invalid_argument("Resource is null");
     }
+
+    // Descriptorを割り当て & RTV作成
     uint32_t index                        = Allocate();
     D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = CalculateCpuHandle(index);
-    // D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = CalculateGpuHandle(index);
-
     device_->CreateRenderTargetView(_resource->getResource().Get(), &_desc, cpuHandle);
+
+    // Descriptorを作成
     auto descriptor = std::make_shared<DescriptorType>(index, _resource->getResource(), cpuHandle, D3D12_GPU_DESCRIPTOR_HANDLE());
     _resource->addType(DxResourceType::Descriptor_RTV); // リソースタイプを追加
+
     descriptors_[index] = descriptor; // ヒープに追加
     usedFlags_.set(index, true);
+
     return descriptor;
 }
 
@@ -359,18 +398,24 @@ template <>
 template <>
 inline std::shared_ptr<typename DxDescriptorHeap<DxDescriptorHeapType::DSV>::DescriptorType>
 DxDescriptorHeap<DxDescriptorHeapType::DSV>::CreateDescriptor(const D3D12_DEPTH_STENCIL_VIEW_DESC& _desc, DxResource* _resource) {
+    // リソースが無効な場合は例外を投げる
     if (!_resource) {
         LOG_ERROR("DxDescriptorHeap::CreateDescriptor: Resource is null");
         throw std::invalid_argument("Resource is null");
     }
+
+    // Descriptorを割り当て & DSV作成
     uint32_t index                        = Allocate();
     D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = CalculateCpuHandle(index);
-    // D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = CalculateGpuHandle(index);
     device_->CreateDepthStencilView(_resource->getResource().Get(), &_desc, cpuHandle);
+
+    // Descriptorを作成
     auto descriptor = std::make_shared<DescriptorType>(index, _resource->getResource(), cpuHandle, D3D12_GPU_DESCRIPTOR_HANDLE());
     _resource->addType(DxResourceType::Descriptor_DSV); // リソースタイプを追加
+
     descriptors_[index] = descriptor; // ヒープに追加
     usedFlags_.set(index, true);
+
     return descriptor;
 }
 
@@ -378,11 +423,15 @@ template <>
 template <>
 inline std::shared_ptr<typename DxDescriptorHeap<DxDescriptorHeapType::Sampler>::DescriptorType>
 DxDescriptorHeap<DxDescriptorHeapType::Sampler>::CreateDescriptor(const D3D12_SAMPLER_DESC& _desc, DxResource* /*_resource*/) {
+    // Descriptorを割り当て & Sampler作成
     uint32_t index                        = Allocate();
     D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = CalculateCpuHandle(index);
     D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = CalculateGpuHandle(index);
+
+    // Samplerはリソースを持たないので nullptr を渡す
     device_->CreateSampler(&_desc, cpuHandle);
     auto descriptor     = std::make_shared<DescriptorType>(index, nullptr, cpuHandle, gpuHandle);
+
     descriptors_[index] = descriptor; // ヒープに追加
     usedFlags_.set(index, true);
     return descriptor;

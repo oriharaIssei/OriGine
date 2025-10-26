@@ -40,8 +40,9 @@ void DxDebug::FinalizeDebugger() {
 }
 
 void DxDebug::CreateInfoQueue() {
+    // ID3D12InfoQueueの取得
     if (debugController_) {
-        const Microsoft::WRL::ComPtr<ID3D12Device>& device = Engine::getInstance()->getDxDevice()->getDevice();
+        const Microsoft::WRL::ComPtr<ID3D12Device>& device = Engine::getInstance()->getDxDevice()->device_;
         HRESULT result                                     = device->QueryInterface(IID_PPV_ARGS(infoQueue_.GetAddressOf()));
 
         if (FAILED(result)) {

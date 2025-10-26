@@ -166,7 +166,7 @@ void GradationEffect::CreatePSO() {
     depthStencilDesc.DepthEnable = false;
     shaderInfo.setDepthStencilDesc(depthStencilDesc);
 
-    pso_ = shaderManager->CreatePso("GradationEffect", shaderInfo, Engine::getInstance()->getDxDevice()->getDevice());
+    pso_ = shaderManager->CreatePso("GradationEffect", shaderInfo, Engine::getInstance()->getDxDevice()->device_);
 }
 
 void GradationEffect::RenderStart() {

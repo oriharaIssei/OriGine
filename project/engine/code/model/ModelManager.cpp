@@ -210,7 +210,7 @@ static void LoadModelFile(ModelMeshData* data, const std::string& directoryPath,
     const aiScene* scene = importer.ReadFile(filePath.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
     assert(scene->HasMeshes());
 
-    auto& device = Engine::getInstance()->getDxDevice()->getDeviceRef();
+    auto& device = Engine::getInstance()->getDxDevice()->device_;
 
     std::unordered_map<VertexKey, uint32_t> vertexMap;
     std::vector<TextureVertexData> vertices;
@@ -322,7 +322,7 @@ std::shared_ptr<Model> ModelManager::Create(
         result->materialData_ = defaultMaterials_[result->meshData_];
 
         for (auto& materialData : result->materialData_) {
-            materialData.material.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+            materialData.material.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
             materialData.material->UpdateUvMatrix();
             materialData.material.ConvertToBuffer();
         }
@@ -432,7 +432,7 @@ void ModelManager::LoadTask::Update() {
 
     model->materialData_ = ModelManager::getInstance()->defaultMaterials_[model->meshData_];
     for (auto& material : model->materialData_) {
-        material.material.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+        material.material.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
         material.material->UpdateUvMatrix();
         material.material.ConvertToBuffer();
     }

@@ -10,7 +10,7 @@
 
 #include "directX12/DxDescriptor.h"
 #include <WinUser.h>
-class DxDevice;
+struct DxDevice;
 class DxCommand;
 class WinApp;
 
@@ -59,7 +59,7 @@ private:
     UINT bufferWidth_  = 0;
     UINT bufferHeight_ = 0;
 
-    const Vec4f clearColor_ = Vec4f{0.2f, 0.2f, 0.2f, 1.0f};
+    const Vec4f clearColor_ = Vec4f{0.f, 0.f, 0.f, 1.0f};
 
 public:
     UINT getBufferCount() const { return bufferCount_; }

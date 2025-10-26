@@ -22,33 +22,9 @@
 // dx12object
 #include "directX12/PipelineStateObj.h"
 #include "directX12/ShaderCompiler.h"
+#include "directX12/BlendMode.h"
 
 const std::string shaderDirectory = "engine/resource/Shader";
-
-/// <summary>
-/// ブレンドモード
-/// </summary>
-enum class BlendMode {
-    None     = 0,
-    Normal   = 1,
-    Alpha    = Normal,
-    Add      = 2,
-    Subtract = 3,
-    Sub      = Subtract,
-    Multiply = 4,
-    Screen   = 5,
-
-    Count
-};
-
-constexpr size_t kBlendNum                                   = static_cast<size_t>(BlendMode::Count);
-static const std::array<std::string, kBlendNum> blendModeStr = {
-    "None",
-    "Normal",
-    "Add",
-    "Subtract",
-    "Multiply",
-    "Screen"};
 
 class ShaderManager;
 /// <summary>

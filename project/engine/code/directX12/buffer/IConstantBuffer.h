@@ -86,14 +86,17 @@ inline void IConstantBuffer<constBuff>::CreateBuffer(Microsoft::WRL::ComPtr<ID3D
         return;
     }
 
+    // バッファリソースの作成
     buff_.CreateBufferResource(device, sizeof(constBuff::ConstantBuffer));
     buff_.getResource()->Map(0, nullptr, reinterpret_cast<void**>(&mappingData_));
 
+    // リソースタイプの設定
     buff_.setType(DxResourceType::Buffer_Constant);
 }
 
 template <HasInConstantBuffer constBuff>
 inline void IConstantBuffer<constBuff>::Finalize() {
+    // buffer が有効な場合は終了処理を行う
     if (buff_.isValid()) {
         buff_.Finalize();
     }

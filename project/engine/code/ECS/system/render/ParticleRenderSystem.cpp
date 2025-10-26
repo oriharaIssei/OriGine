@@ -209,7 +209,7 @@ void ParticleRenderSystem::CreatePso() {
     ///=================================================
     for (size_t i = 0; i < kBlendNum; i++) {
         shaderInfo.blendMode_       = BlendMode(i);
-        pso_[shaderInfo.blendMode_] = shaderManager->CreatePso("Particle_" + blendModeStr[i], shaderInfo, Engine::getInstance()->getDxDevice()->getDevice());
+        pso_[shaderInfo.blendMode_] = shaderManager->CreatePso("Particle_" + blendModeStr[i], shaderInfo, Engine::getInstance()->getDxDevice()->device_);
     }
 }
 

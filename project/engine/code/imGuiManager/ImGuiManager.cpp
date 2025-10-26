@@ -46,7 +46,7 @@ void ImGuiManager::Initialize([[maybe_unused]] const WinApp* window, [[maybe_unu
     ImGui::StyleColorsDark();
     ImGui_ImplWin32_Init(window->getHwnd());
     ImGui_ImplDx12_Init(
-        dxDevice->getDevice().Get(),
+        dxDevice->device_.Get(),
         dxSwapChain->getBufferCount(),
         DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
         srvHeap_.Get(),

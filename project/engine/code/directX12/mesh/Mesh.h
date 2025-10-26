@@ -150,7 +150,7 @@ inline void Mesh<VertexDataType>::Initialize(UINT _vertexCapacity, UINT _indexCa
 
         UINT vertDataSize = sizeof(VertexDataType);
 
-        vertBuff_.CreateBufferResource(Engine::getInstance()->getDxDevice()->getDevice(), vertDataSize * this->vertexSize_);
+        vertBuff_.CreateBufferResource(Engine::getInstance()->getDxDevice()->device_, vertDataSize * this->vertexSize_);
         vbView_.BufferLocation = vertBuff_.getResource()->GetGPUVirtualAddress();
         vbView_.SizeInBytes    = vertDataSize * this->vertexSize_;
         vbView_.StrideInBytes  = vertDataSize;
@@ -161,7 +161,7 @@ inline void Mesh<VertexDataType>::Initialize(UINT _vertexCapacity, UINT _indexCa
         indexes_.resize(this->indexSize_);
 
         UINT indexDataSize = sizeof(uint32_t);
-        indexBuff_.CreateBufferResource(Engine::getInstance()->getDxDevice()->getDevice(), indexDataSize * this->indexSize_);
+        indexBuff_.CreateBufferResource(Engine::getInstance()->getDxDevice()->device_, indexDataSize * this->indexSize_);
         ibView_.BufferLocation = indexBuff_.getResource()->GetGPUVirtualAddress();
         ibView_.SizeInBytes    = indexDataSize * this->indexSize_;
         ibView_.Format         = DXGI_FORMAT_R32_UINT;

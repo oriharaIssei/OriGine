@@ -165,7 +165,7 @@ void VelocityRenderingSystem::CreatePso() {
     shaderInfo.topologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
     shaderInfo.changeCullMode(D3D12_CULL_MODE_NONE);
 
-    pso_ = shaderManager->CreatePso("VelocityLine", shaderInfo, dxDevice->getDevice());
+    pso_ = shaderManager->CreatePso("VelocityLine", shaderInfo, dxDevice->device_);
 }
 
 void VelocityRenderingSystem::StartRender() {

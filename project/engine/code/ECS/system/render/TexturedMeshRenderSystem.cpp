@@ -337,7 +337,7 @@ void TexturedMeshRenderSystem::CreatePso() {
             continue;
         }
         texShaderInfo.blendMode_       = blend;
-        pso_[texShaderInfo.blendMode_] = shaderManager->CreatePso("TextureMesh_" + blendModeStr[i], texShaderInfo, dxDevice->getDevice());
+        pso_[texShaderInfo.blendMode_] = shaderManager->CreatePso("TextureMesh_" + blendModeStr[i], texShaderInfo, dxDevice->device_);
     }
 }
 

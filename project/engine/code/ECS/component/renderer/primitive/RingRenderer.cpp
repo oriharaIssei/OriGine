@@ -29,8 +29,8 @@ void RingRenderer::Initialize(Entity* _hostEntity) {
     meshGroup_->emplace_back(MeshType());
     auto& mesh = meshGroup_->back();
 
-    transformBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
-    materialBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+    transformBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
+    materialBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
 
     // create _mesh
     createMesh(&mesh);

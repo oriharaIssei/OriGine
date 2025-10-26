@@ -18,6 +18,7 @@ void ResourceStateTracker::ClearGlobalResourceStates() {
 }
 
 void ResourceStateTracker::RegisterResource2Local(Microsoft::WRL::ComPtr<ID3D12Resource> resource, D3D12_RESOURCE_STATES initialState) {
+    // ローカルとグローバルの両方に登録
     localResourceStates_[resource.Get()]  = initialState;
     globalResourceStates_[resource.Get()] = initialState;
 }
@@ -46,8 +47,10 @@ void ResourceStateTracker::Barrier(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandL
     barrier.Transition.StateBefore = stateBefore;
     barrier.Transition.StateAfter  = stateAfter;
 
+    // ローカル状態を更新
     localResourceStates_[resource] = stateAfter;
 
+    // バリア発行
     commandList->ResourceBarrier(1, &barrier);
 }
 

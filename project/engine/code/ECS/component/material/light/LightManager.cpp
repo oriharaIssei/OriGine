@@ -12,7 +12,7 @@ LightManager::LightManager() {}
 LightManager::~LightManager() {}
 
 void LightManager::Initialize() {
-    Microsoft::WRL::ComPtr<ID3D12Device> device = Engine::getInstance()->getDxDevice()->getDevice();
+    Microsoft::WRL::ComPtr<ID3D12Device> device = Engine::getInstance()->getDxDevice()->device_;
 
     ///========================================
     /// 作成個数を決める

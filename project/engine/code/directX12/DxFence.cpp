@@ -17,10 +17,12 @@ void DxFence::Finalize() {
 }
 
 void DxFence::Signal(Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue) {
+    // コマンドキューにSignalを送る
     commandQueue->Signal(fence_.Get(), ++fenceValue_);
 };
 
 void DxFence::WaitForFence() {
+    // 完了していなければ待機
     if (fence_->GetCompletedValue() < fenceValue_) {
         HANDLE fenceEvent = CreateEvent(nullptr, false, false, nullptr);
         fence_->SetEventOnCompletion(fenceValue_, fenceEvent);

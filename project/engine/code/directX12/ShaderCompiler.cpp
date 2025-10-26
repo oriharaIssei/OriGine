@@ -14,6 +14,7 @@
 #pragma comment(lib, "dxcompiler.lib")
 
 void ShaderCompiler::Initialize() {
+    // DxCの各種インスタンスを生成する
     HRESULT hr;
     hr = DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&dxcUtils_));
     assert(SUCCEEDED(hr));

@@ -82,7 +82,7 @@ void GrayscaleEffect::CreatePSO() {
     depthStencilDesc.DepthEnable = false;
     shaderInfo.setDepthStencilDesc(depthStencilDesc);
 
-    pso_ = shaderManager->CreatePso("GrayscaleEffect", shaderInfo, Engine::getInstance()->getDxDevice()->getDevice());
+    pso_ = shaderManager->CreatePso("GrayscaleEffect", shaderInfo, Engine::getInstance()->getDxDevice()->device_);
 }
 
 void GrayscaleEffect::Render() {

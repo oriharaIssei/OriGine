@@ -137,7 +137,7 @@ void SpeedlineEffect::CreatePSO() {
     depthStencilDesc.DepthEnable = false;
     shaderInfo.setDepthStencilDesc(depthStencilDesc);
 
-    pso_ = shaderManager->CreatePso("SpeedlineEffect", shaderInfo, Engine::getInstance()->getDxDevice()->getDevice());
+    pso_ = shaderManager->CreatePso("SpeedlineEffect", shaderInfo, Engine::getInstance()->getDxDevice()->device_);
 }
 
 void SpeedlineEffect::RenderStart() {

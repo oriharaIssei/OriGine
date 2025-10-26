@@ -547,7 +547,7 @@ void ColliderRenderingSystem::CreatePso() {
     /// BlendMode ごとの Psoを作成
     ///=================================================
 
-    pso_ = shaderManager->CreatePso("LineMesh_" + blendModeStr[int32_t(BlendMode::Alpha)], lineShaderInfo, dxDevice->getDevice());
+    pso_ = shaderManager->CreatePso("LineMesh_" + blendModeStr[int32_t(BlendMode::Alpha)], lineShaderInfo, dxDevice->device_);
 }
 
 void ColliderRenderingSystem::StartRender() {

@@ -9,7 +9,7 @@
 #include "directX12/DxDescriptor.h"
 
 class WinApp;
-class DxDevice;
+struct DxDevice;
 class DxSwapChain;
 class DxCommand;
 

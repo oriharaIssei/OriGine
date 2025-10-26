@@ -30,7 +30,7 @@ void from_json(const nlohmann::json& j, GradationTextureComponent& _g) {
 }
 
 void GradationTextureComponent::Initialize(Entity* /*_entity*/) {
-    auto& device = Engine::getInstance()->getDxDevice()->getDevice();
+    auto& device = Engine::getInstance()->getDxDevice()->device_;
     paramBuff_.CreateBuffer(device);
     materialBuff_.CreateBuffer(device);
 

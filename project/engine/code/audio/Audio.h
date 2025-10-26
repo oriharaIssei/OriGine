@@ -55,28 +55,29 @@ public:
     Audio() {}
     ~Audio() {}
 
-    void Initialize(Entity* /*_entity*/) override {
-        if (!fileName_.empty()) {
-            audioClip_.data_ = LoadWave(fileName_);
-        }
-    };
+    void Initialize(Entity* /*_entity*/) override;
 
     void Edit(Scene* _scene,Entity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
 
     void Finalize() override;
 
-    void Play() {
-        if (audioClip_.isLoop_) {
-            PlayLoop();
-        } else {
-            PlayTrigger();
-        }
-    }
-
+    /// <summary>
+    /// 再生を開始します。
+    /// </summary>
+    void Play();
+    /// <summary>
+    /// 再生を一時停止します。
+    /// </summary>
     void Pause();
 
 private:
+    /// <summary>
+    /// 一度だけ再生します。
+    /// </summary>
     void PlayTrigger();
+    /// <summary>
+    /// ループ再生します。
+    /// </summary>
     void PlayLoop();
 
     SoundData LoadWave(const std::string& fileName);
@@ -92,24 +93,22 @@ private:
     IXAudio2SourceVoice* pSourceVoice_ = nullptr;
 
 public:
-    void Load(const std::string& fileName) {
-        fileName_        = fileName;
-        audioClip_.data_ = LoadWave(fileName_);
-    }
+    /// <summary>
+    /// 音声データを読み込みます。
+    /// </summary>
+    /// <param name="fileName"></param>
+    void Load(const std::string& fileName);
 
-    bool isPlaying() const {
-        if (pSourceVoice_ == nullptr) {
-            return false; // 再生用のソースボイスが存在しない場合は再生中ではない
-        }
-
-        XAUDIO2_VOICE_STATE state;
-        pSourceVoice_->GetState(&state);
-
-        // 再生中のバッファが存在する場合は再生中とみなす
-        return state.BuffersQueued > 0;
-    }
+    /// <summary>
+    /// 現在再生中かどうかを取得します。
+    /// </summary>
+    /// <returns></returns>
+    bool isPlaying() const;
 };
 
+/// <summary>
+/// Audioをシーン初期化時に再生するシステム
+/// </summary>
 class AudioInitializeSystem
     : public ISystem {
 public:

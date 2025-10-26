@@ -28,7 +28,7 @@ void SpriteRenderer::Initialize(Entity* _hostEntity) {
     MeshRenderer::Initialize(_hostEntity);
 
     // buffer作成
-    spriteBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+    spriteBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
 
     // メッシュの初期化
     meshGroup_ = std::make_shared<std::vector<SpriteMesh>>();

@@ -165,7 +165,7 @@ void GpuParticleInitialize::CreatePSO() {
     /// ==========================================
     // PSOの作成
     /// ==========================================
-    pso_ = shaderManager->CreatePso(psoKey, shaderInfo, dxDevice->getDevice());
+    pso_ = shaderManager->CreatePso(psoKey, shaderInfo, dxDevice->device_);
 };
 void GpuParticleInitialize::StartCS() {
     if (!pso_) {

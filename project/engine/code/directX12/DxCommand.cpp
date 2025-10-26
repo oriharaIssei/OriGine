@@ -18,14 +18,14 @@ std::unordered_map<std::string,
 
 std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D12CommandQueue>> DxCommand::commandQueueMap_;
 
-DxCommand::DxCommand() {
-}
+DxCommand::DxCommand() {}
 
 DxCommand::~DxCommand() {}
 
 bool DxCommand::CreateCommandListWithAllocator(Microsoft::WRL::ComPtr<ID3D12Device> device, const std::string& listAndAllocatorKey, D3D12_COMMAND_LIST_TYPE listType) {
     LOG_DEBUG("Create CommandList : {}", listAndAllocatorKey);
 
+    // キーで指定されたコマンドリストとアロケータの組み合わせを生成
     auto& commandListCombo = commandListComboMap_[listAndAllocatorKey];
 
     auto& commandList      = std::get<0>(commandListCombo);
@@ -54,6 +54,7 @@ bool DxCommand::CreateCommandListWithAllocator(Microsoft::WRL::ComPtr<ID3D12Devi
 bool DxCommand::CreateCommandQueue(Microsoft::WRL::ComPtr<ID3D12Device> device, const std::string& queueKey, D3D12_COMMAND_QUEUE_DESC desc) {
     LOG_DEBUG("Create CommandQueue : {}", queueKey);
 
+    // キーで指定されたコマンドキューを生成
     commandQueueMap_[queueKey] = nullptr;
 
     HRESULT result = device->CreateCommandQueue(
@@ -69,12 +70,15 @@ bool DxCommand::CreateCommandQueue(Microsoft::WRL::ComPtr<ID3D12Device> device, 
 };
 
 void DxCommand::Initialize(const std::string& commandListKey, const std::string& commandQueueKey) {
+    Microsoft::WRL::ComPtr<ID3D12Device> device = Engine::getInstance()->getDxDevice()->device_;
+
+    // キーで指定したコマンドリストとコマンドキューを取得または生成
     commandListComboKey_ = commandListKey;
     commandQueueKey_     = commandQueueKey;
 
     LOG_DEBUG("Initialize DxCommand \n CommandList  :{} \n CommandQueue :{} \n", commandListComboKey_, commandQueueKey_);
 
-    Microsoft::WRL::ComPtr<ID3D12Device> device = Engine::getInstance()->getDxDevice()->getDevice();
+    /*-----見つからなかった場合-----*/
     if (commandQueueMap_.count(commandQueueKey_) == 0) {
         ///================================================
         ///	CommandQueue の生成
@@ -87,6 +91,7 @@ void DxCommand::Initialize(const std::string& commandListKey, const std::string&
     }
     commandQueue_ = commandQueueMap_[commandQueueKey_];
 
+    /*-----見つからなかった場合-----*/
     if (commandListComboMap_.count(commandListComboKey_) == 0) {
         ///================================================
         ///	CommandList & CommandAllocator の生成
@@ -96,7 +101,8 @@ void DxCommand::Initialize(const std::string& commandListKey, const std::string&
 
         ///================================================
     }
-    /*-----見つかった場合-----*/
+
+    // 取得
     auto& commandListCombo = commandListComboMap_[commandListComboKey_];
     commandList_           = std::get<0>(commandListCombo);
     commandAllocator_      = std::get<1>(commandListCombo);
@@ -104,22 +110,33 @@ void DxCommand::Initialize(const std::string& commandListKey, const std::string&
 }
 
 void DxCommand::Initialize(const std::string& commandListKey, const std::string& commandQueueKey, D3D12_COMMAND_LIST_TYPE listType) {
+    Microsoft::WRL::ComPtr<ID3D12Device> device = Engine::getInstance()->getDxDevice()->device_;
+
+    // キーで指定したコマンドリストとコマンドキューを取得または生成
     commandListComboKey_ = commandListKey;
     commandQueueKey_     = commandQueueKey;
 
     LOG_DEBUG("Initialize DxCommand \n CommandList  :{} \n CommandQueue : {}", commandListComboKey_, commandQueueKey_);
-
-    Microsoft::WRL::ComPtr<ID3D12Device> device = Engine::getInstance()->getDxDevice()->getDevice();
-
+    
+    /*-----見つからなかった場合-----*/
     if (commandQueueMap_.count(commandQueueKey_) == 0) {
+        ///================================================
+        ///	CommandQueue の生成
+        ///================================================
         D3D12_COMMAND_QUEUE_DESC commandQueueDesc{};
         CreateCommandQueue(device, commandQueueKey_, commandQueueDesc);
     }
     commandQueue_ = commandQueueMap_[commandQueueKey_];
 
+    /*-----見つからなかった場合-----*/
     if (commandListComboMap_.count(commandListComboKey_) == 0) {
+        ///================================================
+        ///	CommandList & CommandAllocator の生成
+        ///================================================
         CreateCommandListWithAllocator(device, commandListComboKey_, listType);
     }
+
+    // 取得
     auto& commandListCombo = commandListComboMap_[commandListComboKey_];
     commandList_           = std::get<0>(commandListCombo);
     commandAllocator_      = std::get<1>(commandListCombo);
@@ -142,6 +159,8 @@ void DxCommand::CommandReset() {
 }
 
 void DxCommand::ResourceBarrier(Microsoft::WRL::ComPtr<ID3D12Resource> resource, D3D12_RESOURCE_STATES stateAfter) {
+    // リソースのバリアを設定
+    // resourceStateTracker_ で リソースの状態を管理
     if (resourceStateTracker_) {
         resourceStateTracker_->Barrier(commandList_.Get(), resource.Get(), stateAfter);
     } else {
@@ -150,6 +169,9 @@ void DxCommand::ResourceBarrier(Microsoft::WRL::ComPtr<ID3D12Resource> resource,
 }
 
 void DxCommand::ResourceDirectBarrier(Microsoft::WRL::ComPtr<ID3D12Resource> resource, D3D12_RESOURCE_BARRIER barrier) {
+    // リソースのバリアをユーザーが作成したバリアで設定
+    // resourceStateTracker_ で リソースの状態を管理
+    
     if (resourceStateTracker_) {
         resourceStateTracker_->DirectBarrier(commandList_.Get(), resource.Get(), barrier);
     } else {

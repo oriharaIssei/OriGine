@@ -23,8 +23,8 @@ void DissolveEffectParam::Initialize(Entity* /*_entity*/) {
     }
 
     if (isActive_) {
-        paramBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
-        materialBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+        paramBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
+        materialBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
     }
 }
 void DissolveEffectParam::Finalize() {
@@ -47,8 +47,8 @@ void DissolveEffectParam::LoadTexture(const std::string& filePath) {
 void DissolveEffectParam::Play() {
     isActive_ = true;
     // buff の作成
-    paramBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
-    materialBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+    paramBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
+    materialBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
 }
 
 void DissolveEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) {

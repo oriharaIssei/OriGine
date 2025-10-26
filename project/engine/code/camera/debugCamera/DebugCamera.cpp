@@ -27,6 +27,8 @@ void DebugCamera::DebugUpdate() {
 }
 
 void DebugCamera::Update() {
+    // 現在の状態に応じた更新処理を実行
+    // 実行終了後 cameraBuff_の行列を更新
     if (currentState_) {
         currentState_->Update();
     }
@@ -40,6 +42,8 @@ void DebugCamera::Neutral::Update() {
     if (!(input->isPressKey(DIK_LALT) || input->isPressKey(DIK_RALT))) {
         return;
     }
+    // Alt + 左クリックまたはホイール操作で移動状態へ遷移
+    // Alt + 右クリックで回転状態へ遷移
     if (input->isTriggerMouseButton(0) || input->isWheel()) {
         host_->startMousePos_ = input->getCurrentMousePos();
         host_->currentState_.reset(new TranslationState(host_));
@@ -55,6 +59,7 @@ void DebugCamera::TranslationState::Update() {
     Input* input                      = Input::getInstance();
     constexpr Vec3f kMouseSensitivity = {0.01f, 0.01f, 0.007f};
 
+    // 入力状態をビットで管理
     uint32_t state = 0;
     bool a         = input->isPreWheel();
     bool b         = input->isPressMouseButton(0);
@@ -66,6 +71,10 @@ void DebugCamera::TranslationState::Update() {
     Vector3 inputVal = {input->getMouseVelocity(), (float)input->getPreWheel()};
     inputVal         = inputVal * kMouseSensitivity;
 
+    // 状態に応じた移動処理
+    // wheel -> Z方向移動
+    // mouse move -> XY平面移動
+    // wheel + mouse move -> XYZ全方向移動
     switch ((TranslationType)state) {
     case NONE:
         host_->currentState_.reset(new Neutral(host_));

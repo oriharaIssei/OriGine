@@ -45,7 +45,7 @@ void Texture::Initialize(const std::string& filePath) {
     //==================================================
     DirectX::ScratchImage mipImages = Load(filePath);
     metaData                        = mipImages.GetMetadata();
-    resource.CreateTextureResource(Engine::getInstance()->getDxDevice()->getDevice(), metaData);
+    resource.CreateTextureResource(Engine::getInstance()->getDxDevice()->device_, metaData);
 
     // ファイル名をリソース名にセット（デバッグ用）
     std::wstring wname = ConvertString(filePath);
@@ -72,7 +72,7 @@ void Texture::Initialize(const std::string& filePath) {
     }
 
     /// SRV の作成
-    auto device = Engine::getInstance()->getDxDevice()->getDevice();
+    auto device = Engine::getInstance()->getDxDevice()->device_;
     srv         = Engine::getInstance()->getSrvHeap()->CreateDescriptor(srvDesc, &resource);
 }
 
@@ -141,7 +141,7 @@ void Texture::UploadTextureData(DirectX::ScratchImage& mipImg, Microsoft::WRL::C
     auto dxDevice = Engine::getInstance()->getDxDevice();
 
     DirectX::PrepareUpload(
-        dxDevice->getDevice().Get(),
+        dxDevice->device_.Get(),
         mipImg.GetImages(),
         mipImg.GetImageCount(),
         mipImg.GetMetadata(),
@@ -153,7 +153,7 @@ void Texture::UploadTextureData(DirectX::ScratchImage& mipImg, Microsoft::WRL::C
         UINT(subResources.size()));
 
     std::unique_ptr<DxResource> intermediateResource = std::make_unique<DxResource>();
-    intermediateResource->CreateBufferResource(dxDevice->getDevice(), intermediateSize);
+    intermediateResource->CreateBufferResource(dxDevice->device_, intermediateSize);
 
     UpdateSubresources(
         TextureManager::dxCommand_->getCommandList().Get(),

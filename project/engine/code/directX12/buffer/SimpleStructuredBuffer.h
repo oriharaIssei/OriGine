@@ -12,6 +12,12 @@ public:
     SimpleStructuredBuffer()  = default;
     ~SimpleStructuredBuffer() = default;
 
+    /// <summary>
+    /// Bufferを生成
+    /// </summary>
+    /// <param name="device"></param>
+    /// <param name="elementCount">生成するbufferの数</param>
+    /// <param name="_withUAV">uav付きか. true = UAV付き,false = UAVなし</param>
     void CreateBuffer(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t elementCount, bool _withUAV = false);
     void Finalize();
 
@@ -25,10 +31,21 @@ protected:
     uint32_t elementCount_ = 0;
 
 public:
+    /// <summary>
+    /// データをBufferに変換してセット
+    /// </summary>
+    /// <param name="_inputData"></param>
     void ConvertToBuffer(std::vector<structBuff>& _inputData);
+    /// <summary>
+    /// ルートパラメータにセット
+    /// </summary>
     void SetForRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const;
 
+    /// <summary>
+    /// バッファのリサイズ
+    /// </summary>
     void resize(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t newElementCount);
+
     size_t capacity() const { return elementCount_; }
 
     DxResource& getResource() { return buff_; }

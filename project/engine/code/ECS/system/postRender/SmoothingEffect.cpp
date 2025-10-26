@@ -14,7 +14,7 @@ void SmoothingEffect::Initialize() {
     dxCommand_->Initialize("main", "main");
     CreatePSO();
 
-    boxFilterSize_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+    boxFilterSize_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
 
     setBoxFilterSize(5.f, 5.f);
 }
@@ -94,7 +94,7 @@ void SmoothingEffect::CreatePSO() {
     depthStencilDesc.DepthEnable = false;
     shaderInfo.setDepthStencilDesc(depthStencilDesc);
 
-    pso_ = shaderManager->CreatePso("SmoothingEffect", shaderInfo, Engine::getInstance()->getDxDevice()->getDevice());
+    pso_ = shaderManager->CreatePso("SmoothingEffect", shaderInfo, Engine::getInstance()->getDxDevice()->device_);
 }
 
 void SmoothingEffect::Render() {

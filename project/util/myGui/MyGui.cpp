@@ -9,7 +9,7 @@ bool ImGui::InputText(const char* label, std::string* str, ImGuiInputTextFlags f
     // バッファサイズを 現在のstr + 64 or 256 にする
     size_t bufSize = std::max<size_t>(str->size() + 64, 256);
     std::vector<char> buf(bufSize);
-    strncpy(buf.data(), str->c_str(), buf.size());
+    std::strncpy(buf.data(), str->c_str(), buf.size());
     buf[buf.size() - 1] = '\0';
 
     if (ImGui::InputText(label, buf.data(), buf.size(), flags)) {

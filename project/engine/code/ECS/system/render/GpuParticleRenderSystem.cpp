@@ -15,7 +15,7 @@ void GpuParticleRenderSystem::Initialize() {
     dxCommand_->Initialize("main", "main");
     CreatePso();
 
-    perViewBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+    perViewBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
 
     activeEmitterByBlendMode_[BlendMode::None].reserve(100);
     activeEmitterByBlendMode_[BlendMode::Normal].reserve(100);
@@ -184,7 +184,7 @@ void GpuParticleRenderSystem::CreatePso() {
     ///=================================================
     for (size_t i = 0; i < kBlendNum; i++) {
         shaderInfo.blendMode_       = BlendMode(i);
-        pso_[shaderInfo.blendMode_] = shaderManager->CreatePso("Particle_" + blendModeStr[i], shaderInfo, Engine::getInstance()->getDxDevice()->getDevice());
+        pso_[shaderInfo.blendMode_] = shaderManager->CreatePso("Particle_" + blendModeStr[i], shaderInfo, Engine::getInstance()->getDxDevice()->device_);
     }
 }
 

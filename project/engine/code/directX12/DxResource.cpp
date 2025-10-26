@@ -7,8 +7,37 @@
 // directX12 object
 #include "directX12/DxDevice.h"
 
-
+///externals
 #include "logger/Logger.h"
+
+const char* DxResourceTypeToString(DxResourceType type) {
+    switch (type) {
+    case DxResourceType::Unknown:
+        return "Unknown";
+    case DxResourceType::Descriptor_RTV:
+        return "Descriptor_RTV";
+    case DxResourceType::Descriptor_DSV:
+        return "Descriptor_DSV";
+    case DxResourceType::Descriptor_SRV:
+        return "Descriptor_SRV";
+    case DxResourceType::Descriptor_UAV:
+        return "Descriptor_UAV";
+    case DxResourceType::Descriptor_Sampler:
+        return "Descriptor_Sampler";
+    case DxResourceType::Buffer:
+        return "Buffer";
+    case DxResourceType::Buffer_Constant:
+        return "Buffer_Constant";
+    case DxResourceType::Buffer_Structured:
+        return "Buffer_Structured";
+    default:
+        return "Unknown Type";
+    }
+}
+
+std::string std::to_string(DxResourceType type) {
+    return DxResourceTypeToString(type);
+}
 
 void DxResource::CreateBufferResource(Microsoft::WRL::ComPtr<ID3D12Device> device, size_t sizeInBytes) {
     // リソース用のヒープの設定

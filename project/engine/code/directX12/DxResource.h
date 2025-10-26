@@ -4,7 +4,7 @@
 #include <wrl.h>
 
 #include "DirectXTex/DirectXTex.h"
-class DxDevice;
+struct DxDevice;
 
 #include "Vector4.h"
 #include <stdint.h>
@@ -24,30 +24,13 @@ enum class DxResourceType : int32_t {
     Buffer_Structured  = 0b1 << 9
 };
 
-static std::string DxResourceTypeToString(DxResourceType type) {
-    switch (type) {
-    case DxResourceType::Unknown:
-        return "Unknown";
-    case DxResourceType::Descriptor_RTV:
-        return "Descriptor_RTV";
-    case DxResourceType::Descriptor_DSV:
-        return "Descriptor_DSV";
-    case DxResourceType::Descriptor_SRV:
-        return "Descriptor_SRV";
-    case DxResourceType::Descriptor_UAV:
-        return "Descriptor_UAV";
-    case DxResourceType::Descriptor_Sampler:
-        return "Descriptor_Sampler";
-    case DxResourceType::Buffer:
-        return "Buffer";
-    case DxResourceType::Buffer_Constant:
-        return "Buffer_Constant";
-    case DxResourceType::Buffer_Structured:
-        return "Buffer_Structured";
-    default:
-        return "Unknown Type";
-    }
-}
+/// <summary>
+/// DxResourceType を 文字列に変換
+/// </summary>
+const char* DxResourceTypeToString(DxResourceType type);
+namespace std {
+string to_string(DxResourceType type);
+};
 
 /// <summary>
 /// DirectX12 リソースの WrapperClass
@@ -97,7 +80,7 @@ public:
     /// Resourceが有効かどうかを確認
     /// </summary>
     /// <returns></returns>
-    bool isValid() const { return resource_ != nullptr; } 
+    bool isValid() const { return resource_ != nullptr; }
     const Microsoft::WRL::ComPtr<ID3D12Resource>& getResource() const { return resource_; }
     Microsoft::WRL::ComPtr<ID3D12Resource>& getResourceRef() { return resource_; }
 

@@ -229,7 +229,7 @@ void SkeletonRenderSystem::CreatePso() {
     for (size_t i = 0; i < kBlendNum; ++i) {
         BlendMode blend = static_cast<BlendMode>(i);
         lineShaderInfo.blendMode_       = blend;
-        pso_[lineShaderInfo.blendMode_] = shaderManager->CreatePso("LineMesh_" + blendModeStr[i], lineShaderInfo, dxDevice->getDevice());
+        pso_[lineShaderInfo.blendMode_] = shaderManager->CreatePso("LineMesh_" + blendModeStr[i], lineShaderInfo, dxDevice->device_);
     }
 }
 

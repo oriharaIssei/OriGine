@@ -20,6 +20,7 @@
 PipelineStateObj* RenderTexture::pso_;
 
 RenderTexture::RenderTexture(DxCommand* dxCom) {
+    // DxCommand が nullptr なら main を使う
     std::string commandListKey  = "main";
     std::string commandQueueKey = "main";
     if (dxCom) {
@@ -33,6 +34,7 @@ RenderTexture::RenderTexture(DxCommand* dxCom) {
 void RenderTexture::Awake() {
     ShaderManager* shaderManager = ShaderManager::getInstance();
 
+    // フルスクリーン用シェーダーの読み込み
     shaderManager->LoadShader("FullScreen.VS");
     shaderManager->LoadShader("FullScreen.PS", shaderDirectory, L"ps_6_0");
 
@@ -89,7 +91,8 @@ void RenderTexture::Awake() {
     depthStencilDesc.DepthEnable = false;
     shaderInfo.setDepthStencilDesc(depthStencilDesc);
 
-    pso_ = shaderManager->CreatePso("FullScreen", shaderInfo, Engine::getInstance()->getDxDevice()->getDevice());
+    // PSO の作成
+    pso_ = shaderManager->CreatePso("FullScreen", shaderInfo, Engine::getInstance()->getDxDevice()->device_);
 }
 
 void RenderTexture::Initialize(
@@ -110,7 +113,7 @@ void RenderTexture::Initialize(
     ///===========================================================================
     /// RenderTexture Resource の作成
     ///===========================================================================
-    Microsoft::WRL::ComPtr<ID3D12Device> device = Engine::getInstance()->getDxDevice()->getDevice();
+    Microsoft::WRL::ComPtr<ID3D12Device> device = Engine::getInstance()->getDxDevice()->device_;
 
     for (auto& renderTarget : renderTargets_) {
         renderTarget.resource_.CreateRenderTextureResource(
@@ -173,7 +176,7 @@ void RenderTexture::Resize(const Vec2f& textureSize) {
         Engine::getInstance()->getSrvHeap()->ReleaseDescriptor(target.srv_);
     }
 
-    Microsoft::WRL::ComPtr<ID3D12Device> device = Engine::getInstance()->getDxDevice()->getDevice();
+    Microsoft::WRL::ComPtr<ID3D12Device> device = Engine::getInstance()->getDxDevice()->device_;
 
     std::wstring wName = ConvertString(textureName_);
     // 新しいリソースを作成

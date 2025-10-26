@@ -243,7 +243,7 @@ void LineRenderSystem::CreatePso() {
             continue;
         }
         lineShaderInfo.blendMode_       = blend;
-        pso_[lineShaderInfo.blendMode_] = shaderManager->CreatePso("LineMesh_" + blendModeStr[i], lineShaderInfo, dxDevice->getDevice());
+        pso_[lineShaderInfo.blendMode_] = shaderManager->CreatePso("LineMesh_" + blendModeStr[i], lineShaderInfo, dxDevice->device_);
     }
 }
 

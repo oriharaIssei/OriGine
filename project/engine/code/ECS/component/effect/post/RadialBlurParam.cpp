@@ -16,7 +16,7 @@ RadialBlurParam::~RadialBlurParam() {}
 
 void RadialBlurParam::Initialize(Entity* /*_entity*/) {
     if (isActive_) {
-        constantBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+        constantBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
         constantBuffer_.ConvertToBuffer();
     }
 }
@@ -25,7 +25,7 @@ void RadialBlurParam::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_unuse
 
 #ifdef _DEBUG
     if (CheckBoxCommand("Active##" + _parentLabel, isActive_)) {
-        constantBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+        constantBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
         constantBuffer_.ConvertToBuffer();
     }
     ImGui::Spacing();
@@ -41,7 +41,7 @@ void RadialBlurParam::Finalize() {
 
 void RadialBlurParam::Play() {
     isActive_ = true;
-    constantBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+    constantBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
     constantBuffer_.ConvertToBuffer();
 }
 void RadialBlurParam::Stop() {

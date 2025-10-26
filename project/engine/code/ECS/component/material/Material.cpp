@@ -104,7 +104,7 @@ void Material::CreateCustomTextureFromTextureFile(int32_t textureIndex) {
     customTexture_.emplace(Material::CustomTextureData());
 
     customTexture_->resource_.CreateTextureResource(
-        Engine::getInstance()->getDxDevice()->getDevice(),
+        Engine::getInstance()->getDxDevice()->device_,
         metaData);
 
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};

@@ -70,7 +70,7 @@ void Engine::CreateDsv() {
     depthClearValue.DepthStencil.Depth = 1.0f; // 最大値でクリア
     depthClearValue.Format             = DXGI_FORMAT_D24_UNORM_S8_UINT; // Resource と合わせる
 
-    HRESULT result = dxDevice_->getDevice()->CreateCommittedResource(
+    HRESULT result = dxDevice_->device_->CreateCommittedResource(
         &heapProperties,
         D3D12_HEAP_FLAG_NONE,
         &resourceDesc,
@@ -120,17 +120,17 @@ void Engine::Initialize() {
     dxCommand_->Initialize("main", "main");
 
     srvHeap_ = std::make_unique<DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>>(1024);
-    srvHeap_->Initialize(dxDevice_->getDevice());
+    srvHeap_->Initialize(dxDevice_->device_);
     rtvHeap_ = std::make_unique<DxDescriptorHeap<DxDescriptorHeapType::RTV>>(18);
-    rtvHeap_->Initialize(dxDevice_->getDevice());
+    rtvHeap_->Initialize(dxDevice_->device_);
     dsvHeap_ = std::make_unique<DxDescriptorHeap<DxDescriptorHeapType::DSV>>(16);
-    dsvHeap_->Initialize(dxDevice_->getDevice());
+    dsvHeap_->Initialize(dxDevice_->device_);
 
     dxSwapChain_ = std::make_unique<DxSwapChain>();
     dxSwapChain_->Initialize(window_.get(), dxDevice_.get(), dxCommand_.get());
 
     dxFence_ = std::make_unique<DxFence>();
-    dxFence_->Initialize(dxDevice_->getDevice());
+    dxFence_->Initialize(dxDevice_->device_);
 
     CreateDsv();
 

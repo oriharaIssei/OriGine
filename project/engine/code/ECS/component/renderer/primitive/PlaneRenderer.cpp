@@ -30,8 +30,8 @@ void PlaneRenderer::Initialize(Entity* _hostEntity) {
     auto& mesh = meshGroup_->back();
     mesh.Initialize(4, 6);
 
-    transformBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
-    materialBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->getDevice());
+    transformBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
+    materialBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
 
     // create _mesh
     createMesh(&mesh);
@@ -44,10 +44,31 @@ void PlaneRenderer::Initialize(Entity* _hostEntity) {
 
 void PlaneRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
+    ImGui::Text("BlendMode :");
+    ImGui::SameLine();
+    std::string label = "##BlendMode" + _parentLabel;
+    if (ImGui::BeginCombo(label.c_str(), blendModeStr[(int32_t)currentBlend_].c_str())) {
+        bool isSelected    = false;
+        int32_t blendIndex = 0;
+        for (auto& blendModeName : blendModeStr) {
+            isSelected = blendModeName == blendModeStr[(int32_t)currentBlend_];
+
+            if (ImGui::Selectable(blendModeName.c_str(), isSelected)) {
+                EditorController::getInstance()->pushCommand(
+                    std::make_unique<SetterCommand<BlendMode>>(&currentBlend_, static_cast<BlendMode>(blendIndex)));
+
+                break;
+            }
+
+            blendIndex++;
+        }
+        ImGui::EndCombo();
+    }
+
     ImGui::Text("Texture Directory : %s", textureDirectory_.c_str());
     ImGui::Text("Texture FileName  : %s", textureFileName_.c_str());
 
-    std::string label = "LoadTexture##" + _parentLabel;
+    label = "LoadTexture##" + _parentLabel;
     if (ImGui::Button(label.c_str())) {
         std::string directory = "";
         std::string fileName  = "";

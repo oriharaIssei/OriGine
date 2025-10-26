@@ -137,9 +137,42 @@ void Audio::PlayLoop() {
     }
 }
 
+void Audio::Play() {
+    if (audioClip_.isLoop_) {
+        PlayLoop();
+    } else {
+        PlayTrigger();
+    }
+}
+
 void Audio::Pause() {
     pSourceVoice_->Stop(0);
 }
+
+void Audio::Load(const std::string& fileName) {
+    fileName_        = fileName;
+    audioClip_.data_ = LoadWave(fileName_);
+}
+
+bool Audio::isPlaying() const {
+    // 再生用のソースボイスが存在しない場合は再生中ではない
+    if (pSourceVoice_ == nullptr) {
+        return false;
+    }
+
+    XAUDIO2_VOICE_STATE state;
+    pSourceVoice_->GetState(&state);
+
+    // 再生中のバッファが存在する場合は再生中とみなす
+    return state.BuffersQueued > 0;
+}
+
+void Audio::Initialize(Entity*) {
+    // ファイル名が設定されていれば音声データを読み込む
+    if (!fileName_.empty()) {
+        audioClip_.data_ = LoadWave(fileName_);
+    }
+};
 
 void Audio::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_unused]] [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
@@ -269,17 +302,14 @@ void AudioInitializeSystem::Initialize() {}
 void AudioInitializeSystem::Finalize() {}
 
 void AudioInitializeSystem::UpdateEntity(Entity* entity) {
-    int32_t entityIndex = 0;
+    // entityの持つ AuidoComponentをすべて取得.
+    // 存在していればすべて再生
+    auto components = getComponents<Audio>(entity);
 
-    while (true) {
-        Audio* audio = getComponent<Audio>(entity, entityIndex);
-        if (!audio) {
-            return;
-        }
-
-        // 再生
-        audio->Play();
-
-        entityIndex++;
+    if (!components) {
+        return;
+    }
+    for (auto& audio : *components) {
+        audio.Play();
     }
 }

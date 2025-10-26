@@ -705,6 +705,7 @@
     <ClInclude Include="util\timeline\Timeline.h">
       <Filter>util\timeline</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\directX12\BlendMode.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="editor\EditorController.cpp">
@@ -1137,5 +1138,6 @@
       <Filter>util\timeline</Filter>
     </ClCompile>
     <ClCompile Include="math\mathEnv.cpp" />
+    <ClCompile Include="engine\code\directX12\BlendMode.cpp" />
   </ItemGroup>
 </Project>
