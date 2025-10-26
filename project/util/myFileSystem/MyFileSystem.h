@@ -40,15 +40,27 @@ public:
 using myfs = MyFileSystem;
 using myFs = MyFileSystem;
 
+/// <summary>
+/// ポーリングによる ファイル監視クラス
+/// </summary>
 class FileWatcher {
 public:
     FileWatcher(const std::string& _filePath, int32_t _intervalMs = 1000);
     ~FileWatcher();
 
+    /// <summary>
+    /// 監視を開始する
+    /// </summary>
     void Start();
+    /// <summary>
+    /// 監視を停止する
+    /// </summary>
     void Stop();
 
 private:
+    /// <summary>
+    /// 監視処理ループ
+    /// </summary>
     void watchLoop();
 
 private:
