@@ -80,7 +80,7 @@ private:
     /// <summary>
     /// パーティクルを生成する
     /// </summary>
-    void SpawnParticle();
+    void SpawnParticle(int32_t _spawnVal);
 
 #ifdef _DEBUG
     void EditEmitter([[maybe_unused]] const std::string& _parentLabel);
@@ -144,8 +144,8 @@ private:
     //=============== パーティクル設定項目 ===============//
     Vec4f particleColor_       = {1.f, 1.f, 1.f, 1.f};
     Vec3f particleUvScale_     = {1.f, 1.f, 1.f};
-    Vec3f particleUvRotate_    = {1.f, 1.f, 1.f};
-    Vec3f particleUvTranslate_ = {1.f, 1.f, 1.f};
+    Vec3f particleUvRotate_    = {0.f, 0.f, 0.f};
+    Vec3f particleUvTranslate_ = {0.f, 0.f, 0.f};
 
     int32_t updateSettings_ = 0;
 
@@ -183,9 +183,11 @@ private:
 
 public:
     bool IsActive() const { return isActive_; }
-    // void setIsActive(bool _isActive) { isActive_ = _isActive; } // PlayStart を使え
     bool getIsLoop() const { return isLoop_; }
     void setIsLoop(bool _isLoop) { isLoop_ = _isLoop; }
+
+    float getActiveTime() const { return activeTime_; }
+    void setLeftActiveTime(float _time) { leftActiveTime_ = _time; }
 
     bool getIsBillBoard() const { return particleIsBillBoard_; }
     void setIsBillBoard(bool _isBillBoard) { particleIsBillBoard_ = _isBillBoard; }

@@ -151,7 +151,7 @@ void DistortionEffect::RenderEffectObjectScene(
 
     // オブジェクトシーンテクスチャへの描画開始
     distortionSceneTexture_->PreDraw();
-    texturedMeshRenderSystem_->SettingPSO(BlendMode::Alpha);
+    texturedMeshRenderSystem_->SettingPSO(BlendMode::Alpha, false);
     texturedMeshRenderSystem_->StartRender();
 
     for (auto& [object, type] : _param->getDistortionObjects()) {

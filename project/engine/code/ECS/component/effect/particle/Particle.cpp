@@ -171,7 +171,7 @@ void Particle::setKeyFrames(int32_t updateSettings, ParticleKeyFrames* _keyFrame
     }
     if (updateSettings & static_cast<int32_t>(ParticleUpdateType::UsingGravity)) {
         updateByCurves_.push_back([this]() {
-            SerializedField<float> gravity_ = SerializedField<float>("InGame", "Physics", "Gravity");
+            SerializedField<float> gravity_ = SerializedField<float>("Settings", "Physics", "Gravity");
             velocity_[Y] -= gravity_ * mass_ * deltaTime_;
         });
     }

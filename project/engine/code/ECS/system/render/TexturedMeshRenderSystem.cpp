@@ -37,8 +37,10 @@ void TexturedMeshRenderSystem::Update() {
     }
     ISystem::eraseDeadEntity();
 
-    activeModelMeshRenderer_.clear();
-    activePrimitiveMeshRenderer_.clear();
+    activeModelMeshRenderer_[0].clear();
+    activeModelMeshRenderer_[1].clear();
+    activePrimitiveMeshRenderer_[0].clear();
+    activePrimitiveMeshRenderer_[1].clear();
 
     for (auto& id : entityIDs_) {
         Entity* entity = getEntity(id);
@@ -48,7 +50,7 @@ void TexturedMeshRenderSystem::Update() {
     bool isSkip = true;
     for (size_t i = 0; i < kBlendNum; ++i) {
         BlendMode blend = static_cast<BlendMode>(i);
-        if (!activeModelMeshRenderer_[blend].empty() || !activePrimitiveMeshRenderer_[blend].empty()) {
+        if (!activeModelMeshRenderer_[0][blend].empty() || !activePrimitiveMeshRenderer_[0][blend].empty() || !activeModelMeshRenderer_[1][blend].empty() || !activePrimitiveMeshRenderer_[1][blend].empty()) {
             isSkip = false;
             break;
         }
@@ -59,7 +61,8 @@ void TexturedMeshRenderSystem::Update() {
 
     for (size_t i = 0; i < kBlendNum; ++i) {
         BlendMode blend = static_cast<BlendMode>(i);
-        RenderingBy(blend);
+        RenderingBy(blend, true);
+        RenderingBy(blend, false);
     }
 }
 
@@ -89,7 +92,8 @@ void TexturedMeshRenderSystem::DispatchRenderer(Entity* _entity) {
             /// push_back
             ///==============================
             BlendMode blendMode = renderer.getCurrentBlend();
-            activeModelMeshRenderer_[blendMode].push_back(&renderer);
+            int32_t isCulling   = renderer.isCulling() ? 1 : 0;
+            activeModelMeshRenderer_[isCulling][blendMode].push_back(&renderer);
         }
     }
 
@@ -113,7 +117,8 @@ void TexturedMeshRenderSystem::DispatchRenderer(Entity* _entity) {
                 transform.ConvertToBuffer();
 
                 BlendMode blendMode = renderer.getCurrentBlend();
-                activePrimitiveMeshRenderer_[blendMode].push_back(&renderer);
+                int32_t isCulling   = renderer.isCulling() ? 1 : 0;
+                activePrimitiveMeshRenderer_[isCulling][blendMode].push_back(&renderer);
             }
         }
     };
@@ -123,27 +128,28 @@ void TexturedMeshRenderSystem::DispatchRenderer(Entity* _entity) {
     dispatchPrimitive(getComponents<SphereRenderer>(_entity));
 }
 
-void TexturedMeshRenderSystem::RenderingBy(BlendMode _blendMode) {
+void TexturedMeshRenderSystem::RenderingBy(BlendMode _blendMode, bool _isCulling) {
     bool isSkip = activeModelMeshRenderer_.empty() && activePrimitiveMeshRenderer_.empty();
     if (isSkip) {
         return;
     }
+    int32_t cullingIndex = _isCulling ? 1 : 0;
 
     auto commandList = dxCommand_->getCommandList();
-    commandList->SetPipelineState(pso_[_blendMode]->pipelineState.Get());
-    commandList->SetGraphicsRootSignature(pso_[_blendMode]->rootSignature.Get());
+    commandList->SetPipelineState(pso_[cullingIndex][_blendMode]->pipelineState.Get());
+    commandList->SetGraphicsRootSignature(pso_[cullingIndex][_blendMode]->rootSignature.Get());
 
     StartRender();
 
     // model
     if (!activeModelMeshRenderer_.empty()) {
-        for (auto& renderer : activeModelMeshRenderer_[_blendMode]) {
+        for (auto& renderer : activeModelMeshRenderer_[cullingIndex][_blendMode]) {
             RenderModelMesh(commandList, renderer);
         }
     }
     // primitive
     if (!activePrimitiveMeshRenderer_.empty()) {
-        for (auto& renderer : activePrimitiveMeshRenderer_[_blendMode]) {
+        for (auto& renderer : activePrimitiveMeshRenderer_[cullingIndex][_blendMode]) {
             RenderPrimitiveMesh(commandList, renderer);
         }
     }
@@ -162,10 +168,11 @@ void TexturedMeshRenderSystem::CreatePso() {
     if (shaderManager->IsRegisteredPipelineStateObj("TextureMesh_" + blendModeStr[0])) {
         for (size_t i = 0; i < kBlendNum; ++i) {
             BlendMode blend = static_cast<BlendMode>(i);
-            if (pso_[blend]) {
+            if (pso_[0][blend] || pso_[1][blend]) {
                 continue;
             }
-            pso_[blend] = shaderManager->getPipelineStateObj("TextureMesh_" + blendModeStr[i]);
+            pso_[0][blend] = shaderManager->getPipelineStateObj("TextureMesh_" + blendModeStr[i]);
+            pso_[1][blend] = shaderManager->getPipelineStateObj("CullingTextureMesh_" + blendModeStr[i]);
         }
 
         //! TODO : 自動化
@@ -331,13 +338,27 @@ void TexturedMeshRenderSystem::CreatePso() {
     ///=================================================
     /// BlendMode ごとの Psoを作成
     ///=================================================
+
+    // カリングなし
+    texShaderInfo.changeCullMode(D3D12_CULL_MODE_NONE);
     for (size_t i = 0; i < kBlendNum; ++i) {
         BlendMode blend = static_cast<BlendMode>(i);
-        if (pso_[blend]) {
+        if (pso_[0][blend]) {
             continue;
         }
-        texShaderInfo.blendMode_       = blend;
-        pso_[texShaderInfo.blendMode_] = shaderManager->CreatePso("TextureMesh_" + blendModeStr[i], texShaderInfo, dxDevice->device_);
+        texShaderInfo.blendMode_          = blend;
+        pso_[0][texShaderInfo.blendMode_] = shaderManager->CreatePso("TextureMesh_" + blendModeStr[i], texShaderInfo, dxDevice->device_);
+    }
+
+    // カリングあり
+    texShaderInfo.changeCullMode(D3D12_CULL_MODE_BACK);
+    for (size_t i = 0; i < kBlendNum; ++i) {
+        BlendMode blend = static_cast<BlendMode>(i);
+        if (pso_[1][blend]) {
+            continue;
+        }
+        texShaderInfo.blendMode_          = blend;
+        pso_[1][texShaderInfo.blendMode_] = shaderManager->CreatePso("CullingTextureMesh_" + blendModeStr[i], texShaderInfo, dxDevice->device_);
     }
 }
 
@@ -747,33 +768,36 @@ void TexturedMeshRenderSystem::RenderModelMesh(Microsoft::WRL::ComPtr<ID3D12Grap
 void TexturedMeshRenderSystem::RenderPrimitiveMesh(
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList,
     PrimitiveMeshRendererBase* _renderer) {
-    auto& mesh = _renderer->getMeshGroup()->front();
 
-    D3D12_GPU_DESCRIPTOR_HANDLE textureHandle = TextureManager::getDescriptorGpuHandle(_renderer->getTextureIndex());
+    for (const auto& mesh : *_renderer->getMeshGroup()) {
+        D3D12_GPU_DESCRIPTOR_HANDLE textureHandle = TextureManager::getDescriptorGpuHandle(_renderer->getTextureIndex());
 
-    auto& materialBuff    = _renderer->getMaterialBuff();
-    Material* material    = nullptr;
-    int32_t materialIndex = _renderer->getMaterialIndex();
-    // ============================= Materialのセット ============================= //
-    if (materialIndex >= 0) {
-        material = getComponent<Material>(_renderer->getHostEntity(), static_cast<uint32_t>(materialIndex));
-        material->UpdateUvMatrix();
-        materialBuff.ConvertToBuffer(*material);
+        auto& materialBuff    = _renderer->getMaterialBuff();
+        Material* material    = nullptr;
+        int32_t materialIndex = _renderer->getMaterialIndex();
+        // ============================= Materialのセット ============================= //
+        if (materialIndex >= 0) {
+            material = getComponent<Material>(_renderer->getHostEntity(), static_cast<uint32_t>(materialIndex));
+            material->UpdateUvMatrix();
+            materialBuff.ConvertToBuffer(*material);
 
-        if (material->hasCustomTexture()) {
-            textureHandle = material->getCustomTexture()->srv_->getGpuHandle();
+            if (material->hasCustomTexture()) {
+                textureHandle = material->getCustomTexture()->srv_->getGpuHandle();
+            }
         }
+
+        this->RenderingMesh(
+            _commandList,
+            mesh,
+            _renderer->getTransformBuff(),
+            _renderer->getMaterialBuff(),
+            textureHandle);
     }
-    this->RenderingMesh(
-        _commandList,
-        mesh,
-        _renderer->getTransformBuff(),
-        _renderer->getMaterialBuff(),
-        textureHandle);
 }
 
-void TexturedMeshRenderSystem::SettingPSO(BlendMode _blend) {
+void TexturedMeshRenderSystem::SettingPSO(BlendMode _blend, bool _isCulling) {
+    int32_t cullingIndex                                          = _isCulling ? 1 : 0;
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->getCommandList();
-    commandList->SetGraphicsRootSignature(pso_[_blend]->rootSignature.Get());
-    commandList->SetPipelineState(pso_[_blend]->pipelineState.Get());
+    commandList->SetGraphicsRootSignature(pso_[cullingIndex][_blend]->rootSignature.Get());
+    commandList->SetPipelineState(pso_[cullingIndex][_blend]->pipelineState.Get());
 }

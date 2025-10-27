@@ -76,7 +76,7 @@ public:
     /// </summary>
     void RenderPrimitiveMesh(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList, PrimitiveMeshRendererBase* _renderer);
 
-    void SettingPSO(BlendMode _blend);
+    void SettingPSO(BlendMode _blend,bool _isCulling);
 
 protected:
     void LightUpdate();
@@ -88,14 +88,16 @@ protected:
     /// <summary>
     /// ブレンドモードごとにレンダリングを行う
     /// </summary>
-    void RenderingBy(BlendMode _blendMode);
+    void RenderingBy(BlendMode _blendMode, bool _isCulling /* = true*/);
 
 private:
-    std::unordered_map<BlendMode, std::vector<ModelMeshRenderer*>> activeModelMeshRenderer_;
-    std::unordered_map<BlendMode, std::vector<PrimitiveMeshRendererBase*>> activePrimitiveMeshRenderer_;
+    // value : { non Culling配列 , Culling配列}
+    std::array<std::unordered_map<BlendMode, std::vector<ModelMeshRenderer*>>, 2> activeModelMeshRenderer_;
+    std::array<std::unordered_map<BlendMode, std::vector<PrimitiveMeshRendererBase*>>, 2> activePrimitiveMeshRenderer_;
 
     std::unique_ptr<DxCommand> dxCommand_ = nullptr;
-    std::unordered_map<BlendMode, PipelineStateObj*> pso_;
+    // value : { non Culling , Culling }
+    std::array<std::unordered_map<BlendMode, PipelineStateObj*>, 2> pso_;
 
     int32_t transformBufferIndex_          = 0;
     int32_t cameraBufferIndex_             = 0;

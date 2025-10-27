@@ -22,7 +22,13 @@ void EmitterWorkSystem::UpdateEntity(Entity* _entity) {
 
     const float deltaTime = Engine::getInstance()->getDeltaTime();
 
-    for (auto& comp : *getComponents<Emitter>(_entity)) {
+    auto emitters = getComponents<Emitter>(_entity);
+
+    if (!emitters) {
+        return;
+    }
+
+    for (auto& comp : *emitters) {
         comp.Update(deltaTime);
     }
 }

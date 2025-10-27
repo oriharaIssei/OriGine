@@ -16,9 +16,9 @@
 #include "component/material/Material.h"
 #include "component/transform/Transform.h"
 // directX12Object
+#include "directX12/buffer/SimpleConstantBuffer.h"
 #include "directX12/mesh/Mesh.h"
 #include "directX12/ShaderManager.h"
-#include "directX12/buffer/SimpleConstantBuffer.h"
 // module
 #include "texture/TextureManager.h"
 
@@ -68,7 +68,8 @@ protected:
 
     BlendMode currentBlend_ = BlendMode::Alpha;
 
-    bool isRender_ = true;
+    bool isRender_  = true;
+    bool isCulling_ = true;
 
     std::shared_ptr<std::vector<MeshTemplate>> meshGroup_;
 
@@ -92,6 +93,14 @@ public: // ↓ Accessor
     void setIsRender(bool _isRender) {
         isRender_ = _isRender;
     }
+    //------------------------------ isCulling ------------------------------//
+    bool isCulling() const {
+        return isCulling_;
+    }
+    void setIsCulling(bool _isCulling) {
+        isCulling_ = _isCulling;
+    }
+
     //------------------------------ MeshGroup ------------------------------//
     int32_t getMeshGroupSize() const {
         return static_cast<int32_t>(meshGroup_->size());
