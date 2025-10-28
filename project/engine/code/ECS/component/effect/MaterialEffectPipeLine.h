@@ -70,6 +70,7 @@ private:
 
 public:
     int32_t getPriority() const { return priority_; }
+    void setPriority(int32_t priority) { priority_ = priority; }
     bool isActive() const { return isActive_; }
     void setActive(bool active) { isActive_ = active; }
 

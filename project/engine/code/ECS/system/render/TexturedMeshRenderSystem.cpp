@@ -76,17 +76,19 @@ void TexturedMeshRenderSystem::DispatchRenderer(Entity* _entity) {
                 continue;
             }
 
-            ///==============================
-            /// Transformの更新
-            ///==============================
-            auto& transform = renderer.getTransformBuff();
+            for (int32_t i = 0; i < static_cast<int32_t>(renderer.getMeshGroup()->size()); ++i) {
+                ///==============================
+                /// Transformの更新 (meshごと)
+                ///==============================
+                auto& transform = renderer.getTransformBuff(i);
 
-            if (transform->parent == nullptr) {
-                transform->parent = entityTransform;
+                if (transform->parent == nullptr) {
+                    transform->parent = entityTransform;
+                }
+
+                transform->UpdateMatrix();
+                transform.ConvertToBuffer();
             }
-
-            transform->UpdateMatrix();
-            transform.ConvertToBuffer();
 
             ///==============================
             /// push_back
