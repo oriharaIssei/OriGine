@@ -34,6 +34,78 @@ void SkyboxRender::Finalize() {
     dxCommand_->Finalize();
 }
 
+void SkyboxRender::StartRender() {
+    currentBlend_ = BlendMode::Alpha;
+
+    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->getCommandList();
+
+    commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
+    commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
+
+    commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+    ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
+    commandList->SetDescriptorHeaps(1, ppHeaps);
+}
+
+/// <summary>
+/// 描画
+/// </summary>
+/// <param name="_entity">描画対象オブジェクト</param>
+void SkyboxRender::UpdateEntity(Entity* _entity) {
+    auto commandList = dxCommand_->getCommandList();
+
+    SkyboxRenderer* renderer = getComponent<SkyboxRenderer>(_entity);
+
+    // nullptr なら これ以上存在しないとして終了
+    if (!renderer) {
+        return;
+    }
+    // 描画フラグが立っていないならスキップ
+    if (!renderer->isRender()) {
+        return;
+    }
+
+    // BlendMode を 適応
+    BlendMode rendererBlend = renderer->getCurrentBlend();
+    if (rendererBlend != currentBlend_) {
+        currentBlend_ = rendererBlend;
+        commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
+        commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
+    }
+
+    auto& mesh = renderer->getMeshGroup()->front();
+    // ============================= テクスチャの設定 ============================= //
+
+    commandList->SetGraphicsRootDescriptorTable(
+        2,
+        TextureManager::getDescriptorGpuHandle(renderer->getTextureIndex()));
+
+    // ============================= Viewのセット ============================= //
+    commandList->IASetVertexBuffers(0, 1, &mesh.getVBView());
+    commandList->IASetIndexBuffer(&mesh.getIBView());
+
+    // ============================= Transformのセット ============================= //
+    IConstantBuffer<Transform>& meshTransform = renderer->getTransformBuff();
+    const CameraTransform& cameraTransform    = CameraManager::getInstance()->getTransform();
+    meshTransform->translate                  = cameraTransform.translate;
+    meshTransform->UpdateMatrix();
+    const Matrix4x4& viewMat = cameraTransform.viewMat;
+    const Matrix4x4& projMat = cameraTransform.projectionMat;
+    meshTransform->worldMat  = meshTransform->worldMat * viewMat * projMat;
+    meshTransform.ConvertToBuffer();
+    meshTransform.SetForRootParameter(commandList, 0);
+
+    // ============================= Materialのセット ============================= //
+    auto& material = renderer->getMaterialBuff();
+    material.ConvertToBuffer();
+    material.SetForRootParameter(commandList, 1);
+
+    // ============================= 描画 ============================= //
+    commandList->DrawIndexedInstanced(UINT(mesh.getIndexSize()), 1, 0, 0, 0);
+}
+
+
 void SkyboxRender::CreatePso() {
 
     ShaderManager* shaderManager = ShaderManager::getInstance();
@@ -141,75 +213,4 @@ void SkyboxRender::CreatePso() {
         texShaderInfo.blendMode_       = blend;
         pso_[texShaderInfo.blendMode_] = shaderManager->CreatePso("Skybox_" + blendModeStr[i], texShaderInfo, dxDevice->device_);
     }
-}
-
-void SkyboxRender::StartRender() {
-    currentBlend_ = BlendMode::Alpha;
-
-    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->getCommandList();
-
-    commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
-    commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
-
-    commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-    ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
-    commandList->SetDescriptorHeaps(1, ppHeaps);
-}
-
-/// <summary>
-/// 描画
-/// </summary>
-/// <param name="_entity">描画対象オブジェクト</param>
-void SkyboxRender::UpdateEntity(Entity* _entity) {
-    auto commandList = dxCommand_->getCommandList();
-
-    SkyboxRenderer* renderer = getComponent<SkyboxRenderer>(_entity);
-
-    // nullptr なら これ以上存在しないとして終了
-    if (!renderer) {
-        return;
-    }
-    // 描画フラグが立っていないならスキップ
-    if (!renderer->isRender()) {
-        return;
-    }
-
-    // BlendMode を 適応
-    BlendMode rendererBlend = renderer->getCurrentBlend();
-    if (rendererBlend != currentBlend_) {
-        currentBlend_ = rendererBlend;
-        commandList->SetGraphicsRootSignature(pso_[currentBlend_]->rootSignature.Get());
-        commandList->SetPipelineState(pso_[currentBlend_]->pipelineState.Get());
-    }
-
-    auto& mesh = renderer->getMeshGroup()->front();
-    // ============================= テクスチャの設定 ============================= //
-
-    commandList->SetGraphicsRootDescriptorTable(
-        2,
-        TextureManager::getDescriptorGpuHandle(renderer->getTextureIndex()));
-
-    // ============================= Viewのセット ============================= //
-    commandList->IASetVertexBuffers(0, 1, &mesh.getVBView());
-    commandList->IASetIndexBuffer(&mesh.getIBView());
-
-    // ============================= Transformのセット ============================= //
-    IConstantBuffer<Transform>& meshTransform = renderer->getTransformBuff();
-    const CameraTransform& cameraTransform    = CameraManager::getInstance()->getTransform();
-    meshTransform->translate                  = cameraTransform.translate;
-    meshTransform->UpdateMatrix();
-    const Matrix4x4& viewMat = cameraTransform.viewMat;
-    const Matrix4x4& projMat = cameraTransform.projectionMat;
-    meshTransform->worldMat  = meshTransform->worldMat * viewMat * projMat;
-    meshTransform.ConvertToBuffer();
-    meshTransform.SetForRootParameter(commandList, 0);
-
-    // ============================= Materialのセット ============================= //
-    auto& material = renderer->getMaterialBuff();
-    material.ConvertToBuffer();
-    material.SetForRootParameter(commandList, 1);
-
-    // ============================= 描画 ============================= //
-    commandList->DrawIndexedInstanced(UINT(mesh.getIndexSize()), 1, 0, 0, 0);
 }

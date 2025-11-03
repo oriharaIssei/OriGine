@@ -466,13 +466,13 @@ bool InputVectorGuiCommand(const std::string& label, Vector<N, T>& value, const 
 /// <param name="value"></param>
 /// <returns></returns>
 template <int N>
-bool ColorEditGui(const std::string& label, Vector<N, float>& value) {
+bool ColorEditGui(const std::string& label, Vector<N, float>& value, ImGuiColorEditFlags _colorEditFlags = 0) {
     static_assert(N == 3 || N == 4, "ColorEditGui only supports 3 or 4 components (RGB or RGBA).");
 
     if constexpr (N == 3) {
-        return ImGui::ColorEdit3(label.c_str(), value.v);
+        return ImGui::ColorEdit3(label.c_str(), value.v, _colorEditFlags);
     } else if constexpr (N == 4) {
-        return ImGui::ColorEdit4(label.c_str(), value.v);
+        return ImGui::ColorEdit4(label.c_str(), value.v, _colorEditFlags);
     } else {
         return false; // サポートされていない場合
     }
@@ -487,13 +487,13 @@ bool ColorEditGui(const std::string& label, Vector<N, float>& value) {
 /// <param name="_afterFunc"></param>
 /// <returns></returns>
 template <int N>
-bool ColorEditGuiCommand(const std::string& label, Vector<N, float>& value, std::function<void(Vector<N, float>*)> _afterFunc = nullptr) {
+bool ColorEditGuiCommand(const std::string& label, Vector<N, float>& value, ImGuiColorEditFlags _colorEditFlags = 0, std::function<void(Vector<N, float>*)> _afterFunc = nullptr) {
     static_assert(N == 3 || N == 4, "ColorEditGuiCommand only supports 3 or 4 components (RGB or RGBA).");
 
     static GuiValuePool<Vector<N, float>> valuePool;
 
     bool result = false;
-    result      = ColorEditGui(label, value);
+    result      = ColorEditGui<N>(label, value, _colorEditFlags);
 
     if (ImGui::IsItemActive()) {
         valuePool.setValue(label, value);
@@ -552,7 +552,6 @@ bool AskLoadTextureButton(int32_t _texIndex, const std::string& _parentLabel);
 /// <param name="_withoutBaseDirectory">出力に_baseDirectoryを含めるかどうか. true ＝ 含めない, false = 含める</param>
 /// <returns>選択に成功したかどうか. true = 成功した, false = 失敗した</returns>
 bool OpenFileDialog(const std::string& _baseDirectory, std::string& _outputDirectory, std::string& _outputFileName, const std::vector<std::string>& _extension, bool _withoutExtension, bool _withoutBaseDirectory);
- 
 
 /// <summary>
 /// dialogを開いてファイルを選択させる(directoryとfilenameを合わせる)

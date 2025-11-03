@@ -301,6 +301,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="geometry\shape\Plane.h" />
     <ClInclude Include="geometry\shape\Ring.h" />
     <ClInclude Include="geometry\shape\Sphere.h" />
+    <ClInclude Include="math\Interpolation.h" />
     <ClInclude Include="math\Matrix4x4.h" />
     <ClInclude Include="math\MyEasing.h" />
     <ClInclude Include="math\Orientation.h" />
@@ -462,6 +463,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\texture\TextureManager.cpp" />
     <ClCompile Include="engine\code\winApp\WinApp.cpp" />
     <ClCompile Include="geometry\base\GeometryType.cpp" />
+    <ClCompile Include="math\Interpolation.cpp" />
     <ClCompile Include="math\mathEnv.cpp" />
     <ClCompile Include="math\Matrix4x4.cpp" />
     <ClCompile Include="math\MyEasing.cpp" />

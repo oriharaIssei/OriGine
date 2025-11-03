@@ -98,5 +98,9 @@ void Input::setMousePos(const Vec2f& _fixedPos) {
 }
 
 void Input::ShowMouseCursor(bool _isShow) {
-    ShowCursor(_isShow);
+    if (isShowMouseCursor_ == _isShow) {
+        return;
+    }
+    isShowMouseCursor_ = _isShow;
+    ShowCursor(isShowMouseCursor_);
 }

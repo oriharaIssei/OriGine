@@ -46,7 +46,7 @@ public:
 
     /// <summary>
     /// バックバッファのリサイズ
-    /// </summary> 
+    /// </summary>
     void ResizeBuffer(UINT width, UINT height);
 
 private:
@@ -59,7 +59,7 @@ private:
     UINT bufferWidth_  = 0;
     UINT bufferHeight_ = 0;
 
-    const Vec4f clearColor_ = Vec4f{0.f, 0.f, 0.f, 1.0f};
+    const Vec4f clearColor_ = Vec4f{0.f, 0.f, 0.f, 0.0f};
 
 public:
     UINT getBufferCount() const { return bufferCount_; }

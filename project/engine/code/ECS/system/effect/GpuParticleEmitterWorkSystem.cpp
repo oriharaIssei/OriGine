@@ -40,7 +40,7 @@ void GpuParticleEmitterWorkSystem::Update() {
         if (!emitterArray) {
             return; // エミッターが存在しない場合は何もしない
         }
-        for (auto& componentVec : *emitterArray->getAllComponents()) {
+        for (auto& componentVec : emitterArray->getAllComponents()) {
             for (auto& comp : componentVec) {
                 if (comp.isActive()) {
                     workEmitters_.push_back(&comp);

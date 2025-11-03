@@ -347,6 +347,8 @@ void RenderTexture::DrawTexture() {
     commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
     commandList->SetPipelineState(pso_->pipelineState.Get());
 
+    commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
     ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
 

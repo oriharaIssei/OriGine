@@ -150,7 +150,7 @@ public:
     componentType* getDynamicFrontComponent(Entity* _entity);
     componentType* getDynamicBackComponent(Entity* _entity);
 
-    std::vector<std::vector<componentType>>* getAllComponents() { return &components_; }
+    std::vector<std::vector<componentType>>& getAllComponents() { return components_; }
     const std::map<int32_t, uint32_t>& getEntityIndexBind() const { return entityIndexBind_; }
 };
 

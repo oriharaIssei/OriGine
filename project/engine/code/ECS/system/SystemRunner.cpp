@@ -121,7 +121,7 @@ void SystemRunner::UpdateCategory(SystemCategory _category) {
 void SystemRunner::registerSystem(const std::string& _systemName, int32_t _priority, bool _activate) {
     auto itr = systems_.find(_systemName);
 
-    if (itr == systems_.end()) {
+    if (itr == systems_.end() || !itr->second) {
         auto createdSystem = SystemRegistry::getInstance()->createSystem(_systemName, this->scene_);
         if (!createdSystem) {
             LOG_ERROR("SystemRunner: System not found with name: {}", _systemName);
@@ -161,18 +161,19 @@ void SystemRunner::unregisterSystem(const std::string& _systemName) {
 void SystemRunner::ActivateSystem(const std::string& _systemName) {
     auto itr = systems_.find(_systemName);
     if (itr == systems_.end()) {
-        LOG_ERROR("SystemRunner: System not found with name: {}", _systemName);
+        LOG_ERROR("System not found with name: {}", _systemName);
         return;
     }
 
     ISystem* system = itr->second.get();
     if (!system) {
+        LOG_WARN("System '{}' is nullptr.", _systemName);
         return;
     }
     size_t categoryIndex = static_cast<size_t>(system->getCategory());
     auto& activeSystems  = activeSystems_[categoryIndex];
     if (std::find(activeSystems.begin(), activeSystems.end(), system) != activeSystems.end()) {
-        LOG_WARN("SystemRunner: System '{}' is already active in category '{}'.", _systemName, SystemCategoryString[categoryIndex]);
+        LOG_WARN("System '{}' is already active in category '{}'.", _systemName, SystemCategoryString[categoryIndex]);
         return;
     }
 
@@ -246,7 +247,9 @@ void SystemRunner::removeEntity(const std::string& _systemTypeName, Entity* _ent
 void SystemRunner::removeEntityFromAllSystems(Entity* _entity) {
     // 各システムからエンティティを削除
     for (auto& [name, system] : systems_) {
-        system->removeEntity(_entity);
+        if (system) {
+            system->removeEntity(_entity);
+        }
     }
 }
 

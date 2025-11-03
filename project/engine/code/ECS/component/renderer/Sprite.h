@@ -153,8 +153,8 @@ public:
     void setUVTranslate(const Vec2f& uvTranslate) { spriteBuff_->uvTranslate_ = uvTranslate; }
     const Vec2f& getUVTranslate() const { return spriteBuff_->uvTranslate_; }
 
-    void setColor(const Vec4f& color) { spriteBuff_->color_ = color; }
     const Vec4f& getColor() const { return spriteBuff_->color_; }
+    void setColor(const Vec4f& color) { spriteBuff_->color_ = color; }
 
     const Vec2f& getAnchorPoint() const { return anchorPoint_; }
     void setAnchorPoint(const Vec2f& anchor) { anchorPoint_ = anchor; }

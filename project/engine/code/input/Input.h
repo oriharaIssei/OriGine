@@ -302,6 +302,7 @@ private:
     Microsoft::WRL::ComPtr<IDirectInputDevice8> mouse_ = nullptr;
     DIMOUSESTATE2 currentMouseState_;
     DIMOUSESTATE2 preMouseState_;
+    bool isShowMouseCursor_ = true; // マウスカーソル表示フラグ
     // 座標
     Vec2f currentMousePos_;
     Vec2f preMousePos_;

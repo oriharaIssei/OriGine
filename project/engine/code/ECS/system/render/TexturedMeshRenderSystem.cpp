@@ -374,7 +374,7 @@ void TexturedMeshRenderSystem::LightUpdate() {
     lightManager->clearLights();
 
     if (directionalLight) {
-        for (auto& lightVec : *directionalLight->getAllComponents()) {
+        for (auto& lightVec : directionalLight->getAllComponents()) {
             for (auto& light : lightVec) {
                 if (light.isActive()) {
                     lightManager->pushDirectionalLight(light);
@@ -384,7 +384,7 @@ void TexturedMeshRenderSystem::LightUpdate() {
     }
 
     if (pointLight) {
-        for (auto& lightVec : *pointLight->getAllComponents()) {
+        for (auto& lightVec : pointLight->getAllComponents()) {
             for (auto& light : lightVec) {
                 if (light.isActive()) {
                     lightManager->pushPointLight(light);
@@ -394,7 +394,7 @@ void TexturedMeshRenderSystem::LightUpdate() {
     }
 
     if (spotLight) {
-        for (auto& lightVec : *spotLight->getAllComponents()) {
+        for (auto& lightVec : spotLight->getAllComponents()) {
             for (auto& light : lightVec) {
                 if (light.isActive()) {
                     lightManager->pushSpotLight(light);

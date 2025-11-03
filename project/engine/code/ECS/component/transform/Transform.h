@@ -30,7 +30,7 @@ public:
     void Initialize(Entity* _entity) override;
     void UpdateMatrix();
     Quaternion CalculateWorldRotate() const;
-    void Edit(Scene* _scene,Entity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
 
     void Finalize() override {};
 
@@ -41,6 +41,9 @@ public:
     Matrix4x4 worldMat = MakeMatrix::Identity();
 
     Transform* parent = nullptr;
+
+public:
+    Vec3f getWorldTranslate() const { return worldMat[3]; }
 
 public:
     struct ConstantBuffer {

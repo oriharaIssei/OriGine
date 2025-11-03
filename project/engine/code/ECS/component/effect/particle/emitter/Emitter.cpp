@@ -465,6 +465,7 @@ void Emitter::EditParticle([[maybe_unused]] const std::string& _parentLabel) {
         ColorEditGuiCommand<4>(
             label,
             particleColor_,
+            0,
             [this](Vec<4, float>* _newColor) {
                 if (!particleKeyFrames_->colorCurve_.empty()) {
                     particleKeyFrames_->colorCurve_[0].value = *_newColor;

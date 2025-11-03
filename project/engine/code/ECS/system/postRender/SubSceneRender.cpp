@@ -1,6 +1,7 @@
 #include "SubSceneRender.h"
 
-/// ECS
+/// engine
+// directX12
 #include "directX12/RenderTexture.h"
 
 // component

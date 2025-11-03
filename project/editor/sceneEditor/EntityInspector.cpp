@@ -260,7 +260,7 @@ void EntityComponentRegion::RemoveComponentFromEditListCommand::Undo() {
         }
 
         componentArray->insertComponent(editEntity, componentIndex_);
-        componentArray->LoadComponent(editEntity, componentIndex_, componentData_);
+        componentArray->LoadComponent(editEntity, componentIndex_, componentData_[componentTypeName_]);
 
         // コンポーネントをエンティティのコンポーネントマップに再追加
         auto& entityComponentMap = parentArea_->getEntityComponentMap();

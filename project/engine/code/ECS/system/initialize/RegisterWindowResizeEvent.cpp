@@ -29,7 +29,7 @@ void RegisterWindowResizeEvent::Initialize() {
         auto currentScene = getScene();
         if (currentScene) {
             auto spritesArray = currentScene->getComponentArray<SpriteRenderer>();
-            for (auto& sprites : *spritesArray->getAllComponents()) {
+            for (auto& sprites : spritesArray->getAllComponents()) {
                 for (auto& sprite : sprites) {
                     sprite.CalculateWindowRatioPosAndSize(size);
                 }

@@ -190,8 +190,6 @@ void ParticleRenderSystem::CreatePso() {
     /// Sampler
     ///=================================================
 
-    shaderInfo.customDepthStencilDesc().DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
-
     ///=================================================
     /// BlendMode ごとの Pso作成
     ///=================================================
