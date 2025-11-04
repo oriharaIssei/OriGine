@@ -55,12 +55,26 @@ void ISystem::addComponent(Entity* _entity, const std::string& _typeName, ICompo
     scene_->getComponentRepositoryRef()->getComponentArray(_typeName)->addComponent(_entity, _component, _doInitialize);
 }
 
-void ISystem::Update() {
-#ifdef _DEBUG
+void ISystem::Run() {
+#ifndef _RELEASE
     // 計測開始
     deltaTimer_.Initialize();
-#endif
+#endif // _RELEASE
 
+    if (!isActive_) {
+        return;
+    }
+
+    Update();
+
+#ifndef _RELEASE
+    // 計測終了
+    deltaTimer_.Update();
+    runningTime_ = deltaTimer_.getDeltaTime();
+#endif
+}
+
+void ISystem::Update() {
     if (entityIDs_.empty()) {
         return;
     }
@@ -71,12 +85,6 @@ void ISystem::Update() {
         Entity* entity = scene_->getEntityRepositoryRef()->getEntity(entityID);
         UpdateEntity(entity);
     }
-
-#ifdef _DEBUG
-    // 計測終了
-    deltaTimer_.Update();
-    runningTime_ = deltaTimer_.getDeltaTime();
-#endif
 }
 
 void ISystem::Edit() {

@@ -10,8 +10,8 @@
 // ECS
 #include "component/ComponentArray.h"
 #include "component/IComponent.h"
-#include "entity/Entity.h"
 #include "ECS/system/SystemCategory.h"
+#include "entity/Entity.h"
 
 /// external
 #include "logger/Logger.h"
@@ -28,9 +28,17 @@ public:
     virtual ~ISystem() = default;
 
     virtual void Initialize() = 0;
+    /// <summary>
+    /// Run()で呼び出されるSystem特有の更新処理
+    /// </summary>
     virtual void Update();
     virtual void Edit();
     virtual void Finalize() = 0;
+
+    /// <summary>
+    /// 外部から呼び出される更新処理
+    /// </summary>
+    virtual void Run();
 
     void eraseDeadEntity();
 
@@ -154,4 +162,3 @@ public: // ========================================== accessor =================
 // Systemを継承しているかどうか
 template <typename T>
 concept IsSystem = std::is_base_of<ISystem, T>::value;
-
