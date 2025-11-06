@@ -11,18 +11,16 @@
 // ECS
 #include "component/renderer/Sprite.h"
 
-void SpriteRenderSystem::Initialize() {
-    dxCommand_ = std::make_unique<DxCommand>();
-    dxCommand_->Initialize("main", "main");
+SpriteRenderSystem::SpriteRenderSystem() : BaseRenderSystem() {}
 
-    CreatePso();
+void SpriteRenderSystem::Initialize() {
 
     // ViewPortMatの計算
     WinApp* window = Engine::getInstance()->getWinApp();
     viewPortMat_   = MakeMatrix::Orthographic(0, 0, (float)window->getWidth(), (float)window->getHeight(), 0.0f, 100.0f);
 }
 
-void SpriteRenderSystem::Update() {
+void SpriteRenderSystem::Rendering() {
     eraseDeadEntity();
 
     if (entityIDs_.empty()) {
@@ -32,23 +30,14 @@ void SpriteRenderSystem::Update() {
     // 前フレームの描画対象をクリア
     renderers_.clear();
 
+    // 描画するものを登録
     for (auto& id : entityIDs_) {
         Entity* entity = getEntity(id);
         DispatchRenderer(entity);
     }
 
     // アクティブなレンダラーが一つもなければ終了
-    bool isSkip = true;
-    for (auto& [blend, emitters] : renderers_) {
-        if (emitters.empty()) {
-            continue;
-        }
-        isSkip = false;
-        std::sort(emitters.begin(), emitters.end(), [](SpriteRenderer* a, SpriteRenderer* b) {
-            return a->getRenderPriority() < b->getRenderPriority();
-        });
-    }
-    if (isSkip) {
+    if (IsSkipRendering()) {
         return;
     }
 
@@ -61,9 +50,43 @@ void SpriteRenderSystem::Update() {
     ///=========================================================
     // 描画
     ///=========================================================
-    for (size_t i = 0; i < kBlendNum; ++i) {
-        BlendMode blend = static_cast<BlendMode>(i);
-        RenderingBy(blend);
+    auto commandList = dxCommand_->getCommandList();
+
+    // 描画開始処理
+    StartRender();
+
+    // 初期ブレンドモード
+    BlendMode currentBlendMode = BlendMode::Normal;
+    int32_t blendIndex         = static_cast<int32_t>(currentBlendMode);
+    commandList->SetGraphicsRootSignature(psoByBlendMode_[blendIndex]->rootSignature.Get());
+    commandList->SetPipelineState(psoByBlendMode_[blendIndex]->pipelineState.Get());
+
+    for (auto& renderer : renderers_) {
+        // BlendModeごとにPSOを切り替え
+        if (currentBlendMode != renderer->getCurrentBlend()) {
+            currentBlendMode = renderer->getCurrentBlend();
+            blendIndex       = static_cast<int32_t>(currentBlendMode);
+            commandList->SetGraphicsRootSignature(psoByBlendMode_[blendIndex]->rootSignature.Get());
+            commandList->SetPipelineState(psoByBlendMode_[blendIndex]->pipelineState.Get());
+        }
+
+        // バッファ更新
+        renderer->UpdateBuffer(viewPortMat_);
+
+        // テクスチャの設定
+        commandList->SetGraphicsRootDescriptorTable(
+            1,
+            TextureManager::getDescriptorGpuHandle(renderer->getTextureNumber()));
+
+        // meshの設定・描画
+        SpriteMesh& mesh = renderer->getMeshGroup()->at(0);
+        commandList->IASetVertexBuffers(0, 1, &mesh.getVBView());
+        commandList->IASetIndexBuffer(&mesh.getIBView());
+
+        renderer->getSpriteBuff().SetForRootParameter(commandList, 0);
+
+        // 描画コマンド
+        commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);
     }
 }
 
@@ -77,42 +100,19 @@ void SpriteRenderSystem::DispatchRenderer(Entity* _entity) {
         if (!renderer.isRender()) {
             continue;
         }
-        renderers_[renderer.getCurrentBlend()].push_back(&renderer);
+        renderers_.push_back(&renderer);
     }
 }
-void SpriteRenderSystem::RenderingBy(BlendMode _blendMode) {
-    if (renderers_[_blendMode].empty()) {
-        return;
-    }
 
-    auto commandList = dxCommand_->getCommandList();
-    auto pso         = pso_[_blendMode];
-    commandList->SetGraphicsRootSignature(pso->rootSignature.Get());
-    commandList->SetPipelineState(pso->pipelineState.Get());
-
-    StartRender();
-
-    dxCommand_->getCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    for (auto& renderer : renderers_[_blendMode]) {
-        renderer->Update(viewPortMat_);
-        // ============================= テクスチャの設定 ============================= //
-        commandList->SetGraphicsRootDescriptorTable(
-            1,
-            TextureManager::getDescriptorGpuHandle(renderer->getTextureNumber()));
-        SpriteMesh& mesh = renderer->getMeshGroup()->at(0);
-        commandList->IASetVertexBuffers(0, 1, &mesh.getVBView());
-        commandList->IASetIndexBuffer(&mesh.getIBView());
-        renderer->getSpriteBuff().SetForRootParameter(commandList, 0);
-        commandList->DrawIndexedInstanced(
-            6, 1, 0, 0, 0);
-    }
+bool SpriteRenderSystem::IsSkipRendering() const {
+    return renderers_.empty();
 }
 
 void SpriteRenderSystem::Finalize() {
     dxCommand_->Finalize();
 }
 
-void SpriteRenderSystem::CreatePso() {
+void SpriteRenderSystem::CreatePSO() {
 
     ShaderManager* shaderManager = ShaderManager::getInstance();
 
@@ -120,10 +120,10 @@ void SpriteRenderSystem::CreatePso() {
     if (shaderManager->IsRegisteredPipelineStateObj("Sprite_" + blendModeStr[0])) {
         for (size_t i = 0; i < kBlendNum; ++i) {
             BlendMode blend = static_cast<BlendMode>(i);
-            if (pso_[blend]) {
+            if (psoByBlendMode_[blend]) {
                 continue;
             }
-            pso_[blend] = shaderManager->getPipelineStateObj("Sprite_" + blendModeStr[i]);
+            psoByBlendMode_[blend] = shaderManager->getPipelineStateObj("Sprite_" + blendModeStr[i]);
         }
         return;
     }
@@ -201,7 +201,7 @@ void SpriteRenderSystem::CreatePso() {
     for (size_t i = 0; i < kBlendNum; i++) {
         shaderInfo.blendMode_ = static_cast<BlendMode>(i);
 
-        pso_[shaderInfo.blendMode_] = shaderManager->CreatePso("Sprite_" + blendModeStr[i], shaderInfo, Engine::getInstance()->getDxDevice()->device_);
+        psoByBlendMode_[shaderInfo.blendMode_] = shaderManager->CreatePso("Sprite_" + blendModeStr[i], shaderInfo, Engine::getInstance()->getDxDevice()->device_);
     }
 }
 
@@ -209,8 +209,8 @@ void SpriteRenderSystem::StartRender() {
     auto commandList = dxCommand_->getCommandList();
     dxCommand_->getCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
+    dxCommand_->getCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
     ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
 }
-
-void SpriteRenderSystem::UpdateEntity(Entity* /*_entity*/) {}

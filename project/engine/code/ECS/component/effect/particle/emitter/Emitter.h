@@ -197,5 +197,6 @@ public:
 
     BlendMode getBlendMode() const { return blendMode_; }
 
+    Transform* getParent() const { return parent_; }
     void setParent(Transform* _parent) { parent_ = _parent; }
 };

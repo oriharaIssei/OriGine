@@ -35,37 +35,6 @@ static const float sphereDivisionReal = static_cast<float>(sphereDivision);
 static const uint32_t sphereVertexSize = 4 * sphereDivision * sphereDivision;
 static const uint32_t sphereIndexSize  = 4 * sphereDivision * sphereDivision;
 
-void ColliderRenderingSystem::Initialize() {
-    dxCommand_ = std::make_unique<DxCommand>();
-    dxCommand_->Initialize("main", "main");
-
-    //** AABB **//
-    aabbColliders_ = getComponentArray<AABBCollider>();
-    aabbRenderer_  = LineRenderer(std::vector<Mesh<ColorVertexData>>());
-    aabbRenderer_.Initialize(nullptr);
-    aabbRenderer_.getMeshGroup()->push_back(Mesh<ColorVertexData>());
-    aabbRenderer_.getMeshGroup()->back().Initialize(ColliderRenderingSystem::defaultMeshCount_ * aabbVertexSize, ColliderRenderingSystem::defaultMeshCount_ * aabbIndexSize);
-    aabbMeshItr_ = aabbRenderer_.getMeshGroup()->begin();
-
-    //** OBB **//
-    obbColliders_ = getComponentArray<OBBCollider>();
-    obbRenderer_  = LineRenderer(std::vector<Mesh<ColorVertexData>>());
-    obbRenderer_.Initialize(nullptr);
-    obbRenderer_.getMeshGroup()->push_back(Mesh<ColorVertexData>());
-    obbRenderer_.getMeshGroup()->back().Initialize(ColliderRenderingSystem::defaultMeshCount_ * obbVertexSize, ColliderRenderingSystem::defaultMeshCount_ * obbIndexSize);
-    obbMeshItr_ = obbRenderer_.getMeshGroup()->begin();
-
-    //** Sphere **//
-    sphereColliders_ = getComponentArray<SphereCollider>();
-    sphereRenderer_  = LineRenderer(std::vector<Mesh<ColorVertexData>>());
-    sphereRenderer_.Initialize(nullptr);
-    sphereRenderer_.getMeshGroup()->push_back(Mesh<ColorVertexData>());
-    sphereRenderer_.getMeshGroup()->back().Initialize(ColliderRenderingSystem::defaultMeshCount_ * sphereVertexSize, ColliderRenderingSystem::defaultMeshCount_ * sphereIndexSize);
-    sphereMeshItr_ = sphereRenderer_.getMeshGroup()->begin();
-
-    CreatePso();
-}
-
 #pragma region "CreateLineMesh"
 /// <summary>
 /// Bounds形状からラインメッシュを作成
@@ -230,36 +199,125 @@ void CreateLineMeshByShape(
 }
 #pragma endregion
 
+ColliderRenderingSystem::ColliderRenderingSystem() : BaseRenderSystem() {}
+
+void ColliderRenderingSystem::Initialize() {
+    BaseRenderSystem::Initialize();
+
+    //** AABB **//
+    aabbColliders_ = getComponentArray<AABBCollider>();
+    aabbRenderer_  = std::make_unique<LineRenderer>(std::vector<Mesh<ColorVertexData>>());
+    aabbRenderer_->Initialize(nullptr);
+    aabbRenderer_->getMeshGroup()->push_back(Mesh<ColorVertexData>());
+    aabbRenderer_->getMeshGroup()->back().Initialize(ColliderRenderingSystem::defaultMeshCount_ * aabbVertexSize, ColliderRenderingSystem::defaultMeshCount_ * aabbIndexSize);
+    aabbMeshItr_ = aabbRenderer_->getMeshGroup()->begin();
+
+    //** OBB **//
+    obbColliders_ = getComponentArray<OBBCollider>();
+    obbRenderer_  = std::make_unique<LineRenderer>(std::vector<Mesh<ColorVertexData>>());
+    obbRenderer_->Initialize(nullptr);
+    obbRenderer_->getMeshGroup()->push_back(Mesh<ColorVertexData>());
+    obbRenderer_->getMeshGroup()->back().Initialize(ColliderRenderingSystem::defaultMeshCount_ * obbVertexSize, ColliderRenderingSystem::defaultMeshCount_ * obbIndexSize);
+    obbMeshItr_ = obbRenderer_->getMeshGroup()->begin();
+
+    //** Sphere **//
+    sphereColliders_ = getComponentArray<SphereCollider>();
+    sphereRenderer_  = std::make_unique<LineRenderer>(std::vector<Mesh<ColorVertexData>>());
+    sphereRenderer_->Initialize(nullptr);
+    sphereRenderer_->getMeshGroup()->push_back(Mesh<ColorVertexData>());
+    sphereRenderer_->getMeshGroup()->back().Initialize(ColliderRenderingSystem::defaultMeshCount_ * sphereVertexSize, ColliderRenderingSystem::defaultMeshCount_ * sphereIndexSize);
+    sphereMeshItr_ = sphereRenderer_->getMeshGroup()->begin();
+}
+
 void ColliderRenderingSystem::Update() {
-    CreateRenderMesh();
-
-    bool isRendering = false;
-    // aabb
-    isRendering = !aabbRenderer_.getMeshGroup()->empty() || !aabbRenderer_.getMeshGroup()->front().indexes_.empty();
-    // sphere
-    isRendering |= !sphereRenderer_.getMeshGroup()->empty() || !sphereRenderer_.getMeshGroup()->front().indexes_.empty();
-    // obb
-    isRendering |= !obbRenderer_.getMeshGroup()->empty() || !obbRenderer_.getMeshGroup()->front().indexes_.empty();
-
     // 描画するものがなかったらスキップ
-    if (!isRendering) {
+    if (IsSkipRendering()) {
         return;
     }
 
-    StartRender();
+    // メッシュ作成
+    CreateRenderMesh();
 
-    RenderCall();
+    // レンダリング
+    Rendering();
 }
 
 void ColliderRenderingSystem::Finalize() {
     dxCommand_->Finalize();
 }
 
-void ColliderRenderingSystem::UpdateEntity(Entity* /*_entity*/) {}
+void ColliderRenderingSystem::CreatePSO() {
+
+    ShaderManager* shaderManager = ShaderManager::getInstance();
+    DxDevice* dxDevice           = Engine::getInstance()->getDxDevice();
+
+    ///=================================================
+    /// shader読み込み
+    ///=================================================
+    shaderManager->LoadShader("ColoredVertex.VS");
+    shaderManager->LoadShader("ColoredVertex.PS", shaderDirectory, L"ps_6_0");
+
+    ///=================================================
+    /// shader情報の設定
+    ///=================================================
+    ShaderInfo lineShaderInfo{};
+    lineShaderInfo.vsKey = "ColoredVertex.VS";
+    lineShaderInfo.psKey = "ColoredVertex.PS";
+
+#pragma region "RootParameter"
+    D3D12_ROOT_PARAMETER rootParameter[2]{};
+    // Transform ... 0
+    rootParameter[0].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
+    rootParameter[0].ShaderVisibility          = D3D12_SHADER_VISIBILITY_VERTEX;
+    rootParameter[0].Descriptor.ShaderRegister = 0;
+    lineShaderInfo.pushBackRootParameter(rootParameter[0]);
+    // CameraTransform ... 1
+    rootParameter[1].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
+    rootParameter[1].ShaderVisibility          = D3D12_SHADER_VISIBILITY_VERTEX;
+    rootParameter[1].Descriptor.ShaderRegister = 1;
+    lineShaderInfo.pushBackRootParameter(rootParameter[1]);
+#pragma endregion
+
+#pragma region "InputElement"
+    D3D12_INPUT_ELEMENT_DESC inputElementDesc = {};
+    inputElementDesc.SemanticName             = "POSITION"; /*Semantics*/
+    inputElementDesc.SemanticIndex            = 0; /*Semanticsの横に書いてある数字(今回はPOSITION0なので 0 )*/
+    inputElementDesc.Format                   = DXGI_FORMAT_R32G32B32A32_FLOAT; // float 4
+    inputElementDesc.AlignedByteOffset        = D3D12_APPEND_ALIGNED_ELEMENT;
+    lineShaderInfo.pushBackInputElementDesc(inputElementDesc);
+
+    inputElementDesc.SemanticName      = "COLOR"; /*Semantics*/
+    inputElementDesc.SemanticIndex     = 0;
+    inputElementDesc.Format            = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    inputElementDesc.AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+    lineShaderInfo.pushBackInputElementDesc(inputElementDesc);
+
+#pragma endregion
+
+    // topology
+    lineShaderInfo.topologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+
+    // rasterizer
+    lineShaderInfo.changeCullMode(D3D12_CULL_MODE_NONE);
+
+    ///=================================================
+    /// BlendMode ごとの Psoを作成
+    ///=================================================
+    pso_ = shaderManager->CreatePso("LineMesh_" + blendModeStr[int32_t(BlendMode::Alpha)], lineShaderInfo, dxDevice->device_);
+}
+
+void ColliderRenderingSystem::StartRender() {
+    auto commandList = dxCommand_->getCommandList();
+    commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
+    commandList->SetPipelineState(pso_->pipelineState.Get());
+    commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
+
+    CameraManager::getInstance()->setBufferForRootParameter(commandList, 1);
+}
 
 void ColliderRenderingSystem::CreateRenderMesh() {
     { // AABB
-        auto& meshGroup = aabbRenderer_.getMeshGroup();
+        auto& meshGroup = aabbRenderer_->getMeshGroup();
 
         for (auto meshItr = meshGroup->begin(); meshItr != meshGroup->end(); ++meshItr) {
             meshItr->vertexes_.clear();
@@ -323,7 +381,7 @@ void ColliderRenderingSystem::CreateRenderMesh() {
     aabbMeshItr_->TransferData();
 
     { // OBB
-        auto& meshGroup = obbRenderer_.getMeshGroup();
+        auto& meshGroup = obbRenderer_->getMeshGroup();
 
         for (auto meshItr = meshGroup->begin(); meshItr != meshGroup->end(); ++meshItr) {
             meshItr->vertexes_.clear();
@@ -387,7 +445,7 @@ void ColliderRenderingSystem::CreateRenderMesh() {
     obbMeshItr_->TransferData();
 
     { // Sphere
-        auto& meshGroup = sphereRenderer_.getMeshGroup();
+        auto& meshGroup = sphereRenderer_->getMeshGroup();
 
         for (auto meshItr = meshGroup->begin(); meshItr != meshGroup->end(); ++meshItr) {
             meshItr->vertexes_.clear();
@@ -455,8 +513,8 @@ void ColliderRenderingSystem::RenderCall() {
     ///==============================
     /// 描画
     ///==============================
-    aabbRenderer_.getTransformBuff().SetForRootParameter(commandList, 0);
-    for (auto& mesh : *aabbRenderer_.getMeshGroup()) {
+    aabbRenderer_->getTransformBuff().SetForRootParameter(commandList, 0);
+    for (auto& mesh : *aabbRenderer_->getMeshGroup()) {
         if (mesh.indexes_.size() <= 0) {
             continue;
         }
@@ -466,8 +524,8 @@ void ColliderRenderingSystem::RenderCall() {
         commandList->DrawIndexedInstanced(static_cast<UINT>(mesh.indexes_.size()), 1, 0, 0, 0);
     }
 
-    obbRenderer_.getTransformBuff().SetForRootParameter(commandList, 0);
-    for (auto& mesh : *obbRenderer_.getMeshGroup()) {
+    obbRenderer_->getTransformBuff().SetForRootParameter(commandList, 0);
+    for (auto& mesh : *obbRenderer_->getMeshGroup()) {
         if (mesh.indexes_.size() <= 0) {
             continue;
         }
@@ -477,8 +535,8 @@ void ColliderRenderingSystem::RenderCall() {
         commandList->DrawIndexedInstanced(static_cast<UINT>(mesh.indexes_.size()), 1, 0, 0, 0);
     }
 
-    sphereRenderer_.getTransformBuff().SetForRootParameter(commandList, 0);
-    for (auto& mesh : *sphereRenderer_.getMeshGroup()) {
+    sphereRenderer_->getTransformBuff().SetForRootParameter(commandList, 0);
+    for (auto& mesh : *sphereRenderer_->getMeshGroup()) {
         if (mesh.indexes_.size() <= 0) {
             continue;
         }
@@ -489,72 +547,14 @@ void ColliderRenderingSystem::RenderCall() {
     }
 }
 
-void ColliderRenderingSystem::CreatePso() {
+void ColliderRenderingSystem::Rendering() {
+    StartRender();
 
-    ShaderManager* shaderManager = ShaderManager::getInstance();
-    DxDevice* dxDevice           = Engine::getInstance()->getDxDevice();
-
-    ///=================================================
-    /// shader読み込み
-    ///=================================================
-    shaderManager->LoadShader("ColoredVertex.VS");
-    shaderManager->LoadShader("ColoredVertex.PS", shaderDirectory, L"ps_6_0");
-
-    ///=================================================
-    /// shader情報の設定
-    ///=================================================
-    ShaderInfo lineShaderInfo{};
-    lineShaderInfo.vsKey = "ColoredVertex.VS";
-    lineShaderInfo.psKey = "ColoredVertex.PS";
-
-#pragma region "RootParameter"
-    D3D12_ROOT_PARAMETER rootParameter[2]{};
-    // Transform ... 0
-    rootParameter[0].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
-    rootParameter[0].ShaderVisibility          = D3D12_SHADER_VISIBILITY_VERTEX;
-    rootParameter[0].Descriptor.ShaderRegister = 0;
-    lineShaderInfo.pushBackRootParameter(rootParameter[0]);
-    // CameraTransform ... 1
-    rootParameter[1].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
-    rootParameter[1].ShaderVisibility          = D3D12_SHADER_VISIBILITY_VERTEX;
-    rootParameter[1].Descriptor.ShaderRegister = 1;
-    lineShaderInfo.pushBackRootParameter(rootParameter[1]);
-#pragma endregion
-
-#pragma region "InputElement"
-    D3D12_INPUT_ELEMENT_DESC inputElementDesc = {};
-    inputElementDesc.SemanticName             = "POSITION"; /*Semantics*/
-    inputElementDesc.SemanticIndex            = 0; /*Semanticsの横に書いてある数字(今回はPOSITION0なので 0 )*/
-    inputElementDesc.Format                   = DXGI_FORMAT_R32G32B32A32_FLOAT; // float 4
-    inputElementDesc.AlignedByteOffset        = D3D12_APPEND_ALIGNED_ELEMENT;
-    lineShaderInfo.pushBackInputElementDesc(inputElementDesc);
-
-    inputElementDesc.SemanticName      = "COLOR"; /*Semantics*/
-    inputElementDesc.SemanticIndex     = 0;
-    inputElementDesc.Format            = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    inputElementDesc.AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
-    lineShaderInfo.pushBackInputElementDesc(inputElementDesc);
-
-#pragma endregion
-
-    // topology
-    lineShaderInfo.topologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
-
-    // rasterizer
-    lineShaderInfo.changeCullMode(D3D12_CULL_MODE_NONE);
-
-    ///=================================================
-    /// BlendMode ごとの Psoを作成
-    ///=================================================
-
-    pso_ = shaderManager->CreatePso("LineMesh_" + blendModeStr[int32_t(BlendMode::Alpha)], lineShaderInfo, dxDevice->device_);
+    RenderCall();
 }
 
-void ColliderRenderingSystem::StartRender() {
-    auto commandList = dxCommand_->getCommandList();
-    commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
-    commandList->SetPipelineState(pso_->pipelineState.Get());
-    commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
+bool ColliderRenderingSystem::IsSkipRendering() const {
+    bool isSkip = aabbColliders_->getEntityIndexBind().empty() && obbColliders_->getEntityIndexBind().empty() && sphereColliders_->getEntityIndexBind().empty();
 
-    CameraManager::getInstance()->setBufferForRootParameter(commandList, 1);
+    return isSkip;
 }

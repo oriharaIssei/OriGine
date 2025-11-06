@@ -227,7 +227,7 @@ void SpriteRenderer::setTexture(const std::string& _texturePath, bool _applyText
     }
 }
 
-void SpriteRenderer::Update(const Matrix4x4& _viewPortMat) {
+void SpriteRenderer::UpdateBuffer(const Matrix4x4& _viewPortMat) {
     //-------------------------------- ConstBufferの更新 --------------------------------//
     {
         spriteBuff_->Update(_viewPortMat);

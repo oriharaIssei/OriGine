@@ -1,5 +1,6 @@
 #pragma once
-#include "../ISystem.h"
+
+#include "system/render/base/BaseRenderSystem.h"
 
 /// stl
 #include <memory>
@@ -18,29 +19,48 @@ class SpriteRenderer;
 /// 背景スプライトの描画を行うシステム
 /// </summary>
 class BackGroundSpriteRenderSystem
-    : public ISystem {
+    : public BaseRenderSystem {
 public:
-    BackGroundSpriteRenderSystem() : ISystem(SystemCategory::Render) {};
+    BackGroundSpriteRenderSystem();
     ~BackGroundSpriteRenderSystem() = default;
     void Initialize() override;
-    void Update() override;
+    // void Update() override;
     void Finalize() override;
 
 protected:
-    void CreatePso();
-    void StartRender();
     /// <summary>
-    /// BlendModeごとに描画を行う
+    /// PSOの作成
     /// </summary>
-    /// <param name="blendMode"></param>
-    void RenderingBy(BlendMode blendMode);
+    void CreatePSO() override;
 
-    void UpdateEntity(Entity* _entity) override;
+    /// <summary>
+    /// レンダリング開始処理
+    /// </summary>
+    virtual void StartRender() override;
+
+    /// <summary>
+    /// レンダリング処理(StartRenderから描画まですべてを行う)
+    /// </summary>
+    void Rendering() override;
+
+    /// <summary>
+    /// 描画する物を登録
+    /// </summary>
+    /// <param name="_entity"></param>
+    void DispatchRenderer(Entity* _entity) override;
+
+    /// <summary>
+    /// レンダリングをスキップするかどうか(描画オブジェクトが無いときは描画をスキップする)
+    /// </summary>
+    /// <returns>true ＝ 描画をスキップする / false = 描画スキップしない</returns>
+    bool IsSkipRendering() const override;
 
 private:
-    std::unordered_map<BlendMode, std::vector<SpriteRenderer*>> renderersByBlend_;
+    void ChangeBlendMode(BlendMode blendMode);
+
+private:
+    std::vector<SpriteRenderer*> renderers_;
     Matrix4x4 viewPortMat_;
 
-    std::unique_ptr<DxCommand> dxCommand_ = nullptr;
-    std::unordered_map<BlendMode, PipelineStateObj*> pso_;
+    std::array<PipelineStateObj*, kBlendNum> pso_;
 };

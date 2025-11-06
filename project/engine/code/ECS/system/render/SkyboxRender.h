@@ -1,40 +1,61 @@
 #pragma once
-#include "system/ISystem.h"
+
+/// parent
+#include "system/render/base/BaseRenderSystem.h"
 
 /// stl
+#include <array>
 #include <memory>
-#include <unordered_map>
 
 /// engine
+// directX12
 #include "directX12/DxCommand.h"
 #include "directX12/ShaderManager.h"
+// component
+#include "component/renderer/SkyboxRenderer.h"
 
 /// <summary>
 /// Skybox描画システム
 /// </summary>
 class SkyboxRender
-    : public ISystem {
+    : public BaseRenderSystem {
 public:
-    SkyboxRender() : ISystem(SystemCategory::Render) {};
-    ~SkyboxRender() = default;
+    SkyboxRender();
+    ~SkyboxRender();
 
     void Initialize() override;
-    void Update() override;
     void Finalize() override;
 
 protected:
     /// <summary>
-    /// 描画開始処理
+    /// PSOの作成
     /// </summary>
-    void CreatePso();
+    void CreatePSO() override;
 
-    void StartRender();
+    /// <summary>
+    /// レンダリング開始処理
+    /// </summary>
+    void StartRender() override;
 
-    void UpdateEntity(Entity* _entity) override;
+    /// <summary>
+    /// レンダリング処理(StartRenderから描画まですべてを行う)
+    /// </summary>
+    void Rendering() override;
+
+    /// <summary>
+    /// 描画する物を登録
+    /// </summary>
+    /// <param name="_entity"></param>
+    void DispatchRenderer(Entity* _entity) override;
+
+    /// <summary>
+    /// BlendModeごとに描画を行う
+    /// </summary>
+    void RenderingBy(BlendMode _blendMode, bool _isCulling) override;
+
+    bool IsSkipRendering() const override;
 
 private:
-    BlendMode currentBlend_ = BlendMode::Alpha;
-
-    std::unique_ptr<DxCommand> dxCommand_ = nullptr;
-    std::unordered_map<BlendMode, PipelineStateObj*> pso_;
+    std::array<PipelineStateObj*, kBlendNum> psoByBlendMode_;
+    std::array<std::vector<SkyboxRenderer*>, kBlendNum> rendererByBlendMode_ = {};
 };

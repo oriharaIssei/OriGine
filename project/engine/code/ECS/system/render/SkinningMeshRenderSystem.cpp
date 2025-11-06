@@ -16,45 +16,11 @@
 #include "component/renderer/MeshRenderer.h"
 #include "component/renderer/SkyBoxRenderer.h"
 
-SkinningMeshRenderSystem::SkinningMeshRenderSystem() : ISystem(SystemCategory::Render) {}
-SkinningMeshRenderSystem::~SkinningMeshRenderSystem() {};
+SkinningMeshRenderSystem::SkinningMeshRenderSystem() : BaseRenderSystem() {}
+SkinningMeshRenderSystem::~SkinningMeshRenderSystem() {}
 
 void SkinningMeshRenderSystem::Initialize() {
-    dxCommand_ = std::make_unique<DxCommand>();
-    dxCommand_->Initialize("main", "main");
-
-    CreatePso();
-}
-
-void SkinningMeshRenderSystem::Update() {
-    if (entityIDs_.empty()) {
-        return;
-    }
-    ISystem::eraseDeadEntity();
-
-    activeRenderersByBlendMode_.clear();
-
-    for (auto& id : entityIDs_) {
-        Entity* entity = getEntity(id);
-        DispatchRenderer(entity);
-    }
-
-    // アクティブなレンダラーが一つもなければ終了
-    bool isSkip = true;
-    for (const auto& [blend, emitters] : activeRenderersByBlendMode_) {
-        if (!emitters.empty()) {
-            isSkip = false;
-            break;
-        }
-    }
-    if (isSkip) {
-        return;
-    }
-
-    for (size_t i = 0; i < kBlendNum; ++i) {
-        BlendMode blend = static_cast<BlendMode>(i);
-        RenderingBy(blend);
-    }
+    BaseRenderSystem::Initialize();
 }
 
 void SkinningMeshRenderSystem::DispatchRenderer(Entity* _entity) {
@@ -72,12 +38,22 @@ void SkinningMeshRenderSystem::DispatchRenderer(Entity* _entity) {
         if (!renderer->isRender()) {
             continue;
         }
+
         RenderingData data{&skinningAnimation, renderer, entityTransform};
         activeRenderersByBlendMode_[renderer->getCurrentBlend()].push_back(data);
     }
 }
 
-void SkinningMeshRenderSystem::RenderingBy(BlendMode _blendMode) {
+bool SkinningMeshRenderSystem::IsSkipRendering() const {
+    for (const auto& [blendMode, renderers] : activeRenderersByBlendMode_) {
+        if (!renderers.empty()) {
+            return false;
+        }
+    }
+    return true;
+}
+
+void SkinningMeshRenderSystem::RenderingBy(BlendMode _blendMode, bool /*_isCulling*/) {
     auto& renderers = activeRenderersByBlendMode_[_blendMode];
     if (renderers.empty()) {
         return;
@@ -99,7 +75,7 @@ void SkinningMeshRenderSystem::Finalize() {
     dxCommand_->Finalize();
 }
 
-void SkinningMeshRenderSystem::CreatePso() {
+void SkinningMeshRenderSystem::CreatePSO() {
 
     ShaderManager* shaderManager = ShaderManager::getInstance();
     DxDevice* dxDevice           = Engine::getInstance()->getDxDevice();
@@ -345,37 +321,6 @@ void SkinningMeshRenderSystem::StartRender() {
     commandList->SetGraphicsRootDescriptorTable(
         environmentTextureBufferIndex_,
         TextureManager::getDescriptorGpuHandle(skybox->getTextureIndex()));
-}
-
-/// <summary>
-/// 描画
-/// </summary>
-/// <param name="_entity">描画対象オブジェクト</param>
-void SkinningMeshRenderSystem::UpdateEntity(Entity* _entity) {
-    auto& commandList = dxCommand_->getCommandList();
-
-    Transform* entityTransform = getComponent<Transform>(_entity);
-    entityTransform->UpdateMatrix();
-
-    int32_t componentSize =
-        (int32_t)getComponents<SkinningAnimationComponent>(_entity)->size();
-    for (int32_t i = 0; i < componentSize; ++i) {
-        SkinningAnimationComponent* skinningAnimationComponent = getComponent<SkinningAnimationComponent>(_entity, i);
-        if (!skinningAnimationComponent) {
-            continue;
-        }
-        ModelMeshRenderer* renderer = getComponent<ModelMeshRenderer>(_entity, skinningAnimationComponent->getBindModeMeshRendererIndex());
-        // nullptr なら これ以上存在しないとして終了
-        if (!renderer) {
-            continue;
-        }
-        // 描画フラグが立っていないならスキップ
-        if (!renderer->isRender()) {
-            continue;
-        }
-
-        RenderModelMesh(entityTransform, commandList, skinningAnimationComponent, renderer);
-    }
 }
 
 void SkinningMeshRenderSystem::RenderModelMesh(

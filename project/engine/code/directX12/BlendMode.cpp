@@ -113,3 +113,7 @@ D3D12_BLEND_DESC CreateBlendDescByBlendMode(BlendMode mode) {
         return D3D12_BLEND_DESC{};
     }
 }
+
+std::string std::to_string(const BlendMode& mode) {
+    return blendModeStr[static_cast<size_t>(mode)];
+};

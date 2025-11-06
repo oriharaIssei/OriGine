@@ -3,7 +3,7 @@
 #include <array>
 #include <string>
 
-///directX12
+/// directX12
 #include <d3d12.h>
 
 /// <summary>
@@ -31,5 +31,9 @@ static const std::array<std::string, kBlendNum> blendModeStr = {
     "Subtract",
     "Multiply",
     "Screen"};
+
+namespace std {
+std::string to_string(const BlendMode& mode);
+} // namespace std
 
 D3D12_BLEND_DESC CreateBlendDescByBlendMode(BlendMode mode);

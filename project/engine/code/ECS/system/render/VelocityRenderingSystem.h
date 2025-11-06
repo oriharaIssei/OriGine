@@ -1,10 +1,14 @@
 #pragma once
 
-#include "component/renderer/MeshRenderer.h"
+/// parent
+#include "system/render/base/BaseRenderSystem.h"
+
+/// engine
+// directX12Object
 #include "directX12/DxCommand.h"
 #include "directX12/ShaderManager.h"
-#include "system/ISystem.h"
-
+// component
+#include "component/renderer/MeshRenderer.h"
 // Rigidbody / Transform
 #include "component/physics/Rigidbody.h"
 #include "component/transform/Transform.h"
@@ -12,38 +16,51 @@
 /// <summary>
 /// Velocityを描画するシステム
 /// </summary>
-class VelocityRenderingSystem : public ISystem {
+class VelocityRenderingSystem
+    : public BaseRenderSystem {
 public:
-    VelocityRenderingSystem() : ISystem(SystemCategory::Render) {}
-    ~VelocityRenderingSystem() {}
+    static const int32_t defaultMeshCount_;
+public:
+    VelocityRenderingSystem();
+    ~VelocityRenderingSystem();
 
     void Initialize() override;
-    void Update() override;
     void Finalize() override;
-
-    static const int32_t defaultMeshCount_;
 
 private:
     /// <summary>
-    /// Velocityの情報を元に描画用メッシュを作成
+    /// PSOの作成
     /// </summary>
-    void CreateRenderMesh();
+    void CreatePSO()override;
+
     /// <summary>
     /// 描画開始処理
     /// </summary>
-    void StartRender();
+    void StartRender() override;
+
     /// <summary>
     /// 描画コール
     /// </summary>
     void RenderCall();
-    void CreatePso();
 
+    /// <summary>
+    /// 描画処理
+    /// </summary>
+    void Rendering()override;
+
+    /// <summary>
+    /// 描画スキップ判定
+    /// </summary>
+    bool IsSkipRendering() const override;
+
+    /// <summary>
+    /// Velocityの情報を元に描画用メッシュを作成
+    /// </summary>
+    void CreateRenderMesh();
 private:
+    PipelineStateObj* pso_;
     ComponentArray<Rigidbody>* rigidbodies_ = nullptr;
 
-    LineRenderer velocityRenderer_;
+    std::unique_ptr<LineRenderer> velocityRenderer_;
     std::vector<Mesh<ColorVertexData>>::iterator velocityMeshItr_;
-
-    std::unique_ptr<DxCommand> dxCommand_ = nullptr;
-    PipelineStateObj* pso_;
 };

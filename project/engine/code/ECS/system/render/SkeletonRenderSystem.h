@@ -1,5 +1,7 @@
 #pragma once
-#include "system/ISystem.h"
+
+/// parent
+#include "system/render/base/BaseRenderSystem.h"
 
 /// stl
 #include <memory>
@@ -18,32 +20,47 @@
 /// スケルトンの描画を行うシステム(Debug用)
 /// </summary>
 class SkeletonRenderSystem
-    : public ISystem {
+    : public BaseRenderSystem {
 public:
     SkeletonRenderSystem();
     ~SkeletonRenderSystem() override;
 
     void Initialize() override;
-    void Update() override;
     void Finalize() override;
 
     static const int32_t defaultMeshCount_;
 
 protected:
     /// <summary>
-    /// 描画開始処理
+    /// PSOの作成
     /// </summary>
-    void StartRender();
+    void CreatePSO() override;
+
+    /// <summary>
+    /// レンダリング開始処理
+    /// </summary>
+    void StartRender() override;
+
+    /// <summary>
+    /// レンダリング処理(StartRenderから描画まですべてを行う)
+    /// </summary>
+    void Rendering() override;
+
+    /// <summary>
+    /// レンダリングをスキップするかどうか(描画オブジェクトが無いときは描画をスキップする)
+    /// </summary>
+    /// <returns>true ＝ 描画をスキップする / false = 描画スキップしない</returns>
+    bool IsSkipRendering() const override;
+
     /// <summary>
     /// 描画処理
     /// </summary>
     void RenderCall();
+
     /// <summary>
     /// レンダーメッシュの作成
     /// </summary>
     void CreateRenderMesh();
-
-    void CreatePso();
 
     /// <summary>
     /// 子ジョイントのメッシュを作成
@@ -62,6 +79,7 @@ protected:
         const Joint& _joint,
         const Vec3f& _center,
         const Vec4f& _color);
+
     /// <summary>
     /// ボーンメッシュの作成
     /// </summary>
@@ -74,13 +92,12 @@ protected:
 private:
     ComponentArray<SkinningAnimationComponent>* skinningAnimationArray_ = nullptr;
 
-    LineRenderer jointRenderer_;
+    std::unique_ptr<LineRenderer> jointRenderer_;
     std::vector<Mesh<ColorVertexData>>::iterator jointMeshItr_;
-    LineRenderer boneRenderer_;
+    std::unique_ptr<LineRenderer> boneRenderer_;
     std::vector<Mesh<ColorVertexData>>::iterator boneMeshItr_;
 
     BlendMode currentBlend_ = BlendMode::Alpha;
 
-    std::unique_ptr<DxCommand> dxCommand_ = nullptr;
-    std::unordered_map<BlendMode, PipelineStateObj*> pso_;
+    PipelineStateObj* pso_;
 };

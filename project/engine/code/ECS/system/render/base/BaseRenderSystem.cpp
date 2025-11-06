@@ -30,6 +30,16 @@ void BaseRenderSystem::Update() {
         return;
     }
 
+    // レンダリング実行
+    Rendering();
+}
+
+void BaseRenderSystem::Finalize() {
+    dxCommand_->Finalize();
+    dxCommand_.reset();
+}
+
+void BaseRenderSystem::Rendering() {
     // レンダリング開始
     StartRender();
 
@@ -37,9 +47,4 @@ void BaseRenderSystem::Update() {
     for (int32_t blend = 0; blend < static_cast<int32_t>(BlendMode::Count); ++blend) {
         RenderingBy(static_cast<BlendMode>(blend));
     }
-}
-
-void BaseRenderSystem::Finalize() {
-    dxCommand_->Finalize();
-    dxCommand_.reset();
 }

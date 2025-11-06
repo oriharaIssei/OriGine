@@ -1,46 +1,36 @@
 #include "VelocityRenderingSystem.h"
 
-///engine
+/// engine
 #include "camera/CameraManager.h"
 #include "Engine.h"
-//directX12
+// directX12
 #include "directX12/DxDevice.h"
 
-///math
+/// math
 #include "math/mathEnv.h"
 
 const int32_t VelocityRenderingSystem::defaultMeshCount_ = 1000;
+
+VelocityRenderingSystem::VelocityRenderingSystem() : BaseRenderSystem() {}
+VelocityRenderingSystem::~VelocityRenderingSystem() = default;
 
 void VelocityRenderingSystem::Initialize() {
     constexpr int32_t kMeshVertexSize = 8;
     constexpr int32_t kMeshIndexSize  = 8;
 
-    dxCommand_ = std::make_unique<DxCommand>();
-    dxCommand_->Initialize("main", "main");
+    BaseRenderSystem::Initialize();
 
     rigidbodies_ = getComponentArray<Rigidbody>();
 
-    velocityRenderer_ = LineRenderer(std::vector<Mesh<ColorVertexData>>());
-    velocityRenderer_.Initialize(nullptr);
-    velocityRenderer_.getMeshGroup()->push_back(Mesh<ColorVertexData>());
-    velocityRenderer_.getMeshGroup()->back().Initialize(
+    velocityRenderer_ = std::make_unique<LineRenderer>(std::vector<Mesh<ColorVertexData>>());
+    velocityRenderer_->Initialize(nullptr);
+    velocityRenderer_->getMeshGroup()->push_back(Mesh<ColorVertexData>());
+    velocityRenderer_->getMeshGroup()->back().Initialize(
         VelocityRenderingSystem::defaultMeshCount_ * kMeshVertexSize, // 頂点数 (線 + 矢印分)
         VelocityRenderingSystem::defaultMeshCount_ * kMeshIndexSize // インデックス数
     );
-    velocityMeshItr_ = velocityRenderer_.getMeshGroup()->begin();
 
-    CreatePso();
-}
-
-void VelocityRenderingSystem::Update() {
-    CreateRenderMesh();
-
-    if (velocityRenderer_.getMeshGroup()->front().indexes_.empty()) {
-        return;
-    }
-
-    StartRender();
-    RenderCall();
+    velocityMeshItr_ = velocityRenderer_->getMeshGroup()->begin();
 }
 
 void VelocityRenderingSystem::Finalize() {
@@ -48,10 +38,10 @@ void VelocityRenderingSystem::Finalize() {
 }
 
 void VelocityRenderingSystem::CreateRenderMesh() {
-    constexpr float kSideAngleRate = 0.2f;
+    constexpr float kSideAngleRate   = 0.2f;
     constexpr float kArrowLengthRate = 0.3f;
 
-    auto& meshGroup = velocityRenderer_.getMeshGroup();
+    auto& meshGroup = velocityRenderer_->getMeshGroup();
     for (auto& mesh : *meshGroup) {
         mesh.vertexes_.clear();
         mesh.indexes_.clear();
@@ -119,8 +109,8 @@ void VelocityRenderingSystem::CreateRenderMesh() {
 
 void VelocityRenderingSystem::RenderCall() {
     auto commandList = dxCommand_->getCommandList();
-    velocityRenderer_.getTransformBuff().SetForRootParameter(commandList, 0);
-    for (auto& mesh : *velocityRenderer_.getMeshGroup()) {
+    velocityRenderer_->getTransformBuff().SetForRootParameter(commandList, 0);
+    for (auto& mesh : *velocityRenderer_->getMeshGroup()) {
         if (mesh.indexes_.empty())
             continue;
         commandList->IASetVertexBuffers(0, 1, &mesh.getVertexBufferView());
@@ -129,7 +119,17 @@ void VelocityRenderingSystem::RenderCall() {
     }
 }
 
-void VelocityRenderingSystem::CreatePso() {
+void VelocityRenderingSystem::Rendering() {
+    CreateRenderMesh();
+    StartRender();
+    RenderCall();
+}
+
+bool VelocityRenderingSystem::IsSkipRendering() const {
+    return !rigidbodies_ || rigidbodies_->getEntityIndexBind().empty();
+}
+
+void VelocityRenderingSystem::CreatePSO() {
     ShaderManager* shaderManager = ShaderManager::getInstance();
     DxDevice* dxDevice           = Engine::getInstance()->getDxDevice();
 

@@ -36,14 +36,20 @@ public:
     /// <summary>
     /// BlendModeごとに描画を行う
     /// </summary>
-    /// <param name="blendMode"></param>
-    virtual void RenderingBy(BlendMode blendMode) = 0;
+    /// <param name="blendMode">ブレンドモード</param>
+    /// <param name="_isCulling">カリングの有効化</param>
+    virtual void RenderingBy(BlendMode /*_blendMode*/,bool /*_isCulling*/) {};
+
+    /// <summary>
+    /// レンダリング処理(StartRenderから描画まですべてを行う)
+    /// </summary>
+    virtual void Rendering();
 
     /// <summary>
     /// 描画する物を登録
     /// </summary>
     /// <param name="_entity"></param>
-    virtual void DispatchRenderer(Entity* _entity) = 0;
+    virtual void DispatchRenderer(Entity* /*_entity*/) {};
 
     /// <summary>
     /// レンダリングをスキップするかどうか(描画オブジェクトが無いときは描画をスキップする)
@@ -55,4 +61,9 @@ public:
 
 protected:
     std::unique_ptr<DxCommand> dxCommand_ = nullptr;
+
+public:
+    DxCommand* getDxCommand() {
+        return dxCommand_.get();
+    }
 };

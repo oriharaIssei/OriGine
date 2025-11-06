@@ -1,60 +1,71 @@
 #pragma once
 
-#include "system/ISystem.h"
+/// parent
+#include "system/render/base/BaseRenderSystem.h"
 
 /// stl
+#include <array>
 #include <memory>
-#include <unordered_map>
 
 /// component
 #include "component/renderer/MeshRenderer.h"
 
 /// engine
 // directX12Object
+#include "directX12/BlendMode.h"
 #include "directX12/DxCommand.h"
-#include "directX12/ShaderManager.h"
+#include "directX12/PipelineStateObj.h"
 
 /// <summary>
 /// 線の描画を行うシステム
 /// </summary>
 class LineRenderSystem
-    : public ISystem {
+    : public BaseRenderSystem {
 public:
-    LineRenderSystem() : ISystem(SystemCategory::Render) {}
-    ~LineRenderSystem() {}
+    LineRenderSystem();
+    ~LineRenderSystem() override {}
 
     void Initialize() override;
-    void Update() override;
     void Finalize() override;
 
-    void UpdateEntity(Entity* _entity) override;
-    void StartRender();
     void settingPSO(BlendMode _blend);
-private:
-    void CreatePso();
+
+    /// <summary>
+    /// PSOの作成
+    /// </summary>
+    void CreatePSO() override;
+
+    /// <summary>
+    /// レンダリング開始処理
+    /// </summary>
+    void StartRender() override;
+
+    /// <summary>
+    /// BlendModeごとに描画を行う
+    /// </summary>
+    /// <param name="blendMode">ブレンドモード</param>
+    void RenderingBy(BlendMode _blendMode, bool _isCulling) override;
 
     /// <summary>
     /// 描画する物を登録
     /// </summary>
     /// <param name="_entity"></param>
-    void DispatchRenderer(Entity* _entity);
+    void DispatchRenderer(Entity* _entity) override;
+
     /// <summary>
-    /// ブレンドモードごとに描画
-    /// </summary> 
-    void RenderingBy(BlendMode _blend);
+    /// レンダリングをスキップするかどうか(描画オブジェクトが無いときは描画をスキップする)
+    /// </summary>
+    /// <returns>true ＝ 描画をスキップする / false = 描画スキップしない</returns>
+    bool IsSkipRendering() const override;
 
 private:
-    bool lineIsStrip_       = false;
+    std::array<PipelineStateObj*, kBlendNum> psoByBlendMode_;
+    std::array<std::vector<LineRenderer*>, kBlendNum> activeLineRenderersByBlendMode_;
 
-    std::unique_ptr<DxCommand> dxCommand_ = nullptr;
-    std::unordered_map<BlendMode, PipelineStateObj*> pso_;
-    std::unordered_map<BlendMode, std::vector<LineRenderer>> activeLineRenderersByBlendMode_;
+    bool lineIsStrip_ = false;
 
 public:
-    DxCommand* getDxCommand() {
-        return dxCommand_.get();
-    }
-    const std::unordered_map<BlendMode, PipelineStateObj*>& getPso() {
-        return pso_;
+    const std::array<PipelineStateObj*, kBlendNum>& getPsoByBlendMode() {
+        return psoByBlendMode_;
     }
 };
