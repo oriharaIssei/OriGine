@@ -45,7 +45,7 @@ void SkinningMeshRenderSystem::DispatchRenderer(Entity* _entity) {
     }
 }
 
-bool SkinningMeshRenderSystem::IsSkipRendering() const {
+bool SkinningMeshRenderSystem::ShouldSkipRender() const {
     for (const auto& renderers : activeRenderersByBlendMode_) {
         if (!renderers.empty()) {
             return false;

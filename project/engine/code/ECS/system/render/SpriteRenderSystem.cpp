@@ -98,7 +98,7 @@ void SpriteRenderSystem::DispatchRenderer(Entity* _entity) {
     }
 }
 
-bool SpriteRenderSystem::IsSkipRendering() const {
+bool SpriteRenderSystem::ShouldSkipRender() const {
     return renderers_.empty();
 }
 

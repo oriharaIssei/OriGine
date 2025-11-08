@@ -109,7 +109,7 @@ void SkyboxRender::RenderingBy(BlendMode _blendMode, bool /*_isCulling*/) {
     renderers.clear();
 }
 
-bool SkyboxRender::IsSkipRendering() const {
+bool SkyboxRender::ShouldSkipRender() const {
     for (size_t i = 0; i < kBlendNum; ++i) {
         if (!rendererByBlendMode_[i].empty()) {
             return false;

@@ -27,7 +27,7 @@ void BaseRenderSystem::Update() {
     }
 
     // レンダリングスキップ判定
-    if (IsSkipRendering()) {
+    if (ShouldSkipRender()) {
         return;
     }
 

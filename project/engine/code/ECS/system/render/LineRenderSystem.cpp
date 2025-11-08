@@ -67,7 +67,7 @@ void LineRenderSystem::DispatchRenderer(Entity* _entity) {
     }
 }
 
-bool LineRenderSystem::IsSkipRendering() const {
+bool LineRenderSystem::ShouldSkipRender() const {
     for (size_t i = 0; i < kBlendNum; ++i) {
         if (!activeLineRenderersByBlendMode_[i].empty()) {
             return false;

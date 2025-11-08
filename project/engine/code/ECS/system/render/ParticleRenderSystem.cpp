@@ -190,7 +190,7 @@ void ParticleRenderSystem::Finalize() {
     dxCommand_->Finalize();
 }
 
-bool ParticleRenderSystem::IsSkipRendering() const {
+bool ParticleRenderSystem::ShouldSkipRender() const {
     for (size_t i = 0; i < kBlendNum; ++i) {
         if (!activeEmittersByBlendMode_.at(i).empty()) {
             return false;

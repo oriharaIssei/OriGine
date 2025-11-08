@@ -53,7 +53,7 @@ protected:
     /// </summary>
     void RenderingBy(BlendMode _blendMode, bool _isCulling) override;
 
-    bool IsSkipRendering() const override;
+    bool ShouldSkipRender() const override;
 
 private:
     std::array<PipelineStateObj*, kBlendNum> psoByBlendMode_{};

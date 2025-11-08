@@ -192,7 +192,7 @@ void SkeletonRenderSystem::StartRender() {
     CameraManager::getInstance()->setBufferForRootParameter(commandList, 1);
 }
 
-bool SkeletonRenderSystem::IsSkipRendering() const {
+bool SkeletonRenderSystem::ShouldSkipRender() const {
     // 描画オブジェクトが無いときは描画をスキップする
     return !skinningAnimationArray_ || skinningAnimationArray_->getEntityIndexBind().empty();
 }

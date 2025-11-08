@@ -29,20 +29,20 @@ public:
 
     virtual void Initialize() = 0;
     /// <summary>
-    /// Run()で呼び出されるSystem特有の更新処理
-    /// </summary>
-    virtual void Update();
-    virtual void Edit();
-    virtual void Finalize() = 0;
-
-    /// <summary>
     /// 外部から呼び出される更新処理
     /// </summary>
     virtual void Run();
+    virtual void Edit();
+    virtual void Finalize() = 0;
+
 
     void eraseDeadEntity();
 
 protected:
+    /// <summary>
+    /// Run()で呼び出されるSystem特有の更新処理
+    /// </summary>
+    virtual void Update();
     virtual void UpdateEntity([[maybe_unused]] Entity* _entity) {}
 
     /// ==========================================

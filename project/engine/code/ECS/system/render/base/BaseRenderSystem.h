@@ -38,7 +38,7 @@ public:
     /// </summary>
     /// <param name="blendMode">ブレンドモード</param>
     /// <param name="_isCulling">カリングの有効化</param>
-    virtual void RenderingBy(BlendMode /*_blendMode*/,bool /*_isCulling*/) {};
+    virtual void RenderingBy(BlendMode /*_blendMode*/, bool /*_isCulling*/) {};
 
     /// <summary>
     /// レンダリング処理(StartRenderから描画まですべてを行う)
@@ -55,7 +55,7 @@ public:
     /// レンダリングをスキップするかどうか(描画オブジェクトが無いときは描画をスキップする)
     /// </summary>
     /// <returns>true ＝ 描画をスキップする / false = 描画スキップしない</returns>
-    virtual bool IsSkipRendering() const {
+    virtual bool ShouldSkipRender() const {
         return true;
     }
 

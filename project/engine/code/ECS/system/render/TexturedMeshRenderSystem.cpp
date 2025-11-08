@@ -128,7 +128,7 @@ void TexturedMeshRenderSystem::RenderingBy(BlendMode _blendMode, bool _isCulling
     }
 }
 
-bool TexturedMeshRenderSystem::IsSkipRendering() const {
+bool TexturedMeshRenderSystem::ShouldSkipRender() const {
     for (size_t isCulling = 0; isCulling < 2; ++isCulling) {
         for (size_t blendIndex = 0; blendIndex < kBlendNum; ++blendIndex) {
             if (!activeModelMeshRenderer_[isCulling][blendIndex].empty() || !activePrimitiveMeshRenderer_[isCulling][blendIndex].empty()) {

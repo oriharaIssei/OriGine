@@ -232,7 +232,7 @@ void ColliderRenderingSystem::Initialize() {
 
 void ColliderRenderingSystem::Update() {
     // 描画するものがなかったらスキップ
-    if (IsSkipRendering()) {
+    if (ShouldSkipRender()) {
         return;
     }
 
@@ -554,7 +554,7 @@ void ColliderRenderingSystem::Rendering() {
     RenderCall();
 }
 
-bool ColliderRenderingSystem::IsSkipRendering() const {
+bool ColliderRenderingSystem::ShouldSkipRender() const {
     bool isSkip = aabbColliders_->getEntityIndexBind().empty() && obbColliders_->getEntityIndexBind().empty() && sphereColliders_->getEntityIndexBind().empty();
 
     return isSkip;
