@@ -14,6 +14,7 @@
 #include "component/renderer/MeshRenderer.h"
 
 LineRenderSystem::LineRenderSystem() : BaseRenderSystem() {}
+LineRenderSystem::~LineRenderSystem() {}
 
 void LineRenderSystem::Initialize() {
     BaseRenderSystem::Initialize();

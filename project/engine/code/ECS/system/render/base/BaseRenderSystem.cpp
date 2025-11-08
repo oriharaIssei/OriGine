@@ -1,6 +1,7 @@
 #include "BaseRenderSystem.h"
 
 BaseRenderSystem::BaseRenderSystem(int32_t _priority) : ISystem(SystemCategory::Render, _priority) {}
+BaseRenderSystem::~BaseRenderSystem() {}
 
 void BaseRenderSystem::Initialize() {
     dxCommand_ = std::make_unique<DxCommand>();
@@ -44,7 +45,9 @@ void BaseRenderSystem::Rendering() {
     StartRender();
 
     // ブレンドモードごとに描画
-    for (int32_t blend = 0; blend < static_cast<int32_t>(BlendMode::Count); ++blend) {
-        RenderingBy(static_cast<BlendMode>(blend));
+    for (int32_t cullingIndex = 0; cullingIndex < 2; ++cullingIndex) {
+        for (int32_t blend = 0; blend < static_cast<int32_t>(BlendMode::Count); ++blend) {
+            RenderingBy(static_cast<BlendMode>(blend), cullingIndex);
+        }
     }
 }

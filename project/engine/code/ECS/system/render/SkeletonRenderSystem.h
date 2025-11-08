@@ -99,5 +99,5 @@ private:
 
     BlendMode currentBlend_ = BlendMode::Alpha;
 
-    PipelineStateObj* pso_;
+    PipelineStateObj* pso_ = nullptr;
 };

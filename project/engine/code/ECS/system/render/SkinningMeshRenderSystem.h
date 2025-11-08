@@ -30,7 +30,7 @@ class SkinningMeshRenderSystem
     : public BaseRenderSystem {
 public:
     SkinningMeshRenderSystem();
-    ~SkinningMeshRenderSystem();
+    ~SkinningMeshRenderSystem() override;
 
     void Initialize() override;
     void Finalize() override;
@@ -88,8 +88,8 @@ private:
     };
 
 private:
-    std::array<std::vector<RenderingData>, kBlendNum> activeRenderersByBlendMode_;
-    std::array<PipelineStateObj*, kBlendNum> pso_;
+    std::array<std::vector<RenderingData>, kBlendNum> activeRenderersByBlendMode_{};
+    std::array<PipelineStateObj*, kBlendNum> psoByBlendMode_{};
 
     int32_t transformBufferIndex_          = 0;
     int32_t cameraBufferIndex_             = 0;

@@ -27,7 +27,7 @@ class GpuParticleRenderSystem
     : public BaseRenderSystem {
 public:
     GpuParticleRenderSystem();
-    ~GpuParticleRenderSystem() = default;
+    ~GpuParticleRenderSystem() override;
 
     void Initialize() override;
     void Finalize() override;
@@ -63,9 +63,9 @@ protected:
     bool IsSkipRendering() const override;
 
 private:
-    std::array<PipelineStateObj*, kBlendNum> psoByBlendMode_;
+    std::array<PipelineStateObj*, kBlendNum> psoByBlendMode_{};
 
-    std::array<std::vector<GpuParticleEmitter*>, kBlendNum> activeEmitterByBlendMode_;
+    std::array<std::vector<GpuParticleEmitter*>, kBlendNum> activeEmitterByBlendMode_{};
 
     IConstantBuffer<PerView> perViewBuffer_;
 };

@@ -21,7 +21,7 @@ class SkyboxRender
     : public BaseRenderSystem {
 public:
     SkyboxRender();
-    ~SkyboxRender();
+    ~SkyboxRender() override;
 
     void Initialize() override;
     void Finalize() override;
@@ -56,6 +56,6 @@ protected:
     bool IsSkipRendering() const override;
 
 private:
-    std::array<PipelineStateObj*, kBlendNum> psoByBlendMode_;
+    std::array<PipelineStateObj*, kBlendNum> psoByBlendMode_{};
     std::array<std::vector<SkyboxRenderer*>, kBlendNum> rendererByBlendMode_ = {};
 };

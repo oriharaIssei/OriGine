@@ -20,9 +20,10 @@ class VelocityRenderingSystem
     : public BaseRenderSystem {
 public:
     static const int32_t defaultMeshCount_;
+
 public:
     VelocityRenderingSystem();
-    ~VelocityRenderingSystem();
+    ~VelocityRenderingSystem() override;
 
     void Initialize() override;
     void Finalize() override;
@@ -31,7 +32,7 @@ private:
     /// <summary>
     /// PSOの作成
     /// </summary>
-    void CreatePSO()override;
+    void CreatePSO() override;
 
     /// <summary>
     /// 描画開始処理
@@ -46,7 +47,7 @@ private:
     /// <summary>
     /// 描画処理
     /// </summary>
-    void Rendering()override;
+    void Rendering() override;
 
     /// <summary>
     /// 描画スキップ判定
@@ -57,8 +58,9 @@ private:
     /// Velocityの情報を元に描画用メッシュを作成
     /// </summary>
     void CreateRenderMesh();
+
 private:
-    PipelineStateObj* pso_;
+    PipelineStateObj* pso_                  = nullptr;
     ComponentArray<Rigidbody>* rigidbodies_ = nullptr;
 
     std::unique_ptr<LineRenderer> velocityRenderer_;

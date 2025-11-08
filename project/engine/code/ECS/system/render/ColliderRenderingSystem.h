@@ -28,7 +28,7 @@ public:
     static const int32_t defaultMeshCount_;
 public:
     ColliderRenderingSystem();
-    ~ColliderRenderingSystem() {}
+    ~ColliderRenderingSystem() override;
 
     void Initialize() override;
     void Update() override;

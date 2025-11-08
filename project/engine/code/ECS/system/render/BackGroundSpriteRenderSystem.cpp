@@ -11,7 +11,8 @@
 // ECS
 #include "component/renderer/Sprite.h"
 
-BackGroundSpriteRenderSystem::BackGroundSpriteRenderSystem() : BaseRenderSystem() {};
+BackGroundSpriteRenderSystem::BackGroundSpriteRenderSystem() : BaseRenderSystem() {}
+BackGroundSpriteRenderSystem::~BackGroundSpriteRenderSystem() {}
 
 void BackGroundSpriteRenderSystem::Initialize() {
     BaseRenderSystem::Initialize();
@@ -25,20 +26,29 @@ void BackGroundSpriteRenderSystem::Rendering() {
 
     StartRender();
 
+    // priorityが小さい順にソート
+    std::sort(
+        renderers_.begin(),
+        renderers_.end(),
+        [](const SpriteRenderer* a, const SpriteRenderer* b) {
+            return a->getRenderPriority() < b->getRenderPriority();
+        });
+
     auto commandList = dxCommand_->getCommandList();
     // blnedModeの設定
-    BlendMode blendMode = BlendMode::Normal;
-    commandList->SetGraphicsRootSignature(pso_[static_cast<int32_t>(blendMode)]->rootSignature.Get());
-    commandList->SetPipelineState(pso_[static_cast<int32_t>(blendMode)]->pipelineState.Get());
+    int32_t blendModeIndex = static_cast<int32_t>(BlendMode::Normal);
+    commandList->SetGraphicsRootSignature(psoByBlendMode_[blendModeIndex]->rootSignature.Get());
+    commandList->SetPipelineState(psoByBlendMode_[blendModeIndex]->pipelineState.Get());
 
     // 描画
     for (auto& renderer : renderers_) {
 
         // blendModeごとに変える
-        BlendMode newBlnedMode = renderer->getCurrentBlend();
-        if (blendMode != newBlnedMode) {
-            blendMode = newBlnedMode;
-            ChangeBlendMode(blendMode);
+        int32_t newBlendIndex = static_cast<int32_t>(renderer->getCurrentBlend());
+        if (blendModeIndex != newBlendIndex) {
+            blendModeIndex = newBlendIndex;
+            commandList->SetGraphicsRootSignature(psoByBlendMode_[blendModeIndex]->rootSignature.Get());
+            commandList->SetPipelineState(psoByBlendMode_[blendModeIndex]->pipelineState.Get());
         }
 
         // Textureの設定
@@ -92,10 +102,10 @@ void BackGroundSpriteRenderSystem::CreatePSO() {
     // 登録されているかどうかをチェック
     if (shaderManager->IsRegisteredPipelineStateObj("BackGroundSprite_" + blendModeStr[0])) {
         for (size_t i = 0; i < kBlendNum; ++i) {
-            if (pso_[i]) {
+            if (psoByBlendMode_[i]) {
                 continue;
             }
-            pso_[i] = shaderManager->getPipelineStateObj("BackGroundSprite_" + blendModeStr[i]);
+            psoByBlendMode_[i] = shaderManager->getPipelineStateObj("BackGroundSprite_" + blendModeStr[i]);
         }
         return;
     }
@@ -180,7 +190,7 @@ void BackGroundSpriteRenderSystem::CreatePSO() {
     for (size_t i = 0; i < kBlendNum; i++) {
         shaderInfo.blendMode_ = static_cast<BlendMode>(i);
 
-        pso_[i] = shaderManager->CreatePso("BackGroundSprite_" + blendModeStr[i], shaderInfo, Engine::getInstance()->getDxDevice()->device_);
+        psoByBlendMode_[i] = shaderManager->CreatePso("BackGroundSprite_" + blendModeStr[i], shaderInfo, Engine::getInstance()->getDxDevice()->device_);
     }
 }
 

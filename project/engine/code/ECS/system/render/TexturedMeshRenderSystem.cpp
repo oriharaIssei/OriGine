@@ -107,8 +107,8 @@ void TexturedMeshRenderSystem::RenderingBy(BlendMode _blendMode, bool _isCulling
     }
 
     auto commandList = dxCommand_->getCommandList();
-    commandList->SetPipelineState(pso_[cullingIndex][blendIndex]->pipelineState.Get());
-    commandList->SetGraphicsRootSignature(pso_[cullingIndex][blendIndex]->rootSignature.Get());
+    commandList->SetPipelineState(psoByBlendMode_[cullingIndex][blendIndex]->pipelineState.Get());
+    commandList->SetGraphicsRootSignature(psoByBlendMode_[cullingIndex][blendIndex]->rootSignature.Get());
 
     StartRender();
 
@@ -150,12 +150,14 @@ void TexturedMeshRenderSystem::CreatePSO() {
 
     // 登録されているかどうかをチェック
     if (shaderManager->IsRegisteredPipelineStateObj("TextureMesh_" + blendModeStr[0])) {
+        bool isAllRegistered = true;
         for (size_t i = 0; i < kBlendNum; ++i) {
-            if (pso_[0][i] || pso_[1][i]) {
+            if (!psoByBlendMode_[0][i] || !psoByBlendMode_[1][i]) {
+                isAllRegistered = false;
                 continue;
             }
-            pso_[0][i] = shaderManager->getPipelineStateObj("TextureMesh_" + blendModeStr[i]);
-            pso_[1][i] = shaderManager->getPipelineStateObj("CullingTextureMesh_" + blendModeStr[i]);
+            psoByBlendMode_[0][i] = shaderManager->getPipelineStateObj("TextureMesh_" + blendModeStr[i]);
+            psoByBlendMode_[1][i] = shaderManager->getPipelineStateObj("CullingTextureMesh_" + blendModeStr[i]);
         }
 
         //! TODO : 自動化
@@ -169,7 +171,10 @@ void TexturedMeshRenderSystem::CreatePSO() {
         textureBufferIndex_            = 7;
         environmentTextureBufferIndex_ = 8;
 
-        return;
+        // すべて登録されていれば return
+        if (isAllRegistered) {
+            return;
+        }
     }
 
     ///=================================================
@@ -326,22 +331,22 @@ void TexturedMeshRenderSystem::CreatePSO() {
     texShaderInfo.changeCullMode(D3D12_CULL_MODE_NONE);
     for (size_t i = 0; i < kBlendNum; ++i) {
         BlendMode blend = static_cast<BlendMode>(i);
-        if (pso_[0][i]) {
+        if (psoByBlendMode_[0][i] != nullptr) {
             continue;
         }
         texShaderInfo.blendMode_ = blend;
-        pso_[0][i]               = shaderManager->CreatePso("TextureMesh_" + blendModeStr[i], texShaderInfo, dxDevice->device_);
+        psoByBlendMode_[0][i]    = shaderManager->CreatePso("TextureMesh_" + blendModeStr[i], texShaderInfo, dxDevice->device_);
     }
 
     // カリングあり
     texShaderInfo.changeCullMode(D3D12_CULL_MODE_BACK);
     for (size_t i = 0; i < kBlendNum; ++i) {
         BlendMode blend = static_cast<BlendMode>(i);
-        if (pso_[1][i]) {
+        if (psoByBlendMode_[1][i] != nullptr) {
             continue;
         }
         texShaderInfo.blendMode_ = blend;
-        pso_[1][i]               = shaderManager->CreatePso("CullingTextureMesh_" + blendModeStr[i], texShaderInfo, dxDevice->device_);
+        psoByBlendMode_[1][i]    = shaderManager->CreatePso("CullingTextureMesh_" + blendModeStr[i], texShaderInfo, dxDevice->device_);
     }
 }
 
@@ -390,16 +395,21 @@ void TexturedMeshRenderSystem::LightUpdate() {
 void TexturedMeshRenderSystem::StartRender() {
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->getCommandList();
 
+    // PSOとRootSignatureの設定(パラメーターを設定するため,とりあえずPSOをセット)
+    commandList->SetGraphicsRootSignature(psoByBlendMode_[0][0]->rootSignature.Get());
+    commandList->SetPipelineState(psoByBlendMode_[0][0]->pipelineState.Get());
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-    CameraManager::getInstance()->setBufferForRootParameter(commandList, cameraBufferIndex_);
-
-    LightUpdate();
-    LightManager::getInstance()->SetForRootParameter(
-        commandList, lightCountBufferIndex_, directionalLightBufferIndex_, pointLightBufferIndex_, spotLightBufferIndex_);
 
     ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
+
+    // Cameraのセット
+    CameraManager::getInstance()->setBufferForRootParameter(commandList, cameraBufferIndex_);
+
+    // Lightのセット
+    LightUpdate();
+    LightManager::getInstance()->SetForRootParameter(
+        commandList, lightCountBufferIndex_, directionalLightBufferIndex_, pointLightBufferIndex_, spotLightBufferIndex_);
 
     /// 環境テクスチャ
     Entity* skyboxEntity = getUniqueEntity("Skybox");
@@ -549,6 +559,6 @@ void TexturedMeshRenderSystem::SettingPSO(BlendMode _blend, bool _isCulling) {
     int32_t blendIndex   = static_cast<int32_t>(_blend);
 
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->getCommandList();
-    commandList->SetGraphicsRootSignature(pso_[cullingIndex][blendIndex]->rootSignature.Get());
-    commandList->SetPipelineState(pso_[cullingIndex][blendIndex]->pipelineState.Get());
+    commandList->SetGraphicsRootSignature(psoByBlendMode_[cullingIndex][blendIndex]->rootSignature.Get());
+    commandList->SetPipelineState(psoByBlendMode_[cullingIndex][blendIndex]->pipelineState.Get());
 }

@@ -22,7 +22,7 @@ class BackGroundSpriteRenderSystem
     : public BaseRenderSystem {
 public:
     BackGroundSpriteRenderSystem();
-    ~BackGroundSpriteRenderSystem() = default;
+    ~BackGroundSpriteRenderSystem() override;
     void Initialize() override;
     // void Update() override;
     void Finalize() override;
@@ -56,11 +56,8 @@ protected:
     bool IsSkipRendering() const override;
 
 private:
-    void ChangeBlendMode(BlendMode blendMode);
-
-private:
     std::vector<SpriteRenderer*> renderers_;
     Matrix4x4 viewPortMat_;
 
-    std::array<PipelineStateObj*, kBlendNum> pso_;
+    std::array<PipelineStateObj*, kBlendNum> psoByBlendMode_{};
 };

@@ -12,6 +12,7 @@
 #include "component/renderer/Sprite.h"
 
 SpriteRenderSystem::SpriteRenderSystem() : BaseRenderSystem() {}
+SpriteRenderSystem::~SpriteRenderSystem() {}
 
 void SpriteRenderSystem::Initialize() {
 
@@ -21,31 +22,22 @@ void SpriteRenderSystem::Initialize() {
 }
 
 void SpriteRenderSystem::Rendering() {
-    eraseDeadEntity();
-
-    if (entityIDs_.empty()) {
-        return;
-    }
-
-    // 前フレームの描画対象をクリア
-    renderers_.clear();
-
-    // 描画するものを登録
-    for (auto& id : entityIDs_) {
-        Entity* entity = getEntity(id);
-        DispatchRenderer(entity);
-    }
-
-    // アクティブなレンダラーが一つもなければ終了
-    if (IsSkipRendering()) {
-        return;
-    }
 
     ///=========================================================
     // OrthographicMat の再計算(Resizeされる可能性)
     ///=========================================================
     WinApp* window = Engine::getInstance()->getWinApp();
     viewPortMat_   = MakeMatrix::Orthographic(0, 0, (float)window->getWidth(), (float)window->getHeight(), 0.0f, 100.0f);
+
+    ///=========================================================
+    // Priorityが低い順に
+    ///=========================================================
+    std::sort(
+        renderers_.begin(),
+        renderers_.end(),
+        [](SpriteRenderer* a, SpriteRenderer* b) {
+            return a->getRenderPriority() < b->getRenderPriority();
+        });
 
     ///=========================================================
     // 描画
@@ -88,6 +80,8 @@ void SpriteRenderSystem::Rendering() {
         // 描画コマンド
         commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);
     }
+
+    renderers_.clear();
 }
 
 void SpriteRenderSystem::DispatchRenderer(Entity* _entity) {
@@ -109,7 +103,7 @@ bool SpriteRenderSystem::IsSkipRendering() const {
 }
 
 void SpriteRenderSystem::Finalize() {
-    dxCommand_->Finalize();
+    BaseRenderSystem::Finalize();
 }
 
 void SpriteRenderSystem::CreatePSO() {
@@ -119,11 +113,10 @@ void SpriteRenderSystem::CreatePSO() {
     // 登録されているかどうかをチェック
     if (shaderManager->IsRegisteredPipelineStateObj("Sprite_" + blendModeStr[0])) {
         for (size_t i = 0; i < kBlendNum; ++i) {
-            BlendMode blend = static_cast<BlendMode>(i);
-            if (psoByBlendMode_[blend]) {
+            if (psoByBlendMode_[i]) {
                 continue;
             }
-            psoByBlendMode_[blend] = shaderManager->getPipelineStateObj("Sprite_" + blendModeStr[i]);
+            psoByBlendMode_[i] = shaderManager->getPipelineStateObj("Sprite_" + blendModeStr[i]);
         }
         return;
     }
@@ -201,7 +194,7 @@ void SpriteRenderSystem::CreatePSO() {
     for (size_t i = 0; i < kBlendNum; i++) {
         shaderInfo.blendMode_ = static_cast<BlendMode>(i);
 
-        psoByBlendMode_[shaderInfo.blendMode_] = shaderManager->CreatePso("Sprite_" + blendModeStr[i], shaderInfo, Engine::getInstance()->getDxDevice()->device_);
+        psoByBlendMode_[i] = shaderManager->CreatePso("Sprite_" + blendModeStr[i], shaderInfo, Engine::getInstance()->getDxDevice()->device_);
     }
 }
 

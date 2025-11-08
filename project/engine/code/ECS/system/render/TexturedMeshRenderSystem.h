@@ -29,7 +29,7 @@ class TexturedMeshRenderSystem
     : public BaseRenderSystem {
 public:
     TexturedMeshRenderSystem();
-    ~TexturedMeshRenderSystem();
+    ~TexturedMeshRenderSystem() override;
 
     void Initialize() override;
     void Finalize() override;
@@ -102,11 +102,11 @@ protected:
 
 private:
     // value : { non Culling配列 , Culling配列}
-    std::array<std::array<std::vector<ModelMeshRenderer*>, kBlendNum>, 2> activeModelMeshRenderer_;
-    std::array<std::array<std::vector<PrimitiveMeshRendererBase*>, kBlendNum>, 2> activePrimitiveMeshRenderer_;
+    std::array<std::array<std::vector<ModelMeshRenderer*>, kBlendNum>, 2> activeModelMeshRenderer_{};
+    std::array<std::array<std::vector<PrimitiveMeshRendererBase*>, kBlendNum>, 2> activePrimitiveMeshRenderer_{};
 
     // value : { non Culling , Culling }
-    std::array<std::array<PipelineStateObj*, kBlendNum>, 2> pso_;
+    std::array<std::array<PipelineStateObj*, kBlendNum>, 2> psoByBlendMode_{};
 
     int32_t transformBufferIndex_          = 0;
     int32_t cameraBufferIndex_             = 0;

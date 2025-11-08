@@ -17,7 +17,7 @@ class BaseRenderSystem
     : public ISystem {
 public:
     BaseRenderSystem(int32_t _priority = 0);
-    virtual ~BaseRenderSystem() = 0;
+    virtual ~BaseRenderSystem();
 
     void Initialize() override;
     void Update() override;

@@ -23,7 +23,7 @@ class ParticleRenderSystem
     : public BaseRenderSystem {
 public:
     ParticleRenderSystem();
-    ~ParticleRenderSystem() = default;
+    ~ParticleRenderSystem() override;
 
     void Initialize() override;
     void Finalize() override;
@@ -65,7 +65,7 @@ protected:
     void UpdateEntity(Entity* /*_entity*/) override {}
 
 private:
-    std::array<std::vector<Emitter*>, kBlendNum> activeEmittersByBlendMode_;
+    std::array<std::vector<Emitter*>, kBlendNum> activeEmittersByBlendMode_{};
 
-    std::array<PipelineStateObj*, kBlendNum> psoByBlendMode_;
+    std::array<PipelineStateObj*, kBlendNum> psoByBlendMode_{};
 };

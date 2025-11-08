@@ -23,7 +23,7 @@ class SpriteRenderSystem
     : public BaseRenderSystem {
 public:
     SpriteRenderSystem();
-    ~SpriteRenderSystem() = default;
+    ~SpriteRenderSystem() override;
 
     void Initialize() override;
     void Finalize() override;
@@ -59,7 +59,7 @@ protected:
     bool IsSkipRendering() const override;
 
 private:
-    std::array<PipelineStateObj*, kBlendNum> psoByBlendMode_;
+    std::array<PipelineStateObj*, kBlendNum> psoByBlendMode_{};
 
     Matrix4x4 viewPortMat_;
     std::vector<SpriteRenderer*> renderers_;

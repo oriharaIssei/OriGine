@@ -23,7 +23,7 @@ class LineRenderSystem
     : public BaseRenderSystem {
 public:
     LineRenderSystem();
-    ~LineRenderSystem() override {}
+    ~LineRenderSystem() override;
 
     void Initialize() override;
     void Finalize() override;
@@ -59,8 +59,8 @@ public:
     bool IsSkipRendering() const override;
 
 private:
-    std::array<PipelineStateObj*, kBlendNum> psoByBlendMode_;
-    std::array<std::vector<LineRenderer*>, kBlendNum> activeLineRenderersByBlendMode_;
+    std::array<PipelineStateObj*, kBlendNum> psoByBlendMode_{};
+    std::array<std::vector<LineRenderer*>, kBlendNum> activeLineRenderersByBlendMode_{};
 
     bool lineIsStrip_ = false;
 

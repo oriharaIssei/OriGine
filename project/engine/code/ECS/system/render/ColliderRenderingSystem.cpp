@@ -200,6 +200,7 @@ void CreateLineMeshByShape(
 #pragma endregion
 
 ColliderRenderingSystem::ColliderRenderingSystem() : BaseRenderSystem() {}
+ColliderRenderingSystem::~ColliderRenderingSystem() {}
 
 void ColliderRenderingSystem::Initialize() {
     BaseRenderSystem::Initialize();

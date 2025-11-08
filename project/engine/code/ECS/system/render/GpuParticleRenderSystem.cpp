@@ -11,12 +11,12 @@
 #include "directX12/DxDevice.h"
 
 GpuParticleRenderSystem::GpuParticleRenderSystem() : BaseRenderSystem() {}
+GpuParticleRenderSystem::~GpuParticleRenderSystem() {}
 
 void GpuParticleRenderSystem::Initialize() {
     constexpr size_t defaultReserveSize = 100;
 
     BaseRenderSystem::Initialize();
-    CreatePSO();
 
     // buffer作成
     perViewBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
@@ -149,7 +149,7 @@ void GpuParticleRenderSystem::CreatePSO() {
     ///=================================================
     for (size_t i = 0; i < kBlendNum; i++) {
         shaderInfo.blendMode_ = BlendMode(i);
-        psoByBlendMode_[i]               = shaderManager->CreatePso("Particle_" + blendModeStr[i], shaderInfo, Engine::getInstance()->getDxDevice()->device_);
+        psoByBlendMode_[i]    = shaderManager->CreatePso("Particle_" + blendModeStr[i], shaderInfo, Engine::getInstance()->getDxDevice()->device_);
     }
 }
 

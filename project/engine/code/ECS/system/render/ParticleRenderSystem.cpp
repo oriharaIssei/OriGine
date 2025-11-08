@@ -11,6 +11,7 @@
 #include "camera/CameraManager.h"
 
 ParticleRenderSystem::ParticleRenderSystem() : BaseRenderSystem() {}
+ParticleRenderSystem::~ParticleRenderSystem() {}
 
 void ParticleRenderSystem::Initialize() {
     BaseRenderSystem::Initialize();

@@ -40,12 +40,13 @@ void SkinningMeshRenderSystem::DispatchRenderer(Entity* _entity) {
         }
 
         RenderingData data{&skinningAnimation, renderer, entityTransform};
-        activeRenderersByBlendMode_[renderer->getCurrentBlend()].push_back(data);
+        int32_t blendIndex = static_cast<int32_t>(renderer->getCurrentBlend());
+        activeRenderersByBlendMode_[blendIndex].push_back(data);
     }
 }
 
 bool SkinningMeshRenderSystem::IsSkipRendering() const {
-    for (const auto& [blendMode, renderers] : activeRenderersByBlendMode_) {
+    for (const auto& renderers : activeRenderersByBlendMode_) {
         if (!renderers.empty()) {
             return false;
         }
@@ -54,15 +55,16 @@ bool SkinningMeshRenderSystem::IsSkipRendering() const {
 }
 
 void SkinningMeshRenderSystem::RenderingBy(BlendMode _blendMode, bool /*_isCulling*/) {
-    auto& renderers = activeRenderersByBlendMode_[_blendMode];
+    int32_t blendIndex = static_cast<int32_t>(_blendMode);
+    auto& renderers    = activeRenderersByBlendMode_[blendIndex];
     if (renderers.empty()) {
         return;
     }
     auto commandList = dxCommand_->getCommandList();
     // PSOセット
-    commandList->SetPipelineState(pso_[_blendMode]->pipelineState.Get());
+    commandList->SetPipelineState(psoByBlendMode_[blendIndex]->pipelineState.Get());
     // RootSignatureセット
-    commandList->SetGraphicsRootSignature(pso_[_blendMode]->rootSignature.Get());
+    commandList->SetGraphicsRootSignature(psoByBlendMode_[blendIndex]->rootSignature.Get());
 
     StartRender();
 
@@ -83,11 +85,10 @@ void SkinningMeshRenderSystem::CreatePSO() {
     // 登録されているかどうかをチェック
     if (shaderManager->IsRegisteredPipelineStateObj("TextureMesh_" + blendModeStr[0])) {
         for (size_t i = 0; i < kBlendNum; ++i) {
-            BlendMode blend = static_cast<BlendMode>(i);
-            if (pso_[blend]) {
+            if (psoByBlendMode_[i]) {
                 continue;
             }
-            pso_[blend] = shaderManager->getPipelineStateObj("TextureMesh_" + blendModeStr[i]);
+            psoByBlendMode_[i] = shaderManager->getPipelineStateObj("TextureMesh_" + blendModeStr[i]);
         }
 
         //! TODO : 自動化
@@ -255,11 +256,11 @@ void SkinningMeshRenderSystem::CreatePSO() {
     ///=================================================
     for (size_t i = 0; i < kBlendNum; ++i) {
         BlendMode blend = static_cast<BlendMode>(i);
-        if (pso_[blend]) {
+        if (psoByBlendMode_[i]) {
             continue;
         }
         texShaderInfo.blendMode_       = blend;
-        pso_[texShaderInfo.blendMode_] = shaderManager->CreatePso("TextureMesh_" + blendModeStr[i], texShaderInfo, dxDevice->device_);
+        psoByBlendMode_[i]                  = shaderManager->CreatePso("TextureMesh_" + blendModeStr[i], texShaderInfo, dxDevice->device_);
     }
 }
 
