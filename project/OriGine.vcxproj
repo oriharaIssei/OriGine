@@ -154,6 +154,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="engine\code\ECS\system\postRender\base\BasePostRenderingSystem.h" />
     <ClInclude Include="engine\code\ECS\system\render\base\BaseRenderSystem.h" />
     <ClInclude Include="editor\EditorController.h" />
     <ClInclude Include="editor\IEditor.h" />
@@ -333,6 +334,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="util\timeline\Timeline.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="engine\code\ECS\system\postRender\base\BasePostRenderingSystem.cpp" />
     <ClCompile Include="engine\code\ECS\system\render\base\BaseRenderSystem.cpp" />
     <ClCompile Include="editor\EditorController.cpp" />
     <ClCompile Include="editor\IEditor.cpp" />

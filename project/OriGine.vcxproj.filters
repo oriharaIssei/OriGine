@@ -708,6 +708,7 @@
     <ClInclude Include="engine\code\directX12\BlendMode.h" />
     <ClInclude Include="math\Interpolation.h" />
     <ClInclude Include="engine\code\ECS\system\render\base\BaseRenderSystem.h" />
+    <ClInclude Include="engine\code\ECS\system\postRender\base\BasePostRenderingSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="editor\EditorController.cpp">
@@ -1143,5 +1144,6 @@
     <ClCompile Include="engine\code\directX12\BlendMode.cpp" />
     <ClCompile Include="math\Interpolation.cpp" />
     <ClCompile Include="engine\code\ECS\system\render\base\BaseRenderSystem.cpp" />
+    <ClCompile Include="engine\code\ECS\system\postRender\base\BasePostRenderingSystem.cpp" />
   </ItemGroup>
 </Project>
