@@ -1,9 +1,11 @@
 #pragma once
-#include "system/ISystem.h"
+
+/// parent
+#include "system/render/base/BaseRenderSystem.h"
 
 /// stl
+#include <array>
 #include <memory>
-#include <unordered_map>
 #include <vector>
 
 /// engine
@@ -18,40 +20,52 @@
 /// パーティクル描画システム
 /// </summary>
 class ParticleRenderSystem
-    : public ISystem {
+    : public BaseRenderSystem {
 public:
-    ParticleRenderSystem() : ISystem(SystemCategory::Render) {}
-    ~ParticleRenderSystem() = default;
+    ParticleRenderSystem();
+    ~ParticleRenderSystem() override;
 
     void Initialize() override;
-    void Update() override;
     void Finalize() override;
 
 protected:
-    void CreatePso();
+    /// <summary>
+    /// PSOの作成
+    /// </summary>
+    void CreatePSO() override;
 
     /// <summary>
-    /// レンダー開始処理
+    /// レンダリング開始処理
     /// </summary>
-    void StartRender();
+    void StartRender() override;
+
     /// <summary>
-    /// 描画するものを振り分ける
+    /// BlendModeごとに描画を行う
     /// </summary>
-    void DispatchRenderer(Entity* _entity);
+    /// <param name="blendMode">ブレンドモード</param>
+    /// <param name="_isCulling">カリングの有効化</param>
+    void RenderingBy(BlendMode /*_blendMode*/, bool /*_isCulling*/) override;
+
     /// <summary>
-    /// ブレンドモードごとに描画処理を行う
+    /// 描画する物を登録
     /// </summary>
-    void RenderingBy(BlendMode _blend);
+    /// <param name="_entity"></param>
+    void DispatchRenderer(Entity* /*_entity*/) override;
+
+    /// <summary>
+    /// レンダリングをスキップするかどうか(描画オブジェクトが無いときは描画をスキップする)
+    /// </summary>
+    /// <returns>true ＝ 描画をスキップする / false = 描画スキップしない</returns>
+    bool IsSkipRendering() const;
 
     /// <summary>
     /// 使用していない
     /// </summary>
     /// <param name=""></param>
-    void UpdateEntity(Entity* /*_entity*/) override{}
+    void UpdateEntity(Entity* /*_entity*/) override {}
 
 private:
-    std::unordered_map<BlendMode, std::vector<Emitter*>> activeEmittersByBlendMode_;
+    std::array<std::vector<Emitter*>, kBlendNum> activeEmittersByBlendMode_{};
 
-    std::unique_ptr<DxCommand> dxCommand_ = nullptr;
-    std::unordered_map<BlendMode, PipelineStateObj*> pso_;
+    std::array<PipelineStateObj*, kBlendNum> psoByBlendMode_{};
 };

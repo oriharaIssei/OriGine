@@ -1,7 +1,7 @@
 #pragma once
 
 /// parent
-#include "system/ISystem.h"
+#include "system/render/base/BaseRenderSystem.h"
 
 /// stl
 #include <memory>
@@ -14,47 +14,69 @@
 // component
 #include "component/collision/collider/Collider.h"
 #include "component/renderer/MeshRenderer.h"
-//colliderType
+// colliderType
 #include "component/collision/collider/AABBCollider.h"
-#include "component/collision/collider/SphereCollider.h"
 #include "component/collision/collider/OBBCollider.h"
+#include "component/collision/collider/SphereCollider.h"
 
 /// <summary>
 /// Colliderのレンダリングを行うシステム(Debug用)
 /// </summary>
 class ColliderRenderingSystem
-    : public ISystem {
+    : public BaseRenderSystem {
 public:
-    ColliderRenderingSystem() : ISystem(SystemCategory::Render) {}
-    ~ColliderRenderingSystem() {}
+    static const int32_t defaultMeshCount_;
+public:
+    ColliderRenderingSystem();
+    ~ColliderRenderingSystem() override;
 
     void Initialize() override;
     void Update() override;
     void Finalize() override;
 
-    static const int32_t defaultMeshCount_;
-
 protected:
-    void UpdateEntity(Entity* /*_entity*/) override;
+    /// <summary>
+    /// PSOの作成
+    /// </summary>
+    void CreatePSO() override;
 
+    /// <summary>
+    /// レンダリング開始処理
+    /// </summary>
+    void StartRender() override;
+
+    /// <summary>
+    /// 当たり判定の形状にメッシュを作成
+    /// </summary>
     void CreateRenderMesh();
+
+    /// <summary>
+    /// 描画コマンドの呼び出し
+    /// </summary>
     void RenderCall();
 
-    void CreatePso();
-    void StartRender();
+    /// <summary>
+    /// レンダリング処理(StartRenderから描画まですべてを行う)
+    /// </summary>
+    void Rendering() override;
+
+    /// <summary>
+    /// レンダリングをスキップするかどうか(描画オブジェクトが無いときは描画をスキップする)
+    /// </summary>
+    /// <returns>true ＝ 描画をスキップする / false = 描画スキップしない</returns>
+    bool IsSkipRendering() const override;
 
 private:
-    ComponentArray<AABBCollider>* aabbColliders_ = nullptr;
-    ComponentArray<OBBCollider>* obbColliders_ = nullptr;
+    ComponentArray<AABBCollider>* aabbColliders_     = nullptr;
+    ComponentArray<OBBCollider>* obbColliders_       = nullptr;
     ComponentArray<SphereCollider>* sphereColliders_ = nullptr;
 
-    LineRenderer aabbRenderer_;
-    std::vector<Mesh<ColorVertexData>>::iterator aabbMeshItr_;
-    LineRenderer obbRenderer_;
-    std::vector<Mesh<ColorVertexData>>::iterator obbMeshItr_;
-    LineRenderer sphereRenderer_;
-    std::vector<Mesh<ColorVertexData>>::iterator sphereMeshItr_;
+    std::unique_ptr<LineRenderer> aabbRenderer_;
+    std::vector<LineRenderer::MeshType>::iterator aabbMeshItr_;
+    std::unique_ptr<LineRenderer> obbRenderer_;
+    std::vector<LineRenderer::MeshType>::iterator obbMeshItr_;
+    std::unique_ptr<LineRenderer> sphereRenderer_;
+    std::vector<LineRenderer::MeshType>::iterator sphereMeshItr_;
 
-    std::unique_ptr<DxCommand> dxCommand_ = nullptr;
-    PipelineStateObj* pso_;
+    PipelineStateObj* pso_                = nullptr;
 };

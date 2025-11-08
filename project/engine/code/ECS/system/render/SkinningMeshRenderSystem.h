@@ -1,9 +1,11 @@
 #pragma once
-#include "system/ISystem.h"
+
+/// parent
+#include "system/render/base/BaseRenderSystem.h"
 
 /// stl
+#include <array>
 #include <memory>
-#include <unordered_map>
 #include <vector>
 
 /// engine
@@ -25,23 +27,43 @@ class ModelMeshRenderer;
 /// スキニングメッシュレンダリングシステム
 /// </summary>
 class SkinningMeshRenderSystem
-    : public ISystem {
+    : public BaseRenderSystem {
 public:
     SkinningMeshRenderSystem();
-    ~SkinningMeshRenderSystem();
+    ~SkinningMeshRenderSystem() override;
 
     void Initialize() override;
-    void Update() override;
     void Finalize() override;
 
-    void CreatePso();
+    /// <summary>
+    /// PSOの作成
+    /// </summary>
+    void CreatePSO() override;
 
     /// <summary>
-    /// 描画開始処理
+    /// レンダリング開始処理
     /// </summary>
-    void StartRender();
+    void StartRender() override;
 
-    void UpdateEntity(Entity* _entity) override;
+    /// <summary>
+    /// BlendModeごとに描画を行う
+    /// </summary>
+    /// <param name="blendMode">ブレンドモード</param>
+    /// <param name="_isCulling">カリングの有効化</param>
+    void RenderingBy(BlendMode _blendMode, bool _isCulling) override;
+
+    /// <summary>
+    /// 描画する物を登録
+    /// </summary>
+    /// <param name="_entity"></param>
+    void DispatchRenderer(Entity* _entity) override;
+
+    /// <summary>
+    /// レンダリングをスキップするかどうか(描画オブジェクトが無いときは描画をスキップする)
+    /// </summary>
+    /// <returns>true ＝ 描画をスキップする / false = 描画スキップしない</returns>
+    bool IsSkipRendering() const override;
+
     /// <summary>
     /// ModelMeshのレンダリング
     /// </summary>
@@ -58,25 +80,16 @@ public:
 protected:
     void LightUpdate();
 
-    /// <summary>
-    /// 描画する情報によって振り分ける
-    /// </summary>
-    /// <param name="_entity"></param>
-    void DispatchRenderer(Entity* _entity);
-    /// <summary>
-    /// Blendmodeごとに描画する
-    /// </summary>
-    void RenderingBy(BlendMode _blendMode);
-
 private:
     struct RenderingData {
         SkinningAnimationComponent* _skinningAnimationComponent;
         ModelMeshRenderer* _renderer;
         Transform* _entityTransform;
     };
-    std::unordered_map<BlendMode, std::vector<RenderingData>> activeRenderersByBlendMode_;
-    std::unique_ptr<DxCommand> dxCommand_ = nullptr;
-    std::unordered_map<BlendMode, PipelineStateObj*> pso_;
+
+private:
+    std::array<std::vector<RenderingData>, kBlendNum> activeRenderersByBlendMode_{};
+    std::array<PipelineStateObj*, kBlendNum> psoByBlendMode_{};
 
     int32_t transformBufferIndex_          = 0;
     int32_t cameraBufferIndex_             = 0;

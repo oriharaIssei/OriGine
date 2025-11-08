@@ -11,91 +11,83 @@
 // ECS
 #include "component/renderer/Sprite.h"
 
-void BackGroundSpriteRenderSystem::Initialize() {
-    dxCommand_ = std::make_unique<DxCommand>();
-    dxCommand_->Initialize("main", "main");
+BackGroundSpriteRenderSystem::BackGroundSpriteRenderSystem() : BaseRenderSystem() {}
+BackGroundSpriteRenderSystem::~BackGroundSpriteRenderSystem() {}
 
-    CreatePso();
+void BackGroundSpriteRenderSystem::Initialize() {
+    BaseRenderSystem::Initialize();
 
     // ViewPortMatの計算
     WinApp* window = Engine::getInstance()->getWinApp();
     viewPortMat_   = MakeMatrix::Orthographic(0, 0, (float)window->getWidth(), (float)window->getHeight(), 0.0f, 100.0f);
 }
 
-void BackGroundSpriteRenderSystem::Update() {
-    eraseDeadEntity();
-
-    if (entityIDs_.empty()) {
-        return;
-    }
-
-    // 前フレームの描画対象をクリア
-    renderersByBlend_.clear();
-
-    bool isRendering = false;
-    for (auto& id : entityIDs_) {
-        Entity* entity    = getEntity(id);
-        auto* entityRenderers = getComponents<SpriteRenderer>(entity);
-        for (auto& renderer : *entityRenderers) {
-            if (!renderer.isRender()) {
-                continue;
-            }
-            ///==============================
-            /// ConstBufferの更新
-            ///==============================
-            renderer.Update(viewPortMat_);
-            renderersByBlend_[renderer.getCurrentBlend()].push_back(&renderer);
-
-            isRendering = true;
-        }
-    }
-
-    for (auto& [blend, renderers] : renderersByBlend_) {
-        std::sort(renderers.begin(), renderers.end(), [](SpriteRenderer* a, SpriteRenderer* b) {
-            return a->getRenderPriority() < b->getRenderPriority();
-        });
-    }
-
-    // skip
-    if (!isRendering) {
-        return;
-    }
-
-    for (size_t i = 0; i < kBlendNum; ++i) {
-        BlendMode blend = static_cast<BlendMode>(i);
-        RenderingBy(blend);
-    }
-}
-
-void BackGroundSpriteRenderSystem::RenderingBy(BlendMode blendMode) {
-    if (renderersByBlend_[blendMode].empty()) {
-        return;
-    }
-
-    auto commandList = dxCommand_->getCommandList();
-    // PSOの設定
-    commandList->SetGraphicsRootSignature(pso_[blendMode]->rootSignature.Get());
-    commandList->SetPipelineState(pso_[blendMode]->pipelineState.Get());
+void BackGroundSpriteRenderSystem::Rendering() {
 
     StartRender();
 
+    // priorityが小さい順にソート
+    std::sort(
+        renderers_.begin(),
+        renderers_.end(),
+        [](const SpriteRenderer* a, const SpriteRenderer* b) {
+            return a->getRenderPriority() < b->getRenderPriority();
+        });
+
+    auto commandList = dxCommand_->getCommandList();
+    // blnedModeの設定
+    int32_t blendModeIndex = static_cast<int32_t>(BlendMode::Normal);
+    commandList->SetGraphicsRootSignature(psoByBlendMode_[blendModeIndex]->rootSignature.Get());
+    commandList->SetPipelineState(psoByBlendMode_[blendModeIndex]->pipelineState.Get());
+
     // 描画
-    for (auto& renderer : renderersByBlend_[blendMode]) {
-        // ============================= テクスチャの設定 ============================= //
+    for (auto& renderer : renderers_) {
+
+        // blendModeごとに変える
+        int32_t newBlendIndex = static_cast<int32_t>(renderer->getCurrentBlend());
+        if (blendModeIndex != newBlendIndex) {
+            blendModeIndex = newBlendIndex;
+            commandList->SetGraphicsRootSignature(psoByBlendMode_[blendModeIndex]->rootSignature.Get());
+            commandList->SetPipelineState(psoByBlendMode_[blendModeIndex]->pipelineState.Get());
+        }
+
+        // Textureの設定
         commandList->SetGraphicsRootDescriptorTable(
             1,
             TextureManager::getDescriptorGpuHandle(renderer->getTextureNumber()));
 
+        // mesh
         SpriteMesh& mesh = renderer->getMeshGroup()->at(0);
         commandList->IASetVertexBuffers(0, 1, &mesh.getVBView());
         commandList->IASetIndexBuffer(&mesh.getIBView());
 
+        // 定数バッファの設定
         renderer->getSpriteBuff().SetForRootParameter(commandList, 0);
 
-        commandList->DrawIndexedInstanced(
-            6, 1, 0, 0, 0);
-
+        // 描画コマンド
         commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);
+    }
+
+    // 描画終了
+    renderers_.clear();
+}
+
+bool BackGroundSpriteRenderSystem::IsSkipRendering() const {
+    return renderers_.empty();
+}
+
+void BackGroundSpriteRenderSystem::DispatchRenderer(Entity* _entity) {
+    auto spriteRenderer = getComponents<SpriteRenderer>(_entity);
+    if (!spriteRenderer) {
+        return;
+    }
+    for (auto& renderer : *spriteRenderer) {
+        if (renderer.isRender()) {
+            return;
+        }
+
+        renderer.UpdateBuffer(viewPortMat_);
+        renderers_.push_back(&renderer);
     }
 }
 
@@ -103,18 +95,17 @@ void BackGroundSpriteRenderSystem::Finalize() {
     dxCommand_->Finalize();
 }
 
-void BackGroundSpriteRenderSystem::CreatePso() {
+void BackGroundSpriteRenderSystem::CreatePSO() {
 
     ShaderManager* shaderManager = ShaderManager::getInstance();
 
     // 登録されているかどうかをチェック
     if (shaderManager->IsRegisteredPipelineStateObj("BackGroundSprite_" + blendModeStr[0])) {
         for (size_t i = 0; i < kBlendNum; ++i) {
-            BlendMode blend = static_cast<BlendMode>(i);
-            if (pso_[blend]) {
+            if (psoByBlendMode_[i]) {
                 continue;
             }
-            pso_[blend] = shaderManager->getPipelineStateObj("BackGroundSprite_" + blendModeStr[i]);
+            psoByBlendMode_[i] = shaderManager->getPipelineStateObj("BackGroundSprite_" + blendModeStr[i]);
         }
         return;
     }
@@ -199,7 +190,7 @@ void BackGroundSpriteRenderSystem::CreatePso() {
     for (size_t i = 0; i < kBlendNum; i++) {
         shaderInfo.blendMode_ = static_cast<BlendMode>(i);
 
-        pso_[shaderInfo.blendMode_] = shaderManager->CreatePso("BackGroundSprite_" + blendModeStr[i], shaderInfo, Engine::getInstance()->getDxDevice()->device_);
+        psoByBlendMode_[i] = shaderManager->CreatePso("BackGroundSprite_" + blendModeStr[i], shaderInfo, Engine::getInstance()->getDxDevice()->device_);
     }
 }
 
@@ -210,5 +201,3 @@ void BackGroundSpriteRenderSystem::StartRender() {
     commandList->SetDescriptorHeaps(1, ppHeaps);
     dxCommand_->getCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
-
-void BackGroundSpriteRenderSystem::UpdateEntity(Entity* /*_entity*/) {}

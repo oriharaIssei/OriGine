@@ -79,9 +79,9 @@ public:
     void Edit(Scene* _scene, Entity* _entity, const std::string& _parentLabel) override;
 
     /// <summary>
-    /// 更新
+    /// バッファ更新
     /// </summary>
-    void Update(const Matrix4x4& _viewPortMat);
+    void UpdateBuffer(const Matrix4x4& _viewPortMat);
     /// <summary>
     /// 終了処理
     /// </summary>

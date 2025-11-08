@@ -113,7 +113,7 @@ void SystemRunner::UpdateCategory(SystemCategory _category) {
 
     for (auto system : activeSystems_[static_cast<size_t>(_category)]) {
         if (system) {
-            system->Update();
+            system->Run();
         }
     }
 }

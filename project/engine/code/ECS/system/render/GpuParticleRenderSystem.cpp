@@ -10,78 +10,43 @@
 // directX12
 #include "directX12/DxDevice.h"
 
-void GpuParticleRenderSystem::Initialize() {
-    dxCommand_ = std::make_unique<DxCommand>();
-    dxCommand_->Initialize("main", "main");
-    CreatePso();
+GpuParticleRenderSystem::GpuParticleRenderSystem() : BaseRenderSystem() {}
+GpuParticleRenderSystem::~GpuParticleRenderSystem() {}
 
+void GpuParticleRenderSystem::Initialize() {
+    constexpr size_t defaultReserveSize = 100;
+
+    BaseRenderSystem::Initialize();
+
+    // buffer作成
     perViewBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
 
-    activeEmitterByBlendMode_[BlendMode::None].reserve(100);
-    activeEmitterByBlendMode_[BlendMode::Normal].reserve(100);
-    activeEmitterByBlendMode_[BlendMode::Add].reserve(100);
-    activeEmitterByBlendMode_[BlendMode::Sub].reserve(100);
-    activeEmitterByBlendMode_[BlendMode::Multiply].reserve(100);
-    activeEmitterByBlendMode_[BlendMode::Screen].reserve(100);
-}
-
-void GpuParticleRenderSystem::Update() {
-    eraseDeadEntity();
-
-    if (!isRendering()) {
-        return;
+    // BlendModeごとのコンテナ準備
+    for (size_t i = 0; i < static_cast<size_t>(BlendMode::Count); ++i) {
+        activeEmitterByBlendMode_[i].reserve(defaultReserveSize);
     }
-
-    StartRender();
-
-    const CameraTransform& cameraTransform = CameraManager::getInstance()->getTransform();
-    // カメラの回転行列を取得し、平行移動成分をゼロにする
-    Matrix4x4 cameraRotationMat = cameraTransform.viewMat;
-    cameraRotationMat[3][0]     = 0.0f;
-    cameraRotationMat[3][1]     = 0.0f;
-    cameraRotationMat[3][2]     = 0.0f;
-    cameraRotationMat[3][3]     = 1.0f;
-
-    // カメラの回転行列を反転してワールド空間への変換行列を作成
-    perViewBuffer_->billboardMat      = cameraRotationMat.inverse();
-    perViewBuffer_->viewProjectionMat = cameraTransform.viewMat * cameraTransform.projectionMat;
-    perViewBuffer_.ConvertToBuffer();
-
-    perViewBuffer_.SetForRootParameter(dxCommand_->getCommandList(), 1);
-
-    RenderingBy(BlendMode::None);
-    RenderingBy(BlendMode::Normal);
-    RenderingBy(BlendMode::Add);
-    RenderingBy(BlendMode::Sub);
-    RenderingBy(BlendMode::Multiply);
-    RenderingBy(BlendMode::Screen);
-
 }
 
 void GpuParticleRenderSystem::Finalize() {
     dxCommand_->Finalize();
 
-    for (auto& pso : pso_) {
-        if (pso.second) {
-            pso.second->Finalize();
-        }
+    for (auto& pso : psoByBlendMode_) {
+        pso->Finalize();
     }
-    pso_.clear();
 
     perViewBuffer_.Finalize();
 }
 
-void GpuParticleRenderSystem::CreatePso() {
+void GpuParticleRenderSystem::CreatePSO() {
     ShaderManager* shaderManager = ShaderManager::getInstance();
 
     // 登録されているかどうかをチェック
     if (shaderManager->IsRegisteredPipelineStateObj("GpuParticle_" + blendModeStr[0])) {
         for (size_t i = 0; i < kBlendNum; ++i) {
-            BlendMode blend = static_cast<BlendMode>(i);
-            if (pso_[blend]) {
+            if (psoByBlendMode_[i]) {
                 continue;
             }
-            pso_[blend] = shaderManager->getPipelineStateObj("GpuParticle_" + blendModeStr[i]);
+            psoByBlendMode_[i] = shaderManager->getPipelineStateObj("GpuParticle_" + blendModeStr[i]);
         }
         return;
     }
@@ -183,54 +148,76 @@ void GpuParticleRenderSystem::CreatePso() {
     /// BlendMode ごとの Pso作成
     ///=================================================
     for (size_t i = 0; i < kBlendNum; i++) {
-        shaderInfo.blendMode_       = BlendMode(i);
-        pso_[shaderInfo.blendMode_] = shaderManager->CreatePso("Particle_" + blendModeStr[i], shaderInfo, Engine::getInstance()->getDxDevice()->device_);
+        shaderInfo.blendMode_ = BlendMode(i);
+        psoByBlendMode_[i]    = shaderManager->CreatePso("Particle_" + blendModeStr[i], shaderInfo, Engine::getInstance()->getDxDevice()->device_);
     }
 }
 
 void GpuParticleRenderSystem::StartRender() {
+
+    // コマンドリスト取得
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->getCommandList();
+    // プリミティブトポロジー設定
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
+    // デスクリプタヒープ設定
     ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
+
+    // カメラ情報更新
+    const CameraTransform& cameraTransform = CameraManager::getInstance()->getTransform();
+    // カメラの回転行列を取得し、平行移動成分をゼロにする
+    Matrix4x4 cameraRotationMat = cameraTransform.viewMat;
+    cameraRotationMat[3][0]     = 0.0f;
+    cameraRotationMat[3][1]     = 0.0f;
+    cameraRotationMat[3][2]     = 0.0f;
+    cameraRotationMat[3][3]     = 1.0f;
+
+    // カメラの回転行列を反転してワールド空間への変換行列を作成
+    perViewBuffer_->billboardMat      = cameraRotationMat.inverse();
+    perViewBuffer_->viewProjectionMat = cameraTransform.viewMat * cameraTransform.projectionMat;
+    perViewBuffer_.ConvertToBuffer();
+
+    perViewBuffer_.SetForRootParameter(dxCommand_->getCommandList(), 1);
 }
 
-bool GpuParticleRenderSystem::isRendering() {
-    activeEmitterByBlendMode_.clear();
-
-    if (entityIDs_.empty()) {
-        return true;
+void GpuParticleRenderSystem::DispatchRenderer(Entity* _entity) {
+    auto components = getComponents<GpuParticleEmitter>(_entity);
+    if (!components) {
+        return;
     }
-
-    bool anyActive = false;
-    for (const auto& id : entityIDs_) {
-        Entity* entity = getEntity(id);
-        if (!entity) {
+    // アクティブなエミッタをBlendModeごとに振り分ける
+    for (auto& comp : *components) {
+        if (!comp.isActive()) {
             continue;
         }
-        for (auto& comp : *getComponents<GpuParticleEmitter>(entity)) {
-            if (comp.isActive()) {
-                activeEmitterByBlendMode_[comp.getBlendMode()].emplace_back(&comp);
-                anyActive = true;
-            }
-        }
+        activeEmitterByBlendMode_[static_cast<size_t>(comp.getBlendMode())].emplace_back(&comp);
     }
-
-    return anyActive;
 }
 
-void GpuParticleRenderSystem::RenderingBy(BlendMode _blendMode) {
-    if (activeEmitterByBlendMode_[_blendMode].empty()) {
+bool GpuParticleRenderSystem::IsSkipRendering() const {
+    bool isSkip = true;
+    for (const auto& emitters : activeEmitterByBlendMode_) {
+        if (!emitters.empty()) {
+            isSkip = false;
+            break;
+        }
+    }
+    return isSkip;
+}
+
+void GpuParticleRenderSystem::RenderingBy(BlendMode _blendMode, bool /*_isCulling*/) {
+    int32_t blendModeIndex = static_cast<int32_t>(_blendMode);
+    if (activeEmitterByBlendMode_[blendModeIndex].empty()) {
         return;
     }
 
     auto& commandList = dxCommand_->getCommandList();
 
-    commandList->SetGraphicsRootSignature(pso_[_blendMode]->rootSignature.Get());
-    commandList->SetPipelineState(pso_[_blendMode]->pipelineState.Get());
+    commandList->SetGraphicsRootSignature(psoByBlendMode_[blendModeIndex]->rootSignature.Get());
+    commandList->SetPipelineState(psoByBlendMode_[blendModeIndex]->pipelineState.Get());
 
-    for (auto& emitter : activeEmitterByBlendMode_[_blendMode]) {
+    for (auto& emitter : activeEmitterByBlendMode_[blendModeIndex]) {
         commandList->SetGraphicsRootDescriptorTable(
             0,
             emitter->getParticleSrvDescriptor()->getGpuHandle());
@@ -249,4 +236,7 @@ void GpuParticleRenderSystem::RenderingBy(BlendMode _blendMode) {
         // 描画!!!
         commandList->DrawIndexedInstanced(UINT(particleMesh.getIndexSize()), static_cast<UINT>(emitter->getParticleSize()), 0, 0, 0);
     }
+
+    // 描画後クリア
+    activeEmitterByBlendMode_[blendModeIndex].clear();
 }

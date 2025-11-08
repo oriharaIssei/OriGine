@@ -27,8 +27,7 @@ void CameraTransform::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_unuse
 #endif // _DEBUG
 }
 
-void CameraTransform::Finalize() {
-}
+void CameraTransform::Finalize() {}
 
 void CameraTransform::UpdateMatrix() {
     rotate  = rotate.normalize();
