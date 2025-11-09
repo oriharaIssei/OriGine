@@ -113,6 +113,8 @@ void GradationEffect::CreatePSO() {
 void GradationEffect::RenderStart() {
     auto& commandList = dxCommand_->getCommandList();
 
+    renderTarget_->PreDraw();
+
     /// ================================================
     /// pso set
     /// ================================================
@@ -180,6 +182,8 @@ void GradationEffect::DispatchComponent(Entity* _entity) {
                 texHandle = material->getCustomTexture()->srv_->getGpuHandle();
             }
         }
+
+        param.getParamBuff().ConvertToBuffer();
 
         data.effectParam = &param;
         data.srvHandle   = texHandle;

@@ -52,14 +52,14 @@ void RandomEffectParam::Finalize() {
     effectParamData_.Finalize();
 }
 
-inline void to_json(nlohmann::json& j, const RandomEffectParam& param) {
+void to_json(nlohmann::json& j, const RandomEffectParam& param) {
     j = nlohmann::json{
         {"isActive", param.isActive_},
         {"maxTime", param.maxTime_},
         {"blendMode", static_cast<int>(param.blendMode_)}};
 }
 
-inline void from_json(const nlohmann::json& j, RandomEffectParam& param) {
+void from_json(const nlohmann::json& j, RandomEffectParam& param) {
     j.at("isActive").get_to(param.isActive_);
 
     j.at("maxTime").get_to(param.maxTime_);

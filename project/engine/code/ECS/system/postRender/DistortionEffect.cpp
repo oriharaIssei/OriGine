@@ -141,25 +141,29 @@ void DistortionEffect::RenderStart() {
     /// ----------------------------------------------------------
     /// 3dオブジェクトシーンテクスチャへの描画開始
     /// ----------------------------------------------------------
-    distortionSceneTexture_->PreDraw();
-    texturedMeshRenderSystem_->SettingPSO(BlendMode::Alpha, false);
-    texturedMeshRenderSystem_->StartRender();
+    if (!activeDistortionObjects_.empty()) {
+        distortionSceneTexture_->PreDraw();
+        texturedMeshRenderSystem_->SettingPSO(BlendMode::Alpha, false);
+        texturedMeshRenderSystem_->StartRender();
 
-    for (auto& object : activeDistortionObjects_) {
-        ///==============================
-        /// Transformの更新
-        ///==============================
-        {
-            auto& transform = object->getTransformBuff();
-            transform->UpdateMatrix();
-            transform.ConvertToBuffer();
+        for (auto& object : activeDistortionObjects_) {
+            ///==============================
+            /// Transformの更新
+            ///==============================
+            {
+                auto& transform = object->getTransformBuff();
+                transform->UpdateMatrix();
+                transform.ConvertToBuffer();
+            }
+
+            texturedMeshRenderSystem_->RenderPrimitiveMesh(
+                commandList,
+                object);
         }
+        distortionSceneTexture_->PostDraw();
 
-        texturedMeshRenderSystem_->RenderPrimitiveMesh(
-            commandList,
-            object);
+        activeDistortionObjects_.clear();
     }
-    distortionSceneTexture_->PostDraw();
 
     /// ----------------------------------------------------------
     /// pso set
@@ -184,9 +188,10 @@ void DistortionEffect::Rendering() {
 
         // set buffer
         renderingData.effectParam->getEffectParamBuffer().ConvertToBuffer();
-        renderingData.effectParam->getEffectParamBuffer().SetForRootParameter(commandList, distortionParamIndex_);
         commandList->SetGraphicsRootDescriptorTable(distortionTextureIndex_, renderingData.srvHandle);
         commandList->SetGraphicsRootDescriptorTable(sceneTextureIndex_, renderTarget_->getBackBufferSrvHandle());
+        renderingData.effectParam->getEffectParamBuffer().SetForRootParameter(commandList, distortionParamIndex_);
+        renderingData.effectParam->getMaterialBuffer().SetForRootParameter(commandList,materialIndex_);
 
         // Draw
         commandList->DrawInstanced(6, 1, 0, 0);
@@ -197,7 +202,6 @@ void DistortionEffect::Rendering() {
 
     // 描画データクリア
     activeRenderingData_.clear();
-    activeDistortionObjects_.clear();
 }
 
 void DistortionEffect::RenderEnd() {

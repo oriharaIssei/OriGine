@@ -15,6 +15,7 @@ SpriteRenderSystem::SpriteRenderSystem() : BaseRenderSystem() {}
 SpriteRenderSystem::~SpriteRenderSystem() {}
 
 void SpriteRenderSystem::Initialize() {
+    BaseRenderSystem::Initialize();
 
     // ViewPortMatの計算
     WinApp* window = Engine::getInstance()->getWinApp();

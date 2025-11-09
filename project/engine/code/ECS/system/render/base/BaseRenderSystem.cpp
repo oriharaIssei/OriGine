@@ -36,8 +36,10 @@ void BaseRenderSystem::Update() {
 }
 
 void BaseRenderSystem::Finalize() {
-    dxCommand_->Finalize();
-    dxCommand_.reset();
+    if (dxCommand_) {
+        dxCommand_->Finalize();
+        dxCommand_.reset();
+    }
 }
 
 void BaseRenderSystem::Rendering() {

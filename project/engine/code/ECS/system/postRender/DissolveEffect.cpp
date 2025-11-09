@@ -135,10 +135,12 @@ void DissolveEffect::Rendering() {
         commandList->SetGraphicsRootDescriptorTable(1,
             renderingData.srvHandle);
 
-        renderingData.dissolveParam->getDissolveBuffer().SetForRootParameter(dxCommand_->getCommandList(), 2);
-        renderingData.dissolveParam->getMaterialBuffer().SetForRootParameter(dxCommand_->getCommandList(), 3);
+        auto& dissParam = renderingData.dissolveParam;
+        dissParam->getDissolveBuffer().ConvertToBuffer();
+        dissParam->getDissolveBuffer().SetForRootParameter(dxCommand_->getCommandList(), 2);
+        dissParam->getMaterialBuffer().SetForRootParameter(dxCommand_->getCommandList(), 3);
         /// 描画 呼び出し
-        RenderCall(getScene()->getSceneView()->getBackBufferSrvHandle());
+        RenderCall(renderTarget_->getBackBufferSrvHandle());
 
         // 描画 終了
         RenderEnd();
