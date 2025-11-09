@@ -1,6 +1,6 @@
 #pragma once
 
-#include "system/ISystem.h"
+#include "system/postRender/base/BasePostRenderingSystem.h"
 
 /// stl
 #include <memory>
@@ -15,6 +15,7 @@ class RenderTexture;
 /// ECS
 struct Transform;
 class DistortionEffectParam;
+class PrimitiveMeshRendererBase;
 
 class TexturedMeshRenderSystem;
 
@@ -22,40 +23,59 @@ class TexturedMeshRenderSystem;
 /// 歪みエフェクトをかけるシステム
 /// </summary>
 class DistortionEffect
-    : public ISystem {
+    : public BasePostRenderingSystem {
 public:
     DistortionEffect();
     ~DistortionEffect() override;
 
     void Initialize() override;
-    void Update() override;
-    void Finalize();
-
-    void UpdateEntity(Entity* _entity) override;
-
-    /// <summary>
-    /// 単一エフェクトに対してエフェクトをかけ, RenderTextureに出力する
-    /// </summary>
-    void EffectEntity(RenderTexture* _output, Entity* _entity);
+    void Finalize() override;
 
 protected:
     /// <summary>
-    /// コンポーネントの持つエフェクトオブジェクトのシーンを描画する
+    /// PSO作成
     /// </summary>
-    void RenderEffectObjectScene(
-        const Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& _commandList,
-        Transform* _entityTransform,
-        DistortionEffectParam* _param);
+    void CreatePSO() override;
 
-    void CreatePSO();
+    /// <summary>
+    /// レンダリング開始処理
+    /// </summary>
+    void RenderStart() override;
+    /// <summary>
+    /// レンダリング処理(RenderStart,RenderEndは呼び出さない。)
+    /// </summary>
+    void Rendering() override;
+    /// <summary>
+    /// レンダリング終了処理
+    /// </summary>
+    void RenderEnd() override;
+
+    /// <summary>
+    /// PostEffectに使用するComponentを登録する
+    /// (Systemによっては使用しない)
+    /// </summary>
+    void DispatchComponent(Entity* _entity) override;
+
+    /// <summary>
+    /// ポストレンダリングをスキップするかどうか
+    /// </summary>
+    /// <returns>true = skipする / false = skipしない</returns>
+    bool ShouldSkipPostRender() const override;
+
+protected:
+    struct RenderingData {
+        DistortionEffectParam* effectParam    = nullptr;
+        D3D12_GPU_DESCRIPTOR_HANDLE srvHandle = D3D12_GPU_DESCRIPTOR_HANDLE(0);
+    };
 
 protected:
     std::unique_ptr<RenderTexture> distortionSceneTexture_ = nullptr;
 
-    //! TODO : 専用の描画を用意する.
+    std::vector<RenderingData> activeRenderingData_                  = {};
+    std::vector<PrimitiveMeshRendererBase*> activeDistortionObjects_ = {};
+
     std::unique_ptr<TexturedMeshRenderSystem> texturedMeshRenderSystem_ = nullptr;
     PipelineStateObj* pso_                                              = nullptr;
-    std::unique_ptr<DxCommand> dxCommand_                               = nullptr;
 
     // gpu に送る バッファーのインデックス
     int32_t distortionTextureIndex_ = 0;

@@ -64,7 +64,7 @@ protected:
     /// レンダリングをスキップするかどうか(描画オブジェクトが無いときは描画をスキップする)
     /// </summary>
     /// <returns>true ＝ 描画をスキップする / false = 描画スキップしない</returns>
-    bool IsSkipRendering() const override;
+    bool ShouldSkipRender() const override;
 
 private:
     ComponentArray<AABBCollider>* aabbColliders_     = nullptr;

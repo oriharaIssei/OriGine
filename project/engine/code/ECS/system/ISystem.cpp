@@ -70,7 +70,6 @@ void ISystem::Run() {
 #ifndef _RELEASE
     // 計測終了
     deltaTimer_.Update();
-    runningTime_ = deltaTimer_.getDeltaTime();
 #endif
 }
 
@@ -121,6 +120,5 @@ void ISystem::Edit() {
         }
         ImGui::TreePop();
     }
-
 #endif
 }

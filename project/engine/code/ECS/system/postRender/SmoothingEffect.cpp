@@ -9,18 +9,11 @@
 #include "directX12/DxDevice.h"
 #include "directX12/RenderTexture.h"
 
+SmoothingEffect::SmoothingEffect() : BasePostRenderingSystem() {}
+SmoothingEffect::~SmoothingEffect() {}
+
 void SmoothingEffect::Initialize() {
-    dxCommand_ = std::make_unique<DxCommand>();
-    dxCommand_->Initialize("main", "main");
-    CreatePSO();
-
-    boxFilterSize_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
-
-    setBoxFilterSize(5.f, 5.f);
-}
-
-void SmoothingEffect::Update() {
-    Render();
+    BasePostRenderingSystem::Initialize();
 }
 
 void SmoothingEffect::Finalize() {
@@ -97,9 +90,10 @@ void SmoothingEffect::CreatePSO() {
     pso_ = shaderManager->CreatePso("SmoothingEffect", shaderInfo, Engine::getInstance()->getDxDevice()->device_);
 }
 
-void SmoothingEffect::Render() {
+void SmoothingEffect::RenderStart() {
     auto& commandList = dxCommand_->getCommandList();
-    auto sceneView    = this->getScene()->getSceneView();
+
+    renderTarget_->PreDraw();
 
     /// ================================================
     /// pso set
@@ -108,17 +102,50 @@ void SmoothingEffect::Render() {
     commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    /// ================================================
-    /// Data
-    /// ================================================
-    boxFilterSize_.SetForRootParameter(commandList, 0);
-
-    /// ================================================
-    /// Viewport の設定
-    /// ================================================
     ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
-    commandList->SetGraphicsRootDescriptorTable(1, sceneView->getBackBufferSrvHandle());
+}
 
-    commandList->DrawInstanced(6, 1, 0, 0);
+void SmoothingEffect::Rendering() {
+    auto& commandList = dxCommand_->getCommandList();
+
+    for (auto& param : activeParams_) {
+        // レンダー開始
+        RenderStart();
+
+        // 描画
+        param->boxFilterSize_.ConvertToBuffer();
+        param->boxFilterSize_.SetForRootParameter(commandList, 0);
+
+        commandList->SetGraphicsRootDescriptorTable(1, renderTarget_->getBackBufferSrvHandle());
+        commandList->DrawInstanced(6, 1, 0, 0);
+
+        // レンダー終了
+        RenderEnd();
+    }
+
+    // 処理が終わったらクリア
+    activeParams_.clear();
+}
+
+void SmoothingEffect::RenderEnd() {
+    renderTarget_->PostDraw();
+}
+
+void SmoothingEffect::DispatchComponent(Entity* _entity) {
+    auto* params = getComponents<SmoothingEffectParam>(_entity);
+    if (!params) {
+        return;
+    }
+
+    for (auto& param : *params) {
+        if (!param.isActive_) {
+            continue;
+        }
+        activeParams_.push_back(&param);
+    }
+}
+
+bool SmoothingEffect::ShouldSkipPostRender() const {
+    return activeParams_.empty();
 }

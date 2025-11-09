@@ -1,49 +1,69 @@
 #pragma once
-#include "system/ISystem.h"
+
+#include "system/postRender/base/BasePostRenderingSystem.h"
+
+/// stl
+#include <vector>
 
 /// engine
 // drecitX12
 #include "directX12/DxCommand.h"
 #include "directX12/PipelineStateObj.h"
 #include "directX12/ShaderManager.h"
-#include <component/effect/post/VignetteParam.h>
+
+// component
+#include "component/effect/post/GradationTextureComponent.h"
 
 /// <summary>
 /// テクスチャを使用してグラデーションエフェクトをかけるシステム
 /// </summary>
 class GradationEffect
-    : public ISystem {
+    : public BasePostRenderingSystem {
 public:
-    GradationEffect() : ISystem(SystemCategory::PostRender) {}
-    ~GradationEffect() override = default;
+    GradationEffect();
+    ~GradationEffect() override;
 
     void Initialize() override;
-    void Update() override;
-    void UpdateEntity(Entity* _entity) override;
     void Finalize();
 
+protected:
     /// <summary>
-    /// 単一エフェクトに対してエフェクトをかけ, RenderTextureに出力する
+    /// PSO作成
     /// </summary>
-    void EffectEntity(RenderTexture* _output, Entity* _entity);
+    void CreatePSO() override;
+
+    /// <summary>
+    /// レンダリング開始処理
+    /// </summary>
+    void RenderStart() override;
+    /// <summary>
+    /// レンダリング処理
+    /// </summary>
+    void Rendering() override;
+    /// <summary>
+    /// レンダリング終了処理
+    /// </summary>
+    void RenderEnd() override;
+
+    /// <summary>
+    /// PostEffectに使用するComponentを登録する
+    /// </summary>
+    void DispatchComponent(Entity* _entity) override;
+
+    /// <summary>
+    /// ポストレンダリングをスキップするかどうか
+    /// </summary>
+    /// <returns>true = skipする / false = skipしない</returns>
+    bool ShouldSkipPostRender() const override;
 
 protected:
-    void CreatePSO();
-
-    /// <summary>
-    /// 描画開始処理
-    /// </summary>
-    void RenderStart();
-    /// <summary>
-    /// エンティティのコンポーネントをセットアップして描画する
-    /// </summary>
-    void SetupComponentAndRender(Entity* _entity, const Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _cmdList, D3D12_GPU_DESCRIPTOR_HANDLE _viewHandle);
-    /// <summary>
-    /// _viewHandleで指定されたテクスチャに対してエフェクトを掛ける
-    /// </summary>
-    void Render(D3D12_GPU_DESCRIPTOR_HANDLE _viewHandle);
+    struct RenderingData {
+        GradationTextureComponent* effectParam = nullptr;
+        D3D12_GPU_DESCRIPTOR_HANDLE srvHandle  = D3D12_GPU_DESCRIPTOR_HANDLE(0);
+    };
 
 protected:
-    PipelineStateObj* pso_                = nullptr;
-    std::unique_ptr<DxCommand> dxCommand_ = nullptr;
+    PipelineStateObj* pso_ = nullptr;
+
+    std::vector<RenderingData> activeRenderingData_ = {};
 };

@@ -29,20 +29,20 @@ public:
 
     virtual void Initialize() = 0;
     /// <summary>
-    /// Run()で呼び出されるSystem特有の更新処理
-    /// </summary>
-    virtual void Update();
-    virtual void Edit();
-    virtual void Finalize() = 0;
-
-    /// <summary>
     /// 外部から呼び出される更新処理
     /// </summary>
     virtual void Run();
+    virtual void Edit();
+    virtual void Finalize() = 0;
+
 
     void eraseDeadEntity();
 
 protected:
+    /// <summary>
+    /// Run()で呼び出されるSystem特有の更新処理
+    /// </summary>
+    virtual void Update();
     virtual void UpdateEntity([[maybe_unused]] Entity* _entity) {}
 
     /// ==========================================
@@ -95,15 +95,14 @@ protected:
 
 #ifdef _DEBUG
     DeltaTime deltaTimer_;
-    float runningTime_ = 0.0f; // deltaTime
 #endif // _DEBUG
 
 private:
     Scene* scene_  = nullptr;
-    bool isActive_ = false;
     SystemCategory category_;
 
     int32_t priority_ = 0;
+    bool isActive_ = false;
 
 public: // ========================================== accessor ========================================== //
     Scene* getScene() const {
@@ -148,7 +147,7 @@ public: // ========================================== accessor =================
     }
 
 #ifdef _DEBUG
-    float getRunningTime() const { return runningTime_; }
+    float getRunningTime() const { return deltaTimer_.getDeltaTime(); }
 #endif // _DEBUG
 
     bool isActive() const {

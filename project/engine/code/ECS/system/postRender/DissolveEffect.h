@@ -1,45 +1,69 @@
 #pragma once
-#include "system/ISystem.h"
+
+#include "system/postRender/base/BasePostRenderingSystem.h"
 
 /// engine
 // drecitX12
 #include "directX12/DxCommand.h"
 #include "directX12/PipelineStateObj.h"
 #include "directX12/ShaderManager.h"
-#include <component/effect/post/VignetteParam.h>
+
+// component
+#include "component/effect/post/DissolveEffectParam.h"
 
 /// <summary>
 /// Dissolveエフェクトシステム
 /// </summary>
 class DissolveEffect
-    : public ISystem {
+    : public BasePostRenderingSystem {
 public:
-    DissolveEffect() : ISystem(SystemCategory::PostRender) {}
-    ~DissolveEffect() override = default;
+    DissolveEffect();
+    ~DissolveEffect() override;
 
     void Initialize() override;
-    void Update() override;
-    void UpdateEntity(Entity* _entity) override;
     void Finalize();
 
-    /// <summary>
-    /// 単一エフェクトに対してエフェクトをかけ, RenderTextureに出力する
-    /// </summary>
-    void EffectEntity(RenderTexture* _output, Entity* _entity);
-
 protected:
-    void CreatePSO();
+    /// <summary>
+    /// PSO作成
+    /// </summary>
+    void CreatePSO() override;
+    /// <summary>
+    /// レンダリング開始処理
+    /// </summary>
+    void RenderStart() override;
+    /// <summary>
+    /// レンダリング処理
+    /// </summary>
+    void Rendering() override;
+    /// <summary>
+    /// レンダリング終了処理
+    /// </summary>
+    void RenderEnd() override;
 
     /// <summary>
-    /// レンダリング開始
+    /// PostEffectに使用するComponentを登録する
     /// </summary>
-    void RenderStart();
+    void DispatchComponent(Entity* _entity) override;
+
+    /// <summary>
+    /// ポストレンダリングをスキップするかどうか
+    /// </summary>
+    /// <returns>true = skipする / false = skipしない</returns>
+    bool ShouldSkipPostRender() const override;
+
     /// <summary>
     /// _viewHandle で指定されたテクスチャに対してエフェクトの描画を行う
     /// </summary>
-    void Render(D3D12_GPU_DESCRIPTOR_HANDLE _viewHandle);
+    void RenderCall(D3D12_GPU_DESCRIPTOR_HANDLE _viewHandle);
 
 protected:
-    PipelineStateObj* pso_                = nullptr;
-    std::unique_ptr<DxCommand> dxCommand_ = nullptr;
+    struct RenderingData {
+        D3D12_GPU_DESCRIPTOR_HANDLE srvHandle                     = {};
+        DissolveEffectParam* dissolveParam                       = nullptr;
+    };
+
+protected:
+    PipelineStateObj* pso_                                = nullptr;
+    std::vector<RenderingData> activeRenderingData_ = {};
 };

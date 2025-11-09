@@ -11,59 +11,13 @@
 #include "directX12/DxDevice.h"
 #include "directX12/RenderTexture.h"
 
+GradationEffect::GradationEffect() : BasePostRenderingSystem() {}
+GradationEffect::~GradationEffect() {}
+
 void GradationEffect::Initialize() {
     dxCommand_ = std::make_unique<DxCommand>();
     dxCommand_->Initialize("main", "main");
     CreatePSO();
-}
-
-void GradationEffect::Update() {
-    auto* sceneView = this->getScene()->getSceneView();
-
-    eraseDeadEntity();
-
-    if (entityIDs_.empty()) {
-        return;
-    }
-
-    // 実行する必要があるかチェック
-    bool allIsUnactive = true;
-
-    for (auto& entityId : entityIDs_) {
-        Entity* entity = getEntity(entityId);
-        auto* compVec      = getComponents<GradationTextureComponent>(entity);
-        if (!compVec || compVec->empty()) {
-            continue;
-        }
-        for (auto& comp : *compVec) {
-            if (comp.isActive()) {
-                allIsUnactive = false;
-                break; // 1つでもアクティブなコンポーネントがあればループを抜ける
-            }
-        }
-        if (!allIsUnactive) {
-            break; // 全てのコンポーネントが非アクティブなら何もしない
-        }
-    }
-
-    if (allIsUnactive) {
-        return; // 全てのコンポーネントが非アクティブなら何もしない
-    }
-
-    RenderStart();
-
-    sceneView->PreDraw();
-    for (auto& id : entityIDs_) {
-        auto* entity = getEntity(id);
-        UpdateEntity(entity);
-    }
-
-    sceneView->PostDraw();
-}
-
-void GradationEffect::UpdateEntity(Entity* _entity) {
-    auto* sceneView = this->getScene()->getSceneView();
-    SetupComponentAndRender(_entity, dxCommand_->getCommandList(), sceneView->getBackBufferSrvHandle());
 }
 
 void GradationEffect::Finalize() {
@@ -71,19 +25,6 @@ void GradationEffect::Finalize() {
         dxCommand_.reset();
     }
     pso_ = nullptr;
-}
-
-void GradationEffect::EffectEntity(RenderTexture* _output, Entity* _entity) {
-    if (!_output) {
-        return;
-    }
-
-    RenderStart();
-    _output->PreDraw();
-
-    SetupComponentAndRender(_entity, dxCommand_->getCommandList(), _output->getBackBufferSrvHandle());
-
-    _output->PostDraw();
 }
 
 void GradationEffect::CreatePSO() {
@@ -172,6 +113,8 @@ void GradationEffect::CreatePSO() {
 void GradationEffect::RenderStart() {
     auto& commandList = dxCommand_->getCommandList();
 
+    renderTarget_->PreDraw();
+
     /// ================================================
     /// pso set
     /// ================================================
@@ -183,21 +126,49 @@ void GradationEffect::RenderStart() {
     commandList->SetDescriptorHeaps(1, ppHeaps);
 }
 
-void GradationEffect::SetupComponentAndRender(Entity* _entity, const Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _cmdList, D3D12_GPU_DESCRIPTOR_HANDLE _defaultHandle) {
+void GradationEffect::Rendering() {
+    auto& commandList = dxCommand_->getCommandList();
+
+    for (auto& data : activeRenderingData_) {
+        // レンダリング開始処理
+        RenderStart();
+
+        auto& paramBuff   = data.effectParam->getParamBuff();
+        auto& uvTransBuff = data.effectParam->getMaterialBuff();
+
+        commandList->SetGraphicsRootDescriptorTable(0, data.srvHandle);
+        commandList->SetGraphicsRootDescriptorTable(1, renderTarget_->getBackBufferSrvHandle());
+        paramBuff.SetForRootParameter(commandList, 2);
+        uvTransBuff.SetForRootParameter(commandList, 3);
+
+        // 描画
+        commandList->DrawInstanced(6, 1, 0, 0);
+
+        // レンダリング終了処理
+        RenderEnd();
+    }
+    // 描画データのクリア
+    activeRenderingData_.clear();
+}
+
+void GradationEffect::RenderEnd() {
+    renderTarget_->PostDraw();
+}
+
+void GradationEffect::DispatchComponent(Entity* _entity) {
     auto effectParams = getComponents<GradationTextureComponent>(_entity);
 
     if (!effectParams) {
         return; // コンポーネントがない場合は何もしない
     }
+
     for (auto& param : *effectParams) {
         if (!param.isActive()) {
             continue;
         }
-        D3D12_GPU_DESCRIPTOR_HANDLE texHandle = TextureManager::getDescriptorGpuHandle(param.getTextureIndex());
+        RenderingData data{};
 
-        auto& paramBuff = param.getParamBuff();
-        paramBuff.ConvertToBuffer();
-        paramBuff.SetForRootParameter(_cmdList, 2);
+        D3D12_GPU_DESCRIPTOR_HANDLE texHandle = TextureManager::getDescriptorGpuHandle(param.getTextureIndex());
 
         int32_t materialIndex = param.getMaterialIndex();
         auto& uvTransBuff     = param.getMaterialBuff();
@@ -211,22 +182,15 @@ void GradationEffect::SetupComponentAndRender(Entity* _entity, const Microsoft::
                 texHandle = material->getCustomTexture()->srv_->getGpuHandle();
             }
         }
-        uvTransBuff.SetForRootParameter(_cmdList, 3);
 
-        _cmdList->SetGraphicsRootDescriptorTable(0, texHandle);
+        param.getParamBuff().ConvertToBuffer();
 
-        Render(_defaultHandle);
+        data.effectParam = &param;
+        data.srvHandle   = texHandle;
+        activeRenderingData_.emplace_back(data);
     }
 }
 
-void GradationEffect::Render(D3D12_GPU_DESCRIPTOR_HANDLE _viewHandle) {
-    auto& commandList = dxCommand_->getCommandList();
-
-    /// ================================================
-    /// Viewport の設定
-    /// ================================================
-
-    commandList->SetGraphicsRootDescriptorTable(1, _viewHandle);
-
-    commandList->DrawInstanced(6, 1, 0, 0);
+bool GradationEffect::ShouldSkipPostRender() const {
+    return activeRenderingData_.empty();
 }

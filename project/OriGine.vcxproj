@@ -154,6 +154,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="engine\code\ECS\system\postRender\base\BasePostRenderingSystem.h" />
     <ClInclude Include="engine\code\ECS\system\render\base\BaseRenderSystem.h" />
     <ClInclude Include="editor\EditorController.h" />
     <ClInclude Include="editor\IEditor.h" />
@@ -317,6 +318,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="math\bounds\Sphere.h" />
     <ClInclude Include="math\bounds\base\IBounds.h" />
     <ClInclude Include="math\mathEnv.h" />
+    <ClInclude Include="engine\code\ECS\component\effect\post\SmoothingEffectParam.h" />
     <ClInclude Include="util\BitArray.h" />
     <ClInclude Include="util\ConvertString.h" />
     <ClInclude Include="util\DiffValue.h" />
@@ -333,6 +335,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="util\timeline\Timeline.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="engine\code\ECS\system\postRender\base\BasePostRenderingSystem.cpp" />
     <ClCompile Include="engine\code\ECS\system\render\base\BaseRenderSystem.cpp" />
     <ClCompile Include="editor\EditorController.cpp" />
     <ClCompile Include="editor\IEditor.cpp" />
@@ -472,6 +475,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="math\Orientation.cpp" />
     <ClCompile Include="math\Quaternion.cpp" />
     <ClCompile Include="math\Sequence.cpp" />
+    <ClCompile Include="engine\code\ECS\component\effect\post\SmoothingEffectParam.cpp" />
     <ClCompile Include="util\ConvertString.cpp" />
     <ClCompile Include="util\NormalizeString.cpp" />
     <ClCompile Include="util\binaryIO\BinaryIO.cpp" />

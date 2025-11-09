@@ -195,7 +195,7 @@ void GpuParticleRenderSystem::DispatchRenderer(Entity* _entity) {
     }
 }
 
-bool GpuParticleRenderSystem::IsSkipRendering() const {
+bool GpuParticleRenderSystem::ShouldSkipRender() const {
     bool isSkip = true;
     for (const auto& emitters : activeEmitterByBlendMode_) {
         if (!emitters.empty()) {

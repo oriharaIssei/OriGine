@@ -108,16 +108,20 @@ void MaterialEffect::UpdateEffectPipeline(Entity* _entity, MaterialEffectPipeLin
     Material* material    = getComponent<Material>(_entity, _pipeline->getMaterialIndex());
     int32_t baseTextureId = _pipeline->getBaseTextureId();
 
+    // CustomTexture がなければ作成
     if (!material->hasCustomTexture()) {
         material->CreateCustomTextureFromTextureFile(_pipeline->getBaseTextureId());
     }
     auto effectedTextureResource = &material->getCustomTexture()->resource_;
     Vec2f textureSize            = {(float)effectedTextureResource->width(), (float)effectedTextureResource->height()};
 
+    // baseTexture のメタデータを取得
+    // フォーマットとmipLevelを固定
     DirectX::TexMetadata metaData = TextureManager::getTexMetadata(baseTextureId);
     metaData.format               = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
     metaData.mipLevels            = 1;
 
+    // tempRenderTexture_ のサイズを baseTexture に合わせる
     auto tempRenderTexture = tempRenderTextures_[currentTempRTIndex_].get();
     if (tempRenderTexture->getTextureSize() != textureSize) {
         tempRenderTexture->Resize(textureSize);
@@ -128,14 +132,16 @@ void MaterialEffect::UpdateEffectPipeline(Entity* _entity, MaterialEffectPipeLin
     tempRenderTexture->DrawTexture(TextureManager::getDescriptorGpuHandle(_pipeline->getBaseTextureId()));
     tempRenderTexture->PostDraw();
 
+    // effectEntityDataList に登録されている Entity でエフェクトをかける
     const auto& effectEntityDataList = _pipeline->getEffectEntityIdList();
-    for (auto id : effectEntityDataList) {
+    for (auto& id : effectEntityDataList) {
         Entity* effectEntity = getEntity(id.entityID);
         if (!effectEntity) { // エンティティが存在しなかったらスルー
             continue;
         }
         TextureEffect(effectEntity, id.effectType, tempRenderTexture);
     }
+
     // 最終的に tempRenderTexture_ にエフェクトがかかったテクスチャが入っているので
     // Component に 渡す
     dxCommand_->ResourceBarrier(effectedTextureResource->getResource(), D3D12_RESOURCE_STATE_COPY_DEST);
@@ -148,8 +154,10 @@ void MaterialEffect::UpdateEffectPipeline(Entity* _entity, MaterialEffectPipeLin
     dxCommand_->ResourceBarrier(tempRenderTexture->getBackBuffer(), D3D12_RESOURCE_STATE_COMMON);
     dxCommand_->ResourceBarrier(effectedTextureResource->getResource(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
+    // コマンド実行
     ExecuteCommand();
 
+    // 次のRenderTextureを使う
     currentTempRTIndex_ = (currentTempRTIndex_ + 1) % static_cast<int32_t>(tempRenderTextures_.size());
 }
 
@@ -188,27 +196,38 @@ void MaterialEffect::ExecuteCommand() {
 void MaterialEffect::TextureEffect(Entity* _entity, MaterialEffectType _type, RenderTexture* _output) {
     switch (_type) {
     case MaterialEffectType::Dissolve: {
-        auto dissolveParam = getComponent<DissolveEffectParam>(_entity);
-        if (dissolveParam) {
-            if (dissolveParam->isActive()) {
-                dissolveEffect_->EffectEntity(_output, _entity);
-            }
-        }
-    } break;
+        dissolveEffect_->addEntity(_entity);
+
+        dissolveEffect_->setRenderTarget(_output);
+
+        dissolveEffect_->Update();
+
+        dissolveEffect_->clearEntities();
+
+        break;
+    }
     case MaterialEffectType::Distortion: {
-        auto distortionParam = getComponent<DistortionEffectParam>(_entity);
-        if (distortionParam) {
-            distortionEffect_->EffectEntity(_output, _entity);
-        }
-    } break;
+        distortionEffect_->addEntity(_entity);
+
+        distortionEffect_->setRenderTarget(_output);
+
+        distortionEffect_->Update();
+
+        distortionEffect_->clearEntities();
+
+        break;
+    }
     case MaterialEffectType::Gradation: {
-        auto gradationParam = getComponent<GradationTextureComponent>(_entity);
-        if (gradationParam) {
-            if (gradationParam->isActive()) {
-                gradationEffect_->EffectEntity(_output, _entity);
-            }
-        }
-    } break;
+        gradationEffect_->addEntity(_entity);
+
+        gradationEffect_->setRenderTarget(_output);
+
+        gradationEffect_->Update();
+
+        gradationEffect_->clearEntities();
+
+        break;
+    }
     default:
         break;
     }

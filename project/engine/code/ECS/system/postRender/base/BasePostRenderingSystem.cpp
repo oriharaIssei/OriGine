@@ -1,0 +1,50 @@
+#include "BasePostRenderingSystem.h"
+
+BasePostRenderingSystem::BasePostRenderingSystem(int32_t _priority) : ISystem(SystemCategory::PostRender, _priority) {}
+BasePostRenderingSystem::~BasePostRenderingSystem() {}
+
+void BasePostRenderingSystem::Initialize() {
+    dxCommand_ = std::make_unique<DxCommand>();
+    dxCommand_->Initialize("main", "main", D3D12_COMMAND_LIST_TYPE_DIRECT);
+    CreatePSO();
+}
+
+void BasePostRenderingSystem::Update() {
+    // 有効判定
+    if (isActive()) {
+        return;
+    }
+
+    if (entityIDs_.empty()) {
+        return;
+    }
+
+    // 無効エンティティの削除
+    eraseDeadEntity();
+
+    // renderTargetがnullなら sceneのsceneViewをセットする
+    if (renderTarget_ == nullptr) {
+        renderTarget_ = getScene()->getSceneView();
+    }
+
+    // コンポーネントの登録
+    for (auto entityID : entityIDs_) {
+        Entity* entity = getScene()->getEntity(entityID);
+        DispatchComponent(entity);
+    }
+
+    // ポストレンダリングスキップ判定
+    if (ShouldSkipPostRender()) {
+        return;
+    }
+
+    // レンダリング実行
+    Rendering();
+}
+
+void BasePostRenderingSystem::Finalize() {
+    if (dxCommand_) {
+        dxCommand_->Finalize();
+        dxCommand_.reset();
+    }
+}

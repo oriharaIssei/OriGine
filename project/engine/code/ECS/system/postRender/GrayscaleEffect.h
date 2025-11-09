@@ -1,8 +1,9 @@
 #pragma once
-#include "system/ISystem.h"
+
+#include "system/postRender/base/BasePostRenderingSystem.h"
 
 /// engine
-// drecitX12
+// directX12
 #include "directX12/DxCommand.h"
 #include "directX12/PipelineStateObj.h"
 #include "directX12/ShaderManager.h"
@@ -11,20 +12,33 @@
 /// グレースケール を画面全体にかけるエフェクト
 /// </summary>
 class GrayscaleEffect
-    : public ISystem {
+    : public BasePostRenderingSystem {
 public:
-    GrayscaleEffect() : ISystem(SystemCategory::PostRender) {}
-    ~GrayscaleEffect() override = default;
+    GrayscaleEffect();
+    ~GrayscaleEffect() override;
 
     void Initialize() override;
-    void Update() override;
     void Finalize();
 
 protected:
-    void CreatePSO();
+    /// <summary>
+    /// PSO作成
+    /// </summary>
+    void CreatePSO()override;
 
-    void Render();
+    /// <summary>
+    /// レンダリング開始処理
+    /// </summary>
+    void RenderStart()override;
+    /// <summary>
+    /// レンダリング処理
+    /// </summary>
+    void Rendering()override;
+    /// <summary>
+    /// レンダリング終了処理
+    /// </summary>
+    void RenderEnd()override;
+
 protected:
     PipelineStateObj* pso_                = nullptr;
-    std::unique_ptr<DxCommand> dxCommand_ = nullptr;
 };

@@ -125,7 +125,7 @@ void VelocityRenderingSystem::Rendering() {
     RenderCall();
 }
 
-bool VelocityRenderingSystem::IsSkipRendering() const {
+bool VelocityRenderingSystem::ShouldSkipRender() const {
     return !rigidbodies_ || rigidbodies_->getEntityIndexBind().empty();
 }
 

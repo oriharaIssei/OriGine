@@ -6,6 +6,8 @@
 
 /// ECS
 #include "ECS/system/ISystem.h"
+#include "ECS/system/postRender/base/BasePostRenderingSystem.h"
+#include "ECS/system/render/base/BaseRenderSystem.h"
 
 /// external
 #include "logger/Logger.h"
@@ -21,10 +23,20 @@ public:
         return &instance;
     }
 
+    /// <summary>
+    /// システムを登録する
+    /// </summary>
+    /// <typeparam name="SystemClass"></typeparam>
     template <IsSystem SystemClass>
     inline void registerSystem();
 
-    std::unique_ptr<ISystem> createSystem(const std::string& _systemTypeName, Scene* scene);
+    /// <summary>
+    /// システムを生成する
+    /// </summary>
+    /// <param name="_systemTypeName"></param>
+    /// <param name="scene"></param>
+    /// <returns></returns>
+    std::unique_ptr<ISystem> CreateSystem(const std::string& _systemTypeName, Scene* scene);
 
 private:
     std::unordered_map<std::string, std::function<std::unique_ptr<ISystem>(Scene*)>> systemMaker_;

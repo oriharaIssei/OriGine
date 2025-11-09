@@ -15,6 +15,7 @@ SpriteRenderSystem::SpriteRenderSystem() : BaseRenderSystem() {}
 SpriteRenderSystem::~SpriteRenderSystem() {}
 
 void SpriteRenderSystem::Initialize() {
+    BaseRenderSystem::Initialize();
 
     // ViewPortMatの計算
     WinApp* window = Engine::getInstance()->getWinApp();
@@ -98,7 +99,7 @@ void SpriteRenderSystem::DispatchRenderer(Entity* _entity) {
     }
 }
 
-bool SpriteRenderSystem::IsSkipRendering() const {
+bool SpriteRenderSystem::ShouldSkipRender() const {
     return renderers_.empty();
 }
 

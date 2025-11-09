@@ -72,7 +72,7 @@ void BackGroundSpriteRenderSystem::Rendering() {
     renderers_.clear();
 }
 
-bool BackGroundSpriteRenderSystem::IsSkipRendering() const {
+bool BackGroundSpriteRenderSystem::ShouldSkipRender() const {
     return renderers_.empty();
 }
 

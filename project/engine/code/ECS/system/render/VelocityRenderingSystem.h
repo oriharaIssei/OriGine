@@ -52,7 +52,7 @@ private:
     /// <summary>
     /// 描画スキップ判定
     /// </summary>
-    bool IsSkipRendering() const override;
+    bool ShouldSkipRender() const override;
 
     /// <summary>
     /// Velocityの情報を元に描画用メッシュを作成

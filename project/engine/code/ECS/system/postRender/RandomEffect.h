@@ -1,9 +1,11 @@
 #pragma once
-#include "system/ISystem.h"
+
+#include "system/postRender/base/BasePostRenderingSystem.h"
 
 /// stl
+#include <array>
 #include <memory>
-#include <unordered_map>
+#include <vector>
 
 /// engine
 // drecitX12
@@ -11,37 +13,53 @@
 #include "directX12/PipelineStateObj.h"
 #include "directX12/ShaderManager.h"
 
+// component
+#include "component/effect/post/RandomEffectParam.h"
+
 /// <summary>
 /// ランダムエフェクトシステム
 /// </summary>
 class RandomEffect
-    : public ISystem {
+    : public BasePostRenderingSystem {
 public:
-    RandomEffect() : ISystem(SystemCategory::PostRender) {}
-    ~RandomEffect() override = default;
+    RandomEffect();
+    ~RandomEffect() override;
 
     void Initialize() override;
-    void Update() override;
-    void UpdateEntity(Entity* _entity) override;
     void Finalize();
 
 protected:
-    void CreatePSO();
+    /// <summary>
+    /// PSO作成
+    /// </summary>
+    void CreatePSO() override;
 
     /// <summary>
-    /// 描画準備
+    /// レンダリング開始処理
     /// </summary>
-    void RenderStart();
-    void Render();
+    void RenderStart() override;
+    /// <summary>
+    /// レンダリング処理
+    /// </summary>
+    void Rendering() override;
+    /// <summary>
+    /// レンダリング終了処理
+    /// </summary>
+    void RenderEnd() override;
 
     /// <summary>
-    /// ブレンドモード変更
+    /// PostEffectに使用するComponentを登録する
     /// </summary>
-    void ChangeBlendMode(BlendMode mode);
+    void DispatchComponent(Entity* _entity) override;
+
+    /// <summary>
+    /// ポストレンダリングをスキップするかどうか
+    /// </summary>
+    /// <returns>true = skipする / false = skipしない</returns>
+    bool ShouldSkipPostRender() const override;
 
 protected:
-    BlendMode currentBlend_ = BlendMode::Alpha;
-
-    std::unordered_map<BlendMode, PipelineStateObj*> pso_;
-    std::unique_ptr<DxCommand> dxCommand_ = nullptr;
+    std::array<PipelineStateObj*, static_cast<size_t>(kBlendNum)> psoByBlendMode_                       = {};
+    std::vector<RandomEffectParam*> activeParams_ = {};
+    BlendMode currentBlend_                                                                             = BlendMode::Alpha;
 };

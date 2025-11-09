@@ -27,7 +27,7 @@ void BaseRenderSystem::Update() {
     }
 
     // レンダリングスキップ判定
-    if (IsSkipRendering()) {
+    if (ShouldSkipRender()) {
         return;
     }
 
@@ -36,8 +36,10 @@ void BaseRenderSystem::Update() {
 }
 
 void BaseRenderSystem::Finalize() {
-    dxCommand_->Finalize();
-    dxCommand_.reset();
+    if (dxCommand_) {
+        dxCommand_->Finalize();
+        dxCommand_.reset();
+    }
 }
 
 void BaseRenderSystem::Rendering() {

@@ -56,7 +56,7 @@ protected:
     /// レンダリングをスキップするかどうか(描画オブジェクトが無いときは描画をスキップする)
     /// </summary>
     /// <returns>true ＝ 描画をスキップする / false = 描画スキップしない</returns>
-    bool IsSkipRendering() const;
+    bool ShouldSkipRender() const;
 
     /// <summary>
     /// 使用していない

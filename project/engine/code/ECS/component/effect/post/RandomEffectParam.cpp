@@ -14,9 +14,13 @@ void RandomEffectParam::Initialize(Entity* /*_hostEntity*/) {
     effectParamData_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
 }
 
-void RandomEffectParam::Edit(Scene* /*_scene*/, Entity* /*_entity*/,[[maybe_unused]] const std::string& _parentLabel) {
-  
+void RandomEffectParam::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
+
 #ifdef _DEBUG
+    CheckBoxCommand("Active##" + _parentLabel, isActive_);
+
+    ImGui::Spacing();
+
     ImGui::Text("BlendMode :");
     ImGui::SameLine();
     std::string label = "##BlendMode" + _parentLabel;
@@ -32,16 +36,34 @@ void RandomEffectParam::Edit(Scene* /*_scene*/, Entity* /*_entity*/,[[maybe_unus
                 break;
             }
 
-            blendIndex++;
+            ++blendIndex;
         }
         ImGui::EndCombo();
     }
-    DragGuiCommand("MaxTime", maxTime_, 0.01f, 0.01f);
-    DragGuiCommand("Time", effectParamData_->time, 0.01f, maxTime_);
-#endif // _DEBUG
 
+    ImGui::Spacing();
+
+    DragGuiCommand("MaxTime##" + _parentLabel, maxTime_, 0.01f, 0.01f);
+    DragGuiCommand("Time##" + _parentLabel, effectParamData_->time, 0.01f, maxTime_);
+#endif // _DEBUG
 }
 
 void RandomEffectParam::Finalize() {
     effectParamData_.Finalize();
+}
+
+void to_json(nlohmann::json& j, const RandomEffectParam& param) {
+    j = nlohmann::json{
+        {"isActive", param.isActive_},
+        {"maxTime", param.maxTime_},
+        {"blendMode", static_cast<int>(param.blendMode_)}};
+}
+
+void from_json(const nlohmann::json& j, RandomEffectParam& param) {
+    j.at("isActive").get_to(param.isActive_);
+
+    j.at("maxTime").get_to(param.maxTime_);
+    int blendModeInt;
+    j.at("blendMode").get_to(blendModeInt);
+    param.blendMode_ = static_cast<BlendMode>(blendModeInt);
 }
