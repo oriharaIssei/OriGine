@@ -1,5 +1,6 @@
 #pragma once
-#include "system/ISystem.h" /// engine
+
+#include "system/postRender/base/BasePostRenderingSystem.h"
 
 // drecitX12
 #include "directX12/DxCommand.h"
@@ -11,30 +12,46 @@ class RadialBlurParam;
 /// <summary>
 /// Radial Blur をかけるシステム
 class RadialBlurEffect
-    : public ISystem {
+    : public BasePostRenderingSystem {
 public:
-    RadialBlurEffect() : ISystem(SystemCategory::PostRender) {}
-    ~RadialBlurEffect() override = default;
+    RadialBlurEffect();
+    ~RadialBlurEffect() override;
 
     void Initialize() override;
-    void Update() override;
-    void UpdateEntity(Entity* _entity) override;
     void Finalize();
 
 protected:
-    void CreatePSO();
+    /// <summary>
+    /// PSO作成
+    /// </summary>
+    void CreatePSO() override;
 
     /// <summary>
-    /// 描画準備システム
+    /// レンダリング開始処理
     /// </summary>
-    void RenderStart();
+    void RenderStart() override;
     /// <summary>
-    /// 描画システム
+    /// レンダリング処理
     /// </summary>
-    void Render();
+    void Rendering() override;
+    /// <summary>
+    /// レンダリング終了処理
+    /// </summary>
+    void RenderEnd() override;
+
+    /// <summary>
+    /// PostEffectに使用するComponentを登録する
+    /// (Systemによっては使用しない)
+    /// </summary>
+    void DispatchComponent(Entity* _entity) override;
+
+    /// <summary>
+    /// ポストレンダリングをスキップするかどうか
+    /// </summary>
+    /// <returns>true = skipする / false = skipしない</returns>
+    bool ShouldSkipPostRender() const override;
 
 protected:
-    std::list<RadialBlurParam*> activeRadialBlurParams_;
-    PipelineStateObj* pso_                = nullptr;
-    std::unique_ptr<DxCommand> dxCommand_ = nullptr;
+    std::vector<RadialBlurParam*> activeRadialBlurParams_ = {};
+    PipelineStateObj* pso_                                = nullptr;
 };

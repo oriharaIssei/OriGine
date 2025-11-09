@@ -40,12 +40,21 @@ public:
     void Finalize();
 
 private:
+    bool isActive_ = true; // エフェクトが有効かどうか
+
     IConstantBuffer<RandomEffectParamData> effectParamData_;
     float maxTime_ = 1000.f; // 最大時間
 
     BlendMode blendMode_ = BlendMode::Alpha;
 
 public:
+    bool isActive() const {
+        return isActive_;
+    }
+    void setIsActive(bool isActive) {
+        isActive_ = isActive;
+    }
+
     float getCurrentTime() const {
         return effectParamData_->time;
     }
@@ -68,16 +77,3 @@ public:
         return effectParamData_;
     }
 };
-
-inline void to_json(nlohmann::json& j, const RandomEffectParam& param) {
-    j = nlohmann::json{
-        {"maxTime", param.maxTime_},
-        {"blendMode", static_cast<int>(param.blendMode_)}};
-}
-
-inline void from_json(const nlohmann::json& j, RandomEffectParam& param) {
-    j.at("maxTime").get_to(param.maxTime_);
-    int blendModeInt;
-    j.at("blendMode").get_to(blendModeInt);
-    param.blendMode_ = static_cast<BlendMode>(blendModeInt);
-}

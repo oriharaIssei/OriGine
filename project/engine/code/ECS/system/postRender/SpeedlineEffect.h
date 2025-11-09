@@ -1,5 +1,6 @@
 #pragma once
-#include "system/ISystem.h"
+
+#include "system/postRender/base/BasePostRenderingSystem.h"
 
 /// stl
 #include <memory>
@@ -19,35 +20,51 @@
 /// スピードラインを描画するシステム
 /// </summary>
 class SpeedlineEffect
-    : public ISystem {
+    : public BasePostRenderingSystem {
 public:
-    SpeedlineEffect() : ISystem(SystemCategory::PostRender) {}
-    ~SpeedlineEffect() override = default;
+    SpeedlineEffect();
+    ~SpeedlineEffect() override;
 
     void Initialize() override;
-    void Update() override;
-    void UpdateEntity(Entity* _entity) override;
     void Finalize();
 
 protected:
-    void CreatePSO();
+    /// <summary>
+    /// PSO作成
+    /// </summary>
+    void CreatePSO() override;
 
     /// <summary>
-    /// 描画準備処理
+    /// レンダリング開始処理
     /// </summary>
-    void RenderStart();
+    void RenderStart() override;
     /// <summary>
     /// コンポーネント描画処理
     /// </summary>
     void Render(SpeedlineEffectParam* _param);
     /// <summary>
-    /// 描画終了処理
+    /// レンダリング処理
     /// </summary>
-    void RenderEnd();
+    void Rendering() override;
+    /// <summary>
+    /// レンダリング終了処理
+    /// </summary>
+    void RenderEnd() override;
+
+    /// <summary>
+    /// PostEffectに使用するComponentを登録する
+    /// (Systemによっては使用しない)
+    /// </summary>
+    void DispatchComponent(Entity* _entity) override;
+
+    /// <summary>
+    /// ポストレンダリングをスキップするかどうか
+    /// </summary>
+    /// <returns>true = skipする / false = skipしない</returns>
+    bool ShouldSkipPostRender() const override;
 
 protected:
     PipelineStateObj* pso_                = nullptr;
-    std::unique_ptr<DxCommand> dxCommand_ = nullptr;
 
     std::vector<SpeedlineEffectParam*> activeParams_;
 };

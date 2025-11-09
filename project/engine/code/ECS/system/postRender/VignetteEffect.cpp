@@ -12,37 +12,13 @@
 #include "directX12/DxDevice.h"
 #include "directX12/RenderTexture.h"
 
+VignetteEffect::VignetteEffect() : BasePostRenderingSystem() {}
+VignetteEffect::~VignetteEffect() {}
+
 void VignetteEffect::Initialize() {
     dxCommand_ = std::make_unique<DxCommand>();
     dxCommand_->Initialize("main", "main");
     CreatePSO();
-}
-
-void VignetteEffect::Update() {
-    if (!getScene()) {
-        return;
-    }
-    eraseDeadEntity();
-
-    if (entityIDs_.empty()) {
-        return;
-    }
-
-    RenderStart();
-
-    for (auto& id : entityIDs_) {
-        auto* entity = getEntity(id);
-        UpdateEntity(entity);
-        Render();
-    }
-
-    RenderEnd();
-}
-
-void VignetteEffect::UpdateEntity(Entity* _entity) {
-    auto* vignetteParam = getComponent<VignetteParam>(_entity);
-    vignetteParam->getVignetteBuffer().ConvertToBuffer();
-    vignetteParam->getVignetteBuffer().SetForRootParameter(dxCommand_->getCommandList(), 1);
 }
 
 void VignetteEffect::Finalize() {
@@ -120,35 +96,53 @@ void VignetteEffect::CreatePSO() {
 void VignetteEffect::RenderStart() {
     auto commandList = dxCommand_->getCommandList();
 
+    renderTarget_->PreDraw();
+
     /// ================================================
     /// pso set
     /// ================================================
     commandList->SetPipelineState(pso_->pipelineState.Get());
     commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-    /// ================================================
-    // SceneView の準備
-    /// ================================================
-    auto* sceneView = this->getScene()->getSceneView();
-    sceneView->PreDraw();
 }
 
-void VignetteEffect::Render() {
+void VignetteEffect::Rendering() {
     auto& commandList = dxCommand_->getCommandList();
-    auto* sceneView   = this->getScene()->getSceneView();
 
-    /// ================================================
-    /// Viewport の設定
-    /// ================================================
-    ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
-    commandList->SetDescriptorHeaps(1, ppHeaps);
-    commandList->SetGraphicsRootDescriptorTable(0, sceneView->getBackBufferSrvHandle());
+    for (auto& param : activeParams_) {
+        // 描画開始
+        RenderStart();
 
-    commandList->DrawInstanced(6, 1, 0, 0);
+        // 描画処理
+        commandList->SetGraphicsRootDescriptorTable(0, renderTarget_->getBackBufferSrvHandle());
+        param->getVignetteBuffer().SetForRootParameter(commandList, 1);
+        commandList->DrawInstanced(6, 1, 0, 0);
+
+        // 描画終了
+        RenderEnd();
+    }
+
+    // 使用したパラメータをクリア
+    activeParams_.clear();
 }
 
 void VignetteEffect::RenderEnd() {
-    auto* sceneView = this->getScene()->getSceneView();
-    sceneView->PostDraw();
+    renderTarget_->PostDraw();
+}
+
+void VignetteEffect::DispatchComponent(Entity* _entity) {
+    auto* vignetteParams = getComponents<VignetteParam>(_entity);
+
+    if (!vignetteParams) {
+        return;
+    }
+
+    for (auto& param : *vignetteParams) {
+        param.getVignetteBuffer().ConvertToBuffer();
+        activeParams_.push_back(&param);
+    }
+}
+
+bool VignetteEffect::ShouldSkipPostRender() const {
+    return activeParams_.empty();
 }

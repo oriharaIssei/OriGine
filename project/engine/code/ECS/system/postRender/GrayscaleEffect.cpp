@@ -9,14 +9,11 @@
 #include "directX12/DxDevice.h"
 #include "directX12/RenderTexture.h"
 
-void GrayscaleEffect::Initialize() {
-    dxCommand_ = std::make_unique<DxCommand>();
-    dxCommand_->Initialize("main", "main");
-    CreatePSO();
-}
+GrayscaleEffect::GrayscaleEffect() : BasePostRenderingSystem() {}
+GrayscaleEffect::~GrayscaleEffect() {}
 
-void GrayscaleEffect::Update() {
-    Render();
+void GrayscaleEffect::Initialize() {
+    BasePostRenderingSystem::Initialize();
 }
 
 void GrayscaleEffect::Finalize() {
@@ -85,23 +82,34 @@ void GrayscaleEffect::CreatePSO() {
     pso_ = shaderManager->CreatePso("GrayscaleEffect", shaderInfo, Engine::getInstance()->getDxDevice()->device_);
 }
 
-void GrayscaleEffect::Render() {
+void GrayscaleEffect::RenderStart() {
     auto& commandList = dxCommand_->getCommandList();
-    auto* sceneView   = this->getScene()->getSceneView();
 
-    /// ================================================
-    /// pso set
-    /// ================================================
+    // Setting
+
+    renderTarget_->PreDraw();
+    renderTarget_->DrawTexture();
+
     commandList->SetPipelineState(pso_->pipelineState.Get());
     commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    /// ================================================
-    /// Viewport の設定
-    /// ================================================
     ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
-    commandList->SetGraphicsRootDescriptorTable(0, sceneView->getBackBufferSrvHandle());
+
+    commandList->SetGraphicsRootDescriptorTable(0, renderTarget_->getBackBufferSrvHandle());
+}
+
+void GrayscaleEffect::Rendering() {
+    auto& commandList = dxCommand_->getCommandList();
+
+    RenderStart();
 
     commandList->DrawInstanced(6, 1, 0, 0);
+
+    RenderEnd();
+}
+
+void GrayscaleEffect::RenderEnd() {
+    renderTarget_->PostDraw();
 }

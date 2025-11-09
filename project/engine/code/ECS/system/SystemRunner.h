@@ -26,7 +26,7 @@ public:
     /// SystemのActive状態関係なく,指定したカテゴリのSystemを初期化する.
     /// </summary>
     template <SystemCategory Category>
-     void InitializeCategory();
+    void InitializeCategory();
 
     /// <summary>
     /// !!!非推奨!!!
@@ -44,7 +44,7 @@ public:
     /// 指定したカテゴリのActiveなSystemを初期化する
     /// </summary>
     template <SystemCategory Category>
-     void InitializeActiveCategory();
+    void InitializeActiveCategory();
 
     /// <summary>
     /// SystemのActive状態に関わらず,全てのSystemを終了する.
@@ -58,7 +58,7 @@ public:
     /// SystemのActive状態に関わらず,指定したカテゴリのSystemを終了する.
     /// </summary>
     template <SystemCategory Category>
-     void FinalizeCategory() ;
+    void FinalizeCategory();
 
     /// <summary>
     /// !!!非推奨!!!
@@ -75,14 +75,23 @@ public:
     /// 指定したカテゴリのActiveなSystemを終了する
     /// </summary>
     template <SystemCategory Category>
-     void FinalizeActiveCategory();
+    void FinalizeActiveCategory();
 
+    /// <summary>
+    /// 全てのSystemの登録を解除する
+    /// </summary>
     void AllUnregisterSystem(bool _isFinalize = false);
 
+    /// <summary>
+    /// 指定したカテゴリのSystemを更新する
+    /// </summary>
     void UpdateCategory(SystemCategory _category);
 
+    /// <summary>
+    /// 指定したカテゴリのSystemを更新する
+    /// </summary>
     template <SystemCategory Category>
-     void UpdateCategory();
+    void UpdateCategory();
 
     /// <summary>
     /// システムを登録する
@@ -108,8 +117,8 @@ public:
     /// <summary>
     /// 登録を解除する
     /// </summary>
-    /// <typeparam name="SystemCategory">解除するシステムクラス</typeparam>
-    template <IsSystem SystemCategory>
+    /// <typeparam name="SystemClass">解除するシステムクラス</typeparam>
+    template <IsSystem SystemClass>
     void unregisterSystem();
 
     /// <summary>
@@ -149,14 +158,14 @@ public:
     /// </summary>
     /// <param name="_systemTypeName">エンティティを追加するシステムの名前</param>
     /// <param name="_entity"></param>
-    void registerEntity(const std::string& _systemTypeName, Entity* _entity) ;
+    void registerEntity(const std::string& _systemTypeName, Entity* _entity);
 
     /// <summary>
     /// 指定されたシステムからエンティティを削除します。
     /// </summary>
     /// <param name="_systemTypeName">エンティティを削除する対象のシステム名。</param>
     /// <param name="_entity">削除するEntityオブジェクトへのポインタ。</param>
-    void removeEntity(const std::string& _systemTypeName, Entity* _entity) ;
+    void removeEntity(const std::string& _systemTypeName, Entity* _entity);
 
     void removeEntityFromAllSystems(Entity* _entity);
 
@@ -202,7 +211,7 @@ public:
     const std::vector<ISystem*>& getActiveSystems(SystemCategory category) const {
         return activeSystems_[static_cast<size_t>(category)];
     }
-    ISystem* getSystem(const std::string& _systemName) const ;
+    ISystem* getSystem(const std::string& _systemName) const;
 
     template <IsSystem SystemClass>
     SystemClass* getSystem() const;

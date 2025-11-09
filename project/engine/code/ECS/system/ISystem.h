@@ -95,15 +95,14 @@ protected:
 
 #ifdef _DEBUG
     DeltaTime deltaTimer_;
-    float runningTime_ = 0.0f; // deltaTime
 #endif // _DEBUG
 
 private:
     Scene* scene_  = nullptr;
-    bool isActive_ = false;
     SystemCategory category_;
 
     int32_t priority_ = 0;
+    bool isActive_ = false;
 
 public: // ========================================== accessor ========================================== //
     Scene* getScene() const {
@@ -148,7 +147,7 @@ public: // ========================================== accessor =================
     }
 
 #ifdef _DEBUG
-    float getRunningTime() const { return runningTime_; }
+    float getRunningTime() const { return deltaTimer_.getDeltaTime(); }
 #endif // _DEBUG
 
     bool isActive() const {

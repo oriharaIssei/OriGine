@@ -10,68 +10,15 @@
 #include "directX12/DxDevice.h"
 #include "directX12/RenderTexture.h"
 
+RadialBlurEffect::RadialBlurEffect() : BasePostRenderingSystem() {}
+RadialBlurEffect::~RadialBlurEffect() {}
+
 void RadialBlurEffect::Initialize() {
-    dxCommand_ = std::make_unique<DxCommand>();
-    dxCommand_->Initialize("main", "main");
-    CreatePSO();
-}
-
-void RadialBlurEffect::Update() {
-    auto* sceneView = getScene()->getSceneView();
-
-    eraseDeadEntity();
-
-    if (entityIDs_.empty()) {
-        return;
-    }
-
-    activeRadialBlurParams_.clear();
-
-    for (auto& id : entityIDs_) {
-        auto* entity = getEntity(id);
-
-        int32_t size = getComponentArray<RadialBlurParam>()->getComponentSize(entity);
-        for (int32_t i = 0; i < size; ++i) {
-            auto* radialBlurParam = getComponent<RadialBlurParam>(entity, i);
-            if (!radialBlurParam || !radialBlurParam->isActive()) {
-                continue;
-            }
-            activeRadialBlurParams_.emplace_back(radialBlurParam);
-        }
-    }
-
-    // アクティブなパラメータがない場合は何もしない
-    if (activeRadialBlurParams_.empty()) {
-        return;
-    }
-
-    for (auto& activeParam : activeRadialBlurParams_) {
-        sceneView->PreDraw();
-        RenderStart();
-
-        activeParam->getConstantBuffer().ConvertToBuffer();
-        activeParam->getConstantBuffer().SetForRootParameter(dxCommand_->getCommandList(), 1);
-        Render();
-
-        sceneView->PostDraw();
-    }
-}
-
-void RadialBlurEffect::UpdateEntity(Entity* _entity) {
-    int32_t size = getComponentArray<RadialBlurParam>()->getComponentSize(_entity);
-    for (int32_t i = 0; i < size; ++i) {
-        auto* radialBlurParam = getComponent<RadialBlurParam>(_entity, i);
-        if (!radialBlurParam->isActive()) {
-            return;
-        }
-        radialBlurParam->getConstantBuffer().ConvertToBuffer();
-        radialBlurParam->getConstantBuffer().SetForRootParameter(dxCommand_->getCommandList(), 1);
-    }
+    BasePostRenderingSystem::Initialize();
 }
 
 void RadialBlurEffect::Finalize() {
-    dxCommand_->Finalize();
-    dxCommand_.reset();
+    BasePostRenderingSystem::Finalize();
     pso_ = nullptr;
 }
 
@@ -142,24 +89,55 @@ void RadialBlurEffect::CreatePSO() {
 void RadialBlurEffect::RenderStart() {
     auto& commandList = dxCommand_->getCommandList();
 
-    /// ================================================
-    /// pso set
-    /// ================================================
+    renderTarget_->PreDraw();
+    renderTarget_->DrawTexture();
+
+    // 描画設定
+
     commandList->SetPipelineState(pso_->pipelineState.Get());
     commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
+
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-}
 
-void RadialBlurEffect::Render() {
-    auto& commandList = dxCommand_->getCommandList();
-    auto* sceneView   = getScene()->getSceneView();
-
-    /// ================================================
-    /// Viewport の設定
-    /// ================================================
     ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
-    commandList->SetGraphicsRootDescriptorTable(0, sceneView->getBackBufferSrvHandle());
 
-    commandList->DrawInstanced(6, 1, 0, 0);
+    commandList->SetGraphicsRootDescriptorTable(0, renderTarget_->getBackBufferSrvHandle());
+}
+
+void RadialBlurEffect::Rendering() {
+    for (auto& param : activeRadialBlurParams_) {
+
+        RenderStart();
+
+        param->getConstantBuffer().SetForRootParameter(dxCommand_->getCommandList(), 1);
+
+        RenderEnd();
+    }
+
+    activeRadialBlurParams_.clear();
+}
+
+void RadialBlurEffect::RenderEnd() {
+    renderTarget_->PostDraw();
+}
+
+void RadialBlurEffect::DispatchComponent(Entity* _entity) {
+    auto components = getComponents<RadialBlurParam>(_entity);
+    if (!components) {
+        return;
+    }
+
+    // アクティブなコンポーネントだけ登録する
+    for (auto& component : *components) {
+        if (!component.isActive()) {
+            continue;
+        }
+        component.getConstantBuffer().ConvertToBuffer();
+        activeRadialBlurParams_.emplace_back(&component);
+    }
+}
+
+bool RadialBlurEffect::ShouldSkipPostRender() const {
+    return activeRadialBlurParams_.empty();
 }

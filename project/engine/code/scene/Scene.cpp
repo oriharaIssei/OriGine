@@ -57,10 +57,12 @@ void Scene::Update() {
 }
 
 void Scene::Render() {
+    // worldの描画
     sceneView_->PreDraw();
     systemRunner_->UpdateCategory<SystemCategory::Render>();
     sceneView_->PostDraw();
 
+    // ポストレンダリング
     int32_t postRenderInt = static_cast<int32_t>(SystemCategory::PostRender);
     if (systemRunner_->getActiveSystems()[postRenderInt].empty() || !systemRunner_->getCategoryActivity(SystemCategory::PostRender)) {
         return;

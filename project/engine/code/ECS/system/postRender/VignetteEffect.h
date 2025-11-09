@@ -1,47 +1,64 @@
 #pragma once
-#include "system/ISystem.h"
 
-///stl
+#include "system/postRender/base/BasePostRenderingSystem.h"
+
+/// stl
 #include <memory>
+#include <vector>
 
 /// engine
 // drecitX12
 #include "directX12/DxCommand.h"
 #include "directX12/PipelineStateObj.h"
 #include "directX12/ShaderManager.h"
-#include <component/effect/post/VignetteParam.h>
+
+// component
+#include "component/effect/post/VignetteParam.h"
 
 /// <summary>
 /// ヴィネットエフェクト
 /// </summary>
 class VignetteEffect
-    : public ISystem {
+    : public BasePostRenderingSystem {
 public:
-    VignetteEffect() : ISystem(SystemCategory::PostRender) {}
-    ~VignetteEffect() override = default;
+    VignetteEffect();
+    ~VignetteEffect() override;
 
     void Initialize() override;
-    void Update() override;
-    void UpdateEntity(Entity* _entity) override;
     void Finalize();
 
 protected:
-    void CreatePSO();
+    /// <summary>
+    /// PSO作成
+    /// </summary>
+    void CreatePSO() override;
 
     /// <summary>
-    /// 描画準備処理
+    /// レンダリング開始処理
     /// </summary>
-    void RenderStart();
+    void RenderStart() override;
     /// <summary>
-    /// 描画
+    /// レンダリング処理
     /// </summary>
-    void Render();
+    void Rendering() override;
     /// <summary>
-    /// 描画終了処理
+    /// レンダリング終了処理
     /// </summary>
-    void RenderEnd();
+    void RenderEnd() override;
+
+    /// <summary>
+    /// PostEffectに使用するComponentを登録する
+    /// (Systemによっては使用しない)
+    /// </summary>
+    void DispatchComponent(Entity* _entity) override;
+
+    /// <summary>
+    /// ポストレンダリングをスキップするかどうか
+    /// </summary>
+    /// <returns>true = skipする / false = skipしない</returns>
+    bool ShouldSkipPostRender() const override;
 
 protected:
-    PipelineStateObj* pso_                = nullptr;
-    std::unique_ptr<DxCommand> dxCommand_ = nullptr;
+    PipelineStateObj* pso_ = nullptr;
+    std::vector<VignetteParam*> activeParams_;
 };

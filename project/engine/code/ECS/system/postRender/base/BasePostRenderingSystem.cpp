@@ -10,12 +10,22 @@ void BasePostRenderingSystem::Initialize() {
 }
 
 void BasePostRenderingSystem::Update() {
+    // 有効判定
+    if (isActive()) {
+        return;
+    }
+
     if (entityIDs_.empty()) {
         return;
     }
 
     // 無効エンティティの削除
     eraseDeadEntity();
+
+    // renderTargetがnullなら sceneのsceneViewをセットする
+    if (renderTarget_ == nullptr) {
+        renderTarget_ = getScene()->getSceneView();
+    }
 
     // コンポーネントの登録
     for (auto entityID : entityIDs_) {
@@ -29,13 +39,12 @@ void BasePostRenderingSystem::Update() {
     }
 
     // レンダリング実行
-    RenderStart();
     Rendering();
-    RenderEnd();
 }
 
 void BasePostRenderingSystem::Finalize() {
     if (dxCommand_) {
+        dxCommand_->Finalize();
         dxCommand_.reset();
     }
 }

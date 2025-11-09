@@ -67,3 +67,7 @@ public:
         return dxCommand_.get();
     }
 };
+
+// BaseRenderSystemを継承しているかどうか
+template <typename T>
+concept IsRenderSystem = std::is_base_of<BaseRenderSystem, T>::value;

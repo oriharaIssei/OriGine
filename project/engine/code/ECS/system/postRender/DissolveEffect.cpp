@@ -11,154 +11,16 @@
 #include "directX12/DxDevice.h"
 #include "directX12/RenderTexture.h"
 
+DissolveEffect::DissolveEffect() : BasePostRenderingSystem() {}
+DissolveEffect::~DissolveEffect() {}
+
 void DissolveEffect::Initialize() {
-    dxCommand_ = std::make_unique<DxCommand>();
-    dxCommand_->Initialize("main", "main");
-    CreatePSO();
-}
-
-void DissolveEffect::Update() {
-    auto* sceneView = this->getScene()->getSceneView();
-
-    eraseDeadEntity();
-
-    if (entityIDs_.empty()) {
-        return;
-    }
-
-    // 実行する必要があるかチェック
-    bool allIsUnactive = true;
-
-    for (auto& entityId : entityIDs_) {
-        Entity* entity = getEntity(entityId);
-        auto* compVec      = getComponents<DissolveEffectParam>(entity);
-        if (!compVec || compVec->empty()) {
-            continue;
-        }
-        for (auto& comp : *compVec) {
-            if (comp.isActive()) {
-                allIsUnactive = false;
-                break; // 1つでもアクティブなコンポーネントがあればループを抜ける
-            }
-        }
-        if (!allIsUnactive) {
-            break; // 全てのコンポーネントが非アクティブなら何もしない
-        }
-    }
-
-    if (allIsUnactive) {
-        return; // 全てのコンポーネントが非アクティブなら何もしない
-    }
-
-    RenderStart();
-
-    sceneView->PreDraw();
-    for (auto& id : entityIDs_) {
-        auto* entity = getEntity(id);
-        UpdateEntity(entity);
-    }
-
-    sceneView->PostDraw();
-}
-
-void DissolveEffect::UpdateEntity(Entity* _entity) {
-    auto effectParams = getComponents<DissolveEffectParam>(_entity);
-
-    if (!effectParams) {
-        return; // コンポーネントがない場合は何もしない
-    }
-    auto& commandList     = dxCommand_->getCommandList();
-    const auto& sceneView = getScene()->getSceneView();
-
-    for (auto& param : *effectParams) {
-        if (!param.isActive()) {
-            continue;
-        }
-        D3D12_GPU_DESCRIPTOR_HANDLE srvHandle = TextureManager::getDescriptorGpuHandle(param.getTextureIndex());
-
-        auto& paramBuff = param.getDissolveBuffer();
-        paramBuff.ConvertToBuffer();
-
-        int32_t materialIndex = param.getMaterialIndex();
-        auto& materialBuff    = param.getMaterialBuffer();
-        if (materialIndex >= 0) {
-            Material* material = getComponent<Material>(_entity, materialIndex);
-            material->UpdateUvMatrix();
-
-            materialBuff.ConvertToBuffer(ColorAndUvTransform(material->color_, material->uvTransform_));
-            if (material->hasCustomTexture()) {
-                srvHandle = material->getCustomTexture()->srv_->getGpuHandle();
-            }
-        }
-
-        ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
-        commandList->SetDescriptorHeaps(1, ppHeaps);
-
-        commandList->SetGraphicsRootDescriptorTable(1,
-            srvHandle);
-
-        paramBuff.SetForRootParameter(dxCommand_->getCommandList(), 2);
-
-        materialBuff.SetForRootParameter(commandList, 3);
-
-        Render(sceneView->getBackBufferSrvHandle());
-    }
+    BasePostRenderingSystem::Initialize();
 }
 
 void DissolveEffect::Finalize() {
-    if (dxCommand_) {
-        dxCommand_.reset();
-    }
+    BasePostRenderingSystem::Finalize();
     pso_ = nullptr;
-}
-
-void DissolveEffect::EffectEntity(RenderTexture* _output, Entity* _entity) {
-    if (!_output) {
-        return;
-    }
-    RenderStart();
-    _output->PreDraw();
-
-    auto effectParams = getComponents<DissolveEffectParam>(_entity);
-
-    if (!effectParams) {
-        return; // コンポーネントがない場合は何もしない
-    }
-    auto& commandList = dxCommand_->getCommandList();
-
-    for (auto& param : *effectParams) {
-        if (!param.isActive()) {
-            continue;
-        }
-        D3D12_GPU_DESCRIPTOR_HANDLE srvHandle = TextureManager::getDescriptorGpuHandle(param.getTextureIndex());
-
-        int32_t materialIndex = param.getMaterialIndex();
-        auto& materialBuff    = param.getMaterialBuffer();
-        if (materialIndex >= 0) {
-            Material* material = getComponent<Material>(_entity, materialIndex);
-            material->UpdateUvMatrix();
-
-            materialBuff.ConvertToBuffer(ColorAndUvTransform(material->color_, material->uvTransform_));
-
-            if (material->hasCustomTexture()) {
-                srvHandle = material->getCustomTexture()->srv_->getGpuHandle();
-            }
-        }
-
-        ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
-        commandList->SetDescriptorHeaps(1, ppHeaps);
-
-        commandList->SetGraphicsRootDescriptorTable(1,srvHandle);
-
-        param.getDissolveBuffer().ConvertToBuffer();
-        param.getDissolveBuffer().SetForRootParameter(dxCommand_->getCommandList(), 2);
-
-        materialBuff.SetForRootParameter(commandList, 3);
-
-        Render(_output->getBackBufferSrvHandle());
-    }
-
-    _output->PostDraw();
 }
 
 void DissolveEffect::CreatePSO() {
@@ -244,18 +106,90 @@ void DissolveEffect::CreatePSO() {
     pso_ = shaderManager->CreatePso("DissolveEffect", shaderInfo, Engine::getInstance()->getDxDevice()->device_);
 }
 
+bool DissolveEffect::ShouldSkipPostRender() const {
+    return isActive() || activeRenderingData_.empty();
+}
+
 void DissolveEffect::RenderStart() {
     auto& commandList = dxCommand_->getCommandList();
 
-    /// ================================================
     /// pso set
-    /// ================================================
     commandList->SetPipelineState(pso_->pipelineState.Get());
     commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+    ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
+    commandList->SetDescriptorHeaps(1, ppHeaps);
+
+    /// target の設定
+    renderTarget_->PreDraw();
 }
 
-void DissolveEffect::Render(D3D12_GPU_DESCRIPTOR_HANDLE _viewHandle) {
+void DissolveEffect::Rendering() {
+    auto commandList = dxCommand_->getCommandList();
+
+    for (const auto& renderingData : activeRenderingData_) {
+        /// 描画 開始
+        RenderStart();
+
+        commandList->SetGraphicsRootDescriptorTable(1,
+            renderingData.srvHandle);
+
+        renderingData.dissolveParam->getDissolveBuffer().SetForRootParameter(dxCommand_->getCommandList(), 2);
+        renderingData.dissolveParam->getMaterialBuffer().SetForRootParameter(dxCommand_->getCommandList(), 3);
+        /// 描画 呼び出し
+        RenderCall(getScene()->getSceneView()->getBackBufferSrvHandle());
+
+        // 描画 終了
+        RenderEnd();
+    }
+
+    /// アクティブなレンダリングデータのクリア
+    activeRenderingData_.clear();
+}
+
+void DissolveEffect::RenderEnd() {
+    // 描画 終了
+    renderTarget_->PostDraw();
+}
+
+void DissolveEffect::DispatchComponent(Entity* _entity) {
+
+    auto effectParams = getComponents<DissolveEffectParam>(_entity);
+
+    if (!effectParams) {
+        return; // コンポーネントがない場合は何もしない
+    }
+    auto& commandList = dxCommand_->getCommandList();
+
+    for (auto& param : *effectParams) {
+        if (!param.isActive()) {
+            continue;
+        }
+
+        DissolveEffect::RenderingData renderingData{};
+        D3D12_GPU_DESCRIPTOR_HANDLE srvHandle = TextureManager::getDescriptorGpuHandle(param.getTextureIndex());
+
+        int32_t materialIndex = param.getMaterialIndex();
+        auto& materialBuff    = param.getMaterialBuffer();
+        if (materialIndex >= 0) {
+            Material* material = getComponent<Material>(_entity, materialIndex);
+            material->UpdateUvMatrix();
+
+            materialBuff.ConvertToBuffer(ColorAndUvTransform(material->color_, material->uvTransform_));
+
+            if (material->hasCustomTexture()) {
+                srvHandle = material->getCustomTexture()->srv_->getGpuHandle();
+            }
+        }
+
+        renderingData.srvHandle     = srvHandle;
+        renderingData.dissolveParam = &param;
+        activeRenderingData_.push_back(renderingData);
+    }
+}
+
+void DissolveEffect::RenderCall(D3D12_GPU_DESCRIPTOR_HANDLE _viewHandle) {
     auto& commandList = dxCommand_->getCommandList();
 
     /// ================================================

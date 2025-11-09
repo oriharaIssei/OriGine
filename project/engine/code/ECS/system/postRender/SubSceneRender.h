@@ -1,8 +1,8 @@
 #pragma once
 
-#include "system/ISystem.h"
+#include "system/postRender/base/BasePostRenderingSystem.h"
 
-///stl
+/// stl
 #include <vector>
 /// engine
 #include "scene/Scene.h"
@@ -11,17 +11,44 @@
 /// サブシーンのレンダリングを行うシステム
 /// </summary>
 class SubSceneRender
-: public ISystem{
-    public:
-    SubSceneRender() : ISystem(SystemCategory::PostRender, 0) {}
+    : public BasePostRenderingSystem {
+public:
+    SubSceneRender();
+    ~SubSceneRender() override;
+
     void Initialize() override {}
     void Finalize() override {}
 
-    void Update()override;
-    void EndRender();
-
 protected:
-    void UpdateEntity(Entity* _entity) override;
+    /// <summary>
+    /// PSO作成 (PSOを作る必要がないので何もしない)
+    /// </summary>
+    void CreatePSO() override;
+
+    /// <summary>
+    /// レンダリング開始処理
+    /// </summary>
+    void RenderStart() override;
+    /// <summary>
+    /// レンダリング処理
+    /// </summary>
+    void Rendering() override;
+    /// <summary>
+    /// レンダリング終了処理
+    /// </summary>
+    void RenderEnd() override;
+
+    /// <summary>
+    /// PostEffectに使用するComponentを登録する
+    /// (Systemによっては使用しない)
+    /// </summary>
+    void DispatchComponent(Entity* _entity) override;
+
+    /// <summary>
+    /// ポストレンダリングをスキップするかどうか
+    /// </summary>
+    /// <returns>true = skipする / false = skipしない</returns>
+    bool ShouldSkipPostRender() const override;
 
 private:
     std::vector<Scene*> scenes_;

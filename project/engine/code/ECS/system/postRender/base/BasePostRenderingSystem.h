@@ -25,15 +25,15 @@ protected:
     /// PSO作成
     /// </summary>
     virtual void CreatePSO() = 0;
+
     /// <summary>
     /// レンダリング開始処理
     /// </summary>
     virtual void RenderStart() = 0;
     /// <summary>
-    /// レンダリング処理(RenderStart,RenderEndは呼び出さない。)
+    /// レンダリング処理
     /// </summary>
-    /// <param name="_target">レンダリング先</param>
-    virtual void Rendering(RenderTexture& _target) = 0;
+    virtual void Rendering() = 0;
     /// <summary>
     /// レンダリング終了処理
     /// </summary>
@@ -55,4 +55,18 @@ protected:
 
 protected:
     std::unique_ptr<DxCommand> dxCommand_ = nullptr;
+    RenderTexture* renderTarget_          = nullptr;
+
+public:
+    RenderTexture* getRenderTarget() const {
+        return renderTarget_;
+    }
+    void setRenderTarget(RenderTexture* _renderTarget) {
+        renderTarget_ = _renderTarget;
+    }
 };
+
+
+// BasePostRenderingSystemを継承しているかどうか
+template <typename T>
+concept IsPostRenderSystem = std::is_base_of<BasePostRenderingSystem, T>::value;

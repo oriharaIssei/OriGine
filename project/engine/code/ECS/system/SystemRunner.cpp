@@ -122,7 +122,7 @@ void SystemRunner::registerSystem(const std::string& _systemName, int32_t _prior
     auto itr = systems_.find(_systemName);
 
     if (itr == systems_.end() || !itr->second) {
-        auto createdSystem = SystemRegistry::getInstance()->createSystem(_systemName, this->scene_);
+        auto createdSystem = SystemRegistry::getInstance()->CreateSystem(_systemName, this->scene_);
         if (!createdSystem) {
             LOG_ERROR("SystemRunner: System not found with name: {}", _systemName);
             return;

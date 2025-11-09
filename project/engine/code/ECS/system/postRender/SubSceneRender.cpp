@@ -7,38 +7,29 @@
 // component
 #include "component/SubScene.h"
 
-void SubSceneRender::Update() {
-    if (entityIDs_.empty()) {
-        return;
-    }
-    ISystem::eraseDeadEntity();
-    scenes_.clear();
+SubSceneRender::SubSceneRender() : BasePostRenderingSystem() {}
+SubSceneRender::~SubSceneRender() = default;
 
-    for (auto id : entityIDs_) {
-        auto entity = getEntity(id);
-        if (entity) {
-            UpdateEntity(entity);
-        }
-    }
-    EndRender();
+void SubSceneRender::CreatePSO() {}
+
+void SubSceneRender::RenderStart() {
+    renderTarget_->PreDraw();
+    renderTarget_->DrawTexture();
 }
 
-void SubSceneRender::EndRender() {
-    if (scenes_.empty()) {
-        return;
-    }
-
-    auto currentSceneView = getScene()->getSceneView();
-
-    currentSceneView->PreDraw();
-    currentSceneView->DrawTexture();
+void SubSceneRender::Rendering() {
+    RenderStart();
     for (auto& scene : scenes_) {
         scene->getSceneView()->DrawTexture();
     }
-    currentSceneView->PostDraw();
+    RenderEnd();
 }
 
-void SubSceneRender::UpdateEntity(Entity* _entity) {
+void SubSceneRender::RenderEnd() {
+    renderTarget_->PostDraw();
+}
+
+void SubSceneRender::DispatchComponent(Entity* _entity) {
     auto subScenes = getComponents<SubScene>(_entity);
     for (auto& subScene : *subScenes) {
         if (!subScene.isActive()) {
@@ -48,9 +39,11 @@ void SubSceneRender::UpdateEntity(Entity* _entity) {
         if (!scene) {
             continue;
         }
-
         scene->Render();
-
         scenes_.push_back(scene.get());
     }
+}
+
+bool SubSceneRender::ShouldSkipPostRender() const {
+    return scenes_.empty();
 }

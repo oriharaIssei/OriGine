@@ -1,6 +1,6 @@
 #include "SystemRegistry.h"
 
-std::unique_ptr<ISystem> SystemRegistry::createSystem(const std::string& _systemTypeName, Scene* scene) {
+std::unique_ptr<ISystem> SystemRegistry::CreateSystem(const std::string& _systemTypeName, Scene* scene) {
     auto itr = systemMaker_.find(_systemTypeName);
     if (itr == systemMaker_.end()) {
         LOG_ERROR("SystemRegistry: System '{}' not found.", _systemTypeName);

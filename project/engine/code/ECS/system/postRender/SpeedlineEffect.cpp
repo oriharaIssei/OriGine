@@ -9,49 +9,11 @@
 #include "directX12/DxDevice.h"
 #include "directX12/RenderTexture.h"
 
+SpeedlineEffect::SpeedlineEffect() : BasePostRenderingSystem() {}
+SpeedlineEffect::~SpeedlineEffect() {}
+
 void SpeedlineEffect::Initialize() {
-    dxCommand_ = std::make_unique<DxCommand>();
-    dxCommand_->Initialize("main", "main");
-    CreatePSO();
-}
-
-void SpeedlineEffect::Update() {
-    if (entityIDs_.empty()) {
-        return;
-    }
-    eraseDeadEntity();
-
-    // アクティブなパラメータを収集
-    activeParams_.clear();
-    for (auto& id : entityIDs_) {
-        auto* entity = getEntity(id);
-        auto* params = getComponents<SpeedlineEffectParam>(entity);
-        if (!params) {
-            continue;
-        }
-        for (auto& param : *params) {
-            if (param.isActive()) {
-                activeParams_.push_back(&param);
-            }
-        }
-    }
-    if (activeParams_.empty()) {
-        return;
-    }
-
-    RenderStart();
-
-    for (auto& param : activeParams_) {
-        Render(param);
-    }
-
-    RenderEnd();
-}
-
-void SpeedlineEffect::UpdateEntity(Entity* _entity) {
-    auto* speedlineParam = getComponent<SpeedlineEffectParam>(_entity);
-    speedlineParam->getBuffer().ConvertToBuffer();
-    speedlineParam->getBuffer().SetForRootParameter(dxCommand_->getCommandList(), 1);
+    BasePostRenderingSystem::Initialize();
 }
 
 void SpeedlineEffect::Finalize() {
@@ -143,6 +105,9 @@ void SpeedlineEffect::CreatePSO() {
 void SpeedlineEffect::RenderStart() {
     auto commandList = dxCommand_->getCommandList();
 
+    renderTarget_->PreDraw();
+    renderTarget_->DrawTexture();
+
     commandList->SetPipelineState(pso_->pipelineState.Get());
     commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -150,13 +115,11 @@ void SpeedlineEffect::RenderStart() {
     ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
 
-    auto sceneView = this->getScene()->getSceneView();
-    sceneView->PreDraw();
+    commandList->SetGraphicsRootDescriptorTable(0, renderTarget_->getBackBufferSrvHandle());
 }
 
 void SpeedlineEffect::Render(SpeedlineEffectParam* _param) {
     auto& commandList = dxCommand_->getCommandList();
-    auto* sceneView   = this->getScene()->getSceneView();
 
     _param->getBuffer().ConvertToBuffer();
     _param->getBuffer().SetForRootParameter(dxCommand_->getCommandList(), 1);
@@ -165,17 +128,45 @@ void SpeedlineEffect::Render(SpeedlineEffectParam* _param) {
         2,
         TextureManager::getDescriptorGpuHandle(_param->getRadialTextureIndex()));
 
-    /// ================================================
-    /// Viewport の設定
-    /// ================================================
-    ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
-    commandList->SetDescriptorHeaps(1, ppHeaps);
-    commandList->SetGraphicsRootDescriptorTable(0, sceneView->getBackBufferSrvHandle());
-
     commandList->DrawInstanced(6, 1, 0, 0);
 }
 
+void SpeedlineEffect::Rendering() {
+
+    for (auto param : activeParams_) {
+        // 描画開始
+        RenderStart();
+
+        // 描画
+        Render(param);
+
+        // 描画終了
+        RenderEnd();
+    }
+
+    // アクティブなパラメータをクリア
+    activeParams_.clear();
+}
+
 void SpeedlineEffect::RenderEnd() {
-    auto sceneView = this->getScene()->getSceneView();
-    sceneView->PostDraw();
+    renderTarget_->PostDraw();
+}
+
+void SpeedlineEffect::DispatchComponent(Entity* _entity) {
+    auto* speedlineParams = getComponents<SpeedlineEffectParam>(_entity);
+    // 無効な場合はスルー
+    if (!speedlineParams) {
+        return;
+    }
+
+    for (auto& param : *speedlineParams) {
+        if (!param.isActive()) {
+            continue;
+        }
+        activeParams_.push_back(&param);
+    }
+}
+
+bool SpeedlineEffect::ShouldSkipPostRender() const {
+    return activeParams_.empty();
 }
