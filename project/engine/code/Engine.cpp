@@ -11,7 +11,7 @@
 #include "component/animation/AnimationManager.h"
 #include "component/material/light/LightManager.h"
 #include "imGuiManager/ImGuiManager.h"
-#include "input/Input.h"
+#include "input/InputManager.h"
 #include "model/ModelManager.h"
 #include "scene/SceneManager.h"
 #include "texture/TextureManager.h"
@@ -108,8 +108,8 @@ void Engine::Initialize() {
 
     window_->CreateGameWindow(ConvertString(windowTitle).c_str(), windowStyle, int32_t(windowSize->v[X]), int32_t(windowSize->v[Y]));
 
-    input_ = Input::getInstance();
-    input_->Initialize();
+    input_ = InputManager::getInstance();
+    input_->Initialize(window_->getHwnd());
 
     Audio::StaticInitialize();
 

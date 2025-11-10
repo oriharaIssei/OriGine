@@ -1,6 +1,6 @@
 #pragma once
 
-#include "input/Input.h"
+#include "input/InputManager.h"
 
 #include "component/transform/CameraTransform.h"
 

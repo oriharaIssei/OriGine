@@ -12,7 +12,7 @@
 /// engine
 // module
 class LightManager;
-class Input;
+class InputManager;
 class WinApp;
 // DirectX Object
 class DxCommand;
@@ -54,7 +54,7 @@ private:
 private:
     // api
     std::unique_ptr<WinApp> window_;
-    Input* input_;
+    InputManager* input_;
 
     // directX
     std::unique_ptr<DxDevice> dxDevice_;

@@ -348,11 +348,12 @@ void SceneViewArea::DrawScene() {
 
 void SceneViewArea::UseImGuizmo(const ImVec2& _sceneViewPos, const Vec2f& _originalResolution) {
     // マウス座標を取得
-    Vec2f mousePos = Input::getInstance()->getCurrentMousePos();
+    Vec2f mousePos = InputManager::getInstance()->getMouse()->getPosition();
 
     // マウス座標をゲーム内の座標に変換
-    Vec2f gamePos = ConvertMouseToSceneView(mousePos, _sceneViewPos, areaSize_.toImVec2(), _originalResolution);
-    Input::getInstance()->setVirtualMousePos(gamePos);
+    MouseInput* mouseInput = InputManager::getInstance()->getMouse();
+    Vec2f gamePos          = ConvertMouseToSceneView(mousePos, _sceneViewPos, areaSize_.toImVec2(), _originalResolution);
+    mouseInput->setVirtualPosition(gamePos);
 
     // ImGuizmo のフレーム開始
     ImGuizmo::BeginFrame();
@@ -364,7 +365,7 @@ void SceneViewArea::UseImGuizmo(const ImVec2& _sceneViewPos, const Vec2f& _origi
     // ImGuizmo のウィンドウサイズ・位置を設定
     ImGuizmo::SetRect(_sceneViewPos.x, _sceneViewPos.y, areaSize_[X], areaSize_[Y]);
 
-    Vec2f virtualMousePos = Input::getInstance()->getVirtualMousePos();
+    Vec2f virtualMousePos = mouseInput->getVirtualPosition();
 
     auto* currentScene       = parentWindow_->getCurrentScene();
     auto entityInspectorArea = dynamic_cast<EntityInspectorArea*>(parentWindow_->getArea("EntityInspectorArea").get());
@@ -405,34 +406,35 @@ void SceneViewArea::UseImGuizmo(const ImVec2& _sceneViewPos, const Vec2f& _origi
     static ImGuizmo::OPERATION currentGizmoOperation = ImGuizmo::TRANSLATE | ImGuizmo::SCALE | ImGuizmo::ROTATE;
 
     [](ImGuizmo::OPERATION& _currentGizmoOperation) {
-        Input* input = Input::getInstance();
-        if (input->isPressKey(Key::L_SHIFT)) {
-            if (input->isPressKey(Key::S)) {
-                if (input->isPressKey(Key::X)) {
+        InputManager* input     = InputManager::getInstance();
+        KeyboardInput* keyboard = input->getKeyboard();
+        if (keyboard->isPress(Key::L_SHIFT)) {
+            if (keyboard->isPress(Key::S)) {
+                if (keyboard->isPress(Key::X)) {
                     _currentGizmoOperation = ImGuizmo::SCALE_X;
-                } else if (input->isPressKey(Key::Y)) {
+                } else if (keyboard->isPress(Key::Y)) {
                     _currentGizmoOperation = ImGuizmo::SCALE_Y;
-                } else if (input->isPressKey(Key::Z)) {
+                } else if (keyboard->isPress(Key::Z)) {
                     _currentGizmoOperation = ImGuizmo::SCALE_Z;
                 } else {
                     _currentGizmoOperation = ImGuizmo::SCALE; // Shift + S でスケール
                 }
-            } else if (input->isPressKey(Key::R)) {
-                if (input->isPressKey(Key::X)) {
+            } else if (keyboard->isPress(Key::R)) {
+                if (keyboard->isPress(Key::X)) {
                     _currentGizmoOperation = ImGuizmo::ROTATE_X;
-                } else if (input->isPressKey(Key::Y)) {
+                } else if (keyboard->isPress(Key::Y)) {
                     _currentGizmoOperation = ImGuizmo::ROTATE_Y;
-                } else if (input->isPressKey(Key::Z)) {
+                } else if (keyboard->isPress(Key::Z)) {
                     _currentGizmoOperation = ImGuizmo::ROTATE_Z;
                 } else {
                     _currentGizmoOperation = ImGuizmo::ROTATE; // Shift + R で回転
                 }
-            } else if (input->isPressKey(Key::T)) {
-                if (input->isPressKey(Key::X)) {
+            } else if (keyboard->isPress(Key::T)) {
+                if (keyboard->isPress(Key::X)) {
                     _currentGizmoOperation = ImGuizmo::TRANSLATE_X;
-                } else if (input->isPressKey(Key::Y)) {
+                } else if (keyboard->isPress(Key::Y)) {
                     _currentGizmoOperation = ImGuizmo::TRANSLATE_Y;
-                } else if (input->isPressKey(Key::Z)) {
+                } else if (keyboard->isPress(Key::Z)) {
                     _currentGizmoOperation = ImGuizmo::TRANSLATE_Z;
                 } else {
                     _currentGizmoOperation = ImGuizmo::TRANSLATE; // Shift + T で移動

@@ -44,7 +44,7 @@ public:
     /// 値を読み取る
     /// </summary>
     /// <returns></returns>
-    const T* GetValue() const {
+    const T* getValue() const {
         return value_;
     }
 
