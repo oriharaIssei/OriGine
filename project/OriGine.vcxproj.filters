@@ -576,7 +576,7 @@
     <ClInclude Include="engine\code\imGuiManager\ImGuiManager.h">
       <Filter>engine\code\imGuiManager</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\input\Input.h">
+    <ClInclude Include="engine\code\input\InputManager.h">
       <Filter>engine\code\input</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\logger\ImGuiLogSink.h">
@@ -710,6 +710,10 @@
     <ClInclude Include="engine\code\ECS\system\render\base\BaseRenderSystem.h" />
     <ClInclude Include="engine\code\ECS\system\postRender\base\BasePostRenderingSystem.h" />
     <ClInclude Include="engine\code\ECS\component\effect\post\SmoothingEffectParam.h" />
+    <ClInclude Include="engine\code\input\KeyboardInput.h" />
+    <ClInclude Include="engine\code\input\MouseInput.h" />
+    <ClInclude Include="engine\code\input\GamePadInput.h" />
+    <ClInclude Include="engine\code\input\include\IncludeInputAPI.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="editor\EditorController.cpp">
@@ -1075,7 +1079,7 @@
     <ClCompile Include="engine\code\imGuiManager\ImGuiManager.cpp">
       <Filter>engine\code\imGuiManager</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\input\Input.cpp">
+    <ClCompile Include="engine\code\input\InputManager.cpp">
       <Filter>engine\code\input</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\logger\Logger.cpp">
@@ -1147,5 +1151,8 @@
     <ClCompile Include="engine\code\ECS\system\render\base\BaseRenderSystem.cpp" />
     <ClCompile Include="engine\code\ECS\system\postRender\base\BasePostRenderingSystem.cpp" />
     <ClCompile Include="engine\code\ECS\component\effect\post\SmoothingEffectParam.cpp" />
+    <ClCompile Include="engine\code\input\KeyboardInput.cpp" />
+    <ClCompile Include="engine\code\input\MouseInput.cpp" />
+    <ClCompile Include="engine\code\input\GamePadInput.cpp" />
   </ItemGroup>
 </Project>

@@ -136,7 +136,7 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 #endif // ENGINE_COMPONENTS
 
 #ifdef ENGINE_INPUT
-#include "input/Input.h"
+#include "input/InputManager.h"
 #endif // ENGINE_INPUT
 
 #ifdef LIBRARY_INCLUDE

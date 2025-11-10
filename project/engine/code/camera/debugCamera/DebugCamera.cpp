@@ -36,39 +36,42 @@ void DebugCamera::Update() {
 }
 
 void DebugCamera::Neutral::Update() {
-    Input* input = Input::getInstance();
+    KeyboardInput* keyInput = InputManager::getInstance()->getKeyboard();
+    MouseInput* mouseInput  = InputManager::getInstance()->getMouse();
 
     // Altキーが押されていない場合は何もしない
-    if (!(input->isPressKey(DIK_LALT) || input->isPressKey(DIK_RALT))) {
+    if (!(keyInput->isPress(DIK_LALT) || keyInput->isPress(DIK_RALT))) {
         return;
     }
     // Alt + 左クリックまたはホイール操作で移動状態へ遷移
     // Alt + 右クリックで回転状態へ遷移
-    if (input->isTriggerMouseButton(0) || input->isWheel()) {
-        host_->startMousePos_ = input->getCurrentMousePos();
+    if (mouseInput->isTrigger(MouseButton::LEFT) || mouseInput->isWheel()) {
+        host_->startMousePos_ = mouseInput->getVirtualPosition();
         host_->currentState_.reset(new TranslationState(host_));
         return;
-    } else if (input->isTriggerMouseButton(1)) {
-        host_->startMousePos_ = input->getCurrentMousePos();
+    } else if (mouseInput->isTrigger(MouseButton::RIGHT)) {
+        host_->startMousePos_ = mouseInput->getVirtualPosition();
         host_->currentState_.reset(new RotationState(host_));
         return;
     }
 }
 
 void DebugCamera::TranslationState::Update() {
-    Input* input                      = Input::getInstance();
-    constexpr Vec3f kMouseSensitivity = {0.01f, 0.01f, 0.007f};
+    KeyboardInput* keyInput = InputManager::getInstance()->getKeyboard();
+    MouseInput* mouseInput  = InputManager::getInstance()->getMouse();
+
+    constexpr Vec3f kMouseSensitivity = {0.001f, 0.001f, 0.007f};
 
     // 入力状態をビットで管理
     uint32_t state = 0;
-    bool a         = input->isPreWheel();
-    bool b         = input->isPressMouseButton(0);
-    uint32_t c     = (input->isPressKey(DIK_LALT) | input->isPressKey(DIK_RALT));
+    bool a         = mouseInput->isWheel();
+    bool b         = mouseInput->isPress(0);
+    uint32_t c     = (keyInput->isPress(Key::LALT) | keyInput->isPress(Key::R_ALT));
     state          = (a) + (b * 2);
     state *= c;
     Vec3f velo = {};
 
-    Vector3 inputVal = {input->getMouseVelocity(), (float)input->getPreWheel()};
+    Vector3 inputVal = {mouseInput->getVelocity(), (float)mouseInput->getWheelDelta()};
     inputVal         = inputVal * kMouseSensitivity;
 
     // 状態に応じた移動処理
@@ -83,10 +86,10 @@ void DebugCamera::TranslationState::Update() {
         velo = {0.0f, 0.0f, inputVal[Z]};
         break;
     case XY_MOUSEMOVE:
-        velo = {input->getMouseVelocity(), 0.0f};
+        velo = {inputVal[X], inputVal[Y], 0.0f};
         break;
     case XYZ_ALL:
-        velo = {inputVal[X], inputVal[Y], (float)input->getPreWheel() * 0.007f};
+        velo = inputVal;
         break;
     default:
         break;
@@ -94,22 +97,29 @@ void DebugCamera::TranslationState::Update() {
 
     velo[Y] *= -1.0f;
 
+    for (size_t axis = 0; axis < 3; axis++) {
+        velo[axis] *= kMouseSensitivity[axis];
+    }
+
     host_->cameraBuff_.translate += velo * MakeMatrix::RotateQuaternion(host_->cameraBuff_.rotate);
 }
 
 void DebugCamera::RotationState::Update() {
     constexpr float kMouseSensitivity = 0.01f;
-    Input* input = Input::getInstance();
 
-    // input->FixMousePos(host_->startMousePos_);
+    KeyboardInput* keyInput = InputManager::getInstance()->getKeyboard();
+    MouseInput* mouseInput  = InputManager::getInstance()->getMouse();
 
-    if (!input->isPressMouseButton(1) || !(input->isPressKey(DIK_LALT) || input->isPressKey(DIK_RALT))) {
+    // マウス位置を開始位置にリセット
+    mouseInput->setPosition(host_->startMousePos_);
+
+    if (!mouseInput->isPress(MouseButton::RIGHT) || !(keyInput->isPress(Key::L_ALT) || keyInput->isPress(Key::R_ALT))) {
         host_->currentState_.reset(new Neutral(host_));
         return;
     }
 
     // マウスの動きから回転量を取得
-    Vec2f mouseVelocity = input->getMouseVelocity();
+    Vec2f mouseVelocity = mouseInput->getVelocity();
     float yaw           = mouseVelocity[X] * kMouseSensitivity; // Y軸回転（水平）
     float pitch         = mouseVelocity[Y] * kMouseSensitivity; // X軸回転（垂直）
 

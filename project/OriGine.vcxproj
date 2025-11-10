@@ -164,6 +164,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="editor\setting\SettingWindow.h" />
     <ClInclude Include="editor\window\EditorWindowMenu.h" />
     <ClInclude Include="engine\code\directX12\BlendMode.h" />
+    <ClInclude Include="engine\code\input\include\IncludeInputAPI.h" />
     <ClInclude Include="engine\EngineInclude.h" />
     <ClInclude Include="engine\code\ECS\component\ComponentArray.h" />
     <ClInclude Include="engine\code\ECS\component\ComponentRegistry.h" />
@@ -288,7 +289,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\directX12\mesh\DefaultVertexData.h" />
     <ClInclude Include="engine\code\directX12\mesh\Mesh.h" />
     <ClInclude Include="engine\code\imGuiManager\ImGuiManager.h" />
-    <ClInclude Include="engine\code\input\Input.h" />
+    <ClInclude Include="engine\code\input\InputManager.h" />
     <ClInclude Include="engine\code\logger\ImGuiLogSink.h" />
     <ClInclude Include="engine\code\logger\Logger.h" />
     <ClInclude Include="engine\code\model\Model.h" />
@@ -297,12 +298,14 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\scene\SceneManager.h" />
     <ClInclude Include="engine\code\texture\TextureManager.h" />
     <ClInclude Include="engine\code\winApp\WinApp.h" />
+    <ClInclude Include="engine\code\input\GamePadInput.h" />
     <ClInclude Include="geometry\base\GeometryType.h" />
     <ClInclude Include="geometry\base\IGeometry.h" />
     <ClInclude Include="geometry\shape\Box.h" />
     <ClInclude Include="geometry\shape\Plane.h" />
     <ClInclude Include="geometry\shape\Ring.h" />
     <ClInclude Include="geometry\shape\Sphere.h" />
+    <ClInclude Include="engine\code\input\KeyboardInput.h" />
     <ClInclude Include="math\Interpolation.h" />
     <ClInclude Include="math\Matrix4x4.h" />
     <ClInclude Include="math\MyEasing.h" />
@@ -319,6 +322,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="math\bounds\base\IBounds.h" />
     <ClInclude Include="math\mathEnv.h" />
     <ClInclude Include="engine\code\ECS\component\effect\post\SmoothingEffectParam.h" />
+    <ClInclude Include="engine\code\input\MouseInput.h" />
     <ClInclude Include="util\BitArray.h" />
     <ClInclude Include="util\ConvertString.h" />
     <ClInclude Include="util\DiffValue.h" />
@@ -459,7 +463,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\directX12\ShaderCompiler.cpp" />
     <ClCompile Include="engine\code\directX12\ShaderManager.cpp" />
     <ClCompile Include="engine\code\imGuiManager\ImGuiManager.cpp" />
-    <ClCompile Include="engine\code\input\Input.cpp" />
+    <ClCompile Include="engine\code\input\InputManager.cpp" />
     <ClCompile Include="engine\code\logger\Logger.cpp" />
     <ClCompile Include="engine\code\model\Model.cpp" />
     <ClCompile Include="engine\code\model\ModelManager.cpp" />
@@ -467,7 +471,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\scene\SceneManager.cpp" />
     <ClCompile Include="engine\code\texture\TextureManager.cpp" />
     <ClCompile Include="engine\code\winApp\WinApp.cpp" />
+    <ClCompile Include="engine\code\input\GamePadInput.cpp" />
     <ClCompile Include="geometry\base\GeometryType.cpp" />
+    <ClCompile Include="engine\code\input\KeyboardInput.cpp" />
     <ClCompile Include="math\Interpolation.cpp" />
     <ClCompile Include="math\mathEnv.cpp" />
     <ClCompile Include="math\Matrix4x4.cpp" />
@@ -476,6 +482,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="math\Quaternion.cpp" />
     <ClCompile Include="math\Sequence.cpp" />
     <ClCompile Include="engine\code\ECS\component\effect\post\SmoothingEffectParam.cpp" />
+    <ClCompile Include="engine\code\input\MouseInput.cpp" />
     <ClCompile Include="util\ConvertString.cpp" />
     <ClCompile Include="util\NormalizeString.cpp" />
     <ClCompile Include="util\binaryIO\BinaryIO.cpp" />

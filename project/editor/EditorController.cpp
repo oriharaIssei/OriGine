@@ -3,7 +3,7 @@
 #ifdef _DEBUG
 /// engine
 
-#include "input/Input.h"
+#include "input/InputManager.h"
 
 // externals
 #include "imgui/imgui.h"
@@ -111,19 +111,19 @@ void EditorController::Update() {
     ExecuteCommandRequests();
 
     // Undo Redo
-    Input* input = Input::getInstance();
-    if (input->isPressKey(DIK_LCONTROL)) {
-        if (input->isPressKey(DIK_LSHIFT)) {
+    KeyboardInput* keyInput = InputManager::getInstance()->getKeyboard();
+    if (keyInput->isPress(DIK_LCONTROL)) {
+        if (keyInput->isPress(DIK_LSHIFT)) {
             // SHIFT あり
-            if (input->isTriggerKey(DIK_Z)) {
+            if (keyInput->isTrigger(DIK_Z)) {
                 Redo();
             }
         } else {
             // SHIFT なし
-            if (input->isTriggerKey(DIK_Z)) {
+            if (keyInput->isTrigger(DIK_Z)) {
                 Undo();
             }
-            if (input->isTriggerKey(DIK_Y)) {
+            if (keyInput->isTrigger(DIK_Y)) {
                 Redo();
             }
         }
