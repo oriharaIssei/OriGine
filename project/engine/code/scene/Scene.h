@@ -7,6 +7,7 @@
 #include <logger/Logger.h>
 
 /// engine
+#include "scene/SceneManager.h"
 // directX12
 class RenderTexture;
 // input
@@ -47,7 +48,8 @@ protected:
     void ExecuteDeleteEntities();
 
 protected:
-    bool isActive_                            = false;
+    SceneManager* sceneManager_ = nullptr;
+
     std::string name_                         = "NULL";
     std::unique_ptr<RenderTexture> sceneView_ = nullptr;
 
@@ -62,9 +64,14 @@ protected:
 
     std::list<int32_t> deleteEntities_; // 削除予定のエンティティIDリスト
 
+    bool isActive_ = false;
+
 public:
     bool isActive() const { return isActive_; }
     void setActive(bool _isActive) { isActive_ = _isActive; }
+
+    SceneManager* getSceneManager() const { return sceneManager_; }
+    void setSceneManager(SceneManager* _sceneManager) { sceneManager_ = _sceneManager; }
 
     KeyboardInput* getKeyboardInput() const { return keyInput_; }
     MouseInput* getMouseInput() const { return mouseInput_; }

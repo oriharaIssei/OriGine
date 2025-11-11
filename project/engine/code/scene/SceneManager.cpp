@@ -41,13 +41,7 @@
 
 #pragma region "SceneManager"
 
-SceneManager* SceneManager::getInstance() {
-    static SceneManager instance;
-    return &instance;
-}
-
 SceneManager::SceneManager() {}
-
 SceneManager::~SceneManager() {}
 
 void SceneManager::Initialize(const std::string& _startScene) {
@@ -60,6 +54,8 @@ void SceneManager::Initialize(const std::string& _startScene) {
     currentScene_->Initialize();
     // シーンビューの初期化
     currentScene_->getSceneView()->Resize(Engine::getInstance()->getWinApp()->getWindowSize());
+    // シーンマネージャーの設定 (this)
+    currentScene_->setSceneManager(this);
 
 #ifdef _DEVELOP
     fileWatcher_ = std::make_unique<FileWatcher>(kApplicationResourceDirectory + "/scene/" + _startScene + ".json");
@@ -117,6 +113,8 @@ void SceneManager::executeSceneChange() {
     currentScene_->Initialize();
     // シーンビューの初期化
     currentScene_->getSceneView()->Resize(Engine::getInstance()->getWinApp()->getWindowSize());
+    // シーンマネージャーの設定 (this)
+    currentScene_->setSceneManager(this);
 
 #ifdef _DEVELOP
     // 監視対象を変更

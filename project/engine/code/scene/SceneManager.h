@@ -10,7 +10,7 @@
 /// engine
 #include "component/ComponentArray.h"
 #include "entity/Entity.h"
-#include "Scene.h"
+class Scene;
 
 #include "util/globalVariables/SerializedField.h"
 #include "util/myFileSystem/MyFileSystem.h"
@@ -21,7 +21,8 @@
 
 class SceneManager {
 public:
-    static SceneManager* getInstance();
+    SceneManager();
+    ~SceneManager();
 
     void Initialize(const std::string& _startScene);
     void Initialize();
@@ -33,12 +34,6 @@ public:
     /// 即座にシーンを変更する(事前にnextSceneを指定する必要がある)
     /// </summary>
     void executeSceneChange();
-
-private:
-    SceneManager();
-    ~SceneManager();
-    SceneManager(const SceneManager&)            = delete;
-    SceneManager* operator=(const SceneManager&) = delete;
 
 private:
 #ifdef _DEVELOP
