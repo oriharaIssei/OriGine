@@ -8,7 +8,7 @@
 #include <cassert>
 
 /// util
-#include "util/ConvertString.h"
+#include "util/StringUtil.h"
 
 void ShaderManager::Initialize() {
     shaderCompiler_ = std::make_unique<ShaderCompiler>();

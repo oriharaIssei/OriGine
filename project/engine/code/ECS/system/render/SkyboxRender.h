@@ -38,11 +38,6 @@ protected:
     void StartRender() override;
 
     /// <summary>
-    /// レンダリング処理(StartRenderから描画まですべてを行う)
-    /// </summary>
-    void Rendering() override;
-
-    /// <summary>
     /// 描画する物を登録
     /// </summary>
     /// <param name="_entity"></param>

@@ -16,20 +16,6 @@ void SkyboxRender::Initialize() {
     rendererByBlendMode_.fill(std::vector<SkyboxRenderer*>());
 }
 
-void SkyboxRender::Rendering() {
-    if (entityIDs_.empty()) {
-        return;
-    }
-    ISystem::eraseDeadEntity();
-
-    StartRender();
-
-    for (auto& id : entityIDs_) {
-        Entity* entity = getEntity(id);
-        UpdateEntity(entity);
-    }
-}
-
 void SkyboxRender::Finalize() {
     dxCommand_->Finalize();
 }
@@ -63,7 +49,7 @@ void SkyboxRender::DispatchRenderer(Entity* _entity) {
 void SkyboxRender::RenderingBy(BlendMode _blendMode, bool /*_isCulling*/) {
     auto commandList = dxCommand_->getCommandList();
     auto& renderers  = rendererByBlendMode_[static_cast<int32_t>(_blendMode)];
-    if (!renderers.empty()) {
+    if (renderers.empty()) {
         return;
     }
 

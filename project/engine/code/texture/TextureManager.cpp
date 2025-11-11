@@ -27,8 +27,8 @@
 #include "logger/Logger.h"
 
 // util
-#include "util/ConvertString.h"
-#include "util/NormalizeString.h"
+#include "util/StringUtil.h"
+#include "util/StringUtil.h"
 
 const uint32_t TextureManager::maxTextureSize_;
 std::array<std::shared_ptr<Texture>, TextureManager::maxTextureSize_> TextureManager::textures_;
@@ -239,7 +239,7 @@ void TextureManager::Finalize() {
 }
 
 uint32_t TextureManager::LoadTexture(const std::string& filePath, std::function<void(uint32_t loadedIndex)> callBack) {
-    std::string normalizedPath = normalizeString(filePath);
+    std::string normalizedPath = NormalizeString(filePath);
     LOG_TRACE("Load Texture \n Path : {}", filePath);
 
     uint32_t index = 0;

@@ -12,7 +12,7 @@
 #include "directX12/DxFunctionHelper.h"
 
 #include "logger/Logger.h"
-#include "util/ConvertString.h"
+#include "util/StringUtil.h"
 
 void DxSwapChain::Initialize(const WinApp* winApp, const DxDevice* device, const DxCommand* command) {
     bufferWidth_  = winApp->getWidth();

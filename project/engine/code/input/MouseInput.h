@@ -55,8 +55,8 @@ private:
     std::array<BYTE, MOUSE_BUTTON_COUNT> currentButtonStates_{};
     std::array<BYTE, MOUSE_BUTTON_COUNT> prevButtonStates_{};
 
-    int32_t currentWheelDelta_ = 0.0f;
-    int32_t prevWheelDelta_    = 0.0f;
+    int32_t currentWheelDelta_ = 0;
+    int32_t prevWheelDelta_    = 0;
 
     HWND hwnd_ = nullptr;
 

@@ -9,7 +9,6 @@
 // directX12
 #include "directX12/DxDevice.h"
 
-
 #include "myFileSystem/MyFileSystem.h"
 
 /// externals
@@ -19,6 +18,8 @@
 
 void SkyboxRenderer::Initialize(Entity* _hostEntity) {
     MeshRenderer::Initialize(_hostEntity);
+
+    isRender_ = true;
 
     /// mesh
     meshGroup_->push_back(Mesh<SkyboxVertex>());
@@ -92,7 +93,7 @@ void SkyboxRenderer::Initialize(Entity* _hostEntity) {
     materialBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
 }
 
-void SkyboxRenderer::Edit(Scene* /*_scene*/, Entity*/* _entity*/, [[maybe_unused]] const std::string& _parentLabel) {
+void SkyboxRenderer::Edit(Scene* /*_scene*/, Entity* /* _entity*/, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     ImGui::Text("FilePath : %s", filePath_.c_str());

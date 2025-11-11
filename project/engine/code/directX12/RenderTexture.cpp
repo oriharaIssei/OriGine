@@ -15,7 +15,7 @@
 #include "Vector2.h"
 
 /// util
-#include "util/ConvertString.h"
+#include "util/StringUtil.h"
 
 PipelineStateObj* RenderTexture::pso_;
 

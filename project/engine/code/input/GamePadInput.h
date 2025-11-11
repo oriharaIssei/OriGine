@@ -79,7 +79,11 @@ public:
     void Update();
 
 private:
-    void UpdateStickValues();
+    /// <summary>
+    /// スティックの値を正規化して更新
+    /// </summary>
+    /// <param name="_state"></param>
+    void UpdateStickValues(XINPUT_STATE _state);
 
 private:
     // 仮想ボタンマスク

@@ -17,15 +17,12 @@
 #include "ImGuiLogSink.h"
 #endif //_DEBUG
 
-
 #include "myFileSystem/MyFileSystem.h"
 
 /// util
 #include "util/StringUtil.h"
 
 std::shared_ptr<spdlog::logger> Logger::logger_ = nullptr;
-
-
 
 static std::string getCurrentConfigString() {
 #if defined(_DEBUG)
@@ -50,7 +47,7 @@ void Logger::Initialize() {
             古いファイルを削除して 新しいファイルを作成する.
         */
         const std::string logFolder   = kEngineResourceDirectory + "/logs";
-        const std::string logFileName = getCurrentDateTime() + ".log";
+        const std::string logFileName = TimeToString() + ".log";
 
         const size_t kMaxFileSize = static_cast<size_t>(1048576) * 5; // 5MB
         const size_t kMaxFiles    = 3; // 3ファイルまで保存

@@ -17,7 +17,7 @@
 #include "logger/Logger.h"
 
 /// util
-#include "util/NormalizeString.h"
+#include "util/StringUtil.h"
 
 /// externals
 #include <assimp/Importer.hpp>
@@ -307,7 +307,7 @@ std::shared_ptr<Model> ModelManager::Create(
     std::function<void(Model*)> callBack) {
     std::shared_ptr<Model> result = std::make_unique<Model>();
 
-    std::string filePath = normalizeString(directoryPath + "/" + filename);
+    std::string filePath = NormalizeString(directoryPath + "/" + filename);
 
     LOG_TRACE("Load Model \n Path : {}", filePath);
 
@@ -395,7 +395,7 @@ void ModelManager::pushBackDefaultMaterial(ModelMeshData* key, TexturedMaterial 
 }
 
 ModelMeshData* ModelManager::getModelMeshData(const std::string& directoryPath, const std::string& filename) {
-    std::string filePath = normalizeString(directoryPath + "/" + filename);
+    std::string filePath = NormalizeString(directoryPath + "/" + filename);
     auto it              = modelLibrary_.find(filePath);
     if (it != modelLibrary_.end()) {
         return it->second.get();
@@ -413,7 +413,7 @@ const std::vector<TexturedMaterial>& ModelManager::getDefaultMaterials(ModelMesh
 }
 
 const std::vector<TexturedMaterial>& ModelManager::getDefaultMaterials(const std::string& directoryPath, const std::string& filename) const {
-    std::string filePath = normalizeString(directoryPath + "/" + filename);
+    std::string filePath = NormalizeString(directoryPath + "/" + filename);
     auto it              = modelLibrary_.find(filePath);
     return getDefaultMaterials(it->second.get());
 }

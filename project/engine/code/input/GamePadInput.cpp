@@ -39,7 +39,7 @@ void GamePadInput::Update() {
         lTrigger_ = static_cast<float>(state.Gamepad.bLeftTrigger) / *triggerDeadZone_.getValue();
         rTrigger_ = static_cast<float>(state.Gamepad.bRightTrigger) / *triggerDeadZone_.getValue();
 
-        UpdateStickValues();
+        UpdateStickValues(state);
     } else {
         buttonMask_ = 0;
     }
@@ -48,7 +48,7 @@ void GamePadInput::Update() {
 /// <summary>
 /// スティックの値を正規化して更新
 /// </summary>
-void GamePadInput::UpdateStickValues() {
+void GamePadInput::UpdateStickValues(XINPUT_STATE _state) {
     auto normalizeStick = [this](SHORT x, SHORT y) -> Vec2f {
         Vec2f stick{
             static_cast<float>(x) / kStickMax,
@@ -62,6 +62,6 @@ void GamePadInput::UpdateStickValues() {
         return stick;
     };
 
-    lStick_ = normalizeStick(state_.Gamepad.sThumbLX, state_.Gamepad.sThumbLY);
-    rStick_ = normalizeStick(state_.Gamepad.sThumbRX, state_.Gamepad.sThumbRY);
+    lStick_ = normalizeStick(_state.Gamepad.sThumbLX, _state.Gamepad.sThumbLY);
+    rStick_ = normalizeStick(_state.Gamepad.sThumbRX, _state.Gamepad.sThumbRY);
 }

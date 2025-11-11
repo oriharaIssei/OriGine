@@ -59,7 +59,7 @@ void ISystem::Run() {
 #ifndef _RELEASE
     // 計測開始
     deltaTimer_.Initialize();
-#endif // _RELEASE
+#endif // ! _RELEASE
 
     if (!isActive_) {
         return;

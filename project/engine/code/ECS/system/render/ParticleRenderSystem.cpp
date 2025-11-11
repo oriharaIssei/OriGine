@@ -137,7 +137,7 @@ void ParticleRenderSystem::DispatchRenderer(Entity* _entity) {
     }
 
     for (auto& emitter : *emitters) {
-        if (!emitter.IsActive()) {
+        if (!emitter.IsActive() || emitter.ParticleIsEmpty()) {
             return;
         }
 
@@ -155,7 +155,6 @@ void ParticleRenderSystem::DispatchRenderer(Entity* _entity) {
 void ParticleRenderSystem::StartRender() {
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->getCommandList();
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    CameraManager::getInstance()->setBufferForRootParameter(commandList, 1);
 
     ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
@@ -170,16 +169,20 @@ void ParticleRenderSystem::RenderingBy(BlendMode _blend, bool /*_isCulling*/) {
         return;
     }
 
+    auto commandList = dxCommand_->getCommandList();
+
     // PSOセット
-    dxCommand_->getCommandList()->SetPipelineState(psoByBlendMode_[blendIndex]->pipelineState.Get());
+    commandList->SetPipelineState(psoByBlendMode_[blendIndex]->pipelineState.Get());
     // RootSignatureセット
-    dxCommand_->getCommandList()->SetGraphicsRootSignature(psoByBlendMode_[blendIndex]->rootSignature.Get());
+    commandList->SetGraphicsRootSignature(psoByBlendMode_[blendIndex]->rootSignature.Get());
+
+    CameraManager::getInstance()->setBufferForRootParameter(commandList, 1);
 
     for (auto* emitter : emitters) {
         if (emitter == nullptr) {
             continue;
         }
-        emitter->Draw(dxCommand_->getCommandList());
+        emitter->Draw(commandList);
     }
 
     // 描画後クリア

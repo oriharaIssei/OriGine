@@ -1123,12 +1123,12 @@ void Emitter::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandLis
     structuredTransform_.ConvertToBuffer();
     structuredTransform_.SetForRootParameter(_commandList, 0);
 
+    materialBuffer_.SetForRootParameter(_commandList, 2);
     _commandList->SetGraphicsRootDescriptorTable(
         3,
         TextureManager::getDescriptorGpuHandle(textureIndex_));
 
-    materialBuffer_.SetForRootParameter(_commandList, 2);
-
+    // 頂点バッファの設定
     _commandList->IASetVertexBuffers(0, 1, &mesh_.getVBView());
     _commandList->IASetIndexBuffer(&mesh_.getIBView());
 

@@ -9,7 +9,7 @@
 #include "logger/Logger.h"
 
 /// util
-#include "util/ConvertString.h"
+#include "util/StringUtil.h"
 
 #pragma comment(lib, "dxcompiler.lib")
 

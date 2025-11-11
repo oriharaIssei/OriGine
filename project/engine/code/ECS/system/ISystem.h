@@ -35,7 +35,6 @@ public:
     virtual void Edit();
     virtual void Finalize() = 0;
 
-
     void eraseDeadEntity();
 
 protected:
@@ -93,16 +92,16 @@ protected:
 protected:
     std::vector<int32_t> entityIDs_;
 
-#ifdef _DEBUG
+#ifndef _RELEASE
     DeltaTime deltaTimer_;
-#endif // _DEBUG
+#endif //! _RELEASE
 
 private:
-    Scene* scene_  = nullptr;
+    Scene* scene_ = nullptr;
     SystemCategory category_;
 
     int32_t priority_ = 0;
-    bool isActive_ = false;
+    bool isActive_    = false;
 
 public: // ========================================== accessor ========================================== //
     Scene* getScene() const {

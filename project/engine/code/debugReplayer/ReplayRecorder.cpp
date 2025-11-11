@@ -62,7 +62,7 @@ bool ReplayRecorder::SaveToFile(const std::string& _directory) {
     if (!ofs.is_open()) {
         MessageBoxA(nullptr, ("Failed to open file: " + path).c_str(), "Error", MB_OK);
         LOG_CRITICAL("Failed to open replay file for writing: {}", path);
-        return;
+        return false;
     }
 
     // ヘッダー書き込み
