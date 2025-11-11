@@ -17,10 +17,14 @@ static std::map<MouseButton, std::string> mouseButtonName = {
     {MouseButton::MIDDLE, "MIDDLE"},
 };
 
+constexpr uint32_t MOUSE_BUTTON_COUNT = 8;
+
 /// <summary>
 /// マウス入力を管理するクラス
 /// </summary>
 class MouseInput {
+    friend class ReplayPlayer;
+
 public:
     MouseInput()  = default;
     ~MouseInput() = default;
@@ -43,10 +47,16 @@ public:
     /// </summary>
     void Finalize();
 
+    uint32_t ButtonStateToBitmask() const;
+
 private:
     Microsoft::WRL::ComPtr<IDirectInputDevice8> mouse_;
-    DIMOUSESTATE2 current_{};
-    DIMOUSESTATE2 prev_{};
+
+    std::array<BYTE, MOUSE_BUTTON_COUNT> currentButtonStates_{};
+    std::array<BYTE, MOUSE_BUTTON_COUNT> prevButtonStates_{};
+
+    int32_t currentWheelDelta_ = 0.0f;
+    int32_t prevWheelDelta_    = 0.0f;
 
     HWND hwnd_ = nullptr;
 
@@ -58,80 +68,83 @@ private:
     bool isCursorVisible_ = true;
 
 public:
+    const std::array<BYTE, MOUSE_BUTTON_COUNT>& getCurrentButtonState() const { return currentButtonStates_; }
+    const std::array<BYTE, MOUSE_BUTTON_COUNT>& getPrevButtonState() const { return prevButtonStates_; }
+
     /// <summary>
     /// マウスボタンが押されているか
     /// </summary>
-    bool isPress(uint32_t button) const { return current_.rgbButtons[button]; }
-    bool isPress(MouseButton button) const { return current_.rgbButtons[static_cast<uint32_t>(button)]; }
+    bool isPress(uint32_t button) const { return currentButtonStates_[button]; }
+    bool isPress(MouseButton button) const { return currentButtonStates_[static_cast<uint32_t>(button)]; }
 
     /// <summary>
     /// 押した瞬間か
     /// </summary>
-    bool isTrigger(uint32_t button) const { return current_.rgbButtons[button] && !prev_.rgbButtons[button]; }
+    bool isTrigger(uint32_t button) const { return currentButtonStates_[button] && !prevButtonStates_[button]; }
     bool isTrigger(MouseButton button) const {
-        return current_.rgbButtons[static_cast<uint32_t>(button)] && !prev_.rgbButtons[static_cast<uint32_t>(button)];
+        return currentButtonStates_[static_cast<uint32_t>(button)] && !prevButtonStates_[static_cast<uint32_t>(button)];
     }
 
     /// <summary>
     /// 離した瞬間か
     /// </summary>
-    bool isRelease(uint32_t button) const { return !current_.rgbButtons[button] && prev_.rgbButtons[button]; }
+    bool isRelease(uint32_t button) const { return !currentButtonStates_[button] && prevButtonStates_[button]; }
     bool isRelease(MouseButton button) const {
-        return !current_.rgbButtons[static_cast<uint32_t>(button)] && prev_.rgbButtons[static_cast<uint32_t>(button)];
+        return !currentButtonStates_[static_cast<uint32_t>(button)] && prevButtonStates_[static_cast<uint32_t>(button)];
     }
 
     /// <summary>
     /// ホイールの変化量を取得
     /// </summary>
-    int32_t getWheelDelta() const { return static_cast<int32_t>(current_.lZ); }
+    int32_t getWheelDelta() const { return static_cast<int32_t>(currentWheelDelta_); }
     /// <summary>
     /// 前フレームのホイールの変化量を取得
     /// </summary>
-    int32_t getPrevWheelDelta() const { return static_cast<int32_t>(prev_.lZ); }
+    int32_t getPrevWheelDelta() const { return prevWheelDelta_; }
 
     /// <summary>
     /// ホイールが回転したか
     /// </summary>
     /// <returns></returns>
-    bool isWheel() const { return current_.lZ != 0; }
+    bool isWheel() const { return currentWheelDelta_ != 0; }
     /// <summary>
     /// ホイールが上に回転したか
     /// </summary>
     /// <returns></returns>
-    bool isWheelUp() const { return current_.lZ > 0; }
+    bool isWheelUp() const { return currentWheelDelta_ > 0; }
     /// <summary>
     /// ホイールが下に回転したか
     /// </summary>
     /// <returns></returns>
-    bool isWheelDown() const { return current_.lZ < 0; }
+    bool isWheelDown() const { return currentWheelDelta_ < 0; }
 
     /// <summary>
     /// 前フレームのホイールが回転したか
     /// </summary>
     /// <returns></returns>
-    bool isPrevWheel() const { return prev_.lZ != 0; }
+    bool isPrevWheel() const { return prevWheelDelta_ != 0; }
     /// <summary>
     /// 前フレームの前フレームのホイールが上に回転したか
     /// </summary>
     /// <returns></returns>
-    bool isPrevWheelUp() const { return prev_.lZ > 0; }
+    bool isPrevWheelUp() const { return prevWheelDelta_ > 0; }
     /// <summary>
     /// 前フレームのホイールが下に回転したか
     /// </summary>
     /// <returns></returns>
-    bool isPrevWheelDown() const { return prev_.lZ < 0; }
+    bool isPrevWheelDown() const { return prevWheelDelta_ < 0; }
 
     /// <summary>
     /// ホイールが回転した瞬間か
     /// </summary>
     bool isTriggerWheel() const {
-        return (current_.lZ != 0) && (prev_.lZ == 0);
+        return (currentWheelDelta_ != 0) && (prevWheelDelta_ == 0);
     }
     /// <summary>
     /// ホイールが回転を止めた瞬間か
     /// </summary>
     bool isReleaseWheel() const {
-        return (current_.lZ == 0) && (prev_.lZ != 0);
+        return (currentWheelDelta_ == 0) && (prevWheelDelta_ != 0);
     }
 
     /// <summary>

@@ -8,11 +8,8 @@
 /// ゲームパッドの初期化
 /// </summary>
 void GamePadInput::Initialize() {
-    ZeroMemory(&state_, sizeof(XINPUT_STATE));
-
-    // 接続確認
-    isActive_ = (XInputGetState(0, &state_) == ERROR_SUCCESS);
-    UpdateStickValues();
+    // 初期入力を取得しておく
+    Update();
 }
 
 /// <summary>
@@ -22,20 +19,25 @@ void GamePadInput::Update() {
     prevButtonMask_ = buttonMask_;
 
     // XInput更新
-    isActive_   = (XInputGetState(0, &state_) == ERROR_SUCCESS);
+    XINPUT_STATE state{};
+    isActive_   = (XInputGetState(0, &state) == ERROR_SUCCESS);
     buttonMask_ = 0;
 
     if (isActive_) {
         // デジタルボタン
-        buttonMask_ |= state_.Gamepad.wButtons;
+        buttonMask_ |= state.Gamepad.wButtons;
 
         // アナログトリガーをボタン扱いに変換
-        if (state_.Gamepad.bLeftTrigger / *triggerDeadZone_.getValue() > kEpsilon) {
+        if (state.Gamepad.bLeftTrigger / *triggerDeadZone_.getValue() > kEpsilon) {
             buttonMask_ |= static_cast<uint32_t>(PadButton::L_TRIGGER);
         }
-        if (state_.Gamepad.bRightTrigger / *triggerDeadZone_.getValue() > kEpsilon) {
+        if (state.Gamepad.bRightTrigger / *triggerDeadZone_.getValue() > kEpsilon) {
             buttonMask_ |= static_cast<uint32_t>(PadButton::R_TRIGGER);
         }
+
+        // スティック値更新
+        lTrigger_ = static_cast<float>(state.Gamepad.bLeftTrigger) / *triggerDeadZone_.getValue();
+        rTrigger_ = static_cast<float>(state.Gamepad.bRightTrigger) / *triggerDeadZone_.getValue();
 
         UpdateStickValues();
     } else {

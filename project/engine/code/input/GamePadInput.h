@@ -53,10 +53,14 @@ static std::map<PadButton, std::string> padButtonNameMap = {
     {PadButton::L_TRIGGER, "L_TRIGGER"},
     {PadButton::R_TRIGGER, "R_TRIGGER"}};
 
+constexpr uint32_t PAD_BUTTON_COUNT = 16;
+
 /// <summary>
 /// XInput対応ゲームパッド入力を管理するクラス
 /// </summary>
 class GamePadInput {
+    friend class ReplayPlayer;
+
 public:
     GamePadInput()  = default;
     ~GamePadInput() = default;
@@ -78,7 +82,6 @@ private:
     void UpdateStickValues();
 
 private:
-    XINPUT_STATE state_{};
     // 仮想ボタンマスク
     uint32_t buttonMask_;
     uint32_t prevButtonMask_;
@@ -89,9 +92,15 @@ private:
     Vec2f lStick_{};
     Vec2f rStick_{};
 
+    float lTrigger_ = 0.0f;
+    float rTrigger_ = 0.0f;
+
     bool isActive_ = false;
 
 public:
+    uint32_t getButtonMask() const { return buttonMask_; }
+    uint32_t getPrevButtonMask() const { return prevButtonMask_; }
+
     /// <summary>
     /// ゲームパッドが有効か
     /// </summary>
@@ -128,6 +137,6 @@ public:
     /// <summary>
     /// 左右トリガー値
     /// </summary>
-    float getLTrigger() const { return static_cast<float>(state_.Gamepad.bLeftTrigger) / *triggerDeadZone_.getValue(); }
-    float getRTrigger() const { return static_cast<float>(state_.Gamepad.bRightTrigger) / *triggerDeadZone_.getValue(); }
+    float getLTrigger() const { return lTrigger_; }
+    float getRTrigger() const { return rTrigger_; }
 };

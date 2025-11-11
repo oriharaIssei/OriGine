@@ -1,10 +1,13 @@
 #pragma once
 
-#include <concepts>
-#include <cstdint>
-#include <stdexcept>
+/// stl
 #include <vector>
+
+#include <concepts>
+#include <stdexcept>
+
 #include <bit>
+#include <cstdint>
 
 /// <summary>
 /// 大きなビット列を管理するクラス
@@ -16,7 +19,7 @@
 template <std::unsigned_integral intergralType = std::uint32_t>
 class BitArray {
 public:
-    using BlockType                       = intergralType;
+    using BlockType                = intergralType;
     static constexpr size_t BlockBitCount = sizeof(BlockType) * 8; // 8 は BiteからBitに変換するために
 
     BitArray(size_t size = 0) : size_(size), data_((size + BlockBitCount - 1) / BlockBitCount, 0) {}
@@ -53,10 +56,35 @@ public:
     /// </summary>
     void set(size_t pos, bool value);
 
+    BlockType getBlock(size_t blockIndex) const {
+        if (blockIndex >= data_.size()) {
+            throw std::out_of_range("BitArray::getBlock");
+        }
+        return data_[blockIndex];
+    }
+
+    /// <summary>
+    /// 指定したブロックの値を設定する
+    /// </summary>
+    /// <param name="blockIndex"></param>
+    /// <param name="value"></param>
+    void setBlock(size_t blockIndex, BlockType value) {
+        if (blockIndex >= data_.size()) {
+            throw std::out_of_range("BitArray::setBlock");
+        }
+        data_[blockIndex] = value;
+    }
+
     /// <summary>
     /// ビット配列のサイズを取得する
     /// </summary>
     size_t size() const { return size_; }
+
+    /// <summary>
+    /// 内部データへの参照を取得する
+    /// </summary>
+    /// <returns></returns>
+    const std::vector<BlockType>& getData() const { return data_; }
 
 private:
     size_t size_;
@@ -97,7 +125,7 @@ template <std::unsigned_integral intergralType>
 size_t BitArray<intergralType>::getTrueCount() const {
     size_t count = 0;
     for (const auto& block : data_) {
-        count += std::popcount(block); 
+        count += std::popcount(block);
     }
     return count;
 }
