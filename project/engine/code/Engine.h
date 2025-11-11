@@ -71,7 +71,6 @@ private:
     LightManager* lightManager_ = nullptr;
     // Time
     std::unique_ptr<DeltaTime> deltaTime_;
-    float fps_ = 60.0f;
 
     std::unordered_map<int32_t, int32_t> resizeEventConvertIndexMap_;
     std::vector<std::function<void(const Vec2f&)>> windowResizeEvents_;
@@ -91,6 +90,7 @@ public:
     DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>* getSrvHeap() const { return srvHeap_.get(); }
 
     float getDeltaTime() const { return deltaTime_->getDeltaTime(); }
+    void setDeltaTime(float dt) { deltaTime_->setDeltaTime(dt); }
 
     LightManager* getLightManager() const { return lightManager_; }
 

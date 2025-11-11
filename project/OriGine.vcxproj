@@ -290,7 +290,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\directX12\mesh\DefaultVertexData.h" />
     <ClInclude Include="engine\code\directX12\mesh\Mesh.h" />
     <ClInclude Include="engine\code\imGuiManager\ImGuiManager.h" />
-    <ClInclude Include="engine\code\input\InputManager.h" />
     <ClInclude Include="engine\code\logger\ImGuiLogSink.h" />
     <ClInclude Include="engine\code\logger\Logger.h" />
     <ClInclude Include="engine\code\model\Model.h" />
@@ -327,10 +326,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\debugReplayer\ReplayRecorder.h" />
     <ClInclude Include="engine\code\debugReplayer\ReplayPlayer.h" />
     <ClInclude Include="util\BitArray.h" />
-    <ClInclude Include="util\ConvertString.h" />
+    <ClInclude Include="util\StringUtil.h" />
     <ClInclude Include="util\DiffValue.h" />
     <ClInclude Include="util\EnumBitMask.h" />
-    <ClInclude Include="util\NormalizeString.h" />
     <ClInclude Include="util\binaryIO\BinaryIO.h" />
     <ClInclude Include="util\deltaTime\DeltaTime.h" />
     <ClInclude Include="util\globalVariables\GlobalVariables.h" />
@@ -340,6 +338,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="util\myRandom\MyRandom.h" />
     <ClInclude Include="util\nameof.h" />
     <ClInclude Include="util\timeline\Timeline.h" />
+    <ClInclude Include="util\Version.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="engine\code\ECS\system\postRender\base\BasePostRenderingSystem.cpp" />
@@ -466,7 +465,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\directX12\ShaderCompiler.cpp" />
     <ClCompile Include="engine\code\directX12\ShaderManager.cpp" />
     <ClCompile Include="engine\code\imGuiManager\ImGuiManager.cpp" />
-    <ClCompile Include="engine\code\input\InputManager.cpp" />
     <ClCompile Include="engine\code\logger\Logger.cpp" />
     <ClCompile Include="engine\code\model\Model.cpp" />
     <ClCompile Include="engine\code\model\ModelManager.cpp" />
@@ -488,14 +486,14 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\input\MouseInput.cpp" />
     <ClCompile Include="engine\code\debugReplayer\ReplayRecorder.cpp" />
     <ClCompile Include="engine\code\debugReplayer\ReplayPlayer.cpp" />
-    <ClCompile Include="util\ConvertString.cpp" />
-    <ClCompile Include="util\NormalizeString.cpp" />
+    <ClCompile Include="util\StringUtil.cpp" />
     <ClCompile Include="util\binaryIO\BinaryIO.cpp" />
     <ClCompile Include="util\deltaTime\DeltaTime.cpp" />
     <ClCompile Include="util\globalVariables\GlobalVariables.cpp" />
     <ClCompile Include="util\myFileSystem\MyFileSystem.cpp" />
     <ClCompile Include="util\myGui\MyGui.cpp" />
     <ClCompile Include="util\timeline\Timeline.cpp" />
+    <ClCompile Include="util\Version.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="externals\DirectXTex\DirectXTex.vcxproj">
