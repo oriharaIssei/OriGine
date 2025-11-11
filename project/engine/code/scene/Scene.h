@@ -9,6 +9,10 @@
 /// engine
 // directX12
 class RenderTexture;
+// input
+class KeyboardInput;
+class MouseInput;
+class GamePadInput;
 /// ECS
 #include "component/ComponentArray.h"
 #include "component/ComponentRepository.h"
@@ -51,11 +55,25 @@ protected:
     std::unique_ptr<ComponentRepository> componentRepository_ = nullptr;
     std::unique_ptr<SystemRunner> systemRunner_               = nullptr;
 
+    // input
+    KeyboardInput* keyInput_ = nullptr;
+    MouseInput* mouseInput_  = nullptr;
+    GamePadInput* padInput_  = nullptr;
+
     std::list<int32_t> deleteEntities_; // 削除予定のエンティティIDリスト
 
 public:
     bool isActive() const { return isActive_; }
     void setActive(bool _isActive) { isActive_ = _isActive; }
+
+    KeyboardInput* getKeyboardInput() const { return keyInput_; }
+    MouseInput* getMouseInput() const { return mouseInput_; }
+    GamePadInput* getGamePadInput() const { return padInput_; }
+    void setInputDevices(KeyboardInput* _keyInput, MouseInput* _mouseInput, GamePadInput* _padInput) {
+        keyInput_   = _keyInput;
+        mouseInput_ = _mouseInput;
+        padInput_   = _padInput;
+    }
 
     const std::string& getName() const { return name_; }
     RenderTexture* getSceneView() const { return sceneView_.get(); }
@@ -98,9 +116,9 @@ public:
     // Component 関係
     /// =========================================
     template <IsComponent ComponentType>
-    ComponentType* getComponent(Entity* _entity, uint32_t index = 0) const ;
+    ComponentType* getComponent(Entity* _entity, uint32_t index = 0) const;
     template <IsComponent ComponentType>
-    ComponentType* getComponent(int32_t entityId, uint32_t index = 0) const ;
+    ComponentType* getComponent(int32_t entityId, uint32_t index = 0) const;
     template <IsComponent ComponentType>
     std::vector<ComponentType>* getComponents(Entity* _entity) const {
         return componentRepository_->getComponents<ComponentType>(_entity);

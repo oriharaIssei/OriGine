@@ -10,6 +10,11 @@
 #include "Engine.h"
 #include "logger/Logger.h"
 #include "winApp/WinApp.h"
+// input
+#include "input/GamePadInput.h"
+#include "input/InputManager.h"
+#include "input/KeyboardInput.h"
+#include "input/MouseInput.h"
 
 #define ENGINE_INPUT
 #define RESOURCE_DIRECTORY
@@ -48,6 +53,10 @@ SceneManager::~SceneManager() {}
 void SceneManager::Initialize(const std::string& _startScene) {
     // シーンの初期化
     currentScene_ = std::make_unique<Scene>(_startScene);
+    // 入力デバイスの設定
+    InputManager* input = InputManager::getInstance()->getInstance();
+    currentScene_->setInputDevices(input->getKeyboard(), input->getMouse(), input->getGamePad());
+    // シーンの初期化処理
     currentScene_->Initialize();
     // シーンビューの初期化
     currentScene_->getSceneView()->Resize(Engine::getInstance()->getWinApp()->getWindowSize());
@@ -101,7 +110,13 @@ void SceneManager::executeSceneChange() {
     currentScene_->Finalize();
     currentScene_ = std::make_unique<Scene>(changingSceneName_);
 
+    // 入力デバイスの設定
+    InputManager* input = InputManager::getInstance()->getInstance();
+    currentScene_->setInputDevices(input->getKeyboard(), input->getMouse(), input->getGamePad());
+    // シーンの初期化処理
     currentScene_->Initialize();
+    // シーンビューの初期化
+    currentScene_->getSceneView()->Resize(Engine::getInstance()->getWinApp()->getWindowSize());
 
 #ifdef _DEVELOP
     // 監視対象を変更
