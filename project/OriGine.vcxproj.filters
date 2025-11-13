@@ -4,6 +4,9 @@
     <Filter Include="editor">
       <UniqueIdentifier>{AC2EC5FA-98D0-EFD0-818B-03256DCC7621}</UniqueIdentifier>
     </Filter>
+    <Filter Include="editor\debugReplayer">
+      <UniqueIdentifier>{46427888-32D1-0152-DBEF-154DC75D12F8}</UniqueIdentifier>
+    </Filter>
     <Filter Include="editor\sceneEditor">
       <UniqueIdentifier>{705D9BA7-5C41-5CFD-C5A1-5650B1A4467F}</UniqueIdentifier>
     </Filter>
@@ -94,8 +97,14 @@
     <Filter Include="engine\code\ECS\system\postRender">
       <UniqueIdentifier>{18BF3794-842D-8D13-CD16-481339C482AF}</UniqueIdentifier>
     </Filter>
+    <Filter Include="engine\code\ECS\system\postRender\base">
+      <UniqueIdentifier>{C2D66C93-AE28-4483-9747-819383385D6C}</UniqueIdentifier>
+    </Filter>
     <Filter Include="engine\code\ECS\system\render">
       <UniqueIdentifier>{D223D146-3E3C-B870-07E9-470A73C04C0A}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\code\ECS\system\render\base">
+      <UniqueIdentifier>{BC3F64C3-A87B-672D-118E-7F24FDE80F48}</UniqueIdentifier>
     </Filter>
     <Filter Include="engine\code\audio">
       <UniqueIdentifier>{66AD37BB-D2C3-3551-1B3B-C172879006D9}</UniqueIdentifier>
@@ -105,6 +114,12 @@
     </Filter>
     <Filter Include="engine\code\camera\debugCamera">
       <UniqueIdentifier>{1CE4A4E2-080A-6F49-F14F-F414DD149415}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\code\debugReplayer">
+      <UniqueIdentifier>{DF5ADEFD-4B1D-1288-94CD-A01400CFEA65}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\code\debugReplayer\base">
+      <UniqueIdentifier>{E9E69E54-D50C-69BB-BE52-EE86AA178E87}</UniqueIdentifier>
     </Filter>
     <Filter Include="engine\code\directX12">
       <UniqueIdentifier>{AAEB9D36-1658-5931-DF4B-F18E4B777B99}</UniqueIdentifier>
@@ -120,6 +135,9 @@
     </Filter>
     <Filter Include="engine\code\input">
       <UniqueIdentifier>{64CFC4BB-D0E5-C251-195D-4E7385B293D9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine\code\input\include">
+      <UniqueIdentifier>{D71A4D5A-43DD-80E4-8C8D-0F71F88E59C2}</UniqueIdentifier>
     </Filter>
     <Filter Include="engine\code\logger">
       <UniqueIdentifier>{D4216B3B-C005-2C91-2966-26E415691613}</UniqueIdentifier>
@@ -175,9 +193,6 @@
     <Filter Include="util\myRandom">
       <UniqueIdentifier>{19FFB36C-85BF-2FA3-4EFA-7820BA79747F}</UniqueIdentifier>
     </Filter>
-    <Filter Include="util\node">
-      <UniqueIdentifier>{F86BF1CE-64D6-A545-AD14-57EB19BE839A}</UniqueIdentifier>
-    </Filter>
     <Filter Include="util\timeline">
       <UniqueIdentifier>{89AC1F52-F56C-9B88-BEA7-E4052A27E064}</UniqueIdentifier>
     </Filter>
@@ -188,6 +203,15 @@
     </ClInclude>
     <ClInclude Include="editor\IEditor.h">
       <Filter>editor</Filter>
+    </ClInclude>
+    <ClInclude Include="editor\debugReplayer\DebugReplayControlArea.h">
+      <Filter>editor\debugReplayer</Filter>
+    </ClInclude>
+    <ClInclude Include="editor\debugReplayer\DebugReplayMenu.h">
+      <Filter>editor\debugReplayer</Filter>
+    </ClInclude>
+    <ClInclude Include="editor\debugReplayer\DebugReplayWindow.h">
+      <Filter>editor\debugReplayer</Filter>
     </ClInclude>
     <ClInclude Include="editor\sceneEditor\EntityInspector.h">
       <Filter>editor\sceneEditor</Filter>
@@ -292,6 +316,9 @@
       <Filter>engine\code\ECS\component\effect\post</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\component\effect\post\RandomEffectParam.h">
+      <Filter>engine\code\ECS\component\effect\post</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\effect\post\SmoothingEffectParam.h">
       <Filter>engine\code\ECS\component\effect\post</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\component\effect\post\SpeedlineEffectParam.h">
@@ -471,6 +498,9 @@
     <ClInclude Include="engine\code\ECS\system\postRender\VignetteEffect.h">
       <Filter>engine\code\ECS\system\postRender</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\ECS\system\postRender\base\BasePostRenderingSystem.h">
+      <Filter>engine\code\ECS\system\postRender\base</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\ECS\system\render\BackGroundSpriteRenderSystem.h">
       <Filter>engine\code\ECS\system\render</Filter>
     </ClInclude>
@@ -504,6 +534,9 @@
     <ClInclude Include="engine\code\ECS\system\render\VelocityRenderingSystem.h">
       <Filter>engine\code\ECS\system\render</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\ECS\system\render\base\BaseRenderSystem.h">
+      <Filter>engine\code\ECS\system\render\base</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\Engine.h">
       <Filter>engine\code</Filter>
     </ClInclude>
@@ -515,6 +548,18 @@
     </ClInclude>
     <ClInclude Include="engine\code\camera\debugCamera\DebugCamera.h">
       <Filter>engine\code\camera\debugCamera</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\debugReplayer\ReplayPlayer.h">
+      <Filter>engine\code\debugReplayer</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\debugReplayer\ReplayRecorder.h">
+      <Filter>engine\code\debugReplayer</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\debugReplayer\base\ReplayData.h">
+      <Filter>engine\code\debugReplayer\base</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\directX12\BlendMode.h">
+      <Filter>engine\code\directX12</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\directX12\DxCommand.h">
       <Filter>engine\code\directX12</Filter>
@@ -576,6 +621,21 @@
     <ClInclude Include="engine\code\imGuiManager\ImGuiManager.h">
       <Filter>engine\code\imGuiManager</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\input\GamePadInput.h">
+      <Filter>engine\code\input</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\input\InputManager.h">
+      <Filter>engine\code\input</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\input\KeyboardInput.h">
+      <Filter>engine\code\input</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\input\MouseInput.h">
+      <Filter>engine\code\input</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\input\include\IncludeInputAPI.h">
+      <Filter>engine\code\input\include</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\logger\ImGuiLogSink.h">
       <Filter>engine\code\logger</Filter>
     </ClInclude>
@@ -617,6 +677,9 @@
     </ClInclude>
     <ClInclude Include="geometry\shape\Sphere.h">
       <Filter>geometry\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="math\Interpolation.h">
+      <Filter>math</Filter>
     </ClInclude>
     <ClInclude Include="math\Matrix4x4.h">
       <Filter>math</Filter>
@@ -663,13 +726,16 @@
     <ClInclude Include="util\BitArray.h">
       <Filter>util</Filter>
     </ClInclude>
-    <ClInclude Include="util\StringUtil.h">
-      <Filter>util</Filter>
-    </ClInclude>
     <ClInclude Include="util\DiffValue.h">
       <Filter>util</Filter>
     </ClInclude>
     <ClInclude Include="util\EnumBitMask.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="util\StringUtil.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="util\Version.h">
       <Filter>util</Filter>
     </ClInclude>
     <ClInclude Include="util\binaryIO\BinaryIO.h">
@@ -699,23 +765,6 @@
     <ClInclude Include="util\timeline\Timeline.h">
       <Filter>util\timeline</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\directX12\BlendMode.h" />
-    <ClInclude Include="math\Interpolation.h" />
-    <ClInclude Include="engine\code\ECS\system\render\base\BaseRenderSystem.h" />
-    <ClInclude Include="engine\code\ECS\system\postRender\base\BasePostRenderingSystem.h" />
-    <ClInclude Include="engine\code\ECS\component\effect\post\SmoothingEffectParam.h" />
-    <ClInclude Include="engine\code\input\KeyboardInput.h" />
-    <ClInclude Include="engine\code\input\MouseInput.h" />
-    <ClInclude Include="engine\code\input\GamePadInput.h" />
-    <ClInclude Include="engine\code\input\include\IncludeInputAPI.h" />
-    <ClInclude Include="engine\code\debugReplayer\ReplayRecorder.h" />
-    <ClInclude Include="engine\code\debugReplayer\base\ReplayData.h" />
-    <ClInclude Include="engine\code\debugReplayer\ReplayPlayer.h" />
-    <ClInclude Include="util\Version.h" />
-    <ClInclude Include="engine\code\input\InputManager.h" />
-    <ClInclude Include="editor\debugReplayer\DebugReplayWindow.h" />
-    <ClInclude Include="editor\debugReplayer\DebugReplayControlArea.h" />
-    <ClInclude Include="editor\debugReplayer\DebugReplayMenu.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="editor\EditorController.cpp">
@@ -723,6 +772,15 @@
     </ClCompile>
     <ClCompile Include="editor\IEditor.cpp">
       <Filter>editor</Filter>
+    </ClCompile>
+    <ClCompile Include="editor\debugReplayer\DebugReplayControlArea.cpp">
+      <Filter>editor\debugReplayer</Filter>
+    </ClCompile>
+    <ClCompile Include="editor\debugReplayer\DebugReplayMenu.cpp">
+      <Filter>editor\debugReplayer</Filter>
+    </ClCompile>
+    <ClCompile Include="editor\debugReplayer\DebugReplayWindow.cpp">
+      <Filter>editor\debugReplayer</Filter>
     </ClCompile>
     <ClCompile Include="editor\sceneEditor\EntityInspector.cpp">
       <Filter>editor\sceneEditor</Filter>
@@ -821,6 +879,9 @@
       <Filter>engine\code\ECS\component\effect\post</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\component\effect\post\RandomEffectParam.cpp">
+      <Filter>engine\code\ECS\component\effect\post</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\component\effect\post\SmoothingEffectParam.cpp">
       <Filter>engine\code\ECS\component\effect\post</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\component\effect\post\SpeedlineEffectParam.cpp">
@@ -994,6 +1055,9 @@
     <ClCompile Include="engine\code\ECS\system\postRender\VignetteEffect.cpp">
       <Filter>engine\code\ECS\system\postRender</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\ECS\system\postRender\base\BasePostRenderingSystem.cpp">
+      <Filter>engine\code\ECS\system\postRender\base</Filter>
+    </ClCompile>
     <ClCompile Include="engine\code\ECS\system\render\BackGroundSpriteRenderSystem.cpp">
       <Filter>engine\code\ECS\system\render</Filter>
     </ClCompile>
@@ -1027,6 +1091,9 @@
     <ClCompile Include="engine\code\ECS\system\render\VelocityRenderingSystem.cpp">
       <Filter>engine\code\ECS\system\render</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\ECS\system\render\base\BaseRenderSystem.cpp">
+      <Filter>engine\code\ECS\system\render\base</Filter>
+    </ClCompile>
     <ClCompile Include="engine\code\Engine.cpp">
       <Filter>engine\code</Filter>
     </ClCompile>
@@ -1038,6 +1105,15 @@
     </ClCompile>
     <ClCompile Include="engine\code\camera\debugCamera\DebugCamera.cpp">
       <Filter>engine\code\camera\debugCamera</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\debugReplayer\ReplayPlayer.cpp">
+      <Filter>engine\code\debugReplayer</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\debugReplayer\ReplayRecorder.cpp">
+      <Filter>engine\code\debugReplayer</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\directX12\BlendMode.cpp">
+      <Filter>engine\code\directX12</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\directX12\DxCommand.cpp">
       <Filter>engine\code\directX12</Filter>
@@ -1081,6 +1157,18 @@
     <ClCompile Include="engine\code\imGuiManager\ImGuiManager.cpp">
       <Filter>engine\code\imGuiManager</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\input\GamePadInput.cpp">
+      <Filter>engine\code\input</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\input\InputManager.cpp">
+      <Filter>engine\code\input</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\input\KeyboardInput.cpp">
+      <Filter>engine\code\input</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\input\MouseInput.cpp">
+      <Filter>engine\code\input</Filter>
+    </ClCompile>
     <ClCompile Include="engine\code\logger\Logger.cpp">
       <Filter>engine\code\logger</Filter>
     </ClCompile>
@@ -1105,6 +1193,9 @@
     <ClCompile Include="geometry\base\GeometryType.cpp">
       <Filter>geometry\base</Filter>
     </ClCompile>
+    <ClCompile Include="math\Interpolation.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
     <ClCompile Include="math\Matrix4x4.cpp">
       <Filter>math</Filter>
     </ClCompile>
@@ -1120,7 +1211,13 @@
     <ClCompile Include="math\Sequence.cpp">
       <Filter>math</Filter>
     </ClCompile>
+    <ClCompile Include="math\mathEnv.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
     <ClCompile Include="util\StringUtil.cpp">
+      <Filter>util</Filter>
+    </ClCompile>
+    <ClCompile Include="util\Version.cpp">
       <Filter>util</Filter>
     </ClCompile>
     <ClCompile Include="util\binaryIO\BinaryIO.cpp">
@@ -1141,21 +1238,5 @@
     <ClCompile Include="util\timeline\Timeline.cpp">
       <Filter>util\timeline</Filter>
     </ClCompile>
-    <ClCompile Include="math\mathEnv.cpp" />
-    <ClCompile Include="engine\code\directX12\BlendMode.cpp" />
-    <ClCompile Include="math\Interpolation.cpp" />
-    <ClCompile Include="engine\code\ECS\system\render\base\BaseRenderSystem.cpp" />
-    <ClCompile Include="engine\code\ECS\system\postRender\base\BasePostRenderingSystem.cpp" />
-    <ClCompile Include="engine\code\ECS\component\effect\post\SmoothingEffectParam.cpp" />
-    <ClCompile Include="engine\code\input\KeyboardInput.cpp" />
-    <ClCompile Include="engine\code\input\MouseInput.cpp" />
-    <ClCompile Include="engine\code\input\GamePadInput.cpp" />
-    <ClCompile Include="engine\code\debugReplayer\ReplayRecorder.cpp" />
-    <ClCompile Include="engine\code\debugReplayer\ReplayPlayer.cpp" />
-    <ClCompile Include="util\Version.cpp" />
-    <ClCompile Include="engine\code\input\InputManager.cpp" />
-    <ClCompile Include="editor\debugReplayer\DebugReplayWindow.cpp" />
-    <ClCompile Include="editor\debugReplayer\DebugReplayControlArea.cpp" />
-    <ClCompile Include="editor\debugReplayer\DebugReplayMenu.cpp" />
   </ItemGroup>
 </Project>

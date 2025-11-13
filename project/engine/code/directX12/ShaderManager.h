@@ -167,5 +167,5 @@ public:
         return psoMap_.find(key) != psoMap_.end();
     }
     PipelineStateObj* getPipelineStateObj(const std::string& key);
-    const Microsoft::WRL::ComPtr<IDxcBlob>& getShaderBlob(const std::string& key);
+    Microsoft::WRL::ComPtr<IDxcBlob>* getShaderBlob(const std::string& key);
 };

@@ -217,10 +217,10 @@ PipelineStateObj* ShaderManager::getPipelineStateObj(const std::string& key) {
     return it->second.get();
 }
 
-const Microsoft::WRL::ComPtr<IDxcBlob>& ShaderManager::getShaderBlob(const std::string& key) {
+Microsoft::WRL::ComPtr<IDxcBlob>* ShaderManager::getShaderBlob(const std::string& key) {
     auto it = shaderBlobMap_.find(key);
     if (it == shaderBlobMap_.end()) {
         return nullptr;
     }
-    return it->second;
-};
+    return &it->second;
+}
