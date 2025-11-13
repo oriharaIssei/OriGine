@@ -68,6 +68,20 @@ void DebugReplayWindow::UpdateSceneManager() {
         if (playerCurrentFrameIndex > replayFrameIndex_) {
             sceneManager_->changeScene(replayPlayer_->getStartSceneName());
             sceneManager_->executeSceneChange();
+
+            // index の初期化
+            playerCurrentFrameIndex = 0;
+            // input の初期化
+            keyboardInput_->clearKeyStates();
+            mouseInput_->clearButtonStates();
+            mouseInput_->resetWheelDelta();
+            mouseInput_->resetPosition();
+            gamePadInput_->clearButtonStates();
+            gamePadInput_->clearStickStates();
+            gamePadInput_->clearTriggerStates();
+
+            // シーク
+            replayPlayer_->Seek(playerCurrentFrameIndex);
         }
 
         // 指定フレームまでシークして更新を行う
@@ -83,11 +97,11 @@ void DebugReplayWindow::UpdateSceneManager() {
 
                 // deltaTimeをセット
                 Engine::getInstance()->setDeltaTime(deltaTime);
+
+                // シーンマネージャーを更新する
+                sceneManager_->Update();
             }
         }
-
-        // シーンマネージャーを更新する
-        sceneManager_->Update();
     }
 }
 

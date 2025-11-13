@@ -45,6 +45,17 @@ void GamePadInput::Update() {
     }
 }
 
+void GamePadInput::Finalize() {
+    buttonMask_ = 0;
+    prevButtonMask_ = 0;
+
+    lStick_ = Vec2f();
+    rStick_ = Vec2f();
+
+    lTrigger_ = 0.0f;
+    rTrigger_ = 0.0f;
+}
+
 /// <summary>
 /// スティックの値を正規化して更新
 /// </summary>

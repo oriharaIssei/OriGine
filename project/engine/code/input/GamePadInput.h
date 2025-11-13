@@ -78,6 +78,30 @@ public:
     /// </summary>
     void Update();
 
+    void Finalize();
+
+    /// <summary>
+    /// ボタン状態をクリア
+    /// </summary>
+    void clearButtonStates() {
+        buttonMask_     = 0;
+        prevButtonMask_ = 0;
+    }
+    /// <summary>
+    /// スティック状態をクリア
+    /// </summary>
+    void clearStickStates() {
+        lStick_ = Vec2f();
+        rStick_ = Vec2f();
+    }
+    /// <summary>
+    /// トリガー状態をクリア
+    /// </summary>
+    void clearTriggerStates() {
+        lTrigger_ = 0.0f;
+        rTrigger_ = 0.0f;
+    }
+
 private:
     /// <summary>
     /// スティックの値を正規化して更新

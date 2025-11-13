@@ -268,6 +268,14 @@ public:
     const std::array<BYTE, KEY_COUNT>& getPrevKeyStates() const { return prevKeys_; }
 
     /// <summary>
+    /// キー状態をクリアする(今と前回分の状態を初期化)
+    /// </summary>
+    void clearKeyStates() {
+        keys_.fill(0);
+        prevKeys_.fill(0);
+    }
+
+    /// <summary>
     /// キーが押されているか
     /// </summary>
     bool isPress(uint32_t key) const { return keys_[key]; }

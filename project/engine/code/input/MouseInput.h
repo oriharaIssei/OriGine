@@ -53,16 +53,41 @@ public:
     /// <returns></returns>
     uint32_t ButtonStateToBitmask() const;
 
+    /// <summary>
+    /// ボタン状態をクリア
+    /// </summary>
+    void clearButtonStates() {
+        currentButtonStates_.fill(0);
+        prevButtonStates_.fill(0);
+    }
+
+    /// <summary>
+    /// ホイールの変化量をリセット
+    /// </summary>
+    void resetWheelDelta() {
+        currentWheelDelta_ = 0;
+        prevWheelDelta_    = 0;
+    }
+
+    /// <summary>
+    /// マウス座標をリセット
+    /// </summary>
+    void resetPosition() {
+        pos_        = Vec2f(0.0f, 0.0f);
+        prevPos_    = Vec2f(0.0f, 0.0f);
+        virtualPos_ = Vec2f(0.0f, 0.0f);
+        velocity_   = Vec2f(0.0f, 0.0f);
+    }
+
 private:
     Microsoft::WRL::ComPtr<IDirectInputDevice8> mouse_;
+    HWND hwnd_ = nullptr;
 
     std::array<BYTE, MOUSE_BUTTON_COUNT> currentButtonStates_{};
     std::array<BYTE, MOUSE_BUTTON_COUNT> prevButtonStates_{};
 
     int32_t currentWheelDelta_ = 0;
     int32_t prevWheelDelta_    = 0;
-
-    HWND hwnd_ = nullptr;
 
     Vec2f virtualPos_{}; // userが座標を制御するための変数
     Vec2f pos_{};
