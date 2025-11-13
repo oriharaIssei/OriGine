@@ -8,10 +8,16 @@
 #include <string>
 
 /// engine
+class Scene;
+// input
+class KeyboardInput;
+class MouseInput;
+class GamePadInput;
+/// ecs
 #include "component/ComponentArray.h"
 #include "entity/Entity.h"
-class Scene;
 
+/// util
 #include "util/globalVariables/SerializedField.h"
 #include "util/myFileSystem/MyFileSystem.h"
 
@@ -24,11 +30,12 @@ public:
     SceneManager();
     ~SceneManager();
 
-    void Initialize(const std::string& _startScene);
-    void Initialize();
+    void Initialize(const std::string& _startScene, KeyboardInput* _keyInput, MouseInput* _mouseInput, GamePadInput* _padInput);
+    void Initialize(KeyboardInput* _keyInput, MouseInput* _mouseInput, GamePadInput* _padInput);
     void Finalize();
 
     void Update();
+    void Render();
 
     /// <summary>
     /// 即座にシーンを変更する(事前にnextSceneを指定する必要がある)
@@ -45,10 +52,15 @@ private:
 
     std::unique_ptr<Scene> currentScene_ = nullptr;
 
-    bool isChangeScene_            = false;
+    // input
+    KeyboardInput* keyInput_ = nullptr;
+    MouseInput* mouseInput_  = nullptr;
+    GamePadInput* padInput_  = nullptr;
+
     std::string changingSceneName_ = "";
 
-    bool isExitGame_ = false;
+    bool isChangeScene_ = false;
+    bool isExitGame_    = false;
 
 public:
     Scene* getCurrentScene() {

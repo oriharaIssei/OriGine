@@ -47,6 +47,10 @@ public:
     /// </summary>
     void Finalize();
 
+    /// <summary>
+    /// ボタン状態をビットマスクに変換
+    /// </summary>
+    /// <returns></returns>
     uint32_t ButtonStateToBitmask() const;
 
 private:

@@ -44,12 +44,16 @@
 SceneManager::SceneManager() {}
 SceneManager::~SceneManager() {}
 
-void SceneManager::Initialize(const std::string& _startScene) {
+void SceneManager::Initialize(const std::string& _startScene, KeyboardInput* _keyInput, MouseInput* _mouseInput, GamePadInput* _padInput) {
+    // 入力デバイスの設定
+    keyInput_   = _keyInput;
+    mouseInput_ = _mouseInput;
+    padInput_   = _padInput;
+
     // シーンの初期化
     currentScene_ = std::make_unique<Scene>(_startScene);
-    // 入力デバイスの設定
-    InputManager* input = InputManager::getInstance()->getInstance();
-    currentScene_->setInputDevices(input->getKeyboard(), input->getMouse(), input->getGamePad());
+    // シーンの入力デバイスを設定
+    currentScene_->setInputDevices(keyInput_, mouseInput_, padInput_);
     // シーンの初期化処理
     currentScene_->Initialize();
     // シーンビューの初期化
@@ -62,8 +66,8 @@ void SceneManager::Initialize(const std::string& _startScene) {
     fileWatcher_->Start();
 #endif // _DEVELOP
 }
-void SceneManager::Initialize() {
-    this->Initialize(startupSceneName_);
+void SceneManager::Initialize(KeyboardInput* _keyInput, MouseInput* _mouseInput, GamePadInput* _padInput) {
+    this->Initialize(startupSceneName_, _keyInput, _mouseInput, _padInput);
 }
 
 void SceneManager::Finalize() {
@@ -85,12 +89,10 @@ void SceneManager::Update() {
         return;
     }
     currentScene_->Update();
+}
 
+void SceneManager::Render() {
     currentScene_->Render();
-
-    Engine::getInstance()->ScreenPreDraw();
-    currentScene_->getSceneView()->DrawTexture();
-    Engine::getInstance()->ScreenPostDraw();
 }
 
 const std::string& SceneManager::getCurrentSceneName() const { return currentScene_->getName(); }
@@ -107,8 +109,7 @@ void SceneManager::executeSceneChange() {
     currentScene_ = std::make_unique<Scene>(changingSceneName_);
 
     // 入力デバイスの設定
-    InputManager* input = InputManager::getInstance()->getInstance();
-    currentScene_->setInputDevices(input->getKeyboard(), input->getMouse(), input->getGamePad());
+    currentScene_->setInputDevices(keyInput_, mouseInput_, padInput_);
     // シーンの初期化処理
     currentScene_->Initialize();
     // シーンビューの初期化

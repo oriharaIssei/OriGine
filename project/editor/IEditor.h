@@ -85,7 +85,7 @@ public:
 
     virtual void Initialize() = 0;
     virtual void DrawGui();
-    virtual void Finalize() = 0;
+    virtual void Finalize();
 
 protected:
     std::string name_          = "Unknown"; // Menuの名前

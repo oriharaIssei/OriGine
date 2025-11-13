@@ -5,10 +5,41 @@
 #include <fstream>
 
 /// engine
+#include "scene/SceneManager.h"
+// log
+#include "logger/Logger.h"
+
 // input
 #include "input/GamePadInput.h"
 #include "input/KeyboardInput.h"
 #include "input/MouseInput.h"
+
+void ReplayPlayer::Initialize(const std::string& filepath, SceneManager* _sceneManager) {
+    // すでに初期化されている場合は何もしない
+    if (isActive_) {
+        LOG_WARN("already initialized.");
+        return;
+    }
+
+    fileData_.Initialize();
+    isActive_ = LoadFromFile(filepath);
+
+    // シーンマネージャーに開始シーンをセット
+    _sceneManager->changeScene(fileData_.header.startScene);
+}
+
+void ReplayPlayer::Finalize() {
+    // 未初期化の場合は何もしない
+    if (!isActive_) {
+        LOG_WARN("not initialized.");
+        return;
+    }
+
+    isActive_ = false;
+    fileData_.Finalize();
+    currentFrameIndex_ = 0;
+    filepath_.clear();
+}
 
 bool ReplayPlayer::LoadFromFile(const std::string& filepath) {
     std::ifstream ifs(filepath, std::ios::binary);
@@ -20,30 +51,29 @@ bool ReplayPlayer::LoadFromFile(const std::string& filepath) {
 
     filepath_ = filepath;
     // 読み込み準備
-    frames_.clear();
-    currentFrameIndex_ = 0;
+    fileData_.Initialize();
 
     // ===== ヘッダーの読み込み =====
     {
         // 開始シーン名
         size_t length = 0;
         ifs.read(reinterpret_cast<char*>(&length), sizeof(size_t));
-        header_.startScene.resize(length);
-        ifs.read(header_.startScene.data(), length);
+        fileData_.header.startScene.resize(length);
+        ifs.read(fileData_.header.startScene.data(), length);
 
         // バージョン情報
-        ifs.read(reinterpret_cast<char*>(&header_.version.major), sizeof(uint32_t));
-        ifs.read(reinterpret_cast<char*>(&header_.version.minor), sizeof(uint32_t));
-        ifs.read(reinterpret_cast<char*>(&header_.version.patch), sizeof(uint32_t));
+        ifs.read(reinterpret_cast<char*>(&fileData_.header.version.major), sizeof(uint32_t));
+        ifs.read(reinterpret_cast<char*>(&fileData_.header.version.minor), sizeof(uint32_t));
+        ifs.read(reinterpret_cast<char*>(&fileData_.header.version.patch), sizeof(uint32_t));
 
         // フレーム数
         uint32_t frameCount = 0;
         ifs.read(reinterpret_cast<char*>(&frameCount), sizeof(uint32_t));
-        frames_.resize(frameCount);
+        fileData_.frameData.resize(frameCount);
     }
 
     // ===== フレームデータの読み込み =====
-    for (auto& frame : frames_) {
+    for (auto& frame : fileData_.frameData) {
         // deltaTime
         ifs.read(reinterpret_cast<char*>(&frame.deltaTime), sizeof(float));
 
@@ -69,6 +99,7 @@ bool ReplayPlayer::LoadFromFile(const std::string& filepath) {
         {
             ifs.read(reinterpret_cast<char*>(&frame.mouseData.mousePos[X]), sizeof(float));
             ifs.read(reinterpret_cast<char*>(&frame.mouseData.mousePos[Y]), sizeof(float));
+            ifs.read(reinterpret_cast<char*>(&frame.mouseData.wheelDelta), sizeof(int32_t));
             ifs.read(reinterpret_cast<char*>(&frame.mouseData.buttonData), sizeof(uint32_t));
         }
 
@@ -91,23 +122,39 @@ bool ReplayPlayer::LoadFromFile(const std::string& filepath) {
 }
 
 float ReplayPlayer::Apply(KeyboardInput* _keyInput, MouseInput* _mouseInput, GamePadInput* _padInput) {
-    auto& frameData = frames_[currentFrameIndex_];
+    auto& frameData = fileData_.frameData[currentFrameIndex_];
 
-    // keyboard
-    for (size_t keyIndex = 0; keyIndex < KEY_COUNT; ++keyIndex) {
-        bool isPressed             = frameData.keyInputData.get(keyIndex);
-        _keyInput->keys_[keyIndex] = isPressed ? 0x80 : 0x00;
+    /// keyboard
+    // prev を更新
+    _keyInput->prevKeys_ = _keyInput->keys_;
+    // current を更新
+    if (frameData.keyInputData.size() != 0) {
+        for (size_t keyIndex = 0; keyIndex < KEY_COUNT; ++keyIndex) {
+            bool isPressed             = frameData.keyInputData.get(keyIndex);
+            _keyInput->keys_[keyIndex] = isPressed ? 0x80 : 0x00;
+        }
     }
 
-    // mouse
-    _mouseInput->pos_      = frameData.mouseData.mousePos;
+    /// mouse
+    // prev を更新
+    _mouseInput->prevPos_          = _mouseInput->pos_;
+    _mouseInput->prevWheelDelta_   = _mouseInput->currentWheelDelta_;
+    _mouseInput->prevButtonStates_ = _mouseInput->currentButtonStates_;
+    // current を更新
+    _mouseInput->pos_               = frameData.mouseData.mousePos;
+    _mouseInput->virtualPos_        = _mouseInput->pos_;
+    _mouseInput->currentWheelDelta_ = frameData.mouseData.wheelDelta;
+
     _mouseInput->velocity_ = _mouseInput->pos_ - _mouseInput->prevPos_;
 
     for (size_t mouseButtonIndex = 0; mouseButtonIndex < MOUSE_BUTTON_COUNT; ++mouseButtonIndex) {
         _mouseInput->currentButtonStates_[mouseButtonIndex] = (frameData.mouseData.buttonData >> mouseButtonIndex) & 1u;
     }
 
-    // padInput
+    /// padInput
+    // prev を更新
+    _padInput->prevButtonMask_ = _padInput->buttonMask_;
+    // current を更新
     _padInput->lStick_ = frameData.padData.lStick;
     _padInput->rStick_ = frameData.padData.rStick;
 
@@ -119,20 +166,11 @@ float ReplayPlayer::Apply(KeyboardInput* _keyInput, MouseInput* _mouseInput, Gam
     return frameData.deltaTime;
 }
 
-void ReplayPlayer::StepFrame() {
-    if (isReverse_) {
-        if (currentFrameIndex_ > 0) {
-            --currentFrameIndex_;
-        }
-    } else {
-        if (currentFrameIndex_ + 1 < frames_.size()) {
-            ++currentFrameIndex_;
-        }
-    }
-}
-
-void ReplayPlayer::Seek(size_t frameIndex) {
-    if (frameIndex < frames_.size()) {
+bool ReplayPlayer::Seek(size_t frameIndex) {
+    if (frameIndex < fileData_.frameData.size()) {
+        bool result        = (currentFrameIndex_ != frameIndex);
         currentFrameIndex_ = frameIndex;
+        return result;
     }
+    return false;
 }

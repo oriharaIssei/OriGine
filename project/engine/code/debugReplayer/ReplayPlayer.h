@@ -5,6 +5,8 @@
 #include <vector>
 
 /// engine
+class SceneManager;
+// input
 class KeyboardInput;
 class MouseInput;
 class GamePadInput;
@@ -21,7 +23,7 @@ public:
     /// 読み込み等、初期化処理
     /// </summary>
     /// <param name="_path"></param>
-    void Initialize(const std::string& _path);
+    void Initialize(const std::string& _path, SceneManager* _sceneManager);
     void Finalize();
 
     /// <summary>
@@ -40,29 +42,26 @@ public:
     float Apply(KeyboardInput* key, MouseInput* mouse, GamePadInput* pad);
 
     /// <summary>
-    /// フレームを進める（順方向 or 逆方向）
-    /// </summary>
-    void StepFrame();
-
-    /// <summary>
     /// 任意のフレームにジャンプする
     /// </summary>
-    void Seek(size_t frameIndex);
+    bool Seek(size_t frameIndex);
 
 private:
-    ReplayFileHeader header_             = {};
-    std::vector<ReplayFrameData> frames_ = {};
-    std::string filepath_                = "";
-    size_t currentFrameIndex_            = 0;
+    ReplayFile fileData_      = {};
+    std::string filepath_     = "";
+    size_t currentFrameIndex_ = 0;
 
-    bool isReverse_ = false;
+    bool isActive_ = false;
 
 public:
+    bool getIsActive() const { return isActive_; }
+
+    const std::string& getFilepath() const { return filepath_; }
+    const std::string& getStartSceneName() const { return fileData_.header.startScene; }
+
+    size_t getTotalFrameCount() const { return fileData_.frameData.size(); }
     size_t getCurrentFrameIndex() const { return currentFrameIndex_; }
     void setCurrentFrameIndex(size_t index) { currentFrameIndex_ = index; }
 
-    const ReplayFrameData& getCurrentFrameData() const { return frames_[currentFrameIndex_]; }
-
-    bool getIsReverse() const { return isReverse_; }
-    void setIsReverse(bool reverse) { isReverse_ = reverse; }
+    const ReplayFrameData& getCurrentFrameData() const { return fileData_.frameData[currentFrameIndex_]; }
 };

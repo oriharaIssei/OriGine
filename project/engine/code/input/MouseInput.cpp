@@ -68,18 +68,24 @@ void MouseInput::Update() {
 }
 
 void MouseInput::setPosition(const Vec2f& pos) {
-    POINT screenPos;
-    screenPos.x = static_cast<LONG>(pos[X]);
-    screenPos.y = static_cast<LONG>(pos[Y]);
+    if (mouse_) {
+        POINT screenPos;
+        screenPos.x = static_cast<LONG>(pos[X]);
+        screenPos.y = static_cast<LONG>(pos[Y]);
 
-    ClientToScreen(hwnd_, &screenPos);
-    SetCursorPos(screenPos.x, screenPos.y);
+        ClientToScreen(hwnd_, &screenPos);
+        SetCursorPos(screenPos.x, screenPos.y);
+    }
 
     pos_        = pos;
     virtualPos_ = pos;
 }
 
 void MouseInput::ShowCursor(bool show) {
+    // カーソルの表示・非表示を切り替え
+    if (!mouse_) {
+        return;
+    }
     if (isCursorVisible_ == show) {
         return;
     }

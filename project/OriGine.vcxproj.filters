@@ -713,6 +713,9 @@
     <ClInclude Include="engine\code\debugReplayer\ReplayPlayer.h" />
     <ClInclude Include="util\Version.h" />
     <ClInclude Include="engine\code\input\InputManager.h" />
+    <ClInclude Include="editor\debugReplayer\DebugReplayWindow.h" />
+    <ClInclude Include="editor\debugReplayer\DebugReplayControlArea.h" />
+    <ClInclude Include="editor\debugReplayer\DebugReplayMenu.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="editor\EditorController.cpp">
@@ -1151,5 +1154,8 @@
     <ClCompile Include="engine\code\debugReplayer\ReplayPlayer.cpp" />
     <ClCompile Include="util\Version.cpp" />
     <ClCompile Include="engine\code\input\InputManager.cpp" />
+    <ClCompile Include="editor\debugReplayer\DebugReplayWindow.cpp" />
+    <ClCompile Include="editor\debugReplayer\DebugReplayControlArea.cpp" />
+    <ClCompile Include="editor\debugReplayer\DebugReplayMenu.cpp" />
   </ItemGroup>
 </Project>

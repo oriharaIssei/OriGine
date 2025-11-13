@@ -51,14 +51,6 @@ void Editor::Area::Finalize() {
 }
 
 void Editor::Area::UpdateFocusAndOpenState() {
-    /* if (isFocused_.isTrigger()) {
-         auto command = std::make_unique<WindowFocusCommand>(name_, &isFocused_, true);
-         EditorController::getInstance()->pushCommand(std::move(command));
-     } else if (isFocused_.isRelease()) {
-         auto command = std::make_unique<WindowFocusCommand>(name_, &isFocused_, false);
-         EditorController::getInstance()->pushCommand(std::move(command));
-     }*/
-
     if (isOpen_.isChanged()) {
         if (isOpen_.isTrigger()) {
             auto command = std::make_unique<WindowOpenCommand>(&isOpen_, true);
@@ -172,6 +164,13 @@ void Editor::Window::WindowOpenMassage() {
 void Editor::Window::WindowCloseMassage() {
     auto command = std::make_unique<WindowOpenCommand>(&isOpen_, false);
     EditorController::getInstance()->pushCommand(std::move(command));
+}
+
+void Editor::Menu::Finalize() {
+    for (auto& [name, item] : menuItems_) {
+        item->Finalize();
+        item.reset();
+    }
 }
 
 Vec2f ConvertMouseToGuiWindow(const Vec2f& _mousePos, const Vec2f& _guiWindowLT, const ImVec2& _guiWindowSize, const Vec2f& _originalResolution) {

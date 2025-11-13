@@ -154,6 +154,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="editor\debugReplayer\DebugReplayMenu.h" />
+    <ClInclude Include="editor\debugReplayer\DebugReplayControlArea.h" />
+    <ClInclude Include="editor\debugReplayer\DebugReplayWindow.h" />
     <ClInclude Include="engine\code\debugReplayer\base\ReplayData.h" />
     <ClInclude Include="engine\code\ECS\system\postRender\base\BasePostRenderingSystem.h" />
     <ClInclude Include="engine\code\ECS\system\render\base\BaseRenderSystem.h" />
@@ -342,6 +345,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="util\Version.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="editor\debugReplayer\DebugReplayMenu.cpp" />
+    <ClCompile Include="editor\debugReplayer\DebugReplayControlArea.cpp" />
+    <ClCompile Include="editor\debugReplayer\DebugReplayWindow.cpp" />
     <ClCompile Include="engine\code\ECS\system\postRender\base\BasePostRenderingSystem.cpp" />
     <ClCompile Include="engine\code\ECS\system\render\base\BaseRenderSystem.cpp" />
     <ClCompile Include="editor\EditorController.cpp" />

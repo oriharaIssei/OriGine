@@ -10,6 +10,7 @@
 
 /// util
 #include "binaryIO/BinaryIO.h"
+#include "myFileSystem/MyFileSystem.h"
 #include "StringUtil.h"
 
 ReplayRecorder::ReplayRecorder() {}
@@ -35,7 +36,8 @@ void ReplayRecorder::RecordFrame(float deltaTime, KeyboardInput* _keyInput, Mous
 
     // マウス入力の記録
     if (_mouseInput) {
-        frameData.mouseData.mousePos = _mouseInput->getPosition();
+        frameData.mouseData.mousePos   = _mouseInput->getPosition();
+        frameData.mouseData.wheelDelta = _mouseInput->getWheelDelta();
 
         frameData.mouseData.buttonData = _mouseInput->ButtonStateToBitmask();
     }
@@ -50,11 +52,16 @@ void ReplayRecorder::RecordFrame(float deltaTime, KeyboardInput* _keyInput, Mous
     }
 
     frames_.push_back(frameData);
+    header_.frameCount = static_cast<uint32_t>(frames_.size());
 }
 
 bool ReplayRecorder::SaveToFile(const std::string& _directory) {
+    // _directory を 念のため作成しておく
+    myfs::createFolder(_directory);
+
     // ファイルを開く
-    std::string path = _directory + "/" + TimeToString();
+    // rpd = Replay debug
+    std::string path = _directory + "/" + TimeToString() + '.' + kReplayFileExtension;
 
     std::ofstream ofs;
     ofs.open(path, std::ios::binary);
@@ -95,8 +102,8 @@ void ReplayRecorder::WriteHeader(std::ofstream& _ofs) {
     }
     // フレーム数
     {
-        uint32_t frameCount = static_cast<uint32_t>(frames_.size());
-        _ofs.write(reinterpret_cast<const char*>(&frameCount), sizeof(uint32_t));
+        header_.frameCount = static_cast<uint32_t>(frames_.size());
+        _ofs.write(reinterpret_cast<const char*>(&header_.frameCount), sizeof(uint32_t));
     }
 }
 
@@ -126,6 +133,9 @@ void ReplayRecorder::WriteFrameData(std::ofstream& _ofs, size_t _frameIndex) {
         // マウス位置
         _ofs.write(reinterpret_cast<const char*>(&frame.mouseData.mousePos[X]), sizeof(float));
         _ofs.write(reinterpret_cast<const char*>(&frame.mouseData.mousePos[Y]), sizeof(float));
+        // ホイールデルタ
+        _ofs.write(reinterpret_cast<const char*>(&frame.mouseData.wheelDelta), sizeof(int32_t));
+
         // ボタンデータ
         _ofs.write(reinterpret_cast<const char*>(&frame.mouseData.buttonData), sizeof(uint32_t));
     }

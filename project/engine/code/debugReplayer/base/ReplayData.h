@@ -20,6 +20,7 @@
 /// </summary>
 struct ReplayFrameMouseData {
     Vec2f mousePos;
+    int32_t wheelDelta;
 
     uint32_t buttonData;
 };
@@ -58,9 +59,28 @@ struct ReplayFileHeader {
 };
 
 /// <summary>
+/// リプレイファイルの拡張子
+/// </summary>
+constexpr const char* kReplayFileExtension = "rpd";
+
+/// <summary>
+/// リプレイフォルダ名
+/// </summary>
+constexpr const char* kReplayFolderName = "replays";
+
+/// <summary>
 /// リプレイファイル全体
 /// </summary>
 struct ReplayFile {
+    void Initialize() {
+        header = {};
+        frameData.clear();
+    }
+    void Finalize() {
+        header = {};
+        frameData.clear();
+    }
+
     ReplayFileHeader header;
     std::vector<ReplayFrameData> frameData;
 };
