@@ -576,9 +576,6 @@
     <ClInclude Include="engine\code\imGuiManager\ImGuiManager.h">
       <Filter>engine\code\imGuiManager</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\input\InputManager.h">
-      <Filter>engine\code\input</Filter>
-    </ClInclude>
     <ClInclude Include="engine\code\logger\ImGuiLogSink.h">
       <Filter>engine\code\logger</Filter>
     </ClInclude>
@@ -666,16 +663,13 @@
     <ClInclude Include="util\BitArray.h">
       <Filter>util</Filter>
     </ClInclude>
-    <ClInclude Include="util\ConvertString.h">
+    <ClInclude Include="util\StringUtil.h">
       <Filter>util</Filter>
     </ClInclude>
     <ClInclude Include="util\DiffValue.h">
       <Filter>util</Filter>
     </ClInclude>
     <ClInclude Include="util\EnumBitMask.h">
-      <Filter>util</Filter>
-    </ClInclude>
-    <ClInclude Include="util\NormalizeString.h">
       <Filter>util</Filter>
     </ClInclude>
     <ClInclude Include="util\binaryIO\BinaryIO.h">
@@ -714,6 +708,14 @@
     <ClInclude Include="engine\code\input\MouseInput.h" />
     <ClInclude Include="engine\code\input\GamePadInput.h" />
     <ClInclude Include="engine\code\input\include\IncludeInputAPI.h" />
+    <ClInclude Include="engine\code\debugReplayer\ReplayRecorder.h" />
+    <ClInclude Include="engine\code\debugReplayer\base\ReplayData.h" />
+    <ClInclude Include="engine\code\debugReplayer\ReplayPlayer.h" />
+    <ClInclude Include="util\Version.h" />
+    <ClInclude Include="engine\code\input\InputManager.h" />
+    <ClInclude Include="editor\debugReplayer\DebugReplayWindow.h" />
+    <ClInclude Include="editor\debugReplayer\DebugReplayControlArea.h" />
+    <ClInclude Include="editor\debugReplayer\DebugReplayMenu.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="editor\EditorController.cpp">
@@ -1079,9 +1081,6 @@
     <ClCompile Include="engine\code\imGuiManager\ImGuiManager.cpp">
       <Filter>engine\code\imGuiManager</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\input\InputManager.cpp">
-      <Filter>engine\code\input</Filter>
-    </ClCompile>
     <ClCompile Include="engine\code\logger\Logger.cpp">
       <Filter>engine\code\logger</Filter>
     </ClCompile>
@@ -1121,10 +1120,7 @@
     <ClCompile Include="math\Sequence.cpp">
       <Filter>math</Filter>
     </ClCompile>
-    <ClCompile Include="util\ConvertString.cpp">
-      <Filter>util</Filter>
-    </ClCompile>
-    <ClCompile Include="util\NormalizeString.cpp">
+    <ClCompile Include="util\StringUtil.cpp">
       <Filter>util</Filter>
     </ClCompile>
     <ClCompile Include="util\binaryIO\BinaryIO.cpp">
@@ -1154,5 +1150,12 @@
     <ClCompile Include="engine\code\input\KeyboardInput.cpp" />
     <ClCompile Include="engine\code\input\MouseInput.cpp" />
     <ClCompile Include="engine\code\input\GamePadInput.cpp" />
+    <ClCompile Include="engine\code\debugReplayer\ReplayRecorder.cpp" />
+    <ClCompile Include="engine\code\debugReplayer\ReplayPlayer.cpp" />
+    <ClCompile Include="util\Version.cpp" />
+    <ClCompile Include="engine\code\input\InputManager.cpp" />
+    <ClCompile Include="editor\debugReplayer\DebugReplayWindow.cpp" />
+    <ClCompile Include="editor\debugReplayer\DebugReplayControlArea.cpp" />
+    <ClCompile Include="editor\debugReplayer\DebugReplayMenu.cpp" />
   </ItemGroup>
 </Project>

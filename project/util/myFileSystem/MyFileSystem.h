@@ -7,8 +7,8 @@
 #include <filesystem>
 #include <string>
 // thread
-#include <thread>
 #include <atomic>
+#include <thread>
 
 /// <summary>
 /// std::filesystemを自分用にわかりやすくラップしたクラス

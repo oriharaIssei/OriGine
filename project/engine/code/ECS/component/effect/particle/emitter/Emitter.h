@@ -183,6 +183,7 @@ private:
 
 public:
     bool IsActive() const { return isActive_; }
+    bool ParticleIsEmpty() const { return particles_.empty(); }
     bool getIsLoop() const { return isLoop_; }
     void setIsLoop(bool _isLoop) { isLoop_ = _isLoop; }
 

@@ -111,6 +111,7 @@ void EditorController::Update() {
     ExecuteCommandRequests();
 
     // Undo Redo
+    // 直接Inputを参照
     KeyboardInput* keyInput = InputManager::getInstance()->getKeyboard();
     if (keyInput->isPress(DIK_LCONTROL)) {
         if (keyInput->isPress(DIK_LSHIFT)) {

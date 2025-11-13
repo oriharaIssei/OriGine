@@ -25,6 +25,13 @@ void SubSceneUpdate::UpdateEntity(Entity* _entity) {
                 subScene.Deactivate();
                 continue;
             }
+
+            // 入力デバイスを継承
+            scene->setInputDevices(
+                getScene()->getKeyboardInput(),
+                getScene()->getMouseInput(),
+                getScene()->getGamePadInput());
+
             scene->Update();
         }
     }

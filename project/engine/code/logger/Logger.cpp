@@ -17,28 +17,12 @@
 #include "ImGuiLogSink.h"
 #endif //_DEBUG
 
-
 #include "myFileSystem/MyFileSystem.h"
 
 /// util
-#include "util/ConvertString.h"
+#include "util/StringUtil.h"
 
 std::shared_ptr<spdlog::logger> Logger::logger_ = nullptr;
-
-static std::string getCurrentDateTime() {
-    // 現在時刻を取得
-    auto now        = std::chrono::system_clock::now();
-    auto time_t_now = std::chrono::system_clock::to_time_t(now);
-
-    // tm構造体を安全に取得
-    struct tm time_info;
-    localtime_s(&time_info, &time_t_now);
-
-    // 時刻をフォーマット
-    std::ostringstream oss;
-    oss << std::put_time(&time_info, "%Y-%m-%d_%H-%M-%S");
-    return oss.str();
-}
 
 static std::string getCurrentConfigString() {
 #if defined(_DEBUG)
@@ -63,7 +47,7 @@ void Logger::Initialize() {
             古いファイルを削除して 新しいファイルを作成する.
         */
         const std::string logFolder   = kEngineResourceDirectory + "/logs";
-        const std::string logFileName = getCurrentDateTime() + ".log";
+        const std::string logFileName = TimeToString() + ".log";
 
         const size_t kMaxFileSize = static_cast<size_t>(1048576) * 5; // 5MB
         const size_t kMaxFiles    = 3; // 3ファイルまで保存

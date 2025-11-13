@@ -10,6 +10,11 @@
 #include "Engine.h"
 #include "logger/Logger.h"
 #include "winApp/WinApp.h"
+// input
+#include "input/GamePadInput.h"
+#include "input/InputManager.h"
+#include "input/KeyboardInput.h"
+#include "input/MouseInput.h"
 
 #define ENGINE_INPUT
 #define RESOURCE_DIRECTORY
@@ -36,29 +41,33 @@
 
 #pragma region "SceneManager"
 
-SceneManager* SceneManager::getInstance() {
-    static SceneManager instance;
-    return &instance;
-}
-
 SceneManager::SceneManager() {}
-
 SceneManager::~SceneManager() {}
 
-void SceneManager::Initialize(const std::string& _startScene) {
+void SceneManager::Initialize(const std::string& _startScene, KeyboardInput* _keyInput, MouseInput* _mouseInput, GamePadInput* _padInput) {
+    // 入力デバイスの設定
+    keyInput_   = _keyInput;
+    mouseInput_ = _mouseInput;
+    padInput_   = _padInput;
+
     // シーンの初期化
     currentScene_ = std::make_unique<Scene>(_startScene);
+    // シーンの入力デバイスを設定
+    currentScene_->setInputDevices(keyInput_, mouseInput_, padInput_);
+    // シーンの初期化処理
     currentScene_->Initialize();
     // シーンビューの初期化
     currentScene_->getSceneView()->Resize(Engine::getInstance()->getWinApp()->getWindowSize());
+    // シーンマネージャーの設定 (this)
+    currentScene_->setSceneManager(this);
 
 #ifdef _DEVELOP
     fileWatcher_ = std::make_unique<FileWatcher>(kApplicationResourceDirectory + "/scene/" + _startScene + ".json");
     fileWatcher_->Start();
 #endif // _DEVELOP
 }
-void SceneManager::Initialize() {
-    this->Initialize(startupSceneName_);
+void SceneManager::Initialize(KeyboardInput* _keyInput, MouseInput* _mouseInput, GamePadInput* _padInput) {
+    this->Initialize(startupSceneName_, _keyInput, _mouseInput, _padInput);
 }
 
 void SceneManager::Finalize() {
@@ -80,12 +89,10 @@ void SceneManager::Update() {
         return;
     }
     currentScene_->Update();
+}
 
+void SceneManager::Render() {
     currentScene_->Render();
-
-    Engine::getInstance()->ScreenPreDraw();
-    currentScene_->getSceneView()->DrawTexture();
-    Engine::getInstance()->ScreenPostDraw();
 }
 
 const std::string& SceneManager::getCurrentSceneName() const { return currentScene_->getName(); }
@@ -101,7 +108,14 @@ void SceneManager::executeSceneChange() {
     currentScene_->Finalize();
     currentScene_ = std::make_unique<Scene>(changingSceneName_);
 
+    // 入力デバイスの設定
+    currentScene_->setInputDevices(keyInput_, mouseInput_, padInput_);
+    // シーンの初期化処理
     currentScene_->Initialize();
+    // シーンビューの初期化
+    currentScene_->getSceneView()->Resize(Engine::getInstance()->getWinApp()->getWindowSize());
+    // シーンマネージャーの設定 (this)
+    currentScene_->setSceneManager(this);
 
 #ifdef _DEVELOP
     // 監視対象を変更

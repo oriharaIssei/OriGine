@@ -1,7 +1,11 @@
-#include "ConvertString.h"
+#include "StringUtil.h"
 
 /// api
 #include <Windows.h>
+
+/// stl
+#include <algorithm>
+#include <chrono>
 
 std::wstring ConvertString(const std::string& str) {
     if (str.empty()) {
@@ -54,4 +58,25 @@ std::string HrToString(HRESULT hr) {
         result = "Unknown error";
     }
     return result;
+}
+
+std::string NormalizeString(const std::string& path) {
+    std::string normalized = path;
+    std::replace(normalized.begin(), normalized.end(), '\\', '/');
+    return normalized;
+}
+
+std::string TimeToString() {
+    // 現在時刻を取得
+    auto now        = std::chrono::system_clock::now();
+    auto time_t_now = std::chrono::system_clock::to_time_t(now);
+
+    // tm構造体を安全に取得
+    struct tm time_info;
+    localtime_s(&time_info, &time_t_now);
+
+    // 時刻をフォーマット
+    std::ostringstream oss;
+    oss << std::put_time(&time_info, "%Y-%m-%d_%H-%M-%S");
+    return oss.str();
 }

@@ -156,14 +156,12 @@ void DissolveEffect::RenderEnd() {
 }
 
 void DissolveEffect::DispatchComponent(Entity* _entity) {
-
     auto effectParams = getComponents<DissolveEffectParam>(_entity);
 
     if (!effectParams) {
         return; // コンポーネントがない場合は何もしない
     }
-    auto& commandList = dxCommand_->getCommandList();
-
+  
     for (auto& param : *effectParams) {
         if (!param.isActive()) {
             continue;

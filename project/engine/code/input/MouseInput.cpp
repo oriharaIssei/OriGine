@@ -31,16 +31,17 @@ void MouseInput::Initialize(IDirectInput8* directInput, HWND hwnd) {
 }
 
 void MouseInput::Update() {
-    if (!mouse_)
+    if (!mouse_) {
         return;
+    }
 
-    prev_ = current_;
+    DIMOUSESTATE2 current{};
 
     // デバイスの状態を取得
-    HRESULT hr = mouse_->GetDeviceState(sizeof(DIMOUSESTATE2), &current_);
+    HRESULT hr = mouse_->GetDeviceState(sizeof(DIMOUSESTATE2), &current);
     if (FAILED(hr)) {
         mouse_->Acquire();
-        mouse_->GetDeviceState(sizeof(DIMOUSESTATE2), &current_);
+        mouse_->GetDeviceState(sizeof(DIMOUSESTATE2), &current);
     }
 
     // マウス座標の更新
@@ -49,27 +50,42 @@ void MouseInput::Update() {
     GetCursorPos(&p);
     ScreenToClient(hwnd_, &p);
     pos_ = Vec2f(static_cast<float>(p.x), static_cast<float>(p.y));
+    // virtual position を更新
+    virtualPos_ = pos_;
 
     // 移動量を算出
     velocity_ = pos_ - prevPos_;
 
-    // virtual position を更新
-    virtualPos_ = pos_;
+    // ボタン状態の更新
+    prevButtonStates_ = currentButtonStates_;
+    for (size_t i = 0; i < currentButtonStates_.size(); ++i) {
+        currentButtonStates_[i] = (current.rgbButtons[i] & 0x80) != 0;
+    }
+
+    // ホイール状態の更新
+    prevWheelDelta_    = currentWheelDelta_;
+    currentWheelDelta_ = static_cast<int32_t>(current.lZ);
 }
 
 void MouseInput::setPosition(const Vec2f& pos) {
-    POINT screenPos;
-    screenPos.x = static_cast<LONG>(pos[X]);
-    screenPos.y = static_cast<LONG>(pos[Y]);
+    if (mouse_) {
+        POINT screenPos;
+        screenPos.x = static_cast<LONG>(pos[X]);
+        screenPos.y = static_cast<LONG>(pos[Y]);
 
-    ClientToScreen(hwnd_, &screenPos);
-    SetCursorPos(screenPos.x, screenPos.y);
+        ClientToScreen(hwnd_, &screenPos);
+        SetCursorPos(screenPos.x, screenPos.y);
+    }
 
     pos_        = pos;
     virtualPos_ = pos;
 }
 
 void MouseInput::ShowCursor(bool show) {
+    // カーソルの表示・非表示を切り替え
+    if (!mouse_) {
+        return;
+    }
     if (isCursorVisible_ == show) {
         return;
     }
@@ -82,4 +98,14 @@ void MouseInput::Finalize() {
         mouse_->Unacquire();
         mouse_.Reset();
     }
+}
+
+uint32_t MouseInput::ButtonStateToBitmask() const {
+    uint32_t mask = 0;
+    for (size_t i = 0; i < MOUSE_BUTTON_COUNT; ++i) {
+        if (currentButtonStates_[i]) {
+            mask |= (1u << i);
+        }
+    }
+    return mask;
 }

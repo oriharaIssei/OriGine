@@ -5,7 +5,7 @@
 #include <cassert>
 
 /// util
-#include "util/ConvertString.h"
+#include "util/StringUtil.h"
 
 void DxDevice::Initialize() {
     HRESULT result;

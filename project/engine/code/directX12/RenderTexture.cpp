@@ -15,7 +15,7 @@
 #include "Vector2.h"
 
 /// util
-#include "util/ConvertString.h"
+#include "util/StringUtil.h"
 
 PipelineStateObj* RenderTexture::pso_;
 
@@ -148,6 +148,7 @@ void RenderTexture::Initialize(
         ResourceStateTracker::RegisterResource(renderTarget.resource_.getResource(), D3D12_RESOURCE_STATE_RENDER_TARGET);
     }
 
+    // 名前つける
     std::wstring wName = ConvertString(textureName_);
     int32_t index      = 0;
     for (auto& renderTarget : renderTargets_) {

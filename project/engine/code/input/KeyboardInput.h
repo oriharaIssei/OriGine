@@ -229,7 +229,11 @@ static std::map<Key, std::string> keyNameMap = {
     {Key::NUMPAD0, "NUMPAD0"},
     {Key::DECIMAL, "DECIMAL"}};
 
+constexpr uint32_t KEY_COUNT = 256;
+
 class KeyboardInput {
+    friend class ReplayPlayer;
+
 public:
     KeyboardInput()  = default;
     ~KeyboardInput() = default;
@@ -256,10 +260,21 @@ public:
 
 private:
     Microsoft::WRL::ComPtr<IDirectInputDevice8> keyboard_;
-    std::array<BYTE, 256> keys_{};
-    std::array<BYTE, 256> prevKeys_{};
+    std::array<BYTE, KEY_COUNT> keys_{};
+    std::array<BYTE, KEY_COUNT> prevKeys_{};
 
 public:
+    const std::array<BYTE, KEY_COUNT>& getKeyStates() const { return keys_; }
+    const std::array<BYTE, KEY_COUNT>& getPrevKeyStates() const { return prevKeys_; }
+
+    /// <summary>
+    /// キー状態をクリアする(今と前回分の状態を初期化)
+    /// </summary>
+    void clearKeyStates() {
+        keys_.fill(0);
+        prevKeys_.fill(0);
+    }
+
     /// <summary>
     /// キーが押されているか
     /// </summary>

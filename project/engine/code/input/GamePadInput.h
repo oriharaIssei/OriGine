@@ -53,10 +53,14 @@ static std::map<PadButton, std::string> padButtonNameMap = {
     {PadButton::L_TRIGGER, "L_TRIGGER"},
     {PadButton::R_TRIGGER, "R_TRIGGER"}};
 
+constexpr uint32_t PAD_BUTTON_COUNT = 16;
+
 /// <summary>
 /// XInput対応ゲームパッド入力を管理するクラス
 /// </summary>
 class GamePadInput {
+    friend class ReplayPlayer;
+
 public:
     GamePadInput()  = default;
     ~GamePadInput() = default;
@@ -74,11 +78,38 @@ public:
     /// </summary>
     void Update();
 
-private:
-    void UpdateStickValues();
+    void Finalize();
+
+    /// <summary>
+    /// ボタン状態をクリア
+    /// </summary>
+    void clearButtonStates() {
+        buttonMask_     = 0;
+        prevButtonMask_ = 0;
+    }
+    /// <summary>
+    /// スティック状態をクリア
+    /// </summary>
+    void clearStickStates() {
+        lStick_ = Vec2f();
+        rStick_ = Vec2f();
+    }
+    /// <summary>
+    /// トリガー状態をクリア
+    /// </summary>
+    void clearTriggerStates() {
+        lTrigger_ = 0.0f;
+        rTrigger_ = 0.0f;
+    }
 
 private:
-    XINPUT_STATE state_{};
+    /// <summary>
+    /// スティックの値を正規化して更新
+    /// </summary>
+    /// <param name="_state"></param>
+    void UpdateStickValues(XINPUT_STATE _state);
+
+private:
     // 仮想ボタンマスク
     uint32_t buttonMask_;
     uint32_t prevButtonMask_;
@@ -89,9 +120,15 @@ private:
     Vec2f lStick_{};
     Vec2f rStick_{};
 
+    float lTrigger_ = 0.0f;
+    float rTrigger_ = 0.0f;
+
     bool isActive_ = false;
 
 public:
+    uint32_t getButtonMask() const { return buttonMask_; }
+    uint32_t getPrevButtonMask() const { return prevButtonMask_; }
+
     /// <summary>
     /// ゲームパッドが有効か
     /// </summary>
@@ -128,6 +165,6 @@ public:
     /// <summary>
     /// 左右トリガー値
     /// </summary>
-    float getLTrigger() const { return static_cast<float>(state_.Gamepad.bLeftTrigger) / *triggerDeadZone_.getValue(); }
-    float getRTrigger() const { return static_cast<float>(state_.Gamepad.bRightTrigger) / *triggerDeadZone_.getValue(); }
+    float getLTrigger() const { return lTrigger_; }
+    float getRTrigger() const { return rTrigger_; }
 };
