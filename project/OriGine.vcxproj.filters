@@ -765,6 +765,9 @@
     <ClInclude Include="util\timeline\Timeline.h">
       <Filter>util\timeline</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\renderer\primitive\shape\Cylinder.h" />
+    <ClInclude Include="engine\code\ECS\component\renderer\primitive\CylinderRenderer.h" />
+    <ClInclude Include="engine\code\ECS\component\renderer\primitive\base\PrimitiveMeshFactory.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="editor\EditorController.cpp">
@@ -921,9 +924,6 @@
       <Filter>engine\code\ECS\component\renderer\primitive</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\component\renderer\primitive\PlaneRenderer.cpp">
-      <Filter>engine\code\ECS\component\renderer\primitive</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\code\ECS\component\renderer\primitive\PrimitiveMeshRenderer.cpp">
       <Filter>engine\code\ECS\component\renderer\primitive</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\component\renderer\primitive\RingRenderer.cpp">
@@ -1238,5 +1238,8 @@
     <ClCompile Include="util\timeline\Timeline.cpp">
       <Filter>util\timeline</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\ECS\component\renderer\primitive\shape\Cylinder.cpp" />
+    <ClCompile Include="engine\code\ECS\component\renderer\primitive\CylinderRenderer.cpp" />
+    <ClCompile Include="engine\code\ECS\component\renderer\primitive\base\PrimitiveMeshFactory.cpp" />
   </ItemGroup>
 </Project>

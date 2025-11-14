@@ -12,7 +12,7 @@ enum class PrimitiveType : int32_t {
     Box, // 立方体
     Sphere, // 球
     //  Torus, // トーラス
-    //  Cylinder, // 円柱
+     Cylinder, // 円柱
     //  Cone // 円錐
 
     Count

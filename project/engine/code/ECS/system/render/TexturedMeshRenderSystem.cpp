@@ -17,6 +17,7 @@
 #include "component/renderer/SkyboxRenderer.h"
 // primitives
 #include "component/renderer/primitive/BoxRenderer.h"
+#include "component/renderer/primitive/CylinderRenderer.h"
 #include "component/renderer/primitive/PlaneRenderer.h"
 #include "component/renderer/primitive/RingRenderer.h"
 #include "component/renderer/primitive/SphereRenderer.h"
@@ -92,6 +93,7 @@ void TexturedMeshRenderSystem::DispatchRenderer(Entity* _entity) {
     dispatchPrimitive(getComponents<RingRenderer>(_entity));
     dispatchPrimitive(getComponents<BoxRenderer>(_entity));
     dispatchPrimitive(getComponents<SphereRenderer>(_entity));
+    dispatchPrimitive(getComponents<CylinderRenderer>(_entity));
 }
 
 void TexturedMeshRenderSystem::RenderingBy(BlendMode _blendMode, bool _isCulling) {

@@ -26,8 +26,8 @@ public:
     /// <summary>
     /// 自身のプリミティブ情報をもとにメッシュを作成
     /// </summary>
-    virtual void createMesh(TextureMesh* _mesh) {
-        primitive_.createMesh(_mesh);
+    virtual void CreateMesh(TextureMesh* _mesh) {
+        primitive_.CreateMesh(_mesh);
     }
 
 protected:

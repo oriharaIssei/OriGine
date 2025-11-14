@@ -5,7 +5,7 @@ namespace Primitive {
 /// =====================================================
 /// Box
 /// =====================================================
-void Box::createMesh(TextureMesh* _mesh) {
+void Box::CreateMesh(TextureMesh* _mesh) {
     if (_mesh->getIndexCapacity() < indexSize_) {
         // 必要なら Finalize
         if (_mesh->getVertexBuffer().getResource()) {

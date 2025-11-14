@@ -8,7 +8,7 @@ namespace Primitive {
 /// =====================================================
 /// Sphere
 /// ====================================================
-void Sphere::createMesh(TextureMesh* _mesh) {
+void Sphere::CreateMesh(TextureMesh* _mesh) {
     // パラメータ
     const uint32_t latitudeDiv  = divisionLatitude_; // 緯度分割数
     const uint32_t longitudeDiv = divisionLongitude_; // 経度分割数

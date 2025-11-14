@@ -72,7 +72,6 @@ void DebugCamera::TranslationState::Update() {
     Vec3f velo = {};
 
     Vector3 inputVal = {mouseInput->getVelocity(), (float)mouseInput->getWheelDelta()};
-    inputVal         = inputVal * kMouseSensitivity;
 
     // 状態に応じた移動処理
     // wheel -> Z方向移動

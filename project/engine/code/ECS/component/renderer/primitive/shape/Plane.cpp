@@ -5,7 +5,7 @@ namespace Primitive {
 /// =====================================================
 /// Plane
 /// =====================================================
-void Plane::createMesh(TextureMesh* _mesh) {
+void Plane::CreateMesh(TextureMesh* _mesh) {
     vertexSize_ = 4; // 頂点数
     indexSize_  = 6; // インデックス数
 

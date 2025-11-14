@@ -34,7 +34,7 @@ void PlaneRenderer::Initialize(Entity* _hostEntity) {
     materialBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
 
     // create _mesh
-    createMesh(&mesh);
+    CreateMesh(&mesh);
 
     // loadTexture
     if (!textureDirectory_.empty() && !textureFileName_.empty()) {
@@ -44,6 +44,9 @@ void PlaneRenderer::Initialize(Entity* _hostEntity) {
 
 void PlaneRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
+    ImGui::SeparatorText("Material");
+    ImGui::Spacing();
+
     ImGui::Text("BlendMode :");
     ImGui::SameLine();
     std::string label = "##BlendMode" + _parentLabel;
@@ -56,40 +59,13 @@ void PlaneRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity
             if (ImGui::Selectable(blendModeName.c_str(), isSelected)) {
                 EditorController::getInstance()->pushCommand(
                     std::make_unique<SetterCommand<BlendMode>>(&currentBlend_, static_cast<BlendMode>(blendIndex)));
-
                 break;
             }
 
-            blendIndex++;
+            ++blendIndex;
         }
         ImGui::EndCombo();
     }
-
-    ImGui::Text("Texture Directory : %s", textureDirectory_.c_str());
-    ImGui::Text("Texture FileName  : %s", textureFileName_.c_str());
-
-    label = "LoadTexture##" + _parentLabel;
-    if (ImGui::Button(label.c_str())) {
-        std::string directory = "";
-        std::string fileName  = "";
-        if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"png"})) {
-            auto commandCombo = std::make_unique<CommandCombo>();
-
-            commandCombo->addCommand(std::make_shared<SetterCommand<std::string>>(&textureDirectory_, kApplicationResourceDirectory + "/" + directory));
-            commandCombo->addCommand(std::make_shared<SetterCommand<std::string>>(&textureFileName_, fileName));
-
-            commandCombo->setFuncOnAfterCommand([this]() { textureIndex_ = TextureManager::LoadTexture(textureDirectory_ + "/" + textureFileName_); }, true);
-
-            EditorController::getInstance()->pushCommand(std::move(commandCombo));
-        }
-    }
-    label = "Transform##" + _parentLabel;
-    if (ImGui::TreeNode(label.c_str())) {
-        transformBuff_.openData_.Edit(_scene, _entity, "Transform" + _parentLabel);
-        ImGui::TreePop();
-    }
-
-    ImGui::Spacing();
 
     label                      = "MaterialIndex##" + _parentLabel;
     auto materials             = _scene->getComponents<Material>(_entity);
@@ -104,6 +80,36 @@ void PlaneRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity
             materialBuff_.ConvertToBuffer(materials->operator[](materialIndex_));
             ImGui::TreePop();
         }
+    }
+    ImGui::Spacing();
+
+    // texture
+    ImGui::Text("Texture Directory : %s", textureDirectory_.c_str());
+    ImGui::Text("Texture FileName  : %s", textureFileName_.c_str());
+    label = "LoadTexture##" + _parentLabel;
+    if (AskLoadTextureButton(textureIndex_, _parentLabel)) {
+        std::string directory = "";
+        std::string fileName  = "";
+        if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"png"})) {
+            auto commandCombo = std::make_unique<CommandCombo>();
+            commandCombo->addCommand(std::make_shared<SetterCommand<std::string>>(&textureDirectory_, kApplicationResourceDirectory + "/" + directory));
+            commandCombo->addCommand(std::make_shared<SetterCommand<std::string>>(&textureFileName_, fileName));
+            commandCombo->setFuncOnAfterCommand([this]() { textureIndex_ = TextureManager::LoadTexture(textureDirectory_ + "/" + textureFileName_); }, true);
+            EditorController::getInstance()->pushCommand(std::move(commandCombo));
+        }
+    }
+
+    ImGui::Spacing();
+    ImGui::SeparatorText("Transform");
+    ImGui::Spacing();
+
+    // buffer Datas
+    label = "Transform##" + _parentLabel;
+    if (ImGui::TreeNode(label.c_str())) {
+        transformBuff_.openData_.Edit(_scene, _entity, _parentLabel);
+
+        transformBuff_.ConvertToBuffer();
+        ImGui::TreePop();
     }
 
 #endif // _DEBUG

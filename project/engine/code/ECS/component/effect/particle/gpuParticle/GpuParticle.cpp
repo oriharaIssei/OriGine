@@ -17,7 +17,7 @@
 
 void GpuParticleEmitter::Initialize(Entity* /*_entity*/) {
     Primitive::Plane plane;
-    plane.createMesh(&mesh_);
+    plane.CreateMesh(&mesh_);
 
     if (!texturePath_.empty()) {
         textureIndex_ = TextureManager::LoadTexture(texturePath_);

@@ -4,36 +4,24 @@
 
 namespace Primitive {
 
+constexpr int32_t kBoxVertexCount = 8;
+constexpr int32_t kBoxIndexCount  = 36;
+
 // <summary>
 /// Box(立方体)のPrimitiveクラス
 /// </summary>
-class Box
+struct Box
     : public IPrimitive {
 public:
-    Box(int32_t _vertexSize = 8, int32_t _indexSize = 36) : IPrimitive(PrimitiveType::Box) {
+    Box(int32_t _vertexSize = kBoxVertexCount, int32_t _indexSize = kBoxIndexCount) : IPrimitive(PrimitiveType::Box) {
         vertexSize_ = _vertexSize; // 立方体の頂点数
         indexSize_  = _indexSize; // 立方体のインデックス数
     }
     ~Box() override {}
-    void createMesh(TextureMesh* _mesh) override;
-
-private:
-    Vec3f halfSize_;
+    void CreateMesh(TextureMesh* _mesh) override;
 
 public:
-    const Vec3f& getHalf() const {
-        return halfSize_;
-    }
-    void setHalfSize(const Vec3f& _halfSize) {
-        halfSize_ = _halfSize;
-    }
-
-    Vec3f getSize() const {
-        return halfSize_ * 2.0f;
-    }
-    void setSize(const Vec3f& _size) {
-        halfSize_ = _size / 2.0f;
-    }
+    Vec3f halfSize_;
 };
 
 }

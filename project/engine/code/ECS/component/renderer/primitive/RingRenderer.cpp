@@ -33,7 +33,7 @@ void RingRenderer::Initialize(Entity* _hostEntity) {
     materialBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
 
     // create _mesh
-    createMesh(&mesh);
+    CreateMesh(&mesh);
 
     // loadTexture
     if (!textureDirectory_.empty() && !textureFileName_.empty()) {
@@ -43,6 +43,9 @@ void RingRenderer::Initialize(Entity* _hostEntity) {
 
 void RingRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
+    ImGui::SeparatorText("Material");
+    ImGui::Spacing();
+
     ImGui::Text("BlendMode :");
     ImGui::SameLine();
     std::string label = "##BlendMode" + _parentLabel;
@@ -58,67 +61,9 @@ void RingRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity*
                 break;
             }
 
-            blendIndex++;
+            ++blendIndex;
         }
         ImGui::EndCombo();
-    }
-
-    // texture
-    ImGui::Text("Texture Directory : %s", textureDirectory_.c_str());
-    ImGui::Text("Texture FileName  : %s", textureFileName_.c_str());
-    label = "LoadTexture##" + _parentLabel;
-    if (ImGui::Button(label.c_str())) {
-        std::string directory = "";
-        std::string fileName  = "";
-        if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"png"})) {
-            auto commandCombo = std::make_unique<CommandCombo>();
-            commandCombo->addCommand(std::make_shared<SetterCommand<std::string>>(&textureDirectory_, kApplicationResourceDirectory + "/" + directory));
-            commandCombo->addCommand(std::make_shared<SetterCommand<std::string>>(&textureFileName_, fileName));
-            commandCombo->setFuncOnAfterCommand([this]() { textureIndex_ = TextureManager::LoadTexture(textureDirectory_ + "/" + textureFileName_); }, true);
-            EditorController::getInstance()->pushCommand(std::move(commandCombo));
-        }
-    }
-
-    ImGui::Spacing();
-    ImGui::SeparatorText("Shape");
-    ImGui::Spacing();
-
-    // shape
-    int32_t division = primitive_.getDivision();
-    label            = "Division##" + _parentLabel;
-    DragGuiCommand<int32_t>(label, division, 1, 1, 1000, "%d", [this](int32_t* _value) {
-        primitive_.setDivision(static_cast<uint32_t>(*_value));
-        createMesh(&meshGroup_->back());
-    });
-    primitive_.setDivision(static_cast<uint32_t>(division));
-
-    float innerRadius = primitive_.getInnerRadius();
-    label             = "InnerRadius##" + _parentLabel;
-    DragGuiCommand<float>(label, innerRadius, 0.01f, 0.01f, 100.f, "%.2f", [this](float* _value) {
-        primitive_.setInnerRadius(*_value);
-        createMesh(&meshGroup_->back());
-    });
-    primitive_.setInnerRadius(innerRadius);
-
-    float outerRadius = primitive_.getOuterRadius();
-    label             = "OuterRadius##" + _parentLabel;
-    DragGuiCommand<float>(label, outerRadius, 0.01f, 0.01f, 100.f, "%.2f", [this](float* _value) {
-        primitive_.setOuterRadius(*_value);
-        createMesh(&meshGroup_->back());
-    });
-    primitive_.setOuterRadius(outerRadius);
-
-    ImGui::Spacing();
-    ImGui::Separator();
-    ImGui::Spacing();
-
-    // buffer Datas
-    label = "Transform##" + _parentLabel;
-    if (ImGui::TreeNode(label.c_str())) {
-        transformBuff_.openData_.Edit(_scene, _entity, _parentLabel);
-        transformBuff_.ConvertToBuffer();
-
-        ImGui::TreePop();
     }
 
     label                      = "MaterialIndex##" + _parentLabel;
@@ -135,6 +80,60 @@ void RingRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity*
             ImGui::TreePop();
         }
     }
+    ImGui::Spacing();
+
+    // texture
+    ImGui::Text("Texture Directory : %s", textureDirectory_.c_str());
+    ImGui::Text("Texture FileName  : %s", textureFileName_.c_str());
+    label = "LoadTexture##" + _parentLabel;
+    if (AskLoadTextureButton(textureIndex_, _parentLabel)) {
+        std::string directory = "";
+        std::string fileName  = "";
+        if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"png"})) {
+            auto commandCombo = std::make_unique<CommandCombo>();
+            commandCombo->addCommand(std::make_shared<SetterCommand<std::string>>(&textureDirectory_, kApplicationResourceDirectory + "/" + directory));
+            commandCombo->addCommand(std::make_shared<SetterCommand<std::string>>(&textureFileName_, fileName));
+            commandCombo->setFuncOnAfterCommand([this]() { textureIndex_ = TextureManager::LoadTexture(textureDirectory_ + "/" + textureFileName_); }, true);
+            EditorController::getInstance()->pushCommand(std::move(commandCombo));
+        }
+    }
+
+    // shape
+    ImGui::Spacing();
+    ImGui::SeparatorText("Ring");
+    ImGui::Spacing();
+
+    // shape
+    label = "Division##" + _parentLabel;
+    DragGuiCommand<uint32_t>(label, primitive_.division_, 1, 1, 1000, "%d", [this](uint32_t* _value) {
+        primitive_.division_ = *_value;
+        CreateMesh(&meshGroup_->back());
+    });
+
+    label = "InnerRadius##" + _parentLabel;
+    DragGuiCommand<float>(label, primitive_.innerRadius_, 0.01f, 0.01f, 0.f, "%.2f", [this](float* _value) {
+        primitive_.innerRadius_ = *_value;
+        CreateMesh(&meshGroup_->back());
+    });
+
+    label = "OuterRadius##" + _parentLabel;
+    DragGuiCommand<float>(label, primitive_.outerRadius_, 0.01f, 0.01f, 0.f, "%.2f", [this](float* _value) {
+        primitive_.outerRadius_ = *_value;
+        CreateMesh(&meshGroup_->back());
+    });
+
+    ImGui::Spacing();
+    ImGui::SeparatorText("Transform");
+    ImGui::Spacing();
+
+    // buffer Datas
+    label = "Transform##" + _parentLabel;
+    if (ImGui::TreeNode(label.c_str())) {
+        transformBuff_.openData_.Edit(_scene, _entity, _parentLabel);
+
+        transformBuff_.ConvertToBuffer();
+        ImGui::TreePop();
+    }
 
 #endif // _DEBUG
 }
@@ -147,9 +146,9 @@ void to_json(nlohmann::json& j, const RingRenderer& r) {
     to_json(j["transform"], r.transformBuff_.openData_);
     j["materialIndex"] = r.materialIndex_;
 
-    j["InnerRadius"] = r.primitive_.getInnerRadius();
-    j["OuterRadius"] = r.primitive_.getOuterRadius();
-    j["division"]    = r.primitive_.getDivision();
+    j["InnerRadius"] = r.primitive_.innerRadius_;
+    j["OuterRadius"] = r.primitive_.outerRadius_;
+    j["division"]    = r.primitive_.division_;
 }
 
 void from_json(const nlohmann::json& j, RingRenderer& r) {
@@ -164,13 +163,7 @@ void from_json(const nlohmann::json& j, RingRenderer& r) {
         r.materialIndex_ = j.at("materialIndex");
     }
 
-    float innerRadius = 0.f;
-    float outerRadius = 0.f;
-    int32_t divi      = 0;
-    j.at("InnerRadius").get_to(innerRadius);
-    j.at("OuterRadius").get_to(outerRadius);
-    j.at("division").get_to(divi);
-    r.primitive_.setInnerRadius(innerRadius);
-    r.primitive_.setOuterRadius(outerRadius);
-    r.primitive_.setDivision(divi);
+    j.at("InnerRadius").get_to(r.primitive_.innerRadius_);
+    j.at("OuterRadius").get_to(r.primitive_.outerRadius_);
+    j.at("division").get_to(r.primitive_.division_);
 }

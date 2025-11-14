@@ -128,7 +128,7 @@ void Emitter::UpdateParticle(float _deltaTime) {
 void Emitter::CreateResource() {
     if (!mesh_.getVertexBuffer().getResource()) {
         Primitive::Plane planeGenerator;
-        planeGenerator.createMesh(&mesh_);
+        planeGenerator.CreateMesh(&mesh_);
     }
     if (!structuredTransform_.getResource().getResource().Get()) {
         structuredTransform_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_, particleMaxSize_);

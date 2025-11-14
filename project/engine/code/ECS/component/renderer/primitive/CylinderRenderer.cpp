@@ -1,4 +1,4 @@
-#include "BoxRenderer.h"
+#include "CylinderRenderer.h"
 
 /// engine
 #define RESOURCE_DIRECTORY
@@ -18,8 +18,11 @@
 #include <imgui/imgui.h>
 #endif // _DEBUG
 
-void BoxRenderer::Initialize(Entity* _hostEntity) {
+void CylinderRenderer::Initialize(Entity* _hostEntity) {
     MeshRenderer::Initialize(_hostEntity);
+
+    // culling しない
+    isCulling_ = false;
 
     // _mesh Init
     if (!meshGroup_->empty()) {
@@ -41,7 +44,7 @@ void BoxRenderer::Initialize(Entity* _hostEntity) {
     }
 }
 
-void BoxRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
+void CylinderRenderer::Edit(Scene* _scene, Entity* _entity, const std::string& _parentLabel) {
 #ifdef _DEBUG
     ImGui::SeparatorText("Material");
     ImGui::Spacing();
@@ -98,15 +101,26 @@ void BoxRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* 
         }
     }
 
-    // shape
     ImGui::Spacing();
-    ImGui::SeparatorText("Box");
+    ImGui::SeparatorText("Cylinder");
     ImGui::Spacing();
 
     // shape
-    label = "HalfSize##" + _parentLabel;
-    DragGuiVectorCommand<3, float>(label.c_str(), primitive_.halfSize_, 0.01f, 0.01f, {}, "%.3f", [this](Vec<3, float>* _value) {
-        primitive_.halfSize_ = *_value;
+    label = "TopRadius##" + _parentLabel;
+    DragGuiVectorCommand<2, float>(label.c_str(), primitive_.topRadius_, 0.01f, 0.01f, 0.f, "%.3f", [this](Vector<2, float>* _value) {
+        primitive_.topRadius_ = *_value;
+        CreateMesh(&meshGroup_->back());
+    });
+
+    label = "BottomRadius##" + _parentLabel;
+    DragGuiVectorCommand<2, float>(label.c_str(), primitive_.bottomRadius_, 0.01f, 0.01f, 0.f, "%.3f", [this](Vector<2, float>* _value) {
+        primitive_.bottomRadius_ = *_value;
+        CreateMesh(&meshGroup_->back());
+    });
+
+    label = "Height##" + _parentLabel;
+    DragGuiCommand<float>(label.c_str(), primitive_.height_, 0.01f, 0.01f, {}, "%.3f", [this](float* _value) {
+        primitive_.height_ = *_value;
         CreateMesh(&meshGroup_->back());
     });
 
@@ -126,28 +140,30 @@ void BoxRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* 
 #endif // _DEBUG
 }
 
-void to_json(nlohmann::json& j, const BoxRenderer& r) {
-    j["isRenderer"]       = r.isRender_;
-    j["blendMode"]        = static_cast<int32_t>(r.currentBlend_);
-    j["textureDirectory"] = r.textureDirectory_;
-    j["textureFileName"]  = r.textureFileName_;
-    to_json(j["transform"], r.transformBuff_.openData_);
-    j["materialIndex"] = r.materialIndex_;
+void to_json(nlohmann::json& j, const CylinderRenderer& c) {
+    j["isRenderer"]       = c.isRender_;
+    j["blendMode"]        = static_cast<int32_t>(c.currentBlend_);
+    j["textureDirectory"] = c.textureDirectory_;
+    j["textureFileName"]  = c.textureFileName_;
+    to_json(j["transform"], c.transformBuff_.openData_);
+    j["materialIndex"] = c.materialIndex_;
 
-    j["size"] = r.primitive_.halfSize_;
+    j["topRadius"]    = c.primitive_.topRadius_;
+    j["bottomRadius"] = c.primitive_.bottomRadius_;
+    j["height"]       = c.primitive_.height_;
 }
 
-void from_json(const nlohmann::json& j, BoxRenderer& r) {
-    j.at("isRenderer").get_to(r.isRender_);
+void from_json(const nlohmann::json& j, CylinderRenderer& c) {
+    j.at("isRenderer").get_to(c.isRender_);
     int32_t blendMode = 0;
     j.at("blendMode").get_to(blendMode);
-    r.currentBlend_ = static_cast<BlendMode>(blendMode);
-    j.at("textureDirectory").get_to(r.textureDirectory_);
-    j.at("textureFileName").get_to(r.textureFileName_);
-    from_json(j.at("transform"), r.transformBuff_.openData_);
-    if (j.find("materialIndex") != j.end()) {
-        r.materialIndex_ = j.at("materialIndex");
-    }
+    c.currentBlend_ = static_cast<BlendMode>(blendMode);
+    j.at("textureDirectory").get_to(c.textureDirectory_);
+    j.at("textureFileName").get_to(c.textureFileName_);
+    from_json(j.at("transform"), c.transformBuff_.openData_);
+    c.materialIndex_ = j.at("materialIndex");
 
-    j.at("size").get_to(r.primitive_.halfSize_);
+    j.at("topRadius").get_to(c.primitive_.topRadius_);
+    j.at("bottomRadius").get_to(c.primitive_.bottomRadius_);
+    j.at("height").get_to(c.primitive_.height_);
 }

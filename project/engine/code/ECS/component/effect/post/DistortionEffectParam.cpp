@@ -6,10 +6,14 @@
 #include "scene/Scene.h"
 #include "texture/TextureManager.h"
 // component
+#include "component/renderer/primitive/base/PrimitiveMeshFactory.h"
 #include "component/renderer/primitive/base/PrimitiveMeshRendererBase.h"
 #include "component/renderer/primitive/base/PrimitiveType.h"
+#include "component/renderer/primitive/BoxRenderer.h"
+#include "component/renderer/primitive/CylinderRenderer.h"
 #include "component/renderer/primitive/PlaneRenderer.h"
 #include "component/renderer/primitive/RingRenderer.h"
+#include "component/renderer/primitive/SphereRenderer.h"
 
 #include "myFileSystem/MyFileSystem.h"
 
@@ -103,18 +107,8 @@ void DistortionEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]
 
                 objectLabel = "Add##" + _parentLabel;
                 if (ImGui::Button(objectLabel.c_str())) {
-                    std::shared_ptr<PrimitiveMeshRendererBase> newObject;
-                    switch (newObjectType) {
-                    case PrimitiveType::Plane:
-                        newObject = std::make_shared<PlaneRenderer>();
-                        break;
-                    case PrimitiveType::Ring:
-                        newObject = std::make_shared<RingRenderer>();
-                        break;
-                    default:
-                        LOG_ERROR("Unsupported Primitive Type for Distortion Object: {}", std::to_string(int32_t(newObjectType)));
-                        break;
-                    }
+                    std::shared_ptr<PrimitiveMeshRendererBase> newObject = PrimitiveMeshFactory::getInstance()->CreatePrimitiveMeshBy(newObjectType);
+
                     if (newObject) {
                         newObject->Initialize(nullptr);
 
@@ -214,6 +208,16 @@ void to_json(nlohmann::json& j, const DistortionEffectParam& param) {
                 case PrimitiveType::Ring:
                     objectData["objectData"] = *std::static_pointer_cast<RingRenderer>(obj);
                     break;
+                case PrimitiveType::Box:
+                    objectData["objectData"] = *std::static_pointer_cast<BoxRenderer>(obj);
+                    break;
+                case PrimitiveType::Sphere:
+                    objectData["objectData"] = *std::static_pointer_cast<SphereRenderer>(obj);
+                    break;
+                case PrimitiveType::Cylinder:
+                    objectData["objectData"] = *std::static_pointer_cast<CylinderRenderer>(obj);
+                    break;
+
                 default:
                     LOG_ERROR("Unsupported Primitive Type for Distortion Object: {}", std::to_string(int32_t(type)));
                     break;

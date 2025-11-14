@@ -8,7 +8,7 @@ namespace Primitive {
 /// =====================================================
 /// Ring
 /// =====================================================
-void Ring::createMesh(TextureMesh* _mesh) {
+void Ring::CreateMesh(TextureMesh* _mesh) {
     if (!_mesh->vertexes_.empty()) {
         _mesh->vertexes_.clear();
     }

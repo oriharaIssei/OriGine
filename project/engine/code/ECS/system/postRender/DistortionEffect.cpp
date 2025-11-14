@@ -1,14 +1,14 @@
 #include "DistortionEffect.h"
 
 /// engine
-
 #include "Engine.h"
 #include "scene/SceneManager.h"
+#include "texture/TextureManager.h"
 #include "winApp/WinApp.h"
 // component
 #include "component/effect/post/DistortionEffectParam.h"
-#include "component/renderer/primitive/PlaneRenderer.h"
 #include "component/transform/Transform.h"
+#include "component/renderer/primitive/base/PrimitiveMeshRendererBase.h"
 // system
 #include "system/render/TexturedMeshRenderSystem.h"
 
@@ -191,7 +191,7 @@ void DistortionEffect::Rendering() {
         commandList->SetGraphicsRootDescriptorTable(distortionTextureIndex_, renderingData.srvHandle);
         commandList->SetGraphicsRootDescriptorTable(sceneTextureIndex_, renderTarget_->getBackBufferSrvHandle());
         renderingData.effectParam->getEffectParamBuffer().SetForRootParameter(commandList, distortionParamIndex_);
-        renderingData.effectParam->getMaterialBuffer().SetForRootParameter(commandList,materialIndex_);
+        renderingData.effectParam->getMaterialBuffer().SetForRootParameter(commandList, materialIndex_);
 
         // Draw
         commandList->DrawInstanced(6, 1, 0, 0);

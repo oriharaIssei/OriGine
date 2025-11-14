@@ -67,7 +67,7 @@ float radianToDegree(float radian);
 /// <summary>
 /// Degree を Radian に変換
 /// </summary>
-float degreeToRadian(float degree) ;
+float degreeToRadian(float degree);
 
 /// ----------------------------------------------
 /// 軸列挙（Transformなどと独立して）
@@ -96,8 +96,3 @@ enum class RotationOrder {
 constexpr float kMinNormalizedFloat = -1.0f;
 constexpr float kMaxNormalizedFloat = 1.0f;
 constexpr float kUnitLength         = 1.0f;
-
-/// ----------------------------------------------
-/// 乱数・ノイズ系で使う共通種（任意）
-/// ----------------------------------------------
-constexpr uint32_t kDefaultSeed = 0x12345678u;

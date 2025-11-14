@@ -14,16 +14,16 @@ public:
     PrimitiveMeshRendererBase(const std::vector<TextureMesh>& _meshGroup) : MeshRenderer(_meshGroup) {}
     PrimitiveMeshRendererBase(const std::shared_ptr<std::vector<TextureMesh>>& _meshGroup) : MeshRenderer(_meshGroup) {}
 
-    virtual ~PrimitiveMeshRendererBase()                                                                    = default;
+    virtual ~PrimitiveMeshRendererBase()                                                                = default;
     virtual void Initialize(Entity* _entity)                                                            = 0;
-    virtual void Finalize()                                                                                 = 0;
+    virtual void Finalize()                                                                             = 0;
     virtual void Edit(Scene* _scene, Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) = 0;
 
     /// <summary>
     /// 自身のプリミティブ情報をもとにメッシュを作成する
     /// </summary>
     /// <param name="_mesh"></param>
-    virtual void createMesh(TextureMesh* _mesh) = 0;
+    virtual void CreateMesh(TextureMesh* _mesh) = 0;
 
     /// <summary>
     /// テクスチャを読み込む

@@ -126,6 +126,7 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 #include "component/renderer/MeshRenderer.h"
 #include "component/renderer/primitive/base/PrimitiveMeshRendererBase.h"
 #include "component/renderer/primitive/BoxRenderer.h"
+#include "component/renderer/primitive/CylinderRenderer.h"
 #include "component/renderer/primitive/PlaneRenderer.h"
 #include "component/renderer/primitive/RingRenderer.h"
 #include "component/renderer/primitive/SphereRenderer.h"
