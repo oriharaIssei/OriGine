@@ -101,6 +101,8 @@ protected:
     void LightUpdate();
 
 private:
+    bool currentCulling_        = true;
+    BlendMode currentBlendMode_ = BlendMode::Alpha;
     // value : { non Culling配列 , Culling配列}
     std::array<std::array<std::vector<ModelMeshRenderer*>, kBlendNum>, 2> activeModelMeshRenderer_{};
     std::array<std::array<std::vector<PrimitiveMeshRendererBase*>, kBlendNum>, 2> activePrimitiveMeshRenderer_{};

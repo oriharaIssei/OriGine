@@ -108,9 +108,9 @@ void TexturedMeshRenderSystem::RenderingBy(BlendMode _blendMode, bool _isCulling
         return;
     }
 
-    auto commandList = dxCommand_->getCommandList();
-    commandList->SetPipelineState(psoByBlendMode_[cullingIndex][blendIndex]->pipelineState.Get());
-    commandList->SetGraphicsRootSignature(psoByBlendMode_[cullingIndex][blendIndex]->rootSignature.Get());
+    auto commandList  = dxCommand_->getCommandList();
+    currentCulling_   = _isCulling;
+    currentBlendMode_ = _blendMode;
 
     StartRender();
 
@@ -397,9 +397,12 @@ void TexturedMeshRenderSystem::LightUpdate() {
 void TexturedMeshRenderSystem::StartRender() {
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->getCommandList();
 
+    int32_t cullingIndex = currentCulling_ ? 1 : 0;
+    int32_t blendIndex   = static_cast<int32_t>(currentBlendMode_);
+
     // PSOとRootSignatureの設定(パラメーターを設定するため,とりあえずPSOをセット)
-    commandList->SetGraphicsRootSignature(psoByBlendMode_[0][0]->rootSignature.Get());
-    commandList->SetPipelineState(psoByBlendMode_[0][0]->pipelineState.Get());
+    commandList->SetGraphicsRootSignature(psoByBlendMode_[cullingIndex][blendIndex]->rootSignature.Get());
+    commandList->SetPipelineState(psoByBlendMode_[cullingIndex][blendIndex]->pipelineState.Get());
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
     ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};

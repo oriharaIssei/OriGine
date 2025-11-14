@@ -97,7 +97,6 @@ PipelineStateObj* ShaderManager::CreatePso(const std::string& key,
 
    blendDesc =  CreateBlendDescByBlendMode(shaderInfo.blendMode_);
 
-
     ///=================================================
     /// GRAPHICS_PIPELINE_STATE_DESC 初期化
     ///=================================================

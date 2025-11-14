@@ -4,7 +4,6 @@ struct GradationParam
 {
     int inputColorChannel; // 0b0:red, 0b1:green, 0b2:blue, 0b3:alpha
     int outputColorChannel; // 0b0:red, 0b1:green, 0b2:blue, 0b3:alpha
-    int pad[2];
 };
 
 ///========================================

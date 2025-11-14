@@ -25,7 +25,7 @@ struct GradationParam {
     struct ConstantBuffer {
         int inputChannel  = 0;
         int outputChannel = 0;
-        float padding[2];
+        int padding[2];
 
         ConstantBuffer& operator=(const GradationParam& _param) {
             inputChannel  = static_cast<int>(_param.inputChannel);
