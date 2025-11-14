@@ -12,52 +12,56 @@ void Cylinder::CreateMesh(TextureMesh* _mesh) {
         _mesh->indexes_.clear();
     }
 
-    float radPerDiv = kTao / float(kCylinderDivisions);
+    // 角度ステップ
+    float angleStep = kTao / float(kCylinderDivisions);
 
     std::vector<TextureMesh::VertexType> vertices;
     std::vector<uint32_t> indices;
 
     vertices.reserve(vertexSize_);
     indices.reserve(indexSize_);
-    for (size_t i = 0; i < kCylinderDivisions; ++i) {
-        float sin     = std::sin(radPerDiv * static_cast<float>(i));
-        float cos     = std::cos(radPerDiv * static_cast<float>(i));
-        float sinNext = std::sin(radPerDiv * static_cast<float>(i + 1));
-        float cosNext = std::cos(radPerDiv * static_cast<float>(i + 1));
-        float u       = static_cast<float>(i) / static_cast<float>(kCylinderDivisions);
-        float uNext   = static_cast<float>(i + 1) / static_cast<float>(kCylinderDivisions);
 
-        vertices.emplace_back(TextureVertexData(
-            Vec4f(-sin * topRadius_[X], height_, cos * topRadius_[Y], 1.0f),
-            Vec2f(u, 0.0f),
-            Vec3f(-sin, 0.f, -cos)));
-        vertices.emplace_back(TextureVertexData(
-            Vec4f(-sinNext * topRadius_[X], height_, cosNext * topRadius_[Y], 1.0f),
-            Vec2f(uNext, 0.0f),
-            Vec3f(-sinNext, 0.f, -cosNext)));
-        vertices.emplace_back(TextureVertexData(
-            Vec4f(-sin * bottomRadius_[X], 0, cos * bottomRadius_[Y], 1.0f),
-            Vec2f(u, 1.0f),
-            Vec3f(-sin, 0.f, -cos)));
-        vertices.emplace_back(TextureVertexData(
-            Vec4f(-sin * bottomRadius_[X], 0, cos * bottomRadius_[Y], 1.0f),
-            Vec2f(u, 1.0f),
-            Vec3f(-sin, 0.f, -cos)));
-        vertices.emplace_back(TextureVertexData(
-            Vec4f(-sinNext * topRadius_[X], height_, cos * topRadius_[Y], 1.0f),
-            Vec2f(uNext, 0.0f),
-            Vec3f(-sin, 0.f, -cos)));
-        vertices.emplace_back(TextureVertexData(
-            Vec4f(-sinNext * bottomRadius_[X], height_, cos * bottomRadius_[Y], 1.0f),
-            Vec2f(uNext, 1.0f),
-            Vec3f(-sin, 0.f, -cos)));
+    // cylinderを生成
+    // 頂点
+    for (uint32_t i = 0; i <= kCylinderDivisions; ++i) {
 
-        indices.push_back(static_cast<uint32_t>(i * 6 + 0));
-        indices.push_back(static_cast<uint32_t>(i * 6 + 1));
-        indices.push_back(static_cast<uint32_t>(i * 6 + 2));
-        indices.push_back(static_cast<uint32_t>(i * 6 + 3));
-        indices.push_back(static_cast<uint32_t>(i * 6 + 4));
-        indices.push_back(static_cast<uint32_t>(i * 6 + 5));
+        // 360度を等間隔で分割したi番目の角度
+        float angle = angleStep * (float)i;
+        float sin   = sinf(angle);
+        float cos   = cosf(angle);
+
+        // 上面の頂点位置
+        Vec3f topVertex = Vec3f(sin * topRadius_[X], height_, cos * topRadius_[Y]);
+        // 下面の頂点位置
+        Vec3f bottomVertex = Vec3f(sin * bottomRadius_[X], 0.0f, cos * bottomRadius_[Y]);
+
+        float u = static_cast<float>(i) / static_cast<float>(kCylinderDivisions);
+
+        TextureMesh::VertexType vertex{};
+        vertex.pos      = Vec4f(topVertex, 1.f);
+        vertex.texCoord = Vec2f(-u, 0.0f);
+        vertices.emplace_back(vertex);
+
+        vertex.pos      = Vec4f(bottomVertex, 1.f);
+        vertex.texCoord = Vec2f(-u, 1.0f);
+        vertices.emplace_back(vertex);
+    }
+
+    // インデックス
+    for (uint32_t i = 0; i < kCylinderDivisions; ++i) {
+
+        uint32_t t0 = i * 2;
+        uint32_t b0 = i * 2 + 1;
+        uint32_t t1 = (i + 1) * 2;
+        uint32_t b1 = (i + 1) * 2 + 1;
+
+        indices.push_back(t0);
+        indices.push_back(t1);
+        indices.push_back(b0);
+
+        indices.push_back(t1);
+        indices.push_back(b1);
+        indices.push_back(b0);
     }
 
     _mesh->setVertexData(vertices);

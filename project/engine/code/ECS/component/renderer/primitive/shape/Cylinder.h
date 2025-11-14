@@ -6,9 +6,9 @@
 #include "math/mathEnv.h"
 
 namespace Primitive {
-constexpr int32_t kCylinderDivisions   = 36; // 円柱の分割数
-constexpr int32_t kCylinderVertexCount = kCylinderDivisions + 1 + kCylinderDivisions + 1; // 円柱の頂点数
-constexpr int32_t kCylinderIndexCount  = kCylinderDivisions * 3 * 2 + kCylinderDivisions * 3; // 円柱のインデックス数
+constexpr uint32_t kCylinderDivisions   = 36; // 円柱の分割数
+constexpr uint32_t kCylinderVertexCount = kCylinderDivisions + 1 + kCylinderDivisions + 1; // 円柱の頂点数
+constexpr uint32_t kCylinderIndexCount  = kCylinderDivisions * 3 * 2 + kCylinderDivisions * 3; // 円柱のインデックス数
 
 struct Cylinder
     : public IPrimitive {

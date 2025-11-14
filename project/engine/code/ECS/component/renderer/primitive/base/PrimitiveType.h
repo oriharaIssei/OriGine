@@ -25,7 +25,7 @@ static const std::array<std::string, static_cast<int32_t>(PrimitiveType::Count)>
     "Box",
     "Sphere",
     // PrimitiveType::Torus,
-    // PrimitiveType::Cylinder,
+    "Cylinder",
     // PrimitiveType::Cone,
 };
 
