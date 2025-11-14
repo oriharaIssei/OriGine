@@ -123,10 +123,16 @@ bool ReplayPlayer::LoadFromFile(const std::string& filepath) {
 
 float ReplayPlayer::Apply(KeyboardInput* _keyInput, MouseInput* _mouseInput, GamePadInput* _padInput) {
     auto& frameData = fileData_.frameData[currentFrameIndex_];
+    auto& prevData  = (currentFrameIndex_ > 0) ? fileData_.frameData[currentFrameIndex_ - 1] : frameData;
 
     /// keyboard
     // prev を更新
-    _keyInput->prevKeys_ = _keyInput->keys_;
+    if (prevData.keyInputData.size() != 0) {
+        for (size_t keyIndex = 0; keyIndex < KEY_COUNT; ++keyIndex) {
+            bool isPressed                 = prevData.keyInputData.get(keyIndex);
+            _keyInput->prevKeys_[keyIndex] = isPressed ? 0x80 : 0x00;
+        }
+    }
     // current を更新
     if (frameData.keyInputData.size() != 0) {
         for (size_t keyIndex = 0; keyIndex < KEY_COUNT; ++keyIndex) {
@@ -137,9 +143,11 @@ float ReplayPlayer::Apply(KeyboardInput* _keyInput, MouseInput* _mouseInput, Gam
 
     /// mouse
     // prev を更新
-    _mouseInput->prevPos_          = _mouseInput->pos_;
-    _mouseInput->prevWheelDelta_   = _mouseInput->currentWheelDelta_;
-    _mouseInput->prevButtonStates_ = _mouseInput->currentButtonStates_;
+    _mouseInput->prevPos_        = prevData.mouseData.mousePos;
+    _mouseInput->prevWheelDelta_ = prevData.mouseData.wheelDelta;
+    for (size_t mouseButtonIndex = 0; mouseButtonIndex < MOUSE_BUTTON_COUNT; ++mouseButtonIndex) {
+        _mouseInput->prevButtonStates_[mouseButtonIndex] = (prevData.mouseData.buttonData >> mouseButtonIndex) & 1u;
+    }
     // current を更新
     _mouseInput->pos_               = frameData.mouseData.mousePos;
     _mouseInput->virtualPos_        = _mouseInput->pos_;
@@ -153,7 +161,7 @@ float ReplayPlayer::Apply(KeyboardInput* _keyInput, MouseInput* _mouseInput, Gam
 
     /// padInput
     // prev を更新
-    _padInput->prevButtonMask_ = _padInput->buttonMask_;
+    _padInput->prevButtonMask_ = prevData.padData.buttonData;
     // current を更新
     _padInput->lStick_ = frameData.padData.lStick;
     _padInput->rStick_ = frameData.padData.rStick;
