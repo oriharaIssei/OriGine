@@ -2,6 +2,9 @@
 
 #ifdef _DEBUG
 
+/// stl
+#include <format>
+
 /// engine
 #include "Engine.h"
 #include "scene/SceneManager.h"
@@ -1040,7 +1043,8 @@ DevelopControlArea::ControlRegion::~ControlRegion() {}
 void DevelopControlArea::ControlRegion::Initialize() {}
 
 void DevelopControlArea::ControlRegion::DrawGui() {
-    if (ImGui::Button("Build Develop")) {
+
+    if (ImGui::Button("Build Develop") && !parentArea_->isBuilding_) {
         auto* currentScene = parentArea_->getParentWindow()->getCurrentScene();
         if (!currentScene) {
             LOG_ERROR("ControlRegion::DrawGui: No current scene found.");
@@ -1057,6 +1061,13 @@ void DevelopControlArea::ControlRegion::DrawGui() {
             + " /p:Platform=" + parentArea_->platform;
         LOG_DEBUG("ControlRegion::DrawGui: Executing build command: {}", buildCommand);
 
+        // buildThread を立てる(Build中もエディターを操作できるように)
+        parentArea_->isBuilding_ = true;
+        std::thread([this, cmd = std::move(buildCommand)]() {
+            RunProcessAndWait(cmd);
+            parentArea_->isBuilding_ = false;
+        }).detach();
+
         // ビルドコマンドの実行
         if (!RunProcessAndWait(buildCommand)) {
             LOG_ERROR("ControlRegion::DrawGui: Build command execution failed.");
@@ -1065,12 +1076,12 @@ void DevelopControlArea::ControlRegion::DrawGui() {
 
     ImGui::SameLine();
 
-    if (ImGui::Button("Run")) {
+    if (ImGui::Button("Run") && !parentArea_->isBuilding_) {
         auto* currentScene  = parentArea_->getParentWindow()->getCurrentScene();
         std::string exePath = std::filesystem::current_path().string() + parentArea_->exePath_;
         LOG_DEBUG("ControlRegion::DrawGui: Executing application at path: {}", exePath);
 
-        std::string runCommand = exePath + " " + currentScene->getName(); // 実行ファイルパスと 実行する scene を送る
+        std::string runCommand = std::format("{} {} {}",exePath ,"-s",currentScene->getName()); // 実行ファイルパスと 実行する scene を送る
         // アプリケーションの実行
         int32_t result = std::system(runCommand.c_str());
         if (result != 0) {

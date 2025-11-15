@@ -69,6 +69,7 @@ protected:
     };
 
 protected:
+    std::unique_ptr<DistortionEffectParam> defaultParam_   = nullptr; // デフォルトパラメーター (3DObjectの適応に使う)
     std::unique_ptr<RenderTexture> distortionSceneTexture_ = nullptr;
 
     std::vector<RenderingData> activeRenderingData_                  = {};

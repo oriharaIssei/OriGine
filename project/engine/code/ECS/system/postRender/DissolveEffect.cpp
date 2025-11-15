@@ -107,7 +107,7 @@ void DissolveEffect::CreatePSO() {
 }
 
 bool DissolveEffect::ShouldSkipPostRender() const {
-    return isActive() || activeRenderingData_.empty();
+    return activeRenderingData_.empty();
 }
 
 void DissolveEffect::RenderStart() {

@@ -24,8 +24,8 @@ enum class PrimitiveType : int32_t;
 /// Distortion Effectのパラメーター情報(GPUに送る)
 /// </summary>
 struct DistortionParamData {
-    Vec2f distortionBias     = Vec2f(0.f,0.f);
-    Vec2f distortionStrength = Vec2f(0.f,0.f);
+    Vec2f distortionBias     = Vec2f(0.f, 0.f);
+    Vec2f distortionStrength = Vec2f(1.f, 1.f);
 
     struct ConstantBuffer {
         Vec2f distortionBias;
@@ -62,7 +62,7 @@ private:
 
     int32_t materialIndex_ = -1;
 
-    int32_t textureIndex_    = 0; // -1 の場合はテクスチャを使用しない
+    int32_t textureIndex_    = 0;
     std::string texturePath_ = "";
 
     IConstantBuffer<DistortionParamData> effectParamData_;

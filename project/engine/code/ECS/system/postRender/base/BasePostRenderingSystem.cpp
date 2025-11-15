@@ -11,10 +11,6 @@ void BasePostRenderingSystem::Initialize() {
 
 void BasePostRenderingSystem::Update() {
     // 有効判定
-    if (isActive()) {
-        return;
-    }
-
     if (entityIDs_.empty()) {
         return;
     }

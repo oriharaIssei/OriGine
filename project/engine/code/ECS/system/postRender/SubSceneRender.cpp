@@ -27,6 +27,8 @@ void SubSceneRender::Rendering() {
 
 void SubSceneRender::RenderEnd() {
     renderTarget_->PostDraw();
+
+    scenes_.clear();
 }
 
 void SubSceneRender::DispatchComponent(Entity* _entity) {

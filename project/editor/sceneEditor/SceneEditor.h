@@ -7,10 +7,13 @@
 /// stl
 #include <array>
 #include <list>
-#include <memory>
-#include <string>
 #include <unordered_map>
 #include <vector>
+
+#include <atomic>
+#include <memory>
+
+#include <string>
 
 /// engine
 #include "component/IComponent.h"
@@ -398,6 +401,8 @@ public:
 
 private:
     SceneEditorWindow* parentWindow_ = nullptr; // 親ウィンドウへのポインタ
+
+    std::atomic<bool> isBuilding_ = false;
 
     const std::string buildTool_        = "msbuild"; // ビルドツールの名前
     const std::string projectDirectory_ = "project";
