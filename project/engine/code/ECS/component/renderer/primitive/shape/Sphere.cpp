@@ -60,12 +60,12 @@ void Sphere::CreateMesh(TextureMesh* _mesh) {
 
             // 2つの三角形で四角形を構成
             _mesh->indexes_.emplace_back(current);
-            _mesh->indexes_.emplace_back(next);
             _mesh->indexes_.emplace_back(current + 1);
+            _mesh->indexes_.emplace_back(next);
 
             _mesh->indexes_.emplace_back(current + 1);
-            _mesh->indexes_.emplace_back(next);
             _mesh->indexes_.emplace_back(next + 1);
+            _mesh->indexes_.emplace_back(next);
         }
     }
 

@@ -239,11 +239,7 @@ void DistortionEffect::DispatchComponent(Entity* _entity) {
         if (!effectParam.getIsActive()) {
             continue;
         }
-
-        RenderingData renderingData{};
-        renderingData.effectParam = &effectParam;
-        renderingData.srvHandle   = TextureManager::getDescriptorGpuHandle(effectParam.getTextureIndex());
-
+        // 3dオブジェクトリストを使用する場合
         if (effectParam.getUse3dObjectList()) {
             auto& paramData = effectParam.getEffectParamData();
             for (auto& [primitiveRenderBase, type] : effectParam.getDistortionObjects()) {
@@ -274,13 +270,13 @@ void DistortionEffect::DispatchComponent(Entity* _entity) {
 
                 // 追加
                 activeDistortionObjects_.push_back(primitiveRenderBase.get());
-
-                // srvハンドルを3dオブジェクトシーンテクスチャのものに変更
-                // frontなのは、RenderStart内で 描画が終わった後に使用するため(frontに書き込み -> backになる ため)
-                renderingData.srvHandle = distortionSceneTexture_->getFrontBufferSrvHandle();
             }
         } else {
             // 単一テクスチャを使用する場合
+            RenderingData renderingData{};
+            renderingData.effectParam = &effectParam;
+            renderingData.srvHandle   = TextureManager::getDescriptorGpuHandle(effectParam.getTextureIndex());
+
             // マテリアル情報の更新
             int32_t materialIndex = effectParam.getMaterialIndex();
             auto& materialBuff    = effectParam.getMaterialBuffer();
@@ -301,5 +297,5 @@ void DistortionEffect::DispatchComponent(Entity* _entity) {
 }
 
 bool DistortionEffect::ShouldSkipPostRender() const {
-    return activeRenderingData_.empty();
+    return activeRenderingData_.empty() && activeDistortionObjects_.empty();
 }

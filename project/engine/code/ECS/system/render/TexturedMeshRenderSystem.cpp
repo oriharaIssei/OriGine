@@ -542,11 +542,13 @@ void TexturedMeshRenderSystem::RenderPrimitiveMesh(
         // ============================= Materialのセット ============================= //
         if (materialIndex >= 0) {
             material = getComponent<Material>(_renderer->getHostEntity(), static_cast<uint32_t>(materialIndex));
-            material->UpdateUvMatrix();
-            materialBuff.ConvertToBuffer(*material);
+            if (material) {
+                material->UpdateUvMatrix();
+                materialBuff.ConvertToBuffer(*material);
 
-            if (material->hasCustomTexture()) {
-                textureHandle = material->getCustomTexture()->srv_->getGpuHandle();
+                if (material->hasCustomTexture()) {
+                    textureHandle = material->getCustomTexture()->srv_->getGpuHandle();
+                }
             }
         }
 

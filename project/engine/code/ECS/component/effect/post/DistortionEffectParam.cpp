@@ -110,7 +110,7 @@ void DistortionEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]
                     std::shared_ptr<PrimitiveMeshRendererBase> newObject = PrimitiveMeshFactory::getInstance()->CreatePrimitiveMeshBy(newObjectType);
 
                     if (newObject) {
-                        newObject->Initialize(nullptr);
+                        newObject->Initialize(_entity);
 
                         auto command = std::make_unique<AddElementCommand<std::vector<std::pair<std::shared_ptr<PrimitiveMeshRendererBase>, PrimitiveType>>>>(
                             &distortionObjects_, std::make_pair(newObject, newObjectType));
