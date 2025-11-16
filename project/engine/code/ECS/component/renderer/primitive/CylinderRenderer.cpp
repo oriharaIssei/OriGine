@@ -49,6 +49,9 @@ void CylinderRenderer::Edit(Scene* _scene, Entity* _entity, const std::string& _
     ImGui::SeparatorText("Material");
     ImGui::Spacing();
 
+    CheckBoxCommand("IsRender##" + _parentLabel, isRender_);
+    CheckBoxCommand("IsCulling##" + _parentLabel, isCulling_);
+
     ImGui::Text("BlendMode :");
     ImGui::SameLine();
     std::string label = "##BlendMode" + _parentLabel;
@@ -69,6 +72,8 @@ void CylinderRenderer::Edit(Scene* _scene, Entity* _entity, const std::string& _
         ImGui::EndCombo();
     }
 
+    ImGui::Spacing();
+
     label                      = "MaterialIndex##" + _parentLabel;
     auto materials             = _scene->getComponents<Material>(_entity);
     int32_t entityMaterialSize = materials != nullptr ? static_cast<int32_t>(materials->size()) : 0;
@@ -83,6 +88,7 @@ void CylinderRenderer::Edit(Scene* _scene, Entity* _entity, const std::string& _
             ImGui::TreePop();
         }
     }
+
     ImGui::Spacing();
 
     // texture
@@ -142,6 +148,7 @@ void CylinderRenderer::Edit(Scene* _scene, Entity* _entity, const std::string& _
 
 void to_json(nlohmann::json& j, const CylinderRenderer& c) {
     j["isRenderer"]       = c.isRender_;
+    j["isCulling"]        = c.isCulling_;
     j["blendMode"]        = static_cast<int32_t>(c.currentBlend_);
     j["textureDirectory"] = c.textureDirectory_;
     j["textureFileName"]  = c.textureFileName_;
@@ -155,6 +162,9 @@ void to_json(nlohmann::json& j, const CylinderRenderer& c) {
 
 void from_json(const nlohmann::json& j, CylinderRenderer& c) {
     j.at("isRenderer").get_to(c.isRender_);
+    if (j.contains("isCulling")) {
+        j.at("isCulling").get_to(c.isCulling_);
+    }
     int32_t blendMode = 0;
     j.at("blendMode").get_to(blendMode);
     c.currentBlend_ = static_cast<BlendMode>(blendMode);

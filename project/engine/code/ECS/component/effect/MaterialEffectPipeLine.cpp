@@ -212,5 +212,4 @@ void from_json(const nlohmann::json& j, MaterialEffectPipeLine& c) {
             c.effectEntityIdList_.push_back(effectData);
         }
     }
-    c.LoadBaseTexture(c.baseTexturePath_);
 }

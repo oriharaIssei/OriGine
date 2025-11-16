@@ -60,7 +60,7 @@ void DebugCamera::TranslationState::Update() {
     KeyboardInput* keyInput = InputManager::getInstance()->getKeyboard();
     MouseInput* mouseInput  = InputManager::getInstance()->getMouse();
 
-    constexpr Vec3f kMouseSensitivity = {0.001f, 0.001f, 0.007f};
+    constexpr Vec3f kMouseSensitivity = {0.1f, 0.1f, 0.7f};
 
     // 入力状態をビットで管理
     uint32_t state = 0;

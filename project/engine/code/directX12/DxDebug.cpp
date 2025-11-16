@@ -24,6 +24,11 @@ void DxDebug::InitializeDebugger() { // デバッグレイヤーをオンに
         debugController_->EnableDebugLayer();
         // GPU側でもデバッグさせる
         debugController_->SetEnableGPUBasedValidation(TRUE);
+
+        Microsoft::WRL::ComPtr<ID3D12DeviceRemovedExtendedDataSettings> dredSettings;
+        D3D12GetDebugInterface(IID_PPV_ARGS(&dredSettings));
+        dredSettings->SetAutoBreadcrumbsEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
+        dredSettings->SetPageFaultEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
     }
 }
 

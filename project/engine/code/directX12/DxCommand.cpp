@@ -9,8 +9,11 @@
 #include "directX12/DxDevice.h"
 #include "directX12/DxFence.h"
 #include "directX12/ResourceStateTracker.h"
-
+/// logger
 #include "logger/Logger.h"
+
+/// util
+#include "StringUtil.h"
 
 std::unordered_map<std::string,
     std::tuple<Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>, Microsoft::WRL::ComPtr<ID3D12CommandAllocator>, ResourceStateTracker>>
@@ -107,6 +110,11 @@ void DxCommand::Initialize(const std::string& commandListKey, const std::string&
     commandList_           = std::get<0>(commandListCombo);
     commandAllocator_      = std::get<1>(commandListCombo);
     resourceStateTracker_  = &std::get<2>(commandListCombo);
+
+    // 名前を設定
+    commandList_->SetName(ConvertString(commandListComboKey_).c_str());
+    commandAllocator_->SetName(ConvertString(commandListComboKey_).c_str());
+    commandQueue_->SetName(ConvertString(commandQueueKey_).c_str());
 }
 
 void DxCommand::Initialize(const std::string& commandListKey, const std::string& commandQueueKey, D3D12_COMMAND_LIST_TYPE listType) {
@@ -117,7 +125,7 @@ void DxCommand::Initialize(const std::string& commandListKey, const std::string&
     commandQueueKey_     = commandQueueKey;
 
     LOG_DEBUG("Initialize DxCommand \n CommandList  :{} \n CommandQueue : {}", commandListComboKey_, commandQueueKey_);
-    
+
     /*-----見つからなかった場合-----*/
     if (commandQueueMap_.count(commandQueueKey_) == 0) {
         ///================================================
@@ -171,7 +179,7 @@ void DxCommand::ResourceBarrier(Microsoft::WRL::ComPtr<ID3D12Resource> resource,
 void DxCommand::ResourceDirectBarrier(Microsoft::WRL::ComPtr<ID3D12Resource> resource, D3D12_RESOURCE_BARRIER barrier) {
     // リソースのバリアをユーザーが作成したバリアで設定
     // resourceStateTracker_ で リソースの状態を管理
-    
+
     if (resourceStateTracker_) {
         resourceStateTracker_->DirectBarrier(commandList_.Get(), resource.Get(), barrier);
     } else {
@@ -180,7 +188,20 @@ void DxCommand::ResourceDirectBarrier(Microsoft::WRL::ComPtr<ID3D12Resource> res
 }
 
 HRESULT DxCommand::Close() {
-    return commandList_->Close();
+    HRESULT hr = commandList_->Close();
+    if (FAILED(hr)) {
+        wchar_t name[128] = {};
+
+        OutputDebugStringA("CommandList Close FAILED! ptr=");
+        char buf[64];
+        sprintf_s(buf, "%p", commandList_);
+        OutputDebugStringA(buf);
+        // 可能なら D3D12/DXGI エラー文字列も出す
+        if (commandList_) {
+            OutputDebugStringW(ConvertString(std::format("{} : {}", commandListComboKey_, HrToString(hr))).c_str());
+        }
+    }
+    return hr;
 }
 
 void DxCommand::ExecuteCommand() {

@@ -132,6 +132,12 @@ void DxResource::CreateRenderTextureResource(Microsoft::WRL::ComPtr<ID3D12Device
 
     if (FAILED(hr)) {
         LOG_CRITICAL("Failed to create render texture resource.\n massage :{}", std::to_string(hr));
+        HRESULT reason = device->GetDeviceRemovedReason();
+        char buf[256];
+        sprintf_s(buf, "CreateRenderTextureResource FAILED hr=0x%08X, DeviceRemovedReason=0x%08X\n",
+            static_cast<unsigned int>(hr), static_cast<unsigned int>(reason));
+        OutputDebugStringA(buf);
+
         assert(false);
     }
 }

@@ -45,6 +45,9 @@ void SphereRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entit
     ImGui::SeparatorText("Material");
     ImGui::Spacing();
 
+    CheckBoxCommand("IsRender##" + _parentLabel, isRender_);
+    CheckBoxCommand("IsCulling##" + _parentLabel, isCulling_);
+
     ImGui::Text("BlendMode :");
     ImGui::SameLine();
     std::string label = "##BlendMode" + _parentLabel;
@@ -64,6 +67,8 @@ void SphereRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entit
         }
         ImGui::EndCombo();
     }
+
+    ImGui::Spacing();
 
     label                      = "MaterialIndex##" + _parentLabel;
     auto materials             = _scene->getComponents<Material>(_entity);
@@ -139,6 +144,7 @@ void SphereRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entit
 
 void to_json(nlohmann::json& j, const SphereRenderer& r) {
     j["isRenderer"]       = r.isRender_;
+    j["isCulling"]        = r.isCulling_;
     j["blendMode"]        = static_cast<int32_t>(r.currentBlend_);
     j["textureDirectory"] = r.textureDirectory_;
     j["textureFileName"]  = r.textureFileName_;
@@ -150,6 +156,9 @@ void to_json(nlohmann::json& j, const SphereRenderer& r) {
 }
 void from_json(const nlohmann::json& j, SphereRenderer& r) {
     j.at("isRenderer").get_to(r.isRender_);
+    if (j.contains("isCulling")) {
+        j.at("isCulling").get_to(r.isCulling_);
+    }
     int32_t blendMode = 0;
     j.at("blendMode").get_to(blendMode);
     r.currentBlend_ = static_cast<BlendMode>(blendMode);

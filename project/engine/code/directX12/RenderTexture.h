@@ -90,7 +90,7 @@ private:
     Vec4f clearColor_;
 
 public:
-    void setDxCommand(std::unique_ptr<DxCommand>&& _dxCommnad);
+    void setDxCommand(const std::string& _listName, const std::string& _queueName);
 
     void setTextureName(const std::string& _name);
 

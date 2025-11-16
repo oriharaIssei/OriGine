@@ -376,11 +376,10 @@ void RenderTexture::DrawTexture(D3D12_GPU_DESCRIPTOR_HANDLE _srvHandle) {
     commandList->DrawInstanced(6, 1, 0, 0);
 }
 
-void RenderTexture::setDxCommand(std::unique_ptr<DxCommand>&& _dxCommand) {
+void RenderTexture::setDxCommand(const std::string& _listName, const std::string& _queueName) {
     dxCommand_->Finalize();
-    dxCommand_.reset();
 
-    dxCommand_ = std::move(_dxCommand);
+    dxCommand_->Initialize(_listName, _queueName);
 }
 
 void RenderTexture::setTextureName(const std::string& _name) {

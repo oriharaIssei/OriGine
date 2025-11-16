@@ -19,6 +19,8 @@ public:
 
     void Initialize(Entity* _entity) = 0;
 
+    virtual void Edit(Scene* _scene, Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) override = 0;
+
     inline void Finalize() override;
 
     using PrimitiveType = PrimType;
