@@ -63,15 +63,15 @@ void GpuParticleInitialize::UpdateEntity(Entity* _entity) {
 
         commandList->SetComputeRootDescriptorTable(
             particleBufferIndex_,
-            gpuParticleEmitter.getParticleUavDescriptor()->getGpuHandle());
+            gpuParticleEmitter.getParticleUavDescriptor().getGpuHandle());
 
         commandList->SetComputeRootDescriptorTable(
             freeIndexBufferIndex_,
-            gpuParticleEmitter.getFreeIndexUavDescriptor()->getGpuHandle());
+            gpuParticleEmitter.getFreeIndexUavDescriptor().getGpuHandle());
 
         commandList->SetComputeRootDescriptorTable(
             freeListBufferIndex_,
-            gpuParticleEmitter.getFreeListUavDescriptor()->getGpuHandle());
+            gpuParticleEmitter.getFreeListUavDescriptor().getGpuHandle());
 
         gpuParticleEmitter.getShapeBuffer().ConvertToBuffer();
         gpuParticleEmitter.getShapeBuffer().SetForComputeRootParameter(

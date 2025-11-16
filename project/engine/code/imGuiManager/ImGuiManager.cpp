@@ -50,8 +50,8 @@ void ImGuiManager::Initialize([[maybe_unused]] const WinApp* window, [[maybe_unu
         dxSwapChain->getBufferCount(),
         DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
         srvHeap_.Get(),
-        srv_->getCpuHandle(),
-        srv_->getGpuHandle());
+        srv_.getCpuHandle(),
+        srv_.getGpuHandle());
     ImGuiIO& io = ImGui::GetIO();
     // Docking を可能に
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;

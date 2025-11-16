@@ -32,20 +32,20 @@ public:
     /// <summary>
     /// レンダーターゲットとデプスステンシルビューの設定
     /// </summary>
-    static void SetRenderTargets(const DxCommand* dxCommand, DxDsvDescriptor* dxDsv, const DxSwapChain* dxSwapChain);
+    static void SetRenderTargets(const DxCommand* dxCommand, const DxDsvDescriptor& dxDsv, const DxSwapChain* dxSwapChain);
     /// <summary>
     /// レンダーターゲットとデプスステンシルビューの設定
     /// </summary>
-    static void SetRenderTargets(const DxCommand* dxCommand, DxDsvDescriptor* dxDsv, D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle);
+    static void SetRenderTargets(const DxCommand* dxCommand, const DxDsvDescriptor& dxDsv, D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle);
 
     /// <summary>
     /// 描画前処理
     /// </summary>
-    static void PreDraw(DxCommand* dxCommand, const WinApp* window, DxDsvDescriptor* dxDsv, const DxSwapChain* dxSwapChain);
+    static void PreDraw(DxCommand* dxCommand, const WinApp* window, const DxDsvDescriptor& dxDsv, const DxSwapChain* dxSwapChain);
     /// <summary>
     /// 描画前処理
     /// </summary>
-    static void PreDraw(DxCommand* dxCommand, const Vec2f& rectSize, DxDsvDescriptor* dxDsv, const DxSwapChain* dxSwapChain);
+    static void PreDraw(DxCommand* dxCommand, const Vec2f& rectSize, const DxDsvDescriptor& dxDsv, const DxSwapChain* dxSwapChain);
 
     /// <summary>
     /// 描画後処理

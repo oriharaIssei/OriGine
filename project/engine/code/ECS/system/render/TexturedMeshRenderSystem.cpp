@@ -511,7 +511,7 @@ void TexturedMeshRenderSystem::RenderModelMesh(Microsoft::WRL::ComPtr<ID3D12Grap
             materialBuff.ConvertToBuffer(*material);
 
             if (material->hasCustomTexture()) {
-                textureHandle = material->getCustomTexture()->srv_->getGpuHandle();
+                textureHandle = material->getCustomTexture()->srv_.getGpuHandle();
             }
         }
 
@@ -547,7 +547,7 @@ void TexturedMeshRenderSystem::RenderPrimitiveMesh(
                 materialBuff.ConvertToBuffer(*material);
 
                 if (material->hasCustomTexture()) {
-                    textureHandle = material->getCustomTexture()->srv_->getGpuHandle();
+                    textureHandle = material->getCustomTexture()->srv_.getGpuHandle();
                 }
             }
         }

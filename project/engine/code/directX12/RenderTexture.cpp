@@ -155,6 +155,11 @@ void RenderTexture::Initialize(
         renderTarget.resource_.setName(wName + std::to_wstring(index));
         ++index;
     }
+
+    if (_bufferCount > 1) {
+        backBufferIndex_  = 0;
+        frontBufferIndex_ = 1;
+    }
 }
 
 void RenderTexture::Initialize(int32_t _bufferCount, const DirectX::TexMetadata& _metaData, const Vec4f& _clearColor) {
@@ -224,22 +229,19 @@ void RenderTexture::Finalize() {
 
         rtvHeap->ReleaseDescriptor(renderTarget.rtv_);
         srvHeap->ReleaseDescriptor(renderTarget.srv_);
-
-        renderTarget.rtv_.reset();
-        renderTarget.srv_.reset();
     }
 
     dxCommand_->Finalize();
 }
 
-void RenderTexture::PreDraw(DxDsvDescriptor* _dsv) {
+void RenderTexture::PreDraw(const DxDsvDescriptor& _dsv) {
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->getCommandList();
 
     ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
 
     D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = getFrontBufferRtvHandle();
-    D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = _dsv->getCpuHandle();
+    D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = _dsv.getCpuHandle();
 
     ///=========================================
     //	TransitionBarrier の 設定

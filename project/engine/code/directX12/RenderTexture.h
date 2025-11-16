@@ -50,7 +50,7 @@ public:
     /// <summary>
     /// RenderTexture への 書き込み準備
     /// </summary>
-    void PreDraw(DxDsvDescriptor* _dsv = Engine::getInstance()->getDxDsv());
+    void PreDraw(const DxDsvDescriptor& _dsv = Engine::getInstance()->getDxDsv());
     /// <summary>
     /// RenderTexture への 書き込み開始
     /// </summary>
@@ -72,8 +72,8 @@ private:
     struct RenderTargetCombo {
         DxResource resource_;
 
-        std::shared_ptr<DxRtvDescriptor> rtv_;
-        std::shared_ptr<DxSrvDescriptor> srv_;
+        DxRtvDescriptor rtv_;
+        DxSrvDescriptor srv_;
     };
 
     DXGI_FORMAT format_ = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
@@ -99,22 +99,22 @@ public:
     // back
     int32_t getBackBufferIndex() const { return backBufferIndex_; }
     const Microsoft::WRL::ComPtr<ID3D12Resource>& getBackBuffer() const { return renderTargets_[backBufferIndex_].resource_.getResource(); }
-    std::shared_ptr<DxRtvDescriptor> getBackBufferRtv() const { return renderTargets_[backBufferIndex_].rtv_; }
-    std::shared_ptr<DxSrvDescriptor> getBackBufferSrv() const { return renderTargets_[backBufferIndex_].srv_; }
-    D3D12_GPU_DESCRIPTOR_HANDLE getBackBufferSrvHandle() const { return renderTargets_[backBufferIndex_].srv_->getGpuHandle(); }
-    D3D12_CPU_DESCRIPTOR_HANDLE getBackBufferRtvHandle() const { return renderTargets_[backBufferIndex_].rtv_->getCpuHandle(); }
+    const DxRtvDescriptor& getBackBufferRtv() const { return renderTargets_[backBufferIndex_].rtv_; }
+    const DxSrvDescriptor& getBackBufferSrv() const { return renderTargets_[backBufferIndex_].srv_; }
+    D3D12_GPU_DESCRIPTOR_HANDLE getBackBufferSrvHandle() const { return renderTargets_[backBufferIndex_].srv_.getGpuHandle(); }
+    D3D12_CPU_DESCRIPTOR_HANDLE getBackBufferRtvHandle() const { return renderTargets_[backBufferIndex_].rtv_.getCpuHandle(); }
     // front
     int32_t getFrontBufferIndex() const { return frontBufferIndex_; }
     const Microsoft::WRL::ComPtr<ID3D12Resource>& getFrontBuffer() const { return renderTargets_[frontBufferIndex_].resource_.getResource(); }
-    std::shared_ptr<DxRtvDescriptor> getFrontBufferRtv() const { return renderTargets_[frontBufferIndex_].rtv_; }
-    std::shared_ptr<DxSrvDescriptor> getFrontBufferSrv() const { return renderTargets_[frontBufferIndex_].srv_; }
-    D3D12_GPU_DESCRIPTOR_HANDLE getFrontBufferSrvHandle() const { return renderTargets_[frontBufferIndex_].srv_->getGpuHandle(); }
-    D3D12_CPU_DESCRIPTOR_HANDLE getFrontBufferRtvHandle() const { return renderTargets_[frontBufferIndex_].rtv_->getCpuHandle(); }
+    const DxRtvDescriptor& getFrontBufferRtv() const { return renderTargets_[frontBufferIndex_].rtv_; }
+    const DxSrvDescriptor& getFrontBufferSrv() const { return renderTargets_[frontBufferIndex_].srv_; }
+    D3D12_GPU_DESCRIPTOR_HANDLE getFrontBufferSrvHandle() const { return renderTargets_[frontBufferIndex_].srv_.getGpuHandle(); }
+    D3D12_CPU_DESCRIPTOR_HANDLE getFrontBufferRtvHandle() const { return renderTargets_[frontBufferIndex_].rtv_.getCpuHandle(); }
 
     D3D12_GPU_DESCRIPTOR_HANDLE getSrvHandle(int32_t index) const {
-        return renderTargets_[index].srv_->getGpuHandle();
+        return renderTargets_[index].srv_.getGpuHandle();
     }
     D3D12_CPU_DESCRIPTOR_HANDLE getRtvHandle(int32_t index) const {
-        return renderTargets_[index].rtv_->getCpuHandle();
+        return renderTargets_[index].rtv_.getCpuHandle();
     }
 };

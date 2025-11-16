@@ -220,7 +220,7 @@ void GpuParticleRenderSystem::RenderingBy(BlendMode _blendMode, bool /*_isCullin
     for (auto& emitter : activeEmitterByBlendMode_[blendModeIndex]) {
         commandList->SetGraphicsRootDescriptorTable(
             0,
-            emitter->getParticleSrvDescriptor()->getGpuHandle());
+            emitter->getParticleSrvDescriptor().getGpuHandle());
 
         emitter->getMaterialBuffer().ConvertToBuffer();
         emitter->getMaterialBuffer().SetForRootParameter(commandList, 2);

@@ -29,7 +29,7 @@ struct Texture {
     std::string path;
     DirectX::TexMetadata metaData;
     DxResource resource;
-    std::shared_ptr<DxSrvDescriptor> srv;
+    DxSrvDescriptor srv;
 
 private:
     DirectX::ScratchImage Load(const std::string& filePath);

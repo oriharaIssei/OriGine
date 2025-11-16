@@ -190,8 +190,7 @@ void DxCommand::ResourceDirectBarrier(Microsoft::WRL::ComPtr<ID3D12Resource> res
 HRESULT DxCommand::Close() {
     HRESULT hr = commandList_->Close();
     if (FAILED(hr)) {
-        wchar_t name[128] = {};
-
+      
         OutputDebugStringA("CommandList Close FAILED! ptr=");
         char buf[64];
         sprintf_s(buf, "%p", commandList_);
@@ -227,10 +226,10 @@ void DxCommand::ExecuteCommandAndPresent(IDXGISwapChain4* swapChain) {
     ///===============================================================
 }
 
-void DxCommand::ClearTarget(DxRtvDescriptor* _rtv, DxDsvDescriptor* _dsv, const Vec4f& _clearColor) {
+void DxCommand::ClearTarget(const DxRtvDescriptor& _rtv, const DxDsvDescriptor& _dsv, const Vec4f& _clearColor) {
 
-    D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle           = _dsv->getCpuHandle();
-    D3D12_CPU_DESCRIPTOR_HANDLE backBufferRtvHandle = _rtv->getCpuHandle();
+    D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle           = _dsv.getCpuHandle();
+    D3D12_CPU_DESCRIPTOR_HANDLE backBufferRtvHandle = _rtv.getCpuHandle();
 
     commandList_->OMSetRenderTargets(
         1,

@@ -42,7 +42,7 @@ public:
     /// <summary>
     /// 現在のバックバッファをクリア
     /// </summary>
-    void CurrentBackBufferClear(DxCommand* _commandList, DxDsvDescriptor* _dsv) const;
+    void CurrentBackBufferClear(DxCommand* _commandList, const DxDsvDescriptor& _dsv) const;
 
     /// <summary>
     /// バックバッファのリサイズ
@@ -52,7 +52,7 @@ public:
 private:
     Microsoft::WRL::ComPtr<IDXGISwapChain4> swapChain_;
 
-    std::vector<std::shared_ptr<DxRtvDescriptor>> backBuffers_;
+    std::vector<DxRtvDescriptor> backBuffers_;
     std::vector<DxResource> backBufferResources_;
     UINT bufferCount_;
 
@@ -66,13 +66,13 @@ public:
     UINT getCurrentBackBufferIndex() const { return swapChain_->GetCurrentBackBufferIndex(); }
 
     D3D12_CPU_DESCRIPTOR_HANDLE getCurrentBackBufferRtv() const {
-        return backBuffers_[swapChain_->GetCurrentBackBufferIndex()]->getCpuHandle();
+        return backBuffers_[swapChain_->GetCurrentBackBufferIndex()].getCpuHandle();
     }
     D3D12_CPU_DESCRIPTOR_HANDLE getBackBufferRtv(UINT index) const {
         if (index >= bufferCount_) {
             throw std::out_of_range("Index out of range in DxSwapChain::getBackBufferRtv");
         }
-        return backBuffers_[index]->getCpuHandle();
+        return backBuffers_[index].getCpuHandle();
     }
 
     IDXGISwapChain4* getSwapChain() const { return swapChain_.Get(); }

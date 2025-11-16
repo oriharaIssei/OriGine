@@ -205,13 +205,13 @@ private:
     TextureMesh mesh_;
 
     DxResource particleResource_;
-    std::shared_ptr<DxSrvDescriptor> particleSrvDescriptor_ = nullptr;
-    std::shared_ptr<DxUavDescriptor> particleUavDescriptor_ = nullptr;
+    DxSrvDescriptor particleSrvDescriptor_;
+    DxUavDescriptor particleUavDescriptor_;
 
     DxResource freeListResource_;
-    std::shared_ptr<DxUavDescriptor> freeListUavDescriptor_ = nullptr;
+    DxUavDescriptor freeListUavDescriptor_;
     DxResource freeIndexResource_;
-    std::shared_ptr<DxUavDescriptor> freeIndexUavDescriptor_ = nullptr;
+    DxUavDescriptor freeIndexUavDescriptor_;
 
     IConstantBuffer<Material> materialBuffer_;
     IConstantBuffer<GpuParticleEmitSphere> shapeBuffer_;
@@ -228,20 +228,20 @@ public:
     TextureMesh& getMeshRef() { return mesh_; }
 
     const DxResource& getParticleResource() const { return particleResource_; }
-    std::shared_ptr<DxSrvDescriptor> getParticleSrvDescriptor() const {
+    const DxSrvDescriptor& getParticleSrvDescriptor() const {
         return particleSrvDescriptor_;
     }
-    std::shared_ptr<DxUavDescriptor> getParticleUavDescriptor() const {
+    DxUavDescriptor getParticleUavDescriptor() const {
         return particleUavDescriptor_;
     }
 
     const DxResource& getFreeIndexResource() const { return freeIndexResource_; }
-    std::shared_ptr<DxUavDescriptor> getFreeIndexUavDescriptor() const {
+    DxUavDescriptor getFreeIndexUavDescriptor() const {
         return freeIndexUavDescriptor_;
     }
 
     const DxResource& getFreeListResource() const { return freeListResource_; }
-    std::shared_ptr<DxUavDescriptor> getFreeListUavDescriptor() const {
+    DxUavDescriptor getFreeListUavDescriptor() const {
         return freeListUavDescriptor_;
     }
 

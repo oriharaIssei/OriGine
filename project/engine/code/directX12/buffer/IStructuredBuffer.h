@@ -49,7 +49,7 @@ public:
 
 protected:
     DxResource buff_;
-    std::shared_ptr<DxSrvDescriptor> srv_;
+    DxSrvDescriptor srv_;
 
     // bind されたデータへのポインタ
     StructuredBufferType* mappingData_ = nullptr;
@@ -79,9 +79,8 @@ public:
     size_t capacity() const { return elementCount_; }
 
     DxResource& getResource() { return buff_; }
-    std::shared_ptr<DxSrvDescriptor> getSrv() const { return srv_; }
+    const DxSrvDescriptor& getSrv() const { return srv_; }
 };
-
 
 template <StructuredBuffer structBuff>
 inline void IStructuredBuffer<structBuff>::CreateBuffer(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t elementCount, bool _withUAV) {
@@ -194,5 +193,5 @@ inline void IStructuredBuffer<structBuff>::ConvertToBuffer() {
 
 template <StructuredBuffer structBuff>
 inline void IStructuredBuffer<structBuff>::SetForRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const {
-    cmdList->SetGraphicsRootDescriptorTable(rootParameterNum, srv_->getGpuHandle());
+    cmdList->SetGraphicsRootDescriptorTable(rootParameterNum, srv_.getGpuHandle());
 }

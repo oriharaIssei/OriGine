@@ -61,7 +61,7 @@ private:
     std::unique_ptr<DxCommand> dxCommand_;
     std::unique_ptr<DxSwapChain> dxSwapChain_;
     DxResource dsvResource_;
-    std::shared_ptr<DxDsvDescriptor> dxDsv_;
+    DxDsvDescriptor dxDsv_;
     std::unique_ptr<DxFence> dxFence_;
     // resource
     std::unique_ptr<DxDescriptorHeap<DxDescriptorHeapType::RTV>> rtvHeap_;
@@ -83,7 +83,7 @@ public:
     DxSwapChain* getDxSwapChain() const { return dxSwapChain_.get(); }
     DxFence* getDxFence() const { return dxFence_.get(); }
 
-    DxDsvDescriptor* getDxDsv() const { return dxDsv_.get(); }
+    const DxDsvDescriptor& getDxDsv() const { return dxDsv_; }
     DxResource* getDsvResource() { return &dsvResource_; }
 
     DxDescriptorHeap<DxDescriptorHeapType::RTV>* getRtvHeap() const { return rtvHeap_.get(); }

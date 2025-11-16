@@ -37,7 +37,7 @@ private:
 private:
     // SRV用ヒープ
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> srvHeap_ = nullptr;
-    std::shared_ptr<DxSrvDescriptor> srv_;
+    DxSrvDescriptor srv_;
     std::unique_ptr<DxCommand> dxCommand_;
 
     // ImGuiのフォント
@@ -45,7 +45,7 @@ private:
     ImFont* materialIconFont_ = nullptr;
 public:
     const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& getSrvHeap() const{ return srvHeap_; }
-    const std::shared_ptr<DxSrvDescriptor>& getSrv() const{ return srv_; }
+    const DxSrvDescriptor& getSrv() const{ return srv_; }
     DxCommand* getDxCommand(){ return dxCommand_.get(); }
 
     ImFont* getFont() const{ return font_; }

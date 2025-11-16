@@ -15,7 +15,7 @@ GpuParticleEmitterWorkSystem::~GpuParticleEmitterWorkSystem() {}
 
 void GpuParticleEmitterWorkSystem::Initialize() {
     constexpr int32_t initialReserveCount = 100;
-    dxCommand_ = std::make_unique<DxCommand>();
+    dxCommand_                            = std::make_unique<DxCommand>();
     dxCommand_->Initialize("main", "main");
     perFrameBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
 
@@ -107,15 +107,15 @@ void GpuParticleEmitterWorkSystem::UpdateParticle(GpuParticleEmitter* _emitter) 
 
     commandList->SetComputeRootDescriptorTable(
         particlesDataIndex,
-        _emitter->getParticleUavDescriptor()->getGpuHandle());
+        _emitter->getParticleUavDescriptor().getGpuHandle());
 
     commandList->SetComputeRootDescriptorTable(
         freeIndexBufferIndex,
-        _emitter->getFreeIndexUavDescriptor()->getGpuHandle());
+        _emitter->getFreeIndexUavDescriptor().getGpuHandle());
 
     commandList->SetComputeRootDescriptorTable(
         freeListBufferIndex,
-        _emitter->getFreeListUavDescriptor()->getGpuHandle());
+        _emitter->getFreeListUavDescriptor().getGpuHandle());
 
     dxCommand_->ResourceBarrier(
         _emitter->getParticleResource().getResource(),
@@ -161,15 +161,15 @@ void GpuParticleEmitterWorkSystem::EmitParticle(GpuParticleEmitter* _emitter) {
 
     commandList->SetComputeRootDescriptorTable(
         particlesDataIndex,
-        _emitter->getParticleUavDescriptor()->getGpuHandle());
+        _emitter->getParticleUavDescriptor().getGpuHandle());
 
     commandList->SetComputeRootDescriptorTable(
         freeIndexBufferIndex,
-        _emitter->getFreeIndexUavDescriptor()->getGpuHandle());
+        _emitter->getFreeIndexUavDescriptor().getGpuHandle());
 
     commandList->SetComputeRootDescriptorTable(
         freeListBufferIndex,
-        _emitter->getFreeListUavDescriptor()->getGpuHandle());
+        _emitter->getFreeListUavDescriptor().getGpuHandle());
 
     D3D12_RESOURCE_BARRIER particleResourceBarrier = {};
     particleResourceBarrier.Type                   = D3D12_RESOURCE_BARRIER_TYPE_UAV;

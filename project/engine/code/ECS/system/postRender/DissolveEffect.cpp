@@ -179,7 +179,7 @@ void DissolveEffect::DispatchComponent(Entity* _entity) {
             materialBuff.ConvertToBuffer(ColorAndUvTransform(material->color_, material->uvTransform_));
 
             if (material->hasCustomTexture()) {
-                srvHandle = material->getCustomTexture()->srv_->getGpuHandle();
+                srvHandle = material->getCustomTexture()->srv_.getGpuHandle();
             }
         }
 

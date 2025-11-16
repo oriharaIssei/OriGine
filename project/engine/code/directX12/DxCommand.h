@@ -73,7 +73,7 @@ public:
     void ExecuteCommand();
     void ExecuteCommandAndPresent(IDXGISwapChain4* swapChain);
 
-    void ClearTarget(DxRtvDescriptor* _rtv, DxDsvDescriptor* _dsv, const Vec4f& _clearColor);
+    void ClearTarget(const DxRtvDescriptor& _rtv, const DxDsvDescriptor& _dsv, const Vec4f& _clearColor);
 
 private:
     std::string commandListComboKey_;

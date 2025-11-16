@@ -42,9 +42,8 @@ void GpuParticleEmitter::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_un
         "ParticleSize##" + _parentLabel,
         shapeBuffer_->particleSize,
         1.f,
-        1,0,
-        "%6d"
-    );
+        1, 0,
+        "%6d");
 
     ImGui::Spacing();
 
@@ -182,29 +181,17 @@ void GpuParticleEmitter::Finalize() {
 
     particleResource_.Finalize();
 
-    if (particleUavDescriptor_) {
-        srvuavHeap->ReleaseDescriptor(particleUavDescriptor_); // UAVディスクリプタを解放
-        particleUavDescriptor_ = nullptr; // UAVディスクリプタを解放
-    }
-    if (particleSrvDescriptor_) {
-        // cbv_srv_uav heap
-        srvuavHeap->ReleaseDescriptor(particleSrvDescriptor_); // SRVディスクリプタを解放
-        particleSrvDescriptor_ = nullptr; // SRVディスクリプタを解放
-    }
+    srvuavHeap->ReleaseDescriptor(particleUavDescriptor_); // UAVディスクリプタを解放
+    // cbv_srv_uav heap
+    srvuavHeap->ReleaseDescriptor(particleSrvDescriptor_); // SRVディスクリプタを解放
 
     freeIndexResource_.Finalize();
-    if (freeIndexUavDescriptor_) {
-        // cbv_srv_uav heap
-        srvuavHeap->ReleaseDescriptor(freeIndexUavDescriptor_); // UAVディスクリプタを解放
-        freeIndexUavDescriptor_ = nullptr; // UAVディスクリプタを解放
-    }
+    // cbv_srv_uav heap
+    srvuavHeap->ReleaseDescriptor(freeIndexUavDescriptor_); // UAVディスクリプタを解放
 
     freeListResource_.Finalize();
-    if (freeListUavDescriptor_) {
-        // cbv_srv_uav heap
-        srvuavHeap->ReleaseDescriptor(freeListUavDescriptor_); // UAVディスクリプタを解放
-        freeListUavDescriptor_ = nullptr; // UAVディスクリプタを解放
-    }
+    // cbv_srv_uav heap
+    srvuavHeap->ReleaseDescriptor(freeListUavDescriptor_); // UAVディスクリプタを解放
 
     if (materialBuffer_.getResource().getResource()) {
         materialBuffer_.Finalize();
@@ -245,7 +232,7 @@ void GpuParticleEmitter::CreateBuffer() {
     }
 
     // Srv が 未作成の場合は、バッファを生成
-    if (!particleSrvDescriptor_) {
+    if (particleSrvDescriptor_.getIndex() < 0) {
         // SRVディスクリプタ 生成
         D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
         srvDesc.Format                     = DXGI_FORMAT_UNKNOWN; // SRVはフォーマットを持たない
@@ -258,7 +245,7 @@ void GpuParticleEmitter::CreateBuffer() {
     }
 
     // UAVが未作成の場合は、UAVを生成
-    if (!particleUavDescriptor_) {
+    if (particleUavDescriptor_.getIndex() < 0) {
 
         // UAVディスクリプタ 生成
         D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc{};
@@ -281,7 +268,7 @@ void GpuParticleEmitter::CreateBuffer() {
             D3D12_HEAP_TYPE_DEFAULT);
     }
     // freeIndexUavDescriptor_ が未作成の場合は、UAVを生成
-    if (!freeIndexUavDescriptor_) {
+    if (freeIndexUavDescriptor_.getIndex() < 0) {
         // UAVディスクリプタ 生成
         D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc{};
         uavDesc.Format                      = DXGI_FORMAT_UNKNOWN; // UAVはフォーマットを持たない
@@ -303,7 +290,7 @@ void GpuParticleEmitter::CreateBuffer() {
             D3D12_HEAP_TYPE_DEFAULT);
     }
     // freeListUavDescriptor_ が未作成の場合は、UAVを生成
-    if (!freeListUavDescriptor_) {
+    if (freeListUavDescriptor_.getIndex() < 0) {
         // UAVディスクリプタ 生成
         D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc{};
         uavDesc.Format                      = DXGI_FORMAT_UNKNOWN; // UAVはフォーマットを持たない

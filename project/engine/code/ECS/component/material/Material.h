@@ -88,8 +88,9 @@ public:
     /// </summary>
     struct CustomTextureData {
         CustomTextureData() = default;
-        std::shared_ptr<DxSrvDescriptor> srv_;
-        DxResource resource_;
+
+        DxSrvDescriptor srv_{};
+        DxResource resource_{};
     };
 
 public:
@@ -109,7 +110,7 @@ private:
 public:
     bool hasCustomTexture() const { return customTexture_.has_value(); }
     const std::optional<CustomTextureData>& getCustomTexture() const { return customTexture_; }
-    void setCustomTexture(std::shared_ptr<DxSrvDescriptor> _srv, const DxResource& _resource) {
+    void setCustomTexture(DxSrvDescriptor _srv, const DxResource& _resource) {
         if (!customTexture_) {
             customTexture_.emplace(CustomTextureData());
         }

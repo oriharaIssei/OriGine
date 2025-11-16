@@ -11,7 +11,6 @@
 #include "component/animation/SkinningAnimationComponent.h"
 #include "component/renderer/MeshRenderer.h"
 
-
 #include "logger/Logger.h"
 
 static void ApplyAnimation(Skeleton& _skeleton, AnimationData* _animationData, float _animationTime) {
@@ -210,7 +209,7 @@ void SkinningAnimationSystem::UpdateEntity(Entity* _entity) {
             // スキニングされた頂点バッファを更新
             auto& skinnedVertexBuffer = animationComponent->getSkinnedVertexBuffer(meshIdx);
 
-            if (!skinnedVertexBuffer.descriptor || !skinnedVertexBuffer.buffer.isValid()) {
+            if (!skinnedVertexBuffer.buffer.isValid()) {
                 continue; // スキニングされた頂点バッファが無効な場合はスキップ
             }
 
@@ -224,16 +223,16 @@ void SkinningAnimationSystem::UpdateEntity(Entity* _entity) {
 
             commandList->SetComputeRootDescriptorTable(
                 outputVertexBufferIndex_,
-                skinnedVertexBuffer.descriptor->getGpuHandle());
+                skinnedVertexBuffer.descriptor.getGpuHandle());
             commandList->SetComputeRootShaderResourceView(
                 inputVertexBufferIndex_,
                 mesh.getVBView().BufferLocation);
             commandList->SetComputeRootDescriptorTable(
                 matrixPaletteBufferIndex_,
-                clusterData.skeletonMatrixPaletteBuffer_.getSrv()->getGpuHandle());
+                clusterData.skeletonMatrixPaletteBuffer_.getSrv().getGpuHandle());
             commandList->SetComputeRootDescriptorTable(
                 vertexInfluenceBufferIndex_,
-                clusterData.vertexInfluencesBuffer_.getSrv()->getGpuHandle());
+                clusterData.vertexInfluencesBuffer_.getSrv().getGpuHandle());
 
             clusterData.skinningInfoBuffer_->vertexSize =
                 mesh.getVBView().SizeInBytes / mesh.getVBView().StrideInBytes;

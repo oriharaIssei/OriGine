@@ -44,7 +44,7 @@ void CylinderRenderer::Initialize(Entity* _hostEntity) {
     }
 }
 
-void CylinderRenderer::Edit(Scene* _scene, Entity* _entity, const std::string& _parentLabel) {
+void CylinderRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     ImGui::SeparatorText("Material");
     ImGui::Spacing();

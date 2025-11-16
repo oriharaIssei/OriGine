@@ -312,7 +312,7 @@ D3D12_GPU_DESCRIPTOR_HANDLE TextureManager::getDescriptorGpuHandle(uint32_t hand
     locate = handleId;
 
     // ロード中や未ロードの場合は必ずダミー（0番）を返す
-    return textures_[locate]->srv->getGpuHandle();
+    return textures_[locate]->srv.getGpuHandle();
 }
 #pragma endregion
 

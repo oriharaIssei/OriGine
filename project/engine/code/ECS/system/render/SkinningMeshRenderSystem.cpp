@@ -366,7 +366,7 @@ void SkinningMeshRenderSystem::RenderModelMesh(
                 materialBuff.ConvertToBuffer(*material);
 
                 if (material->hasCustomTexture()) {
-                    textureHandle = material->getCustomTexture()->srv_->getGpuHandle();
+                    textureHandle = material->getCustomTexture()->srv_.getGpuHandle();
                 }
             } else {
                 materialBuff.ConvertToBuffer(Material());

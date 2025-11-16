@@ -85,9 +85,8 @@ void DxSwapChain::Initialize(const WinApp* winApp, const DxDevice* device, const
 void DxSwapChain::Finalize() {
     auto* rtvHeap = Engine::getInstance()->getRtvHeap();
     for (int i = 0; i < (int)bufferCount_; ++i) {
-        if (backBuffers_[i]) {
+        if (backBuffers_[i].getIndex() >= 0) {
             rtvHeap->ReleaseDescriptor(backBuffers_[i]);
-            backBuffers_[i].reset();
         }
         backBufferResources_[i].Finalize();
     }
@@ -99,8 +98,8 @@ void DxSwapChain::Present() {
     swapChain_->Present(1, 0);
 }
 
-void DxSwapChain::CurrentBackBufferClear(DxCommand* _commandList, DxDsvDescriptor* _dsv) const {
-    _commandList->ClearTarget(backBuffers_[swapChain_->GetCurrentBackBufferIndex()].get(), _dsv, clearColor_);
+void DxSwapChain::CurrentBackBufferClear(DxCommand* _commandList, const DxDsvDescriptor& _dsv) const {
+    _commandList->ClearTarget(backBuffers_[swapChain_->GetCurrentBackBufferIndex()], _dsv, clearColor_);
 }
 
 void DxSwapChain::ResizeBuffer(UINT width, UINT height) {
@@ -113,9 +112,8 @@ void DxSwapChain::ResizeBuffer(UINT width, UINT height) {
     // 古いバックバッファを解放
     auto* rtvHeap = Engine::getInstance()->getRtvHeap();
     for (int i = 0; i < (int)bufferCount_; ++i) {
-        if (backBuffers_[i]) {
+        if (backBuffers_[i].getIndex() >= 0) {
             rtvHeap->ReleaseDescriptor(backBuffers_[i]);
-            backBuffers_[i].reset();
         }
         backBufferResources_[i].Finalize();
     }

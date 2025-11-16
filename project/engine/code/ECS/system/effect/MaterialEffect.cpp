@@ -17,9 +17,12 @@ void MaterialEffect::Initialize() {
     dxCommand_ = std::make_unique<DxCommand>();
     dxCommand_->Initialize("main", "main");
 
+    int32_t index = 0;
     for (auto& tempRenderTexture : tempRenderTextures_) {
         tempRenderTexture = std::make_unique<RenderTexture>(dxCommand_.get());
         tempRenderTexture->Initialize(2, Vec2f(512.f, 512.f));
+        tempRenderTexture->setTextureName("MaterialEffect_" + std::to_string(index));
+        ++index;
     }
 
     dissolveEffect_ = std::make_unique<DissolveEffect>();

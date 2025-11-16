@@ -241,7 +241,7 @@ void Engine::EndFrame() {
 }
 
 void Engine::ScreenPreDraw() {
-    DxFH::PreDraw(dxCommand_.get(), window_.get(), dxDsv_.get(), dxSwapChain_.get());
+    DxFH::PreDraw(dxCommand_.get(), window_.get(), dxDsv_, dxSwapChain_.get());
 }
 
 void Engine::ScreenPostDraw() {

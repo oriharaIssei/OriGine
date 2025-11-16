@@ -77,7 +77,7 @@ public:
 
 public:
     struct UavBuffer {
-        std::shared_ptr<DxUavDescriptor> descriptor;
+        DxUavDescriptor descriptor;
         D3D12_VERTEX_BUFFER_VIEW vbView{};
         DxResource buffer;
     };

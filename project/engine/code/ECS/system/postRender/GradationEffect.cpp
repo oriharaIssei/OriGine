@@ -179,7 +179,7 @@ void GradationEffect::DispatchComponent(Entity* _entity) {
             uvTransBuff.ConvertToBuffer(ColorAndUvTransform(material->color_, material->uvTransform_));
 
             if (material->hasCustomTexture()) {
-                texHandle = material->getCustomTexture()->srv_->getGpuHandle();
+                texHandle = material->getCustomTexture()->srv_.getGpuHandle();
             }
         }
 

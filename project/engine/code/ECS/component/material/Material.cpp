@@ -36,8 +36,8 @@ void Material::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _en
 #ifdef _DEBUG
     constexpr float kCustomTextureSize = 32.f;
 
-    if(customTexture_.has_value()){
-        ImGui::Image(reinterpret_cast<ImTextureID>(customTexture_->srv_->getGpuHandle().ptr), {kCustomTextureSize, kCustomTextureSize});
+    if (customTexture_.has_value()) {
+        ImGui::Image(reinterpret_cast<ImTextureID>(customTexture_->srv_.getGpuHandle().ptr), {kCustomTextureSize, kCustomTextureSize});
         ImGui::Spacing();
     }
 
@@ -57,7 +57,6 @@ void Material::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _en
 
     ImGui::Text("isLightUse");
     CheckBoxCommand("##isLightUse" + _parentLabel, enableLighting_);
-
 
     ImGui::Text("shininess");
     std::string label = "##shininess" + _parentLabel;

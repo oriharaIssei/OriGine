@@ -15,7 +15,6 @@
 // component
 #include "component/renderer/MeshRenderer.h"
 
-
 #include "myFileSystem/MyFileSystem.h"
 
 #ifdef _DEBUG
@@ -76,7 +75,7 @@ void SkinningAnimationComponent::Initialize(Entity* _entity) {
 }
 
 void SkinningAnimationComponent::Edit([[maybe_unused]] Scene* _scene, Entity* /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
-    
+
 #ifdef _DEBUG
 
     int32_t entityModelMeshRendererSize = _scene->getComponentArray<ModelMeshRenderer>()->getComponentSize(entity_);
@@ -229,7 +228,7 @@ void SkinningAnimationComponent::Play(const std::string& name) {
     Play(index);
 }
 
-void SkinningAnimationComponent::PlayNext( int32_t index, float _blendTime) {
+void SkinningAnimationComponent::PlayNext(int32_t index, float _blendTime) {
     if (index < 0 || index >= static_cast<int32_t>(animationTable_.size())) {
         LOG_ERROR("Invalid animation index: {}", index);
         return;
@@ -301,7 +300,6 @@ void SkinningAnimationComponent::CreateSkinnedVertex(Scene* _scene) {
                 }
                 skinnedVertexBuffer_[i].buffer.Finalize();
                 uavHeap->ReleaseDescriptor(skinnedVertexBuffer_[i].descriptor);
-                skinnedVertexBuffer_[i].descriptor.reset();
             }
         }
         skinnedVertexBuffer_.resize(meshGroupSize);
@@ -353,9 +351,8 @@ void SkinningAnimationComponent::CreateSkinnedVertex(Scene* _scene) {
 void SkinningAnimationComponent::DeleteSkinnedVertex() {
     // UAVディスクリプタを解放
     for (auto& skinnedVertex : skinnedVertexBuffer_) {
-        if (skinnedVertex.descriptor) {
+        if (skinnedVertex.descriptor.getIndex() >= 0) {
             Engine::getInstance()->getSrvHeap()->ReleaseDescriptor(skinnedVertex.descriptor);
-            skinnedVertex.descriptor.reset();
         }
         skinnedVertex.buffer.Finalize();
     }

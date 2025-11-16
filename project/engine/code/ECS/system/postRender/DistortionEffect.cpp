@@ -287,7 +287,7 @@ void DistortionEffect::DispatchComponent(Entity* _entity) {
                 materialBuff.ConvertToBuffer(ColorAndUvTransform(material->color_, material->uvTransform_));
 
                 if (material->hasCustomTexture()) {
-                    renderingData.srvHandle = material->getCustomTexture()->srv_->getGpuHandle();
+                    renderingData.srvHandle = material->getCustomTexture()->srv_.getGpuHandle();
                 }
             }
             // 追加
