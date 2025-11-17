@@ -23,6 +23,9 @@ void ReplayPlayer::Initialize(const std::string& filepath, SceneManager* _sceneM
 
     fileData_.Initialize();
     isActive_ = LoadFromFile(filepath);
+    if (isActive_) {
+        Apply(_sceneManager->keyInput_, _sceneManager->mouseInput_, _sceneManager->padInput_);
+    }
 
     // シーンマネージャーに開始シーンをセット
     _sceneManager->changeScene(fileData_.header.startScene);
@@ -123,16 +126,40 @@ bool ReplayPlayer::LoadFromFile(const std::string& filepath) {
 
 float ReplayPlayer::Apply(KeyboardInput* _keyInput, MouseInput* _mouseInput, GamePadInput* _padInput) {
     auto& frameData = fileData_.frameData[currentFrameIndex_];
-    auto& prevData  = (currentFrameIndex_ > 0) ? fileData_.frameData[currentFrameIndex_ - 1] : frameData;
 
-    /// keyboard
-    // prev を更新
-    if (prevData.keyInputData.size() != 0) {
+    /// prev の更新
+    if (currentFrameIndex_ == 0) {
+        /// 初期化
+        // key入力
         for (size_t keyIndex = 0; keyIndex < KEY_COUNT; ++keyIndex) {
-            bool isPressed                 = prevData.keyInputData.get(keyIndex);
+            bool isPressed                 = frameData.keyInputData.get(keyIndex);
             _keyInput->prevKeys_[keyIndex] = isPressed ? 0x80 : 0x00;
         }
+
+        // mouse入力
+        _mouseInput->prevPos_        = frameData.mouseData.mousePos;
+        _mouseInput->prevWheelDelta_ = frameData.mouseData.wheelDelta;
+        for (size_t mouseButtonIndex = 0; mouseButtonIndex < MOUSE_BUTTON_COUNT; ++mouseButtonIndex) {
+            _mouseInput->prevButtonStates_[mouseButtonIndex] = (frameData.mouseData.buttonData >> mouseButtonIndex) & 1u;
+        }
+
+        // pad入力
+        _padInput->prevButtonMask_ = frameData.padData.buttonData;
+
+    } else {
+        // key入力
+        _keyInput->prevKeys_ = _keyInput->keys_;
+
+        // mouse入力
+        _mouseInput->prevPos_          = _mouseInput->pos_;
+        _mouseInput->prevWheelDelta_   = _mouseInput->currentWheelDelta_;
+        _mouseInput->prevButtonStates_ = _mouseInput->currentButtonStates_;
+
+        // pad入力
+        _padInput->prevButtonMask_ = _padInput->buttonMask_;
     }
+
+    /// keyboard
     // current を更新
     if (frameData.keyInputData.size() != 0) {
         for (size_t keyIndex = 0; keyIndex < KEY_COUNT; ++keyIndex) {
@@ -142,13 +169,6 @@ float ReplayPlayer::Apply(KeyboardInput* _keyInput, MouseInput* _mouseInput, Gam
     }
 
     /// mouse
-    // prev を更新
-    _mouseInput->prevPos_        = prevData.mouseData.mousePos;
-    _mouseInput->prevWheelDelta_ = prevData.mouseData.wheelDelta;
-    for (size_t mouseButtonIndex = 0; mouseButtonIndex < MOUSE_BUTTON_COUNT; ++mouseButtonIndex) {
-        _mouseInput->prevButtonStates_[mouseButtonIndex] = (prevData.mouseData.buttonData >> mouseButtonIndex) & 1u;
-    }
-    // current を更新
     _mouseInput->pos_               = frameData.mouseData.mousePos;
     _mouseInput->virtualPos_        = _mouseInput->pos_;
     _mouseInput->currentWheelDelta_ = frameData.mouseData.wheelDelta;
@@ -160,9 +180,6 @@ float ReplayPlayer::Apply(KeyboardInput* _keyInput, MouseInput* _mouseInput, Gam
     }
 
     /// padInput
-    // prev を更新
-    _padInput->prevButtonMask_ = prevData.padData.buttonData;
-    // current を更新
     _padInput->lStick_ = frameData.padData.lStick;
     _padInput->rStick_ = frameData.padData.rStick;
 

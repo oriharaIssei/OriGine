@@ -26,6 +26,11 @@ void SubSceneUpdate::UpdateEntity(Entity* _entity) {
                 continue;
             }
 
+            // シーンマネージャー を継承
+            scene->setSceneManager(
+                getScene()->getSceneManager()
+            );
+
             // 入力デバイスを継承
             scene->setInputDevices(
                 getScene()->getKeyboardInput(),

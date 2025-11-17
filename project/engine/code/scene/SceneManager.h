@@ -26,6 +26,8 @@ class GamePadInput;
 #include <nlohmann/json.hpp>
 
 class SceneManager {
+    friend class ReplayPlayer;
+
 public:
     SceneManager();
     ~SceneManager();

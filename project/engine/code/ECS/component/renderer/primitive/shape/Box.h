@@ -4,7 +4,7 @@
 
 namespace Primitive {
 
-constexpr int32_t kBoxVertexCount = 8;
+constexpr int32_t kBoxVertexCount = 24;
 constexpr int32_t kBoxIndexCount  = 36;
 
 // <summary>

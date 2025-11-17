@@ -10,6 +10,9 @@
 void GamePadInput::Initialize() {
     // 初期入力を取得しておく
     Update();
+
+    
+    prevButtonMask_ = buttonMask_;
 }
 
 /// <summary>
