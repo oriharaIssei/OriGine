@@ -15,6 +15,6 @@ private:
 	std::chrono::high_resolution_clock::time_point currentTime_;
 	std::chrono::high_resolution_clock::time_point preTime_;
 public:
-	float getDeltaTime()const{ return deltaTime_; }
-    void setDeltaTime(float dt) { deltaTime_ = dt; }
+	float GetDeltaTime()const{ return deltaTime_; }
+    void SetDeltaTime(float dt) { deltaTime_ = dt; }
 };

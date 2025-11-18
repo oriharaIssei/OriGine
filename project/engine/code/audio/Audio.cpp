@@ -180,7 +180,7 @@ void Audio::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_unused]] [[mayb
     if (ImGui::Button(label.c_str())) {
         std::string directory;
         if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName_, {"wav"})) {
-            EditorController::getInstance()->pushCommand(std::make_unique<SetterCommand<std::string>>(&fileName_, kApplicationResourceDirectory + "/" + directory + "/" + fileName_));
+            EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<std::string>>(&fileName_, kApplicationResourceDirectory + "/" + directory + "/" + fileName_));
 
             audioClip_.data_ = LoadWave(kApplicationResourceDirectory + "/" + directory + "/" + fileName_);
         }
@@ -304,7 +304,7 @@ void AudioInitializeSystem::Finalize() {}
 void AudioInitializeSystem::UpdateEntity(Entity* entity) {
     // entityの持つ AuidoComponentをすべて取得.
     // 存在していればすべて再生
-    auto components = getComponents<Audio>(entity);
+    auto components = GetComponents<Audio>(entity);
 
     if (!components) {
         return;

@@ -7,35 +7,35 @@
 #include "component/SubScene.h"
 
 void SubSceneUpdate::UpdateEntity(Entity* _entity) {
-    auto subScenes = getComponents<SubScene>(_entity);
+    auto subScenes = GetComponents<SubScene>(_entity);
     if (subScenes == nullptr) {
         return;
     }
     // サブシーンの更新
     for (auto& subScene : *subScenes) {
         // 非アクティブならスキップ
-        if (subScene.isActive() == false) {
+        if (subScene.IsActive() == false) {
             continue;
         }
 
-        auto scene = subScene.getSubSceneRef();
+        auto scene = subScene.GetSubSceneRef();
         if (scene) {
             // サブシーンが非アクティブになっていたら 非アクティブ化する
-            if (!scene->isActive()) {
+            if (!scene->IsActive()) {
                 subScene.Deactivate();
                 continue;
             }
 
             // シーンマネージャー を継承
-            scene->setSceneManager(
-                getScene()->getSceneManager()
+            scene->SetSceneManager(
+                GetScene()->GetSceneManager()
             );
 
             // 入力デバイスを継承
-            scene->setInputDevices(
-                getScene()->getKeyboardInput(),
-                getScene()->getMouseInput(),
-                getScene()->getGamePadInput());
+            scene->SetInputDevices(
+                GetScene()->GetKeyboardInput(),
+                GetScene()->GetMouseInput(),
+                GetScene()->GetGamePadInput());
 
             scene->Update();
         }

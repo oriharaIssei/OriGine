@@ -1,8 +1,8 @@
 #include "SphereCollider.h"
 
 void to_json(nlohmann::json& _json, const SphereCollider& _s) {
-    _json["center"]    = _s.getLocalCenter();
-    _json["radius"]    = _s.getLocalRadius();
+    _json["center"]    = _s.GetLocalCenter();
+    _json["radius"]    = _s.GetLocalRadius();
     _json["transform"] = _s.transform_;
 }
 void from_json(const nlohmann::json& _json, SphereCollider& _s) {

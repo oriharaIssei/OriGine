@@ -19,9 +19,9 @@ void Sphere::CreateMesh(TextureMesh* _mesh) {
     indexSize_  = static_cast<int32_t>(latitudeDiv * longitudeDiv) * 6;
 
     // 頂点・インデックスバッファ初期化
-    if ((int32_t)_mesh->getIndexCapacity() < indexSize_) {
+    if ((int32_t)_mesh->GetIndexCapacity() < indexSize_) {
         // 必要なら Finalize
-        if (_mesh->getVertexBuffer().getResource()) {
+        if (_mesh->GetVertexBuffer().GetResource()) {
             _mesh->Finalize();
         }
         _mesh->Initialize(vertexSize_, indexSize_);

@@ -71,29 +71,29 @@ private:
     std::vector<std::pair<std::shared_ptr<PrimitiveMeshRendererBase>, PrimitiveType>> distortionObjects_;
 
 public:
-    bool getIsActive() const { return isActive_; }
-    void setIsActive(bool active) { isActive_ = active; }
+    bool GetIsActive() const { return isActive_; }
+    void SetIsActive(bool active) { isActive_ = active; }
 
-    bool getUse3dObjectList() const { return use3dObjectList_; }
-    void setUse3dObjectList(bool use) { use3dObjectList_ = use; }
+    bool GetUse3dObjectList() const { return use3dObjectList_; }
+    void SetUse3dObjectList(bool use) { use3dObjectList_ = use; }
 
-    const std::string& getTexturePath() const { return texturePath_; }
-    int32_t getTextureIndex() const { return textureIndex_; }
+    const std::string& GetTexturePath() const { return texturePath_; }
+    int32_t GetTextureIndex() const { return textureIndex_; }
 
-    int32_t getMaterialIndex() const { return materialIndex_; }
-    void setMaterialIndex(int32_t index) { materialIndex_ = index; }
+    int32_t GetMaterialIndex() const { return materialIndex_; }
+    void SetMaterialIndex(int32_t index) { materialIndex_ = index; }
 
-    DistortionParamData& getEffectParamData() {
+    DistortionParamData& GetEffectParamData() {
         return effectParamData_.openData_;
     }
-    IConstantBuffer<DistortionParamData>& getEffectParamBuffer() {
+    IConstantBuffer<DistortionParamData>& GetEffectParamBuffer() {
         return effectParamData_;
     }
-    SimpleConstantBuffer<ColorAndUvTransform>& getMaterialBuffer() {
+    SimpleConstantBuffer<ColorAndUvTransform>& GetMaterialBuffer() {
         return materialBuffer_;
     }
 
-    std::vector<std::pair<std::shared_ptr<PrimitiveMeshRendererBase>, PrimitiveType>>& getDistortionObjects() {
+    std::vector<std::pair<std::shared_ptr<PrimitiveMeshRendererBase>, PrimitiveType>>& GetDistortionObjects() {
         return distortionObjects_;
     }
 };

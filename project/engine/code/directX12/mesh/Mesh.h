@@ -79,59 +79,59 @@ private:
     std::string name_ = "UNKNOWN";
 
 public:
-    void setName(const std::string& _name) {
+    void SetName(const std::string& _name) {
         name_ = _name;
     }
-    const std::string& getName() const {
+    const std::string& GetName() const {
         return name_;
     }
 
-    void setVertexData(const std::vector<VertexDataType>& _data) {
+    void SetVertexData(const std::vector<VertexDataType>& _data) {
         vertexes_ = _data;
     }
-    void setIndexData(const std::vector<uint32_t>& _data) {
+    void SetIndexData(const std::vector<uint32_t>& _data) {
         indexes_ = _data;
     }
 
-    DxResource& getVertexBuffer() {
+    DxResource& GetVertexBuffer() {
         return vertBuff_;
     }
-    DxResource& getIndexBuffer() {
+    DxResource& GetIndexBuffer() {
         return indexBuff_;
     }
 
-    int32_t getVertexCapacity() const {
+    int32_t GetVertexCapacity() const {
         return int32_t(vertexSize_) - int32_t(vertexes_.size());
     }
-    int32_t getIndexCapacity() const {
+    int32_t GetIndexCapacity() const {
         return int32_t(indexSize_) - int32_t(indexes_.size());
     }
 
-    uint32_t getVertexSize() const {
+    uint32_t GetVertexSize() const {
         return vertexSize_;
     }
-    uint32_t getIndexSize() const {
+    uint32_t GetIndexSize() const {
         return indexSize_;
     }
-    void setVertexSize(uint32_t _size) {
+    void SetVertexSize(uint32_t _size) {
         vertexSize_ = _size;
         vertexes_.resize(vertexSize_);
     }
-    void setIndexSize(uint32_t _size) {
+    void SetIndexSize(uint32_t _size) {
         indexSize_ = _size;
         indexes_.resize(indexSize_);
     }
 
-    const D3D12_VERTEX_BUFFER_VIEW& getVertexBufferView() const {
+    const D3D12_VERTEX_BUFFER_VIEW& GetVertexBufferView() const {
         return vbView_;
     }
-    const D3D12_INDEX_BUFFER_VIEW& getIndexBufferView() const {
+    const D3D12_INDEX_BUFFER_VIEW& GetIndexBufferView() const {
         return ibView_;
     }
-    const D3D12_VERTEX_BUFFER_VIEW& getVBView() const {
+    const D3D12_VERTEX_BUFFER_VIEW& GetVBView() const {
         return vbView_;
     }
-    const D3D12_INDEX_BUFFER_VIEW& getIBView() const {
+    const D3D12_INDEX_BUFFER_VIEW& GetIBView() const {
         return ibView_;
     }
 };
@@ -150,22 +150,22 @@ inline void Mesh<VertexDataType>::Initialize(UINT _vertexCapacity, UINT _indexCa
 
         UINT vertDataSize = sizeof(VertexDataType);
 
-        vertBuff_.CreateBufferResource(Engine::getInstance()->getDxDevice()->device_, vertDataSize * this->vertexSize_);
-        vbView_.BufferLocation = vertBuff_.getResource()->GetGPUVirtualAddress();
+        vertBuff_.CreateBufferResource(Engine::GetInstance()->GetDxDevice()->device_, vertDataSize * this->vertexSize_);
+        vbView_.BufferLocation = vertBuff_.GetResource()->GetGPUVirtualAddress();
         vbView_.SizeInBytes    = vertDataSize * this->vertexSize_;
         vbView_.StrideInBytes  = vertDataSize;
-        vertBuff_.getResource()->Map(0, nullptr, reinterpret_cast<void**>(&vertData_));
+        vertBuff_.GetResource()->Map(0, nullptr, reinterpret_cast<void**>(&vertData_));
     }
 
     if (this->indexSize_ != 0) {
         indexes_.resize(this->indexSize_);
 
         UINT indexDataSize = sizeof(uint32_t);
-        indexBuff_.CreateBufferResource(Engine::getInstance()->getDxDevice()->device_, indexDataSize * this->indexSize_);
-        ibView_.BufferLocation = indexBuff_.getResource()->GetGPUVirtualAddress();
+        indexBuff_.CreateBufferResource(Engine::GetInstance()->GetDxDevice()->device_, indexDataSize * this->indexSize_);
+        ibView_.BufferLocation = indexBuff_.GetResource()->GetGPUVirtualAddress();
         ibView_.SizeInBytes    = indexDataSize * this->indexSize_;
         ibView_.Format         = DXGI_FORMAT_R32_UINT;
-        indexBuff_.getResource()->Map(0, nullptr, reinterpret_cast<void**>(&indexData_));
+        indexBuff_.GetResource()->Map(0, nullptr, reinterpret_cast<void**>(&indexData_));
     }
 }
 

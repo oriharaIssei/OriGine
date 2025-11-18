@@ -48,45 +48,45 @@ protected:
     // システム内で使用するであろう 便利関数群
     /// ==========================================
 
-    Entity* getEntity(int32_t _entityID);
-    Entity* getUniqueEntity(const std::string& _dataTypeName);
+    Entity* GetEntity(int32_t _entityID);
+    Entity* GetUniqueEntity(const std::string& _dataTypeName);
     int32_t CreateEntity(const std::string& _dataTypeName, bool _isUnique = false);
 
-    IComponentArray* getComponentArray(const std::string& _typeName);
+    IComponentArray* GetComponentArray(const std::string& _typeName);
     template <IsComponent ComponentType>
-    ComponentArray<ComponentType>* getComponentArray() {
+    ComponentArray<ComponentType>* GetComponentArray() {
         if (scene_ == nullptr) {
-            LOG_ERROR("ComponentRepository is not set.");
+            LOG_ERROR("ComponentRepository is not Set.");
             return nullptr;
         }
-        return scene_->getComponentRepositoryRef()->getComponentArray<ComponentType>();
+        return scene_->GetComponentRepositoryRef()->GetComponentArray<ComponentType>();
     }
 
     template <IsComponent ComponentType>
-    ComponentType* getComponent(Entity* _entity, uint32_t _index = 0) {
+    ComponentType* GetComponent(Entity* _entity, uint32_t _index = 0) {
         if (scene_ == nullptr) {
-            LOG_ERROR("ComponentRepository is not set.");
+            LOG_ERROR("ComponentRepository is not Set.");
             return nullptr;
         }
-        return scene_->getComponentRepositoryRef()->getComponent<ComponentType>(_entity, _index);
+        return scene_->GetComponentRepositoryRef()->GetComponent<ComponentType>(_entity, _index);
     }
     template <IsComponent ComponentType>
-    std::vector<ComponentType>* getComponents(Entity* _entity) {
+    std::vector<ComponentType>* GetComponents(Entity* _entity) {
         if (scene_ == nullptr) {
-            LOG_ERROR("ComponentRepository is not set.");
+            LOG_ERROR("ComponentRepository is not Set.");
             return nullptr;
         }
-        return scene_->getComponentRepositoryRef()->getComponents<ComponentType>(_entity);
+        return scene_->GetComponentRepositoryRef()->GetComponents<ComponentType>(_entity);
     }
 
-    void addComponent(Entity* _entity, const std::string& _typeName, IComponent* _component, bool _doInitialize = true);
+    void AddComponent(Entity* _entity, const std::string& _typeName, IComponent* _component, bool _doInitialize = true);
     template <IsComponent ComponentType>
-    void addComponent(Entity* _entity, ComponentType _component, bool _doInitialize = true) {
+    void AddComponent(Entity* _entity, ComponentType _component, bool _doInitialize = true) {
         if (scene_ == nullptr) {
-            LOG_ERROR("ComponentRepository is not set.");
+            LOG_ERROR("ComponentRepository is not Set.");
             return;
         }
-        getComponentArray<ComponentType>()->add(_entity, _component, _doInitialize);
+        GetComponentArray<ComponentType>()->Add(_entity, _component, _doInitialize);
     }
 
 protected:
@@ -104,55 +104,55 @@ private:
     bool isActive_    = false;
 
 public: // ========================================== accessor ========================================== //
-    Scene* getScene() const {
+    Scene* GetScene() const {
         return scene_;
     }
-    void setScene(Scene* _scene) {
+    void SetScene(Scene* _scene) {
         scene_ = _scene;
     }
-    SystemCategory getCategory() const {
+    SystemCategory GetCategory() const {
         return category_;
     }
-    const std::vector<int32_t>& getEntityIDs() const {
+    const std::vector<int32_t>& GetEntityIDs() const {
         return entityIDs_;
     }
-    int32_t getEntityCount() const {
+    int32_t GetEntityCount() const {
         return static_cast<int32_t>(entityIDs_.size());
     }
 
-    bool hasEntity(const Entity* _entity) const {
-        return std::find(entityIDs_.begin(), entityIDs_.end(), _entity->getID()) != entityIDs_.end();
+    bool HasEntity(const Entity* _entity) const {
+        return std::find(entityIDs_.begin(), entityIDs_.end(), _entity->GetID()) != entityIDs_.end();
     }
 
-    void addEntity(Entity* _entity) {
+    void AddEntity(Entity* _entity) {
         // 重複登録を防ぐ
-        if (std::find(entityIDs_.begin(), entityIDs_.end(), _entity->getID()) != entityIDs_.end()) {
+        if (std::find(entityIDs_.begin(), entityIDs_.end(), _entity->GetID()) != entityIDs_.end()) {
             return;
         }
-        entityIDs_.push_back(_entity->getID());
+        entityIDs_.push_back(_entity->GetID());
     }
-    void removeEntity(Entity* _entity) {
-        entityIDs_.erase(std::remove(entityIDs_.begin(), entityIDs_.end(), _entity->getID()), entityIDs_.end());
+    void RemoveEntity(Entity* _entity) {
+        entityIDs_.erase(std::remove(entityIDs_.begin(), entityIDs_.end(), _entity->GetID()), entityIDs_.end());
     }
-    void clearEntities() {
+    void ClearEntities() {
         entityIDs_.clear();
     }
 
-    void setPriority(int32_t _priority) {
+    void SetPriority(int32_t _priority) {
         priority_ = _priority;
     }
-    int32_t getPriority() const {
+    int32_t GetPriority() const {
         return priority_;
     }
 
 #ifdef _DEBUG
-    float getRunningTime() const { return deltaTimer_.getDeltaTime(); }
+    float GetRunningTime() const { return deltaTimer_.GetDeltaTime(); }
 #endif // _DEBUG
 
-    bool isActive() const {
+    bool IsActive() const {
         return isActive_;
     }
-    void setIsActive(bool _isActive) {
+    void SetIsActive(bool _isActive) {
         isActive_ = _isActive;
     }
 };

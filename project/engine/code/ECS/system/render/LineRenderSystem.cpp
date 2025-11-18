@@ -31,29 +31,29 @@ void LineRenderSystem::Finalize() {
 void LineRenderSystem::StartRender() {
     lineIsStrip_ = false;
 
-    auto commandList = dxCommand_->getCommandList();
+    auto commandList = dxCommand_->GetCommandList();
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 
-    CameraManager::getInstance()->setBufferForRootParameter(commandList, 1);
+    CameraManager::GetInstance()->SetBufferForRootParameter(commandList, 1);
 }
 
 void LineRenderSystem::DispatchRenderer(Entity* _entity) {
-    std::vector<LineRenderer>* renderers = getComponents<LineRenderer>(_entity);
+    std::vector<LineRenderer>* renderers = GetComponents<LineRenderer>(_entity);
     if (!renderers) {
         return;
     }
 
     for (auto& renderer : *renderers) {
         // 描画フラグが立っていないならスキップ
-        if (!renderer.isRender()) {
+        if (!renderer.IsRender()) {
             continue;
         }
         ///==============================
         /// Transformの更新
         ///==============================
-        Transform* entityTransform_ = getComponent<Transform>(_entity);
-        for (int32_t i = 0; i < renderer.getMeshGroupSize(); ++i) {
-            auto& transform = renderer.getTransformBuff();
+        Transform* entityTransform_ = GetComponent<Transform>(_entity);
+        for (int32_t i = 0; i < renderer.GetMeshGroupSize(); ++i) {
+            auto& transform = renderer.GetTransformBuff();
             if (transform->parent == nullptr) {
                 transform->parent = entityTransform_;
             }
@@ -61,7 +61,7 @@ void LineRenderSystem::DispatchRenderer(Entity* _entity) {
             transform.ConvertToBuffer();
         }
         // BlendMode を 適応
-        BlendMode rendererBlend = renderer.getCurrentBlend();
+        BlendMode rendererBlend = renderer.GetCurrentBlend();
 
         activeLineRenderersByBlendMode_[static_cast<size_t>(rendererBlend)].push_back(&renderer);
     }
@@ -85,19 +85,19 @@ void LineRenderSystem::RenderingBy(BlendMode _blend, bool /*_isCulling*/) {
     ///==============================
     // BlendMode を 適応
     ///==============================
-    auto& commandList = dxCommand_->getCommandListRef();
+    auto& commandList = dxCommand_->GetCommandListRef();
     commandList->SetGraphicsRootSignature(psoByBlendMode_[blendIndex]->rootSignature.Get());
     commandList->SetPipelineState(psoByBlendMode_[blendIndex]->pipelineState.Get());
 
     for (auto& renderer : activeLineRenderersByBlendMode_[blendIndex]) {
-        for (auto& mesh : *renderer->getMeshGroup()) {
-            if (mesh.getIndexSize() <= 0) {
+        for (auto& mesh : *renderer->GetMeshGroup()) {
+            if (mesh.GetIndexSize() <= 0) {
                 continue;
             }
             // 描画
-            commandList->IASetVertexBuffers(0, 1, &mesh.getVertexBufferView());
-            commandList->IASetIndexBuffer(&mesh.getIndexBufferView());
-            commandList->DrawIndexedInstanced(mesh.getIndexSize(), 1, 0, 0, 0);
+            commandList->IASetVertexBuffers(0, 1, &mesh.GetVertexBufferView());
+            commandList->IASetIndexBuffer(&mesh.GetIndexBufferView());
+            commandList->DrawIndexedInstanced(mesh.GetIndexSize(), 1, 0, 0, 0);
         }
     }
 
@@ -106,8 +106,8 @@ void LineRenderSystem::RenderingBy(BlendMode _blend, bool /*_isCulling*/) {
 }
 
 void LineRenderSystem::CreatePSO() {
-    ShaderManager* shaderManager = ShaderManager::getInstance();
-    DxDevice* dxDevice           = Engine::getInstance()->getDxDevice();
+    ShaderManager* shaderManager = ShaderManager::GetInstance();
+    DxDevice* dxDevice           = Engine::GetInstance()->GetDxDevice();
 
     // 登録されているかどうかをチェック
     if (shaderManager->IsRegisteredPipelineStateObj("LineMesh_" + blendModeStr[0])) {
@@ -115,7 +115,7 @@ void LineRenderSystem::CreatePSO() {
             if (psoByBlendMode_[i]) {
                 continue;
             }
-            psoByBlendMode_[i] = shaderManager->getPipelineStateObj("LineMesh_" + blendModeStr[i]);
+            psoByBlendMode_[i] = shaderManager->GetPipelineStateObj("LineMesh_" + blendModeStr[i]);
         }
         return;
     }
@@ -182,10 +182,10 @@ void LineRenderSystem::CreatePSO() {
     }
 }
 
-void LineRenderSystem::settingPSO(BlendMode _blend) {
+void LineRenderSystem::SettingPSO(BlendMode _blend) {
     int32_t blendIndex = static_cast<int32_t>(_blend);
 
-    auto commandList = dxCommand_->getCommandList();
+    auto commandList = dxCommand_->GetCommandList();
     commandList->SetGraphicsRootSignature(psoByBlendMode_[blendIndex]->rootSignature.Get());
     commandList->SetPipelineState(psoByBlendMode_[blendIndex]->pipelineState.Get());
 }

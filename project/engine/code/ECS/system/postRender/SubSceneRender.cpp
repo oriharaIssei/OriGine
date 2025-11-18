@@ -20,7 +20,7 @@ void SubSceneRender::RenderStart() {
 void SubSceneRender::Rendering() {
     RenderStart();
     for (auto& scene : scenes_) {
-        scene->getSceneView()->DrawTexture();
+        scene->GetSceneView()->DrawTexture();
     }
     RenderEnd();
 }
@@ -32,12 +32,12 @@ void SubSceneRender::RenderEnd() {
 }
 
 void SubSceneRender::DispatchComponent(Entity* _entity) {
-    auto subScenes = getComponents<SubScene>(_entity);
+    auto subScenes = GetComponents<SubScene>(_entity);
     for (auto& subScene : *subScenes) {
-        if (!subScene.isActive()) {
+        if (!subScene.IsActive()) {
             continue;
         }
-        auto scene = subScene.getSubSceneRef();
+        auto scene = subScene.GetSubSceneRef();
         if (!scene) {
             continue;
         }

@@ -62,13 +62,13 @@ protected:
     D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = D3D12_GPU_DESCRIPTOR_HANDLE(0); // GPU側のハンドル
     uint32_t index_                       = 0; // ヒープ内のインデックス
 public:
-    D3D12_CPU_DESCRIPTOR_HANDLE getCpuHandle() const { return cpuHandle; }
-    D3D12_GPU_DESCRIPTOR_HANDLE getGpuHandle() const { return gpuHandle; }
+    D3D12_CPU_DESCRIPTOR_HANDLE GetCpuHandle() const { return cpuHandle; }
+    D3D12_GPU_DESCRIPTOR_HANDLE GetGpuHandle() const { return gpuHandle; }
 
-    uint32_t getIndex() const { return index_; }
+    uint32_t GetIndex() const { return index_; }
 
-    void setCpuHandle(D3D12_CPU_DESCRIPTOR_HANDLE handle) { cpuHandle = handle; }
-    void setGpuHandle(D3D12_GPU_DESCRIPTOR_HANDLE handle) { gpuHandle = handle; }
+    void SetCpuHandle(D3D12_CPU_DESCRIPTOR_HANDLE handle) { cpuHandle = handle; }
+    void SetGpuHandle(D3D12_GPU_DESCRIPTOR_HANDLE handle) { gpuHandle = handle; }
 };
 
 using DxRtvDescriptor     = DxDescriptor<DxDescriptorHeapType::RTV>;
@@ -118,7 +118,7 @@ public:
         DescriptorType descriptor = DescriptorType(index, cpuHandle, gpuHandle);
 
         descriptors_[index] = descriptor;
-        usedFlags_.set(index, true); // 使用中フラグをセット
+        usedFlags_.Set(index, true); // 使用中フラグをセット
 
         return descriptor;
     }
@@ -129,9 +129,9 @@ public:
     void ReleaseDescriptor(DescriptorType _descriptor) {
         // Descriptorが無効な場合は何もしない
 
-        uint32_t index = _descriptor.getIndex();
+        uint32_t index = _descriptor.GetIndex();
         // 使用中フラグをクリア
-        usedFlags_.set(index, false);
+        usedFlags_.Set(index, false);
         // ヒープから削除
         descriptors_[index] = DescriptorType(0);
     }
@@ -140,9 +140,9 @@ protected:
     uint32_t Allocate() {
         // 空いているDescriptorを探す
         for (uint32_t i = 0; i < size_; ++i) {
-            if (!usedFlags_.get(i)) {
+            if (!usedFlags_.Get(i)) {
                 // 空いているDescriptorを埋めて返す
-                usedFlags_.set(i, true);
+                usedFlags_.Set(i, true);
                 return i;
             }
         }
@@ -170,15 +170,15 @@ protected:
     std::vector<DescriptorType> descriptors_;
     BitArray<> usedFlags_; // 使用中のフラグを管理するビット配列
 public:
-    uint32_t getSize() const { return size_; }
+    uint32_t GetSize() const { return size_; }
 
-    const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& getHeap() const { return heap_; }
-    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> getHeapRef() { return heap_; }
-    const Microsoft::WRL::ComPtr<ID3D12Device>& getDevice() const { return device_; }
+    const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& GetHeap() const { return heap_; }
+    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> GetHeapRef() { return heap_; }
+    const Microsoft::WRL::ComPtr<ID3D12Device>& GetDevice() const { return device_; }
 
-    void setDevice(Microsoft::WRL::ComPtr<ID3D12Device> device) { device_ = device; }
+    void SetDevice(Microsoft::WRL::ComPtr<ID3D12Device> device) { device_ = device; }
 
-    DescriptorType* getDescriptor(uint32_t index) const {
+    DescriptorType* GetDescriptor(uint32_t index) const {
         // インデックスが範囲外の場合は例外を投げる
         if (index >= descriptors_.size()) {
             LOG_ERROR("Index out of range in DxDescriptorHeap");
@@ -186,14 +186,14 @@ public:
         }
         return descriptors_[index].get();
     }
-    void setDescriptor(uint32_t index, const DescriptorType& descriptor) {
+    void SetDescriptor(uint32_t index, const DescriptorType& descriptor) {
         // インデックスが範囲外の場合は例外を投げる
         if (index >= descriptors_.size()) {
             LOG_ERROR("Index out of range in DxDescriptorHeap");
             throw std::out_of_range("Index out of range in DxDescriptorHeap");
         }
         descriptors_[index] = std::make_shared<DescriptorType>(descriptor);
-        usedFlags_.set(index, true);
+        usedFlags_.Set(index, true);
     }
 };
 
@@ -268,10 +268,10 @@ DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>::CreateDescriptor(const D3D1
 
     // Descriptorを割り当て & SRV作成
     DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>::DescriptorType descriptor = AllocateDescriptor();
-    device_->CreateShaderResourceView(_resource->getResource().Get(), &_desc, descriptor.getCpuHandle());
+    device_->CreateShaderResourceView(_resource->GetResource().Get(), &_desc, descriptor.GetCpuHandle());
 
     // リソースタイプを追加
-    _resource->addType(DxResourceType::Descriptor_SRV);
+    _resource->AddType(DxResourceType::Descriptor_SRV);
 
     return descriptor;
 }
@@ -289,10 +289,10 @@ DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>::CreateDescriptor(const D3D1
     // Descriptorを割り当て & UAV作成
     DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>::DescriptorType descriptor = AllocateDescriptor();
 
-    device_->CreateUnorderedAccessView(_resource->getResource().Get(), nullptr, &_desc, descriptor.getCpuHandle());
+    device_->CreateUnorderedAccessView(_resource->GetResource().Get(), nullptr, &_desc, descriptor.GetCpuHandle());
 
     // リソースタイプを追加
-    _resource->addType(DxResourceType::Descriptor_UAV);
+    _resource->AddType(DxResourceType::Descriptor_UAV);
 
     return descriptor;
 }
@@ -309,10 +309,10 @@ DxDescriptorHeap<DxDescriptorHeapType::RTV>::CreateDescriptor(const D3D12_RENDER
 
     // Descriptorを割り当て & RTV作成
     DxDescriptorHeap<DxDescriptorHeapType::RTV>::DescriptorType descriptor = AllocateDescriptor();
-    device_->CreateRenderTargetView(_resource->getResource().Get(), &_desc, descriptor.getCpuHandle());
+    device_->CreateRenderTargetView(_resource->GetResource().Get(), &_desc, descriptor.GetCpuHandle());
 
     // リソースタイプを追加
-    _resource->addType(DxResourceType::Descriptor_RTV);
+    _resource->AddType(DxResourceType::Descriptor_RTV);
 
     return descriptor;
 }
@@ -330,10 +330,10 @@ DxDescriptorHeap<DxDescriptorHeapType::DSV>::CreateDescriptor(const D3D12_DEPTH_
     // Descriptorを割り当て & DSV作成
     DxDescriptorHeap<DxDescriptorHeapType::DSV>::DescriptorType descriptor = AllocateDescriptor();
 
-    device_->CreateDepthStencilView(_resource->getResource().Get(), &_desc, descriptor.getCpuHandle());
+    device_->CreateDepthStencilView(_resource->GetResource().Get(), &_desc, descriptor.GetCpuHandle());
 
     // リソースタイプを追加
-    _resource->addType(DxResourceType::Descriptor_DSV);
+    _resource->AddType(DxResourceType::Descriptor_DSV);
 
     return descriptor;
 }
@@ -346,7 +346,7 @@ DxDescriptorHeap<DxDescriptorHeapType::Sampler>::CreateDescriptor(const D3D12_SA
     DxDescriptorHeap<DxDescriptorHeapType::Sampler>::DescriptorType descriptor = AllocateDescriptor();
 
     // Samplerはリソースを持たないので nullptr を渡す
-    device_->CreateSampler(&_desc, descriptor.getCpuHandle());
+    device_->CreateSampler(&_desc, descriptor.GetCpuHandle());
 
     return descriptor;
 }

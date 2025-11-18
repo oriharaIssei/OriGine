@@ -22,9 +22,9 @@
 #endif // _DEBUG
 
 void DistortionEffectParam::Initialize(Entity* _hostEntity) {
-    effectParamData_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
+    effectParamData_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
     effectParamData_.ConvertToBuffer();
-    materialBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
+    materialBuffer_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
     materialBuffer_.ConvertToBuffer(ColorAndUvTransform());
 
     if (use3dObjectList_) {
@@ -55,7 +55,7 @@ void DistortionEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]
     ImGui::Spacing();
 
     std::string label          = "MaterialIndex##" + _parentLabel;
-    auto materials             = _scene->getComponents<Material>(_entity);
+    auto materials             = _scene->GetComponents<Material>(_entity);
     int32_t entityMaterialSize = materials != nullptr ? static_cast<int32_t>(materials->size()) : 0;
 
     if (entityMaterialSize <= 0) {
@@ -95,7 +95,7 @@ void DistortionEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]
                         bool isSelected          = newObjectType == selectType;
 
                         if (ImGui::Selectable(std::to_string(selectType).c_str(), isSelected)) {
-                            EditorController::getInstance()->pushCommand(
+                            EditorController::GetInstance()->PushCommand(
                                 std::make_unique<SetterCommand<PrimitiveType>>(&newObjectType, selectType));
                         }
                         if (isSelected) {
@@ -107,14 +107,14 @@ void DistortionEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]
 
                 objectLabel = "Add##" + _parentLabel;
                 if (ImGui::Button(objectLabel.c_str())) {
-                    std::shared_ptr<PrimitiveMeshRendererBase> newObject = PrimitiveMeshFactory::getInstance()->CreatePrimitiveMeshBy(newObjectType);
+                    std::shared_ptr<PrimitiveMeshRendererBase> newObject = PrimitiveMeshFactory::GetInstance()->CreatePrimitiveMeshBy(newObjectType);
 
                     if (newObject) {
                         newObject->Initialize(_entity);
 
                         auto command = std::make_unique<AddElementCommand<std::vector<std::pair<std::shared_ptr<PrimitiveMeshRendererBase>, PrimitiveType>>>>(
                             &distortionObjects_, std::make_pair(newObject, newObjectType));
-                        EditorController::getInstance()->pushCommand(std::move(command));
+                        EditorController::GetInstance()->PushCommand(std::move(command));
                     }
                     ImGui::CloseCurrentPopup();
                 }
@@ -125,7 +125,7 @@ void DistortionEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]
                 objectNodeName = "Distortion Object_" + std::to_string(type) + std::to_string(objectIndex);
                 if (ImGui::Button(std::string("X##" + objectNodeName).c_str())) {
                     auto command = std::make_unique<EraseElementCommand<std::vector<std::pair<std::shared_ptr<PrimitiveMeshRendererBase>, PrimitiveType>>>>(&distortionObjects_, distortionObjects_.begin() + objectIndex);
-                    EditorController::getInstance()->pushCommand(std::move(command));
+                    EditorController::GetInstance()->PushCommand(std::move(command));
                     continue;
                 }
                 ImGui::SameLine();
@@ -151,7 +151,7 @@ void DistortionEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]
             std::string label = "Load Texture##" + _parentLabel;
             ask               = ImGui::Button(label.c_str());
             ask |= ImGui::ImageButton(
-                ImTextureID(TextureManager::getDescriptorGpuHandle(textureIndex_).ptr),
+                ImTextureID(TextureManager::GetDescriptorGpuHandle(textureIndex_).ptr),
                 ImVec2(32, 32), ImVec2(0, 0), ImVec2(1, 1), 4, ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
 
             return ask;
@@ -161,14 +161,14 @@ void DistortionEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]
             std::string directory;
             std::string fileName;
             if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"png"})) {
-                auto setPath = std::make_unique<SetterCommand<std::string>>(&texturePath_, kApplicationResourceDirectory + "/" + directory + "/" + fileName);
+                auto SetPath = std::make_unique<SetterCommand<std::string>>(&texturePath_, kApplicationResourceDirectory + "/" + directory + "/" + fileName);
                 CommandCombo commandCombo;
-                commandCombo.addCommand(std::move(setPath));
-                commandCombo.setFuncOnAfterCommand([this]() {
+                commandCombo.AddCommand(std::move(SetPath));
+                commandCombo.SetFuncOnAfterCommand([this]() {
                     textureIndex_ = TextureManager::LoadTexture(texturePath_);
                 },
                     true);
-                EditorController::getInstance()->pushCommand(std::make_unique<CommandCombo>(commandCombo));
+                EditorController::GetInstance()->PushCommand(std::make_unique<CommandCombo>(commandCombo));
             }
         };
     }

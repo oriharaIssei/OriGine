@@ -28,7 +28,7 @@ class DxSwapChain;
 class Engine {
 
 public:
-    static Engine* getInstance();
+    static Engine* GetInstance();
 
 public:
     void Initialize();
@@ -76,35 +76,35 @@ private:
     std::vector<std::function<void(const Vec2f&)>> windowResizeEvents_;
 
 public:
-    WinApp* getWinApp() { return window_.get(); }
+    WinApp* GetWinApp() { return window_.get(); }
 
-    DxDevice* getDxDevice() const { return dxDevice_.get(); }
-    DxCommand* getDxCommand() const { return dxCommand_.get(); }
-    DxSwapChain* getDxSwapChain() const { return dxSwapChain_.get(); }
-    DxFence* getDxFence() const { return dxFence_.get(); }
+    DxDevice* GetDxDevice() const { return dxDevice_.get(); }
+    DxCommand* GetDxCommand() const { return dxCommand_.get(); }
+    DxSwapChain* GetDxSwapChain() const { return dxSwapChain_.get(); }
+    DxFence* GetDxFence() const { return dxFence_.get(); }
 
-    const DxDsvDescriptor& getDxDsv() const { return dxDsv_; }
-    DxResource* getDsvResource() { return &dsvResource_; }
+    const DxDsvDescriptor& GetDxDsv() const { return dxDsv_; }
+    DxResource* GetDsvResource() { return &dsvResource_; }
 
-    DxDescriptorHeap<DxDescriptorHeapType::RTV>* getRtvHeap() const { return rtvHeap_.get(); }
-    DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>* getSrvHeap() const { return srvHeap_.get(); }
+    DxDescriptorHeap<DxDescriptorHeapType::RTV>* GetRtvHeap() const { return rtvHeap_.get(); }
+    DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>* GetSrvHeap() const { return srvHeap_.get(); }
 
-    float getDeltaTime() const { return deltaTime_->getDeltaTime(); }
-    void setDeltaTime(float dt) { deltaTime_->setDeltaTime(dt); }
+    float GetDeltaTime() const { return deltaTime_->GetDeltaTime(); }
+    void SetDeltaTime(float dt) { deltaTime_->SetDeltaTime(dt); }
 
-    LightManager* getLightManager() const { return lightManager_; }
+    LightManager* GetLightManager() const { return lightManager_; }
 
     /// <summary>
     /// WindowResize時に呼ばれるイベントを登録する
     /// </summary>
     /// <param name="event">イベント関数</param>
     /// <returns>イベントのインデックス</returns>
-    int32_t addWindowResizeEvent(const std::function<void(const Vec2f&)>& event) {
+    int32_t AddWindowResizeEvent(const std::function<void(const Vec2f&)>& event) {
         windowResizeEvents_.push_back(event);
         return static_cast<int32_t>(windowResizeEvents_.size() - 1);
     }
 
-    void removeWindowResizeEvent(int32_t index) {
+    void RemoveWindowResizeEvent(int32_t index) {
         if (index < 0 || index >= static_cast<int32_t>(windowResizeEvents_.size())) {
             LOG_WARN("Invalid window resize event index: {}", index);
             return;

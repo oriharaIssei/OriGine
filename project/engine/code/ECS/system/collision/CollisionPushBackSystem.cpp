@@ -12,20 +12,20 @@ void CollisionPushBackSystem::Initialize() {}
 void CollisionPushBackSystem::Finalize() {}
 
 void CollisionPushBackSystem::UpdateEntity(Entity* _entity) {
-    Transform* transform                    = getComponent<Transform>(_entity);
-    CollisionPushBackInfo* collPushbackInfo = getComponent<CollisionPushBackInfo>(_entity);
+    Transform* transform                    = GetComponent<Transform>(_entity);
+    CollisionPushBackInfo* collPushbackInfo = GetComponent<CollisionPushBackInfo>(_entity);
 
     if (transform == nullptr || collPushbackInfo == nullptr) {
-        LOG_ERROR("CollisionPushBackSystem: Entity {} has no Transform or CollisionPushBackInfo component.", _entity->getID());
+        LOG_ERROR("CollisionPushBackSystem: Entity {} has no Transform or CollisionPushBackInfo component.", _entity->GetID());
         return;
     }
 
     // PushBack処理
-    for (auto& [entityID, info] : collPushbackInfo->getCollisionInfoMap()) {
-        Entity* otherEntity                      = getEntity(entityID);
-        CollisionPushBackInfo* otherCollPushbackInfo = getComponent<CollisionPushBackInfo>(otherEntity);
+    for (auto& [entityID, info] : collPushbackInfo->GetCollisionInfoMap()) {
+        Entity* otherEntity                      = GetEntity(entityID);
+        CollisionPushBackInfo* otherCollPushbackInfo = GetComponent<CollisionPushBackInfo>(otherEntity);
 
-        switch (otherCollPushbackInfo->getPushBackType()) {
+        switch (otherCollPushbackInfo->GetPushBackType()) {
         case CollisionPushBackType::PushBack: {
             // ここでは単純に法線方向に押し戻す
             transform->translate += info.collVec;
@@ -35,15 +35,15 @@ void CollisionPushBackSystem::UpdateEntity(Entity* _entity) {
         case CollisionPushBackType::Reflect: {
             transform->translate += info.collVec;
 
-            Rigidbody* rigidbody = getComponent<Rigidbody>(_entity);
+            Rigidbody* rigidbody = GetComponent<Rigidbody>(_entity);
 
             // 衝突時に反射する
             // 反射ベクトルを計算
-            Vec3f reflectDir = Reflect(rigidbody->getVelocity(), info.collVec.normalize());
+            Vec3f reflectDir = Reflect(rigidbody->GetVelocity(), info.collVec.normalize());
             // 反射後の速度を設定
             if (rigidbody) {
-                rigidbody->setVelocity(reflectDir);
-                rigidbody->setAcceleration(reflectDir.normalize() * rigidbody->getAcceleration().length());
+                rigidbody->SetVelocity(reflectDir);
+                rigidbody->SetAcceleration(reflectDir.normalize() * rigidbody->GetAcceleration().length());
             }
             break;
         }

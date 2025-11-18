@@ -24,7 +24,7 @@
 
 std::shared_ptr<spdlog::logger> Logger::logger_ = nullptr;
 
-static std::string getCurrentConfigString() {
+static std::string GetCurrentConfigString() {
 #if defined(_DEBUG)
     return "Debug";
 #elif defined(_DEVELOP)
@@ -58,7 +58,7 @@ void Logger::Initialize() {
         // logger の作成 (ファイルも作成してくれる)
         logger_ = spdlog::rotating_logger_mt(
             "defaultLog", // logger名
-            logFolder + "/" + logFileName + "_" + getCurrentConfigString(), // ログファイル名
+            logFolder + "/" + logFileName + "_" + GetCurrentConfigString(), // ログファイル名
             kMaxFileSize, // ログファイルサイズ
             kMaxFiles); // ログファイル数
 
@@ -139,7 +139,7 @@ void Logger::DirectCritical(const std::string& message, const char* file, const 
 }
 
 void Logger::DirectXLog(const char* file, const char* function, int line) {
-    Microsoft::WRL::ComPtr<ID3D12InfoQueue> infoQueue = DxDebug::getInstance()->getInfoQueue();
+    Microsoft::WRL::ComPtr<ID3D12InfoQueue> infoQueue = DxDebug::GetInstance()->GetInfoQueue();
     if (!infoQueue) {
         LOG_ERROR("ID3D12InfoQueue is null.", file, function, line);
         return;
@@ -235,7 +235,7 @@ void GuiLogger::Update() {
             for (auto& sink : logger_->sinks()) {
                 auto imguiSink = std::dynamic_pointer_cast<ImGuiLogSink>(sink);
                 if (imguiSink) {
-                    const auto& logs = imguiSink->getLogMessages();
+                    const auto& logs = imguiSink->GetLogMessages();
                     for (const auto& line : logs) {
                         // パターン: [level] message [file:line function] [time]
                         std::string time_str, level_str, file_str, line_num_str, func_str, msg_str;

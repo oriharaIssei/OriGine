@@ -25,7 +25,7 @@ private:
     std::vector<std::pair<std::string, std::string>> entityFileList_;
 
 public:
-    const std::vector<std::pair<std::string, std::string>>& getEntityFileList() const {
+    const std::vector<std::pair<std::string, std::string>>& GetEntityFileList() const {
         return entityFileList_;
     }
 };

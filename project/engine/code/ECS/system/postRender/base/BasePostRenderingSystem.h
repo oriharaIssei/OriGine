@@ -58,10 +58,10 @@ protected:
     RenderTexture* renderTarget_          = nullptr;
 
 public:
-    RenderTexture* getRenderTarget() const {
+    RenderTexture* GetRenderTarget() const {
         return renderTarget_;
     }
-    void setRenderTarget(RenderTexture* _renderTarget) {
+    void SetRenderTarget(RenderTexture* _renderTarget) {
         renderTarget_ = _renderTarget;
     }
 };

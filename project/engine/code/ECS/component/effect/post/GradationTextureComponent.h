@@ -69,15 +69,15 @@ private:
     int32_t materialIndex_ = -1;
 
 public:
-    bool isActive() const { return isActive_; }
-    void setActive(bool _active) { isActive_ = _active; }
+    bool IsActive() const { return isActive_; }
+    void SetActive(bool _active) { isActive_ = _active; }
 
-    int32_t getMaterialIndex() const { return materialIndex_; }
-    void setMaterialIndex(int32_t _index) { materialIndex_ = _index; }
+    int32_t GetMaterialIndex() const { return materialIndex_; }
+    void SetMaterialIndex(int32_t _index) { materialIndex_ = _index; }
 
-    IConstantBuffer<GradationParam>& getParamBuff() { return paramBuff_; }
-    SimpleConstantBuffer<ColorAndUvTransform>& getMaterialBuff() { return materialBuff_; }
+    IConstantBuffer<GradationParam>& GetParamBuff() { return paramBuff_; }
+    SimpleConstantBuffer<ColorAndUvTransform>& GetMaterialBuff() { return materialBuff_; }
 
-    int32_t getTextureIndex() const { return textureIndex_; }
-    const std::string& getTexturePath() const { return texturePath_; }
+    int32_t GetTextureIndex() const { return textureIndex_; }
+    const std::string& GetTexturePath() const { return texturePath_; }
 };

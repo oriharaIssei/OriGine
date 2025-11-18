@@ -72,22 +72,22 @@ private:
     D3D12_RESOURCE_DESC resourceDesc_{}; // リソースの詳細情報
 
 public:
-    const EnumBitmask<DxResourceType>& getType() const { return type_; }
-    void addType(DxResourceType _type) { type_ |= EnumBitmask(_type); }
-    void setType(DxResourceType _type) { type_ = EnumBitmask(_type); }
+    const EnumBitmask<DxResourceType>& GetType() const { return type_; }
+    void AddType(DxResourceType _type) { type_ |= EnumBitmask(_type); }
+    void SetType(DxResourceType _type) { type_ = EnumBitmask(_type); }
 
     /// <summary>
     /// Resourceが有効かどうかを確認
     /// </summary>
     /// <returns></returns>
-    bool isValid() const { return resource_ != nullptr; }
-    const Microsoft::WRL::ComPtr<ID3D12Resource>& getResource() const { return resource_; }
-    Microsoft::WRL::ComPtr<ID3D12Resource>& getResourceRef() { return resource_; }
+    bool IsValid() const { return resource_ != nullptr; }
+    const Microsoft::WRL::ComPtr<ID3D12Resource>& GetResource() const { return resource_; }
+    Microsoft::WRL::ComPtr<ID3D12Resource>& GetResourceRef() { return resource_; }
 
-    const D3D12_RESOURCE_DESC& getResourceDesc() const { return resourceDesc_; }
-    UINT64 sizeInBytes() const { return resourceDesc_.Width; } // バッファのサイズを取得
-    UINT64 width() const { return resourceDesc_.Width; } // テクスチャの幅を取得
-    UINT height() const { return resourceDesc_.Height; } // テクスチャの高さを取得
+    const D3D12_RESOURCE_DESC& GetResourceDesc() const { return resourceDesc_; }
+    UINT64 GetSizeInBytes() const { return resourceDesc_.Width; } // バッファのサイズを取得
+    UINT64 GetWidth() const { return resourceDesc_.Width; } // テクスチャの幅を取得
+    UINT GetHeight() const { return resourceDesc_.Height; } // テクスチャの高さを取得
 
-    HRESULT setName(const std::wstring& name);
+    HRESULT SetName(const std::wstring& name);
 };

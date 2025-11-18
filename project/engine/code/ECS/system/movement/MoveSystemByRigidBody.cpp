@@ -20,38 +20,38 @@ void MoveSystemByRigidBody::Initialize() {}
 void MoveSystemByRigidBody::Finalize() {}
 
 void MoveSystemByRigidBody::UpdateEntity(Entity* _entity) {
-    const float deltaTime = Engine::getInstance()->getDeltaTime();
-    Transform* transform  = getComponent<Transform>(_entity);
+    const float deltaTime = Engine::GetInstance()->GetDeltaTime();
+    Transform* transform  = GetComponent<Transform>(_entity);
 
-    Rigidbody* rigidbody = getComponent<Rigidbody>(_entity);
+    Rigidbody* rigidbody = GetComponent<Rigidbody>(_entity);
 
     bool resourceCheck = (transform != nullptr) && (rigidbody != nullptr);
     if (!resourceCheck) {
         if (!transform) {
-            LOG_ERROR("{} doesn't have Transform", _entity->getUniqueID());
+            LOG_ERROR("{} doesn't have Transform", _entity->GetUniqueID());
         }
         if (!rigidbody) {
-            LOG_ERROR("{} doesn't have Rigidbody", _entity->getUniqueID());
+            LOG_ERROR("{} doesn't have Rigidbody", _entity->GetUniqueID());
         }
         return;
     }
 
     /// --------------------------------------- 速度の更新 --------------------------------------- ///
-    Vec3f acceleration = rigidbody->getAcceleration();
-    Vec3f velocity     = rigidbody->getVelocity();
+    Vec3f acceleration = rigidbody->GetAcceleration();
+    Vec3f velocity     = rigidbody->GetVelocity();
 
     // 重力加速度
-    if (rigidbody->getUseGravity()) {
-        acceleration[Y] -= (std::min)(gravity_ * rigidbody->getMass(), rigidbody->maxFallSpeed());
+    if (rigidbody->GetUseGravity()) {
+        acceleration[Y] -= (std::min)(gravity_ * rigidbody->GetMass(), rigidbody->maxFallSpeed());
     }
-    rigidbody->setAcceleration(acceleration);
+    rigidbody->SetAcceleration(acceleration);
 
     // 速度の更新
     velocity += acceleration * deltaTime;
 
     // xz 平面の速度制限
     Vec2f xz           = Vec2f(velocity[X], velocity[Z]);
-    float limitXZSpeed = rigidbody->getMaxXZSpeed();
+    float limitXZSpeed = rigidbody->GetMaxXZSpeed();
     if (xz.lengthSq() >= limitXZSpeed * limitXZSpeed) {
         xz          = xz.normalize() * limitXZSpeed;
         velocity[X] = xz[X];
@@ -62,7 +62,7 @@ void MoveSystemByRigidBody::UpdateEntity(Entity* _entity) {
         velocity[Y] = (velocity[Y] > 0) ? maxFallSpeed : -maxFallSpeed;
     }
 
-    rigidbody->setVelocity(velocity);
+    rigidbody->SetVelocity(velocity);
 
     /// --------------------------------------- 位置の更新 --------------------------------------- ///
     transform->translate += velocity * deltaTime;

@@ -7,7 +7,7 @@
 /// engine
 #include "Engine.h"
 #include "winApp/WinApp.h"
-// assetes
+// asSetes
 #include "Model.h"
 // dx12Object
 #include "directX12/DxDevice.h"
@@ -210,7 +210,7 @@ static void LoadModelFile(ModelMeshData* data, const std::string& directoryPath,
     const aiScene* scene = importer.ReadFile(filePath.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
     assert(scene->HasMeshes());
 
-    auto& device = Engine::getInstance()->getDxDevice()->device_;
+    auto& device = Engine::GetInstance()->GetDxDevice()->device_;
 
     std::unordered_map<VertexKey, uint32_t> vertexMap;
     std::vector<TextureVertexData> vertices;
@@ -225,7 +225,7 @@ static void LoadModelFile(ModelMeshData* data, const std::string& directoryPath,
         aiMesh* loadedMesh = scene->mMeshes[meshIndex];
 
         auto& mesh = data->meshGroup[loadedMesh->mName.C_Str()] = TextureMesh();
-        mesh.setName(loadedMesh->mName.C_Str());
+        mesh.SetName(loadedMesh->mName.C_Str());
 
         // 頂点データとインデックスデータの処理
         for (uint32_t faceIndex = 0; faceIndex < loadedMesh->mNumFaces; ++faceIndex) {
@@ -280,12 +280,12 @@ static void LoadModelFile(ModelMeshData* data, const std::string& directoryPath,
             textureIndex = TextureManager::LoadTexture(texturePath);
         }
 
-        ModelManager::getInstance()->pushBackDefaultMaterial(data, {texturePath, textureIndex, IConstantBuffer<Material>()});
+        ModelManager::GetInstance()->pushBackDefaultMaterial(data, {texturePath, textureIndex, IConstantBuffer<Material>()});
 
         // メッシュデータを処理
         ProcessMeshData(mesh, vertices, indices);
 
-        CreateSkinCluster(data->skinClusterDataMap[mesh.getName()], device, loadedMesh, data);
+        CreateSkinCluster(data->skinClusterDataMap[mesh.GetName()], device, loadedMesh, data);
 
         // リセット
         vertices.clear();
@@ -296,7 +296,7 @@ static void LoadModelFile(ModelMeshData* data, const std::string& directoryPath,
 
 #pragma endregion
 
-ModelManager* ModelManager::getInstance() {
+ModelManager* ModelManager::GetInstance() {
     static ModelManager instance{};
     return &instance;
 }
@@ -322,7 +322,7 @@ std::shared_ptr<Model> ModelManager::Create(
         result->materialData_ = defaultMaterials_[result->meshData_];
 
         for (auto& materialData : result->materialData_) {
-            materialData.material.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
+            materialData.material.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
             materialData.material->UpdateUvMatrix();
             materialData.material.ConvertToBuffer();
         }
@@ -374,7 +374,7 @@ void ModelManager::Initialize() {
     Matrix4x4* maPtr = new Matrix4x4();
     *maPtr           = MakeMatrix::PerspectiveFov(
         0.45f,
-        static_cast<float>(Engine::getInstance()->getWinApp()->getWidth()) / static_cast<float>(Engine::getInstance()->getWinApp()->getHeight()),
+        static_cast<float>(Engine::GetInstance()->GetWinApp()->GetWidth()) / static_cast<float>(Engine::GetInstance()->GetWinApp()->GetHeight()),
         0.1f,
         100.0f);
     fovMa_.reset(
@@ -394,7 +394,7 @@ void ModelManager::pushBackDefaultMaterial(ModelMeshData* key, TexturedMaterial 
     defaultMaterials_[key].emplace_back(material);
 }
 
-ModelMeshData* ModelManager::getModelMeshData(const std::string& directoryPath, const std::string& filename) {
+ModelMeshData* ModelManager::GetModelMeshData(const std::string& directoryPath, const std::string& filename) {
     std::string filePath = NormalizeString(directoryPath + "/" + filename);
     auto it              = modelLibrary_.find(filePath);
     if (it != modelLibrary_.end()) {
@@ -403,7 +403,7 @@ ModelMeshData* ModelManager::getModelMeshData(const std::string& directoryPath, 
     return nullptr;
 }
 
-const std::vector<TexturedMaterial>& ModelManager::getDefaultMaterials(ModelMeshData* key) const {
+const std::vector<TexturedMaterial>& ModelManager::GetDefaultMaterials(ModelMeshData* key) const {
     static std::vector<TexturedMaterial> empty;
     auto it = defaultMaterials_.find(key);
     if (it != defaultMaterials_.end()) {
@@ -412,10 +412,10 @@ const std::vector<TexturedMaterial>& ModelManager::getDefaultMaterials(ModelMesh
     return empty;
 }
 
-const std::vector<TexturedMaterial>& ModelManager::getDefaultMaterials(const std::string& directoryPath, const std::string& filename) const {
+const std::vector<TexturedMaterial>& ModelManager::GetDefaultMaterials(const std::string& directoryPath, const std::string& filename) const {
     std::string filePath = NormalizeString(directoryPath + "/" + filename);
     auto it              = modelLibrary_.find(filePath);
-    return getDefaultMaterials(it->second.get());
+    return GetDefaultMaterials(it->second.get());
 }
 
 void ModelManager::LoadTask::Update() {
@@ -430,9 +430,9 @@ void ModelManager::LoadTask::Update() {
         return;
     }
 
-    model->materialData_ = ModelManager::getInstance()->defaultMaterials_[model->meshData_];
+    model->materialData_ = ModelManager::GetInstance()->defaultMaterials_[model->meshData_];
     for (auto& material : model->materialData_) {
-        material.material.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
+        material.material.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
         material.material->UpdateUvMatrix();
         material.material.ConvertToBuffer();
     }
@@ -457,5 +457,5 @@ void ModelManager::LoadTask::Update() {
 
     // ロード完了のログ
     timer.Update();
-    LOG_TRACE("Model Load Complete : {}/{} \n Lading Time : {}", this->directory, this->fileName, std::to_string(timer.getDeltaTime()));
+    LOG_TRACE("Model Load Complete : {}/{} \n Lading Time : {}", this->directory, this->fileName, std::to_string(timer.GetDeltaTime()));
 }

@@ -36,7 +36,7 @@ void SubScene::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _en
                         Load(*_newScene);
                     }
                 });
-                EditorController::getInstance()->pushCommand(std::move(command));
+                EditorController::GetInstance()->PushCommand(std::move(command));
             }
             if (isSelected) {
                 ImGui::SetItemDefaultFocus();

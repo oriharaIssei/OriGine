@@ -30,7 +30,7 @@ struct TexturedMaterial;
 class ModelManager {
 
 public:
-    static ModelManager* getInstance();
+    static ModelManager* GetInstance();
 
     std::shared_ptr<Model> Create(
         const std::string& directoryPath,
@@ -63,7 +63,7 @@ private:
 
 public:
     void pushBackDefaultMaterial(ModelMeshData* key, TexturedMaterial material);
-    ModelMeshData* getModelMeshData(const std::string& directoryPath, const std::string& filename);
-    const std::vector<TexturedMaterial>& getDefaultMaterials(ModelMeshData* key) const;
-    const std::vector<TexturedMaterial>& getDefaultMaterials(const std::string& directoryPath, const std::string& filename) const;
+    ModelMeshData* GetModelMeshData(const std::string& directoryPath, const std::string& filename);
+    const std::vector<TexturedMaterial>& GetDefaultMaterials(ModelMeshData* key) const;
+    const std::vector<TexturedMaterial>& GetDefaultMaterials(const std::string& directoryPath, const std::string& filename) const;
 };

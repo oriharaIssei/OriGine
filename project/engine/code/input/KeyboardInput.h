@@ -264,13 +264,13 @@ private:
     std::array<BYTE, KEY_COUNT> prevKeys_{};
 
 public:
-    const std::array<BYTE, KEY_COUNT>& getKeyStates() const { return keys_; }
-    const std::array<BYTE, KEY_COUNT>& getPrevKeyStates() const { return prevKeys_; }
+    const std::array<BYTE, KEY_COUNT>& GetKeyStates() const { return keys_; }
+    const std::array<BYTE, KEY_COUNT>& GetPrevKeyStates() const { return prevKeys_; }
 
     /// <summary>
     /// キー状態をクリアする(今と前回分の状態を初期化)
     /// </summary>
-    void clearKeyStates() {
+    void ClearKeyStates() {
         keys_.fill(0);
         prevKeys_.fill(0);
     }
@@ -278,14 +278,14 @@ public:
     /// <summary>
     /// キーが押されているか
     /// </summary>
-    bool isPress(uint32_t key) const { return keys_[key]; }
-    bool isPress(Key key) const { return keys_[static_cast<uint32_t>(key)]; }
+    bool IsPress(uint32_t key) const { return keys_[key]; }
+    bool IsPress(Key key) const { return keys_[static_cast<uint32_t>(key)]; }
 
     /// <summary>
     /// 押した瞬間か
     /// </summary>
-    bool isTrigger(uint32_t key) const { return (keys_[key] && !prevKeys_[key]); }
-    bool isTrigger(Key key) const {
+    bool IsTrigger(uint32_t key) const { return (keys_[key] && !prevKeys_[key]); }
+    bool IsTrigger(Key key) const {
         uint32_t keyNum = static_cast<uint32_t>(key);
         return (keys_[keyNum] && !prevKeys_[keyNum]);
     }
@@ -293,8 +293,8 @@ public:
     /// <summary>
     /// 離した瞬間か
     /// </summary>
-    bool isRelease(uint32_t key) const { return (!keys_[key] && prevKeys_[key]); }
-    bool isRelease(Key key) const {
+    bool IsRelease(uint32_t key) const { return (!keys_[key] && prevKeys_[key]); }
+    bool IsRelease(Key key) const {
         uint32_t keyNum = static_cast<uint32_t>(key);
         return (!keys_[keyNum] && prevKeys_[keyNum]);
     }

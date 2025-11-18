@@ -11,7 +11,7 @@
 
 class PrimitiveMeshFactory {
 public:
-    static PrimitiveMeshFactory* getInstance() {
+    static PrimitiveMeshFactory* GetInstance() {
         static PrimitiveMeshFactory instance;
         return &instance;
     }

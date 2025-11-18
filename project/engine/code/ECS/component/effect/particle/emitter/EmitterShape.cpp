@@ -34,21 +34,21 @@ void EmitterSphere::Debug([[maybe_unused]] const std::string& _parentLabel) {
 }
 #endif // _DEBUG
 
-Vec3f EmitterSphere::getSpawnPos() {
+Vec3f EmitterSphere::GetSpawnPos() {
     if (spawnType_ == ParticleSpawnLocationType::InBody) {
         MyRandom::Float randFloat = MyRandom::Float(0.0f, radius_);
-        float randDist            = randFloat.get();
-        randFloat.setRange(-1.0f, 1.0f);
+        float randDist            = randFloat.Get();
+        randFloat.SetRange(-1.0f, 1.0f);
 
-        Vec3f randDire = {randFloat.get(), randFloat.get(), randFloat.get()};
+        Vec3f randDire = {randFloat.Get(), randFloat.Get(), randFloat.Get()};
         randDire       = randDire.normalize();
 
         return randDire * randDist;
     } else { //==============Edge==============//
         MyRandom::Float randFloat = MyRandom::Float(0.0f, 1.0f);
-        float randTheta           = randFloat.get() * 2.0f * 3.14159265358979323846f;
-        randFloat.setRange(-1.0f, 1.0f);
-        float randPhi = randFloat.get() * 3.14159265358979323846f;
+        float randTheta           = randFloat.Get() * 2.0f * 3.14159265358979323846f;
+        randFloat.SetRange(-1.0f, 1.0f);
+        float randPhi = randFloat.Get() * 3.14159265358979323846f;
 
         Vec3f randDire = {std::cos(randTheta) * std::sin(randPhi), std::cos(randPhi), std::sin(randTheta) * std::sin(randPhi)};
 
@@ -74,11 +74,11 @@ void EmitterBox::Debug([[maybe_unused]] const std::string& _parentLabel) {
 }
 #endif // _DEBUG
 
-Vec3f EmitterBox::getSpawnPos() {
+Vec3f EmitterBox::GetSpawnPos() {
     MyRandom::Float randFloat = MyRandom::Float(0.0f, 1.0f);
-    float randX               = randFloat.get();
-    float randY               = randFloat.get();
-    float randZ               = randFloat.get();
+    float randX               = randFloat.Get();
+    float randY               = randFloat.Get();
+    float randZ               = randFloat.Get();
 
     Vec3f diff = Vec3f(max_) - Vec3f(min_);
     if (spawnType_ == ParticleSpawnLocationType::Edge) {
@@ -131,21 +131,21 @@ void EmitterCapsule::Debug([[maybe_unused]] const std::string& _parentLabel) {
 
 #endif // _DEBUG
 
-Vec3f EmitterCapsule::getSpawnPos() {
+Vec3f EmitterCapsule::GetSpawnPos() {
     MyRandom::Float randFloat = MyRandom::Float(0.0f, 1.0f);
 
-    Vec3f randDire = {randFloat.get(), randFloat.get(), randFloat.get()};
+    Vec3f randDire = {randFloat.Get(), randFloat.Get(), randFloat.Get()};
     randDire       = randDire.normalize();
 
     float randRadius = 0.0f;
     if (spawnType_ == ParticleSpawnLocationType::InBody) {
-        randRadius = randFloat.get() * radius_;
+        randRadius = randFloat.Get() * radius_;
     } else { //==============Edge==============//
         randRadius = radius_;
     }
 
-    randFloat.setRange(0.0f, length_);
-    float randDist = randFloat.get();
+    randFloat.SetRange(0.0f, length_);
+    float randDist = randFloat.Get();
 
     return (Vec3f(direction_) * randDist) + (randDire * randRadius);
 }
@@ -171,21 +171,21 @@ void EmitterCone::Debug([[maybe_unused]] const std::string& _parentLabel) {
 }
 #endif // _DEBUG
 
-Vec3f EmitterCone::getSpawnPos() {
+Vec3f EmitterCone::GetSpawnPos() {
     MyRandom::Float randFloat = MyRandom::Float(0.0f, 1.0f);
 
-    Vec3f randDire = {randFloat.get(), randFloat.get(), randFloat.get()};
+    Vec3f randDire = {randFloat.Get(), randFloat.Get(), randFloat.Get()};
     randDire       = randDire.normalize();
 
     float randRadius = 0.0f;
     if (spawnType_ == ParticleSpawnLocationType::InBody) {
-        randRadius = randFloat.get() * std::tan(angle_ * 0.5f);
+        randRadius = randFloat.Get() * std::tan(angle_ * 0.5f);
     } else { //==============Edge==============//
         randRadius = std::tan(angle_ * 0.5f);
     }
 
-    randFloat.setRange(0.0f, length_);
-    float randDist = randFloat.get();
+    randFloat.SetRange(0.0f, length_);
+    float randDist = randFloat.Get();
 
     return (Vec3f(direction_) * randDist) + (randDire * randRadius);
 }

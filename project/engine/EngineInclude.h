@@ -169,7 +169,7 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 #include "Engine.h"
 #endif // !ENGINE_INCLUDE
 
-inline float getMainDeltaTime() {
-    return Engine::getInstance()->getDeltaTime();
+inline float GetMainDeltaTime() {
+    return Engine::GetInstance()->GetDeltaTime();
 }
 #endif // DELTA_TIME

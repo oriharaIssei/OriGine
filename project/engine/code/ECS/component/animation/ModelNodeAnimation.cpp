@@ -7,7 +7,7 @@
 // module
 #include "AnimationManager.h"
 
-// assets
+// asSets
 #include "model/Model.h"
 
 #include "myFileSystem/MyFileSystem.h"
@@ -31,7 +31,7 @@ void ModelNodeAnimation::Initialize(Entity* /*_entity*/) {
     }
 
     if (!fileName_.empty()) {
-        data_ = AnimationManager::getInstance()->Load(directory_, fileName_);
+        data_ = AnimationManager::GetInstance()->Load(directory_, fileName_);
     }
 }
 
@@ -48,16 +48,16 @@ void ModelNodeAnimation::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_un
             // コマンドを作成
             auto commandCombo = std::make_unique<CommandCombo>();
 
-            commandCombo->addCommand(std::make_shared<SetterCommand<std::string>>(&directory_, kApplicationResourceDirectory + "/" + directory));
-            commandCombo->addCommand(std::make_shared<SetterCommand<std::string>>(&fileName_, filename));
-            commandCombo->setFuncOnAfterCommand([this]() {
-                data_ = AnimationManager::getInstance()->Load(directory_, fileName_);
+            commandCombo->AddCommand(std::make_shared<SetterCommand<std::string>>(&directory_, kApplicationResourceDirectory + "/" + directory));
+            commandCombo->AddCommand(std::make_shared<SetterCommand<std::string>>(&fileName_, filename));
+            commandCombo->SetFuncOnAfterCommand([this]() {
+                data_ = AnimationManager::GetInstance()->Load(directory_, fileName_);
 
                 duration_ = data_->duration;
             },
                 true);
 
-            EditorController::getInstance()->pushCommand(std::move(commandCombo));
+            EditorController::GetInstance()->PushCommand(std::move(commandCombo));
         }
     }
 
@@ -142,7 +142,7 @@ void ModelNodeAnimation::ApplyAnimationToNodes(
     }
 }
 
-Vec3f ModelNodeAnimation::getCurrentScale(const std::string& nodeName) const {
+Vec3f ModelNodeAnimation::GetCurrentScale(const std::string& nodeName) const {
     auto itr = data_->animationNodes_.find(nodeName);
     if (itr == data_->animationNodes_.end()) {
         return Vec3f(1.0f, 1.0f, 1.0f);
@@ -154,7 +154,7 @@ Vec3f ModelNodeAnimation::getCurrentScale(const std::string& nodeName) const {
     return CalculateValue::Linear(itr->second.scale, currentAnimationTime_);
 }
 
-Quaternion ModelNodeAnimation::getCurrentRotate(const std::string& nodeName) const {
+Quaternion ModelNodeAnimation::GetCurrentRotate(const std::string& nodeName) const {
     auto itr = data_->animationNodes_.find(nodeName);
     if (itr == data_->animationNodes_.end()) {
         return Quaternion::Identity();
@@ -166,7 +166,7 @@ Quaternion ModelNodeAnimation::getCurrentRotate(const std::string& nodeName) con
     return CalculateValue::Linear(itr->second.rotate, currentAnimationTime_);
 }
 
-Vec3f ModelNodeAnimation::getCurrentTranslate(const std::string& nodeName) const {
+Vec3f ModelNodeAnimation::GetCurrentTranslate(const std::string& nodeName) const {
     auto itr = data_->animationNodes_.find(nodeName);
     if (itr == data_->animationNodes_.end()) {
         return Vec3f(0.0f, 0.0f, 0.0f);

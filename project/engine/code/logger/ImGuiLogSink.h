@@ -35,11 +35,11 @@ public:
         formatter_ = std::move(sink_formatter);
     }
 
-    const std::vector<std::string>& getLogMessages() const {
+    const std::vector<std::string>& GetLogMessages() const {
         return logMessages_;
     }
 
-    void clear() {
+    void Clear() {
         std::lock_guard<std::mutex> lock(mutex_);
         logMessages_.clear();
     }

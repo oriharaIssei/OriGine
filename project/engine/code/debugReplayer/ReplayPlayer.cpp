@@ -28,7 +28,7 @@ void ReplayPlayer::Initialize(const std::string& filepath, SceneManager* _sceneM
     }
 
     // シーンマネージャーに開始シーンをセット
-    _sceneManager->changeScene(fileData_.header.startScene);
+    _sceneManager->ChangeScene(fileData_.header.startScene);
 }
 
 void ReplayPlayer::Finalize() {
@@ -94,7 +94,7 @@ bool ReplayPlayer::LoadFromFile(const std::string& filepath) {
 
             frame.keyInputData = BitArray<uint32_t>(size);
             for (size_t i = 0; i < blockCount; ++i) {
-                frame.keyInputData.setBlock(i, blocks[i]);
+                frame.keyInputData.SetBlock(i, blocks[i]);
             }
         }
 
@@ -132,7 +132,7 @@ float ReplayPlayer::Apply(KeyboardInput* _keyInput, MouseInput* _mouseInput, Gam
         /// 初期化
         // key入力
         for (size_t keyIndex = 0; keyIndex < KEY_COUNT; ++keyIndex) {
-            bool isPressed                 = frameData.keyInputData.get(keyIndex);
+            bool isPressed                 = frameData.keyInputData.Get(keyIndex);
             _keyInput->prevKeys_[keyIndex] = isPressed ? 0x80 : 0x00;
         }
 
@@ -163,7 +163,7 @@ float ReplayPlayer::Apply(KeyboardInput* _keyInput, MouseInput* _mouseInput, Gam
     // current を更新
     if (frameData.keyInputData.size() != 0) {
         for (size_t keyIndex = 0; keyIndex < KEY_COUNT; ++keyIndex) {
-            bool isPressed             = frameData.keyInputData.get(keyIndex);
+            bool isPressed             = frameData.keyInputData.Get(keyIndex);
             _keyInput->keys_[keyIndex] = isPressed ? 0x80 : 0x00;
         }
     }

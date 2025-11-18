@@ -220,43 +220,43 @@ private:
     uint32_t textureIndex_   = 0;
 
 public:
-    bool isActive() const { return isActive_; }
-    uint32_t getParticleSize() const { return shapeBuffer_->particleSize; }
-    BlendMode getBlendMode() const { return blendMode_; }
+    bool IsActive() const { return isActive_; }
+    uint32_t GetParticleSize() const { return shapeBuffer_->particleSize; }
+    BlendMode GetBlendMode() const { return blendMode_; }
 
-    const TextureMesh& getMesh() const { return mesh_; }
-    TextureMesh& getMeshRef() { return mesh_; }
+    const TextureMesh& GetMesh() const { return mesh_; }
+    TextureMesh& GetMeshRef() { return mesh_; }
 
-    const DxResource& getParticleResource() const { return particleResource_; }
-    const DxSrvDescriptor& getParticleSrvDescriptor() const {
+    const DxResource& GetParticleResource() const { return particleResource_; }
+    const DxSrvDescriptor& GetParticleSrvDescriptor() const {
         return particleSrvDescriptor_;
     }
-    DxUavDescriptor getParticleUavDescriptor() const {
+    DxUavDescriptor GetParticleUavDescriptor() const {
         return particleUavDescriptor_;
     }
 
-    const DxResource& getFreeIndexResource() const { return freeIndexResource_; }
-    DxUavDescriptor getFreeIndexUavDescriptor() const {
+    const DxResource& GetFreeIndexResource() const { return freeIndexResource_; }
+    DxUavDescriptor GetFreeIndexUavDescriptor() const {
         return freeIndexUavDescriptor_;
     }
 
-    const DxResource& getFreeListResource() const { return freeListResource_; }
-    DxUavDescriptor getFreeListUavDescriptor() const {
+    const DxResource& GetFreeListResource() const { return freeListResource_; }
+    DxUavDescriptor GetFreeListUavDescriptor() const {
         return freeListUavDescriptor_;
     }
 
-    const IConstantBuffer<Material>& getMaterialBuffer() const { return materialBuffer_; }
-    const IConstantBuffer<GpuParticleEmitSphere>& getShapeBuffer() const {
+    const IConstantBuffer<Material>& GetMaterialBuffer() const { return materialBuffer_; }
+    const IConstantBuffer<GpuParticleEmitSphere>& GetShapeBuffer() const {
         return shapeBuffer_;
     }
 
-    const GpuParticleEmitSphere& getShapeBufferData() const {
+    const GpuParticleEmitSphere& GetShapeBufferData() const {
         return shapeBuffer_.openData_;
     }
-    GpuParticleEmitSphere& getShapeBufferDataRef() {
+    GpuParticleEmitSphere& GetShapeBufferDataRef() {
         return shapeBuffer_.openData_;
     }
 
-    const std::string& getTexturePath() const { return texturePath_; }
-    uint32_t getTextureIndex() const { return textureIndex_; }
+    const std::string& GetTexturePath() const { return texturePath_; }
+    uint32_t GetTextureIndex() const { return textureIndex_; }
 };

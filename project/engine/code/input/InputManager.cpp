@@ -6,7 +6,7 @@
 //////////////////////////////////////////////////////////
 // InputManager
 //////////////////////////////////////////////////////////
-InputManager* InputManager::getInstance() {
+InputManager* InputManager::GetInstance() {
     static InputManager instance;
     return &instance;
 }

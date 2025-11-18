@@ -23,7 +23,7 @@ void SmoothingEffect::Finalize() {
 }
 
 void SmoothingEffect::CreatePSO() {
-    ShaderManager* shaderManager = ShaderManager::getInstance();
+    ShaderManager* shaderManager = ShaderManager::GetInstance();
     shaderManager->LoadShader("FullScreen.VS");
     shaderManager->LoadShader("Smoothing.PS", shaderDirectory, L"ps_6_0");
     ShaderInformation shaderInfo{};
@@ -72,7 +72,7 @@ void SmoothingEffect::CreatePSO() {
     rootParameter.ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
     rootParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
     size_t rootParameterIndex      = shaderInfo.pushBackRootParameter(rootParameter);
-    shaderInfo.setDescriptorRange2Parameter(descriptorRange, 1, rootParameterIndex);
+    shaderInfo.SetDescriptorRange2Parameter(descriptorRange, 1, rootParameterIndex);
 
     ///================================================
     /// InputElement の設定
@@ -85,29 +85,29 @@ void SmoothingEffect::CreatePSO() {
     ///================================================
     D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
     depthStencilDesc.DepthEnable = false;
-    shaderInfo.setDepthStencilDesc(depthStencilDesc);
+    shaderInfo.SetDepthStencilDesc(depthStencilDesc);
 
-    pso_ = shaderManager->CreatePso("SmoothingEffect", shaderInfo, Engine::getInstance()->getDxDevice()->device_);
+    pso_ = shaderManager->CreatePso("SmoothingEffect", shaderInfo, Engine::GetInstance()->GetDxDevice()->device_);
 }
 
 void SmoothingEffect::RenderStart() {
-    auto& commandList = dxCommand_->getCommandList();
+    auto& commandList = dxCommand_->GetCommandList();
 
     renderTarget_->PreDraw();
 
     /// ================================================
-    /// pso set
+    /// pso Set
     /// ================================================
     commandList->SetPipelineState(pso_->pipelineState.Get());
     commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
+    ID3D12DescriptorHeap* ppHeaps[] = {Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
 }
 
 void SmoothingEffect::Rendering() {
-    auto& commandList = dxCommand_->getCommandList();
+    auto& commandList = dxCommand_->GetCommandList();
 
     for (auto& param : activeParams_) {
         // レンダー開始
@@ -117,7 +117,7 @@ void SmoothingEffect::Rendering() {
         param->boxFilterSize_.ConvertToBuffer();
         param->boxFilterSize_.SetForRootParameter(commandList, 0);
 
-        commandList->SetGraphicsRootDescriptorTable(1, renderTarget_->getBackBufferSrvHandle());
+        commandList->SetGraphicsRootDescriptorTable(1, renderTarget_->GetBackBufferSrvHandle());
         commandList->DrawInstanced(6, 1, 0, 0);
 
         // レンダー終了
@@ -133,7 +133,7 @@ void SmoothingEffect::RenderEnd() {
 }
 
 void SmoothingEffect::DispatchComponent(Entity* _entity) {
-    auto* params = getComponents<SmoothingEffectParam>(_entity);
+    auto* params = GetComponents<SmoothingEffectParam>(_entity);
     if (!params) {
         return;
     }

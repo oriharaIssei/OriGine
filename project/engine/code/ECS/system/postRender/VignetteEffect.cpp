@@ -30,7 +30,7 @@ void VignetteEffect::Finalize() {
 }
 
 void VignetteEffect::CreatePSO() {
-    ShaderManager* shaderManager = ShaderManager::getInstance();
+    ShaderManager* shaderManager = ShaderManager::GetInstance();
     shaderManager->LoadShader("FullScreen.VS");
     shaderManager->LoadShader("Vignette.PS", shaderDirectory, L"ps_6_0");
     ShaderInformation shaderInfo{};
@@ -71,7 +71,7 @@ void VignetteEffect::CreatePSO() {
     rootParameter[0].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
     rootParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
     size_t rootParameterIndex         = shaderInfo.pushBackRootParameter(rootParameter[0]);
-    shaderInfo.setDescriptorRange2Parameter(descriptorRange, 1, rootParameterIndex);
+    shaderInfo.SetDescriptorRange2Parameter(descriptorRange, 1, rootParameterIndex);
 
     rootParameter[1].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_CBV;
     rootParameter[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
@@ -88,18 +88,18 @@ void VignetteEffect::CreatePSO() {
     ///================================================
     D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
     depthStencilDesc.DepthEnable = false;
-    shaderInfo.setDepthStencilDesc(depthStencilDesc);
+    shaderInfo.SetDepthStencilDesc(depthStencilDesc);
 
-    pso_ = shaderManager->CreatePso("VignetteEffect", shaderInfo, Engine::getInstance()->getDxDevice()->device_);
+    pso_ = shaderManager->CreatePso("VignetteEffect", shaderInfo, Engine::GetInstance()->GetDxDevice()->device_);
 }
 
 void VignetteEffect::RenderStart() {
-    auto commandList = dxCommand_->getCommandList();
+    auto commandList = dxCommand_->GetCommandList();
 
     renderTarget_->PreDraw();
 
     /// ================================================
-    /// pso set
+    /// pso Set
     /// ================================================
     commandList->SetPipelineState(pso_->pipelineState.Get());
     commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
@@ -107,15 +107,15 @@ void VignetteEffect::RenderStart() {
 }
 
 void VignetteEffect::Rendering() {
-    auto& commandList = dxCommand_->getCommandList();
+    auto& commandList = dxCommand_->GetCommandList();
 
     for (auto& param : activeParams_) {
         // 描画開始
         RenderStart();
 
         // 描画処理
-        commandList->SetGraphicsRootDescriptorTable(0, renderTarget_->getBackBufferSrvHandle());
-        param->getVignetteBuffer().SetForRootParameter(commandList, 1);
+        commandList->SetGraphicsRootDescriptorTable(0, renderTarget_->GetBackBufferSrvHandle());
+        param->GetVignetteBuffer().SetForRootParameter(commandList, 1);
         commandList->DrawInstanced(6, 1, 0, 0);
 
         // 描画終了
@@ -131,14 +131,14 @@ void VignetteEffect::RenderEnd() {
 }
 
 void VignetteEffect::DispatchComponent(Entity* _entity) {
-    auto* vignetteParams = getComponents<VignetteParam>(_entity);
+    auto* vignetteParams = GetComponents<VignetteParam>(_entity);
 
     if (!vignetteParams) {
         return;
     }
 
     for (auto& param : *vignetteParams) {
-        param.getVignetteBuffer().ConvertToBuffer();
+        param.GetVignetteBuffer().ConvertToBuffer();
         activeParams_.push_back(&param);
     }
 }

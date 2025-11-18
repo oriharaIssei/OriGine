@@ -17,14 +17,14 @@ void SpriteAnimationSystem::Initialize() {}
 void SpriteAnimationSystem::Finalize() {}
 
 void SpriteAnimationSystem::UpdateEntity(Entity* _entity) {
-    auto spriteAnimations          = getComponents<SpriteAnimation>(_entity);
-    SpriteRenderer* spriteRenderer = getComponent<SpriteRenderer>(_entity);
+    auto spriteAnimations          = GetComponents<SpriteAnimation>(_entity);
+    SpriteRenderer* spriteRenderer = GetComponent<SpriteRenderer>(_entity);
 
     if (!spriteAnimations || !spriteRenderer) {
         return; // コンポーネントが存在しない場合は何もしない
     }
     // DeltaTimeを取得
-    const float deltaTime = getMainDeltaTime();
+    const float deltaTime = GetMainDeltaTime();
     for (auto& spriteAnimation : *spriteAnimations) {
         // スプライトアニメーションの更新
         spriteAnimation.UpdateSpriteAnimation(deltaTime, spriteRenderer);

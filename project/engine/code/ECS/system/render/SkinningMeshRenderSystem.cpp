@@ -24,23 +24,23 @@ void SkinningMeshRenderSystem::Initialize() {
 }
 
 void SkinningMeshRenderSystem::DispatchRenderer(Entity* _entity) {
-    auto* skinningAnimationComponents = getComponents<SkinningAnimationComponent>(_entity);
+    auto* skinningAnimationComponents = GetComponents<SkinningAnimationComponent>(_entity);
     if (skinningAnimationComponents == nullptr) {
         return;
     }
-    auto* entityTransform = getComponent<Transform>(_entity);
+    auto* entityTransform = GetComponent<Transform>(_entity);
 
     for (auto& skinningAnimation : *skinningAnimationComponents) {
-        ModelMeshRenderer* renderer = getComponent<ModelMeshRenderer>(_entity, skinningAnimation.getBindModeMeshRendererIndex());
+        ModelMeshRenderer* renderer = GetComponent<ModelMeshRenderer>(_entity, skinningAnimation.GetBindModeMeshRendererIndex());
         if (renderer == nullptr) {
             continue;
         }
-        if (!renderer->isRender()) {
+        if (!renderer->IsRender()) {
             continue;
         }
 
         RenderingData data{&skinningAnimation, renderer, entityTransform};
-        int32_t blendIndex = static_cast<int32_t>(renderer->getCurrentBlend());
+        int32_t blendIndex = static_cast<int32_t>(renderer->GetCurrentBlend());
         activeRenderersByBlendMode_[blendIndex].push_back(data);
     }
 }
@@ -60,7 +60,7 @@ void SkinningMeshRenderSystem::RenderingBy(BlendMode _blendMode, bool /*_isCulli
     if (renderers.empty()) {
         return;
     }
-    auto commandList = dxCommand_->getCommandList();
+    auto commandList = dxCommand_->GetCommandList();
     // PSOセット
     commandList->SetPipelineState(psoByBlendMode_[blendIndex]->pipelineState.Get());
     // RootSignatureセット
@@ -79,8 +79,8 @@ void SkinningMeshRenderSystem::Finalize() {
 
 void SkinningMeshRenderSystem::CreatePSO() {
 
-    ShaderManager* shaderManager = ShaderManager::getInstance();
-    DxDevice* dxDevice           = Engine::getInstance()->getDxDevice();
+    ShaderManager* shaderManager = ShaderManager::GetInstance();
+    DxDevice* dxDevice           = Engine::GetInstance()->GetDxDevice();
 
     // 登録されているかどうかをチェック
     if (shaderManager->IsRegisteredPipelineStateObj("TextureMesh_" + blendModeStr[0])) {
@@ -88,7 +88,7 @@ void SkinningMeshRenderSystem::CreatePSO() {
             if (psoByBlendMode_[i]) {
                 continue;
             }
-            psoByBlendMode_[i] = shaderManager->getPipelineStateObj("TextureMesh_" + blendModeStr[i]);
+            psoByBlendMode_[i] = shaderManager->GetPipelineStateObj("TextureMesh_" + blendModeStr[i]);
         }
 
         //! TODO : 自動化
@@ -204,12 +204,12 @@ void SkinningMeshRenderSystem::CreatePSO() {
     spotLightRange[0].RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
     spotLightRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-    texShaderInfo.setDescriptorRange2Parameter(textureRange, 1, textureBufferIndex_);
-    texShaderInfo.setDescriptorRange2Parameter(environmentTextureRange, 1, environmentTextureBufferIndex_);
+    texShaderInfo.SetDescriptorRange2Parameter(textureRange, 1, textureBufferIndex_);
+    texShaderInfo.SetDescriptorRange2Parameter(environmentTextureRange, 1, environmentTextureBufferIndex_);
 
-    texShaderInfo.setDescriptorRange2Parameter(directionalLightRange, 1, directionalLightBufferIndex_);
-    texShaderInfo.setDescriptorRange2Parameter(pointLightRange, 1, pointLightBufferIndex_);
-    texShaderInfo.setDescriptorRange2Parameter(spotLightRange, 1, spotLightBufferIndex_);
+    texShaderInfo.SetDescriptorRange2Parameter(directionalLightRange, 1, directionalLightBufferIndex_);
+    texShaderInfo.SetDescriptorRange2Parameter(pointLightRange, 1, pointLightBufferIndex_);
+    texShaderInfo.SetDescriptorRange2Parameter(spotLightRange, 1, spotLightBufferIndex_);
 #pragma endregion
 
     ///=================================================
@@ -265,63 +265,63 @@ void SkinningMeshRenderSystem::CreatePSO() {
 }
 
 void SkinningMeshRenderSystem::LightUpdate() {
-    auto* directionalLight = getComponentArray<DirectionalLight>();
-    auto* pointLight       = getComponentArray<PointLight>();
-    auto* spotLight        = getComponentArray<SpotLight>();
+    auto* directionalLight = GetComponentArray<DirectionalLight>();
+    auto* pointLight       = GetComponentArray<PointLight>();
+    auto* spotLight        = GetComponentArray<SpotLight>();
 
-    auto* lightManager = LightManager::getInstance();
+    auto* lightManager = LightManager::GetInstance();
 
-    lightManager->clearLights();
+    lightManager->ClearLights();
 
-    for (auto& lightVec : directionalLight->getAllComponents()) {
+    for (auto& lightVec : directionalLight->GetAllComponents()) {
         for (auto& light : lightVec) {
-            if (light.isActive()) {
+            if (light.IsActive()) {
                 lightManager->pushDirectionalLight(light);
             }
         }
     }
-    for (auto& lightVec : pointLight->getAllComponents()) {
+    for (auto& lightVec : pointLight->GetAllComponents()) {
         for (auto& light : lightVec) {
-            if (light.isActive()) {
+            if (light.IsActive()) {
                 lightManager->pushPointLight(light);
             }
         }
     }
-    for (auto& lightVec : spotLight->getAllComponents()) {
+    for (auto& lightVec : spotLight->GetAllComponents()) {
         for (auto& light : lightVec) {
-            if (light.isActive()) {
+            if (light.IsActive()) {
                 lightManager->pushSpotLight(light);
             }
         }
     }
 
-    LightManager::getInstance()->Update();
+    LightManager::GetInstance()->Update();
 }
 
 void SkinningMeshRenderSystem::StartRender() {
 
-    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->getCommandList();
+    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->GetCommandList();
 
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    CameraManager::getInstance()->setBufferForRootParameter(commandList, cameraBufferIndex_);
+    CameraManager::GetInstance()->SetBufferForRootParameter(commandList, cameraBufferIndex_);
 
     LightUpdate();
-    LightManager::getInstance()->SetForRootParameter(
+    LightManager::GetInstance()->SetForRootParameter(
         commandList, lightCountBufferIndex_, directionalLightBufferIndex_, pointLightBufferIndex_, spotLightBufferIndex_);
 
-    ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
+    ID3D12DescriptorHeap* ppHeaps[] = {Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
 
     /// 環境テクスチャ
-    Entity* skyboxEntity = getUniqueEntity("Skybox");
+    Entity* skyboxEntity = GetUniqueEntity("Skybox");
     if (!skyboxEntity) {
         return;
     }
-    SkyboxRenderer* skybox = getComponent<SkyboxRenderer>(skyboxEntity);
+    SkyboxRenderer* skybox = GetComponent<SkyboxRenderer>(skyboxEntity);
     commandList->SetGraphicsRootDescriptorTable(
         environmentTextureBufferIndex_,
-        TextureManager::getDescriptorGpuHandle(skybox->getTextureIndex()));
+        TextureManager::GetDescriptorGpuHandle(skybox->GetTextureIndex()));
 }
 
 void SkinningMeshRenderSystem::RenderModelMesh(
@@ -330,23 +330,23 @@ void SkinningMeshRenderSystem::RenderModelMesh(
     SkinningAnimationComponent* _skinningAnimationComponent,
     ModelMeshRenderer* _renderer) {
 
-    if (_skinningAnimationComponent->getSkinnedVertexBuffers().empty()) {
+    if (_skinningAnimationComponent->GetSkinnedVertexBuffers().empty()) {
         return;
     }
 
     uint32_t index = 0;
 
-    auto& meshGroup = _renderer->getMeshGroup();
+    auto& meshGroup = _renderer->GetMeshGroup();
     for (auto& mesh : *meshGroup) {
-        D3D12_GPU_DESCRIPTOR_HANDLE textureHandle = TextureManager::getDescriptorGpuHandle(_renderer->getTextureNumber(index));
-        IConstantBuffer<Transform>& meshTransform = _renderer->getTransformBuff(index);
-        auto& materialBuff                        = _renderer->getMaterialBuff(index);
+        D3D12_GPU_DESCRIPTOR_HANDLE textureHandle = TextureManager::GetDescriptorGpuHandle(_renderer->GetTextureNumber(index));
+        IConstantBuffer<Transform>& meshTransform = _renderer->GetTransformBuff(index);
+        auto& materialBuff                        = _renderer->GetMaterialBuff(index);
         Material* material                        = nullptr;
-        int32_t materialIndex                     = _renderer->getMaterialIndex(index);
+        int32_t materialIndex                     = _renderer->GetMaterialIndex(index);
 
         // ============================= Viewのセット ============================= //
-        _commandList->IASetVertexBuffers(0, 1, &_skinningAnimationComponent->getSkinnedVertexBuffer(index).vbView);
-        _commandList->IASetIndexBuffer(&mesh.getIBView());
+        _commandList->IASetVertexBuffers(0, 1, &_skinningAnimationComponent->GetSkinnedVertexBuffer(index).vbView);
+        _commandList->IASetIndexBuffer(&mesh.GetIBView());
 
         // ============================= Transformのセット ============================= //
         if (meshTransform->parent == nullptr) {
@@ -360,13 +360,13 @@ void SkinningMeshRenderSystem::RenderModelMesh(
         // ============================= Materialのセット ============================= //
 
         if (materialIndex >= 0) {
-            material = getComponent<Material>(_renderer->getHostEntity(), static_cast<uint32_t>(materialIndex));
+            material = GetComponent<Material>(_renderer->GetHostEntity(), static_cast<uint32_t>(materialIndex));
             if (material) {
                 material->UpdateUvMatrix();
                 materialBuff.ConvertToBuffer(*material);
 
                 if (material->hasCustomTexture()) {
-                    textureHandle = material->getCustomTexture()->srv_.getGpuHandle();
+                    textureHandle = material->GetCustomTexture()->srv_.GetGpuHandle();
                 }
             } else {
                 materialBuff.ConvertToBuffer(Material());
@@ -380,7 +380,7 @@ void SkinningMeshRenderSystem::RenderModelMesh(
             textureHandle);
 
         // ============================= 描画 ============================= //
-        _commandList->DrawIndexedInstanced(UINT(mesh.getIndexSize()), 1, 0, 0, 0);
+        _commandList->DrawIndexedInstanced(UINT(mesh.GetIndexSize()), 1, 0, 0, 0);
 
         ++index;
     }

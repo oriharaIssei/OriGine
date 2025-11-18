@@ -48,8 +48,8 @@ public:
 
     size_t capacity() const { return elementCount_; }
 
-    DxResource& getResource() { return buff_; }
-    std::shared_ptr<DxSrvDescriptor> getSrv() const { return srv_; }
+    DxResource& GetResource() { return buff_; }
+    std::shared_ptr<DxSrvDescriptor> GetSrv() const { return srv_; }
 };
 
 template <StructuredBuffer structBuff>
@@ -66,7 +66,7 @@ inline void SimpleStructuredBuffer<structBuff>::CreateBuffer(Microsoft::WRL::Com
     } else {
         buff_.CreateBufferResource(device, bufferSize);
     }
-    buff_.getResource()->Map(0, nullptr, reinterpret_cast<void**>(&mappingData_));
+    buff_.GetResource()->Map(0, nullptr, reinterpret_cast<void**>(&mappingData_));
 
     D3D12_SHADER_RESOURCE_VIEW_DESC viewDesc{};
     viewDesc.Format                     = DXGI_FORMAT_UNKNOWN;
@@ -77,12 +77,12 @@ inline void SimpleStructuredBuffer<structBuff>::CreateBuffer(Microsoft::WRL::Com
     viewDesc.Buffer.NumElements         = elementCount;
     viewDesc.Buffer.StructureByteStride = sizeof(StructuredBufferType);
 
-    srv_ = Engine::getInstance()->getSrvHeap()->CreateDescriptor<>(viewDesc, &buff_);
+    srv_ = Engine::GetInstance()->GetSrvHeap()->CreateDescriptor<>(viewDesc, &buff_);
 }
 
 template <StructuredBuffer structBuff>
 inline void SimpleStructuredBuffer<structBuff>::Finalize() {
-    Engine::getInstance()->getSrvHeap()->ReleaseDescriptor(srv_);
+    Engine::GetInstance()->GetSrvHeap()->ReleaseDescriptor(srv_);
     buff_.Finalize();
 }
 
@@ -100,7 +100,7 @@ inline void SimpleStructuredBuffer<structBuff>::resize(Microsoft::WRL::ComPtr<ID
 
         size_t bufferSize = sizeof(StructuredBufferType) * elementCount_;
         buff_.CreateBufferResource(device, bufferSize);
-        buff_.getResource()->Map(0, nullptr, reinterpret_cast<void**>(&mappingData_));
+        buff_.GetResource()->Map(0, nullptr, reinterpret_cast<void**>(&mappingData_));
 
         D3D12_SHADER_RESOURCE_VIEW_DESC viewDesc{};
         viewDesc.Format                     = DXGI_FORMAT_UNKNOWN;
@@ -111,7 +111,7 @@ inline void SimpleStructuredBuffer<structBuff>::resize(Microsoft::WRL::ComPtr<ID
         viewDesc.Buffer.NumElements         = elementCount_;
         viewDesc.Buffer.StructureByteStride = sizeof(StructuredBufferType);
 
-        srv_ = Engine::getInstance()->getSrvHeap()->CreateDescriptor<>(viewDesc, &buff_);
+        srv_ = Engine::GetInstance()->GetSrvHeap()->CreateDescriptor<>(viewDesc, &buff_);
     }
 }
 
@@ -124,5 +124,5 @@ inline void SimpleStructuredBuffer<structBuff>::ConvertToBuffer(std::vector<stru
 
 template <StructuredBuffer structBuff>
 inline void SimpleStructuredBuffer<structBuff>::SetForRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const {
-    cmdList->SetGraphicsRootDescriptorTable(rootParameterNum, srv_->getGpuHandle());
+    cmdList->SetGraphicsRootDescriptorTable(rootParameterNum, srv_->GetGpuHandle());
 }

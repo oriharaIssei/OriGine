@@ -66,7 +66,7 @@ void GpuParticleEmitter::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_un
             std::string label = "Load Texture##" + _parentLabel;
             ask               = ImGui::Button(label.c_str());
             ask               = ImGui::ImageButton(
-                ImTextureID(TextureManager::getDescriptorGpuHandle(textureIndex_).ptr),
+                ImTextureID(TextureManager::GetDescriptorGpuHandle(textureIndex_).ptr),
                 ImVec2(32, 32), ImVec2(0, 0), ImVec2(1, 1), 4, ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
 
             return ask;
@@ -77,14 +77,14 @@ void GpuParticleEmitter::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_un
             std::string directory;
             std::string fileName;
             if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"png"})) {
-                auto setPath = std::make_unique<SetterCommand<std::string>>(&texturePath_, kApplicationResourceDirectory + "/" + directory + "/" + fileName);
+                auto SetPath = std::make_unique<SetterCommand<std::string>>(&texturePath_, kApplicationResourceDirectory + "/" + directory + "/" + fileName);
                 CommandCombo commandCombo;
-                commandCombo.addCommand(std::move(setPath));
-                commandCombo.setFuncOnAfterCommand([this]() {
+                commandCombo.AddCommand(std::move(SetPath));
+                commandCombo.SetFuncOnAfterCommand([this]() {
                     textureIndex_ = TextureManager::LoadTexture(texturePath_);
                 },
                     true);
-                EditorController::getInstance()->pushCommand(std::make_unique<CommandCombo>(commandCombo));
+                EditorController::GetInstance()->PushCommand(std::make_unique<CommandCombo>(commandCombo));
             }
         };
 
@@ -106,7 +106,7 @@ void GpuParticleEmitter::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_un
 
         if (shapeType != (int)shapeBuffer_->isBox) {
             auto command = std::make_unique<SetterCommand<uint32_t>>(&shapeBuffer_->isBox, (uint32_t)shapeType);
-            EditorController::getInstance()->pushCommand(std::move(command));
+            EditorController::GetInstance()->PushCommand(std::move(command));
         }
 
         ImGui::Spacing();
@@ -115,7 +115,7 @@ void GpuParticleEmitter::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_un
         bool isEmitEdge = shapeBuffer_->isEmitEdge != 0;
         if (ImGui::Checkbox(label.c_str(), &isEmitEdge)) {
             auto command = std::make_unique<SetterCommand<uint32_t>>(&shapeBuffer_->isEmitEdge, (uint32_t)isEmitEdge);
-            EditorController::getInstance()->pushCommand(std::move(command));
+            EditorController::GetInstance()->PushCommand(std::move(command));
         }
         ImGui::Spacing();
 
@@ -177,7 +177,7 @@ void GpuParticleEmitter::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_un
 }
 
 void GpuParticleEmitter::Finalize() {
-    DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>* srvuavHeap = Engine::getInstance()->getSrvHeap();
+    DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>* srvuavHeap = Engine::GetInstance()->GetSrvHeap();
 
     particleResource_.Finalize();
 
@@ -193,10 +193,10 @@ void GpuParticleEmitter::Finalize() {
     // cbv_srv_uav heap
     srvuavHeap->ReleaseDescriptor(freeListUavDescriptor_); // UAVディスクリプタを解放
 
-    if (materialBuffer_.getResource().getResource()) {
+    if (materialBuffer_.GetResource().GetResource()) {
         materialBuffer_.Finalize();
     }
-    if (shapeBuffer_.getResource().getResource()) {
+    if (shapeBuffer_.GetResource().GetResource()) {
         shapeBuffer_.Finalize();
     }
 
@@ -208,22 +208,22 @@ void GpuParticleEmitter::Finalize() {
 }
 
 void GpuParticleEmitter::CreateBuffer() {
-    DxDevice* dxDevice = Engine::getInstance()->getDxDevice();
+    DxDevice* dxDevice = Engine::GetInstance()->GetDxDevice();
     // cbv_srv_uav heap
-    DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>* srvuavHeap = Engine::getInstance()->getSrvHeap();
+    DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>* srvuavHeap = Engine::GetInstance()->GetSrvHeap();
 
     // materialBuffer が未作成の場合は、バッファを生成
-    if (!materialBuffer_.getResource().getResource()) {
+    if (!materialBuffer_.GetResource().GetResource()) {
         materialBuffer_.CreateBuffer(dxDevice->device_);
         materialBuffer_.ConvertToBuffer();
     }
 
-    if (!shapeBuffer_.getResource().getResource()) {
+    if (!shapeBuffer_.GetResource().GetResource()) {
         shapeBuffer_.CreateBuffer(dxDevice->device_);
     }
 
     // particleResource が未作成の場合は、UAVバッファを生成
-    if (!particleResource_.getResource()) {
+    if (!particleResource_.GetResource()) {
         particleResource_.CreateUAVBuffer(
             dxDevice->device_,
             sizeof(GpuParticleData::ConstantBuffer) * shapeBuffer_->particleSize,
@@ -231,8 +231,8 @@ void GpuParticleEmitter::CreateBuffer() {
             D3D12_HEAP_TYPE_DEFAULT);
     }
 
-    // Srv が 未作成の場合は、バッファを生成
-    if (particleSrvDescriptor_.getIndex() < 0) {
+    // srv が 未作成の場合は、バッファを生成
+    if (particleSrvDescriptor_.GetIndex() < 0) {
         // SRVディスクリプタ 生成
         D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
         srvDesc.Format                     = DXGI_FORMAT_UNKNOWN; // SRVはフォーマットを持たない
@@ -245,7 +245,7 @@ void GpuParticleEmitter::CreateBuffer() {
     }
 
     // UAVが未作成の場合は、UAVを生成
-    if (particleUavDescriptor_.getIndex() < 0) {
+    if (particleUavDescriptor_.GetIndex() < 0) {
 
         // UAVディスクリプタ 生成
         D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc{};
@@ -260,7 +260,7 @@ void GpuParticleEmitter::CreateBuffer() {
     }
 
     // freeIndexResource が未作成の場合は、UAVバッファを生成
-    if (!freeIndexResource_.getResource()) {
+    if (!freeIndexResource_.GetResource()) {
         freeIndexResource_.CreateUAVBuffer(
             dxDevice->device_,
             sizeof(int) * shapeBuffer_->particleSize,
@@ -268,7 +268,7 @@ void GpuParticleEmitter::CreateBuffer() {
             D3D12_HEAP_TYPE_DEFAULT);
     }
     // freeIndexUavDescriptor_ が未作成の場合は、UAVを生成
-    if (freeIndexUavDescriptor_.getIndex() < 0) {
+    if (freeIndexUavDescriptor_.GetIndex() < 0) {
         // UAVディスクリプタ 生成
         D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc{};
         uavDesc.Format                      = DXGI_FORMAT_UNKNOWN; // UAVはフォーマットを持たない
@@ -282,7 +282,7 @@ void GpuParticleEmitter::CreateBuffer() {
     }
 
     // freeListResource が未作成の場合は、UAVバッファを生成
-    if (!freeListResource_.getResource()) {
+    if (!freeListResource_.GetResource()) {
         freeListResource_.CreateUAVBuffer(
             dxDevice->device_,
             sizeof(int) * shapeBuffer_->particleSize,
@@ -290,7 +290,7 @@ void GpuParticleEmitter::CreateBuffer() {
             D3D12_HEAP_TYPE_DEFAULT);
     }
     // freeListUavDescriptor_ が未作成の場合は、UAVを生成
-    if (freeListUavDescriptor_.getIndex() < 0) {
+    if (freeListUavDescriptor_.GetIndex() < 0) {
         // UAVディスクリプタ 生成
         D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc{};
         uavDesc.Format                      = DXGI_FORMAT_UNKNOWN; // UAVはフォーマットを持たない

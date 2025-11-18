@@ -20,9 +20,9 @@ void EmitterWorkSystem::UpdateEntity(Entity* _entity) {
         return;
     }
 
-    const float deltaTime = Engine::getInstance()->getDeltaTime();
+    const float deltaTime = Engine::GetInstance()->GetDeltaTime();
 
-    auto emitters = getComponents<Emitter>(_entity);
+    auto emitters = GetComponents<Emitter>(_entity);
 
     if (!emitters) {
         return;

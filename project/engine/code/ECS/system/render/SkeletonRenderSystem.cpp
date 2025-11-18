@@ -32,21 +32,21 @@ void SkeletonRenderSystem::Initialize() {
     BaseRenderSystem::Initialize();
 
     //** ModelMeshRenderer **//
-    skinningAnimationArray_ = getComponentArray<SkinningAnimationComponent>();
+    skinningAnimationArray_ = GetComponentArray<SkinningAnimationComponent>();
 
     //** JointMeshRenderer **//
     jointRenderer_ = std::make_unique<LineRenderer>(std::vector<Mesh<ColorVertexData>>());
     jointRenderer_->Initialize(nullptr);
-    jointRenderer_->getMeshGroup()->push_back(Mesh<ColorVertexData>());
-    jointRenderer_->getMeshGroup()->back().Initialize(SkeletonRenderSystem::defaultMeshCount_ * jointSphereVertexSize, SkeletonRenderSystem::defaultMeshCount_ * jointSphereIndexSize);
-    jointMeshItr_ = jointRenderer_->getMeshGroup()->begin();
+    jointRenderer_->GetMeshGroup()->push_back(Mesh<ColorVertexData>());
+    jointRenderer_->GetMeshGroup()->back().Initialize(SkeletonRenderSystem::defaultMeshCount_ * jointSphereVertexSize, SkeletonRenderSystem::defaultMeshCount_ * jointSphereIndexSize);
+    jointMeshItr_ = jointRenderer_->GetMeshGroup()->begin();
 
     //** BoneMeshRenderer **//
     boneRenderer_ = std::make_unique<LineRenderer>(std::vector<Mesh<ColorVertexData>>());
     boneRenderer_->Initialize(nullptr);
-    boneRenderer_->getMeshGroup()->push_back(Mesh<ColorVertexData>());
-    boneRenderer_->getMeshGroup()->back().Initialize(SkeletonRenderSystem::defaultMeshCount_ * 2, SkeletonRenderSystem::defaultMeshCount_ * 2);
-    boneMeshItr_ = boneRenderer_->getMeshGroup()->begin();
+    boneRenderer_->GetMeshGroup()->push_back(Mesh<ColorVertexData>());
+    boneRenderer_->GetMeshGroup()->back().Initialize(SkeletonRenderSystem::defaultMeshCount_ * 2, SkeletonRenderSystem::defaultMeshCount_ * 2);
+    boneMeshItr_ = boneRenderer_->GetMeshGroup()->begin();
 }
 
 void SkeletonRenderSystem::Finalize() {
@@ -54,8 +54,8 @@ void SkeletonRenderSystem::Finalize() {
 }
 
 void SkeletonRenderSystem::CreateRenderMesh() {
-    auto& jointMeshGroup = jointRenderer_->getMeshGroup();
-    auto& boneMeshGroup  = boneRenderer_->getMeshGroup();
+    auto& jointMeshGroup = jointRenderer_->GetMeshGroup();
+    auto& boneMeshGroup  = boneRenderer_->GetMeshGroup();
 
     // Meshの初期化
     for (auto meshItr = jointMeshGroup->begin(); meshItr != jointMeshGroup->end(); ++meshItr) {
@@ -71,24 +71,24 @@ void SkeletonRenderSystem::CreateRenderMesh() {
     jointMeshItr_ = jointMeshGroup->begin();
     boneMeshItr_  = boneMeshGroup->begin();
 
-    for (auto& [entityIdx, modelMeshIdx] : skinningAnimationArray_->getEntityIndexBind()) {
-        Entity* entity = getEntity(entityIdx);
+    for (auto& [entityIdx, modelMeshIdx] : skinningAnimationArray_->GetEntityIndexBind()) {
+        Entity* entity = GetEntity(entityIdx);
         if (!entity) {
             continue; // Entityが存在しない場合はスキップ
         }
 
         Matrix4x4 worldMat = MakeMatrix::Identity();
-        if (auto* transform = getComponent<Transform>(entity); transform != nullptr) {
+        if (auto* transform = GetComponent<Transform>(entity); transform != nullptr) {
             worldMat = transform->worldMat;
         }
 
-        auto skinningAnimationComps = skinningAnimationArray_->getComponents(entity);
+        auto skinningAnimationComps = skinningAnimationArray_->GetComponents(entity);
         if (!skinningAnimationComps) {
             continue; // modelMeshRendererが存在しない場合はスキップ
         }
 
         for (auto& skinningAnimationComp : *skinningAnimationComps) {
-            const auto& skeleton = skinningAnimationComp.getSkeleton();
+            const auto& skeleton = skinningAnimationComp.GetSkeleton();
 
             if (skeleton.joints.empty()) {
                 continue;
@@ -111,13 +111,13 @@ void SkeletonRenderSystem::CreateRenderMesh() {
 
 void SkeletonRenderSystem::CreatePSO() {
 
-    ShaderManager* shaderManager = ShaderManager::getInstance();
-    DxDevice* dxDevice           = Engine::getInstance()->getDxDevice();
+    ShaderManager* shaderManager = ShaderManager::GetInstance();
+    DxDevice* dxDevice           = Engine::GetInstance()->GetDxDevice();
 
     ///=================================================
     /// 作成されているかチェック
     ///=================================================
-    pso_ = shaderManager->getPipelineStateObj("LineMesh_" + blendModeStr[static_cast<size_t>(currentBlend_)]);
+    pso_ = shaderManager->GetPipelineStateObj("LineMesh_" + blendModeStr[static_cast<size_t>(currentBlend_)]);
 
     if (!pso_) {
         return;
@@ -184,44 +184,44 @@ void SkeletonRenderSystem::CreatePSO() {
 void SkeletonRenderSystem::StartRender() {
     currentBlend_ = BlendMode::Alpha;
 
-    auto& commandList = dxCommand_->getCommandList();
+    auto& commandList = dxCommand_->GetCommandList();
     commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
     commandList->SetPipelineState(pso_->pipelineState.Get());
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 
-    CameraManager::getInstance()->setBufferForRootParameter(commandList, 1);
+    CameraManager::GetInstance()->SetBufferForRootParameter(commandList, 1);
 }
 
 bool SkeletonRenderSystem::ShouldSkipRender() const {
     // 描画オブジェクトが無いときは描画をスキップする
-    return !skinningAnimationArray_ || skinningAnimationArray_->getEntityIndexBind().empty();
+    return !skinningAnimationArray_ || skinningAnimationArray_->GetEntityIndexBind().empty();
 }
 
 void SkeletonRenderSystem::RenderCall() {
-    auto& commandList = dxCommand_->getCommandList();
+    auto& commandList = dxCommand_->GetCommandList();
 
     ///==============================
     /// 描画
     ///==============================
-    jointRenderer_->getTransformBuff().SetForRootParameter(commandList, 0);
-    for (auto& mesh : *jointRenderer_->getMeshGroup()) {
+    jointRenderer_->GetTransformBuff().SetForRootParameter(commandList, 0);
+    for (auto& mesh : *jointRenderer_->GetMeshGroup()) {
         if (mesh.indexes_.size() <= 0) {
             continue;
         }
         // 描画
-        commandList->IASetVertexBuffers(0, 1, &mesh.getVertexBufferView());
-        commandList->IASetIndexBuffer(&mesh.getIndexBufferView());
+        commandList->IASetVertexBuffers(0, 1, &mesh.GetVertexBufferView());
+        commandList->IASetIndexBuffer(&mesh.GetIndexBufferView());
         commandList->DrawIndexedInstanced(static_cast<UINT>(mesh.indexes_.size()), 1, 0, 0, 0);
     }
 
-    boneRenderer_->getTransformBuff().SetForRootParameter(commandList, 0);
-    for (auto& mesh : *boneRenderer_->getMeshGroup()) {
+    boneRenderer_->GetTransformBuff().SetForRootParameter(commandList, 0);
+    for (auto& mesh : *boneRenderer_->GetMeshGroup()) {
         if (mesh.indexes_.size() <= 0) {
             continue;
         }
         // 描画
-        commandList->IASetVertexBuffers(0, 1, &mesh.getVertexBufferView());
-        commandList->IASetIndexBuffer(&mesh.getIndexBufferView());
+        commandList->IASetVertexBuffers(0, 1, &mesh.GetVertexBufferView());
+        commandList->IASetIndexBuffer(&mesh.GetIndexBufferView());
         commandList->DrawIndexedInstanced(static_cast<UINT>(mesh.indexes_.size()), 1, 0, 0, 0);
     }
 }
@@ -244,7 +244,7 @@ void SkeletonRenderSystem::CreateMeshForChildren(
     const Vec3f& _prevJointPos) {
 
     // Capacityが足りなかったら 新しいMeshを作成する
-    if (jointMeshItr_->getIndexCapacity() <= 0) {
+    if (jointMeshItr_->GetIndexCapacity() <= 0) {
         jointMeshItr_->TransferData();
         ++jointMeshItr_;
         if (jointMeshItr_ == _jointMeshGroup->end()) {
@@ -253,7 +253,7 @@ void SkeletonRenderSystem::CreateMeshForChildren(
             _jointMeshGroup->back().Initialize(SkeletonRenderSystem::defaultMeshCount_ * jointSphereDivision, SkeletonRenderSystem::defaultMeshCount_ * jointSphereDivision);
         }
     }
-    if (boneMeshItr_->getIndexCapacity() <= 0) {
+    if (boneMeshItr_->GetIndexCapacity() <= 0) {
         boneMeshItr_->TransferData();
         ++boneMeshItr_;
         if (boneMeshItr_ == _boneMeshGroup->end()) {

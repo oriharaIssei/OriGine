@@ -384,7 +384,7 @@ bool EditKeyFrame(
                     &_keyFrames[draggedIndex].time,
                     draggedValue);
 
-                EditorController::getInstance()->pushCommand(std::move(command));
+                EditorController::GetInstance()->PushCommand(std::move(command));
             }
 
             draggedIndex = -1;
@@ -442,25 +442,25 @@ bool EditKeyFrame(
                     // キーフレームを削除
                     if (_keyFrames.size() <= 1) {
                         // 最後のキーフレームを削除する場合は、デフォルト値を設定 (最低でも1つ以上要素を確保する)
-                        EditorController::getInstance()->pushCommand(std::make_unique<SetterCommand<KeyFrame<float>>>(
+                        EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<KeyFrame<float>>>(
                             &_keyFrames[popUpIndex],
                             KeyFrame<float>(0.0f, _defaultValue)));
                         return 0;
                     }
                     // キーフレームを削除
                     auto commandCombo = std::make_unique<CommandCombo>();
-                    commandCombo->addCommand(std::make_shared<EraseElementCommand<AnimationCurve<float>>>(&_keyFrames, _keyFrames.begin() + popUpIndex));
-                    EditorController::getInstance()->pushCommand(std::move(commandCombo));
+                    commandCombo->AddCommand(std::make_shared<EraseElementCommand<AnimationCurve<float>>>(&_keyFrames, _keyFrames.begin() + popUpIndex));
+                    EditorController::GetInstance()->PushCommand(std::move(commandCombo));
 
                     popUpIndex = -1;
                     return 0;
                 }
                 if (ImGui::Button("Copy")) {
                     auto commandCombo = std::make_unique<CommandCombo>();
-                    commandCombo->addCommand(std::make_shared<AddElementCommand<AnimationCurve<float>>>(&_keyFrames, _keyFrames[popUpIndex]));
-                    commandCombo->addCommand(std::make_shared<SetterCommand<float>>(&_keyFrames.back().time, _keyFrames.back().time + 0.01f));
+                    commandCombo->AddCommand(std::make_shared<AddElementCommand<AnimationCurve<float>>>(&_keyFrames, _keyFrames[popUpIndex]));
+                    commandCombo->AddCommand(std::make_shared<SetterCommand<float>>(&_keyFrames.back().time, _keyFrames.back().time + 0.01f));
 
-                    commandCombo->setFuncOnAfterCommand(
+                    commandCombo->SetFuncOnAfterCommand(
                         [popUpIndexId, popUpIndex, &_keyFrames]() {
                             ImGuiStorage* _storage = ImGui::GetStateStorage();
                             _storage->SetInt(popUpIndexId, popUpIndex + 1);
@@ -473,7 +473,7 @@ bool EditKeyFrame(
                                 });
                         },
                         false);
-                    commandCombo->setFuncOnAfterUndoCommand(
+                    commandCombo->SetFuncOnAfterUndoCommand(
                         [popUpIndexId, popUpIndex, &_keyFrames]() {
                             ImGuiStorage* _storage = ImGui::GetStateStorage();
                             _storage->SetInt(popUpIndexId, popUpIndex);
@@ -486,7 +486,7 @@ bool EditKeyFrame(
                                 });
                         });
 
-                    EditorController::getInstance()->pushCommand(std::move(commandCombo));
+                    EditorController::GetInstance()->PushCommand(std::move(commandCombo));
                     return 0;
                 }
                 ImGui::Text("Time");
@@ -532,17 +532,17 @@ bool EditKeyFrame(
                 // SliderPopup
                 if (ImGui::Button("Add Node")) {
                     auto commandCombo = std::make_unique<CommandCombo>();
-                    commandCombo->addCommand(std::make_shared<AddElementCommand<AnimationCurve<float>>>(&_keyFrames, KeyFrame<float>(currentTime, CalculateValue::Linear(_keyFrames, currentTime))));
-                    commandCombo->addCommand(std::make_shared<SortCommand<AnimationCurve<float>>>(&_keyFrames, [](const auto& a, const auto& b) {
+                    commandCombo->AddCommand(std::make_shared<AddElementCommand<AnimationCurve<float>>>(&_keyFrames, KeyFrame<float>(currentTime, CalculateValue::Linear(_keyFrames, currentTime))));
+                    commandCombo->AddCommand(std::make_shared<SortCommand<AnimationCurve<float>>>(&_keyFrames, [](const auto& a, const auto& b) {
                         return a.time < b.time;
                     }));
-                    commandCombo->setFuncOnAfterCommand(
+                    commandCombo->SetFuncOnAfterCommand(
                         [popUpIndexId, _keyFrames]() {
                             ImGuiStorage* _storage = ImGui::GetStateStorage();
                             _storage->SetInt(popUpIndexId, (int)_keyFrames.size() - 1);
                         },
                         true);
-                    EditorController::getInstance()->pushCommand(std::move(commandCombo));
+                    EditorController::GetInstance()->PushCommand(std::move(commandCombo));
 
                     ImGui::CloseCurrentPopup();
                     return 0;
@@ -651,7 +651,7 @@ bool EditKeyFrame(
                 auto command                  = std::make_unique<SetterCommand<float>>(
                     &_keyFrames[draggedIndex].time,
                     draggedValue);
-                EditorController::getInstance()->pushCommand(std::move(command));
+                EditorController::GetInstance()->PushCommand(std::move(command));
             }
 
             draggedIndex = -1;
@@ -708,25 +708,25 @@ bool EditKeyFrame(
                 if (ImGui::Button("Delete")) {
                     if (_keyFrames.size() <= 1) {
                         // 最後のキーフレームを削除する場合は、デフォルト値を設定 (最低でも1つ以上要素を確保する)
-                        EditorController::getInstance()->pushCommand(std::make_unique<SetterCommand<KeyFrame<Vec2f>>>(
+                        EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<KeyFrame<Vec2f>>>(
                             &_keyFrames[popUpIndex],
                             KeyFrame<Vec2f>(0.0f, _defaultValue)));
                         return 0;
                     }
                     auto commandCombo = std::make_unique<CommandCombo>();
                     // キーフレームを削除
-                    commandCombo->addCommand(std::make_shared<EraseElementCommand<AnimationCurve<Vec2f>>>(&_keyFrames, _keyFrames.begin() + popUpIndex));
-                    EditorController::getInstance()->pushCommand(std::move(commandCombo));
+                    commandCombo->AddCommand(std::make_shared<EraseElementCommand<AnimationCurve<Vec2f>>>(&_keyFrames, _keyFrames.begin() + popUpIndex));
+                    EditorController::GetInstance()->PushCommand(std::move(commandCombo));
 
                     popUpIndex = -1;
                     return 0;
                 }
                 if (ImGui::Button("Copy")) {
                     auto commandCombo = std::make_unique<CommandCombo>();
-                    commandCombo->addCommand(std::make_shared<AddElementCommand<AnimationCurve<Vec2f>>>(&_keyFrames, _keyFrames[popUpIndex]));
-                    commandCombo->addCommand(std::make_shared<SetterCommand<float>>(&_keyFrames.back().time, _keyFrames.back().time + 0.01f));
+                    commandCombo->AddCommand(std::make_shared<AddElementCommand<AnimationCurve<Vec2f>>>(&_keyFrames, _keyFrames[popUpIndex]));
+                    commandCombo->AddCommand(std::make_shared<SetterCommand<float>>(&_keyFrames.back().time, _keyFrames.back().time + 0.01f));
 
-                    commandCombo->setFuncOnAfterCommand(
+                    commandCombo->SetFuncOnAfterCommand(
                         [popUpIndexId, popUpIndex, &_keyFrames]() {
                             ImGuiStorage* _storage = ImGui::GetStateStorage();
                             _storage->SetInt(popUpIndexId, popUpIndex + 1);
@@ -738,7 +738,7 @@ bool EditKeyFrame(
                                 });
                         },
                         false);
-                    commandCombo->setFuncOnAfterUndoCommand(
+                    commandCombo->SetFuncOnAfterUndoCommand(
                         [popUpIndexId, popUpIndex, &_keyFrames]() {
                             ImGuiStorage* _storage = ImGui::GetStateStorage();
                             _storage->SetInt(popUpIndexId, popUpIndex);
@@ -749,7 +749,7 @@ bool EditKeyFrame(
                                     return a.time < b.time;
                                 });
                         });
-                    EditorController::getInstance()->pushCommand(std::move(commandCombo));
+                    EditorController::GetInstance()->PushCommand(std::move(commandCombo));
                     return 0;
                 }
 
@@ -912,7 +912,7 @@ bool EditKeyFrame(
                 auto command                  = std::make_unique<SetterCommand<float>>(
                     &_keyFrames[draggedIndex].time,
                     draggedValue);
-                EditorController::getInstance()->pushCommand(std::move(command));
+                EditorController::GetInstance()->PushCommand(std::move(command));
             }
 
             draggedIndex = -1;
@@ -971,26 +971,26 @@ bool EditKeyFrame(
                     // キーフレームを削除
                     if (_keyFrames.size() <= 1) {
                         // 最後のキーフレームを削除する場合は、デフォルト値を設定 (最低でも1つ以上要素を確保する)
-                        EditorController::getInstance()->pushCommand(std::make_unique<SetterCommand<KeyFrame<Vec3f>>>(
+                        EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<KeyFrame<Vec3f>>>(
                             &_keyFrames[popUpIndex],
                             KeyFrame<Vec3f>(0.0f, _defaultValue)));
                         return 0;
                     }
                     // キーフレームを削除
                     auto commandCombo = std::make_unique<CommandCombo>();
-                    commandCombo->addCommand(std::make_shared<EraseElementCommand<AnimationCurve<Vec3f>>>(&_keyFrames, _keyFrames.begin() + popUpIndex));
+                    commandCombo->AddCommand(std::make_shared<EraseElementCommand<AnimationCurve<Vec3f>>>(&_keyFrames, _keyFrames.begin() + popUpIndex));
 
                     popUpIndex = -1;
-                    EditorController::getInstance()->pushCommand(std::move(commandCombo));
+                    EditorController::GetInstance()->PushCommand(std::move(commandCombo));
                     return 0;
                 }
                 if (ImGui::Button("Copy")) {
                     auto commandCombo = std::make_unique<CommandCombo>();
 
-                    commandCombo->addCommand(std::make_shared<AddElementCommand<AnimationCurve<Vec3f>>>(&_keyFrames, _keyFrames[popUpIndex]));
+                    commandCombo->AddCommand(std::make_shared<AddElementCommand<AnimationCurve<Vec3f>>>(&_keyFrames, _keyFrames[popUpIndex]));
 
-                    commandCombo->addCommand(std::make_shared<SetterCommand<float>>(&_keyFrames.back().time, _keyFrames.back().time + 0.01f));
-                    commandCombo->setFuncOnAfterCommand(
+                    commandCombo->AddCommand(std::make_shared<SetterCommand<float>>(&_keyFrames.back().time, _keyFrames.back().time + 0.01f));
+                    commandCombo->SetFuncOnAfterCommand(
                         [popUpIndexId, _keyFrames]() {
                             ImGuiStorage* _storage = ImGui::GetStateStorage();
                             _storage->SetInt(popUpIndexId, (int)_keyFrames.size() - 1);
@@ -1166,7 +1166,7 @@ bool EditKeyFrame(
                 auto command                  = std::make_unique<SetterCommand<float>>(
                     &_keyFrames[draggedIndex].time,
                     draggedValue);
-                EditorController::getInstance()->pushCommand(std::move(command));
+                EditorController::GetInstance()->PushCommand(std::move(command));
             }
 
             draggedIndex = -1;
@@ -1223,16 +1223,16 @@ bool EditKeyFrame(
                 if (ImGui::Button("Delete")) {
                     if (_keyFrames.size() <= 1) {
                         // 最後のキーフレームを削除する場合は、デフォルト値を設定 (最低でも1つ以上要素を確保する)
-                        EditorController::getInstance()->pushCommand(std::make_unique<SetterCommand<KeyFrame<Vec4f>>>(
+                        EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<KeyFrame<Vec4f>>>(
                             &_keyFrames[popUpIndex],
                             KeyFrame<Vec4f>(0.0f, _defaultValue)));
                         return 0;
                     }
                     auto commandCombo = std::make_unique<CommandCombo>();
                     // キーフレームを削除
-                    commandCombo->addCommand(std::make_shared<EraseElementCommand<AnimationCurve<Vec4f>>>(&_keyFrames, _keyFrames.begin() + popUpIndex));
+                    commandCombo->AddCommand(std::make_shared<EraseElementCommand<AnimationCurve<Vec4f>>>(&_keyFrames, _keyFrames.begin() + popUpIndex));
 
-                    EditorController::getInstance()->pushCommand(std::move(commandCombo));
+                    EditorController::GetInstance()->PushCommand(std::move(commandCombo));
                     popUpIndex = -1;
 
                     ImGui::CloseCurrentPopup();
@@ -1240,22 +1240,22 @@ bool EditKeyFrame(
                 }
                 if (ImGui::Button("Copy")) {
                     auto commandCombo = std::make_unique<CommandCombo>();
-                    commandCombo->addCommand(std::make_shared<AddElementCommand<AnimationCurve<Vec4f>>>(&_keyFrames, _keyFrames[popUpIndex]));
-                    commandCombo->addCommand(std::make_shared<SetterCommand<float>>(&_keyFrames.back().time, _keyFrames.back().time + 0.01f));
+                    commandCombo->AddCommand(std::make_shared<AddElementCommand<AnimationCurve<Vec4f>>>(&_keyFrames, _keyFrames[popUpIndex]));
+                    commandCombo->AddCommand(std::make_shared<SetterCommand<float>>(&_keyFrames.back().time, _keyFrames.back().time + 0.01f));
 
-                    commandCombo->setFuncOnAfterCommand(
+                    commandCombo->SetFuncOnAfterCommand(
                         [popUpIndexId, &_keyFrames]() {
                             ImGuiStorage* _storage = ImGui::GetStateStorage();
                             _storage->SetInt(popUpIndexId, (int)_keyFrames.size() - 1);
                         },
                         true);
 
-                    commandCombo->setFuncOnAfterUndoCommand(
+                    commandCombo->SetFuncOnAfterUndoCommand(
                         [popUpIndexId, popUpIndex, &_keyFrames]() {
                             ImGuiStorage* _storage = ImGui::GetStateStorage();
                             _storage->SetInt(popUpIndexId, popUpIndex);
                         });
-                    EditorController::getInstance()->pushCommand(std::move(commandCombo));
+                    EditorController::GetInstance()->PushCommand(std::move(commandCombo));
                     return 0;
                 }
                 ImGui::Text("Time");
@@ -1432,7 +1432,7 @@ bool EditKeyFrame(
                 auto command                  = std::make_unique<SetterCommand<float>>(
                     &_keyFrames[draggedIndex].time,
                     draggedValue);
-                EditorController::getInstance()->pushCommand(std::move(command));
+                EditorController::GetInstance()->PushCommand(std::move(command));
             }
 
             draggedIndex = -1;
@@ -1492,40 +1492,40 @@ bool EditKeyFrame(
 
                     if (_keyFrames.size() <= 1) {
                         // 最後のキーフレームを削除する場合は、デフォルト値を設定 (最低でも1つ以上要素を確保する)
-                        EditorController::getInstance()->pushCommand(std::make_unique<SetterCommand<KeyFrame<Quaternion>>>(
+                        EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<KeyFrame<Quaternion>>>(
                             &_keyFrames[popUpIndex],
                             KeyFrame<Quaternion>(0.0f, _defaultValue)));
                         return 0;
                     }
                     auto commandCombo = std::make_unique<CommandCombo>();
                     // キーフレームを削除
-                    commandCombo->addCommand(std::make_shared<EraseElementCommand<AnimationCurve<Quaternion>>>(&_keyFrames, _keyFrames.begin() + popUpIndex));
+                    commandCombo->AddCommand(std::make_shared<EraseElementCommand<AnimationCurve<Quaternion>>>(&_keyFrames, _keyFrames.begin() + popUpIndex));
 
-                    EditorController::getInstance()->pushCommand(std::move(commandCombo));
+                    EditorController::GetInstance()->PushCommand(std::move(commandCombo));
 
                     popUpIndex = -1;
                     return 0;
                 }
                 if (ImGui::Button("Copy")) {
                     auto commandCombo = std::make_unique<CommandCombo>();
-                    commandCombo->addCommand(std::make_shared<AddElementCommand<AnimationCurve<Quaternion>>>(&_keyFrames, _keyFrames[popUpIndex]));
+                    commandCombo->AddCommand(std::make_shared<AddElementCommand<AnimationCurve<Quaternion>>>(&_keyFrames, _keyFrames[popUpIndex]));
 
-                    commandCombo->addCommand(std::make_shared<SetterCommand<float>>(&_keyFrames.back().time, _keyFrames.back().time + 0.01f));
+                    commandCombo->AddCommand(std::make_shared<SetterCommand<float>>(&_keyFrames.back().time, _keyFrames.back().time + 0.01f));
 
-                    commandCombo->setFuncOnAfterCommand(
+                    commandCombo->SetFuncOnAfterCommand(
                         [popUpIndexId, &_keyFrames]() {
                             ImGuiStorage* _storage = ImGui::GetStateStorage();
                             _storage->SetInt(popUpIndexId, (int)_keyFrames.size() - 1);
                         },
                         true);
 
-                    commandCombo->setFuncOnAfterUndoCommand(
+                    commandCombo->SetFuncOnAfterUndoCommand(
                         [popUpIndexId, popUpIndex, &_keyFrames]() {
                             ImGuiStorage* _storage = ImGui::GetStateStorage();
                             _storage->SetInt(popUpIndexId, popUpIndex);
                         });
 
-                    EditorController::getInstance()->pushCommand(std::move(commandCombo));
+                    EditorController::GetInstance()->PushCommand(std::move(commandCombo));
                     return 0;
                 }
                 ImGui::Text("Time");
@@ -1704,7 +1704,7 @@ bool EditColorKeyFrame(
                 auto command                  = std::make_unique<SetterCommand<float>>(
                     &_keyFrames[draggedIndex].time,
                     draggedValue);
-                EditorController::getInstance()->pushCommand(std::move(command));
+                EditorController::GetInstance()->PushCommand(std::move(command));
             }
 
             draggedIndex = -1;
@@ -1765,7 +1765,7 @@ bool EditColorKeyFrame(
 
                     if (_keyFrames.size() <= 1) {
                         // 最後のキーフレームを削除する場合は、デフォルト値を設定 (最低でも1つ以上要素を確保する)
-                        EditorController::getInstance()->pushCommand(std::make_unique<SetterCommand<KeyFrame<Vec4f>>>(
+                        EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<KeyFrame<Vec4f>>>(
                             &_keyFrames[popUpIndex],
                             KeyFrame<Vec4f>(0.0f, _defaultValue)));
                         popUpIndex = -1;
@@ -1776,31 +1776,31 @@ bool EditColorKeyFrame(
 
                     auto commandCombo = std::make_unique<CommandCombo>();
 
-                    commandCombo->addCommand(std::make_shared<EraseElementCommand<AnimationCurve<Vec4f>>>(&_keyFrames, _keyFrames.begin() + popUpIndex));
+                    commandCombo->AddCommand(std::make_shared<EraseElementCommand<AnimationCurve<Vec4f>>>(&_keyFrames, _keyFrames.begin() + popUpIndex));
                     
-                    EditorController::getInstance()->pushCommand(std::move(commandCombo));
+                    EditorController::GetInstance()->PushCommand(std::move(commandCombo));
 
                     popUpIndex = -1;
                     return 0;
                 }
                 if (ImGui::Button("Copy")) {
                     auto commandCombo = std::make_unique<CommandCombo>();
-                    commandCombo->addCommand(std::make_shared<AddElementCommand<AnimationCurve<Vec4f>>>(&_keyFrames, _keyFrames[popUpIndex]));
-                    commandCombo->addCommand(std::make_shared<SetterCommand<float>>(&_keyFrames.back().time, _keyFrames.back().time + 0.01f));
-                    commandCombo->setFuncOnAfterCommand(
+                    commandCombo->AddCommand(std::make_shared<AddElementCommand<AnimationCurve<Vec4f>>>(&_keyFrames, _keyFrames[popUpIndex]));
+                    commandCombo->AddCommand(std::make_shared<SetterCommand<float>>(&_keyFrames.back().time, _keyFrames.back().time + 0.01f));
+                    commandCombo->SetFuncOnAfterCommand(
                         [popUpIndexId, &_keyFrames]() {
                             ImGuiStorage* _storage = ImGui::GetStateStorage();
                             _storage->SetInt(popUpIndexId, (int)_keyFrames.size() - 1);
                         },
                         false);
 
-                    commandCombo->setFuncOnAfterUndoCommand(
+                    commandCombo->SetFuncOnAfterUndoCommand(
                         [popUpIndexId, popUpIndex, &_keyFrames]() {
                             ImGuiStorage* _storage = ImGui::GetStateStorage();
                             _storage->SetInt(popUpIndexId, popUpIndex);
                         });
 
-                    EditorController::getInstance()->pushCommand(std::move(commandCombo));
+                    EditorController::GetInstance()->PushCommand(std::move(commandCombo));
 
                     return 0;
                 }

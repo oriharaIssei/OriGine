@@ -59,33 +59,33 @@ private:
     UINT bufferWidth_  = 0;
     UINT bufferHeight_ = 0;
 
-    const Vec4f clearColor_ = Vec4f{0.f, 0.f, 0.f, 0.0f};
+    const Vec4f ClearColor_ = Vec4f{0.f, 0.f, 0.f, 0.0f};
 
 public:
-    UINT getBufferCount() const { return bufferCount_; }
-    UINT getCurrentBackBufferIndex() const { return swapChain_->GetCurrentBackBufferIndex(); }
+    UINT GetBufferCount() const { return bufferCount_; }
+    UINT GetCurrentBackBufferIndex() const { return swapChain_->GetCurrentBackBufferIndex(); }
 
-    D3D12_CPU_DESCRIPTOR_HANDLE getCurrentBackBufferRtv() const {
-        return backBuffers_[swapChain_->GetCurrentBackBufferIndex()].getCpuHandle();
+    D3D12_CPU_DESCRIPTOR_HANDLE GetCurrentBackBufferRtv() const {
+        return backBuffers_[swapChain_->GetCurrentBackBufferIndex()].GetCpuHandle();
     }
-    D3D12_CPU_DESCRIPTOR_HANDLE getBackBufferRtv(UINT index) const {
+    D3D12_CPU_DESCRIPTOR_HANDLE GetBackBufferRtv(UINT index) const {
         if (index >= bufferCount_) {
             throw std::out_of_range("Index out of range in DxSwapChain::getBackBufferRtv");
         }
-        return backBuffers_[index].getCpuHandle();
+        return backBuffers_[index].GetCpuHandle();
     }
 
-    IDXGISwapChain4* getSwapChain() const { return swapChain_.Get(); }
+    IDXGISwapChain4* GetSwapChain() const { return swapChain_.Get(); }
 
-    const Microsoft::WRL::ComPtr<ID3D12Resource>& getBackBuffer(UINT index) const { return backBufferResources_[index].getResource(); }
-    Microsoft::WRL::ComPtr<ID3D12Resource> getBackBufferRef(UINT index) {
+    const Microsoft::WRL::ComPtr<ID3D12Resource>& GetBackBuffer(UINT index) const { return backBufferResources_[index].GetResource(); }
+    Microsoft::WRL::ComPtr<ID3D12Resource> GetBackBufferRef(UINT index) {
         if (index >= backBufferResources_.size()) {
             throw std::out_of_range("Index out of range in DxSwapChain::getBackBufferRef");
         }
-        return backBufferResources_[index].getResource();
+        return backBufferResources_[index].GetResource();
     }
-    const Microsoft::WRL::ComPtr<ID3D12Resource>& getCurrentBackBuffer() const { return backBufferResources_[swapChain_->GetCurrentBackBufferIndex()].getResource(); }
-    Microsoft::WRL::ComPtr<ID3D12Resource> getCurrentBackBufferRef() {
-        return backBufferResources_[swapChain_->GetCurrentBackBufferIndex()].getResource();
+    const Microsoft::WRL::ComPtr<ID3D12Resource>& GetCurrentBackBuffer() const { return backBufferResources_[swapChain_->GetCurrentBackBufferIndex()].GetResource(); }
+    Microsoft::WRL::ComPtr<ID3D12Resource> GetCurrentBackBufferRef() {
+        return backBufferResources_[swapChain_->GetCurrentBackBufferIndex()].GetResource();
     }
 };

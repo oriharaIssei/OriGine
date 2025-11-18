@@ -152,22 +152,22 @@ public:
     /// <typeparam name="...SystemClass">エンティティを追加するシステムクラスたち</typeparam>
     /// <param name="_entity"></param>
     template <IsSystem... SystemClass>
-    void registerEntity(Entity* _entity);
+    void RegisterEntity(Entity* _entity);
     /// <summary>
     /// 指定したシステムにエンティティを登録する
     /// </summary>
     /// <param name="_systemTypeName">エンティティを追加するシステムの名前</param>
     /// <param name="_entity"></param>
-    void registerEntity(const std::string& _systemTypeName, Entity* _entity);
+    void RegisterEntity(const std::string& _systemTypeName, Entity* _entity);
 
     /// <summary>
     /// 指定されたシステムからエンティティを削除します。
     /// </summary>
     /// <param name="_systemTypeName">エンティティを削除する対象のシステム名。</param>
     /// <param name="_entity">削除するEntityオブジェクトへのポインタ。</param>
-    void removeEntity(const std::string& _systemTypeName, Entity* _entity);
+    void RemoveEntity(const std::string& _systemTypeName, Entity* _entity);
 
-    void removeEntityFromAllSystems(Entity* _entity);
+    void RemoveEntityFromAllSystems(Entity* _entity);
 
 private:
     Scene* scene_ = nullptr; // 所属するシーン
@@ -178,48 +178,48 @@ private:
     std::array<std::vector<ISystem*>, size_t(SystemCategory::Count)> activeSystems_;
 
 public:
-    const std::array<bool, static_cast<size_t>(SystemCategory::Count)>& getCategoryActivity() const {
+    const std::array<bool, static_cast<size_t>(SystemCategory::Count)>& GetCategoryActivity() const {
         return categoryActivity;
     }
-    std::array<bool, static_cast<size_t>(SystemCategory::Count)>& getCategoryActivityRef() {
+    std::array<bool, static_cast<size_t>(SystemCategory::Count)>& GetCategoryActivityRef() {
         return categoryActivity;
     }
-    bool getCategoryActivity(SystemCategory category) const {
+    bool GetCategoryActivity(SystemCategory category) const {
         return categoryActivity[static_cast<size_t>(category)];
     }
-    void setCategoryActivity(SystemCategory _category, bool _isActive) {
+    void SetCategoryActivity(SystemCategory _category, bool _isActive) {
         categoryActivity[static_cast<size_t>(_category)] = _isActive;
     }
 
-    const std::unordered_map<std::string, std::unique_ptr<ISystem>>& getSystems() const {
+    const std::unordered_map<std::string, std::unique_ptr<ISystem>>& GetSystems() const {
         return systems_;
     }
-    std::unordered_map<std::string, std::unique_ptr<ISystem>>& getSystemsRef() {
+    std::unordered_map<std::string, std::unique_ptr<ISystem>>& GetSystemsRef() {
         return systems_;
     }
 
-    const std::array<std::vector<ISystem*>, size_t(SystemCategory::Count)>& getActiveSystems() const {
+    const std::array<std::vector<ISystem*>, size_t(SystemCategory::Count)>& GetActiveSystems() const {
         return activeSystems_;
     }
-    std::array<std::vector<ISystem*>, size_t(SystemCategory::Count)>& getActiveSystemsRef() {
+    std::array<std::vector<ISystem*>, size_t(SystemCategory::Count)>& GetActiveSystemsRef() {
         return activeSystems_;
     }
 
-    std::vector<ISystem*>& getActiveSystemsRef(SystemCategory _category) {
+    std::vector<ISystem*>& GetActiveSystemsRef(SystemCategory _category) {
         return activeSystems_[static_cast<size_t>(_category)];
     }
-    const std::vector<ISystem*>& getActiveSystems(SystemCategory category) const {
+    const std::vector<ISystem*>& GetActiveSystems(SystemCategory category) const {
         return activeSystems_[static_cast<size_t>(category)];
     }
-    ISystem* getSystem(const std::string& _systemName) const;
+    ISystem* GetSystem(const std::string& _systemName) const;
 
     template <IsSystem SystemClass>
-    SystemClass* getSystem() const;
+    SystemClass* GetSystem() const;
 
-    ISystem* getSystemRef(const std::string& _systemName);
+    ISystem* GetSystemRef(const std::string& _systemName);
 
     template <IsSystem SystemClass>
-    SystemClass* getSystemRef();
+    SystemClass* GetSystemRef();
 };
 
 template <SystemCategory Category>
@@ -268,13 +268,13 @@ inline void SystemRunner::DeactivateSystem() {
 }
 
 template <IsSystem... SystemClass>
-inline void SystemRunner::registerEntity(Entity* _entity) {
+inline void SystemRunner::RegisterEntity(Entity* _entity) {
     // 各システムにエンティティを登録
-    (getSystem<SystemClass>()->addEntity(_entity), ...);
+    (GetSystem<SystemClass>()->AddEntity(_entity), ...);
 }
 
 template <IsSystem SystemClass>
-inline SystemClass* SystemRunner::getSystem() const {
+inline SystemClass* SystemRunner::GetSystem() const {
     std::string systemName = nameof<SystemClass>();
     auto itr               = systems_.find(systemName);
     if (itr == systems_.end()) {
@@ -285,7 +285,7 @@ inline SystemClass* SystemRunner::getSystem() const {
 }
 
 template <IsSystem SystemClass>
-inline SystemClass* SystemRunner::getSystemRef() {
+inline SystemClass* SystemRunner::GetSystemRef() {
     std::string systemName = nameof<SystemClass>();
     auto itr               = systems_.find(systemName);
     if (itr == systems_.end()) {

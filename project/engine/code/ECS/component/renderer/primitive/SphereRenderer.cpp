@@ -26,8 +26,8 @@ void SphereRenderer::Initialize(Entity* _hostEntity) {
         meshGroup_->clear();
     }
 
-    transformBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
-    materialBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
+    transformBuff_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
+    materialBuff_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
 
     meshGroup_->emplace_back(MeshType());
     auto& mesh = meshGroup_->back();
@@ -58,7 +58,7 @@ void SphereRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entit
             isSelected = blendModeName == blendModeStr[(int32_t)currentBlend_];
 
             if (ImGui::Selectable(blendModeName.c_str(), isSelected)) {
-                EditorController::getInstance()->pushCommand(
+                EditorController::GetInstance()->PushCommand(
                     std::make_unique<SetterCommand<BlendMode>>(&currentBlend_, static_cast<BlendMode>(blendIndex)));
                 break;
             }
@@ -71,7 +71,7 @@ void SphereRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entit
     ImGui::Spacing();
 
     label                      = "MaterialIndex##" + _parentLabel;
-    auto materials             = _scene->getComponents<Material>(_entity);
+    auto materials             = _scene->GetComponents<Material>(_entity);
     int32_t entityMaterialSize = materials != nullptr ? static_cast<int32_t>(materials->size()) : 0;
     InputGuiCommand(label, materialIndex_);
 
@@ -96,10 +96,10 @@ void SphereRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entit
         std::string fileName  = "";
         if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"png"})) {
             auto commandCombo = std::make_unique<CommandCombo>();
-            commandCombo->addCommand(std::make_shared<SetterCommand<std::string>>(&textureDirectory_, kApplicationResourceDirectory + "/" + directory));
-            commandCombo->addCommand(std::make_shared<SetterCommand<std::string>>(&textureFileName_, fileName));
-            commandCombo->setFuncOnAfterCommand([this]() { textureIndex_ = TextureManager::LoadTexture(textureDirectory_ + "/" + textureFileName_); }, true);
-            EditorController::getInstance()->pushCommand(std::move(commandCombo));
+            commandCombo->AddCommand(std::make_shared<SetterCommand<std::string>>(&textureDirectory_, kApplicationResourceDirectory + "/" + directory));
+            commandCombo->AddCommand(std::make_shared<SetterCommand<std::string>>(&textureFileName_, fileName));
+            commandCombo->SetFuncOnAfterCommand([this]() { textureIndex_ = TextureManager::LoadTexture(textureDirectory_ + "/" + textureFileName_); }, true);
+            EditorController::GetInstance()->PushCommand(std::move(commandCombo));
         }
     }
 
@@ -144,7 +144,7 @@ void SphereRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entit
 
 void to_json(nlohmann::json& j, const SphereRenderer& r) {
     j["isRenderer"]       = r.isRender_;
-    j["isCulling"]        = r.isCulling_;
+    j["isCulling"]        = r.isCulling_ ;
     j["blendMode"]        = static_cast<int32_t>(r.currentBlend_);
     j["textureDirectory"] = r.textureDirectory_;
     j["textureFileName"]  = r.textureFileName_;
@@ -157,7 +157,7 @@ void to_json(nlohmann::json& j, const SphereRenderer& r) {
 void from_json(const nlohmann::json& j, SphereRenderer& r) {
     j.at("isRenderer").get_to(r.isRender_);
     if (j.contains("isCulling")) {
-        j.at("isCulling").get_to(r.isCulling_);
+        j.at("isCulling").get_to(r.isCulling_ );
     }
     int32_t blendMode = 0;
     j.at("blendMode").get_to(blendMode);

@@ -24,7 +24,7 @@ void DissolveEffect::Finalize() {
 }
 
 void DissolveEffect::CreatePSO() {
-    ShaderManager* shaderManager = ShaderManager::getInstance();
+    ShaderManager* shaderManager = ShaderManager::GetInstance();
     shaderManager->LoadShader("FullScreen.VS");
     shaderManager->LoadShader("Dissolve.PS", shaderDirectory, L"ps_6_0");
     ShaderInformation shaderInfo{};
@@ -65,7 +65,7 @@ void DissolveEffect::CreatePSO() {
     rootParameter[0].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
     rootParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
     size_t sceneViewParamIdx          = shaderInfo.pushBackRootParameter(rootParameter[0]);
-    shaderInfo.setDescriptorRange2Parameter(sceneViewRange, 1, sceneViewParamIdx);
+    shaderInfo.SetDescriptorRange2Parameter(sceneViewRange, 1, sceneViewParamIdx);
 
     D3D12_DESCRIPTOR_RANGE effectTexRange[1] = {};
     effectTexRange[0].BaseShaderRegister     = 1;
@@ -79,7 +79,7 @@ void DissolveEffect::CreatePSO() {
     rootParameter[1].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
     rootParameter[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
     size_t effectTexParamIdx          = shaderInfo.pushBackRootParameter(rootParameter[1]);
-    shaderInfo.setDescriptorRange2Parameter(effectTexRange, 1, effectTexParamIdx);
+    shaderInfo.SetDescriptorRange2Parameter(effectTexRange, 1, effectTexParamIdx);
 
     rootParameter[2].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_CBV;
     rootParameter[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
@@ -101,9 +101,9 @@ void DissolveEffect::CreatePSO() {
     ///================================================
     D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
     depthStencilDesc.DepthEnable = false;
-    shaderInfo.setDepthStencilDesc(depthStencilDesc);
+    shaderInfo.SetDepthStencilDesc(depthStencilDesc);
 
-    pso_ = shaderManager->CreatePso("DissolveEffect", shaderInfo, Engine::getInstance()->getDxDevice()->device_);
+    pso_ = shaderManager->CreatePso("DissolveEffect", shaderInfo, Engine::GetInstance()->GetDxDevice()->device_);
 }
 
 bool DissolveEffect::ShouldSkipPostRender() const {
@@ -111,14 +111,14 @@ bool DissolveEffect::ShouldSkipPostRender() const {
 }
 
 void DissolveEffect::RenderStart() {
-    auto& commandList = dxCommand_->getCommandList();
+    auto& commandList = dxCommand_->GetCommandList();
 
-    /// pso set
+    /// pso Set
     commandList->SetPipelineState(pso_->pipelineState.Get());
     commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
+    ID3D12DescriptorHeap* ppHeaps[] = {Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
 
     /// target の設定
@@ -126,7 +126,7 @@ void DissolveEffect::RenderStart() {
 }
 
 void DissolveEffect::Rendering() {
-    auto commandList = dxCommand_->getCommandList();
+    auto commandList = dxCommand_->GetCommandList();
 
     for (const auto& renderingData : activeRenderingData_) {
         /// 描画 開始
@@ -136,11 +136,11 @@ void DissolveEffect::Rendering() {
             renderingData.srvHandle);
 
         auto& dissParam = renderingData.dissolveParam;
-        dissParam->getDissolveBuffer().ConvertToBuffer();
-        dissParam->getDissolveBuffer().SetForRootParameter(dxCommand_->getCommandList(), 2);
-        dissParam->getMaterialBuffer().SetForRootParameter(dxCommand_->getCommandList(), 3);
+        dissParam->GetDissolveBuffer().ConvertToBuffer();
+        dissParam->GetDissolveBuffer().SetForRootParameter(dxCommand_->GetCommandList(), 2);
+        dissParam->GetMaterialBuffer().SetForRootParameter(dxCommand_->GetCommandList(), 3);
         /// 描画 呼び出し
-        RenderCall(renderTarget_->getBackBufferSrvHandle());
+        RenderCall(renderTarget_->GetBackBufferSrvHandle());
 
         // 描画 終了
         RenderEnd();
@@ -156,30 +156,30 @@ void DissolveEffect::RenderEnd() {
 }
 
 void DissolveEffect::DispatchComponent(Entity* _entity) {
-    auto effectParams = getComponents<DissolveEffectParam>(_entity);
+    auto effectParams = GetComponents<DissolveEffectParam>(_entity);
 
     if (!effectParams) {
         return; // コンポーネントがない場合は何もしない
     }
   
     for (auto& param : *effectParams) {
-        if (!param.isActive()) {
+        if (!param.IsActive()) {
             continue;
         }
 
         DissolveEffect::RenderingData renderingData{};
-        D3D12_GPU_DESCRIPTOR_HANDLE srvHandle = TextureManager::getDescriptorGpuHandle(param.getTextureIndex());
+        D3D12_GPU_DESCRIPTOR_HANDLE srvHandle = TextureManager::GetDescriptorGpuHandle(param.GetTextureIndex());
 
-        int32_t materialIndex = param.getMaterialIndex();
-        auto& materialBuff    = param.getMaterialBuffer();
+        int32_t materialIndex = param.GetMaterialIndex();
+        auto& materialBuff    = param.GetMaterialBuffer();
         if (materialIndex >= 0) {
-            Material* material = getComponent<Material>(_entity, materialIndex);
+            Material* material = GetComponent<Material>(_entity, materialIndex);
             material->UpdateUvMatrix();
 
             materialBuff.ConvertToBuffer(ColorAndUvTransform(material->color_, material->uvTransform_));
 
             if (material->hasCustomTexture()) {
-                srvHandle = material->getCustomTexture()->srv_.getGpuHandle();
+                srvHandle = material->GetCustomTexture()->srv_.GetGpuHandle();
             }
         }
 
@@ -190,7 +190,7 @@ void DissolveEffect::DispatchComponent(Entity* _entity) {
 }
 
 void DissolveEffect::RenderCall(D3D12_GPU_DESCRIPTOR_HANDLE _viewHandle) {
-    auto& commandList = dxCommand_->getCommandList();
+    auto& commandList = dxCommand_->GetCommandList();
 
     /// ================================================
     /// Viewport の設定

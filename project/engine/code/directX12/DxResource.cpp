@@ -182,13 +182,13 @@ void DxResource::Finalize() {
     resourceDesc_ = {}; // リソースの詳細情報をリセット
 }
 
-HRESULT DxResource::setName(const std::wstring& name) {
+HRESULT DxResource::SetName(const std::wstring& name) {
     HRESULT result = 0;
     if (resource_) {
         result = resource_->SetName(name.c_str());
     }
     if (FAILED(result)) {
-        LOG_CRITICAL("Failed to set resource name.\n massage : {}", result);
+        LOG_CRITICAL("Failed to Set resource name.\n massage : {}", result);
         assert(false);
     }
     return result;

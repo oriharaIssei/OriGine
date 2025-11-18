@@ -69,14 +69,14 @@ private:
     std::string baseTexturePath_ = "";
 
 public:
-    int32_t getPriority() const { return priority_; }
-    void setPriority(int32_t priority) { priority_ = priority; }
-    bool isActive() const { return isActive_; }
-    void setActive(bool active) { isActive_ = active; }
+    int32_t GetPriority() const { return priority_; }
+    void SetPriority(int32_t priority) { priority_ = priority; }
+    bool IsActive() const { return isActive_; }
+    void SetActive(bool active) { isActive_ = active; }
 
-    int32_t getMaterialIndex() const { return materialIndex_; }
-    void setMaterialIndex(int32_t index) { materialIndex_ = index; }
+    int32_t GetMaterialIndex() const { return materialIndex_; }
+    void SetMaterialIndex(int32_t index) { materialIndex_ = index; }
 
-    int32_t getBaseTextureId() const { return baseTextureId_; }
-    const std::vector<EffectEntityData>& getEffectEntityIdList() const { return effectEntityIdList_; }
+    int32_t GetBaseTextureId() const { return baseTextureId_; }
+    const std::vector<EffectEntityData>& GetEffectEntityIdList() const { return effectEntityIdList_; }
 };

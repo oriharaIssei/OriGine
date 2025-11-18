@@ -1,6 +1,6 @@
 #include "ComponentRegistry.h"
 
-ComponentRegistry* ComponentRegistry::getInstance() {
+ComponentRegistry* ComponentRegistry::GetInstance() {
     static ComponentRegistry instance;
     return &instance;
 }
@@ -8,7 +8,7 @@ ComponentRegistry* ComponentRegistry::getInstance() {
 ComponentRegistry::ComponentRegistry()  = default;
 ComponentRegistry::~ComponentRegistry() = default;
 
-IComponentArray* ComponentRegistry::getComponentArray(const std::string& _typeName) const {
+IComponentArray* ComponentRegistry::GetComponentArray(const std::string& _typeName) const {
     auto itr = componentArrays_.find(_typeName);
     if (itr == componentArrays_.end()) {
         LOG_ERROR("ComponentRegistry: ComponentArray not found for type: {}", _typeName);
@@ -17,7 +17,7 @@ IComponentArray* ComponentRegistry::getComponentArray(const std::string& _typeNa
     return itr->second.get();
 }
 
-std::unique_ptr<IComponentArray> ComponentRegistry::cloneComponentArray(const std::string& _compTypeName) {
+std::unique_ptr<IComponentArray> ComponentRegistry::CloneComponentArray(const std::string& _compTypeName) {
     auto itr = cloneMaker_.find(_compTypeName);
     if (itr == cloneMaker_.end()) {
         LOG_ERROR("ComponentRegistry: Clone maker not found for type: {}", _compTypeName);
@@ -27,11 +27,11 @@ std::unique_ptr<IComponentArray> ComponentRegistry::cloneComponentArray(const st
 }
 
 const std::unordered_map<std::string, std::unique_ptr<IComponentArray>>&
-ComponentRegistry::getComponentArrayMap() const {
+ComponentRegistry::GetComponentArrayMap() const {
     return componentArrays_;
 }
 
 std::unordered_map<std::string, std::unique_ptr<IComponentArray>>&
-ComponentRegistry::getComponentArrayMapRef() {
+ComponentRegistry::GetComponentArrayMapRef() {
     return componentArrays_;
 }

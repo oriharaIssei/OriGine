@@ -76,7 +76,7 @@ protected:
 
     float lifeTime_    = 0.0f;
     float currentTime_ = 0.0f;
-    bool isAlive_      = false;
+    bool IsAlive_      = false;
 
     float mass_ = 1.0f;
 
@@ -95,24 +95,24 @@ protected:
     InterpolationType uvInterpolationType_        = InterpolationType::LINEAR;
 
 public:
-    void setKeyFrames(
+    void SetKeyFrames(
         int32_t updateSettings,
         ParticleKeyFrames* _keyFrames);
 
-    const ParticleTransform& getTransform() const { return transform_; }
-    bool getIsAlive() const { return isAlive_; }
+    const ParticleTransform& GetTransform() const { return transform_; }
+    bool GetIsAlive() const { return IsAlive_; }
 
-    void setUpdateScale(Vec3f _updateScale) {
+    void SetUpdateScale(Vec3f _updateScale) {
         updateScale_ = _updateScale;
     }
-    void setUpdateRotate(Vec3f _updateRotate) {
+    void SetUpdateRotate(Vec3f _updateRotate) {
         updateRotate_ = _updateRotate;
     }
-    void setUpdateVelocity(Vec3f _updateVelocity) {
+    void SetUpdateVelocity(Vec3f _updateVelocity) {
         updateVelocity_ = _updateVelocity;
     }
 
-    void setMass(float _mass) { mass_ = _mass; }
+    void SetMass(float _mass) { mass_ = _mass; }
 };
 
 struct ParticleKeyFrames {
@@ -122,7 +122,7 @@ struct ParticleKeyFrames {
         scaleCurve_.push_back({});
         rotateCurve_.push_back({});
         velocityCurve_.push_back({});
-        uvScaleCurve_.push_back({});
+        uvscaleCurve_.push_back({});
         uvRotateCurve_.push_back({});
         uvTranslateCurve_.push_back({});
     }
@@ -134,7 +134,7 @@ struct ParticleKeyFrames {
     AnimationCurve<Vec3f> rotateCurve_;
     AnimationCurve<Vec3f> velocityCurve_;
 
-    AnimationCurve<Vec3f> uvScaleCurve_;
+    AnimationCurve<Vec3f> uvscaleCurve_;
     AnimationCurve<Vec3f> uvRotateCurve_;
     AnimationCurve<Vec3f> uvTranslateCurve_;
 

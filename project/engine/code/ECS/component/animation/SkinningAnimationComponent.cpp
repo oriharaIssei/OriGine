@@ -66,7 +66,7 @@ void SkinningAnimationComponent::Initialize(Entity* _entity) {
         animation.currentTime_           = 0.0f;
         animation.animationState_.isEnd_ = false;
 
-        animation.animationData_ = AnimationManager::getInstance()->Load(
+        animation.animationData_ = AnimationManager::GetInstance()->Load(
             kApplicationResourceDirectory + "/" + animation.directory_, animation.fileName_);
 
         this->animationIndexBinder_[animation.fileName_] = animationIndex;
@@ -78,7 +78,7 @@ void SkinningAnimationComponent::Edit([[maybe_unused]] Scene* _scene, Entity* /*
 
 #ifdef _DEBUG
 
-    int32_t entityModelMeshRendererSize = _scene->getComponentArray<ModelMeshRenderer>()->getComponentSize(entity_);
+    int32_t entityModelMeshRendererSize = _scene->GetComponentArray<ModelMeshRenderer>()->GetComponentSize(entity_);
     InputGuiCommand<int32_t>("Bind Mode MeshRenderer Index##" + _parentLabel, bindModeMeshRendererIndex_, "%d",
         [entityModelMeshRendererSize](int32_t* _newVal) {
             *_newVal = std::clamp(*_newVal, 0, entityModelMeshRendererSize - 1);
@@ -98,17 +98,17 @@ void SkinningAnimationComponent::Edit([[maybe_unused]] Scene* _scene, Entity* /*
                 newAnimation.directory_ = directory;
                 newAnimation.fileName_  = fileName;
 
-                newAnimation.animationData_ = AnimationManager::getInstance()->Load(kApplicationResourceDirectory + "/" + directory, fileName);
+                newAnimation.animationData_ = AnimationManager::GetInstance()->Load(kApplicationResourceDirectory + "/" + directory, fileName);
 
                 newAnimation.duration_ = newAnimation.animationData_->duration;
 
                 auto commandCombo = std::make_unique<CommandCombo>();
-                commandCombo->addCommand(std::make_shared<AddElementCommand<std::vector<AnimationCombo>>>(&animationTable_, newAnimation));
-                commandCombo->setFuncOnAfterCommand([this, fileName]() {
+                commandCombo->AddCommand(std::make_shared<AddElementCommand<std::vector<AnimationCombo>>>(&animationTable_, newAnimation));
+                commandCombo->SetFuncOnAfterCommand([this, fileName]() {
                     animationIndexBinder_[fileName] = static_cast<int32_t>(animationTable_.size()) - 1;
                 },
                     true);
-                EditorController::getInstance()->pushCommand(std::move(commandCombo));
+                EditorController::GetInstance()->PushCommand(std::move(commandCombo));
             } else {
                 LOG_ERROR("Animation with name '{}' already exists.", fileName);
             }
@@ -128,18 +128,18 @@ void SkinningAnimationComponent::Edit([[maybe_unused]] Scene* _scene, Entity* /*
                 std::string directory;
                 std::string fileName;
                 if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"gltf", "anm"})) {
-                    auto setPath = std::make_unique<SetterCommand<std::string>>(&animation.directory_, kApplicationResourceDirectory + "/" + directory);
-                    auto setFile = std::make_unique<SetterCommand<std::string>>(&animation.fileName_, fileName);
+                    auto SetPath = std::make_unique<SetterCommand<std::string>>(&animation.directory_, kApplicationResourceDirectory + "/" + directory);
+                    auto SetFile = std::make_unique<SetterCommand<std::string>>(&animation.fileName_, fileName);
                     CommandCombo commandCombo;
-                    commandCombo.addCommand(std::move(setPath));
-                    commandCombo.addCommand(std::move(setFile));
-                    commandCombo.setFuncOnAfterCommand([this, index]() {
+                    commandCombo.AddCommand(std::move(SetPath));
+                    commandCombo.AddCommand(std::move(SetFile));
+                    commandCombo.SetFuncOnAfterCommand([this, index]() {
                         auto& animation          = animationTable_[index];
-                        animation.animationData_ = AnimationManager::getInstance()->Load(animation.directory_, animation.fileName_);
+                        animation.animationData_ = AnimationManager::GetInstance()->Load(animation.directory_, animation.fileName_);
                         animation.duration_      = animation.animationData_->duration;
                     },
                         true);
-                    EditorController::getInstance()->pushCommand(std::make_unique<CommandCombo>(commandCombo));
+                    EditorController::GetInstance()->PushCommand(std::make_unique<CommandCombo>(commandCombo));
                 }
             }
 
@@ -172,7 +172,7 @@ void SkinningAnimationComponent::Finalize() {
     entity_ = nullptr;
 }
 
-void SkinningAnimationComponent::addLoad(const std::string& directory, const std::string& fileName) {
+void SkinningAnimationComponent::AddLoad(const std::string& directory, const std::string& fileName) {
     if (directory.empty() || fileName.empty()) {
         LOG_ERROR("Directory or fileName is empty.");
         return;
@@ -188,7 +188,7 @@ void SkinningAnimationComponent::addLoad(const std::string& directory, const std
     newAnimation.directory_ = directory;
     newAnimation.fileName_  = fileName;
 
-    newAnimation.animationData_ = AnimationManager::getInstance()->Load(kApplicationResourceDirectory + "/" + directory, fileName);
+    newAnimation.animationData_ = AnimationManager::GetInstance()->Load(kApplicationResourceDirectory + "/" + directory, fileName);
 
     animationIndexBinder_[fileName] = static_cast<int32_t>(animationTable_.size()) - 1;
 }
@@ -197,7 +197,7 @@ void SkinningAnimationComponent::Play() {
     auto& animation = animationTable_[currentAnimationIndex_];
 
     if (!animation.animationData_) {
-        animation.animationData_ = AnimationManager::getInstance()->Load(animation.directory_, animation.fileName_);
+        animation.animationData_ = AnimationManager::GetInstance()->Load(animation.directory_, animation.fileName_);
     }
     animation.animationState_.isPlay_ = true;
     animation.animationState_.isEnd_  = false;
@@ -211,7 +211,7 @@ void SkinningAnimationComponent::Play(int32_t index) {
     }
     auto& animation = animationTable_[index];
     if (!animation.animationData_) {
-        animation.animationData_ = AnimationManager::getInstance()->Load(animation.directory_, animation.fileName_);
+        animation.animationData_ = AnimationManager::GetInstance()->Load(animation.directory_, animation.fileName_);
     }
     animation.animationState_.isPlay_ = true;
     animation.prePlay_                = false; // 前のアニメーションを停止
@@ -220,7 +220,7 @@ void SkinningAnimationComponent::Play(int32_t index) {
 }
 
 void SkinningAnimationComponent::Play(const std::string& name) {
-    int32_t index = getAnimationIndex(name);
+    int32_t index = GetAnimationIndex(name);
     if (index < 0 || index >= static_cast<int32_t>(animationTable_.size())) {
         LOG_ERROR("Invalid animation name: {}", name);
         return;
@@ -238,7 +238,7 @@ void SkinningAnimationComponent::PlayNext(int32_t index, float _blendTime) {
 
     auto& nextAnimation = animationTable_[blendingAnimationData_.value().targetAnimationIndex_];
     if (!nextAnimation.animationData_) {
-        nextAnimation.animationData_ = AnimationManager::getInstance()->Load(nextAnimation.directory_, nextAnimation.fileName_);
+        nextAnimation.animationData_ = AnimationManager::GetInstance()->Load(nextAnimation.directory_, nextAnimation.fileName_);
     }
     nextAnimation.animationState_.isPlay_ = true;
     nextAnimation.prePlay_                = false; // 前のアニメーションを停止
@@ -247,7 +247,7 @@ void SkinningAnimationComponent::PlayNext(int32_t index, float _blendTime) {
 }
 
 void SkinningAnimationComponent::PlayNext(const std::string& name, float _blendTime) {
-    int32_t index = getAnimationIndex(name);
+    int32_t index = GetAnimationIndex(name);
     if (index < 0 || index >= static_cast<int32_t>(animationTable_.size())) {
         LOG_ERROR("Invalid animation name: {}", name);
         return;
@@ -263,26 +263,26 @@ void SkinningAnimationComponent::Stop() {
 }
 
 void SkinningAnimationComponent::CreateSkinnedVertex(Scene* _scene) {
-    DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>* uavHeap = Engine::getInstance()->getSrvHeap(); // cbv_srv_uav heap
-    auto& device                                                 = Engine::getInstance()->getDxDevice()->device_;
+    DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>* uavHeap = Engine::GetInstance()->GetSrvHeap(); // cbv_srv_uav heap
+    auto& device                                                 = Engine::GetInstance()->GetDxDevice()->device_;
 
-    ModelMeshRenderer* meshRenderer = _scene->getComponent<ModelMeshRenderer>(entity_, bindModeMeshRendererIndex_);
+    ModelMeshRenderer* meshRenderer = _scene->GetComponent<ModelMeshRenderer>(entity_, bindModeMeshRendererIndex_);
     if (!meshRenderer) {
         LOG_ERROR("MeshRenderer not found for SkinningAnimationComponent");
         return;
     }
-    ModelMeshData* modelMeshData = ModelManager::getInstance()->getModelMeshData(meshRenderer->getDirectory(), meshRenderer->getFileName());
+    ModelMeshData* modelMeshData = ModelManager::GetInstance()->GetModelMeshData(meshRenderer->GetDirectory(), meshRenderer->GetFileName());
     if (!modelMeshData) {
-        LOG_ERROR("ModelMeshData not found for directory: {}, fileName: {}", meshRenderer->getDirectory(), meshRenderer->getFileName());
+        LOG_ERROR("ModelMeshData not found for directory: {}, fileName: {}", meshRenderer->GetDirectory(), meshRenderer->GetFileName());
         return;
     }
-    auto* meshGroup = meshRenderer->getMeshGroup().get();
+    auto* meshGroup = meshRenderer->GetMeshGroup().get();
     if (!meshGroup) {
         LOG_ERROR(
             "MeshGroup is null in SkinningAnimationComponent.\n EntityName : {}\n EntityID   : {}\n ModelName  : {}\n",
-            entity_->getDataType(),
-            entity_->getID(),
-            meshRenderer->getFileName());
+            entity_->GetDataType(),
+            entity_->GetID(),
+            meshRenderer->GetFileName());
         return;
     }
 
@@ -295,7 +295,7 @@ void SkinningAnimationComponent::CreateSkinnedVertex(Scene* _scene) {
         if (skinnedVertexBuffer_.size() > meshGroupSize) {
             // 縮小時、削除されるバッファのFinalizeを呼ぶ
             for (size_t i = meshGroupSize; i < skinnedVertexBuffer_.size(); ++i) {
-                if (!skinnedVertexBuffer_[i].buffer.isValid()) {
+                if (!skinnedVertexBuffer_[i].buffer.IsValid()) {
                     continue;
                 }
                 skinnedVertexBuffer_[i].buffer.Finalize();
@@ -312,7 +312,7 @@ void SkinningAnimationComponent::CreateSkinnedVertex(Scene* _scene) {
         bool needRecreate = false;
 
         // バッファが未生成、またはサイズが異なる場合は再生成
-        if (!skinnedVertexBuffer_[i].buffer.isValid() || skinnedVertexBuffer_[i].buffer.sizeInBytes() != requiredBufferSize) {
+        if (!skinnedVertexBuffer_[i].buffer.IsValid() || skinnedVertexBuffer_[i].buffer.GetSizeInBytes() != requiredBufferSize) {
             needRecreate = true;
         }
 
@@ -335,13 +335,13 @@ void SkinningAnimationComponent::CreateSkinnedVertex(Scene* _scene) {
             uavDesc.Buffer.StructureByteStride  = sizeof(decltype(mesh.vertexes_)::value_type);
             skinnedVertexBuffer_[i].descriptor  = uavHeap->CreateDescriptor(uavDesc, &skinnedVertexBuffer_[i].buffer);
 
-            skinnedVertexBuffer_[i].vbView.BufferLocation = skinnedVertexBuffer_[i].buffer.getResource()->GetGPUVirtualAddress();
-            skinnedVertexBuffer_[i].vbView.SizeInBytes    = static_cast<UINT>(skinnedVertexBuffer_[i].buffer.sizeInBytes());
+            skinnedVertexBuffer_[i].vbView.BufferLocation = skinnedVertexBuffer_[i].buffer.GetResource()->GetGPUVirtualAddress();
+            skinnedVertexBuffer_[i].vbView.SizeInBytes    = static_cast<UINT>(skinnedVertexBuffer_[i].buffer.GetSizeInBytes());
             skinnedVertexBuffer_[i].vbView.StrideInBytes  = sizeof(decltype(mesh.vertexes_)::value_type);
         }
 
         if (!modelMeshData->skeleton.has_value()) {
-            LOG_ERROR("Skeleton not found in ModelMeshData for directory: {}, fileName: {}", meshRenderer->getDirectory(), meshRenderer->getFileName());
+            LOG_ERROR("Skeleton not found in ModelMeshData for directory: {}, fileName: {}", meshRenderer->GetDirectory(), meshRenderer->GetFileName());
             skeleton_ = Skeleton{};
             continue;
         }
@@ -351,8 +351,8 @@ void SkinningAnimationComponent::CreateSkinnedVertex(Scene* _scene) {
 void SkinningAnimationComponent::DeleteSkinnedVertex() {
     // UAVディスクリプタを解放
     for (auto& skinnedVertex : skinnedVertexBuffer_) {
-        if (skinnedVertex.descriptor.getIndex() >= 0) {
-            Engine::getInstance()->getSrvHeap()->ReleaseDescriptor(skinnedVertex.descriptor);
+        if (skinnedVertex.descriptor.GetIndex() >= 0) {
+            Engine::GetInstance()->GetSrvHeap()->ReleaseDescriptor(skinnedVertex.descriptor);
         }
         skinnedVertex.buffer.Finalize();
     }

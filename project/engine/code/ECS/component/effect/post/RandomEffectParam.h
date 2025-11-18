@@ -48,32 +48,32 @@ private:
     BlendMode blendMode_ = BlendMode::Alpha;
 
 public:
-    bool isActive() const {
+    bool IsActive() const {
         return isActive_;
     }
-    void setIsActive(bool isActive) {
+    void SetIsActive(bool isActive) {
         isActive_ = isActive;
     }
 
-    float getCurrentTime() const {
+    float GetCurrentTime() const {
         return effectParamData_->time;
     }
-    void setCurrentTime(float time) {
+    void SetCurrentTime(float time) {
         effectParamData_->time = time;
     }
-    float getMaxTime() const {
+    float GetMaxTime() const {
         return maxTime_;
     }
-    BlendMode getBlendMode() const {
+    BlendMode GetBlendMode() const {
         return blendMode_;
     }
-    void setBlendMode(BlendMode mode) {
+    void SetBlendMode(BlendMode mode) {
         blendMode_ = mode;
     }
-    const IConstantBuffer<RandomEffectParamData>& getConstantBuffer() const {
+    const IConstantBuffer<RandomEffectParamData>& GetConstantBuffer() const {
         return effectParamData_;
     }
-    IConstantBuffer<RandomEffectParamData>& getConstantBufferRef() {
+    IConstantBuffer<RandomEffectParamData>& GetConstantBufferRef() {
         return effectParamData_;
     }
 };

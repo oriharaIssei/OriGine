@@ -12,12 +12,12 @@ void CameraInitialize::Initialize() {}
 void CameraInitialize::Finalize() {}
 
 void CameraInitialize::UpdateEntity(Entity* _entity) {
-    CameraTransform* cameraTransform = getComponent<CameraTransform>(_entity);
+    CameraTransform* cameraTransform = GetComponent<CameraTransform>(_entity);
     if (!cameraTransform) {
         return;
     }
 
     cameraTransform->UpdateMatrix();
-    CameraManager::getInstance()->setTransform(*cameraTransform);
-    CameraManager::getInstance()->DataConvertToBuffer();
+    CameraManager::GetInstance()->SetTransform(*cameraTransform);
+    CameraManager::GetInstance()->DataConvertToBuffer();
 }

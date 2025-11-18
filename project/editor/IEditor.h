@@ -42,8 +42,8 @@ protected:
     std::string name_;
 
 public:
-    const std::string& getName() const { return name_; }
-    void setName(const std::string& name) { name_ = name; }
+    const std::string& GetName() const { return name_; }
+    void SetName(const std::string& name) { name_ = name; }
 };
 
 /// <summary>
@@ -61,16 +61,16 @@ protected:
     std::string name_           = "Unknown"; // MenuItemの名前
     DiffValue<bool> isSelected_ = false; // MenuItemが開いているかどうか
 public:
-    const std::string& getName() const { return name_; }
-    void setName(const std::string& name) { name_ = name; }
+    const std::string& GetName() const { return name_; }
+    void SetName(const std::string& name) { name_ = name; }
 
     DiffValue<bool> isSelected() const { return isSelected_; }
     DiffValue<bool>& isSelected() { return isSelected_; }
 
-    void setSelected(bool _selected, bool _sync = false) {
-        isSelected_.set(_selected);
+    void SetSelected(bool _selected, bool _sync = false) {
+        isSelected_.Set(_selected);
         if (_sync) {
-            isSelected_.sync();
+            isSelected_.Sync();
         }
     }
 };
@@ -93,34 +93,34 @@ protected:
     DiffValue<bool> isFocused_ = false; // Menuがフォーカスされているかどうか
     std::unordered_map<std::string, std::shared_ptr<MenuItem>> menuItems_; // Menuに含まれるMenuItem
 public:
-    const std::string& getName() const { return name_; }
-    void setName(const std::string& name) { name_ = name; }
+    const std::string& GetName() const { return name_; }
+    void SetName(const std::string& name) { name_ = name; }
 
-    DiffValue<bool> isOpen() const { return isOpen_; }
-    DiffValue<bool>& isOpenRef() { return isOpen_; }
-    void setOpen(bool open, bool sync = false) {
-        isOpen_.set(open);
+    DiffValue<bool> IsOpen() const { return isOpen_; }
+    DiffValue<bool>& IsOpenRef() { return isOpen_; }
+    void SetOpen(bool open, bool sync = false) {
+        isOpen_.Set(open);
         if (sync) {
-            isOpen_.sync();
+            isOpen_.Sync();
         }
     }
 
-    DiffValue<bool> isFocused() const { return isFocused_; }
-    void setFocused(bool focused, bool sync = false) {
-        isFocused_.set(focused);
+    DiffValue<bool> IsFocused() const { return isFocused_; }
+    void SetFocused(bool focused, bool sync = false) {
+        isFocused_.Set(focused);
         if (sync) {
-            isFocused_.sync();
+            isFocused_.Sync();
         }
     }
 
-    const std::unordered_map<std::string, std::shared_ptr<MenuItem>>& getMenuItems() const { return menuItems_; }
-    std::unordered_map<std::string, std::shared_ptr<MenuItem>>& getMenuItemsRef() { return menuItems_; }
-    void addMenuItem(std::shared_ptr<MenuItem> item, bool _isInit = true) {
+    const std::unordered_map<std::string, std::shared_ptr<MenuItem>>& GetMenuItems() const { return menuItems_; }
+    std::unordered_map<std::string, std::shared_ptr<MenuItem>>& GetMenuItemsRef() { return menuItems_; }
+    void AddMenuItem(std::shared_ptr<MenuItem> item, bool _isInit = true) {
         if (!item) {
             return; // nullptrチェック
         }
-        if (menuItems_.find(item->getName()) != menuItems_.end()) {
-            LOG_INFO("MenuItem with name '{}' already exists in this menu.", item->getName());
+        if (menuItems_.find(item->GetName()) != menuItems_.end()) {
+            LOG_INFO("MenuItem with name '{}' already exists in this menu.", item->GetName());
             return;
         }
 
@@ -128,7 +128,7 @@ public:
             item->Initialize();
         }
 
-        menuItems_[item->getName()] = item;
+        menuItems_[item->GetName()] = item;
     }
 };
 
@@ -156,42 +156,42 @@ protected:
 
     std::unordered_map<std::string, std::shared_ptr<Region>> regions_; // Areaに含まれるRegion
 public:
-    const std::string& getName() const { return name_; }
-    void setName(const std::string& name) { name_ = name; }
+    const std::string& GetName() const { return name_; }
+    void SetName(const std::string& name) { name_ = name; }
 
-    const DiffValue<bool>& isOpen() const { return isOpen_; }
-    void setOpen(bool _open, bool _sync = false) {
-        isOpen_.set(_open);
+    const DiffValue<bool>& IsOpen() const { return isOpen_; }
+    void SetOpen(bool _open, bool _sync = false) {
+        isOpen_.Set(_open);
         if (_sync) {
-            isOpen_.sync();
+            isOpen_.Sync();
         }
     }
-    const DiffValue<bool>& isFocused() const { return isFocused_; }
-    void setFocused(bool _focused, bool _sync = false) {
-        isFocused_.set(_focused);
+    const DiffValue<bool>& IsFocused() const { return isFocused_; }
+    void SetFocused(bool _focused, bool _sync = false) {
+        isFocused_.Set(_focused);
         if (_sync) {
-            isFocused_.sync();
+            isFocused_.Sync();
         }
     }
 
-    const Vec2f& getAreaSize() const { return areaSize_; }
-    void setAreaSize(const Vec2f& size) { areaSize_ = size; }
+    const Vec2f& GetAreaSize() const { return areaSize_; }
+    void SetAreaSize(const Vec2f& size) { areaSize_ = size; }
 
-    std::unordered_map<std::string, std::shared_ptr<Region>>& getRegions() { return regions_; }
-    void addRegion(std::shared_ptr<Region> region, bool _isInit = true) {
+    std::unordered_map<std::string, std::shared_ptr<Region>>& GetRegions() { return regions_; }
+    void AddRegion(std::shared_ptr<Region> region, bool _isInit = true) {
         if (!region) {
             return; // nullptrチェック
         }
-        if (regions_.find(region->getName()) != regions_.end()) {
-            LOG_INFO("Region with name '{}' already exists in this area.", region->getName());
+        if (regions_.find(region->GetName()) != regions_.end()) {
+            LOG_INFO("Region with name '{}' already exists in this area.", region->GetName());
             return;
         }
         if (_isInit) {
             region->Initialize();
         }
-        regions_[region->getName()] = region;
+        regions_[region->GetName()] = region;
     }
-    void removeRegion(const std::string& regionName) {
+    void RemoveRegion(const std::string& regionName) {
         auto it = regions_.find(regionName);
         if (it != regions_.end()) {
             regions_.erase(it);
@@ -199,7 +199,7 @@ public:
             LOG_INFO("Region with name '{}' not found in this area.", regionName);
         }
     }
-    void clearRegions() {
+    void ClearRegions() {
         regions_.clear();
     }
 };
@@ -243,43 +243,41 @@ protected:
     std::unordered_map<std::string, std::shared_ptr<Area>> areas_; // Windowに含まれるArea
     std::unordered_map<std::string, std::shared_ptr<Menu>> menus_; // Windowに含まれるMenu
 public:
-    const std::string& getTitle() const { return title_; }
-    void setTitle(const std::string& title) { title_ = title; }
-    bool isOpen() const { return isOpen_.current(); }
-    DiffValue<bool>& isOpenRef() { return isOpen_; }
-    void setOpen(bool open, bool sync = false) {
+    const std::string& GetTitle() const { return title_; }
+    void SetTitle(const std::string& title) { title_ = title; }
+    bool IsOpen() const { return isOpen_.Current(); }
+    DiffValue<bool>& IsOpenRef() { return isOpen_; }
+    void SetOpen(bool open, bool sync = false) {
         isOpen_ = open;
         if (sync) {
-            isOpen_.sync();
+            isOpen_.Sync();
         }
     }
 
-    bool isFocused() const { return isFocused_.current(); }
-    DiffValue<bool>& isFocusedRef() { return isFocused_; }
-    void setFocused(bool focused, bool sync = false) {
-        isFocused_.set(focused);
+    bool IsFocused() const { return isFocused_.Current(); }
+    DiffValue<bool>& IsFocusedRef() { return isFocused_; }
+    void SetFocused(bool focused, bool sync = false) {
+        isFocused_.Set(focused);
         if (sync) {
-            isFocused_.sync();
+            isFocused_.Sync();
         }
     }
 
-    ImGuiWindowFlags getWindowFlags() const { return windowFlags_; }
-    void setWindowFlags(ImGuiWindowFlags flags) { windowFlags_ = flags; }
-    void addWindowFlags(ImGuiWindowFlags flags) { windowFlags_ |= flags; }
-    void removeWindowFlags(ImGuiWindowFlags flags) { windowFlags_ &= ~flags; }
-    ImGuiDockNodeFlags getDockFlags() const { return dockFlags_; }
-    void setDockFlags(ImGuiDockNodeFlags flags) { dockFlags_ = flags; }
-    void addDockFlags(ImGuiDockNodeFlags flags) { dockFlags_ |= flags; }
-    void removeDockFlags(ImGuiDockNodeFlags flags) { dockFlags_ &= ~flags; }
+    ImGuiWindowFlags GetWindowFlags() const { return windowFlags_; }
+    void SetWindowFlags(ImGuiWindowFlags flags) { windowFlags_ = flags; }
+    void AddWindowFlags(ImGuiWindowFlags flags) { windowFlags_ |= flags; }
+    void RemoveWindowFlags(ImGuiWindowFlags flags) { windowFlags_ &= ~flags; }
+    ImGuiDockNodeFlags GetDockFlags() const { return dockFlags_; }
+    void SetDockFlags(ImGuiDockNodeFlags flags) { dockFlags_ = flags; }
+    void AddDockFlags(ImGuiDockNodeFlags flags) { dockFlags_ |= flags; }
+    void RemoveDockFlags(ImGuiDockNodeFlags flags) { dockFlags_ &= ~flags; }
 
-    const Vec2f& getWindowSize() const { return windowSize_; }
-    const Vec2f& getWindowPos() const { return windowPos_; }
-    // void setWindowSize(const Vec2f& size) { windowSize_ = size; } ImGui で制御されているため setしても変更できない
-    // void setWindowPos(const Vec2f& pos) { windowPos_ = pos; }
+    const Vec2f& GetWindowSize() const { return windowSize_; }
+    const Vec2f& GetWindowPos() const { return windowPos_; }
 
-    const std::unordered_map<std::string, std::shared_ptr<Area>>& getAreas() const { return areas_; }
-    std::unordered_map<std::string, std::shared_ptr<Area>>& getAreasRef() { return areas_; }
-    std::shared_ptr<Area> getArea(const std::string& areaName) const {
+    const std::unordered_map<std::string, std::shared_ptr<Area>>& GetAreas() const { return areas_; }
+    std::unordered_map<std::string, std::shared_ptr<Area>>& GetAreasRef() { return areas_; }
+    std::shared_ptr<Area> GetArea(const std::string& areaName) const {
         auto it = areas_.find(areaName);
         if (it != areas_.end()) {
             return it->second;
@@ -287,12 +285,12 @@ public:
         LOG_INFO("Area with name '{}' not found in this window.", areaName);
         return nullptr;
     }
-    void addArea(std::shared_ptr<Area> area, bool _isInit = true) {
+    void AddArea(std::shared_ptr<Area> area, bool _isInit = true) {
         if (!area) {
             return; // nullptrチェック
         }
-        if (areas_.find(area->getName()) != areas_.end()) {
-            LOG_INFO("Area with name '{}' already exists in this window.", area->getName());
+        if (areas_.find(area->GetName()) != areas_.end()) {
+            LOG_INFO("Area with name '{}' already exists in this window.", area->GetName());
             return;
         }
 
@@ -300,9 +298,9 @@ public:
             area->Initialize();
         }
 
-        areas_[area->getName()] = area;
+        areas_[area->GetName()] = area;
     }
-    void removeArea(const std::string& areaName) {
+    void RemoveArea(const std::string& areaName) {
         auto it = areas_.find(areaName);
         if (it != areas_.end()) {
             areas_.erase(it);
@@ -310,26 +308,26 @@ public:
             LOG_INFO("Area with name '{}' not found in this window.", areaName);
         }
     }
-    void clearAreas() {
+    void ClearAreas() {
         areas_.clear();
     }
 
-    const std::unordered_map<std::string, std::shared_ptr<Menu>>& getMenus() const { return menus_; }
-    std::unordered_map<std::string, std::shared_ptr<Menu>>& getMenusRef() { return menus_; }
-    void addMenu(std::shared_ptr<Menu> menu, bool _isInit = true) {
+    const std::unordered_map<std::string, std::shared_ptr<Menu>>& GetMenus() const { return menus_; }
+    std::unordered_map<std::string, std::shared_ptr<Menu>>& GetMenusRef() { return menus_; }
+    void AddMenu(std::shared_ptr<Menu> menu, bool _isInit = true) {
         if (!menu) {
             return; // nullptrチェック
         }
-        if (menus_.find(menu->getName()) != menus_.end()) {
-            LOG_WARN("Menu with name '{}' already exists in this window.", menu->getName());
+        if (menus_.find(menu->GetName()) != menus_.end()) {
+            LOG_WARN("Menu with name '{}' already exists in this window.", menu->GetName());
             return;
         }
         if (_isInit) {
             menu->Initialize();
         }
-        menus_[menu->getName()] = menu;
+        menus_[menu->GetName()] = menu;
     }
-    void clearMenus() {
+    void ClearMenus() {
         menus_.clear();
     }
 };
@@ -390,19 +388,19 @@ private:
     std::function<void()> funcOnAfterUndoCommand_;
 
 public:
-    void addCommand(std::shared_ptr<IEditCommand> command) {
+    void AddCommand(std::shared_ptr<IEditCommand> command) {
         if (!command) {
             return; // nullptrチェック
         }
         commands_.emplace_back(command);
     }
-    void setFuncOnAfterCommand(std::function<void()> func, bool _syncFuncOnAfterUndoCommand = false) {
+    void SetFuncOnAfterCommand(std::function<void()> func, bool _syncFuncOnAfterUndoCommand = false) {
         funcOnAfterCommand_ = func;
         if (_syncFuncOnAfterUndoCommand) {
             funcOnAfterUndoCommand_ = func;
         }
     }
-    void setFuncOnAfterUndoCommand(std::function<void()> func) {
+    void SetFuncOnAfterUndoCommand(std::function<void()> func) {
         funcOnAfterUndoCommand_ = func;
     }
 };

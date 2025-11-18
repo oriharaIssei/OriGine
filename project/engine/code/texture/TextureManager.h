@@ -71,9 +71,9 @@ private:
     static std::unique_ptr<DxCommand> dxCommand_;
 
 public:
-    static D3D12_GPU_DESCRIPTOR_HANDLE getDescriptorGpuHandle(uint32_t handleId);
+    static D3D12_GPU_DESCRIPTOR_HANDLE GetDescriptorGpuHandle(uint32_t handleId);
 
-    static const DirectX::TexMetadata& getTexMetadata(uint32_t handleId) { return textures_[handleId]->metaData; }
+    static const DirectX::TexMetadata& GetTexMetadata(uint32_t handleId) { return textures_[handleId]->metaData; }
 };
 
 // engine/resource/ は含まれない

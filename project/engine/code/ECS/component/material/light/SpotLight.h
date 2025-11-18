@@ -68,23 +68,23 @@ public:
     };
 
 public: // access
-    bool isActive() const { return isActive_; }
-    void setActive(bool _isActive) { isActive_ = _isActive; }
+    bool IsActive() const { return isActive_; }
+    void SetActive(bool _isActive) { isActive_ = _isActive; }
 
-    Vec3f getColor() const { return color_; }
-    void setColor(const Vec3f& _color) { color_ = _color; }
-    Vec3f getPos() const { return pos_; }
-    void setPos(const Vec3f& _pos) { pos_ = _pos; }
-    float getIntensity() const { return intensity_; }
-    void setIntensity(float _intensity) { intensity_ = _intensity; }
-    Vec3f getDirection() const { return direction_; }
-    void setDirection(const Vec3f& _direction) { direction_ = _direction; }
-    float getDistance() const { return distance_; }
-    void setDistance(float _distance) { distance_ = _distance; }
-    float getDecay() const { return decay_; }
-    void setDecay(float _decay) { decay_ = _decay; }
-    float getCosAngle() const { return cosAngle_; }
-    void setCosAngle(float _cosAngle) { cosAngle_ = _cosAngle; }
-    float getCosFalloffStart() const { return cosFalloffStart_; }
-    void setCosFalloffStart(float _cosFalloffStart) { cosFalloffStart_ = _cosFalloffStart; }
+    Vec3f GetColor() const { return color_; }
+    void SetColor(const Vec3f& _color) { color_ = _color; }
+    Vec3f GetPos() const { return pos_; }
+    void SetPos(const Vec3f& _pos) { pos_ = _pos; }
+    float GetIntensity() const { return intensity_; }
+    void SetIntensity(float _intensity) { intensity_ = _intensity; }
+    Vec3f GetDirection() const { return direction_; }
+    void SetDirection(const Vec3f& _direction) { direction_ = _direction; }
+    float GetDistance() const { return distance_; }
+    void SetDistance(float _distance) { distance_ = _distance; }
+    float GetDecay() const { return decay_; }
+    void SetDecay(float _decay) { decay_ = _decay; }
+    float GetCosAngle() const { return cosAngle_; }
+    void SetCosAngle(float _cosAngle) { cosAngle_ = _cosAngle; }
+    float GetCosFalloffStart() const { return cosFalloffStart_; }
+    void SetCosFalloffStart(float _cosFalloffStart) { cosFalloffStart_ = _cosFalloffStart; }
 };

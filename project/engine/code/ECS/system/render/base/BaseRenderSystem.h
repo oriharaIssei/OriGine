@@ -63,7 +63,7 @@ protected:
     std::unique_ptr<DxCommand> dxCommand_ = nullptr;
 
 public:
-    DxCommand* getDxCommand() {
+    DxCommand* GetDxCommand() {
         return dxCommand_.get();
     }
 };

@@ -22,7 +22,7 @@ void ParticleRenderSystem::Initialize() {
 }
 
 void ParticleRenderSystem::CreatePSO() {
-    ShaderManager* shaderManager = ShaderManager::getInstance();
+    ShaderManager* shaderManager = ShaderManager::GetInstance();
 
     ///=================================================
     /// shader読み込み
@@ -51,7 +51,7 @@ void ParticleRenderSystem::CreatePSO() {
     structuredRange[0].NumDescriptors                    = 1;
     structuredRange[0].RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
     structuredRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-    shaderInfo.setDescriptorRange2Parameter(structuredRange, 1, 0);
+    shaderInfo.SetDescriptorRange2Parameter(structuredRange, 1, 0);
     // 1 ... ViewProjection
     rootParameter[1].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
     rootParameter[1].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
@@ -73,7 +73,7 @@ void ParticleRenderSystem::CreatePSO() {
     descriptorRange[0].NumDescriptors                    = 1;
     descriptorRange[0].RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
     descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-    shaderInfo.setDescriptorRange2Parameter(descriptorRange, 1, rootParameterIndex);
+    shaderInfo.SetDescriptorRange2Parameter(descriptorRange, 1, rootParameterIndex);
 
 #pragma endregion
 
@@ -119,7 +119,7 @@ void ParticleRenderSystem::CreatePSO() {
     ///=================================================
     for (size_t i = 0; i < kBlendNum; ++i) {
         shaderInfo.blendMode_ = BlendMode(i);
-        psoByBlendMode_[i]    = shaderManager->CreatePso("Particle_" + blendModeStr[i], shaderInfo, Engine::getInstance()->getDxDevice()->device_);
+        psoByBlendMode_[i]    = shaderManager->CreatePso("Particle_" + blendModeStr[i], shaderInfo, Engine::GetInstance()->GetDxDevice()->device_);
     }
 }
 
@@ -129,8 +129,8 @@ void ParticleRenderSystem::DispatchRenderer(Entity* _entity) {
         return;
     }
 
-    Transform* transform           = getComponent<Transform>(_entity);
-    std::vector<Emitter>* emitters = getComponents<Emitter>(_entity);
+    Transform* transform           = GetComponent<Transform>(_entity);
+    std::vector<Emitter>* emitters = GetComponents<Emitter>(_entity);
 
     if (emitters == nullptr) {
         return;
@@ -142,21 +142,21 @@ void ParticleRenderSystem::DispatchRenderer(Entity* _entity) {
         }
 
         // 親が設定されていなければ_entityがもつTransformを設定する
-        if (!emitter.getParent()) {
-            emitter.setParent(transform);
+        if (!emitter.GetParent()) {
+            emitter.SetParent(transform);
         }
 
-        BlendMode blend    = emitter.getBlendMode();
+        BlendMode blend    = emitter.GetBlendMode();
         int32_t blendIndex = static_cast<int32_t>(blend);
         activeEmittersByBlendMode_[blendIndex].push_back(&emitter);
     }
 }
 
 void ParticleRenderSystem::StartRender() {
-    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->getCommandList();
+    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->GetCommandList();
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
+    ID3D12DescriptorHeap* ppHeaps[] = {Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
 }
 
@@ -169,14 +169,14 @@ void ParticleRenderSystem::RenderingBy(BlendMode _blend, bool /*_isCulling*/) {
         return;
     }
 
-    auto commandList = dxCommand_->getCommandList();
+    auto commandList = dxCommand_->GetCommandList();
 
     // PSOセット
     commandList->SetPipelineState(psoByBlendMode_[blendIndex]->pipelineState.Get());
     // RootSignatureセット
     commandList->SetGraphicsRootSignature(psoByBlendMode_[blendIndex]->rootSignature.Get());
 
-    CameraManager::getInstance()->setBufferForRootParameter(commandList, 1);
+    CameraManager::GetInstance()->SetBufferForRootParameter(commandList, 1);
 
     for (auto* emitter : emitters) {
         if (emitter == nullptr) {

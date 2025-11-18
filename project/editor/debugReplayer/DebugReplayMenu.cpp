@@ -27,7 +27,7 @@ DebugReplayFileMenu::~DebugReplayFileMenu() {}
 
 void DebugReplayFileMenu::Initialize() {
     // menuItem の追加
-    addMenuItem(std::make_shared<DebugReplayLoadMenuItem>(parent_));
+    AddMenuItem(std::make_shared<DebugReplayLoadMenuItem>(parent_));
 }
 
 DebugReplayLoadMenuItem::DebugReplayLoadMenuItem(DebugReplayWindow* _parent)
@@ -46,14 +46,14 @@ void DebugReplayLoadMenuItem::DrawGui() {
 
         // fileの取得に成功したら
         if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, filename, {kReplayFileExtension})) {
-            ReplayPlayer* replayPlayer = parent_->getReplayPlayer();
+            ReplayPlayer* replayPlayer = parent_->GetReplayPlayer();
             // skip
             if (!replayPlayer) {
                 LOG_ERROR("ReplayPlayer is nullptr.");
                 return;
             }
             // active だったら Finalize する
-            if (replayPlayer->getIsActive()) {
+            if (replayPlayer->GetIsActive()) {
                 replayPlayer->Finalize();
             }
 
@@ -61,7 +61,7 @@ void DebugReplayLoadMenuItem::DrawGui() {
             std::string filePath = kApplicationResourceDirectory + "/" + directory + "/" + filename;
 
             // コマンドとして登録
-            EditorController::getInstance()->pushCommand(std::make_unique<DebugReplayLoadFileCommand>(parent_, filePath));
+            EditorController::GetInstance()->PushCommand(std::make_unique<DebugReplayLoadFileCommand>(parent_, filePath));
         }
     }
 }
@@ -73,11 +73,11 @@ void DebugReplayLoadMenuItem::Finalize() {
 
 DebugReplayLoadFileCommand::DebugReplayLoadFileCommand(DebugReplayWindow* _parent, const std::string& _filePath)
     : parent_(_parent), filePath_(_filePath) {
-    auto replayPlayer = parent_->getReplayPlayer();
-    if (!replayPlayer || !replayPlayer->getIsActive()) {
+    auto replayPlayer = parent_->GetReplayPlayer();
+    if (!replayPlayer || !replayPlayer->GetIsActive()) {
         return;
     }
-    prevFilePath_ = replayPlayer->getFilepath();
+    prevFilePath_ = replayPlayer->GetFilepath();
 }
 
 DebugReplayLoadFileCommand::~DebugReplayLoadFileCommand() {
@@ -88,34 +88,34 @@ DebugReplayLoadFileCommand::~DebugReplayLoadFileCommand() {
 }
 
 void DebugReplayLoadFileCommand::Execute() {
-    auto replayPlayer = parent_->getReplayPlayer();
+    auto replayPlayer = parent_->GetReplayPlayer();
     if (!replayPlayer) {
         LOG_ERROR("ReplayPlayer is nullptr.");
         return;
     }
 
     // active だったら Finalize する
-    if (replayPlayer->getIsActive()) {
+    if (replayPlayer->GetIsActive()) {
         replayPlayer->Finalize();
     }
     // ファイルの読み込み
-    replayPlayer->Initialize(filePath_, parent_->getSceneManager());
-    parent_->setIsLoadReplayFile(true);
+    replayPlayer->Initialize(filePath_, parent_->GetSceneManager());
+    parent_->SetIsLoadReplayFile(true);
 }
 
 void DebugReplayLoadFileCommand::Undo() {
-    auto replayPlayer = parent_->getReplayPlayer();
+    auto replayPlayer = parent_->GetReplayPlayer();
     if (!replayPlayer) {
         LOG_ERROR("ReplayPlayer is nullptr.");
         return;
     }
     // active だったら Finalize する
-    if (replayPlayer->getIsActive()) {
+    if (replayPlayer->GetIsActive()) {
         replayPlayer->Finalize();
     }
     // ファイルの読み込み
-    replayPlayer->Initialize(prevFilePath_, parent_->getSceneManager());
-    parent_->setIsLoadReplayFile(true);
+    replayPlayer->Initialize(prevFilePath_, parent_->GetSceneManager());
+    parent_->SetIsLoadReplayFile(true);
 }
 
 #endif // _DEBUG

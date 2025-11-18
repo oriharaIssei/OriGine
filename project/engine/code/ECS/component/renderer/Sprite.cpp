@@ -10,7 +10,7 @@
 // directX12Object
 #include "directX12/DxFunctionHelper.h"
 #include <directX12/ShaderCompiler.h>
-// assets
+// asSets
 #include "texture/TextureManager.h"
 
 #include "logger/Logger.h"
@@ -28,7 +28,7 @@ void SpriteRenderer::Initialize(Entity* _hostEntity) {
     MeshRenderer::Initialize(_hostEntity);
 
     // buffer作成
-    spriteBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
+    spriteBuff_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
 
     // メッシュの初期化
     meshGroup_ = std::make_shared<std::vector<SpriteMesh>>();
@@ -48,7 +48,7 @@ void SpriteRenderer::Initialize(Entity* _hostEntity) {
     // テクスチャの読み込みとサイズの適応
     if (!texturePath_.empty()) {
         textureNumber_ = TextureManager::LoadTexture(texturePath_, [this](uint32_t index) {
-            const DirectX::TexMetadata& texData = TextureManager::getTexMetadata(index);
+            const DirectX::TexMetadata& texData = TextureManager::GetTexMetadata(index);
             if (textureSize_.lengthSq() == 0.0f) {
                 textureSize_ = {static_cast<float>(texData.width), static_cast<float>(texData.height)};
             }
@@ -58,7 +58,7 @@ void SpriteRenderer::Initialize(Entity* _hostEntity) {
         });
     }
 
-    CalculateWindowRatioPosAndSize(Engine::getInstance()->getWinApp()->getWindowSize());
+    CalculateWindowRatioPosAndSize(Engine::GetInstance()->GetWinApp()->GetWindowSize());
 }
 
 void SpriteRenderer::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
@@ -79,7 +79,7 @@ void SpriteRenderer::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_unused
         askLoad |= ImGui::Button(label.c_str());
         static ImVec2 textureButtonSize = {32.f, 32.f};
         askLoad |= ImGui::ImageButton(
-            reinterpret_cast<ImTextureID>(TextureManager::getDescriptorGpuHandle(textureNumber_).ptr),
+            reinterpret_cast<ImTextureID>(TextureManager::GetDescriptorGpuHandle(textureNumber_).ptr),
             textureButtonSize,
             {0, 0}, {1, 1},
             8);
@@ -98,13 +98,13 @@ void SpriteRenderer::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_unused
                 [this](std::string* _fileName) {
                     // テクスチャの読み込み
                     textureNumber_ = TextureManager::LoadTexture(*_fileName, [this](uint32_t loadIndex) {
-                        const DirectX::TexMetadata& texData = TextureManager::getTexMetadata(loadIndex);
+                        const DirectX::TexMetadata& texData = TextureManager::GetTexMetadata(loadIndex);
                         textureSize_                        = {static_cast<float>(texData.width), static_cast<float>(texData.height)};
                         size_                               = textureSize_;
                     });
                 });
 
-            EditorController::getInstance()->pushCommand(std::move(command));
+            EditorController::GetInstance()->PushCommand(std::move(command));
         }
     }
 
@@ -213,12 +213,12 @@ void SpriteRenderer::CalculatePosRatioAndSizeRatio() {
     }
 }
 
-void SpriteRenderer::setTexture(const std::string& _texturePath, bool _applyTextureSize) {
+void SpriteRenderer::SetTexture(const std::string& _texturePath, bool _applyTextureSize) {
     texturePath_ = _texturePath;
     // テクスチャの読み込みとサイズの適応
     if (_applyTextureSize) {
         textureNumber_ = TextureManager::LoadTexture(texturePath_, [this](uint32_t loadIndex) {
-            const DirectX::TexMetadata& texData = TextureManager::getTexMetadata(loadIndex);
+            const DirectX::TexMetadata& texData = TextureManager::GetTexMetadata(loadIndex);
             textureSize_                        = {static_cast<float>(texData.width), static_cast<float>(texData.height)};
             size_                               = textureSize_;
         });
@@ -318,7 +318,7 @@ void from_json(const nlohmann::json& j, SpriteRenderer& r) {
     if (j.find("defaultWindowSize") != j.end()) {
         j.at("defaultWindowSize").get_to(r.defaultWindowSize_);
     } else {
-        r.defaultWindowSize_ = Engine::getInstance()->getWinApp()->getWindowSize();
+        r.defaultWindowSize_ = Engine::GetInstance()->GetWinApp()->GetWindowSize();
     }
     if (j.find("windowRatioSize") != j.end()) {
         j.at("windowRatioSize").get_to(r.windowRatioSize_);

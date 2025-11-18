@@ -47,12 +47,12 @@ inline WindowItem<EditorWindowType>::WindowItem() : Editor::MenuItem(nameof<Wind
 
 template <EditorWindow EditorWindowType>
 inline void WindowItem<EditorWindowType>::DrawGui() {
-    auto window         = EditorController::getInstance()->getWindow<WindowType>();
-    bool windowIsOpened = window->isOpen();
+    auto window         = EditorController::GetInstance()->GetWindow<WindowType>();
+    bool windowIsOpened = window->IsOpen();
     if (ImGui::MenuItem(name_.c_str(), nullptr, windowIsOpened, !windowIsOpened)) {
-        window->setOpen(!windowIsOpened);
+        window->SetOpen(!windowIsOpened);
         if (!windowIsOpened) {
-            window->setFocused(true);
+            window->SetFocused(true);
         }
     }
 }

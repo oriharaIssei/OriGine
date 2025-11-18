@@ -56,7 +56,7 @@ public:
     /// <summary>
     /// ボタン状態をクリア
     /// </summary>
-    void clearButtonStates() {
+    void ClearButtonStates() {
         currentButtonStates_.fill(0);
         prevButtonStates_.fill(0);
     }
@@ -72,7 +72,7 @@ public:
     /// <summary>
     /// マウス座標をリセット
     /// </summary>
-    void resetPosition() {
+    void reSetPosition() {
         pos_        = Vec2f(0.0f, 0.0f);
         prevPos_    = Vec2f(0.0f, 0.0f);
         virtualPos_ = Vec2f(0.0f, 0.0f);
@@ -97,113 +97,113 @@ private:
     bool isCursorVisible_ = true;
 
 public:
-    const std::array<BYTE, MOUSE_BUTTON_COUNT>& getCurrentButtonState() const { return currentButtonStates_; }
-    const std::array<BYTE, MOUSE_BUTTON_COUNT>& getPrevButtonState() const { return prevButtonStates_; }
+    const std::array<BYTE, MOUSE_BUTTON_COUNT>& GetCurrentButtonState() const { return currentButtonStates_; }
+    const std::array<BYTE, MOUSE_BUTTON_COUNT>& GetPrevButtonState() const { return prevButtonStates_; }
 
     /// <summary>
     /// マウスボタンが押されているか
     /// </summary>
-    bool isPress(uint32_t button) const { return currentButtonStates_[button]; }
-    bool isPress(MouseButton button) const { return currentButtonStates_[static_cast<uint32_t>(button)]; }
+    bool IsPress(uint32_t button) const { return currentButtonStates_[button]; }
+    bool IsPress(MouseButton button) const { return currentButtonStates_[static_cast<uint32_t>(button)]; }
 
     /// <summary>
     /// 押した瞬間か
     /// </summary>
-    bool isTrigger(uint32_t button) const { return currentButtonStates_[button] && !prevButtonStates_[button]; }
-    bool isTrigger(MouseButton button) const {
+    bool IsTrigger(uint32_t button) const { return currentButtonStates_[button] && !prevButtonStates_[button]; }
+    bool IsTrigger(MouseButton button) const {
         return currentButtonStates_[static_cast<uint32_t>(button)] && !prevButtonStates_[static_cast<uint32_t>(button)];
     }
 
     /// <summary>
     /// 離した瞬間か
     /// </summary>
-    bool isRelease(uint32_t button) const { return !currentButtonStates_[button] && prevButtonStates_[button]; }
-    bool isRelease(MouseButton button) const {
+    bool IsRelease(uint32_t button) const { return !currentButtonStates_[button] && prevButtonStates_[button]; }
+    bool IsRelease(MouseButton button) const {
         return !currentButtonStates_[static_cast<uint32_t>(button)] && prevButtonStates_[static_cast<uint32_t>(button)];
     }
 
     /// <summary>
     /// ホイールの変化量を取得
     /// </summary>
-    int32_t getWheelDelta() const { return static_cast<int32_t>(currentWheelDelta_); }
+    int32_t GetWheelDelta() const { return static_cast<int32_t>(currentWheelDelta_); }
     /// <summary>
     /// 前フレームのホイールの変化量を取得
     /// </summary>
-    int32_t getPrevWheelDelta() const { return prevWheelDelta_; }
+    int32_t GetPrevWheelDelta() const { return prevWheelDelta_; }
 
     /// <summary>
     /// ホイールが回転したか
     /// </summary>
     /// <returns></returns>
-    bool isWheel() const { return currentWheelDelta_ != 0; }
+    bool IsWheel() const { return currentWheelDelta_ != 0; }
     /// <summary>
     /// ホイールが上に回転したか
     /// </summary>
     /// <returns></returns>
-    bool isWheelUp() const { return currentWheelDelta_ > 0; }
+    bool IsWheelUp() const { return currentWheelDelta_ > 0; }
     /// <summary>
     /// ホイールが下に回転したか
     /// </summary>
     /// <returns></returns>
-    bool isWheelDown() const { return currentWheelDelta_ < 0; }
+    bool IsWheelDown() const { return currentWheelDelta_ < 0; }
 
     /// <summary>
     /// 前フレームのホイールが回転したか
     /// </summary>
     /// <returns></returns>
-    bool isPrevWheel() const { return prevWheelDelta_ != 0; }
+    bool IsPrevWheel() const { return prevWheelDelta_ != 0; }
     /// <summary>
     /// 前フレームの前フレームのホイールが上に回転したか
     /// </summary>
     /// <returns></returns>
-    bool isPrevWheelUp() const { return prevWheelDelta_ > 0; }
+    bool IsPrevWheelUp() const { return prevWheelDelta_ > 0; }
     /// <summary>
     /// 前フレームのホイールが下に回転したか
     /// </summary>
     /// <returns></returns>
-    bool isPrevWheelDown() const { return prevWheelDelta_ < 0; }
+    bool IsPrevWheelDown() const { return prevWheelDelta_ < 0; }
 
     /// <summary>
     /// ホイールが回転した瞬間か
     /// </summary>
-    bool isTriggerWheel() const {
+    bool IsTriggerWheel() const {
         return (currentWheelDelta_ != 0) && (prevWheelDelta_ == 0);
     }
     /// <summary>
     /// ホイールが回転を止めた瞬間か
     /// </summary>
-    bool isReleaseWheel() const {
+    bool IsReleaseWheel() const {
         return (currentWheelDelta_ == 0) && (prevWheelDelta_ != 0);
     }
 
     /// <summary>
     /// 現在の座標を取得
     /// </summary>
-    const Vec2f& getPosition() const { return pos_; }
+    const Vec2f& GetPosition() const { return pos_; }
 
     /// <summary>
     /// 仮想座標を取得
     /// </summary>
-    const Vec2f& getVirtualPosition() const { return virtualPos_; }
+    const Vec2f& GetVirtualPosition() const { return virtualPos_; }
     /// <summary>
     /// 仮想座標を設定
     /// </summary>
-    void setVirtualPosition(const Vec2f& pos) { virtualPos_ = pos; }
+    void SetVirtualPosition(const Vec2f& pos) { virtualPos_ = pos; }
 
     /// <summary>
     /// 前フレームの座標を取得
     /// </summary>
-    const Vec2f& getPrevPosition() const { return prevPos_; }
+    const Vec2f& GetPrevPosition() const { return prevPos_; }
 
     /// <summary>
     /// フレーム間の移動量を取得
     /// </summary>
-    const Vec2f& getVelocity() const { return velocity_; }
+    const Vec2f& GetVelocity() const { return velocity_; }
 
     /// <summary>
     /// カーソル位置を設定
     /// </summary>
-    void setPosition(const Vec2f& pos);
+    void SetPosition(const Vec2f& pos);
 
     /// <summary>
     /// マウスカーソルを表示／非表示にする

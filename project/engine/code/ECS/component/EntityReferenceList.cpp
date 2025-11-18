@@ -33,7 +33,7 @@ void EntityReferenceList::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_u
         label = "Remove##" + filePath + _parentLabel;
         if (ImGui::Button(label.c_str())) {
             auto command = std::make_unique<EraseElementCommand<std::vector<std::pair<std::string, std::string>>>>(&entityFileList_, entityFileList_.begin() + i);
-            EditorController::getInstance()->pushCommand(std::move(command));
+            EditorController::GetInstance()->PushCommand(std::move(command));
 
             ImGui::PopID();
             break;
@@ -47,7 +47,7 @@ void EntityReferenceList::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_u
         std::string directory, filename;
         if (MyFileSystem::selectFileDialog(kApplicationResourceDirectory, directory, filename, {"ent"}, true)) {
             auto command = std::make_unique<AddElementCommand<std::vector<std::pair<std::string, std::string>>>>(&entityFileList_, std::make_pair(kApplicationResourceDirectory + "/" + directory, filename));
-            EditorController::getInstance()->pushCommand(std::move(command));
+            EditorController::GetInstance()->PushCommand(std::move(command));
         }
     }
 

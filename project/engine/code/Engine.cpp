@@ -17,7 +17,7 @@
 #include "texture/TextureManager.h"
 #include "winApp/WinApp.h"
 
-// assets
+// asSets
 #include "Audio/Audio.h"
 
 // dx12Object
@@ -42,7 +42,7 @@
 #pragma comment(lib, "dinput8.lib")
 #pragma comment(lib, "XInput.lib")
 
-Engine* Engine::getInstance() {
+Engine* Engine::GetInstance() {
     static Engine instance;
     return &instance;
 }
@@ -53,8 +53,8 @@ Engine::~Engine() {}
 
 void Engine::CreateDsv() {
     D3D12_RESOURCE_DESC resourceDesc{};
-    resourceDesc.Width            = UINT64(window_->getWidth());
-    resourceDesc.Height           = UINT64(window_->getHeight());
+    resourceDesc.Width            = UINT64(window_->GetWidth());
+    resourceDesc.Height           = UINT64(window_->GetHeight());
     resourceDesc.MipLevels        = 1;
     resourceDesc.DepthOrArraySize = 1;
     resourceDesc.Format           = DXGI_FORMAT_D24_UNORM_S8_UINT;
@@ -76,7 +76,7 @@ void Engine::CreateDsv() {
         &resourceDesc,
         D3D12_RESOURCE_STATE_DEPTH_WRITE,
         &depthClearValue,
-        IID_PPV_ARGS(dsvResource_.getResourceRef().GetAddressOf()));
+        IID_PPV_ARGS(dsvResource_.GetResourceRef().GetAddressOf()));
 
     if (FAILED(result)) {
         // エラーログを出力
@@ -108,8 +108,8 @@ void Engine::Initialize() {
 
     window_->CreateGameWindow(ConvertString(windowTitle).c_str(), windowStyle, int32_t(windowSize->v[X]), int32_t(windowSize->v[Y]));
 
-    input_ = InputManager::getInstance();
-    input_->Initialize(window_->getHwnd());
+    input_ = InputManager::GetInstance();
+    input_->Initialize(window_->GetHwnd());
 
     Audio::StaticInitialize();
 
@@ -134,36 +134,36 @@ void Engine::Initialize() {
 
     CreateDsv();
 
-    ShaderManager::getInstance()->Initialize();
+    ShaderManager::GetInstance()->Initialize();
 
-    ImGuiManager::getInstance()->Initialize(window_.get(), dxDevice_.get(), dxSwapChain_.get());
+    ImGuiManager::GetInstance()->Initialize(window_.get(), dxDevice_.get(), dxSwapChain_.get());
 
     TextureManager::Initialize();
 
-    lightManager_ = LightManager::getInstance();
+    lightManager_ = LightManager::GetInstance();
     lightManager_->Initialize();
 
-    ModelManager::getInstance()->Initialize();
+    ModelManager::GetInstance()->Initialize();
     RenderTexture::Awake();
 
     deltaTime_ = std::make_unique<DeltaTime>();
     deltaTime_->Initialize();
 
-    AnimationManager::getInstance()->Initialize();
-    CameraManager::getInstance()->Initialize();
+    AnimationManager::GetInstance()->Initialize();
+    CameraManager::GetInstance()->Initialize();
 }
 
 void Engine::Finalize() {
 
-    AnimationManager::getInstance()->Finalize();
-    CameraManager::getInstance()->Finalize();
+    AnimationManager::GetInstance()->Finalize();
+    CameraManager::GetInstance()->Finalize();
     lightManager_->Finalize();
 
 #ifdef _DEBUG
-    ImGuiManager::getInstance()->Finalize();
+    ImGuiManager::GetInstance()->Finalize();
 #endif // _DEBUG
-    ShaderManager::getInstance()->Finalize();
-    ModelManager::getInstance()->Finalize();
+    ShaderManager::GetInstance()->Finalize();
+    ModelManager::GetInstance()->Finalize();
     TextureManager::Finalize();
 
     dsvResource_.Finalize();
@@ -193,27 +193,27 @@ bool Engine::ProcessMessage() {
 constexpr float MAX_DELTATIME = 1.f / 30.f;
 void Engine::BeginFrame() {
     deltaTime_->Update();
-    if (deltaTime_->getDeltaTime() > MAX_DELTATIME) {
-        deltaTime_->setDeltaTime(MAX_DELTATIME);
+    if (deltaTime_->GetDeltaTime() > MAX_DELTATIME) {
+        deltaTime_->SetDeltaTime(MAX_DELTATIME);
     }
 
     window_->UpdateActivity();
 
 #ifndef _DEBUG
-    if (!window_->isActive()) {
+    if (!window_->IsActive()) {
         return;
     }
 #endif // !_DEBUG
 
     if (window_->isReSized()) {
         // ウィンドウのサイズ変更時の処理
-        LOG_INFO("Window resized to: {}x{}", window_->getWidth(), window_->getHeight());
+        LOG_INFO("Window resized to: {}x{}", window_->GetWidth(), window_->GetHeight());
 
-        UINT width  = window_->getWidth();
-        UINT height = window_->getHeight();
+        UINT width  = window_->GetWidth();
+        UINT height = window_->GetHeight();
 
         // GPU の同期を確保
-        dxFence_->Signal(dxCommand_->getCommandQueue());
+        dxFence_->Signal(dxCommand_->GetCommandQueue());
         dxFence_->WaitForFence();
 
         dxSwapChain_->ResizeBuffer(width, height);
@@ -226,10 +226,10 @@ void Engine::BeginFrame() {
             event(Vec2f{float(width), float(height)});
         }
 
-        window_->setIsReSized(false);
+        window_->SetIsReSized(false);
     }
 
-    ImGuiManager::getInstance()->Begin();
+    ImGuiManager::GetInstance()->Begin();
 
     input_->Update();
 
@@ -237,7 +237,7 @@ void Engine::BeginFrame() {
 }
 
 void Engine::EndFrame() {
-    ImGuiManager::getInstance()->End();
+    ImGuiManager::GetInstance()->End();
 }
 
 void Engine::ScreenPreDraw() {
@@ -245,13 +245,13 @@ void Engine::ScreenPreDraw() {
 }
 
 void Engine::ScreenPostDraw() {
-    ImGuiManager::getInstance()->Draw();
+    ImGuiManager::GetInstance()->Draw();
 
     ///===============================================================
     ///	バリアの更新(描画->表示状態)
     ///===============================================================
     dxCommand_->ResourceBarrier(
-        dxSwapChain_->getCurrentBackBuffer().Get(),
+        dxSwapChain_->GetCurrentBackBuffer().Get(),
         D3D12_RESOURCE_STATE_PRESENT);
     ///===============================================================
 
@@ -273,13 +273,13 @@ void Engine::ScreenPostDraw() {
 
     // Frame Lock
     /*deltaTime_->Update();
-    while(deltaTime_->getDeltaTime() >= 1.0f / fps_){
+    while(deltaTime_->GetDeltaTime() >= 1.0f / fps_){
         deltaTime_->Update();
     }*/
     ///===============================================================
     /// コマンドリストの実行を待つ
     ///===============================================================
-    dxFence_->Signal(dxCommand_->getCommandQueue());
+    dxFence_->Signal(dxCommand_->GetCommandQueue());
     dxFence_->WaitForFence();
     ///===============================================================
 

@@ -53,13 +53,13 @@ void SceneManager::Initialize(const std::string& _startScene, KeyboardInput* _ke
     // シーンの初期化
     currentScene_ = std::make_unique<Scene>(_startScene);
     // シーンの入力デバイスを設定
-    currentScene_->setInputDevices(keyInput_, mouseInput_, padInput_);
+    currentScene_->SetInputDevices(keyInput_, mouseInput_, padInput_);
     // シーンの初期化処理
     currentScene_->Initialize();
     // シーンビューの初期化
-    currentScene_->getSceneView()->Resize(Engine::getInstance()->getWinApp()->getWindowSize());
+    currentScene_->GetSceneView()->Resize(Engine::GetInstance()->GetWinApp()->GetWindowSize());
     // シーンマネージャーの設定 (this)
-    currentScene_->setSceneManager(this);
+    currentScene_->SetSceneManager(this);
 
 #ifdef _DEVELOP
     fileWatcher_ = std::make_unique<FileWatcher>(kApplicationResourceDirectory + "/scene/" + _startScene + ".json");
@@ -79,13 +79,13 @@ void SceneManager::Finalize() {
 void SceneManager::Update() {
 #ifdef _DEVELOP
     if (fileWatcher_->isChanged()) {
-        this->changeScene(currentScene_->getName());
+        this->ChangeScene(currentScene_->GetName());
     }
 #endif // _DEVELOP
 
     if (isChangeScene_) {
         // SceneChange
-        executeSceneChange();
+        ExecuteSceneChange();
         return;
     }
     currentScene_->Update();
@@ -95,32 +95,32 @@ void SceneManager::Render() {
     currentScene_->Render();
 }
 
-const std::string& SceneManager::getCurrentSceneName() const { return currentScene_->getName(); }
+const std::string& SceneManager::GetCurrentSceneName() const { return currentScene_->GetName(); }
 
-void SceneManager::changeScene(const std::string& name) {
+void SceneManager::ChangeScene(const std::string& name) {
     changingSceneName_ = name;
     isChangeScene_     = true;
 }
 
-void SceneManager::executeSceneChange() {
-    LOG_TRACE("SceneChange\n PreviousScene : [ {} ] \n NextScene : [ {} ]", currentScene_->getName(), changingSceneName_);
+void SceneManager::ExecuteSceneChange() {
+    LOG_TRACE("SceneChange\n PreviousScene : [ {} ] \n NextScene : [ {} ]", currentScene_->GetName(), changingSceneName_);
 
     currentScene_->Finalize();
     currentScene_ = std::make_unique<Scene>(changingSceneName_);
 
     // 入力デバイスの設定
-    currentScene_->setInputDevices(keyInput_, mouseInput_, padInput_);
+    currentScene_->SetInputDevices(keyInput_, mouseInput_, padInput_);
     // シーンの初期化処理
     currentScene_->Initialize();
     // シーンビューの初期化
-    currentScene_->getSceneView()->Resize(Engine::getInstance()->getWinApp()->getWindowSize());
+    currentScene_->GetSceneView()->Resize(Engine::GetInstance()->GetWinApp()->GetWindowSize());
     // シーンマネージャーの設定 (this)
-    currentScene_->setSceneManager(this);
+    currentScene_->SetSceneManager(this);
 
 #ifdef _DEVELOP
     // 監視対象を変更
     fileWatcher_->Stop();
-    fileWatcher_->setFilePath(kApplicationResourceDirectory + "/scene/" + changingSceneName_ + ".json");
+    fileWatcher_->SetFilePath(kApplicationResourceDirectory + "/scene/" + changingSceneName_ + ".json");
     fileWatcher_->Start();
 #endif // _DEVELOP
 
@@ -141,7 +141,7 @@ bool SceneSerializer::Serialize() {
         LOG_ERROR("Target scene is null");
         return false;
     }
-    std::string message = std::format("{} save it?", targetScene_->getName());
+    std::string message = std::format("{} save it?", targetScene_->GetName());
 
     if (MessageBoxA(nullptr, message.c_str(), "SceneSerializer", MB_OKCANCEL) != IDOK) {
         return false;
@@ -150,7 +150,7 @@ bool SceneSerializer::Serialize() {
     // 保存
     SerializeFromJson();
 
-    message = std::format("{} saved", targetScene_->getName());
+    message = std::format("{} saved", targetScene_->GetName());
     MessageBoxA(nullptr, message.c_str(), "SceneSerializer", MB_OK);
     return true;
 }
@@ -169,19 +169,19 @@ void SceneSerializer::SerializeFromJson() {
 
     std::list<Entity*> aliveEntities;
 
-    for (auto& entity : entities->getEntitiesRef()) {
-        if (entity.isAlive() && entity.shouldSave()) {
+    for (auto& entity : entities->GetEntitiesRef()) {
+        if (entity.IsAlive() && entity.ShouldSave()) {
             aliveEntities.push_back(&entity);
         }
     }
 
     for (auto& entity : aliveEntities) {
-        if (!entity->isAlive()) {
+        if (!entity->IsAlive()) {
             continue;
         }
         nlohmann::json entityData = nlohmann::json::object();
 
-        EntityToJson(entity->getID(), entityData);
+        EntityToJson(entity->GetID(), entityData);
 
         jsonData["Entities"].push_back(entityData);
     }
@@ -190,16 +190,16 @@ void SceneSerializer::SerializeFromJson() {
     // System
     /// =====================================================
     {
-        const auto& systems                 = targetScene_->systemRunner_->getSystems();
+        const auto& systems                 = targetScene_->systemRunner_->GetSystems();
         nlohmann::json systemsData          = nlohmann::json::array();
         nlohmann::json systemDataByCategory = nlohmann::json::object();
 
         for (const auto& [name, system] : systems) {
-            if (!system || !system->isActive()) {
+            if (!system || !system->IsActive()) {
                 continue; // 無効なシステムはスキップ
             }
             nlohmann::json systemData  = nlohmann::json::object();
-            systemData["Priority"]     = system->getPriority();
+            systemData["Priority"]     = system->GetPriority();
             systemDataByCategory[name] = systemData;
         }
         systemsData.push_back(systemDataByCategory);
@@ -208,18 +208,18 @@ void SceneSerializer::SerializeFromJson() {
 
         nlohmann::json categoryActivity = nlohmann::json::array();
         for (size_t i = 0; i < static_cast<size_t>(SystemCategory::Count); ++i) {
-            categoryActivity.push_back(targetScene_->systemRunner_->getCategoryActivityRef()[i]);
+            categoryActivity.push_back(targetScene_->systemRunner_->GetCategoryActivityRef()[i]);
         }
         jsonData["CategoryActivity"] = categoryActivity;
     }
 
     // JSON ファイルに書き込み
-    std::string sceneFilePath = SceneDirectory + targetScene_->getName() + ".json";
+    std::string sceneFilePath = SceneDirectory + targetScene_->GetName() + ".json";
     myfs::deleteFile(sceneFilePath);
     myfs::createFolder(SceneDirectory);
     std::ofstream ofs(sceneFilePath);
     if (!ofs) {
-        LOG_ERROR("Failed to open JSON file for writing: {}", targetScene_->getName());
+        LOG_ERROR("Failed to open JSON file for writing: {}", targetScene_->GetName());
         return;
     }
     ofs << std::setw(4) << jsonData << std::endl;
@@ -227,9 +227,9 @@ void SceneSerializer::SerializeFromJson() {
 }
 
 void SceneSerializer::DeserializeFromJson() {
-    std::ifstream ifs(SceneDirectory + targetScene_->getName() + ".json");
+    std::ifstream ifs(SceneDirectory + targetScene_->GetName() + ".json");
     if (!ifs) {
-        LOG_ERROR("Failed to open JSON file for reading: {}", targetScene_->getName());
+        LOG_ERROR("Failed to open JSON file for reading: {}", targetScene_->GetName());
         return;
     }
 
@@ -255,7 +255,7 @@ void SceneSerializer::DeserializeFromJson() {
     for (int32_t category = 0; category < static_cast<int32_t>(SystemCategory::Count); ++category) {
         if (category < systemCategoryActivities.size()) {
             bool isActive = systemCategoryActivities[category].get<bool>();
-            systemRunner->setCategoryActivity(static_cast<SystemCategory>(category), isActive);
+            systemRunner->SetCategoryActivity(static_cast<SystemCategory>(category), isActive);
         } else {
             LOG_WARN("System category activity data missing for category index: {}", category);
         }
@@ -270,9 +270,9 @@ void SceneSerializer::DeserializeFromJson() {
 }
 
 void SceneSerializer::SaveEntity(int32_t _entityID, const std::string& _directory) {
-    Entity* _entity = targetScene_->entityRepository_->getEntity(_entityID);
+    Entity* _entity = targetScene_->entityRepository_->GetEntity(_entityID);
 
-    if (!_entity || !_entity->isAlive()) {
+    if (!_entity || !_entity->IsAlive()) {
         return;
     }
 
@@ -281,7 +281,7 @@ void SceneSerializer::SaveEntity(int32_t _entityID, const std::string& _director
 
     // ディレクトリを作成
     myFs::createFolder(_directory);
-    std::string filePath = _directory + "/" + _entity->getDataType() + ".ent";
+    std::string filePath = _directory + "/" + _entity->GetDataType() + ".ent";
     // JSONファイルに書き込み
     std::ofstream ofs(filePath);
     if (!ofs) {
@@ -293,33 +293,33 @@ void SceneSerializer::SaveEntity(int32_t _entityID, const std::string& _director
 }
 
 void SceneSerializer::EntityToJson(int32_t _entityID, nlohmann::json& entityData) {
-    Entity* _entity = targetScene_->entityRepository_->getEntity(_entityID);
-    if (!_entity || !_entity->isAlive()) {
+    Entity* _entity = targetScene_->entityRepository_->GetEntity(_entityID);
+    if (!_entity || !_entity->IsAlive()) {
         return;
     }
 
-    entityData["Name"]     = _entity->getDataType();
-    entityData["isUnique"] = _entity->isUnique();
+    entityData["Name"]     = _entity->GetDataType();
+    entityData["isUnique"] = _entity->IsUnique();
 
     // 所属するシステムを保存
     entityData["Systems"]    = nlohmann::json::array();
     auto& systemsJson        = entityData["Systems"];
-    const auto& sceneSystems = targetScene_->systemRunner_->getSystems();
+    const auto& sceneSystems = targetScene_->systemRunner_->GetSystems();
     for (const auto& [systemName, system] : sceneSystems) {
         if (!system) {
             LOG_WARN("System not found: {}", systemName);
             continue; // 無効なシステムはスキップ
         }
-        if (system->hasEntity(_entity)) {
-            systemsJson.push_back({{"SystemCategory", system->getCategory()}, {"SystemName", systemName}});
+        if (system->HasEntity(_entity)) {
+            systemsJson.push_back({{"SystemCategory", system->GetCategory()}, {"SystemName", systemName}});
         }
     }
 
     // コンポーネントを保存
-    const auto& componentArrayMap = targetScene_->componentRepository_->getComponentArrayMap();
+    const auto& componentArrayMap = targetScene_->componentRepository_->GetComponentArrayMap();
     nlohmann::json componentsData;
     for (const auto& [componentTypeName, componentArray] : componentArrayMap) {
-        if (componentArray->hasEntity(_entity)) {
+        if (componentArray->HasEntity(_entity)) {
             componentArray->SaveComponent(_entity, componentsData);
         }
     }
@@ -345,21 +345,21 @@ Entity* SceneSerializer::EntityFromJson(const nlohmann::json& _entityData) {
     std::string entityName = _entityData.at("Name");
     bool isUnique          = _entityData.at("isUnique");
     int32_t entityID       = targetScene_->entityRepository_->CreateEntity(entityName, isUnique);
-    Entity* entity         = targetScene_->entityRepository_->getEntity(entityID);
+    Entity* entity         = targetScene_->entityRepository_->GetEntity(entityID);
 
     // 所属するシステムを読み込み
-    auto& sceneSystems = targetScene_->systemRunner_->getSystemsRef();
+    auto& sceneSystems = targetScene_->systemRunner_->GetSystemsRef();
     for (auto& systemData : _entityData.at("Systems")) {
         // int32_t systemCategory = systemData.at("SystemCategory");
         std::string systemName = systemData.at("SystemName");
         ISystem* system        = sceneSystems[systemName].get();
         if (system) {
-            system->addEntity(entity);
+            system->AddEntity(entity);
         }
     }
     // コンポーネントを読み込み
     for (auto& [componentTypename, componentData] : _entityData["Components"].items()) {
-        auto comp = targetScene_->componentRepository_->getComponentArray(componentTypename);
+        auto comp = targetScene_->componentRepository_->GetComponentArray(componentTypename);
         if (!comp) {
             LOG_WARN("Don't Registered Component. Typename {}", componentTypename);
             continue;
@@ -377,20 +377,20 @@ Entity* SceneSerializer::EntityFromJson(int32_t _entityId, const nlohmann::json&
         LOG_ERROR("Failed to register entity with ID: {}", _entityId);
         return nullptr;
     }
-    Entity* entity = targetScene_->entityRepository_->getEntity(entityID);
+    Entity* entity = targetScene_->entityRepository_->GetEntity(entityID);
 
     // 所属するシステムを読み込み
-    auto& sceneSystems = targetScene_->systemRunner_->getSystemsRef();
+    auto& sceneSystems = targetScene_->systemRunner_->GetSystemsRef();
     for (auto& systemData : _entityData["Systems"]) {
         // int32_t systemCategory = systemData["SystemCategory"];
         std::string systemName = systemData["SystemName"];
         ISystem* system        = sceneSystems[systemName].get();
         if (system) {
-            system->addEntity(entity);
+            system->AddEntity(entity);
         }
     }
     // コンポーネントを読み込み
-    auto& componentArrayMap = targetScene_->componentRepository_->getComponentArrayMapRef();
+    auto& componentArrayMap = targetScene_->componentRepository_->GetComponentArrayMapRef();
     for (auto& [componentTypename, componentData] : _entityData["Components"].items()) {
         auto itr = componentArrayMap.find(componentTypename);
         if (itr != componentArrayMap.end()) {

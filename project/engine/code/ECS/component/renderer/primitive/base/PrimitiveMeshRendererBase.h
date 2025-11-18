@@ -40,40 +40,40 @@ protected:
     uint32_t textureIndex_ = 0;
 
 public:
-    Transform& getTransform() {
+    Transform& GetTransform() {
         return transformBuff_.openData_;
     }
-    void setTransform(const Transform& _transform) {
+    void SetTransform(const Transform& _transform) {
         transformBuff_.openData_ = _transform;
     }
-    int32_t getMaterialIndex() const {
+    int32_t GetMaterialIndex() const {
         return materialIndex_;
     }
-    void setMaterialIndex(int32_t _index) {
+    void SetMaterialIndex(int32_t _index) {
         materialIndex_ = _index;
     }
 
-    const IConstantBuffer<Transform>& getTransformBuff() const {
+    const IConstantBuffer<Transform>& GetTransformBuff() const {
         return transformBuff_;
     }
-    IConstantBuffer<Transform>& getTransformBuff() {
+    IConstantBuffer<Transform>& GetTransformBuff() {
         return transformBuff_;
     }
-    const SimpleConstantBuffer<Material>& getMaterialBuff() const {
+    const SimpleConstantBuffer<Material>& GetMaterialBuff() const {
         return materialBuff_;
     }
-    SimpleConstantBuffer<Material>& getMaterialBuff() {
+    SimpleConstantBuffer<Material>& GetMaterialBuff() {
         return materialBuff_;
     }
 
-    const std::string& getTextureDirectory() const {
+    const std::string& GetTextureDirectory() const {
         return textureDirectory_;
     }
-    const std::string& getTextureFileName() const {
+    const std::string& GetTextureFileName() const {
         return textureFileName_;
     }
 
-    uint32_t getTextureIndex() const {
+    uint32_t GetTextureIndex() const {
         return textureIndex_;
     }
 };

@@ -15,8 +15,8 @@
 #include "util/StringUtil.h"
 
 void DxSwapChain::Initialize(const WinApp* winApp, const DxDevice* device, const DxCommand* command) {
-    bufferWidth_  = winApp->getWidth();
-    bufferHeight_ = winApp->getHeight();
+    bufferWidth_  = winApp->GetWidth();
+    bufferHeight_ = winApp->GetHeight();
 
     ///================================================
     ///	SwapChain の生成
@@ -32,8 +32,8 @@ void DxSwapChain::Initialize(const WinApp* winApp, const DxDevice* device, const
 
     Microsoft::WRL::ComPtr<IDXGISwapChain1> swapChain1;
     HRESULT result = device->dxgiFactory_->CreateSwapChainForHwnd(
-        command->getCommandQueue().Get(),
-        winApp->getHwnd(), // 描画対象のWindowのハンドル
+        command->GetCommandQueue().Get(),
+        winApp->GetHwnd(), // 描画対象のWindowのハンドル
         &swapchainDesc,
         nullptr,
         nullptr,
@@ -60,19 +60,19 @@ void DxSwapChain::Initialize(const WinApp* winApp, const DxDevice* device, const
     bufferCount_ = 2;
     backBufferResources_.resize(bufferCount_);
 
-    auto* rtvHeap = Engine::getInstance()->getRtvHeap();
+    auto* rtvHeap = Engine::GetInstance()->GetRtvHeap();
     for (int i = 0; i < (int)bufferCount_; ++i) {
         result = swapChain_->GetBuffer(
-            i, IID_PPV_ARGS(backBufferResources_[i].getResourceRef().GetAddressOf()));
+            i, IID_PPV_ARGS(backBufferResources_[i].GetResourceRef().GetAddressOf()));
 
         if (FAILED(result)) {
-            LOG_CRITICAL("Failed to get swap chain buffer. \n Massage : {}", HrToString(result));
+            LOG_CRITICAL("Failed to Get swap chain buffer. \n Massage : {}", HrToString(result));
             assert(false);
         }
 
         // バッファに名前を付ける
         std::wstring name = std::format(L"SwapChainBuffer[{}]", i);
-        backBufferResources_[i].setName(name.c_str());
+        backBufferResources_[i].SetName(name.c_str());
 
         backBuffers_.emplace_back(
             rtvHeap->CreateDescriptor<>(
@@ -83,9 +83,9 @@ void DxSwapChain::Initialize(const WinApp* winApp, const DxDevice* device, const
 }
 
 void DxSwapChain::Finalize() {
-    auto* rtvHeap = Engine::getInstance()->getRtvHeap();
+    auto* rtvHeap = Engine::GetInstance()->GetRtvHeap();
     for (int i = 0; i < (int)bufferCount_; ++i) {
-        if (backBuffers_[i].getIndex() >= 0) {
+        if (backBuffers_[i].GetIndex() >= 0) {
             rtvHeap->ReleaseDescriptor(backBuffers_[i]);
         }
         backBufferResources_[i].Finalize();
@@ -99,7 +99,7 @@ void DxSwapChain::Present() {
 }
 
 void DxSwapChain::CurrentBackBufferClear(DxCommand* _commandList, const DxDsvDescriptor& _dsv) const {
-    _commandList->ClearTarget(backBuffers_[swapChain_->GetCurrentBackBufferIndex()], _dsv, clearColor_);
+    _commandList->ClearTarget(backBuffers_[swapChain_->GetCurrentBackBufferIndex()], _dsv, ClearColor_);
 }
 
 void DxSwapChain::ResizeBuffer(UINT width, UINT height) {
@@ -110,9 +110,9 @@ void DxSwapChain::ResizeBuffer(UINT width, UINT height) {
     bufferHeight_ = height;
 
     // 古いバックバッファを解放
-    auto* rtvHeap = Engine::getInstance()->getRtvHeap();
+    auto* rtvHeap = Engine::GetInstance()->GetRtvHeap();
     for (int i = 0; i < (int)bufferCount_; ++i) {
-        if (backBuffers_[i].getIndex() >= 0) {
+        if (backBuffers_[i].GetIndex() >= 0) {
             rtvHeap->ReleaseDescriptor(backBuffers_[i]);
         }
         backBufferResources_[i].Finalize();
@@ -138,16 +138,16 @@ void DxSwapChain::ResizeBuffer(UINT width, UINT height) {
     rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 
     for (UINT i = 0; i < bufferCount_; ++i) {
-        result = swapChain_->GetBuffer(i, IID_PPV_ARGS(backBufferResources_[i].getResourceRef().GetAddressOf()));
+        result = swapChain_->GetBuffer(i, IID_PPV_ARGS(backBufferResources_[i].GetResourceRef().GetAddressOf()));
 
         if (FAILED(result)) {
-            LOG_CRITICAL("Failed to get swap chain buffer after Resize. \n Massage : {}", HrToString(result));
+            LOG_CRITICAL("Failed to Get swap chain buffer after Resize. \n Massage : {}", HrToString(result));
             assert(false);
         }
 
         // バッファに名前を付ける
         backBuffers_[i]   = rtvHeap->CreateDescriptor<>(rtvDesc, &backBufferResources_[i]);
         std::wstring name = std::format(L"SwapChainBuffer[{}]", i);
-        backBufferResources_[i].setName(name.c_str());
+        backBufferResources_[i].SetName(name.c_str());
     }
 }

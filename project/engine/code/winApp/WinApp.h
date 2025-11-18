@@ -59,22 +59,22 @@ private:
     bool isActive_                     = false; // アクティブ状態
 
 public:
-    bool isActive() const { return isActive_; }
-    WindowResizeMode getWindowResizeMode() const { return windowResizeMode_; }
-    void setWindowResizeMode(WindowResizeMode _windowResizeMode) {
+    bool IsActive() const { return isActive_; }
+    WindowResizeMode GetWindowResizeMode() const { return windowResizeMode_; }
+    void SetWindowResizeMode(WindowResizeMode _windowResizeMode) {
         windowResizeMode_ = _windowResizeMode;
     }
 
     bool isReSized() const { return isReSized_; }
-    void setIsReSized(bool _isResized) { isReSized_ = _isResized; }
+    void SetIsReSized(bool _isResized) { isReSized_ = _isResized; }
 
-    const HINSTANCE& getHInstance() const { return wndClass_->hInstance; }
-    const HWND& getHwnd() const { return hwnd_; }
+    const HINSTANCE& GetHInstance() const { return wndClass_->hInstance; }
+    const HWND& GetHwnd() const { return hwnd_; }
 
-    const Vec2f& getWindowSize() const { return windowSize_; }
+    const Vec2f& GetWindowSize() const { return windowSize_; }
 
-    const int32_t& getWidth() const { return clientWidth_; }
-    const int32_t& getHeight() const { return clientHeight_; }
+    const int32_t& GetWidth() const { return clientWidth_; }
+    const int32_t& GetHeight() const { return clientHeight_; }
 };
 
 /// <summary>

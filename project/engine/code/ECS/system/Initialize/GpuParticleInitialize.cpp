@@ -31,7 +31,7 @@ void GpuParticleInitialize::Update() {
 
     StartCS();
     for (auto& id : entityIDs_) {
-        Entity* entity = getEntity(id);
+        Entity* entity = GetEntity(id);
         UpdateEntity(entity);
     }
     if (usingCS_) {
@@ -48,37 +48,37 @@ void GpuParticleInitialize::Finalize() {
 }
 
 void GpuParticleInitialize::UpdateEntity(Entity* _entity) {
-    auto& commandList = dxCommand_->getCommandList();
+    auto& commandList = dxCommand_->GetCommandList();
 
-    auto gpuParticleVec = getComponents<GpuParticleEmitter>(_entity);
+    auto gpuParticleVec = GetComponents<GpuParticleEmitter>(_entity);
 
     for (auto itr = gpuParticleVec->begin();
         itr != gpuParticleVec->end();
         ++itr) {
 
         GpuParticleEmitter& gpuParticleEmitter = *itr;
-        if (!gpuParticleEmitter.isActive()) {
+        if (!gpuParticleEmitter.IsActive()) {
             continue; // 非アクティブなパーティクルはスキップ
         }
 
         commandList->SetComputeRootDescriptorTable(
             particleBufferIndex_,
-            gpuParticleEmitter.getParticleUavDescriptor().getGpuHandle());
+            gpuParticleEmitter.GetParticleUavDescriptor().GetGpuHandle());
 
         commandList->SetComputeRootDescriptorTable(
             freeIndexBufferIndex_,
-            gpuParticleEmitter.getFreeIndexUavDescriptor().getGpuHandle());
+            gpuParticleEmitter.GetFreeIndexUavDescriptor().GetGpuHandle());
 
         commandList->SetComputeRootDescriptorTable(
             freeListBufferIndex_,
-            gpuParticleEmitter.getFreeListUavDescriptor().getGpuHandle());
+            gpuParticleEmitter.GetFreeListUavDescriptor().GetGpuHandle());
 
-        gpuParticleEmitter.getShapeBuffer().ConvertToBuffer();
-        gpuParticleEmitter.getShapeBuffer().SetForComputeRootParameter(
+        gpuParticleEmitter.GetShapeBuffer().ConvertToBuffer();
+        gpuParticleEmitter.GetShapeBuffer().SetForComputeRootParameter(
             commandList.Get(),
             emitterShapeIndex);
 
-        UINT dispatchCount = (gpuParticleEmitter.getParticleSize() + 1023) / 1024;
+        UINT dispatchCount = (gpuParticleEmitter.GetParticleSize() + 1023) / 1024;
         commandList->Dispatch(
             dispatchCount, // 1ワークグループあたり1024頂点を処理
             1,
@@ -95,11 +95,11 @@ void GpuParticleInitialize::CreatePSO() {
         return; // PSOが既に作成されている場合は何もしない
     }
 
-    ShaderManager* shaderManager = ShaderManager::getInstance();
-    DxDevice* dxDevice           = Engine::getInstance()->getDxDevice();
+    ShaderManager* shaderManager = ShaderManager::GetInstance();
+    DxDevice* dxDevice           = Engine::GetInstance()->GetDxDevice();
 
     if (shaderManager->IsRegisteredPipelineStateObj(psoKey)) {
-        pso_ = shaderManager->getPipelineStateObj(psoKey);
+        pso_ = shaderManager->GetPipelineStateObj(psoKey);
         return; // PSOが既に登録されている場合はそれを使用
     }
 
@@ -128,7 +128,7 @@ void GpuParticleInitialize::CreatePSO() {
     particleDescriptorRange[0].NumDescriptors                    = 1;
     particleDescriptorRange[0].RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
     particleDescriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-    shaderInfo.setDescriptorRange2Parameter(
+    shaderInfo.SetDescriptorRange2Parameter(
         particleDescriptorRange, 1, particleBufferIndex_);
 
     rootParameters[freeIndexBufferIndex_].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
@@ -140,7 +140,7 @@ void GpuParticleInitialize::CreatePSO() {
     freeIndexDescriptorRange[0].NumDescriptors                    = 1;
     freeIndexDescriptorRange[0].RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
     freeIndexDescriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-    shaderInfo.setDescriptorRange2Parameter(
+    shaderInfo.SetDescriptorRange2Parameter(
         freeIndexDescriptorRange, 1, freeIndexBufferIndex_);
 
     rootParameters[freeListBufferIndex_].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
@@ -152,7 +152,7 @@ void GpuParticleInitialize::CreatePSO() {
     freeListDescriptorRange[0].NumDescriptors                    = 1;
     freeListDescriptorRange[0].RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
     freeListDescriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-    shaderInfo.setDescriptorRange2Parameter(
+    shaderInfo.SetDescriptorRange2Parameter(
         freeListDescriptorRange, 1, freeListBufferIndex_);
 
     rootParameters[emitterShapeIndex].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
@@ -174,15 +174,15 @@ void GpuParticleInitialize::StartCS() {
     }
 
     ID3D12DescriptorHeap* ppHeaps[] = {
-        Engine::getInstance()->getSrvHeap()->getHeap().Get()};
-    dxCommand_->getCommandList()->SetDescriptorHeaps(1, ppHeaps);
+        Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
+    dxCommand_->GetCommandList()->SetDescriptorHeaps(1, ppHeaps);
 
-    dxCommand_->getCommandList()->SetPipelineState(pso_->pipelineState.Get());
-    dxCommand_->getCommandList()->SetComputeRootSignature(pso_->rootSignature.Get());
+    dxCommand_->GetCommandList()->SetPipelineState(pso_->pipelineState.Get());
+    dxCommand_->GetCommandList()->SetComputeRootSignature(pso_->rootSignature.Get());
 };
 void GpuParticleInitialize::ExecuteCS() {
     HRESULT hr;
-    DxFence* fence = Engine::getInstance()->getDxFence();
+    DxFence* fence = Engine::GetInstance()->GetDxFence();
 
     // コマンドの受付終了 -----------------------------------
     hr = dxCommand_->Close();
@@ -201,7 +201,7 @@ void GpuParticleInitialize::ExecuteCS() {
     ///===============================================================
     /// コマンドリストの実行を待つ
     ///===============================================================
-    fence->Signal(dxCommand_->getCommandQueue());
+    fence->Signal(dxCommand_->GetCommandQueue());
     fence->WaitForFence();
     ///===============================================================
 

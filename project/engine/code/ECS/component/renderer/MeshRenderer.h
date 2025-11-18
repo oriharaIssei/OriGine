@@ -74,45 +74,45 @@ protected:
     std::shared_ptr<std::vector<MeshTemplate>> meshGroup_;
 
 public: // ↓ Accessor
-    Entity* getHostEntity() const {
+    Entity* GetHostEntity() const {
         return hostEntity_;
     }
 
     //------------------------------ BlendMode ------------------------------//
-    BlendMode getCurrentBlend() const {
+    BlendMode GetCurrentBlend() const {
         return currentBlend_;
     }
-    void setBlendMode(BlendMode _blend) {
+    void SetBlendMode(BlendMode _blend) {
         currentBlend_ = _blend;
     }
 
     //------------------------------ isRender ------------------------------//
-    bool isRender() const {
+    bool IsRender() const {
         return isRender_;
     }
-    void setIsRender(bool _isRender) {
+    void SetIsRender(bool _isRender) {
         isRender_ = _isRender;
     }
     //------------------------------ isCulling ------------------------------//
-    bool isCulling() const {
+    bool IsCulling() const {
         return isCulling_;
     }
-    void setIsCulling(bool _isCulling) {
+    void SetIsCulling(bool _isCulling) {
         isCulling_ = _isCulling;
     }
 
     //------------------------------ MeshGroup ------------------------------//
-    int32_t getMeshGroupSize() const {
+    int32_t GetMeshGroupSize() const {
         return static_cast<int32_t>(meshGroup_->size());
     }
-    const std::shared_ptr<std::vector<MeshTemplate>>& getMeshGroup() const {
+    const std::shared_ptr<std::vector<MeshTemplate>>& GetMeshGroup() const {
         return meshGroup_;
     }
 
-    void setMeshGroup(const std::vector<MeshTemplate>& _meshGroup) {
+    void SetMeshGroup(const std::vector<MeshTemplate>& _meshGroup) {
         meshGroup_ = std::make_shared<std::vector<MeshTemplate>>(_meshGroup);
     }
-    void pushBackMesh(const MeshTemplate& _mesh) {
+    void PushBackMesh(const MeshTemplate& _mesh) {
         meshGroup_->push_back(_mesh);
     }
 };
@@ -177,27 +177,27 @@ private:
 
 public:
     //------------------------------ File ------------------------------//
-    const std::string& getDirectory() const {
+    const std::string& GetDirectory() const {
         return directory_;
     }
-    const std::string& getFileName() const {
+    const std::string& GetFileName() const {
         return fileName_;
     }
 
     //------------------------------ Transform ------------------------------//
-    const Transform& getTransform(int32_t _meshIndex = 0) const {
+    const Transform& GetTransform(int32_t _meshIndex = 0) const {
         return meshTransformBuff_[_meshIndex].openData_;
     }
-    Transform& getTransform(int32_t _meshIndex = 0) {
+    Transform& GetTransform(int32_t _meshIndex = 0) {
         return meshTransformBuff_[_meshIndex].openData_;
     }
-    const IConstantBuffer<Transform>& getTransformBuff(int32_t _meshIndex = 0) const {
+    const IConstantBuffer<Transform>& GetTransformBuff(int32_t _meshIndex = 0) const {
         return meshTransformBuff_[_meshIndex];
     }
-    IConstantBuffer<Transform>& getTransformBuff(int32_t _meshIndex = 0) {
+    IConstantBuffer<Transform>& GetTransformBuff(int32_t _meshIndex = 0) {
         return meshTransformBuff_[_meshIndex];
     }
-    void setTransform(int32_t _meshIndex, const Transform& _transform) {
+    void SetTransform(int32_t _meshIndex, const Transform& _transform) {
         meshTransformBuff_[_meshIndex].openData_ = _transform;
     }
     void pushBackTransformBuff() {
@@ -208,31 +208,31 @@ public:
     /// 親Transformを設定(すべてのメッシュに対して)
     /// </summary>
     /// <param name="_parent"></param>
-    void setParentTransform(Transform* _parent) {
+    void SetParentTransform(Transform* _parent) {
         for (auto& transformBuff : meshTransformBuff_) {
             transformBuff.openData_.parent = _parent;
         }
     }
 
     //------------------------------ Material ------------------------------//
-    const SimpleConstantBuffer<Material>& getMaterialBuff(int32_t _meshIndex) const {
+    const SimpleConstantBuffer<Material>& GetMaterialBuff(int32_t _meshIndex) const {
         return meshMaterialBuff_[_meshIndex].second;
     }
-    SimpleConstantBuffer<Material>& getMaterialBuff(int32_t _meshIndex) {
+    SimpleConstantBuffer<Material>& GetMaterialBuff(int32_t _meshIndex) {
         return meshMaterialBuff_[_meshIndex].second;
     }
-    int32_t getMaterialIndex(int32_t _meshIndex) const {
+    int32_t GetMaterialIndex(int32_t _meshIndex) const {
         return meshMaterialBuff_[_meshIndex].first;
     }
-    void setMaterialIndex(int32_t _meshIndex, int32_t _materialIndex) {
+    void SetMaterialIndex(int32_t _meshIndex, int32_t _materialIndex) {
         meshMaterialBuff_[_meshIndex].first = _materialIndex;
     }
 
     //------------------------------ TextureNumber ------------------------------//
-    uint32_t getTextureNumber(int32_t _meshIndex) const {
+    uint32_t GetTextureNumber(int32_t _meshIndex) const {
         return meshTextureNumbers_[_meshIndex];
     }
-    void setTexture(int32_t _meshIndex, const std::string& _filename) {
+    void SetTexture(int32_t _meshIndex, const std::string& _filename) {
         textureFilePath_[_meshIndex] = _filename;
         if (_filename.empty()) {
             meshTextureNumbers_[_meshIndex] = 0;
@@ -280,20 +280,20 @@ private:
 
 public:
     //------------------------------ Transform ------------------------------//
-    const Transform& getTransform() const {
+    const Transform& GetTransform() const {
         return transformBuff_.openData_;
     }
-    void setTransform(const Transform& _transform) {
+    void SetTransform(const Transform& _transform) {
         transformBuff_.openData_ = _transform;
     }
     /// <summary>
     /// 親Transformを設定
     /// </summary>
     /// <param name="_parent"></param>
-    void setParentTransform(Transform* _parent) {
+    void SetParentTransform(Transform* _parent) {
         transformBuff_.openData_.parent = _parent;
     }
-    IConstantBuffer<Transform>& getTransformBuff() {
+    IConstantBuffer<Transform>& GetTransformBuff() {
         return transformBuff_;
     }
 
@@ -301,7 +301,7 @@ public:
     bool isLineStrip() const {
         return lineIsStrip_;
     }
-    void setLineStrip(bool _isStrip) {
+    void SetLineStrip(bool _isStrip) {
         lineIsStrip_ = _isStrip;
     }
 };

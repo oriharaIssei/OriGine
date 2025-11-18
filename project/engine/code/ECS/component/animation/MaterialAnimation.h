@@ -64,26 +64,26 @@ private:
     /// material animation
     AnimationCurve<Vec4f> colorCurve_;
     // uv
-    AnimationCurve<Vec2f> uvScaleCurve_;
+    AnimationCurve<Vec2f> uvscaleCurve_;
     AnimationCurve<float> uvRotateCurve_;
     AnimationCurve<Vec2f> uvTranslateCurve_;
 
 public:
-    int32_t getMaterialIndex() const { return materialIndex_; }
-    void setMaterialIndex(int32_t _materialIndex) { materialIndex_ = _materialIndex; }
+    int32_t GetMaterialIndex() const { return materialIndex_; }
+    void SetMaterialIndex(int32_t _materialIndex) { materialIndex_ = _materialIndex; }
 
-    float getDuration() const { return duration_; }
-    float getCurrentTime() const { return currentTime_; }
-    void setDuration(float _duration) { duration_ = _duration; }
-    void setCurrentTime(float _currentTime) { currentTime_ = _currentTime; }
+    float GetDuration() const { return duration_; }
+    float GetCurrentTime() const { return currentTime_; }
+    void SetDuration(float _duration) { duration_ = _duration; }
+    void SetCurrentTime(float _currentTime) { currentTime_ = _currentTime; }
 
-    bool getAnimationIsLoop() const { return animationState_.isLoop_; }
-    bool getAnimationIsPlay() const { return animationState_.isPlay_; }
-    bool getAnimationIsEnd() const { return animationState_.isEnd_; }
-    void setAnimationIsLoop(bool _isLoop) { animationState_.isLoop_ = _isLoop; }
-    void setAnimationIsPlay(bool _isPlay) { animationState_.isPlay_ = _isPlay; }
-    void setAnimationIsEnd(bool _isEnd) { animationState_.isEnd_ = _isEnd; }
+    bool GetAnimationIsLoop() const { return animationState_.isLoop_; }
+    bool GetAnimationIsPlay() const { return animationState_.isPlay_; }
+    bool GetAnimationIsEnd() const { return animationState_.isEnd_; }
+    void SetAnimationIsLoop(bool _isLoop) { animationState_.isLoop_ = _isLoop; }
+    void SetAnimationIsPlay(bool _isPlay) { animationState_.isPlay_ = _isPlay; }
+    void SetAnimationIsEnd(bool _isEnd) { animationState_.isEnd_ = _isEnd; }
 
-    InterpolationType getInterpolationType() const { return interpolationType_; }
-    void setInterpolationType(InterpolationType _uvInterpolationType) { interpolationType_ = _uvInterpolationType; }
+    InterpolationType GetInterpolationType() const { return interpolationType_; }
+    void SetInterpolationType(InterpolationType _uvInterpolationType) { interpolationType_ = _uvInterpolationType; }
 };

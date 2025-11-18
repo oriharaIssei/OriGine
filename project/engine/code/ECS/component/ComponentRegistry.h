@@ -8,24 +8,24 @@
 /// </summary>
 class ComponentRegistry final {
 public:
-    static ComponentRegistry* getInstance();
+    static ComponentRegistry* GetInstance();
 
     template <IsComponent ComponentType>
-    void registerComponent(
+    void RegisterComponent(
         std::function<std::unique_ptr<IComponentArray>()> _makeCloneFunc =
             []() -> std::unique_ptr<IComponentArray> {
             return std::make_unique<ComponentArray<ComponentType>>();
         });
 
     template <IsComponent ComponentType>
-    ComponentArray<ComponentType>* getComponentArray() const;
+    ComponentArray<ComponentType>* GetComponentArray() const;
 
-    IComponentArray* getComponentArray(const std::string& _typeName) const;
+    IComponentArray* GetComponentArray(const std::string& _typeName) const;
 
     template <IsComponent ComponentType>
-    std::unique_ptr<IComponentArray> cloneComponentArray();
+    std::unique_ptr<IComponentArray> CloneComponentArray();
 
-    std::unique_ptr<IComponentArray> cloneComponentArray(const std::string& _compTypeName);
+    std::unique_ptr<IComponentArray> CloneComponentArray(const std::string& _compTypeName);
 
 private:
     ComponentRegistry();
@@ -38,12 +38,12 @@ private:
     std::unordered_map<std::string, std::function<std::unique_ptr<IComponentArray>()>> cloneMaker_;
 
 public:
-    const std::unordered_map<std::string, std::unique_ptr<IComponentArray>>& getComponentArrayMap() const;
-    std::unordered_map<std::string, std::unique_ptr<IComponentArray>>& getComponentArrayMapRef();
+    const std::unordered_map<std::string, std::unique_ptr<IComponentArray>>& GetComponentArrayMap() const;
+    std::unordered_map<std::string, std::unique_ptr<IComponentArray>>& GetComponentArrayMapRef();
 };
 
 template <IsComponent ComponentType>
-void ComponentRegistry::registerComponent(
+void ComponentRegistry::RegisterComponent(
     std::function<std::unique_ptr<IComponentArray>()> _makeCloneFunc) {
     std::string typeName = nameof<ComponentType>();
     if (componentArrays_.find(typeName) != componentArrays_.end()) {
@@ -56,7 +56,7 @@ void ComponentRegistry::registerComponent(
 }
 
 template <IsComponent ComponentType>
-ComponentArray<ComponentType>* ComponentRegistry::getComponentArray() const {
+ComponentArray<ComponentType>* ComponentRegistry::GetComponentArray() const {
     std::string typeName = nameof<ComponentType>();
     auto itr             = componentArrays_.find(typeName);
     if (itr == componentArrays_.end()) {
@@ -67,7 +67,7 @@ ComponentArray<ComponentType>* ComponentRegistry::getComponentArray() const {
 }
 
 template <IsComponent ComponentType>
-std::unique_ptr<IComponentArray> ComponentRegistry::cloneComponentArray() {
+std::unique_ptr<IComponentArray> ComponentRegistry::CloneComponentArray() {
     std::string _typeName = nameof<ComponentType>();
     auto itr              = cloneMaker_.find(_typeName);
     if (itr == cloneMaker_.end()) {

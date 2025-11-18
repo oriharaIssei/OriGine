@@ -17,8 +17,8 @@ void CameraActionSystem::Initialize() {}
 void CameraActionSystem::Finalize() {}
 
 void CameraActionSystem::UpdateEntity(Entity* _entity) {
-    auto action = getComponent<CameraAction>(_entity);
-    auto camera = getComponent<CameraTransform>(_entity);
+    auto action = GetComponent<CameraAction>(_entity);
+    auto camera = GetComponent<CameraTransform>(_entity);
 
     // コンポーネントが存在しない場合は処理を抜ける
     if (!action || !camera) {
@@ -31,9 +31,9 @@ void CameraActionSystem::UpdateEntity(Entity* _entity) {
     }
 
     // アニメーション時間を進める
-    float currentTime = action->getCurrentTime();
-    currentTime -= getMainDeltaTime();
-    action->setCurrentTime(currentTime);
+    float currentTime = action->GetCurrentTime();
+    currentTime -= GetMainDeltaTime();
+    action->SetCurrentTime(currentTime);
 
     // アニメーション終了判定
     // ループ設定されている場合は最初から再生
@@ -45,32 +45,32 @@ void CameraActionSystem::UpdateEntity(Entity* _entity) {
         }
     }
 
-    auto& fovCurve = action->getFovCurve();
+    auto& fovCurve = action->GetFovCurve();
     if (!fovCurve.empty()) {
         camera->fovAngleY = CalculateValue::Linear(fovCurve, currentTime);
     }
 
-    auto& aspectCurve = action->getAspectRatioCurve();
+    auto& aspectCurve = action->GetAspectRatioCurve();
     if (!aspectCurve.empty()) {
         camera->aspectRatio = CalculateValue::Linear(aspectCurve, currentTime);
     }
 
-    auto& nearZCurve = action->getNearZCurve();
+    auto& nearZCurve = action->GetNearZCurve();
     if (!nearZCurve.empty()) {
         camera->nearZ = CalculateValue::Linear(nearZCurve, currentTime);
     }
 
-    auto& farZCurve = action->getFarZCurve();
+    auto& farZCurve = action->GetFarZCurve();
     if (!farZCurve.empty()) {
         camera->nearZ = CalculateValue::Linear(farZCurve, currentTime);
     }
 
-    auto& rotateCurve = action->getRotationCurve();
+    auto& rotateCurve = action->GetRotationCurve();
     if (!rotateCurve.empty()) {
         camera->rotate = CalculateValue::Linear(rotateCurve, currentTime);
     }
 
-    auto& posCurve = action->getPositionCurve();
+    auto& posCurve = action->GetPositionCurve();
     if (!posCurve.empty()) {
         camera->translate = CalculateValue::Linear(posCurve, currentTime);
     }

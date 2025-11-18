@@ -32,11 +32,11 @@ public:
     /// <summary>
     /// Entity の取得
     /// </summary>
-    Entity* getEntity(int32_t _entityIndex);
+    Entity* GetEntity(int32_t _entityIndex);
     /// <summary>
     /// UniqueEntity の取得
     /// </summary>
-    Entity* getUniqueEntity(const std::string& _dataTypeName);
+    Entity* GetUniqueEntity(const std::string& _dataTypeName);
 
     /// <summary>
     /// EntityIndex の 確保
@@ -64,15 +64,15 @@ public:
     /// <summary>
     /// Entity を削除する
     /// </summary>
-    bool removeEntity(int32_t _entityIndex);
+    bool RemoveEntity(int32_t _entityIndex);
 
-    uint32_t getSize() const;
-    uint32_t getActiveEntityCount() const;
-    uint32_t getInactiveEntityCount() const;
-    void clear();
+    uint32_t GetSize() const;
+    uint32_t GetActiveEntityCount() const;
+    uint32_t GetInactiveEntityCount() const;
+    void Clear();
 
-    const std::vector<Entity>& getEntities() const;
-    std::vector<Entity>& getEntitiesRef();
+    const std::vector<Entity>& GetEntities() const;
+    std::vector<Entity>& GetEntitiesRef();
 
 private:
     uint32_t size_ = 10000;

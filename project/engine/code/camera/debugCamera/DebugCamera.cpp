@@ -36,42 +36,45 @@ void DebugCamera::Update() {
 }
 
 void DebugCamera::Neutral::Update() {
-    KeyboardInput* keyInput = InputManager::getInstance()->getKeyboard();
-    MouseInput* mouseInput  = InputManager::getInstance()->getMouse();
+    KeyboardInput* keyInput = InputManager::GetInstance()->GetKeyboard();
+    MouseInput* mouseInput  = InputManager::GetInstance()->GetMouse();
 
     // Altキーが押されていない場合は何もしない
-    if (!(keyInput->isPress(DIK_LALT) || keyInput->isPress(DIK_RALT))) {
+    if (!(keyInput->IsPress(DIK_LALT) || keyInput->IsPress(DIK_RALT))) {
         return;
     }
     // Alt + 左クリックまたはホイール操作で移動状態へ遷移
     // Alt + 右クリックで回転状態へ遷移
-    if (mouseInput->isTrigger(MouseButton::LEFT) || mouseInput->isWheel()) {
-        host_->startMousePos_ = mouseInput->getVirtualPosition();
+    if (mouseInput->IsTrigger(MouseButton::LEFT) || mouseInput->IsWheel()) {
+        host_->startMousePos_ = mouseInput->GetVirtualPosition();
         host_->currentState_.reset(new TranslationState(host_));
         return;
-    } else if (mouseInput->isTrigger(MouseButton::RIGHT)) {
-        host_->startMousePos_ = mouseInput->getVirtualPosition();
+    } else if (mouseInput->IsTrigger(MouseButton::RIGHT)) {
+        host_->startMousePos_ = mouseInput->GetVirtualPosition();
         host_->currentState_.reset(new RotationState(host_));
         return;
     }
 }
 
 void DebugCamera::TranslationState::Update() {
-    KeyboardInput* keyInput = InputManager::getInstance()->getKeyboard();
-    MouseInput* mouseInput  = InputManager::getInstance()->getMouse();
+    KeyboardInput* keyInput = InputManager::GetInstance()->GetKeyboard();
+    MouseInput* mouseInput  = InputManager::GetInstance()->GetMouse();
 
     constexpr Vec3f kMouseSensitivity = {0.1f, 0.1f, 0.7f};
 
+    // マウス位置を開始位置にリセット
+    mouseInput->SetPosition(host_->startMousePos_);
+
     // 入力状態をビットで管理
     uint32_t state = 0;
-    bool a         = mouseInput->isWheel();
-    bool b         = mouseInput->isPress(0);
-    uint32_t c     = (keyInput->isPress(Key::LALT) | keyInput->isPress(Key::R_ALT));
+    bool a         = mouseInput->IsWheel();
+    bool b         = mouseInput->IsPress(0);
+    uint32_t c     = (keyInput->IsPress(Key::LALT) | keyInput->IsPress(Key::R_ALT));
     state          = (a) + (b * 2);
     state *= c;
     Vec3f velo = {};
 
-    Vector3 inputVal = {mouseInput->getVelocity(), (float)mouseInput->getWheelDelta()};
+    Vector3 inputVal = {mouseInput->GetVelocity(), (float)mouseInput->GetWheelDelta()};
 
     // 状態に応じた移動処理
     // wheel -> Z方向移動
@@ -106,19 +109,19 @@ void DebugCamera::TranslationState::Update() {
 void DebugCamera::RotationState::Update() {
     constexpr float kMouseSensitivity = 0.01f;
 
-    KeyboardInput* keyInput = InputManager::getInstance()->getKeyboard();
-    MouseInput* mouseInput  = InputManager::getInstance()->getMouse();
+    KeyboardInput* keyInput = InputManager::GetInstance()->GetKeyboard();
+    MouseInput* mouseInput  = InputManager::GetInstance()->GetMouse();
 
     // マウス位置を開始位置にリセット
-    mouseInput->setPosition(host_->startMousePos_);
+    mouseInput->SetPosition(host_->startMousePos_);
 
-    if (!mouseInput->isPress(MouseButton::RIGHT) || !(keyInput->isPress(Key::L_ALT) || keyInput->isPress(Key::R_ALT))) {
+    if (!mouseInput->IsPress(MouseButton::RIGHT) || !(keyInput->IsPress(Key::L_ALT) || keyInput->IsPress(Key::R_ALT))) {
         host_->currentState_.reset(new Neutral(host_));
         return;
     }
 
     // マウスの動きから回転量を取得
-    Vec2f mouseVelocity = mouseInput->getVelocity();
+    Vec2f mouseVelocity = mouseInput->GetVelocity();
     float yaw           = mouseVelocity[X] * kMouseSensitivity; // Y軸回転（水平）
     float pitch         = mouseVelocity[Y] * kMouseSensitivity; // X軸回転（垂直）
 

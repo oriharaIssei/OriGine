@@ -36,10 +36,10 @@ protected:
     PrimType primitive_;
 
 public:
-    const PrimType& getPrimitive() const {
+    const PrimType& GetPrimitive() const {
         return primitive_;
     }
-    PrimType& getPrimitive() {
+    PrimType& GetPrimitive() {
         return primitive_;
     }
 };

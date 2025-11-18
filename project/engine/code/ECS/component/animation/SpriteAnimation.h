@@ -68,7 +68,7 @@ private:
 
     AnimationState uvAnimationState_        = {};
     InterpolationType uvInterpolationType_  = InterpolationType::LINEAR;
-    AnimationCurve<Vec2f> uvScaleCurve_     = {};
+    AnimationCurve<Vec2f> uvscaleCurve_     = {};
     AnimationCurve<float> uvRotateCurve_    = {};
     AnimationCurve<Vec2f> uvTranslateCurve_ = {};
 };

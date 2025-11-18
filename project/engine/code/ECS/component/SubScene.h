@@ -44,10 +44,10 @@ private:
     std::shared_ptr<Scene> subScene_ = nullptr;
 
 public:
-    const Scene* getSubScene() const { return subScene_.get(); }
-    std::shared_ptr<Scene> getSubSceneRef() { return subScene_; }
-    const std::string& getSceneName() const { return sceneName_; }
+    const Scene* GetSubScene() const { return subScene_.get(); }
+    std::shared_ptr<Scene> GetSubSceneRef() { return subScene_; }
+    const std::string& GetSceneName() const { return sceneName_; }
 
-    bool isActive() const { return isActive_; }
-    void setActive(bool _active) { isActive_ = _active; }
+    bool IsActive() const { return isActive_; }
+    void SetActive(bool _active) { isActive_ = _active; }
 };

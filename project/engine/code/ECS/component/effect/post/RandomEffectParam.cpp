@@ -11,7 +11,7 @@
 #endif // _DEBUG
 
 void RandomEffectParam::Initialize(Entity* /*_hostEntity*/) {
-    effectParamData_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
+    effectParamData_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
 }
 
 void RandomEffectParam::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
@@ -31,7 +31,7 @@ void RandomEffectParam::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_unu
             isSelected = blendModeName == blendModeStr[(int32_t)blendMode_];
 
             if (ImGui::Selectable(blendModeName.c_str(), isSelected)) {
-                EditorController::getInstance()->pushCommand(
+                EditorController::GetInstance()->PushCommand(
                     std::make_unique<SetterCommand<BlendMode>>(&blendMode_, static_cast<BlendMode>(blendIndex)));
                 break;
             }

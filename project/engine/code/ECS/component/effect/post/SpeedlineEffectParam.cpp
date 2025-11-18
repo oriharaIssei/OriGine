@@ -18,7 +18,7 @@
 
 void SpeedlineEffectParam::Initialize(Entity*) {
     if (isActive_) {
-        cBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
+        cBuffer_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
     }
     if (!radialTextureFilePath_.empty()) {
         LoadRadialTexture(radialTextureFilePath_);
@@ -47,7 +47,7 @@ void SpeedlineEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]]
         ask               = ImGui::Button(label.c_str());
 
         ask |= ImGui::ImageButton(
-            ImTextureID(TextureManager::getDescriptorGpuHandle(radialTextureIndex_).ptr),
+            ImTextureID(TextureManager::GetDescriptorGpuHandle(radialTextureIndex_).ptr),
             ImVec2(32, 32), ImVec2(0, 0), ImVec2(1, 1), 4, ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
 
         return ask;
@@ -57,7 +57,7 @@ void SpeedlineEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]]
         if (myfs::selectFileDialog(kApplicationResourceDirectory + "/texture", directory, fileName, {"png"})) {
             std::string newPath = kApplicationResourceDirectory + "/texture/" + directory + "/" + fileName;
             auto command        = std::make_unique<SetterCommand<std::string>>(&radialTextureFilePath_, newPath, [this](std::string*) { this->radialTextureIndex_ = TextureManager::LoadTexture(radialTextureFilePath_); }, true, nullptr);
-            EditorController::getInstance()->pushCommand(std::move(command));
+            EditorController::GetInstance()->PushCommand(std::move(command));
         }
     }
 #endif // _DEBUG
@@ -73,7 +73,7 @@ void SpeedlineEffectParam::Play() {
         return;
     }
     isActive_ = true;
-    cBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
+    cBuffer_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
 }
 
 void SpeedlineEffectParam::Stop() {

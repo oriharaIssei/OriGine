@@ -67,7 +67,7 @@ void MouseInput::Update() {
     currentWheelDelta_ = static_cast<int32_t>(current.lZ);
 }
 
-void MouseInput::setPosition(const Vec2f& pos) {
+void MouseInput::SetPosition(const Vec2f& pos) {
     if (mouse_) {
         POINT screenPos;
         screenPos.x = static_cast<LONG>(pos[X]);

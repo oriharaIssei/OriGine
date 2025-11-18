@@ -13,15 +13,15 @@
 /// </summary>
 class InputManager {
 public:
-    static InputManager* getInstance();
+    static InputManager* GetInstance();
 
     void Initialize(HWND _hwnd);
     void Update();
     void Finalize();
 
-    KeyboardInput* getKeyboard() { return &keyboard_; }
-    MouseInput* getMouse() { return &mouse_; }
-    GamePadInput* getGamePad() { return &gamepad_; }
+    KeyboardInput* GetKeyboard() { return &keyboard_; }
+    MouseInput* GetMouse() { return &mouse_; }
+    GamePadInput* GetGamePad() { return &gamepad_; }
 
 private:
     Microsoft::WRL::ComPtr<IDirectInput8> directInput_;

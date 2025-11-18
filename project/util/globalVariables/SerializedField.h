@@ -11,13 +11,13 @@ class SerializedField {
 public:
     // コンストラクタ
     SerializedField(const std::string& scene, const std::string& group, const std::string& value) {
-        value_ = GlobalVariables::getInstance()->addValue<T>(scene, group, value);
+        value_ = GlobalVariables::GetInstance()->AddValue<T>(scene, group, value);
     }
     SerializedField(const std::string& scene, const std::string& group, const std::string& value, const T& defaultValue) {
-        value_ = GlobalVariables::getInstance()->addValue<T>(scene, group, value);
+        value_ = GlobalVariables::GetInstance()->AddValue<T>(scene, group, value);
         // 値が nullptr の場合はデフォルト値を設定
         if (!value_) {
-            setValue(defaultValue);
+            SetValue(defaultValue);
         }
     }
 
@@ -44,7 +44,7 @@ public:
     /// 値を読み取る
     /// </summary>
     /// <returns></returns>
-    const T* getValue() const {
+    const T* GetValue() const {
         return value_;
     }
 
@@ -94,7 +94,7 @@ public:
     }
 
     // 値を設定する
-    void setValue(const T& newValue) {
+    void SetValue(const T& newValue) {
         if (value_) {
             *value_ = newValue;
         }

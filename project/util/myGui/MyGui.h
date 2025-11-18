@@ -36,7 +36,7 @@ private:
     std::unordered_map<std::string, T> value_;
 
 public:
-    void setValue(const std::string& name, const T& value) {
+    void SetValue(const std::string& name, const T& value) {
         // 値がすでに存在する場合は何もしない
         auto it = value_.find(name);
         if (it != value_.end()) {
@@ -297,11 +297,11 @@ bool DragGuiCommand(const std::string& label, T& value, float speed = 0.1f, T mi
     result      = DragGui(label, value, speed, min, max, format);
 
     if (ImGui::IsItemActive()) {
-        valuePool.setValue(label, value);
+        valuePool.SetValue(label, value);
     } else if (ImGui::IsItemDeactivatedAfterEdit()) {
         T newValue = value;
         value      = valuePool.popValue(label);
-        EditorController::getInstance()->pushCommand(std::make_unique<SetterCommand<T>>(&value, newValue, _afterFunc));
+        EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<T>>(&value, newValue, _afterFunc));
         result = true;
     }
 
@@ -328,11 +328,11 @@ bool DragGuiVectorCommand(const std::string& label, Vector<N, T>& value, float s
     result      = DragVectorGui(label, value, speed, min, max, format);
 
     if (ImGui::IsItemActive()) {
-        valuePool.setValue(label, value);
+        valuePool.SetValue(label, value);
     } else if (ImGui::IsItemDeactivatedAfterEdit()) {
         Vector<N, T> newValue = value;
         value                 = valuePool.popValue(label);
-        EditorController::getInstance()->pushCommand(std::make_unique<SetterCommand<Vector<N, T>>>(&value, newValue, _afterFunc));
+        EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<Vector<N, T>>>(&value, newValue, _afterFunc));
         result = true;
     }
 
@@ -360,11 +360,11 @@ bool SlideGuiCommand(const std::string& label, T& value, T min = T(), T max = T(
     result      = SlideGui(label, value, min, max, format);
 
     if (ImGui::IsItemActive()) {
-        valuePool.setValue(label, value);
+        valuePool.SetValue(label, value);
     } else if (ImGui::IsItemDeactivatedAfterEdit()) {
         T newValue = value;
         value      = valuePool.popValue(label);
-        EditorController::getInstance()->pushCommand(std::make_unique<SetterCommand<T>>(&value, newValue, _afterFunc));
+        EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<T>>(&value, newValue, _afterFunc));
         return true;
     }
 
@@ -391,11 +391,11 @@ bool SlideVectorCommand(const std::string& label, Vector<N, T>& value, T min = T
     result      = SlideVectorGui(label, value, min, max, format);
 
     if (ImGui::IsItemActive()) {
-        valuePool.setValue(label, value);
+        valuePool.SetValue(label, value);
     } else if (ImGui::IsItemDeactivatedAfterEdit()) {
         Vector<N, T> newValue = value;
         value                 = valuePool.popValue(label);
-        EditorController::getInstance()->pushCommand(std::make_unique<SetterCommand<Vector<N, T>>>(&value, newValue, _afterFunc));
+        EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<Vector<N, T>>>(&value, newValue, _afterFunc));
         return true;
     }
 
@@ -419,11 +419,11 @@ bool InputGuiCommand(const std::string& label, T& value, const char* format = "%
     result      = InputGui(label, value, format);
 
     if (ImGui::IsItemActive()) {
-        valuePool.setValue(label, value);
+        valuePool.SetValue(label, value);
     } else if (ImGui::IsItemDeactivatedAfterEdit()) {
         T newValue = value;
         value      = valuePool.popValue(label);
-        EditorController::getInstance()->pushCommand(std::make_unique<SetterCommand<T>>(&value, newValue, _afterFunc));
+        EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<T>>(&value, newValue, _afterFunc));
         return true;
     }
 
@@ -447,11 +447,11 @@ bool InputVectorGuiCommand(const std::string& label, Vector<N, T>& value, const 
     result      = InputVectorGui(label, value, format);
 
     if (ImGui::IsItemActive()) {
-        valuePool.setValue(label, value);
+        valuePool.SetValue(label, value);
     } else if (ImGui::IsItemDeactivatedAfterEdit()) {
         Vector<N, T> newValue = value;
         value                 = valuePool.popValue(label);
-        EditorController::getInstance()->pushCommand(std::make_unique<SetterCommand<Vector<N, T>>>(&value, newValue, _afterFunc));
+        EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<Vector<N, T>>>(&value, newValue, _afterFunc));
         return true;
     }
 
@@ -496,11 +496,11 @@ bool ColorEditGuiCommand(const std::string& label, Vector<N, float>& value, ImGu
     result      = ColorEditGui<N>(label, value, _colorEditFlags);
 
     if (ImGui::IsItemActive()) {
-        valuePool.setValue(label, value);
+        valuePool.SetValue(label, value);
     } else if (ImGui::IsItemDeactivatedAfterEdit()) {
         Vector<N, float> newValue = value;
         value                     = valuePool.popValue(label);
-        EditorController::getInstance()->pushCommand(std::make_unique<SetterCommand<Vector<N, float>>>(&value, newValue, _afterFunc));
+        EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<Vector<N, float>>>(&value, newValue, _afterFunc));
         return true;
     }
 

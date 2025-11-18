@@ -58,29 +58,29 @@ protected:
     std::array<std::unordered_map<std::string, ISystem*>, size_t(SystemCategory::Count)> systemMap_; // システムのマップ
 
 public:
-    SceneEditorWindow* getParentWindow() const {
+    SceneEditorWindow* GetParentWindow() const {
         return parentWindow_;
     }
-    int32_t getEditEntityId() const {
+    int32_t GetEditEntityId() const {
         return editEntityId_;
     }
     /// 変更は Commandを通して行うべき
     /*
-    void setEditEntityId(int32_t id) {
+    void SetEditEntityId(int32_t id) {
         editEntityId_ = id;
     }*/
 
-    const std::string& getEditEntityName() const {
+    const std::string& GetEditEntityName() const {
         return editEntityName_;
     }
-    std::string& getEditEntityNameRef() {
+    std::string& GetEditEntityNameRef() {
         return editEntityName_;
     }
 
-    std::unordered_map<std::string, std::vector<IComponent*>>& getEntityComponentMap() {
+    std::unordered_map<std::string, std::vector<IComponent*>>& GetEntityComponentMap() {
         return entityComponentMap_;
     }
-    std::array<std::unordered_map<std::string, ISystem*>, size_t(SystemCategory::Count)>& getSystemMap() {
+    std::array<std::unordered_map<std::string, ISystem*>, size_t(SystemCategory::Count)>& GetSystemMap() {
         return systemMap_;
     }
 };
@@ -366,8 +366,8 @@ private:
     std::vector<std::string> componentTypeNames_; // 追加可能なコンポーネントのタイプ名
 
 public:
-    void clearTarget() { targetEntityIds_.clear(); }
-    void setTargets(const std::list<int32_t>& _targets);
+    void ClearTarget() { targetEntityIds_.clear(); }
+    void SetTargets(const std::list<int32_t>& _targets);
 };
 
 /// <summary>
@@ -522,8 +522,8 @@ private:
     std::vector<std::string> systemTypeNames_; // 追加可能なコンポーネントのタイプ名
 
 public:
-    void clearTarget() { targetEntityIds_.clear(); }
-    void setTargets(const std::list<int32_t>& _targets);
+    void ClearTarget() { targetEntityIds_.clear(); }
+    void SetTargets(const std::list<int32_t>& _targets);
 };
 
 /// <summary>

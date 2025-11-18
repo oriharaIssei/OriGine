@@ -83,48 +83,48 @@ private:
     SimpleConstantBuffer<ColorAndUvTransform> materialBuffer_;
 
 public:
-    bool isActive() const {
+    bool IsActive() const {
         return isActive_;
     }
 
-    const IConstantBuffer<DissolveParamData>& getDissolveBuffer() const {
+    const IConstantBuffer<DissolveParamData>& GetDissolveBuffer() const {
         return paramBuffer_;
     }
-    IConstantBuffer<DissolveParamData>& getDissolveBufferRef() {
+    IConstantBuffer<DissolveParamData>& GetDissolveBufferRef() {
         return paramBuffer_;
     }
 
-    SimpleConstantBuffer<ColorAndUvTransform>& getMaterialBuffer() {
+    SimpleConstantBuffer<ColorAndUvTransform>& GetMaterialBuffer() {
         return materialBuffer_;
     }
 
-    int32_t getMaterialIndex() const {
+    int32_t GetMaterialIndex() const {
         return materialIndex_;
     }
-    void setMaterialIndex(int32_t index) {
+    void SetMaterialIndex(int32_t index) {
         materialIndex_ = index;
     }
 
-    float getThreshold() const {
+    float GetThreshold() const {
         return paramBuffer_->threshold;
     }
-    void setThreshold(float threshold) {
+    void SetThreshold(float threshold) {
         paramBuffer_->threshold = threshold;
     }
-    float getEdgeWidth() const {
+    float GetEdgeWidth() const {
         return paramBuffer_->edgeWidth;
     }
-    void setEdgeWidth(float edgeWidth) {
+    void SetEdgeWidth(float edgeWidth) {
         paramBuffer_->edgeWidth = edgeWidth;
     }
-    const Vec4f& getOutLineColor() const {
+    const Vec4f& GetOutLineColor() const {
         return paramBuffer_->outLineColor;
     }
-    void setOutLineColor(const Vec4f& color) {
+    void SetOutLineColor(const Vec4f& color) {
         paramBuffer_->outLineColor = color;
     }
 
-    uint32_t getTextureIndex() const {
+    uint32_t GetTextureIndex() const {
         return textureIndex_;
     }
 };

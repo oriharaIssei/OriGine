@@ -55,13 +55,13 @@ public:
     };
 
 public: // access
-    bool isActive() const { return isActive_; }
-    void setActive(bool _isActive) { isActive_ = _isActive; }
+    bool IsActive() const { return isActive_; }
+    void SetActive(bool _isActive) { isActive_ = _isActive; }
 
-    Vec3f getColor() const { return color_; }
-    void setColor(const Vec3f& _color) { color_ = _color; }
-    float getIntensity() const { return intensity_; }
-    void setIntensity(float _intensity) { intensity_ = _intensity; }
-    Vec3f getDirection() const { return direction_; }
-    void setDirection(const Vec3f& _direction) { direction_ = _direction; }
+    Vec3f GetColor() const { return color_; }
+    void SetColor(const Vec3f& _color) { color_ = _color; }
+    float GetIntensity() const { return intensity_; }
+    void SetIntensity(float _intensity) { intensity_ = _intensity; }
+    Vec3f GetDirection() const { return direction_; }
+    void SetDirection(const Vec3f& _direction) { direction_ = _direction; }
 };

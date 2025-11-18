@@ -28,7 +28,7 @@ public:
         float& startAnimationTime,
         float& animationTimeLength)
         : duration_(duration),
-          uvScaleCurve_(uvScaleCurve),
+          uvscaleCurve_(uvScaleCurve),
           uvTranslateCurve_(uvTranslateCurve),
           interpolationType_(uvInterpolationType),
           tileSize_(tileSize),
@@ -37,25 +37,25 @@ public:
           startAnimationTime_(startAnimationTime),
           animationTimeLength_(animationTimeLength),
           previousDuration_(duration),
-          previousUvScaleCurve_(uvScaleCurve),
+          previousUvscaleCurve_(uvScaleCurve),
           previousUvTranslateCurve_(uvTranslateCurve),
           previousinterpolationType_(uvInterpolationType) {}
 
     void Execute() override {
         // 現在の状態を保存
         previousDuration_          = duration_;
-        previousUvScaleCurve_      = uvScaleCurve_;
+        previousUvscaleCurve_      = uvscaleCurve_;
         previousUvTranslateCurve_  = uvTranslateCurve_;
         previousinterpolationType_ = interpolationType_;
 
         // 新しい状態を生成
         duration_ = animationTimeLength_;
 
-        uvScaleCurve_.clear();
+        uvscaleCurve_.clear();
         uvTranslateCurve_.clear();
 
         // uvScale は Animation しない
-        uvScaleCurve_.emplace_back(0.f, Vector2f(tileSize_ / textureSize_));
+        uvscaleCurve_.emplace_back(0.f, Vector2f(tileSize_ / textureSize_));
 
         // uv Translate は Animation する
         interpolationType_ = InterpolationType::STEP;
@@ -100,14 +100,14 @@ public:
     void Undo() override {
         // 保存した状態に戻す
         duration_          = previousDuration_;
-        uvScaleCurve_      = previousUvScaleCurve_;
+        uvscaleCurve_      = previousUvscaleCurve_;
         uvTranslateCurve_  = previousUvTranslateCurve_;
         interpolationType_ = previousinterpolationType_;
     }
 
 private:
     float& duration_;
-    AnimationCurve<Vec2f>& uvScaleCurve_;
+    AnimationCurve<Vec2f>& uvscaleCurve_;
     AnimationCurve<Vec2f>& uvTranslateCurve_;
     InterpolationType& interpolationType_;
     const Vector2f& tileSize_;
@@ -118,7 +118,7 @@ private:
 
     // Undo用に保存する以前の状態
     float previousDuration_;
-    AnimationCurve<Vec2f> previousUvScaleCurve_;
+    AnimationCurve<Vec2f> previousUvscaleCurve_;
     AnimationCurve<Vec2f> previousUvTranslateCurve_;
     InterpolationType previousinterpolationType_;
 };
@@ -138,7 +138,7 @@ void MaterialAnimation::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] En
     ImGui::Spacing();
 
     label                      = "MaterialIndex##" + _parentLabel;
-    auto materials             = _scene->getComponents<Material>(_entity);
+    auto materials             = _scene->GetComponents<Material>(_entity);
     int32_t entityMaterialSize = materials != nullptr ? static_cast<int32_t>(materials->size()) : 0;
 
     InputGuiCommand(label, materialIndex_);
@@ -155,7 +155,7 @@ void MaterialAnimation::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] En
     if (ImGui::BeginCombo(label.c_str(), InterpolationTypeName[int(interpolationType_)])) {
         for (int i = 0; i < (int)InterpolationType::COUNT; ++i) {
             if (ImGui::Selectable(InterpolationTypeName[i], interpolationType_ == InterpolationType(i))) {
-                EditorController::getInstance()->pushCommand(
+                EditorController::GetInstance()->PushCommand(
                     std::make_unique<SetterCommand<InterpolationType>>(&interpolationType_, InterpolationType(i)));
             }
         }
@@ -173,10 +173,10 @@ void MaterialAnimation::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] En
         DragGuiCommand<float>("AnimationTimeLength", animationTimeLength_, 0.1f, 0);
 
         if (ImGui::Button("Generate Curve")) {
-            EditorController::getInstance()->pushCommand(
+            EditorController::GetInstance()->PushCommand(
                 std::make_unique<GenerateUvAnimationCommand>(
                     duration_,
-                    uvScaleCurve_,
+                    uvscaleCurve_,
                     uvTranslateCurve_,
                     interpolationType_,
                     tileSize_,
@@ -222,7 +222,7 @@ void MaterialAnimation::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] En
             ImGui::TableSetColumnIndex(1);
             ImGui::EditKeyFrame(
                 " UV Scale" + _parentLabel,
-                uvScaleCurve_,
+                uvscaleCurve_,
                 duration_,
                 Vec2f(1.f, 1.f));
 
@@ -275,7 +275,7 @@ void MaterialAnimation::Finalize() {
     animationState_.isEnd_  = false;
     currentTime_            = 0.0f;
 
-    uvScaleCurve_.clear();
+    uvscaleCurve_.clear();
     uvRotateCurve_.clear();
     uvTranslateCurve_.clear();
 }
@@ -321,8 +321,8 @@ void MaterialAnimation::UpdateMaterialAnimation(Material* _material) {
         if (!colorCurve_.empty()) {
             _material->color_ = CalculateValue::Linear(colorCurve_, currentTime_);
         }
-        if (!uvScaleCurve_.empty()) {
-            _material->uvTransform_.scale_ = CalculateValue::Linear(uvScaleCurve_, currentTime_);
+        if (!uvscaleCurve_.empty()) {
+            _material->uvTransform_.scale_ = CalculateValue::Linear(uvscaleCurve_, currentTime_);
         }
         if (!uvRotateCurve_.empty()) {
             _material->uvTransform_.rotate_ = CalculateValue::Linear(uvRotateCurve_, currentTime_);
@@ -336,8 +336,8 @@ void MaterialAnimation::UpdateMaterialAnimation(Material* _material) {
         if (!colorCurve_.empty()) {
             _material->color_ = CalculateValue::Step(colorCurve_, currentTime_);
         }
-        if (!uvScaleCurve_.empty()) {
-            _material->uvTransform_.scale_ = CalculateValue::Step(uvScaleCurve_, currentTime_);
+        if (!uvscaleCurve_.empty()) {
+            _material->uvTransform_.scale_ = CalculateValue::Step(uvscaleCurve_, currentTime_);
         }
         if (!uvRotateCurve_.empty()) {
             _material->uvTransform_.rotate_ = CalculateValue::Step(uvRotateCurve_, currentTime_);
@@ -370,7 +370,7 @@ void to_json(nlohmann::json& _json, const MaterialAnimation& _animation) {
 
     _json["InterpolationType"] = _animation.interpolationType_;
     writeCurve("colorCurve", _animation.colorCurve_);
-    writeCurve("uvScaleCurve", _animation.uvScaleCurve_);
+    writeCurve("uvScaleCurve", _animation.uvscaleCurve_);
     writeCurve("uvRotateCurve", _animation.uvRotateCurve_);
     writeCurve("uvTranslateCurve", _animation.uvTranslateCurve_);
 }
@@ -391,7 +391,7 @@ void from_json(const nlohmann::json& _json, MaterialAnimation& _animation) {
 
    // readCurve("colorCurve", _animation.colorCurve_);
 
-    readCurve("uvScaleCurve", _animation.uvScaleCurve_);
+    readCurve("uvScaleCurve", _animation.uvscaleCurve_);
     readCurve("uvRotateCurve", _animation.uvRotateCurve_);
     readCurve("uvTranslateCurve", _animation.uvTranslateCurve_);
 }

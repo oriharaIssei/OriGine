@@ -21,7 +21,7 @@
 #include "myFileSystem/MyFileSystem.h"
 #include "myRandom/MyRandom.h"
 #include "texture/TextureManager.h"
-// assets
+// asSets
 #include "EmitterShape.h"
 #include "model/Model.h"
 
@@ -100,9 +100,9 @@ void Emitter::UpdateParticle(float _deltaTime) {
         for (auto& particle : particles_) {
             particle->Update(_deltaTime);
         }
-        // isAliveでないもの は 消す
+        // IsAliveでないもの は 消す
         std::erase_if(particles_, [](std::shared_ptr<Particle>& particle) {
-            return !particle->getIsAlive();
+            return !particle->GetIsAlive();
         });
     }
 
@@ -120,30 +120,30 @@ void Emitter::UpdateParticle(float _deltaTime) {
     { // push Drawing InstanceData
         structuredTransform_.openData_.clear();
         for (auto& particle : particles_) {
-            structuredTransform_.openData_.push_back(particle->getTransform());
+            structuredTransform_.openData_.push_back(particle->GetTransform());
         }
     }
 }
 
 void Emitter::CreateResource() {
-    if (!mesh_.getVertexBuffer().getResource()) {
+    if (!mesh_.GetVertexBuffer().GetResource()) {
         Primitive::Plane planeGenerator;
         planeGenerator.CreateMesh(&mesh_);
     }
-    if (!structuredTransform_.getResource().getResource().Get()) {
-        structuredTransform_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_, particleMaxSize_);
+    if (!structuredTransform_.GetResource().GetResource().Get()) {
+        structuredTransform_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_, particleMaxSize_);
     }
-    if (!materialBuffer_.getResource().getResource().Get()) {
-        materialBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
+    if (!materialBuffer_.GetResource().GetResource().Get()) {
+        materialBuffer_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
     }
 }
 
 void Emitter::CalculateMaxSize() {
     // 1秒あたりの生成回数
-    float spawnRatePerSecond = spawnParticleVal_ / spawnCoolTime_;
+    float spawnRatePersecond = spawnParticleVal_ / spawnCoolTime_;
 
     // 最大個数
-    particleMaxSize_ = (std::max<uint32_t>)((std::max<uint32_t>)(static_cast<uint32_t>(std::ceil(spawnRatePerSecond * particleLifeTime_)), spawnParticleVal_), particleMaxSize_);
+    particleMaxSize_ = (std::max<uint32_t>)((std::max<uint32_t>)(static_cast<uint32_t>(std::ceil(spawnRatePersecond * particleLifeTime_)), spawnParticleVal_), particleMaxSize_);
 }
 
 void Emitter::SpawnParticle(int32_t _spawnVal) {
@@ -160,7 +160,7 @@ void Emitter::SpawnParticle(int32_t _spawnVal) {
 
     for (int32_t i = 0; i < canSpawnParticleValue_; i++) {
         Vec3f spawnPos = Lerp(preWorldOriginPos_, worldOriginPos_, float(i) / float(canSpawnParticleValue_));
-        spawnPos += emitterSpawnShape_->getSpawnPos();
+        spawnPos += emitterSpawnShape_->GetSpawnPos();
 
         // 割りたてる Transform の 初期化
         structuredTransform_.openData_.push_back({});
@@ -172,29 +172,29 @@ void Emitter::SpawnParticle(int32_t _spawnVal) {
         MyRandom::Float randY;
         MyRandom::Float randZ;
 
-        randX.setRange(startParticleVelocityMin_.v[X], startParticleVelocityMax_.v[X]);
-        randY.setRange(startParticleVelocityMin_.v[Y], startParticleVelocityMax_.v[Y]);
-        randZ.setRange(startParticleVelocityMin_.v[Z], startParticleVelocityMax_.v[Z]);
-        Vec3f velocity = {randX.get(), randY.get(), randZ.get()};
+        randX.SetRange(startParticleVelocityMin_.v[X], startParticleVelocityMax_.v[X]);
+        randY.SetRange(startParticleVelocityMin_.v[Y], startParticleVelocityMax_.v[Y]);
+        randZ.SetRange(startParticleVelocityMin_.v[Z], startParticleVelocityMax_.v[Z]);
+        Vec3f velocity = {randX.Get(), randY.Get(), randZ.Get()};
 
         if (uniformScaleRandom) {
             Vec3f scaleBase    = startParticleScaleMin_.normalize();
             float maxScaleRate = startParticleScaleMax_.length();
             float minScaleRate = startParticleScaleMin_.length();
-            randX.setRange(minScaleRate, maxScaleRate);
+            randX.SetRange(minScaleRate, maxScaleRate);
 
-            transform.scale = scaleBase * randX.get();
+            transform.scale = scaleBase * randX.Get();
         } else {
-            randX.setRange(startParticleScaleMin_.v[X], startParticleScaleMax_.v[X]);
-            randY.setRange(startParticleScaleMin_.v[Y], startParticleScaleMax_.v[Y]);
-            randZ.setRange(startParticleScaleMin_.v[Z], startParticleScaleMax_.v[Z]);
-            transform.scale = {randX.get(), randY.get(), randZ.get()};
+            randX.SetRange(startParticleScaleMin_.v[X], startParticleScaleMax_.v[X]);
+            randY.SetRange(startParticleScaleMin_.v[Y], startParticleScaleMax_.v[Y]);
+            randZ.SetRange(startParticleScaleMin_.v[Z], startParticleScaleMax_.v[Z]);
+            transform.scale = {randX.Get(), randY.Get(), randZ.Get()};
         }
 
-        randX.setRange(startParticleRotateMin_.v[X], startParticleRotateMax_.v[X]);
-        randY.setRange(startParticleRotateMin_.v[Y], startParticleRotateMax_.v[Y]);
-        randZ.setRange(startParticleRotateMin_.v[Z], startParticleRotateMax_.v[Z]);
-        transform.rotate    = {randX.get(), randY.get(), randZ.get()};
+        randX.SetRange(startParticleRotateMin_.v[X], startParticleRotateMax_.v[X]);
+        randY.SetRange(startParticleRotateMin_.v[Y], startParticleRotateMax_.v[Y]);
+        randZ.SetRange(startParticleRotateMin_.v[Z], startParticleRotateMax_.v[Z]);
+        transform.rotate    = {randX.Get(), randY.Get(), randZ.Get()};
         transform.translate = spawnPos;
 
         transform.uvScale     = particleUvScale_;
@@ -220,29 +220,29 @@ void Emitter::SpawnParticle(int32_t _spawnVal) {
 
         if (updateSettings_ & int(ParticleUpdateType::VelocityRandom)) {
 
-            randX.setRange(updateParticleVelocityMin_.v[X], updateParticleVelocityMax_.v[X]);
-            randY.setRange(updateParticleVelocityMin_.v[Y], updateParticleVelocityMax_.v[Y]);
-            randZ.setRange(updateParticleVelocityMin_.v[Z], updateParticleVelocityMax_.v[Z]);
-            spawnedParticle->setUpdateVelocity(Vec3f(randX.get(), randY.get(), randZ.get()));
+            randX.SetRange(updateParticleVelocityMin_.v[X], updateParticleVelocityMax_.v[X]);
+            randY.SetRange(updateParticleVelocityMin_.v[Y], updateParticleVelocityMax_.v[Y]);
+            randZ.SetRange(updateParticleVelocityMin_.v[Z], updateParticleVelocityMax_.v[Z]);
+            spawnedParticle->SetUpdateVelocity(Vec3f(randX.Get(), randY.Get(), randZ.Get()));
         }
         if (updateSettings_ & int(ParticleUpdateType::UsingGravity)) {
-            randX.setRange(randMass_[X], randMass_[Y]);
-            spawnedParticle->setMass(randX.get());
+            randX.SetRange(randMass_[X], randMass_[Y]);
+            spawnedParticle->SetMass(randX.Get());
         }
         if (updateSettings_ & int(ParticleUpdateType::ScaleRandom)) {
-            randX.setRange(updateParticleScaleMin_.v[X], updateParticleScaleMax_.v[X]);
-            randY.setRange(updateParticleScaleMin_.v[Y], updateParticleScaleMax_.v[Y]);
-            randZ.setRange(updateParticleScaleMin_.v[Z], updateParticleScaleMax_.v[Z]);
-            spawnedParticle->setUpdateScale(Vec3f(randX.get(), randY.get(), randZ.get()));
+            randX.SetRange(updateParticleScaleMin_.v[X], updateParticleScaleMax_.v[X]);
+            randY.SetRange(updateParticleScaleMin_.v[Y], updateParticleScaleMax_.v[Y]);
+            randZ.SetRange(updateParticleScaleMin_.v[Z], updateParticleScaleMax_.v[Z]);
+            spawnedParticle->SetUpdateScale(Vec3f(randX.Get(), randY.Get(), randZ.Get()));
         }
         if (updateSettings_ & int(ParticleUpdateType::RotateRandom)) {
-            randX.setRange(updateParticleRotateMin_.v[X], updateParticleRotateMax_.v[X]);
-            randY.setRange(updateParticleRotateMin_.v[Y], updateParticleRotateMax_.v[Y]);
-            randZ.setRange(updateParticleRotateMin_.v[Z], updateParticleRotateMax_.v[Z]);
-            spawnedParticle->setUpdateRotate(Vec3f(randX.get(), randY.get(), randZ.get()));
+            randX.SetRange(updateParticleRotateMin_.v[X], updateParticleRotateMax_.v[X]);
+            randY.SetRange(updateParticleRotateMin_.v[Y], updateParticleRotateMax_.v[Y]);
+            randZ.SetRange(updateParticleRotateMin_.v[Z], updateParticleRotateMax_.v[Z]);
+            spawnedParticle->SetUpdateRotate(Vec3f(randX.Get(), randY.Get(), randZ.Get()));
         }
 
-        spawnedParticle->setKeyFrames(updateSettings_, particleKeyFrames_.get());
+        spawnedParticle->SetKeyFrames(updateSettings_, particleKeyFrames_.get());
     }
 }
 
@@ -288,7 +288,7 @@ void Emitter::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _ent
     ImGui::Spacing();
 
     {
-        auto materials             = _scene->getComponents<Material>(_entity);
+        auto materials             = _scene->GetComponents<Material>(_entity);
         int32_t entityMaterialSize = materials != nullptr ? static_cast<int32_t>(materials->size()) : 0;
 
         InputGuiCommand(label, materialIndex_);
@@ -311,11 +311,11 @@ void Emitter::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _ent
             if (MyFileSystem::selectFileDialog(kApplicationResourceDirectory, directory, filename, {"png"})) {
                 std::string filePath = kApplicationResourceDirectory + "/" + directory + "/" + filename;
                 auto commandCombo    = std::make_unique<CommandCombo>();
-                commandCombo->addCommand(
+                commandCombo->AddCommand(
                     std::make_shared<SetterCommand<std::string>>(&textureFileName_, filePath));
-                commandCombo->addCommand(
+                commandCombo->AddCommand(
                     std::make_shared<SetterCommand<int32_t>>(&textureIndex_, TextureManager::LoadTexture(filePath)));
-                EditorController::getInstance()->pushCommand(std::move(commandCombo));
+                EditorController::GetInstance()->PushCommand(std::move(commandCombo));
             }
         }
     }
@@ -346,7 +346,7 @@ void Emitter::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _ent
     if (ImGui::Button("Calculate Particle MaxSize")) {
         CalculateMaxSize();
         if (structuredTransform_.capacity() <= particleMaxSize_) {
-            structuredTransform_.resize(Engine::getInstance()->getDxDevice()->device_, particleMaxSize_ * 2);
+            structuredTransform_.resize(Engine::GetInstance()->GetDxDevice()->device_, particleMaxSize_ * 2);
         }
     }
 
@@ -362,7 +362,7 @@ void Emitter::EditEmitter([[maybe_unused]] const std::string& _parentLabel) {
             bool isSelected = (blendMode_ == BlendMode(i)); // 現在選択中かどうか
             if (ImGui::Selectable(blendModeStr[i].c_str(), isSelected)) {
                 auto command = std::make_unique<SetterCommand<BlendMode>>(&blendMode_, (BlendMode)i);
-                EditorController::getInstance()->pushCommand(std::move(command));
+                EditorController::GetInstance()->PushCommand(std::move(command));
                 break;
             }
         }
@@ -419,7 +419,7 @@ void Emitter::EditShapeType([[maybe_unused]] const std::string& _parentLabel) {
                         }
                     });
 
-                EditorController::getInstance()->pushCommand(std::move(command));
+                EditorController::GetInstance()->PushCommand(std::move(command));
             }
 
             // 現在選択中の項目をハイライトする
@@ -456,7 +456,7 @@ void Emitter::EditParticle([[maybe_unused]] const std::string& _parentLabel) {
         int newInterpolationType = static_cast<int>(colorInterpolationType_);
         if (ImGui::Combo(label.c_str(), &newInterpolationType, "LINEAR\0STEP\0\0", static_cast<int>(InterpolationType::COUNT))) {
             auto command = std::make_unique<SetterCommand<InterpolationType>>(&colorInterpolationType_, (InterpolationType)newInterpolationType);
-            EditorController::getInstance()->pushCommand(std::move(command));
+            EditorController::GetInstance()->PushCommand(std::move(command));
         }
     }
 
@@ -507,7 +507,7 @@ void Emitter::EditParticle([[maybe_unused]] const std::string& _parentLabel) {
         label                    = "ColorInterpolationType##" + _parentLabel;
         if (ImGui::Combo(label.c_str(), &newInterpolationType, "LINEAR\0STEP\0\0", static_cast<int>(InterpolationType::COUNT))) {
             auto command = std::make_unique<SetterCommand<InterpolationType>>(&transformInterpolationType_, (InterpolationType)newInterpolationType);
-            EditorController::getInstance()->pushCommand(std::move(command));
+            EditorController::GetInstance()->PushCommand(std::move(command));
         }
     }
 
@@ -867,19 +867,19 @@ void Emitter::EditParticle([[maybe_unused]] const std::string& _parentLabel) {
                 particleLifeTime_ = animationTimeLength_;
 
                 // すでにあるカーブを消す UV /scale,translate
-                commandComboByChangeFlag->addCommand(
-                    std::make_shared<ClearCommand<AnimationCurve<Vec3f>>>(&particleKeyFrames_->uvScaleCurve_));
-                commandComboByChangeFlag->addCommand(
+                commandComboByChangeFlag->AddCommand(
+                    std::make_shared<ClearCommand<AnimationCurve<Vec3f>>>(&particleKeyFrames_->uvscaleCurve_));
+                commandComboByChangeFlag->AddCommand(
                     std::make_shared<ClearCommand<AnimationCurve<Vec3f>>>(&particleKeyFrames_->uvTranslateCurve_));
 
                 // uvScale は Animation しない
                 newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::UvScalePerLifeTime));
-                commandComboByChangeFlag->addCommand(
+                commandComboByChangeFlag->AddCommand(
                     std::make_shared<SetterCommand<Vector3f>>(&particleUvScale_, Vector3f(tileSize_[X] / textureSize_[X], tileSize_[Y] / textureSize_[Y], 0.f)));
 
                 // uv Translate は Animation する
                 newFlag = (newFlag | static_cast<int32_t>(ParticleUpdateType::UvTranslatePerLifeTime));
-                commandComboByChangeFlag->addCommand(
+                commandComboByChangeFlag->AddCommand(
                     std::make_shared<SetterCommand<InterpolationType>>(&uvInterpolationType_, InterpolationType::STEP));
 
                 // 最大タイル数と最大時間を計算
@@ -889,7 +889,7 @@ void Emitter::EditParticle([[maybe_unused]] const std::string& _parentLabel) {
                 float maxTime     = maxTiles * tilePerTime_;
 
                 // startAnimationTime_ を最大時間内に収める
-                commandComboByChangeFlag->addCommand(
+                commandComboByChangeFlag->AddCommand(
                     std::make_shared<SetterCommand<float>>(&startAnimationTime_, fmod(startAnimationTime_, maxTime)));
 
                 // 初期の col と row を計算
@@ -901,7 +901,7 @@ void Emitter::EditParticle([[maybe_unused]] const std::string& _parentLabel) {
                 float x = col * (tileSize_[X] / textureSize_[X]);
                 float y = row * (tileSize_[Y] / textureSize_[Y]);
 
-                commandComboByChangeFlag->addCommand(
+                commandComboByChangeFlag->AddCommand(
                     std::make_shared<SetterCommand<Vector3f>>(&particleUvTranslate_, Vector3f(x, y, 0.f)));
 
                 AnimationCurve<Vec3f> uvTranslateCurve;
@@ -920,7 +920,7 @@ void Emitter::EditParticle([[maybe_unused]] const std::string& _parentLabel) {
                     y = row * (tileSize_[Y] / textureSize_[Y]);
                     uvTranslateCurve.emplace_back(time, Vector3f(x, y, 0.f));
                 }
-                commandComboByChangeFlag->addCommand(
+                commandComboByChangeFlag->AddCommand(
                     std::make_shared<SetterCommand<AnimationCurve<Vec3f>>>(&particleKeyFrames_->uvTranslateCurve_, uvTranslateCurve));
             }
         }
@@ -937,7 +937,7 @@ void Emitter::EditParticle([[maybe_unused]] const std::string& _parentLabel) {
         label                    = "UvInterpolationType##" + _parentLabel;
         if (ImGui::Combo(label.c_str(), &newInterpolationType, "LINEAR\0STEP\0\0", static_cast<int>(InterpolationType::COUNT))) {
             auto command = std::make_unique<SetterCommand<InterpolationType>>(&uvInterpolationType_, (InterpolationType)newInterpolationType);
-            EditorController::getInstance()->pushCommand(std::move(command));
+            EditorController::GetInstance()->PushCommand(std::move(command));
         }
     }
 
@@ -956,8 +956,8 @@ void Emitter::EditParticle([[maybe_unused]] const std::string& _parentLabel) {
             {}, {},
             "%.3f",
             [this](Vec<3, float>* _newScale) {
-                if (!particleKeyFrames_->uvScaleCurve_.empty()) {
-                    particleKeyFrames_->uvScaleCurve_[0].value = *_newScale;
+                if (!particleKeyFrames_->uvscaleCurve_.empty()) {
+                    particleKeyFrames_->uvscaleCurve_[0].value = *_newScale;
                 }
             });
 
@@ -968,12 +968,12 @@ void Emitter::EditParticle([[maybe_unused]] const std::string& _parentLabel) {
         if (updatePerLifeTime) {
             newFlag = (newFlag | static_cast<int32_t>(ParticleUpdateType::UvScalePerLifeTime));
 
-            if (particleKeyFrames_->uvScaleCurve_.empty()) {
-                particleKeyFrames_->uvScaleCurve_.emplace_back(0.f, particleUvScale_);
+            if (particleKeyFrames_->uvscaleCurve_.empty()) {
+                particleKeyFrames_->uvscaleCurve_.emplace_back(0.f, particleUvScale_);
             } else {
-                particleKeyFrames_->uvScaleCurve_[0].value = particleUvScale_;
+                particleKeyFrames_->uvscaleCurve_[0].value = particleUvScale_;
             }
-            ImGui::EditKeyFrame("UvScaleLine", particleKeyFrames_->uvScaleCurve_, particleLifeTime_);
+            ImGui::EditKeyFrame("UvScaleLine", particleKeyFrames_->uvscaleCurve_, particleLifeTime_);
         } else if (preUpdatePerLifeTime && !updatePerLifeTime) {
 
             newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::UvScalePerLifeTime));
@@ -1058,14 +1058,14 @@ void Emitter::EditParticle([[maybe_unused]] const std::string& _parentLabel) {
 
     if (newFlag != updateSettings_) {
         auto command = std::make_unique<SetterCommand<int32_t>>(&updateSettings_, newFlag);
-        EditorController::getInstance()->pushCommand(std::move(command));
-        EditorController::getInstance()->pushCommand(std::move(commandComboByChangeFlag));
+        EditorController::GetInstance()->PushCommand(std::move(command));
+        EditorController::GetInstance()->PushCommand(std::move(commandComboByChangeFlag));
     }
 }
 #endif // _DEBUG
 
 void Emitter::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList) {
-    const Matrix4x4& viewMat = CameraManager::getInstance()->getTransform().viewMat;
+    const Matrix4x4& viewMat = CameraManager::GetInstance()->GetTransform().viewMat;
 
     Matrix4x4 billboardMat = {};
     // パーティクルのスケール行列を事前計算
@@ -1096,8 +1096,8 @@ void Emitter::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandLis
             // ワールド行列を構築
             structuredTransform_.openData_[i].worldMat = scaleMat * billboardMat * translateMat;
 
-            structuredTransform_.openData_[i].uvMat = particles_[i]->getTransform().uvMat;
-            structuredTransform_.openData_[i].color = particles_[i]->getTransform().color;
+            structuredTransform_.openData_[i].uvMat = particles_[i]->GetTransform().uvMat;
+            structuredTransform_.openData_[i].color = particles_[i]->GetTransform().color;
         }
     } else {
         // 各パーティクルのワールド行列を計算
@@ -1109,8 +1109,8 @@ void Emitter::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandLis
             // ワールド行列を構築
             structuredTransform_.openData_[i].worldMat = scaleMat * rotateMat * translateMat;
 
-            structuredTransform_.openData_[i].uvMat = particles_[i]->getTransform().uvMat;
-            structuredTransform_.openData_[i].color = particles_[i]->getTransform().color;
+            structuredTransform_.openData_[i].uvMat = particles_[i]->GetTransform().uvMat;
+            structuredTransform_.openData_[i].color = particles_[i]->GetTransform().color;
         }
     }
 
@@ -1126,14 +1126,14 @@ void Emitter::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandLis
     materialBuffer_.SetForRootParameter(_commandList, 2);
     _commandList->SetGraphicsRootDescriptorTable(
         3,
-        TextureManager::getDescriptorGpuHandle(textureIndex_));
+        TextureManager::GetDescriptorGpuHandle(textureIndex_));
 
     // 頂点バッファの設定
-    _commandList->IASetVertexBuffers(0, 1, &mesh_.getVBView());
-    _commandList->IASetIndexBuffer(&mesh_.getIBView());
+    _commandList->IASetVertexBuffers(0, 1, &mesh_.GetVBView());
+    _commandList->IASetIndexBuffer(&mesh_.GetIBView());
 
     // 描画!!!
-    _commandList->DrawIndexedInstanced(UINT(mesh_.getIndexSize()), static_cast<UINT>(structuredTransform_.openData_.size()), 0, 0, 0);
+    _commandList->DrawIndexedInstanced(UINT(mesh_.GetIndexSize()), static_cast<UINT>(structuredTransform_.openData_.size()), 0, 0, 0);
 }
 
 void from_json(const nlohmann::json& j, Emitter& e) {
@@ -1205,7 +1205,7 @@ void from_json(const nlohmann::json& j, Emitter& e) {
     }
 
     if (j.find("uvScaleCurve") != j.end()) {
-        curveLoad(j.at("uvScaleCurve"), e.particleKeyFrames_->uvScaleCurve_);
+        curveLoad(j.at("uvScaleCurve"), e.particleKeyFrames_->uvscaleCurve_);
     }
     if (j.find("uvRotateCurve") != j.end()) {
         curveLoad(j.at("uvRotateCurve"), e.particleKeyFrames_->uvRotateCurve_);
@@ -1367,7 +1367,7 @@ void to_json(nlohmann::json& j, const Emitter& e) {
         }
 
         if ((e.updateSettings_ & (int32_t)ParticleUpdateType::UvScalePerLifeTime) != 0) {
-            j["uvScaleCurve"] = curveSave(e.particleKeyFrames_->uvScaleCurve_);
+            j["uvScaleCurve"] = curveSave(e.particleKeyFrames_->uvscaleCurve_);
         }
         if ((e.updateSettings_ & (int32_t)ParticleUpdateType::UvRotatePerLifeTime) != 0) {
             j["uvRotateCurve"] = curveSave(e.particleKeyFrames_->uvRotateCurve_);

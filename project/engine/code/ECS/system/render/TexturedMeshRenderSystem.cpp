@@ -30,20 +30,20 @@ void TexturedMeshRenderSystem::Initialize() {
 }
 
 void TexturedMeshRenderSystem::DispatchRenderer(Entity* _entity) {
-    auto modelMeshRenderers = getComponents<ModelMeshRenderer>(_entity);
-    auto entityTransform    = getComponent<Transform>(_entity);
+    auto modelMeshRenderers = GetComponents<ModelMeshRenderer>(_entity);
+    auto entityTransform    = GetComponent<Transform>(_entity);
 
     if (modelMeshRenderers) {
         for (auto& renderer : *modelMeshRenderers) {
-            if (renderer.getMeshGroup()->empty() || !renderer.isRender()) {
+            if (renderer.GetMeshGroup()->empty() || !renderer.IsRender()) {
                 continue;
             }
 
-            for (int32_t i = 0; i < static_cast<int32_t>(renderer.getMeshGroup()->size()); ++i) {
+            for (int32_t i = 0; i < static_cast<int32_t>(renderer.GetMeshGroup()->size()); ++i) {
                 ///==============================
                 /// Transformの更新 (meshごと)
                 ///==============================
-                auto& transform = renderer.getTransformBuff(i);
+                auto& transform = renderer.GetTransformBuff(i);
 
                 if (transform->parent == nullptr) {
                     transform->parent = entityTransform;
@@ -56,9 +56,9 @@ void TexturedMeshRenderSystem::DispatchRenderer(Entity* _entity) {
             ///==============================
             /// push_back
             ///==============================
-            BlendMode blendMode = renderer.getCurrentBlend();
+            BlendMode blendMode = renderer.GetCurrentBlend();
             int32_t blendIndex  = static_cast<int32_t>(blendMode);
-            int32_t isCulling   = renderer.isCulling() ? 1 : 0;
+            int32_t isCulling   = renderer.IsCulling() ? 1 : 0;
             activeModelMeshRenderer_[isCulling][blendIndex].push_back(&renderer);
         }
     }
@@ -66,14 +66,14 @@ void TexturedMeshRenderSystem::DispatchRenderer(Entity* _entity) {
     auto dispatchPrimitive = [this, _entity, entityTransform](auto renderers) {
         if (renderers) {
             for (auto& renderer : *renderers) {
-                if (!renderer.isRender()) {
+                if (!renderer.IsRender()) {
                     continue;
                 }
 
                 ///==============================
                 /// Transformの更新
                 ///==============================
-                auto& transform = renderer.getTransformBuff();
+                auto& transform = renderer.GetTransformBuff();
 
                 if (transform->parent == nullptr) {
                     transform->parent = entityTransform;
@@ -82,18 +82,18 @@ void TexturedMeshRenderSystem::DispatchRenderer(Entity* _entity) {
                 transform->UpdateMatrix();
                 transform.ConvertToBuffer();
 
-                BlendMode blendMode = renderer.getCurrentBlend();
+                BlendMode blendMode = renderer.GetCurrentBlend();
                 int32_t blendIndex  = static_cast<int32_t>(blendMode);
-                int32_t isCulling   = renderer.isCulling() ? 1 : 0;
+                int32_t isCulling   = renderer.IsCulling() ? 1 : 0;
                 activePrimitiveMeshRenderer_[isCulling][blendIndex].push_back(&renderer);
             }
         }
     };
-    dispatchPrimitive(getComponents<PlaneRenderer>(_entity));
-    dispatchPrimitive(getComponents<RingRenderer>(_entity));
-    dispatchPrimitive(getComponents<BoxRenderer>(_entity));
-    dispatchPrimitive(getComponents<SphereRenderer>(_entity));
-    dispatchPrimitive(getComponents<CylinderRenderer>(_entity));
+    dispatchPrimitive(GetComponents<PlaneRenderer>(_entity));
+    dispatchPrimitive(GetComponents<RingRenderer>(_entity));
+    dispatchPrimitive(GetComponents<BoxRenderer>(_entity));
+    dispatchPrimitive(GetComponents<SphereRenderer>(_entity));
+    dispatchPrimitive(GetComponents<CylinderRenderer>(_entity));
 }
 
 void TexturedMeshRenderSystem::RenderingBy(BlendMode _blendMode, bool _isCulling) {
@@ -108,7 +108,7 @@ void TexturedMeshRenderSystem::RenderingBy(BlendMode _blendMode, bool _isCulling
         return;
     }
 
-    auto commandList  = dxCommand_->getCommandList();
+    auto commandList  = dxCommand_->GetCommandList();
     currentCulling_   = _isCulling;
     currentBlendMode_ = _blendMode;
 
@@ -147,8 +147,8 @@ void TexturedMeshRenderSystem::Finalize() {
 
 void TexturedMeshRenderSystem::CreatePSO() {
 
-    ShaderManager* shaderManager = ShaderManager::getInstance();
-    DxDevice* dxDevice           = Engine::getInstance()->getDxDevice();
+    ShaderManager* shaderManager = ShaderManager::GetInstance();
+    DxDevice* dxDevice           = Engine::GetInstance()->GetDxDevice();
 
     // 登録されているかどうかをチェック
     if (shaderManager->IsRegisteredPipelineStateObj("TextureMesh_" + blendModeStr[0])) {
@@ -158,8 +158,8 @@ void TexturedMeshRenderSystem::CreatePSO() {
                 isAllRegistered = false;
                 continue;
             }
-            psoByBlendMode_[0][i] = shaderManager->getPipelineStateObj("TextureMesh_" + blendModeStr[i]);
-            psoByBlendMode_[1][i] = shaderManager->getPipelineStateObj("CullingTextureMesh_" + blendModeStr[i]);
+            psoByBlendMode_[0][i] = shaderManager->GetPipelineStateObj("TextureMesh_" + blendModeStr[i]);
+            psoByBlendMode_[1][i] = shaderManager->GetPipelineStateObj("CullingTextureMesh_" + blendModeStr[i]);
         }
 
         //! TODO : 自動化
@@ -278,12 +278,12 @@ void TexturedMeshRenderSystem::CreatePSO() {
     spotLightRange[0].RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
     spotLightRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-    texShaderInfo.setDescriptorRange2Parameter(textureRange, 1, textureBufferIndex_);
-    texShaderInfo.setDescriptorRange2Parameter(environmentTextureRange, 1, environmentTextureBufferIndex_);
+    texShaderInfo.SetDescriptorRange2Parameter(textureRange, 1, textureBufferIndex_);
+    texShaderInfo.SetDescriptorRange2Parameter(environmentTextureRange, 1, environmentTextureBufferIndex_);
 
-    texShaderInfo.setDescriptorRange2Parameter(directionalLightRange, 1, directionalLightBufferIndex_);
-    texShaderInfo.setDescriptorRange2Parameter(pointLightRange, 1, pointLightBufferIndex_);
-    texShaderInfo.setDescriptorRange2Parameter(spotLightRange, 1, spotLightBufferIndex_);
+    texShaderInfo.SetDescriptorRange2Parameter(directionalLightRange, 1, directionalLightBufferIndex_);
+    texShaderInfo.SetDescriptorRange2Parameter(pointLightRange, 1, pointLightBufferIndex_);
+    texShaderInfo.SetDescriptorRange2Parameter(spotLightRange, 1, spotLightBufferIndex_);
 #pragma endregion
 
     ///=================================================
@@ -353,18 +353,18 @@ void TexturedMeshRenderSystem::CreatePSO() {
 }
 
 void TexturedMeshRenderSystem::LightUpdate() {
-    auto* directionalLight = getComponentArray<DirectionalLight>();
-    auto* pointLight       = getComponentArray<PointLight>();
-    auto* spotLight        = getComponentArray<SpotLight>();
+    auto* directionalLight = GetComponentArray<DirectionalLight>();
+    auto* pointLight       = GetComponentArray<PointLight>();
+    auto* spotLight        = GetComponentArray<SpotLight>();
 
-    auto* lightManager = LightManager::getInstance();
+    auto* lightManager = LightManager::GetInstance();
 
-    lightManager->clearLights();
+    lightManager->ClearLights();
 
     if (directionalLight) {
-        for (auto& lightVec : directionalLight->getAllComponents()) {
+        for (auto& lightVec : directionalLight->GetAllComponents()) {
             for (auto& light : lightVec) {
-                if (light.isActive()) {
+                if (light.IsActive()) {
                     lightManager->pushDirectionalLight(light);
                 }
             }
@@ -372,9 +372,9 @@ void TexturedMeshRenderSystem::LightUpdate() {
     }
 
     if (pointLight) {
-        for (auto& lightVec : pointLight->getAllComponents()) {
+        for (auto& lightVec : pointLight->GetAllComponents()) {
             for (auto& light : lightVec) {
-                if (light.isActive()) {
+                if (light.IsActive()) {
                     lightManager->pushPointLight(light);
                 }
             }
@@ -382,20 +382,20 @@ void TexturedMeshRenderSystem::LightUpdate() {
     }
 
     if (spotLight) {
-        for (auto& lightVec : spotLight->getAllComponents()) {
+        for (auto& lightVec : spotLight->GetAllComponents()) {
             for (auto& light : lightVec) {
-                if (light.isActive()) {
+                if (light.IsActive()) {
                     lightManager->pushSpotLight(light);
                 }
             }
         }
     }
 
-    LightManager::getInstance()->Update();
+    LightManager::GetInstance()->Update();
 }
 
 void TexturedMeshRenderSystem::StartRender() {
-    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->getCommandList();
+    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->GetCommandList();
 
     int32_t cullingIndex = currentCulling_ ? 1 : 0;
     int32_t blendIndex   = static_cast<int32_t>(currentBlendMode_);
@@ -405,26 +405,26 @@ void TexturedMeshRenderSystem::StartRender() {
     commandList->SetPipelineState(psoByBlendMode_[cullingIndex][blendIndex]->pipelineState.Get());
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
+    ID3D12DescriptorHeap* ppHeaps[] = {Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
 
     // Cameraのセット
-    CameraManager::getInstance()->setBufferForRootParameter(commandList, cameraBufferIndex_);
+    CameraManager::GetInstance()->SetBufferForRootParameter(commandList, cameraBufferIndex_);
 
     // Lightのセット
     LightUpdate();
-    LightManager::getInstance()->SetForRootParameter(
+    LightManager::GetInstance()->SetForRootParameter(
         commandList, lightCountBufferIndex_, directionalLightBufferIndex_, pointLightBufferIndex_, spotLightBufferIndex_);
 
     /// 環境テクスチャ
-    Entity* skyboxEntity = getUniqueEntity("Skybox");
+    Entity* skyboxEntity = GetUniqueEntity("Skybox");
     if (!skyboxEntity) {
         return;
     }
-    SkyboxRenderer* skybox = getComponent<SkyboxRenderer>(skyboxEntity);
+    SkyboxRenderer* skybox = GetComponent<SkyboxRenderer>(skyboxEntity);
     commandList->SetGraphicsRootDescriptorTable(
         environmentTextureBufferIndex_,
-        TextureManager::getDescriptorGpuHandle(skybox->getTextureIndex()));
+        TextureManager::GetDescriptorGpuHandle(skybox->GetTextureIndex()));
 }
 
 void TexturedMeshRenderSystem::RenderingMesh(
@@ -440,8 +440,8 @@ void TexturedMeshRenderSystem::RenderingMesh(
         _textureHandle);
 
     // ============================= Viewのセット ============================= //
-    _commandList->IASetVertexBuffers(0, 1, &_mesh.getVBView());
-    _commandList->IASetIndexBuffer(&_mesh.getIBView());
+    _commandList->IASetVertexBuffers(0, 1, &_mesh.GetVBView());
+    _commandList->IASetIndexBuffer(&_mesh.GetIBView());
 
     // ============================= Transformのセット ============================= //
     _transformBuff->UpdateMatrix();
@@ -454,7 +454,7 @@ void TexturedMeshRenderSystem::RenderingMesh(
     _materialBuff.SetForRootParameter(_commandList, materialBufferIndex_);
 
     // ============================= 描画 ============================= //
-    _commandList->DrawIndexedInstanced(UINT(_mesh.getIndexSize()), 1, 0, 0, 0);
+    _commandList->DrawIndexedInstanced(UINT(_mesh.GetIndexSize()), 1, 0, 0, 0);
 }
 
 void TexturedMeshRenderSystem::RenderingMesh(
@@ -470,8 +470,8 @@ void TexturedMeshRenderSystem::RenderingMesh(
         _textureHandle);
 
     // ============================= Viewのセット ============================= //
-    _commandList->IASetVertexBuffers(0, 1, &_mesh.getVBView());
-    _commandList->IASetIndexBuffer(&_mesh.getIBView());
+    _commandList->IASetVertexBuffers(0, 1, &_mesh.GetVBView());
+    _commandList->IASetIndexBuffer(&_mesh.GetIBView());
 
     // ============================= Transformのセット ============================= //
     _transformBuff->UpdateMatrix();
@@ -482,23 +482,23 @@ void TexturedMeshRenderSystem::RenderingMesh(
     _materialBuff.SetForRootParameter(_commandList, materialBufferIndex_);
 
     // ============================= 描画 ============================= //
-    _commandList->DrawIndexedInstanced(UINT(_mesh.getIndexSize()), 1, 0, 0, 0);
+    _commandList->DrawIndexedInstanced(UINT(_mesh.GetIndexSize()), 1, 0, 0, 0);
 }
 
 void TexturedMeshRenderSystem::RenderModelMesh(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList, ModelMeshRenderer* _renderer) {
     uint32_t index = 0;
 
-    auto& meshGroup = _renderer->getMeshGroup();
+    auto& meshGroup = _renderer->GetMeshGroup();
     for (auto& mesh : *meshGroup) {
-        D3D12_GPU_DESCRIPTOR_HANDLE textureHandle       = TextureManager::getDescriptorGpuHandle(_renderer->getTextureNumber(index));
-        const IConstantBuffer<Transform>& meshTransform = _renderer->getTransformBuff(index);
-        auto& materialBuff                              = _renderer->getMaterialBuff(index);
+        D3D12_GPU_DESCRIPTOR_HANDLE textureHandle       = TextureManager::GetDescriptorGpuHandle(_renderer->GetTextureNumber(index));
+        const IConstantBuffer<Transform>& meshTransform = _renderer->GetTransformBuff(index);
+        auto& materialBuff                              = _renderer->GetMaterialBuff(index);
         Material* material                              = nullptr;
-        int32_t materialIndex                           = _renderer->getMaterialIndex(index);
+        int32_t materialIndex                           = _renderer->GetMaterialIndex(index);
 
         // ============================= Viewのセット ============================= //
-        _commandList->IASetVertexBuffers(0, 1, &mesh.getVBView());
-        _commandList->IASetIndexBuffer(&mesh.getIBView());
+        _commandList->IASetVertexBuffers(0, 1, &mesh.GetVBView());
+        _commandList->IASetIndexBuffer(&mesh.GetIBView());
 
         // ============================= Transformのセット ============================= //
         meshTransform.ConvertToBuffer();
@@ -506,12 +506,12 @@ void TexturedMeshRenderSystem::RenderModelMesh(Microsoft::WRL::ComPtr<ID3D12Grap
 
         // ============================= Materialのセット ============================= //
         if (materialIndex >= 0) {
-            material = getComponent<Material>(_renderer->getHostEntity(), static_cast<uint32_t>(materialIndex));
+            material = GetComponent<Material>(_renderer->GetHostEntity(), static_cast<uint32_t>(materialIndex));
             material->UpdateUvMatrix();
             materialBuff.ConvertToBuffer(*material);
 
             if (material->hasCustomTexture()) {
-                textureHandle = material->getCustomTexture()->srv_.getGpuHandle();
+                textureHandle = material->GetCustomTexture()->srv_.GetGpuHandle();
             }
         }
 
@@ -523,7 +523,7 @@ void TexturedMeshRenderSystem::RenderModelMesh(Microsoft::WRL::ComPtr<ID3D12Grap
             textureBufferIndex_, textureHandle);
 
         // ============================= 描画 ============================= //
-        _commandList->DrawIndexedInstanced(UINT(mesh.getIndexSize()), 1, 0, 0, 0);
+        _commandList->DrawIndexedInstanced(UINT(mesh.GetIndexSize()), 1, 0, 0, 0);
 
         ++index;
     }
@@ -533,21 +533,21 @@ void TexturedMeshRenderSystem::RenderPrimitiveMesh(
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList,
     PrimitiveMeshRendererBase* _renderer) {
 
-    for (const auto& mesh : *_renderer->getMeshGroup()) {
-        D3D12_GPU_DESCRIPTOR_HANDLE textureHandle = TextureManager::getDescriptorGpuHandle(_renderer->getTextureIndex());
+    for (const auto& mesh : *_renderer->GetMeshGroup()) {
+        D3D12_GPU_DESCRIPTOR_HANDLE textureHandle = TextureManager::GetDescriptorGpuHandle(_renderer->GetTextureIndex());
 
-        auto& materialBuff    = _renderer->getMaterialBuff();
+        auto& materialBuff    = _renderer->GetMaterialBuff();
         Material* material    = nullptr;
-        int32_t materialIndex = _renderer->getMaterialIndex();
+        int32_t materialIndex = _renderer->GetMaterialIndex();
         // ============================= Materialのセット ============================= //
         if (materialIndex >= 0) {
-            material = getComponent<Material>(_renderer->getHostEntity(), static_cast<uint32_t>(materialIndex));
+            material = GetComponent<Material>(_renderer->GetHostEntity(), static_cast<uint32_t>(materialIndex));
             if (material) {
                 material->UpdateUvMatrix();
                 materialBuff.ConvertToBuffer(*material);
 
                 if (material->hasCustomTexture()) {
-                    textureHandle = material->getCustomTexture()->srv_.getGpuHandle();
+                    textureHandle = material->GetCustomTexture()->srv_.GetGpuHandle();
                 }
             }
         }
@@ -555,8 +555,8 @@ void TexturedMeshRenderSystem::RenderPrimitiveMesh(
         this->RenderingMesh(
             _commandList,
             mesh,
-            _renderer->getTransformBuff(),
-            _renderer->getMaterialBuff(),
+            _renderer->GetTransformBuff(),
+            _renderer->GetMaterialBuff(),
             textureHandle);
     }
 }
@@ -565,7 +565,7 @@ void TexturedMeshRenderSystem::SettingPSO(BlendMode _blend, bool _isCulling) {
     int32_t cullingIndex = _isCulling ? 1 : 0;
     int32_t blendIndex   = static_cast<int32_t>(_blend);
 
-    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->getCommandList();
+    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->GetCommandList();
     commandList->SetGraphicsRootSignature(psoByBlendMode_[cullingIndex][blendIndex]->rootSignature.Get());
     commandList->SetPipelineState(psoByBlendMode_[cullingIndex][blendIndex]->pipelineState.Get());
 }

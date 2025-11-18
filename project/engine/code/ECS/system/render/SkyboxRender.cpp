@@ -21,16 +21,16 @@ void SkyboxRender::Finalize() {
 }
 
 void SkyboxRender::StartRender() {
-    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->getCommandList();
+    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->GetCommandList();
 
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
+    ID3D12DescriptorHeap* ppHeaps[] = {Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
 }
 
 void SkyboxRender::DispatchRenderer(Entity* _entity) {
-    std::vector<SkyboxRenderer>* renderers = getComponents<SkyboxRenderer>(_entity);
+    std::vector<SkyboxRenderer>* renderers = GetComponents<SkyboxRenderer>(_entity);
     // nullptr なら これ以上存在しないとして終了
     if (!renderers) {
         return;
@@ -38,16 +38,16 @@ void SkyboxRender::DispatchRenderer(Entity* _entity) {
 
     for (auto& renderer : *renderers) {
         // 描画フラグが立っていないならスキップ
-        if (!renderer.isRender()) {
+        if (!renderer.IsRender()) {
             continue;
         }
-        BlendMode rendererBlend = renderer.getCurrentBlend();
+        BlendMode rendererBlend = renderer.GetCurrentBlend();
         rendererByBlendMode_[static_cast<int32_t>(rendererBlend)].push_back(&renderer);
     }
 }
 
 void SkyboxRender::RenderingBy(BlendMode _blendMode, bool /*_isCulling*/) {
-    auto commandList = dxCommand_->getCommandList();
+    auto commandList = dxCommand_->GetCommandList();
     auto& renderers  = rendererByBlendMode_[static_cast<int32_t>(_blendMode)];
     if (renderers.empty()) {
         return;
@@ -60,20 +60,20 @@ void SkyboxRender::RenderingBy(BlendMode _blendMode, bool /*_isCulling*/) {
 
     // 描画
     for (auto renderer : renderers) {
-        auto& mesh = renderer->getMeshGroup()->front();
+        auto& mesh = renderer->GetMeshGroup()->front();
         // ============================= テクスチャの設定 ============================= //
 
         commandList->SetGraphicsRootDescriptorTable(
             2,
-            TextureManager::getDescriptorGpuHandle(renderer->getTextureIndex()));
+            TextureManager::GetDescriptorGpuHandle(renderer->GetTextureIndex()));
 
         // ============================= Viewのセット ============================= //
-        commandList->IASetVertexBuffers(0, 1, &mesh.getVBView());
-        commandList->IASetIndexBuffer(&mesh.getIBView());
+        commandList->IASetVertexBuffers(0, 1, &mesh.GetVBView());
+        commandList->IASetIndexBuffer(&mesh.GetIBView());
 
         // ============================= Transformのセット ============================= //
-        IConstantBuffer<Transform>& meshTransform = renderer->getTransformBuff();
-        const CameraTransform& cameraTransform    = CameraManager::getInstance()->getTransform();
+        IConstantBuffer<Transform>& meshTransform = renderer->GetTransformBuff();
+        const CameraTransform& cameraTransform    = CameraManager::GetInstance()->GetTransform();
         meshTransform->translate                  = cameraTransform.translate;
         meshTransform->UpdateMatrix();
         const Matrix4x4& viewMat = cameraTransform.viewMat;
@@ -83,12 +83,12 @@ void SkyboxRender::RenderingBy(BlendMode _blendMode, bool /*_isCulling*/) {
         meshTransform.SetForRootParameter(commandList, 0);
 
         // ============================= Materialのセット ============================= //
-        auto& material = renderer->getMaterialBuff();
+        auto& material = renderer->GetMaterialBuff();
         material.ConvertToBuffer();
         material.SetForRootParameter(commandList, 1);
 
         // ============================= 描画 ============================= //
-        commandList->DrawIndexedInstanced(UINT(mesh.getIndexSize()), 1, 0, 0, 0);
+        commandList->DrawIndexedInstanced(UINT(mesh.GetIndexSize()), 1, 0, 0, 0);
     }
 
     // 描画後クリア
@@ -106,8 +106,8 @@ bool SkyboxRender::ShouldSkipRender() const {
 
 void SkyboxRender::CreatePSO() {
 
-    ShaderManager* shaderManager = ShaderManager::getInstance();
-    DxDevice* dxDevice           = Engine::getInstance()->getDxDevice();
+    ShaderManager* shaderManager = ShaderManager::GetInstance();
+    DxDevice* dxDevice           = Engine::GetInstance()->GetDxDevice();
 
     // 登録されているかどうかをチェック
     if (shaderManager->IsRegisteredPipelineStateObj("Skybox_" + blendModeStr[0])) {
@@ -115,7 +115,7 @@ void SkyboxRender::CreatePSO() {
             if (psoByBlendMode_[i]) {
                 continue;
             }
-            psoByBlendMode_[i] = shaderManager->getPipelineStateObj("Skybox_" + blendModeStr[i]);
+            psoByBlendMode_[i] = shaderManager->GetPipelineStateObj("Skybox_" + blendModeStr[i]);
         }
         return;
     }
@@ -167,7 +167,7 @@ void SkyboxRender::CreatePSO() {
     // offset を自動計算するように 設定
     descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-    texShaderInfo.setDescriptorRange2Parameter(descriptorRange, 1, rootParameterIndex);
+    texShaderInfo.SetDescriptorRange2Parameter(descriptorRange, 1, rootParameterIndex);
 #pragma endregion
 
     ///=================================================

@@ -62,8 +62,8 @@ AnimationData AnimationManager::LoadGltfAnimationData(const std::string& directo
 
     aiAnimation* animationAssimp = scene->mAnimations[0];
     /// 時間の単位を 秒 に 合わせる
-    // mTicksPerSecond ： 周波数
-    // mDuration      : mTicksPerSecond で 指定された 周波数 における長さ
+    // mTicksPersecond ： 周波数
+    // mDuration      : mTicksPersecond で 指定された 周波数 における長さ
     result.duration = float(animationAssimp->mDuration / animationAssimp->mTicksPerSecond);
 
     ///=============================================
@@ -213,7 +213,7 @@ int AnimationManager::addAnimationData(const std::string& name, std::unique_ptr<
     return animationDataLibrary_[name];
 }
 
-const AnimationData* AnimationManager::getAnimationData(const std::string& name) const {
+const AnimationData* AnimationManager::GetAnimationData(const std::string& name) const {
     auto animationIndex = animationDataLibrary_.find(name);
     if (animationIndex != animationDataLibrary_.end()) {
         return animationData_[animationIndex->second].get();
@@ -222,5 +222,5 @@ const AnimationData* AnimationManager::getAnimationData(const std::string& name)
 }
 
 void AnimationManager::AnimationLoadTask::Update() const {
-    *animationData = AnimationManager::getInstance()->LoadAnimationData(directory, filename);
+    *animationData = AnimationManager::GetInstance()->LoadAnimationData(directory, filename);
 }

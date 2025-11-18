@@ -12,19 +12,19 @@
 #include "component/renderer/primitive/SphereRenderer.h"
 
 void PrimitiveNodeAnimationWorkSystem::UpdateEntity(Entity* _entity) {
-    auto* primitiveNodeAnimation = getComponent<PrimitiveNodeAnimation>(_entity);
+    auto* primitiveNodeAnimation = GetComponent<PrimitiveNodeAnimation>(_entity);
     if (primitiveNodeAnimation == nullptr) {
         return;
     }
-    const float deltaTime = getMainDeltaTime();
+    const float deltaTime = GetMainDeltaTime();
 
-    PrimitiveMeshRendererBase* primitive = getComponent<PlaneRenderer>(_entity);
+    PrimitiveMeshRendererBase* primitive = GetComponent<PlaneRenderer>(_entity);
     if (primitive == nullptr) {
-        primitive = getComponent<SphereRenderer>(_entity);
+        primitive = GetComponent<SphereRenderer>(_entity);
         if (primitive == nullptr) {
-            primitive = getComponent<RingRenderer>(_entity);
+            primitive = GetComponent<RingRenderer>(_entity);
             if (primitive == nullptr) {
-                primitive = getComponent<BoxRenderer>(_entity);
+                primitive = GetComponent<BoxRenderer>(_entity);
                 if (primitive == nullptr) {
                     return; // No primitive renderer found
                 }
@@ -32,5 +32,5 @@ void PrimitiveNodeAnimationWorkSystem::UpdateEntity(Entity* _entity) {
         }
     }
 
-    primitiveNodeAnimation->Update(deltaTime, &primitive->getTransformBuff().openData_);
+    primitiveNodeAnimation->Update(deltaTime, &primitive->GetTransformBuff().openData_);
 }

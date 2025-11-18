@@ -18,7 +18,7 @@ class Entity {
 
 public:
     Entity(const std::string& _dataType, int32_t _id, bool _isUnique = false)
-        : dataType_(_dataType), id_(_id), isAlive_(true), isUnique_(_isUnique) {}
+        : dataType_(_dataType), id_(_id), IsAlive_(true), isUnique_(_isUnique) {}
     Entity() = default;
 
     ~Entity() = default;
@@ -31,53 +31,53 @@ private:
     std::string dataType_ = "UNKNOWN";
 
     int32_t id_      = -1;
-    bool isAlive_    = false;
+    bool IsAlive_    = false;
     bool isUnique_   = false;
-    bool shouldSave_ = true;
+    bool ShouldSave_ = true;
 
 public:
-    bool isAlive() const {
-        return isAlive_;
+    bool IsAlive() const {
+        return IsAlive_;
     }
-    bool isUnique() const {
+    bool IsUnique() const {
         return isUnique_;
     }
 
-    bool shouldSave() const {
-        return shouldSave_;
+    bool ShouldSave() const {
+        return ShouldSave_;
     }
-    void setShouldSave(bool _shouldSave) {
-        shouldSave_ = _shouldSave;
+    void SetShouldSave(bool _ShouldSave) {
+        ShouldSave_ = _ShouldSave;
     }
 
-    void deleteEntity() {
-        isAlive_ = false;
+    void DeleteEntity() {
+        IsAlive_ = false;
     }
 
     /// <summary>
     /// エンティティのIDを取得する
     /// </summary>
-    int32_t getID() const {
+    int32_t GetID() const {
         return id_;
     }
     /// <summary>
     /// エンティティのデータタイプを取得する
     /// </summary>
-    const std::string& getDataType() const {
+    const std::string& GetDataType() const {
         return dataType_;
     }
 
     /// <summary>
     /// エンティティのデータタイプを設定する
     /// </summary>
-    void setDataType(const std::string& _dataType) {
+    void SetDataType(const std::string& _dataType) {
         dataType_ = _dataType;
     }
 
     /// <summary>
     /// エンティティのユニークIDを取得する
     /// </summary>
-    std::string getUniqueID() const {
+    std::string GetUniqueID() const {
         return dataType_ + std::to_string(id_);
     }
 };

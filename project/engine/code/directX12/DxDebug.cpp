@@ -47,7 +47,7 @@ void DxDebug::FinalizeDebugger() {
 void DxDebug::CreateInfoQueue() {
     // ID3D12InfoQueueの取得
     if (debugController_) {
-        const Microsoft::WRL::ComPtr<ID3D12Device>& device = Engine::getInstance()->getDxDevice()->device_;
+        const Microsoft::WRL::ComPtr<ID3D12Device>& device = Engine::GetInstance()->GetDxDevice()->device_;
         HRESULT result                                     = device->QueryInterface(IID_PPV_ARGS(infoQueue_.GetAddressOf()));
 
         if (FAILED(result)) {
@@ -72,7 +72,7 @@ DxDebug::~DxDebug() {
     FinalizeDebugger();
 }
 
-void DxDebug::setDebugMessageSeverity(D3D12_MESSAGE_SEVERITY severity) {
+void DxDebug::SetDebugMessageSeverity(D3D12_MESSAGE_SEVERITY severity) {
     if (infoQueue_) {
         infoQueue_->SetBreakOnSeverity(severity, TRUE);
     }

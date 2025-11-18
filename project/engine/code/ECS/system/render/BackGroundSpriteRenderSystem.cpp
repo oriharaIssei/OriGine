@@ -18,8 +18,8 @@ void BackGroundSpriteRenderSystem::Initialize() {
     BaseRenderSystem::Initialize();
 
     // ViewPortMatの計算
-    WinApp* window = Engine::getInstance()->getWinApp();
-    viewPortMat_   = MakeMatrix::Orthographic(0, 0, (float)window->getWidth(), (float)window->getHeight(), 0.0f, 100.0f);
+    WinApp* window = Engine::GetInstance()->GetWinApp();
+    viewPortMat_   = MakeMatrix::Orthographic(0, 0, (float)window->GetWidth(), (float)window->GetHeight(), 0.0f, 100.0f);
 }
 
 void BackGroundSpriteRenderSystem::Rendering() {
@@ -31,10 +31,10 @@ void BackGroundSpriteRenderSystem::Rendering() {
         renderers_.begin(),
         renderers_.end(),
         [](const SpriteRenderer* a, const SpriteRenderer* b) {
-            return a->getRenderPriority() < b->getRenderPriority();
+            return a->GetRenderPriority() < b->GetRenderPriority();
         });
 
-    auto commandList = dxCommand_->getCommandList();
+    auto commandList = dxCommand_->GetCommandList();
     // blnedModeの設定
     int32_t blendModeIndex = static_cast<int32_t>(BlendMode::Normal);
     commandList->SetGraphicsRootSignature(psoByBlendMode_[blendModeIndex]->rootSignature.Get());
@@ -44,7 +44,7 @@ void BackGroundSpriteRenderSystem::Rendering() {
     for (auto& renderer : renderers_) {
 
         // blendModeごとに変える
-        int32_t newBlendIndex = static_cast<int32_t>(renderer->getCurrentBlend());
+        int32_t newBlendIndex = static_cast<int32_t>(renderer->GetCurrentBlend());
         if (blendModeIndex != newBlendIndex) {
             blendModeIndex = newBlendIndex;
             commandList->SetGraphicsRootSignature(psoByBlendMode_[blendModeIndex]->rootSignature.Get());
@@ -54,15 +54,15 @@ void BackGroundSpriteRenderSystem::Rendering() {
         // Textureの設定
         commandList->SetGraphicsRootDescriptorTable(
             1,
-            TextureManager::getDescriptorGpuHandle(renderer->getTextureNumber()));
+            TextureManager::GetDescriptorGpuHandle(renderer->GetTextureNumber()));
 
         // mesh
-        SpriteMesh& mesh = renderer->getMeshGroup()->at(0);
-        commandList->IASetVertexBuffers(0, 1, &mesh.getVBView());
-        commandList->IASetIndexBuffer(&mesh.getIBView());
+        SpriteMesh& mesh = renderer->GetMeshGroup()->at(0);
+        commandList->IASetVertexBuffers(0, 1, &mesh.GetVBView());
+        commandList->IASetIndexBuffer(&mesh.GetIBView());
 
         // 定数バッファの設定
-        renderer->getSpriteBuff().SetForRootParameter(commandList, 0);
+        renderer->GetSpriteBuff().SetForRootParameter(commandList, 0);
 
         // 描画コマンド
         commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);
@@ -77,12 +77,12 @@ bool BackGroundSpriteRenderSystem::ShouldSkipRender() const {
 }
 
 void BackGroundSpriteRenderSystem::DispatchRenderer(Entity* _entity) {
-    auto spriteRenderer = getComponents<SpriteRenderer>(_entity);
+    auto spriteRenderer = GetComponents<SpriteRenderer>(_entity);
     if (!spriteRenderer) {
         return;
     }
     for (auto& renderer : *spriteRenderer) {
-        if (renderer.isRender()) {
+        if (renderer.IsRender()) {
             return;
         }
 
@@ -97,7 +97,7 @@ void BackGroundSpriteRenderSystem::Finalize() {
 
 void BackGroundSpriteRenderSystem::CreatePSO() {
 
-    ShaderManager* shaderManager = ShaderManager::getInstance();
+    ShaderManager* shaderManager = ShaderManager::GetInstance();
 
     // 登録されているかどうかをチェック
     if (shaderManager->IsRegisteredPipelineStateObj("BackGroundSprite_" + blendModeStr[0])) {
@@ -105,7 +105,7 @@ void BackGroundSpriteRenderSystem::CreatePSO() {
             if (psoByBlendMode_[i]) {
                 continue;
             }
-            psoByBlendMode_[i] = shaderManager->getPipelineStateObj("BackGroundSprite_" + blendModeStr[i]);
+            psoByBlendMode_[i] = shaderManager->GetPipelineStateObj("BackGroundSprite_" + blendModeStr[i]);
         }
         return;
     }
@@ -161,7 +161,7 @@ void BackGroundSpriteRenderSystem::CreatePSO() {
     rootParameters[1].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
     rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
     size_t rootIndex                   = shaderInfo.pushBackRootParameter(rootParameters[1]);
-    shaderInfo.setDescriptorRange2Parameter(&descriptorRange, 1, rootIndex);
+    shaderInfo.SetDescriptorRange2Parameter(&descriptorRange, 1, rootIndex);
 
     ///================================================
     /// InputElement の設定
@@ -190,14 +190,14 @@ void BackGroundSpriteRenderSystem::CreatePSO() {
     for (size_t i = 0; i < kBlendNum; i++) {
         shaderInfo.blendMode_ = static_cast<BlendMode>(i);
 
-        psoByBlendMode_[i] = shaderManager->CreatePso("BackGroundSprite_" + blendModeStr[i], shaderInfo, Engine::getInstance()->getDxDevice()->device_);
+        psoByBlendMode_[i] = shaderManager->CreatePso("BackGroundSprite_" + blendModeStr[i], shaderInfo, Engine::GetInstance()->GetDxDevice()->device_);
     }
 }
 
 void BackGroundSpriteRenderSystem::StartRender() {
-    auto commandList = dxCommand_->getCommandList();
+    auto commandList = dxCommand_->GetCommandList();
 
-    ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
+    ID3D12DescriptorHeap* ppHeaps[] = {Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
-    dxCommand_->getCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    dxCommand_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }

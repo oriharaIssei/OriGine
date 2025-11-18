@@ -6,9 +6,9 @@ namespace Primitive {
 /// Box
 /// =====================================================
 void Box::CreateMesh(TextureMesh* _mesh) {
-    if (_mesh->getIndexCapacity() < indexSize_) {
+    if (_mesh->GetIndexCapacity() < indexSize_) {
         // 必要なら Finalize
-        if (_mesh->getVertexBuffer().getResource()) {
+        if (_mesh->GetVertexBuffer().GetResource()) {
             _mesh->Finalize();
         }
         _mesh->Initialize(vertexSize_, indexSize_);
@@ -70,8 +70,8 @@ void Box::CreateMesh(TextureMesh* _mesh) {
     // right (+X)
     addFace(2,
         Vec3f(maxPos[X], minPos[Y], minPos[Z]),
-        Vec3f(maxPos[X], minPos[Y], maxPos[Z]),
         Vec3f(maxPos[X], maxPos[Y], minPos[Z]),
+        Vec3f(maxPos[X], minPos[Y], maxPos[Z]),
         Vec3f(maxPos[X], maxPos[Y], maxPos[Z]));
 
     // left (-X)
@@ -95,8 +95,8 @@ void Box::CreateMesh(TextureMesh* _mesh) {
         Vec3f(minPos[X], minPos[Y], maxPos[Z]),
         Vec3f(maxPos[X], minPos[Y], maxPos[Z]));
 
-    _mesh->setVertexData(vertices);
-    _mesh->setIndexData(indices);
+    _mesh->SetVertexData(vertices);
+    _mesh->SetIndexData(indices);
 
     _mesh->TransferData();
 }

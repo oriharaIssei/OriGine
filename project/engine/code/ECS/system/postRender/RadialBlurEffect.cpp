@@ -23,7 +23,7 @@ void RadialBlurEffect::Finalize() {
 }
 
 void RadialBlurEffect::CreatePSO() {
-    ShaderManager* shaderManager = ShaderManager::getInstance();
+    ShaderManager* shaderManager = ShaderManager::GetInstance();
     shaderManager->LoadShader("FullScreen.VS");
     shaderManager->LoadShader("RadialBlur.PS", shaderDirectory, L"ps_6_0");
     ShaderInformation shaderInfo{};
@@ -64,7 +64,7 @@ void RadialBlurEffect::CreatePSO() {
     rootParameter[0].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
     rootParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
     size_t rootParameterIndex         = shaderInfo.pushBackRootParameter(rootParameter[0]);
-    shaderInfo.setDescriptorRange2Parameter(descriptorRange, 1, rootParameterIndex);
+    shaderInfo.SetDescriptorRange2Parameter(descriptorRange, 1, rootParameterIndex);
 
     rootParameter[1].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_CBV;
     rootParameter[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
@@ -81,13 +81,13 @@ void RadialBlurEffect::CreatePSO() {
     ///================================================
     D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
     depthStencilDesc.DepthEnable = false;
-    shaderInfo.setDepthStencilDesc(depthStencilDesc);
+    shaderInfo.SetDepthStencilDesc(depthStencilDesc);
 
-    pso_ = shaderManager->CreatePso("RadialBlurEffect", shaderInfo, Engine::getInstance()->getDxDevice()->device_);
+    pso_ = shaderManager->CreatePso("RadialBlurEffect", shaderInfo, Engine::GetInstance()->GetDxDevice()->device_);
 }
 
 void RadialBlurEffect::RenderStart() {
-    auto& commandList = dxCommand_->getCommandList();
+    auto& commandList = dxCommand_->GetCommandList();
 
     renderTarget_->PreDraw();
     renderTarget_->DrawTexture();
@@ -99,10 +99,10 @@ void RadialBlurEffect::RenderStart() {
 
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
+    ID3D12DescriptorHeap* ppHeaps[] = {Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
 
-    commandList->SetGraphicsRootDescriptorTable(0, renderTarget_->getBackBufferSrvHandle());
+    commandList->SetGraphicsRootDescriptorTable(0, renderTarget_->GetBackBufferSrvHandle());
 }
 
 void RadialBlurEffect::Rendering() {
@@ -110,7 +110,7 @@ void RadialBlurEffect::Rendering() {
 
         RenderStart();
 
-        param->getConstantBuffer().SetForRootParameter(dxCommand_->getCommandList(), 1);
+        param->GetConstantBuffer().SetForRootParameter(dxCommand_->GetCommandList(), 1);
 
         RenderEnd();
     }
@@ -123,17 +123,17 @@ void RadialBlurEffect::RenderEnd() {
 }
 
 void RadialBlurEffect::DispatchComponent(Entity* _entity) {
-    auto components = getComponents<RadialBlurParam>(_entity);
+    auto components = GetComponents<RadialBlurParam>(_entity);
     if (!components) {
         return;
     }
 
     // アクティブなコンポーネントだけ登録する
     for (auto& component : *components) {
-        if (!component.isActive()) {
+        if (!component.IsActive()) {
             continue;
         }
-        component.getConstantBuffer().ConvertToBuffer();
+        component.GetConstantBuffer().ConvertToBuffer();
         activeRadialBlurParams_.emplace_back(&component);
     }
 }

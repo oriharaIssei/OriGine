@@ -45,26 +45,26 @@ private:
     AnimationCurve<Quaternion> rotationCurve_; // カメラ回転のアニメーションカーブ
 public:
     bool isPlaying() const { return animationState_.isPlay_; }
-    bool isEnd() const { return animationState_.isEnd_; }
+    bool IsEnd() const { return animationState_.isEnd_; }
 
     bool isLooping() const { return animationState_.isLoop_; }
-    void setIsLoop(bool _isLoop) { animationState_.isLoop_ = _isLoop; }
+    void SetIsLoop(bool _isLoop) { animationState_.isLoop_ = _isLoop; }
 
-    float getDuration() const { return duration_; }
-    void setDuration(float duration) { duration_ = duration; }
-    float getCurrentTime() const { return currentTime_; }
-    void setCurrentTime(float _currentTime) { currentTime_ = _currentTime; }
+    float GetDuration() const { return duration_; }
+    void SetDuration(float duration) { duration_ = duration; }
+    float GetCurrentTime() const { return currentTime_; }
+    void SetCurrentTime(float _currentTime) { currentTime_ = _currentTime; }
 
-    const AnimationCurve<float>& getFovCurve() const { return fovCurve_; }
-    const AnimationCurve<float>& getAspectRatioCurve() const { return aspectRatioCurve_; }
-    const AnimationCurve<float>& getNearZCurve() const { return nearZCurve_; }
-    const AnimationCurve<float>& getFarZCurve() const { return farZCurve_; }
-    const AnimationCurve<Vec3f>& getPositionCurve() const { return positionCurve_; }
-    const AnimationCurve<Quaternion>& getRotationCurve() const { return rotationCurve_; }
-    void setFovCurve(const AnimationCurve<float>& curve) { fovCurve_ = curve; }
-    void setAspectRatioCurve(const AnimationCurve<float>& curve) { aspectRatioCurve_ = curve; }
-    void setNearZCurve(const AnimationCurve<float>& curve) { nearZCurve_ = curve; }
-    void setFarZCurve(const AnimationCurve<float>& curve) { farZCurve_ = curve; }
-    void setPositionCurve(const AnimationCurve<Vec3f>& curve) { positionCurve_ = curve; }
-    void setRotationCurve(const AnimationCurve<Quaternion>& curve) { rotationCurve_ = curve; }
+    const AnimationCurve<float>& GetFovCurve() const { return fovCurve_; }
+    const AnimationCurve<float>& GetAspectRatioCurve() const { return aspectRatioCurve_; }
+    const AnimationCurve<float>& GetNearZCurve() const { return nearZCurve_; }
+    const AnimationCurve<float>& GetFarZCurve() const { return farZCurve_; }
+    const AnimationCurve<Vec3f>& GetPositionCurve() const { return positionCurve_; }
+    const AnimationCurve<Quaternion>& GetRotationCurve() const { return rotationCurve_; }
+    void SetFovCurve(const AnimationCurve<float>& curve) { fovCurve_ = curve; }
+    void SetAspectRatioCurve(const AnimationCurve<float>& curve) { aspectRatioCurve_ = curve; }
+    void SetNearZCurve(const AnimationCurve<float>& curve) { nearZCurve_ = curve; }
+    void SetFarZCurve(const AnimationCurve<float>& curve) { farZCurve_ = curve; }
+    void SetPositionCurve(const AnimationCurve<Vec3f>& curve) { positionCurve_ = curve; }
+    void SetRotationCurve(const AnimationCurve<Quaternion>& curve) { rotationCurve_ = curve; }
 };

@@ -73,7 +73,7 @@ bool DxCommand::CreateCommandQueue(Microsoft::WRL::ComPtr<ID3D12Device> device, 
 };
 
 void DxCommand::Initialize(const std::string& commandListKey, const std::string& commandQueueKey) {
-    Microsoft::WRL::ComPtr<ID3D12Device> device = Engine::getInstance()->getDxDevice()->device_;
+    Microsoft::WRL::ComPtr<ID3D12Device> device = Engine::GetInstance()->GetDxDevice()->device_;
 
     // キーで指定したコマンドリストとコマンドキューを取得または生成
     commandListComboKey_ = commandListKey;
@@ -118,7 +118,7 @@ void DxCommand::Initialize(const std::string& commandListKey, const std::string&
 }
 
 void DxCommand::Initialize(const std::string& commandListKey, const std::string& commandQueueKey, D3D12_COMMAND_LIST_TYPE listType) {
-    Microsoft::WRL::ComPtr<ID3D12Device> device = Engine::getInstance()->getDxDevice()->device_;
+    Microsoft::WRL::ComPtr<ID3D12Device> device = Engine::GetInstance()->GetDxDevice()->device_;
 
     // キーで指定したコマンドリストとコマンドキューを取得または生成
     commandListComboKey_ = commandListKey;
@@ -193,7 +193,8 @@ HRESULT DxCommand::Close() {
       
         OutputDebugStringA("CommandList Close FAILED! ptr=");
         char buf[64];
-        sprintf_s(buf, "%p", commandList_);
+        sprintf_s(buf, "%p", static_cast<void*>(commandList_.Get()));
+
         OutputDebugStringA(buf);
         // 可能なら D3D12/DXGI エラー文字列も出す
         if (commandList_) {
@@ -228,8 +229,8 @@ void DxCommand::ExecuteCommandAndPresent(IDXGISwapChain4* swapChain) {
 
 void DxCommand::ClearTarget(const DxRtvDescriptor& _rtv, const DxDsvDescriptor& _dsv, const Vec4f& _clearColor) {
 
-    D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle           = _dsv.getCpuHandle();
-    D3D12_CPU_DESCRIPTOR_HANDLE backBufferRtvHandle = _rtv.getCpuHandle();
+    D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle           = _dsv.GetCpuHandle();
+    D3D12_CPU_DESCRIPTOR_HANDLE backBufferRtvHandle = _rtv.GetCpuHandle();
 
     commandList_->OMSetRenderTargets(
         1,
@@ -262,7 +263,7 @@ void DxCommand::Finalize() {
         "Finalize DxCommand \n CommandList Key : {} \n CommandQueue Key :{}", commandListComboKey_, commandQueueKey_);
 
     // 参照カウントを取得するための関数
-    auto getRefCount = [](IUnknown* ptr) -> ULONG {
+    auto GetRefCount = [](IUnknown* ptr) -> ULONG {
         if (!ptr) {
             return 0;
         }
@@ -274,9 +275,9 @@ void DxCommand::Finalize() {
     ///=====================================================
     // それぞれの ComPtr の参照カウントを確認
     ///=====================================================
-    ULONG listRefCount      = getRefCount(commandList_.Get());
-    ULONG allocatorRefCount = getRefCount(commandAllocator_.Get());
-    ULONG queueRefCount     = getRefCount(commandQueue_.Get());
+    ULONG listRefCount      = GetRefCount(commandList_.Get());
+    ULONG allocatorRefCount = GetRefCount(commandAllocator_.Get());
+    ULONG queueRefCount     = GetRefCount(commandQueue_.Get());
 
     LOG_DEBUG("CommandList      Name {} RefCount : {}", commandListComboKey_, listRefCount);
     LOG_DEBUG("CommandAllocator Name {} RefCount : {}", commandListComboKey_, allocatorRefCount);
@@ -285,12 +286,12 @@ void DxCommand::Finalize() {
     ///=====================================================
     // それぞれの ComPtr の参照カウントを確認して削除 (＝＝ 2 なのは this + static)
     ///=====================================================
-    if (commandList_ && getRefCount(commandList_.Get()) == 2) {
+    if (commandList_ && GetRefCount(commandList_.Get()) == 2) {
         LOG_DEBUG("Delete CommandList : {}", commandListComboKey_);
         commandListComboMap_.erase(commandListComboKey_);
     }
 
-    if (commandQueue_ && getRefCount(commandQueue_.Get()) == 2) {
+    if (commandQueue_ && GetRefCount(commandQueue_.Get()) == 2) {
         LOG_DEBUG("Delete CommandQueue : {}", commandQueueKey_);
         commandQueueMap_.erase(commandQueueKey_);
     }

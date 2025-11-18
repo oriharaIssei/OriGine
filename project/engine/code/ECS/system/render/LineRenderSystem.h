@@ -28,7 +28,7 @@ public:
     void Initialize() override;
     void Finalize() override;
 
-    void settingPSO(BlendMode _blend);
+    void SettingPSO(BlendMode _blend);
 
     /// <summary>
     /// PSOの作成
@@ -65,7 +65,7 @@ private:
     bool lineIsStrip_ = false;
 
 public:
-    const std::array<PipelineStateObj*, kBlendNum>& getPsoByBlendMode() {
+    const std::array<PipelineStateObj*, kBlendNum>& GetPsoByBlendMode() {
         return psoByBlendMode_;
     }
 };

@@ -15,7 +15,7 @@ class DebugCamera;
 /// </summary>
 class CameraManager{
 public:
-    static CameraManager* getInstance();
+    static CameraManager* GetInstance();
 
     void Initialize();
     void DebugUpdate();
@@ -32,13 +32,13 @@ private:
     IConstantBuffer<CameraTransform> cTransform_;
 
 public:
-    const CameraTransform& getTransform() const { return cTransform_.openData_; }
-    void setTransform(const CameraTransform& transform) { cTransform_.openData_ = transform; }
+    const CameraTransform& GetTransform() const { return cTransform_.openData_; }
+    void SetTransform(const CameraTransform& transform) { cTransform_.openData_ = transform; }
 
     void DataConvertToBuffer() {
         cTransform_.ConvertToBuffer();
     }
-    void setBufferForRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) {
+    void SetBufferForRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) {
         cTransform_.SetForRootParameter(cmdList, rootParameterNum);
     }
 };

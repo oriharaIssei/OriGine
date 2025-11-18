@@ -30,7 +30,7 @@ void from_json(const nlohmann::json& j, GradationTextureComponent& _g) {
 }
 
 void GradationTextureComponent::Initialize(Entity* /*_entity*/) {
-    auto& device = Engine::getInstance()->getDxDevice()->device_;
+    auto& device = Engine::GetInstance()->GetDxDevice()->device_;
     paramBuff_.CreateBuffer(device);
     materialBuff_.CreateBuffer(device);
 
@@ -53,17 +53,17 @@ void GradationTextureComponent::Edit([[maybe_unused]] Scene* _scene, [[maybe_unu
         if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"png"})) {
             auto setPath = std::make_unique<SetterCommand<std::string>>(&texturePath_, kApplicationResourceDirectory + "/" + directory + "/" + fileName);
             CommandCombo commandCombo;
-            commandCombo.addCommand(std::move(setPath));
-            commandCombo.setFuncOnAfterCommand([this]() {
+            commandCombo.AddCommand(std::move(setPath));
+            commandCombo.SetFuncOnAfterCommand([this]() {
                 textureIndex_ = TextureManager::LoadTexture(texturePath_);
             },
                 true);
-            EditorController::getInstance()->pushCommand(std::make_unique<CommandCombo>(commandCombo));
+            EditorController::GetInstance()->PushCommand(std::make_unique<CommandCombo>(commandCombo));
         }
     }
 
     label                      = "MaterialIndex##" + _parentLabel;
-    auto materials             = _scene->getComponents<Material>(_entity);
+    auto materials             = _scene->GetComponents<Material>(_entity);
     int32_t entityMaterialSize = materials != nullptr ? static_cast<int32_t>(materials->size()) : 0;
 
     InputGuiCommand(label, materialIndex_);
@@ -79,7 +79,7 @@ void GradationTextureComponent::Edit([[maybe_unused]] Scene* _scene, [[maybe_unu
     ImGui::SeparatorText("InputColorChannel");
     const char* channelItems[] = {"R", "G", "B", "A"};
     int32_t inputChannel       = static_cast<int32_t>(paramBuff_.openData_.inputChannel);
-    if (ImGui::Combo(("InputChannel##" + _parentLabel).c_str(), &inputChannel, channelItems, IM_ARRAYSIZE(channelItems))) {
+    if (ImGui::Combo(("inputChannel##" + _parentLabel).c_str(), &inputChannel, channelItems, IM_ARRAYSIZE(channelItems))) {
         paramBuff_.openData_.inputChannel = static_cast<ColorChannel>(inputChannel);
     }
     ImGui::SeparatorText("OutputColorChannel");

@@ -89,8 +89,8 @@ void SkyboxRenderer::Initialize(Entity* _hostEntity) {
     }
 
     transformBuff_->Initialize(_hostEntity);
-    transformBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
-    materialBuff_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
+    transformBuff_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
+    materialBuff_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
 }
 
 void SkyboxRenderer::Edit(Scene* /*_scene*/, Entity* /* _entity*/, [[maybe_unused]] const std::string& _parentLabel) {
@@ -104,15 +104,15 @@ void SkyboxRenderer::Edit(Scene* /*_scene*/, Entity* /* _entity*/, [[maybe_unuse
         myfs::selectFileDialog(kApplicationResourceDirectory, directory, filename, {"dds"});
         if (!filename.empty()) {
             auto commandCombo = std::make_unique<CommandCombo>();
-            commandCombo->addCommand(std::make_unique<SetterCommand<std::string>>(&filePath_, kApplicationResourceDirectory + "/" + directory + "/" + filename));
-            commandCombo->setFuncOnAfterCommand(
+            commandCombo->AddCommand(std::make_unique<SetterCommand<std::string>>(&filePath_, kApplicationResourceDirectory + "/" + directory + "/" + filename));
+            commandCombo->SetFuncOnAfterCommand(
                 [this]() {
                     TextureManager::LoadTexture(filePath_, [this](uint32_t _newTextureIndex) {
                         textureIndex_ = _newTextureIndex;
                     });
                 },
                 true);
-            EditorController::getInstance()->pushCommand(std::move(commandCombo));
+            EditorController::GetInstance()->PushCommand(std::move(commandCombo));
         }
     }
 

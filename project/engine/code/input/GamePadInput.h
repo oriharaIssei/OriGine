@@ -83,21 +83,21 @@ public:
     /// <summary>
     /// ボタン状態をクリア
     /// </summary>
-    void clearButtonStates() {
+    void ClearButtonStates() {
         buttonMask_     = 0;
         prevButtonMask_ = 0;
     }
     /// <summary>
     /// スティック状態をクリア
     /// </summary>
-    void clearStickStates() {
+    void ClearStickStates() {
         lStick_ = Vec2f();
         rStick_ = Vec2f();
     }
     /// <summary>
     /// トリガー状態をクリア
     /// </summary>
-    void clearTriggerStates() {
+    void ClearTriggerStates() {
         lTrigger_ = 0.0f;
         rTrigger_ = 0.0f;
     }
@@ -126,45 +126,45 @@ private:
     bool isActive_ = false;
 
 public:
-    uint32_t getButtonMask() const { return buttonMask_; }
-    uint32_t getPrevButtonMask() const { return prevButtonMask_; }
+    uint32_t GetButtonMask() const { return buttonMask_; }
+    uint32_t GetPrevButtonMask() const { return prevButtonMask_; }
 
     /// <summary>
     /// ゲームパッドが有効か
     /// </summary>
-    bool isActive() const { return isActive_; }
+    bool IsActive() const { return isActive_; }
 
     /// <summary>
     /// ボタン押下状態
     /// </summary>
-    bool isPress(uint32_t button) const { return (buttonMask_ & button); }
-    bool isPress(PadButton button) const { return (buttonMask_ & static_cast<uint32_t>(button)); }
+    bool IsPress(uint32_t button) const { return (buttonMask_ & button); }
+    bool IsPress(PadButton button) const { return (buttonMask_ & static_cast<uint32_t>(button)); }
 
     /// <summary>
     /// ボタン押下瞬間
     /// </summary>
-    bool isTrigger(uint32_t button) const { return (buttonMask_ & button) && !(prevButtonMask_ & button); }
-    bool isTrigger(PadButton button) const { return (buttonMask_ & static_cast<uint32_t>(button)) && !(prevButtonMask_ & static_cast<uint32_t>(button)); }
+    bool IsTrigger(uint32_t button) const { return (buttonMask_ & button) && !(prevButtonMask_ & button); }
+    bool IsTrigger(PadButton button) const { return (buttonMask_ & static_cast<uint32_t>(button)) && !(prevButtonMask_ & static_cast<uint32_t>(button)); }
 
     /// <summary>
     /// ボタン解放瞬間
     /// </summary>
-    bool isRelease(uint32_t button) const { return !(buttonMask_ & button) && (prevButtonMask_ & button); }
-    bool isRelease(PadButton button) const { return !(buttonMask_ & static_cast<uint32_t>(button)) && (prevButtonMask_ & static_cast<uint32_t>(button)); }
+    bool IsRelease(uint32_t button) const { return !(buttonMask_ & button) && (prevButtonMask_ & button); }
+    bool IsRelease(PadButton button) const { return !(buttonMask_ & static_cast<uint32_t>(button)) && (prevButtonMask_ & static_cast<uint32_t>(button)); }
 
     /// <summary>
     /// 左スティックの現在速度
     /// </summary>
-    const Vec2f& getLStick() const { return lStick_; }
+    const Vec2f& GetLStick() const { return lStick_; }
 
     /// <summary>
     /// 右スティックの現在速度
     /// </summary>
-    const Vec2f& getRStick() const { return rStick_; }
+    const Vec2f& GetRStick() const { return rStick_; }
 
     /// <summary>
     /// 左右トリガー値
     /// </summary>
-    float getLTrigger() const { return lTrigger_; }
-    float getRTrigger() const { return rTrigger_; }
+    float GetLTrigger() const { return lTrigger_; }
+    float GetRTrigger() const { return rTrigger_; }
 };

@@ -23,7 +23,7 @@ void GrayscaleEffect::Finalize() {
 }
 
 void GrayscaleEffect::CreatePSO() {
-    ShaderManager* shaderManager = ShaderManager::getInstance();
+    ShaderManager* shaderManager = ShaderManager::GetInstance();
     shaderManager->LoadShader("FullScreen.VS");
     shaderManager->LoadShader("Grayscale.PS", shaderDirectory, L"ps_6_0");
     ShaderInformation shaderInfo{};
@@ -64,7 +64,7 @@ void GrayscaleEffect::CreatePSO() {
     rootParameter.ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
     rootParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
     size_t rootParameterIndex      = shaderInfo.pushBackRootParameter(rootParameter);
-    shaderInfo.setDescriptorRange2Parameter(descriptorRange, 1, rootParameterIndex);
+    shaderInfo.SetDescriptorRange2Parameter(descriptorRange, 1, rootParameterIndex);
 
     ///================================================
     /// InputElement の設定
@@ -77,13 +77,13 @@ void GrayscaleEffect::CreatePSO() {
     ///================================================
     D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
     depthStencilDesc.DepthEnable = false;
-    shaderInfo.setDepthStencilDesc(depthStencilDesc);
+    shaderInfo.SetDepthStencilDesc(depthStencilDesc);
 
-    pso_ = shaderManager->CreatePso("GrayscaleEffect", shaderInfo, Engine::getInstance()->getDxDevice()->device_);
+    pso_ = shaderManager->CreatePso("GrayscaleEffect", shaderInfo, Engine::GetInstance()->GetDxDevice()->device_);
 }
 
 void GrayscaleEffect::RenderStart() {
-    auto& commandList = dxCommand_->getCommandList();
+    auto& commandList = dxCommand_->GetCommandList();
 
     // Setting
 
@@ -94,14 +94,14 @@ void GrayscaleEffect::RenderStart() {
     commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
+    ID3D12DescriptorHeap* ppHeaps[] = {Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
 
-    commandList->SetGraphicsRootDescriptorTable(0, renderTarget_->getBackBufferSrvHandle());
+    commandList->SetGraphicsRootDescriptorTable(0, renderTarget_->GetBackBufferSrvHandle());
 }
 
 void GrayscaleEffect::Rendering() {
-    auto& commandList = dxCommand_->getCommandList();
+    auto& commandList = dxCommand_->GetCommandList();
 
     RenderStart();
 

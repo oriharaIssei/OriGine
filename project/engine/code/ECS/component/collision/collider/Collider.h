@@ -51,20 +51,20 @@ protected:
     std::map<int32_t, CollisionState> preCollisionStateMap_;
 
 public: // accessor
-    bool isActive() const { return isActive_; }
-    void setActive(bool _isActive) { isActive_ = _isActive; }
+    bool IsActive() const { return isActive_; }
+    void SetActive(bool _isActive) { isActive_ = _isActive; }
 
-    const Transform& getTransform() const { return transform_; }
-    void setParent(Transform* _trans) { transform_.parent = _trans; }
+    const Transform& GetTransform() const { return transform_; }
+    void SetParent(Transform* _trans) { transform_.parent = _trans; }
 
     // 衝突状態の操作
-    void setCollisionState(int32_t _otherId) {
+    void SetCollisionState(int32_t _otherId) {
         if (this->preCollisionStateMap_[_otherId] == CollisionState::None)
             this->collisionStateMap_[_otherId] = CollisionState::Enter;
         else
             this->collisionStateMap_[_otherId] = CollisionState::Stay;
     }
-    const std::map<int32_t, CollisionState>& getCollisionStateMap() { return collisionStateMap_; }
+    const std::map<int32_t, CollisionState>& GetCollisionStateMap() { return collisionStateMap_; }
 };
 
 template <math::bounds::IsBounds BoundsClass>
@@ -89,9 +89,9 @@ protected:
     BoundsClass worldShape_;
 
 public:
-    const BoundsClass& getLocalShape() { return shape_; }
-    const BoundsClass& getWorldShape() { return worldShape_; }
+    const BoundsClass& GetLocalShape() { return shape_; }
+    const BoundsClass& GetWorldShape() { return worldShape_; }
 
-    BoundsClass* getLocalShapePtr() { return &shape_; }
-    BoundsClass* getWorldShapePtr() { return &worldShape_; }
+    BoundsClass* GetLocalShapePtr() { return &shape_; }
+    BoundsClass* GetWorldShapePtr() { return &worldShape_; }
 };

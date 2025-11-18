@@ -79,7 +79,7 @@ public:
         elementDescs_.push_back(elementDesc);
         return elementDescs_.size() - 1;
     }
-    void setDescriptorRange2Parameter(const D3D12_DESCRIPTOR_RANGE* range, size_t numRanges, size_t rootParameterIndex) {
+    void SetDescriptorRange2Parameter(const D3D12_DESCRIPTOR_RANGE* range, size_t numRanges, size_t rootParameterIndex) {
         // 動的に確保して管理する
         auto ranges = std::make_unique<D3D12_DESCRIPTOR_RANGE[]>(numRanges);
         std::copy(range, range + numRanges, ranges.get());
@@ -101,9 +101,9 @@ public:
     /// </summary>
     /// <returns></returns>
     D3D12_DEPTH_STENCIL_DESC& customDepthStencilDesc() { return depthStencilDesc_; }
-    void setDepthStencilDesc(const D3D12_DEPTH_STENCIL_DESC& desc) { depthStencilDesc_ = desc; }
+    void SetDepthStencilDesc(const D3D12_DEPTH_STENCIL_DESC& desc) { depthStencilDesc_ = desc; }
 
-    void setTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE topology) { topologyType = topology; }
+    void SetTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE topology) { topologyType = topology; }
 };
 using ShaderInfo = ShaderInformation;
 
@@ -112,7 +112,7 @@ using ShaderInfo = ShaderInformation;
 /// </summary>
 class ShaderManager {
 public:
-    static ShaderManager* getInstance() {
+    static ShaderManager* GetInstance() {
         static ShaderManager instance;
         return &instance;
     }
@@ -149,7 +149,7 @@ private:
 
 public:
 
-    ShaderCompiler* getShaderCompiler() const { return shaderCompiler_.get(); }
+    ShaderCompiler* GetShaderCompiler() const { return shaderCompiler_.get(); }
 
     /// <summary>
     /// shaderBlob を 登録されていなければ登録
@@ -166,6 +166,6 @@ public:
     bool IsRegisteredPipelineStateObj(const std::string& key) const {
         return psoMap_.find(key) != psoMap_.end();
     }
-    PipelineStateObj* getPipelineStateObj(const std::string& key);
-    Microsoft::WRL::ComPtr<IDxcBlob>* getShaderBlob(const std::string& key);
+    PipelineStateObj* GetPipelineStateObj(const std::string& key);
+    Microsoft::WRL::ComPtr<IDxcBlob>* GetShaderBlob(const std::string& key);
 };

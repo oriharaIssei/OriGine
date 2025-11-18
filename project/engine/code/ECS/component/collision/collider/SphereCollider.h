@@ -17,13 +17,13 @@ public:
     void CalculateWorldShape() override;
 
 public: // accessor
-    const Vec3f& getLocalCenter() const { return shape_.center_; }
-    void setLocalCenter(const Vec3f& _center) { shape_.center_ = _center; }
-    const float& getLocalRadius() const { return shape_.radius_; }
-    void setLocalRadius(const float& _radius) { shape_.radius_ = _radius; }
+    const Vec3f& GetLocalCenter() const { return shape_.center_; }
+    void SetLocalCenter(const Vec3f& _center) { shape_.center_ = _center; }
+    const float& GetLocalRadius() const { return shape_.radius_; }
+    void SetLocalRadius(const float& _radius) { shape_.radius_ = _radius; }
 
-    const Vec3f& getWorldCenter() const { return worldShape_.center_; }
-    void setWorldCenter(const Vec3f& _center) { worldShape_.center_ = _center; }
-    const float& getWorldRadius() const { return worldShape_.radius_; }
-    void setWorldRadius(const float& _radius) { worldShape_.radius_ = _radius; }
+    const Vec3f& GetWorldCenter() const { return worldShape_.center_; }
+    void SetWorldCenter(const Vec3f& _center) { worldShape_.center_ = _center; }
+    const float& GetWorldRadius() const { return worldShape_.radius_; }
+    void SetWorldRadius(const float& _radius) { worldShape_.radius_ = _radius; }
 };

@@ -9,7 +9,7 @@
 #endif // DEBUG
 
 void SmoothingEffectParam::Initialize(Entity* /*_entity*/) {
-    boxFilterSize_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
+    boxFilterSize_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
 }
 
 void SmoothingEffectParam::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {

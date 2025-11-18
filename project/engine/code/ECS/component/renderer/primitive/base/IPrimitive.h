@@ -25,18 +25,18 @@ private:
     PrimitiveType type_;
 
 public: // accessor
-    PrimitiveType getType() const { return type_; }
+    PrimitiveType GetType() const { return type_; }
 
-    int32_t getVertexSize() const {
+    int32_t GetVertexSize() const {
         return vertexSize_;
     }
-    void setVertexSize(int32_t _size) {
+    void SetVertexSize(int32_t _size) {
         vertexSize_ = _size;
     }
-    int32_t getIndexSize() const {
+    int32_t GetIndexSize() const {
         return indexSize_;
     }
-    void setIndexSize(int32_t _size) {
+    void SetIndexSize(int32_t _size) {
         indexSize_ = _size;
     }
 };

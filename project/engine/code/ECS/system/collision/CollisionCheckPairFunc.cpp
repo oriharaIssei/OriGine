@@ -19,8 +19,8 @@ bool CheckCollisionPair(Entity* _entityA, Entity* _entityB, const math::bounds::
         return true;
     }
 
-    bool aIsPushBack = _bInfo->getPushBackType() != CollisionPushBackType::None;
-    bool bIsPushBack = _aInfo->getPushBackType() != CollisionPushBackType::None;
+    bool aIsPushBack = _bInfo->GetPushBackType() != CollisionPushBackType::None;
+    bool bIsPushBack = _aInfo->GetPushBackType() != CollisionPushBackType::None;
 
     // どちらも押し戻しなら半分ずつ押し戻す
     float overlapRate = 1.f / (static_cast<float>(aIsPushBack) + static_cast<float>(bIsPushBack));
@@ -32,13 +32,13 @@ bool CheckCollisionPair(Entity* _entityA, Entity* _entityB, const math::bounds::
     CollisionPushBackInfo::Info aInfo;
     aInfo.collVec   = collNormal * overlapDistance * overlapRate;
     aInfo.collPoint = _shapeA.center_ + aInfo.collVec.normalize() * _shapeA.radius_;
-    _aInfo->AddCollisionInfo(_entityB->getID(), aInfo);
+    _aInfo->AddCollisionInfo(_entityB->GetID(), aInfo);
 
     // 衝突情報の登録
     CollisionPushBackInfo::Info bInfo;
     bInfo.collVec   = -collNormal * overlapDistance * overlapRate;
     bInfo.collPoint = _shapeB.center_ + bInfo.collVec.normalize() * _shapeB.radius_;
-    _bInfo->AddCollisionInfo(_entityA->getID(), bInfo);
+    _bInfo->AddCollisionInfo(_entityA->GetID(), bInfo);
 
     return true;
 }
@@ -63,8 +63,8 @@ bool CheckCollisionPair(Entity* _aabbEntity, Entity* _sphereEntity, const math::
         return true;
     }
 
-    bool aabbIsPushBack   = _sphereInfo && _sphereInfo->getPushBackType() != CollisionPushBackType::None;
-    bool sphereIsPushBack = _aabbInfo && _aabbInfo->getPushBackType() != CollisionPushBackType::None;
+    bool aabbIsPushBack   = _sphereInfo && _sphereInfo->GetPushBackType() != CollisionPushBackType::None;
+    bool sphereIsPushBack = _aabbInfo && _aabbInfo->GetPushBackType() != CollisionPushBackType::None;
 
     // どちらも押し戻しなら半分ずつ押し戻す
     float overlapRate = 1.f / (float(aabbIsPushBack) + float(sphereIsPushBack));
@@ -74,7 +74,7 @@ bool CheckCollisionPair(Entity* _aabbEntity, Entity* _sphereEntity, const math::
     aInfo.collPoint = _sphere.center_ + closest.normalize() * _sphere.radius_;
     aInfo.collVec   = (distance.normalize() * (_sphere.radius_ - distance.length())) * overlapRate;
 
-    _aabbInfo->AddCollisionInfo(_sphereEntity->getID(), aInfo);
+    _aabbInfo->AddCollisionInfo(_sphereEntity->GetID(), aInfo);
 
     // 衝突法線の計算
     Vec3f normal(0, 0, 0);
@@ -95,7 +95,7 @@ bool CheckCollisionPair(Entity* _aabbEntity, Entity* _sphereEntity, const math::
     bInfo.collPoint = closest;
     bInfo.collVec   = normal * ((_sphere.radius_ - distance.length() * overlapRate));
 
-    _sphereInfo->AddCollisionInfo(_aabbEntity->getID(), bInfo);
+    _sphereInfo->AddCollisionInfo(_aabbEntity->GetID(), bInfo);
 
     return true;
 }
@@ -158,8 +158,8 @@ bool CheckCollisionPair(Entity* _entityA, Entity* _entityB, const math::bounds::
     if (!_aInfo || !_bInfo) {
         return true;
     }
-    bool aIsPushBack = _aInfo->getPushBackType() != CollisionPushBackType::None;
-    bool bIsPushBack = _bInfo->getPushBackType() != CollisionPushBackType::None;
+    bool aIsPushBack = _aInfo->GetPushBackType() != CollisionPushBackType::None;
+    bool bIsPushBack = _bInfo->GetPushBackType() != CollisionPushBackType::None;
 
     // どちらも押し戻しなら半分ずつ押し戻す
     float overlapRate = 1.f / (float(aIsPushBack) + float(bIsPushBack));
@@ -170,12 +170,12 @@ bool CheckCollisionPair(Entity* _entityA, Entity* _entityB, const math::bounds::
     CollisionPushBackInfo::Info aInfo;
     aInfo.collVec   = direction * (length * overlapRate);
     aInfo.collPoint = worldCollPoint;
-    _aInfo->AddCollisionInfo(_entityB->getID(), aInfo);
+    _aInfo->AddCollisionInfo(_entityB->GetID(), aInfo);
 
     CollisionPushBackInfo::Info bInfo;
     bInfo.collVec   = direction * -(length * overlapRate);
     bInfo.collPoint = worldCollPoint;
-    _bInfo->AddCollisionInfo(_entityA->getID(), bInfo);
+    _bInfo->AddCollisionInfo(_entityA->GetID(), bInfo);
 
     return true;
 }
@@ -229,8 +229,8 @@ bool CheckCollisionPair(Entity* _entityA, Entity* _entityB, const math::bounds::
         axis       = Z;
     }
 
-    bool aIsPushBack = _aInfo->getPushBackType() != CollisionPushBackType::None;
-    bool bIsPushBack = _bInfo->getPushBackType() != CollisionPushBackType::None;
+    bool aIsPushBack = _aInfo->GetPushBackType() != CollisionPushBackType::None;
+    bool bIsPushBack = _bInfo->GetPushBackType() != CollisionPushBackType::None;
 
     // どちらも押し戻しなら半分ずつ押し戻す
     float overlapRate = 1.f / (float(aIsPushBack) + float(bIsPushBack));
@@ -261,7 +261,7 @@ bool CheckCollisionPair(Entity* _entityA, Entity* _entityB, const math::bounds::
 
     ainfo.collPoint = collPoint;
 
-    _aInfo->AddCollisionInfo(_entityB->getID(), ainfo);
+    _aInfo->AddCollisionInfo(_entityB->GetID(), ainfo);
 
     // 衝突時の処理
     CollisionPushBackInfo::Info bInfo;
@@ -270,7 +270,7 @@ bool CheckCollisionPair(Entity* _entityA, Entity* _entityB, const math::bounds::
 
     bInfo.collPoint = collPoint;
 
-    _bInfo->AddCollisionInfo(_entityA->getID(), bInfo);
+    _bInfo->AddCollisionInfo(_entityA->GetID(), bInfo);
 
     return true;
 }
@@ -381,20 +381,20 @@ bool CheckCollisionPair(Entity* _entityA, Entity* _entityB, const math::bounds::
     if (!_aInfo || !_bInfo) {
         return true;
     }
-    bool aIsPushBack = _aInfo->getPushBackType() != CollisionPushBackType::None;
-    bool bIsPushBack = _bInfo->getPushBackType() != CollisionPushBackType::None;
+    bool aIsPushBack = _aInfo->GetPushBackType() != CollisionPushBackType::None;
+    bool bIsPushBack = _bInfo->GetPushBackType() != CollisionPushBackType::None;
 
     float overlapRate = 1.f / (float(aIsPushBack) + float(bIsPushBack));
 
     CollisionPushBackInfo::Info ainfo;
     ainfo.collVec   = -collVec * overlapRate;
     ainfo.collPoint = collPoint;
-    _aInfo->AddCollisionInfo(_entityB->getID(), ainfo);
+    _aInfo->AddCollisionInfo(_entityB->GetID(), ainfo);
 
     CollisionPushBackInfo::Info binfo;
     binfo.collVec   = collVec * overlapRate;
     binfo.collPoint = collPoint;
-    _bInfo->AddCollisionInfo(_entityA->getID(), binfo);
+    _bInfo->AddCollisionInfo(_entityA->GetID(), binfo);
 
     return true;
 }

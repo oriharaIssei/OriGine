@@ -17,7 +17,7 @@ private:
     Type type_;
 
 public:
-    Type getType() const { return type_; }
+    Type GetType() const { return type_; }
 };
 
 } // namespace geometry

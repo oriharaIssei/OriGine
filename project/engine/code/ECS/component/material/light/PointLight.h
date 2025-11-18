@@ -59,17 +59,17 @@ public:
     };
 
 public: // access
-    bool isActive() const { return isActive_; }
-    void setActive(bool _isActive) { isActive_ = _isActive; }
+    bool IsActive() const { return isActive_; }
+    void SetActive(bool _isActive) { isActive_ = _isActive; }
 
-    Vec3f getColor() const { return color_; }
-    void setColor(const Vec3f& _color) { color_ = _color; }
-    Vec3f getPos() const { return pos_; }
-    void setPos(const Vec3f& _pos) { pos_ = _pos; }
-    float getIntensity() const { return intensity_; }
-    void setIntensity(float _intensity) { intensity_ = _intensity; }
-    float getRadius() const { return radius_; }
-    void setRadius(float _radius) { radius_ = _radius; }
-    float getDecay() const { return decay_; }
-    void setDecay(float _decay) { decay_ = _decay; }
+    Vec3f GetColor() const { return color_; }
+    void SetColor(const Vec3f& _color) { color_ = _color; }
+    Vec3f GetPos() const { return pos_; }
+    void SetPos(const Vec3f& _pos) { pos_ = _pos; }
+    float GetIntensity() const { return intensity_; }
+    void SetIntensity(float _intensity) { intensity_ = _intensity; }
+    float GetRadius() const { return radius_; }
+    void SetRadius(float _radius) { radius_ = _radius; }
+    float GetDecay() const { return decay_; }
+    void SetDecay(float _decay) { decay_ = _decay; }
 };

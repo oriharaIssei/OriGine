@@ -15,11 +15,11 @@ void Editor::Menu::DrawGui() {
 }
 
 void Editor::Area::DrawGui() {
-    bool isOpen = isOpen_.current();
+    bool isOpen = isOpen_.Current();
 
     if (!isOpen) {
-        isOpen_.set(isOpen);
-        isFocused_.set(ImGui::IsWindowFocused());
+        isOpen_.Set(isOpen);
+        isFocused_.Set(ImGui::IsWindowFocused());
         UpdateFocusAndOpenState();
         return; // ウィンドウが開いていない場合はここで終了
     }
@@ -37,8 +37,8 @@ void Editor::Area::DrawGui() {
         }
     }
 
-    isOpen_.set(isOpen);
-    isFocused_.set(ImGui::IsWindowFocused());
+    isOpen_.Set(isOpen);
+    isFocused_.Set(ImGui::IsWindowFocused());
     UpdateFocusAndOpenState();
     ImGui::End();
 }
@@ -51,34 +51,34 @@ void Editor::Area::Finalize() {
 }
 
 void Editor::Area::UpdateFocusAndOpenState() {
-    if (isOpen_.isChanged()) {
-        if (isOpen_.isTrigger()) {
+    if (isOpen_.IsChanged()) {
+        if (isOpen_.IsTrigger()) {
             auto command = std::make_unique<WindowOpenCommand>(&isOpen_, true);
-            EditorController::getInstance()->pushCommand(std::move(command));
-        } else if (isOpen_.isRelease()) {
+            EditorController::GetInstance()->PushCommand(std::move(command));
+        } else if (isOpen_.IsRelease()) {
             auto command = std::make_unique<WindowOpenCommand>(&isOpen_, false);
-            EditorController::getInstance()->pushCommand(std::move(command));
+            EditorController::GetInstance()->PushCommand(std::move(command));
         }
     }
 }
 
 void Editor::Window::UpdateFocusAndOpenState() {
-    if (isFocused_.isChanged()) {
-        if (isFocused_.isTrigger()) {
+    if (isFocused_.IsChanged()) {
+        if (isFocused_.IsTrigger()) {
             auto command = std::make_unique<WindowFocusCommand>(title_, &isFocused_, true);
-            EditorController::getInstance()->pushCommand(std::move(command));
-        } else if (isFocused_.isRelease()) {
+            EditorController::GetInstance()->PushCommand(std::move(command));
+        } else if (isFocused_.IsRelease()) {
             auto command = std::make_unique<WindowFocusCommand>(title_, &isFocused_, false);
-            EditorController::getInstance()->pushCommand(std::move(command));
+            EditorController::GetInstance()->PushCommand(std::move(command));
         }
     }
-    if (isOpen_.isChanged()) {
-        if (isOpen_.isTrigger()) {
+    if (isOpen_.IsChanged()) {
+        if (isOpen_.IsTrigger()) {
             auto command = std::make_unique<WindowOpenCommand>(&isOpen_, true);
-            EditorController::getInstance()->pushCommand(std::move(command));
-        } else if (isOpen_.isRelease()) {
+            EditorController::GetInstance()->PushCommand(std::move(command));
+        } else if (isOpen_.IsRelease()) {
             auto command = std::make_unique<WindowOpenCommand>(&isOpen_, false);
-            EditorController::getInstance()->pushCommand(std::move(command));
+            EditorController::GetInstance()->PushCommand(std::move(command));
         }
     }
 }
@@ -99,7 +99,7 @@ void Editor::Window::DrawGui() {
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
     ImGui::PopStyleVar(2);
 
-    bool isOpen = isOpen_.current();
+    bool isOpen = isOpen_.Current();
     if (!isOpen) {
         return; // ウィンドウが開いていない場合はここで終了
     }
@@ -118,7 +118,7 @@ void Editor::Window::DrawGui() {
         if (ImGui::BeginMenuBar()) {
             for (auto& [name, menu] : menus_) {
                 if (menu && ImGui::BeginMenu(name.c_str())) {
-                    menu->setOpen(true);
+                    menu->SetOpen(true);
                     menu->DrawGui();
                     ImGui::EndMenu();
                 }
@@ -135,8 +135,8 @@ void Editor::Window::DrawGui() {
         }
     }
 
-    isOpen_.set(isOpen);
-    isFocused_.set(ImGui::IsWindowFocused());
+    isOpen_.Set(isOpen);
+    isFocused_.Set(ImGui::IsWindowFocused());
     UpdateFocusAndOpenState();
 
     ImGui::End();
@@ -158,12 +158,12 @@ void Editor::Window::Finalize() {
 
 void Editor::Window::WindowOpenMassage() {
     auto command = std::make_unique<WindowOpenCommand>(&isOpen_, true);
-    EditorController::getInstance()->pushCommand(std::move(command));
+    EditorController::GetInstance()->PushCommand(std::move(command));
 }
 
 void Editor::Window::WindowCloseMassage() {
     auto command = std::make_unique<WindowOpenCommand>(&isOpen_, false);
-    EditorController::getInstance()->pushCommand(std::move(command));
+    EditorController::GetInstance()->PushCommand(std::move(command));
 }
 
 void Editor::Menu::Finalize() {
@@ -199,8 +199,8 @@ void WindowOpenCommand::Execute() {
         LOG_ERROR("WindowOpenCommand: Window is null.");
         return;
     }
-    windowOpenState_->set(to_);
-    windowOpenState_->sync();
+    windowOpenState_->Set(to_);
+    windowOpenState_->Sync();
 }
 
 void WindowOpenCommand::Undo() {
@@ -208,8 +208,8 @@ void WindowOpenCommand::Undo() {
         LOG_ERROR("WindowOpenCommand: Window is null.");
         return;
     }
-    windowOpenState_->set(!to_);
-    windowOpenState_->sync();
+    windowOpenState_->Set(!to_);
+    windowOpenState_->Sync();
 }
 
 WindowFocusCommand::WindowFocusCommand(
@@ -224,8 +224,8 @@ void WindowFocusCommand::Execute() {
         return;
     }
     // ウィンドウのフォーカス状態を設定
-    windowOpenState_->set(to_);
-    windowOpenState_->sync();
+    windowOpenState_->Set(to_);
+    windowOpenState_->Sync();
 }
 
 void WindowFocusCommand::Undo() {
@@ -234,8 +234,8 @@ void WindowFocusCommand::Undo() {
         return;
     }
     // ウィンドウのフォーカス状態を元に戻す
-    windowOpenState_->set(!to_);
-    windowOpenState_->sync();
+    windowOpenState_->Set(!to_);
+    windowOpenState_->Sync();
 }
 
 #endif // DEBUG

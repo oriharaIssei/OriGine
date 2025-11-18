@@ -72,8 +72,8 @@ private:
     std::filesystem::file_time_type lastWriteTime_;
 
 public:
-    const std::string& getFilePath() const { return filePath_; }
-    void setFilePath(const std::string& _filePath) {
+    const std::string& GetFilePath() const { return filePath_; }
+    void SetFilePath(const std::string& _filePath) {
         filePath_      = _filePath;
         lastWriteTime_ = std::filesystem::last_write_time(filePath_);
     }

@@ -32,7 +32,7 @@ public:
     /// </summary>
     /// <param name="directory"></param>
     /// <param name="fileName"></param>
-    void addLoad(const std::string& directory, const std::string& fileName);
+    void AddLoad(const std::string& directory, const std::string& fileName);
 
     /// <summary>
     /// currentAnimationIndex_ のアニメーションを再生する
@@ -115,22 +115,22 @@ private:
     Skeleton skeleton_;
 
 public:
-    const std::vector<AnimationCombo>& getAnimationTable() const {
+    const std::vector<AnimationCombo>& GetAnimationTable() const {
         return animationTable_;
     }
-    const std::unordered_map<std::string, int32_t>& getAnimationIndexBinder() const {
+    const std::unordered_map<std::string, int32_t>& GetAnimationIndexBinder() const {
         return animationIndexBinder_;
     }
 
-    const std::vector<UavBuffer>& getSkinnedVertexBuffers() const {
+    const std::vector<UavBuffer>& GetSkinnedVertexBuffers() const {
         return skinnedVertexBuffer_;
     }
 
-    const UavBuffer& getSkinnedVertexBuffer(int32_t index) const {
+    const UavBuffer& GetSkinnedVertexBuffer(int32_t index) const {
         return skinnedVertexBuffer_.at(index);
     }
 
-    int32_t getAnimationIndex(const std::string& name) const {
+    int32_t GetAnimationIndex(const std::string& name) const {
         auto it = animationIndexBinder_.find(name);
         if (it != animationIndexBinder_.end()) {
             return it->second;
@@ -138,29 +138,29 @@ public:
         return -1;
     }
 
-    bool isTransitioning() const {
+    bool IsTransitioning() const {
         return blendingAnimationData_.has_value();
     }
-    int32_t getNextAnimationIndex() const {
+    int32_t GetNextAnimationIndex() const {
         return blendingAnimationData_.has_value() ? blendingAnimationData_->targetAnimationIndex_ : -1;
     }
-    float getBlendTime() const {
+    float GetBlendTime() const {
         return blendingAnimationData_.has_value() ? blendingAnimationData_->blendDuration_ : 0.0f;
     }
-    void setBlendTime(float time) {
+    void SetBlendTime(float time) {
         if (blendingAnimationData_.has_value()) {
             blendingAnimationData_->blendDuration_ = time;
         }
     }
-    float getBlendCurrentTime() const {
+    float GetBlendCurrentTime() const {
         return blendingAnimationData_.has_value() ? blendingAnimationData_->currentTime_ : 0.0f;
     }
-    void setBlendCurrentTime(float time) {
+    void SetBlendCurrentTime(float time) {
         if (blendingAnimationData_.has_value()) {
             blendingAnimationData_->currentTime_ = time;
         }
     }
-    void endTransition() {
+    void EndTransition() {
         if (!blendingAnimationData_.has_value()) {
             LOG_WARN("No blending animation data to end.");
             return;
@@ -172,45 +172,45 @@ public:
         blendingAnimationData_ = std::nullopt; // トランジションを終了
     }
 
-    int32_t getCurrentAnimationIndex() const {
+    int32_t GetCurrentAnimationIndex() const {
         return currentAnimationIndex_;
     }
-    void setCurrentAnimationIndex(int32_t index) {
+    void SetCurrentAnimationIndex(int32_t index) {
         if (index >= 0 && index < static_cast<int32_t>(animationTable_.size())) {
             currentAnimationIndex_ = index;
         }
     }
 
-    const std::string& getDirectory(int32_t _animationIndex = 0) const { return animationTable_[_animationIndex].directory_; }
-    const std::string& getFileName(int32_t _animationIndex = 0) const { return animationTable_[_animationIndex].fileName_; }
-    const std::shared_ptr<AnimationData>& getAnimationData(int32_t _animationIndex = 0) const { return animationTable_[_animationIndex].animationData_; }
-    const Skeleton& getSkeleton() const {
+    const std::string& GetDirectory(int32_t _animationIndex = 0) const { return animationTable_[_animationIndex].directory_; }
+    const std::string& GetFileName(int32_t _animationIndex = 0) const { return animationTable_[_animationIndex].fileName_; }
+    const std::shared_ptr<AnimationData>& GetAnimationData(int32_t _animationIndex = 0) const { return animationTable_[_animationIndex].animationData_; }
+    const Skeleton& GetSkeleton() const {
         return skeleton_;
     }
-    Skeleton& getSkeletonRef() { return skeleton_; }
+    Skeleton& GetSkeletonRef() { return skeleton_; }
 
-    bool isPlay(int32_t _animationIndex = 0) const { return animationTable_[_animationIndex].animationState_.isPlay_; }
-    bool isLoop(int32_t _animationIndex = 0) const { return animationTable_[_animationIndex].animationState_.isLoop_; }
-    bool isEnd(int32_t _animationIndex = 0) const { return animationTable_[_animationIndex].animationState_.isEnd_; }
-    void setIsPlay(int32_t _animationIndex = 0, bool isPlay = false) { animationTable_[_animationIndex].animationState_.isPlay_ = isPlay; }
-    void setIsLoop(int32_t _animationIndex = 0, bool isLoop = false) { animationTable_[_animationIndex].animationState_.isLoop_ = isLoop; }
-    void setIsEnd(int32_t _animationIndex = 0, bool isEnd = false) { animationTable_[_animationIndex].animationState_.isEnd_ = isEnd; }
+    bool IsPlay(int32_t _animationIndex = 0) const { return animationTable_[_animationIndex].animationState_.isPlay_; }
+    bool IsLoop(int32_t _animationIndex = 0) const { return animationTable_[_animationIndex].animationState_.isLoop_; }
+    bool IsEnd(int32_t _animationIndex = 0) const { return animationTable_[_animationIndex].animationState_.isEnd_; }
+    void SetIsPlay(int32_t _animationIndex = 0, bool isPlay = false) { animationTable_[_animationIndex].animationState_.isPlay_ = isPlay; }
+    void SetIsLoop(int32_t _animationIndex = 0, bool isLoop = false) { animationTable_[_animationIndex].animationState_.isLoop_ = isLoop; }
+    void SetIsEnd(int32_t _animationIndex = 0, bool isEnd = false) { animationTable_[_animationIndex].animationState_.isEnd_ = isEnd; }
 
-    bool isPrePlay(int32_t _animationIndex = 0) const { return animationTable_[_animationIndex].prePlay_; }
-    void setIsPrePlay(int32_t _animationIndex = 0, bool isPlay = false) { animationTable_[_animationIndex].prePlay_ = isPlay; }
+    bool IsPrePlay(int32_t _animationIndex = 0) const { return animationTable_[_animationIndex].prePlay_; }
+    void SetIsPrePlay(int32_t _animationIndex = 0, bool isPlay = false) { animationTable_[_animationIndex].prePlay_ = isPlay; }
 
-    int32_t getBindModeMeshRendererIndex() const { return bindModeMeshRendererIndex_; }
-    void setBindModeMeshRendererIndex(int32_t index) { bindModeMeshRendererIndex_ = index; }
+    int32_t GetBindModeMeshRendererIndex() const { return bindModeMeshRendererIndex_; }
+    void SetBindModeMeshRendererIndex(int32_t index) { bindModeMeshRendererIndex_ = index; }
 
-    float getDuration(int32_t _animationIndex = 0) const { return animationTable_[_animationIndex].duration_; }
-    float getCurrentTime(int32_t _animationIndex = 0) const { return animationTable_[_animationIndex].currentTime_; }
-    float getPlaybackSpeed(int32_t _animationIndex = 0) const { return animationTable_[_animationIndex].playbackSpeed_; }
-    void setDuration(int32_t _animationIndex = 0, float duration = 1.f) { animationTable_[_animationIndex].duration_ = duration; }
-    void setCurrentTime(int32_t _animationIndex = 0, float time = 0.f) { animationTable_[_animationIndex].currentTime_ = time; }
-    void setPlaybackSpeed(int32_t _animationIndex = 0, float speed = 1.f) { animationTable_[_animationIndex].playbackSpeed_ = speed; }
+    float GetAnimationDuration(int32_t _animationIndex = 0) const { return animationTable_[_animationIndex].duration_; }
+    float GetAnimationCurrentTime(int32_t _animationIndex = 0) const { return animationTable_[_animationIndex].currentTime_; }
+    float GetPlaybackSpeed(int32_t _animationIndex = 0) const { return animationTable_[_animationIndex].playbackSpeed_; }
+    void SetAnimationDuration(int32_t _animationIndex = 0, float duration = 1.f) { animationTable_[_animationIndex].duration_ = duration; }
+    void SetAnimationCurrentTime(int32_t _animationIndex = 0, float time = 0.f) { animationTable_[_animationIndex].currentTime_ = time; }
+    void SetPlaybackSpeed(int32_t _animationIndex = 0, float speed = 1.f) { animationTable_[_animationIndex].playbackSpeed_ = speed; }
 
-    const std::string& getDirectory(const std::string& name) const {
-        int32_t idx = getAnimationIndex(name);
+    const std::string& GetDirectory(const std::string& name) const {
+        int32_t idx = GetAnimationIndex(name);
         if (idx >= 0 && idx < static_cast<int32_t>(animationTable_.size())) {
             return animationTable_[idx].directory_;
         }
@@ -218,8 +218,8 @@ public:
         return empty;
     }
 
-    const std::string& getFileName(const std::string& name) const {
-        int32_t idx = getAnimationIndex(name);
+    const std::string& GetFileName(const std::string& name) const {
+        int32_t idx = GetAnimationIndex(name);
         if (idx >= 0 && idx < static_cast<int32_t>(animationTable_.size())) {
             return animationTable_[idx].fileName_;
         }
@@ -227,8 +227,8 @@ public:
         return empty;
     }
 
-    const std::shared_ptr<AnimationData>& getAnimationData(const std::string& name) const {
-        int32_t idx = getAnimationIndex(name);
+    const std::shared_ptr<AnimationData>& GetAnimationData(const std::string& name) const {
+        int32_t idx = GetAnimationIndex(name);
         if (idx >= 0 && idx < static_cast<int32_t>(animationTable_.size())) {
             return animationTable_[idx].animationData_;
         }
@@ -236,64 +236,64 @@ public:
         return nullData;
     }
 
-    bool isPlay(const std::string& name) const {
-        int32_t idx = getAnimationIndex(name);
+    bool IsPlay(const std::string& name) const {
+        int32_t idx = GetAnimationIndex(name);
         return (idx >= 0 && idx < static_cast<int32_t>(animationTable_.size())) ? animationTable_[idx].animationState_.isPlay_ : false;
     }
-    bool isLoop(const std::string& name) const {
-        int32_t idx = getAnimationIndex(name);
+    bool IsLoop(const std::string& name) const {
+        int32_t idx = GetAnimationIndex(name);
         return (idx >= 0 && idx < static_cast<int32_t>(animationTable_.size())) ? animationTable_[idx].animationState_.isLoop_ : false;
     }
-    bool isEnd(const std::string& name) const {
-        int32_t idx = getAnimationIndex(name);
+    bool IsEnd(const std::string& name) const {
+        int32_t idx = GetAnimationIndex(name);
         return (idx >= 0 && idx < static_cast<int32_t>(animationTable_.size())) ? animationTable_[idx].animationState_.isEnd_ : false;
     }
 
-    void setIsPlay(const std::string& name, bool isPlay) {
-        int32_t idx = getAnimationIndex(name);
+    void SetIsPlay(const std::string& name, bool isPlay) {
+        int32_t idx = GetAnimationIndex(name);
         if (idx >= 0 && idx < static_cast<int32_t>(animationTable_.size())) {
             animationTable_[idx].animationState_.isPlay_ = isPlay;
         }
     }
-    void setIsLoop(const std::string& name, bool isLoop) {
-        int32_t idx = getAnimationIndex(name);
+    void SetIsLoop(const std::string& name, bool isLoop) {
+        int32_t idx = GetAnimationIndex(name);
         if (idx >= 0 && idx < static_cast<int32_t>(animationTable_.size())) {
             animationTable_[idx].animationState_.isLoop_ = isLoop;
         }
     }
-    void setIsEnd(const std::string& name, bool isEnd) {
-        int32_t idx = getAnimationIndex(name);
+    void SetIsEnd(const std::string& name, bool isEnd) {
+        int32_t idx = GetAnimationIndex(name);
         if (idx >= 0 && idx < static_cast<int32_t>(animationTable_.size())) {
             animationTable_[idx].animationState_.isEnd_ = isEnd;
         }
     }
 
-    float getDuration(const std::string& name) const {
-        int32_t idx = getAnimationIndex(name);
+    float GetAnimationDuration(const std::string& name) const {
+        int32_t idx = GetAnimationIndex(name);
         return (idx >= 0 && idx < static_cast<int32_t>(animationTable_.size())) ? animationTable_[idx].duration_ : 0.0f;
     }
-    float getCurrentTime(const std::string& name) const {
-        int32_t idx = getAnimationIndex(name);
+    float GetAnimationCurrentTime(const std::string& name) const {
+        int32_t idx = GetAnimationIndex(name);
         return (idx >= 0 && idx < static_cast<int32_t>(animationTable_.size())) ? animationTable_[idx].currentTime_ : 0.0f;
     }
-    float getPlaybackSpeed(const std::string& name) const {
-        int32_t idx = getAnimationIndex(name);
+    float GetPlaybackSpeed(const std::string& name) const {
+        int32_t idx = GetAnimationIndex(name);
         return (idx >= 0 && idx < static_cast<int32_t>(animationTable_.size())) ? animationTable_[idx].playbackSpeed_ : 1.0f;
     }
-    void setDuration(const std::string& name, float duration) {
-        int32_t idx = getAnimationIndex(name);
+    void SetAnimationDuration(const std::string& name, float duration) {
+        int32_t idx = GetAnimationIndex(name);
         if (idx >= 0 && idx < static_cast<int32_t>(animationTable_.size())) {
             animationTable_[idx].duration_ = duration;
         }
     }
-    void setCurrentTime(const std::string& name, float time) {
-        int32_t idx = getAnimationIndex(name);
+    void SetAnimationCurrentTime(const std::string& name, float time) {
+        int32_t idx = GetAnimationIndex(name);
         if (idx >= 0 && idx < static_cast<int32_t>(animationTable_.size())) {
             animationTable_[idx].currentTime_ = time;
         }
     }
-    void setPlaybackSpeed(const std::string& name, float speed) {
-        int32_t idx = getAnimationIndex(name);
+    void SetPlaybackSpeed(const std::string& name, float speed) {
+        int32_t idx = GetAnimationIndex(name);
         if (idx >= 0 && idx < static_cast<int32_t>(animationTable_.size())) {
             animationTable_[idx].playbackSpeed_ = speed;
         }

@@ -67,32 +67,32 @@ protected:
     bool isActive_ = false;
 
 public:
-    bool isActive() const { return isActive_; }
-    void setActive(bool _isActive) { isActive_ = _isActive; }
+    bool IsActive() const { return isActive_; }
+    void SetActive(bool _isActive) { isActive_ = _isActive; }
 
-    SceneManager* getSceneManager() const { return sceneManager_; }
-    void setSceneManager(SceneManager* _sceneManager) { sceneManager_ = _sceneManager; }
+    SceneManager* GetSceneManager() const { return sceneManager_; }
+    void SetSceneManager(SceneManager* _sceneManager) { sceneManager_ = _sceneManager; }
 
-    KeyboardInput* getKeyboardInput() const { return keyInput_; }
-    MouseInput* getMouseInput() const { return mouseInput_; }
-    GamePadInput* getGamePadInput() const { return padInput_; }
-    void setInputDevices(KeyboardInput* _keyInput, MouseInput* _mouseInput, GamePadInput* _padInput) {
+    KeyboardInput* GetKeyboardInput() const { return keyInput_; }
+    MouseInput* GetMouseInput() const { return mouseInput_; }
+    GamePadInput* GetGamePadInput() const { return padInput_; }
+    void SetInputDevices(KeyboardInput* _keyInput, MouseInput* _mouseInput, GamePadInput* _padInput) {
         keyInput_   = _keyInput;
         mouseInput_ = _mouseInput;
         padInput_   = _padInput;
     }
 
-    const std::string& getName() const { return name_; }
-    RenderTexture* getSceneView() const { return sceneView_.get(); }
+    const std::string& GetName() const { return name_; }
+    RenderTexture* GetSceneView() const { return sceneView_.get(); }
 
-    const EntityRepository* getEntityRepository() const;
-    EntityRepository* getEntityRepositoryRef();
+    const EntityRepository* GetEntityRepository() const;
+    EntityRepository* GetEntityRepositoryRef();
 
-    const ComponentRepository* getComponentRepository() const;
-    ComponentRepository* getComponentRepositoryRef();
+    const ComponentRepository* GetComponentRepository() const;
+    ComponentRepository* GetComponentRepositoryRef();
 
-    const SystemRunner* getSystemRunner() const;
-    SystemRunner* getSystemRunnerRef();
+    const SystemRunner* GetSystemRunner() const;
+    SystemRunner* GetSystemRunnerRef();
 
     /// <summary>
     /// __推奨__
@@ -104,82 +104,82 @@ public:
     /// __非推奨__
     /// エンティティを即時削除する
     /// </summary>
-    void deleteEntity(int32_t entityId);
+    void DeleteEntity(int32_t entityId);
 
     /// ==========================================
     // Entity 関係
     /// ==========================================
-    int32_t getActiveEntityCount() const {
-        return entityRepository_->getActiveEntityCount();
+    int32_t GetActiveEntityCount() const {
+        return entityRepository_->GetActiveEntityCount();
     }
-    int32_t getInactiveEntityCount() const {
-        return entityRepository_->getInactiveEntityCount();
+    int32_t GetInactiveEntityCount() const {
+        return entityRepository_->GetInactiveEntityCount();
     }
 
-    Entity* getEntity(int32_t entityId) const;
-    Entity* getUniqueEntity(const std::string& _dataType) const;
+    Entity* GetEntity(int32_t entityId) const;
+    Entity* GetUniqueEntity(const std::string& _dataType) const;
 
     /// ==========================================
     // Component 関係
     /// =========================================
     template <IsComponent ComponentType>
-    ComponentType* getComponent(Entity* _entity, uint32_t index = 0) const;
+    ComponentType* GetComponent(Entity* _entity, uint32_t index = 0) const;
     template <IsComponent ComponentType>
-    ComponentType* getComponent(int32_t entityId, uint32_t index = 0) const;
+    ComponentType* GetComponent(int32_t entityId, uint32_t index = 0) const;
     template <IsComponent ComponentType>
-    std::vector<ComponentType>* getComponents(Entity* _entity) const {
-        return componentRepository_->getComponents<ComponentType>(_entity);
+    std::vector<ComponentType>* GetComponents(Entity* _entity) const {
+        return componentRepository_->GetComponents<ComponentType>(_entity);
     }
     template <IsComponent ComponentType>
-    std::vector<ComponentType>* getComponents(int32_t entityId) const;
+    std::vector<ComponentType>* GetComponents(int32_t entityId) const;
 
-    IComponentArray* getComponentArray(const std::string& componentTypeName) const {
-        return componentRepository_->getComponentArray(componentTypeName);
+    IComponentArray* GetComponentArray(const std::string& componentTypeName) const {
+        return componentRepository_->GetComponentArray(componentTypeName);
     }
 
-    bool addComponent(const std::string& _compTypeName, int32_t _entityId, bool _doInitialize = true);
-    bool removeComponent(const std::string& _compTypeName, int32_t _entityId, int32_t _componentIndex = 0);
+    bool AddComponent(const std::string& _compTypeName, int32_t _entityId, bool _doInitialize = true);
+    bool RemoveComponent(const std::string& _compTypeName, int32_t _entityId, int32_t _componentIndex = 0);
 
     template <IsComponent ComponentType>
-    ComponentArray<ComponentType>* getComponentArray() const {
-        return componentRepository_->getComponentArray<ComponentType>();
+    ComponentArray<ComponentType>* GetComponentArray() const {
+        return componentRepository_->GetComponentArray<ComponentType>();
     }
 
     /// ==========================================
     // System 関係
     /// ==========================================
 
-    ISystem* getSystem(const std::string& _systemTypeName) const;
+    ISystem* GetSystem(const std::string& _systemTypeName) const;
 
     bool registerSystem(const std::string& _systemTypeName, int32_t _priority = 0, bool _activity = true);
     bool unregisterSystem(const std::string& _systemTypeName);
 };
 
 template <IsComponent ComponentType>
-inline ComponentType* Scene::getComponent(Entity* _entity, uint32_t index) const {
+inline ComponentType* Scene::GetComponent(Entity* _entity, uint32_t index) const {
     if (!_entity) {
         LOG_ERROR("Entity is null. EntityName :{}", nameof<ComponentType>());
         return nullptr;
     }
-    return componentRepository_->getComponent<ComponentType>(_entity, index);
+    return componentRepository_->GetComponent<ComponentType>(_entity, index);
 }
 
 template <IsComponent ComponentType>
-inline ComponentType* Scene::getComponent(int32_t entityId, uint32_t index) const {
-    Entity* entity = entityRepository_->getEntity(entityId);
+inline ComponentType* Scene::GetComponent(int32_t entityId, uint32_t index) const {
+    Entity* entity = entityRepository_->GetEntity(entityId);
     if (!entity) {
         LOG_ERROR("Entity with ID {} not found.", entityId);
         return nullptr;
     }
-    return componentRepository_->getComponent<ComponentType>(entity, index);
+    return componentRepository_->GetComponent<ComponentType>(entity, index);
 }
 
 template <IsComponent ComponentType>
-inline std::vector<ComponentType>* Scene::getComponents(int32_t entityId) const {
-    Entity* entity = entityRepository_->getEntity(entityId);
+inline std::vector<ComponentType>* Scene::GetComponents(int32_t entityId) const {
+    Entity* entity = entityRepository_->GetEntity(entityId);
     if (!entity) {
         LOG_ERROR("Entity with ID {} not found.", entityId);
         return {};
     }
-    return componentRepository_->getComponents<ComponentType>(entity);
+    return componentRepository_->GetComponents<ComponentType>(entity);
 }

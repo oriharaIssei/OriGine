@@ -35,7 +35,7 @@ void SpriteAnimation::Edit(Scene* /*_scene*/, Entity* /* _entity*/, [[maybe_unus
     if (ImGui::BeginCombo(label.c_str(), InterpolationTypeName[int(colorInterpolationType_)])) {
         for (int i = 0; i < (int)InterpolationType::COUNT; ++i) {
             if (ImGui::Selectable(InterpolationTypeName[i], colorInterpolationType_ == InterpolationType(i))) {
-                EditorController::getInstance()->pushCommand(
+                EditorController::GetInstance()->PushCommand(
                     std::make_unique<SetterCommand<InterpolationType>>(&colorInterpolationType_, InterpolationType(i)));
             }
         }
@@ -60,7 +60,7 @@ void SpriteAnimation::Edit(Scene* /*_scene*/, Entity* /* _entity*/, [[maybe_unus
     if (ImGui::BeginCombo(label.c_str(), InterpolationTypeName[int(transformInterpolationType_)])) {
         for (int i = 0; i < (int)InterpolationType::COUNT; ++i) {
             if (ImGui::Selectable(InterpolationTypeName[i], transformInterpolationType_ == InterpolationType(i))) {
-                EditorController::getInstance()->pushCommand(
+                EditorController::GetInstance()->PushCommand(
                     std::make_unique<SetterCommand<InterpolationType>>(&transformInterpolationType_, InterpolationType(i)));
             }
         }
@@ -105,7 +105,7 @@ void SpriteAnimation::Edit(Scene* /*_scene*/, Entity* /* _entity*/, [[maybe_unus
     if (ImGui::BeginCombo(label.c_str(), InterpolationTypeName[int(uvInterpolationType_)])) {
         for (int i = 0; i < (int)InterpolationType::COUNT; ++i) {
             if (ImGui::Selectable(InterpolationTypeName[i], uvInterpolationType_ == InterpolationType(i))) {
-                EditorController::getInstance()->pushCommand(
+                EditorController::GetInstance()->PushCommand(
                     std::make_unique<SetterCommand<InterpolationType>>(&uvInterpolationType_, InterpolationType(i)));
             }
         }
@@ -118,7 +118,7 @@ void SpriteAnimation::Edit(Scene* /*_scene*/, Entity* /* _entity*/, [[maybe_unus
     label = "##UV Animation Scale" + _parentLabel;
     ImGui::EditKeyFrame(
         label,
-        uvScaleCurve_,
+        uvscaleCurve_,
         duration_,
         {1.f, 1.f});
 
@@ -170,10 +170,10 @@ void SpriteAnimation::UpdateSpriteAnimation(float _deltaTime, SpriteRenderer* _s
     if (colorAnimationState_.isPlay_) {
         switch (colorInterpolationType_) {
         case InterpolationType::LINEAR:
-            _spriteRenderer->setColor(CalculateValue::Linear(colorCurve_, currentTime_));
+            _spriteRenderer->SetColor(CalculateValue::Linear(colorCurve_, currentTime_));
             break;
         case InterpolationType::STEP:
-            _spriteRenderer->setColor(CalculateValue::Step(colorCurve_, currentTime_));
+            _spriteRenderer->SetColor(CalculateValue::Step(colorCurve_, currentTime_));
             break;
         default:
             break;
@@ -184,14 +184,14 @@ void SpriteAnimation::UpdateSpriteAnimation(float _deltaTime, SpriteRenderer* _s
     if (transformAnimationState_.isPlay_) {
         switch (transformInterpolationType_) {
         case InterpolationType::LINEAR:
-            _spriteRenderer->setScale(CalculateValue::Linear(scaleCurve_, currentTime_));
-            _spriteRenderer->setRotate(CalculateValue::Linear(rotateCurve_, currentTime_));
-            _spriteRenderer->setTranslate(CalculateValue::Linear(translateCurve_, currentTime_));
+            _spriteRenderer->SetScale(CalculateValue::Linear(scaleCurve_, currentTime_));
+            _spriteRenderer->SetRotate(CalculateValue::Linear(rotateCurve_, currentTime_));
+            _spriteRenderer->SetTranslate(CalculateValue::Linear(translateCurve_, currentTime_));
             break;
         case InterpolationType::STEP:
-            _spriteRenderer->setScale(CalculateValue::Step(scaleCurve_, currentTime_));
-            _spriteRenderer->setRotate(CalculateValue::Step(rotateCurve_, currentTime_));
-            _spriteRenderer->setTranslate(CalculateValue::Step(translateCurve_, currentTime_));
+            _spriteRenderer->SetScale(CalculateValue::Step(scaleCurve_, currentTime_));
+            _spriteRenderer->SetRotate(CalculateValue::Step(rotateCurve_, currentTime_));
+            _spriteRenderer->SetTranslate(CalculateValue::Step(translateCurve_, currentTime_));
             break;
         default:
             break;
@@ -202,14 +202,14 @@ void SpriteAnimation::UpdateSpriteAnimation(float _deltaTime, SpriteRenderer* _s
     if (uvAnimationState_.isPlay_) {
         switch (uvInterpolationType_) {
         case InterpolationType::LINEAR:
-            _spriteRenderer->setUVScale(CalculateValue::Linear(uvScaleCurve_, currentTime_));
-            _spriteRenderer->setUVRotate(CalculateValue::Linear(uvRotateCurve_, currentTime_));
-            _spriteRenderer->setUVTranslate(CalculateValue::Linear(uvTranslateCurve_, currentTime_));
+            _spriteRenderer->SetUVScale(CalculateValue::Linear(uvscaleCurve_, currentTime_));
+            _spriteRenderer->SetUVRotate(CalculateValue::Linear(uvRotateCurve_, currentTime_));
+            _spriteRenderer->SetUVTranslate(CalculateValue::Linear(uvTranslateCurve_, currentTime_));
             break;
         case InterpolationType::STEP:
-            _spriteRenderer->setUVScale(CalculateValue::Step(uvScaleCurve_, currentTime_));
-            _spriteRenderer->setUVRotate(CalculateValue::Step(uvRotateCurve_, currentTime_));
-            _spriteRenderer->setUVTranslate(CalculateValue::Step(uvTranslateCurve_, currentTime_));
+            _spriteRenderer->SetUVScale(CalculateValue::Step(uvscaleCurve_, currentTime_));
+            _spriteRenderer->SetUVRotate(CalculateValue::Step(uvRotateCurve_, currentTime_));
+            _spriteRenderer->SetUVTranslate(CalculateValue::Step(uvTranslateCurve_, currentTime_));
             break;
         default:
             break;
@@ -289,7 +289,7 @@ void to_json(nlohmann::json& j, const SpriteAnimation& r) {
     j["uvAnimationState"]["isLoop"] = r.uvAnimationState_.isLoop_;
     j["uvAnimationState"]["isPlay"] = r.uvAnimationState_.isPlay_;
     j["uvInterpolationType"]        = int(r.uvInterpolationType_);
-    writeCurve("uvScaleCurve", r.uvScaleCurve_);
+    writeCurve("uvScaleCurve", r.uvscaleCurve_);
     writeCurve("uvRotateCurve", r.uvRotateCurve_);
     writeCurve("uvTranslateCurve", r.uvTranslateCurve_);
 }
@@ -319,7 +319,7 @@ void from_json(const nlohmann::json& j, SpriteAnimation& r) {
     r.uvAnimationState_.isLoop_ = j["uvAnimationState"].value("isLoop", false);
     r.uvAnimationState_.isPlay_ = j["uvAnimationState"].value("isPlay", false);
     r.uvInterpolationType_      = InterpolationType(j.value("uvInterpolationType", int(InterpolationType::LINEAR)));
-    readCurve("uvScaleCurve", r.uvScaleCurve_);
+    readCurve("uvScaleCurve", r.uvscaleCurve_);
     readCurve("uvRotateCurve", r.uvRotateCurve_);
     readCurve("uvTranslateCurve", r.uvTranslateCurve_);
 }

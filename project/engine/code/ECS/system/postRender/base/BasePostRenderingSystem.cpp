@@ -20,12 +20,12 @@ void BasePostRenderingSystem::Update() {
 
     // renderTargetがnullなら sceneのsceneViewをセットする
     if (renderTarget_ == nullptr) {
-        renderTarget_ = getScene()->getSceneView();
+        renderTarget_ = GetScene()->GetSceneView();
     }
 
     // コンポーネントの登録
     for (auto entityID : entityIDs_) {
-        Entity* entity = getScene()->getEntity(entityID);
+        Entity* entity = GetScene()->GetEntity(entityID);
         DispatchComponent(entity);
     }
 

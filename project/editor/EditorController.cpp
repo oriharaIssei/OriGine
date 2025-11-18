@@ -28,7 +28,7 @@ void EditorController::Redo() {
     }
 }
 
-void EditorController::clearCommandHistory() {
+void EditorController::ClearCommandHistory() {
     commandHistory_.clear();
     currentCommandItr_ = commandHistory_.end();
 }
@@ -57,7 +57,7 @@ void EditorController::ExecuteCommandRequests() {
     }
 }
 
-EditorController* EditorController::getInstance() {
+EditorController* EditorController::GetInstance() {
     static EditorController instance;
     return &instance;
 }
@@ -91,7 +91,7 @@ void EditorController::Update() {
             LOG_ERROR("Menu with name '{}' is nullptr.", menuName);
             continue;
         }
-        if (ImGui::BeginMenu(menu->getName().c_str())) {
+        if (ImGui::BeginMenu(menu->GetName().c_str())) {
             menu->DrawGui();
             ImGui::EndMenu();
         }
@@ -112,19 +112,19 @@ void EditorController::Update() {
 
     // Undo Redo
     // 直接Inputを参照
-    KeyboardInput* keyInput = InputManager::getInstance()->getKeyboard();
-    if (keyInput->isPress(DIK_LCONTROL)) {
-        if (keyInput->isPress(DIK_LSHIFT)) {
+    KeyboardInput* keyInput = InputManager::GetInstance()->GetKeyboard();
+    if (keyInput->IsPress(DIK_LCONTROL)) {
+        if (keyInput->IsPress(DIK_LSHIFT)) {
             // SHIFT あり
-            if (keyInput->isTrigger(DIK_Z)) {
+            if (keyInput->IsTrigger(DIK_Z)) {
                 Redo();
             }
         } else {
             // SHIFT なし
-            if (keyInput->isTrigger(DIK_Z)) {
+            if (keyInput->IsTrigger(DIK_Z)) {
                 Undo();
             }
-            if (keyInput->isTrigger(DIK_Y)) {
+            if (keyInput->IsTrigger(DIK_Y)) {
                 Redo();
             }
         }
@@ -132,12 +132,12 @@ void EditorController::Update() {
 }
 
 void EditorController::Finalize() {
-    GlobalVariables::getInstance()->SaveFile(defaultSerializeSceneName_, defaultSerializeGroupName_);
+    GlobalVariables::GetInstance()->SaveFile(defaultSerializeSceneName_, defaultSerializeGroupName_);
 
     for (auto& [editorName, editor] : editorWindows_) {
         editor->Finalize();
     }
 
-    clearCommandHistory();
+    ClearCommandHistory();
 }
 #endif // _DEBUG

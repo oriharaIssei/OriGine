@@ -55,23 +55,23 @@ private:
     int32_t textureIndex_ = 0;
 
 public:
-    void setTextureIndex(int32_t _textureIndex) {
+    void SetTextureIndex(int32_t _textureIndex) {
         textureIndex_ = _textureIndex;
     }
-    int32_t getTextureIndex() const {
+    int32_t GetTextureIndex() const {
         return textureIndex_;
     }
-    void setFilePath(const std::string& _filePath) {
+    void SetFilePath(const std::string& _filePath) {
         filePath_ = _filePath;
     }
-    const std::string& getFilePath() const {
+    const std::string& GetFilePath() const {
         return filePath_;
     }
 
-    IConstantBuffer<SkyboxMaterial>& getMaterialBuff() {
+    IConstantBuffer<SkyboxMaterial>& GetMaterialBuff() {
         return materialBuff_;
     }
-    IConstantBuffer<Transform>& getTransformBuff() {
+    IConstantBuffer<Transform>& GetTransformBuff() {
         return transformBuff_;
     }
 };

@@ -31,7 +31,7 @@ void EntityRepository::resize(uint32_t _newSize) {
 /// <summary>
 /// Entity の取得
 /// </summary>
-Entity* EntityRepository::getEntity(int32_t _entityIndex) {
+Entity* EntityRepository::GetEntity(int32_t _entityIndex) {
     if (_entityIndex < 0 || static_cast<uint32_t>(_entityIndex) >= size_) {
         LOG_ERROR("EntityRepository: Invalid entity index.");
         return nullptr;
@@ -41,7 +41,7 @@ Entity* EntityRepository::getEntity(int32_t _entityIndex) {
 /// <summary>
 /// UniqueEntity の取得
 /// </summary>
-Entity* EntityRepository::getUniqueEntity(const std::string& _dataTypeName) {
+Entity* EntityRepository::GetUniqueEntity(const std::string& _dataTypeName) {
     auto itr = uniqueEntityIDs_.find(_dataTypeName);
 
     if (itr == uniqueEntityIDs_.end()) {
@@ -56,7 +56,7 @@ Entity* EntityRepository::getUniqueEntity(const std::string& _dataTypeName) {
 /// EntityIndex の 確保
 /// </summary>
 int32_t EntityRepository::allocateEntity() {
-    if (entityActiveBits_.getTrueCount() >= size_) {
+    if (entityActiveBits_.GetTrueCount() >= size_) {
         LOG_INFO("EntityRepository: Allocating more entities than current size. Resizing...");
         resize(size_ * 2);
     }
@@ -74,7 +74,7 @@ bool EntityRepository::registerUniqueEntity(Entity* _entity) {
         return false;
     }
     _entity->isUnique_                   = true;
-    uniqueEntityIDs_[_entity->dataType_] = _entity->getID();
+    uniqueEntityIDs_[_entity->dataType_] = _entity->GetID();
     return true;
 }
 /// <summary>
@@ -101,7 +101,7 @@ int32_t EntityRepository::CreateEntity(const std::string& _dataType, bool _isUni
     Entity& entity   = entities_[entityIndex];
     entity.id_       = entityIndex;
     entity.dataType_ = _dataType;
-    entity.isAlive_  = true;
+    entity.IsAlive_  = true;
     entity.isUnique_ = false;
 
     if (_isUnique) {
@@ -120,14 +120,14 @@ int32_t EntityRepository::CreateEntity(int32_t _id, const std::string& _dataType
     }
 
     Entity& entity = entities_[_id];
-    if (entity.isAlive_) {
+    if (entity.IsAlive_) {
         LOG_ERROR("EntityRepository: Entity with ID {} already exists.", _id);
         return -1;
     }
 
     entity.id_                  = _id;
     entity.dataType_            = _dataType;
-    entity.isAlive_             = true;
+    entity.IsAlive_             = true;
     entity.isUnique_            = false;
     uniqueEntityIDs_[_dataType] = _id;
 
@@ -141,7 +141,7 @@ int32_t EntityRepository::CreateEntity(int32_t _id, const std::string& _dataType
 /// <summary>
 /// Entity を削除する
 /// </summary>
-bool EntityRepository::removeEntity(int32_t _entityIndex) {
+bool EntityRepository::RemoveEntity(int32_t _entityIndex) {
     if (_entityIndex < 0 || static_cast<uint32_t>(_entityIndex) >= size_) {
         LOG_ERROR("EntityRepository: Invalid entity index to unregister.");
         return false;
@@ -149,7 +149,7 @@ bool EntityRepository::removeEntity(int32_t _entityIndex) {
 
     Entity& entity = entities_[_entityIndex];
 
-    if (!entity.isAlive_) {
+    if (!entity.IsAlive_) {
         LOG_ERROR("EntityRepository: Entity already dead.");
         return false;
     }
@@ -160,29 +160,29 @@ bool EntityRepository::removeEntity(int32_t _entityIndex) {
 
     entity = Entity();
 
-    entityActiveBits_.set(_entityIndex, false);
+    entityActiveBits_.Set(_entityIndex, false);
 
     return true;
 }
 
-uint32_t EntityRepository::getSize() const {
+uint32_t EntityRepository::GetSize() const {
     return size_;
 }
-uint32_t EntityRepository::getActiveEntityCount() const {
-    return static_cast<uint32_t>(entityActiveBits_.getTrueCount());
+uint32_t EntityRepository::GetActiveEntityCount() const {
+    return static_cast<uint32_t>(entityActiveBits_.GetTrueCount());
 }
-uint32_t EntityRepository::getInactiveEntityCount() const {
-    return static_cast<uint32_t>(entityActiveBits_.getFalseCount());
+uint32_t EntityRepository::GetInactiveEntityCount() const {
+    return static_cast<uint32_t>(entityActiveBits_.GetFalseCount());
 }
-void EntityRepository::clear() {
+void EntityRepository::Clear() {
     size_ = 0;
     entities_.clear();
     entityActiveBits_.resize(0);
 }
 
-const std::vector<Entity>& EntityRepository::getEntities() const {
+const std::vector<Entity>& EntityRepository::GetEntities() const {
     return entities_;
 }
-std::vector<Entity>& EntityRepository::getEntitiesRef() {
+std::vector<Entity>& EntityRepository::GetEntitiesRef() {
     return entities_;
 }

@@ -28,27 +28,27 @@ void ReplayRecorder::RecordFrame(float deltaTime, KeyboardInput* _keyInput, Mous
     // キーボード入力の記録
     if (_keyInput) {
         int32_t keyIndex = 0;
-        for (auto keyData : _keyInput->getKeyStates()) {
-            frameData.keyInputData.set(keyIndex, keyData);
+        for (auto keyData : _keyInput->GetKeyStates()) {
+            frameData.keyInputData.Set(keyIndex, keyData);
             ++keyIndex;
         }
     }
 
     // マウス入力の記録
     if (_mouseInput) {
-        frameData.mouseData.mousePos   = _mouseInput->getPosition();
-        frameData.mouseData.wheelDelta = _mouseInput->getWheelDelta();
+        frameData.mouseData.mousePos   = _mouseInput->GetPosition();
+        frameData.mouseData.wheelDelta = _mouseInput->GetWheelDelta();
 
         frameData.mouseData.buttonData = _mouseInput->ButtonStateToBitmask();
     }
 
     // ゲームパッド入力の記録
     if (_padInput) {
-        frameData.padData.lStick     = _padInput->getLStick();
-        frameData.padData.rStick     = _padInput->getRStick();
-        frameData.padData.lTrigger   = _padInput->getLTrigger();
-        frameData.padData.rTrigger   = _padInput->getRTrigger();
-        frameData.padData.buttonData = _padInput->getButtonMask();
+        frameData.padData.lStick     = _padInput->GetLStick();
+        frameData.padData.rStick     = _padInput->GetRStick();
+        frameData.padData.lTrigger   = _padInput->GetLTrigger();
+        frameData.padData.rTrigger   = _padInput->GetRTrigger();
+        frameData.padData.buttonData = _padInput->GetButtonMask();
     }
 
     frames_.push_back(frameData);
@@ -120,7 +120,7 @@ void ReplayRecorder::WriteFrameData(std::ofstream& _ofs, size_t _frameIndex) {
         _ofs.write(reinterpret_cast<const char*>(&size), sizeof(size));
 
         // 2. データの要素数を書き出す（復元に必要）
-        const auto& data  = frame.keyInputData.getData();
+        const auto& data  = frame.keyInputData.GetData();
         size_t blockCount = data.size();
         _ofs.write(reinterpret_cast<const char*>(&blockCount), sizeof(blockCount));
 

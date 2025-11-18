@@ -9,7 +9,7 @@
 /// </summary>
 class DxDebug {
 public:
-    static DxDebug* getInstance() {
+    static DxDebug* GetInstance() {
         static DxDebug instance;
         return &instance;
     }
@@ -39,18 +39,18 @@ private:
     Microsoft::WRL::ComPtr<ID3D12InfoQueue> infoQueue_    = nullptr;
 
 public:
-    const Microsoft::WRL::ComPtr<ID3D12Debug1>& getDebugController() const {
+    const Microsoft::WRL::ComPtr<ID3D12Debug1>& GetDebugController() const {
         return debugController_;
     }
-    Microsoft::WRL::ComPtr<ID3D12Debug1> getDebugControllerRef() {
+    Microsoft::WRL::ComPtr<ID3D12Debug1> GetDebugControllerRef() {
         return debugController_;
     }
-    const Microsoft::WRL::ComPtr<ID3D12InfoQueue>& getInfoQueue() const {
+    const Microsoft::WRL::ComPtr<ID3D12InfoQueue>& GetInfoQueue() const {
         return infoQueue_;
     }
-    Microsoft::WRL::ComPtr<ID3D12InfoQueue> getInfoQueueRef() {
+    Microsoft::WRL::ComPtr<ID3D12InfoQueue> GetInfoQueueRef() {
         return infoQueue_;
     }
 
-    void setDebugMessageSeverity(D3D12_MESSAGE_SEVERITY severity);
+    void SetDebugMessageSeverity(D3D12_MESSAGE_SEVERITY severity);
 };

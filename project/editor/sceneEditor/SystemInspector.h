@@ -142,10 +142,10 @@ protected:
     std::string searchBuffer_; // 検索用のバッファ
     EnumBitmask<FilterType> filter_ = EnumBitmask<FilterType>(FilterType::CATEGORY_ALL); // フィルターの種類
 public:
-    SceneEditorWindow* getParentWindow() const {
+    SceneEditorWindow* GetParentWindow() const {
         return parentWindow_;
     }
-    const std::array<std::vector<std::pair<std::string, int32_t>>, size_t(SystemCategory::Count)>& getSystemMap() const {
+    const std::array<std::vector<std::pair<std::string, int32_t>>, size_t(SystemCategory::Count)>& GetSystemMap() const {
         return systemMap_;
     }
 };

@@ -20,11 +20,11 @@ SystemInspectorArea::SystemInspectorArea(SceneEditorWindow* _window) : Editor::A
 SystemInspectorArea::~SystemInspectorArea() {}
 
 void SystemInspectorArea::Initialize() {
-    auto scene       = parentWindow_->getCurrentScene();
-    auto& allSystems = SystemRegistry::getInstance()->getSystemsRef();
+    auto scene       = parentWindow_->GetCurrentScene();
+    auto& allSystems = SystemRegistry::GetInstance()->GetSystemsRef();
     for (auto& [name, createSystemFunc] : allSystems) {
         auto createdScene = createSystemFunc(scene);
-        int32_t category  = int32_t(createdScene->getCategory());
+        int32_t category  = int32_t(createdScene->GetCategory());
         systemMap_[category].emplace_back(std::make_pair<>(name, 0));
     }
 
@@ -36,7 +36,7 @@ void SystemInspectorArea::Initialize() {
 }
 
 void SystemInspectorArea::DrawGui() {
-    bool isOpen = isOpen_.current();
+    bool isOpen = isOpen_.Current();
     if (!isOpen) {
         return;
     }
@@ -45,7 +45,7 @@ void SystemInspectorArea::DrawGui() {
         areaSize_ = ImGui::GetContentRegionAvail();
         ImGui::Text("System Inspector Area");
         ImGui::Separator();
-        auto currentScene = parentWindow_->getCurrentScene();
+        auto currentScene = parentWindow_->GetCurrentScene();
 
         if (!currentScene) {
             ImGui::Text("No current scene found.");
@@ -57,17 +57,17 @@ void SystemInspectorArea::DrawGui() {
             std::string label = "";
             for (int32_t category = 0; category < static_cast<int32_t>(SystemCategory::Count); ++category) {
                 label         = SystemCategoryString[category] + "##SystemCategoryActivity";
-                bool activity = currentScene->getSystemRunner()->getCategoryActivity()[category];
+                bool activity = currentScene->GetSystemRunner()->GetCategoryActivity()[category];
                 if (ImGui::Checkbox(label.c_str(), &activity)) {
-                    auto command = std::make_unique<ChangeSystemCategoryActivity>(this, static_cast<SystemCategory>(category), currentScene->getSystemRunner()->getCategoryActivity()[category], activity);
-                    EditorController::getInstance()->pushCommand(std::move(command));
+                    auto command = std::make_unique<ChangeSystemCategoryActivity>(this, static_cast<SystemCategory>(category), currentScene->GetSystemRunner()->GetCategoryActivity()[category], activity);
+                    EditorController::GetInstance()->PushCommand(std::move(command));
                 }
             }
             ImGui::TreePop();
         }
 
         std::string label = "";
-        label             = "Filter##" + currentScene->getName();
+        label             = "Filter##" + currentScene->GetName();
 
         int32_t filter                        = static_cast<int32_t>(filter_);
         constexpr int32_t categoryFilterStart = int32_t(FilterType::CATEGORY_INITIALIZE) - 1;
@@ -105,10 +105,10 @@ void SystemInspectorArea::DrawGui() {
             ImGui::InputText(label.c_str(), &searchBuffer_[0], sizeof(char) * searchBufferSize_);
             static GuiValuePool<std::string> entityNamePool;
             if (ImGui::IsItemActive()) {
-                entityNamePool.setValue(label, searchBuffer_);
+                entityNamePool.SetValue(label, searchBuffer_);
             } else if (ImGui::IsItemDeactivatedAfterEdit()) {
                 auto command = std::make_unique<ChangeSearchFilter>(this, entityNamePool.popValue(label));
-                EditorController::getInstance()->pushCommand(std::move(command));
+                EditorController::GetInstance()->PushCommand(std::move(command));
             }
         }
 
@@ -117,7 +117,7 @@ void SystemInspectorArea::DrawGui() {
         if (filter_ != filter) {
             filter_      = static_cast<FilterType>(filter);
             auto command = std::make_unique<ChangeSystemFilter>(this, static_cast<int32_t>(filter_));
-            EditorController::getInstance()->pushCommand(std::move(command));
+            EditorController::GetInstance()->PushCommand(std::move(command));
         }
 
         bool searchFilter = (filter_ & FilterType::SEARCH) != 0;
@@ -152,8 +152,8 @@ void SystemInspectorArea::DrawGui() {
         }
     }
 
-    isOpen_.set(isOpen);
-    isFocused_.set(ImGui::IsWindowFocused());
+    isOpen_.Set(isOpen);
+    isFocused_.Set(ImGui::IsWindowFocused());
     UpdateFocusAndOpenState();
 
     ImGui::End();
@@ -164,7 +164,7 @@ void SystemInspectorArea::Finalize() {
 }
 
 void SystemInspectorArea::SystemGui(const std::string& _systemName, int32_t& _priority) {
-    auto currentScene = parentWindow_->getCurrentScene();
+    auto currentScene = parentWindow_->GetCurrentScene();
     if (!currentScene) {
         LOG_ERROR("SystemInspectorArea::SystemGui: No current scene found.");
         return;
@@ -172,23 +172,23 @@ void SystemInspectorArea::SystemGui(const std::string& _systemName, int32_t& _pr
 
     ImGui::PushID(_systemName.c_str());
 
-    auto* system = currentScene->getSystem(_systemName);
-    if (system && system->isActive()) {
-        bool isActive = system->isActive();
+    auto* system = currentScene->GetSystem(_systemName);
+    if (system && system->IsActive()) {
+        bool isActive = system->IsActive();
 
         if (ImGui::Checkbox("##Active", &isActive)) {
-            auto command = std::make_unique<ChangeSystemActivity>(this, _systemName, system->getPriority(), system->isActive(), isActive);
-            EditorController::getInstance()->pushCommand(std::move(command));
+            auto command = std::make_unique<ChangeSystemActivity>(this, _systemName, system->GetPriority(), system->IsActive(), isActive);
+            EditorController::GetInstance()->PushCommand(std::move(command));
         }
 
         ImGui::SameLine();
 
         constexpr int32_t inputPriorityBoxWidth = 76;
         ImGui::SetNextItemWidth(inputPriorityBoxWidth);
-        int32_t priority = system->getPriority();
+        int32_t priority = system->GetPriority();
         if (ImGui::InputInt("##Priority", &priority, 1)) {
-            auto command = std::make_unique<ChangeSystemPriority>(this, _systemName, system->getPriority(), priority);
-            EditorController::getInstance()->pushCommand(std::move(command));
+            auto command = std::make_unique<ChangeSystemPriority>(this, _systemName, system->GetPriority(), priority);
+            EditorController::GetInstance()->PushCommand(std::move(command));
         }
 
         _priority = priority; // 更新された優先度をアイテムに反映
@@ -203,7 +203,7 @@ void SystemInspectorArea::SystemGui(const std::string& _systemName, int32_t& _pr
         if (ImGui::Checkbox("##Active", &isActive)) {
             currentScene->registerSystem(_systemName, 0); // 0 はデフォルトの優先度
             auto command = std::make_unique<ChangeSystemActivity>(this, _systemName, 0, false, true);
-            EditorController::getInstance()->pushCommand(std::move(command));
+            EditorController::GetInstance()->PushCommand(std::move(command));
 
             ImGui::PopID();
             return;
@@ -223,18 +223,18 @@ SystemInspectorArea::ChangeSystemPriority::ChangeSystemPriority(SystemInspectorA
     : inspectorArea_(_inspectorArea), systemName_(_systemName), oldPriority_(_oldPriority), newPriority_(_newPriority) {}
 
 void SystemInspectorArea::ChangeSystemPriority::Execute() {
-    auto* systemRunner = inspectorArea_->getParentWindow()->getCurrentScene()->getSystemRunner();
+    auto* systemRunner = inspectorArea_->GetParentWindow()->GetCurrentScene()->GetSystemRunner();
 
     // exe 内に Systemが 登録されているか確認
-    auto systemItr = systemRunner->getSystems().find(systemName_);
-    if (systemItr == systemRunner->getSystems().end()) {
+    auto systemItr = systemRunner->GetSystems().find(systemName_);
+    if (systemItr == systemRunner->GetSystems().end()) {
         LOG_ERROR("ChangeSystemPriority::Execute: System '{}' not found.", systemName_);
         return;
     }
 
-    systemItr->second->setPriority(newPriority_);
+    systemItr->second->SetPriority(newPriority_);
 
-    int32_t categoryIndex   = static_cast<int32_t>(systemItr->second->getCategory());
+    int32_t categoryIndex   = static_cast<int32_t>(systemItr->second->GetCategory());
     auto* systemsByCategory = &inspectorArea_->systemMap_[categoryIndex];
 
     std::sort(systemsByCategory->begin(),
@@ -245,18 +245,18 @@ void SystemInspectorArea::ChangeSystemPriority::Execute() {
 }
 
 void SystemInspectorArea::ChangeSystemPriority::Undo() {
-    auto* systemRunner = inspectorArea_->getParentWindow()->getCurrentScene()->getSystemRunner();
+    auto* systemRunner = inspectorArea_->GetParentWindow()->GetCurrentScene()->GetSystemRunner();
 
     // exe 内に Systemが 登録されているか確認
-    auto systemItr = systemRunner->getSystems().find(systemName_);
-    if (systemItr == systemRunner->getSystems().end()) {
+    auto systemItr = systemRunner->GetSystems().find(systemName_);
+    if (systemItr == systemRunner->GetSystems().end()) {
         LOG_ERROR("ChangeSystemPriority::Execute: System '{}' not found.", systemName_);
         return;
     }
 
-    systemItr->second->setPriority(oldPriority_);
+    systemItr->second->SetPriority(oldPriority_);
 
-    int32_t categoryIndex   = static_cast<int32_t>(systemItr->second->getCategory());
+    int32_t categoryIndex   = static_cast<int32_t>(systemItr->second->GetCategory());
     auto* systemsByCategory = &inspectorArea_->systemMap_[categoryIndex];
     std::sort(systemsByCategory->begin(),
         systemsByCategory->end(),
@@ -278,7 +278,7 @@ SystemInspectorArea::ChangeSystemActivity::ChangeSystemActivity(
       newActivity_(_newActivity) {}
 
 void SystemInspectorArea::ChangeSystemActivity::Execute() {
-    auto currentScene = inspectorArea_->getParentWindow()->getCurrentScene();
+    auto currentScene = inspectorArea_->GetParentWindow()->GetCurrentScene();
     if (!currentScene) {
         LOG_ERROR("ChangeSystemActivity::Execute: No current scene found.");
         return;
@@ -292,7 +292,7 @@ void SystemInspectorArea::ChangeSystemActivity::Execute() {
 }
 
 void SystemInspectorArea::ChangeSystemActivity::Undo() {
-    auto currentScene = inspectorArea_->getParentWindow()->getCurrentScene();
+    auto currentScene = inspectorArea_->GetParentWindow()->GetCurrentScene();
     if (!currentScene) {
         LOG_ERROR("ChangeSystemActivity::Undo: No current scene found.");
         return;
@@ -330,31 +330,31 @@ SystemInspectorArea::ChangeSystemCategoryActivity::ChangeSystemCategoryActivity(
 SystemInspectorArea::ChangeSystemCategoryActivity::~ChangeSystemCategoryActivity() {}
 
 void SystemInspectorArea::ChangeSystemCategoryActivity::Execute() {
-    auto currentScene = inspectorArea_->getParentWindow()->getCurrentScene();
+    auto currentScene = inspectorArea_->GetParentWindow()->GetCurrentScene();
     if (!currentScene) {
         LOG_ERROR("ChangeSystemCategoryActivity::Execute: No current scene found.");
         return;
     }
-    auto* systemRunner = currentScene->getSystemRunnerRef();
+    auto* systemRunner = currentScene->GetSystemRunnerRef();
     if (!systemRunner) {
         LOG_ERROR("ChangeSystemCategoryActivity::Execute: No SystemRunner found in current scene.");
         return;
     }
-    systemRunner->setCategoryActivity(category_, newActivity_);
+    systemRunner->SetCategoryActivity(category_, newActivity_);
 }
 
 void SystemInspectorArea::ChangeSystemCategoryActivity::Undo() {
-    auto currentScene = inspectorArea_->getParentWindow()->getCurrentScene();
+    auto currentScene = inspectorArea_->GetParentWindow()->GetCurrentScene();
     if (!currentScene) {
         LOG_ERROR("ChangeSystemCategoryActivity::Undo: No current scene found.");
         return;
     }
-    auto* systemRunner = currentScene->getSystemRunnerRef();
+    auto* systemRunner = currentScene->GetSystemRunnerRef();
     if (!systemRunner) {
         LOG_ERROR("ChangeSystemCategoryActivity::Undo: No SystemRunner found in current scene.");
         return;
     }
-    systemRunner->setCategoryActivity(category_, oldActivity_);
+    systemRunner->SetCategoryActivity(category_, oldActivity_);
 }
 
 #pragma endregion

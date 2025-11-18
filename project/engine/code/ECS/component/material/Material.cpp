@@ -37,7 +37,7 @@ void Material::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _en
     constexpr float kCustomTextureSize = 32.f;
 
     if (customTexture_.has_value()) {
-        ImGui::Image(reinterpret_cast<ImTextureID>(customTexture_->srv_.getGpuHandle().ptr), {kCustomTextureSize, kCustomTextureSize});
+        ImGui::Image(reinterpret_cast<ImTextureID>(customTexture_->srv_.GetGpuHandle().ptr), {kCustomTextureSize, kCustomTextureSize});
         ImGui::Spacing();
     }
 
@@ -83,7 +83,7 @@ void Material::Finalize() {
 
     if (customTexture_.has_value()) {
         customTexture_->resource_.Finalize();
-        auto srvHeap = Engine::getInstance()->getSrvHeap();
+        auto srvHeap = Engine::GetInstance()->GetSrvHeap();
         srvHeap->ReleaseDescriptor(customTexture_->srv_);
     }
 }
@@ -95,7 +95,7 @@ void Material::CreateCustomTextureFromTextureFile(const std::string& _directory,
 }
 
 void Material::CreateCustomTextureFromTextureFile(int32_t textureIndex) {
-    DirectX::TexMetadata metaData = TextureManager::getTexMetadata(textureIndex);
+    DirectX::TexMetadata metaData = TextureManager::GetTexMetadata(textureIndex);
     metaData.format               = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
     metaData.mipLevels            = 1;
 
@@ -103,7 +103,7 @@ void Material::CreateCustomTextureFromTextureFile(int32_t textureIndex) {
     customTexture_.emplace(Material::CustomTextureData());
 
     customTexture_->resource_.CreateTextureResource(
-        Engine::getInstance()->getDxDevice()->device_,
+        Engine::GetInstance()->GetDxDevice()->device_,
         metaData);
 
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
@@ -113,10 +113,10 @@ void Material::CreateCustomTextureFromTextureFile(int32_t textureIndex) {
     srvDesc.Texture2D.MipLevels     = 1;
 
     /// SRV の作成
-    customTexture_->srv_ = Engine::getInstance()->getSrvHeap()->CreateDescriptor(srvDesc, &customTexture_->resource_);
+    customTexture_->srv_ = Engine::GetInstance()->GetSrvHeap()->CreateDescriptor(srvDesc, &customTexture_->resource_);
 
     /// Set ResourceStateTracker
-    ResourceStateTracker::RegisterResource(customTexture_->resource_.getResource(), D3D12_RESOURCE_STATE_COPY_DEST);
+    ResourceStateTracker::RegisterResource(customTexture_->resource_.GetResource(), D3D12_RESOURCE_STATE_COPY_DEST);
 }
 
 void to_json(nlohmann::json& j, const Material& m) {

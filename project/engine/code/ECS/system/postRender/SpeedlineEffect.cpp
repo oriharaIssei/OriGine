@@ -25,7 +25,7 @@ void SpeedlineEffect::Finalize() {
 }
 
 void SpeedlineEffect::CreatePSO() {
-    ShaderManager* shaderManager = ShaderManager::getInstance();
+    ShaderManager* shaderManager = ShaderManager::GetInstance();
     shaderManager->LoadShader("FullScreen.VS");
     shaderManager->LoadShader("Speedline.PS", shaderDirectory, L"ps_6_0");
     ShaderInformation shaderInfo{};
@@ -66,7 +66,7 @@ void SpeedlineEffect::CreatePSO() {
     rootParameter[0].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
     rootParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
     size_t rootParameterIndex         = shaderInfo.pushBackRootParameter(rootParameter[0]);
-    shaderInfo.setDescriptorRange2Parameter(sceneTexDescriptorRange, 1, rootParameterIndex);
+    shaderInfo.SetDescriptorRange2Parameter(sceneTexDescriptorRange, 1, rootParameterIndex);
 
     rootParameter[1].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_CBV;
     rootParameter[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
@@ -84,7 +84,7 @@ void SpeedlineEffect::CreatePSO() {
     rootParameter[2].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
     rootParameter[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
     rootParameterIndex                = shaderInfo.pushBackRootParameter(rootParameter[2]);
-    shaderInfo.setDescriptorRange2Parameter(radialTexDescriptorRange, 1, rootParameterIndex);
+    shaderInfo.SetDescriptorRange2Parameter(radialTexDescriptorRange, 1, rootParameterIndex);
 
     ///================================================
     /// InputElement の設定
@@ -97,13 +97,13 @@ void SpeedlineEffect::CreatePSO() {
     ///================================================
     D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
     depthStencilDesc.DepthEnable = false;
-    shaderInfo.setDepthStencilDesc(depthStencilDesc);
+    shaderInfo.SetDepthStencilDesc(depthStencilDesc);
 
-    pso_ = shaderManager->CreatePso("SpeedlineEffect", shaderInfo, Engine::getInstance()->getDxDevice()->device_);
+    pso_ = shaderManager->CreatePso("SpeedlineEffect", shaderInfo, Engine::GetInstance()->GetDxDevice()->device_);
 }
 
 void SpeedlineEffect::RenderStart() {
-    auto commandList = dxCommand_->getCommandList();
+    auto commandList = dxCommand_->GetCommandList();
 
     renderTarget_->PreDraw();
     renderTarget_->DrawTexture();
@@ -112,21 +112,21 @@ void SpeedlineEffect::RenderStart() {
     commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
+    ID3D12DescriptorHeap* ppHeaps[] = {Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
 
-    commandList->SetGraphicsRootDescriptorTable(0, renderTarget_->getBackBufferSrvHandle());
+    commandList->SetGraphicsRootDescriptorTable(0, renderTarget_->GetBackBufferSrvHandle());
 }
 
 void SpeedlineEffect::Render(SpeedlineEffectParam* _param) {
-    auto& commandList = dxCommand_->getCommandList();
+    auto& commandList = dxCommand_->GetCommandList();
 
-    _param->getBuffer().ConvertToBuffer();
-    _param->getBuffer().SetForRootParameter(dxCommand_->getCommandList(), 1);
+    _param->GetBuffer().ConvertToBuffer();
+    _param->GetBuffer().SetForRootParameter(dxCommand_->GetCommandList(), 1);
 
     commandList->SetGraphicsRootDescriptorTable(
         2,
-        TextureManager::getDescriptorGpuHandle(_param->getRadialTextureIndex()));
+        TextureManager::GetDescriptorGpuHandle(_param->GetRadialTextureIndex()));
 
     commandList->DrawInstanced(6, 1, 0, 0);
 }
@@ -153,14 +153,14 @@ void SpeedlineEffect::RenderEnd() {
 }
 
 void SpeedlineEffect::DispatchComponent(Entity* _entity) {
-    auto* speedlineParams = getComponents<SpeedlineEffectParam>(_entity);
+    auto* speedlineParams = GetComponents<SpeedlineEffectParam>(_entity);
     // 無効な場合はスルー
     if (!speedlineParams) {
         return;
     }
 
     for (auto& param : *speedlineParams) {
-        if (!param.isActive()) {
+        if (!param.IsActive()) {
             continue;
         }
         activeParams_.push_back(&param);

@@ -55,18 +55,18 @@ private:
     AnimationCurve<Vec3f> translateCurve_;
 
 public:
-    float getDuration() const { return duration_; }
-    float getCurrentTime() const { return currentTime_; }
-    void setDuration(float _duration) { duration_ = _duration; }
-    void setCurrentTime(float _currentTime) { currentTime_ = _currentTime; }
+    float GetDuration() const { return duration_; }
+    float GetCurrentTime() const { return currentTime_; }
+    void SetDuration(float _duration) { duration_ = _duration; }
+    void SetCurrentTime(float _currentTime) { currentTime_ = _currentTime; }
 
-    bool getAnimationIsLoop() const { return animationState_.isLoop_; }
-    bool getAnimationIsPlay() const { return animationState_.isPlay_; }
-    bool getAnimationIsEnd() const { return animationState_.isEnd_; }
-    void setAnimationIsLoop(bool _isLoop) { animationState_.isLoop_ = _isLoop; }
-    void setAnimationIsPlay(bool _isPlay) { animationState_.isPlay_ = _isPlay; }
-    void setAnimationIsEnd(bool _isEnd) { animationState_.isEnd_ = _isEnd; }
+    bool GetAnimationIsLoop() const { return animationState_.isLoop_; }
+    bool GetAnimationIsPlay() const { return animationState_.isPlay_; }
+    bool GetAnimationIsEnd() const { return animationState_.isEnd_; }
+    void SetAnimationIsLoop(bool _isLoop) { animationState_.isLoop_ = _isLoop; }
+    void SetAnimationIsPlay(bool _isPlay) { animationState_.isPlay_ = _isPlay; }
+    void SetAnimationIsEnd(bool _isEnd) { animationState_.isEnd_ = _isEnd; }
 
-    InterpolationType getTransformInterpolationType() const { return interpolationType_; }
-    void setInterpolationType(InterpolationType _interpolationType) { interpolationType_ = _interpolationType; }
+    InterpolationType GetTransformInterpolationType() const { return interpolationType_; }
+    void SetInterpolationType(InterpolationType _interpolationType) { interpolationType_ = _interpolationType; }
 };

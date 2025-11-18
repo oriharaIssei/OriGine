@@ -20,9 +20,9 @@ void BaseRenderSystem::Update() {
     eraseDeadEntity();
 
     // レンダラー登録
-    auto* hostScene = getScene();
+    auto* hostScene = GetScene();
     for (auto& entityID : entityIDs_) {
-        Entity* entity = hostScene->getEntityRepositoryRef()->getEntity(entityID);
+        Entity* entity = hostScene->GetEntityRepositoryRef()->GetEntity(entityID);
         DispatchRenderer(entity);
     }
 

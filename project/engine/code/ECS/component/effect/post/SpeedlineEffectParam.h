@@ -70,11 +70,11 @@ private:
     uint32_t radialTextureIndex_        = 0;
 
 public:
-    bool isActive() const { return isActive_; }
+    bool IsActive() const { return isActive_; }
 
-    uint32_t getRadialTextureIndex() const { return radialTextureIndex_; }
-    const std::string& getRadialTextureFilePath() const { return radialTextureFilePath_; }
+    uint32_t GetRadialTextureIndex() const { return radialTextureIndex_; }
+    const std::string& GetRadialTextureFilePath() const { return radialTextureFilePath_; }
 
-    const IConstantBuffer<SpeedlineBufferParamData>& getBuffer() const { return cBuffer_; }
-    SpeedlineBufferParamData& getParamData() { return cBuffer_.openData_; }
+    const IConstantBuffer<SpeedlineBufferParamData>& GetBuffer() const { return cBuffer_; }
+    SpeedlineBufferParamData& GetParamData() { return cBuffer_.openData_; }
 };

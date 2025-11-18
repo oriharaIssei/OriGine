@@ -24,8 +24,8 @@ void DistortionEffect::Initialize() {
     BasePostRenderingSystem::Initialize();
 
     distortionSceneTexture_ = std::make_unique<RenderTexture>(dxCommand_.get());
-    distortionSceneTexture_->Initialize(2, Engine::getInstance()->getWinApp()->getWindowSize(), DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, Vec4f(0.0f, 0.0f, 0.0f, 0.0f));
-    distortionSceneTexture_->setTextureName("DistortionSceneTexture");
+    distortionSceneTexture_->Initialize(2, Engine::GetInstance()->GetWinApp()->GetWindowSize(), DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, Vec4f(0.0f, 0.0f, 0.0f, 0.0f));
+    distortionSceneTexture_->SetTextureName("DistortionSceneTexture");
 
     texturedMeshRenderSystem_ = std::make_unique<TexturedMeshRenderSystem>();
     texturedMeshRenderSystem_->Initialize();
@@ -52,7 +52,7 @@ void DistortionEffect::Finalize() {
 }
 
 void DistortionEffect::CreatePSO() {
-    ShaderManager* shaderManager = ShaderManager::getInstance();
+    ShaderManager* shaderManager = ShaderManager::GetInstance();
     shaderManager->LoadShader("FullScreen.VS");
     shaderManager->LoadShader("Distortion.PS", shaderDirectory, L"ps_6_0");
     ShaderInformation shaderInfo{};
@@ -92,7 +92,7 @@ void DistortionEffect::CreatePSO() {
     rootParameter[0].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
     rootParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
     distortionTextureIndex_           = (int32_t)shaderInfo.pushBackRootParameter(rootParameter[0]);
-    shaderInfo.setDescriptorRange2Parameter(&texRange[0], 1, distortionTextureIndex_);
+    shaderInfo.SetDescriptorRange2Parameter(&texRange[0], 1, distortionTextureIndex_);
 
     // scene texture (t1)
     texRange[1].BaseShaderRegister                = 1;
@@ -103,7 +103,7 @@ void DistortionEffect::CreatePSO() {
     rootParameter[1].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
     rootParameter[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
     sceneTextureIndex_                = (int32_t)shaderInfo.pushBackRootParameter(rootParameter[1]);
-    shaderInfo.setDescriptorRange2Parameter(&texRange[1], 1, sceneTextureIndex_);
+    shaderInfo.SetDescriptorRange2Parameter(&texRange[1], 1, sceneTextureIndex_);
 
     // distortion param
     rootParameter[2].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
@@ -127,18 +127,18 @@ void DistortionEffect::CreatePSO() {
     ///================================================
     D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
     depthStencilDesc.DepthEnable = false;
-    shaderInfo.setDepthStencilDesc(depthStencilDesc);
+    shaderInfo.SetDepthStencilDesc(depthStencilDesc);
 
-    pso_ = shaderManager->CreatePso("DistortionEffect", shaderInfo, Engine::getInstance()->getDxDevice()->device_);
+    pso_ = shaderManager->CreatePso("DistortionEffect", shaderInfo, Engine::GetInstance()->GetDxDevice()->device_);
 }
 
 void DistortionEffect::RenderStart() {
-    auto& commandList = dxCommand_->getCommandList();
+    auto& commandList = dxCommand_->GetCommandList();
 
     // シーンテクスチャのサイズ確認
-    if (distortionSceneTexture_->getTextureSize() != Engine::getInstance()->getWinApp()->getWindowSize()) {
+    if (distortionSceneTexture_->GetTextureSize() != Engine::GetInstance()->GetWinApp()->GetWindowSize()) {
         // サイズが変わったら再初期化
-        distortionSceneTexture_->Resize(Engine::getInstance()->getWinApp()->getWindowSize());
+        distortionSceneTexture_->Resize(Engine::GetInstance()->GetWinApp()->GetWindowSize());
     }
 
     /// ----------------------------------------------------------
@@ -154,7 +154,7 @@ void DistortionEffect::RenderStart() {
             /// Transformの更新
             ///==============================
             {
-                auto& transform = object->getTransformBuff();
+                auto& transform = object->GetTransformBuff();
                 transform->UpdateMatrix();
                 transform.ConvertToBuffer();
             }
@@ -167,7 +167,7 @@ void DistortionEffect::RenderStart() {
     }
 
     /// ----------------------------------------------------------
-    /// pso set
+    /// pso Set
     /// ----------------------------------------------------------
     commandList->SetPipelineState(pso_->pipelineState.Get());
     commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
@@ -176,23 +176,23 @@ void DistortionEffect::RenderStart() {
 
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
-    dxCommand_->getCommandList()->SetDescriptorHeaps(1, ppHeaps);
+    ID3D12DescriptorHeap* ppHeaps[] = {Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
+    dxCommand_->GetCommandList()->SetDescriptorHeaps(1, ppHeaps);
 }
 
 void DistortionEffect::Rendering() {
-    auto commandList = dxCommand_->getCommandList();
+    auto commandList = dxCommand_->GetCommandList();
 
     // 3dオブジェクトでエフェクトをかける
     if (!activeDistortionObjects_.empty()) {
         // 開始処理
         RenderStart();
 
-        // set buffer
-        commandList->SetGraphicsRootDescriptorTable(distortionTextureIndex_, distortionSceneTexture_->getBackBufferSrvHandle());
-        commandList->SetGraphicsRootDescriptorTable(sceneTextureIndex_, renderTarget_->getBackBufferSrvHandle());
-        defaultParam_->getEffectParamBuffer().SetForRootParameter(commandList, distortionParamIndex_);
-        defaultParam_->getMaterialBuffer().SetForRootParameter(commandList, materialIndex_);
+        // Set buffer
+        commandList->SetGraphicsRootDescriptorTable(distortionTextureIndex_, distortionSceneTexture_->GetBackBufferSrvHandle());
+        commandList->SetGraphicsRootDescriptorTable(sceneTextureIndex_, renderTarget_->GetBackBufferSrvHandle());
+        defaultParam_->GetEffectParamBuffer().SetForRootParameter(commandList, distortionParamIndex_);
+        defaultParam_->GetMaterialBuffer().SetForRootParameter(commandList, materialIndex_);
 
         // Draw
         commandList->DrawInstanced(6, 1, 0, 0);
@@ -207,12 +207,12 @@ void DistortionEffect::Rendering() {
         // 開始処理
         RenderStart();
 
-        // set buffer
-        renderingData.effectParam->getEffectParamBuffer().ConvertToBuffer();
+        // Set buffer
+        renderingData.effectParam->GetEffectParamBuffer().ConvertToBuffer();
         commandList->SetGraphicsRootDescriptorTable(distortionTextureIndex_, renderingData.srvHandle);
-        commandList->SetGraphicsRootDescriptorTable(sceneTextureIndex_, renderTarget_->getBackBufferSrvHandle());
-        renderingData.effectParam->getEffectParamBuffer().SetForRootParameter(commandList, distortionParamIndex_);
-        renderingData.effectParam->getMaterialBuffer().SetForRootParameter(commandList, materialIndex_);
+        commandList->SetGraphicsRootDescriptorTable(sceneTextureIndex_, renderTarget_->GetBackBufferSrvHandle());
+        renderingData.effectParam->GetEffectParamBuffer().SetForRootParameter(commandList, distortionParamIndex_);
+        renderingData.effectParam->GetMaterialBuffer().SetForRootParameter(commandList, materialIndex_);
 
         // Draw
         commandList->DrawInstanced(6, 1, 0, 0);
@@ -231,28 +231,28 @@ void DistortionEffect::RenderEnd() {
 }
 
 void DistortionEffect::DispatchComponent(Entity* _entity) {
-    auto distortionEffectParams = getComponents<DistortionEffectParam>(_entity);
+    auto distortionEffectParams = GetComponents<DistortionEffectParam>(_entity);
     if (!distortionEffectParams) {
         return;
     }
     for (auto& effectParam : *distortionEffectParams) {
-        if (!effectParam.getIsActive()) {
+        if (!effectParam.GetIsActive()) {
             continue;
         }
         // 3dオブジェクトリストを使用する場合
-        if (effectParam.getUse3dObjectList()) {
-            auto& paramData = effectParam.getEffectParamData();
-            for (auto& [primitiveRenderBase, type] : effectParam.getDistortionObjects()) {
+        if (effectParam.GetUse3dObjectList()) {
+            auto& paramData = effectParam.GetEffectParamData();
+            for (auto& [primitiveRenderBase, type] : effectParam.GetDistortionObjects()) {
                 // activeでないならスキップ
-                if (!primitiveRenderBase->isRender()) {
+                if (!primitiveRenderBase->IsRender()) {
                     continue;
                 }
 
                 // マテリアル情報の更新
-                int32_t materialIndex = primitiveRenderBase->getMaterialIndex();
-                auto& materialBuff    = primitiveRenderBase->getMaterialBuff();
+                int32_t materialIndex = primitiveRenderBase->GetMaterialIndex();
+                auto& materialBuff    = primitiveRenderBase->GetMaterialBuff();
                 if (materialIndex >= 0) {
-                    Material* material = getComponent<Material>(_entity, materialIndex);
+                    Material* material = GetComponent<Material>(_entity, materialIndex);
                     material->UpdateUvMatrix();
 
                     // 歪み強度・バイアスの反映
@@ -262,7 +262,7 @@ void DistortionEffect::DispatchComponent(Entity* _entity) {
                     data.color_[R] = (data.color_[R] - paramData.distortionBias[X]) * paramData.distortionStrength[X];
                     data.color_[G] = (data.color_[G] - paramData.distortionBias[Y]) * paramData.distortionStrength[Y];
                     if (material->hasCustomTexture()) {
-                        data.setCustomTexture(material->getCustomTexture()->srv_, material->getCustomTexture()->resource_);
+                        data.SetCustomTexture(material->GetCustomTexture()->srv_, material->GetCustomTexture()->resource_);
                     }
 
                     materialBuff.ConvertToBuffer(data);
@@ -275,19 +275,19 @@ void DistortionEffect::DispatchComponent(Entity* _entity) {
             // 単一テクスチャを使用する場合
             RenderingData renderingData{};
             renderingData.effectParam = &effectParam;
-            renderingData.srvHandle   = TextureManager::getDescriptorGpuHandle(effectParam.getTextureIndex());
+            renderingData.srvHandle   = TextureManager::GetDescriptorGpuHandle(effectParam.GetTextureIndex());
 
             // マテリアル情報の更新
-            int32_t materialIndex = effectParam.getMaterialIndex();
-            auto& materialBuff    = effectParam.getMaterialBuffer();
+            int32_t materialIndex = effectParam.GetMaterialIndex();
+            auto& materialBuff    = effectParam.GetMaterialBuffer();
             if (materialIndex >= 0) {
-                Material* material = getComponent<Material>(_entity, materialIndex);
+                Material* material = GetComponent<Material>(_entity, materialIndex);
                 material->UpdateUvMatrix();
 
                 materialBuff.ConvertToBuffer(ColorAndUvTransform(material->color_, material->uvTransform_));
 
                 if (material->hasCustomTexture()) {
-                    renderingData.srvHandle = material->getCustomTexture()->srv_.getGpuHandle();
+                    renderingData.srvHandle = material->GetCustomTexture()->srv_.GetGpuHandle();
                 }
             }
             // 追加

@@ -38,7 +38,7 @@ void Particle::Initialize(
     direction_ = _direction;
     velocity_  = _velocity;
 
-    isAlive_ = true;
+    IsAlive_ = true;
 
     scaleRatio_    = transform_.scale / (_maxScale - _minScale);
     rotateRatio_   = transform_.rotate / (_maxRotate - _minRotate);
@@ -54,12 +54,12 @@ void Particle::Initialize(
 
 void Particle::Update(float _deltaTime) {
     deltaTime_ = _deltaTime;
-    if (!isAlive_) {
+    if (!IsAlive_) {
         return;
     }
     currentTime_ += deltaTime_;
     if (currentTime_ >= lifeTime_) {
-        isAlive_ = false;
+        IsAlive_ = false;
         return;
     }
 
@@ -97,7 +97,7 @@ void Particle::Update(float _deltaTime) {
     transform_.UpdateMatrix();
 }
 
-void Particle::setKeyFrames(int32_t updateSettings, ParticleKeyFrames* _keyFrames) {
+void Particle::SetKeyFrames(int32_t updateSettings, ParticleKeyFrames* _keyFrames) {
     if (updateSettings == 0 || !_keyFrames) {
         return;
     }
@@ -182,11 +182,11 @@ void Particle::setKeyFrames(int32_t updateSettings, ParticleKeyFrames* _keyFrame
     if (updateSettings & static_cast<int32_t>(ParticleUpdateType::UvScalePerLifeTime)) {
         if (uvInterpolationType_ == InterpolationType::LINEAR) {
             updateByCurves_.push_back([this]() {
-                transform_.uvScale = CalculateValue::Linear(keyFrames_->uvScaleCurve_, currentTime_);
+                transform_.uvScale = CalculateValue::Linear(keyFrames_->uvscaleCurve_, currentTime_);
             });
         } else {
             updateByCurves_.push_back([this]() {
-                transform_.uvScale = CalculateValue::Step(keyFrames_->uvScaleCurve_, currentTime_);
+                transform_.uvScale = CalculateValue::Step(keyFrames_->uvscaleCurve_, currentTime_);
             });
         }
     }

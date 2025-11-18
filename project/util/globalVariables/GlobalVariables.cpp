@@ -23,7 +23,7 @@
 using json                       = nlohmann::json;
 const std::string kDirectoryPath = kApplicationResourceDirectory + "/GlobalVariables/";
 
-GlobalVariables* GlobalVariables::getInstance() {
+GlobalVariables* GlobalVariables::GetInstance() {
     static GlobalVariables instance;
     return &instance;
 }
@@ -81,39 +81,39 @@ void GlobalVariables::LoadFile(const std::string& scene, const std::string& grou
         if (itemItr->is_number_integer()) {
             // int32_t なら
             int32_t value = itemItr->get<int32_t>();
-            setValue(scene, groupName, itemName, value);
+            SetValue(scene, groupName, itemName, value);
         } else if (itemItr->is_number_float()) {
             // float なら
             double value = itemItr->get<double>();
             float fValue = static_cast<float>(value);
-            setValue(scene, groupName, itemName, fValue);
+            SetValue(scene, groupName, itemName, fValue);
         } else if (itemItr->is_array()) {
             switch (itemItr->size()) {
             case 2: {
                 // Vec2f なら
                 Vec2f value(itemItr->at(0).get<float>(), itemItr->at(1).get<float>());
-                setValue(scene, groupName, itemName, value);
+                SetValue(scene, groupName, itemName, value);
                 break;
             }
             case 3: {
                 // Vec3f なら
                 Vec3f value(itemItr->at(0).get<float>(), itemItr->at(1).get<float>(), itemItr->at(2).get<float>());
-                setValue(scene, groupName, itemName, value);
+                SetValue(scene, groupName, itemName, value);
                 break;
             }
             case 4: {
                 // Vec4f なら
                 Vec4f value(itemItr->at(0).get<float>(), itemItr->at(1).get<float>(), itemItr->at(2).get<float>(), itemItr->at(3).get<float>());
-                setValue(scene, groupName, itemName, value);
+                SetValue(scene, groupName, itemName, value);
                 break;
             }
             }
         } else if (itemItr->is_boolean()) {
             bool value = itemItr->get<bool>();
-            setValue(scene, groupName, itemName, value);
+            SetValue(scene, groupName, itemName, value);
         } else if (itemItr->is_string()) {
             std::string value = itemItr->get<std::string>();
-            setValue(scene, groupName, itemName, value);
+            SetValue(scene, groupName, itemName, value);
         }
     }
 }

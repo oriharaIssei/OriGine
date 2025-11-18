@@ -28,7 +28,7 @@ class GlobalVariables {
 #endif // _DEBUG
 
 public:
-    static GlobalVariables* getInstance();
+    static GlobalVariables* GetInstance();
 
     /// <summary>
     /// GlobalVariablesのデータをすべて読み込む
@@ -67,7 +67,7 @@ private:
     std::map<std::string, Scene> data_;
 
 public:
-    Scene* getScene(const std::string& scene) {
+    Scene* GetScene(const std::string& scene) {
         auto itr = data_.find(scene);
         if (itr == data_.end()) {
             return nullptr;
@@ -77,13 +77,13 @@ public:
 
     // 新しいアイテムを作成してセット
     template <typename T>
-    void setValue(const std::string& scene, const std::string& groupName, const std::string& itemName, const T& value) {
+    void SetValue(const std::string& scene, const std::string& groupName, const std::string& itemName, const T& value) {
         data_[scene][groupName][itemName] = value;
     }
 
     // アイテムを取得、存在しない場合は作成してそのポインタを返す
     template <typename T>
-    T* addValue(const std::string& scene, const std::string& groupName, const std::string& itemName) {
+    T* AddValue(const std::string& scene, const std::string& groupName, const std::string& itemName) {
         // グループを取得
         auto& group = data_[scene][groupName];
         // アイテムを検索
@@ -99,13 +99,13 @@ public:
         }
 
         // アイテムが存在しない場合は新規作成してポインタを返す
-        setValue(scene, groupName, itemName, T{});
+        SetValue(scene, groupName, itemName, T{});
         return std::get_if<T>(&group[itemName]);
     }
 
     // アイテムを取得、存在しない場合は作成してそのポインタを返す
     template <typename T>
-    T* addValue(const std::string& scene, const std::string& groupName, const std::string& itemName,const T& defaultValue) {
+    T* AddValue(const std::string& scene, const std::string& groupName, const std::string& itemName,const T& defaultValue) {
         // グループを取得
         auto& group = data_[scene][groupName];
         // アイテムを検索
@@ -121,13 +121,13 @@ public:
         }
 
         // アイテムが存在しない場合は新規作成してポインタを返す
-        setValue(scene, groupName, itemName, defaultValue);
+        SetValue(scene, groupName, itemName, defaultValue);
         return std::get_if<T>(&group[itemName]);
     }
 
     // アイテムの値を取得（const）
     template <typename T>
-    T getValue(const std::string& scene, const std::string& groupName, const std::string& itemName) const {
+    T GetValue(const std::string& scene, const std::string& groupName, const std::string& itemName) const {
         // Sceneの存在を確認
         auto sceneItr = data_.find(scene);
         assert(sceneItr != data_.end());

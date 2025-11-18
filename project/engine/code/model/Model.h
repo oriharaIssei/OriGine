@@ -149,7 +149,7 @@ struct Model {
     using ModelMaterialData = std::vector<TexturedMaterial>;
     ModelMaterialData materialData_;
 
-    void setMaterialBuff(int32_t part, Material _data) {
+    void SetMaterialBuff(int32_t part, Material _data) {
         materialData_[part].material = _data;
     }
     /// <summary>
@@ -164,7 +164,7 @@ struct Model {
     /// </summary>
     /// <param name="part"></param>
     /// <param name="_textureNumber"></param>
-    void setTexture(int32_t part, uint32_t _textureNumber) {
+    void SetTexture(int32_t part, uint32_t _textureNumber) {
         materialData_[part].texturePath   = "";
         materialData_[part].textureNumber = _textureNumber;
     }

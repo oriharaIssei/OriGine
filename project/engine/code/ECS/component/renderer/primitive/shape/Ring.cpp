@@ -22,9 +22,9 @@ void Ring::CreateMesh(TextureMesh* _mesh) {
     vertexSize_ = division_ * 4; // 1つの円環は division_ * 4 頂点
     indexSize_  = division_ * 6; // 1つの円環は division_ * 6 インデックス
 
-    if (_mesh->getIndexCapacity() < (int32_t)indexSize_) {
+    if (_mesh->GetIndexCapacity() < (int32_t)indexSize_) {
         // 必要なら Finalize
-        if (_mesh->getVertexBuffer().getResource()) {
+        if (_mesh->GetVertexBuffer().GetResource()) {
             _mesh->Finalize();
         }
         _mesh->Initialize(vertexSize_, indexSize_);

@@ -1,8 +1,8 @@
 #include "AABBCollider.h"
 
 void to_json(nlohmann::json& _json, const AABBCollider& _a) {
-    _json["min"]       = _a.getLocalMin();
-    _json["max"]       = _a.getLocalMax();
+    _json["min"]       = _a.GetLocalMin();
+    _json["max"]       = _a.GetLocalMax();
     _json["transform"] = _a.transform_;
 }
 void from_json(const nlohmann::json& _json, AABBCollider& _a) {

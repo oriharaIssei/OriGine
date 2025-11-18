@@ -58,7 +58,7 @@ public: // メンバ関数
     virtual void Debug([[maybe_unused]] const std::string& _parentLabel);
 #endif // _DEBUG
 
-    virtual Vec3f getSpawnPos() = 0;
+    virtual Vec3f GetSpawnPos() = 0;
 
 public:
     const EmitterShapeType type_;
@@ -90,7 +90,7 @@ public: // メンバ関数
 #ifdef _DEBUG
     void Debug([[maybe_unused]] const std::string& _parentLabel) override;
 #endif // _DEBUG
-    Vec3f getSpawnPos() override;
+    Vec3f GetSpawnPos() override;
 
 public: // メンバ変数
     float radius_ = 0;
@@ -127,7 +127,7 @@ struct EmitterBox
     void Debug([[maybe_unused]] const std::string& _parentLabel) override;
 #endif // _DEBUG
 
-    Vec3f getSpawnPos() override;
+    Vec3f GetSpawnPos() override;
 
 public: // メンバ変数
     Vec3f min_    = {0.f, 0.f, 0.f};
@@ -166,7 +166,7 @@ public: // メンバ関数
 #ifdef _DEBUG
     void Debug([[maybe_unused]] const std::string& _parentLabel) override;
 #endif // _DEBUG
-    Vec3f getSpawnPos() override;
+    Vec3f GetSpawnPos() override;
 
 public: // メンバ変数
     float radius_    = 0.f;
@@ -206,7 +206,7 @@ public: // メンバ関数
     void Debug([[maybe_unused]] const std::string& _parentLabel) override;
 #endif // _DEBUG
 
-    Vec3f getSpawnPos() override;
+    Vec3f GetSpawnPos() override;
 
 public: // メンバ変数
     float angle_     = 0.f;

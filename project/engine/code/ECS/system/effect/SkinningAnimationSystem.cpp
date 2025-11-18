@@ -80,7 +80,7 @@ void SkinningAnimationSystem::Update() {
     usingCS_ = false;
 
     for (auto& id : entityIDs_) {
-        Entity* entity = getEntity(id);
+        Entity* entity = GetEntity(id);
         UpdateEntity(entity);
     }
     /*  if (usingCS_) {
@@ -101,105 +101,105 @@ void SkinningAnimationSystem::UpdateEntity(Entity* _entity) {
         return;
     }
 
-    int32_t compSize = getComponentArray<SkinningAnimationComponent>()->getComponentSize(_entity);
+    int32_t compSize = GetComponentArray<SkinningAnimationComponent>()->GetComponentSize(_entity);
 
-    const float deltaTime = getMainDeltaTime();
+    const float deltaTime = GetMainDeltaTime();
     for (int32_t i = 0; i < compSize; ++i) {
-        auto* animationComponent = getComponent<SkinningAnimationComponent>(_entity, i);
+        auto* animationComponent = GetComponent<SkinningAnimationComponent>(_entity, i);
 
         if (!animationComponent) {
             continue;
         }
 
-        int32_t currentAnimationIndex = animationComponent->getCurrentAnimationIndex();
-        if (!animationComponent->isPrePlay() && animationComponent->isPlay()) {
-            animationComponent->CreateSkinnedVertex(this->getScene());
+        int32_t currentAnimationIndex = animationComponent->GetCurrentAnimationIndex();
+        if (!animationComponent->IsPrePlay() && animationComponent->IsPlay()) {
+            animationComponent->CreateSkinnedVertex(this->GetScene());
         }
 
-        animationComponent->setIsPrePlay(currentAnimationIndex, animationComponent->isPlay());
-        if (!animationComponent->isPlay(currentAnimationIndex)) {
+        animationComponent->SetIsPrePlay(currentAnimationIndex, animationComponent->IsPlay());
+        if (!animationComponent->IsPlay(currentAnimationIndex)) {
             continue;
         }
-        if (!animationComponent->getAnimationData()) {
+        if (!animationComponent->GetAnimationData()) {
             continue;
         }
 
-        animationComponent->setIsEnd(currentAnimationIndex, false);
+        animationComponent->SetIsEnd(currentAnimationIndex, false);
 
         // アニメーションの更新
-        float currentTime = animationComponent->getCurrentTime(currentAnimationIndex);
-        currentTime += deltaTime * animationComponent->getPlaybackSpeed(currentAnimationIndex);
-        float duration = animationComponent->getDuration(currentAnimationIndex);
+        float currentTime = animationComponent->GetAnimationCurrentTime(currentAnimationIndex);
+        currentTime += deltaTime * animationComponent->GetPlaybackSpeed(currentAnimationIndex);
+        float duration = animationComponent->GetAnimationDuration(currentAnimationIndex);
         if (currentTime >= duration) {
-            if (animationComponent->isLoop(currentAnimationIndex)) {
+            if (animationComponent->IsLoop(currentAnimationIndex)) {
                 currentTime = std::fmod(currentTime, duration);
             } else {
                 currentTime = duration;
-                animationComponent->setIsEnd(currentAnimationIndex, true);
+                animationComponent->SetIsEnd(currentAnimationIndex, true);
             }
         }
 
-        animationComponent->setCurrentTime(currentAnimationIndex, currentTime);
+        animationComponent->SetAnimationCurrentTime(currentAnimationIndex, currentTime);
 
         // アニメーションの状態を更新
-        auto* modelRenderer = getComponent<ModelMeshRenderer>(_entity, animationComponent->getBindModeMeshRendererIndex());
+        auto* modelRenderer = GetComponent<ModelMeshRenderer>(_entity, animationComponent->GetBindModeMeshRendererIndex());
         if (!modelRenderer) {
-            LOG_ERROR("ModelMeshRenderer not found for entity: {}", _entity->getID());
+            LOG_ERROR("ModelMeshRenderer not found for entity: {}", _entity->GetID());
             return;
         }
 
-        auto& clusterDataMap = ModelManager::getInstance()->getModelMeshData(modelRenderer->getDirectory(), modelRenderer->getFileName())->skinClusterDataMap;
-        auto& skeleton       = animationComponent->getSkeletonRef();
+        auto& clusterDataMap = ModelManager::GetInstance()->GetModelMeshData(modelRenderer->GetDirectory(), modelRenderer->GetFileName())->skinClusterDataMap;
+        auto& skeleton       = animationComponent->GetSkeletonRef();
 
         // アニメーションが遷移しているかどうか
-        if (animationComponent->isTransitioning()) {
+        if (animationComponent->IsTransitioning()) {
             // 遷移時間の 更新
-            int32_t nextAnimationIndex = animationComponent->getNextAnimationIndex();
-            if (nextAnimationIndex < 0 || nextAnimationIndex >= static_cast<int32_t>(animationComponent->getAnimationTable().size())) {
+            int32_t nextAnimationIndex = animationComponent->GetNextAnimationIndex();
+            if (nextAnimationIndex < 0 || nextAnimationIndex >= static_cast<int32_t>(animationComponent->GetAnimationTable().size())) {
                 LOG_ERROR("Invalid next animation index: {}", nextAnimationIndex);
                 continue;
             }
 
-            float transitionCurrentTime = animationComponent->getBlendCurrentTime();
+            float transitionCurrentTime = animationComponent->GetBlendCurrentTime();
             transitionCurrentTime += deltaTime;
 
-            if (transitionCurrentTime >= animationComponent->getBlendTime()) {
-                transitionCurrentTime = animationComponent->getBlendTime();
-                animationComponent->endTransition(); // トランジションを終了
+            if (transitionCurrentTime >= animationComponent->GetBlendTime()) {
+                transitionCurrentTime = animationComponent->GetBlendTime();
+                animationComponent->EndTransition(); // トランジションを終了
             }
-            animationComponent->setBlendCurrentTime(transitionCurrentTime);
+            animationComponent->SetBlendCurrentTime(transitionCurrentTime);
 
             // 次のアニメーションの更新
-            float nextAnimationCurrentTime = animationComponent->getCurrentTime(nextAnimationIndex);
-            nextAnimationCurrentTime += deltaTime * animationComponent->getPlaybackSpeed(nextAnimationIndex);
-            float nextDuration = animationComponent->getDuration(nextAnimationIndex);
+            float nextAnimationCurrentTime = animationComponent->GetAnimationCurrentTime(nextAnimationIndex);
+            nextAnimationCurrentTime += deltaTime * animationComponent->GetPlaybackSpeed(nextAnimationIndex);
+            float nextDuration = animationComponent->GetAnimationDuration(nextAnimationIndex);
             if (nextAnimationCurrentTime >= nextDuration) {
-                if (animationComponent->isLoop(currentAnimationIndex)) {
+                if (animationComponent->IsLoop(currentAnimationIndex)) {
                     nextAnimationCurrentTime = std::fmod(nextAnimationCurrentTime, nextDuration);
                 } else {
                     nextAnimationCurrentTime = nextDuration;
-                    animationComponent->setIsEnd(nextAnimationIndex, true);
+                    animationComponent->SetIsEnd(nextAnimationIndex, true);
                 }
             }
-            animationComponent->setCurrentTime(nextAnimationIndex, nextAnimationCurrentTime);
+            animationComponent->SetAnimationCurrentTime(nextAnimationIndex, nextAnimationCurrentTime);
 
             ApplyBlendedAnimation(
                 skeleton,
-                animationComponent->getAnimationData(currentAnimationIndex).get(),
+                animationComponent->GetAnimationData(currentAnimationIndex).get(),
                 currentTime,
-                animationComponent->getAnimationData(nextAnimationIndex).get(),
+                animationComponent->GetAnimationData(nextAnimationIndex).get(),
                 nextAnimationCurrentTime,
-                transitionCurrentTime / animationComponent->getBlendTime());
+                transitionCurrentTime / animationComponent->GetBlendTime());
         } else {
             ApplyAnimation(
                 skeleton,
-                animationComponent->getAnimationData(currentAnimationIndex).get(),
+                animationComponent->GetAnimationData(currentAnimationIndex).get(),
                 currentTime);
         }
         skeleton.Update();
 
-        auto& commandList = dxCommand_->getCommandList();
-        auto& meshGroup   = modelRenderer->getMeshGroup();
+        auto& commandList = dxCommand_->GetCommandList();
+        auto& meshGroup   = modelRenderer->GetMeshGroup();
 
         StartCS();
 
@@ -207,13 +207,13 @@ void SkinningAnimationSystem::UpdateEntity(Entity* _entity) {
         for (int32_t meshIdx = 0; meshIdx < meshSize; ++meshIdx) {
             auto& mesh = meshGroup->at(meshIdx);
             // スキニングされた頂点バッファを更新
-            auto& skinnedVertexBuffer = animationComponent->getSkinnedVertexBuffer(meshIdx);
+            auto& skinnedVertexBuffer = animationComponent->GetSkinnedVertexBuffer(meshIdx);
 
-            if (!skinnedVertexBuffer.buffer.isValid()) {
+            if (!skinnedVertexBuffer.buffer.IsValid()) {
                 continue; // スキニングされた頂点バッファが無効な場合はスキップ
             }
 
-            auto clusterItr = clusterDataMap.find(mesh.getName());
+            auto clusterItr = clusterDataMap.find(mesh.GetName());
             if (clusterItr == clusterDataMap.end()) {
                 LOG_ERROR("SkinClusterData not found for mesh at index {}", meshIdx);
                 continue;
@@ -223,27 +223,27 @@ void SkinningAnimationSystem::UpdateEntity(Entity* _entity) {
 
             commandList->SetComputeRootDescriptorTable(
                 outputVertexBufferIndex_,
-                skinnedVertexBuffer.descriptor.getGpuHandle());
+                skinnedVertexBuffer.descriptor.GetGpuHandle());
             commandList->SetComputeRootShaderResourceView(
                 inputVertexBufferIndex_,
-                mesh.getVBView().BufferLocation);
+                mesh.GetVBView().BufferLocation);
             commandList->SetComputeRootDescriptorTable(
                 matrixPaletteBufferIndex_,
-                clusterData.skeletonMatrixPaletteBuffer_.getSrv().getGpuHandle());
+                clusterData.skeletonMatrixPaletteBuffer_.GetSrv().GetGpuHandle());
             commandList->SetComputeRootDescriptorTable(
                 vertexInfluenceBufferIndex_,
-                clusterData.vertexInfluencesBuffer_.getSrv().getGpuHandle());
+                clusterData.vertexInfluencesBuffer_.GetSrv().GetGpuHandle());
 
             clusterData.skinningInfoBuffer_->vertexSize =
-                mesh.getVBView().SizeInBytes / mesh.getVBView().StrideInBytes;
+                mesh.GetVBView().SizeInBytes / mesh.GetVBView().StrideInBytes;
             clusterData.skinningInfoBuffer_.ConvertToBuffer();
 
             commandList->SetComputeRootConstantBufferView(
                 gSkinningInformationBufferIndex_,
-                clusterData.skinningInfoBuffer_.getResource().getResource()->GetGPUVirtualAddress());
+                clusterData.skinningInfoBuffer_.GetResource().GetResource()->GetGPUVirtualAddress());
 
             dxCommand_->ResourceBarrier(
-                skinnedVertexBuffer.buffer.getResource(),
+                skinnedVertexBuffer.buffer.GetResource(),
                 D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
             UINT dispatchCount = (clusterData.skinningInfoBuffer_->vertexSize + 1023) / 1024;
@@ -254,7 +254,7 @@ void SkinningAnimationSystem::UpdateEntity(Entity* _entity) {
                 1); // X方向に分割、YとZは1
 
             dxCommand_->ResourceBarrier(
-                skinnedVertexBuffer.buffer.getResource(),
+                skinnedVertexBuffer.buffer.GetResource(),
                 D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
 
             usingCS_ = true;
@@ -271,11 +271,11 @@ void SkinningAnimationSystem::CreatePSO() {
         return; // PSOが既に作成されている場合は何もしない
     }
 
-    ShaderManager* shaderManager = ShaderManager::getInstance();
-    DxDevice* dxDevice           = Engine::getInstance()->getDxDevice();
+    ShaderManager* shaderManager = ShaderManager::GetInstance();
+    DxDevice* dxDevice           = Engine::GetInstance()->GetDxDevice();
 
     if (shaderManager->IsRegisteredPipelineStateObj(psoKey)) {
-        pso_ = shaderManager->getPipelineStateObj(psoKey);
+        pso_ = shaderManager->GetPipelineStateObj(psoKey);
         return; // PSOが既に登録されている場合はそれを使用
     }
 
@@ -319,7 +319,7 @@ void SkinningAnimationSystem::CreatePSO() {
     outputDescriptorRange[0].NumDescriptors                    = 1;
     outputDescriptorRange[0].RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
     outputDescriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-    shaderInfo.setDescriptorRange2Parameter(
+    shaderInfo.SetDescriptorRange2Parameter(
         outputDescriptorRange, 1, outputVertexBufferIndex_);
 
     D3D12_DESCRIPTOR_RANGE matrixPaletteDescriptorRange[1]            = {};
@@ -327,7 +327,7 @@ void SkinningAnimationSystem::CreatePSO() {
     matrixPaletteDescriptorRange[0].NumDescriptors                    = 1;
     matrixPaletteDescriptorRange[0].RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
     matrixPaletteDescriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-    shaderInfo.setDescriptorRange2Parameter(
+    shaderInfo.SetDescriptorRange2Parameter(
         matrixPaletteDescriptorRange, 1, matrixPaletteBufferIndex_);
 
     D3D12_DESCRIPTOR_RANGE vertexInfluenceDescriptorRange[1]            = {};
@@ -335,7 +335,7 @@ void SkinningAnimationSystem::CreatePSO() {
     vertexInfluenceDescriptorRange[0].NumDescriptors                    = 1;
     vertexInfluenceDescriptorRange[0].RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
     vertexInfluenceDescriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-    shaderInfo.setDescriptorRange2Parameter(
+    shaderInfo.SetDescriptorRange2Parameter(
         vertexInfluenceDescriptorRange, 1, vertexInfluenceBufferIndex_);
 
 #pragma endregion
@@ -353,16 +353,16 @@ void SkinningAnimationSystem::StartCS() {
     }
 
     ID3D12DescriptorHeap* ppHeaps[] = {
-        Engine::getInstance()->getSrvHeap()->getHeap().Get()};
-    dxCommand_->getCommandList()->SetDescriptorHeaps(1, ppHeaps);
+        Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
+    dxCommand_->GetCommandList()->SetDescriptorHeaps(1, ppHeaps);
 
-    dxCommand_->getCommandList()->SetPipelineState(pso_->pipelineState.Get());
-    dxCommand_->getCommandList()->SetComputeRootSignature(pso_->rootSignature.Get());
+    dxCommand_->GetCommandList()->SetPipelineState(pso_->pipelineState.Get());
+    dxCommand_->GetCommandList()->SetComputeRootSignature(pso_->rootSignature.Get());
 }
 
 void SkinningAnimationSystem::ExecuteCS() {
     HRESULT hr;
-    DxFence* fence = Engine::getInstance()->getDxFence();
+    DxFence* fence = Engine::GetInstance()->GetDxFence();
 
     // コマンドの受付終了 -----------------------------------
     hr = dxCommand_->Close();
@@ -381,7 +381,7 @@ void SkinningAnimationSystem::ExecuteCS() {
     ///===============================================================
     /// コマンドリストの実行を待つ
     ///===============================================================
-    fence->Signal(dxCommand_->getCommandQueue());
+    fence->Signal(dxCommand_->GetCommandQueue());
     fence->WaitForFence();
     ///===============================================================
 

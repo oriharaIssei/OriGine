@@ -7,14 +7,14 @@
 CameraManager::CameraManager() {}
 CameraManager::~CameraManager() {}
 
-CameraManager* CameraManager::getInstance() {
+CameraManager* CameraManager::GetInstance() {
     static CameraManager instance{};
     return &instance;
 }
 
 void CameraManager::Initialize() {
     // bufferを生成
-    cTransform_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
+    cTransform_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
     cTransform_->Initialize();
     cTransform_->UpdateMatrix();
     cTransform_.ConvertToBuffer();
@@ -28,7 +28,7 @@ void CameraManager::Initialize() {
 
 void CameraManager::DebugUpdate() {
     debugCamera_->Update();
-    cTransform_.openData_ = debugCamera_->getCameraTransform();
+    cTransform_.openData_ = debugCamera_->GetCameraTransform();
     // 情報を Buffuer に 渡す
     cTransform_.ConvertToBuffer();
 }

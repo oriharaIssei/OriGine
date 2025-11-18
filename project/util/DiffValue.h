@@ -10,32 +10,32 @@ public:
     DiffValue(const T& value): current_(value),prev_(value){}
 
     /// 値を更新し、前回値を保存
-    void set(const T& value){
+    void Set(const T& value){
         prev_ = current_;
         current_ = value;
     }
 
     /// 現在値を取得
-    const T& current() const{ return current_; }
+    const T& Current() const{ return current_; }
 
     /// 前回値を取得
-    const T& prev() const{ return prev_; }
+    const T& Prev() const{ return prev_; }
 
     /// 差分を取得
-    T delta() const{ return current_ - prev_; }
+    T Delta() const{ return current_ - prev_; }
 
-    bool isChanged() const{
+    bool IsChanged() const{
         return current_ != prev_;
     }
-    bool isTrigger()const{
+    bool IsTrigger()const{
         return current_ && !prev_;
     }
-    bool isRelease() const{
+    bool IsRelease() const{
         return !current_ && prev_;
     }
 
     /// 前回値を現在値にリセット
-    void sync(){ prev_ = current_; }
+    void Sync(){ prev_ = current_; }
 
 private:
     T current_{};

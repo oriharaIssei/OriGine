@@ -43,7 +43,7 @@ public:
     Transform* parent = nullptr;
 
 public:
-    Vec3f getWorldTranslate() const { return worldMat[3]; }
+    Vec3f GetWorldTranslate() const { return worldMat[3]; }
 
 public:
     struct ConstantBuffer {

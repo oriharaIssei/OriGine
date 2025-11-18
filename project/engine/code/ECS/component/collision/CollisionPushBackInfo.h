@@ -41,11 +41,11 @@ private:
     std::unordered_map<int32_t, Info> collisionInfoMap_;
 
 public:
-    CollisionPushBackType getPushBackType() const { return pushBackType_; }
-    void setPushBackType(CollisionPushBackType type) { pushBackType_ = type; }
+    CollisionPushBackType GetPushBackType() const { return pushBackType_; }
+    void SetPushBackType(CollisionPushBackType type) { pushBackType_ = type; }
 
-    const std::unordered_map<int32_t, Info>& getCollisionInfoMap() const { return collisionInfoMap_; }
-    void setCollisionInfoMap(const std::unordered_map<int32_t, Info>& map) { collisionInfoMap_ = map; }
+    const std::unordered_map<int32_t, Info>& GetCollisionInfoMap() const { return collisionInfoMap_; }
+    void SetCollisionInfoMap(const std::unordered_map<int32_t, Info>& map) { collisionInfoMap_ = map; }
     void AddCollisionInfo(int32_t entityId, const Info& info) {
         collisionInfoMap_[entityId] = info;
     }

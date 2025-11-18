@@ -64,16 +64,16 @@ private:
     IConstantBuffer<RadialBlurBufferParam> constantBuffer_;
 
 public:
-    bool isActive() const { return isActive_; }
+    bool IsActive() const { return isActive_; }
     void Play();
     void Stop();
 
-    const Vec2f& getCenter() const { return constantBuffer_.openData_.center_; }
-    void setCenter(const Vec2f& center) { constantBuffer_.openData_.center_ = center; }
-    float getWidth() const { return constantBuffer_.openData_.width_; }
-    void setWidth(float width) { constantBuffer_.openData_.width_ = width; }
+    const Vec2f& GetCenter() const { return constantBuffer_.openData_.center_; }
+    void SetCenter(const Vec2f& center) { constantBuffer_.openData_.center_ = center; }
+    float GetWidth() const { return constantBuffer_.openData_.width_; }
+    void SetWidth(float width) { constantBuffer_.openData_.width_ = width; }
 
-    const IConstantBuffer<RadialBlurBufferParam>& getConstantBuffer() const {
+    const IConstantBuffer<RadialBlurBufferParam>& GetConstantBuffer() const {
         return constantBuffer_;
     }
 };

@@ -184,20 +184,20 @@ private:
 public:
     bool IsActive() const { return isActive_; }
     bool ParticleIsEmpty() const { return particles_.empty(); }
-    bool getIsLoop() const { return isLoop_; }
-    void setIsLoop(bool _isLoop) { isLoop_ = _isLoop; }
+    bool GetIsLoop() const { return isLoop_; }
+    void SetIsLoop(bool _isLoop) { isLoop_ = _isLoop; }
 
-    float getActiveTime() const { return activeTime_; }
-    void setLeftActiveTime(float _time) { leftActiveTime_ = _time; }
+    float GetActiveTime() const { return activeTime_; }
+    void SetLeftActiveTime(float _time) { leftActiveTime_ = _time; }
 
-    bool getIsBillBoard() const { return particleIsBillBoard_; }
-    void setIsBillBoard(bool _isBillBoard) { particleIsBillBoard_ = _isBillBoard; }
+    bool GetIsBillBoard() const { return particleIsBillBoard_; }
+    void SetIsBillBoard(bool _isBillBoard) { particleIsBillBoard_ = _isBillBoard; }
 
-    const Vec3f& getOriginPos() const { return originPos_; }
-    void setOriginPos(const Vec3f& _pos) { originPos_ = _pos; }
+    const Vec3f& GetOriginPos() const { return originPos_; }
+    void SetOriginPos(const Vec3f& _pos) { originPos_ = _pos; }
 
-    BlendMode getBlendMode() const { return blendMode_; }
+    BlendMode GetBlendMode() const { return blendMode_; }
 
-    Transform* getParent() const { return parent_; }
-    void setParent(Transform* _parent) { parent_ = _parent; }
+    Transform* GetParent() const { return parent_; }
+    void SetParent(Transform* _parent) { parent_ = _parent; }
 };

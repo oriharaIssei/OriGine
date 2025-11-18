@@ -54,14 +54,14 @@ private:
     bool isActive_ = false;
 
 public:
-    bool getIsActive() const { return isActive_; }
+    bool GetIsActive() const { return isActive_; }
 
-    const std::string& getFilepath() const { return filepath_; }
-    const std::string& getStartSceneName() const { return fileData_.header.startScene; }
+    const std::string& GetFilepath() const { return filepath_; }
+    const std::string& GetStartSceneName() const { return fileData_.header.startScene; }
 
-    size_t getTotalFrameCount() const { return fileData_.frameData.size(); }
-    size_t getCurrentFrameIndex() const { return currentFrameIndex_; }
-    void setCurrentFrameIndex(size_t index) { currentFrameIndex_ = index; }
+    size_t GetTotalFrameCount() const { return fileData_.frameData.size(); }
+    size_t GetCurrentFrameIndex() const { return currentFrameIndex_; }
+    void SetCurrentFrameIndex(size_t index) { currentFrameIndex_ = index; }
 
-    const ReplayFrameData& getCurrentFrameData() const { return fileData_.frameData[currentFrameIndex_]; }
+    const ReplayFrameData& GetCurrentFrameData() const { return fileData_.frameData[currentFrameIndex_]; }
 };

@@ -1,8 +1,8 @@
 #include "OBBCollider.h"
 
 void to_json(nlohmann::json& _json, const OBBCollider& _o) {
-    _json["center"]       = _o.getLocalCenter();
-    _json["halfSize"]     = _o.getLocalHalfSize();
+    _json["center"]       = _o.GetLocalCenter();
+    _json["halfSize"]     = _o.GetLocalHalfSize();
     _json["orientations"] = _o.shape_.orientations_.rot;
     _json["transform"]    = _o.transform_;
 }

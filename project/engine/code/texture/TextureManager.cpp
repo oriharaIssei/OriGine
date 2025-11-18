@@ -45,13 +45,13 @@ void Texture::Initialize(const std::string& filePath) {
     //==================================================
     DirectX::ScratchImage mipImages = Load(filePath);
     metaData                        = mipImages.GetMetadata();
-    resource.CreateTextureResource(Engine::getInstance()->getDxDevice()->device_, metaData);
+    resource.CreateTextureResource(Engine::GetInstance()->GetDxDevice()->device_, metaData);
 
     // ファイル名をリソース名にセット（デバッグ用）
     std::wstring wname = ConvertString(filePath);
-    resource.getResource()->SetName(wname.c_str());
+    resource.GetResource()->SetName(wname.c_str());
 
-    UploadTextureData(mipImages, resource.getResource());
+    UploadTextureData(mipImages, resource.GetResource());
 
     //==================================================
     // ShaderResourceView を作成
@@ -72,13 +72,13 @@ void Texture::Initialize(const std::string& filePath) {
     }
 
     /// SRV の作成
-    auto device = Engine::getInstance()->getDxDevice()->device_;
-    srv         = Engine::getInstance()->getSrvHeap()->CreateDescriptor(srvDesc, &resource);
+    auto device = Engine::GetInstance()->GetDxDevice()->device_;
+    srv         = Engine::GetInstance()->GetSrvHeap()->CreateDescriptor(srvDesc, &resource);
 }
 
 void Texture::Finalize() {
     resource.Finalize();
-    Engine::getInstance()->getSrvHeap()->ReleaseDescriptor(srv);
+    Engine::GetInstance()->GetSrvHeap()->ReleaseDescriptor(srv);
 }
 
 DirectX::ScratchImage Texture::Load(const std::string& filePath) {
@@ -138,7 +138,7 @@ DirectX::ScratchImage Texture::Load(const std::string& filePath) {
 
 void Texture::UploadTextureData(DirectX::ScratchImage& mipImg, Microsoft::WRL::ComPtr<ID3D12Resource> _resource) {
     std::vector<D3D12_SUBRESOURCE_DATA> subResources;
-    auto dxDevice = Engine::getInstance()->getDxDevice();
+    auto dxDevice = Engine::GetInstance()->GetDxDevice();
 
     DirectX::PrepareUpload(
         dxDevice->device_.Get(),
@@ -156,9 +156,9 @@ void Texture::UploadTextureData(DirectX::ScratchImage& mipImg, Microsoft::WRL::C
     intermediateResource->CreateBufferResource(dxDevice->device_, intermediateSize);
 
     UpdateSubresources(
-        TextureManager::dxCommand_->getCommandList().Get(),
+        TextureManager::dxCommand_->GetCommandList().Get(),
         _resource.Get(),
-        intermediateResource->getResource().Get(),
+        intermediateResource->GetResource().Get(),
         0,
         0,
         UINT(subResources.size()),
@@ -178,7 +178,7 @@ void Texture::ExecuteCommand(Microsoft::WRL::ComPtr<ID3D12Resource> _resource) {
     barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
     barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
     barrier.Transition.StateAfter  = D3D12_RESOURCE_STATE_GENERIC_READ;
-    TextureManager::dxCommand_->getResourceStateTracker()->DirectBarrier(TextureManager::dxCommand_->getCommandList(), _resource.Get(), barrier);
+    TextureManager::dxCommand_->GetResourceStateTracker()->DirectBarrier(TextureManager::dxCommand_->GetCommandList(), _resource.Get(), barrier);
 
     HRESULT hr = TextureManager::dxCommand_->Close();
     if (FAILED(hr)) {
@@ -188,13 +188,13 @@ void Texture::ExecuteCommand(Microsoft::WRL::ComPtr<ID3D12Resource> _resource) {
 
     TextureManager::dxCommand_->ExecuteCommand();
 
-    DxFence* fence = Engine::getInstance()->getDxFence();
-    fence->Signal(TextureManager::dxCommand_->getCommandQueue());
+    DxFence* fence = Engine::GetInstance()->GetDxFence();
+    fence->Signal(TextureManager::dxCommand_->GetCommandQueue());
     fence->WaitForFence();
 
     TextureManager::dxCommand_->CommandReset();
 
-    /*TextureManager::dxFence_->Signal(TextureManager::dxCommand_->getCommandQueue());
+    /*TextureManager::dxFence_->Signal(TextureManager::dxCommand_->GetCommandQueue());
     TextureManager::dxFence_->WaitForFence();
     TextureManager::dxCommand_->CommandReset();*/
 }
@@ -301,18 +301,18 @@ uint32_t TextureManager::LoadTexture(const std::string& filePath, std::function<
 }
 
 void TextureManager::UnloadTexture(uint32_t id) {
-    Engine::getInstance()->getSrvHeap()->ReleaseDescriptor(textures_[id]->srv);
+    Engine::GetInstance()->GetSrvHeap()->ReleaseDescriptor(textures_[id]->srv);
     textures_[id]->Finalize();
     textures_[id].reset();
 }
 
-D3D12_GPU_DESCRIPTOR_HANDLE TextureManager::getDescriptorGpuHandle(uint32_t handleId) {
+D3D12_GPU_DESCRIPTOR_HANDLE TextureManager::GetDescriptorGpuHandle(uint32_t handleId) {
     uint32_t locate = dummyTextureIndex_;
 
     locate = handleId;
 
     // ロード中や未ロードの場合は必ずダミー（0番）を返す
-    return textures_[locate]->srv.getGpuHandle();
+    return textures_[locate]->srv.GetGpuHandle();
 }
 #pragma endregion
 
@@ -328,6 +328,6 @@ void TextureManager::LoadTask::Update() {
     }
     timer.Update();
 
-    LOG_TRACE("LoadedTexture \n Path        : {} \n Lading Time : ", filePath, std::to_string(timer.getDeltaTime()));
+    LOG_TRACE("LoadedTexture \n Path        : {} \n Lading Time : ", filePath, std::to_string(timer.GetDeltaTime()));
 }
 #pragma endregion

@@ -9,18 +9,18 @@
 #include "component/material/Material.h"
 
 void MaterialAnimationWorkSystem::UpdateEntity(Entity* _entity) {
-    auto* materialAnimations = getComponents<MaterialAnimation>(_entity);
+    auto* materialAnimations = GetComponents<MaterialAnimation>(_entity);
     if (materialAnimations == nullptr) {
         return;
     }
-    const float deltaTime = getMainDeltaTime();
+    const float deltaTime = GetMainDeltaTime();
 
     for (auto& materialAnimation : *materialAnimations) {
-        int32_t materialIndex = materialAnimation.getMaterialIndex();
+        int32_t materialIndex = materialAnimation.GetMaterialIndex();
         if (materialIndex < 0) {
             continue;
         }
-        auto material = getComponent<Material>(_entity, static_cast<uint32_t>(materialIndex));
+        auto material = GetComponent<Material>(_entity, static_cast<uint32_t>(materialIndex));
         materialAnimation.Update(deltaTime, material);
     }
 }

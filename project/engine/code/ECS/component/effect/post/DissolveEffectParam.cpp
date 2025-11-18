@@ -23,8 +23,8 @@ void DissolveEffectParam::Initialize(Entity* /*_entity*/) {
     }
 
     if (isActive_) {
-        paramBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
-        materialBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
+        paramBuffer_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
+        materialBuffer_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
     }
 }
 void DissolveEffectParam::Finalize() {
@@ -47,8 +47,8 @@ void DissolveEffectParam::LoadTexture(const std::string& filePath) {
 void DissolveEffectParam::Play() {
     isActive_ = true;
     // buff の作成
-    paramBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
-    materialBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
+    paramBuffer_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
+    materialBuffer_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
 }
 
 void DissolveEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
@@ -62,7 +62,7 @@ void DissolveEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] 
     ImGui::Spacing();
 
     std::string label          = "MaterialIndex##" + _parentLabel;
-    auto materials             = _scene->getComponents<Material>(_entity);
+    auto materials             = _scene->GetComponents<Material>(_entity);
     int32_t entityMaterialSize = materials != nullptr ? static_cast<int32_t>(materials->size()) : 0;
 
     if (entityMaterialSize <= 0) {
@@ -93,7 +93,7 @@ void DissolveEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] 
         std::string label = "Load Texture##" + _parentLabel;
         ask               = ImGui::Button(label.c_str());
         ask               = ImGui::ImageButton(
-            ImTextureID(TextureManager::getDescriptorGpuHandle(textureIndex_).ptr),
+            ImTextureID(TextureManager::GetDescriptorGpuHandle(textureIndex_).ptr),
             ImVec2(32, 32), ImVec2(0, 0), ImVec2(1, 1), 4, ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
 
         return ask;
@@ -104,14 +104,14 @@ void DissolveEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] 
         std::string directory;
         std::string fileName;
         if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"png"})) {
-            auto setPath = std::make_unique<SetterCommand<std::string>>(&textureFilePath_, kApplicationResourceDirectory + "/" + directory + "/" + fileName);
+            auto SetPath = std::make_unique<SetterCommand<std::string>>(&textureFilePath_, kApplicationResourceDirectory + "/" + directory + "/" + fileName);
             CommandCombo commandCombo;
-            commandCombo.addCommand(std::move(setPath));
-            commandCombo.setFuncOnAfterCommand([this]() {
+            commandCombo.AddCommand(std::move(SetPath));
+            commandCombo.SetFuncOnAfterCommand([this]() {
                 textureIndex_ = TextureManager::LoadTexture(textureFilePath_);
             },
                 true);
-            EditorController::getInstance()->pushCommand(std::make_unique<CommandCombo>(commandCombo));
+            EditorController::GetInstance()->PushCommand(std::make_unique<CommandCombo>(commandCombo));
         }
     };
 

@@ -20,17 +20,17 @@ void VelocityRenderingSystem::Initialize() {
 
     BaseRenderSystem::Initialize();
 
-    rigidbodies_ = getComponentArray<Rigidbody>();
+    rigidbodies_ = GetComponentArray<Rigidbody>();
 
     velocityRenderer_ = std::make_unique<LineRenderer>(std::vector<Mesh<ColorVertexData>>());
     velocityRenderer_->Initialize(nullptr);
-    velocityRenderer_->getMeshGroup()->push_back(Mesh<ColorVertexData>());
-    velocityRenderer_->getMeshGroup()->back().Initialize(
+    velocityRenderer_->GetMeshGroup()->push_back(Mesh<ColorVertexData>());
+    velocityRenderer_->GetMeshGroup()->back().Initialize(
         VelocityRenderingSystem::defaultMeshCount_ * kMeshVertexSize, // 頂点数 (線 + 矢印分)
         VelocityRenderingSystem::defaultMeshCount_ * kMeshIndexSize // インデックス数
     );
 
-    velocityMeshItr_ = velocityRenderer_->getMeshGroup()->begin();
+    velocityMeshItr_ = velocityRenderer_->GetMeshGroup()->begin();
 }
 
 void VelocityRenderingSystem::Finalize() {
@@ -41,7 +41,7 @@ void VelocityRenderingSystem::CreateRenderMesh() {
     constexpr float kSideAngleRate   = 0.2f;
     constexpr float kArrowLengthRate = 0.3f;
 
-    auto& meshGroup = velocityRenderer_->getMeshGroup();
+    auto& meshGroup = velocityRenderer_->GetMeshGroup();
     for (auto& mesh : *meshGroup) {
         mesh.vertexes_.clear();
         mesh.indexes_.clear();
@@ -52,20 +52,20 @@ void VelocityRenderingSystem::CreateRenderMesh() {
         return;
     }
 
-    for (auto& [entityIdx, rbIdx] : rigidbodies_->getEntityIndexBind()) {
-        Entity* entity = getEntity(entityIdx);
+    for (auto& [entityIdx, rbIdx] : rigidbodies_->GetEntityIndexBind()) {
+        Entity* entity = GetEntity(entityIdx);
         if (!entity) {
             continue;
         }
 
-        Transform* transform = getComponent<Transform>(entity);
-        Rigidbody* rigidbody = getComponent<Rigidbody>(entity);
+        Transform* transform = GetComponent<Transform>(entity);
+        Rigidbody* rigidbody = GetComponent<Rigidbody>(entity);
         if (!transform || !rigidbody) {
             continue;
         }
 
         Vec3f pos = transform->worldMat[3];
-        Vec3f vel = rigidbody->getVelocity();
+        Vec3f vel = rigidbody->GetVelocity();
 
         if (vel.lengthSq() < kEpsilon) {
             continue; // ゼロベクトルならスキップ
@@ -108,13 +108,13 @@ void VelocityRenderingSystem::CreateRenderMesh() {
 }
 
 void VelocityRenderingSystem::RenderCall() {
-    auto commandList = dxCommand_->getCommandList();
-    velocityRenderer_->getTransformBuff().SetForRootParameter(commandList, 0);
-    for (auto& mesh : *velocityRenderer_->getMeshGroup()) {
+    auto commandList = dxCommand_->GetCommandList();
+    velocityRenderer_->GetTransformBuff().SetForRootParameter(commandList, 0);
+    for (auto& mesh : *velocityRenderer_->GetMeshGroup()) {
         if (mesh.indexes_.empty())
             continue;
-        commandList->IASetVertexBuffers(0, 1, &mesh.getVertexBufferView());
-        commandList->IASetIndexBuffer(&mesh.getIndexBufferView());
+        commandList->IASetVertexBuffers(0, 1, &mesh.GetVertexBufferView());
+        commandList->IASetIndexBuffer(&mesh.GetIndexBufferView());
         commandList->DrawIndexedInstanced((UINT)mesh.indexes_.size(), 1, 0, 0, 0);
     }
 }
@@ -126,12 +126,12 @@ void VelocityRenderingSystem::Rendering() {
 }
 
 bool VelocityRenderingSystem::ShouldSkipRender() const {
-    return !rigidbodies_ || rigidbodies_->getEntityIndexBind().empty();
+    return !rigidbodies_ || rigidbodies_->GetEntityIndexBind().empty();
 }
 
 void VelocityRenderingSystem::CreatePSO() {
-    ShaderManager* shaderManager = ShaderManager::getInstance();
-    DxDevice* dxDevice           = Engine::getInstance()->getDxDevice();
+    ShaderManager* shaderManager = ShaderManager::GetInstance();
+    DxDevice* dxDevice           = Engine::GetInstance()->GetDxDevice();
 
     shaderManager->LoadShader("ColoredVertex.VS");
     shaderManager->LoadShader("ColoredVertex.PS", shaderDirectory, L"ps_6_0");
@@ -169,10 +169,10 @@ void VelocityRenderingSystem::CreatePSO() {
 }
 
 void VelocityRenderingSystem::StartRender() {
-    auto commandList = dxCommand_->getCommandList();
+    auto commandList = dxCommand_->GetCommandList();
     commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
     commandList->SetPipelineState(pso_->pipelineState.Get());
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 
-    CameraManager::getInstance()->setBufferForRootParameter(commandList, 1);
+    CameraManager::GetInstance()->SetBufferForRootParameter(commandList, 1);
 }

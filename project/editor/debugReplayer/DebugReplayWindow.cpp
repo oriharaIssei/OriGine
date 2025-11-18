@@ -26,12 +26,12 @@ void DebugReplayWindow::Initialize() {
 
     replayPlayer_ = std::make_unique<ReplayPlayer>();
 
-    // addArea
-    addArea(std::make_unique<DebugReplayControlArea>(this));
-    addArea(std::make_unique<DebugReplayViewArea>(this));
+    // AddArea
+    AddArea(std::make_unique<DebugReplayControlArea>(this));
+    AddArea(std::make_unique<DebugReplayViewArea>(this));
 
-    // addMenu
-    addMenu(std::make_unique<DebugReplayFileMenu>(this));
+    // AddMenu
+    AddMenu(std::make_unique<DebugReplayFileMenu>(this));
 
     // 最大化
     isMaximized_ = true;
@@ -56,9 +56,9 @@ void DebugReplayWindow::DrawGui() {
 void DebugReplayWindow::UpdateSceneManager() {
 
     // リプレイプレイヤーが有効 & 指定フレームにシーク成功時のみ実行
-    if (replayPlayer_->getIsActive()) {
+    if (replayPlayer_->GetIsActive()) {
 
-        size_t playerCurrentFrameIndex = replayPlayer_->getCurrentFrameIndex();
+        size_t playerCurrentFrameIndex = replayPlayer_->GetCurrentFrameIndex();
 
         if (playerCurrentFrameIndex == replayFrameIndex_) {
             return;
@@ -66,19 +66,19 @@ void DebugReplayWindow::UpdateSceneManager() {
 
         // 過去に遡る場合、シーンを最初からやり直す
         if (playerCurrentFrameIndex > replayFrameIndex_) {
-            sceneManager_->changeScene(replayPlayer_->getStartSceneName());
-            sceneManager_->executeSceneChange();
+            sceneManager_->ChangeScene(replayPlayer_->GetStartSceneName());
+            sceneManager_->ExecuteSceneChange();
 
             // index の初期化
             playerCurrentFrameIndex = 0;
             // input の初期化
-            keyboardInput_->clearKeyStates();
-            mouseInput_->clearButtonStates();
+            keyboardInput_->ClearKeyStates();
+            mouseInput_->ClearButtonStates();
             mouseInput_->resetWheelDelta();
-            mouseInput_->resetPosition();
-            gamePadInput_->clearButtonStates();
-            gamePadInput_->clearStickStates();
-            gamePadInput_->clearTriggerStates();
+            mouseInput_->reSetPosition();
+            gamePadInput_->ClearButtonStates();
+            gamePadInput_->ClearStickStates();
+            gamePadInput_->ClearTriggerStates();
 
             // シーク
             replayPlayer_->Seek(playerCurrentFrameIndex);
@@ -96,7 +96,7 @@ void DebugReplayWindow::UpdateSceneManager() {
                 float deltaTime = replayPlayer_->Apply(keyboardInput_.get(), mouseInput_.get(), gamePadInput_.get());
 
                 // deltaTimeをセット
-                Engine::getInstance()->setDeltaTime(deltaTime);
+                Engine::GetInstance()->SetDeltaTime(deltaTime);
 
                 // シーンマネージャーを更新する
                 sceneManager_->Update();
@@ -113,17 +113,17 @@ void DebugReplayViewArea::Initialize() {}
 
 void DebugReplayViewArea::DrawGui() {
 
-    bool isOpen = isOpen_.current();
+    bool isOpen = isOpen_.Current();
 
     if (!isOpen) {
-        isOpen_.set(isOpen);
-        isFocused_.set(ImGui::IsWindowFocused());
+        isOpen_.Set(isOpen);
+        isFocused_.Set(ImGui::IsWindowFocused());
         UpdateFocusAndOpenState();
         return;
     }
 
-    auto sceneManager = parent_->getSceneManager();
-    auto currentScene = sceneManager->getCurrentScene();
+    auto sceneManager = parent_->GetSceneManager();
+    auto currentScene = sceneManager->GetCurrentScene();
     if (!currentScene) {
         ImGui::Text("No Scene Loaded");
         return;
@@ -155,24 +155,24 @@ void DebugReplayViewArea::DrawGui() {
                 smallerIndex = X;
             }
 
-            const Vec2f& sceneViewSize = currentScene->getSceneView()->getTextureSize();
+            const Vec2f& sceneViewSize = currentScene->GetSceneView()->GetTextureSize();
             float aspectRatio          = sceneViewSize[smallerIndex] / sceneViewSize[biggerIndex];
 
             // aspect比を維持したままリサイズ
             areaSize_[biggerIndex]  = guiWindowSize[biggerIndex];
             areaSize_[smallerIndex] = areaSize_[biggerIndex] * aspectRatio;
             // シーンビューのリサイズ
-            currentScene->getSceneView()->Resize(areaSize_);
+            currentScene->GetSceneView()->Resize(areaSize_);
             // guiWindowのリサイズ通知
             isResizing_ = true;
         }
 
         sceneManager->Render();
-        ImGui::Image(reinterpret_cast<ImTextureID>(currentScene->getSceneView()->getBackBufferSrvHandle().ptr), areaSize_.toImVec2());
+        ImGui::Image(reinterpret_cast<ImTextureID>(currentScene->GetSceneView()->GetBackBufferSrvHandle().ptr), areaSize_.toImVec2());
     }
 
-    isOpen_.set(isOpen);
-    isFocused_.set(ImGui::IsWindowFocused());
+    isOpen_.Set(isOpen);
+    isFocused_.Set(ImGui::IsWindowFocused());
     UpdateFocusAndOpenState();
 
     ImGui::End();

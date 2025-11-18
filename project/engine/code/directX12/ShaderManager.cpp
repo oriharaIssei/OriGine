@@ -208,7 +208,7 @@ bool ShaderManager::IsRegisteredShaderBlob(const std::string& fileName) const {
     return false;
 }
 
-PipelineStateObj* ShaderManager::getPipelineStateObj(const std::string& key) {
+PipelineStateObj* ShaderManager::GetPipelineStateObj(const std::string& key) {
     auto it = psoMap_.find(key);
     if (it == psoMap_.end()) {
         return nullptr;
@@ -216,7 +216,7 @@ PipelineStateObj* ShaderManager::getPipelineStateObj(const std::string& key) {
     return it->second.get();
 }
 
-Microsoft::WRL::ComPtr<IDxcBlob>* ShaderManager::getShaderBlob(const std::string& key) {
+Microsoft::WRL::ComPtr<IDxcBlob>* ShaderManager::GetShaderBlob(const std::string& key) {
     auto it = shaderBlobMap_.find(key);
     if (it == shaderBlobMap_.end()) {
         return nullptr;

@@ -50,7 +50,7 @@ public:
     /// <summary>
     /// RenderTexture への 書き込み準備
     /// </summary>
-    void PreDraw(const DxDsvDescriptor& _dsv = Engine::getInstance()->getDxDsv());
+    void PreDraw(const DxDsvDescriptor& _dsv = Engine::GetInstance()->GetDxDsv());
     /// <summary>
     /// RenderTexture への 書き込み開始
     /// </summary>
@@ -87,34 +87,34 @@ private:
 
     std::string textureName_ = "unknown Texture";
     Vec2f textureSize_;
-    Vec4f clearColor_;
+    Vec4f ClearColor_;
 
 public:
-    void setDxCommand(const std::string& _listName, const std::string& _queueName);
+    void SetDxCommand(const std::string& _listName, const std::string& _queueName);
 
-    void setTextureName(const std::string& _name);
+    void SetTextureName(const std::string& _name);
 
-    const Vec2f& getTextureSize() const { return textureSize_; }
+    const Vec2f& GetTextureSize() const { return textureSize_; }
 
     // back
-    int32_t getBackBufferIndex() const { return backBufferIndex_; }
-    const Microsoft::WRL::ComPtr<ID3D12Resource>& getBackBuffer() const { return renderTargets_[backBufferIndex_].resource_.getResource(); }
-    const DxRtvDescriptor& getBackBufferRtv() const { return renderTargets_[backBufferIndex_].rtv_; }
-    const DxSrvDescriptor& getBackBufferSrv() const { return renderTargets_[backBufferIndex_].srv_; }
-    D3D12_GPU_DESCRIPTOR_HANDLE getBackBufferSrvHandle() const { return renderTargets_[backBufferIndex_].srv_.getGpuHandle(); }
-    D3D12_CPU_DESCRIPTOR_HANDLE getBackBufferRtvHandle() const { return renderTargets_[backBufferIndex_].rtv_.getCpuHandle(); }
+    int32_t GetBackBufferIndex() const { return backBufferIndex_; }
+    const Microsoft::WRL::ComPtr<ID3D12Resource>& GetBackBuffer() const { return renderTargets_[backBufferIndex_].resource_.GetResource(); }
+    const DxRtvDescriptor& GetBackBufferRtv() const { return renderTargets_[backBufferIndex_].rtv_; }
+    const DxSrvDescriptor& GetBackBufferSrv() const { return renderTargets_[backBufferIndex_].srv_; }
+    D3D12_GPU_DESCRIPTOR_HANDLE GetBackBufferSrvHandle() const { return renderTargets_[backBufferIndex_].srv_.GetGpuHandle(); }
+    D3D12_CPU_DESCRIPTOR_HANDLE GetBackBufferRtvHandle() const { return renderTargets_[backBufferIndex_].rtv_.GetCpuHandle(); }
     // front
-    int32_t getFrontBufferIndex() const { return frontBufferIndex_; }
-    const Microsoft::WRL::ComPtr<ID3D12Resource>& getFrontBuffer() const { return renderTargets_[frontBufferIndex_].resource_.getResource(); }
-    const DxRtvDescriptor& getFrontBufferRtv() const { return renderTargets_[frontBufferIndex_].rtv_; }
-    const DxSrvDescriptor& getFrontBufferSrv() const { return renderTargets_[frontBufferIndex_].srv_; }
-    D3D12_GPU_DESCRIPTOR_HANDLE getFrontBufferSrvHandle() const { return renderTargets_[frontBufferIndex_].srv_.getGpuHandle(); }
-    D3D12_CPU_DESCRIPTOR_HANDLE getFrontBufferRtvHandle() const { return renderTargets_[frontBufferIndex_].rtv_.getCpuHandle(); }
+    int32_t GetFrontBufferIndex() const { return frontBufferIndex_; }
+    const Microsoft::WRL::ComPtr<ID3D12Resource>& GetFrontBuffer() const { return renderTargets_[frontBufferIndex_].resource_.GetResource(); }
+    const DxRtvDescriptor& GetFrontBufferRtv() const { return renderTargets_[frontBufferIndex_].rtv_; }
+    const DxSrvDescriptor& GetFrontBufferSrv() const { return renderTargets_[frontBufferIndex_].srv_; }
+    D3D12_GPU_DESCRIPTOR_HANDLE GetFrontBufferSrvHandle() const { return renderTargets_[frontBufferIndex_].srv_.GetGpuHandle(); }
+    D3D12_CPU_DESCRIPTOR_HANDLE GetFrontBufferRtvHandle() const { return renderTargets_[frontBufferIndex_].rtv_.GetCpuHandle(); }
 
-    D3D12_GPU_DESCRIPTOR_HANDLE getSrvHandle(int32_t index) const {
-        return renderTargets_[index].srv_.getGpuHandle();
+    D3D12_GPU_DESCRIPTOR_HANDLE GetSrvHandle(int32_t index) const {
+        return renderTargets_[index].srv_.GetGpuHandle();
     }
-    D3D12_CPU_DESCRIPTOR_HANDLE getRtvHandle(int32_t index) const {
-        return renderTargets_[index].rtv_.getCpuHandle();
+    D3D12_CPU_DESCRIPTOR_HANDLE GetRtvHandle(int32_t index) const {
+        return renderTargets_[index].rtv_.GetCpuHandle();
     }
 };

@@ -2,9 +2,9 @@
 
 namespace Primitive {
 void Cylinder::CreateMesh(TextureMesh* _mesh) {
-    if (_mesh->getIndexCapacity() < indexSize_) {
+    if (_mesh->GetIndexCapacity() < indexSize_) {
         // 必要なら Finalize
-        if (_mesh->getVertexBuffer().getResource()) {
+        if (_mesh->GetVertexBuffer().GetResource()) {
             _mesh->Finalize();
         }
         _mesh->Initialize(vertexSize_, indexSize_);
@@ -64,8 +64,8 @@ void Cylinder::CreateMesh(TextureMesh* _mesh) {
         indices.push_back(b0);
     }
 
-    _mesh->setVertexData(vertices);
-    _mesh->setIndexData(indices);
+    _mesh->SetVertexData(vertices);
+    _mesh->SetIndexData(indices);
 
     _mesh->TransferData();
 }

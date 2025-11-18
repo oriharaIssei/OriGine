@@ -17,7 +17,7 @@
 /// </summary>
 class AnimationManager {
 public:
-    static AnimationManager* getInstance() {
+    static AnimationManager* GetInstance() {
         static AnimationManager instance;
         return &instance;
     }
@@ -80,7 +80,7 @@ private:
     std::vector<std::shared_ptr<AnimationData>> animationData_;
 
 public:
-    const AnimationData* getAnimationData(const std::string& name) const;
-    const AnimationData* getAnimationData(int index) const { return animationData_[index].get(); }
+    const AnimationData* GetAnimationData(const std::string& name) const;
+    const AnimationData* GetAnimationData(int index) const { return animationData_[index].get(); }
 
 };

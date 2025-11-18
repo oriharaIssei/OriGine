@@ -42,7 +42,7 @@ void Scene::InitializeECS() {
 void Scene::InitializeSceneView() {
     sceneView_ = std::make_unique<RenderTexture>();
     sceneView_->Initialize(2, Vec2f(1280.f, 720.f));
-    sceneView_->setTextureName(name_ + "_SceneView");
+    sceneView_->SetTextureName(name_ + "_SceneView");
 }
 
 void Scene::Update() {
@@ -64,7 +64,7 @@ void Scene::Render() {
 
     // ポストレンダリング
     int32_t postRenderInt = static_cast<int32_t>(SystemCategory::PostRender);
-    if (systemRunner_->getActiveSystems()[postRenderInt].empty() || !systemRunner_->getCategoryActivity(SystemCategory::PostRender)) {
+    if (systemRunner_->GetActiveSystems()[postRenderInt].empty() || !systemRunner_->GetCategoryActivity(SystemCategory::PostRender)) {
         return;
     }
     systemRunner_->UpdateCategory<SystemCategory::PostRender>();
@@ -73,7 +73,7 @@ void Scene::Render() {
 void Scene::Finalize() {
     systemRunner_->AllUnregisterSystem(true);
     entityRepository_->Finalize();
-    componentRepository_->clear();
+    componentRepository_->Clear();
 
     systemRunner_.reset();
     componentRepository_.reset();
@@ -89,7 +89,7 @@ void Scene::Finalize() {
 
 void Scene::ExecuteDeleteEntities() {
     for (int32_t entityID : deleteEntities_) {
-        deleteEntity(entityID);
+        DeleteEntity(entityID);
     }
     deleteEntities_.clear();
 }
@@ -102,66 +102,66 @@ void Scene::addDeleteEntity(int32_t entityId) {
     deleteEntities_.push_back(entityId);
 }
 
-void Scene::deleteEntity(int32_t entityId) {
-    Entity* entity = entityRepository_->getEntity(entityId);
-    if (!entity || !entity->isAlive()) {
+void Scene::DeleteEntity(int32_t entityId) {
+    Entity* entity = entityRepository_->GetEntity(entityId);
+    if (!entity || !entity->IsAlive()) {
         LOG_ERROR("Failed Delte Entity : {}", entityId);
         return;
     }
     // コンポーネント を削除
-    componentRepository_->deleteEntity(entity);
+    componentRepository_->DeleteEntity(entity);
     // システムからエンティティを削除
-    systemRunner_->removeEntityFromAllSystems(entity);
+    systemRunner_->RemoveEntityFromAllSystems(entity);
     // エンティティを削除
-    entityRepository_->removeEntity(entityId);
+    entityRepository_->RemoveEntity(entityId);
 }
 
-const EntityRepository* Scene::getEntityRepository() const { return entityRepository_.get(); }
-EntityRepository* Scene::getEntityRepositoryRef() { return entityRepository_.get(); }
+const EntityRepository* Scene::GetEntityRepository() const { return entityRepository_.get(); }
+EntityRepository* Scene::GetEntityRepositoryRef() { return entityRepository_.get(); }
 
-const ComponentRepository* Scene::getComponentRepository() const { return componentRepository_.get(); }
-ComponentRepository* Scene::getComponentRepositoryRef() { return componentRepository_.get(); }
+const ComponentRepository* Scene::GetComponentRepository() const { return componentRepository_.get(); }
+ComponentRepository* Scene::GetComponentRepositoryRef() { return componentRepository_.get(); }
 
-const SystemRunner* Scene::getSystemRunner() const { return systemRunner_.get(); }
-SystemRunner* Scene::getSystemRunnerRef() { return systemRunner_.get(); }
+const SystemRunner* Scene::GetSystemRunner() const { return systemRunner_.get(); }
+SystemRunner* Scene::GetSystemRunnerRef() { return systemRunner_.get(); }
 
-Entity* Scene::getEntity(int32_t entityId) const {
-    return entityRepository_->getEntity(entityId);
+Entity* Scene::GetEntity(int32_t entityId) const {
+    return entityRepository_->GetEntity(entityId);
 }
 
-Entity* Scene::getUniqueEntity(const std::string& _dataType) const {
+Entity* Scene::GetUniqueEntity(const std::string& _dataType) const {
     if (!_dataType.empty()) {
-        return entityRepository_->getUniqueEntity(_dataType);
+        return entityRepository_->GetUniqueEntity(_dataType);
     }
-    LOG_ERROR("Scene::getUniqueEntity: Data type is empty.");
+    LOG_ERROR("Scene::GetUniqueEntity: Data type is empty.");
     return nullptr;
 }
 
-bool Scene::addComponent(const std::string& _compTypeName, int32_t _entityId, bool _doInitialize) {
-    Entity* entity = entityRepository_->getEntity(_entityId);
+bool Scene::AddComponent(const std::string& _compTypeName, int32_t _entityId, bool _doInitialize) {
+    Entity* entity = entityRepository_->GetEntity(_entityId);
     if (!entity) {
-        LOG_ERROR("Scene::addComponent: Entity with ID '{}' not found.", _entityId);
+        LOG_ERROR("Scene::AddComponent: Entity with ID '{}' not found.", _entityId);
         return false;
     }
-    componentRepository_->addComponent(_compTypeName, entity, _doInitialize);
+    componentRepository_->AddComponent(_compTypeName, entity, _doInitialize);
     return true;
 }
 
-bool Scene::removeComponent(const std::string& _compTypeName, int32_t _entityId, int32_t _componentIndex) {
-    Entity* entity = entityRepository_->getEntity(_entityId);
+bool Scene::RemoveComponent(const std::string& _compTypeName, int32_t _entityId, int32_t _componentIndex) {
+    Entity* entity = entityRepository_->GetEntity(_entityId);
     if (!entity) {
-        LOG_ERROR("Scene::removeComponent: Entity with ID '{}' not found.", _entityId);
+        LOG_ERROR("Scene::RemoveComponent: Entity with ID '{}' not found.", _entityId);
         return false;
     }
-    componentRepository_->removeComponent(_compTypeName, entity, _componentIndex);
+    componentRepository_->RemoveComponent(_compTypeName, entity, _componentIndex);
     return true;
 }
 
-ISystem* Scene::getSystem(const std::string& _systemTypeName) const {
+ISystem* Scene::GetSystem(const std::string& _systemTypeName) const {
     if (systemRunner_) {
-        return systemRunner_->getSystem(_systemTypeName);
+        return systemRunner_->GetSystem(_systemTypeName);
     }
-    LOG_ERROR("Scene::getSystem: SystemRunner is not initialized.");
+    LOG_ERROR("Scene::GetSystem: SystemRunner is not initialized.");
     return nullptr;
 }
 

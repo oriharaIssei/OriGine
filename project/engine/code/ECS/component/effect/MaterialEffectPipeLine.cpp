@@ -40,7 +40,7 @@ void MaterialEffectPipeLine::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused
         std::string label = "Load Texture##" + _parentLabel;
         ask               = ImGui::Button(label.c_str());
         ask |= ImGui::ImageButton(
-            ImTextureID(TextureManager::getDescriptorGpuHandle(baseTextureId_).ptr),
+            ImTextureID(TextureManager::GetDescriptorGpuHandle(baseTextureId_).ptr),
             ImVec2(32, 32), ImVec2(0, 0), ImVec2(1, 1), 4, ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
 
         return ask;
@@ -52,17 +52,17 @@ void MaterialEffectPipeLine::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused
         if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"png"})) {
             auto setPath = std::make_unique<SetterCommand<std::string>>(&baseTexturePath_, kApplicationResourceDirectory + "/" + directory + "/" + fileName);
             CommandCombo commandCombo;
-            commandCombo.addCommand(std::move(setPath));
-            commandCombo.setFuncOnAfterCommand([this]() {
+            commandCombo.AddCommand(std::move(setPath));
+            commandCombo.SetFuncOnAfterCommand([this]() {
                 baseTextureId_ = TextureManager::LoadTexture(baseTexturePath_);
             },
                 true);
-            EditorController::getInstance()->pushCommand(std::make_unique<CommandCombo>(commandCombo));
+            EditorController::GetInstance()->PushCommand(std::make_unique<CommandCombo>(commandCombo));
         }
     };
 
     std::string label          = "MaterialIndex##" + _parentLabel;
-    auto materials             = _scene->getComponents<Material>(_entity);
+    auto materials             = _scene->GetComponents<Material>(_entity);
     int32_t entityMaterialSize = materials != nullptr ? static_cast<int32_t>(materials->size()) : 0;
 
     if (entityMaterialSize <= 0) {
@@ -87,13 +87,13 @@ void MaterialEffectPipeLine::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused
     label = "AddEffectEntity##" + _parentLabel;
     if (ImGui::Button(label.c_str())) {
         auto command = std::make_unique<AddElementCommand<std::vector<EffectEntityData>>>(&effectEntityIdList_, MaterialEffectPipeLine::EffectEntityData());
-        EditorController::getInstance()->pushCommand(std::move(command));
+        EditorController::GetInstance()->PushCommand(std::move(command));
     }
 
     label = "ClearEffectEntity##" + _parentLabel;
     if (ImGui::Button(label.c_str())) {
         auto command = std::make_unique<ClearCommand<std::vector<EffectEntityData>>>(&effectEntityIdList_);
-        EditorController::getInstance()->pushCommand(std::move(command));
+        EditorController::GetInstance()->PushCommand(std::move(command));
     }
 
     /// Effectを持っているEntity一覧
@@ -101,17 +101,17 @@ void MaterialEffectPipeLine::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused
 
     effectEntityIds.emplace_back(std::vector<int32_t>());
     effectEntityIds[0].reserve(10);
-    for (auto& indexBind : _scene->getComponentArray<DissolveEffectParam>()->getEntityIndexBind()) {
+    for (auto& indexBind : _scene->GetComponentArray<DissolveEffectParam>()->GetEntityIndexBind()) {
         effectEntityIds[0].emplace_back(indexBind.first);
     }
     effectEntityIds.emplace_back(std::vector<int32_t>());
     effectEntityIds[1].reserve(10);
-    for (auto& indexBind : _scene->getComponentArray<DistortionEffectParam>()->getEntityIndexBind()) {
+    for (auto& indexBind : _scene->GetComponentArray<DistortionEffectParam>()->GetEntityIndexBind()) {
         effectEntityIds[1].emplace_back(indexBind.first);
     }
     effectEntityIds.emplace_back(std::vector<int32_t>());
     effectEntityIds[2].reserve(10);
-    for (auto& indexBind : _scene->getComponentArray<GradationTextureComponent>()->getEntityIndexBind()) {
+    for (auto& indexBind : _scene->GetComponentArray<GradationTextureComponent>()->GetEntityIndexBind()) {
         effectEntityIds[2].emplace_back(indexBind.first);
     }
 
@@ -127,7 +127,7 @@ void MaterialEffectPipeLine::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused
                     auto command = std::make_unique<SetterCommand<MaterialEffectType>>(
                         &effectEntityIdList_[i].effectType,
                         static_cast<MaterialEffectType>(j));
-                    EditorController::getInstance()->pushCommand(std::move(command));
+                    EditorController::GetInstance()->PushCommand(std::move(command));
                 }
                 if (isSelected) {
                     ImGui::SetItemDefaultFocus();
@@ -139,20 +139,20 @@ void MaterialEffectPipeLine::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused
         std::string removeButtonLabel = "X##" + std::to_string(i) + _parentLabel;
         if (ImGui::Button(removeButtonLabel.c_str())) {
             auto command = std::make_unique<EraseElementCommand<std::vector<EffectEntityData>>>(&effectEntityIdList_, effectEntityIdList_.begin() + i);
-            EditorController::getInstance()->pushCommand(std::move(command));
+            EditorController::GetInstance()->PushCommand(std::move(command));
         }
         ImGui::SameLine();
 
         std::string entityIdLabel = "EntityID##" + std::to_string(i) + _parentLabel;
-        std::string entityName    = _scene->getEntity(effectEntityIdList_[i].entityID) != nullptr ? std::to_string(effectEntityIdList_[i].entityID) : "NULL";
+        std::string entityName    = _scene->GetEntity(effectEntityIdList_[i].entityID) != nullptr ? std::to_string(effectEntityIdList_[i].entityID) : "NULL";
         if (ImGui::BeginCombo(entityIdLabel.c_str(), entityName.c_str())) {
             for (int j = 0; j < effectEntityIds[effectTypeInt].size(); ++j) {
                 bool isSelected = (effectEntityIdList_[i].entityID == effectEntityIds[effectTypeInt][j]);
-                if (ImGui::Selectable(_scene->getEntity(effectEntityIds[effectTypeInt][j])->getUniqueID().c_str(), isSelected)) {
+                if (ImGui::Selectable(_scene->GetEntity(effectEntityIds[effectTypeInt][j])->GetUniqueID().c_str(), isSelected)) {
                     auto command = std::make_unique<SetterCommand<int32_t>>(
                         &effectEntityIdList_[i].entityID,
                         effectEntityIds[effectTypeInt][j]);
-                    EditorController::getInstance()->pushCommand(std::move(command));
+                    EditorController::GetInstance()->PushCommand(std::move(command));
                 }
                 if (isSelected) {
                     ImGui::SetItemDefaultFocus();

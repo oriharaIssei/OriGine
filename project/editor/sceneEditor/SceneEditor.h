@@ -59,14 +59,14 @@ private:
     std::string nextSceneName_                  = ""; // 次に読み込むシーン名
     SerializedField<std::string> editSceneName_ = SerializedField<std::string>("Settings", "SceneEditor", "editSceneName", "Game"); // 編集中のシーン名(保存する)
 public:
-    Scene* getCurrentScene() {
+    Scene* GetCurrentScene() {
         return currentScene_.get();
     }
-    void changeScene(const std::string& _nextScene) {
+    void ChangeScene(const std::string& _nextScene) {
         nextSceneName_  = _nextScene;
         isSceneChanged_ = true;
     }
-    SerializedField<std::string>& getEditSceneName() {
+    SerializedField<std::string>& GetEditSceneName() {
         return editSceneName_;
     }
 };
@@ -87,7 +87,7 @@ public:
 private:
     SceneEditorWindow* parentWindow_ = nullptr; // 親ウィンドウへのポインタ
 public:
-    SceneEditorWindow* getParentWindow() const {
+    SceneEditorWindow* GetParentWindow() const {
         return parentWindow_;
     }
 };
@@ -181,7 +181,7 @@ public:
 private:
     SceneEditorWindow* parentWindow_ = nullptr; // 親ウィンドウへのポインタ
 public:
-    SceneEditorWindow* getParentWindow() const {
+    SceneEditorWindow* GetParentWindow() const {
         return parentWindow_;
     }
 };
@@ -242,7 +242,7 @@ public:
 
     private:
         EntityHierarchy* hierarchy_ = nullptr; // 親エリアへのポインタ
-        std::list<int32_t> previousSelectedEntityIds_; // 以前の選択されたエンティティIDのリスト
+        std::list<int32_t> previousselectedEntityIds_; // 以前の選択されたエンティティIDのリスト
     };
 
     /// <summary>
@@ -286,14 +286,14 @@ private:
     std::list<int32_t> selectedEntityIds_; // 選択されているオブジェクトのIDリスト
     std::string searchBuff_ = ""; // 検索バッファ
 public:
-    const std::list<int32_t>& getSelectedEntityIds() const {
+    const std::list<int32_t>& GetSelectedEntityIds() const {
         return selectedEntityIds_;
     }
-    std::list<int32_t>& getSelectedEntityIdsRef() {
+    std::list<int32_t>& GetSelectedEntityIdsRef() {
         return selectedEntityIds_;
     }
 
-    HierarchyArea* getParentArea() const {
+    HierarchyArea* GetParentArea() const {
         return parentArea_;
     }
 };
@@ -413,7 +413,7 @@ private:
     const std::string exePath_ = "/../generated/output/" + configuration + "/OriGineApp.exe"; // 実行ファイルのパス
 
 public:
-    SceneEditorWindow* getParentWindow() const {
+    SceneEditorWindow* GetParentWindow() const {
         return parentWindow_;
     }
 };

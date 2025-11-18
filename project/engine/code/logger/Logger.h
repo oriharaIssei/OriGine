@@ -5,7 +5,7 @@
 #include <memory>
 #include <string>
 
-///engine
+/// engine
 // directX12
 class DxDebug;
 
@@ -15,14 +15,14 @@ class DxDebug;
 /// <summary>
 /// Guiにログを表示するためのクラス
 /// </summary>
-class GuiLogger{
+class GuiLogger {
 public:
     GuiLogger();
-    ~GuiLogger() ;
+    ~GuiLogger();
 
-    void Initialize() ;
-    void Update() ;
-    void Finalize() ;
+    void Initialize();
+    void Update();
+    void Finalize();
 
 private:
     std::shared_ptr<spdlog::logger> logger_;
@@ -179,12 +179,10 @@ public:
 
 private:
     static std::shared_ptr<spdlog::logger> logger_;
-
-public:
 };
 
 // マクロで簡略化
-#define LOG_TRACE(fmt, ...) Logger::Trace(__FILE__, __FUNCTION__, __LINE__,fmt, ##__VA_ARGS__)
+#define LOG_TRACE(fmt, ...) Logger::Trace(__FILE__, __FUNCTION__, __LINE__, fmt, ##__VA_ARGS__)
 #define LOG_INFO(fmt, ...) Logger::Info(__FILE__, __FUNCTION__, __LINE__, fmt, ##__VA_ARGS__)
 #define LOG_DEBUG(fmt, ...) Logger::Debug(__FILE__, __FUNCTION__, __LINE__, fmt, ##__VA_ARGS__)
 #define LOG_WARN(fmt, ...) Logger::Warn(__FILE__, __FUNCTION__, __LINE__, fmt, ##__VA_ARGS__)

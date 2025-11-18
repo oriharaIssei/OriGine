@@ -8,51 +8,51 @@
 #endif // _DEBUG
 
 void ISystem::eraseDeadEntity() {
-    auto* entityRepository_ = scene_->getEntityRepositoryRef();
+    auto* entityRepository_ = scene_->GetEntityRepositoryRef();
     std::erase_if(entityIDs_, [&entityRepository_](int32_t _entityID) {
-        Entity* entity = entityRepository_->getEntity(_entityID);
-        return !entity || !entity->isAlive();
+        Entity* entity = entityRepository_->GetEntity(_entityID);
+        return !entity || !entity->IsAlive();
     });
 }
 
-Entity* ISystem::getEntity(int32_t _entityID) {
+Entity* ISystem::GetEntity(int32_t _entityID) {
     if (scene_ == nullptr) {
-        LOG_ERROR("Scene is not set.");
+        LOG_ERROR("Scene is not Set.");
         return nullptr;
     }
-    return scene_->getEntityRepositoryRef()->getEntity(_entityID);
+    return scene_->GetEntityRepositoryRef()->GetEntity(_entityID);
 }
 
-Entity* ISystem::getUniqueEntity(const std::string& _dataTypeName) {
+Entity* ISystem::GetUniqueEntity(const std::string& _dataTypeName) {
     if (scene_ == nullptr) {
-        LOG_ERROR("EntityRepository is not set.");
+        LOG_ERROR("EntityRepository is not Set.");
         return nullptr;
     }
-    return scene_->getEntityRepositoryRef()->getUniqueEntity(_dataTypeName);
+    return scene_->GetEntityRepositoryRef()->GetUniqueEntity(_dataTypeName);
 }
 
 int32_t ISystem::CreateEntity(const std::string& _dataTypeName, bool _isUnique) {
     if (scene_ == nullptr) {
-        LOG_ERROR("EntityRepository is not set.");
+        LOG_ERROR("EntityRepository is not Set.");
         return -1;
     }
-    return scene_->getEntityRepositoryRef()->CreateEntity(_dataTypeName, _isUnique);
+    return scene_->GetEntityRepositoryRef()->CreateEntity(_dataTypeName, _isUnique);
 }
 
-IComponentArray* ISystem::getComponentArray(const std::string& _typeName) {
+IComponentArray* ISystem::GetComponentArray(const std::string& _typeName) {
     if (scene_ == nullptr) {
-        LOG_ERROR("ComponentRepository is not set.");
+        LOG_ERROR("ComponentRepository is not Set.");
         return nullptr;
     }
-    return scene_->getComponentRepositoryRef()->getComponentArray(_typeName);
+    return scene_->GetComponentRepositoryRef()->GetComponentArray(_typeName);
 }
 
-void ISystem::addComponent(Entity* _entity, const std::string& _typeName, IComponent* _component, bool _doInitialize) {
+void ISystem::AddComponent(Entity* _entity, const std::string& _typeName, IComponent* _component, bool _doInitialize) {
     if (scene_ == nullptr) {
-        LOG_ERROR("ComponentRepository is not set.");
+        LOG_ERROR("ComponentRepository is not Set.");
         return;
     }
-    scene_->getComponentRepositoryRef()->getComponentArray(_typeName)->addComponent(_entity, _component, _doInitialize);
+    scene_->GetComponentRepositoryRef()->GetComponentArray(_typeName)->AddComponent(_entity, _component, _doInitialize);
 }
 
 void ISystem::Run() {
@@ -81,7 +81,7 @@ void ISystem::Update() {
     eraseDeadEntity();
 
     for (auto& entityID : entityIDs_) {
-        Entity* entity = scene_->getEntityRepositoryRef()->getEntity(entityID);
+        Entity* entity = scene_->GetEntityRepositoryRef()->GetEntity(entityID);
         UpdateEntity(entity);
     }
 }
@@ -108,12 +108,12 @@ void ISystem::Edit() {
             ImGui::TableHeadersRow();
 
             for (auto& entityID : entityIDs_) {
-                Entity* entity = scene_->getEntityRepositoryRef()->getEntity(entityID);
+                Entity* entity = scene_->GetEntityRepositoryRef()->GetEntity(entityID);
                 ImGui::TableNextRow();
                 ImGui::TableSetColumnIndex(0);
-                ImGui::Text("%d", entity->getID());
+                ImGui::Text("%d", entity->GetID());
                 ImGui::TableSetColumnIndex(1);
-                ImGui::Text("%s", entity->getDataType().c_str());
+                ImGui::Text("%s", entity->GetDataType().c_str());
             }
 
             ImGui::EndTable();

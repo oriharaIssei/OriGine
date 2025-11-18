@@ -88,15 +88,15 @@ private:
     ResourceStateTracker* resourceStateTracker_                      = nullptr;
 
 public:
-    const std::string& getCommandListComboKey() const { return commandListComboKey_; }
-    const std::string& getCommandQueueKey() const { return commandQueueKey_; }
+    const std::string& GetCommandListComboKey() const { return commandListComboKey_; }
+    const std::string& GetCommandQueueKey() const { return commandQueueKey_; }
 
-    const Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& getCommandList() const { return commandList_; }
-    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& getCommandListRef() { return commandList_; }
-    const Microsoft::WRL::ComPtr<ID3D12CommandAllocator>& getCommandAllocator() const { return commandAllocator_; }
-    Microsoft::WRL::ComPtr<ID3D12CommandAllocator>& getCommandAllocatorRef() { return commandAllocator_; }
-    const Microsoft::WRL::ComPtr<ID3D12CommandQueue>& getCommandQueue() const { return commandQueue_; }
-    Microsoft::WRL::ComPtr<ID3D12CommandQueue>& getCommandQueueRef() { return commandQueue_; }
+    const Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& GetCommandList() const { return commandList_; }
+    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& GetCommandListRef() { return commandList_; }
+    const Microsoft::WRL::ComPtr<ID3D12CommandAllocator>& GetCommandAllocator() const { return commandAllocator_; }
+    Microsoft::WRL::ComPtr<ID3D12CommandAllocator>& GetCommandAllocatorRef() { return commandAllocator_; }
+    const Microsoft::WRL::ComPtr<ID3D12CommandQueue>& GetCommandQueue() const { return commandQueue_; }
+    Microsoft::WRL::ComPtr<ID3D12CommandQueue>& GetCommandQueueRef() { return commandQueue_; }
 
-    ResourceStateTracker* getResourceStateTracker() const { return resourceStateTracker_; }
+    ResourceStateTracker* GetResourceStateTracker() const { return resourceStateTracker_; }
 };

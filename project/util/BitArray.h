@@ -40,23 +40,23 @@ public:
     /// </summary>
     /// <param name="pos">ビットの位置</param>
     /// <returns>ビットの値(0,1)</returns>
-    bool get(size_t pos) const;
+    bool Get(size_t pos) const;
 
     /// <summary>
     /// trueのビットの数を取得する
     /// </summary>
-    size_t getTrueCount() const;
+    size_t GetTrueCount() const;
     /// <summary>
     /// falseのビットの数を取得する
     /// </summary>
-    size_t getFalseCount() const;
+    size_t GetFalseCount() const;
 
     /// <summary>
     /// 指定した位置のビットの値を設定する
     /// </summary>
-    void set(size_t pos, bool value);
+    void Set(size_t pos, bool value);
 
-    BlockType getBlock(size_t blockIndex) const {
+    BlockType GetBlock(size_t blockIndex) const {
         if (blockIndex >= data_.size()) {
             throw std::out_of_range("BitArray::getBlock");
         }
@@ -68,9 +68,9 @@ public:
     /// </summary>
     /// <param name="blockIndex"></param>
     /// <param name="value"></param>
-    void setBlock(size_t blockIndex, BlockType value) {
+    void SetBlock(size_t blockIndex, BlockType value) {
         if (blockIndex >= data_.size()) {
-            throw std::out_of_range("BitArray::setBlock");
+            throw std::out_of_range("BitArray::SetBlock");
         }
         data_[blockIndex] = value;
     }
@@ -84,7 +84,7 @@ public:
     /// 内部データへの参照を取得する
     /// </summary>
     /// <returns></returns>
-    const std::vector<BlockType>& getData() const { return data_; }
+    const std::vector<BlockType>& GetData() const { return data_; }
 
 private:
     size_t size_;
@@ -114,7 +114,7 @@ inline size_t BitArray<intergralType>::allocateBit() {
 }
 
 template <std::unsigned_integral intergralType>
-bool BitArray<intergralType>::get(size_t pos) const {
+bool BitArray<intergralType>::Get(size_t pos) const {
     if (pos >= size_) {
         throw std::out_of_range("BitArray::get");
     }
@@ -122,7 +122,7 @@ bool BitArray<intergralType>::get(size_t pos) const {
 }
 
 template <std::unsigned_integral intergralType>
-size_t BitArray<intergralType>::getTrueCount() const {
+size_t BitArray<intergralType>::GetTrueCount() const {
     size_t count = 0;
     for (const auto& block : data_) {
         count += std::popcount(block);
@@ -131,14 +131,14 @@ size_t BitArray<intergralType>::getTrueCount() const {
 }
 
 template <std::unsigned_integral intergralType>
-inline size_t BitArray<intergralType>::getFalseCount() const {
-    return size_ - getTrueCount();
+inline size_t BitArray<intergralType>::GetFalseCount() const {
+    return size_ - GetTrueCount();
 }
 
 template <std::unsigned_integral intergralType>
-inline void BitArray<intergralType>::set(size_t pos, bool value) {
+inline void BitArray<intergralType>::Set(size_t pos, bool value) {
     if (pos >= size_) {
-        throw std::out_of_range("BitArray::set");
+        throw std::out_of_range("BitArray::Set");
     }
 
     size_t blockIndex = pos / BlockBitCount;

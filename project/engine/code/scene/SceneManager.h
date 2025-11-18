@@ -42,7 +42,7 @@ public:
     /// <summary>
     /// 即座にシーンを変更する(事前にnextSceneを指定する必要がある)
     /// </summary>
-    void executeSceneChange();
+    void ExecuteSceneChange();
 
 private:
 #ifdef _DEVELOP
@@ -65,27 +65,27 @@ private:
     bool isExitGame_    = false;
 
 public:
-    Scene* getCurrentScene() {
+    Scene* GetCurrentScene() {
         return currentScene_.get();
     }
 
-    const SerializedField<std::string>& getStartupSceneName() const {
+    const SerializedField<std::string>& GetStartupSceneName() const {
         return startupSceneName_;
     }
-    SerializedField<std::string>& getStartupSceneNameRef() {
+    SerializedField<std::string>& GetStartupSceneNameRef() {
         return startupSceneName_;
     }
 
-    bool isExitGame() const {
+    bool IsExitGame() const {
         return isExitGame_;
     }
-    void setExitGame(bool exit) { isExitGame_ = exit; }
+    void SetExitGame(bool exit) { isExitGame_ = exit; }
 
-    const std::string& getCurrentSceneName() const;
+    const std::string& GetCurrentSceneName() const;
 
-    void changeScene(const std::string& name);
+    void ChangeScene(const std::string& name);
 
-    bool isChangeScene() const { return isChangeScene_; }
+    bool IsChangeScene() const { return isChangeScene_; }
 };
 
 class SceneSerializer {
@@ -128,11 +128,11 @@ private:
     Scene* targetScene_ = nullptr;
 
 public:
-    const nlohmann::json& getRootJson() const {
+    const nlohmann::json& GetRootJson() const {
         return rootJson_;
     }
 
-    void setRootJson(const nlohmann::json& _rootJson) {
+    void SetRootJson(const nlohmann::json& _rootJson) {
         rootJson_ = _rootJson;
     }
 };

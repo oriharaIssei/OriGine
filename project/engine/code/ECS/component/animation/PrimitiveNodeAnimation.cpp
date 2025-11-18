@@ -27,7 +27,7 @@ public:
         float& startAnimationTime,
         float& animationTimeLength)
         : duration_(duration),
-          uvScaleCurve_(uvScaleCurve),
+          uvscaleCurve_(uvScaleCurve),
           uvTranslateCurve_(uvTranslateCurve),
           uvInterpolationType_(uvInterpolationType),
           tileSize_(tileSize),
@@ -36,25 +36,25 @@ public:
           startAnimationTime_(startAnimationTime),
           animationTimeLength_(animationTimeLength),
           previousDuration_(duration),
-          previousUvScaleCurve_(uvScaleCurve),
+          previousUvscaleCurve_(uvScaleCurve),
           previousUvTranslateCurve_(uvTranslateCurve),
           previousUvInterpolationType_(uvInterpolationType) {}
 
     void Execute() override {
         // 現在の状態を保存
         previousDuration_            = duration_;
-        previousUvScaleCurve_        = uvScaleCurve_;
+        previousUvscaleCurve_        = uvscaleCurve_;
         previousUvTranslateCurve_    = uvTranslateCurve_;
         previousUvInterpolationType_ = uvInterpolationType_;
 
         // 新しい状態を生成
         duration_ = animationTimeLength_;
 
-        uvScaleCurve_.clear();
+        uvscaleCurve_.clear();
         uvTranslateCurve_.clear();
 
         // uvScale は Animation しない
-        uvScaleCurve_.emplace_back(0.f, Vector2f(tileSize_ / textureSize_));
+        uvscaleCurve_.emplace_back(0.f, Vector2f(tileSize_ / textureSize_));
 
         // uv Translate は Animation する
         uvInterpolationType_ = InterpolationType::STEP;
@@ -99,14 +99,14 @@ public:
     void Undo() override {
         // 保存した状態に戻す
         duration_            = previousDuration_;
-        uvScaleCurve_        = previousUvScaleCurve_;
+        uvscaleCurve_        = previousUvscaleCurve_;
         uvTranslateCurve_    = previousUvTranslateCurve_;
         uvInterpolationType_ = previousUvInterpolationType_;
     }
 
 private:
     float& duration_;
-    AnimationCurve<Vec2f>& uvScaleCurve_;
+    AnimationCurve<Vec2f>& uvscaleCurve_;
     AnimationCurve<Vec2f>& uvTranslateCurve_;
     InterpolationType& uvInterpolationType_;
     const Vector2f& tileSize_;
@@ -117,7 +117,7 @@ private:
 
     // Undo用に保存する以前の状態
     float previousDuration_;
-    AnimationCurve<Vec2f> previousUvScaleCurve_;
+    AnimationCurve<Vec2f> previousUvscaleCurve_;
     AnimationCurve<Vec2f> previousUvTranslateCurve_;
     InterpolationType previousUvInterpolationType_;
 };
@@ -143,7 +143,7 @@ void PrimitiveNodeAnimation::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[mayb
     if (ImGui::BeginCombo("TransformAnimation InterpolationType", InterpolationTypeName[int(interpolationType_)])) {
         for (int i = 0; i < (int)InterpolationType::COUNT; ++i) {
             if (ImGui::Selectable(InterpolationTypeName[i], interpolationType_ == InterpolationType(i))) {
-                EditorController::getInstance()->pushCommand(
+                EditorController::GetInstance()->PushCommand(
                     std::make_unique<SetterCommand<InterpolationType>>(&interpolationType_, InterpolationType(i)));
             }
         }

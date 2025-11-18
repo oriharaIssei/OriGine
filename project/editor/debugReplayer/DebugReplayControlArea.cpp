@@ -13,7 +13,7 @@ DebugReplayControlArea::~DebugReplayControlArea() {}
 
 void DebugReplayControlArea::Initialize() {
     // Regionの追加
-    addRegion(std::make_shared<DebugReplayControlRegion>(parent_));
+    AddRegion(std::make_shared<DebugReplayControlRegion>(parent_));
 }
 
 DebugReplayControlRegion::DebugReplayControlRegion(DebugReplayWindow* _parent)
@@ -38,8 +38,8 @@ void DebugReplayControlRegion::Finalize() {
 
 void DebugReplayControlRegion::DrawGui() {
     // リプレイデータがロードされていない場合は何も表示しない
-    auto* replayPlayer = parent_->getReplayPlayer();
-    if (!replayPlayer || !replayPlayer->getIsActive()) {
+    auto* replayPlayer = parent_->GetReplayPlayer();
+    if (!replayPlayer || !replayPlayer->GetIsActive()) {
         ImGui::Text("No Replay Data Loaded.");
         // reset
         currentFrame_    = 0;
@@ -62,7 +62,7 @@ void DebugReplayControlRegion::DrawGui() {
     }
 
     // totalFrameCount を常時取得
-    totalFrameCount_ = static_cast<uint32_t>(replayPlayer->getTotalFrameCount());
+    totalFrameCount_ = static_cast<uint32_t>(replayPlayer->GetTotalFrameCount());
 
     // currentFrameIndex が変更されたら再生位置を変更
     label = "##InputCurrentFrame" + name_;
@@ -71,10 +71,10 @@ void DebugReplayControlRegion::DrawGui() {
     ImGui::SetNextItemWidth(kFrameInputItemWidth);
 
     bool isEditing = InputGuiCommand<uint32_t>(label, currentFrame_, "%d", [this](uint32_t* _current) {
-        auto* replayPlayer = parent_->getReplayPlayer();
+        auto* replayPlayer = parent_->GetReplayPlayer();
         if (replayPlayer) {
             isPlaying_ = false; // 入力で変更された場合は一時停止
-            parent_->setReplayFrameIndex(static_cast<size_t>(*_current));
+            parent_->SetReplayFrameIndex(static_cast<size_t>(*_current));
         };
     });
 
@@ -83,10 +83,10 @@ void DebugReplayControlRegion::DrawGui() {
     label = "##SliderCurrentFrame" + name_;
     // Sliderで currentFrameIndex を変更
     isEditing |= SlideGuiCommand<uint32_t>(label, currentFrame_, 0u, totalFrameCount_ > 0 ? totalFrameCount_ - 1 : 0, "%d", [this](uint32_t* _current) {
-        auto* replayPlayer = parent_->getReplayPlayer();
+        auto* replayPlayer = parent_->GetReplayPlayer();
         if (replayPlayer) {
             isPlaying_ = false; // スライダーで変更された場合は一時停止
-            parent_->setReplayFrameIndex(static_cast<size_t>(*_current));
+            parent_->SetReplayFrameIndex(static_cast<size_t>(*_current));
         };
     });
 
@@ -107,7 +107,7 @@ void DebugReplayControlRegion::DrawGui() {
             currentFrame_ = totalFrameCount_ > 0 ? totalFrameCount_ - 1 : 0;
             isPlaying_    = false; // 最後まで再生したら停止
         }
-        parent_->setReplayFrameIndex(static_cast<size_t>(currentFrame_));
+        parent_->SetReplayFrameIndex(static_cast<size_t>(currentFrame_));
     }
 }
 

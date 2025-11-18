@@ -110,12 +110,12 @@ private:
     std::string groupName_;
 
 public:
-    const std::string& getDirectory() const { return directory_; }
-    const std::string& getFileName() const { return fileName_; }
+    const std::string& GetDirectory() const { return directory_; }
+    const std::string& GetFileName() const { return fileName_; }
 
     bool isOpen() const { return isOpen_; }
 
-    const std::string& getGroupName() const { return groupName_; }
+    const std::string& GetGroupName() const { return groupName_; }
 };
 
 class BinaryReader {
@@ -163,10 +163,10 @@ private:
     std::map<std::string, std::string> readMap_;
 
 public:
-    const std::string& getDirectory() const { return directory_; }
-    const std::string& getFileName() const { return fileName_; }
+    const std::string& GetDirectory() const { return directory_; }
+    const std::string& GetFileName() const { return fileName_; }
 
-    const std::string& getGroupName() const { return groupName_; }
+    const std::string& GetGroupName() const { return groupName_; }
 };
 
 // std::string専用の関数を追加

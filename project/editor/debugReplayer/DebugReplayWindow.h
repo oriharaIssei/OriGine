@@ -45,24 +45,24 @@ private:
     bool isLoadReplayFile_ = false;
 
 public:
-    bool getIsLoadReplayFile() const {
+    bool GetIsLoadReplayFile() const {
         return isLoadReplayFile_;
     }
-    void setIsLoadReplayFile(bool isLoad) {
+    void SetIsLoadReplayFile(bool isLoad) {
         isLoadReplayFile_ = isLoad;
     }
 
-    SceneManager* getSceneManager() {
+    SceneManager* GetSceneManager() {
         return sceneManager_.get();
     }
-    ReplayPlayer* getReplayPlayer() {
+    ReplayPlayer* GetReplayPlayer() {
         return replayPlayer_.get();
     }
 
-    size_t getReplayFrameIndex() const {
+    size_t GetReplayFrameIndex() const {
         return replayFrameIndex_;
     }
-    void setReplayFrameIndex(size_t index) {
+    void SetReplayFrameIndex(size_t index) {
         replayFrameIndex_ = index;
     }
 };

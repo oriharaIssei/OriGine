@@ -25,9 +25,9 @@ EntityInspectorArea::EntityInspectorArea(SceneEditorWindow* _window)
     : parentWindow_(_window), Editor::Area(nameof<EntityInspectorArea>()) {}
 EntityInspectorArea::~EntityInspectorArea() {}
 void EntityInspectorArea::Initialize() {
-    addRegion(std::make_shared<EntityInformationRegion>(this));
-    addRegion(std::make_shared<EntityComponentRegion>(this));
-    addRegion(std::make_shared<EntitySystemRegion>(this));
+    AddRegion(std::make_shared<EntityInformationRegion>(this));
+    AddRegion(std::make_shared<EntityComponentRegion>(this));
+    AddRegion(std::make_shared<EntitySystemRegion>(this));
 }
 void EntityInspectorArea::Finalize() {
     for (auto& [name, region] : regions_) {
@@ -42,9 +42,9 @@ EntityInformationRegion::EntityInformationRegion(EntityInspectorArea* _parent)
 EntityInformationRegion::~EntityInformationRegion() {}
 void EntityInformationRegion::Initialize() {}
 void EntityInformationRegion::DrawGui() {
-    auto currentScene    = parentArea_->getParentWindow()->getCurrentScene();
-    int32_t editEntityId = parentArea_->getEditEntityId();
-    auto editEntity      = currentScene->getEntityRepositoryRef()->getEntity(editEntityId);
+    auto currentScene    = parentArea_->GetParentWindow()->GetCurrentScene();
+    int32_t editEntityId = parentArea_->GetEditEntityId();
+    auto editEntity      = currentScene->GetEntityRepositoryRef()->GetEntity(editEntityId);
 
     ImGui::Text("Entity Information");
     if (!editEntity) {
@@ -54,10 +54,10 @@ void EntityInformationRegion::DrawGui() {
 
     if (ImGui::Button("Delete")) {
         auto deleteCommand = std::make_unique<DeleteEntityCommand>(parentArea_, editEntityId);
-        EditorController::getInstance()->pushCommand(std::move(deleteCommand));
+        EditorController::GetInstance()->PushCommand(std::move(deleteCommand));
 
         auto changeEditEntityCommand = std::make_unique<EntityInspectorArea::ChangeEditEntityCommand>(parentArea_, -1, editEntityId);
-        EditorController::getInstance()->pushCommand(std::move(changeEditEntityCommand));
+        EditorController::GetInstance()->PushCommand(std::move(changeEditEntityCommand));
     }
 
     if (ImGui::Button("SaveForFile")) {
@@ -72,36 +72,36 @@ void EntityInformationRegion::DrawGui() {
     ImGui::Text("Entity ID  : %d", editEntityId);
     {
         std::string label = "EntityName##" + std::to_string(editEntityId);
-        ImGui::InputText(label.c_str(), &parentArea_->getEditEntityNameRef());
+        ImGui::InputText(label.c_str(), &parentArea_->GetEditEntityNameRef());
 
         if (ImGui::IsItemDeactivatedAfterEdit()) {
-            auto command = std::make_unique<ChangeEntityName>(parentArea_, editEntityId, parentArea_->getEditEntityName());
-            EditorController::getInstance()->pushCommand(std::move(command));
+            auto command = std::make_unique<ChangeEntityName>(parentArea_, editEntityId, parentArea_->GetEditEntityName());
+            EditorController::GetInstance()->PushCommand(std::move(command));
         }
     }
 
-    bool isUnique = editEntity->isUnique();
+    bool isUnique = editEntity->IsUnique();
     if (ImGui::Checkbox("Entity is Unique", &isUnique)) {
-        auto command = std::make_unique<ChangeEntityUniqueness>(parentArea_, editEntityId, editEntity->isUnique());
-        EditorController::getInstance()->pushCommand(std::move(command));
+        auto command = std::make_unique<ChangeEntityUniqueness>(parentArea_, editEntityId, editEntity->IsUnique());
+        EditorController::GetInstance()->PushCommand(std::move(command));
     }
 
     if (ImGui::IsItemHovered()) {
         ImGui::SetTooltip("Unique entities cannot be duplicated.");
     }
 
-    bool shouldSave = editEntity->shouldSave();
-    if (ImGui::Checkbox("Should Save", &shouldSave)) {
-        auto command = std::make_unique<ChangeEntityShouldSave>(parentArea_, editEntityId, !shouldSave /*変更前に戻す*/);
-        EditorController::getInstance()->pushCommand(std::move(command));
+    bool ShouldSave = editEntity->ShouldSave();
+    if (ImGui::Checkbox("Should Save", &ShouldSave)) {
+        auto command = std::make_unique<ChangeEntityShouldSave>(parentArea_, editEntityId, !ShouldSave /*変更前に戻す*/);
+        EditorController::GetInstance()->PushCommand(std::move(command));
     }
 }
 void EntityInformationRegion::Finalize() {}
 
 EntityInformationRegion::ChangeEntityName::ChangeEntityName(EntityInspectorArea* _inspectorArea, int32_t _entityID, const std::string& _newName)
     : inspectorArea_(_inspectorArea), entityId_(_entityID), newName_(_newName) {
-    auto currentScene = inspectorArea_->getParentWindow()->getCurrentScene();
-    oldName_          = currentScene->getEntityRepositoryRef()->getEntity(entityId_)->getDataType();
+    auto currentScene = inspectorArea_->GetParentWindow()->GetCurrentScene();
+    oldName_          = currentScene->GetEntityRepositoryRef()->GetEntity(entityId_)->GetDataType();
 }
 
 EntityComponentRegion::EntityComponentRegion(EntityInspectorArea* _parent)
@@ -109,9 +109,9 @@ EntityComponentRegion::EntityComponentRegion(EntityInspectorArea* _parent)
 EntityComponentRegion::~EntityComponentRegion() {}
 void EntityComponentRegion::Initialize() {}
 void EntityComponentRegion::DrawGui() {
-    auto currentScene    = parentArea_->getParentWindow()->getCurrentScene();
-    int32_t editEntityId = parentArea_->getEditEntityId();
-    auto editEntity      = currentScene->getEntityRepositoryRef()->getEntity(editEntityId);
+    auto currentScene    = parentArea_->GetParentWindow()->GetCurrentScene();
+    int32_t editEntityId = parentArea_->GetEditEntityId();
+    auto editEntity      = currentScene->GetEntityRepositoryRef()->GetEntity(editEntityId);
 
     ImGui::SeparatorText("Entity Components");
     ImGui::Spacing();
@@ -122,12 +122,12 @@ void EntityComponentRegion::DrawGui() {
     ImGui::Indent();
 
     if (ImGui::Button("+ Add Component")) {
-        auto selectAddComponentArea = parentArea_->getParentWindow()->getAreas().find("SelectAddComponentArea")->second.get();
+        auto selectAddComponentArea = parentArea_->GetParentWindow()->GetAreas().find("SelectAddComponentArea")->second.get();
         if (selectAddComponentArea) {
             auto selectArea = dynamic_cast<SelectAddComponentArea*>(selectAddComponentArea);
             if (selectArea) {
-                selectArea->setTargets({editEntityId});
-                selectArea->setOpen(true);
+                selectArea->SetTargets({editEntityId});
+                selectArea->SetOpen(true);
             } else {
                 LOG_ERROR("Failed to cast SelectAddComponentArea.");
             }
@@ -138,8 +138,8 @@ void EntityComponentRegion::DrawGui() {
 
     ImGui::Spacing();
 
-    Scene* editScene         = parentArea_->getParentWindow()->getCurrentScene();
-    auto& entityComponentMap = parentArea_->getEntityComponentMap();
+    Scene* editScene         = parentArea_->GetParentWindow()->GetCurrentScene();
+    auto& entityComponentMap = parentArea_->GetEntityComponentMap();
     for (const auto& [componentTypeName, components] : entityComponentMap) {
         if (ImGui::CollapsingHeader(componentTypeName.c_str())) {
             ImGui::Indent();
@@ -151,12 +151,12 @@ void EntityComponentRegion::DrawGui() {
 
                     if (ImGui::Button(std::string("X##" + label).c_str())) {
                         auto removeCommand = std::make_unique<RemoveComponentFromEditListCommand>(parentArea_, componentTypeName, componentIndex);
-                        EditorController::getInstance()->pushCommand(std::move(removeCommand));
+                        EditorController::GetInstance()->PushCommand(std::move(removeCommand));
                         continue; // ボタンが押されたら次のコンポーネントへ
                     }
                     ImGui::SameLine();
 
-                    label = std::format("{} : [{}]##{}", componentTypeName, std::to_string(componentIndex), editEntity->getUniqueID());
+                    label = std::format("{} : [{}]##{}", componentTypeName, std::to_string(componentIndex), editEntity->GetUniqueID());
                     if (ImGui::TreeNode(label.c_str())) {
                         component->Edit(editScene, editEntity, label);
                         ImGui::TreePop();
@@ -172,14 +172,14 @@ void EntityComponentRegion::DrawGui() {
 
                 if (ImGui::Button(std::string("X##" + label).c_str())) {
                     auto removeCommand = std::make_unique<RemoveComponentFromEditListCommand>(parentArea_, componentTypeName, 0);
-                    EditorController::getInstance()->pushCommand(std::move(removeCommand));
+                    EditorController::GetInstance()->PushCommand(std::move(removeCommand));
                     continue; // ボタンが押されたら次のコンポーネントへ
                 }
                 ImGui::SameLine();
 
                 ImGui::Text("%s", componentTypeName.c_str());
 
-                label = std::format("{}:[{}]{}", componentTypeName, std::to_string(0), editEntity->getUniqueID());
+                label = std::format("{}:[{}]{}", componentTypeName, std::to_string(0), editEntity->GetUniqueID());
                 component->Edit(editScene, editEntity, label);
             }
             ImGui::Unindent();
@@ -197,14 +197,14 @@ EntityComponentRegion::RemoveComponentFromEditListCommand::RemoveComponentFromEd
         return;
     }
     // 現在のコンポーネントデータを保存
-    auto* scene = parentArea_->getParentWindow()->getCurrentScene();
+    auto* scene = parentArea_->GetParentWindow()->GetCurrentScene();
     if (!scene) {
         LOG_ERROR("RemoveComponentFromEditListCommand: Scene is null.");
         return;
     }
-    const auto& compArray = scene->getComponentArray(componentTypeName_);
+    const auto& compArray = scene->GetComponentArray(componentTypeName_);
     if (compArray) {
-        Entity* editEntity = scene->getEntity(parentArea_->getEditEntityId());
+        Entity* editEntity = scene->GetEntity(parentArea_->GetEditEntityId());
         if (editEntity) {
             compArray->SaveComponent(editEntity, componentIndex_, componentData_);
         } else {
@@ -219,15 +219,15 @@ void EntityComponentRegion::RemoveComponentFromEditListCommand::Execute() {
         LOG_ERROR("RemoveComponentFromEditListCommand: parentArea is null.");
         return;
     }
-    auto* scene = parentArea_->getParentWindow()->getCurrentScene();
+    auto* scene = parentArea_->GetParentWindow()->GetCurrentScene();
     if (!scene) {
         LOG_ERROR("RemoveComponentFromEditListCommand: Scene is null.");
         return;
     }
-    scene->removeComponent(componentTypeName_, parentArea_->getEditEntityId(), componentIndex_);
+    scene->RemoveComponent(componentTypeName_, parentArea_->GetEditEntityId(), componentIndex_);
 
     // コンポーネントを削除した後、エンティティのコンポーネントマップからも削除
-    auto& entityComponentMap = parentArea_->getEntityComponentMap();
+    auto& entityComponentMap = parentArea_->GetEntityComponentMap();
     auto it                  = entityComponentMap.find(componentTypeName_);
     if (it != entityComponentMap.end()) {
         auto& components = it->second;
@@ -246,29 +246,29 @@ void EntityComponentRegion::RemoveComponentFromEditListCommand::Undo() {
         LOG_ERROR("RemoveComponentFromEditListCommand: parentArea is null.");
         return;
     }
-    auto* scene = parentArea_->getParentWindow()->getCurrentScene();
+    auto* scene = parentArea_->GetParentWindow()->GetCurrentScene();
     if (!scene) {
         LOG_ERROR("RemoveComponentFromEditListCommand: Scene is null.");
         return;
     }
-    Entity* editEntity = scene->getEntity(parentArea_->getEditEntityId());
+    Entity* editEntity = scene->GetEntity(parentArea_->GetEditEntityId());
     if (editEntity) {
-        auto componentArray = scene->getComponentArray(componentTypeName_);
+        auto componentArray = scene->GetComponentArray(componentTypeName_);
         if (!componentArray) {
             LOG_ERROR("RemoveComponentFromEditListCommand: Component array '{}' not found.", componentTypeName_);
             return;
         }
 
-        componentArray->insertComponent(editEntity, componentIndex_);
+        componentArray->InsertComponent(editEntity, componentIndex_);
         componentArray->LoadComponent(editEntity, componentIndex_, componentData_[componentTypeName_]);
 
         // コンポーネントをエンティティのコンポーネントマップに再追加
-        auto& entityComponentMap = parentArea_->getEntityComponentMap();
+        auto& entityComponentMap = parentArea_->GetEntityComponentMap();
         auto it                  = entityComponentMap.find(componentTypeName_);
         if (it != entityComponentMap.end()) {
             auto& components = it->second;
             if (componentIndex_ < static_cast<int32_t>(components.size())) {
-                components.insert(components.begin() + componentIndex_, componentArray->getComponent(editEntity, componentIndex_));
+                components.insert(components.begin() + componentIndex_, componentArray->GetComponent(editEntity, componentIndex_));
             } else {
                 LOG_ERROR("RemoveComponentFromEditListCommand: Component index out of range for type '{}'.", componentTypeName_);
             }
@@ -286,9 +286,9 @@ EntitySystemRegion::EntitySystemRegion(EntityInspectorArea* _parent)
 EntitySystemRegion::~EntitySystemRegion() {}
 void EntitySystemRegion::Initialize() {}
 void EntitySystemRegion::DrawGui() {
-    auto currentScene    = parentArea_->getParentWindow()->getCurrentScene();
-    int32_t editEntityId = parentArea_->getEditEntityId();
-    auto editEntity      = currentScene->getEntityRepositoryRef()->getEntity(editEntityId);
+    auto currentScene    = parentArea_->GetParentWindow()->GetCurrentScene();
+    int32_t editEntityId = parentArea_->GetEditEntityId();
+    auto editEntity      = currentScene->GetEntityRepositoryRef()->GetEntity(editEntityId);
 
     ImGui::SeparatorText("Entity Systems");
     ImGui::Spacing();
@@ -300,15 +300,15 @@ void EntitySystemRegion::DrawGui() {
     ImGui::Indent();
 
     if (ImGui::Button("+ System")) {
-        auto selectAddSystemArea = parentArea_->getParentWindow()->getAreas().find("SelectAddSystemArea")->second.get();
+        auto selectAddSystemArea = parentArea_->GetParentWindow()->GetAreas().find("SelectAddSystemArea")->second.get();
         if (selectAddSystemArea) {
             auto selectArea = dynamic_cast<SelectAddSystemArea*>(selectAddSystemArea);
             if (selectArea) {
                 std::list<int32_t> targets = {editEntityId};
-                auto setTargetsCommand     = std::make_unique<SelectAddSystemArea::SetTargeEntities>(selectArea, targets);
-                EditorController::getInstance()->pushCommand(std::move(setTargetsCommand));
-                selectArea->setOpen(true);
-                selectArea->setFocused(true);
+                auto SetTargetsCommand     = std::make_unique<SelectAddSystemArea::SetTargeEntities>(selectArea, targets);
+                EditorController::GetInstance()->PushCommand(std::move(SetTargetsCommand));
+                selectArea->SetOpen(true);
+                selectArea->SetFocused(true);
             } else {
                 LOG_ERROR("Failed to cast SelectAddSystemArea.");
             }
@@ -317,7 +317,7 @@ void EntitySystemRegion::DrawGui() {
         }
     }
 
-    auto& systemMap = parentArea_->getSystemMap();
+    auto& systemMap = parentArea_->GetSystemMap();
     for (size_t i = 0; i < systemMap.size(); ++i) {
         auto& systems = systemMap[i];
         if (systems.empty()) {
@@ -334,8 +334,8 @@ void EntitySystemRegion::DrawGui() {
                     ImGui::Text("Are you sure you want to remove the system '%s'?", systemName.c_str());
                     if (ImGui::Button("Yes")) {
                         std::list<int32_t> editEntityIds = {editEntityId};
-                        auto command                     = std::make_unique<RemoveSystemCommand>(editEntityIds, systemName, system->getCategory());
-                        EditorController::getInstance()->pushCommand(std::move(command));
+                        auto command                     = std::make_unique<RemoveSystemCommand>(editEntityIds, systemName, system->GetCategory());
+                        EditorController::GetInstance()->PushCommand(std::move(command));
                         ImGui::CloseCurrentPopup();
                     }
                     ImGui::SameLine();
@@ -355,24 +355,24 @@ void EntitySystemRegion::Finalize() {}
 
 SelectAddComponentArea::SelectAddComponentArea(SceneEditorWindow* _parentWindow)
     : Editor::Area(nameof(this)), parentWindow_(_parentWindow) {
-    isOpen_.set(false);
-    isFocused_.set(false);
+    isOpen_.Set(false);
+    isFocused_.Set(false);
 }
 SelectAddComponentArea::~SelectAddComponentArea() {}
 
 void SelectAddComponentArea::Initialize() {
-    addRegion(std::make_shared<ComponentListRegion>(this));
+    AddRegion(std::make_shared<ComponentListRegion>(this));
     // 初期化時にコンポーネントのタイプ名をクリア
     componentTypeNames_.clear();
     targetEntityIds_.clear();
 }
 
 void SelectAddComponentArea::DrawGui() {
-    bool isOpen = isOpen_.current();
+    bool isOpen = isOpen_.Current();
 
     if (!isOpen) {
-        isOpen_.set(isOpen);
-        isFocused_.set(ImGui::IsWindowFocused());
+        isOpen_.Set(isOpen);
+        isFocused_.Set(ImGui::IsWindowFocused());
         UpdateFocusAndOpenState();
         return;
     }
@@ -393,8 +393,8 @@ void SelectAddComponentArea::DrawGui() {
         }
     }
 
-    isOpen_.set(isOpen);
-    isFocused_.set(ImGui::IsWindowFocused());
+    isOpen_.Set(isOpen);
+    isFocused_.Set(ImGui::IsWindowFocused());
     UpdateFocusAndOpenState();
 
     ImGui::End();
@@ -406,7 +406,7 @@ void SelectAddComponentArea::Finalize() {
     targetEntityIds_.clear(); // 対象のエンティティIDリストをクリア
 }
 
-void SelectAddComponentArea::setTargets(const std::list<int32_t>& _targets) {
+void SelectAddComponentArea::SetTargets(const std::list<int32_t>& _targets) {
     targetEntityIds_ = _targets;
 }
 
@@ -434,7 +434,7 @@ void SelectAddComponentArea::ComponentListRegion::DrawGui() {
         ImVec2(0, childHeight),
         ImGuiChildFlags_Border);
 
-    auto& componentRegistryMap = ComponentRegistry::getInstance()->getComponentArrayMap();
+    auto& componentRegistryMap = ComponentRegistry::GetInstance()->GetComponentArrayMap();
 
     // ImGuiのスタイルで選択色を設定（必要に応じてアプリ全体で設定してもOK）
     ImVec4 winSelectColor = ImVec4(0.26f, 0.59f, 0.98f, 1.0f); // Windows風の青
@@ -457,15 +457,15 @@ void SelectAddComponentArea::ComponentListRegion::DrawGui() {
             if (!isSelected) {
                 if (!ImGui::GetIO().KeyShift) {
                     auto clearCommand = std::make_unique<ClearComponentTypeNames>(parentArea_);
-                    EditorController::getInstance()->pushCommand(std::move(clearCommand));
+                    EditorController::GetInstance()->PushCommand(std::move(clearCommand));
                 }
                 // まだ選択されていなければ追加
                 auto command = std::make_unique<AddComponentTypeNames>(parentArea_, name);
-                EditorController::getInstance()->pushCommand(std::move(command));
+                EditorController::GetInstance()->PushCommand(std::move(command));
             } else {
                 // すでに選択されていれば解除
                 auto command = std::make_unique<RemoveComponentTypeNames>(parentArea_, name);
-                EditorController::getInstance()->pushCommand(std::move(command));
+                EditorController::GetInstance()->PushCommand(std::move(command));
             }
         }
     }
@@ -484,17 +484,17 @@ void SelectAddComponentArea::ComponentListRegion::DrawGui() {
             // OKボタンが押された場合、選択されたコンポーネントを追加
             for (auto& compTypeName : parentArea_->componentTypeNames_) {
                 auto addCompCommand = std::make_unique<AddComponentCommand>(parentArea_->targetEntityIds_, compTypeName);
-                EditorController::getInstance()->pushCommand(std::move(addCompCommand));
+                EditorController::GetInstance()->PushCommand(std::move(addCompCommand));
             }
 
-            auto clearEntitiesCommand = std::make_unique<ClearTargetEntities>(parentArea_);
-            EditorController::getInstance()->pushCommand(std::move(clearEntitiesCommand));
+            auto ClearEntitiesCommand = std::make_unique<ClearTargetEntities>(parentArea_);
+            EditorController::GetInstance()->PushCommand(std::move(ClearEntitiesCommand));
 
             auto clearComponentNamesCommand = std::make_unique<ClearComponentTypeNames>(parentArea_);
-            EditorController::getInstance()->pushCommand(std::move(clearComponentNamesCommand));
+            EditorController::GetInstance()->PushCommand(std::move(clearComponentNamesCommand));
 
-            parentArea_->isOpen_.set(false); // エリアを閉じる
-            parentArea_->isFocused_.set(false); // フォーカスを外す
+            parentArea_->isOpen_.Set(false); // エリアを閉じる
+            parentArea_->isFocused_.Set(false); // フォーカスを外す
         }
     }
 
@@ -502,14 +502,14 @@ void SelectAddComponentArea::ComponentListRegion::DrawGui() {
 
     if (ImGui::Button("CANCEL")) {
         // キャンセルボタンが押された場合、選択をクリア
-        auto clearEntitiesCommand = std::make_unique<ClearTargetEntities>(parentArea_);
-        EditorController::getInstance()->pushCommand(std::move(clearEntitiesCommand));
+        auto ClearEntitiesCommand = std::make_unique<ClearTargetEntities>(parentArea_);
+        EditorController::GetInstance()->PushCommand(std::move(ClearEntitiesCommand));
 
         auto clearComponentNamesCommand = std::make_unique<ClearComponentTypeNames>(parentArea_);
-        EditorController::getInstance()->pushCommand(std::move(clearComponentNamesCommand));
+        EditorController::GetInstance()->PushCommand(std::move(clearComponentNamesCommand));
 
-        parentArea_->isOpen_.set(false); // エリアを閉じる
-        parentArea_->isFocused_.set(false); // フォーカスを外す
+        parentArea_->isOpen_.Set(false); // エリアを閉じる
+        parentArea_->isFocused_.Set(false); // フォーカスを外す
     }
 }
 
@@ -520,17 +520,17 @@ SelectAddSystemArea::SelectAddSystemArea(SceneEditorWindow* _parentWindow)
 SelectAddSystemArea::~SelectAddSystemArea() {}
 
 void SelectAddSystemArea::Initialize() {
-    addRegion(std::make_shared<SystemListRegion>(this));
+    AddRegion(std::make_shared<SystemListRegion>(this));
 
-    isOpen_.set(false); // 初期状態では閉じている
-    isFocused_.set(false); // 初期状態ではフォーカスされていない
+    isOpen_.Set(false); // 初期状態では閉じている
+    isFocused_.Set(false); // 初期状態ではフォーカスされていない
 }
 void SelectAddSystemArea::DrawGui() {
-    bool isOpen = isOpen_.current();
+    bool isOpen = isOpen_.Current();
 
     if (!isOpen) {
-        isOpen_.set(isOpen);
-        isFocused_.set(ImGui::IsWindowFocused());
+        isOpen_.Set(isOpen);
+        isFocused_.Set(ImGui::IsWindowFocused());
         UpdateFocusAndOpenState();
         return;
     }
@@ -551,8 +551,8 @@ void SelectAddSystemArea::DrawGui() {
         }
     }
 
-    isOpen_.set(isOpen);
-    isFocused_.set(ImGui::IsWindowFocused());
+    isOpen_.Set(isOpen);
+    isFocused_.Set(ImGui::IsWindowFocused());
     UpdateFocusAndOpenState();
 
     ImGui::End();
@@ -562,7 +562,7 @@ void SelectAddSystemArea::Finalize() {
     systemTypeNames_.clear(); // システムのタイプ名をクリア
     targetEntityIds_.clear(); // 対象のエンティティIDリストをクリア
 }
-void SelectAddSystemArea::setTargets(const std::list<int32_t>& _targets) {
+void SelectAddSystemArea::SetTargets(const std::list<int32_t>& _targets) {
     targetEntityIds_ = _targets;
 }
 
@@ -587,10 +587,10 @@ void SelectAddSystemArea::SystemListRegion::DrawGui() {
         ImVec2(0, childHeight),
         ImGuiChildFlags_Border | ImGuiChildFlags_AlwaysUseWindowPadding);
 
-    auto sceneEditorWindow = EditorController::getInstance()->getWindow<SceneEditorWindow>();
-    auto currentScene      = sceneEditorWindow->getCurrentScene();
-    auto systemInspector   = dynamic_cast<SystemInspectorArea*>(sceneEditorWindow->getArea(nameof<SystemInspectorArea>()).get());
-    auto& systemsMap       = systemInspector->getSystemMap();
+    auto sceneEditorWindow = EditorController::GetInstance()->GetWindow<SceneEditorWindow>();
+    auto currentScene      = sceneEditorWindow->GetCurrentScene();
+    auto systemInspector   = dynamic_cast<SystemInspectorArea*>(sceneEditorWindow->GetArea(nameof<SystemInspectorArea>()).get());
+    auto& systemsMap       = systemInspector->GetSystemMap();
 
     ImVec4 winSelectColor = ImVec4(0.26f, 0.59f, 0.98f, 1.0f);
     ImGui::PushStyleColor(ImGuiCol_Header, winSelectColor);
@@ -608,12 +608,12 @@ void SelectAddSystemArea::SystemListRegion::DrawGui() {
             if (ImGui::CollapsingHeader(categoryName.c_str())) {
                 ImGui::Indent();
                 for (auto& [name, priority] : systemsByCategory) {
-                    ISystem* system = currentScene->getSystem(name);
+                    ISystem* system = currentScene->GetSystem(name);
 
                     if (!system) {
                         continue;
                     }
-                    if (!system->isActive()) {
+                    if (!system->IsActive()) {
                         continue;
                     }
 
@@ -622,13 +622,13 @@ void SelectAddSystemArea::SystemListRegion::DrawGui() {
                         if (!isSelected) {
                             if (!ImGui::GetIO().KeyShift) {
                                 auto clearCommand = std::make_unique<ClearSystemNames>(parentArea_);
-                                EditorController::getInstance()->pushCommand(std::move(clearCommand));
+                                EditorController::GetInstance()->PushCommand(std::move(clearCommand));
                             }
                             auto command = std::make_unique<AddSystemNames>(parentArea_, name);
-                            EditorController::getInstance()->pushCommand(std::move(command));
+                            EditorController::GetInstance()->PushCommand(std::move(command));
                         } else {
                             auto command = std::make_unique<RemoveSystemNames>(parentArea_, name);
-                            EditorController::getInstance()->pushCommand(std::move(command));
+                            EditorController::GetInstance()->PushCommand(std::move(command));
                         }
                     }
                 }
@@ -640,12 +640,12 @@ void SelectAddSystemArea::SystemListRegion::DrawGui() {
         for (size_t i = 0; i < systemsMap.size(); ++i) {
             auto& systemsByCategory = systemsMap[i];
             for (auto& [name, priority] : systemsByCategory) {
-                ISystem* system = currentScene->getSystem(name);
+                ISystem* system = currentScene->GetSystem(name);
 
                 if (!system) {
                     continue;
                 }
-                if (!system->isActive()) {
+                if (!system->IsActive()) {
                     continue;
                 }
 
@@ -658,13 +658,13 @@ void SelectAddSystemArea::SystemListRegion::DrawGui() {
                     if (!isSelected) {
                         if (!ImGui::GetIO().KeyShift) {
                             auto clearCommand = std::make_unique<ClearSystemNames>(parentArea_);
-                            EditorController::getInstance()->pushCommand(std::move(clearCommand));
+                            EditorController::GetInstance()->PushCommand(std::move(clearCommand));
                         }
                         auto command = std::make_unique<AddSystemNames>(parentArea_, name);
-                        EditorController::getInstance()->pushCommand(std::move(command));
+                        EditorController::GetInstance()->PushCommand(std::move(command));
                     } else {
                         auto command = std::make_unique<RemoveSystemNames>(parentArea_, name);
-                        EditorController::getInstance()->pushCommand(std::move(command));
+                        EditorController::GetInstance()->PushCommand(std::move(command));
                     }
                 }
             }
@@ -682,23 +682,23 @@ void SelectAddSystemArea::SystemListRegion::DrawGui() {
     } else {
         if (ImGui::Button("OK")) {
             auto addSystemCommand = std::make_unique<AddSystemsForTargetEntities>(parentArea_, parentArea_->targetEntityIds_, parentArea_->systemTypeNames_);
-            EditorController::getInstance()->pushCommand(std::move(addSystemCommand));
-            auto clearEntitiesCommand = std::make_unique<ClearTargetEntities>(parentArea_);
-            EditorController::getInstance()->pushCommand(std::move(clearEntitiesCommand));
+            EditorController::GetInstance()->PushCommand(std::move(addSystemCommand));
+            auto ClearEntitiesCommand = std::make_unique<ClearTargetEntities>(parentArea_);
+            EditorController::GetInstance()->PushCommand(std::move(ClearEntitiesCommand));
             auto clearSystemNamesCommand = std::make_unique<ClearSystemNames>(parentArea_);
-            EditorController::getInstance()->pushCommand(std::move(clearSystemNamesCommand));
-            parentArea_->isOpen_.set(false);
-            parentArea_->isFocused_.set(false);
+            EditorController::GetInstance()->PushCommand(std::move(clearSystemNamesCommand));
+            parentArea_->isOpen_.Set(false);
+            parentArea_->isFocused_.Set(false);
         }
     }
     ImGui::SameLine();
     if (ImGui::Button("CANCEL")) {
-        auto clearEntitiesCommand = std::make_unique<ClearTargetEntities>(parentArea_);
-        EditorController::getInstance()->pushCommand(std::move(clearEntitiesCommand));
+        auto ClearEntitiesCommand = std::make_unique<ClearTargetEntities>(parentArea_);
+        EditorController::GetInstance()->PushCommand(std::move(ClearEntitiesCommand));
         auto clearSystemNamesCommand = std::make_unique<ClearSystemNames>(parentArea_);
-        EditorController::getInstance()->pushCommand(std::move(clearSystemNamesCommand));
-        parentArea_->isOpen_.set(false);
-        parentArea_->isFocused_.set(false);
+        EditorController::GetInstance()->PushCommand(std::move(clearSystemNamesCommand));
+        parentArea_->isOpen_.Set(false);
+        parentArea_->isFocused_.Set(false);
     }
 }
 void SelectAddSystemArea::SystemListRegion::Finalize() {}
@@ -707,7 +707,7 @@ void SelectAddSystemArea::SystemListRegion::Finalize() {}
 
 EntityInspectorArea::ChangeEditEntityCommand::ChangeEditEntityCommand(EntityInspectorArea* _inspectorArea, int32_t _to, int32_t _from)
     : inspectorArea_(_inspectorArea), toId_(_to), fromId_(_from) {
-    SceneSerializer serializer(inspectorArea_->getParentWindow()->getCurrentScene());
+    SceneSerializer serializer(inspectorArea_->GetParentWindow()->GetCurrentScene());
     if (toId_ >= 0) {
         serializer.EntityToJson(toId_, toEntityData_);
     }
@@ -725,9 +725,9 @@ void EntityInspectorArea::ChangeEditEntityCommand::Execute() {
     if (toId_ < 0) {
         return;
     }
-    Scene* currentScene             = inspectorArea_->getParentWindow()->getCurrentScene();
-    Entity* toEntity                = currentScene->getEntityRepositoryRef()->getEntity(toId_);
-    inspectorArea_->editEntityName_ = toEntity->getDataType();
+    Scene* currentScene             = inspectorArea_->GetParentWindow()->GetCurrentScene();
+    Entity* toEntity                = currentScene->GetEntityRepositoryRef()->GetEntity(toId_);
+    inspectorArea_->editEntityName_ = toEntity->GetDataType();
 
     if (toEntityData_.empty()) {
         LOG_DEBUG("ChangeEditEntityCommand::Execute: toEntityData is empty, skipping entity change.");
@@ -735,7 +735,7 @@ void EntityInspectorArea::ChangeEditEntityCommand::Execute() {
     }
 
     /// 必要なら 読み込み (InspectorArea の entityComponentMap と systemMapに対して)
-    auto& componentMap = currentScene->getComponentRepositoryRef()->getComponentArrayMap();
+    auto& componentMap = currentScene->GetComponentRepositoryRef()->GetComponentArrayMap();
 
     /// Components の読み込み
     auto& entityCompData = toEntityData_.at("Components");
@@ -747,8 +747,8 @@ void EntityInspectorArea::ChangeEditEntityCommand::Execute() {
             continue;
         }
         IComponentArray* compArrayPtr = compArray->second.get();
-        for (uint32_t i = 0; i < static_cast<uint32_t>((compArrayPtr->getComponentSize(toEntity))); ++i) {
-            auto component = compArrayPtr->getComponent(toEntity, i);
+        for (uint32_t i = 0; i < static_cast<uint32_t>((compArrayPtr->GetComponentSize(toEntity))); ++i) {
+            auto component = compArrayPtr->GetComponent(toEntity, i);
             if (!component) {
                 LOG_ERROR("ChangeEditEntityCommand::Execute: Component '{}' not found for entity ID '{}'.", compTypeName, toId_);
                 continue;
@@ -759,7 +759,7 @@ void EntityInspectorArea::ChangeEditEntityCommand::Execute() {
 
     /// Systems の読み込み
     auto& entitySystemData = toEntityData_.at("Systems");
-    auto& systemMap        = currentScene->getSystemRunnerRef()->getSystems();
+    auto& systemMap        = currentScene->GetSystemRunnerRef()->GetSystems();
     for (auto& systemData : entitySystemData.items()) {
         const std::string& systemName = systemData.value().at("SystemName");
         auto systemItr                = systemMap.find(systemName);
@@ -773,7 +773,7 @@ void EntityInspectorArea::ChangeEditEntityCommand::Execute() {
             continue;
         }
 
-        inspectorArea_->systemMap_[int32_t(system->getCategory())][systemName] = system;
+        inspectorArea_->systemMap_[int32_t(system->GetCategory())][systemName] = system;
     }
 }
 
@@ -786,9 +786,9 @@ void EntityInspectorArea::ChangeEditEntityCommand::Undo() {
         return;
     }
 
-    Scene* currentScene             = inspectorArea_->getParentWindow()->getCurrentScene();
-    Entity* frontEntity             = currentScene->getEntityRepositoryRef()->getEntity(fromId_);
-    inspectorArea_->editEntityName_ = frontEntity->getDataType();
+    Scene* currentScene             = inspectorArea_->GetParentWindow()->GetCurrentScene();
+    Entity* frontEntity             = currentScene->GetEntityRepositoryRef()->GetEntity(fromId_);
+    inspectorArea_->editEntityName_ = frontEntity->GetDataType();
 
     if (fromEntityData_.empty()) {
         LOG_DEBUG("ChangeEditEntityCommand::Undo: fromEntityData is empty, skipping entity change.");
@@ -796,7 +796,7 @@ void EntityInspectorArea::ChangeEditEntityCommand::Undo() {
     }
 
     /// 必要なら 読み込み (InspectorArea の entityComponentMap と systemMapに対して)
-    auto& componentMap = currentScene->getComponentRepositoryRef()->getComponentArrayMap();
+    auto& componentMap = currentScene->GetComponentRepositoryRef()->GetComponentArrayMap();
 
     /// Components の読み込み
     auto& entityCompData = fromEntityData_.at("Components");
@@ -808,8 +808,8 @@ void EntityInspectorArea::ChangeEditEntityCommand::Undo() {
             continue;
         }
         IComponentArray* compArrayPtr = compArray->second.get();
-        for (uint32_t i = 0; i < static_cast<uint32_t>(compArrayPtr->getComponentSize(frontEntity)); ++i) {
-            auto component = compArrayPtr->getComponent(frontEntity, i);
+        for (uint32_t i = 0; i < static_cast<uint32_t>(compArrayPtr->GetComponentSize(frontEntity)); ++i) {
+            auto component = compArrayPtr->GetComponent(frontEntity, i);
             if (!component) {
                 LOG_ERROR("ChangeEditEntityCommand::Execute: Component '{}' not found for entity ID '{}'.", compTypeName, toId_);
                 continue;
@@ -820,7 +820,7 @@ void EntityInspectorArea::ChangeEditEntityCommand::Undo() {
 
     /// Systems の読み込み
     auto& entitySystemData = fromEntityData_.at("Systems");
-    auto& systemMap        = currentScene->getSystemRunnerRef()->getSystems();
+    auto& systemMap        = currentScene->GetSystemRunnerRef()->GetSystems();
     for (auto& systemData : entitySystemData.items()) {
         const std::string& systemName = systemData.value().at("SystemName");
         auto systemItr                = systemMap.find(systemName);
@@ -833,13 +833,13 @@ void EntityInspectorArea::ChangeEditEntityCommand::Undo() {
             LOG_ERROR("ChangeEditEntityCommand::Execute: System '{}' not found for entity ID '{}'.", systemName, toId_);
             continue;
         }
-        inspectorArea_->systemMap_[int32_t(system->getCategory())][systemName] = system;
+        inspectorArea_->systemMap_[int32_t(system->GetCategory())][systemName] = system;
     }
 }
 
 void EntityInformationRegion::ChangeEntityUniqueness::Execute() {
-    auto currentScene = inspectorArea_->getParentWindow()->getCurrentScene();
-    Entity* entity    = currentScene->getEntityRepositoryRef()->getEntity(entityId_);
+    auto currentScene = inspectorArea_->GetParentWindow()->GetCurrentScene();
+    Entity* entity    = currentScene->GetEntityRepositoryRef()->GetEntity(entityId_);
 
     if (!entity) {
         LOG_ERROR("ChangeEntityUniqueness::Execute: Entity with ID '{}' not found.", entityId_);
@@ -847,15 +847,15 @@ void EntityInformationRegion::ChangeEntityUniqueness::Execute() {
     }
 
     if (newValue_) {
-        currentScene->getEntityRepositoryRef()->registerUniqueEntity(entity);
+        currentScene->GetEntityRepositoryRef()->registerUniqueEntity(entity);
     } else {
-        currentScene->getEntityRepositoryRef()->unregisterUniqueEntity(entity->getDataType());
+        currentScene->GetEntityRepositoryRef()->unregisterUniqueEntity(entity->GetDataType());
     }
 }
 
 void EntityInformationRegion::ChangeEntityUniqueness::Undo() {
-    auto currentScene = inspectorArea_->getParentWindow()->getCurrentScene();
-    Entity* entity    = currentScene->getEntityRepositoryRef()->getEntity(entityId_);
+    auto currentScene = inspectorArea_->GetParentWindow()->GetCurrentScene();
+    Entity* entity    = currentScene->GetEntityRepositoryRef()->GetEntity(entityId_);
 
     if (!entity) {
         LOG_ERROR("ChangeEntityUniqueness::Execute: Entity with ID '{}' not found.", entityId_);
@@ -863,63 +863,63 @@ void EntityInformationRegion::ChangeEntityUniqueness::Undo() {
     }
 
     if (oldValue_) {
-        currentScene->getEntityRepositoryRef()->registerUniqueEntity(entity);
+        currentScene->GetEntityRepositoryRef()->registerUniqueEntity(entity);
     } else {
-        currentScene->getEntityRepositoryRef()->unregisterUniqueEntity(entity->getDataType());
+        currentScene->GetEntityRepositoryRef()->unregisterUniqueEntity(entity->GetDataType());
     }
 }
 
 void EntityInformationRegion::ChangeEntityShouldSave::Execute() {
-    auto currentScene = inspectorArea_->getParentWindow()->getCurrentScene();
-    Entity* entity    = currentScene->getEntityRepositoryRef()->getEntity(entityId_);
+    auto currentScene = inspectorArea_->GetParentWindow()->GetCurrentScene();
+    Entity* entity    = currentScene->GetEntityRepositoryRef()->GetEntity(entityId_);
 
     if (!entity) {
         LOG_ERROR("Entity with ID '{}' not found.", entityId_);
         return;
     }
 
-    entity->setShouldSave(newValue_);
+    entity->SetShouldSave(newValue_);
 }
 
 void EntityInformationRegion::ChangeEntityShouldSave::Undo() {
-    auto currentScene = inspectorArea_->getParentWindow()->getCurrentScene();
-    Entity* entity    = currentScene->getEntityRepositoryRef()->getEntity(entityId_);
+    auto currentScene = inspectorArea_->GetParentWindow()->GetCurrentScene();
+    Entity* entity    = currentScene->GetEntityRepositoryRef()->GetEntity(entityId_);
 
     if (!entity) {
         LOG_ERROR("Entity with ID '{}' not found.", entityId_);
         return;
     }
 
-    entity->setShouldSave(oldValue_);
+    entity->SetShouldSave(oldValue_);
 }
 
 void EntityInformationRegion::ChangeEntityName::Execute() {
-    auto currentScene = inspectorArea_->getParentWindow()->getCurrentScene();
-    Entity* entity    = currentScene->getEntityRepositoryRef()->getEntity(entityId_);
+    auto currentScene = inspectorArea_->GetParentWindow()->GetCurrentScene();
+    Entity* entity    = currentScene->GetEntityRepositoryRef()->GetEntity(entityId_);
     if (!entity) {
         LOG_ERROR("ChangeEntityName::Execute: Entity with ID '{}' not found.", entityId_);
         return;
     }
-    entity->setDataType(newName_);
+    entity->SetDataType(newName_);
     // UniqueEntity の場合は、名前変更後に再登録
-    if (entity->isUnique()) {
-        currentScene->getEntityRepositoryRef()->unregisterUniqueEntity(oldName_);
-        currentScene->getEntityRepositoryRef()->registerUniqueEntity(entity);
+    if (entity->IsUnique()) {
+        currentScene->GetEntityRepositoryRef()->unregisterUniqueEntity(oldName_);
+        currentScene->GetEntityRepositoryRef()->registerUniqueEntity(entity);
     }
 }
 
 void EntityInformationRegion::ChangeEntityName::Undo() {
-    auto currentScene = inspectorArea_->getParentWindow()->getCurrentScene();
-    Entity* entity    = currentScene->getEntityRepositoryRef()->getEntity(entityId_);
+    auto currentScene = inspectorArea_->GetParentWindow()->GetCurrentScene();
+    Entity* entity    = currentScene->GetEntityRepositoryRef()->GetEntity(entityId_);
     if (!entity) {
         LOG_ERROR("ChangeEntityName::Undo: Entity with ID '{}' not found.", entityId_);
         return;
     }
-    entity->setDataType(oldName_);
+    entity->SetDataType(oldName_);
     // UniqueEntity の場合は、名前変更後に再登録
-    if (entity->isUnique()) {
-        currentScene->getEntityRepositoryRef()->unregisterUniqueEntity(newName_);
-        currentScene->getEntityRepositoryRef()->registerUniqueEntity(entity);
+    if (entity->IsUnique()) {
+        currentScene->GetEntityRepositoryRef()->unregisterUniqueEntity(newName_);
+        currentScene->GetEntityRepositoryRef()->registerUniqueEntity(entity);
     }
 }
 
@@ -1035,19 +1035,19 @@ void SelectAddSystemArea::AddSystemsForTargetEntities::Execute() {
         LOG_ERROR("AddSystemsForTargetEntities::Undo: No SceneEditorWindow found.");
         return;
     }
-    auto currentScene = window->getCurrentScene();
+    auto currentScene = window->GetCurrentScene();
     if (!currentScene) {
         LOG_ERROR("AddSystemsForTargetEntities::Execute: No current scene found.");
         return;
     }
-    auto* entityInspectorArea = dynamic_cast<EntityInspectorArea*>(window->getArea(nameof<EntityInspectorArea>()).get()); // 選択状態をクリア
+    auto* entityInspectorArea = dynamic_cast<EntityInspectorArea*>(window->GetArea(nameof<EntityInspectorArea>()).get()); // 選択状態をクリア
     if (!entityInspectorArea) {
         LOG_ERROR("entityInspectorArea not found in SceneEditorWindow.");
         return;
     }
-    int32_t editEntityId = entityInspectorArea->getEditEntityId();
+    int32_t editEntityId = entityInspectorArea->GetEditEntityId();
     for (const auto& entityId : parentArea_->targetEntityIds_) {
-        Entity* entity = currentScene->getEntity(entityId);
+        Entity* entity = currentScene->GetEntity(entityId);
         if (!entity) {
             LOG_ERROR("Entity with ID '{}' not found.", entityId);
             continue;
@@ -1055,14 +1055,14 @@ void SelectAddSystemArea::AddSystemsForTargetEntities::Execute() {
 
         if (editEntityId == entityId) {
             for (const auto& systemTypeName : parentArea_->systemTypeNames_) {
-                currentScene->getSystemRunnerRef()->registerEntity(systemTypeName, entity);
+                currentScene->GetSystemRunnerRef()->RegisterEntity(systemTypeName, entity);
 
-                ISystem* system                                                                     = currentScene->getSystemRunnerRef()->getSystem(systemTypeName);
-                entityInspectorArea->getSystemMap()[int32_t(system->getCategory())][systemTypeName] = system;
+                ISystem* system                                                                     = currentScene->GetSystemRunnerRef()->GetSystem(systemTypeName);
+                entityInspectorArea->GetSystemMap()[int32_t(system->GetCategory())][systemTypeName] = system;
             }
         } else {
             for (const auto& systemTypeName : parentArea_->systemTypeNames_) {
-                currentScene->getSystemRunnerRef()->registerEntity(systemTypeName, entity);
+                currentScene->GetSystemRunnerRef()->RegisterEntity(systemTypeName, entity);
             }
         }
     }
@@ -1074,19 +1074,19 @@ void SelectAddSystemArea::AddSystemsForTargetEntities::Undo() {
         LOG_ERROR("AddSystemsForTargetEntities::Undo: No SceneEditorWindow found.");
         return;
     }
-    auto currentScene = window->getCurrentScene();
+    auto currentScene = window->GetCurrentScene();
     if (!currentScene) {
         LOG_ERROR("AddSystemsForTargetEntities::Execute: No current scene found.");
         return;
     }
-    auto* entityInspectorArea = dynamic_cast<EntityInspectorArea*>(window->getArea(nameof<EntityInspectorArea>()).get()); // 選択状態をクリア
+    auto* entityInspectorArea = dynamic_cast<EntityInspectorArea*>(window->GetArea(nameof<EntityInspectorArea>()).get()); // 選択状態をクリア
     if (!entityInspectorArea) {
         LOG_ERROR("entityInspectorArea not found in SceneEditorWindow.");
         return;
     }
-    int32_t editEntityId = entityInspectorArea->getEditEntityId();
+    int32_t editEntityId = entityInspectorArea->GetEditEntityId();
     for (const auto& entityId : parentArea_->targetEntityIds_) {
-        Entity* entity = currentScene->getEntity(entityId);
+        Entity* entity = currentScene->GetEntity(entityId);
         if (!entity) {
             LOG_ERROR("Entity with ID '{}' not found.", entityId);
             continue;
@@ -1094,9 +1094,9 @@ void SelectAddSystemArea::AddSystemsForTargetEntities::Undo() {
 
         if (editEntityId == entityId) {
             for (const auto& systemTypeName : parentArea_->systemTypeNames_) {
-                currentScene->getSystemRunnerRef()->removeEntity(systemTypeName, entity);
-                ISystem* system = currentScene->getSystemRunnerRef()->getSystem(systemTypeName);
-                auto& systems   = entityInspectorArea->getSystemMap()[int32_t(system->getCategory())];
+                currentScene->GetSystemRunnerRef()->RemoveEntity(systemTypeName, entity);
+                ISystem* system = currentScene->GetSystemRunnerRef()->GetSystem(systemTypeName);
+                auto& systems   = entityInspectorArea->GetSystemMap()[int32_t(system->GetCategory())];
                 auto itr        = systems.find(systemTypeName);
                 if (itr != systems.end()) {
                     systems.erase(itr);
@@ -1106,7 +1106,7 @@ void SelectAddSystemArea::AddSystemsForTargetEntities::Undo() {
             }
         } else {
             for (const auto& systemTypeName : parentArea_->systemTypeNames_) {
-                currentScene->getSystemRunnerRef()->removeEntity(systemTypeName, entity);
+                currentScene->GetSystemRunnerRef()->RemoveEntity(systemTypeName, entity);
             }
         }
     }
@@ -1116,24 +1116,24 @@ EntityInformationRegion::DeleteEntityCommand::DeleteEntityCommand(EntityInspecto
     : parentArea_(_parentArea), entityId_(_entityId) {}
 
 void EntityInformationRegion::DeleteEntityCommand::Execute() {
-    auto currentScene = parentArea_->getParentWindow()->getCurrentScene();
+    auto currentScene = parentArea_->GetParentWindow()->GetCurrentScene();
     if (!currentScene) {
         LOG_ERROR("DeleteEntityCommand::Execute: No current scene found.");
         return;
     }
-    Entity* entity = currentScene->getEntityRepositoryRef()->getEntity(entityId_);
+    Entity* entity = currentScene->GetEntityRepositoryRef()->GetEntity(entityId_);
     if (!entity) {
         LOG_ERROR("DeleteEntityCommand::Execute: Entity with ID '{}' not found.", entityId_);
         return;
     }
     SceneSerializer serializer(currentScene);
     serializer.EntityToJson(entityId_, entityData_);
-    currentScene->deleteEntity(entityId_);
+    currentScene->DeleteEntity(entityId_);
     LOG_DEBUG("DeleteEntityCommand::Execute: Deleted entity with ID '{}'.", entityId_);
 }
 
 void EntityInformationRegion::DeleteEntityCommand::Undo() {
-    auto currentScene = parentArea_->getParentWindow()->getCurrentScene();
+    auto currentScene = parentArea_->GetParentWindow()->GetCurrentScene();
     if (!currentScene) {
         LOG_ERROR("DeleteEntityCommand::Undo: No current scene found.");
         return;
@@ -1156,12 +1156,12 @@ RemoveComponentForEntityCommand::RemoveComponentForEntityCommand(Scene* _scene, 
     }
 
     if (entityId_ >= 0) {
-        Entity* entity = scene_->getEntityRepositoryRef()->getEntity(entityId_);
+        Entity* entity = scene_->GetEntityRepositoryRef()->GetEntity(entityId_);
         if (!entity) {
             LOG_ERROR("RemoveComponentForEntityCommand: Entity with ID '{}' not found.", entityId_);
             return;
         }
-        const auto& compArray = scene_->getComponentArray(componentTypeName_);
+        const auto& compArray = scene_->GetComponentArray(componentTypeName_);
         compArray->SaveComponent(entity, compIndex_, componentData_);
     }
 }
@@ -1171,17 +1171,17 @@ void RemoveComponentForEntityCommand::Execute() {
         LOG_ERROR("RemoveComponentForEntityCommand::Execute: Scene is null.");
         return;
     }
-    Entity* entity = scene_->getEntityRepositoryRef()->getEntity(entityId_);
+    Entity* entity = scene_->GetEntityRepositoryRef()->GetEntity(entityId_);
     if (!entity) {
         LOG_ERROR("RemoveComponentForEntityCommand::Execute: Entity with ID '{}' not found.", entityId_);
         return;
     }
-    const auto& compArray = scene_->getComponentArray(componentTypeName_);
+    const auto& compArray = scene_->GetComponentArray(componentTypeName_);
     if (!compArray) {
         LOG_ERROR("RemoveComponentForEntityCommand::Execute: Component array '{}' not found.", componentTypeName_);
         return;
     }
-    compArray->removeComponent(entity, compIndex_);
+    compArray->RemoveComponent(entity, compIndex_);
 }
 
 void RemoveComponentForEntityCommand::Undo() {
@@ -1189,17 +1189,17 @@ void RemoveComponentForEntityCommand::Undo() {
         LOG_ERROR("RemoveComponentForEntityCommand::Undo: Scene is null.");
         return;
     }
-    Entity* entity = scene_->getEntityRepositoryRef()->getEntity(entityId_);
+    Entity* entity = scene_->GetEntityRepositoryRef()->GetEntity(entityId_);
     if (!entity) {
         LOG_ERROR("RemoveComponentForEntityCommand::Undo: Entity with ID '{}' not found.", entityId_);
         return;
     }
-    const auto& compArray = scene_->getComponentArray(componentTypeName_);
+    const auto& compArray = scene_->GetComponentArray(componentTypeName_);
     if (!compArray) {
         LOG_ERROR("RemoveComponentForEntityCommand::Undo: Component array '{}' not found.", componentTypeName_);
         return;
     }
-    compArray->insertComponent(entity, compIndex_);
+    compArray->InsertComponent(entity, compIndex_);
     compArray->LoadComponent(entity, compIndex_, componentData_);
 }
 

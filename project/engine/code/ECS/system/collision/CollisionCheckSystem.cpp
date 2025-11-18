@@ -31,52 +31,52 @@ void CollisionCheckSystem::Update() {
 
     entities_.clear();
     for (auto id : entityIDs_) {
-        entities_.emplace_back(getEntity(id));
+        entities_.emplace_back(GetEntity(id));
     }
 
     entityItr_ = entities_.begin();
 
     // 衝突判定の記録開始処理
     for (auto entity : entities_) {
-        Transform* transform = getComponent<Transform>(entity);
+        Transform* transform = GetComponent<Transform>(entity);
         if (transform) {
             transform->UpdateMatrix();
         }
 
         // AABB
-        const auto& aabbColliders = getComponents<AABBCollider>(entity);
+        const auto& aabbColliders = GetComponents<AABBCollider>(entity);
         if (aabbColliders) {
             for (auto collider = aabbColliders->begin();
                 collider != aabbColliders->end();
                 ++collider) {
-                collider->setParent(transform);
+                collider->SetParent(transform);
                 collider->StartCollision();
             }
         }
 
         // Sphere
-        const auto& sphereColliders = getComponents<SphereCollider>(entity);
+        const auto& sphereColliders = GetComponents<SphereCollider>(entity);
         if (sphereColliders) {
             for (auto collider = sphereColliders->begin();
                 collider != sphereColliders->end();
                 ++collider) {
-                collider->setParent(transform);
+                collider->SetParent(transform);
                 collider->StartCollision();
             }
         }
 
         // OBB
-        const auto& obbColliders = getComponents<OBBCollider>(entity);
+        const auto& obbColliders = GetComponents<OBBCollider>(entity);
         if (obbColliders) {
             for (auto collider = obbColliders->begin();
                 collider != obbColliders->end();
                 ++collider) {
-                collider->setParent(transform);
+                collider->SetParent(transform);
                 collider->StartCollision();
             }
         }
 
-        auto collPushbackInfo = getComponent<CollisionPushBackInfo>(entity);
+        auto collPushbackInfo = GetComponent<CollisionPushBackInfo>(entity);
         if (collPushbackInfo) {
             collPushbackInfo->ClearInfo();
         }
@@ -90,7 +90,7 @@ void CollisionCheckSystem::Update() {
     // 衝突判定の記録終了処理
     for (auto entity : entities_) {
         // AABB
-        const auto& aabbColliders = getComponents<AABBCollider>(entity);
+        const auto& aabbColliders = GetComponents<AABBCollider>(entity);
         if (aabbColliders == nullptr) {
             continue;
         }
@@ -100,7 +100,7 @@ void CollisionCheckSystem::Update() {
             collider->EndCollision();
         }
         // Sphere
-        const auto& sphereColliders = getComponents<SphereCollider>(entity);
+        const auto& sphereColliders = GetComponents<SphereCollider>(entity);
         if (sphereColliders == nullptr) {
             continue;
         }
@@ -119,10 +119,10 @@ void CollisionCheckSystem::Finalize() {
 void CollisionCheckSystem::UpdateEntity(Entity* _entity) {
     ++entityItr_;
 
-    auto aCollPushbackInfo       = getComponent<CollisionPushBackInfo>(_entity);
-    auto* aEntityAabbColliders   = getComponents<AABBCollider>(_entity);
-    auto* aEntitySphereColliders = getComponents<SphereCollider>(_entity);
-    auto* aEntityObbColliders    = getComponents<OBBCollider>(_entity);
+    auto aCollPushbackInfo       = GetComponent<CollisionPushBackInfo>(_entity);
+    auto* aEntityAabbColliders   = GetComponents<AABBCollider>(_entity);
+    auto* aEntitySphereColliders = GetComponents<SphereCollider>(_entity);
+    auto* aEntityObbColliders    = GetComponents<OBBCollider>(_entity);
 
     // 2つのリスト間の衝突判定をまとめる
     auto checkCollisions = [&](
@@ -133,16 +133,16 @@ void CollisionCheckSystem::UpdateEntity(Entity* _entity) {
                                CollisionPushBackInfo* _aInfo,
                                CollisionPushBackInfo* _bInfo) {
         for (auto colliderA = listA->begin(); colliderA != listA->end(); ++colliderA) {
-            if (!colliderA->isActive()) {
+            if (!colliderA->IsActive()) {
                 continue;
             }
             for (auto colliderB = listB->begin(); colliderB != listB->end(); ++colliderB) {
-                if (!colliderB->isActive()) {
+                if (!colliderB->IsActive()) {
                     continue;
                 }
-                if (CheckCollisionPair<>(aEntity, bEntity, colliderA->getWorldShape(), colliderB->getWorldShape(), _aInfo, _bInfo)) {
-                    colliderA->setCollisionState(bEntity->getID());
-                    colliderB->setCollisionState(aEntity->getID());
+                if (CheckCollisionPair<>(aEntity, bEntity, colliderA->GetWorldShape(), colliderB->GetWorldShape(), _aInfo, _bInfo)) {
+                    colliderA->SetCollisionState(bEntity->GetID());
+                    colliderB->SetCollisionState(aEntity->GetID());
                 }
             }
         }
@@ -151,10 +151,10 @@ void CollisionCheckSystem::UpdateEntity(Entity* _entity) {
     for (auto bItr = entityItr_; bItr != entities_.end(); ++bItr) {
         Entity* bEntity = *bItr;
 
-        auto bCollPushbackInfo      = getComponent<CollisionPushBackInfo>(bEntity);
-        auto bEntityAabbColliders   = getComponents<AABBCollider>(bEntity);
-        auto bEntitySphereColliders = getComponents<SphereCollider>(bEntity);
-        auto bEntityObbColliders    = getComponents<OBBCollider>(bEntity);
+        auto bCollPushbackInfo      = GetComponent<CollisionPushBackInfo>(bEntity);
+        auto bEntityAabbColliders   = GetComponents<AABBCollider>(bEntity);
+        auto bEntitySphereColliders = GetComponents<SphereCollider>(bEntity);
+        auto bEntityObbColliders    = GetComponents<OBBCollider>(bEntity);
 
         if (aEntityAabbColliders) {
             if (bEntityAabbColliders) {

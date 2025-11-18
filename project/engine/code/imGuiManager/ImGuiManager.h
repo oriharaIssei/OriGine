@@ -19,7 +19,7 @@ struct ImFont;
 
 class ImGuiManager{
 public:
-    static ImGuiManager* getInstance();
+    static ImGuiManager* GetInstance();
 
     void Initialize(const WinApp* window,const DxDevice* dxDevice,const DxSwapChain* dxSwapChain);
     void Finalize();
@@ -44,12 +44,12 @@ private:
     ImFont* font_ = nullptr;
     ImFont* materialIconFont_ = nullptr;
 public:
-    const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& getSrvHeap() const{ return srvHeap_; }
-    const DxSrvDescriptor& getSrv() const{ return srv_; }
-    DxCommand* getDxCommand(){ return dxCommand_.get(); }
+    const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& GetSrvHeap() const{ return srvHeap_; }
+    const DxSrvDescriptor& GetSrv() const{ return srv_; }
+    DxCommand* GetDxCommand(){ return dxCommand_.get(); }
 
-    ImFont* getFont() const{ return font_; }
-    ImFont* getMaterialIconFont() const{ return materialIconFont_; }
+    ImFont* GetFont() const{ return font_; }
+    ImFont* GetMaterialIconFont() const{ return materialIconFont_; }
 
     void pushFont(ImFont* font){
         ImGui::PushFont(font);

@@ -21,18 +21,18 @@ void MaterialEffect::Initialize() {
     for (auto& tempRenderTexture : tempRenderTextures_) {
         tempRenderTexture = std::make_unique<RenderTexture>(dxCommand_.get());
         tempRenderTexture->Initialize(2, Vec2f(512.f, 512.f));
-        tempRenderTexture->setTextureName("MaterialEffect_" + std::to_string(index));
+        tempRenderTexture->SetTextureName("MaterialEffect_" + std::to_string(index));
         ++index;
     }
 
     dissolveEffect_ = std::make_unique<DissolveEffect>();
-    dissolveEffect_->setScene(this->getScene());
+    dissolveEffect_->SetScene(this->GetScene());
     dissolveEffect_->Initialize();
     distortionEffect_ = std::make_unique<DistortionEffect>();
-    distortionEffect_->setScene(this->getScene());
+    distortionEffect_->SetScene(this->GetScene());
     distortionEffect_->Initialize();
     gradationEffect_ = std::make_unique<GradationEffect>();
-    gradationEffect_->setScene(this->getScene());
+    gradationEffect_->SetScene(this->GetScene());
     gradationEffect_->Initialize();
 }
 
@@ -47,7 +47,7 @@ void MaterialEffect::Update() {
     effectPipelines_.clear();
 
     for (auto& id : entityIDs_) {
-        Entity* entity = getEntity(id);
+        Entity* entity = GetEntity(id);
         DispatchComponents(entity);
     }
 
@@ -57,7 +57,7 @@ void MaterialEffect::Update() {
     }
 
     std::sort(effectPipelines_.begin(), effectPipelines_.end(), [](std::pair<Entity*, MaterialEffectPipeLine*>& a, std::pair<Entity*, MaterialEffectPipeLine*>& b) {
-        return a.second->getPriority() < b.second->getPriority();
+        return a.second->GetPriority() < b.second->GetPriority();
     });
 
     for (auto& [entity, pipeline] : effectPipelines_) {
@@ -85,19 +85,19 @@ void MaterialEffect::Finalize() {
 }
 
 void MaterialEffect::DispatchComponents(Entity* _entity) {
-    auto materialEffectPipeLines = getComponents<MaterialEffectPipeLine>(_entity);
+    auto materialEffectPipeLines = GetComponents<MaterialEffectPipeLine>(_entity);
     if (!materialEffectPipeLines) {
         return;
     }
     for (auto& pipeline : *materialEffectPipeLines) {
-        if (!pipeline.isActive()) {
+        if (!pipeline.IsActive()) {
             continue;
         }
-        Material* material = getComponent<Material>(_entity, pipeline.getMaterialIndex());
+        Material* material = GetComponent<Material>(_entity, pipeline.GetMaterialIndex());
         if (!material) { // Material が存在しなかったらスルー
             continue;
         }
-        int32_t baseTextureId = pipeline.getBaseTextureId();
+        int32_t baseTextureId = pipeline.GetBaseTextureId();
         if (baseTextureId < 0) {
             continue;
         }
@@ -106,39 +106,39 @@ void MaterialEffect::DispatchComponents(Entity* _entity) {
 }
 
 void MaterialEffect::UpdateEffectPipeline(Entity* _entity, MaterialEffectPipeLine* _pipeline) {
-    auto commandList = dxCommand_->getCommandList();
+    auto commandList = dxCommand_->GetCommandList();
 
-    Material* material    = getComponent<Material>(_entity, _pipeline->getMaterialIndex());
-    int32_t baseTextureId = _pipeline->getBaseTextureId();
+    Material* material    = GetComponent<Material>(_entity, _pipeline->GetMaterialIndex());
+    int32_t baseTextureId = _pipeline->GetBaseTextureId();
 
     // CustomTexture がなければ作成
     if (!material->hasCustomTexture()) {
-        material->CreateCustomTextureFromTextureFile(_pipeline->getBaseTextureId());
+        material->CreateCustomTextureFromTextureFile(_pipeline->GetBaseTextureId());
     }
-    auto effectedTextureResource = &material->getCustomTexture()->resource_;
-    Vec2f textureSize            = {(float)effectedTextureResource->width(), (float)effectedTextureResource->height()};
+    auto effectedTextureResource = &material->GetCustomTexture()->resource_;
+    Vec2f textureSize            = {(float)effectedTextureResource->GetWidth(), (float)effectedTextureResource->GetHeight()};
 
     // baseTexture のメタデータを取得
     // フォーマットとmipLevelを固定
-    DirectX::TexMetadata metaData = TextureManager::getTexMetadata(baseTextureId);
+    DirectX::TexMetadata metaData = TextureManager::GetTexMetadata(baseTextureId);
     metaData.format               = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
     metaData.mipLevels            = 1;
 
     // tempRenderTexture_ のサイズを baseTexture に合わせる
     auto tempRenderTexture = tempRenderTextures_[currentTempRTIndex_].get();
-    if (tempRenderTexture->getTextureSize() != textureSize) {
+    if (tempRenderTexture->GetTextureSize() != textureSize) {
         tempRenderTexture->Resize(textureSize);
     }
 
     // tempRenderTexture_ に baseTexture を描画
     tempRenderTexture->PreDraw();
-    tempRenderTexture->DrawTexture(TextureManager::getDescriptorGpuHandle(_pipeline->getBaseTextureId()));
+    tempRenderTexture->DrawTexture(TextureManager::GetDescriptorGpuHandle(_pipeline->GetBaseTextureId()));
     tempRenderTexture->PostDraw();
 
     // effectEntityDataList に登録されている Entity でエフェクトをかける
-    const auto& effectEntityDataList = _pipeline->getEffectEntityIdList();
+    const auto& effectEntityDataList = _pipeline->GetEffectEntityIdList();
     for (auto& id : effectEntityDataList) {
-        Entity* effectEntity = getEntity(id.entityID);
+        Entity* effectEntity = GetEntity(id.entityID);
         if (!effectEntity) { // エンティティが存在しなかったらスルー
             continue;
         }
@@ -147,15 +147,15 @@ void MaterialEffect::UpdateEffectPipeline(Entity* _entity, MaterialEffectPipeLin
 
     // 最終的に tempRenderTexture_ にエフェクトがかかったテクスチャが入っているので
     // Component に 渡す
-    dxCommand_->ResourceBarrier(effectedTextureResource->getResource(), D3D12_RESOURCE_STATE_COPY_DEST);
-    dxCommand_->ResourceBarrier(tempRenderTexture->getBackBuffer(), D3D12_RESOURCE_STATE_COPY_SOURCE);
+    dxCommand_->ResourceBarrier(effectedTextureResource->GetResource(), D3D12_RESOURCE_STATE_COPY_DEST);
+    dxCommand_->ResourceBarrier(tempRenderTexture->GetBackBuffer(), D3D12_RESOURCE_STATE_COPY_SOURCE);
 
     // コピー
-    commandList->CopyResource(effectedTextureResource->getResource().Get(), tempRenderTexture->getBackBuffer().Get());
+    commandList->CopyResource(effectedTextureResource->GetResource().Get(), tempRenderTexture->GetBackBuffer().Get());
 
     // 状態を戻す
-    dxCommand_->ResourceBarrier(tempRenderTexture->getBackBuffer(), D3D12_RESOURCE_STATE_COMMON);
-    dxCommand_->ResourceBarrier(effectedTextureResource->getResource(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    dxCommand_->ResourceBarrier(tempRenderTexture->GetBackBuffer(), D3D12_RESOURCE_STATE_COMMON);
+    dxCommand_->ResourceBarrier(effectedTextureResource->GetResource(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
     // コマンド実行
     ExecuteCommand();
@@ -166,7 +166,7 @@ void MaterialEffect::UpdateEffectPipeline(Entity* _entity, MaterialEffectPipeLin
 
 void MaterialEffect::ExecuteCommand() {
     HRESULT result;
-    DxFence* fence = Engine::getInstance()->getDxFence();
+    DxFence* fence = Engine::GetInstance()->GetDxFence();
 
     // コマンドの受付終了 -----------------------------------
     result = dxCommand_->Close();
@@ -185,7 +185,7 @@ void MaterialEffect::ExecuteCommand() {
     ///===============================================================
     /// コマンドリストの実行を待つ
     ///===============================================================
-    fence->Signal(dxCommand_->getCommandQueue());
+    fence->Signal(dxCommand_->GetCommandQueue());
     fence->WaitForFence();
     ///===============================================================
 
@@ -199,35 +199,35 @@ void MaterialEffect::ExecuteCommand() {
 void MaterialEffect::TextureEffect(Entity* _entity, MaterialEffectType _type, RenderTexture* _output) {
     switch (_type) {
     case MaterialEffectType::Dissolve: {
-        dissolveEffect_->addEntity(_entity);
+        dissolveEffect_->AddEntity(_entity);
 
-        dissolveEffect_->setRenderTarget(_output);
+        dissolveEffect_->SetRenderTarget(_output);
 
         dissolveEffect_->Update();
 
-        dissolveEffect_->clearEntities();
+        dissolveEffect_->ClearEntities();
 
         break;
     }
     case MaterialEffectType::Distortion: {
-        distortionEffect_->addEntity(_entity);
+        distortionEffect_->AddEntity(_entity);
 
-        distortionEffect_->setRenderTarget(_output);
+        distortionEffect_->SetRenderTarget(_output);
 
         distortionEffect_->Update();
 
-        distortionEffect_->clearEntities();
+        distortionEffect_->ClearEntities();
 
         break;
     }
     case MaterialEffectType::Gradation: {
-        gradationEffect_->addEntity(_entity);
+        gradationEffect_->AddEntity(_entity);
 
-        gradationEffect_->setRenderTarget(_output);
+        gradationEffect_->SetRenderTarget(_output);
 
         gradationEffect_->Update();
 
-        gradationEffect_->clearEntities();
+        gradationEffect_->ClearEntities();
 
         break;
     }

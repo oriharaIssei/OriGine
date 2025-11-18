@@ -18,7 +18,7 @@ void CollisionPushBackInfo::Edit(Scene* /*_scene*/, Entity* /*_entity*/,[[maybe_
             bool isSelected            = (pushBackType_ == type);
             if (ImGui::Selectable(GetCollisionPushBackTypeName(type), isSelected)) {
                 auto command = std::make_unique<SetterCommand<CollisionPushBackType>>(&pushBackType_, type);
-                EditorController::getInstance()->pushCommand(std::move(command));
+                EditorController::GetInstance()->PushCommand(std::move(command));
             }
             if (isSelected) {
                 ImGui::SetItemDefaultFocus();

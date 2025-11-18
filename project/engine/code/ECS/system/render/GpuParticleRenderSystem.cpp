@@ -19,7 +19,7 @@ void GpuParticleRenderSystem::Initialize() {
     BaseRenderSystem::Initialize();
 
     // buffer作成
-    perViewBuffer_.CreateBuffer(Engine::getInstance()->getDxDevice()->device_);
+    perViewBuffer_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
 
     // BlendModeごとのコンテナ準備
     for (size_t i = 0; i < static_cast<size_t>(BlendMode::Count); ++i) {
@@ -38,7 +38,7 @@ void GpuParticleRenderSystem::Finalize() {
 }
 
 void GpuParticleRenderSystem::CreatePSO() {
-    ShaderManager* shaderManager = ShaderManager::getInstance();
+    ShaderManager* shaderManager = ShaderManager::GetInstance();
 
     // 登録されているかどうかをチェック
     if (shaderManager->IsRegisteredPipelineStateObj("GpuParticle_" + blendModeStr[0])) {
@@ -46,7 +46,7 @@ void GpuParticleRenderSystem::CreatePSO() {
             if (psoByBlendMode_[i]) {
                 continue;
             }
-            psoByBlendMode_[i] = shaderManager->getPipelineStateObj("GpuParticle_" + blendModeStr[i]);
+            psoByBlendMode_[i] = shaderManager->GetPipelineStateObj("GpuParticle_" + blendModeStr[i]);
         }
         return;
     }
@@ -78,7 +78,7 @@ void GpuParticleRenderSystem::CreatePSO() {
     structuredRange[0].NumDescriptors                    = 1;
     structuredRange[0].RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
     structuredRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-    shaderInfo.setDescriptorRange2Parameter(structuredRange, 1, 0);
+    shaderInfo.SetDescriptorRange2Parameter(structuredRange, 1, 0);
 
     // 1 ... PerView
     rootParameter[1].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
@@ -101,7 +101,7 @@ void GpuParticleRenderSystem::CreatePSO() {
     descriptorRange[0].NumDescriptors                    = 1;
     descriptorRange[0].RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
     descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-    shaderInfo.setDescriptorRange2Parameter(descriptorRange, 1, rootParameterIndex);
+    shaderInfo.SetDescriptorRange2Parameter(descriptorRange, 1, rootParameterIndex);
 
 #pragma endregion
 
@@ -149,23 +149,23 @@ void GpuParticleRenderSystem::CreatePSO() {
     ///=================================================
     for (size_t i = 0; i < kBlendNum; i++) {
         shaderInfo.blendMode_ = BlendMode(i);
-        psoByBlendMode_[i]    = shaderManager->CreatePso("Particle_" + blendModeStr[i], shaderInfo, Engine::getInstance()->getDxDevice()->device_);
+        psoByBlendMode_[i]    = shaderManager->CreatePso("Particle_" + blendModeStr[i], shaderInfo, Engine::GetInstance()->GetDxDevice()->device_);
     }
 }
 
 void GpuParticleRenderSystem::StartRender() {
 
     // コマンドリスト取得
-    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->getCommandList();
+    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->GetCommandList();
     // プリミティブトポロジー設定
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
     // デスクリプタヒープ設定
-    ID3D12DescriptorHeap* ppHeaps[] = {Engine::getInstance()->getSrvHeap()->getHeap().Get()};
+    ID3D12DescriptorHeap* ppHeaps[] = {Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
 
     // カメラ情報更新
-    const CameraTransform& cameraTransform = CameraManager::getInstance()->getTransform();
+    const CameraTransform& cameraTransform = CameraManager::GetInstance()->GetTransform();
     // カメラの回転行列を取得し、平行移動成分をゼロにする
     Matrix4x4 cameraRotationMat = cameraTransform.viewMat;
     cameraRotationMat[3][0]     = 0.0f;
@@ -178,20 +178,20 @@ void GpuParticleRenderSystem::StartRender() {
     perViewBuffer_->viewProjectionMat = cameraTransform.viewMat * cameraTransform.projectionMat;
     perViewBuffer_.ConvertToBuffer();
 
-    perViewBuffer_.SetForRootParameter(dxCommand_->getCommandList(), 1);
+    perViewBuffer_.SetForRootParameter(dxCommand_->GetCommandList(), 1);
 }
 
 void GpuParticleRenderSystem::DispatchRenderer(Entity* _entity) {
-    auto components = getComponents<GpuParticleEmitter>(_entity);
+    auto components = GetComponents<GpuParticleEmitter>(_entity);
     if (!components) {
         return;
     }
     // アクティブなエミッタをBlendModeごとに振り分ける
     for (auto& comp : *components) {
-        if (!comp.isActive()) {
+        if (!comp.IsActive()) {
             continue;
         }
-        activeEmitterByBlendMode_[static_cast<size_t>(comp.getBlendMode())].emplace_back(&comp);
+        activeEmitterByBlendMode_[static_cast<size_t>(comp.GetBlendMode())].emplace_back(&comp);
     }
 }
 
@@ -212,7 +212,7 @@ void GpuParticleRenderSystem::RenderingBy(BlendMode _blendMode, bool /*_isCullin
         return;
     }
 
-    auto& commandList = dxCommand_->getCommandList();
+    auto& commandList = dxCommand_->GetCommandList();
 
     commandList->SetGraphicsRootSignature(psoByBlendMode_[blendModeIndex]->rootSignature.Get());
     commandList->SetPipelineState(psoByBlendMode_[blendModeIndex]->pipelineState.Get());
@@ -220,21 +220,21 @@ void GpuParticleRenderSystem::RenderingBy(BlendMode _blendMode, bool /*_isCullin
     for (auto& emitter : activeEmitterByBlendMode_[blendModeIndex]) {
         commandList->SetGraphicsRootDescriptorTable(
             0,
-            emitter->getParticleSrvDescriptor().getGpuHandle());
+            emitter->GetParticleSrvDescriptor().GetGpuHandle());
 
-        emitter->getMaterialBuffer().ConvertToBuffer();
-        emitter->getMaterialBuffer().SetForRootParameter(commandList, 2);
+        emitter->GetMaterialBuffer().ConvertToBuffer();
+        emitter->GetMaterialBuffer().SetForRootParameter(commandList, 2);
 
         commandList->SetGraphicsRootDescriptorTable(
             3,
-            TextureManager::getDescriptorGpuHandle(emitter->getTextureIndex()));
+            TextureManager::GetDescriptorGpuHandle(emitter->GetTextureIndex()));
 
-        const auto& particleMesh = emitter->getMesh();
-        commandList->IASetVertexBuffers(0, 1, &particleMesh.getVBView());
-        commandList->IASetIndexBuffer(&particleMesh.getIBView());
+        const auto& particleMesh = emitter->GetMesh();
+        commandList->IASetVertexBuffers(0, 1, &particleMesh.GetVBView());
+        commandList->IASetIndexBuffer(&particleMesh.GetIBView());
 
         // 描画!!!
-        commandList->DrawIndexedInstanced(UINT(particleMesh.getIndexSize()), static_cast<UINT>(emitter->getParticleSize()), 0, 0, 0);
+        commandList->DrawIndexedInstanced(UINT(particleMesh.GetIndexSize()), static_cast<UINT>(emitter->GetParticleSize()), 0, 0, 0);
     }
 
     // 描画後クリア

@@ -18,7 +18,7 @@
 /// </summary>
 class SystemRegistry final {
 public:
-    static SystemRegistry* getInstance() {
+    static SystemRegistry* GetInstance() {
         static SystemRegistry instance;
         return &instance;
     }
@@ -28,7 +28,7 @@ public:
     /// </summary>
     /// <typeparam name="SystemClass"></typeparam>
     template <IsSystem SystemClass>
-    inline void registerSystem();
+    inline void RegisterSystem();
 
     /// <summary>
     /// システムを生成する
@@ -42,19 +42,19 @@ private:
     std::unordered_map<std::string, std::function<std::unique_ptr<ISystem>(Scene*)>> systemMaker_;
 
 public:
-    const std::unordered_map<std::string, std::function<std::unique_ptr<ISystem>(Scene*)>>& getSystemMaker() const {
+    const std::unordered_map<std::string, std::function<std::unique_ptr<ISystem>(Scene*)>>& GetSystemMaker() const {
         return systemMaker_;
     }
-    std::unordered_map<std::string, std::function<std::unique_ptr<ISystem>(Scene*)>>& getSystemsRef() {
+    std::unordered_map<std::string, std::function<std::unique_ptr<ISystem>(Scene*)>>& GetSystemsRef() {
         return systemMaker_;
     }
-    void clearAll() {
+    void ClearAll() {
         systemMaker_.clear();
     }
 };
 
 template <IsSystem SystemClass>
-inline void SystemRegistry::registerSystem() {
+inline void SystemRegistry::RegisterSystem() {
     std::string systemName = nameof<SystemClass>();
     if (systemMaker_.find(systemName) != systemMaker_.end()) {
         LOG_WARN("SystemRegistry: System already registered with name: {}", systemName);
@@ -63,7 +63,7 @@ inline void SystemRegistry::registerSystem() {
 
     systemMaker_[systemName] = [](Scene* scene) {
         std::unique_ptr<ISystem> system = std::make_unique<SystemClass>();
-        system->setScene(scene);
+        system->SetScene(scene);
         return std::move(system);
     };
 }

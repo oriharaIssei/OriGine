@@ -45,7 +45,7 @@ struct LightCounts {
 /// </summary>
 class LightManager {
 public:
-    static LightManager* getInstance() {
+    static LightManager* GetInstance() {
         static LightManager instance;
         return &instance;
     }
@@ -72,13 +72,13 @@ private:
     IStructuredBuffer<SpotLight> spotLights_;
 
 public:
-    size_t getDirectionalLightCount() const { return directionalLights_.openData_.size(); }
-    size_t getPointLightCount() const { return pointLights_.openData_.size(); }
-    size_t getSpotLightCount() const { return spotLights_.openData_.size(); }
+    size_t GetDirectionalLightCount() const { return directionalLights_.openData_.size(); }
+    size_t GetPointLightCount() const { return pointLights_.openData_.size(); }
+    size_t GetSpotLightCount() const { return spotLights_.openData_.size(); }
 
-    size_t getDirectionalLightCapacity() const { return directionalLights_.capacity(); }
-    size_t getPointLightCapacity() const { return pointLights_.capacity(); }
-    size_t getSpotLightCapacity() const { return spotLights_.capacity(); }
+    size_t GetDirectionalLightCapacity() const { return directionalLights_.capacity(); }
+    size_t GetPointLightCapacity() const { return pointLights_.capacity(); }
+    size_t GetSpotLightCapacity() const { return spotLights_.capacity(); }
 
     /// <summary>
     /// DirectionalLightを追加する
@@ -98,7 +98,7 @@ public:
     /// <summary>
     /// Lightをclearする
     /// </summary>
-    void clearLights() {
+    void ClearLights() {
         directionalLights_.openData_.clear();
         pointLights_.openData_.clear();
         spotLights_.openData_.clear();

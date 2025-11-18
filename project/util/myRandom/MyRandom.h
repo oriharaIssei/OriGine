@@ -20,11 +20,11 @@ namespace MyRandom{
 		Int(int32_t min = (std::numeric_limits<int32_t>::min)(),int32_t max = (std::numeric_limits<int32_t>::max)())
 			: distribution(min,max){}
 
-		int32_t get(){
+		int32_t Get(){
 			return distribution(engine);
 		}
 
-		void setRange(int32_t min,int32_t max){
+		void SetRange(int32_t min,int32_t max){
 			distribution = std::uniform_int_distribution<int32_t>(min,max);
 		}
 	};
@@ -40,11 +40,11 @@ namespace MyRandom{
 		Float(float min = 0.0,float max = 1.0)
 			: distribution(min,max){}
 
-		float get(){
+		float Get(){
 			return distribution(engine);
 		}
 
-		void setRange(float min,float max){
+		void SetRange(float min,float max){
 			distribution = std::uniform_real_distribution<float>(min,max);
 		}
 	};

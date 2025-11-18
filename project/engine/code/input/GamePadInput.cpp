@@ -31,16 +31,16 @@ void GamePadInput::Update() {
         buttonMask_ |= state.Gamepad.wButtons;
 
         // アナログトリガーをボタン扱いに変換
-        if (state.Gamepad.bLeftTrigger / *triggerDeadZone_.getValue() > kEpsilon) {
+        if (state.Gamepad.bLeftTrigger / *triggerDeadZone_.GetValue() > kEpsilon) {
             buttonMask_ |= static_cast<uint32_t>(PadButton::L_TRIGGER);
         }
-        if (state.Gamepad.bRightTrigger / *triggerDeadZone_.getValue() > kEpsilon) {
+        if (state.Gamepad.bRightTrigger / *triggerDeadZone_.GetValue() > kEpsilon) {
             buttonMask_ |= static_cast<uint32_t>(PadButton::R_TRIGGER);
         }
 
         // スティック値更新
-        lTrigger_ = static_cast<float>(state.Gamepad.bLeftTrigger) / *triggerDeadZone_.getValue();
-        rTrigger_ = static_cast<float>(state.Gamepad.bRightTrigger) / *triggerDeadZone_.getValue();
+        lTrigger_ = static_cast<float>(state.Gamepad.bLeftTrigger) / *triggerDeadZone_.GetValue();
+        rTrigger_ = static_cast<float>(state.Gamepad.bRightTrigger) / *triggerDeadZone_.GetValue();
 
         UpdateStickValues(state);
     } else {
