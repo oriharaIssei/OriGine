@@ -108,7 +108,7 @@ void TexturedMeshRenderSystem::RenderingBy(BlendMode _blendMode, bool _isCulling
         return;
     }
 
-    auto commandList  = dxCommand_->GetCommandList();
+    auto& commandList = dxCommand_->GetCommandList();
     currentCulling_   = _isCulling;
     currentBlendMode_ = _blendMode;
 
@@ -559,13 +559,4 @@ void TexturedMeshRenderSystem::RenderPrimitiveMesh(
             _renderer->GetMaterialBuff(),
             textureHandle);
     }
-}
-
-void TexturedMeshRenderSystem::SettingPSO(BlendMode _blend, bool _isCulling) {
-    int32_t cullingIndex = _isCulling ? 1 : 0;
-    int32_t blendIndex   = static_cast<int32_t>(_blend);
-
-    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->GetCommandList();
-    commandList->SetGraphicsRootSignature(psoByBlendMode_[cullingIndex][blendIndex]->rootSignature.Get());
-    commandList->SetPipelineState(psoByBlendMode_[cullingIndex][blendIndex]->pipelineState.Get());
 }

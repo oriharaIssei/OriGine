@@ -3,6 +3,7 @@
 /// stl
 #include <cassert>
 
+/// logger
 #include "logger/Logger.h"
 
 void DxFunctionHelper::SetViewportsAndScissor(const DxCommand* dxCommand, const WinApp* window) {
@@ -165,8 +166,8 @@ void DxFunctionHelper::PostDraw(DxCommand* dxCommand, DxFence* fence, DxSwapChai
     ///===============================================================
     /// コマンドリストの実行を待つ
     ///===============================================================
-    fence->Signal(dxCommand->GetCommandQueue());
-    fence->WaitForFence();
+    UINT64 fenceVal = fence->Signal(dxCommand->GetCommandQueue());
+    fence->WaitForFence(fenceVal);
     ///===============================================================
 
     ///===============================================================

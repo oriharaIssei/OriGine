@@ -108,11 +108,11 @@ void Particle::SetKeyFrames(int32_t updateSettings, ParticleKeyFrames* _keyFrame
     if (updateSettings & static_cast<int32_t>(ParticleUpdateType::ColorPerLifeTime)) {
         if (colorInterpolationType_ == InterpolationType::LINEAR) {
             updateByCurves_.push_back([this]() {
-                transform_.color = CalculateValue::Linear(keyFrames_->colorCurve_, currentTime_);
+                transform_.color = CalculateValue::Linear(keyFrames_->colorCurve, currentTime_);
             });
         } else {
             updateByCurves_.push_back([this]() {
-                transform_.color = CalculateValue::Step(keyFrames_->colorCurve_, currentTime_);
+                transform_.color = CalculateValue::Step(keyFrames_->colorCurve, currentTime_);
             });
         }
     }
@@ -121,11 +121,11 @@ void Particle::SetKeyFrames(int32_t updateSettings, ParticleKeyFrames* _keyFrame
     if (updateSettings & static_cast<int32_t>(ParticleUpdateType::ScalePerLifeTime)) {
         if (transformInterpolationType_ == InterpolationType::LINEAR) {
             updateByCurves_.push_back([this]() {
-                transform_.scale = CalculateValue::Linear(keyFrames_->scaleCurve_, currentTime_);
+                transform_.scale = CalculateValue::Linear(keyFrames_->scaleCurve, currentTime_);
             });
         } else {
             updateByCurves_.push_back([this]() {
-                transform_.scale = CalculateValue::Step(keyFrames_->scaleCurve_, currentTime_);
+                transform_.scale = CalculateValue::Step(keyFrames_->scaleCurve, currentTime_);
             });
         }
     } else if (updateSettings & static_cast<int32_t>(ParticleUpdateType::ScaleRandom)) {
@@ -138,11 +138,11 @@ void Particle::SetKeyFrames(int32_t updateSettings, ParticleKeyFrames* _keyFrame
     if (updateSettings & static_cast<int32_t>(ParticleUpdateType::RotatePerLifeTime)) {
         if (transformInterpolationType_ == InterpolationType::LINEAR) {
             updateByCurves_.push_back([this]() {
-                transform_.rotate = CalculateValue::Linear(keyFrames_->rotateCurve_, currentTime_);
+                transform_.rotate = CalculateValue::Linear(keyFrames_->rotateCurve, currentTime_);
             });
         } else {
             updateByCurves_.push_back([this]() {
-                transform_.rotate = CalculateValue::Step(keyFrames_->rotateCurve_, currentTime_);
+                transform_.rotate = CalculateValue::Step(keyFrames_->rotateCurve, currentTime_);
             });
         }
     } else if (updateSettings & static_cast<int32_t>(ParticleUpdateType::RotateRandom)) {
@@ -157,11 +157,11 @@ void Particle::SetKeyFrames(int32_t updateSettings, ParticleKeyFrames* _keyFrame
     if (updateSettings & static_cast<int32_t>(ParticleUpdateType::VelocityPerLifeTime)) {
         if (transformInterpolationType_ == InterpolationType::LINEAR) {
             updateByCurves_.push_back([this]() {
-                velocity_ = CalculateValue::Linear(keyFrames_->velocityCurve_, currentTime_);
+                velocity_ = CalculateValue::Linear(keyFrames_->velocityCurve, currentTime_);
             });
         } else {
             updateByCurves_.push_back([this]() {
-                velocity_ = CalculateValue::Step(keyFrames_->velocityCurve_, currentTime_);
+                velocity_ = CalculateValue::Step(keyFrames_->velocityCurve, currentTime_);
             });
         }
     } else if (updateSettings & static_cast<int32_t>(ParticleUpdateType::VelocityRandom)) {
@@ -182,11 +182,11 @@ void Particle::SetKeyFrames(int32_t updateSettings, ParticleKeyFrames* _keyFrame
     if (updateSettings & static_cast<int32_t>(ParticleUpdateType::UvScalePerLifeTime)) {
         if (uvInterpolationType_ == InterpolationType::LINEAR) {
             updateByCurves_.push_back([this]() {
-                transform_.uvScale = CalculateValue::Linear(keyFrames_->uvscaleCurve_, currentTime_);
+                transform_.uvScale = CalculateValue::Linear(keyFrames_->uvScaleCurve, currentTime_);
             });
         } else {
             updateByCurves_.push_back([this]() {
-                transform_.uvScale = CalculateValue::Step(keyFrames_->uvscaleCurve_, currentTime_);
+                transform_.uvScale = CalculateValue::Step(keyFrames_->uvScaleCurve, currentTime_);
             });
         }
     }
@@ -194,11 +194,11 @@ void Particle::SetKeyFrames(int32_t updateSettings, ParticleKeyFrames* _keyFrame
     if (updateSettings & static_cast<int32_t>(ParticleUpdateType::UvRotatePerLifeTime)) {
         if (uvInterpolationType_ == InterpolationType::LINEAR) {
             updateByCurves_.push_back([this]() {
-                transform_.uvRotate = CalculateValue::Linear(keyFrames_->uvRotateCurve_, currentTime_);
+                transform_.uvRotate = CalculateValue::Linear(keyFrames_->uvRotateCurve, currentTime_);
             });
         } else {
             updateByCurves_.push_back([this]() {
-                transform_.uvRotate = CalculateValue::Step(keyFrames_->uvRotateCurve_, currentTime_);
+                transform_.uvRotate = CalculateValue::Step(keyFrames_->uvRotateCurve, currentTime_);
             });
         }
     }
@@ -206,11 +206,11 @@ void Particle::SetKeyFrames(int32_t updateSettings, ParticleKeyFrames* _keyFrame
     if (updateSettings & static_cast<int32_t>(ParticleUpdateType::UvTranslatePerLifeTime)) {
         if (uvInterpolationType_ == InterpolationType::LINEAR) {
             updateByCurves_.push_back([this]() {
-                transform_.uvTranslate = CalculateValue::Linear(keyFrames_->uvTranslateCurve_, currentTime_);
+                transform_.uvTranslate = CalculateValue::Linear(keyFrames_->uvTranslateCurve, currentTime_);
             });
         } else {
             updateByCurves_.push_back([this]() {
-                transform_.uvTranslate = CalculateValue::Step(keyFrames_->uvTranslateCurve_, currentTime_);
+                transform_.uvTranslate = CalculateValue::Step(keyFrames_->uvTranslateCurve, currentTime_);
             });
         }
     }

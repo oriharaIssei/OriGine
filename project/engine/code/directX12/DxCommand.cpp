@@ -8,21 +8,18 @@
 // directX12Object
 #include "directX12/DxDevice.h"
 #include "directX12/DxFence.h"
-#include "directX12/ResourceStateTracker.h"
 /// logger
 #include "logger/Logger.h"
 
 /// util
+#include "DxUtil.h"
 #include "StringUtil.h"
 
-std::unordered_map<std::string,
-    std::tuple<Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>, Microsoft::WRL::ComPtr<ID3D12CommandAllocator>, ResourceStateTracker>>
-    DxCommand::commandListComboMap_;
+std::unordered_map<std::string, DxCommand::CommandListCombo> DxCommand::commandListComboMap_;
 
 std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D12CommandQueue>> DxCommand::commandQueueMap_;
 
 DxCommand::DxCommand() {}
-
 DxCommand::~DxCommand() {}
 
 bool DxCommand::CreateCommandListWithAllocator(Microsoft::WRL::ComPtr<ID3D12Device> device, const std::string& listAndAllocatorKey, D3D12_COMMAND_LIST_TYPE listType) {
@@ -31,11 +28,11 @@ bool DxCommand::CreateCommandListWithAllocator(Microsoft::WRL::ComPtr<ID3D12Devi
     // キーで指定されたコマンドリストとアロケータの組み合わせを生成
     auto& commandListCombo = commandListComboMap_[listAndAllocatorKey];
 
-    auto& commandList      = std::get<0>(commandListCombo);
-    auto& commandAllocator = std::get<1>(commandListCombo);
+    auto& commandList      = commandListCombo.commandList;
+    auto& commandAllocator = commandListCombo.commandAllocator;
     HRESULT result         = device->CreateCommandAllocator(
         listType,
-        IID_PPV_ARGS(&std::get<1>(commandListCombo)));
+        IID_PPV_ARGS(commandAllocator.GetAddressOf()));
     assert(SUCCEEDED(result));
 
     result = device->CreateCommandList(
@@ -43,7 +40,7 @@ bool DxCommand::CreateCommandListWithAllocator(Microsoft::WRL::ComPtr<ID3D12Devi
         listType,
         commandAllocator.Get(),
         nullptr,
-        IID_PPV_ARGS(&commandList));
+        IID_PPV_ARGS(commandList.GetAddressOf()));
 
     if (FAILED(result)) {
         LOG_ERROR("Failed to create command list. HRESULT: {} \n listAndAllocatorKey : {}", std::to_string(result), listAndAllocatorKey);
@@ -107,9 +104,9 @@ void DxCommand::Initialize(const std::string& commandListKey, const std::string&
 
     // 取得
     auto& commandListCombo = commandListComboMap_[commandListComboKey_];
-    commandList_           = std::get<0>(commandListCombo);
-    commandAllocator_      = std::get<1>(commandListCombo);
-    resourceStateTracker_  = &std::get<2>(commandListCombo);
+    commandList_           = commandListCombo.commandList;
+    commandAllocator_      = commandListCombo.commandAllocator;
+    resourceStateTracker_  = &commandListCombo.resourceStateTracker;
 
     // 名前を設定
     commandList_->SetName(ConvertString(commandListComboKey_).c_str());
@@ -146,9 +143,9 @@ void DxCommand::Initialize(const std::string& commandListKey, const std::string&
 
     // 取得
     auto& commandListCombo = commandListComboMap_[commandListComboKey_];
-    commandList_           = std::get<0>(commandListCombo);
-    commandAllocator_      = std::get<1>(commandListCombo);
-    resourceStateTracker_  = &std::get<2>(commandListCombo);
+    commandList_           = commandListCombo.commandList;
+    commandAllocator_      = commandListCombo.commandAllocator;
+    resourceStateTracker_  = &commandListCombo.resourceStateTracker;
 }
 
 void DxCommand::CommandReset() {
@@ -163,6 +160,12 @@ void DxCommand::CommandReset() {
     if (FAILED(hr)) {
         LOG_ERROR("Failed to reset CommandList. HRESULT: {}", std::to_string(hr));
         assert(false);
+    }
+
+    // map にあるコンボのフラグを false にする
+    auto it = commandListComboMap_.find(commandListComboKey_);
+    if (it != commandListComboMap_.end()) {
+        it->second.isClosed = false;
     }
 }
 
@@ -189,8 +192,8 @@ void DxCommand::ResourceDirectBarrier(Microsoft::WRL::ComPtr<ID3D12Resource> res
 
 HRESULT DxCommand::Close() {
     HRESULT hr = commandList_->Close();
+
     if (FAILED(hr)) {
-      
         OutputDebugStringA("CommandList Close FAILED! ptr=");
         char buf[64];
         sprintf_s(buf, "%p", static_cast<void*>(commandList_.Get()));
@@ -200,11 +203,33 @@ HRESULT DxCommand::Close() {
         if (commandList_) {
             OutputDebugStringW(ConvertString(std::format("{} : {}", commandListComboKey_, HrToString(hr))).c_str());
         }
+    } else {
+        // close成功
+        auto itr = commandListComboMap_.find(commandListComboKey_);
+        if (itr != commandListComboMap_.end()) {
+            itr->second.isClosed = true;
+        }
     }
+
     return hr;
 }
 
 void DxCommand::ExecuteCommand() {
+    // close 確認
+    auto itr = commandListComboMap_.find(commandListComboKey_);
+    if (itr != commandListComboMap_.end()) {
+        if (!itr->second.isClosed) {
+            LOG_ERROR("CommandList is not closed. Key: {}", commandListComboKey_);
+            assert(false);
+            return;
+        }
+    } else {
+        LOG_ERROR("CommandListCombo not found. Key: {}", commandListComboKey_);
+        assert(false);
+        return;
+    }
+
+    // 実行
     ID3D12CommandList* commandLists[] = {commandList_.Get()};
     commandQueue_->ExecuteCommandLists(1, commandLists);
     resourceStateTracker_->CommitLocalStatesToGlobal();
@@ -262,22 +287,12 @@ void DxCommand::Finalize() {
     LOG_DEBUG(
         "Finalize DxCommand \n CommandList Key : {} \n CommandQueue Key :{}", commandListComboKey_, commandQueueKey_);
 
-    // 参照カウントを取得するための関数
-    auto GetRefCount = [](IUnknown* ptr) -> ULONG {
-        if (!ptr) {
-            return 0;
-        }
-        ptr->AddRef(); // 一時的に参照カウントを増やす
-        ULONG refCount = ptr->Release(); // Release で元に戻す
-        return refCount;
-    };
-
     ///=====================================================
     // それぞれの ComPtr の参照カウントを確認
     ///=====================================================
-    ULONG listRefCount      = GetRefCount(commandList_.Get());
-    ULONG allocatorRefCount = GetRefCount(commandAllocator_.Get());
-    ULONG queueRefCount     = GetRefCount(commandQueue_.Get());
+    ULONG listRefCount      = GetComRefCount(commandList_);
+    ULONG allocatorRefCount = GetComRefCount(commandAllocator_);
+    ULONG queueRefCount     = GetComRefCount(commandQueue_);
 
     LOG_DEBUG("CommandList      Name {} RefCount : {}", commandListComboKey_, listRefCount);
     LOG_DEBUG("CommandAllocator Name {} RefCount : {}", commandListComboKey_, allocatorRefCount);
@@ -286,12 +301,13 @@ void DxCommand::Finalize() {
     ///=====================================================
     // それぞれの ComPtr の参照カウントを確認して削除 (＝＝ 2 なのは this + static)
     ///=====================================================
-    if (commandList_ && GetRefCount(commandList_.Get()) == 2) {
+    if (commandList_ && GetComRefCount(commandList_) == 2) {
         LOG_DEBUG("Delete CommandList : {}", commandListComboKey_);
         commandListComboMap_.erase(commandListComboKey_);
+        resourceStateTracker_ = nullptr;
     }
 
-    if (commandQueue_ && GetRefCount(commandQueue_.Get()) == 2) {
+    if (commandQueue_ && GetComRefCount(commandQueue_) == 2) {
         LOG_DEBUG("Delete CommandQueue : {}", commandQueueKey_);
         commandQueueMap_.erase(commandQueueKey_);
     }
@@ -308,8 +324,8 @@ void DxCommand::Finalize() {
 void DxCommand::ResetAll() {
     LOG_DEBUG("Reset All DxCommand");
     for (auto& [key, listCombo] : commandListComboMap_) {
-        auto& list      = std::get<0>(listCombo);
-        auto& allocator = std::get<1>(listCombo);
+        auto& list      = listCombo.commandList;
+        auto& allocator = listCombo.commandAllocator;
         list.Reset();
         allocator.Reset();
     }

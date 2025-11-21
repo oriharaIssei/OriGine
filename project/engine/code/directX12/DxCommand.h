@@ -9,10 +9,12 @@
 #include <d3d12.h>
 #include <dxgi1_6.h>
 
+/// engine
+// DirectX12
 #include "directX12/DxDescriptor.h"
+#include "directX12/ResourceStateTracker.h"
 
 class DxFence;
-class ResourceStateTracker;
 
 /// <summary>
 /// CommandList,Allocator,CommandQueue を組み合わせて管理する
@@ -53,13 +55,17 @@ public:
     /// <returns></returns>
     static bool CreateCommandQueue(Microsoft::WRL::ComPtr<ID3D12Device> device, const std::string& queueKey, D3D12_COMMAND_QUEUE_DESC desc);
 
+public:
+    struct CommandListCombo {
+        Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList   = nullptr;
+        Microsoft::WRL::ComPtr<ID3D12CommandAllocator> commandAllocator = nullptr;
+        ResourceStateTracker resourceStateTracker;
+        bool isClosed = true;
+    };
+
 private:
     /// 一元管理用
-    static std::unordered_map<std::string,
-        std::tuple<Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>,
-            Microsoft::WRL::ComPtr<ID3D12CommandAllocator>,
-            ResourceStateTracker>>
-        commandListComboMap_;
+    static std::unordered_map<std::string, CommandListCombo> commandListComboMap_;
 
     static std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D12CommandQueue>> commandQueueMap_;
 

@@ -28,8 +28,6 @@ public:
     void Initialize() override;
     void Finalize() override;
 
-    void SettingPSO(BlendMode _blend);
-
     /// <summary>
     /// PSOの作成
     /// </summary>
@@ -59,13 +57,19 @@ public:
     bool ShouldSkipRender() const override;
 
 private:
+    BlendMode currentBlendMode_ = BlendMode::Alpha;
     std::array<PipelineStateObj*, kBlendNum> psoByBlendMode_{};
     std::array<std::vector<LineRenderer*>, kBlendNum> activeLineRenderersByBlendMode_{};
-
-    bool lineIsStrip_ = false;
 
 public:
     const std::array<PipelineStateObj*, kBlendNum>& GetPsoByBlendMode() {
         return psoByBlendMode_;
+    }
+
+    BlendMode GetCurrentBlendMode() const {
+        return currentBlendMode_;
+    }
+    void SetBlendMode(BlendMode _blendMode) {
+        currentBlendMode_ = _blendMode;
     }
 };

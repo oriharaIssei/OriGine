@@ -51,7 +51,7 @@ static std::array<std::string, shapeTypeCount> particleSpawnLocationTypeWord_ = 
 ///</summary>
 struct EmitterShape {
     EmitterShape(EmitterShapeType _shapeType)
-        : type_(_shapeType) {}
+        : type(_shapeType) {}
 
 public: // メンバ関数
 #ifdef _DEBUG
@@ -61,8 +61,8 @@ public: // メンバ関数
     virtual Vec3f GetSpawnPos() = 0;
 
 public:
-    const EmitterShapeType type_;
-    ParticleSpawnLocationType spawnType_ = ParticleSpawnLocationType::InBody;
+    const EmitterShapeType type;
+    ParticleSpawnLocationType spawnType = ParticleSpawnLocationType::InBody;
 };
 
 ///< summary>
@@ -72,14 +72,14 @@ struct EmitterSphere
     : EmitterShape {
     friend void to_json(nlohmann::json& j, const EmitterSphere& r) {
         j["radius"]    = r.radius_;
-        j["spawnType"] = (int32_t)r.spawnType_;
+        j["spawnType"] = (int32_t)r.spawnType;
     }
     friend void from_json(const nlohmann::json& j, EmitterSphere& r) {
         j.at("radius").get_to(r.radius_);
         if (j.find("spawnType") != j.end()) {
             int32_t spawnType = 0;
             j.at("spawnType").get_to(spawnType);
-            r.spawnType_ = static_cast<ParticleSpawnLocationType>(spawnType);
+            r.spawnType = static_cast<ParticleSpawnLocationType>(spawnType);
         }
     }
 
@@ -105,7 +105,7 @@ struct EmitterBox
         j["min"]    = r.min_;
         j["max"]    = r.max_;
         j["rotate"] = r.rotate_;
-        j["spawnType"] = (int32_t)r.spawnType_;
+        j["spawnType"] = (int32_t)r.spawnType;
     }
     friend void from_json(const nlohmann::json& j, EmitterBox& r) {
         j.at("min").get_to(r.min_);
@@ -115,7 +115,7 @@ struct EmitterBox
         if (j.find("spawnType") != j.end()) {
             int32_t spawnType = 0;
             j.at("spawnType").get_to(spawnType);
-            r.spawnType_ = static_cast<ParticleSpawnLocationType>(spawnType);
+            r.spawnType = static_cast<ParticleSpawnLocationType>(spawnType);
         }
     }
 
@@ -145,7 +145,7 @@ struct EmitterCapsule
         j["radius"]    = r.radius_;
         j["length"]    = r.length_;
 
-        j["spawnType"] = (int32_t)r.spawnType_;
+        j["spawnType"] = (int32_t)r.spawnType;
     }
     friend void from_json(const nlohmann::json& j, EmitterCapsule& r) {
         j.at("direction").get_to(r.direction_);
@@ -155,7 +155,7 @@ struct EmitterCapsule
         if (j.find("spawnType") != j.end()) {
             int32_t spawnType = 0;
             j.at("spawnType").get_to(spawnType);
-            r.spawnType_ = static_cast<ParticleSpawnLocationType>(spawnType);
+            r.spawnType = static_cast<ParticleSpawnLocationType>(spawnType);
         }
     }
 
@@ -184,7 +184,7 @@ struct EmitterCone
         j["length"]    = r.length_;
         j["direction"] = r.direction_;
 
-        j["spawnType"] = (int32_t)r.spawnType_;
+        j["spawnType"] = (int32_t)r.spawnType;
     }
     friend void from_json(const nlohmann::json& j, EmitterCone& r) {
         j.at("angle").get_to(r.angle_);
@@ -194,7 +194,7 @@ struct EmitterCone
         if (j.find("spawnType") != j.end()) {
             int32_t spawnType = 0;
             j.at("spawnType").get_to(spawnType);
-            r.spawnType_ = static_cast<ParticleSpawnLocationType>(spawnType);
+            r.spawnType = static_cast<ParticleSpawnLocationType>(spawnType);
         }
     }
 

@@ -34,7 +34,7 @@ void BackGroundSpriteRenderSystem::Rendering() {
             return a->GetRenderPriority() < b->GetRenderPriority();
         });
 
-    auto commandList = dxCommand_->GetCommandList();
+    auto& commandList = dxCommand_->GetCommandList();
     // blnedModeの設定
     int32_t blendModeIndex = static_cast<int32_t>(BlendMode::Normal);
     commandList->SetGraphicsRootSignature(psoByBlendMode_[blendModeIndex]->rootSignature.Get());
@@ -195,7 +195,7 @@ void BackGroundSpriteRenderSystem::CreatePSO() {
 }
 
 void BackGroundSpriteRenderSystem::StartRender() {
-    auto commandList = dxCommand_->GetCommandList();
+    auto& commandList = dxCommand_->GetCommandList();
 
     ID3D12DescriptorHeap* ppHeaps[] = {Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);

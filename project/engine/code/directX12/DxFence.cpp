@@ -16,16 +16,19 @@ void DxFence::Finalize() {
     fence_.Reset();
 }
 
-void DxFence::Signal(Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue) {
+UINT64 DxFence::Signal(Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue) {
     // コマンドキューにSignalを送る
-    commandQueue->Signal(fence_.Get(), ++fenceValue_);
+    ++fenceValue_;
+    commandQueue->Signal(fence_.Get(), fenceValue_);
+
+    return fenceValue_;
 };
 
-void DxFence::WaitForFence() {
+void DxFence::WaitForFence(UINT64 _waitFenceVal) {
     // 完了していなければ待機
-    if (fence_->GetCompletedValue() < fenceValue_) {
+    if (fence_->GetCompletedValue() < _waitFenceVal) {
         HANDLE fenceEvent = CreateEvent(nullptr, false, false, nullptr);
-        fence_->SetEventOnCompletion(fenceValue_, fenceEvent);
+        fence_->SetEventOnCompletion(_waitFenceVal, fenceEvent);
         WaitForSingleObject(fenceEvent, INFINITE);
         CloseHandle(fenceEvent);
     }

@@ -43,7 +43,7 @@ void SpriteRenderSystem::Rendering() {
     ///=========================================================
     // 描画
     ///=========================================================
-    auto commandList = dxCommand_->GetCommandList();
+    auto& commandList = dxCommand_->GetCommandList();
 
     // 描画開始処理
     StartRender();
@@ -200,7 +200,7 @@ void SpriteRenderSystem::CreatePSO() {
 }
 
 void SpriteRenderSystem::StartRender() {
-    auto commandList = dxCommand_->GetCommandList();
+    auto& commandList = dxCommand_->GetCommandList();
     dxCommand_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
     dxCommand_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

@@ -394,8 +394,8 @@ void GpuParticleEmitterWorkSystem::ExecuteCS() {
     ///===============================================================
     /// コマンドリストの実行を待つ
     ///===============================================================
-    fence->Signal(dxCommand_->GetCommandQueue());
-    fence->WaitForFence();
+    UINT64 fenceVal = fence->Signal(dxCommand_->GetCommandQueue());
+    fence->WaitForFence(fenceVal);
     ///===============================================================
 
     ///===============================================================

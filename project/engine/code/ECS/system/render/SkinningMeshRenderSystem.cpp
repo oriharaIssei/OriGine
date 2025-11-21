@@ -60,7 +60,7 @@ void SkinningMeshRenderSystem::RenderingBy(BlendMode _blendMode, bool /*_isCulli
     if (renderers.empty()) {
         return;
     }
-    auto commandList = dxCommand_->GetCommandList();
+    auto& commandList = dxCommand_->GetCommandList();
     // PSOセット
     commandList->SetPipelineState(psoByBlendMode_[blendIndex]->pipelineState.Get());
     // RootSignatureセット

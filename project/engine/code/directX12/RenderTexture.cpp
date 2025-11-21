@@ -105,7 +105,7 @@ void RenderTexture::Initialize(
     renderTargets_.resize(bufferCount_);
 
     textureSize_ = textureSize;
-    ClearColor_  = _clearColor;
+    clearColor_  = _clearColor;
 
     dxCommand_ = std::make_unique<DxCommand>();
     dxCommand_->Initialize("main", "main");
@@ -121,7 +121,7 @@ void RenderTexture::Initialize(
             static_cast<uint32_t>(textureSize_[X]),
             static_cast<uint32_t>(textureSize_[Y]),
             format_,
-            ClearColor_);
+            clearColor_);
 
         /// ------------------------------------------------------------------
         ///  RTV の作成
@@ -145,7 +145,7 @@ void RenderTexture::Initialize(
         /// ------------------------------------------------------------------
         ///  ResourceStateTracker の登録
         /// ------------------------------------------------------------------
-        ResourceStateTracker::RegisterResource(renderTarget.resource_.GetResource(), D3D12_RESOURCE_STATE_RENDER_TARGET);
+        ResourceStateTracker::RegisterResource(renderTarget.resource_.GetResource().Get(), D3D12_RESOURCE_STATE_RENDER_TARGET);
     }
 
     // 名前つける
@@ -176,10 +176,14 @@ void RenderTexture::Resize(const Vec2f& textureSize) {
     textureSize_      = textureSize;
 
     // 古いリソースを解放
-    for (auto& target : renderTargets_) {
-        target.resource_.Finalize();
-        Engine::GetInstance()->GetRtvHeap()->ReleaseDescriptor(target.rtv_);
-        Engine::GetInstance()->GetSrvHeap()->ReleaseDescriptor(target.srv_);
+    auto srvHeap = Engine::GetInstance()->GetSrvHeap();
+    auto rtvHeap = Engine::GetInstance()->GetRtvHeap();
+    for (auto& renderTarget : renderTargets_) {
+
+        rtvHeap->ReleaseDescriptor(renderTarget.rtv_);
+        srvHeap->ReleaseDescriptor(renderTarget.srv_);
+
+        renderTarget.resource_.Finalize();
     }
 
     Microsoft::WRL::ComPtr<ID3D12Device> device = Engine::GetInstance()->GetDxDevice()->device_;
@@ -192,7 +196,7 @@ void RenderTexture::Resize(const Vec2f& textureSize) {
             static_cast<uint32_t>(textureSize_[X]),
             static_cast<uint32_t>(textureSize_[Y]),
             format_,
-            ClearColor_);
+            clearColor_);
 
         /// ------------------------------------------------------------------
         ///  RTV の作成
@@ -215,7 +219,7 @@ void RenderTexture::Resize(const Vec2f& textureSize) {
         /// ------------------------------------------------------------------
         ///  ResourceStateTracker の登録
         /// ------------------------------------------------------------------
-        ResourceStateTracker::RegisterResource(renderTargets_[i].resource_.GetResource(), D3D12_RESOURCE_STATE_RENDER_TARGET);
+        ResourceStateTracker::RegisterResource(renderTargets_[i].resource_.GetResource().Get(), D3D12_RESOURCE_STATE_RENDER_TARGET);
 
         renderTargets_[i].resource_.SetName(wName + std::to_wstring(i));
     }
@@ -225,6 +229,8 @@ void RenderTexture::Finalize() {
     auto srvHeap = Engine::GetInstance()->GetSrvHeap();
     auto rtvHeap = Engine::GetInstance()->GetRtvHeap();
     for (auto& renderTarget : renderTargets_) {
+        ResourceStateTracker::UnregisterResource(renderTarget.resource_.GetResource().Get());
+
         renderTarget.resource_.Finalize();
 
         rtvHeap->ReleaseDescriptor(renderTarget.rtv_);
@@ -255,12 +261,12 @@ void RenderTexture::PreDraw(const DxDsvDescriptor& _dsv) {
     //	Clear RTV
     ///=========================================
     float ClearColor[4] = {
-        ClearColor_[X],
-        ClearColor_[Y],
-        ClearColor_[Z],
-        ClearColor_[W]};
+        clearColor_[X],
+        clearColor_[Y],
+        clearColor_[Z],
+        clearColor_[W]};
     commandList->ClearRenderTargetView(
-        rtvHandle, ClearColor_.v, 0, nullptr);
+        rtvHandle, clearColor_.v, 0, nullptr);
     ///=========================================
     //	Clear DSV
     ///=========================================
@@ -322,8 +328,8 @@ void RenderTexture::PostDraw() {
     ///===============================================================
     /// コマンドリストの実行を待つ
     ///===============================================================
-    fence->Signal(dxCommand_->GetCommandQueue());
-    fence->WaitForFence();
+    UINT64 fenceVal = fence->Signal(dxCommand_->GetCommandQueue());
+    fence->WaitForFence(fenceVal);
     ///===============================================================
 
     ///===============================================================

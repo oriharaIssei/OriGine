@@ -8,7 +8,7 @@
 /// <summary>
 /// device,adapter,factory をまとめた構造体
 /// </summary>
-struct DxDevice {
+class DxDevice {
 public:
     void Initialize();
     void Finalize();

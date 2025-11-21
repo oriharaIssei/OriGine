@@ -4,7 +4,7 @@
 #include <wrl.h>
 
 #include "DirectXTex/DirectXTex.h"
-struct DxDevice;
+class DxDevice;
 
 #include "Vector4.h"
 #include <stdint.h>

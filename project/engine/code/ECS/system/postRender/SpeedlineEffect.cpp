@@ -103,7 +103,7 @@ void SpeedlineEffect::CreatePSO() {
 }
 
 void SpeedlineEffect::RenderStart() {
-    auto commandList = dxCommand_->GetCommandList();
+    auto& commandList = dxCommand_->GetCommandList();
 
     renderTarget_->PreDraw();
     renderTarget_->DrawTexture();

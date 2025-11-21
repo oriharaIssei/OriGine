@@ -99,7 +99,7 @@ void DxSwapChain::Present() {
 }
 
 void DxSwapChain::CurrentBackBufferClear(DxCommand* _commandList, const DxDsvDescriptor& _dsv) const {
-    _commandList->ClearTarget(backBuffers_[swapChain_->GetCurrentBackBufferIndex()], _dsv, ClearColor_);
+    _commandList->ClearTarget(backBuffers_[swapChain_->GetCurrentBackBufferIndex()], _dsv, clearColor_);
 }
 
 void DxSwapChain::ResizeBuffer(UINT width, UINT height) {

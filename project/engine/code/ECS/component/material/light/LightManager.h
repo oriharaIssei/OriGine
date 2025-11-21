@@ -76,9 +76,9 @@ public:
     size_t GetPointLightCount() const { return pointLights_.openData_.size(); }
     size_t GetSpotLightCount() const { return spotLights_.openData_.size(); }
 
-    size_t GetDirectionalLightCapacity() const { return directionalLights_.capacity(); }
-    size_t GetPointLightCapacity() const { return pointLights_.capacity(); }
-    size_t GetSpotLightCapacity() const { return spotLights_.capacity(); }
+    size_t GetDirectionalLightCapacity() const { return directionalLights_.Capacity(); }
+    size_t GetPointLightCapacity() const { return pointLights_.Capacity(); }
+    size_t GetSpotLightCapacity() const { return spotLights_.Capacity(); }
 
     /// <summary>
     /// DirectionalLightを追加する

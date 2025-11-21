@@ -95,8 +95,6 @@ public:
     /// </summary>
     void RenderPrimitiveMesh(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList, PrimitiveMeshRendererBase* _renderer);
 
-    void SettingPSO(BlendMode _blend, bool _isCulling);
-
 protected:
     void LightUpdate();
 
@@ -119,4 +117,12 @@ private:
     int32_t lightCountBufferIndex_         = 0;
     int32_t textureBufferIndex_            = 0;
     int32_t environmentTextureBufferIndex_ = 0;
+
+public:
+    void SetBlendMode(BlendMode _blendMode) {
+        currentBlendMode_ = _blendMode;
+    }
+    void SetCulling(bool _isCulling) {
+        currentCulling_ = _isCulling;
+    }
 };

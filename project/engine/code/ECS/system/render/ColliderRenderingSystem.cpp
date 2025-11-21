@@ -308,7 +308,7 @@ void ColliderRenderingSystem::CreatePSO() {
 }
 
 void ColliderRenderingSystem::StartRender() {
-    auto commandList = dxCommand_->GetCommandList();
+    auto& commandList = dxCommand_->GetCommandList();
     commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
     commandList->SetPipelineState(pso_->pipelineState.Get());
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
@@ -509,7 +509,7 @@ void ColliderRenderingSystem::CreateRenderMesh() {
 }
 
 void ColliderRenderingSystem::RenderCall() {
-    auto commandList = dxCommand_->GetCommandList();
+    auto& commandList = dxCommand_->GetCommandList();
 
     ///==============================
     /// 描画

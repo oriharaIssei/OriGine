@@ -768,6 +768,7 @@
     <ClInclude Include="engine\code\ECS\component\renderer\primitive\shape\Cylinder.h" />
     <ClInclude Include="engine\code\ECS\component\renderer\primitive\CylinderRenderer.h" />
     <ClInclude Include="engine\code\ECS\component\renderer\primitive\base\PrimitiveMeshFactory.h" />
+    <ClInclude Include="util\DxUtil.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="editor\EditorController.cpp">

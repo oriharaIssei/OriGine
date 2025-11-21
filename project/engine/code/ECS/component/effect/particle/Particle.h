@@ -117,26 +117,26 @@ public:
 
 struct ParticleKeyFrames {
     ParticleKeyFrames() {
-        colorCurve_.push_back({});
+        colorCurve.push_back({});
 
-        scaleCurve_.push_back({});
-        rotateCurve_.push_back({});
-        velocityCurve_.push_back({});
-        uvscaleCurve_.push_back({});
-        uvRotateCurve_.push_back({});
-        uvTranslateCurve_.push_back({});
+        scaleCurve.push_back({});
+        rotateCurve.push_back({});
+        velocityCurve.push_back({});
+        uvScaleCurve.push_back({});
+        uvRotateCurve.push_back({});
+        uvTranslateCurve.push_back({});
     }
     ~ParticleKeyFrames() {}
 
-    AnimationCurve<Vec4f> colorCurve_;
+    AnimationCurve<Vec4f> colorCurve;
 
-    AnimationCurve<Vec3f> scaleCurve_;
-    AnimationCurve<Vec3f> rotateCurve_;
-    AnimationCurve<Vec3f> velocityCurve_;
+    AnimationCurve<Vec3f> scaleCurve;
+    AnimationCurve<Vec3f> rotateCurve;
+    AnimationCurve<Vec3f> velocityCurve;
 
-    AnimationCurve<Vec3f> uvscaleCurve_;
-    AnimationCurve<Vec3f> uvRotateCurve_;
-    AnimationCurve<Vec3f> uvTranslateCurve_;
+    AnimationCurve<Vec3f> uvScaleCurve;
+    AnimationCurve<Vec3f> uvRotateCurve;
+    AnimationCurve<Vec3f> uvTranslateCurve;
 
     // float currentTime_ = Particle::leftTime;
     // float duration     = Particle::lifeTime;

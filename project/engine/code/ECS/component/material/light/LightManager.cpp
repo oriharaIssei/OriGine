@@ -78,21 +78,21 @@ void LightManager::SetForRootParameter(
 }
 
 void LightManager::pushDirectionalLight(const DirectionalLight& light) {
-    if (directionalLights_.openData_.size() >= directionalLights_.capacity()) {
+    if (directionalLights_.openData_.size() >= directionalLights_.Capacity()) {
         return;
     }
     directionalLights_.openData_.push_back(light);
 }
 
 void LightManager::pushPointLight(const PointLight& light) {
-    if (pointLights_.openData_.size() >= pointLights_.capacity()) {
+    if (pointLights_.openData_.size() >= pointLights_.Capacity()) {
         return;
     }
     pointLights_.openData_.push_back(light);
 }
 
 void LightManager::pushSpotLight(const SpotLight& light) {
-    if (spotLights_.openData_.size() >= spotLights_.capacity()) {
+    if (spotLights_.openData_.size() >= spotLights_.Capacity()) {
         return;
     }
     spotLights_.openData_.push_back(light);

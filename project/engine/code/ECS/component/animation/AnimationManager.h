@@ -1,8 +1,8 @@
 #pragma once
 
-#include "ModelNodeAnimation.h"
 #include "Matrix4x4.h"
 #include "model/Model.h"
+#include "ModelNodeAnimation.h"
 #include "Quaternion.h"
 
 #include "Vector3.h"
@@ -63,16 +63,16 @@ private:
     AnimationManager(const AnimationManager&)            = delete;
 
     struct AnimationLoadTask {
-        std::string directory                        = "";
-        std::string filename                         = "";
-        std::shared_ptr<AnimationData> animationData = nullptr;
-
         AnimationLoadTask() = default;
         AnimationLoadTask(const std::string& _directory, const std::string& _filename, std::shared_ptr<AnimationData> _animationData)
             : directory(_directory), filename(_filename), animationData(_animationData) {}
         ~AnimationLoadTask() = default;
 
         void Update() const;
+
+        std::string directory                        = "";
+        std::string filename                         = "";
+        std::shared_ptr<AnimationData> animationData = nullptr;
     };
 
     // アニメーションデータのライブラリ
@@ -82,5 +82,4 @@ private:
 public:
     const AnimationData* GetAnimationData(const std::string& name) const;
     const AnimationData* GetAnimationData(int index) const { return animationData_[index].get(); }
-
 };

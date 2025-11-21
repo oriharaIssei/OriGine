@@ -154,6 +154,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="util\DxUtil.h" />
     <ClInclude Include="engine\code\ECS\component\renderer\primitive\CylinderRenderer.h" />
     <ClInclude Include="engine\code\ECS\component\renderer\primitive\shape\Cylinder.h" />
     <ClInclude Include="editor\EditorController.h" />

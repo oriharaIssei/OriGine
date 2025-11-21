@@ -6,9 +6,13 @@
 /// engine
 // directX12 object
 #include "directX12/DxDevice.h"
+#include "directX12/ResourceStateTracker.h"
 
-///externals
+/// externals
 #include "logger/Logger.h"
+
+/// util
+#include "DxUtil.h"
 
 const char* DxResourceTypeToString(DxResourceType type) {
     switch (type) {
@@ -177,6 +181,13 @@ void DxResource::CreateTextureResource(Microsoft::WRL::ComPtr<ID3D12Device> devi
 }
 
 void DxResource::Finalize() {
+    ULONG count = GetComRefCount(resource_);
+
+    LOG_CRITICAL("Left Instance Count : {}\n pointer : {}", count, static_cast<const void*>(resource_.Get()));
+
+    // tracker から解除
+    ResourceStateTracker::UnregisterResource(resource_.Get());
+
     resource_.Reset();
     type_         = DxResourceType::Unknown; // リソースの種類をリセット
     resourceDesc_ = {}; // リソースの詳細情報をリセット

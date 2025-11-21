@@ -29,9 +29,13 @@ void LineRenderSystem::Finalize() {
 }
 
 void LineRenderSystem::StartRender() {
-    lineIsStrip_ = false;
+    auto& commandList = dxCommand_->GetCommandList();
 
-    auto commandList = dxCommand_->GetCommandList();
+    int32_t blendIndex = static_cast<int32_t>(currentBlendMode_);
+
+    commandList->SetGraphicsRootSignature(psoByBlendMode_[blendIndex]->rootSignature.Get());
+    commandList->SetPipelineState(psoByBlendMode_[blendIndex]->pipelineState.Get());
+
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 
     CameraManager::GetInstance()->SetBufferForRootParameter(commandList, 1);
@@ -180,12 +184,4 @@ void LineRenderSystem::CreatePSO() {
         lineShaderInfo.blendMode_ = blend;
         psoByBlendMode_[i]        = shaderManager->CreatePso("LineMesh_" + blendModeStr[i], lineShaderInfo, dxDevice->device_);
     }
-}
-
-void LineRenderSystem::SettingPSO(BlendMode _blend) {
-    int32_t blendIndex = static_cast<int32_t>(_blend);
-
-    auto commandList = dxCommand_->GetCommandList();
-    commandList->SetGraphicsRootSignature(psoByBlendMode_[blendIndex]->rootSignature.Get());
-    commandList->SetPipelineState(psoByBlendMode_[blendIndex]->pipelineState.Get());
 }

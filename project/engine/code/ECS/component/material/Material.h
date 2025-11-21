@@ -82,6 +82,8 @@ public:
     /// <param name="textureIndex">TextureManagerが持っているテクスチャのインデックス</param>
     void CreateCustomTextureFromTextureFile(int32_t textureIndex);
 
+    void DeleteCustomTexture();
+
 public:
     /// <summary>
     /// CustomTextureを表すデータ. textureと大差ないが、Material固有のものとして扱うために分けている
@@ -110,7 +112,7 @@ private:
 public:
     bool hasCustomTexture() const { return customTexture_.has_value(); }
     const std::optional<CustomTextureData>& GetCustomTexture() const { return customTexture_; }
-    void SetCustomTexture(DxSrvDescriptor _srv, const DxResource& _resource) {
+    void SetCustomTexture(const DxSrvDescriptor& _srv, const DxResource& _resource) {
         if (!customTexture_) {
             customTexture_.emplace(CustomTextureData());
         }

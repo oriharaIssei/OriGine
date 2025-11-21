@@ -13,7 +13,9 @@
 struct RandomEffectParamData {
     RandomEffectParamData()  = default;
     ~RandomEffectParamData() = default;
+
     float time               = 0.f;
+
     struct ConstantBuffer {
         float time = 0.f;
         ConstantBuffer& operator=(const RandomEffectParamData& param) {

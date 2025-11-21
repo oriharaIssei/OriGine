@@ -94,7 +94,7 @@ void VignetteEffect::CreatePSO() {
 }
 
 void VignetteEffect::RenderStart() {
-    auto commandList = dxCommand_->GetCommandList();
+    auto& commandList = dxCommand_->GetCommandList();
 
     renderTarget_->PreDraw();
 

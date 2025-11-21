@@ -16,7 +16,7 @@ public:
     /// </summary>
     /// <param name="resource"></param>
     /// <param name="initialState"></param>
-    static void RegisterResource(Microsoft::WRL::ComPtr<ID3D12Resource> resource, D3D12_RESOURCE_STATES initialState);
+    static void RegisterResource(ID3D12Resource* resource, D3D12_RESOURCE_STATES initialState);
 
     /// <summary>
     /// グローバルリソース状態からリソースを登録解除する
@@ -38,7 +38,7 @@ public:
     /// <summary>
     /// ローカルリソース状態にリソースを登録する
     /// </summary>
-    void RegisterResource2Local(Microsoft::WRL::ComPtr<ID3D12Resource> resource, D3D12_RESOURCE_STATES initialState);
+    void RegisterResource2Local(ID3D12Resource* resource, D3D12_RESOURCE_STATES initialState);
 
     /// <summary>
     /// リソースの状態をバリアを発行して遷移させる

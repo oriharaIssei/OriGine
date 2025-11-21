@@ -52,20 +52,20 @@ struct DxDescriptor {
     DxDescriptor(
         uint32_t _index                        = 0,
         D3D12_CPU_DESCRIPTOR_HANDLE _cpuHandle = D3D12_CPU_DESCRIPTOR_HANDLE(0),
-        D3D12_GPU_DESCRIPTOR_HANDLE _gpuHandle = D3D12_GPU_DESCRIPTOR_HANDLE(0)) : index_(_index),
+        D3D12_GPU_DESCRIPTOR_HANDLE _gpuHandle = D3D12_GPU_DESCRIPTOR_HANDLE(0)) : index(_index),
                                                                                    cpuHandle(_cpuHandle),
                                                                                    gpuHandle(_gpuHandle) {}
     ~DxDescriptor() {}
 
 protected:
+    uint32_t index                       = 0; // ヒープ内のインデックス
     D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = D3D12_CPU_DESCRIPTOR_HANDLE(0); // CPU側のハンドル
     D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = D3D12_GPU_DESCRIPTOR_HANDLE(0); // GPU側のハンドル
-    uint32_t index_                       = 0; // ヒープ内のインデックス
 public:
     D3D12_CPU_DESCRIPTOR_HANDLE GetCpuHandle() const { return cpuHandle; }
     D3D12_GPU_DESCRIPTOR_HANDLE GetGpuHandle() const { return gpuHandle; }
 
-    uint32_t GetIndex() const { return index_; }
+    uint32_t GetIndex() const { return index; }
 
     void SetCpuHandle(D3D12_CPU_DESCRIPTOR_HANDLE handle) { cpuHandle = handle; }
     void SetGpuHandle(D3D12_GPU_DESCRIPTOR_HANDLE handle) { gpuHandle = handle; }

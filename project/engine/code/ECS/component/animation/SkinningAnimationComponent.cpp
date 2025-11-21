@@ -27,12 +27,12 @@ void to_json(nlohmann::json& j, const SkinningAnimationComponent& r) {
     j["Animations"] = nlohmann::json::array();
     for (const auto& animation : r.animationTable_) {
         nlohmann::json animationJson;
-        animationJson["directory"]     = animation.directory_;
-        animationJson["fileName"]      = animation.fileName_;
-        animationJson["duration"]      = animation.duration_;
-        animationJson["playbackSpeed"] = animation.playbackSpeed_;
-        animationJson["isPlay"]        = animation.animationState_.isPlay_;
-        animationJson["isLoop"]        = animation.animationState_.isLoop_;
+        animationJson["directory"]     = animation.directory;
+        animationJson["fileName"]      = animation.fileName;
+        animationJson["duration"]      = animation.duration;
+        animationJson["playbackSpeed"] = animation.playbackSpeed;
+        animationJson["isPlay"]        = animation.animationState.isPlay_;
+        animationJson["isLoop"]        = animation.animationState.isLoop_;
         j["Animations"].push_back(animationJson);
     }
 }
@@ -46,12 +46,12 @@ void from_json(const nlohmann::json& j, SkinningAnimationComponent& r) {
     if (j.contains("Animations")) {
         for (const auto& animationJson : j.at("Animations")) {
             SkinningAnimationComponent::AnimationCombo animation;
-            animation.directory_              = animationJson.at("directory").get<std::string>();
-            animation.fileName_               = animationJson.at("fileName").get<std::string>();
-            animation.duration_               = animationJson.at("duration").get<float>();
-            animation.playbackSpeed_          = animationJson.at("playbackSpeed").get<float>();
-            animation.animationState_.isPlay_ = animationJson.at("isPlay").get<bool>();
-            animation.animationState_.isLoop_ = animationJson.at("isLoop").get<bool>();
+            animation.directory              = animationJson.at("directory").get<std::string>();
+            animation.fileName               = animationJson.at("fileName").get<std::string>();
+            animation.duration               = animationJson.at("duration").get<float>();
+            animation.playbackSpeed          = animationJson.at("playbackSpeed").get<float>();
+            animation.animationState.isPlay_ = animationJson.at("isPlay").get<bool>();
+            animation.animationState.isLoop_ = animationJson.at("isLoop").get<bool>();
             r.animationTable_.emplace_back(animation);
         }
     }
@@ -63,13 +63,13 @@ void SkinningAnimationComponent::Initialize(Entity* _entity) {
     int32_t animationIndex = 0;
     for (auto& animation : animationTable_) {
 
-        animation.currentTime_           = 0.0f;
-        animation.animationState_.isEnd_ = false;
+        animation.currentTime           = 0.0f;
+        animation.animationState.isEnd_ = false;
 
-        animation.animationData_ = AnimationManager::GetInstance()->Load(
-            kApplicationResourceDirectory + "/" + animation.directory_, animation.fileName_);
+        animation.animationData = AnimationManager::GetInstance()->Load(
+            kApplicationResourceDirectory + "/" + animation.directory, animation.fileName);
 
-        this->animationIndexBinder_[animation.fileName_] = animationIndex;
+        this->animationIndexBinder_[animation.fileName] = animationIndex;
         ++animationIndex;
     }
 }
@@ -95,12 +95,12 @@ void SkinningAnimationComponent::Edit([[maybe_unused]] Scene* _scene, Entity* /*
             if (itr == animationIndexBinder_.end()) {
                 // 新しいアニメーションを追加
                 auto newAnimation       = AnimationCombo{};
-                newAnimation.directory_ = directory;
-                newAnimation.fileName_  = fileName;
+                newAnimation.directory = directory;
+                newAnimation.fileName  = fileName;
 
-                newAnimation.animationData_ = AnimationManager::GetInstance()->Load(kApplicationResourceDirectory + "/" + directory, fileName);
+                newAnimation.animationData = AnimationManager::GetInstance()->Load(kApplicationResourceDirectory + "/" + directory, fileName);
 
-                newAnimation.duration_ = newAnimation.animationData_->duration;
+                newAnimation.duration = newAnimation.animationData->duration;
 
                 auto commandCombo = std::make_unique<CommandCombo>();
                 commandCombo->AddCommand(std::make_shared<AddElementCommand<std::vector<AnimationCombo>>>(&animationTable_, newAnimation));
@@ -119,36 +119,36 @@ void SkinningAnimationComponent::Edit([[maybe_unused]] Scene* _scene, Entity* /*
     std::string nodeLabel = "";
     int32_t index         = 0;
     for (auto& animation : animationTable_) {
-        nodeLabel = animation.fileName_ + "##" + _parentLabel;
+        nodeLabel = animation.fileName + "##" + _parentLabel;
         if (ImGui::TreeNode(nodeLabel.c_str())) {
-            ImGui::Text("Animation File: %s", animation.fileName_.c_str());
+            ImGui::Text("Animation File: %s", animation.fileName.c_str());
 
-            nodeLabel = "Load" + animation.fileName_ + "##" + _parentLabel;
+            nodeLabel = "Load" + animation.fileName + "##" + _parentLabel;
             if (ImGui::Button(nodeLabel.c_str())) {
                 std::string directory;
                 std::string fileName;
                 if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"gltf", "anm"})) {
-                    auto SetPath = std::make_unique<SetterCommand<std::string>>(&animation.directory_, kApplicationResourceDirectory + "/" + directory);
-                    auto SetFile = std::make_unique<SetterCommand<std::string>>(&animation.fileName_, fileName);
+                    auto SetPath = std::make_unique<SetterCommand<std::string>>(&animation.directory, kApplicationResourceDirectory + "/" + directory);
+                    auto SetFile = std::make_unique<SetterCommand<std::string>>(&animation.fileName, fileName);
                     CommandCombo commandCombo;
                     commandCombo.AddCommand(std::move(SetPath));
                     commandCombo.AddCommand(std::move(SetFile));
                     commandCombo.SetFuncOnAfterCommand([this, index]() {
                         auto& animation          = animationTable_[index];
-                        animation.animationData_ = AnimationManager::GetInstance()->Load(animation.directory_, animation.fileName_);
-                        animation.duration_      = animation.animationData_->duration;
+                        animation.animationData = AnimationManager::GetInstance()->Load(animation.directory, animation.fileName);
+                        animation.duration      = animation.animationData->duration;
                     },
                         true);
                     EditorController::GetInstance()->PushCommand(std::make_unique<CommandCombo>(commandCombo));
                 }
             }
 
-            if (animation.animationData_) {
-                DragGuiCommand("Duration##" + _parentLabel, animation.duration_, 0.01f, 0.0f, 100.0f);
+            if (animation.animationData) {
+                DragGuiCommand("Duration##" + _parentLabel, animation.duration, 0.01f, 0.0f, 100.0f);
 
-                CheckBoxCommand("Play##" + _parentLabel, animation.animationState_.isPlay_);
-                CheckBoxCommand("Loop##" + _parentLabel, animation.animationState_.isLoop_);
-                DragGuiCommand("Playback Speed##" + _parentLabel, animation.playbackSpeed_, 0.01f, 0.0f);
+                CheckBoxCommand("Play##" + _parentLabel, animation.animationState.isPlay_);
+                CheckBoxCommand("Loop##" + _parentLabel, animation.animationState.isLoop_);
+                DragGuiCommand("Playback Speed##" + _parentLabel, animation.playbackSpeed, 0.01f, 0.0f);
             }
 
             ImGui::TreePop();
@@ -185,10 +185,10 @@ void SkinningAnimationComponent::AddLoad(const std::string& directory, const std
     }
     // 新しいアニメーションを追加
     auto& newAnimation      = animationTable_.emplace_back(AnimationCombo{});
-    newAnimation.directory_ = directory;
-    newAnimation.fileName_  = fileName;
+    newAnimation.directory = directory;
+    newAnimation.fileName  = fileName;
 
-    newAnimation.animationData_ = AnimationManager::GetInstance()->Load(kApplicationResourceDirectory + "/" + directory, fileName);
+    newAnimation.animationData = AnimationManager::GetInstance()->Load(kApplicationResourceDirectory + "/" + directory, fileName);
 
     animationIndexBinder_[fileName] = static_cast<int32_t>(animationTable_.size()) - 1;
 }
@@ -196,12 +196,12 @@ void SkinningAnimationComponent::AddLoad(const std::string& directory, const std
 void SkinningAnimationComponent::Play() {
     auto& animation = animationTable_[currentAnimationIndex_];
 
-    if (!animation.animationData_) {
-        animation.animationData_ = AnimationManager::GetInstance()->Load(animation.directory_, animation.fileName_);
+    if (!animation.animationData) {
+        animation.animationData = AnimationManager::GetInstance()->Load(animation.directory, animation.fileName);
     }
-    animation.animationState_.isPlay_ = true;
-    animation.animationState_.isEnd_  = false;
-    animation.currentTime_            = 0.0f;
+    animation.animationState.isPlay_ = true;
+    animation.animationState.isEnd_  = false;
+    animation.currentTime            = 0.0f;
 }
 
 void SkinningAnimationComponent::Play(int32_t index) {
@@ -210,13 +210,13 @@ void SkinningAnimationComponent::Play(int32_t index) {
         return;
     }
     auto& animation = animationTable_[index];
-    if (!animation.animationData_) {
-        animation.animationData_ = AnimationManager::GetInstance()->Load(animation.directory_, animation.fileName_);
+    if (!animation.animationData) {
+        animation.animationData = AnimationManager::GetInstance()->Load(animation.directory, animation.fileName);
     }
-    animation.animationState_.isPlay_ = true;
-    animation.prePlay_                = false; // 前のアニメーションを停止
-    animation.animationState_.isEnd_  = false;
-    animation.currentTime_            = 0.0f;
+    animation.animationState.isPlay_ = true;
+    animation.prePlay                = false; // 前のアニメーションを停止
+    animation.animationState.isEnd_  = false;
+    animation.currentTime            = 0.0f;
 }
 
 void SkinningAnimationComponent::Play(const std::string& name) {
@@ -236,14 +236,14 @@ void SkinningAnimationComponent::PlayNext(int32_t index, float _blendTime) {
 
     blendingAnimationData_ = AnimationBlendData{index, _blendTime, 0.0f};
 
-    auto& nextAnimation = animationTable_[blendingAnimationData_.value().targetAnimationIndex_];
-    if (!nextAnimation.animationData_) {
-        nextAnimation.animationData_ = AnimationManager::GetInstance()->Load(nextAnimation.directory_, nextAnimation.fileName_);
+    auto& nextAnimation = animationTable_[blendingAnimationData_.value().targetAnimationIndex];
+    if (!nextAnimation.animationData) {
+        nextAnimation.animationData = AnimationManager::GetInstance()->Load(nextAnimation.directory, nextAnimation.fileName);
     }
-    nextAnimation.animationState_.isPlay_ = true;
-    nextAnimation.prePlay_                = false; // 前のアニメーションを停止
-    nextAnimation.animationState_.isEnd_  = false;
-    nextAnimation.currentTime_            = 0.0f;
+    nextAnimation.animationState.isPlay_ = true;
+    nextAnimation.prePlay                = false; // 前のアニメーションを停止
+    nextAnimation.animationState.isEnd_  = false;
+    nextAnimation.currentTime            = 0.0f;
 }
 
 void SkinningAnimationComponent::PlayNext(const std::string& name, float _blendTime) {
@@ -258,8 +258,8 @@ void SkinningAnimationComponent::PlayNext(const std::string& name, float _blendT
 void SkinningAnimationComponent::Stop() {
     auto& animation = animationTable_[currentAnimationIndex_];
 
-    animation.animationState_.isPlay_ = false;
-    animation.currentTime_            = 0.0f;
+    animation.animationState.isPlay_ = false;
+    animation.currentTime            = 0.0f;
 }
 
 void SkinningAnimationComponent::CreateSkinnedVertex(Scene* _scene) {

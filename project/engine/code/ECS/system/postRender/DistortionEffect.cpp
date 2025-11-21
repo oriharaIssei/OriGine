@@ -146,7 +146,10 @@ void DistortionEffect::RenderStart() {
     /// ----------------------------------------------------------
     if (!activeDistortionObjects_.empty()) {
         distortionSceneTexture_->PreDraw();
-        texturedMeshRenderSystem_->SettingPSO(BlendMode::Alpha, false);
+
+        texturedMeshRenderSystem_->SetBlendMode(BlendMode::Alpha);
+        texturedMeshRenderSystem_->SetCulling(false);
+
         texturedMeshRenderSystem_->StartRender();
 
         for (auto& object : activeDistortionObjects_) {
@@ -169,10 +172,10 @@ void DistortionEffect::RenderStart() {
     /// ----------------------------------------------------------
     /// pso Set
     /// ----------------------------------------------------------
+    renderTarget_->PreDraw();
+
     commandList->SetPipelineState(pso_->pipelineState.Get());
     commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
-
-    renderTarget_->PreDraw();
 
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -181,7 +184,7 @@ void DistortionEffect::RenderStart() {
 }
 
 void DistortionEffect::Rendering() {
-    auto commandList = dxCommand_->GetCommandList();
+    auto& commandList = dxCommand_->GetCommandList();
 
     // 3dオブジェクトでエフェクトをかける
     if (!activeDistortionObjects_.empty()) {

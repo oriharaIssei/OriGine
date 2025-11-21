@@ -106,7 +106,7 @@ void MaterialEffect::DispatchComponents(Entity* _entity) {
 }
 
 void MaterialEffect::UpdateEffectPipeline(Entity* _entity, MaterialEffectPipeLine* _pipeline) {
-    auto commandList = dxCommand_->GetCommandList();
+    auto& commandList = dxCommand_->GetCommandList();
 
     Material* material    = GetComponent<Material>(_entity, _pipeline->GetMaterialIndex());
     int32_t baseTextureId = _pipeline->GetBaseTextureId();
@@ -127,6 +127,11 @@ void MaterialEffect::UpdateEffectPipeline(Entity* _entity, MaterialEffectPipeLin
     // tempRenderTexture_ のサイズを baseTexture に合わせる
     auto tempRenderTexture = tempRenderTextures_[currentTempRTIndex_].get();
     if (tempRenderTexture->GetTextureSize() != textureSize) {
+        DxFence* fence = Engine::GetInstance()->GetDxFence();
+
+        UINT64 fenceVal = fence->Signal(dxCommand_->GetCommandQueue());
+        fence->WaitForFence(fenceVal);
+
         tempRenderTexture->Resize(textureSize);
     }
 
@@ -185,8 +190,8 @@ void MaterialEffect::ExecuteCommand() {
     ///===============================================================
     /// コマンドリストの実行を待つ
     ///===============================================================
-    fence->Signal(dxCommand_->GetCommandQueue());
-    fence->WaitForFence();
+    UINT64 fenceVal = fence->Signal(dxCommand_->GetCommandQueue());
+    fence->WaitForFence(fenceVal);
     ///===============================================================
 
     ///===============================================================

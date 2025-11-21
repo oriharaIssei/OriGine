@@ -8,7 +8,6 @@
 #include "directX12/DxDevice.h"
 #include "directX12/DxFence.h"
 #include "directX12/DxSwapChain.h"
-#include "directX12/ResourceStateTracker.h"
 
 #include "Vector2.h"
 #include "Vector4.h"

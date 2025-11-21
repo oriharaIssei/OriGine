@@ -16,12 +16,12 @@ public:
     /// コマンドキューにSignalを送る
     /// </summary>
     /// <param name="commandQueue"></param>
-    void Signal(Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue);
+    UINT64 Signal(Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue);
 
     /// <summary>
     /// Fence の完了を待つ
     /// </summary>
-    void WaitForFence();
+    void WaitForFence(UINT64 _waitFenceVal);
 
 private:
     Microsoft::WRL::ComPtr<ID3D12Fence> fence_;

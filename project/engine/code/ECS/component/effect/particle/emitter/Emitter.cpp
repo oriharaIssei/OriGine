@@ -345,8 +345,8 @@ void Emitter::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _ent
 
     if (ImGui::Button("Calculate Particle MaxSize")) {
         CalculateMaxSize();
-        if (structuredTransform_.capacity() <= particleMaxSize_) {
-            structuredTransform_.resize(Engine::GetInstance()->GetDxDevice()->device_, particleMaxSize_ * 2);
+        if (structuredTransform_.Capacity() <= particleMaxSize_) {
+            structuredTransform_.Resize(Engine::GetInstance()->GetDxDevice()->device_, particleMaxSize_ * 2);
         }
     }
 
@@ -467,8 +467,8 @@ void Emitter::EditParticle([[maybe_unused]] const std::string& _parentLabel) {
             particleColor_,
             0,
             [this](Vec<4, float>* _newColor) {
-                if (!particleKeyFrames_->colorCurve_.empty()) {
-                    particleKeyFrames_->colorCurve_[0].value = *_newColor;
+                if (!particleKeyFrames_->colorCurve.empty()) {
+                    particleKeyFrames_->colorCurve[0].value = *_newColor;
                 }
             });
 
@@ -481,10 +481,10 @@ void Emitter::EditParticle([[maybe_unused]] const std::string& _parentLabel) {
             if (updatePerLifeTime) {
                 newFlag = (newFlag | static_cast<int32_t>(ParticleUpdateType::ColorPerLifeTime));
             } else {
-                if (particleKeyFrames_->colorCurve_.empty()) {
-                    particleKeyFrames_->colorCurve_.emplace_back(0.f, particleColor_);
+                if (particleKeyFrames_->colorCurve.empty()) {
+                    particleKeyFrames_->colorCurve.emplace_back(0.f, particleColor_);
                 } else {
-                    particleKeyFrames_->colorCurve_[0].value = particleColor_;
+                    particleKeyFrames_->colorCurve[0].value = particleColor_;
                 }
                 newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::ColorPerLifeTime));
             }
@@ -492,7 +492,7 @@ void Emitter::EditParticle([[maybe_unused]] const std::string& _parentLabel) {
 
         if (updatePerLifeTime) {
             label = "ColorLine##" + _parentLabel;
-            ImGui::EditColorKeyFrame(label, particleKeyFrames_->colorCurve_, particleLifeTime_);
+            ImGui::EditColorKeyFrame(label, particleKeyFrames_->colorCurve, particleLifeTime_);
         }
 
         ImGui::TreePop();
@@ -524,8 +524,8 @@ void Emitter::EditParticle([[maybe_unused]] const std::string& _parentLabel) {
             "%.3f",
             [this](Vec<3, float>* _newVec) {
                 *_newVec = MinElement(*_newVec, startParticleVelocityMax_);
-                if (!particleKeyFrames_->velocityCurve_.empty()) {
-                    particleKeyFrames_->velocityCurve_[0].value = *_newVec;
+                if (!particleKeyFrames_->velocityCurve.empty()) {
+                    particleKeyFrames_->velocityCurve[0].value = *_newVec;
                 }
             });
 
@@ -593,13 +593,13 @@ void Emitter::EditParticle([[maybe_unused]] const std::string& _parentLabel) {
             newFlag = (newFlag | static_cast<int32_t>(ParticleUpdateType::VelocityPerLifeTime));
             newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::VelocityRandom));
 
-            if (particleKeyFrames_->velocityCurve_.empty()) {
-                particleKeyFrames_->velocityCurve_.emplace_back(0.f, startParticleVelocityMin_);
+            if (particleKeyFrames_->velocityCurve.empty()) {
+                particleKeyFrames_->velocityCurve.emplace_back(0.f, startParticleVelocityMin_);
             } else {
-                particleKeyFrames_->velocityCurve_[0].value = startParticleVelocityMin_;
+                particleKeyFrames_->velocityCurve[0].value = startParticleVelocityMin_;
             }
             label = "VelocityLine##" + _parentLabel;
-            ImGui::EditKeyFrame(label.c_str(), particleKeyFrames_->velocityCurve_, particleLifeTime_);
+            ImGui::EditKeyFrame(label.c_str(), particleKeyFrames_->velocityCurve, particleLifeTime_);
         } else if (randomOrPerLifeTime == 1) {
             // ランダムな速度を設定
             ImGui::Text("UpdateMin");
@@ -648,8 +648,8 @@ void Emitter::EditParticle([[maybe_unused]] const std::string& _parentLabel) {
             "%.3f",
             [this](Vec<3, float>* _newMin) {
                 *_newMin = MinElement(*_newMin, startParticleScaleMax_);
-                if (!particleKeyFrames_->scaleCurve_.empty()) {
-                    particleKeyFrames_->scaleCurve_[0].value = *_newMin;
+                if (!particleKeyFrames_->scaleCurve.empty()) {
+                    particleKeyFrames_->scaleCurve[0].value = *_newMin;
                 }
             });
         startParticleScaleMin_ = MinElement(startParticleScaleMin_, startParticleScaleMax_);
@@ -693,14 +693,14 @@ void Emitter::EditParticle([[maybe_unused]] const std::string& _parentLabel) {
             newFlag = (newFlag | static_cast<int32_t>(ParticleUpdateType::ScalePerLifeTime));
             newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::ScaleRandom));
 
-            if (particleKeyFrames_->scaleCurve_.empty()) {
-                particleKeyFrames_->scaleCurve_.emplace_back(0.f, startParticleVelocityMin_);
+            if (particleKeyFrames_->scaleCurve.empty()) {
+                particleKeyFrames_->scaleCurve.emplace_back(0.f, startParticleVelocityMin_);
             } else {
-                particleKeyFrames_->scaleCurve_[0].value = startParticleVelocityMin_;
+                particleKeyFrames_->scaleCurve[0].value = startParticleVelocityMin_;
             }
 
             label = "ScaleLine##" + _parentLabel;
-            ImGui::EditKeyFrame(label, particleKeyFrames_->scaleCurve_, particleLifeTime_);
+            ImGui::EditKeyFrame(label, particleKeyFrames_->scaleCurve, particleLifeTime_);
         } else if (randomOrPerLifeTime == 1) {
             // ランダムなScaleを設定
             ImGui::Text("UpdateMin");
@@ -751,8 +751,8 @@ void Emitter::EditParticle([[maybe_unused]] const std::string& _parentLabel) {
             [this](Vec<3, float>* _newMin) {
                 *_newMin = MinElement(*_newMin, startParticleRotateMax_);
 
-                if (!particleKeyFrames_->rotateCurve_.empty()) {
-                    particleKeyFrames_->rotateCurve_[0].value = *_newMin;
+                if (!particleKeyFrames_->rotateCurve.empty()) {
+                    particleKeyFrames_->rotateCurve[0].value = *_newMin;
                 }
             });
         startParticleRotateMin_ = MinElement(startParticleRotateMin_, startParticleRotateMax_);
@@ -797,14 +797,14 @@ void Emitter::EditParticle([[maybe_unused]] const std::string& _parentLabel) {
             newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::RotateForward));
             newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::RotateRandom));
 
-            if (particleKeyFrames_->rotateCurve_.empty()) {
-                particleKeyFrames_->rotateCurve_.emplace_back(0.f, startParticleRotateMin_);
+            if (particleKeyFrames_->rotateCurve.empty()) {
+                particleKeyFrames_->rotateCurve.emplace_back(0.f, startParticleRotateMin_);
             } else {
-                particleKeyFrames_->rotateCurve_[0].value = startParticleRotateMin_;
+                particleKeyFrames_->rotateCurve[0].value = startParticleRotateMin_;
             }
 
             label = "RotateLine##" + _parentLabel;
-            ImGui::EditKeyFrame(label, particleKeyFrames_->rotateCurve_, particleLifeTime_);
+            ImGui::EditKeyFrame(label, particleKeyFrames_->rotateCurve, particleLifeTime_);
         } else if (randomOrPerLifeTime == 1) {
             // ランダムな回転を設定
             ImGui::Text("UpdateMin");
@@ -868,9 +868,9 @@ void Emitter::EditParticle([[maybe_unused]] const std::string& _parentLabel) {
 
                 // すでにあるカーブを消す UV /scale,translate
                 commandComboByChangeFlag->AddCommand(
-                    std::make_shared<ClearCommand<AnimationCurve<Vec3f>>>(&particleKeyFrames_->uvscaleCurve_));
+                    std::make_shared<ClearCommand<AnimationCurve<Vec3f>>>(&particleKeyFrames_->uvScaleCurve));
                 commandComboByChangeFlag->AddCommand(
-                    std::make_shared<ClearCommand<AnimationCurve<Vec3f>>>(&particleKeyFrames_->uvTranslateCurve_));
+                    std::make_shared<ClearCommand<AnimationCurve<Vec3f>>>(&particleKeyFrames_->uvTranslateCurve));
 
                 // uvScale は Animation しない
                 newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::UvScalePerLifeTime));
@@ -921,7 +921,7 @@ void Emitter::EditParticle([[maybe_unused]] const std::string& _parentLabel) {
                     uvTranslateCurve.emplace_back(time, Vector3f(x, y, 0.f));
                 }
                 commandComboByChangeFlag->AddCommand(
-                    std::make_shared<SetterCommand<AnimationCurve<Vec3f>>>(&particleKeyFrames_->uvTranslateCurve_, uvTranslateCurve));
+                    std::make_shared<SetterCommand<AnimationCurve<Vec3f>>>(&particleKeyFrames_->uvTranslateCurve, uvTranslateCurve));
             }
         }
 
@@ -956,8 +956,8 @@ void Emitter::EditParticle([[maybe_unused]] const std::string& _parentLabel) {
             {}, {},
             "%.3f",
             [this](Vec<3, float>* _newScale) {
-                if (!particleKeyFrames_->uvscaleCurve_.empty()) {
-                    particleKeyFrames_->uvscaleCurve_[0].value = *_newScale;
+                if (!particleKeyFrames_->uvScaleCurve.empty()) {
+                    particleKeyFrames_->uvScaleCurve[0].value = *_newScale;
                 }
             });
 
@@ -968,12 +968,12 @@ void Emitter::EditParticle([[maybe_unused]] const std::string& _parentLabel) {
         if (updatePerLifeTime) {
             newFlag = (newFlag | static_cast<int32_t>(ParticleUpdateType::UvScalePerLifeTime));
 
-            if (particleKeyFrames_->uvscaleCurve_.empty()) {
-                particleKeyFrames_->uvscaleCurve_.emplace_back(0.f, particleUvScale_);
+            if (particleKeyFrames_->uvScaleCurve.empty()) {
+                particleKeyFrames_->uvScaleCurve.emplace_back(0.f, particleUvScale_);
             } else {
-                particleKeyFrames_->uvscaleCurve_[0].value = particleUvScale_;
+                particleKeyFrames_->uvScaleCurve[0].value = particleUvScale_;
             }
-            ImGui::EditKeyFrame("UvScaleLine", particleKeyFrames_->uvscaleCurve_, particleLifeTime_);
+            ImGui::EditKeyFrame("UvScaleLine", particleKeyFrames_->uvScaleCurve, particleLifeTime_);
         } else if (preUpdatePerLifeTime && !updatePerLifeTime) {
 
             newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::UvScalePerLifeTime));
@@ -991,8 +991,8 @@ void Emitter::EditParticle([[maybe_unused]] const std::string& _parentLabel) {
             {}, {},
             "%.3f",
             [this](Vec<3, float>* _newUvRotate) {
-                if (!particleKeyFrames_->uvRotateCurve_.empty()) {
-                    particleKeyFrames_->uvRotateCurve_[0].value = *_newUvRotate;
+                if (!particleKeyFrames_->uvRotateCurve.empty()) {
+                    particleKeyFrames_->uvRotateCurve[0].value = *_newUvRotate;
                 }
             });
 
@@ -1004,14 +1004,14 @@ void Emitter::EditParticle([[maybe_unused]] const std::string& _parentLabel) {
         if (updatePerLifeTime) {
             newFlag = (newFlag | static_cast<int32_t>(ParticleUpdateType::UvRotatePerLifeTime));
 
-            if (particleKeyFrames_->uvRotateCurve_.empty()) {
-                particleKeyFrames_->uvRotateCurve_.emplace_back(0.f, particleUvRotate_);
+            if (particleKeyFrames_->uvRotateCurve.empty()) {
+                particleKeyFrames_->uvRotateCurve.emplace_back(0.f, particleUvRotate_);
             } else {
-                particleKeyFrames_->uvRotateCurve_[0].value = particleUvRotate_;
+                particleKeyFrames_->uvRotateCurve[0].value = particleUvRotate_;
             }
 
             label = "UvRotateLine##" + _parentLabel;
-            ImGui::EditKeyFrame(label, particleKeyFrames_->uvRotateCurve_, particleLifeTime_);
+            ImGui::EditKeyFrame(label, particleKeyFrames_->uvRotateCurve, particleLifeTime_);
         } else if (preUpdatePerLifeTime && !updatePerLifeTime) {
 
             newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::UvRotatePerLifeTime));
@@ -1030,8 +1030,8 @@ void Emitter::EditParticle([[maybe_unused]] const std::string& _parentLabel) {
             {}, {},
             "%.3f",
             [this](Vec<3, float>* _newUVTranslate) {
-                if (!particleKeyFrames_->uvTranslateCurve_.empty()) {
-                    particleKeyFrames_->uvTranslateCurve_[0].value = *_newUVTranslate;
+                if (!particleKeyFrames_->uvTranslateCurve.empty()) {
+                    particleKeyFrames_->uvTranslateCurve[0].value = *_newUVTranslate;
                 }
             });
 
@@ -1042,14 +1042,14 @@ void Emitter::EditParticle([[maybe_unused]] const std::string& _parentLabel) {
         if (updatePerLifeTime) {
             newFlag = (newFlag | static_cast<int32_t>(ParticleUpdateType::UvTranslatePerLifeTime));
 
-            if (particleKeyFrames_->uvTranslateCurve_.empty()) {
-                particleKeyFrames_->uvTranslateCurve_.emplace_back(0.f, particleUvTranslate_);
+            if (particleKeyFrames_->uvTranslateCurve.empty()) {
+                particleKeyFrames_->uvTranslateCurve.emplace_back(0.f, particleUvTranslate_);
             } else {
-                particleKeyFrames_->uvTranslateCurve_[0].value = particleUvTranslate_;
+                particleKeyFrames_->uvTranslateCurve[0].value = particleUvTranslate_;
             }
 
             label = "UvTranslateLine##" + _parentLabel;
-            ImGui::EditKeyFrame(label, particleKeyFrames_->uvTranslateCurve_, particleLifeTime_);
+            ImGui::EditKeyFrame(label, particleKeyFrames_->uvTranslateCurve, particleLifeTime_);
         } else if (preUpdatePerLifeTime && !updatePerLifeTime) {
             newFlag = (newFlag & ~static_cast<int32_t>(ParticleUpdateType::UvTranslatePerLifeTime));
         }
@@ -1191,27 +1191,27 @@ void from_json(const nlohmann::json& j, Emitter& e) {
     j.at("uvInterpolationType").get_to(e.uvInterpolationType_);
 
     if (j.find("scaleCurve") != j.end()) {
-        curveLoad(j.at("scaleCurve"), e.particleKeyFrames_->scaleCurve_);
+        curveLoad(j.at("scaleCurve"), e.particleKeyFrames_->scaleCurve);
     }
     if (j.find("rotateCurve") != j.end()) {
-        curveLoad(j.at("rotateCurve"), e.particleKeyFrames_->rotateCurve_);
+        curveLoad(j.at("rotateCurve"), e.particleKeyFrames_->rotateCurve);
     }
     if (j.find("velocityCurve") != j.end()) {
-        curveLoad(j.at("velocityCurve"), e.particleKeyFrames_->velocityCurve_);
+        curveLoad(j.at("velocityCurve"), e.particleKeyFrames_->velocityCurve);
     }
 
     if (j.find("colorCurve") != j.end()) {
-        curveLoad(j.at("colorCurve"), e.particleKeyFrames_->colorCurve_);
+        curveLoad(j.at("colorCurve"), e.particleKeyFrames_->colorCurve);
     }
 
     if (j.find("uvScaleCurve") != j.end()) {
-        curveLoad(j.at("uvScaleCurve"), e.particleKeyFrames_->uvscaleCurve_);
+        curveLoad(j.at("uvScaleCurve"), e.particleKeyFrames_->uvScaleCurve);
     }
     if (j.find("uvRotateCurve") != j.end()) {
-        curveLoad(j.at("uvRotateCurve"), e.particleKeyFrames_->uvRotateCurve_);
+        curveLoad(j.at("uvRotateCurve"), e.particleKeyFrames_->uvRotateCurve);
     }
     if (j.find("uvTranslateCurve") != j.end()) {
-        curveLoad(j.at("uvTranslateCurve"), e.particleKeyFrames_->uvTranslateCurve_);
+        curveLoad(j.at("uvTranslateCurve"), e.particleKeyFrames_->uvTranslateCurve);
     }
 
     if (j.find("EmitterShape") != j.end()) {
@@ -1286,7 +1286,7 @@ void to_json(nlohmann::json& j, const Emitter& e) {
 
     nlohmann::json shapeJson = nlohmann::json::object();
     if (e.emitterSpawnShape_) {
-        switch (e.emitterSpawnShape_->type_) {
+        switch (e.emitterSpawnShape_->type) {
         case EmitterShapeType::SPHERE: {
             EmitterSphere* sphereShape = dynamic_cast<EmitterSphere*>(e.emitterSpawnShape_.get());
             if (sphereShape) {
@@ -1353,27 +1353,27 @@ void to_json(nlohmann::json& j, const Emitter& e) {
 
     if (e.particleKeyFrames_) {
         if ((e.updateSettings_ & (int32_t)ParticleUpdateType::ScalePerLifeTime) != 0) {
-            j["scaleCurve"] = curveSave(e.particleKeyFrames_->scaleCurve_);
+            j["scaleCurve"] = curveSave(e.particleKeyFrames_->scaleCurve);
         }
         if ((e.updateSettings_ & (int32_t)ParticleUpdateType::RotatePerLifeTime) != 0) {
-            j["rotateCurve"] = curveSave(e.particleKeyFrames_->rotateCurve_);
+            j["rotateCurve"] = curveSave(e.particleKeyFrames_->rotateCurve);
         }
         if ((e.updateSettings_ & (int32_t)ParticleUpdateType::VelocityPerLifeTime) != 0) {
-            j["velocityCurve"] = curveSave(e.particleKeyFrames_->velocityCurve_);
+            j["velocityCurve"] = curveSave(e.particleKeyFrames_->velocityCurve);
         }
 
         if ((e.updateSettings_ & (int32_t)ParticleUpdateType::ColorPerLifeTime) != 0) {
-            j["colorCurve"] = curveSave(e.particleKeyFrames_->colorCurve_);
+            j["colorCurve"] = curveSave(e.particleKeyFrames_->colorCurve);
         }
 
         if ((e.updateSettings_ & (int32_t)ParticleUpdateType::UvScalePerLifeTime) != 0) {
-            j["uvScaleCurve"] = curveSave(e.particleKeyFrames_->uvscaleCurve_);
+            j["uvScaleCurve"] = curveSave(e.particleKeyFrames_->uvScaleCurve);
         }
         if ((e.updateSettings_ & (int32_t)ParticleUpdateType::UvRotatePerLifeTime) != 0) {
-            j["uvRotateCurve"] = curveSave(e.particleKeyFrames_->uvRotateCurve_);
+            j["uvRotateCurve"] = curveSave(e.particleKeyFrames_->uvRotateCurve);
         }
         if ((e.updateSettings_ & (int32_t)ParticleUpdateType::UvTranslatePerLifeTime) != 0) {
-            j["uvTranslateCurve"] = curveSave(e.particleKeyFrames_->uvTranslateCurve_);
+            j["uvTranslateCurve"] = curveSave(e.particleKeyFrames_->uvTranslateCurve);
         }
     } else {
         LOG_ERROR("particleKeyFrames_ is nullptr. Please check the Emitter class.");

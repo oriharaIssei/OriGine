@@ -47,7 +47,7 @@ void SkyboxRender::DispatchRenderer(Entity* _entity) {
 }
 
 void SkyboxRender::RenderingBy(BlendMode _blendMode, bool /*_isCulling*/) {
-    auto commandList = dxCommand_->GetCommandList();
+    auto& commandList = dxCommand_->GetCommandList();
     auto& renderers  = rendererByBlendMode_[static_cast<int32_t>(_blendMode)];
     if (renderers.empty()) {
         return;

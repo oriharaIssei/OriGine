@@ -23,6 +23,7 @@
 // dx12Object
 #include "directX12/DxFunctionHelper.h"
 #include "directX12/RenderTexture.h"
+#include "directX12/ResourceStateTracker.h"
 
 #include "logger/Logger.h"
 
@@ -213,8 +214,8 @@ void Engine::BeginFrame() {
         UINT height = window_->GetHeight();
 
         // GPU の同期を確保
-        dxFence_->Signal(dxCommand_->GetCommandQueue());
-        dxFence_->WaitForFence();
+        UINT64 fenceVal = dxFence_->Signal(dxCommand_->GetCommandQueue());
+        dxFence_->WaitForFence(fenceVal);
 
         dxSwapChain_->ResizeBuffer(width, height);
 
@@ -279,8 +280,8 @@ void Engine::ScreenPostDraw() {
     ///===============================================================
     /// コマンドリストの実行を待つ
     ///===============================================================
-    dxFence_->Signal(dxCommand_->GetCommandQueue());
-    dxFence_->WaitForFence();
+    UINT64 fenceVal = dxFence_->Signal(dxCommand_->GetCommandQueue());
+    dxFence_->WaitForFence(fenceVal);
     ///===============================================================
 
     ///===============================================================

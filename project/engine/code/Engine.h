@@ -16,7 +16,7 @@ class InputManager;
 class WinApp;
 // DirectX Object
 class DxCommand;
-struct DxDevice;
+class DxDevice;
 class DxFence;
 class DxSwapChain;
 

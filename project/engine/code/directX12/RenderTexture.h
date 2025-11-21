@@ -87,7 +87,7 @@ private:
 
     std::string textureName_ = "unknown Texture";
     Vec2f textureSize_;
-    Vec4f ClearColor_;
+    Vec4f clearColor_;
 
 public:
     void SetDxCommand(const std::string& _listName, const std::string& _queueName);

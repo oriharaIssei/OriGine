@@ -12,14 +12,14 @@
 
 #ifdef _DEBUG
 void EmitterShape::Debug([[maybe_unused]] const std::string& _parentLabel) {
-    ImGui::Text("SpawnType : %s", particleSpawnLocationTypeWord_[int(spawnType_)].c_str());
+    ImGui::Text("SpawnType : %s", particleSpawnLocationTypeWord_[int(spawnType)].c_str());
     std::string label = particleSpawnLocationTypeWord_[int(ParticleSpawnLocationType::InBody)] + "##" + _parentLabel;
-    if (ImGui::RadioButton(label.c_str(), spawnType_ == ParticleSpawnLocationType::InBody)) {
-        spawnType_ = ParticleSpawnLocationType::InBody;
+    if (ImGui::RadioButton(label.c_str(), spawnType == ParticleSpawnLocationType::InBody)) {
+        spawnType = ParticleSpawnLocationType::InBody;
     }
     label = particleSpawnLocationTypeWord_[int(ParticleSpawnLocationType::Edge)] + "##" + _parentLabel;
-    if (ImGui::RadioButton(label.c_str(), spawnType_ == ParticleSpawnLocationType::Edge)) {
-        spawnType_ = ParticleSpawnLocationType::Edge;
+    if (ImGui::RadioButton(label.c_str(), spawnType == ParticleSpawnLocationType::Edge)) {
+        spawnType = ParticleSpawnLocationType::Edge;
     }
 }
 #endif // _DEBUG
@@ -35,7 +35,7 @@ void EmitterSphere::Debug([[maybe_unused]] const std::string& _parentLabel) {
 #endif // _DEBUG
 
 Vec3f EmitterSphere::GetSpawnPos() {
-    if (spawnType_ == ParticleSpawnLocationType::InBody) {
+    if (spawnType == ParticleSpawnLocationType::InBody) {
         MyRandom::Float randFloat = MyRandom::Float(0.0f, radius_);
         float randDist            = randFloat.Get();
         randFloat.SetRange(-1.0f, 1.0f);
@@ -81,7 +81,7 @@ Vec3f EmitterBox::GetSpawnPos() {
     float randZ               = randFloat.Get();
 
     Vec3f diff = Vec3f(max_) - Vec3f(min_);
-    if (spawnType_ == ParticleSpawnLocationType::Edge) {
+    if (spawnType == ParticleSpawnLocationType::Edge) {
         if (randX < 0.5f) {
             randX = 0.0f;
         } else {
@@ -138,7 +138,7 @@ Vec3f EmitterCapsule::GetSpawnPos() {
     randDire       = randDire.normalize();
 
     float randRadius = 0.0f;
-    if (spawnType_ == ParticleSpawnLocationType::InBody) {
+    if (spawnType == ParticleSpawnLocationType::InBody) {
         randRadius = randFloat.Get() * radius_;
     } else { //==============Edge==============//
         randRadius = radius_;
@@ -178,7 +178,7 @@ Vec3f EmitterCone::GetSpawnPos() {
     randDire       = randDire.normalize();
 
     float randRadius = 0.0f;
-    if (spawnType_ == ParticleSpawnLocationType::InBody) {
+    if (spawnType == ParticleSpawnLocationType::InBody) {
         randRadius = randFloat.Get() * std::tan(angle_ * 0.5f);
     } else { //==============Edge==============//
         randRadius = std::tan(angle_ * 0.5f);

@@ -113,6 +113,9 @@ bool DissolveEffect::ShouldSkipPostRender() const {
 void DissolveEffect::RenderStart() {
     auto& commandList = dxCommand_->GetCommandList();
 
+    /// target の設定
+    renderTarget_->PreDraw();
+
     /// pso Set
     commandList->SetPipelineState(pso_->pipelineState.Get());
     commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
@@ -120,13 +123,10 @@ void DissolveEffect::RenderStart() {
 
     ID3D12DescriptorHeap* ppHeaps[] = {Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
-
-    /// target の設定
-    renderTarget_->PreDraw();
 }
 
 void DissolveEffect::Rendering() {
-    auto commandList = dxCommand_->GetCommandList();
+    auto& commandList = dxCommand_->GetCommandList();
 
     for (const auto& renderingData : activeRenderingData_) {
         /// 描画 開始
@@ -161,7 +161,7 @@ void DissolveEffect::DispatchComponent(Entity* _entity) {
     if (!effectParams) {
         return; // コンポーネントがない場合は何もしない
     }
-  
+
     for (auto& param : *effectParams) {
         if (!param.IsActive()) {
             continue;

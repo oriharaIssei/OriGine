@@ -108,7 +108,7 @@ void VelocityRenderingSystem::CreateRenderMesh() {
 }
 
 void VelocityRenderingSystem::RenderCall() {
-    auto commandList = dxCommand_->GetCommandList();
+    auto& commandList = dxCommand_->GetCommandList();
     velocityRenderer_->GetTransformBuff().SetForRootParameter(commandList, 0);
     for (auto& mesh : *velocityRenderer_->GetMeshGroup()) {
         if (mesh.indexes_.empty())
@@ -169,7 +169,7 @@ void VelocityRenderingSystem::CreatePSO() {
 }
 
 void VelocityRenderingSystem::StartRender() {
-    auto commandList = dxCommand_->GetCommandList();
+    auto& commandList = dxCommand_->GetCommandList();
     commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
     commandList->SetPipelineState(pso_->pipelineState.Get());
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);

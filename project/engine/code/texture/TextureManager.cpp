@@ -28,7 +28,6 @@
 
 // util
 #include "util/StringUtil.h"
-#include "util/StringUtil.h"
 
 const uint32_t TextureManager::maxTextureSize_;
 std::array<std::shared_ptr<Texture>, TextureManager::maxTextureSize_> TextureManager::textures_;
@@ -77,8 +76,8 @@ void Texture::Initialize(const std::string& filePath) {
 }
 
 void Texture::Finalize() {
-    resource.Finalize();
     Engine::GetInstance()->GetSrvHeap()->ReleaseDescriptor(srv);
+    resource.Finalize();
 }
 
 DirectX::ScratchImage Texture::Load(const std::string& filePath) {
@@ -188,9 +187,9 @@ void Texture::ExecuteCommand(Microsoft::WRL::ComPtr<ID3D12Resource> _resource) {
 
     TextureManager::dxCommand_->ExecuteCommand();
 
-    DxFence* fence = Engine::GetInstance()->GetDxFence();
-    fence->Signal(TextureManager::dxCommand_->GetCommandQueue());
-    fence->WaitForFence();
+    DxFence* fence  = Engine::GetInstance()->GetDxFence();
+    UINT64 fenceVal = fence->Signal(TextureManager::dxCommand_->GetCommandQueue());
+    fence->WaitForFence(fenceVal);
 
     TextureManager::dxCommand_->CommandReset();
 

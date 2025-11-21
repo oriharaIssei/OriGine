@@ -169,7 +169,7 @@ void ParticleRenderSystem::RenderingBy(BlendMode _blend, bool /*_isCulling*/) {
         return;
     }
 
-    auto commandList = dxCommand_->GetCommandList();
+    auto& commandList = dxCommand_->GetCommandList();
 
     // PSOセット
     commandList->SetPipelineState(psoByBlendMode_[blendIndex]->pipelineState.Get());

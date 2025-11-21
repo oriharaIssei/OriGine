@@ -116,7 +116,17 @@ void Material::CreateCustomTextureFromTextureFile(int32_t textureIndex) {
     customTexture_->srv_ = Engine::GetInstance()->GetSrvHeap()->CreateDescriptor(srvDesc, &customTexture_->resource_);
 
     /// Set ResourceStateTracker
-    ResourceStateTracker::RegisterResource(customTexture_->resource_.GetResource(), D3D12_RESOURCE_STATE_COPY_DEST);
+    ResourceStateTracker::RegisterResource(customTexture_->resource_.GetResource().Get(), D3D12_RESOURCE_STATE_COPY_DEST);
+}
+
+void Material::DeleteCustomTexture() {
+    if (customTexture_.has_value()) {
+        customTexture_->resource_.Finalize();
+
+        auto srvHeap = Engine::GetInstance()->GetSrvHeap();
+        srvHeap->ReleaseDescriptor(customTexture_->srv_);
+        customTexture_.reset();
+    }
 }
 
 void to_json(nlohmann::json& j, const Material& m) {
