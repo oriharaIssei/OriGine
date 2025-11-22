@@ -14,19 +14,34 @@ MaterialEffect::MaterialEffect() : ISystem(SystemCategory::Effect) {}
 MaterialEffect::~MaterialEffect() {}
 
 void MaterialEffect::Initialize() {
+    constexpr Vec4f kClearColor        = {0.f, 0.f, 0.f, 0.f};
+    constexpr Vec2f kDefaultTempRTSize = {1024.f, 1024.f};
+
     dxCommand_ = std::make_unique<DxCommand>();
     dxCommand_->Initialize("main", "main");
 
-    constexpr Vec4f kClearColor        = {0.f, 0.f, 0.f, 0.f};
-    constexpr Vec2f kDefaultTempRTSize = {1024.f, 1024.f};
-    int32_t index                      = 0;
+    // DSVリソースの作成
+    dsvResource_ = std::make_unique<DxResource>();
+    dsvResource_->CreateDSVBuffer(Engine::GetInstance()->GetDxDevice()->device_, static_cast<UINT64>(kDefaultTempRTSize[X]), static_cast<UINT>(kDefaultTempRTSize[Y]));
+
+    // DSV の設定
+    D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{};
+    dsvDesc.Format        = DXGI_FORMAT_D24_UNORM_S8_UINT; // resourceに合わせる
+    dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D; // 2d Texture
+
+    dxDsv_ = Engine::GetInstance()->GetDsvHeap()->CreateDescriptor(dsvDesc, dsvResource_.get());
+
+    // 一時RenderTextureの作成
+    int32_t index = 0;
     for (auto& tempRenderTexture : tempRenderTextures_) {
         tempRenderTexture = std::make_unique<RenderTexture>(dxCommand_.get());
         tempRenderTexture->Initialize(2, kDefaultTempRTSize, DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, kClearColor);
         tempRenderTexture->SetTextureName("MaterialEffect_" + std::to_string(index));
+        tempRenderTexture->SetDxDsv(&dxDsv_);
         ++index;
     }
 
+    // system の初期化
     dissolveEffect_ = std::make_unique<DissolveEffect>();
     dissolveEffect_->SetScene(this->GetScene());
     dissolveEffect_->Initialize();

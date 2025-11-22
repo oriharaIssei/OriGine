@@ -48,6 +48,8 @@ private:
     std::array<std::unique_ptr<RenderTexture>, 2> tempRenderTextures_ = {nullptr, nullptr};
 
     std::unique_ptr<DxCommand> dxCommand_ = nullptr;
+    DxDsvDescriptor dxDsv_{};
+    std::unique_ptr<DxResource> dsvResource_ = nullptr;
 
     std::vector<std::pair<Entity*, MaterialEffectPipeLine*>> effectPipelines_;
 

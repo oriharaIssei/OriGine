@@ -83,11 +83,12 @@ public:
     DxSwapChain* GetDxSwapChain() const { return dxSwapChain_.get(); }
     DxFence* GetDxFence() const { return dxFence_.get(); }
 
-    const DxDsvDescriptor& GetDxDsv() const { return dxDsv_; }
+    DxDsvDescriptor& GetDxDsv() { return dxDsv_; }
     DxResource* GetDsvResource() { return &dsvResource_; }
 
     DxDescriptorHeap<DxDescriptorHeapType::RTV>* GetRtvHeap() const { return rtvHeap_.get(); }
     DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>* GetSrvHeap() const { return srvHeap_.get(); }
+    DxDescriptorHeap<DxDescriptorHeapType::DSV>* GetDsvHeap() const { return dsvHeap_.get(); }
 
     float GetDeltaTime() const { return deltaTime_->GetDeltaTime(); }
     void SetDeltaTime(float dt) { deltaTime_->SetDeltaTime(dt); }

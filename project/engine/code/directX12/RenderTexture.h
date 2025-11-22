@@ -17,6 +17,9 @@
 /// RTVとSRVを持つレンダーターゲット用テクスチャ
 /// </summary>
 class RenderTexture {
+private:
+    static PipelineStateObj* pso_;
+
 public:
     RenderTexture(DxCommand* dxCom);
     RenderTexture()  = default;
@@ -50,7 +53,7 @@ public:
     /// <summary>
     /// RenderTexture への 書き込み準備
     /// </summary>
-    void PreDraw(const DxDsvDescriptor& _dsv = Engine::GetInstance()->GetDxDsv());
+    void PreDraw();
     /// <summary>
     /// RenderTexture への 書き込み開始
     /// </summary>
@@ -67,8 +70,6 @@ public:
     void DrawTexture(D3D12_GPU_DESCRIPTOR_HANDLE _srvHandle);
 
 private:
-    static PipelineStateObj* pso_;
-
     struct RenderTargetCombo {
         DxResource resource_;
 
@@ -76,12 +77,15 @@ private:
         DxSrvDescriptor srv_;
     };
 
+private:
     DXGI_FORMAT format_ = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 
     std::vector<RenderTargetCombo> renderTargets_;
     int32_t backBufferIndex_  = 0;
     int32_t frontBufferIndex_ = 0;
     int32_t bufferCount_      = 0;
+
+    DxDsvDescriptor* dxDsv_ = nullptr;
 
     std::unique_ptr<DxCommand> dxCommand_;
 
@@ -90,6 +94,8 @@ private:
     Vec4f clearColor_;
 
 public:
+    void SetDxDsv(DxDsvDescriptor* _dsv) { dxDsv_ = _dsv; }
+
     void SetDxCommand(const std::string& _listName, const std::string& _queueName);
 
     void SetTextureName(const std::string& _name);

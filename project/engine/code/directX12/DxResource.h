@@ -46,6 +46,15 @@ public:
     /// <param name="device"></param>
     /// <param name="sizeInBytes">bufferのサイズ</param>
     void CreateBufferResource(Microsoft::WRL::ComPtr<ID3D12Device> device, size_t sizeInBytes);
+
+    /// <summary>
+    /// DSVBufferResource として 作成
+    /// </summary>
+    /// <param name="_device"></param>
+    /// <param name="_width"></param>
+    /// <param name="_height"></param>
+    void CreateDSVBuffer(Microsoft::WRL::ComPtr<ID3D12Device> _device, UINT64 _width, UINT _height);
+
     /// <summary>
     /// UAVBufferResource として 作成
     /// </summary>

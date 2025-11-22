@@ -240,14 +240,18 @@ void RenderTexture::Finalize() {
     dxCommand_->Finalize();
 }
 
-void RenderTexture::PreDraw(const DxDsvDescriptor& _dsv) {
+void RenderTexture::PreDraw() {
+    if (!dxDsv_) {
+        dxDsv_ = &Engine::GetInstance()->GetDxDsv();
+    }
+
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->GetCommandList();
 
     ID3D12DescriptorHeap* ppHeaps[] = {Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
 
     D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = GetFrontBufferRtvHandle();
-    D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = _dsv.GetCpuHandle();
+    D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dxDsv_->GetCpuHandle();
 
     ///=========================================
     //	TransitionBarrier の 設定

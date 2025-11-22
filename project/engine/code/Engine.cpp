@@ -53,37 +53,8 @@ Engine::Engine() {}
 Engine::~Engine() {}
 
 void Engine::CreateDsv() {
-    D3D12_RESOURCE_DESC resourceDesc{};
-    resourceDesc.Width            = UINT64(window_->GetWidth());
-    resourceDesc.Height           = UINT64(window_->GetHeight());
-    resourceDesc.MipLevels        = 1;
-    resourceDesc.DepthOrArraySize = 1;
-    resourceDesc.Format           = DXGI_FORMAT_D24_UNORM_S8_UINT;
-    resourceDesc.SampleDesc.Count = 1;
-    resourceDesc.Dimension        = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-    resourceDesc.Flags            = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
-
-    // heap の設定
-    D3D12_HEAP_PROPERTIES heapProperties{};
-    heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
-
-    D3D12_CLEAR_VALUE depthClearValue{};
-    depthClearValue.DepthStencil.Depth = 1.0f; // 最大値でクリア
-    depthClearValue.Format             = DXGI_FORMAT_D24_UNORM_S8_UINT; // Resource と合わせる
-
-    HRESULT result = dxDevice_->device_->CreateCommittedResource(
-        &heapProperties,
-        D3D12_HEAP_FLAG_NONE,
-        &resourceDesc,
-        D3D12_RESOURCE_STATE_DEPTH_WRITE,
-        &depthClearValue,
-        IID_PPV_ARGS(dsvResource_.GetResourceRef().GetAddressOf()));
-
-    if (FAILED(result)) {
-        // エラーログを出力
-        LOG_ERROR("Failed to create depth stencil view resource.");
-        assert(false);
-    }
+    // DSVリソースの作成
+    dsvResource_.CreateDSVBuffer(dxDevice_->device_, static_cast<UINT64>(window_->GetWidth()), static_cast<UINT>(window_->GetHeight()));
 
     // DSV の設定
     D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{};

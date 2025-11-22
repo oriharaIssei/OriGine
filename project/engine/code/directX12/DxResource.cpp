@@ -73,6 +73,39 @@ void DxResource::CreateBufferResource(Microsoft::WRL::ComPtr<ID3D12Device> devic
     }
 }
 
+void DxResource::CreateDSVBuffer(Microsoft::WRL::ComPtr<ID3D12Device> _device, UINT64 _width, UINT _height) {
+    resourceDesc_.Width            = _width;
+    resourceDesc_.Height           = _height;
+    resourceDesc_.MipLevels        = 1;
+    resourceDesc_.DepthOrArraySize = 1;
+    resourceDesc_.Format           = DXGI_FORMAT_D24_UNORM_S8_UINT;
+    resourceDesc_.SampleDesc.Count = 1;
+    resourceDesc_.Dimension        = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+    resourceDesc_.Flags            = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
+
+    // heap の設定
+    D3D12_HEAP_PROPERTIES heapProperties{};
+    heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
+
+    D3D12_CLEAR_VALUE depthClearValue{};
+    depthClearValue.DepthStencil.Depth = 1.0f; // 最大値でクリア
+    depthClearValue.Format             = DXGI_FORMAT_D24_UNORM_S8_UINT; // Resource と合わせる
+
+    HRESULT result = _device->CreateCommittedResource(
+        &heapProperties,
+        D3D12_HEAP_FLAG_NONE,
+        &resourceDesc_,
+        D3D12_RESOURCE_STATE_DEPTH_WRITE,
+        &depthClearValue,
+        IID_PPV_ARGS(resource_.GetAddressOf()));
+
+    if (FAILED(result)) {
+        // エラーログを出力
+        LOG_ERROR("Failed to create depth stencil view resource.");
+        assert(false);
+    }
+}
+
 void DxResource::CreateUAVBuffer(Microsoft::WRL::ComPtr<ID3D12Device> device, size_t sizeInBytes, D3D12_RESOURCE_FLAGS flags, D3D12_HEAP_TYPE heapType) {
     // Heap Properties の設定
     D3D12_HEAP_PROPERTIES heapProps{};
