@@ -154,9 +154,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="util\DxUtil.h" />
-    <ClInclude Include="engine\code\ECS\component\renderer\primitive\CylinderRenderer.h" />
-    <ClInclude Include="engine\code\ECS\component\renderer\primitive\shape\Cylinder.h" />
     <ClInclude Include="editor\EditorController.h" />
     <ClInclude Include="editor\IEditor.h" />
     <ClInclude Include="editor\debugReplayer\DebugReplayControlArea.h" />
@@ -210,14 +207,17 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\ECS\component\renderer\SkyBoxRenderer.h" />
     <ClInclude Include="engine\code\ECS\component\renderer\Sprite.h" />
     <ClInclude Include="engine\code\ECS\component\renderer\primitive\BoxRenderer.h" />
+    <ClInclude Include="engine\code\ECS\component\renderer\primitive\CylinderRenderer.h" />
     <ClInclude Include="engine\code\ECS\component\renderer\primitive\PlaneRenderer.h" />
     <ClInclude Include="engine\code\ECS\component\renderer\primitive\PrimitiveMeshRenderer.h" />
     <ClInclude Include="engine\code\ECS\component\renderer\primitive\RingRenderer.h" />
     <ClInclude Include="engine\code\ECS\component\renderer\primitive\SphereRenderer.h" />
     <ClInclude Include="engine\code\ECS\component\renderer\primitive\base\IPrimitive.h" />
+    <ClInclude Include="engine\code\ECS\component\renderer\primitive\base\PrimitiveMeshFactory.h" />
     <ClInclude Include="engine\code\ECS\component\renderer\primitive\base\PrimitiveMeshRendererBase.h" />
     <ClInclude Include="engine\code\ECS\component\renderer\primitive\base\PrimitiveType.h" />
     <ClInclude Include="engine\code\ECS\component\renderer\primitive\shape\Box.h" />
+    <ClInclude Include="engine\code\ECS\component\renderer\primitive\shape\Cylinder.h" />
     <ClInclude Include="engine\code\ECS\component\renderer\primitive\shape\Plane.h" />
     <ClInclude Include="engine\code\ECS\component\renderer\primitive\shape\Ring.h" />
     <ClInclude Include="engine\code\ECS\component\renderer\primitive\shape\Sphere.h" />
@@ -332,9 +332,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="math\bounds\Sphere.h" />
     <ClInclude Include="math\bounds\base\IBounds.h" />
     <ClInclude Include="math\mathEnv.h" />
-    <ClInclude Include="engine\code\ECS\component\renderer\primitive\base\PrimitiveMeshFactory.h" />
     <ClInclude Include="util\BitArray.h" />
     <ClInclude Include="util\DiffValue.h" />
+    <ClInclude Include="util\DxUtil.h" />
     <ClInclude Include="util\EnumBitMask.h" />
     <ClInclude Include="util\StringUtil.h" />
     <ClInclude Include="util\Version.h" />
@@ -349,8 +349,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="util\timeline\Timeline.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="engine\code\ECS\component\renderer\primitive\CylinderRenderer.cpp" />
-    <ClCompile Include="engine\code\ECS\component\renderer\primitive\shape\Cylinder.cpp" />
     <ClCompile Include="editor\EditorController.cpp" />
     <ClCompile Include="editor\IEditor.cpp" />
     <ClCompile Include="editor\debugReplayer\DebugReplayControlArea.cpp" />
@@ -402,12 +400,15 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\ECS\component\renderer\SkyBoxRenderer.cpp" />
     <ClCompile Include="engine\code\ECS\component\renderer\Sprite.cpp" />
     <ClCompile Include="engine\code\ECS\component\renderer\primitive\BoxRenderer.cpp" />
+    <ClCompile Include="engine\code\ECS\component\renderer\primitive\CylinderRenderer.cpp" />
     <ClCompile Include="engine\code\ECS\component\renderer\primitive\PlaneRenderer.cpp" />
     <ClCompile Include="engine\code\ECS\component\renderer\primitive\RingRenderer.cpp" />
     <ClCompile Include="engine\code\ECS\component\renderer\primitive\SphereRenderer.cpp" />
+    <ClCompile Include="engine\code\ECS\component\renderer\primitive\base\PrimitiveMeshFactory.cpp" />
     <ClCompile Include="engine\code\ECS\component\renderer\primitive\base\PrimitiveMeshRendererBase.cpp" />
     <ClCompile Include="engine\code\ECS\component\renderer\primitive\base\PrimitiveType.cpp" />
     <ClCompile Include="engine\code\ECS\component\renderer\primitive\shape\Box.cpp" />
+    <ClCompile Include="engine\code\ECS\component\renderer\primitive\shape\Cylinder.cpp" />
     <ClCompile Include="engine\code\ECS\component\renderer\primitive\shape\Plane.cpp" />
     <ClCompile Include="engine\code\ECS\component\renderer\primitive\shape\Ring.cpp" />
     <ClCompile Include="engine\code\ECS\component\renderer\primitive\shape\Sphere.cpp" />
@@ -499,7 +500,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="math\Quaternion.cpp" />
     <ClCompile Include="math\Sequence.cpp" />
     <ClCompile Include="math\mathEnv.cpp" />
-    <ClCompile Include="engine\code\ECS\component\renderer\primitive\base\PrimitiveMeshFactory.cpp" />
     <ClCompile Include="util\StringUtil.cpp" />
     <ClCompile Include="util\Version.cpp" />
     <ClCompile Include="util\binaryIO\BinaryIO.cpp" />

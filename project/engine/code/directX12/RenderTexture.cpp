@@ -265,6 +265,7 @@ void RenderTexture::PreDraw(const DxDsvDescriptor& _dsv) {
         clearColor_[Y],
         clearColor_[Z],
         clearColor_[W]};
+
     commandList->ClearRenderTargetView(
         rtvHandle, clearColor_.v, 0, nullptr);
     ///=========================================
@@ -356,6 +357,29 @@ void RenderTexture::DrawTexture() {
     commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
     commandList->SetPipelineState(pso_->pipelineState.Get());
 
+    ///=========================================
+    //	ビューポート の 設定
+    ///=========================================
+    D3D12_VIEWPORT viewPort{};
+    viewPort.Width    = textureSize_[X];
+    viewPort.Height   = textureSize_[Y];
+    viewPort.TopLeftX = 0;
+    viewPort.TopLeftY = 0;
+    viewPort.MinDepth = 0.0f;
+    viewPort.MaxDepth = 1.0f;
+
+    commandList->RSSetViewports(1, &viewPort);
+    ///=========================================
+    //	シザーレクト の 設定
+    ///=========================================
+    D3D12_RECT scissorRect{};
+    scissorRect.left   = 0;
+    scissorRect.right  = static_cast<LONG>(textureSize_[X]);
+    scissorRect.top    = 0;
+    scissorRect.bottom = static_cast<LONG>(textureSize_[Y]);
+
+    commandList->RSSetScissorRects(1, &scissorRect);
+
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
     ID3D12DescriptorHeap* ppHeaps[] = {Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
@@ -373,6 +397,29 @@ void RenderTexture::DrawTexture(D3D12_GPU_DESCRIPTOR_HANDLE _srvHandle) {
 
     commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
     commandList->SetPipelineState(pso_->pipelineState.Get());
+
+    ///=========================================
+    //	ビューポート の 設定
+    ///=========================================
+    D3D12_VIEWPORT viewPort{};
+    viewPort.Width    = textureSize_[X];
+    viewPort.Height   = textureSize_[Y];
+    viewPort.TopLeftX = 0;
+    viewPort.TopLeftY = 0;
+    viewPort.MinDepth = 0.0f;
+    viewPort.MaxDepth = 1.0f;
+
+    commandList->RSSetViewports(1, &viewPort);
+    ///=========================================
+    //	シザーレクト の 設定
+    ///=========================================
+    D3D12_RECT scissorRect{};
+    scissorRect.left   = 0;
+    scissorRect.right  = static_cast<LONG>(textureSize_[X]);
+    scissorRect.top    = 0;
+    scissorRect.bottom = static_cast<LONG>(textureSize_[Y]);
+
+    commandList->RSSetScissorRects(1, &scissorRect);
 
     ID3D12DescriptorHeap* ppHeaps[] = {Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);

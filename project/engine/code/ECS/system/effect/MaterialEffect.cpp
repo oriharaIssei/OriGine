@@ -17,10 +17,12 @@ void MaterialEffect::Initialize() {
     dxCommand_ = std::make_unique<DxCommand>();
     dxCommand_->Initialize("main", "main");
 
-    int32_t index = 0;
+    constexpr Vec4f kClearColor        = {0.f, 0.f, 0.f, 0.f};
+    constexpr Vec2f kDefaultTempRTSize = {1024.f, 1024.f};
+    int32_t index                      = 0;
     for (auto& tempRenderTexture : tempRenderTextures_) {
         tempRenderTexture = std::make_unique<RenderTexture>(dxCommand_.get());
-        tempRenderTexture->Initialize(2, Vec2f(512.f, 512.f));
+        tempRenderTexture->Initialize(2, kDefaultTempRTSize, DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, kClearColor);
         tempRenderTexture->SetTextureName("MaterialEffect_" + std::to_string(index));
         ++index;
     }
@@ -90,15 +92,22 @@ void MaterialEffect::DispatchComponents(Entity* _entity) {
         return;
     }
     for (auto& pipeline : *materialEffectPipeLines) {
+        // 非アクティブならスルー
         if (!pipeline.IsActive()) {
             continue;
         }
-        Material* material = GetComponent<Material>(_entity, pipeline.GetMaterialIndex());
-        if (!material) { // Material が存在しなかったらスルー
+        // effectEntityDataList が空ならスルー
+        if (pipeline.GetEffectEntityIdList().empty()) {
             continue;
         }
+        // baseTextureId が不正ならスルー
         int32_t baseTextureId = pipeline.GetBaseTextureId();
         if (baseTextureId < 0) {
+            continue;
+        }
+
+        Material* material = GetComponent<Material>(_entity, pipeline.GetMaterialIndex());
+        if (!material) { // Material が存在しなかったらスルー
             continue;
         }
         effectPipelines_.emplace_back(std::make_pair(_entity, &pipeline));
@@ -108,36 +117,28 @@ void MaterialEffect::DispatchComponents(Entity* _entity) {
 void MaterialEffect::UpdateEffectPipeline(Entity* _entity, MaterialEffectPipeLine* _pipeline) {
     auto& commandList = dxCommand_->GetCommandList();
 
+    auto tempRenderTexture       = tempRenderTextures_[currentTempRTIndex_].get();
+    const Vec2f& tempTextureSize = tempRenderTexture->GetTextureSize();
+
     Material* material    = GetComponent<Material>(_entity, _pipeline->GetMaterialIndex());
     int32_t baseTextureId = _pipeline->GetBaseTextureId();
 
     // CustomTexture がなければ作成
     if (!material->hasCustomTexture()) {
-        material->CreateCustomTextureFromTextureFile(_pipeline->GetBaseTextureId());
+        // baseTexture のメタデータを取得
+        // フォーマットとmipLevelと width,height を固定
+        DirectX::TexMetadata metaData = TextureManager::GetTexMetadata(baseTextureId);
+        metaData.width                = static_cast<size_t>(tempTextureSize[X]);
+        metaData.height               = static_cast<size_t>(tempTextureSize[Y]);
+        metaData.format               = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+        metaData.mipLevels            = 1;
+        material->CreateCustomTextureFromMetaData(metaData);
     }
     auto effectedTextureResource = &material->GetCustomTexture()->resource_;
-    Vec2f textureSize            = {(float)effectedTextureResource->GetWidth(), (float)effectedTextureResource->GetHeight()};
-
-    // baseTexture のメタデータを取得
-    // フォーマットとmipLevelを固定
-    DirectX::TexMetadata metaData = TextureManager::GetTexMetadata(baseTextureId);
-    metaData.format               = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-    metaData.mipLevels            = 1;
-
-    // tempRenderTexture_ のサイズを baseTexture に合わせる
-    auto tempRenderTexture = tempRenderTextures_[currentTempRTIndex_].get();
-    if (tempRenderTexture->GetTextureSize() != textureSize) {
-        DxFence* fence = Engine::GetInstance()->GetDxFence();
-
-        UINT64 fenceVal = fence->Signal(dxCommand_->GetCommandQueue());
-        fence->WaitForFence(fenceVal);
-
-        tempRenderTexture->Resize(textureSize);
-    }
 
     // tempRenderTexture_ に baseTexture を描画
     tempRenderTexture->PreDraw();
-    tempRenderTexture->DrawTexture(TextureManager::GetDescriptorGpuHandle(_pipeline->GetBaseTextureId()));
+    tempRenderTexture->DrawTexture(TextureManager::GetDescriptorGpuHandle(baseTextureId));
     tempRenderTexture->PostDraw();
 
     // effectEntityDataList に登録されている Entity でエフェクトをかける

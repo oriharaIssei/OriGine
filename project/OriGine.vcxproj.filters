@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="editor">
@@ -357,6 +357,9 @@
     <ClInclude Include="engine\code\ECS\component\renderer\primitive\BoxRenderer.h">
       <Filter>engine\code\ECS\component\renderer\primitive</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\renderer\primitive\CylinderRenderer.h">
+      <Filter>engine\code\ECS\component\renderer\primitive</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\ECS\component\renderer\primitive\PlaneRenderer.h">
       <Filter>engine\code\ECS\component\renderer\primitive</Filter>
     </ClInclude>
@@ -372,6 +375,9 @@
     <ClInclude Include="engine\code\ECS\component\renderer\primitive\base\IPrimitive.h">
       <Filter>engine\code\ECS\component\renderer\primitive\base</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\renderer\primitive\base\PrimitiveMeshFactory.h">
+      <Filter>engine\code\ECS\component\renderer\primitive\base</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\ECS\component\renderer\primitive\base\PrimitiveMeshRendererBase.h">
       <Filter>engine\code\ECS\component\renderer\primitive\base</Filter>
     </ClInclude>
@@ -379,6 +385,9 @@
       <Filter>engine\code\ECS\component\renderer\primitive\base</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\component\renderer\primitive\shape\Box.h">
+      <Filter>engine\code\ECS\component\renderer\primitive\shape</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\renderer\primitive\shape\Cylinder.h">
       <Filter>engine\code\ECS\component\renderer\primitive\shape</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\component\renderer\primitive\shape\Plane.h">
@@ -661,22 +670,22 @@
       <Filter>engine\code\winApp</Filter>
     </ClInclude>
     <ClInclude Include="geometry\base\GeometryType.h">
-      <Filter>Geometry\base</Filter>
+      <Filter>geometry\base</Filter>
     </ClInclude>
     <ClInclude Include="geometry\base\IGeometry.h">
-      <Filter>Geometry\base</Filter>
+      <Filter>geometry\base</Filter>
     </ClInclude>
     <ClInclude Include="geometry\shape\Box.h">
-      <Filter>Geometry\shape</Filter>
+      <Filter>geometry\shape</Filter>
     </ClInclude>
     <ClInclude Include="geometry\shape\Plane.h">
-      <Filter>Geometry\shape</Filter>
+      <Filter>geometry\shape</Filter>
     </ClInclude>
     <ClInclude Include="geometry\shape\Ring.h">
-      <Filter>Geometry\shape</Filter>
+      <Filter>geometry\shape</Filter>
     </ClInclude>
     <ClInclude Include="geometry\shape\Sphere.h">
-      <Filter>Geometry\shape</Filter>
+      <Filter>geometry\shape</Filter>
     </ClInclude>
     <ClInclude Include="math\Interpolation.h">
       <Filter>math</Filter>
@@ -729,6 +738,9 @@
     <ClInclude Include="util\DiffValue.h">
       <Filter>util</Filter>
     </ClInclude>
+    <ClInclude Include="util\DxUtil.h">
+      <Filter>util</Filter>
+    </ClInclude>
     <ClInclude Include="util\EnumBitMask.h">
       <Filter>util</Filter>
     </ClInclude>
@@ -765,10 +777,6 @@
     <ClInclude Include="util\timeline\Timeline.h">
       <Filter>util\timeline</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\ECS\component\renderer\primitive\shape\Cylinder.h" />
-    <ClInclude Include="engine\code\ECS\component\renderer\primitive\CylinderRenderer.h" />
-    <ClInclude Include="engine\code\ECS\component\renderer\primitive\base\PrimitiveMeshFactory.h" />
-    <ClInclude Include="util\DxUtil.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="editor\EditorController.cpp">
@@ -924,6 +932,9 @@
     <ClCompile Include="engine\code\ECS\component\renderer\primitive\BoxRenderer.cpp">
       <Filter>engine\code\ECS\component\renderer\primitive</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\ECS\component\renderer\primitive\CylinderRenderer.cpp">
+      <Filter>engine\code\ECS\component\renderer\primitive</Filter>
+    </ClCompile>
     <ClCompile Include="engine\code\ECS\component\renderer\primitive\PlaneRenderer.cpp">
       <Filter>engine\code\ECS\component\renderer\primitive</Filter>
     </ClCompile>
@@ -933,6 +944,9 @@
     <ClCompile Include="engine\code\ECS\component\renderer\primitive\SphereRenderer.cpp">
       <Filter>engine\code\ECS\component\renderer\primitive</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\ECS\component\renderer\primitive\base\PrimitiveMeshFactory.cpp">
+      <Filter>engine\code\ECS\component\renderer\primitive\base</Filter>
+    </ClCompile>
     <ClCompile Include="engine\code\ECS\component\renderer\primitive\base\PrimitiveMeshRendererBase.cpp">
       <Filter>engine\code\ECS\component\renderer\primitive\base</Filter>
     </ClCompile>
@@ -940,6 +954,9 @@
       <Filter>engine\code\ECS\component\renderer\primitive\base</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\component\renderer\primitive\shape\Box.cpp">
+      <Filter>engine\code\ECS\component\renderer\primitive\shape</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\component\renderer\primitive\shape\Cylinder.cpp">
       <Filter>engine\code\ECS\component\renderer\primitive\shape</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\component\renderer\primitive\shape\Plane.cpp">
@@ -1192,7 +1209,7 @@
       <Filter>engine\code\winApp</Filter>
     </ClCompile>
     <ClCompile Include="geometry\base\GeometryType.cpp">
-      <Filter>Geometry\base</Filter>
+      <Filter>geometry\base</Filter>
     </ClCompile>
     <ClCompile Include="math\Interpolation.cpp">
       <Filter>math</Filter>
@@ -1239,8 +1256,5 @@
     <ClCompile Include="util\timeline\Timeline.cpp">
       <Filter>util\timeline</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\ECS\component\renderer\primitive\shape\Cylinder.cpp" />
-    <ClCompile Include="engine\code\ECS\component\renderer\primitive\CylinderRenderer.cpp" />
-    <ClCompile Include="engine\code\ECS\component\renderer\primitive\base\PrimitiveMeshFactory.cpp" />
   </ItemGroup>
 </Project>

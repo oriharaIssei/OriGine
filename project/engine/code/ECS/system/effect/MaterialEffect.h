@@ -43,10 +43,11 @@ private:
     void ExecuteCommand();
 
 private:
-    std::unique_ptr<DxCommand> dxCommand_ = nullptr; // Direct
+    int32_t currentTempRTIndex_ = 0;
 
-    int32_t currentTempRTIndex_                                       = 0;
     std::array<std::unique_ptr<RenderTexture>, 2> tempRenderTextures_ = {nullptr, nullptr};
+
+    std::unique_ptr<DxCommand> dxCommand_ = nullptr;
 
     std::vector<std::pair<Entity*, MaterialEffectPipeLine*>> effectPipelines_;
 

@@ -88,23 +88,16 @@ void Material::Finalize() {
     }
 }
 
-void Material::CreateCustomTextureFromTextureFile(const std::string& _directory, const std::string& _filename) {
-    // metadataの取得
-    int32_t textureId = TextureManager::LoadTexture(_directory + _filename);
-    CreateCustomTextureFromTextureFile(textureId);
-}
-
-void Material::CreateCustomTextureFromTextureFile(int32_t textureIndex) {
-    DirectX::TexMetadata metaData = TextureManager::GetTexMetadata(textureIndex);
-    metaData.format               = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-    metaData.mipLevels            = 1;
+void Material::CreateCustomTextureFromMetaData(DirectX::TexMetadata& _metaData) {
+    _metaData.format    = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+    _metaData.mipLevels = 1;
 
     // Resource & SRV の作成
     customTexture_.emplace(Material::CustomTextureData());
 
     customTexture_->resource_.CreateTextureResource(
         Engine::GetInstance()->GetDxDevice()->device_,
-        metaData);
+        _metaData);
 
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
     srvDesc.Format                  = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
@@ -117,6 +110,17 @@ void Material::CreateCustomTextureFromTextureFile(int32_t textureIndex) {
 
     /// Set ResourceStateTracker
     ResourceStateTracker::RegisterResource(customTexture_->resource_.GetResource().Get(), D3D12_RESOURCE_STATE_COPY_DEST);
+}
+
+void Material::CreateCustomTextureFromTextureFile(const std::string& _directory, const std::string& _filename) {
+    // metadataの取得
+    int32_t textureId = TextureManager::LoadTexture(_directory + _filename);
+    CreateCustomTextureFromTextureFile(textureId);
+}
+
+void Material::CreateCustomTextureFromTextureFile(int32_t textureIndex) {
+    DirectX::TexMetadata metaData = TextureManager::GetTexMetadata(textureIndex);
+    CreateCustomTextureFromMetaData(metaData);
 }
 
 void Material::DeleteCustomTexture() {

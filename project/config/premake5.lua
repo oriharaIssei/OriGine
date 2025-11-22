@@ -6,7 +6,7 @@ workspace "OriGine"
     architecture "x86_64"
     configurations { "Debug", "Develop", "Release" }
 
-    startproject "OriGine"
+    startproject "OriGineApp"
 
 project "OriGine"
     kind "StaticLib"

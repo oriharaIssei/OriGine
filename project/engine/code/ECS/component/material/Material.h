@@ -71,6 +71,12 @@ public:
     void Finalize() override;
 
     /// <summary>
+    /// CustomTextureをTexMetadataから作成する
+    /// </summary>
+    /// <param name="_metaData"></param>
+    void CreateCustomTextureFromMetaData(DirectX::TexMetadata& _metaData);
+
+    /// <summary>
     /// CustomTextureを指定したファイルから作成する
     /// </summary>
     /// <param name="_directory"></param>
