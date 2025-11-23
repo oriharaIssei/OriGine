@@ -181,7 +181,7 @@ void SceneSerializer::SerializeFromJson() {
         }
         nlohmann::json entityData = nlohmann::json::object();
 
-        EntityToJson(entity->GetID(), entityData);
+        entityData = EntityToJson(entity->GetID());
 
         jsonData["Entities"].push_back(entityData);
     }
@@ -277,7 +277,7 @@ void SceneSerializer::SaveEntity(int32_t _entityID, const std::string& _director
     }
 
     nlohmann::json entityData;
-    EntityToJson(_entityID, entityData);
+    entityData = EntityToJson(_entityID);
 
     // ディレクトリを作成
     myFs::createFolder(_directory);
@@ -292,10 +292,13 @@ void SceneSerializer::SaveEntity(int32_t _entityID, const std::string& _director
     ofs.close();
 }
 
-void SceneSerializer::EntityToJson(int32_t _entityID, nlohmann::json& entityData) {
+nlohmann::json SceneSerializer::EntityToJson(int32_t _entityID) {
+    nlohmann::json entityData = nlohmann::json::object();
+
     Entity* _entity = targetScene_->entityRepository_->GetEntity(_entityID);
     if (!_entity || !_entity->IsAlive()) {
-        return;
+        // 無効なエンティティの場合、空のJSONオブジェクトを返す
+        return entityData;
     }
 
     entityData["Name"]     = _entity->GetDataType();
@@ -324,6 +327,8 @@ void SceneSerializer::EntityToJson(int32_t _entityID, nlohmann::json& entityData
         }
     }
     entityData["Components"] = componentsData;
+
+    return entityData;
 }
 
 Entity* SceneSerializer::LoadEntity(const std::string& _directory, const std::string& _dataType) {

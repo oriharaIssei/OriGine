@@ -709,10 +709,10 @@ EntityInspectorArea::ChangeEditEntityCommand::ChangeEditEntityCommand(EntityInsp
     : inspectorArea_(_inspectorArea), toId_(_to), fromId_(_from) {
     SceneSerializer serializer(inspectorArea_->GetParentWindow()->GetCurrentScene());
     if (toId_ >= 0) {
-        serializer.EntityToJson(toId_, toEntityData_);
+        toEntityData_ = serializer.EntityToJson(toId_);
     }
     if (fromId_ >= 0) {
-        serializer.EntityToJson(fromId_, fromEntityData_);
+        fromEntityData_ = serializer.EntityToJson(fromId_);
     }
 }
 
@@ -1127,7 +1127,7 @@ void EntityInformationRegion::DeleteEntityCommand::Execute() {
         return;
     }
     SceneSerializer serializer(currentScene);
-    serializer.EntityToJson(entityId_, entityData_);
+    entityData_ = serializer.EntityToJson(entityId_);
     currentScene->DeleteEntity(entityId_);
     LOG_DEBUG("DeleteEntityCommand::Execute: Deleted entity with ID '{}'.", entityId_);
 }

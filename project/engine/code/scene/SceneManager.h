@@ -116,7 +116,7 @@ public:
     void DeserializeFromJson();
 
     void SaveEntity(int32_t _entityID, const std::string& _directory);
-    void EntityToJson(int32_t _entityID, nlohmann::json& entityData);
+    nlohmann::json EntityToJson(int32_t _entityID);
 
     Entity* LoadEntity(const std::string& _directory, const std::string& _dataType);
     Entity* EntityFromJson(const nlohmann::json& _entityData);

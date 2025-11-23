@@ -262,6 +262,7 @@ public:
         std::string entityName_;
         int32_t entityId_ = -1; // 作成するエンティティの名前
     };
+
     /// <summary>
     /// エンティティをファイルから読み込むコマンド
     /// </summary>
@@ -281,10 +282,39 @@ public:
         int32_t entityId_ = -1; // 作成するエンティティの名前
     };
 
+    /// <summary>
+    /// Entityのデータをコピーするコマンド
+    /// </summary>
+    class CopyEntityCommand
+        : public IEditCommand {
+    public:
+        CopyEntityCommand(EntityHierarchy* _hierarchy);
+        ~CopyEntityCommand() override = default;
+        void Execute() override;
+        void Undo() override;
+
+    private:
+        EntityHierarchy* hierarchy_ = nullptr; // 親エリアへのポインタ
+    };
+
+    class PasteEntityCommand
+        : public IEditCommand {
+    public:
+        PasteEntityCommand(EntityHierarchy* _hierarchy);
+        ~PasteEntityCommand() override = default;
+        void Execute() override;
+        void Undo() override;
+
+    private:
+        EntityHierarchy* hierarchy_ = nullptr; // 親エリアへのポインタ
+        std::vector<int32_t> pastedEntityIds_; // ペーストしたエンティティのIDリスト
+    };
+
 private:
     HierarchyArea* parentArea_ = nullptr; // 親エリアへのポインタ
     std::list<int32_t> selectedEntityIds_; // 選択されているオブジェクトのIDリスト
     std::string searchBuff_ = ""; // 検索バッファ
+    std::list<nlohmann::json> copyBuffer_; // エンティティのコピー用バッファ
 public:
     const std::list<int32_t>& GetSelectedEntityIds() const {
         return selectedEntityIds_;

@@ -7,10 +7,12 @@
 
 /// ECS
 // component
-#include "component/ComponentArray.h"
 #include "component/IComponent.h"
 // system
 #include "system/ISystem.h"
+
+/// externals
+#include <nlohmann/json.hpp>
 
 class SceneEditorWindow;
 
@@ -52,6 +54,7 @@ public:
 protected:
     SceneEditorWindow* parentWindow_ = nullptr; // 親ウィンドウへのポインタ
 
+    // 編集中のエンティティデータ
     int32_t editEntityId_       = -1; // 編集中のエンティティID
     std::string editEntityName_ = ""; // 編集中のエンティティ名
     std::unordered_map<std::string, std::vector<IComponent*>> entityComponentMap_; // コンポーネントのマップ

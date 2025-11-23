@@ -565,14 +565,31 @@ void EntityHierarchy::DrawGui() {
         EditorController::GetInstance()->PushCommand(std::move(command));
     }
 
+    const auto& keyboardInput = InputManager::GetInstance()->GetKeyboard();
+
+    /// コピー & ペースト
+    if (keyboardInput->IsPress(Key::L_CTRL) || keyboardInput->IsPress(Key::R_CTRL)) {
+        // コピー
+        if (keyboardInput->IsTrigger(Key::C)) {
+            auto command = std::make_unique<CopyEntityCommand>(this);
+            EditorController::GetInstance()->PushCommand(std::move(command));
+        }
+        // ペースト
+        if (keyboardInput->IsTrigger(Key::V)) {
+            auto command = std::make_unique<PasteEntityCommand>(this);
+            EditorController::GetInstance()->PushCommand(std::move(command));
+        }
+    }
+
     ImGui::InputText("Search", &searchBuff_, ImGuiInputTextFlags_EnterReturnsTrue);
 
     ImGui::SeparatorText("Entities");
 
     // ImGuiのスタイルで選択色を設定（必要に応じてアプリ全体で設定してもOK）
-    ImVec4 winSelectColor = ImVec4(0.26f, 0.59f, 0.98f, 1.0f); // Windows風の青
+    ImVec4 winSelectColor       = ImVec4(0.26f, 0.59f, 0.98f, 1.0f); // Windows風の青
+    ImVec4 winSelectHeaderColor = ImVec4(0.26f, 0.59f, 0.98f, 0.8f);
     ImGui::PushStyleColor(ImGuiCol_Header, winSelectColor);
-    ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.26f, 0.59f, 0.98f, 0.8f));
+    ImGui::PushStyleColor(ImGuiCol_HeaderHovered, winSelectHeaderColor);
     ImGui::PushStyleColor(ImGuiCol_HeaderActive, winSelectColor);
 
     // 選択状態のエンティティIDを取得
@@ -813,6 +830,50 @@ void EntityHierarchy::LoadEntityCommand::Undo() {
     currentScene->DeleteEntity(entityId_);
 
     LOG_DEBUG("Removed entity with ID '{}'.", entityId_);
+}
+EntityHierarchy::CopyEntityCommand::CopyEntityCommand(EntityHierarchy* _hierarchy) : hierarchy_(_hierarchy) {}
+
+void EntityHierarchy::CopyEntityCommand::Execute() {
+    if (hierarchy_->selectedEntityIds_.empty()) {
+        return;
+    }
+    // Dataをコピー
+    auto currentScene = hierarchy_->parentArea_->GetParentWindow()->GetCurrentScene();
+    SceneSerializer serializer(currentScene);
+    for (auto entityId : hierarchy_->selectedEntityIds_) {
+        hierarchy_->copyBuffer_.emplace_back(serializer.EntityToJson(entityId));
+    }
+}
+
+void EntityHierarchy::CopyEntityCommand::Undo() {
+    // コピーしたデータをクリア
+    hierarchy_->copyBuffer_.clear();
+}
+
+EntityHierarchy::PasteEntityCommand::PasteEntityCommand(EntityHierarchy* _hierarchy) : hierarchy_(_hierarchy) {}
+
+void EntityHierarchy::PasteEntityCommand::Execute() {
+    if (hierarchy_->copyBuffer_.empty()) {
+        return;
+    }
+    // copyBufferのデータをシーンに貼り付け
+    auto currentScene = hierarchy_->parentArea_->GetParentWindow()->GetCurrentScene();
+
+    // 貼り付けて生成したエンティティIDを保存(削除に利用)
+    SceneSerializer serializer(currentScene);
+    for (const auto& entityJson : hierarchy_->copyBuffer_) {
+        Entity* createdEntity = serializer.EntityFromJson(entityJson);
+        pastedEntityIds_.emplace_back(createdEntity->GetID());
+    }
+}
+
+void EntityHierarchy::PasteEntityCommand::Undo() {
+    // 貼り付けたエンティティを削除
+    auto currentScene = hierarchy_->parentArea_->GetParentWindow()->GetCurrentScene();
+    for (auto entityId : pastedEntityIds_) {
+        currentScene->DeleteEntity(entityId);
+    }
+    pastedEntityIds_.clear();
 }
 
 void AddComponentCommand::Execute() {
@@ -1081,7 +1142,7 @@ void DevelopControlArea::ControlRegion::DrawGui() {
         std::string exePath = std::filesystem::current_path().string() + parentArea_->exePath_;
         LOG_DEBUG("ControlRegion::DrawGui: Executing application at path: {}", exePath);
 
-        std::string runCommand = std::format("{} {} {}",exePath ,"-s",currentScene->GetName()); // 実行ファイルパスと 実行する scene を送る
+        std::string runCommand = std::format("{} {} {}", exePath, "-s", currentScene->GetName()); // 実行ファイルパスと 実行する scene を送る
         // アプリケーションの実行
         int32_t result = std::system(runCommand.c_str());
         if (result != 0) {
