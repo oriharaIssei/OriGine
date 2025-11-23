@@ -58,16 +58,19 @@ void CreateLineMeshByShape(
     const math::bounds::AABB& _shape,
     const Vec4f& _color) {
 
+    Vec3f shapeMin = _shape.Min();
+    Vec3f shapeMax = _shape.Max();
+
     // AABBVertex
     Vector3f vertexes[aabbVertexSize]{
-        {_shape.min_},
-        {_shape.min_[X], _shape.min_[Y], _shape.max_[Z]},
-        {_shape.max_[X], _shape.min_[Y], _shape.max_[Z]},
-        {_shape.max_[X], _shape.min_[Y], _shape.min_[Z]},
-        {_shape.min_[X], _shape.max_[Y], _shape.min_[Z]},
-        {_shape.min_[X], _shape.max_[Y], _shape.max_[Z]},
-        {_shape.max_},
-        {_shape.max_[X], _shape.max_[Y], _shape.min_[Z]}};
+        {shapeMin},
+        {shapeMin[X], shapeMin[Y], shapeMax[Z]},
+        {shapeMax[X], shapeMin[Y], shapeMax[Z]},
+        {shapeMax[X], shapeMin[Y], shapeMin[Z]},
+        {shapeMin[X], shapeMax[Y], shapeMin[Z]},
+        {shapeMin[X], shapeMax[Y], shapeMax[Z]},
+        {shapeMax},
+        {shapeMax[X], shapeMax[Y], shapeMin[Z]}};
 
     // AABBIndex
     uint32_t indices[aabbIndexSize]{

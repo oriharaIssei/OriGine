@@ -1,13 +1,17 @@
 #include "AABBCollider.h"
 
 void to_json(nlohmann::json& _json, const AABBCollider& _a) {
-    _json["min"]       = _a.GetLocalMin();
-    _json["max"]       = _a.GetLocalMax();
+    _json["center"]    = _a.shape_.center;
+    _json["halfSize"]  = _a.shape_.halfSize;
     _json["transform"] = _a.transform_;
 }
 void from_json(const nlohmann::json& _json, AABBCollider& _a) {
-    _json.at("min").get_to(_a.shape_.min_);
-    _json.at("max").get_to(_a.shape_.max_);
+    if (_json.contains("center")) {
+        _json.at("center").get_to(_a.shape_.center);
+    }
+    if (_json.contains("halfSize")) {
+        _json.at("halfSize").get_to(_a.shape_.halfSize);
+    }
     _json.at("transform").get_to(_a.transform_);
 }
 
@@ -18,8 +22,8 @@ void AABBCollider::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity*
 
     std::string label = "AABB##" + _parentLabel;
     if (ImGui::TreeNode(label.c_str())) {
-        DragGuiVectorCommand<3, float>("Min##" + _parentLabel, this->shape_.min_, 0.01f);
-        DragGuiVectorCommand<3, float>("Max##" + _parentLabel, this->shape_.max_, 0.01f);
+        DragGuiVectorCommand<3, float>("Center##" + _parentLabel, this->shape_.center, 0.01f);
+        DragGuiVectorCommand<3, float>("HalfSize##" + _parentLabel, this->shape_.halfSize, 0.01f);
         ImGui::TreePop();
     }
     label = "Transform##" + _parentLabel;
@@ -33,6 +37,6 @@ void AABBCollider::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity*
 
 void AABBCollider::CalculateWorldShape() {
     transform_.UpdateMatrix();
-    this->worldShape_.min_ = Vec3f(transform_.worldMat[3]) + shape_.min_;
-    this->worldShape_.max_ = Vec3f(transform_.worldMat[3]) + shape_.max_;
+    this->worldShape_.center   = shape_.center * transform_.worldMat;
+    this->worldShape_.halfSize = shape_.halfSize * transform_.GetWorldScale();
 }

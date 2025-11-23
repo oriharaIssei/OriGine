@@ -44,6 +44,13 @@ public:
 
 public:
     Vec3f GetWorldTranslate() const { return worldMat[3]; }
+    Vec3f GetWorldScale() const {
+        Vec3f worldScale;
+        worldScale[X] = Vec3f::Length(worldMat[0]);
+        worldScale[Y] = Vec3f::Length(worldMat[1]);
+        worldScale[Z] = Vec3f::Length(worldMat[2]);
+        return worldScale;
+    }
 
 public:
     struct ConstantBuffer {

@@ -46,10 +46,12 @@ bool CheckCollisionPair(Entity* _entityA, Entity* _entityB, const math::bounds::
 template <>
 bool CheckCollisionPair(Entity* _aabbEntity, Entity* _sphereEntity, const math::bounds::AABB& _aabb, const math::bounds::Sphere& _sphere, CollisionPushBackInfo* _aabbInfo, CollisionPushBackInfo* _sphereInfo) {
     // AABBの最近接点を求める
+    Vec3f aabbMin = _aabb.Min();
+    Vec3f aabbMax = _aabb.Max();
     Vec3f closest = {
-        std::clamp(_sphere.center_[X], _aabb.min_[X], _aabb.max_[X]),
-        std::clamp(_sphere.center_[Y], _aabb.min_[Y], _aabb.max_[Y]),
-        std::clamp(_sphere.center_[Z], _aabb.min_[Z], _aabb.max_[Z])};
+        std::clamp(_sphere.center_[X], aabbMin[X], aabbMax[X]),
+        std::clamp(_sphere.center_[Y], aabbMin[Y], aabbMax[Y]),
+        std::clamp(_sphere.center_[Z], aabbMin[Z], aabbMax[Z])};
 
     Vec3f distance = closest - _sphere.center_;
 
@@ -188,13 +190,18 @@ bool CheckCollisionPair(Entity* _entityA, Entity* _entityB, const math::bounds::
 template <>
 bool CheckCollisionPair(Entity* _entityA, Entity* _entityB, const math::bounds::AABB& _shapeA, const math::bounds::AABB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
 
-    if (_shapeA.max_[X] < _shapeB.min_[X] || _shapeA.min_[X] > _shapeB.max_[X]) {
+    Vec3f aabbAMin = _shapeA.Min();
+    Vec3f aabbAMax = _shapeA.Max();
+    Vec3f aabbBMin = _shapeB.Min();
+    Vec3f aabbBMax = _shapeB.Max();
+
+    if (aabbAMax[X] < aabbBMin[X] || aabbAMin[X] > aabbBMax[X]) {
         return false;
     }
-    if (_shapeA.max_[Y] < _shapeB.min_[Y] || _shapeA.min_[Y] > _shapeB.max_[Y]) {
+    if (aabbAMax[Y] < aabbBMin[Y] || aabbAMin[Y] > aabbBMax[Y]) {
         return false;
     }
-    if (_shapeA.max_[Z] < _shapeB.min_[Z] || _shapeA.min_[Z] > _shapeB.max_[Z]) {
+    if (aabbAMax[Z] < aabbBMin[Z] || aabbAMin[Z] > aabbBMax[Z]) {
         return false;
     }
 
@@ -203,14 +210,14 @@ bool CheckCollisionPair(Entity* _entityA, Entity* _entityB, const math::bounds::
     }
 
     // 各軸ごとの重なり幅を計算
-    float overlapMinX = (std::max)(_shapeA.min_[X], _shapeB.min_[X]);
-    float overlapMaxX = (std::min)(_shapeA.max_[X], _shapeB.max_[X]);
+    float overlapMinX = (std::max)(aabbAMin[X], aabbBMin[X]);
+    float overlapMaxX = (std::min)(aabbAMax[X], aabbBMax[X]);
 
-    float overlapMinY = (std::max)(_shapeA.min_[Y], _shapeB.min_[Y]);
-    float overlapMaxY = (std::min)(_shapeA.max_[Y], _shapeB.max_[Y]);
+    float overlapMinY = (std::max)(aabbAMin[Y], aabbBMin[Y]);
+    float overlapMaxY = (std::min)(aabbAMax[Y], aabbBMax[Y]);
 
-    float overlapMinZ = (std::max)(_shapeA.min_[Z], _shapeB.min_[Z]);
-    float overlapMaxZ = (std::min)(_shapeA.max_[Z], _shapeB.max_[Z]);
+    float overlapMinZ = (std::max)(aabbAMin[Z], aabbBMin[Z]);
+    float overlapMaxZ = (std::min)(aabbAMax[Z], aabbBMax[Z]);
 
     // 各軸ごとの重なり区間
     float overlapX = overlapMaxX - overlapMinX;
@@ -236,10 +243,10 @@ bool CheckCollisionPair(Entity* _entityA, Entity* _entityB, const math::bounds::
     float overlapRate = 1.f / (float(aIsPushBack) + float(bIsPushBack));
 
     // 各AABBの中心&halfSizeを計算
-    Vec3f aHalfSize = (_shapeA.max_ - _shapeA.min_) * 0.5f;
-    Vec3f bHalfSize = (_shapeB.max_ - _shapeB.min_) * 0.5f;
-    Vec3f aCenter   = _shapeA.min_ + aHalfSize;
-    Vec3f bCenter   = _shapeB.min_ + bHalfSize;
+    Vec3f aHalfSize = (aabbAMax - aabbAMin) * 0.5f;
+    Vec3f bHalfSize = (aabbBMax - aabbBMin) * 0.5f;
+    Vec3f aCenter   = aabbAMin + aHalfSize;
+    Vec3f bCenter   = aabbBMin + bHalfSize;
 
     // 押し出し方向を決定
     float dir = (aCenter[axis] < bCenter[axis]) ? -1.0f : 1.0f;
@@ -403,12 +410,10 @@ template <>
 bool CheckCollisionPair(Entity* _entityA, Entity* _entityB, const math::bounds::AABB& _shapeA, const math::bounds::OBB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
 
     // --- AABB を OBB と同じ形式に変換 ---
-    Vec3f aCenter   = (_shapeA.min_ + _shapeA.max_) * 0.5f;
-    Vec3f aHalfSize = (_shapeA.max_ - _shapeA.min_) * 0.5f;
 
     math::bounds::OBB aAsOBB;
-    aAsOBB.center_       = aCenter;
-    aAsOBB.halfSize_     = aHalfSize;
+    aAsOBB.center_       = _shapeA.center;
+    aAsOBB.halfSize_     = _shapeA.halfSize;
     aAsOBB.orientations_ = Orientation::Identity();
 
     // --- OBB vs OBB 判定を使う ---
