@@ -568,16 +568,18 @@ void EntityHierarchy::DrawGui() {
     const auto& keyboardInput = InputManager::GetInstance()->GetKeyboard();
 
     /// コピー & ペースト
-    if (keyboardInput->IsPress(Key::L_CTRL) || keyboardInput->IsPress(Key::R_CTRL)) {
-        // コピー
-        if (keyboardInput->IsTrigger(Key::C)) {
-            auto command = std::make_unique<CopyEntityCommand>(this);
-            EditorController::GetInstance()->PushCommand(std::move(command));
-        }
-        // ペースト
-        if (keyboardInput->IsTrigger(Key::V)) {
-            auto command = std::make_unique<PasteEntityCommand>(this);
-            EditorController::GetInstance()->PushCommand(std::move(command));
+    if (parentArea_->IsFocused().Current()) {
+        if (keyboardInput->IsPress(Key::L_CTRL) || keyboardInput->IsPress(Key::R_CTRL)) {
+            // コピー
+            if (keyboardInput->IsTrigger(Key::C)) {
+                auto command = std::make_unique<CopyEntityCommand>(this);
+                EditorController::GetInstance()->PushCommand(std::move(command));
+            }
+            // ペースト
+            if (keyboardInput->IsTrigger(Key::V)) {
+                auto command = std::make_unique<PasteEntityCommand>(this);
+                EditorController::GetInstance()->PushCommand(std::move(command));
+            }
         }
     }
 
@@ -837,6 +839,11 @@ void EntityHierarchy::CopyEntityCommand::Execute() {
     if (hierarchy_->selectedEntityIds_.empty()) {
         return;
     }
+    // 既存のコピー内容をクリア
+    if (!hierarchy_->copyBuffer_.empty()) {
+        hierarchy_->copyBuffer_.clear();
+    }
+
     // Dataをコピー
     auto currentScene = hierarchy_->parentArea_->GetParentWindow()->GetCurrentScene();
     SceneSerializer serializer(currentScene);
