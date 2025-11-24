@@ -51,5 +51,5 @@ protected:
     bool ShouldSkipPostRender() const override;
 
 private:
-    std::vector<Scene*> scenes_;
+    std::vector<std::pair<int32_t, Scene*>> scenes_;
 };

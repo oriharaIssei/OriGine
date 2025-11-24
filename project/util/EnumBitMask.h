@@ -70,7 +70,7 @@ public:
     constexpr explicit operator bool() const noexcept { return value_ != 0; }
 
     // Enum値取得
-    constexpr EnumType toEnum() const noexcept { return static_cast<E>(value_); }
+    constexpr EnumType ToEnum() const noexcept { return static_cast<E>(value_); }
 
 protected:
     UnderlyingType value_;

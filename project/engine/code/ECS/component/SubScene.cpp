@@ -24,6 +24,10 @@ void SubScene::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _en
 
     CheckBoxCommand("IsActive##" + _parentLabel, isActive_);
 
+    InputGuiCommand("RenderingPriority##" + _parentLabel, renderingPriority_, "%d");
+
+    ImGui::Spacing();
+
     std::string label = "SceneName##" + _parentLabel;
     if (ImGui::BeginCombo(label.c_str(), sceneName_.c_str())) {
         std::list<std::pair<std::string, std::string>> sceneList = myfs::searchFile(kApplicationResourceDirectory + "/scene", "json");
@@ -79,9 +83,13 @@ void to_json(nlohmann::json& j, const SubScene& scene) {
     j = nlohmann::json{
         {"isActive", scene.isActive_},
         {"sceneName", scene.sceneName_},
+        {"renderingPriority", scene.renderingPriority_},
     };
 }
 void from_json(const nlohmann::json& j, SubScene& scene) {
     j.at("isActive").get_to(scene.isActive_);
     j.at("sceneName").get_to(scene.sceneName_);
+    if (j.contains("renderingPriority")) {
+        j.at("renderingPriority").get_to(scene.renderingPriority_);
+    }
 }
