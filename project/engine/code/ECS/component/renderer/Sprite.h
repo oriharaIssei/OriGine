@@ -100,6 +100,10 @@ public:
     /// 位置とサイズからウィンドウ比率を計算
     /// </summary>
     void CalculatePosRatioAndSizeRatio();
+    /// <summary>
+    /// 位置とサイズからウィンドウ比率を計算
+    /// </summary>
+    void CalculatePosRatioAndSizeRatio(const Vec2f& _newWindowSize);
 
 private:
     int32_t renderPriority_ = 1;

@@ -26,11 +26,29 @@ public:
         current_ = value;
     }
 
+    /// <summary>
     /// 現在値を取得
+    /// </summary>
+    /// <returns>現在値</returns>
     const T& Current() const { return current_; }
 
+    /// <summary>
+    /// 現在値の参照を取得
+    /// </summary>
+    /// <returns></returns>
+    T& CurrentRef() { return current_; }
+
+    /// <summary>
     /// 前回値を取得
+    /// </summary>
+    /// <returns>前回値</returns>
     const T& Prev() const { return prev_; }
+
+    /// <summary>
+    /// 前回値の参照を取得
+    /// </summary>
+    /// <returns></returns>
+    T& PrevRef() { return prev_; }
 
     /// 差分を取得
     T Delta() const { return current_ - prev_; }

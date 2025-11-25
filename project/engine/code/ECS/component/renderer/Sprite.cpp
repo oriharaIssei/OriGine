@@ -213,6 +213,11 @@ void SpriteRenderer::CalculatePosRatioAndSizeRatio() {
     }
 }
 
+void SpriteRenderer::CalculatePosRatioAndSizeRatio(const Vec2f& _newWindowSize) {
+    defaultWindowSize_ = _newWindowSize;
+    CalculatePosRatioAndSizeRatio();
+}
+
 void SpriteRenderer::SetTexture(const std::string& _texturePath, bool _applyTextureSize) {
     texturePath_ = _texturePath;
     // テクスチャの読み込みとサイズの適応
