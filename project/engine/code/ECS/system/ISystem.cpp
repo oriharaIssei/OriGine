@@ -7,7 +7,7 @@
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
-void ISystem::eraseDeadEntity() {
+void ISystem::EraseDeadEntity() {
     auto* entityRepository_ = scene_->GetEntityRepositoryRef();
     std::erase_if(entityIDs_, [&entityRepository_](int32_t _entityID) {
         Entity* entity = entityRepository_->GetEntity(_entityID);
@@ -78,7 +78,7 @@ void ISystem::Update() {
         return;
     }
 
-    eraseDeadEntity();
+    EraseDeadEntity();
 
     for (auto& entityID : entityIDs_) {
         Entity* entity = scene_->GetEntityRepositoryRef()->GetEntity(entityID);

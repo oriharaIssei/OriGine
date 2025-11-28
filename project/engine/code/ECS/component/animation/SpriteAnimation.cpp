@@ -4,6 +4,12 @@
 #include "component/renderer/Sprite.h"
 
 #ifdef _DEBUG
+/// engine
+#include "scene/Scene.h"
+
+#include "component/ComponentArray.h"
+
+/// gui
 #include "myGui/MyGui.h"
 #include "util/timeline/Timeline.h"
 #endif // _DEBUG
@@ -19,9 +25,23 @@ void SpriteAnimation::Initialize(Entity* /*_hostEntity*/) {
     currentTime_ = 0.0f;
 }
 
-void SpriteAnimation::Edit(Scene* /*_scene*/, Entity* /* _entity*/, [[maybe_unused]] [[maybe_unused]] const std::string& _parentLabel) {
+void SpriteAnimation::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
-    std::string label = "Duration##" + _parentLabel;
+    std::string label = "SpriteComponentIndex##" + _parentLabel;
+
+    {
+        auto* spriteComponents = _scene->GetComponents<SpriteRenderer>(_entity);
+        if (spriteComponents) {
+            int32_t maxIndex = static_cast<int32_t>(spriteComponents->size()) - 1;
+            DragGuiCommand(label, spriteComponentIndex_, 1, 0, maxIndex, "%d");
+        } else {
+            ImGui::Text("Haven't Sprites !");
+        }
+    }
+
+    ImGui::Spacing();
+
+    label = "Duration##" + _parentLabel;
     DragGuiCommand(label, duration_, 0.1f, 0.0f, 100.0f, "%.3f");
 
     ImGui::Spacing();
@@ -156,13 +176,13 @@ void SpriteAnimation::UpdateSpriteAnimation(float _deltaTime, SpriteRenderer* _s
             currentTime_ = 0.0f;
         } else {
             transformAnimationState_.isPlay_ = false;
-            transformAnimationState_.isEnd_ = true;
+            transformAnimationState_.isEnd_  = true;
         }
         if (uvAnimationState_.isLoop_) {
             currentTime_ = 0.0f;
         } else {
             uvAnimationState_.isPlay_ = false;
-            uvAnimationState_.isEnd_ = true;
+            uvAnimationState_.isEnd_  = true;
         }
     }
 
@@ -170,10 +190,10 @@ void SpriteAnimation::UpdateSpriteAnimation(float _deltaTime, SpriteRenderer* _s
     if (colorAnimationState_.isPlay_) {
         switch (colorInterpolationType_) {
         case InterpolationType::LINEAR:
-            _spriteRenderer->SetColor(CalculateValue::Linear(colorCurve_, currentTime_));
+            _spriteRenderer->SetColor(colorCurve_.empty() ? _spriteRenderer->GetColor() : CalculateValue::Linear(colorCurve_, currentTime_));
             break;
         case InterpolationType::STEP:
-            _spriteRenderer->SetColor(CalculateValue::Step(colorCurve_, currentTime_));
+            _spriteRenderer->SetColor(colorCurve_.empty() ? _spriteRenderer->GetColor() : CalculateValue::Step(colorCurve_, currentTime_));
             break;
         default:
             break;
@@ -184,14 +204,14 @@ void SpriteAnimation::UpdateSpriteAnimation(float _deltaTime, SpriteRenderer* _s
     if (transformAnimationState_.isPlay_) {
         switch (transformInterpolationType_) {
         case InterpolationType::LINEAR:
-            _spriteRenderer->SetScale(CalculateValue::Linear(scaleCurve_, currentTime_));
-            _spriteRenderer->SetRotate(CalculateValue::Linear(rotateCurve_, currentTime_));
-            _spriteRenderer->SetTranslate(CalculateValue::Linear(translateCurve_, currentTime_));
+            _spriteRenderer->SetScale(scaleCurve_.empty() ? _spriteRenderer->GetScale() : CalculateValue::Linear(scaleCurve_, currentTime_));
+            _spriteRenderer->SetRotate(rotateCurve_.empty() ? _spriteRenderer->GetRotate() : CalculateValue::Linear(rotateCurve_, currentTime_));
+            _spriteRenderer->SetTranslate(translateCurve_.empty() ? _spriteRenderer->GetTranslate() : CalculateValue::Linear(translateCurve_, currentTime_));
             break;
         case InterpolationType::STEP:
-            _spriteRenderer->SetScale(CalculateValue::Step(scaleCurve_, currentTime_));
-            _spriteRenderer->SetRotate(CalculateValue::Step(rotateCurve_, currentTime_));
-            _spriteRenderer->SetTranslate(CalculateValue::Step(translateCurve_, currentTime_));
+            _spriteRenderer->SetScale(scaleCurve_.empty() ? _spriteRenderer->GetScale() : CalculateValue::Step(scaleCurve_, currentTime_));
+            _spriteRenderer->SetRotate(rotateCurve_.empty() ? _spriteRenderer->GetRotate() : CalculateValue::Step(rotateCurve_, currentTime_));
+            _spriteRenderer->SetTranslate(translateCurve_.empty() ? _spriteRenderer->GetTranslate() : CalculateValue::Step(translateCurve_, currentTime_));
             break;
         default:
             break;
@@ -202,14 +222,14 @@ void SpriteAnimation::UpdateSpriteAnimation(float _deltaTime, SpriteRenderer* _s
     if (uvAnimationState_.isPlay_) {
         switch (uvInterpolationType_) {
         case InterpolationType::LINEAR:
-            _spriteRenderer->SetUVScale(CalculateValue::Linear(uvscaleCurve_, currentTime_));
-            _spriteRenderer->SetUVRotate(CalculateValue::Linear(uvRotateCurve_, currentTime_));
-            _spriteRenderer->SetUVTranslate(CalculateValue::Linear(uvTranslateCurve_, currentTime_));
+            _spriteRenderer->SetUVScale(    uvscaleCurve_.empty() ? _spriteRenderer->GetUVScale() : CalculateValue::Linear(uvscaleCurve_, currentTime_));
+            _spriteRenderer->SetUVRotate(   uvRotateCurve_.empty() ? _spriteRenderer->GetUVRotate() : CalculateValue::Linear(uvRotateCurve_, currentTime_));
+            _spriteRenderer->SetUVTranslate(uvTranslateCurve_.empty() ? _spriteRenderer->GetUVTranslate() : CalculateValue::Linear(uvTranslateCurve_, currentTime_));
             break;
         case InterpolationType::STEP:
-            _spriteRenderer->SetUVScale(CalculateValue::Step(uvscaleCurve_, currentTime_));
-            _spriteRenderer->SetUVRotate(CalculateValue::Step(uvRotateCurve_, currentTime_));
-            _spriteRenderer->SetUVTranslate(CalculateValue::Step(uvTranslateCurve_, currentTime_));
+            _spriteRenderer->SetUVScale(uvscaleCurve_.empty() ? _spriteRenderer->GetUVScale() : CalculateValue::Step(uvscaleCurve_, currentTime_));
+            _spriteRenderer->SetUVRotate(uvRotateCurve_.empty() ? _spriteRenderer->GetUVRotate() : CalculateValue::Step(uvRotateCurve_, currentTime_));
+            _spriteRenderer->SetUVTranslate(uvTranslateCurve_.empty() ? _spriteRenderer->GetUVTranslate() : CalculateValue::Step(uvTranslateCurve_, currentTime_));
             break;
         default:
             break;

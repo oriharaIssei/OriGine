@@ -308,6 +308,19 @@ void MaterialAnimation::Stop() {
     animationState_.isPlay_ = false;
 }
 
+void MaterialAnimation::RescaleDuration(float _newDuration) {
+    auto rescaleCurve = [_newDuration, this](auto& _curve) {
+        for (auto& key : _curve) {
+            key.time = (key.time / duration_) * _newDuration;
+        }
+    };
+    rescaleCurve(colorCurve_);
+    rescaleCurve(uvscaleCurve_);
+    rescaleCurve(uvRotateCurve_);
+    rescaleCurve(uvTranslateCurve_);
+    duration_ = _newDuration;
+}
+
 void MaterialAnimation::UpdateMaterialAnimation(Material* _material) {
     if (animationState_.isLoop_) {
         if (!animationState_.isPlay_) {

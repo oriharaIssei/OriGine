@@ -53,6 +53,8 @@ public:
     void PlayUVAnimation();
 
 private:
+    int32_t spriteComponentIndex_ = -1;
+
     float duration_    = 0.0f; // (秒)
     float currentTime_ = 0.0f; // (秒)
 
@@ -71,4 +73,31 @@ private:
     AnimationCurve<Vec2f> uvscaleCurve_     = {};
     AnimationCurve<float> uvRotateCurve_    = {};
     AnimationCurve<Vec2f> uvTranslateCurve_ = {};
+
+public:
+    bool IsPlaying() const {
+        return colorAnimationState_.isPlay_ || transformAnimationState_.isPlay_ || uvAnimationState_.isPlay_;
+    }
+    bool IsColorAnimationPlaying() const { return colorAnimationState_.isPlay_; }
+    bool IsTransformAnimationPlaying() const { return transformAnimationState_.isPlay_; }
+    bool IsUVAnimationPlaying() const { return uvAnimationState_.isPlay_; }
+
+    bool IsEnded() const {
+        return colorAnimationState_.isEnd_ && transformAnimationState_.isEnd_ && uvAnimationState_.isEnd_;
+    }
+    bool IsColorAnimationEnded() const { return colorAnimationState_.isEnd_; }
+    bool IsTransformAnimationEnded() const { return transformAnimationState_.isEnd_; }
+    bool IsUVAnimationEnded() const { return uvAnimationState_.isEnd_; }
+
+    int32_t GetSpriteComponentIndex() const { return spriteComponentIndex_; }
+    void SetSpriteComponentIndex(int32_t _index) { spriteComponentIndex_ = _index; }
+
+    AnimationCurve<Vec4f>& GetColorCurve() { return colorCurve_; }
+    AnimationCurve<Vec2f>& GetScaleCurve() { return scaleCurve_; }
+    AnimationCurve<float>& GetRotateCurve() { return rotateCurve_; }
+    AnimationCurve<Vec2f>& GetTranslateCurve() { return translateCurve_; }
+
+    AnimationCurve<Vec2f>& GetUVScaleCurve() { return uvscaleCurve_; }
+    AnimationCurve<float>& GetUVRotateCurve() { return uvRotateCurve_; }
+    AnimationCurve<Vec2f>& GetUVTranslateCurve() { return uvTranslateCurve_; }
 };

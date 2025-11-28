@@ -54,7 +54,7 @@ void MaterialEffect::Initialize() {
 }
 
 void MaterialEffect::Update() {
-    eraseDeadEntity();
+    EraseDeadEntity();
 
     if (entityIDs_.empty()) {
         return;

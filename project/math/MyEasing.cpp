@@ -1,5 +1,8 @@
 #include "MyEasing.h"
 
+float Liner(float _t) {
+    return _t;
+}
 
 float EaseInSine(float _time) {
     float easedT_ = 1.0f - std::cosf((_time * pi_float) / 2.0f);
@@ -198,3 +201,31 @@ float EaseInOutBounce(float _t) {
     }
     return easedT_;
 }
+
+#ifdef _DEBUG
+#include "editor/EditorController.h"
+#include <imgui/imgui.h>
+
+void EasingComboGui(const std::string& _label, EaseType& _easeType) {
+    if (ImGui::BeginCombo(_label.c_str(), EasingNames[_easeType].c_str())) {
+        bool isSelected   = false;
+        int32_t easeIndex = 0;
+        for (const auto& [type, name] : EasingNames) {
+            isSelected = name == EasingNames[_easeType];
+            if (ImGui::Selectable(name.c_str(), isSelected)) {
+                if (_easeType != type) {
+                    // command 発行
+                    EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<EaseType>>(&_easeType, type));
+                }
+                _easeType = type;
+            }
+            if (isSelected) {
+                ImGui::SetItemDefaultFocus();
+            }
+            ++easeIndex;
+        }
+        ImGui::EndCombo();
+    }
+}
+
+#endif // DEBUG

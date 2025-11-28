@@ -35,7 +35,7 @@ public:
     virtual void Edit();
     virtual void Finalize() = 0;
 
-    void eraseDeadEntity();
+    void EraseDeadEntity();
 
 protected:
     /// <summary>
@@ -51,7 +51,7 @@ protected:
     Entity* GetEntity(int32_t _entityID);
     Entity* GetUniqueEntity(const std::string& _dataTypeName);
     int32_t CreateEntity(const std::string& _dataTypeName, bool _isUnique = false);
-
+    
     IComponentArray* GetComponentArray(const std::string& _typeName);
     template <IsComponent ComponentType>
     ComponentArray<ComponentType>* GetComponentArray() {

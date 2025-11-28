@@ -94,7 +94,7 @@ void Scene::ExecuteDeleteEntities() {
     deleteEntities_.clear();
 }
 
-void Scene::addDeleteEntity(int32_t entityId) {
+void Scene::AddDeleteEntity(int32_t entityId) {
     if (entityId < 0) {
         LOG_ERROR("Scene::addDeleteEntity: Invalid entity ID: {}", entityId);
         return;

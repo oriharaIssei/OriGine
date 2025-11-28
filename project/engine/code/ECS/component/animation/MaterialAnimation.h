@@ -2,9 +2,6 @@
 
 #include "component/IComponent.h"
 
-/// stl
-#include <memory>
-
 /// engine
 // component
 #include "component/animation/AnimationData.h"
@@ -38,6 +35,12 @@ public:
     /// アニメーションを停止する
     /// </summary>
     void Stop();
+
+    /// <summary>
+    /// 各ノードのキーフレーム時間を新しいdurationに合わせてリスケールする
+    /// </summary>
+    /// <param name="_newDuration"></param>
+    void RescaleDuration(float _newDuration);
 
 protected:
     void UpdateMaterialAnimation(Material* _material);

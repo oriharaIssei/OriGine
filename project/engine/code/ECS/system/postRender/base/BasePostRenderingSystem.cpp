@@ -16,7 +16,7 @@ void BasePostRenderingSystem::Update() {
     }
 
     // 無効エンティティの削除
-    eraseDeadEntity();
+    EraseDeadEntity();
 
     // renderTargetがnullなら sceneのsceneViewをセットする
     if (renderTarget_ == nullptr) {

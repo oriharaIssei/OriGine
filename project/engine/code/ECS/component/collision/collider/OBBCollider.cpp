@@ -49,7 +49,7 @@ void OBBCollider::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* 
 void OBBCollider::CalculateWorldShape() {
     transform_.UpdateMatrix();
     this->worldShape_.center_           = transform_.GetWorldTranslate() + shape_.center_;
-    this->worldShape_.halfSize_         = shape_.halfSize_ * transform_.scale;
+    this->worldShape_.halfSize_         = shape_.halfSize_ * transform_.GetWorldScale();
     this->worldShape_.orientations_.rot = shape_.orientations_.rot * transform_.CalculateWorldRotate();
     this->worldShape_.orientations_.UpdateAxes();
 }

@@ -25,7 +25,7 @@ void GpuParticleInitialize::Update() {
     if (entityIDs_.empty()) {
         return;
     }
-    ISystem::eraseDeadEntity();
+    ISystem::EraseDeadEntity();
 
     usingCS_ = false;
 

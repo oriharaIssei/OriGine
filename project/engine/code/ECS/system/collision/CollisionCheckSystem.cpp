@@ -27,7 +27,7 @@ void CollisionCheckSystem::Initialize() {
 }
 
 void CollisionCheckSystem::Update() {
-    eraseDeadEntity();
+    EraseDeadEntity();
 
     entities_.clear();
     for (auto id : entityIDs_) {

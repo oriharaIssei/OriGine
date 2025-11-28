@@ -99,7 +99,7 @@ public:
     /// エンティティを削除予定リストに追加する
     /// </summary>
     /// <param name="entityId"></param>
-    void addDeleteEntity(int32_t entityId);
+    void AddDeleteEntity(int32_t entityId);
     /// <summary>
     /// __非推奨__
     /// エンティティを即時削除する

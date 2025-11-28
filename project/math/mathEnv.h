@@ -5,15 +5,19 @@
 /// =========================================================
 
 // 標準ライブラリ
+#include <charconv>
 #include <cmath>
+#include <concepts>
 #include <cstdint>
 #include <limits>
 #include <numbers>
+#include <string>
+#include <system_error>
 
 /// ----------------------------------------------
-/// 色チャンネル
+/// 色 関連
 /// ----------------------------------------------
-enum class ColorChannel {
+enum class ColorChannel : uint8_t {
     R = 0,
     G,
     B,
@@ -96,3 +100,82 @@ enum class RotationOrder {
 constexpr float kMinNormalizedFloat = -1.0f;
 constexpr float kMaxNormalizedFloat = 1.0f;
 constexpr float kUnitLength         = 1.0f;
+
+/// ----------------------------------------------
+/// utilities
+/// ----------------------------------------------
+
+/// <summary>
+/// 数値の ”整数部” の桁数を取得（整数型用）
+/// </summary>
+/// <typeparam name="T"></typeparam>
+/// <param name="value"></param>
+/// <returns></returns>
+template <std::integral T>
+T CountIntegralDigits(T value) {
+    if (value == 0) {
+        return 1;
+    }
+    // 桁数 = log10(絶対値) + 1
+    return log10(std::abs(value)) + 1;
+}
+
+/// <summary>
+/// 数値の ”整数部” の桁数を取得（浮動小数点型用）
+/// </summary>
+/// <typeparam name="T"></typeparam>
+/// <typeparam name="ReturnT"></typeparam>
+/// <param name="value"></param>
+/// <returns></returns>
+template <std::floating_point T, std::integral ReturnT = size_t>
+ReturnT CountIntegralDigits(T value) {
+    if (value == 0.0f) {
+        return 1;
+    }
+    // 桁数 = floor( log10(絶対値) ) + 1
+    return static_cast<ReturnT>(std::floor(std::log10(std::abs(value)))) + 1;
+}
+
+/// <summary>
+/// 数値の ”小数部” の桁数を取得（浮動小数点型用）
+/// </summary>
+/// <typeparam name="T"></typeparam>
+/// <typeparam name="ReturnT"></typeparam>
+/// <param name="value"></param>
+/// <returns></returns>
+template <std::floating_point T, std::integral ReturnT = size_t>
+ReturnT CountDecimalDigits(T value) {
+    constexpr size_t kBufferSize       = 64;
+    constexpr size_t kMaxDecimalPlaces = 20;
+
+    // 小数点以下がほぼ 0 の場合 → 0
+    T fractionalPart = std::abs(value - static_cast<T>(static_cast<int64_t>(value)));
+    if (fractionalPart < kEpsilon) {
+        return 0;
+    }
+
+    char buf[kBufferSize];
+
+    // ※ 20 桁まで固定小数で文字列化
+    auto [ptr, ec] = std::to_chars(buf, buf + sizeof(buf), fractionalPart,
+        std::chars_format::fixed, kMaxDecimalPlaces);
+    if (ec != std::errc{}) {
+        return 0;
+    }
+
+    std::string s(buf, ptr);
+
+    // 小数点なし → 0
+    auto pos = static_cast<ReturnT>(s.find('.'));
+    if (pos == std::string::npos) {
+        return 0;
+    }
+
+    // 小数点以下の末尾 0 を削る
+    ReturnT end = static_cast<ReturnT>(s.size());
+    while (end > pos + 1 && s[end - 1] == '0') {
+        end--;
+    }
+
+    return end - (pos + 1);
+}

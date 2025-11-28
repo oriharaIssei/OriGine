@@ -17,7 +17,7 @@ void BaseRenderSystem::Update() {
     }
 
     // 有効でないエンティティを削除
-    eraseDeadEntity();
+    EraseDeadEntity();
 
     // レンダラー登録
     auto* hostScene = GetScene();
