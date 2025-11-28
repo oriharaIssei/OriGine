@@ -309,9 +309,6 @@
     <ClInclude Include="engine\code\ECS\component\effect\post\DistortionEffectParam.h">
       <Filter>engine\code\ECS\component\effect\post</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\ECS\component\effect\post\GradationTextureComponent.h">
-      <Filter>engine\code\ECS\component\effect\post</Filter>
-    </ClInclude>
     <ClInclude Include="engine\code\ECS\component\effect\post\RadialBlurParam.h">
       <Filter>engine\code\ECS\component\effect\post</Filter>
     </ClInclude>
@@ -777,6 +774,7 @@
     <ClInclude Include="util\timeline\Timeline.h">
       <Filter>util\timeline</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\effect\post\GradationComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="editor\EditorController.cpp">
@@ -882,9 +880,6 @@
       <Filter>engine\code\ECS\component\effect\post</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\component\effect\post\DistortionEffectParam.cpp">
-      <Filter>engine\code\ECS\component\effect\post</Filter>
-    </ClCompile>
-    <ClCompile Include="engine\code\ECS\component\effect\post\GradationTextureComponent.cpp">
       <Filter>engine\code\ECS\component\effect\post</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\component\effect\post\RadialBlurParam.cpp">
@@ -1256,5 +1251,6 @@
     <ClCompile Include="util\timeline\Timeline.cpp">
       <Filter>util\timeline</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\ECS\component\effect\post\GradationComponent.cpp" />
   </ItemGroup>
 </Project>

@@ -5,7 +5,7 @@
 #include "texture/TextureManager.h"
 
 // component
-#include "component/effect/post/GradationTextureComponent.h"
+#include "component/effect/post/GradationComponent.h"
 
 // directX12
 #include "directX12/DxDevice.h"
@@ -56,7 +56,7 @@ void GradationEffect::CreatePSO() {
     /// RootParameter の設定
     ///================================================
     // Texture だけ
-    D3D12_ROOT_PARAMETER rootParameter[4]    = {};
+    D3D12_ROOT_PARAMETER rootParameter[3]    = {};
     D3D12_DESCRIPTOR_RANGE sceneViewRange[1] = {};
     sceneViewRange[0].BaseShaderRegister     = 0;
     sceneViewRange[0].NumDescriptors         = 1;
@@ -70,29 +70,15 @@ void GradationEffect::CreatePSO() {
     rootParameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
     size_t sceneViewParamIdx          = shaderInfo.pushBackRootParameter(rootParameter[0]);
     shaderInfo.SetDescriptorRange2Parameter(sceneViewRange, 1, sceneViewParamIdx);
-
-    D3D12_DESCRIPTOR_RANGE effectTexRange[1] = {};
-    effectTexRange[0].BaseShaderRegister     = 1;
-    effectTexRange[0].NumDescriptors         = 1;
-    // SRV を扱うように設定
-    effectTexRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-    // offset を自動計算するように 設定
-    effectTexRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-
-    // DescriptorTable を使う
-    rootParameter[1].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+    // Gradation Parameter
+    rootParameter[1].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_CBV;
     rootParameter[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-    size_t effectTexParamIdx          = shaderInfo.pushBackRootParameter(rootParameter[1]);
-    shaderInfo.SetDescriptorRange2Parameter(effectTexRange, 1, effectTexParamIdx);
-
-    rootParameter[2].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_CBV;
-    rootParameter[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+    shaderInfo.pushBackRootParameter(rootParameter[1]);
+    // Material
+    rootParameter[2].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
+    rootParameter[2].ShaderVisibility          = D3D12_SHADER_VISIBILITY_PIXEL;
+    rootParameter[2].Descriptor.ShaderRegister = 1;
     shaderInfo.pushBackRootParameter(rootParameter[2]);
-
-    rootParameter[3].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
-    rootParameter[3].ShaderVisibility          = D3D12_SHADER_VISIBILITY_PIXEL;
-    rootParameter[3].Descriptor.ShaderRegister = 1;
-    shaderInfo.pushBackRootParameter(rootParameter[3]);
 
     ///================================================
     /// InputElement の設定
@@ -133,13 +119,12 @@ void GradationEffect::Rendering() {
         // レンダリング開始処理
         RenderStart();
 
-        auto& paramBuff   = data.effectParam->GetParamBuff();
-        auto& uvTransBuff = data.effectParam->GetMaterialBuff();
+        auto& paramBuff   = data->GetParamBuff();
+        auto& uvTransBuff = data->GetMaterialBuff();
 
-        commandList->SetGraphicsRootDescriptorTable(0, data.srvHandle);
-        commandList->SetGraphicsRootDescriptorTable(1, renderTarget_->GetBackBufferSrvHandle());
-        paramBuff.SetForRootParameter(commandList, 2);
-        uvTransBuff.SetForRootParameter(commandList, 3);
+        commandList->SetGraphicsRootDescriptorTable(0, renderTarget_->GetBackBufferSrvHandle());
+        paramBuff.SetForRootParameter(commandList, 1);
+        uvTransBuff.SetForRootParameter(commandList, 2);
 
         // 描画
         commandList->DrawInstanced(6, 1, 0, 0);
@@ -156,7 +141,7 @@ void GradationEffect::RenderEnd() {
 }
 
 void GradationEffect::DispatchComponent(Entity* _entity) {
-    auto effectParams = GetComponents<GradationTextureComponent>(_entity);
+    auto effectParams = GetComponents<GradationComponent>(_entity);
 
     if (!effectParams) {
         return; // コンポーネントがない場合は何もしない
@@ -166,9 +151,6 @@ void GradationEffect::DispatchComponent(Entity* _entity) {
         if (!param.IsActive()) {
             continue;
         }
-        RenderingData data{};
-
-        D3D12_GPU_DESCRIPTOR_HANDLE texHandle = TextureManager::GetDescriptorGpuHandle(param.GetTextureIndex());
 
         int32_t materialIndex = param.GetMaterialIndex();
         auto& uvTransBuff     = param.GetMaterialBuff();
@@ -177,17 +159,11 @@ void GradationEffect::DispatchComponent(Entity* _entity) {
             material->UpdateUvMatrix();
 
             uvTransBuff.ConvertToBuffer(ColorAndUvTransform(material->color_, material->uvTransform_));
-
-            if (material->hasCustomTexture()) {
-                texHandle = material->GetCustomTexture()->srv_.GetGpuHandle();
-            }
         }
 
         param.GetParamBuff().ConvertToBuffer();
 
-        data.effectParam = &param;
-        data.srvHandle   = texHandle;
-        activeRenderingData_.emplace_back(data);
+        activeRenderingData_.emplace_back(&param);
     }
 }
 

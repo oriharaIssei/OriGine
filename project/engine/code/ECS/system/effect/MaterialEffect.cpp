@@ -6,7 +6,7 @@
 /// ECS
 #include "component/effect/post/DissolveEffectParam.h"
 #include "component/effect/post/DistortionEffectParam.h"
-#include "component/effect/post/GradationTextureComponent.h"
+#include "component/effect/post/GradationComponent.h"
 #include "component/material/Material.h"
 
 MaterialEffect::MaterialEffect() : ISystem(SystemCategory::Effect) {}

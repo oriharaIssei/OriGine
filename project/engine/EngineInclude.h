@@ -117,7 +117,7 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 #include "component/effect/particle/gpuParticle/GpuParticle.h"
 #include "component/effect/post/DissolveEffectParam.h"
 #include "component/effect/post/DistortionEffectParam.h"
-#include "component/effect/post/GradationTextureComponent.h"
+#include "component/effect/post/GradationComponent.h"
 #include "component/effect/post/RadialBlurParam.h"
 #include "component/effect/post/RandomEffectParam.h"
 #include "component/effect/post/SpeedlineEffectParam.h"

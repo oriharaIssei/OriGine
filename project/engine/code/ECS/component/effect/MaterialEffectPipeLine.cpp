@@ -10,7 +10,7 @@
 /// ECS
 #include "component/effect/post/DissolveEffectParam.h"
 #include "component/effect/post/DistortionEffectParam.h"
-#include "component/effect/post/GradationTextureComponent.h"
+#include "component/effect/post/GradationComponent.h"
 #include "component/material/Material.h"
 
 /// util
@@ -111,7 +111,7 @@ void MaterialEffectPipeLine::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused
     }
     effectEntityIds.emplace_back(std::vector<int32_t>());
     effectEntityIds[2].reserve(10);
-    for (auto& indexBind : _scene->GetComponentArray<GradationTextureComponent>()->GetEntityIndexBind()) {
+    for (auto& indexBind : _scene->GetComponentArray<GradationComponent>()->GetEntityIndexBind()) {
         effectEntityIds[2].emplace_back(indexBind.first);
     }
 

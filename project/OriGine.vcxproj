@@ -164,6 +164,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="editor\sceneEditor\SystemInspector.h" />
     <ClInclude Include="editor\setting\SettingWindow.h" />
     <ClInclude Include="editor\window\EditorWindowMenu.h" />
+    <ClInclude Include="engine\code\ECS\component\effect\post\GradationComponent.h" />
     <ClInclude Include="engine\EngineInclude.h" />
     <ClInclude Include="engine\code\ECS\component\ComponentArray.h" />
     <ClInclude Include="engine\code\ECS\component\ComponentRegistry.h" />
@@ -191,7 +192,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\ECS\component\effect\particle\gpuParticle\GpuParticle.h" />
     <ClInclude Include="engine\code\ECS\component\effect\post\DissolveEffectParam.h" />
     <ClInclude Include="engine\code\ECS\component\effect\post\DistortionEffectParam.h" />
-    <ClInclude Include="engine\code\ECS\component\effect\post\GradationTextureComponent.h" />
     <ClInclude Include="engine\code\ECS\component\effect\post\RadialBlurParam.h" />
     <ClInclude Include="engine\code\ECS\component\effect\post\RandomEffectParam.h" />
     <ClInclude Include="engine\code\ECS\component\effect\post\SmoothingEffectParam.h" />
@@ -361,6 +361,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="editor\window\EditorWindowMenu.cpp" />
     <ClCompile Include="engine\code\ECS\component\ComponentRegistry.cpp" />
     <ClCompile Include="engine\code\ECS\component\ComponentRepository.cpp" />
+    <ClCompile Include="engine\code\ECS\component\effect\post\GradationComponent.cpp" />
     <ClCompile Include="engine\code\ECS\component\EntityReferenceList.cpp" />
     <ClCompile Include="engine\code\ECS\component\IComponent.cpp" />
     <ClCompile Include="engine\code\ECS\component\SubScene.cpp" />
@@ -384,7 +385,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\ECS\component\effect\particle\gpuParticle\GpuParticle.cpp" />
     <ClCompile Include="engine\code\ECS\component\effect\post\DissolveEffectParam.cpp" />
     <ClCompile Include="engine\code\ECS\component\effect\post\DistortionEffectParam.cpp" />
-    <ClCompile Include="engine\code\ECS\component\effect\post\GradationTextureComponent.cpp" />
     <ClCompile Include="engine\code\ECS\component\effect\post\RadialBlurParam.cpp" />
     <ClCompile Include="engine\code\ECS\component\effect\post\RandomEffectParam.cpp" />
     <ClCompile Include="engine\code\ECS\component\effect\post\SmoothingEffectParam.cpp" />

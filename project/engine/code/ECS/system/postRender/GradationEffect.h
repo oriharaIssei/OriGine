@@ -12,7 +12,7 @@
 #include "directX12/ShaderManager.h"
 
 // component
-#include "component/effect/post/GradationTextureComponent.h"
+#include "component/effect/post/GradationComponent.h"
 
 /// <summary>
 /// テクスチャを使用してグラデーションエフェクトをかけるシステム
@@ -57,13 +57,7 @@ protected:
     bool ShouldSkipPostRender() const override;
 
 protected:
-    struct RenderingData {
-        GradationTextureComponent* effectParam = nullptr;
-        D3D12_GPU_DESCRIPTOR_HANDLE srvHandle  = D3D12_GPU_DESCRIPTOR_HANDLE(0);
-    };
-
-protected:
     PipelineStateObj* pso_ = nullptr;
 
-    std::vector<RenderingData> activeRenderingData_ = {};
+    std::vector<GradationComponent*> activeRenderingData_ = {};
 };
