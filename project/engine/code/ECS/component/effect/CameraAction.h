@@ -16,18 +16,21 @@ public:
     ~CameraAction();
 
     void Initialize(Entity* _entity) override;
-    void Edit(Scene* _scene,Entity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
     void Finalize() override;
 
     void Play() {
         animationState_.isPlay_ = true;
         animationState_.isEnd_  = false;
-        currentTime_            = duration_;
+        currentTime_            = 0.0f;
+    }
+    void PlayContinue() {
+        animationState_.isPlay_ = true;
+        animationState_.isEnd_  = false;
     }
     void Stop() {
         animationState_.isPlay_ = false;
         animationState_.isEnd_  = true;
-        currentTime_            = 0.0f;
     }
 
 private:
@@ -52,7 +55,7 @@ public:
 
     float GetDuration() const { return duration_; }
     void SetDuration(float duration) { duration_ = duration; }
-    float GetCurrentTime() const { return currentTime_; }
+    float GetTime() const { return currentTime_; }
     void SetCurrentTime(float _currentTime) { currentTime_ = _currentTime; }
 
     const AnimationCurve<float>& GetFovCurve() const { return fovCurve_; }

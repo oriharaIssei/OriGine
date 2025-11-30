@@ -246,7 +246,7 @@ void SceneSerializer::DeserializeFromJson() {
     nlohmann::json& systems     = jsonData["Systems"];
     for (auto& systemByType : systems) {
         for (auto& [systemName, system] : systemByType.items()) {
-            systemRunner->registerSystem(systemName, system["Priority"], true);
+            systemRunner->RegisterSystem(systemName, system["Priority"], true);
         }
         ++systemCategoryIndex;
     }

@@ -2,8 +2,8 @@
 
 /// engine
 #define DELTA_TIME
+#include "camera/CameraManager.h"
 #include "EngineInclude.h"
-
 // component
 #include "component/effect/CameraAction.h"
 #include "component/transform/CameraTransform.h"
@@ -31,7 +31,7 @@ void CameraActionSystem::UpdateEntity(Entity* _entity) {
     }
 
     // アニメーション時間を進める
-    float currentTime = action->GetCurrentTime();
+    float currentTime = action->GetTime();
     currentTime -= GetMainDeltaTime();
     action->SetCurrentTime(currentTime);
 
@@ -76,4 +76,6 @@ void CameraActionSystem::UpdateEntity(Entity* _entity) {
     }
 
     camera->UpdateMatrix();
+    CameraManager::GetInstance()->SetTransform(*camera);
+    CameraManager::GetInstance()->DataConvertToBuffer();
 }

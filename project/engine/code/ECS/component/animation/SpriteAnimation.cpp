@@ -33,7 +33,9 @@ void SpriteAnimation::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Enti
         auto* spriteComponents = _scene->GetComponents<SpriteRenderer>(_entity);
         if (spriteComponents) {
             int32_t maxIndex = static_cast<int32_t>(spriteComponents->size()) - 1;
-            DragGuiCommand(label, spriteComponentIndex_, 1, 0, maxIndex, "%d");
+            InputGuiCommand<int32_t>(label, spriteComponentIndex_, "%d", [this, maxIndex](int32_t* _newVal) {
+                *_newVal = std::clamp(*_newVal, 0, maxIndex);
+            });
         } else {
             ImGui::Text("Haven't Sprites !");
         }
@@ -222,8 +224,8 @@ void SpriteAnimation::UpdateSpriteAnimation(float _deltaTime, SpriteRenderer* _s
     if (uvAnimationState_.isPlay_) {
         switch (uvInterpolationType_) {
         case InterpolationType::LINEAR:
-            _spriteRenderer->SetUVScale(    uvscaleCurve_.empty() ? _spriteRenderer->GetUVScale() : CalculateValue::Linear(uvscaleCurve_, currentTime_));
-            _spriteRenderer->SetUVRotate(   uvRotateCurve_.empty() ? _spriteRenderer->GetUVRotate() : CalculateValue::Linear(uvRotateCurve_, currentTime_));
+            _spriteRenderer->SetUVScale(uvscaleCurve_.empty() ? _spriteRenderer->GetUVScale() : CalculateValue::Linear(uvscaleCurve_, currentTime_));
+            _spriteRenderer->SetUVRotate(uvRotateCurve_.empty() ? _spriteRenderer->GetUVRotate() : CalculateValue::Linear(uvRotateCurve_, currentTime_));
             _spriteRenderer->SetUVTranslate(uvTranslateCurve_.empty() ? _spriteRenderer->GetUVTranslate() : CalculateValue::Linear(uvTranslateCurve_, currentTime_));
             break;
         case InterpolationType::STEP:
@@ -294,6 +296,8 @@ void to_json(nlohmann::json& j, const SpriteAnimation& r) {
 
     j["duration"] = r.duration_;
 
+    j["spriteComponentIndex"] = r.spriteComponentIndex_;
+
     j["colorAnimationState"]["isLoop"] = r.colorAnimationState_.isLoop_;
     j["colorAnimationState"]["isPlay"] = r.colorAnimationState_.isPlay_;
     j["colorInterpolationType"]        = int(r.colorInterpolationType_);
@@ -325,7 +329,10 @@ void from_json(const nlohmann::json& j, SpriteAnimation& r) {
         }
     };
 
-    r.duration_                    = j.value("duration", 0.0f);
+    r.duration_ = j.value("duration", 0.0f);
+
+    r.spriteComponentIndex_ = j.value("spriteComponentIndex", -1);
+
     r.colorAnimationState_.isLoop_ = j["colorAnimationState"].value("isLoop", false);
     r.colorAnimationState_.isPlay_ = j["colorAnimationState"].value("isPlay", false);
     r.colorInterpolationType_      = InterpolationType(j.value("colorInterpolationType", int(InterpolationType::LINEAR)));

@@ -118,7 +118,7 @@ void SystemRunner::UpdateCategory(SystemCategory _category) {
     }
 }
 
-void SystemRunner::registerSystem(const std::string& _systemName, int32_t _priority, bool _activate) {
+void SystemRunner::RegisterSystem(const std::string& _systemName, int32_t _priority, bool _activate) {
     auto itr = systems_.find(_systemName);
 
     if (itr == systems_.end() || !itr->second) {
@@ -143,7 +143,7 @@ void SystemRunner::registerSystem(const std::string& _systemName, int32_t _prior
     }
 }
 
-void SystemRunner::unregisterSystem(const std::string& _systemName) {
+void SystemRunner::UnregisterSystem(const std::string& _systemName) {
     auto itr = systems_.find(_systemName);
     if (itr == systems_.end()) {
         LOG_ERROR("SystemRunner: System not found with name: {}", _systemName);

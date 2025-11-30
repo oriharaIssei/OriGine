@@ -201,7 +201,7 @@ void SystemInspectorArea::SystemGui(const std::string& _systemName, int32_t& _pr
         bool isActive = false;
         _priority     = 9999;
         if (ImGui::Checkbox("##Active", &isActive)) {
-            currentScene->registerSystem(_systemName, 0); // 0 はデフォルトの優先度
+            currentScene->RegisterSystem(_systemName, 0); // 0 はデフォルトの優先度
             auto command = std::make_unique<ChangeSystemActivity>(this, _systemName, 0, false, true);
             EditorController::GetInstance()->PushCommand(std::move(command));
 
@@ -285,9 +285,9 @@ void SystemInspectorArea::ChangeSystemActivity::Execute() {
     }
     // true にする場合, SystemRegistry から システムを取得
     if (newActivity_) {
-        currentScene->registerSystem(systemName_, systemPriority_);
+        currentScene->RegisterSystem(systemName_, systemPriority_);
     } else {
-        currentScene->unregisterSystem(systemName_);
+        currentScene->UnregisterSystem(systemName_);
     }
 }
 
@@ -299,9 +299,9 @@ void SystemInspectorArea::ChangeSystemActivity::Undo() {
     }
     // false にする場合, SystemRegistry から システムを取得
     if (oldActivity_) {
-        currentScene->registerSystem(systemName_, systemPriority_);
+        currentScene->RegisterSystem(systemName_, systemPriority_);
     } else {
-        currentScene->unregisterSystem(systemName_);
+        currentScene->UnregisterSystem(systemName_);
     }
 }
 

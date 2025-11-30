@@ -46,6 +46,9 @@ void Scene::InitializeSceneView() {
 }
 
 void Scene::Update() {
+    // 削除予定のエンティティを削除
+    ExecuteDeleteEntities();
+
     if (!systemRunner_) {
         return;
     }
@@ -165,20 +168,20 @@ ISystem* Scene::GetSystem(const std::string& _systemTypeName) const {
     return nullptr;
 }
 
-bool Scene::registerSystem(const std::string& _systemTypeName, int32_t _priority, bool _activity) {
+bool Scene::RegisterSystem(const std::string& _systemTypeName, int32_t _priority, bool _activity) {
     if (systemRunner_) {
-        systemRunner_->registerSystem(_systemTypeName, _priority, _activity);
+        systemRunner_->RegisterSystem(_systemTypeName, _priority, _activity);
         return true;
     }
-    LOG_ERROR("Scene::registerSystem: SystemRunner is not initialized.");
+    LOG_ERROR("Scene::RegisterSystem: SystemRunner is not initialized.");
     return false;
 }
 
-bool Scene::unregisterSystem(const std::string& _systemTypeName) {
+bool Scene::UnregisterSystem(const std::string& _systemTypeName) {
     if (systemRunner_) {
-        systemRunner_->unregisterSystem(_systemTypeName);
+        systemRunner_->UnregisterSystem(_systemTypeName);
         return true;
     }
-    LOG_ERROR("Scene::unregisterSystem: SystemRunner is not initialized.");
+    LOG_ERROR("Scene::UnregisterSystem: SystemRunner is not initialized.");
     return false;
 }

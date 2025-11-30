@@ -62,10 +62,11 @@ void Box::CreateMesh(TextureMesh* _mesh) {
 
     // back (+Z)
     addFace(1,
-        Vec3f(minPos[X], minPos[Y], maxPos[Z]),
-        Vec3f(minPos[X], maxPos[Y], maxPos[Z]),
         Vec3f(maxPos[X], minPos[Y], maxPos[Z]),
-        Vec3f(maxPos[X], maxPos[Y], maxPos[Z]));
+        Vec3f(maxPos[X], maxPos[Y], maxPos[Z]),
+        Vec3f(minPos[X], minPos[Y], maxPos[Z]),
+        Vec3f(minPos[X], maxPos[Y], maxPos[Z])
+    );
 
     // right (+X)
     addFace(2,

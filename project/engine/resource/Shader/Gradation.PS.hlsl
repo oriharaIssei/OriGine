@@ -74,7 +74,7 @@ PixelShaderOutput main(VertexShaderOutput input)
     float4 inputColor = gSceneTexture.Sample(gSampler, uv) * gMaterial.color;
 
     // 指定チャンネルにグラデ値を書き込み
-    inputColor[gGradationParam.colorChannel] = t;
+    inputColor[gGradationParam.colorChannel] *= t;
 
     output.color = inputColor;
     return output;

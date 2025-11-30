@@ -1,5 +1,8 @@
 #pragma once
 
+/// engine
+#include "scene/Scene.h"
+
 /// ecs
 // entity
 #include "entity/Entity.h"
@@ -15,6 +18,7 @@
 
 template <typename ShapeA, typename ShapeB>
 bool CheckCollisionPair(
+    [[maybe_unused]] Scene* _scene,
     [[maybe_unused]] Entity* _entityA,
     [[maybe_unused]] Entity* _entityB,
     [[maybe_unused]] const ShapeA& _shapeA,
@@ -38,6 +42,7 @@ bool CheckCollisionPair(
 /// <returns></returns>
 template <>
 bool CheckCollisionPair(
+    Scene* _scene,
     Entity* _entityA,
     Entity* _entityB,
     const math::bounds::Sphere& _shapeA,
@@ -59,6 +64,7 @@ bool CheckCollisionPair(
 /// <returns></returns>
 template <>
 bool CheckCollisionPair(
+    Scene* _scene,
     Entity* _aabbEntity,
     Entity* _sphereEntity,
     const math::bounds::AABB& _aabb,
@@ -80,6 +86,7 @@ bool CheckCollisionPair(
 /// <returns></returns>
 template <>
 bool CheckCollisionPair(
+    Scene* _scene,
     Entity* _entityA,
     Entity* _entityB,
     // 順番が A, B と B, A で同じ処理を行うため、関数を呼び出しを入れ替える
@@ -93,6 +100,7 @@ bool CheckCollisionPair(
 /// </summary>
 template <>
 bool CheckCollisionPair(
+    Scene* _scene,
     Entity* _entityA,
     Entity* _entityB,
     const math::bounds::Sphere& _shapeA,
@@ -105,13 +113,14 @@ bool CheckCollisionPair(
 /// </summary>
 template <>
 bool CheckCollisionPair(
+    Scene* _scene,
     Entity* _entityA,
     Entity* _entityB,
     // 順番が A, B と B, A で同じ処理を行うため、関数を呼び出しを入れ替える
     const math::bounds::OBB& _shapeA,
     const math::bounds::Sphere& _shapeB,
     [[maybe_unused]] CollisionPushBackInfo* _aInfo,
-    [[maybe_unused]] CollisionPushBackInfo* _bInfo) ;
+    [[maybe_unused]] CollisionPushBackInfo* _bInfo);
 
 /// <summary>
 /// AABB vs AABB
@@ -127,6 +136,7 @@ bool CheckCollisionPair(
 /// <returns></returns>
 template <>
 bool CheckCollisionPair(
+    Scene* _scene,
     Entity* _entityA,
     Entity* _entityB,
     const math::bounds::AABB& _shapeA,
@@ -136,6 +146,7 @@ bool CheckCollisionPair(
 
 template <>
 bool CheckCollisionPair(
+    Scene* _scene,
     Entity* _entityA,
     Entity* _entityB,
     const math::bounds::OBB& _shapeA,
@@ -148,6 +159,7 @@ bool CheckCollisionPair(
 /// </summary>
 template <>
 bool CheckCollisionPair(
+    Scene* _scene,
     Entity* _entityA,
     Entity* _entityB,
     const math::bounds::AABB& _shapeA,
@@ -160,6 +172,7 @@ bool CheckCollisionPair(
 /// </summary>
 template <>
 bool CheckCollisionPair(
+    Scene* _scene,
     Entity* _entityA,
     Entity* _entityB,
     const math::bounds::OBB& _shapeA,

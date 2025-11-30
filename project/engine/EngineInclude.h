@@ -48,6 +48,7 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 
 #include "system/movement/MoveSystemByRigidBody.h"
 
+#include "system/effect/CameraActionSystem.h"
 #include "system/effect/EmitterWorkSystem.h"
 #include "system/effect/GpuParticleEmitterWorkSystem.h"
 #include "system/effect/MaterialAnimationWorkSystem.h"
@@ -98,6 +99,7 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 #include "component/material/light/SpotLight.h"
 #include "component/material/Material.h"
 
+#include "component/effect/CameraAction.h"
 #include "component/animation/MaterialAnimation.h"
 #include "component/animation/ModelNodeAnimation.h"
 #include "component/animation/PrimitiveNodeAnimation.h"

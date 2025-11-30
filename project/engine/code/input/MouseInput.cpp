@@ -83,9 +83,7 @@ void MouseInput::SetPosition(const Vec2f& pos) {
 
 void MouseInput::ShowCursor(bool show) {
     // カーソルの表示・非表示を切り替え
-    if (!mouse_) {
-        return;
-    }
+   
     if (isCursorVisible_ == show) {
         return;
     }

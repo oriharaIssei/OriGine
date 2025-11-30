@@ -99,7 +99,7 @@ public:
     /// <param name="_systemName">登録するシステム名</param>
     /// <param name="_priority">実行優先順位</param>
     /// <param name="_isActivate">Activeにするかどうか</param>
-    void registerSystem(const std::string& _systemName, int32_t _priority = 0, bool _isActivate = true);
+    void RegisterSystem(const std::string& _systemName, int32_t _priority = 0, bool _isActivate = true);
     /// <summary>
     /// システムを登録する
     /// </summary>
@@ -107,19 +107,19 @@ public:
     /// <param name="_priority">実行優先順位</param>
     /// <param name="_isActivate">Activeにするかどうか</param>
     template <IsSystem SystemClass>
-    void registerSystem(int32_t _priority = 0, bool _activate = true);
+    void RegisterSystem(int32_t _priority = 0, bool _activate = true);
 
     /// <summary>
     /// 登録を解除する
     /// </summary>
     /// <param name="_systemName">登録解除するシステム名</param>
-    void unregisterSystem(const std::string& _systemName);
+    void UnregisterSystem(const std::string& _systemName);
     /// <summary>
     /// 登録を解除する
     /// </summary>
     /// <typeparam name="SystemClass">解除するシステムクラス</typeparam>
     template <IsSystem SystemClass>
-    void unregisterSystem();
+    void UnregisterSystem();
 
     /// <summary>
     /// 指定したシステムをアクティブにする
@@ -248,13 +248,13 @@ inline void SystemRunner::UpdateCategory() {
 }
 
 template <IsSystem SystemClass>
-inline void SystemRunner::registerSystem(int32_t _priority, bool _activate) {
-    registerSystem(nameof<SystemClass>(), _priority, _activate);
+inline void SystemRunner::RegisterSystem(int32_t _priority, bool _activate) {
+    RegisterSystem(nameof<SystemClass>(), _priority, _activate);
 }
 
 template <IsSystem SystemCategory>
-inline void SystemRunner::unregisterSystem() {
-    unregisterSystem(nameof<SystemCategory>());
+inline void SystemRunner::UnregisterSystem() {
+    UnregisterSystem(nameof<SystemCategory>());
 }
 
 template <IsSystem SystemClass>

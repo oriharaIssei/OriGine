@@ -80,8 +80,8 @@ public:
     }
 
 private:
-    Microsoft::WRL::ComPtr<IDirectInputDevice8> mouse_;
-    HWND hwnd_ = nullptr;
+    Microsoft::WRL::ComPtr<IDirectInputDevice8> mouse_ = nullptr;
+    HWND hwnd_                                         = nullptr;
 
     std::array<BYTE, MOUSE_BUTTON_COUNT> currentButtonStates_{};
     std::array<BYTE, MOUSE_BUTTON_COUNT> prevButtonStates_{};

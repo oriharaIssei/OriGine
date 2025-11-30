@@ -203,6 +203,9 @@ void ModelMeshRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] En
             commandCombo.AddCommand(std::move(SetDirectory));
             commandCombo.AddCommand(std::move(SetName));
             commandCombo.SetFuncOnAfterCommand([this, _scene]() {
+                if (!this) {
+                    return;
+                }
                 this->Finalize();
                 meshGroup_ = std::make_shared<std::vector<TextureMesh>>();
                 CreateModelMeshRenderer(this, this->hostEntity_, this->directory_, this->fileName_);

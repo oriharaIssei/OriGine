@@ -14,6 +14,8 @@
 void to_json(nlohmann::json& j, const GradationComponent& _g) {
     j["isActive"] = _g.isActive_;
 
+    j["materialIndex"] = _g.materialIndex_;
+
     j["centerUv"]  = _g.paramBuff_.openData_.centerUv;
     j["direction"] = _g.paramBuff_.openData_.direction;
     j["scale"]     = _g.paramBuff_.openData_.scale;
@@ -37,6 +39,7 @@ void from_json(const nlohmann::json& j, GradationComponent& _g) {
         j.at("pow").get_to(_g.paramBuff_.openData_.pow);
     }
 
+    _g.materialIndex_ = j.value("materialIndex", -1);
     _g.paramBuff_.openData_.colorChannel  = static_cast<ColorChannel>(j.value("colorChannel", 0));
     _g.paramBuff_.openData_.gradationType = static_cast<GradationType>(j.value("gradationType", 0));
 }
@@ -57,7 +60,7 @@ void GradationComponent::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] E
         });
     } else {
         if (materialIndex_ > 0) {
-            auto command = std::make_unique<SetterCommand<int32_t>>(&materialIndex_,-1);
+            auto command = std::make_unique<SetterCommand<int32_t>>(&materialIndex_, -1);
             EditorController::GetInstance()->PushCommand(std::move(command));
         }
     }

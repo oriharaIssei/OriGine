@@ -10,8 +10,8 @@
 #include "component/transform/Transform.h"
 // shape
 #include "component/collision/collider/AABBCollider.h"
-#include "component/collision/collider/SphereCollider.h"
 #include "component/collision/collider/OBBCollider.h"
+#include "component/collision/collider/SphereCollider.h"
 
 // func
 #include "system/collision/CollisionCheckPairFunc.h"
@@ -119,6 +119,8 @@ void CollisionCheckSystem::Finalize() {
 void CollisionCheckSystem::UpdateEntity(Entity* _entity) {
     ++entityItr_;
 
+    Scene* currentScene = GetScene();
+
     auto aCollPushbackInfo       = GetComponent<CollisionPushBackInfo>(_entity);
     auto* aEntityAabbColliders   = GetComponents<AABBCollider>(_entity);
     auto* aEntitySphereColliders = GetComponents<SphereCollider>(_entity);
@@ -140,7 +142,7 @@ void CollisionCheckSystem::UpdateEntity(Entity* _entity) {
                 if (!colliderB->IsActive()) {
                     continue;
                 }
-                if (CheckCollisionPair<>(aEntity, bEntity, colliderA->GetWorldShape(), colliderB->GetWorldShape(), _aInfo, _bInfo)) {
+                if (CheckCollisionPair<>(currentScene, aEntity, bEntity, colliderA->GetWorldShape(), colliderB->GetWorldShape(), _aInfo, _bInfo)) {
                     colliderA->SetCollisionState(bEntity->GetID());
                     colliderB->SetCollisionState(aEntity->GetID());
                 }

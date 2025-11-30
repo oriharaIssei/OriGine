@@ -65,7 +65,11 @@ void MoveSystemByRigidBody::UpdateEntity(Entity* _entity) {
     rigidbody->SetVelocity(velocity);
 
     /// --------------------------------------- 位置の更新 --------------------------------------- ///
-    transform->translate += velocity * deltaTime;
+    Vec3f realVelo = velocity * deltaTime;
+    transform->translate += realVelo;
+
+    rigidbody->SetRealVelocity(realVelo);
+
     // worldMatの更新
     transform->UpdateMatrix();
 }

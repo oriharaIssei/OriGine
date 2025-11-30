@@ -33,6 +33,10 @@ void TexturedMeshRenderSystem::DispatchRenderer(Entity* _entity) {
     auto modelMeshRenderers = GetComponents<ModelMeshRenderer>(_entity);
     auto entityTransform    = GetComponent<Transform>(_entity);
 
+    if (entityTransform) {
+        entityTransform->UpdateMatrix();
+    }
+
     if (modelMeshRenderers) {
         for (auto& renderer : *modelMeshRenderers) {
             if (renderer.GetMeshGroup()->empty() || !renderer.IsRender()) {

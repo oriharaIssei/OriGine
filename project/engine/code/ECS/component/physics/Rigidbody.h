@@ -28,7 +28,8 @@ public:
 private:
     Vec3f acceleration_ = Vec3f(0.0f, 0.0f, 0.0f);
     Vec3f velocity_     = Vec3f(0.0f, 0.0f, 0.0f);
-    float maxXZSpeed_ = 100.0f; // XZ 平面の最大速度
+    Vec3f realVelocity_ = Vec3f(0.0f, 0.0f, 0.0f); // DeltaTime をかけた実際の速度
+    float maxXZSpeed_   = 100.0f; // XZ 平面の最大速度
 
     bool useGravity_    = false;
     float mass_         = 1.0f;
@@ -54,6 +55,17 @@ public: // accsessor
         }
         velocity_[_index] = _velo;
     }
+
+    const Vec3f& GetRealVelocity() const { return realVelocity_; }
+    float GetRealVelocity(int32_t _index) const { return realVelocity_[_index]; }
+    void SetRealVelocity(const Vec3f& _velocity) { realVelocity_ = _velocity; }
+    void SetRealVelocity(int32_t _index, float _velo) {
+        if (_index < 0 || _index >= 3) {
+            throw std::out_of_range("Index must be between 0 and 2.");
+        }
+        realVelocity_[_index] = _velo;
+    }
+
     float GetMaxXZSpeed() const { return maxXZSpeed_; }
     void SetMaxXZSpeed(float _maxXZSpeed) { maxXZSpeed_ = _maxXZSpeed; }
 
