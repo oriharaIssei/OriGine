@@ -11,7 +11,6 @@ void GamePadInput::Initialize() {
     // 初期入力を取得しておく
     Update();
 
-    
     prevButtonMask_ = buttonMask_;
 }
 
@@ -49,7 +48,7 @@ void GamePadInput::Update() {
 }
 
 void GamePadInput::Finalize() {
-    buttonMask_ = 0;
+    buttonMask_     = 0;
     prevButtonMask_ = 0;
 
     lStick_ = Vec2f();
@@ -57,6 +56,10 @@ void GamePadInput::Finalize() {
 
     lTrigger_ = 0.0f;
     rTrigger_ = 0.0f;
+
+    ClearButtonStates();
+    ClearStickStates();
+    ClearTriggerStates();
 }
 
 /// <summary>

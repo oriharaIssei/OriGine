@@ -44,4 +44,5 @@ void KeyboardInput::Finalize() {
         keyboard_->Unacquire();
         keyboard_.Reset();
     }
+    ClearKeyStates();
 }

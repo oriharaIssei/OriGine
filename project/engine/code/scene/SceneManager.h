@@ -61,8 +61,9 @@ private:
 
     std::string changingSceneName_ = "";
 
-    bool isChangeScene_ = false;
-    bool isExitGame_    = false;
+    bool isChangeScene_      = false;
+    bool changeSceneInFrame_ = false;
+    bool isExitGame_         = false;
 
 public:
     Scene* GetCurrentScene() {

@@ -82,7 +82,7 @@ void BackGroundSpriteRenderSystem::DispatchRenderer(Entity* _entity) {
         return;
     }
     for (auto& renderer : *spriteRenderer) {
-        if (renderer.IsRender()) {
+        if (!renderer.IsRender()) {
             return;
         }
 

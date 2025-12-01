@@ -53,6 +53,29 @@ void MaterialEffect::Initialize() {
     gradationEffect_->Initialize();
 }
 
+void MaterialEffect::Finalize() {
+    if (dissolveEffect_) {
+        dissolveEffect_->Finalize();
+        dissolveEffect_.reset();
+        dissolveEffect_ = nullptr;
+    }
+    if (distortionEffect_) {
+        distortionEffect_->Finalize();
+        distortionEffect_.reset();
+        distortionEffect_ = nullptr;
+    }
+
+    for (auto& tempRenderTexture : tempRenderTextures_) {
+        if (tempRenderTexture) {
+            tempRenderTexture->Finalize();
+        }
+    }
+
+    // DSVリソースの解放
+    Engine::GetInstance()->GetDsvHeap()->ReleaseDescriptor(dxDsv_);
+    dsvResource_->Finalize();
+}
+
 void MaterialEffect::Update() {
     EraseDeadEntity();
 
@@ -79,25 +102,6 @@ void MaterialEffect::Update() {
 
     for (auto& [entity, pipeline] : effectPipelines_) {
         UpdateEffectPipeline(entity, pipeline);
-    }
-}
-
-void MaterialEffect::Finalize() {
-    if (dissolveEffect_) {
-        dissolveEffect_->Finalize();
-        dissolveEffect_.reset();
-        dissolveEffect_ = nullptr;
-    }
-    if (distortionEffect_) {
-        distortionEffect_->Finalize();
-        distortionEffect_.reset();
-        distortionEffect_ = nullptr;
-    }
-
-    for (auto& tempRenderTexture : tempRenderTextures_) {
-        if (tempRenderTexture) {
-            tempRenderTexture->Finalize();
-        }
     }
 }
 

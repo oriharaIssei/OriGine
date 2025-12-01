@@ -25,4 +25,5 @@ private:
 private:
     int32_t spriteResizeEventIndex_    = -1;
     int32_t sceneViewResizeEventIndex_ = -1;
+    int32_t subSceneResizeEventIndex_  = -1;
 };

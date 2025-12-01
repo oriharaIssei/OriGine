@@ -81,9 +81,11 @@ void MouseInput::SetPosition(const Vec2f& pos) {
     virtualPos_ = pos;
 }
 
-void MouseInput::ShowCursor(bool show) {
+void MouseInput::SetShowCursor(bool show) {
     // カーソルの表示・非表示を切り替え
-   
+    if (!mouse_) {
+        return;
+    }
     if (isCursorVisible_ == show) {
         return;
     }
@@ -96,6 +98,9 @@ void MouseInput::Finalize() {
         mouse_->Unacquire();
         mouse_.Reset();
     }
+    ClearButtonStates();
+    ResetWheelDelta();
+    ResetPosition();
 }
 
 uint32_t MouseInput::ButtonStateToBitmask() const {

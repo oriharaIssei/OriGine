@@ -64,7 +64,7 @@ public:
     /// <summary>
     /// ホイールの変化量をリセット
     /// </summary>
-    void resetWheelDelta() {
+    void ResetWheelDelta() {
         currentWheelDelta_ = 0;
         prevWheelDelta_    = 0;
     }
@@ -72,7 +72,7 @@ public:
     /// <summary>
     /// マウス座標をリセット
     /// </summary>
-    void reSetPosition() {
+    void ResetPosition() {
         pos_        = Vec2f(0.0f, 0.0f);
         prevPos_    = Vec2f(0.0f, 0.0f);
         virtualPos_ = Vec2f(0.0f, 0.0f);
@@ -208,5 +208,5 @@ public:
     /// <summary>
     /// マウスカーソルを表示／非表示にする
     /// </summary>
-    void ShowCursor(bool show);
+    void SetShowCursor(bool show);
 };

@@ -54,6 +54,13 @@ void DebugReplayWindow::DrawGui() {
 }
 
 void DebugReplayWindow::UpdateSceneManager() {
+    // load replay file 処理
+    if (isLoadReplayFile_) {
+        if (sceneManager_) {
+            sceneManager_->ExecuteSceneChange();
+        }
+        isLoadReplayFile_ = false;
+    }
 
     // リプレイプレイヤーが有効 & 指定フレームにシーク成功時のみ実行
     if (replayPlayer_->GetIsActive()) {
@@ -74,8 +81,8 @@ void DebugReplayWindow::UpdateSceneManager() {
             // input の初期化
             keyboardInput_->ClearKeyStates();
             mouseInput_->ClearButtonStates();
-            mouseInput_->resetWheelDelta();
-            mouseInput_->reSetPosition();
+            mouseInput_->ResetWheelDelta();
+            mouseInput_->ResetPosition();
             gamePadInput_->ClearButtonStates();
             gamePadInput_->ClearStickStates();
             gamePadInput_->ClearTriggerStates();
@@ -97,6 +104,11 @@ void DebugReplayWindow::UpdateSceneManager() {
 
                 // deltaTimeをセット
                 Engine::GetInstance()->SetDeltaTime(deltaTime);
+
+                // シーン変更(あれば)
+                if (sceneManager_->IsChangeScene()) {
+                    sceneManager_->ExecuteSceneChange();
+                }
 
                 // シーンマネージャーを更新する
                 sceneManager_->Update();
@@ -167,6 +179,7 @@ void DebugReplayViewArea::DrawGui() {
             isResizing_ = true;
         }
 
+        // シーンマネージャーをレンダリングする
         sceneManager->Render();
         ImGui::Image(reinterpret_cast<ImTextureID>(currentScene->GetSceneView()->GetBackBufferSrvHandle().ptr), areaSize_.toImVec2());
     }

@@ -23,12 +23,13 @@ void ReplayPlayer::Initialize(const std::string& filepath, SceneManager* _sceneM
 
     fileData_.Initialize();
     isActive_ = LoadFromFile(filepath);
-    if (isActive_) {
-        Apply(_sceneManager->keyInput_, _sceneManager->mouseInput_, _sceneManager->padInput_);
-    }
 
     // シーンマネージャーに開始シーンをセット
     _sceneManager->ChangeScene(fileData_.header.startScene);
+
+    if (isActive_) {
+        Apply(_sceneManager->keyInput_, _sceneManager->mouseInput_, _sceneManager->padInput_);
+    }
 }
 
 void ReplayPlayer::Finalize() {

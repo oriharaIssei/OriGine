@@ -83,11 +83,6 @@ void SceneManager::Update() {
     }
 #endif // _DEVELOP
 
-    if (isChangeScene_) {
-        // SceneChange
-        ExecuteSceneChange();
-        return;
-    }
     currentScene_->Update();
 }
 
