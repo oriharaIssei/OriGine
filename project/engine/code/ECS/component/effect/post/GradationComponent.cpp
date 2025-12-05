@@ -45,7 +45,7 @@ void from_json(const nlohmann::json& j, GradationComponent& _g) {
 }
 
 void GradationComponent::Initialize(Entity* /*_entity*/) {
-    auto& device = Engine::GetInstance()->GetDxDevice()->device_;
+    auto& device = OriGine::Engine::GetInstance()->GetDxDevice()->device_;
     paramBuff_.CreateBuffer(device);
     materialBuff_.CreateBuffer(device);
 }

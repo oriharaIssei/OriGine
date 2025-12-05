@@ -11,6 +11,8 @@
 /// math
 #include <cmath>
 
+namespace OriGine {
+
 enum class Key : uint32_t {
     ONE   = DIK_1,
     TWO   = DIK_2,
@@ -303,3 +305,5 @@ public:
         return (!keys_[keyNum] && prevKeys_[keyNum]);
     }
 };
+
+}

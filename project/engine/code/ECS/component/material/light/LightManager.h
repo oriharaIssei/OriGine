@@ -12,8 +12,8 @@
 #include "PointLight.h"
 #include "SpotLight.h"
 // directX12Object
-#include "directX12/buffer/IConstantBuffer.h"
-#include "directX12/buffer/IStructuredBuffer.h"
+#include "directX12/buffer/ConstantBuffer.h"
+#include "directX12/buffer/OriGine::StructuredBuffer.h"
 #include "directX12/DxDescriptor.h"
 
 #include "globalVariables/SerializedField.h"
@@ -65,11 +65,11 @@ private:
     SerializedField<int32_t> pointLightSize_{"LightManager", "LightCounts", "pointLightSize"};
     SerializedField<int32_t> spotLightSize_{"LightManager", "LightCounts", "spotLightSize"};
 
-    IConstantBuffer<LightCounts> lightCounts_;
+    ConstantBuffer<LightCounts> lightCounts_;
 
-    IStructuredBuffer<DirectionalLight> directionalLights_;
-    IStructuredBuffer<PointLight> pointLights_;
-    IStructuredBuffer<SpotLight> spotLights_;
+    OriGine::StructuredBuffer<DirectionalLight> directionalLights_;
+    OriGine::StructuredBuffer<PointLight> pointLights_;
+    OriGine::StructuredBuffer<SpotLight> spotLights_;
 
 public:
     size_t GetDirectionalLightCount() const { return directionalLights_.openData_.size(); }

@@ -7,8 +7,8 @@
 
 /// engine
 // directX12 Object
-#include "directX12/buffer/IConstantBuffer.h"
-#include "directX12/buffer/IStructuredBuffer.h"
+#include "directX12/buffer/ConstantBuffer.h"
+#include "directX12/buffer/OriGine::StructuredBuffer.h"
 #include "directX12/DxDescriptor.h"
 #include "directX12/mesh/Mesh.h"
 #include "directX12/ShaderManager.h"
@@ -164,7 +164,7 @@ struct PerView {
 /// GPUパーティクルをGPUで処理するエミッタコンポーネント
 /// </summary>
 class GpuParticleEmitter
-    : public IComponent {
+    : public OriGine::IComponent {
     friend void to_json(nlohmann::json& j, const GpuParticleEmitter& p);
     friend void from_json(const nlohmann::json& j, GpuParticleEmitter& p);
 
@@ -213,8 +213,8 @@ private:
     DxResource freeIndexResource_;
     DxUavDescriptor freeIndexUavDescriptor_;
 
-    IConstantBuffer<Material> materialBuffer_;
-    IConstantBuffer<GpuParticleEmitSphere> shapeBuffer_;
+    ConstantBuffer<Material> materialBuffer_;
+    ConstantBuffer<GpuParticleEmitSphere> shapeBuffer_;
 
     std::string texturePath_ = "";
     uint32_t textureIndex_   = 0;
@@ -245,8 +245,8 @@ public:
         return freeListUavDescriptor_;
     }
 
-    const IConstantBuffer<Material>& GetMaterialBuffer() const { return materialBuffer_; }
-    const IConstantBuffer<GpuParticleEmitSphere>& GetShapeBuffer() const {
+    const ConstantBuffer<Material>& GetMaterialBuffer() const { return materialBuffer_; }
+    const ConstantBuffer<GpuParticleEmitSphere>& GetShapeBuffer() const {
         return shapeBuffer_;
     }
 

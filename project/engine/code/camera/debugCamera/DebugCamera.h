@@ -1,10 +1,13 @@
 #pragma once
 
-#include "input/InputManager.h"
+/// stl
+#include <memory>
 
+/// ECS
+// component
 #include "component/transform/CameraTransform.h"
 
-#include <memory>
+namespace OriGine {
 
 /// <summary>
 /// Debug用カメラ
@@ -75,3 +78,5 @@ public:
     const Vec2f& GetStartMousePos() const { return startMousePos_; }
     void SetStartMousePos(const Vec2f& pos) { startMousePos_ = pos; }
 };
+
+} // namespace OriGine

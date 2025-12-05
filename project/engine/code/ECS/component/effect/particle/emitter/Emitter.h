@@ -6,7 +6,7 @@
 
 /// engine
 // dx12object
-#include "directX12/buffer/IStructuredBuffer.h"
+#include "directX12/buffer/StructuredBuffer.h"
 #include "directX12/buffer/SimpleConstantBuffer.h"
 #include "directX12/mesh/Mesh.h"
 #include "directX12/ShaderManager.h"
@@ -36,7 +36,7 @@ enum class BillBoardType {
 /// Particleを生成、管理するコンポーネント
 /// </summary>
 class Emitter
-    : public IComponent {
+    : public OriGine::IComponent {
 
     // to_json, from_json を friend として宣言
     friend void to_json(nlohmann::json& j, const Emitter& e);
@@ -113,7 +113,7 @@ private:
     int32_t materialIndex_ = -1;
     SimpleConstantBuffer<Material> materialBuffer_;
 
-    IStructuredBuffer<ParticleTransform> structuredTransform_;
+    OriGine::StructuredBuffer<ParticleTransform> structuredTransform_;
     //=============== Texture ===============/
     std::string textureFileName_ = "";
     int32_t textureIndex_        = 0;

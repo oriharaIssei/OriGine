@@ -2,6 +2,8 @@
 
 #include "component/ComponentRegistry.h"
 
+namespace OriGine {
+
 ComponentRepository::ComponentRepository()  = default;
 ComponentRepository::~ComponentRepository() = default;
 
@@ -92,3 +94,5 @@ const std::unordered_map<std::string, std::unique_ptr<IComponentArray>>& Compone
 std::unordered_map<std::string, std::unique_ptr<IComponentArray>>& ComponentRepository::GetComponentArrayMapRef() {
     return componentArrays_;
 }
+
+} // namespace OriGine

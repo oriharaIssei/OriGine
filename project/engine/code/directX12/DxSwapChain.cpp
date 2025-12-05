@@ -9,10 +9,13 @@
 // directX12
 #include "directX12/DxCommand.h"
 #include "directX12/DxDevice.h"
-#include "directX12/DxFunctionHelper.h"
 
+/// external
 #include "logger/Logger.h"
+/// util
 #include "util/StringUtil.h"
+
+using namespace OriGine;
 
 void DxSwapChain::Initialize(const WinApp* winApp, const DxDevice* device, const DxCommand* command) {
     bufferWidth_  = winApp->GetWidth();
@@ -60,7 +63,7 @@ void DxSwapChain::Initialize(const WinApp* winApp, const DxDevice* device, const
     bufferCount_ = 2;
     backBufferResources_.resize(bufferCount_);
 
-    auto* rtvHeap = Engine::GetInstance()->GetRtvHeap();
+    auto* rtvHeap = OriGine::Engine::GetInstance()->GetRtvHeap();
     for (int i = 0; i < (int)bufferCount_; ++i) {
         result = swapChain_->GetBuffer(
             i, IID_PPV_ARGS(backBufferResources_[i].GetResourceRef().GetAddressOf()));
@@ -83,7 +86,7 @@ void DxSwapChain::Initialize(const WinApp* winApp, const DxDevice* device, const
 }
 
 void DxSwapChain::Finalize() {
-    auto* rtvHeap = Engine::GetInstance()->GetRtvHeap();
+    auto* rtvHeap = OriGine::Engine::GetInstance()->GetRtvHeap();
     for (int i = 0; i < (int)bufferCount_; ++i) {
         if (backBuffers_[i].GetIndex() >= 0) {
             rtvHeap->ReleaseDescriptor(backBuffers_[i]);
@@ -110,7 +113,7 @@ void DxSwapChain::ResizeBuffer(UINT width, UINT height) {
     bufferHeight_ = height;
 
     // 古いバックバッファを解放
-    auto* rtvHeap = Engine::GetInstance()->GetRtvHeap();
+    auto* rtvHeap = OriGine::Engine::GetInstance()->GetRtvHeap();
     for (int i = 0; i < (int)bufferCount_; ++i) {
         if (backBuffers_[i].GetIndex() >= 0) {
             rtvHeap->ReleaseDescriptor(backBuffers_[i]);

@@ -11,7 +11,6 @@
 #include "Model.h"
 // dx12Object
 #include "directX12/DxDevice.h"
-#include "directX12/ShaderManager.h"
 #include "texture/TextureManager.h"
 
 #include "logger/Logger.h"
@@ -44,6 +43,8 @@ struct hash<VertexKey> {
     }
 };
 } // namespace std
+
+namespace OriGine {
 
 #pragma region "LoadFunctions"
 static void ProcessMeshData(TextureMesh& meshData, const std::vector<TextureVertexData>& vertices, const std::vector<uint32_t>& indices) {
@@ -210,7 +211,7 @@ static void LoadModelFile(ModelMeshData* data, const std::string& directoryPath,
     const aiScene* scene = importer.ReadFile(filePath.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
     assert(scene->HasMeshes());
 
-    auto& device = Engine::GetInstance()->GetDxDevice()->device_;
+    auto& device = OriGine::Engine::GetInstance()->GetDxDevice()->device_;
 
     std::unordered_map<VertexKey, uint32_t> vertexMap;
     std::vector<TextureVertexData> vertices;
@@ -280,7 +281,7 @@ static void LoadModelFile(ModelMeshData* data, const std::string& directoryPath,
             textureIndex = TextureManager::LoadTexture(texturePath);
         }
 
-        ModelManager::GetInstance()->pushBackDefaultMaterial(data, {texturePath, textureIndex, IConstantBuffer<Material>()});
+        ModelManager::GetInstance()->pushBackDefaultMaterial(data, {texturePath, textureIndex, ConstantBuffer<Material>()});
 
         // メッシュデータを処理
         ProcessMeshData(mesh, vertices, indices);
@@ -322,7 +323,7 @@ std::shared_ptr<Model> ModelManager::Create(
         result->materialData_ = defaultMaterials_[result->meshData_];
 
         for (auto& materialData : result->materialData_) {
-            materialData.material.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
+            materialData.material.CreateBuffer(OriGine::Engine::GetInstance()->GetDxDevice()->device_);
             materialData.material->UpdateUvMatrix();
             materialData.material.ConvertToBuffer();
         }
@@ -374,7 +375,7 @@ void ModelManager::Initialize() {
     Matrix4x4* maPtr = new Matrix4x4();
     *maPtr           = MakeMatrix::PerspectiveFov(
         0.45f,
-        static_cast<float>(Engine::GetInstance()->GetWinApp()->GetWidth()) / static_cast<float>(Engine::GetInstance()->GetWinApp()->GetHeight()),
+        static_cast<float>(OriGine::Engine::GetInstance()->GetWinApp()->GetWidth()) / static_cast<float>(OriGine::Engine::GetInstance()->GetWinApp()->GetHeight()),
         0.1f,
         100.0f);
     fovMa_.reset(
@@ -432,7 +433,7 @@ void ModelManager::LoadTask::Update() {
 
     model->materialData_ = ModelManager::GetInstance()->defaultMaterials_[model->meshData_];
     for (auto& material : model->materialData_) {
-        material.material.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
+        material.material.CreateBuffer(OriGine::Engine::GetInstance()->GetDxDevice()->device_);
         material.material->UpdateUvMatrix();
         material.material.ConvertToBuffer();
     }
@@ -458,4 +459,6 @@ void ModelManager::LoadTask::Update() {
     // ロード完了のログ
     timer.Update();
     LOG_TRACE("Model Load Complete : {}/{} \n Lading Time : {}", this->directory, this->fileName, std::to_string(timer.GetDeltaTime()));
+}
+
 }

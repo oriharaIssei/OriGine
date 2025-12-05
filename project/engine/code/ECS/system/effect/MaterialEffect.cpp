@@ -22,14 +22,14 @@ void MaterialEffect::Initialize() {
 
     // DSVリソースの作成
     dsvResource_ = std::make_unique<DxResource>();
-    dsvResource_->CreateDSVBuffer(Engine::GetInstance()->GetDxDevice()->device_, static_cast<UINT64>(kDefaultTempRTSize[X]), static_cast<UINT>(kDefaultTempRTSize[Y]));
+    dsvResource_->CreateDSVBuffer(OriGine::Engine::GetInstance()->GetDxDevice()->device_, static_cast<UINT64>(kDefaultTempRTSize[X]), static_cast<UINT>(kDefaultTempRTSize[Y]));
 
     // DSV の設定
     D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{};
     dsvDesc.Format        = DXGI_FORMAT_D24_UNORM_S8_UINT; // resourceに合わせる
     dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D; // 2d Texture
 
-    dxDsv_ = Engine::GetInstance()->GetDsvHeap()->CreateDescriptor(dsvDesc, dsvResource_.get());
+    dxDsv_ = OriGine::Engine::GetInstance()->GetDsvHeap()->CreateDescriptor(dsvDesc, dsvResource_.get());
 
     // 一時RenderTextureの作成
     int32_t index = 0;
@@ -72,7 +72,7 @@ void MaterialEffect::Finalize() {
     }
 
     // DSVリソースの解放
-    Engine::GetInstance()->GetDsvHeap()->ReleaseDescriptor(dxDsv_);
+    OriGine::Engine::GetInstance()->GetDsvHeap()->ReleaseDescriptor(dxDsv_);
     dsvResource_->Finalize();
 }
 
@@ -191,7 +191,7 @@ void MaterialEffect::UpdateEffectPipeline(Entity* _entity, MaterialEffectPipeLin
 
 void MaterialEffect::ExecuteCommand() {
     HRESULT result;
-    DxFence* fence = Engine::GetInstance()->GetDxFence();
+    DxFence* fence = OriGine::Engine::GetInstance()->GetDxFence();
 
     // コマンドの受付終了 -----------------------------------
     result = dxCommand_->Close();

@@ -20,7 +20,7 @@
 /// Transform コンポーネント(3次元)
 /// </summary>
 struct Transform
-    : public IComponent {
+    : public OriGine::IComponent {
 public:
     Transform();
     Transform(const Vec3f& _scale, const Quaternion& _rotate, const Vec3f& _translate)

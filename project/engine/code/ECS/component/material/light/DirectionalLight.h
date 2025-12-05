@@ -18,7 +18,7 @@
 /// DirectionalLight
 /// </summary>
 class DirectionalLight
-    : public IComponent {
+    : public OriGine::IComponent {
 
     // to_json, from_json を friend として宣言
     friend void to_json(nlohmann::json& j, const DirectionalLight& l);

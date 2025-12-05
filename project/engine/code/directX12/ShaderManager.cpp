@@ -10,6 +10,8 @@
 /// util
 #include "util/StringUtil.h"
 
+using namespace OriGine;
+
 void ShaderManager::Initialize() {
     shaderCompiler_ = std::make_unique<ShaderCompiler>();
     shaderCompiler_->Initialize();
@@ -95,7 +97,7 @@ PipelineStateObj* ShaderManager::CreatePso(const std::string& key,
     D3D12_BLEND_DESC blendDesc{};
     blendDesc.RenderTarget[0] = {}; // RenderTarget[0] を初期化
 
-   blendDesc =  CreateBlendDescByBlendMode(shaderInfo.blendMode_);
+    blendDesc = CreateBlendDescByBlendMode(shaderInfo.blendMode_);
 
     ///=================================================
     /// GRAPHICS_PIPELINE_STATE_DESC 初期化

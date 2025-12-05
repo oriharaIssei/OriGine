@@ -30,8 +30,8 @@ void PlaneRenderer::Initialize(Entity* _hostEntity) {
     auto& mesh = meshGroup_->back();
     mesh.Initialize(4, 6);
 
-    transformBuff_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
-    materialBuff_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
+    transformBuff_.CreateBuffer(OriGine::Engine::GetInstance()->GetDxDevice()->device_);
+    materialBuff_.CreateBuffer(OriGine::Engine::GetInstance()->GetDxDevice()->device_);
 
     // create _mesh
     CreateMesh(&mesh);

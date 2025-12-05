@@ -16,6 +16,8 @@
 
 class DxFence;
 
+namespace OriGine {
+
 /// <summary>
 /// CommandList,Allocator,CommandQueue を組み合わせて管理する
 /// </summary>
@@ -106,3 +108,5 @@ public:
 
     ResourceStateTracker* GetResourceStateTracker() const { return resourceStateTracker_; }
 };
+
+} // namespace OriGine

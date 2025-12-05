@@ -12,7 +12,7 @@
 RegisterWindowResizeEvent::RegisterWindowResizeEvent() : ISystem(SystemCategory::Initialize) {}
 
 void RegisterWindowResizeEvent::Initialize() {
-    Engine* engine = Engine::GetInstance();
+    Engine* engine = OriGine::Engine::GetInstance();
 
 #ifndef _DEBUG
     // シーンビューのリサイズイベント登録
@@ -58,7 +58,7 @@ void RegisterWindowResizeEvent::Initialize() {
 }
 
 void RegisterWindowResizeEvent::Finalize() {
-    Engine* engine = Engine::GetInstance();
+    Engine* engine = OriGine::Engine::GetInstance();
     if (subSceneResizeEventIndex_ != -1) {
         engine->RemoveWindowResizeEvent(subSceneResizeEventIndex_);
         subSceneResizeEventIndex_ = -1;

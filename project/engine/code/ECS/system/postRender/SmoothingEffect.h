@@ -7,7 +7,7 @@
 
 /// engine
 // drecitX12
-#include "directX12/buffer/IConstantBuffer.h"
+#include "directX12/buffer/ConstantBuffer.h"
 #include "directX12/DxCommand.h"
 #include "directX12/PipelineStateObj.h"
 #include "directX12/ShaderManager.h"

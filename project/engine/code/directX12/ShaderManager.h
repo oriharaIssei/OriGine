@@ -20,9 +20,11 @@
 #define RESOURCE_DIRECTORY
 #include "EngineInclude.h"
 // dx12object
+#include "directX12/BlendMode.h"
 #include "directX12/PipelineStateObj.h"
 #include "directX12/ShaderCompiler.h"
-#include "directX12/BlendMode.h"
+
+namespace OriGine {
 
 const std::string shaderDirectory = "engine/resource/Shader";
 
@@ -148,7 +150,6 @@ private:
     std::unordered_map<std::string, std::unique_ptr<PipelineStateObj>> psoMap_;
 
 public:
-
     ShaderCompiler* GetShaderCompiler() const { return shaderCompiler_.get(); }
 
     /// <summary>
@@ -169,3 +170,5 @@ public:
     PipelineStateObj* GetPipelineStateObj(const std::string& key);
     Microsoft::WRL::ComPtr<IDxcBlob>* GetShaderBlob(const std::string& key);
 };
+
+} // namespace OriGine

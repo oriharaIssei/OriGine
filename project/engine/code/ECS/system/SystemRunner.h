@@ -4,6 +4,8 @@ class Scene;
 #include "ISystem.h"
 #include "SystemCategory.h"
 
+namespace OriGine {
+
 /// <summary>
 /// System Runner
 /// Systemを実際に実行するクラス.
@@ -294,3 +296,5 @@ inline SystemClass* SystemRunner::GetSystemRef() {
     }
     return dynamic_cast<SystemClass*>(itr->second.get());
 }
+
+} // namespace OriGine

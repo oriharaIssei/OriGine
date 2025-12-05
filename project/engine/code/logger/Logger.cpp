@@ -22,6 +22,8 @@
 /// util
 #include "util/StringUtil.h"
 
+namespace OriGine {
+
 std::shared_ptr<spdlog::logger> Logger::logger_ = nullptr;
 
 static std::string GetCurrentConfigString() {
@@ -341,3 +343,5 @@ void GuiLogger::Finalize() {
 }
 
 #pragma endregion
+
+} // namespace OriGine

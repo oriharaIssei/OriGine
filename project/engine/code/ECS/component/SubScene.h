@@ -13,7 +13,7 @@
 /// SceneManagerに管理されない.
 /// </summary>
 class SubScene
-    : public IComponent {
+    : public OriGine::IComponent {
     friend void to_json(nlohmann::json& j, const SubScene& scene);
     friend void from_json(const nlohmann::json& j, SubScene& scene);
 

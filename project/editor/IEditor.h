@@ -22,7 +22,9 @@
 /// math
 #include <Vector2.h>
 
+namespace OriGine {
 namespace Editor {
+
 // Blenderを参考
 // https://colorful-pico.net/introduction-to-addon-development-in-blender/2.7/html/chapter_99/00_Glossary.html
 // https://docs.blender.org/manual/ja/dev/interface/window_system/index.html
@@ -332,8 +334,6 @@ public:
     }
 };
 
-};
-
 Vec2f ConvertMouseToGuiWindow(const Vec2f& _mousePos, const Vec2f& _guiWindowLT, const ImVec2& _guiWindowSize, const Vec2f& _originalResolution);
 
 template <typename EditorWindowClass>
@@ -610,5 +610,8 @@ private:
     bool to_ = true; // フォーカス後の状態
 };
 #pragma endregion DefaultCommand
+
+} // namespace Editor
+} // namespace OriGine
 
 #endif // _DEBUG

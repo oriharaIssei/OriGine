@@ -12,8 +12,8 @@
 
 /// engine
 // dx12Object
-#include "directX12/buffer/IConstantBuffer.h"
-#include "directX12/buffer/IStructuredBuffer.h"
+#include "directX12/buffer/ConstantBuffer.h"
+#include "directX12/buffer/StructuredBuffer.h"
 #include "directX12/mesh/Mesh.h"
 // component
 #include "component/material/Material.h"
@@ -23,11 +23,13 @@
 #include "Matrix4x4.h"
 #include "Quaternion.h"
 
+namespace OriGine {
+
 struct TexturedMaterial {
     std::string texturePath = "";
     uint32_t textureNumber  = 0;
 
-    IConstantBuffer<Material> material;
+    ConstantBuffer<Material> material;
 };
 
 struct ModelNode {
@@ -118,9 +120,9 @@ struct SkinningInfo {
 struct SkinCluster {
     std::vector<Matrix4x4> inverseBindPoseMatrices; // バインドポーズ座標系での逆行列 郡
 
-    IStructuredBuffer<VertexInfluence> vertexInfluencesBuffer_; // 頂点に対する影響を与えるデータ群
-    IStructuredBuffer<SkeletonMatrixWell> skeletonMatrixPaletteBuffer_; // スケルトンマトリクスパレット
-    IConstantBuffer<SkinningInfo> skinningInfoBuffer_; // スキニング情報
+    StructuredBuffer<VertexInfluence> vertexInfluencesBuffer_; // 頂点に対する影響を与えるデータ群
+    StructuredBuffer<SkeletonMatrixWell> skeletonMatrixPaletteBuffer_; // スケルトンマトリクスパレット
+    ConstantBuffer<SkinningInfo> skinningInfoBuffer_; // スキニング情報
 
     void UpdateMatrixPalette(const Skeleton& _skeleton);
 };
@@ -169,3 +171,5 @@ struct Model {
         materialData_[part].textureNumber = _textureNumber;
     }
 };
+
+}

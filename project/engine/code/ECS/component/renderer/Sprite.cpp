@@ -28,7 +28,7 @@ void SpriteRenderer::Initialize(Entity* _hostEntity) {
     MeshRenderer::Initialize(_hostEntity);
 
     // buffer作成
-    spriteBuff_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
+    spriteBuff_.CreateBuffer(OriGine::Engine::GetInstance()->GetDxDevice()->device_);
 
     // メッシュの初期化
     meshGroup_ = std::make_shared<std::vector<SpriteMesh>>();
@@ -58,7 +58,7 @@ void SpriteRenderer::Initialize(Entity* _hostEntity) {
         });
     }
 
-    CalculateWindowRatioPosAndSize(Engine::GetInstance()->GetWinApp()->GetWindowSize());
+    CalculateWindowRatioPosAndSize(OriGine::Engine::GetInstance()->GetWinApp()->GetWindowSize());
 }
 
 void SpriteRenderer::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
@@ -323,7 +323,7 @@ void from_json(const nlohmann::json& j, SpriteRenderer& r) {
     if (j.find("defaultWindowSize") != j.end()) {
         j.at("defaultWindowSize").get_to(r.defaultWindowSize_);
     } else {
-        r.defaultWindowSize_ = Engine::GetInstance()->GetWinApp()->GetWindowSize();
+        r.defaultWindowSize_ = OriGine::Engine::GetInstance()->GetWinApp()->GetWindowSize();
     }
     if (j.find("windowRatioSize") != j.end()) {
         j.at("windowRatioSize").get_to(r.windowRatioSize_);

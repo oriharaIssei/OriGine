@@ -1,7 +1,7 @@
 #pragma once
 
 // directX12Object
-#include "directX12/buffer/IConstantBuffer.h"
+#include "directX12/buffer/ConstantBuffer.h"
 #include "directX12/mesh/Mesh.h"
 // component
 #include "component/renderer/MeshRenderer.h"
@@ -107,7 +107,7 @@ public:
 private:
     int32_t renderPriority_ = 1;
 
-    IConstantBuffer<SpritConstBuffer> spriteBuff_;
+    ConstantBuffer<SpritConstBuffer> spriteBuff_;
 
     std::string texturePath_;
     uint32_t textureNumber_ = 0;
@@ -132,8 +132,8 @@ public:
     int32_t GetRenderPriority() const { return renderPriority_; }
     void SetRenderPriority(int32_t num) { renderPriority_ = num; }
 
-    const IConstantBuffer<SpritConstBuffer>& GetSpriteBuff() const { return spriteBuff_; }
-    IConstantBuffer<SpritConstBuffer>& GetSpriteBuff() { return spriteBuff_; }
+    const ConstantBuffer<SpritConstBuffer>& GetSpriteBuff() const { return spriteBuff_; }
+    ConstantBuffer<SpritConstBuffer>& GetSpriteBuff() { return spriteBuff_; }
 
     void SetSize(const Vec2f& size) { size_ = size; }
     const Vec2f& GetSize() const { return size_; }

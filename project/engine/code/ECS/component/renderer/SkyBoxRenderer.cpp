@@ -89,8 +89,8 @@ void SkyboxRenderer::Initialize(Entity* _hostEntity) {
     }
 
     transformBuff_->Initialize(_hostEntity);
-    transformBuff_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
-    materialBuff_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
+    transformBuff_.CreateBuffer(OriGine::Engine::GetInstance()->GetDxDevice()->device_);
+    materialBuff_.CreateBuffer(OriGine::Engine::GetInstance()->GetDxDevice()->device_);
 }
 
 void SkyboxRenderer::Edit(Scene* /*_scene*/, Entity* /* _entity*/, [[maybe_unused]] const std::string& _parentLabel) {

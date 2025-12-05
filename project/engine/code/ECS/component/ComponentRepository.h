@@ -1,7 +1,11 @@
 #pragma once
 
+/// ECS
+// component
 #include "ComponentArray.h"
 #include "ComponentRegistry.h"
+
+namespace OriGine {
 
 /// <summary>
 /// Component Repository
@@ -196,3 +200,5 @@ inline void ComponentRepository::RemoveComponent(Entity* _entity, bool _doFinali
         LOG_ERROR("ComponentRepository: ComponentArray not found for type: {}", nameof<ComponentType>());
     }
 }
+
+} // namespace OriGine

@@ -4,6 +4,8 @@
 #include "math/mathEnv.h"
 #include <cmath>
 
+namespace OriGine {
+
 /// <summary>
 /// ゲームパッドの初期化
 /// </summary>
@@ -82,3 +84,5 @@ void GamePadInput::UpdateStickValues(XINPUT_STATE _state) {
     lStick_ = normalizeStick(_state.Gamepad.sThumbLX, _state.Gamepad.sThumbLY);
     rStick_ = normalizeStick(_state.Gamepad.sThumbRX, _state.Gamepad.sThumbRY);
 }
+
+} // namespace OriGine

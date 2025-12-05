@@ -15,7 +15,7 @@ class Scene;
 /// スキニングアニメーションコンポーネント
 /// </summary>
 class SkinningAnimationComponent
-    : public IComponent {
+    : public OriGine::IComponent {
     friend void to_json(nlohmann::json& j, const SkinningAnimationComponent& r);
     friend void from_json(const nlohmann::json& j, SkinningAnimationComponent& r);
 

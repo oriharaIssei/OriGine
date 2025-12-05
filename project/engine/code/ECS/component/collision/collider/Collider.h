@@ -29,7 +29,7 @@ enum class CollisionState {
 };
 
 class ICollider
-    : public IComponent {
+    : public OriGine::IComponent {
 public:
     ICollider() {}
     virtual ~ICollider() {}

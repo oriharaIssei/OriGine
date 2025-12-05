@@ -9,7 +9,7 @@
 
 /// engine
 // directX12
-#include "directX12/buffer/IConstantBuffer.h"
+#include "directX12/buffer/ConstantBuffer.h"
 #include "directX12/buffer/SimpleConstantBuffer.h"
 class PrimitiveMeshRendererBase;
 enum class PrimitiveType : int32_t;
@@ -42,7 +42,7 @@ struct DistortionParamData {
 /// DistortionEffect の パラメーター
 /// </summary>
 class DistortionEffectParam
-    : public IComponent {
+    : public OriGine::IComponent {
     friend void to_json(nlohmann::json& j, const DistortionEffectParam& param);
     friend void from_json(const nlohmann::json& j, DistortionEffectParam& param);
 
@@ -65,7 +65,7 @@ private:
     int32_t textureIndex_    = 0;
     std::string texturePath_ = "";
 
-    IConstantBuffer<DistortionParamData> effectParamData_;
+    ConstantBuffer<DistortionParamData> effectParamData_;
     SimpleConstantBuffer<ColorAndUvTransform> materialBuffer_;
 
     std::vector<std::pair<std::shared_ptr<PrimitiveMeshRendererBase>, PrimitiveType>> distortionObjects_;
@@ -86,7 +86,7 @@ public:
     DistortionParamData& GetEffectParamData() {
         return effectParamData_.openData_;
     }
-    IConstantBuffer<DistortionParamData>& GetEffectParamBuffer() {
+    ConstantBuffer<DistortionParamData>& GetEffectParamBuffer() {
         return effectParamData_;
     }
     SimpleConstantBuffer<ColorAndUvTransform>& GetMaterialBuffer() {

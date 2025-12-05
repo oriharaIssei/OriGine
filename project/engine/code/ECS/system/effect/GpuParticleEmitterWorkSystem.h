@@ -8,7 +8,7 @@
 
 /// engine
 // directX12
-#include "directX12/buffer/IConstantBuffer.h"
+#include "directX12/buffer/ConstantBuffer.h"
 
 /// ECS
 #include "ECS/component/effect/particle/gpuParticle/GpuParticle.h"
@@ -37,7 +37,7 @@ struct PerFrame {
 /// GPU上でパーティクルの更新と発生を行う
 /// </summary>
 class GpuParticleEmitterWorkSystem
-    : public ISystem {
+    : public OriGine::ISystem {
 public:
     GpuParticleEmitterWorkSystem();
     ~GpuParticleEmitterWorkSystem() override;
@@ -73,7 +73,7 @@ private:
 
     std::unique_ptr<DxCommand> dxCommand_;
 
-    IConstantBuffer<PerFrame> perFrameBuffer_;
+    ConstantBuffer<PerFrame> perFrameBuffer_;
 
     const int32_t particlesDataIndex   = 0;
     const int32_t freeIndexBufferIndex = 1;

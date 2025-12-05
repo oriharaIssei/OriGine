@@ -9,17 +9,18 @@
 #define RESOURCE_DIRECTORY
 #include "EngineInclude.h"
 // debugReplayer
-#include "debugReplayer/base/ReplayData.h"
 #include "debugReplayer/ReplayPlayer.h"
 
 /// util
-#include "myFileSystem/MyFileSystem.h"
 #include "nameof.h"
 // gui
 #include "myGui/MyGui.h"
 
 /// externals
 #include <imgui/imgui.h>
+
+namespace OriGine {
+namespace Editor {
 
 DebugReplayFileMenu::DebugReplayFileMenu(DebugReplayWindow* _parent)
     : Editor::Menu(nameof<DebugReplayFileMenu>()), parent_(_parent) {}
@@ -117,5 +118,8 @@ void DebugReplayLoadFileCommand::Undo() {
     replayPlayer->Initialize(prevFilePath_, parent_->GetSceneManager());
     parent_->SetIsLoadReplayFile(true);
 }
+
+} // namespace Editor
+} // namespace OriGine
 
 #endif // _DEBUG

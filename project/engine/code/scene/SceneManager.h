@@ -25,6 +25,8 @@ class GamePadInput;
 #include <binaryIO/BinaryIO.h>
 #include <nlohmann/json.hpp>
 
+namespace OriGine {
+
 class SceneManager {
     friend class ReplayPlayer;
 
@@ -89,6 +91,9 @@ public:
     bool IsChangeScene() const { return isChangeScene_; }
 };
 
+/// <summary>
+/// シーンのシリアライズを担当するクラス
+/// </summary>
 class SceneSerializer {
 public:
     static const std::string SceneDirectory;
@@ -137,3 +142,5 @@ public:
         rootJson_ = _rootJson;
     }
 };
+
+}

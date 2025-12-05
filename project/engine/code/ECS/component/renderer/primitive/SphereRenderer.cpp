@@ -26,8 +26,8 @@ void SphereRenderer::Initialize(Entity* _hostEntity) {
         meshGroup_->clear();
     }
 
-    transformBuff_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
-    materialBuff_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
+    transformBuff_.CreateBuffer(OriGine::Engine::GetInstance()->GetDxDevice()->device_);
+    materialBuff_.CreateBuffer(OriGine::Engine::GetInstance()->GetDxDevice()->device_);
 
     meshGroup_->emplace_back(MeshType());
     auto& mesh = meshGroup_->back();

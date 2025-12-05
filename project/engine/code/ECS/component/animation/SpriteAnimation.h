@@ -16,7 +16,7 @@ class SpriteRenderer;
 /// Spriteをアニメーションさせるコンポーネント
 /// </summary>
 class SpriteAnimation
-    : public IComponent {
+    : public OriGine::IComponent {
     friend void to_json(nlohmann::json& j, const SpriteAnimation& r);
     friend void from_json(const nlohmann::json& j, SpriteAnimation& r);
 

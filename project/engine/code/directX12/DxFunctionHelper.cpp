@@ -6,6 +6,8 @@
 /// logger
 #include "logger/Logger.h"
 
+using namespace OriGine;
+
 void DxFunctionHelper::SetViewportsAndScissor(const DxCommand* dxCommand, const WinApp* window) {
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand->GetCommandList();
     // ビューポートの設定

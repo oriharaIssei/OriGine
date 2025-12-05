@@ -6,16 +6,15 @@
 
 /// editor
 #include "editor/EditorController.h"
-#include "myGui/MyGui.h"
 
-/// util
-#include "util/nameof.h"
+namespace OriGine {
+namespace Editor {
 
 /// <summary>
 /// EditorWindowのメニュー
 /// </summary>
 class EditorWindowMenu
-    : public Editor::Menu {
+    : public Menu {
 public:
     EditorWindowMenu();
     ~EditorWindowMenu() override;
@@ -29,7 +28,7 @@ public:
 /// <typeparam name="EditorWindowType"></typeparam>
 template <EditorWindow EditorWindowType>
 class WindowItem
-    : public Editor::MenuItem {
+    : public MenuItem {
 public:
     using WindowType = EditorWindowType;
 
@@ -56,4 +55,8 @@ inline void WindowItem<EditorWindowType>::DrawGui() {
         }
     }
 }
+
+} // namespace Editor
+} // namespace OriGine
+
 #endif // _DEBUG

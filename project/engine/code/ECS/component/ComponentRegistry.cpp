@@ -1,5 +1,7 @@
 #include "ComponentRegistry.h"
 
+namespace OriGine {
+
 ComponentRegistry* ComponentRegistry::GetInstance() {
     static ComponentRegistry instance;
     return &instance;
@@ -35,3 +37,5 @@ std::unordered_map<std::string, std::unique_ptr<IComponentArray>>&
 ComponentRegistry::GetComponentArrayMapRef() {
     return componentArrays_;
 }
+
+} // namespace OriGine

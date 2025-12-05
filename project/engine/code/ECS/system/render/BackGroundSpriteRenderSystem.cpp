@@ -18,7 +18,7 @@ void BackGroundSpriteRenderSystem::Initialize() {
     BaseRenderSystem::Initialize();
 
     // ViewPortMatの計算
-    WinApp* window = Engine::GetInstance()->GetWinApp();
+    WinApp* window = OriGine::Engine::GetInstance()->GetWinApp();
     viewPortMat_   = MakeMatrix::Orthographic(0, 0, (float)window->GetWidth(), (float)window->GetHeight(), 0.0f, 100.0f);
 }
 
@@ -190,14 +190,14 @@ void BackGroundSpriteRenderSystem::CreatePSO() {
     for (size_t i = 0; i < kBlendNum; i++) {
         shaderInfo.blendMode_ = static_cast<BlendMode>(i);
 
-        psoByBlendMode_[i] = shaderManager->CreatePso("BackGroundSprite_" + blendModeStr[i], shaderInfo, Engine::GetInstance()->GetDxDevice()->device_);
+        psoByBlendMode_[i] = shaderManager->CreatePso("BackGroundSprite_" + blendModeStr[i], shaderInfo, OriGine::Engine::GetInstance()->GetDxDevice()->device_);
     }
 }
 
 void BackGroundSpriteRenderSystem::StartRender() {
     auto& commandList = dxCommand_->GetCommandList();
 
-    ID3D12DescriptorHeap* ppHeaps[] = {Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
+    ID3D12DescriptorHeap* ppHeaps[] = {OriGine::Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
     dxCommand_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }

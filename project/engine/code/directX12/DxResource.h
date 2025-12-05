@@ -1,16 +1,23 @@
 #pragma once
 
-#include <d3d12.h>
+/// microsoft
 #include <wrl.h>
-
+// directX
 #include "DirectXTex/DirectXTex.h"
+#include <d3d12.h>
+
+/// engine
+// directX12
 class DxDevice;
 
+/// math
 #include "Vector4.h"
 #include <stdint.h>
 
-#include <util/BitArray.h>
+/// util
 #include <util/EnumBitMask.h>
+
+namespace OriGine {
 
 enum class DxResourceType : int32_t {
     Unknown            = 0b0,
@@ -23,14 +30,10 @@ enum class DxResourceType : int32_t {
     Buffer_Constant    = 0b1 << 8,
     Buffer_Structured  = 0b1 << 9
 };
-
 /// <summary>
 /// DxResourceType を 文字列に変換
 /// </summary>
-const char* DxResourceTypeToString(DxResourceType type);
-namespace std {
-string to_string(DxResourceType type);
-};
+const char* DxResourceTypeToString(DxResourceType _type);
 
 /// <summary>
 /// DirectX12 リソースの WrapperClass
@@ -45,7 +48,7 @@ public:
     /// </summary>
     /// <param name="device"></param>
     /// <param name="sizeInBytes">bufferのサイズ</param>
-    void CreateBufferResource(Microsoft::WRL::ComPtr<ID3D12Device> device, size_t sizeInBytes);
+    void CreateBufferResource(Microsoft::WRL::ComPtr<ID3D12Device> _device, size_t _sizeInBytes);
 
     /// <summary>
     /// DSVBufferResource として 作成
@@ -58,17 +61,17 @@ public:
     /// <summary>
     /// UAVBufferResource として 作成
     /// </summary>
-    void CreateUAVBuffer(Microsoft::WRL::ComPtr<ID3D12Device> device, size_t sizeInBytes, D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_HEAP_TYPE heapType = D3D12_HEAP_TYPE_DEFAULT);
+    void CreateUAVBuffer(Microsoft::WRL::ComPtr<ID3D12Device> _device, size_t _sizeInBytes, D3D12_RESOURCE_FLAGS _flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_HEAP_TYPE _heapType = D3D12_HEAP_TYPE_DEFAULT);
     /// <summary>
     /// RenderTextureResource として 作成
     /// </summary>
-    void CreateRenderTextureResource(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t width, uint32_t height, DXGI_FORMAT format, const Vec4f& clearColor);
+    void CreateRenderTextureResource(Microsoft::WRL::ComPtr<ID3D12Device> _device, uint32_t _width, uint32_t _height, DXGI_FORMAT _format, const Vec4f& _clearColor);
     /// <summary>
     /// TextureResource として 作成
     /// </summary>
     /// <param name="device"></param>
     /// <param name="metadata"></param>
-    void CreateTextureResource(Microsoft::WRL::ComPtr<ID3D12Device> device, const DirectX::TexMetadata& metadata);
+    void CreateTextureResource(Microsoft::WRL::ComPtr<ID3D12Device> _device, const DirectX::TexMetadata& _metadata);
 
     /// <summary>
     /// 終了処理
@@ -98,5 +101,11 @@ public:
     UINT64 GetWidth() const { return resourceDesc_.Width; } // テクスチャの幅を取得
     UINT GetHeight() const { return resourceDesc_.Height; } // テクスチャの高さを取得
 
-    HRESULT SetName(const std::wstring& name);
+    HRESULT SetName(const std::wstring& _name);
+};
+
+} // namespace OriGine
+
+namespace std {
+string to_string(OriGine::DxResourceType _type);
 };

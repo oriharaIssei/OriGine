@@ -5,7 +5,6 @@
 
 /// engine
 // directX12 object
-#include "directX12/DxDevice.h"
 #include "directX12/ResourceStateTracker.h"
 
 /// externals
@@ -14,8 +13,10 @@
 /// util
 #include "DxUtil.h"
 
-const char* DxResourceTypeToString(DxResourceType type) {
-    switch (type) {
+using namespace OriGine;
+
+const char* DxResourceTypeToString(DxResourceType _type) {
+    switch (_type) {
     case DxResourceType::Unknown:
         return "Unknown";
     case DxResourceType::Descriptor_RTV:
@@ -39,8 +40,8 @@ const char* DxResourceTypeToString(DxResourceType type) {
     }
 }
 
-std::string std::to_string(DxResourceType type) {
-    return DxResourceTypeToString(type);
+std::string std::to_string(DxResourceType _type) {
+    return OriGine::DxResourceTypeToString(_type);
 }
 
 void DxResource::CreateBufferResource(Microsoft::WRL::ComPtr<ID3D12Device> device, size_t sizeInBytes) {

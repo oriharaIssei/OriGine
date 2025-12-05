@@ -14,13 +14,14 @@
 #include <wrl.h>
 
 /// engine
-
 // dx12Object
 #include "directX12/DxCommand.h"
 #include "directX12/DxDescriptor.h"
 #include "directX12/DxFence.h"
 #include "directX12/DxResource.h"
 #include "directX12/PipelineStateObj.h"
+
+namespace OriGine {
 
 struct Texture {
     void Initialize(const std::string& filePath);
@@ -78,3 +79,5 @@ public:
 
 // engine/resource/ は含まれない
 const static std::string kDefaultWhiteTextureLocalPath = "/Texture/white1x1.png";
+
+}

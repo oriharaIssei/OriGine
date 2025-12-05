@@ -111,7 +111,7 @@ void LineRenderSystem::RenderingBy(BlendMode _blend, bool /*_isCulling*/) {
 
 void LineRenderSystem::CreatePSO() {
     ShaderManager* shaderManager = ShaderManager::GetInstance();
-    DxDevice* dxDevice           = Engine::GetInstance()->GetDxDevice();
+    DxDevice* dxDevice           = OriGine::Engine::GetInstance()->GetDxDevice();
 
     // 登録されているかどうかをチェック
     if (shaderManager->IsRegisteredPipelineStateObj("LineMesh_" + blendModeStr[0])) {

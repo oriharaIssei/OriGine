@@ -13,6 +13,8 @@
 #include "myFileSystem/MyFileSystem.h"
 #include "StringUtil.h"
 
+namespace OriGine {
+
 ReplayRecorder::ReplayRecorder() {}
 ReplayRecorder::~ReplayRecorder() {}
 
@@ -154,3 +156,5 @@ void ReplayRecorder::WriteFrameData(std::ofstream& _ofs, size_t _frameIndex) {
         _ofs.write(reinterpret_cast<const char*>(&frame.padData.buttonData), sizeof(uint32_t));
     }
 }
+
+} // namespace OriGine

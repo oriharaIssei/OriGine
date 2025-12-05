@@ -10,6 +10,8 @@
 /// utility
 #include <util/nameof.h>
 
+namespace OriGine {
+
 class Entity;
 class Scene;
 ///< summary>
@@ -22,7 +24,7 @@ public:
 
     virtual void Initialize(Entity* _entity) = 0;
 
-    virtual void Edit(Scene* _scene, Entity* _entity,  const std::string& _parentLabel) = 0;
+    virtual void Edit(Scene* _scene, Entity* _entity, const std::string& _parentLabel) = 0;
     virtual void Debug(Scene* _scene, Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) { Edit(_scene, _entity, _parentLabel); }
 
     virtual void Finalize() = 0;
@@ -33,3 +35,5 @@ public:
 /// </summary>
 template <typename componentType>
 concept IsComponent = std::derived_from<componentType, IComponent>;
+
+} // namespace OriGine

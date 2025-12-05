@@ -272,7 +272,7 @@ void SkinningAnimationSystem::CreatePSO() {
     }
 
     ShaderManager* shaderManager = ShaderManager::GetInstance();
-    DxDevice* dxDevice           = Engine::GetInstance()->GetDxDevice();
+    DxDevice* dxDevice           = OriGine::Engine::GetInstance()->GetDxDevice();
 
     if (shaderManager->IsRegisteredPipelineStateObj(psoKey)) {
         pso_ = shaderManager->GetPipelineStateObj(psoKey);
@@ -353,7 +353,7 @@ void SkinningAnimationSystem::StartCS() {
     }
 
     ID3D12DescriptorHeap* ppHeaps[] = {
-        Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
+        OriGine::Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
     dxCommand_->GetCommandList()->SetDescriptorHeaps(1, ppHeaps);
 
     dxCommand_->GetCommandList()->SetPipelineState(pso_->pipelineState.Get());
@@ -362,7 +362,7 @@ void SkinningAnimationSystem::StartCS() {
 
 void SkinningAnimationSystem::ExecuteCS() {
     HRESULT hr;
-    DxFence* fence = Engine::GetInstance()->GetDxFence();
+    DxFence* fence = OriGine::Engine::GetInstance()->GetDxFence();
 
     // コマンドの受付終了 -----------------------------------
     hr = dxCommand_->Close();

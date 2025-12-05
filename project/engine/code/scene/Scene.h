@@ -1,26 +1,38 @@
 #pragma once
 
 /// stl
+#include <list>
 #include <memory>
 #include <string>
-
-#include <logger/Logger.h>
 
 /// engine
 #include "scene/SceneManager.h"
 // directX12
-class RenderTexture;
+#include "directX12/RenderTexture.h"
+
+/// ECS
+// entity
+#include "entity/EntityRepository.h"
+// component
+#include "component/ComponentArray.h"
+#include "component/ComponentRepository.h"
+
+/// externals
+#include <logger/Logger.h>
+
+/// math
+#include <cstdint>
+
+namespace OriGine {
+// system
+class SystemRunner;
+class ISystem;
+enum class SystemCategory;
+
 // input
 class KeyboardInput;
 class MouseInput;
 class GamePadInput;
-/// ECS
-#include "component/ComponentArray.h"
-#include "component/ComponentRepository.h"
-#include "entity/EntityRepository.h"
-class SystemRunner;
-class ISystem;
-enum class SystemCategory;
 
 /// <summary>
 /// 1場面を表すクラス
@@ -183,3 +195,5 @@ inline std::vector<ComponentType>* Scene::GetComponents(int32_t entityId) const 
     }
     return componentRepository_->GetComponents<ComponentType>(entity);
 }
+
+} // namespace OriGine

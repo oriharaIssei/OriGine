@@ -6,7 +6,7 @@
 /// SubSceneの更新を行うシステム
 /// </summary>
 class SubSceneUpdate
-    : public ISystem {
+    : public OriGine::ISystem {
 public:
     SubSceneUpdate() : ISystem(SystemCategory::Movement, 0) {}
     void Initialize() override {}

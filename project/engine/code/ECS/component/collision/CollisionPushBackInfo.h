@@ -17,7 +17,7 @@ enum class CollisionPushBackType {
 const char* GetCollisionPushBackTypeName(CollisionPushBackType type);
 
 class CollisionPushBackInfo
-    : public IComponent {
+    : public OriGine::IComponent {
     friend void to_json(nlohmann::json& j, const CollisionPushBackInfo& info);
     friend void from_json(const nlohmann::json& j, CollisionPushBackInfo& info);
 

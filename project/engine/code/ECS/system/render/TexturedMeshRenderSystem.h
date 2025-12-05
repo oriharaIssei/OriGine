@@ -9,7 +9,7 @@
 
 /// engine
 // directX12Object
-#include "directX12/buffer/IConstantBuffer.h"
+#include "directX12/buffer/ConstantBuffer.h"
 #include "directX12/buffer/SimpleConstantBuffer.h"
 
 #include "directX12/DxCommand.h"
@@ -71,8 +71,8 @@ public:
     void RenderingMesh(
         Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList,
         const TextureMesh& _mesh,
-        IConstantBuffer<Transform>& _transformBuff,
-        IConstantBuffer<Material>& _materialBuff,
+        ConstantBuffer<Transform>& _transformBuff,
+        ConstantBuffer<Material>& _materialBuff,
         D3D12_GPU_DESCRIPTOR_HANDLE _textureHandle) const;
 
     /// <summary>
@@ -81,7 +81,7 @@ public:
     void RenderingMesh(
         Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList,
         const TextureMesh& _mesh,
-        IConstantBuffer<Transform>& _transformBuff,
+        ConstantBuffer<Transform>& _transformBuff,
         SimpleConstantBuffer<Material>& _materialBuff,
         D3D12_GPU_DESCRIPTOR_HANDLE _textureHandle) const;
 

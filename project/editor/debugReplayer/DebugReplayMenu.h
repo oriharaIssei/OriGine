@@ -2,9 +2,14 @@
 
 #ifdef _DEBUG
 
+/// stl
+#include <string>
+
 /// interface
 #include "editor/IEditor.h"
 
+namespace OriGine {
+namespace Editor {
 // parent
 class DebugReplayWindow;
 
@@ -12,7 +17,7 @@ class DebugReplayWindow;
 /// デバッグリプレイのファイルメニュー
 /// </summary>
 class DebugReplayFileMenu
-    : public Editor::Menu {
+    : public Menu {
 public:
     DebugReplayFileMenu(DebugReplayWindow* _parent);
     ~DebugReplayFileMenu() override;
@@ -27,7 +32,7 @@ private:
 /// デバッグリプレイのロードメニューアイテム
 /// </summary>
 class DebugReplayLoadMenuItem
-    : public Editor::MenuItem {
+    : public MenuItem {
 public:
     DebugReplayLoadMenuItem(DebugReplayWindow* _parent);
     ~DebugReplayLoadMenuItem() override;
@@ -36,7 +41,7 @@ public:
     void Finalize() override;
 
 private:
-    std::string menuLabel_     = "";
+    ::std::string menuLabel_   = "";
     DebugReplayWindow* parent_ = nullptr;
 };
 
@@ -46,15 +51,18 @@ private:
 class DebugReplayLoadFileCommand
     : public IEditCommand {
 public:
-    DebugReplayLoadFileCommand(DebugReplayWindow* _parent, const std::string& _filePath);
+    DebugReplayLoadFileCommand(DebugReplayWindow* _parent, const ::std::string& _filePath);
     ~DebugReplayLoadFileCommand() override;
     void Execute() override;
     void Undo() override;
 
 private:
-    DebugReplayWindow* parent_ = nullptr;
-    std::string filePath_      = "";
-    std::string prevFilePath_  = "";
+    DebugReplayWindow* parent_  = nullptr;
+    ::std::string filePath_     = "";
+    ::std::string prevFilePath_ = "";
 };
+
+} // namespace Editor
+} // namespace OriGine
 
 #endif // _DEBUG

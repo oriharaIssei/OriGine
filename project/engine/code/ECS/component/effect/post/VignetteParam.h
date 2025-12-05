@@ -3,7 +3,7 @@
 
 /// engine
 // DirectX12
-#include "directX12/buffer/IConstantBuffer.h"
+#include "directX12/buffer/ConstantBuffer.h"
 
 /// math
 #include "Vector4.h"
@@ -39,7 +39,7 @@ public:
 /// VignetteEffectのパラメーター
 /// </summary>
 class VignetteParam
-    : public IComponent {
+    : public OriGine::IComponent {
     friend void to_json(nlohmann::json& j, const VignetteParam& p);
     friend void from_json(const nlohmann::json& j, VignetteParam& p);
 
@@ -53,10 +53,10 @@ public:
     void Finalize();
 
 private:
-    IConstantBuffer<VignetteBufferParam> paramBuffer;
+    ConstantBuffer<VignetteBufferParam> paramBuffer;
 
 public:
-    const IConstantBuffer<VignetteBufferParam>& GetVignetteBuffer() const {
+    const ConstantBuffer<VignetteBufferParam>& GetVignetteBuffer() const {
         return paramBuffer;
     }
     const VignetteBufferParam& GetVignetteBufferData() const {

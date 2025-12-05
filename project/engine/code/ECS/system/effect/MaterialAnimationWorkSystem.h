@@ -5,7 +5,7 @@
 /// マテリアルアニメーションワークシステム
 /// </summary>
 class MaterialAnimationWorkSystem
-    : public ISystem {
+    : public OriGine::ISystem {
 public:
     MaterialAnimationWorkSystem() : ISystem(SystemCategory::Effect) {}
     ~MaterialAnimationWorkSystem() override = default;

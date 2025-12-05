@@ -13,9 +13,8 @@ class Entity;
 /// math
 #include <stdint.h>
 
-/// <summary>
-/// Entity Repository(登録, 削除, 取得などを行う)
-/// </summary>
+namespace OriGine {
+
 /// <summary>
 /// Entity Repository(登録, 削除, 取得などを行う)
 /// </summary>
@@ -80,3 +79,5 @@ private:
     std::unordered_map<std::string, int32_t> uniqueEntityIDs_;
     BitArray<uint64_t> entityActiveBits_;
 };
+
+}

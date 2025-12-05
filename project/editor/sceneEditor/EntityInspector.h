@@ -14,13 +14,18 @@
 /// externals
 #include <nlohmann/json.hpp>
 
+namespace OriGine {
+namespace Editor {
+
+/// editor
+// window
 class SceneEditorWindow;
 
 /// <summary>
 /// Entity の Inspectorエリア
 /// </summary>
 class EntityInspectorArea
-    : public Editor::Area {
+    : public Area {
 public:
     EntityInspectorArea(SceneEditorWindow* _window);
     ~EntityInspectorArea() override;
@@ -92,7 +97,7 @@ public:
 /// Entityの基本情報を表示・編集するエリア
 /// </summary>
 class EntityInformationRegion
-    : public Editor::Region {
+    : public Region {
 public:
     EntityInformationRegion(EntityInspectorArea* _parent);
     ~EntityInformationRegion() override;
@@ -184,7 +189,7 @@ private:
 /// EntityのComponentを表示・編集するエリア
 /// </summary>
 class EntityComponentRegion
-    : public Editor::Region {
+    : public Region {
 public:
     EntityComponentRegion(EntityInspectorArea* _parent);
     ~EntityComponentRegion() override;
@@ -221,7 +226,7 @@ private:
 /// EntityのSystemを表示・編集するエリア
 /// </summary>
 class EntitySystemRegion
-    : public Editor::Region {
+    : public Region {
 public:
     EntitySystemRegion(EntityInspectorArea* _parent);
     ~EntitySystemRegion() override;
@@ -238,7 +243,7 @@ private:
 /// Entityに追加する Componentを 選択するエリア
 /// </summary>
 class SelectAddComponentArea
-    : public Editor::Area {
+    : public Area {
 public:
     SelectAddComponentArea(SceneEditorWindow* _parentWindow);
     ~SelectAddComponentArea();
@@ -256,7 +261,7 @@ protected:
     /// Entityに追加するComponentのリストを表示するRegion
     /// </summary>
     class ComponentListRegion
-        : public Editor::Region {
+        : public Region {
     public:
         ComponentListRegion(SelectAddComponentArea* _parentArea);
         ~ComponentListRegion();
@@ -377,7 +382,7 @@ public:
 /// Entityに追加する Systemを 選択するエリア
 /// </summary>
 class SelectAddSystemArea
-    : public Editor::Area {
+    : public Area {
 public:
     SelectAddSystemArea(SceneEditorWindow* _parentWindow);
     ~SelectAddSystemArea();
@@ -395,7 +400,7 @@ public:
     /// Entityに追加するSystemのリストを表示するRegion
     /// </summary>
     class SystemListRegion
-        : public Editor::Region {
+        : public Region {
     public:
         SystemListRegion(SelectAddSystemArea* _parentArea);
         ~SystemListRegion();
@@ -547,5 +552,8 @@ private:
     int32_t compIndex_ = 0; // 削除するコンポーネントのインデックス
     nlohmann::json componentData_; // 削除するコンポーネントのデータ
 };
+
+} // namespace Editor
+} // namespace OriGine
 
 #endif // _DEBUG

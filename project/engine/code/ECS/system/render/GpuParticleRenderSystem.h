@@ -10,7 +10,7 @@
 
 /// engine
 // directX12Object
-#include "directX12/buffer/IConstantBuffer.h"
+#include "directX12/buffer/ConstantBuffer.h"
 #include "directX12/DxCommand.h"
 #include "directX12/ShaderManager.h"
 
@@ -67,5 +67,5 @@ private:
 
     std::array<std::vector<GpuParticleEmitter*>, kBlendNum> activeEmitterByBlendMode_{};
 
-    IConstantBuffer<PerView> perViewBuffer_;
+    ConstantBuffer<PerView> perViewBuffer_;
 };

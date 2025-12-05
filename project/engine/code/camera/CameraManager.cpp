@@ -1,8 +1,12 @@
 #include "CameraManager.h"
 
+/// engine
+#include "Engine.h"
+// directX12 Object
 #include "debugCamera/DebugCamera.h"
 #include "directX12/DxDevice.h"
-#include "Engine.h"
+
+namespace OriGine {
 
 CameraManager::CameraManager() {}
 CameraManager::~CameraManager() {}
@@ -14,7 +18,7 @@ CameraManager* CameraManager::GetInstance() {
 
 void CameraManager::Initialize() {
     // bufferを生成
-    cTransform_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
+    cTransform_.CreateBuffer(OriGine::Engine::GetInstance()->GetDxDevice()->device_);
     cTransform_->Initialize();
     cTransform_->UpdateMatrix();
     cTransform_.ConvertToBuffer();
@@ -36,3 +40,5 @@ void CameraManager::DebugUpdate() {
 void CameraManager::Finalize() {
     cTransform_.Finalize();
 }
+
+} // namespace OriGine

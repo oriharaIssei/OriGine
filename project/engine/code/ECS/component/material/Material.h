@@ -5,7 +5,7 @@
 
 /// engine
 // directX12 object
-#include "directX12/buffer/IConstantBuffer.h"
+#include "directX12/buffer/ConstantBuffer.h"
 #include "directX12/DxDescriptor.h"
 
 /// ecs
@@ -53,7 +53,7 @@ struct ColorAndUvTransform {
 /// Materialコンポーネント
 /// </summary>
 struct Material
-    : public IComponent {
+    : public OriGine::IComponent {
     friend void to_json(nlohmann::json& j, const Material& m);
     friend void from_json(const nlohmann::json& j, Material& m);
 

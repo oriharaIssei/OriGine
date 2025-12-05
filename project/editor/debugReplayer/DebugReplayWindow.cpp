@@ -11,6 +11,9 @@
 #include "DebugReplayControlArea.h"
 #include "DebugReplayMenu.h"
 
+namespace OriGine {
+namespace Editor {
+
 DebugReplayWindow::DebugReplayWindow() : Editor::Window(nameof<DebugReplayWindow>()) {}
 DebugReplayWindow::~DebugReplayWindow() {}
 
@@ -103,7 +106,7 @@ void DebugReplayWindow::UpdateSceneManager() {
                 float deltaTime = replayPlayer_->Apply(keyboardInput_.get(), mouseInput_.get(), gamePadInput_.get());
 
                 // deltaTimeをセット
-                Engine::GetInstance()->SetDeltaTime(deltaTime);
+                OriGine::Engine::GetInstance()->SetDeltaTime(deltaTime);
 
                 // シーン変更(あれば)
                 if (sceneManager_->IsChangeScene()) {
@@ -190,5 +193,8 @@ void DebugReplayViewArea::DrawGui() {
 
     ImGui::End();
 }
+
+} // namespace Editor
+} // namespace OriGine
 
 #endif // _DEBUG

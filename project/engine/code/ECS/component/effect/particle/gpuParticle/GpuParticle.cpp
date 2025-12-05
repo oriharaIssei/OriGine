@@ -177,7 +177,7 @@ void GpuParticleEmitter::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_un
 }
 
 void GpuParticleEmitter::Finalize() {
-    DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>* srvuavHeap = Engine::GetInstance()->GetSrvHeap();
+    DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>* srvuavHeap = OriGine::Engine::GetInstance()->GetSrvHeap();
 
     particleResource_.Finalize();
 
@@ -208,9 +208,9 @@ void GpuParticleEmitter::Finalize() {
 }
 
 void GpuParticleEmitter::CreateBuffer() {
-    DxDevice* dxDevice = Engine::GetInstance()->GetDxDevice();
+    DxDevice* dxDevice = OriGine::Engine::GetInstance()->GetDxDevice();
     // cbv_srv_uav heap
-    DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>* srvuavHeap = Engine::GetInstance()->GetSrvHeap();
+    DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>* srvuavHeap = OriGine::Engine::GetInstance()->GetSrvHeap();
 
     // materialBuffer が未作成の場合は、バッファを生成
     if (!materialBuffer_.GetResource().GetResource()) {

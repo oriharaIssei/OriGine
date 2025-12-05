@@ -1,17 +1,23 @@
 #pragma once
 
+/// stl
 #include <stdint.h>
 #include <string>
 
+/// engine
+#include <Engine.h>
+// directX12
 #include "directX12/DxCommand.h"
 #include "directX12/DxDescriptor.h"
 #include "directX12/DxResource.h"
 #include "directX12/PipelineStateObj.h"
-#include <Engine.h>
 
+/// math
 #include "Vector2.h"
 #include "Vector4.h"
 #include <cstdint>
+
+namespace OriGine {
 
 /// <summary>
 /// RTVとSRVを持つレンダーターゲット用テクスチャ
@@ -124,3 +130,5 @@ public:
         return renderTargets_[index].rtv_.GetCpuHandle();
     }
 };
+
+} // namespace OriGine

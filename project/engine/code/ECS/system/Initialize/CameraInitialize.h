@@ -6,7 +6,7 @@
 /// シーン初期化時にカメラを指定したCameraTransformで初期化するシステム
 /// </summary>
 class CameraInitialize
-    : public ISystem {
+    : public OriGine::ISystem {
 public:
     CameraInitialize();
     ~CameraInitialize() override;

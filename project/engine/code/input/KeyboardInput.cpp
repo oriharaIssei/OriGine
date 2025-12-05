@@ -3,6 +3,8 @@
 #include "MouseInput.h"
 #include <cassert>
 
+namespace OriGine {
+
 void KeyboardInput::Initialize(IDirectInput8* directInput, HWND hwnd) {
     assert(directInput);
 
@@ -46,3 +48,5 @@ void KeyboardInput::Finalize() {
     }
     ClearKeyStates();
 }
+
+} // namespace OriGine

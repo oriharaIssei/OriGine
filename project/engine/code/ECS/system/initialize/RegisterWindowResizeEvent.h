@@ -8,7 +8,7 @@
 /// WindowResize時のイベント登録を行うシステム
 /// </summary>
 class RegisterWindowResizeEvent
-    : public ISystem {
+    : public OriGine::ISystem {
 public:
     RegisterWindowResizeEvent();
     ~RegisterWindowResizeEvent() override = default;

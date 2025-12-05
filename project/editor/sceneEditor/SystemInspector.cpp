@@ -2,8 +2,12 @@
 
 #ifdef _DEBUG
 
+/// engine
+#include "scene/Scene.h"
+
 /// ECS
 // system
+#include "system/ISystem.h"
 #include "system/SystemRegistry.h"
 #include "system/SystemRunner.h"
 
@@ -14,6 +18,9 @@
 /// externals
 #include "myGui/MyGui.h"
 
+namespace OriGine {
+namespace Editor {
+
 #pragma region "SystemInspectorArea"
 
 SystemInspectorArea::SystemInspectorArea(SceneEditorWindow* _window) : Editor::Area("SystemInspectorArea"), parentWindow_(_window) {}
@@ -23,7 +30,7 @@ void SystemInspectorArea::Initialize() {
     auto scene       = parentWindow_->GetCurrentScene();
     auto& allSystems = SystemRegistry::GetInstance()->GetSystemsRef();
     for (auto& [name, createSystemFunc] : allSystems) {
-        auto createdScene = createSystemFunc(scene);
+        std::unique_ptr<ISystem> createdScene = createSystemFunc(scene);
         int32_t category  = int32_t(createdScene->GetCategory());
         systemMap_[category].emplace_back(std::make_pair<>(name, 0));
     }
@@ -360,5 +367,8 @@ void SystemInspectorArea::ChangeSystemCategoryActivity::Undo() {
 #pragma endregion
 
 #pragma endregion
+
+} // namespace Editor
+} // namespace OriGine
 
 #endif // _DEBUG

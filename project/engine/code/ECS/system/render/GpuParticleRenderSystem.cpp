@@ -19,7 +19,7 @@ void GpuParticleRenderSystem::Initialize() {
     BaseRenderSystem::Initialize();
 
     // buffer作成
-    perViewBuffer_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
+    perViewBuffer_.CreateBuffer(OriGine::Engine::GetInstance()->GetDxDevice()->device_);
 
     // BlendModeごとのコンテナ準備
     for (size_t i = 0; i < static_cast<size_t>(BlendMode::Count); ++i) {
@@ -149,7 +149,7 @@ void GpuParticleRenderSystem::CreatePSO() {
     ///=================================================
     for (size_t i = 0; i < kBlendNum; i++) {
         shaderInfo.blendMode_ = BlendMode(i);
-        psoByBlendMode_[i]    = shaderManager->CreatePso("Particle_" + blendModeStr[i], shaderInfo, Engine::GetInstance()->GetDxDevice()->device_);
+        psoByBlendMode_[i]    = shaderManager->CreatePso("Particle_" + blendModeStr[i], shaderInfo, OriGine::Engine::GetInstance()->GetDxDevice()->device_);
     }
 }
 
@@ -161,7 +161,7 @@ void GpuParticleRenderSystem::StartRender() {
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
     // デスクリプタヒープ設定
-    ID3D12DescriptorHeap* ppHeaps[] = {Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
+    ID3D12DescriptorHeap* ppHeaps[] = {OriGine::Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
 
     // カメラ情報更新

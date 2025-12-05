@@ -17,7 +17,7 @@
 /// CameraTransform コンポーネント
 /// </summary>
 class CameraTransform
-    : public IComponent {
+    : public OriGine::IComponent {
     friend void to_json(nlohmann::json& j, const CameraTransform& r);
     friend void from_json(const nlohmann::json& j, CameraTransform& r);
 

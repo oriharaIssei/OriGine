@@ -6,7 +6,7 @@
 /// エミッターの動作を管理するシステム
 /// </summary>
 class EmitterWorkSystem
-    : public ISystem {
+    : public OriGine::ISystem {
 public:
     EmitterWorkSystem() : ISystem(SystemCategory::Effect) {}
     ~EmitterWorkSystem() {}

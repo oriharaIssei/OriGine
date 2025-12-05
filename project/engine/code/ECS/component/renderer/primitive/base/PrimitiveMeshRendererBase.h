@@ -31,7 +31,7 @@ public:
     void LoadTexture(const std::string& _directory, const std::string& _filename);
 
 protected:
-    IConstantBuffer<Transform> transformBuff_;
+    ConstantBuffer<Transform> transformBuff_;
     int32_t materialIndex_ = -1;
     SimpleConstantBuffer<Material> materialBuff_;
 
@@ -53,10 +53,10 @@ public:
         materialIndex_ = _index;
     }
 
-    const IConstantBuffer<Transform>& GetTransformBuff() const {
+    const ConstantBuffer<Transform>& GetTransformBuff() const {
         return transformBuff_;
     }
-    IConstantBuffer<Transform>& GetTransformBuff() {
+    ConstantBuffer<Transform>& GetTransformBuff() {
         return transformBuff_;
     }
     const SimpleConstantBuffer<Material>& GetMaterialBuff() const {

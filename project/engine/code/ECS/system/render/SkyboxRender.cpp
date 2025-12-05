@@ -25,7 +25,7 @@ void SkyboxRender::StartRender() {
 
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    ID3D12DescriptorHeap* ppHeaps[] = {Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
+    ID3D12DescriptorHeap* ppHeaps[] = {OriGine::Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
 }
 
@@ -72,7 +72,7 @@ void SkyboxRender::RenderingBy(BlendMode _blendMode, bool /*_isCulling*/) {
         commandList->IASetIndexBuffer(&mesh.GetIBView());
 
         // ============================= Transformのセット ============================= //
-        IConstantBuffer<Transform>& meshTransform = renderer->GetTransformBuff();
+        ConstantBuffer<Transform>& meshTransform = renderer->GetTransformBuff();
         const CameraTransform& cameraTransform    = CameraManager::GetInstance()->GetTransform();
         meshTransform->translate                  = cameraTransform.translate;
         meshTransform->UpdateMatrix();
@@ -107,7 +107,7 @@ bool SkyboxRender::ShouldSkipRender() const {
 void SkyboxRender::CreatePSO() {
 
     ShaderManager* shaderManager = ShaderManager::GetInstance();
-    DxDevice* dxDevice           = Engine::GetInstance()->GetDxDevice();
+    DxDevice* dxDevice           = OriGine::Engine::GetInstance()->GetDxDevice();
 
     // 登録されているかどうかをチェック
     if (shaderManager->IsRegisteredPipelineStateObj("Skybox_" + blendModeStr[0])) {

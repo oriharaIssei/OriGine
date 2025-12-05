@@ -5,9 +5,7 @@
 #ifdef _DEBUG
 
 /// stl
-#include <array>
 #include <list>
-#include <unordered_map>
 #include <vector>
 
 #include <atomic>
@@ -16,18 +14,18 @@
 #include <string>
 
 /// engine
-#include "component/IComponent.h"
-#include "scene/Scene.h"
-#include "system/ISystem.h"
+#include "globalVariables/SerializedField.h"
+
+// util
+#include "util/nameof.h"
+
+namespace OriGine {
+// system
 enum class SystemCategory;
 // camera
 class DebugCamera;
 
-#include "globalVariables/SerializedField.h"
-
-// util
-#include "util/EnumBitMask.h"
-#include "util/nameof.h"
+namespace Editor {
 
 /// <summary>
 /// 1つのシーンを編集するためのウィンドウ(Editor)
@@ -447,5 +445,8 @@ public:
         return parentWindow_;
     }
 };
+
+} // namespace Editor
+} // namespace OriGine
 
 #endif // _DEBUG

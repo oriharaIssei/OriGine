@@ -83,7 +83,7 @@ void Material::Finalize() {
 
     if (customTexture_.has_value()) {
         customTexture_->resource_.Finalize();
-        auto srvHeap = Engine::GetInstance()->GetSrvHeap();
+        auto srvHeap = OriGine::Engine::GetInstance()->GetSrvHeap();
         srvHeap->ReleaseDescriptor(customTexture_->srv_);
     }
 }
@@ -96,7 +96,7 @@ void Material::CreateCustomTextureFromMetaData(DirectX::TexMetadata& _metaData) 
     customTexture_.emplace(Material::CustomTextureData());
 
     customTexture_->resource_.CreateTextureResource(
-        Engine::GetInstance()->GetDxDevice()->device_,
+        OriGine::Engine::GetInstance()->GetDxDevice()->device_,
         _metaData);
 
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
@@ -106,7 +106,7 @@ void Material::CreateCustomTextureFromMetaData(DirectX::TexMetadata& _metaData) 
     srvDesc.Texture2D.MipLevels     = 1;
 
     /// SRV の作成
-    customTexture_->srv_ = Engine::GetInstance()->GetSrvHeap()->CreateDescriptor(srvDesc, &customTexture_->resource_);
+    customTexture_->srv_ = OriGine::Engine::GetInstance()->GetSrvHeap()->CreateDescriptor(srvDesc, &customTexture_->resource_);
 
     /// Set ResourceStateTracker
     ResourceStateTracker::RegisterResource(customTexture_->resource_.GetResource().Get(), D3D12_RESOURCE_STATE_COPY_DEST);
@@ -127,7 +127,7 @@ void Material::DeleteCustomTexture() {
     if (customTexture_.has_value()) {
         customTexture_->resource_.Finalize();
 
-        auto srvHeap = Engine::GetInstance()->GetSrvHeap();
+        auto srvHeap = OriGine::Engine::GetInstance()->GetSrvHeap();
         srvHeap->ReleaseDescriptor(customTexture_->srv_);
         customTexture_.reset();
     }

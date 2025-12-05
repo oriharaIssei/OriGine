@@ -5,7 +5,7 @@
 /// SpriteAnimationを再生するシステム
 /// </summary>
 class SpriteAnimationSystem
-    : public ISystem {
+    : public OriGine::ISystem {
 public:
     SpriteAnimationSystem();
     ~SpriteAnimationSystem() override;

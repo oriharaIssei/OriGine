@@ -1,7 +1,10 @@
 #pragma once
 
+/// stl
 #include <array>
 #include <string>
+
+namespace OriGine {
 
 /// <summary>
 /// システムの種類(この種類によって処理順序が決定する)
@@ -32,6 +35,9 @@ static const std::array<std::string, static_cast<int>(SystemCategory::Count)> Sy
     "Render",
     "PostRender"};
 
+
+} // namespace OriGine
+
 namespace std {
-string to_string(const SystemCategory& _category);
+string to_string(const OriGine::SystemCategory& _category);
 }

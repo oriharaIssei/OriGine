@@ -1,6 +1,8 @@
 #pragma once
 #include "ComponentArray.h"
 
+namespace OriGine {
+
 /// <summary>
 /// Component Registry
 /// ComponentTypeは EXEにおいて一意であり,
@@ -76,3 +78,5 @@ std::unique_ptr<IComponentArray> ComponentRegistry::CloneComponentArray() {
     }
     return itr->second();
 }
+
+} // namespace OriGine

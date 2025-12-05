@@ -5,7 +5,7 @@
 /// CameraAction を再生するシステム
 /// </summary>
 class CameraActionSystem
-    : public ISystem {
+    : public OriGine::ISystem {
 public:
     CameraActionSystem();
     ~CameraActionSystem();

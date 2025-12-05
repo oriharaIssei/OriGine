@@ -1,11 +1,15 @@
 #include "directX12/DxDevice.h"
 
 /// assert (log)
-#include "logger/Logger.h"
 #include <cassert>
 
 /// util
 #include "util/StringUtil.h"
+
+/// external
+#include "logger/Logger.h"
+
+using namespace OriGine;
 
 void DxDevice::Initialize() {
     HRESULT result;

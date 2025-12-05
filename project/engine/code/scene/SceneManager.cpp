@@ -12,7 +12,6 @@
 #include "winApp/WinApp.h"
 // input
 #include "input/GamePadInput.h"
-#include "input/InputManager.h"
 #include "input/KeyboardInput.h"
 #include "input/MouseInput.h"
 
@@ -28,16 +27,18 @@
 
 // directX12Object
 #include "directX12/RenderTexture.h"
-// module
-#include "camera/CameraManager.h"
-#include "editor/EditorController.h"
-#include "texture/TextureManager.h"
 // util
 #include "myFileSystem/MyFileSystem.h"
+
+/// engine
+// directX12
+#include "directX12/RenderTexture.h"
 
 /// math
 #include "math/Vector2.h"
 #include "math/Vector4.h"
+
+namespace OriGine {
 
 #pragma region "SceneManager"
 
@@ -57,7 +58,7 @@ void SceneManager::Initialize(const std::string& _startScene, KeyboardInput* _ke
     // シーンの初期化処理
     currentScene_->Initialize();
     // シーンビューの初期化
-    currentScene_->GetSceneView()->Resize(Engine::GetInstance()->GetWinApp()->GetWindowSize());
+    currentScene_->GetSceneView()->Resize(OriGine::Engine::GetInstance()->GetWinApp()->GetWindowSize());
     // シーンマネージャーの設定 (this)
     currentScene_->SetSceneManager(this);
 
@@ -108,7 +109,7 @@ void SceneManager::ExecuteSceneChange() {
     // シーンの初期化処理
     currentScene_->Initialize();
     // シーンビューの初期化
-    currentScene_->GetSceneView()->Resize(Engine::GetInstance()->GetWinApp()->GetWindowSize());
+    currentScene_->GetSceneView()->Resize(OriGine::Engine::GetInstance()->GetWinApp()->GetWindowSize());
     // シーンマネージャーの設定 (this)
     currentScene_->SetSceneManager(this);
 
@@ -401,3 +402,5 @@ Entity* SceneSerializer::EntityFromJson(int32_t _entityId, const nlohmann::json&
 }
 
 #pragma endregion
+
+}

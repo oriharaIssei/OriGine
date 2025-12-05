@@ -18,6 +18,8 @@
 /// external
 #include "logger/Logger.h"
 
+namespace OriGine {
+
 static constexpr uint32_t DEFAULT_COMPONENTARRAY_SIZE = 100;
 
 //====================================================================
@@ -80,7 +82,7 @@ public:
 // ComponentArray
 //====================================================================
 template <IsComponent componentType>
-class ComponentArray : public IComponentArray {
+class ComponentArray : public OriGine::IComponentArray {
 public:
     using ComponentType = componentType;
 
@@ -570,3 +572,5 @@ componentType* ComponentArray<componentType>::GetDynamicBackComponent(Entity* _e
     }
     return &components_[index].back();
 }
+
+} // namespace OriGine

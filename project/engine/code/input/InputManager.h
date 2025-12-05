@@ -8,6 +8,8 @@
 // math
 #include <math/Vector2.h>
 
+namespace OriGine {
+
 /// <summary>
 /// 入力管理クラス
 /// </summary>
@@ -32,3 +34,5 @@ private:
     MouseInput mouse_;
     GamePadInput gamepad_;
 };
+
+} // namespace OriGine

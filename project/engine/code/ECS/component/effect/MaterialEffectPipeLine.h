@@ -26,7 +26,7 @@ static const std::array<std::string, static_cast<int32_t>(MaterialEffectType::Co
 /// Materialに設定したエフェクトを掛けるためのパイプライン
 /// </summary>
 class MaterialEffectPipeLine
-    : public IComponent {
+    : public OriGine::IComponent {
     friend void to_json(nlohmann::json& j, const MaterialEffectPipeLine& c);
     friend void from_json(const nlohmann::json& j, MaterialEffectPipeLine& c);
 

@@ -13,6 +13,8 @@
 
 #pragma comment(lib, "dxcompiler.lib")
 
+using namespace OriGine;
+
 void ShaderCompiler::Initialize() {
     // DxCの各種インスタンスを生成する
     HRESULT hr;

@@ -19,7 +19,7 @@
 /// Material にPostEffectをかけるためのSystem
 /// </summary>
 class MaterialEffect
-    : public ISystem {
+    : public OriGine::ISystem {
 public:
     MaterialEffect();
     ~MaterialEffect() override;

@@ -7,7 +7,7 @@
 /// カメラをアニメーションさせるコンポーネント
 /// </summary>
 class CameraAction
-    : public IComponent {
+    : public OriGine::IComponent {
     friend void to_json(nlohmann::json& j, const CameraAction& action);
     friend void from_json(const nlohmann::json& j, CameraAction& action);
 

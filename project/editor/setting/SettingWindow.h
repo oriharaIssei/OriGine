@@ -10,11 +10,14 @@
 /// math
 #include <math/Vector2.h>
 
+namespace OriGine {
+namespace Editor {
+
 /// <summary>
 /// 設定メニュー
 /// </summary>
 class SettingsMenu
-    : public Editor::Menu {
+    : public Menu {
 public:
     SettingsMenu();
     ~SettingsMenu() override;
@@ -27,7 +30,7 @@ private:
 /// 設定ウィンドウを開くメニューアイテム
 /// </summary>
 class SettingsWindowOpen
-    : public Editor::MenuItem {
+    : public MenuItem {
 public:
     SettingsWindowOpen();
     ~SettingsWindowOpen() override;
@@ -42,7 +45,7 @@ private:
 /// 設定ウィンドウ
 /// </summary>
 class SettingWindow
-    : public Editor::Window {
+    : public Window {
 public:
     /// globalVariables で 設定を保存しているシーン名
     static const std::string kGlobalVariablesSceneName;
@@ -60,7 +63,7 @@ public:
 /// 設定ウィンドウ内のエリア
 /// </summary>
 class SettingWindowArea
-    : public Editor::Area {
+    : public Area {
 public:
     SettingWindowArea();
     ~SettingWindowArea() override;
@@ -68,7 +71,7 @@ public:
     void Finalize() override;
 };
 class SettingWindowRegion
-    : public Editor::Region {
+    : public Region {
 public:
     static const std::string kGlobalVariablesGroupName;
 
@@ -88,7 +91,7 @@ private:
 /// プロジェクト設定エリア
 /// </summary>
 class ProjectSettingArea
-    : public Editor::Area {
+    : public Area {
 public:
     ProjectSettingArea();
     ~ProjectSettingArea() override;
@@ -99,7 +102,7 @@ public:
 /// プロジェクト設定リージョン
 /// </summary>
 class ProjectSettingRegion
-    : public Editor::Region {
+    : public Region {
 public:
     ProjectSettingRegion();
     ~ProjectSettingRegion() override;
@@ -114,4 +117,8 @@ private:
     // ↓ 本当は 別の場所に保存したいけど項目が少なすぎるため一旦ここ
     float gravity_ = 9.8f; // 重力の値
 };
+
+} // namespace Editor
+} // namespace OriGine
+
 #endif // _DEBUG

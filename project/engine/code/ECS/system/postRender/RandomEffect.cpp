@@ -79,7 +79,7 @@ void RandomEffect::CreatePSO() {
     for (size_t i = 0; i < static_cast<size_t>(BlendMode::Count); ++i) {
         BlendMode blendMode   = static_cast<BlendMode>(i);
         shaderInfo.blendMode_ = blendMode;
-        psoByBlendMode_[i]    = shaderManager->CreatePso("RandomEffect_" + blendModeStr[i], shaderInfo, Engine::GetInstance()->GetDxDevice()->device_);
+        psoByBlendMode_[i]    = shaderManager->CreatePso("RandomEffect_" + blendModeStr[i], shaderInfo, OriGine::Engine::GetInstance()->GetDxDevice()->device_);
     }
 }
 
@@ -98,7 +98,7 @@ void RandomEffect::RenderStart() {
     commandList->SetGraphicsRootSignature(psoByBlendMode_[blendIndex]->rootSignature.Get());
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    ID3D12DescriptorHeap* ppHeaps[] = {Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
+    ID3D12DescriptorHeap* ppHeaps[] = {OriGine::Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
 }
 

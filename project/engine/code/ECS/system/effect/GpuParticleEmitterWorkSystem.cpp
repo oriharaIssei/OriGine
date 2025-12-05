@@ -17,7 +17,7 @@ void GpuParticleEmitterWorkSystem::Initialize() {
     constexpr int32_t initialReserveCount = 100;
     dxCommand_                            = std::make_unique<DxCommand>();
     dxCommand_->Initialize("main", "main");
-    perFrameBuffer_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
+    perFrameBuffer_.CreateBuffer(OriGine::Engine::GetInstance()->GetDxDevice()->device_);
 
     workEmitters_.reserve(initialReserveCount);
 
@@ -55,7 +55,7 @@ void GpuParticleEmitterWorkSystem::Update() {
     /// ==========================================
     // PerFrame Buffer Update
     /// ==========================================
-    perFrameBuffer_->deltaTime = Engine::GetInstance()->GetDeltaTime();
+    perFrameBuffer_->deltaTime = OriGine::Engine::GetInstance()->GetDeltaTime();
     perFrameBuffer_->time      = perFrameBuffer_->deltaTime;
     perFrameBuffer_.ConvertToBuffer();
 
@@ -201,7 +201,7 @@ void GpuParticleEmitterWorkSystem::CreateEmitGpuParticlePso() {
     }
 
     ShaderManager* shaderManager = ShaderManager::GetInstance();
-    DxDevice* dxDevice           = Engine::GetInstance()->GetDxDevice();
+    DxDevice* dxDevice           = OriGine::Engine::GetInstance()->GetDxDevice();
 
     if (shaderManager->IsRegisteredPipelineStateObj(psoKey)) {
         emitGpuParticlePso_ = shaderManager->GetPipelineStateObj(psoKey);
@@ -283,7 +283,7 @@ void GpuParticleEmitterWorkSystem::CreateUpdateGpuParticlePso() {
     }
 
     ShaderManager* shaderManager = ShaderManager::GetInstance();
-    DxDevice* dxDevice           = Engine::GetInstance()->GetDxDevice();
+    DxDevice* dxDevice           = OriGine::Engine::GetInstance()->GetDxDevice();
 
     if (shaderManager->IsRegisteredPipelineStateObj(psoKey)) {
         updateGpuParticlePso_ = shaderManager->GetPipelineStateObj(psoKey);
@@ -366,7 +366,7 @@ void GpuParticleEmitterWorkSystem::StartCS(PipelineStateObj* _pso) {
     dxCommand_->GetCommandList()->SetComputeRootSignature(_pso->rootSignature.Get());
 
     ID3D12DescriptorHeap* ppHeaps[] = {
-        Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
+        OriGine::Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
     dxCommand_->GetCommandList()->SetDescriptorHeaps(1, ppHeaps);
 
     // emit も update も使うため ここで Set
@@ -375,7 +375,7 @@ void GpuParticleEmitterWorkSystem::StartCS(PipelineStateObj* _pso) {
 
 void GpuParticleEmitterWorkSystem::ExecuteCS() {
     HRESULT hr;
-    DxFence* fence = Engine::GetInstance()->GetDxFence();
+    DxFence* fence = OriGine::Engine::GetInstance()->GetDxFence();
 
     // コマンドの受付終了 -----------------------------------
     hr = dxCommand_->Close();

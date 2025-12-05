@@ -10,7 +10,7 @@
 
 /// engine
 // directX12Object
-#include "directX12/buffer/IConstantBuffer.h"
+#include "directX12/buffer/ConstantBuffer.h"
 #include "directX12/DxCommand.h"
 #include "directX12/mesh/Mesh.h"
 #include "directX12/ShaderManager.h"

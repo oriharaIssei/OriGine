@@ -43,16 +43,18 @@
 #pragma comment(lib, "dinput8.lib")
 #pragma comment(lib, "XInput.lib")
 
-Engine* Engine::GetInstance() {
+using namespace OriGine;
+
+Engine* OriGine::Engine::GetInstance() {
     static Engine instance;
     return &instance;
 }
 
-Engine::Engine() {}
+OriGine::Engine::Engine() {}
 
-Engine::~Engine() {}
+OriGine::Engine::~Engine() {}
 
-void Engine::CreateDsv() {
+void OriGine::Engine::CreateDsv() {
     // DSVリソースの作成
     dsvResource_.CreateDSVBuffer(dxDevice_->device_, static_cast<UINT64>(window_->GetWidth()), static_cast<UINT>(window_->GetHeight()));
 
@@ -64,7 +66,7 @@ void Engine::CreateDsv() {
     dxDsv_ = dsvHeap_->CreateDescriptor(dsvDesc, &dsvResource_);
 }
 
-void Engine::Initialize() {
+void OriGine::Engine::Initialize() {
     window_ = std::make_unique<WinApp>();
 
     SerializedField<std::string> windowTitle{"Settings", "Window", "Title"};
@@ -125,7 +127,7 @@ void Engine::Initialize() {
     CameraManager::GetInstance()->Initialize();
 }
 
-void Engine::Finalize() {
+void OriGine::Engine::Finalize() {
 
     AnimationManager::GetInstance()->Finalize();
     CameraManager::GetInstance()->Finalize();
@@ -158,12 +160,12 @@ void Engine::Finalize() {
     ResourceStateTracker::ClearGlobalResourceStates();
 }
 
-bool Engine::ProcessMessage() {
+bool OriGine::Engine::ProcessMessage() {
     return window_->ProcessMessage();
 }
 
 constexpr float MAX_DELTATIME = 1.f / 30.f;
-void Engine::BeginFrame() {
+void OriGine::Engine::BeginFrame() {
     deltaTime_->Update();
     if (deltaTime_->GetDeltaTime() > MAX_DELTATIME) {
         deltaTime_->SetDeltaTime(MAX_DELTATIME);
@@ -208,15 +210,15 @@ void Engine::BeginFrame() {
     lightManager_->Update();
 }
 
-void Engine::EndFrame() {
+void OriGine::Engine::EndFrame() {
     ImGuiManager::GetInstance()->End();
 }
 
-void Engine::ScreenPreDraw() {
+void OriGine::Engine::ScreenPreDraw() {
     DxFH::PreDraw(dxCommand_.get(), window_.get(), dxDsv_, dxSwapChain_.get());
 }
 
-void Engine::ScreenPostDraw() {
+void OriGine::Engine::ScreenPostDraw() {
     ImGuiManager::GetInstance()->Draw();
 
     ///===============================================================
@@ -262,6 +264,6 @@ void Engine::ScreenPostDraw() {
     ///===============================================================
 }
 
-int Engine::LoadTexture(const std::string& filePath) {
+int OriGine::Engine::LoadTexture(const std::string& filePath) {
     return TextureManager::LoadTexture(filePath);
 }

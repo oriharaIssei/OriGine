@@ -93,7 +93,7 @@ void GradationEffect::CreatePSO() {
     depthStencilDesc.DepthEnable = false;
     shaderInfo.SetDepthStencilDesc(depthStencilDesc);
 
-    pso_ = shaderManager->CreatePso("GradationEffect", shaderInfo, Engine::GetInstance()->GetDxDevice()->device_);
+    pso_ = shaderManager->CreatePso("GradationEffect", shaderInfo, OriGine::Engine::GetInstance()->GetDxDevice()->device_);
 }
 
 void GradationEffect::RenderStart() {
@@ -108,7 +108,7 @@ void GradationEffect::RenderStart() {
     commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    ID3D12DescriptorHeap* ppHeaps[] = {Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
+    ID3D12DescriptorHeap* ppHeaps[] = {OriGine::Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
 }
 

@@ -13,7 +13,6 @@
 #include "component/IComponent.h"
 #include "system/ISystem.h"
 
-
 struct ChunkHeader {
     char id[4];
     int32_t size;
@@ -44,7 +43,7 @@ public:
 /// 音を再生するためのコンポーネント
 /// </summary>
 class Audio
-    : public IComponent {
+    : public OriGine::IComponent {
     friend void to_json(nlohmann::json& j, const Audio& t);
     friend void from_json(const nlohmann::json& j, Audio& t);
 
@@ -57,7 +56,7 @@ public:
 
     void Initialize(Entity* /*_entity*/) override;
 
-    void Edit(Scene* _scene,Entity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
 
     void Finalize() override;
 
@@ -110,7 +109,7 @@ public:
 /// Audioをシーン初期化時に再生するシステム
 /// </summary>
 class AudioInitializeSystem
-    : public ISystem {
+    : public OriGine::ISystem {
 public:
     AudioInitializeSystem();
     ~AudioInitializeSystem() override;

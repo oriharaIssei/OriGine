@@ -1,10 +1,14 @@
 #pragma once
 
-#include <unordered_map>
-
+/// microsoft
 #include <wrl.h>
 
 #include <d3d12.h>
+
+/// stl
+#include <unordered_map>
+
+namespace OriGine {
 
 /// <summary>
 /// リソースの状態遷移を管理するクラス
@@ -61,3 +65,5 @@ public:
 private:
     std::unordered_map<ID3D12Resource*, D3D12_RESOURCE_STATES> localResourceStates_;
 };
+
+} // namespace OriGine

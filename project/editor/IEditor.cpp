@@ -5,7 +5,11 @@
 #include "imGuiManager/ImGuiManager.h"
 #include <imgui/imgui_internal.h>
 
-void Editor::Menu::DrawGui() {
+namespace OriGine {
+
+namespace Editor {
+
+void Menu::DrawGui() {
     for (auto& [name, item] : menuItems_) {
         if (!item) {
             continue;
@@ -14,7 +18,7 @@ void Editor::Menu::DrawGui() {
     }
 }
 
-void Editor::Area::DrawGui() {
+void Area::DrawGui() {
     bool isOpen = isOpen_.Current();
 
     if (!isOpen) {
@@ -43,14 +47,14 @@ void Editor::Area::DrawGui() {
     ImGui::End();
 }
 
-void Editor::Area::Finalize() {
+void Area::Finalize() {
     for (auto& [name, region] : regions_) {
         region->Finalize();
         region.reset();
     }
 }
 
-void Editor::Area::UpdateFocusAndOpenState() {
+void Area::UpdateFocusAndOpenState() {
     if (isOpen_.IsChanged()) {
         if (isOpen_.IsTrigger()) {
             auto command = std::make_unique<WindowOpenCommand>(&isOpen_, true);
@@ -62,7 +66,7 @@ void Editor::Area::UpdateFocusAndOpenState() {
     }
 }
 
-void Editor::Window::UpdateFocusAndOpenState() {
+void Window::UpdateFocusAndOpenState() {
     if (isFocused_.IsChanged()) {
         if (isFocused_.IsTrigger()) {
             auto command = std::make_unique<WindowFocusCommand>(title_, &isFocused_, true);
@@ -83,7 +87,7 @@ void Editor::Window::UpdateFocusAndOpenState() {
     }
 }
 
-void Editor::Window::DrawGui() {
+void Window::DrawGui() {
     ///=================================================================================================
     // Main DockSpace Window
     ///=================================================================================================
@@ -142,7 +146,7 @@ void Editor::Window::DrawGui() {
     ImGui::End();
 }
 
-void Editor::Window::Finalize() {
+void Window::Finalize() {
     // エリアの終了処理
     for (auto& [name, area] : areas_) {
         area->Finalize();
@@ -156,17 +160,17 @@ void Editor::Window::Finalize() {
     menus_.clear();
 }
 
-void Editor::Window::WindowOpenMassage() {
+void Window::WindowOpenMassage() {
     auto command = std::make_unique<WindowOpenCommand>(&isOpen_, true);
     EditorController::GetInstance()->PushCommand(std::move(command));
 }
 
-void Editor::Window::WindowCloseMassage() {
+void Window::WindowCloseMassage() {
     auto command = std::make_unique<WindowOpenCommand>(&isOpen_, false);
     EditorController::GetInstance()->PushCommand(std::move(command));
 }
 
-void Editor::Menu::Finalize() {
+void Menu::Finalize() {
     for (auto& [name, item] : menuItems_) {
         item->Finalize();
         item.reset();
@@ -237,5 +241,8 @@ void WindowFocusCommand::Undo() {
     windowOpenState_->Set(!to_);
     windowOpenState_->Sync();
 }
+
+} // namespace Editor
+} // namespace OriGine
 
 #endif // DEBUG

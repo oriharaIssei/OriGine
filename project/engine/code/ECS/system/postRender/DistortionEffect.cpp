@@ -24,7 +24,7 @@ void DistortionEffect::Initialize() {
     BasePostRenderingSystem::Initialize();
 
     distortionSceneTexture_ = std::make_unique<RenderTexture>(dxCommand_.get());
-    distortionSceneTexture_->Initialize(2, Engine::GetInstance()->GetWinApp()->GetWindowSize(), DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, Vec4f(0.0f, 0.0f, 0.0f, 0.0f));
+    distortionSceneTexture_->Initialize(2, OriGine::Engine::GetInstance()->GetWinApp()->GetWindowSize(), DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, Vec4f(0.0f, 0.0f, 0.0f, 0.0f));
     distortionSceneTexture_->SetTextureName("DistortionSceneTexture");
 
     texturedMeshRenderSystem_ = std::make_unique<TexturedMeshRenderSystem>();
@@ -129,16 +129,16 @@ void DistortionEffect::CreatePSO() {
     depthStencilDesc.DepthEnable = false;
     shaderInfo.SetDepthStencilDesc(depthStencilDesc);
 
-    pso_ = shaderManager->CreatePso("DistortionEffect", shaderInfo, Engine::GetInstance()->GetDxDevice()->device_);
+    pso_ = shaderManager->CreatePso("DistortionEffect", shaderInfo, OriGine::Engine::GetInstance()->GetDxDevice()->device_);
 }
 
 void DistortionEffect::RenderStart() {
     auto& commandList = dxCommand_->GetCommandList();
 
     // シーンテクスチャのサイズ確認
-    if (distortionSceneTexture_->GetTextureSize() != Engine::GetInstance()->GetWinApp()->GetWindowSize()) {
+    if (distortionSceneTexture_->GetTextureSize() != OriGine::Engine::GetInstance()->GetWinApp()->GetWindowSize()) {
         // サイズが変わったら再初期化
-        distortionSceneTexture_->Resize(Engine::GetInstance()->GetWinApp()->GetWindowSize());
+        distortionSceneTexture_->Resize(OriGine::Engine::GetInstance()->GetWinApp()->GetWindowSize());
     }
 
     /// ----------------------------------------------------------
@@ -179,7 +179,7 @@ void DistortionEffect::RenderStart() {
 
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    ID3D12DescriptorHeap* ppHeaps[] = {Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
+    ID3D12DescriptorHeap* ppHeaps[] = {OriGine::Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
     dxCommand_->GetCommandList()->SetDescriptorHeaps(1, ppHeaps);
 }
 

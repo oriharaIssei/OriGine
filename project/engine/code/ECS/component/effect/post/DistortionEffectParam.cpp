@@ -22,9 +22,9 @@
 #endif // _DEBUG
 
 void DistortionEffectParam::Initialize(Entity* _hostEntity) {
-    effectParamData_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
+    effectParamData_.CreateBuffer(OriGine::Engine::GetInstance()->GetDxDevice()->device_);
     effectParamData_.ConvertToBuffer();
-    materialBuffer_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
+    materialBuffer_.CreateBuffer(OriGine::Engine::GetInstance()->GetDxDevice()->device_);
     materialBuffer_.ConvertToBuffer(ColorAndUvTransform());
 
     if (use3dObjectList_) {

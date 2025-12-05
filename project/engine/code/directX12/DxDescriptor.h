@@ -11,12 +11,15 @@
 /// engine
 #include <logger/Logger.h>
 // directX12
-#include <directX12/DxDevice.h>
 #include <directX12/DxResource.h>
-// util
-#include <util/BitArray.h>
-#include <util/EnumBitMask.h>
 
+/// util
+#include <util/BitArray.h>
+
+namespace OriGine {
+/// <summary>
+/// Descriptor Heapの種類
+/// </summary>
 enum class DxDescriptorHeapType {
     CBV_SRV_UAV = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, // Shader Resource View
     Sampler     = D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, // Sampler
@@ -58,7 +61,7 @@ struct DxDescriptor {
     ~DxDescriptor() {}
 
 protected:
-    uint32_t index                       = 0; // ヒープ内のインデックス
+    uint32_t index                        = 0; // ヒープ内のインデックス
     D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = D3D12_CPU_DESCRIPTOR_HANDLE(0); // CPU側のハンドル
     D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = D3D12_GPU_DESCRIPTOR_HANDLE(0); // GPU側のハンドル
 public:
@@ -352,3 +355,5 @@ DxDescriptorHeap<DxDescriptorHeapType::Sampler>::CreateDescriptor(const D3D12_SA
 }
 
 #pragma endregion
+
+}

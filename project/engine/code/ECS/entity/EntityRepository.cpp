@@ -5,6 +5,8 @@
 /// externals
 #include "logger/Logger.h"
 
+namespace OriGine {
+
 EntityRepository::EntityRepository() {}
 EntityRepository::~EntityRepository() = default;
 
@@ -186,3 +188,5 @@ const std::vector<Entity>& EntityRepository::GetEntities() const {
 std::vector<Entity>& EntityRepository::GetEntitiesRef() {
     return entities_;
 }
+
+} // namespace OriGine

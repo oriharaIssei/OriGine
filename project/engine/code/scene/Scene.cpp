@@ -5,16 +5,19 @@
 #include "scene/SceneManager.h"
 #define RESOURCE_DIRECTORY
 #include "winApp/WinApp.h"
-// directX12
-#include "directX12/RenderTexture.h"
 
-// Ecs
-#include "entity/Entity.h"
-#include "system/ISystem.h"
-
-#include "component/ComponentRepository.h"
 #include "engine/EngineInclude.h"
+
+/// Ecs
+// entity
+#include "entity/Entity.h"
+// system
+#include "system/ISystem.h"
 #include "system/SystemRunner.h"
+// component
+#include "component/ComponentRepository.h"
+
+namespace OriGine {
 
 Scene::Scene(const std::string& _name) : name_(_name) {}
 Scene::~Scene() {}
@@ -42,7 +45,7 @@ void Scene::InitializeECS() {
 void Scene::InitializeSceneView() {
     sceneView_ = std::make_unique<RenderTexture>();
 
-    sceneView_->Initialize(2, Engine::GetInstance()->GetWinApp()->GetWindowSize(), DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, {0.f, 0.f, 0.f, 0.f});
+    sceneView_->Initialize(2, OriGine::Engine::GetInstance()->GetWinApp()->GetWindowSize(), DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, {0.f, 0.f, 0.f, 0.f});
     sceneView_->SetTextureName(name_ + "_SceneView");
 }
 
@@ -185,4 +188,6 @@ bool Scene::UnregisterSystem(const std::string& _systemTypeName) {
     }
     LOG_ERROR("Scene::UnregisterSystem: SystemRunner is not initialized.");
     return false;
+}
+
 }

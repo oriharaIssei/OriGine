@@ -90,7 +90,7 @@ void VignetteEffect::CreatePSO() {
     depthStencilDesc.DepthEnable = false;
     shaderInfo.SetDepthStencilDesc(depthStencilDesc);
 
-    pso_ = shaderManager->CreatePso("VignetteEffect", shaderInfo, Engine::GetInstance()->GetDxDevice()->device_);
+    pso_ = shaderManager->CreatePso("VignetteEffect", shaderInfo, OriGine::Engine::GetInstance()->GetDxDevice()->device_);
 }
 
 void VignetteEffect::RenderStart() {

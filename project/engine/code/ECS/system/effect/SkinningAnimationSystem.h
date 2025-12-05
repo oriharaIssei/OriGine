@@ -13,7 +13,7 @@ class DxCommand;
 /// SkinningAnimation を再生するシステム
 /// </summary>
 class SkinningAnimationSystem
-    : public ISystem {
+    : public OriGine::ISystem {
 public:
     SkinningAnimationSystem();
     ~SkinningAnimationSystem() override;

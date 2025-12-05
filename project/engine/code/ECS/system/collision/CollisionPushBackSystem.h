@@ -5,7 +5,7 @@
 /// 衝突判定後に押し戻し処理を行うシステム
 /// </summary>
 class CollisionPushBackSystem
-    : public ISystem {
+    : public OriGine::ISystem {
 public:
     CollisionPushBackSystem()
         : ISystem(SystemCategory::Collision) {}

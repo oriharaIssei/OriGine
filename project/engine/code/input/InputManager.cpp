@@ -1,7 +1,9 @@
 #include "InputManager.h"
 
+/// Engine
 #include "Engine.h"
-#include "winApp/WinApp.h"
+
+namespace OriGine {
 
 //////////////////////////////////////////////////////////
 // InputManager
@@ -32,3 +34,5 @@ void InputManager::Finalize() {
     keyboard_.Finalize();
     mouse_.Finalize();
 }
+
+} // namespace OriGine

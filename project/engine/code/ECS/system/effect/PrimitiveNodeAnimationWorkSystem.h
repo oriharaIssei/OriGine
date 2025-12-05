@@ -5,7 +5,7 @@
 /// PrimitiveNodeAnimationのアニメーション更新を行うシステム
 /// </summary>
 class PrimitiveNodeAnimationWorkSystem
-    : public ISystem {
+    : public OriGine::ISystem {
 public:
     PrimitiveNodeAnimationWorkSystem() : ISystem(SystemCategory::Effect) {}
     ~PrimitiveNodeAnimationWorkSystem() override = default;

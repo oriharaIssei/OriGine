@@ -1,7 +1,10 @@
 #include "Model.h"
 
+/// engine
+// assetes
 #include "texture/TextureManager.h"
 
+namespace OriGine {
 void Model::loadTexture(int32_t part, const std::string& _texturePath) {
     materialData_[part].texturePath   = _texturePath;
     materialData_[part].textureNumber = TextureManager::LoadTexture(_texturePath);
@@ -31,3 +34,5 @@ void SkinCluster::UpdateMatrixPalette(const Skeleton& _skeleton) {
 
     this->skeletonMatrixPaletteBuffer_.ConvertToBuffer();
 }
+
+} // namespace OriGine

@@ -2,7 +2,7 @@
 #include "component/IComponent.h"
 
 /// engine
-#include "directX12/buffer/IConstantBuffer.h"
+#include "directX12/buffer/ConstantBuffer.h"
 #include "directX12/buffer/SimpleConstantBuffer.h"
 
 /// component
@@ -46,7 +46,7 @@ public:
 /// DissolveEffectのパラメーター
 /// </summary>
 class DissolveEffectParam
-    : public IComponent {
+    : public OriGine::IComponent {
     friend void to_json(nlohmann::json& j, const DissolveEffectParam& param);
     friend void from_json(const nlohmann::json& j, DissolveEffectParam& param);
 
@@ -74,7 +74,7 @@ public:
 
 private:
     bool isActive_ = false; // 有効かどうか
-    IConstantBuffer<DissolveParamData> paramBuffer_;
+    ConstantBuffer<DissolveParamData> paramBuffer_;
 
     std::string textureFilePath_ = ""; // テクスチャのファイルパス
     uint32_t textureIndex_       = 0;
@@ -87,10 +87,10 @@ public:
         return isActive_;
     }
 
-    const IConstantBuffer<DissolveParamData>& GetDissolveBuffer() const {
+    const ConstantBuffer<DissolveParamData>& GetDissolveBuffer() const {
         return paramBuffer_;
     }
-    IConstantBuffer<DissolveParamData>& GetDissolveBufferRef() {
+    ConstantBuffer<DissolveParamData>& GetDissolveBufferRef() {
         return paramBuffer_;
     }
 

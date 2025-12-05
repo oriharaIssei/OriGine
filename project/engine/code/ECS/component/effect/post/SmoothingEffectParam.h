@@ -4,7 +4,7 @@
 
 /// engine
 // directX12
-#include "directX12/buffer/IConstantBuffer.h"
+#include "directX12/buffer/ConstantBuffer.h"
 
 /// math
 #include "math/Vector2.h"
@@ -26,7 +26,7 @@ public:
 };
 
 struct SmoothingEffectParam
-    : public IComponent {
+    : public OriGine::IComponent {
     friend void to_json(nlohmann::json& j, const SmoothingEffectParam& c);
     friend void from_json(const nlohmann::json& j, SmoothingEffectParam& c);
 
@@ -40,5 +40,5 @@ public:
 
 public:
     bool isActive_ = true;
-    IConstantBuffer<BoxFilterSize> boxFilterSize_;
+    ConstantBuffer<BoxFilterSize> boxFilterSize_;
 };

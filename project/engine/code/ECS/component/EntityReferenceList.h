@@ -9,7 +9,8 @@
 /// エンティティ参照リストコンポーネント
 /// 他のエンティティファイルへの参照を保持するコンポーネント
 /// </summary>
-class EntityReferenceList : public IComponent {
+class EntityReferenceList
+    : public OriGine::IComponent {
     friend void to_json(nlohmann::json& j, const EntityReferenceList& c);
     friend void from_json(const nlohmann::json& j, EntityReferenceList& c);
 

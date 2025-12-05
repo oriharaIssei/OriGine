@@ -163,7 +163,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="editor\sceneEditor\SceneEditor.h" />
     <ClInclude Include="editor\sceneEditor\SystemInspector.h" />
     <ClInclude Include="editor\setting\SettingWindow.h" />
-    <ClInclude Include="editor\window\EditorWindowMenu.h" />
+    <ClInclude Include="editor\windowMenu\EditorWindowMenu.h" />
     <ClInclude Include="engine\EngineInclude.h" />
     <ClInclude Include="engine\code\ECS\component\ComponentArray.h" />
     <ClInclude Include="engine\code\ECS\component\ComponentRegistry.h" />
@@ -291,8 +291,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\directX12\ResourceStateTracker.h" />
     <ClInclude Include="engine\code\directX12\ShaderCompiler.h" />
     <ClInclude Include="engine\code\directX12\ShaderManager.h" />
-    <ClInclude Include="engine\code\directX12\buffer\IConstantBuffer.h" />
-    <ClInclude Include="engine\code\directX12\buffer\IStructuredBuffer.h" />
+    <ClInclude Include="engine\code\directX12\buffer\ConstantBuffer.h" />
+    <ClInclude Include="engine\code\directX12\buffer\StructuredBuffer.h" />
     <ClInclude Include="engine\code\directX12\buffer\SimpleConstantBuffer.h" />
     <ClInclude Include="engine\code\directX12\buffer\SimpleStructuredBuffer.h" />
     <ClInclude Include="engine\code\directX12\mesh\DefaultVertexData.h" />
@@ -358,7 +358,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="editor\sceneEditor\SceneEditor.cpp" />
     <ClCompile Include="editor\sceneEditor\SystemInspector.cpp" />
     <ClCompile Include="editor\setting\SettingWindow.cpp" />
-    <ClCompile Include="editor\window\EditorWindowMenu.cpp" />
+    <ClCompile Include="editor\windowMenu\EditorWindowMenu.cpp" />
     <ClCompile Include="engine\code\ECS\component\ComponentRegistry.cpp" />
     <ClCompile Include="engine\code\ECS\component\ComponentRepository.cpp" />
     <ClCompile Include="engine\code\ECS\component\EntityReferenceList.cpp" />

@@ -16,7 +16,7 @@
 /// ビット配列を効率的に管理するためのクラスです。内部的には整数型の配列を使用してビットを格納します。
 /// </remarks>
 /// <typeparam name="intergralType">bitを格納する数値タイプ</typeparam>
-template <std::unsigned_integral intergralType = std::uint32_t>
+template <std::unsigned_integral intergralType = uint32_t>
 class BitArray {
 public:
     using BlockType                = intergralType;
@@ -29,11 +29,11 @@ public:
     /// サイズを変更する
     /// </summary>
     /// <param name="newSize"></param>
-    void resize(size_t newSize);
+    void Resize(size_t newSize);
     /// <summary>
     /// 空いているビットを1つ確保し、その位置を返す
     /// </summary>
-    size_t allocateBit();
+    size_t AllocateBit();
 
     /// <summary>
     /// 指定した位置のビットの値を取得する
@@ -92,13 +92,13 @@ private:
 };
 
 template <std::unsigned_integral intergralType>
-void BitArray<intergralType>::resize(size_t newSize) {
+void BitArray<intergralType>::Resize(size_t newSize) {
     size_ = newSize;
     data_.resize((newSize + BlockBitCount - 1) / BlockBitCount, 0);
 }
 
 template <std::unsigned_integral intergralType>
-inline size_t BitArray<intergralType>::allocateBit() {
+inline size_t BitArray<intergralType>::AllocateBit() {
     for (size_t i = 0; i < data_.size(); ++i) {
         if (data_[i] != BlockType(-1)) { // 全てのビットが1でない場合
             for (size_t j = 0; j < BlockBitCount; ++j) {

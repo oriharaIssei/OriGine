@@ -7,8 +7,11 @@
 
 #include <vector>
 
+/// spdlog
 #include <spdlog/sinks/sink.h>
 #include <spdlog/spdlog.h>
+
+namespace OriGine {
 
 /// <summary>
 /// ImGui表示用のログシンク
@@ -49,3 +52,5 @@ private:
     std::unique_ptr<spdlog::formatter> formatter_ = std::make_unique<spdlog::pattern_formatter>("[%Y-%m-%d %H:%M:%S.%e] [%l] %v");
     std::mutex mutex_;
 };
+
+} // namespace OriGine

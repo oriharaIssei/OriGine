@@ -68,7 +68,7 @@ void from_json(const nlohmann::json& j, ModelMeshRenderer& r) {
 
     auto& transformBufferDatas = j.at("transformBufferDatas");
     for (auto& transformData : transformBufferDatas) {
-        auto& backTransform     = r.meshTransformBuff_.emplace_back(IConstantBuffer<Transform>());
+        auto& backTransform     = r.meshTransformBuff_.emplace_back(ConstantBuffer<Transform>());
         backTransform.openData_ = transformData;
     }
 
@@ -107,7 +107,7 @@ ModelMeshRenderer::ModelMeshRenderer(const std::vector<TextureMesh>& _meshGroup)
         meshTransformBuff_[i].ConvertToBuffer();
 
         meshMaterialBuff_[i].second = SimpleConstantBuffer<Material>();
-        meshMaterialBuff_[i].second.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
+        meshMaterialBuff_[i].second.CreateBuffer(OriGine::Engine::GetInstance()->GetDxDevice()->device_);
         meshMaterialBuff_[i].second.ConvertToBuffer(Material());
 
         meshTextureNumbers_[i] = 0;
@@ -128,7 +128,7 @@ ModelMeshRenderer::ModelMeshRenderer(const std::shared_ptr<std::vector<TextureMe
         textureFilePath_.resize(meshGroup_->size(), "");
     }
     for (size_t i = 0; i < meshGroup_->size(); ++i) {
-        meshTransformBuff_[i].CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
+        meshTransformBuff_[i].CreateBuffer(OriGine::Engine::GetInstance()->GetDxDevice()->device_);
 
         meshTransformBuff_[i]->UpdateMatrix();
         meshTransformBuff_[i].ConvertToBuffer();
@@ -272,7 +272,7 @@ void ModelMeshRenderer::InitializeTransformBuffer(Entity* _hostEntity) {
     hostEntity_ = _hostEntity;
     meshTransformBuff_.resize(meshGroup_->size());
     for (int32_t i = 0; i < meshGroup_->size(); ++i) {
-        meshTransformBuff_[i].CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
+        meshTransformBuff_[i].CreateBuffer(OriGine::Engine::GetInstance()->GetDxDevice()->device_);
         meshTransformBuff_[i].ConvertToBuffer();
     }
 }
@@ -287,7 +287,7 @@ void ModelMeshRenderer::InitializeMaterialBufferWithMaterialIndex(Entity* _hostE
 
     for (int32_t i = 0; i < meshGroup_->size(); ++i) {
         meshMaterialBuff_[i].first = -1;
-        meshMaterialBuff_[i].second.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
+        meshMaterialBuff_[i].second.CreateBuffer(OriGine::Engine::GetInstance()->GetDxDevice()->device_);
     }
 }
 
@@ -300,7 +300,7 @@ void ModelMeshRenderer::InitializeMaterialBuffer(Entity* _hostEntity) {
     meshTextureNumbers_.resize(meshGroup_->size(), 0);
 
     for (int32_t i = 0; i < meshGroup_->size(); ++i) {
-        meshMaterialBuff_[i].second.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
+        meshMaterialBuff_[i].second.CreateBuffer(OriGine::Engine::GetInstance()->GetDxDevice()->device_);
     }
 }
 
@@ -457,7 +457,7 @@ LineRenderer::~LineRenderer() {}
 
 void LineRenderer::Initialize(Entity* _hostEntity) {
     MeshRenderer::Initialize(_hostEntity);
-    transformBuff_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
+    transformBuff_.CreateBuffer(OriGine::Engine::GetInstance()->GetDxDevice()->device_);
 
     transformBuff_.openData_.UpdateMatrix();
     transformBuff_.ConvertToBuffer();

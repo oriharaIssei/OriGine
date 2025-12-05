@@ -1,11 +1,19 @@
 #include "DebugCamera.h"
 
+/// engine
+// input
+#include "input/InputManager.h"
+
+/// math
+#include <cmath>
+#include <numbers>
+
+/// gui
 #ifdef _DEBUG
 #include "imgui/imgui.h"
 #endif // _DEBUG
 
-#include <cmath>
-#include <numbers>
+namespace OriGine {
 
 void DebugCamera::Initialize() {
     currentState_.reset(new Neutral(this));
@@ -132,3 +140,5 @@ void DebugCamera::RotationState::Update() {
     // 現在の回転に新しい回転を適用
     host_->cameraBuff_.rotate *= yawRotation * pitchRotation;
 }
+
+} // namespace OriGine

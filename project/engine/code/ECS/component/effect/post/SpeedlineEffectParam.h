@@ -3,7 +3,7 @@
 
 /// engine
 // directX12
-#include "directX12/buffer/IConstantBuffer.h"
+#include "directX12/buffer/ConstantBuffer.h"
 
 /// math
 #include "Vector2.h"
@@ -46,7 +46,7 @@ struct SpeedlineBufferParamData {
 /// SpeedlineEffectのパラメーター
 /// </summary>
 class SpeedlineEffectParam
-    : public IComponent {
+    : public OriGine::IComponent {
     friend void to_json(nlohmann::json& j, const SpeedlineEffectParam& p);
     friend void from_json(const nlohmann::json& j, SpeedlineEffectParam& p);
 
@@ -64,7 +64,7 @@ public:
 
 private:
     bool isActive_ = false;
-    IConstantBuffer<SpeedlineBufferParamData> cBuffer_;
+    ConstantBuffer<SpeedlineBufferParamData> cBuffer_;
 
     std::string radialTextureFilePath_ = "";
     uint32_t radialTextureIndex_        = 0;
@@ -75,6 +75,6 @@ public:
     uint32_t GetRadialTextureIndex() const { return radialTextureIndex_; }
     const std::string& GetRadialTextureFilePath() const { return radialTextureFilePath_; }
 
-    const IConstantBuffer<SpeedlineBufferParamData>& GetBuffer() const { return cBuffer_; }
+    const ConstantBuffer<SpeedlineBufferParamData>& GetBuffer() const { return cBuffer_; }
     SpeedlineBufferParamData& GetParamData() { return cBuffer_.openData_; }
 };

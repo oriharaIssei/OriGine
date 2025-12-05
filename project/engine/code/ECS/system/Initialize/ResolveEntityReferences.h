@@ -5,7 +5,7 @@
 /// EntityReferenceListのEntityファイルを読み込むシステム
 /// </summary>
 class ResolveEntityReferences
-    : public ISystem {
+    : public OriGine::ISystem {
 public:
     ResolveEntityReferences();
     ~ResolveEntityReferences() override = default;

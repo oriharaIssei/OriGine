@@ -79,7 +79,7 @@ void GrayscaleEffect::CreatePSO() {
     depthStencilDesc.DepthEnable = false;
     shaderInfo.SetDepthStencilDesc(depthStencilDesc);
 
-    pso_ = shaderManager->CreatePso("GrayscaleEffect", shaderInfo, Engine::GetInstance()->GetDxDevice()->device_);
+    pso_ = shaderManager->CreatePso("GrayscaleEffect", shaderInfo, OriGine::Engine::GetInstance()->GetDxDevice()->device_);
 }
 
 void GrayscaleEffect::RenderStart() {
@@ -94,7 +94,7 @@ void GrayscaleEffect::RenderStart() {
     commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    ID3D12DescriptorHeap* ppHeaps[] = {Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
+    ID3D12DescriptorHeap* ppHeaps[] = {OriGine::Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
 
     commandList->SetGraphicsRootDescriptorTable(0, renderTarget_->GetBackBufferSrvHandle());

@@ -10,6 +10,9 @@
 #include "imgui/imgui_impl_dx12.h"
 #include "imgui/imgui_impl_win32.h"
 
+namespace OriGine {
+namespace Editor {
+
 EditorController::EditorController() {}
 
 EditorController::~EditorController() {}
@@ -140,4 +143,8 @@ void EditorController::Finalize() {
 
     ClearCommandHistory();
 }
+
+} // namespace Editor
+} // namespace OriGine
+
 #endif // _DEBUG

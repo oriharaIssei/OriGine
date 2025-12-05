@@ -2,9 +2,11 @@
 
 /// Engine
 // directX12
-#include "directX12/buffer/IStructuredBuffer.h"
+#include "directX12/buffer/StructuredBuffer.h"
 
-template <StructuredBuffer structBuff>
+namespace OriGine {
+
+template <HasStructuredBuffer structBuff>
 class SimpleStructuredBuffer {
 public:
     using StructuredBufferType = typename structBuff::ConstantBuffer;
@@ -52,7 +54,7 @@ public:
     std::shared_ptr<DxSrvDescriptor> GetSrv() const { return srv_; }
 };
 
-template <StructuredBuffer structBuff>
+template <HasStructuredBuffer structBuff>
 inline void SimpleStructuredBuffer<structBuff>::CreateBuffer(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t elementCount, bool _withUAV) {
     elementCount_ = elementCount;
 
@@ -77,16 +79,16 @@ inline void SimpleStructuredBuffer<structBuff>::CreateBuffer(Microsoft::WRL::Com
     viewDesc.Buffer.NumElements         = elementCount;
     viewDesc.Buffer.StructureByteStride = sizeof(StructuredBufferType);
 
-    srv_ = Engine::GetInstance()->GetSrvHeap()->CreateDescriptor<>(viewDesc, &buff_);
+    srv_ = OriGine::Engine::GetInstance()->GetSrvHeap()->CreateDescriptor<>(viewDesc, &buff_);
 }
 
-template <StructuredBuffer structBuff>
+template <HasStructuredBuffer structBuff>
 inline void SimpleStructuredBuffer<structBuff>::Finalize() {
-    Engine::GetInstance()->GetSrvHeap()->ReleaseDescriptor(srv_);
+    OriGine::Engine::GetInstance()->GetSrvHeap()->ReleaseDescriptor(srv_);
     buff_.Finalize();
 }
 
-template <StructuredBuffer structBuff>
+template <HasStructuredBuffer structBuff>
 inline void SimpleStructuredBuffer<structBuff>::resize(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t newElementCount) {
     if (newElementCount == elementCount_ || newElementCount == 0) {
         return;
@@ -111,18 +113,20 @@ inline void SimpleStructuredBuffer<structBuff>::resize(Microsoft::WRL::ComPtr<ID
         viewDesc.Buffer.NumElements         = elementCount_;
         viewDesc.Buffer.StructureByteStride = sizeof(StructuredBufferType);
 
-        srv_ = Engine::GetInstance()->GetSrvHeap()->CreateDescriptor<>(viewDesc, &buff_);
+        srv_ = OriGine::Engine::GetInstance()->GetSrvHeap()->CreateDescriptor<>(viewDesc, &buff_);
     }
 }
 
-template <StructuredBuffer structBuff>
+template <HasStructuredBuffer structBuff>
 inline void SimpleStructuredBuffer<structBuff>::ConvertToBuffer(std::vector<structBuff>& _inputData) {
     if (mappingData_) {
         std::copy(_inputData.begin(), _inputData.end(), mappingData_);
     }
 }
 
-template <StructuredBuffer structBuff>
+template <HasStructuredBuffer structBuff>
 inline void SimpleStructuredBuffer<structBuff>::SetForRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const {
     cmdList->SetGraphicsRootDescriptorTable(rootParameterNum, srv_->GetGpuHandle());
+}
+
 }

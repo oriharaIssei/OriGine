@@ -11,7 +11,7 @@
 #endif // _DEBUG
 
 void RandomEffectParam::Initialize(Entity* /*_hostEntity*/) {
-    effectParamData_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
+    effectParamData_.CreateBuffer(OriGine::Engine::GetInstance()->GetDxDevice()->device_);
 }
 
 void RandomEffectParam::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {

@@ -19,6 +19,9 @@
 /// externals
 #include "myGui/MyGui.h"
 
+namespace OriGine {
+namespace Editor {
+
 #pragma region "EntityInspector"
 
 EntityInspectorArea::EntityInspectorArea(SceneEditorWindow* _window)
@@ -1202,5 +1205,8 @@ void RemoveComponentForEntityCommand::Undo() {
     compArray->InsertComponent(entity, compIndex_);
     compArray->LoadComponent(entity, compIndex_, componentData_);
 }
+
+} // namespace Editor
+} // namespace OriGine
 
 #endif // _DEBUG

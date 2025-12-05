@@ -14,6 +14,8 @@ class GamePadInput;
 /// default data
 #include "base/ReplayData.h"
 
+namespace OriGine {
+
 /// <summary>
 /// 記録データを読み込み、フレーム単位で入力を再生する
 /// </summary>
@@ -65,3 +67,5 @@ public:
 
     const ReplayFrameData& GetCurrentFrameData() const { return fileData_.frameData[currentFrameIndex_]; }
 };
+
+} // namespace OriGine

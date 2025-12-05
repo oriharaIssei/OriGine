@@ -253,7 +253,7 @@ void ColliderRenderingSystem::Finalize() {
 void ColliderRenderingSystem::CreatePSO() {
 
     ShaderManager* shaderManager = ShaderManager::GetInstance();
-    DxDevice* dxDevice           = Engine::GetInstance()->GetDxDevice();
+    DxDevice* dxDevice           = OriGine::Engine::GetInstance()->GetDxDevice();
 
     ///=================================================
     /// shader読み込み

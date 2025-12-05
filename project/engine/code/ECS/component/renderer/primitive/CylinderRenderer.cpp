@@ -32,8 +32,8 @@ void CylinderRenderer::Initialize(Entity* _hostEntity) {
     meshGroup_->emplace_back(MeshType());
     auto& mesh = meshGroup_->back();
 
-    transformBuff_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
-    materialBuff_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
+    transformBuff_.CreateBuffer(OriGine::Engine::GetInstance()->GetDxDevice()->device_);
+    materialBuff_.CreateBuffer(OriGine::Engine::GetInstance()->GetDxDevice()->device_);
 
     // create _mesh
     CreateMesh(&mesh);

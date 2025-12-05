@@ -6,6 +6,8 @@
 #include "math/Vector2.h"
 #include <cstdint>
 
+namespace OriGine {
+
 enum class MouseButton : uint32_t {
     LEFT   = 0,
     RIGHT  = 1,
@@ -210,3 +212,5 @@ public:
     /// </summary>
     void SetShowCursor(bool show);
 };
+
+} // namespace OriGine

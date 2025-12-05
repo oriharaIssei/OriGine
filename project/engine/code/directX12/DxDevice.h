@@ -1,9 +1,12 @@
 #pragma once
 
+/// microsoft
 #include <wrl.h>
-
+// directX
 #include "d3d12.h"
 #include "dxgi1_6.h"
+
+namespace OriGine {
 
 /// <summary>
 /// device,adapter,factory をまとめた構造体
@@ -17,5 +20,6 @@ public:
     Microsoft::WRL::ComPtr<IDXGIFactory7> dxgiFactory_ = nullptr;
     Microsoft::WRL::ComPtr<IDXGIAdapter4> useAdapter_  = nullptr;
     Microsoft::WRL::ComPtr<ID3D12Device> device_       = nullptr;
-
 };
+
+}

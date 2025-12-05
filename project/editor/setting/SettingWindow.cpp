@@ -9,6 +9,9 @@
 // util
 #include "util/nameof.h"
 
+namespace OriGine {
+namespace Editor {
+
 const std::string SettingWindow::kGlobalVariablesSceneName       = "Settings";
 const std::string SettingWindowRegion::kGlobalVariablesGroupName = "Window";
 
@@ -245,5 +248,8 @@ void SettingsWindowOpen::DrawGui() {
 void SettingsWindowOpen::Finalize() {}
 
 #pragma endregion
+
+} // namespace Editor
+} // namespace OriGine
 
 #endif // _DEBUG

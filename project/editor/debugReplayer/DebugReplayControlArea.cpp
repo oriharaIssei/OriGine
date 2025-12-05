@@ -7,6 +7,9 @@
 /// util
 #include "myGui/MyGui.h"
 
+namespace OriGine {
+namespace Editor {
+
 DebugReplayControlArea::DebugReplayControlArea(DebugReplayWindow* _parent)
     : Editor::Area(nameof<DebugReplayControlArea>()), parent_(_parent) {}
 DebugReplayControlArea::~DebugReplayControlArea() {}
@@ -110,5 +113,8 @@ void DebugReplayControlRegion::DrawGui() {
         parent_->SetReplayFrameIndex(static_cast<size_t>(currentFrame_));
     }
 }
+
+} // namespace Editor
+} // namespace OriGine
 
 #endif // _DEBUG

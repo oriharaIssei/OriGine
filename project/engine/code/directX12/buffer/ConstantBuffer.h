@@ -27,15 +27,15 @@ concept HasInConstantBuffer = requires {
 /// </summary>
 /// <typeparam name="constBuff"></typeparam>
 template <HasInConstantBuffer constBuff>
-class IConstantBuffer {
+class ConstantBuffer {
 public:
     template <typename... Args>
-    IConstantBuffer(Args... args) {
+    ConstantBuffer(Args... args) {
         openData_ = constBuff(args...);
     }
 
-    IConstantBuffer() {}
-    ~IConstantBuffer() {}
+    ConstantBuffer() {}
+    ~ConstantBuffer() {}
 
     /// <summary>
     /// ConstantBuffer用のバッファを作成する
@@ -79,10 +79,10 @@ public:
 };
 
 template <HasInConstantBuffer constBuff>
-inline void IConstantBuffer<constBuff>::CreateBuffer(Microsoft::WRL::ComPtr<ID3D12Device> device) {
+inline void ConstantBuffer<constBuff>::CreateBuffer(Microsoft::WRL::ComPtr<ID3D12Device> device) {
     // リソースがすでに存在する場合は何もしない
     if (buff_.GetResourceRef().Get()) {
-        LOG_WARN("IConstantBuffer: Buffer resource already exists. Skipping creation.");
+        LOG_WARN("ConstantBuffer: Buffer resource already exists. Skipping creation.");
         return;
     }
 
@@ -95,23 +95,23 @@ inline void IConstantBuffer<constBuff>::CreateBuffer(Microsoft::WRL::ComPtr<ID3D
 }
 
 template <HasInConstantBuffer constBuff>
-inline void IConstantBuffer<constBuff>::Finalize() {
+inline void ConstantBuffer<constBuff>::Finalize() {
     // buffer が有効な場合は終了処理を行う
     if (buff_.IsValid()) {
         buff_.Finalize();
     }
 }
 template <HasInConstantBuffer constBuff>
-inline void IConstantBuffer<constBuff>::ConvertToBuffer() const {
+inline void ConstantBuffer<constBuff>::ConvertToBuffer() const {
     *mappingData_ = openData_;
 }
 
 template <HasInConstantBuffer constBuff>
-inline void IConstantBuffer<constBuff>::SetForRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const {
+inline void ConstantBuffer<constBuff>::SetForRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const {
     cmdList->SetGraphicsRootConstantBufferView(rootParameterNum, buff_.GetResource()->GetGPUVirtualAddress());
 }
 
 template <HasInConstantBuffer constBuff>
-inline void IConstantBuffer<constBuff>::SetForComputeRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const {
+inline void ConstantBuffer<constBuff>::SetForComputeRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const {
     cmdList->SetComputeRootConstantBufferView(rootParameterNum, buff_.GetResource()->GetGPUVirtualAddress());
 }

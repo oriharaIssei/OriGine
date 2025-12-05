@@ -21,6 +21,8 @@
 
 #endif // _DEBUG
 
+namespace OriGine {
+
 ImGuiManager* ImGuiManager::GetInstance() {
     static ImGuiManager instance;
     return &instance;
@@ -28,7 +30,7 @@ ImGuiManager* ImGuiManager::GetInstance() {
 
 void ImGuiManager::Initialize([[maybe_unused]] const WinApp* window, [[maybe_unused]] const DxDevice* dxDevice, [[maybe_unused]] const DxSwapChain* dxSwapChain) {
 #ifdef _DEBUG
-    srvHeap_ = Engine::GetInstance()->GetSrvHeap()->GetHeap();
+    srvHeap_ = OriGine::Engine::GetInstance()->GetSrvHeap()->GetHeap();
 
     dxCommand_ = std::make_unique<DxCommand>();
     dxCommand_->Initialize("main", "main");
@@ -36,7 +38,7 @@ void ImGuiManager::Initialize([[maybe_unused]] const WinApp* window, [[maybe_unu
     // 先頭のDescriptorを使っている事になっているので合わせる
     // 追記，fontのテクスチャに使われているらしい
 
-    srv_ = Engine::GetInstance()->GetSrvHeap()->AllocateDescriptor();
+    srv_ = OriGine::Engine::GetInstance()->GetSrvHeap()->AllocateDescriptor();
 
     ///=============================================
     /// imgui の初期化
@@ -78,7 +80,7 @@ void ImGuiManager::Finalize() {
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
 
-    Engine::GetInstance()->GetSrvHeap()->ReleaseDescriptor(srv_);
+    OriGine::Engine::GetInstance()->GetSrvHeap()->ReleaseDescriptor(srv_);
     srvHeap_.Reset();
 #endif // _DEBUG
 }
@@ -107,3 +109,5 @@ void ImGuiManager::Draw() {
     ImGui_ImplDx12_RenderDrawData(ImGui::GetDrawData(), dxCommand_->GetCommandList().Get());
 #endif // _DEBUG
 }
+
+} // namespace OriGine

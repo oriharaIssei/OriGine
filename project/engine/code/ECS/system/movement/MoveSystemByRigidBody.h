@@ -10,7 +10,7 @@
 /// Rigidbody によるTransformの移動を行うシステム
 /// </summary>
 class MoveSystemByRigidBody
-    : public ISystem {
+    : public OriGine::ISystem {
 public:
     MoveSystemByRigidBody();
     ~MoveSystemByRigidBody();

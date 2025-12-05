@@ -4,7 +4,7 @@
 /// engine
 
 // directX12
-#include "directX12/buffer/IConstantBuffer.h"
+#include "directX12/buffer/ConstantBuffer.h"
 #include "directX12/ShaderManager.h"
 
 /// <summary>
@@ -29,7 +29,7 @@ struct RandomEffectParamData {
 /// RandomEffectのパラメーター
 /// </summary>
 class RandomEffectParam
-    : public IComponent {
+    : public OriGine::IComponent {
 public:
     friend void to_json(nlohmann::json& j, const RandomEffectParam& param);
     friend void from_json(const nlohmann::json& j, RandomEffectParam& param);
@@ -44,7 +44,7 @@ public:
 private:
     bool isActive_ = true; // エフェクトが有効かどうか
 
-    IConstantBuffer<RandomEffectParamData> effectParamData_;
+    ConstantBuffer<RandomEffectParamData> effectParamData_;
     float maxTime_ = 1000.f; // 最大時間
 
     BlendMode blendMode_ = BlendMode::Alpha;
@@ -72,10 +72,10 @@ public:
     void SetBlendMode(BlendMode mode) {
         blendMode_ = mode;
     }
-    const IConstantBuffer<RandomEffectParamData>& GetConstantBuffer() const {
+    const ConstantBuffer<RandomEffectParamData>& GetConstantBuffer() const {
         return effectParamData_;
     }
-    IConstantBuffer<RandomEffectParamData>& GetConstantBufferRef() {
+    ConstantBuffer<RandomEffectParamData>& GetConstantBufferRef() {
         return effectParamData_;
     }
 };

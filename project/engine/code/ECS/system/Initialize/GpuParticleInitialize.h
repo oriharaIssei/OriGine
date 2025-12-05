@@ -16,7 +16,7 @@ struct PipelineStateObj;
 /// GpuParticle の初期化を行うシステム
 /// </summary>
 class GpuParticleInitialize
-    : public ISystem {
+    : public OriGine::ISystem {
 public:
     GpuParticleInitialize();
     ~GpuParticleInitialize();

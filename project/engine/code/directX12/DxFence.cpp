@@ -1,6 +1,9 @@
 #include "directX12/DxFence.h"
 
+/// stl
 #include <cassert>
+
+using namespace OriGine;
 
 void DxFence::Initialize(Microsoft::WRL::ComPtr<ID3D12Device> device) {
     // 初期値0でFenceを生成

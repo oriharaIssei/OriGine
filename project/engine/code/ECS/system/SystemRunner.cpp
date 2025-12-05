@@ -1,6 +1,13 @@
 #include "SystemRunner.h"
 
+/// ECS
+// system
 #include "SystemRegistry.h"
+
+/// external
+#include "logger/Logger.h"
+
+namespace OriGine {
 
 SystemRunner::SystemRunner(Scene* _scene) : scene_(_scene) {}
 SystemRunner::~SystemRunner() {}
@@ -272,3 +279,5 @@ ISystem* SystemRunner::GetSystemRef(const std::string& _systemName) {
     LOG_ERROR("SystemRunner: System '{}' not found in any category.", _systemName);
     return nullptr;
 }
+
+} // namespace OriGine

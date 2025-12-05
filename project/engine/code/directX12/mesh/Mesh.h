@@ -7,10 +7,12 @@
 /// engine
 #include "Engine.h"
 // directX12
+#include "directX12/DxDevice.h"
+#include "directX12/DxResource.h"
 #include "d3d12.h"
 #include "DefaultVertexData.h"
-#include "../DxDevice.h"
-#include "../DxResource.h"
+
+namespace OriGine {
 
 /// <summary>
 /// メッシュデータ
@@ -150,7 +152,7 @@ inline void Mesh<VertexDataType>::Initialize(UINT _vertexCapacity, UINT _indexCa
 
         UINT vertDataSize = sizeof(VertexDataType);
 
-        vertBuff_.CreateBufferResource(Engine::GetInstance()->GetDxDevice()->device_, vertDataSize * this->vertexSize_);
+        vertBuff_.CreateBufferResource(OriGine::Engine::GetInstance()->GetDxDevice()->device_, vertDataSize * this->vertexSize_);
         vbView_.BufferLocation = vertBuff_.GetResource()->GetGPUVirtualAddress();
         vbView_.SizeInBytes    = vertDataSize * this->vertexSize_;
         vbView_.StrideInBytes  = vertDataSize;
@@ -161,7 +163,7 @@ inline void Mesh<VertexDataType>::Initialize(UINT _vertexCapacity, UINT _indexCa
         indexes_.resize(this->indexSize_);
 
         UINT indexDataSize = sizeof(uint32_t);
-        indexBuff_.CreateBufferResource(Engine::GetInstance()->GetDxDevice()->device_, indexDataSize * this->indexSize_);
+        indexBuff_.CreateBufferResource(OriGine::Engine::GetInstance()->GetDxDevice()->device_, indexDataSize * this->indexSize_);
         ibView_.BufferLocation = indexBuff_.GetResource()->GetGPUVirtualAddress();
         ibView_.SizeInBytes    = indexDataSize * this->indexSize_;
         ibView_.Format         = DXGI_FORMAT_R32_UINT;
@@ -236,4 +238,6 @@ inline void Mesh<VertexDataType>::copyIndexData(const uint32_t* _data, uint32_t 
         indexes_.resize(_size);
     }
     memcpy(indexes_.data(), _data, sizeof(uint32_t) * _size);
+}
+
 }

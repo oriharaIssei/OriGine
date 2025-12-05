@@ -12,7 +12,6 @@
 
 /// engine
 // assetes
-
 struct Model;
 struct ModelNode;
 struct ModelMeshData;
@@ -23,12 +22,12 @@ struct TexturedMaterial;
 #include "directX12/PipelineStateObj.h"
 #include "directX12/ShaderManager.h"
 
-
 // math
 #include "Matrix4x4.h"
 
-class ModelManager {
+namespace OriGine {
 
+class ModelManager {
 public:
     static ModelManager* GetInstance();
 
@@ -67,3 +66,5 @@ public:
     const std::vector<TexturedMaterial>& GetDefaultMaterials(ModelMeshData* key) const;
     const std::vector<TexturedMaterial>& GetDefaultMaterials(const std::string& directoryPath, const std::string& filename) const;
 };
+
+}

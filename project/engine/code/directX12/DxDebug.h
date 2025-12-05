@@ -1,8 +1,11 @@
 #pragma once
 
+/// microsoft
 #include <wrl.h>
-
+// DirectX12
 #include <d3d12.h>
+
+namespace OriGine {
 
 /// <summary>
 /// DirectX12 をデバッグするためのクラス. デストラクタ時にReportLiveObjectsを呼び出す.
@@ -54,3 +57,5 @@ public:
 
     void SetDebugMessageSeverity(D3D12_MESSAGE_SEVERITY severity);
 };
+
+} // namespace OriGine

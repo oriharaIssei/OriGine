@@ -5,17 +5,16 @@
 /// interface
 #include "editor/IEditor.h"
 
+namespace OriGine {
+namespace Editor {
 // parent
 class DebugReplayWindow;
-
-/// engine
-#include "scene/SceneManager.h"
 
 /// <summary>
 /// デバッグのリプレイを制御するエリア
 /// </summary>
 class DebugReplayControlArea
-    : public Editor::Area {
+    : public Area {
 public:
     DebugReplayControlArea(DebugReplayWindow* _parent);
     ~DebugReplayControlArea() override;
@@ -30,7 +29,7 @@ private:
 /// デバッグのリプレイを制御する Guiの集まり
 /// </summary>
 class DebugReplayControlRegion
-    : public Editor::Region {
+    : public Region {
 public:
     DebugReplayControlRegion(DebugReplayWindow* _parent);
     ~DebugReplayControlRegion() override;
@@ -46,5 +45,8 @@ private:
     uint32_t currentFrame_    = 0;
     bool isPlaying_           = false;
 };
+
+} // namespace Editor
+} // namespace OriGine
 
 #endif // _DEBUG

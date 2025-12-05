@@ -152,7 +152,7 @@ void TexturedMeshRenderSystem::Finalize() {
 void TexturedMeshRenderSystem::CreatePSO() {
 
     ShaderManager* shaderManager = ShaderManager::GetInstance();
-    DxDevice* dxDevice           = Engine::GetInstance()->GetDxDevice();
+    DxDevice* dxDevice           = OriGine::Engine::GetInstance()->GetDxDevice();
 
     // 登録されているかどうかをチェック
     if (shaderManager->IsRegisteredPipelineStateObj("TextureMesh_" + blendModeStr[0])) {
@@ -216,19 +216,19 @@ void TexturedMeshRenderSystem::CreatePSO() {
 
     rootParameter[3].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
     rootParameter[3].ShaderVisibility          = D3D12_SHADER_VISIBILITY_PIXEL;
-    rootParameter[3].Descriptor.ShaderRegister = 1; // t1 register for DirectionalLight StructuredBuffer
+    rootParameter[3].Descriptor.ShaderRegister = 1; // t1 register for DirectionalLight OriGine::StructuredBuffer
     directionalLightBufferIndex_               = (int32_t)texShaderInfo.pushBackRootParameter(rootParameter[3]);
 
-    // PointLight ... 4 (StructuredBuffer)
+    // PointLight ... 4 (OriGine::StructuredBuffer)
     rootParameter[4].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
     rootParameter[4].ShaderVisibility          = D3D12_SHADER_VISIBILITY_PIXEL;
-    rootParameter[4].Descriptor.ShaderRegister = 3; // t3 register for PointLight StructuredBuffer
+    rootParameter[4].Descriptor.ShaderRegister = 3; // t3 register for PointLight OriGine::StructuredBuffer
     pointLightBufferIndex_                     = (int32_t)texShaderInfo.pushBackRootParameter(rootParameter[4]);
 
-    // SpotLight ... 5 (StructuredBuffer)
+    // SpotLight ... 5 (OriGine::StructuredBuffer)
     rootParameter[5].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
     rootParameter[5].ShaderVisibility          = D3D12_SHADER_VISIBILITY_PIXEL;
-    rootParameter[5].Descriptor.ShaderRegister = 4; // t4 register for SpotLight StructuredBuffer
+    rootParameter[5].Descriptor.ShaderRegister = 4; // t4 register for SpotLight OriGine::StructuredBuffer
     spotLightBufferIndex_                      = (int32_t)texShaderInfo.pushBackRootParameter(rootParameter[5]);
 
     // lightCounts ... 6
@@ -409,7 +409,7 @@ void TexturedMeshRenderSystem::StartRender() {
     commandList->SetPipelineState(psoByBlendMode_[cullingIndex][blendIndex]->pipelineState.Get());
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    ID3D12DescriptorHeap* ppHeaps[] = {Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
+    ID3D12DescriptorHeap* ppHeaps[] = {OriGine::Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
     commandList->SetDescriptorHeaps(1, ppHeaps);
 
     // Cameraのセット
@@ -434,8 +434,8 @@ void TexturedMeshRenderSystem::StartRender() {
 void TexturedMeshRenderSystem::RenderingMesh(
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList,
     const TextureMesh& _mesh,
-    IConstantBuffer<Transform>& _transformBuff,
-    IConstantBuffer<Material>& _materialBuff,
+    ConstantBuffer<Transform>& _transformBuff,
+    ConstantBuffer<Material>& _materialBuff,
     D3D12_GPU_DESCRIPTOR_HANDLE _textureHandle) const {
     // ============================= テクスチャの設定 ============================= //
 
@@ -464,7 +464,7 @@ void TexturedMeshRenderSystem::RenderingMesh(
 void TexturedMeshRenderSystem::RenderingMesh(
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList,
     const TextureMesh& _mesh,
-    IConstantBuffer<Transform>& _transformBuff,
+    ConstantBuffer<Transform>& _transformBuff,
     SimpleConstantBuffer<Material>& _materialBuff,
     D3D12_GPU_DESCRIPTOR_HANDLE _textureHandle) const {
     // ============================= テクスチャの設定 ============================= //
@@ -495,7 +495,7 @@ void TexturedMeshRenderSystem::RenderModelMesh(Microsoft::WRL::ComPtr<ID3D12Grap
     auto& meshGroup = _renderer->GetMeshGroup();
     for (auto& mesh : *meshGroup) {
         D3D12_GPU_DESCRIPTOR_HANDLE textureHandle       = TextureManager::GetDescriptorGpuHandle(_renderer->GetTextureNumber(index));
-        const IConstantBuffer<Transform>& meshTransform = _renderer->GetTransformBuff(index);
+        const ConstantBuffer<Transform>& meshTransform = _renderer->GetTransformBuff(index);
         auto& materialBuff                              = _renderer->GetMaterialBuff(index);
         Material* material                              = nullptr;
         int32_t materialIndex                           = _renderer->GetMaterialIndex(index);

@@ -11,7 +11,7 @@
 #include "directX12/RenderTexture.h"
 
 class BasePostRenderingSystem
-    : public ISystem {
+    : public OriGine::ISystem {
 public:
     BasePostRenderingSystem(int32_t _priority = 0);
     virtual ~BasePostRenderingSystem();

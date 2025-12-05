@@ -1,6 +1,7 @@
 #pragma once
 
 /// stl
+#include <functional>
 #include <memory>
 #include <unordered_map>
 
@@ -11,6 +12,8 @@
 
 /// external
 #include "logger/Logger.h"
+
+namespace OriGine {
 
 /// <summary>
 /// System Registry
@@ -67,3 +70,5 @@ inline void SystemRegistry::RegisterSystem() {
         return std::move(system);
     };
 }
+
+} // namespace OriGine

@@ -5,7 +5,7 @@
 
 /// engine
 // directX12
-#include "directX12/buffer/IConstantBuffer.h"
+#include "directX12/buffer/ConstantBuffer.h"
 
 /// math
 #include "math/Vector2.h"
@@ -44,7 +44,7 @@ public:
 /// RadialBlurのパラメーター
 /// </summary>
 class RadialBlurParam
-    : public IComponent {
+    : public OriGine::IComponent {
 public:
     friend void to_json(nlohmann::json& j, const RadialBlurParam& param);
     friend void from_json(const nlohmann::json& j, RadialBlurParam& param);
@@ -61,7 +61,7 @@ public:
 
 private:
     bool isActive_ = false;
-    IConstantBuffer<RadialBlurBufferParam> constantBuffer_;
+    ConstantBuffer<RadialBlurBufferParam> constantBuffer_;
 
 public:
     bool IsActive() const { return isActive_; }
@@ -73,7 +73,7 @@ public:
     float GetWidth() const { return constantBuffer_.openData_.width_; }
     void SetWidth(float width) { constantBuffer_.openData_.width_ = width; }
 
-    const IConstantBuffer<RadialBlurBufferParam>& GetConstantBuffer() const {
+    const ConstantBuffer<RadialBlurBufferParam>& GetConstantBuffer() const {
         return constantBuffer_;
     }
 };

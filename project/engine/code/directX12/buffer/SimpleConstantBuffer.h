@@ -2,10 +2,12 @@
 
 /// engine
 // directX12
-#include "IConstantBuffer.h"
+#include "ConstantBuffer.h"
+
+namespace OriGine {
 
 /// <summary>
-/// IConstantBufferのOpenDataが無いバージョン
+/// ConstantBufferのOpenDataが無いバージョン
 /// Bufferに入れる内容を外部で管理するためのバージョン
 /// </summary>
 /// <typeparam name="constBuff"></typeparam>
@@ -74,4 +76,6 @@ inline void SimpleConstantBuffer<constBuff>::SetForRootParameter(Microsoft::WRL:
 template <HasInConstantBuffer constBuff>
 inline void SimpleConstantBuffer<constBuff>::SetForComputeRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const {
     cmdList->SetComputeRootConstantBufferView(rootParameterNum, buff_.GetResource()->GetGPUVirtualAddress());
+}
+
 }

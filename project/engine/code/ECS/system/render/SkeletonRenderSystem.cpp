@@ -112,7 +112,7 @@ void SkeletonRenderSystem::CreateRenderMesh() {
 void SkeletonRenderSystem::CreatePSO() {
 
     ShaderManager* shaderManager = ShaderManager::GetInstance();
-    DxDevice* dxDevice           = Engine::GetInstance()->GetDxDevice();
+    DxDevice* dxDevice           = OriGine::Engine::GetInstance()->GetDxDevice();
 
     ///=================================================
     /// 作成されているかチェック

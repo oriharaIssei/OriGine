@@ -11,6 +11,8 @@ class KeyboardInput;
 class MouseInput;
 class GamePadInput;
 
+namespace OriGine {
+
 /// <summary>
 /// デバッグのプレイ情報を記録するクラス
 /// </summary>
@@ -42,3 +44,5 @@ private:
     ReplayFileHeader header_             = {};
     std::vector<ReplayFrameData> frames_ = {};
 };
+
+} // namespace OriGine

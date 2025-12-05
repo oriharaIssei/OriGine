@@ -7,7 +7,7 @@
 /// 衝突判定システム
 /// </summary>
 class CollisionCheckSystem
-    : public ISystem {
+    : public OriGine::ISystem {
 public:
     CollisionCheckSystem();
     ~CollisionCheckSystem();

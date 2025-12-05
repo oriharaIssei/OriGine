@@ -12,7 +12,7 @@ LightManager::LightManager() {}
 LightManager::~LightManager() {}
 
 void LightManager::Initialize() {
-    Microsoft::WRL::ComPtr<ID3D12Device> device = Engine::GetInstance()->GetDxDevice()->device_;
+    Microsoft::WRL::ComPtr<ID3D12Device> device = OriGine::Engine::GetInstance()->GetDxDevice()->device_;
 
     ///========================================
     /// 作成個数を決める
@@ -63,7 +63,7 @@ void LightManager::SetForRootParameter(
     int32_t _spotLightIndex) {
     lightCounts_.SetForRootParameter(cmdList, _lightCountIndex);
 
-    ID3D12DescriptorHeap* ppHeaps[] = {Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
+    ID3D12DescriptorHeap* ppHeaps[] = {OriGine::Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
     cmdList->SetDescriptorHeaps(1, ppHeaps);
 
     if (lightCounts_->directionalLightNum > 0) {

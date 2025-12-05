@@ -263,8 +263,8 @@ void SkinningAnimationComponent::Stop() {
 }
 
 void SkinningAnimationComponent::CreateSkinnedVertex(Scene* _scene) {
-    DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>* uavHeap = Engine::GetInstance()->GetSrvHeap(); // cbv_srv_uav heap
-    auto& device                                                 = Engine::GetInstance()->GetDxDevice()->device_;
+    DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>* uavHeap = OriGine::Engine::GetInstance()->GetSrvHeap(); // cbv_srv_uav heap
+    auto& device                                                 = OriGine::Engine::GetInstance()->GetDxDevice()->device_;
 
     ModelMeshRenderer* meshRenderer = _scene->GetComponent<ModelMeshRenderer>(entity_, bindModeMeshRendererIndex_);
     if (!meshRenderer) {
@@ -352,7 +352,7 @@ void SkinningAnimationComponent::DeleteSkinnedVertex() {
     // UAVディスクリプタを解放
     for (auto& skinnedVertex : skinnedVertexBuffer_) {
         if (skinnedVertex.descriptor.GetIndex() >= 0) {
-            Engine::GetInstance()->GetSrvHeap()->ReleaseDescriptor(skinnedVertex.descriptor);
+            OriGine::Engine::GetInstance()->GetSrvHeap()->ReleaseDescriptor(skinnedVertex.descriptor);
         }
         skinnedVertex.buffer.Finalize();
     }

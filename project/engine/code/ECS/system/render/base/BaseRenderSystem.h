@@ -14,7 +14,7 @@
 /// レンダリング系システムの基底クラス
 /// </summary>
 class BaseRenderSystem
-    : public ISystem {
+    : public OriGine::ISystem {
 public:
     BaseRenderSystem(int32_t _priority = 0);
     virtual ~BaseRenderSystem();

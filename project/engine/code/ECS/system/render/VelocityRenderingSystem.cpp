@@ -131,7 +131,7 @@ bool VelocityRenderingSystem::ShouldSkipRender() const {
 
 void VelocityRenderingSystem::CreatePSO() {
     ShaderManager* shaderManager = ShaderManager::GetInstance();
-    DxDevice* dxDevice           = Engine::GetInstance()->GetDxDevice();
+    DxDevice* dxDevice           = OriGine::Engine::GetInstance()->GetDxDevice();
 
     shaderManager->LoadShader("ColoredVertex.VS");
     shaderManager->LoadShader("ColoredVertex.PS", shaderDirectory, L"ps_6_0");

@@ -39,6 +39,9 @@
 /// externals
 #include <imgui/ImGuizmo/ImGuizmo.h>
 
+namespace OriGine {
+namespace Editor {
+
 static const std::string sceneFolderPath = kApplicationResourceDirectory + "/scene";
 
 void SceneEditorWindow::Initialize() {
@@ -1161,5 +1164,8 @@ void DevelopControlArea::ControlRegion::DrawGui() {
 }
 
 void DevelopControlArea::ControlRegion::Finalize() {}
+
+} // Editor
+} // OriGine
 
 #endif

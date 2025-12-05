@@ -14,11 +14,14 @@
 // debug
 #include "debugReplayer/ReplayPlayer.h"
 
+namespace OriGine {
+namespace Editor {
+
 /// <summary>
 /// デバッグリプレイウィンドウ
 /// </summary>
 class DebugReplayWindow
-    : public Editor::Window {
+    : public Window {
 public:
     DebugReplayWindow();
     ~DebugReplayWindow() override;
@@ -80,5 +83,8 @@ private:
     bool isResizing_           = true;
     DebugReplayWindow* parent_ = nullptr;
 };
+
+} // namespace Editor
+} // namespace OriGine
 
 #endif // _DEBUG

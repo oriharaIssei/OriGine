@@ -7,6 +7,8 @@
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
+namespace OriGine {
+
 void ISystem::EraseDeadEntity() {
     auto* entityRepository_ = scene_->GetEntityRepositoryRef();
     std::erase_if(entityIDs_, [&entityRepository_](int32_t _entityID) {
@@ -122,3 +124,5 @@ void ISystem::Edit() {
     }
 #endif
 }
+
+} // namespace OriGine

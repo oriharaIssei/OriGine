@@ -12,6 +12,8 @@ class DxDebug;
 /// externals
 #include "spdlog/spdlog.h"
 
+namespace OriGine {
+
 /// <summary>
 /// Guiにログを表示するためのクラス
 /// </summary>
@@ -180,6 +182,8 @@ public:
 private:
     static std::shared_ptr<spdlog::logger> logger_;
 };
+
+} // namespace OriGine
 
 // マクロで簡略化
 #define LOG_TRACE(fmt, ...) Logger::Trace(__FILE__, __FUNCTION__, __LINE__, fmt, ##__VA_ARGS__)

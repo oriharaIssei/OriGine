@@ -49,8 +49,8 @@ public:
 
 private:
     std::string filePath_;
-    IConstantBuffer<Transform> transformBuff_;
-    IConstantBuffer<SkyboxMaterial> materialBuff_;
+    ConstantBuffer<Transform> transformBuff_;
+    ConstantBuffer<SkyboxMaterial> materialBuff_;
 
     int32_t textureIndex_ = 0;
 
@@ -68,10 +68,10 @@ public:
         return filePath_;
     }
 
-    IConstantBuffer<SkyboxMaterial>& GetMaterialBuff() {
+    ConstantBuffer<SkyboxMaterial>& GetMaterialBuff() {
         return materialBuff_;
     }
-    IConstantBuffer<Transform>& GetTransformBuff() {
+    ConstantBuffer<Transform>& GetTransformBuff() {
         return transformBuff_;
     }
 };

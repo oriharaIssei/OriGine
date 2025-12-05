@@ -25,6 +25,8 @@ class DxSwapChain;
 
 #include "deltaTime/DeltaTime.h"
 
+namespace OriGine {
+
 class Engine {
 
 public:
@@ -113,3 +115,5 @@ public:
         windowResizeEvents_.erase(windowResizeEvents_.begin() + index);
     }
 };
+
+} // namespace OriGine

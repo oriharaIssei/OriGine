@@ -131,10 +131,10 @@ void Emitter::CreateResource() {
         planeGenerator.CreateMesh(&mesh_);
     }
     if (!structuredTransform_.GetResource().GetResource().Get()) {
-        structuredTransform_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_, particleMaxSize_);
+        structuredTransform_.CreateBuffer(OriGine::Engine::GetInstance()->GetDxDevice()->device_, particleMaxSize_);
     }
     if (!materialBuffer_.GetResource().GetResource().Get()) {
-        materialBuffer_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
+        materialBuffer_.CreateBuffer(OriGine::Engine::GetInstance()->GetDxDevice()->device_);
     }
 }
 
@@ -346,7 +346,7 @@ void Emitter::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _ent
     if (ImGui::Button("Calculate Particle MaxSize")) {
         CalculateMaxSize();
         if (structuredTransform_.Capacity() <= particleMaxSize_) {
-            structuredTransform_.Resize(Engine::GetInstance()->GetDxDevice()->device_, particleMaxSize_ * 2);
+            structuredTransform_.Resize(OriGine::Engine::GetInstance()->GetDxDevice()->device_, particleMaxSize_ * 2);
         }
     }
 

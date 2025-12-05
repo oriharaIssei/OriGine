@@ -7,7 +7,7 @@
 
 /// engine
 // directX12
-#include "directX12/buffer/IConstantBuffer.h"
+#include "directX12/buffer/ConstantBuffer.h"
 #include "directX12/buffer/SimpleConstantBuffer.h"
 
 // component
@@ -57,7 +57,7 @@ struct GradationParam {
 /// GradiationTextureEffectのパラメーター
 /// </summary>
 class GradationComponent
-    : public IComponent {
+    : public OriGine::IComponent {
     friend void to_json(nlohmann::json& j, const GradationComponent& _g);
     friend void from_json(const nlohmann::json& j, GradationComponent& _g);
 
@@ -74,7 +74,7 @@ private:
 
     int32_t materialIndex_ = -1; // マテリアルインデックス
 
-    IConstantBuffer<GradationParam> paramBuff_;
+    ConstantBuffer<GradationParam> paramBuff_;
     SimpleConstantBuffer<ColorAndUvTransform> materialBuff_;
 
 public:
@@ -83,7 +83,7 @@ public:
 
     int32_t GetMaterialIndex() const { return materialIndex_; }
 
-    IConstantBuffer<GradationParam>& GetParamBuff() { return paramBuff_; }
+    ConstantBuffer<GradationParam>& GetParamBuff() { return paramBuff_; }
     SimpleConstantBuffer<ColorAndUvTransform>& GetMaterialBuff() {
         return materialBuff_;
     }

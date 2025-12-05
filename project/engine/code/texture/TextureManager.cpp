@@ -24,10 +24,13 @@
 #include "directX12/ResourceStateTracker.h"
 #include "directX12/ShaderCompiler.h"
 
-#include "logger/Logger.h"
-
 // util
 #include "util/StringUtil.h"
+
+/// externals
+#include "logger/Logger.h"
+
+namespace OriGine {
 
 const uint32_t TextureManager::maxTextureSize_;
 std::array<std::shared_ptr<Texture>, TextureManager::maxTextureSize_> TextureManager::textures_;
@@ -44,7 +47,7 @@ void Texture::Initialize(const std::string& filePath) {
     //==================================================
     DirectX::ScratchImage mipImages = Load(filePath);
     metaData                        = mipImages.GetMetadata();
-    resource.CreateTextureResource(Engine::GetInstance()->GetDxDevice()->device_, metaData);
+    resource.CreateTextureResource(OriGine::Engine::GetInstance()->GetDxDevice()->device_, metaData);
 
     // ファイル名をリソース名にセット（デバッグ用）
     std::wstring wname = ConvertString(filePath);
@@ -71,12 +74,12 @@ void Texture::Initialize(const std::string& filePath) {
     }
 
     /// SRV の作成
-    auto device = Engine::GetInstance()->GetDxDevice()->device_;
-    srv         = Engine::GetInstance()->GetSrvHeap()->CreateDescriptor(srvDesc, &resource);
+    auto device = OriGine::Engine::GetInstance()->GetDxDevice()->device_;
+    srv         = OriGine::Engine::GetInstance()->GetSrvHeap()->CreateDescriptor(srvDesc, &resource);
 }
 
 void Texture::Finalize() {
-    Engine::GetInstance()->GetSrvHeap()->ReleaseDescriptor(srv);
+    OriGine::Engine::GetInstance()->GetSrvHeap()->ReleaseDescriptor(srv);
     resource.Finalize();
 }
 
@@ -137,7 +140,7 @@ DirectX::ScratchImage Texture::Load(const std::string& filePath) {
 
 void Texture::UploadTextureData(DirectX::ScratchImage& mipImg, Microsoft::WRL::ComPtr<ID3D12Resource> _resource) {
     std::vector<D3D12_SUBRESOURCE_DATA> subResources;
-    auto dxDevice = Engine::GetInstance()->GetDxDevice();
+    auto dxDevice = OriGine::Engine::GetInstance()->GetDxDevice();
 
     DirectX::PrepareUpload(
         dxDevice->device_.Get(),
@@ -187,7 +190,7 @@ void Texture::ExecuteCommand(Microsoft::WRL::ComPtr<ID3D12Resource> _resource) {
 
     TextureManager::dxCommand_->ExecuteCommand();
 
-    DxFence* fence  = Engine::GetInstance()->GetDxFence();
+    DxFence* fence  = OriGine::Engine::GetInstance()->GetDxFence();
     UINT64 fenceVal = fence->Signal(TextureManager::dxCommand_->GetCommandQueue());
     fence->WaitForFence(fenceVal);
 
@@ -300,7 +303,7 @@ uint32_t TextureManager::LoadTexture(const std::string& filePath, std::function<
 }
 
 void TextureManager::UnloadTexture(uint32_t id) {
-    Engine::GetInstance()->GetSrvHeap()->ReleaseDescriptor(textures_[id]->srv);
+    OriGine::Engine::GetInstance()->GetSrvHeap()->ReleaseDescriptor(textures_[id]->srv);
     textures_[id]->Finalize();
     textures_[id].reset();
 }
@@ -330,3 +333,5 @@ void TextureManager::LoadTask::Update() {
     LOG_TRACE("LoadedTexture \n Path        : {} \n Lading Time : ", filePath, std::to_string(timer.GetDeltaTime()));
 }
 #pragma endregion
+
+} // namespace OriGine

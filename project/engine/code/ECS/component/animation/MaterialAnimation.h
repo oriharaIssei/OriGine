@@ -11,7 +11,7 @@ struct Material;
 /// Materialをアニメーションさせるコンポーネント
 /// </summary>
 class MaterialAnimation
-    : public IComponent {
+    : public OriGine::IComponent {
     friend void to_json(nlohmann::json& _json, const MaterialAnimation& _primitiveNodeAnimation);
     friend void from_json(const nlohmann::json& _json, MaterialAnimation& _primitiveNodeAnimation);
 

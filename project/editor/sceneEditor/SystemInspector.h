@@ -13,11 +13,14 @@ class SceneEditorWindow;
 /// util
 #include "util/EnumBitMask.h"
 
+namespace OriGine {
+namespace Editor {
+
 /// <summary>
 /// システムを表示・編集するエリア
 /// </summary>
 class SystemInspectorArea
-    : public Editor::Area {
+    : public Area {
 public:
     SystemInspectorArea(SceneEditorWindow* _window);
     ~SystemInspectorArea() override;
@@ -149,5 +152,8 @@ public:
         return systemMap_;
     }
 };
+
+} // namespace Editor
+} // namespace OriGine
 
 #endif // _DEBUG

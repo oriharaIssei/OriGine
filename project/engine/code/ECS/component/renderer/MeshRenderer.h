@@ -36,7 +36,7 @@ concept IsDerivedMesh = std::derived_from<MeshTenplate, Mesh<VertexDataType>>;
 template <typename MeshTemplate, typename VertexDataType = MeshTemplate::VertexType>
     requires IsDerivedMesh<MeshTemplate, VertexDataType>
 class MeshRenderer
-    : public IComponent {
+    : public OriGine::IComponent {
 
 public:
     using VertexType = VertexDataType;
@@ -168,7 +168,7 @@ private:
     std::string directory_ = "";
     std::string fileName_  = "";
 
-    std::vector<IConstantBuffer<Transform>> meshTransformBuff_;
+    std::vector<ConstantBuffer<Transform>> meshTransformBuff_;
     // first = materialIndex, second = constantBuffer
     std::vector<std::pair<int32_t, SimpleConstantBuffer<Material>>> meshMaterialBuff_;
 
@@ -191,10 +191,10 @@ public:
     Transform& GetTransform(int32_t _meshIndex = 0) {
         return meshTransformBuff_[_meshIndex].openData_;
     }
-    const IConstantBuffer<Transform>& GetTransformBuff(int32_t _meshIndex = 0) const {
+    const ConstantBuffer<Transform>& GetTransformBuff(int32_t _meshIndex = 0) const {
         return meshTransformBuff_[_meshIndex];
     }
-    IConstantBuffer<Transform>& GetTransformBuff(int32_t _meshIndex = 0) {
+    ConstantBuffer<Transform>& GetTransformBuff(int32_t _meshIndex = 0) {
         return meshTransformBuff_[_meshIndex];
     }
     void SetTransform(int32_t _meshIndex, const Transform& _transform) {
@@ -275,7 +275,7 @@ public:
     void Finalize() override;
 
 private:
-    IConstantBuffer<Transform> transformBuff_;
+    ConstantBuffer<Transform> transformBuff_;
     bool lineIsStrip_ = false;
 
 public:
@@ -293,7 +293,7 @@ public:
     void SetParentTransform(Transform* _parent) {
         transformBuff_.openData_.parent = _parent;
     }
-    IConstantBuffer<Transform>& GetTransformBuff() {
+    ConstantBuffer<Transform>& GetTransformBuff() {
         return transformBuff_;
     }
 

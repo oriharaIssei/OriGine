@@ -18,6 +18,8 @@
 /// util
 #include "util/deltaTime/DeltaTime.h"
 
+namespace OriGine {
+
 /// <summary>
 /// System Interface
 /// SystemはECSの処理単位であり, EntityとComponentを操作してゲームロジックを実装する.
@@ -51,7 +53,7 @@ protected:
     Entity* GetEntity(int32_t _entityID);
     Entity* GetUniqueEntity(const std::string& _dataTypeName);
     int32_t CreateEntity(const std::string& _dataTypeName, bool _isUnique = false);
-    
+
     IComponentArray* GetComponentArray(const std::string& _typeName);
     template <IsComponent ComponentType>
     ComponentArray<ComponentType>* GetComponentArray() {
@@ -160,3 +162,5 @@ public: // ========================================== accessor =================
 // Systemを継承しているかどうか
 template <typename T>
 concept IsSystem = std::is_base_of<ISystem, T>::value;
+
+} // namespace OriGine

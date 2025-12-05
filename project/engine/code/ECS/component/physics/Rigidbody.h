@@ -10,7 +10,7 @@
 /// Rigidbody コンポーネント
 /// </summary>
 class Rigidbody
-    : public IComponent {
+    : public OriGine::IComponent {
     friend void to_json(nlohmann::json& j, const Rigidbody& r);
     friend void from_json(const nlohmann::json& j, Rigidbody& r);
 

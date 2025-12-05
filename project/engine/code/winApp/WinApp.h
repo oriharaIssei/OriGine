@@ -12,6 +12,8 @@
 /// math
 #include <cstdint>
 
+namespace OriGine {
+
 enum class WindowResizeMode {
     NONE         = 0b0, // リサイズしない
     FREE         = 0b1, // 自由にリサイズ
@@ -81,3 +83,5 @@ public:
 /// コマンドラインでプロセスを実行し、完了を待つ
 /// </summary>
 bool RunProcessAndWait(const std::string& command, const char* _currentDirectory = nullptr);
+
+}

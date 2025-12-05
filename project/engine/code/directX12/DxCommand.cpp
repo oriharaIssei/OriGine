@@ -15,6 +15,8 @@
 #include "DxUtil.h"
 #include "StringUtil.h"
 
+namespace OriGine {
+
 std::unordered_map<std::string, DxCommand::CommandListCombo> DxCommand::commandListComboMap_;
 
 std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D12CommandQueue>> DxCommand::commandQueueMap_;
@@ -70,7 +72,7 @@ bool DxCommand::CreateCommandQueue(Microsoft::WRL::ComPtr<ID3D12Device> device, 
 };
 
 void DxCommand::Initialize(const std::string& commandListKey, const std::string& commandQueueKey) {
-    Microsoft::WRL::ComPtr<ID3D12Device> device = Engine::GetInstance()->GetDxDevice()->device_;
+    Microsoft::WRL::ComPtr<ID3D12Device> device = OriGine::Engine::GetInstance()->GetDxDevice()->device_;
 
     // キーで指定したコマンドリストとコマンドキューを取得または生成
     commandListComboKey_ = commandListKey;
@@ -115,7 +117,7 @@ void DxCommand::Initialize(const std::string& commandListKey, const std::string&
 }
 
 void DxCommand::Initialize(const std::string& commandListKey, const std::string& commandQueueKey, D3D12_COMMAND_LIST_TYPE listType) {
-    Microsoft::WRL::ComPtr<ID3D12Device> device = Engine::GetInstance()->GetDxDevice()->device_;
+    Microsoft::WRL::ComPtr<ID3D12Device> device = OriGine::Engine::GetInstance()->GetDxDevice()->device_;
 
     // キーで指定したコマンドリストとコマンドキューを取得または生成
     commandListComboKey_ = commandListKey;
@@ -332,4 +334,6 @@ void DxCommand::ResetAll() {
     for (auto& queue : commandQueueMap_) {
         queue.second.Reset();
     }
+}
+
 }

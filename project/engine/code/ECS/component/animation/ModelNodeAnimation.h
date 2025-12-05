@@ -26,7 +26,7 @@ struct ModelNode;
 /// ModelNodeアニメーションの再生を行うクラス
 /// </summary>
 class ModelNodeAnimation
-    : public IComponent {
+    : public OriGine::IComponent {
     friend void to_json(nlohmann::json& j, const ModelNodeAnimation& t);
     friend void from_json(const nlohmann::json& j, ModelNodeAnimation& t);
 

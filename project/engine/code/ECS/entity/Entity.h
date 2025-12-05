@@ -10,6 +10,8 @@ class EntityRepository;
 /// math
 #include <stdint.h>
 
+namespace OriGine {
+
 /// <summary>
 /// 実体を表すクラス (実際にはIDでしか無い)
 /// </summary>
@@ -81,3 +83,5 @@ public:
         return dataType_ + std::to_string(id_);
     }
 };
+
+}

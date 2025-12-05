@@ -15,6 +15,8 @@
 #include "math/Vector2.h"
 #include <cstdint>
 
+namespace OriGine {
+
 /// <summary>
 /// リプレイデータ1フレーム分のマウス情報
 /// </summary>
@@ -84,3 +86,5 @@ struct ReplayFile {
     ReplayFileHeader header;
     std::vector<ReplayFrameData> frameData;
 };
+
+} // namespace OriGine

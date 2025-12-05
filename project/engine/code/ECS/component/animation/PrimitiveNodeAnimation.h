@@ -15,7 +15,7 @@ struct Transform;
 /// PrimtiveをNode単位でアニメーションさせるコンポーネント
 /// </summary>
 class PrimitiveNodeAnimation
-    : public IComponent {
+    : public OriGine::IComponent {
     friend void to_json(nlohmann::json& _json, const PrimitiveNodeAnimation& _primitiveNodeAnimation);
     friend void from_json(const nlohmann::json& _json, PrimitiveNodeAnimation& _primitiveNodeAnimation);
 

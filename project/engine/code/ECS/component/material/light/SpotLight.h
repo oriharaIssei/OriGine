@@ -17,7 +17,7 @@
 /// Spot Light
 /// </summary>
 class SpotLight
-    : public IComponent {
+    : public OriGine::IComponent {
     friend void to_json(nlohmann::json& j, const SpotLight& l);
     friend void from_json(const nlohmann::json& j, SpotLight& l);
 

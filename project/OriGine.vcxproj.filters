@@ -225,7 +225,7 @@
     <ClInclude Include="editor\setting\SettingWindow.h">
       <Filter>editor\setting</Filter>
     </ClInclude>
-    <ClInclude Include="editor\window\EditorWindowMenu.h">
+    <ClInclude Include="editor\windowMenu\EditorWindowMenu.h">
       <Filter>editor\window</Filter>
     </ClInclude>
     <ClInclude Include="engine\EngineInclude.h">
@@ -609,10 +609,10 @@
     <ClInclude Include="engine\code\directX12\ShaderManager.h">
       <Filter>engine\code\directX12</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\directX12\buffer\IConstantBuffer.h">
+    <ClInclude Include="engine\code\directX12\buffer\ConstantBuffer.h">
       <Filter>engine\code\directX12\buffer</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\directX12\buffer\IStructuredBuffer.h">
+    <ClInclude Include="engine\code\directX12\buffer\StructuredBuffer.h">
       <Filter>engine\code\directX12\buffer</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\directX12\buffer\SimpleConstantBuffer.h">
@@ -806,7 +806,7 @@
     <ClCompile Include="editor\setting\SettingWindow.cpp">
       <Filter>editor\setting</Filter>
     </ClCompile>
-    <ClCompile Include="editor\window\EditorWindowMenu.cpp">
+    <ClCompile Include="editor\windowMenu\EditorWindowMenu.cpp">
       <Filter>editor\window</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\component\ComponentRegistry.cpp">
