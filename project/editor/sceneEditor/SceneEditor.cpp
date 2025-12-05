@@ -1135,11 +1135,6 @@ void DevelopControlArea::ControlRegion::DrawGui() {
             RunProcessAndWait(cmd);
             parentArea_->isBuilding_ = false;
         }).detach();
-
-        // ビルドコマンドの実行
-        if (!RunProcessAndWait(buildCommand)) {
-            LOG_ERROR("ControlRegion::DrawGui: Build command execution failed.");
-        }
     }
 
     ImGui::SameLine();
