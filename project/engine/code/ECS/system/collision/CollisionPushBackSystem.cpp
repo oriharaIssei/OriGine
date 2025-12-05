@@ -12,28 +12,27 @@ void CollisionPushBackSystem::Initialize() {}
 void CollisionPushBackSystem::Finalize() {}
 
 void CollisionPushBackSystem::UpdateEntity(Entity* _entity) {
-    Transform* transform                    = GetComponent<Transform>(_entity);
     CollisionPushBackInfo* collPushbackInfo = GetComponent<CollisionPushBackInfo>(_entity);
 
-    if (transform == nullptr || collPushbackInfo == nullptr) {
-        LOG_ERROR("CollisionPushBackSystem: Entity {} has no Transform or CollisionPushBackInfo component.", _entity->GetID());
+    if (collPushbackInfo == nullptr) {
+        LOG_ERROR("Entity {} has no CollisionPushBackInfo component.", _entity->GetID());
         return;
     }
 
+    Vec3f pushBackSum = Vec3f(0.f, 0.f, 0.f); 
+
     // PushBack処理
     for (auto& [entityID, info] : collPushbackInfo->GetCollisionInfoMap()) {
-        Entity* otherEntity                      = GetEntity(entityID);
-        CollisionPushBackInfo* otherCollPushbackInfo = GetComponent<CollisionPushBackInfo>(otherEntity);
-
-        switch (otherCollPushbackInfo->GetPushBackType()) {
+       
+        switch (info.pushBackType){
         case CollisionPushBackType::PushBack: {
             // ここでは単純に法線方向に押し戻す
-            transform->translate += info.collVec;
+            pushBackSum += info.collVec;
 
             break;
         }
         case CollisionPushBackType::Reflect: {
-            transform->translate += info.collVec;
+            pushBackSum += info.collVec;
 
             Rigidbody* rigidbody = GetComponent<Rigidbody>(_entity);
 
@@ -51,4 +50,7 @@ void CollisionPushBackSystem::UpdateEntity(Entity* _entity) {
             break;
         }
     }
+
+    Transform* transform = GetComponent<Transform>(_entity);
+    transform->translate += pushBackSum;
 }

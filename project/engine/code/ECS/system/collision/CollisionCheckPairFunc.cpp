@@ -5,73 +5,7 @@
 
 /// math
 #include "math/mathEnv.h"
-
-bool RayAABB(
-    const Vec3f& origin,
-    const Vec3f& dir,
-    const Vec3f& minB,
-    const Vec3f& maxB,
-    float& tMinOut,
-    int32_t& axisOut,
-    Vec3f& normalOut) {
-    float tMin    = 0.0f;
-    float tMax    = 1.0f;
-    float hitSign = 0.f;
-
-    for (int i = 0; i < 3; i++) {
-        if (std::abs(dir[i]) < 1e-6f) {
-            if (origin[i] < minB[i] || origin[i] > maxB[i])
-                return false;
-        } else {
-            float ood = 1.0f / dir[i];
-            float t1  = (minB[i] - origin[i]) * ood;
-            float t2  = (maxB[i] - origin[i]) * ood;
-
-            float enter = t1;
-            float exit  = t2;
-            float sign  = -1.f;
-
-            if (t1 > t2) {
-                std::swap(enter, exit);
-                sign = 1.f;
-            }
-
-            if (enter > tMin) {
-                tMin    = enter;
-                axisOut = i;
-                hitSign = sign; // 衝突法線の向き
-            }
-
-            tMax = std::min(tMax, exit);
-            if (tMin > tMax) {
-                return false;
-            }
-        }
-    }
-
-    if (axisOut >= 0) {
-        normalOut          = Vec3f(0, 0, 0);
-        normalOut[axisOut] = hitSign; // 衝突面の法線だけセット
-    }
-
-    tMinOut = tMin;
-    return true;
-}
-
-bool CheckSweptSphereAABB(
-    const Vec3f& prev,
-    const Vec3f& curr,
-    float radius,
-    const math::bounds::AABB& box,
-    float& out_t,
-    int32_t& axisOut,
-    Vec3f& normalOut) {
-    Vec3f minB = box.Min() - Vec3f(radius, radius, radius);
-    Vec3f maxB = box.Max() + Vec3f(radius, radius, radius);
-
-    Vec3f dir = curr - prev;
-    return RayAABB(prev, dir, minB, maxB, out_t, axisOut, normalOut);
-}
+#include "math/Vector3.h"
 
 template <>
 bool CheckCollisionPair(Scene* /*_scene*/, Entity* _entityA, Entity* _entityB, const math::bounds::Sphere& _shapeA, const math::bounds::Sphere& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
@@ -100,14 +34,16 @@ bool CheckCollisionPair(Scene* /*_scene*/, Entity* _entityA, Entity* _entityB, c
 
     // 衝突情報の登録
     CollisionPushBackInfo::Info aInfo;
-    aInfo.collVec   = collNormal * overlapDistance * overlapRate;
-    aInfo.collPoint = _shapeA.center_ + aInfo.collVec.normalize() * _shapeA.radius_;
+    aInfo.pushBackType = _bInfo->GetPushBackType();
+    aInfo.collVec      = collNormal * overlapDistance * overlapRate;
+    aInfo.collPoint    = _shapeA.center_ + aInfo.collVec.normalize() * _shapeA.radius_;
     _aInfo->AddCollisionInfo(_entityB->GetID(), aInfo);
 
     // 衝突情報の登録
     CollisionPushBackInfo::Info bInfo;
-    bInfo.collVec   = -collNormal * overlapDistance * overlapRate;
-    bInfo.collPoint = _shapeB.center_ + bInfo.collVec.normalize() * _shapeB.radius_;
+    bInfo.pushBackType = _aInfo->GetPushBackType();
+    bInfo.collVec      = -collNormal * overlapDistance * overlapRate;
+    bInfo.collPoint    = _shapeB.center_ + bInfo.collVec.normalize() * _shapeB.radius_;
     _bInfo->AddCollisionInfo(_entityA->GetID(), bInfo);
 
     return true;
@@ -115,26 +51,54 @@ bool CheckCollisionPair(Scene* /*_scene*/, Entity* _entityA, Entity* _entityB, c
 
 template <>
 bool CheckCollisionPair(Scene* /*_scene*/, Entity* _aabbEntity, Entity* _sphereEntity, const math::bounds::AABB& _aabb, const math::bounds::Sphere& _sphere, CollisionPushBackInfo* _aabbInfo, CollisionPushBackInfo* _sphereInfo) {
-    // AABBの最近接点を求める
+    Vec3f sphereCenter  = _sphere.center_;
+    Vec3f closest       = {0.f, 0.f, 0.f};
+    Vec3f distance      = {0.f, 0.f, 0.f};
+    Vec3f sphereCollVec = {0.f, 0.f, 0.f};
+
     Vec3f aabbMin = _aabb.Min();
     Vec3f aabbMax = _aabb.Max();
-    Vec3f closest = {
-        std::clamp(_sphere.center_[X], aabbMin[X], aabbMax[X]),
-        std::clamp(_sphere.center_[Y], aabbMin[Y], aabbMax[Y]),
-        std::clamp(_sphere.center_[Z], aabbMin[Z], aabbMax[Z])};
 
-    Vec3f distance = closest - _sphere.center_;
+    bool isCollided = false;
+
+    // AABBの最近接点を求める
+    closest = {
+        std::clamp(sphereCenter[X], aabbMin[X], aabbMax[X]),
+        std::clamp(sphereCenter[Y], aabbMin[Y], aabbMax[Y]),
+        std::clamp(sphereCenter[Z], aabbMin[Z], aabbMax[Z])};
+
+    distance = closest - _sphere.center_;
 
     // 衝突を判定
-    if (distance.lengthSq() >= _sphere.radius_ * _sphere.radius_) {
+    if (distance.lengthSq() <= _sphere.radius_ * _sphere.radius_) {
+        isCollided = true;
+
+        // 衝突法線の計算
+        Vec3f normal(0, 0, 0);
+        Vec3f diff = _sphere.center_ - closest;
+        float absX = std::abs(diff[X]);
+        float absY = std::abs(diff[Y]);
+        float absZ = std::abs(diff[Z]);
+
+        if (absX >= absY && absX >= absZ) {
+            normal[X] = (diff[X] > 0) ? 1.0f : -1.0f;
+        } else if (absY >= absX && absY >= absZ) {
+            normal[Y] = (diff[Y] > 0) ? 1.0f : -1.0f;
+        } else {
+            normal[Z] = (diff[Z] > 0) ? 1.0f : -1.0f;
+        }
+
+        sphereCollVec = normal * (_sphere.radius_ - distance.length());
+    }
+
+    if (!isCollided) {
         return false;
     }
 
     // 情報を収集するかしないか
     if (!_aabbInfo || !_sphereInfo) {
-        return true;
+        return isCollided;
     }
-
     bool aabbIsPushBack   = _sphereInfo && _sphereInfo->GetPushBackType() != CollisionPushBackType::None;
     bool sphereIsPushBack = _aabbInfo && _aabbInfo->GetPushBackType() != CollisionPushBackType::None;
 
@@ -142,34 +106,21 @@ bool CheckCollisionPair(Scene* /*_scene*/, Entity* _aabbEntity, Entity* _sphereE
     float overlapRate = 1.f / (float(aabbIsPushBack) + float(sphereIsPushBack));
 
     // 衝突時の処理
-    CollisionPushBackInfo::Info aInfo;
-    aInfo.collPoint = _sphere.center_ + closest.normalize() * _sphere.radius_;
-    aInfo.collVec   = (distance.normalize() * (_sphere.radius_ - distance.length())) * overlapRate;
+    CollisionPushBackInfo::Info aabbInfo;
+    aabbInfo.pushBackType = _sphereInfo->GetPushBackType();
+    aabbInfo.collPoint    = _sphere.center_ + closest.normalize() * _sphere.radius_;
+    aabbInfo.collVec      = (distance.normalize() * (_sphere.radius_ - distance.length())) * overlapRate;
 
-    _aabbInfo->AddCollisionInfo(_sphereEntity->GetID(), aInfo);
+    _aabbInfo->AddCollisionInfo(_sphereEntity->GetID(), aabbInfo);
 
-    // 衝突法線の計算
-    Vec3f normal(0, 0, 0);
-    Vec3f diff = _sphere.center_ - closest;
-    float absX = std::abs(diff[X]);
-    float absY = std::abs(diff[Y]);
-    float absZ = std::abs(diff[Z]);
+    CollisionPushBackInfo::Info sphereInfo;
+    sphereInfo.pushBackType = _aabbInfo->GetPushBackType();
+    sphereInfo.collPoint    = closest;
+    sphereInfo.collVec      = sphereCollVec;
 
-    if (absX >= absY && absX >= absZ) {
-        normal[X] = (diff[X] > 0) ? 1.0f : -1.0f;
-    } else if (absY >= absX && absY >= absZ) {
-        normal[Y] = (diff[Y] > 0) ? 1.0f : -1.0f;
-    } else {
-        normal[Z] = (diff[Z] > 0) ? 1.0f : -1.0f;
-    }
+    _sphereInfo->AddCollisionInfo(_aabbEntity->GetID(), sphereInfo);
 
-    CollisionPushBackInfo::Info bInfo;
-    bInfo.collPoint = closest;
-    bInfo.collVec   = normal * ((_sphere.radius_ - distance.length() * overlapRate));
-
-    _sphereInfo->AddCollisionInfo(_aabbEntity->GetID(), bInfo);
-
-    return true;
+    return isCollided;
 }
 
 template <>
@@ -240,13 +191,15 @@ bool CheckCollisionPair(Scene* /*_scene*/, Entity* _entityA, Entity* _entityB, c
     float length    = worldCollVec.length();
 
     CollisionPushBackInfo::Info aInfo;
-    aInfo.collVec   = direction * (length * overlapRate);
-    aInfo.collPoint = worldCollPoint;
+    aInfo.pushBackType = _bInfo->GetPushBackType();
+    aInfo.collVec      = direction * (length * overlapRate);
+    aInfo.collPoint    = worldCollPoint;
     _aInfo->AddCollisionInfo(_entityB->GetID(), aInfo);
 
     CollisionPushBackInfo::Info bInfo;
-    bInfo.collVec   = direction * -(length * overlapRate);
-    bInfo.collPoint = worldCollPoint;
+    bInfo.pushBackType = _aInfo->GetPushBackType();
+    bInfo.collVec      = direction * -(length * overlapRate);
+    bInfo.collPoint    = worldCollPoint;
     _bInfo->AddCollisionInfo(_entityA->GetID(), bInfo);
 
     return true;
@@ -333,6 +286,7 @@ bool CheckCollisionPair(Scene* /*_scene*/, Entity* _entityA, Entity* _entityB, c
 
     // 衝突時の処理
     CollisionPushBackInfo::Info ainfo;
+    ainfo.pushBackType  = _bInfo->GetPushBackType();
     ainfo.collVec       = Vec3f(0, 0, 0);
     ainfo.collVec[axis] = (minOverlap * overlapRate) * dir;
 
@@ -342,6 +296,7 @@ bool CheckCollisionPair(Scene* /*_scene*/, Entity* _entityA, Entity* _entityB, c
 
     // 衝突時の処理
     CollisionPushBackInfo::Info bInfo;
+    bInfo.pushBackType  = _aInfo->GetPushBackType();
     bInfo.collVec       = Vec3f(0, 0, 0);
     bInfo.collVec[axis] = (minOverlap * overlapRate) * -dir;
 
@@ -464,13 +419,15 @@ bool CheckCollisionPair(Scene* /*_scene*/, Entity* _entityA, Entity* _entityB, c
     float overlapRate = 1.f / (float(aIsPushBack) + float(bIsPushBack));
 
     CollisionPushBackInfo::Info ainfo;
-    ainfo.collVec   = -collVec * overlapRate;
-    ainfo.collPoint = collPoint;
+    ainfo.pushBackType = _bInfo->GetPushBackType();
+    ainfo.collVec      = -collVec * overlapRate;
+    ainfo.collPoint    = collPoint;
     _aInfo->AddCollisionInfo(_entityB->GetID(), ainfo);
 
     CollisionPushBackInfo::Info binfo;
-    binfo.collVec   = collVec * overlapRate;
-    binfo.collPoint = collPoint;
+    binfo.pushBackType = _aInfo->GetPushBackType();
+    binfo.collVec      = collVec * overlapRate;
+    binfo.collPoint    = collPoint;
     _bInfo->AddCollisionInfo(_entityA->GetID(), binfo);
 
     return true;
