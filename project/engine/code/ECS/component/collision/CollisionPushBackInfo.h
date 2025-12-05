@@ -11,7 +11,6 @@ enum class CollisionPushBackType {
     None     = 0,
     PushBack = 1, // 衝突時に押し戻す
     Reflect  = 2, // 衝突時に反射する
-    Ghost    = 3, // 衝突を無視する (貫通する)
 
     Count
 };
@@ -32,6 +31,7 @@ public:
 
 public:
     struct Info {
+        CollisionPushBackType pushBackType;
         Vec3f collVec; // 衝突ベクトル
         Vec3f collPoint; // 衝突点
     };

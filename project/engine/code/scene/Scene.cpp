@@ -4,6 +4,7 @@
 #define ENGINE_INCLUDE
 #include "scene/SceneManager.h"
 #define RESOURCE_DIRECTORY
+#include "winApp/WinApp.h"
 // directX12
 #include "directX12/RenderTexture.h"
 
@@ -40,7 +41,8 @@ void Scene::InitializeECS() {
 
 void Scene::InitializeSceneView() {
     sceneView_ = std::make_unique<RenderTexture>();
-    sceneView_->Initialize(2, Vec2f(1280.f, 720.f), DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, {0.f, 0.f, 0.f, 0.f});
+
+    sceneView_->Initialize(2, Engine::GetInstance()->GetWinApp()->GetWindowSize(), DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, {0.f, 0.f, 0.f, 0.f});
     sceneView_->SetTextureName(name_ + "_SceneView");
 }
 

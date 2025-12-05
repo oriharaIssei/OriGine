@@ -9,7 +9,6 @@
 // math
 #include <Vector2.h>
 #include <Vector4.h>
-
 //====================================== VertexData ======================================//
 struct SpriteVertexData {
     SpriteVertexData()  = default;
