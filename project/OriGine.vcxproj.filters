@@ -741,7 +741,7 @@
     <ClInclude Include="util\DxUtil.h">
       <Filter>util</Filter>
     </ClInclude>
-    <ClInclude Include="util\EnumBitMask.h">
+    <ClInclude Include="util\EnumBitmask.h">
       <Filter>util</Filter>
     </ClInclude>
     <ClInclude Include="util\StringUtil.h">
@@ -777,6 +777,10 @@
     <ClInclude Include="util\timeline\Timeline.h">
       <Filter>util\timeline</Filter>
     </ClInclude>
+    <ClInclude Include="math\Noise.h" />
+    <ClInclude Include="engine\code\ECS\system\render\OverlayRenderSystem.h" />
+    <ClInclude Include="engine\code\ECS\component\transform\Transform2d.h" />
+    <ClInclude Include="math\Matrix3x3.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="editor\EditorController.cpp">
@@ -1256,5 +1260,9 @@
     <ClCompile Include="util\timeline\Timeline.cpp">
       <Filter>util\timeline</Filter>
     </ClCompile>
+    <ClCompile Include="math\Noise.cpp" />
+    <ClCompile Include="engine\code\ECS\system\render\OverlayRenderSystem.cpp" />
+    <ClCompile Include="engine\code\ECS\component\transform\Transform2d.cpp" />
+    <ClCompile Include="math\Matrix3x3.cpp" />
   </ItemGroup>
 </Project>

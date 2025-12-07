@@ -11,7 +11,7 @@ class SceneEditorWindow;
 #include "system/ISystem.h"
 
 /// util
-#include "util/EnumBitMask.h"
+#include "util/EnumBitmask.h"
 
 /// <summary>
 /// システムを表示・編集するエリア

@@ -34,26 +34,29 @@ bool CheckCollisionPair(Scene* /*_scene*/, Entity* _entityA, Entity* _entityB, c
 
     // 衝突情報の登録
     CollisionPushBackInfo::Info aInfo;
-    aInfo.pushBackType = _bInfo->GetPushBackType();
-    aInfo.collVec      = collNormal * overlapDistance * overlapRate;
-    aInfo.collPoint    = _shapeA.center_ + aInfo.collVec.normalize() * _shapeA.radius_;
+    aInfo.pushBackType   = _bInfo->GetPushBackType();
+    aInfo.collVec        = collNormal * overlapDistance * overlapRate;
+    aInfo.collFaceNormal = collNormal;
+    aInfo.collPoint      = _shapeA.center_ + aInfo.collVec.normalize() * _shapeA.radius_;
     _aInfo->AddCollisionInfo(_entityB->GetID(), aInfo);
 
     // 衝突情報の登録
     CollisionPushBackInfo::Info bInfo;
-    bInfo.pushBackType = _aInfo->GetPushBackType();
-    bInfo.collVec      = -collNormal * overlapDistance * overlapRate;
-    bInfo.collPoint    = _shapeB.center_ + bInfo.collVec.normalize() * _shapeB.radius_;
+    bInfo.pushBackType   = _aInfo->GetPushBackType();
+    bInfo.collVec        = -collNormal * overlapDistance * overlapRate;
+    bInfo.collFaceNormal = -collNormal;
+    bInfo.collPoint      = _shapeB.center_ + bInfo.collVec.normalize() * _shapeB.radius_;
     _bInfo->AddCollisionInfo(_entityA->GetID(), bInfo);
 
     return true;
 }
 
 template <>
-bool CheckCollisionPair(Scene* /*_scene*/, Entity* _aabbEntity, Entity* _sphereEntity, const math::bounds::AABB& _aabb, const math::bounds::Sphere& _sphere, CollisionPushBackInfo* _aabbInfo, CollisionPushBackInfo* _sphereInfo) {
-    Vec3f sphereCenter  = _sphere.center_;
-    Vec3f closest       = {0.f, 0.f, 0.f};
-    Vec3f distance      = {0.f, 0.f, 0.f};
+bool CheckCollisionPair(Scene* _scene, Entity* _aabbEntity, Entity* _sphereEntity, const math::bounds::AABB& _aabb, const math::bounds::Sphere& _sphere, CollisionPushBackInfo* _aabbInfo, CollisionPushBackInfo* _sphereInfo) {
+    Vec3f sphereCenter = _sphere.center_;
+    Vec3f closest      = {0.f, 0.f, 0.f};
+    Vec3f distance     = {0.f, 0.f, 0.f};
+    Vec3f normal(0.f, 0.f, 0.f);
     Vec3f sphereCollVec = {0.f, 0.f, 0.f};
 
     Vec3f aabbMin = _aabb.Min();
@@ -61,34 +64,126 @@ bool CheckCollisionPair(Scene* /*_scene*/, Entity* _aabbEntity, Entity* _sphereE
 
     bool isCollided = false;
 
-    // AABBの最近接点を求める
-    closest = {
-        std::clamp(sphereCenter[X], aabbMin[X], aabbMax[X]),
-        std::clamp(sphereCenter[Y], aabbMin[Y], aabbMax[Y]),
-        std::clamp(sphereCenter[Z], aabbMin[Z], aabbMax[Z])};
+    Rigidbody* sphereRigidbody = _scene->GetComponent<Rigidbody>(_sphereEntity->GetID());
+    bool useSwept              = false;
+    if (sphereRigidbody) {
+        Vec3f velo = sphereRigidbody->GetRealVelocity();
+        useSwept   = true;
 
-    distance = closest - _sphere.center_;
+        if (useSwept) {
+            // 交差を判定
+            Vec3f prePos = sphereCenter - velo;
 
-    // 衝突を判定
-    if (distance.lengthSq() <= _sphere.radius_ * _sphere.radius_) {
-        isCollided = true;
+            aabbMin -= Vec3f(_sphere.radius_, _sphere.radius_, _sphere.radius_);
+            aabbMax += Vec3f(_sphere.radius_, _sphere.radius_, _sphere.radius_);
 
-        // 衝突法線の計算
-        Vec3f normal(0, 0, 0);
-        Vec3f diff = _sphere.center_ - closest;
-        float absX = std::abs(diff[X]);
-        float absY = std::abs(diff[Y]);
-        float absZ = std::abs(diff[Z]);
+            int32_t axis = 0;
+            int32_t sign = 0;
+            float t      = -FLT_MAX;
+            float tMax   = FLT_MAX;
+            for (int32_t i = 0; i < 3; ++i) {
+                if (std::abs(velo[i]) < kEpsilon) {
+                    // 並行
+                    if (prePos[i] < aabbMin[i] || prePos[i] > aabbMax[i]) {
+                        useSwept = false;
+                        break;
+                    }
+                } else {
+                    float ood = 1.0f / velo[i];
+                    float t1  = (aabbMin[i] - prePos[i]) * ood;
+                    float t2  = (aabbMax[i] - prePos[i]) * ood;
+                    // 必ず、t1 が小さいようにする
+                    if (t1 > t2) {
+                        std::swap(t1, t2);
+                    }
+                    if (t1 > t) { // 各軸のAABB への侵入時間が最も遅いものを採用
+                        t    = t1;
+                        axis = i;
+                        sign = velo[i] > 0 ? -1 : 1;
+                    }
+                    if (t2 < tMax) {
+                        tMax = t2;
+                    }
+                    if (t > tMax) {
+                        useSwept = false;
+                        break;
+                    }
+                }
+            }
 
-        if (absX >= absY && absX >= absZ) {
-            normal[X] = (diff[X] > 0) ? 1.0f : -1.0f;
-        } else if (absY >= absX && absY >= absZ) {
-            normal[Y] = (diff[Y] > 0) ? 1.0f : -1.0f;
-        } else {
-            normal[Z] = (diff[Z] > 0) ? 1.0f : -1.0f;
+            isCollided = t >= 0 && t <= 1.f && useSwept;
+            if (isCollided) {
+                // 各軸のAABB への侵入時間が最も遅いものを採用
+                Vec3f collPoint = prePos + velo * t;
+
+                normal[axis] = static_cast<float>(sign);
+
+                // AABBの最近接点を求める
+                aabbMin = _aabb.Min();
+                aabbMax = _aabb.Max();
+
+                closest = {
+                    std::clamp(collPoint[X], aabbMin[X], aabbMax[X]),
+                    std::clamp(collPoint[Y], aabbMin[Y], aabbMax[Y]),
+                    std::clamp(collPoint[Z], aabbMin[Z], aabbMax[Z])};
+
+                distance = collPoint - closest;
+
+                sphereCollVec = normal * (_sphere.radius_ - distance.length());
+                sphereCollVec[axis] += collPoint[axis] - _sphere.center_[axis]; // current から衝突点までのベクトルを加味
+            } else {
+                useSwept = false;
+                // AABB の min,max を通常仕様に戻す
+                aabbMin = _aabb.Min();
+                aabbMax = _aabb.Max();
+                if (t == 0) {
+                    sphereCenter = prePos;
+                }
+            }
         }
+    }
 
-        sphereCollVec = normal * (_sphere.radius_ - distance.length());
+    if (!useSwept) {
+        // AABBの最近接点を求める
+        closest = {
+            std::clamp(sphereCenter[X], aabbMin[X], aabbMax[X]),
+            std::clamp(sphereCenter[Y], aabbMin[Y], aabbMax[Y]),
+            std::clamp(sphereCenter[Z], aabbMin[Z], aabbMax[Z])};
+
+        distance = closest - sphereCenter;
+
+        // 衝突を判定
+        if (distance.lengthSq() <= _sphere.radius_ * _sphere.radius_) {
+            isCollided = true;
+
+            // 衝突法線の計算
+            Vec3f diff = sphereCenter - closest;
+            // 埋まっている場合、
+            if (diff.lengthSq() <= 0.f) {
+                closest = {
+                    std::clamp(sphereCenter[X], aabbMin[X], aabbMax[X]),
+                    std::clamp(sphereCenter[Y], aabbMin[Y], aabbMax[Y]),
+                    std::clamp(sphereCenter[Z], aabbMin[Z], aabbMax[Z])};
+            }
+            float absX = std::abs(diff[X]);
+            float absY = std::abs(diff[Y]);
+            float absZ = std::abs(diff[Z]);
+
+            int32_t axis = 0;
+            if (absX >= absY && absX >= absZ) {
+                axis      = X;
+                normal[X] = (diff[X] > 0) ? 1.0f : -1.0f;
+            } else if (absY >= absX && absY >= absZ) {
+                axis      = Y;
+                normal[Y] = (diff[Y] > 0) ? 1.0f : -1.0f;
+            } else {
+                axis      = Z;
+                normal[Z] = (diff[Z] > 0) ? 1.0f : -1.0f;
+            }
+
+            sphereCollVec = normal * (_sphere.radius_ - distance.length());
+            sphereCollVec[axis] += sphereCenter[axis] - _sphere.center_[axis]; // current から衝突点までのベクトルを加味
+        }
     }
 
     if (!isCollided) {
@@ -107,16 +202,18 @@ bool CheckCollisionPair(Scene* /*_scene*/, Entity* _aabbEntity, Entity* _sphereE
 
     // 衝突時の処理
     CollisionPushBackInfo::Info aabbInfo;
-    aabbInfo.pushBackType = _sphereInfo->GetPushBackType();
-    aabbInfo.collPoint    = _sphere.center_ + closest.normalize() * _sphere.radius_;
-    aabbInfo.collVec      = (distance.normalize() * (_sphere.radius_ - distance.length())) * overlapRate;
+    aabbInfo.pushBackType   = _sphereInfo->GetPushBackType();
+    aabbInfo.collFaceNormal = distance.normalize();
+    aabbInfo.collPoint      = _sphere.center_ + closest.normalize() * _sphere.radius_;
+    aabbInfo.collVec        = (distance.normalize() * (_sphere.radius_ - distance.length())) * overlapRate;
 
     _aabbInfo->AddCollisionInfo(_sphereEntity->GetID(), aabbInfo);
 
     CollisionPushBackInfo::Info sphereInfo;
-    sphereInfo.pushBackType = _aabbInfo->GetPushBackType();
-    sphereInfo.collPoint    = closest;
-    sphereInfo.collVec      = sphereCollVec;
+    sphereInfo.pushBackType   = _aabbInfo->GetPushBackType();
+    sphereInfo.collPoint      = closest;
+    sphereInfo.collFaceNormal = normal;
+    sphereInfo.collVec        = sphereCollVec;
 
     _sphereInfo->AddCollisionInfo(_aabbEntity->GetID(), sphereInfo);
 
@@ -139,7 +236,7 @@ bool CheckCollisionPair(Scene* /*_scene*/, Entity* _entityA, Entity* _entityB, c
     // --- Sphere中心を OBBローカル座標 へ ---
     Vec3f localCenter = sphereCenter - obbCenter;
     auto invRot       = obb.orientations_.rot.Conjugation();
-    localCenter       = (MakeMatrix::RotateQuaternion(invRot) * MakeMatrix::Translate(localCenter))[3];
+    localCenter       = (MakeMatrix4x4::RotateQuaternion(invRot) * MakeMatrix4x4::Translate(localCenter))[3];
 
     // --- localAABB との判定 ---
     Vec3f aabbMin = -obbHalfSize;
@@ -173,7 +270,7 @@ bool CheckCollisionPair(Scene* /*_scene*/, Entity* _entityA, Entity* _entityB, c
     Vec3f localCollPoint = closest; // 最近接点を衝突点とする
 
     // --- ワールドに戻す ---
-    auto rotMat          = MakeMatrix::RotateQuaternion(obb.orientations_.rot);
+    auto rotMat          = MakeMatrix4x4::RotateQuaternion(obb.orientations_.rot);
     Vec3f worldCollVec   = localCollVec * rotMat;
     Vec3f worldCollPoint = obbCenter + (localCollPoint * rotMat);
 
@@ -314,7 +411,7 @@ bool CheckCollisionPair(Scene* /*_scene*/, Entity* _entityA, Entity* _entityB, c
         std::array<Vec3f, 8> verts;
         Vec3f min     = -obb.halfSize_;
         Vec3f max     = obb.halfSize_;
-        Matrix4x4 mat = MakeMatrix::Affine({1.f, 1.f, 1.f}, obb.orientations_.rot, obb.center_);
+        Matrix4x4 mat = MakeMatrix4x4::Affine({1.f, 1.f, 1.f}, obb.orientations_.rot, obb.center_);
         verts[0]      = TransformVector({min[X], min[Y], min[Z]}, mat);
         verts[1]      = TransformVector({max[X], min[Y], min[Z]}, mat);
         verts[2]      = TransformVector({min[X], max[Y], min[Z]}, mat);

@@ -1,7 +1,11 @@
 #include "PrimitiveMeshRendererBase.h"
 
 void PrimitiveMeshRendererBase::LoadTexture(const std::string& _directory, const std::string& _filename) {
-    textureDirectory_ = _directory;
-    textureFileName_  = _filename;
-    textureIndex_     = TextureManager::LoadTexture(_directory + "/" + _filename);
+    textureFilePath_ = _directory + "/" + _filename;
+    textureIndex_    = TextureManager::LoadTexture(textureFilePath_);
+}
+
+void PrimitiveMeshRendererBase::LoadTexture(const std::string& _filePath) {
+    textureFilePath_ = _filePath;
+    textureIndex_    = TextureManager::LoadTexture(textureFilePath_);
 }

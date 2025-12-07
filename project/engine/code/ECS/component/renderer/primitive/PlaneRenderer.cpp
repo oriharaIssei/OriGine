@@ -37,8 +37,8 @@ void PlaneRenderer::Initialize(Entity* _hostEntity) {
     CreateMesh(&mesh);
 
     // loadTexture
-    if (!textureDirectory_.empty() && !textureFileName_.empty()) {
-        textureIndex_ = TextureManager::LoadTexture(textureDirectory_ + "/" + textureFileName_);
+    if (!textureFilePath_.empty()) {
+        textureIndex_ = TextureManager::LoadTexture(textureFilePath_);
     }
 }
 
@@ -90,17 +90,15 @@ void PlaneRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity
     ImGui::Spacing();
 
     // texture
-    ImGui::Text("Texture Directory : %s", textureDirectory_.c_str());
-    ImGui::Text("Texture FileName  : %s", textureFileName_.c_str());
+    ImGui::Text("Texture File Path : %s", textureFilePath_.c_str());
     label = "LoadTexture##" + _parentLabel;
     if (AskLoadTextureButton(textureIndex_, _parentLabel)) {
         std::string directory = "";
         std::string fileName  = "";
         if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"png"})) {
             auto commandCombo = std::make_unique<CommandCombo>();
-            commandCombo->AddCommand(std::make_shared<SetterCommand<std::string>>(&textureDirectory_, kApplicationResourceDirectory + "/" + directory));
-            commandCombo->AddCommand(std::make_shared<SetterCommand<std::string>>(&textureFileName_, fileName));
-            commandCombo->SetFuncOnAfterCommand([this]() { textureIndex_ = TextureManager::LoadTexture(textureDirectory_ + "/" + textureFileName_); }, true);
+            commandCombo->AddCommand(std::make_shared<SetterCommand<std::string>>(&textureFilePath_, kApplicationResourceDirectory + "/" + directory + "/" + fileName));
+            commandCombo->SetFuncOnAfterCommand([this]() { textureIndex_ = TextureManager::LoadTexture(textureFilePath_); }, true);
             EditorController::GetInstance()->PushCommand(std::move(commandCombo));
         }
     }
@@ -122,11 +120,12 @@ void PlaneRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity
 }
 
 void to_json(nlohmann::json& j, const PlaneRenderer& r) {
-    j["isRenderer"]       = r.isRender_;
-    j["isCulling"]        = r.isCulling_ ;
-    j["blendMode"]        = static_cast<int32_t>(r.currentBlend_);
-    j["textureDirectory"] = r.textureDirectory_;
-    j["textureFileName"]  = r.textureFileName_;
+    j["isRenderer"] = r.isRender_;
+    j["isCulling"]  = r.isCulling_;
+    j["blendMode"]  = static_cast<int32_t>(r.currentBlend_);
+
+    j["textureFilePath"] = r.textureFilePath_;
+
     to_json(j["transform"], r.transformBuff_.openData_);
     j["materialIndex"] = r.materialIndex_;
 }
@@ -134,13 +133,23 @@ void to_json(nlohmann::json& j, const PlaneRenderer& r) {
 void from_json(const nlohmann::json& j, PlaneRenderer& r) {
     j.at("isRenderer").get_to(r.isRender_);
     if (j.contains("isCulling")) {
-        j.at("isCulling").get_to(r.isCulling_ );
+        j.at("isCulling").get_to(r.isCulling_);
     }
     int32_t blendMode = 0;
     j.at("blendMode").get_to(blendMode);
     r.currentBlend_ = static_cast<BlendMode>(blendMode);
-    j.at("textureDirectory").get_to(r.textureDirectory_);
-    j.at("textureFileName").get_to(r.textureFileName_);
+
+    if (j.contains("textureFilePath")) {
+        j.at("textureFilePath").get_to(r.textureFilePath_);
+    } else {
+        std::string directory, fileName;
+        j.at("textureDirectory").get_to(directory);
+        j.at("textureFileName").get_to(fileName);
+        if (!fileName.empty()) {
+            r.textureFilePath_ = directory + "/" + fileName;
+        }
+    }
+
     from_json(j.at("transform"), r.transformBuff_.openData_);
     if (j.find("materialIndex") != j.end()) {
         r.materialIndex_ = j.at("materialIndex");

@@ -98,7 +98,7 @@ public:
 protected:
     void LightUpdate();
 
-private:
+protected:
     bool currentCulling_        = true;
     BlendMode currentBlendMode_ = BlendMode::Alpha;
     // value : { non Culling配列 , Culling配列}

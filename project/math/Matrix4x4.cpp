@@ -127,7 +127,7 @@ Quaternion Matrix4x4::DecomposeMatrixToQuaternion(const Matrix4x4& _mat) {
     return result;
 }
 
-const Matrix4x4 MakeMatrix::Identity() {
+const Matrix4x4 MakeMatrix4x4::Identity() {
     return Matrix4x4(
         {1.0f, 0.0f, 0.0f, 0.0f,
             0.0f, 1.0f, 0.0f, 0.0f,
@@ -135,36 +135,36 @@ const Matrix4x4 MakeMatrix::Identity() {
             0.0f, 0.0f, 0.0f, 1.0f});
 }
 
-Matrix4x4 MakeMatrix::Translate(const Vec3f& vec) {
+Matrix4x4 MakeMatrix4x4::Translate(const Vec3f& vec) {
     return Matrix4x4({1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, vec[X], vec[Y], vec[Z], 1.0f});
 }
 
-Matrix4x4 MakeMatrix::Scale(const Vec3f& vec) {
+Matrix4x4 MakeMatrix4x4::Scale(const Vec3f& vec) {
     return Matrix4x4(
         {vec[X], 0.0f, 0.0f, 0.0f, 0.0f, vec[Y], 0.0f, 0.0f, 0.0f, 0.0f, vec[Z], 0.0f, 0.0f, 0.0f, 0.0f, 1.0f});
 }
 
-Matrix4x4 MakeMatrix::RotateX(const float& radian) {
+Matrix4x4 MakeMatrix4x4::RotateX(const float& radian) {
     return Matrix4x4({01.0f, .0f, 0.0f, 0.0f, 0.0f, std::cosf(radian), std::sinf(radian), 0.0f, 0.0f, -std::sinf(radian), std::cosf(radian), 0.0f, 0.0f, 0.0f, 0.0f, 1.0f});
 }
 
-Matrix4x4 MakeMatrix::RotateY(const float& radian) {
+Matrix4x4 MakeMatrix4x4::RotateY(const float& radian) {
     return Matrix4x4({std::cosf(radian), 0.0f, -std::sinf(radian), 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, std::sinf(radian), 0.0f, std::cosf(radian), 0.0f, 0.0f, 0.0f, 0.0f, 1.0f});
 }
 
-Matrix4x4 MakeMatrix::RotateZ(const float& radian) {
+Matrix4x4 MakeMatrix4x4::RotateZ(const float& radian) {
     return Matrix4x4({std::cosf(radian), std::sinf(radian), 0.0f, 0.0f, -std::sinf(radian), std::cosf(radian), 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f});
 }
 
-Matrix4x4 MakeMatrix::RotateXYZ(const Vec3f& radian) {
-    return MakeMatrix::RotateZ(radian[Z]) * MakeMatrix::RotateX(radian[X]) * MakeMatrix::RotateY(radian[Y]);
+Matrix4x4 MakeMatrix4x4::RotateXYZ(const Vec3f& radian) {
+    return MakeMatrix4x4::RotateZ(radian[Z]) * MakeMatrix4x4::RotateX(radian[X]) * MakeMatrix4x4::RotateY(radian[Y]);
 }
 
-Matrix4x4 MakeMatrix::RotateXYZ(const Matrix4x4& x, const Matrix4x4& y, const Matrix4x4& z) {
+Matrix4x4 MakeMatrix4x4::RotateXYZ(const Matrix4x4& x, const Matrix4x4& y, const Matrix4x4& z) {
     return z * x * y;
 }
 
-Matrix4x4 MakeMatrix::RotateQuaternion(const Quaternion& q) {
+Matrix4x4 MakeMatrix4x4::RotateQuaternion(const Quaternion& q) {
     float xy = q.v[X] * q.v[Y];
     float xz = q.v[X] * q.v[Z];
     float yz = q.v[Y] * q.v[Z];
@@ -184,7 +184,7 @@ Matrix4x4 MakeMatrix::RotateQuaternion(const Quaternion& q) {
             0.0f, 0.0f, 0.0f, 1.0f});
 }
 
-Matrix4x4 MakeMatrix::RotateAxisAngle(const Vec3f& axis, float angle) {
+Matrix4x4 MakeMatrix4x4::RotateAxisAngle(const Vec3f& axis, float angle) {
     float sinAngle  = sinf(angle);
     float cosAngle  = cosf(angle);
     float mCosAngle = (1.0f - cosAngle);
@@ -192,18 +192,18 @@ Matrix4x4 MakeMatrix::RotateAxisAngle(const Vec3f& axis, float angle) {
         axis[X] * axis[X] * mCosAngle + cosAngle, axis[X] * axis[Y] * mCosAngle + axis[Z] * sinAngle, axis[X] * axis[Z] * mCosAngle - axis[Y] * sinAngle, 0.0f, axis[X] * axis[Y] * mCosAngle - axis[Z] * sinAngle, axis[Y] * axis[Y] * mCosAngle + cosAngle, axis[Y] * axis[Z] * mCosAngle + axis[X] * sinAngle, 0.0f, axis[X] * axis[Z] * mCosAngle + axis[Y] * sinAngle, axis[Y] * axis[Z] * mCosAngle - axis[X] * sinAngle, axis[Z] * axis[Z] * mCosAngle + cosAngle, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
 }
 
-Matrix4x4 MakeMatrix::RotateAxisAngle(const Vec3f& fromV, const Vec3f& toV) {
+Matrix4x4 MakeMatrix4x4::RotateAxisAngle(const Vec3f& fromV, const Vec3f& toV) {
     float angle = std::acosf(fromV.dot(toV));
     Vec3f axis  = fromV.cross(toV).normalize();
-    return MakeMatrix::RotateAxisAngle(axis, angle);
+    return MakeMatrix4x4::RotateAxisAngle(axis, angle);
 }
 
-Matrix4x4 MakeMatrix::Affine(const Vec3f& scale, const Vec3f& rotate, const Vec3f& translate) {
-    return MakeMatrix::Scale(scale) * MakeMatrix::RotateXYZ(rotate) * MakeMatrix::Translate(translate);
+Matrix4x4 MakeMatrix4x4::Affine(const Vec3f& scale, const Vec3f& rotate, const Vec3f& translate) {
+    return MakeMatrix4x4::Scale(scale) * MakeMatrix4x4::RotateXYZ(rotate) * MakeMatrix4x4::Translate(translate);
 }
 
-Matrix4x4 MakeMatrix::Affine(const Vec3f& scale, const Quaternion& rotate, const Vec3f& translate) {
-    return MakeMatrix::Scale(scale) * MakeMatrix::RotateQuaternion(rotate) * MakeMatrix::Translate(translate);
+Matrix4x4 MakeMatrix4x4::Affine(const Vec3f& scale, const Quaternion& rotate, const Vec3f& translate) {
+    return MakeMatrix4x4::Scale(scale) * MakeMatrix4x4::RotateQuaternion(rotate) * MakeMatrix4x4::Translate(translate);
 }
 
 Vec3f TransformVector(const Vec3f& vec, const Matrix4x4& matrix) {
@@ -241,17 +241,17 @@ Vec2f WorldToScreen(const Vec3f& _worldPos, const Matrix4x4& _vpvpvMat) {
     return Vec2f(screenSpace[X], screenSpace[Y]);
 }
 
-Matrix4x4 MakeMatrix::PerspectiveFov(const float& fovY, const float& aspectRatio, const float& nearClip, const float& farClip) {
+Matrix4x4 MakeMatrix4x4::PerspectiveFov(const float& fovY, const float& aspectRatio, const float& nearClip, const float& farClip) {
     const float cot = 1.0f / std::tanf(fovY / 2.0f);
     return Matrix4x4(
         {(1.0f / aspectRatio) * cot, 0.0f, 0.0f, 0.0f, 0.0f, cot, 0.0f, 0.0f, 0.0f, 0.0f, farClip / (farClip - nearClip), 1.0f, 0.0f, 0.0f, (-nearClip * farClip) / (farClip - nearClip), 0.0f});
 }
 
-Matrix4x4 MakeMatrix::Orthographic(const float& left, const float& top, const float& right, const float& bottom, const float& nearClip, const float& farClip) {
+Matrix4x4 MakeMatrix4x4::Orthographic(const float& left, const float& top, const float& right, const float& bottom, const float& nearClip, const float& farClip) {
     return Matrix4x4(
         {2.0f / (right - left), 0.0f, 0.0f, 0.0f, 0.0f, 2.0f / (top - bottom), 0.0f, 0.0f, 0.0f, 0.0f, 1.0f / (farClip - nearClip), 0.0f, (left + right) / (left - right), (top + bottom) / (bottom - top), nearClip / (nearClip - farClip), 1.0f});
 }
 
-Matrix4x4 MakeMatrix::ViewPort(const float& left, const float& top, const float& width, const float& height, const float& minDepth, const float& maxDepth) {
+Matrix4x4 MakeMatrix4x4::ViewPort(const float& left, const float& top, const float& width, const float& height, const float& minDepth, const float& maxDepth) {
     return Matrix4x4({width / 2.0f, 0.0f, 0.0f, 0.0f, 0.0f, -(height / 2.0f), 0.0f, 0.0f, 0.0f, 0.0f, maxDepth - minDepth, 0.0f, left + (width / 2.0f), top + (height / 2.0f), minDepth, 1.0f});
 }

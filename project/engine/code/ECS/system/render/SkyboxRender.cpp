@@ -136,9 +136,9 @@ void SkyboxRender::CreatePSO() {
     ///=================================================
     /// Depth
     ///=================================================
-    texShaderInfo.customDepthStencilDesc().DepthEnable    = true;
-    texShaderInfo.customDepthStencilDesc().DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO; // 書き込まない z = -1だから
-    texShaderInfo.customDepthStencilDesc().DepthFunc      = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+    texShaderInfo.CustomDepthStencilDesc().DepthEnable    = true;
+    texShaderInfo.CustomDepthStencilDesc().DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO; // 書き込まない z = -1だから
+    texShaderInfo.CustomDepthStencilDesc().DepthFunc      = D3D12_COMPARISON_FUNC_LESS_EQUAL;
 
 #pragma region "RootParameter"
     D3D12_ROOT_PARAMETER rootParameter[3]{};

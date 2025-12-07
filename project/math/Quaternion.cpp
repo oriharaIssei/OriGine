@@ -218,7 +218,7 @@ Quaternion Quaternion::FromMatrix(const Matrix4x4& _rotateMat) {
     }
 }
 
-Quaternion Quaternion::FromEulerAngles(float pitch, float yaw, float roll) {
+Quaternion Quaternion::FromEulerAngles(float pitch,float yaw, float roll) {
     // 半分の角度を計算
     float halfPitch = pitch * 0.5f;
     float halfYaw   = yaw * 0.5f;
@@ -243,7 +243,7 @@ Quaternion Quaternion::FromEulerAngles(float pitch, float yaw, float roll) {
 }
 
 Quaternion Quaternion::FromEulerAngles(const Vec3f& euler) {
-    return FromEulerAngles(euler[Y], euler[X], euler[Z]);
+    return FromEulerAngles(euler[X], euler[Y], euler[Z]);
 }
 
 Quaternion Quaternion::LookAt(const Vec3f& _forward, const Vec3f& up) { // Z軸を向けるべき方向にする

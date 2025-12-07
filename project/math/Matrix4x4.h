@@ -1,5 +1,6 @@
 #pragma once
 
+/// math
 #include <DirectXMath.h>
 #include <Quaternion.h>
 #include <Vector3.h>
@@ -96,7 +97,7 @@ struct Matrix4x4 {
     }
 };
 
-namespace MakeMatrix {
+namespace MakeMatrix4x4 {
 /// <summary>
 /// 単位行列を作成
 /// </summary>
@@ -179,7 +180,7 @@ Matrix4x4 Orthographic(const float& left, const float& top, const float& right, 
 /// ビューポート行列を作成
 /// </summary>
 Matrix4x4 ViewPort(const float& left, const float& top, const float& width, const float& height, const float& minDepth, const float& maxDepth);
-} // namespace MakeMatrix
+} // namespace MakeMatrix4x4
 
 /// <summary>
 /// ベクトルを行列で変換

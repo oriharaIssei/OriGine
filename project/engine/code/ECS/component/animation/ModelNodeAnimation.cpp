@@ -104,7 +104,7 @@ Matrix4x4 ModelNodeAnimation::CalculateNodeLocal(const std::string& nodeName) co
     auto it = data_->animationNodes_.find(nodeName);
     if (it == data_->animationNodes_.end()) {
         // ノードに対応するアニメーションがない場合、単位行列を返す
-        return MakeMatrix::Identity();
+        return MakeMatrix4x4::Identity();
     }
 
     const ModelAnimationNode& nodeAnimation = it->second;
@@ -126,7 +126,7 @@ Matrix4x4 ModelNodeAnimation::CalculateNodeLocal(const std::string& nodeName) co
         break;
     }
 
-    return MakeMatrix::Affine(scale, rotate, translate);
+    return MakeMatrix4x4::Affine(scale, rotate, translate);
 }
 
 void ModelNodeAnimation::ApplyAnimationToNodes(

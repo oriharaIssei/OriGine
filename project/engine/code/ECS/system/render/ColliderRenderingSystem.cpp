@@ -116,7 +116,7 @@ void CreateLineMeshByShape(
         {-halfSizes[X], halfSizes[Y], halfSizes[Z]}};
 
     // 回転と位置を適用
-    Matrix4x4 rotationMatrix = MakeMatrix::RotateQuaternion(_shape.orientations_.rot);
+    Matrix4x4 rotationMatrix = MakeMatrix4x4::RotateQuaternion(_shape.orientations_.rot);
     for (auto& corner : corners) {
         corner = corner * rotationMatrix + _shape.center_;
     }

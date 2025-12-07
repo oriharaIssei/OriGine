@@ -12,7 +12,7 @@ Orientation Orientation::Identity() {
 void Orientation::UpdateAxes() {
     rot         = rot.normalize();
 
-    Matrix4x4 m = MakeMatrix::RotateQuaternion(rot);
+    Matrix4x4 m = MakeMatrix4x4::RotateQuaternion(rot);
     axis[0]     = Vec3(m[0][0], m[1][0], m[2][0]).normalize();
     axis[1]     = Vec3(m[0][1], m[1][1], m[2][1]).normalize();
     axis[2]     = Vec3(m[0][2], m[1][2], m[2][2]).normalize();

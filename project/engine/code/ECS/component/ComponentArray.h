@@ -129,6 +129,8 @@ public:
 
 protected:
     std::vector<std::vector<componentType>> components_;
+    // エンティティIDとコンポーネント配列のインデックスを紐付けるマップ
+    // key: EntityID, value: components_のインデックス
     std::map<int32_t, uint32_t> entityIndexBind_;
 
 public:

@@ -12,10 +12,12 @@
 #include <nlohmann/json.hpp>
 
 // indexNumbers
-static constexpr int X = 0;
-static constexpr int Y = 1;
-static constexpr int Z = 2;
-static constexpr int W = 3;
+enum AxisIndex : int {
+    X = 0,
+    Y = 1,
+    Z = 2,
+    W = 3
+};
 
 static constexpr int R = 0;
 static constexpr int G = 1;
@@ -63,6 +65,8 @@ public:
     // accessor
     constexpr valueType& operator[](std::size_t i) { return v[i]; }
     constexpr const valueType& operator[](std::size_t i) const { return v[i]; }
+    constexpr valueType& operator[](AxisIndex i) { return v[i]; }
+    constexpr const valueType& operator[](AxisIndex i) const { return v[i]; }
 
     // plus
     constexpr Vector operator+(const Vector& other) const {

@@ -61,6 +61,7 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 #include "system/render/ColliderRenderingSystem.h"
 #include "system/render/GpuParticleRenderSystem.h"
 #include "system/render/LineRenderSystem.h"
+#include "system/render/OverlayRenderSystem.h"
 #include "system/render/ParticleRenderSystem.h"
 #include "system/render/SkeletonRenderSystem.h"
 #include "system/render/SkinningMeshRenderSystem.h"
@@ -99,12 +100,12 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 #include "component/material/light/SpotLight.h"
 #include "component/material/Material.h"
 
-#include "component/effect/CameraAction.h"
 #include "component/animation/MaterialAnimation.h"
 #include "component/animation/ModelNodeAnimation.h"
 #include "component/animation/PrimitiveNodeAnimation.h"
 #include "component/animation/SkinningAnimationComponent.h"
 #include "component/animation/SpriteAnimation.h"
+#include "component/effect/CameraAction.h"
 
 #include "component/collision/collider/AABBCollider.h"
 #include "component/collision/collider/Collider.h"

@@ -26,7 +26,7 @@ class DebugCamera;
 #include "globalVariables/SerializedField.h"
 
 // util
-#include "util/EnumBitMask.h"
+#include "util/EnumBitmask.h"
 #include "util/nameof.h"
 
 /// <summary>

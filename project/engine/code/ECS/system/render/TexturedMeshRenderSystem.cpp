@@ -413,7 +413,9 @@ void TexturedMeshRenderSystem::StartRender() {
     commandList->SetDescriptorHeaps(1, ppHeaps);
 
     // Cameraのセット
-    CameraManager::GetInstance()->SetBufferForRootParameter(commandList, cameraBufferIndex_);
+    CameraManager* cameraManager = CameraManager::GetInstance();
+    cameraManager->DataConvertToBuffer();
+    cameraManager->SetBufferForRootParameter(commandList, cameraBufferIndex_);
 
     // Lightのセット
     LightUpdate();

@@ -19,7 +19,7 @@ void BackGroundSpriteRenderSystem::Initialize() {
 
     // ViewPortMatの計算
     WinApp* window = Engine::GetInstance()->GetWinApp();
-    viewPortMat_   = MakeMatrix::Orthographic(0, 0, (float)window->GetWidth(), (float)window->GetHeight(), 0.0f, 100.0f);
+    viewPortMat_   = MakeMatrix4x4::Orthographic(0, 0, (float)window->GetWidth(), (float)window->GetHeight(), 0.0f, 100.0f);
 }
 
 void BackGroundSpriteRenderSystem::Rendering() {
@@ -120,9 +120,9 @@ void BackGroundSpriteRenderSystem::CreatePSO() {
     ///=================================================
     /// Depth
     ///=================================================
-    shaderInfo.customDepthStencilDesc().DepthEnable    = true;
-    shaderInfo.customDepthStencilDesc().DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO; // 書き込まない z = -1だから
-    shaderInfo.customDepthStencilDesc().DepthFunc      = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+    shaderInfo.CustomDepthStencilDesc().DepthEnable    = true;
+    shaderInfo.CustomDepthStencilDesc().DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO; // 書き込まない z = -1だから
+    shaderInfo.CustomDepthStencilDesc().DepthFunc      = D3D12_COMPARISON_FUNC_LESS_EQUAL;
 
     ///================================================
     /// Sampler の設定

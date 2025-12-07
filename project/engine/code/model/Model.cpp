@@ -9,7 +9,7 @@ void Model::loadTexture(int32_t part, const std::string& _texturePath) {
 
 void Skeleton::Update() {
     for (Joint& joint : this->joints) {
-        joint.localMatrix = MakeMatrix::Affine(joint.transform.scale, joint.transform.rotate, joint.transform.translate);
+        joint.localMatrix = MakeMatrix4x4::Affine(joint.transform.scale, joint.transform.rotate, joint.transform.translate);
 
         if (joint.parent.has_value()) {
             joint.skeletonSpaceMatrix = joint.localMatrix * this->joints[*joint.parent].skeletonSpaceMatrix;

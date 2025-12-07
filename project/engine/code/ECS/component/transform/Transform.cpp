@@ -18,7 +18,7 @@ void Transform::Initialize([[maybe_unused]] Entity* _entity) {
 
 void Transform::UpdateMatrix() {
     rotate   = Quaternion::Normalize(rotate);
-    worldMat = MakeMatrix::Affine(scale, rotate, translate);
+    worldMat = MakeMatrix4x4::Affine(scale, rotate, translate);
     if (parent) {
         worldMat *= parent->worldMat;
     }

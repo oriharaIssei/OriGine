@@ -19,7 +19,7 @@ void SpriteRenderSystem::Initialize() {
 
     // ViewPortMatの計算
     WinApp* window = Engine::GetInstance()->GetWinApp();
-    viewPortMat_   = MakeMatrix::Orthographic(0, 0, (float)window->GetWidth(), (float)window->GetHeight(), 0.0f, 100.0f);
+    viewPortMat_   = MakeMatrix4x4::Orthographic(0, 0, (float)window->GetWidth(), (float)window->GetHeight(), 0.0f, 100.0f);
 }
 
 void SpriteRenderSystem::Rendering() {
@@ -28,7 +28,7 @@ void SpriteRenderSystem::Rendering() {
     // OrthographicMat の再計算(Resizeされる可能性)
     ///=========================================================
     WinApp* window = Engine::GetInstance()->GetWinApp();
-    viewPortMat_   = MakeMatrix::Orthographic(0, 0, (float)window->GetWidth(), (float)window->GetHeight(), 0.0f, 100.0f);
+    viewPortMat_   = MakeMatrix4x4::Orthographic(0, 0, (float)window->GetWidth(), (float)window->GetHeight(), 0.0f, 100.0f);
 
     ///=========================================================
     // Priorityが低い順に

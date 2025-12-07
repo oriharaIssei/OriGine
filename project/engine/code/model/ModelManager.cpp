@@ -67,7 +67,7 @@ static ModelNode ReadNode(aiNode* node) {
     result.transform.scale     = Vec3f(aiScale.x, aiScale.y, aiScale.z);
     result.transform.rotate    = Quaternion(aiRotate.x, -aiRotate.y, -aiRotate.z, aiRotate.w); // X軸反転
     result.transform.translate = Vec3f(-aiTranslate.x, aiTranslate.y, aiTranslate.z); // X軸反転
-    result.localMatrix         = MakeMatrix::Affine(result.transform.scale, result.transform.rotate, result.transform.translate);
+    result.localMatrix         = MakeMatrix4x4::Affine(result.transform.scale, result.transform.rotate, result.transform.translate);
 
     /// Name を Copy
     result.name = node->mName.C_Str();
@@ -92,7 +92,7 @@ static int32_t CreateJoint(
 
     joint.transform           = node.transform;
     joint.localMatrix         = node.localMatrix;
-    joint.skeletonSpaceMatrix = MakeMatrix::Identity();
+    joint.skeletonSpaceMatrix = MakeMatrix4x4::Identity();
 
     joint.parent = parent;
 
@@ -139,7 +139,7 @@ static void CreateSkinCluster(
         aiQuaternion rotate;
         bindPoseMatAssimp.Decompose(scale, rotate, translate);
         // X軸反転 して Decomposeした値から 計算
-        Matrix4x4 bindPoseMatrix = MakeMatrix::Affine(
+        Matrix4x4 bindPoseMatrix = MakeMatrix4x4::Affine(
             Vec3f(scale.x, scale.y, scale.z),
             Quaternion(rotate.x, -rotate.y, -rotate.z, rotate.w),
             Vec3f(-translate.x, translate.y, translate.z));
@@ -169,7 +169,7 @@ static void CreateSkinCluster(
 
     // inverseBindPoseMatrices を 初期化(単位行列で埋めとく)
     _cluster.inverseBindPoseMatrices.resize(skeleton.joints.size());
-    std::generate(_cluster.inverseBindPoseMatrices.begin(), _cluster.inverseBindPoseMatrices.end(), MakeMatrix::Identity);
+    std::generate(_cluster.inverseBindPoseMatrices.begin(), _cluster.inverseBindPoseMatrices.end(), MakeMatrix4x4::Identity);
 
     // ModelData を 解析, Influence を 設定
     for (const auto& jointWeight : _meshData->jointWeightData) {
@@ -372,7 +372,7 @@ void ModelManager::Initialize() {
 
     fovMa_           = std::make_unique<Matrix4x4>();
     Matrix4x4* maPtr = new Matrix4x4();
-    *maPtr           = MakeMatrix::PerspectiveFov(
+    *maPtr           = MakeMatrix4x4::PerspectiveFov(
         0.45f,
         static_cast<float>(Engine::GetInstance()->GetWinApp()->GetWidth()) / static_cast<float>(Engine::GetInstance()->GetWinApp()->GetHeight()),
         0.1f,

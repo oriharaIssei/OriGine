@@ -1,8 +1,8 @@
 #include "ParticleTransform.h"
 
 void ParticleTransform::UpdateMatrix(){
-	worldMat = MakeMatrix::Affine(scale,rotate,translate);
-	uvMat    = MakeMatrix::Affine(uvScale,uvRotate,uvTranslate);
+	worldMat = MakeMatrix4x4::Affine(scale,rotate,translate);
+	uvMat    = MakeMatrix4x4::Affine(uvScale,uvRotate,uvTranslate);
 
 	if(parentWorldMat){
         worldMat *= *parentWorldMat;

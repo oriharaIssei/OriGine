@@ -103,7 +103,7 @@ public:
 
 public:
     UVTransform uvTransform_;
-    Matrix4x4 uvMat_ = MakeMatrix::Identity();
+    Matrix4x4 uvMat_ = MakeMatrix4x4::Identity();
 
     Vec4f color_ = {1.f, 1.f, 1.f, 1.f};
 

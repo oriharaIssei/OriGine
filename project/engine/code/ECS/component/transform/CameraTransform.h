@@ -35,7 +35,7 @@ public:
     // Vec3f scale;
     Quaternion rotate = Quaternion();
     Vec3f translate   = {0.0f, 0.0f, 0.0f};
-    Matrix4x4 viewMat = MakeMatrix::Identity();
+    Matrix4x4 viewMat = MakeMatrix4x4::Identity();
 
     // 垂直方向視野角
     float fovAngleY = 45.0f * 3.141592654f / 180.0f;
@@ -45,7 +45,7 @@ public:
     float nearZ = 0.1f;
     // 深度限界（奥側）
     float farZ = 1000.0f;
-    Matrix4x4 projectionMat = MakeMatrix::Identity();
+    Matrix4x4 projectionMat = MakeMatrix4x4::Identity();
 
 public:
     struct ConstantBuffer {

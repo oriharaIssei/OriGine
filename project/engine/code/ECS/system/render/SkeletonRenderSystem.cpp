@@ -77,7 +77,7 @@ void SkeletonRenderSystem::CreateRenderMesh() {
             continue; // Entityが存在しない場合はスキップ
         }
 
-        Matrix4x4 worldMat = MakeMatrix::Identity();
+        Matrix4x4 worldMat = MakeMatrix4x4::Identity();
         if (auto* transform = GetComponent<Transform>(entity); transform != nullptr) {
             worldMat = transform->worldMat;
         }
@@ -166,7 +166,7 @@ void SkeletonRenderSystem::CreatePSO() {
 
 #pragma endregion
 
-    lineShaderInfo.customDepthStencilDesc().DepthEnable = false;
+    lineShaderInfo.CustomDepthStencilDesc().DepthEnable = false;
 
     // topology
     lineShaderInfo.topologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;

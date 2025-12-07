@@ -1069,9 +1069,9 @@ void Emitter::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandLis
 
     Matrix4x4 billboardMat = {};
     // パーティクルのスケール行列を事前計算
-    Matrix4x4 scaleMat     = MakeMatrix::Identity();
-    Matrix4x4 rotateMat    = MakeMatrix::Identity();
-    Matrix4x4 translateMat = MakeMatrix::Identity();
+    Matrix4x4 scaleMat     = MakeMatrix4x4::Identity();
+    Matrix4x4 rotateMat    = MakeMatrix4x4::Identity();
+    Matrix4x4 translateMat = MakeMatrix4x4::Identity();
     if (particles_.empty()) {
         return;
     }
@@ -1089,9 +1089,9 @@ void Emitter::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandLis
 
         // 各パーティクルのワールド行列を計算
         for (size_t i = 0; i < particles_.size(); i++) {
-            scaleMat     = MakeMatrix::Scale(structuredTransform_.openData_[i].scale);
-            rotateMat    = MakeMatrix::RotateXYZ(structuredTransform_.openData_[i].rotate);
-            translateMat = MakeMatrix::Translate(structuredTransform_.openData_[i].translate);
+            scaleMat     = MakeMatrix4x4::Scale(structuredTransform_.openData_[i].scale);
+            rotateMat    = MakeMatrix4x4::RotateXYZ(structuredTransform_.openData_[i].rotate);
+            translateMat = MakeMatrix4x4::Translate(structuredTransform_.openData_[i].translate);
 
             // ワールド行列を構築
             structuredTransform_.openData_[i].worldMat = scaleMat * billboardMat * translateMat;
@@ -1102,9 +1102,9 @@ void Emitter::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandLis
     } else {
         // 各パーティクルのワールド行列を計算
         for (size_t i = 0; i < particles_.size(); i++) {
-            scaleMat     = MakeMatrix::Scale(structuredTransform_.openData_[i].scale);
-            rotateMat    = MakeMatrix::RotateXYZ(structuredTransform_.openData_[i].rotate);
-            translateMat = MakeMatrix::Translate(structuredTransform_.openData_[i].translate);
+            scaleMat     = MakeMatrix4x4::Scale(structuredTransform_.openData_[i].scale);
+            rotateMat    = MakeMatrix4x4::RotateXYZ(structuredTransform_.openData_[i].rotate);
+            translateMat = MakeMatrix4x4::Translate(structuredTransform_.openData_[i].translate);
 
             // ワールド行列を構築
             structuredTransform_.openData_[i].worldMat = scaleMat * rotateMat * translateMat;

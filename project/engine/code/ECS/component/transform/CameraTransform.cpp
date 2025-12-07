@@ -31,10 +31,10 @@ void CameraTransform::Finalize() {}
 
 void CameraTransform::UpdateMatrix() {
     rotate  = rotate.normalize();
-    viewMat = MakeMatrix::Affine({1.0f, 1.0f, 1.0f}, rotate, translate);
+    viewMat = MakeMatrix4x4::Affine({1.0f, 1.0f, 1.0f}, rotate, translate);
     viewMat = viewMat.inverse();
 
-    projectionMat = MakeMatrix::PerspectiveFov(fovAngleY, aspectRatio, nearZ, farZ);
+    projectionMat = MakeMatrix4x4::PerspectiveFov(fovAngleY, aspectRatio, nearZ, farZ);
 }
 
 void to_json(nlohmann::json& j, const CameraTransform& r) {

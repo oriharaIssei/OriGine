@@ -116,6 +116,7 @@ public:
 
     // Enum値取得
     constexpr EnumType ToEnum() const noexcept { return static_cast<E>(value_); }
+    constexpr UnderlyingType ToUnderlying() const noexcept { return value_; }
 
 protected:
     UnderlyingType value_;

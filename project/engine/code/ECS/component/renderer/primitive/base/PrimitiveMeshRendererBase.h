@@ -14,10 +14,10 @@ public:
     PrimitiveMeshRendererBase(const std::vector<TextureMesh>& _meshGroup) : MeshRenderer(_meshGroup) {}
     PrimitiveMeshRendererBase(const std::shared_ptr<std::vector<TextureMesh>>& _meshGroup) : MeshRenderer(_meshGroup) {}
 
-    virtual ~PrimitiveMeshRendererBase()                                                                = default;
-    virtual void Initialize(Entity* _entity)                                                            = 0;
-    virtual void Finalize()                                                                             = 0;
-    virtual void Edit(Scene* _scene, Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) = 0;
+    virtual ~PrimitiveMeshRendererBase()                                               = default;
+    virtual void Initialize(Entity* _entity)                                           = 0;
+    virtual void Finalize()                                                            = 0;
+    virtual void Edit(Scene* _scene, Entity* _entity, const std::string& _parentLabel) = 0;
 
     /// <summary>
     /// 自身のプリミティブ情報をもとにメッシュを作成する
@@ -29,14 +29,17 @@ public:
     /// テクスチャを読み込む
     /// </summary>
     void LoadTexture(const std::string& _directory, const std::string& _filename);
+    /// <summary>
+    /// テクスチャを読み込む
+    /// </summary>
+    void LoadTexture(const std::string& _filePath);
 
 protected:
     IConstantBuffer<Transform> transformBuff_;
     int32_t materialIndex_ = -1;
     SimpleConstantBuffer<Material> materialBuff_;
 
-    std::string textureDirectory_;
-    std::string textureFileName_;
+    std::string textureFilePath_;
     uint32_t textureIndex_ = 0;
 
 public:
@@ -66,11 +69,8 @@ public:
         return materialBuff_;
     }
 
-    const std::string& GetTextureDirectory() const {
-        return textureDirectory_;
-    }
-    const std::string& GetTextureFileName() const {
-        return textureFileName_;
+    const std::string& GetTexturePath() const {
+        return textureFilePath_;
     }
 
     uint32_t GetTextureIndex() const {

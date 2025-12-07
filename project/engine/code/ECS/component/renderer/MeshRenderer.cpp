@@ -218,7 +218,10 @@ void ModelMeshRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] En
 
     ImGui::Separator();
 
-    std::string meshName = "Mesh##" + _parentLabel;
+    std::string meshName       = "Mesh##" + _parentLabel;
+
+    auto materials             = _scene->GetComponents<Material>(_entity);
+    int32_t entityMaterialSize = materials != nullptr ? static_cast<int32_t>(materials->size()) : 0;
     for (int32_t i = 0; i < meshGroup_->size(); ++i) {
         meshName = std::format("Mesh [{}]##", i) + _parentLabel;
         if (ImGui::CollapsingHeader(meshName.c_str())) {
@@ -249,8 +252,6 @@ void ModelMeshRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] En
 
             label                      = "MaterialIndex##" + _parentLabel;
             int32_t& materialIndex     = meshMaterialBuff_[i].first;
-            auto materials             = _scene->GetComponents<Material>(_entity);
-            int32_t entityMaterialSize = materials != nullptr ? static_cast<int32_t>(materials->size()) : 0;
 
             InputGuiCommand(label, materialIndex);
             materialIndex = std::clamp(materialIndex, -1, entityMaterialSize - 1);

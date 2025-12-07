@@ -320,6 +320,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="math\Interpolation.h" />
     <ClInclude Include="math\Matrix4x4.h" />
     <ClInclude Include="math\MyEasing.h" />
+    <ClInclude Include="math\Noise.h" />
     <ClInclude Include="math\Orientation.h" />
     <ClInclude Include="math\Quaternion.h" />
     <ClInclude Include="math\Sequence.h" />
@@ -332,10 +333,13 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="math\bounds\Sphere.h" />
     <ClInclude Include="math\bounds\base\IBounds.h" />
     <ClInclude Include="math\mathEnv.h" />
+    <ClInclude Include="engine\code\ECS\system\render\OverlayRenderSystem.h" />
+    <ClInclude Include="engine\code\ECS\component\transform\Transform2d.h" />
+    <ClInclude Include="math\Matrix3x3.h" />
     <ClInclude Include="util\BitArray.h" />
     <ClInclude Include="util\DiffValue.h" />
     <ClInclude Include="util\DxUtil.h" />
-    <ClInclude Include="util\EnumBitMask.h" />
+    <ClInclude Include="util\EnumBitmask.h" />
     <ClInclude Include="util\StringUtil.h" />
     <ClInclude Include="util\Version.h" />
     <ClInclude Include="util\binaryIO\BinaryIO.h" />
@@ -496,10 +500,14 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="math\Interpolation.cpp" />
     <ClCompile Include="math\Matrix4x4.cpp" />
     <ClCompile Include="math\MyEasing.cpp" />
+    <ClCompile Include="math\Noise.cpp" />
     <ClCompile Include="math\Orientation.cpp" />
     <ClCompile Include="math\Quaternion.cpp" />
     <ClCompile Include="math\Sequence.cpp" />
     <ClCompile Include="math\mathEnv.cpp" />
+    <ClCompile Include="engine\code\ECS\system\render\OverlayRenderSystem.cpp" />
+    <ClCompile Include="engine\code\ECS\component\transform\Transform2d.cpp" />
+    <ClCompile Include="math\Matrix3x3.cpp" />
     <ClCompile Include="util\StringUtil.cpp" />
     <ClCompile Include="util\Version.cpp" />
     <ClCompile Include="util\binaryIO\BinaryIO.cpp" />

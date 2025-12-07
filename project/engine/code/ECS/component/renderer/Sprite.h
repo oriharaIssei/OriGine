@@ -5,10 +5,12 @@
 #include "directX12/mesh/Mesh.h"
 // component
 #include "component/renderer/MeshRenderer.h"
+#include "component/transform/Transform2d.h"
 
 // math
 #include <Vector2.h>
 #include <Vector4.h>
+
 //====================================== VertexData ======================================//
 struct SpriteVertexData {
     SpriteVertexData()  = default;
@@ -28,16 +30,16 @@ struct SpritConstBuffer {
     Vec2f scale_        = {1.f, 1.f};
     float rotate_       = 0.f;
     Vec2f translate_    = {0.f, 0.f};
-    Matrix4x4 worldMat_ = MakeMatrix::Identity();
+    Matrix4x4 worldMat_ = MakeMatrix4x4::Identity();
 
     Vec2f uvScale_     = {1.f, 1.f};
     float uvRotate_    = 0.f;
     Vec2f uvTranslate_ = {0.f, 0.f};
-    Matrix4x4 uvMat_   = MakeMatrix::Identity();
+    Matrix4x4 uvMat_   = MakeMatrix4x4::Identity();
 
     void Update(const Matrix4x4& _vpMat) {
-        worldMat_ = MakeMatrix::Affine({scale_, 1.0f}, {0.0f, 0.0f, rotate_}, {translate_, 0.0f}) * _vpMat;
-        uvMat_    = MakeMatrix::Affine({uvScale_, 1.f}, {0.f, uvRotate_, 0.f}, {uvTranslate_, 0.f});
+        worldMat_ = MakeMatrix4x4::Affine({scale_, 1.0f}, {0.0f, 0.0f, rotate_}, {translate_, 0.0f}) * _vpMat;
+        uvMat_    = MakeMatrix4x4::Affine({uvScale_, 1.f}, {0.f, uvRotate_, 0.f}, {uvTranslate_, 0.f});
     }
 
     struct ConstantBuffer {
@@ -107,6 +109,8 @@ public:
 private:
     int32_t renderPriority_ = 1;
 
+    IConstantBuffer<Transform2d> transform2dBuff_;
+    IConstantBuffer<Transform2d> uvTransform2dBuff_;
     IConstantBuffer<SpritConstBuffer> spriteBuff_;
 
     std::string texturePath_;

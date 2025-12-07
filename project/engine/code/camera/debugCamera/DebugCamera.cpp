@@ -103,7 +103,7 @@ void DebugCamera::TranslationState::Update() {
         velo[axis] *= kMouseSensitivity[axis];
     }
 
-    host_->cameraBuff_.translate += velo * MakeMatrix::RotateQuaternion(host_->cameraBuff_.rotate);
+    host_->cameraBuff_.translate += velo * MakeMatrix4x4::RotateQuaternion(host_->cameraBuff_.rotate);
 }
 
 void DebugCamera::RotationState::Update() {

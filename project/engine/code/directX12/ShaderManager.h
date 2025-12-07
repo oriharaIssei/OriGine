@@ -100,7 +100,7 @@ public:
     /// 楽だが非推奨
     /// </summary>
     /// <returns></returns>
-    D3D12_DEPTH_STENCIL_DESC& customDepthStencilDesc() { return depthStencilDesc_; }
+    D3D12_DEPTH_STENCIL_DESC& CustomDepthStencilDesc() { return depthStencilDesc_; }
     void SetDepthStencilDesc(const D3D12_DEPTH_STENCIL_DESC& desc) { depthStencilDesc_ = desc; }
 
     void SetTopologyType(D3D12_PRIMITIVE_TOPOLOGY_TYPE topology) { topologyType = topology; }

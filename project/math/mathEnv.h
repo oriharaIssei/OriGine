@@ -4,15 +4,17 @@
 // 数学系環境 ヘッダ
 /// =========================================================
 
-// 標準ライブラリ
+/// stl
 #include <charconv>
-#include <cmath>
 #include <concepts>
+#include <string>
+#include <system_error>
+#include <vector>
+/// math
+#include <cmath>
 #include <cstdint>
 #include <limits>
 #include <numbers>
-#include <string>
-#include <system_error>
 
 /// ----------------------------------------------
 /// 色 関連
@@ -179,3 +181,12 @@ ReturnT CountDecimalDigits(T value) {
 
     return end - (pos + 1);
 }
+
+/// <summary>
+/// 浮動小数点数から整数部と小数部の各桁の数字を抽出する
+/// </summary>
+/// <param name="value">変換前</param>
+/// <param name="intDigits">整数部の桁数</param>
+/// <param name="fracDigits">小数部の桁数</param>
+/// <returns></returns>
+std::vector<int> CalculateDigitsFromFloat(float value, int intDigits, int fracDigits);

@@ -33,6 +33,7 @@ public:
     struct Info {
         CollisionPushBackType pushBackType;
         Vec3f collVec; // 衝突ベクトル
+        Vec3f collFaceNormal; // 衝突面の法線ベクトル
         Vec3f collPoint; // 衝突点
     };
 
