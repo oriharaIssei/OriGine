@@ -54,7 +54,7 @@ void SpeedlineEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]]
     };
     if (askLoadTexture(_parentLabel)) {
         std::string directory, fileName;
-        if (myfs::selectFileDialog(kApplicationResourceDirectory + "/texture", directory, fileName, {"png"})) {
+        if (myfs::SelectFileDialog(kApplicationResourceDirectory + "/texture", directory, fileName, {"png"})) {
             std::string newPath = kApplicationResourceDirectory + "/texture/" + directory + "/" + fileName;
             auto command        = std::make_unique<SetterCommand<std::string>>(&radialTextureFilePath_, newPath, [this](std::string*) { this->radialTextureIndex_ = TextureManager::LoadTexture(radialTextureFilePath_); }, true, nullptr);
             EditorController::GetInstance()->PushCommand(std::move(command));

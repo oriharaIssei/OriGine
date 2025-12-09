@@ -89,7 +89,7 @@ void SkinningAnimationComponent::Edit([[maybe_unused]] Scene* _scene, Entity* /*
     if (ImGui::Button(label.c_str())) {
         std::string directory;
         std::string fileName;
-        if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"gltf", "anm"})) {
+        if (myfs::SelectFileDialog(kApplicationResourceDirectory, directory, fileName, {"gltf", "anm"})) {
             // 既に同じアニメーションが存在する場合は何もしない
             auto itr = animationIndexBinder_.find(fileName);
             if (itr == animationIndexBinder_.end()) {
@@ -127,7 +127,7 @@ void SkinningAnimationComponent::Edit([[maybe_unused]] Scene* _scene, Entity* /*
             if (ImGui::Button(nodeLabel.c_str())) {
                 std::string directory;
                 std::string fileName;
-                if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"gltf", "anm"})) {
+                if (myfs::SelectFileDialog(kApplicationResourceDirectory, directory, fileName, {"gltf", "anm"})) {
                     auto SetPath = std::make_unique<SetterCommand<std::string>>(&animation.directory, kApplicationResourceDirectory + "/" + directory);
                     auto SetFile = std::make_unique<SetterCommand<std::string>>(&animation.fileName, fileName);
                     CommandCombo commandCombo;

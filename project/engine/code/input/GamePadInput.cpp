@@ -1,4 +1,4 @@
-#include "GamePadInput.h"
+#include "GamepadInput.h"
 
 /// math
 #include "math/mathEnv.h"
@@ -7,7 +7,7 @@
 /// <summary>
 /// ゲームパッドの初期化
 /// </summary>
-void GamePadInput::Initialize() {
+void GamepadInput::Initialize() {
     // 初期入力を取得しておく
     Update();
 
@@ -17,7 +17,7 @@ void GamePadInput::Initialize() {
 /// <summary>
 /// 状態更新
 /// </summary>
-void GamePadInput::Update() {
+void GamepadInput::Update() {
     prevButtonMask_ = buttonMask_;
 
     // XInput更新
@@ -47,7 +47,7 @@ void GamePadInput::Update() {
     }
 }
 
-void GamePadInput::Finalize() {
+void GamepadInput::Finalize() {
     buttonMask_     = 0;
     prevButtonMask_ = 0;
 
@@ -65,7 +65,7 @@ void GamePadInput::Finalize() {
 /// <summary>
 /// スティックの値を正規化して更新
 /// </summary>
-void GamePadInput::UpdateStickValues(XINPUT_STATE _state) {
+void GamepadInput::UpdateStickValues(XINPUT_STATE _state) {
     auto normalizeStick = [this](SHORT x, SHORT y) -> Vec2f {
         Vec2f stick{
             static_cast<float>(x) / kStickMax,

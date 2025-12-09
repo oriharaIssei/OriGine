@@ -195,7 +195,7 @@ void LoadMenuItem::DrawGui() {
     if (ImGui::MenuItem(name_.c_str(), "ctl + o", &isSelect)) {
         // シーンのロード処理
         std::string directory, filename;
-        if (!myfs::selectFileDialog(sceneFolderPath, directory, filename, {"json"}, true)) {
+        if (!myfs::SelectFileDialog(sceneFolderPath, directory, filename, {"json"}, true)) {
             return;
         }
 
@@ -222,7 +222,7 @@ void CreateMenuItem::DrawGui() {
         ImGui::InputText("New Scene Name", &newSceneName_);
 
         if (ImGui::Button("Create")) {
-            auto scenes = myfs::searchFile(SceneSerializer::SceneDirectory, {"json"});
+            auto scenes = myfs::SearchFile(SceneSerializer::kSceneDirectory, {"json"});
 
             auto it = std::find_if(
                 scenes.begin(), scenes.end(),
@@ -557,7 +557,7 @@ void EntityHierarchy::DrawGui() {
         // 選択されているエンティティを削除
         SceneSerializer serializer(currentScene);
         std::string directory, filename;
-        if (!myfs::selectFileDialog(kApplicationResourceDirectory + "/entities", directory, filename, {"ent"}, true)) {
+        if (!myfs::SelectFileDialog(kApplicationResourceDirectory + "/entities", directory, filename, {"ent"}, true)) {
             return; // キャンセルされた場合は何もしない
         }
         // ファイルからエンティティを読み込む

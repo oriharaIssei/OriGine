@@ -8,7 +8,7 @@
 /// engine
 #include "scene/SceneManager.h"
 // input
-#include "input/GamePadInput.h"
+#include "input/GamepadInput.h"
 #include "input/KeyboardInput.h"
 #include "input/MouseInput.h"
 // debug
@@ -40,7 +40,7 @@ private:
     // input
     std::unique_ptr<KeyboardInput> keyboardInput_ = nullptr;
     std::unique_ptr<MouseInput> mouseInput_       = nullptr;
-    std::unique_ptr<GamePadInput> gamePadInput_   = nullptr;
+    std::unique_ptr<GamepadInput> gamePadInput_   = nullptr;
 
     bool isLoadReplayFile_ = false;
 

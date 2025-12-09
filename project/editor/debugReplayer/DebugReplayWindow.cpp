@@ -19,7 +19,7 @@ void DebugReplayWindow::Initialize() {
     // ただの傀儡なので Initialize()しなくて良い
     keyboardInput_ = std::make_unique<KeyboardInput>();
     mouseInput_    = std::make_unique<MouseInput>();
-    gamePadInput_  = std::make_unique<GamePadInput>();
+    gamePadInput_  = std::make_unique<GamepadInput>();
 
     sceneManager_ = std::make_unique<SceneManager>();
     sceneManager_->Initialize(keyboardInput_.get(), mouseInput_.get(), gamePadInput_.get());

@@ -36,6 +36,7 @@ struct ReplayFramePadData {
     float rTrigger;
 
     uint32_t buttonData;
+    bool isActive;
 };
 
 /// <summary>

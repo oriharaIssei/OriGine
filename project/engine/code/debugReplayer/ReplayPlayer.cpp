@@ -10,7 +10,7 @@
 #include "logger/Logger.h"
 
 // input
-#include "input/GamePadInput.h"
+#include "input/GamepadInput.h"
 #include "input/KeyboardInput.h"
 #include "input/MouseInput.h"
 
@@ -25,10 +25,11 @@ void ReplayPlayer::Initialize(const std::string& filepath, SceneManager* _sceneM
     isActive_ = LoadFromFile(filepath);
 
     // シーンマネージャーに開始シーンをセット
-    _sceneManager->ChangeScene(fileData_.header.startScene);
-
-    if (isActive_) {
-        Apply(_sceneManager->keyInput_, _sceneManager->mouseInput_, _sceneManager->padInput_);
+    if (_sceneManager) {
+        _sceneManager->ChangeScene(fileData_.header.startScene);
+        if (isActive_) {
+            Apply(_sceneManager->keyInput_, _sceneManager->mouseInput_, _sceneManager->padInput_);
+        }
     }
 }
 
@@ -46,9 +47,13 @@ void ReplayPlayer::Finalize() {
 }
 
 bool ReplayPlayer::LoadFromFile(const std::string& filepath) {
+    isActive_ = false;
     std::ifstream ifs(filepath, std::ios::binary);
     if (!ifs.is_open()) {
+#ifdef _DEBUG
         MessageBoxA(nullptr, ("Failed to open replay file: " + filepath).c_str(), "Error", MB_OK);
+#endif // _DEBUG
+
         LOG_CRITICAL("Failed to open replay file for reading: {}", filepath);
         return false;
     }
@@ -116,16 +121,19 @@ bool ReplayPlayer::LoadFromFile(const std::string& filepath) {
             ifs.read(reinterpret_cast<char*>(&frame.padData.lTrigger), sizeof(float));
             ifs.read(reinterpret_cast<char*>(&frame.padData.rTrigger), sizeof(float));
             ifs.read(reinterpret_cast<char*>(&frame.padData.buttonData), sizeof(uint32_t));
+            ifs.read(reinterpret_cast<char*>(&frame.padData.isActive), sizeof(bool));
         }
     }
 
     ifs.close();
 
     LOG_INFO("Replay file loaded successfully: {}", filepath);
+
+    isActive_ = true;
     return true;
 }
 
-float ReplayPlayer::Apply(KeyboardInput* _keyInput, MouseInput* _mouseInput, GamePadInput* _padInput) {
+float ReplayPlayer::Apply(KeyboardInput* _keyInput, MouseInput* _mouseInput, GamepadInput* _padInput) {
     auto& frameData = fileData_.frameData[currentFrameIndex_];
 
     /// prev の更新
@@ -188,6 +196,7 @@ float ReplayPlayer::Apply(KeyboardInput* _keyInput, MouseInput* _mouseInput, Gam
     _padInput->rTrigger_ = frameData.padData.rTrigger;
 
     _padInput->buttonMask_ = frameData.padData.buttonData;
+    _padInput->isActive_   = frameData.padData.isActive;
 
     return frameData.deltaTime;
 }

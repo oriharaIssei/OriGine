@@ -308,7 +308,7 @@ void Emitter::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _ent
         label = "Change Texture##" + _parentLabel;
         if (ImGui::Button(label.c_str())) {
             std::string directory, filename;
-            if (MyFileSystem::selectFileDialog(kApplicationResourceDirectory, directory, filename, {"png"})) {
+            if (MyFileSystem::SelectFileDialog(kApplicationResourceDirectory, directory, filename, {"png"})) {
                 std::string filePath = kApplicationResourceDirectory + "/" + directory + "/" + filename;
                 auto commandCombo    = std::make_unique<CommandCombo>();
                 commandCombo->AddCommand(

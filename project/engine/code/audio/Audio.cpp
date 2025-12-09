@@ -179,7 +179,7 @@ void Audio::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_unused]] [[mayb
     std::string label = "LoadFile##" + _parentLabel;
     if (ImGui::Button(label.c_str())) {
         std::string directory;
-        if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName_, {"wav"})) {
+        if (myfs::SelectFileDialog(kApplicationResourceDirectory, directory, fileName_, {"wav"})) {
             EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<std::string>>(&fileName_, kApplicationResourceDirectory + "/" + directory + "/" + fileName_));
 
             audioClip_.data_ = LoadWave(kApplicationResourceDirectory + "/" + directory + "/" + fileName_);

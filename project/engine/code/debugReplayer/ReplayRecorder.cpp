@@ -2,7 +2,7 @@
 
 /// engine
 // input
-#include "input/GamePadInput.h"
+#include "input/GamepadInput.h"
 #include "input/KeyboardInput.h"
 #include "input/MouseInput.h"
 // logger
@@ -11,7 +11,6 @@
 /// util
 #include "binaryIO/BinaryIO.h"
 #include "myFileSystem/MyFileSystem.h"
-#include "StringUtil.h"
 
 ReplayRecorder::ReplayRecorder() {}
 ReplayRecorder::~ReplayRecorder() {}
@@ -21,7 +20,7 @@ void ReplayRecorder::Initialize(const std::string& _startSceneName) {
     frames_.clear();
 }
 
-void ReplayRecorder::RecordFrame(float deltaTime, KeyboardInput* _keyInput, MouseInput* _mouseInput, GamePadInput* _padInput) {
+void ReplayRecorder::RecordFrame(float deltaTime, KeyboardInput* _keyInput, MouseInput* _mouseInput, GamepadInput* _padInput) {
     ReplayFrameData frameData = {};
     frameData.deltaTime       = deltaTime;
 
@@ -49,19 +48,20 @@ void ReplayRecorder::RecordFrame(float deltaTime, KeyboardInput* _keyInput, Mous
         frameData.padData.lTrigger   = _padInput->GetLTrigger();
         frameData.padData.rTrigger   = _padInput->GetRTrigger();
         frameData.padData.buttonData = _padInput->GetButtonMask();
+        frameData.padData.isActive   = _padInput->IsActive();
     }
 
     frames_.push_back(frameData);
     header_.frameCount = static_cast<uint32_t>(frames_.size());
 }
 
-bool ReplayRecorder::SaveToFile(const std::string& _directory) {
+bool ReplayRecorder::SaveToFile(const std::string& _directory, const std::string& _filename) {
     // _directory を 念のため作成しておく
-    myfs::createFolder(_directory);
+    myfs::CreateFolder(_directory);
 
     // ファイルを開く
     // rpd = Replay debug
-    std::string path = _directory + "/" + TimeToString() + '.' + kReplayFileExtension;
+    std::string path = _directory + "/" + _filename + '.' + kReplayFileExtension;
 
     std::ofstream ofs;
     ofs.open(path, std::ios::binary);
@@ -152,5 +152,7 @@ void ReplayRecorder::WriteFrameData(std::ofstream& _ofs, size_t _frameIndex) {
         _ofs.write(reinterpret_cast<const char*>(&frame.padData.rTrigger), sizeof(float));
         // ボタンデータ
         _ofs.write(reinterpret_cast<const char*>(&frame.padData.buttonData), sizeof(uint32_t));
+        // アクティブ状態
+        _ofs.write(reinterpret_cast<const char*>(&frame.padData.isActive), sizeof(bool));
     }
 }

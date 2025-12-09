@@ -40,7 +40,7 @@ void ModelNodeAnimation::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_un
     std::string label = "Load File##" + _parentLabel;
     if (ImGui::Button(label.c_str())) {
         std::string directory, filename;
-        if (MyFileSystem::selectFileDialog(
+        if (MyFileSystem::SelectFileDialog(
                 kApplicationResourceDirectory,
                 directory,
                 filename,

@@ -35,7 +35,7 @@ void SubSceneUpdate::UpdateEntity(Entity* _entity) {
             scene->SetInputDevices(
                 GetScene()->GetKeyboardInput(),
                 GetScene()->GetMouseInput(),
-                GetScene()->GetGamePadInput());
+                GetScene()->GetGamepadInput());
 
             scene->Update();
         }

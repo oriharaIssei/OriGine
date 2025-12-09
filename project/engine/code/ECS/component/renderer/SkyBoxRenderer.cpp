@@ -101,7 +101,7 @@ void SkyboxRenderer::Edit(Scene* /*_scene*/, Entity* /* _entity*/, [[maybe_unuse
     if (ImGui::Button(label.c_str())) {
         std::string directory;
         std::string filename;
-        myfs::selectFileDialog(kApplicationResourceDirectory, directory, filename, {"dds"});
+        myfs::SelectFileDialog(kApplicationResourceDirectory, directory, filename, {"dds"});
         if (!filename.empty()) {
             auto commandCombo = std::make_unique<CommandCombo>();
             commandCombo->AddCommand(std::make_unique<SetterCommand<std::string>>(&filePath_, kApplicationResourceDirectory + "/" + directory + "/" + filename));

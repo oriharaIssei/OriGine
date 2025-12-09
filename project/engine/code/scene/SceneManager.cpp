@@ -11,7 +11,7 @@
 #include "logger/Logger.h"
 #include "winApp/WinApp.h"
 // input
-#include "input/GamePadInput.h"
+#include "input/GamepadInput.h"
 #include "input/InputManager.h"
 #include "input/KeyboardInput.h"
 #include "input/MouseInput.h"
@@ -44,7 +44,7 @@
 SceneManager::SceneManager() {}
 SceneManager::~SceneManager() {}
 
-void SceneManager::Initialize(const std::string& _startScene, KeyboardInput* _keyInput, MouseInput* _mouseInput, GamePadInput* _padInput) {
+void SceneManager::Initialize(const std::string& _startScene, KeyboardInput* _keyInput, MouseInput* _mouseInput, GamepadInput* _padInput) {
     // 入力デバイスの設定
     keyInput_   = _keyInput;
     mouseInput_ = _mouseInput;
@@ -66,7 +66,7 @@ void SceneManager::Initialize(const std::string& _startScene, KeyboardInput* _ke
     fileWatcher_->Start();
 #endif // _DEVELOP
 }
-void SceneManager::Initialize(KeyboardInput* _keyInput, MouseInput* _mouseInput, GamePadInput* _padInput) {
+void SceneManager::Initialize(KeyboardInput* _keyInput, MouseInput* _mouseInput, GamepadInput* _padInput) {
     this->Initialize(startupSceneName_, _keyInput, _mouseInput, _padInput);
 }
 
@@ -125,7 +125,7 @@ void SceneManager::ExecuteSceneChange() {
 
 #pragma region "SceneSerializer"
 
-const std::string SceneSerializer::SceneDirectory = kApplicationResourceDirectory + "/scene/";
+const std::string SceneSerializer::kSceneDirectory = kApplicationResourceDirectory + "/scene/";
 
 SceneSerializer::SceneSerializer(Scene* _targetScene) : targetScene_(_targetScene) {}
 
@@ -209,9 +209,9 @@ void SceneSerializer::SerializeFromJson() {
     }
 
     // JSON ファイルに書き込み
-    std::string sceneFilePath = SceneDirectory + targetScene_->GetName() + ".json";
-    myfs::deleteFile(sceneFilePath);
-    myfs::createFolder(SceneDirectory);
+    std::string sceneFilePath = kSceneDirectory + targetScene_->GetName() + ".json";
+    myfs::DeleteMyFile(sceneFilePath);
+    myfs::CreateFolder(kSceneDirectory);
     std::ofstream ofs(sceneFilePath);
     if (!ofs) {
         LOG_ERROR("Failed to open JSON file for writing: {}", targetScene_->GetName());
@@ -222,7 +222,7 @@ void SceneSerializer::SerializeFromJson() {
 }
 
 void SceneSerializer::DeserializeFromJson() {
-    std::ifstream ifs(SceneDirectory + targetScene_->GetName() + ".json");
+    std::ifstream ifs(kSceneDirectory + targetScene_->GetName() + ".json");
     if (!ifs) {
         LOG_ERROR("Failed to open JSON file for reading: {}", targetScene_->GetName());
         return;
@@ -275,7 +275,7 @@ void SceneSerializer::SaveEntity(int32_t _entityID, const std::string& _director
     entityData = EntityToJson(_entityID);
 
     // ディレクトリを作成
-    myFs::createFolder(_directory);
+    myFs::CreateFolder(_directory);
     std::string filePath = _directory + "/" + _entity->GetDataType() + ".ent";
     // JSONファイルに書き込み
     std::ofstream ofs(filePath);

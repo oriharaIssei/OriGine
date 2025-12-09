@@ -103,7 +103,7 @@ void DissolveEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] 
     if (askLoadTexture(_parentLabel)) {
         std::string directory;
         std::string fileName;
-        if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"png"})) {
+        if (myfs::SelectFileDialog(kApplicationResourceDirectory, directory, fileName, {"png"})) {
             auto SetPath = std::make_unique<SetterCommand<std::string>>(&textureFilePath_, kApplicationResourceDirectory + "/" + directory + "/" + fileName);
             CommandCombo commandCombo;
             commandCombo.AddCommand(std::move(SetPath));

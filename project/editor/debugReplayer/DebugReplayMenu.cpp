@@ -45,7 +45,7 @@ void DebugReplayLoadMenuItem::DrawGui() {
         std::string filename  = "";
 
         // fileの取得に成功したら
-        if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, filename, {kReplayFileExtension})) {
+        if (myfs::SelectFileDialog(kApplicationResourceDirectory, directory, filename, {kReplayFileExtension})) {
             ReplayPlayer* replayPlayer = parent_->GetReplayPlayer();
             // skip
             if (!replayPlayer) {

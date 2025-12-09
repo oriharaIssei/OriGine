@@ -33,7 +33,7 @@ private:
 
 public:
     const CameraTransform& GetTransform() const { return cTransform_.openData_; }
-    void SetTransform(const CameraTransform& transform) { cTransform_.openData_ = transform; }
+    void SetTransform(const CameraTransform& transform);
 
     void DataConvertToBuffer() {
         cTransform_.ConvertToBuffer();

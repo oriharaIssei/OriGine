@@ -9,7 +9,10 @@
 /// engine
 class KeyboardInput;
 class MouseInput;
-class GamePadInput;
+class GamepadInput;
+
+/// util
+#include "StringUtil.h"
 
 /// <summary>
 /// デバッグのプレイ情報を記録するクラス
@@ -22,8 +25,8 @@ public:
     void Initialize(const std::string& _startSceneName);
     void Finalize();
 
-    void RecordFrame(float deltaTime, KeyboardInput* _keyInput, MouseInput* _mouseInput, GamePadInput* _padInput);
-    bool SaveToFile(const std::string& _directory);
+    void RecordFrame(float deltaTime, KeyboardInput* _keyInput, MouseInput* _mouseInput, GamepadInput* _padInput);
+    bool SaveToFile(const std::string& _directory, const std::string& _filename = TimeToString());
 
 private:
     /// <summary>

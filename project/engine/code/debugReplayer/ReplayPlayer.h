@@ -9,10 +9,13 @@ class SceneManager;
 // input
 class KeyboardInput;
 class MouseInput;
-class GamePadInput;
+class GamepadInput;
 
 /// default data
 #include "base/ReplayData.h"
+
+/// external
+#include "logger/Logger.h"
 
 /// <summary>
 /// 記録データを読み込み、フレーム単位で入力を再生する
@@ -39,12 +42,28 @@ public:
     /// <param name="mouse">マウス入力</param>
     /// <param name="pad">ゲームパッド入力</param>
     /// <returns>フレームの経過時間</returns>
-    float Apply(KeyboardInput* key, MouseInput* mouse, GamePadInput* pad);
+    float Apply(KeyboardInput* key, MouseInput* mouse, GamepadInput* pad);
 
     /// <summary>
     /// 任意のフレームにジャンプする
     /// </summary>
     bool Seek(size_t frameIndex);
+
+    /// <summary>
+    /// リプレイ終了したか
+    /// CurrentIndexが総フレーム数以上なら終了
+    /// </summary>
+    /// <returns></returns>
+    bool IsEnd() const { return currentFrameIndex_ >= fileData_.frameData.size(); }
+
+    /// <summary>
+    /// 指定したフレームインデックスが有効か
+    /// </summary>
+    /// <param name="frameIndex">フレームのインデックス</param>
+    /// <returns>true = 有効、false = 失敗</returns>
+    bool IsValidFrame(int32_t frameIndex) const {
+        return (frameIndex >= 0 && frameIndex < static_cast<int32_t>(fileData_.frameData.size()));
+    }
 
 private:
     ReplayFile fileData_      = {};
@@ -64,4 +83,13 @@ public:
     void SetCurrentFrameIndex(size_t index) { currentFrameIndex_ = index; }
 
     const ReplayFrameData& GetCurrentFrameData() const { return fileData_.frameData[currentFrameIndex_]; }
+    const ReplayFrameData& GetFrameData(int32_t _frameIndex) const {
+        if (_frameIndex < 0 || _frameIndex > fileData_.frameData.size()) {
+            LOG_ERROR("Frame index out of range: {}", _frameIndex);
+
+            ReplayFrameData tmpData;
+            return tmpData;
+        }
+        return fileData_.frameData[_frameIndex];
+    }
 };

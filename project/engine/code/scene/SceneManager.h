@@ -12,7 +12,7 @@ class Scene;
 // input
 class KeyboardInput;
 class MouseInput;
-class GamePadInput;
+class GamepadInput;
 /// ecs
 #include "component/ComponentArray.h"
 #include "entity/Entity.h"
@@ -32,8 +32,8 @@ public:
     SceneManager();
     ~SceneManager();
 
-    void Initialize(const std::string& _startScene, KeyboardInput* _keyInput, MouseInput* _mouseInput, GamePadInput* _padInput);
-    void Initialize(KeyboardInput* _keyInput, MouseInput* _mouseInput, GamePadInput* _padInput);
+    void Initialize(const std::string& _startScene, KeyboardInput* _keyInput, MouseInput* _mouseInput, GamepadInput* _padInput);
+    void Initialize(KeyboardInput* _keyInput, MouseInput* _mouseInput, GamepadInput* _padInput);
     void Finalize();
 
     void Update();
@@ -57,7 +57,7 @@ private:
     // input
     KeyboardInput* keyInput_ = nullptr;
     MouseInput* mouseInput_  = nullptr;
-    GamePadInput* padInput_  = nullptr;
+    GamepadInput* padInput_  = nullptr;
 
     std::string changingSceneName_ = "";
 
@@ -91,7 +91,7 @@ public:
 
 class SceneSerializer {
 public:
-    static const std::string SceneDirectory;
+    static const std::string kSceneDirectory;
 
 public:
     SceneSerializer(Scene* _targetScene);

@@ -53,7 +53,7 @@ void Logger::Initialize() {
         const size_t kMaxFiles    = 3; // 3ファイルまで保存
 
         // ログフォルダの作成
-        myfs::createFolder(logFolder);
+        myfs::CreateFolder(logFolder);
 
         // logger の作成 (ファイルも作成してくれる)
         logger_ = spdlog::rotating_logger_mt(

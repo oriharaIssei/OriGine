@@ -298,7 +298,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\directX12\mesh\DefaultVertexData.h" />
     <ClInclude Include="engine\code\directX12\mesh\Mesh.h" />
     <ClInclude Include="engine\code\imGuiManager\ImGuiManager.h" />
-    <ClInclude Include="engine\code\input\GamePadInput.h" />
+    <ClInclude Include="engine\code\input\GamepadInput.h" />
     <ClInclude Include="engine\code\input\InputManager.h" />
     <ClInclude Include="engine\code\input\KeyboardInput.h" />
     <ClInclude Include="engine\code\input\MouseInput.h" />
@@ -485,7 +485,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\directX12\ShaderCompiler.cpp" />
     <ClCompile Include="engine\code\directX12\ShaderManager.cpp" />
     <ClCompile Include="engine\code\imGuiManager\ImGuiManager.cpp" />
-    <ClCompile Include="engine\code\input\GamePadInput.cpp" />
+    <ClCompile Include="engine\code\input\GamepadInput.cpp" />
     <ClCompile Include="engine\code\input\InputManager.cpp" />
     <ClCompile Include="engine\code\input\KeyboardInput.cpp" />
     <ClCompile Include="engine\code\input\MouseInput.cpp" />

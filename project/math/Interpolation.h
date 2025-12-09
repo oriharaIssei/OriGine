@@ -1,6 +1,7 @@
 #pragma once
 
 /// my math
+#include "math/mathEnv.h"
 #include "math/Quaternion.h"
 
 /// math library
@@ -23,3 +24,12 @@ T LerpByDeltaTime(const T& _start, const T& _end, float _deltaTime, float _speed
 }
 
 Quaternion SlerpByDeltaTime(const Quaternion& q0, const Quaternion& v, float _deltaTime, float _speed);
+
+/// <summary>
+/// 角度を最短経路で線形補間 (ラジアン)
+/// </summary>
+/// <param name="current"></param>
+/// <param name="target"></param>
+/// <param name="t"></param>
+/// <returns></returns>
+float LerpAngle(float current, float target, float t);

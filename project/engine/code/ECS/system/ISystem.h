@@ -131,6 +131,10 @@ public: // ========================================== accessor =================
         }
         entityIDs_.push_back(_entity->GetID());
     }
+    /// <summary>
+    /// エンティティをシステムから削除する
+    /// </summary>
+    /// <param name="_entity"></param>
     void RemoveEntity(Entity* _entity) {
         entityIDs_.erase(std::remove(entityIDs_.begin(), entityIDs_.end(), _entity->GetID()), entityIDs_.end());
     }

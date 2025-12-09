@@ -196,7 +196,7 @@ void ModelMeshRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] En
     if (ImGui::Button(label.c_str())) {
         std::string directory;
         std::string fileName;
-        if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"obj", "gltf", "dds"})) {
+        if (myfs::SelectFileDialog(kApplicationResourceDirectory, directory, fileName, {"obj", "gltf", "dds"})) {
             auto SetDirectory = std::make_unique<SetterCommand<std::string>>(&directory_, kApplicationResourceDirectory + "/" + directory);
             auto SetName      = std::make_unique<SetterCommand<std::string>>(&fileName_, fileName);
             CommandCombo commandCombo;

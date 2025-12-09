@@ -630,7 +630,7 @@
     <ClInclude Include="engine\code\imGuiManager\ImGuiManager.h">
       <Filter>engine\code\imGuiManager</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\input\GamePadInput.h">
+    <ClInclude Include="engine\code\input\GamepadInput.h">
       <Filter>engine\code\input</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\input\InputManager.h">
@@ -1179,7 +1179,7 @@
     <ClCompile Include="engine\code\imGuiManager\ImGuiManager.cpp">
       <Filter>engine\code\imGuiManager</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\input\GamePadInput.cpp">
+    <ClCompile Include="engine\code\input\GamepadInput.cpp">
       <Filter>engine\code\input</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\input\InputManager.cpp">

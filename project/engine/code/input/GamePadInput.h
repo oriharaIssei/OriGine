@@ -58,15 +58,15 @@ constexpr uint32_t PAD_BUTTON_COUNT = 16;
 /// <summary>
 /// XInput対応ゲームパッド入力を管理するクラス
 /// </summary>
-class GamePadInput {
+class GamepadInput {
     friend class ReplayPlayer;
 
 public:
-    GamePadInput()  = default;
-    ~GamePadInput() = default;
+    GamepadInput()  = default;
+    ~GamepadInput() = default;
 
-    GamePadInput(const GamePadInput&)            = delete;
-    GamePadInput& operator=(const GamePadInput&) = delete;
+    GamepadInput(const GamepadInput&)            = delete;
+    GamepadInput& operator=(const GamepadInput&) = delete;
 
     /// <summary>
     /// 初期化

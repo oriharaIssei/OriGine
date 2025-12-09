@@ -69,7 +69,7 @@ bool AskLoadTextureButton(int32_t _texIndex, const std::string& _parentLabel) {
 }
 bool OpenFileDialog(const std::string& _baseDirectory, std::string& _outputDirectory, std::string& _outputFileName, const std::vector<std::string>& _extension, bool _withoutExtension, bool _withoutBaseDirectory) {
     std::string directory, fileName;
-    if (myfs::selectFileDialog(_baseDirectory, directory, fileName, _extension, _withoutExtension)) {
+    if (myfs::SelectFileDialog(_baseDirectory, directory, fileName, _extension, _withoutExtension)) {
         if (_withoutBaseDirectory) {
             _outputDirectory = directory;
         } else {
@@ -85,7 +85,7 @@ bool OpenFileDialog(const std::string& _baseDirectory, std::string& _outputDirec
 
 bool OpenFileDialog(const std::string& _baseDirectory, std::string& _outputPath, const std::vector<std::string>& _extension, bool _withoutExtension, bool _withoutBaseDirectory) {
     std::string directory, fileName;
-    if (myfs::selectFileDialog(_baseDirectory, directory, fileName, _extension, _withoutExtension)) {
+    if (myfs::SelectFileDialog(_baseDirectory, directory, fileName, _extension, _withoutExtension)) {
         if (_withoutBaseDirectory) {
             _outputPath = directory + "/" + fileName;
         } else {

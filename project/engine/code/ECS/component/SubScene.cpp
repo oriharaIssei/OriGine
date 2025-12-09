@@ -30,7 +30,7 @@ void SubScene::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _en
 
     std::string label = "SceneName##" + _parentLabel;
     if (ImGui::BeginCombo(label.c_str(), sceneName_.c_str())) {
-        std::list<std::pair<std::string, std::string>> sceneList = myfs::searchFile(kApplicationResourceDirectory + "/scene", "json");
+        std::list<std::pair<std::string, std::string>> sceneList = myfs::SearchFile(kApplicationResourceDirectory + "/scene", "json");
         for (const auto& scene : sceneList) {
             bool isSelected = (sceneName_ == scene.second);
             if (ImGui::Selectable(scene.second.c_str(), isSelected)) {

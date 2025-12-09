@@ -7,6 +7,13 @@
 CameraManager::CameraManager() {}
 CameraManager::~CameraManager() {}
 
+void CameraManager::SetTransform(const CameraTransform& transform) {
+    if (!transform.canUseMainCamera) {
+        return;
+    }
+    cTransform_.openData_ = transform;
+}
+
 CameraManager* CameraManager::GetInstance() {
     static CameraManager instance{};
     return &instance;

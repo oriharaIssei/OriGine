@@ -1,7 +1,7 @@
 #pragma once
 
 /// input
-#include "GamePadInput.h"
+#include "GamepadInput.h"
 #include "KeyboardInput.h"
 #include "MouseInput.h"
 
@@ -21,7 +21,7 @@ public:
 
     KeyboardInput* GetKeyboard() { return &keyboard_; }
     MouseInput* GetMouse() { return &mouse_; }
-    GamePadInput* GetGamePad() { return &gamepad_; }
+    GamepadInput* GetGamePad() { return &gamepad_; }
 
 private:
     Microsoft::WRL::ComPtr<IDirectInput8> directInput_;
@@ -30,5 +30,5 @@ private:
 
     KeyboardInput keyboard_;
     MouseInput mouse_;
-    GamePadInput gamepad_;
+    GamepadInput gamepad_;
 };

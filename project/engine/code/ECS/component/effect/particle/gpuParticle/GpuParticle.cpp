@@ -76,7 +76,7 @@ void GpuParticleEmitter::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_un
         if (askLoadTexture(_parentLabel)) {
             std::string directory;
             std::string fileName;
-            if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"png"})) {
+            if (myfs::SelectFileDialog(kApplicationResourceDirectory, directory, fileName, {"png"})) {
                 auto SetPath = std::make_unique<SetterCommand<std::string>>(&texturePath_, kApplicationResourceDirectory + "/" + directory + "/" + fileName);
                 CommandCombo commandCombo;
                 commandCombo.AddCommand(std::move(SetPath));

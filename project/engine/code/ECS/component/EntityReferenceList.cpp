@@ -45,7 +45,7 @@ void EntityReferenceList::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_u
     label = "Add Entity Reference##" + _parentLabel;
     if (ImGui::Button(label.c_str())) {
         std::string directory, filename;
-        if (MyFileSystem::selectFileDialog(kApplicationResourceDirectory, directory, filename, {"ent"}, true)) {
+        if (MyFileSystem::SelectFileDialog(kApplicationResourceDirectory, directory, filename, {"ent"}, true)) {
             auto command = std::make_unique<AddElementCommand<std::vector<std::pair<std::string, std::string>>>>(&entityFileList_, std::make_pair(kApplicationResourceDirectory + "/" + directory, filename));
             EditorController::GetInstance()->PushCommand(std::move(command));
         }

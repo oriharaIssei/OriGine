@@ -95,7 +95,7 @@ void PlaneRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity
     if (AskLoadTextureButton(textureIndex_, _parentLabel)) {
         std::string directory = "";
         std::string fileName  = "";
-        if (myfs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"png"})) {
+        if (myfs::SelectFileDialog(kApplicationResourceDirectory, directory, fileName, {"png"})) {
             auto commandCombo = std::make_unique<CommandCombo>();
             commandCombo->AddCommand(std::make_shared<SetterCommand<std::string>>(&textureFilePath_, kApplicationResourceDirectory + "/" + directory + "/" + fileName));
             commandCombo->SetFuncOnAfterCommand([this]() { textureIndex_ = TextureManager::LoadTexture(textureFilePath_); }, true);

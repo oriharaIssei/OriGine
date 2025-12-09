@@ -27,11 +27,13 @@ public:
 
     void Initialize(Entity* _hostEntity = nullptr);
 
-    void Edit(Scene* _scene,Entity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
 
     void Finalize() override;
 
     void UpdateMatrix();
+
+    bool canUseMainCamera = true;
     // Vec3f scale;
     Quaternion rotate = Quaternion();
     Vec3f translate   = {0.0f, 0.0f, 0.0f};
@@ -44,7 +46,7 @@ public:
     // 深度限界（手前側）
     float nearZ = 0.1f;
     // 深度限界（奥側）
-    float farZ = 1000.0f;
+    float farZ              = 1000.0f;
     Matrix4x4 projectionMat = MakeMatrix4x4::Identity();
 
 public:

@@ -13,7 +13,7 @@ class RenderTexture;
 // input
 class KeyboardInput;
 class MouseInput;
-class GamePadInput;
+class GamepadInput;
 /// ECS
 #include "component/ComponentArray.h"
 #include "component/ComponentRepository.h"
@@ -60,7 +60,7 @@ protected:
     // input
     KeyboardInput* keyInput_ = nullptr;
     MouseInput* mouseInput_  = nullptr;
-    GamePadInput* padInput_  = nullptr;
+    GamepadInput* padInput_  = nullptr;
 
     std::list<int32_t> deleteEntities_; // 削除予定のエンティティIDリスト
 
@@ -75,8 +75,8 @@ public:
 
     KeyboardInput* GetKeyboardInput() const { return keyInput_; }
     MouseInput* GetMouseInput() const { return mouseInput_; }
-    GamePadInput* GetGamePadInput() const { return padInput_; }
-    void SetInputDevices(KeyboardInput* _keyInput, MouseInput* _mouseInput, GamePadInput* _padInput) {
+    GamepadInput* GetGamepadInput() const { return padInput_; }
+    void SetInputDevices(KeyboardInput* _keyInput, MouseInput* _mouseInput, GamepadInput* _padInput) {
         keyInput_   = _keyInput;
         mouseInput_ = _mouseInput;
         padInput_   = _padInput;

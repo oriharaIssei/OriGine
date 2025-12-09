@@ -90,7 +90,7 @@ void SpriteRenderer::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_unused
     if (askLoad(_parentLabel)) {
         std::string directory;
         std::string fileName;
-        if (myFs::selectFileDialog(kApplicationResourceDirectory, directory, fileName, {"png"})) {
+        if (myFs::SelectFileDialog(kApplicationResourceDirectory, directory, fileName, {"png"})) {
             // コマンドを作成
             auto command = std::make_unique<SetterCommand<std::string>>(
                 &texturePath_,
