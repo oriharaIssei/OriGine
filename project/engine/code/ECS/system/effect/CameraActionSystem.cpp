@@ -8,6 +8,8 @@
 #include "component/effect/CameraAction.h"
 #include "component/transform/CameraTransform.h"
 
+using namespace OriGine;
+
 CameraActionSystem::CameraActionSystem()
     : ISystem(SystemCategory::Effect) {}
 

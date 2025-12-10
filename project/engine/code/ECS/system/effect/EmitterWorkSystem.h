@@ -2,6 +2,8 @@
 
 #include "system/ISystem.h"
 
+namespace OriGine {
+
 /// <summary>
 /// エミッターの動作を管理するシステム
 /// </summary>
@@ -18,3 +20,5 @@ public:
 protected:
     void UpdateEntity(Entity* _entity) override;
 };
+
+} // namespace OriGine

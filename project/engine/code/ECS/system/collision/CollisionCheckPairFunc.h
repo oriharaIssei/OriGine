@@ -16,6 +16,8 @@
 #include "math/bounds/Sphere.h"
 #include "math/mathEnv.h"
 
+namespace OriGine {
+
 template <typename ShapeA, typename ShapeB>
 bool CheckCollisionPair(
     [[maybe_unused]] Scene* _scene,
@@ -45,8 +47,8 @@ bool CheckCollisionPair(
     Scene* _scene,
     Entity* _entityA,
     Entity* _entityB,
-    const math::bounds::Sphere& _shapeA,
-    const math::bounds::Sphere& _shapeB,
+    const Bounds::Sphere& _shapeA,
+    const Bounds::Sphere& _shapeB,
     [[maybe_unused]] CollisionPushBackInfo* _aInfo,
     [[maybe_unused]] CollisionPushBackInfo* _bInfo);
 
@@ -67,8 +69,8 @@ bool CheckCollisionPair(
     Scene* _scene,
     Entity* _aabbEntity,
     Entity* _sphereEntity,
-    const math::bounds::AABB& _aabb,
-    const math::bounds::Sphere& _sphere,
+    const Bounds::AABB& _aabb,
+    const Bounds::Sphere& _sphere,
     [[maybe_unused]] CollisionPushBackInfo* _aabbInfo,
     [[maybe_unused]] CollisionPushBackInfo* _sphereInfo);
 
@@ -90,8 +92,8 @@ bool CheckCollisionPair(
     Entity* _entityA,
     Entity* _entityB,
     // 順番が A, B と B, A で同じ処理を行うため、関数を呼び出しを入れ替える
-    const math::bounds::Sphere& _shapeA,
-    const math::bounds::AABB& _shapeB,
+    const Bounds::Sphere& _shapeA,
+    const Bounds::AABB& _shapeB,
     [[maybe_unused]] CollisionPushBackInfo* _aInfo,
     [[maybe_unused]] CollisionPushBackInfo* _bInfo);
 
@@ -103,8 +105,8 @@ bool CheckCollisionPair(
     Scene* _scene,
     Entity* _entityA,
     Entity* _entityB,
-    const math::bounds::Sphere& _shapeA,
-    const math::bounds::OBB& _shapeB,
+    const Bounds::Sphere& _shapeA,
+    const Bounds::OBB& _shapeB,
     [[maybe_unused]] CollisionPushBackInfo* _aInfo,
     [[maybe_unused]] CollisionPushBackInfo* _bInfo);
 
@@ -117,8 +119,8 @@ bool CheckCollisionPair(
     Entity* _entityA,
     Entity* _entityB,
     // 順番が A, B と B, A で同じ処理を行うため、関数を呼び出しを入れ替える
-    const math::bounds::OBB& _shapeA,
-    const math::bounds::Sphere& _shapeB,
+    const Bounds::OBB& _shapeA,
+    const Bounds::Sphere& _shapeB,
     [[maybe_unused]] CollisionPushBackInfo* _aInfo,
     [[maybe_unused]] CollisionPushBackInfo* _bInfo);
 
@@ -139,8 +141,8 @@ bool CheckCollisionPair(
     Scene* _scene,
     Entity* _entityA,
     Entity* _entityB,
-    const math::bounds::AABB& _shapeA,
-    const math::bounds::AABB& _shapeB,
+    const Bounds::AABB& _shapeA,
+    const Bounds::AABB& _shapeB,
     [[maybe_unused]] CollisionPushBackInfo* _aInfo,
     [[maybe_unused]] CollisionPushBackInfo* _bInfo);
 
@@ -149,8 +151,8 @@ bool CheckCollisionPair(
     Scene* _scene,
     Entity* _entityA,
     Entity* _entityB,
-    const math::bounds::OBB& _shapeA,
-    const math::bounds::OBB& _shapeB,
+    const Bounds::OBB& _shapeA,
+    const Bounds::OBB& _shapeB,
     CollisionPushBackInfo* _aInfo,
     CollisionPushBackInfo* _bInfo);
 
@@ -162,8 +164,8 @@ bool CheckCollisionPair(
     Scene* _scene,
     Entity* _entityA,
     Entity* _entityB,
-    const math::bounds::AABB& _shapeA,
-    const math::bounds::OBB& _shapeB,
+    const Bounds::AABB& _shapeA,
+    const Bounds::OBB& _shapeB,
     [[maybe_unused]] CollisionPushBackInfo* _aInfo,
     [[maybe_unused]] CollisionPushBackInfo* _bInfo);
 
@@ -175,9 +177,11 @@ bool CheckCollisionPair(
     Scene* _scene,
     Entity* _entityA,
     Entity* _entityB,
-    const math::bounds::OBB& _shapeA,
-    const math::bounds::AABB& _shapeB,
+    const Bounds::OBB& _shapeA,
+    const Bounds::AABB& _shapeB,
     [[maybe_unused]] CollisionPushBackInfo* _aInfo,
     [[maybe_unused]] CollisionPushBackInfo* _bInfo);
 
 #pragma endregion
+
+} // namespace OriGine

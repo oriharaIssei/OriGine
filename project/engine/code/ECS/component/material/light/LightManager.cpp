@@ -2,11 +2,10 @@
 
 /// engine
 #include "Engine.h"
-// directX12 Object
+// directX12
 #include "directX12/DxDevice.h"
 
-
-#include "globalVariables/GlobalVariables.h"
+namespace OriGine {
 
 LightManager::LightManager() {}
 LightManager::~LightManager() {}
@@ -77,23 +76,25 @@ void LightManager::SetForRootParameter(
     }
 }
 
-void LightManager::pushDirectionalLight(const DirectionalLight& light) {
+void LightManager::PushDirectionalLight(const DirectionalLight& light) {
     if (directionalLights_.openData_.size() >= directionalLights_.Capacity()) {
         return;
     }
     directionalLights_.openData_.push_back(light);
 }
 
-void LightManager::pushPointLight(const PointLight& light) {
+void LightManager::PushPointLight(const PointLight& light) {
     if (pointLights_.openData_.size() >= pointLights_.Capacity()) {
         return;
     }
     pointLights_.openData_.push_back(light);
 }
 
-void LightManager::pushSpotLight(const SpotLight& light) {
+void LightManager::PushSpotLight(const SpotLight& light) {
     if (spotLights_.openData_.size() >= spotLights_.Capacity()) {
         return;
     }
     spotLights_.openData_.push_back(light);
 }
+
+} // namespace OriGine

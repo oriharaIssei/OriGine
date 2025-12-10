@@ -8,6 +8,8 @@
 #include <Matrix4x4.h>
 #include <numbers>
 
+namespace OriGine {
+
 Quaternion Quaternion::Inverse(const Quaternion& q) {
     float normSq = q.normSq(); // ノルムの二乗
     if (normSq == 0.0f) {
@@ -218,7 +220,7 @@ Quaternion Quaternion::FromMatrix(const Matrix4x4& _rotateMat) {
     }
 }
 
-Quaternion Quaternion::FromEulerAngles(float pitch,float yaw, float roll) {
+Quaternion Quaternion::FromEulerAngles(float pitch, float yaw, float roll) {
     // 半分の角度を計算
     float halfPitch = pitch * 0.5f;
     float halfYaw   = yaw * 0.5f;
@@ -297,3 +299,5 @@ Quaternion Slerp(const Quaternion& q0, const Quaternion& q1, float t) {
 
     return Quaternion(q0 * scale0 + q1Adjusted * scale1).normalize(); // 結果を正規化
 }
+
+} // namespace OriGine

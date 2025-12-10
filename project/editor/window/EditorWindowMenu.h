@@ -47,7 +47,7 @@ inline WindowItem<EditorWindowType>::WindowItem() : Editor::MenuItem(nameof<Wind
 
 template <EditorWindow EditorWindowType>
 inline void WindowItem<EditorWindowType>::DrawGui() {
-    auto window         = EditorController::GetInstance()->GetWindow<WindowType>();
+    auto window         = OriGine::EditorController::GetInstance()->GetWindow<WindowType>();
     bool windowIsOpened = window->IsOpen();
     if (ImGui::MenuItem(name_.c_str(), nullptr, windowIsOpened, !windowIsOpened)) {
         window->SetOpen(!windowIsOpened);

@@ -18,6 +18,8 @@
 #include <imgui/imgui.h>
 #endif // _DEBUG
 
+using namespace OriGine;
+
 void CylinderRenderer::Initialize(Entity* _hostEntity) {
     MeshRenderer::Initialize(_hostEntity);
 
@@ -55,14 +57,14 @@ void CylinderRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Ent
     ImGui::Text("BlendMode :");
     ImGui::SameLine();
     std::string label = "##BlendMode" + _parentLabel;
-    if (ImGui::BeginCombo(label.c_str(), blendModeStr[(int32_t)currentBlend_].c_str())) {
+    if (ImGui::BeginCombo(label.c_str(), kBlendModeStr[(int32_t)currentBlend_].c_str())) {
         bool isSelected    = false;
         int32_t blendIndex = 0;
-        for (auto& blendModeName : blendModeStr) {
-            isSelected = blendModeName == blendModeStr[(int32_t)currentBlend_];
+        for (auto& blendModeName : kBlendModeStr) {
+            isSelected = blendModeName == kBlendModeStr[(int32_t)currentBlend_];
 
             if (ImGui::Selectable(blendModeName.c_str(), isSelected)) {
-                EditorController::GetInstance()->PushCommand(
+                OriGine::EditorController::GetInstance()->PushCommand(
                     std::make_unique<SetterCommand<BlendMode>>(&currentBlend_, static_cast<BlendMode>(blendIndex)));
                 break;
             }
@@ -101,7 +103,7 @@ void CylinderRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Ent
             auto commandCombo = std::make_unique<CommandCombo>();
             commandCombo->AddCommand(std::make_shared<SetterCommand<std::string>>(&textureFilePath_, kApplicationResourceDirectory + "/" + directory + "/" + fileName));
             commandCombo->SetFuncOnAfterCommand([this]() { textureIndex_ = TextureManager::LoadTexture(textureFilePath_); }, true);
-            EditorController::GetInstance()->PushCommand(std::move(commandCombo));
+            OriGine::EditorController::GetInstance()->PushCommand(std::move(commandCombo));
         }
     }
 
@@ -144,7 +146,7 @@ void CylinderRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Ent
 #endif // _DEBUG
 }
 
-void to_json(nlohmann::json& j, const CylinderRenderer& c) {
+void OriGine::to_json(nlohmann::json& j, const CylinderRenderer& c) {
     j["isRenderer"]      = c.isRender_;
     j["isCulling"]       = c.isCulling_;
     j["blendMode"]       = static_cast<int32_t>(c.currentBlend_);
@@ -157,7 +159,7 @@ void to_json(nlohmann::json& j, const CylinderRenderer& c) {
     j["height"]       = c.primitive_.height_;
 }
 
-void from_json(const nlohmann::json& j, CylinderRenderer& c) {
+void OriGine::from_json(const nlohmann::json& j, CylinderRenderer& c) {
     j.at("isRenderer").get_to(c.isRender_);
     if (j.contains("isCulling")) {
         j.at("isCulling").get_to(c.isCulling_);

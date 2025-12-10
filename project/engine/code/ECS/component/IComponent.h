@@ -10,8 +10,11 @@
 /// utility
 #include <util/nameof.h>
 
+namespace OriGine {
+/// 前方宣言
 class Entity;
 class Scene;
+
 ///< summary>
 /// 1コンポーネントを表すクラス(基底クラス)
 ///</summary>
@@ -20,10 +23,10 @@ public:
     IComponent();
     virtual ~IComponent();
 
-    virtual void Initialize(Entity* _entity) = 0;
+    virtual void Initialize(OriGine::Entity* _entity) = 0;
 
-    virtual void Edit(Scene* _scene, Entity* _entity,  const std::string& _parentLabel) = 0;
-    virtual void Debug(Scene* _scene, Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) { Edit(_scene, _entity, _parentLabel); }
+    virtual void Edit(Scene* _scene, OriGine::Entity* _entity, const ::std::string& _parentLabel) = 0;
+    virtual void Debug(Scene* _scene, OriGine::Entity* _entity, const ::std::string& _parentLabel) { Edit(_scene, _entity, _parentLabel); }
 
     virtual void Finalize() = 0;
 };
@@ -32,4 +35,6 @@ public:
 /// コンポーネントを継承しているかどうかを判定する
 /// </summary>
 template <typename componentType>
-concept IsComponent = std::derived_from<componentType, IComponent>;
+concept IsComponent = ::std::derived_from<componentType, IComponent>;
+
+} // namespace OriGine

@@ -1,6 +1,9 @@
 #include "ResourceStateTracker.h"
 
+/// util
 #include "logger/Logger.h"
+
+namespace OriGine {
 
 std::unordered_map<ID3D12Resource*, D3D12_RESOURCE_STATES> ResourceStateTracker::globalResourceStates_;
 
@@ -68,3 +71,5 @@ void ResourceStateTracker::CommitLocalStatesToGlobal() {
     }
     localResourceStates_.clear();
 }
+
+} // namespace OriGine

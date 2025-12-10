@@ -3,6 +3,7 @@
 /// math
 #include "math/mathEnv.h"
 
+namespace OriGine {
 namespace Primitive {
 
 /// =====================================================
@@ -72,4 +73,5 @@ void Sphere::CreateMesh(TextureMesh* _mesh) {
     _mesh->TransferData();
 }
 
+}
 }

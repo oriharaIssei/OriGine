@@ -9,6 +9,8 @@
 /// math
 #include "math/Vector2.h"
 
+namespace OriGine {
+
 /// <summary>
 /// Smoothing に 使用する BoxFilter のサイズ
 /// </summary>
@@ -42,3 +44,5 @@ public:
     bool isActive_ = true;
     IConstantBuffer<BoxFilterSize> boxFilterSize_;
 };
+
+} // namespace OriGine

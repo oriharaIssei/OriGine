@@ -7,10 +7,12 @@
 /// engine
 #include "Engine.h"
 // directX12
-#include "d3d12.h"
-#include "DefaultVertexData.h"
 #include "../DxDevice.h"
 #include "../DxResource.h"
+#include "d3d12.h"
+#include "DefaultVertexData.h"
+
+namespace OriGine {
 
 /// <summary>
 /// メッシュデータ
@@ -237,3 +239,5 @@ inline void Mesh<VertexDataType>::copyIndexData(const uint32_t* _data, uint32_t 
     }
     memcpy(indexes_.data(), _data, sizeof(uint32_t) * _size);
 }
+
+} // namespace OriGine

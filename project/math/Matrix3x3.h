@@ -3,6 +3,8 @@
 /// math
 #include "math/Vector2.h"
 
+namespace OriGine {
+
 /// <summary>
 /// 3x3 行列（2D アフィン行列）
 /// </summary>
@@ -93,3 +95,6 @@ inline Matrix3x3 Affine(const Vec2f& scale, float rotate, const Vec2f& trans) {
     return Scale(scale) * Rotate(rotate) * Translate(trans);
 }
 }
+
+using Mat3f = Matrix3x3;
+} // namespace OriGine

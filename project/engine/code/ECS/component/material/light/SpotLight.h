@@ -13,10 +13,12 @@
 #include "Vector3.h"
 #include "Vector4.h"
 
+namespace OriGine {
+
 /// <summary>
 /// Spot Light
 /// </summary>
-class SpotLight
+struct SpotLight
     : public IComponent {
     friend void to_json(nlohmann::json& j, const SpotLight& l);
     friend void from_json(const nlohmann::json& j, SpotLight& l);
@@ -27,11 +29,11 @@ public:
 
     void Initialize([[maybe_unused]] Entity* _entity) override {}
 
-    void Edit(Scene* _scene,Entity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
 
     void Finalize() override {}
 
-private:
+public:
     bool isActive_ = true;
 
     Vec3f color_           = {1.f, 1.f, 1.f};
@@ -66,25 +68,6 @@ public:
             return *this;
         }
     };
-
-public: // access
-    bool IsActive() const { return isActive_; }
-    void SetActive(bool _isActive) { isActive_ = _isActive; }
-
-    Vec3f GetColor() const { return color_; }
-    void SetColor(const Vec3f& _color) { color_ = _color; }
-    Vec3f GetPos() const { return pos_; }
-    void SetPos(const Vec3f& _pos) { pos_ = _pos; }
-    float GetIntensity() const { return intensity_; }
-    void SetIntensity(float _intensity) { intensity_ = _intensity; }
-    Vec3f GetDirection() const { return direction_; }
-    void SetDirection(const Vec3f& _direction) { direction_ = _direction; }
-    float GetDistance() const { return distance_; }
-    void SetDistance(float _distance) { distance_ = _distance; }
-    float GetDecay() const { return decay_; }
-    void SetDecay(float _decay) { decay_ = _decay; }
-    float GetCosAngle() const { return cosAngle_; }
-    void SetCosAngle(float _cosAngle) { cosAngle_ = _cosAngle; }
-    float GetCosFalloffStart() const { return cosFalloffStart_; }
-    void SetCosFalloffStart(float _cosFalloffStart) { cosFalloffStart_ = _cosFalloffStart; }
 };
+
+} // namespace OriGine

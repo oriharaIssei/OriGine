@@ -1,0 +1,57 @@
+Checks: >
+  clang-diagnostic-*,
+  clang-analyzer-*,
+  cppcoreguidelines-*,
+  readability-*,
+  bugprone-*,
+  performance-*,
+  portability-*,
+  modernize-*,
+  hicpp-*,
+  # 命名規則
+  cppcoreguidelines-naming
+
+CheckOptions:
+  # --- 変数系 ---
+  # メンバー変数: lowerCamel + 最後に _
+  - key: cppcoreguidelines-naming.MemberCase
+    value: lowerCamelCase
+  - key: cppcoreguidelines-naming.MemberSuffix
+    value: "_"
+
+  # 構造体メンバー: lowerCamel（サフィックスなし）
+  - key: cppcoreguidelines-naming.StructMemberCase
+    value: lowerCamelCase
+
+  # 関数引数: lowerCamel + 先頭に _
+  - key: cppcoreguidelines-naming.ParameterCase
+    value: lowerCamelCase
+  - key: cppcoreguidelines-naming.ParameterPrefix
+    value: "_"
+
+  # --- 関数 ---
+  # 関数名: UpperCamel
+  - key: cppcoreguidelines-naming.FunctionCase
+    value: CamelCase
+
+  # --- クラス & 構造体 ---
+  # クラス名: UpperCamel
+  - key: cppcoreguidelines-naming.ClassCase
+    value: CamelCase
+
+  # struct も UpperCamel（一般的）
+  - key: cppcoreguidelines-naming.StructCase
+    value: CamelCase
+
+  # --- 定数 ---
+  # 定数: 先頭に k + UpperCamel
+  - key: cppcoreguidelines-naming.ConstantPrefix
+    value: "k"
+  - key: cppcoreguidelines-naming.ConstantCase
+    value: CamelCase
+
+  # --- enum ---
+  - key: cppcoreguidelines-naming.EnumCase
+    value: CamelCase
+  - key: cppcoreguidelines-naming.EnumConstantCase
+    value: CamelCase

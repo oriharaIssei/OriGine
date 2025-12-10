@@ -3,25 +3,27 @@
 /// stl
 #include <algorithm>
 
+/// engine
 #define RESOURCE_DIRECTORY
 #define ENGINE_INCLUDE
-/// engine
 #include "AnimationManager.h"
 #include "EngineInclude.h"
-#include "entity/Entity.h"
 #include "model/ModelManager.h"
 #include "scene/Scene.h"
 /// ECS
+#include "entity/Entity.h"
 // component
 #include "component/renderer/MeshRenderer.h"
-
+/// util
 #include "myFileSystem/MyFileSystem.h"
-
+/// externals
 #ifdef _DEBUG
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
-void to_json(nlohmann::json& j, const SkinningAnimationComponent& r) {
+using namespace OriGine;
+
+void OriGine::to_json(nlohmann::json& j, const SkinningAnimationComponent& r) {
     j["bindModeMeshRendererIndex"] = r.bindModeMeshRendererIndex_;
 
     j["Animations"] = nlohmann::json::array();
@@ -37,7 +39,7 @@ void to_json(nlohmann::json& j, const SkinningAnimationComponent& r) {
     }
 }
 
-void from_json(const nlohmann::json& j, SkinningAnimationComponent& r) {
+void OriGine::from_json(const nlohmann::json& j, SkinningAnimationComponent& r) {
     j.at("bindModeMeshRendererIndex").get_to(r.bindModeMeshRendererIndex_);
 
     if (!r.animationTable_.empty()) {
@@ -94,7 +96,7 @@ void SkinningAnimationComponent::Edit([[maybe_unused]] Scene* _scene, Entity* /*
             auto itr = animationIndexBinder_.find(fileName);
             if (itr == animationIndexBinder_.end()) {
                 // 新しいアニメーションを追加
-                auto newAnimation       = AnimationCombo{};
+                auto newAnimation      = AnimationCombo{};
                 newAnimation.directory = directory;
                 newAnimation.fileName  = fileName;
 
@@ -108,7 +110,7 @@ void SkinningAnimationComponent::Edit([[maybe_unused]] Scene* _scene, Entity* /*
                     animationIndexBinder_[fileName] = static_cast<int32_t>(animationTable_.size()) - 1;
                 },
                     true);
-                EditorController::GetInstance()->PushCommand(std::move(commandCombo));
+                OriGine::EditorController::GetInstance()->PushCommand(std::move(commandCombo));
             } else {
                 LOG_ERROR("Animation with name '{}' already exists.", fileName);
             }
@@ -134,12 +136,12 @@ void SkinningAnimationComponent::Edit([[maybe_unused]] Scene* _scene, Entity* /*
                     commandCombo.AddCommand(std::move(SetPath));
                     commandCombo.AddCommand(std::move(SetFile));
                     commandCombo.SetFuncOnAfterCommand([this, index]() {
-                        auto& animation          = animationTable_[index];
+                        auto& animation         = animationTable_[index];
                         animation.animationData = AnimationManager::GetInstance()->Load(animation.directory, animation.fileName);
                         animation.duration      = animation.animationData->duration;
                     },
                         true);
-                    EditorController::GetInstance()->PushCommand(std::make_unique<CommandCombo>(commandCombo));
+                    OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<CommandCombo>(commandCombo));
                 }
             }
 
@@ -184,7 +186,7 @@ void SkinningAnimationComponent::AddLoad(const std::string& directory, const std
         return;
     }
     // 新しいアニメーションを追加
-    auto& newAnimation      = animationTable_.emplace_back(AnimationCombo{});
+    auto& newAnimation     = animationTable_.emplace_back(AnimationCombo{});
     newAnimation.directory = directory;
     newAnimation.fileName  = fileName;
 

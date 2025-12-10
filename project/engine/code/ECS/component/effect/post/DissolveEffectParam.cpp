@@ -5,16 +5,18 @@
 #define RESOURCE_DIRECTORY
 #include "engine/EngineInclude.h"
 #include "scene/Scene.h"
+#include "texture/TextureManager.h"
 // directX12
 #include "directX12/DxDevice.h"
 
-#include "texture/TextureManager.h"
-
+/// util
 #include "myFileSystem/MyFileSystem.h"
-
+/// externals
 #ifdef _DEBUG
 #include "myGui/MyGui.h"
 #endif // _DEBUG
+
+using namespace OriGine;
 
 void DissolveEffectParam::Initialize(Entity* /*_entity*/) {
 
@@ -111,14 +113,14 @@ void DissolveEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] 
                 textureIndex_ = TextureManager::LoadTexture(textureFilePath_);
             },
                 true);
-            EditorController::GetInstance()->PushCommand(std::make_unique<CommandCombo>(commandCombo));
+            OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<CommandCombo>(commandCombo));
         }
     };
 
 #endif // _DEBUG
 }
 
-void to_json(nlohmann::json& j, const DissolveEffectParam& param) {
+void OriGine::to_json(nlohmann::json& j, const DissolveEffectParam& param) {
     j = nlohmann::json{
         {"isActive", param.isActive_},
         {"textureFilePath", param.textureFilePath_},
@@ -128,7 +130,7 @@ void to_json(nlohmann::json& j, const DissolveEffectParam& param) {
         {"outLineColor", param.paramBuffer_->outLineColor},
         {"materialIndex", param.materialIndex_}};
 }
-void from_json(const nlohmann::json& j, DissolveEffectParam& param) {
+void OriGine::from_json(const nlohmann::json& j, DissolveEffectParam& param) {
     j.at("isActive").get_to(param.isActive_);
     j.at("textureFilePath").get_to(param.textureFilePath_);
 

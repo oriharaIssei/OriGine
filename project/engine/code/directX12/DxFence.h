@@ -1,8 +1,11 @@
 #pragma once
 
+/// Microsoft
 #include <wrl.h>
 
-#include "d3d12.h"
+#include <d3d12.h>
+
+namespace OriGine {
 
 /// <summary>
 /// DirectX12 Fence の WrapperClass
@@ -28,5 +31,6 @@ private:
     UINT64 fenceValue_;
     HANDLE fenceEvent_;
 
-public:
 };
+
+}

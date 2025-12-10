@@ -1,18 +1,18 @@
 #pragma once
 
+/// microsoft
+#include <wrl.h>
 /// api
 #include <xaudio2.h>
-
-#include <wrl.h>
 /// stl
 #include <memory>
 #include <stdint.h>
 #include <string>
-
 /// engine
 #include "component/IComponent.h"
 #include "system/ISystem.h"
 
+namespace OriGine {
 
 struct ChunkHeader {
     char id[4];
@@ -57,7 +57,7 @@ public:
 
     void Initialize(Entity* /*_entity*/) override;
 
-    void Edit(Scene* _scene,Entity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
 
     void Finalize() override;
 
@@ -120,3 +120,5 @@ public:
 
     void UpdateEntity(Entity* entity) override;
 };
+
+} // namespace OriGine

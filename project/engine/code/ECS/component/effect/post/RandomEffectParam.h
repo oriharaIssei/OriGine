@@ -2,10 +2,11 @@
 #include "component/IComponent.h"
 
 /// engine
-
 // directX12
 #include "directX12/buffer/IConstantBuffer.h"
 #include "directX12/ShaderManager.h"
+
+namespace OriGine {
 
 /// <summary>
 /// RandomEffectのパラメーター情報(GPUに送る情報)
@@ -79,3 +80,5 @@ public:
         return effectParamData_;
     }
 };
+
+} // namespace OriGine

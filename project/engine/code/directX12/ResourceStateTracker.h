@@ -1,10 +1,14 @@
 #pragma once
 
-#include <unordered_map>
-
+/// Microsoft
 #include <wrl.h>
 
 #include <d3d12.h>
+
+/// stl
+#include <unordered_map>
+
+namespace OriGine {
 
 /// <summary>
 /// リソースの状態遷移を管理するクラス
@@ -29,7 +33,7 @@ public:
     static void ClearGlobalResourceStates();
 
 private:
-    static std::unordered_map<ID3D12Resource*, D3D12_RESOURCE_STATES> globalResourceStates_;
+    static ::std::unordered_map<ID3D12Resource*, D3D12_RESOURCE_STATES> globalResourceStates_;
 
 public:
     ResourceStateTracker()  = default;
@@ -59,5 +63,7 @@ public:
     void CommitLocalStatesToGlobal();
 
 private:
-    std::unordered_map<ID3D12Resource*, D3D12_RESOURCE_STATES> localResourceStates_;
+    ::std::unordered_map<ID3D12Resource*, D3D12_RESOURCE_STATES> localResourceStates_;
 };
+
+} // namespace OriGine

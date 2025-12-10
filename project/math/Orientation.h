@@ -1,8 +1,11 @@
 #pragma once
 
+/// math
 #include <Matrix4x4.h>
 #include <Quaternion.h>
 #include <Vector3.h>
+
+namespace OriGine {
 
 /// <summary>
 /// オリエンテーション情報
@@ -32,3 +35,5 @@ struct Orientation {
     const Vec3f& Up() const { return axis[1]; }
     const Vec3f& Forward() const { return axis[2]; }
 };
+
+} // namespace OriGine

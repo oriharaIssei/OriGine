@@ -16,6 +16,8 @@
 // func
 #include "system/collision/CollisionCheckPairFunc.h"
 
+using namespace OriGine;
+
 CollisionCheckSystem::CollisionCheckSystem()
     : ISystem(SystemCategory::Collision) {}
 
@@ -121,10 +123,10 @@ void CollisionCheckSystem::UpdateEntity(Entity* _entity) {
 
     Scene* currentScene = GetScene();
 
-    auto aCollPushbackInfo       = GetComponent<CollisionPushBackInfo>(_entity);
-    auto* aEntityAabbColliders   = GetComponents<AABBCollider>(_entity);
-    auto* aEntitySphereColliders = GetComponents<SphereCollider>(_entity);
-    auto* aEntityObbColliders    = GetComponents<OBBCollider>(_entity);
+    auto aCollPushbackInfo      = GetComponent<CollisionPushBackInfo>(_entity);
+    auto aEntityAabbColliders   = GetComponents<AABBCollider>(_entity);
+    auto aEntitySphereColliders = GetComponents<SphereCollider>(_entity);
+    auto aEntityObbColliders    = GetComponents<OBBCollider>(_entity);
 
     // 2つのリスト間の衝突判定をまとめる
     auto checkCollisions = [&](

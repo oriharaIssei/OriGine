@@ -5,15 +5,23 @@
 /// parent
 #include "editor/IEditor.h"
 
+/// stl
+#include <array>
+#include <string>
+#include <unordered_map>
+#include <vector>
+
 /// ECS
 // component
 #include "component/IComponent.h"
 // system
 #include "system/ISystem.h"
+#include "system/SystemCategory.h"
 
 /// externals
 #include <nlohmann/json.hpp>
 
+/// editor
 class SceneEditorWindow;
 
 /// <summary>
@@ -56,9 +64,9 @@ protected:
 
     // 編集中のエンティティデータ
     int32_t editEntityId_       = -1; // 編集中のエンティティID
-    std::string editEntityName_ = ""; // 編集中のエンティティ名
-    std::unordered_map<std::string, std::vector<IComponent*>> entityComponentMap_; // コンポーネントのマップ
-    std::array<std::unordered_map<std::string, ISystem*>, size_t(SystemCategory::Count)> systemMap_; // システムのマップ
+    ::std::string editEntityName_ = ""; // 編集中のエンティティ名
+    ::std::unordered_map<::std::string, ::std::vector<OriGine::IComponent*>> entityComponentMap_; // コンポーネントのマップ
+    ::std::array<::std::unordered_map<::std::string, OriGine::ISystem*>, size_t(OriGine::SystemCategory::Count)> systemMap_; // システムのマップ
 
 public:
     SceneEditorWindow* GetParentWindow() const {
@@ -73,17 +81,17 @@ public:
         editEntityId_ = id;
     }*/
 
-    const std::string& GetEditEntityName() const {
+    const ::std::string& GetEditEntityName() const {
         return editEntityName_;
     }
-    std::string& GetEditEntityNameRef() {
+    ::std::string& GetEditEntityNameRef() {
         return editEntityName_;
     }
 
-    std::unordered_map<std::string, std::vector<IComponent*>>& GetEntityComponentMap() {
+    ::std::unordered_map<::std::string, ::std::vector<OriGine::IComponent*>>& GetEntityComponentMap() {
         return entityComponentMap_;
     }
-    std::array<std::unordered_map<std::string, ISystem*>, size_t(SystemCategory::Count)>& GetSystemMap() {
+    ::std::array<::std::unordered_map<::std::string, OriGine::ISystem*>, size_t(OriGine::SystemCategory::Count)>& GetSystemMap() {
         return systemMap_;
     }
 };
@@ -148,7 +156,7 @@ public:
     class ChangeEntityName
         : public IEditCommand {
     public:
-        ChangeEntityName(EntityInspectorArea* _inspectorArea, int32_t _entityID, const std::string& _newName);
+        ChangeEntityName(EntityInspectorArea* _inspectorArea, int32_t _entityID, const ::std::string& _newName);
         ~ChangeEntityName() override = default;
         void Execute() override;
         void Undo() override;
@@ -156,8 +164,8 @@ public:
     private:
         EntityInspectorArea* inspectorArea_ = nullptr; // 親エリアへのポインタ
         int32_t entityId_                   = -1; // 対象のエンティティID
-        std::string oldName_; // 変更前のエンティティ名
-        std::string newName_; // 変更後のエンティティ名
+        ::std::string oldName_; // 変更前のエンティティ名
+        ::std::string newName_; // 変更後のエンティティ名
     };
     /// <summary>
     /// Entityを削除するコマンド
@@ -199,7 +207,7 @@ public:
     class RemoveComponentFromEditListCommand
         : public IEditCommand {
     public:
-        RemoveComponentFromEditListCommand(EntityInspectorArea* _parentArea, const std::string& _componentTypeName, int32_t _compIndex);
+        RemoveComponentFromEditListCommand(EntityInspectorArea* _parentArea, const ::std::string& _componentTypeName, int32_t _compIndex);
         ~RemoveComponentFromEditListCommand() override = default;
         void Execute() override;
         void Undo() override;
@@ -207,7 +215,7 @@ public:
     private:
         EntityInspectorArea* parentArea_ = nullptr; // 親エリアへのポインタ
 
-        std::string componentTypeName_; // 削除するコンポーネントのタイプ名
+        ::std::string componentTypeName_; // 削除するコンポーネントのタイプ名
         int32_t componentIndex_ = 0; // 削除するコンポーネントのインデックス
 
         nlohmann::json componentData_; // 削除するコンポーネントのデータ
@@ -268,7 +276,7 @@ protected:
     private:
         SelectAddComponentArea* parentArea_ = nullptr;
 
-        std::string searchBuff_ = "";
+        ::std::string searchBuff_ = "";
     };
 
     /// ==========================================
@@ -281,7 +289,7 @@ protected:
     class AddComponentTypeNames
         : public IEditCommand {
     public:
-        AddComponentTypeNames(SelectAddComponentArea* _parentArea, const std::string& _componentTypeName)
+        AddComponentTypeNames(SelectAddComponentArea* _parentArea, const ::std::string& _componentTypeName)
             : parentArea_(_parentArea), componentTypeName_(_componentTypeName) {}
         ~AddComponentTypeNames() override = default;
         void Execute() override;
@@ -289,7 +297,7 @@ protected:
 
     private:
         SelectAddComponentArea* parentArea_ = nullptr; // 親エリアへのポインタ
-        std::string componentTypeName_; // 追加するコンポーネントのタイプ名
+        ::std::string componentTypeName_; // 追加するコンポーネントのタイプ名
     };
     /// <summary>
     /// 追加するComponentを削除するコマンド
@@ -297,7 +305,7 @@ protected:
     class RemoveComponentTypeNames
         : public IEditCommand {
     public:
-        RemoveComponentTypeNames(SelectAddComponentArea* _parentArea, const std::string& _componentTypeName)
+        RemoveComponentTypeNames(SelectAddComponentArea* _parentArea, const ::std::string& _componentTypeName)
             : parentArea_(_parentArea), componentTypeName_(_componentTypeName) {}
         ~RemoveComponentTypeNames() override = default;
         void Execute() override;
@@ -305,7 +313,7 @@ protected:
 
     private:
         SelectAddComponentArea* parentArea_ = nullptr; // 親エリアへのポインタ
-        std::string componentTypeName_; // 削除するコンポーネントのタイプ名
+        ::std::string componentTypeName_; // 削除するコンポーネントのタイプ名
     };
     /// <summary>
     /// 追加するComponentを全て取り消すコマンド
@@ -322,7 +330,7 @@ protected:
 
     private:
         SelectAddComponentArea* parentArea_ = nullptr; // 親エリアへのポインタ
-        std::vector<std::string> componentTypeNames_;
+        ::std::vector<::std::string> componentTypeNames_;
     };
     /// <summary>
     /// コンポーネントを追加する対象のエンティティを設定するコマンド
@@ -330,7 +338,7 @@ protected:
     class SetTargeEntities
         : public IEditCommand {
     public:
-        SetTargeEntities(SelectAddComponentArea* _parentArea, const std::list<int32_t>& _targets)
+        SetTargeEntities(SelectAddComponentArea* _parentArea, const ::std::list<int32_t>& _targets)
             : parentArea_(_parentArea), targetEntityIds_(_targets) {
             previousTargetEntityIds_ = parentArea_->targetEntityIds_; // 現在のターゲットエンティティIDを保存
         }
@@ -340,8 +348,8 @@ protected:
 
     private:
         SelectAddComponentArea* parentArea_ = nullptr; // 親エリアへのポインタ
-        std::list<int32_t> targetEntityIds_; // 対象のエンティティIDリスト
-        std::list<int32_t> previousTargetEntityIds_; // 前の対象のエンティティIDリスト
+        ::std::list<int32_t> targetEntityIds_; // 対象のエンティティIDリスト
+        ::std::list<int32_t> previousTargetEntityIds_; // 前の対象のエンティティIDリスト
     };
     /// <summary>
     /// コンポーネントを追加する対象のエンティティをクリアするコマンド
@@ -359,18 +367,18 @@ protected:
 
     private:
         SelectAddComponentArea* parentArea_ = nullptr; // 親エリアへのポインタ
-        std::list<int32_t> previousTargetEntityIds_; // 前の対象のエンティティIDリスト
+        ::std::list<int32_t> previousTargetEntityIds_; // 前の対象のエンティティIDリスト
     };
 
 private:
     SceneEditorWindow* parentWindow_ = nullptr; // 親ウィンドウへのポインタ
 
-    std::list<int32_t> targetEntityIds_;
-    std::vector<std::string> componentTypeNames_; // 追加可能なコンポーネントのタイプ名
+    ::std::list<int32_t> targetEntityIds_;
+    ::std::vector<::std::string> componentTypeNames_; // 追加可能なコンポーネントのタイプ名
 
 public:
     void ClearTarget() { targetEntityIds_.clear(); }
-    void SetTargets(const std::list<int32_t>& _targets);
+    void SetTargets(const ::std::list<int32_t>& _targets);
 };
 
 /// <summary>
@@ -407,7 +415,7 @@ public:
     private:
         SelectAddSystemArea* parentArea_ = nullptr;
 
-        std::string searchBuff_ = "";
+        ::std::string searchBuff_ = "";
     };
 
     /// ==========================================
@@ -420,7 +428,7 @@ public:
     class AddSystemNames
         : public IEditCommand {
     public:
-        AddSystemNames(SelectAddSystemArea* _parentArea, const std::string& _systemTypeName)
+        AddSystemNames(SelectAddSystemArea* _parentArea, const ::std::string& _systemTypeName)
             : parentArea_(_parentArea), systemTypeName_(_systemTypeName) {}
         ~AddSystemNames() override = default;
         void Execute() override;
@@ -428,7 +436,7 @@ public:
 
     private:
         SelectAddSystemArea* parentArea_ = nullptr; // 親エリアへのポインタ
-        std::string systemTypeName_; // 追加するコンポーネントのタイプ名
+        ::std::string systemTypeName_; // 追加するコンポーネントのタイプ名
     };
     /// <summary>
     /// Entityに追加するSystemを削除するコマンド
@@ -436,7 +444,7 @@ public:
     class RemoveSystemNames
         : public IEditCommand {
     public:
-        RemoveSystemNames(SelectAddSystemArea* _parentArea, const std::string& _systemTypeName)
+        RemoveSystemNames(SelectAddSystemArea* _parentArea, const ::std::string& _systemTypeName)
             : parentArea_(_parentArea), systemTypeName_(_systemTypeName) {}
         ~RemoveSystemNames() override = default;
         void Execute() override;
@@ -444,7 +452,7 @@ public:
 
     private:
         SelectAddSystemArea* parentArea_ = nullptr; // 親エリアへのポインタ
-        std::string systemTypeName_; // 削除するコンポーネントのタイプ名
+        ::std::string systemTypeName_; // 削除するコンポーネントのタイプ名
     };
     /// <summary>
     /// Entityに追加するSystemを全て取り消すコマンド
@@ -461,7 +469,7 @@ public:
 
     private:
         SelectAddSystemArea* parentArea_ = nullptr; // 親エリアへのポインタ
-        std::vector<std::string> systemTypeNames_;
+        ::std::vector<::std::string> systemTypeNames_;
     };
     /// <summary>
     /// エンティティに追加するSystemの対象エンティティを設定するコマンド
@@ -469,7 +477,7 @@ public:
     class SetTargeEntities
         : public IEditCommand {
     public:
-        SetTargeEntities(SelectAddSystemArea* _parentArea, const std::list<int32_t>& _targets)
+        SetTargeEntities(SelectAddSystemArea* _parentArea, const ::std::list<int32_t>& _targets)
             : parentArea_(_parentArea), targetEntityIds_(_targets) {
             previousTargetEntityIds_ = parentArea_->targetEntityIds_; // 現在のターゲットエンティティIDを保存
         }
@@ -479,8 +487,8 @@ public:
 
     private:
         SelectAddSystemArea* parentArea_ = nullptr; // 親エリアへのポインタ
-        std::list<int32_t> targetEntityIds_; // 対象のエンティティIDリスト
-        std::list<int32_t> previousTargetEntityIds_; // 前の対象のエンティティIDリスト
+        ::std::list<int32_t> targetEntityIds_; // 対象のエンティティIDリスト
+        ::std::list<int32_t> previousTargetEntityIds_; // 前の対象のエンティティIDリスト
     };
     /// <summary>
     /// システムの追加対象のエンティティをクリアするコマンド
@@ -498,7 +506,7 @@ public:
 
     private:
         SelectAddSystemArea* parentArea_ = nullptr; // 親エリアへのポインタ
-        std::list<int32_t> previousTargetEntityIds_; // 前の対象のエンティティIDリスト
+        ::std::list<int32_t> previousTargetEntityIds_; // 前の対象のエンティティIDリスト
     };
     /// <summary>
     /// システムを追加する対象のエンティティにシステムを追加するコマンド
@@ -506,7 +514,7 @@ public:
     class AddSystemsForTargetEntities
         : public IEditCommand {
     public:
-        AddSystemsForTargetEntities(SelectAddSystemArea* _parentArea, const std::list<int32_t>& _targets, const std::vector<std::string>& _compTypeNames)
+        AddSystemsForTargetEntities(SelectAddSystemArea* _parentArea, const ::std::list<int32_t>& _targets, const ::std::vector<::std::string>& _compTypeNames)
             : parentArea_(_parentArea), targetEntityIds_(_targets), systemTypeNames_(_compTypeNames) {}
         ~AddSystemsForTargetEntities() override = default;
         void Execute() override;
@@ -514,19 +522,19 @@ public:
 
     private:
         SelectAddSystemArea* parentArea_ = nullptr; // 親エリアへのポインタ
-        std::list<int32_t> targetEntityIds_; // 対象のエンティティIDリスト
-        std::vector<std::string> systemTypeNames_; // 追加するコンポーネントのタイプ名
+        ::std::list<int32_t> targetEntityIds_; // 対象のエンティティIDリスト
+        ::std::vector<::std::string> systemTypeNames_; // 追加するコンポーネントのタイプ名
     };
 
 private:
     SceneEditorWindow* parentWindow_ = nullptr; // 親ウィンドウへのポインタ
 
-    std::list<int32_t> targetEntityIds_;
-    std::vector<std::string> systemTypeNames_; // 追加可能なコンポーネントのタイプ名
+    ::std::list<int32_t> targetEntityIds_;
+    ::std::vector<::std::string> systemTypeNames_; // 追加可能なコンポーネントのタイプ名
 
 public:
     void ClearTarget() { targetEntityIds_.clear(); }
-    void SetTargets(const std::list<int32_t>& _targets);
+    void SetTargets(const ::std::list<int32_t>& _targets);
 };
 
 /// <summary>
@@ -535,14 +543,14 @@ public:
 class RemoveComponentForEntityCommand
     : public IEditCommand {
 public:
-    RemoveComponentForEntityCommand(Scene* _scene, const std::string& _componentTypeName, int32_t _entityId, int32_t _compIndex = 0);
+    RemoveComponentForEntityCommand(OriGine::Scene* _scene, const ::std::string& _componentTypeName, int32_t _entityId, int32_t _compIndex = 0);
     ~RemoveComponentForEntityCommand() override = default;
     void Execute() override;
     void Undo() override;
 
 private:
-    Scene* scene_ = nullptr; // 対象シーン
-    std::string componentTypeName_; // 追加するコンポーネントのタイプ名
+    OriGine::Scene* scene_ = nullptr; // 対象シーン
+    ::std::string componentTypeName_; // 追加するコンポーネントのタイプ名
     int32_t entityId_  = -1; // 対象のエンティティID
     int32_t compIndex_ = 0; // 削除するコンポーネントのインデックス
     nlohmann::json componentData_; // 削除するコンポーネントのデータ

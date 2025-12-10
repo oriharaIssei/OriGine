@@ -9,6 +9,8 @@
 #include "directX12/DxDevice.h"
 #include "directX12/RenderTexture.h"
 
+using namespace OriGine;
+
 SpeedlineEffect::SpeedlineEffect() : BasePostRenderingSystem() {}
 SpeedlineEffect::~SpeedlineEffect() {}
 
@@ -27,7 +29,7 @@ void SpeedlineEffect::Finalize() {
 void SpeedlineEffect::CreatePSO() {
     ShaderManager* shaderManager = ShaderManager::GetInstance();
     shaderManager->LoadShader("FullScreen.VS");
-    shaderManager->LoadShader("Speedline.PS", shaderDirectory, L"ps_6_0");
+    shaderManager->LoadShader("Speedline.PS", kShaderDirectory, L"ps_6_0");
     ShaderInformation shaderInfo{};
     shaderInfo.vsKey = "FullScreen.VS";
     shaderInfo.psKey = "Speedline.PS";

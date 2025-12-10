@@ -9,6 +9,8 @@
 
 #include <cmath>
 
+namespace OriGine {
+
 Matrix4x4 Matrix4x4::operator+(const Matrix4x4& another) const {
     Matrix4x4 result;
     for (int row = 0; row < 4; row++) {
@@ -255,3 +257,5 @@ Matrix4x4 MakeMatrix4x4::Orthographic(const float& left, const float& top, const
 Matrix4x4 MakeMatrix4x4::ViewPort(const float& left, const float& top, const float& width, const float& height, const float& minDepth, const float& maxDepth) {
     return Matrix4x4({width / 2.0f, 0.0f, 0.0f, 0.0f, 0.0f, -(height / 2.0f), 0.0f, 0.0f, 0.0f, 0.0f, maxDepth - minDepth, 0.0f, left + (width / 2.0f), top + (height / 2.0f), minDepth, 1.0f});
 }
+
+} // namespace OriGine

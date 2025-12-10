@@ -5,7 +5,13 @@
 /// math
 #include "Vector3.h"
 
-namespace math::bounds {
+namespace OriGine {
+namespace Bounds {
+
+/// <summary>
+/// 軸平行境界ボックス
+/// Axis Aligned Bounding Box
+/// </summary>
 struct AABB
     : public IBounds {
     AABB() {}
@@ -17,4 +23,6 @@ struct AABB
     Vec3f Min() const { return center - halfSize; }
     Vec3f Max() const { return center + halfSize; };
 };
-}
+
+} // namespace Bounds
+} // namespace OriGine

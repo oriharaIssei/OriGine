@@ -18,7 +18,9 @@
 /// external
 #include "logger/Logger.h"
 
-static constexpr uint32_t DEFAULT_COMPONENTARRAY_SIZE = 100;
+namespace OriGine {
+
+static constexpr uint32_t kDdefaultComponentArraySize = 100;
 
 //====================================================================
 // IComponentArray Interface
@@ -28,7 +30,7 @@ public:
     IComponentArray()          = default;
     virtual ~IComponentArray() = default;
 
-    virtual void Initialize(uint32_t _size = DEFAULT_COMPONENTARRAY_SIZE) = 0;
+    virtual void Initialize(uint32_t _size = kDdefaultComponentArraySize) = 0;
     virtual void Finalize()                                               = 0;
 
     /// <summary>
@@ -36,44 +38,44 @@ public:
     /// </summary>
     /// <param name="_entity">保存するコンポーネントをを持つエンティティ</param>
     /// <param name="_json">保存先</param>
-    virtual void SaveComponent(Entity* _entity, nlohmann::json& _json) const = 0;
+    virtual void SaveComponent(OriGine::Entity* _entity, nlohmann::json& _json) const = 0;
     /// <summary>
     /// 指定したエンティティの指定したインデックスのコンポーネントを _json に保存する
     /// </summary>
     /// <param name="_entity">保存するコンポーネントを持つエンティティ</param>
     /// <param name="_compIndex">保存するコンポーネントのインデックス</param>
     /// <param name="_json">保存先</param>
-    virtual void SaveComponent(Entity* _entity, int32_t _compIndex, nlohmann::json& _json) const = 0;
+    virtual void SaveComponent(OriGine::Entity* _entity, int32_t _compIndex, nlohmann::json& _json) const = 0;
 
-    virtual void LoadComponent(Entity* _entity, const nlohmann::json& _json)                     = 0;
-    virtual void LoadComponent(Entity* _entity, int32_t _compIndex, const nlohmann::json& _json) = 0;
+    virtual void LoadComponent(OriGine::Entity* _entity, const nlohmann::json& _json)                     = 0;
+    virtual void LoadComponent(OriGine::Entity* _entity, int32_t _compIndex, const nlohmann::json& _json) = 0;
 
-    virtual void ReserveEntity(Entity* _hostEntity, int32_t _entitySize) = 0;
-    virtual void ResizeEntity(Entity* _hostEntity, int32_t _entitySize)  = 0;
+    virtual void ReserveEntity(OriGine::Entity* _hostEntity, int32_t _entitySize) = 0;
+    virtual void ResizeEntity(OriGine::Entity* _hostEntity, int32_t _entitySize)  = 0;
 
     virtual void Clear()                                                   = 0;
-    virtual void ClearComponent(Entity* _hostEntity)                       = 0;
-    virtual int32_t GetComponentSize(Entity* _entity)                      = 0;
-    virtual IComponent* GetComponent(Entity* _entity, uint32_t _index = 0) = 0;
+    virtual void ClearComponent(OriGine::Entity* _hostEntity)                       = 0;
+    virtual int32_t GetComponentSize(OriGine::Entity* _entity)                      = 0;
+    virtual IComponent* GetComponent(OriGine::Entity* _entity, uint32_t _index = 0) = 0;
 
-    virtual IComponent* GetFrontComponent(Entity* _entity) {
+    virtual IComponent* GetFrontComponent(OriGine::Entity* _entity) {
         return GetComponent(_entity, 0);
     }
-    virtual IComponent* GetBackComponent(Entity* _entity) = 0;
+    virtual IComponent* GetBackComponent(OriGine::Entity* _entity) = 0;
 
-    virtual void RegisterEntity(Entity* _entity, int32_t _entitySize = 1, bool _doInitialize = true)     = 0;
-    virtual int32_t AddComponent(Entity* _hostEntity, IComponent* _component, bool _doInitialize = true) = 0;
-    virtual int32_t AddComponent(Entity* _hostEntity, bool _doInitialize = true)                         = 0;
+    virtual void RegisterEntity(OriGine::Entity* _entity, int32_t _entitySize = 1, bool _doInitialize = true)     = 0;
+    virtual int32_t AddComponent(OriGine::Entity* _hostEntity, IComponent* _component, bool _doInitialize = true) = 0;
+    virtual int32_t AddComponent(OriGine::Entity* _hostEntity, bool _doInitialize = true)                         = 0;
 
-    virtual void InsertComponent(Entity* _hostEntity, IComponent* _component, int32_t _index) = 0;
-    virtual void InsertComponent(Entity* _hostEntity, int32_t _index)                         = 0;
+    virtual void InsertComponent(OriGine::Entity* _hostEntity, IComponent* _component, int32_t _index) = 0;
+    virtual void InsertComponent(OriGine::Entity* _hostEntity, int32_t _index)                         = 0;
 
-    virtual void RemoveComponent(Entity* _hostEntity, int32_t _componentIndex = 0) = 0;
-    virtual void RemoveBackComponent(Entity* _hostEntity)                          = 0;
-    virtual void DeleteEntity(Entity* _hostEntity)                                 = 0;
+    virtual void RemoveComponent(OriGine::Entity* _hostEntity, int32_t _componentIndex = 0) = 0;
+    virtual void RemoveBackComponent(OriGine::Entity* _hostEntity)                          = 0;
+    virtual void DeleteEntity(OriGine::Entity* _hostEntity)                                 = 0;
 
-    virtual bool HasEntity(Entity* _hostEntity) const         = 0;
-    virtual int32_t EntityCapacity(Entity* _hostEntity) const = 0;
+    virtual bool HasEntity(OriGine::Entity* _hostEntity) const         = 0;
+    virtual int32_t EntityCapacity(OriGine::Entity* _hostEntity) const = 0;
 };
 
 //====================================================================
@@ -96,36 +98,36 @@ public:
     // ─────────────────────────────
     //  エンティティ操作
     // ─────────────────────────────
-    void RegisterEntity(Entity* _entity, int32_t _entitySize = 1, bool _doInitialize = true) override;
-    void ReserveEntity(Entity* _hostEntity, int32_t _size) override;
-    void ResizeEntity(Entity* _hostEntity, int32_t _size) override;
-    void DeleteEntity(Entity* _hostEntity) override;
+    void RegisterEntity(OriGine::Entity* _entity, int32_t _entitySize = 1, bool _doInitialize = true) override;
+    void ReserveEntity(OriGine::Entity* _hostEntity, int32_t _size) override;
+    void ResizeEntity(OriGine::Entity* _hostEntity, int32_t _size) override;
+    void DeleteEntity(OriGine::Entity* _hostEntity) override;
 
     // ─────────────────────────────
     //  コンポーネント追加・挿入
     // ─────────────────────────────
-    int32_t AddComponent(Entity* _hostEntity, IComponent* _component, bool _doInitialize = true) override;
-    int32_t AddComponent(Entity* _hostEntity, bool _doInitialize = true) override;
-    int32_t Add(Entity* _hostEntity, const componentType& _component, bool _doInitialize = true);
+    int32_t AddComponent(OriGine::Entity* _hostEntity, IComponent* _component, bool _doInitialize = true) override;
+    int32_t AddComponent(OriGine::Entity* _hostEntity, bool _doInitialize = true) override;
+    int32_t Add(OriGine::Entity* _hostEntity, const componentType& _component, bool _doInitialize = true);
 
-    void InsertComponent(Entity* _hostEntity, IComponent* _component, int32_t _index) override;
-    void InsertComponent(Entity* _hostEntity, int32_t _index) override;
+    void InsertComponent(OriGine::Entity* _hostEntity, IComponent* _component, int32_t _index) override;
+    void InsertComponent(OriGine::Entity* _hostEntity, int32_t _index) override;
 
     // ─────────────────────────────
     //  コンポーネント削除・クリア
     // ─────────────────────────────
-    void RemoveComponent(Entity* _hostEntity, int32_t _componentIndex = 0) override;
-    void RemoveBackComponent(Entity* _hostEntity) override;
-    void ClearComponent(Entity* _hostEntity) override;
+    void RemoveComponent(OriGine::Entity* _hostEntity, int32_t _componentIndex = 0) override;
+    void RemoveBackComponent(OriGine::Entity* _hostEntity) override;
+    void ClearComponent(OriGine::Entity* _hostEntity) override;
     void Clear() override;
 
     // ─────────────────────────────
     //  保存・読み込み
     // ─────────────────────────────
-    void SaveComponent(Entity* _entity, nlohmann::json& _json) const override;
-    void SaveComponent(Entity* _entity, int32_t _compIndex, nlohmann::json& _json) const override;
-    void LoadComponent(Entity* _entity, const nlohmann::json& _json) override;
-    void LoadComponent(Entity* _entity, int32_t _compIndex, const nlohmann::json& _json) override;
+    void SaveComponent(OriGine::Entity* _entity, nlohmann::json& _json) const override;
+    void SaveComponent(OriGine::Entity* _entity, int32_t _compIndex, nlohmann::json& _json) const override;
+    void LoadComponent(OriGine::Entity* _entity, const nlohmann::json& _json) override;
+    void LoadComponent(OriGine::Entity* _entity, int32_t _compIndex, const nlohmann::json& _json) override;
 
 protected:
     std::vector<std::vector<componentType>> components_;
@@ -137,20 +139,20 @@ public:
     // ─────────────────────────────
     //  状態取得
     // ─────────────────────────────
-    bool HasEntity(Entity* _hostEntity) const override;
-    int32_t EntityCapacity(Entity* _hostEntity) const override;
+    bool HasEntity(OriGine::Entity* _hostEntity) const override;
+    int32_t EntityCapacity(OriGine::Entity* _hostEntity) const override;
 
     // ─────────────────────────────
     //  アクセッサ
     // ─────────────────────────────
-    int32_t GetComponentSize(Entity* _entity) override;
-    std::vector<componentType>* GetComponents(Entity* _entity);
-    IComponent* GetComponent(Entity* _entity, uint32_t _index = 0) override;
-    IComponent* GetBackComponent(Entity* _entity) override;
+    int32_t GetComponentSize(OriGine::Entity* _entity) override;
+    std::vector<componentType>* GetComponents(OriGine::Entity* _entity);
+    IComponent* GetComponent(OriGine::Entity* _entity, uint32_t _index = 0) override;
+    IComponent* GetBackComponent(OriGine::Entity* _entity) override;
 
-    componentType* GetDynamicComponent(Entity* _entity, uint32_t _index = 0);
-    componentType* GetDynamicFrontComponent(Entity* _entity);
-    componentType* GetDynamicBackComponent(Entity* _entity);
+    componentType* GetDynamicComponent(OriGine::Entity* _entity, uint32_t _index = 0);
+    componentType* GetDynamicFrontComponent(OriGine::Entity* _entity);
+    componentType* GetDynamicBackComponent(OriGine::Entity* _entity);
 
     std::vector<std::vector<componentType>>& GetAllComponents() { return components_; }
     const std::map<int32_t, uint32_t>& GetEntityIndexBind() const { return entityIndexBind_; }
@@ -169,7 +171,7 @@ void ComponentArray<componentType>::Finalize() {
 }
 
 template <IsComponent componentType>
-void ComponentArray<componentType>::RegisterEntity(Entity* _entity, int32_t _entitySize, bool _doInitialize) {
+void ComponentArray<componentType>::RegisterEntity(OriGine::Entity* _entity, int32_t _entitySize, bool _doInitialize) {
     uint32_t index = static_cast<uint32_t>(components_.size());
 
     auto& added = components_.emplace_back(std::vector<componentType>());
@@ -184,7 +186,7 @@ void ComponentArray<componentType>::RegisterEntity(Entity* _entity, int32_t _ent
 }
 
 template <IsComponent componentType>
-void ComponentArray<componentType>::ReserveEntity(Entity* _hostEntity, int32_t _size) {
+void ComponentArray<componentType>::ReserveEntity(OriGine::Entity* _hostEntity, int32_t _size) {
     auto it = entityIndexBind_.find(_hostEntity->GetID());
     // エンティティが存在しない場合は何もしない
     if (it == entityIndexBind_.end()) {
@@ -194,7 +196,7 @@ void ComponentArray<componentType>::ReserveEntity(Entity* _hostEntity, int32_t _
 }
 
 template <IsComponent componentType>
-void ComponentArray<componentType>::ResizeEntity(Entity* _hostEntity, int32_t _size) {
+void ComponentArray<componentType>::ResizeEntity(OriGine::Entity* _hostEntity, int32_t _size) {
     auto it = entityIndexBind_.find(_hostEntity->GetID());
     // エンティティが存在しない場合は何もしない
     if (it == entityIndexBind_.end()) {
@@ -204,7 +206,7 @@ void ComponentArray<componentType>::ResizeEntity(Entity* _hostEntity, int32_t _s
 }
 
 template <IsComponent componentType>
-void ComponentArray<componentType>::DeleteEntity(Entity* _hostEntity) {
+void ComponentArray<componentType>::DeleteEntity(OriGine::Entity* _hostEntity) {
     auto it = entityIndexBind_.find(_hostEntity->GetID());
     // エンティティが存在しない場合は何もしない
     if (it == entityIndexBind_.end()) {
@@ -230,7 +232,7 @@ void ComponentArray<componentType>::DeleteEntity(Entity* _hostEntity) {
 }
 
 template <IsComponent componentType>
-int32_t ComponentArray<componentType>::Add(Entity* _hostEntity, const componentType& _component, bool _doInitialize) {
+int32_t ComponentArray<componentType>::Add(OriGine::Entity* _hostEntity, const componentType& _component, bool _doInitialize) {
     auto it = entityIndexBind_.find(_hostEntity->GetID());
     // エンティティが存在しない場合は新規登録
     if (it == entityIndexBind_.end()) {
@@ -254,7 +256,7 @@ int32_t ComponentArray<componentType>::Add(Entity* _hostEntity, const componentT
 }
 
 template <IsComponent componentType>
-int32_t ComponentArray<componentType>::AddComponent(Entity* _hostEntity, IComponent* _component, bool _doInitialize) {
+int32_t ComponentArray<componentType>::AddComponent(OriGine::Entity* _hostEntity, IComponent* _component, bool _doInitialize) {
     const componentType* comp = dynamic_cast<const componentType*>(_component);
 
     assert(comp && "Invalid component type passed to AddComponent");
@@ -282,7 +284,7 @@ int32_t ComponentArray<componentType>::AddComponent(Entity* _hostEntity, ICompon
 }
 
 template <IsComponent componentType>
-int32_t ComponentArray<componentType>::AddComponent(Entity* _hostEntity, bool _doInitialize) {
+int32_t ComponentArray<componentType>::AddComponent(OriGine::Entity* _hostEntity, bool _doInitialize) {
     auto it = entityIndexBind_.find(_hostEntity->GetID());
     if (it == entityIndexBind_.end()) {
         RegisterEntity(_hostEntity, 1, _doInitialize);
@@ -297,7 +299,7 @@ int32_t ComponentArray<componentType>::AddComponent(Entity* _hostEntity, bool _d
 }
 
 template <IsComponent componentType>
-void ComponentArray<componentType>::InsertComponent(Entity* _hostEntity, IComponent* _component, int32_t _index) {
+void ComponentArray<componentType>::InsertComponent(OriGine::Entity* _hostEntity, IComponent* _component, int32_t _index) {
     const componentType* comp = dynamic_cast<const componentType*>(_component);
     assert(comp && "Invalid component type passed to InsertComponent");
     // エンティティが存在しない場合は何もしない
@@ -317,7 +319,7 @@ void ComponentArray<componentType>::InsertComponent(Entity* _hostEntity, ICompon
 }
 
 template <IsComponent componentType>
-void ComponentArray<componentType>::InsertComponent(Entity* _hostEntity, int32_t _index) {
+void ComponentArray<componentType>::InsertComponent(OriGine::Entity* _hostEntity, int32_t _index) {
     // エンティティが存在しない場合は何もしない
     auto it = entityIndexBind_.find(_hostEntity->GetID());
     if (it == entityIndexBind_.end()) {
@@ -333,7 +335,7 @@ void ComponentArray<componentType>::InsertComponent(Entity* _hostEntity, int32_t
 }
 
 template <IsComponent componentType>
-void ComponentArray<componentType>::RemoveComponent(Entity* _hostEntity, int32_t _componentIndex) {
+void ComponentArray<componentType>::RemoveComponent(OriGine::Entity* _hostEntity, int32_t _componentIndex) {
     // エンティティが存在しない場合は何もしない
     auto it = entityIndexBind_.find(_hostEntity->GetID());
     if (it == entityIndexBind_.end()) {
@@ -352,7 +354,7 @@ void ComponentArray<componentType>::RemoveComponent(Entity* _hostEntity, int32_t
 }
 
 template <IsComponent componentType>
-void ComponentArray<componentType>::RemoveBackComponent(Entity* _hostEntity) {
+void ComponentArray<componentType>::RemoveBackComponent(OriGine::Entity* _hostEntity) {
     // エンティティが存在しない場合は何もしない
     auto it = entityIndexBind_.find(_hostEntity->GetID());
     if (it == entityIndexBind_.end()) {
@@ -369,7 +371,7 @@ void ComponentArray<componentType>::RemoveBackComponent(Entity* _hostEntity) {
 }
 
 template <IsComponent componentType>
-void ComponentArray<componentType>::ClearComponent(Entity* _hostEntity) {
+void ComponentArray<componentType>::ClearComponent(OriGine::Entity* _hostEntity) {
     // エンティティが存在しない場合は何もしない
     auto it = entityIndexBind_.find(_hostEntity->GetID());
     if (it == entityIndexBind_.end()) {
@@ -396,7 +398,7 @@ void ComponentArray<componentType>::Clear() {
 }
 
 template <IsComponent componentType>
-void ComponentArray<componentType>::SaveComponent(Entity* _entity, nlohmann::json& _json) const {
+void ComponentArray<componentType>::SaveComponent(OriGine::Entity* _entity, nlohmann::json& _json) const {
     // エンティティが存在しない場合は何もしない
     auto it = entityIndexBind_.find(_entity->GetID());
     if (it == entityIndexBind_.end()) {
@@ -412,7 +414,7 @@ void ComponentArray<componentType>::SaveComponent(Entity* _entity, nlohmann::jso
 }
 
 template <IsComponent componentType>
-void ComponentArray<componentType>::SaveComponent(Entity* _entity, int32_t _compIndex, nlohmann::json& _json) const {
+void ComponentArray<componentType>::SaveComponent(OriGine::Entity* _entity, int32_t _compIndex, nlohmann::json& _json) const {
     // エンティティが存在しない場合は何もしない
     auto it = entityIndexBind_.find(_entity->GetID());
     if (it == entityIndexBind_.end()) {
@@ -429,7 +431,7 @@ void ComponentArray<componentType>::SaveComponent(Entity* _entity, int32_t _comp
 }
 
 template <IsComponent componentType>
-void ComponentArray<componentType>::LoadComponent(Entity* _entity, const nlohmann::json& _json) {
+void ComponentArray<componentType>::LoadComponent(OriGine::Entity* _entity, const nlohmann::json& _json) {
     // エンティティが存在しない場合は新規登録
     auto it = entityIndexBind_.find(_entity->GetID());
     if (it == entityIndexBind_.end()) {
@@ -447,7 +449,7 @@ void ComponentArray<componentType>::LoadComponent(Entity* _entity, const nlohman
 }
 
 template <IsComponent componentType>
-void ComponentArray<componentType>::LoadComponent(Entity* _entity, int32_t _compIndex, const nlohmann::json& _json) {
+void ComponentArray<componentType>::LoadComponent(OriGine::Entity* _entity, int32_t _compIndex, const nlohmann::json& _json) {
     // エンティティが存在しない場合は何もしない
     auto it = entityIndexBind_.find(_entity->GetID());
     if (it == entityIndexBind_.end()) {
@@ -465,12 +467,12 @@ void ComponentArray<componentType>::LoadComponent(Entity* _entity, int32_t _comp
 }
 
 template <IsComponent componentType>
-bool ComponentArray<componentType>::HasEntity(Entity* _hostEntity) const {
+bool ComponentArray<componentType>::HasEntity(OriGine::Entity* _hostEntity) const {
     return entityIndexBind_.contains(_hostEntity->GetID());
 }
 
 template <IsComponent componentType>
-int32_t ComponentArray<componentType>::EntityCapacity(Entity* _hostEntity) const {
+int32_t ComponentArray<componentType>::EntityCapacity(OriGine::Entity* _hostEntity) const {
     auto it = entityIndexBind_.find(_hostEntity->GetID());
     if (it == entityIndexBind_.end()) {
         return 0;
@@ -479,7 +481,7 @@ int32_t ComponentArray<componentType>::EntityCapacity(Entity* _hostEntity) const
 }
 
 template <IsComponent componentType>
-int32_t ComponentArray<componentType>::GetComponentSize(Entity* _entity) {
+int32_t ComponentArray<componentType>::GetComponentSize(OriGine::Entity* _entity) {
     auto it = entityIndexBind_.find(_entity->GetID());
     if (it == entityIndexBind_.end()) {
         return 0;
@@ -488,7 +490,7 @@ int32_t ComponentArray<componentType>::GetComponentSize(Entity* _entity) {
 }
 
 template <IsComponent componentType>
-std::vector<componentType>* ComponentArray<componentType>::GetComponents(Entity* _entity) {
+std::vector<componentType>* ComponentArray<componentType>::GetComponents(OriGine::Entity* _entity) {
     // エンティティが存在しない場合は nullptr を返す
     auto it = entityIndexBind_.find(_entity->GetID());
     if (it == entityIndexBind_.end()) {
@@ -504,7 +506,7 @@ std::vector<componentType>* ComponentArray<componentType>::GetComponents(Entity*
 }
 
 template <IsComponent componentType>
-IComponent* ComponentArray<componentType>::GetComponent(Entity* _entity, uint32_t _index) {
+IComponent* ComponentArray<componentType>::GetComponent(OriGine::Entity* _entity, uint32_t _index) {
     // エンティティが存在しない場合は nullptr を返す
     auto it = entityIndexBind_.find(_entity->GetID());
     if (it == entityIndexBind_.end()) {
@@ -521,7 +523,7 @@ IComponent* ComponentArray<componentType>::GetComponent(Entity* _entity, uint32_
 }
 
 template <IsComponent componentType>
-IComponent* ComponentArray<componentType>::GetBackComponent(Entity* _entity) {
+IComponent* ComponentArray<componentType>::GetBackComponent(OriGine::Entity* _entity) {
     // エンティティが存在しない場合は nullptr を返す
     auto it = entityIndexBind_.find(_entity->GetID());
     if (it == entityIndexBind_.end()) {
@@ -538,7 +540,7 @@ IComponent* ComponentArray<componentType>::GetBackComponent(Entity* _entity) {
 }
 
 template <IsComponent componentType>
-componentType* ComponentArray<componentType>::GetDynamicComponent(Entity* _entity, uint32_t _index) {
+componentType* ComponentArray<componentType>::GetDynamicComponent(OriGine::Entity* _entity, uint32_t _index) {
     // エンティティが存在しない場合は nullptr を返す
     auto it = entityIndexBind_.find(_entity->GetID());
     if (it == entityIndexBind_.end()) {
@@ -554,12 +556,12 @@ componentType* ComponentArray<componentType>::GetDynamicComponent(Entity* _entit
 }
 
 template <IsComponent componentType>
-componentType* ComponentArray<componentType>::GetDynamicFrontComponent(Entity* _entity) {
+componentType* ComponentArray<componentType>::GetDynamicFrontComponent(OriGine::Entity* _entity) {
     return GetDynamicComponent(_entity, 0);
 }
 
 template <IsComponent componentType>
-componentType* ComponentArray<componentType>::GetDynamicBackComponent(Entity* _entity) {
+componentType* ComponentArray<componentType>::GetDynamicBackComponent(OriGine::Entity* _entity) {
     // エンティティが存在しない場合は nullptr を返す
     auto it = entityIndexBind_.find(_entity->GetID());
     if (it == entityIndexBind_.end()) {
@@ -572,3 +574,5 @@ componentType* ComponentArray<componentType>::GetDynamicBackComponent(Entity* _e
     }
     return &components_[index].back();
 }
+
+} // namespace OriGine

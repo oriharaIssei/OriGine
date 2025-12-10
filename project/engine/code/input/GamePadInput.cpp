@@ -4,6 +4,8 @@
 #include "math/mathEnv.h"
 #include <cmath>
 
+using namespace OriGine;
+
 /// <summary>
 /// ゲームパッドの初期化
 /// </summary>

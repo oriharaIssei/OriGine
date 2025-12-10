@@ -3,6 +3,7 @@
 /// math
 #include "math/mathEnv.h"
 
+namespace OriGine {
 namespace Primitive {
 
 /// =====================================================
@@ -63,4 +64,5 @@ void Ring::CreateMesh(TextureMesh* _mesh) {
     _mesh->TransferData();
 }
 
+}
 }

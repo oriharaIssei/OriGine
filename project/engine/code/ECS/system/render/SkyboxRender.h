@@ -14,6 +14,8 @@
 // component
 #include "component/renderer/SkyboxRenderer.h"
 
+namespace OriGine {
+
 /// <summary>
 /// Skybox描画システム
 /// </summary>
@@ -54,3 +56,5 @@ private:
     std::array<PipelineStateObj*, kBlendNum> psoByBlendMode_{};
     std::array<std::vector<SkyboxRenderer*>, kBlendNum> rendererByBlendMode_ = {};
 };
+
+} // namespace OriGine

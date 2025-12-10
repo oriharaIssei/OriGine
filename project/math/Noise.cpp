@@ -1,5 +1,6 @@
 #include "Noise.h"
 
+namespace OriGine {
 namespace FractalBrownianMotionNoise {
 
 float Fract(float _x) {
@@ -64,3 +65,4 @@ Vec4f ShadePixel(const Vec2f& _fragCoord, const Vec2f& _resolution) {
 }
 
 } // namespace FractalBrownianMotionNoise
+} // namespace OriGine

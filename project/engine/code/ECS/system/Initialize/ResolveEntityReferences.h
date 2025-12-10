@@ -1,6 +1,8 @@
 #pragma once
 #include "system/ISystem.h"
 
+namespace OriGine {
+
 /// <summary>
 /// EntityReferenceListのEntityファイルを読み込むシステム
 /// </summary>
@@ -15,3 +17,5 @@ public:
 private:
     void UpdateEntity(Entity* _entity) override;
 };
+
+} // namespace OriGine

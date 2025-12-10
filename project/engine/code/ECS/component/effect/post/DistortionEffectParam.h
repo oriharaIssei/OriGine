@@ -11,14 +11,17 @@
 // directX12
 #include "directX12/buffer/IConstantBuffer.h"
 #include "directX12/buffer/SimpleConstantBuffer.h"
-class PrimitiveMeshRendererBase;
-enum class PrimitiveType : int32_t;
 
 // component
 #include "component/material/Material.h"
 
 /// math
 #include "math/Vector2.h"
+
+namespace OriGine {
+// 前方宣言
+class PrimitiveMeshRendererBase;
+enum class PrimitiveType : int32_t;
 
 /// <summary>
 /// Distortion Effectのパラメーター情報(GPUに送る)
@@ -97,3 +100,5 @@ public:
         return distortionObjects_;
     }
 };
+
+} // namespace OriGine

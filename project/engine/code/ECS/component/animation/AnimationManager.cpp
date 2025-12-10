@@ -1,9 +1,13 @@
 #include "AnimationManager.h"
 
+/// stl
+#include <fstream>
+/// externals
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
-#include <fstream>
+
+using namespace OriGine;
 
 AnimationManager::AnimationManager() {
     // Constructor implementation

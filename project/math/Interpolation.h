@@ -7,6 +7,8 @@
 /// math library
 #include <cmath>
 
+namespace OriGine {
+
 /// <summary>
 /// Frame依存しない線形補間
 /// (参考: https://blog.pkh.me/p/41-fixing-the-iterative-damping-interpolation-in-video-games.html )
@@ -33,3 +35,5 @@ Quaternion SlerpByDeltaTime(const Quaternion& q0, const Quaternion& v, float _de
 /// <param name="t"></param>
 /// <returns></returns>
 float LerpAngle(float current, float target, float t);
+
+} // namespace OriGine

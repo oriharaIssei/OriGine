@@ -10,6 +10,8 @@
 #include "directX12/DxDevice.h"
 #include "directX12/RenderTexture.h"
 
+using namespace OriGine;
+
 RadialBlurEffect::RadialBlurEffect() : BasePostRenderingSystem() {}
 RadialBlurEffect::~RadialBlurEffect() {}
 
@@ -25,7 +27,7 @@ void RadialBlurEffect::Finalize() {
 void RadialBlurEffect::CreatePSO() {
     ShaderManager* shaderManager = ShaderManager::GetInstance();
     shaderManager->LoadShader("FullScreen.VS");
-    shaderManager->LoadShader("RadialBlur.PS", shaderDirectory, L"ps_6_0");
+    shaderManager->LoadShader("RadialBlur.PS", kShaderDirectory, L"ps_6_0");
     ShaderInformation shaderInfo{};
     shaderInfo.vsKey = "FullScreen.VS";
     shaderInfo.psKey = "RadialBlur.PS";

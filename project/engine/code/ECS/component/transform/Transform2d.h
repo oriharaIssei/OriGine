@@ -6,6 +6,8 @@
 #include "math/Matrix4x4.h"
 #include "math/Vector2.h"
 
+namespace OriGine {
+
 /// <summary>
 /// Transform コンポーネント(2次元)
 /// </summary>
@@ -87,3 +89,5 @@ inline void to_json(nlohmann::json& j, const Transform2d& t) {
         {"rotate", t.rotate},
         {"translate", t.translate}};
 }
+
+} // namespace OriGine

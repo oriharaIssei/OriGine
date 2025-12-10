@@ -11,6 +11,8 @@
 #include "directX12/DxDevice.h"
 #include "directX12/RenderTexture.h"
 
+using namespace OriGine;
+
 GradationEffect::GradationEffect() : BasePostRenderingSystem() {}
 GradationEffect::~GradationEffect() {}
 
@@ -30,7 +32,7 @@ void GradationEffect::Finalize() {
 void GradationEffect::CreatePSO() {
     ShaderManager* shaderManager = ShaderManager::GetInstance();
     shaderManager->LoadShader("FullScreen.VS");
-    shaderManager->LoadShader("Gradation.PS", shaderDirectory, L"ps_6_0");
+    shaderManager->LoadShader("Gradation.PS", kShaderDirectory, L"ps_6_0");
     ShaderInformation shaderInfo{};
     shaderInfo.vsKey = "FullScreen.VS";
     shaderInfo.psKey = "Gradation.PS";

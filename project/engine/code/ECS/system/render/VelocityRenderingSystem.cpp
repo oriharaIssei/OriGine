@@ -9,7 +9,9 @@
 /// math
 #include "math/mathEnv.h"
 
-const int32_t VelocityRenderingSystem::defaultMeshCount_ = 1000;
+using namespace OriGine;
+
+const int32_t VelocityRenderingSystem::kDefaultMeshCount_ = 1000;
 
 VelocityRenderingSystem::VelocityRenderingSystem() : BaseRenderSystem() {}
 VelocityRenderingSystem::~VelocityRenderingSystem() = default;
@@ -26,8 +28,8 @@ void VelocityRenderingSystem::Initialize() {
     velocityRenderer_->Initialize(nullptr);
     velocityRenderer_->GetMeshGroup()->push_back(Mesh<ColorVertexData>());
     velocityRenderer_->GetMeshGroup()->back().Initialize(
-        VelocityRenderingSystem::defaultMeshCount_ * kMeshVertexSize, // 頂点数 (線 + 矢印分)
-        VelocityRenderingSystem::defaultMeshCount_ * kMeshIndexSize // インデックス数
+        VelocityRenderingSystem::kDefaultMeshCount_ * kMeshVertexSize, // 頂点数 (線 + 矢印分)
+        VelocityRenderingSystem::kDefaultMeshCount_ * kMeshIndexSize // インデックス数
     );
 
     velocityMeshItr_ = velocityRenderer_->GetMeshGroup()->begin();
@@ -134,7 +136,7 @@ void VelocityRenderingSystem::CreatePSO() {
     DxDevice* dxDevice           = Engine::GetInstance()->GetDxDevice();
 
     shaderManager->LoadShader("ColoredVertex.VS");
-    shaderManager->LoadShader("ColoredVertex.PS", shaderDirectory, L"ps_6_0");
+    shaderManager->LoadShader("ColoredVertex.PS", kShaderDirectory, L"ps_6_0");
 
     ShaderInfo shaderInfo{};
     shaderInfo.vsKey = "ColoredVertex.VS";

@@ -6,11 +6,14 @@
 /// engine
 // component
 #include "component/animation/AnimationData.h"
-class SpriteRenderer;
 
 /// math
 #include <Vector2.h>
 #include <Vector4.h>
+
+namespace OriGine {
+// 前方宣言
+class SpriteRenderer;
 
 /// <summary>
 /// Spriteをアニメーションさせるコンポーネント
@@ -101,3 +104,5 @@ public:
     AnimationCurve<float>& GetUVRotateCurve() { return uvRotateCurve_; }
     AnimationCurve<Vec2f>& GetUVTranslateCurve() { return uvTranslateCurve_; }
 };
+
+} // namespace OriGine

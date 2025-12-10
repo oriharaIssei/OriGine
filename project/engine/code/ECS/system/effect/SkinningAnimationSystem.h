@@ -4,6 +4,8 @@
 /// stl
 #include <memory>
 
+namespace OriGine {
+//// 前方宣言
 /// engine
 // directX12Object
 struct PipelineStateObj;
@@ -42,9 +44,11 @@ private:
     bool usingCS_ = false;
 
     // rootParameter indices
-    const int32_t outputVertexBufferIndex_         = 0;
-    const int32_t inputVertexBufferIndex_          = 1;
-    const int32_t matrixPaletteBufferIndex_        = 2;
-    const int32_t vertexInfluenceBufferIndex_      = 3;
-    const int32_t gSkinningInformationBufferIndex_ = 4;
+    const int32_t kOutputVertexBufferIndex_         = 0;
+    const int32_t kInputVertexBufferIndex_          = 1;
+    const int32_t kMatrixPaletteBufferIndex_        = 2;
+    const int32_t kVertexInfluenceBufferIndex_      = 3;
+    const int32_t kSkinningInformationBufferIndex_ = 4;
 };
+
+} // namespace OriGine

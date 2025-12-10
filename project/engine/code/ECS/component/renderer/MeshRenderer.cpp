@@ -23,11 +23,13 @@
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
+using namespace OriGine;
+
 //----------------------------------------------------------------------------------------------------------
 // ↓ DefaultMeshRenderer
 //----------------------------------------------------------------------------------------------------------
 #pragma region "ModelMeshRenderer"
-void to_json(nlohmann::json& j, const ModelMeshRenderer& r) {
+void OriGine::to_json(nlohmann::json& j, const ModelMeshRenderer& r) {
     j["isRender"]  = r.isRender_;
     j["blendMode"] = static_cast<int32_t>(r.currentBlend_);
 
@@ -57,7 +59,7 @@ void to_json(nlohmann::json& j, const ModelMeshRenderer& r) {
     j["textureFilePath"] = texturePaths;
 }
 
-void from_json(const nlohmann::json& j, ModelMeshRenderer& r) {
+void OriGine::from_json(const nlohmann::json& j, ModelMeshRenderer& r) {
     j.at("isRender").get_to(r.isRender_);
     int32_t blendMode = 0;
     j.at("blendMode").get_to(blendMode);
@@ -172,14 +174,14 @@ void ModelMeshRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] En
     ImGui::Text("BlendMode :");
     ImGui::SameLine();
     label = "##BlendMode" + _parentLabel;
-    if (ImGui::BeginCombo(label.c_str(), blendModeStr[(int32_t)currentBlend_].c_str())) {
+    if (ImGui::BeginCombo(label.c_str(), kBlendModeStr[(int32_t)currentBlend_].c_str())) {
         bool isSelected    = false;
         int32_t blendIndex = 0;
-        for (auto& blendModeName : blendModeStr) {
-            isSelected = blendModeName == blendModeStr[(int32_t)currentBlend_];
+        for (auto& blendModeName : kBlendModeStr) {
+            isSelected = blendModeName == kBlendModeStr[(int32_t)currentBlend_];
 
             if (ImGui::Selectable(blendModeName.c_str(), isSelected)) {
-                EditorController::GetInstance()->PushCommand(
+                OriGine::EditorController::GetInstance()->PushCommand(
                     std::make_unique<SetterCommand<BlendMode>>(&currentBlend_, static_cast<BlendMode>(blendIndex)));
 
                 break;
@@ -212,13 +214,13 @@ void ModelMeshRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] En
                 InitializeMaterialFromModelFile(this, _scene, this->hostEntity_, this->directory_, this->fileName_);
             },
                 true);
-            EditorController::GetInstance()->PushCommand(std::make_unique<CommandCombo>(commandCombo));
+            OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<CommandCombo>(commandCombo));
         }
     }
 
     ImGui::Separator();
 
-    std::string meshName       = "Mesh##" + _parentLabel;
+    std::string meshName = "Mesh##" + _parentLabel;
 
     auto materials             = _scene->GetComponents<Material>(_entity);
     int32_t entityMaterialSize = materials != nullptr ? static_cast<int32_t>(materials->size()) : 0;
@@ -236,7 +238,7 @@ void ModelMeshRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] En
                             meshTextureNumbers_[i] = TextureManager::LoadTexture(*_path);
                         });
 
-                    EditorController::GetInstance()->PushCommand(std::move(SetPathCommand));
+                    OriGine::EditorController::GetInstance()->PushCommand(std::move(SetPathCommand));
                 }
             }
 
@@ -250,8 +252,8 @@ void ModelMeshRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] En
                 ImGui::TreePop();
             }
 
-            label                      = "MaterialIndex##" + _parentLabel;
-            int32_t& materialIndex     = meshMaterialBuff_[i].first;
+            label                  = "MaterialIndex##" + _parentLabel;
+            int32_t& materialIndex = meshMaterialBuff_[i].first;
 
             InputGuiCommand(label, materialIndex);
             materialIndex = std::clamp(materialIndex, -1, entityMaterialSize - 1);
@@ -307,7 +309,7 @@ void ModelMeshRenderer::InitializeMaterialBuffer(Entity* _hostEntity) {
 
 #pragma endregion
 
-void CreateModelMeshRenderer(ModelMeshRenderer* _renderer, Entity* _hostEntity, const std::string& _directory, const std::string& _fileName, bool _usingDefaultTexture) {
+void OriGine::CreateModelMeshRenderer(ModelMeshRenderer* _renderer, Entity* _hostEntity, const std::string& _directory, const std::string& _fileName, bool _usingDefaultTexture) {
     bool isLoaded = false;
 
     if (!_renderer->GetMeshGroup()->empty()) {
@@ -339,7 +341,7 @@ void CreateModelMeshRenderer(ModelMeshRenderer* _renderer, Entity* _hostEntity, 
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 }
-void InitializeMaterialFromModelFile(ModelMeshRenderer* _renderer, Scene* _scene, Entity* _hostEntity, const std::string& _directory, const std::string& _fileName) {
+void OriGine::InitializeMaterialFromModelFile(ModelMeshRenderer* _renderer, Scene* _scene, Entity* _hostEntity, const std::string& _directory, const std::string& _fileName) {
     if (!_renderer->GetMeshGroup()->empty()) {
         _renderer->GetMeshGroup()->clear();
     }
@@ -518,13 +520,13 @@ void LineRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity*
     if (ImGui::Button("AddLine")) {
 
         auto command = std::make_unique<AddLineCommand>(meshGroup_);
-        EditorController::GetInstance()->PushCommand(std::move(command));
+        OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
     }
 
 #endif // DEBUG
 }
 
-void to_json(nlohmann::json& j, const LineRenderer& r) {
+void OriGine::to_json(nlohmann::json& j, const LineRenderer& r) {
     j["isRender"]  = r.isRender_;
     j["blendMode"] = static_cast<int32_t>(r.currentBlend_);
 
@@ -565,7 +567,7 @@ void to_json(nlohmann::json& j, const LineRenderer& r) {
     j["meshGroupDatas"] = meshGroupDatas;
 }
 
-void from_json(const nlohmann::json& j, LineRenderer& r) {
+void OriGine::from_json(const nlohmann::json& j, LineRenderer& r) {
     j.at("isRender").get_to(r.isRender_);
     int32_t blendMode = 0;
     j.at("blendMode").get_to(blendMode);

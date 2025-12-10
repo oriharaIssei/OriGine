@@ -1,13 +1,15 @@
 #pragma once
 
-#include <string>
-
+/// Microsoft
 #include <wrl.h>
-
-#include <list>
 
 #include <d3d12.h>
 
+/// stl
+#include <list>
+#include <string>
+
+namespace OriGine {
 ///=================================================
 /// Pipeline State Object
 ///=================================================
@@ -17,3 +19,5 @@ struct PipelineStateObj {
     Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature = nullptr;
     Microsoft::WRL::ComPtr<ID3D12PipelineState> pipelineState = nullptr;
 };
+
+} // namespace OriGine

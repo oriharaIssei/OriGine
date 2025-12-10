@@ -24,6 +24,8 @@
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
+using namespace OriGine;
+
 void SpriteRenderer::Initialize(Entity* _hostEntity) {
     MeshRenderer::Initialize(_hostEntity);
 
@@ -104,7 +106,7 @@ void SpriteRenderer::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_unused
                     });
                 });
 
-            EditorController::GetInstance()->PushCommand(std::move(command));
+            OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
         }
     }
 
@@ -273,7 +275,7 @@ void SpriteRenderer::UpdateBuffer(const Matrix4x4& _viewPortMat) {
     mesh.TransferData();
 }
 
-void to_json(nlohmann::json& j, const SpriteRenderer& r) {
+void OriGine::to_json(nlohmann::json& j, const SpriteRenderer& r) {
     j = nlohmann::json{
         {"isRender", r.isRender_},
         {"renderingPriority", r.renderPriority_},
@@ -296,7 +298,7 @@ void to_json(nlohmann::json& j, const SpriteRenderer& r) {
         {"uvTranslate", r.spriteBuff_->uvTranslate_}};
 }
 
-void from_json(const nlohmann::json& j, SpriteRenderer& r) {
+void OriGine::from_json(const nlohmann::json& j, SpriteRenderer& r) {
     j.at("isRender").get_to(r.isRender_);
     j.at("renderingPriority").get_to(r.renderPriority_);
 

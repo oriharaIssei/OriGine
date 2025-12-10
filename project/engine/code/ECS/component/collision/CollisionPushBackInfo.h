@@ -1,11 +1,12 @@
 #pragma once
-#include "component/IComponent.h"
 
+#include "component/IComponent.h"
 /// stl
 #include <unordered_map>
-
 /// math
 #include <math/Vector3.h>
+
+namespace OriGine {
 
 enum class CollisionPushBackType {
     None     = 0,
@@ -51,3 +52,5 @@ public:
         collisionInfoMap_[entityId] = info;
     }
 };
+
+} // namespace OriGine

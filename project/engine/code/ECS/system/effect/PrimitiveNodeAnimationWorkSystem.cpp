@@ -11,6 +11,8 @@
 #include "component/renderer/primitive/RingRenderer.h"
 #include "component/renderer/primitive/SphereRenderer.h"
 
+using namespace OriGine;
+
 void PrimitiveNodeAnimationWorkSystem::UpdateEntity(Entity* _entity) {
     auto* primitiveNodeAnimation = GetComponent<PrimitiveNodeAnimation>(_entity);
     if (primitiveNodeAnimation == nullptr) {

@@ -11,6 +11,8 @@
 #include <Vector2.h>
 #include <Vector4.h>
 
+namespace OriGine {
+
 //====================================== VertexData ======================================//
 struct SpriteVertexData {
     SpriteVertexData()  = default;
@@ -174,3 +176,5 @@ public:
     void SetTextureSize(const Vec2f& size) { textureSize_ = size; }
     const Vec2f& GetTextureSize() const { return textureSize_; }
 };
+
+} // namespace OriGine

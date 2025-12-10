@@ -14,6 +14,8 @@
 /// externals
 #include "myGui/MyGui.h"
 
+using namespace OriGine;
+
 #pragma region "SystemInspectorArea"
 
 SystemInspectorArea::SystemInspectorArea(SceneEditorWindow* _window) : Editor::Area("SystemInspectorArea"), parentWindow_(_window) {}
@@ -56,11 +58,11 @@ void SystemInspectorArea::DrawGui() {
         if (ImGui::TreeNode("SystemCategoryActivity##SystemInspectorArea")) {
             std::string label = "";
             for (int32_t category = 0; category < static_cast<int32_t>(SystemCategory::Count); ++category) {
-                label         = SystemCategoryString[category] + "##SystemCategoryActivity";
+                label         = kSystemCategoryString[category] + "##SystemCategoryActivity";
                 bool activity = currentScene->GetSystemRunner()->GetCategoryActivity()[category];
                 if (ImGui::Checkbox(label.c_str(), &activity)) {
                     auto command = std::make_unique<ChangeSystemCategoryActivity>(this, static_cast<SystemCategory>(category), currentScene->GetSystemRunner()->GetCategoryActivity()[category], activity);
-                    EditorController::GetInstance()->PushCommand(std::move(command));
+                    OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
                 }
             }
             ImGui::TreePop();
@@ -86,7 +88,7 @@ void SystemInspectorArea::DrawGui() {
             }
             // カテゴリチェックボックス
             for (size_t i = 0; i < static_cast<size_t>(SystemCategory::Count); ++i) {
-                label             = SystemCategoryString[i];
+                label             = kSystemCategoryString[i];
                 int32_t filterBit = (1 << (i + categoryFilterStart));
                 bool isChecked    = (filter & filterBit) != 0;
                 if (ImGui::Checkbox(label.c_str(), &isChecked)) {
@@ -108,7 +110,7 @@ void SystemInspectorArea::DrawGui() {
                 entityNamePool.SetValue(label, searchBuffer_);
             } else if (ImGui::IsItemDeactivatedAfterEdit()) {
                 auto command = std::make_unique<ChangeSearchFilter>(this, entityNamePool.popValue(label));
-                EditorController::GetInstance()->PushCommand(std::move(command));
+                OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
             }
         }
 
@@ -117,7 +119,7 @@ void SystemInspectorArea::DrawGui() {
         if (filter_ != filter) {
             filter_      = static_cast<FilterType>(filter);
             auto command = std::make_unique<ChangeSystemFilter>(this, static_cast<int32_t>(filter_));
-            EditorController::GetInstance()->PushCommand(std::move(command));
+            OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
         }
 
         bool searchFilter = (filter_ & FilterType::SEARCH) != 0;
@@ -134,7 +136,7 @@ void SystemInspectorArea::DrawGui() {
                 if ((filter_ & filterBit) == 0) {
                     continue; // フィルタリングされている場合はスキップ
                 }
-                if (ImGui::CollapsingHeader(SystemCategoryString[i].c_str())) {
+                if (ImGui::CollapsingHeader(kSystemCategoryString[i].c_str())) {
 
                     ImGui::Indent();
                     for (auto& [systemName, priority] : systemMap_[i]) {
@@ -178,7 +180,7 @@ void SystemInspectorArea::SystemGui(const std::string& _systemName, int32_t& _pr
 
         if (ImGui::Checkbox("##Active", &isActive)) {
             auto command = std::make_unique<ChangeSystemActivity>(this, _systemName, system->GetPriority(), system->IsActive(), isActive);
-            EditorController::GetInstance()->PushCommand(std::move(command));
+            OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
         }
 
         ImGui::SameLine();
@@ -188,7 +190,7 @@ void SystemInspectorArea::SystemGui(const std::string& _systemName, int32_t& _pr
         int32_t priority = system->GetPriority();
         if (ImGui::InputInt("##Priority", &priority, 1)) {
             auto command = std::make_unique<ChangeSystemPriority>(this, _systemName, system->GetPriority(), priority);
-            EditorController::GetInstance()->PushCommand(std::move(command));
+            OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
         }
 
         _priority = priority; // 更新された優先度をアイテムに反映
@@ -203,7 +205,7 @@ void SystemInspectorArea::SystemGui(const std::string& _systemName, int32_t& _pr
         if (ImGui::Checkbox("##Active", &isActive)) {
             currentScene->RegisterSystem(_systemName, 0); // 0 はデフォルトの優先度
             auto command = std::make_unique<ChangeSystemActivity>(this, _systemName, 0, false, true);
-            EditorController::GetInstance()->PushCommand(std::move(command));
+            OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
 
             ImGui::PopID();
             return;

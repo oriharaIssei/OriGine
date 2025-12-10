@@ -1,6 +1,10 @@
 #include "SystemRunner.h"
 
+/// ECS
+// system
 #include "SystemRegistry.h"
+
+using namespace OriGine;
 
 SystemRunner::SystemRunner(Scene* _scene) : scene_(_scene) {}
 SystemRunner::~SystemRunner() {}
@@ -173,7 +177,7 @@ void SystemRunner::ActivateSystem(const std::string& _systemName) {
     size_t categoryIndex = static_cast<size_t>(system->GetCategory());
     auto& activeSystems  = activeSystems_[categoryIndex];
     if (std::find(activeSystems.begin(), activeSystems.end(), system) != activeSystems.end()) {
-        LOG_WARN("System '{}' is already active in category '{}'.", _systemName, SystemCategoryString[categoryIndex]);
+        LOG_WARN("System '{}' is already active in category '{}'.", _systemName, kSystemCategoryString[categoryIndex]);
         return;
     }
 
@@ -198,7 +202,7 @@ void SystemRunner::DeactivateSystem(const std::string& _systemName) {
     size_t categoryIndex = static_cast<size_t>(system->GetCategory());
     auto& activeSystems  = activeSystems_[categoryIndex];
     if (std::find(activeSystems.begin(), activeSystems.end(), system) == activeSystems.end()) {
-        LOG_WARN("SystemRunner: System '{}' is not active in category '{}'.", _systemName, SystemCategoryString[categoryIndex]);
+        LOG_WARN("SystemRunner: System '{}' is not active in category '{}'.", _systemName, kSystemCategoryString[categoryIndex]);
         return;
     }
 

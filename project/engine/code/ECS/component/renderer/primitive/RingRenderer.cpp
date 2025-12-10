@@ -18,6 +18,8 @@
 #include <imgui/imgui.h>
 #endif // _DEBUG
 
+using namespace OriGine;
+
 void RingRenderer::Initialize(Entity* _hostEntity) {
     MeshRenderer::Initialize(_hostEntity);
 
@@ -52,14 +54,14 @@ void RingRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity*
     ImGui::Text("BlendMode :");
     ImGui::SameLine();
     std::string label = "##BlendMode" + _parentLabel;
-    if (ImGui::BeginCombo(label.c_str(), blendModeStr[(int32_t)currentBlend_].c_str())) {
+    if (ImGui::BeginCombo(label.c_str(), kBlendModeStr[(int32_t)currentBlend_].c_str())) {
         bool isSelected    = false;
         int32_t blendIndex = 0;
-        for (auto& blendModeName : blendModeStr) {
-            isSelected = blendModeName == blendModeStr[(int32_t)currentBlend_];
+        for (auto& blendModeName : kBlendModeStr) {
+            isSelected = blendModeName == kBlendModeStr[(int32_t)currentBlend_];
 
             if (ImGui::Selectable(blendModeName.c_str(), isSelected)) {
-                EditorController::GetInstance()->PushCommand(
+                OriGine::EditorController::GetInstance()->PushCommand(
                     std::make_unique<SetterCommand<BlendMode>>(&currentBlend_, static_cast<BlendMode>(blendIndex)));
                 break;
             }
@@ -99,7 +101,7 @@ void RingRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity*
             auto commandCombo = std::make_unique<CommandCombo>();
             commandCombo->AddCommand(std::make_shared<SetterCommand<std::string>>(&textureFilePath_, kApplicationResourceDirectory + "/" + directory + "/" + fileName));
             commandCombo->SetFuncOnAfterCommand([this]() { textureIndex_ = TextureManager::LoadTexture(textureFilePath_); }, true);
-            EditorController::GetInstance()->PushCommand(std::move(commandCombo));
+            OriGine::EditorController::GetInstance()->PushCommand(std::move(commandCombo));
         }
     }
 
@@ -143,7 +145,7 @@ void RingRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity*
 #endif // _DEBUG
 }
 
-void to_json(nlohmann::json& j, const RingRenderer& r) {
+void OriGine::to_json(nlohmann::json& j, const RingRenderer& r) {
     j["isRenderer"] = r.isRender_;
     j["isCulling"]  = r.isCulling_;
     j["blendMode"]  = static_cast<int32_t>(r.currentBlend_);
@@ -158,7 +160,7 @@ void to_json(nlohmann::json& j, const RingRenderer& r) {
     j["division"]    = r.primitive_.division_;
 }
 
-void from_json(const nlohmann::json& j, RingRenderer& r) {
+void OriGine::from_json(const nlohmann::json& j, RingRenderer& r) {
     j.at("isRenderer").get_to(r.isRender_);
     if (j.contains("isCulling")) {
         j.at("isCulling").get_to(r.isCulling_);

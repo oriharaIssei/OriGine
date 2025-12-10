@@ -12,6 +12,8 @@
 #include "binaryIO/BinaryIO.h"
 #include "myFileSystem/MyFileSystem.h"
 
+using namespace OriGine;
+
 ReplayRecorder::ReplayRecorder() {}
 ReplayRecorder::~ReplayRecorder() {}
 

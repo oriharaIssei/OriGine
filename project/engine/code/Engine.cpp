@@ -43,6 +43,8 @@
 #pragma comment(lib, "dinput8.lib")
 #pragma comment(lib, "XInput.lib")
 
+using namespace OriGine;
+
 Engine* Engine::GetInstance() {
     static Engine instance;
     return &instance;
@@ -260,8 +262,4 @@ void Engine::ScreenPostDraw() {
     ///===============================================================
     dxCommand_->CommandReset();
     ///===============================================================
-}
-
-int Engine::LoadTexture(const std::string& filePath) {
-    return TextureManager::LoadTexture(filePath);
 }

@@ -7,6 +7,7 @@
 
 /// engine
 #include "Engine.h"
+#include "input/InputManager.h"
 #include "scene/SceneManager.h"
 #include "winApp/WinApp.h"
 
@@ -39,6 +40,8 @@
 /// externals
 #include <imgui/ImGuizmo/ImGuizmo.h>
 
+using namespace OriGine;
+
 static const std::string sceneFolderPath = kApplicationResourceDirectory + "/scene";
 
 void SceneEditorWindow::Initialize() {
@@ -68,7 +71,7 @@ void SceneEditorWindow::LoadNextScene() {
     FinalizeMenus();
     FinalizeAreas();
 
-    EditorController::GetInstance()->ClearCommandHistory();
+    OriGine::EditorController::GetInstance()->ClearCommandHistory();
 
     InitializeScene(nextSceneName_);
     InitializeMenus();
@@ -199,7 +202,7 @@ void LoadMenuItem::DrawGui() {
             return;
         }
 
-        SceneEditorWindow* sceneEditorWindow = EditorController::GetInstance()->GetWindow<SceneEditorWindow>();
+        SceneEditorWindow* sceneEditorWindow = OriGine::EditorController::GetInstance()->GetWindow<SceneEditorWindow>();
         sceneEditorWindow->ChangeScene(filename);
     }
     isSelected_.Set(isSelect);
@@ -245,7 +248,7 @@ void CreateMenuItem::DrawGui() {
                 parentMenu_->GetParentWindow()->ChangeScene(newSceneName_);
 
                 // 初期化
-                EditorController::GetInstance()->ClearCommandHistory();
+                OriGine::EditorController::GetInstance()->ClearCommandHistory();
                 newSceneName_ = "";
             }
         }
@@ -275,7 +278,7 @@ SceneViewArea::SceneViewArea(SceneEditorWindow* _parentWindow)
 
 void SceneViewArea::Initialize() {
     // DebugCameraの初期化
-    debugCamera_ = std::make_unique<DebugCamera>();
+    debugCamera_ = std::make_unique<OriGine::DebugCamera>();
     debugCamera_->Initialize();
 }
 
@@ -499,7 +502,7 @@ void SceneViewArea::UseImGuizmo(const ImVec2& _sceneViewPos, const Vec2f& _origi
                 true);
 
             // push
-            EditorController::GetInstance()->PushCommand(std::move(commandCombo));
+            OriGine::EditorController::GetInstance()->PushCommand(std::move(commandCombo));
         }
     }
 
@@ -551,7 +554,7 @@ void EntityHierarchy::DrawGui() {
         // 新しいエンティティを作成
         //! TODO : 初期Entity名を設定できるように
         auto command = std::make_unique<CreateEntityCommand>(parentArea_, "Entity");
-        EditorController::GetInstance()->PushCommand(std::move(command));
+        OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
     }
     if (ImGui::Button("+ EntityFromFile")) {
         // 選択されているエンティティを削除
@@ -562,7 +565,7 @@ void EntityHierarchy::DrawGui() {
         }
         // ファイルからエンティティを読み込む
         auto command = std::make_unique<LoadEntityCommand>(parentArea_, kApplicationResourceDirectory + "/entities" + directory, filename);
-        EditorController::GetInstance()->PushCommand(std::move(command));
+        OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
     }
 
     const auto& keyboardInput = InputManager::GetInstance()->GetKeyboard();
@@ -573,12 +576,12 @@ void EntityHierarchy::DrawGui() {
             // コピー
             if (keyboardInput->IsTrigger(Key::C)) {
                 auto command = std::make_unique<CopyEntityCommand>(this);
-                EditorController::GetInstance()->PushCommand(std::move(command));
+                OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
             }
             // ペースト
             if (keyboardInput->IsTrigger(Key::V)) {
                 auto command = std::make_unique<PasteEntityCommand>(this);
-                EditorController::GetInstance()->PushCommand(std::move(command));
+                OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
             }
         }
     }
@@ -614,18 +617,18 @@ void EntityHierarchy::DrawGui() {
                     if (!isSelected) {
                         // まだ選択されていなければ追加
                         auto command = std::make_unique<AddSelectedEntitiesCommand>(this, entityId);
-                        EditorController::GetInstance()->PushCommand(std::move(command));
+                        OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
                     } else {
                         // すでに選択されていれば解除
                         auto command = std::make_unique<RemoveSelectedEntitiesCommand>(this, entityId);
-                        EditorController::GetInstance()->PushCommand(std::move(command));
+                        OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
                     }
                 } else {
                     // Shiftキーが押されていない場合は選択をクリアしてから追加
                     auto clearCommand = std::make_unique<ClearSelectedEntitiesCommand>(this);
-                    EditorController::GetInstance()->PushCommand(std::move(clearCommand));
+                    OriGine::EditorController::GetInstance()->PushCommand(std::move(clearCommand));
                     auto addCommand = std::make_unique<AddSelectedEntitiesCommand>(this, entityId);
-                    EditorController::GetInstance()->PushCommand(std::move(addCommand));
+                    OriGine::EditorController::GetInstance()->PushCommand(std::move(addCommand));
 
                     auto& parentWindowHasAreas  = parentArea_->GetParentWindow()->GetAreas();
                     auto entityInspectorAreaItr = parentWindowHasAreas.find("EntityInspectorArea");
@@ -641,7 +644,7 @@ void EntityHierarchy::DrawGui() {
                         return;
                     }
                     auto changedEditEntity = std::make_unique<EntityInspectorArea::ChangeEditEntityCommand>(entityInspectorArea, entityId, entityInspectorArea->GetEditEntityId());
-                    EditorController::GetInstance()->PushCommand(std::move(changedEditEntity));
+                    OriGine::EditorController::GetInstance()->PushCommand(std::move(changedEditEntity));
                 }
             }
         }
@@ -667,18 +670,18 @@ void EntityHierarchy::DrawGui() {
                     if (!isSelected) {
                         // まだ選択されていなければ追加
                         auto command = std::make_unique<AddSelectedEntitiesCommand>(this, entityId);
-                        EditorController::GetInstance()->PushCommand(std::move(command));
+                        OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
                     } else {
                         // すでに選択されていれば解除
                         auto command = std::make_unique<RemoveSelectedEntitiesCommand>(this, entityId);
-                        EditorController::GetInstance()->PushCommand(std::move(command));
+                        OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
                     }
                 } else {
                     // Shiftキーが押されていない場合は選択をクリアしてから追加
                     auto clearCommand = std::make_unique<ClearSelectedEntitiesCommand>(this);
-                    EditorController::GetInstance()->PushCommand(std::move(clearCommand));
+                    OriGine::EditorController::GetInstance()->PushCommand(std::move(clearCommand));
                     auto addCommand = std::make_unique<AddSelectedEntitiesCommand>(this, entityId);
-                    EditorController::GetInstance()->PushCommand(std::move(addCommand));
+                    OriGine::EditorController::GetInstance()->PushCommand(std::move(addCommand));
 
                     auto& parentWindowHasAreas  = parentArea_->GetParentWindow()->GetAreas();
                     auto entityInspectorAreaItr = parentWindowHasAreas.find("EntityInspectorArea");
@@ -694,7 +697,7 @@ void EntityHierarchy::DrawGui() {
                         return;
                     }
                     auto changedEditEntity = std::make_unique<EntityInspectorArea::ChangeEditEntityCommand>(entityInspectorArea, entityId, entityInspectorArea->GetEditEntityId());
-                    EditorController::GetInstance()->PushCommand(std::move(changedEditEntity));
+                    OriGine::EditorController::GetInstance()->PushCommand(std::move(changedEditEntity));
                 }
             }
         }
@@ -884,7 +887,7 @@ void EntityHierarchy::PasteEntityCommand::Undo() {
 }
 
 void AddComponentCommand::Execute() {
-    auto sceneEditorWindow = EditorController::GetInstance()->GetWindow<SceneEditorWindow>();
+    auto sceneEditorWindow = OriGine::EditorController::GetInstance()->GetWindow<SceneEditorWindow>();
     auto currentScene      = sceneEditorWindow->GetCurrentScene();
     auto inspectorArea     = dynamic_cast<EntityInspectorArea*>(sceneEditorWindow->GetArea("EntityInspectorArea").get());
     int32_t editEntityId   = inspectorArea->GetEditEntityId();
@@ -912,7 +915,7 @@ void AddComponentCommand::Execute() {
 }
 
 void AddComponentCommand::Undo() {
-    auto sceneEditorWindow = EditorController::GetInstance()->GetWindow<SceneEditorWindow>();
+    auto sceneEditorWindow = OriGine::EditorController::GetInstance()->GetWindow<SceneEditorWindow>();
     auto currentScene      = sceneEditorWindow->GetCurrentScene();
     auto inspectorArea     = dynamic_cast<EntityInspectorArea*>(sceneEditorWindow->GetArea("EntityInspectorArea").get());
     int32_t editEntityId   = inspectorArea->GetEditEntityId();
@@ -942,7 +945,7 @@ void AddComponentCommand::Undo() {
 }
 
 void RemoveComponentCommand::Execute() {
-    auto sceneEditorWindow = EditorController::GetInstance()->GetWindow<SceneEditorWindow>();
+    auto sceneEditorWindow = OriGine::EditorController::GetInstance()->GetWindow<SceneEditorWindow>();
     auto currentScene      = sceneEditorWindow->GetCurrentScene();
     auto inspectorArea     = dynamic_cast<EntityInspectorArea*>(sceneEditorWindow->GetArea("EntityInspectorArea").get());
     int32_t editEntityId   = inspectorArea->GetEditEntityId();
@@ -970,7 +973,7 @@ void RemoveComponentCommand::Execute() {
 }
 
 void RemoveComponentCommand::Undo() {
-    auto sceneEditorWindow = EditorController::GetInstance()->GetWindow<SceneEditorWindow>();
+    auto sceneEditorWindow = OriGine::EditorController::GetInstance()->GetWindow<SceneEditorWindow>();
     auto currentScene      = sceneEditorWindow->GetCurrentScene();
     auto inspectorArea     = dynamic_cast<EntityInspectorArea*>(sceneEditorWindow->GetArea("EntityInspectorArea").get());
     int32_t editEntityId   = inspectorArea->GetEditEntityId();
@@ -999,7 +1002,7 @@ AddSystemCommand::AddSystemCommand(const std::list<int32_t>& _entityIds, const s
     : entityIds_(_entityIds), systemTypeName_(_systemTypeName), systemCategory_(_category) {};
 
 void AddSystemCommand::Execute() {
-    auto sceneEditorWindow = EditorController::GetInstance()->GetWindow<SceneEditorWindow>();
+    auto sceneEditorWindow = OriGine::EditorController::GetInstance()->GetWindow<SceneEditorWindow>();
     auto currentScene      = sceneEditorWindow->GetCurrentScene();
     auto inspectorArea     = dynamic_cast<EntityInspectorArea*>(sceneEditorWindow->GetArea("EntityInspectorArea").get());
     int32_t editEntityId   = inspectorArea->GetEditEntityId();
@@ -1022,7 +1025,7 @@ void AddSystemCommand::Execute() {
 }
 
 void AddSystemCommand::Undo() {
-    auto sceneEditorWindow = EditorController::GetInstance()->GetWindow<SceneEditorWindow>();
+    auto sceneEditorWindow = OriGine::EditorController::GetInstance()->GetWindow<SceneEditorWindow>();
     auto currentScene      = sceneEditorWindow->GetCurrentScene();
     auto inspectorArea     = dynamic_cast<EntityInspectorArea*>(sceneEditorWindow->GetArea("EntityInspectorArea").get());
     int32_t editEntityId   = inspectorArea->GetEditEntityId();
@@ -1049,7 +1052,7 @@ RemoveSystemCommand::RemoveSystemCommand(const std::list<int32_t>& _entityIds, c
     : entityIds_(_entityIds), systemTypeName_(_systemTypeName), systemCategory_(_category) {}
 
 void RemoveSystemCommand::Execute() {
-    auto sceneEditorWindow = EditorController::GetInstance()->GetWindow<SceneEditorWindow>();
+    auto sceneEditorWindow = OriGine::EditorController::GetInstance()->GetWindow<SceneEditorWindow>();
     auto currentScene      = sceneEditorWindow->GetCurrentScene();
     auto inspectorArea     = dynamic_cast<EntityInspectorArea*>(sceneEditorWindow->GetArea("EntityInspectorArea").get());
     int32_t editEntityId   = inspectorArea->GetEditEntityId();
@@ -1073,7 +1076,7 @@ void RemoveSystemCommand::Execute() {
 }
 
 void RemoveSystemCommand::Undo() {
-    auto sceneEditorWindow = EditorController::GetInstance()->GetWindow<SceneEditorWindow>();
+    auto sceneEditorWindow = OriGine::EditorController::GetInstance()->GetWindow<SceneEditorWindow>();
     auto currentScene      = sceneEditorWindow->GetCurrentScene();
     auto inspectorArea     = dynamic_cast<EntityInspectorArea*>(sceneEditorWindow->GetArea("EntityInspectorArea").get());
     int32_t editEntityId   = inspectorArea->GetEditEntityId();

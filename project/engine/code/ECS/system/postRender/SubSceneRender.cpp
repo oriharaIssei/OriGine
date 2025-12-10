@@ -7,6 +7,8 @@
 // component
 #include "component/SubScene.h"
 
+using namespace OriGine;
+
 SubSceneRender::SubSceneRender() : BasePostRenderingSystem() {}
 SubSceneRender::~SubSceneRender() = default;
 

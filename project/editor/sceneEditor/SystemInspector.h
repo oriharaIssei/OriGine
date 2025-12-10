@@ -5,9 +5,9 @@
 #include "editor/IEditor.h"
 class SceneEditorWindow;
 
-/// engine
-
+/// ECS
 // system
+#include "SceneEditor.h"
 #include "system/ISystem.h"
 
 /// util
@@ -67,14 +67,14 @@ public:
     class ChangeSystemCategoryActivity
         : public IEditCommand {
     public:
-        ChangeSystemCategoryActivity(SystemInspectorArea* _inspectorArea, SystemCategory _category, bool _oldActivity, bool _newActivity);
+        ChangeSystemCategoryActivity(SystemInspectorArea* _inspectorArea, OriGine::SystemCategory _category, bool _oldActivity, bool _newActivity);
         ~ChangeSystemCategoryActivity();
         void Execute();
         void Undo();
 
     private:
         SystemInspectorArea* inspectorArea_ = nullptr; // 親エリアへのポインタ
-        SystemCategory category_; // 対象のシステムカテゴリ
+        OriGine::SystemCategory category_; // 対象のシステムカテゴリ
         bool oldActivity_ = false; // 変更前のアクティビティ状態
         bool newActivity_ = true; // 変更後のアクティビティ状態
     };
@@ -136,7 +136,7 @@ protected:
 
 protected:
     SceneEditorWindow* parentWindow_ = nullptr; // 親ウィンドウへのポインタ
-    std::array<std::vector<std::pair<std::string, int32_t>>, size_t(SystemCategory::Count)> systemMap_; // システムのマップ
+    std::array<std::vector<std::pair<std::string, int32_t>>, size_t(OriGine::SystemCategory::Count)> systemMap_; // システムのマップ
 
     const int32_t searchBufferSize_ = 256; // 検索バッファのサイズ
     std::string searchBuffer_; // 検索用のバッファ
@@ -145,7 +145,7 @@ public:
     SceneEditorWindow* GetParentWindow() const {
         return parentWindow_;
     }
-    const std::array<std::vector<std::pair<std::string, int32_t>>, size_t(SystemCategory::Count)>& GetSystemMap() const {
+    const std::array<std::vector<std::pair<std::string, int32_t>>, size_t(OriGine::SystemCategory::Count)>& GetSystemMap() const {
         return systemMap_;
     }
 };

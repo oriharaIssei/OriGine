@@ -1,8 +1,11 @@
 #include "CameraTransform.h"
 
+/// editor
 #ifdef _DEBUG
 #include <myGui/myGui.h>
 #endif
+
+using namespace OriGine;
 
 void CameraTransform::Initialize(Entity* _hostEntity) {
     _hostEntity;
@@ -37,7 +40,7 @@ void CameraTransform::UpdateMatrix() {
     projectionMat = MakeMatrix4x4::PerspectiveFov(fovAngleY, aspectRatio, nearZ, farZ);
 }
 
-void to_json(nlohmann::json& j, const CameraTransform& r) {
+void OriGine::to_json(nlohmann::json& j, const CameraTransform& r) {
     j = nlohmann::json{
         {"rotate", r.rotate},
         {"translate", r.translate},
@@ -48,7 +51,7 @@ void to_json(nlohmann::json& j, const CameraTransform& r) {
     };
 }
 
-void from_json(const nlohmann::json& j, CameraTransform& r) {
+void OriGine::from_json(const nlohmann::json& j, CameraTransform& r) {
     j.at("rotate").get_to(r.rotate);
     j.at("translate").get_to(r.translate);
     j.at("fovAngleY").get_to(r.fovAngleY);

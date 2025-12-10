@@ -16,6 +16,8 @@
 // component
 #include "component/effect/particle/emitter/Emitter.h"
 
+namespace OriGine {
+
 /// <summary>
 /// パーティクル描画システム
 /// </summary>
@@ -69,3 +71,5 @@ private:
 
     std::array<PipelineStateObj*, kBlendNum> psoByBlendMode_{};
 };
+
+} // namespace OriGine

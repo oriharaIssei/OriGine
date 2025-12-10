@@ -11,8 +11,8 @@
 
 #ifdef RESOURCE_DIRECTORY
 #include <string>
-static const std::string kApplicationResourceDirectory = "./application/resource";
-static const std::string kEngineResourceDirectory      = "./engine/resource";
+static const ::std::string kApplicationResourceDirectory = "./application/resource";
+static const ::std::string kEngineResourceDirectory      = "./engine/resource";
 #endif // RESOURCE_DIRECTORY
 
 #ifdef ENGINE_SCENE
@@ -173,6 +173,6 @@ static const std::string kEngineResourceDirectory      = "./engine/resource";
 #endif // !ENGINE_INCLUDE
 
 inline float GetMainDeltaTime() {
-    return Engine::GetInstance()->GetDeltaTime();
+    return OriGine::Engine::GetInstance()->GetDeltaTime();
 }
 #endif // DELTA_TIME

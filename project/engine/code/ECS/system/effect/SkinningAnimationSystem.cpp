@@ -11,7 +11,10 @@
 #include "component/animation/SkinningAnimationComponent.h"
 #include "component/renderer/MeshRenderer.h"
 
+/// externals
 #include "logger/Logger.h"
+
+using namespace OriGine;
 
 static void ApplyAnimation(Skeleton& _skeleton, AnimationData* _animationData, float _animationTime) {
     for (Joint& joint : _skeleton.joints) {
@@ -222,16 +225,16 @@ void SkinningAnimationSystem::UpdateEntity(Entity* _entity) {
             clusterData.UpdateMatrixPalette(skeleton);
 
             commandList->SetComputeRootDescriptorTable(
-                outputVertexBufferIndex_,
+                kOutputVertexBufferIndex_,
                 skinnedVertexBuffer.descriptor.GetGpuHandle());
             commandList->SetComputeRootShaderResourceView(
-                inputVertexBufferIndex_,
+                kInputVertexBufferIndex_,
                 mesh.GetVBView().BufferLocation);
             commandList->SetComputeRootDescriptorTable(
-                matrixPaletteBufferIndex_,
+                kMatrixPaletteBufferIndex_,
                 clusterData.skeletonMatrixPaletteBuffer_.GetSrv().GetGpuHandle());
             commandList->SetComputeRootDescriptorTable(
-                vertexInfluenceBufferIndex_,
+                kVertexInfluenceBufferIndex_,
                 clusterData.vertexInfluencesBuffer_.GetSrv().GetGpuHandle());
 
             clusterData.skinningInfoBuffer_->vertexSize =
@@ -239,7 +242,7 @@ void SkinningAnimationSystem::UpdateEntity(Entity* _entity) {
             clusterData.skinningInfoBuffer_.ConvertToBuffer();
 
             commandList->SetComputeRootConstantBufferView(
-                gSkinningInformationBufferIndex_,
+                kSkinningInformationBufferIndex_,
                 clusterData.skinningInfoBuffer_.GetResource().GetResource()->GetGPUVirtualAddress());
 
             dxCommand_->ResourceBarrier(
@@ -284,35 +287,35 @@ void SkinningAnimationSystem::CreatePSO() {
     /// ==========================================
     // Shader 読み込み
     /// ==========================================
-    shaderManager->LoadShader(psoKey, shaderDirectory, L"cs_6_0");
+    shaderManager->LoadShader(psoKey, kShaderDirectory, L"cs_6_0");
 
     ShaderInfo shaderInfo{};
     shaderInfo.csKey = psoKey;
 
 #pragma region "ROOT_PARAMETER"
     D3D12_ROOT_PARAMETER rootParameters[5]{};
-    rootParameters[outputVertexBufferIndex_].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-    rootParameters[outputVertexBufferIndex_].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-    shaderInfo.pushBackRootParameter(rootParameters[outputVertexBufferIndex_]);
+    rootParameters[kOutputVertexBufferIndex_].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+    rootParameters[kOutputVertexBufferIndex_].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+    shaderInfo.pushBackRootParameter(rootParameters[kOutputVertexBufferIndex_]);
 
-    rootParameters[inputVertexBufferIndex_].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
-    rootParameters[inputVertexBufferIndex_].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_SRV;
-    rootParameters[inputVertexBufferIndex_].Descriptor.ShaderRegister = 0; // t0
+    rootParameters[kInputVertexBufferIndex_].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
+    rootParameters[kInputVertexBufferIndex_].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_SRV;
+    rootParameters[kInputVertexBufferIndex_].Descriptor.ShaderRegister = 0; // t0
 
-    shaderInfo.pushBackRootParameter(rootParameters[inputVertexBufferIndex_]);
+    shaderInfo.pushBackRootParameter(rootParameters[kInputVertexBufferIndex_]);
 
-    rootParameters[matrixPaletteBufferIndex_].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-    rootParameters[matrixPaletteBufferIndex_].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-    shaderInfo.pushBackRootParameter(rootParameters[matrixPaletteBufferIndex_]);
+    rootParameters[kMatrixPaletteBufferIndex_].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+    rootParameters[kMatrixPaletteBufferIndex_].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+    shaderInfo.pushBackRootParameter(rootParameters[kMatrixPaletteBufferIndex_]);
 
-    rootParameters[vertexInfluenceBufferIndex_].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-    rootParameters[vertexInfluenceBufferIndex_].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-    shaderInfo.pushBackRootParameter(rootParameters[vertexInfluenceBufferIndex_]);
+    rootParameters[kVertexInfluenceBufferIndex_].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+    rootParameters[kVertexInfluenceBufferIndex_].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+    shaderInfo.pushBackRootParameter(rootParameters[kVertexInfluenceBufferIndex_]);
 
-    rootParameters[gSkinningInformationBufferIndex_].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
-    rootParameters[gSkinningInformationBufferIndex_].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
-    rootParameters[gSkinningInformationBufferIndex_].Descriptor.ShaderRegister = 0; // b0
-    shaderInfo.pushBackRootParameter(rootParameters[gSkinningInformationBufferIndex_]);
+    rootParameters[kSkinningInformationBufferIndex_].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
+    rootParameters[kSkinningInformationBufferIndex_].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
+    rootParameters[kSkinningInformationBufferIndex_].Descriptor.ShaderRegister = 0; // b0
+    shaderInfo.pushBackRootParameter(rootParameters[kSkinningInformationBufferIndex_]);
 
     D3D12_DESCRIPTOR_RANGE outputDescriptorRange[1]            = {};
     outputDescriptorRange[0].BaseShaderRegister                = 0; // u0
@@ -320,7 +323,7 @@ void SkinningAnimationSystem::CreatePSO() {
     outputDescriptorRange[0].RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
     outputDescriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
     shaderInfo.SetDescriptorRange2Parameter(
-        outputDescriptorRange, 1, outputVertexBufferIndex_);
+        outputDescriptorRange, 1, kOutputVertexBufferIndex_);
 
     D3D12_DESCRIPTOR_RANGE matrixPaletteDescriptorRange[1]            = {};
     matrixPaletteDescriptorRange[0].BaseShaderRegister                = 1; // t1
@@ -328,7 +331,7 @@ void SkinningAnimationSystem::CreatePSO() {
     matrixPaletteDescriptorRange[0].RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
     matrixPaletteDescriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
     shaderInfo.SetDescriptorRange2Parameter(
-        matrixPaletteDescriptorRange, 1, matrixPaletteBufferIndex_);
+        matrixPaletteDescriptorRange, 1, kMatrixPaletteBufferIndex_);
 
     D3D12_DESCRIPTOR_RANGE vertexInfluenceDescriptorRange[1]            = {};
     vertexInfluenceDescriptorRange[0].BaseShaderRegister                = 2; // t2
@@ -336,7 +339,7 @@ void SkinningAnimationSystem::CreatePSO() {
     vertexInfluenceDescriptorRange[0].RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
     vertexInfluenceDescriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
     shaderInfo.SetDescriptorRange2Parameter(
-        vertexInfluenceDescriptorRange, 1, vertexInfluenceBufferIndex_);
+        vertexInfluenceDescriptorRange, 1, kVertexInfluenceBufferIndex_);
 
 #pragma endregion
 

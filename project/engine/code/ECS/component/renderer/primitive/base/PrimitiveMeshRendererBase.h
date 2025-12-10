@@ -4,6 +4,8 @@
 // directX12
 #include "component/renderer/MeshRenderer.h"
 
+namespace OriGine {
+
 /// <summary>
 /// PrimitiveRendererをポリモーフィズムで扱うための基底クラス
 /// </summary>
@@ -77,3 +79,5 @@ public:
         return textureIndex_;
     }
 };
+
+} // namespace OriGine

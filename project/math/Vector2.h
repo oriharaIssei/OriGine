@@ -1,10 +1,13 @@
 #pragma once
 
+/// math
 #include "Vector.h"
-
 #include <cmath>
 
+/// externals
 #include <imgui/imgui.h>
+
+namespace OriGine {
 
 //=====================================
 // 2次元(x&y)をもつ単位
@@ -122,3 +125,5 @@ using Vec2f    = Vector2<float>;
 
 using Vector2d = Vector2<double>;
 using Vec2d    = Vector2<double>;
+
+} // namespace OriGine

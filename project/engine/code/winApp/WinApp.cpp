@@ -7,6 +7,9 @@
 
 #include <vector>
 
+/// util
+#include "globalVariables/SerializedField.h"
+/// external
 #include "logger/Logger.h"
 
 #ifdef _DEBUG
@@ -16,6 +19,8 @@
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 #endif // _DEBUG
+
+using namespace OriGine;
 
 LRESULT WinApp::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 #ifdef _DEBUG
@@ -254,7 +259,7 @@ void WinApp::UpdateActivity() {
     isActive_ = GetForegroundWindow() == hwnd_;
 }
 
-bool RunProcessAndWait(const std::string& command, const char* _currentDirectory) {
+bool OriGine::RunProcessAndWait(const std::string& command, const char* _currentDirectory) {
     std::string currentDirStr;
     if (!_currentDirectory) {
         std::filesystem::path current = std::filesystem::current_path();

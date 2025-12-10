@@ -8,8 +8,7 @@
 #include "camera/CameraManager.h"
 #include "texture/TextureManager.h"
 
-// ECS
-
+/// ECS
 // component
 #include "component/material/light/LightManager.h"
 #include "component/renderer/MeshRenderer.h"
@@ -21,6 +20,8 @@
 #include "component/renderer/primitive/PlaneRenderer.h"
 #include "component/renderer/primitive/RingRenderer.h"
 #include "component/renderer/primitive/SphereRenderer.h"
+
+using namespace OriGine;
 
 TexturedMeshRenderSystem::TexturedMeshRenderSystem() : BaseRenderSystem() {}
 TexturedMeshRenderSystem::~TexturedMeshRenderSystem() {};
@@ -155,15 +156,15 @@ void TexturedMeshRenderSystem::CreatePSO() {
     DxDevice* dxDevice           = Engine::GetInstance()->GetDxDevice();
 
     // 登録されているかどうかをチェック
-    if (shaderManager->IsRegisteredPipelineStateObj("TextureMesh_" + blendModeStr[0])) {
+    if (shaderManager->IsRegisteredPipelineStateObj("TextureMesh_" + kBlendModeStr[0])) {
         bool isAllRegistered = true;
         for (size_t i = 0; i < kBlendNum; ++i) {
             if (!psoByBlendMode_[0][i] || !psoByBlendMode_[1][i]) {
                 isAllRegistered = false;
                 continue;
             }
-            psoByBlendMode_[0][i] = shaderManager->GetPipelineStateObj("TextureMesh_" + blendModeStr[i]);
-            psoByBlendMode_[1][i] = shaderManager->GetPipelineStateObj("CullingTextureMesh_" + blendModeStr[i]);
+            psoByBlendMode_[0][i] = shaderManager->GetPipelineStateObj("TextureMesh_" + kBlendModeStr[i]);
+            psoByBlendMode_[1][i] = shaderManager->GetPipelineStateObj("CullingTextureMesh_" + kBlendModeStr[i]);
         }
 
         //! TODO : 自動化
@@ -187,7 +188,7 @@ void TexturedMeshRenderSystem::CreatePSO() {
     /// shader読み込み
     ///=================================================
     shaderManager->LoadShader("Object3dTexture.VS");
-    shaderManager->LoadShader("Object3dTexture.PS", shaderDirectory, L"ps_6_0");
+    shaderManager->LoadShader("Object3dTexture.PS", kShaderDirectory, L"ps_6_0");
 
     ///=================================================
     /// shader情報の設定
@@ -341,7 +342,7 @@ void TexturedMeshRenderSystem::CreatePSO() {
             continue;
         }
         texShaderInfo.blendMode_ = blend;
-        psoByBlendMode_[0][i]    = shaderManager->CreatePso("TextureMesh_" + blendModeStr[i], texShaderInfo, dxDevice->device_);
+        psoByBlendMode_[0][i]    = shaderManager->CreatePso("TextureMesh_" + kBlendModeStr[i], texShaderInfo, dxDevice->device_);
     }
 
     // カリングあり
@@ -352,7 +353,7 @@ void TexturedMeshRenderSystem::CreatePSO() {
             continue;
         }
         texShaderInfo.blendMode_ = blend;
-        psoByBlendMode_[1][i]    = shaderManager->CreatePso("CullingTextureMesh_" + blendModeStr[i], texShaderInfo, dxDevice->device_);
+        psoByBlendMode_[1][i]    = shaderManager->CreatePso("CullingTextureMesh_" + kBlendModeStr[i], texShaderInfo, dxDevice->device_);
     }
 }
 
@@ -368,8 +369,8 @@ void TexturedMeshRenderSystem::LightUpdate() {
     if (directionalLight) {
         for (auto& lightVec : directionalLight->GetAllComponents()) {
             for (auto& light : lightVec) {
-                if (light.IsActive()) {
-                    lightManager->pushDirectionalLight(light);
+                if (light.isActive_) {
+                    lightManager->PushDirectionalLight(light);
                 }
             }
         }
@@ -378,8 +379,8 @@ void TexturedMeshRenderSystem::LightUpdate() {
     if (pointLight) {
         for (auto& lightVec : pointLight->GetAllComponents()) {
             for (auto& light : lightVec) {
-                if (light.IsActive()) {
-                    lightManager->pushPointLight(light);
+                if (light.isActive_) {
+                    lightManager->PushPointLight(light);
                 }
             }
         }
@@ -388,8 +389,8 @@ void TexturedMeshRenderSystem::LightUpdate() {
     if (spotLight) {
         for (auto& lightVec : spotLight->GetAllComponents()) {
             for (auto& light : lightVec) {
-                if (light.IsActive()) {
-                    lightManager->pushSpotLight(light);
+                if (light.isActive_) {
+                    lightManager->PushSpotLight(light);
                 }
             }
         }

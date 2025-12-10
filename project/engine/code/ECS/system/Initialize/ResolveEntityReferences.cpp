@@ -6,6 +6,8 @@
 /// component
 #include "component/EntityReferenceList.h"
 
+using namespace OriGine;
+
 ResolveEntityReferences::ResolveEntityReferences() : ISystem(SystemCategory::Initialize) {}
 
 void ResolveEntityReferences::Initialize() {}

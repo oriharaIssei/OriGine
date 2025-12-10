@@ -5,8 +5,12 @@
 /// math
 #include "Vector3.h"
 
-namespace math::bounds {
+namespace OriGine {
+namespace Bounds {
 
+/// <summary>
+/// Sphere
+/// </summary>
 struct Sphere
     : public IBounds {
     Sphere() {}
@@ -16,4 +20,5 @@ struct Sphere
     float radius_ = 0.f;
 };
 
-}
+} // namespace Bounds
+} // namespace OriGine

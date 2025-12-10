@@ -9,6 +9,8 @@
 #include "math/Vector4.h"
 #include <DirectXMath.h>
 
+namespace OriGine {
+
 /// <summary>
 /// 天空箱用頂点データ
 /// </summary>
@@ -45,7 +47,7 @@ public:
     ~SkyboxRenderer() {}
 
     void Initialize(Entity* _hostEntity) override;
-    void Edit(Scene* _scene,Entity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
 
 private:
     std::string filePath_;
@@ -78,3 +80,5 @@ public:
 
 void to_json(nlohmann::json& j, const SkyboxMaterial& c);
 void from_json(const nlohmann::json& j, SkyboxMaterial& c);
+
+} // namespace OriGine

@@ -14,6 +14,8 @@
 #include "input/KeyboardInput.h"
 #include "input/MouseInput.h"
 
+using namespace OriGine;
+
 void ReplayPlayer::Initialize(const std::string& filepath, SceneManager* _sceneManager) {
     // すでに初期化されている場合は何もしない
     if (isActive_) {

@@ -2,6 +2,8 @@
 
 #include "GlobalVariables.h"
 
+namespace OriGine {
+
 /// <summary>
 /// GlobalVariablesを介してシリアライズされる値
 /// </summary>
@@ -105,13 +107,15 @@ private:
 };
 
 template <typename T, typename U>
-    requires std::is_same_v<U, T>
+    requires ::std::is_same_v<U, T>
 bool operator==(const U& other, const SerializedField<T>& serializeField) {
     return (serializeField == other);
 }
 
 template <typename T, typename U>
-    requires std::is_same_v<U, T>
+    requires ::std::is_same_v<U, T>
 bool operator!=(const U& other, const SerializedField<T>& serializeField) {
     return (serializeField != other);
 }
+
+} // namespace OriGine

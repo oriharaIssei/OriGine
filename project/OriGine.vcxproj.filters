@@ -669,24 +669,6 @@
     <ClInclude Include="engine\code\winApp\WinApp.h">
       <Filter>engine\code\winApp</Filter>
     </ClInclude>
-    <ClInclude Include="geometry\base\GeometryType.h">
-      <Filter>geometry\base</Filter>
-    </ClInclude>
-    <ClInclude Include="geometry\base\IGeometry.h">
-      <Filter>geometry\base</Filter>
-    </ClInclude>
-    <ClInclude Include="geometry\shape\Box.h">
-      <Filter>geometry\shape</Filter>
-    </ClInclude>
-    <ClInclude Include="geometry\shape\Plane.h">
-      <Filter>geometry\shape</Filter>
-    </ClInclude>
-    <ClInclude Include="geometry\shape\Ring.h">
-      <Filter>geometry\shape</Filter>
-    </ClInclude>
-    <ClInclude Include="geometry\shape\Sphere.h">
-      <Filter>geometry\shape</Filter>
-    </ClInclude>
     <ClInclude Include="math\Interpolation.h">
       <Filter>math</Filter>
     </ClInclude>
@@ -1211,9 +1193,6 @@
     </ClCompile>
     <ClCompile Include="engine\code\winApp\WinApp.cpp">
       <Filter>engine\code\winApp</Filter>
-    </ClCompile>
-    <ClCompile Include="geometry\base\GeometryType.cpp">
-      <Filter>geometry\base</Filter>
     </ClCompile>
     <ClCompile Include="math\Interpolation.cpp">
       <Filter>math</Filter>

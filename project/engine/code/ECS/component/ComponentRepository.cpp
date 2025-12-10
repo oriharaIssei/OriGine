@@ -2,6 +2,8 @@
 
 #include "component/ComponentRegistry.h"
 
+using namespace OriGine;
+
 ComponentRepository::ComponentRepository()  = default;
 ComponentRepository::~ComponentRepository() = default;
 

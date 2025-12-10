@@ -2,15 +2,25 @@
 
 #ifdef _DEBUG
 
-#include "myFileSystem/MyFileSystem.h"
+/// engine
 #include "texture/TextureManager.h"
+/// util
+#include "myFileSystem/MyFileSystem.h"
+
+/// math
+#include <cmath>
+
+using namespace OriGine;
 
 bool ImGui::InputText(const char* label, std::string* str, ImGuiInputTextFlags flags) {
+    constexpr size_t minBufferSize = 256;
+    constexpr size_t extraBufferSize = 64;
+
     // バッファサイズを 現在のstr + 64 or 256 にする
-    size_t bufSize = std::max<size_t>(str->size() + 64, 256);
+    size_t bufSize = (std::max)(str->size() + extraBufferSize, minBufferSize);
     std::vector<char> buf(bufSize);
 
-    size_t copyLen = std::min(str->size(), buf.size() - 1);
+    size_t copyLen = (std::min)(str->size(), buf.size() - 1);
     std::memcpy(buf.data(), str->c_str(), copyLen);
     buf[copyLen] = '\0';
 
@@ -24,7 +34,7 @@ bool ImGui::InputText(const char* label, std::string* str, ImGuiInputTextFlags f
 bool CheckBoxCommand(const std::string& label, bool& value) {
     bool preValue = value;
     if (ImGui::Checkbox(label.c_str(), &preValue)) {
-        EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<bool>>(&value, preValue));
+        OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<bool>>(&value, preValue));
         return true;
     } else {
         return false;
@@ -33,7 +43,7 @@ bool CheckBoxCommand(const std::string& label, bool& value) {
 
 bool ButtonCommand(const std::string& label, bool& value) {
     if (ImGui::Button(label.c_str())) {
-        EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<bool>>(&value, !value));
+        OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<bool>>(&value, !value));
         return true;
     } else {
         return false;

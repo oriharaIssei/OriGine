@@ -16,6 +16,8 @@
 #include "component/ComponentArray.h"
 #include "component/renderer/MeshRenderer.h"
 
+namespace OriGine {
+
 /// <summary>
 /// スケルトンの描画を行うシステム(Debug用)
 /// </summary>
@@ -101,3 +103,5 @@ private:
 
     PipelineStateObj* pso_ = nullptr;
 };
+
+} // namespace OriGine

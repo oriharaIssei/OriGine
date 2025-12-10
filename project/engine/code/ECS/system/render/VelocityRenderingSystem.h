@@ -13,13 +13,15 @@
 #include "component/physics/Rigidbody.h"
 #include "component/transform/Transform.h"
 
+namespace OriGine {
+
 /// <summary>
 /// Velocityを描画するシステム
 /// </summary>
 class VelocityRenderingSystem
     : public BaseRenderSystem {
 public:
-    static const int32_t defaultMeshCount_;
+    static const int32_t kDefaultMeshCount_;
 
 public:
     VelocityRenderingSystem();
@@ -66,3 +68,5 @@ private:
     std::unique_ptr<LineRenderer> velocityRenderer_;
     std::vector<Mesh<ColorVertexData>>::iterator velocityMeshItr_;
 };
+
+} // namespace OriGine

@@ -18,22 +18,24 @@
 #include "math/bounds/base/IBounds.h"
 #include <numbers>
 
-const int32_t ColliderRenderingSystem::defaultMeshCount_ = 1000;
+using namespace OriGine;
+
+const int32_t ColliderRenderingSystem::kDefaultMeshCount_ = 1000;
 
 // ** AABB **//
-static const uint32_t aabbVertexSize = 8;
-static const uint32_t aabbIndexSize  = 24;
+static const uint32_t kAabbVertexSize = 8;
+static const uint32_t kAabbIndexSize  = 24;
 
 //** OBB **//
-static const uint32_t obbVertexSize = 8;
-static const uint32_t obbIndexSize  = 24;
+static const uint32_t kObbVertexSize = 8;
+static const uint32_t kObbIndexSize  = 24;
 
 //** Sphere **//
-static const uint32_t sphereDivision  = 8;
-static const float sphereDivisionReal = static_cast<float>(sphereDivision);
+static const uint32_t kSphereDivision  = 8;
+static const float kSphereDivisionReal = static_cast<float>(kSphereDivision);
 
-static const uint32_t sphereVertexSize = 4 * sphereDivision * sphereDivision;
-static const uint32_t sphereIndexSize  = 4 * sphereDivision * sphereDivision;
+static const uint32_t kSphereVertexSize = 4 * kSphereDivision * kSphereDivision;
+static const uint32_t kSphereIndexSize  = 4 * kSphereDivision * kSphereDivision;
 
 #pragma region "CreateLineMesh"
 /// <summary>
@@ -43,11 +45,11 @@ static const uint32_t sphereIndexSize  = 4 * sphereDivision * sphereDivision;
 /// <param name="_mesh">出力先</param>
 /// <param name="_shape">形状情報</param>
 /// <param name="_color">メッシュの色</param>
-template <math::bounds::IsBounds ShapeType>
+template <Bounds::IsBounds ShapeType>
 void CreateLineMeshByShape(
     Mesh<ColorVertexData>* _mesh,
     const ShapeType& _shape,
-    const Vec4f& _color = WHITE) {
+    const Vec4f& _color = kWhite) {
     _mesh;
     _shape;
 }
@@ -55,14 +57,14 @@ void CreateLineMeshByShape(
 template <>
 void CreateLineMeshByShape(
     Mesh<ColorVertexData>* _mesh,
-    const math::bounds::AABB& _shape,
+    const Bounds::AABB& _shape,
     const Vec4f& _color) {
 
     Vec3f shapeMin = _shape.Min();
     Vec3f shapeMax = _shape.Max();
 
     // AABBVertex
-    Vector3f vertexes[aabbVertexSize]{
+    Vector3f vertexes[kAabbVertexSize]{
         {shapeMin},
         {shapeMin[X], shapeMin[Y], shapeMax[Z]},
         {shapeMax[X], shapeMin[Y], shapeMax[Z]},
@@ -73,7 +75,7 @@ void CreateLineMeshByShape(
         {shapeMax[X], shapeMax[Y], shapeMin[Z]}};
 
     // AABBIndex
-    uint32_t indices[aabbIndexSize]{
+    uint32_t indices[kAabbIndexSize]{
         0, 1,
         1, 2,
         2, 3,
@@ -90,10 +92,10 @@ void CreateLineMeshByShape(
     uint32_t startIndexesIndex = uint32_t(_mesh->vertexes_.size());
 
     // 頂点バッファにデータを格納
-    for (uint32_t vi = 0; vi < aabbVertexSize; ++vi) {
+    for (uint32_t vi = 0; vi < kAabbVertexSize; ++vi) {
         _mesh->vertexes_.emplace_back(ColorVertexData{Vec4f(vertexes[vi], 1.f), _color});
     }
-    for (uint32_t ii = 0; ii < aabbIndexSize; ++ii) {
+    for (uint32_t ii = 0; ii < kAabbIndexSize; ++ii) {
         _mesh->indexes_.emplace_back(startIndexesIndex + indices[ii]);
     }
 }
@@ -101,7 +103,7 @@ void CreateLineMeshByShape(
 template <>
 void CreateLineMeshByShape(
     Mesh<ColorVertexData>* _mesh,
-    const math::bounds::OBB& _shape,
+    const Bounds::OBB& _shape,
     const Vec4f& _color) {
     // OBBの8頂点を計算
     Vector3f halfSizes  = _shape.halfSize_;
@@ -121,7 +123,7 @@ void CreateLineMeshByShape(
         corner = corner * rotationMatrix + _shape.center_;
     }
     // OBBIndex
-    uint32_t indices[obbIndexSize]{
+    uint32_t indices[kObbIndexSize]{
         0, 1,
         1, 2,
         2, 3,
@@ -136,10 +138,10 @@ void CreateLineMeshByShape(
         3, 7};
     uint32_t startIndexesIndex = uint32_t(_mesh->vertexes_.size());
     // 頂点バッファにデータを格納
-    for (uint32_t vi = 0; vi < obbVertexSize; ++vi) {
+    for (uint32_t vi = 0; vi < kObbVertexSize; ++vi) {
         _mesh->vertexes_.emplace_back(ColorVertexData{Vec4f(corners[vi], 1.f), _color});
     }
-    for (uint32_t ii = 0; ii < obbIndexSize; ++ii) {
+    for (uint32_t ii = 0; ii < kObbIndexSize; ++ii) {
         _mesh->indexes_.emplace_back(startIndexesIndex + indices[ii]);
     }
 }
@@ -147,11 +149,11 @@ void CreateLineMeshByShape(
 template <>
 void CreateLineMeshByShape(
     Mesh<ColorVertexData>* _mesh,
-    const math::bounds::Sphere& _shape,
+    const Bounds::Sphere& _shape,
     const Vec4f& _color) {
 
-    const float kLatEvery = std::numbers::pi_v<float> / sphereDivisionReal; //* 緯度
-    const float kLonEvery = 2.0f * std::numbers::pi_v<float> / sphereDivisionReal; //* 経度
+    const float kLatEvery = std::numbers::pi_v<float> / kSphereDivisionReal; //* 緯度
+    const float kLonEvery = 2.0f * std::numbers::pi_v<float> / kSphereDivisionReal; //* 経度
 
     auto calculatePoint = [&](float lat, float lon) -> Vector3f {
         return {
@@ -161,11 +163,11 @@ void CreateLineMeshByShape(
     };
 
     // 緯線（緯度方向の円）を描画
-    for (uint32_t latIndex = 1; latIndex < sphereDivision; ++latIndex) {
+    for (uint32_t latIndex = 1; latIndex < kSphereDivision; ++latIndex) {
         float lat = -std::numbers::pi_v<float> / 2.0f + kLatEvery * latIndex;
-        for (uint32_t lonIndex = 0; lonIndex < sphereDivision; ++lonIndex) {
+        for (uint32_t lonIndex = 0; lonIndex < kSphereDivision; ++lonIndex) {
             float lonA = lonIndex * kLonEvery;
-            float lonB = (lonIndex + 1) % sphereDivision * kLonEvery;
+            float lonB = (lonIndex + 1) % kSphereDivision * kLonEvery;
 
             Vector3f pointA = calculatePoint(lat, lonA);
             Vector3f pointB = calculatePoint(lat, lonB);
@@ -181,9 +183,9 @@ void CreateLineMeshByShape(
     }
 
     // 経線（経度方向の円）を描画
-    for (uint32_t lonIndex = 0; lonIndex < sphereDivision; ++lonIndex) {
+    for (uint32_t lonIndex = 0; lonIndex < kSphereDivision; ++lonIndex) {
         float lon = lonIndex * kLonEvery;
-        for (uint32_t latIndex = 0; latIndex < sphereDivision; ++latIndex) {
+        for (uint32_t latIndex = 0; latIndex < kSphereDivision; ++latIndex) {
             float latA = -std::numbers::pi_v<float> / 2.0f + kLatEvery * latIndex;
             float latB = -std::numbers::pi_v<float> / 2.0f + kLatEvery * (latIndex + 1);
 
@@ -213,7 +215,7 @@ void ColliderRenderingSystem::Initialize() {
     aabbRenderer_  = std::make_unique<LineRenderer>(std::vector<Mesh<ColorVertexData>>());
     aabbRenderer_->Initialize(nullptr);
     aabbRenderer_->GetMeshGroup()->push_back(Mesh<ColorVertexData>());
-    aabbRenderer_->GetMeshGroup()->back().Initialize(ColliderRenderingSystem::defaultMeshCount_ * aabbVertexSize, ColliderRenderingSystem::defaultMeshCount_ * aabbIndexSize);
+    aabbRenderer_->GetMeshGroup()->back().Initialize(ColliderRenderingSystem::kDefaultMeshCount_ * kAabbVertexSize, ColliderRenderingSystem::kDefaultMeshCount_ * kAabbIndexSize);
     aabbMeshItr_ = aabbRenderer_->GetMeshGroup()->begin();
 
     //** OBB **//
@@ -221,7 +223,7 @@ void ColliderRenderingSystem::Initialize() {
     obbRenderer_  = std::make_unique<LineRenderer>(std::vector<Mesh<ColorVertexData>>());
     obbRenderer_->Initialize(nullptr);
     obbRenderer_->GetMeshGroup()->push_back(Mesh<ColorVertexData>());
-    obbRenderer_->GetMeshGroup()->back().Initialize(ColliderRenderingSystem::defaultMeshCount_ * obbVertexSize, ColliderRenderingSystem::defaultMeshCount_ * obbIndexSize);
+    obbRenderer_->GetMeshGroup()->back().Initialize(ColliderRenderingSystem::kDefaultMeshCount_ * kObbVertexSize, ColliderRenderingSystem::kDefaultMeshCount_ * kObbIndexSize);
     obbMeshItr_ = obbRenderer_->GetMeshGroup()->begin();
 
     //** Sphere **//
@@ -229,7 +231,7 @@ void ColliderRenderingSystem::Initialize() {
     sphereRenderer_  = std::make_unique<LineRenderer>(std::vector<Mesh<ColorVertexData>>());
     sphereRenderer_->Initialize(nullptr);
     sphereRenderer_->GetMeshGroup()->push_back(Mesh<ColorVertexData>());
-    sphereRenderer_->GetMeshGroup()->back().Initialize(ColliderRenderingSystem::defaultMeshCount_ * sphereVertexSize, ColliderRenderingSystem::defaultMeshCount_ * sphereIndexSize);
+    sphereRenderer_->GetMeshGroup()->back().Initialize(ColliderRenderingSystem::kDefaultMeshCount_ * kSphereVertexSize, ColliderRenderingSystem::kDefaultMeshCount_ * kSphereIndexSize);
     sphereMeshItr_ = sphereRenderer_->GetMeshGroup()->begin();
 }
 
@@ -259,7 +261,7 @@ void ColliderRenderingSystem::CreatePSO() {
     /// shader読み込み
     ///=================================================
     shaderManager->LoadShader("ColoredVertex.VS");
-    shaderManager->LoadShader("ColoredVertex.PS", shaderDirectory, L"ps_6_0");
+    shaderManager->LoadShader("ColoredVertex.PS", kShaderDirectory, L"ps_6_0");
 
     ///=================================================
     /// shader情報の設定
@@ -307,7 +309,7 @@ void ColliderRenderingSystem::CreatePSO() {
     ///=================================================
     /// BlendMode ごとの Psoを作成
     ///=================================================
-    pso_ = shaderManager->CreatePso("LineMesh_" + blendModeStr[int32_t(BlendMode::Alpha)], lineShaderInfo, dxDevice->device_);
+    pso_ = shaderManager->CreatePso("LineMesh_" + kBlendModeStr[int32_t(BlendMode::Alpha)], lineShaderInfo, dxDevice->device_);
 }
 
 void ColliderRenderingSystem::StartRender() {
@@ -361,7 +363,7 @@ void ColliderRenderingSystem::CreateRenderMesh() {
                     if (aabbMeshItr_ == meshGroup->end()) {
                         aabbMeshItr_ = meshGroup->end();
                         meshGroup->push_back(Mesh<ColorVertexData>());
-                        meshGroup->back().Initialize(ColliderRenderingSystem::defaultMeshCount_ * aabbVertexSize, ColliderRenderingSystem::defaultMeshCount_ * aabbIndexSize);
+                        meshGroup->back().Initialize(ColliderRenderingSystem::kDefaultMeshCount_ * kAabbVertexSize, ColliderRenderingSystem::kDefaultMeshCount_ * kAabbIndexSize);
                     }
                 }
 
@@ -425,7 +427,7 @@ void ColliderRenderingSystem::CreateRenderMesh() {
                     if (obbMeshItr_ == meshGroup->end()) {
                         obbMeshItr_ = meshGroup->end();
                         meshGroup->push_back(Mesh<ColorVertexData>());
-                        meshGroup->back().Initialize(ColliderRenderingSystem::defaultMeshCount_ * obbVertexSize, ColliderRenderingSystem::defaultMeshCount_ * obbIndexSize);
+                        meshGroup->back().Initialize(ColliderRenderingSystem::kDefaultMeshCount_ * kObbVertexSize, ColliderRenderingSystem::kDefaultMeshCount_ * kObbIndexSize);
                     }
                 }
 
@@ -488,7 +490,7 @@ void ColliderRenderingSystem::CreateRenderMesh() {
                     if (sphereMeshItr_ == meshGroup->end()) {
                         sphereMeshItr_ = meshGroup->end();
                         meshGroup->push_back(Mesh<ColorVertexData>());
-                        meshGroup->back().Initialize(ColliderRenderingSystem::defaultMeshCount_ * sphereVertexSize, ColliderRenderingSystem::defaultMeshCount_ * sphereIndexSize);
+                        meshGroup->back().Initialize(ColliderRenderingSystem::kDefaultMeshCount_ * kSphereVertexSize, ColliderRenderingSystem::kDefaultMeshCount_ * kSphereIndexSize);
                     }
                 }
 

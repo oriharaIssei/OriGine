@@ -21,6 +21,8 @@
 
 #endif // _DEBUG
 
+using namespace OriGine;
+
 ImGuiManager* ImGuiManager::GetInstance() {
     static ImGuiManager instance;
     return &instance;
@@ -42,8 +44,8 @@ void ImGuiManager::Initialize([[maybe_unused]] const WinApp* window, [[maybe_unu
     /// imgui の初期化
     ///=============================================
     IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGui::StyleColorsDark();
+    ::ImGui::CreateContext();
+    ::ImGui::StyleColorsDark();
     ImGui_ImplWin32_Init(window->GetHwnd());
     ImGui_ImplDx12_Init(
         dxDevice->device_.Get(),

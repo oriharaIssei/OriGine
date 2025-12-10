@@ -10,8 +10,9 @@
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
-RadialBlurParam::RadialBlurParam() {}
+using namespace OriGine;
 
+RadialBlurParam::RadialBlurParam() {}
 RadialBlurParam::~RadialBlurParam() {}
 
 void RadialBlurParam::Initialize(Entity* /*_entity*/) {
@@ -49,14 +50,14 @@ void RadialBlurParam::Stop() {
     constantBuffer_.Finalize();
 }
 
-void to_json(nlohmann::json& j, const RadialBlurParam& param) {
+void OriGine::to_json(nlohmann::json& j, const RadialBlurParam& param) {
     j = nlohmann::json{
         {"isActive", param.isActive_},
         {"center", param.constantBuffer_.openData_.center_},
         {"width", param.constantBuffer_.openData_.width_}};
 }
 
-void from_json(const nlohmann::json& j, RadialBlurParam& param) {
+void OriGine::from_json(const nlohmann::json& j, RadialBlurParam& param) {
     j.at("isActive").get_to(param.isActive_);
     j.at("center").get_to(param.constantBuffer_.openData_.center_);
     j.at("width").get_to(param.constantBuffer_.openData_.width_);

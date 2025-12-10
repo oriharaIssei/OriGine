@@ -1,15 +1,18 @@
 #pragma once
-#include "Collider.h"
 
+#include "Collider.h"
+/// math
 #include "bounds/Sphere.h"
 
+namespace OriGine {
+
 class SphereCollider
-    : public Collider<math::bounds::Sphere> {
+    : public Collider<Bounds::Sphere> {
     friend void to_json(nlohmann::json& _json, const SphereCollider& _s);
     friend void from_json(const nlohmann::json& _json, SphereCollider& _s);
 
 public:
-    SphereCollider() : Collider<math::bounds::Sphere>() {}
+    SphereCollider() : Collider<Bounds::Sphere>() {}
     ~SphereCollider() {}
 
     void Edit(Scene* _scene, Entity* _entity, const std::string& _parentLabel) override;
@@ -27,3 +30,5 @@ public: // accessor
     const float& GetWorldRadius() const { return worldShape_.radius_; }
     void SetWorldRadius(const float& _radius) { worldShape_.radius_ = _radius; }
 };
+
+} // namespace OriGine

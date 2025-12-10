@@ -3,6 +3,11 @@
 /// parent
 #include "system/ISystem.h"
 
+/// stl
+#include <vector>
+
+namespace OriGine {
+
 /// <summary>
 /// 衝突判定システム
 /// </summary>
@@ -20,6 +25,8 @@ protected:
     void UpdateEntity(Entity* _entity) override;
 
 protected:
-    std::vector<Entity*> entities_;
-    std::vector<Entity*>::iterator entityItr_;
+    ::std::vector<Entity*> entities_;
+    ::std::vector<Entity*>::iterator entityItr_;
 };
+
+} // namespace OriGine

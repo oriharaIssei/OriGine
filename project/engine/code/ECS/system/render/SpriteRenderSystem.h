@@ -11,10 +11,13 @@
 // directX12Object
 #include "directX12/DxCommand.h"
 #include "directX12/ShaderManager.h"
-// component
-class SpriteRenderer;
 /// math
 #include "Matrix4x4.h"
+
+namespace OriGine {
+/// 前方宣言
+// component
+class SpriteRenderer;
 
 /// <summary>
 /// Spriteの描画を行うシステム
@@ -64,3 +67,5 @@ private:
     Matrix4x4 viewPortMat_;
     std::vector<SpriteRenderer*> renderers_;
 };
+
+} // namespace OriGine

@@ -5,13 +5,10 @@
 #include <Array>
 // string
 #include <string>
-
-// math
+/// math
 #include "Vector3.h"
 
-// binaryIO
-class BinaryWriter;
-class BinaryReader;
+namespace OriGine {
 
 ///< summary>
 /// エミッターの形状の種類
@@ -24,9 +21,9 @@ enum class EmitterShapeType : int32_t {
 
     Count // 種類の数
 };
-static const int32_t shapeTypeCount = static_cast<int32_t>(EmitterShapeType::Count);
+static const int32_t kShapeTypeCount = static_cast<int32_t>(EmitterShapeType::Count);
 
-static std::array<std::string, shapeTypeCount> emitterShapeTypeWord_ = {
+static std::array<std::string, kShapeTypeCount > kEmitterShapeTypeWord = {
     "Sphere",
     "OBB",
     "Capsule",
@@ -40,9 +37,9 @@ enum class ParticleSpawnLocationType : int32_t {
     Edge,
     Count // 種類の数
 };
-static const int32_t particleSpawnLocationTypeCount = static_cast<int32_t>(ParticleSpawnLocationType::Count);
+static const int32_t kParticleSpawnLocationTypeCount = static_cast<int32_t>(ParticleSpawnLocationType::Count);
 
-static std::array<std::string, shapeTypeCount> particleSpawnLocationTypeWord_ = {
+static std::array<std::string, kShapeTypeCount > kParticleSpawnLocationTypeWord = {
     "InBody",
     "Edge"};
 
@@ -102,9 +99,9 @@ public: // メンバ変数
 struct EmitterBox
     : EmitterShape {
     friend void to_json(nlohmann::json& j, const EmitterBox& r) {
-        j["min"]    = r.min_;
-        j["max"]    = r.max_;
-        j["rotate"] = r.rotate_;
+        j["min"]       = r.min_;
+        j["max"]       = r.max_;
+        j["rotate"]    = r.rotate_;
         j["spawnType"] = (int32_t)r.spawnType;
     }
     friend void from_json(const nlohmann::json& j, EmitterBox& r) {
@@ -213,3 +210,5 @@ public: // メンバ変数
     float length_    = 0.f;
     Vec3f direction_ = {0.f, 0.f, 0.f};
 };
+
+} // namespace OriGine

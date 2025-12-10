@@ -15,12 +15,11 @@
 // transform
 #include "component/transform/ParticleTransform.h"
 
-// math
+/// math
 #include <stdint.h>
 
-class BinaryWriter;
-class BinaryReader;
-
+namespace OriGine {
+// 前方宣言
 struct ParticleKeyFrames;
 
 enum class ParticleUpdateType {
@@ -141,3 +140,5 @@ struct ParticleKeyFrames {
     // float currentTime_ = Particle::leftTime;
     // float duration     = Particle::lifeTime;
 };
+
+} // namespace OriGine

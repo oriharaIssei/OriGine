@@ -16,6 +16,8 @@
 #include "Matrix4x4.h"
 #include "Quaternion.h"
 
+namespace OriGine {
+
 /// <summary>
 /// Transform コンポーネント(3次元)
 /// </summary>
@@ -71,3 +73,5 @@ inline void from_json(const nlohmann::json& j, Transform& t) {
 inline void to_json(nlohmann::json& j, const Transform& t) {
     j = nlohmann::json{{"scale", t.scale}, {"rotate", t.rotate}, {"translate", t.translate}};
 }
+
+} // namespace OriGine

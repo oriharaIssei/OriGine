@@ -17,14 +17,14 @@ DebugReplayWindow::~DebugReplayWindow() {}
 void DebugReplayWindow::Initialize() {
     // input
     // ただの傀儡なので Initialize()しなくて良い
-    keyboardInput_ = std::make_unique<KeyboardInput>();
-    mouseInput_    = std::make_unique<MouseInput>();
-    gamePadInput_  = std::make_unique<GamepadInput>();
+    keyboardInput_ = std::make_unique<OriGine::KeyboardInput>();
+    mouseInput_    = std::make_unique<OriGine::MouseInput>();
+    gamePadInput_  = std::make_unique<OriGine::GamepadInput>();
 
-    sceneManager_ = std::make_unique<SceneManager>();
+    sceneManager_ = std::make_unique<OriGine::SceneManager>();
     sceneManager_->Initialize(keyboardInput_.get(), mouseInput_.get(), gamePadInput_.get());
 
-    replayPlayer_ = std::make_unique<ReplayPlayer>();
+    replayPlayer_ = std::make_unique<OriGine::ReplayPlayer>();
 
     // AddArea
     AddArea(std::make_unique<DebugReplayControlArea>(this));
@@ -103,7 +103,7 @@ void DebugReplayWindow::UpdateSceneManager() {
                 float deltaTime = replayPlayer_->Apply(keyboardInput_.get(), mouseInput_.get(), gamePadInput_.get());
 
                 // deltaTimeをセット
-                Engine::GetInstance()->SetDeltaTime(deltaTime);
+                OriGine::Engine::GetInstance()->SetDeltaTime(deltaTime);
 
                 // シーン変更(あれば)
                 if (sceneManager_->IsChangeScene()) {
@@ -149,25 +149,25 @@ void DebugReplayViewArea::DrawGui() {
     if (ImGui::Begin(name_.c_str(), &isOpen)) {
         // sizeが変わったら
         ImVec2 guiWindowSize = ImGui::GetWindowSize();
-        if (areaSize_[Y] != guiWindowSize[Y]) {
-            if (guiWindowSize[X] < 1.f) {
-                guiWindowSize[X] = 1.f;
+        if (areaSize_[OriGine::Y] != guiWindowSize[OriGine::Y]) {
+            if (guiWindowSize[OriGine::X] < 1.f) {
+                guiWindowSize[OriGine::X] = 1.f;
             }
-            if (guiWindowSize[Y] < 1.f) {
-                guiWindowSize[Y] = 1.f;
+            if (guiWindowSize[OriGine::Y] < 1.f) {
+                guiWindowSize[OriGine::Y] = 1.f;
             }
 
             int32_t biggerIndex  = 0;
             int32_t smallerIndex = 0;
             if (guiWindowSize.x > guiWindowSize.y) {
-                biggerIndex  = X;
-                smallerIndex = Y;
+                biggerIndex  = OriGine::X;
+                smallerIndex = OriGine::Y;
             } else {
-                biggerIndex  = Y;
-                smallerIndex = X;
+                biggerIndex  = OriGine::Y;
+                smallerIndex = OriGine::X;
             }
 
-            const Vec2f& sceneViewSize = currentScene->GetSceneView()->GetTextureSize();
+            const OriGine::Vec2f& sceneViewSize = currentScene->GetSceneView()->GetTextureSize();
             float aspectRatio          = sceneViewSize[smallerIndex] / sceneViewSize[biggerIndex];
 
             // aspect比を維持したままリサイズ

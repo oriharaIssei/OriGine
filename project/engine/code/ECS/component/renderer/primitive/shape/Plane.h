@@ -2,6 +2,7 @@
 
 #include "component/renderer/primitive/base/IPrimitive.h"
 
+namespace OriGine {
 namespace Primitive {
 
 /// <summary>
@@ -20,4 +21,6 @@ public:
     Vec2f uv_     = {1.0f, 1.0f};
     Vec3f normal_ = {0.0f, 0.0f, 1.0f};
 };
-}
+
+} // namespace Primitive
+} // namespace OriGine

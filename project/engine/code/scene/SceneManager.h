@@ -1,21 +1,15 @@
 #pragma once
 
 /// stl
-#include <functional>
 #include <memory>
-#include <unordered_map>
 // string
 #include <string>
 
-/// engine
-class Scene;
-// input
-class KeyboardInput;
-class MouseInput;
-class GamepadInput;
-/// ecs
-#include "component/ComponentArray.h"
+/// ECS
+// entity
 #include "entity/Entity.h"
+//component
+#include "component/ComponentArray.h"
 
 /// util
 #include "util/globalVariables/SerializedField.h"
@@ -25,6 +19,18 @@ class GamepadInput;
 #include <binaryIO/BinaryIO.h>
 #include <nlohmann/json.hpp>
 
+namespace OriGine {
+
+/// engine
+class Scene;
+// input
+class KeyboardInput;
+class MouseInput;
+class GamepadInput;
+
+/// <summary>
+/// シーンを管理するクラス
+/// </summary>
 class SceneManager {
     friend class ReplayPlayer;
 
@@ -32,7 +38,7 @@ public:
     SceneManager();
     ~SceneManager();
 
-    void Initialize(const std::string& _startScene, KeyboardInput* _keyInput, MouseInput* _mouseInput, GamepadInput* _padInput);
+    void Initialize(const ::std::string& _startScene, KeyboardInput* _keyInput, MouseInput* _mouseInput, GamepadInput* _padInput);
     void Initialize(KeyboardInput* _keyInput, MouseInput* _mouseInput, GamepadInput* _padInput);
     void Finalize();
 
@@ -47,19 +53,19 @@ public:
 private:
 #ifdef _DEVELOP
     // Editorでの変更を検知する
-    std::unique_ptr<FileWatcher> fileWatcher_ = nullptr;
+    ::std::unique_ptr<FileWatcher> fileWatcher_ = nullptr;
 #endif
 
-    SerializedField<std::string> startupSceneName_ = SerializedField<std::string>("Settings", "Scene", "StartupSceneName");
+    SerializedField<::std::string> startupSceneName_ = SerializedField<::std::string>("Settings", "Scene", "StartupSceneName");
 
-    std::unique_ptr<Scene> currentScene_ = nullptr;
+    ::std::unique_ptr<Scene> currentScene_ = nullptr;
 
     // input
     KeyboardInput* keyInput_ = nullptr;
     MouseInput* mouseInput_  = nullptr;
     GamepadInput* padInput_  = nullptr;
 
-    std::string changingSceneName_ = "";
+    ::std::string changingSceneName_ = "";
 
     bool isChangeScene_      = false;
     bool changeSceneInFrame_ = false;
@@ -70,10 +76,10 @@ public:
         return currentScene_.get();
     }
 
-    const SerializedField<std::string>& GetStartupSceneName() const {
+    const SerializedField<::std::string>& GetStartupSceneName() const {
         return startupSceneName_;
     }
-    SerializedField<std::string>& GetStartupSceneNameRef() {
+    SerializedField<::std::string>& GetStartupSceneNameRef() {
         return startupSceneName_;
     }
 
@@ -82,16 +88,16 @@ public:
     }
     void SetExitGame(bool exit) { isExitGame_ = exit; }
 
-    const std::string& GetCurrentSceneName() const;
+    const ::std::string& GetCurrentSceneName() const;
 
-    void ChangeScene(const std::string& name);
+    void ChangeScene(const ::std::string& name);
 
     bool IsChangeScene() const { return isChangeScene_; }
 };
 
 class SceneSerializer {
 public:
-    static const std::string kSceneDirectory;
+    static const ::std::string kSceneDirectory;
 
 public:
     SceneSerializer(Scene* _targetScene);
@@ -116,10 +122,10 @@ public:
     /// </summary>
     void DeserializeFromJson();
 
-    void SaveEntity(int32_t _entityID, const std::string& _directory);
+    void SaveEntity(int32_t _entityID, const ::std::string& _directory);
     nlohmann::json EntityToJson(int32_t _entityID);
 
-    Entity* LoadEntity(const std::string& _directory, const std::string& _dataType);
+    Entity* LoadEntity(const ::std::string& _directory, const ::std::string& _dataType);
     Entity* EntityFromJson(const nlohmann::json& _entityData);
     Entity* EntityFromJson(int32_t _entityId, const nlohmann::json& _entityData);
 
@@ -137,3 +143,5 @@ public:
         rootJson_ = _rootJson;
     }
 };
+
+} // namespace OriGine

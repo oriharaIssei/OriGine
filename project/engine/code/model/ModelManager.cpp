@@ -3,6 +3,7 @@
 /// stl
 // assert
 #include <cassert>
+#include <iostream>
 
 /// engine
 #include "Engine.h"
@@ -23,6 +24,8 @@
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
+
+using namespace OriGine;
 
 //===========================================================================
 // unorderedMap 用
@@ -46,7 +49,7 @@ struct hash<VertexKey> {
 } // namespace std
 
 #pragma region "LoadFunctions"
-static void ProcessMeshData(TextureMesh& meshData, const std::vector<TextureVertexData>& vertices, const std::vector<uint32_t>& indices) {
+static void ProcessMeshData(TextureMesh& meshData, const ::std::vector<TextureVertexData>& vertices, const ::std::vector<uint32_t>& indices) {
 
     meshData.Initialize(static_cast<UINT>(vertices.size()), static_cast<UINT>(indices.size()));
 
@@ -83,8 +86,8 @@ static ModelNode ReadNode(aiNode* node) {
 
 static int32_t CreateJoint(
     const ModelNode& node,
-    const std::optional<int32_t>& parent,
-    std::vector<Joint>& joints) {
+    const ::std::optional<int32_t>& parent,
+    ::std::vector<Joint>& joints) {
     Joint joint;
 
     joint.name  = node.name;
@@ -169,7 +172,7 @@ static void CreateSkinCluster(
 
     // inverseBindPoseMatrices を 初期化(単位行列で埋めとく)
     _cluster.inverseBindPoseMatrices.resize(skeleton.joints.size());
-    std::generate(_cluster.inverseBindPoseMatrices.begin(), _cluster.inverseBindPoseMatrices.end(), MakeMatrix4x4::Identity);
+    ::std::generate(_cluster.inverseBindPoseMatrices.begin(), _cluster.inverseBindPoseMatrices.end(), MakeMatrix4x4::Identity);
 
     // ModelData を 解析, Influence を 設定
     for (const auto& jointWeight : _meshData->jointWeightData) {
@@ -204,17 +207,17 @@ static void CreateSkinCluster(
     _cluster.skinningInfoBuffer_.ConvertToBuffer();
 }
 
-static void LoadModelFile(ModelMeshData* data, const std::string& directoryPath, const std::string& filename) {
+static void LoadModelFile(ModelMeshData* data, const ::std::string& directoryPath, const ::std::string& filename) {
     Assimp::Importer importer;
-    std::string filePath = directoryPath + "/" + filename;
-    const aiScene* scene = importer.ReadFile(filePath.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
+    ::std::string filePath = directoryPath + "/" + filename;
+    const aiScene* scene   = importer.ReadFile(filePath.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
     assert(scene->HasMeshes());
 
     auto& device = Engine::GetInstance()->GetDxDevice()->device_;
 
-    std::unordered_map<VertexKey, uint32_t> vertexMap;
-    std::vector<TextureVertexData> vertices;
-    std::vector<uint32_t> indices;
+    ::std::unordered_map<VertexKey, uint32_t> vertexMap;
+    ::std::vector<TextureVertexData> vertices;
+    ::std::vector<uint32_t> indices;
 
     /// node 読み込み
     data->rootNode = ReadNode(scene->mRootNode);
@@ -270,11 +273,11 @@ static void LoadModelFile(ModelMeshData* data, const std::string& directoryPath,
         // マテリアルとテクスチャの処理
         aiMaterial* material = scene->mMaterials[loadedMesh->mMaterialIndex];
         aiString textureFilePath;
-        uint32_t textureIndex   = 0;
-        std::string texturePath = "";
+        uint32_t textureIndex     = 0;
+        ::std::string texturePath = "";
         if (material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePath) == AI_SUCCESS) {
             texturePath = textureFilePath.C_Str();
-            if ((texturePath.find("/") == std::string::npos)) {
+            if ((texturePath.find("/") == ::std::string::npos)) {
                 texturePath = directoryPath + "/" + texturePath;
             }
             textureIndex = TextureManager::LoadTexture(texturePath);
@@ -301,13 +304,13 @@ ModelManager* ModelManager::GetInstance() {
     return &instance;
 }
 
-std::shared_ptr<Model> ModelManager::Create(
-    const std::string& directoryPath,
-    const std::string& filename,
-    std::function<void(Model*)> callBack) {
-    std::shared_ptr<Model> result = std::make_unique<Model>();
+::std::shared_ptr<Model> ModelManager::Create(
+    const ::std::string& directoryPath,
+    const ::std::string& filename,
+    ::std::function<void(Model*)> callBack) {
+    ::std::shared_ptr<Model> result = ::std::make_unique<Model>();
 
-    std::string filePath = NormalizeString(directoryPath + "/" + filename);
+    ::std::string filePath = NormalizeString(directoryPath + "/" + filename);
 
     LOG_TRACE("Load Model \n Path : {}", filePath);
 
@@ -339,8 +342,8 @@ std::shared_ptr<Model> ModelManager::Create(
     }
 
     /// モデルデータを読み込む
-    modelLibrary_[filePath] = std::make_unique<ModelMeshData>();
-    result                  = std::make_unique<Model>();
+    modelLibrary_[filePath] = ::std::make_unique<ModelMeshData>();
+    result                  = ::std::make_unique<Model>();
     result->meshData_       = modelLibrary_[filePath].get();
 #ifdef _DEBUG
     /* loadThread_->pushTask(
@@ -367,10 +370,10 @@ std::shared_ptr<Model> ModelManager::Create(
 }
 
 void ModelManager::Initialize() {
-    /*loadThread_ = std::make_unique<TaskThread<ModelManager::LoadTask>>();
+    /*loadThread_ = ::std::make_unique<TaskThread<ModelManager::LoadTask>>();
     loadThread_->Initialize(1);*/
 
-    fovMa_           = std::make_unique<Matrix4x4>();
+    fovMa_           = ::std::make_unique<Matrix4x4>();
     Matrix4x4* maPtr = new Matrix4x4();
     *maPtr           = MakeMatrix4x4::PerspectiveFov(
         0.45f,
@@ -380,7 +383,7 @@ void ModelManager::Initialize() {
     fovMa_.reset(
         maPtr);
 
-    dxCommand_ = std::make_unique<DxCommand>();
+    dxCommand_ = ::std::make_unique<DxCommand>();
     dxCommand_->Initialize("main", "main");
 }
 
@@ -394,17 +397,17 @@ void ModelManager::pushBackDefaultMaterial(ModelMeshData* key, TexturedMaterial 
     defaultMaterials_[key].emplace_back(material);
 }
 
-ModelMeshData* ModelManager::GetModelMeshData(const std::string& directoryPath, const std::string& filename) {
-    std::string filePath = NormalizeString(directoryPath + "/" + filename);
-    auto it              = modelLibrary_.find(filePath);
+ModelMeshData* ModelManager::GetModelMeshData(const ::std::string& directoryPath, const ::std::string& filename) {
+    ::std::string filePath = NormalizeString(directoryPath + "/" + filename);
+    auto it                = modelLibrary_.find(filePath);
     if (it != modelLibrary_.end()) {
         return it->second.get();
     }
     return nullptr;
 }
 
-const std::vector<TexturedMaterial>& ModelManager::GetDefaultMaterials(ModelMeshData* key) const {
-    static std::vector<TexturedMaterial> empty;
+const ::std::vector<TexturedMaterial>& ModelManager::GetDefaultMaterials(ModelMeshData* key) const {
+    static ::std::vector<TexturedMaterial> empty;
     auto it = defaultMaterials_.find(key);
     if (it != defaultMaterials_.end()) {
         return it->second;
@@ -412,9 +415,9 @@ const std::vector<TexturedMaterial>& ModelManager::GetDefaultMaterials(ModelMesh
     return empty;
 }
 
-const std::vector<TexturedMaterial>& ModelManager::GetDefaultMaterials(const std::string& directoryPath, const std::string& filename) const {
-    std::string filePath = NormalizeString(directoryPath + "/" + filename);
-    auto it              = modelLibrary_.find(filePath);
+const ::std::vector<TexturedMaterial>& ModelManager::GetDefaultMaterials(const ::std::string& directoryPath, const ::std::string& filename) const {
+    ::std::string filePath = NormalizeString(directoryPath + "/" + filename);
+    auto it                = modelLibrary_.find(filePath);
     return GetDefaultMaterials(it->second.get());
 }
 
@@ -424,9 +427,9 @@ void ModelManager::LoadTask::Update() {
 
     try {
         LoadModelFile(model->meshData_, this->directory, this->fileName);
-    } catch (const std::exception& e) {
+    } catch (const ::std::exception& e) {
         // エラーハンドリング
-        std::cerr << "Error loading model file: " << e.what() << std::endl;
+        ::std::cerr << "Error loading model file: " << e.what() << ::std::endl;
         return;
     }
 
@@ -437,15 +440,15 @@ void ModelManager::LoadTask::Update() {
         material.material.ConvertToBuffer();
     }
 
-    std::mutex mutex;
+    ::std::mutex mutex;
     for (auto& [name, data] : model->meshData_->meshGroup) {
         try {
-            std::lock_guard<std::mutex> lock(mutex);
+            ::std::lock_guard<::std::mutex> lock(mutex);
             model->transforms_[&data] = Transform();
             model->transforms_[&data].UpdateMatrix();
-        } catch (const std::exception& e) {
+        } catch (const ::std::exception& e) {
             // エラーハンドリング
-            std::cerr << "Error creating or updating buffer: " << e.what() << std::endl;
+            ::std::cerr << "Error creating or updating buffer: " << e.what() << ::std::endl;
             return;
         }
     }
@@ -457,5 +460,5 @@ void ModelManager::LoadTask::Update() {
 
     // ロード完了のログ
     timer.Update();
-    LOG_TRACE("Model Load Complete : {}/{} \n Lading Time : {}", this->directory, this->fileName, std::to_string(timer.GetDeltaTime()));
+    LOG_TRACE("Model Load Complete : {}/{} \n Lading Time : {}", this->directory, this->fileName, ::std::to_string(timer.GetDeltaTime()));
 }

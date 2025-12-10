@@ -20,6 +20,8 @@
 #include "component/renderer/MeshRenderer.h"
 #include "component/transform/Transform.h"
 
+namespace OriGine {
+/// 前方宣言
 class SkinningAnimationComponent;
 class ModelMeshRenderer;
 
@@ -101,3 +103,5 @@ private:
     int32_t textureBufferIndex_            = 0;
     int32_t environmentTextureBufferIndex_ = 0;
 };
+
+} // namespace OriGine

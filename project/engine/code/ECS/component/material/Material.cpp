@@ -5,6 +5,7 @@
 #include "texture/TextureManager.h"
 // directX12
 #include "directX12/DxCommand.h"
+#include "directX12/DxDevice.h"
 #include "directX12/ResourceStateTracker.h"
 
 /// editor
@@ -12,6 +13,8 @@
 #include "imgui/imgui.h"
 #include "myGui/MyGui.h"
 #endif // _DEBUG
+
+using namespace OriGine;
 
 UVTransform::ConstantBuffer& UVTransform::ConstantBuffer::operator=(const UVTransform& _transform) {
     uvTransform = MakeMatrix4x4::Affine({_transform.scale_, 1}, {0.f, 0.f, _transform.rotate_}, {_transform.translate_, 0.f});
@@ -133,7 +136,7 @@ void Material::DeleteCustomTexture() {
     }
 }
 
-void to_json(nlohmann::json& j, const Material& m) {
+void OriGine::to_json(nlohmann::json& j, const Material& m) {
     to_json<2, float>(j["uvScale"], m.uvTransform_.scale_);
     to_json(j["uvRotate"], m.uvTransform_.rotate_);
     to_json<2, float>(j["uvTranslate"], m.uvTransform_.translate_);
@@ -145,7 +148,7 @@ void to_json(nlohmann::json& j, const Material& m) {
     to_json<3, float>(j["specularColor"], m.specularColor_);
 }
 
-void from_json(const nlohmann::json& j, Material& m) {
+void OriGine::from_json(const nlohmann::json& j, Material& m) {
     j.at("uvScale").get_to(m.uvTransform_.scale_);
     j.at("uvRotate").get_to(m.uvTransform_.rotate_);
     j.at("uvTranslate").get_to(m.uvTransform_.translate_);

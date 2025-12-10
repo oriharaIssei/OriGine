@@ -11,6 +11,8 @@
 #include <intsafe.h>
 #include <stdint.h>
 
+namespace OriGine {
+
 constexpr float kStickMax = static_cast<float>(SHORT_MAX);
 constexpr float kStickMin = static_cast<float>(-SHORT_MAX);
 
@@ -168,3 +170,5 @@ public:
     float GetLTrigger() const { return lTrigger_; }
     float GetRTrigger() const { return rTrigger_; }
 };
+
+} // namespace OriGine

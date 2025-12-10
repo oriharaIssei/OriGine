@@ -4,6 +4,8 @@
 #include "Vector.h"
 #include "Vector3.h"
 
+namespace OriGine {
+/// 前方宣言
 struct Matrix4x4;
 
 /// <summary>
@@ -130,3 +132,6 @@ constexpr Quaternion operator*(float scalar, const Quaternion& q);
 constexpr Quaternion operator/(float scalar, const Quaternion& q);
 
 Quaternion Slerp(const Quaternion& q0, const Quaternion& v, float t);
+
+using Quatf = Quaternion;
+} // namespace OriGine

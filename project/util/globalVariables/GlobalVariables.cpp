@@ -20,6 +20,8 @@
 
 #include <nlohmann/json.hpp>
 
+using namespace OriGine;
+
 using json                       = nlohmann::json;
 const std::string kDirectoryPath = kApplicationResourceDirectory + "/GlobalVariables/";
 

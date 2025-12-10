@@ -9,6 +9,8 @@
 #include "component/renderer/Sprite.h"
 #include "component/SubScene.h"
 
+using namespace OriGine;
+
 RegisterWindowResizeEvent::RegisterWindowResizeEvent() : ISystem(SystemCategory::Initialize) {}
 
 void RegisterWindowResizeEvent::Initialize() {

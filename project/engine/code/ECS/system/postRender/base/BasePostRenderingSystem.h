@@ -10,6 +10,11 @@
 #include "directX12/DxCommand.h"
 #include "directX12/RenderTexture.h"
 
+namespace OriGine {
+
+/// <summary>
+/// ポストレンダリングを行うシステムの基底クラス
+/// </summary>
 class BasePostRenderingSystem
     : public ISystem {
 public:
@@ -70,3 +75,5 @@ public:
 // BasePostRenderingSystemを継承しているかどうか
 template <typename T>
 concept IsPostRenderSystem = std::is_base_of<BasePostRenderingSystem, T>::value;
+
+} // namespace OriGine

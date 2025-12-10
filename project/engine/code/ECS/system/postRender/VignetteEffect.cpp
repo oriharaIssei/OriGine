@@ -12,6 +12,8 @@
 #include "directX12/DxDevice.h"
 #include "directX12/RenderTexture.h"
 
+using namespace OriGine;
+
 VignetteEffect::VignetteEffect() : BasePostRenderingSystem() {}
 VignetteEffect::~VignetteEffect() {}
 
@@ -32,7 +34,7 @@ void VignetteEffect::Finalize() {
 void VignetteEffect::CreatePSO() {
     ShaderManager* shaderManager = ShaderManager::GetInstance();
     shaderManager->LoadShader("FullScreen.VS");
-    shaderManager->LoadShader("Vignette.PS", shaderDirectory, L"ps_6_0");
+    shaderManager->LoadShader("Vignette.PS", kShaderDirectory, L"ps_6_0");
     ShaderInformation shaderInfo{};
     shaderInfo.vsKey = "FullScreen.VS";
     shaderInfo.psKey = "Vignette.PS";

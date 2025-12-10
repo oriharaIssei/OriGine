@@ -10,6 +10,8 @@
 #include "directX12/BlendMode.h"
 #include "directX12/DxCommand.h"
 
+namespace OriGine {
+
 /// <summary>
 /// レンダリング系システムの基底クラス
 /// </summary>
@@ -71,3 +73,5 @@ public:
 // BaseRenderSystemを継承しているかどうか
 template <typename T>
 concept IsRenderSystem = std::is_base_of<BaseRenderSystem, T>::value;
+
+} // namespace OriGine

@@ -9,13 +9,12 @@
 // transform
 #include "component/transform/ParticleTransform.h"
 
-
-#include "binaryIO/BinaryIO.h"
+/// util
 #include "globalVariables/SerializedField.h"
-#include "myRandom/MyRandom.h"
+
+using namespace OriGine;
 
 Particle::Particle() {}
-
 Particle::~Particle() {}
 
 void Particle::Initialize(

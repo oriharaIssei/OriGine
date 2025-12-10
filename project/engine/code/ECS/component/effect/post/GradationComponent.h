@@ -16,6 +16,8 @@
 /// math
 #include "mathEnv.h"
 
+namespace OriGine {
+
 enum class GradationType : int {
     Directional = 0,
     Radial      = 1,
@@ -88,3 +90,5 @@ public:
         return materialBuff_;
     }
 };
+
+} // namespace OriGine

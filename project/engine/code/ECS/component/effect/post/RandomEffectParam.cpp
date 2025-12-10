@@ -10,6 +10,8 @@
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
+using namespace OriGine;
+
 void RandomEffectParam::Initialize(Entity* /*_hostEntity*/) {
     effectParamData_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
 }
@@ -24,14 +26,14 @@ void RandomEffectParam::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_unu
     ImGui::Text("BlendMode :");
     ImGui::SameLine();
     std::string label = "##BlendMode" + _parentLabel;
-    if (ImGui::BeginCombo(label.c_str(), blendModeStr[(int32_t)blendMode_].c_str())) {
+    if (ImGui::BeginCombo(label.c_str(), kBlendModeStr[(int32_t)blendMode_].c_str())) {
         bool isSelected    = false;
         int32_t blendIndex = 0;
-        for (auto& blendModeName : blendModeStr) {
-            isSelected = blendModeName == blendModeStr[(int32_t)blendMode_];
+        for (auto& blendModeName : kBlendModeStr) {
+            isSelected = blendModeName == kBlendModeStr[(int32_t)blendMode_];
 
             if (ImGui::Selectable(blendModeName.c_str(), isSelected)) {
-                EditorController::GetInstance()->PushCommand(
+                OriGine::EditorController::GetInstance()->PushCommand(
                     std::make_unique<SetterCommand<BlendMode>>(&blendMode_, static_cast<BlendMode>(blendIndex)));
                 break;
             }
@@ -52,14 +54,14 @@ void RandomEffectParam::Finalize() {
     effectParamData_.Finalize();
 }
 
-void to_json(nlohmann::json& j, const RandomEffectParam& param) {
+void OriGine::to_json(nlohmann::json& j, const RandomEffectParam& param) {
     j = nlohmann::json{
         {"isActive", param.isActive_},
         {"maxTime", param.maxTime_},
         {"blendMode", static_cast<int>(param.blendMode_)}};
 }
 
-void from_json(const nlohmann::json& j, RandomEffectParam& param) {
+void OriGine::from_json(const nlohmann::json& j, RandomEffectParam& param) {
     j.at("isActive").get_to(param.isActive_);
 
     j.at("maxTime").get_to(param.maxTime_);

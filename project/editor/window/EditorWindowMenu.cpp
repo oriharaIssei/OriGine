@@ -6,7 +6,6 @@ EditorWindowMenu::EditorWindowMenu() : Editor::Menu(nameof<EditorWindowMenu>()) 
 EditorWindowMenu::~EditorWindowMenu() {}
 
 void EditorWindowMenu::Initialize() {}
-
 void EditorWindowMenu::Finalize() {}
 
 #endif // _DEBUG

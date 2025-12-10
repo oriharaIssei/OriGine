@@ -15,6 +15,8 @@
 #include "system/postRender/DistortionEffect.h"
 #include "system/postRender/GradationEffect.h"
 
+namespace OriGine {
+
 /// <summary>
 /// Material にPostEffectをかけるためのSystem
 /// </summary>
@@ -57,3 +59,5 @@ private:
     std::unique_ptr<DistortionEffect> distortionEffect_ = nullptr;
     std::unique_ptr<GradationEffect> gradationEffect_   = nullptr;
 };
+
+} // namespace OriGine

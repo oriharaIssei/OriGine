@@ -15,6 +15,8 @@
 // component
 #include "component/effect/post/SmoothingEffectParam.h"
 
+namespace OriGine {
+
 /// <summary>
 /// SmoothingEffect をかけるシステム
 /// </summary>
@@ -62,3 +64,5 @@ protected:
     PipelineStateObj* pso_ = nullptr;
     std::vector<SmoothingEffectParam*> activeParams_;
 };
+
+} // namespace OriGine

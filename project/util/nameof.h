@@ -9,52 +9,36 @@
 /// 型名を文字列で取得する
 /// </summary>
 /// <typeparam name="T">変換対象の型</typeparam>
-template <typename T>
-constexpr std::string nameof(){
-    std::string name = typeid(T).name();
-    // Remove "struct" and "class" from the name
-    std::string::size_type pos = 0;
-    if((pos = name.find("struct ")) != std::string::npos){
-        name.erase(pos,7);
+inline std::string ClearString(std::string name) {
+    // Remove "struct " prefix
+    if (size_t pos = name.find("struct "); pos != std::string::npos) {
+        name.erase(pos, 7);
     }
-    if((pos = name.find("class ")) != std::string::npos){
-        name.erase(pos,6);
+
+    // Remove "class " prefix
+    if (size_t pos = name.find("class "); pos != std::string::npos) {
+        name.erase(pos, 6);
     }
+
+    // Remove namespace (everything before last "::")
+    if (size_t pos = name.rfind("::"); pos != std::string::npos) {
+        name = name.substr(pos + 2);
+    }
+
     return name;
 }
 
-/// <summary>
-/// 型名を文字列で取得する
-/// </summary>
-/// <typeparam name="T">変換対象の型</typeparam>
 template <typename T>
-constexpr std::string nameof(const T& /*_t*/){
-    std::string name = typeid(T).name();
-    // Remove "struct" and "class" from the name
-    std::string::size_type pos = 0;
-    if((pos = name.find("struct ")) != std::string::npos){
-        name.erase(pos,7);
-    }
-    if((pos = name.find("class ")) != std::string::npos){
-        name.erase(pos,6);
-    }
-    return name;
+constexpr std::string nameof() {
+    return ClearString(typeid(T).name());
 }
 
-/// <summary>
-/// 型名を文字列で取得する
-/// </summary>
-/// <typeparam name="T">変換対象の型</typeparam>
 template <typename T>
-constexpr std::string nameof(T* /*_t*/){
-    std::string name = typeid(T).name();
-    // Remove "struct" and "class" from the name
-    std::string::size_type pos = 0;
-    if((pos = name.find("struct ")) != std::string::npos){
-        name.erase(pos,7);
-    }
-    if((pos = name.find("class ")) != std::string::npos){
-        name.erase(pos,6);
-    }
-    return name;
+constexpr std::string nameof(const T&) {
+    return ClearString(typeid(T).name());
+}
+
+template <typename T>
+constexpr std::string nameof(T*) {
+    return ClearString(typeid(T).name());
 }

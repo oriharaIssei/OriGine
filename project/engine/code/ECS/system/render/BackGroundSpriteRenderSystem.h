@@ -3,17 +3,20 @@
 #include "system/render/base/BaseRenderSystem.h"
 
 /// stl
-#include <memory>
-#include <unordered_map>
+#include <array>
+#include <vector>
 
 /// engine
 // directX12Object
-#include "directX12/DxCommand.h"
-#include "directX12/ShaderManager.h"
-// component
-class SpriteRenderer;
+#include <directX12/BlendMode.h>
+#include <directX12/PipelineStateObj.h>
 /// math
 #include "Matrix4x4.h"
+
+namespace OriGine {
+/// ECS
+// component
+class SpriteRenderer;
 
 /// <summary>
 /// 背景スプライトの描画を行うシステム
@@ -61,3 +64,5 @@ private:
 
     std::array<PipelineStateObj*, kBlendNum> psoByBlendMode_{};
 };
+
+} // namespace OriGine

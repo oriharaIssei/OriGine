@@ -9,6 +9,8 @@
 // util
 #include "util/nameof.h"
 
+using namespace OriGine;
+
 const std::string SettingWindow::kGlobalVariablesSceneName       = "Settings";
 const std::string SettingWindowRegion::kGlobalVariablesGroupName = "Window";
 
@@ -25,7 +27,7 @@ void SettingWindow::Initialize() {
     AddArea(std::make_shared<SettingWindowArea>());
     AddArea(std::make_shared<ProjectSettingArea>());
 
-    EditorController::GetInstance()->AddMainMenu(
+    OriGine::EditorController::GetInstance()->AddMainMenu(
         std::make_unique<SettingsMenu>());
 }
 
@@ -115,7 +117,7 @@ void SettingWindowRegion::DrawGui() {
             SettingWindowRegion::kGlobalVariablesGroupName,
             "Size");
 
-        SettingWindow* settingWindow = EditorController::GetInstance()->GetWindow<SettingWindow>();
+        SettingWindow* settingWindow = OriGine::EditorController::GetInstance()->GetWindow<SettingWindow>();
         // ウィンドウを閉じる
         settingWindow->WindowCloseMassage();
     }
@@ -202,7 +204,7 @@ void ProjectSettingRegion::DrawGui() {
             "Physics",
             "Gravity");
 
-        SettingWindow* settingWindow = EditorController::GetInstance()->GetWindow<SettingWindow>();
+        SettingWindow* settingWindow = OriGine::EditorController::GetInstance()->GetWindow<SettingWindow>();
         // ウィンドウを閉じる
         settingWindow->WindowCloseMassage();
     }
@@ -233,7 +235,7 @@ SettingsWindowOpen::~SettingsWindowOpen() {}
 void SettingsWindowOpen::Initialize() {}
 
 void SettingsWindowOpen::DrawGui() {
-    SettingWindow* settingWindow = EditorController::GetInstance()->GetWindow<SettingWindow>();
+    SettingWindow* settingWindow = OriGine::EditorController::GetInstance()->GetWindow<SettingWindow>();
     bool isOpenSettingWindow     = settingWindow->IsOpen();
 
     if (ImGui::MenuItem("Settings", nullptr, &isOpenSettingWindow, !isOpenSettingWindow)) {

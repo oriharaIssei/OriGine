@@ -3,6 +3,8 @@
 #include "component/renderer/primitive/PrimitiveMeshRenderer.h"
 #include "component/renderer/primitive/shape/Plane.h"
 
+namespace OriGine {
+
 class PlaneRenderer
     : public PrimitiveMeshRenderer<Primitive::Plane> {
     friend void to_json(nlohmann::json& j, const PlaneRenderer& r);
@@ -18,3 +20,5 @@ public:
 
     void Edit(Scene* _scene, Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
 };
+
+} // namespace OriGine

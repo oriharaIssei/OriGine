@@ -36,6 +36,8 @@
 #include "util/timeline/Timeline.h"
 #endif // _DEBUG
 
+using namespace OriGine;
+
 Emitter::Emitter() : IComponent(), currentCoolTime_(0.f), leftActiveTime_(0.f) {
     isActive_       = false;
     leftActiveTime_ = 0.0f;
@@ -315,7 +317,7 @@ void Emitter::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _ent
                     std::make_shared<SetterCommand<std::string>>(&textureFileName_, filePath));
                 commandCombo->AddCommand(
                     std::make_shared<SetterCommand<int32_t>>(&textureIndex_, TextureManager::LoadTexture(filePath)));
-                EditorController::GetInstance()->PushCommand(std::move(commandCombo));
+                OriGine::EditorController::GetInstance()->PushCommand(std::move(commandCombo));
             }
         }
     }
@@ -357,12 +359,12 @@ void Emitter::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _ent
 void Emitter::EditEmitter([[maybe_unused]] const std::string& _parentLabel) {
     //======================== Emitter の 編集 ========================//
     std::string label = "BlendMode##" + _parentLabel;
-    if (ImGui::BeginCombo(label.c_str(), blendModeStr[int(blendMode_)].c_str())) {
+    if (ImGui::BeginCombo(label.c_str(), kBlendModeStr[int(blendMode_)].c_str())) {
         for (int32_t i = 0; i < kBlendNum; i++) {
             bool isSelected = (blendMode_ == BlendMode(i)); // 現在選択中かどうか
-            if (ImGui::Selectable(blendModeStr[i].c_str(), isSelected)) {
+            if (ImGui::Selectable(kBlendModeStr[i].c_str(), isSelected)) {
                 auto command = std::make_unique<SetterCommand<BlendMode>>(&blendMode_, (BlendMode)i);
-                EditorController::GetInstance()->PushCommand(std::move(command));
+                OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
                 break;
             }
         }
@@ -391,11 +393,11 @@ void Emitter::EditEmitter([[maybe_unused]] const std::string& _parentLabel) {
 void Emitter::EditShapeType([[maybe_unused]] const std::string& _parentLabel) {
     //======================== ShapeType の 切り替え ========================//
     std::string label = "EmitterShapeType##" + _parentLabel;
-    if (ImGui::BeginCombo(label.c_str(), emitterShapeTypeWord_[static_cast<int32_t>(shapeType_)].c_str())) {
-        for (int32_t i = 0; i < shapeTypeCount; i++) {
+    if (ImGui::BeginCombo(label.c_str(), kEmitterShapeTypeWord[static_cast<int32_t>(shapeType_)].c_str())) {
+        for (int32_t i = 0; i < kShapeTypeCount ; i++) {
             bool isSelected = (shapeType_ == EmitterShapeType(i)); // 現在選択中かどうか
 
-            if (ImGui::Selectable(emitterShapeTypeWord_[i].c_str(), isSelected)) {
+            if (ImGui::Selectable(kEmitterShapeTypeWord[i].c_str(), isSelected)) {
 
                 auto command = std::make_unique<SetterCommand<EmitterShapeType>>(
                     &shapeType_,
@@ -419,7 +421,7 @@ void Emitter::EditShapeType([[maybe_unused]] const std::string& _parentLabel) {
                         }
                     });
 
-                EditorController::GetInstance()->PushCommand(std::move(command));
+                OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
             }
 
             // 現在選択中の項目をハイライトする
@@ -456,7 +458,7 @@ void Emitter::EditParticle([[maybe_unused]] const std::string& _parentLabel) {
         int newInterpolationType = static_cast<int>(colorInterpolationType_);
         if (ImGui::Combo(label.c_str(), &newInterpolationType, "LINEAR\0STEP\0\0", static_cast<int>(InterpolationType::COUNT))) {
             auto command = std::make_unique<SetterCommand<InterpolationType>>(&colorInterpolationType_, (InterpolationType)newInterpolationType);
-            EditorController::GetInstance()->PushCommand(std::move(command));
+            OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
         }
     }
 
@@ -507,7 +509,7 @@ void Emitter::EditParticle([[maybe_unused]] const std::string& _parentLabel) {
         label                    = "ColorInterpolationType##" + _parentLabel;
         if (ImGui::Combo(label.c_str(), &newInterpolationType, "LINEAR\0STEP\0\0", static_cast<int>(InterpolationType::COUNT))) {
             auto command = std::make_unique<SetterCommand<InterpolationType>>(&transformInterpolationType_, (InterpolationType)newInterpolationType);
-            EditorController::GetInstance()->PushCommand(std::move(command));
+            OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
         }
     }
 
@@ -937,7 +939,7 @@ void Emitter::EditParticle([[maybe_unused]] const std::string& _parentLabel) {
         label                    = "UvInterpolationType##" + _parentLabel;
         if (ImGui::Combo(label.c_str(), &newInterpolationType, "LINEAR\0STEP\0\0", static_cast<int>(InterpolationType::COUNT))) {
             auto command = std::make_unique<SetterCommand<InterpolationType>>(&uvInterpolationType_, (InterpolationType)newInterpolationType);
-            EditorController::GetInstance()->PushCommand(std::move(command));
+            OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
         }
     }
 
@@ -1058,8 +1060,8 @@ void Emitter::EditParticle([[maybe_unused]] const std::string& _parentLabel) {
 
     if (newFlag != updateSettings_) {
         auto command = std::make_unique<SetterCommand<int32_t>>(&updateSettings_, newFlag);
-        EditorController::GetInstance()->PushCommand(std::move(command));
-        EditorController::GetInstance()->PushCommand(std::move(commandComboByChangeFlag));
+        OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
+        OriGine::EditorController::GetInstance()->PushCommand(std::move(commandComboByChangeFlag));
     }
 }
 #endif // _DEBUG
@@ -1136,7 +1138,7 @@ void Emitter::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandLis
     _commandList->DrawIndexedInstanced(UINT(mesh_.GetIndexSize()), static_cast<UINT>(structuredTransform_.openData_.size()), 0, 0, 0);
 }
 
-void from_json(const nlohmann::json& j, Emitter& e) {
+void OriGine::from_json(const nlohmann::json& j, Emitter& e) {
     j.at("blendMode").get_to(e.blendMode_);
 
     j.at("isActive").get_to(e.isActive_);
@@ -1252,7 +1254,7 @@ void from_json(const nlohmann::json& j, Emitter& e) {
     }
 }
 
-void to_json(nlohmann::json& j, const Emitter& e) {
+void OriGine::to_json(nlohmann::json& j, const Emitter& e) {
     j = nlohmann::json{
         {"blendMode", e.blendMode_},
         {"isActive", e.isActive_},

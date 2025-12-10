@@ -19,15 +19,17 @@
 /// externals
 #include "myGui/MyGui.h"
 
+using namespace OriGine;
+
 #pragma region "EntityInspector"
 
 EntityInspectorArea::EntityInspectorArea(SceneEditorWindow* _window)
     : parentWindow_(_window), Editor::Area(nameof<EntityInspectorArea>()) {}
 EntityInspectorArea::~EntityInspectorArea() {}
 void EntityInspectorArea::Initialize() {
-    AddRegion(std::make_shared<EntityInformationRegion>(this));
-    AddRegion(std::make_shared<EntityComponentRegion>(this));
-    AddRegion(std::make_shared<EntitySystemRegion>(this));
+    AddRegion(::std::make_shared<EntityInformationRegion>(this));
+    AddRegion(::std::make_shared<EntityComponentRegion>(this));
+    AddRegion(::std::make_shared<EntitySystemRegion>(this));
 }
 void EntityInspectorArea::Finalize() {
     for (auto& [name, region] : regions_) {
@@ -46,59 +48,59 @@ void EntityInformationRegion::DrawGui() {
     int32_t editEntityId = parentArea_->GetEditEntityId();
     auto editEntity      = currentScene->GetEntityRepositoryRef()->GetEntity(editEntityId);
 
-    ImGui::Text("Entity Information");
+    ::ImGui::Text("Entity Information");
     if (!editEntity) {
-        ImGui::Text("No entity selected.");
+        ::ImGui::Text("No entity selected.");
         return;
     }
 
-    if (ImGui::Button("Delete")) {
-        auto deleteCommand = std::make_unique<DeleteEntityCommand>(parentArea_, editEntityId);
-        EditorController::GetInstance()->PushCommand(std::move(deleteCommand));
+    if (::ImGui::Button("Delete")) {
+        auto deleteCommand = ::std::make_unique<DeleteEntityCommand>(parentArea_, editEntityId);
+        OriGine::EditorController::GetInstance()->PushCommand(::std::move(deleteCommand));
 
-        auto changeEditEntityCommand = std::make_unique<EntityInspectorArea::ChangeEditEntityCommand>(parentArea_, -1, editEntityId);
-        EditorController::GetInstance()->PushCommand(std::move(changeEditEntityCommand));
+        auto changeEditEntityCommand = ::std::make_unique<EntityInspectorArea::ChangeEditEntityCommand>(parentArea_, -1, editEntityId);
+        OriGine::EditorController::GetInstance()->PushCommand(::std::move(changeEditEntityCommand));
     }
 
-    if (ImGui::Button("SaveForFile")) {
+    if (::ImGui::Button("SaveForFile")) {
         SceneSerializer serializer(currentScene);
         serializer.SaveEntity(editEntityId, kApplicationResourceDirectory + "/entities");
     }
 
-    ImGui::Spacing();
-    ImGui::Separator();
-    ImGui::Spacing();
+    ::ImGui::Spacing();
+    ::ImGui::Separator();
+    ::ImGui::Spacing();
 
-    ImGui::Text("Entity ID  : %d", editEntityId);
+    ::ImGui::Text("Entity ID  : %d", editEntityId);
     {
-        std::string label = "EntityName##" + std::to_string(editEntityId);
-        ImGui::InputText(label.c_str(), &parentArea_->GetEditEntityNameRef());
+        ::std::string label = "EntityName##" + ::std::to_string(editEntityId);
+        ::ImGui::InputText(label.c_str(), &parentArea_->GetEditEntityNameRef());
 
-        if (ImGui::IsItemDeactivatedAfterEdit()) {
-            auto command = std::make_unique<ChangeEntityName>(parentArea_, editEntityId, parentArea_->GetEditEntityName());
-            EditorController::GetInstance()->PushCommand(std::move(command));
+        if (::ImGui::IsItemDeactivatedAfterEdit()) {
+            auto command = ::std::make_unique<ChangeEntityName>(parentArea_, editEntityId, parentArea_->GetEditEntityName());
+            OriGine::EditorController::GetInstance()->PushCommand(::std::move(command));
         }
     }
 
     bool isUnique = editEntity->IsUnique();
-    if (ImGui::Checkbox("Entity is Unique", &isUnique)) {
-        auto command = std::make_unique<ChangeEntityUniqueness>(parentArea_, editEntityId, editEntity->IsUnique());
-        EditorController::GetInstance()->PushCommand(std::move(command));
+    if (::ImGui::Checkbox("Entity is Unique", &isUnique)) {
+        auto command = ::std::make_unique<ChangeEntityUniqueness>(parentArea_, editEntityId, editEntity->IsUnique());
+        OriGine::EditorController::GetInstance()->PushCommand(::std::move(command));
     }
 
-    if (ImGui::IsItemHovered()) {
-        ImGui::SetTooltip("Unique entities cannot be duplicated.");
+    if (::ImGui::IsItemHovered()) {
+        ::ImGui::SetTooltip("Unique entities cannot be duplicated.");
     }
 
     bool ShouldSave = editEntity->ShouldSave();
-    if (ImGui::Checkbox("Should Save", &ShouldSave)) {
-        auto command = std::make_unique<ChangeEntityShouldSave>(parentArea_, editEntityId, !ShouldSave /*変更前に戻す*/);
-        EditorController::GetInstance()->PushCommand(std::move(command));
+    if (::ImGui::Checkbox("Should Save", &ShouldSave)) {
+        auto command = ::std::make_unique<ChangeEntityShouldSave>(parentArea_, editEntityId, !ShouldSave /*変更前に戻す*/);
+        OriGine::EditorController::GetInstance()->PushCommand(::std::move(command));
     }
 }
 void EntityInformationRegion::Finalize() {}
 
-EntityInformationRegion::ChangeEntityName::ChangeEntityName(EntityInspectorArea* _inspectorArea, int32_t _entityID, const std::string& _newName)
+EntityInformationRegion::ChangeEntityName::ChangeEntityName(EntityInspectorArea* _inspectorArea, int32_t _entityID, const ::std::string& _newName)
     : inspectorArea_(_inspectorArea), entityId_(_entityID), newName_(_newName) {
     auto currentScene = inspectorArea_->GetParentWindow()->GetCurrentScene();
     oldName_          = currentScene->GetEntityRepositoryRef()->GetEntity(entityId_)->GetDataType();
@@ -113,15 +115,15 @@ void EntityComponentRegion::DrawGui() {
     int32_t editEntityId = parentArea_->GetEditEntityId();
     auto editEntity      = currentScene->GetEntityRepositoryRef()->GetEntity(editEntityId);
 
-    ImGui::SeparatorText("Entity Components");
-    ImGui::Spacing();
+    ::ImGui::SeparatorText("Entity Components");
+    ::ImGui::Spacing();
 
     if (!editEntity) {
         return;
     }
-    ImGui::Indent();
+    ::ImGui::Indent();
 
-    if (ImGui::Button("+ Add Component")) {
+    if (::ImGui::Button("+ Add Component")) {
         auto selectAddComponentArea = parentArea_->GetParentWindow()->GetAreas().find("SelectAddComponentArea")->second.get();
         if (selectAddComponentArea) {
             auto selectArea = dynamic_cast<SelectAddComponentArea*>(selectAddComponentArea);
@@ -136,30 +138,30 @@ void EntityComponentRegion::DrawGui() {
         }
     }
 
-    ImGui::Spacing();
+    ::ImGui::Spacing();
 
     Scene* editScene         = parentArea_->GetParentWindow()->GetCurrentScene();
     auto& entityComponentMap = parentArea_->GetEntityComponentMap();
     for (const auto& [componentTypeName, components] : entityComponentMap) {
-        if (ImGui::CollapsingHeader(componentTypeName.c_str())) {
-            ImGui::Indent();
+        if (::ImGui::CollapsingHeader(componentTypeName.c_str())) {
+            ::ImGui::Indent();
             if (components.size() > 1) {
                 int32_t componentIndex = 0;
-                std::string label      = "";
+                ::std::string label      = "";
                 for (const auto& component : components) {
-                    label = componentTypeName + std::to_string(componentIndex);
+                    label = componentTypeName + ::std::to_string(componentIndex);
 
-                    if (ImGui::Button(std::string("X##" + label).c_str())) {
-                        auto removeCommand = std::make_unique<RemoveComponentFromEditListCommand>(parentArea_, componentTypeName, componentIndex);
-                        EditorController::GetInstance()->PushCommand(std::move(removeCommand));
+                    if (::ImGui::Button(::std::string("X##" + label).c_str())) {
+                        auto removeCommand = ::std::make_unique<RemoveComponentFromEditListCommand>(parentArea_, componentTypeName, componentIndex);
+                        OriGine::EditorController::GetInstance()->PushCommand(::std::move(removeCommand));
                         continue; // ボタンが押されたら次のコンポーネントへ
                     }
-                    ImGui::SameLine();
+                    ::ImGui::SameLine();
 
-                    label = std::format("{} : [{}]##{}", componentTypeName, std::to_string(componentIndex), editEntity->GetUniqueID());
-                    if (ImGui::TreeNode(label.c_str())) {
+                    label = ::std::format("{} : [{}]##{}", componentTypeName, ::std::to_string(componentIndex), editEntity->GetUniqueID());
+                    if (::ImGui::TreeNode(label.c_str())) {
                         component->Edit(editScene, editEntity, label);
-                        ImGui::TreePop();
+                        ::ImGui::TreePop();
                     }
 
                     ++componentIndex;
@@ -167,30 +169,30 @@ void EntityComponentRegion::DrawGui() {
             } else if (components.size() == 1) {
                 const auto& component = components.back();
 
-                std::string label = "";
+                ::std::string label = "";
                 label             = componentTypeName;
 
-                if (ImGui::Button(std::string("X##" + label).c_str())) {
-                    auto removeCommand = std::make_unique<RemoveComponentFromEditListCommand>(parentArea_, componentTypeName, 0);
-                    EditorController::GetInstance()->PushCommand(std::move(removeCommand));
+                if (::ImGui::Button(::std::string("X##" + label).c_str())) {
+                    auto removeCommand = ::std::make_unique<RemoveComponentFromEditListCommand>(parentArea_, componentTypeName, 0);
+                    OriGine::EditorController::GetInstance()->PushCommand(::std::move(removeCommand));
                     continue; // ボタンが押されたら次のコンポーネントへ
                 }
-                ImGui::SameLine();
+                ::ImGui::SameLine();
 
-                ImGui::Text("%s", componentTypeName.c_str());
+                ::ImGui::Text("%s", componentTypeName.c_str());
 
-                label = std::format("{}:[{}]{}", componentTypeName, std::to_string(0), editEntity->GetUniqueID());
+                label = ::std::format("{}:[{}]{}", componentTypeName, ::std::to_string(0), editEntity->GetUniqueID());
                 component->Edit(editScene, editEntity, label);
             }
-            ImGui::Unindent();
+            ::ImGui::Unindent();
         }
     }
 
-    ImGui::Unindent();
+    ::ImGui::Unindent();
 }
 void EntityComponentRegion::Finalize() {}
 
-EntityComponentRegion::RemoveComponentFromEditListCommand::RemoveComponentFromEditListCommand(EntityInspectorArea* _parentArea, const std::string& _componentTypeName, int32_t _compIndex)
+EntityComponentRegion::RemoveComponentFromEditListCommand::RemoveComponentFromEditListCommand(EntityInspectorArea* _parentArea, const ::std::string& _componentTypeName, int32_t _compIndex)
     : parentArea_(_parentArea), componentTypeName_(_componentTypeName), componentIndex_(_compIndex) {
     if (!parentArea_) {
         LOG_ERROR("RemoveComponentFromEditListCommand: parentArea is null.");
@@ -290,23 +292,23 @@ void EntitySystemRegion::DrawGui() {
     int32_t editEntityId = parentArea_->GetEditEntityId();
     auto editEntity      = currentScene->GetEntityRepositoryRef()->GetEntity(editEntityId);
 
-    ImGui::SeparatorText("Entity Systems");
-    ImGui::Spacing();
+    ::ImGui::SeparatorText("Entity Systems");
+    ::ImGui::Spacing();
 
     if (!editEntity) {
         return;
     }
 
-    ImGui::Indent();
+    ::ImGui::Indent();
 
-    if (ImGui::Button("+ System")) {
+    if (::ImGui::Button("+ System")) {
         auto selectAddSystemArea = parentArea_->GetParentWindow()->GetAreas().find("SelectAddSystemArea")->second.get();
         if (selectAddSystemArea) {
             auto selectArea = dynamic_cast<SelectAddSystemArea*>(selectAddSystemArea);
             if (selectArea) {
-                std::list<int32_t> targets = {editEntityId};
-                auto SetTargetsCommand     = std::make_unique<SelectAddSystemArea::SetTargeEntities>(selectArea, targets);
-                EditorController::GetInstance()->PushCommand(std::move(SetTargetsCommand));
+                ::std::list<int32_t> targets = {editEntityId};
+                auto SetTargetsCommand     = ::std::make_unique<SelectAddSystemArea::SetTargeEntities>(selectArea, targets);
+                OriGine::EditorController::GetInstance()->PushCommand(::std::move(SetTargetsCommand));
                 selectArea->SetOpen(true);
                 selectArea->SetFocused(true);
             } else {
@@ -323,33 +325,33 @@ void EntitySystemRegion::DrawGui() {
         if (systems.empty()) {
             continue;
         }
-        if (ImGui::CollapsingHeader(SystemCategoryString[i].c_str())) {
-            ImGui::Indent();
+        if (::ImGui::CollapsingHeader(kSystemCategoryString[i].c_str())) {
+            ::ImGui::Indent();
             for (auto& [systemName, system] : systems) {
-                std::string popupId = "ConfirmRemoveSystem##" + systemName;
-                if (ImGui::Button(systemName.c_str())) {
-                    ImGui::OpenPopup(popupId.c_str());
+                ::std::string popupId = "ConfirmRemoveSystem##" + systemName;
+                if (::ImGui::Button(systemName.c_str())) {
+                    ::ImGui::OpenPopup(popupId.c_str());
                 }
-                if (ImGui::BeginPopup(popupId.c_str())) {
-                    ImGui::Text("Are you sure you want to remove the system '%s'?", systemName.c_str());
-                    if (ImGui::Button("Yes")) {
-                        std::list<int32_t> editEntityIds = {editEntityId};
-                        auto command                     = std::make_unique<RemoveSystemCommand>(editEntityIds, systemName, system->GetCategory());
-                        EditorController::GetInstance()->PushCommand(std::move(command));
-                        ImGui::CloseCurrentPopup();
+                if (::ImGui::BeginPopup(popupId.c_str())) {
+                    ::ImGui::Text("Are you sure you want to remove the system '%s'?", systemName.c_str());
+                    if (::ImGui::Button("Yes")) {
+                        ::std::list<int32_t> editEntityIds = {editEntityId};
+                        auto command                     = ::std::make_unique<RemoveSystemCommand>(editEntityIds, systemName, system->GetCategory());
+                        OriGine::EditorController::GetInstance()->PushCommand(::std::move(command));
+                        ::ImGui::CloseCurrentPopup();
                     }
-                    ImGui::SameLine();
-                    if (ImGui::Button("No")) {
-                        ImGui::CloseCurrentPopup();
+                    ::ImGui::SameLine();
+                    if (::ImGui::Button("No")) {
+                        ::ImGui::CloseCurrentPopup();
                     }
-                    ImGui::EndPopup();
+                    ::ImGui::EndPopup();
                 }
             }
-            ImGui::Unindent();
+            ::ImGui::Unindent();
         }
     }
 
-    ImGui::Unindent();
+    ::ImGui::Unindent();
 }
 void EntitySystemRegion::Finalize() {}
 
@@ -361,7 +363,7 @@ SelectAddComponentArea::SelectAddComponentArea(SceneEditorWindow* _parentWindow)
 SelectAddComponentArea::~SelectAddComponentArea() {}
 
 void SelectAddComponentArea::Initialize() {
-    AddRegion(std::make_shared<ComponentListRegion>(this));
+    AddRegion(::std::make_shared<ComponentListRegion>(this));
     // 初期化時にコンポーネントのタイプ名をクリア
     componentTypeNames_.clear();
     targetEntityIds_.clear();
@@ -372,32 +374,32 @@ void SelectAddComponentArea::DrawGui() {
 
     if (!isOpen) {
         isOpen_.Set(isOpen);
-        isFocused_.Set(ImGui::IsWindowFocused());
+        isFocused_.Set(::ImGui::IsWindowFocused());
         UpdateFocusAndOpenState();
         return;
     }
 
-    if (ImGui::Begin(name_.c_str(), &isOpen)) {
-        if (!ImGui::IsWindowFocused()) {
-            ImGui::SetWindowFocus(); // このウィンドウを最前面に
+    if (::ImGui::Begin(name_.c_str(), &isOpen)) {
+        if (!::ImGui::IsWindowFocused()) {
+            ::ImGui::SetWindowFocus(); // このウィンドウを最前面に
         }
 
-        areaSize_ = ImGui::GetWindowSize();
+        areaSize_ = ::ImGui::GetWindowSize();
 
         for (auto& [name, region] : regions_) {
             if (region) {
-                ImGui::BeginGroup();
+                ::ImGui::BeginGroup();
                 region->DrawGui();
-                ImGui::EndGroup();
+                ::ImGui::EndGroup();
             }
         }
     }
 
     isOpen_.Set(isOpen);
-    isFocused_.Set(ImGui::IsWindowFocused());
+    isFocused_.Set(::ImGui::IsWindowFocused());
     UpdateFocusAndOpenState();
 
-    ImGui::End();
+    ::ImGui::End();
 }
 
 void SelectAddComponentArea::Finalize() {
@@ -406,7 +408,7 @@ void SelectAddComponentArea::Finalize() {
     targetEntityIds_.clear(); // 対象のエンティティIDリストをクリア
 }
 
-void SelectAddComponentArea::SetTargets(const std::list<int32_t>& _targets) {
+void SelectAddComponentArea::SetTargets(const ::std::list<int32_t>& _targets) {
     targetEntityIds_ = _targets;
 }
 
@@ -417,19 +419,19 @@ void SelectAddComponentArea::ComponentListRegion::Initialize() {
 }
 
 void SelectAddComponentArea::ComponentListRegion::DrawGui() {
-    std::string label = "Search##SelectAddComponent";
+    ::std::string label = "Search##SelectAddComponent";
 
-    ImGui::InputText(label.c_str(), &searchBuff_[0], sizeof(char) * 256);
-    searchBuff_ = std::string(searchBuff_.c_str());
+    ::ImGui::InputText(label.c_str(), &searchBuff_[0], sizeof(char) * 256);
+    searchBuff_ = ::std::string(searchBuff_.c_str());
 
-    float parentHeight = ImGui::GetWindowHeight();
-    float itemHeight   = ImGui::GetItemRectSize().y * 2.f; // 直前のアイテムの高さ
-    float padding      = ImGui::GetStyle().WindowPadding.y * 6.f;
+    float parentHeight = ::ImGui::GetWindowHeight();
+    float itemHeight   = ::ImGui::GetItemRectSize().y * 2.f; // 直前のアイテムの高さ
+    float padding      = ::ImGui::GetStyle().WindowPadding.y * 6.f;
 
     // 必要に応じてパディングを2倍（上下分）にする場合も
     float childHeight = parentHeight - (itemHeight + padding);
 
-    ImGui::BeginChild(
+    ::ImGui::BeginChild(
         "ComponentList",
         ImVec2(0, childHeight),
         ImGuiChildFlags_Border);
@@ -438,75 +440,75 @@ void SelectAddComponentArea::ComponentListRegion::DrawGui() {
 
     // ImGuiのスタイルで選択色を設定（必要に応じてアプリ全体で設定してもOK）
     ImVec4 winSelectColor = ImVec4(0.26f, 0.59f, 0.98f, 1.0f); // Windows風の青
-    ImGui::PushStyleColor(ImGuiCol_Header, winSelectColor);
-    ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.26f, 0.59f, 0.98f, 0.8f));
-    ImGui::PushStyleColor(ImGuiCol_HeaderActive, winSelectColor);
+    ::ImGui::PushStyleColor(ImGuiCol_Header, winSelectColor);
+    ::ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.26f, 0.59f, 0.98f, 0.8f));
+    ::ImGui::PushStyleColor(ImGuiCol_HeaderActive, winSelectColor);
     for (auto& [name, array] : componentRegistryMap) {
 
         if (searchBuff_.size() > 0) {
-            if (name.find(searchBuff_) == std::string::npos) {
+            if (name.find(searchBuff_) == ::std::string::npos) {
                 continue; // 検索文字列に一致しない場合はスキップ
             }
         }
 
         // 選択状態か判定
-        bool isSelected = std::find(parentArea_->componentTypeNames_.begin(), parentArea_->componentTypeNames_.end(), name) != parentArea_->componentTypeNames_.end();
+        bool isSelected = ::std::find(parentArea_->componentTypeNames_.begin(), parentArea_->componentTypeNames_.end(), name) != parentArea_->componentTypeNames_.end();
 
         // Selectableで表示
-        if (ImGui::Selectable(name.c_str(), isSelected)) {
+        if (::ImGui::Selectable(name.c_str(), isSelected)) {
             if (!isSelected) {
-                if (!ImGui::GetIO().KeyShift) {
-                    auto clearCommand = std::make_unique<ClearComponentTypeNames>(parentArea_);
-                    EditorController::GetInstance()->PushCommand(std::move(clearCommand));
+                if (!::ImGui::GetIO().KeyShift) {
+                    auto clearCommand = ::std::make_unique<ClearComponentTypeNames>(parentArea_);
+                    OriGine::EditorController::GetInstance()->PushCommand(::std::move(clearCommand));
                 }
                 // まだ選択されていなければ追加
-                auto command = std::make_unique<AddComponentTypeNames>(parentArea_, name);
-                EditorController::GetInstance()->PushCommand(std::move(command));
+                auto command = ::std::make_unique<AddComponentTypeNames>(parentArea_, name);
+                OriGine::EditorController::GetInstance()->PushCommand(::std::move(command));
             } else {
                 // すでに選択されていれば解除
-                auto command = std::make_unique<RemoveComponentTypeNames>(parentArea_, name);
-                EditorController::GetInstance()->PushCommand(std::move(command));
+                auto command = ::std::make_unique<RemoveComponentTypeNames>(parentArea_, name);
+                OriGine::EditorController::GetInstance()->PushCommand(::std::move(command));
             }
         }
     }
 
-    ImGui::PopStyleColor(3); // スタイルのポップ
+    ::ImGui::PopStyleColor(3); // スタイルのポップ
 
-    ImGui::EndChild();
+    ::ImGui::EndChild();
 
-    ImGui::Spacing();
+    ::ImGui::Spacing();
 
     if (parentArea_->componentTypeNames_.empty()) {
         bool selected = false;
-        ImGui::Selectable("OK", &selected, ImGuiSelectableFlags_Disabled);
+        ::ImGui::Selectable("OK", &selected, ImGuiSelectableFlags_Disabled);
     } else {
-        if (ImGui::Button("OK")) {
+        if (::ImGui::Button("OK")) {
             // OKボタンが押された場合、選択されたコンポーネントを追加
             for (auto& compTypeName : parentArea_->componentTypeNames_) {
-                auto addCompCommand = std::make_unique<AddComponentCommand>(parentArea_->targetEntityIds_, compTypeName);
-                EditorController::GetInstance()->PushCommand(std::move(addCompCommand));
+                auto addCompCommand = ::std::make_unique<AddComponentCommand>(parentArea_->targetEntityIds_, compTypeName);
+                OriGine::EditorController::GetInstance()->PushCommand(::std::move(addCompCommand));
             }
 
-            auto ClearEntitiesCommand = std::make_unique<ClearTargetEntities>(parentArea_);
-            EditorController::GetInstance()->PushCommand(std::move(ClearEntitiesCommand));
+            auto ClearEntitiesCommand = ::std::make_unique<ClearTargetEntities>(parentArea_);
+            OriGine::EditorController::GetInstance()->PushCommand(::std::move(ClearEntitiesCommand));
 
-            auto clearComponentNamesCommand = std::make_unique<ClearComponentTypeNames>(parentArea_);
-            EditorController::GetInstance()->PushCommand(std::move(clearComponentNamesCommand));
+            auto clearComponentNamesCommand = ::std::make_unique<ClearComponentTypeNames>(parentArea_);
+            OriGine::EditorController::GetInstance()->PushCommand(::std::move(clearComponentNamesCommand));
 
             parentArea_->isOpen_.Set(false); // エリアを閉じる
             parentArea_->isFocused_.Set(false); // フォーカスを外す
         }
     }
 
-    ImGui::SameLine();
+    ::ImGui::SameLine();
 
-    if (ImGui::Button("CANCEL")) {
+    if (::ImGui::Button("CANCEL")) {
         // キャンセルボタンが押された場合、選択をクリア
-        auto ClearEntitiesCommand = std::make_unique<ClearTargetEntities>(parentArea_);
-        EditorController::GetInstance()->PushCommand(std::move(ClearEntitiesCommand));
+        auto ClearEntitiesCommand = ::std::make_unique<ClearTargetEntities>(parentArea_);
+        OriGine::EditorController::GetInstance()->PushCommand(::std::move(ClearEntitiesCommand));
 
-        auto clearComponentNamesCommand = std::make_unique<ClearComponentTypeNames>(parentArea_);
-        EditorController::GetInstance()->PushCommand(std::move(clearComponentNamesCommand));
+        auto clearComponentNamesCommand = ::std::make_unique<ClearComponentTypeNames>(parentArea_);
+        OriGine::EditorController::GetInstance()->PushCommand(::std::move(clearComponentNamesCommand));
 
         parentArea_->isOpen_.Set(false); // エリアを閉じる
         parentArea_->isFocused_.Set(false); // フォーカスを外す
@@ -520,7 +522,7 @@ SelectAddSystemArea::SelectAddSystemArea(SceneEditorWindow* _parentWindow)
 SelectAddSystemArea::~SelectAddSystemArea() {}
 
 void SelectAddSystemArea::Initialize() {
-    AddRegion(std::make_shared<SystemListRegion>(this));
+    AddRegion(::std::make_shared<SystemListRegion>(this));
 
     isOpen_.Set(false); // 初期状態では閉じている
     isFocused_.Set(false); // 初期状態ではフォーカスされていない
@@ -530,39 +532,39 @@ void SelectAddSystemArea::DrawGui() {
 
     if (!isOpen) {
         isOpen_.Set(isOpen);
-        isFocused_.Set(ImGui::IsWindowFocused());
+        isFocused_.Set(::ImGui::IsWindowFocused());
         UpdateFocusAndOpenState();
         return;
     }
 
-    if (ImGui::Begin(name_.c_str(), &isOpen)) {
-        if (!ImGui::IsWindowFocused()) {
-            ImGui::SetWindowFocus(); // このウィンドウを最前面に
+    if (::ImGui::Begin(name_.c_str(), &isOpen)) {
+        if (!::ImGui::IsWindowFocused()) {
+            ::ImGui::SetWindowFocus(); // このウィンドウを最前面に
         }
 
-        areaSize_ = ImGui::GetWindowSize();
+        areaSize_ = ::ImGui::GetWindowSize();
 
         for (auto& [name, region] : regions_) {
             if (region) {
-                ImGui::BeginGroup();
+                ::ImGui::BeginGroup();
                 region->DrawGui();
-                ImGui::EndGroup();
+                ::ImGui::EndGroup();
             }
         }
     }
 
     isOpen_.Set(isOpen);
-    isFocused_.Set(ImGui::IsWindowFocused());
+    isFocused_.Set(::ImGui::IsWindowFocused());
     UpdateFocusAndOpenState();
 
-    ImGui::End();
+    ::ImGui::End();
 }
 void SelectAddSystemArea::Finalize() {
     Editor::Area::Finalize();
     systemTypeNames_.clear(); // システムのタイプ名をクリア
     targetEntityIds_.clear(); // 対象のエンティティIDリストをクリア
 }
-void SelectAddSystemArea::SetTargets(const std::list<int32_t>& _targets) {
+void SelectAddSystemArea::SetTargets(const ::std::list<int32_t>& _targets) {
     targetEntityIds_ = _targets;
 }
 
@@ -571,31 +573,31 @@ SelectAddSystemArea::SystemListRegion::~SystemListRegion() {}
 void SelectAddSystemArea::SystemListRegion::Initialize() {
 }
 void SelectAddSystemArea::SystemListRegion::DrawGui() {
-    std::string label = "Search##SelectAddSystem";
-    ImGui::InputText(label.c_str(), &searchBuff_[0], sizeof(char) * 256);
-    searchBuff_ = std::string(searchBuff_.c_str());
+    ::std::string label = "Search##SelectAddSystem";
+    ::ImGui::InputText(label.c_str(), &searchBuff_[0], sizeof(char) * 256);
+    searchBuff_ = ::std::string(searchBuff_.c_str());
 
-    float parentHeight = ImGui::GetWindowHeight();
-    float itemHeight   = ImGui::GetItemRectSize().y * 2.f; // 直前のアイテムの高さ
-    float padding      = ImGui::GetStyle().WindowPadding.y * 6.f;
+    float parentHeight = ::ImGui::GetWindowHeight();
+    float itemHeight   = ::ImGui::GetItemRectSize().y * 2.f; // 直前のアイテムの高さ
+    float padding      = ::ImGui::GetStyle().WindowPadding.y * 6.f;
 
     // 必要に応じてパディングを2倍（上下分）にする場合も
     float childHeight = parentHeight - (itemHeight + padding);
 
-    ImGui::BeginChild(
+    ::ImGui::BeginChild(
         "ComponentList",
         ImVec2(0, childHeight),
         ImGuiChildFlags_Border | ImGuiChildFlags_AlwaysUseWindowPadding);
 
-    auto sceneEditorWindow = EditorController::GetInstance()->GetWindow<SceneEditorWindow>();
+    auto sceneEditorWindow = OriGine::EditorController::GetInstance()->GetWindow<SceneEditorWindow>();
     auto currentScene      = sceneEditorWindow->GetCurrentScene();
     auto systemInspector   = dynamic_cast<SystemInspectorArea*>(sceneEditorWindow->GetArea(nameof<SystemInspectorArea>()).get());
     auto& systemsMap       = systemInspector->GetSystemMap();
 
     ImVec4 winSelectColor = ImVec4(0.26f, 0.59f, 0.98f, 1.0f);
-    ImGui::PushStyleColor(ImGuiCol_Header, winSelectColor);
-    ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.26f, 0.59f, 0.98f, 0.8f));
-    ImGui::PushStyleColor(ImGuiCol_HeaderActive, winSelectColor);
+    ::ImGui::PushStyleColor(ImGuiCol_Header, winSelectColor);
+    ::ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.26f, 0.59f, 0.98f, 0.8f));
+    ::ImGui::PushStyleColor(ImGuiCol_HeaderActive, winSelectColor);
 
     if (searchBuff_.empty()) {
         // カテゴリごとに見出しをつけて表示
@@ -604,11 +606,11 @@ void SelectAddSystemArea::SystemListRegion::DrawGui() {
             if (systemsByCategory.empty()) {
                 continue;
             }
-            const std::string& categoryName = SystemCategoryString[i];
-            if (ImGui::CollapsingHeader(categoryName.c_str())) {
-                ImGui::Indent();
+            const ::std::string& categoryName = kSystemCategoryString[i];
+            if (::ImGui::CollapsingHeader(categoryName.c_str())) {
+                ::ImGui::Indent();
                 for (auto& [name, priority] : systemsByCategory) {
-                    ISystem* system = currentScene->GetSystem(name);
+                    OriGine::ISystem* system = currentScene->GetSystem(name);
 
                     if (!system) {
                         continue;
@@ -617,22 +619,22 @@ void SelectAddSystemArea::SystemListRegion::DrawGui() {
                         continue;
                     }
 
-                    bool isSelected = std::find(parentArea_->systemTypeNames_.begin(), parentArea_->systemTypeNames_.end(), name) != parentArea_->systemTypeNames_.end();
-                    if (ImGui::Selectable(name.c_str(), isSelected)) {
+                    bool isSelected = ::std::find(parentArea_->systemTypeNames_.begin(), parentArea_->systemTypeNames_.end(), name) != parentArea_->systemTypeNames_.end();
+                    if (::ImGui::Selectable(name.c_str(), isSelected)) {
                         if (!isSelected) {
-                            if (!ImGui::GetIO().KeyShift) {
-                                auto clearCommand = std::make_unique<ClearSystemNames>(parentArea_);
-                                EditorController::GetInstance()->PushCommand(std::move(clearCommand));
+                            if (!::ImGui::GetIO().KeyShift) {
+                                auto clearCommand = ::std::make_unique<ClearSystemNames>(parentArea_);
+                                OriGine::EditorController::GetInstance()->PushCommand(::std::move(clearCommand));
                             }
-                            auto command = std::make_unique<AddSystemNames>(parentArea_, name);
-                            EditorController::GetInstance()->PushCommand(std::move(command));
+                            auto command = ::std::make_unique<AddSystemNames>(parentArea_, name);
+                            OriGine::EditorController::GetInstance()->PushCommand(::std::move(command));
                         } else {
-                            auto command = std::make_unique<RemoveSystemNames>(parentArea_, name);
-                            EditorController::GetInstance()->PushCommand(std::move(command));
+                            auto command = ::std::make_unique<RemoveSystemNames>(parentArea_, name);
+                            OriGine::EditorController::GetInstance()->PushCommand(::std::move(command));
                         }
                     }
                 }
-                ImGui::Unindent();
+                ::ImGui::Unindent();
             }
         }
     } else {
@@ -640,7 +642,7 @@ void SelectAddSystemArea::SystemListRegion::DrawGui() {
         for (size_t i = 0; i < systemsMap.size(); ++i) {
             auto& systemsByCategory = systemsMap[i];
             for (auto& [name, priority] : systemsByCategory) {
-                ISystem* system = currentScene->GetSystem(name);
+                OriGine::ISystem* system = currentScene->GetSystem(name);
 
                 if (!system) {
                     continue;
@@ -649,54 +651,54 @@ void SelectAddSystemArea::SystemListRegion::DrawGui() {
                     continue;
                 }
 
-                if (name.find(searchBuff_) == std::string::npos) {
+                if (name.find(searchBuff_) == ::std::string::npos) {
                     continue;
                 }
 
-                bool isSelected = std::find(parentArea_->systemTypeNames_.begin(), parentArea_->systemTypeNames_.end(), name) != parentArea_->systemTypeNames_.end();
-                if (ImGui::Selectable(name.c_str(), isSelected)) {
+                bool isSelected = ::std::find(parentArea_->systemTypeNames_.begin(), parentArea_->systemTypeNames_.end(), name) != parentArea_->systemTypeNames_.end();
+                if (::ImGui::Selectable(name.c_str(), isSelected)) {
                     if (!isSelected) {
-                        if (!ImGui::GetIO().KeyShift) {
-                            auto clearCommand = std::make_unique<ClearSystemNames>(parentArea_);
-                            EditorController::GetInstance()->PushCommand(std::move(clearCommand));
+                        if (!::ImGui::GetIO().KeyShift) {
+                            auto clearCommand = ::std::make_unique<ClearSystemNames>(parentArea_);
+                            OriGine::EditorController::GetInstance()->PushCommand(::std::move(clearCommand));
                         }
-                        auto command = std::make_unique<AddSystemNames>(parentArea_, name);
-                        EditorController::GetInstance()->PushCommand(std::move(command));
+                        auto command = ::std::make_unique<AddSystemNames>(parentArea_, name);
+                        OriGine::EditorController::GetInstance()->PushCommand(::std::move(command));
                     } else {
-                        auto command = std::make_unique<RemoveSystemNames>(parentArea_, name);
-                        EditorController::GetInstance()->PushCommand(std::move(command));
+                        auto command = ::std::make_unique<RemoveSystemNames>(parentArea_, name);
+                        OriGine::EditorController::GetInstance()->PushCommand(::std::move(command));
                     }
                 }
             }
         }
     }
-    ImGui::PopStyleColor(3);
+    ::ImGui::PopStyleColor(3);
 
-    ImGui::EndChild();
+    ::ImGui::EndChild();
 
-    ImGui::Spacing();
+    ::ImGui::Spacing();
 
     if (parentArea_->systemTypeNames_.empty()) {
         bool selected = false;
-        ImGui::Selectable("OK", &selected, ImGuiSelectableFlags_Disabled);
+        ::ImGui::Selectable("OK", &selected, ImGuiSelectableFlags_Disabled);
     } else {
-        if (ImGui::Button("OK")) {
-            auto addSystemCommand = std::make_unique<AddSystemsForTargetEntities>(parentArea_, parentArea_->targetEntityIds_, parentArea_->systemTypeNames_);
-            EditorController::GetInstance()->PushCommand(std::move(addSystemCommand));
-            auto ClearEntitiesCommand = std::make_unique<ClearTargetEntities>(parentArea_);
-            EditorController::GetInstance()->PushCommand(std::move(ClearEntitiesCommand));
-            auto clearSystemNamesCommand = std::make_unique<ClearSystemNames>(parentArea_);
-            EditorController::GetInstance()->PushCommand(std::move(clearSystemNamesCommand));
+        if (::ImGui::Button("OK")) {
+            auto addSystemCommand = ::std::make_unique<AddSystemsForTargetEntities>(parentArea_, parentArea_->targetEntityIds_, parentArea_->systemTypeNames_);
+            OriGine::EditorController::GetInstance()->PushCommand(::std::move(addSystemCommand));
+            auto ClearEntitiesCommand = ::std::make_unique<ClearTargetEntities>(parentArea_);
+            OriGine::EditorController::GetInstance()->PushCommand(::std::move(ClearEntitiesCommand));
+            auto clearSystemNamesCommand = ::std::make_unique<ClearSystemNames>(parentArea_);
+            OriGine::EditorController::GetInstance()->PushCommand(::std::move(clearSystemNamesCommand));
             parentArea_->isOpen_.Set(false);
             parentArea_->isFocused_.Set(false);
         }
     }
-    ImGui::SameLine();
-    if (ImGui::Button("CANCEL")) {
-        auto ClearEntitiesCommand = std::make_unique<ClearTargetEntities>(parentArea_);
-        EditorController::GetInstance()->PushCommand(std::move(ClearEntitiesCommand));
-        auto clearSystemNamesCommand = std::make_unique<ClearSystemNames>(parentArea_);
-        EditorController::GetInstance()->PushCommand(std::move(clearSystemNamesCommand));
+    ::ImGui::SameLine();
+    if (::ImGui::Button("CANCEL")) {
+        auto ClearEntitiesCommand = ::std::make_unique<ClearTargetEntities>(parentArea_);
+        OriGine::EditorController::GetInstance()->PushCommand(::std::move(ClearEntitiesCommand));
+        auto clearSystemNamesCommand = ::std::make_unique<ClearSystemNames>(parentArea_);
+        OriGine::EditorController::GetInstance()->PushCommand(::std::move(clearSystemNamesCommand));
         parentArea_->isOpen_.Set(false);
         parentArea_->isFocused_.Set(false);
     }
@@ -740,7 +742,7 @@ void EntityInspectorArea::ChangeEditEntityCommand::Execute() {
     /// Components の読み込み
     auto& entityCompData = toEntityData_.at("Components");
     for (auto& compData : entityCompData.items()) {
-        const std::string& compTypeName = compData.key();
+        const ::std::string& compTypeName = compData.key();
         auto compArray                  = componentMap.find(compTypeName);
         if (compArray == componentMap.end()) {
             LOG_ERROR("ChangeEditEntityCommand::Execute: Component type '{}' not found in component map.", compTypeName);
@@ -761,13 +763,13 @@ void EntityInspectorArea::ChangeEditEntityCommand::Execute() {
     auto& entitySystemData = toEntityData_.at("Systems");
     auto& systemMap        = currentScene->GetSystemRunnerRef()->GetSystems();
     for (auto& systemData : entitySystemData.items()) {
-        const std::string& systemName = systemData.value().at("SystemName");
+        const ::std::string& systemName = systemData.value().at("SystemName");
         auto systemItr                = systemMap.find(systemName);
         if (systemItr == systemMap.end()) {
             LOG_ERROR("ChangeEditEntityCommand::Execute: System '{}' not found .", systemName);
             continue;
         }
-        ISystem* system = systemItr->second.get();
+        OriGine::ISystem* system = systemItr->second.get();
         if (!system) {
             LOG_ERROR("ChangeEditEntityCommand::Execute: System '{}' not found for entity ID '{}'.", systemName, toId_);
             continue;
@@ -801,7 +803,7 @@ void EntityInspectorArea::ChangeEditEntityCommand::Undo() {
     /// Components の読み込み
     auto& entityCompData = fromEntityData_.at("Components");
     for (auto& compData : entityCompData.items()) {
-        const std::string& compTypeName = compData.key();
+        const ::std::string& compTypeName = compData.key();
         auto compArray                  = componentMap.find(compTypeName);
         if (compArray == componentMap.end()) {
             LOG_ERROR("ChangeEditEntityCommand::Execute: Component type '{}' not found in component map.", compTypeName);
@@ -822,13 +824,13 @@ void EntityInspectorArea::ChangeEditEntityCommand::Undo() {
     auto& entitySystemData = fromEntityData_.at("Systems");
     auto& systemMap        = currentScene->GetSystemRunnerRef()->GetSystems();
     for (auto& systemData : entitySystemData.items()) {
-        const std::string& systemName = systemData.value().at("SystemName");
+        const ::std::string& systemName = systemData.value().at("SystemName");
         auto systemItr                = systemMap.find(systemName);
         if (systemItr == systemMap.end()) {
             LOG_ERROR("ChangeEditEntityCommand::Execute: System '{}' not found .", systemName);
             continue;
         }
-        ISystem* system = systemItr->second.get();
+        OriGine::ISystem* system = systemItr->second.get();
         if (!system) {
             LOG_ERROR("ChangeEditEntityCommand::Execute: System '{}' not found for entity ID '{}'.", systemName, toId_);
             continue;
@@ -929,7 +931,7 @@ void SelectAddComponentArea::AddComponentTypeNames::Execute() {
 
 void SelectAddComponentArea::AddComponentTypeNames::Undo() {
     auto& componentTypeNames = parentArea_->componentTypeNames_;
-    auto it                  = std::remove(componentTypeNames.begin(), componentTypeNames.end(), componentTypeName_);
+    auto it                  = ::std::remove(componentTypeNames.begin(), componentTypeNames.end(), componentTypeName_);
     if (it != componentTypeNames.end()) {
         componentTypeNames.erase(it, componentTypeNames.end());
     }
@@ -945,7 +947,7 @@ void SelectAddComponentArea::SetTargeEntities::Undo() {
 
 void SelectAddComponentArea::RemoveComponentTypeNames::Execute() {
     auto& componentTypeNames = parentArea_->componentTypeNames_;
-    auto it                  = std::remove(componentTypeNames.begin(), componentTypeNames.end(), componentTypeName_);
+    auto it                  = ::std::remove(componentTypeNames.begin(), componentTypeNames.end(), componentTypeName_);
     if (it != componentTypeNames.end()) {
         componentTypeNames.erase(it, componentTypeNames.end());
     }
@@ -981,14 +983,14 @@ void SelectAddSystemArea::AddSystemNames::Execute() {
 }
 
 void SelectAddSystemArea::AddSystemNames::Undo() {
-    std::string popName = parentArea_->systemTypeNames_.back();
+    ::std::string popName = parentArea_->systemTypeNames_.back();
     parentArea_->systemTypeNames_.pop_back();
     LOG_DEBUG("SelectAddSystemArea::AddSystemNames::Undo: Removed system type name '{}'.", popName);
 }
 
 void SelectAddSystemArea::RemoveSystemNames::Execute() {
     auto& systemTypeNames = parentArea_->systemTypeNames_;
-    auto it               = std::remove(systemTypeNames.begin(), systemTypeNames.end(), systemTypeName_);
+    auto it               = ::std::remove(systemTypeNames.begin(), systemTypeNames.end(), systemTypeName_);
     if (it != systemTypeNames.end()) {
         systemTypeNames.erase(it, systemTypeNames.end());
         LOG_DEBUG("SelectAddSystemArea::RemoveSystemNames::Execute: Removed system type name '{}'.", systemTypeName_);
@@ -1057,7 +1059,7 @@ void SelectAddSystemArea::AddSystemsForTargetEntities::Execute() {
             for (const auto& systemTypeName : parentArea_->systemTypeNames_) {
                 currentScene->GetSystemRunnerRef()->RegisterEntity(systemTypeName, entity);
 
-                ISystem* system                                                                     = currentScene->GetSystemRunnerRef()->GetSystem(systemTypeName);
+                OriGine::ISystem* system                                                            = currentScene->GetSystemRunnerRef()->GetSystem(systemTypeName);
                 entityInspectorArea->GetSystemMap()[int32_t(system->GetCategory())][systemTypeName] = system;
             }
         } else {
@@ -1095,7 +1097,7 @@ void SelectAddSystemArea::AddSystemsForTargetEntities::Undo() {
         if (editEntityId == entityId) {
             for (const auto& systemTypeName : parentArea_->systemTypeNames_) {
                 currentScene->GetSystemRunnerRef()->RemoveEntity(systemTypeName, entity);
-                ISystem* system = currentScene->GetSystemRunnerRef()->GetSystem(systemTypeName);
+                OriGine::ISystem* system = currentScene->GetSystemRunnerRef()->GetSystem(systemTypeName);
                 auto& systems   = entityInspectorArea->GetSystemMap()[int32_t(system->GetCategory())];
                 auto itr        = systems.find(systemTypeName);
                 if (itr != systems.end()) {
@@ -1148,7 +1150,7 @@ void EntityInformationRegion::DeleteEntityCommand::Undo() {
     LOG_DEBUG("DeleteEntityCommand::Undo: Restored entity with ID '{}'.", entityId_);
 }
 
-RemoveComponentForEntityCommand::RemoveComponentForEntityCommand(Scene* _scene, const std::string& _componentTypeName, int32_t _entityId, int32_t _compIndex)
+RemoveComponentForEntityCommand::RemoveComponentForEntityCommand(Scene* _scene, const ::std::string& _componentTypeName, int32_t _entityId, int32_t _compIndex)
     : scene_(_scene), componentTypeName_(_componentTypeName), entityId_(_entityId), compIndex_(_compIndex) {
     if (!scene_) {
         LOG_ERROR("RemoveComponentForEntityCommand: Scene is null.");

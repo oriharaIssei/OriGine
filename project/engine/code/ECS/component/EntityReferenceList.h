@@ -2,8 +2,11 @@
 
 #include "component/IComponent.h"
 
+/// stl
 #include <string>
 #include <vector>
+
+namespace OriGine {
 
 /// <summary>
 /// エンティティ参照リストコンポーネント
@@ -29,3 +32,5 @@ public:
         return entityFileList_;
     }
 };
+
+} // namespace OriGine

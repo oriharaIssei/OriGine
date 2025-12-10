@@ -8,6 +8,8 @@
 /// math
 #include "Vector4.h"
 
+namespace OriGine {
+
 /// <summary>
 /// Vignette の パラメーター情報(GPUに送るもの)
 /// </summary>
@@ -47,10 +49,10 @@ public:
     VignetteParam()           = default;
     ~VignetteParam() override = default;
 
-    void Initialize(Entity* _entity);
+    void Initialize(OriGine::Entity* _entity)override;
 
-    void Edit(Scene* _scene,Entity* _entity,[[maybe_unused]] const std::string& _parentLabel);
-    void Finalize();
+    void Edit(Scene* _scene, OriGine::Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
+    void Finalize() override;
 
 private:
     IConstantBuffer<VignetteBufferParam> paramBuffer;
@@ -82,3 +84,5 @@ public:
         paramBuffer.openData_ = _p;
     }
 };
+
+} // namespace OriGine

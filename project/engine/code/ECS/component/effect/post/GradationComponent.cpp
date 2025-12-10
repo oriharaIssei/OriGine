@@ -1,17 +1,23 @@
 #include "GradationComponent.h"
 
+/// engine
 #define ENGINE_INCLUDE
 #define RESOURCE_DIRECTORY
 #include "EngineInclude.h"
 #include "scene/Scene.h"
 #include "texture/TextureManager.h"
+// directX12
+#include "directX12/DxDevice.h"
 
+/// util
 #ifdef _DEBUG
 #include "myFileSystem/MyFileSystem.h"
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
-void to_json(nlohmann::json& j, const GradationComponent& _g) {
+using namespace OriGine;
+
+void OriGine::to_json(nlohmann::json& j, const GradationComponent& _g) {
     j["isActive"] = _g.isActive_;
 
     j["materialIndex"] = _g.materialIndex_;
@@ -25,7 +31,7 @@ void to_json(nlohmann::json& j, const GradationComponent& _g) {
     j["gradationType"] = static_cast<int32_t>(_g.paramBuff_.openData_.gradationType);
 }
 
-void from_json(const nlohmann::json& j, GradationComponent& _g) {
+void OriGine::from_json(const nlohmann::json& j, GradationComponent& _g) {
     if (j.contains("centerUv")) {
         j.at("centerUv").get_to(_g.paramBuff_.openData_.centerUv);
     }
@@ -39,7 +45,7 @@ void from_json(const nlohmann::json& j, GradationComponent& _g) {
         j.at("pow").get_to(_g.paramBuff_.openData_.pow);
     }
 
-    _g.materialIndex_ = j.value("materialIndex", -1);
+    _g.materialIndex_                     = j.value("materialIndex", -1);
     _g.paramBuff_.openData_.colorChannel  = static_cast<ColorChannel>(j.value("colorChannel", 0));
     _g.paramBuff_.openData_.gradationType = static_cast<GradationType>(j.value("gradationType", 0));
 }
@@ -61,7 +67,7 @@ void GradationComponent::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] E
     } else {
         if (materialIndex_ > 0) {
             auto command = std::make_unique<SetterCommand<int32_t>>(&materialIndex_, -1);
-            EditorController::GetInstance()->PushCommand(std::move(command));
+            OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
         }
     }
 

@@ -7,6 +7,8 @@
 #include <cstdint>
 #include <memory>
 
+namespace OriGine {
+//// 前方宣言
 /// engine
 // directX12 Object
 class DxCommand;
@@ -44,8 +46,10 @@ private:
 
     bool usingCS_ = false;
 
-    const int32_t particleBufferIndex_     = 0;
-    const int32_t freeIndexBufferIndex_    = 1;
-    const int32_t freeListBufferIndex_     = 2;
-    const int32_t emitterShapeIndex        = 3;
+    const int32_t kParticleBufferIndex_  = 0;
+    const int32_t kFreeIndexBufferIndex_ = 1;
+    const int32_t kFreeListBufferIndex_  = 2;
+    const int32_t kEmitterShapeIndex     = 3;
 };
+
+} // namespace OriGine

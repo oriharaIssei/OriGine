@@ -16,8 +16,9 @@
 #include "directX12/DxDevice.h"
 #include "directX12/RenderTexture.h"
 
-DistortionEffect::DistortionEffect() : BasePostRenderingSystem() {}
+using namespace OriGine;
 
+DistortionEffect::DistortionEffect() : BasePostRenderingSystem() {}
 DistortionEffect::~DistortionEffect() {}
 
 void DistortionEffect::Initialize() {
@@ -54,7 +55,7 @@ void DistortionEffect::Finalize() {
 void DistortionEffect::CreatePSO() {
     ShaderManager* shaderManager = ShaderManager::GetInstance();
     shaderManager->LoadShader("FullScreen.VS");
-    shaderManager->LoadShader("Distortion.PS", shaderDirectory, L"ps_6_0");
+    shaderManager->LoadShader("Distortion.PS", kShaderDirectory, L"ps_6_0");
     ShaderInformation shaderInfo{};
     shaderInfo.vsKey = "FullScreen.VS";
     shaderInfo.psKey = "Distortion.PS";
@@ -262,8 +263,8 @@ void DistortionEffect::DispatchComponent(Entity* _entity) {
                     // 後に すべての Objectを描画し一度だけシーンテクスチャに描画するため、
                     // 前もってエフェクトパラメータを反映させておく
                     Material data  = *material;
-                    data.color_[R] = (data.color_[R] - paramData.distortionBias[X]) * paramData.distortionStrength[X];
-                    data.color_[G] = (data.color_[G] - paramData.distortionBias[Y]) * paramData.distortionStrength[Y];
+                    data.color_[X] = (data.color_[X] - paramData.distortionBias[X]) * paramData.distortionStrength[X];
+                    data.color_[Y] = (data.color_[Y] - paramData.distortionBias[Y]) * paramData.distortionStrength[Y];
                     if (material->hasCustomTexture()) {
                         data.SetCustomTexture(material->GetCustomTexture()->srv_, material->GetCustomTexture()->resource_);
                     }

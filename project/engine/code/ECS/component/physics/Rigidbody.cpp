@@ -6,6 +6,8 @@
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
+using namespace OriGine;
+
 Rigidbody::Rigidbody() {}
 
 void Rigidbody::Initialize(Entity* _entity) {
@@ -43,7 +45,7 @@ void Rigidbody::Debug() {
 
 void Rigidbody::Finalize() {}
 
-void to_json(nlohmann::json& j, const Rigidbody& r) {
+void OriGine::to_json(nlohmann::json& j, const Rigidbody& r) {
     j["acceleration"] = r.acceleration_;
     j["velocity"]     = r.velocity_;
     j["maxXZSpeed"]   = r.maxXZSpeed_;
@@ -51,7 +53,7 @@ void to_json(nlohmann::json& j, const Rigidbody& r) {
     j["useGravity"]   = r.useGravity_;
     j["maxFallSpeed"] = r.maxFallSpeed_;
 }
-void from_json(const nlohmann::json& j, Rigidbody& r) {
+void OriGine::from_json(const nlohmann::json& j, Rigidbody& r) {
     j.at("acceleration").get_to(r.acceleration_);
     j.at("velocity").get_to(r.velocity_);
     if (j.contains("maxXZSpeed")) {

@@ -1,15 +1,18 @@
 #pragma once
-#include "Collider.h"
 
+#include "Collider.h"
+/// math
 #include "bounds/OBB.h"
 
+namespace OriGine {
+
 class OBBCollider
-    : public Collider<math::bounds::OBB> {
+    : public Collider<Bounds::OBB> {
     friend void to_json(nlohmann::json& _json, const OBBCollider& _o);
     friend void from_json(const nlohmann::json& _json, OBBCollider& _o);
 
 public:
-    OBBCollider() : Collider<math::bounds::OBB>() {}
+    OBBCollider() : Collider<Bounds::OBB>() {}
     ~OBBCollider() {}
 
     void Edit(Scene* _scene, Entity* _entity, const std::string& _parentLabel) override;
@@ -29,3 +32,5 @@ public: // accessor
     const Orientation& GetLocalOrientations() const { return shape_.orientations_; }
     void SetRotate(const Quaternion& _rotate) { shape_.orientations_.SetRotation(_rotate); }
 };
+
+} // namespace OriGine

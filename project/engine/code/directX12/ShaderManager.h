@@ -1,9 +1,10 @@
 #pragma once
 
+/// Microsoft
+#include <wrl.h>
 /// stl
 // memory
 #include <memory>
-#include <wrl.h>
 
 // container
 #include <array>
@@ -20,11 +21,13 @@
 #define RESOURCE_DIRECTORY
 #include "EngineInclude.h"
 // dx12object
+#include "directX12/BlendMode.h"
 #include "directX12/PipelineStateObj.h"
 #include "directX12/ShaderCompiler.h"
-#include "directX12/BlendMode.h"
 
-const std::string shaderDirectory = "engine/resource/Shader";
+namespace OriGine {
+
+const std::string kShaderDirectory = "engine/resource/Shader";
 
 class ShaderManager;
 /// <summary>
@@ -134,7 +137,7 @@ public:
     /// <summary>
     /// Shaderを読み込んで登録する
     /// </summary>
-    bool LoadShader(const std::string& fileName, const std::string& directory = shaderDirectory, const wchar_t* profile = L"vs_6_0");
+    bool LoadShader(const std::string& fileName, const std::string& directory = kShaderDirectory, const wchar_t* profile = L"vs_6_0");
 
 private:
     ShaderManager() = default;
@@ -148,7 +151,6 @@ private:
     std::unordered_map<std::string, std::unique_ptr<PipelineStateObj>> psoMap_;
 
 public:
-
     ShaderCompiler* GetShaderCompiler() const { return shaderCompiler_.get(); }
 
     /// <summary>
@@ -169,3 +171,5 @@ public:
     PipelineStateObj* GetPipelineStateObj(const std::string& key);
     Microsoft::WRL::ComPtr<IDxcBlob>* GetShaderBlob(const std::string& key);
 };
+
+} // namespace OriGine

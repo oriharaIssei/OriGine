@@ -6,6 +6,7 @@
 // directX12
 #include "directX12/mesh/Mesh.h"
 
+namespace OriGine {
 namespace Primitive {
 
 /// <summary>
@@ -43,5 +44,5 @@ public: // accessor
 
 template <typename T>
 concept IsPrimitive = std::derived_from<T, IPrimitive>;
-
 }
+} // namespace OriGine

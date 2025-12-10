@@ -1,16 +1,20 @@
 #pragma once
 
+/// Microsoft
 #include <wrl.h>
 
+/// engine
 #include "winApp/WinApp.h"
-
+// directX12
 #include "directX12/DxCommand.h"
 #include "directX12/DxDevice.h"
 #include "directX12/DxFence.h"
 #include "directX12/DxSwapChain.h"
-
+/// math
 #include "Vector2.h"
 #include "Vector4.h"
+
+namespace OriGine {
 
 /// <summary>
 /// DirectX12 関数群 ヘルパークラス
@@ -52,3 +56,5 @@ public:
     static void PostDraw(DxCommand* dxCommand, DxFence* dxFence, DxSwapChain* dxSwapChain);
 };
 using DxFH = DxFunctionHelper;
+
+} // namespace OriGine

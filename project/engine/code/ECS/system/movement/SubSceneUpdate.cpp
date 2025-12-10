@@ -6,6 +6,8 @@
 // component
 #include "component/SubScene.h"
 
+using namespace OriGine;
+
 void SubSceneUpdate::UpdateEntity(Entity* _entity) {
     auto subScenes = GetComponents<SubScene>(_entity);
     if (subScenes == nullptr) {
@@ -28,8 +30,7 @@ void SubSceneUpdate::UpdateEntity(Entity* _entity) {
 
             // シーンマネージャー を継承
             scene->SetSceneManager(
-                GetScene()->GetSceneManager()
-            );
+                GetScene()->GetSceneManager());
 
             // 入力デバイスを継承
             scene->SetInputDevices(

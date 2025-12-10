@@ -11,6 +11,8 @@
 /// math
 #include <cmath>
 
+namespace OriGine {
+
 enum class Key : uint32_t {
     ONE   = DIK_1,
     TWO   = DIK_2,
@@ -136,7 +138,7 @@ enum class Key : uint32_t {
     RIGHT_ALT     = RALT,
     R_ALT         = RALT
 };
-static std::map<Key, std::string> keyNameMap = {
+static ::std::map<Key, ::std::string> keyNameMap = {
     {Key::ONE, "ONE"},
     {Key::TWO, "TWO"},
     {Key::THREE, "THREE"},
@@ -264,12 +266,12 @@ public:
 
 private:
     Microsoft::WRL::ComPtr<IDirectInputDevice8> keyboard_;
-    std::array<BYTE, KEY_COUNT> keys_{};
-    std::array<BYTE, KEY_COUNT> prevKeys_{};
+    ::std::array<BYTE, KEY_COUNT> keys_{};
+    ::std::array<BYTE, KEY_COUNT> prevKeys_{};
 
 public:
-    const std::array<BYTE, KEY_COUNT>& GetKeyStates() const { return keys_; }
-    const std::array<BYTE, KEY_COUNT>& GetPrevKeyStates() const { return prevKeys_; }
+    const ::std::array<BYTE, KEY_COUNT>& GetKeyStates() const { return keys_; }
+    const ::std::array<BYTE, KEY_COUNT>& GetPrevKeyStates() const { return prevKeys_; }
 
     /// <summary>
     /// キー状態をクリアする(今と前回分の状態を初期化)
@@ -303,3 +305,5 @@ public:
         return (!keys_[keyNum] && prevKeys_[keyNum]);
     }
 };
+
+} // namespace OriGine

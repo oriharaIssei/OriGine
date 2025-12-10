@@ -1,5 +1,8 @@
 #include "BackGroundSpriteRenderSystem.h"
 
+/// stl
+#include <algorithm>
+
 /// engine
 #include "Engine.h"
 // directX12Object
@@ -8,8 +11,11 @@
 #include "camera/CameraManager.h"
 #include "texture/TextureManager.h"
 #include "winApp/WinApp.h"
-// ECS
+/// ECS
+// component
 #include "component/renderer/Sprite.h"
+
+using namespace OriGine;
 
 BackGroundSpriteRenderSystem::BackGroundSpriteRenderSystem() : BaseRenderSystem() {}
 BackGroundSpriteRenderSystem::~BackGroundSpriteRenderSystem() {}
@@ -57,7 +63,7 @@ void BackGroundSpriteRenderSystem::Rendering() {
             TextureManager::GetDescriptorGpuHandle(renderer->GetTextureNumber()));
 
         // mesh
-        SpriteMesh& mesh = renderer->GetMeshGroup()->at(0);
+        const OriGine::SpriteMesh& mesh = renderer->GetMeshGroup()->at(0);
         commandList->IASetVertexBuffers(0, 1, &mesh.GetVBView());
         commandList->IASetIndexBuffer(&mesh.GetIBView());
 
@@ -100,18 +106,18 @@ void BackGroundSpriteRenderSystem::CreatePSO() {
     ShaderManager* shaderManager = ShaderManager::GetInstance();
 
     // 登録されているかどうかをチェック
-    if (shaderManager->IsRegisteredPipelineStateObj("BackGroundSprite_" + blendModeStr[0])) {
+    if (shaderManager->IsRegisteredPipelineStateObj("BackGroundSprite_" + kBlendModeStr[0])) {
         for (size_t i = 0; i < kBlendNum; ++i) {
             if (psoByBlendMode_[i]) {
                 continue;
             }
-            psoByBlendMode_[i] = shaderManager->GetPipelineStateObj("BackGroundSprite_" + blendModeStr[i]);
+            psoByBlendMode_[i] = shaderManager->GetPipelineStateObj("BackGroundSprite_" + kBlendModeStr[i]);
         }
         return;
     }
 
     shaderManager->LoadShader("Sprite.VS");
-    shaderManager->LoadShader("Sprite.PS", shaderDirectory, L"ps_6_0");
+    shaderManager->LoadShader("Sprite.PS", kShaderDirectory, L"ps_6_0");
 
     ShaderInformation shaderInfo{};
     shaderInfo.vsKey = "Sprite.VS";
@@ -190,7 +196,7 @@ void BackGroundSpriteRenderSystem::CreatePSO() {
     for (size_t i = 0; i < kBlendNum; i++) {
         shaderInfo.blendMode_ = static_cast<BlendMode>(i);
 
-        psoByBlendMode_[i] = shaderManager->CreatePso("BackGroundSprite_" + blendModeStr[i], shaderInfo, Engine::GetInstance()->GetDxDevice()->device_);
+        psoByBlendMode_[i] = shaderManager->CreatePso("BackGroundSprite_" + kBlendModeStr[i], shaderInfo, Engine::GetInstance()->GetDxDevice()->device_);
     }
 }
 

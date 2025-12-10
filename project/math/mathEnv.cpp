@@ -1,10 +1,12 @@
 #include "mathEnv.h"
 
-float radianToDegree(float radian) {
+namespace OriGine {
+
+float RadianToDegree(float radian) {
     return radian * kRad2Deg;
 }
 
-float degreeToRadian(float degree) {
+float DegreeToRadian(float degree) {
     return degree * kDeg2Rad;
 }
 
@@ -33,3 +35,5 @@ std::vector<int> CalculateDigitsFromFloat(float value, int intDigits, int fracDi
 
     return digits;
 }
+
+} // namespace OriGine

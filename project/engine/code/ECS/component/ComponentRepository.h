@@ -3,6 +3,8 @@
 #include "ComponentArray.h"
 #include "ComponentRegistry.h"
 
+namespace OriGine {
+
 /// <summary>
 /// Component Repository
 /// ComponentRepositoryは実際にシーンで使用されるコンポーネントの実体を保持する.
@@ -196,3 +198,5 @@ inline void ComponentRepository::RemoveComponent(Entity* _entity, bool _doFinali
         LOG_ERROR("ComponentRepository: ComponentArray not found for type: {}", nameof<ComponentType>());
     }
 }
+
+} // namespace OriGine

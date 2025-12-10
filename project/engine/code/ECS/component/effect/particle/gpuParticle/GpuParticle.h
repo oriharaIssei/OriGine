@@ -22,6 +22,8 @@
 #include <math/Vector3.h>
 #include <math/Vector4.h>
 
+namespace OriGine {
+
 /// <summary>
 /// GPUで使用するParticleの情報
 /// </summary>
@@ -260,3 +262,5 @@ public:
     const std::string& GetTexturePath() const { return texturePath_; }
     uint32_t GetTextureIndex() const { return textureIndex_; }
 };
+
+} // namespace OriGine

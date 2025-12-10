@@ -16,6 +16,8 @@
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
+using namespace OriGine;
+
 void SpeedlineEffectParam::Initialize(Entity*) {
     if (isActive_) {
         cBuffer_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
@@ -57,7 +59,7 @@ void SpeedlineEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]]
         if (myfs::SelectFileDialog(kApplicationResourceDirectory + "/texture", directory, fileName, {"png"})) {
             std::string newPath = kApplicationResourceDirectory + "/texture/" + directory + "/" + fileName;
             auto command        = std::make_unique<SetterCommand<std::string>>(&radialTextureFilePath_, newPath, [this](std::string*) { this->radialTextureIndex_ = TextureManager::LoadTexture(radialTextureFilePath_); }, true, nullptr);
-            EditorController::GetInstance()->PushCommand(std::move(command));
+            OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
         }
     }
 #endif // _DEBUG
@@ -86,7 +88,7 @@ void SpeedlineEffectParam::LoadRadialTexture(const std::string& _path) {
     radialTextureIndex_    = TextureManager::LoadTexture(radialTextureFilePath_);
 }
 
-void to_json(nlohmann::json& j, const SpeedlineEffectParam& p) {
+void OriGine::to_json(nlohmann::json& j, const SpeedlineEffectParam& p) {
     j = nlohmann::json{
         {"isActive", p.isActive_},
         {"screenCenterUV", p.cBuffer_.openData_.screenCenterUV},
@@ -100,7 +102,7 @@ void to_json(nlohmann::json& j, const SpeedlineEffectParam& p) {
     };
 }
 
-void from_json(const nlohmann::json& j, SpeedlineEffectParam& p) {
+void OriGine::from_json(const nlohmann::json& j, SpeedlineEffectParam& p) {
     j.at("isActive").get_to(p.isActive_);
     j.at("screenCenterUV").get_to(p.cBuffer_.openData_.screenCenterUV);
     j.at("intensity").get_to(p.cBuffer_.openData_.intensity);

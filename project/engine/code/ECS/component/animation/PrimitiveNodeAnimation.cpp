@@ -14,6 +14,8 @@
 #include "myGui/MyGui.h"
 #include "util/timeline/Timeline.h"
 
+namespace OriGine {
+
 class GenerateUvAnimationCommand : public IEditCommand {
 public:
     GenerateUvAnimationCommand(
@@ -143,7 +145,7 @@ void PrimitiveNodeAnimation::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[mayb
     if (ImGui::BeginCombo("TransformAnimation InterpolationType", InterpolationTypeName[int(interpolationType_)])) {
         for (int i = 0; i < (int)InterpolationType::COUNT; ++i) {
             if (ImGui::Selectable(InterpolationTypeName[i], interpolationType_ == InterpolationType(i))) {
-                EditorController::GetInstance()->PushCommand(
+                OriGine::EditorController::GetInstance()->PushCommand(
                     std::make_unique<SetterCommand<InterpolationType>>(&interpolationType_, InterpolationType(i)));
             }
         }
@@ -319,3 +321,5 @@ void from_json(const nlohmann::json& _json, PrimitiveNodeAnimation& _primitiveNo
     readCurve("rotateCurve", _primitiveNodeAnimation.rotateCurve_);
     readCurve("translateCurve", _primitiveNodeAnimation.translateCurve_);
 }
+
+} // namespace OriGine

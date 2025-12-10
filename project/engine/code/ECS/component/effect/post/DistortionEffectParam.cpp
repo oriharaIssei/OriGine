@@ -14,12 +14,14 @@
 #include "component/renderer/primitive/PlaneRenderer.h"
 #include "component/renderer/primitive/RingRenderer.h"
 #include "component/renderer/primitive/SphereRenderer.h"
-
+/// util
 #include "myFileSystem/MyFileSystem.h"
-
+/// externals
 #ifdef _DEBUG
 #include "myGui/MyGui.h"
 #endif // _DEBUG
+
+using namespace OriGine;
 
 void DistortionEffectParam::Initialize(Entity* _hostEntity) {
     effectParamData_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
@@ -95,7 +97,7 @@ void DistortionEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]
                         bool isSelected          = newObjectType == selectType;
 
                         if (ImGui::Selectable(std::to_string(selectType).c_str(), isSelected)) {
-                            EditorController::GetInstance()->PushCommand(
+                            OriGine::EditorController::GetInstance()->PushCommand(
                                 std::make_unique<SetterCommand<PrimitiveType>>(&newObjectType, selectType));
                         }
                         if (isSelected) {
@@ -114,7 +116,7 @@ void DistortionEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]
 
                         auto command = std::make_unique<AddElementCommand<std::vector<std::pair<std::shared_ptr<PrimitiveMeshRendererBase>, PrimitiveType>>>>(
                             &distortionObjects_, std::make_pair(newObject, newObjectType));
-                        EditorController::GetInstance()->PushCommand(std::move(command));
+                        OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
                     }
                     ImGui::CloseCurrentPopup();
                 }
@@ -125,7 +127,7 @@ void DistortionEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]
                 objectNodeName = "Distortion Object_" + std::to_string(type) + std::to_string(objectIndex);
                 if (ImGui::Button(std::string("X##" + objectNodeName).c_str())) {
                     auto command = std::make_unique<EraseElementCommand<std::vector<std::pair<std::shared_ptr<PrimitiveMeshRendererBase>, PrimitiveType>>>>(&distortionObjects_, distortionObjects_.begin() + objectIndex);
-                    EditorController::GetInstance()->PushCommand(std::move(command));
+                    OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
                     continue;
                 }
                 ImGui::SameLine();
@@ -168,7 +170,7 @@ void DistortionEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]
                     textureIndex_ = TextureManager::LoadTexture(texturePath_);
                 },
                     true);
-                EditorController::GetInstance()->PushCommand(std::make_unique<CommandCombo>(commandCombo));
+                OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<CommandCombo>(commandCombo));
             }
         };
     }
@@ -186,7 +188,7 @@ void DistortionEffectParam::Finalize() {
     effectParamData_.Finalize();
 }
 
-void to_json(nlohmann::json& j, const DistortionEffectParam& param) {
+void OriGine::to_json(nlohmann::json& j, const DistortionEffectParam& param) {
     j["distortionBias"]     = param.effectParamData_->distortionBias;
     j["distortionStrength"] = param.effectParamData_->distortionStrength;
 
@@ -230,7 +232,7 @@ void to_json(nlohmann::json& j, const DistortionEffectParam& param) {
     }
 }
 
-void from_json(const nlohmann::json& j, DistortionEffectParam& param) {
+void OriGine::from_json(const nlohmann::json& j, DistortionEffectParam& param) {
     param.effectParamData_->distortionBias     = j.value("distortionBias", Vec2f());
     param.effectParamData_->distortionStrength = j.value("distortionStrength", Vec2f());
 

@@ -2,6 +2,7 @@
 
 #include "component/renderer/primitive/base/IPrimitive.h"
 
+namespace OriGine {
 namespace Primitive {
 
 /// <summary>
@@ -21,3 +22,4 @@ public:
 };
 
 } // namespace Primitive
+} // namespace OriGine

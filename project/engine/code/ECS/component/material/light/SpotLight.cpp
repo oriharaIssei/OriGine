@@ -1,9 +1,13 @@
 #include "SpotLight.h"
 
 #ifdef _DEBUG
+/// externals
 #include "imgui/imgui.h"
+/// util
 #include "myGui/MyGui.h"
 #endif // _DEBUG
+
+using namespace OriGine;
 
 void SpotLight::Edit(Scene* /*_scene*/,Entity* /*_entity*/,[[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
@@ -32,7 +36,7 @@ void SpotLight::Edit(Scene* /*_scene*/,Entity* /*_entity*/,[[maybe_unused]] cons
 #endif // _DEBUG
 }
 
-void to_json(nlohmann::json& j, const SpotLight& l) {
+void OriGine::to_json(nlohmann::json& j, const SpotLight& l) {
     j["isActive"]        = l.isActive_;
     j["color"]           = l.color_;
     j["intensity"]       = l.intensity_;
@@ -44,7 +48,7 @@ void to_json(nlohmann::json& j, const SpotLight& l) {
     j["cosFalloffStart"] = l.cosFalloffStart_;
 }
 
-void from_json(const nlohmann::json& j, SpotLight& l) {
+void OriGine::from_json(const nlohmann::json& j, SpotLight& l) {
     j.at("isActive").get_to(l.isActive_);
     j.at("color").get_to(l.color_);
     j.at("intensity").get_to(l.intensity_);

@@ -9,8 +9,9 @@
 #include "directX12/DxFence.h"
 #include "directX12/ShaderManager.h"
 
-GpuParticleEmitterWorkSystem::GpuParticleEmitterWorkSystem() : ISystem(SystemCategory::Effect) {}
+using namespace OriGine;
 
+GpuParticleEmitterWorkSystem::GpuParticleEmitterWorkSystem() : ISystem(SystemCategory::Effect) {}
 GpuParticleEmitterWorkSystem::~GpuParticleEmitterWorkSystem() {}
 
 void GpuParticleEmitterWorkSystem::Initialize() {
@@ -153,11 +154,11 @@ void GpuParticleEmitterWorkSystem::EmitParticle(GpuParticleEmitter* _emitter) {
     buffer.ConvertToBuffer();
 
     buffer.SetForComputeRootParameter(
-        dxCommand_->GetCommandList(), emitterShapeIndex);
+        dxCommand_->GetCommandList(), kEmitterShapeIndex);
 
     buffer.ConvertToBuffer();
     buffer.SetForComputeRootParameter(
-        dxCommand_->GetCommandList(), emitterShapeIndex);
+        dxCommand_->GetCommandList(), kEmitterShapeIndex);
 
     commandList->SetComputeRootDescriptorTable(
         particlesDataIndex,
@@ -213,7 +214,7 @@ void GpuParticleEmitterWorkSystem::CreateEmitGpuParticlePso() {
     /// ==========================================
     // Shader 読み込み
     /// ==========================================
-    shaderManager->LoadShader(psoKey, shaderDirectory, L"cs_6_0");
+    shaderManager->LoadShader(psoKey, kShaderDirectory, L"cs_6_0");
 
     ShaderInfo shaderInfo{};
     shaderInfo.csKey = psoKey;
@@ -256,10 +257,10 @@ void GpuParticleEmitterWorkSystem::CreateEmitGpuParticlePso() {
     shaderInfo.SetDescriptorRange2Parameter(
         freeListDescriptorRange, 1, freeListBufferIndex);
 
-    rootParameters[emitterShapeIndex].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
-    rootParameters[emitterShapeIndex].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
-    rootParameters[emitterShapeIndex].Descriptor.ShaderRegister = 0; // b0
-    shaderInfo.pushBackRootParameter(rootParameters[emitterShapeIndex]);
+    rootParameters[kEmitterShapeIndex].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
+    rootParameters[kEmitterShapeIndex].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
+    rootParameters[kEmitterShapeIndex].Descriptor.ShaderRegister = 0; // b0
+    shaderInfo.pushBackRootParameter(rootParameters[kEmitterShapeIndex]);
 
     rootParameters[perFrameBufferIndex].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
     rootParameters[perFrameBufferIndex].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
@@ -295,7 +296,7 @@ void GpuParticleEmitterWorkSystem::CreateUpdateGpuParticlePso() {
     /// ==========================================
     // Shader 読み込み
     /// ==========================================
-    shaderManager->LoadShader(psoKey, shaderDirectory, L"cs_6_0");
+    shaderManager->LoadShader(psoKey, kShaderDirectory, L"cs_6_0");
 
     ShaderInfo shaderInfo{};
     shaderInfo.csKey = psoKey;
@@ -338,10 +339,10 @@ void GpuParticleEmitterWorkSystem::CreateUpdateGpuParticlePso() {
     shaderInfo.SetDescriptorRange2Parameter(
         freeListDescriptorRange, 1, freeListBufferIndex);
 
-    rootParameters[emitterShapeIndex].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
-    rootParameters[emitterShapeIndex].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
-    rootParameters[emitterShapeIndex].Descriptor.ShaderRegister = 0; // b0
-    shaderInfo.pushBackRootParameter(rootParameters[emitterShapeIndex]);
+    rootParameters[kEmitterShapeIndex].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
+    rootParameters[kEmitterShapeIndex].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
+    rootParameters[kEmitterShapeIndex].Descriptor.ShaderRegister = 0; // b0
+    shaderInfo.pushBackRootParameter(rootParameters[kEmitterShapeIndex]);
 
     rootParameters[perFrameBufferIndex].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
     rootParameters[perFrameBufferIndex].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;

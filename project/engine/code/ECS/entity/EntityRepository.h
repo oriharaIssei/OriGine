@@ -1,7 +1,5 @@
 #pragma once
 
-class Entity;
-
 /// stl
 #include <string>
 #include <unordered_map>
@@ -13,9 +11,11 @@ class Entity;
 /// math
 #include <stdint.h>
 
-/// <summary>
-/// Entity Repository(登録, 削除, 取得などを行う)
-/// </summary>
+namespace OriGine {
+/// 前方宣言
+/// ECS
+class Entity;
+
 /// <summary>
 /// Entity Repository(登録, 削除, 取得などを行う)
 /// </summary>
@@ -36,7 +36,7 @@ public:
     /// <summary>
     /// UniqueEntity の取得
     /// </summary>
-    Entity* GetUniqueEntity(const std::string& _dataTypeName);
+    Entity* GetUniqueEntity(const ::std::string& _dataTypeName);
 
     /// <summary>
     /// EntityIndex の 確保
@@ -50,16 +50,16 @@ public:
     /// <summary>
     /// UniqueEntity を削除する
     /// </summary>
-    bool unregisterUniqueEntity(const std::string& _dataTypeName);
+    bool unregisterUniqueEntity(const ::std::string& _dataTypeName);
 
     /// <summary>
     /// Entity を登録する
     /// </summary>
-    int32_t CreateEntity(const std::string& _dataType, bool _isUnique = false);
+    int32_t CreateEntity(const ::std::string& _dataType, bool _isUnique = false);
     /// <summary>
     /// Entity を指定したIndexに登録する
     /// </summary>
-    int32_t CreateEntity(int32_t _id, const std::string& _dataType, bool _isUnique = false);
+    int32_t CreateEntity(int32_t _id, const ::std::string& _dataType, bool _isUnique = false);
 
     /// <summary>
     /// Entity を削除する
@@ -71,12 +71,14 @@ public:
     uint32_t GetInactiveEntityCount() const;
     void Clear();
 
-    const std::vector<Entity>& GetEntities() const;
-    std::vector<Entity>& GetEntitiesRef();
+    const ::std::vector<Entity>& GetEntities() const;
+    ::std::vector<Entity>& GetEntitiesRef();
 
 private:
     uint32_t size_ = 10000;
-    std::vector<Entity> entities_;
-    std::unordered_map<std::string, int32_t> uniqueEntityIDs_;
+    ::std::vector<Entity> entities_;
+    ::std::unordered_map<::std::string, int32_t> uniqueEntityIDs_;
     BitArray<uint64_t> entityActiveBits_;
 };
+
+} // namespace OriGine

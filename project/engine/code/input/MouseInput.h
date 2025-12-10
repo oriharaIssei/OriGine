@@ -1,17 +1,28 @@
 #pragma once
+
 /// input API
 #include "include/IncludeInputAPI.h"
+
+/// windows
+#include <Windows.h>
+
+/// stl
+#include <array>
+#include <map>
+#include <string>
 
 /// math
 #include "math/Vector2.h"
 #include <cstdint>
+
+namespace OriGine {
 
 enum class MouseButton : uint32_t {
     LEFT   = 0,
     RIGHT  = 1,
     MIDDLE = 2,
 };
-static std::map<MouseButton, std::string> mouseButtonName = {
+static ::std::map<MouseButton, ::std::string> mouseButtonName = {
     {MouseButton::LEFT, "LEFT"},
     {MouseButton::RIGHT, "RIGHT"},
     {MouseButton::MIDDLE, "MIDDLE"},
@@ -83,8 +94,8 @@ private:
     Microsoft::WRL::ComPtr<IDirectInputDevice8> mouse_ = nullptr;
     HWND hwnd_                                         = nullptr;
 
-    std::array<BYTE, MOUSE_BUTTON_COUNT> currentButtonStates_{};
-    std::array<BYTE, MOUSE_BUTTON_COUNT> prevButtonStates_{};
+    ::std::array<BYTE, MOUSE_BUTTON_COUNT> currentButtonStates_{};
+    ::std::array<BYTE, MOUSE_BUTTON_COUNT> prevButtonStates_{};
 
     int32_t currentWheelDelta_ = 0;
     int32_t prevWheelDelta_    = 0;
@@ -97,8 +108,8 @@ private:
     bool isCursorVisible_ = true;
 
 public:
-    const std::array<BYTE, MOUSE_BUTTON_COUNT>& GetCurrentButtonState() const { return currentButtonStates_; }
-    const std::array<BYTE, MOUSE_BUTTON_COUNT>& GetPrevButtonState() const { return prevButtonStates_; }
+    const ::std::array<BYTE, MOUSE_BUTTON_COUNT>& GetCurrentButtonState() const { return currentButtonStates_; }
+    const ::std::array<BYTE, MOUSE_BUTTON_COUNT>& GetPrevButtonState() const { return prevButtonStates_; }
 
     /// <summary>
     /// マウスボタンが押されているか
@@ -210,3 +221,5 @@ public:
     /// </summary>
     void SetShowCursor(bool show);
 };
+
+} // namespace OriGine

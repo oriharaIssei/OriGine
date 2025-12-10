@@ -2,6 +2,7 @@
 
 #include "component/renderer/primitive/base/IPrimitive.h"
 
+namespace OriGine {
 namespace Primitive {
 
 constexpr int32_t kBoxVertexCount = 24;
@@ -23,5 +24,5 @@ public:
 public:
     Vec3f halfSize_;
 };
-
 }
+} // namespace OriGine

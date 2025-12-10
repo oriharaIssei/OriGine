@@ -4,11 +4,15 @@
 #include <Engine.h>
 
 #ifdef _DEBUG
+// camera
 #include "camera/CameraManager.h"
 
+/// gui
 #include "mygui/MyGui.h"
 #include <imgui/ImGuizmo/ImGuizmo.h>
 #endif // _DEBUG
+
+using namespace OriGine;
 
 Transform::Transform() {}
 

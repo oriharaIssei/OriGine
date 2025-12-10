@@ -5,6 +5,9 @@
 /// engine
 // component
 #include "component/animation/AnimationData.h"
+
+namespace OriGine {
+// 前方宣言
 struct Material;
 
 /// <summary>
@@ -90,3 +93,5 @@ public:
     InterpolationType GetInterpolationType() const { return interpolationType_; }
     void SetInterpolationType(InterpolationType _uvInterpolationType) { interpolationType_ = _uvInterpolationType; }
 };
+
+} // namespace OriGine

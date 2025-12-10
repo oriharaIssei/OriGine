@@ -6,6 +6,8 @@
 /// directX12
 #include <d3d12.h>
 
+namespace OriGine {
+
 /// <summary>
 /// ブレンドモード
 /// </summary>
@@ -24,7 +26,7 @@ enum class BlendMode {
 
 // BlendModeの数
 constexpr size_t kBlendNum                                   = static_cast<size_t>(BlendMode::Count);
-static const std::array<std::string, kBlendNum> blendModeStr = {
+static const std::array<std::string, kBlendNum> kBlendModeStr = {
     "None",
     "Normal",
     "Add",
@@ -32,8 +34,10 @@ static const std::array<std::string, kBlendNum> blendModeStr = {
     "Multiply",
     "Screen"};
 
-namespace std {
-std::string to_string(const BlendMode& mode);
-} // namespace std
-
 D3D12_BLEND_DESC CreateBlendDescByBlendMode(BlendMode mode);
+
+} // namespace OriGine
+
+namespace std {
+string to_string(const OriGine::BlendMode& mode);
+} // namespace std

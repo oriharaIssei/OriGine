@@ -1,5 +1,7 @@
 #include "Orientation.h"
 
+using namespace OriGine;
+
 Orientation Orientation::Identity() {
     Orientation orientation;
     orientation.rot     = Quaternion::Identity();
@@ -10,7 +12,7 @@ Orientation Orientation::Identity() {
 }
 
 void Orientation::UpdateAxes() {
-    rot         = rot.normalize();
+    rot = rot.normalize();
 
     Matrix4x4 m = MakeMatrix4x4::RotateQuaternion(rot);
     axis[0]     = Vec3(m[0][0], m[1][0], m[2][0]).normalize();

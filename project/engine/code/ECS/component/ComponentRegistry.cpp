@@ -1,5 +1,7 @@
 #include "ComponentRegistry.h"
 
+using namespace OriGine;
+
 ComponentRegistry* ComponentRegistry::GetInstance() {
     static ComponentRegistry instance;
     return &instance;

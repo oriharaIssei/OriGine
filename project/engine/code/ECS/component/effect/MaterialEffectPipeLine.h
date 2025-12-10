@@ -10,6 +10,8 @@
 // directX12
 #include "directX12/DxDescriptor.h"
 
+namespace OriGine {
+
 enum class MaterialEffectType {
     Dissolve,
     Distortion,
@@ -80,3 +82,5 @@ public:
     int32_t GetBaseTextureId() const { return baseTextureId_; }
     const std::vector<EffectEntityData>& GetEffectEntityIdList() const { return effectEntityIdList_; }
 };
+
+} // namespace OriGine

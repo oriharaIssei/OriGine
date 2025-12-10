@@ -7,10 +7,11 @@
 #include <memory>
 #include <string>
 
-#include "globalVariables/SerializedField.h"
-
 /// math
 #include <cstdint>
+#include <Vector2.h>
+
+namespace OriGine {
 
 enum class WindowResizeMode {
     NONE         = 0b0, // リサイズしない
@@ -43,11 +44,11 @@ public:
     void ToggleFullscreen(bool enable);
 
 private:
-    HWND hwnd_                            = nullptr; // ウィンドウハンドル
-    std::unique_ptr<WNDCLASSEX> wndClass_ = nullptr; // ウィンドウクラス
+    HWND hwnd_                              = nullptr; // ウィンドウハンドル
+    ::std::unique_ptr<WNDCLASSEX> wndClass_ = nullptr; // ウィンドウクラス
     UINT windowStyle_;
 
-    std::wstring wideWindowTitle_; // ウィンドウクラス名も兼ねている
+    ::std::wstring wideWindowTitle_; // ウィンドウクラス名も兼ねている
     RECT windowRect_{};
     float aspectRatio_ = 0.0f; // アスペクト比
     Vec2f windowSize_; // ウィンドウサイズ
@@ -80,4 +81,6 @@ public:
 /// <summary>
 /// コマンドラインでプロセスを実行し、完了を待つ
 /// </summary>
-bool RunProcessAndWait(const std::string& command, const char* _currentDirectory = nullptr);
+bool RunProcessAndWait(const ::std::string& command, const char* _currentDirectory = nullptr);
+
+} // namespace OriGine

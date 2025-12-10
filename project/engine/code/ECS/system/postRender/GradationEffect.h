@@ -14,6 +14,8 @@
 // component
 #include "component/effect/post/GradationComponent.h"
 
+namespace OriGine {
+
 /// <summary>
 /// テクスチャを使用してグラデーションエフェクトをかけるシステム
 /// </summary>
@@ -61,3 +63,5 @@ protected:
 
     std::vector<GradationComponent*> activeRenderingData_ = {};
 };
+
+} // namespace OriGine

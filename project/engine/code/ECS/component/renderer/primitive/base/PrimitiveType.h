@@ -1,9 +1,12 @@
 #pragma once
 
+/// stl
 #include <array>
 #include <string>
-
+/// math
 #include <cstdint>
+
+namespace OriGine {
 
 enum class PrimitiveType : int32_t {
     Plane, // 面
@@ -12,7 +15,7 @@ enum class PrimitiveType : int32_t {
     Box, // 立方体
     Sphere, // 球
     //  Torus, // トーラス
-     Cylinder, // 円柱
+    Cylinder, // 円柱
     //  Cone // 円錐
 
     Count
@@ -29,6 +32,8 @@ static const std::array<std::string, static_cast<int32_t>(PrimitiveType::Count)>
     // PrimitiveType::Cone,
 };
 
+} // namespace OriGine
+
 namespace std {
-std::string to_string(PrimitiveType _type);
+std::string to_string(OriGine::PrimitiveType _type);
 }

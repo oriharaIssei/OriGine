@@ -4,6 +4,8 @@
 #include "component/renderer/primitive/base/IPrimitive.h"
 #include "component/renderer/primitive/base/PrimitiveMeshRendererBase.h"
 
+namespace OriGine {
+
 /// <summary>
 /// プリミティブ形状を描画するためのメッシュレンダラー
 /// </summary>
@@ -17,9 +19,9 @@ public:
 
     ~PrimitiveMeshRenderer() override {}
 
-    void Initialize(Entity* _entity) = 0;
+    void Initialize(OriGine::Entity* _entity) = 0;
 
-    virtual void Edit(Scene* _scene, Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) override = 0;
+    virtual void Edit(Scene* _scene, OriGine::Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) override = 0;
 
     inline void Finalize() override;
 
@@ -53,3 +55,5 @@ inline void PrimitiveMeshRenderer<PrimType>::Finalize() {
     transformBuff_.Finalize();
     materialBuff_.Finalize();
 }
+
+} // namespace OriGine

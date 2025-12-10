@@ -11,11 +11,11 @@
 /// engine
 #include <logger/Logger.h>
 // directX12
-#include <directX12/DxDevice.h>
 #include <directX12/DxResource.h>
 // util
 #include <util/BitArray.h>
-#include <util/EnumBitMask.h>
+
+namespace OriGine {
 
 enum class DxDescriptorHeapType {
     CBV_SRV_UAV = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, // Shader Resource View
@@ -58,7 +58,7 @@ struct DxDescriptor {
     ~DxDescriptor() {}
 
 protected:
-    uint32_t index                       = 0; // ヒープ内のインデックス
+    uint32_t index                        = 0; // ヒープ内のインデックス
     D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = D3D12_CPU_DESCRIPTOR_HANDLE(0); // CPU側のハンドル
     D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = D3D12_GPU_DESCRIPTOR_HANDLE(0); // GPU側のハンドル
 public:
@@ -100,7 +100,7 @@ public:
     /// <param name="_resource"></param>
     /// <returns></returns>
     template <typename Desc>
-    DescriptorType CreateDescriptor(const Desc& _desc, DxResource* _resource);
+    DescriptorType CreateDescriptor(const Desc& _desc, OriGine::DxResource* _resource);
 
     /// <summary>
     /// Descriptorを割り当てる
@@ -147,7 +147,7 @@ protected:
             }
         }
         LOG_ERROR("No available descriptors in DxDescriptorHeap");
-        throw std::runtime_error("No available descriptors in DxDescriptorHeap");
+        throw ::std::runtime_error("No available descriptors in DxDescriptorHeap");
     }
 
     D3D12_CPU_DESCRIPTOR_HANDLE CalculateCpuHandle(uint32_t index) const { return D3D12_CPU_DESCRIPTOR_HANDLE(index * descriptorIncrementSize_ + heap_->GetCPUDescriptorHandleForHeapStart().ptr); }
@@ -167,7 +167,7 @@ protected:
 
     uint32_t descriptorIncrementSize_ = 0;
 
-    std::vector<DescriptorType> descriptors_;
+    ::std::vector<DescriptorType> descriptors_;
     BitArray<> usedFlags_; // 使用中のフラグを管理するビット配列
 public:
     uint32_t GetSize() const { return size_; }
@@ -182,7 +182,7 @@ public:
         // インデックスが範囲外の場合は例外を投げる
         if (index >= descriptors_.size()) {
             LOG_ERROR("Index out of range in DxDescriptorHeap");
-            throw std::out_of_range("Index out of range in DxDescriptorHeap");
+            throw ::std::out_of_range("Index out of range in DxDescriptorHeap");
         }
         return descriptors_[index].get();
     }
@@ -190,9 +190,9 @@ public:
         // インデックスが範囲外の場合は例外を投げる
         if (index >= descriptors_.size()) {
             LOG_ERROR("Index out of range in DxDescriptorHeap");
-            throw std::out_of_range("Index out of range in DxDescriptorHeap");
+            throw ::std::out_of_range("Index out of range in DxDescriptorHeap");
         }
-        descriptors_[index] = std::make_shared<DescriptorType>(descriptor);
+        descriptors_[index] = ::std::make_shared<DescriptorType>(descriptor);
         usedFlags_.Set(index, true);
     }
 };
@@ -201,7 +201,7 @@ template <DxDescriptorHeapType Type>
 inline void DxDescriptorHeap<Type>::Initialize(Microsoft::WRL::ComPtr<ID3D12Device> _device) {
     // デバイスが無効な場合は例外を投げる
     if (!_device) {
-        throw std::invalid_argument("Device cannot be null");
+        throw ::std::invalid_argument("Device cannot be null");
     }
 
     device_ = _device;
@@ -263,7 +263,7 @@ DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>::CreateDescriptor(const D3D1
     // リソースが無効な場合は例外を投げる
     if (!_resource) {
         LOG_ERROR("DxDescriptorHeap::CreateDescriptor: Resource is null");
-        throw std::invalid_argument("Resource is null");
+        throw ::std::invalid_argument("Resource is null");
     }
 
     // Descriptorを割り当て & SRV作成
@@ -283,7 +283,7 @@ DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>::CreateDescriptor(const D3D1
     // リソースが無効な場合は例外を投げる
     if (!_resource) {
         LOG_ERROR("DxDescriptorHeap::CreateDescriptor: Resource is null");
-        throw std::invalid_argument("Resource is null");
+        throw ::std::invalid_argument("Resource is null");
     }
 
     // Descriptorを割り当て & UAV作成
@@ -304,7 +304,7 @@ DxDescriptorHeap<DxDescriptorHeapType::RTV>::CreateDescriptor(const D3D12_RENDER
     // リソースが無効な場合は例外を投げる
     if (!_resource) {
         LOG_ERROR("DxDescriptorHeap::CreateDescriptor: Resource is null");
-        throw std::invalid_argument("Resource is null");
+        throw ::std::invalid_argument("Resource is null");
     }
 
     // Descriptorを割り当て & RTV作成
@@ -324,7 +324,7 @@ DxDescriptorHeap<DxDescriptorHeapType::DSV>::CreateDescriptor(const D3D12_DEPTH_
     // リソースが無効な場合は例外を投げる
     if (!_resource) {
         LOG_ERROR("DxDescriptorHeap::CreateDescriptor: Resource is null");
-        throw std::invalid_argument("Resource is null");
+        throw ::std::invalid_argument("Resource is null");
     }
 
     // Descriptorを割り当て & DSV作成
@@ -352,3 +352,6 @@ DxDescriptorHeap<DxDescriptorHeapType::Sampler>::CreateDescriptor(const D3D12_SA
 }
 
 #pragma endregion
+
+} // namespace OriGine
+

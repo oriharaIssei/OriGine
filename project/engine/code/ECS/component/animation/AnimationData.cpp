@@ -1,5 +1,7 @@
 #include "AnimationData.h"
 
+using namespace OriGine;
+
 float CalculateValue::Linear(const std::vector<Keyframe<float>>& keyframes, float time) {
     ///===========================================
     /// 例外処理

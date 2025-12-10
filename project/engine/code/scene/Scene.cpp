@@ -2,21 +2,25 @@
 
 /// engine
 #define ENGINE_INCLUDE
-#include "scene/SceneManager.h"
 #define RESOURCE_DIRECTORY
+#include "engine/EngineInclude.h"
+
+#include "scene/SceneManager.h"
 #include "winApp/WinApp.h"
 // directX12
 #include "directX12/RenderTexture.h"
 
-// Ecs
+/// Ecs
 #include "entity/Entity.h"
-#include "system/ISystem.h"
-
+// component
 #include "component/ComponentRepository.h"
-#include "engine/EngineInclude.h"
+#include "system/ISystem.h"
+// system
 #include "system/SystemRunner.h"
 
-Scene::Scene(const std::string& _name) : name_(_name) {}
+namespace OriGine {
+
+Scene::Scene(const ::std::string& _name) : name_(_name) {}
 Scene::~Scene() {}
 
 void Scene::Initialize() {
@@ -33,14 +37,14 @@ void Scene::Initialize() {
 }
 
 void Scene::InitializeECS() {
-    entityRepository_ = std::make_unique<EntityRepository>();
+    entityRepository_ = ::std::make_unique<EntityRepository>();
     entityRepository_->Initialize();
-    componentRepository_ = std::make_unique<ComponentRepository>();
-    systemRunner_        = std::make_unique<SystemRunner>(this);
+    componentRepository_ = ::std::make_unique<ComponentRepository>();
+    systemRunner_        = ::std::make_unique<SystemRunner>(this);
 }
 
 void Scene::InitializeSceneView() {
-    sceneView_ = std::make_unique<RenderTexture>();
+    sceneView_ = ::std::make_unique<RenderTexture>();
 
     sceneView_->Initialize(2, Engine::GetInstance()->GetWinApp()->GetWindowSize(), DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, {0.f, 0.f, 0.f, 0.f});
     sceneView_->SetTextureName(name_ + "_SceneView");
@@ -100,7 +104,7 @@ void Scene::ExecuteDeleteEntities() {
 
 void Scene::AddDeleteEntity(int32_t entityId) {
     if (entityId < 0) {
-        LOG_ERROR("Scene::addDeleteEntity: Invalid entity ID: {}", entityId);
+        LOG_ERROR("Invalid entity ID: {}", entityId);
         return;
     }
     deleteEntities_.push_back(entityId);
@@ -133,7 +137,7 @@ Entity* Scene::GetEntity(int32_t entityId) const {
     return entityRepository_->GetEntity(entityId);
 }
 
-Entity* Scene::GetUniqueEntity(const std::string& _dataType) const {
+Entity* Scene::GetUniqueEntity(const ::std::string& _dataType) const {
     if (!_dataType.empty()) {
         return entityRepository_->GetUniqueEntity(_dataType);
     }
@@ -141,7 +145,7 @@ Entity* Scene::GetUniqueEntity(const std::string& _dataType) const {
     return nullptr;
 }
 
-bool Scene::AddComponent(const std::string& _compTypeName, int32_t _entityId, bool _doInitialize) {
+bool Scene::AddComponent(const ::std::string& _compTypeName, int32_t _entityId, bool _doInitialize) {
     Entity* entity = entityRepository_->GetEntity(_entityId);
     if (!entity) {
         LOG_ERROR("Scene::AddComponent: Entity with ID '{}' not found.", _entityId);
@@ -151,7 +155,7 @@ bool Scene::AddComponent(const std::string& _compTypeName, int32_t _entityId, bo
     return true;
 }
 
-bool Scene::RemoveComponent(const std::string& _compTypeName, int32_t _entityId, int32_t _componentIndex) {
+bool Scene::RemoveComponent(const ::std::string& _compTypeName, int32_t _entityId, int32_t _componentIndex) {
     Entity* entity = entityRepository_->GetEntity(_entityId);
     if (!entity) {
         LOG_ERROR("Scene::RemoveComponent: Entity with ID '{}' not found.", _entityId);
@@ -161,7 +165,7 @@ bool Scene::RemoveComponent(const std::string& _compTypeName, int32_t _entityId,
     return true;
 }
 
-ISystem* Scene::GetSystem(const std::string& _systemTypeName) const {
+ISystem* Scene::GetSystem(const ::std::string& _systemTypeName) const {
     if (systemRunner_) {
         return systemRunner_->GetSystem(_systemTypeName);
     }
@@ -169,7 +173,7 @@ ISystem* Scene::GetSystem(const std::string& _systemTypeName) const {
     return nullptr;
 }
 
-bool Scene::RegisterSystem(const std::string& _systemTypeName, int32_t _priority, bool _activity) {
+bool Scene::RegisterSystem(const ::std::string& _systemTypeName, int32_t _priority, bool _activity) {
     if (systemRunner_) {
         systemRunner_->RegisterSystem(_systemTypeName, _priority, _activity);
         return true;
@@ -178,7 +182,7 @@ bool Scene::RegisterSystem(const std::string& _systemTypeName, int32_t _priority
     return false;
 }
 
-bool Scene::UnregisterSystem(const std::string& _systemTypeName) {
+bool Scene::UnregisterSystem(const ::std::string& _systemTypeName) {
     if (systemRunner_) {
         systemRunner_->UnregisterSystem(_systemTypeName);
         return true;
@@ -186,3 +190,5 @@ bool Scene::UnregisterSystem(const std::string& _systemTypeName) {
     LOG_ERROR("Scene::UnregisterSystem: SystemRunner is not initialized.");
     return false;
 }
+
+} // namespace OriGine

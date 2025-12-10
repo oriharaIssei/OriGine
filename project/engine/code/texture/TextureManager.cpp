@@ -24,10 +24,13 @@
 #include "directX12/ResourceStateTracker.h"
 #include "directX12/ShaderCompiler.h"
 
+/// externals
 #include "logger/Logger.h"
 
 // util
 #include "util/StringUtil.h"
+
+using namespace OriGine;
 
 const uint32_t TextureManager::maxTextureSize_;
 std::array<std::shared_ptr<Texture>, TextureManager::maxTextureSize_> TextureManager::textures_;

@@ -6,9 +6,9 @@
 // container
 #include <vector>
 // string
-#include "component/animation/ModelNodeAnimation.h"
 
 #include <string>
+#include <component/animation/AnimationData.h>
 
 namespace ImGui {
 /// <summary>
@@ -31,7 +31,7 @@ bool TimeLineButtons(
 
 bool TimeLineButtons(
     const std::string& _label,
-    AnimationCurve<int>& _keyFrames,
+    ::OriGine::AnimationCurve<int>& _keyFrames,
     float _duration,
     std::function<void(float newNodeTime)> _updateOnNodeDragged = nullptr,
     std::function<void(float _currentTime)> _sliderPopupUpdate  = nullptr,
@@ -48,7 +48,7 @@ bool TimeLineButtons(
 /// <returns></returns>
 bool EditKeyFrame(
     const std::string& _label,
-    AnimationCurve<float>& _keyFrames,
+    ::OriGine::AnimationCurve<float>& _keyFrames,
     float _duration,
     float _defaultValue                   = 0.0f,
     std::function<void(int)> _howEditItem = nullptr);
@@ -63,9 +63,9 @@ bool EditKeyFrame(
 /// <param name="_howEditItem">値を編集するための関数</param>
 bool EditKeyFrame(
     const std::string& _label,
-    AnimationCurve<Vec2f>& _keyFrames,
+    ::OriGine::AnimationCurve<::OriGine::Vec2f>& _keyFrames,
     float _duration,
-    const Vec2f& _defaultValue            = Vec2f(0.0f, 0.0f),
+    const ::OriGine::Vec2f& _defaultValue            = ::OriGine::Vec2f(0.0f, 0.0f),
     std::function<void(int)> _howEditItem = nullptr);
 
 /// <summary>
@@ -78,9 +78,9 @@ bool EditKeyFrame(
 /// <param name="_howEditItem">値を編集するための関数</param>
 bool EditKeyFrame(
     const std::string& _label,
-    AnimationCurve<Vec3f>& _keyFrames,
+    ::OriGine::AnimationCurve<::OriGine::Vec3f>& _keyFrames,
     float _duration,
-    const Vec3f& _defaultValue            = Vec3f(0.0f, 0.0f, 0.0f),
+    const ::OriGine::Vec3f& _defaultValue            = ::OriGine::Vec3f(0.0f, 0.0f, 0.0f),
     std::function<void(int)> _howEditItem = nullptr);
 
 /// <summary>
@@ -93,9 +93,9 @@ bool EditKeyFrame(
 /// <param name="_howEditItem">値を編集するための関数</param>
 bool EditKeyFrame(
     const std::string& _label,
-    AnimationCurve<Vec4f>& _keyFrames,
+    ::OriGine::AnimationCurve<::OriGine::Vec4f>& _keyFrames,
     float _duration,
-    const Vec4f& _defaultValue            = Vec4f(0.0f, 0.0f, 0.0f, 0.0f),
+    const ::OriGine::Vec4f& _defaultValue            = ::OriGine::Vec4f(0.0f, 0.0f, 0.0f, 0.0f),
     std::function<void(int)> _howEditItem = nullptr);
 
 /// <summary>
@@ -108,9 +108,9 @@ bool EditKeyFrame(
 /// <param name="_howEditItem">値を編集するための関数</param>
 bool EditKeyFrame(
     const std::string& _label,
-    AnimationCurve<Quaternion>& _keyFrames,
+    ::OriGine::AnimationCurve<::OriGine::Quaternion>& _keyFrames,
     float _duration,
-    const Quaternion& _defaultValue       = Quaternion(0.0f, 0.0f, 0.0f, 1.0f),
+    const ::OriGine::Quaternion& _defaultValue       = ::OriGine::Quaternion(0.0f, 0.0f, 0.0f, 1.0f),
     std::function<void(int)> _howEditItem = nullptr);
 
 /// <summary>
@@ -123,9 +123,9 @@ bool EditKeyFrame(
 /// <param name="_howEditItem">値を編集するための関数</param>
 bool EditColorKeyFrame(
     const std::string& _label,
-    AnimationCurve<Vec4f>& _keyFrames,
+    ::OriGine::AnimationCurve<::OriGine::Vec4f>& _keyFrames,
     float _duration,
-    const Vec4f& _defaultValue            = Vec4f(1.0f, 1.0f, 1.0f, 1.0f),
+    const ::OriGine::Vec4f& _defaultValue            = ::OriGine::Vec4f(1.0f, 1.0f, 1.0f, 1.0f),
     std::function<void(int)> _howEditItem = nullptr);
 
 } // namespace ImGui

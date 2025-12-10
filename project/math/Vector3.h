@@ -1,9 +1,11 @@
 #pragma once
 
+/// math
+#include <cmath>
 #include "Vector.h"
 #include "Vector2.h"
 
-#include <cmath>
+namespace OriGine {
 
 /// <summary>
 /// 3次元ベクトル
@@ -118,3 +120,5 @@ using Vec3d    = Vector3<double>;
 constexpr Vec3f axisX = Vec3f(1.0f, 0.0f, 0.0f);
 constexpr Vec3f axisY = Vec3f(0.0f, 1.0f, 0.0f);
 constexpr Vec3f axisZ = Vec3f(0.0f, 0.0f, 1.0f);
+
+} // namespace OriGine

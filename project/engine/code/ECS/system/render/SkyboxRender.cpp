@@ -8,6 +8,8 @@
 // ecs
 #include "component/renderer/SkyboxRenderer.h"
 
+using namespace OriGine;
+
 SkyboxRender::SkyboxRender() : BaseRenderSystem() {}
 SkyboxRender::~SkyboxRender() {}
 
@@ -110,12 +112,12 @@ void SkyboxRender::CreatePSO() {
     DxDevice* dxDevice           = Engine::GetInstance()->GetDxDevice();
 
     // 登録されているかどうかをチェック
-    if (shaderManager->IsRegisteredPipelineStateObj("Skybox_" + blendModeStr[0])) {
+    if (shaderManager->IsRegisteredPipelineStateObj("Skybox_" + kBlendModeStr[0])) {
         for (size_t i = 0; i < kBlendNum; ++i) {
             if (psoByBlendMode_[i]) {
                 continue;
             }
-            psoByBlendMode_[i] = shaderManager->GetPipelineStateObj("Skybox_" + blendModeStr[i]);
+            psoByBlendMode_[i] = shaderManager->GetPipelineStateObj("Skybox_" + kBlendModeStr[i]);
         }
         return;
     }
@@ -124,7 +126,7 @@ void SkyboxRender::CreatePSO() {
     /// shader読み込み
     ///=================================================
     shaderManager->LoadShader("Skybox.VS");
-    shaderManager->LoadShader("Skybox.PS", shaderDirectory, L"ps_6_0");
+    shaderManager->LoadShader("Skybox.PS", kShaderDirectory, L"ps_6_0");
 
     ///=================================================
     /// shader情報の設定
@@ -208,6 +210,6 @@ void SkyboxRender::CreatePSO() {
         }
         BlendMode blend          = static_cast<BlendMode>(i);
         texShaderInfo.blendMode_ = blend;
-        psoByBlendMode_[i]       = shaderManager->CreatePso("Skybox_" + blendModeStr[i], texShaderInfo, dxDevice->device_);
+        psoByBlendMode_[i]       = shaderManager->CreatePso("Skybox_" + kBlendModeStr[i], texShaderInfo, dxDevice->device_);
     }
 }

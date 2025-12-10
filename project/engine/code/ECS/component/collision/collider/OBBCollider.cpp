@@ -1,12 +1,14 @@
 #include "OBBCollider.h"
 
-void to_json(nlohmann::json& _json, const OBBCollider& _o) {
+using namespace OriGine;
+
+void OriGine::to_json(nlohmann::json& _json, const OBBCollider& _o) {
     _json["center"]       = _o.GetLocalCenter();
     _json["halfSize"]     = _o.GetLocalHalfSize();
     _json["orientations"] = _o.shape_.orientations_.rot;
     _json["transform"]    = _o.transform_;
 }
-void from_json(const nlohmann::json& _json, OBBCollider& _o) {
+void OriGine::from_json(const nlohmann::json& _json, OBBCollider& _o) {
     _json.at("center").get_to(_o.shape_.center_);
     _json.at("halfSize").get_to(_o.shape_.halfSize_);
     _json.at("orientations").get_to(_o.shape_.orientations_.rot);

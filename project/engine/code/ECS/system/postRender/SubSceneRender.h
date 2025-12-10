@@ -7,6 +7,8 @@
 /// engine
 #include "scene/Scene.h"
 
+namespace OriGine {
+
 /// <summary>
 /// サブシーンのレンダリングを行うシステム
 /// </summary>
@@ -53,3 +55,5 @@ protected:
 private:
     std::vector<std::pair<int32_t, Scene*>> scenes_;
 };
+
+} // namespace OriGine

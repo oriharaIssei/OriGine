@@ -1,7 +1,11 @@
 #include "MouseInput.h"
 
-#include <cassert>
+/// microsoft
 #include <windows.h>
+/// stl
+#include <cassert>
+
+using namespace OriGine;
 
 void MouseInput::Initialize(IDirectInput8* directInput, HWND hwnd) {
     assert(directInput);

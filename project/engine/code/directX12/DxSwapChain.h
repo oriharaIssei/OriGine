@@ -1,21 +1,30 @@
 #pragma once
 
-#include <memory>
+/// Microsoft
 #include <wrl.h>
-
-#include <vector>
 
 #include <d3d12.h>
 #include <dxgi1_6.h>
 
-#include "directX12/DxDescriptor.h"
 #include <WinUser.h>
-class DxDevice;
-class DxCommand;
-class WinApp;
+
+/// stl
+#include <memory>
+#include <vector>
+
+/// engine
+// directX12
+#include "directX12/DxDescriptor.h"
+#include "DxResource.h"
 
 /// math
 #include "Vector4.h"
+
+namespace OriGine {
+// 前方宣言
+struct DxDevice;
+class DxCommand;
+class WinApp;
 
 /// <summary>
 /// SwapChainの管理クラス
@@ -89,3 +98,5 @@ public:
         return backBufferResources_[swapChain_->GetCurrentBackBufferIndex()].GetResource();
     }
 };
+
+} // namespace OriGine

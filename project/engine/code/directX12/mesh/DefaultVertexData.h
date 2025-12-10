@@ -5,6 +5,8 @@
 #include <Vector3.h>
 #include <Vector4.h>
 
+namespace OriGine {
+
 /// <summary>
 /// 1頂点を表すデータ(テクスチャあり)
 /// </summary>
@@ -67,3 +69,5 @@ struct ColorVertexData {
         return this;
     }
 };
+
+} // namespace OriGine

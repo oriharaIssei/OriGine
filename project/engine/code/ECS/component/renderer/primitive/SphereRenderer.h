@@ -3,6 +3,7 @@
 #include "component/renderer/primitive/PrimitiveMeshRenderer.h"
 #include "component/renderer/primitive/shape/Sphere.h"
 
+namespace OriGine {
 
 class SphereRenderer
     : public PrimitiveMeshRenderer<Primitive::Sphere> {
@@ -19,3 +20,5 @@ public:
     void Initialize(Entity* _hostEntity) override;
     void Edit(Scene* _scene, Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
 };
+
+} // namespace OriGine

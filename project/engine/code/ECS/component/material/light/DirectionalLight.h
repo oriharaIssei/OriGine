@@ -1,8 +1,5 @@
 #pragma once
 
-#include <d3d12.h>
-#include <wrl.h>
-
 /// stl
 #include <string>
 
@@ -14,10 +11,12 @@
 #include "math/Vector3.h"
 #include "math/Vector4.h"
 
+namespace OriGine {
+
 /// <summary>
 /// DirectionalLight
 /// </summary>
-class DirectionalLight
+struct DirectionalLight
     : public IComponent {
 
     // to_json, from_json を friend として宣言
@@ -34,7 +33,7 @@ public:
 
     void Finalize() override {}
 
-private:
+public:
     bool isActive_ = true;
 
     Vec3f color_     = {1.f, 1.f, 1.f};
@@ -54,14 +53,6 @@ public:
         }
     };
 
-public: // access
-    bool IsActive() const { return isActive_; }
-    void SetActive(bool _isActive) { isActive_ = _isActive; }
-
-    Vec3f GetColor() const { return color_; }
-    void SetColor(const Vec3f& _color) { color_ = _color; }
-    float GetIntensity() const { return intensity_; }
-    void SetIntensity(float _intensity) { intensity_ = _intensity; }
-    Vec3f GetDirection() const { return direction_; }
-    void SetDirection(const Vec3f& _direction) { direction_ = _direction; }
 };
+
+} // namespace OriGine

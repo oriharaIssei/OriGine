@@ -1,10 +1,13 @@
 #pragma once
 
+/// stl
 #include <functional>
 #include <stdexcept>
 #include <string>
-
+/// math
 #include <cmath>
+
+namespace OriGine {
 
 /// ==========================================
 // 数列
@@ -14,9 +17,6 @@ enum class CommonSequenceType {
     Arithmetic, // 等差数列
     Geometric // 等比数列
 };
-namespace std {
-string to_string(CommonSequenceType _type);
-}
 
 /// <summary>
 /// 等差数列
@@ -74,4 +74,10 @@ T FibonacciSequence(int _index) {
         b = c;
     }
     return b;
+}
+
+} // namespace OriGine
+
+namespace std {
+string to_string(OriGine::CommonSequenceType _type);
 }

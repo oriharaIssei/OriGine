@@ -22,6 +22,8 @@
 /// util
 #include "util/StringUtil.h"
 
+using namespace OriGine;
+
 std::shared_ptr<spdlog::logger> Logger::logger_ = nullptr;
 
 static std::string GetCurrentConfigString() {

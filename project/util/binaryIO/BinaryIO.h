@@ -83,7 +83,7 @@ public:
     /// <param name="_label">値のラベル(読み込みの際に特定する)</param>
     /// <param name="_data">値</param>
     template <int dim, typename valueType>
-    void Write(const std::string& _label, const Vector<dim, valueType>& _data);
+    void Write(const std::string& _label, const OriGine::Vector<dim, valueType>& _data);
 
 protected:
     /// <summary>
@@ -150,7 +150,7 @@ public:
     }
 
     template <int dim, typename valueType>
-    void Read(const std::string& _label, Vector<dim, valueType>& _data);
+    void Read(const std::string& _label, OriGine::Vector<dim, valueType>& _data);
     // ----------------------------------------------
 
 private:
@@ -186,7 +186,7 @@ inline void BinaryReader::Read<std::string>(const std::string& _label, std::stri
 
 #pragma region "Vector"
 template <int dim, typename valueType>
-inline void BinaryWriter::Write(const std::string& _label, const Vector<dim, valueType>& _data) {
+inline void BinaryWriter::Write(const std::string& _label, const OriGine::Vector<dim, valueType>& _data) {
     WriteLabel(groupName_ + _label);
 
     size_t length = sizeof(valueType) * dim;
@@ -195,7 +195,7 @@ inline void BinaryWriter::Write(const std::string& _label, const Vector<dim, val
 }
 
 template <int dim, typename valueType>
-inline void BinaryReader::Read(const std::string& _label, Vector<dim, valueType>& _data) {
+inline void BinaryReader::Read(const std::string& _label, OriGine::Vector<dim, valueType>& _data) {
     auto dataItr = readMap_.find(groupName_ + _label);
     if (dataItr == readMap_.end()) {
         return;

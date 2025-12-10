@@ -10,6 +10,8 @@
 // directX12
 #include "directX12/DxDevice.h"
 
+using namespace OriGine;
+
 GpuParticleRenderSystem::GpuParticleRenderSystem() : BaseRenderSystem() {}
 GpuParticleRenderSystem::~GpuParticleRenderSystem() {}
 
@@ -41,12 +43,12 @@ void GpuParticleRenderSystem::CreatePSO() {
     ShaderManager* shaderManager = ShaderManager::GetInstance();
 
     // 登録されているかどうかをチェック
-    if (shaderManager->IsRegisteredPipelineStateObj("GpuParticle_" + blendModeStr[0])) {
+    if (shaderManager->IsRegisteredPipelineStateObj("GpuParticle_" + kBlendModeStr[0])) {
         for (size_t i = 0; i < kBlendNum; ++i) {
             if (psoByBlendMode_[i]) {
                 continue;
             }
-            psoByBlendMode_[i] = shaderManager->GetPipelineStateObj("GpuParticle_" + blendModeStr[i]);
+            psoByBlendMode_[i] = shaderManager->GetPipelineStateObj("GpuParticle_" + kBlendModeStr[i]);
         }
         return;
     }
@@ -56,7 +58,7 @@ void GpuParticleRenderSystem::CreatePSO() {
     ///=================================================
 
     shaderManager->LoadShader("GpuParticle.VS");
-    shaderManager->LoadShader("Particle.PS", shaderDirectory, L"ps_6_0");
+    shaderManager->LoadShader("Particle.PS", kShaderDirectory, L"ps_6_0");
 
     ///=================================================
     /// shader情報の設定
@@ -149,7 +151,7 @@ void GpuParticleRenderSystem::CreatePSO() {
     ///=================================================
     for (size_t i = 0; i < kBlendNum; i++) {
         shaderInfo.blendMode_ = BlendMode(i);
-        psoByBlendMode_[i]    = shaderManager->CreatePso("Particle_" + blendModeStr[i], shaderInfo, Engine::GetInstance()->GetDxDevice()->device_);
+        psoByBlendMode_[i]    = shaderManager->CreatePso("Particle_" + kBlendModeStr[i], shaderInfo, Engine::GetInstance()->GetDxDevice()->device_);
     }
 }
 

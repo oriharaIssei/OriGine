@@ -11,6 +11,8 @@
 /// math
 #include <math/Vector4.h>
 
+namespace OriGine {
+
 /// <summary>
 /// Dissolveエフェクトのパラメーター情報(GPUに送るやつ)
 /// </summary>
@@ -128,3 +130,5 @@ public:
         return textureIndex_;
     }
 };
+
+} // namespace OriGine

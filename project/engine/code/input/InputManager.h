@@ -1,12 +1,14 @@
 #pragma once
 
+/// include
+#include "include/IncludeInputAPI.h"
+
 /// input
 #include "GamepadInput.h"
 #include "KeyboardInput.h"
 #include "MouseInput.h"
 
-// math
-#include <math/Vector2.h>
+namespace OriGine {
 
 /// <summary>
 /// 入力管理クラス
@@ -32,3 +34,5 @@ private:
     MouseInput mouse_;
     GamepadInput gamepad_;
 };
+
+} // namespace OriGine

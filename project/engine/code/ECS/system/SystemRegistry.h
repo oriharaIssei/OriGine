@@ -6,11 +6,11 @@
 
 /// ECS
 #include "ECS/system/ISystem.h"
-#include "ECS/system/postRender/base/BasePostRenderingSystem.h"
-#include "ECS/system/render/base/BaseRenderSystem.h"
 
 /// external
 #include "logger/Logger.h"
+
+namespace OriGine {
 
 /// <summary>
 /// System Registry
@@ -57,7 +57,7 @@ template <IsSystem SystemClass>
 inline void SystemRegistry::RegisterSystem() {
     std::string systemName = nameof<SystemClass>();
     if (systemMaker_.find(systemName) != systemMaker_.end()) {
-        LOG_WARN("SystemRegistry: System already registered with name: {}", systemName);
+        LOG_WARN("System already registered with name: {}", systemName);
         return;
     }
 
@@ -67,3 +67,5 @@ inline void SystemRegistry::RegisterSystem() {
         return std::move(system);
     };
 }
+
+} // namespace OriGine

@@ -1,6 +1,5 @@
 #include "EmitterShape.h"
 
-
 #include "myRandom/MyRandom.h"
 
 /// math
@@ -10,14 +9,16 @@
 #include "imgui/imgui.h"
 #endif // _DEBUG
 
+using namespace OriGine;
+
 #ifdef _DEBUG
 void EmitterShape::Debug([[maybe_unused]] const std::string& _parentLabel) {
-    ImGui::Text("SpawnType : %s", particleSpawnLocationTypeWord_[int(spawnType)].c_str());
-    std::string label = particleSpawnLocationTypeWord_[int(ParticleSpawnLocationType::InBody)] + "##" + _parentLabel;
+    ImGui::Text("SpawnType : %s", kParticleSpawnLocationTypeWord[int(spawnType)].c_str());
+    std::string label = kParticleSpawnLocationTypeWord[int(ParticleSpawnLocationType::InBody)] + "##" + _parentLabel;
     if (ImGui::RadioButton(label.c_str(), spawnType == ParticleSpawnLocationType::InBody)) {
         spawnType = ParticleSpawnLocationType::InBody;
     }
-    label = particleSpawnLocationTypeWord_[int(ParticleSpawnLocationType::Edge)] + "##" + _parentLabel;
+    label = kParticleSpawnLocationTypeWord[int(ParticleSpawnLocationType::Edge)] + "##" + _parentLabel;
     if (ImGui::RadioButton(label.c_str(), spawnType == ParticleSpawnLocationType::Edge)) {
         spawnType = ParticleSpawnLocationType::Edge;
     }
@@ -29,7 +30,7 @@ void EmitterShape::Debug([[maybe_unused]] const std::string& _parentLabel) {
 void EmitterSphere::Debug([[maybe_unused]] const std::string& _parentLabel) {
     EmitterShape::Debug(_parentLabel);
     ImGui::Text("radius");
-    std::string label = "##_radius" +_parentLabel;
+    std::string label = "##_radius" + _parentLabel;
     ImGui::DragFloat(label.c_str(), &radius_, 0.01f, 0.01f);
 }
 #endif // _DEBUG

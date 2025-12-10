@@ -8,8 +8,9 @@
 #include "component/animation/SpriteAnimation.h"
 #include "component/renderer/Sprite.h"
 
-SpriteAnimationSystem::SpriteAnimationSystem() : ISystem(SystemCategory::Effect) {}
+using namespace OriGine;
 
+SpriteAnimationSystem::SpriteAnimationSystem() : ISystem(SystemCategory::Effect) {}
 SpriteAnimationSystem::~SpriteAnimationSystem() {}
 
 void SpriteAnimationSystem::Initialize() {}

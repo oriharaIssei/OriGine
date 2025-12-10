@@ -26,19 +26,19 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Develop|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -311,12 +311,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\scene\SceneManager.h" />
     <ClInclude Include="engine\code\texture\TextureManager.h" />
     <ClInclude Include="engine\code\winApp\WinApp.h" />
-    <ClInclude Include="geometry\base\GeometryType.h" />
-    <ClInclude Include="geometry\base\IGeometry.h" />
-    <ClInclude Include="geometry\shape\Box.h" />
-    <ClInclude Include="geometry\shape\Plane.h" />
-    <ClInclude Include="geometry\shape\Ring.h" />
-    <ClInclude Include="geometry\shape\Sphere.h" />
     <ClInclude Include="math\Interpolation.h" />
     <ClInclude Include="math\Matrix4x4.h" />
     <ClInclude Include="math\MyEasing.h" />
@@ -496,7 +490,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\scene\SceneManager.cpp" />
     <ClCompile Include="engine\code\texture\TextureManager.cpp" />
     <ClCompile Include="engine\code\winApp\WinApp.cpp" />
-    <ClCompile Include="geometry\base\GeometryType.cpp" />
     <ClCompile Include="math\Interpolation.cpp" />
     <ClCompile Include="math\Matrix4x4.cpp" />
     <ClCompile Include="math\MyEasing.cpp" />

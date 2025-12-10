@@ -13,6 +13,8 @@
 #include "component/material/light/LightManager.h"
 #include "component/renderer/MeshRenderer.h"
 
+using namespace OriGine;
+
 LineRenderSystem::LineRenderSystem() : BaseRenderSystem() {}
 LineRenderSystem::~LineRenderSystem() {}
 
@@ -114,12 +116,12 @@ void LineRenderSystem::CreatePSO() {
     DxDevice* dxDevice           = Engine::GetInstance()->GetDxDevice();
 
     // 登録されているかどうかをチェック
-    if (shaderManager->IsRegisteredPipelineStateObj("LineMesh_" + blendModeStr[0])) {
+    if (shaderManager->IsRegisteredPipelineStateObj("LineMesh_" + kBlendModeStr[0])) {
         for (size_t i = 0; i < kBlendNum; ++i) {
             if (psoByBlendMode_[i]) {
                 continue;
             }
-            psoByBlendMode_[i] = shaderManager->GetPipelineStateObj("LineMesh_" + blendModeStr[i]);
+            psoByBlendMode_[i] = shaderManager->GetPipelineStateObj("LineMesh_" + kBlendModeStr[i]);
         }
         return;
     }
@@ -128,7 +130,7 @@ void LineRenderSystem::CreatePSO() {
     /// shader読み込み
     ///=================================================
     shaderManager->LoadShader("ColoredVertex.VS");
-    shaderManager->LoadShader("ColoredVertex.PS", shaderDirectory, L"ps_6_0");
+    shaderManager->LoadShader("ColoredVertex.PS", kShaderDirectory, L"ps_6_0");
 
     ///=================================================
     /// shader情報の設定
@@ -182,6 +184,6 @@ void LineRenderSystem::CreatePSO() {
         }
         BlendMode blend           = static_cast<BlendMode>(i);
         lineShaderInfo.blendMode_ = blend;
-        psoByBlendMode_[i]        = shaderManager->CreatePso("LineMesh_" + blendModeStr[i], lineShaderInfo, dxDevice->device_);
+        psoByBlendMode_[i]        = shaderManager->CreatePso("LineMesh_" + kBlendModeStr[i], lineShaderInfo, dxDevice->device_);
     }
 }

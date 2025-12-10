@@ -1,8 +1,5 @@
 #pragma once
 
-#include <d3d12.h>
-#include <wrl.h>
-
 /// stl
 #include <string>
 
@@ -14,10 +11,12 @@
 #include "math/Vector3.h"
 #include "math/Vector4.h"
 
+namespace OriGine {
+
 /// <summary>
 /// Point Light
 /// </summary>
-class PointLight
+struct PointLight
     : public IComponent {
     friend void to_json(nlohmann::json& j, const PointLight& l);
     friend void from_json(const nlohmann::json& j, PointLight& l);
@@ -27,11 +26,11 @@ public:
     ~PointLight() {}
 
     void Initialize([[maybe_unused]] Entity* _entity) override {}
-    void Edit(Scene* _scene,Entity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
-    
+    void Edit(Scene* _scene, Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
+
     void Finalize() override {}
 
-private:
+public:
     bool isActive_ = true;
 
     Vec3f color_     = {1.f, 1.f, 1.f};
@@ -57,19 +56,6 @@ public:
             return *this;
         }
     };
-
-public: // access
-    bool IsActive() const { return isActive_; }
-    void SetActive(bool _isActive) { isActive_ = _isActive; }
-
-    Vec3f GetColor() const { return color_; }
-    void SetColor(const Vec3f& _color) { color_ = _color; }
-    Vec3f GetPos() const { return pos_; }
-    void SetPos(const Vec3f& _pos) { pos_ = _pos; }
-    float GetIntensity() const { return intensity_; }
-    void SetIntensity(float _intensity) { intensity_ = _intensity; }
-    float GetRadius() const { return radius_; }
-    void SetRadius(float _radius) { radius_ = _radius; }
-    float GetDecay() const { return decay_; }
-    void SetDecay(float _decay) { decay_ = _decay; }
 };
+
+} // namespace OriGine

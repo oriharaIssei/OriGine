@@ -7,13 +7,14 @@
 #include "component/transform/CameraTransform.h"
 #include "directX12/buffer/IConstantBuffer.h"
 
+#include "camera/debugCamera/DebugCamera.h"
 
-class DebugCamera;
+namespace OriGine {
 
 /// <summary>
 /// カメラを管理するクラス. cTransform_を通してカメラの情報をGPUに送る.
 /// </summary>
-class CameraManager{
+class CameraManager {
 public:
     static CameraManager* GetInstance();
 
@@ -28,7 +29,7 @@ private:
     CameraManager* operator=(const CameraManager&) = delete;
 
 private:
-    std::unique_ptr<DebugCamera> debugCamera_;
+    ::std::unique_ptr<OriGine::DebugCamera> debugCamera_;
     IConstantBuffer<CameraTransform> cTransform_;
 
 public:
@@ -42,3 +43,5 @@ public:
         cTransform_.SetForRootParameter(cmdList, rootParameterNum);
     }
 };
+
+} // namespace OriGine

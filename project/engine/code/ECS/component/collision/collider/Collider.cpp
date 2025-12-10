@@ -1,5 +1,7 @@
 #include "Collider.h"
 
+using namespace OriGine;
+
 void ICollider::Initialize(Entity* /*_hostEntity*/) {}
 
 void ICollider::StartCollision() {

@@ -9,6 +9,8 @@
 #include "component/renderer/primitive/base/PrimitiveMeshRendererBase.h"
 #include "component/renderer/primitive/base/PrimitiveType.h"
 
+namespace OriGine {
+
 class PrimitiveMeshFactory {
 public:
     static PrimitiveMeshFactory* GetInstance() {
@@ -45,3 +47,5 @@ private:
 public:
     void RegistryFactoryFunction(PrimitiveType _type, std::function<std::shared_ptr<PrimitiveMeshRendererBase>()> _func);
 };
+
+} // namespace OriGine

@@ -9,6 +9,8 @@
 #include "directX12/DxDevice.h"
 #include "directX12/RenderTexture.h"
 
+using namespace OriGine;
+
 SmoothingEffect::SmoothingEffect() : BasePostRenderingSystem() {}
 SmoothingEffect::~SmoothingEffect() {}
 
@@ -25,7 +27,7 @@ void SmoothingEffect::Finalize() {
 void SmoothingEffect::CreatePSO() {
     ShaderManager* shaderManager = ShaderManager::GetInstance();
     shaderManager->LoadShader("FullScreen.VS");
-    shaderManager->LoadShader("Smoothing.PS", shaderDirectory, L"ps_6_0");
+    shaderManager->LoadShader("Smoothing.PS", kShaderDirectory, L"ps_6_0");
     ShaderInformation shaderInfo{};
     shaderInfo.vsKey = "FullScreen.VS";
     shaderInfo.psKey = "Smoothing.PS";

@@ -8,6 +8,8 @@
 #include "component/animation/MaterialAnimation.h"
 #include "component/material/Material.h"
 
+using namespace OriGine;
+
 void MaterialAnimationWorkSystem::UpdateEntity(Entity* _entity) {
     auto* materialAnimations = GetComponents<MaterialAnimation>(_entity);
     if (materialAnimations == nullptr) {

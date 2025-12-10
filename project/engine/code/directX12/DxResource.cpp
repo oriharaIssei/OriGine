@@ -14,7 +14,9 @@
 /// util
 #include "DxUtil.h"
 
-const char* DxResourceTypeToString(DxResourceType type) {
+using namespace OriGine;
+
+const char* OriGine::DxResourceTypeToString(DxResourceType type) {
     switch (type) {
     case DxResourceType::Unknown:
         return "Unknown";

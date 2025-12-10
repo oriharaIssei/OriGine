@@ -10,8 +10,9 @@
 #include "imgui/imgui_impl_dx12.h"
 #include "imgui/imgui_impl_win32.h"
 
-EditorController::EditorController() {}
+using namespace OriGine;
 
+EditorController::EditorController() {}
 EditorController::~EditorController() {}
 
 void EditorController::Undo() {

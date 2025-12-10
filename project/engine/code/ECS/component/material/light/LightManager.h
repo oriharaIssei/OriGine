@@ -14,9 +14,11 @@
 // directX12Object
 #include "directX12/buffer/IConstantBuffer.h"
 #include "directX12/buffer/IStructuredBuffer.h"
-#include "directX12/DxDescriptor.h"
 
+/// util
 #include "globalVariables/SerializedField.h"
+
+namespace OriGine {
 
 /// <summary>
 /// ライトの数を管理する構造体
@@ -84,16 +86,16 @@ public:
     /// DirectionalLightを追加する
     /// </summary>
     /// <param name="light"></param>
-    void pushDirectionalLight(const DirectionalLight& light);
+    void PushDirectionalLight(const DirectionalLight& light);
     /// <summary>
     /// PointLightを追加する
     /// </summary>
-    void pushPointLight(const PointLight& light);
+    void PushPointLight(const PointLight& light);
     /// <summary>
     /// SpotLightを追加する
     /// </summary>
     /// <param name="light"></param>
-    void pushSpotLight(const SpotLight& light);
+    void PushSpotLight(const SpotLight& light);
 
     /// <summary>
     /// Lightをclearする
@@ -104,3 +106,5 @@ public:
         spotLights_.openData_.clear();
     }
 };
+
+} // namespace OriGine

@@ -15,6 +15,8 @@
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
+using namespace OriGine;
+
 void GpuParticleEmitter::Initialize(Entity* /*_entity*/) {
     Primitive::Plane plane;
     plane.CreateMesh(&mesh_);
@@ -84,7 +86,7 @@ void GpuParticleEmitter::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_un
                     textureIndex_ = TextureManager::LoadTexture(texturePath_);
                 },
                     true);
-                EditorController::GetInstance()->PushCommand(std::make_unique<CommandCombo>(commandCombo));
+                OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<CommandCombo>(commandCombo));
             }
         };
 
@@ -106,7 +108,7 @@ void GpuParticleEmitter::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_un
 
         if (shapeType != (int)shapeBuffer_->isBox) {
             auto command = std::make_unique<SetterCommand<uint32_t>>(&shapeBuffer_->isBox, (uint32_t)shapeType);
-            EditorController::GetInstance()->PushCommand(std::move(command));
+            OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
         }
 
         ImGui::Spacing();
@@ -115,7 +117,7 @@ void GpuParticleEmitter::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_un
         bool isEmitEdge = shapeBuffer_->isEmitEdge != 0;
         if (ImGui::Checkbox(label.c_str(), &isEmitEdge)) {
             auto command = std::make_unique<SetterCommand<uint32_t>>(&shapeBuffer_->isEmitEdge, (uint32_t)isEmitEdge);
-            EditorController::GetInstance()->PushCommand(std::move(command));
+            OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
         }
         ImGui::Spacing();
 
@@ -312,7 +314,7 @@ void GpuParticleEmitter::LoadTexture(const std::string& _path) {
     textureIndex_ = TextureManager::LoadTexture(texturePath_);
 }
 
-void to_json(nlohmann::json& j, const GpuParticleEmitter& p) {
+void OriGine::to_json(nlohmann::json& j, const GpuParticleEmitter& p) {
     j = nlohmann::json{
         {"isActive", p.isActive_},
         {"particleSize", p.shapeBuffer_->particleSize},
@@ -337,7 +339,7 @@ void to_json(nlohmann::json& j, const GpuParticleEmitter& p) {
     };
 }
 
-void from_json(const nlohmann::json& j, GpuParticleEmitter& p) {
+void OriGine::from_json(const nlohmann::json& j, GpuParticleEmitter& p) {
     j.at("isActive").get_to(p.isActive_);
     j.at("particleSize").get_to(p.shapeBuffer_->particleSize);
     j.at("texturePath").get_to(p.texturePath_);

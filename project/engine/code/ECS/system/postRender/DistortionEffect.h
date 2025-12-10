@@ -10,13 +10,17 @@
 #include "directX12/DxCommand.h"
 #include "directX12/PipelineStateObj.h"
 #include "directX12/ShaderManager.h"
-class RenderTexture;
 
+namespace OriGine {
+/// engine
+// drecitX12
+class RenderTexture;
 /// ECS
+// component
 struct Transform;
 class DistortionEffectParam;
+// system
 class PrimitiveMeshRendererBase;
-
 class TexturedMeshRenderSystem;
 
 /// <summary>
@@ -84,3 +88,5 @@ protected:
     int32_t distortionParamIndex_   = 0;
     int32_t materialIndex_          = 0;
 };
+
+} // namespace OriGine

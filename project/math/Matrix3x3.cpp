@@ -3,6 +3,8 @@
 /// math
 #include <DirectXMath.h>
 
+namespace OriGine {
+
 Matrix3x3 Matrix3x3::operator+(const Matrix3x3& another) const {
     Matrix3x3 r{};
     for (int i = 0; i < 3; ++i)
@@ -123,3 +125,5 @@ void Matrix3x3::Decompose2D(const Matrix3x3& mat, Vec2f& outScale, float& outRot
 Matrix3x3 Matrix3x3::inverse() const {
     return Matrix3x3::Inverse(*this);
 }
+
+} // namespace OriGine

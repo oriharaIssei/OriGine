@@ -15,6 +15,8 @@
 #include "myGui/MyGui.h"
 #include "util/timeline/Timeline.h"
 
+namespace OriGine {
+
 class GenerateUvAnimationCommand : public IEditCommand {
 public:
     GenerateUvAnimationCommand(
@@ -155,7 +157,7 @@ void MaterialAnimation::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] En
     if (ImGui::BeginCombo(label.c_str(), InterpolationTypeName[int(interpolationType_)])) {
         for (int i = 0; i < (int)InterpolationType::COUNT; ++i) {
             if (ImGui::Selectable(InterpolationTypeName[i], interpolationType_ == InterpolationType(i))) {
-                EditorController::GetInstance()->PushCommand(
+                OriGine::EditorController::GetInstance()->PushCommand(
                     std::make_unique<SetterCommand<InterpolationType>>(&interpolationType_, InterpolationType(i)));
             }
         }
@@ -173,7 +175,7 @@ void MaterialAnimation::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] En
         DragGuiCommand<float>("AnimationTimeLength", animationTimeLength_, 0.1f, 0);
 
         if (ImGui::Button("Generate Curve")) {
-            EditorController::GetInstance()->PushCommand(
+            OriGine::EditorController::GetInstance()->PushCommand(
                 std::make_unique<GenerateUvAnimationCommand>(
                     duration_,
                     uvscaleCurve_,
@@ -402,9 +404,11 @@ void from_json(const nlohmann::json& _json, MaterialAnimation& _animation) {
     };
     _json.at("InterpolationType").get_to(_animation.interpolationType_);
 
-   // readCurve("colorCurve", _animation.colorCurve_);
+    // readCurve("colorCurve", _animation.colorCurve_);
 
     readCurve("uvScaleCurve", _animation.uvscaleCurve_);
     readCurve("uvRotateCurve", _animation.uvRotateCurve_);
     readCurve("uvTranslateCurve", _animation.uvTranslateCurve_);
 }
+
+} // namespace OriGine

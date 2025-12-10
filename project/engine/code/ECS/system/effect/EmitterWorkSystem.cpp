@@ -1,12 +1,13 @@
 #include "EmitterWorkSystem.h"
 
 /// engine
-// ECS
+#include "Engine.h"
 
+/// ECS
 // component
 #include "component/effect/particle/emitter/Emitter.h"
 
-#include "Engine.h"
+using namespace OriGine;
 
 void EmitterWorkSystem::Initialize() {
 }

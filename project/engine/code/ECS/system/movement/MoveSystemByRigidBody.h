@@ -2,9 +2,10 @@
 // parent
 #include "system/ISystem.h"
 
-/// engine
-
+/// util
 #include "util/globalVariables/SerializedField.h"
+
+namespace OriGine {
 
 /// <summary>
 /// Rigidbody によるTransformの移動を行うシステム
@@ -25,3 +26,5 @@ protected:
 protected:
     SerializedField<float> gravity_ = SerializedField<float>("Settings", "Physics", "Gravity");
 };
+
+} // namespace OriGine

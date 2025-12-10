@@ -18,6 +18,9 @@ project "OriGine"
     files { "**.h", "**.cpp"}
     removefiles  { "externals/**", "application/**"}
 
+    -- Clang-Tidy 有効化
+    clangtidy "On"
+
     includedirs {
         "$(SolutionDir)math",
         "$(SolutionDir)util",
@@ -136,6 +139,9 @@ project "OriGineApp"
     -- デバッグ時の作業ディレクトリを指定
     debugdir "%{wks.location}"
     files { "application/**.h", "application/**.cpp" }
+
+    -- Clang-Tidy 有効化
+    clangtidy "On"
 
     includedirs {
         "$(ProjectDir)code",

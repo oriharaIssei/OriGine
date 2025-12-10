@@ -1,5 +1,7 @@
 #include "SystemCategory.h"
 
-std::string std::to_string(const SystemCategory& _category) {
-    return SystemCategoryString[static_cast<int>(_category)];
+using namespace OriGine;
+
+std::string ToString(const SystemCategory& _category) {
+    return kSystemCategoryString[static_cast<int>(_category)];
 }

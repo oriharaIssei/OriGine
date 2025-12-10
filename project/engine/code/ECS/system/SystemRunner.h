@@ -1,8 +1,17 @@
 #pragma once
 
-class Scene;
+/// stl
+#include <string>
+
+/// ECS
+// system
 #include "ISystem.h"
 #include "SystemCategory.h"
+
+namespace OriGine {
+
+/// ECS
+class Scene;
 
 /// <summary>
 /// System Runner
@@ -99,7 +108,7 @@ public:
     /// <param name="_systemName">登録するシステム名</param>
     /// <param name="_priority">実行優先順位</param>
     /// <param name="_isActivate">Activeにするかどうか</param>
-    void RegisterSystem(const std::string& _systemName, int32_t _priority = 0, bool _isActivate = true);
+    void RegisterSystem(const ::std::string& _systemName, int32_t _priority = 0, bool _isActivate = true);
     /// <summary>
     /// システムを登録する
     /// </summary>
@@ -113,7 +122,7 @@ public:
     /// 登録を解除する
     /// </summary>
     /// <param name="_systemName">登録解除するシステム名</param>
-    void UnregisterSystem(const std::string& _systemName);
+    void UnregisterSystem(const ::std::string& _systemName);
     /// <summary>
     /// 登録を解除する
     /// </summary>
@@ -125,7 +134,7 @@ public:
     /// 指定したシステムをアクティブにする
     /// </summary>
     /// <param name="_systemName">アクティブにするシステムの名前</param>
-    void ActivateSystem(const std::string& _systemName);
+    void ActivateSystem(const ::std::string& _systemName);
 
     /// <summary>
     /// 指定したシステムをアクティブにする
@@ -138,7 +147,7 @@ public:
     /// 指定されたシステムを非アクティブ化します。
     /// </summary>
     /// <param name="_systemName">非アクティブ化するシステムの名前。</param>
-    void DeactivateSystem(const std::string& _systemName);
+    void DeactivateSystem(const ::std::string& _systemName);
     /// <summary>
     /// 指定されたシステムを非アクティブ化します。
     /// </summary>
@@ -158,30 +167,30 @@ public:
     /// </summary>
     /// <param name="_systemTypeName">エンティティを追加するシステムの名前</param>
     /// <param name="_entity"></param>
-    void RegisterEntity(const std::string& _systemTypeName, Entity* _entity);
+    void RegisterEntity(const ::std::string& _systemTypeName, Entity* _entity);
 
     /// <summary>
     /// 指定されたシステムからエンティティを削除します。
     /// </summary>
     /// <param name="_systemTypeName">エンティティを削除する対象のシステム名。</param>
     /// <param name="_entity">削除するEntityオブジェクトへのポインタ。</param>
-    void RemoveEntity(const std::string& _systemTypeName, Entity* _entity);
+    void RemoveEntity(const ::std::string& _systemTypeName, Entity* _entity);
 
     void RemoveEntityFromAllSystems(Entity* _entity);
 
 private:
     Scene* scene_ = nullptr; // 所属するシーン
 
-    std::array<bool, static_cast<size_t>(SystemCategory::Count)> categoryActivity = {true, true, true, true, true, true, true, true};
+    ::std::array<bool, static_cast<size_t>(SystemCategory::Count)> categoryActivity = {true, true, true, true, true, true, true, true};
 
-    std::unordered_map<std::string, std::unique_ptr<ISystem>> systems_;
-    std::array<std::vector<ISystem*>, size_t(SystemCategory::Count)> activeSystems_;
+    ::std::unordered_map<::std::string, ::std::unique_ptr<ISystem>> systems_;
+    ::std::array<::std::vector<ISystem*>, size_t(SystemCategory::Count)> activeSystems_;
 
 public:
-    const std::array<bool, static_cast<size_t>(SystemCategory::Count)>& GetCategoryActivity() const {
+    const ::std::array<bool, static_cast<size_t>(SystemCategory::Count)>& GetCategoryActivity() const {
         return categoryActivity;
     }
-    std::array<bool, static_cast<size_t>(SystemCategory::Count)>& GetCategoryActivityRef() {
+    ::std::array<bool, static_cast<size_t>(SystemCategory::Count)>& GetCategoryActivityRef() {
         return categoryActivity;
     }
     bool GetCategoryActivity(SystemCategory category) const {
@@ -191,32 +200,32 @@ public:
         categoryActivity[static_cast<size_t>(_category)] = _isActive;
     }
 
-    const std::unordered_map<std::string, std::unique_ptr<ISystem>>& GetSystems() const {
+    const ::std::unordered_map<::std::string, ::std::unique_ptr<ISystem>>& GetSystems() const {
         return systems_;
     }
-    std::unordered_map<std::string, std::unique_ptr<ISystem>>& GetSystemsRef() {
+    ::std::unordered_map<::std::string, ::std::unique_ptr<ISystem>>& GetSystemsRef() {
         return systems_;
     }
 
-    const std::array<std::vector<ISystem*>, size_t(SystemCategory::Count)>& GetActiveSystems() const {
+    const ::std::array<::std::vector<ISystem*>, size_t(SystemCategory::Count)>& GetActiveSystems() const {
         return activeSystems_;
     }
-    std::array<std::vector<ISystem*>, size_t(SystemCategory::Count)>& GetActiveSystemsRef() {
+    ::std::array<::std::vector<ISystem*>, size_t(SystemCategory::Count)>& GetActiveSystemsRef() {
         return activeSystems_;
     }
 
-    std::vector<ISystem*>& GetActiveSystemsRef(SystemCategory _category) {
+    ::std::vector<ISystem*>& GetActiveSystemsRef(SystemCategory _category) {
         return activeSystems_[static_cast<size_t>(_category)];
     }
-    const std::vector<ISystem*>& GetActiveSystems(SystemCategory category) const {
+    const ::std::vector<ISystem*>& GetActiveSystems(SystemCategory category) const {
         return activeSystems_[static_cast<size_t>(category)];
     }
-    ISystem* GetSystem(const std::string& _systemName) const;
+    ISystem* GetSystem(const ::std::string& _systemName) const;
 
     template <IsSystem SystemClass>
     SystemClass* GetSystem() const;
 
-    ISystem* GetSystemRef(const std::string& _systemName);
+    ISystem* GetSystemRef(const ::std::string& _systemName);
 
     template <IsSystem SystemClass>
     SystemClass* GetSystemRef();
@@ -275,8 +284,8 @@ inline void SystemRunner::RegisterEntity(Entity* _entity) {
 
 template <IsSystem SystemClass>
 inline SystemClass* SystemRunner::GetSystem() const {
-    std::string systemName = nameof<SystemClass>();
-    auto itr               = systems_.find(systemName);
+    ::std::string systemName = nameof<SystemClass>();
+    auto itr                 = systems_.find(systemName);
     if (itr == systems_.end()) {
         LOG_ERROR("SystemRunner: System '{}' not found .", systemName);
         return nullptr;
@@ -286,11 +295,13 @@ inline SystemClass* SystemRunner::GetSystem() const {
 
 template <IsSystem SystemClass>
 inline SystemClass* SystemRunner::GetSystemRef() {
-    std::string systemName = nameof<SystemClass>();
-    auto itr               = systems_.find(systemName);
+    ::std::string systemName = nameof<SystemClass>();
+    auto itr                 = systems_.find(systemName);
     if (itr == systems_.end()) {
         LOG_ERROR("SystemRunner: System '{}' not found .", systemName);
         return nullptr;
     }
     return dynamic_cast<SystemClass*>(itr->second.get());
 }
+
+} // namespace OriGine

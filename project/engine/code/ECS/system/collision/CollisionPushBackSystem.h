@@ -1,6 +1,8 @@
 #pragma once
 #include "system/ISystem.h"
 
+namespace OriGine {
+
 /// <summary>
 /// 衝突判定後に押し戻し処理を行うシステム
 /// </summary>
@@ -18,3 +20,5 @@ public:
 protected:
     void UpdateEntity(Entity* _entity) override;
 };
+
+} // namespace OriGine

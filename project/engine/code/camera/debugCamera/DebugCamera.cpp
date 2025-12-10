@@ -1,14 +1,20 @@
 #include "DebugCamera.h"
 
 #ifdef _DEBUG
+/// engine
+#include "input/InputManager.h"
+
+/// externals
 #include "imgui/imgui.h"
 #endif // _DEBUG
-
+/// math
 #include <cmath>
 #include <numbers>
 
+using namespace OriGine;
+
 void DebugCamera::Initialize() {
-    currentState_.reset(new Neutral(this));
+    currentState_ = std::make_unique<Neutral>(this);
 }
 void DebugCamera::Finalize() {
     currentState_.reset();

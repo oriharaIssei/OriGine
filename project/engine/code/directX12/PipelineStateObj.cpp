@@ -1,6 +1,6 @@
 #include "PipelineStateObj.h"
 
-void PipelineStateObj::Finalize() {
-	rootSignature.Reset();
-	pipelineState.Reset();
+void OriGine::PipelineStateObj::Finalize() {
+    rootSignature.Reset();
+    pipelineState.Reset();
 }

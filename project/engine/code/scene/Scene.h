@@ -4,23 +4,31 @@
 #include <memory>
 #include <string>
 
+/// ECS
+// entity
+#include "entity/EntityRepository.h"
+// component
+#include "component/ComponentArray.h"
+#include "component/ComponentRepository.h"
+
+/// logger
 #include <logger/Logger.h>
 
+namespace OriGine {
+
 /// engine
-#include "scene/SceneManager.h"
+class SceneManager;
 // directX12
 class RenderTexture;
 // input
 class KeyboardInput;
 class MouseInput;
 class GamepadInput;
+
 /// ECS
-#include "component/ComponentArray.h"
-#include "component/ComponentRepository.h"
-#include "entity/EntityRepository.h"
+// system
 class SystemRunner;
 class ISystem;
-enum class SystemCategory;
 
 /// <summary>
 /// 1場面を表すクラス
@@ -29,7 +37,7 @@ class Scene final {
     friend class SceneSerializer;
 
 public:
-    Scene(const std::string& _name);
+    Scene(const ::std::string& _name);
     ~Scene();
 
     // シーンの初期化
@@ -50,19 +58,19 @@ protected:
 protected:
     SceneManager* sceneManager_ = nullptr;
 
-    std::string name_                         = "NULL";
-    std::unique_ptr<RenderTexture> sceneView_ = nullptr;
+    ::std::string name_                         = "NULL";
+    ::std::unique_ptr<RenderTexture> sceneView_ = nullptr;
 
-    std::unique_ptr<EntityRepository> entityRepository_       = nullptr;
-    std::unique_ptr<ComponentRepository> componentRepository_ = nullptr;
-    std::unique_ptr<SystemRunner> systemRunner_               = nullptr;
+    ::std::unique_ptr<EntityRepository> entityRepository_       = nullptr;
+    ::std::unique_ptr<ComponentRepository> componentRepository_ = nullptr;
+    ::std::unique_ptr<SystemRunner> systemRunner_               = nullptr;
 
     // input
     KeyboardInput* keyInput_ = nullptr;
     MouseInput* mouseInput_  = nullptr;
     GamepadInput* padInput_  = nullptr;
 
-    std::list<int32_t> deleteEntities_; // 削除予定のエンティティIDリスト
+    ::std::list<int32_t> deleteEntities_; // 削除予定のエンティティIDリスト
 
     bool isActive_ = false;
 
@@ -82,7 +90,7 @@ public:
         padInput_   = _padInput;
     }
 
-    const std::string& GetName() const { return name_; }
+    const ::std::string& GetName() const { return name_; }
     RenderTexture* GetSceneView() const { return sceneView_.get(); }
 
     const EntityRepository* GetEntityRepository() const;
@@ -117,7 +125,7 @@ public:
     }
 
     Entity* GetEntity(int32_t entityId) const;
-    Entity* GetUniqueEntity(const std::string& _dataType) const;
+    Entity* GetUniqueEntity(const ::std::string& _dataType) const;
 
     /// ==========================================
     // Component 関係
@@ -127,18 +135,18 @@ public:
     template <IsComponent ComponentType>
     ComponentType* GetComponent(int32_t entityId, uint32_t index = 0) const;
     template <IsComponent ComponentType>
-    std::vector<ComponentType>* GetComponents(Entity* _entity) const {
+    ::std::vector<ComponentType>* GetComponents(Entity* _entity) const {
         return componentRepository_->GetComponents<ComponentType>(_entity);
     }
     template <IsComponent ComponentType>
-    std::vector<ComponentType>* GetComponents(int32_t entityId) const;
+    ::std::vector<ComponentType>* GetComponents(int32_t entityId) const;
 
-    IComponentArray* GetComponentArray(const std::string& componentTypeName) const {
+    IComponentArray* GetComponentArray(const ::std::string& componentTypeName) const {
         return componentRepository_->GetComponentArray(componentTypeName);
     }
 
-    bool AddComponent(const std::string& _compTypeName, int32_t _entityId, bool _doInitialize = true);
-    bool RemoveComponent(const std::string& _compTypeName, int32_t _entityId, int32_t _componentIndex = 0);
+    bool AddComponent(const ::std::string& _compTypeName, int32_t _entityId, bool _doInitialize = true);
+    bool RemoveComponent(const ::std::string& _compTypeName, int32_t _entityId, int32_t _componentIndex = 0);
 
     template <IsComponent ComponentType>
     ComponentArray<ComponentType>* GetComponentArray() const {
@@ -149,10 +157,10 @@ public:
     // System 関係
     /// ==========================================
 
-    ISystem* GetSystem(const std::string& _systemTypeName) const;
+    ISystem* GetSystem(const ::std::string& _systemTypeName) const;
 
-    bool RegisterSystem(const std::string& _systemTypeName, int32_t _priority = 0, bool _activity = true);
-    bool UnregisterSystem(const std::string& _systemTypeName);
+    bool RegisterSystem(const ::std::string& _systemTypeName, int32_t _priority = 0, bool _activity = true);
+    bool UnregisterSystem(const ::std::string& _systemTypeName);
 };
 
 template <IsComponent ComponentType>
@@ -175,7 +183,7 @@ inline ComponentType* Scene::GetComponent(int32_t entityId, uint32_t index) cons
 }
 
 template <IsComponent ComponentType>
-inline std::vector<ComponentType>* Scene::GetComponents(int32_t entityId) const {
+inline ::std::vector<ComponentType>* Scene::GetComponents(int32_t entityId) const {
     Entity* entity = entityRepository_->GetEntity(entityId);
     if (!entity) {
         LOG_ERROR("Entity with ID {} not found.", entityId);
@@ -183,3 +191,5 @@ inline std::vector<ComponentType>* Scene::GetComponents(int32_t entityId) const 
     }
     return componentRepository_->GetComponents<ComponentType>(entity);
 }
+
+} // namespace OriGine

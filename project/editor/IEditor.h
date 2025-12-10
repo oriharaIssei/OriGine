@@ -148,8 +148,8 @@ protected:
     void UpdateFocusAndOpenState();
 
 protected:
-    std::string name_ = "Unknown";
-    Vec2f areaSize_   = Vec2f(1280.f, 720.f); // Areaのサイズ
+    std::string name_        = "Unknown";
+    OriGine::Vec2f areaSize_ = OriGine::Vec2f(1280.f, 720.f); // Areaのサイズ
 
     DiffValue<bool> isOpen_    = true; // Areaが開いているかどうか
     DiffValue<bool> isFocused_ = false; // Areaがフォーカスされているかどうか
@@ -174,8 +174,8 @@ public:
         }
     }
 
-    const Vec2f& GetAreaSize() const { return areaSize_; }
-    void SetAreaSize(const Vec2f& size) { areaSize_ = size; }
+    const OriGine::Vec2f& GetAreaSize() const { return areaSize_; }
+    void SetAreaSize(const OriGine::Vec2f& size) { areaSize_ = size; }
 
     std::unordered_map<std::string, std::shared_ptr<Region>>& GetRegions() { return regions_; }
     void AddRegion(std::shared_ptr<Region> region, bool _isInit = true) {
@@ -235,10 +235,10 @@ protected:
         ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
     ImGuiDockNodeFlags dockFlags_ = ImGuiDockNodeFlags_None; // DockSpaceのフラグ
 
-    Vec2f windowSize_ = Vec2f(1280.f, 720.f); // Windowのサイズ
-    Vec2f windowPos_  = Vec2f(0.f, 0.f); // Windowの位置
-    bool isMaximized_ = false; // Windowが最大化されているかどうか
-    bool isMinimized_ = false; // Windowが最小化されているかどうか
+    OriGine::Vec2f windowSize_ = OriGine::Vec2f(1280.f, 720.f); // Windowのサイズ
+    OriGine::Vec2f windowPos_  = OriGine::Vec2f(0.f, 0.f); // Windowの位置
+    bool isMaximized_          = false; // Windowが最大化されているかどうか
+    bool isMinimized_          = false; // Windowが最小化されているかどうか
 
     std::unordered_map<std::string, std::shared_ptr<Area>> areas_; // Windowに含まれるArea
     std::unordered_map<std::string, std::shared_ptr<Menu>> menus_; // Windowに含まれるMenu
@@ -272,8 +272,8 @@ public:
     void AddDockFlags(ImGuiDockNodeFlags flags) { dockFlags_ |= flags; }
     void RemoveDockFlags(ImGuiDockNodeFlags flags) { dockFlags_ &= ~flags; }
 
-    const Vec2f& GetWindowSize() const { return windowSize_; }
-    const Vec2f& GetWindowPos() const { return windowPos_; }
+    const OriGine::Vec2f& GetWindowSize() const { return windowSize_; }
+    const OriGine::Vec2f& GetWindowPos() const { return windowPos_; }
 
     const std::unordered_map<std::string, std::shared_ptr<Area>>& GetAreas() const { return areas_; }
     std::unordered_map<std::string, std::shared_ptr<Area>>& GetAreasRef() { return areas_; }
@@ -334,7 +334,7 @@ public:
 
 };
 
-Vec2f ConvertMouseToGuiWindow(const Vec2f& _mousePos, const Vec2f& _guiWindowLT, const ImVec2& _guiWindowSize, const Vec2f& _originalResolution);
+OriGine::Vec2f ConvertMouseToGuiWindow(const OriGine::Vec2f& _mousePos, const OriGine::Vec2f& _guiWindowLT, const ImVec2& _guiWindowSize, const OriGine::Vec2f& _originalResolution);
 
 template <typename EditorWindowClass>
 concept EditorWindow = std::derived_from<EditorWindowClass, Editor::Window>;

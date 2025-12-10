@@ -13,6 +13,8 @@
 #include <Quaternion.h>
 #include <Vector3.h>
 
+namespace OriGine {
+
 /// <summary>
 /// CameraTransform コンポーネント
 /// </summary>
@@ -65,3 +67,5 @@ public:
         }
     };
 };
+
+} // namespace OriGine

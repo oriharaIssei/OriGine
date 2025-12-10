@@ -12,8 +12,6 @@
 #include "directX12/ShaderManager.h"
 // assets
 #include "component/material/Material.h"
-struct ParticleKeyFrames;
-struct EmitterShape;
 // object
 #include "../Particle.h"
 // component
@@ -24,6 +22,11 @@ struct EmitterShape;
 /// math
 // shape
 #include "EmitterShape.h"
+
+namespace OriGine {
+// 前方宣言
+struct ParticleKeyFrames;
+struct EmitterShape;
 
 enum class BillBoardType {
     NONE = 0,
@@ -201,3 +204,5 @@ public:
     Transform* GetParent() const { return parent_; }
     void SetParent(Transform* _parent) { parent_ = _parent; }
 };
+
+} // namespace OriGine

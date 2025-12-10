@@ -1,5 +1,7 @@
 #include "OverlayRenderSystem.h"
 
+using namespace OriGine;
+
 OverlayRenderSystem::OverlayRenderSystem() : TexturedMeshRenderSystem() {}
 OverlayRenderSystem::~OverlayRenderSystem() {}
 
@@ -9,15 +11,15 @@ void OverlayRenderSystem::CreatePSO() {
     DxDevice* dxDevice           = Engine::GetInstance()->GetDxDevice();
 
     // 登録されているかどうかをチェック
-    if (shaderManager->IsRegisteredPipelineStateObj("TextureMesh_" + blendModeStr[0])) {
+    if (shaderManager->IsRegisteredPipelineStateObj("TextureMesh_" + kBlendModeStr[0])) {
         bool isAllRegistered = true;
         for (size_t i = 0; i < kBlendNum; ++i) {
             if (!psoByBlendMode_[0][i] || !psoByBlendMode_[1][i]) {
                 isAllRegistered = false;
                 continue;
             }
-            psoByBlendMode_[0][i] = shaderManager->GetPipelineStateObj("TextureMesh_" + blendModeStr[i]);
-            psoByBlendMode_[1][i] = shaderManager->GetPipelineStateObj("CullingTextureMesh_" + blendModeStr[i]);
+            psoByBlendMode_[0][i] = shaderManager->GetPipelineStateObj("TextureMesh_" + kBlendModeStr[i]);
+            psoByBlendMode_[1][i] = shaderManager->GetPipelineStateObj("CullingTextureMesh_" + kBlendModeStr[i]);
         }
 
         //! TODO : 自動化
@@ -41,7 +43,7 @@ void OverlayRenderSystem::CreatePSO() {
     /// shader読み込み
     ///=================================================
     shaderManager->LoadShader("Object3dTexture.VS");
-    shaderManager->LoadShader("Object3dTexture.PS", shaderDirectory, L"ps_6_0");
+    shaderManager->LoadShader("Object3dTexture.PS", kShaderDirectory, L"ps_6_0");
 
     ///=================================================
     /// shader情報の設定
@@ -198,7 +200,7 @@ void OverlayRenderSystem::CreatePSO() {
             continue;
         }
         texShaderInfo.blendMode_ = blend;
-        psoByBlendMode_[0][i]    = shaderManager->CreatePso("Overlay_" + blendModeStr[i], texShaderInfo, dxDevice->device_);
+        psoByBlendMode_[0][i]    = shaderManager->CreatePso("Overlay_" + kBlendModeStr[i], texShaderInfo, dxDevice->device_);
     }
 
     // カリングあり
@@ -209,6 +211,6 @@ void OverlayRenderSystem::CreatePSO() {
             continue;
         }
         texShaderInfo.blendMode_ = blend;
-        psoByBlendMode_[1][i]    = shaderManager->CreatePso("CullingOverlay_" + blendModeStr[i], texShaderInfo, dxDevice->device_);
+        psoByBlendMode_[1][i]    = shaderManager->CreatePso("CullingOverlay_" + kBlendModeStr[i], texShaderInfo, dxDevice->device_);
     }
 }

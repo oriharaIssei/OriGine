@@ -14,6 +14,8 @@
 #include "directX12/DxDescriptor.h"
 #include "directX12/ResourceStateTracker.h"
 
+namespace OriGine {
+// 前方宣言
 class DxFence;
 
 /// <summary>
@@ -30,8 +32,8 @@ public:
     /// <param name="device"></param>
     /// <param name="commandListKey">list と allocator の Key(見つからない場合,D3D12_COMMAND_LIST_TYPE_DIRECTで作成される</param>
     /// <param name="commandQueueKey"></param>
-    void Initialize(const std::string& commandListKey, const std::string& commandQueueKey);
-    void Initialize(const std::string& commandListKey, const std::string& commandQueueKey, D3D12_COMMAND_LIST_TYPE listType);
+    void Initialize(const ::std::string& commandListKey, const ::std::string& commandQueueKey);
+    void Initialize(const ::std::string& commandListKey, const ::std::string& commandQueueKey, D3D12_COMMAND_LIST_TYPE listType);
     /// <summary>
     /// 終了処理
     /// </summary>
@@ -45,7 +47,7 @@ public:
     /// <summary>
     /// Listとallocatorを同じキーで作る
     /// </summary>
-    static bool CreateCommandListWithAllocator(Microsoft::WRL::ComPtr<ID3D12Device> device, const std::string& listAndAllocatorKey, D3D12_COMMAND_LIST_TYPE listType);
+    static bool CreateCommandListWithAllocator(Microsoft::WRL::ComPtr<ID3D12Device> device, const ::std::string& listAndAllocatorKey, D3D12_COMMAND_LIST_TYPE listType);
     /// <summary>
     /// Queueを作る
     /// </summary>
@@ -53,7 +55,7 @@ public:
     /// <param name="queueKey"></param>
     /// <param name="desc"></param>
     /// <returns></returns>
-    static bool CreateCommandQueue(Microsoft::WRL::ComPtr<ID3D12Device> device, const std::string& queueKey, D3D12_COMMAND_QUEUE_DESC desc);
+    static bool CreateCommandQueue(Microsoft::WRL::ComPtr<ID3D12Device> device, const ::std::string& queueKey, D3D12_COMMAND_QUEUE_DESC desc);
 
 public:
     struct CommandListCombo {
@@ -65,9 +67,9 @@ public:
 
 private:
     /// 一元管理用
-    static std::unordered_map<std::string, CommandListCombo> commandListComboMap_;
+    static ::std::unordered_map<::std::string, CommandListCombo> commandListComboMap_;
 
-    static std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D12CommandQueue>> commandQueueMap_;
+    static ::std::unordered_map<::std::string, Microsoft::WRL::ComPtr<ID3D12CommandQueue>> commandQueueMap_;
 
 public:
     void CommandReset();
@@ -82,8 +84,8 @@ public:
     void ClearTarget(const DxRtvDescriptor& _rtv, const DxDsvDescriptor& _dsv, const Vec4f& _clearColor);
 
 private:
-    std::string commandListComboKey_;
-    std::string commandQueueKey_;
+    ::std::string commandListComboKey_;
+    ::std::string commandQueueKey_;
 
     /// <summary>
     /// commandListに対してallocatorはほぼ1対1なのでcommandListとAllocatorは同じキーで管理する
@@ -94,8 +96,8 @@ private:
     ResourceStateTracker* resourceStateTracker_                      = nullptr;
 
 public:
-    const std::string& GetCommandListComboKey() const { return commandListComboKey_; }
-    const std::string& GetCommandQueueKey() const { return commandQueueKey_; }
+    const ::std::string& GetCommandListComboKey() const { return commandListComboKey_; }
+    const ::std::string& GetCommandQueueKey() const { return commandQueueKey_; }
 
     const Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& GetCommandList() const { return commandList_; }
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& GetCommandListRef() { return commandList_; }
@@ -106,3 +108,5 @@ public:
 
     ResourceStateTracker* GetResourceStateTracker() const { return resourceStateTracker_; }
 };
+
+} // namespace OriGine

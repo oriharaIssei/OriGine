@@ -16,6 +16,8 @@
 #include "component/renderer/MeshRenderer.h"
 #include "component/renderer/SkyBoxRenderer.h"
 
+using namespace OriGine;
+
 SkinningMeshRenderSystem::SkinningMeshRenderSystem() : BaseRenderSystem() {}
 SkinningMeshRenderSystem::~SkinningMeshRenderSystem() {}
 
@@ -83,12 +85,12 @@ void SkinningMeshRenderSystem::CreatePSO() {
     DxDevice* dxDevice           = Engine::GetInstance()->GetDxDevice();
 
     // 登録されているかどうかをチェック
-    if (shaderManager->IsRegisteredPipelineStateObj("TextureMesh_" + blendModeStr[0])) {
+    if (shaderManager->IsRegisteredPipelineStateObj("TextureMesh_" + kBlendModeStr[0])) {
         for (size_t i = 0; i < kBlendNum; ++i) {
             if (psoByBlendMode_[i]) {
                 continue;
             }
-            psoByBlendMode_[i] = shaderManager->GetPipelineStateObj("TextureMesh_" + blendModeStr[i]);
+            psoByBlendMode_[i] = shaderManager->GetPipelineStateObj("TextureMesh_" + kBlendModeStr[i]);
         }
 
         //! TODO : 自動化
@@ -109,7 +111,7 @@ void SkinningMeshRenderSystem::CreatePSO() {
     /// shader読み込み
     ///=================================================
     shaderManager->LoadShader("Object3dTexture.VS");
-    shaderManager->LoadShader("Object3dTexture.PS", shaderDirectory, L"ps_6_0");
+    shaderManager->LoadShader("Object3dTexture.PS", kShaderDirectory, L"ps_6_0");
 
     ///=================================================
     /// shader情報の設定
@@ -259,8 +261,8 @@ void SkinningMeshRenderSystem::CreatePSO() {
         if (psoByBlendMode_[i]) {
             continue;
         }
-        texShaderInfo.blendMode_       = blend;
-        psoByBlendMode_[i]                  = shaderManager->CreatePso("TextureMesh_" + blendModeStr[i], texShaderInfo, dxDevice->device_);
+        texShaderInfo.blendMode_ = blend;
+        psoByBlendMode_[i]       = shaderManager->CreatePso("TextureMesh_" + kBlendModeStr[i], texShaderInfo, dxDevice->device_);
     }
 }
 
@@ -275,22 +277,22 @@ void SkinningMeshRenderSystem::LightUpdate() {
 
     for (auto& lightVec : directionalLight->GetAllComponents()) {
         for (auto& light : lightVec) {
-            if (light.IsActive()) {
-                lightManager->pushDirectionalLight(light);
+            if (light.isActive_) {
+                lightManager->PushDirectionalLight(light);
             }
         }
     }
     for (auto& lightVec : pointLight->GetAllComponents()) {
         for (auto& light : lightVec) {
-            if (light.IsActive()) {
-                lightManager->pushPointLight(light);
+            if (light.isActive_) {
+                lightManager->PushPointLight(light);
             }
         }
     }
     for (auto& lightVec : spotLight->GetAllComponents()) {
         for (auto& light : lightVec) {
-            if (light.IsActive()) {
-                lightManager->pushSpotLight(light);
+            if (light.isActive_) {
+                lightManager->PushSpotLight(light);
             }
         }
     }

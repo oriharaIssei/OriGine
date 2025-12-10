@@ -17,6 +17,8 @@
 /// util
 #include "util/StringUtil.h"
 
+using namespace OriGine;
+
 PipelineStateObj* RenderTexture::pso_;
 
 RenderTexture::RenderTexture(DxCommand* dxCom) {
@@ -36,7 +38,7 @@ void RenderTexture::Awake() {
 
     // フルスクリーン用シェーダーの読み込み
     shaderManager->LoadShader("FullScreen.VS");
-    shaderManager->LoadShader("FullScreen.PS", shaderDirectory, L"ps_6_0");
+    shaderManager->LoadShader("FullScreen.PS", kShaderDirectory, L"ps_6_0");
 
     ShaderInformation shaderInfo{};
     shaderInfo.vsKey = "FullScreen.VS";

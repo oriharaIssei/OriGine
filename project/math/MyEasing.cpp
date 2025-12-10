@@ -1,155 +1,164 @@
 #include "MyEasing.h"
 
+/// stl
+#include <memory>
+
+/// math
+#include <cmath>
+#include <mathEnv.h>
+
+namespace OriGine {
+
 float Liner(float _t) {
     return _t;
 }
 
 float EaseInSine(float _time) {
-    float easedT_ = 1.0f - std::cosf((_time * pi_float) / 2.0f);
-    return easedT_;
+    float easedT = 1.0f - ::std::cosf((_time * kPi) / 2.0f);
+    return easedT;
 }
 
 float EaseOutSine(float _t) {
-    float easedT_ = std::sinf(_t * pi_float / 2.0f);
-    return easedT_;
+    float easedT = ::std::sinf(_t * kHalfPi);
+    return easedT;
 }
 
 float EaseInOutSine(float _t) {
-    float easedT_ = -(std::cosf(_t * pi_float) - 1.0f) / 2.0f;
-    return easedT_;
+    float easedT = -(::std::cosf(_t * kPi) - 1.0f) / 2.0f;
+    return easedT;
 }
 
 float EaseInQuad(float _t) {
-    float easedT_ = _t * _t;
-    return easedT_;
+    float easedT = _t * _t;
+    return easedT;
 }
 
 float EaseOutQuad(float _t) {
-    float easedT_ = 1.0f - (1.0f - _t) * (1.0f - _t);
-    return easedT_;
+    float easedT = 1.0f - (1.0f - _t) * (1.0f - _t);
+    return easedT;
 }
 
 float EaseInOutQuad(float _t) {
-    float easedT_ = 0.0f;
+    float easedT = 0.0f;
     if (_t < 0.5f) {
-        easedT_ = 2.0f * _t * _t;
+        easedT = 2.0f * _t * _t;
     } else {
-        easedT_ = 1.0f - std::powf(-2.0f * _t + 2.0f, 2.0f) / 2;
+        easedT = 1.0f - ::std::powf(-2.0f * _t + 2.0f, 2.0f) / 2;
     }
-    return easedT_;
+    return easedT;
 }
 
 float EaseInCubic(float _t) {
-    float easedT_ = _t * _t * _t;
-    return easedT_;
+    float easedT = _t * _t * _t;
+    return easedT;
 }
 
 float EaseOutCubic(float _t) {
-    float easedT_ = 1.0f - std::powf(1.0f - _t, 3.0f);
-    return easedT_;
+    float easedT = 1.0f - ::std::powf(1.0f - _t, 3.0f);
+    return easedT;
 }
 
 float EaseInOutCubic(float _t) {
-    float easedT_ = 0.0f;
+    float easedT = 0.0f;
     if (_t < 0.5f) {
-        easedT_ = 4.0f * _t * _t * _t;
+        easedT = 4.0f * _t * _t * _t;
     } else {
-        easedT_ = 1.0f - std::powf(-2.0f * _t + 2.0f, 3.0f) / 2.0f;
+        easedT = 1.0f - ::std::powf(-2.0f * _t + 2.0f, 3.0f) / 2.0f;
     }
-    return easedT_;
+    return easedT;
 }
 
 float EaseInQuart(float _t) {
-    float easedT_ = _t * _t * _t * _t;
-    return easedT_;
+    float easedT = _t * _t * _t * _t;
+    return easedT;
 }
 
 float EaseOutQuart(float _t) {
-    float easedT_ = 1.0f - std::powf(1.0f - _t, 4.0f);
-    return easedT_;
+    float easedT = 1.0f - ::std::powf(1.0f - _t, 4.0f);
+    return easedT;
 }
 
 float EaseInOutQuart(float _t) {
-    float easedT_ = 0.0f;
+    float easedT = 0.0f;
     if (_t < 0.5f) {
-        easedT_ = 8.0f * _t * _t * _t * _t;
+        easedT = 8.0f * _t * _t * _t * _t;
     } else {
-        easedT_ = 1.0f - std::powf(-2.0f * _t + 2.0f, 4.0f) / 2.0f;
+        easedT = 1.0f - ::std::powf(-2.0f * _t + 2.0f, 4.0f) / 2.0f;
     }
-    return easedT_;
+    return easedT;
 }
 
 float EaseInBack(float _t) {
     const float c1 = 1.70158f;
     const float c3 = c1 + 1.0f;
 
-    float easedT_ = c3 * _t * _t * _t - c1 * _t * _t;
-    return easedT_;
+    float easedT = c3 * _t * _t * _t - c1 * _t * _t;
+    return easedT;
 }
 
 float EaseOutBack(float _t) {
     const float c1 = 1.70158f;
     const float c3 = c1 + 1.0f;
 
-    float easedT_ = 1.0f + c3 * std::powf(_t - 1.0f, 3.0f) + c1 * std::powf(_t - 1.0f, 2.0f);
-    return easedT_;
+    float easedT = 1.0f + c3 * ::std::powf(_t - 1.0f, 3.0f) + c1 * ::std::powf(_t - 1.0f, 2.0f);
+    return easedT;
 }
 
 float EaseInOutBack(float _t) {
     const float c1 = 1.70158f;
     const float c2 = c1 * 1.525f;
-    float easedT_  = 0.0f;
+    float easedT   = 0.0f;
     if (_t < 0.5f) {
-        easedT_ = (std::powf(2.0f * _t, 2.0f) * ((c2 + 1.0f) * 2.0f * _t - c2)) / 2.0f;
+        easedT = (::std::powf(2.0f * _t, 2.0f) * ((c2 + 1.0f) * 2.0f * _t - c2)) / 2.0f;
     } else {
-        easedT_ = (std::powf(2.0f * _t - 2.0f, 2.0f) * ((c2 + 1.0f) * (_t * 2.0f - 2.0f) + c2) + 2.0f) / 2.0f;
+        easedT = (::std::powf(2.0f * _t - 2.0f, 2.0f) * ((c2 + 1.0f) * (_t * 2.0f - 2.0f) + c2) + 2.0f) / 2.0f;
     }
-    return easedT_;
+    return easedT;
 }
 
 float EaseInElastic(float _t) {
-    const float c4 = (2.0f * pi_float) / 3.0f;
-    float easedT_  = 0.0f;
+    const float c4 = (2.0f * kPi) / 3.0f;
+    float easedT   = 0.0f;
     if (_t == 0) {
-        easedT_ = 0.0f;
+        easedT = 0.0f;
     } else if (_t == 1.0f) {
-        easedT_ = 1.0f;
+        easedT = 1.0f;
     } else {
-        easedT_ = -std::powf(2.0f, 10.0f * _t - 10.0f) * std::sinf((_t * 10.0f - 10.75f) * c4);
+        easedT = -::std::powf(2.0f, 10.0f * _t - 10.0f) * ::std::sinf((_t * 10.0f - 10.75f) * c4);
     }
 
-    return easedT_;
+    return easedT;
 }
 
 float EaseOutElastic(float _t) {
-    const float c4 = (2.0f * pi_float) / 3.0f;
+    const float c4 = (2.0f * kPi) / 3.0f;
 
-    float easedT_ = 0.0f;
+    float easedT = 0.0f;
     if (_t == 0) {
-        easedT_ = 0.0f;
+        easedT = 0.0f;
     } else if (_t == 1.0f) {
-        easedT_ = 1.0f;
+        easedT = 1.0f;
     } else {
-        easedT_ = std::powf(2.0f, -10.0f * _t) * std::sinf((_t * 10.0f - 0.75f) * c4) + 1.0f;
+        easedT = ::std::powf(2.0f, -10.0f * _t) * ::std::sinf((_t * 10.0f - 0.75f) * c4) + 1.0f;
     }
 
-    return easedT_;
+    return easedT;
 }
 
 float EaseInOutElastic(float _t) {
-    const float c5 = (2.0f * pi_float) / 4.5f;
+    const float c5 = (2.0f * kPi) / 4.5f;
 
-    float easedT_ = 0.0f;
+    float easedT = 0.0f;
     if (_t == 0.0f) {
-        easedT_ = 0.0f;
+        easedT = 0.0f;
     } else if (_t == 1.0f) {
-        easedT_ = 1.0f;
+        easedT = 1.0f;
     } else if (_t < 0.5f) {
-        easedT_ = -(std::powf(2.0f, 20.0f * _t - 10.0f) * std::sinf((20.0f * _t - 11.125f) * c5)) / 2.0f;
+        easedT = -(::std::powf(2.0f, 20.0f * _t - 10.0f) * ::std::sinf((20.0f * _t - 11.125f) * c5)) / 2.0f;
     } else {
-        easedT_ = (std::powf(2.0f, -20.0f * _t + 10.0f) * std::sinf((20.0f * _t - 11.125f) * c5)) / 2.0f + 1.0f;
+        easedT = (::std::powf(2.0f, -20.0f * _t + 10.0f) * ::std::sinf((20.0f * _t - 11.125f) * c5)) / 2.0f + 1.0f;
     }
-    return easedT_;
+    return easedT;
 }
 
 float EaseInBounce(float _t) {
@@ -168,54 +177,60 @@ float EaseInBounce(float _t) {
         resultT = n1 * (time -= 2.625f / d1) * time + 0.984375f;
     }
 
-    float easedT_ = 1.0f - resultT;
-    return easedT_;
+    float easedT = 1.0f - resultT;
+    return easedT;
 }
 
 float EaseOutBounce(float _t) {
     const float n1 = 7.5625f;
     const float d1 = 2.75f;
 
-    float easedT_ = 0.0f;
+    float easedT = 0.0f;
     if (_t < 1.0f / d1) {
-        easedT_ = n1 * _t * _t;
+        easedT = n1 * _t * _t;
     } else if (_t < 2.0f / d1) {
-        easedT_ = n1 * (_t -= 1.5f / d1) * _t + 0.75f;
+        easedT = n1 * (_t -= 1.5f / d1) * _t + 0.75f;
     } else if (_t < 2.5f / d1) {
-        easedT_ = n1 * (_t -= 2.25f / d1) * _t + 0.9375f;
+        easedT = n1 * (_t -= 2.25f / d1) * _t + 0.9375f;
     } else {
-        easedT_ = n1 * (_t -= 2.625f / d1) * _t + 0.984375f;
+        easedT = n1 * (_t -= 2.625f / d1) * _t + 0.984375f;
     }
 
-    return easedT_;
+    return easedT;
 }
 
 float EaseInOutBounce(float _t) {
-    float easedT_ = 0.0f;
+    float easedT = 0.0f;
     if (_t < 0.5f) {
         EaseOutBounce(1.0f - 2.0f * _t);
-        easedT_ = (1.0f - easedT_) / 2.0f;
+        easedT = (1.0f - easedT) / 2.0f;
     } else {
         EaseOutBounce(2.0f * _t - 1.0f);
-        easedT_ = (1.0f + easedT_) / 2.0f;
+        easedT = (1.0f + easedT) / 2.0f;
     }
-    return easedT_;
+    return easedT;
 }
+
+} // namespace OriGine
 
 #ifdef _DEBUG
 #include "editor/EditorController.h"
+#include <cstdint>
+#include <editor/IEditor.h>
 #include <imgui/imgui.h>
+#include <string>
 
-void EasingComboGui(const std::string& _label, EaseType& _easeType) {
-    if (ImGui::BeginCombo(_label.c_str(), EasingNames[_easeType].c_str())) {
+void OriGine::EasingComboGui(const ::std::string& _label, OriGine::EaseType& _easeType) {
+    if (ImGui::BeginCombo(_label.c_str(), OriGine::EasingNames[_easeType].c_str())) {
         bool isSelected   = false;
         int32_t easeIndex = 0;
-        for (const auto& [type, name] : EasingNames) {
-            isSelected = name == EasingNames[_easeType];
+        for (const auto& [type, name] : OriGine::EasingNames) {
+            isSelected = name == OriGine::EasingNames[_easeType];
             if (ImGui::Selectable(name.c_str(), isSelected)) {
                 if (_easeType != type) {
                     // command 発行
-                    EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<EaseType>>(&_easeType, type));
+                    auto command = ::std::make_unique<SetterCommand<OriGine::EaseType>>(&_easeType, type);
+                    OriGine::EditorController::GetInstance()->PushCommand(::std::move(command));
                 }
                 _easeType = type;
             }
@@ -228,4 +243,4 @@ void EasingComboGui(const std::string& _label, EaseType& _easeType) {
     }
 }
 
-#endif // DEBUG
+#endif // _DEBUG

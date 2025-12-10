@@ -6,10 +6,7 @@
 // string
 #include <string>
 
-/// engine
-// asSets
-struct Model;
-struct ModelNode;
+/// engin
 #include "component/animation/AnimationData.h"
 // component
 #include "component/IComponent.h"
@@ -22,6 +19,11 @@ struct ModelNode;
 #include "Vector3.h"
 #include "Vector4.h"
 
+namespace OriGine {
+// 前方宣言
+struct Model;
+struct ModelNode;
+
 /// <summary>
 /// ModelNodeアニメーションの再生を行うクラス
 /// </summary>
@@ -31,11 +33,11 @@ class ModelNodeAnimation
     friend void from_json(const nlohmann::json& j, ModelNodeAnimation& t);
 
 public:
-    ModelNodeAnimation() = default;
+    ModelNodeAnimation()  = default;
     ~ModelNodeAnimation() = default;
 
     void Initialize(Entity* _entity) override;
-    void Edit(Scene* _scene,Entity* _entity,[[maybe_unused]] const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
     void Finalize() override;
 
     void UpdateModel(
@@ -95,3 +97,5 @@ public:
     Quaternion GetCurrentRotate(const std::string& nodeName) const;
     Vec3f GetCurrentTranslate(const std::string& nodeName) const;
 };
+
+} // namespace OriGine

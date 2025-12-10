@@ -9,6 +9,8 @@
 #include "directX12/DxDevice.h"
 #include "directX12/RenderTexture.h"
 
+using namespace OriGine;
+
 GrayscaleEffect::GrayscaleEffect() : BasePostRenderingSystem() {}
 GrayscaleEffect::~GrayscaleEffect() {}
 
@@ -25,7 +27,7 @@ void GrayscaleEffect::Finalize() {
 void GrayscaleEffect::CreatePSO() {
     ShaderManager* shaderManager = ShaderManager::GetInstance();
     shaderManager->LoadShader("FullScreen.VS");
-    shaderManager->LoadShader("Grayscale.PS", shaderDirectory, L"ps_6_0");
+    shaderManager->LoadShader("Grayscale.PS", kShaderDirectory, L"ps_6_0");
     ShaderInformation shaderInfo{};
     shaderInfo.vsKey = "FullScreen.VS";
     shaderInfo.psKey = "Grayscale.PS";

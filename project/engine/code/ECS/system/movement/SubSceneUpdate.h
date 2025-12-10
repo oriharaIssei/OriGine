@@ -2,6 +2,8 @@
 
 #include "system/ISystem.h"
 
+namespace OriGine {
+
 /// <summary>
 /// SubSceneの更新を行うシステム
 /// </summary>
@@ -15,3 +17,5 @@ public:
 private:
     void UpdateEntity(Entity* _entity) override;
 };
+
+} // namespace OriGine

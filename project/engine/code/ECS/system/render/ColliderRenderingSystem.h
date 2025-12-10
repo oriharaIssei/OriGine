@@ -19,13 +19,15 @@
 #include "component/collision/collider/OBBCollider.h"
 #include "component/collision/collider/SphereCollider.h"
 
+namespace OriGine {
+
 /// <summary>
 /// Colliderのレンダリングを行うシステム(Debug用)
 /// </summary>
 class ColliderRenderingSystem
     : public BaseRenderSystem {
 public:
-    static const int32_t defaultMeshCount_;
+    static const int32_t kDefaultMeshCount_;
 public:
     ColliderRenderingSystem();
     ~ColliderRenderingSystem() override;
@@ -80,3 +82,5 @@ private:
 
     PipelineStateObj* pso_                = nullptr;
 };
+
+} // namespace OriGine

@@ -1,6 +1,7 @@
 #include "Box.h"
 
-namespace Primitive {
+using namespace OriGine;
+using namespace Primitive;
 
 /// =====================================================
 /// Box
@@ -65,8 +66,7 @@ void Box::CreateMesh(TextureMesh* _mesh) {
         Vec3f(maxPos[X], minPos[Y], maxPos[Z]),
         Vec3f(maxPos[X], maxPos[Y], maxPos[Z]),
         Vec3f(minPos[X], minPos[Y], maxPos[Z]),
-        Vec3f(minPos[X], maxPos[Y], maxPos[Z])
-    );
+        Vec3f(minPos[X], maxPos[Y], maxPos[Z]));
 
     // right (+X)
     addFace(2,
@@ -100,5 +100,4 @@ void Box::CreateMesh(TextureMesh* _mesh) {
     _mesh->SetIndexData(indices);
 
     _mesh->TransferData();
-}
 }

@@ -1,10 +1,12 @@
 #pragma once
 
+/// math
 #include "Vector.h"
 #include "Vector2.h"
 #include "Vector3.h"
-
 #include <cmath>
+
+namespace OriGine {
 
 /// <summary>
 /// 四次元ベクトル
@@ -98,8 +100,10 @@ using Vector4d = Vector4<double>;
 using Vec4d    = Vector4<double>;
 
 //=========== Color ===========//
-constexpr Vec4f WHITE = Vec4f(1.f, 1.f, 1.f, 1.f);
-constexpr Vec4f BLACK = Vec4f(0.f, 0.f, 0.f, 1.f);
-constexpr Vec4f RED   = Vec4f(1.f, 0.f, 0.f, 1.f);
-constexpr Vec4f GREEN = Vec4f(0.f, 1.f, 0.f, 1.f);
-constexpr Vec4f BLUE  = Vec4f(0.f, 0.f, 1.f, 1.f);
+constexpr Vec4f kWhite = Vec4f(1.f, 1.f, 1.f, 1.f);
+constexpr Vec4f kBlack = Vec4f(0.f, 0.f, 0.f, 1.f);
+constexpr Vec4f kRed   = Vec4f(1.f, 0.f, 0.f, 1.f);
+constexpr Vec4f kGreen = Vec4f(0.f, 1.f, 0.f, 1.f);
+constexpr Vec4f kBlue  = Vec4f(0.f, 0.f, 1.f, 1.f);
+
+} // namespace OriGine

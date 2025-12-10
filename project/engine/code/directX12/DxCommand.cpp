@@ -15,8 +15,9 @@
 #include "DxUtil.h"
 #include "StringUtil.h"
 
-std::unordered_map<std::string, DxCommand::CommandListCombo> DxCommand::commandListComboMap_;
+using namespace OriGine;
 
+std::unordered_map<std::string, DxCommand::CommandListCombo> DxCommand::commandListComboMap_;
 std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D12CommandQueue>> DxCommand::commandQueueMap_;
 
 DxCommand::DxCommand() {}

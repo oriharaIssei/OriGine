@@ -4,6 +4,8 @@
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
+using namespace OriGine;
+
 void CollisionPushBackInfo::Finalize() {
     collisionInfoMap_.clear();
 }
@@ -18,7 +20,7 @@ void CollisionPushBackInfo::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe
             bool isSelected            = (pushBackType_ == type);
             if (ImGui::Selectable(GetCollisionPushBackTypeName(type), isSelected)) {
                 auto command = std::make_unique<SetterCommand<CollisionPushBackType>>(&pushBackType_, type);
-                EditorController::GetInstance()->PushCommand(std::move(command));
+                OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
             }
             if (isSelected) {
                 ImGui::SetItemDefaultFocus();
@@ -34,7 +36,7 @@ void CollisionPushBackInfo::ClearInfo() {
     collisionInfoMap_.clear();
 }
 
-const char* GetCollisionPushBackTypeName(CollisionPushBackType type) {
+const char* OriGine::GetCollisionPushBackTypeName(CollisionPushBackType type) {
     switch (type) {
     case CollisionPushBackType::PushBack:
         return "PushBack";
@@ -44,10 +46,10 @@ const char* GetCollisionPushBackTypeName(CollisionPushBackType type) {
     return "None";
 }
 
-void to_json(nlohmann::json& j, const CollisionPushBackInfo& info) {
+void OriGine::to_json(nlohmann::json& j, const CollisionPushBackInfo& info) {
     j = nlohmann::json{
         {"pushBackType", info.pushBackType_}};
 }
-void from_json(const nlohmann::json& j, CollisionPushBackInfo& info) {
+void OriGine::from_json(const nlohmann::json& j, CollisionPushBackInfo& info) {
     j.at("pushBackType").get_to(info.pushBackType_);
 };

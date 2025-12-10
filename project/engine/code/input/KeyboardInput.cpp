@@ -1,7 +1,12 @@
 #include "KeyboardInput.h"
 
-#include "MouseInput.h"
+/// stl
 #include <cassert>
+/// engine
+// input
+#include "MouseInput.h"
+
+using namespace OriGine;
 
 void KeyboardInput::Initialize(IDirectInput8* directInput, HWND hwnd) {
     assert(directInput);

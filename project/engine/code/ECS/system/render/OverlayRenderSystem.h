@@ -1,6 +1,8 @@
 #pragma once
 #include "TexturedMeshRenderSystem.h"
 
+namespace OriGine {
+
 /// <summary>
 /// オーバーレイ描画を行うシステム
 /// 3d Objectを深度テスト無しで描画する
@@ -17,3 +19,5 @@ public:
     /// </summary>
     void CreatePSO() override;
 };
+
+} // namespace OriGine

@@ -5,6 +5,8 @@
 /// externals
 #include "logger/Logger.h"
 
+using namespace OriGine;
+
 EntityRepository::EntityRepository() {}
 EntityRepository::~EntityRepository() = default;
 

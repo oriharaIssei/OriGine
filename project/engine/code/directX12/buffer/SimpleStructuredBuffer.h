@@ -4,6 +4,8 @@
 // directX12
 #include "directX12/buffer/IStructuredBuffer.h"
 
+namespace OriGine {
+
 template <StructuredBuffer structBuff>
 class SimpleStructuredBuffer {
 public:
@@ -126,3 +128,5 @@ template <StructuredBuffer structBuff>
 inline void SimpleStructuredBuffer<structBuff>::SetForRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const {
     cmdList->SetGraphicsRootDescriptorTable(rootParameterNum, srv_->GetGpuHandle());
 }
+
+} // namespace OriGine

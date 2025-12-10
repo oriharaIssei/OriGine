@@ -5,6 +5,8 @@
 /// components
 #include "component/transform/CameraTransform.h"
 
+using namespace OriGine;
+
 CameraInitialize::CameraInitialize() : ISystem(SystemCategory::Initialize) {}
 CameraInitialize::~CameraInitialize() {}
 

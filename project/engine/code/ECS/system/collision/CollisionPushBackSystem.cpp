@@ -7,8 +7,9 @@
 
 #include "logger/Logger.h"
 
-void CollisionPushBackSystem::Initialize() {}
+using namespace OriGine;
 
+void CollisionPushBackSystem::Initialize() {}
 void CollisionPushBackSystem::Finalize() {}
 
 void CollisionPushBackSystem::UpdateEntity(Entity* _entity) {
@@ -19,12 +20,12 @@ void CollisionPushBackSystem::UpdateEntity(Entity* _entity) {
         return;
     }
 
-    Vec3f pushBackSum = Vec3f(0.f, 0.f, 0.f); 
+    Vec3f pushBackSum = Vec3f(0.f, 0.f, 0.f);
 
     // PushBack処理
     for (auto& [entityID, info] : collPushbackInfo->GetCollisionInfoMap()) {
-       
-        switch (info.pushBackType){
+
+        switch (info.pushBackType) {
         case CollisionPushBackType::PushBack: {
             // ここでは単純に法線方向に押し戻す
             pushBackSum += info.collVec;

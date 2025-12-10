@@ -23,6 +23,8 @@
 #include "Matrix4x4.h"
 #include "Quaternion.h"
 
+namespace OriGine {
+
 struct TexturedMaterial {
     std::string texturePath = "";
     uint32_t textureNumber  = 0;
@@ -169,3 +171,5 @@ struct Model {
         materialData_[part].textureNumber = _textureNumber;
     }
 };
+
+} // namespace OriGine

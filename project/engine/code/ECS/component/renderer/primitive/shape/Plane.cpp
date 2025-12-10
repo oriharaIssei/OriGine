@@ -1,6 +1,7 @@
 #include "Plane.h"
 
-namespace Primitive {
+using namespace OriGine;
+using namespace Primitive;
 
 /// =====================================================
 /// Plane
@@ -29,5 +30,3 @@ void Plane::CreateMesh(TextureMesh* _mesh) {
             1, 3, 2});
     _mesh->TransferData();
 }
-
-} // namespace Primitive

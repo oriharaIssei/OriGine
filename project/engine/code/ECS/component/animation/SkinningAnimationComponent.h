@@ -9,6 +9,7 @@
 #include "AnimationData.h"
 #include "model/Model.h"
 
+namespace OriGine {
 class Scene;
 
 /// <summary>
@@ -107,7 +108,7 @@ private:
     std::unordered_map<std::string, int32_t> animationIndexBinder_;
     std::vector<AnimationCombo> animationTable_; // アニメーションの組み合わせ
 
-    int32_t currentAnimationIndex_                            = 0; // 現在のアニメーションインデックス
+    int32_t currentAnimationIndex_                           = 0; // 現在のアニメーションインデックス
     std::optional<AnimationBlendData> blendingAnimationData_ = std::nullopt; // 次のアニメーションインデックス (存在しない場合は nullopt)
 
     std::vector<UavBuffer> skinnedVertexBuffer_; // スキニングされた頂点バッファ. size = meshSize
@@ -299,3 +300,5 @@ public:
         }
     }
 };
+
+} // namespace OriGine

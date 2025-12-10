@@ -8,6 +8,8 @@
 #include "directX12/PipelineStateObj.h"
 #include "directX12/ShaderManager.h"
 
+namespace OriGine {
+
 /// <summary>
 /// グレースケール を画面全体にかけるエフェクト
 /// </summary>
@@ -42,3 +44,5 @@ protected:
 protected:
     PipelineStateObj* pso_                = nullptr;
 };
+
+} // namespace OriGine

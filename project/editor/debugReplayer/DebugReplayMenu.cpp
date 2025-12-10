@@ -41,12 +41,12 @@ void DebugReplayLoadMenuItem::Initialize() {
 void DebugReplayLoadMenuItem::DrawGui() {
     if (ImGui::MenuItem(menuLabel_.c_str())) {
         // ファイルダイアログを開く
-        std::string directory = kReplayFolderName;
+        std::string directory = OriGine::kReplayFolderName;
         std::string filename  = "";
 
         // fileの取得に成功したら
-        if (myfs::SelectFileDialog(kApplicationResourceDirectory, directory, filename, {kReplayFileExtension})) {
-            ReplayPlayer* replayPlayer = parent_->GetReplayPlayer();
+        if (myfs::SelectFileDialog(kApplicationResourceDirectory, directory, filename, {OriGine::kReplayFileExtension})) {
+            OriGine::ReplayPlayer* replayPlayer = parent_->GetReplayPlayer();
             // skip
             if (!replayPlayer) {
                 LOG_ERROR("ReplayPlayer is nullptr.");
@@ -61,7 +61,7 @@ void DebugReplayLoadMenuItem::DrawGui() {
             std::string filePath = kApplicationResourceDirectory + "/" + directory + "/" + filename;
 
             // コマンドとして登録
-            EditorController::GetInstance()->PushCommand(std::make_unique<DebugReplayLoadFileCommand>(parent_, filePath));
+            OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<DebugReplayLoadFileCommand>(parent_, filePath));
         }
     }
 }

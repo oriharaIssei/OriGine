@@ -1,5 +1,7 @@
 #include "Sequence.h"
 
+using namespace OriGine;
+
 std::string std::to_string(CommonSequenceType _type) {
     switch (_type) {
     case CommonSequenceType::Arithmetic:

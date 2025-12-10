@@ -4,6 +4,8 @@
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
+using namespace OriGine;
+
 void Transform2d::UpdateMatrix() {
     worldMat = MakeMatrix3x3::Scale(scale)
                * MakeMatrix3x3::Rotate(rotate)

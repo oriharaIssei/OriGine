@@ -1,13 +1,17 @@
 #include "PointLight.h"
 
 #ifdef _DEBUG
+/// externals
 #include "imgui/imgui.h"
+/// util
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
-void PointLight::Edit(Scene* /*_scene*/,Entity* /*_entity*/,[[maybe_unused]] const std::string& _parentLabel) {
+using namespace OriGine;
+
+void PointLight::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
-    
+
     CheckBoxCommand("Active##" + _parentLabel, isActive_);
 
     ImGui::Spacing();
@@ -24,7 +28,7 @@ void PointLight::Edit(Scene* /*_scene*/,Entity* /*_entity*/,[[maybe_unused]] con
 #endif // _DEBUG
 }
 
-void to_json(nlohmann::json& j, const PointLight& l) {
+void OriGine::to_json(nlohmann::json& j, const PointLight& l) {
     j["isActive"]  = l.isActive_;
     j["color"]     = l.color_;
     j["intensity"] = l.intensity_;
@@ -32,7 +36,7 @@ void to_json(nlohmann::json& j, const PointLight& l) {
     j["radius"]    = l.radius_;
     j["decay"]     = l.decay_;
 }
-void from_json(const nlohmann::json& j, PointLight& l) {
+void OriGine::from_json(const nlohmann::json& j, PointLight& l) {
     j.at("isActive").get_to(l.isActive_);
     j.at("color").get_to(l.color_);
     j.at("intensity").get_to(l.intensity_);

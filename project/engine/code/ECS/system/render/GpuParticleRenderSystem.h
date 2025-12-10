@@ -18,6 +18,9 @@
 // component
 #include "component/effect/particle/gpuParticle/GpuParticle.h"
 
+namespace OriGine {
+/// 前方宣言
+// component
 class GpuParticleEmitter;
 
 /// <summary>
@@ -69,3 +72,5 @@ private:
 
     IConstantBuffer<PerView> perViewBuffer_;
 };
+
+} // namespace OriGine

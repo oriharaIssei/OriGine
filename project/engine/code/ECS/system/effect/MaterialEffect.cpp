@@ -2,6 +2,8 @@
 
 /// engine
 #include "texture/TextureManager.h"
+// directX12
+#include "directX12/DxDevice.h"
 
 /// ECS
 #include "component/effect/post/DissolveEffectParam.h"
@@ -9,8 +11,9 @@
 #include "component/effect/post/GradationComponent.h"
 #include "component/material/Material.h"
 
-MaterialEffect::MaterialEffect() : ISystem(SystemCategory::Effect) {}
+using namespace OriGine;
 
+MaterialEffect::MaterialEffect() : ISystem(SystemCategory::Effect) {}
 MaterialEffect::~MaterialEffect() {}
 
 void MaterialEffect::Initialize() {

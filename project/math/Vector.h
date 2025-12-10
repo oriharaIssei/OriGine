@@ -11,6 +11,7 @@
 #include <logger/Logger.h>
 #include <nlohmann/json.hpp>
 
+namespace OriGine {
 // indexNumbers
 enum AxisIndex : int {
     X = 0,
@@ -18,11 +19,13 @@ enum AxisIndex : int {
     Z = 2,
     W = 3
 };
-
-static constexpr int R = 0;
-static constexpr int G = 1;
-static constexpr int B = 2;
-static constexpr int A = 3;
+enum ColorChannel {
+    R = 0,
+    G,
+    B,
+    A,
+    MAX
+};
 
 template <typename valueType>
 struct Vector2;
@@ -303,3 +306,5 @@ inline void from_json(const nlohmann::json& j, Vector<dim, valueType>& v) {
         v[i] = j.at(i).get<valueType>();
     }
 }
+
+} // namespace OriGine

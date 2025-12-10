@@ -16,16 +16,12 @@
 #include "Vector3.h"
 #include "Vector4.h"
 
-class GlobalVariablesEditor;
+namespace OriGine {
 
 /// <summary>
 /// 定数値を json に保存する
 /// </summary>
 class GlobalVariables {
-
-#ifdef _DEBUG
-    friend class GlobalVariablesEditor;
-#endif // _DEBUG
 
 public:
     static GlobalVariables* GetInstance();
@@ -105,7 +101,7 @@ public:
 
     // アイテムを取得、存在しない場合は作成してそのポインタを返す
     template <typename T>
-    T* AddValue(const std::string& scene, const std::string& groupName, const std::string& itemName,const T& defaultValue) {
+    T* AddValue(const std::string& scene, const std::string& groupName, const std::string& itemName, const T& defaultValue) {
         // グループを取得
         auto& group = data_[scene][groupName];
         // アイテムを検索
@@ -163,3 +159,5 @@ public:
     }
 #endif // _DEBUG
 };
+
+} // namespace OriGine

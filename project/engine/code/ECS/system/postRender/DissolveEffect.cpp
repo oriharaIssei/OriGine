@@ -11,6 +11,8 @@
 #include "directX12/DxDevice.h"
 #include "directX12/RenderTexture.h"
 
+using namespace OriGine;
+
 DissolveEffect::DissolveEffect() : BasePostRenderingSystem() {}
 DissolveEffect::~DissolveEffect() {}
 
@@ -26,7 +28,7 @@ void DissolveEffect::Finalize() {
 void DissolveEffect::CreatePSO() {
     ShaderManager* shaderManager = ShaderManager::GetInstance();
     shaderManager->LoadShader("FullScreen.VS");
-    shaderManager->LoadShader("Dissolve.PS", shaderDirectory, L"ps_6_0");
+    shaderManager->LoadShader("Dissolve.PS", kShaderDirectory, L"ps_6_0");
     ShaderInformation shaderInfo{};
     shaderInfo.vsKey = "FullScreen.VS";
     shaderInfo.psKey = "Dissolve.PS";

@@ -19,6 +19,8 @@
 #include "component/material/Material.h"
 #include "component/transform/Transform.h"
 
+namespace OriGine {
+/// 前方宣言
 class ModelMeshRenderer;
 class PrimitiveMeshRendererBase;
 
@@ -126,3 +128,5 @@ public:
         currentCulling_ = _isCulling;
     }
 };
+
+} // namespace OriGine

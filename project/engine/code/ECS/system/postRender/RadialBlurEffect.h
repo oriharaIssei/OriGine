@@ -7,6 +7,9 @@
 #include "directX12/PipelineStateObj.h"
 #include "directX12/ShaderManager.h"
 
+namespace OriGine {
+/// ECS
+// component
 class RadialBlurParam;
 
 /// <summary>
@@ -55,3 +58,5 @@ protected:
     std::vector<RadialBlurParam*> activeRadialBlurParams_ = {};
     PipelineStateObj* pso_                                = nullptr;
 };
+
+} // namespace OriGine

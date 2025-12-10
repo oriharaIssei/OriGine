@@ -33,14 +33,14 @@ public:
     void UpdateSceneManager();
 
 private:
-    std::unique_ptr<SceneManager> sceneManager_ = nullptr;
-    std::unique_ptr<ReplayPlayer> replayPlayer_ = nullptr;
-    size_t replayFrameIndex_                    = 0;
+    std::unique_ptr<OriGine::SceneManager> sceneManager_ = nullptr;
+    std::unique_ptr<OriGine::ReplayPlayer> replayPlayer_ = nullptr;
+    size_t replayFrameIndex_                             = 0;
 
     // input
-    std::unique_ptr<KeyboardInput> keyboardInput_ = nullptr;
-    std::unique_ptr<MouseInput> mouseInput_       = nullptr;
-    std::unique_ptr<GamepadInput> gamePadInput_   = nullptr;
+    std::unique_ptr<OriGine::KeyboardInput> keyboardInput_ = nullptr;
+    std::unique_ptr<OriGine::MouseInput> mouseInput_       = nullptr;
+    std::unique_ptr<OriGine::GamepadInput> gamePadInput_   = nullptr;
 
     bool isLoadReplayFile_ = false;
 
@@ -52,10 +52,10 @@ public:
         isLoadReplayFile_ = isLoad;
     }
 
-    SceneManager* GetSceneManager() {
+    OriGine::SceneManager* GetSceneManager() {
         return sceneManager_.get();
     }
-    ReplayPlayer* GetReplayPlayer() {
+    OriGine::ReplayPlayer* GetReplayPlayer() {
         return replayPlayer_.get();
     }
 

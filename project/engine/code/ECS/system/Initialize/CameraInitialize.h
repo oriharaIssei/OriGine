@@ -2,6 +2,8 @@
 
 #include "system/ISystem.h"
 
+namespace OriGine {
+
 /// <summary>
 /// シーン初期化時にカメラを指定したCameraTransformで初期化するシステム
 /// </summary>
@@ -17,3 +19,5 @@ public:
 private:
     void UpdateEntity(Entity* _entity) override;
 };
+
+} // namespace OriGine

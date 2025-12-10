@@ -15,6 +15,8 @@
 // component
 #include "component/effect/post/VignetteParam.h"
 
+namespace OriGine {
+
 /// <summary>
 /// ヴィネットエフェクト
 /// </summary>
@@ -62,3 +64,5 @@ protected:
     PipelineStateObj* pso_ = nullptr;
     std::vector<VignetteParam*> activeParams_;
 };
+
+} // namespace OriGine

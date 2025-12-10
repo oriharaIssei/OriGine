@@ -6,6 +6,8 @@
 /// math
 #include "Vector3.h"
 
+namespace OriGine {
+
 /// <summary>
 /// Rigidbody コンポーネント
 /// </summary>
@@ -80,3 +82,5 @@ public: // accsessor
         maxFallSpeed_ = _maxFallSpeed;
     }
 };
+
+} // namespace OriGine

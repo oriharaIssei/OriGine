@@ -1,5 +1,7 @@
 #include "SystemRegistry.h"
 
+using namespace OriGine;
+
 std::unique_ptr<ISystem> SystemRegistry::CreateSystem(const std::string& _systemTypeName, Scene* scene) {
     auto itr = systemMaker_.find(_systemTypeName);
     if (itr == systemMaker_.end()) {

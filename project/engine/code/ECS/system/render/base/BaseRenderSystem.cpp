@@ -1,5 +1,10 @@
 #include "BaseRenderSystem.h"
 
+/// engine
+#include "scene/Scene.h"
+
+using namespace OriGine;
+
 BaseRenderSystem::BaseRenderSystem(int32_t _priority) : ISystem(SystemCategory::Render, _priority) {}
 BaseRenderSystem::~BaseRenderSystem() {}
 

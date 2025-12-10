@@ -5,9 +5,7 @@
 #ifdef _DEBUG
 
 /// stl
-#include <array>
 #include <list>
-#include <unordered_map>
 #include <vector>
 
 #include <atomic>
@@ -16,17 +14,18 @@
 #include <string>
 
 /// engine
-#include "component/IComponent.h"
 #include "scene/Scene.h"
-#include "system/ISystem.h"
-enum class SystemCategory;
+/// ECS
+// component
+#include "component/IComponent.h"
+// system
+#include "system/SystemCategory.h"
 // camera
-class DebugCamera;
+#include "camera/debugCamera/DebugCamera.h"
 
 #include "globalVariables/SerializedField.h"
 
 // util
-#include "util/EnumBitmask.h"
 #include "util/nameof.h"
 
 /// <summary>
@@ -43,7 +42,7 @@ public:
 
     void InitializeMenus();
     void InitializeAreas();
-    void InitializeScene(const std::string& _sceneName);
+    void InitializeScene(const ::std::string& _sceneName);
     void InitializeScene();
 
     void FinalizeMenus();
@@ -54,19 +53,19 @@ private:
     void LoadNextScene();
 
 private:
-    std::unique_ptr<Scene> currentScene_; // 現在のシーン
-    bool isSceneChanged_                        = false; // シーンが変更されたかどうか
-    std::string nextSceneName_                  = ""; // 次に読み込むシーン名
-    SerializedField<std::string> editSceneName_ = SerializedField<std::string>("Settings", "SceneEditor", "editSceneName", "Game"); // 編集中のシーン名(保存する)
+    ::std::unique_ptr<OriGine::Scene> currentScene_; // 現在のシーン
+    bool isSceneChanged_                                   = false; // シーンが変更されたかどうか
+    ::std::string nextSceneName_                           = ""; // 次に読み込むシーン名
+    OriGine::SerializedField<::std::string> editSceneName_ = OriGine::SerializedField<::std::string>("Settings", "SceneEditor", "editSceneName", "Game"); // 編集中のシーン名(保存する)
 public:
-    Scene* GetCurrentScene() {
+    OriGine::Scene* GetCurrentScene() {
         return currentScene_.get();
     }
-    void ChangeScene(const std::string& _nextScene) {
+    void ChangeScene(const ::std::string& _nextScene) {
         nextSceneName_  = _nextScene;
         isSceneChanged_ = true;
     }
-    SerializedField<std::string>& GetEditSceneName() {
+    OriGine::SerializedField<::std::string>& GetEditSceneName() {
         return editSceneName_;
     }
 };
@@ -121,8 +120,8 @@ public:
     void Finalize() override;
 
 private:
-    FileMenu* parentMenu_ = nullptr; // 親メニューへのポインタ
-    Scene* loadScene_     = nullptr; // 保存するシーンへのポインタ
+    FileMenu* parentMenu_      = nullptr; // 親メニューへのポインタ
+    OriGine::Scene* loadScene_ = nullptr; // 保存するシーンへのポインタ
 };
 /// <summary>
 /// シーンファイルを新規作成するメニューアイテム
@@ -138,8 +137,8 @@ public:
     void Finalize() override;
 
 private:
-    FileMenu* parentMenu_     = nullptr; // 親メニューへのポインタ
-    std::string newSceneName_ = "";
+    FileMenu* parentMenu_       = nullptr; // 親メニューへのポインタ
+    ::std::string newSceneName_ = "";
 };
 
 #pragma endregion
@@ -157,12 +156,12 @@ public:
 
 private:
     void DrawScene();
-    void UseImGuizmo(const ImVec2& _sceneViewPos, const Vec2f& _originalResolution);
+    void UseImGuizmo(const ImVec2& _sceneViewPos, const OriGine::Vec2f& _originalResolution);
 
 private:
     SceneEditorWindow* parentWindow_; // 親ウィンドウへのポインタ
 
-    std::unique_ptr<DebugCamera> debugCamera_; // デバッグカメラ
+    ::std::unique_ptr<OriGine::DebugCamera> debugCamera_; // デバッグカメラ
 };
 
 /// <summary>
@@ -242,7 +241,7 @@ public:
 
     private:
         EntityHierarchy* hierarchy_ = nullptr; // 親エリアへのポインタ
-        std::list<int32_t> previousselectedEntityIds_; // 以前の選択されたエンティティIDのリスト
+        ::std::list<int32_t> previousselectedEntityIds_; // 以前の選択されたエンティティIDのリスト
     };
 
     /// <summary>
@@ -251,7 +250,7 @@ public:
     class CreateEntityCommand
         : public IEditCommand {
     public:
-        CreateEntityCommand(HierarchyArea* _parentArea, const std::string& _entityName);
+        CreateEntityCommand(HierarchyArea* _parentArea, const ::std::string& _entityName);
         ~CreateEntityCommand() override = default;
 
         void Execute() override;
@@ -259,7 +258,7 @@ public:
 
     private:
         HierarchyArea* parentArea_ = nullptr; // 親エリアへのポインタ
-        std::string entityName_;
+        ::std::string entityName_;
         int32_t entityId_ = -1; // 作成するエンティティの名前
     };
 
@@ -269,16 +268,16 @@ public:
     class LoadEntityCommand
         : public IEditCommand {
     public:
-        LoadEntityCommand(HierarchyArea* _parentArea, const std::string& _directory, const std::string& _entityName);
+        LoadEntityCommand(HierarchyArea* _parentArea, const ::std::string& _directory, const ::std::string& _entityName);
         ~LoadEntityCommand() override = default;
 
         void Execute() override;
         void Undo() override;
 
     private:
-        std::string directory_;
+        ::std::string directory_;
         HierarchyArea* parentArea_ = nullptr; // 親エリアへのポインタ
-        std::string entityName_;
+        ::std::string entityName_;
         int32_t entityId_ = -1; // 作成するエンティティの名前
     };
 
@@ -307,19 +306,19 @@ public:
 
     private:
         EntityHierarchy* hierarchy_ = nullptr; // 親エリアへのポインタ
-        std::vector<int32_t> pastedEntityIds_; // ペーストしたエンティティのIDリスト
+        ::std::vector<int32_t> pastedEntityIds_; // ペーストしたエンティティのIDリスト
     };
 
 private:
     HierarchyArea* parentArea_ = nullptr; // 親エリアへのポインタ
-    std::list<int32_t> selectedEntityIds_; // 選択されているオブジェクトのIDリスト
-    std::string searchBuff_ = ""; // 検索バッファ
-    std::list<nlohmann::json> copyBuffer_; // エンティティのコピー用バッファ
+    ::std::list<int32_t> selectedEntityIds_; // 選択されているオブジェクトのIDリスト
+    ::std::string searchBuff_ = ""; // 検索バッファ
+    ::std::list<nlohmann::json> copyBuffer_; // エンティティのコピー用バッファ
 public:
-    const std::list<int32_t>& GetSelectedEntityIds() const {
+    const ::std::list<int32_t>& GetSelectedEntityIds() const {
         return selectedEntityIds_;
     }
-    std::list<int32_t>& GetSelectedEntityIdsRef() {
+    ::std::list<int32_t>& GetSelectedEntityIdsRef() {
         return selectedEntityIds_;
     }
 
@@ -334,7 +333,7 @@ public:
 class AddComponentCommand
     : public IEditCommand {
 public:
-    AddComponentCommand(const std::list<int32_t>& _entityIds, const std::string& _compTypeName)
+    AddComponentCommand(const ::std::list<int32_t>& _entityIds, const ::std::string& _compTypeName)
         : entityIds_(_entityIds), componentTypeName_(_compTypeName) {
     }
     ~AddComponentCommand() override = default;
@@ -343,8 +342,8 @@ public:
     void Undo() override;
 
 private:
-    std::list<int32_t> entityIds_;
-    std::string componentTypeName_; // 追加するコンポーネントのタイプ名
+    ::std::list<int32_t> entityIds_;
+    ::std::string componentTypeName_; // 追加するコンポーネントのタイプ名
 };
 /// <summary>
 /// コンポーネントを削除するコマンド
@@ -352,7 +351,7 @@ private:
 class RemoveComponentCommand
     : public IEditCommand {
 public:
-    RemoveComponentCommand(int32_t _entityId, const std::string& _compTypeName, int32_t _compIndex)
+    RemoveComponentCommand(int32_t _entityId, const ::std::string& _compTypeName, int32_t _compIndex)
         : entityId_(_entityId), componentTypeName_(_compTypeName), componentIndex_(_compIndex) {}
     ~RemoveComponentCommand() override = default;
     void Execute() override;
@@ -363,7 +362,7 @@ private:
 
     // nlohmann::json componentData_; // 削除するコンポーネントのデータ
     int32_t componentIndex_ = -1; // 削除するコンポーネントのインデックス
-    std::string componentTypeName_; // 削除するコンポーネントのタイプ名
+    ::std::string componentTypeName_; // 削除するコンポーネントのタイプ名
 };
 
 /// <summary>
@@ -372,15 +371,15 @@ private:
 class AddSystemCommand
     : public IEditCommand {
 public:
-    AddSystemCommand(const std::list<int32_t>& _entityIds, const std::string& _systemTypeName, SystemCategory _category);
+    AddSystemCommand(const ::std::list<int32_t>& _entityIds, const ::std::string& _systemTypeName, OriGine::SystemCategory _category);
     ~AddSystemCommand() override = default;
     void Execute() override;
     void Undo() override;
 
 private:
-    std::list<int32_t> entityIds_; // 対象のエンティティIDリスト
-    std::string systemTypeName_; // 追加するシステムのタイプ名
-    SystemCategory systemCategory_; // システムのカテゴリ
+    ::std::list<int32_t> entityIds_; // 対象のエンティティIDリスト
+    ::std::string systemTypeName_; // 追加するシステムのタイプ名
+    OriGine::SystemCategory systemCategory_; // システムのカテゴリ
 };
 /// <summary>
 /// システムを削除するコマンド
@@ -388,15 +387,15 @@ private:
 class RemoveSystemCommand
     : public IEditCommand {
 public:
-    RemoveSystemCommand(const std::list<int32_t>& _entityIds, const std::string& _systemTypeName, SystemCategory _category);
+    RemoveSystemCommand(const ::std::list<int32_t>& _entityIds, const ::std::string& _systemTypeName, OriGine::SystemCategory _category);
     ~RemoveSystemCommand() override = default;
     void Execute() override;
     void Undo() override;
 
 private:
-    std::list<int32_t> entityIds_; // 対象のエンティティIDリスト
-    std::string systemTypeName_; // 削除するシステムのタイプ名
-    SystemCategory systemCategory_; // システムのカテゴリ
+    ::std::list<int32_t> entityIds_; // 対象のエンティティIDリスト
+    ::std::string systemTypeName_; // 削除するシステムのタイプ名
+    OriGine::SystemCategory systemCategory_; // システムのカテゴリ
 };
 
 /// <summary>
@@ -432,15 +431,15 @@ public:
 private:
     SceneEditorWindow* parentWindow_ = nullptr; // 親ウィンドウへのポインタ
 
-    std::atomic<bool> isBuilding_ = false;
+    ::std::atomic<bool> isBuilding_ = false;
 
-    const std::string buildTool_        = "msbuild"; // ビルドツールの名前
-    const std::string projectDirectory_ = "project";
-    const std::string projectName_      = "OriGine.sln";
-    const std::string configuration     = "Develop";
-    const std::string platform          = "x64";
+    const ::std::string buildTool_        = "msbuild"; // ビルドツールの名前
+    const ::std::string projectDirectory_ = "project";
+    const ::std::string projectName_      = "OriGine.sln";
+    const ::std::string configuration     = "Develop";
+    const ::std::string platform          = "x64";
 
-    const std::string exePath_ = "/../generated/output/" + configuration + "/OriGineApp.exe"; // 実行ファイルのパス
+    const ::std::string exePath_ = "/../generated/output/" + configuration + "/OriGineApp.exe"; // 実行ファイルのパス
 
 public:
     SceneEditorWindow* GetParentWindow() const {

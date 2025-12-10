@@ -10,6 +10,8 @@
 /// ECS
 #include "component/effect/particle/gpuParticle/GpuParticle.h"
 
+using namespace OriGine;
+
 GpuParticleInitialize::GpuParticleInitialize()
     : ISystem(SystemCategory::Initialize) {}
 
@@ -62,21 +64,21 @@ void GpuParticleInitialize::UpdateEntity(Entity* _entity) {
         }
 
         commandList->SetComputeRootDescriptorTable(
-            particleBufferIndex_,
+            kParticleBufferIndex_,
             gpuParticleEmitter.GetParticleUavDescriptor().GetGpuHandle());
 
         commandList->SetComputeRootDescriptorTable(
-            freeIndexBufferIndex_,
+            kFreeIndexBufferIndex_,
             gpuParticleEmitter.GetFreeIndexUavDescriptor().GetGpuHandle());
 
         commandList->SetComputeRootDescriptorTable(
-            freeListBufferIndex_,
+            kFreeListBufferIndex_,
             gpuParticleEmitter.GetFreeListUavDescriptor().GetGpuHandle());
 
         gpuParticleEmitter.GetShapeBuffer().ConvertToBuffer();
         gpuParticleEmitter.GetShapeBuffer().SetForComputeRootParameter(
             commandList.Get(),
-            emitterShapeIndex);
+            kEmitterShapeIndex);
 
         UINT dispatchCount = (gpuParticleEmitter.GetParticleSize() + 1023) / 1024;
         commandList->Dispatch(
@@ -108,7 +110,7 @@ void GpuParticleInitialize::CreatePSO() {
     /// ==========================================
     // Shader 読み込み
     /// ==========================================
-    shaderManager->LoadShader(psoKey, shaderDirectory, L"cs_6_0");
+    shaderManager->LoadShader(psoKey, kShaderDirectory, L"cs_6_0");
 
     /// ==========================================
     // PSO 設定
@@ -118,10 +120,10 @@ void GpuParticleInitialize::CreatePSO() {
 
 #pragma region "ROOT_PARAMETER"
 
-    D3D12_ROOT_PARAMETER rootParameters[4]                = {};
-    rootParameters[particleBufferIndex_].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-    rootParameters[particleBufferIndex_].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-    shaderInfo.pushBackRootParameter(rootParameters[particleBufferIndex_]);
+    D3D12_ROOT_PARAMETER rootParameters[4]                 = {};
+    rootParameters[kParticleBufferIndex_].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+    rootParameters[kParticleBufferIndex_].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+    shaderInfo.pushBackRootParameter(rootParameters[kParticleBufferIndex_]);
 
     D3D12_DESCRIPTOR_RANGE particleDescriptorRange[1]            = {};
     particleDescriptorRange[0].BaseShaderRegister                = 0; // u0
@@ -129,11 +131,11 @@ void GpuParticleInitialize::CreatePSO() {
     particleDescriptorRange[0].RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
     particleDescriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
     shaderInfo.SetDescriptorRange2Parameter(
-        particleDescriptorRange, 1, particleBufferIndex_);
+        particleDescriptorRange, 1, kParticleBufferIndex_);
 
-    rootParameters[freeIndexBufferIndex_].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-    rootParameters[freeIndexBufferIndex_].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-    shaderInfo.pushBackRootParameter(rootParameters[freeIndexBufferIndex_]);
+    rootParameters[kFreeIndexBufferIndex_].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+    rootParameters[kFreeIndexBufferIndex_].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+    shaderInfo.pushBackRootParameter(rootParameters[kFreeIndexBufferIndex_]);
 
     D3D12_DESCRIPTOR_RANGE freeIndexDescriptorRange[1]            = {};
     freeIndexDescriptorRange[0].BaseShaderRegister                = 1; // u1
@@ -141,11 +143,11 @@ void GpuParticleInitialize::CreatePSO() {
     freeIndexDescriptorRange[0].RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
     freeIndexDescriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
     shaderInfo.SetDescriptorRange2Parameter(
-        freeIndexDescriptorRange, 1, freeIndexBufferIndex_);
+        freeIndexDescriptorRange, 1, kFreeIndexBufferIndex_);
 
-    rootParameters[freeListBufferIndex_].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-    rootParameters[freeListBufferIndex_].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-    shaderInfo.pushBackRootParameter(rootParameters[freeListBufferIndex_]);
+    rootParameters[kFreeListBufferIndex_].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+    rootParameters[kFreeListBufferIndex_].ParameterType    = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+    shaderInfo.pushBackRootParameter(rootParameters[kFreeListBufferIndex_]);
 
     D3D12_DESCRIPTOR_RANGE freeListDescriptorRange[1]            = {};
     freeListDescriptorRange[0].BaseShaderRegister                = 2; // u2
@@ -153,12 +155,12 @@ void GpuParticleInitialize::CreatePSO() {
     freeListDescriptorRange[0].RangeType                         = D3D12_DESCRIPTOR_RANGE_TYPE_UAV;
     freeListDescriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
     shaderInfo.SetDescriptorRange2Parameter(
-        freeListDescriptorRange, 1, freeListBufferIndex_);
+        freeListDescriptorRange, 1, kFreeListBufferIndex_);
 
-    rootParameters[emitterShapeIndex].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
-    rootParameters[emitterShapeIndex].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
-    rootParameters[emitterShapeIndex].Descriptor.ShaderRegister = 0; // b0
-    shaderInfo.pushBackRootParameter(rootParameters[emitterShapeIndex]);
+    rootParameters[kEmitterShapeIndex].ShaderVisibility          = D3D12_SHADER_VISIBILITY_ALL;
+    rootParameters[kEmitterShapeIndex].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
+    rootParameters[kEmitterShapeIndex].Descriptor.ShaderRegister = 0; // b0
+    shaderInfo.pushBackRootParameter(rootParameters[kEmitterShapeIndex]);
 
 #pragma endregion
 

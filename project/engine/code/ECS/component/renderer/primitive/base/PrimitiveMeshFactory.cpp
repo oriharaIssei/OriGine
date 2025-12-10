@@ -12,6 +12,8 @@
 #include "component/renderer/primitive/RingRenderer.h"
 #include "component/renderer/primitive/SphereRenderer.h"
 
+using namespace OriGine;
+
 std::shared_ptr<PrimitiveMeshRendererBase> PrimitiveMeshFactory::CreatePrimitiveMeshBy(PrimitiveType _type) {
     auto itr = primitiveMeshFactory_.find(_type);
     if (itr != primitiveMeshFactory_.end()) {

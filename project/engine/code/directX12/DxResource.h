@@ -1,16 +1,24 @@
 #pragma once
 
-#include <d3d12.h>
+/// Microsoft
 #include <wrl.h>
 
-#include "DirectXTex/DirectXTex.h"
-class DxDevice;
+#include <d3d12.h>
 
+/// math
 #include "Vector4.h"
 #include <stdint.h>
 
+/// util
 #include <util/BitArray.h>
 #include <util/EnumBitMask.h>
+
+/// externals
+#include "DirectXTex/DirectXTex.h"
+
+namespace OriGine {
+// 前方宣言
+struct DxDevice;
 
 enum class DxResourceType : int32_t {
     Unknown            = 0b0,
@@ -28,9 +36,6 @@ enum class DxResourceType : int32_t {
 /// DxResourceType を 文字列に変換
 /// </summary>
 const char* DxResourceTypeToString(DxResourceType type);
-namespace std {
-string to_string(DxResourceType type);
-};
 
 /// <summary>
 /// DirectX12 リソースの WrapperClass
@@ -99,4 +104,10 @@ public:
     UINT GetHeight() const { return resourceDesc_.Height; } // テクスチャの高さを取得
 
     HRESULT SetName(const std::wstring& name);
+};
+
+} // namespace OriGine
+
+namespace std {
+string to_string(OriGine::DxResourceType type);
 };

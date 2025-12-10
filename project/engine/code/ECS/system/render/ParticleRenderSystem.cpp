@@ -10,6 +10,8 @@
 // module
 #include "camera/CameraManager.h"
 
+using namespace OriGine;
+
 ParticleRenderSystem::ParticleRenderSystem() : BaseRenderSystem() {}
 ParticleRenderSystem::~ParticleRenderSystem() {}
 
@@ -29,7 +31,7 @@ void ParticleRenderSystem::CreatePSO() {
     ///=================================================
 
     shaderManager->LoadShader("Particle.VS");
-    shaderManager->LoadShader("Particle.PS", shaderDirectory, L"ps_6_0");
+    shaderManager->LoadShader("Particle.PS", kShaderDirectory, L"ps_6_0");
 
     ///=================================================
     /// shader情報の設定
@@ -119,7 +121,7 @@ void ParticleRenderSystem::CreatePSO() {
     ///=================================================
     for (size_t i = 0; i < kBlendNum; ++i) {
         shaderInfo.blendMode_ = BlendMode(i);
-        psoByBlendMode_[i]    = shaderManager->CreatePso("Particle_" + blendModeStr[i], shaderInfo, Engine::GetInstance()->GetDxDevice()->device_);
+        psoByBlendMode_[i]    = shaderManager->CreatePso("Particle_" + kBlendModeStr[i], shaderInfo, Engine::GetInstance()->GetDxDevice()->device_);
     }
 }
 

@@ -2,6 +2,7 @@
 
 /// stl
 #include <cassert>
+#include <format>
 
 /// engine
 #include "Engine.h"
@@ -9,10 +10,11 @@
 // directX12
 #include "directX12/DxCommand.h"
 #include "directX12/DxDevice.h"
-#include "directX12/DxFunctionHelper.h"
-
+/// util
 #include "logger/Logger.h"
 #include "util/StringUtil.h"
+
+using namespace OriGine;
 
 void DxSwapChain::Initialize(const WinApp* winApp, const DxDevice* device, const DxCommand* command) {
     bufferWidth_  = winApp->GetWidth();

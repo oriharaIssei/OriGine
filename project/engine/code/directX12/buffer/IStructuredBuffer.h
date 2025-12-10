@@ -11,6 +11,8 @@
 #include "directX12/DxResource.h"
 #include "Engine.h"
 
+namespace OriGine {
+
 /// <summary>
 /// StructuredBuffer コンセプト
 /// </summary>
@@ -195,3 +197,5 @@ template <StructuredBuffer structBuff>
 inline void IStructuredBuffer<structBuff>::SetForRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const {
     cmdList->SetGraphicsRootDescriptorTable(rootParameterNum, srv_.GetGpuHandle());
 }
+
+} // namespace OriGine

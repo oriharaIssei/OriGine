@@ -8,7 +8,6 @@
 
 /// engine
 /// ECS
-
 // component
 #include "component/transform/Transform.h"
 
@@ -20,6 +19,8 @@
 #include "imgui/imgui.h"
 #include "myGui/MyGui.h"
 #endif // _DEBUG
+
+namespace OriGine {
 
 enum class CollisionState {
     None, // 衝突していない
@@ -67,7 +68,7 @@ public: // accessor
     const std::map<int32_t, CollisionState>& GetCollisionStateMap() { return collisionStateMap_; }
 };
 
-template <math::bounds::IsBounds BoundsClass>
+template <Bounds::IsBounds BoundsClass>
 class Collider
     : public ICollider {
 public:
@@ -95,3 +96,5 @@ public:
     BoundsClass* GetLocalShapePtr() { return &shape_; }
     BoundsClass* GetWorldShapePtr() { return &worldShape_; }
 };
+
+} // namespace OriGine

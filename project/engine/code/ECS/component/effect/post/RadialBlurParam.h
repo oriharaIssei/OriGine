@@ -10,6 +10,8 @@
 /// math
 #include "math/Vector2.h"
 
+namespace OriGine {
+
 /// <summary>
 /// RadialBlur の パラメーター情報(GPUに送るもの)
 /// </summary>
@@ -77,3 +79,5 @@ public:
         return constantBuffer_;
     }
 };
+
+} // namespace OriGine

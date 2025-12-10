@@ -10,7 +10,10 @@
 // directX12
 #include "directX12/DxResource.h"
 
+/// util
 #include <logger/Logger.h>
+
+namespace OriGine {
 
 /// <summary>
 /// 内部宣言で ConstantBuffer 型を持つことを要求するコンセプト
@@ -18,8 +21,8 @@
 template <typename T>
 concept HasInConstantBuffer = requires {
     typename T::ConstantBuffer;
-    requires std::is_copy_assignable_v<typename T::ConstantBuffer>;
-    { std::declval<typename T::ConstantBuffer>() = std::declval<const T&>() } -> std::same_as<typename T::ConstantBuffer&>;
+    requires ::std::is_copy_assignable_v<typename T::ConstantBuffer>;
+    { ::std::declval<typename T::ConstantBuffer>() = ::std::declval<const T&>() } -> ::std::same_as<typename T::ConstantBuffer&>;
 };
 
 /// <summary>
@@ -115,3 +118,5 @@ template <HasInConstantBuffer constBuff>
 inline void IConstantBuffer<constBuff>::SetForComputeRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const {
     cmdList->SetComputeRootConstantBufferView(rootParameterNum, buff_.GetResource()->GetGPUVirtualAddress());
 }
+
+} // namespace OriGine

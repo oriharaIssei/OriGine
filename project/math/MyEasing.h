@@ -6,9 +6,7 @@
 #include <string>
 #include <unordered_map>
 
-/// math
-#include <cmath>
-#include <numbers>
+namespace OriGine {
 
 /// <summary>
 ///  イージング方式
@@ -45,8 +43,6 @@ enum class EaseType : int {
 
     COUNT
 };
-
-constexpr float pi_float = static_cast<float>(std::numbers::pi);
 
 float Liner(float _t);
 
@@ -92,7 +88,7 @@ float EaseOutBounce(float _t);
 
 float EaseInOutBounce(float _t);
 
-static std::array<std::function<float(float)>, static_cast<int>(EaseType::COUNT)> EasingFunctions = {
+static ::std::array<::std::function<float(float)>, static_cast<int>(EaseType::COUNT)> EasingFunctions = {
     Liner,
 
     EaseInSine,
@@ -124,7 +120,7 @@ static std::array<std::function<float(float)>, static_cast<int>(EaseType::COUNT)
     EaseInOutBounce,
 };
 
-static std::unordered_map<EaseType, std::string> EasingNames = {
+static ::std::unordered_map<EaseType, ::std::string> EasingNames = {
     {EaseType::Liner, "Liner"},
     {EaseType::EaseInSine, "EaseInSine"},
     {EaseType::EaseOutSine, "EaseOutSine"},
@@ -150,5 +146,7 @@ static std::unordered_map<EaseType, std::string> EasingNames = {
 };
 
 #ifdef _DEBUG
-void EasingComboGui(const std::string& _label, EaseType& _easeType);
+void EasingComboGui(const ::std::string& _label, EaseType& _easeType);
 #endif // _DEBUG
+
+} // namespace OriGine

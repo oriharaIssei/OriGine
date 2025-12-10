@@ -16,6 +16,8 @@
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
+using namespace OriGine;
+
 void SkyboxRenderer::Initialize(Entity* _hostEntity) {
     MeshRenderer::Initialize(_hostEntity);
 
@@ -112,7 +114,7 @@ void SkyboxRenderer::Edit(Scene* /*_scene*/, Entity* /* _entity*/, [[maybe_unuse
                     });
                 },
                 true);
-            EditorController::GetInstance()->PushCommand(std::move(commandCombo));
+            OriGine::EditorController::GetInstance()->PushCommand(std::move(commandCombo));
         }
     }
 
@@ -120,22 +122,22 @@ void SkyboxRenderer::Edit(Scene* /*_scene*/, Entity* /* _entity*/, [[maybe_unuse
 #endif // _DEBUG
 }
 
-void to_json(nlohmann::json& j, const SkyboxRenderer& c) {
+void OriGine::to_json(nlohmann::json& j, const SkyboxRenderer& c) {
     j["filePath"]      = c.filePath_;
     j["transformBuff"] = c.transformBuff_.openData_;
     j["materialBuff"]  = c.materialBuff_.openData_;
 }
 
-void from_json(const nlohmann::json& j, SkyboxRenderer& c) {
+void OriGine::from_json(const nlohmann::json& j, SkyboxRenderer& c) {
     j.at("filePath").get_to(c.filePath_);
     j.at("transformBuff").get_to(c.transformBuff_.openData_);
     j.at("materialBuff").get_to(c.materialBuff_.openData_);
 }
 
-void to_json(nlohmann::json& j, const SkyboxMaterial& c) {
+void OriGine::to_json(nlohmann::json& j, const SkyboxMaterial& c) {
     j["color"] = c.color;
 }
 
-void from_json(const nlohmann::json& j, SkyboxMaterial& c) {
+void OriGine::from_json(const nlohmann::json& j, SkyboxMaterial& c) {
     j.at("color").get_to(c.color);
 }

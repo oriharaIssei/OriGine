@@ -10,11 +10,10 @@
 /// util
 #include "myFileSystem/MyFileSystem.h"
 
-EntityReferenceList::EntityReferenceList() {
-}
+using namespace OriGine;
 
-EntityReferenceList::~EntityReferenceList() {
-}
+EntityReferenceList::EntityReferenceList() {}
+EntityReferenceList::~EntityReferenceList() {}
 
 void EntityReferenceList::Initialize(Entity* /*_entity*/) {}
 
@@ -33,7 +32,7 @@ void EntityReferenceList::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_u
         label = "Remove##" + filePath + _parentLabel;
         if (ImGui::Button(label.c_str())) {
             auto command = std::make_unique<EraseElementCommand<std::vector<std::pair<std::string, std::string>>>>(&entityFileList_, entityFileList_.begin() + i);
-            EditorController::GetInstance()->PushCommand(std::move(command));
+            OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
 
             ImGui::PopID();
             break;
@@ -47,7 +46,7 @@ void EntityReferenceList::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_u
         std::string directory, filename;
         if (MyFileSystem::SelectFileDialog(kApplicationResourceDirectory, directory, filename, {"ent"}, true)) {
             auto command = std::make_unique<AddElementCommand<std::vector<std::pair<std::string, std::string>>>>(&entityFileList_, std::make_pair(kApplicationResourceDirectory + "/" + directory, filename));
-            EditorController::GetInstance()->PushCommand(std::move(command));
+            OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
         }
     }
 
@@ -56,10 +55,10 @@ void EntityReferenceList::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_u
 
 void EntityReferenceList::Finalize() {}
 
-void to_json(nlohmann::json& j, const EntityReferenceList& c) {
+void OriGine::to_json(nlohmann::json& j, const EntityReferenceList& c) {
     j = nlohmann::json{{"entityFileList", c.entityFileList_}};
 }
 
-void from_json(const nlohmann::json& j, EntityReferenceList& c) {
+void OriGine::from_json(const nlohmann::json& j, EntityReferenceList& c) {
     j.at("entityFileList").get_to(c.entityFileList_);
 }

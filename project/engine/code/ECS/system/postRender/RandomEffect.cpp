@@ -11,6 +11,8 @@
 #include "directX12/DxDevice.h"
 #include "directX12/RenderTexture.h"
 
+using namespace OriGine;
+
 RandomEffect::RandomEffect() : BasePostRenderingSystem() {}
 RandomEffect::~RandomEffect() {}
 
@@ -31,7 +33,7 @@ void RandomEffect::Finalize() {
 void RandomEffect::CreatePSO() {
     ShaderManager* shaderManager = ShaderManager::GetInstance();
     shaderManager->LoadShader("FullScreen.VS");
-    shaderManager->LoadShader("Random.PS", shaderDirectory, L"ps_6_0");
+    shaderManager->LoadShader("Random.PS", kShaderDirectory, L"ps_6_0");
     ShaderInformation shaderInfo{};
     shaderInfo.vsKey = "FullScreen.VS";
     shaderInfo.psKey = "Random.PS";
@@ -79,7 +81,7 @@ void RandomEffect::CreatePSO() {
     for (size_t i = 0; i < static_cast<size_t>(BlendMode::Count); ++i) {
         BlendMode blendMode   = static_cast<BlendMode>(i);
         shaderInfo.blendMode_ = blendMode;
-        psoByBlendMode_[i]    = shaderManager->CreatePso("RandomEffect_" + blendModeStr[i], shaderInfo, Engine::GetInstance()->GetDxDevice()->device_);
+        psoByBlendMode_[i]    = shaderManager->CreatePso("RandomEffect_" + kBlendModeStr[i], shaderInfo, Engine::GetInstance()->GetDxDevice()->device_);
     }
 }
 

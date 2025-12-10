@@ -3,14 +3,16 @@
 
 #include "bounds/AABB.h"
 
+namespace OriGine {
+
 class AABBCollider
-    : public Collider<math::bounds::AABB> {
+    : public Collider<Bounds::AABB> {
     friend void to_json(nlohmann::json& _json, const AABBCollider& _a);
     friend void from_json(const nlohmann::json& _json, AABBCollider& _a);
 
 public:
     AABBCollider()
-        : Collider<math::bounds::AABB>() {}
+        : Collider<Bounds::AABB>() {}
     ~AABBCollider() {}
 
     void Edit(Scene* _scene, Entity* _entity, const std::string& _parentLabel) override;
@@ -18,5 +20,6 @@ public:
     void CalculateWorldShape() override;
 
 public: // accessor
-
 };
+
+} // namespace OriGine

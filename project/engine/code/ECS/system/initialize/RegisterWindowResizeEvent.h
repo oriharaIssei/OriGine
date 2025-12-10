@@ -4,6 +4,8 @@
 /// math
 #include <stdint.h>
 
+namespace OriGine {
+
 /// <summary>
 /// WindowResize時のイベント登録を行うシステム
 /// </summary>
@@ -27,3 +29,5 @@ private:
     int32_t sceneViewResizeEventIndex_ = -1;
     int32_t subSceneResizeEventIndex_  = -1;
 };
+
+} // namespace OriGine

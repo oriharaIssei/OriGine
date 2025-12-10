@@ -11,8 +11,9 @@
 
 #include "logger/Logger.h"
 
-MoveSystemByRigidBody::MoveSystemByRigidBody() : ISystem(SystemCategory::Movement) {}
+using namespace OriGine;
 
+MoveSystemByRigidBody::MoveSystemByRigidBody() : ISystem(SystemCategory::Movement) {}
 MoveSystemByRigidBody::~MoveSystemByRigidBody() {}
 
 void MoveSystemByRigidBody::Initialize() {}

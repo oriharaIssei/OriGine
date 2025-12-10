@@ -1,7 +1,10 @@
 #pragma once
 
+/// stl
 #include <array>
 #include <string>
+
+namespace OriGine {
 
 /// <summary>
 /// システムの種類(この種類によって処理順序が決定する)
@@ -22,7 +25,7 @@ enum class SystemCategory {
     Count
 };
 
-static const std::array<std::string, static_cast<int>(SystemCategory::Count)> SystemCategoryString = {
+static const ::std::array<::std::string, static_cast<int>(SystemCategory::Count)> kSystemCategoryString = {
     "Initialize",
     "Input",
     "StateTransition",
@@ -32,6 +35,6 @@ static const std::array<std::string, static_cast<int>(SystemCategory::Count)> Sy
     "Render",
     "PostRender"};
 
-namespace std {
-string to_string(const SystemCategory& _category);
-}
+} // namespace OriGine
+
+std::string ToString(const OriGine::SystemCategory& _category);

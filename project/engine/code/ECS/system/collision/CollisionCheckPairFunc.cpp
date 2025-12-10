@@ -7,8 +7,10 @@
 #include "math/mathEnv.h"
 #include "math/Vector3.h"
 
+namespace OriGine {
+
 template <>
-bool CheckCollisionPair(Scene* /*_scene*/, Entity* _entityA, Entity* _entityB, const math::bounds::Sphere& _shapeA, const math::bounds::Sphere& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
+bool CheckCollisionPair(Scene* /*_scene*/, Entity* _entityA, Entity* _entityB, const Bounds::Sphere& _shapeA, const Bounds::Sphere& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
 
     Vec3f distance = (_shapeA.center_) - (_shapeB.center_);
 
@@ -52,7 +54,7 @@ bool CheckCollisionPair(Scene* /*_scene*/, Entity* _entityA, Entity* _entityB, c
 }
 
 template <>
-bool CheckCollisionPair(Scene* _scene, Entity* _aabbEntity, Entity* _sphereEntity, const math::bounds::AABB& _aabb, const math::bounds::Sphere& _sphere, CollisionPushBackInfo* _aabbInfo, CollisionPushBackInfo* _sphereInfo) {
+bool CheckCollisionPair(Scene* _scene, Entity* _aabbEntity, Entity* _sphereEntity, const Bounds::AABB& _aabb, const Bounds::Sphere& _sphere, CollisionPushBackInfo* _aabbInfo, CollisionPushBackInfo* _sphereInfo) {
     Vec3f sphereCenter = _sphere.center_;
     Vec3f closest      = {0.f, 0.f, 0.f};
     Vec3f distance     = {0.f, 0.f, 0.f};
@@ -221,11 +223,11 @@ bool CheckCollisionPair(Scene* _scene, Entity* _aabbEntity, Entity* _sphereEntit
 }
 
 template <>
-bool CheckCollisionPair(Scene* _scene, Entity* _entityA, Entity* _entityB, const math::bounds::Sphere& _shapeA, const math::bounds::AABB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
-    return CheckCollisionPair<math::bounds::AABB, math::bounds::Sphere>(_scene, _entityB, _entityA, _shapeB, _shapeA, _bInfo, _aInfo);
+bool CheckCollisionPair(Scene* _scene, Entity* _entityA, Entity* _entityB, const Bounds::Sphere& _shapeA, const Bounds::AABB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
+    return CheckCollisionPair<Bounds::AABB, Bounds::Sphere>(_scene, _entityB, _entityA, _shapeB, _shapeA, _bInfo, _aInfo);
 }
 template <>
-bool CheckCollisionPair(Scene* /*_scene*/, Entity* _entityA, Entity* _entityB, const math::bounds::Sphere& _shapeA, const math::bounds::OBB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
+bool CheckCollisionPair(Scene* /*_scene*/, Entity* _entityA, Entity* _entityB, const Bounds::Sphere& _shapeA, const Bounds::OBB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
     auto& obb    = _shapeB;
     auto& sphere = _shapeA;
 
@@ -303,12 +305,12 @@ bool CheckCollisionPair(Scene* /*_scene*/, Entity* _entityA, Entity* _entityB, c
 }
 
 template <>
-bool CheckCollisionPair(Scene* _scene, Entity* _entityA, Entity* _entityB, const math::bounds::OBB& _shapeA, const math::bounds::Sphere& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
-    return CheckCollisionPair<math::bounds::Sphere, math::bounds::OBB>(_scene, _entityB, _entityA, _shapeB, _shapeA, _bInfo, _aInfo);
+bool CheckCollisionPair(Scene* _scene, Entity* _entityA, Entity* _entityB, const Bounds::OBB& _shapeA, const Bounds::Sphere& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
+    return CheckCollisionPair<Bounds::Sphere, Bounds::OBB>(_scene, _entityB, _entityA, _shapeB, _shapeA, _bInfo, _aInfo);
 };
 
 template <>
-bool CheckCollisionPair(Scene* /*_scene*/, Entity* _entityA, Entity* _entityB, const math::bounds::AABB& _shapeA, const math::bounds::AABB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
+bool CheckCollisionPair(Scene* /*_scene*/, Entity* _entityA, Entity* _entityB, const Bounds::AABB& _shapeA, const Bounds::AABB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
 
     Vec3f aabbAMin = _shapeA.Min();
     Vec3f aabbAMax = _shapeA.Max();
@@ -405,9 +407,9 @@ bool CheckCollisionPair(Scene* /*_scene*/, Entity* _entityA, Entity* _entityB, c
 }
 
 template <>
-bool CheckCollisionPair(Scene* /*_scene*/, Entity* _entityA, Entity* _entityB, const math::bounds::OBB& _shapeA, const math::bounds::OBB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
+bool CheckCollisionPair(Scene* /*_scene*/, Entity* _entityA, Entity* _entityB, const Bounds::OBB& _shapeA, const Bounds::OBB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
     // === 頂点計算 ===
-    auto computeVerts = [](const math::bounds::OBB& obb) {
+    auto computeVerts = [](const Bounds::OBB& obb) {
         std::array<Vec3f, 8> verts;
         Vec3f min     = -obb.halfSize_;
         Vec3f max     = obb.halfSize_;
@@ -531,21 +533,23 @@ bool CheckCollisionPair(Scene* /*_scene*/, Entity* _entityA, Entity* _entityB, c
 }
 
 template <>
-bool CheckCollisionPair(Scene* _scene, Entity* _entityA, Entity* _entityB, const math::bounds::AABB& _shapeA, const math::bounds::OBB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
+bool CheckCollisionPair(Scene* _scene, Entity* _entityA, Entity* _entityB, const Bounds::AABB& _shapeA, const Bounds::OBB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
 
     // --- AABB を OBB と同じ形式に変換 ---
 
-    math::bounds::OBB aAsOBB;
+    Bounds::OBB aAsOBB;
     aAsOBB.center_       = _shapeA.center;
     aAsOBB.halfSize_     = _shapeA.halfSize;
     aAsOBB.orientations_ = Orientation::Identity();
 
     // --- OBB vs OBB 判定を使う ---
-    return CheckCollisionPair<math::bounds::OBB, math::bounds::OBB>(_scene, _entityA, _entityB, aAsOBB, _shapeB, _aInfo, _bInfo);
+    return CheckCollisionPair<Bounds::OBB, Bounds::OBB>(_scene, _entityA, _entityB, aAsOBB, _shapeB, _aInfo, _bInfo);
 }
 
 template <>
-bool CheckCollisionPair(Scene* _scene, Entity* _entityA, Entity* _entityB, const math::bounds::OBB& _shapeA, const math::bounds::AABB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
+bool CheckCollisionPair(Scene* _scene, Entity* _entityA, Entity* _entityB, const Bounds::OBB& _shapeA, const Bounds::AABB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
     // 順序を入れ替えて再利用
-    return CheckCollisionPair<math::bounds::AABB, math::bounds::OBB>(_scene, _entityB, _entityA, _shapeB, _shapeA, _bInfo, _aInfo);
+    return CheckCollisionPair<Bounds::AABB, Bounds::OBB>(_scene, _entityB, _entityA, _shapeB, _shapeA, _bInfo, _aInfo);
 }
+
+} // namespace OriGine

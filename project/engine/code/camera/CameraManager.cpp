@@ -1,8 +1,13 @@
 #include "CameraManager.h"
 
-#include "debugCamera/DebugCamera.h"
-#include "directX12/DxDevice.h"
+/// engine
 #include "Engine.h"
+// debugCamera
+#include "debugCamera/DebugCamera.h"
+// directX12
+#include "directX12/DxDevice.h"
+
+using namespace OriGine;
 
 CameraManager::CameraManager() {}
 CameraManager::~CameraManager() {}
@@ -28,7 +33,7 @@ void CameraManager::Initialize() {
 
 #ifndef _RELEASE
     // デバッグカメラの初期化
-    debugCamera_ = std::make_unique<DebugCamera>();
+    debugCamera_ = std::make_unique<OriGine::DebugCamera>();
     debugCamera_->Initialize();
 #endif // _RELEASE
 }

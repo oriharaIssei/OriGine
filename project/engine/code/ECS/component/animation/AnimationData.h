@@ -4,16 +4,13 @@
 #include <string>
 #include <unordered_map>
 
-/// engine
-
 /// math
 #include <Quaternion.h>
 #include <Vector.h>
 #include <Vector3.h>
 #include <Vector4.h>
 
-
-#include "binaryIO/BinaryIO.h"
+namespace OriGine {
 
 /// <summary>
 /// 時間と紐づけられた値を表すクラス
@@ -119,3 +116,5 @@ Vec4f Step(
 Quaternion Step(
     const std::vector<KeyframeQuaternion>& keyframes, float time);
 } // namespace CalculateValue
+
+} // namespace OriGine

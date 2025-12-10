@@ -1,16 +1,21 @@
 #pragma once
 
-#include "Matrix4x4.h"
-#include "model/Model.h"
-#include "ModelNodeAnimation.h"
-#include "Quaternion.h"
-
-#include "Vector3.h"
-
+/// stl
 #include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
+
+/// engine
+#include "model/Model.h"
+#include "ModelNodeAnimation.h"
+
+/// math
+#include "Matrix4x4.h"
+#include "Quaternion.h"
+#include "Vector3.h"
+
+namespace OriGine {
 
 /// <summary>
 /// アニメーションのみを 管理するクラス(Modelは含まれない)
@@ -83,3 +88,5 @@ public:
     const AnimationData* GetAnimationData(const std::string& name) const;
     const AnimationData* GetAnimationData(int index) const { return animationData_[index].get(); }
 };
+
+} // namespace OriGine

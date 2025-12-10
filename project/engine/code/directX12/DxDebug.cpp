@@ -14,6 +14,8 @@
 // directX12 object
 #include "directX12/DxDevice.h"
 
+using namespace OriGine;
+
 void DxDebug::InitializeDebugger() { // デバッグレイヤーをオンに
     if (debugController_) {
         LOG_CRITICAL("DebugController is already initialized.");

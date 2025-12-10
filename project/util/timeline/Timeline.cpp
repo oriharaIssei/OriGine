@@ -10,14 +10,13 @@
 #include "editor/EditorController.h"
 #include "editor/IEditor.h"
 
-
 #include "imgui/imgui.h"
 #include "imgui/imgui_internal.h"
 #include "myGui/MyGui.h"
-
 #ifdef _DEBUG
 
 namespace ImGui {
+
 bool TimeLineButtons(
     const std::string& _label,
     std::vector<float>& _nodeTimes,
@@ -36,7 +35,7 @@ bool TimeLineButtons(
     const float width       = CalcItemWidth();
 
     const ImVec2 label_size = CalcTextSize(_label.c_str(), NULL, true);
-    const ImRect frame_bb(window->DC.CursorPos, ImVec2(window->DC.CursorPos.x + width, window->DC.CursorPos[Y] + 20.0f));
+    const ImRect frame_bb(window->DC.CursorPos, ImVec2(window->DC.CursorPos.x + width, window->DC.CursorPos[OriGine::Y] + 20.0f));
     const ImRect total_bb(frame_bb.Min, ImVec2((label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f) + frame_bb.Max.x, frame_bb.Max.y));
 
     ItemSize(total_bb, style.FramePadding.y);
@@ -69,7 +68,7 @@ bool TimeLineButtons(
     RenderFrame(frame_bb.Min, frame_bb.Max, frame_col, true, g.Style.FrameRounding);
 
     ImDrawList* draw_list   = GetWindowDrawList();
-    const float sliderWidth = frame_bb.Max[X] - frame_bb.Min[X];
+    const float sliderWidth = frame_bb.Max[OriGine::X] - frame_bb.Min[OriGine::X];
     const float buttonSize  = 10.0f;
 
     ImGuiStorage* storage  = ImGui::GetStateStorage();
@@ -90,9 +89,9 @@ bool TimeLineButtons(
 
     for (int i = 0; i < _nodeTimes.size(); ++i) {
         float t       = (_nodeTimes[i]) / (_duration);
-        float buttonX = frame_bb.Min[X] + t * sliderWidth;
+        float buttonX = frame_bb.Min[OriGine::X] + t * sliderWidth;
         ImVec2 buttonPos(buttonX - buttonSize * 0.5f, frame_bb.Min.y);
-        ImVec2 buttonEnd(buttonPos[X] + buttonSize, buttonPos.y + 20.0f);
+        ImVec2 buttonEnd(buttonPos[OriGine::X] + buttonSize, buttonPos.y + 20.0f);
 
         ImRect buttonRect(buttonPos, buttonEnd);
         bool isHovered = IsMouseHoveringRect(buttonRect.Min, buttonRect.Max);
@@ -114,7 +113,7 @@ bool TimeLineButtons(
         bool isActive = (draggedIndex == i);
         if (isActive) {
             if (IsMouseDragging(0)) {
-                float newT    = (GetMousePos()[X] - frame_bb.Min[X]) / sliderWidth;
+                float newT    = (GetMousePos()[OriGine::X] - frame_bb.Min[OriGine::X]) / sliderWidth;
                 newT          = ImClamp(newT, 0.0f, 1.0f);
                 _nodeTimes[i] = newT * _duration;
             }
@@ -145,7 +144,7 @@ bool TimeLineButtons(
                 OpenPopup((_label + "slider").c_str());
             }
             if (BeginPopup((_label + "slider").c_str())) {
-                float currentTime = ((GetMousePos()[X] - frame_bb.Min[X]) / (frame_bb.Max[X] - frame_bb.Min[X])) * _duration;
+                float currentTime = ((GetMousePos()[OriGine::X] - frame_bb.Min[OriGine::X]) / (frame_bb.Max[OriGine::X] - frame_bb.Min[OriGine::X])) * _duration;
                 _sliderPopupUpdate(currentTime);
                 EndPopup();
             }
@@ -161,7 +160,7 @@ bool TimeLineButtons(
 
 bool TimeLineButtons(
     const std::string& _label,
-    AnimationCurve<int>& _keyFrames,
+    OriGine::AnimationCurve<int>& _keyFrames,
     float _duration,
     std::function<void(float newNodeTime)> _updateOnNodeDragged,
     std::function<void(float _currentTime)> _sliderPopupUpdate,
@@ -171,13 +170,13 @@ bool TimeLineButtons(
         return false;
     }
 
-    ImGuiContext& g         = *GImGui;
+    ::ImGuiContext& g       = *GImGui;
     const ImGuiStyle& style = g.Style;
     const ImGuiID id        = window->GetID(_label.c_str());
     const float width       = CalcItemWidth();
 
     const ImVec2 label_size = CalcTextSize(_label.c_str(), NULL, true);
-    const ImRect frame_bb(window->DC.CursorPos, ImVec2(window->DC.CursorPos.x + width, window->DC.CursorPos[Y] + 20.0f));
+    const ImRect frame_bb(window->DC.CursorPos, ImVec2(window->DC.CursorPos.x + width, window->DC.CursorPos[OriGine::Y] + 20.0f));
     const ImRect total_bb(frame_bb.Min, ImVec2((label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f) + frame_bb.Max.x, frame_bb.Max.y));
 
     ItemSize(total_bb, style.FramePadding.y);
@@ -210,7 +209,7 @@ bool TimeLineButtons(
     RenderFrame(frame_bb.Min, frame_bb.Max, frame_col, true, g.Style.FrameRounding);
 
     ImDrawList* draw_list   = GetWindowDrawList();
-    const float sliderWidth = frame_bb.Max[X] - frame_bb.Min[X];
+    const float sliderWidth = frame_bb.Max[OriGine::X] - frame_bb.Min[OriGine::X];
     const float buttonSize  = 10.0f;
 
     ImGuiStorage* storage  = ImGui::GetStateStorage();
@@ -231,9 +230,9 @@ bool TimeLineButtons(
 
     for (int i = 0; i < (int)_keyFrames.size(); ++i) {
         float t       = (_keyFrames[i].time) / (_duration);
-        float buttonX = frame_bb.Min[X] + t * sliderWidth;
+        float buttonX = frame_bb.Min[OriGine::X] + t * sliderWidth;
         ImVec2 buttonPos(buttonX - buttonSize * 0.5f, frame_bb.Min.y);
-        ImVec2 buttonEnd(buttonPos[X] + buttonSize, buttonPos.y + 20.0f);
+        ImVec2 buttonEnd(buttonPos[OriGine::X] + buttonSize, buttonPos.y + 20.0f);
 
         ImRect buttonRect(buttonPos, buttonEnd);
         bool isHovered = IsMouseHoveringRect(buttonRect.Min, buttonRect.Max);
@@ -255,7 +254,7 @@ bool TimeLineButtons(
         bool isActive = (draggedIndex == i);
         if (isActive) {
             if (IsMouseDragging(0)) {
-                float newT         = (GetMousePos()[X] - frame_bb.Min[X]) / sliderWidth;
+                float newT         = (GetMousePos()[OriGine::X] - frame_bb.Min[OriGine::X]) / sliderWidth;
                 newT               = ImClamp(newT, 0.0f, 1.0f);
                 _keyFrames[i].time = newT * _duration;
             }
@@ -287,7 +286,7 @@ bool TimeLineButtons(
                 OpenPopup((_label + "slider").c_str());
             }
             if (BeginPopup((_label + "slider").c_str())) {
-                float currentTime = ((GetMousePos()[X] - frame_bb.Min[X]) / (frame_bb.Max[X] - frame_bb.Min[X])) * _duration;
+                float currentTime = ((GetMousePos()[OriGine::X] - frame_bb.Min[OriGine::X]) / (frame_bb.Max[OriGine::X] - frame_bb.Min[OriGine::X])) * _duration;
                 _sliderPopupUpdate(currentTime);
                 EndPopup();
             }
@@ -303,7 +302,7 @@ bool TimeLineButtons(
 
 bool EditKeyFrame(
     const std::string& _label,
-    AnimationCurve<float>& _keyFrames,
+    OriGine::AnimationCurve<float>& _keyFrames,
     float _duration,
     float _defaultValue,
     std::function<void(int)> _howEditItem) {
@@ -318,8 +317,8 @@ bool EditKeyFrame(
     const float width       = CalcItemWidth();
 
     const ImVec2 label_size = CalcTextSize(_label.c_str(), NULL, true);
-    const ImRect frame_bb(window->DC.CursorPos, ImVec2(window->DC.CursorPos[X] + width, window->DC.CursorPos.y + 20.0f));
-    const ImRect total_bb(frame_bb.Min, ImVec2((label_size[X] > 0.0f ? style.ItemInnerSpacing[X] + label_size[X] : 0.0f) + frame_bb.Max[X], frame_bb.Max.y));
+    const ImRect frame_bb(window->DC.CursorPos, ImVec2(window->DC.CursorPos[OriGine::X] + width, window->DC.CursorPos.y + 20.0f));
+    const ImRect total_bb(frame_bb.Min, ImVec2((label_size[OriGine::X] > 0.0f ? style.ItemInnerSpacing[OriGine::X] + label_size[OriGine::X] : 0.0f) + frame_bb.Max[OriGine::X], frame_bb.Max.y));
 
     ItemSize(total_bb, style.FramePadding.y);
     if (!ItemAdd(total_bb, id, &frame_bb)) {
@@ -351,7 +350,7 @@ bool EditKeyFrame(
     RenderFrame(frame_bb.Min, frame_bb.Max, frame_col, true, g.Style.FrameRounding);
 
     ImDrawList* draw_list   = GetWindowDrawList();
-    const float sliderWidth = frame_bb.Max[X] - frame_bb.Min[X];
+    const float sliderWidth = frame_bb.Max[OriGine::X] - frame_bb.Min[OriGine::X];
     const float buttonSize  = 10.0f;
 
     ImGuiStorage* storage    = ImGui::GetStateStorage();
@@ -384,7 +383,7 @@ bool EditKeyFrame(
                     &_keyFrames[draggedIndex].time,
                     draggedValue);
 
-                EditorController::GetInstance()->PushCommand(std::move(command));
+                OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
             }
 
             draggedIndex = -1;
@@ -393,9 +392,9 @@ bool EditKeyFrame(
 
     for (int i = 0; i < (int)_keyFrames.size(); ++i) {
         float t       = (_keyFrames[i].time) / (_duration);
-        float buttonX = frame_bb.Min[X] + t * sliderWidth;
+        float buttonX = frame_bb.Min[OriGine::X] + t * sliderWidth;
         ImVec2 buttonPos(buttonX - buttonSize * 0.5f, frame_bb.Min.y);
-        ImVec2 buttonEnd(buttonPos[X] + buttonSize, buttonPos.y + 20.0f);
+        ImVec2 buttonEnd(buttonPos[OriGine::X] + buttonSize, buttonPos.y + 20.0f);
 
         ImRect buttonRect(buttonPos, buttonEnd);
         bool isHovered = IsMouseHoveringRect(buttonRect.Min, buttonRect.Max);
@@ -418,7 +417,7 @@ bool EditKeyFrame(
         bool isActive = (draggedIndex == i);
         if (isActive) {
             if (IsMouseDragging(0)) {
-                float newT         = (GetMousePos()[X] - frame_bb.Min[X]) / sliderWidth;
+                float newT         = (GetMousePos()[OriGine::X] - frame_bb.Min[OriGine::X]) / sliderWidth;
                 newT               = ImClamp(newT, 0.0f, 1.0f);
                 _keyFrames[i].time = float(newT * _duration);
             }
@@ -442,22 +441,22 @@ bool EditKeyFrame(
                     // キーフレームを削除
                     if (_keyFrames.size() <= 1) {
                         // 最後のキーフレームを削除する場合は、デフォルト値を設定 (最低でも1つ以上要素を確保する)
-                        EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<KeyFrame<float>>>(
+                        OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<OriGine::KeyFrame<float>>>(
                             &_keyFrames[popUpIndex],
-                            KeyFrame<float>(0.0f, _defaultValue)));
+                            OriGine::KeyFrame<float>(0.0f, _defaultValue)));
                         return 0;
                     }
                     // キーフレームを削除
                     auto commandCombo = std::make_unique<CommandCombo>();
-                    commandCombo->AddCommand(std::make_shared<EraseElementCommand<AnimationCurve<float>>>(&_keyFrames, _keyFrames.begin() + popUpIndex));
-                    EditorController::GetInstance()->PushCommand(std::move(commandCombo));
+                    commandCombo->AddCommand(std::make_shared<EraseElementCommand<OriGine::AnimationCurve<float>>>(&_keyFrames, _keyFrames.begin() + popUpIndex));
+                    OriGine::EditorController::GetInstance()->PushCommand(std::move(commandCombo));
 
                     popUpIndex = -1;
                     return 0;
                 }
                 if (ImGui::Button("Copy")) {
                     auto commandCombo = std::make_unique<CommandCombo>();
-                    commandCombo->AddCommand(std::make_shared<AddElementCommand<AnimationCurve<float>>>(&_keyFrames, _keyFrames[popUpIndex]));
+                    commandCombo->AddCommand(std::make_shared<AddElementCommand<OriGine::AnimationCurve<float>>>(&_keyFrames, _keyFrames[popUpIndex]));
                     commandCombo->AddCommand(std::make_shared<SetterCommand<float>>(&_keyFrames.back().time, _keyFrames.back().time + 0.01f));
 
                     commandCombo->SetFuncOnAfterCommand(
@@ -486,7 +485,7 @@ bool EditKeyFrame(
                                 });
                         });
 
-                    EditorController::GetInstance()->PushCommand(std::move(commandCombo));
+                    OriGine::EditorController::GetInstance()->PushCommand(std::move(commandCombo));
                     return 0;
                 }
                 ImGui::Text("Time");
@@ -526,14 +525,14 @@ bool EditKeyFrame(
             OpenPopup((_label + "slider").c_str());
         }
         if (BeginPopup((_label + "slider").c_str())) {
-            float currentTime = ((GetMousePos()[X] - frame_bb.Min[X]) / (frame_bb.Max[X] - frame_bb.Min[X])) * _duration;
+            float currentTime = ((GetMousePos()[OriGine::X] - frame_bb.Min[OriGine::X]) / (frame_bb.Max[OriGine::X] - frame_bb.Min[OriGine::X])) * _duration;
 
             auto sliderPopupUpdate = [&]() {
                 // SliderPopup
                 if (ImGui::Button("Add Node")) {
                     auto commandCombo = std::make_unique<CommandCombo>();
-                    commandCombo->AddCommand(std::make_shared<AddElementCommand<AnimationCurve<float>>>(&_keyFrames, KeyFrame<float>(currentTime, CalculateValue::Linear(_keyFrames, currentTime))));
-                    commandCombo->AddCommand(std::make_shared<SortCommand<AnimationCurve<float>>>(&_keyFrames, [](const auto& a, const auto& b) {
+                    commandCombo->AddCommand(std::make_shared<AddElementCommand<OriGine::AnimationCurve<float>>>(&_keyFrames, OriGine::KeyFrame<float>(currentTime, OriGine::CalculateValue::Linear(_keyFrames, currentTime))));
+                    commandCombo->AddCommand(std::make_shared<SortCommand<OriGine::AnimationCurve<float>>>(&_keyFrames, [](const auto& a, const auto& b) {
                         return a.time < b.time;
                     }));
                     commandCombo->SetFuncOnAfterCommand(
@@ -542,7 +541,7 @@ bool EditKeyFrame(
                             _storage->SetInt(popUpIndexId, (int)_keyFrames.size() - 1);
                         },
                         true);
-                    EditorController::GetInstance()->PushCommand(std::move(commandCombo));
+                    OriGine::EditorController::GetInstance()->PushCommand(std::move(commandCombo));
 
                     ImGui::CloseCurrentPopup();
                     return 0;
@@ -571,9 +570,9 @@ bool EditKeyFrame(
 
 bool EditKeyFrame(
     const std::string& _label,
-    AnimationCurve<Vec2f>& _keyFrames,
+    OriGine::AnimationCurve<OriGine::Vec2f>& _keyFrames,
     float _duration,
-    const Vec2f& _defaultValue,
+    const OriGine::Vec2f& _defaultValue,
     std::function<void(int)> _howEditItem) {
     ImGuiWindow* window = GetCurrentWindow();
     if (window->SkipItems) {
@@ -586,8 +585,8 @@ bool EditKeyFrame(
     const float width       = CalcItemWidth();
 
     const ImVec2 label_size = CalcTextSize(_label.c_str(), NULL, true);
-    const ImRect frame_bb(window->DC.CursorPos, ImVec2(window->DC.CursorPos[X] + width, window->DC.CursorPos.y + 20.0f));
-    const ImRect total_bb(frame_bb.Min, ImVec2((label_size[X] > 0.0f ? style.ItemInnerSpacing[X] + label_size[X] : 0.0f) + frame_bb.Max[X], frame_bb.Max.y));
+    const ImRect frame_bb(window->DC.CursorPos, ImVec2(window->DC.CursorPos[OriGine::X] + width, window->DC.CursorPos.y + 20.0f));
+    const ImRect total_bb(frame_bb.Min, ImVec2((label_size[OriGine::X] > 0.0f ? style.ItemInnerSpacing[OriGine::X] + label_size[OriGine::X] : 0.0f) + frame_bb.Max[OriGine::X], frame_bb.Max.y));
 
     ItemSize(total_bb, style.FramePadding.y);
     if (!ItemAdd(total_bb, id, &frame_bb)) {
@@ -619,7 +618,7 @@ bool EditKeyFrame(
     RenderFrame(frame_bb.Min, frame_bb.Max, frame_col, true, g.Style.FrameRounding);
 
     ImDrawList* draw_list   = GetWindowDrawList();
-    const float sliderWidth = frame_bb.Max[X] - frame_bb.Min[X];
+    const float sliderWidth = frame_bb.Max[OriGine::X] - frame_bb.Min[OriGine::X];
     const float buttonSize  = 10.0f;
 
     ImGuiStorage* storage    = ImGui::GetStateStorage();
@@ -651,7 +650,7 @@ bool EditKeyFrame(
                 auto command                  = std::make_unique<SetterCommand<float>>(
                     &_keyFrames[draggedIndex].time,
                     draggedValue);
-                EditorController::GetInstance()->PushCommand(std::move(command));
+                OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
             }
 
             draggedIndex = -1;
@@ -660,9 +659,9 @@ bool EditKeyFrame(
 
     for (int i = 0; i < (int)_keyFrames.size(); ++i) {
         float t       = (_keyFrames[i].time) / (_duration);
-        float buttonX = frame_bb.Min[X] + t * sliderWidth;
+        float buttonX = frame_bb.Min[OriGine::X] + t * sliderWidth;
         ImVec2 buttonPos(buttonX - buttonSize * 0.5f, frame_bb.Min.y);
-        ImVec2 buttonEnd(buttonPos[X] + buttonSize, buttonPos.y + 20.0f);
+        ImVec2 buttonEnd(buttonPos[OriGine::X] + buttonSize, buttonPos.y + 20.0f);
 
         ImRect buttonRect(buttonPos, buttonEnd);
         bool isHovered = IsMouseHoveringRect(buttonRect.Min, buttonRect.Max);
@@ -685,7 +684,7 @@ bool EditKeyFrame(
         bool isActive = (draggedIndex == i);
         if (isActive) {
             if (IsMouseDragging(0)) {
-                float newT         = (GetMousePos()[X] - frame_bb.Min[X]) / sliderWidth;
+                float newT         = (GetMousePos()[OriGine::X] - frame_bb.Min[OriGine::X]) / sliderWidth;
                 newT               = ImClamp(newT, 0.0f, 1.0f);
                 _keyFrames[i].time = float(newT * _duration);
             }
@@ -708,22 +707,22 @@ bool EditKeyFrame(
                 if (ImGui::Button("Delete")) {
                     if (_keyFrames.size() <= 1) {
                         // 最後のキーフレームを削除する場合は、デフォルト値を設定 (最低でも1つ以上要素を確保する)
-                        EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<KeyFrame<Vec2f>>>(
+                        OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<OriGine::KeyFrame<OriGine::Vec2f>>>(
                             &_keyFrames[popUpIndex],
-                            KeyFrame<Vec2f>(0.0f, _defaultValue)));
+                            OriGine::KeyFrame<OriGine::Vec2f>(0.0f, _defaultValue)));
                         return 0;
                     }
                     auto commandCombo = std::make_unique<CommandCombo>();
                     // キーフレームを削除
-                    commandCombo->AddCommand(std::make_shared<EraseElementCommand<AnimationCurve<Vec2f>>>(&_keyFrames, _keyFrames.begin() + popUpIndex));
-                    EditorController::GetInstance()->PushCommand(std::move(commandCombo));
+                    commandCombo->AddCommand(std::make_shared<EraseElementCommand<OriGine::AnimationCurve<OriGine::Vec2f>>>(&_keyFrames, _keyFrames.begin() + popUpIndex));
+                    OriGine::EditorController::GetInstance()->PushCommand(std::move(commandCombo));
 
                     popUpIndex = -1;
                     return 0;
                 }
                 if (ImGui::Button("Copy")) {
                     auto commandCombo = std::make_unique<CommandCombo>();
-                    commandCombo->AddCommand(std::make_shared<AddElementCommand<AnimationCurve<Vec2f>>>(&_keyFrames, _keyFrames[popUpIndex]));
+                    commandCombo->AddCommand(std::make_shared<AddElementCommand<OriGine::AnimationCurve<OriGine::Vec2f>>>(&_keyFrames, _keyFrames[popUpIndex]));
                     commandCombo->AddCommand(std::make_shared<SetterCommand<float>>(&_keyFrames.back().time, _keyFrames.back().time + 0.01f));
 
                     commandCombo->SetFuncOnAfterCommand(
@@ -749,7 +748,7 @@ bool EditKeyFrame(
                                     return a.time < b.time;
                                 });
                         });
-                    EditorController::GetInstance()->PushCommand(std::move(commandCombo));
+                    OriGine::EditorController::GetInstance()->PushCommand(std::move(commandCombo));
                     return 0;
                 }
 
@@ -792,13 +791,13 @@ bool EditKeyFrame(
             OpenPopup((_label + "slider").c_str());
         }
         if (BeginPopup((_label + "slider").c_str())) {
-            float currentTime = ((GetMousePos()[X] - frame_bb.Min[X]) / (frame_bb.Max[X] - frame_bb.Min[X])) * _duration;
+            float currentTime = ((GetMousePos()[OriGine::X] - frame_bb.Min[OriGine::X]) / (frame_bb.Max[OriGine::X] - frame_bb.Min[OriGine::X])) * _duration;
 
             auto sliderPopupUpdate = [&]() {
                 // SliderPopup
                 if (ImGui::Button("Add Node")) {
                     _keyFrames.push_back(
-                        {currentTime, CalculateValue::Linear(_keyFrames, currentTime)});
+                        {currentTime, OriGine::CalculateValue::Linear(_keyFrames, currentTime)});
                     ImGui::CloseCurrentPopup();
                     std::sort(
                         _keyFrames.begin(),
@@ -832,9 +831,9 @@ bool EditKeyFrame(
 
 bool EditKeyFrame(
     const std::string& _label,
-    AnimationCurve<Vec3f>& _keyFrames,
+    OriGine::AnimationCurve<OriGine::Vec3f>& _keyFrames,
     float _duration,
-    const Vec3f& _defaultValue,
+    const OriGine::Vec3f& _defaultValue,
     std::function<void(int)> _howEditItem) {
     ImGuiWindow* window = GetCurrentWindow();
     if (window->SkipItems) {
@@ -912,7 +911,7 @@ bool EditKeyFrame(
                 auto command                  = std::make_unique<SetterCommand<float>>(
                     &_keyFrames[draggedIndex].time,
                     draggedValue);
-                EditorController::GetInstance()->PushCommand(std::move(command));
+                OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
             }
 
             draggedIndex = -1;
@@ -971,23 +970,23 @@ bool EditKeyFrame(
                     // キーフレームを削除
                     if (_keyFrames.size() <= 1) {
                         // 最後のキーフレームを削除する場合は、デフォルト値を設定 (最低でも1つ以上要素を確保する)
-                        EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<KeyFrame<Vec3f>>>(
+                        OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<OriGine::KeyFrame<OriGine::Vec3f>>>(
                             &_keyFrames[popUpIndex],
-                            KeyFrame<Vec3f>(0.0f, _defaultValue)));
+                            OriGine::KeyFrame<OriGine::Vec3f>(0.0f, _defaultValue)));
                         return 0;
                     }
                     // キーフレームを削除
                     auto commandCombo = std::make_unique<CommandCombo>();
-                    commandCombo->AddCommand(std::make_shared<EraseElementCommand<AnimationCurve<Vec3f>>>(&_keyFrames, _keyFrames.begin() + popUpIndex));
+                    commandCombo->AddCommand(std::make_shared<EraseElementCommand<OriGine::AnimationCurve<OriGine::Vec3f>>>(&_keyFrames, _keyFrames.begin() + popUpIndex));
 
                     popUpIndex = -1;
-                    EditorController::GetInstance()->PushCommand(std::move(commandCombo));
+                    OriGine::EditorController::GetInstance()->PushCommand(std::move(commandCombo));
                     return 0;
                 }
                 if (ImGui::Button("Copy")) {
                     auto commandCombo = std::make_unique<CommandCombo>();
 
-                    commandCombo->AddCommand(std::make_shared<AddElementCommand<AnimationCurve<Vec3f>>>(&_keyFrames, _keyFrames[popUpIndex]));
+                    commandCombo->AddCommand(std::make_shared<AddElementCommand<OriGine::AnimationCurve<OriGine::Vec3f>>>(&_keyFrames, _keyFrames[popUpIndex]));
 
                     commandCombo->AddCommand(std::make_shared<SetterCommand<float>>(&_keyFrames.back().time, _keyFrames.back().time + 0.01f));
                     commandCombo->SetFuncOnAfterCommand(
@@ -1019,18 +1018,18 @@ bool EditKeyFrame(
                 } else {
                     ImGui::Text("X:");
                     DragGuiCommand<float>(
-                        "##X" + _label + std::to_string(popUpIndex),
-                        _keyFrames[popUpIndex].value[X],
+                        "##OriGine::X" + _label + std::to_string(popUpIndex),
+                        _keyFrames[popUpIndex].value[OriGine::X],
                         0.1f);
                     ImGui::Text("Y:");
                     DragGuiCommand<float>(
                         "##Y" + _label + std::to_string(popUpIndex),
-                        _keyFrames[popUpIndex].value[Y],
+                        _keyFrames[popUpIndex].value[OriGine::Y],
                         0.1f);
                     ImGui::Text("Z:");
                     DragGuiCommand<float>(
                         "##Z" + _label + std::to_string(popUpIndex),
-                        _keyFrames[popUpIndex].value[Z],
+                        _keyFrames[popUpIndex].value[OriGine::Z],
                         0.1f);
                 }
 
@@ -1053,7 +1052,7 @@ bool EditKeyFrame(
                 // SliderPopup
                 if (ImGui::Button("Add Node")) {
                     _keyFrames.push_back(
-                        {currentTime, CalculateValue::Linear(_keyFrames, currentTime)});
+                        {currentTime, OriGine::CalculateValue::Linear(_keyFrames, currentTime)});
                     ImGui::CloseCurrentPopup();
                     std::sort(
                         _keyFrames.begin(),
@@ -1086,9 +1085,9 @@ bool EditKeyFrame(
 
 bool EditKeyFrame(
     const std::string& _label,
-    AnimationCurve<Vec4f>& _keyFrames,
+    OriGine::AnimationCurve<OriGine::Vec4f>& _keyFrames,
     float _duration,
-    const Vec4f& _defaultValue,
+    const OriGine::Vec4f& _defaultValue,
     std::function<void(int)> _howEditItem) {
     ImGuiWindow* window = GetCurrentWindow();
     if (window->SkipItems) {
@@ -1101,10 +1100,10 @@ bool EditKeyFrame(
     const float width       = CalcItemWidth();
 
     const ImVec2 label_size = CalcTextSize(_label.c_str(), NULL, true);
-    const ImRect frame_bb(window->DC.CursorPos, ImVec2(window->DC.CursorPos.x + width, window->DC.CursorPos[Y] + 20.0f));
-    const ImRect total_bb(frame_bb.Min, ImVec2((label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f) + frame_bb.Max.x, frame_bb.Max[Y]));
+    const ImRect frame_bb(window->DC.CursorPos, ImVec2(window->DC.CursorPos.x + width, window->DC.CursorPos[OriGine::Y] + 20.0f));
+    const ImRect total_bb(frame_bb.Min, ImVec2((label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f) + frame_bb.Max.x, frame_bb.Max[OriGine::Y]));
 
-    ItemSize(total_bb, style.FramePadding[Y]);
+    ItemSize(total_bb, style.FramePadding[OriGine::Y]);
     if (!ItemAdd(total_bb, id, &frame_bb)) {
         return false;
     }
@@ -1166,7 +1165,7 @@ bool EditKeyFrame(
                 auto command                  = std::make_unique<SetterCommand<float>>(
                     &_keyFrames[draggedIndex].time,
                     draggedValue);
-                EditorController::GetInstance()->PushCommand(std::move(command));
+                OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
             }
 
             draggedIndex = -1;
@@ -1176,8 +1175,8 @@ bool EditKeyFrame(
     for (int i = 0; i < (int)_keyFrames.size(); ++i) {
         float t       = (_keyFrames[i].time) / (_duration);
         float buttonX = frame_bb.Min.x + t * sliderWidth;
-        ImVec2 buttonPos(buttonX - buttonSize * 0.5f, frame_bb.Min[Y]);
-        ImVec2 buttonEnd(buttonPos.x + buttonSize, buttonPos[Y] + 20.0f);
+        ImVec2 buttonPos(buttonX - buttonSize * 0.5f, frame_bb.Min[OriGine::Y]);
+        ImVec2 buttonEnd(buttonPos.x + buttonSize, buttonPos[OriGine::Y] + 20.0f);
 
         ImRect buttonRect(buttonPos, buttonEnd);
         bool isHovered = IsMouseHoveringRect(buttonRect.Min, buttonRect.Max);
@@ -1223,16 +1222,16 @@ bool EditKeyFrame(
                 if (ImGui::Button("Delete")) {
                     if (_keyFrames.size() <= 1) {
                         // 最後のキーフレームを削除する場合は、デフォルト値を設定 (最低でも1つ以上要素を確保する)
-                        EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<KeyFrame<Vec4f>>>(
+                        OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<OriGine::KeyFrame<OriGine::Vec4f>>>(
                             &_keyFrames[popUpIndex],
-                            KeyFrame<Vec4f>(0.0f, _defaultValue)));
+                            OriGine::KeyFrame<OriGine::Vec4f>(0.0f, _defaultValue)));
                         return 0;
                     }
                     auto commandCombo = std::make_unique<CommandCombo>();
                     // キーフレームを削除
-                    commandCombo->AddCommand(std::make_shared<EraseElementCommand<AnimationCurve<Vec4f>>>(&_keyFrames, _keyFrames.begin() + popUpIndex));
+                    commandCombo->AddCommand(std::make_shared<EraseElementCommand<OriGine::AnimationCurve<OriGine::Vec4f>>>(&_keyFrames, _keyFrames.begin() + popUpIndex));
 
-                    EditorController::GetInstance()->PushCommand(std::move(commandCombo));
+                    OriGine::EditorController::GetInstance()->PushCommand(std::move(commandCombo));
                     popUpIndex = -1;
 
                     ImGui::CloseCurrentPopup();
@@ -1240,7 +1239,7 @@ bool EditKeyFrame(
                 }
                 if (ImGui::Button("Copy")) {
                     auto commandCombo = std::make_unique<CommandCombo>();
-                    commandCombo->AddCommand(std::make_shared<AddElementCommand<AnimationCurve<Vec4f>>>(&_keyFrames, _keyFrames[popUpIndex]));
+                    commandCombo->AddCommand(std::make_shared<AddElementCommand<OriGine::AnimationCurve<OriGine::Vec4f>>>(&_keyFrames, _keyFrames[popUpIndex]));
                     commandCombo->AddCommand(std::make_shared<SetterCommand<float>>(&_keyFrames.back().time, _keyFrames.back().time + 0.01f));
 
                     commandCombo->SetFuncOnAfterCommand(
@@ -1255,7 +1254,7 @@ bool EditKeyFrame(
                             ImGuiStorage* _storage = ImGui::GetStateStorage();
                             _storage->SetInt(popUpIndexId, popUpIndex);
                         });
-                    EditorController::GetInstance()->PushCommand(std::move(commandCombo));
+                    OriGine::EditorController::GetInstance()->PushCommand(std::move(commandCombo));
                     return 0;
                 }
                 ImGui::Text("Time");
@@ -1279,23 +1278,23 @@ bool EditKeyFrame(
                 } else {
                     ImGui::Text("X:");
                     DragGuiCommand<float>(
-                        "##X" + _label + std::to_string(popUpIndex),
-                        _keyFrames[popUpIndex].value[X],
+                        "##OriGine::X" + _label + std::to_string(popUpIndex),
+                        _keyFrames[popUpIndex].value[OriGine::X],
                         0.1f);
                     ImGui::Text("Y:");
                     DragGuiCommand<float>(
                         "##Y" + _label + std::to_string(popUpIndex),
-                        _keyFrames[popUpIndex].value[Y],
+                        _keyFrames[popUpIndex].value[OriGine::Y],
                         0.1f);
                     ImGui::Text("Z:");
                     DragGuiCommand<float>(
                         "##Z" + _label + std::to_string(popUpIndex),
-                        _keyFrames[popUpIndex].value[Z],
+                        _keyFrames[popUpIndex].value[OriGine::Z],
                         0.1f);
                     ImGui::Text("W:");
                     DragGuiCommand<float>(
                         "##W" + _label + std::to_string(popUpIndex),
-                        _keyFrames[popUpIndex].value[W],
+                        _keyFrames[popUpIndex].value[OriGine::W],
                         0.1f);
                 }
 
@@ -1313,13 +1312,13 @@ bool EditKeyFrame(
             OpenPopup((_label + "slider").c_str());
         }
         if (BeginPopup((_label + "slider").c_str())) {
-            float currentTime = ((GetMousePos()[X] - frame_bb.Min[X]) / (frame_bb.Max[X] - frame_bb.Min[X])) * _duration;
+            float currentTime = ((GetMousePos()[OriGine::X] - frame_bb.Min[OriGine::X]) / (frame_bb.Max[OriGine::X] - frame_bb.Min[OriGine::X])) * _duration;
 
             auto sliderPopupUpdate = [&]() {
                 // SliderPopup
                 if (ImGui::Button("Add Node")) {
                     _keyFrames.push_back(
-                        {currentTime, CalculateValue::Linear(_keyFrames, currentTime)});
+                        {currentTime, OriGine::CalculateValue::Linear(_keyFrames, currentTime)});
                     ImGui::CloseCurrentPopup();
                     std::sort(
                         _keyFrames.begin(),
@@ -1352,9 +1351,9 @@ bool EditKeyFrame(
 
 bool EditKeyFrame(
     const std::string& _label,
-    AnimationCurve<Quaternion>& _keyFrames,
+    OriGine::AnimationCurve<OriGine::Quaternion>& _keyFrames,
     float _duration,
-    const Quaternion& _defaultValue,
+    const OriGine::Quaternion& _defaultValue,
     std::function<void(int)> _howEditItem) {
     ImGuiWindow* window = GetCurrentWindow();
     if (window->SkipItems) {
@@ -1367,10 +1366,10 @@ bool EditKeyFrame(
     const float width       = CalcItemWidth();
 
     const ImVec2 label_size = CalcTextSize(_label.c_str(), NULL, true);
-    const ImRect frame_bb(window->DC.CursorPos, ImVec2(window->DC.CursorPos[X] + width, window->DC.CursorPos[Y] + 20.0f));
-    const ImRect total_bb(frame_bb.Min, ImVec2((label_size[X] > 0.0f ? style.ItemInnerSpacing[X] + label_size[X] : 0.0f) + frame_bb.Max[X], frame_bb.Max[Y]));
+    const ImRect frame_bb(window->DC.CursorPos, ImVec2(window->DC.CursorPos[OriGine::X] + width, window->DC.CursorPos[OriGine::Y] + 20.0f));
+    const ImRect total_bb(frame_bb.Min, ImVec2((label_size[OriGine::X] > 0.0f ? style.ItemInnerSpacing[OriGine::X] + label_size[OriGine::X] : 0.0f) + frame_bb.Max[OriGine::X], frame_bb.Max[OriGine::Y]));
 
-    ItemSize(total_bb, style.FramePadding[Y]);
+    ItemSize(total_bb, style.FramePadding[OriGine::Y]);
     if (!ItemAdd(total_bb, id, &frame_bb)) {
         return false;
     }
@@ -1400,7 +1399,7 @@ bool EditKeyFrame(
     RenderFrame(frame_bb.Min, frame_bb.Max, frame_col, true, g.Style.FrameRounding);
 
     ImDrawList* draw_list   = GetWindowDrawList();
-    const float sliderWidth = frame_bb.Max[X] - frame_bb.Min[X];
+    const float sliderWidth = frame_bb.Max[OriGine::X] - frame_bb.Min[OriGine::X];
     const float buttonSize  = 10.0f;
 
     ImGuiStorage* storage    = ImGui::GetStateStorage();
@@ -1432,7 +1431,7 @@ bool EditKeyFrame(
                 auto command                  = std::make_unique<SetterCommand<float>>(
                     &_keyFrames[draggedIndex].time,
                     draggedValue);
-                EditorController::GetInstance()->PushCommand(std::move(command));
+                OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
             }
 
             draggedIndex = -1;
@@ -1441,9 +1440,9 @@ bool EditKeyFrame(
 
     for (int i = 0; i < (int)_keyFrames.size(); ++i) {
         float t       = (_keyFrames[i].time) / (_duration);
-        float buttonX = frame_bb.Min[X] + t * sliderWidth;
-        ImVec2 buttonPos(buttonX - buttonSize * 0.5f, frame_bb.Min[Y]);
-        ImVec2 buttonEnd(buttonPos[X] + buttonSize, buttonPos[Y] + 20.0f);
+        float buttonX = frame_bb.Min[OriGine::X] + t * sliderWidth;
+        ImVec2 buttonPos(buttonX - buttonSize * 0.5f, frame_bb.Min[OriGine::Y]);
+        ImVec2 buttonEnd(buttonPos[OriGine::X] + buttonSize, buttonPos[OriGine::Y] + 20.0f);
 
         ImRect buttonRect(buttonPos, buttonEnd);
         bool isHovered = IsMouseHoveringRect(buttonRect.Min, buttonRect.Max);
@@ -1466,7 +1465,7 @@ bool EditKeyFrame(
         bool isActive = (draggedIndex == i);
         if (isActive) {
             if (IsMouseDragging(0)) {
-                float newT = (GetMousePos()[X] - frame_bb.Min[X]) / sliderWidth;
+                float newT = (GetMousePos()[OriGine::X] - frame_bb.Min[OriGine::X]) / sliderWidth;
                 newT       = ImClamp(newT, 0.0f, 1.0f);
 
                 _keyFrames[i].time = newT * _duration;
@@ -1492,23 +1491,23 @@ bool EditKeyFrame(
 
                     if (_keyFrames.size() <= 1) {
                         // 最後のキーフレームを削除する場合は、デフォルト値を設定 (最低でも1つ以上要素を確保する)
-                        EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<KeyFrame<Quaternion>>>(
+                        OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<OriGine::KeyFrame<OriGine::Quaternion>>>(
                             &_keyFrames[popUpIndex],
-                            KeyFrame<Quaternion>(0.0f, _defaultValue)));
+                            OriGine::KeyFrame<OriGine::Quaternion>(0.0f, _defaultValue)));
                         return 0;
                     }
                     auto commandCombo = std::make_unique<CommandCombo>();
                     // キーフレームを削除
-                    commandCombo->AddCommand(std::make_shared<EraseElementCommand<AnimationCurve<Quaternion>>>(&_keyFrames, _keyFrames.begin() + popUpIndex));
+                    commandCombo->AddCommand(std::make_shared<EraseElementCommand<OriGine::AnimationCurve<OriGine::Quaternion>>>(&_keyFrames, _keyFrames.begin() + popUpIndex));
 
-                    EditorController::GetInstance()->PushCommand(std::move(commandCombo));
+                    OriGine::EditorController::GetInstance()->PushCommand(std::move(commandCombo));
 
                     popUpIndex = -1;
                     return 0;
                 }
                 if (ImGui::Button("Copy")) {
                     auto commandCombo = std::make_unique<CommandCombo>();
-                    commandCombo->AddCommand(std::make_shared<AddElementCommand<AnimationCurve<Quaternion>>>(&_keyFrames, _keyFrames[popUpIndex]));
+                    commandCombo->AddCommand(std::make_shared<AddElementCommand<OriGine::AnimationCurve<OriGine::Quaternion>>>(&_keyFrames, _keyFrames[popUpIndex]));
 
                     commandCombo->AddCommand(std::make_shared<SetterCommand<float>>(&_keyFrames.back().time, _keyFrames.back().time + 0.01f));
 
@@ -1525,7 +1524,7 @@ bool EditKeyFrame(
                             _storage->SetInt(popUpIndexId, popUpIndex);
                         });
 
-                    EditorController::GetInstance()->PushCommand(std::move(commandCombo));
+                    OriGine::EditorController::GetInstance()->PushCommand(std::move(commandCombo));
                     return 0;
                 }
                 ImGui::Text("Time");
@@ -1549,27 +1548,27 @@ bool EditKeyFrame(
                 } else {
                     ImGui::Text("X:");
                     DragGuiCommand<float>(
-                        "##X" + _label + std::to_string(popUpIndex),
-                        _keyFrames[popUpIndex].value.v[X],
+                        "##OriGine::X" + _label + std::to_string(popUpIndex),
+                        _keyFrames[popUpIndex].value.v[OriGine::X],
                         0.1f);
                     ImGui::Text("Y:");
                     DragGuiCommand<float>(
                         "##Y" + _label + std::to_string(popUpIndex),
-                        _keyFrames[popUpIndex].value.v[Y],
+                        _keyFrames[popUpIndex].value.v[OriGine::Y],
                         0.1f);
                     ImGui::Text("Z:");
                     DragGuiCommand<float>(
                         "##Z" + _label + std::to_string(popUpIndex),
-                        _keyFrames[popUpIndex].value.v[Z],
+                        _keyFrames[popUpIndex].value.v[OriGine::Z],
                         0.1f);
                     ImGui::Text("W:");
                     DragGuiCommand<float>(
                         "##W" + _label + std::to_string(popUpIndex),
-                        _keyFrames[popUpIndex].value.v[W],
+                        _keyFrames[popUpIndex].value.v[OriGine::W],
                         0.1f);
                     _keyFrames[popUpIndex].value = _keyFrames[popUpIndex].value.normalize();
                 }
-                // Quaternionは正規化する
+                // OriGine::Quaternionは正規化する
                 _keyFrames[popUpIndex].value = _keyFrames[popUpIndex].value.normalize();
                 return 1;
             };
@@ -1585,13 +1584,13 @@ bool EditKeyFrame(
             OpenPopup((_label + "slider").c_str());
         }
         if (BeginPopup((_label + "slider").c_str())) {
-            float currentTime = ((GetMousePos()[X] - frame_bb.Min[X]) / (frame_bb.Max[X] - frame_bb.Min[X])) * _duration;
+            float currentTime = ((GetMousePos()[OriGine::X] - frame_bb.Min[OriGine::X]) / (frame_bb.Max[OriGine::X] - frame_bb.Min[OriGine::X])) * _duration;
 
             auto sliderPopupUpdate = [&]() {
                 // SliderPopup
                 if (ImGui::Button("Add Node")) {
                     _keyFrames.push_back(
-                        {currentTime, CalculateValue::Linear(_keyFrames, currentTime)});
+                        {currentTime, OriGine::CalculateValue::Linear(_keyFrames, currentTime)});
                     ImGui::CloseCurrentPopup();
                     std::sort(
                         _keyFrames.begin(),
@@ -1624,9 +1623,9 @@ bool EditKeyFrame(
 
 bool EditColorKeyFrame(
     const std::string& _label,
-    AnimationCurve<Vec4f>& _keyFrames,
+    OriGine::AnimationCurve<OriGine::Vec4f>& _keyFrames,
     float _duration,
-    const Vec4f& _defaultValue,
+    const OriGine::Vec4f& _defaultValue,
     std::function<void(int)> _howEditItem) {
     ImGuiWindow* window = GetCurrentWindow();
     if (window->SkipItems) {
@@ -1639,10 +1638,10 @@ bool EditColorKeyFrame(
     const float width       = CalcItemWidth();
 
     const ImVec2 label_size = CalcTextSize(_label.c_str(), NULL, true);
-    const ImRect frame_bb(window->DC.CursorPos, ImVec2(window->DC.CursorPos.x + width, window->DC.CursorPos[Y] + 20.0f));
-    const ImRect total_bb(frame_bb.Min, ImVec2((label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f) + frame_bb.Max.x, frame_bb.Max[Y]));
+    const ImRect frame_bb(window->DC.CursorPos, ImVec2(window->DC.CursorPos.x + width, window->DC.CursorPos[OriGine::Y] + 20.0f));
+    const ImRect total_bb(frame_bb.Min, ImVec2((label_size.x > 0.0f ? style.ItemInnerSpacing.x + label_size.x : 0.0f) + frame_bb.Max.x, frame_bb.Max[OriGine::Y]));
 
-    ItemSize(total_bb, style.FramePadding[Y]);
+    ItemSize(total_bb, style.FramePadding[OriGine::Y]);
     if (!ItemAdd(total_bb, id, &frame_bb)) {
         return false;
     }
@@ -1704,7 +1703,7 @@ bool EditColorKeyFrame(
                 auto command                  = std::make_unique<SetterCommand<float>>(
                     &_keyFrames[draggedIndex].time,
                     draggedValue);
-                EditorController::GetInstance()->PushCommand(std::move(command));
+                OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
             }
 
             draggedIndex = -1;
@@ -1714,8 +1713,8 @@ bool EditColorKeyFrame(
     for (int i = 0; i < (int)_keyFrames.size(); ++i) {
         float t       = (_keyFrames[i].time) / (_duration);
         float buttonX = frame_bb.Min.x + t * sliderWidth;
-        ImVec2 buttonPos(buttonX - buttonSize * 0.5f, frame_bb.Min[Y]);
-        ImVec2 buttonEnd(buttonPos.x + buttonSize, buttonPos[Y] + 20.0f);
+        ImVec2 buttonPos(buttonX - buttonSize * 0.5f, frame_bb.Min[OriGine::Y]);
+        ImVec2 buttonEnd(buttonPos.x + buttonSize, buttonPos[OriGine::Y] + 20.0f);
 
         ImRect buttonRect(buttonPos, buttonEnd);
         bool isHovered = IsMouseHoveringRect(buttonRect.Min, buttonRect.Max);
@@ -1744,7 +1743,7 @@ bool EditColorKeyFrame(
             }
         }
 
-        ImVec4 nodeColor = ImVec4(_keyFrames[i].value[X], _keyFrames[i].value[Y], _keyFrames[i].value[Z], (std::max)(_keyFrames[i].value[W], 0.1f));
+        ImVec4 nodeColor = ImVec4(_keyFrames[i].value[OriGine::X], _keyFrames[i].value[OriGine::Y], _keyFrames[i].value[OriGine::Z], (std::max)(_keyFrames[i].value[OriGine::W], 0.1f));
 
         PushID(i);
         draw_list->AddRectFilled(buttonRect.Min, buttonRect.Max, ImColor(nodeColor), style.FrameRounding);
@@ -1765,9 +1764,9 @@ bool EditColorKeyFrame(
 
                     if (_keyFrames.size() <= 1) {
                         // 最後のキーフレームを削除する場合は、デフォルト値を設定 (最低でも1つ以上要素を確保する)
-                        EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<KeyFrame<Vec4f>>>(
+                        OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<OriGine::KeyFrame<OriGine::Vec4f>>>(
                             &_keyFrames[popUpIndex],
-                            KeyFrame<Vec4f>(0.0f, _defaultValue)));
+                            OriGine::KeyFrame<OriGine::Vec4f>(0.0f, _defaultValue)));
                         popUpIndex = -1;
                         return 0;
                     }
@@ -1776,16 +1775,16 @@ bool EditColorKeyFrame(
 
                     auto commandCombo = std::make_unique<CommandCombo>();
 
-                    commandCombo->AddCommand(std::make_shared<EraseElementCommand<AnimationCurve<Vec4f>>>(&_keyFrames, _keyFrames.begin() + popUpIndex));
-                    
-                    EditorController::GetInstance()->PushCommand(std::move(commandCombo));
+                    commandCombo->AddCommand(std::make_shared<EraseElementCommand<OriGine::AnimationCurve<OriGine::Vec4f>>>(&_keyFrames, _keyFrames.begin() + popUpIndex));
+
+                    OriGine::EditorController::GetInstance()->PushCommand(std::move(commandCombo));
 
                     popUpIndex = -1;
                     return 0;
                 }
                 if (ImGui::Button("Copy")) {
                     auto commandCombo = std::make_unique<CommandCombo>();
-                    commandCombo->AddCommand(std::make_shared<AddElementCommand<AnimationCurve<Vec4f>>>(&_keyFrames, _keyFrames[popUpIndex]));
+                    commandCombo->AddCommand(std::make_shared<AddElementCommand<OriGine::AnimationCurve<OriGine::Vec4f>>>(&_keyFrames, _keyFrames[popUpIndex]));
                     commandCombo->AddCommand(std::make_shared<SetterCommand<float>>(&_keyFrames.back().time, _keyFrames.back().time + 0.01f));
                     commandCombo->SetFuncOnAfterCommand(
                         [popUpIndexId, &_keyFrames]() {
@@ -1800,7 +1799,7 @@ bool EditColorKeyFrame(
                             _storage->SetInt(popUpIndexId, popUpIndex);
                         });
 
-                    EditorController::GetInstance()->PushCommand(std::move(commandCombo));
+                    OriGine::EditorController::GetInstance()->PushCommand(std::move(commandCombo));
 
                     return 0;
                 }
@@ -1842,13 +1841,13 @@ bool EditColorKeyFrame(
             OpenPopup((_label + "slider").c_str());
         }
         if (BeginPopup((_label + "slider").c_str())) {
-            float currentTime = ((GetMousePos()[X] - frame_bb.Min[X]) / (frame_bb.Max[X] - frame_bb.Min[X])) * _duration;
+            float currentTime = ((GetMousePos()[OriGine::X] - frame_bb.Min[OriGine::X]) / (frame_bb.Max[OriGine::X] - frame_bb.Min[OriGine::X])) * _duration;
 
             auto sliderPopupUpdate = [&]() {
                 // SliderPopup
                 if (ImGui::Button("Add Node")) {
                     _keyFrames.push_back(
-                        {currentTime, CalculateValue::Linear(_keyFrames, currentTime)});
+                        {currentTime, OriGine::CalculateValue::Linear(_keyFrames, currentTime)});
                     ImGui::CloseCurrentPopup();
                     std::sort(
                         _keyFrames.begin(),

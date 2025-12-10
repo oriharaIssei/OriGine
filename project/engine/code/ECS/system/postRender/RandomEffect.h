@@ -16,6 +16,8 @@
 // component
 #include "component/effect/post/RandomEffectParam.h"
 
+namespace OriGine {
+
 /// <summary>
 /// ランダムエフェクトシステム
 /// </summary>
@@ -63,3 +65,5 @@ protected:
     std::vector<RandomEffectParam*> activeParams_ = {};
     BlendMode currentBlend_                                                                             = BlendMode::Alpha;
 };
+
+} // namespace OriGine

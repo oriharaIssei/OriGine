@@ -1,5 +1,6 @@
 #include "Cylinder.h"
 
+namespace OriGine {
 namespace Primitive {
 void Cylinder::CreateMesh(TextureMesh* _mesh) {
     if (_mesh->GetIndexCapacity() < indexSize_) {
@@ -69,4 +70,6 @@ void Cylinder::CreateMesh(TextureMesh* _mesh) {
 
     _mesh->TransferData();
 }
+
 } // namespace Primitive
+} // namespace OriGine

@@ -16,24 +16,15 @@
 #include <limits>
 #include <numbers>
 
-/// ----------------------------------------------
-/// 色 関連
-/// ----------------------------------------------
-enum class ColorChannel : uint8_t {
-    R = 0,
-    G,
-    B,
-    A,
-    MAX
-};
+namespace OriGine {
 
 /// ----------------------------------------------
 /// 円周率関連
 /// ----------------------------------------------
-constexpr float kPi        = std::numbers::pi_v<float>;
-constexpr float kHalfPi    = std::numbers::pi_v<float> * 0.5f;
-constexpr float kQuarterPi = std::numbers::pi_v<float> * 0.25f;
-constexpr float kTao       = std::numbers::pi_v<float> * 2.0f; // 2π
+constexpr float kPi        = ::std::numbers::pi_v<float>;
+constexpr float kHalfPi    = ::std::numbers::pi_v<float> * 0.5f;
+constexpr float kQuarterPi = ::std::numbers::pi_v<float> * 0.25f;
+constexpr float kTao       = ::std::numbers::pi_v<float> * 2.0f; // 2π
 
 constexpr float kDeg2Rad = kPi / 180.0f;
 constexpr float kRad2Deg = 180.0f / kPi;
@@ -44,18 +35,18 @@ constexpr float kRad2Deg = 180.0f / kPi;
 constexpr float kEpsilon     = 1.0e-6f;
 constexpr float kSmallNumber = 1.0e-8f;
 constexpr float kHugeNumber  = 1.0e+8f;
-constexpr float kInfinity    = std::numeric_limits<float>::infinity();
-constexpr float kNegInfinity = -std::numeric_limits<float>::infinity();
+constexpr float kInfinity    = ::std::numeric_limits<float>::infinity();
+constexpr float kNegInfinity = -::std::numeric_limits<float>::infinity();
 
 /// ----------------------------------------------
 /// 単位・汎用値
 /// ----------------------------------------------
 constexpr float kOneThird  = 1.0f / 3.0f;
 constexpr float kTwoThirds = 2.0f / 3.0f;
-constexpr float kSqrt2     = std::numbers::sqrt2_v<float>;
-constexpr float kInvSqrt2  = 1.0f / std::numbers::sqrt2_v<float>;
-constexpr float kSqrt3     = std::numbers::sqrt3_v<float>;
-constexpr float kInvSqrt3  = 1.0f / std::numbers::sqrt3_v<float>;
+constexpr float kSqrt2     = ::std::numbers::sqrt2_v<float>;
+constexpr float kInvSqrt2  = 1.0f / ::std::numbers::sqrt2_v<float>;
+constexpr float kSqrt3     = ::std::numbers::sqrt3_v<float>;
+constexpr float kInvSqrt3  = 1.0f / ::std::numbers::sqrt3_v<float>;
 
 /// ----------------------------------------------
 /// 角度単位
@@ -69,11 +60,11 @@ constexpr float kFullAngle     = kTao; // 360度
 /// </summary>
 /// <param name="radian"></param>
 /// <returns></returns>
-float radianToDegree(float radian);
+float RadianToDegree(float radian);
 /// <summary>
 /// Degree を Radian に変換
 /// </summary>
-float degreeToRadian(float degree);
+float DegreeToRadian(float degree);
 
 /// ----------------------------------------------
 /// 軸列挙（Transformなどと独立して）
@@ -113,13 +104,13 @@ constexpr float kUnitLength         = 1.0f;
 /// <typeparam name="T"></typeparam>
 /// <param name="value"></param>
 /// <returns></returns>
-template <std::integral T>
+template <::std::integral T>
 T CountIntegralDigits(T value) {
     if (value == 0) {
         return 1;
     }
     // 桁数 = log10(絶対値) + 1
-    return log10(std::abs(value)) + 1;
+    return log10(::std::abs(value)) + 1;
 }
 
 /// <summary>
@@ -129,13 +120,13 @@ T CountIntegralDigits(T value) {
 /// <typeparam name="ReturnT"></typeparam>
 /// <param name="value"></param>
 /// <returns></returns>
-template <std::floating_point T, std::integral ReturnT = size_t>
+template <::std::floating_point T, ::std::integral ReturnT = size_t>
 ReturnT CountIntegralDigits(T value) {
     if (value == 0.0f) {
         return 1;
     }
     // 桁数 = floor( log10(絶対値) ) + 1
-    return static_cast<ReturnT>(std::floor(std::log10(std::abs(value)))) + 1;
+    return static_cast<ReturnT>(::std::floor(::std::log10(::std::abs(value)))) + 1;
 }
 
 /// <summary>
@@ -145,13 +136,13 @@ ReturnT CountIntegralDigits(T value) {
 /// <typeparam name="ReturnT"></typeparam>
 /// <param name="value"></param>
 /// <returns></returns>
-template <std::floating_point T, std::integral ReturnT = size_t>
+template <::std::floating_point T, ::std::integral ReturnT = size_t>
 ReturnT CountDecimalDigits(T value) {
     constexpr size_t kBufferSize       = 64;
     constexpr size_t kMaxDecimalPlaces = 20;
 
     // 小数点以下がほぼ 0 の場合 → 0
-    T fractionalPart = std::abs(value - static_cast<T>(static_cast<int64_t>(value)));
+    T fractionalPart = ::std::abs(value - static_cast<T>(static_cast<int64_t>(value)));
     if (fractionalPart < kEpsilon) {
         return 0;
     }
@@ -159,17 +150,17 @@ ReturnT CountDecimalDigits(T value) {
     char buf[kBufferSize];
 
     // ※ 20 桁まで固定小数で文字列化
-    auto [ptr, ec] = std::to_chars(buf, buf + sizeof(buf), fractionalPart,
-        std::chars_format::fixed, kMaxDecimalPlaces);
-    if (ec != std::errc{}) {
+    auto [ptr, ec] = ::std::to_chars(buf, buf + sizeof(buf), fractionalPart,
+        ::std::chars_format::fixed, kMaxDecimalPlaces);
+    if (ec != ::std::errc{}) {
         return 0;
     }
 
-    std::string s(buf, ptr);
+    ::std::string s(buf, ptr);
 
     // 小数点なし → 0
     auto pos = static_cast<ReturnT>(s.find('.'));
-    if (pos == std::string::npos) {
+    if (pos == ::std::string::npos) {
         return 0;
     }
 
@@ -189,4 +180,6 @@ ReturnT CountDecimalDigits(T value) {
 /// <param name="intDigits">整数部の桁数</param>
 /// <param name="fracDigits">小数部の桁数</param>
 /// <returns></returns>
-std::vector<int> CalculateDigitsFromFloat(float value, int intDigits, int fracDigits);
+::std::vector<int> CalculateDigitsFromFloat(float value, int intDigits, int fracDigits);
+
+} // namespace OriGine

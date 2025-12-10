@@ -1,17 +1,17 @@
 #include "ShaderCompiler.h"
 
-/// stl
-#include <cassert>
-
-// api
+/// Microsoft
 #include <Windows.h>
 
-#include "logger/Logger.h"
-
+/// stl
+#include <cassert>
 /// util
+#include "logger/Logger.h"
 #include "util/StringUtil.h"
 
 #pragma comment(lib, "dxcompiler.lib")
+
+using namespace OriGine;
 
 void ShaderCompiler::Initialize() {
     // DxCの各種インスタンスを生成する

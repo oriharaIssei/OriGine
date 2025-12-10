@@ -1,6 +1,8 @@
 #pragma once
 #include "system/ISystem.h"
 
+namespace OriGine {
+
 /// <summary>
 /// PrimitiveNodeAnimationのアニメーション更新を行うシステム
 /// </summary>
@@ -15,3 +17,5 @@ public:
 protected:
     void UpdateEntity(Entity* _entity) override;
 };
+
+} // namespace OriGine

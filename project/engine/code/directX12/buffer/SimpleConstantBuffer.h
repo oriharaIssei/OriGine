@@ -4,6 +4,8 @@
 // directX12
 #include "IConstantBuffer.h"
 
+namespace OriGine {
+
 /// <summary>
 /// IConstantBufferのOpenDataが無いバージョン
 /// Bufferに入れる内容を外部で管理するためのバージョン
@@ -75,3 +77,5 @@ template <HasInConstantBuffer constBuff>
 inline void SimpleConstantBuffer<constBuff>::SetForComputeRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const {
     cmdList->SetComputeRootConstantBufferView(rootParameterNum, buff_.GetResource()->GetGPUVirtualAddress());
 }
+
+} // namespace OriGine

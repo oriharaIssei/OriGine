@@ -11,6 +11,8 @@
 // component
 #include "component/effect/post/DissolveEffectParam.h"
 
+namespace OriGine {
+
 /// <summary>
 /// Dissolveエフェクトシステム
 /// </summary>
@@ -67,3 +69,5 @@ protected:
     PipelineStateObj* pso_                                = nullptr;
     std::vector<RenderingData> activeRenderingData_ = {};
 };
+
+} // namespace OriGine

@@ -2,11 +2,15 @@
 
 /// engine
 #include "Engine.h"
+// directX12
+#include "directX12/DxDevice.h"
 
 /// editor
 #ifdef DEBUG
 #include "myGui/MyGui.h"
 #endif // DEBUG
+
+using namespace OriGine;
 
 void SmoothingEffectParam::Initialize(Entity* /*_entity*/) {
     boxFilterSize_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);

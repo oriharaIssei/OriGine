@@ -1,7 +1,11 @@
 #pragma once
 #include "component/IComponent.h"
 
+/// ECS
+// component
 #include "component/animation/AnimationData.h"
+
+namespace OriGine {
 
 /// <summary>
 /// カメラをアニメーションさせるコンポーネント
@@ -71,3 +75,5 @@ public:
     void SetPositionCurve(const AnimationCurve<Vec3f>& curve) { positionCurve_ = curve; }
     void SetRotationCurve(const AnimationCurve<Quaternion>& curve) { rotationCurve_ = curve; }
 };
+
+} // namespace OriGine

@@ -7,6 +7,8 @@
 /// util
 #include "util/StringUtil.h"
 
+using namespace OriGine;
+
 void DxDevice::Initialize() {
     HRESULT result;
 

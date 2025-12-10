@@ -16,12 +16,14 @@
 /// math
 #include <numbers>
 
-//** Sphere **//
-static const uint32_t jointSphereDivision  = 8;
-static const float jointSphereDivisionReal = static_cast<float>(jointSphereDivision);
+using namespace OriGine;
 
-static const uint32_t jointSphereVertexSize = 4 * jointSphereDivision * jointSphereDivision;
-static const uint32_t jointSphereIndexSize  = 4 * jointSphereDivision * jointSphereDivision;
+//** Sphere **//
+static const uint32_t kJointSphereDivision  = 8;
+static const float kJointSphereDivisionReal = static_cast<float>(kJointSphereDivision);
+
+static const uint32_t kJointSphereVertexSize = 4 * kJointSphereDivision * kJointSphereDivision;
+static const uint32_t kJointSphereIndexSize  = 4 * kJointSphereDivision * kJointSphereDivision;
 
 const int32_t SkeletonRenderSystem::defaultMeshCount_ = 1000;
 
@@ -38,7 +40,7 @@ void SkeletonRenderSystem::Initialize() {
     jointRenderer_ = std::make_unique<LineRenderer>(std::vector<Mesh<ColorVertexData>>());
     jointRenderer_->Initialize(nullptr);
     jointRenderer_->GetMeshGroup()->push_back(Mesh<ColorVertexData>());
-    jointRenderer_->GetMeshGroup()->back().Initialize(SkeletonRenderSystem::defaultMeshCount_ * jointSphereVertexSize, SkeletonRenderSystem::defaultMeshCount_ * jointSphereIndexSize);
+    jointRenderer_->GetMeshGroup()->back().Initialize(SkeletonRenderSystem::defaultMeshCount_ * kJointSphereVertexSize, SkeletonRenderSystem::defaultMeshCount_ * kJointSphereIndexSize);
     jointMeshItr_ = jointRenderer_->GetMeshGroup()->begin();
 
     //** BoneMeshRenderer **//
@@ -117,7 +119,7 @@ void SkeletonRenderSystem::CreatePSO() {
     ///=================================================
     /// 作成されているかチェック
     ///=================================================
-    pso_ = shaderManager->GetPipelineStateObj("LineMesh_" + blendModeStr[static_cast<size_t>(currentBlend_)]);
+    pso_ = shaderManager->GetPipelineStateObj("LineMesh_" + kBlendModeStr[static_cast<size_t>(currentBlend_)]);
 
     if (!pso_) {
         return;
@@ -127,7 +129,7 @@ void SkeletonRenderSystem::CreatePSO() {
     /// shader読み込み
     ///=================================================
     shaderManager->LoadShader("ColoredVertex.VS");
-    shaderManager->LoadShader("ColoredVertex.PS", shaderDirectory, L"ps_6_0");
+    shaderManager->LoadShader("ColoredVertex.PS", kShaderDirectory, L"ps_6_0");
 
     ///=================================================
     /// shader情報の設定
@@ -250,7 +252,7 @@ void SkeletonRenderSystem::CreateMeshForChildren(
         if (jointMeshItr_ == _jointMeshGroup->end()) {
             jointMeshItr_ = _jointMeshGroup->end();
             _jointMeshGroup->push_back(Mesh<ColorVertexData>());
-            _jointMeshGroup->back().Initialize(SkeletonRenderSystem::defaultMeshCount_ * jointSphereDivision, SkeletonRenderSystem::defaultMeshCount_ * jointSphereDivision);
+            _jointMeshGroup->back().Initialize(SkeletonRenderSystem::defaultMeshCount_ * kJointSphereDivision, SkeletonRenderSystem::defaultMeshCount_ * kJointSphereDivision);
         }
     }
     if (boneMeshItr_->GetIndexCapacity() <= 0) {
@@ -289,8 +291,8 @@ void SkeletonRenderSystem::CreateJointMesh(
     const Vec3f& _center,
     const Vec4f& _color) {
 
-    const float kLatEvery = std::numbers::pi_v<float> / jointSphereDivisionReal; //* 緯度
-    const float kLonEvery = 2.0f * std::numbers::pi_v<float> / jointSphereDivisionReal; //* 経度
+    const float kLatEvery = std::numbers::pi_v<float> / kJointSphereDivisionReal; //* 緯度
+    const float kLonEvery = 2.0f * std::numbers::pi_v<float> / kJointSphereDivisionReal; //* 経度
 
     auto calculatePoint = [&](float lat, float lon) -> Vector3f {
         return {
@@ -300,11 +302,11 @@ void SkeletonRenderSystem::CreateJointMesh(
     };
 
     // 緯線（緯度方向の円）を描画
-    for (uint32_t latIndex = 1; latIndex < jointSphereDivision; ++latIndex) {
+    for (uint32_t latIndex = 1; latIndex < kJointSphereDivision; ++latIndex) {
         float lat = -std::numbers::pi_v<float> / 2.0f + kLatEvery * latIndex;
-        for (uint32_t lonIndex = 0; lonIndex < jointSphereDivision; ++lonIndex) {
+        for (uint32_t lonIndex = 0; lonIndex < kJointSphereDivision; ++lonIndex) {
             float lonA = lonIndex * kLonEvery;
-            float lonB = (lonIndex + 1) % jointSphereDivision * kLonEvery;
+            float lonB = (lonIndex + 1) % kJointSphereDivision * kLonEvery;
 
             Vector3f pointA = calculatePoint(lat, lonA);
             Vector3f pointB = calculatePoint(lat, lonB);
@@ -320,9 +322,9 @@ void SkeletonRenderSystem::CreateJointMesh(
     }
 
     // 経線（経度方向の円）を描画
-    for (uint32_t lonIndex = 0; lonIndex < jointSphereDivision; ++lonIndex) {
+    for (uint32_t lonIndex = 0; lonIndex < kJointSphereDivision; ++lonIndex) {
         float lon = lonIndex * kLonEvery;
-        for (uint32_t latIndex = 0; latIndex < jointSphereDivision; ++latIndex) {
+        for (uint32_t latIndex = 0; latIndex < kJointSphereDivision; ++latIndex) {
             float latA = -std::numbers::pi_v<float> / 2.0f + kLatEvery * latIndex;
             float latB = -std::numbers::pi_v<float> / 2.0f + kLatEvery * (latIndex + 1);
 

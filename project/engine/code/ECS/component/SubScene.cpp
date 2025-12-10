@@ -10,6 +10,8 @@
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
+using namespace OriGine;
+
 SubScene::SubScene() {}
 SubScene::~SubScene() {}
 
@@ -19,7 +21,7 @@ void SubScene::Initialize(Entity* /*_entity*/) {
     }
 }
 
-void SubScene::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
+void SubScene::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, [[maybe_unused]] const ::std::string& _parentLabel) {
 #ifdef _DEBUG
 
     CheckBoxCommand("IsActive##" + _parentLabel, isActive_);
@@ -28,19 +30,19 @@ void SubScene::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _en
 
     ImGui::Spacing();
 
-    std::string label = "SceneName##" + _parentLabel;
+    ::std::string label = "SceneName##" + _parentLabel;
     if (ImGui::BeginCombo(label.c_str(), sceneName_.c_str())) {
-        std::list<std::pair<std::string, std::string>> sceneList = myfs::SearchFile(kApplicationResourceDirectory + "/scene", "json");
+        ::std::list<::std::pair<::std::string, ::std::string>> sceneList = myfs::SearchFile(kApplicationResourceDirectory + "/scene", "json");
         for (const auto& scene : sceneList) {
             bool isSelected = (sceneName_ == scene.second);
             if (ImGui::Selectable(scene.second.c_str(), isSelected)) {
-                auto command = std::make_unique<SetterCommand<std::string>>(&sceneName_, scene.second, [this](std::string* _newScene) {
+                auto command = ::std::make_unique<SetterCommand<::std::string>>(&sceneName_, scene.second, [this](::std::string* _newScene) {
                     if (this) {
                         Unload();
                         Load(*_newScene);
                     }
                 });
-                EditorController::GetInstance()->PushCommand(std::move(command));
+                OriGine::EditorController::GetInstance()->PushCommand(::std::move(command));
             }
             if (isSelected) {
                 ImGui::SetItemDefaultFocus();
@@ -67,9 +69,9 @@ void SubScene::Deactivate() {
     Unload();
 }
 
-void SubScene::Load(const std::string& _sceneName) {
+void SubScene::Load(const ::std::string& _sceneName) {
     sceneName_ = _sceneName;
-    subScene_  = std::make_unique<Scene>(sceneName_);
+    subScene_  = ::std::make_unique<Scene>(sceneName_);
     subScene_->Initialize();
 }
 void SubScene::Unload() {
@@ -79,14 +81,14 @@ void SubScene::Unload() {
     }
 }
 
-void to_json(nlohmann::json& j, const SubScene& scene) {
+void OriGine::to_json(nlohmann::json& j, const SubScene& scene) {
     j = nlohmann::json{
         {"isActive", scene.isActive_},
         {"sceneName", scene.sceneName_},
         {"renderingPriority", scene.renderingPriority_},
     };
 }
-void from_json(const nlohmann::json& j, SubScene& scene) {
+void OriGine::from_json(const nlohmann::json& j, SubScene& scene) {
     j.at("isActive").get_to(scene.isActive_);
     j.at("sceneName").get_to(scene.sceneName_);
     if (j.contains("renderingPriority")) {

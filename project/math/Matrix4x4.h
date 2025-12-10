@@ -5,6 +5,8 @@
 #include <Quaternion.h>
 #include <Vector3.h>
 
+namespace OriGine {
+
 /// <summary>
 /// 4x4 行列
 /// </summary>
@@ -96,6 +98,8 @@ struct Matrix4x4 {
         *this = XMMATRIXToMatrix(_xmmat);
     }
 };
+
+using Mat4f = Matrix4x4;
 
 namespace MakeMatrix4x4 {
 /// <summary>
@@ -203,3 +207,5 @@ Vec3f TransformNormal(const Vec3f& v, const Matrix4x4& m);
 /// ワールド座標をスクリーン座標に変換
 /// </summary>
 Vec2f WorldToScreen(const Vec3f& _worldPos, const Matrix4x4& _vpvpvMat);
+
+} // namespace OriGine

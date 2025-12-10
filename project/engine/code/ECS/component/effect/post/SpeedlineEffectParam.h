@@ -9,6 +9,8 @@
 #include "Vector2.h"
 #include "Vector4.h"
 
+namespace OriGine {
+
 /// <summary>
 /// SpeedlineEffectのパラメーター情報(GPUに送る情報)
 /// </summary>
@@ -78,3 +80,5 @@ public:
     const IConstantBuffer<SpeedlineBufferParamData>& GetBuffer() const { return cBuffer_; }
     SpeedlineBufferParamData& GetParamData() { return cBuffer_.openData_; }
 };
+
+} // namespace OriGine

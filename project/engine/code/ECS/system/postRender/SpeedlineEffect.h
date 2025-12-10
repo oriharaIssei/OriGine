@@ -16,6 +16,8 @@
 // component
 #include "component/effect/post/SpeedlineEffectParam.h"
 
+namespace OriGine {
+
 /// <summary>
 /// スピードラインを描画するシステム
 /// </summary>
@@ -68,3 +70,5 @@ protected:
 
     std::vector<SpeedlineEffectParam*> activeParams_;
 };
+
+} // namespace OriGine

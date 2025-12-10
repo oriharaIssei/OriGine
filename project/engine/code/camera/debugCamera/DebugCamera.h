@@ -1,16 +1,20 @@
 #pragma once
 
-#include "input/InputManager.h"
-
+/// stl
+#include <memory>
+/// ECS
 #include "component/transform/CameraTransform.h"
 
-#include <memory>
+/// math
+#include <Vector2.h>
+
+namespace OriGine {
 
 /// <summary>
 /// Debug用カメラ
 /// </summary>
 class DebugCamera {
-#pragma region State
+
     /// <summary>
     /// 状態遷移用の基底クラス
     /// </summary>
@@ -55,7 +59,7 @@ class DebugCamera {
         TranslationState(DebugCamera* host) : IState(host) {};
         void Update() override;
     };
-#pragma endregion
+
 public:
     void Initialize();
     void Finalize();
@@ -64,7 +68,7 @@ public:
 
 private:
     Vec2f startMousePos_;
-    std::unique_ptr<IState> currentState_ = nullptr;
+    ::std::unique_ptr<IState> currentState_ = nullptr;
     CameraTransform cameraBuff_;
 
 public:
@@ -75,3 +79,5 @@ public:
     const Vec2f& GetStartMousePos() const { return startMousePos_; }
     void SetStartMousePos(const Vec2f& pos) { startMousePos_ = pos; }
 };
+
+} // namespace OriGine

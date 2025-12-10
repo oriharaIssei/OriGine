@@ -1,5 +1,7 @@
 #include "ParticleTransform.h"
 
+using namespace OriGine;
+
 void ParticleTransform::UpdateMatrix(){
 	worldMat = MakeMatrix4x4::Affine(scale,rotate,translate);
 	uvMat    = MakeMatrix4x4::Affine(uvScale,uvRotate,uvTranslate);
@@ -9,7 +11,7 @@ void ParticleTransform::UpdateMatrix(){
 	}
 }
 
-void to_json(nlohmann::json& j, const ParticleTransform& r) {
+void OriGine::to_json(nlohmann::json& j, const ParticleTransform& r) {
     j = nlohmann::json{
         {"scale", r.scale},
         {"rotate", r.rotate},
@@ -19,7 +21,7 @@ void to_json(nlohmann::json& j, const ParticleTransform& r) {
         {"uvTranslate", r.uvTranslate},
         {"color", r.color}};
 }
-void from_json(const nlohmann::json& j, ParticleTransform& r) {
+void OriGine::from_json(const nlohmann::json& j, ParticleTransform& r) {
     j.at("scale").get_to(r.scale);
     j.at("rotate").get_to(r.rotate);
     j.at("translate").get_to(r.translate);

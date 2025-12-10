@@ -13,6 +13,8 @@
 /// ECS
 #include "ECS/component/effect/particle/gpuParticle/GpuParticle.h"
 
+namespace OriGine {
+/// 前方宣言
 class DxCommand;
 struct PipelineStateObj;
 
@@ -78,6 +80,8 @@ private:
     const int32_t particlesDataIndex   = 0;
     const int32_t freeIndexBufferIndex = 1;
     const int32_t freeListBufferIndex  = 2;
-    const int32_t emitterShapeIndex    = 3;
+    const int32_t kEmitterShapeIndex    = 3;
     const int32_t perFrameBufferIndex  = 4;
 };
+
+} // namespace OriGine

@@ -1,5 +1,10 @@
 #include "BasePostRenderingSystem.h"
 
+/// engine
+#include "scene/Scene.h"
+
+using namespace OriGine;
+
 BasePostRenderingSystem::BasePostRenderingSystem(int32_t _priority) : ISystem(SystemCategory::PostRender, _priority) {}
 BasePostRenderingSystem::~BasePostRenderingSystem() {}
 

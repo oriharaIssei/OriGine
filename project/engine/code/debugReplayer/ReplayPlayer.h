@@ -4,18 +4,19 @@
 #include <string>
 #include <vector>
 
+/// default data
+#include "base/ReplayData.h"
+
+/// external
+#include "logger/Logger.h"
+
+namespace OriGine {
 /// engine
 class SceneManager;
 // input
 class KeyboardInput;
 class MouseInput;
 class GamepadInput;
-
-/// default data
-#include "base/ReplayData.h"
-
-/// external
-#include "logger/Logger.h"
 
 /// <summary>
 /// 記録データを読み込み、フレーム単位で入力を再生する
@@ -93,3 +94,5 @@ public:
         return fileData_.frameData[_frameIndex];
     }
 };
+
+} // namespace OriGine

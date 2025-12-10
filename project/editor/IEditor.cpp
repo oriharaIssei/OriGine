@@ -5,6 +5,8 @@
 #include "imGuiManager/ImGuiManager.h"
 #include <imgui/imgui_internal.h>
 
+using namespace OriGine;
+
 void Editor::Menu::DrawGui() {
     for (auto& [name, item] : menuItems_) {
         if (!item) {
@@ -54,10 +56,10 @@ void Editor::Area::UpdateFocusAndOpenState() {
     if (isOpen_.IsChanged()) {
         if (isOpen_.IsTrigger()) {
             auto command = std::make_unique<WindowOpenCommand>(&isOpen_, true);
-            EditorController::GetInstance()->PushCommand(std::move(command));
+            OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
         } else if (isOpen_.IsRelease()) {
             auto command = std::make_unique<WindowOpenCommand>(&isOpen_, false);
-            EditorController::GetInstance()->PushCommand(std::move(command));
+            OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
         }
     }
 }
@@ -66,19 +68,19 @@ void Editor::Window::UpdateFocusAndOpenState() {
     if (isFocused_.IsChanged()) {
         if (isFocused_.IsTrigger()) {
             auto command = std::make_unique<WindowFocusCommand>(title_, &isFocused_, true);
-            EditorController::GetInstance()->PushCommand(std::move(command));
+            OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
         } else if (isFocused_.IsRelease()) {
             auto command = std::make_unique<WindowFocusCommand>(title_, &isFocused_, false);
-            EditorController::GetInstance()->PushCommand(std::move(command));
+            OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
         }
     }
     if (isOpen_.IsChanged()) {
         if (isOpen_.IsTrigger()) {
             auto command = std::make_unique<WindowOpenCommand>(&isOpen_, true);
-            EditorController::GetInstance()->PushCommand(std::move(command));
+            OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
         } else if (isOpen_.IsRelease()) {
             auto command = std::make_unique<WindowOpenCommand>(&isOpen_, false);
-            EditorController::GetInstance()->PushCommand(std::move(command));
+            OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
         }
     }
 }
@@ -158,12 +160,12 @@ void Editor::Window::Finalize() {
 
 void Editor::Window::WindowOpenMassage() {
     auto command = std::make_unique<WindowOpenCommand>(&isOpen_, true);
-    EditorController::GetInstance()->PushCommand(std::move(command));
+    OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
 }
 
 void Editor::Window::WindowCloseMassage() {
     auto command = std::make_unique<WindowOpenCommand>(&isOpen_, false);
-    EditorController::GetInstance()->PushCommand(std::move(command));
+    OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
 }
 
 void Editor::Menu::Finalize() {

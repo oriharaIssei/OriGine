@@ -81,7 +81,7 @@ public:
 
 private:
     std::string windowTitle_ = "OriGine"; // ウィンドウのタイトル
-    Vec2f windowSize_        = Vec2f(1280.f, 720.f); // ウィンドウのサイズ
+    OriGine::Vec2f windowSize_        = OriGine::Vec2f(1280.f, 720.f); // ウィンドウのサイズ
 };
 
 /// <summary>

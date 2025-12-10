@@ -22,8 +22,9 @@
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
-MaterialEffectPipeLine::MaterialEffectPipeLine() {}
+ using namespace OriGine;
 
+MaterialEffectPipeLine::MaterialEffectPipeLine() {}
 MaterialEffectPipeLine::~MaterialEffectPipeLine() {}
 
 void MaterialEffectPipeLine::Initialize(Entity* /*_entity*/) {
@@ -57,7 +58,7 @@ void MaterialEffectPipeLine::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused
                 baseTextureId_ = TextureManager::LoadTexture(baseTexturePath_);
             },
                 true);
-            EditorController::GetInstance()->PushCommand(std::make_unique<CommandCombo>(commandCombo));
+            OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<CommandCombo>(commandCombo));
         }
     };
 
@@ -87,13 +88,13 @@ void MaterialEffectPipeLine::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused
     label = "AddEffectEntity##" + _parentLabel;
     if (ImGui::Button(label.c_str())) {
         auto command = std::make_unique<AddElementCommand<std::vector<EffectEntityData>>>(&effectEntityIdList_, MaterialEffectPipeLine::EffectEntityData());
-        EditorController::GetInstance()->PushCommand(std::move(command));
+        OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
     }
 
     label = "ClearEffectEntity##" + _parentLabel;
     if (ImGui::Button(label.c_str())) {
         auto command = std::make_unique<ClearCommand<std::vector<EffectEntityData>>>(&effectEntityIdList_);
-        EditorController::GetInstance()->PushCommand(std::move(command));
+        OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
     }
 
     /// Effectを持っているEntity一覧
@@ -127,7 +128,7 @@ void MaterialEffectPipeLine::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused
                     auto command = std::make_unique<SetterCommand<MaterialEffectType>>(
                         &effectEntityIdList_[i].effectType,
                         static_cast<MaterialEffectType>(j));
-                    EditorController::GetInstance()->PushCommand(std::move(command));
+                    OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
                 }
                 if (isSelected) {
                     ImGui::SetItemDefaultFocus();
@@ -139,7 +140,7 @@ void MaterialEffectPipeLine::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused
         std::string removeButtonLabel = "X##" + std::to_string(i) + _parentLabel;
         if (ImGui::Button(removeButtonLabel.c_str())) {
             auto command = std::make_unique<EraseElementCommand<std::vector<EffectEntityData>>>(&effectEntityIdList_, effectEntityIdList_.begin() + i);
-            EditorController::GetInstance()->PushCommand(std::move(command));
+            OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
         }
         ImGui::SameLine();
 
@@ -152,7 +153,7 @@ void MaterialEffectPipeLine::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused
                     auto command = std::make_unique<SetterCommand<int32_t>>(
                         &effectEntityIdList_[i].entityID,
                         effectEntityIds[effectTypeInt][j]);
-                    EditorController::GetInstance()->PushCommand(std::move(command));
+                    OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
                 }
                 if (isSelected) {
                     ImGui::SetItemDefaultFocus();
@@ -171,7 +172,7 @@ void MaterialEffectPipeLine::LoadBaseTexture(const std::string& _path) {
     baseTextureId_   = TextureManager::LoadTexture(baseTexturePath_);
 }
 
-void to_json(nlohmann::json& j, const MaterialEffectPipeLine& c) {
+void OriGine::to_json(nlohmann::json& j, const MaterialEffectPipeLine& c) {
     j["baseTexturePath"] = c.baseTexturePath_;
     j["isActive"]        = c.isActive_;
     j["priority"]        = c.priority_;
@@ -187,7 +188,7 @@ void to_json(nlohmann::json& j, const MaterialEffectPipeLine& c) {
     j["effectEntityIdList"] = effectList;
 }
 
-void from_json(const nlohmann::json& j, MaterialEffectPipeLine& c) {
+void OriGine::from_json(const nlohmann::json& j, MaterialEffectPipeLine& c) {
     j.at("baseTexturePath").get_to(c.baseTexturePath_);
 
     j.at("isActive").get_to(c.isActive_);

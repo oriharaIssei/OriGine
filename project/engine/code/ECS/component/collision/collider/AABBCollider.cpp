@@ -1,5 +1,6 @@
 #include "AABBCollider.h"
 
+namespace OriGine {
 void to_json(nlohmann::json& _json, const AABBCollider& _a) {
     _json["center"]    = _a.shape_.center;
     _json["halfSize"]  = _a.shape_.halfSize;
@@ -40,3 +41,5 @@ void AABBCollider::CalculateWorldShape() {
     this->worldShape_.center   = shape_.center * transform_.worldMat;
     this->worldShape_.halfSize = shape_.halfSize * transform_.GetWorldScale();
 }
+
+} // namespace OriGine

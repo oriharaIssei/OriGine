@@ -1,11 +1,13 @@
 #include "SphereCollider.h"
 
-void to_json(nlohmann::json& _json, const SphereCollider& _s) {
+using namespace OriGine;
+
+void OriGine::to_json(nlohmann::json& _json, const SphereCollider& _s) {
     _json["center"]    = _s.GetLocalCenter();
     _json["radius"]    = _s.GetLocalRadius();
     _json["transform"] = _s.transform_;
 }
-void from_json(const nlohmann::json& _json, SphereCollider& _s) {
+void OriGine::from_json(const nlohmann::json& _json, SphereCollider& _s) {
     _json.at("center").get_to(_s.shape_.center_);
     _json.at("radius").get_to(_s.shape_.radius_);
     _json.at("transform").get_to(_s.transform_);

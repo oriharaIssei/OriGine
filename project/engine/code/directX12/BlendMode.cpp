@@ -1,5 +1,7 @@
 #include "BlendMode.h"
 
+namespace OriGine {
+
 /// <summary>
 /// BlendMode から D3D12_BLEND_DESC を生成するテンプレート関数
 /// </summary>
@@ -114,6 +116,8 @@ D3D12_BLEND_DESC CreateBlendDescByBlendMode(BlendMode mode) {
     }
 }
 
-std::string std::to_string(const BlendMode& mode) {
-    return blendModeStr[static_cast<size_t>(mode)];
+} // namespace OriGine
+
+std::string std::to_string(const OriGine::BlendMode& mode) {
+    return OriGine::kBlendModeStr[static_cast<size_t>(mode)];
 };

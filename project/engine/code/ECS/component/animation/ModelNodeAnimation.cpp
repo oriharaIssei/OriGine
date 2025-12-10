@@ -21,6 +21,8 @@
 /// math
 #include <cmath>
 
+using namespace OriGine;
+
 void ModelNodeAnimation::Initialize(Entity* /*_entity*/) {
     // 初期化
     currentAnimationTime_  = 0.0f;
@@ -57,7 +59,7 @@ void ModelNodeAnimation::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_un
             },
                 true);
 
-            EditorController::GetInstance()->PushCommand(std::move(commandCombo));
+            OriGine::EditorController::GetInstance()->PushCommand(std::move(commandCombo));
         }
     }
 
@@ -177,7 +179,7 @@ Vec3f ModelNodeAnimation::GetCurrentTranslate(const std::string& nodeName) const
     return CalculateValue::Linear(itr->second.translate, currentAnimationTime_);
 }
 
-void to_json(nlohmann::json& j, const ModelNodeAnimation& t) {
+void OriGine::to_json(nlohmann::json& j, const ModelNodeAnimation& t) {
     j = nlohmann::json{
         {"directory", t.directory_},
         {"fileName", t.fileName_},
@@ -187,7 +189,7 @@ void to_json(nlohmann::json& j, const ModelNodeAnimation& t) {
         {"currentAnimationTime", t.currentAnimationTime_}};
 }
 
-void from_json(const nlohmann::json& j, ModelNodeAnimation& t) {
+void OriGine::from_json(const nlohmann::json& j, ModelNodeAnimation& t) {
     j.at("directory").get_to(t.directory_);
     j.at("fileName").get_to(t.fileName_);
     j.at("isPlay").get_to(t.animationState_.isPlay_);

@@ -1,6 +1,8 @@
 #pragma once
 #include "system/ISystem.h"
 
+namespace OriGine {
+
 /// <summary>
 /// SpriteAnimationを再生するシステム
 /// </summary>
@@ -16,3 +18,5 @@ public:
 protected:
     void UpdateEntity(Entity* _entity) override;
 };
+
+} // namespace OriGine

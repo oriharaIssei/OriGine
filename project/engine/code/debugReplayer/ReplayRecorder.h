@@ -6,13 +6,14 @@
 /// default data
 #include "base/ReplayData.h"
 
+/// util
+#include "StringUtil.h"
+
+namespace OriGine {
 /// engine
 class KeyboardInput;
 class MouseInput;
 class GamepadInput;
-
-/// util
-#include "StringUtil.h"
 
 /// <summary>
 /// デバッグのプレイ情報を記録するクラス
@@ -45,3 +46,5 @@ private:
     ReplayFileHeader header_             = {};
     std::vector<ReplayFrameData> frames_ = {};
 };
+
+} // namespace OriGine

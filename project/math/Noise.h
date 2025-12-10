@@ -5,6 +5,7 @@
 #include <math/Vector2.h>
 #include <math/Vector4.h>
 
+namespace OriGine {
 namespace FractalBrownianMotionNoise {
 
 /// 参考:
@@ -63,3 +64,5 @@ Vec4f ShadePixel(const Vec2f& _fragCoord, const Vec2f& _resolution);
 } // namespace FractalBrownianMotionNoise
 
 namespace FbmNoise = FractalBrownianMotionNoise;
+
+} // namespace OriGine

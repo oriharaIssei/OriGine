@@ -8,8 +8,9 @@
 #include <math/mathEnv.h>
 #endif // DEBUG
 
-CameraAction::CameraAction() {}
+using namespace OriGine;
 
+CameraAction::CameraAction() {}
 CameraAction::~CameraAction() {}
 
 void CameraAction::Initialize(Entity* /*_entity*/) {}
@@ -34,7 +35,7 @@ void CameraAction::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_unused]]
         "FOV Animation##" + _parentLabel,
         fovCurve_,
         duration_,
-        degreeToRadian(45.0f));
+        DegreeToRadian(45.0f));
 
     ImGui::Text("Aspect Ratio Animation");
     ImGui::EditKeyFrame(
@@ -74,7 +75,7 @@ void CameraAction::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_unused]]
 
 void CameraAction::Finalize() {}
 
-void to_json(nlohmann::json& j, const CameraAction& action) {
+void OriGine::to_json(nlohmann::json& j, const CameraAction& action) {
     j = nlohmann::json{
         {"duration", action.duration_},
         {"isLoop", action.animationState_.isLoop_},
@@ -100,7 +101,7 @@ void to_json(nlohmann::json& j, const CameraAction& action) {
     j["rotationCurve"]    = curveSave(action.rotationCurve_);
 }
 
-void from_json(const nlohmann::json& j, CameraAction& action) {
+void OriGine::from_json(const nlohmann::json& j, CameraAction& action) {
     j.at("duration").get_to(action.duration_);
     j.at("isLoop").get_to(action.animationState_.isLoop_);
     j.at("isPlay").get_to(action.animationState_.isPlay_);

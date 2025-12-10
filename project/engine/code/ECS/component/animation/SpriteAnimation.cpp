@@ -14,11 +14,10 @@
 #include "util/timeline/Timeline.h"
 #endif // _DEBUG
 
-SpriteAnimation::SpriteAnimation() {
-}
+using namespace OriGine;
 
-SpriteAnimation::~SpriteAnimation() {
-}
+SpriteAnimation::SpriteAnimation() {}
+SpriteAnimation::~SpriteAnimation() {}
 
 void SpriteAnimation::Initialize(Entity* /*_hostEntity*/) {
     // 初期化
@@ -57,7 +56,7 @@ void SpriteAnimation::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Enti
     if (ImGui::BeginCombo(label.c_str(), InterpolationTypeName[int(colorInterpolationType_)])) {
         for (int i = 0; i < (int)InterpolationType::COUNT; ++i) {
             if (ImGui::Selectable(InterpolationTypeName[i], colorInterpolationType_ == InterpolationType(i))) {
-                EditorController::GetInstance()->PushCommand(
+                OriGine::EditorController::GetInstance()->PushCommand(
                     std::make_unique<SetterCommand<InterpolationType>>(&colorInterpolationType_, InterpolationType(i)));
             }
         }
@@ -82,7 +81,7 @@ void SpriteAnimation::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Enti
     if (ImGui::BeginCombo(label.c_str(), InterpolationTypeName[int(transformInterpolationType_)])) {
         for (int i = 0; i < (int)InterpolationType::COUNT; ++i) {
             if (ImGui::Selectable(InterpolationTypeName[i], transformInterpolationType_ == InterpolationType(i))) {
-                EditorController::GetInstance()->PushCommand(
+                OriGine::EditorController::GetInstance()->PushCommand(
                     std::make_unique<SetterCommand<InterpolationType>>(&transformInterpolationType_, InterpolationType(i)));
             }
         }
@@ -127,7 +126,7 @@ void SpriteAnimation::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Enti
     if (ImGui::BeginCombo(label.c_str(), InterpolationTypeName[int(uvInterpolationType_)])) {
         for (int i = 0; i < (int)InterpolationType::COUNT; ++i) {
             if (ImGui::Selectable(InterpolationTypeName[i], uvInterpolationType_ == InterpolationType(i))) {
-                EditorController::GetInstance()->PushCommand(
+                OriGine::EditorController::GetInstance()->PushCommand(
                     std::make_unique<SetterCommand<InterpolationType>>(&uvInterpolationType_, InterpolationType(i)));
             }
         }
@@ -282,7 +281,7 @@ void SpriteAnimation::PlayUVAnimation() {
     uvAnimationState_.isPlay_ = true;
 }
 
-void to_json(nlohmann::json& j, const SpriteAnimation& r) {
+void OriGine::to_json(nlohmann::json& j, const SpriteAnimation& r) {
     auto writeCurve = [&j](const std::string& _name, const auto& _curve) {
         nlohmann::json curveJson = nlohmann::json::array();
         for (const auto& key : _curve) {
@@ -318,7 +317,7 @@ void to_json(nlohmann::json& j, const SpriteAnimation& r) {
     writeCurve("uvTranslateCurve", r.uvTranslateCurve_);
 }
 
-void from_json(const nlohmann::json& j, SpriteAnimation& r) {
+void OriGine::from_json(const nlohmann::json& j, SpriteAnimation& r) {
 
     auto readCurve = [&j](const std::string& _name, auto& _curve) {
         for (const auto& keyJson : j.at(_name)) {

@@ -16,6 +16,8 @@
 #include "directX12/DxCommand.h"
 #include "directX12/PipelineStateObj.h"
 
+namespace OriGine {
+
 /// <summary>
 /// 線の描画を行うシステム
 /// </summary>
@@ -73,3 +75,5 @@ public:
         currentBlendMode_ = _blendMode;
     }
 };
+
+} // namespace OriGine
