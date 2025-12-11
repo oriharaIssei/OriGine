@@ -61,7 +61,14 @@ void ISystem::AddComponent(Entity* _entity, const ::std::string& _typeName, ICom
 }
 
 void ISystem::SetScene(Scene* _scene) {
-    scene_               = _scene;
+    scene_ = _scene;
+
+    if (!scene_) {
+        LOG_ERROR("Scene changing to null");
+        entityRepository_    = nullptr;
+        componentRepository_ = nullptr;
+        return;
+    }
     entityRepository_    = scene_->GetEntityRepositoryRef();
     componentRepository_ = scene_->GetComponentRepositoryRef();
 }
