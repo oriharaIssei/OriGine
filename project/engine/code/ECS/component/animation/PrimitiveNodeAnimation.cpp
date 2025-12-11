@@ -8,13 +8,13 @@
 #include "component/material/Material.h"
 #include "component/transform/Transform.h"
 
+using namespace OriGine;
+
 /// gui
 #ifdef _DEBUG
 #include "imgui/imgui.h"
 #include "myGui/MyGui.h"
 #include "util/timeline/Timeline.h"
-
-namespace OriGine {
 
 class GenerateUvAnimationCommand : public IEditCommand {
 public:
@@ -212,10 +212,10 @@ void PrimitiveNodeAnimation::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[mayb
 }
 
 void PrimitiveNodeAnimation::Finalize() {
-    animationState_.isLoop_         = false;
-    animationState_.isPlay_         = false;
-    animationState_.isEnd_          = false;
-    currentTime_                    = 0.0f;
+    animationState_.isLoop_ = false;
+    animationState_.isPlay_ = false;
+    animationState_.isEnd_  = false;
+    currentTime_            = 0.0f;
 
     scaleCurve_.clear();
     rotateCurve_.clear();
@@ -246,9 +246,9 @@ void PrimitiveNodeAnimation::PlayStart() {
 }
 
 void PrimitiveNodeAnimation::Stop() {
-    currentTime_                    = 0.f;
-    animationState_.isEnd_          = true;
-    animationState_.isPlay_         = false;
+    currentTime_            = 0.f;
+    animationState_.isEnd_  = true;
+    animationState_.isPlay_ = false;
 }
 
 void PrimitiveNodeAnimation::UpdateTransformAnimation(Transform* _transform) {
@@ -282,7 +282,7 @@ void PrimitiveNodeAnimation::UpdateTransformAnimation(Transform* _transform) {
     }
     _transform->UpdateMatrix();
 }
-void to_json(nlohmann::json& _json, const PrimitiveNodeAnimation& _primitiveNodeAnimation) {
+void OriGine::to_json(nlohmann::json& _json, const PrimitiveNodeAnimation& _primitiveNodeAnimation) {
     _json["duration"] = _primitiveNodeAnimation.duration_;
     _json["isLoop"]   = _primitiveNodeAnimation.animationState_.isLoop_;
     _json["isPlay"]   = _primitiveNodeAnimation.animationState_.isPlay_;
@@ -303,7 +303,7 @@ void to_json(nlohmann::json& _json, const PrimitiveNodeAnimation& _primitiveNode
     writeCurve("rotateCurve", _primitiveNodeAnimation.rotateCurve_);
     writeCurve("translateCurve", _primitiveNodeAnimation.translateCurve_);
 }
-void from_json(const nlohmann::json& _json, PrimitiveNodeAnimation& _primitiveNodeAnimation) {
+void OriGine::from_json(const nlohmann::json& _json, PrimitiveNodeAnimation& _primitiveNodeAnimation) {
     _json.at("duration").get_to(_primitiveNodeAnimation.duration_);
     _json.at("isLoop").get_to(_primitiveNodeAnimation.animationState_.isLoop_);
     _json.at("isPlay").get_to(_primitiveNodeAnimation.animationState_.isPlay_);
@@ -321,5 +321,3 @@ void from_json(const nlohmann::json& _json, PrimitiveNodeAnimation& _primitiveNo
     readCurve("rotateCurve", _primitiveNodeAnimation.rotateCurve_);
     readCurve("translateCurve", _primitiveNodeAnimation.translateCurve_);
 }
-
-} // namespace OriGine

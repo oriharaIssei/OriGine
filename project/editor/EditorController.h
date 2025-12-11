@@ -73,7 +73,7 @@ public:
     template <EditorWindow EditorWindowClass>
     EditorWindowClass* GetWindow() {
         ::std::string windowName = nameof<EditorWindowClass>();
-        auto itr               = editorWindows_.find(windowName);
+        auto itr                 = editorWindows_.find(windowName);
         if (itr == editorWindows_.end()) {
             return nullptr;
         }
@@ -82,7 +82,7 @@ public:
 
     template <EditorWindow EditorWindowClass>
     void AddEditor(::std::unique_ptr<EditorWindowClass>&& editor) {
-        ::std::string name                            = nameof<EditorWindowClass>();
+        ::std::string name                          = nameof<EditorWindowClass>();
         editorWindows_[name]                        = ::std::move(editor);
         editorActivity_[editorWindows_[name].get()] = SerializedField<bool>(defaultSerializeSceneName_, defaultSerializeGroupName_, name, false);
     }
@@ -99,7 +99,7 @@ public:
     template <EditorMenu EditorMenuClass>
     EditorMenuClass* GetMainMenu() {
         ::std::string name = nameof<EditorMenuClass>();
-        auto itr         = mainMenus_.find(name);
+        auto itr           = mainMenus_.find(name);
         if (itr == mainMenus_.end()) {
             return nullptr;
         }
@@ -111,6 +111,6 @@ public:
     }
 };
 
-#endif // _DEBUG
-
 } // namespace OriGine
+
+#endif // _DEBUG

@@ -1,9 +1,9 @@
 #include "DebugCamera.h"
 
-#ifdef _DEBUG
 /// engine
 #include "input/InputManager.h"
 
+#ifdef _DEBUG
 /// externals
 #include "imgui/imgui.h"
 #endif // _DEBUG

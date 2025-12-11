@@ -9,13 +9,13 @@
 #include "component/material/Material.h"
 #include "component/transform/Transform.h"
 
+using namespace OriGine;
+
 /// gui
 #ifdef _DEBUG
 #include "imgui/imgui.h"
 #include "myGui/MyGui.h"
 #include "util/timeline/Timeline.h"
-
-namespace OriGine {
 
 class GenerateUvAnimationCommand : public IEditCommand {
 public:
@@ -368,7 +368,7 @@ void MaterialAnimation::UpdateMaterialAnimation(Material* _material) {
     _material->UpdateUvMatrix();
 }
 
-void to_json(nlohmann::json& _json, const MaterialAnimation& _animation) {
+void OriGine::to_json(nlohmann::json& _json, const MaterialAnimation& _animation) {
     _json["duration"] = _animation.duration_;
     _json["isLoop"]   = _animation.animationState_.isLoop_;
     _json["isPlay"]   = _animation.animationState_.isPlay_;
@@ -389,7 +389,7 @@ void to_json(nlohmann::json& _json, const MaterialAnimation& _animation) {
     writeCurve("uvRotateCurve", _animation.uvRotateCurve_);
     writeCurve("uvTranslateCurve", _animation.uvTranslateCurve_);
 }
-void from_json(const nlohmann::json& _json, MaterialAnimation& _animation) {
+void OriGine::from_json(const nlohmann::json& _json, MaterialAnimation& _animation) {
     _json.at("duration").get_to(_animation.duration_);
     _json.at("isLoop").get_to(_animation.animationState_.isLoop_);
     _json.at("isPlay").get_to(_animation.animationState_.isPlay_);
@@ -410,5 +410,3 @@ void from_json(const nlohmann::json& _json, MaterialAnimation& _animation) {
     readCurve("uvRotateCurve", _animation.uvRotateCurve_);
     readCurve("uvTranslateCurve", _animation.uvTranslateCurve_);
 }
-
-} // namespace OriGine
