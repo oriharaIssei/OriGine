@@ -131,7 +131,7 @@ struct ModelMeshData {
     // LoadState currentState = LoadState::Unloaded;
 
     // 各メッシュの頂点データ
-    std::map<std::string, TextureMesh> meshGroup;
+    std::map<std::string, TextureColorMesh> meshGroup;
     // スキンメッシュのスキンクラスターデータ
     std::map<std::string, JointWeightData> jointWeightData;
     std::map<std::string, SkinCluster> skinClusterDataMap;
@@ -146,7 +146,7 @@ struct Model {
     ModelMeshData* meshData_;
 
     // Meshに対応した Transform
-    std::map<TextureMesh*, Transform> transforms_;
+    std::map<TextureColorMesh*, Transform> transforms_;
 
     using ModelMaterialData = std::vector<TexturedMaterial>;
     ModelMaterialData materialData_;

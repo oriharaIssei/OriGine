@@ -103,7 +103,7 @@ int32_t EntityRepository::CreateEntity(const std::string& _dataType, bool _isUni
     Entity& entity   = entities_[entityIndex];
     entity.id_       = entityIndex;
     entity.dataType_ = _dataType;
-    entity.IsAlive_  = true;
+    entity.isAlive_  = true;
     entity.isUnique_ = false;
 
     if (_isUnique) {
@@ -118,18 +118,18 @@ int32_t EntityRepository::CreateEntity(const std::string& _dataType, bool _isUni
 int32_t EntityRepository::CreateEntity(int32_t _id, const std::string& _dataType, bool _isUnique) {
     if (_id < 0 || static_cast<uint32_t>(_id) >= size_) {
         LOG_ERROR("EntityRepository: Invalid entity index allocated.");
-        return -1;
+        return kInvalidEntityID;
     }
 
     Entity& entity = entities_[_id];
-    if (entity.IsAlive_) {
+    if (entity.isAlive_) {
         LOG_ERROR("EntityRepository: Entity with ID {} already exists.", _id);
-        return -1;
+        return kInvalidEntityID;
     }
 
     entity.id_                  = _id;
     entity.dataType_            = _dataType;
-    entity.IsAlive_             = true;
+    entity.isAlive_             = true;
     entity.isUnique_            = false;
     uniqueEntityIDs_[_dataType] = _id;
 
@@ -151,7 +151,7 @@ bool EntityRepository::RemoveEntity(int32_t _entityIndex) {
 
     Entity& entity = entities_[_entityIndex];
 
-    if (!entity.IsAlive_) {
+    if (!entity.isAlive_) {
         LOG_ERROR("EntityRepository: Entity already dead.");
         return false;
     }

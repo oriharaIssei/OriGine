@@ -5,7 +5,9 @@
 #define RESOURCE_DIRECTORY
 #include "engine/EngineInclude.h"
 
-#include "scene/SceneManager.h"
+#include "scene/SceneFactory.h"
+#include "scene/SceneJsonRegistry.h"
+
 #include "winApp/WinApp.h"
 // directX12
 #include "directX12/RenderTexture.h"
@@ -30,8 +32,9 @@ void Scene::Initialize() {
 
     InitializeECS();
 
-    SceneSerializer thisSerializer = SceneSerializer(this);
-    thisSerializer.Deserialize();
+    /// scene の情報をJsonから変換する(Entity,Component,System)
+    SceneFactory factory = SceneFactory();
+    factory.BuildSceneByName(this, name_);
 
     systemRunner_->UpdateCategory<SystemCategory::Initialize>();
 }

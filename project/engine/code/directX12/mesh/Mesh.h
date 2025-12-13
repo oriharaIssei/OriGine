@@ -138,8 +138,9 @@ public:
     }
 };
 
-using TextureMesh   = Mesh<TextureVertexData>;
-using PrimitiveMesh = Mesh<PrimitiveVertexData>;
+using TextureMesh      = Mesh<TextureVertexData>;
+using TextureColorMesh = Mesh<TextureColorVertexData>;
+using PrimitiveMesh    = Mesh<PrimitiveVertexData>;
 
 template <typename VertexDataType>
 inline void Mesh<VertexDataType>::Initialize(UINT _vertexCapacity, UINT _indexCapacity) {

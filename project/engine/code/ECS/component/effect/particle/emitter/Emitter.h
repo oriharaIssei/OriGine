@@ -109,9 +109,9 @@ private:
     std::vector<std::shared_ptr<Particle>> particles_;
 
     /// <summary>
-    /// 頂点とMaterial を 併せ持つ
+    /// 頂点 を 持つ
     /// </summary>
-    TextureMesh mesh_;
+    TextureColorMesh mesh_;
 
     int32_t materialIndex_ = -1;
     SimpleConstantBuffer<Material> materialBuffer_;

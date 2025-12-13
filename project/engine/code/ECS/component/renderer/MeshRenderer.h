@@ -126,14 +126,14 @@ public: // ↓ Accessor
 //----------------------------------------- ModelMeshRenderer -----------------------------------------//
 
 class ModelMeshRenderer
-    : public MeshRenderer<TextureMesh, TextureVertexData> {
+    : public MeshRenderer<TextureColorMesh, TextureColorVertexData> {
     friend void to_json(nlohmann::json& j, const ModelMeshRenderer& r);
     friend void from_json(const nlohmann::json& j, ModelMeshRenderer& r);
 
 public:
     ModelMeshRenderer() {}
-    ModelMeshRenderer(const std::vector<TextureMesh>& _meshGroup);
-    ModelMeshRenderer(const std::shared_ptr<std::vector<TextureMesh>>& _meshGroup);
+    ModelMeshRenderer(const std::vector<TextureColorMesh>& _meshGroup);
+    ModelMeshRenderer(const std::shared_ptr<std::vector<TextureColorMesh>>& _meshGroup);
 
     ~ModelMeshRenderer() {}
     ///< summary>

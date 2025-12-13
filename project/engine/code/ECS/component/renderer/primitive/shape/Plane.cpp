@@ -6,7 +6,7 @@ using namespace Primitive;
 /// =====================================================
 /// Plane
 /// =====================================================
-void Plane::CreateMesh(TextureMesh* _mesh) {
+void Plane::CreateMesh(TextureColorMesh* _mesh) {
     vertexSize_ = 4; // 頂点数
     indexSize_  = 6; // インデックス数
 
@@ -21,10 +21,10 @@ void Plane::CreateMesh(TextureMesh* _mesh) {
     }
 
     // XZ 平面を作成
-    _mesh->SetVertexData({{Vec4f(-size_[X], size_[Y], 0.0f, 1.0f), Vec2f(0.0f, 0.0f), normal_},
-        {Vec4f(size_[X], size_[Y], 0.0f, 1.0f), Vec2f(uv_[X], 0.0f), normal_},
-        {Vec4f(-size_[X], -size_[Y], 0.0f, 1.0f), Vec2f(0.0f, uv_[Y]), normal_},
-        {Vec4f(size_[X], -size_[Y], 0.0f, 1.0f), Vec2f(uv_[X], uv_[Y]), normal_}});
+    _mesh->SetVertexData({{Vec4f(-size_[X], size_[Y], 0.0f, 1.0f), Vec2f(0.0f, 0.0f), normal_,kWhite},
+        {Vec4f(size_[X], size_[Y], 0.0f, 1.0f), Vec2f(uv_[X], 0.0f), normal_, kWhite},
+        {Vec4f(-size_[X], -size_[Y], 0.0f, 1.0f), Vec2f(0.0f, uv_[Y]), normal_, kWhite},
+        {Vec4f(size_[X], -size_[Y], 0.0f, 1.0f), Vec2f(uv_[X], uv_[Y]), normal_, kWhite}});
     _mesh->SetIndexData(
         {0, 1, 2,
             1, 3, 2});

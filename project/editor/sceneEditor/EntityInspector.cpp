@@ -5,6 +5,10 @@
 /// engine
 #define RESOURCE_DIRECTORY
 #include "EngineInclude.h"
+
+#include "scene/SceneFactory.h"
+#include "scene/SceneJsonRegistry.h"
+
 /// ECS
 #include "system/SystemRunner.h"
 
@@ -63,8 +67,10 @@ void EntityInformationRegion::DrawGui() {
     }
 
     if (::ImGui::Button("SaveForFile")) {
-        SceneSerializer serializer(currentScene);
-        serializer.SaveEntity(editEntityId, kApplicationResourceDirectory + "/entities");
+        // templateに追加
+        SceneJsonRegistry::GetInstance()->RegisterEntityTemplateFromEntity(editEntity->GetDataType(), currentScene, editEntity);
+        // 追加したtemplateを保存
+        SceneJsonRegistry::GetInstance()->SaveEntityTemplate(kApplicationResourceDirectory + '/' + kEntityTemplateFolder, editEntity->GetDataType());
     }
 
     ::ImGui::Spacing();
@@ -147,7 +153,7 @@ void EntityComponentRegion::DrawGui() {
             ::ImGui::Indent();
             if (components.size() > 1) {
                 int32_t componentIndex = 0;
-                ::std::string label      = "";
+                ::std::string label    = "";
                 for (const auto& component : components) {
                     label = componentTypeName + ::std::to_string(componentIndex);
 
@@ -170,7 +176,7 @@ void EntityComponentRegion::DrawGui() {
                 const auto& component = components.back();
 
                 ::std::string label = "";
-                label             = componentTypeName;
+                label               = componentTypeName;
 
                 if (::ImGui::Button(::std::string("X##" + label).c_str())) {
                     auto removeCommand = ::std::make_unique<RemoveComponentFromEditListCommand>(parentArea_, componentTypeName, 0);
@@ -307,7 +313,7 @@ void EntitySystemRegion::DrawGui() {
             auto selectArea = dynamic_cast<SelectAddSystemArea*>(selectAddSystemArea);
             if (selectArea) {
                 ::std::list<int32_t> targets = {editEntityId};
-                auto SetTargetsCommand     = ::std::make_unique<SelectAddSystemArea::SetTargeEntities>(selectArea, targets);
+                auto SetTargetsCommand       = ::std::make_unique<SelectAddSystemArea::SetTargeEntities>(selectArea, targets);
                 OriGine::EditorController::GetInstance()->PushCommand(::std::move(SetTargetsCommand));
                 selectArea->SetOpen(true);
                 selectArea->SetFocused(true);
@@ -336,7 +342,7 @@ void EntitySystemRegion::DrawGui() {
                     ::ImGui::Text("Are you sure you want to remove the system '%s'?", systemName.c_str());
                     if (::ImGui::Button("Yes")) {
                         ::std::list<int32_t> editEntityIds = {editEntityId};
-                        auto command                     = ::std::make_unique<RemoveSystemCommand>(editEntityIds, systemName, system->GetCategory());
+                        auto command                       = ::std::make_unique<RemoveSystemCommand>(editEntityIds, systemName, system->GetCategory());
                         OriGine::EditorController::GetInstance()->PushCommand(::std::move(command));
                         ::ImGui::CloseCurrentPopup();
                     }
@@ -709,12 +715,20 @@ void SelectAddSystemArea::SystemListRegion::Finalize() {}
 
 EntityInspectorArea::ChangeEditEntityCommand::ChangeEditEntityCommand(EntityInspectorArea* _inspectorArea, int32_t _to, int32_t _from)
     : inspectorArea_(_inspectorArea), toId_(_to), fromId_(_from) {
-    SceneSerializer serializer(inspectorArea_->GetParentWindow()->GetCurrentScene());
-    if (toId_ >= 0) {
-        toEntityData_ = serializer.EntityToJson(toId_);
+    Scene* currentScene = inspectorArea_->GetParentWindow()->GetCurrentScene();
+
+    if (!currentScene) {
+        return;
     }
-    if (fromId_ >= 0) {
-        fromEntityData_ = serializer.EntityToJson(fromId_);
+
+    SceneFactory factory;
+    if (toId_ > kInvalidEntityID) {
+        Entity* toEntity = currentScene->GetEntityRepositoryRef()->GetEntity(toId_);
+        toEntityData_    = factory.CreateEntityJsonFromEntity(currentScene, toEntity);
+    }
+    if (fromId_ > kInvalidEntityID) {
+        Entity* toEntity = currentScene->GetEntityRepositoryRef()->GetEntity(fromId_);
+        fromEntityData_  = factory.CreateEntityJsonFromEntity(currentScene, toEntity);
     }
 }
 
@@ -743,7 +757,7 @@ void EntityInspectorArea::ChangeEditEntityCommand::Execute() {
     auto& entityCompData = toEntityData_.at("Components");
     for (auto& compData : entityCompData.items()) {
         const ::std::string& compTypeName = compData.key();
-        auto compArray                  = componentMap.find(compTypeName);
+        auto compArray                    = componentMap.find(compTypeName);
         if (compArray == componentMap.end()) {
             LOG_ERROR("ChangeEditEntityCommand::Execute: Component type '{}' not found in component map.", compTypeName);
             continue;
@@ -764,7 +778,7 @@ void EntityInspectorArea::ChangeEditEntityCommand::Execute() {
     auto& systemMap        = currentScene->GetSystemRunnerRef()->GetSystems();
     for (auto& systemData : entitySystemData.items()) {
         const ::std::string& systemName = systemData.value().at("SystemName");
-        auto systemItr                = systemMap.find(systemName);
+        auto systemItr                  = systemMap.find(systemName);
         if (systemItr == systemMap.end()) {
             LOG_ERROR("ChangeEditEntityCommand::Execute: System '{}' not found .", systemName);
             continue;
@@ -804,7 +818,7 @@ void EntityInspectorArea::ChangeEditEntityCommand::Undo() {
     auto& entityCompData = fromEntityData_.at("Components");
     for (auto& compData : entityCompData.items()) {
         const ::std::string& compTypeName = compData.key();
-        auto compArray                  = componentMap.find(compTypeName);
+        auto compArray                    = componentMap.find(compTypeName);
         if (compArray == componentMap.end()) {
             LOG_ERROR("ChangeEditEntityCommand::Execute: Component type '{}' not found in component map.", compTypeName);
             continue;
@@ -825,7 +839,7 @@ void EntityInspectorArea::ChangeEditEntityCommand::Undo() {
     auto& systemMap        = currentScene->GetSystemRunnerRef()->GetSystems();
     for (auto& systemData : entitySystemData.items()) {
         const ::std::string& systemName = systemData.value().at("SystemName");
-        auto systemItr                = systemMap.find(systemName);
+        auto systemItr                  = systemMap.find(systemName);
         if (systemItr == systemMap.end()) {
             LOG_ERROR("ChangeEditEntityCommand::Execute: System '{}' not found .", systemName);
             continue;
@@ -1098,8 +1112,8 @@ void SelectAddSystemArea::AddSystemsForTargetEntities::Undo() {
             for (const auto& systemTypeName : parentArea_->systemTypeNames_) {
                 currentScene->GetSystemRunnerRef()->RemoveEntity(systemTypeName, entity);
                 OriGine::ISystem* system = currentScene->GetSystemRunnerRef()->GetSystem(systemTypeName);
-                auto& systems   = entityInspectorArea->GetSystemMap()[int32_t(system->GetCategory())];
-                auto itr        = systems.find(systemTypeName);
+                auto& systems            = entityInspectorArea->GetSystemMap()[int32_t(system->GetCategory())];
+                auto itr                 = systems.find(systemTypeName);
                 if (itr != systems.end()) {
                     systems.erase(itr);
                 } else {
@@ -1128,8 +1142,10 @@ void EntityInformationRegion::DeleteEntityCommand::Execute() {
         LOG_ERROR("DeleteEntityCommand::Execute: Entity with ID '{}' not found.", entityId_);
         return;
     }
-    SceneSerializer serializer(currentScene);
-    entityData_ = serializer.EntityToJson(entityId_);
+
+    SceneFactory factory;
+
+    entityData_ = factory.CreateEntityJsonFromEntity(currentScene, entity);
     currentScene->DeleteEntity(entityId_);
     LOG_DEBUG("DeleteEntityCommand::Execute: Deleted entity with ID '{}'.", entityId_);
 }
@@ -1141,8 +1157,14 @@ void EntityInformationRegion::DeleteEntityCommand::Undo() {
         return;
     }
 
-    SceneSerializer serializer(currentScene);
-    Entity* entity = serializer.EntityFromJson(entityId_, entityData_);
+    SceneFactory factory;
+    // エンティティを復元
+    Entity* entity = factory.BuildEntity(currentScene, entityData_);
+    entityId_      = entity->GetID(); // 復元後のエンティティIDを更新
+    // 編集対象エンティティを復元したエンティティに変更
+    EntityInspectorArea::ChangeEditEntityCommand changeEditEntity = EntityInspectorArea::ChangeEditEntityCommand(parentArea_, entityId_, parentArea_->GetEditEntityId());
+    changeEditEntity.Execute();
+
     if (!entity) {
         LOG_ERROR("DeleteEntityCommand::Undo: Failed to restore entity with ID '{}'.", entityId_);
         return;
@@ -1157,7 +1179,7 @@ RemoveComponentForEntityCommand::RemoveComponentForEntityCommand(Scene* _scene, 
         return;
     }
 
-    if (entityId_ >= 0) {
+    if (entityId_ > kInvalidEntityID) {
         Entity* entity = scene_->GetEntityRepositoryRef()->GetEntity(entityId_);
         if (!entity) {
             LOG_ERROR("RemoveComponentForEntityCommand: Entity with ID '{}' not found.", entityId_);

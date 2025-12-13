@@ -763,6 +763,9 @@
     <ClInclude Include="engine\code\ECS\system\render\OverlayRenderSystem.h" />
     <ClInclude Include="engine\code\ECS\component\transform\Transform2d.h" />
     <ClInclude Include="math\Matrix3x3.h" />
+    <ClInclude Include="engine\code\messageBus\MessageBus.h" />
+    <ClInclude Include="engine\code\scene\SceneJsonRegistry.h" />
+    <ClInclude Include="engine\code\scene\SceneFactory.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="editor\EditorController.cpp">
@@ -1243,5 +1246,7 @@
     <ClCompile Include="engine\code\ECS\system\render\OverlayRenderSystem.cpp" />
     <ClCompile Include="engine\code\ECS\component\transform\Transform2d.cpp" />
     <ClCompile Include="math\Matrix3x3.cpp" />
+    <ClCompile Include="engine\code\scene\SceneJsonRegistry.cpp" />
+    <ClCompile Include="engine\code\scene\SceneFactory.cpp" />
   </ItemGroup>
 </Project>

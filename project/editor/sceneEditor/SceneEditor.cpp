@@ -8,7 +8,11 @@
 /// engine
 #include "Engine.h"
 #include "input/InputManager.h"
+
+#include "scene/SceneFactory.h"
+#include "scene/SceneJsonRegistry.h"
 #include "scene/SceneManager.h"
+
 #include "winApp/WinApp.h"
 
 #define RESOURCE_DIRECTORY
@@ -42,7 +46,7 @@
 
 using namespace OriGine;
 
-static const std::string sceneFolderPath = kApplicationResourceDirectory + "/scene";
+static const std::string sceneFolderPath = kApplicationResourceDirectory + "/" + kSceneJsonFolder;
 
 void SceneEditorWindow::Initialize() {
     InitializeScene();
@@ -175,10 +179,9 @@ void SaveMenuItem::DrawGui() {
     bool isSelect = false;
 
     if (ImGui::MenuItem(name_.c_str(), "ctl + s", &isSelect)) {
-        auto* currentScene         = parentMenu_->GetParentWindow()->GetCurrentScene();
-        SceneSerializer serializer = SceneSerializer(currentScene);
+        auto* currentScene = parentMenu_->GetParentWindow()->GetCurrentScene();
         LOG_DEBUG("SaveMenuItem : Saving scene '{}'.", currentScene->GetName());
-        serializer.Serialize();
+        SceneJsonRegistry::GetInstance()->SaveScene(currentScene, sceneFolderPath);
     }
 
     isSelected_.Set(isSelect);
@@ -225,7 +228,7 @@ void CreateMenuItem::DrawGui() {
         ImGui::InputText("New Scene Name", &newSceneName_);
 
         if (ImGui::Button("Create")) {
-            auto scenes = myfs::SearchFile(SceneSerializer::kSceneDirectory, {"json"});
+            auto scenes = myfs::SearchFile(kApplicationResourceDirectory + "/" + kSceneJsonFolder, {"json"});
 
             auto it = std::find_if(
                 scenes.begin(), scenes.end(),
@@ -238,10 +241,9 @@ void CreateMenuItem::DrawGui() {
                 newSceneName_ = "";
                 ImGui::OpenPopup("Scene Exists");
             } else {
-                auto scene = parentMenu_->GetParentWindow()->GetCurrentScene();
+                auto currentScene = parentMenu_->GetParentWindow()->GetCurrentScene();
 
-                SceneSerializer serializer = SceneSerializer(scene);
-                serializer.Serialize();
+                SceneJsonRegistry::GetInstance()->SaveScene(currentScene, sceneFolderPath);
 
                 auto newScene = std::make_unique<Scene>(newSceneName_);
                 newScene->Initialize();
@@ -557,8 +559,6 @@ void EntityHierarchy::DrawGui() {
         OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
     }
     if (ImGui::Button("+ EntityFromFile")) {
-        // 選択されているエンティティを削除
-        SceneSerializer serializer(currentScene);
         std::string directory, filename;
         if (!myfs::SelectFileDialog(kApplicationResourceDirectory + "/entities", directory, filename, {"ent"}, true)) {
             return; // キャンセルされた場合は何もしない
@@ -811,6 +811,9 @@ EntityHierarchy::LoadEntityCommand::LoadEntityCommand(HierarchyArea* _parentArea
     parentArea_ = _parentArea;
     directory_  = _directory;
     entityName_ = _entityName;
+
+    // 読み込み ＆ テンプレート登録
+    SceneJsonRegistry::GetInstance()->LoadEntityTemplate(directory_, entityName_);
 }
 void EntityHierarchy::LoadEntityCommand::Execute() {
     auto currentScene = parentArea_->GetParentWindow()->GetCurrentScene();
@@ -819,8 +822,8 @@ void EntityHierarchy::LoadEntityCommand::Execute() {
         return;
     }
 
-    SceneSerializer serializer(currentScene);
-    Entity* createdEntity = serializer.LoadEntity(directory_, entityName_);
+    SceneFactory factory;
+    Entity* createdEntity = factory.BuildEntityFromTemplate(currentScene, entityName_);
     entityId_             = createdEntity->GetID();
 
     LOG_DEBUG("Created entity with ID '{}'.", entityId_);
@@ -849,9 +852,15 @@ void EntityHierarchy::CopyEntityCommand::Execute() {
 
     // Dataをコピー
     auto currentScene = hierarchy_->parentArea_->GetParentWindow()->GetCurrentScene();
-    SceneSerializer serializer(currentScene);
+
+    SceneFactory factory;
     for (auto entityId : hierarchy_->selectedEntityIds_) {
-        hierarchy_->copyBuffer_.emplace_back(serializer.EntityToJson(entityId));
+        Entity* entity = currentScene->GetEntityRepositoryRef()->GetEntity(entityId);
+        if (!entity) {
+            LOG_ERROR("Entity with ID '{}' not found for copying.", entityId);
+            continue;
+        }
+        hierarchy_->copyBuffer_.emplace_back(factory.CreateEntityJsonFromEntity(currentScene, entity));
     }
 }
 
@@ -870,9 +879,9 @@ void EntityHierarchy::PasteEntityCommand::Execute() {
     auto currentScene = hierarchy_->parentArea_->GetParentWindow()->GetCurrentScene();
 
     // 貼り付けて生成したエンティティIDを保存(削除に利用)
-    SceneSerializer serializer(currentScene);
+    SceneFactory sceneFactory;
     for (const auto& entityJson : hierarchy_->copyBuffer_) {
-        Entity* createdEntity = serializer.EntityFromJson(entityJson);
+        Entity* createdEntity = sceneFactory.BuildEntity(currentScene, entityJson);
         pastedEntityIds_.emplace_back(createdEntity->GetID());
     }
 }

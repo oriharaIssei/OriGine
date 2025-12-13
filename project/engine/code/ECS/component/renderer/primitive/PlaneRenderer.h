@@ -12,8 +12,8 @@ class PlaneRenderer
 
 public:
     PlaneRenderer() : PrimitiveMeshRenderer() {}
-    PlaneRenderer(const std::vector<TextureMesh>& _meshGroup) : PrimitiveMeshRenderer(_meshGroup) {}
-    PlaneRenderer(const std::shared_ptr<std::vector<TextureMesh>>& _meshGroup) : PrimitiveMeshRenderer(_meshGroup) {}
+    PlaneRenderer(const std::vector<TextureColorMesh>& _meshGroup) : PrimitiveMeshRenderer(_meshGroup) {}
+    PlaneRenderer(const std::shared_ptr<std::vector<TextureColorMesh>>& _meshGroup) : PrimitiveMeshRenderer(_meshGroup) {}
     ~PlaneRenderer() override {}
 
     void Initialize(Entity* _hostEntity) override;

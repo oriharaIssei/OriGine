@@ -34,7 +34,8 @@ class ISystem;
 /// 1場面を表すクラス
 /// </summary>
 class Scene final {
-    friend class SceneSerializer;
+    friend class SceneFactory;
+
 
 public:
     Scene(const ::std::string& _name);

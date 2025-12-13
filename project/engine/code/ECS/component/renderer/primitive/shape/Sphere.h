@@ -13,7 +13,7 @@ struct Sphere
 public:
     Sphere() : IPrimitive(PrimitiveType::Sphere) {}
     ~Sphere() override {}
-    void CreateMesh(TextureMesh* _mesh) override;
+    void CreateMesh(TextureColorMesh* _mesh) override;
 
 public:
     float radius_               = 1.0f; // 半径

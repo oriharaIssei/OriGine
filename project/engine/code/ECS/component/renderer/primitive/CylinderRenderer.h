@@ -10,8 +10,8 @@ class CylinderRenderer
 
 public:
     CylinderRenderer() : PrimitiveMeshRenderer() {}
-    CylinderRenderer(const std::vector<TextureMesh>& _meshGroup) : PrimitiveMeshRenderer(_meshGroup) {}
-    CylinderRenderer(const std::shared_ptr<std::vector<TextureMesh>>& _meshGroup) : PrimitiveMeshRenderer(_meshGroup) {}
+    CylinderRenderer(const std::vector<TextureColorMesh>& _meshGroup) : PrimitiveMeshRenderer(_meshGroup) {}
+    CylinderRenderer(const std::shared_ptr<std::vector<TextureColorMesh>>& _meshGroup) : PrimitiveMeshRenderer(_meshGroup) {}
 
     ~CylinderRenderer() override {}
 

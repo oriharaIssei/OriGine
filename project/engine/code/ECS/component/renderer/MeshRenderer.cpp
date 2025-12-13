@@ -92,8 +92,8 @@ void OriGine::from_json(const nlohmann::json& j, ModelMeshRenderer& r) {
     }
 }
 
-ModelMeshRenderer::ModelMeshRenderer(const std::vector<TextureMesh>& _meshGroup)
-    : MeshRenderer<TextureMesh, TextureVertexData>(_meshGroup) {
+ModelMeshRenderer::ModelMeshRenderer(const std::vector<TextureColorMesh>& _meshGroup)
+    : MeshRenderer<TextureColorMesh, TextureColorVertexData>(_meshGroup) {
     if (meshTransformBuff_.size() != meshGroup_->size()) {
         meshTransformBuff_.resize(meshGroup_->size());
     }
@@ -117,8 +117,8 @@ ModelMeshRenderer::ModelMeshRenderer(const std::vector<TextureMesh>& _meshGroup)
     }
 }
 
-ModelMeshRenderer::ModelMeshRenderer(const std::shared_ptr<std::vector<TextureMesh>>& _meshGroup)
-    : MeshRenderer<TextureMesh, TextureVertexData>(_meshGroup) {
+ModelMeshRenderer::ModelMeshRenderer(const std::shared_ptr<std::vector<TextureColorMesh>>& _meshGroup)
+    : MeshRenderer<TextureColorMesh, TextureColorVertexData>(_meshGroup) {
     if (meshTransformBuff_.size() != meshGroup_->size()) {
         meshTransformBuff_.resize(meshGroup_->size());
     }
@@ -209,7 +209,7 @@ void ModelMeshRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] En
                     return;
                 }
                 this->Finalize();
-                meshGroup_ = std::make_shared<std::vector<TextureMesh>>();
+                meshGroup_ = std::make_shared<std::vector<TextureColorMesh>>();
                 CreateModelMeshRenderer(this, this->hostEntity_, this->directory_, this->fileName_);
                 InitializeMaterialFromModelFile(this, _scene, this->hostEntity_, this->directory_, this->fileName_);
             },

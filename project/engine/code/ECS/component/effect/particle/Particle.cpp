@@ -37,7 +37,7 @@ void Particle::Initialize(
     direction_ = _direction;
     velocity_  = _velocity;
 
-    IsAlive_ = true;
+    isAlive_ = true;
 
     scaleRatio_    = transform_.scale / (_maxScale - _minScale);
     rotateRatio_   = transform_.rotate / (_maxRotate - _minRotate);
@@ -53,12 +53,12 @@ void Particle::Initialize(
 
 void Particle::Update(float _deltaTime) {
     deltaTime_ = _deltaTime;
-    if (!IsAlive_) {
+    if (!isAlive_) {
         return;
     }
     currentTime_ += deltaTime_;
     if (currentTime_ >= lifeTime_) {
-        IsAlive_ = false;
+        isAlive_ = false;
         return;
     }
 

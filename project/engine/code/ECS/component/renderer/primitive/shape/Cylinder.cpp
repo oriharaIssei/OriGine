@@ -2,7 +2,7 @@
 
 namespace OriGine {
 namespace Primitive {
-void Cylinder::CreateMesh(TextureMesh* _mesh) {
+void Cylinder::CreateMesh(TextureColorMesh* _mesh) {
     if (_mesh->GetIndexCapacity() < indexSize_) {
         // 必要なら Finalize
         if (_mesh->GetVertexBuffer().GetResource()) {
@@ -16,7 +16,7 @@ void Cylinder::CreateMesh(TextureMesh* _mesh) {
     // 角度ステップ
     float angleStep = kTao / float(kCylinderDivisions);
 
-    std::vector<TextureMesh::VertexType> vertices;
+    std::vector<TextureColorMesh::VertexType> vertices;
     std::vector<uint32_t> indices;
 
     vertices.reserve(vertexSize_);
@@ -38,12 +38,14 @@ void Cylinder::CreateMesh(TextureMesh* _mesh) {
 
         float u = static_cast<float>(i) / static_cast<float>(kCylinderDivisions);
 
-        TextureMesh::VertexType vertex{};
+        TextureColorMesh::VertexType vertex{};
         vertex.pos      = Vec4f(topVertex, 1.f);
+        vertex.normal   = -topVertex.normalize();
         vertex.texCoord = Vec2f(-u, 0.0f);
         vertices.emplace_back(vertex);
 
         vertex.pos      = Vec4f(bottomVertex, 1.f);
+        vertex.normal   = -bottomVertex.normalize();
         vertex.texCoord = Vec2f(-u, 1.0f);
         vertices.emplace_back(vertex);
     }

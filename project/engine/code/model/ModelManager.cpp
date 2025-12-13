@@ -49,7 +49,7 @@ struct hash<VertexKey> {
 } // namespace std
 
 #pragma region "LoadFunctions"
-static void ProcessMeshData(TextureMesh& meshData, const ::std::vector<TextureVertexData>& vertices, const ::std::vector<uint32_t>& indices) {
+static void ProcessMeshData(TextureColorMesh& meshData, const ::std::vector<TextureColorVertexData>& vertices, const ::std::vector<uint32_t>& indices) {
 
     meshData.Initialize(static_cast<UINT>(vertices.size()), static_cast<UINT>(indices.size()));
 
@@ -216,7 +216,7 @@ static void LoadModelFile(ModelMeshData* data, const ::std::string& directoryPat
     auto& device = Engine::GetInstance()->GetDxDevice()->device_;
 
     ::std::unordered_map<VertexKey, uint32_t> vertexMap;
-    ::std::vector<TextureVertexData> vertices;
+    ::std::vector<TextureColorVertexData> vertices;
     ::std::vector<uint32_t> indices;
 
     /// node 読み込み
@@ -227,7 +227,7 @@ static void LoadModelFile(ModelMeshData* data, const ::std::string& directoryPat
     for (uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex) {
         aiMesh* loadedMesh = scene->mMeshes[meshIndex];
 
-        auto& mesh = data->meshGroup[loadedMesh->mName.C_Str()] = TextureMesh();
+        auto& mesh = data->meshGroup[loadedMesh->mName.C_Str()] = TextureColorMesh();
         mesh.SetName(loadedMesh->mName.C_Str());
 
         // 頂点データとインデックスデータの処理

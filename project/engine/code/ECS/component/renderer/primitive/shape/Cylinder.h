@@ -15,14 +15,14 @@ constexpr uint32_t kCylinderIndexCount  = kCylinderDivisions * 3 * 2 + kCylinder
 struct Cylinder
     : public IPrimitive {
 public:
-    Cylinder(int32_t _vertexSize = 36 + 1 + 36 + 1, int32_t _indexSize = 36 * 3 * 2 + 36 * 3)
+    Cylinder(int32_t _vertexSize = kCylinderDivisions + 1 + kCylinderDivisions + 1, int32_t _indexSize = kCylinderDivisions * 3 * 2 + kCylinderDivisions * 3)
         : IPrimitive(PrimitiveType::Cylinder) {
         vertexSize_ = _vertexSize; // 円柱の頂点数
         indexSize_  = _indexSize; // 円柱のインデックス数
     }
     ~Cylinder() override {}
 
-    void CreateMesh(TextureMesh* _mesh) override;
+    void CreateMesh(TextureColorMesh* _mesh) override;
 
 public:
     Vec2f topRadius_    = Vec2f(1.f, 1.f); // 上面の半径

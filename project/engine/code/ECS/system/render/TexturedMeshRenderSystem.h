@@ -72,7 +72,7 @@ public:
     /// <param name="_textureHandle"></param>
     void RenderingMesh(
         Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList,
-        const TextureMesh& _mesh,
+        const TextureColorMesh& _mesh,
         IConstantBuffer<Transform>& _transformBuff,
         IConstantBuffer<Material>& _materialBuff,
         D3D12_GPU_DESCRIPTOR_HANDLE _textureHandle) const;
@@ -82,7 +82,7 @@ public:
     /// </summary>
     void RenderingMesh(
         Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList,
-        const TextureMesh& _mesh,
+        const TextureColorMesh& _mesh,
         IConstantBuffer<Transform>& _transformBuff,
         SimpleConstantBuffer<Material>& _materialBuff,
         D3D12_GPU_DESCRIPTOR_HANDLE _textureHandle) const;

@@ -12,8 +12,8 @@ class SphereRenderer
 
 public:
     SphereRenderer() : PrimitiveMeshRenderer() {}
-    SphereRenderer(const std::vector<TextureMesh>& _meshGroup) : PrimitiveMeshRenderer(_meshGroup) {}
-    SphereRenderer(const std::shared_ptr<std::vector<TextureMesh>>& _meshGroup) : PrimitiveMeshRenderer(_meshGroup) {}
+    SphereRenderer(const std::vector<TextureColorMesh>& _meshGroup) : PrimitiveMeshRenderer(_meshGroup) {}
+    SphereRenderer(const std::shared_ptr<std::vector<TextureColorMesh>>& _meshGroup) : PrimitiveMeshRenderer(_meshGroup) {}
 
     ~SphereRenderer() override {}
 

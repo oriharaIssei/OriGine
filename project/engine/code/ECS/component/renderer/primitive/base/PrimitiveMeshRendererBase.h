@@ -10,11 +10,11 @@ namespace OriGine {
 /// PrimitiveRendererをポリモーフィズムで扱うための基底クラス
 /// </summary>
 class PrimitiveMeshRendererBase
-    : public MeshRenderer<TextureMesh, TextureVertexData> {
+    : public MeshRenderer<TextureColorMesh, TextureColorVertexData> {
 public:
     PrimitiveMeshRendererBase() : MeshRenderer() {}
-    PrimitiveMeshRendererBase(const std::vector<TextureMesh>& _meshGroup) : MeshRenderer(_meshGroup) {}
-    PrimitiveMeshRendererBase(const std::shared_ptr<std::vector<TextureMesh>>& _meshGroup) : MeshRenderer(_meshGroup) {}
+    PrimitiveMeshRendererBase(const std::vector<TextureColorMesh>& _meshGroup) : MeshRenderer(_meshGroup) {}
+    PrimitiveMeshRendererBase(const std::shared_ptr<std::vector<TextureColorMesh>>& _meshGroup) : MeshRenderer(_meshGroup) {}
 
     virtual ~PrimitiveMeshRendererBase()                                               = default;
     virtual void Initialize(Entity* _entity)                                           = 0;
@@ -25,7 +25,7 @@ public:
     /// 自身のプリミティブ情報をもとにメッシュを作成する
     /// </summary>
     /// <param name="_mesh"></param>
-    virtual void CreateMesh(TextureMesh* _mesh) = 0;
+    virtual void CreateMesh(TextureColorMesh* _mesh) = 0;
 
     /// <summary>
     /// テクスチャを読み込む

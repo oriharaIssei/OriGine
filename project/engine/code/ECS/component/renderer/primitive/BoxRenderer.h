@@ -12,8 +12,8 @@ class BoxRenderer
 
 public:
     BoxRenderer() : PrimitiveMeshRenderer() {}
-    BoxRenderer(const std::vector<TextureMesh>& _meshGroup) : PrimitiveMeshRenderer(_meshGroup) {}
-    BoxRenderer(const std::shared_ptr<std::vector<TextureMesh>>& _meshGroup) : PrimitiveMeshRenderer(_meshGroup) {}
+    BoxRenderer(const std::vector<TextureColorMesh>& _meshGroup) : PrimitiveMeshRenderer(_meshGroup) {}
+    BoxRenderer(const std::shared_ptr<std::vector<TextureColorMesh>>& _meshGroup) : PrimitiveMeshRenderer(_meshGroup) {}
     ~BoxRenderer() override {}
 
     void Initialize(Entity* _hostEntity) override;

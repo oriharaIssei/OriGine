@@ -14,7 +14,7 @@ public:
     Plane() : IPrimitive(PrimitiveType::Plane) {}
     ~Plane() override {}
 
-    void CreateMesh(TextureMesh* _mesh) override;
+    void CreateMesh(TextureColorMesh* _mesh) override;
 
 public:
     Vec2f size_   = {1.0f, 1.0f};

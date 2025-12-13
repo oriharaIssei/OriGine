@@ -8,7 +8,7 @@
 /// ECS
 // entity
 #include "entity/Entity.h"
-//component
+// component
 #include "component/ComponentArray.h"
 
 /// util
@@ -93,55 +93,6 @@ public:
     void ChangeScene(const ::std::string& name);
 
     bool IsChangeScene() const { return isChangeScene_; }
-};
-
-class SceneSerializer {
-public:
-    static const ::std::string kSceneDirectory;
-
-public:
-    SceneSerializer(Scene* _targetScene);
-    ~SceneSerializer();
-    /// <summary>
-    /// シーンを保存する(基本はこれを使う)
-    /// </summary>
-    bool Serialize();
-
-    /// <summary>
-    /// シーンを読み込む(基本はこれを使う)
-    /// </summary>
-    void Deserialize();
-
-    /// <summary>
-    /// シーンを保存する(警告なし)
-    /// </summary>
-    void SerializeFromJson();
-
-    /// <summary>
-    /// シーンを読み込む
-    /// </summary>
-    void DeserializeFromJson();
-
-    void SaveEntity(int32_t _entityID, const ::std::string& _directory);
-    nlohmann::json EntityToJson(int32_t _entityID);
-
-    Entity* LoadEntity(const ::std::string& _directory, const ::std::string& _dataType);
-    Entity* EntityFromJson(const nlohmann::json& _entityData);
-    Entity* EntityFromJson(int32_t _entityId, const nlohmann::json& _entityData);
-
-private:
-    nlohmann::json rootJson_;
-
-    Scene* targetScene_ = nullptr;
-
-public:
-    const nlohmann::json& GetRootJson() const {
-        return rootJson_;
-    }
-
-    void SetRootJson(const nlohmann::json& _rootJson) {
-        rootJson_ = _rootJson;
-    }
 };
 
 } // namespace OriGine

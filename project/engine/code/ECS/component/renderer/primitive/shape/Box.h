@@ -19,7 +19,7 @@ public:
         indexSize_  = _indexSize; // 立方体のインデックス数
     }
     ~Box() override {}
-    void CreateMesh(TextureMesh* _mesh) override;
+    void CreateMesh(TextureColorMesh* _mesh) override;
 
 public:
     Vec3f halfSize_;

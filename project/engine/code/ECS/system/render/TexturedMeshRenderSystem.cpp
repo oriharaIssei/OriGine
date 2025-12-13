@@ -23,6 +23,10 @@
 
 using namespace OriGine;
 
+namespace {
+static const std::string kShaderName = "Object3dTextureColor";
+}
+
 TexturedMeshRenderSystem::TexturedMeshRenderSystem() : BaseRenderSystem() {}
 TexturedMeshRenderSystem::~TexturedMeshRenderSystem() {};
 
@@ -151,20 +155,22 @@ void TexturedMeshRenderSystem::Finalize() {
 }
 
 void TexturedMeshRenderSystem::CreatePSO() {
+    const std::string kPsoKey        = "TextureMesh_";
+    const std::string kCullingPsoKey = "CullingTextureMesh_";
 
     ShaderManager* shaderManager = ShaderManager::GetInstance();
     DxDevice* dxDevice           = Engine::GetInstance()->GetDxDevice();
 
     // 登録されているかどうかをチェック
-    if (shaderManager->IsRegisteredPipelineStateObj("TextureMesh_" + kBlendModeStr[0])) {
+    if (shaderManager->IsRegisteredPipelineStateObj(kPsoKey + kBlendModeStr[0])) {
         bool isAllRegistered = true;
         for (size_t i = 0; i < kBlendNum; ++i) {
             if (!psoByBlendMode_[0][i] || !psoByBlendMode_[1][i]) {
                 isAllRegistered = false;
                 continue;
             }
-            psoByBlendMode_[0][i] = shaderManager->GetPipelineStateObj("TextureMesh_" + kBlendModeStr[i]);
-            psoByBlendMode_[1][i] = shaderManager->GetPipelineStateObj("CullingTextureMesh_" + kBlendModeStr[i]);
+            psoByBlendMode_[0][i] = shaderManager->GetPipelineStateObj(kPsoKey + kBlendModeStr[i]);
+            psoByBlendMode_[1][i] = shaderManager->GetPipelineStateObj(kCullingPsoKey + kBlendModeStr[i]);
         }
 
         //! TODO : 自動化
@@ -187,15 +193,15 @@ void TexturedMeshRenderSystem::CreatePSO() {
     ///=================================================
     /// shader読み込み
     ///=================================================
-    shaderManager->LoadShader("Object3dTexture.VS");
-    shaderManager->LoadShader("Object3dTexture.PS", kShaderDirectory, L"ps_6_0");
+    shaderManager->LoadShader(kShaderName + ".VS");
+    shaderManager->LoadShader(kShaderName + ".PS", kShaderDirectory, L"ps_6_0");
 
     ///=================================================
     /// shader情報の設定
     ///=================================================
     ShaderInfo texShaderInfo{};
-    texShaderInfo.vsKey = "Object3dTexture.VS";
-    texShaderInfo.psKey = "Object3dTexture.PS";
+    texShaderInfo.vsKey = kShaderName + ".VS";
+    texShaderInfo.psKey = kShaderName + ".PS";
 
 #pragma region "RootParameter"
     D3D12_ROOT_PARAMETER rootParameter[9]{};
@@ -328,6 +334,13 @@ void TexturedMeshRenderSystem::CreatePSO() {
     inputElementDesc.Format            = DXGI_FORMAT_R32G32B32_FLOAT;
     inputElementDesc.AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
     texShaderInfo.pushBackInputElementDesc(inputElementDesc);
+
+    inputElementDesc.SemanticName      = "COLOR"; /*Semantics*/
+    inputElementDesc.SemanticIndex     = 0; /*Semanticsの横に書いてある数字(今回はPOSITION0なので 0 )*/
+    inputElementDesc.Format            = DXGI_FORMAT_R32G32B32A32_FLOAT; // float 4
+    inputElementDesc.AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+    texShaderInfo.pushBackInputElementDesc(inputElementDesc);
+
 #pragma endregion
 
     ///=================================================
@@ -342,7 +355,7 @@ void TexturedMeshRenderSystem::CreatePSO() {
             continue;
         }
         texShaderInfo.blendMode_ = blend;
-        psoByBlendMode_[0][i]    = shaderManager->CreatePso("TextureMesh_" + kBlendModeStr[i], texShaderInfo, dxDevice->device_);
+        psoByBlendMode_[0][i]    = shaderManager->CreatePso(kPsoKey + kBlendModeStr[i], texShaderInfo, dxDevice->device_);
     }
 
     // カリングあり
@@ -353,7 +366,7 @@ void TexturedMeshRenderSystem::CreatePSO() {
             continue;
         }
         texShaderInfo.blendMode_ = blend;
-        psoByBlendMode_[1][i]    = shaderManager->CreatePso("CullingTextureMesh_" + kBlendModeStr[i], texShaderInfo, dxDevice->device_);
+        psoByBlendMode_[1][i]    = shaderManager->CreatePso(kCullingPsoKey + kBlendModeStr[i], texShaderInfo, dxDevice->device_);
     }
 }
 
@@ -436,7 +449,7 @@ void TexturedMeshRenderSystem::StartRender() {
 
 void TexturedMeshRenderSystem::RenderingMesh(
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList,
-    const TextureMesh& _mesh,
+    const TextureColorMesh& _mesh,
     IConstantBuffer<Transform>& _transformBuff,
     IConstantBuffer<Material>& _materialBuff,
     D3D12_GPU_DESCRIPTOR_HANDLE _textureHandle) const {
@@ -466,7 +479,7 @@ void TexturedMeshRenderSystem::RenderingMesh(
 
 void TexturedMeshRenderSystem::RenderingMesh(
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList,
-    const TextureMesh& _mesh,
+    const TextureColorMesh& _mesh,
     IConstantBuffer<Transform>& _transformBuff,
     SimpleConstantBuffer<Material>& _materialBuff,
     D3D12_GPU_DESCRIPTOR_HANDLE _textureHandle) const {

@@ -75,7 +75,7 @@ protected:
 
     float lifeTime_    = 0.0f;
     float currentTime_ = 0.0f;
-    bool IsAlive_      = false;
+    bool isAlive_      = false;
 
     float mass_ = 1.0f;
 
@@ -99,7 +99,7 @@ public:
         ParticleKeyFrames* _keyFrames);
 
     const ParticleTransform& GetTransform() const { return transform_; }
-    bool GetIsAlive() const { return IsAlive_; }
+    bool GetIsAlive() const { return isAlive_; }
 
     void SetUpdateScale(Vec3f _updateScale) {
         updateScale_ = _updateScale;

@@ -14,7 +14,7 @@ public:
     Ring() : IPrimitive(PrimitiveType::Ring) {}
     ~Ring() override {}
 
-    void CreateMesh(TextureMesh* _mesh) override;
+    void CreateMesh(TextureColorMesh* _mesh) override;
 
 public:
     uint32_t division_ = 16;

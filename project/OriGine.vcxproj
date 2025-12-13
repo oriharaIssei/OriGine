@@ -164,6 +164,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="editor\sceneEditor\SystemInspector.h" />
     <ClInclude Include="editor\setting\SettingWindow.h" />
     <ClInclude Include="editor\window\EditorWindowMenu.h" />
+    <ClInclude Include="engine\code\scene\SceneFactory.h" />
+    <ClInclude Include="engine\code\scene\SceneJsonRegistry.h" />
     <ClInclude Include="engine\EngineInclude.h" />
     <ClInclude Include="engine\code\ECS\component\ComponentArray.h" />
     <ClInclude Include="engine\code\ECS\component\ComponentRegistry.h" />
@@ -330,6 +332,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\ECS\system\render\OverlayRenderSystem.h" />
     <ClInclude Include="engine\code\ECS\component\transform\Transform2d.h" />
     <ClInclude Include="math\Matrix3x3.h" />
+    <ClInclude Include="engine\code\messageBus\MessageBus.h" />
     <ClInclude Include="util\BitArray.h" />
     <ClInclude Include="util\DiffValue.h" />
     <ClInclude Include="util\DxUtil.h" />
@@ -487,7 +490,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\model\Model.cpp" />
     <ClCompile Include="engine\code\model\ModelManager.cpp" />
     <ClCompile Include="engine\code\scene\Scene.cpp" />
+    <ClCompile Include="engine\code\scene\SceneFactory.cpp" />
     <ClCompile Include="engine\code\scene\SceneManager.cpp" />
+    <ClCompile Include="engine\code\scene\SceneJsonRegistry.cpp" />
     <ClCompile Include="engine\code\texture\TextureManager.cpp" />
     <ClCompile Include="engine\code\winApp\WinApp.cpp" />
     <ClCompile Include="math\Interpolation.cpp" />

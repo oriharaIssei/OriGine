@@ -14,8 +14,8 @@ class PrimitiveMeshRenderer
     : public PrimitiveMeshRendererBase {
 public:
     PrimitiveMeshRenderer() : PrimitiveMeshRendererBase() {}
-    PrimitiveMeshRenderer(const std::vector<TextureMesh>& _meshGroup) : PrimitiveMeshRendererBase(_meshGroup) {}
-    PrimitiveMeshRenderer(const std::shared_ptr<std::vector<TextureMesh>>& _meshGroup) : PrimitiveMeshRendererBase(_meshGroup) {}
+    PrimitiveMeshRenderer(const std::vector<TextureColorMesh>& _meshGroup) : PrimitiveMeshRendererBase(_meshGroup) {}
+    PrimitiveMeshRenderer(const std::shared_ptr<std::vector<TextureColorMesh>>& _meshGroup) : PrimitiveMeshRendererBase(_meshGroup) {}
 
     ~PrimitiveMeshRenderer() override {}
 
@@ -30,7 +30,7 @@ public:
     /// <summary>
     /// 自身のプリミティブ情報をもとにメッシュを作成
     /// </summary>
-    virtual void CreateMesh(TextureMesh* _mesh) {
+    virtual void CreateMesh(TextureColorMesh* _mesh) {
         primitive_.CreateMesh(_mesh);
     }
 

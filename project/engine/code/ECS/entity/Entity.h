@@ -12,6 +12,8 @@ namespace OriGine {
 // ECS
 class EntityRepository;
 
+constexpr int32_t kInvalidEntityID = -1;
+
 /// <summary>
 /// 実体を表すクラス (実際にはIDでしか無い)
 /// </summary>
@@ -20,7 +22,7 @@ class Entity {
 
 public:
     Entity(const ::std::string& _dataType, int32_t _id, bool _isUnique = false)
-        : dataType_(_dataType), id_(_id), IsAlive_(true), isUnique_(_isUnique) {}
+        : dataType_(_dataType), id_(_id), isAlive_(true), isUnique_(_isUnique) {}
     Entity() = default;
 
     ~Entity() = default;
@@ -32,28 +34,28 @@ public:
 private:
     ::std::string dataType_ = "UNKNOWN";
 
-    int32_t id_      = -1;
-    bool IsAlive_    = false;
+    int32_t id_      = kInvalidEntityID;
+    bool isAlive_    = false;
     bool isUnique_   = false;
-    bool ShouldSave_ = true;
+    bool shouldSave_ = true;
 
 public:
     bool IsAlive() const {
-        return IsAlive_;
+        return isAlive_;
     }
     bool IsUnique() const {
         return isUnique_;
     }
 
     bool ShouldSave() const {
-        return ShouldSave_;
+        return shouldSave_;
     }
     void SetShouldSave(bool _ShouldSave) {
-        ShouldSave_ = _ShouldSave;
+        shouldSave_ = _ShouldSave;
     }
 
     void DeleteEntity() {
-        IsAlive_ = false;
+        isAlive_ = false;
     }
 
     /// <summary>

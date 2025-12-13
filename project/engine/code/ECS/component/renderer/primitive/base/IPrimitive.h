@@ -17,7 +17,7 @@ public:
     IPrimitive(PrimitiveType _type) : type_(_type) {}
     virtual ~IPrimitive() {}
 
-    virtual void CreateMesh(TextureMesh* _mesh) = 0;
+    virtual void CreateMesh(TextureColorMesh* _mesh) = 0;
 
 protected:
     int32_t vertexSize_ = 0; // 頂点数

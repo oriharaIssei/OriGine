@@ -6,7 +6,7 @@ using namespace Primitive;
 /// =====================================================
 /// Box
 /// =====================================================
-void Box::CreateMesh(TextureMesh* _mesh) {
+void Box::CreateMesh(TextureColorMesh* _mesh) {
     if (_mesh->GetIndexCapacity() < indexSize_) {
         // 必要なら Finalize
         if (_mesh->GetVertexBuffer().GetResource()) {
@@ -18,7 +18,7 @@ void Box::CreateMesh(TextureMesh* _mesh) {
     }
 
     // 頂点データを設定
-    std::vector<TextureMesh::VertexType> vertices;
+    std::vector<TextureColorMesh::VertexType> vertices;
     vertices.reserve(vertexSize_);
     // インデックスデータを設定
     std::vector<uint32_t> indices;
@@ -44,10 +44,10 @@ void Box::CreateMesh(TextureMesh* _mesh) {
         uint32_t base  = static_cast<uint32_t>(vertices.size());
 
         // p0-p1-p2-p3 は必ず CCW にする
-        vertices.emplace_back(TextureVertexData(Vec4f(p0, 1), Vec2f(0.f, 0.f), n));
-        vertices.emplace_back(TextureVertexData(Vec4f(p1, 1), Vec2f(1.f, 0.f), n));
-        vertices.emplace_back(TextureVertexData(Vec4f(p2, 1), Vec2f(0.f, 1.f), n));
-        vertices.emplace_back(TextureVertexData(Vec4f(p3, 1), Vec2f(1.f, 1.f), n));
+        vertices.emplace_back(TextureColorMesh::VertexType(Vec4f(p0, 1), Vec2f(0.f, 0.f), n, kWhite));
+        vertices.emplace_back(TextureColorMesh::VertexType(Vec4f(p1, 1), Vec2f(1.f, 0.f), n, kWhite));
+        vertices.emplace_back(TextureColorMesh::VertexType(Vec4f(p2, 1), Vec2f(0.f, 1.f), n, kWhite));
+        vertices.emplace_back(TextureColorMesh::VertexType(Vec4f(p3, 1), Vec2f(1.f, 1.f), n, kWhite));
 
         indices.insert(indices.end(),
             {base + 0, base + 1, base + 2,

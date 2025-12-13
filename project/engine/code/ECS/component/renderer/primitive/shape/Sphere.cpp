@@ -9,7 +9,7 @@ namespace Primitive {
 /// =====================================================
 /// Sphere
 /// ====================================================
-void Sphere::CreateMesh(TextureMesh* _mesh) {
+void Sphere::CreateMesh(TextureColorMesh* _mesh) {
     // パラメータ
     const uint32_t latitudeDiv  = divisionLatitude_; // 緯度分割数
     const uint32_t longitudeDiv = divisionLongitude_; // 経度分割数
@@ -49,7 +49,7 @@ void Sphere::CreateMesh(TextureMesh* _mesh) {
                 float(lon) / float(longitudeDiv),
                 float(lat) / float(latitudeDiv)};
 
-            _mesh->vertexes_.emplace_back(TextureVertexData(Vec4f(pos, 1.0f), uv, normal));
+            _mesh->vertexes_.emplace_back(TextureColorVertexData(Vec4f(pos, 1.0f), uv, normal));
         }
     }
 

@@ -204,7 +204,7 @@ private:
     bool isActive_       = false;
     BlendMode blendMode_ = BlendMode::Alpha;
 
-    TextureMesh mesh_;
+    TextureColorMesh mesh_;
 
     DxResource particleResource_;
     DxSrvDescriptor particleSrvDescriptor_;
@@ -226,8 +226,8 @@ public:
     uint32_t GetParticleSize() const { return shapeBuffer_->particleSize; }
     BlendMode GetBlendMode() const { return blendMode_; }
 
-    const TextureMesh& GetMesh() const { return mesh_; }
-    TextureMesh& GetMeshRef() { return mesh_; }
+    const TextureColorMesh& GetMesh() const { return mesh_; }
+    TextureColorMesh& GetMeshRef() { return mesh_; }
 
     const DxResource& GetParticleResource() const { return particleResource_; }
     const DxSrvDescriptor& GetParticleSrvDescriptor() const {

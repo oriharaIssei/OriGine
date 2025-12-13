@@ -9,7 +9,7 @@ namespace Primitive {
 /// =====================================================
 /// Ring
 /// =====================================================
-void Ring::CreateMesh(TextureMesh* _mesh) {
+void Ring::CreateMesh(TextureColorMesh* _mesh) {
     if (!_mesh->vertexes_.empty()) {
         _mesh->vertexes_.clear();
     }
@@ -46,10 +46,10 @@ void Ring::CreateMesh(TextureMesh* _mesh) {
         float uNext   = nextIndex / realDivision;
 
         // Vertex
-        _mesh->vertexes_.emplace_back(TextureVertexData(Vector4f(-sin * outerRadius_, cos * outerRadius_, 0.f, 1.f), Vec2f(u, 0.f), Vector3f(0.f, 0.f, -1.f)));
-        _mesh->vertexes_.emplace_back(TextureVertexData(Vector4f(-sinNext * outerRadius_, cosNext * outerRadius_, 0.f, 1.f), Vec2f(uNext, 0.f), Vector3f(0.f, 0.f, -1.f)));
-        _mesh->vertexes_.emplace_back(TextureVertexData(Vector4f(-sin * innerRadius_, cos * innerRadius_, 0.f, 1.f), Vec2f(u, 1.f), Vector3f(0.f, 0.f, -1.f)));
-        _mesh->vertexes_.emplace_back(TextureVertexData(Vector4f(-sinNext * innerRadius_, cosNext * innerRadius_, 0.f, 1.f), Vec2f(uNext, 1.f), Vector3f(0.f, 0.f, -1.f)));
+        _mesh->vertexes_.emplace_back(TextureColorVertexData(Vector4f(-sin * outerRadius_, cos * outerRadius_, 0.f, 1.f), Vec2f(u, 0.f), Vector3f(0.f, 0.f, -1.f),kWhite));
+        _mesh->vertexes_.emplace_back(TextureColorVertexData(Vector4f(-sinNext * outerRadius_, cosNext * outerRadius_, 0.f, 1.f), Vec2f(uNext, 0.f), Vector3f(0.f, 0.f, -1.f), kWhite));
+        _mesh->vertexes_.emplace_back(TextureColorVertexData(Vector4f(-sin * innerRadius_, cos * innerRadius_, 0.f, 1.f), Vec2f(u, 1.f), Vector3f(0.f, 0.f, -1.f), kWhite));
+        _mesh->vertexes_.emplace_back(TextureColorVertexData(Vector4f(-sinNext * innerRadius_, cosNext * innerRadius_, 0.f, 1.f), Vec2f(uNext, 1.f), Vector3f(0.f, 0.f, -1.f), kWhite));
 
         // Index
         uint32_t startIndex = i * 4;
