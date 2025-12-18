@@ -35,18 +35,18 @@ static const ::std::string kEngineResourceDirectory      = "./engine/resource";
 #include "system/SystemRegistry.h"
 #include "system/SystemRunner.h"
 
-#include "system/movement/SubSceneUpdate.h"
-#include "system/postRender/SubSceneRender.h"
-
 #include "system/initialize/CameraInitialize.h"
 #include "system/initialize/GpuParticleInitialize.h"
 #include "system/initialize/RegisterWindowResizeEvent.h"
 #include "system/initialize/ResolveEntityReferences.h"
 
-#include "system/collision/CollisionCheckSystem.h"
-#include "system/collision/CollisionPushBackSystem.h"
+#include "system/transition/EffectAutoDestroySystem.h"
 
 #include "system/movement/MoveSystemByRigidBody.h"
+#include "system/movement/SubSceneUpdate.h"
+
+#include "system/collision/CollisionCheckSystem.h"
+#include "system/collision/CollisionPushBackSystem.h"
 
 #include "system/effect/CameraActionSystem.h"
 #include "system/effect/EmitterWorkSystem.h"
@@ -56,6 +56,7 @@ static const ::std::string kEngineResourceDirectory      = "./engine/resource";
 #include "system/effect/PrimitiveNodeAnimationWorkSystem.h"
 #include "system/effect/SkinningAnimationSystem.h"
 #include "system/effect/SpriteAnimationSystem.h"
+#include "system/effect/TransformAnimationWorkSystem.h"
 
 #include "system/render/BackGroundSpriteRenderSystem.h"
 #include "system/render/ColliderRenderingSystem.h"
@@ -78,6 +79,7 @@ static const ::std::string kEngineResourceDirectory      = "./engine/resource";
 #include "system/postRender/RandomEffect.h"
 #include "system/postRender/SmoothingEffect.h"
 #include "system/postRender/SpeedlineEffect.h"
+#include "system/postRender/SubSceneRender.h"
 #include "system/postRender/VignetteEffect.h"
 #endif // ENGINE_SYSTEMS
 
@@ -105,6 +107,7 @@ static const ::std::string kEngineResourceDirectory      = "./engine/resource";
 #include "component/animation/PrimitiveNodeAnimation.h"
 #include "component/animation/SkinningAnimationComponent.h"
 #include "component/animation/SpriteAnimation.h"
+#include "component/animation/TransformAnimation.h"
 #include "component/effect/CameraAction.h"
 
 #include "component/collision/collider/AABBCollider.h"

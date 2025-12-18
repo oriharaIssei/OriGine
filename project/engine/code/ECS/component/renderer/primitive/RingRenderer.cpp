@@ -169,6 +169,9 @@ void OriGine::from_json(const nlohmann::json& j, RingRenderer& r) {
     j.at("blendMode").get_to(blendMode);
     r.currentBlend_ = static_cast<BlendMode>(blendMode);
 
+    from_json(j.at("transform"), r.transformBuff_.openData_);
+    j.at("materialIndex").get_to(r.materialIndex_);
+
     if (j.contains("textureFilePath")) {
         j.at("textureFilePath").get_to(r.textureFilePath_);
     } else {

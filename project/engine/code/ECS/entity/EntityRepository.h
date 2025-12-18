@@ -41,16 +41,16 @@ public:
     /// <summary>
     /// EntityIndex の 確保
     /// </summary>
-    int32_t allocateEntity();
+    int32_t AllocateEntity();
 
     /// <summary>
     /// UniqueEntity に 登録する
     /// </summary>
-    bool registerUniqueEntity(Entity* _entity);
+    bool RegisterUniqueEntity(Entity* _entity);
     /// <summary>
     /// UniqueEntity を削除する
     /// </summary>
-    bool unregisterUniqueEntity(const ::std::string& _dataTypeName);
+    bool UnregisterUniqueEntity(const ::std::string& _dataTypeName);
 
     /// <summary>
     /// Entity を登録する

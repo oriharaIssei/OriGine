@@ -15,8 +15,8 @@ struct Material;
 /// </summary>
 class MaterialAnimation
     : public IComponent {
-    friend void to_json(nlohmann::json& _json, const MaterialAnimation& _primitiveNodeAnimation);
-    friend void from_json(const nlohmann::json& _json, MaterialAnimation& _primitiveNodeAnimation);
+    friend void to_json(nlohmann::json& _json, const MaterialAnimation& _animation);
+    friend void from_json(const nlohmann::json& _json, MaterialAnimation& _animation);
 
 public:
     MaterialAnimation()           = default;
@@ -59,6 +59,8 @@ private:
     float tilePerTime_         = 0.f;
     float startAnimationTime_  = 0.f;
     float animationTimeLength_ = 0.f;
+
+    bool isDebugPlay_ = false;
 #endif // _DEBUG
 
     AnimationState animationState_;
@@ -84,14 +86,32 @@ public:
     void SetCurrentTime(float _currentTime) { currentTime_ = _currentTime; }
 
     bool GetAnimationIsLoop() const { return animationState_.isLoop_; }
-    bool GetAnimationIsPlay() const { return animationState_.isPlay_; }
+    bool GetAnimationIsPlay() const {
+#ifdef _DEBUG
+        return isDebugPlay_;
+#else
+        return animationState_.isPlay_;
+#endif // _DEBUG
+    }
     bool GetAnimationIsEnd() const { return animationState_.isEnd_; }
     void SetAnimationIsLoop(bool _isLoop) { animationState_.isLoop_ = _isLoop; }
-    void SetAnimationIsPlay(bool _isPlay) { animationState_.isPlay_ = _isPlay; }
+    void EndAnimation() {
+#ifdef _DEBUG
+        isDebugPlay_ = false;
+#else
+        animationState_.isPlay_ = false;
+#endif // _DEBUG
+        animationState_.isEnd_ = true;
+        currentTime_           = duration_;
+    }
     void SetAnimationIsEnd(bool _isEnd) { animationState_.isEnd_ = _isEnd; }
 
     InterpolationType GetInterpolationType() const { return interpolationType_; }
     void SetInterpolationType(InterpolationType _uvInterpolationType) { interpolationType_ = _uvInterpolationType; }
+
+    AnimationCurve<Vec4f>& GetColorCurve() {
+        return colorCurve_;
+    }
 };
 
 } // namespace OriGine

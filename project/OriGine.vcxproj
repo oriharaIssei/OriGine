@@ -164,6 +164,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="editor\sceneEditor\SystemInspector.h" />
     <ClInclude Include="editor\setting\SettingWindow.h" />
     <ClInclude Include="editor\window\EditorWindowMenu.h" />
+    <ClInclude Include="engine\code\ECS\system\transition\EffectAutoDestroySystem.h" />
+    <ClInclude Include="engine\code\ECS\component\animation\TransformAnimation.h" />
+    <ClInclude Include="engine\code\ECS\system\effect\TransformAnimationWorkSystem.h" />
     <ClInclude Include="engine\code\scene\SceneFactory.h" />
     <ClInclude Include="engine\code\scene\SceneJsonRegistry.h" />
     <ClInclude Include="engine\EngineInclude.h" />
@@ -320,6 +323,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="math\Orientation.h" />
     <ClInclude Include="math\Quaternion.h" />
     <ClInclude Include="math\Sequence.h" />
+    <ClInclude Include="math\Spline.h" />
     <ClInclude Include="math\Vector.h" />
     <ClInclude Include="math\Vector2.h" />
     <ClInclude Include="math\Vector3.h" />
@@ -360,6 +364,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="editor\sceneEditor\SystemInspector.cpp" />
     <ClCompile Include="editor\setting\SettingWindow.cpp" />
     <ClCompile Include="editor\window\EditorWindowMenu.cpp" />
+    <ClCompile Include="engine\code\ECS\system\transition\EffectAutoDestroySystem.cpp" />
+    <ClCompile Include="engine\code\ECS\component\animation\TransformAnimation.cpp" />
     <ClCompile Include="engine\code\ECS\component\ComponentRegistry.cpp" />
     <ClCompile Include="engine\code\ECS\component\ComponentRepository.cpp" />
     <ClCompile Include="engine\code\ECS\component\EntityReferenceList.cpp" />
@@ -418,6 +424,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\ECS\component\transform\Transform.cpp" />
     <ClCompile Include="engine\code\ECS\entity\EntityRepository.cpp" />
     <ClCompile Include="engine\code\ECS\system\ISystem.cpp" />
+    <ClCompile Include="engine\code\ECS\system\effect\TransformAnimationWorkSystem.cpp" />
     <ClCompile Include="engine\code\ECS\system\SystemCategory.cpp" />
     <ClCompile Include="engine\code\ECS\system\SystemRegistry.cpp" />
     <ClCompile Include="engine\code\ECS\system\SystemRunner.cpp" />
@@ -506,6 +513,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\ECS\system\render\OverlayRenderSystem.cpp" />
     <ClCompile Include="engine\code\ECS\component\transform\Transform2d.cpp" />
     <ClCompile Include="math\Matrix3x3.cpp" />
+    <ClCompile Include="math\Spline.cpp" />
     <ClCompile Include="util\StringUtil.cpp" />
     <ClCompile Include="util\Version.cpp" />
     <ClCompile Include="util\binaryIO\BinaryIO.cpp" />

@@ -36,16 +36,16 @@ public:
     /// <param name="_systemTypeName"></param>
     /// <param name="scene"></param>
     /// <returns></returns>
-    std::unique_ptr<ISystem> CreateSystem(const std::string& _systemTypeName, Scene* scene);
+    std::shared_ptr<ISystem> CreateSystem(const std::string& _systemTypeName, Scene* scene);
 
 private:
-    std::unordered_map<std::string, std::function<std::unique_ptr<ISystem>(Scene*)>> systemMaker_;
+    std::unordered_map<std::string, std::function<std::shared_ptr<ISystem>(Scene*)>> systemMaker_;
 
 public:
-    const std::unordered_map<std::string, std::function<std::unique_ptr<ISystem>(Scene*)>>& GetSystemMaker() const {
+    const std::unordered_map<std::string, std::function<std::shared_ptr<ISystem>(Scene*)>>& GetSystemMaker() const {
         return systemMaker_;
     }
-    std::unordered_map<std::string, std::function<std::unique_ptr<ISystem>(Scene*)>>& GetSystemsRef() {
+    std::unordered_map<std::string, std::function<std::shared_ptr<ISystem>(Scene*)>>& GetSystemsRef() {
         return systemMaker_;
     }
     void ClearAll() {
@@ -62,7 +62,7 @@ inline void SystemRegistry::RegisterSystem() {
     }
 
     systemMaker_[systemName] = [](Scene* scene) {
-        std::unique_ptr<ISystem> system = std::make_unique<SystemClass>();
+        std::shared_ptr<ISystem> system = std::make_shared<SystemClass>();
         system->SetScene(scene);
         return std::move(system);
     };

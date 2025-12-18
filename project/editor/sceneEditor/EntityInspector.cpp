@@ -863,9 +863,9 @@ void EntityInformationRegion::ChangeEntityUniqueness::Execute() {
     }
 
     if (newValue_) {
-        currentScene->GetEntityRepositoryRef()->registerUniqueEntity(entity);
+        currentScene->GetEntityRepositoryRef()->RegisterUniqueEntity(entity);
     } else {
-        currentScene->GetEntityRepositoryRef()->unregisterUniqueEntity(entity->GetDataType());
+        currentScene->GetEntityRepositoryRef()->UnregisterUniqueEntity(entity->GetDataType());
     }
 }
 
@@ -879,9 +879,9 @@ void EntityInformationRegion::ChangeEntityUniqueness::Undo() {
     }
 
     if (oldValue_) {
-        currentScene->GetEntityRepositoryRef()->registerUniqueEntity(entity);
+        currentScene->GetEntityRepositoryRef()->RegisterUniqueEntity(entity);
     } else {
-        currentScene->GetEntityRepositoryRef()->unregisterUniqueEntity(entity->GetDataType());
+        currentScene->GetEntityRepositoryRef()->UnregisterUniqueEntity(entity->GetDataType());
     }
 }
 
@@ -919,8 +919,8 @@ void EntityInformationRegion::ChangeEntityName::Execute() {
     entity->SetDataType(newName_);
     // UniqueEntity の場合は、名前変更後に再登録
     if (entity->IsUnique()) {
-        currentScene->GetEntityRepositoryRef()->unregisterUniqueEntity(oldName_);
-        currentScene->GetEntityRepositoryRef()->registerUniqueEntity(entity);
+        currentScene->GetEntityRepositoryRef()->UnregisterUniqueEntity(oldName_);
+        currentScene->GetEntityRepositoryRef()->RegisterUniqueEntity(entity);
     }
 }
 
@@ -934,8 +934,8 @@ void EntityInformationRegion::ChangeEntityName::Undo() {
     entity->SetDataType(oldName_);
     // UniqueEntity の場合は、名前変更後に再登録
     if (entity->IsUnique()) {
-        currentScene->GetEntityRepositoryRef()->unregisterUniqueEntity(newName_);
-        currentScene->GetEntityRepositoryRef()->registerUniqueEntity(entity);
+        currentScene->GetEntityRepositoryRef()->UnregisterUniqueEntity(newName_);
+        currentScene->GetEntityRepositoryRef()->RegisterUniqueEntity(entity);
     }
 }
 

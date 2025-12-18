@@ -183,7 +183,7 @@ private:
 
     ::std::array<bool, static_cast<size_t>(SystemCategory::Count)> categoryActivity = {true, true, true, true, true, true, true, true};
 
-    ::std::unordered_map<::std::string, ::std::unique_ptr<ISystem>> systems_;
+    ::std::unordered_map<::std::string, ::std::shared_ptr<ISystem>> systems_;
     ::std::array<::std::vector<ISystem*>, size_t(SystemCategory::Count)> activeSystems_;
 
 public:
@@ -200,10 +200,10 @@ public:
         categoryActivity[static_cast<size_t>(_category)] = _isActive;
     }
 
-    const ::std::unordered_map<::std::string, ::std::unique_ptr<ISystem>>& GetSystems() const {
+    const ::std::unordered_map<::std::string, ::std::shared_ptr<ISystem>>& GetSystems() const {
         return systems_;
     }
-    ::std::unordered_map<::std::string, ::std::unique_ptr<ISystem>>& GetSystemsRef() {
+    ::std::unordered_map<::std::string, ::std::shared_ptr<ISystem>>& GetSystemsRef() {
         return systems_;
     }
 

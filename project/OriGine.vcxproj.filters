@@ -766,6 +766,10 @@
     <ClInclude Include="engine\code\messageBus\MessageBus.h" />
     <ClInclude Include="engine\code\scene\SceneJsonRegistry.h" />
     <ClInclude Include="engine\code\scene\SceneFactory.h" />
+    <ClInclude Include="math\Spline.h" />
+    <ClInclude Include="engine\code\ECS\component\animation\TransformAnimation.h" />
+    <ClInclude Include="engine\code\ECS\system\effect\TransformAnimationWorkSystem.h" />
+    <ClInclude Include="engine\code\ECS\system\transition\EffectAutoDestroySystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="editor\EditorController.cpp">
@@ -1248,5 +1252,9 @@
     <ClCompile Include="math\Matrix3x3.cpp" />
     <ClCompile Include="engine\code\scene\SceneJsonRegistry.cpp" />
     <ClCompile Include="engine\code\scene\SceneFactory.cpp" />
+    <ClCompile Include="math\Spline.cpp" />
+    <ClCompile Include="engine\code\ECS\component\animation\TransformAnimation.cpp" />
+    <ClCompile Include="engine\code\ECS\system\effect\TransformAnimationWorkSystem.cpp" />
+    <ClCompile Include="engine\code\ECS\system\transition\EffectAutoDestroySystem.cpp" />
   </ItemGroup>
 </Project>

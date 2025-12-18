@@ -134,8 +134,11 @@ void MaterialAnimation::Initialize(Entity* /*_entity*/) { // Initialize animatio
 void MaterialAnimation::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, [[maybe_unused]] [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
-    std::string label = "duration##" + _parentLabel;
+    std::string label = "Duration##" + _parentLabel;
     DragGuiCommand(label, duration_);
+
+    label = "LocalTime##" + _parentLabel;
+    SlideGuiCommand("LocalTime", currentTime_, 0.f, duration_);
 
     ImGui::Spacing();
 
@@ -151,6 +154,7 @@ void MaterialAnimation::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] En
     CheckBoxCommand("Is Loop##" + _parentLabel, animationState_.isLoop_);
     CheckBoxCommand("Is Play##" + _parentLabel, animationState_.isPlay_);
 
+    CheckBoxCommand("Is Debug Play##" + _parentLabel, isDebugPlay_);
     ImGui::Spacing();
 
     label = "InterpolationType##" + _parentLabel;
@@ -285,13 +289,17 @@ void MaterialAnimation::Finalize() {
 void MaterialAnimation::Update(float _deltaTime, Material* _material) {
     animationState_.isEnd_ = false;
 
+    if (!GetAnimationIsPlay()) {
+        return;
+    }
+
     currentTime_ += _deltaTime;
+
     if (currentTime_ >= duration_) {
         if (animationState_.isLoop_) {
             currentTime_ = 0.0f;
         } else {
-            animationState_.isEnd_  = true;
-            animationState_.isPlay_ = false;
+            EndAnimation();
         }
     }
 
@@ -404,7 +412,7 @@ void OriGine::from_json(const nlohmann::json& _json, MaterialAnimation& _animati
     };
     _json.at("InterpolationType").get_to(_animation.interpolationType_);
 
-    // readCurve("colorCurve", _animation.colorCurve_);
+    readCurve("colorCurve", _animation.colorCurve_);
 
     readCurve("uvScaleCurve", _animation.uvscaleCurve_);
     readCurve("uvRotateCurve", _animation.uvRotateCurve_);

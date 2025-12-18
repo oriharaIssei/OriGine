@@ -21,6 +21,7 @@
 namespace OriGine {
 
 static constexpr uint32_t kDdefaultComponentArraySize = 100;
+static constexpr uint32_t kDdefaultComponentSize      = 6;
 
 //====================================================================
 // IComponentArray Interface
@@ -53,7 +54,7 @@ public:
     virtual void ReserveEntity(OriGine::Entity* _hostEntity, int32_t _entitySize) = 0;
     virtual void ResizeEntity(OriGine::Entity* _hostEntity, int32_t _entitySize)  = 0;
 
-    virtual void Clear()                                                   = 0;
+    virtual void Clear()                                                            = 0;
     virtual void ClearComponent(OriGine::Entity* _hostEntity)                       = 0;
     virtual int32_t GetComponentSize(OriGine::Entity* _entity)                      = 0;
     virtual IComponent* GetComponent(OriGine::Entity* _entity, uint32_t _index = 0) = 0;

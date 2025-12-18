@@ -109,8 +109,20 @@ struct Quaternion final
     float dot(const Quaternion& q) const;
 
     Vec3f ToEulerAngles() const;
+    /// <summary>
+    /// ピッチ (x軸回りの回転角度)を取得
+    /// </summary>
+    /// <returns></returns>
     float ToPitch() const;
+    /// <summary>
+    /// ヨー (y軸回りの回転角度)を取得
+    /// </summary>
+    /// <returns></returns>
     float ToYaw() const;
+    /// <summary>
+    /// ロール (z軸回りの回転角度)を取得
+    /// </summary>
+    /// <returns></returns>
     float ToRoll() const;
 
     static Vec3f RotateVector(const Vec3f& vec, const Quaternion& q);

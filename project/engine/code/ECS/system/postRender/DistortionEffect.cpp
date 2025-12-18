@@ -243,6 +243,9 @@ void DistortionEffect::DispatchComponent(Entity* _entity) {
         if (!effectParam.GetIsActive()) {
             continue;
         }
+
+        auto* entityTransform = GetComponent<Transform>(_entity);
+
         // 3dオブジェクトリストを使用する場合
         if (effectParam.GetUse3dObjectList()) {
             auto& paramData = effectParam.GetEffectParamData();
@@ -270,6 +273,13 @@ void DistortionEffect::DispatchComponent(Entity* _entity) {
                     }
 
                     materialBuff.ConvertToBuffer(data);
+                }
+                // Transformの更新
+                {
+                    auto& transform   = primitiveRenderBase->GetTransformBuff();
+                    transform->parent = entityTransform;
+                    transform->UpdateMatrix();
+                    transform.ConvertToBuffer();
                 }
 
                 // 追加

@@ -57,7 +57,7 @@ Entity* EntityRepository::GetUniqueEntity(const std::string& _dataTypeName) {
 /// <summary>
 /// EntityIndex の 確保
 /// </summary>
-int32_t EntityRepository::allocateEntity() {
+int32_t EntityRepository::AllocateEntity() {
     if (entityActiveBits_.GetTrueCount() >= size_) {
         LOG_INFO("EntityRepository: Allocating more entities than current size. Resizing...");
         resize(size_ * 2);
@@ -70,7 +70,7 @@ int32_t EntityRepository::allocateEntity() {
 /// <summary>
 /// UniqueEntity に 登録する
 /// </summary>
-bool EntityRepository::registerUniqueEntity(Entity* _entity) {
+bool EntityRepository::RegisterUniqueEntity(Entity* _entity) {
     if (uniqueEntityIDs_.find(_entity->dataType_) != uniqueEntityIDs_.end()) {
         LOG_ERROR("EntityRepository: Unique entity already registered with data type: {}", _entity->dataType_);
         return false;
@@ -82,7 +82,7 @@ bool EntityRepository::registerUniqueEntity(Entity* _entity) {
 /// <summary>
 /// UniqueEntity を削除する
 /// </summary>
-bool EntityRepository::unregisterUniqueEntity(const std::string& _dataTypeName) {
+bool EntityRepository::UnregisterUniqueEntity(const std::string& _dataTypeName) {
     auto itr = uniqueEntityIDs_.find(_dataTypeName);
     if (itr == uniqueEntityIDs_.end()) {
         LOG_ERROR("EntityRepository: Unique entity not found with data type: {}", _dataTypeName);
@@ -98,7 +98,7 @@ bool EntityRepository::unregisterUniqueEntity(const std::string& _dataTypeName) 
 /// Entity を登録する
 /// </summary>
 int32_t EntityRepository::CreateEntity(const std::string& _dataType, bool _isUnique) {
-    int32_t entityIndex = allocateEntity();
+    int32_t entityIndex = AllocateEntity();
 
     Entity& entity   = entities_[entityIndex];
     entity.id_       = entityIndex;
@@ -107,7 +107,7 @@ int32_t EntityRepository::CreateEntity(const std::string& _dataType, bool _isUni
     entity.isUnique_ = false;
 
     if (_isUnique) {
-        registerUniqueEntity(&entity);
+        RegisterUniqueEntity(&entity);
     }
 
     return entityIndex;
@@ -134,7 +134,7 @@ int32_t EntityRepository::CreateEntity(int32_t _id, const std::string& _dataType
     uniqueEntityIDs_[_dataType] = _id;
 
     if (_isUnique) {
-        registerUniqueEntity(&entity);
+        RegisterUniqueEntity(&entity);
     }
 
     return _id;
@@ -157,7 +157,7 @@ bool EntityRepository::RemoveEntity(int32_t _entityIndex) {
     }
 
     if (entity.isUnique_) {
-        unregisterUniqueEntity(entity.dataType_);
+        UnregisterUniqueEntity(entity.dataType_);
     }
 
     entity = Entity();
