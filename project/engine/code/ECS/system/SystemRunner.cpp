@@ -169,24 +169,23 @@ void SystemRunner::ActivateSystem(const std::string& _systemName) {
         return;
     }
 
-    ISystem* system = itr->second.get();
-    if (!system) {
+    if (!itr->second) {
         LOG_WARN("System '{}' is nullptr.", _systemName);
         return;
     }
-    size_t categoryIndex = static_cast<size_t>(system->GetCategory());
+    size_t categoryIndex = static_cast<size_t>(itr->second->GetCategory());
     auto& activeSystems  = activeSystems_[categoryIndex];
-    if (std::find(activeSystems.begin(), activeSystems.end(), system) != activeSystems.end()) {
+    if (std::find(activeSystems.begin(), activeSystems.end(), itr->second) != activeSystems.end()) {
         LOG_WARN("System '{}' is already active in category '{}'.", _systemName, kSystemCategoryString[categoryIndex]);
         return;
     }
 
-    system->SetIsActive(true);
-    activeSystems.emplace_back(system);
+    itr->second->SetIsActive(true);
+    activeSystems.push_back(itr->second);
     std::sort(
         activeSystems.begin(),
         activeSystems.end(),
-        [](const ISystem* a, const ISystem* b) {
+        [](const std::shared_ptr<ISystem>& a, const std::shared_ptr<ISystem>& b) {
             return a->GetPriority() < b->GetPriority(); // priorityが低い順（降順）
         });
 }
@@ -198,41 +197,39 @@ void SystemRunner::DeactivateSystem(const std::string& _systemName) {
         return;
     }
 
-    ISystem* system      = itr->second.get();
-    size_t categoryIndex = static_cast<size_t>(system->GetCategory());
+    size_t categoryIndex = static_cast<size_t>(itr->second->GetCategory());
     auto& activeSystems  = activeSystems_[categoryIndex];
-    if (std::find(activeSystems.begin(), activeSystems.end(), system) == activeSystems.end()) {
+    if (std::find(activeSystems.begin(), activeSystems.end(), itr->second) == activeSystems.end()) {
         LOG_WARN("SystemRunner: System '{}' is not active in category '{}'.", _systemName, kSystemCategoryString[categoryIndex]);
         return;
     }
 
-    system->SetIsActive(false);
+    itr->second->SetIsActive(false);
 
     if (!activeSystems.empty()) {
-        auto it = std::remove(activeSystems.begin(), activeSystems.end(), system);
+        auto it = std::remove(activeSystems.begin(), activeSystems.end(), itr->second);
         if (it != activeSystems.end()) {
             activeSystems.erase(it, activeSystems.end());
         }
     }
 }
 
-void SystemRunner::RegisterEntity(const std::string& _systemTypeName, Entity* _entity) {
+void SystemRunner::RegisterEntity(const std::string& _systemTypeName, EntityHandle _handle) {
     // システム名からシステムを取得し、エンティティを登録
     auto systemItr = systems_.find(_systemTypeName);
     if (systemItr == systems_.end()) {
         LOG_ERROR("SystemRunner: System '{}' not found .", _systemTypeName);
         return;
     }
-    ISystem* system = systemItr->second.get();
 
-    if (system) {
-        system->AddEntity(_entity);
+    if (systemItr->second.get()) {
+        systemItr->second.get()->AddEntity(_handle);
     } else {
         LOG_ERROR("SystemRunner: System '{}' not found.", _systemTypeName);
     }
 }
 
-void SystemRunner::RemoveEntity(const std::string& _systemTypeName, Entity* _entity) {
+void SystemRunner::RemoveEntity(const std::string& _systemTypeName, EntityHandle _handle) {
     // システム名からシステムを取得し、エンティティを登録
     auto systemItr = systems_.find(_systemTypeName);
     if (systemItr == systems_.end()) {
@@ -240,37 +237,35 @@ void SystemRunner::RemoveEntity(const std::string& _systemTypeName, Entity* _ent
         return;
     }
     // システム名からシステムを取得し、エンティティを削除
-    ISystem* system = systemItr->second.get();
-    if (system) {
-        system->RemoveEntity(_entity);
+    if (systemItr->second) {
+        systemItr->second->RemoveEntity(_handle);
     } else {
         LOG_ERROR("SystemRunner: System '{}' not found.", _systemTypeName);
     }
 }
 
-void SystemRunner::RemoveEntityFromAllSystems(Entity* _entity) {
+void SystemRunner::RemoveEntityFromAllSystems(EntityHandle _handle) {
     // 各システムからエンティティを削除
     for (auto& [name, system] : systems_) {
         if (system) {
-            system->RemoveEntity(_entity);
+            system->RemoveEntity(_handle);
         }
     }
 }
 
-ISystem* SystemRunner::GetSystem(const std::string& _systemName) const {
+::std::shared_ptr<ISystem> SystemRunner::GetSystem(const std::string& _systemName) const {
     auto itr = systems_.find(_systemName);
     if (itr != systems_.end()) {
-        return itr->second.get();
+        return itr->second;
     }
 
     LOG_ERROR("SystemRunner: System '{}' not found in any category.", _systemName);
     return nullptr;
 }
-
-ISystem* SystemRunner::GetSystemRef(const std::string& _systemName) {
+::std::shared_ptr<ISystem> SystemRunner::GetSystemRef(const std::string& _systemName) {
     auto itr = systems_.find(_systemName);
     if (itr != systems_.end()) {
-        return itr->second.get();
+        return itr->second;
     }
 
     LOG_ERROR("SystemRunner: System '{}' not found in any category.", _systemName);

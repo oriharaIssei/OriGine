@@ -12,7 +12,7 @@ using namespace OriGine;
 void CollisionPushBackSystem::Initialize() {}
 void CollisionPushBackSystem::Finalize() {}
 
-void CollisionPushBackSystem::UpdateEntity(Entity* _entity) {
+void CollisionPushBackSystem::UpdateEntity(EntityHandle _handle) {
     CollisionPushBackInfo* collPushbackInfo = GetComponent<CollisionPushBackInfo>(_entity);
 
     if (collPushbackInfo == nullptr) {

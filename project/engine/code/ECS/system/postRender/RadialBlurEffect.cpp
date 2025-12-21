@@ -124,7 +124,7 @@ void RadialBlurEffect::RenderEnd() {
     renderTarget_->PostDraw();
 }
 
-void RadialBlurEffect::DispatchComponent(Entity* _entity) {
+void RadialBlurEffect::DispatchComponent(EntityHandle _handle) {
     auto components = GetComponents<RadialBlurParam>(_entity);
     if (!components) {
         return;

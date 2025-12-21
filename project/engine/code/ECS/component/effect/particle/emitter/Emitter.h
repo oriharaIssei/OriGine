@@ -49,7 +49,7 @@ public:
     Emitter();
     ~Emitter();
 
-    void Initialize(Entity* _entity) override;
+    void Initialize(Scene* _scene, EntityHandle _entity) override;
     //! ToDo :: Update,Draw の削除
     void Update(float _deltaTime);
     void UpdateParticle(float _deltaTime);
@@ -57,7 +57,7 @@ public:
 
     void Finalize() override;
 
-    void Edit(Scene* _scene, Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) override;
 
     /// <summary>
     /// 生成される Particle の 最大数を計算する

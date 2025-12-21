@@ -15,7 +15,7 @@ void ResolveEntityReferences::Initialize() {}
 
 void ResolveEntityReferences::Finalize() {}
 
-void ResolveEntityReferences::UpdateEntity(Entity* _entity) {
+void ResolveEntityReferences::UpdateEntity(EntityHandle _handle) {
     // EntityReferenceListコンポーネントを取得
     auto* entityRefListArray = GetComponents<EntityReferenceList>(_entity);
     if (entityRefListArray == nullptr) {

@@ -152,14 +152,14 @@ struct Model {
     ModelMaterialData materialData_;
 
     void SetMaterialBuff(int32_t part, Material _data) {
-        materialData_[part].material = _data;
+        materialData_[part].material.openData_ = _data;
     }
     /// <summary>
     /// 指定したメッシュのテクスチャをロードする
     /// </summary>
     /// <param name="part">メシュの番号</param>
     /// <param name="_texturePath">テクスチャパス</param>
-    void loadTexture(int32_t part, const std::string& _texturePath);
+    void LoadTexture(int32_t part, const std::string& _texturePath);
 
     /// <summary>
     ///  <非推奨> 直接 指定したメッシュのテクスチャをセットする

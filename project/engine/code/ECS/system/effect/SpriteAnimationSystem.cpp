@@ -17,7 +17,7 @@ void SpriteAnimationSystem::Initialize() {}
 
 void SpriteAnimationSystem::Finalize() {}
 
-void SpriteAnimationSystem::UpdateEntity(Entity* _entity) {
+void SpriteAnimationSystem::UpdateEntity(EntityHandle _handle) {
     std::vector<SpriteAnimation>* spriteAnimations = GetComponents<SpriteAnimation>(_entity);
     std::vector<SpriteRenderer>* spriteRenderers   = GetComponents<SpriteRenderer>(_entity);
 

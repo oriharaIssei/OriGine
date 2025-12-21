@@ -126,12 +126,12 @@ private:
 
 #endif // _DEBUG
 
-void PrimitiveNodeAnimation::Initialize(Entity* /*_entity*/) {
+void PrimitiveNodeAnimation:: Initialize(Scene* /*_scene,*/, EntityHandle /*_owner*/) {
     // Initialize animation state
     currentTime_ = 0.0f;
 }
 
-void PrimitiveNodeAnimation::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_unused]] [[maybe_unused]] const std::string& _parentLabel) {
+void PrimitiveNodeAnimation::Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, [[maybe_unused]] [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     std::string label = "duration##" + _parentLabel;

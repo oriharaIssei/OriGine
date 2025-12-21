@@ -23,7 +23,7 @@
 
 using namespace OriGine;
 
-void DistortionEffectParam::Initialize(Entity* _hostEntity) {
+void DistortionEffectParam::Initialize(Scene* _scene, EntityHandle _hostEntity) {
     effectParamData_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
     effectParamData_.ConvertToBuffer();
     materialBuffer_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
@@ -48,7 +48,7 @@ void DistortionEffectParam::LoadTexture(const std::string& _path) {
     textureIndex_ = TextureManager::LoadTexture(texturePath_);
 }
 
-void DistortionEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
+void DistortionEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _handle, [[maybe_unused]] const std::string& _parentLabel) {
 
 #ifdef DEBUG
     CheckBoxCommand("Active##" + _parentLabel, isActive_);

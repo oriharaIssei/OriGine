@@ -24,7 +24,7 @@ void GpuParticleInitialize::Initialize() {
 }
 
 void GpuParticleInitialize::Update() {
-    if (entityIDs_.empty()) {
+    if (entities_.empty()) {
         return;
     }
     ISystem::EraseDeadEntity();
@@ -32,7 +32,7 @@ void GpuParticleInitialize::Update() {
     usingCS_ = false;
 
     StartCS();
-    for (auto& id : entityIDs_) {
+    for (auto& id : entities_) {
         Entity* entity = GetEntity(id);
         UpdateEntity(entity);
     }
@@ -49,7 +49,7 @@ void GpuParticleInitialize::Finalize() {
     pso_ = nullptr;
 }
 
-void GpuParticleInitialize::UpdateEntity(Entity* _entity) {
+void GpuParticleInitialize::UpdateEntity(EntityHandle _handle) {
     auto& commandList = dxCommand_->GetCommandList();
 
     auto gpuParticleVec = GetComponents<GpuParticleEmitter>(_entity);

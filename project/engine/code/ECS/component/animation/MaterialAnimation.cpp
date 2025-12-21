@@ -127,11 +127,11 @@ private:
 
 #endif // _DEBUG
 
-void MaterialAnimation::Initialize(Entity* /*_entity*/) { // Initialize animation state
+void MaterialAnimation:: Initialize(Scene* /*_scene,*/, EntityHandle /*_owner*/) { // Initialize animation state
     currentTime_ = 0.0f;
 }
 
-void MaterialAnimation::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, [[maybe_unused]] [[maybe_unused]] const std::string& _parentLabel) {
+void MaterialAnimation::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _handle, [[maybe_unused]] [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     std::string label = "Duration##" + _parentLabel;

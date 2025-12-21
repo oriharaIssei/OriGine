@@ -25,7 +25,7 @@ public:
     void Finalize();
 
 protected:
-    void UpdateEntity(Entity* _entity) override;
+    void UpdateEntity(EntityHandle _handle) override;
 
     void CreatePSO();
     /// <summary>

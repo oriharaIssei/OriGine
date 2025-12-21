@@ -13,7 +13,7 @@ CameraInitialize::~CameraInitialize() {}
 void CameraInitialize::Initialize() {}
 void CameraInitialize::Finalize() {}
 
-void CameraInitialize::UpdateEntity(Entity* _entity) {
+void CameraInitialize::UpdateEntity(EntityHandle _handle) {
     CameraTransform* cameraTransform = GetComponent<CameraTransform>(_entity);
     if (!cameraTransform) {
         return;

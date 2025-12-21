@@ -46,7 +46,7 @@ protected:
     /// <summary>
     /// PostEffectに使用するComponentを登録する
     /// </summary>
-    void DispatchComponent(Entity* _entity) override;
+    void DispatchComponent(EntityHandle _handle) override;
 
     /// <summary>
     /// ポストレンダリングをスキップするかどうか

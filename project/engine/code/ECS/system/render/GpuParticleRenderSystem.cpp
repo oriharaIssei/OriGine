@@ -183,7 +183,7 @@ void GpuParticleRenderSystem::StartRender() {
     perViewBuffer_.SetForRootParameter(dxCommand_->GetCommandList(), 1);
 }
 
-void GpuParticleRenderSystem::DispatchRenderer(Entity* _entity) {
+void GpuParticleRenderSystem::DispatchRenderer(EntityHandle _entity) {
     auto components = GetComponents<GpuParticleEmitter>(_entity);
     if (!components) {
         return;

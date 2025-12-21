@@ -142,7 +142,7 @@ void GradationEffect::RenderEnd() {
     renderTarget_->PostDraw();
 }
 
-void GradationEffect::DispatchComponent(Entity* _entity) {
+void GradationEffect::DispatchComponent(EntityHandle _handle) {
     auto effectParams = GetComponents<GradationComponent>(_entity);
 
     if (!effectParams) {

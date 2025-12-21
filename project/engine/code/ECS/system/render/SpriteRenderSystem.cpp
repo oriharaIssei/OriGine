@@ -87,13 +87,13 @@ void SpriteRenderSystem::Rendering() {
     renderers_.clear();
 }
 
-void SpriteRenderSystem::DispatchRenderer(Entity* _entity) {
-    std::vector<SpriteRenderer>* renderers = GetComponents<SpriteRenderer>(_entity);
+void SpriteRenderSystem::DispatchRenderer(EntityHandle _entity) {
+    std::vector<SpriteRenderer> renderers = GetComponents<SpriteRenderer>(_entity);
 
-    if (!renderers) {
+    if (renderers.empty()) {
         return;
     }
-    for (auto& renderer : *renderers) {
+    for (auto& renderer : renderers) {
         if (!renderer.IsRender()) {
             continue;
         }

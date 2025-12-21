@@ -13,7 +13,7 @@ void OriGine::from_json(const nlohmann::json& _json, SphereCollider& _s) {
     _json.at("transform").get_to(_s.transform_);
 }
 
-void SphereCollider::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
+void SphereCollider::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _handle, [[maybe_unused]] const std::string& _parentLabel) {
 
 #ifdef _DEBUG
 
@@ -27,7 +27,7 @@ void SphereCollider::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entit
     }
     label = "Transform##" + _parentLabel;
     if (ImGui::TreeNode(label.c_str())) {
-        transform_.Edit(_scene, _entity, _parentLabel);
+        transform_.Edit(_scene, _handle, _parentLabel);
         ImGui::TreePop();
     }
 

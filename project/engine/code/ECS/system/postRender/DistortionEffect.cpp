@@ -234,7 +234,7 @@ void DistortionEffect::RenderEnd() {
     renderTarget_->PostDraw();
 }
 
-void DistortionEffect::DispatchComponent(Entity* _entity) {
+void DistortionEffect::DispatchComponent(EntityHandle _handle) {
     auto distortionEffectParams = GetComponents<DistortionEffectParam>(_entity);
     if (!distortionEffectParams) {
         return;

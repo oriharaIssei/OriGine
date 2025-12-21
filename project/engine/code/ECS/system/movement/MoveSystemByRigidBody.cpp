@@ -20,7 +20,7 @@ void MoveSystemByRigidBody::Initialize() {}
 
 void MoveSystemByRigidBody::Finalize() {}
 
-void MoveSystemByRigidBody::UpdateEntity(Entity* _entity) {
+void MoveSystemByRigidBody::UpdateEntity(EntityHandle _handle) {
     const float deltaTime = Engine::GetInstance()->GetDeltaTime();
     Transform* transform  = GetComponent<Transform>(_entity);
 

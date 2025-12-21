@@ -17,7 +17,7 @@ void BaseRenderSystem::Initialize() {
 
 void BaseRenderSystem::Update() {
     // レンダリング対象が無ければスキップ
-    if (entityIDs_.empty()) {
+    if (entities_.empty()) {
         return;
     }
 
@@ -26,9 +26,8 @@ void BaseRenderSystem::Update() {
 
     // レンダラー登録
     auto* hostScene = GetScene();
-    for (auto& entityID : entityIDs_) {
-        Entity* entity = hostScene->GetEntityRepositoryRef()->GetEntity(entityID);
-        DispatchRenderer(entity);
+    for (auto& entityID : entities_) {
+        DispatchRenderer(entityID);
     }
 
     // レンダリングスキップ判定

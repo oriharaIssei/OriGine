@@ -43,7 +43,7 @@ void LineRenderSystem::StartRender() {
     CameraManager::GetInstance()->SetBufferForRootParameter(commandList, 1);
 }
 
-void LineRenderSystem::DispatchRenderer(Entity* _entity) {
+void LineRenderSystem::DispatchRenderer(EntityHandle _entity) {
     std::vector<LineRenderer>* renderers = GetComponents<LineRenderer>(_entity);
     if (!renderers) {
         return;

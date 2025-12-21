@@ -19,17 +19,17 @@ using namespace OriGine;
 SpriteAnimation::SpriteAnimation() {}
 SpriteAnimation::~SpriteAnimation() {}
 
-void SpriteAnimation::Initialize(Entity* /*_hostEntity*/) {
+void SpriteAnimation::Initialize(Scene* /*_scene*/, EntityHandle /*_entity*/) {
     // 初期化
     currentTime_ = 0.0f;
 }
 
-void SpriteAnimation::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
+void SpriteAnimation::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _handle, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     std::string label = "SpriteComponentIndex##" + _parentLabel;
 
     {
-        auto* spriteComponents = _scene->GetComponents<SpriteRenderer>(_entity);
+        auto* spriteComponents = _scene->GetComponents<SpriteRenderer>(_handle);
         if (spriteComponents) {
             int32_t maxIndex = static_cast<int32_t>(spriteComponents->size()) - 1;
             InputGuiCommand<int32_t>(label, spriteComponentIndex_, "%d", [this, maxIndex](int32_t* _newVal) {

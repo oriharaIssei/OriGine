@@ -140,7 +140,7 @@ ModelMeshRenderer::ModelMeshRenderer(const std::shared_ptr<std::vector<TextureCo
     }
 }
 
-void ModelMeshRenderer::Initialize(Entity* _hostEntity) {
+void ModelMeshRenderer::Initialize(Scene* _scene, EntityHandle _hostEntity) {
     MeshRenderer::Initialize(_hostEntity);
 
     if (!fileName_.empty()) {
@@ -166,7 +166,7 @@ void ModelMeshRenderer::Initialize(Entity* _hostEntity) {
     }
 }
 
-void ModelMeshRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
+void ModelMeshRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _handle, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     std::string label = "isRender##" + _parentLabel;
     CheckBoxCommand(label, isRender_);
@@ -458,7 +458,7 @@ LineRenderer::LineRenderer(const std::shared_ptr<std::vector<Mesh<ColorVertexDat
 
 LineRenderer::~LineRenderer() {}
 
-void LineRenderer::Initialize(Entity* _hostEntity) {
+void LineRenderer::Initialize(Scene* _scene, EntityHandle _hostEntity) {
     MeshRenderer::Initialize(_hostEntity);
     transformBuff_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
 
@@ -466,7 +466,7 @@ void LineRenderer::Initialize(Entity* _hostEntity) {
     transformBuff_.ConvertToBuffer();
 }
 
-void LineRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
+void LineRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _handle, [[maybe_unused]] const std::string& _parentLabel) {
 
 #ifdef _DEBUG
 

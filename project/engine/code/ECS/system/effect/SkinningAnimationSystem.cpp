@@ -75,14 +75,14 @@ void SkinningAnimationSystem::Initialize() {
 }
 
 void SkinningAnimationSystem::Update() {
-    if (entityIDs_.empty()) {
+    if (entities_.empty()) {
         return;
     }
     ISystem::EraseDeadEntity();
 
     usingCS_ = false;
 
-    for (auto& id : entityIDs_) {
+    for (auto& id : entities_) {
         Entity* entity = GetEntity(id);
         UpdateEntity(entity);
     }
@@ -99,7 +99,7 @@ void SkinningAnimationSystem::Finalize() {
     pso_ = nullptr;
 }
 
-void SkinningAnimationSystem::UpdateEntity(Entity* _entity) {
+void SkinningAnimationSystem::UpdateEntity(EntityHandle _handle) {
     if (!_entity) {
         return;
     }

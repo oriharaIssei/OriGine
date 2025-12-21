@@ -8,7 +8,7 @@
 
 using namespace OriGine;
 
-void SubSceneUpdate::UpdateEntity(Entity* _entity) {
+void SubSceneUpdate::UpdateEntity(EntityHandle _handle) {
     auto subScenes = GetComponents<SubScene>(_entity);
     if (subScenes == nullptr) {
         return;

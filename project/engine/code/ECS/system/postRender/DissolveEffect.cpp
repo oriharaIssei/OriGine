@@ -157,7 +157,7 @@ void DissolveEffect::RenderEnd() {
     renderTarget_->PostDraw();
 }
 
-void DissolveEffect::DispatchComponent(Entity* _entity) {
+void DissolveEffect::DispatchComponent(EntityHandle _handle) {
     auto effectParams = GetComponents<DissolveEffectParam>(_entity);
 
     if (!effectParams) {

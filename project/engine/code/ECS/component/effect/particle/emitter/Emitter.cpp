@@ -45,7 +45,7 @@ Emitter::Emitter() : IComponent(), currentCoolTime_(0.f), leftActiveTime_(0.f) {
 
 Emitter::~Emitter() {}
 
-void Emitter::Initialize(Entity* /*_entity*/) {
+void Emitter:: Initialize(Scene* /*_scene,*/, EntityHandle /*_owner*/) {
     { // Initialize DrawingData Size
         CalculateMaxSize();
         particles_.reserve(particleMaxSize_);
@@ -268,7 +268,7 @@ void Emitter::PlayStop() {
     leftActiveTime_ = 0.f;
 }
 
-void Emitter::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
+void Emitter::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _handle, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     if (CheckBoxCommand("isActive##" + _parentLabel, isActive_)) {

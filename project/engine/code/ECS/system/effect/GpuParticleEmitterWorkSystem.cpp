@@ -26,7 +26,7 @@ void GpuParticleEmitterWorkSystem::Initialize() {
 }
 
 void GpuParticleEmitterWorkSystem::Update() {
-    if (entityIDs_.empty()) {
+    if (entities_.empty()) {
         return;
     }
     ISystem::EraseDeadEntity();

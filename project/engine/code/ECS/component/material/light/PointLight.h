@@ -25,8 +25,8 @@ public:
     PointLight() {}
     ~PointLight() {}
 
-    void Initialize([[maybe_unused]] Entity* _entity) override {}
-    void Edit(Scene* _scene, Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
+    void Initialize([[maybe_unused]] EntityHandle _handle) override {}
+    void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) override;
 
     void Finalize() override {}
 

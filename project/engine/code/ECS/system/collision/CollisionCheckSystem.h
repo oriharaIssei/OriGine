@@ -22,7 +22,7 @@ public:
     void Finalize() override;
 
 protected:
-    void UpdateEntity(Entity* _entity) override;
+    void UpdateEntity(EntityHandle _handle) override;
 
 protected:
     ::std::vector<Entity*> entities_;

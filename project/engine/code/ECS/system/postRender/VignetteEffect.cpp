@@ -132,14 +132,14 @@ void VignetteEffect::RenderEnd() {
     renderTarget_->PostDraw();
 }
 
-void VignetteEffect::DispatchComponent(Entity* _entity) {
-    auto* vignetteParams = GetComponents<VignetteParam>(_entity);
+void VignetteEffect::DispatchComponent(EntityHandle _handle) {
+    auto& vignetteParams = GetComponents<VignetteParam>(_entity->GetHandle());
 
     if (!vignetteParams) {
         return;
     }
 
-    for (auto& param : *vignetteParams) {
+    for (auto& param : vignetteParams) {
         param.GetVignetteBuffer().ConvertToBuffer();
         activeParams_.push_back(&param);
     }

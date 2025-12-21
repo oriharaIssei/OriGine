@@ -10,7 +10,7 @@
 namespace OriGine {
 
 template <>
-bool CheckCollisionPair(Scene* /*_scene*/, Entity* _entityA, Entity* _entityB, const Bounds::Sphere& _shapeA, const Bounds::Sphere& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
+bool CheckCollisionPair(Scene* /*_scene*/, EntityHandle _handleA, EntityHandle _handleB, const Bounds::Sphere& _shapeA, const Bounds::Sphere& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
 
     Vec3f distance = (_shapeA.center_) - (_shapeB.center_);
 
@@ -223,11 +223,11 @@ bool CheckCollisionPair(Scene* _scene, Entity* _aabbEntity, Entity* _sphereEntit
 }
 
 template <>
-bool CheckCollisionPair(Scene* _scene, Entity* _entityA, Entity* _entityB, const Bounds::Sphere& _shapeA, const Bounds::AABB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
+bool CheckCollisionPair(Scene* _scene, EntityHandle _handleA, EntityHandle _handleB, const Bounds::Sphere& _shapeA, const Bounds::AABB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
     return CheckCollisionPair<Bounds::AABB, Bounds::Sphere>(_scene, _entityB, _entityA, _shapeB, _shapeA, _bInfo, _aInfo);
 }
 template <>
-bool CheckCollisionPair(Scene* /*_scene*/, Entity* _entityA, Entity* _entityB, const Bounds::Sphere& _shapeA, const Bounds::OBB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
+bool CheckCollisionPair(Scene* /*_scene*/, EntityHandle _handleA, EntityHandle _handleB, const Bounds::Sphere& _shapeA, const Bounds::OBB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
     auto& obb    = _shapeB;
     auto& sphere = _shapeA;
 
@@ -305,12 +305,12 @@ bool CheckCollisionPair(Scene* /*_scene*/, Entity* _entityA, Entity* _entityB, c
 }
 
 template <>
-bool CheckCollisionPair(Scene* _scene, Entity* _entityA, Entity* _entityB, const Bounds::OBB& _shapeA, const Bounds::Sphere& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
+bool CheckCollisionPair(Scene* _scene, EntityHandle _handleA, EntityHandle _handleB, const Bounds::OBB& _shapeA, const Bounds::Sphere& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
     return CheckCollisionPair<Bounds::Sphere, Bounds::OBB>(_scene, _entityB, _entityA, _shapeB, _shapeA, _bInfo, _aInfo);
 };
 
 template <>
-bool CheckCollisionPair(Scene* /*_scene*/, Entity* _entityA, Entity* _entityB, const Bounds::AABB& _shapeA, const Bounds::AABB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
+bool CheckCollisionPair(Scene* /*_scene*/, EntityHandle _handleA, EntityHandle _handleB, const Bounds::AABB& _shapeA, const Bounds::AABB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
 
     Vec3f aabbAMin = _shapeA.Min();
     Vec3f aabbAMax = _shapeA.Max();
@@ -407,7 +407,7 @@ bool CheckCollisionPair(Scene* /*_scene*/, Entity* _entityA, Entity* _entityB, c
 }
 
 template <>
-bool CheckCollisionPair(Scene* /*_scene*/, Entity* _entityA, Entity* _entityB, const Bounds::OBB& _shapeA, const Bounds::OBB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
+bool CheckCollisionPair(Scene* /*_scene*/, EntityHandle _handleA, EntityHandle _handleB, const Bounds::OBB& _shapeA, const Bounds::OBB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
     // === 頂点計算 ===
     auto computeVerts = [](const Bounds::OBB& obb) {
         std::array<Vec3f, 8> verts;
@@ -533,7 +533,7 @@ bool CheckCollisionPair(Scene* /*_scene*/, Entity* _entityA, Entity* _entityB, c
 }
 
 template <>
-bool CheckCollisionPair(Scene* _scene, Entity* _entityA, Entity* _entityB, const Bounds::AABB& _shapeA, const Bounds::OBB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
+bool CheckCollisionPair(Scene* _scene, EntityHandle _handleA, EntityHandle _handleB, const Bounds::AABB& _shapeA, const Bounds::OBB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
 
     // --- AABB を OBB と同じ形式に変換 ---
 
@@ -547,7 +547,7 @@ bool CheckCollisionPair(Scene* _scene, Entity* _entityA, Entity* _entityB, const
 }
 
 template <>
-bool CheckCollisionPair(Scene* _scene, Entity* _entityA, Entity* _entityB, const Bounds::OBB& _shapeA, const Bounds::AABB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
+bool CheckCollisionPair(Scene* _scene, EntityHandle _handleA, EntityHandle _handleB, const Bounds::OBB& _shapeA, const Bounds::AABB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
     // 順序を入れ替えて再利用
     return CheckCollisionPair<Bounds::AABB, Bounds::OBB>(_scene, _entityB, _entityA, _shapeB, _shapeA, _bInfo, _aInfo);
 }

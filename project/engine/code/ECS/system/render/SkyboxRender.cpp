@@ -31,7 +31,7 @@ void SkyboxRender::StartRender() {
     commandList->SetDescriptorHeaps(1, ppHeaps);
 }
 
-void SkyboxRender::DispatchRenderer(Entity* _entity) {
+void SkyboxRender::DispatchRenderer(EntityHandle _entity) {
     std::vector<SkyboxRenderer>* renderers = GetComponents<SkyboxRenderer>(_entity);
     // nullptr なら これ以上存在しないとして終了
     if (!renderers) {

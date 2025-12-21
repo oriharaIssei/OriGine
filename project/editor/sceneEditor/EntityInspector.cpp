@@ -341,10 +341,13 @@ void EntitySystemRegion::DrawGui() {
                 if (::ImGui::BeginPopup(popupId.c_str())) {
                     ::ImGui::Text("Are you sure you want to remove the system '%s'?", systemName.c_str());
                     if (::ImGui::Button("Yes")) {
-                        ::std::list<int32_t> editEntityIds = {editEntityId};
-                        auto command                       = ::std::make_unique<RemoveSystemCommand>(editEntityIds, systemName, system->GetCategory());
-                        OriGine::EditorController::GetInstance()->PushCommand(::std::move(command));
-                        ::ImGui::CloseCurrentPopup();
+                        std::shared_ptr<OriGine::ISystem> sharedSystem = system.lock();
+                        if (sharedSystem) {
+                            ::std::list<int32_t> editEntityIds = {editEntityId};
+                            auto command                       = ::std::make_unique<RemoveSystemCommand>(editEntityIds, systemName, sharedSystem->GetCategory());
+                            OriGine::EditorController::GetInstance()->PushCommand(::std::move(command));
+                            ::ImGui::CloseCurrentPopup();
+                        }
                     }
                     ::ImGui::SameLine();
                     if (::ImGui::Button("No")) {
@@ -616,7 +619,7 @@ void SelectAddSystemArea::SystemListRegion::DrawGui() {
             if (::ImGui::CollapsingHeader(categoryName.c_str())) {
                 ::ImGui::Indent();
                 for (auto& [name, priority] : systemsByCategory) {
-                    OriGine::ISystem* system = currentScene->GetSystem(name);
+                    std::shared_ptr<OriGine::ISystem> system = currentScene->GetSystem(name);
 
                     if (!system) {
                         continue;
@@ -648,7 +651,7 @@ void SelectAddSystemArea::SystemListRegion::DrawGui() {
         for (size_t i = 0; i < systemsMap.size(); ++i) {
             auto& systemsByCategory = systemsMap[i];
             for (auto& [name, priority] : systemsByCategory) {
-                OriGine::ISystem* system = currentScene->GetSystem(name);
+                std::shared_ptr<OriGine::ISystem> system = currentScene->GetSystem(name);
 
                 if (!system) {
                     continue;
@@ -783,7 +786,7 @@ void EntityInspectorArea::ChangeEditEntityCommand::Execute() {
             LOG_ERROR("ChangeEditEntityCommand::Execute: System '{}' not found .", systemName);
             continue;
         }
-        OriGine::ISystem* system = systemItr->second.get();
+        std::shared_ptr<OriGine::ISystem> system = systemItr->second;
         if (!system) {
             LOG_ERROR("ChangeEditEntityCommand::Execute: System '{}' not found for entity ID '{}'.", systemName, toId_);
             continue;
@@ -844,7 +847,7 @@ void EntityInspectorArea::ChangeEditEntityCommand::Undo() {
             LOG_ERROR("ChangeEditEntityCommand::Execute: System '{}' not found .", systemName);
             continue;
         }
-        OriGine::ISystem* system = systemItr->second.get();
+        std::shared_ptr<OriGine::ISystem> system = systemItr->second;
         if (!system) {
             LOG_ERROR("ChangeEditEntityCommand::Execute: System '{}' not found for entity ID '{}'.", systemName, toId_);
             continue;
@@ -1073,7 +1076,7 @@ void SelectAddSystemArea::AddSystemsForTargetEntities::Execute() {
             for (const auto& systemTypeName : parentArea_->systemTypeNames_) {
                 currentScene->GetSystemRunnerRef()->RegisterEntity(systemTypeName, entity);
 
-                OriGine::ISystem* system                                                            = currentScene->GetSystemRunnerRef()->GetSystem(systemTypeName);
+                std::shared_ptr<OriGine::ISystem> system                                            = currentScene->GetSystemRunnerRef()->GetSystem(systemTypeName);
                 entityInspectorArea->GetSystemMap()[int32_t(system->GetCategory())][systemTypeName] = system;
             }
         } else {
@@ -1111,9 +1114,9 @@ void SelectAddSystemArea::AddSystemsForTargetEntities::Undo() {
         if (editEntityId == entityId) {
             for (const auto& systemTypeName : parentArea_->systemTypeNames_) {
                 currentScene->GetSystemRunnerRef()->RemoveEntity(systemTypeName, entity);
-                OriGine::ISystem* system = currentScene->GetSystemRunnerRef()->GetSystem(systemTypeName);
-                auto& systems            = entityInspectorArea->GetSystemMap()[int32_t(system->GetCategory())];
-                auto itr                 = systems.find(systemTypeName);
+                std::shared_ptr<OriGine::ISystem> system = currentScene->GetSystemRunnerRef()->GetSystem(systemTypeName);
+                auto& systems                            = entityInspectorArea->GetSystemMap()[int32_t(system->GetCategory())];
+                auto itr                                 = systems.find(systemTypeName);
                 if (itr != systems.end()) {
                     systems.erase(itr);
                 } else {

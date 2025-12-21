@@ -1,6 +1,11 @@
 #include "ComponentRepository.h"
 
+/// ECS
+// component
 #include "component/ComponentRegistry.h"
+
+/// logger
+#include "logger/Logger.h"
 
 using namespace OriGine;
 
@@ -30,7 +35,7 @@ bool ComponentRepository::RegisterComponentArray(const std::string& _compTypeNam
     return true;
 }
 
-void ComponentRepository::UnRegisterComponentArray(const std::string& _typeName, bool _isFinalize) {
+void ComponentRepository::UnregisterComponentArray(const std::string& _typeName, bool _isFinalize) {
     auto itr = componentArrays_.find(_typeName);
     if (itr != componentArrays_.end()) {
         if (_isFinalize) {
@@ -53,33 +58,33 @@ IComponentArray* ComponentRepository::GetComponentArray(const std::string& _type
     return itr->second.get();
 }
 
-void ComponentRepository::AddComponent(const std::string& _compTypeName, Entity* _entity, bool _doInitialize) {
-    auto componentArray = GetComponentArray(_compTypeName);
+void ComponentRepository::AddComponent(Scene* _scene, const std::string& _compTypeName, EntityHandle _handle) {
+    auto* componentArray = GetComponentArray(_compTypeName);
     if (componentArray) {
-        componentArray->AddComponent(_entity, _doInitialize);
+        componentArray->AddComponent(_scene, _handle);
     } else {
         LOG_ERROR("ComponentRepository: ComponentArray not found for type: {}", _compTypeName);
     }
 }
 
-void ComponentRepository::AddComponent(const std::vector<std::string>& _compTypeNames, Entity* _entity, bool _doInitialize) {
+void ComponentRepository::AddComponent(Scene* _scene, const std::vector<std::string>& _compTypeNames, EntityHandle _handle, bool _doInitialize) {
     for (const auto& compTypeName : _compTypeNames) {
-        AddComponent(compTypeName, _entity, _doInitialize);
+        AddComponent(_scene, compTypeName, _handle, _doInitialize);
     }
 }
 
-void ComponentRepository::RemoveComponent(const std::string& _compTypeName, Entity* _entity, int32_t _compIndex) {
+void ComponentRepository::RemoveComponent(const std::string& _compTypeName, EntityHandle _handle, int32_t _compIndex) {
     auto componentArray = GetComponentArray(_compTypeName);
     if (componentArray) {
-        componentArray->RemoveComponent(_entity, _compIndex);
+        componentArray->RemoveComponent(_handle, _compIndex);
     } else {
         LOG_ERROR("ComponentRepository: ComponentArray not found for type: {}", _compTypeName);
     }
 }
 
-void ComponentRepository::DeleteEntity(Entity* _entity) {
+void ComponentRepository::DeleteEntity(EntityHandle _handle) {
     for (auto& [typeName, componentArray] : componentArrays_) {
-        componentArray->DeleteEntity(_entity);
+        componentArray->DeleteEntity(_handle);
     }
 }
 

@@ -12,10 +12,10 @@ using namespace OriGine;
 void EmitterWorkSystem::Initialize() {
 }
 void EmitterWorkSystem::Finalize() {
-    entityIDs_.clear();
+    entities_.clear();
 }
 
-void EmitterWorkSystem::UpdateEntity(Entity* _entity) {
+void EmitterWorkSystem::UpdateEntity(EntityHandle _handle) {
     // _entityがnullptrの場合は何もしない
     if (!_entity) {
         return;

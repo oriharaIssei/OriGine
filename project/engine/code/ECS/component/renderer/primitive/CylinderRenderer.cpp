@@ -20,7 +20,7 @@
 
 using namespace OriGine;
 
-void CylinderRenderer::Initialize(Entity* _hostEntity) {
+void CylinderRenderer::Initialize(Scene* _scene, EntityHandle _hostEntity) {
     MeshRenderer::Initialize(_hostEntity);
 
     // culling しない
@@ -46,7 +46,7 @@ void CylinderRenderer::Initialize(Entity* _hostEntity) {
     }
 }
 
-void CylinderRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
+void CylinderRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _handle, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     ImGui::SeparatorText("Material");
     ImGui::Spacing();

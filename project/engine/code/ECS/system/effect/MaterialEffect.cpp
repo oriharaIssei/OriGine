@@ -82,14 +82,14 @@ void MaterialEffect::Finalize() {
 void MaterialEffect::Update() {
     EraseDeadEntity();
 
-    if (entityIDs_.empty()) {
+    if (entities_.empty()) {
         return;
     }
 
     // 前フレームの描画対象をクリア
     effectPipelines_.clear();
 
-    for (auto& id : entityIDs_) {
+    for (auto& id : entities_) {
         Entity* entity = GetEntity(id);
         DispatchComponents(entity);
     }
@@ -108,7 +108,7 @@ void MaterialEffect::Update() {
     }
 }
 
-void MaterialEffect::DispatchComponents(Entity* _entity) {
+void MaterialEffect::DispatchComponents(EntityHandle _handle) {
     auto materialEffectPipeLines = GetComponents<MaterialEffectPipeLine>(_entity);
     if (!materialEffectPipeLines) {
         return;
@@ -136,7 +136,7 @@ void MaterialEffect::DispatchComponents(Entity* _entity) {
     }
 }
 
-void MaterialEffect::UpdateEffectPipeline(Entity* _entity, MaterialEffectPipeLine* _pipeline) {
+void MaterialEffect::UpdateEffectPipeline(EntityHandle _handle, MaterialEffectPipeLine* _pipeline) {
     auto& commandList = dxCommand_->GetCommandList();
 
     auto tempRenderTexture       = tempRenderTextures_[currentTempRTIndex_].get();
@@ -224,7 +224,7 @@ void MaterialEffect::ExecuteCommand() {
     ///===============================================================
 }
 
-void MaterialEffect::TextureEffect(Entity* _entity, MaterialEffectType _type, RenderTexture* _output) {
+void MaterialEffect::TextureEffect(EntityHandle _handle, MaterialEffectType _type, RenderTexture* _output) {
     switch (_type) {
     case MaterialEffectType::Dissolve: {
         dissolveEffect_->AddEntity(_entity);

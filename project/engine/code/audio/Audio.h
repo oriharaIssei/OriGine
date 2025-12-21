@@ -55,9 +55,9 @@ public:
     Audio() {}
     ~Audio() {}
 
-    void Initialize(Entity* /*_entity*/) override;
+    void  Initialize(Scene* /*_scene,*/, EntityHandle /*_owner*/) override;
 
-    void Edit(Scene* _scene, Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, EntityHandle _handle, [[maybe_unused]] const std::string& _parentLabel) override;
 
     void Finalize() override;
 

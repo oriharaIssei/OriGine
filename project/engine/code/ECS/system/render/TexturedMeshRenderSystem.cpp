@@ -34,70 +34,71 @@ void TexturedMeshRenderSystem::Initialize() {
     BaseRenderSystem::Initialize();
 }
 
-void TexturedMeshRenderSystem::DispatchRenderer(Entity* _entity) {
-    auto modelMeshRenderers = GetComponents<ModelMeshRenderer>(_entity);
-    auto entityTransform    = GetComponent<Transform>(_entity);
+void TexturedMeshRenderSystem::DispatchRenderer(EntityHandle _entity) {
+    auto& modelMeshRenderers = GetComponents<ModelMeshRenderer>(_entity);
+    auto entityTransform     = GetComponent<Transform>(_entity);
+
+    if (modelMeshRenderers.empty()) {
+        return;
+    }
 
     if (entityTransform) {
         entityTransform->UpdateMatrix();
     }
 
-    if (modelMeshRenderers) {
-        for (auto& renderer : *modelMeshRenderers) {
-            if (renderer.GetMeshGroup()->empty() || !renderer.IsRender()) {
-                continue;
-            }
-
-            for (int32_t i = 0; i < static_cast<int32_t>(renderer.GetMeshGroup()->size()); ++i) {
-                ///==============================
-                /// Transformの更新 (meshごと)
-                ///==============================
-                auto& transform = renderer.GetTransformBuff(i);
-
-                if (transform->parent == nullptr) {
-                    transform->parent = entityTransform;
-                }
-
-                transform->UpdateMatrix();
-                transform.ConvertToBuffer();
-            }
-
-            ///==============================
-            /// push_back
-            ///==============================
-            BlendMode blendMode = renderer.GetCurrentBlend();
-            int32_t blendIndex  = static_cast<int32_t>(blendMode);
-            int32_t isCulling   = renderer.IsCulling() ? 1 : 0;
-            activeModelMeshRenderer_[isCulling][blendIndex].push_back(&renderer);
+    for (auto& renderer : modelMeshRenderers) {
+        if (renderer.GetMeshGroup()->empty() || !renderer.IsRender()) {
+            continue;
         }
+
+        for (int32_t i = 0; i < static_cast<int32_t>(renderer.GetMeshGroup()->size()); ++i) {
+            ///==============================
+            /// Transformの更新 (meshごと)
+            ///==============================
+            auto& transform = renderer.GetTransformBuff(i);
+
+            if (transform->parent == nullptr) {
+                transform->parent = entityTransform;
+            }
+
+            transform->UpdateMatrix();
+            transform.ConvertToBuffer();
+        }
+
+        ///==============================
+        /// push_back
+        ///==============================
+        BlendMode blendMode = renderer.GetCurrentBlend();
+        int32_t blendIndex  = static_cast<int32_t>(blendMode);
+        int32_t isCulling   = renderer.IsCulling() ? 1 : 0;
+        activeModelMeshRenderer_[isCulling][blendIndex].push_back(&renderer);
     }
 
     auto dispatchPrimitive = [this, _entity, entityTransform](auto renderers) {
-        if (renderers) {
-            for (auto& renderer : *renderers) {
-                if (!renderer.IsRender()) {
-                    continue;
-                }
-
-                ///==============================
-                /// Transformの更新
-                ///==============================
-                auto& transform = renderer.GetTransformBuff();
-
-                if (transform->parent == nullptr) {
-                    transform->parent = entityTransform;
-                }
-
-                transform->UpdateMatrix();
-                transform.ConvertToBuffer();
-
-                BlendMode blendMode = renderer.GetCurrentBlend();
-                int32_t blendIndex  = static_cast<int32_t>(blendMode);
-                int32_t isCulling   = renderer.IsCulling() ? 1 : 0;
-                activePrimitiveMeshRenderer_[isCulling][blendIndex].push_back(&renderer);
+        for (auto& renderer : renderers) {
+            if (!renderer.IsRender()) {
+                continue;
             }
+
+            ///==============================
+            /// Transformの更新
+            ///==============================
+            auto& transform = renderer.GetTransformBuff();
+
+            if (transform->parent == nullptr) {
+                transform->parent = entityTransform;
+            }
+
+            transform->UpdateMatrix();
+            transform.ConvertToBuffer();
+
+            BlendMode blendMode = renderer.GetCurrentBlend();
+            int32_t blendIndex  = static_cast<int32_t>(blendMode);
+            int32_t isCulling   = renderer.IsCulling() ? 1 : 0;
+            activePrimitiveMeshRenderer_[isCulling][blendIndex].push_back(&renderer);
         }
     };
+
     dispatchPrimitive(GetComponents<PlaneRenderer>(_entity));
     dispatchPrimitive(GetComponents<RingRenderer>(_entity));
     dispatchPrimitive(GetComponents<BoxRenderer>(_entity));
@@ -380,8 +381,8 @@ void TexturedMeshRenderSystem::LightUpdate() {
     lightManager->ClearLights();
 
     if (directionalLight) {
-        for (auto& lightVec : directionalLight->GetAllComponents()) {
-            for (auto& light : lightVec) {
+        for (auto& lightVec : directionalLight->GetSlots()) {
+            for (auto& light : lightVec.components) {
                 if (light.isActive_) {
                     lightManager->PushDirectionalLight(light);
                 }
@@ -390,8 +391,8 @@ void TexturedMeshRenderSystem::LightUpdate() {
     }
 
     if (pointLight) {
-        for (auto& lightVec : pointLight->GetAllComponents()) {
-            for (auto& light : lightVec) {
+        for (auto& lightVec : pointLight->GetSlots()) {
+            for (auto& light : lightVec.components) {
                 if (light.isActive_) {
                     lightManager->PushPointLight(light);
                 }
@@ -400,8 +401,8 @@ void TexturedMeshRenderSystem::LightUpdate() {
     }
 
     if (spotLight) {
-        for (auto& lightVec : spotLight->GetAllComponents()) {
-            for (auto& light : lightVec) {
+        for (auto& lightVec : spotLight->GetSlots()) {
+            for (auto& light : lightVec.components) {
                 if (light.isActive_) {
                     lightManager->PushSpotLight(light);
                 }
@@ -437,8 +438,8 @@ void TexturedMeshRenderSystem::StartRender() {
         commandList, lightCountBufferIndex_, directionalLightBufferIndex_, pointLightBufferIndex_, spotLightBufferIndex_);
 
     /// 環境テクスチャ
-    Entity* skyboxEntity = GetUniqueEntity("Skybox");
-    if (!skyboxEntity) {
+    EntityHandle skyboxEntity = GetUniqueEntity("Skybox");
+    if (!skyboxEntity.IsValid()) {
         return;
     }
     SkyboxRenderer* skybox = GetComponent<SkyboxRenderer>(skyboxEntity);
@@ -526,7 +527,7 @@ void TexturedMeshRenderSystem::RenderModelMesh(Microsoft::WRL::ComPtr<ID3D12Grap
 
         // ============================= Materialのセット ============================= //
         if (materialIndex >= 0) {
-            material = GetComponent<Material>(_renderer->GetHostEntity(), static_cast<uint32_t>(materialIndex));
+            material = GetComponent<Material>(_renderer->GetHostEntityHandle(), static_cast<uint32_t>(materialIndex));
             material->UpdateUvMatrix();
             materialBuff.ConvertToBuffer(*material);
 
@@ -561,7 +562,7 @@ void TexturedMeshRenderSystem::RenderPrimitiveMesh(
         int32_t materialIndex = _renderer->GetMaterialIndex();
         // ============================= Materialのセット ============================= //
         if (materialIndex >= 0) {
-            material = GetComponent<Material>(_renderer->GetHostEntity(), static_cast<uint32_t>(materialIndex));
+            material = GetComponent<Material>(_renderer->GetHostEntityHandle(), static_cast<uint32_t>(materialIndex));
             if (material) {
                 material->UpdateUvMatrix();
                 materialBuff.ConvertToBuffer(*material);

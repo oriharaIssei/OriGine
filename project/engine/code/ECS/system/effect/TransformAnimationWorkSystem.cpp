@@ -11,19 +11,20 @@
 
 using namespace OriGine;
 
-void TransformAnimationWorkSystem::UpdateEntity(Entity* _entity) {
-    auto* animations = GetComponents<TransformAnimation>(_entity);
-    if (animations == nullptr) {
+void TransformAnimationWorkSystem::UpdateEntity(EntityHandle _handle) {
+    EntityHandle handle    = _entity->GetHandle();
+    auto& animations = GetComponents<TransformAnimation>(_entity->GetHandle());
+    if (animations.empty()) {
         return;
     }
     const float deltaTime = GetMainDeltaTime();
 
-    for (auto& transAnim : *animations) {
+    for (auto& transAnim : animations) {
         int32_t transformIndex = transAnim.GetTargetTransformIndex();
         if (transformIndex < 0) {
             continue;
         }
-        auto trans = GetComponent<Transform>(_entity, static_cast<uint32_t>(transformIndex));
+        auto trans = GetComponent<Transform>(handle, static_cast<uint32_t>(transformIndex));
         transAnim.Update(deltaTime, trans);
     }
 }

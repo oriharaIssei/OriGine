@@ -18,7 +18,7 @@ CameraActionSystem::~CameraActionSystem() {}
 void CameraActionSystem::Initialize() {}
 void CameraActionSystem::Finalize() {}
 
-void CameraActionSystem::UpdateEntity(Entity* _entity) {
+void CameraActionSystem::UpdateEntity(EntityHandle _handle) {
     auto action = GetComponent<CameraAction>(_entity);
     auto camera = GetComponent<CameraTransform>(_entity);
 

@@ -25,7 +25,7 @@ void SkinningMeshRenderSystem::Initialize() {
     BaseRenderSystem::Initialize();
 }
 
-void SkinningMeshRenderSystem::DispatchRenderer(Entity* _entity) {
+void SkinningMeshRenderSystem::DispatchRenderer(EntityHandle _entity) {
     auto* skinningAnimationComponents = GetComponents<SkinningAnimationComponent>(_entity);
     if (skinningAnimationComponents == nullptr) {
         return;

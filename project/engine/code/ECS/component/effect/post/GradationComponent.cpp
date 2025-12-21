@@ -50,13 +50,13 @@ void OriGine::from_json(const nlohmann::json& j, GradationComponent& _g) {
     _g.paramBuff_.openData_.gradationType = static_cast<GradationType>(j.value("gradationType", 0));
 }
 
-void GradationComponent::Initialize(Entity* /*_entity*/) {
+void GradationComponent:: Initialize(Scene* /*_scene,*/, EntityHandle /*_owner*/) {
     auto& device = Engine::GetInstance()->GetDxDevice()->device_;
     paramBuff_.CreateBuffer(device);
     materialBuff_.CreateBuffer(device);
 }
 
-void GradationComponent::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
+void GradationComponent::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _handle, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     auto* materials = _scene->GetComponents<Material>(_entity);
     if (materials) {

@@ -125,7 +125,7 @@ void ParticleRenderSystem::CreatePSO() {
     }
 }
 
-void ParticleRenderSystem::DispatchRenderer(Entity* _entity) {
+void ParticleRenderSystem::DispatchRenderer(EntityHandle _entity) {
     // 有効なEmitterなら登録する
     if (_entity == nullptr) {
         return;

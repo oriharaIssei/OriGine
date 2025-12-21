@@ -25,7 +25,7 @@ void VelocityRenderingSystem::Initialize() {
     rigidbodies_ = GetComponentArray<Rigidbody>();
 
     velocityRenderer_ = std::make_unique<LineRenderer>(std::vector<Mesh<ColorVertexData>>());
-    velocityRenderer_->Initialize(nullptr);
+    velocityRenderer_->Initialize(GetScene(),EntityHandle());
     velocityRenderer_->GetMeshGroup()->push_back(Mesh<ColorVertexData>());
     velocityRenderer_->GetMeshGroup()->back().Initialize(
         VelocityRenderingSystem::kDefaultMeshCount_ * kMeshVertexSize, // 頂点数 (線 + 矢印分)
@@ -54,14 +54,14 @@ void VelocityRenderingSystem::CreateRenderMesh() {
         return;
     }
 
-    for (auto& [entityIdx, rbIdx] : rigidbodies_->GetEntityIndexBind()) {
-        Entity* entity = GetEntity(entityIdx);
+    for (auto& compSlot : rigidbodies_->GetSlots()) {
+        Entity* entity = GetEntity(compSlot.owner);
         if (!entity) {
             continue;
         }
 
-        Transform* transform = GetComponent<Transform>(entity);
-        Rigidbody* rigidbody = GetComponent<Rigidbody>(entity);
+        Transform* transform = GetComponent<Transform>(compSlot.owner);
+        Rigidbody* rigidbody = GetComponent<Rigidbody>(compSlot.owner);
         if (!transform || !rigidbody) {
             continue;
         }
@@ -128,7 +128,7 @@ void VelocityRenderingSystem::Rendering() {
 }
 
 bool VelocityRenderingSystem::ShouldSkipRender() const {
-    return !rigidbodies_ || rigidbodies_->GetEntityIndexBind().empty();
+    return !rigidbodies_ || rigidbodies_->GetEntitySlotMap().empty();
 }
 
 void VelocityRenderingSystem::CreatePSO() {

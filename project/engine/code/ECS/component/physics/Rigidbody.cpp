@@ -10,11 +10,11 @@ using namespace OriGine;
 
 Rigidbody::Rigidbody() {}
 
-void Rigidbody::Initialize(Entity* _entity) {
+void Rigidbody::Initialize(EntityHandle _handle) {
     _entity;
 }
 
-void Rigidbody::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
+void Rigidbody::Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, [[maybe_unused]] const std::string& _parentLabel) {
 
 #ifdef _DEBUG
 

@@ -13,7 +13,7 @@
 
 using namespace OriGine;
 
-void PrimitiveNodeAnimationWorkSystem::UpdateEntity(Entity* _entity) {
+void PrimitiveNodeAnimationWorkSystem::UpdateEntity(EntityHandle _handle) {
     auto* primitiveNodeAnimation = GetComponent<PrimitiveNodeAnimation>(_entity);
     if (primitiveNodeAnimation == nullptr) {
         return;

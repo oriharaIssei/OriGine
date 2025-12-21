@@ -10,7 +10,7 @@
 
 using namespace OriGine;
 
-void MaterialAnimationWorkSystem::UpdateEntity(Entity* _entity) {
+void MaterialAnimationWorkSystem::UpdateEntity(EntityHandle _handle) {
     auto* materialAnimations = GetComponents<MaterialAnimation>(_entity);
     if (materialAnimations == nullptr) {
         return;

@@ -20,7 +20,7 @@
 
 using namespace OriGine;
 
-void PlaneRenderer::Initialize(Entity* _hostEntity) {
+void PlaneRenderer::Initialize(Scene* _scene, EntityHandle _hostEntity) {
     MeshRenderer::Initialize(_hostEntity);
 
     // _mesh Init
@@ -44,7 +44,7 @@ void PlaneRenderer::Initialize(Entity* _hostEntity) {
     }
 }
 
-void PlaneRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
+void PlaneRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _handle, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     ImGui::SeparatorText("Material");
     ImGui::Spacing();

@@ -20,7 +20,7 @@
 
 using namespace OriGine;
 
-void RingRenderer::Initialize(Entity* _hostEntity) {
+void RingRenderer::Initialize(Scene* _scene, EntityHandle _hostEntity) {
     MeshRenderer::Initialize(_hostEntity);
 
     // _mesh Init
@@ -43,7 +43,7 @@ void RingRenderer::Initialize(Entity* _hostEntity) {
     }
 }
 
-void RingRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
+void RingRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _handle, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     ImGui::SeparatorText("Material");
     ImGui::Spacing();

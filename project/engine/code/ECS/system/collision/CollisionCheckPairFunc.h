@@ -21,8 +21,8 @@ namespace OriGine {
 template <typename ShapeA, typename ShapeB>
 bool CheckCollisionPair(
     [[maybe_unused]] Scene* _scene,
-    [[maybe_unused]] Entity* _entityA,
-    [[maybe_unused]] Entity* _entityB,
+    [[maybe_unused]] EntityHandle _handleA,
+    [[maybe_unused]] EntityHandle _handleB,
     [[maybe_unused]] const ShapeA& _shapeA,
     [[maybe_unused]] const ShapeB& _shapeB,
     [[maybe_unused]] CollisionPushBackInfo* _aInfo,
@@ -45,8 +45,8 @@ bool CheckCollisionPair(
 template <>
 bool CheckCollisionPair(
     Scene* _scene,
-    Entity* _entityA,
-    Entity* _entityB,
+    EntityHandle _handleA,
+    EntityHandle _handleB,
     const Bounds::Sphere& _shapeA,
     const Bounds::Sphere& _shapeB,
     [[maybe_unused]] CollisionPushBackInfo* _aInfo,
@@ -89,8 +89,8 @@ bool CheckCollisionPair(
 template <>
 bool CheckCollisionPair(
     Scene* _scene,
-    Entity* _entityA,
-    Entity* _entityB,
+    EntityHandle _handleA,
+    EntityHandle _handleB,
     // 順番が A, B と B, A で同じ処理を行うため、関数を呼び出しを入れ替える
     const Bounds::Sphere& _shapeA,
     const Bounds::AABB& _shapeB,
@@ -103,8 +103,8 @@ bool CheckCollisionPair(
 template <>
 bool CheckCollisionPair(
     Scene* _scene,
-    Entity* _entityA,
-    Entity* _entityB,
+    EntityHandle _handleA,
+    EntityHandle _handleB,
     const Bounds::Sphere& _shapeA,
     const Bounds::OBB& _shapeB,
     [[maybe_unused]] CollisionPushBackInfo* _aInfo,
@@ -116,8 +116,8 @@ bool CheckCollisionPair(
 template <>
 bool CheckCollisionPair(
     Scene* _scene,
-    Entity* _entityA,
-    Entity* _entityB,
+    EntityHandle _handleA,
+    EntityHandle _handleB,
     // 順番が A, B と B, A で同じ処理を行うため、関数を呼び出しを入れ替える
     const Bounds::OBB& _shapeA,
     const Bounds::Sphere& _shapeB,
@@ -139,8 +139,8 @@ bool CheckCollisionPair(
 template <>
 bool CheckCollisionPair(
     Scene* _scene,
-    Entity* _entityA,
-    Entity* _entityB,
+    EntityHandle _handleA,
+    EntityHandle _handleB,
     const Bounds::AABB& _shapeA,
     const Bounds::AABB& _shapeB,
     [[maybe_unused]] CollisionPushBackInfo* _aInfo,
@@ -149,8 +149,8 @@ bool CheckCollisionPair(
 template <>
 bool CheckCollisionPair(
     Scene* _scene,
-    Entity* _entityA,
-    Entity* _entityB,
+    EntityHandle _handleA,
+    EntityHandle _handleB,
     const Bounds::OBB& _shapeA,
     const Bounds::OBB& _shapeB,
     CollisionPushBackInfo* _aInfo,
@@ -162,8 +162,8 @@ bool CheckCollisionPair(
 template <>
 bool CheckCollisionPair(
     Scene* _scene,
-    Entity* _entityA,
-    Entity* _entityB,
+    EntityHandle _handleA,
+    EntityHandle _handleB,
     const Bounds::AABB& _shapeA,
     const Bounds::OBB& _shapeB,
     [[maybe_unused]] CollisionPushBackInfo* _aInfo,
@@ -175,8 +175,8 @@ bool CheckCollisionPair(
 template <>
 bool CheckCollisionPair(
     Scene* _scene,
-    Entity* _entityA,
-    Entity* _entityB,
+    EntityHandle _handleA,
+    EntityHandle _handleB,
     const Bounds::OBB& _shapeA,
     const Bounds::AABB& _shapeB,
     [[maybe_unused]] CollisionPushBackInfo* _aInfo,

@@ -48,7 +48,7 @@ protected:
     /// PostEffectに使用するComponentを登録する
     /// (Systemによっては使用しない)
     /// </summary>
-    virtual void DispatchComponent(Entity* /*_entity*/) {}
+    virtual void DispatchComponent(EntityHandle /*_owner*/) {}
 
     /// <summary>
     /// ポストレンダリングをスキップするかどうか

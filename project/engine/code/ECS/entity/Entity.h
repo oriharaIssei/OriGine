@@ -3,6 +3,13 @@
 /// stl
 #include <string>
 
+/// ECS
+// entity
+#include "entity/EntityHandle.h"
+
+/// externals
+#include <uuid/uuid.h>
+
 /// math
 #include <stdint.h>
 
@@ -21,32 +28,32 @@ class Entity {
     friend class EntityRepository;
 
 public:
-    Entity(const ::std::string& _dataType, int32_t _id, bool _isUnique = false)
-        : dataType_(_dataType), id_(_id), isAlive_(true), isUnique_(_isUnique) {}
+    Entity(const ::std::string& _dataType, int32_t _id, EntityHandle _handle, bool _isUnique = false)
+        : dataType_(_dataType), id_(_id), handle_(_handle), isAlive_(true), isUnique_(_isUnique) {}
     Entity() = default;
 
     ~Entity() = default;
 
-    operator int32_t() const {
-        return id_;
-    }
-
 private:
     ::std::string dataType_ = "UNKNOWN";
 
-    int32_t id_      = kInvalidEntityID;
-    bool isAlive_    = false;
-    bool isUnique_   = false;
-    bool shouldSave_ = true;
+    int32_t id_       = kInvalidEntityID;
+    EntityHandle handle_ = EntityHandle();
+    bool isAlive_     = false;
+    bool isUnique_    = false;
+    bool shouldSave_  = true;
 
 public:
+    EntityHandle GetHandle() const {
+        return handle_;
+    }
+
     bool IsAlive() const {
         return isAlive_;
     }
     bool IsUnique() const {
         return isUnique_;
     }
-
     bool ShouldSave() const {
         return shouldSave_;
     }
@@ -54,16 +61,6 @@ public:
         shouldSave_ = _ShouldSave;
     }
 
-    void DeleteEntity() {
-        isAlive_ = false;
-    }
-
-    /// <summary>
-    /// エンティティのIDを取得する
-    /// </summary>
-    int32_t GetID() const {
-        return id_;
-    }
     /// <summary>
     /// エンティティのデータタイプを取得する
     /// </summary>

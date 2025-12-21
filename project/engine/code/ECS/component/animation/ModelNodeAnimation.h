@@ -36,8 +36,8 @@ public:
     ModelNodeAnimation()  = default;
     ~ModelNodeAnimation() = default;
 
-    void Initialize(Entity* _entity) override;
-    void Edit(Scene* _scene, Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
+    void Initialize(Scene* _scene, EntityHandle _entity) override;
+    void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) override;
     void Finalize() override;
 
     void UpdateModel(

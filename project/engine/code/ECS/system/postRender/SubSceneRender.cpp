@@ -41,7 +41,7 @@ void SubSceneRender::RenderEnd() {
     scenes_.clear();
 }
 
-void SubSceneRender::DispatchComponent(Entity* _entity) {
+void SubSceneRender::DispatchComponent(EntityHandle _handle) {
     auto subScenes = GetComponents<SubScene>(_entity);
     for (auto& subScene : *subScenes) {
         if (!subScene.IsActive()) {

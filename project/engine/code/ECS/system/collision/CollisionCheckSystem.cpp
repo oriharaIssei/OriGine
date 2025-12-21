@@ -32,7 +32,7 @@ void CollisionCheckSystem::Update() {
     EraseDeadEntity();
 
     entities_.clear();
-    for (auto id : entityIDs_) {
+    for (auto id : entities_) {
         entities_.emplace_back(GetEntity(id));
     }
 
@@ -115,10 +115,10 @@ void CollisionCheckSystem::Update() {
 }
 
 void CollisionCheckSystem::Finalize() {
-    entityIDs_.clear();
+    entities_.clear();
 }
 
-void CollisionCheckSystem::UpdateEntity(Entity* _entity) {
+void CollisionCheckSystem::UpdateEntity(EntityHandle _handle) {
     ++entityItr_;
 
     Scene* currentScene = GetScene();

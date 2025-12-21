@@ -130,7 +130,7 @@ void RandomEffect::RenderEnd() {
     renderTarget_->PostDraw();
 }
 
-void RandomEffect::DispatchComponent(Entity* _entity) {
+void RandomEffect::DispatchComponent(EntityHandle _handle) {
     // activeなComponentをBlendModeごとに振り分ける
     auto components = GetComponents<RandomEffectParam>(_entity);
 

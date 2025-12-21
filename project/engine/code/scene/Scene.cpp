@@ -99,32 +99,27 @@ void Scene::Finalize() {
 }
 
 void Scene::ExecuteDeleteEntities() {
-    for (int32_t entityID : deleteEntities_) {
-        DeleteEntity(entityID);
+    for (EntityHandle entityID : deleteEntities_) {
+        if (!entityID.IsValid()) {
+            LOG_ERROR("Failed Delte Entity : {}", uuids::to_string(entityID.uuid));
+            return;
+        }
+        // コンポーネント を削除
+        componentRepository_->DeleteEntity(entityID);
+        // システムからエンティティを削除
+        systemRunner_->RemoveEntityFromAllSystems(entityID);
+        // エンティティを削除
+        entityRepository_->RemoveEntity(entityID);
     }
     deleteEntities_.clear();
 }
 
-void Scene::AddDeleteEntity(int32_t entityId) {
-    if (entityId < 0) {
-        LOG_ERROR("Invalid entity ID: {}", entityId);
+void Scene::AddDeleteEntity(EntityHandle _handle) {
+    if (!_handle.IsValid()) {
+        LOG_ERROR("Invalid entity ID: {}", uuids::to_string(_handle.uuid));
         return;
     }
-    deleteEntities_.push_back(entityId);
-}
-
-void Scene::DeleteEntity(int32_t entityId) {
-    Entity* entity = entityRepository_->GetEntity(entityId);
-    if (!entity || !entity->IsAlive()) {
-        LOG_ERROR("Failed Delte Entity : {}", entityId);
-        return;
-    }
-    // コンポーネント を削除
-    componentRepository_->DeleteEntity(entity);
-    // システムからエンティティを削除
-    systemRunner_->RemoveEntityFromAllSystems(entity);
-    // エンティティを削除
-    entityRepository_->RemoveEntity(entityId);
+    deleteEntities_.push_back(_handle);
 }
 
 const EntityRepository* Scene::GetEntityRepository() const { return entityRepository_.get(); }
@@ -136,39 +131,37 @@ ComponentRepository* Scene::GetComponentRepositoryRef() { return componentReposi
 const SystemRunner* Scene::GetSystemRunner() const { return systemRunner_.get(); }
 SystemRunner* Scene::GetSystemRunnerRef() { return systemRunner_.get(); }
 
-Entity* Scene::GetEntity(int32_t entityId) const {
-    return entityRepository_->GetEntity(entityId);
+Entity* Scene::GetEntity(EntityHandle _handle) const {
+    return entityRepository_->GetEntity(_handle);
 }
 
-Entity* Scene::GetUniqueEntity(const ::std::string& _dataType) const {
+EntityHandle Scene::GetUniqueEntity(const ::std::string& _dataType) const {
     if (!_dataType.empty()) {
         return entityRepository_->GetUniqueEntity(_dataType);
     }
     LOG_ERROR("Scene::GetUniqueEntity: Data type is empty.");
-    return nullptr;
+    return EntityHandle();
 }
 
-bool Scene::AddComponent(const ::std::string& _compTypeName, int32_t _entityId, bool _doInitialize) {
-    Entity* entity = entityRepository_->GetEntity(_entityId);
-    if (!entity) {
-        LOG_ERROR("Scene::AddComponent: Entity with ID '{}' not found.", _entityId);
+bool Scene::AddComponent(const ::std::string& _compTypeName, EntityHandle _handle) {
+    if (!_handle.IsValid()) {
+        LOG_ERROR("Scene::AddComponent: Entity with ID '{}' not found.", uuids::to_string(_handle.uuid));
         return false;
     }
-    componentRepository_->AddComponent(_compTypeName, entity, _doInitialize);
+    componentRepository_->AddComponent(this, _compTypeName, _handle);
     return true;
 }
 
-bool Scene::RemoveComponent(const ::std::string& _compTypeName, int32_t _entityId, int32_t _componentIndex) {
-    Entity* entity = entityRepository_->GetEntity(_entityId);
-    if (!entity) {
-        LOG_ERROR("Scene::RemoveComponent: Entity with ID '{}' not found.", _entityId);
+bool Scene::RemoveComponent(const ::std::string& _compTypeName, EntityHandle _handle, int32_t _componentIndex) {
+    if (!_handle.IsValid()) {
+        LOG_ERROR("Scene::RemoveComponent: Entity with ID '{}' not found.", uuids::to_string(_handle.uuid));
         return false;
     }
-    componentRepository_->RemoveComponent(_compTypeName, entity, _componentIndex);
+    componentRepository_->RemoveComponent(_compTypeName, _handle, _componentIndex);
     return true;
 }
 
-ISystem* Scene::GetSystem(const ::std::string& _systemTypeName) const {
+::std::shared_ptr<ISystem> Scene::GetSystem(const ::std::string& _systemTypeName) const {
     if (systemRunner_) {
         return systemRunner_->GetSystem(_systemTypeName);
     }

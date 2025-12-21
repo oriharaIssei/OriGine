@@ -18,7 +18,7 @@
 
 using namespace OriGine;
 
-void SpeedlineEffectParam::Initialize(Entity*) {
+void SpeedlineEffectParam::Initialize(Scene*, EntityHandle)  {
     if (isActive_) {
         cBuffer_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
     }
@@ -27,7 +27,7 @@ void SpeedlineEffectParam::Initialize(Entity*) {
     }
 }
 
-void SpeedlineEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
+void SpeedlineEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _handle, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     if (CheckBoxCommand("isActive##" + _parentLabel, isActive_)) {
         Play();

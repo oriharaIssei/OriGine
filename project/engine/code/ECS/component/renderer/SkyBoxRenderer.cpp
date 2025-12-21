@@ -18,7 +18,7 @@
 
 using namespace OriGine;
 
-void SkyboxRenderer::Initialize(Entity* _hostEntity) {
+void SkyboxRenderer::Initialize(Scene* _scene, EntityHandle _hostEntity) {
     MeshRenderer::Initialize(_hostEntity);
 
     isRender_ = true;

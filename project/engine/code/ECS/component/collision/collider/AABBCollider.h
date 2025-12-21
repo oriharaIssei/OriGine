@@ -15,7 +15,7 @@ public:
         : Collider<Bounds::AABB>() {}
     ~AABBCollider() {}
 
-    void Edit(Scene* _scene, Entity* _entity, const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) override;
 
     void CalculateWorldShape() override;
 

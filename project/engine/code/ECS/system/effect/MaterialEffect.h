@@ -33,14 +33,14 @@ private:
     /// <summary>
     /// 使用していない
     /// </summary>
-    void UpdateEntity(Entity* /*_entity*/) override {}
+    void UpdateEntity(EntityHandle /*_owner*/) override {}
 
-    void DispatchComponents(Entity* _entity);
-    void UpdateEffectPipeline(Entity* _entity, MaterialEffectPipeLine* _pipeline);
+    void DispatchComponents(EntityHandle _handle);
+    void UpdateEffectPipeline(EntityHandle _handle, MaterialEffectPipeLine* _pipeline);
     /// <summary>
     /// TextureにEffectをかける
     /// </summary>
-    void TextureEffect(Entity* _entity, MaterialEffectType _type, RenderTexture* _output);
+    void TextureEffect(EntityHandle _handle, MaterialEffectType _type, RenderTexture* _output);
 
     void ExecuteCommand();
 
