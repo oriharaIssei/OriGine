@@ -63,12 +63,6 @@ void ImGuiManager::Initialize([[maybe_unused]] const WinApp* window, [[maybe_unu
     std::string fontPath = kEngineResourceDirectory + "/fonts/FiraMono-Regular.ttf";
     font_                = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), 16.0f);
 
-    std::string iconFontPath = kEngineResourceDirectory + "/fonts/GoogleMaterial/Material_Icons_Round/MaterialIconsRound-Regular.otf";
-    materialIconFont_        = io.Fonts->AddFontFromFileTTF(
-        iconFontPath.c_str(), // フォントファイルパス
-        16.0f // フォントサイズ
-    );
-
 #endif // _DEBUG
 }
 

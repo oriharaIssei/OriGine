@@ -168,7 +168,7 @@ bool Scene::RemoveComponent(const ::std::string& _compTypeName, int32_t _entityI
     return true;
 }
 
-ISystem* Scene::GetSystem(const ::std::string& _systemTypeName) const {
+::std::shared_ptr<ISystem> Scene::GetSystem(const ::std::string& _systemTypeName) const {
     if (systemRunner_) {
         return systemRunner_->GetSystem(_systemTypeName);
     }

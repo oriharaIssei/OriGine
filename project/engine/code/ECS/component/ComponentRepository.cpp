@@ -19,8 +19,8 @@ bool ComponentRepository::RegisterComponentArray(const std::string& _compTypeNam
         LOG_WARN("ComponentRepository: ComponentArray already registered for type: {}", _compTypeName);
         return false;
     }
-    auto componentArray = ComponentRegistry::GetInstance()->GetComponentArray(_compTypeName);
-    if (componentArray) {
+
+    if (ComponentRegistry::GetInstance()->HasComponentArray(_compTypeName)) {
         componentArrays_[_compTypeName] = std::move(ComponentRegistry::GetInstance()->CloneComponentArray(_compTypeName));
         componentArrays_[_compTypeName]->Initialize(1000);
     } else {

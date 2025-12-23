@@ -16,25 +16,32 @@ RegisterWindowResizeEvent::RegisterWindowResizeEvent() : ISystem(SystemCategory:
 void RegisterWindowResizeEvent::Initialize() {
     Engine* engine = Engine::GetInstance();
 
+    auto shared                                       = shared_from_this();
+    std::weak_ptr<RegisterWindowResizeEvent> weakSelf = shared;
+
 #ifndef _DEBUG
     // シーンビューのリサイズイベント登録
-    auto sceneViewResizeEvent = [this](const Vec2f& size) {
-        auto currentScene = GetScene();
-        if (currentScene) {
-            currentScene->GetSceneView()->Resize(size);
+    auto sceneViewResizeEvent = [weakSelf](const Vec2f& size) {
+        if (auto self = weakSelf.lock()) {
+            auto currentScene = self->GetScene();
+            if (currentScene) {
+                currentScene->GetSceneView()->Resize(size);
+            }
         }
     };
     sceneViewResizeEventIndex_ = engine->AddWindowResizeEvent(sceneViewResizeEvent);
 #endif // _DEBUG
 
     // スプライトのリサイズイベント登録
-    auto spriteResizeEvent = [this](const Vec2f& size) {
-        auto currentScene = GetScene();
-        if (currentScene) {
-            auto spritesArray = currentScene->GetComponentArray<SpriteRenderer>();
-            for (auto& sprites : spritesArray->GetAllComponents()) {
-                for (auto& sprite : sprites) {
-                    sprite.CalculateWindowRatioPosAndSize(size);
+    auto spriteResizeEvent = [weakSelf](const Vec2f& size) {
+        if (auto self = weakSelf.lock()) {
+            auto currentScene = self->GetScene();
+            if (currentScene) {
+                auto spritesArray = currentScene->GetComponentArray<SpriteRenderer>();
+                for (auto& sprites : spritesArray->GetAllComponents()) {
+                    for (auto& sprite : sprites) {
+                        sprite.CalculateWindowRatioPosAndSize(size);
+                    }
                 }
             }
         }
@@ -42,15 +49,17 @@ void RegisterWindowResizeEvent::Initialize() {
     spriteResizeEventIndex_ = engine->AddWindowResizeEvent(spriteResizeEvent);
 
     // サブシーンのリサイズイベント登録
-    auto subSceneResizeEvent = [this](const Vec2f& size) {
-        auto currentScene = GetScene();
-        if (currentScene) {
-            auto subScenesArray = currentScene->GetComponentArray<SubScene>();
-            for (auto& subScenes : subScenesArray->GetAllComponents()) {
-                for (auto& subScene : subScenes) {
-                    auto scene = subScene.GetSubSceneRef();
-                    if (scene) {
-                        scene->GetSceneView()->Resize(size);
+    auto subSceneResizeEvent = [weakSelf](const Vec2f& size) {
+        if (auto self = weakSelf.lock()) {
+            auto currentScene = self->GetScene();
+            if (currentScene) {
+                auto subScenesArray = currentScene->GetComponentArray<SubScene>();
+                for (auto& subScenes : subScenesArray->GetAllComponents()) {
+                    for (auto& subScene : subScenes) {
+                        auto scene = subScene.GetSubSceneRef();
+                        if (scene) {
+                            scene->GetSceneView()->Resize(size);
+                        }
                     }
                 }
             }

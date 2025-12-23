@@ -169,7 +169,7 @@ void SystemRunner::ActivateSystem(const std::string& _systemName) {
         return;
     }
 
-    ISystem* system = itr->second.get();
+    ::std::shared_ptr<ISystem> system = itr->second;
     if (!system) {
         LOG_WARN("System '{}' is nullptr.", _systemName);
         return;
@@ -186,7 +186,7 @@ void SystemRunner::ActivateSystem(const std::string& _systemName) {
     std::sort(
         activeSystems.begin(),
         activeSystems.end(),
-        [](const ISystem* a, const ISystem* b) {
+        [](const ::std::shared_ptr<ISystem> a, const ::std::shared_ptr<ISystem> b) {
             return a->GetPriority() < b->GetPriority(); // priorityが低い順（降順）
         });
 }
@@ -194,11 +194,16 @@ void SystemRunner::ActivateSystem(const std::string& _systemName) {
 void SystemRunner::DeactivateSystem(const std::string& _systemName) {
     auto itr = systems_.find(_systemName);
     if (itr == systems_.end()) {
-        LOG_ERROR("SystemRunner: System not found with name: {}", _systemName);
+        LOG_ERROR("System not found with name: {}", _systemName);
         return;
     }
 
-    ISystem* system      = itr->second.get();
+    ::std::shared_ptr<ISystem> system = itr->second;
+    if (!system) {
+        LOG_ERROR("System is empty with name: {}", _systemName);
+        return;
+    }
+
     size_t categoryIndex = static_cast<size_t>(system->GetCategory());
     auto& activeSystems  = activeSystems_[categoryIndex];
     if (std::find(activeSystems.begin(), activeSystems.end(), system) == activeSystems.end()) {
@@ -223,7 +228,7 @@ void SystemRunner::RegisterEntity(const std::string& _systemTypeName, Entity* _e
         LOG_ERROR("SystemRunner: System '{}' not found .", _systemTypeName);
         return;
     }
-    ISystem* system = systemItr->second.get();
+    ::std::shared_ptr<ISystem> system = systemItr->second;
 
     if (system) {
         system->AddEntity(_entity);
@@ -240,7 +245,7 @@ void SystemRunner::RemoveEntity(const std::string& _systemTypeName, Entity* _ent
         return;
     }
     // システム名からシステムを取得し、エンティティを削除
-    ISystem* system = systemItr->second.get();
+    ::std::shared_ptr<ISystem> system = systemItr->second;
     if (system) {
         system->RemoveEntity(_entity);
     } else {
@@ -257,20 +262,20 @@ void SystemRunner::RemoveEntityFromAllSystems(Entity* _entity) {
     }
 }
 
-ISystem* SystemRunner::GetSystem(const std::string& _systemName) const {
+::std::shared_ptr<ISystem> SystemRunner::GetSystem(const std::string& _systemName) const {
     auto itr = systems_.find(_systemName);
     if (itr != systems_.end()) {
-        return itr->second.get();
+        return itr->second;
     }
 
     LOG_ERROR("SystemRunner: System '{}' not found in any category.", _systemName);
     return nullptr;
 }
 
-ISystem* SystemRunner::GetSystemRef(const std::string& _systemName) {
+::std::shared_ptr<ISystem> SystemRunner::GetSystemRef(const std::string& _systemName) {
     auto itr = systems_.find(_systemName);
     if (itr != systems_.end()) {
-        return itr->second.get();
+        return itr->second;
     }
 
     LOG_ERROR("SystemRunner: System '{}' not found in any category.", _systemName);

@@ -137,8 +137,8 @@ inline bool ComponentRepository::RegisterComponentArray() {
         LOG_WARN("ComponentRepository: ComponentArray already registered for type: {}", typeName);
         return false;
     }
-    auto componentArray = ComponentRegistry::GetInstance()->GetComponentArray(typeName);
-    if (componentArray) {
+
+    if (ComponentRegistry::GetInstance()->HasComponentArray(typeName)) {
         componentArrays_[typeName] = std::move(ComponentRegistry::GetInstance()->CloneComponentArray<ComponentType>());
         componentArrays_[typeName]->Initialize(1000);
     } else {

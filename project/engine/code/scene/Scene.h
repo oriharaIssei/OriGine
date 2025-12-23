@@ -158,7 +158,7 @@ public:
     // System 関係
     /// ==========================================
 
-    ISystem* GetSystem(const ::std::string& _systemTypeName) const;
+    ::std::shared_ptr<ISystem> GetSystem(const ::std::string& _systemTypeName) const;
 
     bool RegisterSystem(const ::std::string& _systemTypeName, int32_t _priority = 0, bool _activity = true);
     bool UnregisterSystem(const ::std::string& _systemTypeName);

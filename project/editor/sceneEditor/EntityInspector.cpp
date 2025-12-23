@@ -442,14 +442,14 @@ void SelectAddComponentArea::ComponentListRegion::DrawGui() {
         ImVec2(0, childHeight),
         ImGuiChildFlags_Border);
 
-    auto& componentRegistryMap = ComponentRegistry::GetInstance()->GetComponentArrayMap();
+    auto& componentTypeNames = ComponentRegistry::GetInstance()->GetComponentTypeNames();
 
     // ImGuiのスタイルで選択色を設定（必要に応じてアプリ全体で設定してもOK）
     ImVec4 winSelectColor = ImVec4(0.26f, 0.59f, 0.98f, 1.0f); // Windows風の青
     ::ImGui::PushStyleColor(ImGuiCol_Header, winSelectColor);
     ::ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.26f, 0.59f, 0.98f, 0.8f));
     ::ImGui::PushStyleColor(ImGuiCol_HeaderActive, winSelectColor);
-    for (auto& [name, array] : componentRegistryMap) {
+    for (auto& name : componentTypeNames) {
 
         if (searchBuff_.size() > 0) {
             if (name.find(searchBuff_) == ::std::string::npos) {
@@ -616,7 +616,7 @@ void SelectAddSystemArea::SystemListRegion::DrawGui() {
             if (::ImGui::CollapsingHeader(categoryName.c_str())) {
                 ::ImGui::Indent();
                 for (auto& [name, priority] : systemsByCategory) {
-                    OriGine::ISystem* system = currentScene->GetSystem(name);
+                    std::shared_ptr<OriGine::ISystem> system = currentScene->GetSystem(name);
 
                     if (!system) {
                         continue;
@@ -648,7 +648,7 @@ void SelectAddSystemArea::SystemListRegion::DrawGui() {
         for (size_t i = 0; i < systemsMap.size(); ++i) {
             auto& systemsByCategory = systemsMap[i];
             for (auto& [name, priority] : systemsByCategory) {
-                OriGine::ISystem* system = currentScene->GetSystem(name);
+                std::shared_ptr<OriGine::ISystem> system = currentScene->GetSystem(name);
 
                 if (!system) {
                     continue;
@@ -783,7 +783,7 @@ void EntityInspectorArea::ChangeEditEntityCommand::Execute() {
             LOG_ERROR("ChangeEditEntityCommand::Execute: System '{}' not found .", systemName);
             continue;
         }
-        OriGine::ISystem* system = systemItr->second.get();
+        std::shared_ptr<OriGine::ISystem> system = systemItr->second;
         if (!system) {
             LOG_ERROR("ChangeEditEntityCommand::Execute: System '{}' not found for entity ID '{}'.", systemName, toId_);
             continue;
@@ -844,7 +844,7 @@ void EntityInspectorArea::ChangeEditEntityCommand::Undo() {
             LOG_ERROR("ChangeEditEntityCommand::Execute: System '{}' not found .", systemName);
             continue;
         }
-        OriGine::ISystem* system = systemItr->second.get();
+        std::shared_ptr<OriGine::ISystem> system = systemItr->second;
         if (!system) {
             LOG_ERROR("ChangeEditEntityCommand::Execute: System '{}' not found for entity ID '{}'.", systemName, toId_);
             continue;
@@ -1073,7 +1073,7 @@ void SelectAddSystemArea::AddSystemsForTargetEntities::Execute() {
             for (const auto& systemTypeName : parentArea_->systemTypeNames_) {
                 currentScene->GetSystemRunnerRef()->RegisterEntity(systemTypeName, entity);
 
-                OriGine::ISystem* system                                                            = currentScene->GetSystemRunnerRef()->GetSystem(systemTypeName);
+                std::shared_ptr<OriGine::ISystem> system                                                            = currentScene->GetSystemRunnerRef()->GetSystem(systemTypeName);
                 entityInspectorArea->GetSystemMap()[int32_t(system->GetCategory())][systemTypeName] = system;
             }
         } else {
@@ -1111,7 +1111,7 @@ void SelectAddSystemArea::AddSystemsForTargetEntities::Undo() {
         if (editEntityId == entityId) {
             for (const auto& systemTypeName : parentArea_->systemTypeNames_) {
                 currentScene->GetSystemRunnerRef()->RemoveEntity(systemTypeName, entity);
-                OriGine::ISystem* system = currentScene->GetSystemRunnerRef()->GetSystem(systemTypeName);
+                std::shared_ptr<OriGine::ISystem> system = currentScene->GetSystemRunnerRef()->GetSystem(systemTypeName);
                 auto& systems            = entityInspectorArea->GetSystemMap()[int32_t(system->GetCategory())];
                 auto itr                 = systems.find(systemTypeName);
                 if (itr != systems.end()) {

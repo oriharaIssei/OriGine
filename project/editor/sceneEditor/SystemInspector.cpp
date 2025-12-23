@@ -174,7 +174,7 @@ void SystemInspectorArea::SystemGui(const std::string& _systemName, int32_t& _pr
 
     ImGui::PushID(_systemName.c_str());
 
-    auto* system = currentScene->GetSystem(_systemName);
+    auto system = currentScene->GetSystem(_systemName);
     if (system && system->IsActive()) {
         bool isActive = system->IsActive();
 
