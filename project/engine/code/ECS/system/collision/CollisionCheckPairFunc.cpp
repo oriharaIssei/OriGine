@@ -120,18 +120,18 @@ bool CheckCollisionPair(Scene* _scene, Entity* _aabbEntity, Entity* _sphereEntit
 
                 normal[axis] = static_cast<float>(sign);
 
-                // AABBの最近接点を求める
-                aabbMin = _aabb.Min();
-                aabbMax = _aabb.Max();
+                //// AABBの最近接点を求める
+                //aabbMin = _aabb.Min();
+                //aabbMax = _aabb.Max();
 
-                closest = {
-                    std::clamp(collPoint[X], aabbMin[X], aabbMax[X]),
-                    std::clamp(collPoint[Y], aabbMin[Y], aabbMax[Y]),
-                    std::clamp(collPoint[Z], aabbMin[Z], aabbMax[Z])};
+                //closest = {
+                //    std::clamp(collPoint[X], aabbMin[X], aabbMax[X]),
+                //    std::clamp(collPoint[Y], aabbMin[Y], aabbMax[Y]),
+                //    std::clamp(collPoint[Z], aabbMin[Z], aabbMax[Z])};
 
-                distance = collPoint - closest;
+                //distance = collPoint - closest;
 
-                sphereCollVec = normal * (_sphere.radius_ - distance.length());
+                //sphereCollVec = normal * (_sphere.radius_ - distance.length());
                 sphereCollVec[axis] += collPoint[axis] - _sphere.center_[axis]; // current から衝突点までのベクトルを加味
             } else {
                 useSwept = false;

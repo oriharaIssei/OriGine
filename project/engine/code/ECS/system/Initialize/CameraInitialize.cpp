@@ -4,6 +4,7 @@
 #include "camera/CameraManager.h"
 /// components
 #include "component/transform/CameraTransform.h"
+#include "component/transform/Transform.h"
 
 using namespace OriGine;
 
@@ -17,6 +18,14 @@ void CameraInitialize::UpdateEntity(EntityHandle _handle) {
     CameraTransform* cameraTransform = GetComponent<CameraTransform>(_entity);
     if (!cameraTransform) {
         return;
+    }
+
+    // transformがあれば、同期
+    Transform* transform = GetComponent<Transform>(_entity);
+    if (transform) {
+        transform->rotate    = cameraTransform->rotate;
+        transform->translate = cameraTransform->translate;
+        transform->UpdateMatrix();
     }
 
     cameraTransform->UpdateMatrix();

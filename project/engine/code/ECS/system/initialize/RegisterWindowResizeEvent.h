@@ -2,6 +2,7 @@
 #include "system/ISystem.h"
 
 /// math
+#include <string>
 #include <stdint.h>
 
 namespace OriGine {
@@ -10,7 +11,8 @@ namespace OriGine {
 /// WindowResize時のイベント登録を行うシステム
 /// </summary>
 class RegisterWindowResizeEvent
-    : public ISystem {
+    : public ISystem,
+      public std::enable_shared_from_this<RegisterWindowResizeEvent> {
 public:
     RegisterWindowResizeEvent();
     ~RegisterWindowResizeEvent() override = default;

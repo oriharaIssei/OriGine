@@ -63,10 +63,10 @@ protected:
     SceneEditorWindow* parentWindow_ = nullptr; // 親ウィンドウへのポインタ
 
     // 編集中のエンティティデータ
-    int32_t editEntityId_         = -1; // 編集中のエンティティID
+    int32_t editEntityId_       = -1; // 編集中のエンティティID
     ::std::string editEntityName_ = ""; // 編集中のエンティティ名
     ::std::unordered_map<::std::string, ::std::vector<OriGine::IComponent*>> entityComponentMap_; // コンポーネントのマップ
-    ::std::array<::std::unordered_map<::std::string, std::weak_ptr<OriGine::ISystem>>, size_t(OriGine::SystemCategory::Count)> systemMap_; // システムのマップ
+    ::std::array<::std::unordered_map<::std::string, std::shared_ptr<OriGine::ISystem>>, size_t(OriGine::SystemCategory::Count)> systemMap_; // システムのマップ
 
 public:
     SceneEditorWindow* GetParentWindow() const {
@@ -91,7 +91,7 @@ public:
     ::std::unordered_map<::std::string, ::std::vector<OriGine::IComponent*>>& GetEntityComponentMap() {
         return entityComponentMap_;
     }
-    ::std::array<::std::unordered_map<::std::string, std::weak_ptr<OriGine::ISystem>>, size_t(OriGine::SystemCategory::Count)>& GetSystemMap() {
+    ::std::array<::std::unordered_map<::std::string, std::shared_ptr<OriGine::ISystem>>, size_t(OriGine::SystemCategory::Count)>& GetSystemMap() {
         return systemMap_;
     }
 };

@@ -341,13 +341,10 @@ void EntitySystemRegion::DrawGui() {
                 if (::ImGui::BeginPopup(popupId.c_str())) {
                     ::ImGui::Text("Are you sure you want to remove the system '%s'?", systemName.c_str());
                     if (::ImGui::Button("Yes")) {
-                        std::shared_ptr<OriGine::ISystem> sharedSystem = system.lock();
-                        if (sharedSystem) {
-                            ::std::list<int32_t> editEntityIds = {editEntityId};
-                            auto command                       = ::std::make_unique<RemoveSystemCommand>(editEntityIds, systemName, sharedSystem->GetCategory());
-                            OriGine::EditorController::GetInstance()->PushCommand(::std::move(command));
-                            ::ImGui::CloseCurrentPopup();
-                        }
+                        ::std::list<int32_t> editEntityIds = {editEntityId};
+                        auto command                       = ::std::make_unique<RemoveSystemCommand>(editEntityIds, systemName, system->GetCategory());
+                        OriGine::EditorController::GetInstance()->PushCommand(::std::move(command));
+                        ::ImGui::CloseCurrentPopup();
                     }
                     ::ImGui::SameLine();
                     if (::ImGui::Button("No")) {
@@ -445,14 +442,14 @@ void SelectAddComponentArea::ComponentListRegion::DrawGui() {
         ImVec2(0, childHeight),
         ImGuiChildFlags_Border);
 
-    auto& componentRegistryMap = ComponentRegistry::GetInstance()->GetComponentArrayMap();
+    auto& componentTypeNames = ComponentRegistry::GetInstance()->GetComponentTypeNames();
 
     // ImGuiのスタイルで選択色を設定（必要に応じてアプリ全体で設定してもOK）
     ImVec4 winSelectColor = ImVec4(0.26f, 0.59f, 0.98f, 1.0f); // Windows風の青
     ::ImGui::PushStyleColor(ImGuiCol_Header, winSelectColor);
     ::ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.26f, 0.59f, 0.98f, 0.8f));
     ::ImGui::PushStyleColor(ImGuiCol_HeaderActive, winSelectColor);
-    for (auto& [name, array] : componentRegistryMap) {
+    for (auto& name : componentTypeNames) {
 
         if (searchBuff_.size() > 0) {
             if (name.find(searchBuff_) == ::std::string::npos) {
@@ -1076,7 +1073,7 @@ void SelectAddSystemArea::AddSystemsForTargetEntities::Execute() {
             for (const auto& systemTypeName : parentArea_->systemTypeNames_) {
                 currentScene->GetSystemRunnerRef()->RegisterEntity(systemTypeName, entity);
 
-                std::shared_ptr<OriGine::ISystem> system                                            = currentScene->GetSystemRunnerRef()->GetSystem(systemTypeName);
+                std::shared_ptr<OriGine::ISystem> system                                                            = currentScene->GetSystemRunnerRef()->GetSystem(systemTypeName);
                 entityInspectorArea->GetSystemMap()[int32_t(system->GetCategory())][systemTypeName] = system;
             }
         } else {
@@ -1115,8 +1112,8 @@ void SelectAddSystemArea::AddSystemsForTargetEntities::Undo() {
             for (const auto& systemTypeName : parentArea_->systemTypeNames_) {
                 currentScene->GetSystemRunnerRef()->RemoveEntity(systemTypeName, entity);
                 std::shared_ptr<OriGine::ISystem> system = currentScene->GetSystemRunnerRef()->GetSystem(systemTypeName);
-                auto& systems                            = entityInspectorArea->GetSystemMap()[int32_t(system->GetCategory())];
-                auto itr                                 = systems.find(systemTypeName);
+                auto& systems            = entityInspectorArea->GetSystemMap()[int32_t(system->GetCategory())];
+                auto itr                 = systems.find(systemTypeName);
                 if (itr != systems.end()) {
                     systems.erase(itr);
                 } else {

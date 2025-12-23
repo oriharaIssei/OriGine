@@ -193,11 +193,17 @@ void SystemRunner::ActivateSystem(const std::string& _systemName) {
 void SystemRunner::DeactivateSystem(const std::string& _systemName) {
     auto itr = systems_.find(_systemName);
     if (itr == systems_.end()) {
-        LOG_ERROR("SystemRunner: System not found with name: {}", _systemName);
+        LOG_ERROR("System not found with name: {}", _systemName);
         return;
     }
 
-    size_t categoryIndex = static_cast<size_t>(itr->second->GetCategory());
+    ::std::shared_ptr<ISystem> system = itr->second;
+    if (!system) {
+        LOG_ERROR("System is empty with name: {}", _systemName);
+        return;
+    }
+
+    size_t categoryIndex = static_cast<size_t>(system->GetCategory());
     auto& activeSystems  = activeSystems_[categoryIndex];
     if (std::find(activeSystems.begin(), activeSystems.end(), itr->second) == activeSystems.end()) {
         LOG_WARN("SystemRunner: System '{}' is not active in category '{}'.", _systemName, kSystemCategoryString[categoryIndex]);
