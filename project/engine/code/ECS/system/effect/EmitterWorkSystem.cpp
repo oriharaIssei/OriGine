@@ -16,20 +16,15 @@ void EmitterWorkSystem::Finalize() {
 }
 
 void EmitterWorkSystem::UpdateEntity(EntityHandle _handle) {
-    // _entityがnullptrの場合は何もしない
-    if (!_entity) {
-        return;
-    }
-
     const float deltaTime = Engine::GetInstance()->GetDeltaTime();
 
-    auto emitters = GetComponents<Emitter>(_entity);
+    auto&emitters = GetComponents<Emitter>(_handle);
 
-    if (!emitters) {
+    if (emitters.empty()) {
         return;
     }
 
-    for (auto& comp : *emitters) {
+    for (auto& comp : emitters) {
         comp.Update(deltaTime);
     }
 }

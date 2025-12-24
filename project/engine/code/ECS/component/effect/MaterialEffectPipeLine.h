@@ -54,18 +54,18 @@ public:
     /// </summary>
     /// <param name="_type"></param>
     /// <param name="_entityID"></param>
-    void AddEffectEntity(MaterialEffectType _type, ComponentHandle _compHandle) {
-        effectComponentData_.push_back(EffectComponentData{_type, _compHandle});
+    void AddEffectEntity(MaterialEffectType _type, EntityHandle _entHandle) {
+        effectComponentData_.push_back(EffectEntityData{_type, _entHandle});
     }
     void ClearEffectEntity() { effectComponentData_.clear(); }
 
 private:
-    struct EffectComponentData {
+    struct EffectEntityData {
         MaterialEffectType effectType = MaterialEffectType::Dissolve;
-        ComponentHandle compHandle{};
+        EntityHandle entityHandle{};
     };
 
-    std::vector<EffectComponentData> effectComponentData_;
+    std::vector<EffectEntityData> effectComponentData_;
 
     int32_t priority_      = 0;
     bool isActive_         = true;
@@ -83,29 +83,7 @@ public:
     void SetMaterialIndex(int32_t index) { materialIndex_ = index; }
 
     int32_t GetBaseTextureId() const { return baseTextureId_; }
-    const std::vector<EffectComponentData>& GetEffectEntityIdList() const { return effectComponentData_; }
-};
-
-/// <summary>
-/// 型マッピング
-/// </summary>
-/// <typeparam name=""></typeparam>
-template <MaterialEffectType>
-struct EffectComponentTrait;
-
-template <>
-struct EffectComponentTrait<MaterialEffectType::Dissolve> {
-    using Component = DissolveEffectParam;
-};
-
-template <>
-struct EffectComponentTrait<MaterialEffectType::Distortion> {
-    using Component = DistortionEffectParam;
-};
-
-template <>
-struct EffectComponentTrait<MaterialEffectType::Gradation> {
-    using Component = GradationComponent;
+    const std::vector<EffectEntityData>& GetEffectEntityIdList() const { return effectComponentData_; }
 };
 
 } // namespace OriGine

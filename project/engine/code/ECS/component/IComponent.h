@@ -26,9 +26,10 @@ class Scene;
 ///</summary>
 class IComponent {
 public:
-    virtual ~IComponent() = default;
+    IComponent();
+    virtual ~IComponent();
 
-    virtual void Initialize(OriGine::Scene* _scene, OriGine::EntityHandle _owner) = 0;
+    virtual void Initialize(Scene* _scene, EntityHandle _owner) = 0;
     virtual void Finalize()                                     = 0;
 
     virtual void Edit(Scene* _scene, EntityHandle _owner, const std::string& _parentLabel) = 0;

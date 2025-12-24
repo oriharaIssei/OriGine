@@ -67,9 +67,9 @@ void ComponentRepository::AddComponent(Scene* _scene, const std::string& _compTy
     }
 }
 
-void ComponentRepository::AddComponent(Scene* _scene, const std::vector<std::string>& _compTypeNames, EntityHandle _handle, bool _doInitialize) {
+void ComponentRepository::AddComponent(Scene* _scene, const std::vector<std::string>& _compTypeNames, EntityHandle _handle) {
     for (const auto& compTypeName : _compTypeNames) {
-        AddComponent(_scene, compTypeName, _handle, _doInitialize);
+        AddComponent(_scene, compTypeName, _handle);
     }
 }
 
@@ -82,9 +82,9 @@ void ComponentRepository::RemoveComponent(const std::string& _compTypeName, Enti
     }
 }
 
-void ComponentRepository::DeleteEntity(EntityHandle _handle) {
+void ComponentRepository::RemoveEntity(EntityHandle _handle) {
     for (auto& [typeName, componentArray] : componentArrays_) {
-        componentArray->DeleteEntity(_handle);
+        componentArray->RemoveAllComponents(_handle);
     }
 }
 

@@ -77,7 +77,7 @@ void OriGine::from_json(const nlohmann::json& j, ModelMeshRenderer& r) {
     if (j.find("materialIndexDatas") != j.end()) {
         auto& materialBufferDatas = j.at("materialIndexDatas");
         for (auto& materialData : materialBufferDatas) {
-            auto& backMaterial = r.meshMaterialBuff_.emplace_back(std::make_pair(-1, SimpleConstantBuffer<Material>()));
+            auto& backMaterial = r.meshMaterialBuff_.emplace_back(std::make_pair(ComponentHandle(), SimpleConstantBuffer<Material>()));
             backMaterial.first = materialData;
         }
     }
@@ -141,14 +141,14 @@ ModelMeshRenderer::ModelMeshRenderer(const std::shared_ptr<std::vector<TextureCo
 }
 
 void ModelMeshRenderer::Initialize(Scene* _scene, EntityHandle _hostEntity) {
-    MeshRenderer::Initialize(_hostEntity);
+    MeshRenderer::Initialize(_scene, _hostEntity);
 
     if (!fileName_.empty()) {
-        CreateModelMeshRenderer(this, hostEntity_, directory_, fileName_, false);
+        CreateModelMeshRenderer(this, _hostEntity, directory_, fileName_, false);
     }
 
-    InitializeTransformBuffer(_hostEntity);
-    InitializeMaterialBuffer(_hostEntity);
+    InitializeTransformBuffer();
+    InitializeMaterialBuffer();
 
     for (int32_t i = 0; i < meshGroup_->size(); ++i) {
         /// ---------------------------------------------------
@@ -210,8 +210,8 @@ void ModelMeshRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] En
                 }
                 this->Finalize();
                 meshGroup_ = std::make_shared<std::vector<TextureColorMesh>>();
-                CreateModelMeshRenderer(this, this->hostEntity_, this->directory_, this->fileName_);
-                InitializeMaterialFromModelFile(this, _scene, this->hostEntity_, this->directory_, this->fileName_);
+                CreateModelMeshRenderer(this, this->hostEntityHandle_, this->directory_, this->fileName_);
+                InitializeMaterialFromModelFile(this, _scene, this->hostEntityHandle_, this->directory_, this->fileName_);
             },
                 true);
             OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<CommandCombo>(commandCombo));
@@ -222,8 +222,8 @@ void ModelMeshRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] En
 
     std::string meshName = "Mesh##" + _parentLabel;
 
-    auto materials             = _scene->GetComponents<Material>(_entity);
-    int32_t entityMaterialSize = materials != nullptr ? static_cast<int32_t>(materials->size()) : 0;
+    auto& materials            = _scene->GetComponents<Material>(_handle);
+    int32_t entityMaterialSize = static_cast<int32_t>(materials.size());
     for (int32_t i = 0; i < meshGroup_->size(); ++i) {
         meshName = std::format("Mesh [{}]##", i) + _parentLabel;
         if (ImGui::CollapsingHeader(meshName.c_str())) {
@@ -246,21 +246,38 @@ void ModelMeshRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] En
             if (ImGui::TreeNode(label.c_str())) {
                 Transform& transform = meshTransformBuff_[i].openData_;
                 // Transform
-                transform.Edit(_scene, _entity, meshName);
+                transform.Edit(_scene, _handle, meshName);
                 meshTransformBuff_[i].ConvertToBuffer();
 
                 ImGui::TreePop();
             }
 
-            label                  = "MaterialIndex##" + _parentLabel;
-            int32_t& materialIndex = meshMaterialBuff_[i].first;
+            label = "MaterialIndex##" + _parentLabel;
 
-            InputGuiCommand(label, materialIndex);
+            ComponentHandle& materialHandle = meshMaterialBuff_[i].first;
+            int32_t materialIndex = -1;
+            if (materialHandle.IsValid()) {
+                for (int32_t mIndex = 0; mIndex < entityMaterialSize; ++mIndex) {
+                    if (materials[mIndex].GetHandle() == materialHandle) {
+                        materialIndex = mIndex;
+                        break;
+                    }
+                }
+            }
+
+            ImGui::InputInt(label.c_str(), &materialIndex);
             materialIndex = std::clamp(materialIndex, -1, entityMaterialSize - 1);
             if (materialIndex >= 0) {
                 label = "Material##" + _parentLabel;
                 if (ImGui::TreeNode(label.c_str())) {
-                    materials->operator[](materialIndex).Edit(_scene, _entity, meshName);
+                    // 選択されたものと違う場合は変更
+                    if (materialHandle != materials[materialIndex].GetHandle()) {
+                        auto command = std::make_unique<SetterCommand<ComponentHandle>>(
+                            &meshMaterialBuff_[i].first, materials[materialIndex].GetHandle());
+                        OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
+                    }
+                    // Material編集
+                    materials[materialIndex].Edit(_scene, _handle, meshName);
                     ImGui::TreePop();
                 }
             }
@@ -271,8 +288,7 @@ void ModelMeshRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] En
 #endif // _DEBUG
 }
 
-void ModelMeshRenderer::InitializeTransformBuffer(Entity* _hostEntity) {
-    hostEntity_ = _hostEntity;
+void ModelMeshRenderer::InitializeTransformBuffer() {
     meshTransformBuff_.resize(meshGroup_->size());
     for (int32_t i = 0; i < meshGroup_->size(); ++i) {
         meshTransformBuff_[i].CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
@@ -280,23 +296,19 @@ void ModelMeshRenderer::InitializeTransformBuffer(Entity* _hostEntity) {
     }
 }
 
-void ModelMeshRenderer::InitializeMaterialBufferWithMaterialIndex(Entity* _hostEntity) {
-    hostEntity_ = _hostEntity;
-
+void ModelMeshRenderer::InitializeMaterialBufferWithMaterialIndex() {
     meshMaterialBuff_.resize(meshGroup_->size());
 
     textureFilePath_.resize(meshGroup_->size(), "");
     meshTextureNumbers_.resize(meshGroup_->size(), 0);
 
     for (int32_t i = 0; i < meshGroup_->size(); ++i) {
-        meshMaterialBuff_[i].first = -1;
+        meshMaterialBuff_[i].first = ComponentHandle();
         meshMaterialBuff_[i].second.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
     }
 }
 
-void ModelMeshRenderer::InitializeMaterialBuffer(Entity* _hostEntity) {
-    hostEntity_ = _hostEntity;
-
+void ModelMeshRenderer::InitializeMaterialBuffer() {
     meshMaterialBuff_.resize(meshGroup_->size());
 
     textureFilePath_.resize(meshGroup_->size(), "");
@@ -309,7 +321,12 @@ void ModelMeshRenderer::InitializeMaterialBuffer(Entity* _hostEntity) {
 
 #pragma endregion
 
-void OriGine::CreateModelMeshRenderer(ModelMeshRenderer* _renderer, Entity* _hostEntity, const std::string& _directory, const std::string& _fileName, bool _usingDefaultTexture) {
+void OriGine::CreateModelMeshRenderer(
+    ModelMeshRenderer* _renderer,
+    EntityHandle _hostEntity,
+    const std::string& _directory,
+    const std::string& _fileName,
+    bool _usingDefaultTexture) {
     bool isLoaded = false;
 
     if (!_renderer->GetMeshGroup()->empty()) {
@@ -341,7 +358,12 @@ void OriGine::CreateModelMeshRenderer(ModelMeshRenderer* _renderer, Entity* _hos
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 }
-void OriGine::InitializeMaterialFromModelFile(ModelMeshRenderer* _renderer, Scene* _scene, Entity* _hostEntity, const std::string& _directory, const std::string& _fileName) {
+void OriGine::InitializeMaterialFromModelFile(
+    ModelMeshRenderer* _renderer,
+    Scene* _scene,
+    EntityHandle _hostEntity,
+    const std::string& _directory,
+    const std::string& _fileName) {
     if (!_renderer->GetMeshGroup()->empty()) {
         _renderer->GetMeshGroup()->clear();
     }
@@ -351,26 +373,34 @@ void OriGine::InitializeMaterialFromModelFile(ModelMeshRenderer* _renderer, Scen
 
     // -------------------- Materialの初期化 --------------------//
     auto materialArray = _scene->GetComponentArray<Material>();
-    auto materials     = materialArray->GetComponents(_hostEntity);
+    auto& materials    = materialArray->GetComponents(_hostEntity);
     // Bufferの初期化
-    _renderer->InitializeMaterialBuffer(_hostEntity);
+    _renderer->InitializeMaterialBuffer();
     // nullptr の場合は,生成から
-    if (materials == nullptr) {
+    if (materials.empty()) {
         for (int32_t i = 0; i < static_cast<int32_t>(_renderer->GetMeshGroupSize()); ++i) {
             // 生成&初期化
-            int32_t createdMaterialIndex = materialArray->Add(_hostEntity, defaultModelMaterial[i].material.openData_);
-            _renderer->SetMaterialIndex(i, createdMaterialIndex);
+            ComponentHandle createdMaterialHandle = materialArray->AddComponent(_scene, _hostEntity);
+            Material* material                    = materialArray->GetComponent(createdMaterialHandle);
+            *material                             = defaultModelMaterial[i].material.openData_;
+
+            _renderer->SetMaterialHandle(i, createdMaterialHandle);
         }
     } else {
         for (int32_t i = 0; i < static_cast<int32_t>(_renderer->GetMeshGroupSize()); ++i) {
             // マテリアルの設定
-            int32_t materialIndex = _renderer->GetMaterialIndex(i);
-            if (materialIndex < 0) {
-                int32_t createdMaterialIndex = materialArray->Add(_hostEntity, defaultModelMaterial[i].material.openData_);
-                _renderer->SetMaterialIndex(i, createdMaterialIndex);
+            ComponentHandle materialHandle = _renderer->GetMaterialHandle(i);
+            if (!materialHandle.IsValid()) {
+                // 生成&初期化
+                ComponentHandle createdMaterialHandle = materialArray->AddComponent(_scene, _hostEntity);
+                Material* material                    = materialArray->GetComponent(createdMaterialHandle);
+                *material                             = defaultModelMaterial[i].material.openData_;
+
+                _renderer->SetMaterialHandle(i, createdMaterialHandle);
                 continue;
             }
-            materials->operator[](materialIndex) = defaultModelMaterial[i].material.openData_;
+            Material* material = materialArray->GetComponent(materialHandle);
+            *material          = defaultModelMaterial[i].material.openData_;
         }
     }
     for (uint32_t i = 0; i < static_cast<uint32_t>(_renderer->GetMeshGroupSize()); ++i) {
@@ -459,7 +489,7 @@ LineRenderer::LineRenderer(const std::shared_ptr<std::vector<Mesh<ColorVertexDat
 LineRenderer::~LineRenderer() {}
 
 void LineRenderer::Initialize(Scene* _scene, EntityHandle _hostEntity) {
-    MeshRenderer::Initialize(_hostEntity);
+    MeshRenderer::Initialize(_scene, _hostEntity);
     transformBuff_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
 
     transformBuff_.openData_.UpdateMatrix();
@@ -481,7 +511,7 @@ void LineRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityH
 
     ImGui::Checkbox("LineIsStrip", &lineIsStrip_);
 
-    transformBuff_.openData_.Edit(_scene, _entity, _parentLabel);
+    transformBuff_.openData_.Edit(_scene, _handle, _parentLabel);
 
     for (auto& mesh : *meshGroup_) {
         label = "Mesh[" + std::to_string(meshIndex) + "]";

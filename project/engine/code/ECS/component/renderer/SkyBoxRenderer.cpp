@@ -19,7 +19,7 @@
 using namespace OriGine;
 
 void SkyboxRenderer::Initialize(Scene* _scene, EntityHandle _hostEntity) {
-    MeshRenderer::Initialize(_hostEntity);
+    MeshRenderer::Initialize(_scene, _hostEntity);
 
     isRender_ = true;
 
@@ -90,12 +90,12 @@ void SkyboxRenderer::Initialize(Scene* _scene, EntityHandle _hostEntity) {
         textureIndex_ = TextureManager::LoadTexture(filePath_);
     }
 
-    transformBuff_->Initialize(_hostEntity);
+    transformBuff_->Initialize(_scene, _hostEntity);
     transformBuff_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
     materialBuff_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
 }
 
-void SkyboxRenderer::Edit(Scene* /*_scene*/, Entity* /* _entity*/, [[maybe_unused]] const std::string& _parentLabel) {
+void SkyboxRenderer::Edit(Scene* /*_scene*/, EntityHandle /* _entity*/, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     ImGui::Text("FilePath : %s", filePath_.c_str());

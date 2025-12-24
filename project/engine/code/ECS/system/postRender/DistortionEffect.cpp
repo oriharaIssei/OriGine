@@ -32,7 +32,7 @@ void DistortionEffect::Initialize() {
     texturedMeshRenderSystem_->Initialize();
 
     defaultParam_ = std::make_unique<DistortionEffectParam>();
-    defaultParam_->Initialize(nullptr);
+    defaultParam_->Initialize(nullptr, EntityHandle());
 }
 
 void DistortionEffect::Finalize() {
@@ -235,16 +235,17 @@ void DistortionEffect::RenderEnd() {
 }
 
 void DistortionEffect::DispatchComponent(EntityHandle _handle) {
-    auto distortionEffectParams = GetComponents<DistortionEffectParam>(_entity);
-    if (!distortionEffectParams) {
+    auto& distortionEffectParams = GetComponents<DistortionEffectParam>(_handle);
+    if (distortionEffectParams.empty()) {
         return;
     }
-    for (auto& effectParam : *distortionEffectParams) {
+
+    for (auto& effectParam : distortionEffectParams) {
         if (!effectParam.GetIsActive()) {
             continue;
         }
 
-        auto* entityTransform = GetComponent<Transform>(_entity);
+        auto* entityTransform = GetComponent<Transform>(_handle);
 
         // 3dオブジェクトリストを使用する場合
         if (effectParam.GetUse3dObjectList()) {
@@ -259,7 +260,7 @@ void DistortionEffect::DispatchComponent(EntityHandle _handle) {
                 int32_t materialIndex = primitiveRenderBase->GetMaterialIndex();
                 auto& materialBuff    = primitiveRenderBase->GetMaterialBuff();
                 if (materialIndex >= 0) {
-                    Material* material = GetComponent<Material>(_entity, materialIndex);
+                    Material* material = GetComponent<Material>(_handle, materialIndex);
                     material->UpdateUvMatrix();
 
                     // 歪み強度・バイアスの反映
@@ -295,7 +296,7 @@ void DistortionEffect::DispatchComponent(EntityHandle _handle) {
             int32_t materialIndex = effectParam.GetMaterialIndex();
             auto& materialBuff    = effectParam.GetMaterialBuffer();
             if (materialIndex >= 0) {
-                Material* material = GetComponent<Material>(_entity, materialIndex);
+                Material* material = GetComponent<Material>(_handle, materialIndex);
                 material->UpdateUvMatrix();
 
                 materialBuff.ConvertToBuffer(ColorAndUvTransform(material->color_, material->uvTransform_));

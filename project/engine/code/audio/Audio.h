@@ -118,7 +118,7 @@ public:
     void Initialize() override;
     void Finalize() override;
 
-    void UpdateEntity(Entity* entity) override;
+    void UpdateEntity(EntityHandle _entity) override;
 };
 
 } // namespace OriGine

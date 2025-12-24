@@ -42,8 +42,8 @@ void SubSceneRender::RenderEnd() {
 }
 
 void SubSceneRender::DispatchComponent(EntityHandle _handle) {
-    auto subScenes = GetComponents<SubScene>(_entity);
-    for (auto& subScene : *subScenes) {
+    auto& subScenes = GetComponents<SubScene>(_handle);
+    for (auto& subScene : subScenes) {
         if (!subScene.IsActive()) {
             continue;
         }

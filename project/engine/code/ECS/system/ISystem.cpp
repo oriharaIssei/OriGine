@@ -56,12 +56,12 @@ IComponentArray* ISystem::GetComponentArray(const ::std::string& _typeName) {
     return scene_->GetComponentRepositoryRef()->GetComponentArray(_typeName);
 }
 
-ComponentHandle ISystem::AddComponent(EntityHandle _entity, const ::std::string& _typeName, IComponent* _component, bool _doInitialize) {
+ComponentHandle ISystem::AddComponent(EntityHandle _entity, const ::std::string& _typeName) {
     if (scene_ == nullptr) {
         LOG_ERROR("ComponentRepository is not Set.");
-        return;
+        return ComponentHandle();
     }
-    scene_->GetComponentRepositoryRef()->GetComponentArray(_typeName)->AddComponent(scene_, _entity);
+    return scene_->GetComponentRepositoryRef()->GetComponentArray(_typeName)->AddComponent(scene_, _entity);
 }
 
 void ISystem::SetScene(Scene* _scene) {

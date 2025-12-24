@@ -7,6 +7,7 @@
 
 /// ECS
 // entity
+#include "Entity.h"
 #include "EntityHandle.h"
 
 /// util
@@ -19,17 +20,13 @@
 #include <stdint.h>
 
 namespace OriGine {
-/// 前方宣言
-/// ECS
-
-class Entity;
-
 /// <summary>
 /// Entity Repository(登録, 削除, 取得などを行う)
 /// </summary>
 class EntityRepository final {
 public:
     EntityRepository();
+    ~EntityRepository();
 
     void Initialize();
     void Finalize();
@@ -48,6 +45,14 @@ public:
     /// <param name="dataType">UniqueEntityの名前</param>
     /// <returns>UniqueEntityにアクセスするハンドル</returns>
     EntityHandle GetUniqueEntity(const std::string& _dataType);
+
+    /// <summary>
+    /// Unique Entity 登録
+    /// </summary>
+    /// <param name="_dataType">登録するEntityName</param>
+    /// <param name="_handle"></param>
+    /// <returns></returns>
+    bool RgisterUniqueEntity(const std::string& _dataType, EntityHandle _handle);
 
     /// <summary>
     /// Entity 削除
@@ -107,8 +112,10 @@ private:
 
 public:
     size_t GetEntityCount() const { return entityActiveBits_.GetTrueCount(); }
-    uint32_t GetCapacity() const { return entities_.size(); }
+    uint32_t GetCapacity() const { return static_cast<uint32_t>(entities_.size()); }
 
+    const std::vector<Entity>& GetEntities() const { return entities_; }
+    std::vector<Entity>& GetEntitiesRef() { return entities_; }
 };
 
 } // namespace OriGine

@@ -67,8 +67,8 @@ bool CheckCollisionPair(
 template <>
 bool CheckCollisionPair(
     Scene* _scene,
-    Entity* _aabbEntity,
-    Entity* _sphereEntity,
+    EntityHandle _aabbEntity,
+    EntityHandle _sphereEntity,
     const Bounds::AABB& _aabb,
     const Bounds::Sphere& _sphere,
     [[maybe_unused]] CollisionPushBackInfo* _aabbInfo,

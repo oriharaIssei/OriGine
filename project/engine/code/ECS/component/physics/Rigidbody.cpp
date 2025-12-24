@@ -10,9 +10,7 @@ using namespace OriGine;
 
 Rigidbody::Rigidbody() {}
 
-void Rigidbody::Initialize(EntityHandle _handle) {
-    _entity;
-}
+void Rigidbody::Initialize(Scene* /*_scene*/, EntityHandle /*_handle*/) {}
 
 void Rigidbody::Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, [[maybe_unused]] const std::string& _parentLabel) {
 

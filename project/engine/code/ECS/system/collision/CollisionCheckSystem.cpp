@@ -31,11 +31,6 @@ void CollisionCheckSystem::Initialize() {
 void CollisionCheckSystem::Update() {
     EraseDeadEntity();
 
-    entities_.clear();
-    for (auto id : entities_) {
-        entities_.emplace_back(GetEntity(id));
-    }
-
     entityItr_ = entities_.begin();
 
     // 衝突判定の記録開始処理
@@ -46,36 +41,23 @@ void CollisionCheckSystem::Update() {
         }
 
         // AABB
-        const auto& aabbColliders = GetComponents<AABBCollider>(entity);
-        if (aabbColliders) {
-            for (auto collider = aabbColliders->begin();
-                collider != aabbColliders->end();
-                ++collider) {
-                collider->SetParent(transform);
-                collider->StartCollision();
-            }
+        auto& aabbColliders = GetComponents<AABBCollider>(entity);
+        for (auto& collider : aabbColliders) {
+            collider.SetParent(transform);
+            collider.StartCollision();
         }
 
         // Sphere
-        const auto& sphereColliders = GetComponents<SphereCollider>(entity);
-        if (sphereColliders) {
-            for (auto collider = sphereColliders->begin();
-                collider != sphereColliders->end();
-                ++collider) {
-                collider->SetParent(transform);
-                collider->StartCollision();
-            }
+        auto& sphereColliders = GetComponents<SphereCollider>(entity);
+        for (auto& collider : sphereColliders) {
+            collider.SetParent(transform);
+            collider.StartCollision();
         }
-
         // OBB
-        const auto& obbColliders = GetComponents<OBBCollider>(entity);
-        if (obbColliders) {
-            for (auto collider = obbColliders->begin();
-                collider != obbColliders->end();
-                ++collider) {
-                collider->SetParent(transform);
-                collider->StartCollision();
-            }
+        auto& obbColliders = GetComponents<OBBCollider>(entity);
+        for (auto& collider : obbColliders) {
+            collider.SetParent(transform);
+            collider.StartCollision();
         }
 
         auto collPushbackInfo = GetComponent<CollisionPushBackInfo>(entity);
@@ -92,24 +74,20 @@ void CollisionCheckSystem::Update() {
     // 衝突判定の記録終了処理
     for (auto entity : entities_) {
         // AABB
-        const auto& aabbColliders = GetComponents<AABBCollider>(entity);
-        if (aabbColliders == nullptr) {
-            continue;
+        auto& aabbColliders = GetComponents<AABBCollider>(entity);
+        for (auto& collider : aabbColliders) {
+            collider.EndCollision();
         }
-        for (auto collider = aabbColliders->begin();
-            collider != aabbColliders->end();
-            ++collider) {
-            collider->EndCollision();
-        }
+
         // Sphere
-        const auto& sphereColliders = GetComponents<SphereCollider>(entity);
-        if (sphereColliders == nullptr) {
-            continue;
+        auto& sphereColliders = GetComponents<SphereCollider>(entity);
+        for (auto& collider : sphereColliders) {
+            collider.EndCollision();
         }
-        for (auto collider = sphereColliders->begin();
-            collider != sphereColliders->end();
-            ++collider) {
-            collider->EndCollision();
+        // OBB
+        auto& obbColliders = GetComponents<OBBCollider>(entity);
+        for (auto& collider : obbColliders) {
+            collider.EndCollision();
         }
     }
 }
@@ -123,74 +101,74 @@ void CollisionCheckSystem::UpdateEntity(EntityHandle _handle) {
 
     Scene* currentScene = GetScene();
 
-    auto aCollPushbackInfo      = GetComponent<CollisionPushBackInfo>(_entity);
-    auto aEntityAabbColliders   = GetComponents<AABBCollider>(_entity);
-    auto aEntitySphereColliders = GetComponents<SphereCollider>(_entity);
-    auto aEntityObbColliders    = GetComponents<OBBCollider>(_entity);
+    auto aCollPushbackInfo      = GetComponent<CollisionPushBackInfo>(_handle);
+    auto& aEntityAabbColliders   = GetComponents<AABBCollider>(_handle);
+    auto& aEntitySphereColliders = GetComponents<SphereCollider>(_handle);
+    auto& aEntityObbColliders    = GetComponents<OBBCollider>(_handle);
 
     // 2つのリスト間の衝突判定をまとめる
     auto checkCollisions = [&](
-                               Entity* aEntity,
-                               Entity* bEntity,
+                               EntityHandle aEntity,
+                               EntityHandle bEntity,
                                auto& listA,
                                auto& listB,
                                CollisionPushBackInfo* _aInfo,
                                CollisionPushBackInfo* _bInfo) {
-        for (auto colliderA = listA->begin(); colliderA != listA->end(); ++colliderA) {
-            if (!colliderA->IsActive()) {
+        for (auto& colliderA : listA) {
+            if (!colliderA.IsActive()) {
                 continue;
             }
-            for (auto colliderB = listB->begin(); colliderB != listB->end(); ++colliderB) {
-                if (!colliderB->IsActive()) {
+            for (auto& colliderB : listB) {
+                if (!colliderB.IsActive()) {
                     continue;
                 }
-                if (CheckCollisionPair<>(currentScene, aEntity, bEntity, colliderA->GetWorldShape(), colliderB->GetWorldShape(), _aInfo, _bInfo)) {
-                    colliderA->SetCollisionState(bEntity->GetID());
-                    colliderB->SetCollisionState(aEntity->GetID());
+                if (CheckCollisionPair<>(currentScene, aEntity, bEntity, colliderA.GetWorldShape(), colliderB.GetWorldShape(), _aInfo, _bInfo)) {
+                    colliderA.SetCollisionState(bEntity);
+                    colliderB.SetCollisionState(aEntity);
                 }
             }
         }
     };
 
     for (auto bItr = entityItr_; bItr != entities_.end(); ++bItr) {
-        Entity* bEntity = *bItr;
+        EntityHandle bEntity = *bItr;
 
         auto bCollPushbackInfo      = GetComponent<CollisionPushBackInfo>(bEntity);
-        auto bEntityAabbColliders   = GetComponents<AABBCollider>(bEntity);
-        auto bEntitySphereColliders = GetComponents<SphereCollider>(bEntity);
-        auto bEntityObbColliders    = GetComponents<OBBCollider>(bEntity);
+        auto& bEntityAabbColliders   = GetComponents<AABBCollider>(bEntity);
+        auto& bEntitySphereColliders = GetComponents<SphereCollider>(bEntity);
+        auto& bEntityObbColliders    = GetComponents<OBBCollider>(bEntity);
 
-        if (aEntityAabbColliders) {
-            if (bEntityAabbColliders) {
-                checkCollisions(_entity, bEntity, aEntityAabbColliders, bEntityAabbColliders, aCollPushbackInfo, bCollPushbackInfo);
+        if (aEntityAabbColliders.empty()) {
+            if (bEntityAabbColliders.empty()) {
+                checkCollisions(_handle, bEntity, aEntityAabbColliders, bEntityAabbColliders, aCollPushbackInfo, bCollPushbackInfo);
             }
-            if (bEntitySphereColliders) {
-                checkCollisions(_entity, bEntity, aEntityAabbColliders, bEntitySphereColliders, aCollPushbackInfo, bCollPushbackInfo);
+            if (bEntitySphereColliders.empty()) {
+                checkCollisions(_handle, bEntity, aEntityAabbColliders, bEntitySphereColliders, aCollPushbackInfo, bCollPushbackInfo);
             }
-            if (bEntityObbColliders) {
-                checkCollisions(_entity, bEntity, aEntityAabbColliders, bEntityObbColliders, aCollPushbackInfo, bCollPushbackInfo);
-            }
-        }
-        if (aEntitySphereColliders) {
-            if (bEntityAabbColliders) {
-                checkCollisions(_entity, bEntity, aEntitySphereColliders, bEntityAabbColliders, aCollPushbackInfo, bCollPushbackInfo);
-            }
-            if (bEntitySphereColliders) {
-                checkCollisions(_entity, bEntity, aEntitySphereColliders, bEntitySphereColliders, aCollPushbackInfo, bCollPushbackInfo);
-            }
-            if (bEntityObbColliders) {
-                checkCollisions(_entity, bEntity, aEntitySphereColliders, bEntityObbColliders, aCollPushbackInfo, bCollPushbackInfo);
+            if (bEntityObbColliders.empty()) {
+                checkCollisions(_handle, bEntity, aEntityAabbColliders, bEntityObbColliders, aCollPushbackInfo, bCollPushbackInfo);
             }
         }
-        if (aEntityObbColliders) {
-            if (bEntityAabbColliders) {
-                checkCollisions(_entity, bEntity, aEntityObbColliders, bEntityAabbColliders, aCollPushbackInfo, bCollPushbackInfo);
+        if (aEntitySphereColliders.empty()) {
+            if (bEntityAabbColliders.empty()) {
+                checkCollisions(_handle, bEntity, aEntitySphereColliders, bEntityAabbColliders, aCollPushbackInfo, bCollPushbackInfo);
             }
-            if (bEntitySphereColliders) {
-                checkCollisions(_entity, bEntity, aEntityObbColliders, bEntitySphereColliders, aCollPushbackInfo, bCollPushbackInfo);
+            if (bEntitySphereColliders.empty()) {
+                checkCollisions(_handle, bEntity, aEntitySphereColliders, bEntitySphereColliders, aCollPushbackInfo, bCollPushbackInfo);
             }
-            if (bEntityObbColliders) {
-                checkCollisions(_entity, bEntity, aEntityObbColliders, bEntityObbColliders, aCollPushbackInfo, bCollPushbackInfo);
+            if (bEntityObbColliders.empty()) {
+                checkCollisions(_handle, bEntity, aEntitySphereColliders, bEntityObbColliders, aCollPushbackInfo, bCollPushbackInfo);
+            }
+        }
+        if (aEntityObbColliders.empty()) {
+            if (bEntityAabbColliders.empty()) {
+                checkCollisions(_handle, bEntity, aEntityObbColliders, bEntityAabbColliders, aCollPushbackInfo, bCollPushbackInfo);
+            }
+            if (bEntitySphereColliders.empty()) {
+                checkCollisions(_handle, bEntity, aEntityObbColliders, bEntitySphereColliders, aCollPushbackInfo, bCollPushbackInfo);
+            }
+            if (bEntityObbColliders.empty()) {
+                checkCollisions(_handle, bEntity, aEntityObbColliders, bEntityObbColliders, aCollPushbackInfo, bCollPushbackInfo);
             }
         }
     }

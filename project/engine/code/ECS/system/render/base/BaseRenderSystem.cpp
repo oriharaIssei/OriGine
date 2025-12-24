@@ -25,7 +25,6 @@ void BaseRenderSystem::Update() {
     EraseDeadEntity();
 
     // レンダラー登録
-    auto* hostScene = GetScene();
     for (auto& entityID : entities_) {
         DispatchRenderer(entityID);
     }

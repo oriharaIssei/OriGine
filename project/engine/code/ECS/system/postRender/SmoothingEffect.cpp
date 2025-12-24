@@ -135,12 +135,12 @@ void SmoothingEffect::RenderEnd() {
 }
 
 void SmoothingEffect::DispatchComponent(EntityHandle _handle) {
-    auto* params = GetComponents<SmoothingEffectParam>(_entity);
-    if (!params) {
+    auto params = GetComponents<SmoothingEffectParam>(_handle);
+    if (params.empty()) {
         return;
     }
 
-    for (auto& param : *params) {
+    for (auto& param : params) {
         if (!param.isActive_) {
             continue;
         }

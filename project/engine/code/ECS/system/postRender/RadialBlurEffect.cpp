@@ -125,13 +125,13 @@ void RadialBlurEffect::RenderEnd() {
 }
 
 void RadialBlurEffect::DispatchComponent(EntityHandle _handle) {
-    auto components = GetComponents<RadialBlurParam>(_entity);
-    if (!components) {
+    auto& components = GetComponents<RadialBlurParam>(_handle);
+    if (components.empty()) {
         return;
     }
 
     // アクティブなコンポーネントだけ登録する
-    for (auto& component : *components) {
+    for (auto& component : components) {
         if (!component.IsActive()) {
             continue;
         }

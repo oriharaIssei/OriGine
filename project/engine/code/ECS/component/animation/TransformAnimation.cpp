@@ -50,8 +50,8 @@ void TransformAnimation::Edit(
     ::ImGui::Spacing();
 
     label                       = "Target Transform Index##" + _parentLabel;
-    auto& transforms             = _scene->GetComponents<Transform>(_entity);
-    int32_t entityTransformSize = static_cast<int32_t>(transforms.size()) : 0;
+    auto& transforms            = _scene->GetComponents<Transform>(_entity);
+    int32_t entityTransformSize = static_cast<int32_t>(transforms.size()) - 1;
 
     InputGuiCommand(label, targetTransformIndex_);
     targetTransformIndex_ = std::clamp(targetTransformIndex_, -1, entityTransformSize);

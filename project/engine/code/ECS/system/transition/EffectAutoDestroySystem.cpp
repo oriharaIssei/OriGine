@@ -23,44 +23,37 @@ void EffectAutoDestroySystem::Finalize() {}
 void EffectAutoDestroySystem::UpdateEntity(OriGine::EntityHandle _handle) {
     bool isAlive = false;
 
-    auto materialAnimations = GetComponents<MaterialAnimation>(_entity);
-    if (materialAnimations) {
-        for (auto& anim : *materialAnimations) {
-            isAlive |= anim.GetAnimationIsPlay();
-        }
+    auto& materialAnimations = GetComponents<MaterialAnimation>(_handle);
+    for (auto& anim : materialAnimations) {
+        isAlive |= anim.GetAnimationIsPlay();
     }
-    auto modelAnimations = GetComponents<ModelNodeAnimation>(_entity);
-    if (modelAnimations) {
-        for (auto& anim : *modelAnimations) {
-            isAlive |= anim.IsPlay();
-        }
+
+    auto& modelAnimations = GetComponents<ModelNodeAnimation>(_handle);
+    for (auto& anim : modelAnimations) {
+        isAlive |= anim.IsPlay();
     }
-    auto primAnimations = GetComponents<PrimitiveNodeAnimation>(_entity);
-    if (primAnimations) {
-        for (auto& anim : *primAnimations) {
-            isAlive |= anim.GetAnimationIsPlay();
-        }
+
+    auto& primAnimations = GetComponents<PrimitiveNodeAnimation>(_handle);
+    for (auto& anim : primAnimations) {
+        isAlive |= anim.GetAnimationIsPlay();
     }
-    auto skinningAnimations = GetComponents<SkinningAnimationComponent>(_entity);
-    if (skinningAnimations) {
-        for (auto& anim : *skinningAnimations) {
-            isAlive |= anim.IsPlay();
-        }
+
+    auto& skinningAnimations = GetComponents<SkinningAnimationComponent>(_handle);
+    for (auto& anim : skinningAnimations) {
+        isAlive |= anim.IsPlay();
     }
-    auto spriteAnimations = GetComponents<SpriteAnimation>(_entity);
-    if (spriteAnimations) {
-        for (auto& anim : *spriteAnimations) {
-            isAlive |= anim.IsPlaying();
-        }
+
+    auto& spriteAnimations = GetComponents<SpriteAnimation>(_handle);
+    for (auto& anim : spriteAnimations) {
+        isAlive |= anim.IsPlaying();
     }
-    auto transAnimations = GetComponents<TransformAnimation>(_entity);
-    if (transAnimations) {
-        for (auto& anim : *transAnimations) {
-            isAlive |= anim.IsPlaying();
-        }
+
+    auto& transAnimations = GetComponents<TransformAnimation>(_handle);
+    for (auto& anim : transAnimations) {
+        isAlive |= anim.IsPlaying();
     }
 
     if (!isAlive) {
-        GetScene()->AddDeleteEntity(_entity->GetID());
+        GetScene()->AddDeleteEntity(_handle);
     }
 }

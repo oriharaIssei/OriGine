@@ -184,12 +184,13 @@ void GpuParticleRenderSystem::StartRender() {
 }
 
 void GpuParticleRenderSystem::DispatchRenderer(EntityHandle _entity) {
-    auto components = GetComponents<GpuParticleEmitter>(_entity);
-    if (!components) {
+    auto& components = GetComponents<GpuParticleEmitter>(_entity);
+    if (components.empty()) {
         return;
     }
+
     // アクティブなエミッタをBlendModeごとに振り分ける
-    for (auto& comp : *components) {
+    for (auto& comp : components) {
         if (!comp.IsActive()) {
             continue;
         }

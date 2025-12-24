@@ -13,10 +13,10 @@ void CollisionPushBackSystem::Initialize() {}
 void CollisionPushBackSystem::Finalize() {}
 
 void CollisionPushBackSystem::UpdateEntity(EntityHandle _handle) {
-    CollisionPushBackInfo* collPushbackInfo = GetComponent<CollisionPushBackInfo>(_entity);
+    CollisionPushBackInfo* collPushbackInfo = GetComponent<CollisionPushBackInfo>(_handle);
 
     if (collPushbackInfo == nullptr) {
-        LOG_ERROR("Entity {} has no CollisionPushBackInfo component.", _entity->GetID());
+        LOG_ERROR("EntityHandle {} has no CollisionPushBackInfo component.", uuids::to_string(_handle.uuid));
         return;
     }
 
@@ -35,7 +35,7 @@ void CollisionPushBackSystem::UpdateEntity(EntityHandle _handle) {
         case CollisionPushBackType::Reflect: {
             pushBackSum += info.collVec;
 
-            Rigidbody* rigidbody = GetComponent<Rigidbody>(_entity);
+            Rigidbody* rigidbody = GetComponent<Rigidbody>(_handle);
 
             // 衝突時に反射する
             // 反射ベクトルを計算
@@ -52,6 +52,6 @@ void CollisionPushBackSystem::UpdateEntity(EntityHandle _handle) {
         }
     }
 
-    Transform* transform = GetComponent<Transform>(_entity);
+    Transform* transform = GetComponent<Transform>(_handle);
     transform->translate += pushBackSum;
 }

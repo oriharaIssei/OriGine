@@ -21,7 +21,7 @@
 using namespace OriGine;
 
 void BoxRenderer::Initialize(Scene* _scene, EntityHandle _hostEntity) {
-    MeshRenderer::Initialize(_hostEntity);
+    MeshRenderer::Initialize(_scene,_hostEntity);
 
     // _mesh Init
     if (!meshGroup_->empty()) {

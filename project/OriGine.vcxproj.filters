@@ -791,6 +791,8 @@
     </ClInclude>
     <ClInclude Include="engine\code\ECS\entity\EntityHandle.h" />
     <ClInclude Include="engine\code\ECS\component\ComponentHandle.h" />
+    <ClInclude Include="externals\uuid\uuid.h" />
+    <ClInclude Include="util\uuidGenerator\UuidGenerator.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="editor\EditorController.cpp">
@@ -1297,5 +1299,8 @@
     <ClCompile Include="util\timeline\Timeline.cpp">
       <Filter>util\timeline</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\ECS\entity\EntityHandle.cpp" />
+    <ClCompile Include="engine\code\ECS\component\ComponentHandle.cpp" />
+    <ClCompile Include="util\uuidGenerator\UuidGenerator.cpp" />
   </ItemGroup>
 </Project>

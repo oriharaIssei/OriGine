@@ -30,8 +30,7 @@ void BasePostRenderingSystem::Update() {
 
     // コンポーネントの登録
     for (auto entityID : entities_) {
-        Entity* entity = GetScene()->GetEntity(entityID);
-        DispatchComponent(entity);
+        DispatchComponent(entityID);
     }
 
     // ポストレンダリングスキップ判定

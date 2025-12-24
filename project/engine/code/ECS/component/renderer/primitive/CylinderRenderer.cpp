@@ -21,7 +21,7 @@
 using namespace OriGine;
 
 void CylinderRenderer::Initialize(Scene* _scene, EntityHandle _hostEntity) {
-    MeshRenderer::Initialize(_hostEntity);
+    MeshRenderer::Initialize(_scene,_hostEntity);
 
     // culling しない
     isCulling_ = false;

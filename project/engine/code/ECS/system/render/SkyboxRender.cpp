@@ -32,13 +32,13 @@ void SkyboxRender::StartRender() {
 }
 
 void SkyboxRender::DispatchRenderer(EntityHandle _entity) {
-    std::vector<SkyboxRenderer>* renderers = GetComponents<SkyboxRenderer>(_entity);
+    std::vector<SkyboxRenderer>& renderers = GetComponents<SkyboxRenderer>(_entity);
     // nullptr なら これ以上存在しないとして終了
-    if (!renderers) {
+    if (renderers.empty()) {
         return;
     }
 
-    for (auto& renderer : *renderers) {
+    for (auto& renderer : renderers) {
         // 描画フラグが立っていないならスキップ
         if (!renderer.IsRender()) {
             continue;
@@ -50,7 +50,7 @@ void SkyboxRender::DispatchRenderer(EntityHandle _entity) {
 
 void SkyboxRender::RenderingBy(BlendMode _blendMode, bool /*_isCulling*/) {
     auto& commandList = dxCommand_->GetCommandList();
-    auto& renderers  = rendererByBlendMode_[static_cast<int32_t>(_blendMode)];
+    auto& renderers   = rendererByBlendMode_[static_cast<int32_t>(_blendMode)];
     if (renderers.empty()) {
         return;
     }

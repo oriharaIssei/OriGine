@@ -53,7 +53,7 @@ private:
     DxDsvDescriptor dxDsv_{};
     std::unique_ptr<DxResource> dsvResource_ = nullptr;
 
-    std::vector<std::pair<Entity*, MaterialEffectPipeLine*>> effectPipelines_;
+    std::vector<std::pair<EntityHandle, MaterialEffectPipeLine*>> effectPipelines_;
 
     std::unique_ptr<DissolveEffect> dissolveEffect_     = nullptr;
     std::unique_ptr<DistortionEffect> distortionEffect_ = nullptr;

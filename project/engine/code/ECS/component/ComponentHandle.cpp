@@ -1,10 +1,12 @@
 #include "ComponentHandle.h"
 
-void to_json(nlohmann::json& j, const ComponentHandle& c) {
+using namespace OriGine;
+
+void OriGine::to_json(nlohmann::json& j, const ComponentHandle& c) {
     j = uuids::to_string(c.uuid);
 }
 
-void from_json(const nlohmann::json& j, ComponentHandle& c) {
+void OriGine::from_json(const nlohmann::json& j, ComponentHandle& c) {
     std::string uuidStr;
     j.get_to(uuidStr);
     auto uuid = uuids::uuid::from_string(uuidStr);

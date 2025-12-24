@@ -27,7 +27,7 @@ public:
     CameraTransform() {}
     ~CameraTransform() {}
 
-    void Initialize(Entity* _hostEntity = nullptr);
+    void Initialize(Scene* _scene, EntityHandle _hostEntity);
 
     void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) override;
 
@@ -35,6 +35,7 @@ public:
 
     void UpdateMatrix();
 
+public:
     bool canUseMainCamera = true;
     // Vec3f scale;
     Quaternion rotate = Quaternion();

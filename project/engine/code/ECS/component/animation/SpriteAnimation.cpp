@@ -29,9 +29,9 @@ void SpriteAnimation::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Enti
     std::string label = "SpriteComponentIndex##" + _parentLabel;
 
     {
-        auto* spriteComponents = _scene->GetComponents<SpriteRenderer>(_handle);
-        if (spriteComponents) {
-            int32_t maxIndex = static_cast<int32_t>(spriteComponents->size()) - 1;
+        auto& spriteComponents = _scene->GetComponents<SpriteRenderer>(_handle);
+        if (!spriteComponents.empty()) {
+            int32_t maxIndex = static_cast<int32_t>(spriteComponents.size()) - 1;
             InputGuiCommand<int32_t>(label, spriteComponentIndex_, "%d", [this, maxIndex](int32_t* _newVal) {
                 *_newVal = std::clamp(*_newVal, 0, maxIndex);
             });

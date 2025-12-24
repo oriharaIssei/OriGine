@@ -4,14 +4,13 @@
 
 /// externals
 #include "logger/Logger.h"
-
-#define UUID_SYSTEM_GENERATOR
-#include "uuid/uuid.h"
+#include <uuid/uuid.h>
+#include <uuidGenerator/UuidGenerator.h>
 
 using namespace OriGine;
 
 EntityRepository::EntityRepository() {}
-EntityRepository::~EntityRepository() = default;
+EntityRepository::~EntityRepository() {}
 
 void EntityRepository::Initialize() {
     entities_.resize(size_);
@@ -48,17 +47,34 @@ EntityHandle EntityRepository::CreateEntity(const std::string& _type, bool _uniq
     e.dataType_ = _type;
     e.isAlive_  = true;
     e.isUnique_ = false;
-    e.uuid_     = uuids::uuid_system_generator{}();
+    e.handle_   = EntityHandle(UuidGenerator::RandomGenerate());
 
     entityActiveBits_.Set(index, true);
-    uuidToIndex_[e.uuid_] = index;
+    uuidToIndex_[e.handle_.uuid] = index;
 
     if (_unique) {
-        uniqueEntities_[_type] = e.uuid_;
+        uniqueEntities_[_type] = e.handle_.uuid;
         e.isUnique_            = true;
     }
 
-    return EntityHandle{e.uuid_};
+    return e.handle_;
+}
+
+bool OriGine::EntityRepository::RgisterUniqueEntity(const std::string& _dataType, EntityHandle _handle) {
+    auto it = uuidToIndex_.find(_handle.uuid);
+    if (it == uuidToIndex_.end()) {
+        LOG_ERROR("Entity not found. \n uuid : {}", uuids::to_string(_handle.uuid));
+        return false;
+    }
+    int32_t index = it->second;
+    Entity& e     = entities_[index];
+    if (e.isUnique_) {
+        LOG_ERROR("Entity is already unique. \n uuid : {}", uuids::to_string(_handle.uuid));
+        return false;
+    }
+    uniqueEntities_[_dataType] = _handle.uuid;
+    e.isUnique_                = true;
+    return true;
 }
 
 bool EntityRepository::RemoveEntity(EntityHandle _handle) {

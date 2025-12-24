@@ -132,13 +132,13 @@ void RandomEffect::RenderEnd() {
 
 void RandomEffect::DispatchComponent(EntityHandle _handle) {
     // activeなComponentをBlendModeごとに振り分ける
-    auto components = GetComponents<RandomEffectParam>(_entity);
+    auto& components = GetComponents<RandomEffectParam>(_handle);
 
-    if (!components) {
+    if (components.empty()) {
         return;
     }
 
-    for (auto& comp : *components) {
+    for (auto& comp : components) {
         if (!comp.IsActive()) {
             continue;
         }

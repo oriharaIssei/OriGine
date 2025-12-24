@@ -171,8 +171,8 @@ private:
     std::string fileName_  = "";
 
     std::vector<IConstantBuffer<Transform>> meshTransformBuff_;
-    // first = materialIndex, second = constantBuffer
-    std::vector<std::pair<int32_t, SimpleConstantBuffer<Material>>> meshMaterialBuff_;
+    // first = material handle, second = constantBuffer
+    std::vector<std::pair<ComponentHandle, SimpleConstantBuffer<Material>>> meshMaterialBuff_;
 
     std::vector<std::string> textureFilePath_ = {};
     std::vector<uint32_t> meshTextureNumbers_;
@@ -223,11 +223,11 @@ public:
     SimpleConstantBuffer<Material>& GetMaterialBuff(int32_t _meshIndex) {
         return meshMaterialBuff_[_meshIndex].second;
     }
-    int32_t GetMaterialIndex(int32_t _meshIndex) const {
+    ComponentHandle GetMaterialHandle(int32_t _meshIndex) const {
         return meshMaterialBuff_[_meshIndex].first;
     }
-    void SetMaterialIndex(int32_t _meshIndex, int32_t _materialIndex) {
-        meshMaterialBuff_[_meshIndex].first = _materialIndex;
+    void SetMaterialHandle(int32_t _meshIndex, ComponentHandle _materialHandle) {
+        meshMaterialBuff_[_meshIndex].first = _materialHandle;
     }
 
     //------------------------------ TextureNumber ------------------------------//
@@ -248,7 +248,7 @@ void CreateModelMeshRenderer(
     ModelMeshRenderer* _renderer,
     EntityHandle _hostEntity,
     const std::string& _directory,
-    const std::string& _filenName,
+    const std::string& _fileName,
     bool _usingDefaultTexture = true);
 void InitializeMaterialFromModelFile(
     ModelMeshRenderer* _renderer,

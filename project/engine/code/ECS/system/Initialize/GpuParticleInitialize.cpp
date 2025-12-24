@@ -33,8 +33,7 @@ void GpuParticleInitialize::Update() {
 
     StartCS();
     for (auto& id : entities_) {
-        Entity* entity = GetEntity(id);
-        UpdateEntity(entity);
+        UpdateEntity(id);
     }
     if (usingCS_) {
         ExecuteCS();
@@ -52,10 +51,10 @@ void GpuParticleInitialize::Finalize() {
 void GpuParticleInitialize::UpdateEntity(EntityHandle _handle) {
     auto& commandList = dxCommand_->GetCommandList();
 
-    auto gpuParticleVec = GetComponents<GpuParticleEmitter>(_entity);
+    auto& gpuParticleVec = GetComponents<GpuParticleEmitter>(_handle);
 
-    for (auto itr = gpuParticleVec->begin();
-        itr != gpuParticleVec->end();
+    for (auto itr = gpuParticleVec.begin();
+        itr != gpuParticleVec.end();
         ++itr) {
 
         GpuParticleEmitter& gpuParticleEmitter = *itr;

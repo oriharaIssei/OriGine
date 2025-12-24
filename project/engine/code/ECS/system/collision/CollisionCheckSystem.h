@@ -25,8 +25,7 @@ protected:
     void UpdateEntity(EntityHandle _handle) override;
 
 protected:
-    ::std::vector<Entity*> entities_;
-    ::std::vector<Entity*>::iterator entityItr_;
+    ::std::vector<EntityHandle>::iterator entityItr_;
 };
 
 } // namespace OriGine

@@ -213,7 +213,7 @@ void ColliderRenderingSystem::Initialize() {
     //** AABB **//
     aabbColliders_ = GetComponentArray<AABBCollider>();
     aabbRenderer_  = std::make_unique<LineRenderer>(std::vector<Mesh<ColorVertexData>>());
-    aabbRenderer_->Initialize(nullptr);
+    aabbRenderer_->Initialize(nullptr,EntityHandle());
     aabbRenderer_->GetMeshGroup()->push_back(Mesh<ColorVertexData>());
     aabbRenderer_->GetMeshGroup()->back().Initialize(ColliderRenderingSystem::kDefaultMeshCount_ * kAabbVertexSize, ColliderRenderingSystem::kDefaultMeshCount_ * kAabbIndexSize);
     aabbMeshItr_ = aabbRenderer_->GetMeshGroup()->begin();
@@ -221,7 +221,7 @@ void ColliderRenderingSystem::Initialize() {
     //** OBB **//
     obbColliders_ = GetComponentArray<OBBCollider>();
     obbRenderer_  = std::make_unique<LineRenderer>(std::vector<Mesh<ColorVertexData>>());
-    obbRenderer_->Initialize(nullptr);
+    obbRenderer_->Initialize(nullptr, EntityHandle());
     obbRenderer_->GetMeshGroup()->push_back(Mesh<ColorVertexData>());
     obbRenderer_->GetMeshGroup()->back().Initialize(ColliderRenderingSystem::kDefaultMeshCount_ * kObbVertexSize, ColliderRenderingSystem::kDefaultMeshCount_ * kObbIndexSize);
     obbMeshItr_ = obbRenderer_->GetMeshGroup()->begin();
@@ -229,7 +229,7 @@ void ColliderRenderingSystem::Initialize() {
     //** Sphere **//
     sphereColliders_ = GetComponentArray<SphereCollider>();
     sphereRenderer_  = std::make_unique<LineRenderer>(std::vector<Mesh<ColorVertexData>>());
-    sphereRenderer_->Initialize(nullptr);
+    sphereRenderer_->Initialize(nullptr, EntityHandle());
     sphereRenderer_->GetMeshGroup()->push_back(Mesh<ColorVertexData>());
     sphereRenderer_->GetMeshGroup()->back().Initialize(ColliderRenderingSystem::kDefaultMeshCount_ * kSphereVertexSize, ColliderRenderingSystem::kDefaultMeshCount_ * kSphereIndexSize);
     sphereMeshItr_ = sphereRenderer_->GetMeshGroup()->begin();
@@ -332,22 +332,22 @@ void ColliderRenderingSystem::CreateRenderMesh() {
 
         aabbMeshItr_ = meshGroup->begin();
 
-        for (auto& [entityIdx, aabbIdx] : aabbColliders_->GetEntityIndexBind()) {
-            Entity* entity = GetEntity(entityIdx);
+        for (auto& slot: aabbColliders_->GetSlots()) {
+            Entity* entity = GetEntity(slot.owner);
             if (!entity) {
                 continue; // Entityが存在しない場合はスキップ
             }
 
-            Transform* transform = GetComponent<Transform>(entity);
+            Transform* transform = GetComponent<Transform>(slot.owner);
             if (transform) {
                 transform->UpdateMatrix();
             }
 
-            auto colliders = aabbColliders_->GetComponents(entity);
-            if (!colliders) {
+            auto& colliders = aabbColliders_->GetComponents(slot.owner);
+            if (colliders.empty()) {
                 continue; // AABBColliderが存在しない場合はスキップ
             }
-            for (auto& aabb : *colliders) {
+            for (auto& aabb : colliders) {
 
                 if (!aabb.IsActive()) {
                     continue;
@@ -396,22 +396,22 @@ void ColliderRenderingSystem::CreateRenderMesh() {
 
         obbMeshItr_ = meshGroup->begin();
 
-        for (auto& [entityIdx, obbIdx] : obbColliders_->GetEntityIndexBind()) {
-            Entity* entity = GetEntity(entityIdx);
+        for (auto& slot : obbColliders_->GetSlots()) {
+            Entity* entity = GetEntity(slot.owner);
             if (!entity) {
                 continue; // Entityが存在しない場合はスキップ
             }
 
-            Transform* transform = GetComponent<Transform>(entity);
+            Transform* transform = GetComponent<Transform>(slot.owner);
             if (transform) {
                 transform->UpdateMatrix();
             }
 
-            auto colliders = obbColliders_->GetComponents(entity);
-            if (!colliders) {
+            auto& colliders = obbColliders_->GetComponents(slot.owner);
+            if (colliders.empty()) {
                 continue; // AABBColliderが存在しない場合はスキップ
             }
-            for (auto& obb : *colliders) {
+            for (auto& obb : colliders) {
 
                 if (!obb.IsActive()) {
                     continue;
@@ -460,22 +460,22 @@ void ColliderRenderingSystem::CreateRenderMesh() {
 
         sphereMeshItr_ = meshGroup->begin();
 
-        for (auto& [entityIdx, sphereIdx] : sphereColliders_->GetEntityIndexBind()) {
-            Entity* entity = GetEntity(entityIdx);
+        for (auto& slot : sphereColliders_->GetSlots()) {
+            Entity* entity = GetEntity(slot.owner);
             if (!entity) {
                 continue; // Entityが存在しない場合はスキップ
             }
 
-            Transform* transform = GetComponent<Transform>(entity);
+            Transform* transform = GetComponent<Transform>(slot.owner);
             if (transform) {
                 transform->UpdateMatrix();
             }
 
-            auto colliders = sphereColliders_->GetComponents(entity);
-            if (!colliders) {
+            auto& colliders = sphereColliders_->GetComponents(slot.owner);
+            if (colliders.empty()) {
                 continue; // sphereCollider が存在しない場合はスキップ
             }
-            for (auto& sphere : *colliders) {
+            for (auto& sphere : colliders) {
                 if (!sphere.IsActive()) {
                     continue;
                 }
@@ -560,7 +560,7 @@ void ColliderRenderingSystem::Rendering() {
 }
 
 bool ColliderRenderingSystem::ShouldSkipRender() const {
-    bool isSkip = aabbColliders_->GetEntityIndexBind().empty() && obbColliders_->GetEntityIndexBind().empty() && sphereColliders_->GetEntityIndexBind().empty();
+    bool isSkip = aabbColliders_->IsEmpty() && obbColliders_->IsEmpty() && sphereColliders_->IsEmpty();
 
     return isSkip;
 }

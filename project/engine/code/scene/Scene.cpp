@@ -105,7 +105,7 @@ void Scene::ExecuteDeleteEntities() {
             return;
         }
         // コンポーネント を削除
-        componentRepository_->DeleteEntity(entityID);
+        componentRepository_->RemoveEntity(entityID);
         // システムからエンティティを削除
         systemRunner_->RemoveEntityFromAllSystems(entityID);
         // エンティティを削除
@@ -141,6 +141,14 @@ EntityHandle Scene::GetUniqueEntity(const ::std::string& _dataType) const {
     }
     LOG_ERROR("Scene::GetUniqueEntity: Data type is empty.");
     return EntityHandle();
+}
+
+bool Scene::RgisterUniqueEntity(const ::std::string& _dataType, EntityHandle _handle) {
+    if (!_dataType.empty()) {
+        return entityRepository_->RgisterUniqueEntity(_dataType, _handle);
+    }
+    LOG_ERROR("Scene::RgisterUniqueEntity: Data type is empty.");
+    return false;
 }
 
 bool Scene::AddComponent(const ::std::string& _compTypeName, EntityHandle _handle) {

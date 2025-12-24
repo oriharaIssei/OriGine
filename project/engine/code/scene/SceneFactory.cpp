@@ -113,12 +113,12 @@ Entity* OriGine::SceneFactory::BuildEntity(Scene* scene, const nlohmann::json& e
     std::string name = entityJson["Name"];
     bool isUnique    = entityJson["isUnique"];
 
-    int id         = scene->entityRepository_->CreateEntity(name, isUnique);
-    Entity* entity = scene->entityRepository_->GetEntity(id);
+    EntityHandle handle = scene->entityRepository_->CreateEntity(name, isUnique);
+    Entity* entity      = scene->entityRepository_->GetEntity(handle);
     // システムの読み込み
-    LoadEntitySystems(scene, entity, entityJson["Systems"]);
+    LoadEntitySystems(scene, handle, entityJson["Systems"]);
     // コンポーネントの読み込み
-    LoadEntityComponents(scene, entity, entityJson["Components"]);
+    LoadEntityComponents(scene, handle, entityJson["Components"]);
     return entity;
 }
 
@@ -129,8 +129,10 @@ nlohmann::json OriGine::SceneFactory::CreateEntityJsonFromEntity(const Scene* sc
         // 無効なエンティティの場合、空のJSONオブジェクトを返す
         return entityData;
     }
+    EntityHandle handle = entity->GetHandle();
 
     entityData["Name"]     = entity->GetDataType();
+    entityData["Handle"]   = handle;
     entityData["isUnique"] = entity->IsUnique();
 
     // 所属するシステムを保存
@@ -142,7 +144,7 @@ nlohmann::json OriGine::SceneFactory::CreateEntityJsonFromEntity(const Scene* sc
             LOG_WARN("System not found: {}", systemName);
             continue; // 無効なシステムはスキップ
         }
-        if (system->HasEntity(entity)) {
+        if (system->HasEntity(handle)) {
             systemsJson.push_back({{"SystemCategory", system->GetCategory()}, {"SystemName", systemName}});
         }
     }
@@ -151,8 +153,8 @@ nlohmann::json OriGine::SceneFactory::CreateEntityJsonFromEntity(const Scene* sc
     const auto& componentArrayMap = scene->componentRepository_->GetComponentArrayMap();
     nlohmann::json componentsData;
     for (const auto& [componentTypeName, componentArray] : componentArrayMap) {
-        if (componentArray->HasEntity(entity)) {
-            componentArray->SaveComponent(entity, componentsData);
+        if (componentArray->HasEntity(handle)) {
+            componentArray->SaveComponents(handle, componentsData);
         }
     }
     entityData["Components"] = componentsData;
@@ -160,7 +162,7 @@ nlohmann::json OriGine::SceneFactory::CreateEntityJsonFromEntity(const Scene* sc
     return entityData;
 }
 
-void OriGine::SceneFactory::LoadEntitySystems(Scene* scene, Entity* entity, const nlohmann::json& systemsJson) {
+void OriGine::SceneFactory::LoadEntitySystems(Scene* scene, EntityHandle entity, const nlohmann::json& systemsJson) {
     // システムの取得
     auto& systems = scene->systemRunner_->GetSystemsRef();
     for (auto& sys : systemsJson) {
@@ -173,7 +175,10 @@ void OriGine::SceneFactory::LoadEntitySystems(Scene* scene, Entity* entity, cons
     }
 }
 
-void OriGine::SceneFactory::LoadEntityComponents(Scene* scene, Entity* entity, const nlohmann::json& componentsJson) {
+void OriGine::SceneFactory::LoadEntityComponents(
+    Scene* scene,
+    EntityHandle _entity,
+    const nlohmann::json& componentsJson) {
     // コンポーネントの読み込み
     for (auto& [componentTypename, componentData] : componentsJson.items()) {
         auto comp = scene->componentRepository_->GetComponentArray(componentTypename);
@@ -181,6 +186,6 @@ void OriGine::SceneFactory::LoadEntityComponents(Scene* scene, Entity* entity, c
             LOG_WARN("Don't Registered Component. Typename {}", componentTypename);
             continue;
         }
-        comp->LoadComponent(entity, componentData);
+        comp->LoadComponent(_entity, componentData);
     }
 }

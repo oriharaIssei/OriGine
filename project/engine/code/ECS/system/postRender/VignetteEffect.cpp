@@ -133,9 +133,9 @@ void VignetteEffect::RenderEnd() {
 }
 
 void VignetteEffect::DispatchComponent(EntityHandle _handle) {
-    auto& vignetteParams = GetComponents<VignetteParam>(_entity->GetHandle());
+    auto& vignetteParams = GetComponents<VignetteParam>(_handle);
 
-    if (!vignetteParams) {
+    if (vignetteParams.empty()) {
         return;
     }
 

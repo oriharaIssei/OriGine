@@ -102,7 +102,7 @@ private:
     };
 
 private:
-    Entity* entity_                    = nullptr;
+    EntityHandle entityHandle_         = EntityHandle();
     int32_t bindModeMeshRendererIndex_ = -1;
 
     std::unordered_map<std::string, int32_t> animationIndexBinder_;

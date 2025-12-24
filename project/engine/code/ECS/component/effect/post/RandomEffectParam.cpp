@@ -12,7 +12,7 @@
 
 using namespace OriGine;
 
-void RandomEffectParam(Scene* /*_scene*/,EntityHandle /*_hostEntity*/) {
+void RandomEffectParam::Initialize(Scene* /*_scene*/,EntityHandle /*_hostEntity*/) {
     effectParamData_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
 }
 

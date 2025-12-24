@@ -515,7 +515,7 @@ void TexturedMeshRenderSystem::RenderModelMesh(Microsoft::WRL::ComPtr<ID3D12Grap
         const IConstantBuffer<Transform>& meshTransform = _renderer->GetTransformBuff(index);
         auto& materialBuff                              = _renderer->GetMaterialBuff(index);
         Material* material                              = nullptr;
-        int32_t materialIndex                           = _renderer->GetMaterialIndex(index);
+        ComponentHandle materialHandle                  = _renderer->GetMaterialHandle(index);
 
         // ============================= Viewのセット ============================= //
         _commandList->IASetVertexBuffers(0, 1, &mesh.GetVBView());
@@ -526,8 +526,8 @@ void TexturedMeshRenderSystem::RenderModelMesh(Microsoft::WRL::ComPtr<ID3D12Grap
         meshTransform.SetForRootParameter(_commandList, transformBufferIndex_);
 
         // ============================= Materialのセット ============================= //
-        if (materialIndex >= 0) {
-            material = GetComponent<Material>(_renderer->GetHostEntityHandle(), static_cast<uint32_t>(materialIndex));
+        material = GetComponent<Material>(materialHandle);
+        if (material) {
             material->UpdateUvMatrix();
             materialBuff.ConvertToBuffer(*material);
 

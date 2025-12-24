@@ -85,14 +85,15 @@ private:
     /// <param name="scene"></param>
     /// <param name="entity"></param>
     /// <param name="systemsJson"></param>
-    void LoadEntitySystems(Scene* scene, Entity* entity, const nlohmann::json& systemsJson);
+    void LoadEntitySystems(Scene* scene, EntityHandle _entity, const nlohmann::json& systemsJson);
     /// <summary>
     /// エンティティのコンポーネントを読み込む
     /// </summary>
     /// <param name="scene"></param>
     /// <param name="entity"></param>
     /// <param name="componentsJson"></param>
-    void LoadEntityComponents(Scene* scene, Entity* entity,
+    void LoadEntityComponents(Scene* scene,
+        EntityHandle _entity, 
         const nlohmann::json& componentsJson);
 };
 

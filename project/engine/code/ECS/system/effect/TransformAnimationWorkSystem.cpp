@@ -12,11 +12,11 @@
 using namespace OriGine;
 
 void TransformAnimationWorkSystem::UpdateEntity(EntityHandle _handle) {
-    EntityHandle handle    = _entity->GetHandle();
-    auto& animations = GetComponents<TransformAnimation>(_entity->GetHandle());
+    auto& animations = GetComponents<TransformAnimation>(_handle);
     if (animations.empty()) {
         return;
     }
+
     const float deltaTime = GetMainDeltaTime();
 
     for (auto& transAnim : animations) {
@@ -24,7 +24,7 @@ void TransformAnimationWorkSystem::UpdateEntity(EntityHandle _handle) {
         if (transformIndex < 0) {
             continue;
         }
-        auto trans = GetComponent<Transform>(handle, static_cast<uint32_t>(transformIndex));
+        auto trans = GetComponent<Transform>(_handle, static_cast<uint32_t>(transformIndex));
         transAnim.Update(deltaTime, trans);
     }
 }

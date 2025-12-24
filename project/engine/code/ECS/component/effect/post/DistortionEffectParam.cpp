@@ -31,7 +31,7 @@ void DistortionEffectParam::Initialize(Scene* _scene, EntityHandle _hostEntity) 
 
     if (use3dObjectList_) {
         for (auto& [object, type] : distortionObjects_) {
-            object->Initialize(_hostEntity);
+            object->Initialize(_scene, _hostEntity);
         }
     } else {
         if (!texturePath_.empty()) {

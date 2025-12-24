@@ -382,7 +382,8 @@ void SceneViewArea::UseImGuizmo(const ImVec2& _sceneViewPos, const Vec2f& _origi
         return;
     }
 
-    Entity* editEntity = currentScene->GetEntity(entityInspectorArea->GetEditEntityId());
+    EntityHandle editEntityHandle = entityInspectorArea->GetEditEntityHandle();
+    Entity* editEntity            = currentScene->GetEntity(editEntityHandle);
     if (!editEntity) {
         return;
     }
@@ -390,11 +391,11 @@ void SceneViewArea::UseImGuizmo(const ImVec2& _sceneViewPos, const Vec2f& _origi
     auto transformArray = currentScene->GetComponentArray<Transform>();
 
     // Transformを持っていないエンティティは Skip
-    if (!transformArray->HasEntity(editEntity)) {
+    if (!transformArray->HasEntity(editEntityHandle)) {
         return;
     }
 
-    Transform* transform = currentScene->GetComponent<Transform>(editEntity);
+    Transform* transform = currentScene->GetComponent<Transform>(editEntityHandle);
     if (!transform) {
         return;
     }
@@ -604,11 +605,11 @@ void EntityHierarchy::DrawGui() {
                 continue; // 無効なエンティティはスキップ
             }
 
-            int32_t entityId     = entity.GetID();
-            std::string uniqueId = entity.GetUniqueID();
+            EntityHandle entityHandle = entity.GetHandle();
+            std::string uniqueId      = entity.GetUniqueID();
 
             // 選択状態か判定
-            bool isSelected = std::find(selectedEntityIds_.begin(), selectedEntityIds_.end(), entityId) != selectedEntityIds_.end();
+            bool isSelected = std::find(selectedEntityHandles_.begin(), selectedEntityHandles_.end(), entityHandle) != selectedEntityHandles_.end();
 
             // Selectableで表示
             if (ImGui::Selectable(uniqueId.c_str(), isSelected)) {
@@ -616,18 +617,18 @@ void EntityHierarchy::DrawGui() {
                 if (ImGui::GetIO().KeyShift) {
                     if (!isSelected) {
                         // まだ選択されていなければ追加
-                        auto command = std::make_unique<AddSelectedEntitiesCommand>(this, entityId);
+                        auto command = std::make_unique<AddSelectedEntitiesCommand>(this, entityHandle);
                         OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
                     } else {
                         // すでに選択されていれば解除
-                        auto command = std::make_unique<RemoveSelectedEntitiesCommand>(this, entityId);
+                        auto command = std::make_unique<RemoveSelectedEntitiesCommand>(this, entityHandle);
                         OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
                     }
                 } else {
                     // Shiftキーが押されていない場合は選択をクリアしてから追加
                     auto clearCommand = std::make_unique<ClearSelectedEntitiesCommand>(this);
                     OriGine::EditorController::GetInstance()->PushCommand(std::move(clearCommand));
-                    auto addCommand = std::make_unique<AddSelectedEntitiesCommand>(this, entityId);
+                    auto addCommand = std::make_unique<AddSelectedEntitiesCommand>(this, entityHandle);
                     OriGine::EditorController::GetInstance()->PushCommand(std::move(addCommand));
 
                     auto& parentWindowHasAreas  = parentArea_->GetParentWindow()->GetAreas();
@@ -643,7 +644,7 @@ void EntityHierarchy::DrawGui() {
                         ImGui::PopStyleColor(3);
                         return;
                     }
-                    auto changedEditEntity = std::make_unique<EntityInspectorArea::ChangeEditEntityCommand>(entityInspectorArea, entityId, entityInspectorArea->GetEditEntityId());
+                    auto changedEditEntity = std::make_unique<EntityInspectorArea::ChangeEditEntityCommand>(entityInspectorArea, entityHandle, entityInspectorArea->GetEditEntityHandle());
                     OriGine::EditorController::GetInstance()->PushCommand(std::move(changedEditEntity));
                 }
             }
@@ -657,11 +658,11 @@ void EntityHierarchy::DrawGui() {
                 continue; // 検索文字列にマッチしないエンティティはスキップ
             }
 
-            int32_t entityId     = entity.GetID();
-            std::string uniqueId = entity.GetUniqueID();
+            EntityHandle entityHandle = entity.GetHandle();
+            std::string uniqueId      = entity.GetUniqueID();
 
             // 選択状態か判定
-            bool isSelected = std::find(selectedEntityIds_.begin(), selectedEntityIds_.end(), entityId) != selectedEntityIds_.end();
+            bool isSelected = std::find(selectedEntityHandles_.begin(), selectedEntityHandles_.end(), entityHandle) != selectedEntityHandles_.end();
 
             // Selectableで表示
             if (ImGui::Selectable(uniqueId.c_str(), isSelected)) {
@@ -669,18 +670,18 @@ void EntityHierarchy::DrawGui() {
                 if (ImGui::GetIO().KeyShift) {
                     if (!isSelected) {
                         // まだ選択されていなければ追加
-                        auto command = std::make_unique<AddSelectedEntitiesCommand>(this, entityId);
+                        auto command = std::make_unique<AddSelectedEntitiesCommand>(this, entityHandle);
                         OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
                     } else {
                         // すでに選択されていれば解除
-                        auto command = std::make_unique<RemoveSelectedEntitiesCommand>(this, entityId);
+                        auto command = std::make_unique<RemoveSelectedEntitiesCommand>(this, entityHandle);
                         OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
                     }
                 } else {
                     // Shiftキーが押されていない場合は選択をクリアしてから追加
                     auto clearCommand = std::make_unique<ClearSelectedEntitiesCommand>(this);
                     OriGine::EditorController::GetInstance()->PushCommand(std::move(clearCommand));
-                    auto addCommand = std::make_unique<AddSelectedEntitiesCommand>(this, entityId);
+                    auto addCommand = std::make_unique<AddSelectedEntitiesCommand>(this, entityHandle);
                     OriGine::EditorController::GetInstance()->PushCommand(std::move(addCommand));
 
                     auto& parentWindowHasAreas  = parentArea_->GetParentWindow()->GetAreas();
@@ -696,7 +697,7 @@ void EntityHierarchy::DrawGui() {
                         ImGui::PopStyleColor(3);
                         return;
                     }
-                    auto changedEditEntity = std::make_unique<EntityInspectorArea::ChangeEditEntityCommand>(entityInspectorArea, entityId, entityInspectorArea->GetEditEntityId());
+                    auto changedEditEntity = std::make_unique<EntityInspectorArea::ChangeEditEntityCommand>(entityInspectorArea, entityHandle, entityInspectorArea->GetEditEntityHandle());
                     OriGine::EditorController::GetInstance()->PushCommand(std::move(changedEditEntity));
                 }
             }
@@ -710,61 +711,61 @@ void EntityHierarchy::Finalize() {}
 
 #pragma endregion
 
-EntityHierarchy::AddSelectedEntitiesCommand::AddSelectedEntitiesCommand(EntityHierarchy* _hierarchy, int32_t _addedEntityId)
-    : hierarchy_(_hierarchy), addedEntityId_(_addedEntityId) {}
+EntityHierarchy::AddSelectedEntitiesCommand::AddSelectedEntitiesCommand(EntityHierarchy* _hierarchy, EntityHandle _addedEntityHandle)
+    : hierarchy_(_hierarchy), addedEntityHandle_(_addedEntityHandle) {}
 
 void EntityHierarchy::AddSelectedEntitiesCommand::Execute() {
-    auto& selectedEntityIds = hierarchy_->selectedEntityIds_;
-    if (std::find(selectedEntityIds.begin(), selectedEntityIds.end(), addedEntityId_) == selectedEntityIds.end()) {
-        selectedEntityIds.push_back(addedEntityId_);
-        LOG_DEBUG("AddSelectedEntitiesCommand::Execute: Added entity ID '{}' to selection.", addedEntityId_);
+    auto& selectedEntityIds = hierarchy_->selectedEntityHandles_;
+    if (std::find(selectedEntityIds.begin(), selectedEntityIds.end(), addedEntityHandle_) == selectedEntityIds.end()) {
+        selectedEntityIds.push_back(addedEntityHandle_);
+        LOG_DEBUG("AddSelectedEntitiesCommand::Execute: Added entity ID '{}' to selection.", addedEntityHandle_);
     } else {
-        LOG_DEBUG("AddSelectedEntitiesCommand::Execute: Entity ID '{}' is already selected.", addedEntityId_);
+        LOG_DEBUG("AddSelectedEntitiesCommand::Execute: Entity ID '{}' is already selected.", addedEntityHandle_);
     }
 }
 
 void EntityHierarchy::AddSelectedEntitiesCommand::Undo() {
-    auto& selectedEntityIds = hierarchy_->selectedEntityIds_;
-    auto it                 = std::remove(selectedEntityIds.begin(), selectedEntityIds.end(), addedEntityId_);
+    auto& selectedEntityIds = hierarchy_->selectedEntityHandles_;
+    auto it                 = std::remove(selectedEntityIds.begin(), selectedEntityIds.end(), addedEntityHandle_);
     if (it != selectedEntityIds.end()) {
         selectedEntityIds.erase(it, selectedEntityIds.end());
-        LOG_DEBUG("AddSelectedEntitiesCommand::Undo: Removed entity ID '{}' from selection.", addedEntityId_);
+        LOG_DEBUG("AddSelectedEntitiesCommand::Undo: Removed entity ID '{}' from selection.", addedEntityHandle_);
     } else {
-        LOG_DEBUG("AddSelectedEntitiesCommand::Undo: Entity ID '{}' was not in selection.", addedEntityId_);
+        LOG_DEBUG("AddSelectedEntitiesCommand::Undo: Entity ID '{}' was not in selection.", addedEntityHandle_);
     }
 }
 
-EntityHierarchy::RemoveSelectedEntitiesCommand::RemoveSelectedEntitiesCommand(EntityHierarchy* _hierarchy, int32_t _removedEntityId)
-    : hierarchy_(_hierarchy), removedEntityId_(_removedEntityId) {}
+EntityHierarchy::RemoveSelectedEntitiesCommand::RemoveSelectedEntitiesCommand(EntityHierarchy* _hierarchy, EntityHandle _removedEntityHandle)
+    : hierarchy_(_hierarchy), removedEntityHandle_(_removedEntityHandle) {}
 
 void EntityHierarchy::RemoveSelectedEntitiesCommand::Execute() {
-    auto& selectedEntityIds = hierarchy_->selectedEntityIds_;
-    auto it                 = std::remove(selectedEntityIds.begin(), selectedEntityIds.end(), removedEntityId_);
+    auto& selectedEntityIds = hierarchy_->selectedEntityHandles_;
+    auto it                 = std::remove(selectedEntityIds.begin(), selectedEntityIds.end(), removedEntityHandle_);
     if (it != selectedEntityIds.end()) {
         selectedEntityIds.erase(it, selectedEntityIds.end());
-        LOG_DEBUG("RemoveSelectedEntitiesCommand::Execute: Removed entity ID '{}' from selection.", removedEntityId_);
+        LOG_DEBUG("RemoveSelectedEntitiesCommand::Execute: Removed entity ID '{}' from selection.", removedEntityHandle_);
     } else {
-        LOG_DEBUG("RemoveSelectedEntitiesCommand::Execute: Entity ID '{}' was not in selection.", removedEntityId_);
+        LOG_DEBUG("RemoveSelectedEntitiesCommand::Execute: Entity ID '{}' was not in selection.", removedEntityHandle_);
     }
 }
 
 void EntityHierarchy::RemoveSelectedEntitiesCommand::Undo() {
-    auto& selectedEntityIds = hierarchy_->selectedEntityIds_;
-    if (std::find(selectedEntityIds.begin(), selectedEntityIds.end(), removedEntityId_) == selectedEntityIds.end()) {
-        selectedEntityIds.push_back(removedEntityId_);
-        LOG_DEBUG("RemoveSelectedEntitiesCommand::Undo: Added entity ID '{}' back to selection.", removedEntityId_);
+    auto& selectedEntityIds = hierarchy_->selectedEntityHandles_;
+    if (std::find(selectedEntityIds.begin(), selectedEntityIds.end(), removedEntityHandle_) == selectedEntityIds.end()) {
+        selectedEntityIds.push_back(removedEntityHandle_);
+        LOG_DEBUG("RemoveSelectedEntitiesCommand::Undo: Added entity ID '{}' back to selection.", removedEntityHandle_);
     } else {
-        LOG_DEBUG("RemoveSelectedEntitiesCommand::Undo: Entity ID '{}' is already in selection.", removedEntityId_);
+        LOG_DEBUG("RemoveSelectedEntitiesCommand::Undo: Entity ID '{}' is already in selection.", removedEntityHandle_);
     }
 }
 
-EntityHierarchy::ClearSelectedEntitiesCommand::ClearSelectedEntitiesCommand(EntityHierarchy* _hierarchy) : hierarchy_(_hierarchy) {}
+EntityHierarchy::ClearSelectedEntitiesCommand::ClearSelectedEntitiesCommand(EntityHierarchy* _hierarchy)
+    : hierarchy_(_hierarchy) {}
 
 void EntityHierarchy::ClearSelectedEntitiesCommand::Execute() {
-    auto& selectedEntityIds    = hierarchy_->selectedEntityIds_;
-    previousselectedEntityIds_ = selectedEntityIds; // 現在の選択状態を保存
-    if (!selectedEntityIds.empty()) {
-        selectedEntityIds.clear();
+    previousselectedEntityHandles_ = hierarchy_->selectedEntityHandles_; // 現在の選択状態を保存
+    if (!previousselectedEntityHandles_.empty()) {
+        hierarchy_->selectedEntityHandles_.clear();
         LOG_DEBUG("ClearSelectedEntitiesCommand::Execute: Cleared all selected entities.");
     } else {
         LOG_DEBUG("ClearSelectedEntitiesCommand::Execute: No entities were selected to Clear.");
@@ -772,12 +773,12 @@ void EntityHierarchy::ClearSelectedEntitiesCommand::Execute() {
 }
 
 void EntityHierarchy::ClearSelectedEntitiesCommand::Undo() {
-    auto& selectedEntityIds = hierarchy_->selectedEntityIds_;
-    if (previousselectedEntityIds_.empty()) {
+    auto& selectedEntityIds = hierarchy_->selectedEntityHandles_;
+    if (previousselectedEntityHandles_.empty()) {
         LOG_DEBUG("ClearSelectedEntitiesCommand::Undo: No previous selection to restore.");
         return;
     }
-    selectedEntityIds = previousselectedEntityIds_; // 保存した選択状態を復元
+    selectedEntityIds = previousselectedEntityHandles_; // 保存した選択状態を復元
 }
 
 EntityHierarchy::CreateEntityCommand::CreateEntityCommand(HierarchyArea* _parentArea, const std::string& _entityName) {
@@ -791,9 +792,9 @@ void EntityHierarchy::CreateEntityCommand::Execute() {
         return;
     }
 
-    entityId_ = currentScene->GetEntityRepositoryRef()->CreateEntity(entityName_);
+    entityHandle_ = currentScene->GetEntityRepositoryRef()->CreateEntity(entityName_);
 
-    LOG_DEBUG("CreateEntityCommand::Execute: Created entity with ID '{}'.", entityId_);
+    LOG_DEBUG("CreateEntityCommand::Execute: Created entity with Handle '{}'.", uuids::to_string(entityHandle_.uuid));
 }
 void EntityHierarchy::CreateEntityCommand::Undo() {
     auto currentScene = parentArea_->GetParentWindow()->GetCurrentScene();
@@ -802,7 +803,7 @@ void EntityHierarchy::CreateEntityCommand::Undo() {
         return;
     }
 
-    currentScene->DeleteEntity(entityId_);
+    currentScene->DeleteEntity(entityHandle_);
 
     LOG_DEBUG("CreateEntityCommand::Undo: Removed entity with ID '{}'.", entityId_);
 }
@@ -842,7 +843,7 @@ void EntityHierarchy::LoadEntityCommand::Undo() {
 EntityHierarchy::CopyEntityCommand::CopyEntityCommand(EntityHierarchy* _hierarchy) : hierarchy_(_hierarchy) {}
 
 void EntityHierarchy::CopyEntityCommand::Execute() {
-    if (hierarchy_->selectedEntityIds_.empty()) {
+    if (hierarchy_->selectedEntityHandles_.empty()) {
         return;
     }
     // 既存のコピー内容をクリア
@@ -854,7 +855,7 @@ void EntityHierarchy::CopyEntityCommand::Execute() {
     auto currentScene = hierarchy_->parentArea_->GetParentWindow()->GetCurrentScene();
 
     SceneFactory factory;
-    for (auto entityId : hierarchy_->selectedEntityIds_) {
+    for (auto entityId : hierarchy_->selectedEntityHandles_) {
         Entity* entity = currentScene->GetEntityRepositoryRef()->GetEntity(entityId);
         if (!entity) {
             LOG_ERROR("Entity with ID '{}' not found for copying.", entityId);
@@ -899,7 +900,7 @@ void AddComponentCommand::Execute() {
     auto sceneEditorWindow = OriGine::EditorController::GetInstance()->GetWindow<SceneEditorWindow>();
     auto currentScene      = sceneEditorWindow->GetCurrentScene();
     auto inspectorArea     = dynamic_cast<EntityInspectorArea*>(sceneEditorWindow->GetArea("EntityInspectorArea").get());
-    int32_t editEntityId   = inspectorArea->GetEditEntityId();
+    int32_t editEntityId   = inspectorArea->GetEditEntityHandle();
 
     for (auto entityId : entityIds_) {
         Entity* entity = currentScene->GetEntityRepositoryRef()->GetEntity(entityId);
@@ -927,7 +928,7 @@ void AddComponentCommand::Undo() {
     auto sceneEditorWindow = OriGine::EditorController::GetInstance()->GetWindow<SceneEditorWindow>();
     auto currentScene      = sceneEditorWindow->GetCurrentScene();
     auto inspectorArea     = dynamic_cast<EntityInspectorArea*>(sceneEditorWindow->GetArea("EntityInspectorArea").get());
-    int32_t editEntityId   = inspectorArea->GetEditEntityId();
+    int32_t editEntityId   = inspectorArea->GetEditEntityHandle();
 
     for (auto entityId : entityIds_) {
         Entity* entity = currentScene->GetEntityRepositoryRef()->GetEntity(entityId);
@@ -957,7 +958,7 @@ void RemoveComponentCommand::Execute() {
     auto sceneEditorWindow = OriGine::EditorController::GetInstance()->GetWindow<SceneEditorWindow>();
     auto currentScene      = sceneEditorWindow->GetCurrentScene();
     auto inspectorArea     = dynamic_cast<EntityInspectorArea*>(sceneEditorWindow->GetArea("EntityInspectorArea").get());
-    int32_t editEntityId   = inspectorArea->GetEditEntityId();
+    int32_t editEntityId   = inspectorArea->GetEditEntityHandle();
 
     Entity* entity = currentScene->GetEntityRepositoryRef()->GetEntity(entityId_);
     if (!entity) {
@@ -985,7 +986,7 @@ void RemoveComponentCommand::Undo() {
     auto sceneEditorWindow = OriGine::EditorController::GetInstance()->GetWindow<SceneEditorWindow>();
     auto currentScene      = sceneEditorWindow->GetCurrentScene();
     auto inspectorArea     = dynamic_cast<EntityInspectorArea*>(sceneEditorWindow->GetArea("EntityInspectorArea").get());
-    int32_t editEntityId   = inspectorArea->GetEditEntityId();
+    int32_t editEntityId   = inspectorArea->GetEditEntityHandle();
 
     Entity* entity = currentScene->GetEntityRepositoryRef()->GetEntity(entityId_);
     if (!entity) {
@@ -1014,7 +1015,7 @@ void AddSystemCommand::Execute() {
     auto sceneEditorWindow = OriGine::EditorController::GetInstance()->GetWindow<SceneEditorWindow>();
     auto currentScene      = sceneEditorWindow->GetCurrentScene();
     auto inspectorArea     = dynamic_cast<EntityInspectorArea*>(sceneEditorWindow->GetArea("EntityInspectorArea").get());
-    int32_t editEntityId   = inspectorArea->GetEditEntityId();
+    int32_t editEntityId   = inspectorArea->GetEditEntityHandle();
     if (!currentScene) {
         LOG_ERROR("AddSystemCommand::Execute: No current scene found.");
         return;
@@ -1037,7 +1038,7 @@ void AddSystemCommand::Undo() {
     auto sceneEditorWindow = OriGine::EditorController::GetInstance()->GetWindow<SceneEditorWindow>();
     auto currentScene      = sceneEditorWindow->GetCurrentScene();
     auto inspectorArea     = dynamic_cast<EntityInspectorArea*>(sceneEditorWindow->GetArea("EntityInspectorArea").get());
-    int32_t editEntityId   = inspectorArea->GetEditEntityId();
+    int32_t editEntityId   = inspectorArea->GetEditEntityHandle();
     if (!currentScene) {
         LOG_ERROR("AddSystemCommand::Execute: No current scene found.");
         return;
@@ -1064,7 +1065,7 @@ void RemoveSystemCommand::Execute() {
     auto sceneEditorWindow = OriGine::EditorController::GetInstance()->GetWindow<SceneEditorWindow>();
     auto currentScene      = sceneEditorWindow->GetCurrentScene();
     auto inspectorArea     = dynamic_cast<EntityInspectorArea*>(sceneEditorWindow->GetArea("EntityInspectorArea").get());
-    int32_t editEntityId   = inspectorArea->GetEditEntityId();
+    int32_t editEntityId   = inspectorArea->GetEditEntityHandle();
 
     if (!currentScene) {
         LOG_ERROR("RemoveSystemCommand::Execute: No current scene found.");
@@ -1088,7 +1089,7 @@ void RemoveSystemCommand::Undo() {
     auto sceneEditorWindow = OriGine::EditorController::GetInstance()->GetWindow<SceneEditorWindow>();
     auto currentScene      = sceneEditorWindow->GetCurrentScene();
     auto inspectorArea     = dynamic_cast<EntityInspectorArea*>(sceneEditorWindow->GetArea("EntityInspectorArea").get());
-    int32_t editEntityId   = inspectorArea->GetEditEntityId();
+    int32_t editEntityId   = inspectorArea->GetEditEntityHandle();
     if (!currentScene) {
         LOG_ERROR("RemoveSystemCommand::Execute: No current scene found.");
         return;

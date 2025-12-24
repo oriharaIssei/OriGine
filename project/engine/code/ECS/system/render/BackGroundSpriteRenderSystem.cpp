@@ -83,11 +83,11 @@ bool BackGroundSpriteRenderSystem::ShouldSkipRender() const {
 }
 
 void BackGroundSpriteRenderSystem::DispatchRenderer(EntityHandle _entity) {
-    auto spriteRenderer = GetComponents<SpriteRenderer>(_entity);
-    if (!spriteRenderer) {
+    auto& spriteRenderer = GetComponents<SpriteRenderer>(_entity);
+    if (spriteRenderer.empty()) {
         return;
     }
-    for (auto& renderer : *spriteRenderer) {
+    for (auto& renderer : spriteRenderer) {
         if (!renderer.IsRender()) {
             return;
         }

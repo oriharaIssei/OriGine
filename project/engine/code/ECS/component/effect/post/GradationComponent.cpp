@@ -50,7 +50,7 @@ void OriGine::from_json(const nlohmann::json& j, GradationComponent& _g) {
     _g.paramBuff_.openData_.gradationType = static_cast<GradationType>(j.value("gradationType", 0));
 }
 
-void GradationComponent:: Initialize(Scene* /*_scene,*/, EntityHandle /*_owner*/) {
+void GradationComponent::Initialize(Scene* /*_scene,*/, EntityHandle /*_owner*/) {
     auto& device = Engine::GetInstance()->GetDxDevice()->device_;
     paramBuff_.CreateBuffer(device);
     materialBuff_.CreateBuffer(device);
@@ -58,9 +58,9 @@ void GradationComponent:: Initialize(Scene* /*_scene,*/, EntityHandle /*_owner*/
 
 void GradationComponent::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _handle, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
-    auto* materials = _scene->GetComponents<Material>(_entity);
-    if (materials) {
-        int32_t maxMaterialIndex = static_cast<int32_t>(materials->size());
+    auto& materials = _scene->GetComponents<Material>(_handle);
+    if (!materials.empty()) {
+        int32_t maxMaterialIndex = static_cast<int32_t>(materials.size());
         InputGuiCommand<int32_t>("Material Index##" + _parentLabel, materialIndex_, "%d", [this, maxMaterialIndex](int32_t* /*_newVal*/) {
             materialIndex_ = std::clamp(materialIndex_, 0, maxMaterialIndex);
         });

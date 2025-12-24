@@ -40,7 +40,7 @@ bool CheckCollisionPair(Scene* /*_scene*/, EntityHandle _handleA, EntityHandle _
     aInfo.collVec        = collNormal * overlapDistance * overlapRate;
     aInfo.collFaceNormal = collNormal;
     aInfo.collPoint      = _shapeA.center_ + aInfo.collVec.normalize() * _shapeA.radius_;
-    _aInfo->AddCollisionInfo(_entityB->GetID(), aInfo);
+    _aInfo->AddCollisionInfo(_handleB, aInfo);
 
     // 衝突情報の登録
     CollisionPushBackInfo::Info bInfo;
@@ -48,13 +48,13 @@ bool CheckCollisionPair(Scene* /*_scene*/, EntityHandle _handleA, EntityHandle _
     bInfo.collVec        = -collNormal * overlapDistance * overlapRate;
     bInfo.collFaceNormal = -collNormal;
     bInfo.collPoint      = _shapeB.center_ + bInfo.collVec.normalize() * _shapeB.radius_;
-    _bInfo->AddCollisionInfo(_entityA->GetID(), bInfo);
+    _bInfo->AddCollisionInfo(_handleA, bInfo);
 
     return true;
 }
 
 template <>
-bool CheckCollisionPair(Scene* _scene, Entity* _aabbEntity, Entity* _sphereEntity, const Bounds::AABB& _aabb, const Bounds::Sphere& _sphere, CollisionPushBackInfo* _aabbInfo, CollisionPushBackInfo* _sphereInfo) {
+bool CheckCollisionPair(Scene* _scene, EntityHandle _aabbEntity, EntityHandle _sphereEntity, const Bounds::AABB& _aabb, const Bounds::Sphere& _sphere, CollisionPushBackInfo* _aabbInfo, CollisionPushBackInfo* _sphereInfo) {
     Vec3f sphereCenter = _sphere.center_;
     Vec3f closest      = {0.f, 0.f, 0.f};
     Vec3f distance     = {0.f, 0.f, 0.f};
@@ -66,7 +66,7 @@ bool CheckCollisionPair(Scene* _scene, Entity* _aabbEntity, Entity* _sphereEntit
 
     bool isCollided = false;
 
-    Rigidbody* sphereRigidbody = _scene->GetComponent<Rigidbody>(_sphereEntity->GetID());
+    Rigidbody* sphereRigidbody = _scene->GetComponent<Rigidbody>(_sphereEntity);
     bool useSwept              = false;
     if (sphereRigidbody) {
         Vec3f velo = sphereRigidbody->GetRealVelocity();
@@ -209,7 +209,7 @@ bool CheckCollisionPair(Scene* _scene, Entity* _aabbEntity, Entity* _sphereEntit
     aabbInfo.collPoint      = _sphere.center_ + closest.normalize() * _sphere.radius_;
     aabbInfo.collVec        = (distance.normalize() * (_sphere.radius_ - distance.length())) * overlapRate;
 
-    _aabbInfo->AddCollisionInfo(_sphereEntity->GetID(), aabbInfo);
+    _aabbInfo->AddCollisionInfo(_sphereEntity, aabbInfo);
 
     CollisionPushBackInfo::Info sphereInfo;
     sphereInfo.pushBackType   = _aabbInfo->GetPushBackType();
@@ -217,14 +217,14 @@ bool CheckCollisionPair(Scene* _scene, Entity* _aabbEntity, Entity* _sphereEntit
     sphereInfo.collFaceNormal = normal;
     sphereInfo.collVec        = sphereCollVec;
 
-    _sphereInfo->AddCollisionInfo(_aabbEntity->GetID(), sphereInfo);
+    _sphereInfo->AddCollisionInfo(_aabbEntity, sphereInfo);
 
     return isCollided;
 }
 
 template <>
 bool CheckCollisionPair(Scene* _scene, EntityHandle _handleA, EntityHandle _handleB, const Bounds::Sphere& _shapeA, const Bounds::AABB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
-    return CheckCollisionPair<Bounds::AABB, Bounds::Sphere>(_scene, _entityB, _entityA, _shapeB, _shapeA, _bInfo, _aInfo);
+    return CheckCollisionPair<Bounds::AABB, Bounds::Sphere>(_scene, _handleB, _handleA, _shapeB, _shapeA, _bInfo, _aInfo);
 }
 template <>
 bool CheckCollisionPair(Scene* /*_scene*/, EntityHandle _handleA, EntityHandle _handleB, const Bounds::Sphere& _shapeA, const Bounds::OBB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
@@ -293,20 +293,20 @@ bool CheckCollisionPair(Scene* /*_scene*/, EntityHandle _handleA, EntityHandle _
     aInfo.pushBackType = _bInfo->GetPushBackType();
     aInfo.collVec      = direction * (length * overlapRate);
     aInfo.collPoint    = worldCollPoint;
-    _aInfo->AddCollisionInfo(_entityB->GetID(), aInfo);
+    _aInfo->AddCollisionInfo(_handleB, aInfo);
 
     CollisionPushBackInfo::Info bInfo;
     bInfo.pushBackType = _aInfo->GetPushBackType();
     bInfo.collVec      = direction * -(length * overlapRate);
     bInfo.collPoint    = worldCollPoint;
-    _bInfo->AddCollisionInfo(_entityA->GetID(), bInfo);
+    _bInfo->AddCollisionInfo(_handleA, bInfo);
 
     return true;
 }
 
 template <>
 bool CheckCollisionPair(Scene* _scene, EntityHandle _handleA, EntityHandle _handleB, const Bounds::OBB& _shapeA, const Bounds::Sphere& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
-    return CheckCollisionPair<Bounds::Sphere, Bounds::OBB>(_scene, _entityB, _entityA, _shapeB, _shapeA, _bInfo, _aInfo);
+    return CheckCollisionPair<Bounds::Sphere, Bounds::OBB>(_scene, _handleB, _handleA, _shapeB, _shapeA, _bInfo, _aInfo);
 };
 
 template <>
@@ -391,7 +391,7 @@ bool CheckCollisionPair(Scene* /*_scene*/, EntityHandle _handleA, EntityHandle _
 
     ainfo.collPoint = collPoint;
 
-    _aInfo->AddCollisionInfo(_entityB->GetID(), ainfo);
+    _aInfo->AddCollisionInfo(_handleB, ainfo);
 
     // 衝突時の処理
     CollisionPushBackInfo::Info bInfo;
@@ -401,7 +401,7 @@ bool CheckCollisionPair(Scene* /*_scene*/, EntityHandle _handleA, EntityHandle _
 
     bInfo.collPoint = collPoint;
 
-    _bInfo->AddCollisionInfo(_entityA->GetID(), bInfo);
+    _bInfo->AddCollisionInfo(_handleA, bInfo);
 
     return true;
 }
@@ -521,13 +521,13 @@ bool CheckCollisionPair(Scene* /*_scene*/, EntityHandle _handleA, EntityHandle _
     ainfo.pushBackType = _bInfo->GetPushBackType();
     ainfo.collVec      = -collVec * overlapRate;
     ainfo.collPoint    = collPoint;
-    _aInfo->AddCollisionInfo(_entityB->GetID(), ainfo);
+    _aInfo->AddCollisionInfo(_handleB, ainfo);
 
     CollisionPushBackInfo::Info binfo;
     binfo.pushBackType = _aInfo->GetPushBackType();
     binfo.collVec      = collVec * overlapRate;
     binfo.collPoint    = collPoint;
-    _bInfo->AddCollisionInfo(_entityA->GetID(), binfo);
+    _bInfo->AddCollisionInfo(_handleA, binfo);
 
     return true;
 }
@@ -543,13 +543,13 @@ bool CheckCollisionPair(Scene* _scene, EntityHandle _handleA, EntityHandle _hand
     aAsOBB.orientations_ = Orientation::Identity();
 
     // --- OBB vs OBB 判定を使う ---
-    return CheckCollisionPair<Bounds::OBB, Bounds::OBB>(_scene, _entityA, _entityB, aAsOBB, _shapeB, _aInfo, _bInfo);
+    return CheckCollisionPair<Bounds::OBB, Bounds::OBB>(_scene, _handleA, _handleB, aAsOBB, _shapeB, _aInfo, _bInfo);
 }
 
 template <>
 bool CheckCollisionPair(Scene* _scene, EntityHandle _handleA, EntityHandle _handleB, const Bounds::OBB& _shapeA, const Bounds::AABB& _shapeB, CollisionPushBackInfo* _aInfo, CollisionPushBackInfo* _bInfo) {
     // 順序を入れ替えて再利用
-    return CheckCollisionPair<Bounds::AABB, Bounds::OBB>(_scene, _entityB, _entityA, _shapeB, _shapeA, _bInfo, _aInfo);
+    return CheckCollisionPair<Bounds::AABB, Bounds::OBB>(_scene, _handleB, _handleA, _shapeB, _shapeA, _bInfo, _aInfo);
 }
 
 } // namespace OriGine

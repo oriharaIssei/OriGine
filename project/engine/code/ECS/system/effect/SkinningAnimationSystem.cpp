@@ -82,9 +82,8 @@ void SkinningAnimationSystem::Update() {
 
     usingCS_ = false;
 
-    for (auto& id : entities_) {
-        Entity* entity = GetEntity(id);
-        UpdateEntity(entity);
+    for (auto& handle : entities_) {
+        UpdateEntity(handle);
     }
     /*  if (usingCS_) {
           ExecuteCS();
@@ -100,103 +99,93 @@ void SkinningAnimationSystem::Finalize() {
 }
 
 void SkinningAnimationSystem::UpdateEntity(EntityHandle _handle) {
-    if (!_entity) {
-        return;
-    }
-
-    int32_t compSize = GetComponentArray<SkinningAnimationComponent>()->GetComponentSize(_entity);
+    auto& skinningAnimationComps = GetComponents<SkinningAnimationComponent>(_handle);
 
     const float deltaTime = GetMainDeltaTime();
-    for (int32_t i = 0; i < compSize; ++i) {
-        auto* animationComponent = GetComponent<SkinningAnimationComponent>(_entity, i);
+    for (auto& animationComponent : skinningAnimationComps) {
+        int32_t currentAnimationIndex = animationComponent.GetCurrentAnimationIndex();
+        if (!animationComponent.IsPrePlay() && animationComponent.IsPlay()) {
+            animationComponent.CreateSkinnedVertex(this->GetScene());
+        }
 
-        if (!animationComponent) {
+        animationComponent.SetIsPrePlay(currentAnimationIndex, animationComponent.IsPlay());
+        if (!animationComponent.IsPlay(currentAnimationIndex)) {
+            continue;
+        }
+        if (!animationComponent.GetAnimationData()) {
             continue;
         }
 
-        int32_t currentAnimationIndex = animationComponent->GetCurrentAnimationIndex();
-        if (!animationComponent->IsPrePlay() && animationComponent->IsPlay()) {
-            animationComponent->CreateSkinnedVertex(this->GetScene());
-        }
-
-        animationComponent->SetIsPrePlay(currentAnimationIndex, animationComponent->IsPlay());
-        if (!animationComponent->IsPlay(currentAnimationIndex)) {
-            continue;
-        }
-        if (!animationComponent->GetAnimationData()) {
-            continue;
-        }
-
-        animationComponent->SetIsEnd(currentAnimationIndex, false);
+        animationComponent.SetIsEnd(currentAnimationIndex, false);
 
         // アニメーションの更新
-        float currentTime = animationComponent->GetAnimationCurrentTime(currentAnimationIndex);
-        currentTime += deltaTime * animationComponent->GetPlaybackSpeed(currentAnimationIndex);
-        float duration = animationComponent->GetAnimationDuration(currentAnimationIndex);
+        float currentTime = animationComponent.GetAnimationCurrentTime(currentAnimationIndex);
+        currentTime += deltaTime * animationComponent.GetPlaybackSpeed(currentAnimationIndex);
+        float duration = animationComponent.GetAnimationDuration(currentAnimationIndex);
         if (currentTime >= duration) {
-            if (animationComponent->IsLoop(currentAnimationIndex)) {
+            if (animationComponent.IsLoop(currentAnimationIndex)) {
                 currentTime = std::fmod(currentTime, duration);
             } else {
                 currentTime = duration;
-                animationComponent->SetIsEnd(currentAnimationIndex, true);
+                animationComponent.SetIsEnd(currentAnimationIndex, true);
             }
         }
 
-        animationComponent->SetAnimationCurrentTime(currentAnimationIndex, currentTime);
+        animationComponent.SetAnimationCurrentTime(currentAnimationIndex, currentTime);
 
         // アニメーションの状態を更新
-        auto* modelRenderer = GetComponent<ModelMeshRenderer>(_entity, animationComponent->GetBindModeMeshRendererIndex());
+        auto* modelRenderer = GetComponent<ModelMeshRenderer>(_handle, animationComponent.GetBindModeMeshRendererIndex());
         if (!modelRenderer) {
-            LOG_ERROR("ModelMeshRenderer not found for entity: {}", _entity->GetID());
+            LOG_ERROR("ModelMeshRenderer not found for entity: {}", uuids::to_string(_handle.uuid));
             return;
         }
 
         auto& clusterDataMap = ModelManager::GetInstance()->GetModelMeshData(modelRenderer->GetDirectory(), modelRenderer->GetFileName())->skinClusterDataMap;
-        auto& skeleton       = animationComponent->GetSkeletonRef();
+        auto& skeleton       = animationComponent.GetSkeletonRef();
 
         // アニメーションが遷移しているかどうか
-        if (animationComponent->IsTransitioning()) {
+        if (animationComponent.IsTransitioning()) {
             // 遷移時間の 更新
-            int32_t nextAnimationIndex = animationComponent->GetNextAnimationIndex();
-            if (nextAnimationIndex < 0 || nextAnimationIndex >= static_cast<int32_t>(animationComponent->GetAnimationTable().size())) {
+            int32_t nextAnimationIndex = animationComponent.GetNextAnimationIndex();
+            if (nextAnimationIndex < 0 || nextAnimationIndex >= static_cast<int32_t>(animationComponent.GetAnimationTable().size())) {
                 LOG_ERROR("Invalid next animation index: {}", nextAnimationIndex);
                 continue;
             }
 
-            float transitionCurrentTime = animationComponent->GetBlendCurrentTime();
+            float transitionCurrentTime = animationComponent.GetBlendCurrentTime();
             transitionCurrentTime += deltaTime;
 
-            if (transitionCurrentTime >= animationComponent->GetBlendTime()) {
-                transitionCurrentTime = animationComponent->GetBlendTime();
-                animationComponent->EndTransition(); // トランジションを終了
+            if (transitionCurrentTime >= animationComponent.GetBlendTime()) {
+                transitionCurrentTime = animationComponent.GetBlendTime();
+                animationComponent.EndTransition(); // トランジションを終了
             }
-            animationComponent->SetBlendCurrentTime(transitionCurrentTime);
+            animationComponent.SetBlendCurrentTime(transitionCurrentTime);
 
             // 次のアニメーションの更新
-            float nextAnimationCurrentTime = animationComponent->GetAnimationCurrentTime(nextAnimationIndex);
-            nextAnimationCurrentTime += deltaTime * animationComponent->GetPlaybackSpeed(nextAnimationIndex);
-            float nextDuration = animationComponent->GetAnimationDuration(nextAnimationIndex);
+            float nextAnimationCurrentTime = animationComponent.GetAnimationCurrentTime(nextAnimationIndex);
+            nextAnimationCurrentTime += deltaTime * animationComponent.GetPlaybackSpeed(nextAnimationIndex);
+            float nextDuration = animationComponent.GetAnimationDuration(nextAnimationIndex);
             if (nextAnimationCurrentTime >= nextDuration) {
-                if (animationComponent->IsLoop(currentAnimationIndex)) {
+                if (animationComponent.IsLoop(currentAnimationIndex)) {
                     nextAnimationCurrentTime = std::fmod(nextAnimationCurrentTime, nextDuration);
                 } else {
                     nextAnimationCurrentTime = nextDuration;
-                    animationComponent->SetIsEnd(nextAnimationIndex, true);
+                    animationComponent.SetIsEnd(nextAnimationIndex, true);
                 }
             }
-            animationComponent->SetAnimationCurrentTime(nextAnimationIndex, nextAnimationCurrentTime);
+            animationComponent.SetAnimationCurrentTime(nextAnimationIndex, nextAnimationCurrentTime);
 
             ApplyBlendedAnimation(
                 skeleton,
-                animationComponent->GetAnimationData(currentAnimationIndex).get(),
+                animationComponent.GetAnimationData(currentAnimationIndex).get(),
                 currentTime,
-                animationComponent->GetAnimationData(nextAnimationIndex).get(),
+                animationComponent.GetAnimationData(nextAnimationIndex).get(),
                 nextAnimationCurrentTime,
-                transitionCurrentTime / animationComponent->GetBlendTime());
+                transitionCurrentTime / animationComponent.GetBlendTime());
         } else {
             ApplyAnimation(
                 skeleton,
-                animationComponent->GetAnimationData(currentAnimationIndex).get(),
+                animationComponent.GetAnimationData(currentAnimationIndex).get(),
                 currentTime);
         }
         skeleton.Update();
@@ -210,7 +199,7 @@ void SkinningAnimationSystem::UpdateEntity(EntityHandle _handle) {
         for (int32_t meshIdx = 0; meshIdx < meshSize; ++meshIdx) {
             auto& mesh = meshGroup->at(meshIdx);
             // スキニングされた頂点バッファを更新
-            auto& skinnedVertexBuffer = animationComponent->GetSkinnedVertexBuffer(meshIdx);
+            auto& skinnedVertexBuffer = animationComponent.GetSkinnedVertexBuffer(meshIdx);
 
             if (!skinnedVertexBuffer.buffer.IsValid()) {
                 continue; // スキニングされた頂点バッファが無効な場合はスキップ

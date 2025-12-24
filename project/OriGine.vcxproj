@@ -324,6 +324,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\scene\SceneManager.h" />
     <ClInclude Include="engine\code\texture\TextureManager.h" />
     <ClInclude Include="engine\code\winApp\WinApp.h" />
+    <ClInclude Include="externals\uuid\uuid.h" />
     <ClInclude Include="math\Interpolation.h" />
     <ClInclude Include="math\Matrix3x3.h" />
     <ClInclude Include="math\Matrix4x4.h" />
@@ -347,6 +348,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="util\DxUtil.h" />
     <ClInclude Include="util\EnumBitMask.h" />
     <ClInclude Include="util\StringUtil.h" />
+    <ClInclude Include="util\uuidGenerator\UuidGenerator.h" />
     <ClInclude Include="util\Version.h" />
     <ClInclude Include="util\binaryIO\BinaryIO.h" />
     <ClInclude Include="util\deltaTime\DeltaTime.h" />
@@ -369,6 +371,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="editor\sceneEditor\SystemInspector.cpp" />
     <ClCompile Include="editor\setting\SettingWindow.cpp" />
     <ClCompile Include="editor\window\EditorWindowMenu.cpp" />
+    <ClCompile Include="engine\code\ECS\component\ComponentHandle.cpp" />
     <ClCompile Include="engine\code\ECS\component\ComponentRegistry.cpp" />
     <ClCompile Include="engine\code\ECS\component\ComponentRepository.cpp" />
     <ClCompile Include="engine\code\ECS\component\EntityReferenceList.cpp" />
@@ -427,6 +430,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\ECS\component\transform\ParticleTransform.cpp" />
     <ClCompile Include="engine\code\ECS\component\transform\Transform.cpp" />
     <ClCompile Include="engine\code\ECS\component\transform\Transform2d.cpp" />
+    <ClCompile Include="engine\code\ECS\entity\EntityHandle.cpp" />
     <ClCompile Include="engine\code\ECS\entity\EntityRepository.cpp" />
     <ClCompile Include="engine\code\ECS\system\ISystem.cpp" />
     <ClCompile Include="engine\code\ECS\system\SystemCategory.cpp" />
@@ -520,6 +524,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="math\Spline.cpp" />
     <ClCompile Include="math\mathEnv.cpp" />
     <ClCompile Include="util\StringUtil.cpp" />
+    <ClCompile Include="util\uuidGenerator\UuidGenerator.cpp" />
     <ClCompile Include="util\Version.cpp" />
     <ClCompile Include="util\binaryIO\BinaryIO.cpp" />
     <ClCompile Include="util\deltaTime\DeltaTime.cpp" />

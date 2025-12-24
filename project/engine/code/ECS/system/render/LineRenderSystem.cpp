@@ -44,12 +44,12 @@ void LineRenderSystem::StartRender() {
 }
 
 void LineRenderSystem::DispatchRenderer(EntityHandle _entity) {
-    std::vector<LineRenderer>* renderers = GetComponents<LineRenderer>(_entity);
-    if (!renderers) {
+    std::vector<LineRenderer>& renderers = GetComponents<LineRenderer>(_entity);
+    if (renderers.empty()) {
         return;
     }
 
-    for (auto& renderer : *renderers) {
+    for (auto& renderer : renderers) {
         // 描画フラグが立っていないならスキップ
         if (!renderer.IsRender()) {
             continue;

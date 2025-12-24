@@ -11,6 +11,7 @@
 // component
 #include "component/ComponentArray.h"
 #include "component/ComponentHandle.h"
+#include "component/ComponentRepository.h"
 // system
 #include "system/SystemCategory.h"
 
@@ -21,7 +22,6 @@ namespace OriGine {
 
 class Scene;
 class EntityRepository;
-class ComponentRepository;
 
 /// <summary>
 /// System Interface
@@ -49,7 +49,7 @@ public:
     /// <summary>
     /// 編集処理
     /// </summary>
-    virtual void Edit() {}
+    virtual void Edit();
 
     /// <summary>
     /// 無効Entityの削除処理
@@ -146,7 +146,7 @@ protected:
     /// <typeparam name="ComponentType"></typeparam>
     /// <param name="_entity"></param>
     /// <returns></returns>
-    ComponentHandle AddComponent(EntityHandle _entity, const ::std::string& _typeName, IComponent* _component, bool _doInitialize);
+    ComponentHandle AddComponent(EntityHandle _entity, const ::std::string& _typeName);
 
 protected:
     std::vector<EntityHandle> entities_;
@@ -219,6 +219,13 @@ inline ComponentType* ISystem::GetComponent(ComponentHandle _handle) {
     return componentRepository_->GetComponent<ComponentType>(_handle);
 }
 
+/// <summary>
+/// コンポーネントを取得する (非推奨 ComponentHandleの使用を推奨します)
+/// </summary>
+/// <typeparam name="ComponentType"></typeparam>
+/// <param name="_handle"></param>
+/// <param name="_index"></param>
+/// <returns></returns>
 template <IsComponent ComponentType>
 inline ComponentType* ISystem::GetComponent(EntityHandle _handle, int32_t _index) {
     auto* componentArray = GetComponentArray<ComponentType>();
@@ -226,33 +233,19 @@ inline ComponentType* ISystem::GetComponent(EntityHandle _handle, int32_t _index
         LOG_ERROR("ComponentArray is not found.");
         return nullptr;
     }
-    return componentArray->GetComponent<ComponentType>(_handle, _index);
+    return componentArray->GetComponent(_handle, _index);
 }
 
 template <IsComponent ComponentType>
 inline std::vector<ComponentType>& ISystem::GetComponents(EntityHandle _entity) {
     auto* componentArray = GetComponentArray<ComponentType>();
-
-    static std::vector<ComponentType> emptyComponents;
     if (!componentArray) {
         LOG_ERROR("ComponentArray is not found.");
+        // ダミーの空配列を返す
+        static std::vector<ComponentType> emptyComponents;
         return emptyComponents;
     }
-    if (!componentArray->HasEntity(_entity)) {
-        return emptyComponents;
-    }
-
-    std::vector<ComponentType>* components = new std::vector<ComponentType>();
-    for (const auto& entityComponentPair : componentArray->GetEntityComponentMap()) {
-        if (entityComponentPair.first.uuid == _entity.uuid) {
-            ComponentType* component = componentArray->GetComponent<ComponentType>(entityComponentPair.second);
-            if (component) {
-                components->push_back(*component);
-            }
-        }
-    }
-
-    return *components;
+    return componentArray->GetComponents(_entity);
 }
 
 template <IsComponent ComponentType>
