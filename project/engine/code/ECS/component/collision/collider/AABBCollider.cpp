@@ -29,7 +29,7 @@ void AABBCollider::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityH
     }
     label = "Transform##" + _parentLabel;
     if (ImGui::TreeNode(label.c_str())) {
-        transform_.Edit(_scene, _entity, _parentLabel);
+        transform_.Edit(_scene, _handle, _parentLabel);
         ImGui::TreePop();
     }
 

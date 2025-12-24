@@ -40,6 +40,15 @@ public:
     EntityHandle CreateEntity(const std::string& _dataType, bool _unique = false);
 
     /// <summary>
+    /// EntityHandleを指定して Entityを 作成
+    /// 失敗したら、Handleを上書きして生成する
+    /// </summary>
+    /// <param name="dataType">エンティティの名前</param>
+    /// <param name="unique"></param>
+    /// <returns></returns>
+    EntityHandle CreateEntity(EntityHandle _handle, const std::string& _dataType, bool _unique = false);
+
+    /// <summary>
     /// Unique Entity 取得
     /// </summary>
     /// <param name="dataType">UniqueEntityの名前</param>
@@ -52,7 +61,13 @@ public:
     /// <param name="_dataType">登録するEntityName</param>
     /// <param name="_handle"></param>
     /// <returns></returns>
-    bool RgisterUniqueEntity(const std::string& _dataType, EntityHandle _handle);
+    bool RegisterUniqueEntity(Entity* _entity);
+    /// <summary>
+    /// Unique Entity 登録解除
+    /// </summary>
+    /// <param name="_entity"></param>
+    /// <returns></returns>
+    bool UnregisterUniqueEntity(Entity* _entity);
 
     /// <summary>
     /// Entity 削除

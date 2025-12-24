@@ -76,7 +76,7 @@ void PlaneRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity
 
     label                      = "MaterialIndex##" + _parentLabel;
     auto& materials            = _scene->GetComponents<Material>(_handle);
-    int32_t entityMaterialSize = static_cast<int32_t>(materials.size());
+    int32_t entityMaterialSize = static_cast<int32_t>(materials.size()) - 1;
     InputGuiCommand(label, materialIndex_);
 
     materialIndex_ = std::clamp(materialIndex_, -1, entityMaterialSize);

@@ -143,11 +143,27 @@ EntityHandle Scene::GetUniqueEntity(const ::std::string& _dataType) const {
     return EntityHandle();
 }
 
-bool Scene::RgisterUniqueEntity(const ::std::string& _dataType, EntityHandle _handle) {
+EntityHandle Scene::CreateEntity(const ::std::string& _dataType, bool _isUnique) {
     if (!_dataType.empty()) {
-        return entityRepository_->RgisterUniqueEntity(_dataType, _handle);
+        return entityRepository_->CreateEntity(_dataType, _isUnique);
     }
-    LOG_ERROR("Scene::RgisterUniqueEntity: Data type is empty.");
+    LOG_ERROR("Scene::CreateEntity: Data type is empty.");
+    return EntityHandle();
+}
+
+bool Scene::RegisterUniqueEntity(Entity* _entity) {
+    if (_entity) {
+        return entityRepository_->RegisterUniqueEntity(_entity);
+    }
+    LOG_ERROR("Entity is empty.");
+    return false;
+}
+
+bool Scene::UnregisterUniqueEntity(Entity* _entity) {
+    if (_entity) {
+        return entityRepository_->UnregisterUniqueEntity(_entity);
+    }
+    LOG_ERROR("Entity is empty.");
     return false;
 }
 

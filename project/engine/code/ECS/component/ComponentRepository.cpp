@@ -88,6 +88,22 @@ void ComponentRepository::RemoveEntity(EntityHandle _handle) {
     }
 }
 
+std::unordered_map<std::string, std::vector<IComponent*>> OriGine::ComponentRepository::GetAllComponentsOfEntity(EntityHandle _handle) {
+    std::unordered_map<std::string, std::vector<IComponent*>> result;
+
+    for (const auto& [typeName, componentArray] : componentArrays_) {
+        if (componentArray->HasEntity(_handle)) {
+            auto comps = componentArray->GetIComponents(_handle);
+            if (comps.empty()) {
+                continue;
+            }
+            result[typeName] = comps;
+        }
+    }
+
+    return result;
+}
+
 uint32_t ComponentRepository::GetComponentCount() const {
     return static_cast<uint32_t>(componentArrays_.size());
 }

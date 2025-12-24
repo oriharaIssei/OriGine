@@ -135,7 +135,7 @@ void ISystem::Edit() {
                 }
                 ::ImGui::TableNextRow();
                 ::ImGui::TableSetColumnIndex(0);
-                ::ImGui::Text("%s", uuids::to_string(entity->GetHandle().uuid));
+                ::ImGui::Text("%s", uuids::to_string(entity->GetHandle().uuid).c_str());
                 ::ImGui::TableSetColumnIndex(1);
                 ::ImGui::Text("%s", entity->GetDataType().c_str());
             }

@@ -65,7 +65,8 @@ private:
     std::array<PipelineStateObj*, kBlendNum> psoByBlendMode_{};
 
     Matrix4x4 viewPortMat_;
-    std::vector<SpriteRenderer*> renderers_;
+    // first = render priority, second = component handle
+    std::vector<std::pair<int32_t, ComponentHandle>> rendererHandles_;
 };
 
 } // namespace OriGine

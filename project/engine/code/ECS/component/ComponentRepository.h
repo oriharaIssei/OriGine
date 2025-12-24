@@ -3,6 +3,12 @@
 #include "ComponentArray.h"
 #include "ComponentRegistry.h"
 
+/// stl
+#include <vector>
+#include <memory>
+#include <string>
+#include <unordered_map>
+
 namespace OriGine {
 
 /// <summary>
@@ -60,7 +66,7 @@ public:
     /// <param name="_handle">コンポーネントを持つエンティティ</param>
     /// <returns> _handleが持つコンポーネント郡 </returns>
     template <IsComponent ComponentType>
-    std::vector<ComponentType>* GetComponents(EntityHandle _handle);
+    std::vector<ComponentType>& GetComponents(EntityHandle _handle);
 
     /// <summary>
     /// 指定したエンティティが持つ指定した型のコンポーネントを取得する
@@ -128,6 +134,13 @@ public:
     /// <param name="_handle">コンポーネントを削除されるエンティティ</param>
     void RemoveEntity(EntityHandle _handle);
 
+    /// <summary>
+    /// 指定したエンティティが持つ全てのコンポーネントを取得する
+    /// </summary>
+    /// <param name="_handle">指定するEntityのHandle</param>
+    /// <returns>first = typename, second = typeComponents </returns>
+    std::unordered_map<std::string, std::vector<IComponent*>> GetAllComponentsOfEntity(EntityHandle _handle);
+
 private:
     /// <summary>
     /// コンポーネントの型名をキーに持つコンポーネント配列のマップ
@@ -174,10 +187,11 @@ inline ComponentArray<ComponentType>* ComponentRepository::GetComponentArray() {
 }
 
 template <IsComponent ComponentType>
-inline std::vector<ComponentType>* ComponentRepository::GetComponents(EntityHandle _handle) {
+inline std::vector<ComponentType>& ComponentRepository::GetComponents(EntityHandle _handle) {
     auto componentArray = GetComponentArray<ComponentType>();
     if (componentArray == nullptr) {
-        return nullptr;
+        static std::vector<ComponentType> emptyVector;
+        return emptyVector;
     }
     return componentArray->GetComponents(_handle);
 }

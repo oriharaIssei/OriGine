@@ -55,9 +55,9 @@ public:
     /// <param name="_type"></param>
     /// <param name="_entityID"></param>
     void AddEffectEntity(MaterialEffectType _type, EntityHandle _entHandle) {
-        effectComponentData_.push_back(EffectEntityData{_type, _entHandle});
+        effectEntityData_.push_back(EffectEntityData{_type, _entHandle});
     }
-    void ClearEffectEntity() { effectComponentData_.clear(); }
+    void ClearEffectEntity() { effectEntityData_.clear(); }
 
 private:
     struct EffectEntityData {
@@ -65,7 +65,7 @@ private:
         EntityHandle entityHandle{};
     };
 
-    std::vector<EffectEntityData> effectComponentData_;
+    std::vector<EffectEntityData> effectEntityData_;
 
     int32_t priority_      = 0;
     bool isActive_         = true;
@@ -83,7 +83,7 @@ public:
     void SetMaterialIndex(int32_t index) { materialIndex_ = index; }
 
     int32_t GetBaseTextureId() const { return baseTextureId_; }
-    const std::vector<EffectEntityData>& GetEffectEntityIdList() const { return effectComponentData_; }
+    const std::vector<EffectEntityData>& GetEffectEntityIdList() const { return effectEntityData_; }
 };
 
 } // namespace OriGine

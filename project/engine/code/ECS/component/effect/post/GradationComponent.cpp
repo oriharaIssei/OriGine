@@ -60,7 +60,7 @@ void GradationComponent::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] E
 #ifdef _DEBUG
     auto& materials = _scene->GetComponents<Material>(_handle);
     if (!materials.empty()) {
-        int32_t maxMaterialIndex = static_cast<int32_t>(materials.size());
+        int32_t maxMaterialIndex = static_cast<int32_t>(materials.size()) - 1;
         InputGuiCommand<int32_t>("Material Index##" + _parentLabel, materialIndex_, "%d", [this, maxMaterialIndex](int32_t* /*_newVal*/) {
             materialIndex_ = std::clamp(materialIndex_, 0, maxMaterialIndex);
         });

@@ -387,7 +387,7 @@ private:
 class RemoveSystemCommand
     : public IEditCommand {
 public:
-    RemoveSystemCommand(const ::std::list<int32_t>& _entityHandles, const ::std::string& _systemTypeName, OriGine::SystemCategory _category);
+    RemoveSystemCommand(const ::std::list<OriGine::EntityHandle>& _entityHandles, const ::std::string& _systemTypeName, OriGine::SystemCategory _category);
     ~RemoveSystemCommand() override = default;
     void Execute() override;
     void Undo() override;

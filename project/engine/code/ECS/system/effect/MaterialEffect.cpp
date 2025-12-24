@@ -220,6 +220,10 @@ void MaterialEffect::ExecuteCommand() {
 }
 
 void MaterialEffect::TextureEffect(EntityHandle _handle, MaterialEffectType _type, RenderTexture* _output) {
+    if (!_handle.IsValid()) {
+        return;
+    }
+
     switch (_type) {
     case MaterialEffectType::Dissolve: {
         dissolveEffect_->AddEntity(_handle);

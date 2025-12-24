@@ -35,46 +35,45 @@ void TexturedMeshRenderSystem::Initialize() {
 }
 
 void TexturedMeshRenderSystem::DispatchRenderer(EntityHandle _entity) {
-    auto& modelMeshRenderers = GetComponents<ModelMeshRenderer>(_entity);
-    auto entityTransform     = GetComponent<Transform>(_entity);
-
-    if (modelMeshRenderers.empty()) {
-        return;
-    }
+    auto entityTransform = GetComponent<Transform>(_entity);
 
     if (entityTransform) {
         entityTransform->UpdateMatrix();
     }
 
-    for (auto& renderer : modelMeshRenderers) {
-        if (renderer.GetMeshGroup()->empty() || !renderer.IsRender()) {
-            continue;
-        }
+    auto& modelMeshRenderers = GetComponents<ModelMeshRenderer>(_entity);
+    if (!modelMeshRenderers.empty()) {
 
-        for (int32_t i = 0; i < static_cast<int32_t>(renderer.GetMeshGroup()->size()); ++i) {
-            ///==============================
-            /// Transformの更新 (meshごと)
-            ///==============================
-            auto& transform = renderer.GetTransformBuff(i);
-
-            if (transform->parent == nullptr) {
-                transform->parent = entityTransform;
+        for (auto& renderer : modelMeshRenderers) {
+            if (renderer.GetMeshGroup()->empty() || !renderer.IsRender()) {
+                continue;
             }
 
-            transform->UpdateMatrix();
-            transform.ConvertToBuffer();
-        }
+            for (int32_t i = 0; i < static_cast<int32_t>(renderer.GetMeshGroup()->size()); ++i) {
+                ///==============================
+                /// Transformの更新 (meshごと)
+                ///==============================
+                auto& transform = renderer.GetTransformBuff(i);
 
-        ///==============================
-        /// push_back
-        ///==============================
-        BlendMode blendMode = renderer.GetCurrentBlend();
-        int32_t blendIndex  = static_cast<int32_t>(blendMode);
-        int32_t isCulling   = renderer.IsCulling() ? 1 : 0;
-        activeModelMeshRenderer_[isCulling][blendIndex].push_back(&renderer);
+                if (transform->parent == nullptr) {
+                    transform->parent = entityTransform;
+                }
+
+                transform->UpdateMatrix();
+                transform.ConvertToBuffer();
+            }
+
+            ///==============================
+            /// push_back
+            ///==============================
+            BlendMode blendMode = renderer.GetCurrentBlend();
+            int32_t blendIndex  = static_cast<int32_t>(blendMode);
+            int32_t isCulling   = renderer.IsCulling() ? 1 : 0;
+            activeModelMeshRenderer_[isCulling][blendIndex].push_back(&renderer);
+        }
     }
 
-    auto dispatchPrimitive = [this, _entity, entityTransform](auto renderers) {
+    auto dispatchPrimitive = [this, _entity, entityTransform](auto& renderers) {
         for (auto& renderer : renderers) {
             if (!renderer.IsRender()) {
                 continue;

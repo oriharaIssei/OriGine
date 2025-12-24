@@ -127,7 +127,7 @@ private:
 
 #endif // _DEBUG
 
-void MaterialAnimation:: Initialize(Scene* /*_scene,*/, EntityHandle /*_owner*/) { // Initialize animation state
+void MaterialAnimation::Initialize(Scene* /*_scene,*/, EntityHandle /*_owner*/) { // Initialize animation state
     currentTime_ = 0.0f;
 }
 
@@ -143,8 +143,8 @@ void MaterialAnimation::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] En
     ImGui::Spacing();
 
     label                      = "MaterialIndex##" + _parentLabel;
-    auto materials             = _scene->GetComponents<Material>(_entity);
-    int32_t entityMaterialSize = materials != nullptr ? static_cast<int32_t>(materials->size()) : 0;
+    auto& materials            = _scene->GetComponents<Material>(_handle);
+    int32_t entityMaterialSize = static_cast<int32_t>(materials.size());
 
     InputGuiCommand(label, materialIndex_);
     materialIndex_ = std::clamp(materialIndex_, -1, entityMaterialSize);

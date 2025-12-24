@@ -45,7 +45,7 @@ Emitter::Emitter() : IComponent(), currentCoolTime_(0.f), leftActiveTime_(0.f) {
 
 Emitter::~Emitter() {}
 
-void Emitter:: Initialize(Scene* /*_scene,*/, EntityHandle /*_owner*/) {
+void Emitter::Initialize(Scene* /*_scene,*/, EntityHandle /*_owner*/) {
     { // Initialize DrawingData Size
         CalculateMaxSize();
         particles_.reserve(particleMaxSize_);
@@ -290,8 +290,8 @@ void Emitter::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle
     ImGui::Spacing();
 
     {
-        auto materials             = _scene->GetComponents<Material>(_entity);
-        int32_t entityMaterialSize = materials != nullptr ? static_cast<int32_t>(materials->size()) : 0;
+        auto& materials            = _scene->GetComponents<Material>(_handle);
+        int32_t entityMaterialSize = static_cast<int32_t>(materials.size());
 
         InputGuiCommand(label, materialIndex_);
         materialIndex_ = std::clamp(materialIndex_, -1, entityMaterialSize - 1);
@@ -299,7 +299,7 @@ void Emitter::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle
             label = "Material##" + _parentLabel;
             if (ImGui::TreeNode(label.c_str())) {
                 label = "Material" + _parentLabel;
-                materials->operator[](materialIndex_).Edit(_scene, _entity, label);
+                materials[materialIndex_].Edit(_scene, _handle, label);
                 ImGui::TreePop();
             }
         }
@@ -394,7 +394,7 @@ void Emitter::EditShapeType([[maybe_unused]] const std::string& _parentLabel) {
     //======================== ShapeType の 切り替え ========================//
     std::string label = "EmitterShapeType##" + _parentLabel;
     if (ImGui::BeginCombo(label.c_str(), kEmitterShapeTypeWord[static_cast<int32_t>(shapeType_)].c_str())) {
-        for (int32_t i = 0; i < kShapeTypeCount ; i++) {
+        for (int32_t i = 0; i < kShapeTypeCount; i++) {
             bool isSelected = (shapeType_ == EmitterShapeType(i)); // 現在選択中かどうか
 
             if (ImGui::Selectable(kEmitterShapeTypeWord[i].c_str(), isSelected)) {

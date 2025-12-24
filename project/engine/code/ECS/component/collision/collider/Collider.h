@@ -35,8 +35,8 @@ public:
     ICollider() {}
     virtual ~ICollider() {}
 
-    virtual void Initialize(Scene* _scene, EntityHandle _hostEntity);
-    virtual void Finalize() = 0;
+    virtual void Initialize(Scene* _scene, EntityHandle _hostEntity) = 0;
+    virtual void Finalize()                                          = 0;
 
     virtual void Edit(Scene* _scene, EntityHandle _handle, const std::string& _parentLabel) = 0;
 

@@ -126,22 +126,19 @@ public:
     /// <summary>
     /// ユニークエンティティを登録する
     /// </summary>
-    /// <param name="_dataType"></param>
-    /// <param name="_handle"></param>
     /// <returns></returns>
-    bool RgisterUniqueEntity(const ::std::string& _dataType, EntityHandle _handle);
+    bool RegisterUniqueEntity(Entity* _entity);
     /// <summary>
     /// ユニークエンティティの登録を解除する
     /// </summary>
-    /// <param name="_dataType"></param>
-    /// <returns></returns>
-    bool UnregisterUniqueEntity(const ::std::string& _dataType);
+    bool UnregisterUniqueEntity(Entity* _entity);
 
     /// ==========================================
     // Component 関係
     /// =========================================
     template <IsComponent ComponentType>
     ComponentType* GetComponent(EntityHandle _handle, uint32_t index = 0) const;
+
     template <IsComponent ComponentType>
     ::std::vector<ComponentType>& GetComponents(EntityHandle _handle) {
         return componentRepository_->GetComponents<ComponentType>(_handle);

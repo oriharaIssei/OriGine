@@ -112,9 +112,13 @@ Entity* OriGine::SceneFactory::BuildEntity(Scene* scene, const nlohmann::json& e
     // エンティティの作成
     std::string name = entityJson["Name"];
     bool isUnique    = entityJson["isUnique"];
+    EntityHandle handle;
+    if (entityJson.contains("Handle")) {
+        handle = entityJson["Handle"];
+    }
 
-    EntityHandle handle = scene->entityRepository_->CreateEntity(name, isUnique);
-    Entity* entity      = scene->entityRepository_->GetEntity(handle);
+    handle         = scene->entityRepository_->CreateEntity(handle, name, isUnique);
+    Entity* entity = scene->entityRepository_->GetEntity(handle);
     // システムの読み込み
     LoadEntitySystems(scene, handle, entityJson["Systems"]);
     // コンポーネントの読み込み
@@ -181,11 +185,16 @@ void OriGine::SceneFactory::LoadEntityComponents(
     const nlohmann::json& componentsJson) {
     // コンポーネントの読み込み
     for (auto& [componentTypename, componentData] : componentsJson.items()) {
-        auto comp = scene->componentRepository_->GetComponentArray(componentTypename);
-        if (!comp) {
+        auto compArray = scene->componentRepository_->GetComponentArray(componentTypename);
+        if (!compArray) {
             LOG_WARN("Don't Registered Component. Typename {}", componentTypename);
             continue;
         }
-        comp->LoadComponent(_entity, componentData);
+        compArray->LoadComponents(_entity, componentData);
+
+        auto loadedComps = compArray->GetIComponents(_entity);
+        for (auto& comp : loadedComps) {
+            comp->Initialize(scene, _entity);
+        }
     }
 }

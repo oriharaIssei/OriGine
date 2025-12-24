@@ -60,20 +60,80 @@ EntityHandle EntityRepository::CreateEntity(const std::string& _type, bool _uniq
     return e.handle_;
 }
 
-bool OriGine::EntityRepository::RgisterUniqueEntity(const std::string& _dataType, EntityHandle _handle) {
-    auto it = uuidToIndex_.find(_handle.uuid);
-    if (it == uuidToIndex_.end()) {
-        LOG_ERROR("Entity not found. \n uuid : {}", uuids::to_string(_handle.uuid));
+EntityHandle OriGine::EntityRepository::CreateEntity(EntityHandle _handle, const std::string& _dataType, bool _unique) {
+    auto itr = uuidToIndex_.find(_handle.uuid);
+    if (itr != uuidToIndex_.end() || !_handle.IsValid()) {
+        LOG_WARN("EntityHandle already exists. Generating a new one. \n name : {} \n uuid : {}\n", _dataType, uuids::to_string(_handle.uuid));
+        _handle = EntityHandle(UuidGenerator::RandomGenerate());
+    }
+
+    int32_t index = AllocateIndex();
+
+    Entity& e   = entities_[index];
+    e.id_       = index;
+    e.dataType_ = _dataType;
+    e.isAlive_  = true;
+    e.isUnique_ = false;
+    e.handle_   = _handle;
+
+    entityActiveBits_.Set(index, true);
+    uuidToIndex_[e.handle_.uuid] = index;
+
+    if (_unique) {
+        uniqueEntities_[_dataType] = e.handle_.uuid;
+        e.isUnique_                = true;
+    }
+
+    return e.handle_;
+}
+
+bool OriGine::EntityRepository::RegisterUniqueEntity(Entity* _entity) {
+    if (!_entity) {
+        LOG_ERROR("Entity is nullptr.");
         return false;
     }
-    int32_t index = it->second;
-    Entity& e     = entities_[index];
-    if (e.isUnique_) {
-        LOG_ERROR("Entity is already unique. \n uuid : {}", uuids::to_string(_handle.uuid));
+
+    auto itr = uuidToIndex_.find(_entity->handle_.uuid);
+    if (itr == uuidToIndex_.end()) {
+        LOG_ERROR("Entity not found. \n name   : {} \n handle : {} \n", _entity->GetDataType(), uuids::to_string(_entity->handle_.uuid));
         return false;
     }
-    uniqueEntities_[_dataType] = _handle.uuid;
-    e.isUnique_                = true;
+
+    auto uniqueItr = uniqueEntities_.find(_entity->dataType_);
+    // 登録 済みなら
+    if (uniqueItr != uniqueEntities_.end()) {
+        LOG_ERROR("Entity is already unique. \n name   : {} \n handle : {} \n", _entity->GetDataType(), uuids::to_string(_entity->handle_.uuid));
+        return false;
+    }
+
+    uniqueEntities_[_entity->dataType_] = _entity->handle_.uuid;
+    entities_[itr->second].isUnique_    = true;
+
+    return true;
+}
+
+bool OriGine::EntityRepository::UnregisterUniqueEntity(Entity* _entity) {
+    if (!_entity) {
+        LOG_ERROR("Entity is nullptr.");
+        return false;
+    }
+
+    auto itr = uuidToIndex_.find(_entity->handle_.uuid);
+    if (itr == uuidToIndex_.end()) {
+        LOG_ERROR("Entity not found. \n name   : {} \n handle : {} \n", _entity->GetDataType(), uuids::to_string(_entity->handle_.uuid));
+        return false;
+    }
+
+    auto uniqueItr = uniqueEntities_.find(_entity->dataType_);
+    // 登録 されていなければ
+    if (uniqueItr == uniqueEntities_.end()) {
+        LOG_ERROR("Entity is not unique. \n name   : {} \n handle : {} \n", _entity->GetDataType(), uuids::to_string(_entity->handle_.uuid));
+        return false;
+    }
+
+    uniqueEntities_.erase(uniqueItr);
+    entities_[itr->second].isUnique_ = false;
+
     return true;
 }
 

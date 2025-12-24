@@ -78,7 +78,7 @@ void OriGine::from_json(const nlohmann::json& j, ModelMeshRenderer& r) {
         auto& materialBufferDatas = j.at("materialIndexDatas");
         for (auto& materialData : materialBufferDatas) {
             auto& backMaterial = r.meshMaterialBuff_.emplace_back(std::make_pair(ComponentHandle(), SimpleConstantBuffer<Material>()));
-            backMaterial.first = materialData;
+            // backMaterial.first = materialData;
         }
     }
 
@@ -255,7 +255,7 @@ void ModelMeshRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] En
             label = "MaterialIndex##" + _parentLabel;
 
             ComponentHandle& materialHandle = meshMaterialBuff_[i].first;
-            int32_t materialIndex = -1;
+            int32_t materialIndex           = -1;
             if (materialHandle.IsValid()) {
                 for (int32_t mIndex = 0; mIndex < entityMaterialSize; ++mIndex) {
                     if (materials[mIndex].GetHandle() == materialHandle) {
@@ -268,14 +268,15 @@ void ModelMeshRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] En
             ImGui::InputInt(label.c_str(), &materialIndex);
             materialIndex = std::clamp(materialIndex, -1, entityMaterialSize - 1);
             if (materialIndex >= 0) {
+                // 選択されたものと違う場合は変更
+                if (materialHandle != materials[materialIndex].GetHandle()) {
+                    auto command = std::make_unique<SetterCommand<ComponentHandle>>(
+                        &meshMaterialBuff_[i].first, materials[materialIndex].GetHandle());
+                    OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
+                }
+
                 label = "Material##" + _parentLabel;
                 if (ImGui::TreeNode(label.c_str())) {
-                    // 選択されたものと違う場合は変更
-                    if (materialHandle != materials[materialIndex].GetHandle()) {
-                        auto command = std::make_unique<SetterCommand<ComponentHandle>>(
-                            &meshMaterialBuff_[i].first, materials[materialIndex].GetHandle());
-                        OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
-                    }
                     // Material編集
                     materials[materialIndex].Edit(_scene, _handle, meshName);
                     ImGui::TreePop();

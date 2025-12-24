@@ -143,7 +143,7 @@ void GradationEffect::RenderEnd() {
 }
 
 void GradationEffect::DispatchComponent(EntityHandle _handle) {
-    auto effectParams = GetComponents<GradationComponent>(_handle);
+    auto& effectParams = GetComponents<GradationComponent>(_handle);
 
     if (effectParams.empty()) {
         return; // コンポーネントがない場合は何もしない
