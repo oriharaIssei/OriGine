@@ -623,7 +623,7 @@ inline bool ComponentArray<ComponentType>::SaveComponents(EntityHandle _handle, 
     for (auto& comp : slot.components) {
         nlohmann::json compJson = comp;
         compJson["Handle"]      = comp.GetHandle();
-        compVecJson.emplace_back(comp);
+        compVecJson.emplace_back(compJson);
     }
 
     _outJson[nameof<ComponentType>()] = compVecJson;
@@ -647,7 +647,7 @@ inline ComponentHandle ComponentArray<ComponentType>::LoadComponent(EntityHandle
     ComponentType comp         = _inJson.get<ComponentType>();
     ComponentHandle compHandle = ComponentHandle();
     if (_inJson.contains("Handle")) {
-        _inJson["Handle"].get<ComponentHandle>();
+        _inJson["Handle"].get_to<ComponentHandle>(compHandle);
     } else {
         // Handleがない場合は新規作成
         compHandle = ComponentHandle(UuidGenerator::RandomGenerate());
@@ -675,7 +675,7 @@ inline ComponentHandle ComponentArray<ComponentType>::LoadComponent(EntityHandle
     ComponentType comp         = _inJson.get<ComponentType>();
     ComponentHandle compHandle = ComponentHandle();
     if (_inJson.contains("Handle")) {
-        _inJson["Handle"].get<ComponentHandle>();
+        _inJson["Handle"].get_to<ComponentHandle>(compHandle);
     } else {
         compHandle = ComponentHandle(UuidGenerator::RandomGenerate());
     }
@@ -717,7 +717,7 @@ inline void ComponentArray<ComponentType>::LoadComponents(EntityHandle _handle, 
         ComponentType comp         = compJson.get<ComponentType>();
         ComponentHandle compHandle = ComponentHandle();
         if (compJson.contains("Handle")) {
-            compJson["Handle"].get<ComponentHandle>();
+            compJson["Handle"].get_to<ComponentHandle>(compHandle);
         } else {
             compHandle = ComponentHandle(UuidGenerator::RandomGenerate());
         }

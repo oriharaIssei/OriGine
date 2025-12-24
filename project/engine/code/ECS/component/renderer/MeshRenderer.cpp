@@ -47,7 +47,7 @@ void OriGine::to_json(nlohmann::json& j, const ModelMeshRenderer& r) {
     nlohmann::json materialBufferDatas = nlohmann::json::array();
     for (int32_t i = 0; i < r.meshGroup_->size(); ++i) {
         nlohmann::json bufferData;
-        to_json(bufferData, r.meshMaterialBuff_[i].first);
+        bufferData["Handle"] = r.meshMaterialBuff_[i].first;
         materialBufferDatas.push_back(bufferData);
     }
     j["materialIndexDatas"] = materialBufferDatas;
@@ -78,7 +78,7 @@ void OriGine::from_json(const nlohmann::json& j, ModelMeshRenderer& r) {
         auto& materialBufferDatas = j.at("materialIndexDatas");
         for (auto& materialData : materialBufferDatas) {
             auto& backMaterial = r.meshMaterialBuff_.emplace_back(std::make_pair(ComponentHandle(), SimpleConstantBuffer<Material>()));
-            // backMaterial.first = materialData;
+            materialData["Handle"].get_to<ComponentHandle>(backMaterial.first);
         }
     }
 
