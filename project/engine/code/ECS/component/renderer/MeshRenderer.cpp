@@ -78,7 +78,9 @@ void OriGine::from_json(const nlohmann::json& j, ModelMeshRenderer& r) {
         auto& materialBufferDatas = j.at("materialIndexDatas");
         for (auto& materialData : materialBufferDatas) {
             auto& backMaterial = r.meshMaterialBuff_.emplace_back(std::make_pair(ComponentHandle(), SimpleConstantBuffer<Material>()));
-            materialData["Handle"].get_to<ComponentHandle>(backMaterial.first);
+            if (materialData.contains("Handle")) {
+                materialData["Handle"].get_to<ComponentHandle>(backMaterial.first);
+            }
         }
     }
 

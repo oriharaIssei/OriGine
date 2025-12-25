@@ -101,7 +101,7 @@ void CollisionCheckSystem::UpdateEntity(EntityHandle _handle) {
 
     Scene* currentScene = GetScene();
 
-    auto aCollPushbackInfo      = GetComponent<CollisionPushBackInfo>(_handle);
+    auto aCollPushbackInfo       = GetComponent<CollisionPushBackInfo>(_handle);
     auto& aEntityAabbColliders   = GetComponents<AABBCollider>(_handle);
     auto& aEntitySphereColliders = GetComponents<SphereCollider>(_handle);
     auto& aEntityObbColliders    = GetComponents<OBBCollider>(_handle);
@@ -133,41 +133,41 @@ void CollisionCheckSystem::UpdateEntity(EntityHandle _handle) {
     for (auto bItr = entityItr_; bItr != entities_.end(); ++bItr) {
         EntityHandle bEntity = *bItr;
 
-        auto bCollPushbackInfo      = GetComponent<CollisionPushBackInfo>(bEntity);
+        auto bCollPushbackInfo       = GetComponent<CollisionPushBackInfo>(bEntity);
         auto& bEntityAabbColliders   = GetComponents<AABBCollider>(bEntity);
         auto& bEntitySphereColliders = GetComponents<SphereCollider>(bEntity);
         auto& bEntityObbColliders    = GetComponents<OBBCollider>(bEntity);
 
-        if (aEntityAabbColliders.empty()) {
-            if (bEntityAabbColliders.empty()) {
+        if (!aEntityAabbColliders.empty()) {
+            if (!bEntityAabbColliders.empty()) {
                 checkCollisions(_handle, bEntity, aEntityAabbColliders, bEntityAabbColliders, aCollPushbackInfo, bCollPushbackInfo);
             }
-            if (bEntitySphereColliders.empty()) {
+            if (!bEntitySphereColliders.empty()) {
                 checkCollisions(_handle, bEntity, aEntityAabbColliders, bEntitySphereColliders, aCollPushbackInfo, bCollPushbackInfo);
             }
-            if (bEntityObbColliders.empty()) {
+            if (!bEntityObbColliders.empty()) {
                 checkCollisions(_handle, bEntity, aEntityAabbColliders, bEntityObbColliders, aCollPushbackInfo, bCollPushbackInfo);
             }
         }
-        if (aEntitySphereColliders.empty()) {
-            if (bEntityAabbColliders.empty()) {
+        if (!aEntitySphereColliders.empty()) {
+            if (!bEntityAabbColliders.empty()) {
                 checkCollisions(_handle, bEntity, aEntitySphereColliders, bEntityAabbColliders, aCollPushbackInfo, bCollPushbackInfo);
             }
-            if (bEntitySphereColliders.empty()) {
+            if (!bEntitySphereColliders.empty()) {
                 checkCollisions(_handle, bEntity, aEntitySphereColliders, bEntitySphereColliders, aCollPushbackInfo, bCollPushbackInfo);
             }
-            if (bEntityObbColliders.empty()) {
+            if (!bEntityObbColliders.empty()) {
                 checkCollisions(_handle, bEntity, aEntitySphereColliders, bEntityObbColliders, aCollPushbackInfo, bCollPushbackInfo);
             }
         }
-        if (aEntityObbColliders.empty()) {
-            if (bEntityAabbColliders.empty()) {
+        if (!aEntityObbColliders.empty()) {
+            if (!bEntityAabbColliders.empty()) {
                 checkCollisions(_handle, bEntity, aEntityObbColliders, bEntityAabbColliders, aCollPushbackInfo, bCollPushbackInfo);
             }
-            if (bEntitySphereColliders.empty()) {
+            if (!bEntitySphereColliders.empty()) {
                 checkCollisions(_handle, bEntity, aEntityObbColliders, bEntitySphereColliders, aCollPushbackInfo, bCollPushbackInfo);
             }
-            if (bEntityObbColliders.empty()) {
+            if (!bEntityObbColliders.empty()) {
                 checkCollisions(_handle, bEntity, aEntityObbColliders, bEntityObbColliders, aCollPushbackInfo, bCollPushbackInfo);
             }
         }
