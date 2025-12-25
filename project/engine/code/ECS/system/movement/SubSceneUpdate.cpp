@@ -1,6 +1,7 @@
 #include "SubSceneUpdate.h"
 
 /// engine
+#include "camera/CameraManager.h"
 #include "scene/Scene.h"
 /// ECS
 // component
@@ -14,6 +15,7 @@ void SubSceneUpdate::UpdateEntity(EntityHandle _handle) {
         return;
     }
     // サブシーンの更新
+
     for (auto& subScene : subScenes) {
         // 非アクティブならスキップ
         if (subScene.IsActive() == false) {

@@ -793,6 +793,8 @@
     <ClInclude Include="engine\code\ECS\component\ComponentHandle.h" />
     <ClInclude Include="externals\uuid\uuid.h" />
     <ClInclude Include="util\uuidGenerator\UuidGenerator.h" />
+    <ClInclude Include="engine\code\ECS\component\animation\DissolveAnimation.h" />
+    <ClInclude Include="engine\code\ECS\system\effect\DissolveAnimationSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="editor\EditorController.cpp">
@@ -1302,5 +1304,7 @@
     <ClCompile Include="engine\code\ECS\entity\EntityHandle.cpp" />
     <ClCompile Include="engine\code\ECS\component\ComponentHandle.cpp" />
     <ClCompile Include="util\uuidGenerator\UuidGenerator.cpp" />
+    <ClCompile Include="engine\code\ECS\component\animation\DissolveAnimation.cpp" />
+    <ClCompile Include="engine\code\ECS\system\effect\DissolveAnimationSystem.cpp" />
   </ItemGroup>
 </Project>

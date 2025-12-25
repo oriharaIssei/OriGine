@@ -167,8 +167,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="editor\sceneEditor\SystemInspector.h" />
     <ClInclude Include="editor\setting\SettingWindow.h" />
     <ClInclude Include="editor\window\EditorWindowMenu.h" />
+    <ClInclude Include="engine\code\ECS\component\animation\DissolveAnimation.h" />
     <ClInclude Include="engine\code\ECS\component\ComponentHandle.h" />
     <ClInclude Include="engine\code\ECS\entity\EntityHandle.h" />
+    <ClInclude Include="engine\code\ECS\system\effect\DissolveAnimationSystem.h" />
     <ClInclude Include="engine\EngineInclude.h" />
     <ClInclude Include="engine\code\ECS\component\ComponentArray.h" />
     <ClInclude Include="engine\code\ECS\component\ComponentRegistry.h" />
@@ -371,6 +373,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="editor\sceneEditor\SystemInspector.cpp" />
     <ClCompile Include="editor\setting\SettingWindow.cpp" />
     <ClCompile Include="editor\window\EditorWindowMenu.cpp" />
+    <ClCompile Include="engine\code\ECS\component\animation\DissolveAnimation.cpp" />
     <ClCompile Include="engine\code\ECS\component\ComponentHandle.cpp" />
     <ClCompile Include="engine\code\ECS\component\ComponentRegistry.cpp" />
     <ClCompile Include="engine\code\ECS\component\ComponentRepository.cpp" />
@@ -432,6 +435,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\ECS\component\transform\Transform2d.cpp" />
     <ClCompile Include="engine\code\ECS\entity\EntityHandle.cpp" />
     <ClCompile Include="engine\code\ECS\entity\EntityRepository.cpp" />
+    <ClCompile Include="engine\code\ECS\system\effect\DissolveAnimationSystem.cpp" />
     <ClCompile Include="engine\code\ECS\system\ISystem.cpp" />
     <ClCompile Include="engine\code\ECS\system\SystemCategory.cpp" />
     <ClCompile Include="engine\code\ECS\system\SystemRegistry.cpp" />
