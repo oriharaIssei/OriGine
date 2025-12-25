@@ -82,16 +82,15 @@ void MaterialEffect::Finalize() {
 void MaterialEffect::Update() {
     EraseDeadEntity();
 
-    if (entityIDs_.empty()) {
+    if (entities_.empty()) {
         return;
     }
 
     // 前フレームの描画対象をクリア
     effectPipelines_.clear();
 
-    for (auto& id : entityIDs_) {
-        Entity* entity = GetEntity(id);
-        DispatchComponents(entity);
+    for (auto& id : entities_) {
+        DispatchComponents(id);
     }
 
     // アクティブなレンダラーが一つもなければ終了
@@ -99,7 +98,7 @@ void MaterialEffect::Update() {
         return;
     }
 
-    std::sort(effectPipelines_.begin(), effectPipelines_.end(), [](std::pair<Entity*, MaterialEffectPipeLine*>& a, std::pair<Entity*, MaterialEffectPipeLine*>& b) {
+    std::sort(effectPipelines_.begin(), effectPipelines_.end(), [](std::pair<EntityHandle, MaterialEffectPipeLine*>& a, std::pair<EntityHandle, MaterialEffectPipeLine*>& b) {
         return a.second->GetPriority() < b.second->GetPriority();
     });
 
@@ -108,12 +107,12 @@ void MaterialEffect::Update() {
     }
 }
 
-void MaterialEffect::DispatchComponents(Entity* _entity) {
-    auto materialEffectPipeLines = GetComponents<MaterialEffectPipeLine>(_entity);
-    if (!materialEffectPipeLines) {
+void MaterialEffect::DispatchComponents(EntityHandle _handle) {
+    auto& materialEffectPipeLines = GetComponents<MaterialEffectPipeLine>(_handle);
+    if (materialEffectPipeLines.empty()) {
         return;
     }
-    for (auto& pipeline : *materialEffectPipeLines) {
+    for (auto& pipeline : materialEffectPipeLines) {
         // 非アクティブならスルー
         if (!pipeline.IsActive()) {
             continue;
@@ -128,21 +127,21 @@ void MaterialEffect::DispatchComponents(Entity* _entity) {
             continue;
         }
 
-        Material* material = GetComponent<Material>(_entity, pipeline.GetMaterialIndex());
+        Material* material = GetComponent<Material>(_handle, pipeline.GetMaterialIndex());
         if (!material) { // Material が存在しなかったらスルー
             continue;
         }
-        effectPipelines_.emplace_back(std::make_pair(_entity, &pipeline));
+        effectPipelines_.emplace_back(std::make_pair(_handle, &pipeline));
     }
 }
 
-void MaterialEffect::UpdateEffectPipeline(Entity* _entity, MaterialEffectPipeLine* _pipeline) {
+void MaterialEffect::UpdateEffectPipeline(EntityHandle _handle, MaterialEffectPipeLine* _pipeline) {
     auto& commandList = dxCommand_->GetCommandList();
 
     auto tempRenderTexture       = tempRenderTextures_[currentTempRTIndex_].get();
     const Vec2f& tempTextureSize = tempRenderTexture->GetTextureSize();
 
-    Material* material    = GetComponent<Material>(_entity, _pipeline->GetMaterialIndex());
+    Material* material    = GetComponent<Material>(_handle, _pipeline->GetMaterialIndex());
     int32_t baseTextureId = _pipeline->GetBaseTextureId();
 
     // CustomTexture がなければ作成
@@ -165,12 +164,8 @@ void MaterialEffect::UpdateEffectPipeline(Entity* _entity, MaterialEffectPipeLin
 
     // effectEntityDataList に登録されている Entity でエフェクトをかける
     const auto& effectEntityDataList = _pipeline->GetEffectEntityIdList();
-    for (auto& id : effectEntityDataList) {
-        Entity* effectEntity = GetEntity(id.entityID);
-        if (!effectEntity) { // エンティティが存在しなかったらスルー
-            continue;
-        }
-        TextureEffect(effectEntity, id.effectType, tempRenderTexture);
+    for (auto& effectData : effectEntityDataList) {
+        TextureEffect(effectData.entityHandle, effectData.effectType, tempRenderTexture);
     }
 
     // 最終的に tempRenderTexture_ にエフェクトがかかったテクスチャが入っているので
@@ -224,10 +219,14 @@ void MaterialEffect::ExecuteCommand() {
     ///===============================================================
 }
 
-void MaterialEffect::TextureEffect(Entity* _entity, MaterialEffectType _type, RenderTexture* _output) {
+void MaterialEffect::TextureEffect(EntityHandle _handle, MaterialEffectType _type, RenderTexture* _output) {
+    if (!_handle.IsValid()) {
+        return;
+    }
+
     switch (_type) {
     case MaterialEffectType::Dissolve: {
-        dissolveEffect_->AddEntity(_entity);
+        dissolveEffect_->AddEntity(_handle);
 
         dissolveEffect_->SetRenderTarget(_output);
 
@@ -238,7 +237,7 @@ void MaterialEffect::TextureEffect(Entity* _entity, MaterialEffectType _type, Re
         break;
     }
     case MaterialEffectType::Distortion: {
-        distortionEffect_->AddEntity(_entity);
+        distortionEffect_->AddEntity(_handle);
 
         distortionEffect_->SetRenderTarget(_output);
 
@@ -249,7 +248,7 @@ void MaterialEffect::TextureEffect(Entity* _entity, MaterialEffectType _type, Re
         break;
     }
     case MaterialEffectType::Gradation: {
-        gradationEffect_->AddEntity(_entity);
+        gradationEffect_->AddEntity(_handle);
 
         gradationEffect_->SetRenderTarget(_output);
 

@@ -14,14 +14,14 @@ CameraInitialize::~CameraInitialize() {}
 void CameraInitialize::Initialize() {}
 void CameraInitialize::Finalize() {}
 
-void CameraInitialize::UpdateEntity(Entity* _entity) {
-    CameraTransform* cameraTransform = GetComponent<CameraTransform>(_entity);
+void CameraInitialize::UpdateEntity(EntityHandle _handle) {
+    CameraTransform* cameraTransform = GetComponent<CameraTransform>(_handle);
     if (!cameraTransform) {
         return;
     }
 
     // transformがあれば、同期
-    Transform* transform = GetComponent<Transform>(_entity);
+    Transform* transform = GetComponent<Transform>(_handle);
     if (transform) {
         transform->rotate    = cameraTransform->rotate;
         transform->translate = cameraTransform->translate;

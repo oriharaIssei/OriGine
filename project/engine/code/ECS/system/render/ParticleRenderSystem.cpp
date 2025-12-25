@@ -125,20 +125,21 @@ void ParticleRenderSystem::CreatePSO() {
     }
 }
 
-void ParticleRenderSystem::DispatchRenderer(Entity* _entity) {
+void ParticleRenderSystem::DispatchRenderer(EntityHandle _entity) {
     // 有効なEmitterなら登録する
-    if (_entity == nullptr) {
+    // 無効ならreturn
+    if (!_entity.IsValid()) {
         return;
     }
 
     Transform* transform           = GetComponent<Transform>(_entity);
-    std::vector<Emitter>* emitters = GetComponents<Emitter>(_entity);
+    std::vector<Emitter>& emitters = GetComponents<Emitter>(_entity);
 
-    if (emitters == nullptr) {
+    if (emitters.empty()) {
         return;
     }
 
-    for (auto& emitter : *emitters) {
+    for (auto& emitter : emitters) {
         if (!emitter.IsActive() || emitter.ParticleIsEmpty()) {
             return;
         }

@@ -6,9 +6,14 @@
 #include <memory>
 #include <string>
 
-//// engine
+/// engine
 // directX12
 #include "directX12/DxDescriptor.h"
+
+/// ECS
+#include "component/effect/post/DissolveEffectParam.h"
+#include "component/effect/post/DistortionEffectParam.h"
+#include "component/effect/post/GradationComponent.h"
 
 namespace OriGine {
 
@@ -35,8 +40,8 @@ class MaterialEffectPipeLine
 public:
     MaterialEffectPipeLine();
     ~MaterialEffectPipeLine() override;
-    void Initialize(Entity* _entity) override;
-    void Edit(Scene* _scene, Entity* _entity, const std::string& _parentLabel) override;
+    void Initialize(Scene* _scene, EntityHandle _entity) override;
+    void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) override;
     void Finalize() override;
 
     /// <summary>
@@ -49,26 +54,24 @@ public:
     /// </summary>
     /// <param name="_type"></param>
     /// <param name="_entityID"></param>
-    void AddEffectEntity(MaterialEffectType _type, int32_t _entityID) {
-        effectEntityIdList_.push_back(EffectEntityData{_type, _entityID});
+    void AddEffectEntity(MaterialEffectType _type, EntityHandle _entHandle) {
+        effectEntityData_.push_back(EffectEntityData{_type, _entHandle});
     }
-    void ClearEffectEntity() { effectEntityIdList_.clear(); }
+    void ClearEffectEntity() { effectEntityData_.clear(); }
 
 private:
     struct EffectEntityData {
         MaterialEffectType effectType = MaterialEffectType::Dissolve;
-        int32_t entityID              = -1;
+        EntityHandle entityHandle{};
     };
-    std::vector<EffectEntityData> effectEntityIdList_ = {};
 
-    int32_t priority_ = 0;
-    bool isActive_    = true;
-    // 結果テクスチャを保持し,BaseTextureを animationさせるMaterialのIndex
+    std::vector<EffectEntityData> effectEntityData_;
+
+    int32_t priority_      = 0;
+    bool isActive_         = true;
     int32_t materialIndex_ = -1;
-    // Effectをかける テクスチャ
     int32_t baseTextureId_ = 0;
-
-    std::string baseTexturePath_ = "";
+    std::string baseTexturePath_;
 
 public:
     int32_t GetPriority() const { return priority_; }
@@ -80,7 +83,7 @@ public:
     void SetMaterialIndex(int32_t index) { materialIndex_ = index; }
 
     int32_t GetBaseTextureId() const { return baseTextureId_; }
-    const std::vector<EffectEntityData>& GetEffectEntityIdList() const { return effectEntityIdList_; }
+    const std::vector<EffectEntityData>& GetEffectEntityIdList() const { return effectEntityData_; }
 };
 
 } // namespace OriGine

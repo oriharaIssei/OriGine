@@ -8,13 +8,13 @@
 
 using namespace OriGine;
 
-void SubSceneUpdate::UpdateEntity(Entity* _entity) {
-    auto subScenes = GetComponents<SubScene>(_entity);
-    if (subScenes == nullptr) {
+void SubSceneUpdate::UpdateEntity(EntityHandle _handle) {
+    auto& subScenes = GetComponents<SubScene>(_handle);
+    if (subScenes.empty()) {
         return;
     }
     // サブシーンの更新
-    for (auto& subScene : *subScenes) {
+    for (auto& subScene : subScenes) {
         // 非アクティブならスキップ
         if (subScene.IsActive() == false) {
             continue;

@@ -51,7 +51,7 @@ public:
     /// 描画する物を登録
     /// </summary>
     /// <param name="_entity"></param>
-    virtual void DispatchRenderer(Entity* /*_entity*/) {};
+    virtual void DispatchRenderer(EntityHandle /*_entity*/){};
 
     /// <summary>
     /// レンダリングをスキップするかどうか(描画オブジェクトが無いときは描画をスキップする)

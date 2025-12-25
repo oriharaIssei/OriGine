@@ -2,9 +2,9 @@
 
 /// Engine
 #define ENGINE_INCLUDE
-/// ECS
-#define ENGINE_ECS
 #include "engine/EngineInclude.h"
+#include "scene/Scene.h"
+/// ECS
 // component
 #include "component/physics/Rigidbody.h"
 #include "component/transform/Transform.h"
@@ -20,19 +20,20 @@ void MoveSystemByRigidBody::Initialize() {}
 
 void MoveSystemByRigidBody::Finalize() {}
 
-void MoveSystemByRigidBody::UpdateEntity(Entity* _entity) {
+void MoveSystemByRigidBody::UpdateEntity(EntityHandle _handle) {
     const float deltaTime = Engine::GetInstance()->GetDeltaTime();
-    Transform* transform  = GetComponent<Transform>(_entity);
+    Transform* transform  = GetComponent<Transform>(_handle);
 
-    Rigidbody* rigidbody = GetComponent<Rigidbody>(_entity);
+    Rigidbody* rigidbody = GetComponent<Rigidbody>(_handle);
 
     bool resourceCheck = (transform != nullptr) && (rigidbody != nullptr);
     if (!resourceCheck) {
+        Entity* entity = GetScene()->GetEntity(_handle);
         if (!transform) {
-            LOG_ERROR("{} doesn't have Transform", _entity->GetUniqueID());
+            LOG_ERROR("{} doesn't have Transform", entity->GetUniqueID());
         }
         if (!rigidbody) {
-            LOG_ERROR("{} doesn't have Rigidbody", _entity->GetUniqueID());
+            LOG_ERROR("{} doesn't have Rigidbody", entity->GetUniqueID());
         }
         return;
     }

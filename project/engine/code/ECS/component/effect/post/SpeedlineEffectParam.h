@@ -55,8 +55,8 @@ class SpeedlineEffectParam
 public:
     SpeedlineEffectParam()           = default;
     ~SpeedlineEffectParam() override = default;
-    void Initialize(Entity* _entity);
-    void Edit(Scene* _scene, Entity* _entity, const std::string& _parentLabel);
+    void Initialize(Scene* _scene, EntityHandle _entity);
+    void Edit(Scene* _scene, EntityHandle _handle, const std::string& _parentLabel);
     void Finalize();
 
     void Play();

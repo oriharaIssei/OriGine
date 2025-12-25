@@ -57,7 +57,7 @@ protected:
     /// 描画する物を登録
     /// </summary>
     /// <param name="_entity"></param>
-    void DispatchRenderer(Entity* _entity) override;
+    void DispatchRenderer(EntityHandle _entity) override;
 
     /// <summary>
     /// レンダリングをスキップするかどうか(描画オブジェクトが無いときは描画をスキップする)

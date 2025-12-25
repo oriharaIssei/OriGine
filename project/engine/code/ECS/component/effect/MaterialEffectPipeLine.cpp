@@ -22,18 +22,18 @@
 #include "myGui/MyGui.h"
 #endif // _DEBUG
 
- using namespace OriGine;
+using namespace OriGine;
 
 MaterialEffectPipeLine::MaterialEffectPipeLine() {}
 MaterialEffectPipeLine::~MaterialEffectPipeLine() {}
 
-void MaterialEffectPipeLine::Initialize(Entity* /*_entity*/) {
+void MaterialEffectPipeLine::Initialize(Scene* /*_scene,*/, EntityHandle /*_owner*/) {
     if (!baseTexturePath_.empty()) {
         LoadBaseTexture(baseTexturePath_);
     }
 }
 
-void MaterialEffectPipeLine::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
+void MaterialEffectPipeLine::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _handle, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     auto askLoadTexture = [this]([[maybe_unused]] const std::string& _parentLabel) {
@@ -63,8 +63,8 @@ void MaterialEffectPipeLine::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused
     };
 
     std::string label          = "MaterialIndex##" + _parentLabel;
-    auto materials             = _scene->GetComponents<Material>(_entity);
-    int32_t entityMaterialSize = materials != nullptr ? static_cast<int32_t>(materials->size()) : 0;
+    auto& materials            = _scene->GetComponents<Material>(_handle);
+    int32_t entityMaterialSize = static_cast<int32_t>(materials.size());
 
     if (entityMaterialSize <= 0) {
         ImGui::InputInt(label.c_str(), &materialIndex_, 0, 0, ImGuiInputTextFlags_ReadOnly);
@@ -74,8 +74,8 @@ void MaterialEffectPipeLine::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused
     }
     label = "Material##" + _parentLabel;
     if (ImGui::TreeNode(label.c_str())) {
-        if (materials != nullptr && materialIndex_ >= 0 && materialIndex_ < materials->size()) {
-            (*materials)[materialIndex_].Edit(_scene, _entity, label);
+        if (materialIndex_ >= 0 && materialIndex_ < materials.size()) {
+            materials[materialIndex_].Edit(_scene, _handle, label);
         } else {
             ImGui::Text("Material is null.");
         }
@@ -87,46 +87,48 @@ void MaterialEffectPipeLine::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused
 
     label = "AddEffectEntity##" + _parentLabel;
     if (ImGui::Button(label.c_str())) {
-        auto command = std::make_unique<AddElementCommand<std::vector<EffectEntityData>>>(&effectEntityIdList_, MaterialEffectPipeLine::EffectEntityData());
+        auto command = std::make_unique<AddElementCommand<std::vector<EffectEntityData>>>(&effectEntityData_, MaterialEffectPipeLine::EffectEntityData());
         OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
     }
 
     label = "ClearEffectEntity##" + _parentLabel;
     if (ImGui::Button(label.c_str())) {
-        auto command = std::make_unique<ClearCommand<std::vector<EffectEntityData>>>(&effectEntityIdList_);
+        auto command = std::make_unique<ClearCommand<std::vector<EffectEntityData>>>(&effectEntityData_);
         OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
     }
 
     /// Effectを持っているEntity一覧
-    std::vector<std::vector<int32_t>> effectEntityIds;
+    std::vector<std::vector<EntityHandle>> effectEntityIds;
 
-    effectEntityIds.emplace_back(std::vector<int32_t>());
+    effectEntityIds.emplace_back(std::vector<EntityHandle>());
     effectEntityIds[0].reserve(10);
-    for (auto& indexBind : _scene->GetComponentArray<DissolveEffectParam>()->GetEntityIndexBind()) {
-        effectEntityIds[0].emplace_back(indexBind.first);
+    for (auto& indexBind : _scene->GetComponentArray<DissolveEffectParam>()->GetSlots()) {
+        effectEntityIds[0].emplace_back(indexBind.owner);
     }
-    effectEntityIds.emplace_back(std::vector<int32_t>());
+    effectEntityIds.emplace_back(std::vector<EntityHandle>());
     effectEntityIds[1].reserve(10);
-    for (auto& indexBind : _scene->GetComponentArray<DistortionEffectParam>()->GetEntityIndexBind()) {
-        effectEntityIds[1].emplace_back(indexBind.first);
+    for (auto& indexBind : _scene->GetComponentArray<DistortionEffectParam>()->GetSlots()) {
+        effectEntityIds[1].emplace_back(indexBind.owner);
     }
-    effectEntityIds.emplace_back(std::vector<int32_t>());
+    effectEntityIds.emplace_back(std::vector<EntityHandle>());
     effectEntityIds[2].reserve(10);
-    for (auto& indexBind : _scene->GetComponentArray<GradationComponent>()->GetEntityIndexBind()) {
-        effectEntityIds[2].emplace_back(indexBind.first);
+    for (auto& indexBind : _scene->GetComponentArray<GradationComponent>()->GetSlots()) {
+        effectEntityIds[2].emplace_back(indexBind.owner);
     }
 
     ImGui::Spacing();
 
-    for (size_t i = 0; i < effectEntityIdList_.size(); ++i) {
+    for (size_t i = 0; i < effectEntityData_.size(); ++i) {
         std::string effectLabel = "EffectType##" + std::to_string(i) + _parentLabel;
-        int32_t effectTypeInt   = static_cast<int32_t>(effectEntityIdList_[i].effectType);
+        int32_t effectTypeInt   = static_cast<int32_t>(effectEntityData_[i].effectType);
+
+        // type選択コンボボックス
         if (ImGui::BeginCombo(effectLabel.c_str(), materialEffectString[effectTypeInt].c_str())) {
             for (int j = 0; j < static_cast<int>(MaterialEffectType::Count); ++j) {
                 bool isSelected = (effectTypeInt == j);
                 if (ImGui::Selectable(materialEffectString[j].c_str(), isSelected)) {
                     auto command = std::make_unique<SetterCommand<MaterialEffectType>>(
-                        &effectEntityIdList_[i].effectType,
+                        &effectEntityData_[i].effectType,
                         static_cast<MaterialEffectType>(j));
                     OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
                 }
@@ -139,19 +141,26 @@ void MaterialEffectPipeLine::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused
 
         std::string removeButtonLabel = "X##" + std::to_string(i) + _parentLabel;
         if (ImGui::Button(removeButtonLabel.c_str())) {
-            auto command = std::make_unique<EraseElementCommand<std::vector<EffectEntityData>>>(&effectEntityIdList_, effectEntityIdList_.begin() + i);
+            auto command = std::make_unique<EraseElementCommand<std::vector<EffectEntityData>>>(&effectEntityData_, effectEntityData_.begin() + i);
             OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
         }
         ImGui::SameLine();
 
+        // entity選択コンボボックス
         std::string entityIdLabel = "EntityID##" + std::to_string(i) + _parentLabel;
-        std::string entityName    = _scene->GetEntity(effectEntityIdList_[i].entityID) != nullptr ? std::to_string(effectEntityIdList_[i].entityID) : "NULL";
+        Entity* entity            = _scene->GetEntity(effectEntityData_[i].entityHandle);
+
+        std::string entityName = "NULL";
+        if (entity) {
+            entityName = entity->GetUniqueID();
+        }
+        // entity選択コンボボックス
         if (ImGui::BeginCombo(entityIdLabel.c_str(), entityName.c_str())) {
             for (int j = 0; j < effectEntityIds[effectTypeInt].size(); ++j) {
-                bool isSelected = (effectEntityIdList_[i].entityID == effectEntityIds[effectTypeInt][j]);
+                bool isSelected = (effectEntityData_[i].entityHandle == effectEntityIds[effectTypeInt][j]);
                 if (ImGui::Selectable(_scene->GetEntity(effectEntityIds[effectTypeInt][j])->GetUniqueID().c_str(), isSelected)) {
-                    auto command = std::make_unique<SetterCommand<int32_t>>(
-                        &effectEntityIdList_[i].entityID,
+                    auto command = std::make_unique<SetterCommand<EntityHandle>>(
+                        &effectEntityData_[i].entityHandle,
                         effectEntityIds[effectTypeInt][j]);
                     OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
                 }
@@ -179,10 +188,10 @@ void OriGine::to_json(nlohmann::json& j, const MaterialEffectPipeLine& c) {
     j["materialIndex"]   = c.materialIndex_;
 
     nlohmann::json effectList = nlohmann::json::array();
-    for (const auto& effectData : c.effectEntityIdList_) {
+    for (const auto& effectData : c.effectEntityData_) {
         nlohmann::json effectJson;
         effectJson["effectType"] = static_cast<int>(effectData.effectType);
-        effectJson["entityID"]   = effectData.entityID;
+        effectJson["handle"]     = effectData.entityHandle;
         effectList.push_back(effectJson);
     }
     j["effectEntityIdList"] = effectList;
@@ -198,19 +207,19 @@ void OriGine::from_json(const nlohmann::json& j, MaterialEffectPipeLine& c) {
 
     j.at("materialIndex").get_to(c.materialIndex_);
 
-    c.effectEntityIdList_.clear();
+    c.effectEntityData_.clear();
     if (j.contains("effectEntityIdList")) {
         for (const auto& effectJson : j.at("effectEntityIdList")) {
-            MaterialEffectPipeLine::EffectEntityData effectData;
+            MaterialEffectPipeLine::EffectEntityData entData;
             if (effectJson.contains("effectType")) {
                 int effectTypeInt = 0;
                 effectJson.at("effectType").get_to(effectTypeInt);
-                effectData.effectType = static_cast<MaterialEffectType>(effectTypeInt);
+                entData.effectType = static_cast<MaterialEffectType>(effectTypeInt);
             }
-            if (effectJson.contains("entityID")) {
-                effectJson.at("entityID").get_to(effectData.entityID);
+            if (effectJson.contains("handle")) {
+                effectJson.at("handle").get_to(entData.entityHandle);
             }
-            c.effectEntityIdList_.push_back(effectData);
+            c.effectEntityData_.push_back(entData);
         }
     }
 }

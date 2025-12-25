@@ -12,11 +12,11 @@
 
 using namespace OriGine;
 
-void SmoothingEffectParam::Initialize(Entity* /*_entity*/) {
+void SmoothingEffectParam:: Initialize(Scene* /*_scene,*/, EntityHandle /*_owner*/) {
     boxFilterSize_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
 }
 
-void SmoothingEffectParam::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
+void SmoothingEffectParam::Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef DEBUG
     CheckBoxCommand("isActive##" + _parentLabel, isActive_);
 

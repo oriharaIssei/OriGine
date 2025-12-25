@@ -167,14 +167,14 @@ bool Audio::isPlaying() const {
     return state.BuffersQueued > 0;
 }
 
-void Audio::Initialize(Entity*) {
+void Audio::Initialize(Scene*, EntityHandle) {
     // ファイル名が設定されていれば音声データを読み込む
     if (!fileName_.empty()) {
         audioClip_.data_ = LoadWave(fileName_);
     }
 };
 
-void Audio::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_unused]] [[maybe_unused]] const std::string& _parentLabel) {
+void Audio::Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, [[maybe_unused]] [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     std::string label = "LoadFile##" + _parentLabel;
     if (ImGui::Button(label.c_str())) {
@@ -301,15 +301,15 @@ AudioInitializeSystem::~AudioInitializeSystem() {}
 void AudioInitializeSystem::Initialize() {}
 void AudioInitializeSystem::Finalize() {}
 
-void AudioInitializeSystem::UpdateEntity(Entity* entity) {
+void AudioInitializeSystem::UpdateEntity(EntityHandle _entity) {
     // entityの持つ AuidoComponentをすべて取得.
     // 存在していればすべて再生
-    auto components = GetComponents<Audio>(entity);
+    auto& components = GetComponents<Audio>(_entity);
 
-    if (!components) {
+    if (components.empty()) {
         return;
     }
-    for (auto& audio : *components) {
+    for (auto& audio : components) {
         audio.Play();
     }
 }

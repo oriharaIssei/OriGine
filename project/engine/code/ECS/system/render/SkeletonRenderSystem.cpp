@@ -38,14 +38,14 @@ void SkeletonRenderSystem::Initialize() {
 
     //** JointMeshRenderer **//
     jointRenderer_ = std::make_unique<LineRenderer>(std::vector<Mesh<ColorVertexData>>());
-    jointRenderer_->Initialize(nullptr);
+    jointRenderer_->Initialize(GetScene(), EntityHandle());
     jointRenderer_->GetMeshGroup()->push_back(Mesh<ColorVertexData>());
     jointRenderer_->GetMeshGroup()->back().Initialize(SkeletonRenderSystem::defaultMeshCount_ * kJointSphereVertexSize, SkeletonRenderSystem::defaultMeshCount_ * kJointSphereIndexSize);
     jointMeshItr_ = jointRenderer_->GetMeshGroup()->begin();
 
     //** BoneMeshRenderer **//
     boneRenderer_ = std::make_unique<LineRenderer>(std::vector<Mesh<ColorVertexData>>());
-    boneRenderer_->Initialize(nullptr);
+    boneRenderer_->Initialize(GetScene(), EntityHandle());
     boneRenderer_->GetMeshGroup()->push_back(Mesh<ColorVertexData>());
     boneRenderer_->GetMeshGroup()->back().Initialize(SkeletonRenderSystem::defaultMeshCount_ * 2, SkeletonRenderSystem::defaultMeshCount_ * 2);
     boneMeshItr_ = boneRenderer_->GetMeshGroup()->begin();
@@ -73,23 +73,24 @@ void SkeletonRenderSystem::CreateRenderMesh() {
     jointMeshItr_ = jointMeshGroup->begin();
     boneMeshItr_  = boneMeshGroup->begin();
 
-    for (auto& [entityIdx, modelMeshIdx] : skinningAnimationArray_->GetEntityIndexBind()) {
-        Entity* entity = GetEntity(entityIdx);
+    for (auto& componentSlot : skinningAnimationArray_->GetSlots()) {
+        Entity* entity = GetEntity(componentSlot.owner);
         if (!entity) {
             continue; // Entityが存在しない場合はスキップ
         }
-
         Matrix4x4 worldMat = MakeMatrix4x4::Identity();
-        if (auto* transform = GetComponent<Transform>(entity); transform != nullptr) {
+
+        auto* transform = GetComponent<Transform>(componentSlot.owner);
+        if (transform) {
             worldMat = transform->worldMat;
         }
 
-        auto skinningAnimationComps = skinningAnimationArray_->GetComponents(entity);
-        if (!skinningAnimationComps) {
+        auto& skinningAnimationComps = skinningAnimationArray_->GetComponents(componentSlot.owner);
+        if (skinningAnimationComps.empty()) {
             continue; // modelMeshRendererが存在しない場合はスキップ
         }
 
-        for (auto& skinningAnimationComp : *skinningAnimationComps) {
+        for (auto& skinningAnimationComp : skinningAnimationComps) {
             const auto& skeleton = skinningAnimationComp.GetSkeleton();
 
             if (skeleton.joints.empty()) {
@@ -196,7 +197,7 @@ void SkeletonRenderSystem::StartRender() {
 
 bool SkeletonRenderSystem::ShouldSkipRender() const {
     // 描画オブジェクトが無いときは描画をスキップする
-    return !skinningAnimationArray_ || skinningAnimationArray_->GetEntityIndexBind().empty();
+    return !skinningAnimationArray_ || skinningAnimationArray_->IsEmpty();
 }
 
 void SkeletonRenderSystem::RenderCall() {

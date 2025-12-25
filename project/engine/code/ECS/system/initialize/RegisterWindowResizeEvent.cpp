@@ -38,8 +38,8 @@ void RegisterWindowResizeEvent::Initialize() {
             auto currentScene = self->GetScene();
             if (currentScene) {
                 auto spritesArray = currentScene->GetComponentArray<SpriteRenderer>();
-                for (auto& sprites : spritesArray->GetAllComponents()) {
-                    for (auto& sprite : sprites) {
+                for (auto& sprites : spritesArray->GetSlotsRef()) {
+                    for (auto& sprite : sprites.components) {
                         sprite.CalculateWindowRatioPosAndSize(size);
                     }
                 }
@@ -54,8 +54,8 @@ void RegisterWindowResizeEvent::Initialize() {
             auto currentScene = self->GetScene();
             if (currentScene) {
                 auto subScenesArray = currentScene->GetComponentArray<SubScene>();
-                for (auto& subScenes : subScenesArray->GetAllComponents()) {
-                    for (auto& subScene : subScenes) {
+                for (auto& subScenes : subScenesArray->GetSlotsRef()) {
+                    for (auto& subScene : subScenes.components) {
                         auto scene = subScene.GetSubSceneRef();
                         if (scene) {
                             scene->GetSceneView()->Resize(size);
@@ -88,5 +88,5 @@ void RegisterWindowResizeEvent::Finalize() {
 #endif // _DEBUG
 }
 
-void RegisterWindowResizeEvent::UpdateEntity(Entity* /*_entity*/) {
+void RegisterWindowResizeEvent::UpdateEntity(EntityHandle /*_owner*/) {
 }

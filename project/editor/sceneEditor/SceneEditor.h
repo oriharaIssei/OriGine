@@ -204,14 +204,14 @@ public:
     class AddSelectedEntitiesCommand
         : public IEditCommand {
     public:
-        AddSelectedEntitiesCommand(EntityHierarchy* _hierarchy, int32_t _addedEntityId);
+        AddSelectedEntitiesCommand(EntityHierarchy* _hierarchy, OriGine::EntityHandle _addedEntityId);
         ~AddSelectedEntitiesCommand() override = default;
         void Execute() override;
         void Undo() override;
 
     private:
-        EntityHierarchy* hierarchy_ = nullptr; // 親エリアへのポインタ
-        int32_t addedEntityId_      = -1; // 追加されたエンティティID
+        EntityHierarchy* hierarchy_              = nullptr; // 親エリアへのポインタ
+        OriGine::EntityHandle addedEntityHandle_ = OriGine::EntityHandle(); // 追加されたエンティティID
     };
     /// <summary>
     /// 編集するEntityを削除するコマンド
@@ -219,14 +219,14 @@ public:
     class RemoveSelectedEntitiesCommand
         : public IEditCommand {
     public:
-        RemoveSelectedEntitiesCommand(EntityHierarchy* _hierarchy, int32_t _removedEntityId);
+        RemoveSelectedEntitiesCommand(EntityHierarchy* _hierarchy, OriGine::EntityHandle _removedEntityHandle);
         ~RemoveSelectedEntitiesCommand() override = default;
         void Execute() override;
         void Undo() override;
 
     private:
         EntityHierarchy* hierarchy_ = nullptr; // 親エリアへのポインタ
-        int32_t removedEntityId_    = -1; // 削除されたエンティティID
+        OriGine::EntityHandle removedEntityHandle_ = OriGine::EntityHandle(); // 削除されたエンティティID
     };
     /// <summary>
     /// 編集するEntityの選択をクリアするコマンド
@@ -241,7 +241,7 @@ public:
 
     private:
         EntityHierarchy* hierarchy_ = nullptr; // 親エリアへのポインタ
-        ::std::list<int32_t> previousselectedEntityIds_; // 以前の選択されたエンティティIDのリスト
+        ::std::list<OriGine::EntityHandle> previousselectedEntityHandles_; // 以前の選択されたエンティティIDのリスト
     };
 
     /// <summary>
@@ -259,7 +259,7 @@ public:
     private:
         HierarchyArea* parentArea_ = nullptr; // 親エリアへのポインタ
         ::std::string entityName_;
-        int32_t entityId_ = -1; // 作成するエンティティの名前
+        OriGine::EntityHandle entityHandle_ = OriGine::EntityHandle(); // 作成するエンティティの名前
     };
 
     /// <summary>
@@ -278,7 +278,7 @@ public:
         ::std::string directory_;
         HierarchyArea* parentArea_ = nullptr; // 親エリアへのポインタ
         ::std::string entityName_;
-        int32_t entityId_ = -1; // 作成するエンティティの名前
+        OriGine::EntityHandle entityHandle_ = OriGine::EntityHandle(); // 作成するエンティティの名前
     };
 
     /// <summary>
@@ -306,20 +306,20 @@ public:
 
     private:
         EntityHierarchy* hierarchy_ = nullptr; // 親エリアへのポインタ
-        ::std::vector<int32_t> pastedEntityIds_; // ペーストしたエンティティのIDリスト
+        ::std::vector<OriGine::EntityHandle> pastedEntityHandles_; // ペーストしたエンティティのIDリスト
     };
 
 private:
     HierarchyArea* parentArea_ = nullptr; // 親エリアへのポインタ
-    ::std::list<int32_t> selectedEntityIds_; // 選択されているオブジェクトのIDリスト
+    ::std::list<OriGine::EntityHandle> selectedEntityHandles_; // 選択されているオブジェクトのIDリスト
     ::std::string searchBuff_ = ""; // 検索バッファ
     ::std::list<nlohmann::json> copyBuffer_; // エンティティのコピー用バッファ
 public:
-    const ::std::list<int32_t>& GetSelectedEntityIds() const {
-        return selectedEntityIds_;
+    const ::std::list<OriGine::EntityHandle>& GetSelectedEntityHandles() const {
+        return selectedEntityHandles_;
     }
-    ::std::list<int32_t>& GetSelectedEntityIdsRef() {
-        return selectedEntityIds_;
+    ::std::list<OriGine::EntityHandle>& GetSelectedEntityHandlesRef() {
+        return selectedEntityHandles_;
     }
 
     HierarchyArea* GetParentArea() const {
@@ -333,8 +333,8 @@ public:
 class AddComponentCommand
     : public IEditCommand {
 public:
-    AddComponentCommand(const ::std::list<int32_t>& _entityIds, const ::std::string& _compTypeName)
-        : entityIds_(_entityIds), componentTypeName_(_compTypeName) {
+    AddComponentCommand(const ::std::list<OriGine::EntityHandle>& _entityHandles, const ::std::string& _compTypeName)
+        : entityHandles_(_entityHandles), componentTypeName_(_compTypeName) {
     }
     ~AddComponentCommand() override = default;
 
@@ -342,7 +342,7 @@ public:
     void Undo() override;
 
 private:
-    ::std::list<int32_t> entityIds_;
+    ::std::list<OriGine::EntityHandle> entityHandles_;
     ::std::string componentTypeName_; // 追加するコンポーネントのタイプ名
 };
 /// <summary>
@@ -351,14 +351,14 @@ private:
 class RemoveComponentCommand
     : public IEditCommand {
 public:
-    RemoveComponentCommand(int32_t _entityId, const ::std::string& _compTypeName, int32_t _compIndex)
-        : entityId_(_entityId), componentTypeName_(_compTypeName), componentIndex_(_compIndex) {}
+    RemoveComponentCommand(OriGine::EntityHandle _entityHandle, const ::std::string& _compTypeName, int32_t _compIndex)
+        : entityHandle_(_entityHandle), componentTypeName_(_compTypeName), componentIndex_(_compIndex) {}
     ~RemoveComponentCommand() override = default;
     void Execute() override;
     void Undo() override;
 
 private:
-    int32_t entityId_;
+    OriGine::EntityHandle entityHandle_;
 
     // nlohmann::json componentData_; // 削除するコンポーネントのデータ
     int32_t componentIndex_ = -1; // 削除するコンポーネントのインデックス
@@ -371,13 +371,13 @@ private:
 class AddSystemCommand
     : public IEditCommand {
 public:
-    AddSystemCommand(const ::std::list<int32_t>& _entityIds, const ::std::string& _systemTypeName, OriGine::SystemCategory _category);
+    AddSystemCommand(const ::std::list<OriGine::EntityHandle>& _entityHandles, const ::std::string& _systemTypeName, OriGine::SystemCategory _category);
     ~AddSystemCommand() override = default;
     void Execute() override;
     void Undo() override;
 
 private:
-    ::std::list<int32_t> entityIds_; // 対象のエンティティIDリスト
+    ::std::list<OriGine::EntityHandle> entityHandles_; // 対象のエンティティIDリスト
     ::std::string systemTypeName_; // 追加するシステムのタイプ名
     OriGine::SystemCategory systemCategory_; // システムのカテゴリ
 };
@@ -387,13 +387,13 @@ private:
 class RemoveSystemCommand
     : public IEditCommand {
 public:
-    RemoveSystemCommand(const ::std::list<int32_t>& _entityIds, const ::std::string& _systemTypeName, OriGine::SystemCategory _category);
+    RemoveSystemCommand(const ::std::list<OriGine::EntityHandle>& _entityHandles, const ::std::string& _systemTypeName, OriGine::SystemCategory _category);
     ~RemoveSystemCommand() override = default;
     void Execute() override;
     void Undo() override;
 
 private:
-    ::std::list<int32_t> entityIds_; // 対象のエンティティIDリスト
+    ::std::list<OriGine::EntityHandle> entityHandles_; // 対象のエンティティIDリスト
     ::std::string systemTypeName_; // 削除するシステムのタイプ名
     OriGine::SystemCategory systemCategory_; // システムのカテゴリ
 };

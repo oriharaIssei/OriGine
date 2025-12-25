@@ -59,8 +59,8 @@ void OriGine::from_json(const nlohmann::json& j, SkinningAnimationComponent& r) 
     }
 }
 
-void SkinningAnimationComponent::Initialize(Entity* _entity) {
-    entity_ = _entity;
+void SkinningAnimationComponent::Initialize(Scene* /*_scene*/, EntityHandle _handle) {
+    entityHandle_ = _handle;
 
     int32_t animationIndex = 0;
     for (auto& animation : animationTable_) {
@@ -76,14 +76,14 @@ void SkinningAnimationComponent::Initialize(Entity* _entity) {
     }
 }
 
-void SkinningAnimationComponent::Edit([[maybe_unused]] Scene* _scene, Entity* /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
+void SkinningAnimationComponent::Edit([[maybe_unused]] Scene* _scene, EntityHandle /*_owner*/, [[maybe_unused]] const std::string& _parentLabel) {
 
 #ifdef _DEBUG
 
-    int32_t entityModelMeshRendererSize = _scene->GetComponentArray<ModelMeshRenderer>()->GetComponentSize(entity_);
+    auto& modelMeshes = _scene->GetComponents<ModelMeshRenderer>(entityHandle_);
     InputGuiCommand<int32_t>("Bind Mode MeshRenderer Index##" + _parentLabel, bindModeMeshRendererIndex_, "%d",
-        [entityModelMeshRendererSize](int32_t* _newVal) {
-            *_newVal = std::clamp(*_newVal, 0, entityModelMeshRendererSize - 1);
+        [meshRenderSize = modelMeshes.size()](int32_t* _newVal) {
+            *_newVal = std::clamp(*_newVal, 0, static_cast<int32_t>(meshRenderSize) - 1);
         });
 
     ImGui::SeparatorText("Animations");
@@ -171,7 +171,7 @@ void SkinningAnimationComponent::Finalize() {
 
     bindModeMeshRendererIndex_ = -1;
 
-    entity_ = nullptr;
+    entityHandle_ = EntityHandle();
 }
 
 void SkinningAnimationComponent::AddLoad(const std::string& directory, const std::string& fileName) {
@@ -268,7 +268,7 @@ void SkinningAnimationComponent::CreateSkinnedVertex(Scene* _scene) {
     DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>* uavHeap = Engine::GetInstance()->GetSrvHeap(); // cbv_srv_uav heap
     auto& device                                                 = Engine::GetInstance()->GetDxDevice()->device_;
 
-    ModelMeshRenderer* meshRenderer = _scene->GetComponent<ModelMeshRenderer>(entity_, bindModeMeshRendererIndex_);
+    ModelMeshRenderer* meshRenderer = _scene->GetComponent<ModelMeshRenderer>(entityHandle_, bindModeMeshRendererIndex_);
     if (!meshRenderer) {
         LOG_ERROR("MeshRenderer not found for SkinningAnimationComponent");
         return;
@@ -281,10 +281,8 @@ void SkinningAnimationComponent::CreateSkinnedVertex(Scene* _scene) {
     auto* meshGroup = meshRenderer->GetMeshGroup().get();
     if (!meshGroup) {
         LOG_ERROR(
-            "MeshGroup is null in SkinningAnimationComponent.\n EntityName : {}\n EntityID   : {}\n ModelName  : {}\n",
-            entity_->GetDataType(),
-            entity_->GetID(),
-            meshRenderer->GetFileName());
+            "MeshGroup is null in SkinningAnimationComponent.\n EntityHandle : {}\n",
+            uuids::to_string(entityHandle_.uuid));
         return;
     }
 

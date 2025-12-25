@@ -154,14 +154,14 @@ void SpeedlineEffect::RenderEnd() {
     renderTarget_->PostDraw();
 }
 
-void SpeedlineEffect::DispatchComponent(Entity* _entity) {
-    auto* speedlineParams = GetComponents<SpeedlineEffectParam>(_entity);
+void SpeedlineEffect::DispatchComponent(EntityHandle _handle) {
+    auto& speedlineParams = GetComponents<SpeedlineEffectParam>(_handle);
     // 無効な場合はスルー
-    if (!speedlineParams) {
+    if (speedlineParams.empty()) {
         return;
     }
 
-    for (auto& param : *speedlineParams) {
+    for (auto& param : speedlineParams) {
         if (!param.IsActive()) {
             continue;
         }

@@ -3,6 +3,12 @@
 #include "ComponentArray.h"
 #include "ComponentRegistry.h"
 
+/// stl
+#include <vector>
+#include <memory>
+#include <string>
+#include <unordered_map>
+
 namespace OriGine {
 
 /// <summary>
@@ -38,7 +44,7 @@ public:
     /// </summary>
     /// <param name="_typeName">コンポーネントの型名</param>
     /// <param name="_isFinalize">Finalizeを呼び出すかどうか</param>
-    void UnRegisterComponentArray(const std::string& _typeName, bool _isFinalize = true);
+    void UnregisterComponentArray(const std::string& _typeName, bool _isFinalize = true);
 
     /// <summary>
     /// 指定した型のコンポーネント配列を取得する
@@ -57,66 +63,83 @@ public:
     /// 指定したエンティティが持つ指定した型のコンポーネント群を取得する
     /// </summary>
     /// <typeparam name="ComponentType">コンポーネントの型</typeparam>
-    /// <param name="_entity">コンポーネントを持つエンティティ</param>
-    /// <returns> _entityが持つコンポーネント郡 </returns>
+    /// <param name="_handle">コンポーネントを持つエンティティ</param>
+    /// <returns> _handleが持つコンポーネント郡 </returns>
     template <IsComponent ComponentType>
-    std::vector<ComponentType>* GetComponents(Entity* _entity);
+    std::vector<ComponentType>& GetComponents(EntityHandle _handle);
 
     /// <summary>
-    /// 指定したエンティティが持つ指定した型のコンポ
+    /// 指定したエンティティが持つ指定した型のコンポーネントを取得する
     /// </summary>
     /// <typeparam name="ComponentType">コンポーネントの型</typeparam>
-    /// <param name="_entity">コンポーネントを持つエンティティ</param>
+    /// <param name="_handle">コンポーネントを持つエンティティ</param>
     /// <param name="_index">コンポーネントのインデックス</param>
-    /// <returns> _entityが持つコンポーネント </returns>
+    /// <returns> _handleが持つコンポーネント </returns>
     template <IsComponent ComponentType>
-    ComponentType* GetComponent(Entity* _entity, uint32_t _index = 0);
+    ComponentType* GetComponent(EntityHandle _handle, uint32_t _index = 0);
+
+    /// <summary>
+    /// 指定したHandleのコンポーネントを取得する
+    /// </summary>
+    /// <typeparam name="ComponentType">コンポーネントの型</typeparam>
+    /// <param name="_handle">コンポーネントを持つエンティティ</param>
+    /// <param name="_index">コンポーネントのインデックス</param>
+    /// <returns> _handleが持つコンポーネント </returns>
+    template <IsComponent ComponentType>
+    ComponentType* GetComponent(ComponentHandle _handle);
 
     /// <summary>
     /// 指定したエンティティにコンポーネントを追加する
     /// </summary>
     /// <typeparam name="ComponentType">コンポーネントの型</typeparam>
-    /// <param name="_entity">コンポーネントを追加するエンティティ</param>
+    /// <param name="_handle">コンポーネントを追加するエンティティ</param>
     /// <param name="_doInitialize">追加したコンポーネントのInitializeを呼び出すかどうか</param>
     template <IsComponent... ComponentType>
-    void AddComponent(Entity* _entity, bool _doInitialize = true);
+    void AddComponent(Scene* _scene, EntityHandle _handle);
     /// <summary>
     /// 指定したエンティティにコンポーネントを追加する
     /// </summary>
     /// <param name="_compTypeName">コンポーネントの型名</param>
-    /// <param name="_entity">コンポーネントを追加するエンティティ</param>
+    /// <param name="_handle">コンポーネントを追加するエンティティ</param>
     /// <param name="_doInitialize">追加したコンポーネントのInitializeを呼び出すかどうか</param>
-    void AddComponent(const std::string& _compTypeName, Entity* _entity, bool _doInitialize = true);
+    void AddComponent(Scene* _scene, const std::string& _compTypeName, EntityHandle _handle);
     /// <summary>
     /// 指定したエンティティにコンポーネント群を追加する
     /// </summary>
     /// <param name="_compTypeNames">コンポーネントの型名群</param>
-    /// <param name="_entity">コンポーネントを追加するエンティティ</param>
+    /// <param name="_handle">コンポーネントを追加するエンティティ</param>
     /// <param name="_doInitialize">追加したコンポーネントのInitializeを呼び出すかどうか</param>
-    void AddComponent(const std::vector<std::string>& _compTypeNames, Entity* _entity, bool _doInitialize = true);
+    void AddComponent(Scene* _scene, const std::vector<std::string>& _compTypeNames, EntityHandle _handle);
 
     /// <summary>
     /// 指定したエンティティからコンポーネントを削除する
     /// </summary>
     /// <param name="_compTypeName">削除するコンポーネントの型名</param>
-    /// <param name="_entity">コンポーネントを削除されるエンティティ</param>
+    /// <param name="_handle">コンポーネントを削除されるエンティティ</param>
     /// <param name="_compIndex">削除するコンポーネントのインデックス</param>
-    void RemoveComponent(const std::string& _compTypeName, Entity* _entity, int32_t _compIndex = 0);
+    void RemoveComponent(const std::string& _compTypeName, EntityHandle _handle, int32_t _compIndex = 0);
 
     /// <summary>
     /// 指定したエンティティからコンポーネント群を削除
     /// </summary>
     /// <param name="_compTypeNames">削除するコンポーネントの型名群</param>
-    /// <param name="_entity">コンポーネントを削除されるエンティティ</param>
+    /// <param name="_handle">コンポーネントを削除されるエンティティ</param>
     /// <param name="_doFinalize">終了処理を呼び出すかどうか</param>
     template <IsComponent ComponentType>
-    void RemoveComponent(Entity* _entity, bool _doFinalize = true);
+    void RemoveComponent(EntityHandle _handle, bool _doFinalize = true);
 
     /// <summary>
     /// 指定したエンティティから全てのコンポーネントを削除する
     /// </summary>
-    /// <param name="_entity">コンポーネントを削除されるエンティティ</param>
-    void DeleteEntity(Entity* _entity);
+    /// <param name="_handle">コンポーネントを削除されるエンティティ</param>
+    void RemoveEntity(EntityHandle _handle);
+
+    /// <summary>
+    /// 指定したエンティティが持つ全てのコンポーネントを取得する
+    /// </summary>
+    /// <param name="_handle">指定するEntityのHandle</param>
+    /// <returns>first = typename, second = typeComponents </returns>
+    std::unordered_map<std::string, std::vector<IComponent*>> GetAllComponentsOfEntity(EntityHandle _handle);
 
 private:
     /// <summary>
@@ -164,35 +187,45 @@ inline ComponentArray<ComponentType>* ComponentRepository::GetComponentArray() {
 }
 
 template <IsComponent ComponentType>
-inline std::vector<ComponentType>* ComponentRepository::GetComponents(Entity* _entity) {
+inline std::vector<ComponentType>& ComponentRepository::GetComponents(EntityHandle _handle) {
     auto componentArray = GetComponentArray<ComponentType>();
     if (componentArray == nullptr) {
-        return nullptr;
+        static std::vector<ComponentType> emptyVector;
+        return emptyVector;
     }
-    return componentArray->GetComponents(_entity);
+    return componentArray->GetComponents(_handle);
 }
 
 template <IsComponent ComponentType>
-inline ComponentType* ComponentRepository::GetComponent(Entity* _entity, uint32_t _index) {
-    auto componentArray = GetComponentArray<ComponentType>();
+inline ComponentType* ComponentRepository::GetComponent(EntityHandle _handle, uint32_t _index) {
+    ComponentArray<ComponentType>* componentArray = GetComponentArray<ComponentType>();
     if (componentArray == nullptr) {
         return nullptr;
     }
-    return componentArray->GetDynamicComponent(_entity, _index);
+    return componentArray->GetComponent(_handle, _index);
+}
+
+template <IsComponent ComponentType>
+inline ComponentType* ComponentRepository::GetComponent(ComponentHandle _handle) {
+    ComponentArray<ComponentType>* componentArray = GetComponentArray<ComponentType>();
+    if (componentArray == nullptr) {
+        return nullptr;
+    }
+    return componentArray->GetComponent(_handle);
 }
 
 template <IsComponent... ComponentType>
-inline void ComponentRepository::AddComponent(Entity* _entity, bool _doInitialize) {
-    (this->GetComponentArray<ComponentType>()->AddComponent(_entity, _doInitialize), ...);
+inline void ComponentRepository::AddComponent(Scene* _scene, EntityHandle _handle) {
+    (this->GetComponentArray<ComponentType>()->AddComponent(_scene, _handle), ...);
 }
 
 template <IsComponent ComponentType>
-inline void ComponentRepository::RemoveComponent(Entity* _entity, bool _doFinalize) {
+inline void ComponentRepository::RemoveComponent(EntityHandle _handle, bool _doFinalize) {
     auto componentArray = GetComponentArray<ComponentType>();
     if (componentArray) {
-        componentArray->RemoveComponent(_entity);
+        componentArray->RemoveComponent(_handle);
         if (_doFinalize) {
-            componentArray->clearComponent(_entity);
+            componentArray->clearComponent(_handle);
         }
     } else {
         LOG_ERROR("ComponentRepository: ComponentArray not found for type: {}", nameof<ComponentType>());

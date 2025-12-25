@@ -17,7 +17,7 @@ using namespace OriGine;
 TransformAnimation::TransformAnimation() {}
 TransformAnimation::~TransformAnimation() {}
 
-void TransformAnimation::Initialize(Entity*) {
+void TransformAnimation::Initialize(Scene* /*_scene*/, EntityHandle /*_entity*/) {
     currentTime_ = 0.0f;
 }
 
@@ -32,7 +32,7 @@ void TransformAnimation::Finalize() {
 
 void TransformAnimation::Edit(
     [[maybe_unused]] Scene* _scene,
-    [[maybe_unused]] Entity* _entity,
+    [[maybe_unused]] EntityHandle _entity,
     [[maybe_unused]] const ::std::string& _parentLabel) {
 
 #ifdef _DEBUG
@@ -50,8 +50,8 @@ void TransformAnimation::Edit(
     ::ImGui::Spacing();
 
     label                       = "Target Transform Index##" + _parentLabel;
-    auto transforms             = _scene->GetComponents<Transform>(_entity);
-    int32_t entityTransformSize = transforms != nullptr ? static_cast<int32_t>(transforms->size()) : 0;
+    auto& transforms            = _scene->GetComponents<Transform>(_entity);
+    int32_t entityTransformSize = static_cast<int32_t>(transforms.size()) - 1;
 
     InputGuiCommand(label, targetTransformIndex_);
     targetTransformIndex_ = std::clamp(targetTransformIndex_, -1, entityTransformSize);

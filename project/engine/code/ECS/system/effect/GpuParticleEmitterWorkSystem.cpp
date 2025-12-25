@@ -26,7 +26,7 @@ void GpuParticleEmitterWorkSystem::Initialize() {
 }
 
 void GpuParticleEmitterWorkSystem::Update() {
-    if (entityIDs_.empty()) {
+    if (entities_.empty()) {
         return;
     }
     ISystem::EraseDeadEntity();
@@ -41,8 +41,8 @@ void GpuParticleEmitterWorkSystem::Update() {
         if (!emitterArray) {
             return; // エミッターが存在しない場合は何もしない
         }
-        for (auto& componentVec : emitterArray->GetAllComponents()) {
-            for (auto& comp : componentVec) {
+        for (auto& slot : emitterArray->GetSlotsRef()) {
+            for (auto& comp : slot.components) {
                 if (comp.IsActive()) {
                     workEmitters_.push_back(&comp);
                 }

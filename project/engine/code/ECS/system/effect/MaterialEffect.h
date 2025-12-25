@@ -33,14 +33,14 @@ private:
     /// <summary>
     /// 使用していない
     /// </summary>
-    void UpdateEntity(Entity* /*_entity*/) override {}
+    void UpdateEntity(EntityHandle /*_owner*/) override {}
 
-    void DispatchComponents(Entity* _entity);
-    void UpdateEffectPipeline(Entity* _entity, MaterialEffectPipeLine* _pipeline);
+    void DispatchComponents(EntityHandle _handle);
+    void UpdateEffectPipeline(EntityHandle _handle, MaterialEffectPipeLine* _pipeline);
     /// <summary>
     /// TextureにEffectをかける
     /// </summary>
-    void TextureEffect(Entity* _entity, MaterialEffectType _type, RenderTexture* _output);
+    void TextureEffect(EntityHandle _handle, MaterialEffectType _type, RenderTexture* _output);
 
     void ExecuteCommand();
 
@@ -53,7 +53,7 @@ private:
     DxDsvDescriptor dxDsv_{};
     std::unique_ptr<DxResource> dsvResource_ = nullptr;
 
-    std::vector<std::pair<Entity*, MaterialEffectPipeLine*>> effectPipelines_;
+    std::vector<std::pair<EntityHandle, MaterialEffectPipeLine*>> effectPipelines_;
 
     std::unique_ptr<DissolveEffect> dissolveEffect_     = nullptr;
     std::unique_ptr<DistortionEffect> distortionEffect_ = nullptr;

@@ -1,175 +1,266 @@
 #pragma once
 
 /// stl
-#include <memory>
-#include <string>
-#include <type_traits>
+#include <algorithm>
 #include <vector>
 
 /// ECS
 // entity
 #include "entity/Entity.h"
-#include "entity/EntityRepository.h"
+#include "entity/EntityHandle.h"
 // component
 #include "component/ComponentArray.h"
+#include "component/ComponentHandle.h"
 #include "component/ComponentRepository.h"
-#include "component/IComponent.h"
 // system
 #include "system/SystemCategory.h"
 
 /// util
 #include "deltaTime/DeltaTime.h"
 
-/// external
-#include "logger/Logger.h"
-
 namespace OriGine {
 
-/// engine
 class Scene;
+class EntityRepository;
 
 /// <summary>
 /// System Interface
-/// SystemはECSの処理単位であり, EntityとComponentを操作してゲームロジックを実装する.
 /// </summary>
 class ISystem {
 public:
-    ISystem(SystemCategory _category, int32_t _priority = 0) : category_(_category), priority_(_priority) {};
+    ISystem(SystemCategory _category, int32_t _priority = 0)
+        : category_(_category), priority_(_priority) {}
+
     virtual ~ISystem() = default;
 
+    /// <summary>
+    /// 初期化処理
+    /// </summary>
     virtual void Initialize() = 0;
     /// <summary>
-    /// 外部から呼び出される更新処理
+    /// 終了化処理
     /// </summary>
-    virtual void Run();
-    virtual void Edit();
     virtual void Finalize() = 0;
 
+    /// <summary>
+    /// 更新処理
+    /// </summary>
+    virtual void Run();
+    /// <summary>
+    /// 編集処理
+    /// </summary>
+    virtual void Edit();
+
+    /// <summary>
+    /// 無効Entityの削除処理
+    /// </summary>
     void EraseDeadEntity();
 
 protected:
     /// <summary>
-    /// Run()で呼び出されるSystem特有の更新処理
+    /// Run() から呼ばれる処理
     /// </summary>
     virtual void Update();
-    virtual void UpdateEntity([[maybe_unused]] OriGine::Entity* _entity) {}
+    /// <summary>
+    /// 更新処理 (Entity単位)
+    /// </summary>
+    /// <param name="_entity"></param>
+    virtual void UpdateEntity([[maybe_unused]] EntityHandle _handle) {}
 
-    /// ==========================================
-    // システム内で使用するであろう 便利関数群
-    /// ==========================================
+    //==========================================
+    // ECS Accessors (Handle based)
+    //==========================================
+    /// <summary>
+    /// エンティティを生成する
+    /// </summary>
+    EntityHandle CreateEntity(const std::string& _dataType, bool _isUnique = false);
 
-    OriGine::Entity* GetEntity(int32_t _entityID);
-    OriGine::Entity* GetUniqueEntity(const ::std::string& _dataTypeName);
-    int32_t CreateEntity(const ::std::string& _dataTypeName, bool _isUnique = false);
+    /// <summary>
+    /// エンティティを取得する
+    /// </summary>
+    /// <param name="_entity"></param>
+    /// <returns></returns>
+    Entity* GetEntity(EntityHandle _entity);
 
-    IComponentArray* GetComponentArray(const ::std::string& _typeName);
+    /// <summary>
+    /// ユニークエンティティを生成する
+    /// </summary>
+    /// <param name="_dataType"></param>
+    /// <returns></returns>
+    EntityHandle GetUniqueEntity(const std::string& _dataType);
+
+    /// <summary>
+    /// コンポーネント配列を取得する
+    /// </summary>
+    /// <param name="_typeName"></param>
+    /// <returns></returns>
+    IComponentArray* GetComponentArray(const std::string& _typeName);
+
+    /// <summary>
+    /// コンポーネントを取得する
+    /// </summary>
+    /// <typeparam name="ComponentType"></typeparam>
+    /// <param name="_entity"></param>
+    /// <returns></returns>
     template <IsComponent ComponentType>
-    ComponentArray<ComponentType>* GetComponentArray() {
-        if (componentRepository_ == nullptr) {
-            LOG_ERROR("ComponentRepository is not Set.");
-            return nullptr;
-        }
-        return componentRepository_->GetComponentArray<ComponentType>();
-    }
+    ComponentType* GetComponent(ComponentHandle _handle);
 
+    /// <summary>
+    /// コンポーネントを取得する
+    /// </summary>
+    /// <typeparam name="ComponentType"></typeparam>
+    /// <param name="_entity"></param>
+    /// <returns></returns>
     template <IsComponent ComponentType>
-    ComponentType* GetComponent(OriGine::Entity* _entity, uint32_t _index = 0) {
-        if (componentRepository_ == nullptr) {
-            LOG_ERROR("ComponentRepository is not Set.");
-            return nullptr;
-        }
-        return componentRepository_->GetComponent<ComponentType>(_entity, _index);
-    }
-    template <IsComponent ComponentType>
-    ::std::vector<ComponentType>* GetComponents(OriGine::Entity* _entity) {
-        if (componentRepository_ == nullptr) {
-            LOG_ERROR("ComponentRepository is not Set.");
-            return nullptr;
-        }
-        return componentRepository_->GetComponents<ComponentType>(_entity);
-    }
+    ComponentType* GetComponent(EntityHandle _handle, int32_t _index = 0);
 
-    void AddComponent(OriGine::Entity* _entity, const ::std::string& _typeName, IComponent* _component, bool _doInitialize = true);
+    /// <summary>
+    /// コンポーネント配列を取得する
+    /// </summary>
+    /// <typeparam name="ComponentType"></typeparam>
+    /// <param name="_entity"></param>
+    /// <returns></returns>
     template <IsComponent ComponentType>
-    void AddComponent(OriGine::Entity* _entity, ComponentType _component, bool _doInitialize = true) {
-        if (componentRepository_ == nullptr) {
-            LOG_ERROR("ComponentRepository is not Set.");
-            return;
-        }
-        GetComponentArray<ComponentType>()->Add(_entity, _component, _doInitialize);
-    }
+    std::vector<ComponentType>& GetComponents(EntityHandle _entity);
+
+    /// <summary>
+    /// コンポーネント配列を取得する
+    /// </summary>
+    /// <typeparam name="ComponentType"></typeparam>
+    /// <returns></returns>
+    template <IsComponent ComponentType>
+    ComponentArray<ComponentType>* GetComponentArray();
+
+    /// <summary>
+    /// コンポーネントを追加する
+    /// </summary>
+    /// <typeparam name="ComponentType"></typeparam>
+    /// <param name="_entity"></param>
+    /// <returns></returns>
+    template <IsComponent ComponentType>
+    ComponentHandle AddComponent(EntityHandle _entity);
+
+    /// <summary>
+    /// コンポーネントを追加する
+    /// </summary>
+    /// <typeparam name="ComponentType"></typeparam>
+    /// <param name="_entity"></param>
+    /// <returns></returns>
+    ComponentHandle AddComponent(EntityHandle _entity, const ::std::string& _typeName);
 
 protected:
-    ::std::vector<int32_t> entityIDs_;
+    std::vector<EntityHandle> entities_;
 
 #ifndef _RELEASE
     DeltaTime deltaTimer_;
-#endif //! _RELEASE
+#endif
 
 private:
     Scene* scene_                             = nullptr;
     EntityRepository* entityRepository_       = nullptr;
     ComponentRepository* componentRepository_ = nullptr;
-    SystemCategory category_;
 
+    SystemCategory category_;
     int32_t priority_ = 0;
     bool isActive_    = false;
 
-public: // ========================================== accessor ========================================== //
-    Scene* GetScene() const {
-        return scene_;
-    }
+public:
+    //==========================================
+    // accessor
+    //==========================================
+    Scene* GetScene() const { return scene_; }
     void SetScene(Scene* _scene);
-    SystemCategory GetCategory() const {
-        return category_;
-    }
-    const ::std::vector<int32_t>& GetEntityIDs() const {
-        return entityIDs_;
-    }
-    int32_t GetEntityCount() const {
-        return static_cast<int32_t>(entityIDs_.size());
+
+    SystemCategory GetCategory() const { return category_; }
+
+    const std::vector<EntityHandle>& GetEntities() const { return entities_; }
+    int32_t GetEntityCount() const { return static_cast<int32_t>(entities_.size()); }
+
+    bool HasEntity(EntityHandle _entity) const {
+        return std::find_if(
+                   entities_.begin(),
+                   entities_.end(),
+                   [&](const EntityHandle& e) { return e.uuid == _entity.uuid; })
+               != entities_.end();
     }
 
-    bool HasEntity(const OriGine::Entity* _entity) const {
-        return ::std::find(entityIDs_.begin(), entityIDs_.end(), _entity->GetID()) != entityIDs_.end();
-    }
-
-    void AddEntity(OriGine::Entity* _entity) {
-        // 重複登録を防ぐ
-        if (::std::find(entityIDs_.begin(), entityIDs_.end(), _entity->GetID()) != entityIDs_.end()) {
-            return;
+    void AddEntity(EntityHandle _entity) {
+        if (!HasEntity(_entity)) {
+            entities_.push_back(_entity);
         }
-        entityIDs_.push_back(_entity->GetID());
     }
-    /// <summary>
-    /// エンティティをシステムから削除する
-    /// </summary>
-    /// <param name="_entity"></param>
-    void RemoveEntity(OriGine::Entity* _entity) {
-        entityIDs_.erase(::std::remove(entityIDs_.begin(), entityIDs_.end(), _entity->GetID()), entityIDs_.end());
+
+    void RemoveEntity(EntityHandle _entity) {
+        entities_.erase(
+            std::remove_if(
+                entities_.begin(),
+                entities_.end(),
+                [&](const EntityHandle& e) { return e.uuid == _entity.uuid; }),
+            entities_.end());
     }
+
     void ClearEntities() {
-        entityIDs_.clear();
+        entities_.clear();
     }
 
-    void SetPriority(int32_t _priority) {
-        priority_ = _priority;
-    }
-    int32_t GetPriority() const {
-        return priority_;
-    }
+    void SetPriority(int32_t _priority) { priority_ = _priority; }
+    int32_t GetPriority() const { return priority_; }
 
-#ifdef _DEBUG
-    float GetRunningTime() const { return deltaTimer_.GetDeltaTime(); }
-#endif // _DEBUG
-
-    bool IsActive() const {
-        return isActive_;
-    }
-    void SetIsActive(bool _isActive) {
-        isActive_ = _isActive;
-    }
+    bool IsActive() const { return isActive_; }
+    void SetIsActive(bool _isActive) { isActive_ = _isActive; }
 };
+
+template <IsComponent ComponentType>
+inline ComponentType* ISystem::GetComponent(ComponentHandle _handle) {
+    if (!componentRepository_) {
+        LOG_ERROR("ComponentRepository is not set.");
+        return nullptr;
+    }
+    return componentRepository_->GetComponent<ComponentType>(_handle);
+}
+
+/// <summary>
+/// コンポーネントを取得する (非推奨 ComponentHandleの使用を推奨します)
+/// </summary>
+/// <typeparam name="ComponentType"></typeparam>
+/// <param name="_handle"></param>
+/// <param name="_index"></param>
+/// <returns></returns>
+template <IsComponent ComponentType>
+inline ComponentType* ISystem::GetComponent(EntityHandle _handle, int32_t _index) {
+    auto* componentArray = GetComponentArray<ComponentType>();
+    if (!componentArray) {
+        LOG_ERROR("ComponentArray is not found.");
+        return nullptr;
+    }
+    return componentArray->GetComponent(_handle, _index);
+}
+
+template <IsComponent ComponentType>
+inline std::vector<ComponentType>& ISystem::GetComponents(EntityHandle _entity) {
+    auto* componentArray = GetComponentArray<ComponentType>();
+    if (!componentArray) {
+        LOG_ERROR("ComponentArray is not found.");
+        // ダミーの空配列を返す
+        static std::vector<ComponentType> emptyComponents;
+        return emptyComponents;
+    }
+    return componentArray->GetComponents(_entity);
+}
+
+template <IsComponent ComponentType>
+inline ComponentArray<ComponentType>* ISystem::GetComponentArray() {
+    if (!componentRepository_) {
+        LOG_ERROR("ComponentRepository is not set.");
+        return nullptr;
+    }
+    return componentRepository_->GetComponentArray<ComponentType>();
+}
+
+template <IsComponent ComponentType>
+inline ComponentHandle ISystem::AddComponent(EntityHandle _entity) {
+    return GetComponentArray<ComponentType>()->AddComponent(scene_, _entity);
+}
 
 // Systemを継承しているかどうか
 template <typename T>

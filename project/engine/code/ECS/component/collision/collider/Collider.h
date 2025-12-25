@@ -4,7 +4,7 @@
 #include "component/IComponent.h"
 /// stl
 #include <concepts>
-#include <map>
+#include <unordered_map>
 
 /// engine
 /// ECS
@@ -35,10 +35,10 @@ public:
     ICollider() {}
     virtual ~ICollider() {}
 
-    virtual void Initialize(Entity* _hostEntity);
-    virtual void Finalize() = 0;
+    virtual void Initialize(Scene* _scene, EntityHandle _hostEntity) = 0;
+    virtual void Finalize()                                          = 0;
 
-    virtual void Edit(Scene* _scene, Entity* _entity, const std::string& _parentLabel) = 0;
+    virtual void Edit(Scene* _scene, EntityHandle _handle, const std::string& _parentLabel) = 0;
 
     virtual void CalculateWorldShape() = 0;
 
@@ -48,8 +48,8 @@ public:
 protected:
     bool isActive_ = true;
     Transform transform_;
-    std::map<int32_t, CollisionState> collisionStateMap_;
-    std::map<int32_t, CollisionState> preCollisionStateMap_;
+    std::unordered_map<EntityHandle, CollisionState> collisionStateMap_;
+    std::unordered_map<EntityHandle, CollisionState> preCollisionStateMap_;
 
 public: // accessor
     bool IsActive() const { return isActive_; }
@@ -59,13 +59,14 @@ public: // accessor
     void SetParent(Transform* _trans) { transform_.parent = _trans; }
 
     // 衝突状態の操作
-    void SetCollisionState(int32_t _otherId) {
-        if (this->preCollisionStateMap_[_otherId] == CollisionState::None)
-            this->collisionStateMap_[_otherId] = CollisionState::Enter;
-        else
-            this->collisionStateMap_[_otherId] = CollisionState::Stay;
+    void SetCollisionState(EntityHandle _otherHandle) {
+        if (this->preCollisionStateMap_[_otherHandle] == CollisionState::None) {
+            this->collisionStateMap_[_otherHandle] = CollisionState::Enter;
+        } else {
+            this->collisionStateMap_[_otherHandle] = CollisionState::Stay;
+        }
     }
-    const std::map<int32_t, CollisionState>& GetCollisionStateMap() { return collisionStateMap_; }
+    const std::unordered_map<EntityHandle, CollisionState>& GetCollisionStateMap() const { return collisionStateMap_; }
 };
 
 template <Bounds::IsBounds BoundsClass>
@@ -73,15 +74,13 @@ class Collider
     : public ICollider {
 public:
     Collider() {}
-    void Initialize(Entity* _hostEntity) override {
-        ICollider::Initialize(_hostEntity);
-    }
+    void Initialize(Scene* /*_scene*/, EntityHandle /*_hostEntity*/) override {}
     void Finalize() override {
         this->collisionStateMap_.clear();
         this->preCollisionStateMap_.clear();
     }
 
-    virtual void Edit(Scene* _scene, Entity* _entity, const std::string& _parentLabel) = 0;
+    virtual void Edit(Scene* _scene, EntityHandle _handle, const std::string& _parentLabel) = 0;
 
     virtual void CalculateWorldShape() = 0;
 

@@ -12,24 +12,19 @@ using namespace OriGine;
 void EmitterWorkSystem::Initialize() {
 }
 void EmitterWorkSystem::Finalize() {
-    entityIDs_.clear();
+    entities_.clear();
 }
 
-void EmitterWorkSystem::UpdateEntity(Entity* _entity) {
-    // _entityがnullptrの場合は何もしない
-    if (!_entity) {
-        return;
-    }
-
+void EmitterWorkSystem::UpdateEntity(EntityHandle _handle) {
     const float deltaTime = Engine::GetInstance()->GetDeltaTime();
 
-    auto emitters = GetComponents<Emitter>(_entity);
+    auto&emitters = GetComponents<Emitter>(_handle);
 
-    if (!emitters) {
+    if (emitters.empty()) {
         return;
     }
 
-    for (auto& comp : *emitters) {
+    for (auto& comp : emitters) {
         comp.Update(deltaTime);
     }
 }

@@ -25,14 +25,14 @@ void SkinningMeshRenderSystem::Initialize() {
     BaseRenderSystem::Initialize();
 }
 
-void SkinningMeshRenderSystem::DispatchRenderer(Entity* _entity) {
-    auto* skinningAnimationComponents = GetComponents<SkinningAnimationComponent>(_entity);
-    if (skinningAnimationComponents == nullptr) {
+void SkinningMeshRenderSystem::DispatchRenderer(EntityHandle _entity) {
+    auto& skinningAnimationComponents = GetComponents<SkinningAnimationComponent>(_entity);
+    if (skinningAnimationComponents.empty()) {
         return;
     }
     auto* entityTransform = GetComponent<Transform>(_entity);
 
-    for (auto& skinningAnimation : *skinningAnimationComponents) {
+    for (auto& skinningAnimation : skinningAnimationComponents) {
         ModelMeshRenderer* renderer = GetComponent<ModelMeshRenderer>(_entity, skinningAnimation.GetBindModeMeshRendererIndex());
         if (renderer == nullptr) {
             continue;
@@ -275,22 +275,22 @@ void SkinningMeshRenderSystem::LightUpdate() {
 
     lightManager->ClearLights();
 
-    for (auto& lightVec : directionalLight->GetAllComponents()) {
-        for (auto& light : lightVec) {
+    for (auto& lightVec : directionalLight->GetSlots()) {
+        for (auto& light : lightVec.components) {
             if (light.isActive_) {
                 lightManager->PushDirectionalLight(light);
             }
         }
     }
-    for (auto& lightVec : pointLight->GetAllComponents()) {
-        for (auto& light : lightVec) {
+    for (auto& lightVec : pointLight->GetSlots()) {
+        for (auto& light : lightVec.components) {
             if (light.isActive_) {
                 lightManager->PushPointLight(light);
             }
         }
     }
-    for (auto& lightVec : spotLight->GetAllComponents()) {
-        for (auto& light : lightVec) {
+    for (auto& lightVec : spotLight->GetSlots()) {
+        for (auto& light : lightVec.components) {
             if (light.isActive_) {
                 lightManager->PushSpotLight(light);
             }
@@ -316,11 +316,12 @@ void SkinningMeshRenderSystem::StartRender() {
     commandList->SetDescriptorHeaps(1, ppHeaps);
 
     /// 環境テクスチャ
-    Entity* skyboxEntity = GetUniqueEntity("Skybox");
-    if (!skyboxEntity) {
+    EntityHandle skyboxEntityHandle = GetUniqueEntity("Skybox");
+    if (skyboxEntityHandle.IsValid()) {
         return;
     }
-    SkyboxRenderer* skybox = GetComponent<SkyboxRenderer>(skyboxEntity);
+
+    SkyboxRenderer* skybox = GetComponent<SkyboxRenderer>(skyboxEntityHandle);
     commandList->SetGraphicsRootDescriptorTable(
         environmentTextureBufferIndex_,
         TextureManager::GetDescriptorGpuHandle(skybox->GetTextureIndex()));
@@ -344,7 +345,7 @@ void SkinningMeshRenderSystem::RenderModelMesh(
         IConstantBuffer<Transform>& meshTransform = _renderer->GetTransformBuff(index);
         auto& materialBuff                        = _renderer->GetMaterialBuff(index);
         Material* material                        = nullptr;
-        int32_t materialIndex                     = _renderer->GetMaterialIndex(index);
+        ComponentHandle materialHandle            = _renderer->GetMaterialHandle(index);
 
         // ============================= Viewのセット ============================= //
         _commandList->IASetVertexBuffers(0, 1, &_skinningAnimationComponent->GetSkinnedVertexBuffer(index).vbView);
@@ -361,19 +362,18 @@ void SkinningMeshRenderSystem::RenderModelMesh(
 
         // ============================= Materialのセット ============================= //
 
-        if (materialIndex >= 0) {
-            material = GetComponent<Material>(_renderer->GetHostEntity(), static_cast<uint32_t>(materialIndex));
-            if (material) {
-                material->UpdateUvMatrix();
-                materialBuff.ConvertToBuffer(*material);
+        material = GetComponent<Material>(materialHandle);
+        if (material) {
+            material->UpdateUvMatrix();
+            materialBuff.ConvertToBuffer(*material);
 
-                if (material->hasCustomTexture()) {
-                    textureHandle = material->GetCustomTexture()->srv_.GetGpuHandle();
-                }
-            } else {
-                materialBuff.ConvertToBuffer(Material());
+            if (material->hasCustomTexture()) {
+                textureHandle = material->GetCustomTexture()->srv_.GetGpuHandle();
             }
+        } else {
+            materialBuff.ConvertToBuffer(Material());
         }
+
         materialBuff.SetForRootParameter(_commandList, materialBufferIndex_);
 
         // ============================= テクスチャの設定 ============================= //

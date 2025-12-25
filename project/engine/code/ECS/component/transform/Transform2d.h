@@ -22,7 +22,7 @@ public:
 
     ~Transform2d() = default;
 
-    void Initialize(Entity* /*_entity*/) override {}
+    void Initialize(Scene* /*_scene,*/, EntityHandle /*_owner*/) override {}
     void Finalize() override {}
 
     /// <summary>
@@ -34,15 +34,16 @@ public:
     /// World の回転角を取得
     /// </summary>
     float CalculateWorldRotate() const {
-        if (!parent)
+        if (!parent) {
             return rotate;
+        }
         return parent->CalculateWorldRotate() + rotate;
     }
 
     /// <summary>
     /// エディタ表示
     /// </summary>
-    void Edit(Scene* _scene, Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) override;
 
 public:
     Vec2f scale     = {1.0f, 1.0f};

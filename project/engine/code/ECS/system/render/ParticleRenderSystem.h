@@ -52,7 +52,7 @@ protected:
     /// 描画する物を登録
     /// </summary>
     /// <param name="_entity"></param>
-    void DispatchRenderer(Entity* /*_entity*/) override;
+    void DispatchRenderer(EntityHandle /*_owner*/) override;
 
     /// <summary>
     /// レンダリングをスキップするかどうか(描画オブジェクトが無いときは描画をスキップする)
@@ -64,7 +64,7 @@ protected:
     /// 使用していない
     /// </summary>
     /// <param name=""></param>
-    void UpdateEntity(Entity* /*_entity*/) override {}
+    void UpdateEntity(EntityHandle /*_owner*/) override {}
 
 private:
     std::array<std::vector<Emitter*>, kBlendNum> activeEmittersByBlendMode_{};

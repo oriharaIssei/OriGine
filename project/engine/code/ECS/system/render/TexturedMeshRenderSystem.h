@@ -44,7 +44,7 @@ public:
     /// <summary>
     /// レンダラーをディスパッチする
     /// </summary>
-    void DispatchRenderer(Entity* _entity) override;
+    void DispatchRenderer(EntityHandle _entity) override;
 
     /// <summary>
     /// レンダリング開始処理

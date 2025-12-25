@@ -29,10 +29,10 @@ public:
         : scale(_scale), rotate(_rotate), translate(_translate), worldMat(MakeMatrix4x4::Identity()) {}
     ~Transform() {}
 
-    void Initialize(Entity* _entity) override;
+    void Initialize(Scene* _scene, EntityHandle _entity) override;
     void UpdateMatrix();
     Quaternion CalculateWorldRotate() const;
-    void Edit(Scene* _scene, Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) override;
 
     void Finalize() override {};
 

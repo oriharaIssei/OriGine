@@ -142,14 +142,14 @@ void GradationEffect::RenderEnd() {
     renderTarget_->PostDraw();
 }
 
-void GradationEffect::DispatchComponent(Entity* _entity) {
-    auto effectParams = GetComponents<GradationComponent>(_entity);
+void GradationEffect::DispatchComponent(EntityHandle _handle) {
+    auto& effectParams = GetComponents<GradationComponent>(_handle);
 
-    if (!effectParams) {
+    if (effectParams.empty()) {
         return; // コンポーネントがない場合は何もしない
     }
 
-    for (auto& param : *effectParams) {
+    for (auto& param : effectParams) {
         if (!param.IsActive()) {
             continue;
         }
@@ -157,7 +157,7 @@ void GradationEffect::DispatchComponent(Entity* _entity) {
         int32_t materialIndex = param.GetMaterialIndex();
         auto& uvTransBuff     = param.GetMaterialBuff();
         if (materialIndex >= 0) {
-            Material* material = GetComponent<Material>(_entity, materialIndex);
+            Material* material = GetComponent<Material>(_handle, materialIndex);
             material->UpdateUvMatrix();
 
             uvTransBuff.ConvertToBuffer(ColorAndUvTransform(material->color_, material->uvTransform_));

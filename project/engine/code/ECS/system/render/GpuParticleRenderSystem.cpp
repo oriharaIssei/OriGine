@@ -183,13 +183,14 @@ void GpuParticleRenderSystem::StartRender() {
     perViewBuffer_.SetForRootParameter(dxCommand_->GetCommandList(), 1);
 }
 
-void GpuParticleRenderSystem::DispatchRenderer(Entity* _entity) {
-    auto components = GetComponents<GpuParticleEmitter>(_entity);
-    if (!components) {
+void GpuParticleRenderSystem::DispatchRenderer(EntityHandle _entity) {
+    auto& components = GetComponents<GpuParticleEmitter>(_entity);
+    if (components.empty()) {
         return;
     }
+
     // アクティブなエミッタをBlendModeごとに振り分ける
-    for (auto& comp : *components) {
+    for (auto& comp : components) {
         if (!comp.IsActive()) {
             continue;
         }

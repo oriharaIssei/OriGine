@@ -5,17 +5,21 @@
 #include <unordered_map>
 #include <vector>
 
+/// ECS
+// entity
+#include "Entity.h"
+#include "EntityHandle.h"
+
 /// util
 #include "util/BitArray.h"
+
+/// external
+#include <uuid/uuid.h>
 
 /// math
 #include <stdint.h>
 
 namespace OriGine {
-/// 前方宣言
-/// ECS
-class Entity;
-
 /// <summary>
 /// Entity Repository(登録, 削除, 取得などを行う)
 /// </summary>
@@ -27,58 +31,106 @@ public:
     void Initialize();
     void Finalize();
 
-    void resize(uint32_t _newSize);
+    /// <summary>
+    /// Entity 作成
+    /// </summary>
+    /// <param name="dataType">エンティティの名前</param>
+    /// <param name="unique"></param>
+    /// <returns></returns>
+    EntityHandle CreateEntity(const std::string& _dataType, bool _unique = false);
 
     /// <summary>
-    /// Entity の取得
+    /// EntityHandleを指定して Entityを 作成
+    /// 失敗したら、Handleを上書きして生成する
     /// </summary>
-    Entity* GetEntity(int32_t _entityIndex);
+    /// <param name="dataType">エンティティの名前</param>
+    /// <param name="unique"></param>
+    /// <returns></returns>
+    EntityHandle CreateEntity(EntityHandle _handle, const std::string& _dataType, bool _unique = false);
+
     /// <summary>
-    /// UniqueEntity の取得
+    /// Unique Entity 取得
     /// </summary>
-    Entity* GetUniqueEntity(const ::std::string& _dataTypeName);
+    /// <param name="dataType">UniqueEntityの名前</param>
+    /// <returns>UniqueEntityにアクセスするハンドル</returns>
+    EntityHandle GetUniqueEntity(const std::string& _dataType);
+
+    /// <summary>
+    /// Unique Entity 登録
+    /// </summary>
+    /// <param name="_dataType">登録するEntityName</param>
+    /// <param name="_handle"></param>
+    /// <returns></returns>
+    bool RegisterUniqueEntity(Entity* _entity);
+    /// <summary>
+    /// Unique Entity 登録解除
+    /// </summary>
+    /// <param name="_entity"></param>
+    /// <returns></returns>
+    bool UnregisterUniqueEntity(Entity* _entity);
+
+    /// <summary>
+    /// Entity 削除
+    /// </summary>
+    /// <param name="handle"></param>
+    /// <returns></returns>
+    bool RemoveEntity(EntityHandle _handle);
+
+    /// <summary>
+    /// Entity 取得
+    /// </summary>
+    /// <param name="handle"></param>
+    /// <returns></returns>
+    Entity* GetEntity(EntityHandle handle);
+    /// <summary>
+    /// Entity 取得 (const)
+    /// </summary>
+    /// <param name="handle"></param>
+    /// <returns></returns>
+    const Entity* GetEntity(EntityHandle handle) const;
+
+    /// <summary>
+    /// 生存チェック
+    /// </summary>
+    /// <param name="handle"></param>
+    /// <returns></returns>
+    bool IsAlive(EntityHandle handle) const;
+
+    /// <summary>
+    /// 全エンティティを削除する
+    /// </summary>
+    void Clear();
+
+private:
+    // --- 内部 ---
 
     /// <summary>
     /// EntityIndex の 確保
     /// </summary>
-    int32_t AllocateEntity();
-
+    /// <returns>EntityIndex</returns>
+    int32_t AllocateIndex();
     /// <summary>
-    /// UniqueEntity に 登録する
+    /// UUID から EntityIndex を探す
     /// </summary>
-    bool RegisterUniqueEntity(Entity* _entity);
-    /// <summary>
-    /// UniqueEntity を削除する
-    /// </summary>
-    bool UnregisterUniqueEntity(const ::std::string& _dataTypeName);
-
-    /// <summary>
-    /// Entity を登録する
-    /// </summary>
-    int32_t CreateEntity(const ::std::string& _dataType, bool _isUnique = false);
-    /// <summary>
-    /// Entity を指定したIndexに登録する
-    /// </summary>
-    int32_t CreateEntity(int32_t _id, const ::std::string& _dataType, bool _isUnique = false);
-
-    /// <summary>
-    /// Entity を削除する
-    /// </summary>
-    bool RemoveEntity(int32_t _entityIndex);
-
-    uint32_t GetSize() const;
-    uint32_t GetActiveEntityCount() const;
-    uint32_t GetInactiveEntityCount() const;
-    void Clear();
-
-    const ::std::vector<Entity>& GetEntities() const;
-    ::std::vector<Entity>& GetEntitiesRef();
+    /// <param name="uuid"></param>
+    /// <returns>EntityIndex</returns>
+    int32_t FindIndex(const uuids::uuid& uuid) const;
 
 private:
     uint32_t size_ = 10000;
-    ::std::vector<Entity> entities_;
-    ::std::unordered_map<::std::string, int32_t> uniqueEntityIDs_;
+
+    std::vector<Entity> entities_;
     BitArray<uint64_t> entityActiveBits_;
+
+    std::unordered_map<uuids::uuid, int32_t> uuidToIndex_;
+    std::unordered_map<std::string, uuids::uuid> uniqueEntities_;
+
+public:
+    size_t GetEntityCount() const { return entityActiveBits_.GetTrueCount(); }
+    uint32_t GetCapacity() const { return static_cast<uint32_t>(entities_.size()); }
+
+    const std::vector<Entity>& GetEntities() const { return entities_; }
+    std::vector<Entity>& GetEntitiesRef() { return entities_; }
 };
 
 } // namespace OriGine

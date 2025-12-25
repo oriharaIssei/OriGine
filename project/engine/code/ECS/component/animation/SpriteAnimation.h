@@ -27,8 +27,8 @@ public:
     SpriteAnimation();
     ~SpriteAnimation() override;
 
-    void Initialize(Entity* _hostEntity) override;
-    void Edit(Scene* _scene, Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
+    void Initialize(Scene* _scene, EntityHandle _owner) override;
+    void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) override;
     void Finalize() override;
 
     void UpdateSpriteAnimation(float _deltaTime, SpriteRenderer* _spriteRenderer);

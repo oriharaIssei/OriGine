@@ -7,7 +7,6 @@
 namespace OriGine {
 
 IComponent::IComponent() {}
-
 IComponent::~IComponent() {}
 
 } // namespace OriGine

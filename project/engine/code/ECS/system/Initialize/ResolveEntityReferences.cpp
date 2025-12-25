@@ -15,17 +15,17 @@ void ResolveEntityReferences::Initialize() {}
 
 void ResolveEntityReferences::Finalize() {}
 
-void ResolveEntityReferences::UpdateEntity(Entity* _entity) {
+void ResolveEntityReferences::UpdateEntity(EntityHandle _handle) {
     // EntityReferenceListコンポーネントを取得
-    auto* entityRefListArray = GetComponents<EntityReferenceList>(_entity);
-    if (entityRefListArray == nullptr) {
+    auto& entityRefListArray = GetComponents<EntityReferenceList>(_handle);
+    if (entityRefListArray.empty()) {
         return;
     }
 
     SceneFactory sceneFactory{};
 
     // EntityReferenceListに登録されているEntityファイルを読み込む
-    for (auto& entityRefList : *entityRefListArray) {
+    for (auto& entityRefList : entityRefListArray) {
         for (const auto& [directory, filename] : entityRefList.GetEntityFileList()) {
             Entity* loadedEntity = sceneFactory.BuildEntityFromTemplate(GetScene(), filename);
             if (!loadedEntity) { // 読み込まれていなかったら、読みに行く

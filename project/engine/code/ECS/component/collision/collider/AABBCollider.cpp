@@ -16,7 +16,7 @@ void from_json(const nlohmann::json& _json, AABBCollider& _a) {
     _json.at("transform").get_to(_a.transform_);
 }
 
-void AABBCollider::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
+void AABBCollider::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _handle, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     CheckBoxCommand("IsActive", this->isActive_);
@@ -29,7 +29,7 @@ void AABBCollider::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity*
     }
     label = "Transform##" + _parentLabel;
     if (ImGui::TreeNode(label.c_str())) {
-        transform_.Edit(_scene, _entity, _parentLabel);
+        transform_.Edit(_scene, _handle, _parentLabel);
         ImGui::TreePop();
     }
 

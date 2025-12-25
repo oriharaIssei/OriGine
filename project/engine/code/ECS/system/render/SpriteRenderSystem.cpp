@@ -36,10 +36,10 @@ void SpriteRenderSystem::Rendering() {
     // Priorityが低い順に
     ///=========================================================
     std::sort(
-        renderers_.begin(),
-        renderers_.end(),
-        [](SpriteRenderer* a, SpriteRenderer* b) {
-            return a->GetRenderPriority() < b->GetRenderPriority();
+        rendererHandles_.begin(),
+        rendererHandles_.end(),
+        [](std::pair<int32_t, ComponentHandle>& a, std::pair<int32_t, ComponentHandle>& b) {
+            return a.first < b.first;
         });
 
     ///=========================================================
@@ -56,7 +56,9 @@ void SpriteRenderSystem::Rendering() {
     commandList->SetGraphicsRootSignature(psoByBlendMode_[blendIndex]->rootSignature.Get());
     commandList->SetPipelineState(psoByBlendMode_[blendIndex]->pipelineState.Get());
 
-    for (auto& renderer : renderers_) {
+    for (auto& [priority, rendererHandle] : rendererHandles_) {
+        SpriteRenderer* renderer = GetComponent<SpriteRenderer>(rendererHandle);
+
         // BlendModeごとにPSOを切り替え
         if (currentBlendMode != renderer->GetCurrentBlend()) {
             currentBlendMode = renderer->GetCurrentBlend();
@@ -84,25 +86,26 @@ void SpriteRenderSystem::Rendering() {
         commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);
     }
 
-    renderers_.clear();
+    rendererHandles_.clear();
 }
 
-void SpriteRenderSystem::DispatchRenderer(Entity* _entity) {
-    std::vector<SpriteRenderer>* renderers = GetComponents<SpriteRenderer>(_entity);
+void SpriteRenderSystem::DispatchRenderer(EntityHandle _entity) {
+    std::vector<SpriteRenderer> renderers = GetComponents<SpriteRenderer>(_entity);
 
-    if (!renderers) {
+    if (renderers.empty()) {
         return;
     }
-    for (auto& renderer : *renderers) {
+    for (auto& renderer : renderers) {
         if (!renderer.IsRender()) {
             continue;
         }
-        renderers_.push_back(&renderer);
+
+        rendererHandles_.push_back({renderer.GetRenderPriority(), renderer.GetHandle()});
     }
 }
 
 bool SpriteRenderSystem::ShouldSkipRender() const {
-    return renderers_.empty();
+    return rendererHandles_.empty();
 }
 
 void SpriteRenderSystem::Finalize() {

@@ -23,10 +23,10 @@ class CollisionPushBackInfo
     friend void from_json(const nlohmann::json& j, CollisionPushBackInfo& info);
 
 public:
-    void Initialize(Entity* /*_hostEntity*/) override {}
+    void Initialize(Scene* /*_scene*/, EntityHandle /*_entity*/) override {}
     void Finalize() override;
 
-    void Edit(Scene* _scene, Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) override;
 
     void ClearInfo();
 
@@ -40,16 +40,16 @@ public:
 
 private:
     CollisionPushBackType pushBackType_ = CollisionPushBackType::None; // 衝突時の挙動
-    std::unordered_map<int32_t, Info> collisionInfoMap_;
+    std::unordered_map<EntityHandle, Info> collisionInfoMap_;
 
 public:
     CollisionPushBackType GetPushBackType() const { return pushBackType_; }
     void SetPushBackType(CollisionPushBackType type) { pushBackType_ = type; }
 
-    const std::unordered_map<int32_t, Info>& GetCollisionInfoMap() const { return collisionInfoMap_; }
-    void SetCollisionInfoMap(const std::unordered_map<int32_t, Info>& map) { collisionInfoMap_ = map; }
-    void AddCollisionInfo(int32_t entityId, const Info& info) {
-        collisionInfoMap_[entityId] = info;
+    const std::unordered_map<EntityHandle, Info>& GetCollisionInfoMap() const { return collisionInfoMap_; }
+    void SetCollisionInfoMap(const std::unordered_map<EntityHandle, Info>& map) { collisionInfoMap_ = map; }
+    void AddCollisionInfo(EntityHandle _handle, const Info& _info) {
+        collisionInfoMap_[_handle] = _info;
     }
 };
 

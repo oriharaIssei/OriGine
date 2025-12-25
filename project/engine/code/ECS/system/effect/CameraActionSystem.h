@@ -16,7 +16,7 @@ public:
     void Finalize();
 
 protected:
-    void UpdateEntity(Entity* _entity);
+    void UpdateEntity(EntityHandle _handle);
 };
 
 } // namespace OriGine

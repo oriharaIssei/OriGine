@@ -12,11 +12,11 @@
 
 using namespace OriGine;
 
-void RandomEffectParam::Initialize(Entity* /*_hostEntity*/) {
+void RandomEffectParam::Initialize(Scene* /*_scene*/,EntityHandle /*_hostEntity*/) {
     effectParamData_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
 }
 
-void RandomEffectParam::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
+void RandomEffectParam::Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, [[maybe_unused]] const std::string& _parentLabel) {
 
 #ifdef _DEBUG
     CheckBoxCommand("Active##" + _parentLabel, isActive_);

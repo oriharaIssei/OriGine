@@ -9,7 +9,7 @@
 
 using namespace OriGine;
 
-void DirectionalLight::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
+void DirectionalLight::Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     CheckBoxCommand("Active##" + _parentLabel, isActive_);

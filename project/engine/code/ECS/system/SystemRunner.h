@@ -161,22 +161,26 @@ public:
     /// <typeparam name="...SystemClass">エンティティを追加するシステムクラスたち</typeparam>
     /// <param name="_entity"></param>
     template <IsSystem... SystemClass>
-    void RegisterEntity(Entity* _entity);
+    void RegisterEntity(EntityHandle _handle);
     /// <summary>
     /// 指定したシステムにエンティティを登録する
     /// </summary>
     /// <param name="_systemTypeName">エンティティを追加するシステムの名前</param>
     /// <param name="_entity"></param>
-    void RegisterEntity(const ::std::string& _systemTypeName, Entity* _entity);
+    void RegisterEntity(const ::std::string& _systemTypeName, EntityHandle _handle);
 
     /// <summary>
     /// 指定されたシステムからエンティティを削除します。
     /// </summary>
     /// <param name="_systemTypeName">エンティティを削除する対象のシステム名。</param>
     /// <param name="_entity">削除するEntityオブジェクトへのポインタ。</param>
-    void RemoveEntity(const ::std::string& _systemTypeName, Entity* _entity);
+    void RemoveEntity(const ::std::string& _systemTypeName, EntityHandle _handle);
 
-    void RemoveEntityFromAllSystems(Entity* _entity);
+    /// <summary>
+    /// すべてのシステムから指定されたエンティティを削除します。
+    /// </summary>
+    /// <param name="_handle"></param>
+    void RemoveEntityFromAllSystems(EntityHandle _handle);
 
 private:
     Scene* scene_ = nullptr; // 所属するシーン
@@ -277,9 +281,9 @@ inline void SystemRunner::DeactivateSystem() {
 }
 
 template <IsSystem... SystemClass>
-inline void SystemRunner::RegisterEntity(Entity* _entity) {
+inline void SystemRunner::RegisterEntity(EntityHandle _handle) {
     // 各システムにエンティティを登録
-    (GetSystem<SystemClass>()->AddEntity(_entity), ...);
+    (GetSystem<SystemClass>()->AddEntity(_handle), ...);
 }
 
 template <IsSystem SystemClass>

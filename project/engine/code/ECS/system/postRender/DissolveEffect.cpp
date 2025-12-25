@@ -157,14 +157,14 @@ void DissolveEffect::RenderEnd() {
     renderTarget_->PostDraw();
 }
 
-void DissolveEffect::DispatchComponent(Entity* _entity) {
-    auto effectParams = GetComponents<DissolveEffectParam>(_entity);
+void DissolveEffect::DispatchComponent(EntityHandle _handle) {
+    auto& effectParams = GetComponents<DissolveEffectParam>(_handle);
 
-    if (!effectParams) {
+    if (effectParams.empty()) {
         return; // コンポーネントがない場合は何もしない
     }
 
-    for (auto& param : *effectParams) {
+    for (auto& param : effectParams) {
         if (!param.IsActive()) {
             continue;
         }
@@ -175,7 +175,7 @@ void DissolveEffect::DispatchComponent(Entity* _entity) {
         int32_t materialIndex = param.GetMaterialIndex();
         auto& materialBuff    = param.GetMaterialBuffer();
         if (materialIndex >= 0) {
-            Material* material = GetComponent<Material>(_entity, materialIndex);
+            Material* material = GetComponent<Material>(_handle, materialIndex);
             material->UpdateUvMatrix();
 
             materialBuff.ConvertToBuffer(ColorAndUvTransform(material->color_, material->uvTransform_));

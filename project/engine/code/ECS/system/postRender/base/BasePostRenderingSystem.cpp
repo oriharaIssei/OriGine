@@ -16,7 +16,7 @@ void BasePostRenderingSystem::Initialize() {
 
 void BasePostRenderingSystem::Update() {
     // 有効判定
-    if (entityIDs_.empty()) {
+    if (entities_.empty()) {
         return;
     }
 
@@ -29,9 +29,8 @@ void BasePostRenderingSystem::Update() {
     }
 
     // コンポーネントの登録
-    for (auto entityID : entityIDs_) {
-        Entity* entity = GetScene()->GetEntity(entityID);
-        DispatchComponent(entity);
+    for (auto entityID : entities_) {
+        DispatchComponent(entityID);
     }
 
     // ポストレンダリングスキップ判定

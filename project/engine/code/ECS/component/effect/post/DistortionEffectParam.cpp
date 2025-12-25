@@ -23,7 +23,7 @@
 
 using namespace OriGine;
 
-void DistortionEffectParam::Initialize(Entity* _hostEntity) {
+void DistortionEffectParam::Initialize(Scene* _scene, EntityHandle _hostEntity) {
     effectParamData_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
     effectParamData_.ConvertToBuffer();
     materialBuffer_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
@@ -31,7 +31,7 @@ void DistortionEffectParam::Initialize(Entity* _hostEntity) {
 
     if (use3dObjectList_) {
         for (auto& [object, type] : distortionObjects_) {
-            object->Initialize(_hostEntity);
+            object->Initialize(_scene, _hostEntity);
         }
     } else {
         if (!texturePath_.empty()) {
@@ -48,7 +48,7 @@ void DistortionEffectParam::LoadTexture(const std::string& _path) {
     textureIndex_ = TextureManager::LoadTexture(texturePath_);
 }
 
-void DistortionEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
+void DistortionEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _handle, [[maybe_unused]] const std::string& _parentLabel) {
 
 #ifdef DEBUG
     CheckBoxCommand("Active##" + _parentLabel, isActive_);
@@ -57,8 +57,8 @@ void DistortionEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]
     ImGui::Spacing();
 
     std::string label          = "MaterialIndex##" + _parentLabel;
-    auto materials             = _scene->GetComponents<Material>(_entity);
-    int32_t entityMaterialSize = materials != nullptr ? static_cast<int32_t>(materials->size()) : 0;
+    auto& materials            = _scene->GetComponents<Material>(_handle);
+    int32_t entityMaterialSize = static_cast<int32_t>(materials.size());
 
     if (entityMaterialSize <= 0) {
         ImGui::InputInt(label.c_str(), &materialIndex_, 0, 0, ImGuiInputTextFlags_ReadOnly);
@@ -112,7 +112,7 @@ void DistortionEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]
                     std::shared_ptr<PrimitiveMeshRendererBase> newObject = PrimitiveMeshFactory::GetInstance()->CreatePrimitiveMeshBy(newObjectType);
 
                     if (newObject) {
-                        newObject->Initialize(_entity);
+                        newObject->Initialize(_scene,_handle);
 
                         auto command = std::make_unique<AddElementCommand<std::vector<std::pair<std::shared_ptr<PrimitiveMeshRendererBase>, PrimitiveType>>>>(
                             &distortionObjects_, std::make_pair(newObject, newObjectType));
@@ -133,7 +133,7 @@ void DistortionEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]
                 ImGui::SameLine();
                 if (ImGui::TreeNode(objectNodeName.c_str())) {
                     if (obj) {
-                        obj->Edit(_scene, _entity, _parentLabel + objectNodeName);
+                        obj->Edit(_scene, _handle, _parentLabel + objectNodeName);
                     }
                     ImGui::TreePop();
                 }

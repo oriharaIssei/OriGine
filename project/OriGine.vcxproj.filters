@@ -106,6 +106,9 @@
     <Filter Include="engine\code\ECS\system\render\base">
       <UniqueIdentifier>{BC3F64C3-A87B-672D-118E-7F24FDE80F48}</UniqueIdentifier>
     </Filter>
+    <Filter Include="engine\code\ECS\system\transition">
+      <UniqueIdentifier>{DDF19EE4-4960-F463-9249-AF63FEF6E9FF}</UniqueIdentifier>
+    </Filter>
     <Filter Include="engine\code\audio">
       <UniqueIdentifier>{66AD37BB-D2C3-3551-1B3B-C172879006D9}</UniqueIdentifier>
     </Filter>
@@ -142,6 +145,9 @@
     <Filter Include="engine\code\logger">
       <UniqueIdentifier>{D4216B3B-C005-2C91-2966-26E415691613}</UniqueIdentifier>
     </Filter>
+    <Filter Include="engine\code\messageBus">
+      <UniqueIdentifier>{03C12B79-EFBA-54CB-D827-EBDBC4C0BA37}</UniqueIdentifier>
+    </Filter>
     <Filter Include="engine\code\model">
       <UniqueIdentifier>{A5880DBC-119F-0B52-5A16-9773C66BDCD9}</UniqueIdentifier>
     </Filter>
@@ -153,15 +159,6 @@
     </Filter>
     <Filter Include="engine\code\winApp">
       <UniqueIdentifier>{2384AA54-0F68-6BAA-78C8-65FD64CB552C}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="geometry">
-      <UniqueIdentifier>{5154C4F3-3D21-1FFF-663A-0DA75266548D}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="geometry\base">
-      <UniqueIdentifier>{9B9714A0-0758-90D6-D092-D9533C12D5B2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="geometry\shape">
-      <UniqueIdentifier>{71B7DEA3-5D85-D2A9-4619-43D03286AE0E}</UniqueIdentifier>
     </Filter>
     <Filter Include="math">
       <UniqueIdentifier>{CF809A7C-BBB7-9B0D-64A4-811050BA170F}</UniqueIdentifier>
@@ -268,6 +265,9 @@
       <Filter>engine\code\ECS\component\animation</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\component\animation\SpriteAnimation.h">
+      <Filter>engine\code\ECS\component\animation</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\animation\TransformAnimation.h">
       <Filter>engine\code\ECS\component\animation</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\component\collision\CollisionPushBackInfo.h">
@@ -408,6 +408,9 @@
     <ClInclude Include="engine\code\ECS\component\transform\Transform.h">
       <Filter>engine\code\ECS\component\transform</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\transform\Transform2d.h">
+      <Filter>engine\code\ECS\component\transform</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\ECS\entity\Entity.h">
       <Filter>engine\code\ECS\entity</Filter>
     </ClInclude>
@@ -457,6 +460,9 @@
       <Filter>engine\code\ECS\system\effect</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\system\effect\SpriteAnimationSystem.h">
+      <Filter>engine\code\ECS\system\effect</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\system\effect\TransformAnimationWorkSystem.h">
       <Filter>engine\code\ECS\system\effect</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\system\initialize\CameraInitialize.h">
@@ -522,6 +528,9 @@
     <ClInclude Include="engine\code\ECS\system\render\LineRenderSystem.h">
       <Filter>engine\code\ECS\system\render</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\ECS\system\render\OverlayRenderSystem.h">
+      <Filter>engine\code\ECS\system\render</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\ECS\system\render\ParticleRenderSystem.h">
       <Filter>engine\code\ECS\system\render</Filter>
     </ClInclude>
@@ -545,6 +554,9 @@
     </ClInclude>
     <ClInclude Include="engine\code\ECS\system\render\base\BaseRenderSystem.h">
       <Filter>engine\code\ECS\system\render\base</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\system\transition\EffectAutoDestroySystem.h">
+      <Filter>engine\code\ECS\system\transition</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\Engine.h">
       <Filter>engine\code</Filter>
@@ -630,7 +642,7 @@
     <ClInclude Include="engine\code\imGuiManager\ImGuiManager.h">
       <Filter>engine\code\imGuiManager</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\input\GamepadInput.h">
+    <ClInclude Include="engine\code\input\GamePadInput.h">
       <Filter>engine\code\input</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\input\InputManager.h">
@@ -651,6 +663,9 @@
     <ClInclude Include="engine\code\logger\Logger.h">
       <Filter>engine\code\logger</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\messageBus\MessageBus.h">
+      <Filter>engine\code\messageBus</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\model\Model.h">
       <Filter>engine\code\model</Filter>
     </ClInclude>
@@ -658,6 +673,12 @@
       <Filter>engine\code\model</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\scene\Scene.h">
+      <Filter>engine\code\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\scene\SceneFactory.h">
+      <Filter>engine\code\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\scene\SceneJsonRegistry.h">
       <Filter>engine\code\scene</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\scene\SceneManager.h">
@@ -672,10 +693,16 @@
     <ClInclude Include="math\Interpolation.h">
       <Filter>math</Filter>
     </ClInclude>
+    <ClInclude Include="math\Matrix3x3.h">
+      <Filter>math</Filter>
+    </ClInclude>
     <ClInclude Include="math\Matrix4x4.h">
       <Filter>math</Filter>
     </ClInclude>
     <ClInclude Include="math\MyEasing.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="math\Noise.h">
       <Filter>math</Filter>
     </ClInclude>
     <ClInclude Include="math\Orientation.h">
@@ -685,6 +712,9 @@
       <Filter>math</Filter>
     </ClInclude>
     <ClInclude Include="math\Sequence.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="math\Spline.h">
       <Filter>math</Filter>
     </ClInclude>
     <ClInclude Include="math\Vector.h">
@@ -723,7 +753,7 @@
     <ClInclude Include="util\DxUtil.h">
       <Filter>util</Filter>
     </ClInclude>
-    <ClInclude Include="util\EnumBitmask.h">
+    <ClInclude Include="util\EnumBitMask.h">
       <Filter>util</Filter>
     </ClInclude>
     <ClInclude Include="util\StringUtil.h">
@@ -759,17 +789,10 @@
     <ClInclude Include="util\timeline\Timeline.h">
       <Filter>util\timeline</Filter>
     </ClInclude>
-    <ClInclude Include="math\Noise.h" />
-    <ClInclude Include="engine\code\ECS\system\render\OverlayRenderSystem.h" />
-    <ClInclude Include="engine\code\ECS\component\transform\Transform2d.h" />
-    <ClInclude Include="math\Matrix3x3.h" />
-    <ClInclude Include="engine\code\messageBus\MessageBus.h" />
-    <ClInclude Include="engine\code\scene\SceneJsonRegistry.h" />
-    <ClInclude Include="engine\code\scene\SceneFactory.h" />
-    <ClInclude Include="math\Spline.h" />
-    <ClInclude Include="engine\code\ECS\component\animation\TransformAnimation.h" />
-    <ClInclude Include="engine\code\ECS\system\effect\TransformAnimationWorkSystem.h" />
-    <ClInclude Include="engine\code\ECS\system\transition\EffectAutoDestroySystem.h" />
+    <ClInclude Include="engine\code\ECS\entity\EntityHandle.h" />
+    <ClInclude Include="engine\code\ECS\component\ComponentHandle.h" />
+    <ClInclude Include="externals\uuid\uuid.h" />
+    <ClInclude Include="util\uuidGenerator\UuidGenerator.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="editor\EditorController.cpp">
@@ -836,6 +859,9 @@
       <Filter>engine\code\ECS\component\animation</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\component\animation\SpriteAnimation.cpp">
+      <Filter>engine\code\ECS\component\animation</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\component\animation\TransformAnimation.cpp">
       <Filter>engine\code\ECS\component\animation</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\component\collision\CollisionPushBackInfo.cpp">
@@ -970,6 +996,9 @@
     <ClCompile Include="engine\code\ECS\component\transform\Transform.cpp">
       <Filter>engine\code\ECS\component\transform</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\ECS\component\transform\Transform2d.cpp">
+      <Filter>engine\code\ECS\component\transform</Filter>
+    </ClCompile>
     <ClCompile Include="engine\code\ECS\entity\EntityRepository.cpp">
       <Filter>engine\code\ECS\entity</Filter>
     </ClCompile>
@@ -1016,6 +1045,9 @@
       <Filter>engine\code\ECS\system\effect</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\system\effect\SpriteAnimationSystem.cpp">
+      <Filter>engine\code\ECS\system\effect</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\system\effect\TransformAnimationWorkSystem.cpp">
       <Filter>engine\code\ECS\system\effect</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\system\initialize\CameraInitialize.cpp">
@@ -1081,6 +1113,9 @@
     <ClCompile Include="engine\code\ECS\system\render\LineRenderSystem.cpp">
       <Filter>engine\code\ECS\system\render</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\ECS\system\render\OverlayRenderSystem.cpp">
+      <Filter>engine\code\ECS\system\render</Filter>
+    </ClCompile>
     <ClCompile Include="engine\code\ECS\system\render\ParticleRenderSystem.cpp">
       <Filter>engine\code\ECS\system\render</Filter>
     </ClCompile>
@@ -1104,6 +1139,9 @@
     </ClCompile>
     <ClCompile Include="engine\code\ECS\system\render\base\BaseRenderSystem.cpp">
       <Filter>engine\code\ECS\system\render\base</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\system\transition\EffectAutoDestroySystem.cpp">
+      <Filter>engine\code\ECS\system\transition</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\Engine.cpp">
       <Filter>engine\code</Filter>
@@ -1168,7 +1206,7 @@
     <ClCompile Include="engine\code\imGuiManager\ImGuiManager.cpp">
       <Filter>engine\code\imGuiManager</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\input\GamepadInput.cpp">
+    <ClCompile Include="engine\code\input\GamePadInput.cpp">
       <Filter>engine\code\input</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\input\InputManager.cpp">
@@ -1192,6 +1230,12 @@
     <ClCompile Include="engine\code\scene\Scene.cpp">
       <Filter>engine\code\scene</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\scene\SceneFactory.cpp">
+      <Filter>engine\code\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\scene\SceneJsonRegistry.cpp">
+      <Filter>engine\code\scene</Filter>
+    </ClCompile>
     <ClCompile Include="engine\code\scene\SceneManager.cpp">
       <Filter>engine\code\scene</Filter>
     </ClCompile>
@@ -1204,10 +1248,16 @@
     <ClCompile Include="math\Interpolation.cpp">
       <Filter>math</Filter>
     </ClCompile>
+    <ClCompile Include="math\Matrix3x3.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
     <ClCompile Include="math\Matrix4x4.cpp">
       <Filter>math</Filter>
     </ClCompile>
     <ClCompile Include="math\MyEasing.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="math\Noise.cpp">
       <Filter>math</Filter>
     </ClCompile>
     <ClCompile Include="math\Orientation.cpp">
@@ -1217,6 +1267,9 @@
       <Filter>math</Filter>
     </ClCompile>
     <ClCompile Include="math\Sequence.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="math\Spline.cpp">
       <Filter>math</Filter>
     </ClCompile>
     <ClCompile Include="math\mathEnv.cpp">
@@ -1246,15 +1299,8 @@
     <ClCompile Include="util\timeline\Timeline.cpp">
       <Filter>util\timeline</Filter>
     </ClCompile>
-    <ClCompile Include="math\Noise.cpp" />
-    <ClCompile Include="engine\code\ECS\system\render\OverlayRenderSystem.cpp" />
-    <ClCompile Include="engine\code\ECS\component\transform\Transform2d.cpp" />
-    <ClCompile Include="math\Matrix3x3.cpp" />
-    <ClCompile Include="engine\code\scene\SceneJsonRegistry.cpp" />
-    <ClCompile Include="engine\code\scene\SceneFactory.cpp" />
-    <ClCompile Include="math\Spline.cpp" />
-    <ClCompile Include="engine\code\ECS\component\animation\TransformAnimation.cpp" />
-    <ClCompile Include="engine\code\ECS\system\effect\TransformAnimationWorkSystem.cpp" />
-    <ClCompile Include="engine\code\ECS\system\transition\EffectAutoDestroySystem.cpp" />
+    <ClCompile Include="engine\code\ECS\entity\EntityHandle.cpp" />
+    <ClCompile Include="engine\code\ECS\component\ComponentHandle.cpp" />
+    <ClCompile Include="util\uuidGenerator\UuidGenerator.cpp" />
   </ItemGroup>
 </Project>

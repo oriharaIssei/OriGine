@@ -53,7 +53,7 @@ protected:
     /// 描画する物を登録
     /// </summary>
     /// <param name="_entity"></param>
-    void DispatchRenderer(Entity* _entity) override;
+    void DispatchRenderer(EntityHandle _entity) override;
 
     /// <summary>
     /// レンダリングをスキップするかどうか(描画オブジェクトが無いときは描画をスキップする)
@@ -65,7 +65,8 @@ private:
     std::array<PipelineStateObj*, kBlendNum> psoByBlendMode_{};
 
     Matrix4x4 viewPortMat_;
-    std::vector<SpriteRenderer*> renderers_;
+    // first = render priority, second = component handle
+    std::vector<std::pair<int32_t, ComponentHandle>> rendererHandles_;
 };
 
 } // namespace OriGine

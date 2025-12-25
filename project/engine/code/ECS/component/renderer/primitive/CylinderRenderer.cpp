@@ -20,8 +20,8 @@
 
 using namespace OriGine;
 
-void CylinderRenderer::Initialize(Entity* _hostEntity) {
-    MeshRenderer::Initialize(_hostEntity);
+void CylinderRenderer::Initialize(Scene* _scene, EntityHandle _hostEntity) {
+    MeshRenderer::Initialize(_scene,_hostEntity);
 
     // culling しない
     isCulling_ = false;
@@ -46,7 +46,7 @@ void CylinderRenderer::Initialize(Entity* _hostEntity) {
     }
 }
 
-void CylinderRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
+void CylinderRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _handle, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     ImGui::SeparatorText("Material");
     ImGui::Spacing();
@@ -77,16 +77,16 @@ void CylinderRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Ent
     ImGui::Spacing();
 
     label                      = "MaterialIndex##" + _parentLabel;
-    auto materials             = _scene->GetComponents<Material>(_entity);
-    int32_t entityMaterialSize = materials != nullptr ? static_cast<int32_t>(materials->size()) : 0;
+    auto& materials            = _scene->GetComponents<Material>(_handle);
+    int32_t entityMaterialSize = static_cast<int32_t>(materials.size()) - 1;
     InputGuiCommand(label, materialIndex_);
 
     materialIndex_ = std::clamp(materialIndex_, -1, entityMaterialSize);
     if (materialIndex_ >= 0) {
         label = "Material##" + _parentLabel;
         if (ImGui::TreeNode(label.c_str())) {
-            materials->operator[](materialIndex_).Edit(_scene, _entity, "Material" + _parentLabel);
-            materialBuff_.ConvertToBuffer(materials->operator[](materialIndex_));
+            materials[materialIndex_].Edit(_scene, _handle, "Material" + _parentLabel);
+            materialBuff_.ConvertToBuffer(materials[materialIndex_]);
             ImGui::TreePop();
         }
     }
@@ -137,7 +137,7 @@ void CylinderRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Ent
     // buffer Datas
     label = "Transform##" + _parentLabel;
     if (ImGui::TreeNode(label.c_str())) {
-        transformBuff_.openData_.Edit(_scene, _entity, _parentLabel);
+        transformBuff_.openData_.Edit(_scene, _handle, _parentLabel);
 
         transformBuff_.ConvertToBuffer();
         ImGui::TreePop();

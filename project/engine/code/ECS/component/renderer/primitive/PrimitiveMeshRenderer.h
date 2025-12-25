@@ -19,9 +19,9 @@ public:
 
     ~PrimitiveMeshRenderer() override {}
 
-    void Initialize(OriGine::Entity* _entity) = 0;
+    void Initialize(OriGine::Scene* _scene, OriGine::EntityHandle _owner) = 0;
 
-    virtual void Edit(Scene* _scene, OriGine::Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) override = 0;
+    virtual void Edit(Scene* _scene, EntityHandle _owner, const std::string& _parentLabel) override = 0;
 
     inline void Finalize() override;
 

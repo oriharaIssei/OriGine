@@ -134,13 +134,13 @@ void SmoothingEffect::RenderEnd() {
     renderTarget_->PostDraw();
 }
 
-void SmoothingEffect::DispatchComponent(Entity* _entity) {
-    auto* params = GetComponents<SmoothingEffectParam>(_entity);
-    if (!params) {
+void SmoothingEffect::DispatchComponent(EntityHandle _handle) {
+    auto params = GetComponents<SmoothingEffectParam>(_handle);
+    if (params.empty()) {
         return;
     }
 
-    for (auto& param : *params) {
+    for (auto& param : params) {
         if (!param.isActive_) {
             continue;
         }

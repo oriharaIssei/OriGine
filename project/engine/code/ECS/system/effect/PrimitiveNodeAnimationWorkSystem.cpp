@@ -13,20 +13,20 @@
 
 using namespace OriGine;
 
-void PrimitiveNodeAnimationWorkSystem::UpdateEntity(Entity* _entity) {
-    auto* primitiveNodeAnimation = GetComponent<PrimitiveNodeAnimation>(_entity);
+void PrimitiveNodeAnimationWorkSystem::UpdateEntity(EntityHandle _handle) {
+    auto* primitiveNodeAnimation = GetComponent<PrimitiveNodeAnimation>(_handle);
     if (primitiveNodeAnimation == nullptr) {
         return;
     }
     const float deltaTime = GetMainDeltaTime();
 
-    PrimitiveMeshRendererBase* primitive = GetComponent<PlaneRenderer>(_entity);
+    PrimitiveMeshRendererBase* primitive = GetComponent<PlaneRenderer>(_handle);
     if (primitive == nullptr) {
-        primitive = GetComponent<SphereRenderer>(_entity);
+        primitive = GetComponent<SphereRenderer>(_handle);
         if (primitive == nullptr) {
-            primitive = GetComponent<RingRenderer>(_entity);
+            primitive = GetComponent<RingRenderer>(_handle);
             if (primitive == nullptr) {
-                primitive = GetComponent<BoxRenderer>(_entity);
+                primitive = GetComponent<BoxRenderer>(_handle);
                 if (primitive == nullptr) {
                     return; // No primitive renderer found
                 }

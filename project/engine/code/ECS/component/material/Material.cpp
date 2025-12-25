@@ -31,11 +31,11 @@ void Material::UpdateUvMatrix() {
     uvMat_ = MakeMatrix4x4::Affine({uvTransform_.scale_, 1}, {0.f, 0.f, uvTransform_.rotate_}, {uvTransform_.translate_, 0.f});
 }
 
-void Material::Initialize(Entity* /*_entity*/) {
+void Material:: Initialize(Scene* /*_scene,*/, EntityHandle /*_owner*/) {
     UpdateUvMatrix();
 }
 
-void Material::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
+void Material::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _entity, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     constexpr float kCustomTextureSize = 32.f;
 

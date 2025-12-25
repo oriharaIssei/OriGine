@@ -18,7 +18,7 @@
 
 using namespace OriGine;
 
-void DissolveEffectParam::Initialize(Entity* /*_entity*/) {
+void DissolveEffectParam::Initialize(Scene* /*_scene,*/, EntityHandle /*_owner*/) {
 
     if (!textureFilePath_.empty()) {
         textureIndex_ = TextureManager::LoadTexture(textureFilePath_);
@@ -53,7 +53,7 @@ void DissolveEffectParam::Play() {
     materialBuffer_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
 }
 
-void DissolveEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) {
+void DissolveEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _handle, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     if (CheckBoxCommand("Active##" + _parentLabel, isActive_)) {
@@ -64,8 +64,8 @@ void DissolveEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] 
     ImGui::Spacing();
 
     std::string label          = "MaterialIndex##" + _parentLabel;
-    auto materials             = _scene->GetComponents<Material>(_entity);
-    int32_t entityMaterialSize = materials != nullptr ? static_cast<int32_t>(materials->size()) : 0;
+    auto& materials            = _scene->GetComponents<Material>(_handle);
+    int32_t entityMaterialSize = static_cast<int32_t>(materials.size());
 
     if (entityMaterialSize <= 0) {
         ImGui::InputInt(label.c_str(), &materialIndex_, 0, 0, ImGuiInputTextFlags_ReadOnly);
@@ -75,8 +75,8 @@ void DissolveEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] 
     }
     label = "Material##" + _parentLabel;
     if (ImGui::TreeNode(label.c_str())) {
-        if (materials != nullptr && materialIndex_ >= 0 && materialIndex_ < materials->size()) {
-            (*materials)[materialIndex_].Edit(_scene, _entity, label);
+        if ( materialIndex_ >= 0 && materialIndex_ < materials.size()) {
+            materials[materialIndex_].Edit(_scene, _handle, label);
         } else {
             ImGui::Text("Material is null.");
         }

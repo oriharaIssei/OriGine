@@ -48,7 +48,7 @@ public:
     void Update() override;
     void Finalize();
 
-    void UpdateEntity(Entity* /*entity*/) override {}
+    void UpdateEntity(EntityHandle /*entity*/) override {}
     void UpdateParticle(GpuParticleEmitter* _emitter);
     void EmitParticle(GpuParticleEmitter* entity);
 

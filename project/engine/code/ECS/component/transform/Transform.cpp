@@ -16,7 +16,7 @@ using namespace OriGine;
 
 Transform::Transform() {}
 
-void Transform::Initialize([[maybe_unused]] Entity* _entity) {
+void Transform::Initialize(Scene* /*_scene*/, EntityHandle /*_entity*/) {
     this->UpdateMatrix();
 }
 
@@ -36,7 +36,7 @@ Quaternion Transform::CalculateWorldRotate() const {
     }
 }
 
-void Transform::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
+void Transform::Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     // --------------------------- scale --------------------------- //

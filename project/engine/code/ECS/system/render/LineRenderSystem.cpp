@@ -43,13 +43,13 @@ void LineRenderSystem::StartRender() {
     CameraManager::GetInstance()->SetBufferForRootParameter(commandList, 1);
 }
 
-void LineRenderSystem::DispatchRenderer(Entity* _entity) {
-    std::vector<LineRenderer>* renderers = GetComponents<LineRenderer>(_entity);
-    if (!renderers) {
+void LineRenderSystem::DispatchRenderer(EntityHandle _entity) {
+    std::vector<LineRenderer>& renderers = GetComponents<LineRenderer>(_entity);
+    if (renderers.empty()) {
         return;
     }
 
-    for (auto& renderer : *renderers) {
+    for (auto& renderer : renderers) {
         // 描画フラグが立っていないならスキップ
         if (!renderer.IsRender()) {
             continue;

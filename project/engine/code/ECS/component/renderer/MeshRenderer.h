@@ -52,11 +52,11 @@ public:
 
     virtual ~MeshRenderer() {}
 
-    virtual void Initialize(Entity* _hostEntity) {
-        hostEntity_ = _hostEntity;
+    virtual void Initialize(Scene* /*_scene*/, EntityHandle _owner) {
+        hostEntityHandle_ = _owner;
     }
 
-    void Edit(Scene* /*_scene*/, Entity* /*_entity*/, const std::string& /*_parentLabel*/) override {}
+    void Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, const std::string& /*_parentLabel*/) override {}
 
     virtual void Finalize() {
         for (auto& mesh : *meshGroup_) {
@@ -66,7 +66,7 @@ public:
     }
 
 protected:
-    Entity* hostEntity_ = nullptr;
+    EntityHandle hostEntityHandle_ = {};
 
     BlendMode currentBlend_ = BlendMode::Alpha;
 
@@ -76,8 +76,8 @@ protected:
     std::shared_ptr<std::vector<MeshTemplate>> meshGroup_;
 
 public: // ↓ Accessor
-    Entity* GetHostEntity() const {
-        return hostEntity_;
+    EntityHandle GetHostEntityHandle() const {
+        return hostEntityHandle_;
     }
 
     //------------------------------ BlendMode ------------------------------//
@@ -139,9 +139,9 @@ public:
     ///< summary>
     /// 初期化
     ///</summary>
-    void Initialize(Entity* _hostEntity) override;
+    void Initialize(OriGine::Scene* _scene, EntityHandle _owner) override;
 
-    void Edit(Scene* _scene, Entity* _entity, const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) override;
 
     void Finalize() override {
         for (auto& mesh : *meshGroup_) {
@@ -154,9 +154,9 @@ public:
         }
     }
 
-    void InitializeTransformBuffer(Entity* _hostEntity);
-    void InitializeMaterialBuffer(Entity* _hostEntity);
-    void InitializeMaterialBufferWithMaterialIndex(Entity* _hostEntity);
+    void InitializeTransformBuffer();
+    void InitializeMaterialBuffer();
+    void InitializeMaterialBufferWithMaterialIndex();
     void ResizeTransformBuffer2MeshGroupSize() {
         meshTransformBuff_.resize(meshGroup_->size());
     }
@@ -171,8 +171,8 @@ private:
     std::string fileName_  = "";
 
     std::vector<IConstantBuffer<Transform>> meshTransformBuff_;
-    // first = materialIndex, second = constantBuffer
-    std::vector<std::pair<int32_t, SimpleConstantBuffer<Material>>> meshMaterialBuff_;
+    // first = material handle, second = constantBuffer
+    std::vector<std::pair<ComponentHandle, SimpleConstantBuffer<Material>>> meshMaterialBuff_;
 
     std::vector<std::string> textureFilePath_ = {};
     std::vector<uint32_t> meshTextureNumbers_;
@@ -223,11 +223,11 @@ public:
     SimpleConstantBuffer<Material>& GetMaterialBuff(int32_t _meshIndex) {
         return meshMaterialBuff_[_meshIndex].second;
     }
-    int32_t GetMaterialIndex(int32_t _meshIndex) const {
+    ComponentHandle GetMaterialHandle(int32_t _meshIndex) const {
         return meshMaterialBuff_[_meshIndex].first;
     }
-    void SetMaterialIndex(int32_t _meshIndex, int32_t _materialIndex) {
-        meshMaterialBuff_[_meshIndex].first = _materialIndex;
+    void SetMaterialHandle(int32_t _meshIndex, ComponentHandle _materialHandle) {
+        meshMaterialBuff_[_meshIndex].first = _materialHandle;
     }
 
     //------------------------------ TextureNumber ------------------------------//
@@ -246,14 +246,14 @@ public:
 
 void CreateModelMeshRenderer(
     ModelMeshRenderer* _renderer,
-    Entity* _hostEntity,
+    EntityHandle _hostEntity,
     const std::string& _directory,
-    const std::string& _filenName,
+    const std::string& _fileName,
     bool _usingDefaultTexture = true);
 void InitializeMaterialFromModelFile(
     ModelMeshRenderer* _renderer,
     Scene* _scene,
-    Entity* _hostEntity,
+    EntityHandle _hostEntity,
     const std::string& _directory,
     const std::string& _fileName);
 
@@ -271,9 +271,9 @@ public:
     ///< summary>
     /// 初期化
     ///</summary>
-    void Initialize(Entity* _hostEntity) override;
+    void Initialize(Scene* _scene, EntityHandle _owner) override;
 
-    void Edit(Scene* _scene, Entity* _entity, [[maybe_unused]] const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) override;
     void Finalize() override;
 
 private:

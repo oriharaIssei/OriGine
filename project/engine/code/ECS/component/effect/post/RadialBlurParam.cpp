@@ -15,14 +15,14 @@ using namespace OriGine;
 RadialBlurParam::RadialBlurParam() {}
 RadialBlurParam::~RadialBlurParam() {}
 
-void RadialBlurParam::Initialize(Entity* /*_entity*/) {
+void RadialBlurParam:: Initialize(Scene* /*_scene,*/, EntityHandle /*_owner*/) {
     if (isActive_) {
         constantBuffer_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
         constantBuffer_.ConvertToBuffer();
     }
 }
 
-void RadialBlurParam::Edit(Scene* /*_scene*/, Entity* /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
+void RadialBlurParam::Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, [[maybe_unused]] const std::string& _parentLabel) {
 
 #ifdef _DEBUG
     if (CheckBoxCommand("Active##" + _parentLabel, isActive_)) {
