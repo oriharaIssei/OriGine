@@ -63,6 +63,7 @@ void SceneEditorWindow::DrawGui() {
         LoadNextScene();
         isSceneChanged_ = false;
     } else {
+        currentScene_->ExecuteDeleteEntities();
         Editor::Window::DrawGui();
     }
 }
@@ -1019,7 +1020,7 @@ void AddSystemCommand::Undo() {
     for (auto entityId : entityHandles_) {
         Entity* entity = currentScene->GetEntityRepositoryRef()->GetEntity(entityId);
         if (!entity) {
-            LOG_ERROR("AddSystemCommand::Execute: Entity with Handle : {} not found.",uuids::to_string(entityId.uuid));
+            LOG_ERROR("AddSystemCommand::Execute: Entity with Handle : {} not found.", uuids::to_string(entityId.uuid));
             continue;
         }
         currentScene->GetSystemRunnerRef()->RemoveEntity(systemTypeName_, entityId);
@@ -1047,7 +1048,7 @@ void RemoveSystemCommand::Execute() {
     for (auto entityId : entityHandles_) {
         Entity* entity = currentScene->GetEntityRepositoryRef()->GetEntity(entityId);
         if (!entity) {
-            LOG_ERROR("Entity with Handle : {} not found.",uuids::to_string(entityId.uuid));
+            LOG_ERROR("Entity with Handle : {} not found.", uuids::to_string(entityId.uuid));
             continue;
         }
         currentScene->GetSystemRunnerRef()->RemoveEntity(systemTypeName_, entityId);
@@ -1070,7 +1071,7 @@ void RemoveSystemCommand::Undo() {
     for (auto entityId : entityHandles_) {
         Entity* entity = currentScene->GetEntityRepositoryRef()->GetEntity(entityId);
         if (!entity) {
-            LOG_ERROR("Entity with Handle : {} not found.",uuids::to_string(entityId.uuid));
+            LOG_ERROR("Entity with Handle : {} not found.", uuids::to_string(entityId.uuid));
             continue;
         }
         currentScene->GetSystemRunnerRef()->RegisterEntity(systemTypeName_, entityId);

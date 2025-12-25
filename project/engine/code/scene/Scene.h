@@ -52,7 +52,9 @@ public:
     void InitializeECS();
     void InitializeSceneView();
 
-protected:
+    /// <summary>
+    /// 削除予定のエンティティを削除する
+    /// </summary>
     void ExecuteDeleteEntities();
 
 protected:
