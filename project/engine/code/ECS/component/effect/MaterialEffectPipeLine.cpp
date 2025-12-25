@@ -157,8 +157,12 @@ void MaterialEffectPipeLine::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused
         // entity選択コンボボックス
         if (ImGui::BeginCombo(entityIdLabel.c_str(), entityName.c_str())) {
             for (int j = 0; j < effectEntityIds[effectTypeInt].size(); ++j) {
-                bool isSelected = (effectEntityData_[i].entityHandle == effectEntityIds[effectTypeInt][j]);
-                if (ImGui::Selectable(_scene->GetEntity(effectEntityIds[effectTypeInt][j])->GetUniqueID().c_str(), isSelected)) {
+                bool isSelected      = (effectEntityData_[i].entityHandle == effectEntityIds[effectTypeInt][j]);
+                Entity* effectEntity = _scene->GetEntity(effectEntityIds[effectTypeInt][j]);
+                if (!effectEntity) {
+                    continue;
+                }
+                if (ImGui::Selectable(effectEntity->GetUniqueID().c_str(), isSelected)) {
                     auto command = std::make_unique<SetterCommand<EntityHandle>>(
                         &effectEntityData_[i].entityHandle,
                         effectEntityIds[effectTypeInt][j]);
