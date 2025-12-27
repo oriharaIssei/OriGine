@@ -20,6 +20,7 @@
 #include "component/transform/Transform.h"
 
 /// math
+#include "math/Matrix4x4.h"
 // shape
 #include "EmitterShape.h"
 
@@ -53,7 +54,7 @@ public:
     //! ToDo :: Update,Draw の削除
     void Update(float _deltaTime);
     void UpdateParticle(float _deltaTime);
-    void Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList);
+    void Draw(const Matrix4x4& _viewMat, Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList);
 
     void Finalize() override;
 

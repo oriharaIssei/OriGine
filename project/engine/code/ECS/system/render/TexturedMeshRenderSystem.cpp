@@ -428,8 +428,8 @@ void TexturedMeshRenderSystem::StartRender() {
 
     // Cameraのセット
     CameraManager* cameraManager = CameraManager::GetInstance();
-    cameraManager->DataConvertToBuffer();
-    cameraManager->SetBufferForRootParameter(commandList, cameraBufferIndex_);
+    cameraManager->DataConvertToBuffer(GetScene());
+    cameraManager->SetBufferForRootParameter(GetScene(), commandList, cameraBufferIndex_);
 
     // Lightのセット
     LightUpdate();

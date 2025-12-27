@@ -306,7 +306,7 @@ void SkinningMeshRenderSystem::StartRender() {
 
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    CameraManager::GetInstance()->SetBufferForRootParameter(commandList, cameraBufferIndex_);
+    CameraManager::GetInstance()->SetBufferForRootParameter(GetScene(), commandList, cameraBufferIndex_);
 
     LightUpdate();
     LightManager::GetInstance()->SetForRootParameter(

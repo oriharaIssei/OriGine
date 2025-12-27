@@ -179,13 +179,14 @@ void ParticleRenderSystem::RenderingBy(BlendMode _blend, bool /*_isCulling*/) {
     // RootSignatureセット
     commandList->SetGraphicsRootSignature(psoByBlendMode_[blendIndex]->rootSignature.Get());
 
-    CameraManager::GetInstance()->SetBufferForRootParameter(commandList, 1);
+    CameraManager::GetInstance()->SetBufferForRootParameter(GetScene(), commandList, 1);
 
+    Matrix4x4 viewMat = CameraManager::GetInstance()->GetTransform(GetScene()).viewMat;
     for (auto* emitter : emitters) {
         if (emitter == nullptr) {
             continue;
         }
-        emitter->Draw(commandList);
+        emitter->Draw(viewMat, commandList);
     }
 
     // 描画後クリア

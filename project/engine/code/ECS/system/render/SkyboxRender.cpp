@@ -75,9 +75,11 @@ void SkyboxRender::RenderingBy(BlendMode _blendMode, bool /*_isCulling*/) {
 
         // ============================= Transformのセット ============================= //
         IConstantBuffer<Transform>& meshTransform = renderer->GetTransformBuff();
-        const CameraTransform& cameraTransform    = CameraManager::GetInstance()->GetTransform();
-        meshTransform->translate                  = cameraTransform.translate;
+        CameraTransform cameraTransform           = CameraManager::GetInstance()->GetTransform(GetScene());
+
+        meshTransform->translate = cameraTransform.translate;
         meshTransform->UpdateMatrix();
+
         const Matrix4x4& viewMat = cameraTransform.viewMat;
         const Matrix4x4& projMat = cameraTransform.projectionMat;
         meshTransform->worldMat  = meshTransform->worldMat * viewMat * projMat;

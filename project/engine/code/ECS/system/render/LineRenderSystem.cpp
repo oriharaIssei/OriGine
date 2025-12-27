@@ -40,7 +40,7 @@ void LineRenderSystem::StartRender() {
 
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 
-    CameraManager::GetInstance()->SetBufferForRootParameter(commandList, 1);
+    CameraManager::GetInstance()->SetBufferForRootParameter(GetScene(), commandList, 1);
 }
 
 void LineRenderSystem::DispatchRenderer(EntityHandle _entity) {

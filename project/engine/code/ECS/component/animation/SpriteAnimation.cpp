@@ -31,10 +31,25 @@ void SpriteAnimation::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Enti
     {
         auto& spriteComponents = _scene->GetComponents<SpriteRenderer>(_handle);
         if (!spriteComponents.empty()) {
+            int32_t currentIndex = 0;
+            for (size_t i = 0; i < spriteComponents.size(); ++i) {
+                if (spriteComponents[i].GetHandle() == spriteComponentHandle_) {
+                    currentIndex = static_cast<int32_t>(i);
+                    break;
+                }
+            }
+
             int32_t maxIndex = static_cast<int32_t>(spriteComponents.size()) - 1;
-            InputGuiCommand<int32_t>(label, spriteComponentIndex_, "%d", [this, maxIndex](int32_t* _newVal) {
-                *_newVal = std::clamp(*_newVal, 0, maxIndex);
-            });
+            ImGui::InputInt(label.c_str(), &currentIndex);
+
+            currentIndex = std::clamp(currentIndex, 0, maxIndex);
+            if (spriteComponents[currentIndex].GetHandle() != spriteComponentHandle_) {
+                OriGine::EditorController::GetInstance()->PushCommand(
+                    std::make_unique<SetterCommand<ComponentHandle>>(
+                        &spriteComponentHandle_,
+                        spriteComponents[currentIndex].GetHandle()));
+            }
+
         } else {
             ImGui::Text("Haven't Sprites !");
         }
@@ -295,7 +310,7 @@ void OriGine::to_json(nlohmann::json& j, const SpriteAnimation& r) {
 
     j["duration"] = r.duration_;
 
-    j["spriteComponentIndex"] = r.spriteComponentIndex_;
+    j["spriteComponentHandle"] = r.spriteComponentHandle_;
 
     j["colorAnimationState"]["isLoop"] = r.colorAnimationState_.isLoop_;
     j["colorAnimationState"]["isPlay"] = r.colorAnimationState_.isPlay_;
@@ -330,7 +345,9 @@ void OriGine::from_json(const nlohmann::json& j, SpriteAnimation& r) {
 
     r.duration_ = j.value("duration", 0.0f);
 
-    r.spriteComponentIndex_ = j.value("spriteComponentIndex", -1);
+    if (j.contains("spriteComponentHandle")) {
+        j.at("spriteComponentHandle").get_to(r.spriteComponentHandle_);
+    }
 
     r.colorAnimationState_.isLoop_ = j["colorAnimationState"].value("isLoop", false);
     r.colorAnimationState_.isPlay_ = j["colorAnimationState"].value("isPlay", false);

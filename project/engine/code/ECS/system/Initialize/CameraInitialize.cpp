@@ -29,6 +29,6 @@ void CameraInitialize::UpdateEntity(EntityHandle _handle) {
     }
 
     cameraTransform->UpdateMatrix();
-    CameraManager::GetInstance()->SetTransform(*cameraTransform);
-    CameraManager::GetInstance()->DataConvertToBuffer();
+    CameraManager::GetInstance()->SetTransform(GetScene(), *cameraTransform);
+    CameraManager::GetInstance()->DataConvertToBuffer(GetScene());
 }

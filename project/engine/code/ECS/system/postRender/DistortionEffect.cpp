@@ -29,6 +29,7 @@ void DistortionEffect::Initialize() {
     distortionSceneTexture_->SetTextureName("DistortionSceneTexture");
 
     texturedMeshRenderSystem_ = std::make_unique<TexturedMeshRenderSystem>();
+    texturedMeshRenderSystem_->SetScene(GetScene());
     texturedMeshRenderSystem_->Initialize();
 
     defaultParam_ = std::make_unique<DistortionEffectParam>();

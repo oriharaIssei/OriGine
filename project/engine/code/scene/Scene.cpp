@@ -6,9 +6,12 @@
 #include "engine/EngineInclude.h"
 
 #include "scene/SceneFactory.h"
-#include "scene/SceneJsonRegistry.h"
 
 #include "winApp/WinApp.h"
+
+// camera
+#include "camera/CameraManager.h"
+
 // directX12
 #include "directX12/RenderTexture.h"
 
@@ -27,6 +30,8 @@ Scene::~Scene() {}
 
 void Scene::Initialize() {
     isActive_ = true;
+
+    CameraManager::GetInstance()->RegisterSceneCamera(this);
 
     InitializeSceneView();
 
@@ -96,6 +101,8 @@ void Scene::Finalize() {
     }
 
     isActive_ = false;
+
+    CameraManager::GetInstance()->UnregisterSceneCamera(this);
 }
 
 void Scene::ExecuteDeleteEntities() {

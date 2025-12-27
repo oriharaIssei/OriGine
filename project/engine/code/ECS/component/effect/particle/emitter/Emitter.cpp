@@ -1066,8 +1066,7 @@ void Emitter::EditParticle([[maybe_unused]] const std::string& _parentLabel) {
 }
 #endif // _DEBUG
 
-void Emitter::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList) {
-    const Matrix4x4& viewMat = CameraManager::GetInstance()->GetTransform().viewMat;
+void Emitter::Draw(const Matrix4x4& _viewMat, Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList) {
 
     Matrix4x4 billboardMat = {};
     // パーティクルのスケール行列を事前計算
@@ -1080,7 +1079,7 @@ void Emitter::Draw(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandLis
 
     if (particleIsBillBoard_) { // Bill Board
         // カメラの回転行列を取得し、平行移動成分をゼロにする
-        Matrix4x4 cameraRotation = viewMat;
+        Matrix4x4 cameraRotation = _viewMat;
         cameraRotation[3][0]     = 0.0f;
         cameraRotation[3][1]     = 0.0f;
         cameraRotation[3][2]     = 0.0f;

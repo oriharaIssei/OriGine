@@ -341,18 +341,23 @@ void SceneViewArea::DrawGui() {
     ImGui::End();
 }
 void SceneViewArea::DrawScene() {
-    CameraManager* cameraManager  = CameraManager::GetInstance();
-    CameraTransform prevTransform = cameraManager->GetTransform();
+    Scene* currentScene = parentWindow_->GetCurrentScene();
+    if (!currentScene) {
+        LOG_ERROR("Current scene is nullptr in SceneViewArea::DrawScene.");
+        return;
+    }
 
-    cameraManager->SetTransform(debugCamera_->GetCameraTransform());
-    cameraManager->DataConvertToBuffer();
-    auto* currentScene = parentWindow_->GetCurrentScene();
+    CameraManager* cameraManager  = CameraManager::GetInstance();
+    CameraTransform prevTransform = cameraManager->GetTransform(currentScene);
+
+    cameraManager->SetTransform(currentScene, debugCamera_->GetCameraTransform());
+    cameraManager->DataConvertToBuffer(currentScene);
 
     // effect systemの更新
     currentScene->GetSystemRunnerRef()->UpdateCategory(SystemCategory::Effect);
     // 描画
     currentScene->Render();
-    cameraManager->SetTransform(prevTransform);
+    cameraManager->SetTransform(currentScene, prevTransform);
 }
 
 void SceneViewArea::UseImGuizmo(const ImVec2& _sceneViewPos, const Vec2f& _originalResolution) {

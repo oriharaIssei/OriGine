@@ -56,7 +56,7 @@ public:
     void PlayUVAnimation();
 
 private:
-    int32_t spriteComponentIndex_ = -1;
+    ComponentHandle spriteComponentHandle_ = ComponentHandle();
 
     float duration_    = 0.0f; // (秒)
     float currentTime_ = 0.0f; // (秒)
@@ -92,8 +92,8 @@ public:
     bool IsTransformAnimationEnded() const { return transformAnimationState_.isEnd_; }
     bool IsUVAnimationEnded() const { return uvAnimationState_.isEnd_; }
 
-    int32_t GetSpriteComponentIndex() const { return spriteComponentIndex_; }
-    void SetSpriteComponentIndex(int32_t _index) { spriteComponentIndex_ = _index; }
+    ComponentHandle GetSpriteComponentHandle() const { return spriteComponentHandle_; }
+    void SetSpriteComponentHandle(ComponentHandle _handle) { spriteComponentHandle_ = _handle; }
 
     AnimationCurve<Vec4f>& GetColorCurve() { return colorCurve_; }
     AnimationCurve<Vec2f>& GetScaleCurve() { return scaleCurve_; }

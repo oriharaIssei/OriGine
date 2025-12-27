@@ -213,7 +213,7 @@ void ColliderRenderingSystem::Initialize() {
     //** AABB **//
     aabbColliders_ = GetComponentArray<AABBCollider>();
     aabbRenderer_  = std::make_unique<LineRenderer>(std::vector<Mesh<ColorVertexData>>());
-    aabbRenderer_->Initialize(nullptr,EntityHandle());
+    aabbRenderer_->Initialize(nullptr, EntityHandle());
     aabbRenderer_->GetMeshGroup()->push_back(Mesh<ColorVertexData>());
     aabbRenderer_->GetMeshGroup()->back().Initialize(ColliderRenderingSystem::kDefaultMeshCount_ * kAabbVertexSize, ColliderRenderingSystem::kDefaultMeshCount_ * kAabbIndexSize);
     aabbMeshItr_ = aabbRenderer_->GetMeshGroup()->begin();
@@ -318,7 +318,7 @@ void ColliderRenderingSystem::StartRender() {
     commandList->SetPipelineState(pso_->pipelineState.Get());
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 
-    CameraManager::GetInstance()->SetBufferForRootParameter(commandList, 1);
+    CameraManager::GetInstance()->SetBufferForRootParameter(GetScene(), commandList, 1);
 }
 
 void ColliderRenderingSystem::CreateRenderMesh() {
@@ -332,7 +332,7 @@ void ColliderRenderingSystem::CreateRenderMesh() {
 
         aabbMeshItr_ = meshGroup->begin();
 
-        for (auto& slot: aabbColliders_->GetSlots()) {
+        for (auto& slot : aabbColliders_->GetSlots()) {
             Entity* entity = GetEntity(slot.owner);
             if (!entity) {
                 continue; // Entityが存在しない場合はスキップ

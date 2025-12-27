@@ -192,7 +192,7 @@ void SkeletonRenderSystem::StartRender() {
     commandList->SetPipelineState(pso_->pipelineState.Get());
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 
-    CameraManager::GetInstance()->SetBufferForRootParameter(commandList, 1);
+    CameraManager::GetInstance()->SetBufferForRootParameter(GetScene(), commandList, 1);
 }
 
 bool SkeletonRenderSystem::ShouldSkipRender() const {

@@ -167,7 +167,7 @@ void GpuParticleRenderSystem::StartRender() {
     commandList->SetDescriptorHeaps(1, ppHeaps);
 
     // カメラ情報更新
-    const CameraTransform& cameraTransform = CameraManager::GetInstance()->GetTransform();
+    CameraTransform cameraTransform = CameraManager::GetInstance()->GetTransform(GetScene());
     // カメラの回転行列を取得し、平行移動成分をゼロにする
     Matrix4x4 cameraRotationMat = cameraTransform.viewMat;
     cameraRotationMat[3][0]     = 0.0f;
