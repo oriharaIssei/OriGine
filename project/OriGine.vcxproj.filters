@@ -795,6 +795,13 @@
     <ClInclude Include="util\uuidGenerator\UuidGenerator.h" />
     <ClInclude Include="engine\code\ECS\component\animation\DissolveAnimation.h" />
     <ClInclude Include="engine\code\ECS\system\effect\DissolveAnimationSystem.h" />
+    <ClInclude Include="engine\code\directX12\raytracing\RaytracingInstance.h" />
+    <ClInclude Include="engine\code\directX12\raytracing\TopLevelAccelerationStructure.h" />
+    <ClInclude Include="engine\code\directX12\raytracing\RaytracingScene.h" />
+    <ClInclude Include="engine\code\directX12\mesh\MeshHandle.h" />
+    <ClInclude Include="engine\code\directX12\raytracing\RaytracingMeshType.h" />
+    <ClInclude Include="engine\code\directX12\raytracing\BottomLevelAccelerationStructure.h" />
+    <ClInclude Include="engine\code\ECS\system\render\TexturedMeshRenderSystemWithoutRaytracing.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="editor\EditorController.cpp">
@@ -1306,5 +1313,10 @@
     <ClCompile Include="util\uuidGenerator\UuidGenerator.cpp" />
     <ClCompile Include="engine\code\ECS\component\animation\DissolveAnimation.cpp" />
     <ClCompile Include="engine\code\ECS\system\effect\DissolveAnimationSystem.cpp" />
+    <ClCompile Include="engine\code\directX12\raytracing\TopLevelAccelerationStructure.cpp" />
+    <ClCompile Include="engine\code\directX12\raytracing\RaytracingScene.cpp" />
+    <ClCompile Include="engine\code\directX12\raytracing\RaytracingMeshType.cpp" />
+    <ClCompile Include="engine\code\directX12\raytracing\BottomLevelAccelerationStructure.cpp" />
+    <ClCompile Include="engine\code\ECS\system\render\TexturedMeshRenderSystemWithoutRaytracing.cpp" />
   </ItemGroup>
 </Project>

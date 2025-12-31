@@ -1,4 +1,5 @@
 #include "Object3dTextureColor.hlsli"
+#include "ShadowUtility.hlsli"
 
 struct PixelShaderOutput
 {
@@ -25,6 +26,7 @@ struct DirectionalLight
     float3 color;
     float intensity;
     float3 direction;
+    float angularRadius;
 };
 
 struct PointLight
@@ -34,7 +36,7 @@ struct PointLight
     float3 pos;
     float radius;
     float decay;
-    float padding[2];
+    float padding[3];
 };
 
 struct SpotLight
@@ -139,6 +141,9 @@ PixelShaderOutput main(VertexShaderOutput input)
     float3 viewDir = normalize(gViewProjection.cameraPos - input.worldPos);
     // Half Lambert & phong
     output.color.rgb = float3(0.0f, 0.0f, 0.0f);
+
+    float3 lightResult = float3(0.0f, 0.0f, 0.0f);
+    float cosThetaMax = 0.f;
         
     // Directional Light
     for (uint directionalLightIndex = 0;
@@ -148,12 +153,12 @@ PixelShaderOutput main(VertexShaderOutput input)
         float3 lightDir = -gDirectionalLight[directionalLightIndex].direction;
         
         float NdotL = saturate(dot(normal, lightDir));
-        float cos = pow(NdotL * 0.5f + 0.5f, 2.0f);
+        float cosAngle = pow(NdotL * 0.5f + 0.5f, 2.0f);
 
         float3 diffuse =
             textureColor.rgb *
             gDirectionalLight[directionalLightIndex].color.rgb *
-            cos *
+            cosAngle *
             gDirectionalLight[directionalLightIndex].intensity;
 
         float3 halfVector = normalize(lightDir + viewDir);
@@ -166,7 +171,17 @@ PixelShaderOutput main(VertexShaderOutput input)
             specularPow *
             gMaterial.specularColor;
 
-        output.color.rgb += diffuse + specular;
+        float3 direcResult = diffuse + specular;
+
+        cosThetaMax = cos(gDirectionalLight[directionalLightIndex].angularRadius);
+        float shadow = TraceShadowSoft(
+            input.worldPos + normal * SHADOW_RAY_EPSILON,
+            lightDir,
+            1e5f,
+            cosThetaMax);
+        
+        
+        lightResult += direcResult * shadow;
         
     }
 
@@ -187,19 +202,31 @@ PixelShaderOutput main(VertexShaderOutput input)
             (gPointLight[pointLightIndex].intensity * factor);
 
         float NdotL = saturate(dot(normal, lightDir));
-        float cos = pow(NdotL * 0.5f + 0.5f, 2.0f);
+        float cosAngle = pow(NdotL * 0.5f + 0.5f, 2.0f);
 
-        float3 diffuse = textureColor.rgb * lightColor * cos;
+        float3 diffuse = textureColor.rgb * lightColor * cosAngle;
 
         float3 halfVector = normalize(lightDir + viewDir);
         float NdotH = dot(normal, halfVector);
         float specularPow = pow(saturate(NdotH), gMaterial.shininess);
 
         float3 specular = lightColor * specularPow * gMaterial.specularColor;
+        
+        float3 direcResult = diffuse + specular;
 
-        output.color.rgb += diffuse + specular;
+        float lightAngularRadius = gPointLight[pointLightIndex].radius / max(distance, 1e-3f);
+        cosThetaMax = cos(lightAngularRadius);
+        
+        float shadow = TraceShadowSoft(
+        input.worldPos + normal * SHADOW_RAY_EPSILON,
+        lightDir,
+        distance,
+        cosThetaMax);
+
+        direcResult *= shadow;
+        
+        lightResult += direcResult;
     }
-
 
     // Spot Light
     for (uint spotLightIndex = 0;
@@ -214,7 +241,7 @@ PixelShaderOutput main(VertexShaderOutput input)
             pow(saturate(1.0f - distance / gSpotLight[spotLightIndex].distance),
                 gSpotLight[spotLightIndex].decay);
 
-        float cosAngle = dot(lightDir, gSpotLight[spotLightIndex].direction);
+        float cosAngle = dot(-lightDir, gSpotLight[spotLightIndex].direction);
         float falloffFactor =
             saturate((cosAngle - gSpotLight[spotLightIndex].cosAngle) /
                      (gSpotLight[spotLightIndex].cosFalloffStart -
@@ -227,25 +254,35 @@ PixelShaderOutput main(VertexShaderOutput input)
             falloffFactor;
 
         float NdotL = saturate(dot(normal, lightDir));
-        float cos = pow(NdotL * 0.5f + 0.5f, 2.0f);
+        float cos1 = pow(NdotL * 0.5f + 0.5f, 2.0f);
 
-        float3 diffuse = textureColor.rgb * lightColor * cos;
+        float3 diffuse = textureColor.rgb * lightColor * cos1;
 
         float3 halfVector = normalize(lightDir + viewDir);
         float NdotH = dot(normal, halfVector);
         float specularPow = pow(saturate(NdotH), gMaterial.shininess);
 
         float3 specular = lightColor * specularPow * gMaterial.specularColor;
+        
+        float3 direcResult = diffuse + specular;
+        
+        float shadow = TraceShadowSoft(
+        input.worldPos + normal * SHADOW_RAY_EPSILON,
+        lightDir,
+        distance,
+        gSpotLight[spotLightIndex].cosFalloffStart);
 
-        output.color.rgb += diffuse + specular;
+        direcResult *= shadow;
+
+        lightResult += direcResult;
+        
     }
-
     
     float3 camera2Pos = normalize(input.worldPos - gViewProjection.cameraPos);
     float3 reflectedVec = reflect(camera2Pos, normal);
     float4 environmentColor = gEnvironmentTexture.Sample(gSampler, reflectedVec);
 
-    output.color.rgb += environmentColor.rgb * gMaterial.environmentCoefficient;
+    output.color.rgb = lightResult * gMaterial.environmentCoefficient;
     
     return output;
 }

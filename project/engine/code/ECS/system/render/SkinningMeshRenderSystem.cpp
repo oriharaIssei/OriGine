@@ -277,21 +277,21 @@ void SkinningMeshRenderSystem::LightUpdate() {
 
     for (auto& lightVec : directionalLight->GetSlots()) {
         for (auto& light : lightVec.components) {
-            if (light.isActive_) {
+            if (light.isActive) {
                 lightManager->PushDirectionalLight(light);
             }
         }
     }
     for (auto& lightVec : pointLight->GetSlots()) {
         for (auto& light : lightVec.components) {
-            if (light.isActive_) {
+            if (light.isActive) {
                 lightManager->PushPointLight(light);
             }
         }
     }
     for (auto& lightVec : spotLight->GetSlots()) {
         for (auto& light : lightVec.components) {
-            if (light.isActive_) {
+            if (light.isActive) {
                 lightManager->PushSpotLight(light);
             }
         }

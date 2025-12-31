@@ -34,16 +34,16 @@ public:
     void Finalize() override {}
 
 public:
-    bool isActive_ = true;
+    bool isActive = true;
 
-    Vec3f color_           = {1.f, 1.f, 1.f};
-    Vec3f pos_             = {0.f, 0.f, 0.f};
-    float intensity_       = 0.f;
-    Vec3f direction_       = {0.f, 0.f, 1.f};
-    float distance_        = 0.f;
-    float decay_           = 0.f;
-    float cosAngle_        = 0.f;
-    float cosFalloffStart_ = 0.f;
+    Vec3f color           = {1.f, 1.f, 1.f};
+    Vec3f pos             = {0.f, 0.f, 0.f};
+    float intensity       = 0.f;
+    Vec3f direction       = {0.f, 0.f, 1.f};
+    float distance        = 0.f;
+    float decay           = 0.f;
+    float cosAngle        = 0.f;
+    float cosFalloffStart = 0.f;
 
 public:
     struct ConstantBuffer {
@@ -57,14 +57,14 @@ public:
         float cosFalloffStart; // 4 bytes
         float padding[2]; // 8 bytes (to align to 16 bytes)
         ConstantBuffer& operator=(const SpotLight& light) {
-            color           = light.color_;
-            pos             = light.pos_;
-            intensity       = light.intensity_;
-            direction       = light.direction_;
-            distance        = light.distance_;
-            decay           = light.decay_;
-            cosAngle        = light.cosAngle_;
-            cosFalloffStart = light.cosFalloffStart_;
+            color           = light.color;
+            pos             = light.pos;
+            intensity       = light.intensity;
+            direction       = light.direction;
+            distance        = light.distance;
+            decay           = light.decay;
+            cosAngle        = light.cosAngle;
+            cosFalloffStart = light.cosFalloffStart;
             return *this;
         }
     };

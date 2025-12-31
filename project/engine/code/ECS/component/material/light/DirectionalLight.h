@@ -34,25 +34,27 @@ public:
     void Finalize() override {}
 
 public:
-    bool isActive_ = true;
+    bool isActive = true;
 
-    Vec3f color_     = {1.f, 1.f, 1.f};
-    float intensity_ = 0.f;
-    Vec3f direction_ = {0.f, 0.f, 1.f};
+    Vec3f color         = {1.f, 1.f, 1.f};
+    float intensity     = 0.f;
+    Vec3f direction     = {0.f, 0.f, 1.f};
+    float angularRadius = 0.0f;
 
 public:
     struct ConstantBuffer {
         Vec3f color; // 12 bytes
         float intensity; // 4 bytes
         Vec3f direction; // 12 bytes
+        float angularRadius; // 4 bytes (16バイトアライメント調整用)
         ConstantBuffer& operator=(const DirectionalLight& light) {
-            color     = light.color_;
-            direction = light.direction_;
-            intensity = light.intensity_;
+            color         = light.color;
+            direction     = light.direction;
+            intensity     = light.intensity;
+            angularRadius = light.angularRadius;
             return *this;
         }
     };
-
 };
 
 } // namespace OriGine

@@ -1,5 +1,5 @@
 #pragma once
-#include "TexturedMeshRenderSystem.h"
+#include "TexturedMeshRenderSystemWithoutRaytracing.h"
 
 namespace OriGine {
 
@@ -9,7 +9,7 @@ namespace OriGine {
 /// Model やPrimitiveのRendererを持つEntityを対象とする
 /// </summary>
 class OverlayRenderSystem
-    : public TexturedMeshRenderSystem {
+    : public TexturedMeshRenderSystemWithoutRaytracing {
 public:
     OverlayRenderSystem();
     ~OverlayRenderSystem() override;

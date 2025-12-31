@@ -21,7 +21,7 @@ struct Transform;
 class DistortionEffectParam;
 // system
 class PrimitiveMeshRendererBase;
-class TexturedMeshRenderSystem;
+class TexturedMeshRenderSystemWithoutRaytracing;
 
 /// <summary>
 /// 歪みエフェクトをかけるシステム
@@ -79,8 +79,8 @@ protected:
     std::vector<RenderingData> activeRenderingData_                  = {};
     std::vector<PrimitiveMeshRendererBase*> activeDistortionObjects_ = {};
 
-    std::unique_ptr<TexturedMeshRenderSystem> texturedMeshRenderSystem_ = nullptr;
-    PipelineStateObj* pso_                                              = nullptr;
+    std::unique_ptr<TexturedMeshRenderSystemWithoutRaytracing> texturedMeshRenderSystem_ = nullptr;
+    PipelineStateObj* pso_                                                               = nullptr;
 
     // gpu に送る バッファーのインデックス
     int32_t distortionTextureIndex_ = 0;

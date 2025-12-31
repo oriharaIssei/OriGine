@@ -45,12 +45,13 @@ std::string std::to_string(DxResourceType type) {
     return DxResourceTypeToString(type);
 }
 
-void DxResource::CreateBufferResource(Microsoft::WRL::ComPtr<ID3D12Device> device, size_t sizeInBytes) {
+void DxResource::CreateBufferResource(Microsoft::WRL::ComPtr<ID3D12Device> device, size_t sizeInBytes, D3D12_RESOURCE_STATES state) {
     // リソース用のヒープの設定
     D3D12_HEAP_PROPERTIES uploadHeapProperties{};
     uploadHeapProperties.Type = D3D12_HEAP_TYPE_UPLOAD; // UploadHeapを使う
     // リソースの設定
     // バッファのリソース(テクスチャの場合は別の設定をする)
+    resourceDesc_.Flags     = D3D12_RESOURCE_FLAG_NONE;
     resourceDesc_.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
     resourceDesc_.Width     = sizeInBytes;
     // バッファの場合、これらは 1 にする
@@ -65,7 +66,7 @@ void DxResource::CreateBufferResource(Microsoft::WRL::ComPtr<ID3D12Device> devic
         &uploadHeapProperties,
         D3D12_HEAP_FLAG_NONE,
         &resourceDesc_,
-        D3D12_RESOURCE_STATE_GENERIC_READ,
+        state,
         nullptr,
         IID_PPV_ARGS(&resource_));
 
@@ -108,7 +109,7 @@ void DxResource::CreateDSVBuffer(Microsoft::WRL::ComPtr<ID3D12Device> _device, U
     }
 }
 
-void DxResource::CreateUAVBuffer(Microsoft::WRL::ComPtr<ID3D12Device> device, size_t sizeInBytes, D3D12_RESOURCE_FLAGS flags, D3D12_HEAP_TYPE heapType) {
+void DxResource::CreateUAVBuffer(Microsoft::WRL::ComPtr<ID3D12Device> device, size_t sizeInBytes, D3D12_RESOURCE_FLAGS flags, D3D12_RESOURCE_STATES state, D3D12_HEAP_TYPE heapType) {
     // Heap Properties の設定
     D3D12_HEAP_PROPERTIES heapProps{};
     heapProps.Type = heapType; // VRAM 上に生成
@@ -128,7 +129,7 @@ void DxResource::CreateUAVBuffer(Microsoft::WRL::ComPtr<ID3D12Device> device, si
         &heapProps,
         D3D12_HEAP_FLAG_NONE,
         &resourceDesc_,
-        D3D12_RESOURCE_STATE_COMMON, // UAV 用の状態
+        state, // UAV 用の状態
         nullptr, // Clear最適値は nullptr
         IID_PPV_ARGS(resource_.GetAddressOf()));
 

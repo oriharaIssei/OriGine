@@ -230,6 +230,7 @@ void GpuParticleEmitter::CreateBuffer() {
             dxDevice->device_,
             sizeof(GpuParticleData::ConstantBuffer) * shapeBuffer_->particleSize,
             D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
+            D3D12_RESOURCE_STATE_COMMON,
             D3D12_HEAP_TYPE_DEFAULT);
     }
 
@@ -267,6 +268,7 @@ void GpuParticleEmitter::CreateBuffer() {
             dxDevice->device_,
             sizeof(int) * shapeBuffer_->particleSize,
             D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
+            D3D12_RESOURCE_STATE_COMMON,
             D3D12_HEAP_TYPE_DEFAULT);
     }
     // freeIndexUavDescriptor_ が未作成の場合は、UAVを生成
@@ -289,6 +291,7 @@ void GpuParticleEmitter::CreateBuffer() {
             dxDevice->device_,
             sizeof(int) * shapeBuffer_->particleSize,
             D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
+            D3D12_RESOURCE_STATE_COMMON,
             D3D12_HEAP_TYPE_DEFAULT);
     }
     // freeListUavDescriptor_ が未作成の場合は、UAVを生成

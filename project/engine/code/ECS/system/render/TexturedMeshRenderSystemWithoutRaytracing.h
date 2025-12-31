@@ -15,9 +15,6 @@
 #include "directX12/DxCommand.h"
 #include "directX12/mesh/Mesh.h"
 #include "directX12/ShaderManager.h"
-
-#include "directX12/raytracing/RaytracingScene.h"
-
 // component
 #include "component/material/Material.h"
 #include "component/transform/Transform.h"
@@ -30,14 +27,13 @@ class PrimitiveMeshRendererBase;
 /// <summary>
 /// Texture付きのメッシュ(TextureMesh)を描画するシステム
 /// </summary>
-class TexturedMeshRenderSystem
+class TexturedMeshRenderSystemWithoutRaytracing
     : public BaseRenderSystem {
 public:
-    TexturedMeshRenderSystem();
-    ~TexturedMeshRenderSystem() override;
+    TexturedMeshRenderSystemWithoutRaytracing();
+    ~TexturedMeshRenderSystemWithoutRaytracing() override;
 
     void Initialize() override;
-    void Update() override;
     void Finalize() override;
 
     /// <summary>
@@ -104,16 +100,6 @@ public:
 protected:
     void LightUpdate();
 
-    /// <summary>
-    /// レイトレーシングで使用するメッシュが動的かどうか
-    /// </summary>
-    bool MeshIsDynamic(EntityHandle _entityHandle, RaytracingMeshType _type, bool _isModelMesh = false);
-
-    /// <summary>
-    /// レイトレーシングシーンの更新
-    /// </summary>
-    void UpdateRayScene();
-
 protected:
     bool currentCulling_        = true;
     BlendMode currentBlendMode_ = BlendMode::Alpha;
@@ -124,10 +110,6 @@ protected:
     // value : { non Culling , Culling }
     std::array<std::array<PipelineStateObj*, kBlendNum>, 2> psoByBlendMode_{};
 
-    std::vector<RaytracingMeshEntry> meshForRaytracing_{};
-    std::vector<RayTracingInstance> rayTracingInstances_{};
-    std::shared_ptr<RaytracingScene> raytracingScene_ = nullptr;
-
     int32_t transformBufferIndex_          = 0;
     int32_t cameraBufferIndex_             = 0;
     int32_t materialBufferIndex_           = 0;
@@ -137,7 +119,6 @@ protected:
     int32_t lightCountBufferIndex_         = 0;
     int32_t textureBufferIndex_            = 0;
     int32_t environmentTextureBufferIndex_ = 0;
-    int32_t raytracingSceneBufferIndex_    = 0;
 
 public:
     void SetBlendMode(BlendMode _blendMode) {
