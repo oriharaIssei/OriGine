@@ -96,7 +96,7 @@ inline void IStructuredBuffer<structBuff>::CreateBuffer(Microsoft::WRL::ComPtr<I
     // サイズに合わせてバッファを作成
     size_t bufferSize = sizeof(StructuredBufferType) * elementCount_;
     if (_withUAV) { // UAV付きバッファを作成
-        buff_.CreateUAVBuffer(device, bufferSize, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_HEAP_TYPE_UPLOAD);
+        buff_.CreateUAVBuffer(device, bufferSize, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON, D3D12_HEAP_TYPE_UPLOAD);
     } else { // 通常のバッファを作成
         buff_.CreateBufferResource(device, bufferSize);
     }

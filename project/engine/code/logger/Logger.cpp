@@ -108,36 +108,51 @@ void Logger::DirectTrace(const std::string& message, const char* file, const cha
     if (logger_) {
         logger_->log(spdlog::source_loc{file, line, function}, spdlog::level::trace, message);
     }
+    std::string debugmessage = std::format("[TRACE] / {}[{}]::{}  {}", file, line, function, message);
+    OutputDebugStringA((debugmessage + "\n").c_str());
 }
 
 void Logger::DirectInfo(const std::string& message, const char* file, const char* function, int line) {
     if (logger_) {
         logger_->log(spdlog::source_loc{file, line, function}, spdlog::level::info, message);
     }
+    std::string debugmessage = std::format("[INFO] / {}[{}]::{}  {}", file, line, function, message);
+    OutputDebugStringA((debugmessage + "\n").c_str());
 }
 
 void Logger::DirectDebug(const std::string& message, const char* file, const char* function, int line) {
     if (logger_) {
         logger_->log(spdlog::source_loc{file, line, function}, spdlog::level::debug, message);
     }
+    std::string debugmessage = std::format("[DEBUG] / {}[{}]::{}  {}", file, line, function, message);
+    OutputDebugStringA((debugmessage + "\n").c_str());
 }
 
 void Logger::DirectWarn(const std::string& message, const char* file, const char* function, int line) {
     if (logger_) {
         logger_->log(spdlog::source_loc{file, line, function}, spdlog::level::warn, message);
     }
+
+    std::string debugmessage = std::format("[WARN] / {}[{}]::{}  {}", file, line, function, message);
+    OutputDebugStringA((debugmessage + "\n").c_str());
 }
 
 void Logger::DirectError(const std::string& message, const char* file, const char* function, int line) {
     if (logger_) {
         logger_->log(spdlog::source_loc{file, line, function}, spdlog::level::err, message);
     }
+
+    std::string debugmessage = std::format("[ERROR] / {}[{}]::{}  {}", file, line, function, message);
+    OutputDebugStringA((debugmessage + "\n").c_str());
 }
 
 void Logger::DirectCritical(const std::string& message, const char* file, const char* function, int line) {
     if (logger_) {
         logger_->log(spdlog::source_loc{file, line, function}, spdlog::level::critical, message);
     }
+
+    std::string debugmessage = std::format("[CRITICAL] / {}[{}]::{}  {}", file, line, function, message);
+    OutputDebugStringA((debugmessage + "\n").c_str());
 }
 
 void Logger::DirectXLog(const char* file, const char* function, int line) {

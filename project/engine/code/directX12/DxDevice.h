@@ -19,7 +19,7 @@ public:
 public:
     Microsoft::WRL::ComPtr<IDXGIFactory7> dxgiFactory_ = nullptr;
     Microsoft::WRL::ComPtr<IDXGIAdapter4> useAdapter_  = nullptr;
-    Microsoft::WRL::ComPtr<ID3D12Device> device_       = nullptr;
+    Microsoft::WRL::ComPtr<ID3D12Device8> device_      = nullptr;
 };
 
 } // namespace OriGine

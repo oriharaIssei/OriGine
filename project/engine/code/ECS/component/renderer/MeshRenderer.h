@@ -12,15 +12,20 @@
 /// engine
 // assets
 #include "model/Model.h"
-// component
-#include "component/material/Material.h"
-#include "component/transform/Transform.h"
 // directX12Object
 #include "directX12/buffer/SimpleConstantBuffer.h"
 #include "directX12/mesh/Mesh.h"
+#include "directX12/mesh/MeshHandle.h"
+#include "directX12/raytracing/RaytracingMeshType.h"
 #include "directX12/ShaderManager.h"
+
 // module
 #include "texture/TextureManager.h"
+
+/// ECS
+// component
+#include "component/material/Material.h"
+#include "component/transform/Transform.h"
 
 namespace OriGine {
 
@@ -35,11 +40,13 @@ namespace OriGine {
 template <typename MeshTenplate, typename VertexDataType>
 concept IsDerivedMesh = std::derived_from<MeshTenplate, Mesh<VertexDataType>>;
 
+/// <summary>
+/// メッシュレンダラー基底クラス
+/// </summary>
 template <typename MeshTemplate, typename VertexDataType = MeshTemplate::VertexType>
     requires IsDerivedMesh<MeshTemplate, VertexDataType>
 class MeshRenderer
     : public IComponent {
-
 public:
     using VertexType = VertexDataType;
     using MeshType   = MeshTemplate;
@@ -74,6 +81,7 @@ protected:
     bool isCulling_ = true;
 
     std::shared_ptr<std::vector<MeshTemplate>> meshGroup_;
+    std::vector<RaytracingMeshType> meshRaytracingTypes_;
 
 public: // ↓ Accessor
     EntityHandle GetHostEntityHandle() const {
@@ -109,6 +117,39 @@ public: // ↓ Accessor
     }
     const std::shared_ptr<std::vector<MeshTemplate>>& GetMeshGroup() const {
         return meshGroup_;
+    }
+
+    RaytracingMeshType GetMeshRaytracingType(int32_t _meshIndex) const {
+        if (_meshIndex < 0 || static_cast<size_t>(_meshIndex) >= meshRaytracingTypes_.size()) {
+            return RaytracingMeshType::Auto;
+        }
+        return meshRaytracingTypes_[_meshIndex];
+    }
+
+    /// <summary>
+    /// 特定のメッシュを識別するためのハンドルを取得
+    /// </summary>
+    /// <param name="_meshIndex"></param>
+    /// <returns></returns>
+    MeshHandle GetMeshHandle(int32_t _meshIndex) const {
+        MeshHandle handle{};
+        handle.handle    = this->GetHandle();
+        handle.meshIndex = static_cast<uint32_t>(_meshIndex);
+        return handle;
+    }
+    /// <summary>
+    /// メッシュグループ内のすべてのメッシュを識別するためのハンドルを取得
+    /// </summary>
+    /// <returns></returns>
+    std::vector<MeshHandle> GetAllMeshHandles() const {
+        std::vector<MeshHandle> handles;
+        for (size_t i = 0; i < meshGroup_->size(); ++i) {
+            MeshHandle handle{};
+            handle.handle    = this->GetHandle();
+            handle.meshIndex = static_cast<uint32_t>(i);
+            handles.push_back(handle);
+        }
+        return handles;
     }
 
     void SetMeshGroup(const std::vector<MeshTemplate>& _meshGroup) {

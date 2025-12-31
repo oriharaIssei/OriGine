@@ -2,7 +2,7 @@
 
 using namespace OriGine;
 
-OverlayRenderSystem::OverlayRenderSystem() : TexturedMeshRenderSystem() {}
+OverlayRenderSystem::OverlayRenderSystem() : TexturedMeshRenderSystemWithoutRaytracing() {}
 OverlayRenderSystem::~OverlayRenderSystem() {}
 
 void OverlayRenderSystem::CreatePSO() {
@@ -18,8 +18,8 @@ void OverlayRenderSystem::CreatePSO() {
                 isAllRegistered = false;
                 continue;
             }
-            psoByBlendMode_[0][i] = shaderManager->GetPipelineStateObj("TextureMesh_" + kBlendModeStr[i]);
-            psoByBlendMode_[1][i] = shaderManager->GetPipelineStateObj("CullingTextureMesh_" + kBlendModeStr[i]);
+            psoByBlendMode_[0][i] = shaderManager->GetPipelineStateObj("Overlay_" + kBlendModeStr[i]);
+            psoByBlendMode_[1][i] = shaderManager->GetPipelineStateObj("CullingOverlay_" + kBlendModeStr[i]);
         }
 
         //! TODO : 自動化
@@ -42,18 +42,18 @@ void OverlayRenderSystem::CreatePSO() {
     ///=================================================
     /// shader読み込み
     ///=================================================
-    shaderManager->LoadShader("Object3dTexture.VS");
-    shaderManager->LoadShader("Object3dTexture.PS", kShaderDirectory, L"ps_6_0");
+    shaderManager->LoadShader("Object3dTextureColor.VS");
+    shaderManager->LoadShader("Object3dTextureColor.PS", kShaderDirectory, L"ps_6_5");
 
     ///=================================================
     /// shader情報の設定
     ///=================================================
     ShaderInfo texShaderInfo{};
-    texShaderInfo.vsKey = "Object3dTexture.VS";
-    texShaderInfo.psKey = "Object3dTexture.PS";
+    texShaderInfo.vsKey = "Object3dTextureColor.VS";
+    texShaderInfo.psKey = "Object3dTextureColor.PS";
 
 #pragma region "RootParameter"
-    D3D12_ROOT_PARAMETER rootParameter[9]{};
+    D3D12_ROOT_PARAMETER rootParameter[10]{};
     // Transform ... 0
     rootParameter[0].ParameterType             = D3D12_ROOT_PARAMETER_TYPE_CBV;
     rootParameter[0].ShaderVisibility          = D3D12_SHADER_VISIBILITY_VERTEX;
@@ -183,6 +183,13 @@ void OverlayRenderSystem::CreatePSO() {
     inputElementDesc.Format            = DXGI_FORMAT_R32G32B32_FLOAT;
     inputElementDesc.AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
     texShaderInfo.pushBackInputElementDesc(inputElementDesc);
+
+    inputElementDesc.SemanticName      = "COLOR"; /*Semantics*/
+    inputElementDesc.SemanticIndex     = 0; /*Semanticsの横に書いてある数字(今回はPOSITION0なので 0 )*/
+    inputElementDesc.Format            = DXGI_FORMAT_R32G32B32A32_FLOAT; // float 4
+    inputElementDesc.AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+    texShaderInfo.pushBackInputElementDesc(inputElementDesc);
+
 #pragma endregion
 
     /// 深度ステンシル無効化

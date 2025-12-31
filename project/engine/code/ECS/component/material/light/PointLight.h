@@ -31,13 +31,13 @@ public:
     void Finalize() override {}
 
 public:
-    bool isActive_ = true;
+    bool isActive = true;
 
-    Vec3f color_     = {1.f, 1.f, 1.f};
-    Vec3f pos_       = {0.f, 0.f, 0.f};
-    float intensity_ = 0.f;
-    float radius_    = 0.f;
-    float decay_     = 0.f;
+    Vec3f color     = {1.f, 1.f, 1.f};
+    Vec3f pos       = {0.f, 0.f, 0.f};
+    float intensity = 0.f;
+    float radius    = 0.f;
+    float decay     = 0.f;
 
 public:
     struct ConstantBuffer {
@@ -48,11 +48,11 @@ public:
         float decay; // 4 bytes
         float padding[3];
         ConstantBuffer& operator=(const PointLight& light) {
-            color     = light.color_;
-            pos       = light.pos_;
-            intensity = light.intensity_;
-            radius    = light.radius_;
-            decay     = light.decay_;
+            color     = light.color;
+            pos       = light.pos;
+            intensity = light.intensity;
+            radius    = light.radius;
+            decay     = light.decay;
             return *this;
         }
     };

@@ -59,7 +59,7 @@ public:
 
 public:
     struct CommandListCombo {
-        Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList   = nullptr;
+        Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList6> commandList  = nullptr;
         Microsoft::WRL::ComPtr<ID3D12CommandAllocator> commandAllocator = nullptr;
         ResourceStateTracker resourceStateTracker;
         bool isClosed = true;
@@ -90,7 +90,7 @@ private:
     /// <summary>
     /// commandListに対してallocatorはほぼ1対1なのでcommandListとAllocatorは同じキーで管理する
     /// </summary>
-    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList_   = nullptr;
+    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList6> commandList_  = nullptr;
     Microsoft::WRL::ComPtr<ID3D12CommandAllocator> commandAllocator_ = nullptr;
     Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue_         = nullptr;
     ResourceStateTracker* resourceStateTracker_                      = nullptr;
@@ -99,8 +99,8 @@ public:
     const ::std::string& GetCommandListComboKey() const { return commandListComboKey_; }
     const ::std::string& GetCommandQueueKey() const { return commandQueueKey_; }
 
-    const Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& GetCommandList() const { return commandList_; }
-    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& GetCommandListRef() { return commandList_; }
+    const Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList6>& GetCommandList() const { return commandList_; }
+    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList6>& GetCommandListRef() { return commandList_; }
     const Microsoft::WRL::ComPtr<ID3D12CommandAllocator>& GetCommandAllocator() const { return commandAllocator_; }
     Microsoft::WRL::ComPtr<ID3D12CommandAllocator>& GetCommandAllocatorRef() { return commandAllocator_; }
     const Microsoft::WRL::ComPtr<ID3D12CommandQueue>& GetCommandQueue() const { return commandQueue_; }

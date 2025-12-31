@@ -29,7 +29,8 @@ enum class DxResourceType : int32_t {
     Descriptor_Sampler = 0b1 << 5,
     Buffer             = 0b1 << 6,
     Buffer_Constant    = 0b1 << 8,
-    Buffer_Structured  = 0b1 << 9
+    Buffer_Structured  = 0b1 << 9,
+
 };
 
 /// <summary>
@@ -50,7 +51,7 @@ public:
     /// </summary>
     /// <param name="device"></param>
     /// <param name="sizeInBytes">bufferのサイズ</param>
-    void CreateBufferResource(Microsoft::WRL::ComPtr<ID3D12Device> device, size_t sizeInBytes);
+    void CreateBufferResource(Microsoft::WRL::ComPtr<ID3D12Device> device, size_t sizeInBytes, D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATE_GENERIC_READ);
 
     /// <summary>
     /// DSVBufferResource として 作成
@@ -63,7 +64,7 @@ public:
     /// <summary>
     /// UAVBufferResource として 作成
     /// </summary>
-    void CreateUAVBuffer(Microsoft::WRL::ComPtr<ID3D12Device> device, size_t sizeInBytes, D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_HEAP_TYPE heapType = D3D12_HEAP_TYPE_DEFAULT);
+    void CreateUAVBuffer(Microsoft::WRL::ComPtr<ID3D12Device> device, size_t sizeInBytes, D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATE_COMMON, D3D12_HEAP_TYPE heapType = D3D12_HEAP_TYPE_DEFAULT);
     /// <summary>
     /// RenderTextureResource として 作成
     /// </summary>

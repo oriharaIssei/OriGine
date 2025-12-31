@@ -10,7 +10,7 @@
 #include "component/renderer/primitive/base/PrimitiveMeshRendererBase.h"
 #include "component/transform/Transform.h"
 // system
-#include "system/render/TexturedMeshRenderSystem.h"
+#include "system/render/TexturedMeshRenderSystemWithoutRaytracing.h"
 
 // directX12
 #include "directX12/DxDevice.h"
@@ -28,7 +28,7 @@ void DistortionEffect::Initialize() {
     distortionSceneTexture_->Initialize(2, Engine::GetInstance()->GetWinApp()->GetWindowSize(), DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, Vec4f(0.0f, 0.0f, 0.0f, 0.0f));
     distortionSceneTexture_->SetTextureName("DistortionSceneTexture");
 
-    texturedMeshRenderSystem_ = std::make_unique<TexturedMeshRenderSystem>();
+    texturedMeshRenderSystem_ = std::make_unique<TexturedMeshRenderSystemWithoutRaytracing>();
     texturedMeshRenderSystem_->SetScene(GetScene());
     texturedMeshRenderSystem_->Initialize();
 
