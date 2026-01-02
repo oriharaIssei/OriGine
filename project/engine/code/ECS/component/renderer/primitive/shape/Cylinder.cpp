@@ -3,6 +3,11 @@
 namespace OriGine {
 namespace Primitive {
 void Cylinder::CreateMesh(TextureColorMesh* _mesh) {
+
+    // 頂点数とインデックス数の設定
+    vertexSize_ = (radialDivisions + 1) * (heightDivisions + 1);
+    indexSize_  = radialDivisions * heightDivisions * 6 + radialDivisions * 6;
+
     if (_mesh->GetIndexCapacity() < indexSize_) {
         // 必要なら Finalize
         if (_mesh->GetVertexBuffer().GetResource()) {
@@ -14,7 +19,7 @@ void Cylinder::CreateMesh(TextureColorMesh* _mesh) {
     }
 
     // 角度ステップ
-    float angleStep = kTao / float(kCylinderDivisions);
+    float angleStep = kTao / float(radialDivisions);
 
     std::vector<TextureColorMesh::VertexType> vertices;
     std::vector<uint32_t> indices;
@@ -22,49 +27,60 @@ void Cylinder::CreateMesh(TextureColorMesh* _mesh) {
     vertices.reserve(vertexSize_);
     indices.reserve(indexSize_);
 
-    // cylinderを生成
-    // 頂点
-    for (uint32_t i = 0; i <= kCylinderDivisions; ++i) {
+    // ==============================
+    // 頂点生成
+    // ==============================
+    int32_t radiusEaseTypeInt = static_cast<int32_t>(radiusEaseType);
+    for (uint32_t h = 0; h <= heightDivisions; ++h) {
 
-        // 360度を等間隔で分割したi番目の角度
-        float angle = angleStep * (float)i;
-        float sin   = sinf(angle);
-        float cos   = cosf(angle);
+        float v      = float(h) / float(heightDivisions);
+        float easedV = EasingFunctions[radiusEaseTypeInt](v);
 
-        // 上面の頂点位置
-        Vec3f topVertex = Vec3f(sin * topRadius_[X], height_, cos * topRadius_[Y]);
-        // 下面の頂点位置
-        Vec3f bottomVertex = Vec3f(sin * bottomRadius_[X], 0.0f, cos * bottomRadius_[Y]);
+        Vec2f radius = Lerp(bottomRadius, topRadius, easedV);
+        float y      = std::lerp(0.0f, height, v);
 
-        float u = static_cast<float>(i) / static_cast<float>(kCylinderDivisions);
+        for (uint32_t r = 0; r <= radialDivisions; ++r) {
 
-        TextureColorMesh::VertexType vertex{};
-        vertex.pos      = Vec4f(topVertex, 1.f);
-        vertex.normal   = -topVertex.normalize();
-        vertex.texCoord = Vec2f(-u, 0.0f);
-        vertices.emplace_back(vertex);
+            float angle = angleStep * float(r);
+            float s     = sinf(angle);
+            float c     = cosf(angle);
 
-        vertex.pos      = Vec4f(bottomVertex, 1.f);
-        vertex.normal   = -bottomVertex.normalize();
-        vertex.texCoord = Vec2f(-u, 1.0f);
-        vertices.emplace_back(vertex);
+            Vec3f pos(s * radius[X], y, c * radius[Y]);
+
+            float u = float(r) / float(radialDivisions);
+
+            TextureColorMesh::VertexType vertex{};
+            vertex.pos      = Vec4f(pos, 1.f);
+            vertex.normal   = Vec3f(s, 0.0f, c); // 側面法線
+            vertex.texCoord = Vec2f(u, v);
+
+            vertices.emplace_back(vertex);
+        }
     }
 
-    // インデックス
-    for (uint32_t i = 0; i < kCylinderDivisions; ++i) {
+    // ==============================
+    // インデックス生成
+    // ==============================
+    uint32_t ringVertexCount = radialDivisions + 1;
 
-        uint32_t t0 = i * 2;
-        uint32_t b0 = i * 2 + 1;
-        uint32_t t1 = (i + 1) * 2;
-        uint32_t b1 = (i + 1) * 2 + 1;
+    for (uint32_t h = 0; h < heightDivisions; ++h) {
+        for (uint32_t r = 0; r < radialDivisions; ++r) {
 
-        indices.push_back(t0);
-        indices.push_back(t1);
-        indices.push_back(b0);
+            uint32_t i0 = h * ringVertexCount + r;
+            uint32_t i1 = i0 + 1;
+            uint32_t i2 = i0 + ringVertexCount;
+            uint32_t i3 = i2 + 1;
 
-        indices.push_back(t1);
-        indices.push_back(b1);
-        indices.push_back(b0);
+            // triangle 1
+            indices.push_back(i0);
+            indices.push_back(i1);
+            indices.push_back(i2);
+
+            // triangle 2
+            indices.push_back(i1);
+            indices.push_back(i3);
+            indices.push_back(i2);
+        }
     }
 
     _mesh->SetVertexData(vertices);

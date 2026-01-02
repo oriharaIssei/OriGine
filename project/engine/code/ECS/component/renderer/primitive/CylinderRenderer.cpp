@@ -21,7 +21,7 @@
 using namespace OriGine;
 
 void CylinderRenderer::Initialize(Scene* _scene, EntityHandle _hostEntity) {
-    MeshRenderer::Initialize(_scene,_hostEntity);
+    MeshRenderer::Initialize(_scene, _hostEntity);
 
     // culling しない
     isCulling_ = false;
@@ -89,6 +89,8 @@ void CylinderRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Ent
             materialBuff_.ConvertToBuffer(materials[materialIndex_]);
             ImGui::TreePop();
         }
+    } else {
+        ImGui::Text("No Material");
     }
 
     ImGui::Spacing();
@@ -113,20 +115,32 @@ void CylinderRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Ent
 
     // shape
     label = "TopRadius##" + _parentLabel;
-    DragGuiVectorCommand<2, float>(label.c_str(), primitive_.topRadius_, 0.01f, 0.01f, 0.f, "%.3f", [this](Vector<2, float>* _value) {
-        primitive_.topRadius_ = *_value;
+    DragGuiVectorCommand<2, float>(label.c_str(), primitive_.topRadius, 0.01f, 0.01f, 0.f, "%.3f", [this](Vector<2, float>* _value) {
+        primitive_.topRadius = *_value;
         CreateMesh(&meshGroup_->back());
     });
 
     label = "BottomRadius##" + _parentLabel;
-    DragGuiVectorCommand<2, float>(label.c_str(), primitive_.bottomRadius_, 0.01f, 0.01f, 0.f, "%.3f", [this](Vector<2, float>* _value) {
-        primitive_.bottomRadius_ = *_value;
+    DragGuiVectorCommand<2, float>(label.c_str(), primitive_.bottomRadius, 0.01f, 0.01f, 0.f, "%.3f", [this](Vector<2, float>* _value) {
+        primitive_.bottomRadius = *_value;
         CreateMesh(&meshGroup_->back());
     });
 
+    label = "RadialDivisions##" + _parentLabel;
+    DragGuiCommand<uint32_t>(label, primitive_.radialDivisions, 1, 1, {}, "%d");
+
+    label = "HeightDivisions##" + _parentLabel;
+    DragGuiCommand<uint32_t>(label, primitive_.radialDivisions, 1, 1, {}, "%d");
+
+    label = "RadiusEaseType##" + _parentLabel;
+    ImGui::Text("RadiusEaseType :");
+    ImGui::SameLine();
+    label = "##RadiusEaseType" + _parentLabel;
+    EasingComboGui(label.c_str(), primitive_.radiusEaseType);
+
     label = "Height##" + _parentLabel;
-    DragGuiCommand<float>(label.c_str(), primitive_.height_, 0.01f, 0.01f, {}, "%.3f", [this](float* _value) {
-        primitive_.height_ = *_value;
+    DragGuiCommand<float>(label.c_str(), primitive_.height, 0.01f, 0.01f, {}, "%.3f", [this](float* _value) {
+        primitive_.height = *_value;
         CreateMesh(&meshGroup_->back());
     });
 
@@ -154,15 +168,19 @@ void OriGine::to_json(nlohmann::json& j, const CylinderRenderer& c) {
     to_json(j["transform"], c.transformBuff_.openData_);
     j["materialIndex"] = c.materialIndex_;
 
-    j["topRadius"]    = c.primitive_.topRadius_;
-    j["bottomRadius"] = c.primitive_.bottomRadius_;
-    j["height"]       = c.primitive_.height_;
+    j["topRadius"]       = c.primitive_.topRadius;
+    j["bottomRadius"]    = c.primitive_.bottomRadius;
+    j["radiusEaseType"]  = static_cast<int32_t>(c.primitive_.radiusEaseType);
+    j["radialDivisions"] = c.primitive_.radialDivisions;
+    j["heightDivisions"] = c.primitive_.heightDivisions;
+
+    j["height"] = c.primitive_.height;
 }
 
 void OriGine::from_json(const nlohmann::json& j, CylinderRenderer& c) {
     j.at("isRenderer").get_to(c.isRender_);
     if (j.contains("isCulling")) {
-        j.at("isCulling").get_to(c.isCulling_);
+        j.at("isCulling").get_to<bool>(c.isCulling_);
     }
     int32_t blendMode = 0;
     j.at("blendMode").get_to(blendMode);
@@ -182,7 +200,19 @@ void OriGine::from_json(const nlohmann::json& j, CylinderRenderer& c) {
     from_json(j.at("transform"), c.transformBuff_.openData_);
     c.materialIndex_ = j.at("materialIndex");
 
-    j.at("topRadius").get_to(c.primitive_.topRadius_);
-    j.at("bottomRadius").get_to(c.primitive_.bottomRadius_);
-    j.at("height").get_to(c.primitive_.height_);
+    j.at("topRadius").get_to(c.primitive_.topRadius);
+    j.at("bottomRadius").get_to(c.primitive_.bottomRadius);
+    j.at("height").get_to(c.primitive_.height);
+
+    if (j.contains("radiusEaseType")) {
+        int32_t easeType = 0;
+        j.at("radiusEaseType").get_to(easeType);
+        c.primitive_.radiusEaseType = static_cast<EaseType>(easeType);
+    }
+    if (j.contains("radialDivisions")) {
+        j.at("radialDivisions").get_to(c.primitive_.radialDivisions);
+    }
+    if (j.contains("heightDivisions")) {
+        j.at("heightDivisions").get_to(c.primitive_.heightDivisions);
+    }
 }

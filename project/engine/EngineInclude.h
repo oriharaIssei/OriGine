@@ -62,6 +62,7 @@ static const ::std::string kEngineResourceDirectory      = "./engine/resource";
 #include "system/render/BackGroundSpriteRenderSystem.h"
 #include "system/render/ColliderRenderingSystem.h"
 #include "system/render/GpuParticleRenderSystem.h"
+#include "system/render/LightDebugRenderingSystem.h"
 #include "system/render/LineRenderSystem.h"
 #include "system/render/OverlayRenderSystem.h"
 #include "system/render/ParticleRenderSystem.h"

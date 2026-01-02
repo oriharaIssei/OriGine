@@ -44,6 +44,7 @@ public:
     float decay           = 0.f;
     float cosAngle        = 0.f;
     float cosFalloffStart = 0.f;
+    float angularRadius;
 
 public:
     struct ConstantBuffer {
@@ -55,7 +56,8 @@ public:
         float decay; // 4 bytes
         float cosAngle; // 4 bytes
         float cosFalloffStart; // 4 bytes
-        float padding[2]; // 8 bytes (to align to 16 bytes)
+        float angularRadius;
+        float padding; // 8 bytes (to align to 16 bytes)
         ConstantBuffer& operator=(const SpotLight& light) {
             color           = light.color;
             pos             = light.pos;
@@ -65,6 +67,7 @@ public:
             decay           = light.decay;
             cosAngle        = light.cosAngle;
             cosFalloffStart = light.cosFalloffStart;
+            angularRadius   = light.angularRadius;
             return *this;
         }
     };

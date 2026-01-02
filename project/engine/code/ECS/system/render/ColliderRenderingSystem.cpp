@@ -21,7 +21,7 @@
 using namespace OriGine;
 
 const int32_t ColliderRenderingSystem::kDefaultMeshCount_ = 1000;
-
+namespace {
 // ** AABB **//
 static const uint32_t kAabbVertexSize = 8;
 static const uint32_t kAabbIndexSize  = 24;
@@ -36,6 +36,7 @@ static const float kSphereDivisionReal = static_cast<float>(kSphereDivision);
 
 static const uint32_t kSphereVertexSize = 4 * kSphereDivision * kSphereDivision;
 static const uint32_t kSphereIndexSize  = 4 * kSphereDivision * kSphereDivision;
+} // namespace
 
 #pragma region "CreateLineMesh"
 /// <summary>
@@ -59,7 +60,6 @@ void CreateLineMeshByShape(
     Mesh<ColorVertexData>* _mesh,
     const Bounds::AABB& _shape,
     const Vec4f& _color) {
-
     Vec3f shapeMin = _shape.Min();
     Vec3f shapeMax = _shape.Max();
 
@@ -249,6 +249,10 @@ void ColliderRenderingSystem::Update() {
 }
 
 void ColliderRenderingSystem::Finalize() {
+    aabbRenderer_->Finalize();
+    obbRenderer_->Finalize();
+    sphereRenderer_->Finalize();
+
     dxCommand_->Finalize();
 }
 

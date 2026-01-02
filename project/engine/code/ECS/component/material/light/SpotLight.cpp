@@ -23,6 +23,7 @@ void SpotLight::Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, [[maybe_unused]
 
     DragGuiVectorCommand<3, float>("Position##" + _parentLabel, pos, 0.01f);
     DragGuiVectorCommand<3, float>("Direction##" + _parentLabel, direction, 0.01f, {}, {}, "%.3f", [](Vector<3, float>* _d) { *_d = Vec3f::Normalize(*_d); });
+    direction = Vec3f::Normalize(direction);
 
     DragGuiCommand<float>("Distance##" + _parentLabel, distance, 0.01f, 0.0f);
     DragGuiCommand<float>("Decay##" + _parentLabel, decay, 0.01f, 0.0f);
@@ -31,6 +32,7 @@ void SpotLight::Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, [[maybe_unused]
 
     DragGuiCommand<float>("CosAngle##" + _parentLabel, cosAngle, 0.01f, 0.0f, 1.0f);
     DragGuiCommand<float>("CosFalloffStart##" + _parentLabel, cosFalloffStart, 0.01f, 0.0f, 1.0f);
+    DragGuiCommand<float>("Angular Radius##" + _parentLabel, angularRadius, 0.01f, 0.0f);
 
 #endif // _DEBUG
 }
@@ -45,6 +47,7 @@ void OriGine::to_json(nlohmann::json& j, const SpotLight& l) {
     j["decay"]           = l.decay;
     j["cosAngle"]        = l.cosAngle;
     j["cosFalloffStart"] = l.cosFalloffStart;
+    j["angularRadius"]   = l.angularRadius;
 }
 
 void OriGine::from_json(const nlohmann::json& j, SpotLight& l) {
@@ -57,4 +60,7 @@ void OriGine::from_json(const nlohmann::json& j, SpotLight& l) {
     j.at("decay").get_to(l.decay);
     j.at("cosAngle").get_to(l.cosAngle);
     j.at("cosFalloffStart").get_to(l.cosFalloffStart);
+    if (j.contains("angularRadius")) {
+        j.at("angularRadius").get_to(l.angularRadius);
+    }
 }

@@ -79,25 +79,30 @@ float2 Hammersley(uint i, uint N)
 }
 
 
-static const uint SHADOW_SAMPLE_COUNT = 4;
 float TraceShadowSoft(
     float3 origin,
     float3 lightDir,
     float maxDist,
-    float cosThetaMax)
+    float cosThetaMax,
+    uint shadowSampleCount)
 {
     float shadow = 0.0f;
+
+    if (shadowSampleCount == 0)
+    {
+        return 1.0f;
+    }
     
     [unroll]
-    for (int i = 0; i < SHADOW_SAMPLE_COUNT; ++i)
+    for (int i = 0; i < shadowSampleCount; ++i)
     {
         // サンプリング方向を決定
-        float2 xi = Hammersley(i, SHADOW_SAMPLE_COUNT);
+        float2 xi = Hammersley(i, shadowSampleCount);
         // 円錐内の方向をサンプリング
         float3 dir = SampleCone(lightDir, xi, cosThetaMax);
         // 影判定
         shadow += TraceShadowRay(origin, dir, 0.001f, maxDist) ? 0.0f : 1.0f;
     }
 
-    return shadow / SHADOW_SAMPLE_COUNT;
+    return shadow / shadowSampleCount;
 }

@@ -176,6 +176,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\ECS\component\ComponentHandle.h" />
     <ClInclude Include="engine\code\ECS\entity\EntityHandle.h" />
     <ClInclude Include="engine\code\ECS\system\effect\DissolveAnimationSystem.h" />
+    <ClInclude Include="engine\code\ECS\system\render\LightDebugRenderingSystem.h" />
     <ClInclude Include="engine\code\ECS\system\render\TexturedMeshRenderSystemWithoutRaytracing.h" />
     <ClInclude Include="engine\EngineInclude.h" />
     <ClInclude Include="engine\code\ECS\component\ComponentArray.h" />
@@ -448,6 +449,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\ECS\entity\EntityRepository.cpp" />
     <ClCompile Include="engine\code\ECS\system\effect\DissolveAnimationSystem.cpp" />
     <ClCompile Include="engine\code\ECS\system\ISystem.cpp" />
+    <ClCompile Include="engine\code\ECS\system\render\LightDebugRenderingSystem.cpp" />
     <ClCompile Include="engine\code\ECS\system\render\TexturedMeshRenderSystemWithoutRaytracing.cpp" />
     <ClCompile Include="engine\code\ECS\system\SystemCategory.cpp" />
     <ClCompile Include="engine\code\ECS\system\SystemRegistry.cpp" />

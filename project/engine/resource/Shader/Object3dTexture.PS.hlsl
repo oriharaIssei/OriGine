@@ -161,9 +161,8 @@ PixelShaderOutput main(VertexShaderOutput input)
         float3 lightDir = normalize(input.worldPos - gPointLight[pointLightIndex].pos);
         
         float distance = length(gPointLight[pointLightIndex].pos - input.worldPos);
-        float factElement = saturate(distance / gPointLight[pointLightIndex].radius + 1.0f);
-        float factor = pow(factElement,
-                         gPointLight[pointLightIndex].decay);
+        float factElement = saturate(-distance / gPointLight[pointLightIndex].radius + 1.0f);
+        float factor = pow(factElement, gPointLight[pointLightIndex].decay);
         
         float3 lightColor = gPointLight[pointLightIndex].color.rgb * (gPointLight[pointLightIndex].intensity * factor);
         

@@ -60,8 +60,8 @@ struct PrimitiveVertexData {
 /// 色付き頂点データ
 /// </summary>
 struct ColorVertexData {
-    Vec4f pos = {0.f, 0.f, 0.f, 1.f};
-    Vec4f color;
+    Vec4f pos   = {0.f, 0.f, 0.f, 1.f};
+    Vec4f color = kWhite;
 
     ColorVertexData* operator=(const ColorVertexData& vert) {
         this->pos   = vert.pos;

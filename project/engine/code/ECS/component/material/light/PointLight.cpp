@@ -24,17 +24,19 @@ void PointLight::Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, [[maybe_unused
     DragGuiVectorCommand<3, float>("Position##" + _parentLabel, pos, 0.01f);
     DragGuiCommand<float>("Radius##" + _parentLabel, radius, 0.01f, 0.0f);
     DragGuiCommand<float>("Decay##" + _parentLabel, decay, 0.01f, 0.0f);
+    DragGuiCommand<float>("Angular Radius##" + _parentLabel, angularRadius, 0.01f, 0.0f);
 
 #endif // _DEBUG
 }
 
 void OriGine::to_json(nlohmann::json& j, const PointLight& l) {
-    j["isActive"]  = l.isActive;
-    j["color"]     = l.color;
-    j["intensity"] = l.intensity;
-    j["pos"]       = l.pos;
-    j["radius"]    = l.radius;
-    j["decay"]     = l.decay;
+    j["isActive"]      = l.isActive;
+    j["color"]         = l.color;
+    j["intensity"]     = l.intensity;
+    j["pos"]           = l.pos;
+    j["radius"]        = l.radius;
+    j["decay"]         = l.decay;
+    j["angularRadius"] = l.angularRadius;
 }
 void OriGine::from_json(const nlohmann::json& j, PointLight& l) {
     j.at("isActive").get_to(l.isActive);
@@ -43,4 +45,7 @@ void OriGine::from_json(const nlohmann::json& j, PointLight& l) {
     j.at("pos").get_to(l.pos);
     j.at("radius").get_to(l.radius);
     j.at("decay").get_to(l.decay);
+    if (j.contains("angularRadius")) {
+        j.at("angularRadius").get_to(l.angularRadius);
+    }
 }
