@@ -179,9 +179,8 @@ void OriGine::to_json(nlohmann::json& j, const CylinderRenderer& c) {
 
 void OriGine::from_json(const nlohmann::json& j, CylinderRenderer& c) {
     j.at("isRenderer").get_to(c.isRender_);
-    if (j.contains("isCulling")) {
-        j.at("isCulling").get_to<bool>(c.isCulling_);
-    }
+    j.at("isCulling").get_to<bool>(c.isCulling_);
+
     int32_t blendMode = 0;
     j.at("blendMode").get_to(blendMode);
     c.currentBlend_ = static_cast<BlendMode>(blendMode);

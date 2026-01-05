@@ -633,8 +633,10 @@ void OriGine::from_json(const nlohmann::json& j, LineRenderer& r) {
 }
 
 void LineRenderer::Finalize() {
-    for (auto& mesh : *meshGroup_) {
-        mesh.Finalize();
+    if (meshGroup_) {
+        for (auto& mesh : *meshGroup_) {
+            mesh.Finalize();
+        }
     }
     meshGroup_.reset();
     transformBuff_.Finalize();
