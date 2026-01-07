@@ -74,22 +74,6 @@ void SkinningAnimationSystem::Initialize() {
     CreatePSO();
 }
 
-void SkinningAnimationSystem::Update() {
-    if (entities_.empty()) {
-        return;
-    }
-    ISystem::EraseDeadEntity();
-
-    usingCS_ = false;
-
-    for (auto& handle : entities_) {
-        UpdateEntity(handle);
-    }
-    /*  if (usingCS_) {
-          ExecuteCS();
-      }*/
-}
-
 void SkinningAnimationSystem::Finalize() {
     if (dxCommand_) {
         dxCommand_->Finalize();
@@ -248,8 +232,6 @@ void SkinningAnimationSystem::UpdateEntity(EntityHandle _handle) {
             dxCommand_->ResourceBarrier(
                 skinnedVertexBuffer.buffer.GetResource(),
                 D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
-
-            usingCS_ = true;
         }
 
         ExecuteCS();

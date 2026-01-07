@@ -35,6 +35,156 @@ enum class DxDescriptorHeapType {
 Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> CreateHeap(Microsoft::WRL::ComPtr<ID3D12Device> device, D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible);
 
 /// <summary>
+/// Descriptor 1つ分の生成情報を表すインターフェースクラス
+/// </summary>
+class IDescriptorEntry {
+public:
+    virtual ~IDescriptorEntry() = default;
+
+    virtual DxDescriptorHeapType GetHeapType() const = 0;
+    virtual void Create(
+        ID3D12Device* device,
+        D3D12_CPU_DESCRIPTOR_HANDLE handle) const = 0;
+};
+
+/// <summary>
+/// RTV Descriptor 1つ分の生成情報を表すクラス
+/// </summary>
+class RTVEntry final
+    : public IDescriptorEntry {
+public:
+    RTVEntry(
+        DxResource* resource,
+        const D3D12_RENDER_TARGET_VIEW_DESC& desc)
+        : resource_(resource), desc_(desc) {}
+    DxDescriptorHeapType GetHeapType() const override {
+        return DxDescriptorHeapType::RTV;
+    }
+    void Create(ID3D12Device* device,
+        D3D12_CPU_DESCRIPTOR_HANDLE handle) const override {
+        device->CreateRenderTargetView(
+            resource_->GetResource().Get(),
+            &desc_,
+            handle);
+        resource_->AddType(DxResourceType::Descriptor_RTV);
+    }
+
+private:
+    DxResource* resource_;
+    D3D12_RENDER_TARGET_VIEW_DESC desc_;
+};
+
+/// <summary>
+/// SRV Descriptor 1つ分の生成情報を表すクラス
+/// </summary>
+class SRVEntry final
+    : public IDescriptorEntry {
+public:
+    SRVEntry(
+        DxResource* resource,
+        const D3D12_SHADER_RESOURCE_VIEW_DESC& desc)
+        : resource_(resource), desc_(desc) {}
+
+    DxDescriptorHeapType GetHeapType() const override {
+        return DxDescriptorHeapType::CBV_SRV_UAV;
+    }
+
+    void Create(ID3D12Device* device,
+        D3D12_CPU_DESCRIPTOR_HANDLE handle) const override {
+        device->CreateShaderResourceView(
+            resource_->GetResource().Get(),
+            &desc_,
+            handle);
+        resource_->AddType(DxResourceType::Descriptor_SRV);
+    }
+
+private:
+    DxResource* resource_;
+    D3D12_SHADER_RESOURCE_VIEW_DESC desc_;
+};
+
+/// <summary>
+/// DSV Descriptor 1つ分の生成情報を表すクラス
+/// </summary>
+class DSVEntry final
+    : public IDescriptorEntry {
+public:
+    DSVEntry(
+        DxResource* resource,
+        const D3D12_DEPTH_STENCIL_VIEW_DESC& desc)
+        : resource_(resource), desc_(desc) {}
+    DxDescriptorHeapType GetHeapType() const override {
+        return DxDescriptorHeapType::DSV;
+    }
+    void Create(ID3D12Device* device,
+        D3D12_CPU_DESCRIPTOR_HANDLE handle) const override {
+        device->CreateDepthStencilView(
+            resource_->GetResource().Get(),
+            &desc_,
+            handle);
+        resource_->AddType(DxResourceType::Descriptor_DSV);
+    }
+
+private:
+    DxResource* resource_;
+    D3D12_DEPTH_STENCIL_VIEW_DESC desc_;
+};
+
+/// <summary>
+/// UAV Descriptor 1つ分の生成情報を表すクラス
+/// </summary>
+class UAVEntry final
+    : public IDescriptorEntry {
+public:
+    UAVEntry(
+        DxResource* resource,
+        DxResource* counter,
+        const D3D12_UNORDERED_ACCESS_VIEW_DESC& desc)
+        : resource_(resource), counter_(counter), desc_(desc) {}
+
+    DxDescriptorHeapType GetHeapType() const override {
+        return DxDescriptorHeapType::CBV_SRV_UAV;
+    }
+
+    void Create(ID3D12Device* device,
+        D3D12_CPU_DESCRIPTOR_HANDLE handle) const override {
+        device->CreateUnorderedAccessView(
+            resource_->GetResource().Get(),
+            counter_ ? counter_->GetResource().Get() : nullptr,
+            &desc_,
+            handle);
+        resource_->AddType(DxResourceType::Descriptor_UAV);
+    }
+
+private:
+    DxResource* resource_;
+    DxResource* counter_; // nullptr OK
+    D3D12_UNORDERED_ACCESS_VIEW_DESC desc_;
+};
+
+/// <summary>
+/// Sampler Descriptor 1つ分の生成情報を表すクラス
+/// </summary>
+class SamplerEntry final
+    : public IDescriptorEntry {
+public:
+    SamplerEntry(const D3D12_SAMPLER_DESC& desc)
+        : desc_(desc) {}
+
+    DxDescriptorHeapType GetHeapType() const override {
+        return DxDescriptorHeapType::Sampler;
+    }
+
+    void Create(ID3D12Device* device,
+        D3D12_CPU_DESCRIPTOR_HANDLE handle) const override {
+        device->CreateSampler(&desc_, handle);
+    }
+
+private:
+    D3D12_SAMPLER_DESC desc_;
+};
+
+/// <summary>
 /// Descriptor 1つを表すクラス
 /// </summary>
 /// <typeparam name="Type"></typeparam>
@@ -99,8 +249,7 @@ public:
     /// <param name="_desc"></param>
     /// <param name="_resource"></param>
     /// <returns></returns>
-    template <typename Desc>
-    DescriptorType CreateDescriptor(const Desc& _desc, OriGine::DxResource* _resource);
+    DescriptorType CreateDescriptor(IDescriptorEntry* _entry);
 
     /// <summary>
     /// Descriptorを割り当てる
@@ -178,13 +327,13 @@ public:
 
     void SetDevice(Microsoft::WRL::ComPtr<ID3D12Device> device) { device_ = device; }
 
-    DescriptorType* GetDescriptor(uint32_t index) const {
+    DescriptorType GetDescriptor(uint32_t index) const {
         // インデックスが範囲外の場合は例外を投げる
         if (index >= descriptors_.size()) {
             LOG_ERROR("Index out of range in DxDescriptorHeap");
             throw ::std::out_of_range("Index out of range in DxDescriptorHeap");
         }
-        return descriptors_[index].get();
+        return descriptors_[index];
     }
     void SetDescriptor(uint32_t index, const DescriptorType& descriptor) {
         // インデックスが範囲外の場合は例外を投げる
@@ -192,7 +341,7 @@ public:
             LOG_ERROR("Index out of range in DxDescriptorHeap");
             throw ::std::out_of_range("Index out of range in DxDescriptorHeap");
         }
-        descriptors_[index] = ::std::make_shared<DescriptorType>(descriptor);
+        descriptors_[index] = descriptor;
         usedFlags_.Set(index, true);
     }
 };
@@ -224,11 +373,11 @@ template <DxDescriptorHeapType Type>
 inline void DxDescriptorHeap<Type>::Finalize() {
     // デバイスまたはヒープが無効な場合は何もしない
     if (!device_) {
-        LOG_ERROR("DxDescriptorHeap::Finalize: Device is not initialized \n Type : {}", DxResourceTypeToString(DxResourceType(Type)));
+        LOG_ERROR("Device is not initialized \n Type : {}", DxResourceTypeToString(DxResourceType(Type)));
         return;
     }
     if (!heap_) {
-        LOG_ERROR("DxDescriptorHeap::Finalize: Heap is not initialized \n Type : {}", DxResourceTypeToString(DxResourceType(Type)));
+        LOG_ERROR("Heap is not initialized \n Type : {}", DxResourceTypeToString(DxResourceType(Type)));
         return;
     }
 
@@ -243,115 +392,21 @@ inline void DxDescriptorHeap<Type>::Finalize() {
     usedFlags_ = 0;
 }
 
+template <DxDescriptorHeapType Type>
+inline DxDescriptorHeap<Type>::DescriptorType DxDescriptorHeap<Type>::CreateDescriptor(IDescriptorEntry* _entry) {
+    if (_entry == nullptr || _entry->GetHeapType() != Type) {
+        LOG_ERROR("HeapType does not match");
+        return DescriptorType(0);
+    }
+    // Descriptorを割り当て
+    DescriptorType descriptor = AllocateDescriptor();
+    // Descriptorを割り当てた場所に作成
+    _entry->Create(device_.Get(), descriptor.GetCpuHandle());
+    return descriptor;
+}
+
 using DxRtvHeap = DxDescriptorHeap<DxDescriptorHeapType::RTV>;
 using DxDsvHeap = DxDescriptorHeap<DxDescriptorHeapType::DSV>;
 using DxSrvHeap = DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>;
 
-#pragma region "CreateDescriptor"
-template <DxDescriptorHeapType Type>
-template <typename Desc>
-inline typename DxDescriptorHeap<Type>::DescriptorType
-DxDescriptorHeap<Type>::CreateDescriptor(const Desc& _desc, DxResource* _resource) {
-    // デフォルト実装はエラーを出す
-    LOG_CRITICAL("DxDescriptorHeap::CreateDescriptor: Not implemented for this type");
-}
-
-template <>
-template <>
-inline typename DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>::DescriptorType
-DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>::CreateDescriptor(const D3D12_SHADER_RESOURCE_VIEW_DESC& _desc, DxResource* _resource) {
-    // リソースが無効な場合は例外を投げる
-    if (!_resource) {
-        LOG_ERROR("DxDescriptorHeap::CreateDescriptor: Resource is null");
-        throw ::std::invalid_argument("Resource is null");
-    }
-
-    // Descriptorを割り当て & SRV作成
-    DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>::DescriptorType descriptor = AllocateDescriptor();
-    device_->CreateShaderResourceView(_resource->GetResource().Get(), &_desc, descriptor.GetCpuHandle());
-
-    // リソースタイプを追加
-    _resource->AddType(DxResourceType::Descriptor_SRV);
-
-    return descriptor;
-}
-
-template <>
-template <>
-inline typename DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>::DescriptorType
-DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>::CreateDescriptor(const D3D12_UNORDERED_ACCESS_VIEW_DESC& _desc, DxResource* _resource) {
-    // リソースが無効な場合は例外を投げる
-    if (!_resource) {
-        LOG_ERROR("DxDescriptorHeap::CreateDescriptor: Resource is null");
-        throw ::std::invalid_argument("Resource is null");
-    }
-
-    // Descriptorを割り当て & UAV作成
-    DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>::DescriptorType descriptor = AllocateDescriptor();
-
-    device_->CreateUnorderedAccessView(_resource->GetResource().Get(), nullptr, &_desc, descriptor.GetCpuHandle());
-
-    // リソースタイプを追加
-    _resource->AddType(DxResourceType::Descriptor_UAV);
-
-    return descriptor;
-}
-
-template <>
-template <>
-inline typename DxDescriptorHeap<DxDescriptorHeapType::RTV>::DescriptorType
-DxDescriptorHeap<DxDescriptorHeapType::RTV>::CreateDescriptor(const D3D12_RENDER_TARGET_VIEW_DESC& _desc, DxResource* _resource) {
-    // リソースが無効な場合は例外を投げる
-    if (!_resource) {
-        LOG_ERROR("DxDescriptorHeap::CreateDescriptor: Resource is null");
-        throw ::std::invalid_argument("Resource is null");
-    }
-
-    // Descriptorを割り当て & RTV作成
-    DxDescriptorHeap<DxDescriptorHeapType::RTV>::DescriptorType descriptor = AllocateDescriptor();
-    device_->CreateRenderTargetView(_resource->GetResource().Get(), &_desc, descriptor.GetCpuHandle());
-
-    // リソースタイプを追加
-    _resource->AddType(DxResourceType::Descriptor_RTV);
-
-    return descriptor;
-}
-
-template <>
-template <>
-inline typename DxDescriptorHeap<DxDescriptorHeapType::DSV>::DescriptorType
-DxDescriptorHeap<DxDescriptorHeapType::DSV>::CreateDescriptor(const D3D12_DEPTH_STENCIL_VIEW_DESC& _desc, DxResource* _resource) {
-    // リソースが無効な場合は例外を投げる
-    if (!_resource) {
-        LOG_ERROR("DxDescriptorHeap::CreateDescriptor: Resource is null");
-        throw ::std::invalid_argument("Resource is null");
-    }
-
-    // Descriptorを割り当て & DSV作成
-    DxDescriptorHeap<DxDescriptorHeapType::DSV>::DescriptorType descriptor = AllocateDescriptor();
-
-    device_->CreateDepthStencilView(_resource->GetResource().Get(), &_desc, descriptor.GetCpuHandle());
-
-    // リソースタイプを追加
-    _resource->AddType(DxResourceType::Descriptor_DSV);
-
-    return descriptor;
-}
-
-template <>
-template <>
-inline typename DxDescriptorHeap<DxDescriptorHeapType::Sampler>::DescriptorType
-DxDescriptorHeap<DxDescriptorHeapType::Sampler>::CreateDescriptor(const D3D12_SAMPLER_DESC& _desc, DxResource* /*_resource*/) {
-    // Descriptorを割り当て & Sampler作成
-    DxDescriptorHeap<DxDescriptorHeapType::Sampler>::DescriptorType descriptor = AllocateDescriptor();
-
-    // Samplerはリソースを持たないので nullptr を渡す
-    device_->CreateSampler(&_desc, descriptor.GetCpuHandle());
-
-    return descriptor;
-}
-
-#pragma endregion
-
 } // namespace OriGine
-

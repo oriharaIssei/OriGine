@@ -333,7 +333,8 @@ void SkinningAnimationComponent::CreateSkinnedVertex(Scene* _scene) {
             uavDesc.Buffer.CounterOffsetInBytes = 0; // カウンターオフセットは0
             uavDesc.Buffer.Flags                = D3D12_BUFFER_UAV_FLAG_NONE; // 特にフラグは必要ない
             uavDesc.Buffer.StructureByteStride  = sizeof(decltype(mesh.vertexes_)::value_type);
-            skinnedVertexBuffer_[i].descriptor  = uavHeap->CreateDescriptor(uavDesc, &skinnedVertexBuffer_[i].buffer);
+            UAVEntry uavEntry(&skinnedVertexBuffer_[i].buffer, nullptr, uavDesc);
+            skinnedVertexBuffer_[i].descriptor = uavHeap->CreateDescriptor(&uavEntry);
 
             skinnedVertexBuffer_[i].vbView.BufferLocation = skinnedVertexBuffer_[i].buffer.GetResource()->GetGPUVirtualAddress();
             skinnedVertexBuffer_[i].vbView.SizeInBytes    = static_cast<UINT>(skinnedVertexBuffer_[i].buffer.GetSizeInBytes());

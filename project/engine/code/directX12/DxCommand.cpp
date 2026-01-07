@@ -236,6 +236,14 @@ void DxCommand::ExecuteCommand() {
     resourceStateTracker_->CommitLocalStatesToGlobal();
 }
 
+void DxCommand::ExecuteCommandAndWait() {
+    ExecuteCommand();
+
+    // フェンスで待機
+    auto fence = Engine::GetInstance()->GetDxFence();
+    fence->WaitForFence(fence->Signal(commandQueue_));
+}
+
 void DxCommand::ExecuteCommandAndPresent(IDXGISwapChain4* swapChain) {
     ///===============================================================
     /// コマンドリストの実行

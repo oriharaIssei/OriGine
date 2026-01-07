@@ -45,15 +45,15 @@ std::string std::to_string(DxResourceType type) {
     return DxResourceTypeToString(type);
 }
 
-void DxResource::CreateBufferResource(Microsoft::WRL::ComPtr<ID3D12Device> device, size_t sizeInBytes, D3D12_RESOURCE_STATES state) {
+void DxResource::CreateBufferResource(Microsoft::WRL::ComPtr<ID3D12Device> _device, size_t _sizeInBytes, D3D12_RESOURCE_STATES _state, D3D12_HEAP_TYPE _heapType) {
     // リソース用のヒープの設定
     D3D12_HEAP_PROPERTIES uploadHeapProperties{};
-    uploadHeapProperties.Type = D3D12_HEAP_TYPE_UPLOAD; // UploadHeapを使う
+    uploadHeapProperties.Type = _heapType;
     // リソースの設定
     // バッファのリソース(テクスチャの場合は別の設定をする)
     resourceDesc_.Flags     = D3D12_RESOURCE_FLAG_NONE;
     resourceDesc_.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-    resourceDesc_.Width     = sizeInBytes;
+    resourceDesc_.Width     = _sizeInBytes;
     // バッファの場合、これらは 1 にする
     resourceDesc_.Height           = 1;
     resourceDesc_.DepthOrArraySize = 1;
@@ -62,11 +62,11 @@ void DxResource::CreateBufferResource(Microsoft::WRL::ComPtr<ID3D12Device> devic
     // バッファの場合はこれにする
     resourceDesc_.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 
-    HRESULT hr = device->CreateCommittedResource(
+    HRESULT hr = _device->CreateCommittedResource(
         &uploadHeapProperties,
         D3D12_HEAP_FLAG_NONE,
         &resourceDesc_,
-        state,
+        _state,
         nullptr,
         IID_PPV_ARGS(&resource_));
 

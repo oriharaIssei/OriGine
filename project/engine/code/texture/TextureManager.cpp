@@ -74,8 +74,8 @@ void Texture::Initialize(const std::string& filePath) {
     }
 
     /// SRV の作成
-    auto device = Engine::GetInstance()->GetDxDevice()->device_;
-    srv         = Engine::GetInstance()->GetSrvHeap()->CreateDescriptor(srvDesc, &resource);
+    SRVEntry srvEntry(&resource, srvDesc);
+    srv = Engine::GetInstance()->GetSrvHeap()->CreateDescriptor(&srvEntry);
 }
 
 void Texture::Finalize() {

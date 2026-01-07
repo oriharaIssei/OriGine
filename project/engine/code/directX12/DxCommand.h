@@ -79,6 +79,7 @@ public:
     HRESULT Close();
 
     void ExecuteCommand();
+    void ExecuteCommandAndWait();
     void ExecuteCommandAndPresent(IDXGISwapChain4* swapChain);
 
     void ClearTarget(const DxRtvDescriptor& _rtv, const DxDsvDescriptor& _dsv, const Vec4f& _clearColor);

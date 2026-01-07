@@ -365,9 +365,9 @@ void ColliderRenderingSystem::CreateRenderMesh() {
                     aabbMeshItr_->TransferData();
                     ++aabbMeshItr_;
                     if (aabbMeshItr_ == meshGroup->end()) {
-                        aabbMeshItr_ = meshGroup->end();
                         meshGroup->push_back(Mesh<ColorVertexData>());
                         meshGroup->back().Initialize(ColliderRenderingSystem::kDefaultMeshCount_ * kAabbVertexSize, ColliderRenderingSystem::kDefaultMeshCount_ * kAabbIndexSize);
+                        aabbMeshItr_ = --meshGroup->end();
                     }
                 }
 

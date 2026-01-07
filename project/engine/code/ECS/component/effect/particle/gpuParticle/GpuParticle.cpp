@@ -17,7 +17,7 @@
 
 using namespace OriGine;
 
-void GpuParticleEmitter:: Initialize(Scene* /*_scene,*/, EntityHandle /*_owner*/) {
+void GpuParticleEmitter::Initialize(Scene* /*_scene,*/, EntityHandle /*_owner*/) {
     Primitive::Plane plane;
     plane.CreateMesh(&mesh_);
 
@@ -244,7 +244,9 @@ void GpuParticleEmitter::CreateBuffer() {
         srvDesc.Buffer.FirstElement        = 0;
         srvDesc.Buffer.NumElements         = shapeBuffer_->particleSize;
         srvDesc.Buffer.StructureByteStride = sizeof(GpuParticleData::ConstantBuffer);
-        particleSrvDescriptor_             = srvuavHeap->CreateDescriptor(srvDesc, &particleResource_);
+
+        SRVEntry srvEntry(&particleResource_, srvDesc);
+        particleSrvDescriptor_ = srvuavHeap->CreateDescriptor(&srvEntry);
     }
 
     // UAVが未作成の場合は、UAVを生成
@@ -259,7 +261,9 @@ void GpuParticleEmitter::CreateBuffer() {
         uavDesc.Buffer.CounterOffsetInBytes = 0; // カウンターオフセットは0
         uavDesc.Buffer.Flags                = D3D12_BUFFER_UAV_FLAG_NONE; // 特にフラグは必要ない
         uavDesc.Buffer.StructureByteStride  = sizeof(GpuParticleData::ConstantBuffer);
-        particleUavDescriptor_              = srvuavHeap->CreateDescriptor(uavDesc, &particleResource_);
+
+        UAVEntry uavEntry(&particleResource_, nullptr, uavDesc);
+        particleUavDescriptor_ = srvuavHeap->CreateDescriptor(&uavEntry);
     }
 
     // freeIndexResource が未作成の場合は、UAVバッファを生成
@@ -282,7 +286,9 @@ void GpuParticleEmitter::CreateBuffer() {
         uavDesc.Buffer.CounterOffsetInBytes = 0; // カウンターオフセットは0
         uavDesc.Buffer.Flags                = D3D12_BUFFER_UAV_FLAG_NONE; // 特にフラグは必要ない
         uavDesc.Buffer.StructureByteStride  = sizeof(int);
-        freeIndexUavDescriptor_             = srvuavHeap->CreateDescriptor(uavDesc, &freeIndexResource_);
+
+        UAVEntry uavEntry(&particleResource_, nullptr, uavDesc);
+        freeIndexUavDescriptor_ = srvuavHeap->CreateDescriptor(&uavEntry);
     }
 
     // freeListResource が未作成の場合は、UAVバッファを生成
@@ -305,7 +311,9 @@ void GpuParticleEmitter::CreateBuffer() {
         uavDesc.Buffer.CounterOffsetInBytes = 0; // カウンターオフセットは0
         uavDesc.Buffer.Flags                = D3D12_BUFFER_UAV_FLAG_NONE; // 特にフラグは必要ない
         uavDesc.Buffer.StructureByteStride  = sizeof(int);
-        freeListUavDescriptor_              = srvuavHeap->CreateDescriptor(uavDesc, &freeListResource_);
+
+        UAVEntry uavEntry(&particleResource_, nullptr, uavDesc);
+        freeListUavDescriptor_ = srvuavHeap->CreateDescriptor(&uavEntry);
     }
 }
 

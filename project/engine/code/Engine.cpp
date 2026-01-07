@@ -63,7 +63,8 @@ void Engine::CreateDsv() {
     dsvDesc.Format        = DXGI_FORMAT_D24_UNORM_S8_UINT; // resourceに合わせる
     dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D; // 2d Texture
 
-    dxDsv_ = dsvHeap_->CreateDescriptor(dsvDesc, &dsvResource_);
+    DSVEntry dsvEntry{&dsvResource_, dsvDesc};
+    dxDsv_ = dsvHeap_->CreateDescriptor(&dsvEntry);
 }
 
 void Engine::Initialize() {
