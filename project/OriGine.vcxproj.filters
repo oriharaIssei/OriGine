@@ -803,6 +803,9 @@
     <ClInclude Include="engine\code\directX12\raytracing\BottomLevelAccelerationStructure.h" />
     <ClInclude Include="engine\code\ECS\system\render\TexturedMeshRenderSystemWithoutRaytracing.h" />
     <ClInclude Include="engine\code\ECS\system\render\LightDebugRenderingSystem.h" />
+    <ClInclude Include="engine\code\ECS\component\effect\particle\emitter\Updater.h" />
+    <ClInclude Include="engine\code\directX12\buffer\AppendBuffer.h" />
+    <ClInclude Include="engine\code\directX12\buffer\ConceptHasBuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="editor\EditorController.cpp">

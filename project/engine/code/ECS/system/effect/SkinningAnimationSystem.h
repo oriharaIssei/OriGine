@@ -21,7 +21,6 @@ public:
     ~SkinningAnimationSystem() override;
 
     void Initialize();
-    void Update();
     void Finalize();
 
 protected:
@@ -41,13 +40,11 @@ private:
     std::unique_ptr<DxCommand> dxCommand_ = nullptr;
     PipelineStateObj* pso_                = nullptr;
 
-    bool usingCS_ = false;
-
     // rootParameter indices
-    const int32_t kOutputVertexBufferIndex_         = 0;
-    const int32_t kInputVertexBufferIndex_          = 1;
-    const int32_t kMatrixPaletteBufferIndex_        = 2;
-    const int32_t kVertexInfluenceBufferIndex_      = 3;
+    const int32_t kOutputVertexBufferIndex_        = 0;
+    const int32_t kInputVertexBufferIndex_         = 1;
+    const int32_t kMatrixPaletteBufferIndex_       = 2;
+    const int32_t kVertexInfluenceBufferIndex_     = 3;
     const int32_t kSkinningInformationBufferIndex_ = 4;
 };
 

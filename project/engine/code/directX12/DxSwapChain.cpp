@@ -76,10 +76,11 @@ void DxSwapChain::Initialize(const WinApp* winApp, const DxDevice* device, const
         std::wstring name = std::format(L"SwapChainBuffer[{}]", i);
         backBufferResources_[i].SetName(name.c_str());
 
-        backBuffers_.emplace_back(
-            rtvHeap->CreateDescriptor<>(
-                rtvDesc,
-                &backBufferResources_[i]));
+        RTVEntry rtvEntry{
+            &backBufferResources_[i],
+            rtvDesc};
+
+        backBuffers_.emplace_back(rtvHeap->CreateDescriptor(&rtvEntry));
     }
     ///================================================
 }
@@ -148,7 +149,11 @@ void DxSwapChain::ResizeBuffer(UINT width, UINT height) {
         }
 
         // バッファに名前を付ける
-        backBuffers_[i]   = rtvHeap->CreateDescriptor<>(rtvDesc, &backBufferResources_[i]);
+        RTVEntry rtvEntry{
+            &backBufferResources_[i],
+            rtvDesc};
+
+        backBuffers_[i]   = rtvHeap->CreateDescriptor(&rtvEntry);
         std::wstring name = std::format(L"SwapChainBuffer[{}]", i);
         backBufferResources_[i].SetName(name.c_str());
     }

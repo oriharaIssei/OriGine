@@ -30,7 +30,7 @@ struct Vector2 final
     using Vector<2, valueType>::operator!=;
 
     // コンストラクタ
-    constexpr Vector2() : Vector<2, valueType>({0, 0}) {}
+    constexpr Vector2() : Vector<2, valueType>({valueType(0), valueType(0)}) {}
     constexpr Vector2(valueType xValue, valueType yValue)
         : Vector<2, valueType>({xValue, yValue}) {}
     constexpr Vector2(const valueType* x_ptr, const valueType* y_ptr)

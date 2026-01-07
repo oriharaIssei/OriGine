@@ -86,6 +86,7 @@
       <AdditionalOptions>/utf-8 /MP %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -112,6 +113,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <AdditionalOptions>/utf-8 /MP %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -141,6 +143,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <AdditionalOptions>/utf-8 /MP %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <ExternalWarningLevel>Level3</ExternalWarningLevel>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -157,6 +160,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="engine\code\directX12\buffer\AppendBuffer.h" />
+    <ClInclude Include="engine\code\directX12\buffer\ConceptHasBuffer.h" />
     <ClInclude Include="engine\code\directX12\raytracing\BottomLevelAccelerationStructure.h" />
     <ClInclude Include="editor\EditorController.h" />
     <ClInclude Include="editor\IEditor.h" />
@@ -174,6 +179,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\directX12\raytracing\TopLevelAccelerationStructure.h" />
     <ClInclude Include="engine\code\ECS\component\animation\DissolveAnimation.h" />
     <ClInclude Include="engine\code\ECS\component\ComponentHandle.h" />
+    <ClInclude Include="engine\code\ECS\component\effect\particle\emitter\Updater.h" />
     <ClInclude Include="engine\code\ECS\entity\EntityHandle.h" />
     <ClInclude Include="engine\code\ECS\system\effect\DissolveAnimationSystem.h" />
     <ClInclude Include="engine\code\ECS\system\render\LightDebugRenderingSystem.h" />

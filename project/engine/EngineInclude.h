@@ -154,7 +154,7 @@ static const ::std::string kEngineResourceDirectory      = "./engine/resource";
 #define MY_FILESYSTEM
 #define MY_RANDOM
 #define DELTA_TIME
-#endif RARY_INCLUDE
+#endif LIBRARY_INCLUDE
 
 #ifdef GLOBALVARIABLES_INCLUDE
 #include "globalVariables/GlobalVariables.h"

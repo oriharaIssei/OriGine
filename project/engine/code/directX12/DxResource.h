@@ -51,7 +51,11 @@ public:
     /// </summary>
     /// <param name="device"></param>
     /// <param name="sizeInBytes">bufferのサイズ</param>
-    void CreateBufferResource(Microsoft::WRL::ComPtr<ID3D12Device> device, size_t sizeInBytes, D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATE_GENERIC_READ);
+    void CreateBufferResource(
+        Microsoft::WRL::ComPtr<ID3D12Device> _device,
+        size_t _sizeInBytes,
+        D3D12_RESOURCE_STATES _state = D3D12_RESOURCE_STATE_GENERIC_READ,
+        D3D12_HEAP_TYPE _heapType = D3D12_HEAP_TYPE_UPLOAD);
 
     /// <summary>
     /// DSVBufferResource として 作成

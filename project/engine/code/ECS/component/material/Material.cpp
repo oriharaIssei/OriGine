@@ -31,7 +31,7 @@ void Material::UpdateUvMatrix() {
     uvMat_ = MakeMatrix4x4::Affine({uvTransform_.scale_, 1}, {0.f, 0.f, uvTransform_.rotate_}, {uvTransform_.translate_, 0.f});
 }
 
-void Material:: Initialize(Scene* /*_scene,*/, EntityHandle /*_owner*/) {
+void Material::Initialize(Scene* /*_scene,*/, EntityHandle /*_owner*/) {
     UpdateUvMatrix();
 }
 
@@ -109,7 +109,8 @@ void Material::CreateCustomTextureFromMetaData(DirectX::TexMetadata& _metaData) 
     srvDesc.Texture2D.MipLevels     = 1;
 
     /// SRV の作成
-    customTexture_->srv_ = Engine::GetInstance()->GetSrvHeap()->CreateDescriptor(srvDesc, &customTexture_->resource_);
+    SRVEntry srvEntry{&customTexture_->resource_, srvDesc};
+    customTexture_->srv_ = Engine::GetInstance()->GetSrvHeap()->CreateDescriptor(&srvEntry);
 
     /// Set ResourceStateTracker
     ResourceStateTracker::RegisterResource(customTexture_->resource_.GetResource().Get(), D3D12_RESOURCE_STATE_COPY_DEST);

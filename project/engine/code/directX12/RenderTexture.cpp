@@ -131,7 +131,8 @@ void RenderTexture::Initialize(
         D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
         rtvDesc.Format        = format_;
         rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
-        renderTarget.rtv_     = Engine::GetInstance()->GetRtvHeap()->CreateDescriptor(rtvDesc, &renderTarget.resource_);
+        RTVEntry rtvEntry     = RTVEntry(&renderTarget.resource_, rtvDesc);
+        renderTarget.rtv_     = Engine::GetInstance()->GetRtvHeap()->CreateDescriptor(&rtvEntry);
 
         /// ------------------------------------------------------------------
         ///  SRV の作成
@@ -142,7 +143,8 @@ void RenderTexture::Initialize(
         srvDesc.ViewDimension           = D3D12_SRV_DIMENSION_TEXTURE2D;
         srvDesc.Texture2D.MipLevels     = 1;
 
-        renderTarget.srv_ = Engine::GetInstance()->GetSrvHeap()->CreateDescriptor(srvDesc, &renderTarget.resource_);
+        SRVEntry srvEntry = SRVEntry(&renderTarget.resource_, srvDesc);
+        renderTarget.srv_ = Engine::GetInstance()->GetSrvHeap()->CreateDescriptor(&srvEntry);
 
         /// ------------------------------------------------------------------
         ///  ResourceStateTracker の登録
@@ -206,7 +208,8 @@ void RenderTexture::Resize(const Vec2f& textureSize) {
         D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
         rtvDesc.Format         = format_;
         rtvDesc.ViewDimension  = D3D12_RTV_DIMENSION_TEXTURE2D;
-        renderTargets_[i].rtv_ = Engine::GetInstance()->GetRtvHeap()->CreateDescriptor(rtvDesc, &renderTargets_[i].resource_);
+        RTVEntry rtvEntry      = RTVEntry(&renderTargets_[i].resource_, rtvDesc);
+        renderTargets_[i].rtv_ = Engine::GetInstance()->GetRtvHeap()->CreateDescriptor(&rtvEntry);
         /// ------------------------------------------------------------------
         ///  SRV の作成
         ///------------------------------------------------------------------
@@ -216,7 +219,8 @@ void RenderTexture::Resize(const Vec2f& textureSize) {
         srvDesc.ViewDimension           = D3D12_SRV_DIMENSION_TEXTURE2D;
         srvDesc.Texture2D.MipLevels     = 1;
 
-        renderTargets_[i].srv_ = Engine::GetInstance()->GetSrvHeap()->CreateDescriptor(srvDesc, &renderTargets_[i].resource_);
+        SRVEntry srvEntry      = SRVEntry(&renderTargets_[i].resource_, srvDesc);
+        renderTargets_[i].srv_ = Engine::GetInstance()->GetSrvHeap()->CreateDescriptor(&srvEntry);
 
         /// ------------------------------------------------------------------
         ///  ResourceStateTracker の登録

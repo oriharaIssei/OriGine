@@ -32,7 +32,8 @@ void MaterialEffect::Initialize() {
     dsvDesc.Format        = DXGI_FORMAT_D24_UNORM_S8_UINT; // resourceに合わせる
     dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D; // 2d Texture
 
-    dxDsv_ = Engine::GetInstance()->GetDsvHeap()->CreateDescriptor(dsvDesc, dsvResource_.get());
+    DSVEntry dsvEntry{dsvResource_.get(), dsvDesc};
+    dxDsv_ = Engine::GetInstance()->GetDsvHeap()->CreateDescriptor(&dsvEntry);
 
     // 一時RenderTextureの作成
     int32_t index = 0;

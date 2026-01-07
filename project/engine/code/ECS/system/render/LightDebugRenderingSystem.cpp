@@ -83,7 +83,6 @@ void CreateLineMeshByLightShape(
 
     // cos → angle
     float outerAngle = std::acos(std::clamp(_light.cosAngle, -1.f, 1.f));
-    float innerAngle = std::acos(std::clamp(_light.cosFalloffStart, -1.f, 1.f));
 
     // 円錐半径
     float outerRadius = std::tan(outerAngle) * range;

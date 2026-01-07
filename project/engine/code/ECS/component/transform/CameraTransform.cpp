@@ -7,8 +7,7 @@
 
 using namespace OriGine;
 
-void CameraTransform::Initialize(Scene* _scene, EntityHandle _hostEntity) {
-    _hostEntity;
+void CameraTransform::Initialize(Scene* /*_scene*/, EntityHandle /*_hostEntity*/) {
     UpdateMatrix();
 }
 
