@@ -56,7 +56,7 @@ void DxDevice::Initialize() {
         D3D_FEATURE_LEVEL_12_2,
         D3D_FEATURE_LEVEL_12_1,
         D3D_FEATURE_LEVEL_12_0};
-    const char* featrueLevelStrings[] = {
+    const char* featureLevelStrings[] = {
         "12.2", "12.1", "12.0"};
 
     // レベルの高い順に生成できるか試す
@@ -66,7 +66,7 @@ void DxDevice::Initialize() {
             useAdapter_.Get(), featureLevels[i], IID_PPV_ARGS(&device_));
         // 生成できたか確認
         if (SUCCEEDED(result)) {
-            LOG_DEBUG("FeatureLevel : {}\n", featrueLevelStrings[i]);
+            LOG_DEBUG("FeatureLevel : {}\n", featureLevelStrings[i]);
             break; // 生成出来たらループを抜ける
         }
     }

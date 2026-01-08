@@ -18,7 +18,7 @@ void Ring::CreateMesh(TextureColorMesh* _mesh) {
     }
 
     const float realDivision    = static_cast<float>(division_);
-    const float radianPerDivide = kTao / realDivision;
+    const float radianPerDivide = kTau / realDivision;
 
     vertexSize_ = division_ * 4; // 1つの円環は division_ * 4 頂点
     indexSize_  = division_ * 6; // 1つの円環は division_ * 6 インデックス
@@ -46,7 +46,7 @@ void Ring::CreateMesh(TextureColorMesh* _mesh) {
         float uNext   = nextIndex / realDivision;
 
         // Vertex
-        _mesh->vertexes_.emplace_back(TextureColorVertexData(Vector4f(-sin * outerRadius_, cos * outerRadius_, 0.f, 1.f), Vec2f(u, 0.f), Vector3f(0.f, 0.f, -1.f),kWhite));
+        _mesh->vertexes_.emplace_back(TextureColorVertexData(Vector4f(-sin * outerRadius_, cos * outerRadius_, 0.f, 1.f), Vec2f(u, 0.f), Vector3f(0.f, 0.f, -1.f), kWhite));
         _mesh->vertexes_.emplace_back(TextureColorVertexData(Vector4f(-sinNext * outerRadius_, cosNext * outerRadius_, 0.f, 1.f), Vec2f(uNext, 0.f), Vector3f(0.f, 0.f, -1.f), kWhite));
         _mesh->vertexes_.emplace_back(TextureColorVertexData(Vector4f(-sin * innerRadius_, cos * innerRadius_, 0.f, 1.f), Vec2f(u, 1.f), Vector3f(0.f, 0.f, -1.f), kWhite));
         _mesh->vertexes_.emplace_back(TextureColorVertexData(Vector4f(-sinNext * innerRadius_, cosNext * innerRadius_, 0.f, 1.f), Vec2f(uNext, 1.f), Vector3f(0.f, 0.f, -1.f), kWhite));

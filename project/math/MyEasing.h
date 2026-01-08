@@ -12,7 +12,7 @@ namespace OriGine {
 ///  イージング方式
 /// </summary>
 enum class EaseType : int {
-    Liner,
+    Linear,
     EaseInSine,
     EaseOutSine,
     EaseInOutSine,
@@ -44,7 +44,7 @@ enum class EaseType : int {
     COUNT
 };
 
-float Liner(float _t);
+float Linear(float _t);
 
 float EaseInSine(float _time);
 
@@ -89,7 +89,7 @@ float EaseOutBounce(float _t);
 float EaseInOutBounce(float _t);
 
 static ::std::array<::std::function<float(float)>, static_cast<int>(EaseType::COUNT)> EasingFunctions = {
-    Liner,
+    Linear,
 
     EaseInSine,
     EaseOutSine,
@@ -121,7 +121,7 @@ static ::std::array<::std::function<float(float)>, static_cast<int>(EaseType::CO
 };
 
 static ::std::unordered_map<EaseType, ::std::string> EasingNames = {
-    {EaseType::Liner, "Liner"},
+    {EaseType::Linear, "Linear"},
     {EaseType::EaseInSine, "EaseInSine"},
     {EaseType::EaseOutSine, "EaseOutSine"},
     {EaseType::EaseInOutSine, "EaseInOutSine"},

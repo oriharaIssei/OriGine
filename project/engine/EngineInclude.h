@@ -20,7 +20,7 @@ static const ::std::string kEngineResourceDirectory      = "./engine/resource";
 #include "scene/SceneManager.h"
 #endif // ENGINE_SCENE
 
-#ifdef ENGEINE_ECS
+#ifdef ENGINE_ECS
 #define ENGINE_ENTITY
 #define ENGINE_SYSTEMS
 #define ENGINE_COMPONENTS

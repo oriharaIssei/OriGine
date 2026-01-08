@@ -9,7 +9,7 @@
 
 namespace OriGine {
 
-float Liner(float _t) {
+float Linear(float _t) {
     return _t;
 }
 

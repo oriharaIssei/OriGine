@@ -24,7 +24,7 @@ namespace OriGine {
 constexpr float kPi        = ::std::numbers::pi_v<float>;
 constexpr float kHalfPi    = ::std::numbers::pi_v<float> * 0.5f;
 constexpr float kQuarterPi = ::std::numbers::pi_v<float> * 0.25f;
-constexpr float kTao       = ::std::numbers::pi_v<float> * 2.0f; // 2π
+constexpr float kTau       = ::std::numbers::pi_v<float> * 2.0f; // 2π
 
 constexpr float kDeg2Rad = kPi / 180.0f;
 constexpr float kRad2Deg = 180.0f / kPi;
@@ -53,7 +53,7 @@ constexpr float kInvSqrt3  = 1.0f / ::std::numbers::sqrt3_v<float>;
 /// ----------------------------------------------
 constexpr float kRightAngle    = kHalfPi; // 90度
 constexpr float kStraightAngle = kPi; // 180度
-constexpr float kFullAngle     = kTao; // 360度
+constexpr float kFullAngle     = kTau; // 360度
 
 /// <summary>
 /// Radian を Degree に変換

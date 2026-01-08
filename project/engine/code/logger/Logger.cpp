@@ -171,48 +171,48 @@ void Logger::DirectXLog(const char* file, const char* function, int line) {
         infoQueue->GetMessage(i, message, &messageLength);
         D3D12_MESSAGE_SEVERITY severity = message->Severity;
 
-        std::string massageLevel = "WARNING";
+        std::string messageLevel = "WARNING";
         switch (severity) {
         case D3D12_MESSAGE_SEVERITY_CORRUPTION:
             // 重大な破損
-            massageLevel = "CORRUPTION";
+            messageLevel = "CORRUPTION";
 
             spdlog::critical("[D3D12][{}] {}",
-                massageLevel,
+                messageLevel,
                 message->pDescription);
 
             break;
         case D3D12_MESSAGE_SEVERITY_ERROR:
             // エラー
-            massageLevel = "ERROR";
+            messageLevel = "ERROR";
 
             spdlog::error("[D3D12][{}] {}",
-                massageLevel,
+                messageLevel,
                 message->pDescription);
 
             break;
         case D3D12_MESSAGE_SEVERITY_WARNING:
             // 警告
-            massageLevel = "WARNING";
+            messageLevel = "WARNING";
 
             spdlog::warn("[D3D12][{}] {}",
-                massageLevel,
+                messageLevel,
                 message->pDescription);
 
             break;
 
         case D3D12_MESSAGE_SEVERITY_INFO:
             // 情報
-            massageLevel = "INFO";
+            messageLevel = "INFO";
             spdlog::info("[D3D12][{}] {}",
-                massageLevel,
+                messageLevel,
                 message->pDescription);
             break;
         case D3D12_MESSAGE_SEVERITY_MESSAGE:
             // 通常メッセージ
-            massageLevel = "MESSAGE";
+            messageLevel = "MESSAGE";
             spdlog::info("[D3D12][{}] {}",
-                massageLevel,
+                messageLevel,
                 message->pDescription);
             break;
         }

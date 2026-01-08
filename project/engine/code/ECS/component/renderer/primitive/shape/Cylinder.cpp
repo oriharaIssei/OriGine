@@ -19,7 +19,7 @@ void Cylinder::CreateMesh(TextureColorMesh* _mesh) {
     }
 
     // 角度ステップ
-    float angleStep = kTao / float(radialDivisions);
+    float angleStep = kTau / float(radialDivisions);
 
     std::vector<TextureColorMesh::VertexType> vertices;
     std::vector<uint32_t> indices;

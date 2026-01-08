@@ -11,12 +11,12 @@ namespace OriGine {
 namespace Primitive {
 
 constexpr uint32_t kCylinderRadialDivisions = 36; // 円柱の分割数
-constexpr uint32_t kCylinderHeightDivisons  = 8; // 高さ方向の分割数
+constexpr uint32_t kCylinderHeightDivisions = 8; // 高さ方向の分割数
 
 struct Cylinder
     : public IPrimitive {
 public:
-    Cylinder(uint32_t _radialDivisions = kCylinderRadialDivisions, uint32_t _heightDivisions = kCylinderHeightDivisons)
+    Cylinder(uint32_t _radialDivisions = kCylinderRadialDivisions, uint32_t _heightDivisions = kCylinderHeightDivisions)
         : IPrimitive(PrimitiveType::Cylinder) {
         radialDivisions = _radialDivisions;
         heightDivisions = _heightDivisions;
@@ -36,9 +36,9 @@ public:
     float height       = 1.f; // 高さ
 
     uint32_t radialDivisions = kCylinderRadialDivisions;
-    uint32_t heightDivisions = kCylinderHeightDivisons;
+    uint32_t heightDivisions = kCylinderHeightDivisions;
 
-    EaseType radiusEaseType = EaseType::Liner; // 半径のイージングタイプ
+    EaseType radiusEaseType = EaseType::Linear; // 半径のイージングタイプ
 };
 }
 } // namespace OriGine

@@ -159,7 +159,7 @@ Matrix4x4 MakeMatrix4x4::RotateZ(const float& radian) {
 }
 
 Matrix4x4 MakeMatrix4x4::RotateXYZ(const Vec3f& radian) {
-    return MakeMatrix4x4::RotateZ(radian[Z]) * MakeMatrix4x4::RotateX(radian[X]) * MakeMatrix4x4::RotateY(radian[Y]);
+    return MakeMatrix4x4::RotateX(radian[X]) * MakeMatrix4x4::RotateY(radian[Y]) * MakeMatrix4x4::RotateZ(radian[Z]);
 }
 
 Matrix4x4 MakeMatrix4x4::RotateXYZ(const Matrix4x4& x, const Matrix4x4& y, const Matrix4x4& z) {

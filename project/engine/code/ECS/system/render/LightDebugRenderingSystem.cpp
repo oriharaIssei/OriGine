@@ -43,7 +43,7 @@ void CreateLineMeshByLightShape(
     }
 
     const float kLatEvery = kPi / kSphereDivisionReal;
-    const float kLonEvery = kTao / kSphereDivisionReal;
+    const float kLonEvery = kTau / kSphereDivisionReal;
 
     auto calc = [&](float lat, float lon) -> Vec3f {
         return {
@@ -101,8 +101,8 @@ void CreateLineMeshByLightShape(
 
     // ===== 外側コーン =====
     for (uint32_t i = 0; i < kSpotDivision; ++i) {
-        float a0 = (i / float(kSpotDivision)) * kTao;
-        float a1 = ((i + 1) / float(kSpotDivision)) * kTao;
+        float a0 = (i / float(kSpotDivision)) * kTau;
+        float a1 = ((i + 1) / float(kSpotDivision)) * kTau;
 
         Vec3f p0 = coneCenter + (right * std::cos(a0) + up * std::sin(a0)) * outerRadius;
         Vec3f p1 = coneCenter + (right * std::cos(a1) + up * std::sin(a1)) * outerRadius;
