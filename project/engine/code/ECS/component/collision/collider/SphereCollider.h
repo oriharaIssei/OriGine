@@ -6,6 +6,9 @@
 
 namespace OriGine {
 
+/// <summary>
+/// Sphereコライダー
+/// </summary>
 class SphereCollider
     : public Collider<Bounds::Sphere> {
     friend void to_json(nlohmann::json& _json, const SphereCollider& _s);

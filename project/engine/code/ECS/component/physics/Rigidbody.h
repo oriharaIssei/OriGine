@@ -30,12 +30,15 @@ public:
 private:
     Vec3f acceleration_ = Vec3f(0.0f, 0.0f, 0.0f);
     Vec3f velocity_     = Vec3f(0.0f, 0.0f, 0.0f);
-    Vec3f realVelocity_ = Vec3f(0.0f, 0.0f, 0.0f); // DeltaTime をかけた実際の速度
+    Vec3f realVelocity_ = Vec3f(0.0f, 0.0f, 0.0f); // DeltaTimer をかけた実際の速度
     float maxXZSpeed_   = 100.0f; // XZ 平面の最大速度
 
     bool useGravity_    = false;
     float mass_         = 1.0f;
     float maxFallSpeed_ = 1000.0f; // 最大落下速度
+
+    bool isUsingLocalDeltaTime_     = false;
+    std::string localDeltaTimeName_ = "";
 
 public: // accsessor
     const Vec3f& GetAcceleration() const { return acceleration_; }
@@ -81,6 +84,9 @@ public: // accsessor
     void SetMaxFallSpeed(float _maxFallSpeed) {
         maxFallSpeed_ = _maxFallSpeed;
     }
+
+    bool IsUsingLocalDeltaTime() const { return isUsingLocalDeltaTime_; }
+    const std::string& GetLocalDeltaTimeName() const { return localDeltaTimeName_; }
 };
 
 } // namespace OriGine

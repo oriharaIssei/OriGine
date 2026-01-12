@@ -10,13 +10,16 @@
 namespace OriGine {
 
 /// <summary>
-/// MeshRendererから特定のメッシュを識別するためのハンドル。
-/// MeshRendererがマルチメッシュ前提なので、メッシュグループ内のインデックスも保持する。
+/// MeshRenderer コンポーネント内の特定のサブメッシュを指し示すための識別子.
+/// MeshRenderer は複数のメッシュを保持するため、コンポーネントのハンドルとメッシュインデックスのペアで管理する.
 /// </summary>
 struct MeshHandle {
+    /// <summary>MeshRenderer コンポーネントへのハンドル</summary>
     ComponentHandle handle = {};
-    uint32_t meshIndex     = 0;
+    /// <summary>MeshRenderer 内のメッシュインデックス</summary>
+    uint32_t meshIndex = 0;
 
+    /// <summary>一致比較（合成比較）</summary>
     bool operator==(const MeshHandle&) const = default;
 };
 
@@ -24,6 +27,9 @@ struct MeshHandle {
 
 namespace std {
 
+/// <summary>
+/// OriGine::MeshHandle を std::unordered_map 等のキーとして使用するためのハッシュ関数定義.
+/// </summary>
 template <>
 struct hash<OriGine::MeshHandle> {
     std::size_t operator()(const OriGine::MeshHandle& h) const noexcept {

@@ -13,9 +13,19 @@
 
 using namespace OriGine;
 
+/// <summary>
+/// コンストラクタ
+/// </summary>
 MaterialEffect::MaterialEffect() : ISystem(SystemCategory::Effect) {}
+
+/// <summary>
+/// デストラクタ
+/// </summary>
 MaterialEffect::~MaterialEffect() {}
 
+/// <summary>
+/// 初期化
+/// </summary>
 void MaterialEffect::Initialize() {
     constexpr Vec4f kClearColor        = {0.f, 0.f, 0.f, 0.f};
     constexpr Vec2f kDefaultTempRTSize = {1024.f, 1024.f};
@@ -57,6 +67,9 @@ void MaterialEffect::Initialize() {
     gradationEffect_->Initialize();
 }
 
+/// <summary>
+/// 終了処理
+/// </summary>
 void MaterialEffect::Finalize() {
     if (dissolveEffect_) {
         dissolveEffect_->Finalize();
@@ -80,6 +93,9 @@ void MaterialEffect::Finalize() {
     dsvResource_->Finalize();
 }
 
+/// <summary>
+/// マテリアルエフェクトの更新
+/// </summary>
 void MaterialEffect::Update() {
     EraseDeadEntity();
 
@@ -108,6 +124,10 @@ void MaterialEffect::Update() {
     }
 }
 
+/// <summary>
+/// コンポーネントの振り分け
+/// </summary>
+/// <param name="_handle">対象のエンティティハンドル</param>
 void MaterialEffect::DispatchComponents(EntityHandle _handle) {
     auto& materialEffectPipeLines = GetComponents<MaterialEffectPipeLine>(_handle);
     if (materialEffectPipeLines.empty()) {
@@ -136,6 +156,11 @@ void MaterialEffect::DispatchComponents(EntityHandle _handle) {
     }
 }
 
+/// <summary>
+/// エフェクトパイプラインの更新
+/// </summary>
+/// <param name="_handle">対象のエンティティハンドル</param>
+/// <param name="_pipeline">対象のパイプラインコンポーネント</param>
 void MaterialEffect::UpdateEffectPipeline(EntityHandle _handle, MaterialEffectPipeLine* _pipeline) {
     auto& commandList = dxCommand_->GetCommandList();
 
@@ -188,6 +213,9 @@ void MaterialEffect::UpdateEffectPipeline(EntityHandle _handle, MaterialEffectPi
     currentTempRTIndex_ = (currentTempRTIndex_ + 1) % static_cast<int32_t>(tempRenderTextures_.size());
 }
 
+/// <summary>
+/// コマンドの実行
+/// </summary>
 void MaterialEffect::ExecuteCommand() {
     HRESULT result;
     DxFence* fence = Engine::GetInstance()->GetDxFence();
@@ -220,6 +248,12 @@ void MaterialEffect::ExecuteCommand() {
     ///===============================================================
 }
 
+/// <summary>
+/// TextureにEffectをかける
+/// </summary>
+/// <param name="_handle">対象のエンティティハンドル</param>
+/// <param name="_type">エフェクトの種類</param>
+/// <param name="_output">出力先テクスチャ</param>
 void MaterialEffect::TextureEffect(EntityHandle _handle, MaterialEffectType _type, RenderTexture* _output) {
     if (!_handle.IsValid()) {
         return;

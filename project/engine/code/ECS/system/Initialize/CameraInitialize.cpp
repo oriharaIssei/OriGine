@@ -11,9 +11,20 @@ using namespace OriGine;
 CameraInitialize::CameraInitialize() : ISystem(SystemCategory::Initialize) {}
 CameraInitialize::~CameraInitialize() {}
 
+/// <summary>
+/// 初期化
+/// </summary>
 void CameraInitialize::Initialize() {}
+
+/// <summary>
+/// 終了処理
+/// </summary>
 void CameraInitialize::Finalize() {}
 
+/// <summary>
+/// エンティティの更新（カメラの初期化）
+/// </summary>
+/// <param name="_handle">エンティティハンドル</param>
 void CameraInitialize::UpdateEntity(EntityHandle _handle) {
     CameraTransform* cameraTransform = GetComponent<CameraTransform>(_handle);
     if (!cameraTransform) {

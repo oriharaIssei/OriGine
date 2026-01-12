@@ -136,8 +136,15 @@ void CreateLineMeshByLightShape(
 #pragma endregion
 
 LightDebugRenderingSystem::LightDebugRenderingSystem() {}
+
+/// <summary>
+/// デストラクタ
+/// </summary>
 LightDebugRenderingSystem::~LightDebugRenderingSystem() {}
 
+/// <summary>
+/// 初期化処理。ポイントライトとスポットライト用のレンダラー生成を行う。
+/// </summary>
 void LightDebugRenderingSystem::Initialize() {
     BaseRenderSystem::Initialize();
 
@@ -161,6 +168,9 @@ void LightDebugRenderingSystem::Initialize() {
     CreatePSO();
 }
 
+/// <summary>
+/// 更新処理。レンダリング対象のクリアと更新を行う。
+/// </summary>
 void LightDebugRenderingSystem::Update() {
     // 描画するものがなかったらスキップ
     if (ShouldSkipRender()) {
@@ -174,21 +184,34 @@ void LightDebugRenderingSystem::Update() {
     Rendering();
 }
 
+/// <summary>
+/// 終了処理
+/// </summary>
 void LightDebugRenderingSystem::Finalize() {
     pointRenderer_->Finalize();
     spotRenderer_->Finalize();
     dxCommand_->Finalize();
 }
 
+/// <summary>
+/// ライトデバッグ情報のレンダリングを統合実行する
+/// </summary>
 void LightDebugRenderingSystem::Rendering() {
     StartRender();
     RenderCall();
 }
 
+/// <summary>
+/// レンダリングをスキップするかどうかを判定する
+/// </summary>
+/// <returns>true = 描画対象なし / false = 描画対象あり</returns>
 bool LightDebugRenderingSystem::ShouldSkipRender() const {
     return pointLights_->IsEmpty() && spotLights_->IsEmpty();
 }
 
+/// <summary>
+/// ライトデバッグ描画用のパイプラインステートオブジェクト(PSO)を作成する
+/// </summary>
 void LightDebugRenderingSystem::CreatePSO() {
 
     ShaderManager* shaderManager = ShaderManager::GetInstance();
@@ -249,6 +272,9 @@ void LightDebugRenderingSystem::CreatePSO() {
     pso_ = shaderManager->CreatePso("LineMesh_" + kBlendModeStr[int32_t(BlendMode::Alpha)], lineShaderInfo, dxDevice->device_);
 }
 
+/// <summary>
+/// レンダリング開始処理。ビュー情報の設定などを行う。
+/// </summary>
 void LightDebugRenderingSystem::StartRender() {
     auto& commandList = dxCommand_->GetCommandList();
     commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
@@ -258,6 +284,9 @@ void LightDebugRenderingSystem::StartRender() {
     CameraManager::GetInstance()->SetBufferForRootParameter(GetScene(), commandList, 1);
 }
 
+/// <summary>
+/// 現在シーン内の全てのライトに基づき、デバッグ用ラインメッシュを動的に生成する
+/// </summary>
 void LightDebugRenderingSystem::CreateRenderMesh() {
     { // point
         auto& meshGroup = pointRenderer_->GetMeshGroup();
@@ -346,6 +375,9 @@ void LightDebugRenderingSystem::CreateRenderMesh() {
     spotLightMeshItr_->TransferData();
 }
 
+/// <summary>
+/// 描画コマンドの発行を行う
+/// </summary>
 void LightDebugRenderingSystem::RenderCall() {
     auto& commandList = dxCommand_->GetCommandList();
 

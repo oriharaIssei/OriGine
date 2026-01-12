@@ -12,9 +12,19 @@
 
 using namespace OriGine;
 
+/// <summary>
+/// コンストラクタ
+/// </summary>
 ParticleRenderSystem::ParticleRenderSystem() : BaseRenderSystem() {}
+
+/// <summary>
+/// デストラクタ
+/// </summary>
 ParticleRenderSystem::~ParticleRenderSystem() {}
 
+/// <summary>
+/// 初期化
+/// </summary>
 void ParticleRenderSystem::Initialize() {
     BaseRenderSystem::Initialize();
 
@@ -23,6 +33,9 @@ void ParticleRenderSystem::Initialize() {
     }
 }
 
+/// <summary>
+/// パイプラインステートオブジェクト（PSO）を作成する
+/// </summary>
 void ParticleRenderSystem::CreatePSO() {
     ShaderManager* shaderManager = ShaderManager::GetInstance();
 
@@ -125,6 +138,10 @@ void ParticleRenderSystem::CreatePSO() {
     }
 }
 
+/// <summary>
+/// エンティティのエミッターを登録する
+/// </summary>
+/// <param name="_entity">対象のエンティティハンドル</param>
 void ParticleRenderSystem::DispatchRenderer(EntityHandle _entity) {
     // 有効なEmitterなら登録する
     // 無効ならreturn
@@ -155,6 +172,9 @@ void ParticleRenderSystem::DispatchRenderer(EntityHandle _entity) {
     }
 }
 
+/// <summary>
+/// レンダリング開始時の共通設定
+/// </summary>
 void ParticleRenderSystem::StartRender() {
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->GetCommandList();
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -163,6 +183,11 @@ void ParticleRenderSystem::StartRender() {
     commandList->SetDescriptorHeaps(1, ppHeaps);
 }
 
+/// <summary>
+/// 指定されたブレンドモードでパーティクルを描画する
+/// </summary>
+/// <param name="_blend">ブレンドモード</param>
+/// <param name="_isCulling">カリングを有効にするかどうか（未使用）</param>
 void ParticleRenderSystem::RenderingBy(BlendMode _blend, bool /*_isCulling*/) {
     int32_t blendIndex = static_cast<int32_t>(_blend);
     auto& emitters     = activeEmittersByBlendMode_[blendIndex];
@@ -193,10 +218,17 @@ void ParticleRenderSystem::RenderingBy(BlendMode _blend, bool /*_isCulling*/) {
     emitters.clear();
 }
 
+/// <summary>
+/// 終了処理
+/// </summary>
 void ParticleRenderSystem::Finalize() {
     dxCommand_->Finalize();
 }
 
+/// <summary>
+/// レンダリングをスキップするかどうかを判定する
+/// </summary>
+/// <returns>true = 描画対象なし / false = 描画対象あり</returns>
 bool ParticleRenderSystem::ShouldSkipRender() const {
     for (size_t i = 0; i < kBlendNum; ++i) {
         if (!activeEmittersByBlendMode_.at(i).empty()) {

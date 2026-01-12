@@ -158,12 +158,12 @@ void Editor::Window::Finalize() {
     menus_.clear();
 }
 
-void Editor::Window::WindowOpenMassage() {
+void Editor::Window::WindowOpenMessage() {
     auto command = std::make_unique<WindowOpenCommand>(&isOpen_, true);
     OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
 }
 
-void Editor::Window::WindowCloseMassage() {
+void Editor::Window::WindowCloseMessage() {
     auto command = std::make_unique<WindowOpenCommand>(&isOpen_, false);
     OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
 }

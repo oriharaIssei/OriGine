@@ -7,7 +7,7 @@
 // module
 #include "AnimationManager.h"
 
-// asSets
+// assets
 #include "model/Model.h"
 
 #include "myFileSystem/MyFileSystem.h"
@@ -23,7 +23,7 @@
 
 using namespace OriGine;
 
-void ModelNodeAnimation:: Initialize(Scene* /*_scene,*/, EntityHandle /*_owner*/) {
+void ModelNodeAnimation::Initialize(Scene* /*_scene,*/, EntityHandle /*_owner*/) {
     // 初期化
     currentAnimationTime_  = 0.0f;
     animationState_.isEnd_ = false;

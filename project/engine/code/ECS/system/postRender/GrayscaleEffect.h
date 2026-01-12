@@ -19,30 +19,37 @@ public:
     GrayscaleEffect();
     ~GrayscaleEffect() override;
 
+    /// <summary>
+    /// 初期化
+    /// </summary>
     void Initialize() override;
-    void Finalize();
+
+    /// <summary>
+    /// 終了処理
+    /// </summary>
+    void Finalize() override;
 
 protected:
     /// <summary>
     /// PSO作成
     /// </summary>
-    void CreatePSO()override;
+    void CreatePSO() override;
 
     /// <summary>
     /// レンダリング開始処理
     /// </summary>
-    void RenderStart()override;
+    void RenderStart() override;
     /// <summary>
     /// レンダリング処理
     /// </summary>
-    void Rendering()override;
+    void Rendering() override;
     /// <summary>
     /// レンダリング終了処理
     /// </summary>
-    void RenderEnd()override;
+    void RenderEnd() override;
 
 protected:
-    PipelineStateObj* pso_                = nullptr;
+    PipelineStateObj* pso_ = nullptr;
 };
 
 } // namespace OriGine

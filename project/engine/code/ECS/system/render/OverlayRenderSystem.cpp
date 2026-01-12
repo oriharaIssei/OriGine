@@ -2,9 +2,19 @@
 
 using namespace OriGine;
 
+/// <summary>
+/// コンストラクタ
+/// </summary>
 OverlayRenderSystem::OverlayRenderSystem() : TexturedMeshRenderSystemWithoutRaytracing() {}
+
+/// <summary>
+/// デストラクタ
+/// </summary>
 OverlayRenderSystem::~OverlayRenderSystem() {}
 
+/// <summary>
+/// パイプラインステートオブジェクト（PSO）を作成する
+/// </summary>
 void OverlayRenderSystem::CreatePSO() {
 
     ShaderManager* shaderManager = ShaderManager::GetInstance();

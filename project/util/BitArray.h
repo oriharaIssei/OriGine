@@ -19,7 +19,7 @@
 template <std::unsigned_integral intergralType = std::uint32_t>
 class BitArray {
 public:
-    using BlockType                = intergralType;
+    using BlockType                       = intergralType;
     static constexpr size_t BlockBitCount = sizeof(BlockType) * 8; // 8 は BiteからBitに変換するために
 
     BitArray(size_t size = 0) : size_(size), data_((size + BlockBitCount - 1) / BlockBitCount, 0) {}
@@ -56,6 +56,11 @@ public:
     /// </summary>
     void Set(size_t pos, bool value);
 
+    /// <summary>
+    /// 内部のデータブロックを直接取得
+    /// </summary>
+    /// <param name="blockIndex">ブロックのインデックス</param>
+    /// <returns>ブロックの値</returns>
     BlockType GetBlock(size_t blockIndex) const {
         if (blockIndex >= data_.size()) {
             throw std::out_of_range("BitArray::getBlock");

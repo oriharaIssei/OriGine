@@ -13,18 +13,34 @@
 
 using namespace OriGine;
 
+/// <summary>
+/// コンストラクタ
+/// </summary>
 DissolveEffect::DissolveEffect() : BasePostRenderingSystem() {}
+
+/// <summary>
+/// デストラクタ
+/// </summary>
 DissolveEffect::~DissolveEffect() {}
 
+/// <summary>
+/// 初期化
+/// </summary>
 void DissolveEffect::Initialize() {
     BasePostRenderingSystem::Initialize();
 }
 
+/// <summary>
+/// 終了処理
+/// </summary>
 void DissolveEffect::Finalize() {
     BasePostRenderingSystem::Finalize();
     pso_ = nullptr;
 }
 
+/// <summary>
+/// PSO作成
+/// </summary>
 void DissolveEffect::CreatePSO() {
     ShaderManager* shaderManager = ShaderManager::GetInstance();
     shaderManager->LoadShader("FullScreen.VS");
@@ -108,10 +124,17 @@ void DissolveEffect::CreatePSO() {
     pso_ = shaderManager->CreatePso("DissolveEffect", shaderInfo, Engine::GetInstance()->GetDxDevice()->device_);
 }
 
+/// <summary>
+/// ポストレンダリングをスキップするかどうか
+/// </summary>
+/// <returns>描画データがない場合は true</returns>
 bool DissolveEffect::ShouldSkipPostRender() const {
     return activeRenderingData_.empty();
 }
 
+/// <summary>
+/// レンダリング開始処理
+/// </summary>
 void DissolveEffect::RenderStart() {
     auto& commandList = dxCommand_->GetCommandList();
 
@@ -127,6 +150,9 @@ void DissolveEffect::RenderStart() {
     commandList->SetDescriptorHeaps(1, ppHeaps);
 }
 
+/// <summary>
+/// レンダリング処理
+/// </summary>
 void DissolveEffect::Rendering() {
     auto& commandList = dxCommand_->GetCommandList();
 
@@ -152,11 +178,18 @@ void DissolveEffect::Rendering() {
     activeRenderingData_.clear();
 }
 
+/// <summary>
+/// レンダリング終了処理
+/// </summary>
 void DissolveEffect::RenderEnd() {
     // 描画 終了
     renderTarget_->PostDraw();
 }
 
+/// <summary>
+/// コンポーネントの割り当て
+/// </summary>
+/// <param name="_handle">エンティティ</param>
 void DissolveEffect::DispatchComponent(EntityHandle _handle) {
     auto& effectParams = GetComponents<DissolveEffectParam>(_handle);
 
@@ -191,6 +224,10 @@ void DissolveEffect::DispatchComponent(EntityHandle _handle) {
     }
 }
 
+/// <summary>
+/// 描画呼び出し
+/// </summary>
+/// <param name="_viewHandle">描画対象のテクスチャハンドル</param>
 void DissolveEffect::RenderCall(D3D12_GPU_DESCRIPTOR_HANDLE _viewHandle) {
     auto& commandList = dxCommand_->GetCommandList();
 

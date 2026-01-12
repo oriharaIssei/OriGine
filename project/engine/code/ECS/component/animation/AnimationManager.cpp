@@ -66,8 +66,8 @@ AnimationData AnimationManager::LoadGltfAnimationData(const std::string& directo
 
     aiAnimation* animationAssimp = scene->mAnimations[0];
     /// 時間の単位を 秒 に 合わせる
-    // mTicksPersecond ： 周波数
-    // mDuration      : mTicksPersecond で 指定された 周波数 における長さ
+    // mTicksPerSecond ： 周波数
+    // mDuration      : mTicksPerSecond で 指定された 周波数 における長さ
     result.duration = float(animationAssimp->mDuration / animationAssimp->mTicksPerSecond);
 
     ///=============================================

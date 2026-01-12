@@ -36,6 +36,11 @@ private:
     std::unordered_map<std::string, T> value_;
 
 public:
+    /// <summary>
+    /// 値をプールに設定
+    /// </summary>
+    /// <param name="name">名前</param>
+    /// <param name="value">値</param>
     void SetValue(const std::string& name, const T& value) {
         // 値がすでに存在する場合は何もしない
         auto it = value_.find(name);
@@ -44,9 +49,19 @@ public:
         }
         value_[name] = value;
     }
+    /// <summary>
+    /// 指定した名前の値が存在するか確認
+    /// </summary>
+    /// <param name="name">名前</param>
+    /// <returns>存在すればtrue</returns>
     bool hasValue(const std::string& name) const {
         return value_.find(name) != value_.end();
     }
+    /// <summary>
+    /// 値を取得し、プールから削除する
+    /// </summary>
+    /// <param name="name">名前</param>
+    /// <returns>取得した値</returns>
     T popValue(const std::string& name) {
         T returnValue{};
         auto it = value_.find(name);
@@ -65,6 +80,9 @@ public:
 };
 
 namespace ImGui {
+/// <summary>
+/// std::string に対応した InputText
+/// </summary>
 bool InputText(const char* label, std::string* str, ImGuiInputTextFlags flags = 0);
 }
 
@@ -331,7 +349,7 @@ bool DragGuiVectorCommand(const std::string& label, OriGine::Vector<N, T>& value
         valuePool.SetValue(label, value);
     } else if (::ImGui::IsItemDeactivatedAfterEdit()) {
         OriGine::Vector<N, T> newValue = value;
-        value                 = valuePool.popValue(label);
+        value                          = valuePool.popValue(label);
         OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<OriGine::Vector<N, T>>>(&value, newValue, _afterFunc));
         result = true;
     }
@@ -394,7 +412,7 @@ bool SlideVectorCommand(const std::string& label, OriGine::Vector<N, T>& value, 
         valuePool.SetValue(label, value);
     } else if (::ImGui::IsItemDeactivatedAfterEdit()) {
         OriGine::Vector<N, T> newValue = value;
-        value                 = valuePool.popValue(label);
+        value                          = valuePool.popValue(label);
         OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<OriGine::Vector<N, T>>>(&value, newValue, _afterFunc));
         return true;
     }
@@ -450,7 +468,7 @@ bool InputVectorGuiCommand(const std::string& label, OriGine::Vector<N, T>& valu
         valuePool.SetValue(label, value);
     } else if (::ImGui::IsItemDeactivatedAfterEdit()) {
         OriGine::Vector<N, T> newValue = value;
-        value                 = valuePool.popValue(label);
+        value                          = valuePool.popValue(label);
         OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<OriGine::Vector<N, T>>>(&value, newValue, _afterFunc));
         return true;
     }
@@ -499,7 +517,7 @@ bool ColorEditGuiCommand(const std::string& label, OriGine::Vector<N, float>& va
         valuePool.SetValue(label, value);
     } else if (::ImGui::IsItemDeactivatedAfterEdit()) {
         OriGine::Vector<N, float> newValue = value;
-        value                     = valuePool.popValue(label);
+        value                              = valuePool.popValue(label);
         OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<OriGine::Vector<N, float>>>(&value, newValue, _afterFunc));
         return true;
     }

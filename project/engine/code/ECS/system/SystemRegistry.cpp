@@ -2,6 +2,12 @@
 
 using namespace OriGine;
 
+/// <summary>
+/// システムの生成
+/// </summary>
+/// <param name="_systemTypeName">システム名</param>
+/// <param name="scene">所属させるScene</param>
+/// <returns>生成されたシステムの共有ポインタ</returns>
 std::shared_ptr<ISystem> SystemRegistry::CreateSystem(const std::string& _systemTypeName, Scene* scene) {
     auto itr = systemMaker_.find(_systemTypeName);
     if (itr == systemMaker_.end()) {

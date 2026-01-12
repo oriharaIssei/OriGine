@@ -5,6 +5,7 @@
 
 /// math
 #include <cmath>
+#include <mathEnv.h>
 #include <Matrix4x4.h>
 #include <numbers>
 
@@ -81,7 +82,7 @@ Vec3f Quaternion::ToEulerAngles() const {
     // Pitch (X-axis rotation)
     float sinp = 2.0f * (v[W] * v[X] - v[Y] * v[Z]);
     if (std::abs(sinp) >= 1.0f) {
-        euler[X] = std::copysign(std::numbers::pi_v<float> / 2.0f, sinp);
+        euler[X] = std::copysign(kHalfPi, sinp);
     } else {
         euler[X] = std::asin(sinp);
     }
@@ -97,7 +98,7 @@ Vec3f Quaternion::ToEulerAngles() const {
 float Quaternion::ToPitch() const {
     float sinp = 2.0f * (v[W] * v[X] - v[Y] * v[Z]);
     if (std::abs(sinp) >= 1.0f) {
-        return std::copysign(std::numbers::pi_v<float> / 2.0f, sinp);
+        return std::copysign(kHalfPi, sinp);
     }
     return std::asin(sinp);
 }
@@ -153,16 +154,16 @@ const Quaternion Quaternion::FromNormalVector(const Vec3f& _normal, const Vec3f&
     // 数値誤差対策
     dot = std::clamp(dot, -1.0f, 1.0f);
 
-    if (std::abs(dot - 1.0f) < 1e-6f) {
+    if (std::abs(dot - 1.0f) < kEpsilon) {
         // ほぼ同じ方向 → 回転不要
         return Quaternion::Identity();
     }
 
-    if (std::abs(dot + 1.0f) < 1e-6f) {
+    if (std::abs(dot + 1.0f) < kEpsilon) {
         // 真逆方向 → 180度回転
         // from と直交する任意の軸を求める
         Vec3f axis = Vec3f::Cross(from, Vec3f(1.0f, 0.0f, 0.0f));
-        if (axis.lengthSq() < 1e-6f) {
+        if (axis.lengthSq() < kEpsilon) {
             // 万一 from が (1,0,0) と平行なら別の軸を選ぶ
             axis = Vec3f::Cross(from, Vec3f(0.0f, 1.0f, 0.0f));
         }

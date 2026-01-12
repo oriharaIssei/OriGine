@@ -19,58 +19,98 @@
 namespace OriGine {
 
 /// <summary>
-/// 線の描画を行うシステム
+/// ライン（線）の描画を行うシステム。
+/// LineRendererコンポーネントを持つエンティティを収集し、ブレンドモードごとに描画する。
 /// </summary>
 class LineRenderSystem
     : public BaseRenderSystem {
 public:
+    /// <summary>
+    /// コンストラクタ
+    /// </summary>
     LineRenderSystem();
+
+    /// <summary>
+    /// デストラクタ
+    /// </summary>
     ~LineRenderSystem() override;
 
+    /// <summary>
+    /// 初期化処理
+    /// </summary>
     void Initialize() override;
+
+    /// <summary>
+    /// 終了処理
+    /// </summary>
     void Finalize() override;
 
     /// <summary>
-    /// PSOの作成
+    /// ライン描画用のパイプラインステートオブジェクト(PSO)を作成する
     /// </summary>
     void CreatePSO() override;
 
     /// <summary>
-    /// レンダリング開始処理
+    /// レンダリング開始処理。ビュー情報の設定などを行う。
     /// </summary>
     void StartRender() override;
 
     /// <summary>
-    /// BlendModeごとに描画を行う
+    /// 指定されたブレンドモードでラインの描画を実行する
     /// </summary>
     /// <param name="blendMode">ブレンドモード</param>
+    /// <param name="_isCulling">カリングを有効にするかどうか</param>
     void RenderingBy(BlendMode _blendMode, bool _isCulling) override;
 
     /// <summary>
-    /// 描画する物を登録
+    /// エンティティのラインレンダラーを登録し、トランスフォームを更新する
     /// </summary>
-    /// <param name="_entity"></param>
+    /// <param name="_entity">対象のエンティティハンドル</param>
     void DispatchRenderer(EntityHandle _entity) override;
 
     /// <summary>
-    /// レンダリングをスキップするかどうか(描画オブジェクトが無いときは描画をスキップする)
+    /// レンダリングをスキップするかどうかを判定する
     /// </summary>
-    /// <returns>true ＝ 描画をスキップする / false = 描画スキップしない</returns>
+    /// <returns>true = 描画対象なし / false = 描画対象あり</returns>
     bool ShouldSkipRender() const override;
 
 private:
+    /// <summary>
+    /// 現在のブレンドモード
+    /// </summary>
     BlendMode currentBlendMode_ = BlendMode::Alpha;
+
+    /// <summary>
+    /// ブレンドモードごとのPSO
+    /// </summary>
     std::array<PipelineStateObj*, kBlendNum> psoByBlendMode_{};
+
+    /// <summary>
+    /// ブレンドモードごとに分類された、現在アクティブなラインレンダラーのリスト
+    /// </summary>
     std::array<std::vector<LineRenderer*>, kBlendNum> activeLineRenderersByBlendMode_{};
 
 public:
+    /// <summary>
+    /// ブレンドモードごとのPSOリストを取得する
+    /// </summary>
+    /// <returns>PSOリスト</returns>
     const std::array<PipelineStateObj*, kBlendNum>& GetPsoByBlendMode() {
         return psoByBlendMode_;
     }
 
+    /// <summary>
+    /// 現在のブレンドモードを取得する
+    /// </summary>
+    /// <returns>ブレンドモード</returns>
     BlendMode GetCurrentBlendMode() const {
         return currentBlendMode_;
     }
+
+    /// <summary>
+    /// ブレンドモードを設定する
+    /// </summary>
+    /// <param name="_blendMode">設定するブレンドモード</param>
     void SetBlendMode(BlendMode _blendMode) {
         currentBlendMode_ = _blendMode;
     }

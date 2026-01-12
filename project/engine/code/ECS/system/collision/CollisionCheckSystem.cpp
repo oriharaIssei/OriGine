@@ -18,16 +18,28 @@
 
 using namespace OriGine;
 
+/// <summary>
+/// コンストラクタ
+/// </summary>
 CollisionCheckSystem::CollisionCheckSystem()
     : ISystem(SystemCategory::Collision) {}
 
+/// <summary>
+/// デストラクタ
+/// </summary>
 CollisionCheckSystem::~CollisionCheckSystem() {}
 
+/// <summary>
+/// 初期化処理
+/// </summary>
 void CollisionCheckSystem::Initialize() {
     constexpr size_t reserveSize = 100;
     entities_.reserve(reserveSize);
 }
 
+/// <summary>
+/// 全体の衝突判定更新
+/// </summary>
 void CollisionCheckSystem::Update() {
     EraseDeadEntity();
 
@@ -92,10 +104,17 @@ void CollisionCheckSystem::Update() {
     }
 }
 
+/// <summary>
+/// 終了処理
+/// </summary>
 void CollisionCheckSystem::Finalize() {
     entities_.clear();
 }
 
+/// <summary>
+/// 各エンティティと他エンティティの衝突判定を行う
+/// </summary>
+/// <param name="_handle">対象のエンティティハンドル</param>
 void CollisionCheckSystem::UpdateEntity(EntityHandle _handle) {
     ++entityItr_;
 

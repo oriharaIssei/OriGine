@@ -32,7 +32,14 @@ public:
     DistortionEffect();
     ~DistortionEffect() override;
 
+    /// <summary>
+    /// 初期化
+    /// </summary>
     void Initialize() override;
+
+    /// <summary>
+    /// 終了処理
+    /// </summary>
     void Finalize() override;
 
 protected:

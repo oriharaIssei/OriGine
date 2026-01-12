@@ -38,11 +38,21 @@ T ArithmeticSequence(T _base, T _commonDifference, int _index) {
 /// <param name="_base">初期値</param>
 /// <param name="_commonRatio">公比</param>
 /// <param name="_index">index</param>
+/// <returns>第n項の値</returns>
 template <typename T>
 T GeometricSequence(T _base, T _commonRatio, int _index) {
     return _base * pow(_commonRatio, T(_index - 1));
 }
 
+/// <summary>
+/// 等差または等比数列の第n項を取得
+/// </summary>
+/// <typeparam name="T">数値型</typeparam>
+/// <param name="_type">数列の種類</param>
+/// <param name="_base">初期値</param>
+/// <param name="_commonValue">公差または公比</param>
+/// <param name="_index">index</param>
+/// <returns>第n項の値</returns>
 template <typename T>
 T CommonSequence(CommonSequenceType _type, T _base, T _commonValue, int _index) {
     switch (_type) {
@@ -79,5 +89,8 @@ T FibonacciSequence(int _index) {
 } // namespace OriGine
 
 namespace std {
+/// <summary>
+/// 数列タイプを文字列へ変換
+/// </summary>
 string to_string(OriGine::CommonSequenceType _type);
 }

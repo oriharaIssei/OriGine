@@ -29,18 +29,40 @@ class DxSwapChain;
 class DxCommand;
 
 /// <summary>
-/// ImGui の管理クラス
+/// ImGui のライフサイクルとリソースを管理するシングルトンクラス.
+/// エンジンの初期化・更新・描画の各フェーズで ImGui の処理を呼び出す.
 /// </summary>
 class ImGuiManager {
 public:
+    /// <summary> インスタンスの取得. </summary>
     static ImGuiManager* GetInstance();
 
+    /// <summary>
+    /// ImGuiContext の作成、Win32/DX12 実装の初期化、フォントのセットアップを行う.
+    /// </summary>
+    /// <param name="window">メインウィンドウのインスタンス</param>
+    /// <param name="dxDevice">D3D12 デバイスのインスタンス</param>
+    /// <param name="dxSwapChain">スワップチェーンのインスタンス</param>
     void Initialize(const WinApp* window, const DxDevice* dxDevice, const DxSwapChain* dxSwapChain);
+
+    /// <summary>
+    /// ImGuiContext の破棄と DX12 リソースの解放を行う.
+    /// </summary>
     void Finalize();
 
+    /// <summary>
+    /// ImGui の新しいフレームを開始する.
+    /// </summary>
     void Begin();
+
+    /// <summary>
+    /// ImGui の描画データ生成などの終了処理を行う.
+    /// </summary>
     void End();
 
+    /// <summary>
+    /// コマンドリストに ImGui の描画コマンドを積む.
+    /// </summary>
     void Draw();
 
 private:
@@ -50,29 +72,37 @@ private:
     const ImGuiManager& operator=(const ImGuiManager&) = delete;
 #ifdef _DEBUG
 private:
-    // SRV用ヒープ
+    // SRV用ヒープ（ImGui がテクスチャ描画に使用する）
     Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> srvHeap_ = nullptr;
-    DxSrvDescriptor srv_;
-    std::unique_ptr<DxCommand> dxCommand_;
+    DxSrvDescriptor srv_; // フォントテクスチャ用等の記述子領域
+    std::unique_ptr<DxCommand> dxCommand_; // ImGui 描画用のコマンド管理
 
-    // ImGuiのフォント
+    // ImGuiのフォントデータ
     ImFont* font_             = nullptr;
     ImFont* materialIconFont_ = nullptr;
 
 public:
+    /// <summary> SRV ヒープの取得. </summary>
     const Microsoft::WRL::ComPtr<ID3D12DescriptorHeap>& GetSrvHeap() const { return srvHeap_; }
+    /// <summary> 内部 SRV 記述子の取得. </summary>
     const DxSrvDescriptor& GetSrv() const { return srv_; }
+    /// <summary> ImGui 用 DX12 コマンド管理オブジェクトの取得. </summary>
     DxCommand* GetDxCommand() { return dxCommand_.get(); }
 
+    /// <summary> 標準フォントの取得. </summary>
     ImFont* GetFont() const { return font_; }
+    /// <summary> マテリアルアイコンフォントの取得. </summary>
     ImFont* GetMaterialIconFont() const { return materialIconFont_; }
 
+    /// <summary> 指定したフォントをスタックに積む. </summary>
     void pushFont(ImFont* font) {
         ImGui::PushFont(font);
     }
+    /// <summary> 標準フォントをスタックに積む. </summary>
     void pushFont() {
         ImGui::PushFont(font_);
     }
+    /// <summary> マテリアルアイコンフォントをスタックに積む. </summary>
     void pushFontMaterialIcon() {
         ImGui::PushFont(materialIconFont_);
     }

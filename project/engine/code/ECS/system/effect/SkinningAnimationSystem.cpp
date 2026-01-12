@@ -1,8 +1,8 @@
 #include "SkinningAnimationSystem.h"
 
-#define DELTA_TIME
-#include "EngineInclude.h"
 /// Engine
+#include "Engine.h"
+
 #include "model/ModelManager.h"
 // directX12Object
 #include "directX12/DxCommand.h"
@@ -66,14 +66,24 @@ static void ApplyBlendedAnimation(
 
 SkinningAnimationSystem::SkinningAnimationSystem()
     : ISystem(SystemCategory::Effect) {}
+
+/// <summary>
+/// デストラクタ
+/// </summary>
 SkinningAnimationSystem::~SkinningAnimationSystem() {}
 
+/// <summary>
+/// 初期化処理
+/// </summary>
 void SkinningAnimationSystem::Initialize() {
     dxCommand_ = std::make_unique<DxCommand>();
     dxCommand_->Initialize("main", "main");
     CreatePSO();
 }
 
+/// <summary>
+/// 終了処理
+/// </summary>
 void SkinningAnimationSystem::Finalize() {
     if (dxCommand_) {
         dxCommand_->Finalize();
@@ -82,10 +92,14 @@ void SkinningAnimationSystem::Finalize() {
     pso_ = nullptr;
 }
 
+/// <summary>
+/// 各エンティティのスキニングアニメーションを更新する
+/// </summary>
+/// <param name="_handle">対象のエンティティハンドル</param>
 void SkinningAnimationSystem::UpdateEntity(EntityHandle _handle) {
     auto& skinningAnimationComps = GetComponents<SkinningAnimationComponent>(_handle);
 
-    const float deltaTime = GetMainDeltaTime();
+    const float deltaTime = Engine::GetInstance()->GetDeltaTimer()->GetScaledDeltaTime("Effect");
     for (auto& animationComponent : skinningAnimationComps) {
         int32_t currentAnimationIndex = animationComponent.GetCurrentAnimationIndex();
         if (!animationComponent.IsPrePlay() && animationComponent.IsPlay()) {
@@ -238,6 +252,9 @@ void SkinningAnimationSystem::UpdateEntity(EntityHandle _handle) {
     }
 }
 
+/// <summary>
+/// スキニング用のパイプラインステートオブジェクト(PSO)を作成する
+/// </summary>
 void SkinningAnimationSystem::CreatePSO() {
     constexpr const char* psoKey = "Skinning.CS";
 
@@ -320,6 +337,9 @@ void SkinningAnimationSystem::CreatePSO() {
     pso_ = shaderManager->CreatePso(psoKey, shaderInfo, dxDevice->device_);
 }
 
+/// <summary>
+/// Compute Shaderの実行を開始する
+/// </summary>
 void SkinningAnimationSystem::StartCS() {
     if (!pso_) {
         LOG_ERROR("PSO is not created for SkinningAnimationSystem");
@@ -334,6 +354,9 @@ void SkinningAnimationSystem::StartCS() {
     dxCommand_->GetCommandList()->SetComputeRootSignature(pso_->rootSignature.Get());
 }
 
+/// <summary>
+/// Compute Shaderを実行(コマンドを発行)する
+/// </summary>
 void SkinningAnimationSystem::ExecuteCS() {
     HRESULT hr;
     DxFence* fence = Engine::GetInstance()->GetDxFence();

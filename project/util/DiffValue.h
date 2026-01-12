@@ -50,20 +50,37 @@ public:
     /// <returns></returns>
     T& PrevRef() { return prev_; }
 
+    /// <summary>
     /// 差分を取得
+    /// </summary>
+    /// <returns>現在値 - 前回値</returns>
     T Delta() const { return current_ - prev_; }
 
+    /// <summary>
+    /// 値が変更されたか
+    /// </summary>
+    /// <returns>変更されていればtrue</returns>
     bool IsChanged() const {
         return current_ != prev_;
     }
+    /// <summary>
+    /// トリガー（falseからtrueへの変化）が発生したか
+    /// </summary>
+    /// <returns>トリガーされていればtrue</returns>
     bool IsTrigger() const {
         return current_ && !prev_;
     }
+    /// <summary>
+    /// リリース（trueからfalseへの変化）が発生したか
+    /// </summary>
+    /// <returns>リリースされていればtrue</returns>
     bool IsRelease() const {
         return !current_ && prev_;
     }
 
-    /// 前回値を現在値にリセット
+    /// <summary>
+    /// 前回値を現在値に同期
+    /// </summary>
     void Sync() { prev_ = current_; }
 
 private:

@@ -28,7 +28,14 @@ public:
     SpriteRenderSystem();
     ~SpriteRenderSystem() override;
 
+    /// <summary>
+    /// 初期化
+    /// </summary>
     void Initialize() override;
+
+    /// <summary>
+    /// 終了処理
+    /// </summary>
     void Finalize() override;
 
 protected:
@@ -43,16 +50,14 @@ protected:
     void StartRender() override;
 
     /// <summary>
-    /// BlendModeごとに描画を行う
+    /// スプライトのレンダリング処理
     /// </summary>
-    /// <param name="blendMode">ブレンドモード</param>
-    /// <param name="_isCulling">カリングの有効化</param>
     void Rendering() override;
 
     /// <summary>
     /// 描画する物を登録
     /// </summary>
-    /// <param name="_entity"></param>
+    /// <param name="_entity">対象のエンティティハンドル</param>
     void DispatchRenderer(EntityHandle _entity) override;
 
     /// <summary>
@@ -62,10 +67,13 @@ protected:
     bool ShouldSkipRender() const override;
 
 private:
+    /// <summary>
+    /// ブレンドモードごとの PSO
+    /// </summary>
     std::array<PipelineStateObj*, kBlendNum> psoByBlendMode_{};
 
-    Matrix4x4 viewPortMat_;
-    // first = render priority, second = component handle
+    Matrix4x4 viewPortMat_; // ビューポート行列（平行投影用）
+    // 描画順(first)とコンポーネントハンドル(second)のペアリスト
     std::vector<std::pair<int32_t, ComponentHandle>> rendererHandles_;
 };
 

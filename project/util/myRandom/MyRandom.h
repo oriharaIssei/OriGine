@@ -5,48 +5,65 @@
 #include <random>
 #include <stdint.h>
 
-namespace MyRandom{
-	static std::mt19937_64 engine(std::chrono::system_clock::now().time_since_epoch().count());
+namespace MyRandom {
+static std::mt19937_64 engine(std::chrono::system_clock::now().time_since_epoch().count());
 
-    
-    /// <summary>
-    /// Int 型の乱数を生成するクラス
-    /// </summary>
-	class Int{
-	private:
-		std::uniform_int_distribution<int32_t> distribution;
+/// <summary>
+/// Int 型の乱数を生成するクラス
+/// </summary>
+class Int {
+private:
+    std::uniform_int_distribution<int32_t> distribution;
 
-	public:
-		Int(int32_t min = (std::numeric_limits<int32_t>::min)(),int32_t max = (std::numeric_limits<int32_t>::max)())
-			: distribution(min,max){}
-
-		int32_t Get(){
-			return distribution(engine);
-		}
-
-		void SetRange(int32_t min,int32_t max){
-			distribution = std::uniform_int_distribution<int32_t>(min,max);
-		}
-	};
+public:
+    Int(int32_t min = (std::numeric_limits<int32_t>::min)(), int32_t max = (std::numeric_limits<int32_t>::max)())
+        : distribution(min, max) {}
 
     /// <summary>
-    /// Float 型の乱数を生成するクラス
+    /// 乱数を取得
     /// </summary>
-	class Float{
-	private:
-		std::uniform_real_distribution<float> distribution;
+    /// <returns>生成された乱数</returns>
+    int32_t Get() {
+        return distribution(engine);
+    }
 
-	public:
-		Float(float min = 0.0,float max = 1.0)
-			: distribution(min,max){}
+    /// <summary>
+    /// 乱数の生成範囲を設定
+    /// </summary>
+    /// <param name="min">最小値</param>
+    /// <param name="max">最大値</param>
+    void SetRange(int32_t min, int32_t max) {
+        distribution = std::uniform_int_distribution<int32_t>(min, max);
+    }
+};
 
-		float Get(){
-			return distribution(engine);
-		}
+/// <summary>
+/// Float 型の乱数を生成するクラス
+/// </summary>
+class Float {
+private:
+    std::uniform_real_distribution<float> distribution;
 
-		void SetRange(float min,float max){
-			distribution = std::uniform_real_distribution<float>(min,max);
-		}
-	};
+public:
+    Float(float min = 0.0, float max = 1.0)
+        : distribution(min, max) {}
+
+    /// <summary>
+    /// 乱数を取得
+    /// </summary>
+    /// <returns>生成された乱数</returns>
+    float Get() {
+        return distribution(engine);
+    }
+
+    /// <summary>
+    /// 乱数の生成範囲を設定
+    /// </summary>
+    /// <param name="min">最小値</param>
+    /// <param name="max">最大値</param>
+    void SetRange(float min, float max) {
+        distribution = std::uniform_real_distribution<float>(min, max);
+    }
+};
 
 }

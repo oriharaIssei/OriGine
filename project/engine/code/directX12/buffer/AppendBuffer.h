@@ -25,7 +25,8 @@ public:
     /// <summary>
     /// AppendBuffer用のバッファを作成する
     /// </summary>
-    /// <param name="_device"></param>
+    /// <param name="_device">デバイス</param>
+    /// <param name="_capacity">キャパシティ</param>
     void CreateBuffer(Microsoft::WRL::ComPtr<ID3D12Device> _device, size_t _capacity = defaultCapacity);
     /// <summary>
     /// 終了処理
@@ -35,14 +36,14 @@ public:
     /// <summary>
     /// Gpu 用バッファから openData_ に変換する
     /// </summary>
-    /// <param name="_cmdList"></param>
+    /// <param name="_dxCommand">コマンド</param>
     void ConvertFromBuffer(DxCommand* _dxCommand);
 
     /// <summary>
     /// ルートパラメータにAppendBufferをセット
     /// </summary>
-    /// <param name="_cmdList"></param>
-    /// <param name="_rootParameterNum"></param>
+    /// <param name="_cmdList">コマンドリスト</param>
+    /// <param name="_rootParameterNum">パラメータ番号</param>
     void SetForComputeRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _cmdList, uint32_t _rootParameterNum) const;
 
 private:
@@ -57,18 +58,22 @@ private:
     size_t capacity_ = 0;
 
 public:
+    /// <summary>
+    /// バッファリソースの取得
+    /// </summary>
+    /// <returns>リソース</returns>
     DxResource& GetBufferResource() { return buffer; }
 
     /// <summary>
     /// バッファの容量を取得
     /// </summary>
-    /// <returns></returns>
+    /// <returns>容量</returns>
     size_t GetCapacity() const { return capacity_; }
 
     /// <summary>
     /// 開かれたデータを取得
     /// </summary>
-    /// <returns></returns>
+    /// <returns>データ</returns>
     const std::vector<BufferType>& GetOpenData() const { return openData_; }
 };
 

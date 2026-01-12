@@ -283,6 +283,9 @@ inline Vector<dim, valueType> MaxElement(const Vector<dim, valueType>& a, const 
 template <int dimension, typename valueType>
 using Vec = Vector<dimension, valueType>;
 
+/// <summary>
+/// nlohmann::json へのシリアライズ (Vector)
+/// </summary>
 template <int dim, typename valueType>
 inline void to_json(nlohmann::json& j, const Vector<dim, valueType>& v) {
     // VectorをJSON配列としてシリアライズ
@@ -292,6 +295,9 @@ inline void to_json(nlohmann::json& j, const Vector<dim, valueType>& v) {
     }
 }
 
+/// <summary>
+/// nlohmann::json からのデシリアライズ (Vector)
+/// </summary>
 template <int dim, typename valueType>
 inline void from_json(const nlohmann::json& j, Vector<dim, valueType>& v) {
     // JSON配列をVectorにデシリアライズ

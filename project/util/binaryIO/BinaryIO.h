@@ -110,28 +110,63 @@ private:
     std::string groupName_;
 
 public:
+    /// <summary>
+    /// ディレクトリを取得
+    /// </summary>
     const std::string& GetDirectory() const { return directory_; }
+    /// <summary>
+    /// ファイル名を取得
+    /// </summary>
     const std::string& GetFileName() const { return fileName_; }
 
+    /// <summary>
+    /// ファイルが開いているか確認
+    /// </summary>
     bool isOpen() const { return isOpen_; }
 
+    /// <summary>
+    /// グループ名を取得
+    /// </summary>
     const std::string& GetGroupName() const { return groupName_; }
 };
 
+/// <summary>
+/// Binaryの読み込みをするクラス
+/// </summary>
 class BinaryReader {
 public:
     BinaryReader(const std::string& _directory, const std::string& _fileName) : directory_(_directory), fileName_(_fileName) {}
     ~BinaryReader() {}
 
+    /// <summary>
+    /// ファイルを読み込む
+    /// </summary>
+    /// <returns>成功すればtrue</returns>
     bool ReadFile();
 
+    /// <summary>
+    /// 1行読み込む
+    /// </summary>
     std::string ReadLine();
+    /// <summary>
+    /// グループの開始を宣言
+    /// </summary>
+    /// <param name="_groupName">グループ名</param>
     void ReadBeginGroup(const std::string& _groupName) {
         groupName_ = _groupName;
     }
+    /// <summary>
+    /// グループの終了を宣言
+    /// </summary>
     void ReadEndGroup() {
         groupName_ = "";
     }
+    /// <summary>
+    /// 指定されたラベルのデータを読み込む
+    /// </summary>
+    /// <typeparam name="T">データ型</typeparam>
+    /// <param name="_label">ラベル名</param>
+    /// <param name="_data">格納先参照</param>
     template <typename T>
     void Read(const std::string& _label, T& _data) {
         static_assert(std::is_trivially_copyable_v<T>, "T must be trivially copyable.");
@@ -149,6 +184,9 @@ public:
         std::memcpy(&_data, dataStr.data(), sizeof(T));
     }
 
+    /// <summary>
+    /// Vector型のデータを読み込む
+    /// </summary>
     template <int dim, typename valueType>
     void Read(const std::string& _label, OriGine::Vector<dim, valueType>& _data);
     // ----------------------------------------------
@@ -163,9 +201,18 @@ private:
     std::map<std::string, std::string> readMap_;
 
 public:
+    /// <summary>
+    /// ディレクトリを取得
+    /// </summary>
     const std::string& GetDirectory() const { return directory_; }
+    /// <summary>
+    /// ファイル名を取得
+    /// </summary>
     const std::string& GetFileName() const { return fileName_; }
 
+    /// <summary>
+    /// グループ名を取得
+    /// </summary>
     const std::string& GetGroupName() const { return groupName_; }
 };
 

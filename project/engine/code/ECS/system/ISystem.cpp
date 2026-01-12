@@ -17,6 +17,9 @@
 
 namespace OriGine {
 
+/// <summary>
+/// 無効なエンティティの除外
+/// </summary>
 void ISystem::EraseDeadEntity() {
     ::std::erase_if(entities_, [&entityRepository = this->entityRepository_](EntityHandle _handle) {
         Entity* entity = entityRepository->GetEntity(_handle);
@@ -24,6 +27,11 @@ void ISystem::EraseDeadEntity() {
     });
 }
 
+/// <summary>
+/// エンティティの取得
+/// </summary>
+/// <param name="_handle">対象のハンドル</param>
+/// <returns>エンティティのポインタ</returns>
 Entity* ISystem::GetEntity(EntityHandle _handle) {
     if (scene_ == nullptr) {
         LOG_ERROR("Scene is not Set.");
@@ -32,6 +40,11 @@ Entity* ISystem::GetEntity(EntityHandle _handle) {
     return scene_->GetEntityRepositoryRef()->GetEntity(_handle);
 }
 
+/// <summary>
+/// ユニークエンティティの取得
+/// </summary>
+/// <param name="_dataTypeName">取得する型名</param>
+/// <returns>エンティティハンドル</returns>
 EntityHandle ISystem::GetUniqueEntity(const ::std::string& _dataTypeName) {
     if (scene_ == nullptr) {
         LOG_ERROR("EntityRepository is not Set.");
@@ -40,6 +53,12 @@ EntityHandle ISystem::GetUniqueEntity(const ::std::string& _dataTypeName) {
     return scene_->GetEntityRepositoryRef()->GetUniqueEntity(_dataTypeName);
 }
 
+/// <summary>
+/// エンティティの作成
+/// </summary>
+/// <param name="_dataTypeName">作成する型名</param>
+/// <param name="_isUnique">ユニークなエンティティとして作成するか</param>
+/// <returns>作成したエンティティのハンドル</returns>
 EntityHandle ISystem::CreateEntity(const ::std::string& _dataTypeName, bool _isUnique) {
     if (scene_ == nullptr) {
         LOG_ERROR("EntityRepository is not Set.");
@@ -48,6 +67,11 @@ EntityHandle ISystem::CreateEntity(const ::std::string& _dataTypeName, bool _isU
     return scene_->GetEntityRepositoryRef()->CreateEntity(_dataTypeName, _isUnique);
 }
 
+/// <summary>
+/// コンポーネント配列の取得
+/// </summary>
+/// <param name="_typeName">コンポーネントの型名</param>
+/// <returns>コンポーネント配列のインターフェース</returns>
 IComponentArray* ISystem::GetComponentArray(const ::std::string& _typeName) {
     if (scene_ == nullptr) {
         LOG_ERROR("ComponentRepository is not Set.");
@@ -56,6 +80,12 @@ IComponentArray* ISystem::GetComponentArray(const ::std::string& _typeName) {
     return scene_->GetComponentRepositoryRef()->GetComponentArray(_typeName);
 }
 
+/// <summary>
+/// コンポーネントの追加
+/// </summary>
+/// <param name="_entity">対象のエンティティハンドル</param>
+/// <param name="_typeName">追加するコンポーネントの型名</param>
+/// <returns>追加したコンポーネントのハンドル</returns>
 ComponentHandle ISystem::AddComponent(EntityHandle _entity, const ::std::string& _typeName) {
     if (scene_ == nullptr) {
         LOG_ERROR("ComponentRepository is not Set.");
@@ -64,6 +94,10 @@ ComponentHandle ISystem::AddComponent(EntityHandle _entity, const ::std::string&
     return scene_->GetComponentRepositoryRef()->GetComponentArray(_typeName)->AddComponent(scene_, _entity);
 }
 
+/// <summary>
+/// 所属シーンの設定
+/// </summary>
+/// <param name="_scene">所属させるシーン</param>
 void ISystem::SetScene(Scene* _scene) {
     scene_ = _scene;
 
@@ -77,6 +111,9 @@ void ISystem::SetScene(Scene* _scene) {
     componentRepository_ = scene_->GetComponentRepositoryRef();
 }
 
+/// <summary>
+/// システムの実行
+/// </summary>
 void ISystem::Run() {
 #ifndef _RELEASE
     // 計測開始
@@ -95,6 +132,9 @@ void ISystem::Run() {
 #endif
 }
 
+/// <summary>
+/// システムの基本更新処理
+/// </summary>
 void ISystem::Update() {
     if (entities_.empty()) {
         return;
@@ -107,6 +147,9 @@ void ISystem::Update() {
     }
 }
 
+/// <summary>
+/// GUI編集処理
+/// </summary>
 void ISystem::Edit() {
 #ifdef _DEBUG
     // GUI表示

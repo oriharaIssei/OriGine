@@ -13,9 +13,19 @@
 
 using namespace OriGine;
 
+/// <summary>
+/// コンストラクタ
+/// </summary>
 SpriteRenderSystem::SpriteRenderSystem() : BaseRenderSystem() {}
+
+/// <summary>
+/// デストラクタ
+/// </summary>
 SpriteRenderSystem::~SpriteRenderSystem() {}
 
+/// <summary>
+/// 初期化
+/// </summary>
 void SpriteRenderSystem::Initialize() {
     BaseRenderSystem::Initialize();
 
@@ -24,6 +34,9 @@ void SpriteRenderSystem::Initialize() {
     viewPortMat_   = MakeMatrix4x4::Orthographic(0, 0, (float)window->GetWidth(), (float)window->GetHeight(), 0.0f, 100.0f);
 }
 
+/// <summary>
+/// スプライトのレンダリング本体
+/// </summary>
 void SpriteRenderSystem::Rendering() {
 
     ///=========================================================
@@ -89,6 +102,10 @@ void SpriteRenderSystem::Rendering() {
     rendererHandles_.clear();
 }
 
+/// <summary>
+/// エンティティのスプライトレンダラーを登録する
+/// </summary>
+/// <param name="_entity">対象のエンティティハンドル</param>
 void SpriteRenderSystem::DispatchRenderer(EntityHandle _entity) {
     std::vector<SpriteRenderer> renderers = GetComponents<SpriteRenderer>(_entity);
 
@@ -104,14 +121,24 @@ void SpriteRenderSystem::DispatchRenderer(EntityHandle _entity) {
     }
 }
 
+/// <summary>
+/// レンダリングをスキップするかどうかを判定する
+/// </summary>
+/// <returns>true = 描画対象なし / false = 描画対象あり</returns>
 bool SpriteRenderSystem::ShouldSkipRender() const {
     return rendererHandles_.empty();
 }
 
+/// <summary>
+/// 終了処理
+/// </summary>
 void SpriteRenderSystem::Finalize() {
     BaseRenderSystem::Finalize();
 }
 
+/// <summary>
+/// パイプラインステートオブジェクト（PSO）を作成する
+/// </summary>
 void SpriteRenderSystem::CreatePSO() {
 
     ShaderManager* shaderManager = ShaderManager::GetInstance();
@@ -204,6 +231,9 @@ void SpriteRenderSystem::CreatePSO() {
     }
 }
 
+/// <summary>
+/// レンダリング開始時の共通設定
+/// </summary>
 void SpriteRenderSystem::StartRender() {
     auto& commandList = dxCommand_->GetCommandList();
     dxCommand_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

@@ -27,9 +27,19 @@ static const uint32_t kJointSphereIndexSize  = 4 * kJointSphereDivision * kJoint
 
 const int32_t SkeletonRenderSystem::defaultMeshCount_ = 1000;
 
+/// <summary>
+/// コンストラクタ
+/// </summary>
 SkeletonRenderSystem::SkeletonRenderSystem() : BaseRenderSystem() {}
+
+/// <summary>
+/// デストラクタ
+/// </summary>
 SkeletonRenderSystem::~SkeletonRenderSystem() {}
 
+/// <summary>
+/// 初期化
+/// </summary>
 void SkeletonRenderSystem::Initialize() {
     BaseRenderSystem::Initialize();
 
@@ -51,10 +61,16 @@ void SkeletonRenderSystem::Initialize() {
     boneMeshItr_ = boneRenderer_->GetMeshGroup()->begin();
 }
 
+/// <summary>
+/// 終了処理
+/// </summary>
 void SkeletonRenderSystem::Finalize() {
     dxCommand_->Finalize();
 }
 
+/// <summary>
+/// スケルトンの形状に基づいて描画用メッシュを作成する
+/// </summary>
 void SkeletonRenderSystem::CreateRenderMesh() {
     auto& jointMeshGroup = jointRenderer_->GetMeshGroup();
     auto& boneMeshGroup  = boneRenderer_->GetMeshGroup();
@@ -112,6 +128,9 @@ void SkeletonRenderSystem::CreateRenderMesh() {
     boneMeshItr_->TransferData();
 }
 
+/// <summary>
+/// パイプラインステートオブジェクト（PSO）を作成する
+/// </summary>
 void SkeletonRenderSystem::CreatePSO() {
 
     ShaderManager* shaderManager = ShaderManager::GetInstance();
@@ -184,6 +203,9 @@ void SkeletonRenderSystem::CreatePSO() {
     pso_                      = shaderManager->CreatePso("LineMesh_" + std::to_string(currentBlend_), lineShaderInfo, dxDevice->device_);
 }
 
+/// <summary>
+/// レンダリング開始時の共通設定
+/// </summary>
 void SkeletonRenderSystem::StartRender() {
     currentBlend_ = BlendMode::Alpha;
 
@@ -195,11 +217,18 @@ void SkeletonRenderSystem::StartRender() {
     CameraManager::GetInstance()->SetBufferForRootParameter(GetScene(), commandList, 1);
 }
 
+/// <summary>
+/// レンダリングをスキップするかどうかを判定する
+/// </summary>
+/// <returns>true = 描画対象なし / false = 描画対象あり</returns>
 bool SkeletonRenderSystem::ShouldSkipRender() const {
     // 描画オブジェクトが無いときは描画をスキップする
     return !skinningAnimationArray_ || skinningAnimationArray_->IsEmpty();
 }
 
+/// <summary>
+/// ジョイントとボーンの描画コマンドを発行する
+/// </summary>
 void SkeletonRenderSystem::RenderCall() {
     auto& commandList = dxCommand_->GetCommandList();
 
@@ -229,6 +258,9 @@ void SkeletonRenderSystem::RenderCall() {
     }
 }
 
+/// <summary>
+/// レンダリング処理のメインループ
+/// </summary>
 void SkeletonRenderSystem::Rendering() {
     CreateRenderMesh();
 
@@ -237,6 +269,9 @@ void SkeletonRenderSystem::Rendering() {
     RenderCall();
 }
 
+/// <summary>
+/// 子ジョイントの描画メッシュを再帰的に作成する
+/// </summary>
 void SkeletonRenderSystem::CreateMeshForChildren(
     std::vector<Mesh<ColorVertexData>>* _jointMeshGroup,
     std::vector<Mesh<ColorVertexData>>* _boneMeshGroup,
@@ -286,6 +321,9 @@ void SkeletonRenderSystem::CreateMeshForChildren(
     }
 }
 
+/// <summary>
+/// ジョイント（関節）を表す球体メッシュを作成する
+/// </summary>
 void SkeletonRenderSystem::CreateJointMesh(
     Mesh<ColorVertexData>* _mesh,
     const Joint& _joint,
@@ -343,6 +381,9 @@ void SkeletonRenderSystem::CreateJointMesh(
     }
 }
 
+/// <summary>
+/// ボーン（骨）を表すラインメッシュを作成する
+/// </summary>
 void SkeletonRenderSystem::CreateBoneMesh(
     Mesh<ColorVertexData>* _mesh,
     const Vec3f& _start,

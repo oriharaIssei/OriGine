@@ -5,6 +5,9 @@
 
 namespace OriGine {
 
+/// <summary>
+/// Box描画コンポーネント
+/// </summary>
 class BoxRenderer
     : public PrimitiveMeshRenderer<Primitive::Box> {
     friend void to_json(nlohmann::json& j, const BoxRenderer& r);

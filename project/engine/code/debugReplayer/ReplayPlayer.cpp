@@ -16,8 +16,10 @@
 
 using namespace OriGine;
 
+/// <summary>
+/// 指定されたリプレイファイルの読み込みと再生準備を行う.
+/// </summary>
 void ReplayPlayer::Initialize(const std::string& filepath, SceneManager* _sceneManager) {
-    // すでに初期化されている場合は何もしない
     if (isActive_) {
         LOG_WARN("already initialized.");
         return;
@@ -26,17 +28,18 @@ void ReplayPlayer::Initialize(const std::string& filepath, SceneManager* _sceneM
     fileData_.Initialize();
     isActive_ = LoadFromFile(filepath);
 
-    // シーンマネージャーに開始シーンをセット
+    // 読み込みに成功した場合、記録開始時のシーンへの遷移を要求する
     if (_sceneManager) {
         _sceneManager->ChangeScene(fileData_.header.startScene);
+        // 最初のフレーム入力をあらかじめ適用しておく
         if (isActive_) {
             Apply(_sceneManager->keyInput_, _sceneManager->mouseInput_, _sceneManager->padInput_);
         }
     }
 }
 
+/// <summary> 再生終了処理. リソースの解放とフラグのリセットを行う. </summary>
 void ReplayPlayer::Finalize() {
-    // 未初期化の場合は何もしない
     if (!isActive_) {
         LOG_WARN("not initialized.");
         return;
@@ -48,6 +51,9 @@ void ReplayPlayer::Finalize() {
     filepath_.clear();
 }
 
+/// <summary>
+/// バイナリ形式のリプレイファイルを解析してメモリにロードする.
+/// </summary>
 bool ReplayPlayer::LoadFromFile(const std::string& filepath) {
     isActive_ = false;
     std::ifstream ifs(filepath, std::ios::binary);
@@ -61,10 +67,9 @@ bool ReplayPlayer::LoadFromFile(const std::string& filepath) {
     }
 
     filepath_ = filepath;
-    // 読み込み準備
     fileData_.Initialize();
 
-    // ===== ヘッダーの読み込み =====
+    // ===== ヘッダーのデシリアライズ =====
     {
         // 開始シーン名
         size_t length = 0;
@@ -77,18 +82,18 @@ bool ReplayPlayer::LoadFromFile(const std::string& filepath) {
         ifs.read(reinterpret_cast<char*>(&fileData_.header.version.minor), sizeof(uint32_t));
         ifs.read(reinterpret_cast<char*>(&fileData_.header.version.patch), sizeof(uint32_t));
 
-        // フレーム数
+        // 総フレーム数
         uint32_t frameCount = 0;
         ifs.read(reinterpret_cast<char*>(&frameCount), sizeof(uint32_t));
         fileData_.frameData.resize(frameCount);
     }
 
-    // ===== フレームデータの読み込み =====
+    // ===== 各フレームのデシリアライズ =====
     for (auto& frame : fileData_.frameData) {
-        // deltaTime
+        // 経過時間
         ifs.read(reinterpret_cast<char*>(&frame.deltaTime), sizeof(float));
 
-        // キーボード入力
+        // キーボード入力（BitArray の復元）
         {
             size_t size = 0;
             ifs.read(reinterpret_cast<char*>(&size), sizeof(size));
@@ -128,19 +133,22 @@ bool ReplayPlayer::LoadFromFile(const std::string& filepath) {
     }
 
     ifs.close();
-
     LOG_INFO("Replay file loaded successfully: {}", filepath);
 
     isActive_ = true;
     return true;
 }
 
+/// <summary>
+/// 現在の再生フレームに対応する入力を、各デバイスの内部状態に上書き注入する.
+/// </summary>
 float ReplayPlayer::Apply(KeyboardInput* _keyInput, MouseInput* _mouseInput, GamepadInput* _padInput) {
     auto& frameData = fileData_.frameData[currentFrameIndex_];
 
-    /// prev の更新
+    // 入力履歴（prev 状態）の復元
+    // これにより、再生中も Trigger/Release 判定が正しく機能する
     if (currentFrameIndex_ == 0) {
-        /// 初期化
+        // 再生開始時：現在の値をそのまま prev にセット
         // key入力
         for (size_t keyIndex = 0; keyIndex < KEY_COUNT; ++keyIndex) {
             bool isPressed                 = frameData.keyInputData.Get(keyIndex);
@@ -158,6 +166,7 @@ float ReplayPlayer::Apply(KeyboardInput* _keyInput, MouseInput* _mouseInput, Gam
         _padInput->prevButtonMask_ = frameData.padData.buttonData;
 
     } else {
+        // 2フレーム目以降：前回の current 値を prev へ移動
         // key入力
         _keyInput->prevKeys_ = _keyInput->keys_;
 
@@ -170,8 +179,8 @@ float ReplayPlayer::Apply(KeyboardInput* _keyInput, MouseInput* _mouseInput, Gam
         _padInput->prevButtonMask_ = _padInput->buttonMask_;
     }
 
+    // 最新状態（current）の注入
     /// keyboard
-    // current を更新
     if (frameData.keyInputData.size() != 0) {
         for (size_t keyIndex = 0; keyIndex < KEY_COUNT; ++keyIndex) {
             bool isPressed             = frameData.keyInputData.Get(keyIndex);
@@ -184,6 +193,7 @@ float ReplayPlayer::Apply(KeyboardInput* _keyInput, MouseInput* _mouseInput, Gam
     _mouseInput->virtualPos_        = _mouseInput->pos_;
     _mouseInput->currentWheelDelta_ = frameData.mouseData.wheelDelta;
 
+    // 速度（移動量）の計算
     _mouseInput->velocity_ = _mouseInput->pos_ - _mouseInput->prevPos_;
 
     for (size_t mouseButtonIndex = 0; mouseButtonIndex < MOUSE_BUTTON_COUNT; ++mouseButtonIndex) {

@@ -105,9 +105,9 @@ DirectX::ScratchImage Texture::Load(const std::string& filePath) {
     }
 
     if (FAILED(hr)) {
-        std::string errorMassage;
+        std::string errorMessage;
         std::wcerr << L"Failed to load texture file: " << filePathW << L" hr=0x" << std::hex << hr << std::endl;
-        LOG_CRITICAL("Failed to load texture file: {} \n massage {}", filePath, std::to_string(hr));
+        LOG_CRITICAL("Failed to load texture file: {} \n message {}", filePath, std::to_string(hr));
         assert(SUCCEEDED(hr));
     }
 
@@ -320,7 +320,7 @@ D3D12_GPU_DESCRIPTOR_HANDLE TextureManager::GetDescriptorGpuHandle(uint32_t hand
 
 #pragma region "LoadTask"
 void TextureManager::LoadTask::Update() {
-    DeltaTime timer;
+    DeltaTimer timer;
     timer.Initialize();
 
     texture->Initialize(filePath);

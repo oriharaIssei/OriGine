@@ -19,20 +19,35 @@ namespace OriGine {
 class SpriteRenderer;
 
 /// <summary>
-/// 背景スプライトの描画を行うシステム
+/// 背景として描画されるスプライトを管理するシステム。
+/// ビューポート行列を使用して、スクリーン座標系での描画を行う。
 /// </summary>
 class BackGroundSpriteRenderSystem
     : public BaseRenderSystem {
 public:
+    /// <summary>
+    /// コンストラクタ
+    /// </summary>
     BackGroundSpriteRenderSystem();
+
+    /// <summary>
+    /// デストラクタ
+    /// </summary>
     ~BackGroundSpriteRenderSystem() override;
+
+    /// <summary>
+    /// 初期化処理。ビューポート行列の計算とPSOの作成を行う。
+    /// </summary>
     void Initialize() override;
-    // void Update() override;
+
+    /// <summary>
+    /// 終了処理
+    /// </summary>
     void Finalize() override;
 
 protected:
     /// <summary>
-    /// PSOの作成
+    /// 背景スプライト用のパイプラインステートオブジェクト(PSO)を作成する
     /// </summary>
     void CreatePSO() override;
 
@@ -42,26 +57,37 @@ protected:
     virtual void StartRender() override;
 
     /// <summary>
-    /// レンダリング処理(StartRenderから描画まですべてを行う)
+    /// 背景スプライトのレンダリングを実行する。
+    /// 描画順序のソートとブレンドモードの制御を行う。
     /// </summary>
     void Rendering() override;
 
     /// <summary>
-    /// 描画する物を登録
+    /// エンティティのスプライトレンダラーを登録し、バッファを更新する
     /// </summary>
-    /// <param name="_entity"></param>
+    /// <param name="_entity">対象のエンティティハンドル</param>
     void DispatchRenderer(EntityHandle _entity) override;
 
     /// <summary>
-    /// レンダリングをスキップするかどうか(描画オブジェクトが無いときは描画をスキップする)
+    /// レンダリングをスキップするかどうかを判定する。
     /// </summary>
-    /// <returns>true ＝ 描画をスキップする / false = 描画スキップしない</returns>
+    /// <returns>true = 描画対象なし / false = 描画対象あり</returns>
     bool ShouldSkipRender() const override;
 
 private:
+    /// <summary>
+    /// 描画対象のレンダラーリスト
+    /// </summary>
     std::vector<SpriteRenderer*> renderers_;
+
+    /// <summary>
+    /// スクリーン座標系への投影に使用する行列
+    /// </summary>
     Matrix4x4 viewPortMat_;
 
+    /// <summary>
+    /// ブレンドモードごとのPSO
+    /// </summary>
     std::array<PipelineStateObj*, kBlendNum> psoByBlendMode_{};
 };
 

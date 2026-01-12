@@ -28,16 +28,25 @@ inline std::string ClearString(std::string name) {
     return name;
 }
 
+/// <summary>
+/// 型名を文字列で取得する (テンプレート引数版)
+/// </summary>
 template <typename T>
 constexpr std::string nameof() {
     return ClearString(typeid(T).name());
 }
 
+/// <summary>
+/// 型名を文字列で取得する (インスタンス参照版)
+/// </summary>
 template <typename T>
 constexpr std::string nameof(const T&) {
     return ClearString(typeid(T).name());
 }
 
+/// <summary>
+/// 型名を文字列で取得する (ポインタ版)
+/// </summary>
 template <typename T>
 constexpr std::string nameof(T*) {
     return ClearString(typeid(T).name());

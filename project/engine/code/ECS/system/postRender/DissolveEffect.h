@@ -22,7 +22,14 @@ public:
     DissolveEffect();
     ~DissolveEffect() override;
 
+    /// <summary>
+    /// 初期化
+    /// </summary>
     void Initialize() override;
+
+    /// <summary>
+    /// 終了処理
+    /// </summary>
     void Finalize();
 
 protected:
@@ -61,12 +68,12 @@ protected:
 
 protected:
     struct RenderingData {
-        D3D12_GPU_DESCRIPTOR_HANDLE srvHandle                     = {};
-        DissolveEffectParam* dissolveParam                       = nullptr;
+        D3D12_GPU_DESCRIPTOR_HANDLE srvHandle = {};
+        DissolveEffectParam* dissolveParam    = nullptr;
     };
 
 protected:
-    PipelineStateObj* pso_                                = nullptr;
+    PipelineStateObj* pso_                          = nullptr;
     std::vector<RenderingData> activeRenderingData_ = {};
 };
 

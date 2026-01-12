@@ -367,7 +367,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="util\uuidGenerator\UuidGenerator.h" />
     <ClInclude Include="util\Version.h" />
     <ClInclude Include="util\binaryIO\BinaryIO.h" />
-    <ClInclude Include="util\deltaTime\DeltaTime.h" />
+    <ClInclude Include="util\deltaTime\DeltaTimer.h" />
     <ClInclude Include="util\globalVariables\GlobalVariables.h" />
     <ClInclude Include="util\globalVariables\SerializedField.h" />
     <ClInclude Include="util\myFileSystem\MyFileSystem.h" />
@@ -551,7 +551,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="util\uuidGenerator\UuidGenerator.cpp" />
     <ClCompile Include="util\Version.cpp" />
     <ClCompile Include="util\binaryIO\BinaryIO.cpp" />
-    <ClCompile Include="util\deltaTime\DeltaTime.cpp" />
+    <ClCompile Include="util\deltaTime\DeltaTimer.cpp" />
     <ClCompile Include="util\globalVariables\GlobalVariables.cpp" />
     <ClCompile Include="util\myFileSystem\MyFileSystem.cpp" />
     <ClCompile Include="util\myGui\MyGui.cpp" />

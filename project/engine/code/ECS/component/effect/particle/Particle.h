@@ -22,6 +22,9 @@ namespace OriGine {
 // 前方宣言
 struct ParticleKeyFrames;
 
+/// <summary>
+/// パーティクル更新設定
+/// </summary>
 enum class ParticleUpdateType {
     None = 0,
 
@@ -41,6 +44,9 @@ enum class ParticleUpdateType {
     VelocityRotateForward  = 0x1 << 13
 };
 
+/// <summary>
+/// 1つのパーティクルの情報
+/// </summary>
 class Particle {
 public:
     Particle();

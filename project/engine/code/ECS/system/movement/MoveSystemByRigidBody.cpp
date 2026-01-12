@@ -14,17 +14,37 @@
 using namespace OriGine;
 
 MoveSystemByRigidBody::MoveSystemByRigidBody() : ISystem(SystemCategory::Movement) {}
+
+/// <summary>
+/// デストラクタ
+/// </summary>
 MoveSystemByRigidBody::~MoveSystemByRigidBody() {}
 
+/// <summary>
+/// 初期化処理
+/// </summary>
 void MoveSystemByRigidBody::Initialize() {}
 
+/// <summary>
+/// 終了処理
+/// </summary>
 void MoveSystemByRigidBody::Finalize() {}
 
+/// <summary>
+/// 各エンティティのRigidbodyに基づいた物理移動を計算し、Transformを更新する
+/// </summary>
+/// <param name="_handle">対象のエンティティハンドル</param>
 void MoveSystemByRigidBody::UpdateEntity(EntityHandle _handle) {
-    const float deltaTime = Engine::GetInstance()->GetDeltaTime();
-    Transform* transform  = GetComponent<Transform>(_handle);
+    float deltaTime = 0.f;
+
+    Transform* transform = GetComponent<Transform>(_handle);
 
     Rigidbody* rigidbody = GetComponent<Rigidbody>(_handle);
+    if (rigidbody->IsUsingLocalDeltaTime()) {
+        deltaTime = Engine::GetInstance()->GetDeltaTimer()->GetScaledDeltaTime(rigidbody->GetLocalDeltaTimeName());
+    } else {
+        deltaTime = Engine::GetInstance()->GetDeltaTime();
+    }
 
     bool resourceCheck = (transform != nullptr) && (rigidbody != nullptr);
     if (!resourceCheck) {

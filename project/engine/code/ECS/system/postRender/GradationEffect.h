@@ -25,8 +25,15 @@ public:
     GradationEffect();
     ~GradationEffect() override;
 
+    /// <summary>
+    /// 初期化
+    /// </summary>
     void Initialize() override;
-    void Finalize();
+
+    /// <summary>
+    /// 終了処理
+    /// </summary>
+    void Finalize() override;
 
 protected:
     /// <summary>

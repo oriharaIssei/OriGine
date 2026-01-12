@@ -16,8 +16,15 @@
 using namespace OriGine;
 
 LineRenderSystem::LineRenderSystem() : BaseRenderSystem() {}
+
+/// <summary>
+/// デストラクタ
+/// </summary>
 LineRenderSystem::~LineRenderSystem() {}
 
+/// <summary>
+/// 初期化処理
+/// </summary>
 void LineRenderSystem::Initialize() {
     BaseRenderSystem::Initialize();
 
@@ -26,10 +33,16 @@ void LineRenderSystem::Initialize() {
     }
 }
 
+/// <summary>
+/// 終了処理
+/// </summary>
 void LineRenderSystem::Finalize() {
     dxCommand_->Finalize();
 }
 
+/// <summary>
+/// レンダリング開始処理。ビュー情報の設定などを行う。
+/// </summary>
 void LineRenderSystem::StartRender() {
     auto& commandList = dxCommand_->GetCommandList();
 
@@ -43,6 +56,10 @@ void LineRenderSystem::StartRender() {
     CameraManager::GetInstance()->SetBufferForRootParameter(GetScene(), commandList, 1);
 }
 
+/// <summary>
+/// エンティティのラインレンダラーを登録し、トランスフォームを更新する
+/// </summary>
+/// <param name="_entity">対象のエンティティハンドル</param>
 void LineRenderSystem::DispatchRenderer(EntityHandle _entity) {
     std::vector<LineRenderer>& renderers = GetComponents<LineRenderer>(_entity);
     if (renderers.empty()) {
@@ -73,6 +90,10 @@ void LineRenderSystem::DispatchRenderer(EntityHandle _entity) {
     }
 }
 
+/// <summary>
+/// レンダリングをスキップするかどうかを判定する
+/// </summary>
+/// <returns>true = 描画対象なし / false = 描画対象あり</returns>
 bool LineRenderSystem::ShouldSkipRender() const {
     for (size_t i = 0; i < kBlendNum; ++i) {
         if (!activeLineRenderersByBlendMode_[i].empty()) {
@@ -82,6 +103,11 @@ bool LineRenderSystem::ShouldSkipRender() const {
     return true;
 }
 
+/// <summary>
+/// 指定されたブレンドモードでラインの描画を実行する
+/// </summary>
+/// <param name="_blend">ブレンドモード</param>
+/// <param name="_isCulling">カリングを有効にするかどうか（未使用）</param>
 void LineRenderSystem::RenderingBy(BlendMode _blend, bool /*_isCulling*/) {
     int32_t blendIndex = static_cast<int32_t>(_blend);
     bool isSkip        = activeLineRenderersByBlendMode_[blendIndex].empty();
@@ -111,6 +137,9 @@ void LineRenderSystem::RenderingBy(BlendMode _blend, bool /*_isCulling*/) {
     activeLineRenderersByBlendMode_[blendIndex].clear();
 }
 
+/// <summary>
+/// パイプラインステートオブジェクト（PSO）を作成する
+/// </summary>
 void LineRenderSystem::CreatePSO() {
     ShaderManager* shaderManager = ShaderManager::GetInstance();
     DxDevice* dxDevice           = Engine::GetInstance()->GetDxDevice();

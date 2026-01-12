@@ -205,8 +205,15 @@ void CreateLineMeshByShape(
 #pragma endregion
 
 ColliderRenderingSystem::ColliderRenderingSystem() : BaseRenderSystem() {}
+
+/// <summary>
+/// デストラクタ
+/// </summary>
 ColliderRenderingSystem::~ColliderRenderingSystem() {}
 
+/// <summary>
+/// 初期化処理。各形状用レンダラーの生成を行う。
+/// </summary>
 void ColliderRenderingSystem::Initialize() {
     BaseRenderSystem::Initialize();
 
@@ -235,6 +242,9 @@ void ColliderRenderingSystem::Initialize() {
     sphereMeshItr_ = sphereRenderer_->GetMeshGroup()->begin();
 }
 
+/// <summary>
+/// 更新処理。レンダリング対象のクリアと更新を行う。
+/// </summary>
 void ColliderRenderingSystem::Update() {
     // 描画するものがなかったらスキップ
     if (ShouldSkipRender()) {
@@ -248,6 +258,9 @@ void ColliderRenderingSystem::Update() {
     Rendering();
 }
 
+/// <summary>
+/// 終了処理
+/// </summary>
 void ColliderRenderingSystem::Finalize() {
     aabbRenderer_->Finalize();
     obbRenderer_->Finalize();
@@ -256,6 +269,9 @@ void ColliderRenderingSystem::Finalize() {
     dxCommand_->Finalize();
 }
 
+/// <summary>
+/// コライダー描画用のパイプラインステートオブジェクト(PSO)を作成する
+/// </summary>
 void ColliderRenderingSystem::CreatePSO() {
 
     ShaderManager* shaderManager = ShaderManager::GetInstance();
@@ -316,6 +332,9 @@ void ColliderRenderingSystem::CreatePSO() {
     pso_ = shaderManager->CreatePso("LineMesh_" + kBlendModeStr[int32_t(BlendMode::Alpha)], lineShaderInfo, dxDevice->device_);
 }
 
+/// <summary>
+/// レンダリング開始処理
+/// </summary>
 void ColliderRenderingSystem::StartRender() {
     auto& commandList = dxCommand_->GetCommandList();
     commandList->SetGraphicsRootSignature(pso_->rootSignature.Get());
@@ -325,6 +344,9 @@ void ColliderRenderingSystem::StartRender() {
     CameraManager::GetInstance()->SetBufferForRootParameter(GetScene(), commandList, 1);
 }
 
+/// <summary>
+/// 現在シーン内の全てのコライダーの形状に基づいて、ラインメッシュ情報を動的に生成する
+/// </summary>
 void ColliderRenderingSystem::CreateRenderMesh() {
     { // AABB
         auto& meshGroup = aabbRenderer_->GetMeshGroup();
@@ -517,6 +539,9 @@ void ColliderRenderingSystem::CreateRenderMesh() {
     sphereMeshItr_->TransferData();
 }
 
+/// <summary>
+/// 描画コマンドの発行を行う
+/// </summary>
 void ColliderRenderingSystem::RenderCall() {
     auto& commandList = dxCommand_->GetCommandList();
 
@@ -557,12 +582,19 @@ void ColliderRenderingSystem::RenderCall() {
     }
 }
 
+/// <summary>
+/// コライダーのレンダリングを統合実行する
+/// </summary>
 void ColliderRenderingSystem::Rendering() {
     StartRender();
 
     RenderCall();
 }
 
+/// <summary>
+/// レンダリングをスキップするかどうかを判定する
+/// </summary>
+/// <returns>true = 描画対象なし / false = 描画対象あり</returns>
 bool ColliderRenderingSystem::ShouldSkipRender() const {
     bool isSkip = aabbColliders_->IsEmpty() && obbColliders_->IsEmpty() && sphereColliders_->IsEmpty();
 

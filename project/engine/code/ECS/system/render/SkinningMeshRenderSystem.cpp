@@ -18,13 +18,27 @@
 
 using namespace OriGine;
 
+/// <summary>
+/// コンストラクタ
+/// </summary>
 SkinningMeshRenderSystem::SkinningMeshRenderSystem() : BaseRenderSystem() {}
+
+/// <summary>
+/// デストラクタ
+/// </summary>
 SkinningMeshRenderSystem::~SkinningMeshRenderSystem() {}
 
+/// <summary>
+/// 初期化
+/// </summary>
 void SkinningMeshRenderSystem::Initialize() {
     BaseRenderSystem::Initialize();
 }
 
+/// <summary>
+/// エンティティのレンダラーを登録する
+/// </summary>
+/// <param name="_entity">対象のエンティティハンドル</param>
 void SkinningMeshRenderSystem::DispatchRenderer(EntityHandle _entity) {
     auto& skinningAnimationComponents = GetComponents<SkinningAnimationComponent>(_entity);
     if (skinningAnimationComponents.empty()) {
@@ -47,6 +61,10 @@ void SkinningMeshRenderSystem::DispatchRenderer(EntityHandle _entity) {
     }
 }
 
+/// <summary>
+/// レンダリングをスキップするかどうかを判定する
+/// </summary>
+/// <returns>true = 描画対象なし / false = 描画対象あり</returns>
 bool SkinningMeshRenderSystem::ShouldSkipRender() const {
     for (const auto& renderers : activeRenderersByBlendMode_) {
         if (!renderers.empty()) {
@@ -56,6 +74,11 @@ bool SkinningMeshRenderSystem::ShouldSkipRender() const {
     return true;
 }
 
+/// <summary>
+/// 指定されたブレンドモードでスキニングメッシュを描画する
+/// </summary>
+/// <param name="_blendMode">ブレンドモード</param>
+/// <param name="_isCulling">カリングを有効にするかどうか（未使用）</param>
 void SkinningMeshRenderSystem::RenderingBy(BlendMode _blendMode, bool /*_isCulling*/) {
     int32_t blendIndex = static_cast<int32_t>(_blendMode);
     auto& renderers    = activeRenderersByBlendMode_[blendIndex];
@@ -75,10 +98,16 @@ void SkinningMeshRenderSystem::RenderingBy(BlendMode _blendMode, bool /*_isCulli
     }
 }
 
+/// <summary>
+/// 終了処理
+/// </summary>
 void SkinningMeshRenderSystem::Finalize() {
     dxCommand_->Finalize();
 }
 
+/// <summary>
+/// パイプラインステートオブジェクト（PSO）を作成する
+/// </summary>
 void SkinningMeshRenderSystem::CreatePSO() {
 
     ShaderManager* shaderManager = ShaderManager::GetInstance();
@@ -266,6 +295,9 @@ void SkinningMeshRenderSystem::CreatePSO() {
     }
 }
 
+/// <summary>
+/// ライトの情報を更新してバインドする
+/// </summary>
 void SkinningMeshRenderSystem::LightUpdate() {
     auto* directionalLight = GetComponentArray<DirectionalLight>();
     auto* pointLight       = GetComponentArray<PointLight>();
@@ -300,6 +332,9 @@ void SkinningMeshRenderSystem::LightUpdate() {
     LightManager::GetInstance()->Update();
 }
 
+/// <summary>
+/// レンダリング開始時の共通設定
+/// </summary>
 void SkinningMeshRenderSystem::StartRender() {
 
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->GetCommandList();
@@ -327,6 +362,13 @@ void SkinningMeshRenderSystem::StartRender() {
         TextureManager::GetDescriptorGpuHandle(skybox->GetTextureIndex()));
 }
 
+/// <summary>
+/// モデルメッシュを実際に描画する
+/// </summary>
+/// <param name="_entityTransform">エンティティのトランスフォーム</param>
+/// <param name="_commandList">コマンドリスト</param>
+/// <param name="_skinningAnimationComponent">スキニングアニメーションコンポーネント</param>
+/// <param name="_renderer">モデルメッシュレンダラー</param>
 void SkinningMeshRenderSystem::RenderModelMesh(
     Transform* _entityTransform,
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList,

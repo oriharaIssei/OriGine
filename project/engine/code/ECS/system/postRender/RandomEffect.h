@@ -27,8 +27,15 @@ public:
     RandomEffect();
     ~RandomEffect() override;
 
+    /// <summary>
+    /// 初期化
+    /// </summary>
     void Initialize() override;
-    void Finalize();
+
+    /// <summary>
+    /// 終了処理
+    /// </summary>
+    void Finalize() override;
 
 protected:
     /// <summary>
@@ -61,9 +68,9 @@ protected:
     bool ShouldSkipPostRender() const override;
 
 protected:
-    std::array<PipelineStateObj*, static_cast<size_t>(kBlendNum)> psoByBlendMode_                       = {};
-    std::vector<RandomEffectParam*> activeParams_ = {};
-    BlendMode currentBlend_                                                                             = BlendMode::Alpha;
+    std::array<PipelineStateObj*, static_cast<size_t>(kBlendNum)> psoByBlendMode_ = {};
+    std::vector<RandomEffectParam*> activeParams_                                 = {};
+    BlendMode currentBlend_                                                       = BlendMode::Alpha;
 };
 
 } // namespace OriGine

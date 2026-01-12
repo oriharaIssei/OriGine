@@ -6,15 +6,29 @@
 
 using namespace OriGine;
 
+/// <summary>
+/// コンストラクタ
+/// </summary>
+/// <param name="_scene">所属させるScene</param>
 SystemRunner::SystemRunner(Scene* _scene) : scene_(_scene) {}
+/// <summary>
+/// デストラクタ
+/// </summary>
 SystemRunner::~SystemRunner() {}
 
+/// <summary>
+/// 全てのカテゴリのシステムを初期化する
+/// </summary>
 void SystemRunner::InitializeAllCategory() {
     for (auto& [name, system] : systems_) {
         system->Initialize();
     }
 }
 
+/// <summary>
+/// 指定したカテゴリのシステムを初期化する
+/// </summary>
+/// <param name="_category">対象のカテゴリ</param>
 void SystemRunner::InitializeCategory(SystemCategory _category) {
     if (_category == SystemCategory::Count) {
         LOG_ERROR("SystemRegistry: Invalid SystemCategory.");
@@ -26,6 +40,9 @@ void SystemRunner::InitializeCategory(SystemCategory _category) {
     }
 }
 
+/// <summary>
+/// アクティブなシステムをすべて初期化する (非推奨)
+/// </summary>
 void SystemRunner::InitializeActiveSystems() {
     for (auto& systemByCategory : activeSystems_) {
         for (auto system : systemByCategory) {
@@ -36,6 +53,10 @@ void SystemRunner::InitializeActiveSystems() {
     }
 }
 
+/// <summary>
+/// 指定したカテゴリのアクティブなシステムを初期化する (非推奨)
+/// </summary>
+/// <param name="_category">対象のカテゴリ</param>
 void SystemRunner::InitializeActiveCategory(SystemCategory _category) {
     if (_category == SystemCategory::Count) {
         LOG_ERROR("SystemRegistry: Invalid SystemCategory.");
@@ -47,6 +68,9 @@ void SystemRunner::InitializeActiveCategory(SystemCategory _category) {
     }
 }
 
+/// <summary>
+/// 全てのカテゴリのシステムを終了処理する
+/// </summary>
 void SystemRunner::FinalizeAllCategory() {
     for (auto& [systemName, system] : systems_) {
         if (system) {
@@ -55,6 +79,10 @@ void SystemRunner::FinalizeAllCategory() {
     }
 }
 
+/// <summary>
+/// 指定したカテゴリのシステムを終了処理する
+/// </summary>
+/// <param name="_category">対象のカテゴリ</param>
 void SystemRunner::FinalizeCategory(SystemCategory _category) {
     if (_category == SystemCategory::Count) {
         LOG_ERROR("SystemRegistry: Invalid SystemCategory.");
@@ -66,6 +94,9 @@ void SystemRunner::FinalizeCategory(SystemCategory _category) {
     }
 }
 
+/// <summary>
+/// アクティブなシステムをすべて終了処理する (非推奨)
+/// </summary>
 void SystemRunner::FinalizeActiveSystems() {
     for (auto& systemByCategory : activeSystems_) {
         for (auto system : systemByCategory) {
@@ -76,6 +107,10 @@ void SystemRunner::FinalizeActiveSystems() {
     }
 }
 
+/// <summary>
+/// 指定したカテゴリのアクティブなシステムを終了処理する (非推奨)
+/// </summary>
+/// <param name="_category">対象のカテゴリ</param>
 void SystemRunner::FinalizeActiveCategory(SystemCategory _category) {
     if (_category == SystemCategory::Count) {
         LOG_ERROR("SystemRegistry: Invalid SystemCategory.");
@@ -93,6 +128,10 @@ void SystemRunner::FinalizeActiveCategory(SystemCategory _category) {
     }
 }
 
+/// <summary>
+/// 全てのシステムの登録を解除する
+/// </summary>
+/// <param name="_isFinalize">解除時に終了処理を行うか</param>
 void SystemRunner::AllUnregisterSystem(bool _isFinalize) {
     for (auto& [systemName, system] : systems_) {
         if (!system) {
@@ -110,6 +149,10 @@ void SystemRunner::AllUnregisterSystem(bool _isFinalize) {
     systems_.clear();
 }
 
+/// <summary>
+/// 指定したカテゴリのシステムを更新する
+/// </summary>
+/// <param name="_category">対象のカテゴリ</param>
 void SystemRunner::UpdateCategory(SystemCategory _category) {
     if (!categoryActivity[static_cast<size_t>(_category)]) {
         return;
@@ -122,6 +165,12 @@ void SystemRunner::UpdateCategory(SystemCategory _category) {
     }
 }
 
+/// <summary>
+/// システムの名前を指定して登録する
+/// </summary>
+/// <param name="_systemName">システム名</param>
+/// <param name="_priority">優先度</param>
+/// <param name="_activate">アクティブにするか</param>
 void SystemRunner::RegisterSystem(const std::string& _systemName, int32_t _priority, bool _activate) {
     auto itr = systems_.find(_systemName);
 
@@ -147,6 +196,10 @@ void SystemRunner::RegisterSystem(const std::string& _systemName, int32_t _prior
     }
 }
 
+/// <summary>
+/// システムの登録を解除する
+/// </summary>
+/// <param name="_systemName">システム名</param>
 void SystemRunner::UnregisterSystem(const std::string& _systemName) {
     auto itr = systems_.find(_systemName);
     if (itr == systems_.end()) {
@@ -162,6 +215,10 @@ void SystemRunner::UnregisterSystem(const std::string& _systemName) {
     DeactivateSystem(_systemName);
 }
 
+/// <summary>
+/// システムをアクティブにする
+/// </summary>
+/// <param name="_systemName">システム名</param>
 void SystemRunner::ActivateSystem(const std::string& _systemName) {
     auto itr = systems_.find(_systemName);
     if (itr == systems_.end()) {
@@ -190,6 +247,10 @@ void SystemRunner::ActivateSystem(const std::string& _systemName) {
         });
 }
 
+/// <summary>
+/// システムを非アクティブにする
+/// </summary>
+/// <param name="_systemName">システム名</param>
 void SystemRunner::DeactivateSystem(const std::string& _systemName) {
     auto itr = systems_.find(_systemName);
     if (itr == systems_.end()) {
@@ -220,6 +281,11 @@ void SystemRunner::DeactivateSystem(const std::string& _systemName) {
     }
 }
 
+/// <summary>
+/// 指定したシステムにエンティティを登録する
+/// </summary>
+/// <param name="_systemTypeName">対象のシステム名</param>
+/// <param name="_handle">対象のエンティティハンドル</param>
 void SystemRunner::RegisterEntity(const std::string& _systemTypeName, EntityHandle _handle) {
     // システム名からシステムを取得し、エンティティを登録
     auto systemItr = systems_.find(_systemTypeName);
@@ -235,6 +301,11 @@ void SystemRunner::RegisterEntity(const std::string& _systemTypeName, EntityHand
     }
 }
 
+/// <summary>
+/// 指定したシステムからエンティティを削除する
+/// </summary>
+/// <param name="_systemTypeName">対象のシステム名</param>
+/// <param name="_handle">対象のエンティティハンドル</param>
 void SystemRunner::RemoveEntity(const std::string& _systemTypeName, EntityHandle _handle) {
     // システム名からシステムを取得し、エンティティを登録
     auto systemItr = systems_.find(_systemTypeName);
@@ -250,6 +321,10 @@ void SystemRunner::RemoveEntity(const std::string& _systemTypeName, EntityHandle
     }
 }
 
+/// <summary>
+/// 全てのシステムから指定したエンティティを削除する
+/// </summary>
+/// <param name="_handle">対象のエンティティハンドル</param>
 void SystemRunner::RemoveEntityFromAllSystems(EntityHandle _handle) {
     // 各システムからエンティティを削除
     for (auto& [name, system] : systems_) {
@@ -259,6 +334,11 @@ void SystemRunner::RemoveEntityFromAllSystems(EntityHandle _handle) {
     }
 }
 
+/// <summary>
+/// システム名からシステムを取得する
+/// </summary>
+/// <param name="_systemName">システム名</param>
+/// <returns>システムの共有ポインタ</returns>
 ::std::shared_ptr<ISystem> SystemRunner::GetSystem(const std::string& _systemName) const {
     auto itr = systems_.find(_systemName);
     if (itr != systems_.end()) {
@@ -268,6 +348,12 @@ void SystemRunner::RemoveEntityFromAllSystems(EntityHandle _handle) {
     LOG_ERROR("SystemRunner: System '{}' not found in any category.", _systemName);
     return nullptr;
 }
+
+/// <summary>
+/// システム名からシステムのリファレンス（共有ポインタ）を取得する
+/// </summary>
+/// <param name="_systemName">システム名</param>
+/// <returns>システムの共有ポインタ</returns>
 ::std::shared_ptr<ISystem> SystemRunner::GetSystemRef(const std::string& _systemName) {
     auto itr = systems_.find(_systemName);
     if (itr != systems_.end()) {

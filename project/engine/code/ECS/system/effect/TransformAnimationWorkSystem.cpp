@@ -1,8 +1,7 @@
 #include "TransformAnimationWorkSystem.h"
 
 /// engine
-#define DELTA_TIME
-#include "EngineInclude.h"
+#include "Engine.h"
 
 /// ECS
 // component
@@ -11,13 +10,17 @@
 
 using namespace OriGine;
 
+/// <summary>
+/// 各エンティティのトランスフォームアニメーションを更新する
+/// </summary>
+/// <param name="_handle">対象のエンティティハンドル</param>
 void TransformAnimationWorkSystem::UpdateEntity(EntityHandle _handle) {
     auto& animations = GetComponents<TransformAnimation>(_handle);
     if (animations.empty()) {
         return;
     }
 
-    const float deltaTime = GetMainDeltaTime();
+    const float deltaTime = Engine::GetInstance()->GetDeltaTimer()->GetScaledDeltaTime("Effect");
 
     for (auto& transAnim : animations) {
         int32_t transformIndex = transAnim.GetTargetTransformIndex();

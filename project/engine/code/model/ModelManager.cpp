@@ -422,7 +422,7 @@ const ::std::vector<TexturedMaterial>& ModelManager::GetDefaultMaterials(const :
 }
 
 void ModelManager::LoadTask::Update() {
-    DeltaTime timer;
+    DeltaTimer timer;
     timer.Initialize();
 
     try {

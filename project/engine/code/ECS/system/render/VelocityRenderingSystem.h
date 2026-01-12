@@ -27,7 +27,14 @@ public:
     VelocityRenderingSystem();
     ~VelocityRenderingSystem() override;
 
+    /// <summary>
+    /// 初期化
+    /// </summary>
     void Initialize() override;
+
+    /// <summary>
+    /// 終了処理
+    /// </summary>
     void Finalize() override;
 
 private:
@@ -37,36 +44,37 @@ private:
     void CreatePSO() override;
 
     /// <summary>
-    /// 描画開始処理
+    /// レンダリング開始処理
     /// </summary>
     void StartRender() override;
 
     /// <summary>
-    /// 描画コール
+    /// 描画の発行
     /// </summary>
     void RenderCall();
 
     /// <summary>
-    /// 描画処理
+    /// レンダリング実行
     /// </summary>
     void Rendering() override;
 
     /// <summary>
-    /// 描画スキップ判定
+    /// レンダリングをスキップするかどうか
     /// </summary>
+    /// <returns>true = スキップする</returns>
     bool ShouldSkipRender() const override;
 
     /// <summary>
-    /// Velocityの情報を元に描画用メッシュを作成
+    /// 速度(Velocity)の情報を元に描画用メッシュを作成する
     /// </summary>
     void CreateRenderMesh();
 
 private:
-    PipelineStateObj* pso_                  = nullptr;
-    ComponentArray<Rigidbody>* rigidbodies_ = nullptr;
+    PipelineStateObj* pso_                  = nullptr; // パイプラインステートオブジェクト
+    ComponentArray<Rigidbody>* rigidbodies_ = nullptr; // リジッドボディコンポーネント配列へのポインタ
 
-    std::unique_ptr<LineRenderer> velocityRenderer_;
-    std::vector<Mesh<ColorVertexData>>::iterator velocityMeshItr_;
+    std::unique_ptr<LineRenderer> velocityRenderer_; // 速度描画用レンダラー
+    std::vector<Mesh<ColorVertexData>>::iterator velocityMeshItr_; // メッシュイテレータ
 };
 
 } // namespace OriGine

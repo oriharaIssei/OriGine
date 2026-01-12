@@ -13,9 +13,19 @@
 
 using namespace OriGine;
 
+/// <summary>
+/// コンストラクタ
+/// </summary>
 RandomEffect::RandomEffect() : BasePostRenderingSystem() {}
+
+/// <summary>
+/// デストラクタ
+/// </summary>
 RandomEffect::~RandomEffect() {}
 
+/// <summary>
+/// 初期化
+/// </summary>
 void RandomEffect::Initialize() {
     constexpr size_t kParamContainerReserveSize = 16;
     BasePostRenderingSystem::Initialize();
@@ -25,11 +35,17 @@ void RandomEffect::Initialize() {
     activeParams_.reserve(kParamContainerReserveSize);
 }
 
+/// <summary>
+/// 終了処理
+/// </summary>
 void RandomEffect::Finalize() {
     dxCommand_->Finalize();
     dxCommand_.reset();
 }
 
+/// <summary>
+/// PSO作成
+/// </summary>
 void RandomEffect::CreatePSO() {
     ShaderManager* shaderManager = ShaderManager::GetInstance();
     shaderManager->LoadShader("FullScreen.VS");
@@ -85,6 +101,9 @@ void RandomEffect::CreatePSO() {
     }
 }
 
+/// <summary>
+/// レンダリング開始処理
+/// </summary>
 void RandomEffect::RenderStart() {
     auto& commandList = dxCommand_->GetCommandList();
 
@@ -104,6 +123,9 @@ void RandomEffect::RenderStart() {
     commandList->SetDescriptorHeaps(1, ppHeaps);
 }
 
+/// <summary>
+/// レンダリング処理
+/// </summary>
 void RandomEffect::Rendering() {
     auto& commandList = dxCommand_->GetCommandList();
 
@@ -126,10 +148,17 @@ void RandomEffect::Rendering() {
     activeParams_.clear();
 }
 
+/// <summary>
+/// レンダリング終了処理
+/// </summary>
 void RandomEffect::RenderEnd() {
     renderTarget_->PostDraw();
 }
 
+/// <summary>
+/// コンポーネントの割り当て
+/// </summary>
+/// <param name="_handle">エンティティ</param>
 void RandomEffect::DispatchComponent(EntityHandle _handle) {
     // activeなComponentをBlendModeごとに振り分ける
     auto& components = GetComponents<RandomEffectParam>(_handle);
@@ -147,6 +176,10 @@ void RandomEffect::DispatchComponent(EntityHandle _handle) {
     }
 }
 
+/// <summary>
+/// ポストレンダリングをスキップするかどうか
+/// </summary>
+/// <returns>描画データがない場合は true</returns>
 bool RandomEffect::ShouldSkipPostRender() const {
     return activeParams_.empty();
 }

@@ -217,8 +217,8 @@ public:
     virtual void DrawGui();
     virtual void Finalize();
 
-    void WindowOpenMassage();
-    void WindowCloseMassage();
+    void WindowOpenMessage();
+    void WindowCloseMessage();
 
 protected:
     void UpdateFocusAndOpenState();
@@ -347,6 +347,9 @@ concept EditorMenu = std::derived_from<EditorMenuClass, Editor::Menu>;
 
 #pragma region DefaultCommand
 
+/// <summary>
+/// エディタ用コマンドのインターフェース
+/// </summary>
 class IEditCommand {
 public:
     IEditCommand() {}
@@ -359,6 +362,9 @@ public:
     virtual void Undo() { Execute(); };
 };
 
+/// <summary>
+/// 複数のコマンドをまとめて実行・管理するクラス
+/// </summary>
 class CommandCombo
     : public IEditCommand {
 public:
@@ -405,6 +411,9 @@ public:
     }
 };
 
+/// <summary>
+/// 値を設定するコマンド
+/// </summary>
 template <typename T>
 class SetterCommand
     : public IEditCommand {
@@ -475,6 +484,9 @@ concept HasErase = requires(T a, typename T::iterator it) {
 
 template <typename Container>
     requires HasPushBack<Container>
+/// <summary>
+/// コンテナに要素を追加するコマンド
+/// </summary>
 class AddElementCommand : public IEditCommand {
 public:
     using ContainerType = Container;
@@ -502,6 +514,9 @@ private:
 // erase対応コンテナ用コマンド
 template <typename Container>
     requires HasErase<Container>
+/// <summary>
+/// コンテナから要素を削除するコマンド
+/// </summary>
 class EraseElementCommand : public IEditCommand {
 public:
     using ContainerType = Container;
@@ -528,6 +543,9 @@ private:
 };
 
 template <typename Container>
+/// <summary>
+/// コンテナをソートするコマンド
+/// </summary>
 class SortCommand : public IEditCommand {
 public:
     using ValueType = typename Container::value_type;
@@ -557,6 +575,9 @@ private:
 
 template <typename Container>
     requires HasClear<Container>
+/// <summary>
+/// コンテナをクリアするコマンド
+/// </summary>
 class ClearCommand : public IEditCommand {
 public:
     using ValueType = typename Container::value_type;
@@ -580,6 +601,9 @@ private:
     std::vector<typename Container::value_type> backup_;
 };
 
+/// <summary>
+/// ウィンドウを開くコマンド
+/// </summary>
 class WindowOpenCommand
     : public IEditCommand {
 public:
@@ -595,6 +619,9 @@ private:
     bool to_ = true; // 開いた後の状態
 };
 
+/// <summary>
+/// ウィンドウをフォーカスするコマンド
+/// </summary>
 class WindowFocusCommand
     : public IEditCommand {
 public:

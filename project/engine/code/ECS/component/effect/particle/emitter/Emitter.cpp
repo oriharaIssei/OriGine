@@ -21,7 +21,7 @@
 #include "myFileSystem/MyFileSystem.h"
 #include "myRandom/MyRandom.h"
 #include "texture/TextureManager.h"
-// asSets
+// assets
 #include "EmitterShape.h"
 #include "model/Model.h"
 
@@ -142,10 +142,10 @@ void Emitter::CreateResource() {
 
 void Emitter::CalculateMaxSize() {
     // 1秒あたりの生成回数
-    float spawnRatePersecond = spawnParticleVal_ / spawnCoolTime_;
+    float spawnRatePerSecond = spawnParticleVal_ / spawnCoolTime_;
 
     // 最大個数
-    particleMaxSize_ = (std::max<uint32_t>)((std::max<uint32_t>)(static_cast<uint32_t>(std::ceil(spawnRatePersecond * particleLifeTime_)), spawnParticleVal_), particleMaxSize_);
+    particleMaxSize_ = (std::max<uint32_t>)((std::max<uint32_t>)(static_cast<uint32_t>(std::ceil(spawnRatePerSecond * particleLifeTime_)), spawnParticleVal_), particleMaxSize_);
 }
 
 void Emitter::SpawnParticle(int32_t _spawnVal) {

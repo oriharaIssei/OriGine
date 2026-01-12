@@ -15,8 +15,9 @@
 namespace OriGine {
 
 /// <summary>
-/// メッシュデータ
+/// 頂点バッファとインデックスバッファをペアで管理し、GPU への転送と描画用ビューの保持を行うクラス.
 /// </summary>
+/// <typeparam name="VertexDataType">頂点構造体の型</typeparam>
 template <typename VertexDataType>
 class Mesh {
 public:
@@ -27,112 +28,190 @@ public:
     virtual ~Mesh() {};
 
     /// <summary>
-    /// VertexDataを設定後に実行
+    /// バッファのキャパシティを指定して初期化し、リソースを生成する.
     /// </summary>
-    /// <param name="vertexSize">総頂点数</param>
+    /// <param name="_vertexCapacity">最大頂点数</param>
+    /// <param name="_indexCapacity">最大インデックス数</param>
     void Initialize(
         UINT _vertexCapacity,
         UINT _indexCapacity);
 
     /// <summary>
-    /// データ転送後に実行
+    /// 生成したリソースを解放する.
     /// </summary>
     void Finalize();
 
     /// <summary>
-    /// Resourceへデータ転送
+    /// 現在 CPU 上に保持しているデータ (vertexes_, indexes_) を GPU 用バッファに転送する.
     /// </summary>
     void TransferData();
 
     /// <summary>
-    /// 頂点データを_dataからコピーする
-    /// <param name="_data">コピー元</param>
-    /// <param name="_size">コピーサイズ</param>
+    /// 任意の頂点配列を内部の CPU ベクトルにコピーする.
     /// </summary>
+    /// <param name="_data">コピー元ポインタ</param>
+    /// <param name="_size">頂点数</param>
     void copyVertexData(const VertexDataType* _data, uint32_t _size);
+
     /// <summary>
-    /// インデックスデータを_dataからコピーする
-    /// <param name="_data">コピー元</param>
-    /// <param name="_size">コピーサイズ</param>
+    /// 任意のインデックス配列を内部の CPU ベクトルにコピーする.
     /// </summary>
+    /// <param name="_data">コピー元ポインタ</param>
+    /// <param name="_size">インデックス数</param>
     void copyIndexData(const uint32_t* _data, uint32_t _size);
 
 public:
-    // data
+    /// <summary>CPU側で保持する頂点データの配列</summary>
     std::vector<VertexDataType> vertexes_;
+    /// <summary>CPU側で保持するインデックスデータの配列</summary>
     std::vector<uint32_t> indexes_;
 
 protected:
+    /// <summary>マッピングされた頂点バッファへのポインタ</summary>
     VertexDataType* vertData_ = nullptr;
-    uint32_t* indexData_      = nullptr;
+    /// <summary>マッピングされたインデックスバッファへのポインタ</summary>
+    uint32_t* indexData_ = nullptr;
 
+    /// <summary>バッファに書き込まれた有効な頂点数</summary>
     uint32_t vertexSize_ = 0;
-    uint32_t indexSize_  = 0;
+    /// <summary>バッファに書き込まれた有効なインデックス数</summary>
+    uint32_t indexSize_ = 0;
 
-    // buffer
+    /// <summary>頂点リソース</summary>
     DxResource vertBuff_;
+    /// <summary>インデックスリソース</summary>
     DxResource indexBuff_;
 
-    // view
+    /// <summary>インデックスバッファビュー (ID3D12GraphicsCommandList::IASetIndexBuffer 用)</summary>
     D3D12_INDEX_BUFFER_VIEW ibView_{};
+    /// <summary>頂点バッファビュー (ID3D12GraphicsCommandList::IASetVertexBuffers 用)</summary>
     D3D12_VERTEX_BUFFER_VIEW vbView_{};
 
 private:
+    /// <summary>デバッグ用のメッシュ名</summary>
     std::string name_ = "UNKNOWN";
 
 public:
+    /// <summary>メッシュに名称を設定する（リソース名にも反映されることがある）.</summary>
     void SetName(const std::string& _name) {
         name_ = _name;
     }
+
+    /// <summary>メッシュの名称を取得する.</summary>
     const std::string& GetName() const {
         return name_;
     }
 
+    /// <summary>
+    /// 頂点データのセット
+    /// </summary>
+    /// <param name="_data">データ</param>
     void SetVertexData(const std::vector<VertexDataType>& _data) {
         vertexes_ = _data;
     }
+
+    /// <summary>
+    /// インデックスデータのセット
+    /// </summary>
+    /// <param name="_data">データ</param>
     void SetIndexData(const std::vector<uint32_t>& _data) {
         indexes_ = _data;
     }
 
+    /// <summary>
+    /// 頂点バッファの取得
+    /// </summary>
+    /// <returns>バッファ</returns>
     DxResource& GetVertexBuffer() {
         return vertBuff_;
     }
+
+    /// <summary>
+    /// インデックスバッファの取得
+    /// </summary>
+    /// <returns>バッファ</returns>
     DxResource& GetIndexBuffer() {
         return indexBuff_;
     }
 
+    /// <summary>
+    /// 頂点キャパシティの取得
+    /// </summary>
+    /// <returns>キャパシティ</returns>
     int32_t GetVertexCapacity() const {
         return int32_t(vertexSize_) - int32_t(vertexes_.size());
     }
+
+    /// <summary>
+    /// インデックスキャパシティの取得
+    /// </summary>
+    /// <returns>キャパシティ</returns>
     int32_t GetIndexCapacity() const {
         return int32_t(indexSize_) - int32_t(indexes_.size());
     }
 
+    /// <summary>
+    /// 頂点数の取得
+    /// </summary>
+    /// <returns>頂点数</returns>
     uint32_t GetVertexSize() const {
         return vertexSize_;
     }
+
+    /// <summary>
+    /// インデックス数の取得
+    /// </summary>
+    /// <returns>インデックス数</returns>
     uint32_t GetIndexSize() const {
         return indexSize_;
     }
+
+    /// <summary>
+    /// 頂点数の設定
+    /// </summary>
+    /// <param name="_size">サイズ</param>
     void SetVertexSize(uint32_t _size) {
         vertexSize_ = _size;
         vertexes_.resize(vertexSize_);
     }
+
+    /// <summary>
+    /// インデックス数の設定
+    /// </summary>
+    /// <param name="_size">サイズ</param>
     void SetIndexSize(uint32_t _size) {
         indexSize_ = _size;
         indexes_.resize(indexSize_);
     }
 
+    /// <summary>
+    /// 頂点バッファビューの取得
+    /// </summary>
+    /// <returns>ビュー</returns>
     const D3D12_VERTEX_BUFFER_VIEW& GetVertexBufferView() const {
         return vbView_;
     }
+
+    /// <summary>
+    /// インデックスバッファビューの取得
+    /// </summary>
+    /// <returns>ビュー</returns>
     const D3D12_INDEX_BUFFER_VIEW& GetIndexBufferView() const {
         return ibView_;
     }
+
+    /// <summary>
+    /// 頂点バッファビューの取得
+    /// </summary>
+    /// <returns>ビュー</returns>
     const D3D12_VERTEX_BUFFER_VIEW& GetVBView() const {
         return vbView_;
     }
+
+    /// <summary>
+    /// インデックスバッファビューの取得
+    /// </summary>
+    /// <returns>ビュー</returns>
     const D3D12_INDEX_BUFFER_VIEW& GetIBView() const {
         return ibView_;
     }

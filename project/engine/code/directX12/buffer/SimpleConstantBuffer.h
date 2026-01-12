@@ -20,7 +20,7 @@ public:
     /// <summary>
     /// Bufferの作成
     /// </summary>
-    /// <param name="device"></param>
+    /// <param name="device">デバイス</param>
     void CreateBuffer(Microsoft::WRL::ComPtr<ID3D12Device> device);
     /// <summary>
     /// 終了処理
@@ -30,14 +30,19 @@ public:
     /// <summary>
     /// データをBufferに変換してセット
     /// </summary>
+    /// <param name="_inputData">入力データ</param>
     void ConvertToBuffer(const constBuff& _inputData) const;
     /// <summary>
     /// RootParameterにセット (Graphics)
     /// </summary>
+    /// <param name="cmdList">コマンドリスト</param>
+    /// <param name="rootParameterNum">パラメータ番号</param>
     void SetForRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const;
     /// <summary>
     /// RootParameterにセット (Compute)
     /// </summary>
+    /// <param name="cmdList">コマンドリスト</param>
+    /// <param name="rootParameterNum">パラメータ番号</param>
     void SetForComputeRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const;
 
 protected:
@@ -46,6 +51,10 @@ protected:
     DxResource buff_;
 
 public:
+    /// <summary>
+    /// リソースの取得
+    /// </summary>
+    /// <returns>リソース</returns>
     const DxResource& GetResource() const { return buff_; }
 };
 

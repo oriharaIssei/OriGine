@@ -9,18 +9,34 @@
 
 using namespace OriGine;
 
+/// <summary>
+/// コンストラクタ
+/// </summary>
 EntityRepository::EntityRepository() {}
+
+/// <summary>
+/// デストラクタ
+/// </summary>
 EntityRepository::~EntityRepository() {}
 
+/// <summary>
+/// 初期化
+/// </summary>
 void EntityRepository::Initialize() {
     entities_.resize(size_);
     entityActiveBits_.resize(size_);
 }
 
+/// <summary>
+/// 終了処理
+/// </summary>
 void EntityRepository::Finalize() {
     Clear();
 }
 
+/// <summary>
+/// EntityIndex の 確保
+/// </summary>
 int32_t EntityRepository::AllocateIndex() {
     if (entityActiveBits_.GetTrueCount() >= size_) {
         size_ *= 2;
@@ -30,6 +46,9 @@ int32_t EntityRepository::AllocateIndex() {
     return static_cast<int32_t>(entityActiveBits_.allocateBit());
 }
 
+/// <summary>
+/// UUID から EntityIndex を探す
+/// </summary>
 int32_t OriGine::EntityRepository::FindIndex(const uuids::uuid& _uuid) const {
     auto it = uuidToIndex_.find(_uuid);
     if (it == uuidToIndex_.end()) {
@@ -39,6 +58,9 @@ int32_t OriGine::EntityRepository::FindIndex(const uuids::uuid& _uuid) const {
     return it->second;
 }
 
+/// <summary>
+/// Entity 作成
+/// </summary>
 EntityHandle EntityRepository::CreateEntity(const std::string& _type, bool _unique) {
     int32_t index = AllocateIndex();
 
@@ -60,6 +82,9 @@ EntityHandle EntityRepository::CreateEntity(const std::string& _type, bool _uniq
     return e.handle_;
 }
 
+/// <summary>
+/// EntityHandleを指定して Entityを 作成
+/// </summary>
 EntityHandle OriGine::EntityRepository::CreateEntity(EntityHandle _handle, const std::string& _dataType, bool _unique) {
     auto itr = uuidToIndex_.find(_handle.uuid);
     if (itr != uuidToIndex_.end() || !_handle.IsValid()) {
@@ -87,6 +112,9 @@ EntityHandle OriGine::EntityRepository::CreateEntity(EntityHandle _handle, const
     return e.handle_;
 }
 
+/// <summary>
+/// Unique Entity 登録
+/// </summary>
 bool OriGine::EntityRepository::RegisterUniqueEntity(Entity* _entity) {
     if (!_entity) {
         LOG_ERROR("Entity is nullptr.");
@@ -112,6 +140,9 @@ bool OriGine::EntityRepository::RegisterUniqueEntity(Entity* _entity) {
     return true;
 }
 
+/// <summary>
+/// Unique Entity 登録解除
+/// </summary>
 bool OriGine::EntityRepository::UnregisterUniqueEntity(Entity* _entity) {
     if (!_entity) {
         LOG_ERROR("Entity is nullptr.");
@@ -137,6 +168,9 @@ bool OriGine::EntityRepository::UnregisterUniqueEntity(Entity* _entity) {
     return true;
 }
 
+/// <summary>
+/// Entity 削除
+/// </summary>
 bool EntityRepository::RemoveEntity(EntityHandle _handle) {
     auto it = uuidToIndex_.find(_handle.uuid);
     if (it == uuidToIndex_.end()) {
@@ -157,6 +191,9 @@ bool EntityRepository::RemoveEntity(EntityHandle _handle) {
     return true;
 }
 
+/// <summary>
+/// 全エンティティを削除する
+/// </summary>
 void OriGine::EntityRepository::Clear() {
     entities_.clear();
     entityActiveBits_.resize(0);
@@ -164,6 +201,9 @@ void OriGine::EntityRepository::Clear() {
     uniqueEntities_.clear();
 }
 
+/// <summary>
+/// Entity 取得
+/// </summary>
 Entity* EntityRepository::GetEntity(EntityHandle _handle) {
     auto itr = uuidToIndex_.find(_handle.uuid);
     if (itr == uuidToIndex_.end()) {
@@ -173,10 +213,16 @@ Entity* EntityRepository::GetEntity(EntityHandle _handle) {
     return &entities_[itr->second];
 }
 
+/// <summary>
+/// 生存チェック
+/// </summary>
 bool EntityRepository::IsAlive(EntityHandle _handle) const {
     return uuidToIndex_.contains(_handle.uuid);
 }
 
+/// <summary>
+/// Unique Entity 取得
+/// </summary>
 EntityHandle EntityRepository::GetUniqueEntity(const std::string& _type) {
     auto itr = uniqueEntities_.find(_type);
     if (itr == uniqueEntities_.end()) {

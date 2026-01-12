@@ -13,8 +13,15 @@
 using namespace OriGine;
 
 GpuParticleRenderSystem::GpuParticleRenderSystem() : BaseRenderSystem() {}
+
+/// <summary>
+/// デストラクタ
+/// </summary>
 GpuParticleRenderSystem::~GpuParticleRenderSystem() {}
 
+/// <summary>
+/// 初期化処理。バッファの生成とPSOの作成を行う。
+/// </summary>
 void GpuParticleRenderSystem::Initialize() {
     constexpr size_t defaultReserveSize = 100;
 
@@ -29,6 +36,9 @@ void GpuParticleRenderSystem::Initialize() {
     }
 }
 
+/// <summary>
+/// 終了処理。リソースの解放を行う。
+/// </summary>
 void GpuParticleRenderSystem::Finalize() {
     dxCommand_->Finalize();
 
@@ -39,6 +49,9 @@ void GpuParticleRenderSystem::Finalize() {
     perViewBuffer_.Finalize();
 }
 
+/// <summary>
+/// GPUパーティクル描画用のパイプラインステートオブジェクト(PSO)を作成する
+/// </summary>
 void GpuParticleRenderSystem::CreatePSO() {
     ShaderManager* shaderManager = ShaderManager::GetInstance();
 
@@ -155,6 +168,9 @@ void GpuParticleRenderSystem::CreatePSO() {
     }
 }
 
+/// <summary>
+/// レンダリング開始処理。ビュー情報（PerViewバッファ）の更新と設定を行う。
+/// </summary>
 void GpuParticleRenderSystem::StartRender() {
 
     // コマンドリスト取得
@@ -183,6 +199,10 @@ void GpuParticleRenderSystem::StartRender() {
     perViewBuffer_.SetForRootParameter(dxCommand_->GetCommandList(), 1);
 }
 
+/// <summary>
+/// エンティティのGPUパーティクルエミッターを収集する
+/// </summary>
+/// <param name="_entity">対象のエンティティハンドル</param>
 void GpuParticleRenderSystem::DispatchRenderer(EntityHandle _entity) {
     auto& components = GetComponents<GpuParticleEmitter>(_entity);
     if (components.empty()) {
@@ -198,6 +218,10 @@ void GpuParticleRenderSystem::DispatchRenderer(EntityHandle _entity) {
     }
 }
 
+/// <summary>
+/// レンダリングをスキップするかどうかを判定する
+/// </summary>
+/// <returns>true = 描画対象なし / false = 描画対象あり</returns>
 bool GpuParticleRenderSystem::ShouldSkipRender() const {
     bool isSkip = true;
     for (const auto& emitters : activeEmitterByBlendMode_) {
@@ -209,6 +233,11 @@ bool GpuParticleRenderSystem::ShouldSkipRender() const {
     return isSkip;
 }
 
+/// <summary>
+/// 指定されたブレンドモードでGPUパーティクルの描画を実行する
+/// </summary>
+/// <param name="_blendMode">ブレンドモード</param>
+/// <param name="_isCulling">カリングを有効にするかどうか（未使用）</param>
 void GpuParticleRenderSystem::RenderingBy(BlendMode _blendMode, bool /*_isCulling*/) {
     int32_t blendModeIndex = static_cast<int32_t>(_blendMode);
     if (activeEmitterByBlendMode_[blendModeIndex].empty()) {

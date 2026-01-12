@@ -14,6 +14,9 @@
 namespace OriGine {
 
 //====================================== VertexData ======================================//
+///< summary>
+/// スプライト頂点データ
+///</summary>
 struct SpriteVertexData {
     SpriteVertexData()  = default;
     ~SpriteVertexData() = default;
@@ -23,6 +26,9 @@ struct SpriteVertexData {
 };
 
 //====================================== ConstBuffer ======================================//
+///< summary>
+/// スプライト定数バッファ
+///</summary>
 struct SpritConstBuffer {
     SpritConstBuffer()  = default;
     ~SpritConstBuffer() = default;
@@ -44,6 +50,9 @@ struct SpritConstBuffer {
         uvMat_    = MakeMatrix4x4::Affine({uvScale_, 1.f}, {0.f, uvRotate_, 0.f}, {uvTranslate_, 0.f});
     }
 
+    /// <summary>
+    /// スプライト定数バッファ -> 定数バッファのみの構造体変換
+    /// </summary>
     struct ConstantBuffer {
         ConstantBuffer()  = default;
         ~ConstantBuffer() = default;
@@ -65,6 +74,9 @@ struct SpritConstBuffer {
 using SpriteMesh = Mesh<SpriteVertexData>;
 
 //====================================== MeshRenderer ======================================//
+///< summary>
+/// スプライト描画コンポーネント
+///</summary>
 class SpriteRenderer
     : public MeshRenderer<SpriteMesh, SpriteVertexData> {
     friend void to_json(nlohmann::json& j, const SpriteRenderer& r);

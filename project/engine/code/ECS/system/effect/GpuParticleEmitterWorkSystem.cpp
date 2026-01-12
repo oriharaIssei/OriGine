@@ -11,9 +11,19 @@
 
 using namespace OriGine;
 
+/// <summary>
+/// コンストラクタ
+/// </summary>
 GpuParticleEmitterWorkSystem::GpuParticleEmitterWorkSystem() : ISystem(SystemCategory::Effect) {}
+
+/// <summary>
+/// デストラクタ
+/// </summary>
 GpuParticleEmitterWorkSystem::~GpuParticleEmitterWorkSystem() {}
 
+/// <summary>
+/// 初期化
+/// </summary>
 void GpuParticleEmitterWorkSystem::Initialize() {
     constexpr int32_t initialReserveCount = 100;
     dxCommand_                            = std::make_unique<DxCommand>();
@@ -25,6 +35,9 @@ void GpuParticleEmitterWorkSystem::Initialize() {
     CreatePso();
 }
 
+/// <summary>
+/// 全体の更新処理
+/// </summary>
 void GpuParticleEmitterWorkSystem::Update() {
     if (entities_.empty()) {
         return;
@@ -85,6 +98,9 @@ void GpuParticleEmitterWorkSystem::Update() {
     ExecuteCS();
 }
 
+/// <summary>
+/// 終了処理
+/// </summary>
 void GpuParticleEmitterWorkSystem::Finalize() {
     if (dxCommand_) {
         dxCommand_->Finalize();
@@ -103,6 +119,10 @@ void GpuParticleEmitterWorkSystem::Finalize() {
     }
 }
 
+/// <summary>
+/// パーティクルの更新を行う (GPUコンピュート実行)
+/// </summary>
+/// <param name="_emitter">対象のエミッター</param>
 void GpuParticleEmitterWorkSystem::UpdateParticle(GpuParticleEmitter* _emitter) {
     auto& commandList = dxCommand_->GetCommandList();
 
@@ -138,6 +158,10 @@ void GpuParticleEmitterWorkSystem::UpdateParticle(GpuParticleEmitter* _emitter) 
         1, 1);
 }
 
+/// <summary>
+/// パーティクルの発生を行う (GPUコンピュート実行)
+/// </summary>
+/// <param name="_emitter">対象のエミッター</param>
 void GpuParticleEmitterWorkSystem::EmitParticle(GpuParticleEmitter* _emitter) {
     auto& commandList = dxCommand_->GetCommandList();
 
@@ -188,6 +212,9 @@ void GpuParticleEmitterWorkSystem::EmitParticle(GpuParticleEmitter* _emitter) {
     commandList->Dispatch(1, 1, 1); // Emitter 一つにつき 1 スレッドで処理
 }
 
+/// <summary>
+/// PSOを生成する
+/// </summary>
 void GpuParticleEmitterWorkSystem::CreatePso() {
     CreateEmitGpuParticlePso();
     CreateUpdateGpuParticlePso();
@@ -357,6 +384,10 @@ void GpuParticleEmitterWorkSystem::CreateUpdateGpuParticlePso() {
     updateGpuParticlePso_ = shaderManager->CreatePso(psoKey, shaderInfo, dxDevice->device_);
 }
 
+/// <summary>
+/// コンピュートシェーダーの開始処理
+/// </summary>
+/// <param name="_pso">使用するPSO</param>
 void GpuParticleEmitterWorkSystem::StartCS(PipelineStateObj* _pso) {
     if (!_pso) {
         LOG_ERROR("emitGpuParticlePso is not created for SkinningAnimationSystem");
@@ -374,6 +405,9 @@ void GpuParticleEmitterWorkSystem::StartCS(PipelineStateObj* _pso) {
     perFrameBuffer_.SetForComputeRootParameter(dxCommand_->GetCommandList(), perFrameBufferIndex);
 }
 
+/// <summary>
+/// コンピュートシェーダーの実行と待機
+/// </summary>
 void GpuParticleEmitterWorkSystem::ExecuteCS() {
     HRESULT hr;
     DxFence* fence = Engine::GetInstance()->GetDxFence();

@@ -19,7 +19,7 @@
 #include <uuid/uuid.h>
 
 namespace OriGine {
-constexpr uint32_t kDefaultComponentArraySize = 128;
+static constexpr uint32_t kDefaultComponentArraySize = 128;
 
 //============================================================
 // IComponentArray

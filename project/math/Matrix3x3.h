@@ -24,17 +24,53 @@ struct Matrix3x3 {
 
     Matrix3x3& operator*=(const Matrix3x3& another);
 
+    /// <summary>
+    /// 転置行列を取得
+    /// </summary>
+    /// <returns>転置行列</returns>
     Matrix3x3 transpose() const;
+    /// <summary>
+    /// 指定した行列の転置行列を取得
+    /// </summary>
+    /// <param name="mat">行列</param>
+    /// <returns>転置行列</returns>
     static Matrix3x3 Transpose(const Matrix3x3& mat);
 
+    /// <summary>
+    /// 逆行列を取得
+    /// </summary>
+    /// <returns>逆行列</returns>
     Matrix3x3 inverse() const;
+    /// <summary>
+    /// 指定した行列の逆行列を取得
+    /// </summary>
+    /// <param name="mat">行列</param>
+    /// <returns>逆行列</returns>
     static Matrix3x3 Inverse(const Matrix3x3& mat);
 
+    /// <summary>
+    /// float配列へ変換
+    /// </summary>
+    /// <param name="mat">変換元の行列</param>
+    /// <param name="out">出力先の配列(要素数9)</param>
     static void ToFloatArray(const Matrix3x3& mat, float out[9]);
+    /// <summary>
+    /// float配列へ変換
+    /// </summary>
+    /// <param name="out">出力先の配列(要素数9)</param>
     void toFloatArray(float out[9]) const {
         return ToFloatArray(*this, out);
     }
+    /// <summary>
+    /// float配列から変換
+    /// </summary>
+    /// <param name="mat">出力先の行列</param>
+    /// <param name="in">変換元の配列(要素数9)</param>
     static void FromFloatArray(Matrix3x3& mat, const float in[9]);
+    /// <summary>
+    /// float配列から変換
+    /// </summary>
+    /// <param name="in">変換元の配列(要素数9)</param>
     void fromFloatArray(const float in[9]) {
         FromFloatArray(*this, in);
     }
@@ -68,6 +104,11 @@ inline Matrix3x3 Identity() {
         0, 0, 1};
 }
 
+/// <summary>
+/// 平行移動行列を作成
+/// </summary>
+/// <param name="v">移動量</param>
+/// <returns>平行移動行列</returns>
 inline Matrix3x3 Translate(const Vec2f& v) {
     return Matrix3x3{
         1, 0, 0,
@@ -75,6 +116,11 @@ inline Matrix3x3 Translate(const Vec2f& v) {
         v[X], v[Y], 1};
 }
 
+/// <summary>
+/// 拡大縮小行列を作成
+/// </summary>
+/// <param name="v">スケーリング係数</param>
+/// <returns>拡大縮小行列</returns>
 inline Matrix3x3 Scale(const Vec2f& v) {
     return Matrix3x3{
         v[X], 0, 0,
@@ -82,6 +128,11 @@ inline Matrix3x3 Scale(const Vec2f& v) {
         0, 0, 1};
 }
 
+/// <summary>
+/// 回転行列を作成
+/// </summary>
+/// <param name="rad">回転角(ラジアン)</param>
+/// <returns>回転行列</returns>
 inline Matrix3x3 Rotate(float rad) {
     float c = cosf(rad);
     float s = sinf(rad);
@@ -91,6 +142,13 @@ inline Matrix3x3 Rotate(float rad) {
         0, 0, 1};
 }
 
+/// <summary>
+/// 2Dアフィン変換行列を作成
+/// </summary>
+/// <param name="scale">スケーリング</param>
+/// <param name="rotate">回転(ラジアン)</param>
+/// <param name="trans">平行移動</param>
+/// <returns>アフィン変換行列</returns>
 inline Matrix3x3 Affine(const Vec2f& scale, float rotate, const Vec2f& trans) {
     return Scale(scale) * Rotate(rotate) * Translate(trans);
 }

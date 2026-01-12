@@ -1,23 +1,41 @@
 #include "CameraActionSystem.h"
 
 /// engine
-#define DELTA_TIME
+#include "Engine.h"
+
 #include "camera/CameraManager.h"
-#include "EngineInclude.h"
 // component
 #include "component/effect/CameraAction.h"
 #include "component/transform/CameraTransform.h"
 
 using namespace OriGine;
 
+/// <summary>
+/// コンストラクタ
+/// </summary>
 CameraActionSystem::CameraActionSystem()
     : ISystem(SystemCategory::Effect) {}
 
+/// <summary>
+/// デストラクタ
+/// </summary>
 CameraActionSystem::~CameraActionSystem() {}
 
-void CameraActionSystem::Initialize() {}
+/// <summary>
+/// 初期化処理
+/// </summary>
+void CameraActionSystem::Initialize() {
+}
+
+/// <summary>
+/// 終了処理
+/// </summary>
 void CameraActionSystem::Finalize() {}
 
+/// <summary>
+/// 各エンティティのカメラアクションを更新する
+/// </summary>
+/// <param name="_handle">対象のエンティティハンドル</param>
 void CameraActionSystem::UpdateEntity(EntityHandle _handle) {
     auto action = GetComponent<CameraAction>(_handle);
     auto camera = GetComponent<CameraTransform>(_handle);
@@ -32,9 +50,11 @@ void CameraActionSystem::UpdateEntity(EntityHandle _handle) {
         return;
     }
 
+    float deltaTime = Engine::GetInstance()->GetDeltaTimer()->GetScaledDeltaTime("Effect");
+
     // アニメーション時間を進める
     float currentTime = action->GetTime();
-    currentTime -= GetMainDeltaTime();
+    currentTime -= deltaTime;
     action->SetCurrentTime(currentTime);
 
     // アニメーション終了判定
@@ -64,7 +84,7 @@ void CameraActionSystem::UpdateEntity(EntityHandle _handle) {
 
     auto& farZCurve = action->GetFarZCurve();
     if (!farZCurve.empty()) {
-        camera->nearZ = CalculateValue::Linear(farZCurve, currentTime);
+        camera->farZ = CalculateValue::Linear(farZCurve, currentTime);
     }
 
     auto& rotateCurve = action->GetRotationCurve();

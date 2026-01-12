@@ -5,6 +5,9 @@
 
 namespace OriGine {
 
+/// <summary>
+/// AABBコライダー
+/// </summary>
 class AABBCollider
     : public Collider<Bounds::AABB> {
     friend void to_json(nlohmann::json& _json, const AABBCollider& _a);

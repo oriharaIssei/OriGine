@@ -11,13 +11,26 @@
 
 using namespace OriGine;
 
+/// <summary>
+/// コンストラクタ
+/// </summary>
 SpeedlineEffect::SpeedlineEffect() : BasePostRenderingSystem() {}
+
+/// <summary>
+/// デストラクタ
+/// </summary>
 SpeedlineEffect::~SpeedlineEffect() {}
 
+/// <summary>
+/// 初期化
+/// </summary>
 void SpeedlineEffect::Initialize() {
     BasePostRenderingSystem::Initialize();
 }
 
+/// <summary>
+/// 終了処理
+/// </summary>
 void SpeedlineEffect::Finalize() {
     if (dxCommand_) {
         dxCommand_->Finalize();
@@ -26,6 +39,9 @@ void SpeedlineEffect::Finalize() {
     pso_ = nullptr;
 }
 
+/// <summary>
+/// PSO作成
+/// </summary>
 void SpeedlineEffect::CreatePSO() {
     ShaderManager* shaderManager = ShaderManager::GetInstance();
     shaderManager->LoadShader("FullScreen.VS");
@@ -104,6 +120,9 @@ void SpeedlineEffect::CreatePSO() {
     pso_ = shaderManager->CreatePso("SpeedlineEffect", shaderInfo, Engine::GetInstance()->GetDxDevice()->device_);
 }
 
+/// <summary>
+/// レンダリング開始処理
+/// </summary>
 void SpeedlineEffect::RenderStart() {
     auto& commandList = dxCommand_->GetCommandList();
 
@@ -120,6 +139,10 @@ void SpeedlineEffect::RenderStart() {
     commandList->SetGraphicsRootDescriptorTable(0, renderTarget_->GetBackBufferSrvHandle());
 }
 
+/// <summary>
+/// コンポーネント描画処理
+/// </summary>
+/// <param name="_param">パラメータ</param>
 void SpeedlineEffect::Render(SpeedlineEffectParam* _param) {
     auto& commandList = dxCommand_->GetCommandList();
 
@@ -133,6 +156,9 @@ void SpeedlineEffect::Render(SpeedlineEffectParam* _param) {
     commandList->DrawInstanced(6, 1, 0, 0);
 }
 
+/// <summary>
+/// レンダリング処理
+/// </summary>
 void SpeedlineEffect::Rendering() {
 
     for (auto param : activeParams_) {
@@ -150,10 +176,17 @@ void SpeedlineEffect::Rendering() {
     activeParams_.clear();
 }
 
+/// <summary>
+/// レンダリング終了処理
+/// </summary>
 void SpeedlineEffect::RenderEnd() {
     renderTarget_->PostDraw();
 }
 
+/// <summary>
+/// コンポーネントの割り当て
+/// </summary>
+/// <param name="_handle">エンティティ</param>
 void SpeedlineEffect::DispatchComponent(EntityHandle _handle) {
     auto& speedlineParams = GetComponents<SpeedlineEffectParam>(_handle);
     // 無効な場合はスルー
@@ -169,6 +202,10 @@ void SpeedlineEffect::DispatchComponent(EntityHandle _handle) {
     }
 }
 
+/// <summary>
+/// ポストレンダリングをスキップするかどうか
+/// </summary>
+/// <returns>描画データがない場合は true</returns>
 bool SpeedlineEffect::ShouldSkipPostRender() const {
     return activeParams_.empty();
 }

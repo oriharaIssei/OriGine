@@ -6,8 +6,15 @@
 using namespace OriGine;
 
 BaseRenderSystem::BaseRenderSystem(int32_t _priority) : ISystem(SystemCategory::Render, _priority) {}
+
+/// <summary>
+/// デストラクタ
+/// </summary>
 BaseRenderSystem::~BaseRenderSystem() {}
 
+/// <summary>
+/// システムの初期化。DxCommandの生成とPSOの作成を行う。
+/// </summary>
 void BaseRenderSystem::Initialize() {
     dxCommand_ = std::make_unique<DxCommand>();
     dxCommand_->Initialize("main", "main");
@@ -15,6 +22,9 @@ void BaseRenderSystem::Initialize() {
     CreatePSO();
 }
 
+/// <summary>
+/// システムの更新処理。レンダラーの登録とレンダリングの実行を行う。
+/// </summary>
 void BaseRenderSystem::Update() {
     // レンダリング対象が無ければスキップ
     if (entities_.empty()) {
@@ -38,6 +48,9 @@ void BaseRenderSystem::Update() {
     Rendering();
 }
 
+/// <summary>
+/// システムの終了処理。DxCommandの解放を行う。
+/// </summary>
 void BaseRenderSystem::Finalize() {
     if (dxCommand_) {
         dxCommand_->Finalize();
@@ -45,6 +58,9 @@ void BaseRenderSystem::Finalize() {
     }
 }
 
+/// <summary>
+/// レンダリングの一連の処理を実行する
+/// </summary>
 void BaseRenderSystem::Rendering() {
     // レンダリング開始
     StartRender();

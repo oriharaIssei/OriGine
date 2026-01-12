@@ -4,6 +4,8 @@
 #ifdef _DEBUG
 #include "imgui/imgui.h"
 #include "myGui/MyGui.h"
+
+#include "util/deltaTime/DeltaTimer.h"
 #endif // _DEBUG
 
 using namespace OriGine;
@@ -25,6 +27,16 @@ void Rigidbody::Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, [[maybe_unused]
     CheckBoxCommand("useGravity##" + _parentLabel, useGravity_);
     DragGuiCommand("mass##" + _parentLabel, mass_);
     DragGuiCommand("maxFallSpeed##" + _parentLabel, maxFallSpeed_, 0.1f, 0.f, 10000.f, "%.3f");
+
+    ImGui::Separator();
+
+    CheckBoxCommand("isUsingLocalDeltaTime##" + _parentLabel, isUsingLocalDeltaTime_);
+    std::string label = "localDeltaTimeName##" + _parentLabel;
+    if (isUsingLocalDeltaTime_) {
+        ImGui::InputText(label.c_str(), &localDeltaTimeName_);
+    } else {
+        localDeltaTimeName_ = "";
+    }
 
 #endif // _DEBUG
 }
@@ -50,6 +62,9 @@ void OriGine::to_json(nlohmann::json& j, const Rigidbody& r) {
     j["mass"]         = r.mass_;
     j["useGravity"]   = r.useGravity_;
     j["maxFallSpeed"] = r.maxFallSpeed_;
+
+    j["isUsingLocalDeltaTime"] = r.isUsingLocalDeltaTime_;
+    j["localDeltaTimeName"]    = r.localDeltaTimeName_;
 }
 void OriGine::from_json(const nlohmann::json& j, Rigidbody& r) {
     j.at("acceleration").get_to(r.acceleration_);
@@ -62,5 +77,12 @@ void OriGine::from_json(const nlohmann::json& j, Rigidbody& r) {
     j.at("useGravity").get_to(r.useGravity_);
     if (j.contains("maxFallSpeed")) {
         j.at("maxFallSpeed").get_to(r.maxFallSpeed_);
+    }
+
+    if (j.contains("isUsingLocalDeltaTime")) {
+        j.at("isUsingLocalDeltaTime").get_to(r.isUsingLocalDeltaTime_);
+    }
+    if (j.contains("localDeltaTimeName")) {
+        j.at("localDeltaTimeName").get_to(r.localDeltaTimeName_);
     }
 }

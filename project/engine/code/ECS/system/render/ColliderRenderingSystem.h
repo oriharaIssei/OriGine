@@ -22,23 +22,46 @@
 namespace OriGine {
 
 /// <summary>
-/// Colliderのレンダリングを行うシステム(Debug用)
+/// コライダーの形状をデバッグ用に可視化するシステム。
+/// AABB, OBB, 球体などのコライダー形状をライン描画する。
 /// </summary>
 class ColliderRenderingSystem
     : public BaseRenderSystem {
 public:
+    /// <summary>
+    /// デフォルトのメッシュ最大数
+    /// </summary>
     static const int32_t kDefaultMeshCount_;
+
 public:
+    /// <summary>
+    /// コンストラクタ
+    /// </summary>
     ColliderRenderingSystem();
+
+    /// <summary>
+    /// デストラクタ
+    /// </summary>
     ~ColliderRenderingSystem() override;
 
+    /// <summary>
+    /// 初期化処理。各形状用レンダラーの生成を行う。
+    /// </summary>
     void Initialize() override;
+
+    /// <summary>
+    /// 更新処理。レンダリング対象のクリアと更新を行う。
+    /// </summary>
     void Update() override;
+
+    /// <summary>
+    /// 終了処理
+    /// </summary>
     void Finalize() override;
 
 protected:
     /// <summary>
-    /// PSOの作成
+    /// コライダー描画用のパイプラインステートオブジェクト(PSO)を作成する
     /// </summary>
     void CreatePSO() override;
 
@@ -48,39 +71,64 @@ protected:
     void StartRender() override;
 
     /// <summary>
-    /// 当たり判定の形状にメッシュを作成
+    /// 現在シーン内の全てのコライダーの形状に基づいて、ラインメッシュ情報を動的に生成する
     /// </summary>
     void CreateRenderMesh();
 
     /// <summary>
-    /// 描画コマンドの呼び出し
+    /// 描画コマンドの発行を行う
     /// </summary>
     void RenderCall();
 
     /// <summary>
-    /// レンダリング処理(StartRenderから描画まですべてを行う)
+    /// コライダーのレンダリングを統合実行する
     /// </summary>
     void Rendering() override;
 
     /// <summary>
-    /// レンダリングをスキップするかどうか(描画オブジェクトが無いときは描画をスキップする)
+    /// レンダリングをスキップするかどうかを判定する
     /// </summary>
-    /// <returns>true ＝ 描画をスキップする / false = 描画スキップしない</returns>
+    /// <returns>true = 描画対象なし / false = 描画対象あり</returns>
     bool ShouldSkipRender() const override;
 
 private:
-    ComponentArray<AABBCollider>* aabbColliders_     = nullptr;
-    ComponentArray<OBBCollider>* obbColliders_       = nullptr;
+    /// <summary>
+    /// AABBコライダーのコンポーネント配列への参照
+    /// </summary>
+    ComponentArray<AABBCollider>* aabbColliders_ = nullptr;
+
+    /// <summary>
+    /// OBBコライダーのコンポーネント配列への参照
+    /// </summary>
+    ComponentArray<OBBCollider>* obbColliders_ = nullptr;
+
+    /// <summary>
+    /// 球体コライダーのコンポーネント配列への参照
+    /// </summary>
     ComponentArray<SphereCollider>* sphereColliders_ = nullptr;
 
+    /// <summary>
+    /// AABB描画用ラインレンダラー
+    /// </summary>
     std::unique_ptr<LineRenderer> aabbRenderer_;
     std::vector<LineRenderer::MeshType>::iterator aabbMeshItr_;
+
+    /// <summary>
+    /// OBB描画用ラインレンダラー
+    /// </summary>
     std::unique_ptr<LineRenderer> obbRenderer_;
     std::vector<LineRenderer::MeshType>::iterator obbMeshItr_;
+
+    /// <summary>
+    /// 球体描画用ラインレンダラー
+    /// </summary>
     std::unique_ptr<LineRenderer> sphereRenderer_;
     std::vector<LineRenderer::MeshType>::iterator sphereMeshItr_;
 
-    PipelineStateObj* pso_                = nullptr;
+    /// <summary>
+    /// 使用するPSOポインタ
+    /// </summary>
+    PipelineStateObj* pso_ = nullptr;
 };
 
 } // namespace OriGine

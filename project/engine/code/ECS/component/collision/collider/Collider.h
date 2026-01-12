@@ -22,6 +22,9 @@
 
 namespace OriGine {
 
+/// <summary>
+/// 衝突状態
+/// </summary>
 enum class CollisionState {
     None, // 衝突していない
     Stay, // 衝突中
@@ -29,6 +32,9 @@ enum class CollisionState {
     Exit // 衝突終了時
 };
 
+/// <summary>
+/// コライダーのインターフェース
+/// </summary>
 class ICollider
     : public IComponent {
 public:

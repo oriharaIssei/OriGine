@@ -26,17 +26,53 @@ struct Matrix4x4 {
 
     Matrix4x4* operator*=(const Matrix4x4& another);
 
+    /// <summary>
+    /// 転置行列を取得
+    /// </summary>
+    /// <returns>転置行列</returns>
     Matrix4x4 transpose() const;
+    /// <summary>
+    /// 指定した行列の転置行列を取得
+    /// </summary>
+    /// <param name="m">行列</param>
+    /// <returns>転置行列</returns>
     static Matrix4x4 Transpose(const Matrix4x4& m);
 
+    /// <summary>
+    /// 逆行列を取得
+    /// </summary>
+    /// <returns>逆行列</returns>
     Matrix4x4 inverse() const;
+    /// <summary>
+    /// 指定した行列の逆行列を取得
+    /// </summary>
+    /// <param name="m">行列</param>
+    /// <returns>逆行列</returns>
     static Matrix4x4 Inverse(const Matrix4x4& m);
 
+    /// <summary>
+    /// float配列へ変換
+    /// </summary>
+    /// <param name="mat">変換元の行列</param>
+    /// <param name="out">出力先の配列(要素数16)</param>
     static void ToFloatArray(const Matrix4x4& mat, float out[16]);
+    /// <summary>
+    /// float配列へ変換
+    /// </summary>
+    /// <param name="out">出力先の配列(要素数16)</param>
     void toFloatArray(float out[16]) const {
         return ToFloatArray(*this, out);
     }
+    /// <summary>
+    /// float配列から変換
+    /// </summary>
+    /// <param name="mat">出力先の行列</param>
+    /// <param name="in">変換元の配列(要素数16)</param>
     static void FromFloatArray(Matrix4x4& mat, const float in[16]);
+    /// <summary>
+    /// float配列から変換
+    /// </summary>
+    /// <param name="in">変換元の配列(要素数16)</param>
     void fromFloatArray(const float in[16]) {
         FromFloatArray(*this, in);
     }
@@ -72,6 +108,10 @@ struct Matrix4x4 {
     /// <param name="_mat">抽出元の行列</param>
     /// <returns>抽出した回転成分</returns>
     static Quaternion DecomposeMatrixToQuaternion(const Matrix4x4& _mat);
+    /// <summary>
+    /// 行列から回転成分をQuaternionで抽出
+    /// </summary>
+    /// <returns>回転成分</returns>
     Quaternion decomposeMatrixToQuaternion() const {
         return DecomposeMatrixToQuaternion(*this);
     }
@@ -138,7 +178,16 @@ Matrix4x4 RotateZ(const float& radian);
 /// <summary>
 /// XYZ順の回転行列を作成
 /// </summary>
+/// <param name="radian">各方向への回転角</param>
+/// <returns>回転行列</returns>
 Matrix4x4 RotateXYZ(const Vec3f& radian);
+/// <summary>
+/// 各軸の回転行列を合成
+/// </summary>
+/// <param name="x">X軸回転行列</param>
+/// <param name="y">Y軸回転行列</param>
+/// <param name="z">Z軸回転行列</param>
+/// <returns>合成した回転行列</returns>
 Matrix4x4 RotateXYZ(const Matrix4x4& x, const Matrix4x4& y, const Matrix4x4& z);
 /// <summary>
 /// Quaternionから回転行列を作成

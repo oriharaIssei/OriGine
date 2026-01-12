@@ -9,18 +9,24 @@
 namespace OriGine {
 
 /// <summary>
-/// nlohmann::jsonからシーン内容を構築するクラス
+/// JSON 形式のデータ構造からシーン内のエンティティ、コンポーネント、システムを構築するためのファクトリクラス.
+/// エンティティのテンプレート機能や、シーン全体のリロードなどのロジックを管理する.
 /// </summary>
 class SceneFactory {
 public:
     /// <summary>
-    /// シーン名を指定して構築
+    /// シーン名を指定して、ファイルまたはレジストリからシーン内容を再構築する.
     /// </summary>
+    /// <param name="scene">構築対象のシーンオブジェクト</param>
+    /// <param name="sceneName">読み込むシーンの名前</param>
+    /// <returns>成功した場合は true</returns>
     bool BuildSceneByName(Scene* scene, const std::string& sceneName);
 
     /// <summary>
-    /// JSON からシーン内容を構築
+    /// 直接 JSON データを渡し、それに基づいてシーン内容 (System, Entity) を構築する.
     /// </summary>
+    /// <param name="scene">構築対象のシーン</param>
+    /// <param name="data">ソースとなる JSON データ</param>
     void BuildSceneFromJson(Scene* scene, const nlohmann::json& data) {
         if (!scene) {
             return;
@@ -31,69 +37,60 @@ public:
     }
 
     /// <summary>
-    /// シーンからJSONデータを作成する
+    /// 指定されたシーンの現在の状態 (配置されたエンティティ等) を JSON 構造体に書き出す.
     /// </summary>
-    /// <param name="scene"></param>
-    /// <returns></returns>
+    /// <param name="scene">対象のシーン</param>
+    /// <returns>シリアライズされた JSON データ</returns>
     nlohmann::json CreateSceneJsonFromScene(const Scene* scene);
 
     /// <summary>
-    /// SceneJsonRegistryが持つテンプレートからエンティティを構築
+    /// 事前に登録されたエンティティテンプレート (json) を使用して、指定したシーン内にエンティティを新規構築する.
     /// </summary>
-    /// <param name="scene"></param>
-    /// <param name="entity"></param>
-    /// <param name="templateTypeName"></param>
+    /// <param name="scene">追加先のシーン</param>
+    /// <param name="templateTypeName">テンプレートの型名</param>
+    /// <returns>生成されたエンティティへのポインタ</returns>
     Entity* BuildEntityFromTemplate(Scene* scene, const std::string& templateTypeName);
 
     /// <summary>
-    /// エンティティを構築する
+    /// JSON データから単一のエンティティとそのコンポーネント、システムを構築する.
     /// </summary>
-    /// <param name="scene"></param>
-    /// <param name="entityJson"></param>
-    /// <returns></returns>
+    /// <param name="scene">追加先のシーン</param>
+    /// <param name="entityJson">エンティティの定義 JSON</param>
+    /// <returns>生成されたエンティティへのポインタ</returns>
     Entity* BuildEntity(Scene* scene, const nlohmann::json& entityJson);
 
     /// <summary>
-    /// エンティティからJSONデータを作成する
+    /// 特定のエンティティとその状態を JSON データに変換する.
     /// </summary>
-    /// <param name="scene"></param>
-    /// <param name="entity"></param>
-    /// <returns></returns>
+    /// <param name="scene">エンティティが属するシーン</param>
+    /// <param name="entity">対象のエンティティ</param>
+    /// <returns>シリアライズされた JSON データ</returns>
     nlohmann::json CreateEntityJsonFromEntity(const Scene* scene, Entity* entity);
 
 private:
     /// <summary>
-    /// System を読み込む
+    /// シーン全体に対してシステムとその設定をロードする.
     /// </summary>
-    /// <param name="scene"></param>
-    /// <param name="systemsJson"></param>
-    /// <param name="catActivityJson"></param>
     void LoadSystems(Scene* scene,
         const nlohmann::json& systemsJson,
         const nlohmann::json& catActivityJson);
 
     /// <summary>
-    /// Entity を読み込む
+    /// シーン全体に対してエンティティのリストをロードする.
     /// </summary>
-    /// <param name="scene"></param>
-    /// <param name="entitiesJson"></param>
     void LoadEntities(Scene* scene, const nlohmann::json& entitiesJson);
 
     /// <summary>
-    /// エンティティのシステムを読み込む
+    /// エンティティ個別のシステム設定をロードする.
     /// </summary>
-    /// <param name="scene"></param>
-    /// <param name="entity"></param>
-    /// <param name="systemsJson"></param>
     void LoadEntitySystems(Scene* scene, EntityHandle _entity, const nlohmann::json& systemsJson);
+
     /// <summary>
-    /// エンティティのコンポーネントを読み込む
+    /// エンティティ個別のコンポーネントとそのフィールド設定をロードする.
     /// </summary>
-    /// <param name="scene"></param>
-    /// <param name="entity"></param>
-    /// <param name="componentsJson"></param>
-    void LoadEntityComponents(Scene* scene,
-        EntityHandle _entity, 
+    void LoadEntityComponents(
+        Scene* _scene,
+        EntityHandle _entity,
         const nlohmann::json& componentsJson);
 };
 

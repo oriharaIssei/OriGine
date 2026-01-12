@@ -134,7 +134,7 @@ void DxResource::CreateUAVBuffer(Microsoft::WRL::ComPtr<ID3D12Device> device, si
         IID_PPV_ARGS(resource_.GetAddressOf()));
 
     if (FAILED(hr)) {
-        LOG_CRITICAL("Failed to create UAV buffer resource.\n massage : {}", std::to_string(hr));
+        LOG_CRITICAL("Failed to create UAV buffer resource.\n message : {}", std::to_string(hr));
         assert(false);
     }
     type_ |= DxResourceType::Descriptor_UAV;
@@ -171,7 +171,7 @@ void DxResource::CreateRenderTextureResource(Microsoft::WRL::ComPtr<ID3D12Device
         IID_PPV_ARGS(&resource_));
 
     if (FAILED(hr)) {
-        LOG_CRITICAL("Failed to create render texture resource.\n massage :{}", std::to_string(hr));
+        LOG_CRITICAL("Failed to create render texture resource.\n message :{}", std::to_string(hr));
         HRESULT reason = device->GetDeviceRemovedReason();
         char buf[256];
         sprintf_s(buf, "CreateRenderTextureResource FAILED hr=0x%08X, DeviceRemovedReason=0x%08X\n",
@@ -211,7 +211,7 @@ void DxResource::CreateTextureResource(Microsoft::WRL::ComPtr<ID3D12Device> devi
         IID_PPV_ARGS(&resource_));
 
     if (FAILED(hr)) {
-        LOG_CRITICAL("Failed to create texture resource.\n massage : {}", std::to_string(hr));
+        LOG_CRITICAL("Failed to create render texture resource.\n message :{}", std::to_string(hr));
         assert(false);
     }
 }
@@ -235,7 +235,7 @@ HRESULT DxResource::SetName(const std::wstring& name) {
         result = resource_->SetName(name.c_str());
     }
     if (FAILED(result)) {
-        LOG_CRITICAL("Failed to Set resource name.\n massage : {}", result);
+        LOG_CRITICAL("Failed to Set resource name.\n message : {}", result);
         assert(false);
     }
     return result;

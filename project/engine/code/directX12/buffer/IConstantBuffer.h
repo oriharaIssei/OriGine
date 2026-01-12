@@ -16,12 +16,16 @@
 namespace OriGine {
 
 /// <summary>
-/// ConstantBufferと外部データを保持するクラス
+/// GPU上の定数バッファ (ConstantBuffer) と、それに対応する CPU 上のデータを一括管理するクラス.
+/// テンプレート引数 T は、内部に 'ConstantBuffer' という名前の構造体を持つことを想定している.
 /// </summary>
-/// <typeparam name="constBuff"></typeparam>
+/// <typeparam name="constBuff">定数バッファのデータ構造を定義したクラス/構造体</typeparam>
 template <HasInConstantBuffer constBuff>
 class IConstantBuffer {
 public:
+    /// <summary>
+    /// コンストラクタ. 内部データの初期化引数を渡すことができる.
+    /// </summary>
     template <typename... Args>
     IConstantBuffer(Args... args) {
         openData_ = constBuff(args...);
@@ -31,43 +35,54 @@ public:
     ~IConstantBuffer() {}
 
     /// <summary>
-    /// ConstantBuffer用のバッファを作成する
+    /// DirectX 12 側のバッファリソースを作成し、CPU空間へのマッピングを開始する.
     /// </summary>
-    /// <param name="device"></param>
+    /// <param name="device">D3D12デバイス</param>
     void CreateBuffer(Microsoft::WRL::ComPtr<ID3D12Device> device);
+
     /// <summary>
-    /// 終了処理
+    /// バッファリソースの解放とマッピングの解除を行う.
     /// </summary>
     inline void Finalize();
 
     /// <summary>
-    /// openData_ の内容を GPU 用バッファに変換する
+    /// CPU 上のデータ (openData_) を GPU 用の定数バッファに転送（コピー）する.
+    /// </summary>
     void ConvertToBuffer() const;
+
     /// <summary>
-    /// グラフィックス用ルートパラメータにConstantBufferをセット
+    /// グラフィックスパイプラインのルートパラメータに対して、この定数バッファを紐付ける.
     /// </summary>
+    /// <param name="cmdList">コマンドリスト</param>
+    /// <param name="rootParameterNum">バインド先のルートパラメータ番号</param>
     void SetForRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const;
+
     /// <summary>
-    /// コンピュート用ルートパラメータにConstantBufferをセット
+    /// コンピュートパイプラインのルートパラメータに対して、この定数バッファを紐付ける.
     /// </summary>
-    /// <param name="cmdList"></param>
-    /// <param name="rootParameterNum"></param>
+    /// <param name="cmdList">コマンドリスト</param>
+    /// <param name="rootParameterNum">バインド先のルートパラメータ番号</param>
     void SetForComputeRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const;
 
 public:
-    // 公開用変数
+    /// <summary>CPU側で操作可能な生データへのアクセス</summary>
     constBuff openData_;
-    // openData_ のアクセス
+
+    /// <summary>メンバアクセス演算子のオーバーロード</summary>
     constBuff* operator->() { return &openData_; }
+    /// <summary>メンバアクセス演算子のオーバーロード (const)</summary>
     const constBuff* operator->() const { return &openData_; }
+    /// <summary>ポインタ型への暗黙キャスト</summary>
     operator const constBuff*() const { return &openData_; }
 
 protected:
-    // bind されたデータ
-    constBuff::ConstantBuffer* mappingData_ = nullptr;
+    /// <summary>GPUバッファに対応するマッピングされたアドレス</summary>
+    typename constBuff::ConstantBuffer* mappingData_ = nullptr;
+    /// <summary>D3D12リソース管理オブジェクト</summary>
     DxResource buff_;
 
 public:
+    /// <summary>DxResource オブジェクトへの参照を取得する.</summary>
     const DxResource& GetResource() const { return buff_; }
 };
 

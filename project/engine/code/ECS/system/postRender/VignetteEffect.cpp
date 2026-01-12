@@ -14,15 +14,28 @@
 
 using namespace OriGine;
 
+/// <summary>
+/// コンストラクタ
+/// </summary>
 VignetteEffect::VignetteEffect() : BasePostRenderingSystem() {}
+
+/// <summary>
+/// デストラクタ
+/// </summary>
 VignetteEffect::~VignetteEffect() {}
 
+/// <summary>
+/// 初期化
+/// </summary>
 void VignetteEffect::Initialize() {
     dxCommand_ = std::make_unique<DxCommand>();
     dxCommand_->Initialize("main", "main");
     CreatePSO();
 }
 
+/// <summary>
+/// 終了処理
+/// </summary>
 void VignetteEffect::Finalize() {
     if (dxCommand_) {
         dxCommand_->Finalize();
@@ -31,6 +44,9 @@ void VignetteEffect::Finalize() {
     pso_ = nullptr;
 }
 
+/// <summary>
+/// PSO作成
+/// </summary>
 void VignetteEffect::CreatePSO() {
     ShaderManager* shaderManager = ShaderManager::GetInstance();
     shaderManager->LoadShader("FullScreen.VS");
@@ -95,6 +111,9 @@ void VignetteEffect::CreatePSO() {
     pso_ = shaderManager->CreatePso("VignetteEffect", shaderInfo, Engine::GetInstance()->GetDxDevice()->device_);
 }
 
+/// <summary>
+/// レンダリング開始処理
+/// </summary>
 void VignetteEffect::RenderStart() {
     auto& commandList = dxCommand_->GetCommandList();
 
@@ -108,6 +127,9 @@ void VignetteEffect::RenderStart() {
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
+/// <summary>
+/// レンダリング処理
+/// </summary>
 void VignetteEffect::Rendering() {
     auto& commandList = dxCommand_->GetCommandList();
 
@@ -128,10 +150,17 @@ void VignetteEffect::Rendering() {
     activeParams_.clear();
 }
 
+/// <summary>
+/// レンダリング終了処理
+/// </summary>
 void VignetteEffect::RenderEnd() {
     renderTarget_->PostDraw();
 }
 
+/// <summary>
+/// コンポーネントの割り当て
+/// </summary>
+/// <param name="_handle">エンティティ</param>
 void VignetteEffect::DispatchComponent(EntityHandle _handle) {
     auto& vignetteParams = GetComponents<VignetteParam>(_handle);
 
@@ -145,6 +174,10 @@ void VignetteEffect::DispatchComponent(EntityHandle _handle) {
     }
 }
 
+/// <summary>
+/// ポストレンダリングをスキップするかどうか
+/// </summary>
+/// <returns>描画データがない場合は true</returns>
 bool VignetteEffect::ShouldSkipPostRender() const {
     return activeParams_.empty();
 }

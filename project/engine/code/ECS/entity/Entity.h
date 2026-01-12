@@ -19,7 +19,7 @@ namespace OriGine {
 // ECS
 class EntityRepository;
 
-constexpr int32_t kInvalidEntityID = -1;
+static constexpr int32_t kInvalidEntityID = -1;
 
 /// <summary>
 /// 実体を表すクラス (実際にはIDでしか無い)
@@ -37,26 +37,49 @@ public:
 private:
     ::std::string dataType_ = "UNKNOWN";
 
-    int32_t id_       = kInvalidEntityID;
+    int32_t id_          = kInvalidEntityID;
     EntityHandle handle_ = EntityHandle();
-    bool isAlive_     = false;
-    bool isUnique_    = false;
-    bool shouldSave_  = true;
+    bool isAlive_        = false;
+    bool isUnique_       = false;
+    bool shouldSave_     = true;
 
 public:
+    /// <summary>
+    /// エンティティハンドルを取得
+    /// </summary>
+    /// <returns>エンティティハンドル</returns>
     EntityHandle GetHandle() const {
         return handle_;
     }
 
+    /// <summary>
+    /// エンティティが生存しているか
+    /// </summary>
+    /// <returns>生存していればtrue</returns>
     bool IsAlive() const {
         return isAlive_;
     }
+
+    /// <summary>
+    /// ユニークなエンティティか
+    /// </summary>
+    /// <returns>ユニークであればtrue</returns>
     bool IsUnique() const {
         return isUnique_;
     }
+
+    /// <summary>
+    /// 保存対象か
+    /// </summary>
+    /// <returns>保存対象であればtrue</returns>
     bool ShouldSave() const {
         return shouldSave_;
     }
+
+    /// <summary>
+    /// 保存対象かどうかを設定
+    /// </summary>
+    /// <param name="_ShouldSave">保存対象にするか</param>
     void SetShouldSave(bool _ShouldSave) {
         shouldSave_ = _ShouldSave;
     }

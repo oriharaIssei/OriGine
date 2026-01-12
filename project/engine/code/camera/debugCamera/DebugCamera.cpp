@@ -75,7 +75,7 @@ void DebugCamera::TranslationState::Update() {
     uint32_t state = 0;
     bool a         = mouseInput->IsWheel();
     bool b         = mouseInput->IsPress(0);
-    uint32_t c     = (keyInput->IsPress(Key::LALT) | keyInput->IsPress(Key::R_ALT));
+    uint32_t c     = (keyInput->IsPress(Key::L_ALT) | keyInput->IsPress(Key::R_ALT));
     state          = (a) + (b * 2);
     state *= c;
     Vec3f velo = {};

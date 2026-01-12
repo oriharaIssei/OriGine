@@ -9,9 +9,9 @@
 
 namespace OriGine {
 
-//=====================================
-// 2次元(x&y)をもつ単位
-//=====================================
+/// <summary>
+/// 2次元ベクトル
+/// </summary>
 template <typename valueType = float>
 struct Vector2 final
     : Vector<2, valueType> {
@@ -43,24 +43,45 @@ struct Vector2 final
     /// </summary>
     /// <returns>ベクトルの長さ</returns>
     constexpr valueType length() const { return std::sqrt(v[X] * v[X] + v[Y] * v[Y]); }
+    /// <summary>
+    /// ベクトルの長さを計算 (static)
+    /// </summary>
+    /// <param name="v">ベクトル</param>
+    /// <returns>ベクトルの長さ</returns>
     static constexpr valueType Length(const Vector2& v) { return std::sqrt(v.v[X] * v.v[X] + v.v[Y] * v.v[Y]); }
 
     /// <summary>
     /// ベクトルの長さの2乗を計算
     /// </summary>
     constexpr valueType lengthSq() const { return (this->v[X] * this->v[X] + this->v[Y] * this->v[Y]); }
+    /// <summary>
+    /// ベクトルの長さの2乗を計算 (static)
+    /// </summary>
+    /// <param name="v1">ベクトル</param>
+    /// <returns>長さの2乗</returns>
     static constexpr valueType LengthSq(const Vector2& v1) { return (v1.v[X] * v1.v[X] + v1.v[Y] * v1.v[Y]); }
 
     /// <summary>
     /// 内積を計算
     /// </summary>
     constexpr valueType dot() const { return v[X] * v[X] + v[Y] * v[Y]; }
+    /// <summary>
+    /// 内積を計算 (static)
+    /// </summary>
+    /// <param name="_v">ベクトル</param>
+    /// <returns>内積</returns>
     static constexpr valueType Dot(const Vector2& _v) { return _v.v[X] * _v.v[X] + _v.v[Y] * _v.v[Y]; }
 
     /// <summary>
-    /// 外積を計算
+    /// 外積を計算 (2Dの外積はスカラー)
     /// </summary>
     constexpr valueType cross(const Vector2& another) const { return (this->v[X] * another.v[Y]) - (this->v[Y] * another.v[X]); }
+    /// <summary>
+    /// 外積を計算 (static)
+    /// </summary>
+    /// <param name="_v">ベクトル1</param>
+    /// <param name="another">ベクトル2</param>
+    /// <returns>外積(行列式)</returns>
     static constexpr valueType Cross(const Vector2& _v, const Vector2& another) { return (_v.v[X] * another.v[Y]) - (_v.v[Y] * another.v[X]); }
 
     /// <summary>
@@ -95,6 +116,10 @@ struct Vector2 final
         this->v[Y] = another.y;
         return *this;
     }
+    /// <summary>
+    /// ImVec2へ変換
+    /// </summary>
+    /// <returns>ImVec2</returns>
     ImVec2 toImVec2() const {
         ImVec2 result;
         result.x = this->v[X];

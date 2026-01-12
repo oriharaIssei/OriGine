@@ -10,7 +10,7 @@
 // directX12Object
 #include "directX12/DxFunctionHelper.h"
 #include <directX12/ShaderCompiler.h>
-// asSets
+// assets
 #include "texture/TextureManager.h"
 
 #include "logger/Logger.h"

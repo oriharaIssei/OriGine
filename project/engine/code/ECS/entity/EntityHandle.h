@@ -26,7 +26,18 @@ struct EntityHandle {
     }
 };
 
+/// <summary>
+/// エンティティハンドルのシリアライズ
+/// </summary>
+/// <param name="j">jsonオブジェクト</param>
+/// <param name="handle">シリアライズするエンティティハンドル</param>
 void to_json(nlohmann::json& j, const EntityHandle& handle);
+
+/// <summary>
+/// エンティティハンドルのデシリアライズ
+/// </summary>
+/// <param name="j">jsonオブジェクト</param>
+/// <param name="handle">デシリアライズ先のエンティティハンドル</param>
 void from_json(const nlohmann::json& j, EntityHandle& handle);
 
 } // namespace OriGine
@@ -35,6 +46,11 @@ namespace std {
 
 template <>
 struct hash<OriGine::EntityHandle> {
+    /// <summary>
+    /// ハッシュ関数のオーバーロード
+    /// </summary>
+    /// <param name="h">エンティティハンドル</param>
+    /// <returns>ハッシュ値</returns>
     std::size_t operator()(const OriGine::EntityHandle& h) const noexcept {
         return std::hash<uuids::uuid>{}(h.uuid);
     }

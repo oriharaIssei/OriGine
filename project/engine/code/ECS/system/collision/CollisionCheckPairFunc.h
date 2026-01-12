@@ -18,6 +18,19 @@
 
 namespace OriGine {
 
+/// <summary>
+/// 2つの形状の衝突判定を行うベーステンプレート
+/// </summary>
+/// <typeparam name="ShapeA">一つ目の形状の型</typeparam>
+/// <typeparam name="ShapeB">二つ目の形状の型</typeparam>
+/// <param name="_scene">所属シーン</param>
+/// <param name="_handleA">一つ目のエンティティハンドル</param>
+/// <param name="_handleB">二つ目のエンティティハンドル</param>
+/// <param name="_shapeA">一つ目の形状データ</param>
+/// <param name="_shapeB">二つ目の形状データ</param>
+/// <param name="_aInfo">一つ目のエンティティの押し戻し情報</param>
+/// <param name="_bInfo">二つ目のエンティティの押し戻し情報</param>
+/// <returns>衝突していればtrue</returns>
 template <typename ShapeA, typename ShapeB>
 bool CheckCollisionPair(
     [[maybe_unused]] Scene* _scene,
@@ -31,17 +44,8 @@ bool CheckCollisionPair(
 }
 
 /// <summary>
-/// Sphere vs Sphere
+/// Sphere vs Sphere の衝突判定
 /// </summary>
-/// <typeparam name="ShapeA"></typeparam>
-/// <typeparam name="ShapeB"></typeparam>
-/// <param name="_entityA"></param>
-/// <param name="_entityB"></param>
-/// <param name="_shapeA"></param>
-/// <param name="_shapeB"></param>
-/// <param name="_aInfo"></param>
-/// <param name="_bInfo"></param>
-/// <returns></returns>
 template <>
 bool CheckCollisionPair(
     Scene* _scene,
@@ -53,17 +57,8 @@ bool CheckCollisionPair(
     [[maybe_unused]] CollisionPushBackInfo* _bInfo);
 
 /// <summary>
-/// Sphere vs AABB
+/// AABB vs Sphere の衝突判定
 /// </summary>
-/// <typeparam name="ShapeA"></typeparam>
-/// <typeparam name="ShapeB"></typeparam>
-/// <param name="_entityA"></param>
-/// <param name="_entityB"></param>
-/// <param name="_shapeA"></param>
-/// <param name="_shapeB"></param>
-/// <param name="_aInfo"></param>
-/// <param name="_bInfo"></param>
-/// <returns></returns>
 template <>
 bool CheckCollisionPair(
     Scene* _scene,
@@ -75,17 +70,8 @@ bool CheckCollisionPair(
     [[maybe_unused]] CollisionPushBackInfo* _sphereInfo);
 
 /// <summary>
-///  Sphere vs AABB
+/// Sphere vs AABB の衝突判定
 /// </summary>
-/// <typeparam name="ShapeA"></typeparam>
-/// <typeparam name="ShapeB"></typeparam>
-/// <param name="_entityA"></param>
-/// <param name="_entityB"></param>
-/// <param name="_shapeA"></param>
-/// <param name="_shapeB"></param>
-/// <param name="_aInfo"></param>
-/// <param name="_bInfo"></param>
-/// <returns></returns>
 template <>
 bool CheckCollisionPair(
     Scene* _scene,
@@ -98,7 +84,7 @@ bool CheckCollisionPair(
     [[maybe_unused]] CollisionPushBackInfo* _bInfo);
 
 /// <summary>
-/// Sphere vs OBB
+/// Sphere vs OBB の衝突判定
 /// </summary>
 template <>
 bool CheckCollisionPair(
@@ -111,7 +97,7 @@ bool CheckCollisionPair(
     [[maybe_unused]] CollisionPushBackInfo* _bInfo);
 
 /// <summary>
-/// Sphere vs OBB
+/// OBB vs Sphere の衝突判定
 /// </summary>
 template <>
 bool CheckCollisionPair(
@@ -125,17 +111,8 @@ bool CheckCollisionPair(
     [[maybe_unused]] CollisionPushBackInfo* _bInfo);
 
 /// <summary>
-/// AABB vs AABB
+/// AABB vs AABB の衝突判定
 /// </summary>
-/// <typeparam name="ShapeA"></typeparam>
-/// <typeparam name="ShapeB"></typeparam>
-/// <param name="_entityA"></param>
-/// <param name="_entityB"></param>
-/// <param name="_shapeA"></param>
-/// <param name="_shapeB"></param>
-/// <param name="_aInfo"></param>
-/// <param name="_bInfo"></param>
-/// <returns></returns>
 template <>
 bool CheckCollisionPair(
     Scene* _scene,
@@ -146,6 +123,9 @@ bool CheckCollisionPair(
     [[maybe_unused]] CollisionPushBackInfo* _aInfo,
     [[maybe_unused]] CollisionPushBackInfo* _bInfo);
 
+/// <summary>
+/// OBB vs OBB の衝突判定
+/// </summary>
 template <>
 bool CheckCollisionPair(
     Scene* _scene,
@@ -157,7 +137,7 @@ bool CheckCollisionPair(
     CollisionPushBackInfo* _bInfo);
 
 /// <summary>
-/// AABB vs OBB
+/// AABB vs OBB の衝突判定
 /// </summary>
 template <>
 bool CheckCollisionPair(
@@ -170,7 +150,7 @@ bool CheckCollisionPair(
     [[maybe_unused]] CollisionPushBackInfo* _bInfo);
 
 /// <summary>
-/// OBB vs AABB
+/// OBB vs AABB の衝突判定
 /// </summary>
 template <>
 bool CheckCollisionPair(

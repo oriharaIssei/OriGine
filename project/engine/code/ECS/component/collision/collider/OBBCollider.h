@@ -6,6 +6,9 @@
 
 namespace OriGine {
 
+/// <summary>
+/// OBBコライダー
+/// </summary>
 class OBBCollider
     : public Collider<Bounds::OBB> {
     friend void to_json(nlohmann::json& _json, const OBBCollider& _o);

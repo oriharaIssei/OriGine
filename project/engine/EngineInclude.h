@@ -1,5 +1,12 @@
 #pragma once
 
+/**
+ * @file EngineInclude.h
+ * @brief エンジンの各機能を一括でインクルードするためのヘッダーファイル.
+ *
+ * マクロ定義に応じて、必要なサブシステム（Scene, ECS, Editor等）を自動的にインクルードします.
+ */
+
 #ifdef ENGINE_INCLUDE
 #include "Engine.h"
 #endif // ENGINE_INCLUDE
@@ -11,8 +18,10 @@
 
 #ifdef RESOURCE_DIRECTORY
 #include <string>
+/// <summary> アプリケーション側のリソースディレクトリパス </summary>
 static const ::std::string kApplicationResourceDirectory = "./application/resource";
-static const ::std::string kEngineResourceDirectory      = "./engine/resource";
+/// <summary> エンジン共通のリソースディレクトリパス </summary>
+static const ::std::string kEngineResourceDirectory = "./engine/resource";
 #endif // RESOURCE_DIRECTORY
 
 #ifdef ENGINE_SCENE
@@ -21,6 +30,7 @@ static const ::std::string kEngineResourceDirectory      = "./engine/resource";
 #endif // ENGINE_SCENE
 
 #ifdef ENGINE_ECS
+/// <summary> ECS 関連の全機能を有効化する </summary>
 #define ENGINE_ENTITY
 #define ENGINE_SYSTEMS
 #define ENGINE_COMPONENTS
@@ -34,6 +44,7 @@ static const ::std::string kEngineResourceDirectory      = "./engine/resource";
 #include "system/ISystem.h"
 #include "system/SystemRegistry.h"
 #include "system/SystemRunner.h"
+// ... (以下、各種システムのインクルード)
 
 #include "system/initialize/CameraInitialize.h"
 #include "system/initialize/GpuParticleInitialize.h"
@@ -172,13 +183,3 @@ static const ::std::string kEngineResourceDirectory      = "./engine/resource";
 #ifdef MY_RANDOM
 #include "myRandom/MyRandom.h"
 #endif // MY_RANDOM
-
-#ifdef DELTA_TIME
-#ifndef ENGINE_INCLUDE
-#include "Engine.h"
-#endif // !ENGINE_INCLUDE
-
-inline float GetMainDeltaTime() {
-    return OriGine::Engine::GetInstance()->GetDeltaTime();
-}
-#endif // DELTA_TIME

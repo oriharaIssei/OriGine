@@ -80,6 +80,9 @@ public:
     /// </summary>
     void Update();
 
+    /// <summary>
+    /// 解放処理
+    /// </summary>
     void Finalize();
 
     /// <summary>
@@ -108,7 +111,7 @@ private:
     /// <summary>
     /// スティックの値を正規化して更新
     /// </summary>
-    /// <param name="_state"></param>
+    /// <param name="_state">XInput状態</param>
     void UpdateStickValues(XINPUT_STATE _state);
 
 private:
@@ -128,46 +131,88 @@ private:
     bool isActive_ = false;
 
 public:
+    /// <summary>
+    /// 現在のボタンマスクを取得
+    /// </summary>
+    /// <returns>ボタンマスクのビット集合</returns>
     uint32_t GetButtonMask() const { return buttonMask_; }
+
+    /// <summary>
+    /// 前回フレームのボタンマスクを取得
+    /// </summary>
+    /// <returns>前回フレームのボタンマスクのビット集合</returns>
     uint32_t GetPrevButtonMask() const { return prevButtonMask_; }
 
     /// <summary>
     /// ゲームパッドが有効か
     /// </summary>
+    /// <returns>有効であればtrue</returns>
     bool IsActive() const { return isActive_; }
 
     /// <summary>
     /// ボタン押下状態
     /// </summary>
+    /// <param name="button">ボタンビット（PadButtonの値をuint32_tにキャストしたものなど）</param>
+    /// <returns>押されていればtrue</returns>
     bool IsPress(uint32_t button) const { return (buttonMask_ & button); }
+
+    /// <summary>
+    /// ボタン押下状態
+    /// </summary>
+    /// <param name="button">ボタン種類</param>
+    /// <returns>押されていればtrue</returns>
     bool IsPress(PadButton button) const { return (buttonMask_ & static_cast<uint32_t>(button)); }
 
     /// <summary>
     /// ボタン押下瞬間
     /// </summary>
+    /// <param name="button">ボタンビット</param>
+    /// <returns>押された瞬間ならtrue</returns>
     bool IsTrigger(uint32_t button) const { return (buttonMask_ & button) && !(prevButtonMask_ & button); }
+
+    /// <summary>
+    /// ボタン押下瞬間
+    /// </summary>
+    /// <param name="button">ボタン種類</param>
+    /// <returns>押された瞬間ならtrue</returns>
     bool IsTrigger(PadButton button) const { return (buttonMask_ & static_cast<uint32_t>(button)) && !(prevButtonMask_ & static_cast<uint32_t>(button)); }
 
     /// <summary>
     /// ボタン解放瞬間
     /// </summary>
+    /// <param name="button">ボタンビット</param>
+    /// <returns>離された瞬間ならtrue</returns>
     bool IsRelease(uint32_t button) const { return !(buttonMask_ & button) && (prevButtonMask_ & button); }
+
+    /// <summary>
+    /// ボタン解放瞬間
+    /// </summary>
+    /// <param name="button">ボタン種類</param>
+    /// <returns>離された瞬間ならtrue</returns>
     bool IsRelease(PadButton button) const { return !(buttonMask_ & static_cast<uint32_t>(button)) && (prevButtonMask_ & static_cast<uint32_t>(button)); }
 
     /// <summary>
-    /// 左スティックの現在速度
+    /// 左スティックの現在座標（-1.0〜1.0）
     /// </summary>
+    /// <returns>左スティックの入力値</returns>
     const Vec2f& GetLStick() const { return lStick_; }
 
     /// <summary>
-    /// 右スティックの現在速度
+    /// 右スティックの現在座標を取得する.
     /// </summary>
+    /// <returns>スティック入力ベクトル (-1.0 ～ 1.0)</returns>
     const Vec2f& GetRStick() const { return rStick_; }
 
     /// <summary>
-    /// 左右トリガー値
+    /// 左トリガー値（0.0〜1.0）
     /// </summary>
+    /// <returns>左トリガーの入力値</returns>
     float GetLTrigger() const { return lTrigger_; }
+
+    /// <summary>
+    /// 右トリガー値（0.0〜1.0）
+    /// </summary>
+    /// <returns>右トリガーの入力値</returns>
     float GetRTrigger() const { return rTrigger_; }
 };
 

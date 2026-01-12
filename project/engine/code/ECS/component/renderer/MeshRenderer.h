@@ -166,6 +166,9 @@ public: // ↓ Accessor
 
 //----------------------------------------- ModelMeshRenderer -----------------------------------------//
 
+///< summary>
+/// モデルのメッシュ描画コンポーネント
+///</summary>
 class ModelMeshRenderer
     : public MeshRenderer<TextureColorMesh, TextureColorVertexData> {
     friend void to_json(nlohmann::json& j, const ModelMeshRenderer& r);
@@ -299,6 +302,9 @@ void InitializeMaterialFromModelFile(
     const std::string& _fileName);
 
 //----------------------------------------- LineRenderer -----------------------------------------//
+///< summary>
+/// ライン描画コンポーネント
+///</summary>
 class LineRenderer
     : public MeshRenderer<Mesh<ColorVertexData>, ColorVertexData> {
     friend void to_json(nlohmann::json& j, const LineRenderer& r);

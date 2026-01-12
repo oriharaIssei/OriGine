@@ -63,6 +63,11 @@ private:
     std::map<std::string, Scene> data_;
 
 public:
+    /// <summary>
+    /// 指定されたシーンのデータを取得
+    /// </summary>
+    /// <param name="scene">シーン名</param>
+    /// <returns>シーンデータへのポインタ</returns>
     Scene* GetScene(const std::string& scene) {
         auto itr = data_.find(scene);
         if (itr == data_.end()) {
@@ -144,9 +149,20 @@ public:
         }
     }
 
+    /// <summary>
+    /// 指定されたグループを削除する
+    /// </summary>
+    /// <param name="scene">シーン名</param>
+    /// <param name="groupName">グループ名</param>
     void DestroyGroup(const std::string& scene, const std::string& groupName) {
         data_[scene][groupName].clear();
     }
+    /// <summary>
+    /// 指定された値を削除する
+    /// </summary>
+    /// <param name="scene">シーン名</param>
+    /// <param name="groupName">グループ名</param>
+    /// <param name="valueName">値の名前</param>
     void DestroyValue(const std::string& scene, const std::string& groupName, const std::string& valueName) {
         data_[scene][groupName].erase(valueName);
     }

@@ -17,6 +17,9 @@ SceneJsonRegistry* OriGine::SceneJsonRegistry::GetInstance() {
     return &inst;
 }
 
+/// <summary>
+/// 現在レジストリに保持しているすべてのシーン JSON データを指定ディレクトリに保存する.
+/// </summary>
 bool SceneJsonRegistry::SaveAllScene(const std::string& _directory) {
     myfs::CreateFolder(_directory);
     for (auto& [name, jsonData] : scenes_) {
@@ -30,6 +33,9 @@ bool SceneJsonRegistry::SaveAllScene(const std::string& _directory) {
     return true;
 }
 
+/// <summary>
+/// 指定された実行中のシーンをシリアライズし、即座にファイルとして保存する.
+/// </summary>
 bool OriGine::SceneJsonRegistry::SaveScene(const Scene* scene, const std::string& directory) {
 
     if (!scene) {
@@ -50,6 +56,9 @@ bool OriGine::SceneJsonRegistry::SaveScene(const Scene* scene, const std::string
     return true;
 }
 
+/// <summary>
+/// 指定ディレクトリ配下から .json ファイルを検索し、すべてシーンデータとしてロードする.
+/// </summary>
 bool SceneJsonRegistry::LoadAllScene(const std::string& _directory) {
     // すべての .json を読む
     for (auto& [directory, filename] : myfs::SearchFile(_directory, "json")) {
@@ -63,6 +72,9 @@ bool SceneJsonRegistry::LoadAllScene(const std::string& _directory) {
     return true;
 }
 
+/// <summary>
+/// 単体ファイルから特定のシーンデータをロードする.
+/// </summary>
 bool OriGine::SceneJsonRegistry::LoadScene(const std::string& sceneName, const std::string& directory) {
     std::string path = directory + "/" + sceneName + ".json";
     std::ifstream ifs(path);
@@ -77,6 +89,10 @@ bool OriGine::SceneJsonRegistry::LoadScene(const std::string& sceneName, const s
     return true;
 }
 
+/// <summary>
+/// メモリ上に空のシーンデータ定義を作成する.
+/// システムやエンティティの配列が空の状態で初期化される.
+/// </summary>
 void OriGine::SceneJsonRegistry::CreateNewScene(const std::string& sceneName) {
     nlohmann::json empty;
     empty["Systems"]          = nlohmann::json::array();
@@ -86,6 +102,9 @@ void OriGine::SceneJsonRegistry::CreateNewScene(const std::string& sceneName) {
     scenes_[sceneName] = empty;
 }
 
+/// <summary>
+/// 拡張子 .ent (kEntityExtension) を持つテンプレートファイルを一括でロードする.
+/// </summary>
 bool OriGine::SceneJsonRegistry::LoadAllEntityTemplates(const std::string& _directory) {
 
     // すべての .json を読む
@@ -100,6 +119,9 @@ bool OriGine::SceneJsonRegistry::LoadAllEntityTemplates(const std::string& _dire
     return true;
 }
 
+/// <summary>
+/// 指定ディレクトリから特定のエンティティテンプレートをロードする.
+/// </summary>
 bool OriGine::SceneJsonRegistry::LoadEntityTemplate(const std::string& _directory, const std::string& typeName) {
     std::string path = _directory + "/" + typeName + '.' + kEntityExtension;
     std::ifstream ifs(path);
@@ -113,6 +135,9 @@ bool OriGine::SceneJsonRegistry::LoadEntityTemplate(const std::string& _director
     return true;
 }
 
+/// <summary>
+/// 指定ディレクトリに特定のエンティティテンプレートを保存する.
+/// </summary>
 bool OriGine::SceneJsonRegistry::SaveEntityTemplate(const std::string& _directory, const std::string& typeName) {
     auto itr = entityTemplates_.find(typeName);
     if (itr == entityTemplates_.end()) {
@@ -131,10 +156,16 @@ bool OriGine::SceneJsonRegistry::SaveEntityTemplate(const std::string& _director
     return true;
 }
 
+/// <summary>
+/// JSON データを直接エンティティテンプレートとしてレジストリに登録する.
+/// </summary>
 void SceneJsonRegistry::RegisterEntityTemplate(const std::string& typeName, const nlohmann::json& json) {
     entityTemplates_[typeName] = json;
 }
 
+/// <summary>
+/// 稼働中のエンティティから最新の状態を抽出し、テンプレートとしてレジストリに登録する.
+/// </summary>
 void OriGine::SceneJsonRegistry::RegisterEntityTemplateFromEntity(const std::string& type, Scene* scene, Entity* entity) {
     if (!scene || !entity) {
         LOG_ERROR("scene または entity が nullptr");

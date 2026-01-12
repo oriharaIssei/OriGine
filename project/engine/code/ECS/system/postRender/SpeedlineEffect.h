@@ -27,8 +27,15 @@ public:
     SpeedlineEffect();
     ~SpeedlineEffect() override;
 
+    /// <summary>
+    /// 初期化
+    /// </summary>
     void Initialize() override;
-    void Finalize();
+
+    /// <summary>
+    /// 終了処理
+    /// </summary>
+    void Finalize() override;
 
 protected:
     /// <summary>
@@ -66,7 +73,7 @@ protected:
     bool ShouldSkipPostRender() const override;
 
 protected:
-    PipelineStateObj* pso_                = nullptr;
+    PipelineStateObj* pso_ = nullptr;
 
     std::vector<SpeedlineEffectParam*> activeParams_;
 };

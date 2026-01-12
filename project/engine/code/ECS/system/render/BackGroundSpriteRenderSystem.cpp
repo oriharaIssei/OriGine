@@ -18,8 +18,15 @@
 using namespace OriGine;
 
 BackGroundSpriteRenderSystem::BackGroundSpriteRenderSystem() : BaseRenderSystem() {}
+
+/// <summary>
+/// デストラクタ
+/// </summary>
 BackGroundSpriteRenderSystem::~BackGroundSpriteRenderSystem() {}
 
+/// <summary>
+/// 初期化処理。ビューポート行列の計算とPSOの作成を行う。
+/// </summary>
 void BackGroundSpriteRenderSystem::Initialize() {
     BaseRenderSystem::Initialize();
 
@@ -28,6 +35,10 @@ void BackGroundSpriteRenderSystem::Initialize() {
     viewPortMat_   = MakeMatrix4x4::Orthographic(0, 0, (float)window->GetWidth(), (float)window->GetHeight(), 0.0f, 100.0f);
 }
 
+/// <summary>
+/// 背景スプライトのレンダリングを実行する。
+/// 描画順序のソートとブレンドモードの制御を行う。
+/// </summary>
 void BackGroundSpriteRenderSystem::Rendering() {
 
     StartRender();
@@ -78,10 +89,18 @@ void BackGroundSpriteRenderSystem::Rendering() {
     renderers_.clear();
 }
 
+/// <summary>
+/// レンダリングをスキップするかどうかを判定する。
+/// </summary>
+/// <returns>true = 描画対象なし / false = 描画対象あり</returns>
 bool BackGroundSpriteRenderSystem::ShouldSkipRender() const {
     return renderers_.empty();
 }
 
+/// <summary>
+/// エンティティのスプライトレンダラーを登録し、バッファを更新する
+/// </summary>
+/// <param name="_entity">対象のエンティティハンドル</param>
 void BackGroundSpriteRenderSystem::DispatchRenderer(EntityHandle _entity) {
     auto& spriteRenderer = GetComponents<SpriteRenderer>(_entity);
     if (spriteRenderer.empty()) {

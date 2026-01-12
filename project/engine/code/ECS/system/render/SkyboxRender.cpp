@@ -10,18 +10,34 @@
 
 using namespace OriGine;
 
+/// <summary>
+/// コンストラクタ
+/// </summary>
 SkyboxRender::SkyboxRender() : BaseRenderSystem() {}
+
+/// <summary>
+/// デストラクタ
+/// </summary>
 SkyboxRender::~SkyboxRender() {}
 
+/// <summary>
+/// 初期化
+/// </summary>
 void SkyboxRender::Initialize() {
     BaseRenderSystem::Initialize();
     rendererByBlendMode_.fill(std::vector<SkyboxRenderer*>());
 }
 
+/// <summary>
+/// 終了処理
+/// </summary>
 void SkyboxRender::Finalize() {
     dxCommand_->Finalize();
 }
 
+/// <summary>
+/// レンダリング開始時の共通設定
+/// </summary>
 void SkyboxRender::StartRender() {
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->GetCommandList();
 
@@ -31,6 +47,10 @@ void SkyboxRender::StartRender() {
     commandList->SetDescriptorHeaps(1, ppHeaps);
 }
 
+/// <summary>
+/// エンティティのスカイボックスレンダラーを登録する
+/// </summary>
+/// <param name="_entity">対象のエンティティハンドル</param>
 void SkyboxRender::DispatchRenderer(EntityHandle _entity) {
     std::vector<SkyboxRenderer>& renderers = GetComponents<SkyboxRenderer>(_entity);
     // nullptr なら これ以上存在しないとして終了
@@ -48,6 +68,11 @@ void SkyboxRender::DispatchRenderer(EntityHandle _entity) {
     }
 }
 
+/// <summary>
+/// 指定されたブレンドモードでスカイボックスを描画する
+/// </summary>
+/// <param name="_blendMode">ブレンドモード</param>
+/// <param name="_isCulling">カリングを有効にするかどうか（未使用）</param>
 void SkyboxRender::RenderingBy(BlendMode _blendMode, bool /*_isCulling*/) {
     auto& commandList = dxCommand_->GetCommandList();
     auto& renderers   = rendererByBlendMode_[static_cast<int32_t>(_blendMode)];
@@ -99,6 +124,10 @@ void SkyboxRender::RenderingBy(BlendMode _blendMode, bool /*_isCulling*/) {
     renderers.clear();
 }
 
+/// <summary>
+/// レンダリングをスキップするかどうかを判定する
+/// </summary>
+/// <returns>true = 描画対象なし / false = 描画対象あり</returns>
 bool SkyboxRender::ShouldSkipRender() const {
     for (size_t i = 0; i < kBlendNum; ++i) {
         if (!rendererByBlendMode_[i].empty()) {
@@ -108,6 +137,9 @@ bool SkyboxRender::ShouldSkipRender() const {
     return true;
 }
 
+/// <summary>
+/// パイプラインステートオブジェクト（PSO）を作成する
+/// </summary>
 void SkyboxRender::CreatePSO() {
 
     ShaderManager* shaderManager = ShaderManager::GetInstance();

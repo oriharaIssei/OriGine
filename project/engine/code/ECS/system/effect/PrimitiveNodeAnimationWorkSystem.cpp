@@ -1,8 +1,8 @@
 #include "PrimitiveNodeAnimationWorkSystem.h"
 
 /// engine
+#include "Engine.h"
 #define ENGINE_ECS
-#define DELTA_TIME
 #include "EngineInclude.h"
 // component
 #include "component/animation/PrimitiveNodeAnimation.h"
@@ -13,12 +13,16 @@
 
 using namespace OriGine;
 
+/// <summary>
+/// 各エンティティのプリミティブノードアニメーションを更新する
+/// </summary>
+/// <param name="_handle">対象のエンティティハンドル</param>
 void PrimitiveNodeAnimationWorkSystem::UpdateEntity(EntityHandle _handle) {
     auto* primitiveNodeAnimation = GetComponent<PrimitiveNodeAnimation>(_handle);
     if (primitiveNodeAnimation == nullptr) {
         return;
     }
-    const float deltaTime = GetMainDeltaTime();
+    const float deltaTime = Engine::GetInstance()->GetDeltaTimer()->GetScaledDeltaTime("Effect");
 
     PrimitiveMeshRendererBase* primitive = GetComponent<PlaneRenderer>(_handle);
     if (primitive == nullptr) {

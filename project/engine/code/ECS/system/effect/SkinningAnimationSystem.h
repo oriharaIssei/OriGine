@@ -17,20 +17,43 @@ class DxCommand;
 class SkinningAnimationSystem
     : public ISystem {
 public:
+    /// <summary>
+    /// コンストラクタ
+    /// </summary>
     SkinningAnimationSystem();
+
+    /// <summary>
+    /// デストラクタ
+    /// </summary>
     ~SkinningAnimationSystem() override;
 
-    void Initialize();
-    void Finalize();
+    /// <summary>
+    /// 初期化
+    /// </summary>
+    void Initialize() override;
+
+    /// <summary>
+    /// 終了処理
+    /// </summary>
+    void Finalize() override;
 
 protected:
+    /// <summary>
+    /// 各エンティティのスキニングアニメーションを更新する
+    /// </summary>
+    /// <param name="_handle">対象のエンティティハンドル</param>
     void UpdateEntity(EntityHandle _handle) override;
 
+    /// <summary>
+    /// PSOを生成する
+    /// </summary>
     void CreatePSO();
+
     /// <summary>
     /// コンピュートシェーダーを開始する
     /// </summary>
     void StartCS();
+
     /// <summary>
     /// コンピュートシェーダーを実行する
     /// </summary>

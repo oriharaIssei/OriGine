@@ -12,18 +12,34 @@
 
 using namespace OriGine;
 
+/// <summary>
+/// コンストラクタ
+/// </summary>
 RadialBlurEffect::RadialBlurEffect() : BasePostRenderingSystem() {}
+
+/// <summary>
+/// デストラクタ
+/// </summary>
 RadialBlurEffect::~RadialBlurEffect() {}
 
+/// <summary>
+/// 初期化
+/// </summary>
 void RadialBlurEffect::Initialize() {
     BasePostRenderingSystem::Initialize();
 }
 
+/// <summary>
+/// 終了処理
+/// </summary>
 void RadialBlurEffect::Finalize() {
     BasePostRenderingSystem::Finalize();
     pso_ = nullptr;
 }
 
+/// <summary>
+/// PSO作成
+/// </summary>
 void RadialBlurEffect::CreatePSO() {
     ShaderManager* shaderManager = ShaderManager::GetInstance();
     shaderManager->LoadShader("FullScreen.VS");
@@ -88,6 +104,9 @@ void RadialBlurEffect::CreatePSO() {
     pso_ = shaderManager->CreatePso("RadialBlurEffect", shaderInfo, Engine::GetInstance()->GetDxDevice()->device_);
 }
 
+/// <summary>
+/// レンダリング開始処理
+/// </summary>
 void RadialBlurEffect::RenderStart() {
     auto& commandList = dxCommand_->GetCommandList();
 
@@ -107,6 +126,9 @@ void RadialBlurEffect::RenderStart() {
     commandList->SetGraphicsRootDescriptorTable(0, renderTarget_->GetBackBufferSrvHandle());
 }
 
+/// <summary>
+/// レンダリング処理
+/// </summary>
 void RadialBlurEffect::Rendering() {
     for (auto& param : activeRadialBlurParams_) {
 
@@ -120,10 +142,17 @@ void RadialBlurEffect::Rendering() {
     activeRadialBlurParams_.clear();
 }
 
+/// <summary>
+/// レンダリング終了処理
+/// </summary>
 void RadialBlurEffect::RenderEnd() {
     renderTarget_->PostDraw();
 }
 
+/// <summary>
+/// コンポーネントの割り当て
+/// </summary>
+/// <param name="_handle">エンティティ</param>
 void RadialBlurEffect::DispatchComponent(EntityHandle _handle) {
     auto& components = GetComponents<RadialBlurParam>(_handle);
     if (components.empty()) {
@@ -140,6 +169,10 @@ void RadialBlurEffect::DispatchComponent(EntityHandle _handle) {
     }
 }
 
+/// <summary>
+/// ポストレンダリングをスキップするかどうか
+/// </summary>
+/// <returns>描画データがない場合は true</returns>
 bool RadialBlurEffect::ShouldSkipPostRender() const {
     return activeRadialBlurParams_.empty();
 }

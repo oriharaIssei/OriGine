@@ -11,10 +11,20 @@ using namespace OriGine;
 
 ResolveEntityReferences::ResolveEntityReferences() : ISystem(SystemCategory::Initialize) {}
 
+/// <summary>
+/// 初期化
+/// </summary>
 void ResolveEntityReferences::Initialize() {}
 
+/// <summary>
+/// 終了処理
+/// </summary>
 void ResolveEntityReferences::Finalize() {}
 
+/// <summary>
+/// エンティティの更新（Entity間の参照を解決する）
+/// </summary>
+/// <param name="_handle">エンティティハンドル</param>
 void ResolveEntityReferences::UpdateEntity(EntityHandle _handle) {
     // EntityReferenceListコンポーネントを取得
     auto& entityRefListArray = GetComponents<EntityReferenceList>(_handle);

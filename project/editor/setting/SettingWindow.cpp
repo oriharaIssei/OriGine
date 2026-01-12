@@ -119,7 +119,7 @@ void SettingWindowRegion::DrawGui() {
 
         SettingWindow* settingWindow = OriGine::EditorController::GetInstance()->GetWindow<SettingWindow>();
         // ウィンドウを閉じる
-        settingWindow->WindowCloseMassage();
+        settingWindow->WindowCloseMessage();
     }
 }
 
@@ -206,7 +206,7 @@ void ProjectSettingRegion::DrawGui() {
 
         SettingWindow* settingWindow = OriGine::EditorController::GetInstance()->GetWindow<SettingWindow>();
         // ウィンドウを閉じる
-        settingWindow->WindowCloseMassage();
+        settingWindow->WindowCloseMessage();
     }
 }
 
@@ -240,7 +240,7 @@ void SettingsWindowOpen::DrawGui() {
 
     if (ImGui::MenuItem("Settings", nullptr, &isOpenSettingWindow, !isOpenSettingWindow)) {
         // SettingsWindowを開く
-        settingWindow->WindowOpenMassage();
+        settingWindow->WindowOpenMessage();
     }
 }
 

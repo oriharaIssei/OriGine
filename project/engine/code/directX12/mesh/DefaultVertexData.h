@@ -11,15 +11,16 @@ namespace OriGine {
 /// 1頂点を表すデータ(テクスチャあり)
 /// </summary>
 struct TextureVertexData {
-    Vec4f pos;
-    Vec2f texCoord;
-    Vec3f normal;
     TextureVertexData* operator=(const TextureVertexData& vert) {
         this->pos      = vert.pos;
         this->texCoord = vert.texCoord;
         this->normal   = vert.normal;
         return this;
     }
+
+    Vec4f pos;
+    Vec2f texCoord;
+    Vec3f normal;
 
     bool operator==(const TextureVertexData& vert) {
         if (this->pos != vert.pos) {
@@ -38,12 +39,14 @@ struct TextureVertexData {
 /// 1頂点を表すデータ(テクスチャなし)
 /// </summary>
 struct PrimitiveVertexData {
-    Vec4f pos;
-    Vec3f normal;
     PrimitiveVertexData(const TextureVertexData& vert) {
         this->pos    = vert.pos;
         this->normal = vert.normal;
     }
+
+    Vec4f pos;
+    Vec3f normal;
+
     PrimitiveVertexData* operator=(const PrimitiveVertexData& vert) {
         this->pos    = vert.pos;
         this->normal = vert.normal;

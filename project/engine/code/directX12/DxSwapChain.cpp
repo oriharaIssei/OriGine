@@ -41,14 +41,14 @@ void DxSwapChain::Initialize(const WinApp* winApp, const DxDevice* device, const
         nullptr,
         &swapChain1);
     if (FAILED(result)) {
-        LOG_CRITICAL("Failed to create swap chain. \n Massage : {}", HrToString(result));
+        LOG_CRITICAL("Failed to create swap chain. \n Message : {}", HrToString(result));
         assert(false);
     }
 
     // swapChain1から SwapChain4を得る
     result = swapChain1->QueryInterface(IID_PPV_ARGS(&swapChain_));
     if (FAILED(result)) {
-        LOG_CRITICAL("Failed to query swap chain interface. \n Massage : {}", HrToString(result));
+        LOG_CRITICAL("Failed to query swap chain interface. \n Message : {}", HrToString(result));
         assert(false);
     }
 
@@ -68,7 +68,7 @@ void DxSwapChain::Initialize(const WinApp* winApp, const DxDevice* device, const
             i, IID_PPV_ARGS(backBufferResources_[i].GetResourceRef().GetAddressOf()));
 
         if (FAILED(result)) {
-            LOG_CRITICAL("Failed to Get swap chain buffer. \n Massage : {}", HrToString(result));
+            LOG_CRITICAL("Failed to Get swap chain buffer. \n Message : {}", HrToString(result));
             assert(false);
         }
 
@@ -131,7 +131,7 @@ void DxSwapChain::ResizeBuffer(UINT width, UINT height) {
     );
 
     if (FAILED(result)) {
-        LOG_CRITICAL("Failed to Resize swap chain buffers. \n Massage : {}", HrToString(result));
+        LOG_CRITICAL("Failed to Resize swap chain buffers. \n Message : {}", HrToString(result));
         assert(false);
     }
 
@@ -144,7 +144,7 @@ void DxSwapChain::ResizeBuffer(UINT width, UINT height) {
         result = swapChain_->GetBuffer(i, IID_PPV_ARGS(backBufferResources_[i].GetResourceRef().GetAddressOf()));
 
         if (FAILED(result)) {
-            LOG_CRITICAL("Failed to Get swap chain buffer after Resize. \n Massage : {}", HrToString(result));
+            LOG_CRITICAL("Failed to Get swap chain buffer after Resize. \n Message : {}", HrToString(result));
             assert(false);
         }
 

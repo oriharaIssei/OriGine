@@ -39,6 +39,12 @@ static std::string GetCurrentConfigString() {
 }
 
 #pragma region "Logger"
+
+/// <summary>
+/// ロガーの初期化処理.
+/// ログフォルダの作成、spdlog の設定、ログローテーションの設定を行う.
+/// デバッグビルド時は ImGui 用のシンクも追加される.
+/// </summary>
 void Logger::Initialize() {
     try {
         /*
@@ -95,6 +101,10 @@ void Logger::Initialize() {
     }
 }
 
+/// <summary>
+/// ロガーの終了処理.
+/// spdlog のシャットダウンを行い、リソースを解放する.
+/// </summary>
 void Logger::Finalize() {
     if (logger_) {
         // ロガーの終了処理
@@ -104,6 +114,9 @@ void Logger::Finalize() {
     }
 }
 
+/// <summary>
+/// TRACE レベルでログを直接出力する（内部用）.
+/// </summary>
 void Logger::DirectTrace(const std::string& message, const char* file, const char* function, int line) {
     if (logger_) {
         logger_->log(spdlog::source_loc{file, line, function}, spdlog::level::trace, message);
@@ -112,6 +125,9 @@ void Logger::DirectTrace(const std::string& message, const char* file, const cha
     OutputDebugStringA((debugmessage + "\n").c_str());
 }
 
+/// <summary>
+/// INFO レベルでログを直接出力する（内部用）.
+/// </summary>
 void Logger::DirectInfo(const std::string& message, const char* file, const char* function, int line) {
     if (logger_) {
         logger_->log(spdlog::source_loc{file, line, function}, spdlog::level::info, message);
@@ -120,6 +136,9 @@ void Logger::DirectInfo(const std::string& message, const char* file, const char
     OutputDebugStringA((debugmessage + "\n").c_str());
 }
 
+/// <summary>
+/// DEBUG レベルでログを直接出力する（内部用）.
+/// </summary>
 void Logger::DirectDebug(const std::string& message, const char* file, const char* function, int line) {
     if (logger_) {
         logger_->log(spdlog::source_loc{file, line, function}, spdlog::level::debug, message);
@@ -128,6 +147,9 @@ void Logger::DirectDebug(const std::string& message, const char* file, const cha
     OutputDebugStringA((debugmessage + "\n").c_str());
 }
 
+/// <summary>
+/// WARN レベルでログを直接出力する（内部用）.
+/// </summary>
 void Logger::DirectWarn(const std::string& message, const char* file, const char* function, int line) {
     if (logger_) {
         logger_->log(spdlog::source_loc{file, line, function}, spdlog::level::warn, message);
@@ -137,6 +159,9 @@ void Logger::DirectWarn(const std::string& message, const char* file, const char
     OutputDebugStringA((debugmessage + "\n").c_str());
 }
 
+/// <summary>
+/// ERROR レベルでログを直接出力する（内部用）.
+/// </summary>
 void Logger::DirectError(const std::string& message, const char* file, const char* function, int line) {
     if (logger_) {
         logger_->log(spdlog::source_loc{file, line, function}, spdlog::level::err, message);
@@ -146,6 +171,9 @@ void Logger::DirectError(const std::string& message, const char* file, const cha
     OutputDebugStringA((debugmessage + "\n").c_str());
 }
 
+/// <summary>
+/// CRITICAL レベルでログを直接出力する（内部用）.
+/// </summary>
 void Logger::DirectCritical(const std::string& message, const char* file, const char* function, int line) {
     if (logger_) {
         logger_->log(spdlog::source_loc{file, line, function}, spdlog::level::critical, message);
@@ -155,6 +183,9 @@ void Logger::DirectCritical(const std::string& message, const char* file, const 
     OutputDebugStringA((debugmessage + "\n").c_str());
 }
 
+/// <summary>
+/// DirectX12 のデバッグレイヤーからメッセージを取得し、対応するレベルで出力する.
+/// </summary>
 void Logger::DirectXLog(const char* file, const char* function, int line) {
     Microsoft::WRL::ComPtr<ID3D12InfoQueue> infoQueue = DxDebug::GetInstance()->GetInfoQueue();
     if (!infoQueue) {
@@ -228,10 +259,17 @@ void Logger::DirectXLog(const char* file, const char* function, int line) {
 GuiLogger::GuiLogger() {}
 GuiLogger::~GuiLogger() {}
 
+/// <summary>
+/// GUIロガーの初期化. Engine の持つコアロガーの参照を取得する.
+/// </summary>
 void GuiLogger::Initialize() {
     logger_ = Logger::logger_;
 }
 
+/// <summary>
+/// ImGui を使用してログウィンドウを描画する.
+/// ロガーの各シンクから ImGuiLogSink を探し、蓄積されたログメッセージを解析してテーブル表示する.
+/// </summary>
 void GuiLogger::Update() {
 #ifdef _DEBUG
     if (ImGui::Begin("Log Window", nullptr, ImGuiWindowFlags_MenuBar)) {
@@ -254,6 +292,7 @@ void GuiLogger::Update() {
                 if (imguiSink) {
                     const auto& logs = imguiSink->GetLogMessages();
                     for (const auto& line : logs) {
+                        // spdlog のパターンに基づき文字列解析を行い、各フィールドを抽出する
                         // パターン: [level] message [file:line function] [time]
                         std::string time_str, level_str, file_str, line_num_str, func_str, msg_str;
 
@@ -298,7 +337,7 @@ void GuiLogger::Update() {
                             msg_str = line.substr(msg_start);
                         }
 
-                        // レベルに応じて色を設定
+                        // レベルに応じてテキストの色を設定
                         ImVec4 color;
                         if (level_str == "trace") {
                             color = ImVec4(0.5f, 0.5f, 0.5f, 1.0f); // Gray
@@ -351,6 +390,9 @@ void GuiLogger::Update() {
 #endif
 }
 
+/// <summary>
+/// GUIロガーの終了処理.
+/// </summary>
 void GuiLogger::Finalize() {
     // GUIの終了処理
     logger_.reset();

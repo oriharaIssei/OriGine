@@ -18,16 +18,26 @@ public:
     BottomLevelAccelerationStructure();
     ~BottomLevelAccelerationStructure();
 
+    /// <summary>
+    /// 初期化
+    /// </summary>
     void Initialize();
+
+    /// <summary>
+    /// 終了処理
+    /// </summary>
     void Finalize();
 
     /// <summary>
     /// リソース作成
     /// </summary>
-    /// <param name="device"></param>
-    /// <param name="commandList"></param>
-    /// <param name="_mesh"></param>
-    /// <param name="_skinningAnimation">MeshがSkinningを利用するならポインターを登録する。</param>
+    /// <param name="device">デバイス</param>
+    /// <param name="commandList">コマンドリスト</param>
+    /// <param name="_vertexBuffStartAddress">頂点バッファ開始アドレス</param>
+    /// <param name="_vertexCount">頂点数</param>
+    /// <param name="_indexBuffStartAddress">インデックスバッファ開始アドレス</param>
+    /// <param name="_indexCount">インデックス数</param>
+    /// <param name="_allowUpdate">更新を許可するか</param>
     void CreateResource(
         ID3D12Device8* device,
         ID3D12GraphicsCommandList6* commandList,
@@ -37,6 +47,10 @@ public:
         UINT _indexCount,
         bool _allowUpdate);
 
+    /// <summary>
+    /// 更新処理
+    /// </summary>
+    /// <param name="commandList">コマンドリスト</param>
     void Update(ID3D12GraphicsCommandList6* commandList);
 
 private:
@@ -50,6 +64,10 @@ private:
     bool allowUpdate_ = false;
 
 public:
+    /// <summary>
+    /// 結果リソースの取得
+    /// </summary>
+    /// <returns>リソース</returns>
     const DxResource& GetResultResource() const { return resultResource_; }
 };
 

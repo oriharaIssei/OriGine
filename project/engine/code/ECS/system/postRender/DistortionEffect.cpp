@@ -18,9 +18,19 @@
 
 using namespace OriGine;
 
+/// <summary>
+/// コンストラクタ
+/// </summary>
 DistortionEffect::DistortionEffect() : BasePostRenderingSystem() {}
+
+/// <summary>
+/// デストラクタ
+/// </summary>
 DistortionEffect::~DistortionEffect() {}
 
+/// <summary>
+/// 初期化
+/// </summary>
 void DistortionEffect::Initialize() {
     BasePostRenderingSystem::Initialize();
 
@@ -36,6 +46,9 @@ void DistortionEffect::Initialize() {
     defaultParam_->Initialize(nullptr, EntityHandle());
 }
 
+/// <summary>
+/// 終了処理
+/// </summary>
 void DistortionEffect::Finalize() {
     pso_ = nullptr;
 
@@ -53,6 +66,9 @@ void DistortionEffect::Finalize() {
     }
 }
 
+/// <summary>
+/// PSO作成
+/// </summary>
 void DistortionEffect::CreatePSO() {
     ShaderManager* shaderManager = ShaderManager::GetInstance();
     shaderManager->LoadShader("FullScreen.VS");
@@ -134,6 +150,9 @@ void DistortionEffect::CreatePSO() {
     pso_ = shaderManager->CreatePso("DistortionEffect", shaderInfo, Engine::GetInstance()->GetDxDevice()->device_);
 }
 
+/// <summary>
+/// レンダリング開始処理
+/// </summary>
 void DistortionEffect::RenderStart() {
     auto& commandList = dxCommand_->GetCommandList();
 
@@ -185,6 +204,9 @@ void DistortionEffect::RenderStart() {
     dxCommand_->GetCommandList()->SetDescriptorHeaps(1, ppHeaps);
 }
 
+/// <summary>
+/// レンダリング処理
+/// </summary>
 void DistortionEffect::Rendering() {
     auto& commandList = dxCommand_->GetCommandList();
 
@@ -230,11 +252,18 @@ void DistortionEffect::Rendering() {
     activeRenderingData_.clear();
 }
 
+/// <summary>
+/// レンダリング終了処理
+/// </summary>
 void DistortionEffect::RenderEnd() {
     // 終了処理
     renderTarget_->PostDraw();
 }
 
+/// <summary>
+/// コンポーネントの割り当て
+/// </summary>
+/// <param name="_handle">エンティティ</param>
 void DistortionEffect::DispatchComponent(EntityHandle _handle) {
     auto& distortionEffectParams = GetComponents<DistortionEffectParam>(_handle);
     if (distortionEffectParams.empty()) {
@@ -312,6 +341,10 @@ void DistortionEffect::DispatchComponent(EntityHandle _handle) {
     }
 }
 
+/// <summary>
+/// ポストレンダリングをスキップするかどうか
+/// </summary>
+/// <returns>描画データがない場合は true</returns>
 bool DistortionEffect::ShouldSkipPostRender() const {
     return activeRenderingData_.empty() && activeDistortionObjects_.empty();
 }

@@ -78,9 +78,23 @@ struct Quaternion final
             0.0f,
             1.0f);
     }
+    /// <summary>
+    /// 逆クォータニオンを取得
+    /// </summary>
+    /// <param name="q">クォータニオン</param>
+    /// <returns>逆クォータニオン</returns>
     static Quaternion Inverse(const Quaternion& q);
+    /// <summary>
+    /// 逆クォータニオンを取得
+    /// </summary>
+    /// <returns>逆クォータニオン</returns>
     Quaternion inverse() const;
 
+    /// <summary>
+    /// 共役クォータニオンを取得
+    /// </summary>
+    /// <param name="q">クォータニオン</param>
+    /// <returns>共役クォータニオン</returns>
     static constexpr Quaternion Conjugation(const Quaternion& q) {
         return Quaternion(
             -q[X],
@@ -88,6 +102,10 @@ struct Quaternion final
             -q[Z],
             q[W]);
     }
+    /// <summary>
+    /// 共役クォータニオンを取得
+    /// </summary>
+    /// <returns>共役クォータニオン</returns>
     constexpr Quaternion Conjugation() const {
         return Quaternion(
             -this->v[X],
@@ -96,18 +114,45 @@ struct Quaternion final
             this->v[W]);
     }
 
+    /// <summary>
+    /// ノルム(長さ)を取得
+    /// </summary>
     static float Norm(const Quaternion& q);
+    /// <summary>
+    /// ノルム(長さ)を取得
+    /// </summary>
     float norm() const;
 
+    /// <summary>
+    /// ノルムの2乗を取得
+    /// </summary>
     static float NormSq(const Quaternion& q);
+    /// <summary>
+    /// ノルムの2乗を取得
+    /// </summary>
     float normSq() const;
 
+    /// <summary>
+    /// 正規化
+    /// </summary>
     static Quaternion Normalize(const Quaternion& q);
+    /// <summary>
+    /// 正規化
+    /// </summary>
     Quaternion normalize() const;
 
+    /// <summary>
+    /// 内積
+    /// </summary>
     static float Dot(const Quaternion& q0, const Quaternion& v);
+    /// <summary>
+    /// 内積
+    /// </summary>
     float dot(const Quaternion& q) const;
 
+    /// <summary>
+    /// オイラー角へ変換
+    /// </summary>
     Vec3f ToEulerAngles() const;
     /// <summary>
     /// ピッチ (x軸回りの回転角度)を取得
@@ -125,24 +170,58 @@ struct Quaternion final
     /// <returns></returns>
     float ToRoll() const;
 
+    /// <summary>
+    /// ベクトルを回転
+    /// </summary>
     static Vec3f RotateVector(const Vec3f& vec, const Quaternion& q);
+    /// <summary>
+    /// ベクトルを回転
+    /// </summary>
     Vec3f RotateVector(const Vec3f& vec) const;
 
+    /// <summary>
+    /// 任意軸回りの回転からクォータニオンを作成
+    /// </summary>
     static Quaternion RotateAxisAngle(const Vec3f& axis, float angle);
+    /// <summary>
+    /// 2つのベクトルの間の回転を作成
+    /// </summary>
     static const Quaternion RotateAxisVector(const Vec3f& _from, const Vec3f& _to);
 
+    /// <summary>
+    /// 法線ベクトルと上方向ベクトルからクォータニオンを作成
+    /// </summary>
     static const Quaternion FromNormalVector(const Vec3f& _normal, const Vec3f& _up);
 
+    /// <summary>
+    /// 行列からクォータニオンを作成
+    /// </summary>
     static Quaternion FromMatrix(const Matrix4x4& _rotateMat);
+    /// <summary>
+    /// オイラー角からクォータニオンを作成
+    /// </summary>
     static Quaternion FromEulerAngles(float pitch, float yaw, float roll);
+    /// <summary>
+    /// オイラー角からクォータニオンを作成
+    /// </summary>
     static Quaternion FromEulerAngles(const Vec3f& euler);
 
+    /// <summary>
+    /// 前方向と上方向からクォータニオンを作成
+    /// </summary>
     static Quaternion LookAt(const Vec3f& _forward, const Vec3f& up);
 };
 
 constexpr Quaternion operator*(float scalar, const Quaternion& q);
 constexpr Quaternion operator/(float scalar, const Quaternion& q);
 
+/// <summary>
+/// 球面線形補間 (Slerp)
+/// </summary>
+/// <param name="q0">開始時の回転</param>
+/// <param name="v">終了時の回転</param>
+/// <param name="t">補間係数(0-1)</param>
+/// <returns>補間されたクォータニオン</returns>
 Quaternion Slerp(const Quaternion& q0, const Quaternion& v, float t);
 
 using Quatf = Quaternion;

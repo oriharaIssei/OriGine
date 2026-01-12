@@ -1,8 +1,7 @@
 #include "MaterialAnimationWorkSystem.h"
 
 /// engine
-#define DELTA_TIME
-#include "EngineInclude.h"
+#include "Engine.h"
 
 /// ECS
 #include "component/animation/MaterialAnimation.h"
@@ -10,12 +9,16 @@
 
 using namespace OriGine;
 
+/// <summary>
+/// 各エンティティのマテリアルアニメーションを更新する
+/// </summary>
+/// <param name="_handle">対象のエンティティハンドル</param>
 void MaterialAnimationWorkSystem::UpdateEntity(EntityHandle _handle) {
     auto& materialAnimations = GetComponents<MaterialAnimation>(_handle);
     if (materialAnimations.empty()) {
         return;
     }
-    const float deltaTime = GetMainDeltaTime();
+    const float deltaTime = Engine::GetInstance()->GetDeltaTimer()->GetScaledDeltaTime("Effect");
 
     for (auto& materialAnimation : materialAnimations) {
         int32_t materialIndex = materialAnimation.GetMaterialIndex();

@@ -1,4 +1,4 @@
-# 自作エンジン Origine
+# 自作エンジン OriGine
 
 [![DebugBuild](https://github.com/oriharaIssei/OriGine/actions/workflows/DebugBuild.yml/badge.svg)](https://github.com/oriharaIssei/OriGine/actions/workflows/DebugBuild.yml)
 

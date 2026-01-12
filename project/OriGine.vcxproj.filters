@@ -765,9 +765,6 @@
     <ClInclude Include="util\binaryIO\BinaryIO.h">
       <Filter>util\binaryIO</Filter>
     </ClInclude>
-    <ClInclude Include="util\deltaTime\DeltaTime.h">
-      <Filter>util\deltaTime</Filter>
-    </ClInclude>
     <ClInclude Include="util\globalVariables\GlobalVariables.h">
       <Filter>util\globalVariables</Filter>
     </ClInclude>
@@ -806,6 +803,7 @@
     <ClInclude Include="engine\code\ECS\component\effect\particle\emitter\Updater.h" />
     <ClInclude Include="engine\code\directX12\buffer\AppendBuffer.h" />
     <ClInclude Include="engine\code\directX12\buffer\ConceptHasBuffer.h" />
+    <ClInclude Include="util\deltaTime\DeltaTimer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="editor\EditorController.cpp">
@@ -1297,9 +1295,6 @@
     <ClCompile Include="util\binaryIO\BinaryIO.cpp">
       <Filter>util\binaryIO</Filter>
     </ClCompile>
-    <ClCompile Include="util\deltaTime\DeltaTime.cpp">
-      <Filter>util\deltaTime</Filter>
-    </ClCompile>
     <ClCompile Include="util\globalVariables\GlobalVariables.cpp">
       <Filter>util\globalVariables</Filter>
     </ClCompile>
@@ -1323,5 +1318,6 @@
     <ClCompile Include="engine\code\directX12\raytracing\BottomLevelAccelerationStructure.cpp" />
     <ClCompile Include="engine\code\ECS\system\render\TexturedMeshRenderSystemWithoutRaytracing.cpp" />
     <ClCompile Include="engine\code\ECS\system\render\LightDebugRenderingSystem.cpp" />
+    <ClCompile Include="util\deltaTime\DeltaTimer.cpp" />
   </ItemGroup>
 </Project>

@@ -54,33 +54,54 @@ struct Vector4 final
     /// ベクトルの長さを計算
     /// </summary>
     constexpr valueType length() const { return std::sqrt(v[X] * v[X] + v[Y] * v[Y] + v[Z] * v[Z] + v[W] * v[W]); }
+    /// <summary>
+    /// ベクトルの長さを計算 (static)
+    /// </summary>
+    /// <param name="v">ベクトル</param>
+    /// <returns>ベクトルの長さ</returns>
     static constexpr valueType Length(const Vector4& v) { return std::sqrt(v.v[X] * v.v[X] + v.v[Y] * v.v[Y] + v.v[Z] * v.v[Z] + v.v[W] * v.v[W]); }
 
     /// <summary>
     /// ベクトルの長さの二乗を計算
     /// </summary>
-    /// <returns></returns>
+    /// <returns>長さの二乗</returns>
     constexpr valueType lengthSq() const { return (v[X] * v[X] + v[Y] * v[Y] + v[Z] * v[Z] + v[W] * v[W]); }
+    /// <summary>
+    /// ベクトルの長さの二乗を計算 (static)
+    /// </summary>
+    /// <param name="v">ベクトル</param>
+    /// <returns>長さの二乗</returns>
     static constexpr valueType LengthSq(const Vector4& v) { return (v.v[X] * v.v[X] + v.v[Y] * v.v[Y] + v.v[Z] * v.v[Z] + v.v[W] * v.v[W]); }
 
     /// <summary>
     /// 内積を計算
     /// </summary>
-    /// <param name="another"></param>
-    /// <returns></returns>
+    /// <param name="another">対象ベクトル</param>
+    /// <returns>内積</returns>
     constexpr valueType dot(const Vector4& another) const { return (v[X] * another.v[X]) + (v[Y] * another.v[Y]) + (v[Z] * another.v[Z]) + (v[W] * another.v[W]); }
+    /// <summary>
+    /// 内積を計算 (static)
+    /// </summary>
+    /// <param name="v">ベクトル1</param>
+    /// <param name="another">ベクトル2</param>
+    /// <returns>内積</returns>
     static constexpr valueType Dot(const Vector4& v, const Vector4& another) { return (v.v[X] * another.v[X]) + (v.v[Y] * another.v[Y]) + (v.v[Z] * another.v[Z]) + (v.v[W] * another.v[W]); }
 
     /// <summary>
     /// 正規化
     /// </summary>
-    /// <returns></returns>
+    /// <returns>正規化後ベクトル</returns>
     constexpr Vector4 normalize() const {
         valueType len = length();
         if (len == 0)
             return *this;
         return (*this / len);
     }
+    /// <summary>
+    /// 正規化 (static)
+    /// </summary>
+    /// <param name="v">正規化前ベクトル</param>
+    /// <returns>正規化後ベクトル</returns>
     static constexpr Vector4 Normalize(const Vector4& v) {
         valueType len = v.length();
         if (len == 0)

@@ -13,6 +13,10 @@
 
 namespace OriGine {
 
+/// <summary>
+/// 直感的なキー名を使用するための列挙型.
+/// DirectInput の DIK_* パラメータに対応している.
+/// </summary>
 enum class Key : uint32_t {
     ONE   = DIK_1,
     TWO   = DIK_2,
@@ -138,6 +142,10 @@ enum class Key : uint32_t {
     RIGHT_ALT     = RALT,
     R_ALT         = RALT
 };
+
+/// <summary>
+/// キー列挙型から名前文字列への変換マップ
+/// </summary>
 static ::std::map<Key, ::std::string> keyNameMap = {
     {Key::ONE, "ONE"},
     {Key::TWO, "TWO"},
@@ -233,10 +241,15 @@ static ::std::map<Key, ::std::string> keyNameMap = {
     {Key::NUMPAD2, "NUMPAD2"},
     {Key::NUMPAD3, "NUMPAD3"},
     {Key::NUMPAD0, "NUMPAD0"},
-    {Key::DECIMAL, "DECIMAL"}};
+    {Key::DECIMAL, "DECIMAL"},
+};
 
-constexpr uint32_t KEY_COUNT = 256;
+/// <summary>全キー数</summary>
+static constexpr uint32_t KEY_COUNT = 256;
 
+/// <summary>
+/// DirectInput によるキーボード入力を管理するクラス.
+/// </summary>
 class KeyboardInput {
     friend class ReplayPlayer;
 
@@ -248,33 +261,45 @@ public:
     KeyboardInput& operator=(const KeyboardInput&) = delete;
 
     /// <summary>
-    /// 初期化
+    /// デバイスの初期化を行う.
     /// </summary>
     /// <param name="directInput">DirectInput8 インターフェース</param>
     /// <param name="hwnd">ウィンドウハンドル</param>
     void Initialize(IDirectInput8* directInput, HWND hwnd);
 
     /// <summary>
-    /// 更新
+    /// 毎フレームのデバイス入力状態をポーリングして更新する.
     /// </summary>
     void Update();
 
     /// <summary>
-    /// 解放処理
+    /// デバイスの終了処理を行う.
     /// </summary>
     void Finalize();
 
 private:
+    /// <summary>キーボードデバイス</summary>
     Microsoft::WRL::ComPtr<IDirectInputDevice8> keyboard_;
+    /// <summary>現在のキー状態バッファ</summary>
     ::std::array<BYTE, KEY_COUNT> keys_{};
+    /// <summary>前回フレームのキー状態バッファ</summary>
     ::std::array<BYTE, KEY_COUNT> prevKeys_{};
 
 public:
+    /// <summary>
+    /// 現在の全キーの状態（DIK_ 値に対応するバッファ）を取得する.
+    /// </summary>
+    /// <returns>現在のキー状態配列</returns>
     const ::std::array<BYTE, KEY_COUNT>& GetKeyStates() const { return keys_; }
+
+    /// <summary>
+    /// 前回フレームの全キーの状態を取得する.
+    /// </summary>
+    /// <returns>前回フレームのキー状態配列</returns>
     const ::std::array<BYTE, KEY_COUNT>& GetPrevKeyStates() const { return prevKeys_; }
 
     /// <summary>
-    /// キー状態をクリアする(今と前回分の状態を初期化)
+    /// キー状態バッファをクリアする.
     /// </summary>
     void ClearKeyStates() {
         keys_.fill(0);
@@ -282,24 +307,48 @@ public:
     }
 
     /// <summary>
-    /// キーが押されているか
+    /// 指定されたキーが現在押されているか判定する.
     /// </summary>
+    /// <param name="key">DIK_* インデックス</param>
+    /// <returns>押されていれば true</returns>
     bool IsPress(uint32_t key) const { return keys_[key]; }
+
+    /// <summary>
+    /// 指定されたキーが現在押されているか判定する.
+    /// </summary>
+    /// <param name="key">キー種類</param>
+    /// <returns>押されていれば true</returns>
     bool IsPress(Key key) const { return keys_[static_cast<uint32_t>(key)]; }
 
     /// <summary>
-    /// 押した瞬間か
+    /// 指定されたキーがこのフレームで押された（トリガーされた）か判定する.
     /// </summary>
+    /// <param name="key">DIK_* インデックス</param>
+    /// <returns>押された瞬間なら true</returns>
     bool IsTrigger(uint32_t key) const { return (keys_[key] && !prevKeys_[key]); }
+
+    /// <summary>
+    /// 指定されたキーがこのフレームで押された（トリガーされた）か判定する.
+    /// </summary>
+    /// <param name="key">キー種類</param>
+    /// <returns>押された瞬間なら true</returns>
     bool IsTrigger(Key key) const {
         uint32_t keyNum = static_cast<uint32_t>(key);
         return (keys_[keyNum] && !prevKeys_[keyNum]);
     }
 
     /// <summary>
-    /// 離した瞬間か
+    /// 指定されたキーがこのフレームで離されたか判定する.
     /// </summary>
+    /// <param name="key">DIK_* インデックス</param>
+    /// <returns>離された瞬間なら true</returns>
     bool IsRelease(uint32_t key) const { return (!keys_[key] && prevKeys_[key]); }
+
+    /// <summary>
+    /// 指定されたキーがこのフレームで離されたか判定する.
+    /// </summary>
+    /// <param name="key">キー種類</param>
+    /// <returns>離された瞬間なら true</returns>
     bool IsRelease(Key key) const {
         uint32_t keyNum = static_cast<uint32_t>(key);
         return (!keys_[keyNum] && prevKeys_[keyNum]);

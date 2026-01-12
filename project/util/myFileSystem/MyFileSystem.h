@@ -116,11 +116,22 @@ private:
     std::filesystem::file_time_type lastWriteTime_;
 
 public:
+    /// <summary>
+    /// 監視対象ファイルパスを取得
+    /// </summary>
     const std::string& GetFilePath() const { return filePath_; }
+    /// <summary>
+    /// 監視対象ファイルパスを設定
+    /// </summary>
+    /// <param name="_filePath">ファイルパス</param>
     void SetFilePath(const std::string& _filePath) {
         filePath_      = _filePath;
         lastWriteTime_ = std::filesystem::last_write_time(filePath_);
     }
+    /// <summary>
+    /// ファイルが更新されたか確認し、フラグをリセットする
+    /// </summary>
+    /// <returns>更新されていればtrue</returns>
     bool isChanged() {
         bool changed = isChanged_;
         if (changed) {

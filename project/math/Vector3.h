@@ -1,9 +1,9 @@
 #pragma once
 
 /// math
-#include <cmath>
 #include "Vector.h"
 #include "Vector2.h"
+#include <cmath>
 
 namespace OriGine {
 
@@ -47,21 +47,47 @@ struct Vector3 final : Vector<3, valueType> {
     /// </summary>
     /// <returns>ベクトルの長さ</returns>
     constexpr valueType length() const { return std::sqrt(v[X] * v[X] + v[Y] * v[Y] + v[Z] * v[Z]); }
+    /// <summary>
+    /// ベクトルの長さを計算 (static)
+    /// </summary>
+    /// <param name="v">ベクトル</param>
+    /// <returns>ベクトルの長さ</returns>
     static constexpr valueType Length(const Vector3& v) { return std::sqrt(v.v[X] * v.v[X] + v.v[Y] * v.v[Y] + v.v[Z] * v.v[Z]); }
     /// <summary>
     /// ベクトルの長さの二乗を計算
     /// </summary>
     constexpr valueType lengthSq() const { return (v[X] * v[X] + v[Y] * v[Y] + v[Z] * v[Z]); }
+    /// <summary>
+    /// ベクトルの長さの二乗を計算 (static)
+    /// </summary>
+    /// <param name="v">ベクトル</param>
+    /// <returns>長さの二乗</returns>
     static constexpr valueType LengthSq(const Vector3& v) { return (v.v[X] * v.v[X] + v.v[Y] * v.v[Y] + v.v[Z] * v.v[Z]); }
 
     /// <summary>
     /// 内積を計算
     /// </summary>
     constexpr valueType dot() const { return v[X] * v[X] + v[Y] * v[Y] + v[Z] * v[Z]; }
+    /// <summary>
+    /// 指定のベクトルとの内積を計算
+    /// </summary>
+    /// <param name="vec">対象ベクトル</param>
+    /// <returns>内積</returns>
     constexpr valueType dot(const Vector3<valueType>& vec) const {
         return v[X] * vec.v[X] + v[Y] * vec.v[Y] + v[Z] * vec.v[Z];
     }
+    /// <summary>
+    /// ベクトルの内積を計算 (static)
+    /// </summary>
+    /// <param name="v">対象ベクトル</param>
+    /// <returns>内積</returns>
     static constexpr valueType Dot(const Vector3& v) { return v.v[X] * v.v[X] + v.v[Y] * v.v[Y] + v.v[Z] * v.v[Z]; }
+    /// <summary>
+    /// 2つのベクトルの内積を計算 (static)
+    /// </summary>
+    /// <param name="v">ベクトル1</param>
+    /// <param name="vec">ベクトル2</param>
+    /// <returns>内積</returns>
     static constexpr valueType Dot(const Vector3& v, const Vector3& vec) {
         return v.dot(vec);
     }
@@ -69,14 +95,20 @@ struct Vector3 final : Vector<3, valueType> {
     /// <summary>
     /// 外積を計算
     /// </summary>
-    /// <param name="another"></param>
-    /// <returns></returns>
+    /// <param name="another">対象ベクトル</param>
+    /// <returns>外積結果ベクトル</returns>
     constexpr Vector3 cross(const Vector3& another) const {
         return Vector3(
             v[Y] * another.v[Z] - v[Z] * another.v[Y],
             v[Z] * another.v[X] - v[X] * another.v[Z],
             v[X] * another.v[Y] - v[Y] * another.v[X]);
     }
+    /// <summary>
+    /// 外積を計算 (static)
+    /// </summary>
+    /// <param name="v">ベクトル1</param>
+    /// <param name="another">ベクトル2</param>
+    /// <returns>外積結果ベクトル</returns>
     static constexpr Vector3 Cross(const Vector3& v, const Vector3& another) {
         return v.cross(another);
     }
@@ -90,6 +122,11 @@ struct Vector3 final : Vector<3, valueType> {
             return *this;
         return (*this / len);
     }
+    /// <summary>
+    /// 正規化 (static)
+    /// </summary>
+    /// <param name="v">正規化前ベクトル</param>
+    /// <returns>正規化後ベクトル</returns>
     static constexpr Vector3 Normalize(const Vector3& v) {
         valueType len = v.length();
         if (len == 0)

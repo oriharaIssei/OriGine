@@ -2,11 +2,15 @@
 
 /// Engine
 // directX12
-#include "directX12/buffer/IStructuredBuffer.h"
+#include "directX12/buffer/ConceptHasBuffer.h"
 
 namespace OriGine {
 
-template <StructuredBuffer structBuff>
+/// <summary>
+/// IStructuredBufferのOpenDataが無いバージョン
+/// Bufferに入れる内容を外部で管理するためのバージョン
+/// </summary>
+template <HasInConstantBuffer structBuff>
 class SimpleStructuredBuffer {
 public:
     using StructuredBufferType = typename structBuff::ConstantBuffer;
@@ -17,10 +21,14 @@ public:
     /// <summary>
     /// Bufferを生成
     /// </summary>
-    /// <param name="device"></param>
+    /// <param name="device">デバイス</param>
     /// <param name="elementCount">生成するbufferの数</param>
     /// <param name="_withUAV">uav付きか. true = UAV付き,false = UAVなし</param>
     void CreateBuffer(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t elementCount, bool _withUAV = false);
+
+    /// <summary>
+    /// 終了処理
+    /// </summary>
     void Finalize();
 
 protected:
@@ -36,25 +44,43 @@ public:
     /// <summary>
     /// データをBufferに変換してセット
     /// </summary>
-    /// <param name="_inputData"></param>
+    /// <param name="_inputData">入力データ</param>
     void ConvertToBuffer(std::vector<structBuff>& _inputData);
+
     /// <summary>
     /// ルートパラメータにセット
     /// </summary>
+    /// <param name="cmdList">コマンドリスト</param>
+    /// <param name="rootParameterNum">パラメータ番号</param>
     void SetForRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const;
 
     /// <summary>
     /// バッファのリサイズ
     /// </summary>
+    /// <param name="device">デバイス</param>
+    /// <param name="newElementCount">新しい要素数</param>
     void resize(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t newElementCount);
 
+    /// <summary>
+    /// キャパシティの取得
+    /// </summary>
+    /// <returns>キャパシティ</returns>
     size_t capacity() const { return elementCount_; }
 
+    /// <summary>
+    /// リソースの取得
+    /// </summary>
+    /// <returns>リソース</returns>
     DxResource& GetResource() { return buff_; }
+
+    /// <summary>
+    /// SRVの取得
+    /// </summary>
+    /// <returns>SRV</returns>
     std::shared_ptr<DxSrvDescriptor> GetSrv() const { return srv_; }
 };
 
-template <StructuredBuffer structBuff>
+template <HasInConstantBuffer structBuff>
 inline void SimpleStructuredBuffer<structBuff>::CreateBuffer(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t elementCount, bool _withUAV) {
     elementCount_ = elementCount;
 
@@ -82,13 +108,13 @@ inline void SimpleStructuredBuffer<structBuff>::CreateBuffer(Microsoft::WRL::Com
     srv_ = Engine::GetInstance()->GetSrvHeap()->CreateDescriptor<>(viewDesc, &buff_);
 }
 
-template <StructuredBuffer structBuff>
+template <HasInConstantBuffer structBuff>
 inline void SimpleStructuredBuffer<structBuff>::Finalize() {
     Engine::GetInstance()->GetSrvHeap()->ReleaseDescriptor(srv_);
     buff_.Finalize();
 }
 
-template <StructuredBuffer structBuff>
+template <HasInConstantBuffer structBuff>
 inline void SimpleStructuredBuffer<structBuff>::resize(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t newElementCount) {
     if (newElementCount == elementCount_ || newElementCount == 0) {
         return;
@@ -117,14 +143,14 @@ inline void SimpleStructuredBuffer<structBuff>::resize(Microsoft::WRL::ComPtr<ID
     }
 }
 
-template <StructuredBuffer structBuff>
+template <HasInConstantBuffer structBuff>
 inline void SimpleStructuredBuffer<structBuff>::ConvertToBuffer(std::vector<structBuff>& _inputData) {
     if (mappingData_) {
         std::copy(_inputData.begin(), _inputData.end(), mappingData_);
     }
 }
 
-template <StructuredBuffer structBuff>
+template <HasInConstantBuffer structBuff>
 inline void SimpleStructuredBuffer<structBuff>::SetForRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const {
     cmdList->SetGraphicsRootDescriptorTable(rootParameterNum, srv_->GetGpuHandle());
 }

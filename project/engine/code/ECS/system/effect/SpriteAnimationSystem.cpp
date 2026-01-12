@@ -1,7 +1,7 @@
 #include "SpriteAnimationSystem.h"
 
 /// engine
-#define DELTA_TIME
+#include "Engine.h"
 #define ENGINE_ECS
 #include "EngineInclude.h"
 // component
@@ -11,12 +11,26 @@
 using namespace OriGine;
 
 SpriteAnimationSystem::SpriteAnimationSystem() : ISystem(SystemCategory::Effect) {}
+
+/// <summary>
+/// デストラクタ
+/// </summary>
 SpriteAnimationSystem::~SpriteAnimationSystem() {}
 
+/// <summary>
+/// 初期化処理
+/// </summary>
 void SpriteAnimationSystem::Initialize() {}
 
+/// <summary>
+/// 終了処理
+/// </summary>
 void SpriteAnimationSystem::Finalize() {}
 
+/// <summary>
+/// 各エンティティのスプライトアニメーションを更新する
+/// </summary>
+/// <param name="_handle">対象のエンティティハンドル</param>
 void SpriteAnimationSystem::UpdateEntity(EntityHandle _handle) {
     std::vector<SpriteAnimation>& spriteAnimations = GetComponents<SpriteAnimation>(_handle);
     std::vector<SpriteRenderer>& spriteRenderers   = GetComponents<SpriteRenderer>(_handle);
@@ -24,8 +38,8 @@ void SpriteAnimationSystem::UpdateEntity(EntityHandle _handle) {
     if (spriteAnimations.empty() || spriteRenderers.empty()) {
         return; // コンポーネントが存在しない場合は何もしない
     }
-    // DeltaTimeを取得
-    const float deltaTime = GetMainDeltaTime();
+    // DeltaTimerを取得
+    const float deltaTime = Engine::GetInstance()->GetDeltaTimer()->GetScaledDeltaTime("Effect");
     for (auto& spriteAnimation : spriteAnimations) {
         // 対応するSpriteRendererコンポーネントを取得
         SpriteRenderer* spriteRenderer = GetComponent<SpriteRenderer>(spriteAnimation.GetSpriteComponentHandle());

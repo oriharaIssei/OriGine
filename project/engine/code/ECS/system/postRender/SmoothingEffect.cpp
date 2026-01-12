@@ -11,19 +11,35 @@
 
 using namespace OriGine;
 
+/// <summary>
+/// コンストラクタ
+/// </summary>
 SmoothingEffect::SmoothingEffect() : BasePostRenderingSystem() {}
+
+/// <summary>
+/// デストラクタ
+/// </summary>
 SmoothingEffect::~SmoothingEffect() {}
 
+/// <summary>
+/// 初期化
+/// </summary>
 void SmoothingEffect::Initialize() {
     BasePostRenderingSystem::Initialize();
 }
 
+/// <summary>
+/// 終了処理
+/// </summary>
 void SmoothingEffect::Finalize() {
     dxCommand_->Finalize();
     dxCommand_.reset();
     pso_ = nullptr;
 }
 
+/// <summary>
+/// PSO作成
+/// </summary>
 void SmoothingEffect::CreatePSO() {
     ShaderManager* shaderManager = ShaderManager::GetInstance();
     shaderManager->LoadShader("FullScreen.VS");
@@ -92,6 +108,9 @@ void SmoothingEffect::CreatePSO() {
     pso_ = shaderManager->CreatePso("SmoothingEffect", shaderInfo, Engine::GetInstance()->GetDxDevice()->device_);
 }
 
+/// <summary>
+/// レンダリング開始処理
+/// </summary>
 void SmoothingEffect::RenderStart() {
     auto& commandList = dxCommand_->GetCommandList();
 
@@ -108,6 +127,9 @@ void SmoothingEffect::RenderStart() {
     commandList->SetDescriptorHeaps(1, ppHeaps);
 }
 
+/// <summary>
+/// レンダリング処理
+/// </summary>
 void SmoothingEffect::Rendering() {
     auto& commandList = dxCommand_->GetCommandList();
 
@@ -130,10 +152,17 @@ void SmoothingEffect::Rendering() {
     activeParams_.clear();
 }
 
+/// <summary>
+/// レンダリング終了処理
+/// </summary>
 void SmoothingEffect::RenderEnd() {
     renderTarget_->PostDraw();
 }
 
+/// <summary>
+/// コンポーネントの割り当て
+/// </summary>
+/// <param name="_handle">エンティティ</param>
 void SmoothingEffect::DispatchComponent(EntityHandle _handle) {
     auto params = GetComponents<SmoothingEffectParam>(_handle);
     if (params.empty()) {
@@ -148,6 +177,10 @@ void SmoothingEffect::DispatchComponent(EntityHandle _handle) {
     }
 }
 
+/// <summary>
+/// ポストレンダリングをスキップするかどうか
+/// </summary>
+/// <returns>描画データがない場合は true</returns>
 bool SmoothingEffect::ShouldSkipPostRender() const {
     return activeParams_.empty();
 }

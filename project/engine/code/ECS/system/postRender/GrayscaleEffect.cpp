@@ -11,19 +11,35 @@
 
 using namespace OriGine;
 
+/// <summary>
+/// コンストラクタ
+/// </summary>
 GrayscaleEffect::GrayscaleEffect() : BasePostRenderingSystem() {}
+
+/// <summary>
+/// デストラクタ
+/// </summary>
 GrayscaleEffect::~GrayscaleEffect() {}
 
+/// <summary>
+/// 初期化
+/// </summary>
 void GrayscaleEffect::Initialize() {
     BasePostRenderingSystem::Initialize();
 }
 
+/// <summary>
+/// 終了処理
+/// </summary>
 void GrayscaleEffect::Finalize() {
     dxCommand_->Finalize();
     dxCommand_.reset();
     pso_ = nullptr;
 }
 
+/// <summary>
+/// PSO作成
+/// </summary>
 void GrayscaleEffect::CreatePSO() {
     ShaderManager* shaderManager = ShaderManager::GetInstance();
     shaderManager->LoadShader("FullScreen.VS");
@@ -84,6 +100,9 @@ void GrayscaleEffect::CreatePSO() {
     pso_ = shaderManager->CreatePso("GrayscaleEffect", shaderInfo, Engine::GetInstance()->GetDxDevice()->device_);
 }
 
+/// <summary>
+/// レンダリング開始処理
+/// </summary>
 void GrayscaleEffect::RenderStart() {
     auto& commandList = dxCommand_->GetCommandList();
 
@@ -102,6 +121,9 @@ void GrayscaleEffect::RenderStart() {
     commandList->SetGraphicsRootDescriptorTable(0, renderTarget_->GetBackBufferSrvHandle());
 }
 
+/// <summary>
+/// レンダリング処理
+/// </summary>
 void GrayscaleEffect::Rendering() {
     auto& commandList = dxCommand_->GetCommandList();
 
@@ -112,6 +134,9 @@ void GrayscaleEffect::Rendering() {
     RenderEnd();
 }
 
+/// <summary>
+/// レンダリング終了処理
+/// </summary>
 void GrayscaleEffect::RenderEnd() {
     renderTarget_->PostDraw();
 }

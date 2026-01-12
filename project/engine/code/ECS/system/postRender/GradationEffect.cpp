@@ -13,15 +13,28 @@
 
 using namespace OriGine;
 
+/// <summary>
+/// コンストラクタ
+/// </summary>
 GradationEffect::GradationEffect() : BasePostRenderingSystem() {}
+
+/// <summary>
+/// デストラクタ
+/// </summary>
 GradationEffect::~GradationEffect() {}
 
+/// <summary>
+/// 初期化
+/// </summary>
 void GradationEffect::Initialize() {
     dxCommand_ = std::make_unique<DxCommand>();
     dxCommand_->Initialize("main", "main");
     CreatePSO();
 }
 
+/// <summary>
+/// 終了処理
+/// </summary>
 void GradationEffect::Finalize() {
     if (dxCommand_) {
         dxCommand_.reset();
@@ -29,6 +42,9 @@ void GradationEffect::Finalize() {
     pso_ = nullptr;
 }
 
+/// <summary>
+/// PSO作成
+/// </summary>
 void GradationEffect::CreatePSO() {
     ShaderManager* shaderManager = ShaderManager::GetInstance();
     shaderManager->LoadShader("FullScreen.VS");
@@ -98,6 +114,9 @@ void GradationEffect::CreatePSO() {
     pso_ = shaderManager->CreatePso("GradationEffect", shaderInfo, Engine::GetInstance()->GetDxDevice()->device_);
 }
 
+/// <summary>
+/// レンダリング開始処理
+/// </summary>
 void GradationEffect::RenderStart() {
     auto& commandList = dxCommand_->GetCommandList();
 
@@ -114,6 +133,9 @@ void GradationEffect::RenderStart() {
     commandList->SetDescriptorHeaps(1, ppHeaps);
 }
 
+/// <summary>
+/// レンダリング処理
+/// </summary>
 void GradationEffect::Rendering() {
     auto& commandList = dxCommand_->GetCommandList();
 
@@ -138,10 +160,17 @@ void GradationEffect::Rendering() {
     activeRenderingData_.clear();
 }
 
+/// <summary>
+/// レンダリング終了処理
+/// </summary>
 void GradationEffect::RenderEnd() {
     renderTarget_->PostDraw();
 }
 
+/// <summary>
+/// コンポーネントの割り当て
+/// </summary>
+/// <param name="_handle">エンティティ</param>
 void GradationEffect::DispatchComponent(EntityHandle _handle) {
     auto& effectParams = GetComponents<GradationComponent>(_handle);
 
@@ -169,6 +198,10 @@ void GradationEffect::DispatchComponent(EntityHandle _handle) {
     }
 }
 
+/// <summary>
+/// ポストレンダリングをスキップするかどうか
+/// </summary>
+/// <returns>描画データがない場合は true</returns>
 bool GradationEffect::ShouldSkipPostRender() const {
     return activeRenderingData_.empty();
 }

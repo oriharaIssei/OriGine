@@ -33,7 +33,14 @@ public:
     TexturedMeshRenderSystemWithoutRaytracing();
     ~TexturedMeshRenderSystemWithoutRaytracing() override;
 
+    /// <summary>
+    /// 初期化
+    /// </summary>
     void Initialize() override;
+
+    /// <summary>
+    /// 終了処理
+    /// </summary>
     void Finalize() override;
 
     /// <summary>
@@ -42,8 +49,9 @@ public:
     void CreatePSO() override;
 
     /// <summary>
-    /// レンダラーをディスパッチする
+    /// レンダラーを登録する
     /// </summary>
+    /// <param name="_entity">対象のエンティティハンドル</param>
     void DispatchRenderer(EntityHandle _entity) override;
 
     /// <summary>
@@ -52,8 +60,10 @@ public:
     void StartRender() override;
 
     /// <summary>
-    /// ブレンドモードごとにレンダリングを行う
+    /// 指定されたブレンドモードでレンダリングを行う
     /// </summary>
+    /// <param name="_blendMode">ブレンドモード</param>
+    /// <param name="_isCulling">カリングを有効にするかどうか</param>
     void RenderingBy(BlendMode _blendMode, bool _isCulling) override;
 
     /// <summary>
@@ -65,11 +75,11 @@ public:
     /// <summary>
     /// メッシュを描画する
     /// </summary>
-    /// <param name="_commandList"></param>
-    /// <param name="_mesh"></param>
-    /// <param name="_transformBuff"></param>
-    /// <param name="_materialBuff"></param>
-    /// <param name="_textureHandle"></param>
+    /// <param name="_commandList">コマンドリスト</param>
+    /// <param name="_mesh">メッシュデータ</param>
+    /// <param name="_transformBuff">トランスフォーム定数バッファ</param>
+    /// <param name="_materialBuff">マテリアル定数バッファ</param>
+    /// <param name="_textureHandle">テクスチャのGPUハンドル</param>
     void RenderingMesh(
         Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList,
         const TextureColorMesh& _mesh,
@@ -80,6 +90,11 @@ public:
     /// <summary>
     /// メッシュを描画する (マテリアルバッファをSimpleConstantBufferで渡す版)
     /// </summary>
+    /// <param name="_commandList">コマンドリスト</param>
+    /// <param name="_mesh">メッシュデータ</param>
+    /// <param name="_transformBuff">トランスフォーム定数バッファ</param>
+    /// <param name="_materialBuff">マテリアル定数バッファ</param>
+    /// <param name="_textureHandle">テクスチャのGPUハンドル</param>
     void RenderingMesh(
         Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList,
         const TextureColorMesh& _mesh,
@@ -90,40 +105,57 @@ public:
     /// <summary>
     /// ModelMeshRendererを描画する
     /// </summary>
+    /// <param name="_commandList">コマンドリスト</param>
+    /// <param name="_renderer">モデルメッシュレンダラー</param>
     void RenderModelMesh(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList, ModelMeshRenderer* _renderer);
 
     /// <summary>
     /// PrimitiveMeshRendererを描画する
     /// </summary>
+    /// <param name="_commandList">コマンドリスト</param>
+    /// <param name="_renderer">プリミティブメッシュレンダラー</param>
     void RenderPrimitiveMesh(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList, PrimitiveMeshRendererBase* _renderer);
 
 protected:
+    /// <summary>
+    /// ライトの情報を更新してバインドする
+    /// </summary>
     void LightUpdate();
 
 protected:
-    bool currentCulling_        = true;
-    BlendMode currentBlendMode_ = BlendMode::Alpha;
-    // value : { non Culling配列 , Culling配列}
+    bool currentCulling_        = true; // 現在のカリング設定
+    BlendMode currentBlendMode_ = BlendMode::Alpha; // 現在のブレンドモード
+
+    // アクティブなモデルメッシュレンダラーのリスト [カリングON/OFF][ブレンドモード]
     std::array<std::array<std::vector<ModelMeshRenderer*>, kBlendNum>, 2> activeModelMeshRenderer_{};
+    // アクティブなプリミティブメッシュレンダラーのリスト [カリングON/OFF][ブレンドモード]
     std::array<std::array<std::vector<PrimitiveMeshRendererBase*>, kBlendNum>, 2> activePrimitiveMeshRenderer_{};
 
-    // value : { non Culling , Culling }
+    // PSOリスト [カリングON/OFF][ブレンドモード]
     std::array<std::array<PipelineStateObj*, kBlendNum>, 2> psoByBlendMode_{};
 
-    int32_t transformBufferIndex_          = 0;
-    int32_t cameraBufferIndex_             = 0;
-    int32_t materialBufferIndex_           = 0;
-    int32_t directionalLightBufferIndex_   = 0;
-    int32_t pointLightBufferIndex_         = 0;
-    int32_t spotLightBufferIndex_          = 0;
-    int32_t lightCountBufferIndex_         = 0;
-    int32_t textureBufferIndex_            = 0;
-    int32_t environmentTextureBufferIndex_ = 0;
+    int32_t transformBufferIndex_          = 0; // トランスフォームバッファのインデックス
+    int32_t cameraBufferIndex_             = 0; // カメラバッファのインデックス
+    int32_t materialBufferIndex_           = 0; // マテリアルバッファのインデックス
+    int32_t directionalLightBufferIndex_   = 0; // 平行光源バッファのインデックス
+    int32_t pointLightBufferIndex_         = 0; // 点光源バッファのインデックス
+    int32_t spotLightBufferIndex_          = 0; // スポットライトバッファのインデックス
+    int32_t lightCountBufferIndex_         = 0; // ライト数バッファのインデックス
+    int32_t textureBufferIndex_            = 0; // テクスチャバッファのインデックス
+    int32_t environmentTextureBufferIndex_ = 0; // 環境マップテクスチャのインデックス
 
 public:
+    /// <summary>
+    /// ブレンドモードを設定する
+    /// </summary>
+    /// <param name="_blendMode">ブレンドモード</param>
     void SetBlendMode(BlendMode _blendMode) {
         currentBlendMode_ = _blendMode;
     }
+    /// <summary>
+    /// カリングの有効・無効を設定する
+    /// </summary>
+    /// <param name="_isCulling">カリングを有効にするかどうか</param>
     void SetCulling(bool _isCulling) {
         currentCulling_ = _isCulling;
     }
