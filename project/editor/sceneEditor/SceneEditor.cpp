@@ -283,6 +283,13 @@ void SceneViewArea::Initialize() {
     // DebugCameraの初期化
     debugCamera_ = std::make_unique<OriGine::DebugCamera>();
     debugCamera_->Initialize();
+
+    // Gizmo操作モードの初期化
+    currentGizmoOperation_ = ImGuizmo::TRANSLATE | ImGuizmo::ROTATE | ImGuizmo::SCALE;
+
+    // ObjectPickerの初期化
+    objectPicker_ = std::make_unique<ObjectPicker>();
+    objectPicker_->Initialize();
 }
 
 void SceneViewArea::DrawGui() {
@@ -295,7 +302,7 @@ void SceneViewArea::DrawGui() {
         return;
     }
 
-    auto renderTexture = parentWindow_->GetCurrentScene()->GetSceneView();
+    const auto& renderTexture = parentWindow_->GetCurrentScene()->GetSceneView();
 
     if (ImGui::Begin(name_.c_str(), &isOpen)) {
 
@@ -309,20 +316,47 @@ void SceneViewArea::DrawGui() {
             debugCamera_->Update();
         }
 
-        if (isFocused_.Current()) {
-            debugCamera_->Update();
-        }
-
         DrawScene();
 
         ImGui::Image(reinterpret_cast<ImTextureID>(renderTexture->GetBackBufferSrvHandle().ptr), areaSize_.toImVec2());
 
+        // マウス座標の変換処理
         ImVec2 imageLeftTop  = ImGui::GetItemRectMin();
         ImVec2 imageRightBot = ImGui::GetItemRectMax();
         Vec2f imageSize      = {imageRightBot.x - imageLeftTop.x,
                  imageRightBot.y - imageLeftTop.y};
 
-        UseImGuizmo(imageLeftTop, imageSize);
+        MouseInput* mouseInput = InputManager::GetInstance()->GetMouse();
+        Vec2f mousePos         = mouseInput->GetPosition();
+        Vec2f gamePos          = ConvertMouseToSceneView(mousePos, imageLeftTop, areaSize_.toImVec2(), imageSize);
+        mouseInput->SetVirtualPosition(gamePos);
+
+        if (isFocused_.Current()) {
+            switch (DetermineInteractionType()) {
+            case ToolInteractionType::Gizmo: {
+                UseImGuizmo(imageLeftTop);
+            } break;
+            case ToolInteractionType::Camera:
+                debugCamera_->Update();
+                break;
+            case ToolInteractionType::ObjectPicker: {
+                objectPicker_->Activate(parentWindow_->GetCurrentScene());
+                EntityHandle handle = objectPicker_->PickedObject(debugCamera_->GetCameraTransform(), gamePos, renderTexture->GetTextureSize());
+                if (handle.IsValid()) {
+                    auto* entityInspectorArea = dynamic_cast<EntityInspectorArea*>(parentWindow_->GetArea("EntityInspectorArea").get());
+                    if (entityInspectorArea) {
+                        EntityHandle currentHandle = entityInspectorArea->GetEditEntityHandle();
+                        if (currentHandle != handle) {
+                            auto command = std::make_unique<EntityInspectorArea::ChangeEditEntityCommand>(entityInspectorArea, handle, currentHandle);
+                            EditorController::GetInstance()->PushCommand(std::move(command));
+                        }
+                    }
+                }
+            } break;
+            default:
+                break;
+            }
+        }
 
         for (auto& [name, region] : regions_) {
             if (!region) {
@@ -340,6 +374,7 @@ void SceneViewArea::DrawGui() {
 
     ImGui::End();
 }
+
 void SceneViewArea::DrawScene() {
     Scene* currentScene = parentWindow_->GetCurrentScene();
     if (!currentScene) {
@@ -360,165 +395,190 @@ void SceneViewArea::DrawScene() {
     cameraManager->SetTransform(currentScene, prevTransform);
 }
 
-void SceneViewArea::UseImGuizmo(const ImVec2& _sceneViewPos, const Vec2f& _originalResolution) {
-    // マウス座標を取得
-    Vec2f mousePos = InputManager::GetInstance()->GetMouse()->GetPosition();
+SceneViewArea::ToolInteractionType SceneViewArea::DetermineInteractionType() {
+    InputManager* input     = InputManager::GetInstance();
+    KeyboardInput* keyboard = input->GetKeyboard();
+    MouseInput* mouse       = input->GetMouse();
 
-    // マウス座標をゲーム内の座標に変換
-    MouseInput* mouseInput = InputManager::GetInstance()->GetMouse();
-    Vec2f gamePos          = ConvertMouseToSceneView(mousePos, _sceneViewPos, areaSize_.toImVec2(), _originalResolution);
-    mouseInput->SetVirtualPosition(gamePos);
+    // Gizmo操作中は他の入力を無効化
+    if (ImGuizmo::IsUsing()) {
+        return ToolInteractionType::Gizmo;
+    }
+    // Altキーが押されている場合はカメラ操作
+    if (keyboard->IsPress(Key::LALT)) {
+        return ToolInteractionType::Camera;
+    }
+    // オブジェクトピッカーの入力処理
+    if (mouse->IsTrigger(MouseButton::LEFT)) {
+        return ToolInteractionType::ObjectPicker;
+    }
 
-    // ImGuizmo のフレーム開始
+    return ToolInteractionType::None;
+}
+
+void SceneViewArea::SetupGizmoSettings(const ImVec2& _sceneViewPos) {
+    // ImGuizmo 基本設定
     ImGuizmo::BeginFrame();
-
-    // ImGuizmo の設定
-    ImGuizmo::SetOrthographic(false); // 透視投影かどうか
+    ImGuizmo::SetOrthographic(false);
     ImGuizmo::SetDrawlist();
-
-    // ImGuizmo のウィンドウサイズ・位置を設定
     ImGuizmo::SetRect(_sceneViewPos.x, _sceneViewPos.y, areaSize_[X], areaSize_[Y]);
+}
 
-    Vec2f virtualMousePos = mouseInput->GetVirtualPosition();
-
-    auto* currentScene       = parentWindow_->GetCurrentScene();
+Transform* SceneViewArea::GetTargetTransform() {
     auto entityInspectorArea = dynamic_cast<EntityInspectorArea*>(parentWindow_->GetArea("EntityInspectorArea").get());
     if (!entityInspectorArea) {
-        LOG_ERROR("EntityInspectorArea not found in SceneEditorWindow.");
-        return;
+        LOG_ERROR("EntityInspectorArea not found.");
+        return nullptr;
     }
 
+    auto* currentScene            = parentWindow_->GetCurrentScene();
     EntityHandle editEntityHandle = entityInspectorArea->GetEditEntityHandle();
-    Entity* editEntity            = currentScene->GetEntity(editEntityHandle);
-    if (!editEntity) {
-        return;
+
+    // エンティティ存在確認
+    if (!currentScene->GetEntity(editEntityHandle)) {
+        return nullptr;
     }
 
+    // Transformコンポーネント確認
     auto transformArray = currentScene->GetComponentArray<Transform>();
-
-    // Transformを持っていないエンティティは Skip
     if (!transformArray->HasEntity(editEntityHandle)) {
+        return nullptr;
+    }
+
+    return currentScene->GetComponent<Transform>(editEntityHandle);
+}
+void SceneViewArea::DetermineGizmoOperation() {
+    InputManager* input     = InputManager::GetInstance();
+    KeyboardInput* keyboard = input->GetKeyboard();
+
+    // Shiftキーが押されていない場合はデフォルトに戻して終了
+    if (!keyboard->IsPress(Key::L_SHIFT)) {
+        currentGizmoOperation_ = ImGuizmo::TRANSLATE | ImGuizmo::SCALE | ImGuizmo::ROTATE;
         return;
     }
 
-    Transform* transform = currentScene->GetComponent<Transform>(editEntityHandle);
-    if (!transform) {
-        return;
+    // ショートカット判定 (S:Scale, R:Rotate, T:Translate)
+    if (keyboard->IsPress(Key::S)) {
+        if (keyboard->IsPress(Key::X))
+            currentGizmoOperation_ = ImGuizmo::SCALE_X;
+        else if (keyboard->IsPress(Key::Y))
+            currentGizmoOperation_ = ImGuizmo::SCALE_Y;
+        else if (keyboard->IsPress(Key::Z))
+            currentGizmoOperation_ = ImGuizmo::SCALE_Z;
+        else
+            currentGizmoOperation_ = ImGuizmo::SCALE;
+    } else if (keyboard->IsPress(Key::R)) {
+        if (keyboard->IsPress(Key::X))
+            currentGizmoOperation_ = ImGuizmo::ROTATE_X;
+        else if (keyboard->IsPress(Key::Y))
+            currentGizmoOperation_ = ImGuizmo::ROTATE_Y;
+        else if (keyboard->IsPress(Key::Z))
+            currentGizmoOperation_ = ImGuizmo::ROTATE_Z;
+        else
+            currentGizmoOperation_ = ImGuizmo::ROTATE;
+    } else if (keyboard->IsPress(Key::T)) {
+        if (keyboard->IsPress(Key::X))
+            currentGizmoOperation_ = ImGuizmo::TRANSLATE_X;
+        else if (keyboard->IsPress(Key::Y))
+            currentGizmoOperation_ = ImGuizmo::TRANSLATE_Y;
+        else if (keyboard->IsPress(Key::Z))
+            currentGizmoOperation_ = ImGuizmo::TRANSLATE_Z;
+        else
+            currentGizmoOperation_ = ImGuizmo::TRANSLATE;
     }
-    /// ==========================================
-    // Guizmo Edit
-
-    // 行列の用意
-    float matrix[16];
-    transform->worldMat.toFloatArray(matrix); // Transform の worldMat を float[16] に変換
-    // ビュー行列とプロジェクション行列の取得
+}
+bool SceneViewArea::ApplyGizmoManipulation(OriGine::Transform* transform, const OriGine::CameraTransform& cameraTrans) {
+    // 行列の準備
+    float worldMatrix[16];
     float viewMatrix[16];
-    float projectionMatrix[16];
-    debugCamera_->GetCameraTransform().viewMat.toFloatArray(viewMatrix); // カメラのビュー行列を取得
-    debugCamera_->GetCameraTransform().projectionMat.toFloatArray(projectionMatrix); // カメラのプロジェクション行列を取得
+    float projMatrix[16];
 
-    // ギズモの操作タイプ
-    static ImGuizmo::OPERATION currentGizmoOperation = ImGuizmo::TRANSLATE | ImGuizmo::SCALE | ImGuizmo::ROTATE;
+    transform->worldMat.toFloatArray(worldMatrix);
+    cameraTrans.viewMat.toFloatArray(viewMatrix);
+    cameraTrans.projectionMat.toFloatArray(projMatrix);
 
-    [](ImGuizmo::OPERATION& _currentGizmoOperation) {
-        InputManager* input     = InputManager::GetInstance();
-        KeyboardInput* keyboard = input->GetKeyboard();
-        if (keyboard->IsPress(Key::L_SHIFT)) {
-            if (keyboard->IsPress(Key::S)) {
-                if (keyboard->IsPress(Key::X)) {
-                    _currentGizmoOperation = ImGuizmo::SCALE_X;
-                } else if (keyboard->IsPress(Key::Y)) {
-                    _currentGizmoOperation = ImGuizmo::SCALE_Y;
-                } else if (keyboard->IsPress(Key::Z)) {
-                    _currentGizmoOperation = ImGuizmo::SCALE_Z;
-                } else {
-                    _currentGizmoOperation = ImGuizmo::SCALE; // Shift + S でスケール
-                }
-            } else if (keyboard->IsPress(Key::R)) {
-                if (keyboard->IsPress(Key::X)) {
-                    _currentGizmoOperation = ImGuizmo::ROTATE_X;
-                } else if (keyboard->IsPress(Key::Y)) {
-                    _currentGizmoOperation = ImGuizmo::ROTATE_Y;
-                } else if (keyboard->IsPress(Key::Z)) {
-                    _currentGizmoOperation = ImGuizmo::ROTATE_Z;
-                } else {
-                    _currentGizmoOperation = ImGuizmo::ROTATE; // Shift + R で回転
-                }
-            } else if (keyboard->IsPress(Key::T)) {
-                if (keyboard->IsPress(Key::X)) {
-                    _currentGizmoOperation = ImGuizmo::TRANSLATE_X;
-                } else if (keyboard->IsPress(Key::Y)) {
-                    _currentGizmoOperation = ImGuizmo::TRANSLATE_Y;
-                } else if (keyboard->IsPress(Key::Z)) {
-                    _currentGizmoOperation = ImGuizmo::TRANSLATE_Z;
-                } else {
-                    _currentGizmoOperation = ImGuizmo::TRANSLATE; // Shift + T で移動
-                }
-            }
-
-        } else {
-            _currentGizmoOperation = ImGuizmo::TRANSLATE | ImGuizmo::SCALE | ImGuizmo::ROTATE;
-        }
-    }(currentGizmoOperation);
-
-    if (ImGuizmo::Manipulate(
-            viewMatrix,
-            projectionMatrix,
-            currentGizmoOperation,
-            ImGuizmo::LOCAL,
-            matrix)) {
-
-        transform->worldMat.fromFloatArray(matrix);
-
+    // Gizmo操作の実行
+    if (ImGuizmo::Manipulate(viewMatrix, projMatrix, currentGizmoOperation_, ImGuizmo::LOCAL, worldMatrix)) {
+        // 操作された場合、Transformへ反映
+        transform->worldMat.fromFloatArray(worldMatrix);
         transform->worldMat.decomposeMatrixToComponents(transform->scale, transform->rotate, transform->translate);
+        return true;
     }
+    return false;
+}
 
-    /// ==========================================
-    // Editor Command
+void SceneViewArea::ManageGizmoCommands(Entity* editEntity, Transform* transform, bool isUsingGuizmo) {
     static bool wasUsingGuizmo = false;
-    bool isUsingGuizmo         = ImGuizmo::IsUsing();
     static GuiValuePool<Vec3f> vec3fPool;
     static GuiValuePool<Quaternion> quatPool;
 
-    // Guizmo Trigger
     if (isUsingGuizmo) {
-        // ImGuizmoが使用中ならば、他の操作は無効化
         ImGui::SetMouseCursor(ImGuiMouseCursor_Arrow);
+
+        // 操作開始時の値を保存
         if (!wasUsingGuizmo) {
             vec3fPool.SetValue(editEntity->GetUniqueID() + "Scale", transform->scale);
             quatPool.SetValue(editEntity->GetUniqueID() + "Rotation", transform->rotate);
             vec3fPool.SetValue(editEntity->GetUniqueID() + "Translate", transform->translate);
         }
     } else {
-        // ImGuizmoが使用されていない場合は、通常のマウスカーソルに戻す
         ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
 
+        // 操作終了時（マウスを離した瞬間）にコマンド生成
         if (wasUsingGuizmo) {
             auto commandCombo = std::make_unique<CommandCombo>();
 
-            /// S,R,T を コマンドで更新するように
-            commandCombo->AddCommand(std::make_unique<SetterCommand<Vec3f>>(&transform->scale, transform->scale, vec3fPool.popValue(editEntity->GetUniqueID() + "Scale")));
-            commandCombo->AddCommand(std::make_unique<SetterCommand<Quaternion>>(&transform->rotate, transform->rotate, quatPool.popValue(editEntity->GetUniqueID() + "Rotation")));
-            commandCombo->AddCommand(std::make_unique<SetterCommand<Vec3f>>(&transform->translate, transform->translate, vec3fPool.popValue(editEntity->GetUniqueID() + "Translate")));
+            commandCombo->AddCommand(std::make_unique<SetterCommand<Vec3f>>(
+                &transform->scale, transform->scale, vec3fPool.popValue(editEntity->GetUniqueID() + "Scale")));
+
+            commandCombo->AddCommand(std::make_unique<SetterCommand<Quaternion>>(
+                &transform->rotate, transform->rotate, quatPool.popValue(editEntity->GetUniqueID() + "Rotation")));
+
+            commandCombo->AddCommand(std::make_unique<SetterCommand<Vec3f>>(
+                &transform->translate, transform->translate, vec3fPool.popValue(editEntity->GetUniqueID() + "Translate")));
 
             commandCombo->SetFuncOnAfterCommand(
                 [transform]() {
-                    if (!transform) {
-                        return;
-                    }
-                    transform->UpdateMatrix();
+                    if (transform)
+                        transform->UpdateMatrix();
                 },
                 true);
 
-            // push
             OriGine::EditorController::GetInstance()->PushCommand(std::move(commandCombo));
         }
     }
 
     wasUsingGuizmo = isUsingGuizmo;
 }
+void SceneViewArea::UseImGuizmo(const ImVec2& _sceneViewPos) {
+    // 1. マウス座標処理とImGuizmoのセットアップ
+    SetupGizmoSettings(_sceneViewPos);
+
+    // 2. 操作対象のTransformを取得 (なければ終了)
+    Transform* transform = GetTargetTransform();
+    if (!transform) {
+        return;
+    }
+
+    // 3. キー入力で操作タイプ(移動/回転/拡大)を更新
+    DetermineGizmoOperation();
+
+    // 4. カメラ情報の取得
+    const auto& cameraTrans = debugCamera_->GetCameraTransform();
+
+    // 5. ギズモの描画と操作の反映
+    //    (操作中であれば true が返るように実装変更も可能だが、ここではImGuizmo::IsUsingを使用)
+    ApplyGizmoManipulation(transform, cameraTrans);
+
+    // 6. 操作確定時のコマンド生成 (Undo/Redo)
+    EntityHandle editEntityHandle = dynamic_cast<EntityInspectorArea*>(parentWindow_->GetArea("EntityInspectorArea").get())->GetEditEntityHandle();
+    Entity* editEntity            = parentWindow_->GetCurrentScene()->GetEntity(editEntityHandle);
+
+    ManageGizmoCommands(editEntity, transform, ImGuizmo::IsUsing());
+}
 
 void SceneViewArea::Finalize() {
+    objectPicker_->Finalize();
     if (debugCamera_) {
         debugCamera_.reset();
     }

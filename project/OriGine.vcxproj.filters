@@ -804,6 +804,8 @@
     <ClInclude Include="engine\code\directX12\buffer\AppendBuffer.h" />
     <ClInclude Include="engine\code\directX12\buffer\ConceptHasBuffer.h" />
     <ClInclude Include="util\deltaTime\DeltaTimer.h" />
+    <ClInclude Include="editor\tool\ObjectPicker.h" />
+    <ClInclude Include="engine\code\directX12\buffer\RwStructuredBuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="editor\EditorController.cpp">
@@ -1319,5 +1321,6 @@
     <ClCompile Include="engine\code\ECS\system\render\TexturedMeshRenderSystemWithoutRaytracing.cpp" />
     <ClCompile Include="engine\code\ECS\system\render\LightDebugRenderingSystem.cpp" />
     <ClCompile Include="util\deltaTime\DeltaTimer.cpp" />
+    <ClCompile Include="editor\tool\ObjectPicker.cpp" />
   </ItemGroup>
 </Project>

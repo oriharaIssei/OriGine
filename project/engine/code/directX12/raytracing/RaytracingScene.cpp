@@ -1,5 +1,13 @@
 #include "RaytracingScene.h"
 
+/// engine
+#include "scene/Scene.h"
+
+/// ECS
+// component
+#include "component/animation/SkinningAnimationComponent.h"
+#include "component/renderer/MeshRenderer.h"
+
 using namespace OriGine;
 
 void RaytracingScene::Initialize() {
@@ -14,6 +22,7 @@ void RaytracingScene::Finalize() {
         for (auto& [meshHandle, blas] : blasMap_) {
             blas.Finalize();
         }
+        blasMap_.clear();
     }
     tlas_.Finalize();
 }
@@ -58,4 +67,25 @@ void RaytracingScene::UpdateTlas(ID3D12Device8* _device, ID3D12GraphicsCommandLi
 
 bool OriGine::RaytracingScene::IsEmpty() const {
     return !tlasIsCreated_ || blasMap_.empty();
+}
+
+bool OriGine::MeshIsDynamic(Scene* _scene, EntityHandle _entityHandle, RaytracingMeshType _type, bool _isModelMesh) {
+    if (_type == RaytracingMeshType::Dynamic) {
+        return true;
+    }
+    if (_type == RaytracingMeshType::Static) {
+        return false;
+    }
+    // Auto 判定
+    if (_isModelMesh) {
+        auto* modelComp = _scene->GetComponent<ModelMeshRenderer>(_entityHandle);
+        if (modelComp) {
+            auto* skinningComp = _scene->GetComponent<SkinningAnimationComponent>(_entityHandle);
+            if (skinningComp) {
+                return true;
+            }
+        }
+    }
+
+    return false;
 }

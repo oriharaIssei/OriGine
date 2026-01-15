@@ -4,6 +4,10 @@
 #include <memory>
 #include <string>
 
+/// engine
+// directX12
+#include "directX12/raytracing/RaytracingScene.h"
+
 /// ECS
 // entity
 #include "entity/EntityRepository.h"
@@ -72,9 +76,26 @@ public:
     void InitializeSceneView();
 
     /// <summary>
+    /// レイトレーシングシーンを初期化する.
+    /// </summary>
+    void InitializeRaytracingScene();
+
+    /// <summary>
     /// 前フレームまでに削除予約されたエンティティを物理的に削除する.
     /// </summary>
     void ExecuteDeleteEntities();
+
+    /// <summary>
+    /// レイトレーシングシーンの更新を行う.
+    /// 1フレーム中に一度だけ呼ばれる.
+    /// </summary>
+    void UpdateRaytracingScene();
+
+protected:
+    /// <summary>
+    /// レイトレーシングで使用するメッシュを登録する.
+    /// </summary>
+    void DispatchMeshForRaytracing();
 
 protected:
     /// <summary>このシーンを管理しているシーンマネージャーへのポインタ</summary>
@@ -85,12 +106,20 @@ protected:
     /// <summary>シーン固有の描画バッファ</summary>
     ::std::unique_ptr<RenderTexture> sceneView_ = nullptr;
 
+    std::unique_ptr<DxCommand> dxCommand_ = nullptr;
+
     /// <summary>エンティティのストレージ</summary>
     ::std::unique_ptr<EntityRepository> entityRepository_ = nullptr;
     /// <summary>コンポーネントのストレージ</summary>
     ::std::unique_ptr<ComponentRepository> componentRepository_ = nullptr;
     /// <summary>システムの実行管理</summary>
     ::std::unique_ptr<SystemRunner> systemRunner_ = nullptr;
+
+    /// <summary>レイトレーシング用シーン情報の管理オブジェクト</summary>
+    std::unique_ptr<RaytracingScene> raytracingScene_ = nullptr;
+
+    std::vector<RaytracingMeshEntry> meshForRaytracing_{}; // レイトレーシング用メッシュのエントリ
+    std::vector<RayTracingInstance> rayTracingInstances_{}; // レイトレーシングインスタンス
 
     // --- Input Devices (Engine から供給される) ---
     KeyboardInput* keyInput_ = nullptr;
@@ -108,6 +137,9 @@ public:
     bool IsActive() const { return isActive_; }
     /// <summary>シーンのアクティブ状態を設定する.</summary>
     void SetActive(bool _isActive) { isActive_ = _isActive; }
+
+    const RaytracingScene* GetRaytracingScene() const { return raytracingScene_.get(); }
+    RaytracingScene* GetRaytracingSceneRef() { return raytracingScene_.get(); }
 
     /// <summary>シーンマネージャーを取得する.</summary>
     SceneManager* GetSceneManager() const { return sceneManager_; }
@@ -195,6 +227,9 @@ public:
     template <IsComponent ComponentType>
     ComponentType* GetComponent(EntityHandle _handle, uint32_t index = 0) const;
 
+    template <IsComponent ComponentType>
+    ComponentType* GetComponent(ComponentHandle _handle) const;
+
     /// <summary>
     /// 指定したエンティティが持つ、特定の型のコンポーネントリストをすべて取得する.
     /// </summary>
@@ -270,5 +305,13 @@ inline ComponentType* Scene::GetComponent(EntityHandle _handle, uint32_t index) 
         return nullptr;
     }
     return componentRepository_->GetComponent<ComponentType>(_handle, index);
+}
+template <IsComponent ComponentType>
+inline ComponentType* Scene::GetComponent(ComponentHandle _handle) const {
+    if (!_handle.IsValid()) {
+        LOG_ERROR("Entity is null. EntityName :{}", nameof<ComponentType>());
+        return nullptr;
+    }
+    return componentRepository_->GetComponent<ComponentType>(_handle);
 }
 } // namespace OriGine

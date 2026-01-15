@@ -15,12 +15,21 @@
 // directX12
 #include "directX12/RenderTexture.h"
 
-/// Ecs
+/// ECS
 #include "entity/Entity.h"
 // component
+#include "component/animation/SkinningAnimationComponent.h"
 #include "component/ComponentRepository.h"
-#include "system/ISystem.h"
+
+#include "component/renderer/MeshRenderer.h"
+#include "component/renderer/primitive/BoxRenderer.h"
+#include "component/renderer/primitive/CylinderRenderer.h"
+#include "component/renderer/primitive/PlaneRenderer.h"
+#include "component/renderer/primitive/RingRenderer.h"
+#include "component/renderer/primitive/SphereRenderer.h"
+
 // system
+#include "system/ISystem.h"
 #include "system/SystemRunner.h"
 
 namespace OriGine {
@@ -36,6 +45,8 @@ void Scene::Initialize() {
     InitializeSceneView();
 
     InitializeECS();
+
+    InitializeRaytracingScene();
 
     /// scene の情報をJsonから変換する(Entity,Component,System)
     SceneFactory factory = SceneFactory();
@@ -58,6 +69,24 @@ void Scene::InitializeSceneView() {
     sceneView_->SetTextureName(name_ + "_SceneView");
 }
 
+void Scene::InitializeRaytracingScene() {
+    dxCommand_ = std::make_unique<DxCommand>();
+    dxCommand_->Initialize("main", "main");
+
+    if (!raytracingScene_) {
+        raytracingScene_ = std::make_unique<RaytracingScene>();
+    }
+
+    raytracingScene_->Initialize();
+
+    if (!meshForRaytracing_.empty()) {
+        meshForRaytracing_.clear();
+    }
+    if (!rayTracingInstances_.empty()) {
+        rayTracingInstances_.clear();
+    }
+}
+
 void Scene::Update() {
     // 削除予定のエンティティを削除
     ExecuteDeleteEntities();
@@ -75,6 +104,8 @@ void Scene::Update() {
 void Scene::Render() {
     // worldの描画
     sceneView_->PreDraw();
+    DispatchMeshForRaytracing();
+    UpdateRaytracingScene();
     systemRunner_->UpdateCategory<SystemCategory::Render>();
     sceneView_->PostDraw();
 
@@ -94,6 +125,11 @@ void Scene::Finalize() {
     systemRunner_.reset();
     componentRepository_.reset();
     entityRepository_.reset();
+
+    if (raytracingScene_) {
+        raytracingScene_->Finalize();
+        raytracingScene_.reset();
+    }
 
     if (sceneView_) {
         sceneView_->Finalize();
@@ -121,6 +157,123 @@ void Scene::ExecuteDeleteEntities() {
     deleteEntities_.clear();
 }
 
+void Scene::DispatchMeshForRaytracing() {
+    const auto& modelRendererComponentArray = componentRepository_->GetComponentArray<ModelMeshRenderer>();
+    if (modelRendererComponentArray) {
+        for (auto& slot : modelRendererComponentArray->GetSlots()) {
+            if (!slot.alive) {
+                continue;
+            }
+            for (size_t compIdx = 0; compIdx < slot.components.size(); ++compIdx) {
+                auto& meshRenderer = slot.components[compIdx];
+                if (!meshRenderer.IsRender()) {
+                    continue;
+                }
+
+                auto& meshGroup = meshRenderer.GetMeshGroup();
+                for (int32_t meshIdx = 0; meshIdx < meshGroup->size(); ++meshIdx) {
+                    RaytracingMeshEntry entry{};
+                    entry.mesh = &(*meshGroup)[meshIdx];
+                    if (!entry.mesh || !entry.mesh->GetVertexBuffer().IsValid()) {
+                        continue;
+                    }
+
+                    auto* material = componentRepository_->GetComponent<Material>(meshRenderer.GetMaterialHandle(meshIdx));
+                    if (!material || !material->enableLighting_) {
+                        continue;
+                    }
+
+                    entry.meshHandle = meshRenderer.GetMeshHandle(meshIdx);
+                    entry.worldMat   = meshRenderer.GetTransform(meshIdx).worldMat;
+                    entry.isDynamic  = MeshIsDynamic(this, slot.owner, meshRenderer.GetMeshRaytracingType(meshIdx), true);
+                    meshForRaytracing_.push_back(entry);
+                }
+            }
+        }
+    }
+
+    auto dispatchPrimitiveRenderers = [this](const auto& primitiveRendererComponentArray) {
+        if (!primitiveRendererComponentArray) {
+            return;
+        }
+        for (auto& slot : primitiveRendererComponentArray->GetSlots()) {
+            if (!slot.alive) {
+                continue;
+            }
+            for (size_t compIdx = 0; compIdx < slot.components.size(); ++compIdx) {
+                auto& meshRenderer = slot.components[compIdx];
+                if (!meshRenderer.IsRender()) {
+                    continue;
+                }
+                auto& meshGroup = meshRenderer.GetMeshGroup();
+                for (int32_t meshIdx = 0; meshIdx < meshGroup->size(); ++meshIdx) {
+                    RaytracingMeshEntry entry{};
+                    entry.mesh = &(*meshGroup)[meshIdx];
+                    if (!entry.mesh || !entry.mesh->GetVertexBuffer().IsValid()) {
+                        continue;
+                    }
+
+                    Material* material = GetComponent<Material>(slot.owner, meshRenderer.GetMaterialIndex());
+                    if (!material || !material->enableLighting_) {
+                        continue;
+                    }
+
+                    entry.meshHandle = meshRenderer.GetMeshHandle(meshIdx);
+                    entry.worldMat   = meshRenderer.GetTransformBuff()->worldMat;
+                    entry.isDynamic  = MeshIsDynamic(this, slot.owner, meshRenderer.GetMeshRaytracingType(meshIdx));
+                    meshForRaytracing_.push_back(entry);
+                }
+            }
+        }
+    };
+
+    dispatchPrimitiveRenderers(componentRepository_->GetComponentArray<BoxRenderer>());
+    dispatchPrimitiveRenderers(componentRepository_->GetComponentArray<CylinderRenderer>());
+    dispatchPrimitiveRenderers(componentRepository_->GetComponentArray<PlaneRenderer>());
+    dispatchPrimitiveRenderers(componentRepository_->GetComponentArray<RingRenderer>());
+    dispatchPrimitiveRenderers(componentRepository_->GetComponentArray<SphereRenderer>());
+}
+
+void Scene::UpdateRaytracingScene() {
+    if (!raytracingScene_) {
+        return;
+    }
+    DispatchMeshForRaytracing();
+
+    auto& device = Engine::GetInstance()->GetDxDevice()->device_;
+
+    raytracingScene_->UpdateBlases(
+        device.Get(),
+        dxCommand_->GetCommandList().Get(),
+        meshForRaytracing_);
+
+    rayTracingInstances_.clear();
+
+    for (auto& entry : meshForRaytracing_) {
+        RayTracingInstance instance{};
+        instance.matrix      = entry.worldMat;
+        instance.instanceID  = 0; // インラインレイトレにはいらない
+        instance.mask        = 0xFF; // TODO : on/off
+        instance.hitGroupIdx = 0;
+        instance.flags       = 0;
+        auto* blas           = raytracingScene_->GetBlas(entry.meshHandle);
+
+        if (!blas) {
+            continue;
+        }
+
+        instance.blas = blas->GetResultResource().GetResource().Get();
+
+        rayTracingInstances_.push_back(instance);
+    }
+    raytracingScene_->UpdateTlas(
+        device.Get(),
+        dxCommand_->GetCommandList().Get(),
+        rayTracingInstances_);
+
+    meshForRaytracing_.clear();
+}
+
 void Scene::AddDeleteEntity(EntityHandle _handle) {
     if (!_handle.IsValid()) {
         LOG_ERROR("Invalid entity ID: {}", uuids::to_string(_handle.uuid));
@@ -146,7 +299,7 @@ EntityHandle Scene::GetUniqueEntity(const ::std::string& _dataType) const {
     if (!_dataType.empty()) {
         return entityRepository_->GetUniqueEntity(_dataType);
     }
-    LOG_ERROR("Scene::GetUniqueEntity: Data type is empty.");
+    LOG_ERROR("Data type is empty.");
     return EntityHandle();
 }
 
@@ -154,7 +307,7 @@ EntityHandle Scene::CreateEntity(const ::std::string& _dataType, bool _isUnique)
     if (!_dataType.empty()) {
         return entityRepository_->CreateEntity(_dataType, _isUnique);
     }
-    LOG_ERROR("Scene::CreateEntity: Data type is empty.");
+    LOG_ERROR("Data type is empty.");
     return EntityHandle();
 }
 
@@ -176,7 +329,7 @@ bool Scene::UnregisterUniqueEntity(Entity* _entity) {
 
 bool Scene::AddComponent(const ::std::string& _compTypeName, EntityHandle _handle) {
     if (!_handle.IsValid()) {
-        LOG_ERROR("Scene::AddComponent: Entity with ID '{}' not found.", uuids::to_string(_handle.uuid));
+        LOG_ERROR("Entity with ID '{}' not found.", uuids::to_string(_handle.uuid));
         return false;
     }
     componentRepository_->AddComponent(this, _compTypeName, _handle);
@@ -185,7 +338,7 @@ bool Scene::AddComponent(const ::std::string& _compTypeName, EntityHandle _handl
 
 bool Scene::RemoveComponent(const ::std::string& _compTypeName, EntityHandle _handle, int32_t _componentIndex) {
     if (!_handle.IsValid()) {
-        LOG_ERROR("Scene::RemoveComponent: Entity with ID '{}' not found.", uuids::to_string(_handle.uuid));
+        LOG_ERROR("Entity with ID '{}' not found.", uuids::to_string(_handle.uuid));
         return false;
     }
     componentRepository_->RemoveComponent(_compTypeName, _handle, _componentIndex);
@@ -196,7 +349,7 @@ bool Scene::RemoveComponent(const ::std::string& _compTypeName, EntityHandle _ha
     if (systemRunner_) {
         return systemRunner_->GetSystem(_systemTypeName);
     }
-    LOG_ERROR("Scene::GetSystem: SystemRunner is not initialized.");
+    LOG_ERROR("SystemRunner is not initialized.");
     return nullptr;
 }
 
@@ -205,7 +358,7 @@ bool Scene::RegisterSystem(const ::std::string& _systemTypeName, int32_t _priori
         systemRunner_->RegisterSystem(_systemTypeName, _priority, _activity);
         return true;
     }
-    LOG_ERROR("Scene::RegisterSystem: SystemRunner is not initialized.");
+    LOG_ERROR("SystemRunner is not initialized.");
     return false;
 }
 
@@ -214,7 +367,7 @@ bool Scene::UnregisterSystem(const ::std::string& _systemTypeName) {
         systemRunner_->UnregisterSystem(_systemTypeName);
         return true;
     }
-    LOG_ERROR("Scene::UnregisterSystem: SystemRunner is not initialized.");
+    LOG_ERROR("SystemRunner is not initialized.");
     return false;
 }
 

@@ -257,4 +257,14 @@ Vec3f TransformNormal(const Vec3f& v, const Matrix4x4& m);
 /// </summary>
 Vec2f WorldToScreen(const Vec3f& _worldPos, const Matrix4x4& _vpvpvMat);
 
+/// <summary>
+/// スクリーン座標をワールド座標に変換
+/// </summary>
+/// <param name="_screenPos"></param>
+/// <param name="_depth"></param>
+/// <param name="_invVpvpMat"></param>
+/// <returns></returns>
+Vec3f ScreenToWorld(const Vec2f& _screenPos, const float& _depth, const Matrix4x4& _invVpvpMat);
+
+
 } // namespace OriGine

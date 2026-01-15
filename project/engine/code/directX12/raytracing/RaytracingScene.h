@@ -15,6 +15,9 @@
 
 namespace OriGine {
 
+/// engine
+class Scene;
+
 /// <summary>
 /// レイトレーシング用メッシュエントリ
 /// </summary>
@@ -98,5 +101,14 @@ public:
         return nullptr;
     }
 };
+
+/// <summary>
+/// 指定したエンティティのメッシュが動的かどうかを判定する.
+/// </summary>
+/// <param name="_entityHandle"></param>
+/// <param name="_type"></param>
+/// <param name="_isModelMesh"></param>
+/// <returns></returns>
+bool MeshIsDynamic(Scene* _scene, EntityHandle _entityHandle, RaytracingMeshType _type, bool _isModelMesh = false);
 
 }

@@ -2,6 +2,7 @@
 
 /// engine
 #include "Engine.h"
+#include "scene/Scene.h"
 // directX12Object
 #include "directX12/DxDevice.h"
 // module
@@ -27,7 +28,6 @@ using namespace OriGine;
 namespace {
 static const std::string kVSName = "Object3dTextureColor.VS";
 static const std::string kPSName = "Object3dTextureColorWithRaytracing.PS";
-
 }
 
 TexturedMeshRenderSystem::TexturedMeshRenderSystem() : BaseRenderSystem() {}
@@ -35,9 +35,6 @@ TexturedMeshRenderSystem::~TexturedMeshRenderSystem() {};
 
 void TexturedMeshRenderSystem::Initialize() {
     BaseRenderSystem::Initialize();
-
-    raytracingScene_ = std::make_unique<RaytracingScene>();
-    raytracingScene_->Initialize();
 }
 
 void OriGine::TexturedMeshRenderSystem::Update() {
@@ -59,7 +56,6 @@ void OriGine::TexturedMeshRenderSystem::Update() {
         return;
     }
 
-    UpdateRayScene();
     // レンダリング実行
     Rendering();
 }
@@ -100,35 +96,6 @@ void TexturedMeshRenderSystem::DispatchRenderer(EntityHandle _entity) {
             int32_t blendIndex  = static_cast<int32_t>(blendMode);
             int32_t isCulling   = renderer.IsCulling() ? 1 : 0;
             activeModelMeshRenderer_[isCulling][blendIndex].push_back(&renderer);
-
-            for (int32_t i = 0; i < static_cast<int32_t>(renderer.GetMeshGroup()->size()); ++i) {
-                // raytracing登録
-                MeshHandle meshHandle  = renderer.GetMeshHandle(i);
-                TextureColorMesh* mesh = &(*renderer.GetMeshGroup())[i];
-                Material* meshMaterial = GetComponent<Material>(renderer.GetMaterialHandle(i));
-
-                // vertSizeが0ならスキップ
-                if (mesh->GetVertexSize() <= 0) {
-                    continue;
-                }
-                if (!meshMaterial || !meshMaterial->enableLighting_) {
-                    continue;
-                }
-
-                bool isDynamic = MeshIsDynamic(
-                    renderer.GetHostEntityHandle(),
-                    renderer.GetMeshRaytracingType(i),
-                    true);
-
-                const Transform& meshTrans = renderer.GetTransform(i);
-
-                RaytracingMeshEntry entry;
-                entry.mesh       = mesh;
-                entry.meshHandle = meshHandle;
-                entry.isDynamic  = isDynamic;
-                entry.worldMat   = meshTrans.worldMat;
-                meshForRaytracing_.emplace_back(entry);
-            }
         }
     }
 
@@ -159,30 +126,6 @@ void TexturedMeshRenderSystem::DispatchRenderer(EntityHandle _entity) {
             Material* meshMaterial = GetComponent<Material>(_entity, renderer.GetMaterialIndex());
             if (!meshMaterial || !meshMaterial->enableLighting_) {
                 continue;
-            }
-
-            // raytracing登録
-            for (int32_t i = 0; i < static_cast<int32_t>(renderer.GetMeshGroup()->size()); ++i) {
-                // raytracing登録
-                MeshHandle meshHandle  = renderer.GetMeshHandle(i);
-                TextureColorMesh* mesh = &(*renderer.GetMeshGroup())[i];
-
-                // vertSizeが0ならスキップ
-                if (mesh->GetVertexSize() <= 0) {
-                    continue;
-                }
-
-                bool isDynamic = MeshIsDynamic(
-                    renderer.GetHostEntityHandle(),
-                    renderer.GetMeshRaytracingType(i),
-                    true);
-
-                RaytracingMeshEntry entry;
-                entry.mesh       = mesh;
-                entry.meshHandle = meshHandle;
-                entry.isDynamic  = isDynamic;
-                entry.worldMat   = transform->worldMat;
-                meshForRaytracing_.emplace_back(entry);
             }
         }
     };
@@ -240,7 +183,17 @@ bool TexturedMeshRenderSystem::ShouldSkipRender() const {
 }
 
 void TexturedMeshRenderSystem::Finalize() {
-    raytracingScene_->Finalize();
+    for (auto& activeRendererByCulling : activeModelMeshRenderer_) {
+        for (auto& activeRenderers : activeRendererByCulling) {
+            activeRenderers.clear();
+        }
+    }
+    for (auto& activeRendererByCulling : activePrimitiveMeshRenderer_) {
+        for (auto& activeRenderers : activeRendererByCulling) {
+            activeRenderers.clear();
+        }
+    }
+
     dxCommand_->Finalize();
 }
 
@@ -507,68 +460,6 @@ void TexturedMeshRenderSystem::LightUpdate() {
     LightManager::GetInstance()->Update();
 }
 
-bool TexturedMeshRenderSystem::MeshIsDynamic(EntityHandle _entityHandle, RaytracingMeshType _type, bool _isModelMesh) {
-    switch (_type) {
-    case OriGine::RaytracingMeshType::Auto: {
-        if (!_isModelMesh) {
-            return false;
-        }
-
-        auto& skinningComps = GetComponents<SkinningAnimationComponent>(_entityHandle);
-        if (skinningComps.empty()) {
-            return false;
-        }
-
-        return true;
-
-    } break;
-    case OriGine::RaytracingMeshType::Static:
-        return false;
-        break;
-    case OriGine::RaytracingMeshType::Dynamic:
-        return true;
-        break;
-    default:
-        break;
-    }
-    return false;
-}
-
-void OriGine::TexturedMeshRenderSystem::UpdateRayScene() {
-    auto& device = Engine::GetInstance()->GetDxDevice()->device_;
-
-    raytracingScene_->UpdateBlases(
-        device.Get(),
-        dxCommand_->GetCommandList().Get(),
-        meshForRaytracing_);
-
-    rayTracingInstances_.clear();
-
-    for (auto& entry : meshForRaytracing_) {
-        RayTracingInstance instance{};
-        instance.matrix      = entry.worldMat;
-        instance.instanceID  = 0; // インラインレイトレにはいらない
-        instance.mask        = 0xFF; // TODO : on/off
-        instance.hitGroupIdx = 0;
-        instance.flags       = 0;
-        auto* blas           = raytracingScene_->GetBlas(entry.meshHandle);
-
-        if (!blas) {
-            continue;
-        }
-
-        instance.blas = blas->GetResultResource().GetResource().Get();
-
-        rayTracingInstances_.push_back(instance);
-    }
-    raytracingScene_->UpdateTlas(
-        device.Get(),
-        dxCommand_->GetCommandList().Get(),
-        rayTracingInstances_);
-
-    meshForRaytracing_.clear();
-}
-
 void TexturedMeshRenderSystem::StartRender() {
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList = dxCommand_->GetCommandList();
 
@@ -594,8 +485,8 @@ void TexturedMeshRenderSystem::StartRender() {
         commandList, lightCountBufferIndex_, directionalLightBufferIndex_, pointLightBufferIndex_, spotLightBufferIndex_);
 
     // RaytracingSceneのセット
-    if (!raytracingScene_->IsEmpty()) {
-        commandList->SetGraphicsRootShaderResourceView(raytracingSceneBufferIndex_, raytracingScene_->GetTlasResource()->GetGPUVirtualAddress());
+    if (!GetScene()->GetRaytracingScene()->IsEmpty()) {
+        commandList->SetGraphicsRootShaderResourceView(raytracingSceneBufferIndex_, GetScene()->GetRaytracingSceneRef()->GetTlasResource()->GetGPUVirtualAddress());
     }
 
     /// 環境テクスチャ

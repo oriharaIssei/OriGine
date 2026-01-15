@@ -237,6 +237,14 @@ public:
     Transform& GetTransform(int32_t _meshIndex = 0) {
         return meshTransformBuff_[_meshIndex].openData_;
     }
+
+    const std::vector<IConstantBuffer<Transform>>& GetAllTransformBuff() const {
+        return meshTransformBuff_;
+    }
+    std::vector<IConstantBuffer<Transform>>& GetAllTransformBuffRef() {
+        return meshTransformBuff_;
+    }
+
     const IConstantBuffer<Transform>& GetTransformBuff(int32_t _meshIndex = 0) const {
         return meshTransformBuff_[_meshIndex];
     }

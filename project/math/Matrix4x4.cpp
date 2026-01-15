@@ -243,6 +243,14 @@ Vec2f WorldToScreen(const Vec3f& _worldPos, const Matrix4x4& _vpvpvMat) {
     return Vec2f(screenSpace[X], screenSpace[Y]);
 }
 
+Vec3f ScreenToWorld(const Vec2f& _screenPos, const float& _depth, const Matrix4x4& _invVpvpMat) {
+    // スクリーン座標を3Dベクトルに拡張
+    Vec3f screenPos3D = Vec3f(_screenPos[X], _screenPos[Y], _depth);
+    // スクリーン座標からワールド座標へ変換
+    Vec3f worldPos = TransformVector(screenPos3D, _invVpvpMat);
+    return worldPos;
+}
+
 Matrix4x4 MakeMatrix4x4::PerspectiveFov(const float& fovY, const float& aspectRatio, const float& nearClip, const float& farClip) {
     const float cot = 1.0f / std::tanf(fovY / 2.0f);
     return Matrix4x4(
@@ -255,7 +263,11 @@ Matrix4x4 MakeMatrix4x4::Orthographic(const float& left, const float& top, const
 }
 
 Matrix4x4 MakeMatrix4x4::ViewPort(const float& left, const float& top, const float& width, const float& height, const float& minDepth, const float& maxDepth) {
-    return Matrix4x4({width / 2.0f, 0.0f, 0.0f, 0.0f, 0.0f, -(height / 2.0f), 0.0f, 0.0f, 0.0f, 0.0f, maxDepth - minDepth, 0.0f, left + (width / 2.0f), top + (height / 2.0f), minDepth, 1.0f});
+    return Matrix4x4(
+        {width / 2.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, -(height / 2.0f), 0.0f, 0.0f,
+            0.0f, 0.0f, maxDepth - minDepth, 0.0f,
+            left + (width / 2.0f), top + (height / 2.0f), minDepth, 1.0f});
 }
 
 } // namespace OriGine

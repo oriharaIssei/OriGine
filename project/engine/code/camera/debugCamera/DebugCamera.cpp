@@ -52,11 +52,11 @@ void DebugCamera::Neutral::Update() {
     // Alt + 左クリックまたはホイール操作で移動状態へ遷移
     // Alt + 右クリックで回転状態へ遷移
     if (mouseInput->IsTrigger(MouseButton::LEFT) || mouseInput->IsWheel()) {
-        host_->startMousePos_ = mouseInput->GetVirtualPosition();
+        host_->startMousePos_ = mouseInput->GetPosition();
         host_->currentState_.reset(new TranslationState(host_));
         return;
     } else if (mouseInput->IsTrigger(MouseButton::RIGHT)) {
-        host_->startMousePos_ = mouseInput->GetVirtualPosition();
+        host_->startMousePos_ = mouseInput->GetPosition();
         host_->currentState_.reset(new RotationState(host_));
         return;
     }

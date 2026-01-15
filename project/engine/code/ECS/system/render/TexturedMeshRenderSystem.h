@@ -130,20 +130,6 @@ protected:
     /// </summary>
     void LightUpdate();
 
-    /// <summary>
-    /// レイトレーシングで使用するメッシュが動的かどうかを確認する
-    /// </summary>
-    /// <param name="_entityHandle">エンティティハンドル</param>
-    /// <param name="_type">メッシュのタイプ</param>
-    /// <param name="_isModelMesh">モデルメッシュかどうか</param>
-    /// <returns>動的であれば true</returns>
-    bool MeshIsDynamic(EntityHandle _entityHandle, RaytracingMeshType _type, bool _isModelMesh = false);
-
-    /// <summary>
-    /// レイトレーシングシーンの更新
-    /// </summary>
-    void UpdateRayScene();
-
 protected:
     bool currentCulling_        = true; // 現在のカリング設定
     BlendMode currentBlendMode_ = BlendMode::Alpha; // 現在のブレンドモード
@@ -155,10 +141,6 @@ protected:
 
     // PSOリスト [カリングON/OFF][ブレンドモード]
     std::array<std::array<PipelineStateObj*, kBlendNum>, 2> psoByBlendMode_{};
-
-    std::vector<RaytracingMeshEntry> meshForRaytracing_{}; // レイトレーシング用メッシュのエントリ
-    std::vector<RayTracingInstance> rayTracingInstances_{}; // レイトレーシングインスタンス
-    std::shared_ptr<RaytracingScene> raytracingScene_ = nullptr; // レイトレーシングシーン
 
     int32_t transformBufferIndex_          = 0; // トランスフォームバッファのインデックス
     int32_t cameraBufferIndex_             = 0; // カメラバッファのインデックス

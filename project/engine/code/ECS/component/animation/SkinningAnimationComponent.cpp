@@ -324,6 +324,7 @@ void SkinningAnimationComponent::CreateSkinnedVertex(Scene* _scene) {
             skinnedVertexBuffer_[i].buffer = DxResource();
             skinnedVertexBuffer_[i].buffer.CreateUAVBuffer(device, requiredBufferSize);
 
+           
             // UAVディスクリプタも再生成
             D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc{};
             uavDesc.Format                      = DXGI_FORMAT_UNKNOWN; // UAVはフォーマットを持たない
@@ -335,7 +336,6 @@ void SkinningAnimationComponent::CreateSkinnedVertex(Scene* _scene) {
             uavDesc.Buffer.StructureByteStride  = sizeof(decltype(mesh.vertexes_)::value_type);
             UAVEntry uavEntry(&skinnedVertexBuffer_[i].buffer, nullptr, uavDesc);
             skinnedVertexBuffer_[i].descriptor = uavHeap->CreateDescriptor(&uavEntry);
-
             skinnedVertexBuffer_[i].vbView.BufferLocation = skinnedVertexBuffer_[i].buffer.GetResource()->GetGPUVirtualAddress();
             skinnedVertexBuffer_[i].vbView.SizeInBytes    = static_cast<UINT>(skinnedVertexBuffer_[i].buffer.GetSizeInBytes());
             skinnedVertexBuffer_[i].vbView.StrideInBytes  = sizeof(decltype(mesh.vertexes_)::value_type);

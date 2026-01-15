@@ -65,7 +65,7 @@ void TopLevelAccelerationStructure::CreateResource(ID3D12Device8* _device, ID3D1
         _device,
         info.ResultDataMaxSizeInBytes,
         D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
-        D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, // ← ここ重要
+        D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE,
         D3D12_HEAP_TYPE_DEFAULT);
 
     // buildDesc設定

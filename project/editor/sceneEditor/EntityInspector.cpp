@@ -742,9 +742,13 @@ void EntityInspectorArea::ChangeEditEntityCommand::Undo() {
     inspectorArea_->editEntityHandle_ = fromHandle_;
     inspectorArea_->systemMap_.fill({});
 
-    Scene* currentScene             = inspectorArea_->GetParentWindow()->GetCurrentScene();
-    Entity* frontEntity             = currentScene->GetEntityRepositoryRef()->GetEntity(fromHandle_);
-    inspectorArea_->editEntityName_ = frontEntity->GetDataType();
+    Scene* currentScene = inspectorArea_->GetParentWindow()->GetCurrentScene();
+    Entity* fromEntity  = currentScene->GetEntityRepositoryRef()->GetEntity(fromHandle_);
+    if (!fromEntity) {
+        LOG_DEBUG("FromEntity is nullptr.");
+        return;
+    }
+    inspectorArea_->editEntityName_ = fromEntity->GetDataType();
 
     if (fromEntityData_.empty()) {
         LOG_DEBUG("fromEntityData is empty, skipping entity change.");

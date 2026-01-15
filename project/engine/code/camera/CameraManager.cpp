@@ -26,7 +26,7 @@ void CameraManager::Initialize() {
 }
 
 void CameraManager::Finalize() {
-    for (auto& [_, buffer] : cameraBuffers_) {
+    for (auto& [key, buffer] : cameraBuffers_) {
         buffer.Finalize();
     }
     cameraBuffers_.clear();

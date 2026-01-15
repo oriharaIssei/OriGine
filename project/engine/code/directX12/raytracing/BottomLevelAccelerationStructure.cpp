@@ -13,6 +13,7 @@ void BottomLevelAccelerationStructure::Initialize() {
 void BottomLevelAccelerationStructure::Finalize() {
     scratchResource_.Finalize();
     resultResource_.Finalize();
+
 }
 
 void BottomLevelAccelerationStructure::CreateResource(

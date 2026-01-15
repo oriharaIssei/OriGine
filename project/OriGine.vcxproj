@@ -162,6 +162,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   <ItemGroup>
     <ClInclude Include="engine\code\directX12\buffer\AppendBuffer.h" />
     <ClInclude Include="engine\code\directX12\buffer\ConceptHasBuffer.h" />
+    <ClInclude Include="engine\code\directX12\buffer\RwStructuredBuffer.h" />
     <ClInclude Include="engine\code\directX12\raytracing\BottomLevelAccelerationStructure.h" />
     <ClInclude Include="editor\EditorController.h" />
     <ClInclude Include="editor\IEditor.h" />
@@ -359,6 +360,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="math\bounds\base\IBounds.h" />
     <ClInclude Include="math\mathEnv.h" />
     <ClInclude Include="engine\code\directX12\mesh\MeshHandle.h" />
+    <ClInclude Include="editor\tool\ObjectPicker.h" />
     <ClInclude Include="util\BitArray.h" />
     <ClInclude Include="util\DiffValue.h" />
     <ClInclude Include="util\DxUtil.h" />
@@ -547,6 +549,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="math\Sequence.cpp" />
     <ClCompile Include="math\Spline.cpp" />
     <ClCompile Include="math\mathEnv.cpp" />
+    <ClCompile Include="editor\tool\ObjectPicker.cpp" />
     <ClCompile Include="util\StringUtil.cpp" />
     <ClCompile Include="util\uuidGenerator\UuidGenerator.cpp" />
     <ClCompile Include="util\Version.cpp" />
