@@ -39,18 +39,18 @@ std::unique_ptr<DxCommand> TextureManager::dxCommand_;
 uint32_t TextureManager::dummyTextureIndex_;
 
 #pragma region Texture
-void Texture::Initialize(const std::string& filePath) {
-    path = filePath;
+void Texture::Initialize(const std::string& _filePath) {
+    path = _filePath;
 
     //==================================================
     // Textureを読み込んで転送する
     //==================================================
-    DirectX::ScratchImage mipImages = Load(filePath);
+    DirectX::ScratchImage mipImages = Load(_filePath);
     metaData                        = mipImages.GetMetadata();
     resource.CreateTextureResource(Engine::GetInstance()->GetDxDevice()->device_, metaData);
 
     // ファイル名をリソース名にセット（デバッグ用）
-    std::wstring wname = ConvertString(filePath);
+    std::wstring wname = ConvertString(_filePath);
     resource.GetResource()->SetName(wname.c_str());
 
     UploadTextureData(mipImages, resource.GetResource());
@@ -83,11 +83,11 @@ void Texture::Finalize() {
     resource.Finalize();
 }
 
-DirectX::ScratchImage Texture::Load(const std::string& filePath) {
+DirectX::ScratchImage Texture::Load(const std::string& _filePath) {
     DirectX::ScratchImage image{};
 
     // テクスチャファイルを読み込む
-    std::wstring filePathW = ConvertString(filePath);
+    std::wstring filePathW = ConvertString(_filePath);
     HRESULT hr             = 0;
 
     if (filePathW.ends_with(L".dds")) {
@@ -107,7 +107,7 @@ DirectX::ScratchImage Texture::Load(const std::string& filePath) {
     if (FAILED(hr)) {
         std::string errorMessage;
         std::wcerr << L"Failed to load texture file: " << filePathW << L" hr=0x" << std::hex << hr << std::endl;
-        LOG_CRITICAL("Failed to load texture file: {} \n message {}", filePath, std::to_string(hr));
+        LOG_CRITICAL("Failed to load texture file: {} \n message {}", _filePath, std::to_string(hr));
         assert(SUCCEEDED(hr));
     }
 
@@ -128,7 +128,7 @@ DirectX::ScratchImage Texture::Load(const std::string& filePath) {
             mipImages);
 
         if (FAILED(hr)) {
-            std::cerr << "Failed to generate mipmaps for: " << filePath << std::endl;
+            std::cerr << "Failed to generate mipmaps for: " << _filePath << std::endl;
             assert(SUCCEEDED(hr));
         }
     } else {
@@ -138,15 +138,15 @@ DirectX::ScratchImage Texture::Load(const std::string& filePath) {
     return mipImages;
 }
 
-void Texture::UploadTextureData(DirectX::ScratchImage& mipImg, Microsoft::WRL::ComPtr<ID3D12Resource> _resource) {
+void Texture::UploadTextureData(DirectX::ScratchImage& _mipImg, Microsoft::WRL::ComPtr<ID3D12Resource> _resource) {
     std::vector<D3D12_SUBRESOURCE_DATA> subResources;
     auto dxDevice = Engine::GetInstance()->GetDxDevice();
 
     DirectX::PrepareUpload(
         dxDevice->device_.Get(),
-        mipImg.GetImages(),
-        mipImg.GetImageCount(),
-        mipImg.GetMetadata(),
+        _mipImg.GetImages(),
+        _mipImg.GetImageCount(),
+        _mipImg.GetMetadata(),
         subResources);
 
     uint64_t intermediateSize = GetRequiredIntermediateSize(
@@ -240,9 +240,9 @@ void TextureManager::Finalize() {
     }
 }
 
-uint32_t TextureManager::LoadTexture(const std::string& filePath, std::function<void(uint32_t loadedIndex)> callBack) {
-    std::string normalizedPath = NormalizeString(filePath);
-    LOG_TRACE("Load Texture \n Path : {}", filePath);
+uint32_t TextureManager::LoadTexture(const std::string& _filePath, std::function<void(uint32_t loadedIndex)> _callBack) {
+    std::string normalizedPath = NormalizeString(_filePath);
+    LOG_TRACE("Load Texture \n Path : {}", _filePath);
 
     uint32_t index = 0;
     {
@@ -250,8 +250,8 @@ uint32_t TextureManager::LoadTexture(const std::string& filePath, std::function<
         if (itr != textureFileNameToIndexMap_.end()) {
             // 既にロード済みのテクスチャがある場合
             index = itr->second;
-            if (callBack) {
-                callBack(index);
+            if (_callBack) {
+                _callBack(index);
             }
             return index;
         }
@@ -280,7 +280,7 @@ uint32_t TextureManager::LoadTexture(const std::string& filePath, std::function<
     task.filePath     = normalizedPath;
     task.texture      = textures_[index];
     task.textureIndex = index;
-    task.callBack     = callBack;
+    task.callBack     = _callBack;
     task.Update();
 
     /* loadThread_->pushTask(
@@ -294,7 +294,7 @@ uint32_t TextureManager::LoadTexture(const std::string& filePath, std::function<
     task.filePath     = normalizedPath;
     task.texture      = textures_[index];
     task.textureIndex = index;
-    task.callBack     = callBack;
+    task.callBack     = _callBack;
 
     task.Update();
 #endif // DEBUG
@@ -302,16 +302,16 @@ uint32_t TextureManager::LoadTexture(const std::string& filePath, std::function<
     return index;
 }
 
-void TextureManager::UnloadTexture(uint32_t id) {
-    Engine::GetInstance()->GetSrvHeap()->ReleaseDescriptor(textures_[id]->srv);
-    textures_[id]->Finalize();
-    textures_[id].reset();
+void TextureManager::UnloadTexture(uint32_t _id) {
+    Engine::GetInstance()->GetSrvHeap()->ReleaseDescriptor(textures_[_id]->srv);
+    textures_[_id]->Finalize();
+    textures_[_id].reset();
 }
 
-D3D12_GPU_DESCRIPTOR_HANDLE TextureManager::GetDescriptorGpuHandle(uint32_t handleId) {
+D3D12_GPU_DESCRIPTOR_HANDLE TextureManager::GetDescriptorGpuHandle(uint32_t _handleId) {
     uint32_t locate = dummyTextureIndex_;
 
-    locate = handleId;
+    locate = _handleId;
 
     // ロード中や未ロードの場合は必ずダミー（0番）を返す
     return textures_[locate]->srv.GetGpuHandle();
