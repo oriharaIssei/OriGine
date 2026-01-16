@@ -36,19 +36,19 @@ bool SceneJsonRegistry::SaveAllScene(const std::string& _directory) {
 /// <summary>
 /// 指定された実行中のシーンをシリアライズし、即座にファイルとして保存する.
 /// </summary>
-bool OriGine::SceneJsonRegistry::SaveScene(const Scene* scene, const std::string& directory) {
+bool OriGine::SceneJsonRegistry::SaveScene(const Scene* _scene, const std::string& _directory) {
 
-    if (!scene) {
+    if (!_scene) {
         LOG_ERROR("SaveScene: scene が nullptr");
         return false;
     }
     SceneFactory factory;
-    nlohmann::json sceneJson = factory.CreateSceneJsonFromScene(const_cast<Scene*>(scene));
+    nlohmann::json sceneJson = factory.CreateSceneJsonFromScene(const_cast<Scene*>(_scene));
 
-    std::string path = directory + "/" + scene->GetName() + ".json";
+    std::string path = _directory + "/" + _scene->GetName() + ".json";
     std::ofstream ofs(path);
     if (!ofs) {
-        LOG_CRITICAL("シーンJSONの保存に失敗: {}", scene->GetName());
+        LOG_CRITICAL("シーンJSONの保存に失敗: {}", _scene->GetName());
         return false;
     }
 
@@ -75,8 +75,8 @@ bool SceneJsonRegistry::LoadAllScene(const std::string& _directory) {
 /// <summary>
 /// 単体ファイルから特定のシーンデータをロードする.
 /// </summary>
-bool OriGine::SceneJsonRegistry::LoadScene(const std::string& sceneName, const std::string& directory) {
-    std::string path = directory + "/" + sceneName + ".json";
+bool OriGine::SceneJsonRegistry::LoadScene(const std::string& _sceneName, const std::string& _directory) {
+    std::string path = _directory + "/" + _sceneName + ".json";
     std::ifstream ifs(path);
     if (!ifs) {
         LOG_ERROR("LoadScene: 読込失敗: {}", path);
@@ -85,7 +85,7 @@ bool OriGine::SceneJsonRegistry::LoadScene(const std::string& sceneName, const s
 
     nlohmann::json data;
     ifs >> data;
-    scenes_[sceneName] = data;
+    scenes_[_sceneName] = data;
     return true;
 }
 
@@ -93,13 +93,13 @@ bool OriGine::SceneJsonRegistry::LoadScene(const std::string& sceneName, const s
 /// メモリ上に空のシーンデータ定義を作成する.
 /// システムやエンティティの配列が空の状態で初期化される.
 /// </summary>
-void OriGine::SceneJsonRegistry::CreateNewScene(const std::string& sceneName) {
+void OriGine::SceneJsonRegistry::CreateNewScene(const std::string& _sceneName) {
     nlohmann::json empty;
     empty["Systems"]          = nlohmann::json::array();
     empty["CategoryActivity"] = nlohmann::json::array();
     empty["Entities"]         = nlohmann::json::array();
 
-    scenes_[sceneName] = empty;
+    scenes_[_sceneName] = empty;
 }
 
 /// <summary>
@@ -122,8 +122,8 @@ bool OriGine::SceneJsonRegistry::LoadAllEntityTemplates(const std::string& _dire
 /// <summary>
 /// 指定ディレクトリから特定のエンティティテンプレートをロードする.
 /// </summary>
-bool OriGine::SceneJsonRegistry::LoadEntityTemplate(const std::string& _directory, const std::string& typeName) {
-    std::string path = _directory + "/" + typeName + '.' + kEntityExtension;
+bool OriGine::SceneJsonRegistry::LoadEntityTemplate(const std::string& _directory, const std::string& _typeName) {
+    std::string path = _directory + "/" + _typeName + '.' + kEntityExtension;
     std::ifstream ifs(path);
     if (!ifs) {
         LOG_ERROR(" 読込失敗: {}", path);
@@ -131,25 +131,25 @@ bool OriGine::SceneJsonRegistry::LoadEntityTemplate(const std::string& _director
     }
     nlohmann::json data;
     ifs >> data;
-    entityTemplates_[typeName] = data;
+    entityTemplates_[_typeName] = data;
     return true;
 }
 
 /// <summary>
 /// 指定ディレクトリに特定のエンティティテンプレートを保存する.
 /// </summary>
-bool OriGine::SceneJsonRegistry::SaveEntityTemplate(const std::string& _directory, const std::string& typeName) {
-    auto itr = entityTemplates_.find(typeName);
+bool SceneJsonRegistry::SaveEntityTemplate(const std::string& _directory, const std::string& _typeName) {
+    auto itr = entityTemplates_.find(_typeName);
     if (itr == entityTemplates_.end()) {
-        LOG_ERROR("指定エンティティテンプレートが存在しません: {}", typeName);
+        LOG_ERROR("指定エンティティテンプレートが存在しません: {}", _typeName);
         return false;
     }
     myfs::CreateFolder(_directory);
-    std::string path = _directory + "/" + typeName + '.' + kEntityExtension;
+    std::string path = _directory + "/" + _typeName + '.' + kEntityExtension;
     std::ofstream ofs(path);
     if (!ofs) {
         LOG_CRITICAL("エンティティテンプレートの保存に失敗: {}",
-            typeName);
+            _typeName);
         return false;
     }
     ofs << std::setw(4) << itr->second;
@@ -159,25 +159,25 @@ bool OriGine::SceneJsonRegistry::SaveEntityTemplate(const std::string& _director
 /// <summary>
 /// JSON データを直接エンティティテンプレートとしてレジストリに登録する.
 /// </summary>
-void SceneJsonRegistry::RegisterEntityTemplate(const std::string& typeName, const nlohmann::json& json) {
-    entityTemplates_[typeName] = json;
+void SceneJsonRegistry::RegisterEntityTemplate(const std::string& _typeName, const nlohmann::json& _json) {
+    entityTemplates_[_typeName] = _json;
 }
 
 /// <summary>
 /// 稼働中のエンティティから最新の状態を抽出し、テンプレートとしてレジストリに登録する.
 /// </summary>
-void OriGine::SceneJsonRegistry::RegisterEntityTemplateFromEntity(const std::string& type, Scene* scene, Entity* entity) {
-    if (!scene || !entity) {
+void OriGine::SceneJsonRegistry::RegisterEntityTemplateFromEntity(const std::string& _typeName, Scene* _scene, Entity* _entity) {
+    if (!_scene || !_entity) {
         LOG_ERROR("scene または entity が nullptr");
         return;
     }
     SceneFactory factory;
 
     // テンプレートとして登録
-    entityTemplates_[type] = factory.CreateEntityJsonFromEntity(scene, entity);
+    entityTemplates_[_typeName] = factory.CreateEntityJsonFromEntity(_scene, _entity);
 }
 
-const nlohmann::json* SceneJsonRegistry::GetEntityTemplate(const std::string& typeName) const {
-    auto it = entityTemplates_.find(typeName);
+const nlohmann::json* SceneJsonRegistry::GetEntityTemplate(const std::string& _typeName) const {
+    auto it = entityTemplates_.find(_typeName);
     return it != entityTemplates_.end() ? &it->second : nullptr;
 }

@@ -49,8 +49,8 @@ void SpriteRenderer::Initialize(Scene* _scene, EntityHandle _hostEntity) {
 
     // テクスチャの読み込みとサイズの適応
     if (!texturePath_.empty()) {
-        textureNumber_ = TextureManager::LoadTexture(texturePath_, [this](uint32_t index) {
-            const DirectX::TexMetadata& texData = TextureManager::GetTexMetadata(index);
+        textureNumber_ = TextureManager::LoadTexture(texturePath_, [this](uint32_t _index) {
+            const DirectX::TexMetadata& texData = TextureManager::GetTexMetadata(_index);
             if (textureSize_.lengthSq() == 0.0f) {
                 textureSize_ = {static_cast<float>(texData.width), static_cast<float>(texData.height)};
             }
@@ -99,8 +99,8 @@ void SpriteRenderer::Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, [[maybe_un
                 kApplicationResourceDirectory + "/" + directory + "/" + fileName,
                 [this](std::string* _fileName) {
                     // テクスチャの読み込み
-                    textureNumber_ = TextureManager::LoadTexture(*_fileName, [this](uint32_t loadIndex) {
-                        const DirectX::TexMetadata& texData = TextureManager::GetTexMetadata(loadIndex);
+                    textureNumber_ = TextureManager::LoadTexture(*_fileName, [this](uint32_t _loadIndex) {
+                        const DirectX::TexMetadata& texData = TextureManager::GetTexMetadata(_loadIndex);
                         textureSize_                        = {static_cast<float>(texData.width), static_cast<float>(texData.height)};
                         size_                               = textureSize_;
                     });
@@ -224,8 +224,8 @@ void SpriteRenderer::SetTexture(const std::string& _texturePath, bool _applyText
     texturePath_ = _texturePath;
     // テクスチャの読み込みとサイズの適応
     if (_applyTextureSize) {
-        textureNumber_ = TextureManager::LoadTexture(texturePath_, [this](uint32_t loadIndex) {
-            const DirectX::TexMetadata& texData = TextureManager::GetTexMetadata(loadIndex);
+        textureNumber_ = TextureManager::LoadTexture(texturePath_, [this](uint32_t _loadIndex) {
+            const DirectX::TexMetadata& texData = TextureManager::GetTexMetadata(_loadIndex);
             textureSize_                        = {static_cast<float>(texData.width), static_cast<float>(texData.height)};
             size_                               = textureSize_;
         });
@@ -275,72 +275,72 @@ void SpriteRenderer::UpdateBuffer(const Matrix4x4& _viewPortMat) {
     mesh.TransferData();
 }
 
-void OriGine::to_json(nlohmann::json& j, const SpriteRenderer& r) {
-    j = nlohmann::json{
-        {"isRender", r.isRender_},
-        {"renderingPriority", r.renderPriority_},
-        {"texturePath", r.texturePath_},
-        {"textureLeftTop", r.textureLeftTop_},
-        {"textureSize", r.textureSize_},
-        {"anchorPoint", r.anchorPoint_},
-        {"isFlipX", r.isFlipX_},
-        {"isFlipY", r.isFlipY_},
-        {"color", r.spriteBuff_->color_},
-        {"scale", r.spriteBuff_->scale_},
-        {"size", r.size_},
-        {"defaultWindowSize", r.defaultWindowSize_},
-        {"windowRatioPos", r.windowRatioPos_},
-        {"windowRatioSize", r.windowRatioSize_},
-        {"rotate", r.spriteBuff_->rotate_},
-        {"translate", r.spriteBuff_->translate_},
-        {"uvScale", r.spriteBuff_->uvScale_},
-        {"uvRotate", r.spriteBuff_->uvRotate_},
-        {"uvTranslate", r.spriteBuff_->uvTranslate_}};
+void OriGine::to_json(nlohmann::json& _j, const SpriteRenderer& _comp) {
+    _j = nlohmann::json{
+        {"isRender", _comp.isRender_},
+        {"renderingPriority", _comp.renderPriority_},
+        {"texturePath", _comp.texturePath_},
+        {"textureLeftTop", _comp.textureLeftTop_},
+        {"textureSize", _comp.textureSize_},
+        {"anchorPoint", _comp.anchorPoint_},
+        {"isFlipX", _comp.isFlipX_},
+        {"isFlipY", _comp.isFlipY_},
+        {"color", _comp.spriteBuff_->color_},
+        {"scale", _comp.spriteBuff_->scale_},
+        {"size", _comp.size_},
+        {"defaultWindowSize", _comp.defaultWindowSize_},
+        {"windowRatioPos", _comp.windowRatioPos_},
+        {"windowRatioSize", _comp.windowRatioSize_},
+        {"rotate", _comp.spriteBuff_->rotate_},
+        {"translate", _comp.spriteBuff_->translate_},
+        {"uvScale", _comp.spriteBuff_->uvScale_},
+        {"uvRotate", _comp.spriteBuff_->uvRotate_},
+        {"uvTranslate", _comp.spriteBuff_->uvTranslate_}};
 }
 
-void OriGine::from_json(const nlohmann::json& j, SpriteRenderer& r) {
-    j.at("isRender").get_to(r.isRender_);
-    j.at("renderingPriority").get_to(r.renderPriority_);
+void OriGine::from_json(const nlohmann::json& _j, SpriteRenderer& _comp) {
+    _j.at("isRender").get_to(_comp.isRender_);
+    _j.at("renderingPriority").get_to(_comp.renderPriority_);
 
-    j.at("texturePath").get_to(r.texturePath_);
+    _j.at("texturePath").get_to(_comp.texturePath_);
 
-    j.at("textureLeftTop").get_to(r.textureLeftTop_);
-    j.at("textureSize").get_to(r.textureSize_);
-    j.at("size").get_to(r.size_);
-    j.at("anchorPoint").get_to(r.anchorPoint_);
+    _j.at("textureLeftTop").get_to(_comp.textureLeftTop_);
+    _j.at("textureSize").get_to(_comp.textureSize_);
+    _j.at("size").get_to(_comp.size_);
+    _j.at("anchorPoint").get_to(_comp.anchorPoint_);
 
-    j.at("isFlipX").get_to(r.isFlipX_);
-    j.at("isFlipY").get_to(r.isFlipY_);
+    _j.at("isFlipX").get_to(_comp.isFlipX_);
+    _j.at("isFlipY").get_to(_comp.isFlipY_);
 
-    j.at("color").get_to(r.spriteBuff_->color_);
+    _j.at("color").get_to(_comp.spriteBuff_->color_);
 
-    j.at("scale").get_to(r.spriteBuff_->scale_);
-    j.at("rotate").get_to(r.spriteBuff_->rotate_);
-    j.at("translate").get_to(r.spriteBuff_->translate_);
+    _j.at("scale").get_to(_comp.spriteBuff_->scale_);
+    _j.at("rotate").get_to(_comp.spriteBuff_->rotate_);
+    _j.at("translate").get_to(_comp.spriteBuff_->translate_);
 
-    j.at("uvScale").get_to(r.spriteBuff_->uvScale_);
-    j.at("uvRotate").get_to(r.spriteBuff_->uvRotate_);
-    j.at("uvTranslate").get_to(r.spriteBuff_->uvTranslate_);
+    _j.at("uvScale").get_to(_comp.spriteBuff_->uvScale_);
+    _j.at("uvRotate").get_to(_comp.spriteBuff_->uvRotate_);
+    _j.at("uvTranslate").get_to(_comp.spriteBuff_->uvTranslate_);
 
-    if (j.find("defaultWindowSize") != j.end()) {
-        j.at("defaultWindowSize").get_to(r.defaultWindowSize_);
+    if (_j.find("defaultWindowSize") != _j.end()) {
+        _j.at("defaultWindowSize").get_to(_comp.defaultWindowSize_);
     } else {
-        r.defaultWindowSize_ = Engine::GetInstance()->GetWinApp()->GetWindowSize();
+        _comp.defaultWindowSize_ = Engine::GetInstance()->GetWinApp()->GetWindowSize();
     }
-    if (j.find("windowRatioSize") != j.end()) {
-        j.at("windowRatioSize").get_to(r.windowRatioSize_);
-        if (r.defaultWindowSize_.lengthSq() != 0.0f) {
-            r.size_ = {r.defaultWindowSize_[X] * r.windowRatioSize_[X], r.defaultWindowSize_[Y] * r.windowRatioSize_[Y]};
+    if (_j.find("windowRatioSize") != _j.end()) {
+        _j.at("windowRatioSize").get_to(_comp.windowRatioSize_);
+        if (_comp.defaultWindowSize_.lengthSq() != 0.0f) {
+            _comp.size_ = {_comp.defaultWindowSize_[X] * _comp.windowRatioSize_[X], _comp.defaultWindowSize_[Y] * _comp.windowRatioSize_[Y]};
         }
     } else {
-        r.windowRatioSize_ = {r.size_[X] / r.defaultWindowSize_[X], r.size_[Y] / r.defaultWindowSize_[Y]};
+        _comp.windowRatioSize_ = {_comp.size_[X] / _comp.defaultWindowSize_[X], _comp.size_[Y] / _comp.defaultWindowSize_[Y]};
     }
-    if (j.find("windowRatioPos") != j.end()) {
-        j.at("windowRatioPos").get_to(r.windowRatioPos_);
-        if (r.defaultWindowSize_.lengthSq() != 0.0f) {
-            r.spriteBuff_->translate_ = {r.defaultWindowSize_[X] * r.windowRatioPos_[X], r.defaultWindowSize_[Y] * r.windowRatioPos_[Y]};
+    if (_j.find("windowRatioPos") != _j.end()) {
+        _j.at("windowRatioPos").get_to(_comp.windowRatioPos_);
+        if (_comp.defaultWindowSize_.lengthSq() != 0.0f) {
+            _comp.spriteBuff_->translate_ = {_comp.defaultWindowSize_[X] * _comp.windowRatioPos_[X], _comp.defaultWindowSize_[Y] * _comp.windowRatioPos_[Y]};
         }
     } else {
-        r.windowRatioPos_ = {r.spriteBuff_->translate_[X] / r.defaultWindowSize_[X], r.spriteBuff_->translate_[Y] / r.defaultWindowSize_[Y]};
+        _comp.windowRatioPos_ = {_comp.spriteBuff_->translate_[X] / _comp.defaultWindowSize_[X], _comp.spriteBuff_->translate_[Y] / _comp.defaultWindowSize_[Y]};
     }
 }

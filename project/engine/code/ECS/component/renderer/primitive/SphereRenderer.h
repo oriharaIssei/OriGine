@@ -7,8 +7,8 @@ namespace OriGine {
 
 class SphereRenderer
     : public PrimitiveMeshRenderer<Primitive::Sphere> {
-    friend void to_json(nlohmann::json& j, const SphereRenderer& r);
-    friend void from_json(const nlohmann::json& j, SphereRenderer& r);
+    friend void to_json(nlohmann::json& _j, const SphereRenderer& _comp);
+    friend void from_json(const nlohmann::json& _j, SphereRenderer& _comp);
 
 public:
     SphereRenderer() : PrimitiveMeshRenderer() {}

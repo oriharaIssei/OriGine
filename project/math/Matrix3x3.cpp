@@ -5,40 +5,40 @@
 
 namespace OriGine {
 
-Matrix3x3 Matrix3x3::operator+(const Matrix3x3& another) const {
+Matrix3x3 Matrix3x3::operator+(const Matrix3x3& _another) const {
     Matrix3x3 r{};
     for (int i = 0; i < 3; ++i)
         for (int j = 0; j < 3; ++j)
-            r[i][j] = m[i][j] + another[i][j];
+            r[i][j] = m[i][j] + _another[i][j];
     return r;
 }
 
-Matrix3x3 Matrix3x3::operator-(const Matrix3x3& another) const {
+Matrix3x3 Matrix3x3::operator-(const Matrix3x3& _another) const {
     Matrix3x3 r{};
     for (int i = 0; i < 3; ++i)
         for (int j = 0; j < 3; ++j)
-            r[i][j] = m[i][j] - another[i][j];
+            r[i][j] = m[i][j] - _another[i][j];
     return r;
 }
 
-Matrix3x3 Matrix3x3::operator*(const Matrix3x3& another) const {
+Matrix3x3 Matrix3x3::operator*(const Matrix3x3& _another) const {
     Matrix3x3 r{};
     for (int i = 0; i < 3; ++i)
         for (int j = 0; j < 3; ++j)
-            r[i][j] = m[i][0] * another[0][j] + m[i][1] * another[1][j] + m[i][2] * another[2][j];
+            r[i][j] = m[i][0] * _another[0][j] + m[i][1] * _another[1][j] + m[i][2] * _another[2][j];
     return r;
 }
 
-Matrix3x3 Matrix3x3::operator*(const float& s) const {
+Matrix3x3 Matrix3x3::operator*(const float& _scalar) const {
     Matrix3x3 r{};
     for (int i = 0; i < 3; ++i)
         for (int j = 0; j < 3; ++j)
-            r[i][j] = m[i][j] * s;
+            r[i][j] = m[i][j] * _scalar;
     return r;
 }
 
-Matrix3x3& Matrix3x3::operator*=(const Matrix3x3& another) {
-    *this = *this * another;
+Matrix3x3& Matrix3x3::operator*=(const Matrix3x3& _another) {
+    *this = *this * _another;
     return *this;
 }
 
@@ -46,20 +46,20 @@ Matrix3x3 Matrix3x3::transpose() const {
     return Transpose(*this);
 }
 
-Matrix3x3 Matrix3x3::Transpose(const Matrix3x3& mat) {
+Matrix3x3 Matrix3x3::Transpose(const Matrix3x3& _mat) {
     Matrix3x3 r{};
     for (int i = 0; i < 3; ++i)
         for (int j = 0; j < 3; ++j)
-            r[i][j] = mat[j][i];
+            r[i][j] = _mat[j][i];
     return r;
 }
 
-Matrix3x3 Matrix3x3::Inverse(const Matrix3x3& m) {
+Matrix3x3 Matrix3x3::Inverse(const Matrix3x3& _mat) {
     // 3x3 を 4x4 に埋めたテンポラリ（行優先で埋める）
     DirectX::XMFLOAT4X4 src{
-        m[0][0], m[0][1], m[0][2], 0.0f,
-        m[1][0], m[1][1], m[1][2], 0.0f,
-        m[2][0], m[2][1], m[2][2], 0.0f,
+        _mat[0][0], _mat[0][1], _mat[0][2], 0.0f,
+        _mat[1][0], _mat[1][1], _mat[1][2], 0.0f,
+        _mat[2][0], _mat[2][1], _mat[2][2], 0.0f,
         0.0f, 0.0f, 0.0f, 1.0f};
 
     // SIMD ロード
@@ -95,31 +95,31 @@ Matrix3x3 Matrix3x3::Inverse(const Matrix3x3& m) {
     return r;
 }
 
-void Matrix3x3::ToFloatArray(const Matrix3x3& mat, float out[9]) {
+void Matrix3x3::ToFloatArray(const Matrix3x3& _mat, float _out[9]) {
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < 3; ++j) {
-            out[i * 3 + j] = mat[i][j];
+            _out[i * 3 + j] = _mat[i][j];
         }
     }
 }
 
-void Matrix3x3::FromFloatArray(Matrix3x3& mat, const float in[9]) {
+void Matrix3x3::FromFloatArray(Matrix3x3& _mat, const float _in[9]) {
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < 3; ++j) {
-            mat[i][j] = in[i * 3 + j];
+            _mat[i][j] = _in[i * 3 + j];
         }
     }
 }
 
-void Matrix3x3::Decompose2D(const Matrix3x3& mat, Vec2f& outScale, float& outRotate, Vec2f& outTranslate) {
+void Matrix3x3::Decompose2D(const Matrix3x3& _mat, Vec2f& _outScale, float& _outRotate, Vec2f& _outTranslate) {
     // スケール
-    outScale[X] = std::sqrt(mat[0][0] * mat[0][0] + mat[1][0] * mat[1][0]);
-    outScale[Y] = std::sqrt(mat[0][1] * mat[0][1] + mat[1][1] * mat[1][1]);
+    _outScale[X] = std::sqrt(_mat[0][0] * _mat[0][0] + _mat[1][0] * _mat[1][0]);
+    _outScale[Y] = std::sqrt(_mat[0][1] * _mat[0][1] + _mat[1][1] * _mat[1][1]);
     // 回転（ラジアン）
-    outRotate = std::atan2(mat[1][0], mat[0][0]);
+    _outRotate = std::atan2(_mat[1][0], _mat[0][0]);
     // 平行移動
-    outTranslate[X] = mat[2][0];
-    outTranslate[Y] = mat[2][1];
+    _outTranslate[X] = _mat[2][0];
+    _outTranslate[Y] = _mat[2][1];
 }
 
 Matrix3x3 Matrix3x3::inverse() const {

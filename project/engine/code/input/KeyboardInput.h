@@ -263,9 +263,9 @@ public:
     /// <summary>
     /// デバイスの初期化を行う.
     /// </summary>
-    /// <param name="directInput">DirectInput8 インターフェース</param>
-    /// <param name="hwnd">ウィンドウハンドル</param>
-    void Initialize(IDirectInput8* directInput, HWND hwnd);
+    /// <param name="_directInput">DirectInput8 インターフェース</param>
+    /// <param name="_hwnd">ウィンドウハンドル</param>
+    void Initialize(IDirectInput8* _directInput, HWND _hwnd);
 
     /// <summary>
     /// 毎フレームのデバイス入力状態をポーリングして更新する.
@@ -309,48 +309,48 @@ public:
     /// <summary>
     /// 指定されたキーが現在押されているか判定する.
     /// </summary>
-    /// <param name="key">DIK_* インデックス</param>
+    /// <param name="_key">DIK_* インデックス</param>
     /// <returns>押されていれば true</returns>
-    bool IsPress(uint32_t key) const { return keys_[key]; }
+    bool IsPress(uint32_t _key) const { return keys_[_key]; }
 
     /// <summary>
     /// 指定されたキーが現在押されているか判定する.
     /// </summary>
-    /// <param name="key">キー種類</param>
+    /// <param name="_key">キー種類</param>
     /// <returns>押されていれば true</returns>
-    bool IsPress(Key key) const { return keys_[static_cast<uint32_t>(key)]; }
+    bool IsPress(Key _key) const { return keys_[static_cast<uint32_t>(_key)]; }
 
     /// <summary>
     /// 指定されたキーがこのフレームで押された（トリガーされた）か判定する.
     /// </summary>
-    /// <param name="key">DIK_* インデックス</param>
+    /// <param name="_key">DIK_* インデックス</param>
     /// <returns>押された瞬間なら true</returns>
-    bool IsTrigger(uint32_t key) const { return (keys_[key] && !prevKeys_[key]); }
+    bool IsTrigger(uint32_t _key) const { return (keys_[_key] && !prevKeys_[_key]); }
 
     /// <summary>
     /// 指定されたキーがこのフレームで押された（トリガーされた）か判定する.
     /// </summary>
-    /// <param name="key">キー種類</param>
+    /// <param name="_key">キー種類</param>
     /// <returns>押された瞬間なら true</returns>
-    bool IsTrigger(Key key) const {
-        uint32_t keyNum = static_cast<uint32_t>(key);
+    bool IsTrigger(Key _key) const {
+        uint32_t keyNum = static_cast<uint32_t>(_key);
         return (keys_[keyNum] && !prevKeys_[keyNum]);
     }
 
     /// <summary>
     /// 指定されたキーがこのフレームで離されたか判定する.
     /// </summary>
-    /// <param name="key">DIK_* インデックス</param>
+    /// <param name="_key">DIK_* インデックス</param>
     /// <returns>離された瞬間なら true</returns>
-    bool IsRelease(uint32_t key) const { return (!keys_[key] && prevKeys_[key]); }
+    bool IsRelease(uint32_t _key) const { return (!keys_[_key] && prevKeys_[_key]); }
 
     /// <summary>
     /// 指定されたキーがこのフレームで離されたか判定する.
     /// </summary>
-    /// <param name="key">キー種類</param>
+    /// <param name="_key">キー種類</param>
     /// <returns>離された瞬間なら true</returns>
-    bool IsRelease(Key key) const {
-        uint32_t keyNum = static_cast<uint32_t>(key);
+    bool IsRelease(Key _key) const {
+        uint32_t keyNum = static_cast<uint32_t>(_key);
         return (!keys_[keyNum] && prevKeys_[keyNum]);
     }
 };

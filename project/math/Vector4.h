@@ -31,24 +31,24 @@ struct Vector4 final
 
     // コンストラクタ
     constexpr Vector4() : Vector<4, valueType>({0, 0, 0, 0}) {}
-    constexpr Vector4(valueType xValue, valueType yValue, valueType zValue, valueType wValue)
-        : Vector<4, valueType>({xValue, yValue, zValue, wValue}) {}
-    constexpr Vector4(const Vector2<valueType>& xy, const Vector2<valueType>& zw)
-        : Vector<4, valueType>({xy[X], xy[Y], zw[X], zw[Y]}) {}
-    constexpr Vector4(valueType x, const Vector2<valueType>& yz, valueType w)
-        : Vector<4, valueType>({x, yz[X], yz[Y], w}) {}
-    constexpr Vector4(const Vector3<valueType>& xyz, valueType w)
-        : Vector<4, valueType>({xyz[X], xyz[Y], xyz[Z], w}) {}
-    constexpr Vector4(const Vector2<valueType>& xy, valueType z, valueType w)
-        : Vector<4, valueType>({xy[X], xy[Y], z, w}) {}
-    constexpr Vector4(valueType x, valueType y, const Vector2<valueType>& zw)
-        : Vector<4, valueType>({x, y, zw[X], zw[Y]}) {}
-    constexpr Vector4(valueType x, const Vector3<valueType>& yzw)
-        : Vector<4, valueType>({x, yzw[X], yzw[Y], yzw[Z]}) {}
-    constexpr Vector4(const valueType* x_ptr, const valueType* y_ptr, const valueType* z_ptr, const valueType* w_ptr)
-        : Vector<4, valueType>({*x_ptr, *y_ptr, *z_ptr, *w_ptr}) {}
-    constexpr Vector4(const valueType* ptr)
-        : Vector<4, valueType>({ptr[0], ptr[1], ptr[2], ptr[3]}) {}
+    constexpr Vector4(valueType _xValue, valueType _yValue, valueType _zValue, valueType _wValue)
+        : Vector<4, valueType>({_xValue, _yValue, _zValue, _wValue}) {}
+    constexpr Vector4(const Vector2<valueType>& _xy, const Vector2<valueType>& _zw)
+        : Vector<4, valueType>({_xy[X], _xy[Y], _zw[X], _zw[Y]}) {}
+    constexpr Vector4(valueType _x, const Vector2<valueType>& _yz, valueType _w)
+        : Vector<4, valueType>({_x, _yz[X], _yz[Y], _w}) {}
+    constexpr Vector4(const Vector3<valueType>& _xyz, valueType _w)
+        : Vector<4, valueType>({_xyz[X], _xyz[Y], _xyz[Z], _w}) {}
+    constexpr Vector4(const Vector2<valueType>& _xy, valueType _z, valueType _w)
+        : Vector<4, valueType>({_xy[X], _xy[Y], _z, _w}) {}
+    constexpr Vector4(valueType _x, valueType _y, const Vector2<valueType>& _zw)
+        : Vector<4, valueType>({_x, _y, _zw[X], _zw[Y]}) {}
+    constexpr Vector4(valueType _x, const Vector3<valueType>& _yzw)
+        : Vector<4, valueType>({_x, _yzw[X], _yzw[Y], _yzw[Z]}) {}
+    constexpr Vector4(const valueType* _xPtr, const valueType* _yPtr, const valueType* _zPtr, const valueType* _wPtr)
+        : Vector<4, valueType>({*_xPtr, *_yPtr, *_zPtr, *_wPtr}) {}
+    constexpr Vector4(const valueType* _ptr)
+        : Vector<4, valueType>({_ptr[0], _ptr[1], _ptr[2], _ptr[3]}) {}
 
     /// <summary>
     /// ベクトルの長さを計算
@@ -57,9 +57,9 @@ struct Vector4 final
     /// <summary>
     /// ベクトルの長さを計算 (static)
     /// </summary>
-    /// <param name="v">ベクトル</param>
+    /// <param name="_v">ベクトル</param>
     /// <returns>ベクトルの長さ</returns>
-    static constexpr valueType Length(const Vector4& v) { return std::sqrt(v.v[X] * v.v[X] + v.v[Y] * v.v[Y] + v.v[Z] * v.v[Z] + v.v[W] * v.v[W]); }
+    static constexpr valueType Length(const Vector4& _v) { return std::sqrt(_v.v[X] * _v.v[X] + _v.v[Y] * _v.v[Y] + _v.v[Z] * _v.v[Z] + _v.v[W] * _v.v[W]); }
 
     /// <summary>
     /// ベクトルの長さの二乗を計算
@@ -69,23 +69,23 @@ struct Vector4 final
     /// <summary>
     /// ベクトルの長さの二乗を計算 (static)
     /// </summary>
-    /// <param name="v">ベクトル</param>
+    /// <param name="_v">ベクトル</param>
     /// <returns>長さの二乗</returns>
-    static constexpr valueType LengthSq(const Vector4& v) { return (v.v[X] * v.v[X] + v.v[Y] * v.v[Y] + v.v[Z] * v.v[Z] + v.v[W] * v.v[W]); }
+    static constexpr valueType LengthSq(const Vector4& _v) { return (_v.v[X] * _v.v[X] + _v.v[Y] * _v.v[Y] + _v.v[Z] * _v.v[Z] + _v.v[W] * _v.v[W]); }
 
     /// <summary>
     /// 内積を計算
     /// </summary>
-    /// <param name="another">対象ベクトル</param>
+    /// <param name="_another">対象ベクトル</param>
     /// <returns>内積</returns>
-    constexpr valueType dot(const Vector4& another) const { return (v[X] * another.v[X]) + (v[Y] * another.v[Y]) + (v[Z] * another.v[Z]) + (v[W] * another.v[W]); }
+    constexpr valueType dot(const Vector4& _another) const { return (v[X] * _another.v[X]) + (v[Y] * _another.v[Y]) + (v[Z] * _another.v[Z]) + (v[W] * _another.v[W]); }
     /// <summary>
     /// 内積を計算 (static)
     /// </summary>
-    /// <param name="v">ベクトル1</param>
-    /// <param name="another">ベクトル2</param>
+    /// <param name="_v">ベクトル1</param>
+    /// <param name="_another">ベクトル2</param>
     /// <returns>内積</returns>
-    static constexpr valueType Dot(const Vector4& v, const Vector4& another) { return (v.v[X] * another.v[X]) + (v.v[Y] * another.v[Y]) + (v.v[Z] * another.v[Z]) + (v.v[W] * another.v[W]); }
+    static constexpr valueType Dot(const Vector4& _v, const Vector4& _another) { return (_v.v[X] * _another.v[X]) + (_v.v[Y] * _another.v[Y]) + (_v.v[Z] * _another.v[Z]) + (_v.v[W] * _another.v[W]); }
 
     /// <summary>
     /// 正規化

@@ -46,9 +46,9 @@ static const std::array<std::string, kBlendNum> kBlendModeStr = {
 /// <summary>
 /// 指定された BlendMode に基づいて、D3D12_BLEND_DESC 構造体を構築して返す.
 /// </summary>
-/// <param name="mode">変換元のブレンドモード</param>
+/// <param name="_mode">変換元のブレンドモード</param>
 /// <returns>構築された DirectX 12 ブレンド設定構造体</returns>
-D3D12_BLEND_DESC CreateBlendDescByBlendMode(BlendMode mode);
+D3D12_BLEND_DESC CreateBlendDescByBlendMode(BlendMode _mode);
 
 } // namespace OriGine
 
@@ -56,7 +56,7 @@ namespace std {
 /// <summary>
 /// BlendModeを文字列に変換
 /// </summary>
-/// <param name="mode">ブレンドモード</param>
+/// <param name="_mode">ブレンドモード</param>
 /// <returns>文字列</returns>
-string to_string(const OriGine::BlendMode& mode);
+string to_string(const OriGine::BlendMode& _mode);
 } // namespace std

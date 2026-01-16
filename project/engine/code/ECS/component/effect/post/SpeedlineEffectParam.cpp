@@ -18,16 +18,14 @@
 
 using namespace OriGine;
 
-void SpeedlineEffectParam::Initialize(Scene*, EntityHandle)  {
+void SpeedlineEffectParam::Initialize([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _entity) {
     if (isActive_) {
         cBuffer_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
     }
-    if (!radialTextureFilePath_.empty()) {
-        LoadRadialTexture(radialTextureFilePath_);
-    }
+    LoadRadialTexture(radialTextureFilePath_);
 }
 
-void SpeedlineEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _handle, [[maybe_unused]] const std::string& _parentLabel) {
+void SpeedlineEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _entity, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     if (CheckBoxCommand("isActive##" + _parentLabel, isActive_)) {
         Play();
@@ -58,7 +56,7 @@ void SpeedlineEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]]
         std::string directory, fileName;
         if (myfs::SelectFileDialog(kApplicationResourceDirectory + "/texture", directory, fileName, {"png"})) {
             std::string newPath = kApplicationResourceDirectory + "/texture/" + directory + "/" + fileName;
-            auto command        = std::make_unique<SetterCommand<std::string>>(&radialTextureFilePath_, newPath, [this](std::string*) { this->radialTextureIndex_ = TextureManager::LoadTexture(radialTextureFilePath_); }, true, nullptr);
+            auto command        = std::make_unique<SetterCommand<std::string>>(&radialTextureFilePath_, newPath, [this](std::string* _path) { this->LoadRadialTexture(*_path); }, true, nullptr);
             OriGine::EditorController::GetInstance()->PushCommand(std::move(command));
         }
     }
@@ -85,31 +83,35 @@ void SpeedlineEffectParam::Stop() {
 
 void SpeedlineEffectParam::LoadRadialTexture(const std::string& _path) {
     radialTextureFilePath_ = _path;
-    radialTextureIndex_    = TextureManager::LoadTexture(radialTextureFilePath_);
+    if (radialTextureFilePath_.empty()) {
+        radialTextureIndex_ = 0;
+        return;
+    }
+    radialTextureIndex_ = TextureManager::LoadTexture(radialTextureFilePath_);
 }
 
-void OriGine::to_json(nlohmann::json& j, const SpeedlineEffectParam& p) {
-    j = nlohmann::json{
-        {"isActive", p.isActive_},
-        {"screenCenterUV", p.cBuffer_.openData_.screenCenterUV},
-        {"intensity", p.cBuffer_.openData_.intensity},
-        {"density", p.cBuffer_.openData_.density},
-        {"color", p.cBuffer_.openData_.color},
-        {"time", p.cBuffer_.openData_.time},
-        {"fadeStart", p.cBuffer_.openData_.fadeStart},
-        {"fadePow", p.cBuffer_.openData_.fadePow},
-        {"radialTextureFilePath", p.radialTextureFilePath_},
+void OriGine::to_json(nlohmann::json& _j, const SpeedlineEffectParam& _comp) {
+    _j = nlohmann::json{
+        {"isActive", _comp.isActive_},
+        {"screenCenterUV", _comp.cBuffer_.openData_.screenCenterUV},
+        {"intensity", _comp.cBuffer_.openData_.intensity},
+        {"density", _comp.cBuffer_.openData_.density},
+        {"color", _comp.cBuffer_.openData_.color},
+        {"time", _comp.cBuffer_.openData_.time},
+        {"fadeStart", _comp.cBuffer_.openData_.fadeStart},
+        {"fadePow", _comp.cBuffer_.openData_.fadePow},
+        {"radialTextureFilePath", _comp.radialTextureFilePath_},
     };
 }
 
-void OriGine::from_json(const nlohmann::json& j, SpeedlineEffectParam& p) {
-    j.at("isActive").get_to(p.isActive_);
-    j.at("screenCenterUV").get_to(p.cBuffer_.openData_.screenCenterUV);
-    j.at("intensity").get_to(p.cBuffer_.openData_.intensity);
-    j.at("density").get_to(p.cBuffer_.openData_.density);
-    j.at("color").get_to(p.cBuffer_.openData_.color);
-    j.at("time").get_to(p.cBuffer_.openData_.time);
-    j.at("fadeStart").get_to(p.cBuffer_.openData_.fadeStart);
-    j.at("fadePow").get_to(p.cBuffer_.openData_.fadePow);
-    j.at("radialTextureFilePath").get_to(p.radialTextureFilePath_);
+void OriGine::from_json(const nlohmann::json& _j, SpeedlineEffectParam& _comp) {
+    _j.at("isActive").get_to(_comp.isActive_);
+    _j.at("screenCenterUV").get_to(_comp.cBuffer_.openData_.screenCenterUV);
+    _j.at("intensity").get_to(_comp.cBuffer_.openData_.intensity);
+    _j.at("density").get_to(_comp.cBuffer_.openData_.density);
+    _j.at("color").get_to(_comp.cBuffer_.openData_.color);
+    _j.at("time").get_to(_comp.cBuffer_.openData_.time);
+    _j.at("fadeStart").get_to(_comp.cBuffer_.openData_.fadeStart);
+    _j.at("fadePow").get_to(_comp.cBuffer_.openData_.fadePow);
+    _j.at("radialTextureFilePath").get_to(_comp.radialTextureFilePath_);
 }

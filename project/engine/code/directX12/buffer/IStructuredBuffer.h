@@ -30,10 +30,10 @@ public:
     /// <summary>
     /// 指定された要素数でバッファを作成し、SRV/UAVを設定する.
     /// </summary>
-    /// <param name="device">D3D12デバイス</param>
-    /// <param name="elementCount">バッファの最大要素数</param>
+    /// <param name="_device">D3D12デバイス</param>
+    /// <param name="_elementCount">バッファの最大要素数</param>
     /// <param name="_withUAV">書き込み用 (UAV)ディスクリプタを作成するかどうか</param>
-    void CreateBuffer(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t elementCount, bool _withUAV = false);
+    void CreateBuffer(Microsoft::WRL::ComPtr<ID3D12Device> _device, uint32_t _elementCount, bool _withUAV = false);
 
     /// <summary>
     /// バッファとディスクリプタ情報を解放する.
@@ -64,22 +64,22 @@ public:
     /// <summary>
     /// ルートパラメータ（記述子テーブル）に対して、この構造化バッファの SRV を紐付ける.
     /// </summary>
-    /// <param name="cmdList">コマンドリスト</param>
-    /// <param name="rootParameterNum">バインド先のルートパラメータ番号</param>
-    void SetForRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const;
+    /// <param name="_cmdList">コマンドリスト</param>
+    /// <param name="_rootParameterNum">バインド先のルートパラメータ番号</param>
+    void SetForRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _cmdList, uint32_t _rootParameterNum) const;
 
     /// <summary>
     /// バッファの要素数を変更し、GPUリソースを再生成する. 既存のデータは破棄される.
     /// </summary>
-    /// <param name="device">D3D12デバイス</param>
-    /// <param name="newElementCount">新しい最大要素数</param>
-    void Resize(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t newElementCount);
+    /// <param name="_device">D3D12デバイス</param>
+    /// <param name="_newElementCount">新しい最大要素数</param>
+    void Resize(Microsoft::WRL::ComPtr<ID3D12Device> _device, uint32_t _newElementCount);
 
     /// <summary>
     /// 現在の openData_ のサイズに合わせて、GPUバッファをリサイズする（要素数が足りない場合のみ）.
     /// </summary>
-    /// <param name="device">D3D12デバイス</param>
-    void ResizeForDataSize(Microsoft::WRL::ComPtr<ID3D12Device> device);
+    /// <param name="_device">D3D12デバイス</param>
+    void ResizeForDataSize(Microsoft::WRL::ComPtr<ID3D12Device> _device);
 
     /// <summary>
     /// 現在 CPU 上に保持しているデータの数を取得する.
@@ -101,8 +101,8 @@ public:
 };
 
 template <HasInConstantBuffer structBuff>
-inline void IStructuredBuffer<structBuff>::CreateBuffer(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t elementCount, bool _withUAV) {
-    elementCount_ = elementCount;
+inline void IStructuredBuffer<structBuff>::CreateBuffer(Microsoft::WRL::ComPtr<ID3D12Device> _device, uint32_t _elementCount, bool _withUAV) {
+    elementCount_ = _elementCount;
 
     // 要素数が0なら何もしない
     if (elementCount_ == 0) {
@@ -112,14 +112,14 @@ inline void IStructuredBuffer<structBuff>::CreateBuffer(Microsoft::WRL::ComPtr<I
     // サイズに合わせてバッファを作成
     size_t bufferSize = sizeof(StructuredBufferType) * elementCount_;
     if (_withUAV) { // UAV付きバッファを作成
-        buff_.CreateUAVBuffer(device, bufferSize, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON, D3D12_HEAP_TYPE_UPLOAD);
+        buff_.CreateUAVBuffer(_device, bufferSize, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON, D3D12_HEAP_TYPE_UPLOAD);
     } else { // 通常のバッファを作成
-        buff_.CreateBufferResource(device, bufferSize);
+        buff_.CreateBufferResource(_device, bufferSize);
     }
     buff_.GetResource()->Map(0, nullptr, reinterpret_cast<void**>(&mappingData_));
 
     // vectorの容量を確保
-    openData_.reserve(elementCount);
+    openData_.reserve(_elementCount);
 
     // SRV作成
     D3D12_SHADER_RESOURCE_VIEW_DESC viewDesc{};
@@ -128,7 +128,7 @@ inline void IStructuredBuffer<structBuff>::CreateBuffer(Microsoft::WRL::ComPtr<I
     viewDesc.ViewDimension              = D3D12_SRV_DIMENSION_BUFFER;
     viewDesc.Buffer.FirstElement        = 0;
     viewDesc.Buffer.Flags               = D3D12_BUFFER_SRV_FLAG_NONE;
-    viewDesc.Buffer.NumElements         = elementCount;
+    viewDesc.Buffer.NumElements         = _elementCount;
     viewDesc.Buffer.StructureByteStride = sizeof(StructuredBufferType);
 
     SRVEntry viewEntry{&buff_, viewDesc};
@@ -142,9 +142,9 @@ inline void IStructuredBuffer<structBuff>::Finalize() {
 }
 
 template <HasInConstantBuffer structBuff>
-inline void IStructuredBuffer<structBuff>::Resize(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t newElementCount) {
+inline void IStructuredBuffer<structBuff>::Resize(Microsoft::WRL::ComPtr<ID3D12Device> _device, uint32_t _newElementCount) {
     // 要素数が変わらない、または0なら何もしない
-    if (newElementCount == elementCount_ || newElementCount == 0) {
+    if (_newElementCount == elementCount_ || _newElementCount == 0) {
         return;
     }
 
@@ -152,10 +152,10 @@ inline void IStructuredBuffer<structBuff>::Resize(Microsoft::WRL::ComPtr<ID3D12D
     Finalize();
 
     { // 新しいバッファを作成
-        elementCount_ = newElementCount;
+        elementCount_ = _newElementCount;
 
         size_t bufferSize = sizeof(StructuredBufferType) * elementCount_;
-        buff_.CreateBufferResource(device, bufferSize);
+        buff_.CreateBufferResource(_device, bufferSize);
         buff_.GetResource()->Map(0, nullptr, reinterpret_cast<void**>(&mappingData_));
 
         D3D12_SHADER_RESOURCE_VIEW_DESC viewDesc{};
@@ -173,7 +173,7 @@ inline void IStructuredBuffer<structBuff>::Resize(Microsoft::WRL::ComPtr<ID3D12D
 }
 
 template <HasInConstantBuffer structBuff>
-inline void IStructuredBuffer<structBuff>::ResizeForDataSize(Microsoft::WRL::ComPtr<ID3D12Device> device) {
+inline void IStructuredBuffer<structBuff>::ResizeForDataSize(Microsoft::WRL::ComPtr<ID3D12Device> _device) {
     // 要素数が変わらない、または0なら何もしない
     // 要素数は openData_ のサイズに合わせる
     int32_t newElementCount = static_cast<int32_t>(openData_.size());
@@ -188,7 +188,7 @@ inline void IStructuredBuffer<structBuff>::ResizeForDataSize(Microsoft::WRL::Com
         elementCount_ = newElementCount;
 
         size_t bufferSize = sizeof(StructuredBufferType) * elementCount_;
-        buff_.CreateBufferResource(device, bufferSize);
+        buff_.CreateBufferResource(_device, bufferSize);
         buff_.GetResource()->Map(0, nullptr, reinterpret_cast<void**>(&mappingData_));
 
         D3D12_SHADER_RESOURCE_VIEW_DESC viewDesc{};
@@ -213,8 +213,8 @@ inline void IStructuredBuffer<structBuff>::ConvertToBuffer() {
 }
 
 template <HasInConstantBuffer structBuff>
-inline void IStructuredBuffer<structBuff>::SetForRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const {
-    cmdList->SetGraphicsRootDescriptorTable(rootParameterNum, srv_.GetGpuHandle());
+inline void IStructuredBuffer<structBuff>::SetForRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _cmdList, uint32_t _rootParameterNum) const {
+    _cmdList->SetGraphicsRootDescriptorTable(_rootParameterNum, srv_.GetGpuHandle());
 }
 
 } // namespace OriGine

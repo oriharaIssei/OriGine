@@ -17,8 +17,8 @@ class Scene;
 /// </summary>
 class SkinningAnimationComponent
     : public IComponent {
-    friend void to_json(nlohmann::json& j, const SkinningAnimationComponent& r);
-    friend void from_json(const nlohmann::json& j, SkinningAnimationComponent& r);
+    friend void to_json(nlohmann::json& _j, const SkinningAnimationComponent& _comp);
+    friend void from_json(const nlohmann::json& _j, SkinningAnimationComponent& _comp);
 
 public:
     SkinningAnimationComponent()           = default;
@@ -31,9 +31,9 @@ public:
     /// <summary>
     /// Animationを追加,読み込みする
     /// </summary>
-    /// <param name="directory"></param>
-    /// <param name="fileName"></param>
-    void AddLoad(const std::string& directory, const std::string& fileName);
+    /// <param name="_directory"></param>
+    /// <param name="_fileName"></param>
+    void AddLoad(const std::string& _directory, const std::string& _fileName);
 
     /// <summary>
     /// currentAnimationIndex_ のアニメーションを再生する
@@ -42,25 +42,25 @@ public:
     /// <summary>
     /// 指定したインデックスのアニメーションを再生する
     /// </summary>
-    /// <param name="index">animationのIndexを指定する</param>
-    void Play(int32_t index);
+    /// <param name="_index">animationのIndexを指定する</param>
+    void Play(int32_t _index);
     /// <summary>
     /// 指定した名前のアニメーションを再生する
     /// </summary>
-    /// <param name="name">animationの名前を指定する</param>
-    void Play(const std::string& name);
+    /// <param name="_name">animationの名前を指定する</param>
+    void Play(const std::string& _name);
     /// <summary>
     /// 指定したインデックスのアニメーションを次のアニメーションにセットする
     /// </summary>
-    /// <param name="index">nextAnimationのIndexを指定する</param>
+    /// <param name="_index">nextAnimationのIndexを指定する</param>
     /// <param name="_blendTime">ブレンドにかける時間(秒)</param>
-    void PlayNext(int32_t index, float _blendTime = 0.1f);
+    void PlayNext(int32_t _index, float _blendTime = 0.1f);
     /// <summary>
     /// 指定した名前のアニメーションを次のアニメーションにセットする
     /// </summary>
-    /// <param name="name">nextAnimationの名前を指定する</param>
+    /// <param name="_name">nextAnimationの名前を指定する</param>
     /// <param name="_blendTime">ブレンドにかける時間(秒)</param>
-    void PlayNext(const std::string& name, float _blendTime = -0.1f);
+    void PlayNext(const std::string& _name, float _blendTime = -0.1f);
 
     /// <summary>
     /// 再生中のアニメーションを停止する

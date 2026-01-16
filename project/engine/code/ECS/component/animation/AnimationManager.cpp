@@ -21,8 +21,8 @@ void AnimationManager::Initialize() {}
 
 void AnimationManager::Finalize() {}
 
-std::shared_ptr<AnimationData> AnimationManager::Load(const std::string& directory, const std::string& filename) {
-    std::string filePath                  = directory + "/" + filename;
+std::shared_ptr<AnimationData> AnimationManager::Load(const std::string& _directory, const std::string& _filename) {
+    std::string filePath                  = _directory + "/" + _filename;
     std::shared_ptr<AnimationData> result = nullptr;
 
     auto animationIndex = animationDataLibrary_.find(filePath);
@@ -38,27 +38,27 @@ std::shared_ptr<AnimationData> AnimationManager::Load(const std::string& directo
         ///===========================================
         /// TaskThread に ロードタスクを追加
         ///===========================================
-        AnimationLoadTask task(directory, filename, animationData_.back());
+        AnimationLoadTask task(_directory, _filename, animationData_.back());
         task.Update();
     }
     return result;
 }
 
-AnimationData AnimationManager::LoadAnimationData(const std::string& directory, const std::string& filename) {
-    if (filename.find(".gltf") != std::string::npos) {
-        return LoadGltfAnimationData(directory, filename);
-    } else if (filename.find(".anm") != std::string::npos) {
-        return LoadMyAnimationData(directory, filename);
+AnimationData AnimationManager::LoadAnimationData(const std::string& _directory, const std::string& _filename) {
+    if (_filename.find(".gltf") != std::string::npos) {
+        return LoadGltfAnimationData(_directory, _filename);
+    } else if (_filename.find(".anm") != std::string::npos) {
+        return LoadMyAnimationData(_directory, _filename);
     }
     return AnimationData();
 }
 
-AnimationData AnimationManager::LoadGltfAnimationData(const std::string& directory, const std::string& filename) {
+AnimationData AnimationManager::LoadGltfAnimationData(const std::string& _directory, const std::string& _filename) {
     AnimationData result;
     Assimp::Importer importer;
 
     // =============================== アニメーションデータの読み込み =============================== //
-    std::string filePath = directory + "/" + filename;
+    std::string filePath = _directory + "/" + _filename;
     const aiScene* scene = importer.ReadFile(filePath.c_str(), 0);
 
     // アニメーションがなかったら assert
@@ -120,11 +120,11 @@ AnimationData AnimationManager::LoadGltfAnimationData(const std::string& directo
     return result;
 }
 
-AnimationData AnimationManager::LoadMyAnimationData(const std::string& directory, const std::string& filename) {
+AnimationData AnimationManager::LoadMyAnimationData(const std::string& _directory, const std::string& _filename) {
     ///===========================================
     /// ファイル読み込み
     ///===========================================
-    std::string filePath = directory + "/" + filename;
+    std::string filePath = _directory + "/" + _filename;
     std::ifstream ifs(filePath, std::ios::binary);
     if (!ifs) {
         throw std::runtime_error("Failed to open file for reading");
@@ -170,22 +170,22 @@ AnimationData AnimationManager::LoadMyAnimationData(const std::string& directory
     return animationData;
 }
 
-void AnimationManager::SaveAnimation(const std::string& directory, const std::string& filename, const AnimationData& animationData) {
-    std::string filePath = directory + "/" + filename + ".anm";
+void AnimationManager::SaveAnimation(const std::string& _directory, const std::string& _filename, const AnimationData& _animationData) {
+    std::string filePath = _directory + "/" + _filename + ".anm";
     std::ofstream ofs(filePath, std::ios::binary);
     if (!ofs) {
         throw std::runtime_error("Failed to open file for writing");
     }
 
     // duration を保存
-    ofs.write(reinterpret_cast<const char*>(&animationData.duration), sizeof(animationData.duration));
+    ofs.write(reinterpret_cast<const char*>(&_animationData.duration), sizeof(_animationData.duration));
 
     // nodeAnimations のサイズを保存
-    size_t nodeAnimationsSize = animationData.animationNodes_.size();
+    size_t nodeAnimationsSize = _animationData.animationNodes_.size();
     ofs.write(reinterpret_cast<const char*>(&nodeAnimationsSize), sizeof(nodeAnimationsSize));
 
     // 各ノードのアニメーションデータを保存
-    for (const auto& [nodeName, nodeAnimation] : animationData.animationNodes_) {
+    for (const auto& [nodeName, nodeAnimation] : _animationData.animationNodes_) {
         // ノード名の長さとノード名を保存
         size_t nodeNameLength = nodeName.size();
         ofs.write(reinterpret_cast<const char*>(&nodeNameLength), sizeof(nodeNameLength));
@@ -207,18 +207,18 @@ void AnimationManager::SaveAnimation(const std::string& directory, const std::st
     }
 }
 
-int AnimationManager::addAnimationData(const std::string& name, std::unique_ptr<AnimationData> animationData) {
-    auto animationIndex = animationDataLibrary_.find(name);
+int AnimationManager::addAnimationData(const std::string& _name, std::unique_ptr<AnimationData> _animationData) {
+    auto animationIndex = animationDataLibrary_.find(_name);
     if (animationIndex != animationDataLibrary_.end()) {
         return animationIndex->second;
     }
-    animationDataLibrary_[name] = static_cast<int>(animationData_.size());
-    animationData_.push_back(std::move(animationData));
-    return animationDataLibrary_[name];
+    animationDataLibrary_[_name] = static_cast<int>(animationData_.size());
+    animationData_.push_back(std::move(_animationData));
+    return animationDataLibrary_[_name];
 }
 
-const AnimationData* AnimationManager::GetAnimationData(const std::string& name) const {
-    auto animationIndex = animationDataLibrary_.find(name);
+const AnimationData* AnimationManager::GetAnimationData(const std::string& _name) const {
+    auto animationIndex = animationDataLibrary_.find(_name);
     if (animationIndex != animationDataLibrary_.end()) {
         return animationData_[animationIndex->second].get();
     }

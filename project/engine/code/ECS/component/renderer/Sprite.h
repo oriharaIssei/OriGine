@@ -79,8 +79,8 @@ using SpriteMesh = Mesh<SpriteVertexData>;
 ///</summary>
 class SpriteRenderer
     : public MeshRenderer<SpriteMesh, SpriteVertexData> {
-    friend void to_json(nlohmann::json& j, const SpriteRenderer& r);
-    friend void from_json(const nlohmann::json& j, SpriteRenderer& r);
+    friend void to_json(nlohmann::json& _j, const SpriteRenderer& _comp);
+    friend void from_json(const nlohmann::json& _j, SpriteRenderer& _comp);
 
 public:
     SpriteRenderer() : MeshRenderer<SpriteMesh, SpriteVertexData>() {}
@@ -148,44 +148,44 @@ public:
     void SetTexture(const std::string& _texturePath, bool _applyTextureSize);
 
     int32_t GetRenderPriority() const { return renderPriority_; }
-    void SetRenderPriority(int32_t num) { renderPriority_ = num; }
+    void SetRenderPriority(int32_t _num) { renderPriority_ = _num; }
 
     const IConstantBuffer<SpritConstBuffer>& GetSpriteBuff() const { return spriteBuff_; }
     IConstantBuffer<SpritConstBuffer>& GetSpriteBuff() { return spriteBuff_; }
 
-    void SetSize(const Vec2f& size) { size_ = size; }
+    void SetSize(const Vec2f& _size) { size_ = _size; }
     const Vec2f& GetSize() const { return size_; }
 
-    void SetScale(const Vec2f& scale) { spriteBuff_->scale_ = scale; }
+    void SetScale(const Vec2f& _scale) { spriteBuff_->scale_ = _scale; }
     const Vec2f& GetScale() const { return spriteBuff_->scale_; }
 
-    void SetRotate(float rotate) { spriteBuff_->rotate_ = rotate; }
+    void SetRotate(float _rotate) { spriteBuff_->rotate_ = _rotate; }
     float GetRotate() const { return spriteBuff_->rotate_; }
 
     void SetTranslate(const Vec2f& _translate) { spriteBuff_->translate_ = _translate; }
     const Vec2f& GetTranslate() const { return spriteBuff_->translate_; }
 
-    void SetUVScale(const Vec2f& uvScale) { spriteBuff_->uvScale_ = uvScale; }
+    void SetUVScale(const Vec2f& _uvScale) { spriteBuff_->uvScale_ = _uvScale; }
     const Vec2f& GetUVScale() const { return spriteBuff_->uvScale_; }
 
-    void SetUVRotate(float uvRotate) { spriteBuff_->uvRotate_ = uvRotate; }
+    void SetUVRotate(float _uvRotate) { spriteBuff_->uvRotate_ = _uvRotate; }
     float GetUVRotate() const { return spriteBuff_->uvRotate_; }
 
-    void SetUVTranslate(const Vec2f& uvTranslate) { spriteBuff_->uvTranslate_ = uvTranslate; }
+    void SetUVTranslate(const Vec2f& _uvTranslate) { spriteBuff_->uvTranslate_ = _uvTranslate; }
     const Vec2f& GetUVTranslate() const { return spriteBuff_->uvTranslate_; }
 
     const Vec4f& GetColor() const { return spriteBuff_->color_; }
-    void SetColor(const Vec4f& color) { spriteBuff_->color_ = color; }
+    void SetColor(const Vec4f& _color) { spriteBuff_->color_ = _color; }
 
     const Vec2f& GetAnchorPoint() const { return anchorPoint_; }
-    void SetAnchorPoint(const Vec2f& anchor) { anchorPoint_ = anchor; }
+    void SetAnchorPoint(const Vec2f& _anchor) { anchorPoint_ = _anchor; }
 
-    void SetFlipX(bool flipX) { isFlipX_ = flipX; }
-    void SetFlipY(bool flipY) { isFlipY_ = flipY; }
+    void SetFlipX(bool _flipX) { isFlipX_ = _flipX; }
+    void SetFlipY(bool _flipY) { isFlipY_ = _flipY; }
 
-    void SetTextureLeftTop(const Vec2f& lt) { textureLeftTop_ = lt; }
+    void SetTextureLeftTop(const Vec2f& _lt) { textureLeftTop_ = _lt; }
     const Vec2f& GetTextureLeftTop() const { return textureLeftTop_; }
-    void SetTextureSize(const Vec2f& size) { textureSize_ = size; }
+    void SetTextureSize(const Vec2f& _size) { textureSize_ = _size; }
     const Vec2f& GetTextureSize() const { return textureSize_; }
 };
 

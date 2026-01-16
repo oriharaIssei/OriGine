@@ -23,11 +23,11 @@
 
 using namespace OriGine;
 
-void OriGine::to_json(nlohmann::json& j, const SkinningAnimationComponent& r) {
-    j["bindModeMeshRendererIndex"] = r.bindModeMeshRendererIndex_;
+void OriGine::to_json(nlohmann::json& _j, const SkinningAnimationComponent& _comp) {
+    _j["bindModeMeshRendererIndex"] = _comp.bindModeMeshRendererIndex_;
 
-    j["Animations"] = nlohmann::json::array();
-    for (const auto& animation : r.animationTable_) {
+    _j["Animations"] = nlohmann::json::array();
+    for (const auto& animation : _comp.animationTable_) {
         nlohmann::json animationJson;
         animationJson["directory"]     = animation.directory;
         animationJson["fileName"]      = animation.fileName;
@@ -35,18 +35,18 @@ void OriGine::to_json(nlohmann::json& j, const SkinningAnimationComponent& r) {
         animationJson["playbackSpeed"] = animation.playbackSpeed;
         animationJson["isPlay"]        = animation.animationState.isPlay_;
         animationJson["isLoop"]        = animation.animationState.isLoop_;
-        j["Animations"].push_back(animationJson);
+        _j["Animations"].push_back(animationJson);
     }
 }
 
-void OriGine::from_json(const nlohmann::json& j, SkinningAnimationComponent& r) {
-    j.at("bindModeMeshRendererIndex").get_to(r.bindModeMeshRendererIndex_);
+void OriGine::from_json(const nlohmann::json& _j, SkinningAnimationComponent& _comp) {
+    _j.at("bindModeMeshRendererIndex").get_to(_comp.bindModeMeshRendererIndex_);
 
-    if (!r.animationTable_.empty()) {
-        r.animationTable_.clear();
+    if (!_comp.animationTable_.empty()) {
+        _comp.animationTable_.clear();
     }
-    if (j.contains("Animations")) {
-        for (const auto& animationJson : j.at("Animations")) {
+    if (_j.contains("Animations")) {
+        for (const auto& animationJson : _j.at("Animations")) {
             SkinningAnimationComponent::AnimationCombo animation;
             animation.directory              = animationJson.at("directory").get<std::string>();
             animation.fileName               = animationJson.at("fileName").get<std::string>();
@@ -54,13 +54,13 @@ void OriGine::from_json(const nlohmann::json& j, SkinningAnimationComponent& r) 
             animation.playbackSpeed          = animationJson.at("playbackSpeed").get<float>();
             animation.animationState.isPlay_ = animationJson.at("isPlay").get<bool>();
             animation.animationState.isLoop_ = animationJson.at("isLoop").get<bool>();
-            r.animationTable_.emplace_back(animation);
+            _comp.animationTable_.emplace_back(animation);
         }
     }
 }
 
-void SkinningAnimationComponent::Initialize(Scene* /*_scene*/, EntityHandle _handle) {
-    entityHandle_ = _handle;
+void SkinningAnimationComponent::Initialize(Scene* /*_scene*/, EntityHandle _entity) {
+    entityHandle_ = _entity;
 
     int32_t animationIndex = 0;
     for (auto& animation : animationTable_) {
@@ -76,7 +76,7 @@ void SkinningAnimationComponent::Initialize(Scene* /*_scene*/, EntityHandle _han
     }
 }
 
-void SkinningAnimationComponent::Edit([[maybe_unused]] Scene* _scene, EntityHandle /*_owner*/, [[maybe_unused]] const std::string& _parentLabel) {
+void SkinningAnimationComponent::Edit([[maybe_unused]] Scene* _scene, EntityHandle /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
 
 #ifdef _DEBUG
 
@@ -174,25 +174,25 @@ void SkinningAnimationComponent::Finalize() {
     entityHandle_ = EntityHandle();
 }
 
-void SkinningAnimationComponent::AddLoad(const std::string& directory, const std::string& fileName) {
-    if (directory.empty() || fileName.empty()) {
+void SkinningAnimationComponent::AddLoad(const std::string& _directory, const std::string& _fileName) {
+    if (_directory.empty() || _fileName.empty()) {
         LOG_ERROR("Directory or fileName is empty.");
         return;
     }
     // 既に同じアニメーションが存在する場合は何もしない
-    auto itr = animationIndexBinder_.find(fileName);
+    auto itr = animationIndexBinder_.find(_fileName);
     if (itr != animationIndexBinder_.end()) {
-        LOG_ERROR("Animation with name '{}' already exists.", fileName);
+        LOG_ERROR("Animation with name '{}' already exists.", _fileName);
         return;
     }
     // 新しいアニメーションを追加
     auto& newAnimation     = animationTable_.emplace_back(AnimationCombo{});
-    newAnimation.directory = directory;
-    newAnimation.fileName  = fileName;
+    newAnimation.directory = _directory;
+    newAnimation.fileName  = _fileName;
 
-    newAnimation.animationData = AnimationManager::GetInstance()->Load(kApplicationResourceDirectory + "/" + directory, fileName);
+    newAnimation.animationData = AnimationManager::GetInstance()->Load(kApplicationResourceDirectory + "/" + _directory, _fileName);
 
-    animationIndexBinder_[fileName] = static_cast<int32_t>(animationTable_.size()) - 1;
+    animationIndexBinder_[_fileName] = static_cast<int32_t>(animationTable_.size()) - 1;
 }
 
 void SkinningAnimationComponent::Play() {
@@ -206,12 +206,12 @@ void SkinningAnimationComponent::Play() {
     animation.currentTime            = 0.0f;
 }
 
-void SkinningAnimationComponent::Play(int32_t index) {
-    if (index < 0 || index >= static_cast<int32_t>(animationTable_.size())) {
-        LOG_ERROR("Invalid animation index: {}", index);
+void SkinningAnimationComponent::Play(int32_t _index) {
+    if (_index < 0 || _index >= static_cast<int32_t>(animationTable_.size())) {
+        LOG_ERROR("Invalid animation index: {}", _index);
         return;
     }
-    auto& animation = animationTable_[index];
+    auto& animation = animationTable_[_index];
     if (!animation.animationData) {
         animation.animationData = AnimationManager::GetInstance()->Load(animation.directory, animation.fileName);
     }
@@ -221,22 +221,22 @@ void SkinningAnimationComponent::Play(int32_t index) {
     animation.currentTime            = 0.0f;
 }
 
-void SkinningAnimationComponent::Play(const std::string& name) {
-    int32_t index = GetAnimationIndex(name);
+void SkinningAnimationComponent::Play(const std::string& _name) {
+    int32_t index = GetAnimationIndex(_name);
     if (index < 0 || index >= static_cast<int32_t>(animationTable_.size())) {
-        LOG_ERROR("Invalid animation name: {}", name);
+        LOG_ERROR("Invalid animation name: {}", _name);
         return;
     }
     Play(index);
 }
 
-void SkinningAnimationComponent::PlayNext(int32_t index, float _blendTime) {
-    if (index < 0 || index >= static_cast<int32_t>(animationTable_.size())) {
-        LOG_ERROR("Invalid animation index: {}", index);
+void SkinningAnimationComponent::PlayNext(int32_t _index, float _blendTime) {
+    if (_index < 0 || _index >= static_cast<int32_t>(animationTable_.size())) {
+        LOG_ERROR("Invalid animation index: {}", _index);
         return;
     }
 
-    blendingAnimationData_ = AnimationBlendData{index, _blendTime, 0.0f};
+    blendingAnimationData_ = AnimationBlendData{_index, _blendTime, 0.0f};
 
     auto& nextAnimation = animationTable_[blendingAnimationData_.value().targetAnimationIndex];
     if (!nextAnimation.animationData) {
@@ -248,10 +248,10 @@ void SkinningAnimationComponent::PlayNext(int32_t index, float _blendTime) {
     nextAnimation.currentTime            = 0.0f;
 }
 
-void SkinningAnimationComponent::PlayNext(const std::string& name, float _blendTime) {
-    int32_t index = GetAnimationIndex(name);
+void SkinningAnimationComponent::PlayNext(const std::string& _name, float _blendTime) {
+    int32_t index = GetAnimationIndex(_name);
     if (index < 0 || index >= static_cast<int32_t>(animationTable_.size())) {
-        LOG_ERROR("Invalid animation name: {}", name);
+        LOG_ERROR("Invalid animation name: {}", _name);
         return;
     }
     PlayNext(index, _blendTime);
@@ -324,7 +324,6 @@ void SkinningAnimationComponent::CreateSkinnedVertex(Scene* _scene) {
             skinnedVertexBuffer_[i].buffer = DxResource();
             skinnedVertexBuffer_[i].buffer.CreateUAVBuffer(device, requiredBufferSize);
 
-           
             // UAVディスクリプタも再生成
             D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc{};
             uavDesc.Format                      = DXGI_FORMAT_UNKNOWN; // UAVはフォーマットを持たない
@@ -335,7 +334,7 @@ void SkinningAnimationComponent::CreateSkinnedVertex(Scene* _scene) {
             uavDesc.Buffer.Flags                = D3D12_BUFFER_UAV_FLAG_NONE; // 特にフラグは必要ない
             uavDesc.Buffer.StructureByteStride  = sizeof(decltype(mesh.vertexes_)::value_type);
             UAVEntry uavEntry(&skinnedVertexBuffer_[i].buffer, nullptr, uavDesc);
-            skinnedVertexBuffer_[i].descriptor = uavHeap->CreateDescriptor(&uavEntry);
+            skinnedVertexBuffer_[i].descriptor            = uavHeap->CreateDescriptor(&uavEntry);
             skinnedVertexBuffer_[i].vbView.BufferLocation = skinnedVertexBuffer_[i].buffer.GetResource()->GetGPUVirtualAddress();
             skinnedVertexBuffer_[i].vbView.SizeInBytes    = static_cast<UINT>(skinnedVertexBuffer_[i].buffer.GetSizeInBytes());
             skinnedVertexBuffer_[i].vbView.StrideInBytes  = sizeof(decltype(mesh.vertexes_)::value_type);

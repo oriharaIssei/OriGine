@@ -12,7 +12,7 @@
 
 using namespace OriGine;
 
-void SmoothingEffectParam:: Initialize(Scene* /*_scene,*/, EntityHandle /*_owner*/) {
+void SmoothingEffectParam::Initialize(Scene* /*_scene,*/, EntityHandle /*_owner*/) {
     boxFilterSize_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
 }
 
@@ -27,14 +27,14 @@ void SmoothingEffectParam::Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, [[ma
 
 void SmoothingEffectParam::Finalize() {}
 
-void to_json(nlohmann::json& j, const SmoothingEffectParam& c) {
-    j = nlohmann::json{
-        {"isActive", c.isActive_},
-        {"boxFilterSize", c.boxFilterSize_.openData_.size},
+void to_json(nlohmann::json& _j, const SmoothingEffectParam& _comp) {
+    _j = nlohmann::json{
+        {"isActive", _comp.isActive_},
+        {"boxFilterSize", _comp.boxFilterSize_.openData_.size},
     };
 }
 
-void from_json(const nlohmann::json& j, SmoothingEffectParam& c) {
-    j.at("isActive").get_to(c.isActive_);
-    j.at("boxFilterSize").get_to(c.boxFilterSize_.openData_.size);
+void from_json(const nlohmann::json& _j, SmoothingEffectParam& _comp) {
+    _j.at("isActive").get_to(_comp.isActive_);
+    _j.at("boxFilterSize").get_to(_comp.boxFilterSize_.openData_.size);
 }

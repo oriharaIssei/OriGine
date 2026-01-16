@@ -123,9 +123,9 @@ const ::std::string& SceneManager::GetCurrentSceneName() const { return currentS
 /// <summary>
 /// 次のフレームで指定されたシーンに切り替えるように予約する.
 /// </summary>
-/// <param name="name">遷移先のシーン名</param>
-void SceneManager::ChangeScene(const ::std::string& name) {
-    changingSceneName_ = name;
+/// <param name="_name">遷移先のシーン名</param>
+void SceneManager::ChangeScene(const ::std::string& _name) {
+    changingSceneName_ = _name;
     isChangeScene_     = true;
 }
 

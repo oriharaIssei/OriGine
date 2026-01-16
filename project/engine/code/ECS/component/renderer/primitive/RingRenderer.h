@@ -7,8 +7,8 @@ namespace OriGine {
 
 class RingRenderer
     : public PrimitiveMeshRenderer<Primitive::Ring> {
-    friend void to_json(nlohmann::json& j, const RingRenderer& r);
-    friend void from_json(const nlohmann::json& j, RingRenderer& r);
+    friend void to_json(nlohmann::json& _j, const RingRenderer& _comp);
+    friend void from_json(const nlohmann::json& _j, RingRenderer& _comp);
 
 public:
     RingRenderer() : PrimitiveMeshRenderer() {}

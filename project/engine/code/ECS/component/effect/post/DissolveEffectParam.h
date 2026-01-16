@@ -49,8 +49,8 @@ public:
 /// </summary>
 class DissolveEffectParam
     : public IComponent {
-    friend void to_json(nlohmann::json& j, const DissolveEffectParam& param);
-    friend void from_json(const nlohmann::json& j, DissolveEffectParam& param);
+    friend void to_json(nlohmann::json& _j, const DissolveEffectParam& _comp);
+    friend void from_json(const nlohmann::json& _j, DissolveEffectParam& _comp);
 
 public:
     DissolveEffectParam()           = default;
@@ -61,7 +61,7 @@ public:
 
     void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) override;
 
-    void LoadTexture(const std::string& filePath);
+    void LoadTexture(const std::string& _filePath);
 
     /// <summary>
     /// エフェクトを有効化
@@ -103,27 +103,27 @@ public:
     int32_t GetMaterialIndex() const {
         return materialIndex_;
     }
-    void SetMaterialIndex(int32_t index) {
-        materialIndex_ = index;
+    void SetMaterialIndex(int32_t _index) {
+        materialIndex_ = _index;
     }
 
     float GetThreshold() const {
         return paramBuffer_->threshold;
     }
-    void SetThreshold(float threshold) {
-        paramBuffer_->threshold = threshold;
+    void SetThreshold(float _threshold) {
+        paramBuffer_->threshold = _threshold;
     }
     float GetEdgeWidth() const {
         return paramBuffer_->edgeWidth;
     }
-    void SetEdgeWidth(float edgeWidth) {
-        paramBuffer_->edgeWidth = edgeWidth;
+    void SetEdgeWidth(float _edgeWidth) {
+        paramBuffer_->edgeWidth = _edgeWidth;
     }
     const Vec4f& GetOutLineColor() const {
         return paramBuffer_->outLineColor;
     }
-    void SetOutLineColor(const Vec4f& color) {
-        paramBuffer_->outLineColor = color;
+    void SetOutLineColor(const Vec4f& _color) {
+        paramBuffer_->outLineColor = _color;
     }
 
     uint32_t GetTextureIndex() const {

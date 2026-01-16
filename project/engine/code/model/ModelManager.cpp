@@ -35,84 +35,84 @@ struct VertexKey {
     Vec3f normal;
     Vec2f texCoord;
 
-    bool operator==(const VertexKey& other) const {
-        return position == other.position && normal == other.normal && texCoord == other.texCoord;
+    bool operator==(const VertexKey& _other) const {
+        return position == _other.position && normal == _other.normal && texCoord == _other.texCoord;
     }
 };
 namespace std {
 template <>
 struct hash<VertexKey> {
-    size_t operator()(const VertexKey& key) const {
-        return hash<float>()(key.position[X]) ^ hash<float>()(key.position[Y]) ^ hash<float>()(key.position[Z]) ^ hash<float>()(key.normal[X]) ^ hash<float>()(key.normal[Y]) ^ hash<float>()(key.normal[Z]) ^ hash<float>()(key.texCoord[X]) ^ hash<float>()(key.texCoord[Y]);
+    size_t operator()(const VertexKey& _key) const {
+        return hash<float>()(_key.position[X]) ^ hash<float>()(_key.position[Y]) ^ hash<float>()(_key.position[Z]) ^ hash<float>()(_key.normal[X]) ^ hash<float>()(_key.normal[Y]) ^ hash<float>()(_key.normal[Z]) ^ hash<float>()(_key.texCoord[X]) ^ hash<float>()(_key.texCoord[Y]);
     }
 };
 } // namespace std
 
 #pragma region "LoadFunctions"
-static void ProcessMeshData(TextureColorMesh& meshData, const ::std::vector<TextureColorVertexData>& vertices, const ::std::vector<uint32_t>& indices) {
+static void ProcessMeshData(TextureColorMesh& _meshData, const ::std::vector<TextureColorVertexData>& _vertices, const ::std::vector<uint32_t>& _indices) {
 
-    meshData.Initialize(static_cast<UINT>(vertices.size()), static_cast<UINT>(indices.size()));
+    _meshData.Initialize(static_cast<UINT>(_vertices.size()), static_cast<UINT>(_indices.size()));
 
     // 頂点データのコピー
-    meshData.copyVertexData(vertices.data(), static_cast<uint32_t>(vertices.size()));
+    _meshData.copyVertexData(_vertices.data(), static_cast<uint32_t>(_vertices.size()));
     // インデックスデータのコピー
-    meshData.copyIndexData(indices.data(), static_cast<uint32_t>(indices.size()));
+    _meshData.copyIndexData(_indices.data(), static_cast<uint32_t>(_indices.size()));
 
-    meshData.TransferData();
+    _meshData.TransferData();
 }
 
-static ModelNode ReadNode(aiNode* node) {
+static ModelNode ReadNode(aiNode* _node) {
     ModelNode result;
     /// Transform の取得
     aiVector3D aiScale, aiTranslate;
     aiQuaternion aiRotate;
-    node->mTransformation.Decompose(aiScale, aiRotate, aiTranslate);
+    _node->mTransformation.Decompose(aiScale, aiRotate, aiTranslate);
     result.transform.scale     = Vec3f(aiScale.x, aiScale.y, aiScale.z);
     result.transform.rotate    = Quaternion(aiRotate.x, -aiRotate.y, -aiRotate.z, aiRotate.w); // X軸反転
     result.transform.translate = Vec3f(-aiTranslate.x, aiTranslate.y, aiTranslate.z); // X軸反転
     result.localMatrix         = MakeMatrix4x4::Affine(result.transform.scale, result.transform.rotate, result.transform.translate);
 
     /// Name を Copy
-    result.name = node->mName.C_Str();
+    result.name = _node->mName.C_Str();
 
     /// Children を Copy
-    result.children.resize(node->mNumChildren);
-    for (uint32_t childIndex = 0; childIndex < node->mNumChildren; childIndex++) {
-        result.children[childIndex] = ReadNode(node->mChildren[childIndex]);
+    result.children.resize(_node->mNumChildren);
+    for (uint32_t childIndex = 0; childIndex < _node->mNumChildren; childIndex++) {
+        result.children[childIndex] = ReadNode(_node->mChildren[childIndex]);
     }
 
     return result;
 }
 
 static int32_t CreateJoint(
-    const ModelNode& node,
-    const ::std::optional<int32_t>& parent,
-    ::std::vector<Joint>& joints) {
+    const ModelNode& _node,
+    const ::std::optional<int32_t>& _parent,
+    ::std::vector<Joint>& _joints) {
     Joint joint;
 
-    joint.name  = node.name;
-    joint.index = static_cast<int32_t>(joints.size());
+    joint.name  = _node.name;
+    joint.index = static_cast<int32_t>(_joints.size());
 
-    joint.transform           = node.transform;
-    joint.localMatrix         = node.localMatrix;
+    joint.transform           = _node.transform;
+    joint.localMatrix         = _node.localMatrix;
     joint.skeletonSpaceMatrix = MakeMatrix4x4::Identity();
 
-    joint.parent = parent;
+    joint.parent = _parent;
 
-    joints.push_back(joint);
+    _joints.push_back(joint);
 
-    for (const ModelNode& child : node.children) {
+    for (const ModelNode& child : _node.children) {
         // 子ジョイントを再帰的に作成, そのインデックスを登録
-        int32_t childIndex = CreateJoint(child, joint.index, joints);
-        joints[joint.index].children.push_back(childIndex);
+        int32_t childIndex = CreateJoint(child, joint.index, _joints);
+        _joints[joint.index].children.push_back(childIndex);
     }
 
     return joint.index;
 }
 
-static Skeleton CreateSkeleton(const ModelNode& rootNode) {
+static Skeleton CreateSkeleton(const ModelNode& _rootNode) {
     Skeleton skeleton;
-    skeleton.rootJointIndex = CreateJoint(rootNode, {}, skeleton.joints);
+    skeleton.rootJointIndex = CreateJoint(_rootNode, {}, skeleton.joints);
 
     // 名前とIndex を バインド
     for (const Joint& joint : skeleton.joints) {
@@ -207,9 +207,9 @@ static void CreateSkinCluster(
     _cluster.skinningInfoBuffer_.ConvertToBuffer();
 }
 
-static void LoadModelFile(ModelMeshData* data, const ::std::string& directoryPath, const ::std::string& filename) {
+static void LoadModelFile(ModelMeshData* _data, const ::std::string& _directoryPath, const ::std::string& _filename) {
     Assimp::Importer importer;
-    ::std::string filePath = directoryPath + "/" + filename;
+    ::std::string filePath = _directoryPath + "/" + _filename;
     const aiScene* scene   = importer.ReadFile(filePath.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
     assert(scene->HasMeshes());
 
@@ -220,14 +220,14 @@ static void LoadModelFile(ModelMeshData* data, const ::std::string& directoryPat
     ::std::vector<uint32_t> indices;
 
     /// node 読み込み
-    data->rootNode = ReadNode(scene->mRootNode);
+    _data->rootNode = ReadNode(scene->mRootNode);
     // スケルトンの作成
-    data->skeleton = CreateSkeleton(data->rootNode);
+    _data->skeleton = CreateSkeleton(_data->rootNode);
 
     for (uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex) {
         aiMesh* loadedMesh = scene->mMeshes[meshIndex];
 
-        auto& mesh = data->meshGroup[loadedMesh->mName.C_Str()] = TextureColorMesh();
+        auto& mesh = _data->meshGroup[loadedMesh->mName.C_Str()] = TextureColorMesh();
         mesh.SetName(loadedMesh->mName.C_Str());
 
         // 頂点データとインデックスデータの処理
@@ -278,17 +278,17 @@ static void LoadModelFile(ModelMeshData* data, const ::std::string& directoryPat
         if (material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePath) == AI_SUCCESS) {
             texturePath = textureFilePath.C_Str();
             if ((texturePath.find("/") == ::std::string::npos)) {
-                texturePath = directoryPath + "/" + texturePath;
+                texturePath = _directoryPath + "/" + texturePath;
             }
             textureIndex = TextureManager::LoadTexture(texturePath);
         }
 
-        ModelManager::GetInstance()->pushBackDefaultMaterial(data, {texturePath, textureIndex, IConstantBuffer<Material>()});
+        ModelManager::GetInstance()->pushBackDefaultMaterial(_data, {texturePath, textureIndex, IConstantBuffer<Material>()});
 
         // メッシュデータを処理
         ProcessMeshData(mesh, vertices, indices);
 
-        CreateSkinCluster(data->skinClusterDataMap[mesh.GetName()], device, loadedMesh, data);
+        CreateSkinCluster(_data->skinClusterDataMap[mesh.GetName()], device, loadedMesh, _data);
 
         // リセット
         vertices.clear();
@@ -305,12 +305,12 @@ ModelManager* ModelManager::GetInstance() {
 }
 
 ::std::shared_ptr<Model> ModelManager::Create(
-    const ::std::string& directoryPath,
-    const ::std::string& filename,
-    ::std::function<void(Model*)> callBack) {
+    const ::std::string& _directoryPath,
+    const ::std::string& _filename,
+    ::std::function<void(Model*)> _callBack) {
     ::std::shared_ptr<Model> result = ::std::make_unique<Model>();
 
-    ::std::string filePath = NormalizeString(directoryPath + "/" + filename);
+    ::std::string filePath = NormalizeString(_directoryPath + "/" + _filename);
 
     LOG_TRACE("Load Model \n Path : {}", filePath);
 
@@ -334,8 +334,8 @@ ModelManager* ModelManager::GetInstance() {
             result->transforms_[&data].UpdateMatrix();
         }
 
-        if (callBack != nullptr) {
-            callBack(result.get());
+        if (_callBack != nullptr) {
+            _callBack(result.get());
         }
 
         return result;
@@ -347,22 +347,22 @@ ModelManager* ModelManager::GetInstance() {
     result->meshData_       = modelLibrary_[filePath].get();
 #ifdef _DEBUG
     /* loadThread_->pushTask(
-         {.directory   = directoryPath,
-             .fileName = filename,
+         {.directory   = _directoryPath,
+             .fileName = _filename,
              .model    = result,
-             .callBack = callBack});*/
+             .callBack = _callBack});*/
     LoadTask task;
-    task.directory = directoryPath;
-    task.fileName  = filename;
+    task.directory = _directoryPath;
+    task.fileName  = _filename;
     task.model     = result;
-    task.callBack  = callBack;
+    task.callBack  = _callBack;
     task.Update();
 #else
     LoadTask task;
-    task.directory = directoryPath;
-    task.fileName  = filename;
+    task.directory = _directoryPath;
+    task.fileName  = _filename;
     task.model     = result;
-    task.callBack  = callBack;
+    task.callBack  = _callBack;
     task.Update();
 #endif // _DEBUG
 
@@ -393,12 +393,12 @@ void ModelManager::Finalize() {
     modelLibrary_.clear();
 }
 
-void ModelManager::pushBackDefaultMaterial(ModelMeshData* key, TexturedMaterial material) {
-    defaultMaterials_[key].emplace_back(material);
+void ModelManager::pushBackDefaultMaterial(ModelMeshData* _key, TexturedMaterial _material) {
+    defaultMaterials_[_key].emplace_back(_material);
 }
 
-ModelMeshData* ModelManager::GetModelMeshData(const ::std::string& directoryPath, const ::std::string& filename) {
-    ::std::string filePath = NormalizeString(directoryPath + "/" + filename);
+ModelMeshData* ModelManager::GetModelMeshData(const ::std::string& _directoryPath, const ::std::string& _filename) {
+    ::std::string filePath = NormalizeString(_directoryPath + "/" + _filename);
     auto it                = modelLibrary_.find(filePath);
     if (it != modelLibrary_.end()) {
         return it->second.get();
@@ -406,17 +406,17 @@ ModelMeshData* ModelManager::GetModelMeshData(const ::std::string& directoryPath
     return nullptr;
 }
 
-const ::std::vector<TexturedMaterial>& ModelManager::GetDefaultMaterials(ModelMeshData* key) const {
+const ::std::vector<TexturedMaterial>& ModelManager::GetDefaultMaterials(ModelMeshData* _key) const {
     static ::std::vector<TexturedMaterial> empty;
-    auto it = defaultMaterials_.find(key);
+    auto it = defaultMaterials_.find(_key);
     if (it != defaultMaterials_.end()) {
         return it->second;
     }
     return empty;
 }
 
-const ::std::vector<TexturedMaterial>& ModelManager::GetDefaultMaterials(const ::std::string& directoryPath, const ::std::string& filename) const {
-    ::std::string filePath = NormalizeString(directoryPath + "/" + filename);
+const ::std::vector<TexturedMaterial>& ModelManager::GetDefaultMaterials(const ::std::string& _directoryPath, const ::std::string& _filename) const {
+    ::std::string filePath = NormalizeString(_directoryPath + "/" + _filename);
     auto it                = modelLibrary_.find(filePath);
     return GetDefaultMaterials(it->second.get());
 }

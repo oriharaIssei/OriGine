@@ -7,8 +7,8 @@
 namespace OriGine {
 
 struct ComponentHandle {
-    friend void to_json(nlohmann::json& j, const ComponentHandle& c);
-    friend void from_json(const nlohmann::json& j, ComponentHandle& c);
+    friend void to_json(nlohmann::json& _j, const ComponentHandle& _c);
+    friend void from_json(const nlohmann::json& _j, ComponentHandle& _c);
 
     ComponentHandle() : uuid() {}
     ComponentHandle(const uuids::uuid& _uuid) : uuid(_uuid) {}
@@ -32,8 +32,8 @@ namespace std {
 
 template <>
 struct hash<OriGine::ComponentHandle> {
-    std::size_t operator()(const OriGine::ComponentHandle& h) const noexcept {
-        return std::hash<uuids::uuid>{}(h.uuid);
+    std::size_t operator()(const OriGine::ComponentHandle& _h) const noexcept {
+        return std::hash<uuids::uuid>{}(_h.uuid);
     }
 };
 

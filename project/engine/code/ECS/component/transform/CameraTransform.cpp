@@ -7,11 +7,11 @@
 
 using namespace OriGine;
 
-void CameraTransform::Initialize(Scene* /*_scene*/, EntityHandle /*_hostEntity*/) {
+void CameraTransform::Initialize(Scene* /*_scene*/, EntityHandle /*_entity*/) {
     UpdateMatrix();
 }
 
-void CameraTransform::Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, [[maybe_unused]] const std::string& _parentLabel) {
+void CameraTransform::Edit(Scene* /*_scene*/, EntityHandle /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     DragGuiVectorCommand("Rotate##" + _parentLabel, rotate, 0.01f);
@@ -39,23 +39,23 @@ void CameraTransform::UpdateMatrix() {
     projectionMat = MakeMatrix4x4::PerspectiveFov(fovAngleY, aspectRatio, nearZ, farZ);
 }
 
-void OriGine::to_json(nlohmann::json& j, const CameraTransform& r) {
-    j = nlohmann::json{
-        {"rotate", r.rotate},
-        {"translate", r.translate},
-        {"fovAngleY", r.fovAngleY},
-        {"aspectRatio", r.aspectRatio},
-        {"nearZ", r.nearZ},
-        {"farZ", r.farZ},
+void OriGine::to_json(nlohmann::json& _j, const CameraTransform& _comp) {
+    _j = nlohmann::json{
+        {"rotate", _comp.rotate},
+        {"translate", _comp.translate},
+        {"fovAngleY", _comp.fovAngleY},
+        {"aspectRatio", _comp.aspectRatio},
+        {"nearZ", _comp.nearZ},
+        {"farZ", _comp.farZ},
     };
 }
 
-void OriGine::from_json(const nlohmann::json& j, CameraTransform& r) {
-    j.at("rotate").get_to(r.rotate);
-    j.at("translate").get_to(r.translate);
-    j.at("fovAngleY").get_to(r.fovAngleY);
-    j.at("aspectRatio").get_to(r.aspectRatio);
-    j.at("nearZ").get_to(r.nearZ);
-    j.at("farZ").get_to(r.farZ);
-    r.UpdateMatrix();
+void OriGine::from_json(const nlohmann::json& _j, CameraTransform& _comp) {
+    _j.at("rotate").get_to(_comp.rotate);
+    _j.at("translate").get_to(_comp.translate);
+    _j.at("fovAngleY").get_to(_comp.fovAngleY);
+    _j.at("aspectRatio").get_to(_comp.aspectRatio);
+    _j.at("nearZ").get_to(_comp.nearZ);
+    _j.at("farZ").get_to(_comp.farZ);
+    _comp.UpdateMatrix();
 }

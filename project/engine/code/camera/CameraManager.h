@@ -67,17 +67,17 @@ public:
     /// 指定したシーンのカメラトランスフォームを設定する.
     /// </summary>
     /// <param name="_sceneName">設定対象のシーン名</param>
-    /// <param name="transform">設定するトランスフォーム情報</param>
+    /// <param name="_transform">設定するトランスフォーム情報</param>
     /// <returns>設定に成功したか</returns>
-    bool SetTransform(const std::string& _sceneName, const CameraTransform& transform);
+    bool SetTransform(const std::string& _sceneName, const CameraTransform& _transform);
 
     /// <summary>
     /// 指定したシーンのカメラトランスフォームを設定する.
     /// </summary>
     /// <param name="_scene">設定対象のシーン</param>
-    /// <param name="transform">設定するトランスフォーム情報</param>
+    /// <param name="_transform">設定するトランスフォーム情報</param>
     /// <returns>設定に成功したか</returns>
-    bool SetTransform(Scene* _scene, const CameraTransform& transform);
+    bool SetTransform(Scene* _scene, const CameraTransform& _transform);
 
     /// <summary>
     /// カメラデータを定数バッファに転送する.
@@ -97,25 +97,25 @@ public:
     /// 定数バッファをルートパラメータにセットする.
     /// </summary>
     /// <param name="_sceneName">対象のシーン名</param>
-    /// <param name="cmdList">コマンドリスト</param>
-    /// <param name="rootParameterNum">ルートパラメータ番号</param>
+    /// <param name="_cmdList">コマンドリスト</param>
+    /// <param name="_rootParameterNum">ルートパラメータ番号</param>
     /// <returns>セットに成功したか</returns>
     bool SetBufferForRootParameter(
         const std::string& _sceneName,
-        Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList,
-        uint32_t rootParameterNum);
+        Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _cmdList,
+        uint32_t _rootParameterNum);
 
     /// <summary>
     /// 定数バッファをルートパラメータにセットする.
     /// </summary>
     /// <param name="_scene">対象のシーン</param>
-    /// <param name="cmdList">コマンドリスト</param>
-    /// <param name="rootParameterNum">ルートパラメータ番号</param>
+    /// <param name="_cmdList">コマンドリスト</param>
+    /// <param name="_rootParameterNum">ルートパラメータ番号</param>
     /// <returns>セットに成功したか</returns>
     bool SetBufferForRootParameter(
         Scene* _scene,
-        Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList,
-        uint32_t rootParameterNum);
+        Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _cmdList,
+        uint32_t _rootParameterNum);
 
     /// <summary>
     /// 指定したシーンの現在のカメラトランスフォームを取得する.

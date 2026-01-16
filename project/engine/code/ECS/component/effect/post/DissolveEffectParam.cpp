@@ -18,7 +18,7 @@
 
 using namespace OriGine;
 
-void DissolveEffectParam::Initialize(Scene* /*_scene,*/, EntityHandle /*_owner*/) {
+void DissolveEffectParam::Initialize([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _entity) {
 
     if (!textureFilePath_.empty()) {
         textureIndex_ = TextureManager::LoadTexture(textureFilePath_);
@@ -38,11 +38,11 @@ void DissolveEffectParam::Finalize() {
     isActive_     = false;
 }
 
-void DissolveEffectParam::LoadTexture(const std::string& filePath) {
-    if (filePath.empty()) {
+void DissolveEffectParam::LoadTexture(const std::string& _filePath) {
+    if (_filePath.empty()) {
         return;
     }
-    textureFilePath_ = filePath;
+    textureFilePath_ = _filePath;
     textureIndex_    = TextureManager::LoadTexture(textureFilePath_);
 }
 
@@ -75,7 +75,7 @@ void DissolveEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] 
     }
     label = "Material##" + _parentLabel;
     if (ImGui::TreeNode(label.c_str())) {
-        if ( materialIndex_ >= 0 && materialIndex_ < materials.size()) {
+        if (materialIndex_ >= 0 && materialIndex_ < materials.size()) {
             materials[materialIndex_].Edit(_scene, _handle, label);
         } else {
             ImGui::Text("Material is null.");
@@ -89,10 +89,10 @@ void DissolveEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] 
     DragGuiCommand("Edge Width##" + _parentLabel, paramBuffer_->edgeWidth, 0.001f, 0.0f, 1.0f, "%.4f");
     ColorEditGuiCommand("OutLine Color##" + _parentLabel, paramBuffer_->outLineColor);
 
-    auto askLoadTexture = [this](const std::string& _parentLabel) {
+    auto askLoadTexture = [this](const std::string& _label) {
         bool ask = false;
 
-        std::string label = "Load Texture##" + _parentLabel;
+        std::string label = "Load Texture##" + _label;
         ask               = ImGui::Button(label.c_str());
         ask               = ImGui::ImageButton(
             ImTextureID(TextureManager::GetDescriptorGpuHandle(textureIndex_).ptr),
@@ -120,24 +120,23 @@ void DissolveEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] 
 #endif // _DEBUG
 }
 
-void OriGine::to_json(nlohmann::json& j, const DissolveEffectParam& param) {
-    j = nlohmann::json{
-        {"isActive", param.isActive_},
-        {"textureFilePath", param.textureFilePath_},
-        {"edgeWidth", param.paramBuffer_->edgeWidth},
-        {"threshold", param.paramBuffer_->threshold},
-        {"outLineColor", param.paramBuffer_->outLineColor},
-        {"outLineColor", param.paramBuffer_->outLineColor},
-        {"materialIndex", param.materialIndex_}};
+void OriGine::to_json(nlohmann::json& _j, const DissolveEffectParam& _comp) {
+    _j = nlohmann::json{
+        {"isActive", _comp.isActive_},
+        {"textureFilePath", _comp.textureFilePath_},
+        {"edgeWidth", _comp.paramBuffer_->edgeWidth},
+        {"threshold", _comp.paramBuffer_->threshold},
+        {"outLineColor", _comp.paramBuffer_->outLineColor},
+        {"materialIndex", _comp.materialIndex_}};
 }
-void OriGine::from_json(const nlohmann::json& j, DissolveEffectParam& param) {
-    j.at("isActive").get_to(param.isActive_);
-    j.at("textureFilePath").get_to(param.textureFilePath_);
+void OriGine::from_json(const nlohmann::json& _j, DissolveEffectParam& _comp) {
+    _j.at("isActive").get_to(_comp.isActive_);
+    _j.at("textureFilePath").get_to(_comp.textureFilePath_);
 
-    j.at("edgeWidth").get_to(param.paramBuffer_->edgeWidth);
-    j.at("threshold").get_to(param.paramBuffer_->threshold);
-    j.at("outLineColor").get_to(param.paramBuffer_->outLineColor);
-    if (j.contains("materialIndex")) {
-        j.at("materialIndex").get_to(param.materialIndex_);
+    _j.at("edgeWidth").get_to(_comp.paramBuffer_->edgeWidth);
+    _j.at("threshold").get_to(_comp.paramBuffer_->threshold);
+    _j.at("outLineColor").get_to(_comp.paramBuffer_->outLineColor);
+    if (_j.contains("materialIndex")) {
+        _j.at("materialIndex").get_to(_comp.materialIndex_);
     }
 }

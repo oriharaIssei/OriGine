@@ -42,14 +42,14 @@ public:
     /// <summary>
     /// モデルファイルをロード（またはキャッシュから取得）し、Model インスタンスを作成する.
     /// </summary>
-    /// <param name="directoryPath">ファイルが存在するディレクトリの相対パス</param>
-    /// <param name="filename">モデルのファイル名（拡張子含む）</param>
-    /// <param name="callBack">ロード完了時に実行されるコールバック</param>
+    /// <param name="_directoryPath">ファイルが存在するディレクトリの相対パス</param>
+    /// <param name="_filename">モデルのファイル名（拡張子含む）</param>
+    /// <param name="_callBack">ロード完了時に実行されるコールバック</param>
     /// <returns>作成された Model クラスの共有ポインタ</returns>
     ::std::shared_ptr<Model> Create(
-        const ::std::string& directoryPath,
-        const ::std::string& filename,
-        ::std::function<void(Model*)> callBack = nullptr);
+        const ::std::string& _directoryPath,
+        const ::std::string& _filename,
+        ::std::function<void(Model*)> _callBack = nullptr);
 
     /// <summary>
     /// マネージャの初期化を行う. 内部で使用するコマンドリストや PSO を準備する.
@@ -97,32 +97,32 @@ public:
     /// 指定されたモデルデータに対してデフォルトのマテリアル情報を登録する.
     /// 通常、モデルロード時にエンジンの内部処理として呼ばれる.
     /// </summary>
-    /// <param name="key">対象のモデルデータ</param>
-    /// <param name="material">登録するマテリアル情報</param>
-    void pushBackDefaultMaterial(ModelMeshData* key, TexturedMaterial material);
+    /// <param name="_key">対象のモデルデータ</param>
+    /// <param name="_material">登録するマテリアル情報</param>
+    void pushBackDefaultMaterial(ModelMeshData* _key, TexturedMaterial _material);
 
     /// <summary>
     /// ロード済みのモデルデータを取得する.
     /// </summary>
-    /// <param name="directoryPath">ディレクトリパス</param>
-    /// <param name="filename">ファイル名</param>
+    /// <param name="_directoryPath">ディレクトリパス</param>
+    /// <param name="_filename">ファイル名</param>
     /// <returns>モデルデータポインタ. 未ロードの場合は nullptr を返すことがある.</returns>
-    ModelMeshData* GetModelMeshData(const ::std::string& directoryPath, const ::std::string& filename);
+    ModelMeshData* GetModelMeshData(const ::std::string& _directoryPath, const ::std::string& _filename);
 
     /// <summary>
     /// 指定されたモデルデータに紐付くデフォルトマテリアルリストを取得する.
     /// </summary>
-    /// <param name="key">モデルデータポインタ</param>
+    /// <param name="_key">モデルデータポインタ</param>
     /// <returns>マテリアルのベクトルへの参照</returns>
-    const ::std::vector<TexturedMaterial>& GetDefaultMaterials(ModelMeshData* key) const;
+    const ::std::vector<TexturedMaterial>& GetDefaultMaterials(ModelMeshData* _key) const;
 
     /// <summary>
     /// 指定されたファイルパスのモデルに紐付くデフォルトマテリアルリストを取得する.
     /// </summary>
-    /// <param name="directoryPath">ディレクトリパス</param>
-    /// <param name="filename">ファイル名</param>
+    /// <param name="_directoryPath">ディレクトリパス</param>
+    /// <param name="_filename">ファイル名</param>
     /// <returns>マテリアルのベクトルへの参照</returns>
-    const ::std::vector<TexturedMaterial>& GetDefaultMaterials(const ::std::string& directoryPath, const ::std::string& filename) const;
+    const ::std::vector<TexturedMaterial>& GetDefaultMaterials(const ::std::string& _directoryPath, const ::std::string& _filename) const;
 };
 
 } // namespace OriGine

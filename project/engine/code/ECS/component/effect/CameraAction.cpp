@@ -1,10 +1,10 @@
 #include "CameraAction.h"
 
 #ifdef DEBUG
-///gui
+/// gui
 #include "myGui/MyGui.h"
 #include "util/timeline/Timeline.h"
-///math
+/// math
 #include <math/mathEnv.h>
 #endif // DEBUG
 
@@ -13,9 +13,9 @@ using namespace OriGine;
 CameraAction::CameraAction() {}
 CameraAction::~CameraAction() {}
 
-void CameraAction:: Initialize(Scene* /*_scene,*/, EntityHandle /*_owner*/) {}
+void CameraAction::Initialize(Scene* _scene, EntityHandle _entity) {}
 
-void CameraAction::Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, [[maybe_unused]] [[maybe_unused]] const std::string& _parentLabel) {
+void CameraAction::Edit(Scene* _scene, EntityHandle _entity, [[maybe_unused]] [[maybe_unused]] const std::string& _parentLabel) {
 
 #ifdef DEBUG
     std::string label = "AnimationState##" + _parentLabel;
@@ -75,11 +75,11 @@ void CameraAction::Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, [[maybe_unus
 
 void CameraAction::Finalize() {}
 
-void OriGine::to_json(nlohmann::json& j, const CameraAction& action) {
-    j = nlohmann::json{
-        {"duration", action.duration_},
-        {"isLoop", action.animationState_.isLoop_},
-        {"isPlay", action.animationState_.isPlay_}};
+void OriGine::to_json(nlohmann::json& _j, const CameraAction& _comp) {
+    _j = nlohmann::json{
+        {"duration", _comp.duration_},
+        {"isLoop", _comp.animationState_.isLoop_},
+        {"isPlay", _comp.animationState_.isPlay_}};
 
     auto curveSave = [](const auto& _curve) {
         nlohmann::json curve = nlohmann::json::array();
@@ -93,18 +93,18 @@ void OriGine::to_json(nlohmann::json& j, const CameraAction& action) {
         return curve;
     };
 
-    j["fovCurve"]         = curveSave(action.fovCurve_);
-    j["aspectRatioCurve"] = curveSave(action.aspectRatioCurve_);
-    j["nearZCurve"]       = curveSave(action.nearZCurve_);
-    j["farZCurve"]        = curveSave(action.farZCurve_);
-    j["positionCurve"]    = curveSave(action.positionCurve_);
-    j["rotationCurve"]    = curveSave(action.rotationCurve_);
+    _j["fovCurve"]         = curveSave(_comp.fovCurve_);
+    _j["aspectRatioCurve"] = curveSave(_comp.aspectRatioCurve_);
+    _j["nearZCurve"]       = curveSave(_comp.nearZCurve_);
+    _j["farZCurve"]        = curveSave(_comp.farZCurve_);
+    _j["positionCurve"]    = curveSave(_comp.positionCurve_);
+    _j["rotationCurve"]    = curveSave(_comp.rotationCurve_);
 }
 
-void OriGine::from_json(const nlohmann::json& j, CameraAction& action) {
-    j.at("duration").get_to(action.duration_);
-    j.at("isLoop").get_to(action.animationState_.isLoop_);
-    j.at("isPlay").get_to(action.animationState_.isPlay_);
+void OriGine::from_json(const nlohmann::json& _j, CameraAction& _comp) {
+    _j.at("duration").get_to(_comp.duration_);
+    _j.at("isLoop").get_to(_comp.animationState_.isLoop_);
+    _j.at("isPlay").get_to(_comp.animationState_.isPlay_);
 
     auto curveLoad = [](const nlohmann::json& _curveJson, auto& _curve) {
         for (auto& keyframeJson : _curveJson) {
@@ -115,10 +115,10 @@ void OriGine::from_json(const nlohmann::json& j, CameraAction& action) {
         }
     };
 
-    curveLoad(j.at("fovCurve"), action.fovCurve_);
-    curveLoad(j.at("aspectRatioCurve"), action.aspectRatioCurve_);
-    curveLoad(j.at("nearZCurve"), action.nearZCurve_);
-    curveLoad(j.at("farZCurve"), action.farZCurve_);
-    curveLoad(j.at("positionCurve"), action.positionCurve_);
-    curveLoad(j.at("rotationCurve"), action.rotationCurve_);
+    curveLoad(_j.at("fovCurve"), _comp.fovCurve_);
+    curveLoad(_j.at("aspectRatioCurve"), _comp.aspectRatioCurve_);
+    curveLoad(_j.at("nearZCurve"), _comp.nearZCurve_);
+    curveLoad(_j.at("farZCurve"), _comp.farZCurve_);
+    curveLoad(_j.at("positionCurve"), _comp.positionCurve_);
+    curveLoad(_j.at("rotationCurve"), _comp.rotationCurve_);
 }

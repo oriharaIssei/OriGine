@@ -41,8 +41,8 @@ public:
     ICollider() {}
     virtual ~ICollider() {}
 
-    virtual void Initialize(Scene* _scene, EntityHandle _hostEntity) = 0;
-    virtual void Finalize()                                          = 0;
+    virtual void Initialize(Scene* _scene, EntityHandle _entity) = 0;
+    virtual void Finalize()                                      = 0;
 
     virtual void Edit(Scene* _scene, EntityHandle _handle, const std::string& _parentLabel) = 0;
 
@@ -62,7 +62,7 @@ public: // accessor
     void SetActive(bool _isActive) { isActive_ = _isActive; }
 
     const Transform& GetTransform() const { return transform_; }
-    void SetParent(Transform* _trans) { transform_.parent = _trans; }
+    void SetParent(Transform* _parent) { transform_.parent = _parent; }
 
     // 衝突状態の操作
     void SetCollisionState(EntityHandle _otherHandle) {
@@ -80,7 +80,7 @@ class Collider
     : public ICollider {
 public:
     Collider() {}
-    void Initialize(Scene* /*_scene*/, EntityHandle /*_hostEntity*/) override {}
+    void Initialize(Scene* /*_scene*/, EntityHandle /*_entity*/) override {}
     void Finalize() override {
         this->collisionStateMap_.clear();
         this->preCollisionStateMap_.clear();

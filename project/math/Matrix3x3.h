@@ -14,15 +14,15 @@ struct Matrix3x3 {
     ///
     /// 演算子
     ///
-    float* operator[](int index) { return m[index]; }
-    const float* operator[](int index) const { return m[index]; }
+    float* operator[](int _index) { return m[_index]; }
+    const float* operator[](int _index) const { return m[_index]; }
 
-    Matrix3x3 operator+(const Matrix3x3& another) const;
-    Matrix3x3 operator-(const Matrix3x3& another) const;
-    Matrix3x3 operator*(const Matrix3x3& another) const;
-    Matrix3x3 operator*(const float& scalar) const;
+    Matrix3x3 operator+(const Matrix3x3& _another) const;
+    Matrix3x3 operator-(const Matrix3x3& _another) const;
+    Matrix3x3 operator*(const Matrix3x3& _another) const;
+    Matrix3x3 operator*(const float& _scalar) const;
 
-    Matrix3x3& operator*=(const Matrix3x3& another);
+    Matrix3x3& operator*=(const Matrix3x3& _another);
 
     /// <summary>
     /// 転置行列を取得
@@ -32,9 +32,9 @@ struct Matrix3x3 {
     /// <summary>
     /// 指定した行列の転置行列を取得
     /// </summary>
-    /// <param name="mat">行列</param>
+    /// <param name="_mat">行列</param>
     /// <returns>転置行列</returns>
-    static Matrix3x3 Transpose(const Matrix3x3& mat);
+    static Matrix3x3 Transpose(const Matrix3x3& _mat);
 
     /// <summary>
     /// 逆行列を取得
@@ -44,51 +44,51 @@ struct Matrix3x3 {
     /// <summary>
     /// 指定した行列の逆行列を取得
     /// </summary>
-    /// <param name="mat">行列</param>
+    /// <param name="_mat">行列</param>
     /// <returns>逆行列</returns>
-    static Matrix3x3 Inverse(const Matrix3x3& mat);
+    static Matrix3x3 Inverse(const Matrix3x3& _mat);
 
     /// <summary>
     /// float配列へ変換
     /// </summary>
-    /// <param name="mat">変換元の行列</param>
-    /// <param name="out">出力先の配列(要素数9)</param>
-    static void ToFloatArray(const Matrix3x3& mat, float out[9]);
+    /// <param name="_mat">変換元の行列</param>
+    /// <param name="_out">出力先の配列(要素数9)</param>
+    static void ToFloatArray(const Matrix3x3& _mat, float _out[9]);
     /// <summary>
     /// float配列へ変換
     /// </summary>
-    /// <param name="out">出力先の配列(要素数9)</param>
-    void toFloatArray(float out[9]) const {
-        return ToFloatArray(*this, out);
+    /// <param name="_out">出力先の配列(要素数9)</param>
+    void toFloatArray(float _out[9]) const {
+        return ToFloatArray(*this, _out);
     }
     /// <summary>
     /// float配列から変換
     /// </summary>
-    /// <param name="mat">出力先の行列</param>
-    /// <param name="in">変換元の配列(要素数9)</param>
-    static void FromFloatArray(Matrix3x3& mat, const float in[9]);
+    /// <param name="_mat">出力先の行列</param>
+    /// <param name="_in">変換元の配列(要素数9)</param>
+    static void FromFloatArray(Matrix3x3& _mat, const float _in[9]);
     /// <summary>
     /// float配列から変換
     /// </summary>
-    /// <param name="in">変換元の配列(要素数9)</param>
-    void fromFloatArray(const float in[9]) {
-        FromFloatArray(*this, in);
+    /// <param name="_in">変換元の配列(要素数9)</param>
+    void fromFloatArray(const float _in[9]) {
+        FromFloatArray(*this, _in);
     }
 
     /// <summary>
     /// 行列から SRT (Scale, Rotate, Translate) を抽出
     /// </summary>
     static void Decompose2D(
-        const Matrix3x3& mat,
-        Vec2f& outScale,
-        float& outRotate,
-        Vec2f& outTranslate);
+        const Matrix3x3& _mat,
+        Vec2f& _outScale,
+        float& _outRotate,
+        Vec2f& _outTranslate);
 
     void decompose2D(
-        Vec2f& outScale,
-        float& outRotate,
-        Vec2f& outTranslate) const {
-        Decompose2D(*this, outScale, outRotate, outTranslate);
+        Vec2f& _outScale,
+        float& _outRotate,
+        Vec2f& _outTranslate) const {
+        Decompose2D(*this, _outScale, _outRotate, _outTranslate);
     }
 };
 

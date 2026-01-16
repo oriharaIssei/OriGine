@@ -16,8 +16,8 @@
 
 using namespace OriGine;
 
-const char* OriGine::DxResourceTypeToString(DxResourceType type) {
-    switch (type) {
+const char* OriGine::DxResourceTypeToString(DxResourceType _type) {
+    switch (_type) {
     case DxResourceType::Unknown:
         return "Unknown";
     case DxResourceType::Descriptor_RTV:
@@ -41,8 +41,8 @@ const char* OriGine::DxResourceTypeToString(DxResourceType type) {
     }
 }
 
-std::string std::to_string(DxResourceType type) {
-    return DxResourceTypeToString(type);
+std::string std::to_string(DxResourceType _type) {
+    return DxResourceTypeToString(_type);
 }
 
 void DxResource::CreateBufferResource(Microsoft::WRL::ComPtr<ID3D12Device> _device, size_t _sizeInBytes, D3D12_RESOURCE_STATES _state, D3D12_HEAP_TYPE _heapType) {
@@ -109,27 +109,27 @@ void DxResource::CreateDSVBuffer(Microsoft::WRL::ComPtr<ID3D12Device> _device, U
     }
 }
 
-void DxResource::CreateUAVBuffer(Microsoft::WRL::ComPtr<ID3D12Device> device, size_t sizeInBytes, D3D12_RESOURCE_FLAGS flags, D3D12_RESOURCE_STATES state, D3D12_HEAP_TYPE heapType) {
+void DxResource::CreateUAVBuffer(Microsoft::WRL::ComPtr<ID3D12Device> _device, size_t _sizeInBytes, D3D12_RESOURCE_FLAGS _flags, D3D12_RESOURCE_STATES _state, D3D12_HEAP_TYPE _heapType) {
     // Heap Properties の設定
     D3D12_HEAP_PROPERTIES heapProps{};
-    heapProps.Type = heapType; // VRAM 上に生成
+    heapProps.Type = _heapType; // VRAM 上に生成
 
     // Resource Desc の設定
     resourceDesc_.Dimension        = D3D12_RESOURCE_DIMENSION_BUFFER; // バッファリソース
-    resourceDesc_.Width            = sizeInBytes; // サイズを指定
+    resourceDesc_.Width            = _sizeInBytes; // サイズを指定
     resourceDesc_.Height           = 1; // バッファなので高さは 1
     resourceDesc_.DepthOrArraySize = 1; // バッファなので奥行きは 1
     resourceDesc_.MipLevels        = 1; // Mipレベルは 1
     resourceDesc_.SampleDesc.Count = 1; // サンプル数は 1
     resourceDesc_.Layout           = D3D12_TEXTURE_LAYOUT_ROW_MAJOR; // バッファなので行メジャー
-    resourceDesc_.Flags            = flags; // UAV 用のフラグを指定
+    resourceDesc_.Flags            = _flags; // UAV 用のフラグを指定
 
     // Resource の作成
-    HRESULT hr = device->CreateCommittedResource(
+    HRESULT hr = _device->CreateCommittedResource(
         &heapProps,
         D3D12_HEAP_FLAG_NONE,
         &resourceDesc_,
-        state, // UAV 用の状態
+        _state, // UAV 用の状態
         nullptr, // Clear最適値は nullptr
         IID_PPV_ARGS(resource_.GetAddressOf()));
 
@@ -140,13 +140,13 @@ void DxResource::CreateUAVBuffer(Microsoft::WRL::ComPtr<ID3D12Device> device, si
     type_ |= DxResourceType::Descriptor_UAV;
 }
 
-void DxResource::CreateRenderTextureResource(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t width, uint32_t height, DXGI_FORMAT format, const Vec4f& clearColor) {
+void DxResource::CreateRenderTextureResource(Microsoft::WRL::ComPtr<ID3D12Device> _device, uint32_t _width, uint32_t _height, DXGI_FORMAT _format, const Vec4f& _clearColor) {
     resourceDesc_.Dimension          = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-    resourceDesc_.Width              = static_cast<UINT64>(width);
-    resourceDesc_.Height             = static_cast<UINT>(height);
+    resourceDesc_.Width              = static_cast<UINT64>(_width);
+    resourceDesc_.Height             = static_cast<UINT>(_height);
     resourceDesc_.DepthOrArraySize   = 1;
     resourceDesc_.MipLevels          = 1;
-    resourceDesc_.Format             = format;
+    resourceDesc_.Format             = _format;
     resourceDesc_.SampleDesc.Count   = 1;
     resourceDesc_.SampleDesc.Quality = 0;
     resourceDesc_.Layout             = D3D12_TEXTURE_LAYOUT_UNKNOWN;
@@ -156,13 +156,13 @@ void DxResource::CreateRenderTextureResource(Microsoft::WRL::ComPtr<ID3D12Device
     heapProps.Type = D3D12_HEAP_TYPE_DEFAULT;
 
     D3D12_CLEAR_VALUE clearValue{};
-    clearValue.Format   = format;
-    clearValue.Color[0] = clearColor[X];
-    clearValue.Color[1] = clearColor[Y];
-    clearValue.Color[2] = clearColor[Z];
-    clearValue.Color[3] = clearColor[W];
+    clearValue.Format   = _format;
+    clearValue.Color[0] = _clearColor[X];
+    clearValue.Color[1] = _clearColor[Y];
+    clearValue.Color[2] = _clearColor[Z];
+    clearValue.Color[3] = _clearColor[W];
 
-    HRESULT hr = device->CreateCommittedResource(
+    HRESULT hr = _device->CreateCommittedResource(
         &heapProps,
         D3D12_HEAP_FLAG_NONE,
         &resourceDesc_,
@@ -172,7 +172,7 @@ void DxResource::CreateRenderTextureResource(Microsoft::WRL::ComPtr<ID3D12Device
 
     if (FAILED(hr)) {
         LOG_CRITICAL("Failed to create render texture resource.\n message :{}", std::to_string(hr));
-        HRESULT reason = device->GetDeviceRemovedReason();
+        HRESULT reason = _device->GetDeviceRemovedReason();
         char buf[256];
         sprintf_s(buf, "CreateRenderTextureResource FAILED hr=0x%08X, DeviceRemovedReason=0x%08X\n",
             static_cast<unsigned int>(hr), static_cast<unsigned int>(reason));
@@ -182,17 +182,17 @@ void DxResource::CreateRenderTextureResource(Microsoft::WRL::ComPtr<ID3D12Device
     }
 }
 
-void DxResource::CreateTextureResource(Microsoft::WRL::ComPtr<ID3D12Device> device, const DirectX::TexMetadata& metadata) {
+void DxResource::CreateTextureResource(Microsoft::WRL::ComPtr<ID3D12Device> _device, const DirectX::TexMetadata& _metadata) {
     //================================================
     // 1. metadata を基に Resource を設定
 
-    resourceDesc_.Width            = UINT(metadata.width);
-    resourceDesc_.Height           = UINT(metadata.height);
-    resourceDesc_.MipLevels        = UINT16(metadata.mipLevels); // mipMap の数
-    resourceDesc_.DepthOrArraySize = UINT16(metadata.arraySize); // 奥行 or Texture[]の配列数
-    resourceDesc_.Format           = metadata.format; // texture の Format
+    resourceDesc_.Width            = UINT(_metadata.width);
+    resourceDesc_.Height           = UINT(_metadata.height);
+    resourceDesc_.MipLevels        = UINT16(_metadata.mipLevels); // mipMap の数
+    resourceDesc_.DepthOrArraySize = UINT16(_metadata.arraySize); // 奥行 or Texture[]の配列数
+    resourceDesc_.Format           = _metadata.format; // texture の Format
     resourceDesc_.SampleDesc.Count = 1; // サンプリングカウント 1固定
-    resourceDesc_.Dimension        = D3D12_RESOURCE_DIMENSION(metadata.dimension);
+    resourceDesc_.Dimension        = D3D12_RESOURCE_DIMENSION(_metadata.dimension);
 
     //================================================
     // 2. 利用する Heap の設定
@@ -202,7 +202,7 @@ void DxResource::CreateTextureResource(Microsoft::WRL::ComPtr<ID3D12Device> devi
     //================================================
     // 3. Resource の作成
     HRESULT hr;
-    hr = device->CreateCommittedResource(
+    hr = _device->CreateCommittedResource(
         &heapProperties, // heap の設定
         D3D12_HEAP_FLAG_NONE,
         &resourceDesc_,
@@ -229,10 +229,10 @@ void DxResource::Finalize() {
     resourceDesc_ = {}; // リソースの詳細情報をリセット
 }
 
-HRESULT DxResource::SetName(const std::wstring& name) {
+HRESULT DxResource::SetName(const std::wstring& _name) {
     HRESULT result = 0;
     if (resource_) {
-        result = resource_->SetName(name.c_str());
+        result = resource_->SetName(_name.c_str());
     }
     if (FAILED(result)) {
         LOG_CRITICAL("Failed to Set resource name.\n message : {}", result);

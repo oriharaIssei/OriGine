@@ -97,8 +97,8 @@ D3D12_BLEND_DESC CreateBlendDescByBlendMode<BlendMode::Screen>() {
     return blendDesc;
 }
 
-D3D12_BLEND_DESC CreateBlendDescByBlendMode(BlendMode mode) {
-    switch (mode) {
+D3D12_BLEND_DESC CreateBlendDescByBlendMode(BlendMode _mode) {
+    switch (_mode) {
     case BlendMode::None:
         return CreateBlendDescByBlendMode<BlendMode::None>();
     case BlendMode::Normal:
@@ -118,6 +118,6 @@ D3D12_BLEND_DESC CreateBlendDescByBlendMode(BlendMode mode) {
 
 } // namespace OriGine
 
-std::string std::to_string(const OriGine::BlendMode& mode) {
-    return OriGine::kBlendModeStr[static_cast<size_t>(mode)];
+std::string std::to_string(const OriGine::BlendMode& _mode) {
+    return OriGine::kBlendModeStr[static_cast<size_t>(_mode)];
 };

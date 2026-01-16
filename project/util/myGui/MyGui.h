@@ -41,30 +41,30 @@ public:
     /// </summary>
     /// <param name="name">名前</param>
     /// <param name="value">値</param>
-    void SetValue(const std::string& name, const T& value) {
+    void SetValue(const std::string& _name, const T& _value) {
         // 値がすでに存在する場合は何もしない
-        auto it = value_.find(name);
+        auto it = value_.find(_name);
         if (it != value_.end()) {
             return;
         }
-        value_[name] = value;
+        value_[_name] = _value;
     }
     /// <summary>
     /// 指定した名前の値が存在するか確認
     /// </summary>
     /// <param name="name">名前</param>
     /// <returns>存在すればtrue</returns>
-    bool hasValue(const std::string& name) const {
-        return value_.find(name) != value_.end();
+    bool hasValue(const std::string& _name) const {
+        return value_.find(_name) != value_.end();
     }
     /// <summary>
     /// 値を取得し、プールから削除する
     /// </summary>
     /// <param name="name">名前</param>
     /// <returns>取得した値</returns>
-    T popValue(const std::string& name) {
+    T popValue(const std::string& _name) {
         T returnValue{};
-        auto it = value_.find(name);
+        auto it = value_.find(_name);
         if (it != value_.end()) {
 
             returnValue = it->second;
@@ -72,7 +72,7 @@ public:
             value_.erase(it); // 値を削除
 
         } else {
-            LOG_ERROR("Value not found in pool: {} \n Type : {}", name, nameof<T>());
+            LOG_ERROR("Value not found in pool: {} \n Type : {}", _name, nameof<T>());
         }
 
         return returnValue; // デフォルト値を返す
@@ -83,7 +83,7 @@ namespace ImGui {
 /// <summary>
 /// std::string に対応した InputText
 /// </summary>
-bool InputText(const char* label, std::string* str, ImGuiInputTextFlags flags = 0);
+bool InputText(const char* _label, std::string* _str, ImGuiInputTextFlags _flags = 0);
 }
 
 /// <summary>
@@ -98,16 +98,16 @@ bool InputText(const char* label, std::string* str, ImGuiInputTextFlags flags = 
 /// <param name="format"></param>
 /// <returns></returns>
 template <typename T>
-bool DragGui(const std::string& label, T& value, float speed = 0.1f, T min = T(), T max = T(), const char* format = "%.3f") {
+bool DragGui(const std::string& _label, T& _value, float _speed = 0.1f, T _min = T(), T _max = T(), const char* _format = "%.3f") {
 
     if constexpr (std::is_same_v<T, int>) {
-        return ::ImGui::DragInt(label.c_str(), &value, speed, min, max, format);
+        return ::ImGui::DragInt(_label.c_str(), &_value, _speed, _min, _max, _format);
     } else if constexpr (std::is_same_v<T, float>) {
-        return ::ImGui::DragFloat(label.c_str(), &value, speed, min, max, format);
+        return ::ImGui::DragFloat(_label.c_str(), &_value, _speed, _min, _max, _format);
     } else if constexpr (std::is_same_v<T, double>) {
-        return ::ImGui::DragScalar(label.c_str(), ImGuiDataType_Double, &value, speed, &min, &max, format);
+        return ::ImGui::DragScalar(_label.c_str(), ImGuiDataType_Double, &_value, _speed, &_min, &_max, _format);
     } else if constexpr (std::is_same_v<T, unsigned int>) {
-        return ::ImGui::DragScalar(label.c_str(), ImGuiDataType_U32, &value, speed, &min, &max, format);
+        return ::ImGui::DragScalar(_label.c_str(), ImGuiDataType_U32, &_value, _speed, &_min, &_max, _format);
     } else {
         return false; // サポートされていない型の場合
     }
@@ -126,36 +126,36 @@ bool DragGui(const std::string& label, T& value, float speed = 0.1f, T min = T()
 /// <param name="format"></param>
 /// <returns></returns>
 template <int N, typename T>
-bool DragVectorGui(const std::string& label, OriGine::Vector<N, T>& value, float speed = 0.1f, T min = T(), T max = T(), const char* format = "%.3f") {
+bool DragVectorGui(const std::string& _label, OriGine::Vector<N, T>& _value, float _speed = 0.1f, T _min = T(), T _max = T(), const char* _format = "%.3f") {
 
     if constexpr (std::is_same_v<T, int>) {
         if constexpr (N == 2)
-            return ::ImGui::DragInt2(label.c_str(), value.v, speed, min, max, format);
+            return ::ImGui::DragInt2(_label.c_str(), _value.v, _speed, _min, _max, _format);
         if constexpr (N == 3)
-            return ::ImGui::DragInt3(label.c_str(), value.v, speed, min, max, format);
+            return ::ImGui::DragInt3(_label.c_str(), _value.v, _speed, _min, _max, _format);
         if constexpr (N == 4)
-            return ::ImGui::DragInt4(label.c_str(), value.v, speed, min, max, format);
+            return ::ImGui::DragInt4(_label.c_str(), _value.v, _speed, _min, _max, _format);
     } else if constexpr (std::is_same_v<T, float>) {
         if constexpr (N == 2)
-            return ::ImGui::DragFloat2(label.c_str(), value.v, speed, min, max, format);
+            return ::ImGui::DragFloat2(_label.c_str(), _value.v, _speed, _min, _max, _format);
         if constexpr (N == 3)
-            return ::ImGui::DragFloat3(label.c_str(), value.v, speed, min, max, format);
+            return ::ImGui::DragFloat3(_label.c_str(), _value.v, _speed, _min, _max, _format);
         if constexpr (N == 4)
-            return ::ImGui::DragFloat4(label.c_str(), value.v, speed, min, max, format);
+            return ::ImGui::DragFloat4(_label.c_str(), _value.v, _speed, _min, _max, _format);
     } else if constexpr (std::is_same_v<T, double>) {
         if constexpr (N == 2)
-            return ::ImGui::DragScalarN(label.c_str(), ImGuiDataType_Double, value.v, 2, speed, &min, &max, format);
+            return ::ImGui::DragScalarN(_label.c_str(), ImGuiDataType_Double, _value.v, 2, _speed, &_min, &_max, _format);
         if constexpr (N == 3)
-            return ::ImGui::DragScalarN(label.c_str(), ImGuiDataType_Double, value.v, 3, speed, &min, &max, format);
+            return ::ImGui::DragScalarN(_label.c_str(), ImGuiDataType_Double, _value.v, 3, _speed, &_min, &_max, _format);
         if constexpr (N == 4)
-            return ::ImGui::DragScalarN(label.c_str(), ImGuiDataType_Double, value.v, 4, speed, &min, &max, format);
+            return ::ImGui::DragScalarN(_label.c_str(), ImGuiDataType_Double, _value.v, 4, _speed, &_min, &_max, _format);
     } else if constexpr (std::is_same_v<T, unsigned int>) {
         if constexpr (N == 2)
-            return ::ImGui::DragScalarN(label.c_str(), ImGuiDataType_U32, value.v, 2, speed, &min, &max, format);
+            return ::ImGui::DragScalarN(_label.c_str(), ImGuiDataType_U32, _value.v, 2, _speed, &_min, &_max, _format);
         if constexpr (N == 3)
-            return ::ImGui::DragScalarN(label.c_str(), ImGuiDataType_U32, value.v, 3, speed, &min, &max, format);
+            return ::ImGui::DragScalarN(_label.c_str(), ImGuiDataType_U32, _value.v, 3, _speed, &_min, &_max, _format);
         if constexpr (N == 4)
-            return ::ImGui::DragScalarN(label.c_str(), ImGuiDataType_U32, value.v, 4, speed, &min, &max, format);
+            return ::ImGui::DragScalarN(_label.c_str(), ImGuiDataType_U32, _value.v, 4, _speed, &_min, &_max, _format);
     } else {
         return false; // サポートされていない型の場合
     }
@@ -172,16 +172,16 @@ bool DragVectorGui(const std::string& label, OriGine::Vector<N, T>& value, float
 /// <param name="format"></param>
 /// <returns></returns>
 template <typename T>
-bool SlideGui(const std::string& label, T& value, T min = T(), T max = T(), const char* format = "%.3f") {
+bool SlideGui(const std::string& _label, T& _value, T _min = T(), T _max = T(), const char* _format = "%.3f") {
 
     if constexpr (std::is_same_v<T, int>) {
-        return ::ImGui::SliderInt(label.c_str(), &value, min, max, format);
+        return ::ImGui::SliderInt(_label.c_str(), &_value, _min, _max, _format);
     } else if constexpr (std::is_same_v<T, float>) {
-        return ::ImGui::SliderFloat(label.c_str(), &value, min, max, format);
+        return ::ImGui::SliderFloat(_label.c_str(), &_value, _min, _max, _format);
     } else if constexpr (std::is_same_v<T, double>) {
-        return ::ImGui::SliderScalar(label.c_str(), ImGuiDataType_Double, &value, &min, &max, format);
+        return ::ImGui::SliderScalar(_label.c_str(), ImGuiDataType_Double, &_value, &_min, &_max, _format);
     } else if constexpr (std::is_same_v<T, unsigned int>) {
-        return ::ImGui::SliderScalar(label.c_str(), ImGuiDataType_U32, &value, &min, &max, format);
+        return ::ImGui::SliderScalar(_label.c_str(), ImGuiDataType_U32, &_value, &_min, &_max, _format);
     } else {
         return false; // サポートされていない型の場合
     }
@@ -199,36 +199,36 @@ bool SlideGui(const std::string& label, T& value, T min = T(), T max = T(), cons
 /// <param name="format"></param>
 /// <returns></returns>
 template <typename T, int N>
-bool SlideVectorGui(const std::string& label, OriGine::Vector<N, T>& value, T min = T(), T max = T(), const char* format = "%.3f") {
+bool SlideVectorGui(const std::string& _label, OriGine::Vector<N, T>& _value, T _min = T(), T _max = T(), const char* _format = "%.3f") {
 
     if constexpr (std::is_same_v<T, int>) {
         if constexpr (N == 2)
-            return ::ImGui::SliderInt2(label.c_str(), value.v, min, max, format);
+            return ::ImGui::SliderInt2(_label.c_str(), _value.v, _min, _max, _format);
         if constexpr (N == 3)
-            return ::ImGui::SliderInt3(label.c_str(), value.v, min, max, format);
+            return ::ImGui::SliderInt3(_label.c_str(), _value.v, _min, _max, _format);
         if constexpr (N == 4)
-            return ::ImGui::SliderInt4(label.c_str(), value.v, min, max, format);
+            return ::ImGui::SliderInt4(_label.c_str(), _value.v, _min, _max, _format);
     } else if constexpr (std::is_same_v<T, float>) {
         if constexpr (N == 2)
-            return ::ImGui::SliderFloat2(label.c_str(), value.v, min, max, format);
+            return ::ImGui::SliderFloat2(_label.c_str(), _value.v, _min, _max, _format);
         if constexpr (N == 3)
-            return ::ImGui::SliderFloat3(label.c_str(), value.v, min, max, format);
+            return ::ImGui::SliderFloat3(_label.c_str(), _value.v, _min, _max, _format);
         if constexpr (N == 4)
-            return ::ImGui::SliderFloat4(label.c_str(), value.v, min, max, format);
+            return ::ImGui::SliderFloat4(_label.c_str(), _value.v, _min, _max, _format);
     } else if constexpr (std::is_same_v<T, double>) {
         if constexpr (N == 2)
-            return ::ImGui::SliderScalarN(label.c_str(), ImGuiDataType_Double, value.v, 2, &min, &max, format);
+            return ::ImGui::SliderScalarN(_label.c_str(), ImGuiDataType_Double, _value.v, 2, &_min, &_max, _format);
         if constexpr (N == 3)
-            return ::ImGui::SliderScalarN(label.c_str(), ImGuiDataType_Double, value.v, 3, &min, &max, format);
+            return ::ImGui::SliderScalarN(_label.c_str(), ImGuiDataType_Double, _value.v, 3, &_min, &_max, _format);
         if constexpr (N == 4)
-            return ::ImGui::SliderScalarN(label.c_str(), ImGuiDataType_Double, value.v, 4, &min, &max, format);
+            return ::ImGui::SliderScalarN(_label.c_str(), ImGuiDataType_Double, _value.v, 4, &_min, &_max, _format);
     } else if constexpr (std::is_same_v<T, unsigned int>) {
         if constexpr (N == 2)
-            return ::ImGui::SliderScalarN(label.c_str(), ImGuiDataType_U32, value.v, 2, &min, &max, format);
+            return ::ImGui::SliderScalarN(_label.c_str(), ImGuiDataType_U32, _value.v, 2, &_min, &_max, _format);
         if constexpr (N == 3)
-            return ::ImGui::SliderScalarN(label.c_str(), ImGuiDataType_U32, value.v, 3, &min, &max, format);
+            return ::ImGui::SliderScalarN(_label.c_str(), ImGuiDataType_U32, _value.v, 3, &_min, &_max, _format);
         if constexpr (N == 4)
-            return ::ImGui::SliderScalarN(label.c_str(), ImGuiDataType_U32, value.v, 4, &min, &max, format);
+            return ::ImGui::SliderScalarN(_label.c_str(), ImGuiDataType_U32, _value.v, 4, &_min, &_max, _format);
     } else {
         return false; // サポートされていない型の場合
     }
@@ -243,16 +243,16 @@ bool SlideVectorGui(const std::string& label, OriGine::Vector<N, T>& value, T mi
 /// <param name="format"></param>
 /// <returns></returns>
 template <typename T>
-bool InputGui(const std::string& label, T& value, const char* format = "%.3f") {
+bool InputGui(const std::string& _label, T& _value, const char* _format = "%.3f") {
 
     if constexpr (std::is_same_v<T, int>) {
-        return ::ImGui::InputInt(label.c_str(), &value);
+        return ::ImGui::InputInt(_label.c_str(), &_value);
     } else if constexpr (std::is_same_v<T, float>) {
-        return ::ImGui::InputFloat(label.c_str(), &value, 0.0f, 0.0f, format);
+        return ::ImGui::InputFloat(_label.c_str(), &_value, 0.0f, 0.0f, _format);
     } else if constexpr (std::is_same_v<T, double>) {
-        return ::ImGui::InputScalar(label.c_str(), ImGuiDataType_Double, &value, nullptr, nullptr, format);
+        return ::ImGui::InputScalar(_label.c_str(), ImGuiDataType_Double, &_value, nullptr, nullptr, _format);
     } else if constexpr (std::is_same_v<T, unsigned int>) {
-        return ::ImGui::InputScalar(label.c_str(), ImGuiDataType_U32, &value, nullptr, nullptr, format);
+        return ::ImGui::InputScalar(_label.c_str(), ImGuiDataType_U32, &_value, nullptr, nullptr, _format);
     } else {
         return false; // サポートされていない型の場合
     }
@@ -261,36 +261,36 @@ bool InputGui(const std::string& label, T& value, const char* format = "%.3f") {
 /// ::ImGui::Input を型TのN次元ベクトルに対応させたラッパー
 /// </summary>
 template <typename T, int N>
-bool InputVectorGui(const std::string& label, OriGine::Vector<N, T>& value, const char* format = "%.3f") {
+bool InputVectorGui(const std::string& _label, OriGine::Vector<N, T>& _value, const char* _format = "%.3f") {
 
     if constexpr (std::is_same_v<T, int>) {
         if constexpr (N == 2)
-            return ::ImGui::InputInt2(label.c_str(), value.v);
+            return ::ImGui::InputInt2(_label.c_str(), _value.v);
         if constexpr (N == 3)
-            return ::ImGui::InputInt3(label.c_str(), value.v);
+            return ::ImGui::InputInt3(_label.c_str(), _value.v);
         if constexpr (N == 4)
-            return ::ImGui::InputInt4(label.c_str(), value.v);
+            return ::ImGui::InputInt4(_label.c_str(), _value.v);
     } else if constexpr (std::is_same_v<T, float>) {
         if constexpr (N == 2)
-            return ::ImGui::InputFloat2(label.c_str(), value.v, format);
+            return ::ImGui::InputFloat2(_label.c_str(), _value.v, _format);
         if constexpr (N == 3)
-            return ::ImGui::InputFloat3(label.c_str(), value.v, format);
+            return ::ImGui::InputFloat3(_label.c_str(), _value.v, _format);
         if constexpr (N == 4)
-            return ::ImGui::InputFloat4(label.c_str(), value.v, format);
+            return ::ImGui::InputFloat4(_label.c_str(), _value.v, _format);
     } else if constexpr (std::is_same_v<T, double>) {
         if constexpr (N == 2)
-            return ::ImGui::InputScalarN(label.c_str(), ImGuiDataType_Double, value.v, 2, nullptr, nullptr, format);
+            return ::ImGui::InputScalarN(_label.c_str(), ImGuiDataType_Double, _value.v, 2, nullptr, nullptr, _format);
         if constexpr (N == 3)
-            return ::ImGui::InputScalarN(label.c_str(), ImGuiDataType_Double, value.v, 3, nullptr, nullptr, format);
+            return ::ImGui::InputScalarN(_label.c_str(), ImGuiDataType_Double, _value.v, 3, nullptr, nullptr, _format);
         if constexpr (N == 4)
-            return ::ImGui::InputScalarN(label.c_str(), ImGuiDataType_Double, value.v, 4, nullptr, nullptr, format);
+            return ::ImGui::InputScalarN(_label.c_str(), ImGuiDataType_Double, _value.v, 4, nullptr, nullptr, _format);
     } else if constexpr (std::is_same_v<T, unsigned int>) {
         if constexpr (N == 2)
-            return ::ImGui::InputScalarN(label.c_str(), ImGuiDataType_U32, value.v, 2, nullptr, nullptr, format);
+            return ::ImGui::InputScalarN(_label.c_str(), ImGuiDataType_U32, _value.v, 2, nullptr, nullptr, _format);
         if constexpr (N == 3)
-            return ::ImGui::InputScalarN(label.c_str(), ImGuiDataType_U32, value.v, 3, nullptr, nullptr, format);
+            return ::ImGui::InputScalarN(_label.c_str(), ImGuiDataType_U32, _value.v, 3, nullptr, nullptr, _format);
         if constexpr (N == 4)
-            return ::ImGui::InputScalarN(label.c_str(), ImGuiDataType_U32, value.v, 4, nullptr, nullptr, format);
+            return ::ImGui::InputScalarN(_label.c_str(), ImGuiDataType_U32, _value.v, 4, nullptr, nullptr, _format);
     } else {
         return false; // サポートされていない型の場合
     }
@@ -308,18 +308,18 @@ bool InputVectorGui(const std::string& label, OriGine::Vector<N, T>& value, cons
 /// <param name="_afterFunc"></param>
 /// <returns></returns>
 template <typename T>
-bool DragGuiCommand(const std::string& label, T& value, float speed = 0.1f, T min = T(), T max = T(), const char* format = "%.3f", std::function<void(T*)> _afterFunc = nullptr) {
+bool DragGuiCommand(const std::string& _label, T& _value, float _speed = 0.1f, T _min = T(), T _max = T(), const char* _format = "%.3f", std::function<void(T*)> _afterFunc = nullptr) {
     static GuiValuePool<T> valuePool;
 
     bool result = false;
-    result      = DragGui(label, value, speed, min, max, format);
+    result      = DragGui(_label, _value, _speed, _min, _max, _format);
 
     if (::ImGui::IsItemActive()) {
-        valuePool.SetValue(label, value);
+        valuePool.SetValue(_label, _value);
     } else if (::ImGui::IsItemDeactivatedAfterEdit()) {
-        T newValue = value;
-        value      = valuePool.popValue(label);
-        OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<T>>(&value, newValue, _afterFunc));
+        T newValue = _value;
+        _value     = valuePool.popValue(_label);
+        OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<T>>(&_value, newValue, _afterFunc));
         result = true;
     }
 
@@ -339,24 +339,22 @@ bool DragGuiCommand(const std::string& label, T& value, float speed = 0.1f, T mi
 /// <param name="_afterFunc"></param>
 /// <returns></returns>
 template <int N, typename T>
-bool DragGuiVectorCommand(const std::string& label, OriGine::Vector<N, T>& value, float speed = 0.1f, T min = T(), T max = T(), const char* format = "%.3f", std::function<void(OriGine::Vector<N, T>*)> _afterFunc = nullptr) {
+bool DragGuiVectorCommand(const std::string& _label, OriGine::Vector<N, T>& _value, float _speed = 0.1f, T _min = T(), T _max = T(), const char* _format = "%.3f", std::function<void(OriGine::Vector<N, T>*)> _afterFunc = nullptr) {
     static GuiValuePool<OriGine::Vector<N, T>> valuePool;
 
     bool result = false;
-    result      = DragVectorGui(label, value, speed, min, max, format);
+    result      = DragVectorGui(_label, _value, _speed, _min, _max, _format);
 
     if (::ImGui::IsItemActive()) {
-        valuePool.SetValue(label, value);
+        valuePool.SetValue(_label, _value);
     } else if (::ImGui::IsItemDeactivatedAfterEdit()) {
-        OriGine::Vector<N, T> newValue = value;
-        value                          = valuePool.popValue(label);
-        OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<OriGine::Vector<N, T>>>(&value, newValue, _afterFunc));
+        OriGine::Vector<N, T> newValue = _value;
+        _value                         = valuePool.popValue(_label);
+        OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<OriGine::Vector<N, T>>>(&_value, newValue, _afterFunc));
         result = true;
     }
 
     return result;
-
-    return false;
 }
 
 /// <summary>
@@ -371,18 +369,18 @@ bool DragGuiVectorCommand(const std::string& label, OriGine::Vector<N, T>& value
 /// <param name="_afterFunc"></param>
 /// <returns></returns>
 template <typename T>
-bool SlideGuiCommand(const std::string& label, T& value, T min = T(), T max = T(), const char* format = "%.3f", std::function<void(T*)> _afterFunc = nullptr) {
+bool SlideGuiCommand(const std::string& _label, T& _value, T _min = T(), T _max = T(), const char* _format = "%.3f", std::function<void(T*)> _afterFunc = nullptr) {
     static GuiValuePool<T> valuePool;
 
     bool result = false;
-    result      = SlideGui(label, value, min, max, format);
+    result      = SlideGui(_label, _value, _min, _max, _format);
 
     if (::ImGui::IsItemActive()) {
-        valuePool.SetValue(label, value);
+        valuePool.SetValue(_label, _value);
     } else if (::ImGui::IsItemDeactivatedAfterEdit()) {
-        T newValue = value;
-        value      = valuePool.popValue(label);
-        OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<T>>(&value, newValue, _afterFunc));
+        T newValue = _value;
+        _value     = valuePool.popValue(_label);
+        OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<T>>(&_value, newValue, _afterFunc));
         return true;
     }
 
@@ -402,18 +400,18 @@ bool SlideGuiCommand(const std::string& label, T& value, T min = T(), T max = T(
 /// <param name="_afterFunc"></param>
 /// <returns></returns>
 template <typename T, int N>
-bool SlideVectorCommand(const std::string& label, OriGine::Vector<N, T>& value, T min = T(), T max = T(), const char* format = "%.3f", std::function<void(OriGine::Vector<N, T>*)> _afterFunc = nullptr) {
+bool SlideVectorCommand(const std::string& _label, OriGine::Vector<N, T>& _value, T _min = T(), T _max = T(), const char* _format = "%.3f", std::function<void(OriGine::Vector<N, T>*)> _afterFunc = nullptr) {
     static GuiValuePool<OriGine::Vector<N, T>> valuePool;
 
     bool result = false;
-    result      = SlideVectorGui(label, value, min, max, format);
+    result      = SlideVectorGui(_label, _value, _min, _max, _format);
 
     if (::ImGui::IsItemActive()) {
-        valuePool.SetValue(label, value);
+        valuePool.SetValue(_label, _value);
     } else if (::ImGui::IsItemDeactivatedAfterEdit()) {
-        OriGine::Vector<N, T> newValue = value;
-        value                          = valuePool.popValue(label);
-        OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<OriGine::Vector<N, T>>>(&value, newValue, _afterFunc));
+        OriGine::Vector<N, T> newValue = _value;
+        _value                         = valuePool.popValue(_label);
+        OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<OriGine::Vector<N, T>>>(&_value, newValue, _afterFunc));
         return true;
     }
 
@@ -430,18 +428,18 @@ bool SlideVectorCommand(const std::string& label, OriGine::Vector<N, T>& value, 
 /// <param name="_afterFunc"></param>
 /// <returns></returns>
 template <typename T>
-bool InputGuiCommand(const std::string& label, T& value, const char* format = "%.3f", std::function<void(T*)> _afterFunc = nullptr) {
+bool InputGuiCommand(const std::string& _label, T& _value, const char* _format = "%.3f", std::function<void(T*)> _afterFunc = nullptr) {
     static GuiValuePool<T> valuePool;
 
     bool result = false;
-    result      = InputGui(label, value, format);
+    result      = InputGui(_label, _value, _format);
 
     if (::ImGui::IsItemActive()) {
-        valuePool.SetValue(label, value);
+        valuePool.SetValue(_label, _value);
     } else if (::ImGui::IsItemDeactivatedAfterEdit()) {
-        T newValue = value;
-        value      = valuePool.popValue(label);
-        ::OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<T>>(&value, newValue, _afterFunc));
+        T newValue = _value;
+        _value     = valuePool.popValue(_label);
+        ::OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<T>>(&_value, newValue, _afterFunc));
         return true;
     }
 
@@ -458,18 +456,18 @@ bool InputGuiCommand(const std::string& label, T& value, const char* format = "%
 /// <param name="_afterFunc"></param>
 /// <returns></returns>
 template <typename T, int N>
-bool InputVectorGuiCommand(const std::string& label, OriGine::Vector<N, T>& value, const char* format = "%.3f", std::function<void(OriGine::Vector<N, T>*)> _afterFunc = nullptr) {
+bool InputVectorGuiCommand(const std::string& _label, OriGine::Vector<N, T>& _value, const char* _format = "%.3f", std::function<void(OriGine::Vector<N, T>*)> _afterFunc = nullptr) {
     static GuiValuePool<OriGine::Vector<N, T>> valuePool;
 
     bool result = false;
-    result      = InputVectorGui(label, value, format);
+    result      = InputVectorGui(_label, _value, _format);
 
     if (::ImGui::IsItemActive()) {
-        valuePool.SetValue(label, value);
+        valuePool.SetValue(_label, _value);
     } else if (::ImGui::IsItemDeactivatedAfterEdit()) {
-        OriGine::Vector<N, T> newValue = value;
-        value                          = valuePool.popValue(label);
-        OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<OriGine::Vector<N, T>>>(&value, newValue, _afterFunc));
+        OriGine::Vector<N, T> newValue = _value;
+        _value                         = valuePool.popValue(_label);
+        OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<OriGine::Vector<N, T>>>(&_value, newValue, _afterFunc));
         return true;
     }
 
@@ -484,13 +482,13 @@ bool InputVectorGuiCommand(const std::string& label, OriGine::Vector<N, T>& valu
 /// <param name="value"></param>
 /// <returns></returns>
 template <int N>
-bool ColorEditGui(const std::string& label, OriGine::Vector<N, float>& value, ImGuiColorEditFlags _colorEditFlags = 0) {
+bool ColorEditGui(const std::string& _label, OriGine::Vector<N, float>& _value, ImGuiColorEditFlags _colorEditFlags = 0) {
     static_assert(N == 3 || N == 4, "ColorEditGui only supports 3 or 4 components (RGB or RGBA).");
 
     if constexpr (N == 3) {
-        return ::ImGui::ColorEdit3(label.c_str(), value.v, _colorEditFlags);
+        return ::ImGui::ColorEdit3(_label.c_str(), _value.v, _colorEditFlags);
     } else if constexpr (N == 4) {
-        return ::ImGui::ColorEdit4(label.c_str(), value.v, _colorEditFlags);
+        return ::ImGui::ColorEdit4(_label.c_str(), _value.v, _colorEditFlags);
     } else {
         return false; // サポートされていない場合
     }
@@ -505,20 +503,20 @@ bool ColorEditGui(const std::string& label, OriGine::Vector<N, float>& value, Im
 /// <param name="_afterFunc"></param>
 /// <returns></returns>
 template <int N>
-bool ColorEditGuiCommand(const std::string& label, OriGine::Vector<N, float>& value, ImGuiColorEditFlags _colorEditFlags = 0, std::function<void(OriGine::Vector<N, float>*)> _afterFunc = nullptr) {
+bool ColorEditGuiCommand(const std::string& _label, OriGine::Vector<N, float>& _value, ImGuiColorEditFlags _colorEditFlags = 0, std::function<void(OriGine::Vector<N, float>*)> _afterFunc = nullptr) {
     static_assert(N == 3 || N == 4, "ColorEditGuiCommand only supports 3 or 4 components (RGB or RGBA).");
 
     static GuiValuePool<OriGine::Vector<N, float>> valuePool;
 
     bool result = false;
-    result      = ColorEditGui<N>(label, value, _colorEditFlags);
+    result      = ColorEditGui<N>(_label, _value, _colorEditFlags);
 
     if (::ImGui::IsItemActive()) {
-        valuePool.SetValue(label, value);
+        valuePool.SetValue(_label, _value);
     } else if (::ImGui::IsItemDeactivatedAfterEdit()) {
-        OriGine::Vector<N, float> newValue = value;
-        value                              = valuePool.popValue(label);
-        OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<OriGine::Vector<N, float>>>(&value, newValue, _afterFunc));
+        OriGine::Vector<N, float> newValue = _value;
+        _value                             = valuePool.popValue(_label);
+        OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<SetterCommand<OriGine::Vector<N, float>>>(&_value, newValue, _afterFunc));
         return true;
     }
 
@@ -531,7 +529,7 @@ bool ColorEditGuiCommand(const std::string& label, OriGine::Vector<N, float>& va
 /// <param name="label"></param>
 /// <param name="value"></param>
 /// <returns></returns>
-bool CheckBoxCommand(const std::string& label, bool& value);
+bool CheckBoxCommand(const std::string& _label, bool& _value);
 
 /// <summary>
 /// ::ImGui::Button をboolに対応させたコマンド付き(Undo/Redoを可能にするための)ラッパー
@@ -539,7 +537,7 @@ bool CheckBoxCommand(const std::string& label, bool& value);
 /// <param name="label"></param>
 /// <param name="value"></param>
 /// <returns></returns>
-bool ButtonCommand(const std::string& label, bool& value);
+bool ButtonCommand(const std::string& _label, bool& _value);
 
 /// <summary>
 /// マウス座標をシーンビューの座標に変換する
@@ -549,7 +547,7 @@ bool ButtonCommand(const std::string& label, bool& value);
 /// <param name="sceneViewSize"></param>
 /// <param name="originalResolution"></param>
 /// <returns></returns>
-OriGine::Vec2f ConvertMouseToSceneView(const OriGine::Vec2f& mousePos, const ImVec2& sceneViewPos, const ImVec2& sceneViewSize, const OriGine::Vec2f& originalResolution);
+OriGine::Vec2f ConvertMouseToSceneView(const OriGine::Vec2f& _mousePos, const ImVec2& _sceneViewPos, const ImVec2& _sceneViewSize, const OriGine::Vec2f& _originalResolution);
 
 /// <summary>
 /// テクスチャ読み込みボタンを表示する

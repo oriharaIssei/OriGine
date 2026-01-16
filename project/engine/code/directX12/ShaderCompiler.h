@@ -24,10 +24,10 @@ public:
     /// <summary>
     /// ファイルパスとプロファイルを指定して HLSL シェーダーをコンパイルする.
     /// </summary>
-    /// <param name="filePath">コンパイル対象の HLSL ファイルへのパス</param>
-    /// <param name="profile">ターゲットプロファイル (例: L"vs_6_0", L"ps_6_0")</param>
+    /// <param name="_filePath">コンパイル対象の HLSL ファイルへのパス</param>
+    /// <param name="_profile">ターゲットプロファイル (例: L"vs_6_0", L"ps_6_0")</param>
     /// <returns>コンパイル結果のバイナリデータ (IDxcBlob). 失敗時は nullptr を返す場合がある.</returns>
-    IDxcBlob* CompileShader(const std::wstring& filePath, const wchar_t* profile);
+    IDxcBlob* CompileShader(const std::wstring& _filePath, const wchar_t* _profile);
 
     /// <summary>
     /// 保持している DXC 関連オブジェクトを解放する.
@@ -46,10 +46,10 @@ private:
     /// <summary>
     /// 指定されたシェーダーファイルをディスクから読み込み、DXC 内部形式のバッファへ格納する.
     /// </summary>
-    /// <param name="filePath">HLSL ファイルのパス</param>
-    /// <param name="shaderSource">読み込んだデータの格納先 (BlobEncoding)</param>
-    /// <param name="buf">DXC で使用するバッファ記述構造体</param>
-    void LoadShaderFile(const std::wstring& filePath, IDxcBlobEncoding* shaderSource, DxcBuffer& buf);
+    /// <param name="_filePath">HLSL ファイルのパス</param>
+    /// <param name="_shaderSource">読み込んだデータの格納先 (BlobEncoding)</param>
+    /// <param name="_buf">DXC で使用するバッファ記述構造体</param>
+    void LoadShaderFile(const std::wstring& _filePath, IDxcBlobEncoding* _shaderSource, DxcBuffer& _buf);
 };
 
 } // namespace OriGine

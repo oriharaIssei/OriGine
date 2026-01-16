@@ -14,8 +14,8 @@ struct EntityHandle {
 
     uuids::uuid uuid{};
 
-    bool operator==(const EntityHandle& rhs) const {
-        return uuid == rhs.uuid;
+    bool operator==(const EntityHandle& _rhs) const {
+        return uuid == _rhs.uuid;
     }
     /// <summary>
     /// 有効なハンドルかどうか
@@ -29,16 +29,16 @@ struct EntityHandle {
 /// <summary>
 /// エンティティハンドルのシリアライズ
 /// </summary>
-/// <param name="j">jsonオブジェクト</param>
-/// <param name="handle">シリアライズするエンティティハンドル</param>
-void to_json(nlohmann::json& j, const EntityHandle& handle);
+/// <param name="_j">jsonオブジェクト</param>
+/// <param name="_handle">シリアライズするエンティティハンドル</param>
+void to_json(nlohmann::json& _j, const EntityHandle& _handle);
 
 /// <summary>
 /// エンティティハンドルのデシリアライズ
 /// </summary>
-/// <param name="j">jsonオブジェクト</param>
-/// <param name="handle">デシリアライズ先のエンティティハンドル</param>
-void from_json(const nlohmann::json& j, EntityHandle& handle);
+/// <param name="_j">jsonオブジェクト</param>
+/// <param name="_handle">デシリアライズ先のエンティティハンドル</param>
+void from_json(const nlohmann::json& _j, EntityHandle& _handle);
 
 } // namespace OriGine
 
@@ -49,10 +49,10 @@ struct hash<OriGine::EntityHandle> {
     /// <summary>
     /// ハッシュ関数のオーバーロード
     /// </summary>
-    /// <param name="h">エンティティハンドル</param>
+    /// <param name="_h">エンティティハンドル</param>
     /// <returns>ハッシュ値</returns>
-    std::size_t operator()(const OriGine::EntityHandle& h) const noexcept {
-        return std::hash<uuids::uuid>{}(h.uuid);
+    std::size_t operator()(const OriGine::EntityHandle& _h) const noexcept {
+        return std::hash<uuids::uuid>{}(_h.uuid);
     }
 };
 

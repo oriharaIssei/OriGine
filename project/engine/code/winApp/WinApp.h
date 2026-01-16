@@ -36,7 +36,7 @@ public:
     /// OS から届くウィンドウメッセージを処理するコールバック関数.
     /// ImGui の入力処理などもここで行う.
     /// </summary>
-    static LRESULT WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
+    static LRESULT WindowProc(HWND _hwnd, UINT _msg, WPARAM _wparam, LPARAM _lparam);
 
     WinApp() = default;
     ~WinApp();
@@ -44,12 +44,12 @@ public:
     /// <summary>
     /// Windows API を使用してゲームウィンドウを生成する.
     /// </summary>
-    /// <param name="title">ウィンドウのキャプション名</param>
-    /// <param name="windowStyle">WS_OVERLAPPEDWINDOW 等のスタイルフラグ</param>
-    /// <param name="clientWidth">クライアント領域の横幅 (ピクセル)</param>
-    /// <param name="clientHeight">クライアント領域の縦幅 (ピクセル)</param>
-    void CreateGameWindow(const wchar_t* title, UINT windowStyle,
-        int32_t clientWidth, int32_t clientHeight);
+    /// <param name="_title">ウィンドウのキャプション名</param>
+    /// <param name="_windowStyle">WS_OVERLAPPEDWINDOW 等のスタイルフラグ</param>
+    /// <param name="_clientWidth">クライアント領域の横幅 (ピクセル)</param>
+    /// <param name="_clientHeight">クライアント領域の縦幅 (ピクセル)</param>
+    void CreateGameWindow(const wchar_t* _title, UINT _windowStyle,
+        int32_t _clientWidth, int32_t _clientHeight);
 
     /// <summary>
     /// ウィンドウクラスの解除とウィンドウの破棄を行う.
@@ -71,8 +71,8 @@ public:
     /// フルスクリーンモードとウィンドウモードを切り替える.
     /// 切替時にはウィンドウスタイルの書き換えを行う.
     /// </summary>
-    /// <param name="enable">true でフルスクリーン化</param>
-    void ToggleFullscreen(bool enable);
+    /// <param name="_enable">true でフルスクリーン化</param>
+    void ToggleFullscreen(bool _enable);
 
 private:
     HWND hwnd_                              = nullptr; // ウィンドウハンドル
@@ -149,6 +149,6 @@ public:
 /// <summary>
 /// コマンドラインでプロセスを実行し、完了を待つ
 /// </summary>
-bool RunProcessAndWait(const ::std::string& command, const char* _currentDirectory = nullptr);
+bool RunProcessAndWait(const ::std::string& _command, const char* _currentDirectory = nullptr);
 
 } // namespace OriGine

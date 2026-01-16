@@ -13,12 +13,11 @@ void BottomLevelAccelerationStructure::Initialize() {
 void BottomLevelAccelerationStructure::Finalize() {
     scratchResource_.Finalize();
     resultResource_.Finalize();
-
 }
 
 void BottomLevelAccelerationStructure::CreateResource(
-    ID3D12Device8* device,
-    ID3D12GraphicsCommandList6* commandList,
+    ID3D12Device8* _device,
+    ID3D12GraphicsCommandList6* _commandList,
     D3D12_GPU_VIRTUAL_ADDRESS _vertexBuffStartAddress,
     UINT _vertexCount,
     D3D12_GPU_VIRTUAL_ADDRESS _indexBuffStartAddress,
@@ -55,11 +54,11 @@ void BottomLevelAccelerationStructure::CreateResource(
     }
     // バッファサイズ取得
     D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO buildInfo{};
-    device->GetRaytracingAccelerationStructurePrebuildInfo(&inputs_, &buildInfo);
+    _device->GetRaytracingAccelerationStructurePrebuildInfo(&inputs_, &buildInfo);
 
     // リソース作成処理
-    scratchResource_.CreateUAVBuffer(device, buildInfo.ScratchDataSizeInBytes, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON);
-    resultResource_.CreateUAVBuffer(device, buildInfo.ResultDataMaxSizeInBytes, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE);
+    scratchResource_.CreateUAVBuffer(_device, buildInfo.ScratchDataSizeInBytes, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COMMON);
+    resultResource_.CreateUAVBuffer(_device, buildInfo.ResultDataMaxSizeInBytes, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE);
 
     // buildDesc設定
     buildDesc_.DestAccelerationStructureData    = resultResource_.GetResource()->GetGPUVirtualAddress();
@@ -68,16 +67,16 @@ void BottomLevelAccelerationStructure::CreateResource(
     buildDesc_.Inputs                           = inputs_;
 
     // build実行
-    commandList->BuildRaytracingAccelerationStructure(&buildDesc_, 0, nullptr);
+    _commandList->BuildRaytracingAccelerationStructure(&buildDesc_, 0, nullptr);
 
     // UAVバリア
     D3D12_RESOURCE_BARRIER uavBarrier{};
     uavBarrier.Type          = D3D12_RESOURCE_BARRIER_TYPE_UAV;
     uavBarrier.UAV.pResource = resultResource_.GetResource().Get();
-    commandList->ResourceBarrier(1, &uavBarrier);
+    _commandList->ResourceBarrier(1, &uavBarrier);
 }
 
-void BottomLevelAccelerationStructure::Update(ID3D12GraphicsCommandList6* commandList) {
+void BottomLevelAccelerationStructure::Update(ID3D12GraphicsCommandList6* _commandList) {
     if (!allowUpdate_) {
         return;
     }
@@ -85,11 +84,11 @@ void BottomLevelAccelerationStructure::Update(ID3D12GraphicsCommandList6* comman
     // 前フレームのresultをsourceとして指定
     buildDesc_.SourceAccelerationStructureData = resultResource_.GetResource()->GetGPUVirtualAddress();
     buildDesc_.Inputs.Flags |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE;
-    commandList->BuildRaytracingAccelerationStructure(&buildDesc_, 0, nullptr);
+    _commandList->BuildRaytracingAccelerationStructure(&buildDesc_, 0, nullptr);
 
     // バリア遷移
     D3D12_RESOURCE_BARRIER uavBarrier{};
     uavBarrier.Type          = D3D12_RESOURCE_BARRIER_TYPE_UAV;
     uavBarrier.UAV.pResource = resultResource_.GetResource().Get();
-    commandList->ResourceBarrier(1, &uavBarrier);
+    _commandList->ResourceBarrier(1, &uavBarrier);
 }

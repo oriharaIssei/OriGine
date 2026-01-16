@@ -37,8 +37,8 @@ public:
     /// <summary>
     /// DirectX 12 側のバッファリソースを作成し、CPU空間へのマッピングを開始する.
     /// </summary>
-    /// <param name="device">D3D12デバイス</param>
-    void CreateBuffer(Microsoft::WRL::ComPtr<ID3D12Device> device);
+    /// <param name="_device">D3D12デバイス</param>
+    void CreateBuffer(Microsoft::WRL::ComPtr<ID3D12Device> _device);
 
     /// <summary>
     /// バッファリソースの解放とマッピングの解除を行う.
@@ -53,16 +53,16 @@ public:
     /// <summary>
     /// グラフィックスパイプラインのルートパラメータに対して、この定数バッファを紐付ける.
     /// </summary>
-    /// <param name="cmdList">コマンドリスト</param>
-    /// <param name="rootParameterNum">バインド先のルートパラメータ番号</param>
-    void SetForRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const;
+    /// <param name="_cmdList">コマンドリスト</param>
+    /// <param name="_rootParameterNum">バインド先のルートパラメータ番号</param>
+    void SetForRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _cmdList, uint32_t _rootParameterNum) const;
 
     /// <summary>
     /// コンピュートパイプラインのルートパラメータに対して、この定数バッファを紐付ける.
     /// </summary>
-    /// <param name="cmdList">コマンドリスト</param>
-    /// <param name="rootParameterNum">バインド先のルートパラメータ番号</param>
-    void SetForComputeRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const;
+    /// <param name="_cmdList">コマンドリスト</param>
+    /// <param name="_rootParameterNum">バインド先のルートパラメータ番号</param>
+    void SetForComputeRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _cmdList, uint32_t _rootParameterNum) const;
 
 public:
     /// <summary>CPU側で操作可能な生データへのアクセス</summary>
@@ -87,7 +87,7 @@ public:
 };
 
 template <HasInConstantBuffer constBuff>
-inline void IConstantBuffer<constBuff>::CreateBuffer(Microsoft::WRL::ComPtr<ID3D12Device> device) {
+inline void IConstantBuffer<constBuff>::CreateBuffer(Microsoft::WRL::ComPtr<ID3D12Device> _device) {
     // リソースがすでに存在する場合は何もしない
     if (buff_.GetResourceRef().Get()) {
         LOG_WARN("IConstantBuffer: Buffer resource already exists. Skipping creation.");
@@ -95,7 +95,7 @@ inline void IConstantBuffer<constBuff>::CreateBuffer(Microsoft::WRL::ComPtr<ID3D
     }
 
     // バッファリソースの作成
-    buff_.CreateBufferResource(device, sizeof(constBuff::ConstantBuffer));
+    buff_.CreateBufferResource(_device, sizeof(constBuff::ConstantBuffer));
     buff_.GetResource()->Map(0, nullptr, reinterpret_cast<void**>(&mappingData_));
 
     // リソースタイプの設定
@@ -115,13 +115,13 @@ inline void IConstantBuffer<constBuff>::ConvertToBuffer() const {
 }
 
 template <HasInConstantBuffer constBuff>
-inline void IConstantBuffer<constBuff>::SetForRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const {
-    cmdList->SetGraphicsRootConstantBufferView(rootParameterNum, buff_.GetResource()->GetGPUVirtualAddress());
+inline void IConstantBuffer<constBuff>::SetForRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _cmdList, uint32_t _rootParameterNum) const {
+    _cmdList->SetGraphicsRootConstantBufferView(_rootParameterNum, buff_.GetResource()->GetGPUVirtualAddress());
 }
 
 template <HasInConstantBuffer constBuff>
-inline void IConstantBuffer<constBuff>::SetForComputeRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) const {
-    cmdList->SetComputeRootConstantBufferView(rootParameterNum, buff_.GetResource()->GetGPUVirtualAddress());
+inline void IConstantBuffer<constBuff>::SetForComputeRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _cmdList, uint32_t _rootParameterNum) const {
+    _cmdList->SetComputeRootConstantBufferView(_rootParameterNum, buff_.GetResource()->GetGPUVirtualAddress());
 }
 
 } // namespace OriGine

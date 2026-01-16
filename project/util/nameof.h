@@ -9,23 +9,23 @@
 /// 型名を文字列で取得する
 /// </summary>
 /// <typeparam name="T">変換対象の型</typeparam>
-inline std::string ClearString(std::string name) {
+inline std::string ClearString(std::string _name) {
     // Remove "struct " prefix
-    if (size_t pos = name.find("struct "); pos != std::string::npos) {
-        name.erase(pos, 7);
+    if (size_t pos = _name.find("struct "); pos != std::string::npos) {
+        _name.erase(pos, 7);
     }
 
     // Remove "class " prefix
-    if (size_t pos = name.find("class "); pos != std::string::npos) {
-        name.erase(pos, 6);
+    if (size_t pos = _name.find("class "); pos != std::string::npos) {
+        _name.erase(pos, 6);
     }
 
     // Remove namespace (everything before last "::")
-    if (size_t pos = name.rfind("::"); pos != std::string::npos) {
-        name = name.substr(pos + 2);
+    if (size_t pos = _name.rfind("::"); pos != std::string::npos) {
+        _name = _name.substr(pos + 2);
     }
 
-    return name;
+    return _name;
 }
 
 /// <summary>

@@ -57,21 +57,21 @@ public:
 public:
     struct ConstantBuffer {
         Matrix4x4 world;
-        ConstantBuffer& operator=(const Transform& transform) {
-            world = transform.worldMat;
+        ConstantBuffer& operator=(const Transform& _comp) {
+            world = _comp.worldMat;
             return *this;
         }
     };
 };
 
-inline void from_json(const nlohmann::json& j, Transform& t) {
-    j.at("scale").get_to(t.scale);
-    j.at("rotate").get_to(t.rotate);
-    j.at("translate").get_to(t.translate);
+inline void from_json(const nlohmann::json& _j, Transform& _comp) {
+    _j.at("scale").get_to(_comp.scale);
+    _j.at("rotate").get_to(_comp.rotate);
+    _j.at("translate").get_to(_comp.translate);
 }
 
-inline void to_json(nlohmann::json& j, const Transform& t) {
-    j = nlohmann::json{{"scale", t.scale}, {"rotate", t.rotate}, {"translate", t.translate}};
+inline void to_json(nlohmann::json& _j, const Transform& _comp) {
+    _j = nlohmann::json{{"scale", _comp.scale}, {"rotate", _comp.rotate}, {"translate", _comp.translate}};
 }
 
 } // namespace OriGine

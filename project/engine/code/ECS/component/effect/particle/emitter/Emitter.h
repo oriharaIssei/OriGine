@@ -43,8 +43,8 @@ class Emitter
     : public IComponent {
 
     // to_json, from_json を friend として宣言
-    friend void to_json(nlohmann::json& j, const Emitter& e);
-    friend void from_json(const nlohmann::json& j, Emitter& e);
+    friend void to_json(nlohmann::json& _j, const Emitter& _comp);
+    friend void from_json(const nlohmann::json& _j, Emitter& _comp);
 
 public:
     Emitter();

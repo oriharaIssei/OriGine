@@ -36,10 +36,10 @@ public:
     /// スワップチェーンの初期化を行う.
     /// DXGIスワップチェーンの生成と、バックバッファ用の RTV ディスクリプタの確保を含む.
     /// </summary>
-    /// <param name="winApp">ウィンドウアプリケーションのインスタンス</param>
-    /// <param name="device">使用するD3D12デバイス</param>
-    /// <param name="command">初期化コマンドの実行に使用するコマンドオブジェクト</param>
-    void Initialize(const WinApp* winApp, const DxDevice* device, const DxCommand* command);
+    /// <param name="_winApp">ウィンドウアプリケーションのインスタンス</param>
+    /// <param name="_device">使用するD3D12デバイス</param>
+    /// <param name="_command">初期化コマンドの実行に使用するコマンドオブジェクト</param>
+    void Initialize(const WinApp* _winApp, const DxDevice* _device, const DxCommand* _command);
 
     /// <summary>
     /// スワップチェーンと関連するバックバッファリソースを解放する.
@@ -61,9 +61,9 @@ public:
     /// <summary>
     /// ウィンドウサイズ変更に合わせてバックバッファをリサイズする.
     /// </summary>
-    /// <param name="width">新しい幅</param>
-    /// <param name="height">新しい高さ</param>
-    void ResizeBuffer(UINT width, UINT height);
+    /// <param name="_width">新しい幅</param>
+    /// <param name="_height">新しい高さ</param>
+    void ResizeBuffer(UINT _width, UINT _height);
 
 private:
     /// <summary>DXGIスワップチェーン本体</summary>
@@ -95,12 +95,12 @@ public:
         return backBuffers_[swapChain_->GetCurrentBackBufferIndex()].GetCpuHandle();
     }
     /// <summary>指定したインデックスのバックバッファの RTV ディスクリプタハンドル（CPU側）を取得する.</summary>
-    /// <param name="index">バッファインデックス</param>
-    D3D12_CPU_DESCRIPTOR_HANDLE GetBackBufferRtv(UINT index) const {
-        if (index >= bufferCount_) {
+    /// <param name="_index">バッファインデックス</param>
+    D3D12_CPU_DESCRIPTOR_HANDLE GetBackBufferRtv(UINT _index) const {
+        if (_index >= bufferCount_) {
             throw std::out_of_range("Index out of range in DxSwapChain::getBackBufferRtv");
         }
-        return backBuffers_[index].GetCpuHandle();
+        return backBuffers_[_index].GetCpuHandle();
     }
 
     /// <summary>IDXGISwapChain4 オブジェクトを取得する.</summary>
@@ -108,19 +108,19 @@ public:
 
     /// 指定したインデックスのバックバッファリソースを取得する
     /// </summary>
-    /// <param name="index">インデックス</param>
+    /// <param name="_index">インデックス</param>
     /// <returns>リソース</returns>
-    const Microsoft::WRL::ComPtr<ID3D12Resource>& GetBackBuffer(UINT index) const { return backBufferResources_[index].GetResource(); }
+    const Microsoft::WRL::ComPtr<ID3D12Resource>& GetBackBuffer(UINT _index) const { return backBufferResources_[_index].GetResource(); }
     /// <summary>
     /// 指定したインデックスのバックバッファリソースを取得する
     /// </summary>
-    /// <param name="index">インデックス</param>
+    /// <param name="_index">インデックス</param>
     /// <returns>リソース</returns>
-    Microsoft::WRL::ComPtr<ID3D12Resource> GetBackBufferRef(UINT index) {
-        if (index >= backBufferResources_.size()) {
+    Microsoft::WRL::ComPtr<ID3D12Resource> GetBackBufferRef(UINT _index) {
+        if (_index >= backBufferResources_.size()) {
             throw std::out_of_range("Index out of range in DxSwapChain::getBackBufferRef");
         }
-        return backBufferResources_[index].GetResource();
+        return backBufferResources_[_index].GetResource();
     }
     /// <summary>
     /// 現在のバックバッファリソースを取得する

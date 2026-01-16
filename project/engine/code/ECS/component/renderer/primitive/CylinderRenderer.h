@@ -5,8 +5,8 @@
 namespace OriGine {
 class CylinderRenderer
     : public PrimitiveMeshRenderer<Primitive::Cylinder> {
-    friend void to_json(nlohmann::json& j, const CylinderRenderer& c);
-    friend void from_json(const nlohmann::json& j, CylinderRenderer& c);
+    friend void to_json(nlohmann::json& _j, const CylinderRenderer& _comp);
+    friend void from_json(const nlohmann::json& _j, CylinderRenderer& _comp);
 
 public:
     CylinderRenderer() : PrimitiveMeshRenderer() {}

@@ -21,27 +21,27 @@ public:
     /// <param name="directory">検索するフォルダーのパス</param>
     /// <param name="extension">fileFormat (.pngとか)</param>
     /// <returns>first = directory, second = fileName </returns>
-    static std::list<std::pair<std::string, std::string>> SearchFile(const std::string& directory, const std::string& extension, bool withoutExtensionOutput = true);
+    static std::list<std::pair<std::string, std::string>> SearchFile(const std::string& _directory, const std::string& _extension, bool _withoutExtensionOutput = true);
 
     /// <summary>
     /// サブフォルダーを検索
     /// </summary>
     /// <param name="directory"></param>
     /// <returns></returns>
-    static std::list<std::string> SearchSubFolder(const std::string& directory);
+    static std::list<std::string> SearchSubFolder(const std::string& _directory);
 
     /// <summary>
     /// ファイルを作成する
     /// </summary>
     /// <param name="filePath"></param>
     /// <returns></returns>
-    static bool CreateMyFile(const std::string& filePath);
+    static bool CreateMyFile(const std::string& _filePath);
     /// <summary>
     /// フォルダーを作成する
     /// </summary>
     /// <param name="directory"></param>
     /// <returns></returns>
-    static bool CreateFolder(const std::string& directory);
+    static bool CreateFolder(const std::string& _directory);
 
     /// <summary>
     /// フォルダ選択ダイアログを表示する
@@ -59,26 +59,26 @@ public:
     /// <param name="withoutExtensionOutput"></param>
     /// <returns></returns>
     static bool SelectFileDialog(
-        const std::string& defaultDirectory, std::string& fileDirectory, std::string& filename, const std::vector<std::string>& extensions, bool withoutExtensionOutput = false);
+        const std::string& _defaultDirectory, std::string& _fileDirectory, std::string& _filename, const std::vector<std::string>& _extensions, bool _withoutExtensionOutput = false);
 
     /// <summary>
     /// 空のフォルダーを削除する
     /// </summary>
     /// <param name="directory"></param>
     /// <returns></returns>
-    static bool RemoveEmptyFolder(const std::string& directory);
+    static bool RemoveEmptyFolder(const std::string& _directory);
     /// <summary>
     /// フォルダーを削除する
     /// </summary>
     /// <param name="path"></param>
     /// <returns></returns>
-    static std::uintmax_t DeleteFolder(const std::string& path);
+    static std::uintmax_t DeleteFolder(const std::string& _path);
     /// <summary>
     /// ファイルを削除する
     /// </summary>
     /// <param name="filePath"></param>
     /// <returns></returns>
-    static std::uintmax_t DeleteMyFile(const std::string& filePath);
+    static std::uintmax_t DeleteMyFile(const std::string& _filePath);
 };
 
 using myfs = MyFileSystem;

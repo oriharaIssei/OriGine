@@ -21,13 +21,13 @@ using namespace OriGine;
 
 PipelineStateObj* RenderTexture::pso_;
 
-RenderTexture::RenderTexture(DxCommand* dxCom) {
+RenderTexture::RenderTexture(DxCommand* _dxCom) {
     // DxCommand が nullptr なら main を使う
     std::string commandListKey  = "main";
     std::string commandQueueKey = "main";
-    if (dxCom) {
-        commandListKey  = dxCom->GetCommandListComboKey();
-        commandQueueKey = dxCom->GetCommandQueueKey();
+    if (_dxCom) {
+        commandListKey  = _dxCom->GetCommandListComboKey();
+        commandQueueKey = _dxCom->GetCommandQueueKey();
     }
     dxCommand_ = std::make_unique<DxCommand>();
     dxCommand_->Initialize(commandListKey, commandQueueKey);
@@ -99,14 +99,14 @@ void RenderTexture::Awake() {
 
 void RenderTexture::Initialize(
     int32_t _bufferCount,
-    const Vec2f& textureSize,
+    const Vec2f& _textureSize,
     DXGI_FORMAT _format,
     const Vec4f& _clearColor) {
     format_      = _format;
     bufferCount_ = _bufferCount;
     renderTargets_.resize(bufferCount_);
 
-    textureSize_ = textureSize;
+    textureSize_ = _textureSize;
     clearColor_  = _clearColor;
 
     dxCommand_ = std::make_unique<DxCommand>();
@@ -115,11 +115,11 @@ void RenderTexture::Initialize(
     ///===========================================================================
     /// RenderTexture Resource の作成
     ///===========================================================================
-    Microsoft::WRL::ComPtr<ID3D12Device> device = Engine::GetInstance()->GetDxDevice()->device_;
+    Microsoft::WRL::ComPtr<ID3D12Device> _device = Engine::GetInstance()->GetDxDevice()->device_;
 
     for (auto& renderTarget : renderTargets_) {
         renderTarget.resource_.CreateRenderTextureResource(
-            device,
+            _device,
             static_cast<uint32_t>(textureSize_[X]),
             static_cast<uint32_t>(textureSize_[Y]),
             format_,
@@ -170,14 +170,14 @@ void RenderTexture::Initialize(int32_t _bufferCount, const DirectX::TexMetadata&
     Initialize(_bufferCount, Vec2f(float(_metaData.width), float(_metaData.height)), _metaData.format, _clearColor);
 }
 
-void RenderTexture::Resize(const Vec2f& textureSize) {
-    if (fabs(textureSize_[X] - textureSize[X]) < 1.0f && fabs(textureSize_[Y] - textureSize[Y]) < 1.0f) {
+void RenderTexture::Resize(const Vec2f& _textureSize) {
+    if (fabs(textureSize_[X] - _textureSize[X]) < 1.0f && fabs(textureSize_[Y] - _textureSize[Y]) < 1.0f) {
         return;
     }
 
     frontBufferIndex_ = 0;
     backBufferIndex_  = 0;
-    textureSize_      = textureSize;
+    textureSize_      = _textureSize;
 
     // 古いリソースを解放
     auto srvHeap = Engine::GetInstance()->GetSrvHeap();
@@ -190,13 +190,13 @@ void RenderTexture::Resize(const Vec2f& textureSize) {
         renderTarget.resource_.Finalize();
     }
 
-    Microsoft::WRL::ComPtr<ID3D12Device> device = Engine::GetInstance()->GetDxDevice()->device_;
+    Microsoft::WRL::ComPtr<ID3D12Device> _device = Engine::GetInstance()->GetDxDevice()->device_;
 
     std::wstring wName = ConvertString(textureName_);
     // 新しいリソースを作成
     for (int i = 0; i < bufferCount_; ++i) {
         renderTargets_[i].resource_.CreateRenderTextureResource(
-            device,
+            _device,
             static_cast<uint32_t>(textureSize_[X]),
             static_cast<uint32_t>(textureSize_[Y]),
             format_,

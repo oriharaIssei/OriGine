@@ -13,8 +13,8 @@ namespace OriGine {
 /// </summary>
 class Rigidbody
     : public IComponent {
-    friend void to_json(nlohmann::json& j, const Rigidbody& r);
-    friend void from_json(const nlohmann::json& j, Rigidbody& r);
+    friend void to_json(nlohmann::json& _j, const Rigidbody& _comp);
+    friend void from_json(const nlohmann::json& _j, Rigidbody& _comp);
 
 public:
     Rigidbody();
@@ -22,7 +22,7 @@ public:
 
     void Initialize(Scene* _scene, EntityHandle _entity) override;
 
-    void Edit(Scene* _scene, EntityHandle _handle, [[maybe_unused]] const std::string& _parentLabel);
+    void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel);
     void Debug();
 
     virtual void Finalize();

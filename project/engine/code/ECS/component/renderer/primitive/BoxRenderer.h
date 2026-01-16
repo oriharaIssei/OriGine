@@ -10,8 +10,8 @@ namespace OriGine {
 /// </summary>
 class BoxRenderer
     : public PrimitiveMeshRenderer<Primitive::Box> {
-    friend void to_json(nlohmann::json& j, const BoxRenderer& r);
-    friend void from_json(const nlohmann::json& j, BoxRenderer& r);
+    friend void to_json(nlohmann::json& _j, const BoxRenderer& _comp);
+    friend void from_json(const nlohmann::json& _j, BoxRenderer& _comp);
 
 public:
     BoxRenderer() : PrimitiveMeshRenderer() {}

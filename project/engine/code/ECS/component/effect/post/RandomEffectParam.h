@@ -15,12 +15,12 @@ struct RandomEffectParamData {
     RandomEffectParamData()  = default;
     ~RandomEffectParamData() = default;
 
-    float time               = 0.f;
+    float time = 0.f;
 
     struct ConstantBuffer {
         float time = 0.f;
-        ConstantBuffer& operator=(const RandomEffectParamData& param) {
-            time = param.time;
+        ConstantBuffer& operator=(const RandomEffectParamData& _param) {
+            time = _param.time;
             return *this;
         }
     };
@@ -32,13 +32,13 @@ struct RandomEffectParamData {
 class RandomEffectParam
     : public IComponent {
 public:
-    friend void to_json(nlohmann::json& j, const RandomEffectParam& param);
-    friend void from_json(const nlohmann::json& j, RandomEffectParam& param);
+    friend void to_json(nlohmann::json& _j, const RandomEffectParam& _comp);
+    friend void from_json(const nlohmann::json& _j, RandomEffectParam& _comp);
 
 public:
     RandomEffectParam() {}
     ~RandomEffectParam() override {}
-    void Initialize(Scene* _scene, EntityHandle _hostEntity) override;
+    void Initialize(Scene* _scene, EntityHandle _entity) override;
     void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) override;
     void Finalize();
 
@@ -54,15 +54,15 @@ public:
     bool IsActive() const {
         return isActive_;
     }
-    void SetIsActive(bool isActive) {
-        isActive_ = isActive;
+    void SetIsActive(bool _isActive) {
+        isActive_ = _isActive;
     }
 
     float GetCurrentTime() const {
         return effectParamData_->time;
     }
-    void SetCurrentTime(float time) {
-        effectParamData_->time = time;
+    void SetCurrentTime(float _time) {
+        effectParamData_->time = _time;
     }
     float GetMaxTime() const {
         return maxTime_;
@@ -70,8 +70,8 @@ public:
     BlendMode GetBlendMode() const {
         return blendMode_;
     }
-    void SetBlendMode(BlendMode mode) {
-        blendMode_ = mode;
+    void SetBlendMode(BlendMode _mode) {
+        blendMode_ = _mode;
     }
     const IConstantBuffer<RandomEffectParamData>& GetConstantBuffer() const {
         return effectParamData_;

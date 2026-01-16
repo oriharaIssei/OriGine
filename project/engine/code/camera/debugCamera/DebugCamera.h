@@ -21,7 +21,7 @@ class DebugCamera {
     /// </summary>
     class IState {
     public:
-        IState(DebugCamera* host) : host_(host) {};
+        IState(DebugCamera* _host) : host_(_host) {};
         virtual ~IState() {};
 
         /// <summary>
@@ -39,7 +39,7 @@ class DebugCamera {
     /// </summary>
     class Neutral : public IState {
     public:
-        Neutral(DebugCamera* host) : IState(host) {};
+        Neutral(DebugCamera* _host) : IState(_host) {};
         void Update() override;
     };
 
@@ -48,7 +48,7 @@ class DebugCamera {
     /// </summary>
     class RotationState : public IState {
     public:
-        RotationState(DebugCamera* host) : IState(host) {};
+        RotationState(DebugCamera* _host) : IState(_host) {};
         void Update() override;
     };
 
@@ -64,7 +64,7 @@ class DebugCamera {
         };
 
     public:
-        TranslationState(DebugCamera* host) : IState(host) {};
+        TranslationState(DebugCamera* _host) : IState(_host) {};
         void Update() override;
     };
 
@@ -101,8 +101,8 @@ public:
     /// <summary>
     /// カメラの座標を直接設定する.
     /// </summary>
-    /// <param name="translate">設定する座標</param>
-    void SetViewTranslate(const Vec3f& translate) { cameraBuff_.translate = translate; }
+    /// <param name="_translate">設定する座標</param>
+    void SetViewTranslate(const Vec3f& _translate) { cameraBuff_.translate = _translate; }
 
     /// <summary>
     /// カメラのトランスフォーム情報を取得する（読み取り専用）.
@@ -125,8 +125,8 @@ public:
     /// <summary>
     /// マウスの開始座標を設定する.
     /// </summary>
-    /// <param name="pos">マウス座標</param>
-    void SetStartMousePos(const Vec2f& pos) { startMousePos_ = pos; }
+    /// <param name="_pos">マウス座標</param>
+    void SetStartMousePos(const Vec2f& _pos) { startMousePos_ = _pos; }
 };
 
 } // namespace OriGine

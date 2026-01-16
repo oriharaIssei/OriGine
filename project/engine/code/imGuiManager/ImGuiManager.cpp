@@ -31,9 +31,9 @@ ImGuiManager* ImGuiManager::GetInstance() {
 
 /// <summary>
 /// ImGui の初期化.
-/// SRV ヒープの取得、コマンド管理の初期化、ImGui コンテキストの作成、Win32/DX12 実装の初期化を行う.
+/// SRV ヒープの取得、コマンド管理の初期化、ImGui コンテキストの作成、Win32/DX12 実裝の初期化を行う.
 /// </summary>
-void ImGuiManager::Initialize([[maybe_unused]] const WinApp* window, [[maybe_unused]] const DxDevice* dxDevice, [[maybe_unused]] const DxSwapChain* dxSwapChain) {
+void ImGuiManager::Initialize([[maybe_unused]] const WinApp* _window, [[maybe_unused]] const DxDevice* _dxDevice, [[maybe_unused]] const DxSwapChain* _dxSwapChain) {
 #ifdef _DEBUG
     // エンジンから SRV ヒープを取得
     srvHeap_ = Engine::GetInstance()->GetSrvHeap()->GetHeap();
@@ -53,10 +53,10 @@ void ImGuiManager::Initialize([[maybe_unused]] const WinApp* window, [[maybe_unu
     ::ImGui::StyleColorsDark();
 
     // Win32 と DX12 のバックエンドを初期化
-    ImGui_ImplWin32_Init(window->GetHwnd());
+    ImGui_ImplWin32_Init(_window->GetHwnd());
     ImGui_ImplDx12_Init(
-        dxDevice->device_.Get(),
-        dxSwapChain->GetBufferCount(),
+        _dxDevice->device_.Get(),
+        _dxSwapChain->GetBufferCount(),
         DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
         srvHeap_.Get(),
         srv_.GetCpuHandle(),

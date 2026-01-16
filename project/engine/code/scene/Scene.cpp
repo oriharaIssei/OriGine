@@ -274,12 +274,12 @@ void Scene::UpdateRaytracingScene() {
     meshForRaytracing_.clear();
 }
 
-void Scene::AddDeleteEntity(EntityHandle _handle) {
-    if (!_handle.IsValid()) {
-        LOG_ERROR("Invalid entity ID: {}", uuids::to_string(_handle.uuid));
+void Scene::AddDeleteEntity(EntityHandle _entityId) {
+    if (!_entityId.IsValid()) {
+        LOG_ERROR("Invalid entity ID: {}", uuids::to_string(_entityId.uuid));
         return;
     }
-    deleteEntities_.push_back(_handle);
+    deleteEntities_.push_back(_entityId);
 }
 
 const EntityRepository* Scene::GetEntityRepository() const { return entityRepository_.get(); }

@@ -55,46 +55,46 @@ void LightManager::Finalize() {
 }
 
 void LightManager::SetForRootParameter(
-    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList,
+    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _cmdList,
     int32_t _lightCountIndex,
     int32_t _directionalLightIndex,
     int32_t _pointLightIndex,
     int32_t _spotLightIndex) {
-    lightCounts_.SetForRootParameter(cmdList, _lightCountIndex);
+    lightCounts_.SetForRootParameter(_cmdList, _lightCountIndex);
 
     ID3D12DescriptorHeap* ppHeaps[] = {Engine::GetInstance()->GetSrvHeap()->GetHeap().Get()};
-    cmdList->SetDescriptorHeaps(1, ppHeaps);
+    _cmdList->SetDescriptorHeaps(1, ppHeaps);
 
     if (lightCounts_->directionalLightNum > 0) {
-        directionalLights_.SetForRootParameter(cmdList, _directionalLightIndex);
+        directionalLights_.SetForRootParameter(_cmdList, _directionalLightIndex);
     }
     if (lightCounts_->pointLightNum > 0) {
-        pointLights_.SetForRootParameter(cmdList, _pointLightIndex);
+        pointLights_.SetForRootParameter(_cmdList, _pointLightIndex);
     }
     if (lightCounts_->spotLightNum > 0) {
-        spotLights_.SetForRootParameter(cmdList, _spotLightIndex);
+        spotLights_.SetForRootParameter(_cmdList, _spotLightIndex);
     }
 }
 
-void LightManager::PushDirectionalLight(const DirectionalLight& light) {
+void LightManager::PushDirectionalLight(const DirectionalLight& _light) {
     if (directionalLights_.openData_.size() >= directionalLights_.Capacity()) {
         return;
     }
-    directionalLights_.openData_.push_back(light);
+    directionalLights_.openData_.push_back(_light);
 }
 
-void LightManager::PushPointLight(const PointLight& light) {
+void LightManager::PushPointLight(const PointLight& _light) {
     if (pointLights_.openData_.size() >= pointLights_.Capacity()) {
         return;
     }
-    pointLights_.openData_.push_back(light);
+    pointLights_.openData_.push_back(_light);
 }
 
-void LightManager::PushSpotLight(const SpotLight& light) {
+void LightManager::PushSpotLight(const SpotLight& _light) {
     if (spotLights_.openData_.size() >= spotLights_.Capacity()) {
         return;
     }
-    spotLights_.openData_.push_back(light);
+    spotLights_.openData_.push_back(_light);
 }
 
 } // namespace OriGine

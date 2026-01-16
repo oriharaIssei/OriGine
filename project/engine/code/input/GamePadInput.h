@@ -152,44 +152,44 @@ public:
     /// <summary>
     /// ボタン押下状態
     /// </summary>
-    /// <param name="button">ボタンビット（PadButtonの値をuint32_tにキャストしたものなど）</param>
+    /// <param name="_button">ボタンビット（PadButtonの値をuint32_tにキャストしたものなど）</param>
     /// <returns>押されていればtrue</returns>
-    bool IsPress(uint32_t button) const { return (buttonMask_ & button); }
+    bool IsPress(uint32_t _button) const { return (buttonMask_ & _button); }
 
     /// <summary>
     /// ボタン押下状態
     /// </summary>
-    /// <param name="button">ボタン種類</param>
+    /// <param name="_button">ボタン種類</param>
     /// <returns>押されていればtrue</returns>
-    bool IsPress(PadButton button) const { return (buttonMask_ & static_cast<uint32_t>(button)); }
+    bool IsPress(PadButton _button) const { return (buttonMask_ & static_cast<uint32_t>(_button)); }
 
     /// <summary>
     /// ボタン押下瞬間
     /// </summary>
-    /// <param name="button">ボタンビット</param>
+    /// <param name="_button">ボタンビット</param>
     /// <returns>押された瞬間ならtrue</returns>
-    bool IsTrigger(uint32_t button) const { return (buttonMask_ & button) && !(prevButtonMask_ & button); }
+    bool IsTrigger(uint32_t _button) const { return (buttonMask_ & _button) && !(prevButtonMask_ & _button); }
 
     /// <summary>
     /// ボタン押下瞬間
     /// </summary>
-    /// <param name="button">ボタン種類</param>
+    /// <param name="_button">ボタン種類</param>
     /// <returns>押された瞬間ならtrue</returns>
-    bool IsTrigger(PadButton button) const { return (buttonMask_ & static_cast<uint32_t>(button)) && !(prevButtonMask_ & static_cast<uint32_t>(button)); }
+    bool IsTrigger(PadButton _button) const { return (buttonMask_ & static_cast<uint32_t>(_button)) && !(prevButtonMask_ & static_cast<uint32_t>(_button)); }
 
     /// <summary>
     /// ボタン解放瞬間
     /// </summary>
-    /// <param name="button">ボタンビット</param>
+    /// <param name="_button">ボタンビット</param>
     /// <returns>離された瞬間ならtrue</returns>
-    bool IsRelease(uint32_t button) const { return !(buttonMask_ & button) && (prevButtonMask_ & button); }
+    bool IsRelease(uint32_t _button) const { return !(buttonMask_ & _button) && (prevButtonMask_ & _button); }
 
     /// <summary>
     /// ボタン解放瞬間
     /// </summary>
-    /// <param name="button">ボタン種類</param>
+    /// <param name="_button">ボタン種類</param>
     /// <returns>離された瞬間ならtrue</returns>
-    bool IsRelease(PadButton button) const { return !(buttonMask_ & static_cast<uint32_t>(button)) && (prevButtonMask_ & static_cast<uint32_t>(button)); }
+    bool IsRelease(PadButton _button) const { return !(buttonMask_ & static_cast<uint32_t>(_button)) && (prevButtonMask_ & static_cast<uint32_t>(_button)); }
 
     /// <summary>
     /// 左スティックの現在座標（-1.0〜1.0）

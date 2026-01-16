@@ -28,20 +28,20 @@ T LerpByDeltaTime(const T& _start, const T& _end, float _deltaTime, float _speed
 /// <summary>
 /// Frame依存しない球面線形補間
 /// </summary>
-/// <param name="q0">開始時の回転</param>
-/// <param name="v">終了時の回転</param>
+/// <param name="_q0">開始時の回転</param>
+/// <param name="_v">終了時の回転</param>
 /// <param name="_deltaTime">1フレームの経過時間</param>
 /// <param name="_speed">補間速度</param>
 /// <returns>補間後のクォータニオン</returns>
-Quaternion SlerpByDeltaTime(const Quaternion& q0, const Quaternion& v, float _deltaTime, float _speed);
+Quaternion SlerpByDeltaTime(const Quaternion& _q0, const Quaternion& _v, float _deltaTime, float _speed);
 
 /// <summary>
 /// 角度を最短経路で線形補間 (ラジアン)
 /// </summary>
-/// <param name="current">現在の角度</param>
-/// <param name="target">目標角度</param>
-/// <param name="t">補間係数</param>
+/// <param name="_current">現在の角度</param>
+/// <param name="_target">目標角度</param>
+/// <param name="_t">補間係数</param>
 /// <returns>補間後の角度</returns>
-float LerpAngle(float current, float target, float t);
+float LerpAngle(float _current, float _target, float _t);
 
 } // namespace OriGine

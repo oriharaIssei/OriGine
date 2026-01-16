@@ -15,8 +15,8 @@ public:
     /// <summary>
     /// フェンスオブジェクトとイベントハンドルの初期化を行う.
     /// </summary>
-    /// <param name="device">D3D12 デバイス</param>
-    void Initialize(Microsoft::WRL::ComPtr<ID3D12Device> device);
+    /// <param name="_device">D3D12 デバイス</param>
+    void Initialize(Microsoft::WRL::ComPtr<ID3D12Device> _device);
 
     /// <summary>
     /// 保持しているフェンスオブジェクトとイベントハンドルを解放する.
@@ -26,9 +26,9 @@ public:
     /// <summary>
     /// 指定されたコマンドキューに対して Signal を発行し、現在のフェンス値を更新する.
     /// </summary>
-    /// <param name="commandQueue">Signal を発行するキュー</param>
+    /// <param name="_commandQueue">Signal を発行するキュー</param>
     /// <returns>発行された Signal の値 (WaitForFence で使用する値)</returns>
-    UINT64 Signal(Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue);
+    UINT64 Signal(Microsoft::WRL::ComPtr<ID3D12CommandQueue> _commandQueue);
 
     /// <summary>
     /// 指定されたフェンス値に GPU が到達するまで CPU スレッドをブロックして待機する.

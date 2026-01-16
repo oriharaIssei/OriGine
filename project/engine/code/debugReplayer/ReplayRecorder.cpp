@@ -24,9 +24,9 @@ void ReplayRecorder::Initialize(const std::string& _startSceneName) {
 }
 
 /// <summary> 各種入力デバイスから現在の状態を取得し、リプレイ用フレームデータとして保存する. </summary>
-void ReplayRecorder::RecordFrame(float deltaTime, KeyboardInput* _keyInput, MouseInput* _mouseInput, GamepadInput* _padInput) {
+void ReplayRecorder::RecordFrame(float _deltaTime, KeyboardInput* _keyInput, MouseInput* _mouseInput, GamepadInput* _padInput) {
     ReplayFrameData frameData = {};
-    frameData.deltaTime       = deltaTime;
+    frameData.deltaTime       = _deltaTime;
 
     // キーボード入力の記録（全 256 キーの状態を BitArray に格納）
     if (_keyInput) {

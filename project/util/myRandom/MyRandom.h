@@ -16,8 +16,8 @@ private:
     std::uniform_int_distribution<int32_t> distribution;
 
 public:
-    Int(int32_t min = (std::numeric_limits<int32_t>::min)(), int32_t max = (std::numeric_limits<int32_t>::max)())
-        : distribution(min, max) {}
+    Int(int32_t _min = (std::numeric_limits<int32_t>::min)(), int32_t _max = (std::numeric_limits<int32_t>::max)())
+        : distribution(_min, _max) {}
 
     /// <summary>
     /// 乱数を取得
@@ -32,8 +32,8 @@ public:
     /// </summary>
     /// <param name="min">最小値</param>
     /// <param name="max">最大値</param>
-    void SetRange(int32_t min, int32_t max) {
-        distribution = std::uniform_int_distribution<int32_t>(min, max);
+    void SetRange(int32_t _min, int32_t _max) {
+        distribution = std::uniform_int_distribution<int32_t>(_min, _max);
     }
 };
 
@@ -45,8 +45,8 @@ private:
     std::uniform_real_distribution<float> distribution;
 
 public:
-    Float(float min = 0.0, float max = 1.0)
-        : distribution(min, max) {}
+    Float(float _min = 0.0, float _max = 1.0)
+        : distribution(_min, _max) {}
 
     /// <summary>
     /// 乱数を取得
@@ -61,8 +61,8 @@ public:
     /// </summary>
     /// <param name="min">最小値</param>
     /// <param name="max">最大値</param>
-    void SetRange(float min, float max) {
-        distribution = std::uniform_real_distribution<float>(min, max);
+    void SetRange(float _min, float _max) {
+        distribution = std::uniform_real_distribution<float>(_min, _max);
     }
 };
 

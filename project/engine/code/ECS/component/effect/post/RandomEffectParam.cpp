@@ -12,11 +12,11 @@
 
 using namespace OriGine;
 
-void RandomEffectParam::Initialize(Scene* /*_scene*/,EntityHandle /*_hostEntity*/) {
+void RandomEffectParam::Initialize(Scene* /*_scene*/, EntityHandle /*_entity*/) {
     effectParamData_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
 }
 
-void RandomEffectParam::Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, [[maybe_unused]] const std::string& _parentLabel) {
+void RandomEffectParam::Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, const std::string& _parentLabel) {
 
 #ifdef _DEBUG
     CheckBoxCommand("Active##" + _parentLabel, isActive_);
@@ -54,18 +54,18 @@ void RandomEffectParam::Finalize() {
     effectParamData_.Finalize();
 }
 
-void OriGine::to_json(nlohmann::json& j, const RandomEffectParam& param) {
-    j = nlohmann::json{
-        {"isActive", param.isActive_},
-        {"maxTime", param.maxTime_},
-        {"blendMode", static_cast<int>(param.blendMode_)}};
+void OriGine::to_json(nlohmann::json& _j, const RandomEffectParam& _comp) {
+    _j = nlohmann::json{
+        {"isActive", _comp.isActive_},
+        {"maxTime", _comp.maxTime_},
+        {"blendMode", static_cast<int>(_comp.blendMode_)}};
 }
 
-void OriGine::from_json(const nlohmann::json& j, RandomEffectParam& param) {
-    j.at("isActive").get_to(param.isActive_);
+void OriGine::from_json(const nlohmann::json& _j, RandomEffectParam& _comp) {
+    _j.at("isActive").get_to(_comp.isActive_);
 
-    j.at("maxTime").get_to(param.maxTime_);
+    _j.at("maxTime").get_to(_comp.maxTime_);
     int blendModeInt;
-    j.at("blendMode").get_to(blendModeInt);
-    param.blendMode_ = static_cast<BlendMode>(blendModeInt);
+    _j.at("blendMode").get_to(blendModeInt);
+    _comp.blendMode_ = static_cast<BlendMode>(blendModeInt);
 }

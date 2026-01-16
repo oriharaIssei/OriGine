@@ -56,8 +56,8 @@ struct ColorAndUvTransform {
 /// </summary>
 struct Material
     : public IComponent {
-    friend void to_json(nlohmann::json& j, const Material& m);
-    friend void from_json(const nlohmann::json& j, Material& m);
+    friend void to_json(nlohmann::json& _j, const Material& _comp);
+    friend void from_json(const nlohmann::json& _j, Material& _comp);
 
 public:
     Material() {}
@@ -69,7 +69,7 @@ public:
     void UpdateUvMatrix();
 
     void Initialize(Scene* _scene, EntityHandle _owner) override;
-    void Edit(Scene* _scene,EntityHandle _entity, const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) override;
     void Finalize() override;
 
     /// <summary>
@@ -87,8 +87,8 @@ public:
     /// <summary>
     /// CustomTextureを指定したテクスチャから作成する
     /// </summary>
-    /// <param name="textureIndex">TextureManagerが持っているテクスチャのインデックス</param>
-    void CreateCustomTextureFromTextureFile(int32_t textureIndex);
+    /// <param name="_textureIndex">TextureManagerが持っているテクスチャのインデックス</param>
+    void CreateCustomTextureFromTextureFile(int32_t _textureIndex);
 
     void DeleteCustomTexture();
 
@@ -138,13 +138,13 @@ public:
         float shininess;
         Vec3f specularColor;
         float environmentCoefficient;
-        ConstantBuffer& operator=(const Material& material) {
-            color                  = material.color_;
-            enableLighting         = static_cast<uint32_t>(material.enableLighting_);
-            uvTransform            = material.uvMat_;
-            shininess              = material.shininess_;
-            specularColor          = material.specularColor_;
-            environmentCoefficient = material.environmentCoefficient_;
+        ConstantBuffer& operator=(const Material& _material) {
+            color                  = _material.color_;
+            enableLighting         = static_cast<uint32_t>(_material.enableLighting_);
+            uvTransform            = _material.uvMat_;
+            shininess              = _material.shininess_;
+            specularColor          = _material.specularColor_;
+            environmentCoefficient = _material.environmentCoefficient_;
             return *this;
         }
     };

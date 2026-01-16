@@ -18,8 +18,8 @@ namespace OriGine {
 /// </summary>
 struct PointLight
     : public IComponent {
-    friend void to_json(nlohmann::json& j, const PointLight& l);
-    friend void from_json(const nlohmann::json& j, PointLight& l);
+    friend void to_json(nlohmann::json& _j, const PointLight& _comp);
+    friend void from_json(const nlohmann::json& _j, PointLight& _comp);
 
 public:
     PointLight() {}
@@ -50,13 +50,13 @@ public:
         float decay; // 4 bytes
         float angularRadius;
         float padding[2];
-        ConstantBuffer& operator=(const PointLight& light) {
-            color         = light.color;
-            pos           = light.pos;
-            intensity     = light.intensity;
-            radius        = light.radius;
-            decay         = light.decay;
-            angularRadius = light.angularRadius;
+        ConstantBuffer& operator=(const PointLight& _comp) {
+            color         = _comp.color;
+            pos           = _comp.pos;
+            intensity     = _comp.intensity;
+            radius        = _comp.radius;
+            decay         = _comp.decay;
+            angularRadius = _comp.angularRadius;
             return *this;
         }
     };

@@ -35,16 +35,16 @@ public:
     /// </summary>
     /// <param name="key">タイムスケールのキー</param>
     /// <returns>スケール後のデルタタイム</returns>
-    float GetScaledDeltaTime(const std::string& key) const;
+    float GetScaledDeltaTime(const std::string& _key) const;
     /// <summary>
     /// デルタタイムを直接設定
     /// </summary>
     /// <param name="dt">デルタタイム</param>
-    void SetDeltaTimer(float dt) { deltaTime_ = dt; }
+    void SetDeltaTimer(float _dt) { deltaTime_ = _dt; }
     /// <summary>
     /// タイムスケールを設定
     /// </summary>
     /// <param name="key">キー</param>
     /// <param name="scale">スケール値</param>
-    void SetTimeScale(const std::string& key, float scale);
+    void SetTimeScale(const std::string& _key, float _scale);
 };

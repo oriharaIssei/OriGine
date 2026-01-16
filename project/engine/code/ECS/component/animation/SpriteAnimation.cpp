@@ -24,12 +24,12 @@ void SpriteAnimation::Initialize(Scene* /*_scene*/, EntityHandle /*_entity*/) {
     currentTime_ = 0.0f;
 }
 
-void SpriteAnimation::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _handle, [[maybe_unused]] const std::string& _parentLabel) {
+void SpriteAnimation::Edit(Scene* _scene, EntityHandle _entity, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     std::string label = "SpriteComponentIndex##" + _parentLabel;
 
-    {
-        auto& spriteComponents = _scene->GetComponents<SpriteRenderer>(_handle);
+    { // animatinを適応するSpriteを選択
+        auto& spriteComponents = _scene->GetComponents<SpriteRenderer>(_entity);
         if (!spriteComponents.empty()) {
             int32_t currentIndex = 0;
             for (size_t i = 0; i < spriteComponents.size(); ++i) {
@@ -296,8 +296,8 @@ void SpriteAnimation::PlayUVAnimation() {
     uvAnimationState_.isPlay_ = true;
 }
 
-void OriGine::to_json(nlohmann::json& j, const SpriteAnimation& r) {
-    auto writeCurve = [&j](const std::string& _name, const auto& _curve) {
+void OriGine::to_json(nlohmann::json& _j, const SpriteAnimation& _comp) {
+    auto writeCurve = [&_j](const std::string& _name, const auto& _curve) {
         nlohmann::json curveJson = nlohmann::json::array();
         for (const auto& key : _curve) {
             nlohmann::json keyJson;
@@ -305,37 +305,37 @@ void OriGine::to_json(nlohmann::json& j, const SpriteAnimation& r) {
             keyJson["value"] = key.value;
             curveJson.push_back(keyJson);
         }
-        j[_name] = curveJson;
+        _j[_name] = curveJson;
     };
 
-    j["duration"] = r.duration_;
+    _j["duration"] = _comp.duration_;
 
-    j["spriteComponentHandle"] = r.spriteComponentHandle_;
+    _j["spriteComponentHandle"] = _comp.spriteComponentHandle_;
 
-    j["colorAnimationState"]["isLoop"] = r.colorAnimationState_.isLoop_;
-    j["colorAnimationState"]["isPlay"] = r.colorAnimationState_.isPlay_;
-    j["colorInterpolationType"]        = int(r.colorInterpolationType_);
-    writeCurve("colorCurve", r.colorCurve_);
+    _j["colorAnimationState"]["isLoop"] = _comp.colorAnimationState_.isLoop_;
+    _j["colorAnimationState"]["isPlay"] = _comp.colorAnimationState_.isPlay_;
+    _j["colorInterpolationType"]        = int(_comp.colorInterpolationType_);
+    writeCurve("colorCurve", _comp.colorCurve_);
 
-    j["transformAnimationState"]["isLoop"] = r.transformAnimationState_.isLoop_;
-    j["transformAnimationState"]["isPlay"] = r.transformAnimationState_.isPlay_;
-    j["transformInterpolationType"]        = int(r.transformInterpolationType_);
-    writeCurve("scaleCurve", r.scaleCurve_);
-    writeCurve("rotateCurve", r.rotateCurve_);
-    writeCurve("translateCurve", r.translateCurve_);
+    _j["transformAnimationState"]["isLoop"] = _comp.transformAnimationState_.isLoop_;
+    _j["transformAnimationState"]["isPlay"] = _comp.transformAnimationState_.isPlay_;
+    _j["transformInterpolationType"]        = int(_comp.transformInterpolationType_);
+    writeCurve("scaleCurve", _comp.scaleCurve_);
+    writeCurve("rotateCurve", _comp.rotateCurve_);
+    writeCurve("translateCurve", _comp.translateCurve_);
 
-    j["uvAnimationState"]["isLoop"] = r.uvAnimationState_.isLoop_;
-    j["uvAnimationState"]["isPlay"] = r.uvAnimationState_.isPlay_;
-    j["uvInterpolationType"]        = int(r.uvInterpolationType_);
-    writeCurve("uvScaleCurve", r.uvscaleCurve_);
-    writeCurve("uvRotateCurve", r.uvRotateCurve_);
-    writeCurve("uvTranslateCurve", r.uvTranslateCurve_);
+    _j["uvAnimationState"]["isLoop"] = _comp.uvAnimationState_.isLoop_;
+    _j["uvAnimationState"]["isPlay"] = _comp.uvAnimationState_.isPlay_;
+    _j["uvInterpolationType"]        = int(_comp.uvInterpolationType_);
+    writeCurve("uvScaleCurve", _comp.uvscaleCurve_);
+    writeCurve("uvRotateCurve", _comp.uvRotateCurve_);
+    writeCurve("uvTranslateCurve", _comp.uvTranslateCurve_);
 }
 
-void OriGine::from_json(const nlohmann::json& j, SpriteAnimation& r) {
+void OriGine::from_json(const nlohmann::json& _j, SpriteAnimation& _comp) {
 
-    auto readCurve = [&j](const std::string& _name, auto& _curve) {
-        for (const auto& keyJson : j.at(_name)) {
+    auto readCurve = [&_j](const std::string& _name, auto& _curve) {
+        for (const auto& keyJson : _j.at(_name)) {
             typename std::remove_reference<decltype(_curve)>::type::value_type key;
             keyJson.at("time").get_to(key.time);
             keyJson.at("value").get_to(key.value);
@@ -343,26 +343,26 @@ void OriGine::from_json(const nlohmann::json& j, SpriteAnimation& r) {
         }
     };
 
-    r.duration_ = j.value("duration", 0.0f);
+    _comp.duration_ = _j.value("duration", 0.0f);
 
-    if (j.contains("spriteComponentHandle")) {
-        j.at("spriteComponentHandle").get_to(r.spriteComponentHandle_);
+    if (_j.contains("spriteComponentHandle")) {
+        _j.at("spriteComponentHandle").get_to(_comp.spriteComponentHandle_);
     }
 
-    r.colorAnimationState_.isLoop_ = j["colorAnimationState"].value("isLoop", false);
-    r.colorAnimationState_.isPlay_ = j["colorAnimationState"].value("isPlay", false);
-    r.colorInterpolationType_      = InterpolationType(j.value("colorInterpolationType", int(InterpolationType::LINEAR)));
-    readCurve("colorCurve", r.colorCurve_);
-    r.transformAnimationState_.isLoop_ = j["transformAnimationState"].value("isLoop", false);
-    r.transformAnimationState_.isPlay_ = j["transformAnimationState"].value("isPlay", false);
-    r.transformInterpolationType_      = InterpolationType(j.value("transformInterpolationType", int(InterpolationType::LINEAR)));
-    readCurve("scaleCurve", r.scaleCurve_);
-    readCurve("rotateCurve", r.rotateCurve_);
-    readCurve("translateCurve", r.translateCurve_);
-    r.uvAnimationState_.isLoop_ = j["uvAnimationState"].value("isLoop", false);
-    r.uvAnimationState_.isPlay_ = j["uvAnimationState"].value("isPlay", false);
-    r.uvInterpolationType_      = InterpolationType(j.value("uvInterpolationType", int(InterpolationType::LINEAR)));
-    readCurve("uvScaleCurve", r.uvscaleCurve_);
-    readCurve("uvRotateCurve", r.uvRotateCurve_);
-    readCurve("uvTranslateCurve", r.uvTranslateCurve_);
+    _comp.colorAnimationState_.isLoop_ = _j["colorAnimationState"].value("isLoop", false);
+    _comp.colorAnimationState_.isPlay_ = _j["colorAnimationState"].value("isPlay", false);
+    _comp.colorInterpolationType_      = InterpolationType(_j.value("colorInterpolationType", int(InterpolationType::LINEAR)));
+    readCurve("colorCurve", _comp.colorCurve_);
+    _comp.transformAnimationState_.isLoop_ = _j["transformAnimationState"].value("isLoop", false);
+    _comp.transformAnimationState_.isPlay_ = _j["transformAnimationState"].value("isPlay", false);
+    _comp.transformInterpolationType_      = InterpolationType(_j.value("transformInterpolationType", int(InterpolationType::LINEAR)));
+    readCurve("scaleCurve", _comp.scaleCurve_);
+    readCurve("rotateCurve", _comp.rotateCurve_);
+    readCurve("translateCurve", _comp.translateCurve_);
+    _comp.uvAnimationState_.isLoop_ = _j["uvAnimationState"].value("isLoop", false);
+    _comp.uvAnimationState_.isPlay_ = _j["uvAnimationState"].value("isPlay", false);
+    _comp.uvInterpolationType_      = InterpolationType(_j.value("uvInterpolationType", int(InterpolationType::LINEAR)));
+    readCurve("uvScaleCurve", _comp.uvscaleCurve_);
+    readCurve("uvRotateCurve", _comp.uvRotateCurve_);
+    readCurve("uvTranslateCurve", _comp.uvTranslateCurve_);
 }

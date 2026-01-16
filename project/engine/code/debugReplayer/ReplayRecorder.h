@@ -37,11 +37,11 @@ public:
     /// <summary>
     /// 現在の 1 フレーム分の入力情報をキャプチャして内部リストに追加する.
     /// </summary>
-    /// <param name="deltaTime">フレームの経過時間</param>
+    /// <param name="_deltaTime">フレームの経過時間</param>
     /// <param name="_keyInput">キーボード入力オブジェクト（nullptr 可）</param>
     /// <param name="_mouseInput">マウス入力オブジェクト（nullptr 可）</param>
     /// <param name="_padInput">ゲームパッド入力オブジェクト（nullptr 可）</param>
-    void RecordFrame(float deltaTime, KeyboardInput* _keyInput, MouseInput* _mouseInput, GamepadInput* _padInput);
+    void RecordFrame(float _deltaTime, KeyboardInput* _keyInput, MouseInput* _mouseInput, GamepadInput* _padInput);
 
     /// <summary>
     /// 蓄積されたリプレイデータをバイナリファイル（.rpd）として保存する.

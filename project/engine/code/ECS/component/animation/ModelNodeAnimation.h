@@ -29,8 +29,8 @@ struct ModelNode;
 /// </summary>
 class ModelNodeAnimation
     : public IComponent {
-    friend void to_json(nlohmann::json& j, const ModelNodeAnimation& t);
-    friend void from_json(const nlohmann::json& j, ModelNodeAnimation& t);
+    friend void to_json(nlohmann::json& _j, const ModelNodeAnimation& _comp);
+    friend void from_json(const nlohmann::json& _j, ModelNodeAnimation& _comp);
 
 public:
     ModelNodeAnimation()  = default;
@@ -41,26 +41,26 @@ public:
     void Finalize() override;
 
     void UpdateModel(
-        float deltaTime,
-        Model* model,
-        const Matrix4x4& parentTransform);
+        float _deltaTime,
+        Model* _model,
+        const Matrix4x4& _parentTransform);
 
 private:
     /// <summary>
     /// Nodeアニメーションの現在のローカル行列を計算
     /// </summary>
-    Matrix4x4 CalculateNodeLocal(const std::string& nodeName) const;
+    Matrix4x4 CalculateNodeLocal(const std::string& _nodeName) const;
 
     /// <summary>
     /// ノードにアニメーションを適用
     /// </summary>
-    /// <param name="node">root Node</param>
-    /// <param name="parentTransform">rootNode ParentMatrix</param>
-    /// <param name="animation">animation</param>
+    /// <param name="_node">root Node</param>
+    /// <param name="_parentTransform">rootNode ParentMatrix</param>
+    /// <param name="_animation">animation</param>
     void ApplyAnimationToNodes(
-        ModelNode& node,
-        const Matrix4x4& parentTransform,
-        const ModelNodeAnimation* animation);
+        ModelNode& _node,
+        const Matrix4x4& _parentTransform,
+        const ModelNodeAnimation* _animation);
 
 private:
     std::string directory_ = ""; // アニメーションファイルのディレクトリ
@@ -93,9 +93,9 @@ public:
     AnimationData* GetData() const { return data_.get(); }
     void SetData(std::shared_ptr<AnimationData> _data) { data_ = std::move(_data); }
 
-    Vec3f GetCurrentScale(const std::string& nodeName) const;
-    Quaternion GetCurrentRotate(const std::string& nodeName) const;
-    Vec3f GetCurrentTranslate(const std::string& nodeName) const;
+    Vec3f GetCurrentScale(const std::string& _nodeName) const;
+    Quaternion GetCurrentRotate(const std::string& _nodeName) const;
+    Vec3f GetCurrentTranslate(const std::string& _nodeName) const;
 };
 
 } // namespace OriGine

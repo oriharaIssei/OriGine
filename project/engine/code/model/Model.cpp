@@ -4,9 +4,9 @@
 
 namespace OriGine {
 
-void Model::LoadTexture(int32_t part, const std::string& _texturePath) {
-    materialData_[part].texturePath   = _texturePath;
-    materialData_[part].textureNumber = TextureManager::LoadTexture(_texturePath);
+void Model::LoadTexture(int32_t _part, const std::string& _texturePath) {
+    materialData_[_part].texturePath   = _texturePath;
+    materialData_[_part].textureNumber = TextureManager::LoadTexture(_texturePath);
 }
 
 void Skeleton::Update() {

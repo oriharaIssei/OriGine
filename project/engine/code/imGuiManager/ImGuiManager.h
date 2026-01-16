@@ -40,10 +40,10 @@ public:
     /// <summary>
     /// ImGuiContext の作成、Win32/DX12 実装の初期化、フォントのセットアップを行う.
     /// </summary>
-    /// <param name="window">メインウィンドウのインスタンス</param>
-    /// <param name="dxDevice">D3D12 デバイスのインスタンス</param>
-    /// <param name="dxSwapChain">スワップチェーンのインスタンス</param>
-    void Initialize(const WinApp* window, const DxDevice* dxDevice, const DxSwapChain* dxSwapChain);
+    /// <param name="_window">メインウィンドウのインスタンス</param>
+    /// <param name="_dxDevice">D3D12 デバイスのインスタンス</param>
+    /// <param name="_dxSwapChain">スワップチェーンのインスタンス</param>
+    void Initialize(const WinApp* _window, const DxDevice* _dxDevice, const DxSwapChain* _dxSwapChain);
 
     /// <summary>
     /// ImGuiContext の破棄と DX12 リソースの解放を行う.
@@ -95,8 +95,8 @@ public:
     ImFont* GetMaterialIconFont() const { return materialIconFont_; }
 
     /// <summary> 指定したフォントをスタックに積む. </summary>
-    void pushFont(ImFont* font) {
-        ImGui::PushFont(font);
+    void pushFont(ImFont* _font) {
+        ImGui::PushFont(_font);
     }
     /// <summary> 標準フォントをスタックに積む. </summary>
     void pushFont() {

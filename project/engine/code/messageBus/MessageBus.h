@@ -31,10 +31,10 @@ public:
     /// 特定のイベント型を購読登録（Subscribe）する.
     /// </summary>
     /// <typeparam name="Event">購読するイベントの型</typeparam>
-    /// <param name="callback">イベント発生時に実行されるコールバック関数</param>
+    /// <param name="_callback">イベント発生時に実行されるコールバック関数</param>
     /// <returns>購読解除に使用する一意な ID</returns>
     template <typename Event>
-    size_t Subscribe(std::function<void(const Event&)> callback) {
+    size_t Subscribe(std::function<void(const Event&)> _callback) {
         auto& vec  = listeners_[std::type_index(typeid(Event))].entries;
         auto& free = listeners_[std::type_index(typeid(Event))].freeList;
 
@@ -46,13 +46,13 @@ public:
             free.pop_back();
             vec[id].callback =
                 [=](const void* ptr) {
-                    callback(*static_cast<const Event*>(ptr));
+                    _callback(*static_cast<const Event*>(ptr));
                 };
         } else {
             // 空きがない場合は末尾に追加
             id = vec.size();
             vec.push_back({[=](const void* ptr) {
-                callback(*static_cast<const Event*>(ptr));
+                _callback(*static_cast<const Event*>(ptr));
             }});
         }
 
@@ -63,9 +63,9 @@ public:
     /// 指定したイベントを発行（Emit）し、登録されているすべてのリスナーに通知する.
     /// </summary>
     /// <typeparam name="Event">発行するイベントの型</typeparam>
-    /// <param name="event">通知するイベントオブジェクトのインスタンス</param>
+    /// <param name="_event">通知するイベントオブジェクトのインスタンス</param>
     template <typename Event>
-    void Emit(const Event& event) {
+    void Emit(const Event& _event) {
         auto it = listeners_.find(std::type_index(typeid(Event)));
         if (it == listeners_.end()) {
             return;
@@ -76,7 +76,7 @@ public:
         // すべての有効なコールバックを呼び出す
         for (auto& entry : vec) {
             if (entry.callback) {
-                entry.callback(&event);
+                entry.callback(&_event);
             }
         }
     }
@@ -85,9 +85,9 @@ public:
     /// 指定された ID と型情報を用いて、購読を解除（Unsubscribe）する.
     /// </summary>
     /// <typeparam name="Event">解除するイベントの型</typeparam>
-    /// <param name="id">Subscribe 時に返された ID</param>
+    /// <param name="_id">Subscribe 時に返された ID</param>
     template <typename Event>
-    void Unsubscribe(size_t id) {
+    void Unsubscribe(size_t _id) {
         auto it = listeners_.find(std::type_index(typeid(Event)));
         if (it == listeners_.end()) {
             return;
@@ -95,9 +95,9 @@ public:
 
         auto& data = it->second;
 
-        if (id < data.entries.size()) {
-            data.entries[id].callback = nullptr;
-            data.freeList.push_back(id); // 空きスロットリストに追加
+        if (_id < data.entries.size()) {
+            data.entries[_id].callback = nullptr;
+            data.freeList.push_back(_id); // 空きスロットリストに追加
         }
     }
 

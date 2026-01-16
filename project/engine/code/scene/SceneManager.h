@@ -123,7 +123,7 @@ public:
     }
 
     /// <summary>ゲームの終了フラグを設定する (true を渡すとアプリケーションが終了へ向かう).</summary>
-    void SetExitGame(bool exit) { isExitGame_ = exit; }
+    void SetExitGame(bool _exit) { isExitGame_ = _exit; }
 
     /// <summary>現在実行中のシーン名を取得する.</summary>
     const ::std::string& GetCurrentSceneName() const;
@@ -131,8 +131,8 @@ public:
     /// <summary>
     /// 次のフレームでのシーン切り替えを予約する.
     /// </summary>
-    /// <param name="name">切り替え先のシーン名</param>
-    void ChangeScene(const ::std::string& name);
+    /// <param name="_name">切り替え先のシーン名</param>
+    void ChangeScene(const ::std::string& _name);
 
     /// <summary>現在シーンの切り替え中 (予約中) かどうかを取得する.</summary>
     bool IsChangeScene() const { return isChangeScene_; }

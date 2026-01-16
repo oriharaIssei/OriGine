@@ -15,12 +15,12 @@ enum class CollisionPushBackType {
 
     Count
 };
-const char* GetCollisionPushBackTypeName(CollisionPushBackType type);
+const char* GetCollisionPushBackTypeName(CollisionPushBackType _type);
 
 class CollisionPushBackInfo
     : public IComponent {
-    friend void to_json(nlohmann::json& j, const CollisionPushBackInfo& info);
-    friend void from_json(const nlohmann::json& j, CollisionPushBackInfo& info);
+    friend void to_json(nlohmann::json& _j, const CollisionPushBackInfo& _comp);
+    friend void from_json(const nlohmann::json& _j, CollisionPushBackInfo& _comp);
 
 public:
     void Initialize(Scene* /*_scene*/, EntityHandle /*_entity*/) override {}
@@ -44,10 +44,10 @@ private:
 
 public:
     CollisionPushBackType GetPushBackType() const { return pushBackType_; }
-    void SetPushBackType(CollisionPushBackType type) { pushBackType_ = type; }
+    void SetPushBackType(CollisionPushBackType _type) { pushBackType_ = _type; }
 
     const std::unordered_map<EntityHandle, Info>& GetCollisionInfoMap() const { return collisionInfoMap_; }
-    void SetCollisionInfoMap(const std::unordered_map<EntityHandle, Info>& map) { collisionInfoMap_ = map; }
+    void SetCollisionInfoMap(const std::unordered_map<EntityHandle, Info>& _map) { collisionInfoMap_ = _map; }
     void AddCollisionInfo(EntityHandle _handle, const Info& _info) {
         collisionInfoMap_[_handle] = _info;
     }

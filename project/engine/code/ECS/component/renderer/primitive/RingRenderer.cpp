@@ -20,8 +20,8 @@
 
 using namespace OriGine;
 
-void RingRenderer::Initialize(Scene* _scene, EntityHandle _hostEntity) {
-    MeshRenderer::Initialize(_scene, _hostEntity);
+void RingRenderer::Initialize(Scene* _scene, EntityHandle _entity) {
+    MeshRenderer::Initialize(_scene, _entity);
 
     // _mesh Init
     if (!meshGroup_->empty()) {
@@ -43,7 +43,7 @@ void RingRenderer::Initialize(Scene* _scene, EntityHandle _hostEntity) {
     }
 }
 
-void RingRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _handle, [[maybe_unused]] const std::string& _parentLabel) {
+void RingRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _entity, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     ImGui::SeparatorText("Material");
     ImGui::Spacing();
@@ -74,7 +74,7 @@ void RingRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityH
     ImGui::Spacing();
 
     label                      = "MaterialIndex##" + _parentLabel;
-    auto& materials            = _scene->GetComponents<Material>(_handle);
+    auto& materials            = _scene->GetComponents<Material>(_entity);
     int32_t entityMaterialSize = static_cast<int32_t>(materials.size()) - 1;
     InputGuiCommand(label, materialIndex_);
 
@@ -82,7 +82,7 @@ void RingRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityH
     if (materialIndex_ >= 0) {
         label = "Material##" + _parentLabel;
         if (ImGui::TreeNode(label.c_str())) {
-            materials[materialIndex_].Edit(_scene, _handle, "Material" + _parentLabel);
+            materials[materialIndex_].Edit(_scene, _entity, "Material" + _parentLabel);
             materialBuff_.ConvertToBuffer(materials[materialIndex_]);
             ImGui::TreePop();
         }
@@ -136,7 +136,7 @@ void RingRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityH
     // buffer Datas
     label = "Transform##" + _parentLabel;
     if (ImGui::TreeNode(label.c_str())) {
-        transformBuff_.openData_.Edit(_scene, _handle, _parentLabel);
+        transformBuff_.openData_.Edit(_scene, _entity, _parentLabel);
 
         transformBuff_.ConvertToBuffer();
         ImGui::TreePop();
@@ -145,45 +145,45 @@ void RingRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityH
 #endif // _DEBUG
 }
 
-void OriGine::to_json(nlohmann::json& j, const RingRenderer& r) {
-    j["isRenderer"] = r.isRender_;
-    j["isCulling"]  = r.isCulling_;
-    j["blendMode"]  = static_cast<int32_t>(r.currentBlend_);
+void OriGine::to_json(nlohmann::json& _j, const RingRenderer& _comp) {
+    _j["isRenderer"] = _comp.isRender_;
+    _j["isCulling"]  = _comp.isCulling_;
+    _j["blendMode"]  = static_cast<int32_t>(_comp.currentBlend_);
 
-    j["textureFilePath"] = r.textureFilePath_;
+    _j["textureFilePath"] = _comp.textureFilePath_;
 
-    to_json(j["transform"], r.transformBuff_.openData_);
-    j["materialIndex"] = r.materialIndex_;
+    to_json(_j["transform"], _comp.transformBuff_.openData_);
+    _j["materialIndex"] = _comp.materialIndex_;
 
-    j["InnerRadius"] = r.primitive_.innerRadius_;
-    j["OuterRadius"] = r.primitive_.outerRadius_;
-    j["division"]    = r.primitive_.division_;
+    _j["InnerRadius"] = _comp.primitive_.innerRadius_;
+    _j["OuterRadius"] = _comp.primitive_.outerRadius_;
+    _j["division"]    = _comp.primitive_.division_;
 }
 
-void OriGine::from_json(const nlohmann::json& j, RingRenderer& r) {
-    j.at("isRenderer").get_to(r.isRender_);
-    if (j.contains("isCulling")) {
-        j.at("isCulling").get_to(r.isCulling_);
+void OriGine::from_json(const nlohmann::json& _j, RingRenderer& _comp) {
+    _j.at("isRenderer").get_to(_comp.isRender_);
+    if (_j.contains("isCulling")) {
+        _j.at("isCulling").get_to(_comp.isCulling_);
     }
     int32_t blendMode = 0;
-    j.at("blendMode").get_to(blendMode);
-    r.currentBlend_ = static_cast<BlendMode>(blendMode);
+    _j.at("blendMode").get_to(blendMode);
+    _comp.currentBlend_ = static_cast<BlendMode>(blendMode);
 
-    from_json(j.at("transform"), r.transformBuff_.openData_);
-    j.at("materialIndex").get_to(r.materialIndex_);
+    from_json(_j.at("transform"), _comp.transformBuff_.openData_);
+    _j.at("materialIndex").get_to(_comp.materialIndex_);
 
-    if (j.contains("textureFilePath")) {
-        j.at("textureFilePath").get_to(r.textureFilePath_);
+    if (_j.contains("textureFilePath")) {
+        _j.at("textureFilePath").get_to(_comp.textureFilePath_);
     } else {
         std::string directory, fileName;
-        j.at("textureDirectory").get_to(directory);
-        j.at("textureFileName").get_to(fileName);
+        _j.at("textureDirectory").get_to(directory);
+        _j.at("textureFileName").get_to(fileName);
         if (!fileName.empty()) {
-            r.textureFilePath_ = directory + "/" + fileName;
+            _comp.textureFilePath_ = directory + "/" + fileName;
         }
     }
 
-    j.at("InnerRadius").get_to(r.primitive_.innerRadius_);
-    j.at("OuterRadius").get_to(r.primitive_.outerRadius_);
-    j.at("division").get_to(r.primitive_.division_);
+    _j.at("InnerRadius").get_to(_comp.primitive_.innerRadius_);
+    _j.at("OuterRadius").get_to(_comp.primitive_.outerRadius_);
+    _j.at("division").get_to(_comp.primitive_.division_);
 }

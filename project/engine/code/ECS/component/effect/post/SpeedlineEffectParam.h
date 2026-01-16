@@ -49,14 +49,14 @@ struct SpeedlineBufferParamData {
 /// </summary>
 class SpeedlineEffectParam
     : public IComponent {
-    friend void to_json(nlohmann::json& j, const SpeedlineEffectParam& p);
-    friend void from_json(const nlohmann::json& j, SpeedlineEffectParam& p);
+    friend void to_json(nlohmann::json& _j, const SpeedlineEffectParam& _comp);
+    friend void from_json(const nlohmann::json& _j, SpeedlineEffectParam& _comp);
 
 public:
     SpeedlineEffectParam()           = default;
     ~SpeedlineEffectParam() override = default;
     void Initialize(Scene* _scene, EntityHandle _entity);
-    void Edit(Scene* _scene, EntityHandle _handle, const std::string& _parentLabel);
+    void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel);
     void Finalize();
 
     void Play();
@@ -69,7 +69,7 @@ private:
     IConstantBuffer<SpeedlineBufferParamData> cBuffer_;
 
     std::string radialTextureFilePath_ = "";
-    uint32_t radialTextureIndex_        = 0;
+    uint32_t radialTextureIndex_       = 0;
 
 public:
     bool IsActive() const { return isActive_; }

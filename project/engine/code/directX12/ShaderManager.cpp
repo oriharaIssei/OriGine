@@ -29,12 +29,12 @@ void ShaderManager::Finalize() {
     shaderCompiler_->Finalize();
 }
 
-PipelineStateObj* ShaderManager::CreatePso(const std::string& key,
-    const ShaderInformation& shaderInfo,
-    Microsoft::WRL::ComPtr<ID3D12Device> device) {
+PipelineStateObj* ShaderManager::CreatePso(const std::string& _key,
+    const ShaderInformation& _shaderInfo,
+    Microsoft::WRL::ComPtr<ID3D12Device> _device) {
 
     // すでに存在するならそれを返す
-    auto it = psoMap_.find(key);
+    auto it = psoMap_.find(_key);
     if (it != psoMap_.end()) {
         return it->second.get();
     }
@@ -47,11 +47,11 @@ PipelineStateObj* ShaderManager::CreatePso(const std::string& key,
     /// RootSignature
     ///=================================================
     D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc = {
-        .NumParameters     = static_cast<uint32_t>(shaderInfo.rootParameters_.size()),
-        .pParameters       = shaderInfo.rootParameters_.data(),
-        .NumStaticSamplers = static_cast<uint32_t>(shaderInfo.samplerDescs_.size()),
-        .pStaticSamplers   = shaderInfo.samplerDescs_.data(),
-        .Flags             = shaderInfo.rootSignatureFlag,
+        .NumParameters     = static_cast<uint32_t>(_shaderInfo.rootParameters_.size()),
+        .pParameters       = _shaderInfo.rootParameters_.data(),
+        .NumStaticSamplers = static_cast<uint32_t>(_shaderInfo.samplerDescs_.size()),
+        .pStaticSamplers   = _shaderInfo.samplerDescs_.data(),
+        .Flags             = _shaderInfo.rootSignatureFlag,
     };
 
     // シリアライズしてバイナリにする
@@ -77,7 +77,7 @@ PipelineStateObj* ShaderManager::CreatePso(const std::string& key,
     }
 
     // RootSignatureの生成
-    device->CreateRootSignature(
+    _device->CreateRootSignature(
         0,
         signatureBlob->GetBufferPointer(),
         signatureBlob->GetBufferSize(),
@@ -87,8 +87,8 @@ PipelineStateObj* ShaderManager::CreatePso(const std::string& key,
     /// InputLayout
     ///=================================================
     D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{
-        .pInputElementDescs = shaderInfo.elementDescs_.data(),
-        .NumElements        = static_cast<uint32_t>(shaderInfo.elementDescs_.size()),
+        .pInputElementDescs = _shaderInfo.elementDescs_.data(),
+        .NumElements        = static_cast<uint32_t>(_shaderInfo.elementDescs_.size()),
     };
 
     ///=================================================
@@ -97,20 +97,20 @@ PipelineStateObj* ShaderManager::CreatePso(const std::string& key,
     D3D12_BLEND_DESC blendDesc{};
     blendDesc.RenderTarget[0] = {}; // RenderTarget[0] を初期化
 
-    blendDesc = CreateBlendDescByBlendMode(shaderInfo.blendMode_);
+    blendDesc = CreateBlendDescByBlendMode(_shaderInfo.blendMode_);
 
     ///=================================================
     /// GRAPHICS_PIPELINE_STATE_DESC 初期化
     ///=================================================
     // cs か graphics pipeline state かを判定
-    if (!shaderInfo.csKey.empty()) {
+    if (!_shaderInfo.csKey.empty()) {
         D3D12_COMPUTE_PIPELINE_STATE_DESC computeStateDesc{};
         computeStateDesc.CS = {
-            shaderBlobMap_[shaderInfo.csKey]->GetBufferPointer(),
-            shaderBlobMap_[shaderInfo.csKey]->GetBufferSize()};
+            shaderBlobMap_[_shaderInfo.csKey]->GetBufferPointer(),
+            shaderBlobMap_[_shaderInfo.csKey]->GetBufferSize()};
         computeStateDesc.pRootSignature = pso->rootSignature.Get();
 
-        result = device->CreateComputePipelineState(
+        result = _device->CreateComputePipelineState(
             &computeStateDesc,
             IID_PPV_ARGS(&pso->pipelineState));
 
@@ -123,58 +123,58 @@ PipelineStateObj* ShaderManager::CreatePso(const std::string& key,
             assert(false);
         }
 
-        psoMap_[key] = std::move(pso);
-        LOG_INFO("Compute Pipeline State Object created: {}", key);
+        psoMap_[_key] = std::move(pso);
+        LOG_INFO("Compute Pipeline State Object created: {}", _key);
 
-        return psoMap_[key].get();
+        return psoMap_[_key].get();
     }
 
     D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineStateDesc{};
 
-    if (!shaderInfo.vsKey.empty()) {
+    if (!_shaderInfo.vsKey.empty()) {
         pipelineStateDesc.VS = {
-            shaderBlobMap_[shaderInfo.vsKey]->GetBufferPointer(),
-            shaderBlobMap_[shaderInfo.vsKey]->GetBufferSize()};
+            shaderBlobMap_[_shaderInfo.vsKey]->GetBufferPointer(),
+            shaderBlobMap_[_shaderInfo.vsKey]->GetBufferSize()};
     }
-    if (!shaderInfo.psKey.empty()) {
+    if (!_shaderInfo.psKey.empty()) {
         pipelineStateDesc.PS = {
-            shaderBlobMap_[shaderInfo.psKey]->GetBufferPointer(),
-            shaderBlobMap_[shaderInfo.psKey]->GetBufferSize()};
+            shaderBlobMap_[_shaderInfo.psKey]->GetBufferPointer(),
+            shaderBlobMap_[_shaderInfo.psKey]->GetBufferSize()};
     }
-    if (!shaderInfo.dsKey.empty()) {
+    if (!_shaderInfo.dsKey.empty()) {
         pipelineStateDesc.DS = {
-            shaderBlobMap_[shaderInfo.dsKey]->GetBufferPointer(),
-            shaderBlobMap_[shaderInfo.dsKey]->GetBufferSize()};
+            shaderBlobMap_[_shaderInfo.dsKey]->GetBufferPointer(),
+            shaderBlobMap_[_shaderInfo.dsKey]->GetBufferSize()};
     }
-    if (!shaderInfo.hsKey.empty()) {
+    if (!_shaderInfo.hsKey.empty()) {
         pipelineStateDesc.HS = {
-            shaderBlobMap_[shaderInfo.hsKey]->GetBufferPointer(),
-            shaderBlobMap_[shaderInfo.hsKey]->GetBufferSize()};
+            shaderBlobMap_[_shaderInfo.hsKey]->GetBufferPointer(),
+            shaderBlobMap_[_shaderInfo.hsKey]->GetBufferSize()};
     }
-    if (!shaderInfo.dsKey.empty()) {
+    if (!_shaderInfo.dsKey.empty()) {
         pipelineStateDesc.DS = {
-            shaderBlobMap_[shaderInfo.dsKey]->GetBufferPointer(),
-            shaderBlobMap_[shaderInfo.dsKey]->GetBufferSize()};
+            shaderBlobMap_[_shaderInfo.dsKey]->GetBufferPointer(),
+            shaderBlobMap_[_shaderInfo.dsKey]->GetBufferSize()};
     }
 
     pipelineStateDesc.pRootSignature = pso->rootSignature.Get();
     pipelineStateDesc.InputLayout    = inputLayoutDesc;
 
     pipelineStateDesc.BlendState      = blendDesc;
-    pipelineStateDesc.RasterizerState = shaderInfo.rasterizerDesc;
+    pipelineStateDesc.RasterizerState = _shaderInfo.rasterizerDesc;
 
-    pipelineStateDesc.DepthStencilState = shaderInfo.depthStencilDesc_;
+    pipelineStateDesc.DepthStencilState = _shaderInfo.depthStencilDesc_;
     pipelineStateDesc.DSVFormat         = DXGI_FORMAT_D24_UNORM_S8_UINT;
 
     pipelineStateDesc.NumRenderTargets = 1;
     pipelineStateDesc.RTVFormats[0]    = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
     // 利用するトポロジ(形状)タイプ。
-    pipelineStateDesc.PrimitiveTopologyType = shaderInfo.topologyType;
+    pipelineStateDesc.PrimitiveTopologyType = _shaderInfo.topologyType;
     // どのように画面に色を打ち込むかの設定
     pipelineStateDesc.SampleDesc.Count = 1;
     pipelineStateDesc.SampleMask       = D3D12_DEFAULT_SAMPLE_MASK;
 
-    result = device->CreateGraphicsPipelineState(
+    result = _device->CreateGraphicsPipelineState(
         &pipelineStateDesc,
         IID_PPV_ARGS(&pso->pipelineState));
 
@@ -185,41 +185,41 @@ PipelineStateObj* ShaderManager::CreatePso(const std::string& key,
         assert(SUCCEEDED(result));
     };
 
-    psoMap_[key] = std::move(pso);
+    psoMap_[_key] = std::move(pso);
 
-    return psoMap_[key].get();
+    return psoMap_[_key].get();
 }
 
-bool ShaderManager::LoadShader(const std::string& fileName, const std::string& directory, const wchar_t* profile) {
-    return RegisterShaderBlob(fileName, shaderCompiler_->CompileShader(ConvertString(directory + '/' + fileName + ".hlsl"), profile));
+bool ShaderManager::LoadShader(const std::string& _fileName, const std::string& _directory, const wchar_t* _profile) {
+    return RegisterShaderBlob(_fileName, shaderCompiler_->CompileShader(ConvertString(_directory + '/' + _fileName + ".hlsl"), _profile));
 }
 
-bool ShaderManager::RegisterShaderBlob(const std::string& fileName, Microsoft::WRL::ComPtr<IDxcBlob> shaderBlob) {
-    auto it = shaderBlobMap_.find(fileName);
+bool ShaderManager::RegisterShaderBlob(const std::string& _fileName, Microsoft::WRL::ComPtr<IDxcBlob> _shaderBlob) {
+    auto it = shaderBlobMap_.find(_fileName);
     if (it != shaderBlobMap_.end()) {
         return false;
     }
-    shaderBlobMap_.emplace(fileName, std::move(shaderBlob));
+    shaderBlobMap_.emplace(_fileName, std::move(_shaderBlob));
     return true;
 }
-bool ShaderManager::IsRegisteredShaderBlob(const std::string& fileName) const {
-    auto it = shaderBlobMap_.find(fileName);
+bool ShaderManager::IsRegisteredShaderBlob(const std::string& _fileName) const {
+    auto it = shaderBlobMap_.find(_fileName);
     if (it != shaderBlobMap_.end()) {
         return true;
     }
     return false;
 }
 
-PipelineStateObj* ShaderManager::GetPipelineStateObj(const std::string& key) {
-    auto it = psoMap_.find(key);
+PipelineStateObj* ShaderManager::GetPipelineStateObj(const std::string& _key) {
+    auto it = psoMap_.find(_key);
     if (it == psoMap_.end()) {
         return nullptr;
     }
     return it->second.get();
 }
 
-Microsoft::WRL::ComPtr<IDxcBlob>* ShaderManager::GetShaderBlob(const std::string& key) {
-    auto it = shaderBlobMap_.find(key);
+Microsoft::WRL::ComPtr<IDxcBlob>* ShaderManager::GetShaderBlob(const std::string& _key) {
+    auto it = shaderBlobMap_.find(_key);
     if (it == shaderBlobMap_.end()) {
         return nullptr;
     }

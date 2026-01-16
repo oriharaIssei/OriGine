@@ -19,14 +19,14 @@ using namespace OriGine;
 /// <summary>
 /// 指定されたリプレイファイルの読み込みと再生準備を行う.
 /// </summary>
-void ReplayPlayer::Initialize(const std::string& filepath, SceneManager* _sceneManager) {
+void ReplayPlayer::Initialize(const std::string& _filepath, SceneManager* _sceneManager) {
     if (isActive_) {
         LOG_WARN("already initialized.");
         return;
     }
 
     fileData_.Initialize();
-    isActive_ = LoadFromFile(filepath);
+    isActive_ = LoadFromFile(_filepath);
 
     // 読み込みに成功した場合、記録開始時のシーンへの遷移を要求する
     if (_sceneManager) {
@@ -54,20 +54,20 @@ void ReplayPlayer::Finalize() {
 /// <summary>
 /// バイナリ形式のリプレイファイルを解析してメモリにロードする.
 /// </summary>
-bool ReplayPlayer::LoadFromFile(const std::string& filepath) {
+bool ReplayPlayer::LoadFromFile(const std::string& _filepath) {
     isActive_ = false;
-    std::ifstream ifs(filepath, std::ios::binary);
+    std::ifstream ifs(_filepath, std::ios::binary);
     if (!ifs.is_open()) {
+
 #ifdef _DEBUG
-        MessageBoxA(nullptr, ("Failed to open replay file: " + filepath).c_str(), "Error", MB_OK);
+        MessageBoxA(nullptr, ("Failed to open replay file: " + _filepath).c_str(), "Error", MB_OK);
 #endif // _DEBUG
 
-        LOG_CRITICAL("Failed to open replay file for reading: {}", filepath);
+        LOG_CRITICAL("Failed to open replay file for reading: {}", _filepath);
         return false;
     }
 
-    filepath_ = filepath;
-    fileData_.Initialize();
+    filepath_ = _filepath;
 
     // ===== ヘッダーのデシリアライズ =====
     {
@@ -133,7 +133,7 @@ bool ReplayPlayer::LoadFromFile(const std::string& filepath) {
     }
 
     ifs.close();
-    LOG_INFO("Replay file loaded successfully: {}", filepath);
+    LOG_INFO("Replay file loaded successfully: {}", _filepath);
 
     isActive_ = true;
     return true;
@@ -213,10 +213,10 @@ float ReplayPlayer::Apply(KeyboardInput* _keyInput, MouseInput* _mouseInput, Gam
     return frameData.deltaTime;
 }
 
-bool ReplayPlayer::Seek(size_t frameIndex) {
-    if (frameIndex < fileData_.frameData.size()) {
-        bool result        = (currentFrameIndex_ != frameIndex);
-        currentFrameIndex_ = frameIndex;
+bool ReplayPlayer::Seek(size_t _frameIndex) {
+    if (_frameIndex < fileData_.frameData.size()) {
+        bool result        = (currentFrameIndex_ != _frameIndex);
+        currentFrameIndex_ = _frameIndex;
         return result;
     }
     return false;

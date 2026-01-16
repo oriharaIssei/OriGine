@@ -16,15 +16,15 @@ struct Matrix4x4 {
     ///
     ///	演算子
     ///
-    float* operator[](int index) { return m[index]; }
-    const float* operator[](int index) const { return m[index]; }
+    float* operator[](int _index) { return m[_index]; }
+    const float* operator[](int _index) const { return m[_index]; }
 
-    Matrix4x4 operator+(const Matrix4x4& another) const;
-    Matrix4x4 operator-(const Matrix4x4& another) const;
-    Matrix4x4 operator*(const Matrix4x4& another) const;
-    Matrix4x4 operator*(const float& scalar) const;
+    Matrix4x4 operator+(const Matrix4x4& _another) const;
+    Matrix4x4 operator-(const Matrix4x4& _another) const;
+    Matrix4x4 operator*(const Matrix4x4& _another) const;
+    Matrix4x4 operator*(const float& _scalar) const;
 
-    Matrix4x4* operator*=(const Matrix4x4& another);
+    Matrix4x4* operator*=(const Matrix4x4& _another);
 
     /// <summary>
     /// 転置行列を取得
@@ -36,7 +36,7 @@ struct Matrix4x4 {
     /// </summary>
     /// <param name="m">行列</param>
     /// <returns>転置行列</returns>
-    static Matrix4x4 Transpose(const Matrix4x4& m);
+    static Matrix4x4 Transpose(const Matrix4x4& _m);
 
     /// <summary>
     /// 逆行列を取得
@@ -48,33 +48,33 @@ struct Matrix4x4 {
     /// </summary>
     /// <param name="m">行列</param>
     /// <returns>逆行列</returns>
-    static Matrix4x4 Inverse(const Matrix4x4& m);
+    static Matrix4x4 Inverse(const Matrix4x4& _m);
 
     /// <summary>
     /// float配列へ変換
     /// </summary>
     /// <param name="mat">変換元の行列</param>
     /// <param name="out">出力先の配列(要素数16)</param>
-    static void ToFloatArray(const Matrix4x4& mat, float out[16]);
+    static void ToFloatArray(const Matrix4x4& _mat, float _out[16]);
     /// <summary>
     /// float配列へ変換
     /// </summary>
     /// <param name="out">出力先の配列(要素数16)</param>
-    void toFloatArray(float out[16]) const {
-        return ToFloatArray(*this, out);
+    void toFloatArray(float _out[16]) const {
+        return ToFloatArray(*this, _out);
     }
     /// <summary>
     /// float配列から変換
     /// </summary>
     /// <param name="mat">出力先の行列</param>
     /// <param name="in">変換元の配列(要素数16)</param>
-    static void FromFloatArray(Matrix4x4& mat, const float in[16]);
+    static void FromFloatArray(Matrix4x4& _mat, const float _in[16]);
     /// <summary>
     /// float配列から変換
     /// </summary>
     /// <param name="in">変換元の配列(要素数16)</param>
-    void fromFloatArray(const float in[16]) {
-        FromFloatArray(*this, in);
+    void fromFloatArray(const float _in[16]) {
+        FromFloatArray(*this, _in);
     }
 
     /// <summary>
@@ -85,10 +85,10 @@ struct Matrix4x4 {
     /// <param name="outRotate"></param>
     /// <param name="outTranslate"></param>
     static void DecomposeMatrixToComponents(
-        const Matrix4x4& mat,
-        Vec3f& outScale,
-        Quaternion& outRotate,
-        Vec3f& outTranslate);
+        const Matrix4x4& _mat,
+        Vec3f& _outScale,
+        Quaternion& _outRotate,
+        Vec3f& _outTranslate);
     /// <summary>
     /// Matrixから srt (Scale, Rotate, Translate) の成分を抽出
     /// </summary>
@@ -96,10 +96,10 @@ struct Matrix4x4 {
     /// <param name="outRotate"></param>
     /// <param name="outTranslate"></param>
     void decomposeMatrixToComponents(
-        Vec3f& outScale,
-        Quaternion& outRotate,
-        Vec3f& outTranslate) const {
-        DecomposeMatrixToComponents(*this, outScale, outRotate, outTranslate);
+        Vec3f& _outScale,
+        Quaternion& _outRotate,
+        Vec3f& _outTranslate) const {
+        DecomposeMatrixToComponents(*this, _outScale, _outRotate, _outTranslate);
     }
 
     /// <summary>
@@ -153,34 +153,33 @@ const Matrix4x4 Identity();
 /// </summary>
 /// <param name="vec"></param>
 /// <returns></returns>
-Matrix4x4 Translate(const Vec3f& vec);
+Matrix4x4 Translate(const Vec3f& _vec);
 /// <summary>
 /// 拡大縮小行列を作成
 /// </summary>
-Matrix4x4 Scale(const Vec3f& vec);
-
+Matrix4x4 Scale(const Vec3f& _vec);
 /// <summary>
 /// X軸回転行列を作成
 /// </summary>
 /// <param name="radian"></param>
 /// <returns></returns>
-Matrix4x4 RotateX(const float& radian);
+Matrix4x4 RotateX(const float& _radian);
 /// <summary>
 /// Y軸回転行列を作成
 /// </summary>
 /// <param name="radian"></param>
 /// <returns></returns>
-Matrix4x4 RotateY(const float& radian);
+Matrix4x4 RotateY(const float& _radian);
 /// <summary>
 /// Z軸回転行列を作成
 /// </summary>
-Matrix4x4 RotateZ(const float& radian);
+Matrix4x4 RotateZ(const float& _radian);
 /// <summary>
 /// XYZ順の回転行列を作成
 /// </summary>
 /// <param name="radian">各方向への回転角</param>
 /// <returns>回転行列</returns>
-Matrix4x4 RotateXYZ(const Vec3f& radian);
+Matrix4x4 RotateXYZ(const Vec3f& _radian);
 /// <summary>
 /// 各軸の回転行列を合成
 /// </summary>
@@ -188,13 +187,13 @@ Matrix4x4 RotateXYZ(const Vec3f& radian);
 /// <param name="y">Y軸回転行列</param>
 /// <param name="z">Z軸回転行列</param>
 /// <returns>合成した回転行列</returns>
-Matrix4x4 RotateXYZ(const Matrix4x4& x, const Matrix4x4& y, const Matrix4x4& z);
+Matrix4x4 RotateXYZ(const Matrix4x4& _x, const Matrix4x4& _y, const Matrix4x4& _z);
 /// <summary>
 /// Quaternionから回転行列を作成
 /// </summary>
 /// <param name="q"></param>
 /// <returns></returns>
-Matrix4x4 RotateQuaternion(const Quaternion& q);
+Matrix4x4 RotateQuaternion(const Quaternion& _q);
 
 /// <summary>
 /// 任意軸回転行列を作成
@@ -202,16 +201,16 @@ Matrix4x4 RotateQuaternion(const Quaternion& q);
 /// <param name="axis">任意軸</param>
 /// <param name="angle"></param>
 /// <returns></returns>
-Matrix4x4 RotateAxisAngle(const Vec3f& axis, float angle);
+Matrix4x4 RotateAxisAngle(const Vec3f& _axis, float _angle);
 /// <summary>
 /// fromベクトルからtoベクトルへの回転行列を作成
 /// </summary>
-Matrix4x4 RotateAxisAngle(const Vec3f& fromV, const Vec3f& toV);
+Matrix4x4 RotateAxisAngle(const Vec3f& _fromV, const Vec3f& _toV);
 
 /// <summary>
 /// アフィン変換行列を作成
 /// </summary>
-Matrix4x4 Affine(const Vec3f& scale, const Vec3f& rotate, const Vec3f& translate);
+Matrix4x4 Affine(const Vec3f& _scale, const Vec3f& _rotate, const Vec3f& _translate);
 /// <summary>
 /// アフィン変換行列を作成
 /// </summary>
@@ -219,20 +218,20 @@ Matrix4x4 Affine(const Vec3f& scale, const Vec3f& rotate, const Vec3f& translate
 /// <param name="rotate"></param>
 /// <param name="translate"></param>
 /// <returns></returns>
-Matrix4x4 Affine(const Vec3f& scale, const Quaternion& rotate, const Vec3f& translate);
+Matrix4x4 Affine(const Vec3f& _scale, const Quaternion& _rotate, const Vec3f& _translate);
 
 /// <summary>
 /// 透視投影行列を作成
 /// </summary>
-Matrix4x4 PerspectiveFov(const float& fovY, const float& aspectRatio, const float& nearClip, const float& farClip);
+Matrix4x4 PerspectiveFov(const float& _fovY, const float& _aspectRatio, const float& _nearClip, const float& _farClip);
 /// <summary>
 /// 正射影行列を作成
 /// </summary>
-Matrix4x4 Orthographic(const float& left, const float& top, const float& right, const float& bottom, const float& nearClip, const float& farClip);
+Matrix4x4 Orthographic(const float& _left, const float& _top, const float& _right, const float& _bottom, const float& _nearClip, const float& _farClip);
 /// <summary>
 /// ビューポート行列を作成
 /// </summary>
-Matrix4x4 ViewPort(const float& left, const float& top, const float& width, const float& height, const float& minDepth, const float& maxDepth);
+Matrix4x4 ViewPort(const float& _left, const float& _top, const float& _width, const float& _height, const float& _minDepth, const float& _maxDepth);
 } // namespace MakeMatrix4x4
 
 /// <summary>
@@ -241,16 +240,16 @@ Matrix4x4 ViewPort(const float& left, const float& top, const float& width, cons
 /// <param name="vec"></param>
 /// <param name="matrix"></param>
 /// <returns></returns>
-Vec3f TransformVector(const Vec3f& vec, const Matrix4x4& matrix);
+Vec3f TransformVector(const Vec3f& _vec, const Matrix4x4& _matrix);
 // インライン関数として定義
-inline Vec3f operator*(const Vec3f& vec, const Matrix4x4& matrix) {
-    return TransformVector(vec, matrix);
+inline Vec3f operator*(const Vec3f& _vec, const Matrix4x4& _matrix) {
+    return TransformVector(_vec, _matrix);
 }
 
 /// <summary>
 /// ベクトルを平行移動を無視して変換
 /// </summary>
-Vec3f TransformNormal(const Vec3f& v, const Matrix4x4& m);
+Vec3f TransformNormal(const Vec3f& _v, const Matrix4x4& _m);
 
 /// <summary>
 /// ワールド座標をスクリーン座標に変換
@@ -265,6 +264,5 @@ Vec2f WorldToScreen(const Vec3f& _worldPos, const Matrix4x4& _vpvpvMat);
 /// <param name="_invVpvpMat"></param>
 /// <returns></returns>
 Vec3f ScreenToWorld(const Vec2f& _screenPos, const float& _depth, const Matrix4x4& _invVpvpMat);
-
 
 } // namespace OriGine

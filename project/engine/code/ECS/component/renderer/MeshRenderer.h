@@ -171,8 +171,8 @@ public: // ↓ Accessor
 ///</summary>
 class ModelMeshRenderer
     : public MeshRenderer<TextureColorMesh, TextureColorVertexData> {
-    friend void to_json(nlohmann::json& j, const ModelMeshRenderer& r);
-    friend void from_json(const nlohmann::json& j, ModelMeshRenderer& r);
+    friend void to_json(nlohmann::json& _j, const ModelMeshRenderer& _comp);
+    friend void from_json(const nlohmann::json& _j, ModelMeshRenderer& _comp);
 
 public:
     ModelMeshRenderer() {}
@@ -315,8 +315,8 @@ void InitializeMaterialFromModelFile(
 ///</summary>
 class LineRenderer
     : public MeshRenderer<Mesh<ColorVertexData>, ColorVertexData> {
-    friend void to_json(nlohmann::json& j, const LineRenderer& r);
-    friend void from_json(const nlohmann::json& j, LineRenderer& r);
+    friend void to_json(nlohmann::json& _j, const LineRenderer& _comp);
+    friend void from_json(const nlohmann::json& _j, LineRenderer& _comp);
 
 public:
     LineRenderer();

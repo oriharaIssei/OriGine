@@ -60,15 +60,15 @@ struct GradationParam {
 /// </summary>
 class GradationComponent
     : public IComponent {
-    friend void to_json(nlohmann::json& j, const GradationComponent& _g);
-    friend void from_json(const nlohmann::json& j, GradationComponent& _g);
+    friend void to_json(nlohmann::json& _j, const GradationComponent& _comp);
+    friend void from_json(const nlohmann::json& _j, GradationComponent& _comp);
 
 public:
     GradationComponent()           = default;
     ~GradationComponent() override = default;
 
-    void Initialize(Scene* _scene, EntityHandle _entity) override;
-    void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) override;
+    void Initialize(Scene* _scene, EntityHandle _owner) override;
+    void Edit(Scene* _scene, EntityHandle _owner, const std::string& _parentLabel) override;
     void Finalize() override;
 
 private:

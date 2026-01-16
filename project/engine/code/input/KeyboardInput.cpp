@@ -8,11 +8,11 @@
 
 using namespace OriGine;
 
-void KeyboardInput::Initialize(IDirectInput8* directInput, HWND hwnd) {
-    assert(directInput);
+void KeyboardInput::Initialize(IDirectInput8* _directInput, HWND _hwnd) {
+    assert(_directInput);
 
     // キーボードデバイスを作成
-    HRESULT hr = directInput->CreateDevice(GUID_SysKeyboard, &keyboard_, nullptr);
+    HRESULT hr = _directInput->CreateDevice(GUID_SysKeyboard, &keyboard_, nullptr);
     assert(SUCCEEDED(hr) && "Failed to create keyboard device.");
 
     // データフォーマットを設定
@@ -20,7 +20,7 @@ void KeyboardInput::Initialize(IDirectInput8* directInput, HWND hwnd) {
     assert(SUCCEEDED(hr));
 
     // 協調レベル設定（フォアグラウンド・非排他）
-    hr = keyboard_->SetCooperativeLevel(hwnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
+    hr = keyboard_->SetCooperativeLevel(_hwnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
     assert(SUCCEEDED(hr));
 
     // 入力開始

@@ -26,9 +26,9 @@ public:
         ConstantBuffer()  = default;
         ~ConstantBuffer() = default;
 
-        ConstantBuffer& operator=(const RadialBlurBufferParam& other) {
-            center = other.center_;
-            width  = other.width_;
+        ConstantBuffer& operator=(const RadialBlurBufferParam& _other) {
+            center = _other.center_;
+            width  = _other.width_;
             return *this;
         }
 
@@ -48,16 +48,16 @@ public:
 class RadialBlurParam
     : public IComponent {
 public:
-    friend void to_json(nlohmann::json& j, const RadialBlurParam& param);
-    friend void from_json(const nlohmann::json& j, RadialBlurParam& param);
+    friend void to_json(nlohmann::json& _j, const RadialBlurParam& _comp);
+    friend void from_json(const nlohmann::json& _j, RadialBlurParam& _comp);
 
 public:
     RadialBlurParam();
     ~RadialBlurParam();
 
-    void Initialize(Scene* _scene, EntityHandle _entity);
+    void Initialize(Scene* _scene, EntityHandle _owner);
 
-    void Edit(Scene* _scene, EntityHandle _handle, const std::string& _parentLabel);
+    void Edit(Scene* _scene, EntityHandle _owner, const std::string& _parentLabel);
 
     void Finalize();
 
@@ -71,9 +71,9 @@ public:
     void Stop();
 
     const Vec2f& GetCenter() const { return constantBuffer_.openData_.center_; }
-    void SetCenter(const Vec2f& center) { constantBuffer_.openData_.center_ = center; }
+    void SetCenter(const Vec2f& _center) { constantBuffer_.openData_.center_ = _center; }
     float GetWidth() const { return constantBuffer_.openData_.width_; }
-    void SetWidth(float width) { constantBuffer_.openData_.width_ = width; }
+    void SetWidth(float _width) { constantBuffer_.openData_.width_ = _width; }
 
     const IConstantBuffer<RadialBlurBufferParam>& GetConstantBuffer() const {
         return constantBuffer_;

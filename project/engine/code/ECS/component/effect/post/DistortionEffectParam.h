@@ -46,8 +46,8 @@ struct DistortionParamData {
 /// </summary>
 class DistortionEffectParam
     : public IComponent {
-    friend void to_json(nlohmann::json& j, const DistortionEffectParam& param);
-    friend void from_json(const nlohmann::json& j, DistortionEffectParam& param);
+    friend void to_json(nlohmann::json& _j, const DistortionEffectParam& _comp);
+    friend void from_json(const nlohmann::json& _j, DistortionEffectParam& _comp);
 
 public:
     DistortionEffectParam() {}
@@ -75,16 +75,16 @@ private:
 
 public:
     bool GetIsActive() const { return isActive_; }
-    void SetIsActive(bool active) { isActive_ = active; }
+    void SetIsActive(bool _active) { isActive_ = _active; }
 
     bool GetUse3dObjectList() const { return use3dObjectList_; }
-    void SetUse3dObjectList(bool use) { use3dObjectList_ = use; }
+    void SetUse3dObjectList(bool _use) { use3dObjectList_ = _use; }
 
     const std::string& GetTexturePath() const { return texturePath_; }
     int32_t GetTextureIndex() const { return textureIndex_; }
 
     int32_t GetMaterialIndex() const { return materialIndex_; }
-    void SetMaterialIndex(int32_t index) { materialIndex_ = index; }
+    void SetMaterialIndex(int32_t _index) { materialIndex_ = _index; }
 
     DistortionParamData& GetEffectParamData() {
         return effectParamData_.openData_;

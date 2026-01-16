@@ -16,7 +16,7 @@ using namespace OriGine;
 CameraManager::CameraManager() {}
 CameraManager::~CameraManager() {}
 
-CameraManager* OriGine::CameraManager::GetInstance() {
+CameraManager* CameraManager::GetInstance() {
     static CameraManager instance;
     return &instance;
 }
@@ -47,7 +47,7 @@ bool CameraManager::RegisterSceneCamera(const std::string& _sceneName) {
     return true;
 }
 
-bool OriGine::CameraManager::UnregisterSceneCamera(const std::string& _sceneName) {
+bool CameraManager::UnregisterSceneCamera(const std::string& _sceneName) {
     auto itr = cameraBuffers_.find(_sceneName);
     if (itr == cameraBuffers_.end()) {
         LOG_WARN("Cannot unregister scene camera: Scene is not registered. \n SceneName : {}", _sceneName);
@@ -59,7 +59,7 @@ bool OriGine::CameraManager::UnregisterSceneCamera(const std::string& _sceneName
     return true;
 }
 
-bool OriGine::CameraManager::RegisterSceneCamera(Scene* _scene) {
+bool CameraManager::RegisterSceneCamera(Scene* _scene) {
     if (_scene == nullptr) {
         LOG_WARN("Cannot register scene camera: Scene is nullptr.");
         return false;
@@ -67,7 +67,7 @@ bool OriGine::CameraManager::RegisterSceneCamera(Scene* _scene) {
     return RegisterSceneCamera(_scene->GetName());
 }
 
-bool OriGine::CameraManager::UnregisterSceneCamera(Scene* _scene) {
+bool CameraManager::UnregisterSceneCamera(Scene* _scene) {
     if (_scene == nullptr) {
         LOG_WARN("Cannot unregister scene camera: Scene is nullptr.");
         return false;
@@ -94,12 +94,12 @@ bool CameraManager::SetTransform(
     return true;
 }
 
-bool OriGine::CameraManager::SetTransform(Scene* _scene, const CameraTransform& transform) {
+bool CameraManager::SetTransform(Scene* _scene, const CameraTransform& _transform) {
     if (_scene == nullptr) {
         LOG_WARN("Cannot set transform: Scene is nullptr.");
         return false;
     }
-    return SetTransform(_scene->GetName(), transform);
+    return SetTransform(_scene->GetName(), _transform);
 }
 
 bool CameraManager::DataConvertToBuffer(const std::string& _sceneName) {
@@ -112,7 +112,7 @@ bool CameraManager::DataConvertToBuffer(const std::string& _sceneName) {
     return true;
 }
 
-bool OriGine::CameraManager::DataConvertToBuffer(Scene* _scene) {
+bool CameraManager::DataConvertToBuffer(Scene* _scene) {
     if (_scene == nullptr) {
         LOG_WARN("Cannot convert data to buffer: Scene is nullptr.");
         return false;
@@ -134,15 +134,15 @@ bool CameraManager::SetBufferForRootParameter(
     return true;
 }
 
-bool OriGine::CameraManager::SetBufferForRootParameter(Scene* _scene, Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, uint32_t rootParameterNum) {
+bool CameraManager::SetBufferForRootParameter(Scene* _scene, Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _cmdList, uint32_t _rootParameterNum) {
     if (_scene == nullptr) {
         LOG_WARN("Cannot set buffer for root parameter: Scene is nullptr.");
         return false;
     }
-    return SetBufferForRootParameter(_scene->GetName(), cmdList, rootParameterNum);
+    return SetBufferForRootParameter(_scene->GetName(), _cmdList, _rootParameterNum);
 }
 
-CameraTransform OriGine::CameraManager::GetTransform(const std::string& _sceneName) const {
+CameraTransform CameraManager::GetTransform(const std::string& _sceneName) const {
     auto itr = cameraBuffers_.find(_sceneName);
     if (itr == cameraBuffers_.end()) {
         LOG_WARN("Cannot get transform: Scene is not registered. \n ScenenName : {}", _sceneName);
@@ -151,7 +151,7 @@ CameraTransform OriGine::CameraManager::GetTransform(const std::string& _sceneNa
     return *(itr->second);
 }
 
-CameraTransform OriGine::CameraManager::GetTransform(Scene* _scene) const {
+CameraTransform CameraManager::GetTransform(Scene* _scene) const {
     if (_scene == nullptr) {
         LOG_WARN("Cannot get transform: Scene is nullptr.");
         return CameraTransform();

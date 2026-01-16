@@ -29,8 +29,8 @@ public:
 
 struct SmoothingEffectParam
     : public IComponent {
-    friend void to_json(nlohmann::json& j, const SmoothingEffectParam& c);
-    friend void from_json(const nlohmann::json& j, SmoothingEffectParam& c);
+    friend void to_json(nlohmann::json& _j, const SmoothingEffectParam& _comp);
+    friend void from_json(const nlohmann::json& _j, SmoothingEffectParam& _comp);
 
 public:
     SmoothingEffectParam()           = default;

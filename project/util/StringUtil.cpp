@@ -7,41 +7,41 @@
 #include <algorithm>
 #include <chrono>
 
-std::wstring ConvertString(const std::string& str) {
-    if (str.empty()) {
+std::wstring ConvertString(const std::string& _str) {
+    if (_str.empty()) {
         return std::wstring();
     }
 
-    auto sizeNeeded = MultiByteToWideChar(CP_UTF8, 0, reinterpret_cast<const char*>(&str[0]), static_cast<int>(str.size()), NULL, 0);
+    auto sizeNeeded = MultiByteToWideChar(CP_UTF8, 0, reinterpret_cast<const char*>(&_str[0]), static_cast<int>(_str.size()), NULL, 0);
     if (sizeNeeded == 0) {
         return std::wstring();
     }
 
     std::wstring result(sizeNeeded, 0);
-    MultiByteToWideChar(CP_UTF8, 0, reinterpret_cast<const char*>(&str[0]), static_cast<int>(str.size()), &result[0], sizeNeeded);
+    MultiByteToWideChar(CP_UTF8, 0, reinterpret_cast<const char*>(&_str[0]), static_cast<int>(_str.size()), &result[0], sizeNeeded);
     return result;
 }
 
-std::string ConvertString(const std::wstring& str) {
-    if (str.empty()) {
+std::string ConvertString(const std::wstring& _str) {
+    if (_str.empty()) {
         return std::string();
     }
 
-    auto sizeNeeded = WideCharToMultiByte(CP_UTF8, 0, str.data(), static_cast<int>(str.size()), NULL, 0, NULL, NULL);
+    auto sizeNeeded = WideCharToMultiByte(CP_UTF8, 0, _str.data(), static_cast<int>(_str.size()), NULL, 0, NULL, NULL);
     if (sizeNeeded == 0) {
         return std::string();
     }
     std::string result(sizeNeeded, 0);
-    WideCharToMultiByte(CP_UTF8, 0, str.data(), static_cast<int>(str.size()), result.data(), sizeNeeded, NULL, NULL);
+    WideCharToMultiByte(CP_UTF8, 0, _str.data(), static_cast<int>(_str.size()), result.data(), sizeNeeded, NULL, NULL);
     return result;
 }
 
-std::string HrToString(HRESULT hr) {
+std::string HrToString(HRESULT _hr) {
     LPWSTR errorText = nullptr;
     DWORD len        = FormatMessageW(
         FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
         nullptr,
-        hr,
+        _hr,
         MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
         (LPWSTR)&errorText,
         0,
@@ -60,8 +60,8 @@ std::string HrToString(HRESULT hr) {
     return result;
 }
 
-std::string NormalizeString(const std::string& path) {
-    std::string normalized = path;
+std::string NormalizeString(const std::string& _path) {
+    std::string normalized = _path;
     std::replace(normalized.begin(), normalized.end(), '\\', '/');
     return normalized;
 }

@@ -23,5 +23,5 @@ struct Version {
     /// 文字列からパース
     /// </summary>
     /// <param name="str">バージョン文字列</param>
-    void fromString(const std::string& str);
+    void fromString(const std::string& _str);
 };

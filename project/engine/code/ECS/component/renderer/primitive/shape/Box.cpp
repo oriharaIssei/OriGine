@@ -37,17 +37,17 @@ void Box::CreateMesh(TextureColorMesh* _mesh) {
         Vec3f(0, -1, 0) // bottom
     };
 
-    auto addFace = [&](int normalIndex,
-                       const Vec3f& p0, const Vec3f& p1,
-                       const Vec3f& p2, const Vec3f& p3) {
-        const Vec3f& n = normals[normalIndex];
+    auto addFace = [&](int _normalIndex,
+                       const Vec3f& _p0, const Vec3f& _p1,
+                       const Vec3f& _p2, const Vec3f& _p3) {
+        const Vec3f& n = normals[_normalIndex];
         uint32_t base  = static_cast<uint32_t>(vertices.size());
 
         // p0-p1-p2-p3 は必ず CCW にする
-        vertices.emplace_back(TextureColorMesh::VertexType(Vec4f(p0, 1), Vec2f(0.f, 0.f), n, kWhite));
-        vertices.emplace_back(TextureColorMesh::VertexType(Vec4f(p1, 1), Vec2f(1.f, 0.f), n, kWhite));
-        vertices.emplace_back(TextureColorMesh::VertexType(Vec4f(p2, 1), Vec2f(0.f, 1.f), n, kWhite));
-        vertices.emplace_back(TextureColorMesh::VertexType(Vec4f(p3, 1), Vec2f(1.f, 1.f), n, kWhite));
+        vertices.emplace_back(TextureColorMesh::VertexType(Vec4f(_p0, 1), Vec2f(0.f, 0.f), n, kWhite));
+        vertices.emplace_back(TextureColorMesh::VertexType(Vec4f(_p1, 1), Vec2f(1.f, 0.f), n, kWhite));
+        vertices.emplace_back(TextureColorMesh::VertexType(Vec4f(_p2, 1), Vec2f(0.f, 1.f), n, kWhite));
+        vertices.emplace_back(TextureColorMesh::VertexType(Vec4f(_p3, 1), Vec2f(1.f, 1.f), n, kWhite));
 
         indices.insert(indices.end(),
             {base + 0, base + 1, base + 2,

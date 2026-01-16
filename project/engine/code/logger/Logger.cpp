@@ -117,79 +117,79 @@ void Logger::Finalize() {
 /// <summary>
 /// TRACE レベルでログを直接出力する（内部用）.
 /// </summary>
-void Logger::DirectTrace(const std::string& message, const char* file, const char* function, int line) {
+void Logger::DirectTrace(const std::string& _message, const char* _file, const char* _function, int _line) {
     if (logger_) {
-        logger_->log(spdlog::source_loc{file, line, function}, spdlog::level::trace, message);
+        logger_->log(spdlog::source_loc{_file, _line, _function}, spdlog::level::trace, _message);
     }
-    std::string debugmessage = std::format("[TRACE] / {}[{}]::{}  {}", file, line, function, message);
+    std::string debugmessage = std::format("[TRACE] / {}[{}]::{}  {}", _file, _line, _function, _message);
     OutputDebugStringA((debugmessage + "\n").c_str());
 }
 
 /// <summary>
 /// INFO レベルでログを直接出力する（内部用）.
 /// </summary>
-void Logger::DirectInfo(const std::string& message, const char* file, const char* function, int line) {
+void Logger::DirectInfo(const std::string& _message, const char* _file, const char* _function, int _line) {
     if (logger_) {
-        logger_->log(spdlog::source_loc{file, line, function}, spdlog::level::info, message);
+        logger_->log(spdlog::source_loc{_file, _line, _function}, spdlog::level::info, _message);
     }
-    std::string debugmessage = std::format("[INFO] / {}[{}]::{}  {}", file, line, function, message);
+    std::string debugmessage = std::format("[INFO] / {}[{}]::{}  {}", _file, _line, _function, _message);
     OutputDebugStringA((debugmessage + "\n").c_str());
 }
 
 /// <summary>
 /// DEBUG レベルでログを直接出力する（内部用）.
 /// </summary>
-void Logger::DirectDebug(const std::string& message, const char* file, const char* function, int line) {
+void Logger::DirectDebug(const std::string& _message, const char* _file, const char* _function, int _line) {
     if (logger_) {
-        logger_->log(spdlog::source_loc{file, line, function}, spdlog::level::debug, message);
+        logger_->log(spdlog::source_loc{_file, _line, _function}, spdlog::level::debug, _message);
     }
-    std::string debugmessage = std::format("[DEBUG] / {}[{}]::{}  {}", file, line, function, message);
+    std::string debugmessage = std::format("[DEBUG] / {}[{}]::{}  {}", _file, _line, _function, _message);
     OutputDebugStringA((debugmessage + "\n").c_str());
 }
 
 /// <summary>
 /// WARN レベルでログを直接出力する（内部用）.
 /// </summary>
-void Logger::DirectWarn(const std::string& message, const char* file, const char* function, int line) {
+void Logger::DirectWarn(const std::string& _message, const char* _file, const char* _function, int _line) {
     if (logger_) {
-        logger_->log(spdlog::source_loc{file, line, function}, spdlog::level::warn, message);
+        logger_->log(spdlog::source_loc{_file, _line, _function}, spdlog::level::warn, _message);
     }
 
-    std::string debugmessage = std::format("[WARN] / {}[{}]::{}  {}", file, line, function, message);
+    std::string debugmessage = std::format("[WARN] / {}[{}]::{}  {}", _file, _line, _function, _message);
     OutputDebugStringA((debugmessage + "\n").c_str());
 }
 
 /// <summary>
 /// ERROR レベルでログを直接出力する（内部用）.
 /// </summary>
-void Logger::DirectError(const std::string& message, const char* file, const char* function, int line) {
+void Logger::DirectError(const std::string& _message, const char* _file, const char* _function, int _line) {
     if (logger_) {
-        logger_->log(spdlog::source_loc{file, line, function}, spdlog::level::err, message);
+        logger_->log(spdlog::source_loc{_file, _line, _function}, spdlog::level::err, _message);
     }
 
-    std::string debugmessage = std::format("[ERROR] / {}[{}]::{}  {}", file, line, function, message);
+    std::string debugmessage = std::format("[ERROR] / {}[{}]::{}  {}", _file, _line, _function, _message);
     OutputDebugStringA((debugmessage + "\n").c_str());
 }
 
 /// <summary>
 /// CRITICAL レベルでログを直接出力する（内部用）.
 /// </summary>
-void Logger::DirectCritical(const std::string& message, const char* file, const char* function, int line) {
+void Logger::DirectCritical(const std::string& _message, const char* _file, const char* _function, int _line) {
     if (logger_) {
-        logger_->log(spdlog::source_loc{file, line, function}, spdlog::level::critical, message);
+        logger_->log(spdlog::source_loc{_file, _line, _function}, spdlog::level::critical, _message);
     }
 
-    std::string debugmessage = std::format("[CRITICAL] / {}[{}]::{}  {}", file, line, function, message);
+    std::string debugmessage = std::format("[CRITICAL] / {}[{}]::{}  {}", _file, _line, _function, _message);
     OutputDebugStringA((debugmessage + "\n").c_str());
 }
 
 /// <summary>
 /// DirectX12 のデバッグレイヤーからメッセージを取得し、対応するレベルで出力する.
 /// </summary>
-void Logger::DirectXLog(const char* file, const char* function, int line) {
+void Logger::DirectXLog(const char* _file, const char* _function, int _line) {
     Microsoft::WRL::ComPtr<ID3D12InfoQueue> infoQueue = DxDebug::GetInstance()->GetInfoQueue();
     if (!infoQueue) {
-        LOG_ERROR("ID3D12InfoQueue is null.", file, function, line);
+        DirectError("ID3D12InfoQueue is null.", _file, _function, _line);
         return;
     }
     UINT64 numMessages = infoQueue->GetNumStoredMessages();
@@ -207,44 +207,28 @@ void Logger::DirectXLog(const char* file, const char* function, int line) {
         case D3D12_MESSAGE_SEVERITY_CORRUPTION:
             // 重大な破損
             messageLevel = "CORRUPTION";
-
-            spdlog::critical("[D3D12][{}] {}",
-                messageLevel,
-                message->pDescription);
-
+            DirectCritical(std::format("[D3D12][{}] {}", messageLevel, message->pDescription), _file, _function, _line);
             break;
         case D3D12_MESSAGE_SEVERITY_ERROR:
             // エラー
             messageLevel = "ERROR";
-
-            spdlog::error("[D3D12][{}] {}",
-                messageLevel,
-                message->pDescription);
-
+            DirectError(std::format("[D3D12][{}] {}", messageLevel, message->pDescription), _file, _function, _line);
             break;
         case D3D12_MESSAGE_SEVERITY_WARNING:
             // 警告
             messageLevel = "WARNING";
-
-            spdlog::warn("[D3D12][{}] {}",
-                messageLevel,
-                message->pDescription);
-
+            DirectWarn(std::format("[D3D12][{}] {}", messageLevel, message->pDescription), _file, _function, _line);
             break;
 
         case D3D12_MESSAGE_SEVERITY_INFO:
             // 情報
             messageLevel = "INFO";
-            spdlog::info("[D3D12][{}] {}",
-                messageLevel,
-                message->pDescription);
+            DirectInfo(std::format("[D3D12][{}] {}", messageLevel, message->pDescription), _file, _function, _line);
             break;
         case D3D12_MESSAGE_SEVERITY_MESSAGE:
             // 通常メッセージ
             messageLevel = "MESSAGE";
-            spdlog::info("[D3D12][{}] {}",
-                messageLevel,
-                message->pDescription);
+            DirectInfo(std::format("[D3D12][{}] {}", messageLevel, message->pDescription), _file, _function, _line);
             break;
         }
     }

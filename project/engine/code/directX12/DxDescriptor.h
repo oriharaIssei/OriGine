@@ -34,12 +34,12 @@ enum class DxDescriptorHeapType {
 /// <summary>
 /// DirectX12 のディスクリプタヒープを生成するためのヘルパー関数.
 /// </summary>
-/// <param name="device">使用するデバイス</param>
-/// <param name="heapType">作成するヒープの種類</param>
-/// <param name="numDescriptors">ヒープが保持するディスクリプタの数</param>
-/// <param name="shaderVisible">シェーダーから直接参照可能（レジスタ経由）にするかどうか</param>
+/// <param name="_device">使用するデバイス</param>
+/// <param name="_heapType">作成するヒープの種類</param>
+/// <param name="_numDescriptors">ヒープが保持するディスクリプタの数</param>
+/// <param name="_shaderVisible">シェーダーから直接参照可能（レジスタ経由）にするかどうか</param>
 /// <returns>生成されたディスクリプタヒープ</returns>
-Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> CreateHeap(Microsoft::WRL::ComPtr<ID3D12Device> device, D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible);
+Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> CreateHeap(Microsoft::WRL::ComPtr<ID3D12Device> _device, D3D12_DESCRIPTOR_HEAP_TYPE _heapType, UINT _numDescriptors, bool _shaderVisible);
 
 /// <summary>
 /// 特定のリソースに対してディスクリプタを生成するためのコマンドを抽象化したインターフェース.
@@ -54,11 +54,11 @@ public:
     /// <summary>
     /// 指定されたハンドル位置に実際のディスクリプタを構築する.
     /// </summary>
-    /// <param name="device">デバイス</param>
-    /// <param name="handle">書き込み先のCPUディスクリプタハンドル</param>
+    /// <param name="_device">デバイス</param>
+    /// <param name="_handle">書き込み先のCPUディスクリプタハンドル</param>
     virtual void Create(
-        ID3D12Device* device,
-        D3D12_CPU_DESCRIPTOR_HANDLE handle) const = 0;
+        ID3D12Device* _device,
+        D3D12_CPU_DESCRIPTOR_HANDLE _handle) const = 0;
 };
 
 /// <summary>
@@ -68,20 +68,20 @@ class RTVEntry final
     : public IDescriptorEntry {
 public:
     RTVEntry(
-        DxResource* resource,
-        const D3D12_RENDER_TARGET_VIEW_DESC& desc)
-        : resource_(resource), desc_(desc) {}
+        DxResource* _resource,
+        const D3D12_RENDER_TARGET_VIEW_DESC& _desc)
+        : resource_(_resource), desc_(_desc) {}
 
     DxDescriptorHeapType GetHeapType() const override {
         return DxDescriptorHeapType::RTV;
     }
 
-    void Create(ID3D12Device* device,
-        D3D12_CPU_DESCRIPTOR_HANDLE handle) const override {
-        device->CreateRenderTargetView(
+    void Create(ID3D12Device* _device,
+        D3D12_CPU_DESCRIPTOR_HANDLE _handle) const override {
+        _device->CreateRenderTargetView(
             resource_->GetResource().Get(),
             &desc_,
-            handle);
+            _handle);
         resource_->AddType(DxResourceType::Descriptor_RTV);
     }
 
@@ -97,20 +97,20 @@ class SRVEntry final
     : public IDescriptorEntry {
 public:
     SRVEntry(
-        DxResource* resource,
-        const D3D12_SHADER_RESOURCE_VIEW_DESC& desc)
-        : resource_(resource), desc_(desc) {}
+        DxResource* _resource,
+        const D3D12_SHADER_RESOURCE_VIEW_DESC& _desc)
+        : resource_(_resource), desc_(_desc) {}
 
     DxDescriptorHeapType GetHeapType() const override {
         return DxDescriptorHeapType::CBV_SRV_UAV;
     }
 
-    void Create(ID3D12Device* device,
-        D3D12_CPU_DESCRIPTOR_HANDLE handle) const override {
-        device->CreateShaderResourceView(
+    void Create(ID3D12Device* _device,
+        D3D12_CPU_DESCRIPTOR_HANDLE _handle) const override {
+        _device->CreateShaderResourceView(
             resource_->GetResource().Get(),
             &desc_,
-            handle);
+            _handle);
         resource_->AddType(DxResourceType::Descriptor_SRV);
     }
 
@@ -126,20 +126,20 @@ class DSVEntry final
     : public IDescriptorEntry {
 public:
     DSVEntry(
-        DxResource* resource,
-        const D3D12_DEPTH_STENCIL_VIEW_DESC& desc)
-        : resource_(resource), desc_(desc) {}
+        DxResource* _resource,
+        const D3D12_DEPTH_STENCIL_VIEW_DESC& _desc)
+        : resource_(_resource), desc_(_desc) {}
 
     DxDescriptorHeapType GetHeapType() const override {
         return DxDescriptorHeapType::DSV;
     }
 
-    void Create(ID3D12Device* device,
-        D3D12_CPU_DESCRIPTOR_HANDLE handle) const override {
-        device->CreateDepthStencilView(
+    void Create(ID3D12Device* _device,
+        D3D12_CPU_DESCRIPTOR_HANDLE _handle) const override {
+        _device->CreateDepthStencilView(
             resource_->GetResource().Get(),
             &desc_,
-            handle);
+            _handle);
         resource_->AddType(DxResourceType::Descriptor_DSV);
     }
 
@@ -155,22 +155,22 @@ class UAVEntry final
     : public IDescriptorEntry {
 public:
     UAVEntry(
-        DxResource* resource,
-        DxResource* counter,
-        const D3D12_UNORDERED_ACCESS_VIEW_DESC& desc)
-        : resource_(resource), counter_(counter), desc_(desc) {}
+        DxResource* _resource,
+        DxResource* _counter,
+        const D3D12_UNORDERED_ACCESS_VIEW_DESC& _desc)
+        : resource_(_resource), counter_(_counter), desc_(_desc) {}
 
     DxDescriptorHeapType GetHeapType() const override {
         return DxDescriptorHeapType::CBV_SRV_UAV;
     }
 
-    void Create(ID3D12Device* device,
-        D3D12_CPU_DESCRIPTOR_HANDLE handle) const override {
-        device->CreateUnorderedAccessView(
+    void Create(ID3D12Device* _device,
+        D3D12_CPU_DESCRIPTOR_HANDLE _handle) const override {
+        _device->CreateUnorderedAccessView(
             resource_->GetResource().Get(),
             counter_ ? counter_->GetResource().Get() : nullptr,
             &desc_,
-            handle);
+            _handle);
         resource_->AddType(DxResourceType::Descriptor_UAV);
     }
 
@@ -186,16 +186,16 @@ private:
 class SamplerEntry final
     : public IDescriptorEntry {
 public:
-    SamplerEntry(const D3D12_SAMPLER_DESC& desc)
-        : desc_(desc) {}
+    SamplerEntry(const D3D12_SAMPLER_DESC& _desc)
+        : desc_(_desc) {}
 
     DxDescriptorHeapType GetHeapType() const override {
         return DxDescriptorHeapType::Sampler;
     }
 
-    void Create(ID3D12Device* device,
-        D3D12_CPU_DESCRIPTOR_HANDLE handle) const override {
-        device->CreateSampler(&desc_, handle);
+    void Create(ID3D12Device* _device,
+        D3D12_CPU_DESCRIPTOR_HANDLE _handle) const override {
+        _device->CreateSampler(&desc_, _handle);
     }
 
 private:
@@ -241,9 +241,9 @@ public:
     uint32_t GetIndex() const { return index; }
 
     /// <summary>CPUハンドルを直接設定する.</summary>
-    void SetCpuHandle(D3D12_CPU_DESCRIPTOR_HANDLE handle) { cpuHandle = handle; }
+    void SetCpuHandle(D3D12_CPU_DESCRIPTOR_HANDLE _handle) { cpuHandle = _handle; }
     /// <summary>GPUハンドルを直接設定する.</summary>
-    void SetGpuHandle(D3D12_GPU_DESCRIPTOR_HANDLE handle) { gpuHandle = handle; }
+    void SetGpuHandle(D3D12_GPU_DESCRIPTOR_HANDLE _handle) { gpuHandle = _handle; }
 };
 
 using DxRtvDescriptor     = DxDescriptor<DxDescriptorHeapType::RTV>;
@@ -337,15 +337,15 @@ protected:
     }
 
     /// <summary>インデックスからCPUハンドルを計算する.</summary>
-    D3D12_CPU_DESCRIPTOR_HANDLE CalculateCpuHandle(uint32_t index) const { return D3D12_CPU_DESCRIPTOR_HANDLE(index * descriptorIncrementSize_ + heap_->GetCPUDescriptorHandleForHeapStart().ptr); }
+    D3D12_CPU_DESCRIPTOR_HANDLE CalculateCpuHandle(uint32_t _index) const { return D3D12_CPU_DESCRIPTOR_HANDLE(_index * descriptorIncrementSize_ + heap_->GetCPUDescriptorHandleForHeapStart().ptr); }
 
     /// <summary>インデックスからGPUハンドルを計算する. Shader不可視の場合は無効値を返す.</summary>
-    D3D12_GPU_DESCRIPTOR_HANDLE CalculateGpuHandle(uint32_t index) const {
+    D3D12_GPU_DESCRIPTOR_HANDLE CalculateGpuHandle(uint32_t _index) const {
         // Shaderから参照できないHeapの場合は0を返す
         if (!shaderVisible_) {
             return D3D12_GPU_DESCRIPTOR_HANDLE{0};
         }
-        return D3D12_GPU_DESCRIPTOR_HANDLE(index * descriptorIncrementSize_ + heap_->GetGPUDescriptorHandleForHeapStart().ptr);
+        return D3D12_GPU_DESCRIPTOR_HANDLE(_index * descriptorIncrementSize_ + heap_->GetGPUDescriptorHandleForHeapStart().ptr);
     }
 
 protected:
@@ -376,25 +376,25 @@ public:
     const Microsoft::WRL::ComPtr<ID3D12Device>& GetDevice() const { return device_; }
 
     /// <summary>デバイスを明示的に設定する（Initialize 時に行われる）.</summary>
-    void SetDevice(Microsoft::WRL::ComPtr<ID3D12Device> device) { device_ = device; }
+    void SetDevice(Microsoft::WRL::ComPtr<ID3D12Device> _device) { device_ = _device; }
 
     /// <summary>インデックス指定でディスクリプタを取得する.</summary>
-    DescriptorType GetDescriptor(uint32_t index) const {
-        if (index >= descriptors_.size()) {
+    DescriptorType GetDescriptor(uint32_t _index) const {
+        if (_index >= descriptors_.size()) {
             LOG_ERROR("Index out of range in DxDescriptorHeap");
             throw ::std::out_of_range("Index out of range in DxDescriptorHeap");
         }
-        return descriptors_[index];
+        return descriptors_[_index];
     }
 
     /// <summary>インデックス指定でディスクリプタを強制設定する.</summary>
-    void SetDescriptor(uint32_t index, const DescriptorType& descriptor) {
-        if (index >= descriptors_.size()) {
+    void SetDescriptor(uint32_t _index, const DescriptorType& _descriptor) {
+        if (_index >= descriptors_.size()) {
             LOG_ERROR("Index out of range in DxDescriptorHeap");
             throw ::std::out_of_range("Index out of range in DxDescriptorHeap");
         }
-        descriptors_[index] = descriptor;
-        usedFlags_.Set(index, true);
+        descriptors_[_index] = _descriptor;
+        usedFlags_.Set(_index, true);
     }
 };
 

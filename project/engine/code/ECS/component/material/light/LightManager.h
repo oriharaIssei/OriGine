@@ -33,10 +33,10 @@ struct LightCounts {
         int32_t pointLightNum;
         int32_t spotLightNum;
 
-        ConstantBuffer& operator=(const LightCounts& light) {
-            this->directionalLightNum = light.directionalLightNum;
-            this->pointLightNum       = light.pointLightNum;
-            this->spotLightNum        = light.spotLightNum;
+        ConstantBuffer& operator=(const LightCounts& _light) {
+            this->directionalLightNum = _light.directionalLightNum;
+            this->pointLightNum       = _light.pointLightNum;
+            this->spotLightNum        = _light.spotLightNum;
             return *this;
         }
     };
@@ -60,7 +60,7 @@ public:
     void Update();
     void Finalize();
 
-    void SetForRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList, int32_t _lightCountIndex, int32_t _directionalLightIndex, int32_t _pointLightIndex, int32_t _spotLightIndex);
+    void SetForRootParameter(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _cmdList, int32_t _lightCountIndex, int32_t _directionalLightIndex, int32_t _pointLightIndex, int32_t _spotLightIndex);
 
 private:
     SerializedField<int32_t> directionalLightSize_{"LightManager", "LightCounts", "directionalLightSize"};
@@ -85,17 +85,17 @@ public:
     /// <summary>
     /// DirectionalLightを追加する
     /// </summary>
-    /// <param name="light"></param>
-    void PushDirectionalLight(const DirectionalLight& light);
+    /// <param name="_light"></param>
+    void PushDirectionalLight(const DirectionalLight& _light);
     /// <summary>
     /// PointLightを追加する
     /// </summary>
-    void PushPointLight(const PointLight& light);
+    void PushPointLight(const PointLight& _light);
     /// <summary>
     /// SpotLightを追加する
     /// </summary>
-    /// <param name="light"></param>
-    void PushSpotLight(const SpotLight& light);
+    /// <param name="_light"></param>
+    void PushSpotLight(const SpotLight& _light);
 
     /// <summary>
     /// Lightをclearする

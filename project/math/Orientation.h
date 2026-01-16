@@ -19,18 +19,18 @@ struct Orientation {
     /// <summary>
     /// 回転を設定
     /// </summary>
-    /// <param name="q">回転クォータニオン</param>
-    void SetRotation(const Quaternion& q) {
-        rot = q.normalize();
+    /// <param name="_q">回転クォータニオン</param>
+    void SetRotation(const Quaternion& _q) {
+        rot = _q.normalize();
         UpdateAxes();
     }
 
     /// <summary>
     /// 指定の回転を加算
     /// </summary>
-    /// <param name="q">回転クォータニオン</param>
-    void Rotate(const Quaternion& q) {
-        rot = (q * rot).normalize();
+    /// <param name="_q">回転クォータニオン</param>
+    void Rotate(const Quaternion& _q) {
+        rot = (_q * rot).normalize();
         UpdateAxes();
     }
 

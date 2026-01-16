@@ -59,7 +59,7 @@ private:
     /// <summary>
     /// 行列のコピー (3x4フォーマット)
     /// </summary>
-    void CopyMatrix3x4(float (&dst)[3][4], const Matrix4x4& src);
+    void CopyMatrix3x4(float (&_dst)[3][4], const Matrix4x4& _src);
 
 private:
     // スクラッチリソース

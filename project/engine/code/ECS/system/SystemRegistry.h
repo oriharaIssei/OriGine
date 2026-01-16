@@ -37,9 +37,9 @@ public:
     /// 登録済みのシステム名からインスタンスを生成する
     /// </summary>
     /// <param name="_systemTypeName">システムの型名</param>
-    /// <param name="scene">所属させるシーンのポインタ</param>
+    /// <param name="_scene">所属させるシーンのポインタ</param>
     /// <returns>生成されたシステムの共有ポインタ (未登録時はnullptr)</returns>
-    std::shared_ptr<ISystem> CreateSystem(const std::string& _systemTypeName, Scene* scene);
+    std::shared_ptr<ISystem> CreateSystem(const std::string& _systemTypeName, Scene* _scene);
 
 private:
     /// <summary>
@@ -84,9 +84,9 @@ inline void SystemRegistry::RegisterSystem() {
         return;
     }
 
-    systemMaker_[systemName] = [](Scene* scene) {
+    systemMaker_[systemName] = [](Scene* _scene) {
         std::shared_ptr<ISystem> system = std::make_shared<SystemClass>();
-        system->SetScene(scene);
+        system->SetScene(_scene);
         return std::move(system);
     };
 }

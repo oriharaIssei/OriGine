@@ -20,14 +20,14 @@ namespace OriGine {
 /// </summary>
 class CameraTransform
     : public IComponent {
-    friend void to_json(nlohmann::json& j, const CameraTransform& r);
-    friend void from_json(const nlohmann::json& j, CameraTransform& r);
+    friend void to_json(nlohmann::json& _j, const CameraTransform& _comp);
+    friend void from_json(const nlohmann::json& _j, CameraTransform& _comp);
 
 public:
     CameraTransform() {}
     ~CameraTransform() {}
 
-    void Initialize(Scene* _scene, EntityHandle _hostEntity);
+    void Initialize(Scene* _scene, EntityHandle _entity);
 
     void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) override;
 
@@ -59,11 +59,11 @@ public:
         Matrix4x4 view; // ワールド → ビュー変換行列
         Matrix4x4 viewTranspose;
         Matrix4x4 projection; // ビュー → プロジェクション変換行列
-        ConstantBuffer& operator=(const CameraTransform& camera) {
-            cameraPos     = camera.viewMat[3];
-            view          = camera.viewMat;
-            viewTranspose = camera.viewMat.transpose();
-            projection    = camera.projectionMat;
+        ConstantBuffer& operator=(const CameraTransform& _comp) {
+            cameraPos     = _comp.viewMat[3];
+            view          = _comp.viewMat;
+            viewTranspose = _comp.viewMat.transpose();
+            projection    = _comp.projectionMat;
             return *this;
         }
     };

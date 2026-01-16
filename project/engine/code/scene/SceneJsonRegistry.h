@@ -31,57 +31,57 @@ public:
     /// <summary>
     /// 指定した名前でシーンの JSON データをレジストリに登録する.
     /// </summary>
-    /// <param name="sceneName">シーンの識別名</param>
-    /// <param name="data">登録する JSON データ</param>
-    void RegisterSceneJson(const std::string& sceneName, const nlohmann::json& data) {
-        scenes_[sceneName] = data;
+    /// <param name="_sceneName">シーンの識別名</param>
+    /// <param name="_data">登録する JSON データ</param>
+    void RegisterSceneJson(const std::string& _sceneName, const nlohmann::json& _data) {
+        scenes_[_sceneName] = _data;
     }
 
     /// <summary>
     /// レジストリから指定したシーンの JSON データを取得する.
     /// </summary>
-    /// <param name="sceneName">シーンの識別名</param>
+    /// <param name="_sceneName">シーンの識別名</param>
     /// <returns>JSON データへのポインタ. 存在しない場合は nullptr</returns>
-    const nlohmann::json* GetSceneJson(const std::string& sceneName) const {
-        auto it = scenes_.find(sceneName);
+    const nlohmann::json* GetSceneJson(const std::string& _sceneName) const {
+        auto it = scenes_.find(_sceneName);
         return (it != scenes_.end()) ? &it->second : nullptr;
     }
 
     /// <summary>
     /// レジストリに保持されているすべてのシーンデータを、指定したディレクトリ配下のファイルに一括保存する.
     /// </summary>
-    /// <param name="directory">保存先ディレクトリのパス</param>
+    /// <param name="_directory">保存先ディレクトリのパス</param>
     /// <returns>保存に成功した場合は true</returns>
-    bool SaveAllScene(const std::string& directory);
+    bool SaveAllScene(const std::string& _directory);
 
     /// <summary>
     /// 指定された実行中の Scene オブジェクトから最新の JSON を生成し、指定ディレクトリに保存する.
     /// </summary>
-    /// <param name="scene">保存対象のシーン</param>
-    /// <param name="directory">保存先のルートディレクトリ</param>
+    /// <param name="_scene">保存対象のシーン</param>
+    /// <param name="_directory">保存先のルートディレクトリ</param>
     /// <returns>成功した場合は true</returns>
-    bool SaveScene(const Scene* scene, const std::string& directory);
+    bool SaveScene(const Scene* _scene, const std::string& _directory);
 
     /// <summary>
     /// 指定ディレクトリからすべてのシーン JSON を再帰的に検索し、レジストリにロードする.
     /// </summary>
-    /// <param name="directory">検索対象のディレクトリパス</param>
+    /// <param name="_directory">検索対象のディレクトリパス</param>
     /// <returns>ロードに成功した場合は true</returns>
-    bool LoadAllScene(const std::string& directory);
+    bool LoadAllScene(const std::string& _directory);
 
     /// <summary>
     /// 単一のシーンファイルをファイルシステムから読み込む.
     /// </summary>
-    /// <param name="sceneName">ロードするシーンの名前</param>
-    /// <param name="directory">検索対象のディレクトリ</param>
+    /// <param name="_sceneName">ロードするシーンの名前</param>
+    /// <param name="_directory">検索対象のディレクトリ</param>
     /// <returns>成功した場合は true</returns>
-    bool LoadScene(const std::string& sceneName, const std::string& directory);
+    bool LoadScene(const std::string& _sceneName, const std::string& _directory);
 
     /// <summary>
     /// 新規作成用の空のシーン JSON データを生成し、レジストリに登録する.
     /// </summary>
-    /// <param name="sceneName">新規シーンの名前</param>
-    void CreateNewScene(const std::string& sceneName);
+    /// <param name="_sceneName">新規シーンの名前</param>
+    void CreateNewScene(const std::string& _sceneName);
 
     /// <summary>
     /// 指定ディレクトリからすべてのエンティティテンプレート (.ent) を読み込み、レジストリに登録する.
@@ -93,39 +93,39 @@ public:
     /// 指定した型名のエンティティテンプレートを個別にファイルから読み込む.
     /// </summary>
     /// <param name="_directory">ディレクトリ</param>
-    /// <param name="typeName">型名 (ファイル名と一致させる必要がある)</param>
+    /// <param name="_typeName">型名 (ファイル名と一致させる必要がある)</param>
     /// <returns>成功した場合は true</returns>
-    bool LoadEntityTemplate(const std::string& _directory, const std::string& typeName);
+    bool LoadEntityTemplate(const std::string& _directory, const std::string& _typeName);
 
     /// <summary>
     /// 指定した型名のエンティティテンプレートをファイルとして書き出す.
     /// </summary>
     /// <param name="_directory">保存先ディレクトリ</param>
-    /// <param name="typeName">型名</param>
+    /// <param name="_typeName">型名</param>
     /// <returns>成功した場合は true</returns>
-    bool SaveEntityTemplate(const std::string& _directory, const std::string& typeName);
+    bool SaveEntityTemplate(const std::string& _directory, const std::string& _typeName);
 
     /// <summary>
     /// JSON オブジェクトを直接エンティティテンプレートとしてレジストリに登録する.
     /// </summary>
-    /// <param name="typeName">登録する型名</param>
-    /// <param name="json">エンティティの定義 JSON</param>
-    void RegisterEntityTemplate(const std::string& typeName, const nlohmann::json& json);
+    /// <param name="_typeName">登録する型名</param>
+    /// <param name="_json">エンティティの定義 JSON</param>
+    void RegisterEntityTemplate(const std::string& _typeName, const nlohmann::json& _json);
 
     /// <summary>
     /// 実行中の特定のエンティティの状態をシリアライズし、テンプレートとしてレジストリに登録する.
     /// </summary>
-    /// <param name="type">登録する型名</param>
-    /// <param name="scene">エンティティが属するシーン</param>
-    /// <param name="entity">対象のエンティティポインタ</param>
-    void RegisterEntityTemplateFromEntity(const std::string& type, Scene* scene, Entity* entity);
+    /// <param name="_typeName">登録する型名</param>
+    /// <param name="_scene">エンティティが属するシーン</param>
+    /// <param name="_entity">対象のエンティティポインタ</param>
+    void RegisterEntityTemplateFromEntity(const std::string& _typeName, Scene* _scene, Entity* _entity);
 
     /// <summary>
     /// 登録済みのエンティティテンプレートを取得する.
     /// </summary>
-    /// <param name="typeName">取得したい型名</param>
+    /// <param name="_typeName">取得したい型名</param>
     /// <returns>JSON データへのポインタ. 存在しない場合は nullptr</returns>
-    const nlohmann::json* GetEntityTemplate(const std::string& typeName) const;
+    const nlohmann::json* GetEntityTemplate(const std::string& _typeName) const;
 
 private:
     /// <summary>

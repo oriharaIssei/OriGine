@@ -2,7 +2,7 @@
 
 using namespace OriGine;
 
-void ICollider(Scene* /*_scene*/,EntityHandle /*_hostEntity*/) {}
+void ICollider::Initialize(Scene* /*_scene*/, EntityHandle /*_entity*/) {}
 
 void ICollider::StartCollision() {
     this->preCollisionStateMap_ = this->collisionStateMap_;

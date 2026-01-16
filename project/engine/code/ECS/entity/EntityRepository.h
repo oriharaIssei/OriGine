@@ -94,23 +94,23 @@ public:
     /// <summary>
     /// Entity 取得
     /// </summary>
-    /// <param name="handle">取得したいエンティティのハンドル</param>
+    /// <param name="_handle">取得したいエンティティのハンドル</param>
     /// <returns>エンティティのポインタ。見つからなければnullptr</returns>
-    Entity* GetEntity(EntityHandle handle);
+    Entity* GetEntity(EntityHandle _handle);
 
     /// <summary>
     /// Entity 取得 (const)
     /// </summary>
-    /// <param name="handle">取得したいエンティティのハンドル</param>
+    /// <param name="_handle">取得したいエンティティのハンドル</param>
     /// <returns>エンティティのポインタ。見つからなければnullptr</returns>
-    const Entity* GetEntity(EntityHandle handle) const;
+    const Entity* GetEntity(EntityHandle _handle) const;
 
     /// <summary>
     /// 生存チェック
     /// </summary>
-    /// <param name="handle">確認したいエンティティのハンドル</param>
+    /// <param name="_handle">確認したいエンティティのハンドル</param>
     /// <returns>生存していればtrue</returns>
-    bool IsAlive(EntityHandle handle) const;
+    bool IsAlive(EntityHandle _handle) const;
 
     /// <summary>
     /// 全エンティティを削除する
@@ -129,9 +129,9 @@ private:
     /// <summary>
     /// UUID から EntityIndex を探す
     /// </summary>
-    /// <param name="uuid">検索するUUID</param>
+    /// <param name="_uuid">検索するUUID</param>
     /// <returns>見つかったEntityIndex。見つからなければ-1</returns>
-    int32_t FindIndex(const uuids::uuid& uuid) const;
+    int32_t FindIndex(const uuids::uuid& _uuid) const;
 
 private:
     uint32_t size_ = 10000;

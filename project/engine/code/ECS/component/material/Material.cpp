@@ -31,7 +31,7 @@ void Material::UpdateUvMatrix() {
     uvMat_ = MakeMatrix4x4::Affine({uvTransform_.scale_, 1}, {0.f, 0.f, uvTransform_.rotate_}, {uvTransform_.translate_, 0.f});
 }
 
-void Material::Initialize(Scene* /*_scene,*/, EntityHandle /*_owner*/) {
+void Material::Initialize(Scene* _scene, EntityHandle _owner) {
     UpdateUvMatrix();
 }
 
@@ -122,8 +122,8 @@ void Material::CreateCustomTextureFromTextureFile(const std::string& _directory,
     CreateCustomTextureFromTextureFile(textureId);
 }
 
-void Material::CreateCustomTextureFromTextureFile(int32_t textureIndex) {
-    DirectX::TexMetadata metaData = TextureManager::GetTexMetadata(textureIndex);
+void Material::CreateCustomTextureFromTextureFile(int32_t _textureIndex) {
+    DirectX::TexMetadata metaData = TextureManager::GetTexMetadata(_textureIndex);
     CreateCustomTextureFromMetaData(metaData);
 }
 
@@ -137,24 +137,24 @@ void Material::DeleteCustomTexture() {
     }
 }
 
-void OriGine::to_json(nlohmann::json& j, const Material& m) {
-    to_json<2, float>(j["uvScale"], m.uvTransform_.scale_);
-    to_json(j["uvRotate"], m.uvTransform_.rotate_);
-    to_json<2, float>(j["uvTranslate"], m.uvTransform_.translate_);
+void OriGine::to_json(nlohmann::json& _j, const Material& _comp) {
+    to_json<2, float>(_j["uvScale"], _comp.uvTransform_.scale_);
+    to_json(_j["uvRotate"], _comp.uvTransform_.rotate_);
+    to_json<2, float>(_j["uvTranslate"], _comp.uvTransform_.translate_);
 
-    to_json<4, float>(j["color"], m.color_);
+    to_json<4, float>(_j["color"], _comp.color_);
 
-    j["enableLighting"] = static_cast<bool>(m.enableLighting_);
-    j["shininess"]      = m.shininess_;
-    to_json<3, float>(j["specularColor"], m.specularColor_);
+    _j["enableLighting"] = static_cast<bool>(_comp.enableLighting_);
+    _j["shininess"]      = _comp.shininess_;
+    to_json<3, float>(_j["specularColor"], _comp.specularColor_);
 }
 
-void OriGine::from_json(const nlohmann::json& j, Material& m) {
-    j.at("uvScale").get_to(m.uvTransform_.scale_);
-    j.at("uvRotate").get_to(m.uvTransform_.rotate_);
-    j.at("uvTranslate").get_to(m.uvTransform_.translate_);
-    j.at("color").get_to(m.color_);
-    j.at("enableLighting").get_to(m.enableLighting_);
-    j.at("shininess").get_to(m.shininess_);
-    j.at("specularColor").get_to(m.specularColor_);
+void OriGine::from_json(const nlohmann::json& _j, Material& _comp) {
+    _j.at("uvScale").get_to(_comp.uvTransform_.scale_);
+    _j.at("uvRotate").get_to(_comp.uvTransform_.rotate_);
+    _j.at("uvTranslate").get_to(_comp.uvTransform_.translate_);
+    _j.at("color").get_to(_comp.color_);
+    _j.at("enableLighting").get_to(_comp.enableLighting_);
+    _j.at("shininess").get_to(_comp.shininess_);
+    _j.at("specularColor").get_to(_comp.specularColor_);
 }

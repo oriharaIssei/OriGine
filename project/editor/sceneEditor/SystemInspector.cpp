@@ -22,14 +22,17 @@ SystemInspectorArea::SystemInspectorArea(SceneEditorWindow* _window) : Editor::A
 SystemInspectorArea::~SystemInspectorArea() {}
 
 void SystemInspectorArea::Initialize() {
-    auto scene       = parentWindow_->GetCurrentScene();
+    auto scene = parentWindow_->GetCurrentScene();
+
+    // 全てのシステムを取得して、カテゴリごとに分類し、 local(systemMap_)に格納する
     auto& allSystems = SystemRegistry::GetInstance()->GetSystemsRef();
     for (auto& [name, createSystemFunc] : allSystems) {
-        auto createdScene = createSystemFunc(scene);
-        int32_t category  = int32_t(createdScene->GetCategory());
+        auto createdSystem = createSystemFunc(scene);
+        int32_t category   = static_cast<int32_t>(createdSystem->GetCategory());
         systemMap_[category].emplace_back(std::make_pair<>(name, 0));
     }
 
+    // 各カテゴリ内で優先順位の昇順にソート
     for (auto& systemByCategory : systemMap_) {
         std::sort(systemByCategory.begin(), systemByCategory.end(), [](const std::pair<std::string, int32_t>& a, const std::pair<std::string, int32_t>& b) {
             return a.second < b.second; // Priority でソート

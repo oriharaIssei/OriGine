@@ -29,66 +29,66 @@ using namespace OriGine;
 // ↓ DefaultMeshRenderer
 //----------------------------------------------------------------------------------------------------------
 #pragma region "ModelMeshRenderer"
-void OriGine::to_json(nlohmann::json& j, const ModelMeshRenderer& r) {
-    j["isRender"]  = r.isRender_;
-    j["blendMode"] = static_cast<int32_t>(r.currentBlend_);
+void OriGine::to_json(nlohmann::json& _j, const ModelMeshRenderer& _comp) {
+    _j["isRender"]  = _comp.isRender_;
+    _j["blendMode"] = static_cast<int32_t>(_comp.currentBlend_);
 
-    j["directory"] = r.directory_;
-    j["fileName"]  = r.fileName_;
+    _j["directory"] = _comp.directory_;
+    _j["fileName"]  = _comp.fileName_;
 
     nlohmann::json transformBufferDatas = nlohmann::json::array();
-    for (int32_t i = 0; i < r.meshGroup_->size(); ++i) {
+    for (int32_t i = 0; i < _comp.meshGroup_->size(); ++i) {
         nlohmann::json bufferData;
-        to_json(bufferData, r.meshTransformBuff_[i].openData_);
+        to_json(bufferData, _comp.meshTransformBuff_[i].openData_);
         transformBufferDatas.push_back(bufferData);
     }
-    j["transformBufferDatas"] = transformBufferDatas;
+    _j["transformBufferDatas"] = transformBufferDatas;
 
     nlohmann::json materialBufferDatas = nlohmann::json::array();
-    for (int32_t i = 0; i < r.meshGroup_->size(); ++i) {
+    for (int32_t i = 0; i < _comp.meshGroup_->size(); ++i) {
         nlohmann::json bufferData;
-        bufferData["Handle"] = r.meshMaterialBuff_[i].first;
+        bufferData["Handle"] = _comp.meshMaterialBuff_[i].first;
         materialBufferDatas.push_back(bufferData);
     }
-    j["materialIndexDatas"] = materialBufferDatas;
+    _j["materialIndexDatas"] = materialBufferDatas;
 
     nlohmann::json texturePaths = nlohmann::json::array();
-    for (const auto& texturePath : r.textureFilePath_) {
+    for (const auto& texturePath : _comp.textureFilePath_) {
         texturePaths.push_back(texturePath);
     }
-    j["textureFilePath"] = texturePaths;
+    _j["textureFilePath"] = texturePaths;
 }
 
-void OriGine::from_json(const nlohmann::json& j, ModelMeshRenderer& r) {
-    j.at("isRender").get_to(r.isRender_);
+void OriGine::from_json(const nlohmann::json& _j, ModelMeshRenderer& _comp) {
+    _j.at("isRender").get_to(_comp.isRender_);
     int32_t blendMode = 0;
-    j.at("blendMode").get_to(blendMode);
-    r.currentBlend_ = static_cast<BlendMode>(blendMode);
+    _j.at("blendMode").get_to(blendMode);
+    _comp.currentBlend_ = static_cast<BlendMode>(blendMode);
 
-    j.at("directory").get_to(r.directory_);
-    j.at("fileName").get_to(r.fileName_);
+    _j.at("directory").get_to(_comp.directory_);
+    _j.at("fileName").get_to(_comp.fileName_);
 
-    auto& transformBufferDatas = j.at("transformBufferDatas");
+    auto& transformBufferDatas = _j.at("transformBufferDatas");
     for (auto& transformData : transformBufferDatas) {
-        auto& backTransform     = r.meshTransformBuff_.emplace_back(IConstantBuffer<Transform>());
+        auto& backTransform     = _comp.meshTransformBuff_.emplace_back(IConstantBuffer<Transform>());
         backTransform.openData_ = transformData;
     }
 
-    if (j.find("materialIndexDatas") != j.end()) {
-        auto& materialBufferDatas = j.at("materialIndexDatas");
+    if (_j.find("materialIndexDatas") != _j.end()) {
+        auto& materialBufferDatas = _j.at("materialIndexDatas");
         for (auto& materialData : materialBufferDatas) {
-            auto& backMaterial = r.meshMaterialBuff_.emplace_back(std::make_pair(ComponentHandle(), SimpleConstantBuffer<Material>()));
+            auto& backMaterial = _comp.meshMaterialBuff_.emplace_back(std::make_pair(ComponentHandle(), SimpleConstantBuffer<Material>()));
             if (materialData.contains("Handle")) {
                 materialData["Handle"].get_to<ComponentHandle>(backMaterial.first);
             }
         }
     }
 
-    if (j.find("textureFilePath") != j.end()) {
-        r.textureFilePath_.clear();
-        auto& texturePaths = j.at("textureFilePath");
+    if (_j.find("textureFilePath") != _j.end()) {
+        _comp.textureFilePath_.clear();
+        auto& texturePaths = _j.at("textureFilePath");
         for (const auto& texturePath : texturePaths) {
-            auto& texture = r.textureFilePath_.emplace_back(texturePath.get<std::string>());
+            auto& texture = _comp.textureFilePath_.emplace_back(texturePath.get<std::string>());
             texture       = texturePath;
         }
     }
@@ -337,21 +337,21 @@ void OriGine::CreateModelMeshRenderer(
     }
 
     // -------------------- Modelの読み込み --------------------//
-    auto model = ModelManager::GetInstance()->Create(_directory, _fileName, [&_hostEntity, &_renderer, &isLoaded, _usingDefaultTexture](Model* model) {
+    auto model = ModelManager::GetInstance()->Create(_directory, _fileName, [&_hostEntity, &_renderer, &isLoaded, _usingDefaultTexture](Model* _model) {
         // 再帰ラムダをstd::functionとして定義
         std::function<void(ModelMeshRenderer*, Model*, ModelNode*)> CreateMeshGroupFormNode;
-        CreateMeshGroupFormNode = [&](ModelMeshRenderer* _meshRenderer, Model* _model, ModelNode* _node) {
-            auto meshItr = _model->meshData_->meshGroup.find(_node->name);
-            if (meshItr != _model->meshData_->meshGroup.end()) {
+        CreateMeshGroupFormNode = [&](ModelMeshRenderer* _meshRenderer, Model* _innerModel, ModelNode* _node) {
+            auto meshItr = _innerModel->meshData_->meshGroup.find(_node->name);
+            if (meshItr != _innerModel->meshData_->meshGroup.end()) {
                 _meshRenderer->PushBackMesh(meshItr->second);
             }
             for (auto& child : _node->children) {
-                CreateMeshGroupFormNode(_meshRenderer, _model, &child);
+                CreateMeshGroupFormNode(_meshRenderer, _innerModel, &child);
             }
         };
 
         // メッシュグループの作成
-        CreateMeshGroupFormNode(_renderer, model, &model->meshData_->rootNode);
+        CreateMeshGroupFormNode(_renderer, _model, &_model->meshData_->rootNode);
 
         isLoaded = true;
     });
@@ -420,8 +420,8 @@ void OriGine::InitializeMaterialFromModelFile(
 class AddLineCommand
     : public IEditCommand {
 public:
-    AddLineCommand(std::shared_ptr<std::vector<Mesh<ColorVertexData>>>& meshGroup)
-        : meshGroup_(meshGroup), addedMeshIndex_(-1), vertex1Index_(-1), vertex2Index_(-1) {}
+    AddLineCommand(std::shared_ptr<std::vector<Mesh<ColorVertexData>>>& _meshGroup)
+        : meshGroup_(_meshGroup), addedMeshIndex_(-1), vertex1Index_(-1), vertex2Index_(-1) {}
 
     void Execute() override {
         Mesh<ColorVertexData>* mesh = &meshGroup_->back();
@@ -559,60 +559,60 @@ void LineRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityH
 #endif // DEBUG
 }
 
-void OriGine::to_json(nlohmann::json& j, const LineRenderer& r) {
-    j["isRender"]  = r.isRender_;
-    j["blendMode"] = static_cast<int32_t>(r.currentBlend_);
+void OriGine::to_json(nlohmann::json& _j, const LineRenderer& _comp) {
+    _j["isRender"]  = _comp.isRender_;
+    _j["blendMode"] = static_cast<int32_t>(_comp.currentBlend_);
 
-    j["lineIsStrip"] = r.lineIsStrip_;
+    _j["lineIsStrip"] = _comp.lineIsStrip_;
 
     // transform
     nlohmann::json transformBufferData;
-    to_json(transformBufferData, r.transformBuff_.openData_);
-    j["transformBufferData"] = transformBufferData;
+    to_json(transformBufferData, _comp.transformBuff_.openData_);
+    _j["transformBufferData"] = transformBufferData;
 
     // mesh
     nlohmann::json meshGroupDatas = nlohmann::json::array();
-    for (uint32_t meshIndex = 0; meshIndex < r.meshGroup_->size(); ++meshIndex) {
+    for (uint32_t meshIndex = 0; meshIndex < _comp.meshGroup_->size(); ++meshIndex) {
         nlohmann::json meshData;
 
-        meshData["vertexSize"] = r.meshGroup_->at(meshIndex).GetVertexSize();
-        meshData["indexSize"]  = r.meshGroup_->at(meshIndex).GetIndexSize();
+        meshData["vertexSize"] = _comp.meshGroup_->at(meshIndex).GetVertexSize();
+        meshData["indexSize"]  = _comp.meshGroup_->at(meshIndex).GetIndexSize();
 
         meshData["vertexes"] = nlohmann::json::array();
-        for (uint32_t vertexIndex = 0; vertexIndex < r.meshGroup_->at(meshIndex).GetVertexSize(); ++vertexIndex) {
+        for (uint32_t vertexIndex = 0; vertexIndex < _comp.meshGroup_->at(meshIndex).GetVertexSize(); ++vertexIndex) {
             nlohmann::json vertexData;
-            vertexData["pos"]   = r.meshGroup_->at(meshIndex).vertexes_[vertexIndex].pos;
-            vertexData["color"] = r.meshGroup_->at(meshIndex).vertexes_[vertexIndex].color;
+            vertexData["pos"]   = _comp.meshGroup_->at(meshIndex).vertexes_[vertexIndex].pos;
+            vertexData["color"] = _comp.meshGroup_->at(meshIndex).vertexes_[vertexIndex].color;
 
             meshData["vertexes"].emplace_back(vertexData);
         }
 
         meshData["indexes"] = nlohmann::json::array();
-        for (uint32_t indexIndex = 0; indexIndex < r.meshGroup_->at(meshIndex).GetIndexSize(); ++indexIndex) {
+        for (uint32_t indexIndex = 0; indexIndex < _comp.meshGroup_->at(meshIndex).GetIndexSize(); ++indexIndex) {
             nlohmann::json indexData;
-            indexData = r.meshGroup_->at(meshIndex).indexes_[indexIndex];
+            indexData = _comp.meshGroup_->at(meshIndex).indexes_[indexIndex];
             meshData["indexes"].emplace_back(indexData);
         }
 
         meshGroupDatas.emplace_back(meshData);
     }
 
-    j["meshGroupDatas"] = meshGroupDatas;
+    _j["meshGroupDatas"] = meshGroupDatas;
 }
 
-void OriGine::from_json(const nlohmann::json& j, LineRenderer& r) {
-    j.at("isRender").get_to(r.isRender_);
+void OriGine::from_json(const nlohmann::json& _j, LineRenderer& _comp) {
+    _j.at("isRender").get_to(_comp.isRender_);
     int32_t blendMode = 0;
-    j.at("blendMode").get_to(blendMode);
-    r.currentBlend_ = static_cast<BlendMode>(blendMode);
+    _j.at("blendMode").get_to(blendMode);
+    _comp.currentBlend_ = static_cast<BlendMode>(blendMode);
 
-    j.at("lineIsStrip").get_to(r.lineIsStrip_);
+    _j.at("lineIsStrip").get_to(_comp.lineIsStrip_);
 
     // transform
-    j.at("transformBufferData").get_to(r.transformBuff_.openData_);
+    _j.at("transformBufferData").get_to(_comp.transformBuff_.openData_);
 
     // mesh
-    auto& meshGroupDatas = j.at("meshGroupDatas");
+    auto& meshGroupDatas = _j.at("meshGroupDatas");
     for (auto& meshData : meshGroupDatas) {
         Mesh<ColorVertexData> mesh;
         mesh.SetVertexSize(meshData.at("vertexSize"));
@@ -628,7 +628,7 @@ void OriGine::from_json(const nlohmann::json& j, LineRenderer& r) {
             index = indexData;
             mesh.indexes_.emplace_back(index);
         }
-        r.meshGroup_->emplace_back(mesh);
+        _comp.meshGroup_->emplace_back(mesh);
     }
 }
 

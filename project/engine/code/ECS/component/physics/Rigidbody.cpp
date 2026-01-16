@@ -12,9 +12,9 @@ using namespace OriGine;
 
 Rigidbody::Rigidbody() {}
 
-void Rigidbody::Initialize(Scene* /*_scene*/, EntityHandle /*_handle*/) {}
+void Rigidbody::Initialize(Scene* /*_scene*/, EntityHandle /*_entity*/) {}
 
-void Rigidbody::Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, [[maybe_unused]] const std::string& _parentLabel) {
+void Rigidbody::Edit(Scene* /*_scene*/, EntityHandle /*_entity*/, const std::string& _parentLabel) {
 
 #ifdef _DEBUG
 
@@ -55,34 +55,34 @@ void Rigidbody::Debug() {
 
 void Rigidbody::Finalize() {}
 
-void OriGine::to_json(nlohmann::json& j, const Rigidbody& r) {
-    j["acceleration"] = r.acceleration_;
-    j["velocity"]     = r.velocity_;
-    j["maxXZSpeed"]   = r.maxXZSpeed_;
-    j["mass"]         = r.mass_;
-    j["useGravity"]   = r.useGravity_;
-    j["maxFallSpeed"] = r.maxFallSpeed_;
+void OriGine::to_json(nlohmann::json& _j, const Rigidbody& _comp) {
+    _j["acceleration"] = _comp.acceleration_;
+    _j["velocity"]     = _comp.velocity_;
+    _j["maxXZSpeed"]   = _comp.maxXZSpeed_;
+    _j["mass"]         = _comp.mass_;
+    _j["useGravity"]   = _comp.useGravity_;
+    _j["maxFallSpeed"] = _comp.maxFallSpeed_;
 
-    j["isUsingLocalDeltaTime"] = r.isUsingLocalDeltaTime_;
-    j["localDeltaTimeName"]    = r.localDeltaTimeName_;
+    _j["isUsingLocalDeltaTime"] = _comp.isUsingLocalDeltaTime_;
+    _j["localDeltaTimeName"]    = _comp.localDeltaTimeName_;
 }
-void OriGine::from_json(const nlohmann::json& j, Rigidbody& r) {
-    j.at("acceleration").get_to(r.acceleration_);
-    j.at("velocity").get_to(r.velocity_);
-    if (j.contains("maxXZSpeed")) {
-        j.at("maxXZSpeed").get_to(r.maxXZSpeed_);
+void OriGine::from_json(const nlohmann::json& _j, Rigidbody& _comp) {
+    _j.at("acceleration").get_to(_comp.acceleration_);
+    _j.at("velocity").get_to(_comp.velocity_);
+    if (_j.contains("maxXZSpeed")) {
+        _j.at("maxXZSpeed").get_to(_comp.maxXZSpeed_);
     }
 
-    j.at("mass").get_to(r.mass_);
-    j.at("useGravity").get_to(r.useGravity_);
-    if (j.contains("maxFallSpeed")) {
-        j.at("maxFallSpeed").get_to(r.maxFallSpeed_);
+    _j.at("mass").get_to(_comp.mass_);
+    _j.at("useGravity").get_to(_comp.useGravity_);
+    if (_j.contains("maxFallSpeed")) {
+        _j.at("maxFallSpeed").get_to(_comp.maxFallSpeed_);
     }
 
-    if (j.contains("isUsingLocalDeltaTime")) {
-        j.at("isUsingLocalDeltaTime").get_to(r.isUsingLocalDeltaTime_);
+    if (_j.contains("isUsingLocalDeltaTime")) {
+        _j.at("isUsingLocalDeltaTime").get_to(_comp.isUsingLocalDeltaTime_);
     }
-    if (j.contains("localDeltaTimeName")) {
-        j.at("localDeltaTimeName").get_to(r.localDeltaTimeName_);
+    if (_j.contains("localDeltaTimeName")) {
+        _j.at("localDeltaTimeName").get_to(_comp.localDeltaTimeName_);
     }
 }

@@ -167,16 +167,16 @@ struct PerView {
 /// </summary>
 class GpuParticleEmitter
     : public IComponent {
-    friend void to_json(nlohmann::json& j, const GpuParticleEmitter& p);
-    friend void from_json(const nlohmann::json& j, GpuParticleEmitter& p);
+    friend void to_json(nlohmann::json& _j, const GpuParticleEmitter& _comp);
+    friend void from_json(const nlohmann::json& _j, GpuParticleEmitter& _comp);
 
 public:
     GpuParticleEmitter()  = default;
     ~GpuParticleEmitter() = default;
 
-    void Initialize(Scene* _scene, EntityHandle _entity) override;
+    void Initialize(Scene* _scene, EntityHandle _owner) override;
 
-    void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, EntityHandle _owner, const std::string& _parentLabel) override;
 
     void Finalize() override;
 

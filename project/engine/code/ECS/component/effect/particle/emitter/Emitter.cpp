@@ -45,7 +45,7 @@ Emitter::Emitter() : IComponent(), currentCoolTime_(0.f), leftActiveTime_(0.f) {
 
 Emitter::~Emitter() {}
 
-void Emitter::Initialize(Scene* /*_scene,*/, EntityHandle /*_owner*/) {
+void Emitter::Initialize(Scene* /*_scene*/, EntityHandle /*_entity*/) {
     { // Initialize DrawingData Size
         CalculateMaxSize();
         particles_.reserve(particleMaxSize_);
@@ -77,7 +77,7 @@ void Emitter::Finalize() {
     structuredTransform_.Finalize();
 }
 
-void Emitter::Update(float deltaTime) {
+void Emitter::Update(float _deltaTime) {
     { // Update Active
         if (!isActive_) {
             return;
@@ -85,7 +85,7 @@ void Emitter::Update(float deltaTime) {
 
         // Loop するなら スキップ
         if (!isLoop_) {
-            leftActiveTime_ -= deltaTime;
+            leftActiveTime_ -= _deltaTime;
             // leftActiveTime が 0 以下で Particle が 全て消えたら
             if (leftActiveTime_ <= 0.0f && particles_.empty()) {
                 isActive_ = false;
@@ -94,7 +94,7 @@ void Emitter::Update(float deltaTime) {
         }
     }
 
-    UpdateParticle(deltaTime);
+    UpdateParticle(_deltaTime);
 }
 
 void Emitter::UpdateParticle(float _deltaTime) {
@@ -268,7 +268,7 @@ void Emitter::PlayStop() {
     leftActiveTime_ = 0.f;
 }
 
-void Emitter::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _handle, [[maybe_unused]] const std::string& _parentLabel) {
+void Emitter::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _entity, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     if (CheckBoxCommand("isActive##" + _parentLabel, isActive_)) {
@@ -290,7 +290,7 @@ void Emitter::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle
     ImGui::Spacing();
 
     {
-        auto& materials            = _scene->GetComponents<Material>(_handle);
+        auto& materials            = _scene->GetComponents<Material>(_entity);
         int32_t entityMaterialSize = static_cast<int32_t>(materials.size());
 
         InputGuiCommand(label, materialIndex_);
@@ -299,7 +299,7 @@ void Emitter::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle
             label = "Material##" + _parentLabel;
             if (ImGui::TreeNode(label.c_str())) {
                 label = "Material" + _parentLabel;
-                materials[materialIndex_].Edit(_scene, _handle, label);
+                materials[materialIndex_].Edit(_scene, _entity, label);
                 ImGui::TreePop();
             }
         }
@@ -1137,42 +1137,42 @@ void Emitter::Draw(const Matrix4x4& _viewMat, Microsoft::WRL::ComPtr<ID3D12Graph
     _commandList->DrawIndexedInstanced(UINT(mesh_.GetIndexSize()), static_cast<UINT>(structuredTransform_.openData_.size()), 0, 0, 0);
 }
 
-void OriGine::from_json(const nlohmann::json& j, Emitter& e) {
-    j.at("blendMode").get_to(e.blendMode_);
+void OriGine::from_json(const nlohmann::json& _j, Emitter& _comp) {
+    _j.at("blendMode").get_to(_comp.blendMode_);
 
-    j.at("isActive").get_to(e.isActive_);
-    j.at("isLoop").get_to(e.isLoop_);
+    _j.at("isActive").get_to(_comp.isActive_);
+    _j.at("isLoop").get_to(_comp.isLoop_);
 
-    j.at("originPos").get_to(e.originPos_);
+    _j.at("originPos").get_to(_comp.originPos_);
 
-    j.at("textureFileName").get_to(e.textureFileName_);
+    _j.at("textureFileName").get_to(_comp.textureFileName_);
 
-    j.at("activeTime").get_to(e.activeTime_);
-    j.at("spawnParticleVal").get_to(e.spawnParticleVal_);
-    j.at("shapeType").get_to(e.shapeType_);
-    j.at("spawnCoolTime").get_to(e.spawnCoolTime_);
+    _j.at("activeTime").get_to(_comp.activeTime_);
+    _j.at("spawnParticleVal").get_to(_comp.spawnParticleVal_);
+    _j.at("shapeType").get_to(_comp.shapeType_);
+    _j.at("spawnCoolTime").get_to(_comp.spawnCoolTime_);
 
-    j.at("particleLifeTime").get_to(e.particleLifeTime_);
-    j.at("particleIsBillBoard").get_to(e.particleIsBillBoard_);
+    _j.at("particleLifeTime").get_to(_comp.particleLifeTime_);
+    _j.at("particleIsBillBoard").get_to(_comp.particleIsBillBoard_);
 
-    j.at("particleColor").get_to(e.particleColor_);
-    j.at("particleUvScale").get_to(e.particleUvScale_);
-    j.at("particleUvRotate").get_to(e.particleUvRotate_);
-    j.at("particleUvTranslate").get_to(e.particleUvTranslate_);
-    j.at("updateSettings").get_to(e.updateSettings_);
-    j.at("startParticleScaleMin").get_to(e.startParticleScaleMin_);
-    j.at("startParticleScaleMax").get_to(e.startParticleScaleMax_);
-    j.at("startParticleRotateMin").get_to(e.startParticleRotateMin_);
-    j.at("startParticleRotateMax").get_to(e.startParticleRotateMax_);
-    j.at("startParticleVelocityMin").get_to(e.startParticleVelocityMin_);
-    j.at("startParticleVelocityMax").get_to(e.startParticleVelocityMax_);
-    j.at("updateParticleScaleMin").get_to(e.updateParticleScaleMin_);
-    j.at("updateParticleScaleMax").get_to(e.updateParticleScaleMax_);
-    j.at("updateParticleRotateMin").get_to(e.updateParticleRotateMin_);
-    j.at("updateParticleRotateMax").get_to(e.updateParticleRotateMax_);
-    j.at("updateParticleVelocityMin").get_to(e.updateParticleVelocityMin_);
-    j.at("updateParticleVelocityMax").get_to(e.updateParticleVelocityMax_);
-    j.at("randMass").get_to(e.randMass_);
+    _j.at("particleColor").get_to(_comp.particleColor_);
+    _j.at("particleUvScale").get_to(_comp.particleUvScale_);
+    _j.at("particleUvRotate").get_to(_comp.particleUvRotate_);
+    _j.at("particleUvTranslate").get_to(_comp.particleUvTranslate_);
+    _j.at("updateSettings").get_to(_comp.updateSettings_);
+    _j.at("startParticleScaleMin").get_to(_comp.startParticleScaleMin_);
+    _j.at("startParticleScaleMax").get_to(_comp.startParticleScaleMax_);
+    _j.at("startParticleRotateMin").get_to(_comp.startParticleRotateMin_);
+    _j.at("startParticleRotateMax").get_to(_comp.startParticleRotateMax_);
+    _j.at("startParticleVelocityMin").get_to(_comp.startParticleVelocityMin_);
+    _j.at("startParticleVelocityMax").get_to(_comp.startParticleVelocityMax_);
+    _j.at("updateParticleScaleMin").get_to(_comp.updateParticleScaleMin_);
+    _j.at("updateParticleScaleMax").get_to(_comp.updateParticleScaleMax_);
+    _j.at("updateParticleRotateMin").get_to(_comp.updateParticleRotateMin_);
+    _j.at("updateParticleRotateMax").get_to(_comp.updateParticleRotateMax_);
+    _j.at("updateParticleVelocityMin").get_to(_comp.updateParticleVelocityMin_);
+    _j.at("updateParticleVelocityMax").get_to(_comp.updateParticleVelocityMax_);
+    _j.at("randMass").get_to(_comp.randMass_);
 
     auto curveLoad = [](const nlohmann::json& _curveJson, auto& _curve) {
         for (auto& keyframeJson : _curveJson) {
@@ -1183,63 +1183,63 @@ void OriGine::from_json(const nlohmann::json& j, Emitter& e) {
         }
     };
 
-    if (!e.particleKeyFrames_) {
-        e.particleKeyFrames_ = std::make_shared<ParticleKeyFrames>();
+    if (!_comp.particleKeyFrames_) {
+        _comp.particleKeyFrames_ = std::make_shared<ParticleKeyFrames>();
     }
 
-    j.at("transformInterpolationType").get_to(e.transformInterpolationType_);
-    j.at("colorInterpolationType").get_to(e.colorInterpolationType_);
-    j.at("uvInterpolationType").get_to(e.uvInterpolationType_);
+    _j.at("transformInterpolationType").get_to(_comp.transformInterpolationType_);
+    _j.at("colorInterpolationType").get_to(_comp.colorInterpolationType_);
+    _j.at("uvInterpolationType").get_to(_comp.uvInterpolationType_);
 
-    if (j.find("scaleCurve") != j.end()) {
-        curveLoad(j.at("scaleCurve"), e.particleKeyFrames_->scaleCurve);
+    if (_j.find("scaleCurve") != _j.end()) {
+        curveLoad(_j.at("scaleCurve"), _comp.particleKeyFrames_->scaleCurve);
     }
-    if (j.find("rotateCurve") != j.end()) {
-        curveLoad(j.at("rotateCurve"), e.particleKeyFrames_->rotateCurve);
+    if (_j.find("rotateCurve") != _j.end()) {
+        curveLoad(_j.at("rotateCurve"), _comp.particleKeyFrames_->rotateCurve);
     }
-    if (j.find("velocityCurve") != j.end()) {
-        curveLoad(j.at("velocityCurve"), e.particleKeyFrames_->velocityCurve);
-    }
-
-    if (j.find("colorCurve") != j.end()) {
-        curveLoad(j.at("colorCurve"), e.particleKeyFrames_->colorCurve);
+    if (_j.find("velocityCurve") != _j.end()) {
+        curveLoad(_j.at("velocityCurve"), _comp.particleKeyFrames_->velocityCurve);
     }
 
-    if (j.find("uvScaleCurve") != j.end()) {
-        curveLoad(j.at("uvScaleCurve"), e.particleKeyFrames_->uvScaleCurve);
-    }
-    if (j.find("uvRotateCurve") != j.end()) {
-        curveLoad(j.at("uvRotateCurve"), e.particleKeyFrames_->uvRotateCurve);
-    }
-    if (j.find("uvTranslateCurve") != j.end()) {
-        curveLoad(j.at("uvTranslateCurve"), e.particleKeyFrames_->uvTranslateCurve);
+    if (_j.find("colorCurve") != _j.end()) {
+        curveLoad(_j.at("colorCurve"), _comp.particleKeyFrames_->colorCurve);
     }
 
-    if (j.find("EmitterShape") != j.end()) {
-        nlohmann::json shapeJson = j["EmitterShape"];
-        switch (e.shapeType_) {
+    if (_j.find("uvScaleCurve") != _j.end()) {
+        curveLoad(_j.at("uvScaleCurve"), _comp.particleKeyFrames_->uvScaleCurve);
+    }
+    if (_j.find("uvRotateCurve") != _j.end()) {
+        curveLoad(_j.at("uvRotateCurve"), _comp.particleKeyFrames_->uvRotateCurve);
+    }
+    if (_j.find("uvTranslateCurve") != _j.end()) {
+        curveLoad(_j.at("uvTranslateCurve"), _comp.particleKeyFrames_->uvTranslateCurve);
+    }
+
+    if (_j.find("EmitterShape") != _j.end()) {
+        nlohmann::json shapeJson = _j["EmitterShape"];
+        switch (_comp.shapeType_) {
         case EmitterShapeType::SPHERE: {
             EmitterSphere sphereShape;
             shapeJson.get_to(sphereShape);
-            e.emitterSpawnShape_ = std::make_shared<EmitterSphere>(sphereShape);
+            _comp.emitterSpawnShape_ = std::make_shared<EmitterSphere>(sphereShape);
             break;
         }
         case EmitterShapeType::BOX: {
             EmitterBox obbShape;
             shapeJson.get_to(obbShape);
-            e.emitterSpawnShape_ = std::make_shared<EmitterBox>(obbShape);
+            _comp.emitterSpawnShape_ = std::make_shared<EmitterBox>(obbShape);
             break;
         }
         case EmitterShapeType::CAPSULE: {
             EmitterCapsule capsuleShape;
             shapeJson.get_to(capsuleShape);
-            e.emitterSpawnShape_ = std::make_shared<EmitterCapsule>(capsuleShape);
+            _comp.emitterSpawnShape_ = std::make_shared<EmitterCapsule>(capsuleShape);
             break;
         }
         case EmitterShapeType::CONE: {
             EmitterCone coneShape;
             shapeJson.get_to(coneShape);
-            e.emitterSpawnShape_ = std::make_shared<EmitterCone>(coneShape);
+            _comp.emitterSpawnShape_ = std::make_shared<EmitterCone>(coneShape);
             break;
         }
         case EmitterShapeType::Count:
@@ -1249,47 +1249,47 @@ void OriGine::from_json(const nlohmann::json& j, Emitter& e) {
             break;
         }
     } else {
-        e.emitterSpawnShape_ = std::make_shared<EmitterSphere>();
+        _comp.emitterSpawnShape_ = std::make_shared<EmitterSphere>();
     }
 }
 
-void OriGine::to_json(nlohmann::json& j, const Emitter& e) {
-    j = nlohmann::json{
-        {"blendMode", e.blendMode_},
-        {"isActive", e.isActive_},
-        {"isLoop", e.isLoop_},
-        {"originPos", e.originPos_},
-        {"activeTime", e.activeTime_},
-        {"spawnParticleVal", e.spawnParticleVal_},
-        {"shapeType", e.shapeType_},
-        {"textureFileName", e.textureFileName_},
-        {"spawnCoolTime", e.spawnCoolTime_},
-        {"particleLifeTime", e.particleLifeTime_},
-        {"particleIsBillBoard", e.particleIsBillBoard_},
-        {"particleColor", e.particleColor_},
-        {"particleUvScale", e.particleUvScale_},
-        {"particleUvRotate", e.particleUvRotate_},
-        {"particleUvTranslate", e.particleUvTranslate_},
-        {"updateSettings", e.updateSettings_},
-        {"startParticleScaleMin", e.startParticleScaleMin_},
-        {"startParticleScaleMax", e.startParticleScaleMax_},
-        {"startParticleRotateMin", e.startParticleRotateMin_},
-        {"startParticleRotateMax", e.startParticleRotateMax_},
-        {"startParticleVelocityMin", e.startParticleVelocityMin_},
-        {"startParticleVelocityMax", e.startParticleVelocityMax_},
-        {"updateParticleScaleMin", e.updateParticleScaleMin_},
-        {"updateParticleScaleMax", e.updateParticleScaleMax_},
-        {"updateParticleRotateMin", e.updateParticleRotateMin_},
-        {"updateParticleRotateMax", e.updateParticleRotateMax_},
-        {"updateParticleVelocityMin", e.updateParticleVelocityMin_},
-        {"updateParticleVelocityMax", e.updateParticleVelocityMax_},
-        {"randMass", e.randMass_}};
+void OriGine::to_json(nlohmann::json& _j, const Emitter& _comp) {
+    _j = nlohmann::json{
+        {"blendMode", _comp.blendMode_},
+        {"isActive", _comp.isActive_},
+        {"isLoop", _comp.isLoop_},
+        {"originPos", _comp.originPos_},
+        {"activeTime", _comp.activeTime_},
+        {"spawnParticleVal", _comp.spawnParticleVal_},
+        {"shapeType", _comp.shapeType_},
+        {"textureFileName", _comp.textureFileName_},
+        {"spawnCoolTime", _comp.spawnCoolTime_},
+        {"particleLifeTime", _comp.particleLifeTime_},
+        {"particleIsBillBoard", _comp.particleIsBillBoard_},
+        {"particleColor", _comp.particleColor_},
+        {"particleUvScale", _comp.particleUvScale_},
+        {"particleUvRotate", _comp.particleUvRotate_},
+        {"particleUvTranslate", _comp.particleUvTranslate_},
+        {"updateSettings", _comp.updateSettings_},
+        {"startParticleScaleMin", _comp.startParticleScaleMin_},
+        {"startParticleScaleMax", _comp.startParticleScaleMax_},
+        {"startParticleRotateMin", _comp.startParticleRotateMin_},
+        {"startParticleRotateMax", _comp.startParticleRotateMax_},
+        {"startParticleVelocityMin", _comp.startParticleVelocityMin_},
+        {"startParticleVelocityMax", _comp.startParticleVelocityMax_},
+        {"updateParticleScaleMin", _comp.updateParticleScaleMin_},
+        {"updateParticleScaleMax", _comp.updateParticleScaleMax_},
+        {"updateParticleRotateMin", _comp.updateParticleRotateMin_},
+        {"updateParticleRotateMax", _comp.updateParticleRotateMax_},
+        {"updateParticleVelocityMin", _comp.updateParticleVelocityMin_},
+        {"updateParticleVelocityMax", _comp.updateParticleVelocityMax_},
+        {"randMass", _comp.randMass_}};
 
     nlohmann::json shapeJson = nlohmann::json::object();
-    if (e.emitterSpawnShape_) {
-        switch (e.emitterSpawnShape_->type) {
+    if (_comp.emitterSpawnShape_) {
+        switch (_comp.emitterSpawnShape_->type) {
         case EmitterShapeType::SPHERE: {
-            EmitterSphere* sphereShape = dynamic_cast<EmitterSphere*>(e.emitterSpawnShape_.get());
+            EmitterSphere* sphereShape = dynamic_cast<EmitterSphere*>(_comp.emitterSpawnShape_.get());
             if (sphereShape) {
                 shapeJson = *sphereShape;
             } else {
@@ -1298,7 +1298,7 @@ void OriGine::to_json(nlohmann::json& j, const Emitter& e) {
             break;
         }
         case EmitterShapeType::BOX: {
-            EmitterBox* obbShape = dynamic_cast<EmitterBox*>(e.emitterSpawnShape_.get());
+            EmitterBox* obbShape = dynamic_cast<EmitterBox*>(_comp.emitterSpawnShape_.get());
 
             if (obbShape) {
                 shapeJson = *obbShape;
@@ -1309,7 +1309,7 @@ void OriGine::to_json(nlohmann::json& j, const Emitter& e) {
             break;
         }
         case EmitterShapeType::CAPSULE: {
-            EmitterCapsule* capsuleShape = dynamic_cast<EmitterCapsule*>(e.emitterSpawnShape_.get());
+            EmitterCapsule* capsuleShape = dynamic_cast<EmitterCapsule*>(_comp.emitterSpawnShape_.get());
 
             if (capsuleShape) {
                 shapeJson = *capsuleShape;
@@ -1321,7 +1321,7 @@ void OriGine::to_json(nlohmann::json& j, const Emitter& e) {
         }
         case EmitterShapeType::CONE: {
 
-            EmitterCone* coneShape = dynamic_cast<EmitterCone*>(e.emitterSpawnShape_.get());
+            EmitterCone* coneShape = dynamic_cast<EmitterCone*>(_comp.emitterSpawnShape_.get());
             if (coneShape) {
                 shapeJson = *coneShape;
             } else {
@@ -1334,7 +1334,7 @@ void OriGine::to_json(nlohmann::json& j, const Emitter& e) {
             break;
         }
     }
-    j["EmitterShape"] = shapeJson;
+    _j["EmitterShape"] = shapeJson;
 
     auto curveSave = [](const auto& _curve) {
         nlohmann::json curve = nlohmann::json::array();
@@ -1348,33 +1348,33 @@ void OriGine::to_json(nlohmann::json& j, const Emitter& e) {
         return curve;
     };
 
-    j["transformInterpolationType"] = e.transformInterpolationType_;
-    j["colorInterpolationType"]     = e.colorInterpolationType_;
-    j["uvInterpolationType"]        = e.uvInterpolationType_;
+    _j["transformInterpolationType"] = _comp.transformInterpolationType_;
+    _j["colorInterpolationType"]     = _comp.colorInterpolationType_;
+    _j["uvInterpolationType"]        = _comp.uvInterpolationType_;
 
-    if (e.particleKeyFrames_) {
-        if ((e.updateSettings_ & (int32_t)ParticleUpdateType::ScalePerLifeTime) != 0) {
-            j["scaleCurve"] = curveSave(e.particleKeyFrames_->scaleCurve);
+    if (_comp.particleKeyFrames_) {
+        if ((_comp.updateSettings_ & (int32_t)ParticleUpdateType::ScalePerLifeTime) != 0) {
+            _j["scaleCurve"] = curveSave(_comp.particleKeyFrames_->scaleCurve);
         }
-        if ((e.updateSettings_ & (int32_t)ParticleUpdateType::RotatePerLifeTime) != 0) {
-            j["rotateCurve"] = curveSave(e.particleKeyFrames_->rotateCurve);
+        if ((_comp.updateSettings_ & (int32_t)ParticleUpdateType::RotatePerLifeTime) != 0) {
+            _j["rotateCurve"] = curveSave(_comp.particleKeyFrames_->rotateCurve);
         }
-        if ((e.updateSettings_ & (int32_t)ParticleUpdateType::VelocityPerLifeTime) != 0) {
-            j["velocityCurve"] = curveSave(e.particleKeyFrames_->velocityCurve);
-        }
-
-        if ((e.updateSettings_ & (int32_t)ParticleUpdateType::ColorPerLifeTime) != 0) {
-            j["colorCurve"] = curveSave(e.particleKeyFrames_->colorCurve);
+        if ((_comp.updateSettings_ & (int32_t)ParticleUpdateType::VelocityPerLifeTime) != 0) {
+            _j["velocityCurve"] = curveSave(_comp.particleKeyFrames_->velocityCurve);
         }
 
-        if ((e.updateSettings_ & (int32_t)ParticleUpdateType::UvScalePerLifeTime) != 0) {
-            j["uvScaleCurve"] = curveSave(e.particleKeyFrames_->uvScaleCurve);
+        if ((_comp.updateSettings_ & (int32_t)ParticleUpdateType::ColorPerLifeTime) != 0) {
+            _j["colorCurve"] = curveSave(_comp.particleKeyFrames_->colorCurve);
         }
-        if ((e.updateSettings_ & (int32_t)ParticleUpdateType::UvRotatePerLifeTime) != 0) {
-            j["uvRotateCurve"] = curveSave(e.particleKeyFrames_->uvRotateCurve);
+
+        if ((_comp.updateSettings_ & (int32_t)ParticleUpdateType::UvScalePerLifeTime) != 0) {
+            _j["uvScaleCurve"] = curveSave(_comp.particleKeyFrames_->uvScaleCurve);
         }
-        if ((e.updateSettings_ & (int32_t)ParticleUpdateType::UvTranslatePerLifeTime) != 0) {
-            j["uvTranslateCurve"] = curveSave(e.particleKeyFrames_->uvTranslateCurve);
+        if ((_comp.updateSettings_ & (int32_t)ParticleUpdateType::UvRotatePerLifeTime) != 0) {
+            _j["uvRotateCurve"] = curveSave(_comp.particleKeyFrames_->uvRotateCurve);
+        }
+        if ((_comp.updateSettings_ & (int32_t)ParticleUpdateType::UvTranslatePerLifeTime) != 0) {
+            _j["uvTranslateCurve"] = curveSave(_comp.particleKeyFrames_->uvTranslateCurve);
         }
     } else {
         LOG_ERROR("particleKeyFrames_ is nullptr. Please check the Emitter class.");

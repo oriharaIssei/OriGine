@@ -22,7 +22,7 @@ public:
 
     ~Transform2d() = default;
 
-    void Initialize(Scene* /*_scene,*/, EntityHandle /*_owner*/) override {}
+    void Initialize(Scene* /*_scene*/, EntityHandle /*_owner*/) override {}
     void Finalize() override {}
 
     /// <summary>
@@ -69,26 +69,26 @@ public:
 public:
     struct ConstantBuffer {
         Matrix3x3 world;
-        ConstantBuffer& operator=(const Transform2d& transform) {
-            world = transform.worldMat;
+        ConstantBuffer& operator=(const Transform2d& _transform) {
+            world = _transform.worldMat;
             return *this;
         }
     };
 };
 
 /// JSON 読み取り
-inline void from_json(const nlohmann::json& j, Transform2d& t) {
-    j.at("scale").get_to(t.scale);
-    j.at("rotate").get_to(t.rotate);
-    j.at("translate").get_to(t.translate);
+inline void from_json(const nlohmann::json& _j, Transform2d& _comp) {
+    _j.at("scale").get_to(_comp.scale);
+    _j.at("rotate").get_to(_comp.rotate);
+    _j.at("translate").get_to(_comp.translate);
 }
 
 /// JSON 書き込み
-inline void to_json(nlohmann::json& j, const Transform2d& t) {
-    j = nlohmann::json{
-        {"scale", t.scale},
-        {"rotate", t.rotate},
-        {"translate", t.translate}};
+inline void to_json(nlohmann::json& _j, const Transform2d& _comp) {
+    _j = nlohmann::json{
+        {"scale", _comp.scale},
+        {"rotate", _comp.rotate},
+        {"translate", _comp.translate}};
 }
 
 } // namespace OriGine

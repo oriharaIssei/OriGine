@@ -46,18 +46,18 @@ public:
     /// 現在のフレームのリプレイ入力を指定された入力デバイスに適用する.
     /// 適用後、フレームインデックスを 1 進める.
     /// </summary>
-    /// <param name="key">キーボード入力オブジェクト（上書きされる）</param>
-    /// <param name="mouse">マウス入力オブジェクト（上書きされる）</param>
-    /// <param name="pad">ゲームパッド入力オブジェクト（上書きされる）</param>
+    /// <param name="_keyInput">キーボード入力オブジェクト（上書きされる）</param>
+    /// <param name="_mouseInput">マウス入力オブジェクト（上書きされる）</param>
+    /// <param name="_padInput">ゲームパッド入力オブジェクト（上書きされる）</param>
     /// <returns>記録時されたそのフレームの経過時間（deltaTime）</returns>
-    float Apply(KeyboardInput* key, MouseInput* mouse, GamepadInput* pad);
+    float Apply(KeyboardInput* _keyInput, MouseInput* _mouseInput, GamepadInput* _padInput);
 
     /// <summary>
     /// 再生位置（フレームインデックス）を任意の場所に移動させる.
     /// </summary>
-    /// <param name="frameIndex">ジャンプ先のフレーム番号</param>
+    /// <param name="_frameIndex">ジャンプ先のフレーム番号</param>
     /// <returns>シークに成功したか</returns>
-    bool Seek(size_t frameIndex);
+    bool Seek(size_t _frameIndex);
 
     /// <summary>
     /// 全フレームの再生が終了したか（CurrentIndex が総フレーム数以上になったか）.
@@ -67,10 +67,10 @@ public:
     /// <summary>
     /// 指定したフレームインデックスが範囲内（有効）かどうかを判定する.
     /// </summary>
-    /// <param name="frameIndex">判定対象のインデックス</param>
+    /// <param name="_frameIndex">判定対象のインデックス</param>
     /// <returns>有効であれば true</returns>
-    bool IsValidFrame(int32_t frameIndex) const {
-        return (frameIndex >= 0 && frameIndex < static_cast<int32_t>(fileData_.frameData.size()));
+    bool IsValidFrame(int32_t _frameIndex) const {
+        return (_frameIndex >= 0 && _frameIndex < static_cast<int32_t>(fileData_.frameData.size()));
     }
 
 private:
@@ -94,7 +94,7 @@ public:
     /// <summary> 現在の再生フレーム番号を取得する. </summary>
     size_t GetCurrentFrameIndex() const { return currentFrameIndex_; }
     /// <summary> 現在の再生フレーム番号を直接設定する. </summary>
-    void SetCurrentFrameIndex(size_t index) { currentFrameIndex_ = index; }
+    void SetCurrentFrameIndex(size_t _index) { currentFrameIndex_ = _index; }
 
     /// <summary> 現在のフレームのデータを取得する. </summary>
     const ReplayFrameData& GetCurrentFrameData() const { return fileData_.frameData[currentFrameIndex_]; }

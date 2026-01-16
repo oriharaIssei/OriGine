@@ -73,8 +73,8 @@ DxDebug::~DxDebug() {
     FinalizeDebugger();
 }
 
-void DxDebug::SetDebugMessageSeverity(D3D12_MESSAGE_SEVERITY severity) {
+void DxDebug::SetDebugMessageSeverity(D3D12_MESSAGE_SEVERITY _severity) {
     if (infoQueue_) {
-        infoQueue_->SetBreakOnSeverity(severity, TRUE);
+        infoQueue_->SetBreakOnSeverity(_severity, TRUE);
     }
 }

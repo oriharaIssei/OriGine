@@ -29,18 +29,18 @@ struct Vector3 final : Vector<3, valueType> {
 
     // コンストラクタ
     constexpr Vector3() : Vector<3, valueType>({0, 0, 0}) {}
-    constexpr Vector3(valueType xValue, valueType yValue, valueType zValue)
-        : Vector<3, valueType>({xValue, yValue, zValue}) {}
+    constexpr Vector3(valueType _xValue, valueType _yValue, valueType _zValue)
+        : Vector<3, valueType>({_xValue, _yValue, _zValue}) {}
     constexpr Vector3(int _x, int _y, int _z)
         : Vector<3, valueType>({(valueType)_x, (valueType)_y, (valueType)_z}) {}
-    constexpr Vector3(const Vector2<valueType>& xy, const valueType& z)
-        : Vector<3, valueType>({xy[X], xy[Y], z}) {}
-    constexpr Vector3(const valueType& x, const Vector2<valueType>& yz)
-        : Vector<3, valueType>({x, yz[X], yz[Y]}) {}
-    constexpr Vector3(const valueType* x_ptr, const valueType* y_ptr, const valueType* z_ptr)
-        : Vector<3, valueType>({*x_ptr, *y_ptr, *z_ptr}) {}
-    constexpr Vector3(const valueType* ptr)
-        : Vector<3, valueType>({ptr[0], ptr[1], ptr[2]}) {}
+    constexpr Vector3(const Vector2<valueType>& _xy, const valueType& _z)
+        : Vector<3, valueType>({_xy[X], _xy[Y], _z}) {}
+    constexpr Vector3(const valueType& _x, const Vector2<valueType>& _yz)
+        : Vector<3, valueType>({_x, _yz[X], _yz[Y]}) {}
+    constexpr Vector3(const valueType* _x, const valueType* _y, const valueType* _z)
+        : Vector<3, valueType>({*_x, *_y, *_z}) {}
+    constexpr Vector3(const valueType* _ptr)
+        : Vector<3, valueType>({_ptr[0], _ptr[1], _ptr[2]}) {}
 
     /// <summary>
     /// ベクトルの長さを計算
@@ -52,7 +52,7 @@ struct Vector3 final : Vector<3, valueType> {
     /// </summary>
     /// <param name="v">ベクトル</param>
     /// <returns>ベクトルの長さ</returns>
-    static constexpr valueType Length(const Vector3& v) { return std::sqrt(v.v[X] * v.v[X] + v.v[Y] * v.v[Y] + v.v[Z] * v.v[Z]); }
+    static constexpr valueType Length(const Vector3& _v) { return std::sqrt(_v.v[X] * _v.v[X] + _v.v[Y] * _v.v[Y] + _v.v[Z] * _v.v[Z]); }
     /// <summary>
     /// ベクトルの長さの二乗を計算
     /// </summary>
@@ -62,7 +62,7 @@ struct Vector3 final : Vector<3, valueType> {
     /// </summary>
     /// <param name="v">ベクトル</param>
     /// <returns>長さの二乗</returns>
-    static constexpr valueType LengthSq(const Vector3& v) { return (v.v[X] * v.v[X] + v.v[Y] * v.v[Y] + v.v[Z] * v.v[Z]); }
+    static constexpr valueType LengthSq(const Vector3& _v) { return (_v.v[X] * _v.v[X] + _v.v[Y] * _v.v[Y] + _v.v[Z] * _v.v[Z]); }
 
     /// <summary>
     /// 内積を計算
@@ -73,23 +73,23 @@ struct Vector3 final : Vector<3, valueType> {
     /// </summary>
     /// <param name="vec">対象ベクトル</param>
     /// <returns>内積</returns>
-    constexpr valueType dot(const Vector3<valueType>& vec) const {
-        return v[X] * vec.v[X] + v[Y] * vec.v[Y] + v[Z] * vec.v[Z];
+    constexpr valueType dot(const Vector3<valueType>& _vec) const {
+        return v[X] * _vec.v[X] + v[Y] * _vec.v[Y] + v[Z] * _vec.v[Z];
     }
     /// <summary>
     /// ベクトルの内積を計算 (static)
     /// </summary>
     /// <param name="v">対象ベクトル</param>
     /// <returns>内積</returns>
-    static constexpr valueType Dot(const Vector3& v) { return v.v[X] * v.v[X] + v.v[Y] * v.v[Y] + v.v[Z] * v.v[Z]; }
+    static constexpr valueType Dot(const Vector3& _v) { return _v.v[X] * _v.v[X] + _v.v[Y] * _v.v[Y] + _v.v[Z] * _v.v[Z]; }
     /// <summary>
     /// 2つのベクトルの内積を計算 (static)
     /// </summary>
     /// <param name="v">ベクトル1</param>
     /// <param name="vec">ベクトル2</param>
     /// <returns>内積</returns>
-    static constexpr valueType Dot(const Vector3& v, const Vector3& vec) {
-        return v.dot(vec);
+    static constexpr valueType Dot(const Vector3& _v, const Vector3& _vec) {
+        return _v.dot(_vec);
     }
 
     /// <summary>
@@ -97,11 +97,11 @@ struct Vector3 final : Vector<3, valueType> {
     /// </summary>
     /// <param name="another">対象ベクトル</param>
     /// <returns>外積結果ベクトル</returns>
-    constexpr Vector3 cross(const Vector3& another) const {
+    constexpr Vector3 cross(const Vector3& _another) const {
         return Vector3(
-            v[Y] * another.v[Z] - v[Z] * another.v[Y],
-            v[Z] * another.v[X] - v[X] * another.v[Z],
-            v[X] * another.v[Y] - v[Y] * another.v[X]);
+            v[Y] * _another.v[Z] - v[Z] * _another.v[Y],
+            v[Z] * _another.v[X] - v[X] * _another.v[Z],
+            v[X] * _another.v[Y] - v[Y] * _another.v[X]);
     }
     /// <summary>
     /// 外積を計算 (static)
@@ -109,8 +109,8 @@ struct Vector3 final : Vector<3, valueType> {
     /// <param name="v">ベクトル1</param>
     /// <param name="another">ベクトル2</param>
     /// <returns>外積結果ベクトル</returns>
-    static constexpr Vector3 Cross(const Vector3& v, const Vector3& another) {
-        return v.cross(another);
+    static constexpr Vector3 Cross(const Vector3& _v, const Vector3& _another) {
+        return _v.cross(_another);
     }
 
     /// <summary>
@@ -127,11 +127,11 @@ struct Vector3 final : Vector<3, valueType> {
     /// </summary>
     /// <param name="v">正規化前ベクトル</param>
     /// <returns>正規化後ベクトル</returns>
-    static constexpr Vector3 Normalize(const Vector3& v) {
-        valueType len = v.length();
+    static constexpr Vector3 Normalize(const Vector3& _v) {
+        valueType len = _v.length();
         if (len == 0)
-            return v;
-        return (v / len);
+            return _v;
+        return (_v / len);
     }
 };
 
@@ -139,8 +139,8 @@ struct Vector3 final : Vector<3, valueType> {
 /// 反射ベクトルを計算
 /// </summary>
 template <typename valueType>
-inline Vector3<valueType> Reflect(const Vector3<valueType>& v, const Vector3<valueType>& normal) {
-    return v - 2.0f * (v.dot(normal)) * normal;
+inline Vector3<valueType> Reflect(const Vector3<valueType>& _v, const Vector3<valueType>& _normal) {
+    return _v - 2.0f * (_v.dot(_normal)) * _normal;
 }
 
 //=========== using ===========//

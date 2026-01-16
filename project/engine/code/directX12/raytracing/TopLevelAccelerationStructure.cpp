@@ -124,10 +124,10 @@ void TopLevelAccelerationStructure::Update(ID3D12Device8* _device, ID3D12Graphic
     _commandList->ResourceBarrier(1, &barrier);
 }
 
-void TopLevelAccelerationStructure::CopyMatrix3x4(float (&dst)[3][4], const Matrix4x4& src) {
+void TopLevelAccelerationStructure::CopyMatrix3x4(float (&_dst)[3][4], const Matrix4x4& _src) {
     for (int r = 0; r < 3; ++r) {
         for (int c = 0; c < 4; ++c) {
-            dst[r][c] = src.m[r][c];
+            _dst[r][c] = _src.m[r][c];
         }
     }
 }

@@ -20,8 +20,8 @@
 
 using namespace OriGine;
 
-void CylinderRenderer::Initialize(Scene* _scene, EntityHandle _hostEntity) {
-    MeshRenderer::Initialize(_scene, _hostEntity);
+void CylinderRenderer::Initialize(Scene* _scene, EntityHandle _entity) {
+    MeshRenderer::Initialize(_scene, _entity);
 
     // culling しない
     isCulling_ = false;
@@ -46,7 +46,7 @@ void CylinderRenderer::Initialize(Scene* _scene, EntityHandle _hostEntity) {
     }
 }
 
-void CylinderRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _handle, [[maybe_unused]] const std::string& _parentLabel) {
+void CylinderRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _entity, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     ImGui::SeparatorText("Material");
     ImGui::Spacing();
@@ -77,7 +77,7 @@ void CylinderRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Ent
     ImGui::Spacing();
 
     label                      = "MaterialIndex##" + _parentLabel;
-    auto& materials            = _scene->GetComponents<Material>(_handle);
+    auto& materials            = _scene->GetComponents<Material>(_entity);
     int32_t entityMaterialSize = static_cast<int32_t>(materials.size()) - 1;
     InputGuiCommand(label, materialIndex_);
 
@@ -85,7 +85,7 @@ void CylinderRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Ent
     if (materialIndex_ >= 0) {
         label = "Material##" + _parentLabel;
         if (ImGui::TreeNode(label.c_str())) {
-            materials[materialIndex_].Edit(_scene, _handle, "Material" + _parentLabel);
+            materials[materialIndex_].Edit(_scene, _entity, "Material" + _parentLabel);
             materialBuff_.ConvertToBuffer(materials[materialIndex_]);
             ImGui::TreePop();
         }
@@ -127,10 +127,16 @@ void CylinderRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Ent
     });
 
     label = "RadialDivisions##" + _parentLabel;
-    DragGuiCommand<uint32_t>(label, primitive_.radialDivisions, 1, 1, {}, "%d");
+    DragGuiCommand<uint32_t>(label, primitive_.radialDivisions, 1, 1, {}, "%d", [this](uint32_t* _value) {
+        primitive_.radialDivisions = *_value;
+        CreateMesh(&meshGroup_->back());
+    });
 
     label = "HeightDivisions##" + _parentLabel;
-    DragGuiCommand<uint32_t>(label, primitive_.radialDivisions, 1, 1, {}, "%d");
+    DragGuiCommand<uint32_t>(label, primitive_.heightDivisions, 1, 1, {}, "%d", [this](uint32_t* _value) {
+        primitive_.heightDivisions = *_value;
+        CreateMesh(&meshGroup_->back());
+    });
 
     label = "RadiusEaseType##" + _parentLabel;
     ImGui::Text("RadiusEaseType :");
@@ -151,7 +157,7 @@ void CylinderRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Ent
     // buffer Datas
     label = "Transform##" + _parentLabel;
     if (ImGui::TreeNode(label.c_str())) {
-        transformBuff_.openData_.Edit(_scene, _handle, _parentLabel);
+        transformBuff_.openData_.Edit(_scene, _entity, _parentLabel);
 
         transformBuff_.ConvertToBuffer();
         ImGui::TreePop();
@@ -160,58 +166,58 @@ void CylinderRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Ent
 #endif // _DEBUG
 }
 
-void OriGine::to_json(nlohmann::json& j, const CylinderRenderer& c) {
-    j["isRenderer"]      = c.isRender_;
-    j["isCulling"]       = c.isCulling_;
-    j["blendMode"]       = static_cast<int32_t>(c.currentBlend_);
-    j["textureFilePath"] = c.textureFilePath_;
-    to_json(j["transform"], c.transformBuff_.openData_);
-    j["materialIndex"] = c.materialIndex_;
+void OriGine::to_json(nlohmann::json& _j, const CylinderRenderer& _comp) {
+    _j["isRenderer"]      = _comp.isRender_;
+    _j["isCulling"]       = _comp.isCulling_;
+    _j["blendMode"]       = static_cast<int32_t>(_comp.currentBlend_);
+    _j["textureFilePath"] = _comp.textureFilePath_;
+    to_json(_j["transform"], _comp.transformBuff_.openData_);
+    _j["materialIndex"] = _comp.materialIndex_;
 
-    j["topRadius"]       = c.primitive_.topRadius;
-    j["bottomRadius"]    = c.primitive_.bottomRadius;
-    j["radiusEaseType"]  = static_cast<int32_t>(c.primitive_.radiusEaseType);
-    j["radialDivisions"] = c.primitive_.radialDivisions;
-    j["heightDivisions"] = c.primitive_.heightDivisions;
+    _j["topRadius"]       = _comp.primitive_.topRadius;
+    _j["bottomRadius"]    = _comp.primitive_.bottomRadius;
+    _j["radiusEaseType"]  = static_cast<int32_t>(_comp.primitive_.radiusEaseType);
+    _j["radialDivisions"] = _comp.primitive_.radialDivisions;
+    _j["heightDivisions"] = _comp.primitive_.heightDivisions;
 
-    j["height"] = c.primitive_.height;
+    _j["height"] = _comp.primitive_.height;
 }
 
-void OriGine::from_json(const nlohmann::json& j, CylinderRenderer& c) {
-    j.at("isRenderer").get_to(c.isRender_);
-    j.at("isCulling").get_to<bool>(c.isCulling_);
+void OriGine::from_json(const nlohmann::json& _j, CylinderRenderer& _comp) {
+    _j.at("isRenderer").get_to(_comp.isRender_);
+    _j.at("isCulling").get_to<bool>(_comp.isCulling_);
 
     int32_t blendMode = 0;
-    j.at("blendMode").get_to(blendMode);
-    c.currentBlend_ = static_cast<BlendMode>(blendMode);
+    _j.at("blendMode").get_to(blendMode);
+    _comp.currentBlend_ = static_cast<BlendMode>(blendMode);
 
-    if (j.contains("textureFilePath")) {
-        j.at("textureFilePath").get_to(c.textureFilePath_);
+    if (_j.contains("textureFilePath")) {
+        _j.at("textureFilePath").get_to(_comp.textureFilePath_);
     } else {
         std::string directory, fileName;
-        j.at("textureDirectory").get_to(directory);
-        j.at("textureFileName").get_to(fileName);
+        _j.at("textureDirectory").get_to(directory);
+        _j.at("textureFileName").get_to(fileName);
         if (!fileName.empty()) {
-            c.textureFilePath_ = directory + "/" + fileName;
+            _comp.textureFilePath_ = directory + "/" + fileName;
         }
     }
 
-    from_json(j.at("transform"), c.transformBuff_.openData_);
-    c.materialIndex_ = j.at("materialIndex");
+    from_json(_j.at("transform"), _comp.transformBuff_.openData_);
+    _comp.materialIndex_ = _j.at("materialIndex");
 
-    j.at("topRadius").get_to(c.primitive_.topRadius);
-    j.at("bottomRadius").get_to(c.primitive_.bottomRadius);
-    j.at("height").get_to(c.primitive_.height);
+    _j.at("topRadius").get_to(_comp.primitive_.topRadius);
+    _j.at("bottomRadius").get_to(_comp.primitive_.bottomRadius);
+    _j.at("height").get_to(_comp.primitive_.height);
 
-    if (j.contains("radiusEaseType")) {
+    if (_j.contains("radiusEaseType")) {
         int32_t easeType = 0;
-        j.at("radiusEaseType").get_to(easeType);
-        c.primitive_.radiusEaseType = static_cast<EaseType>(easeType);
+        _j.at("radiusEaseType").get_to(easeType);
+        _comp.primitive_.radiusEaseType = static_cast<EaseType>(easeType);
     }
-    if (j.contains("radialDivisions")) {
-        j.at("radialDivisions").get_to(c.primitive_.radialDivisions);
+    if (_j.contains("radialDivisions")) {
+        _j.at("radialDivisions").get_to(_comp.primitive_.radialDivisions);
     }
-    if (j.contains("heightDivisions")) {
-        j.at("heightDivisions").get_to(c.primitive_.heightDivisions);
+    if (_j.contains("heightDivisions")) {
+        _j.at("heightDivisions").get_to(_comp.primitive_.heightDivisions);
     }
 }

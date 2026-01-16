@@ -183,8 +183,8 @@ public:
     /// <summary>
     /// 指定したエンティティを削除予約リストに加える. 実際の削除はフレームの最後に行われる.
     /// </summary>
-    /// <param name="entityId">削除するエンティティのハンドル</param>
-    void AddDeleteEntity(EntityHandle entityId);
+    /// <param name="_entityId">削除するエンティティのハンドル</param>
+    void AddDeleteEntity(EntityHandle _entityId);
 
     // --- Entity Operation Helpers ---
 
@@ -222,10 +222,10 @@ public:
     /// </summary>
     /// <typeparam name="ComponentType">取得したいコンポーネントの型</typeparam>
     /// <param name="_handle">エンティティハンドル</param>
-    /// <param name="index">複数ある場合のインデックス (デフォルトは 0)</param>
+    /// <param name="_index">複数ある場合のインデックス (デフォルトは 0)</param>
     /// <returns>コンポーネントへのポインタ. 存在しない場合は nullptr</returns>
     template <IsComponent ComponentType>
-    ComponentType* GetComponent(EntityHandle _handle, uint32_t index = 0) const;
+    ComponentType* GetComponent(EntityHandle _handle, uint32_t _index = 0) const;
 
     template <IsComponent ComponentType>
     ComponentType* GetComponent(ComponentHandle _handle) const;
@@ -259,8 +259,8 @@ public:
     /// <summary>
     /// 指定した型のコンポーネントを格納している内部配列を取得する.
     /// </summary>
-    IComponentArray* GetComponentArray(const ::std::string& componentTypeName) const {
-        return componentRepository_->GetComponentArray(componentTypeName);
+    IComponentArray* GetComponentArray(const ::std::string& _componentTypeName) const {
+        return componentRepository_->GetComponentArray(_componentTypeName);
     }
     /// <summary>
     /// 指定した型のコンポーネントを格納している内部配列を取得する (テンプレート版).
@@ -297,14 +297,14 @@ template <IsComponent ComponentType>
 /// </summary>
 /// <typeparam name="ComponentType">コンポーネント型</typeparam>
 /// <param name="_handle">エンティティハンドル</param>
-/// <param name="index">インデックス</param>
+/// <param name="_index">インデックス</param>
 /// <returns>コンポーネントのポインタ</returns>
-inline ComponentType* Scene::GetComponent(EntityHandle _handle, uint32_t index) const {
+inline ComponentType* Scene::GetComponent(EntityHandle _handle, uint32_t _index) const {
     if (!_handle.IsValid()) {
         LOG_ERROR("Entity is null. EntityName :{}", nameof<ComponentType>());
         return nullptr;
     }
-    return componentRepository_->GetComponent<ComponentType>(_handle, index);
+    return componentRepository_->GetComponent<ComponentType>(_handle, _index);
 }
 template <IsComponent ComponentType>
 inline ComponentType* Scene::GetComponent(ComponentHandle _handle) const {

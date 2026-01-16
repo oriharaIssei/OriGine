@@ -17,48 +17,48 @@
 
 using namespace OriGine;
 
-void OriGine::to_json(nlohmann::json& j, const GradationComponent& _g) {
-    j["isActive"] = _g.isActive_;
+void OriGine::to_json(nlohmann::json& _j, const GradationComponent& _comp) {
+    _j["isActive"] = _comp.isActive_;
 
-    j["materialIndex"] = _g.materialIndex_;
+    _j["materialIndex"] = _comp.materialIndex_;
 
-    j["centerUv"]  = _g.paramBuff_.openData_.centerUv;
-    j["direction"] = _g.paramBuff_.openData_.direction;
-    j["scale"]     = _g.paramBuff_.openData_.scale;
-    j["pow"]       = _g.paramBuff_.openData_.pow;
+    _j["centerUv"]  = _comp.paramBuff_.openData_.centerUv;
+    _j["direction"] = _comp.paramBuff_.openData_.direction;
+    _j["scale"]     = _comp.paramBuff_.openData_.scale;
+    _j["pow"]       = _comp.paramBuff_.openData_.pow;
 
-    j["colorChannel"]  = static_cast<int32_t>(_g.paramBuff_.openData_.colorChannel);
-    j["gradationType"] = static_cast<int32_t>(_g.paramBuff_.openData_.gradationType);
+    _j["colorChannel"]  = static_cast<int32_t>(_comp.paramBuff_.openData_.colorChannel);
+    _j["gradationType"] = static_cast<int32_t>(_comp.paramBuff_.openData_.gradationType);
 }
 
-void OriGine::from_json(const nlohmann::json& j, GradationComponent& _g) {
-    if (j.contains("centerUv")) {
-        j.at("centerUv").get_to(_g.paramBuff_.openData_.centerUv);
+void OriGine::from_json(const nlohmann::json& _j, GradationComponent& _comp) {
+    if (_j.contains("centerUv")) {
+        _j.at("centerUv").get_to(_comp.paramBuff_.openData_.centerUv);
     }
-    if (j.contains("direction")) {
-        j.at("direction").get_to(_g.paramBuff_.openData_.direction);
+    if (_j.contains("direction")) {
+        _j.at("direction").get_to(_comp.paramBuff_.openData_.direction);
     }
-    if (j.contains("scale")) {
-        j.at("scale").get_to(_g.paramBuff_.openData_.scale);
+    if (_j.contains("scale")) {
+        _j.at("scale").get_to(_comp.paramBuff_.openData_.scale);
     }
-    if (j.contains("pow")) {
-        j.at("pow").get_to(_g.paramBuff_.openData_.pow);
+    if (_j.contains("pow")) {
+        _j.at("pow").get_to(_comp.paramBuff_.openData_.pow);
     }
 
-    _g.materialIndex_                     = j.value("materialIndex", -1);
-    _g.paramBuff_.openData_.colorChannel  = static_cast<ColorChannel>(j.value("colorChannel", 0));
-    _g.paramBuff_.openData_.gradationType = static_cast<GradationType>(j.value("gradationType", 0));
+    _comp.materialIndex_                     = _j.value("materialIndex", -1);
+    _comp.paramBuff_.openData_.colorChannel  = static_cast<ColorChannel>(_j.value("colorChannel", 0));
+    _comp.paramBuff_.openData_.gradationType = static_cast<GradationType>(_j.value("gradationType", 0));
 }
 
-void GradationComponent::Initialize(Scene* /*_scene,*/, EntityHandle /*_owner*/) {
+void GradationComponent::Initialize(Scene* /*_scene*/, EntityHandle /*_owner*/) {
     auto& device = Engine::GetInstance()->GetDxDevice()->device_;
     paramBuff_.CreateBuffer(device);
     materialBuff_.CreateBuffer(device);
 }
 
-void GradationComponent::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _handle, [[maybe_unused]] const std::string& _parentLabel) {
+void GradationComponent::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _owner, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
-    auto& materials = _scene->GetComponents<Material>(_handle);
+    auto& materials = _scene->GetComponents<Material>(_owner);
     if (!materials.empty()) {
         int32_t maxMaterialIndex = static_cast<int32_t>(materials.size()) - 1;
         InputGuiCommand<int32_t>("Material Index##" + _parentLabel, materialIndex_, "%d", [this, maxMaterialIndex](int32_t* /*_newVal*/) {

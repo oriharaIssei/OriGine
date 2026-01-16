@@ -218,10 +218,10 @@ public:
     /// <summary>
     /// 指定されたカテゴリがアクティブかどうかを取得する
     /// </summary>
-    /// <param name="category">対象のカテゴリ</param>
+    /// <param name="_category">対象のカテゴリ</param>
     /// <returns>アクティブならtrue</returns>
-    bool GetCategoryActivity(SystemCategory category) const {
-        return categoryActivity[static_cast<size_t>(category)];
+    bool GetCategoryActivity(SystemCategory _category) const {
+        return categoryActivity[static_cast<size_t>(_category)];
     }
     /// <summary>
     /// カテゴリのアクティビティ状態を設定する
@@ -273,10 +273,10 @@ public:
     /// <summary>
     /// 指定されたカテゴリのアクティブシステムリストを取得する
     /// </summary>
-    /// <param name="category">対象のカテゴリ</param>
+    /// <param name="_category">対象のカテゴリ</param>
     /// <returns>システムのリストへの参照</returns>
-    const ::std::vector<::std::shared_ptr<ISystem>>& GetActiveSystems(SystemCategory category) const {
-        return activeSystems_[static_cast<size_t>(category)];
+    const ::std::vector<::std::shared_ptr<ISystem>>& GetActiveSystems(SystemCategory _category) const {
+        return activeSystems_[static_cast<size_t>(_category)];
     }
     /// <summary>
     /// システム名からシステムを取得する

@@ -18,8 +18,8 @@ namespace OriGine {
 template <typename T>
 struct Keyframe {
     Keyframe() = default;
-    Keyframe(float time, const T& value)
-        : time(time), value(value) {}
+    Keyframe(float _time, const T& _value)
+        : time(_time), value(_value) {}
     ~Keyframe() = default;
 
     float time; // キーフレームの時刻
@@ -95,26 +95,26 @@ struct AnimationData {
 
 namespace CalculateValue {
 float Linear(
-    const std::vector<Keyframe<float>>& keyframes, float time);
+    const std::vector<Keyframe<float>>& _keyframes, float _time);
 Vec2f Linear(
-    const std::vector<Keyframe<Vec2f>>& keyframes, float time);
+    const std::vector<Keyframe<Vec2f>>& _keyframes, float _time);
 Vec3f Linear(
-    const std::vector<KeyframeVector3>& keyframes, float time);
+    const std::vector<KeyframeVector3>& _keyframes, float _time);
 Vec4f Linear(
-    const std::vector<Keyframe<Vec4f>>& keyframes, float time);
+    const std::vector<Keyframe<Vec4f>>& _keyframes, float _time);
 Quaternion Linear(
-    const std::vector<KeyframeQuaternion>& keyframes, float time);
+    const std::vector<KeyframeQuaternion>& _keyframes, float _time);
 
 float Step(
-    const std::vector<Keyframe<float>>& keyframes, float time);
+    const std::vector<Keyframe<float>>& _keyframes, float _time);
 Vec2f Step(
-    const std::vector<Keyframe<Vec2f>>& keyframes, float time);
+    const std::vector<Keyframe<Vec2f>>& _keyframes, float _time);
 Vec3f Step(
-    const std::vector<KeyframeVector3>& keyframes, float time);
+    const std::vector<KeyframeVector3>& _keyframes, float _time);
 Vec4f Step(
-    const std::vector<Keyframe<Vec4f>>& keyframes, float time);
+    const std::vector<Keyframe<Vec4f>>& _keyframes, float _time);
 Quaternion Step(
-    const std::vector<KeyframeQuaternion>& keyframes, float time);
+    const std::vector<KeyframeQuaternion>& _keyframes, float _time);
 } // namespace CalculateValue
 
 } // namespace OriGine

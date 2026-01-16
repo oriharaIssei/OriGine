@@ -20,8 +20,8 @@ namespace OriGine {
 /// </summary>
 class TransformAnimation
     : public IComponent {
-    friend void to_json(nlohmann::json&, const TransformAnimation&);
-    friend void from_json(const nlohmann::json&, TransformAnimation&);
+    friend void to_json(nlohmann::json& _j, const TransformAnimation& _comp);
+    friend void from_json(const nlohmann::json& _j, TransformAnimation& _comp);
 
 public:
     TransformAnimation();

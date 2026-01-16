@@ -19,15 +19,15 @@ public:
     /// <summary>
     /// アプリケーション全体で共有されるグローバルなリソース状態管理テーブルにリソースを登録する.
     /// </summary>
-    /// <param name="resource">登録するリソース</param>
-    /// <param name="initialState">初期状態</param>
-    static void RegisterResource(ID3D12Resource* resource, D3D12_RESOURCE_STATES initialState);
+    /// <param name="_resource">登録するリソース</param>
+    /// <param name="_initialState">初期状態</param>
+    static void RegisterResource(ID3D12Resource* _resource, D3D12_RESOURCE_STATES _initialState);
 
     /// <summary>
     /// 管理テーブルからリソースを削除する. リソース破棄時に呼び出す必要がある.
     /// </summary>
-    /// <param name="resource">削除するリソース</param>
-    static void UnregisterResource(ID3D12Resource* resource);
+    /// <param name="_resource">削除するリソース</param>
+    static void UnregisterResource(ID3D12Resource* _resource);
 
     /// <summary>
     /// すべてのグローバルリソース状態の追跡をリセットする.
@@ -45,26 +45,26 @@ public:
     /// <summary>
     /// コマンドリスト内での局所的なリソース状態追跡テーブルにリソースを登録する.
     /// </summary>
-    /// <param name="resource">リソース</param>
-    /// <param name="initialState">現在の推定状態</param>
-    void RegisterResource2Local(ID3D12Resource* resource, D3D12_RESOURCE_STATES initialState);
+    /// <param name="_resource">リソース</param>
+    /// <param name="_initialState">現在の推定状態</param>
+    void RegisterResource2Local(ID3D12Resource* _resource, D3D12_RESOURCE_STATES _initialState);
 
     /// <summary>
     /// リソースを指定の状態へ遷移させるための Resource Barrier をコマンドリストに積む.
     /// 現在の状態が未知の場合は Pending Barrier として保持し、後で解決する.
     /// </summary>
-    /// <param name="commandList">バリアを積み込むコマンドリスト</param>
-    /// <param name="resource">バリアを張る対象のリソース</param>
-    /// <param name="stateAfter">遷移先の状態</param>
-    void Barrier(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList, ID3D12Resource* resource, D3D12_RESOURCE_STATES stateAfter);
+    /// <param name="_commandList">バリアを積み込むコマンドリスト</param>
+    /// <param name="_resource">バリアを張る対象のリソース</param>
+    /// <param name="_stateAfter">遷移先の状態</param>
+    void Barrier(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList, ID3D12Resource* _resource, D3D12_RESOURCE_STATES _stateAfter);
 
     /// <summary>
     /// 既に構築済みの D3D12_RESOURCE_BARRIER 構造体を使用して直接バリアを発行する.
     /// </summary>
-    /// <param name="commandList">コマンドリスト</param>
-    /// <param name="resource">リソース</param>
-    /// <param name="barrier">設定済みバリア構造体</param>
-    void DirectBarrier(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList, ID3D12Resource* resource, D3D12_RESOURCE_BARRIER barrier);
+    /// <param name="_commandList">コマンドリスト</param>
+    /// <param name="_resource">リソース</param>
+    /// <param name="_barrier">設定済みバリア構造体</param>
+    void DirectBarrier(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> _commandList, ID3D12Resource* _resource, D3D12_RESOURCE_BARRIER _barrier);
 
     /// <summary>
     /// コマンドリストの実行直前などに呼び出し、このトラッカーが追跡していたローカルなリソース状態を

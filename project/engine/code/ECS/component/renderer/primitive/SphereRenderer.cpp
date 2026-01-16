@@ -20,8 +20,8 @@
 
 using namespace OriGine;
 
-void SphereRenderer::Initialize(Scene* _scene, EntityHandle _hostEntity) {
-    MeshRenderer::Initialize(_scene, _hostEntity);
+void SphereRenderer::Initialize(Scene* _scene, EntityHandle _entity) {
+    MeshRenderer::Initialize(_scene, _entity);
 
     // _mesh Init
     if (!meshGroup_->empty()) {
@@ -42,7 +42,7 @@ void SphereRenderer::Initialize(Scene* _scene, EntityHandle _hostEntity) {
     }
 }
 
-void SphereRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _handle, [[maybe_unused]] const std::string& _parentLabel) {
+void SphereRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _entity, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     ImGui::SeparatorText("Material");
     ImGui::Spacing();
@@ -73,7 +73,7 @@ void SphereRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entit
     ImGui::Spacing();
 
     label                      = "MaterialIndex##" + _parentLabel;
-    auto& materials            = _scene->GetComponents<Material>(_handle);
+    auto& materials            = _scene->GetComponents<Material>(_entity);
     int32_t entityMaterialSize = static_cast<int32_t>(materials.size()) - 1;
     InputGuiCommand(label, materialIndex_);
 
@@ -81,7 +81,7 @@ void SphereRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entit
     if (materialIndex_ >= 0) {
         label = "Material##" + _parentLabel;
         if (ImGui::TreeNode(label.c_str())) {
-            materials[materialIndex_].Edit(_scene, _handle, "Material" + _parentLabel);
+            materials[materialIndex_].Edit(_scene, _entity, "Material" + _parentLabel);
             materialBuff_.ConvertToBuffer(materials[materialIndex_]);
             ImGui::TreePop();
         }
@@ -134,7 +134,7 @@ void SphereRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entit
     // buffer Datas
     label = "Transform##" + _parentLabel;
     if (ImGui::TreeNode(label.c_str())) {
-        transformBuff_.openData_.Edit(_scene, _handle, _parentLabel);
+        transformBuff_.openData_.Edit(_scene, _entity, _parentLabel);
 
         transformBuff_.ConvertToBuffer();
         ImGui::TreePop();
@@ -142,44 +142,44 @@ void SphereRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] Entit
 #endif // _DEBUG
 }
 
-void OriGine::to_json(nlohmann::json& j, const SphereRenderer& r) {
-    j["isRenderer"] = r.isRender_;
-    j["isCulling"]  = r.isCulling_;
-    j["blendMode"]  = static_cast<int32_t>(r.currentBlend_);
+void OriGine::to_json(nlohmann::json& _j, const SphereRenderer& _comp) {
+    _j["isRenderer"] = _comp.isRender_;
+    _j["isCulling"]  = _comp.isCulling_;
+    _j["blendMode"]  = static_cast<int32_t>(_comp.currentBlend_);
 
-    j["textureFilePath"] = r.textureFilePath_;
+    _j["textureFilePath"] = _comp.textureFilePath_;
 
-    to_json(j["transform"], r.transformBuff_.openData_);
-    j["materialIndex"]     = r.materialIndex_;
-    j["radius"]            = r.primitive_.radius_;
-    j["divisionLatitude"]  = r.primitive_.divisionLatitude_;
-    j["divisionLongitude"] = r.primitive_.divisionLongitude_;
+    to_json(_j["transform"], _comp.transformBuff_.openData_);
+    _j["materialIndex"]     = _comp.materialIndex_;
+    _j["radius"]            = _comp.primitive_.radius_;
+    _j["divisionLatitude"]  = _comp.primitive_.divisionLatitude_;
+    _j["divisionLongitude"] = _comp.primitive_.divisionLongitude_;
 }
-void OriGine::from_json(const nlohmann::json& j, SphereRenderer& r) {
-    j.at("isRenderer").get_to(r.isRender_);
-    if (j.contains("isCulling")) {
-        j.at("isCulling").get_to(r.isCulling_);
+void OriGine::from_json(const nlohmann::json& _j, SphereRenderer& _comp) {
+    _j.at("isRenderer").get_to(_comp.isRender_);
+    if (_j.contains("isCulling")) {
+        _j.at("isCulling").get_to(_comp.isCulling_);
     }
     int32_t blendMode = 0;
-    j.at("blendMode").get_to(blendMode);
-    r.currentBlend_ = static_cast<BlendMode>(blendMode);
+    _j.at("blendMode").get_to(blendMode);
+    _comp.currentBlend_ = static_cast<BlendMode>(blendMode);
 
-    if (j.contains("textureFilePath")) {
-        j.at("textureFilePath").get_to(r.textureFilePath_);
+    if (_j.contains("textureFilePath")) {
+        _j.at("textureFilePath").get_to(_comp.textureFilePath_);
     } else {
         std::string directory, fileName;
-        j.at("textureDirectory").get_to(directory);
-        j.at("textureFileName").get_to(fileName);
+        _j.at("textureDirectory").get_to(directory);
+        _j.at("textureFileName").get_to(fileName);
         if (!fileName.empty()) {
-            r.textureFilePath_ = directory + "/" + fileName;
+            _comp.textureFilePath_ = directory + "/" + fileName;
         }
     }
 
-    from_json(j.at("transform"), r.transformBuff_.openData_);
-    if (j.find("materialIndex") != j.end()) {
-        r.materialIndex_ = j.at("materialIndex");
+    from_json(_j.at("transform"), _comp.transformBuff_.openData_);
+    if (_j.find("materialIndex") != _j.end()) {
+        _comp.materialIndex_ = _j.at("materialIndex");
     }
-    j.at("radius").get_to(r.primitive_.radius_);
-    j.at("divisionLatitude").get_to(r.primitive_.divisionLatitude_);
-    j.at("divisionLongitude").get_to(r.primitive_.divisionLongitude_);
+    _j.at("radius").get_to(_comp.primitive_.radius_);
+    _j.at("divisionLatitude").get_to(_comp.primitive_.divisionLatitude_);
+    _j.at("divisionLongitude").get_to(_comp.primitive_.divisionLongitude_);
 }

@@ -32,7 +32,7 @@ private:
     static PipelineStateObj* pso_;
 
 public:
-    RenderTexture(DxCommand* dxCom);
+    RenderTexture(DxCommand* _dxCom);
     RenderTexture()  = default;
     ~RenderTexture() = default;
 
@@ -45,13 +45,13 @@ public:
     /// 指定したサイズとフォーマットでレンダーターゲットテクスチャを初期化する.
     /// </summary>
     /// <param name="_bufferCount">生成するバッファの数 (1で通常のターゲット、2でピンポンバッファ)</param>
-    /// <param name="textureSize">解像度</param>
-    /// <param name="format">ピクセルフォーマット</param>
+    /// <param name="_textureSize">解像度</param>
+    /// <param name="_format">ピクセルフォーマット</param>
     /// <param name="_clearColor">クリア時の色</param>
     void Initialize(
         int32_t _bufferCount,
-        const Vec2f& textureSize,
-        DXGI_FORMAT format       = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
+        const Vec2f& _textureSize,
+        DXGI_FORMAT _format      = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
         const Vec4f& _clearColor = {0.f, 0.f, 0.f, 1.f});
 
     /// <summary>
@@ -62,7 +62,7 @@ public:
     /// <summary>
     /// 解像度を変更する. 既存のリソースは作り直される.
     /// </summary>
-    void Resize(const Vec2f& textureSize);
+    void Resize(const Vec2f& _textureSize);
 
     /// <summary>
     /// リソースを解放する.

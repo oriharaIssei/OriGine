@@ -70,8 +70,8 @@ public: // accessor
     AnimationCurve<float>& GetEdgeWidthCurve() { return edgeWidthCurve_; }
     AnimationCurve<Vec4f>& GetOutLineColorCurve() { return outLineColorCurve_; }
 
-    void SetDuration(float d) { duration_ = d; }
-    void SetInterpolationType(InterpolationType t) { interpolationType_ = t; }
+    void SetDuration(float _duration) { duration_ = _duration; }
+    void SetInterpolationType(InterpolationType _type) { interpolationType_ = _type; }
 };
 
 } // namespace OriGine

@@ -7,23 +7,23 @@ template <typename T>
 class DiffValue {
 public:
     DiffValue() = default;
-    DiffValue(const T& value) : current_(value), prev_(value) {}
+    DiffValue(const T& _value) : current_(_value), prev_(_value) {}
 
     /// <summary>
     /// 値を更新し、前回値を保存
     /// </summary>
     /// <param name="value"></param>
-    void Set(const T& value) {
+    void Set(const T& _value) {
         prev_    = current_;
-        current_ = value;
+        current_ = _value;
     }
 
     /// <summary>
     /// 現在値を設定（前回値は変更しない）
     /// </summary>
     /// <param name="value"></param>
-    void SetCurrent(const T& value) {
-        current_ = value;
+    void SetCurrent(const T& _value) {
+        current_ = _value;
     }
 
     /// <summary>

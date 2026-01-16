@@ -34,17 +34,16 @@ void DistortionEffectParam::Initialize(Scene* _scene, EntityHandle _hostEntity) 
             object->Initialize(_scene, _hostEntity);
         }
     } else {
-        if (!texturePath_.empty()) {
-            textureIndex_ = TextureManager::LoadTexture(texturePath_);
-        }
+        LoadTexture(texturePath_);
     }
 }
 
 void DistortionEffectParam::LoadTexture(const std::string& _path) {
-    if (_path.empty()) {
+    texturePath_ = _path;
+    if (texturePath_.empty()) {
+        textureIndex_ = 0;
         return;
     }
-    texturePath_  = _path;
     textureIndex_ = TextureManager::LoadTexture(texturePath_);
 }
 
@@ -112,7 +111,7 @@ void DistortionEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]
                     std::shared_ptr<PrimitiveMeshRendererBase> newObject = PrimitiveMeshFactory::GetInstance()->CreatePrimitiveMeshBy(newObjectType);
 
                     if (newObject) {
-                        newObject->Initialize(_scene,_handle);
+                        newObject->Initialize(_scene, _handle);
 
                         auto command = std::make_unique<AddElementCommand<std::vector<std::pair<std::shared_ptr<PrimitiveMeshRendererBase>, PrimitiveType>>>>(
                             &distortionObjects_, std::make_pair(newObject, newObjectType));
@@ -167,7 +166,7 @@ void DistortionEffectParam::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]
                 CommandCombo commandCombo;
                 commandCombo.AddCommand(std::move(SetPath));
                 commandCombo.SetFuncOnAfterCommand([this]() {
-                    textureIndex_ = TextureManager::LoadTexture(texturePath_);
+                    LoadTexture(texturePath_);
                 },
                     true);
                 OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<CommandCombo>(commandCombo));
@@ -188,17 +187,17 @@ void DistortionEffectParam::Finalize() {
     effectParamData_.Finalize();
 }
 
-void OriGine::to_json(nlohmann::json& j, const DistortionEffectParam& param) {
-    j["distortionBias"]     = param.effectParamData_->distortionBias;
-    j["distortionStrength"] = param.effectParamData_->distortionStrength;
+void OriGine::to_json(nlohmann::json& _j, const DistortionEffectParam& _comp) {
+    _j["distortionBias"]     = _comp.effectParamData_->distortionBias;
+    _j["distortionStrength"] = _comp.effectParamData_->distortionStrength;
 
-    j["isActive"]        = param.isActive_;
-    j["use3dObjectList"] = param.use3dObjectList_;
-    j["materialIndex"]   = param.materialIndex_;
+    _j["isActive"]        = _comp.isActive_;
+    _j["use3dObjectList"] = _comp.use3dObjectList_;
+    _j["materialIndex"]   = _comp.materialIndex_;
 
-    if (param.use3dObjectList_) {
-        j["distortionObjects"] = nlohmann::json::array();
-        for (const auto& [obj, type] : param.distortionObjects_) {
+    if (_comp.use3dObjectList_) {
+        _j["distortionObjects"] = nlohmann::json::array();
+        for (const auto& [obj, type] : _comp.distortionObjects_) {
             nlohmann::json objectData = nlohmann::json::object();
             objectData["objectType"]  = static_cast<int32_t>(type);
             if (obj) {
@@ -225,32 +224,32 @@ void OriGine::to_json(nlohmann::json& j, const DistortionEffectParam& param) {
                     break;
                 }
             }
-            j["distortionObjects"].push_back(objectData);
+            _j["distortionObjects"].push_back(objectData);
         }
     } else {
-        j["textuerPath"] = param.texturePath_;
+        _j["texturePath"] = _comp.texturePath_;
     }
 }
 
-void OriGine::from_json(const nlohmann::json& j, DistortionEffectParam& param) {
-    param.effectParamData_->distortionBias     = j.value("distortionBias", Vec2f());
-    param.effectParamData_->distortionStrength = j.value("distortionStrength", Vec2f());
+void OriGine::from_json(const nlohmann::json& _j, DistortionEffectParam& _comp) {
+    _comp.effectParamData_->distortionBias     = _j.value("distortionBias", Vec2f());
+    _comp.effectParamData_->distortionStrength = _j.value("distortionStrength", Vec2f());
 
-    if (j.contains("materialIndex")) {
-        j.at("materialIndex").get_to(param.materialIndex_);
+    if (_j.contains("materialIndex")) {
+        _j.at("materialIndex").get_to(_comp.materialIndex_);
     }
-    if (j.contains("isActive")) {
-        j.at("isActive").get_to(param.isActive_);
+    if (_j.contains("isActive")) {
+        _j.at("isActive").get_to(_comp.isActive_);
     }
 
-    if (j.contains("use3dObjectList")) {
-        j.at("use3dObjectList").get_to(param.use3dObjectList_);
+    if (_j.contains("use3dObjectList")) {
+        _j.at("use3dObjectList").get_to(_comp.use3dObjectList_);
     } else {
-        param.use3dObjectList_ = true; // 以前のデータとの互換性のため、use3dObjectList_が無い場合はtrueにする
+        _comp.use3dObjectList_ = true; // 以前のデータとの互換性のため、use3dObjectList_が無い場合はtrueにする
     }
 
-    if (param.use3dObjectList_) {
-        for (auto& obj : j["distortionObjects"]) {
+    if (_comp.use3dObjectList_) {
+        for (auto& obj : _j["distortionObjects"]) {
             nlohmann::json objectData;
             PrimitiveType objectType;
             objectType = PrimitiveType(obj["objectType"]);
@@ -258,16 +257,18 @@ void OriGine::from_json(const nlohmann::json& j, DistortionEffectParam& param) {
             if (objectType == PrimitiveType::Plane) {
                 auto newObject = std::make_shared<PlaneRenderer>();
                 from_json(obj["objectData"], *newObject);
-                param.distortionObjects_.emplace_back(newObject, objectType);
+                _comp.distortionObjects_.emplace_back(newObject, objectType);
             } else if (objectType == PrimitiveType::Ring) {
                 auto newObject = std::make_shared<RingRenderer>();
                 from_json(obj["objectData"], *newObject);
-                param.distortionObjects_.emplace_back(newObject, objectType);
+                _comp.distortionObjects_.emplace_back(newObject, objectType);
             }
         }
     } else {
-        if (j.contains("textuerPath")) {
-            j.at("textuerPath").get_to(param.texturePath_);
+        if (_j.contains("texturePath")) {
+            _j.at("texturePath").get_to(_comp.texturePath_);
+        } else if (_j.contains("textuerPath")) {
+            _j.at("textuerPath").get_to(_comp.texturePath_);
         }
     }
 }

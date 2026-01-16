@@ -10,7 +10,7 @@ void CollisionPushBackInfo::Finalize() {
     collisionInfoMap_.clear();
 }
 
-void CollisionPushBackInfo::Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, [[maybe_unused]] [[maybe_unused]] const std::string& _parentLabel) {
+void CollisionPushBackInfo::Edit(Scene* /*_scene*/, EntityHandle /*_entity*/, [[maybe_unused]] [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     std::string label = "PushBackType##" + _parentLabel;
@@ -36,8 +36,8 @@ void CollisionPushBackInfo::ClearInfo() {
     collisionInfoMap_.clear();
 }
 
-const char* OriGine::GetCollisionPushBackTypeName(CollisionPushBackType type) {
-    switch (type) {
+const char* OriGine::GetCollisionPushBackTypeName(CollisionPushBackType _type) {
+    switch (_type) {
     case CollisionPushBackType::PushBack:
         return "PushBack";
     case CollisionPushBackType::Reflect:
@@ -46,10 +46,10 @@ const char* OriGine::GetCollisionPushBackTypeName(CollisionPushBackType type) {
     return "None";
 }
 
-void OriGine::to_json(nlohmann::json& j, const CollisionPushBackInfo& info) {
-    j = nlohmann::json{
-        {"pushBackType", info.pushBackType_}};
+void OriGine::to_json(nlohmann::json& _j, const CollisionPushBackInfo& _comp) {
+    _j = nlohmann::json{
+        {"pushBackType", _comp.pushBackType_}};
 }
-void OriGine::from_json(const nlohmann::json& j, CollisionPushBackInfo& info) {
-    j.at("pushBackType").get_to(info.pushBackType_);
+void OriGine::from_json(const nlohmann::json& _j, CollisionPushBackInfo& _comp) {
+    _j.at("pushBackType").get_to(_comp.pushBackType_);
 };

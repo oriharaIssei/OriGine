@@ -68,10 +68,10 @@ void GamepadInput::Finalize() {
 /// スティックの値を正規化して更新
 /// </summary>
 void GamepadInput::UpdateStickValues(XINPUT_STATE _state) {
-    auto normalizeStick = [this](SHORT x, SHORT y) -> Vec2f {
+    auto normalizeStick = [this](SHORT _x, SHORT _y) -> Vec2f {
         Vec2f stick{
-            static_cast<float>(x) / kStickMax,
-            static_cast<float>(y) / kStickMax,
+            static_cast<float>(_x) / kStickMax,
+            static_cast<float>(_y) / kStickMax,
         };
 
         // デッドゾーンを適用

@@ -49,9 +49,9 @@ enum class DxResourceType : int32_t {
 /// <summary>
 /// DxResourceType のフラグをデバッグ用の文字列に変換する.
 /// </summary>
-/// <param name="type">リソースタイプ</param>
+/// <param name="_type">リソースタイプ</param>
 /// <returns>タイプ名文字列</returns>
-const char* DxResourceTypeToString(DxResourceType type);
+const char* DxResourceTypeToString(DxResourceType _type);
 
 /// <summary>
 /// ID3D12Resource をラップし、生成、設定、情報の取得を簡略化するクラス.
@@ -85,19 +85,19 @@ public:
     /// <summary>
     /// 順序未指定アクセス (UAV) が可能なバッファリソースを作成する.
     /// </summary>
-    void CreateUAVBuffer(Microsoft::WRL::ComPtr<ID3D12Device> device, size_t sizeInBytes, D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATE_COMMON, D3D12_HEAP_TYPE heapType = D3D12_HEAP_TYPE_DEFAULT);
+    void CreateUAVBuffer(Microsoft::WRL::ComPtr<ID3D12Device> _device, size_t _sizeInBytes, D3D12_RESOURCE_FLAGS _flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATES _state = D3D12_RESOURCE_STATE_COMMON, D3D12_HEAP_TYPE _heapType = D3D12_HEAP_TYPE_DEFAULT);
 
     /// <summary>
     /// オフスクリーンレンダリング用のレンダーターゲットテクスチャリソースを作成する.
     /// </summary>
-    void CreateRenderTextureResource(Microsoft::WRL::ComPtr<ID3D12Device> device, uint32_t width, uint32_t height, DXGI_FORMAT format, const Vec4f& clearColor);
+    void CreateRenderTextureResource(Microsoft::WRL::ComPtr<ID3D12Device> _device, uint32_t _width, uint32_t _height, DXGI_FORMAT _format, const Vec4f& _clearColor);
 
     /// <summary>
     /// 画像ファイル（DirectXTex）から作成されるテクスチャリソースを作成する.
     /// </summary>
-    /// <param name="device">D3D12デバイス</param>
-    /// <param name="metadata">画像メタデータ</param>
-    void CreateTextureResource(Microsoft::WRL::ComPtr<ID3D12Device> device, const DirectX::TexMetadata& metadata);
+    /// <param name="_device">D3D12デバイス</param>
+    /// <param name="_metadata">画像メタデータ</param>
+    void CreateTextureResource(Microsoft::WRL::ComPtr<ID3D12Device> _device, const DirectX::TexMetadata& _metadata);
 
     /// <summary>
     /// 管理している ID3D12Resource を解放する.
@@ -139,13 +139,13 @@ public:
     /// <summary>
     /// デバッグ用にリソースに名称を設定する.
     /// </summary>
-    /// <param name="name">リソース名</param>
+    /// <param name="_name">リソース名</param>
     /// <returns>HRESULT</returns>
-    HRESULT SetName(const std::wstring& name);
+    HRESULT SetName(const std::wstring& _name);
 };
 
 } // namespace OriGine
 
 namespace std {
-string to_string(OriGine::DxResourceType type);
+string to_string(OriGine::DxResourceType _type);
 };

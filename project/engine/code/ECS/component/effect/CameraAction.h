@@ -12,8 +12,8 @@ namespace OriGine {
 /// </summary>
 class CameraAction
     : public IComponent {
-    friend void to_json(nlohmann::json& j, const CameraAction& action);
-    friend void from_json(const nlohmann::json& j, CameraAction& action);
+    friend void to_json(nlohmann::json& _j, const CameraAction& _comp);
+    friend void from_json(const nlohmann::json& _j, CameraAction& _comp);
 
 public:
     CameraAction();

@@ -13,15 +13,15 @@
 /// <param name="ptr"></param>
 /// <returns></returns>
 template <typename T>
-ULONG GetComRefCount(const Microsoft::WRL::ComPtr<T>& ptr) {
-    if (!ptr) {
+ULONG GetComRefCount(const Microsoft::WRL::ComPtr<T>& _ptr) {
+    if (!_ptr) {
         return 0;
     }
 
     // AddRef() が現在の参照カウント +1 を返す
-    ULONG count = ptr->AddRef();
+    ULONG count = _ptr->AddRef();
     // 1 増やした分を戻す
-    count = ptr->Release();
+    count = _ptr->Release();
 
     return count;
 }

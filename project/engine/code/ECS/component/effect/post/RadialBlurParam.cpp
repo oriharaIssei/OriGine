@@ -15,7 +15,7 @@ using namespace OriGine;
 RadialBlurParam::RadialBlurParam() {}
 RadialBlurParam::~RadialBlurParam() {}
 
-void RadialBlurParam:: Initialize(Scene* /*_scene,*/, EntityHandle /*_owner*/) {
+void RadialBlurParam::Initialize(Scene* /*_scene*/, EntityHandle /*_owner*/) {
     if (isActive_) {
         constantBuffer_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
         constantBuffer_.ConvertToBuffer();
@@ -50,15 +50,15 @@ void RadialBlurParam::Stop() {
     constantBuffer_.Finalize();
 }
 
-void OriGine::to_json(nlohmann::json& j, const RadialBlurParam& param) {
-    j = nlohmann::json{
-        {"isActive", param.isActive_},
-        {"center", param.constantBuffer_.openData_.center_},
-        {"width", param.constantBuffer_.openData_.width_}};
+void OriGine::to_json(nlohmann::json& _j, const RadialBlurParam& _comp) {
+    _j = nlohmann::json{
+        {"isActive", _comp.isActive_},
+        {"center", _comp.constantBuffer_.openData_.center_},
+        {"width", _comp.constantBuffer_.openData_.width_}};
 }
 
-void OriGine::from_json(const nlohmann::json& j, RadialBlurParam& param) {
-    j.at("isActive").get_to(param.isActive_);
-    j.at("center").get_to(param.constantBuffer_.openData_.center_);
-    j.at("width").get_to(param.constantBuffer_.openData_.width_);
+void OriGine::from_json(const nlohmann::json& _j, RadialBlurParam& _comp) {
+    _j.at("isActive").get_to(_comp.isActive_);
+    _j.at("center").get_to(_comp.constantBuffer_.openData_.center_);
+    _j.at("width").get_to(_comp.constantBuffer_.openData_.width_);
 }

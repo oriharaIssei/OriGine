@@ -152,7 +152,7 @@ public:
     /// <summary> 直前フレームからの経過時間（秒）を取得する. </summary>
     float GetDeltaTime() const { return deltaTimer_->GetDeltaTime(); }
     /// <summary> デルタ値を強制的に更新する. </summary>
-    void SetDeltaTime(float dt) { deltaTimer_->SetDeltaTimer(dt); }
+    void SetDeltaTime(float _dt) { deltaTimer_->SetDeltaTimer(_dt); }
 
     /// <summary> ライト管理オブジェクトを取得する. </summary>
     LightManager* GetLightManager() const { return lightManager_; }
@@ -170,13 +170,13 @@ public:
     /// <summary>
     /// ウィンドウサイズ変更時に実行されるコールバック関数の登録を解除する.
     /// </summary>
-    /// <param name="index">登録時に返されたイベント ID</param>
-    void RemoveWindowResizeEvent(int32_t index) {
-        if (index < 0 || index >= static_cast<int32_t>(windowResizeEvents_.size())) {
-            LOG_WARN("Invalid window resize event index: {}", index);
+    /// <param name="_index">登録時に返されたイベント ID</param>
+    void RemoveWindowResizeEvent(int32_t _index) {
+        if (_index < 0 || _index >= static_cast<int32_t>(windowResizeEvents_.size())) {
+            LOG_WARN("Invalid window resize event index: {}", _index);
             return;
         }
-        windowResizeEvents_.erase(windowResizeEvents_.begin() + index);
+        windowResizeEvents_.erase(windowResizeEvents_.begin() + _index);
     }
 };
 

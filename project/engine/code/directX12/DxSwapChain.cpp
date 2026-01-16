@@ -16,9 +16,9 @@
 
 using namespace OriGine;
 
-void DxSwapChain::Initialize(const WinApp* winApp, const DxDevice* device, const DxCommand* command) {
-    bufferWidth_  = winApp->GetWidth();
-    bufferHeight_ = winApp->GetHeight();
+void DxSwapChain::Initialize(const WinApp* _winApp, const DxDevice* _device, const DxCommand* _command) {
+    bufferWidth_  = _winApp->GetWidth();
+    bufferHeight_ = _winApp->GetHeight();
 
     ///================================================
     ///	SwapChain の生成
@@ -33,9 +33,9 @@ void DxSwapChain::Initialize(const WinApp* winApp, const DxDevice* device, const
     swapchainDesc.SwapEffect       = DXGI_SWAP_EFFECT_FLIP_DISCARD; // モニタに移したら中身を破棄する
 
     Microsoft::WRL::ComPtr<IDXGISwapChain1> swapChain1;
-    HRESULT result = device->dxgiFactory_->CreateSwapChainForHwnd(
-        command->GetCommandQueue().Get(),
-        winApp->GetHwnd(), // 描画対象のWindowのハンドル
+    HRESULT result = _device->dxgiFactory_->CreateSwapChainForHwnd(
+        _command->GetCommandQueue().Get(),
+        _winApp->GetHwnd(), // 描画対象のWindowのハンドル
         &swapchainDesc,
         nullptr,
         nullptr,
@@ -105,12 +105,12 @@ void DxSwapChain::CurrentBackBufferClear(DxCommand* _commandList, const DxDsvDes
     _commandList->ClearTarget(backBuffers_[swapChain_->GetCurrentBackBufferIndex()], _dsv, clearColor_);
 }
 
-void DxSwapChain::ResizeBuffer(UINT width, UINT height) {
-    if (width == bufferWidth_ && height == bufferHeight_) {
+void DxSwapChain::ResizeBuffer(UINT _width, UINT _height) {
+    if (_width == bufferWidth_ && _height == bufferHeight_) {
         return;
     }
-    bufferWidth_  = width;
-    bufferHeight_ = height;
+    bufferWidth_  = _width;
+    bufferHeight_ = _height;
 
     // 古いバックバッファを解放
     auto* rtvHeap = Engine::GetInstance()->GetRtvHeap();

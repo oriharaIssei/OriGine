@@ -58,13 +58,13 @@ constexpr float kFullAngle     = kTau; // 360度
 /// <summary>
 /// Radian を Degree に変換
 /// </summary>
-/// <param name="radian"></param>
+/// <param name="_radian"></param>
 /// <returns></returns>
-float RadianToDegree(float radian);
+float RadianToDegree(float _radian);
 /// <summary>
 /// Degree を Radian に変換
 /// </summary>
-float DegreeToRadian(float degree);
+float DegreeToRadian(float _degree);
 
 /// ----------------------------------------------
 /// 軸列挙（Transformなどと独立して）
@@ -102,15 +102,15 @@ constexpr float kUnitLength         = 1.0f;
 /// 数値の ”整数部” の桁数を取得（整数型用）
 /// </summary>
 /// <typeparam name="T"></typeparam>
-/// <param name="value"></param>
+/// <param name="_value"></param>
 /// <returns></returns>
 template <::std::integral T>
-T CountIntegralDigits(T value) {
-    if (value == 0) {
+T CountIntegralDigits(T _value) {
+    if (_value == 0) {
         return 1;
     }
     // 桁数 = log10(絶対値) + 1
-    return log10(::std::abs(value)) + 1;
+    return log10(::std::abs(_value)) + 1;
 }
 
 /// <summary>
@@ -118,15 +118,15 @@ T CountIntegralDigits(T value) {
 /// </summary>
 /// <typeparam name="T"></typeparam>
 /// <typeparam name="ReturnT"></typeparam>
-/// <param name="value"></param>
+/// <param name="_value"></param>
 /// <returns></returns>
 template <::std::floating_point T, ::std::integral ReturnT = size_t>
-ReturnT CountIntegralDigits(T value) {
-    if (value == 0.0f) {
+ReturnT CountIntegralDigits(T _value) {
+    if (_value == 0.0f) {
         return 1;
     }
     // 桁数 = floor( log10(絶対値) ) + 1
-    return static_cast<ReturnT>(::std::floor(::std::log10(::std::abs(value)))) + 1;
+    return static_cast<ReturnT>(::std::floor(::std::log10(::std::abs(_value)))) + 1;
 }
 
 /// <summary>
@@ -134,15 +134,15 @@ ReturnT CountIntegralDigits(T value) {
 /// </summary>
 /// <typeparam name="T"></typeparam>
 /// <typeparam name="ReturnT"></typeparam>
-/// <param name="value"></param>
+/// <param name="_value"></param>
 /// <returns></returns>
 template <::std::floating_point T, ::std::integral ReturnT = size_t>
-ReturnT CountDecimalDigits(T value) {
+ReturnT CountDecimalDigits(T _value) {
     constexpr size_t kBufferSize       = 64;
     constexpr size_t kMaxDecimalPlaces = 20;
 
     // 小数点以下がほぼ 0 の場合 → 0
-    T fractionalPart = ::std::abs(value - static_cast<T>(static_cast<int64_t>(value)));
+    T fractionalPart = ::std::abs(_value - static_cast<T>(static_cast<int64_t>(_value)));
     if (fractionalPart < kEpsilon) {
         return 0;
     }
@@ -176,10 +176,10 @@ ReturnT CountDecimalDigits(T value) {
 /// <summary>
 /// 浮動小数点数から整数部と小数部の各桁の数字を抽出する
 /// </summary>
-/// <param name="value">変換前</param>
-/// <param name="intDigits">整数部の桁数</param>
-/// <param name="fracDigits">小数部の桁数</param>
+/// <param name="_value">変換前</param>
+/// <param name="_intDigits">整数部の桁数</param>
+/// <param name="_fracDigits">小数部の桁数</param>
 /// <returns></returns>
-::std::vector<int> CalculateDigitsFromFloat(float value, int intDigits, int fracDigits);
+::std::vector<int> CalculateDigitsFromFloat(float _value, int _intDigits, int _fracDigits);
 
 } // namespace OriGine

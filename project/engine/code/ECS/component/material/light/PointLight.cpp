@@ -9,7 +9,7 @@
 
 using namespace OriGine;
 
-void PointLight::Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, [[maybe_unused]] const std::string& _parentLabel) {
+void PointLight::Edit(Scene* _scene, EntityHandle _entity, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     CheckBoxCommand("Active##" + _parentLabel, isActive);
@@ -29,23 +29,23 @@ void PointLight::Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, [[maybe_unused
 #endif // _DEBUG
 }
 
-void OriGine::to_json(nlohmann::json& j, const PointLight& l) {
-    j["isActive"]      = l.isActive;
-    j["color"]         = l.color;
-    j["intensity"]     = l.intensity;
-    j["pos"]           = l.pos;
-    j["radius"]        = l.radius;
-    j["decay"]         = l.decay;
-    j["angularRadius"] = l.angularRadius;
+void OriGine::to_json(nlohmann::json& _j, const PointLight& _comp) {
+    _j["isActive"]      = _comp.isActive;
+    _j["color"]         = _comp.color;
+    _j["intensity"]     = _comp.intensity;
+    _j["pos"]           = _comp.pos;
+    _j["radius"]        = _comp.radius;
+    _j["decay"]         = _comp.decay;
+    _j["angularRadius"] = _comp.angularRadius;
 }
-void OriGine::from_json(const nlohmann::json& j, PointLight& l) {
-    j.at("isActive").get_to(l.isActive);
-    j.at("color").get_to(l.color);
-    j.at("intensity").get_to(l.intensity);
-    j.at("pos").get_to(l.pos);
-    j.at("radius").get_to(l.radius);
-    j.at("decay").get_to(l.decay);
-    if (j.contains("angularRadius")) {
-        j.at("angularRadius").get_to(l.angularRadius);
+void OriGine::from_json(const nlohmann::json& _j, PointLight& _comp) {
+    _j.at("isActive").get_to(_comp.isActive);
+    _j.at("color").get_to(_comp.color);
+    _j.at("intensity").get_to(_comp.intensity);
+    _j.at("pos").get_to(_comp.pos);
+    _j.at("radius").get_to(_comp.radius);
+    _j.at("decay").get_to(_comp.decay);
+    if (_j.contains("angularRadius")) {
+        _j.at("angularRadius").get_to(_comp.angularRadius);
     }
 }

@@ -19,28 +19,28 @@ using namespace OriGine;
 class GenerateUvAnimationCommand : public IEditCommand {
 public:
     GenerateUvAnimationCommand(
-        float& duration,
-        AnimationCurve<Vec2f>& uvScaleCurve,
-        AnimationCurve<Vec2f>& uvTranslateCurve,
-        InterpolationType& uvInterpolationType,
-        const Vector2f& tileSize,
-        const Vector2f& textureSize,
-        float& tilePerTime,
-        float& startAnimationTime,
-        float& animationTimeLength)
-        : duration_(duration),
-          uvscaleCurve_(uvScaleCurve),
-          uvTranslateCurve_(uvTranslateCurve),
-          uvInterpolationType_(uvInterpolationType),
-          tileSize_(tileSize),
-          textureSize_(textureSize),
-          tilePerTime_(tilePerTime),
-          startAnimationTime_(startAnimationTime),
-          animationTimeLength_(animationTimeLength),
-          previousDuration_(duration),
-          previousUvscaleCurve_(uvScaleCurve),
-          previousUvTranslateCurve_(uvTranslateCurve),
-          previousUvInterpolationType_(uvInterpolationType) {}
+        float& _duration,
+        AnimationCurve<Vec2f>& _uvScaleCurve,
+        AnimationCurve<Vec2f>& _uvTranslateCurve,
+        InterpolationType& _uvInterpolationType,
+        const Vector2f& _tileSize,
+        const Vector2f& _textureSize,
+        float& _tilePerTime,
+        float& _startAnimationTime,
+        float& _animationTimeLength)
+        : duration_(_duration),
+          uvscaleCurve_(_uvScaleCurve),
+          uvTranslateCurve_(_uvTranslateCurve),
+          uvInterpolationType_(_uvInterpolationType),
+          tileSize_(_tileSize),
+          textureSize_(_textureSize),
+          tilePerTime_(_tilePerTime),
+          startAnimationTime_(_startAnimationTime),
+          animationTimeLength_(_animationTimeLength),
+          previousDuration_(_duration),
+          previousUvscaleCurve_(_uvScaleCurve),
+          previousUvTranslateCurve_(_uvTranslateCurve),
+          previousUvInterpolationType_(_uvInterpolationType) {}
 
     void Execute() override {
         // 現在の状態を保存
@@ -126,12 +126,12 @@ private:
 
 #endif // _DEBUG
 
-void PrimitiveNodeAnimation:: Initialize(Scene* /*_scene,*/, EntityHandle /*_owner*/) {
+void PrimitiveNodeAnimation::Initialize(Scene* /*_scene*/, EntityHandle /*_entity*/) {
     // Initialize animation state
     currentTime_ = 0.0f;
 }
 
-void PrimitiveNodeAnimation::Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, [[maybe_unused]] [[maybe_unused]] const std::string& _parentLabel) {
+void PrimitiveNodeAnimation::Edit(Scene* /*_scene*/, EntityHandle /*_entity*/, [[maybe_unused]] [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     std::string label = "duration##" + _parentLabel;

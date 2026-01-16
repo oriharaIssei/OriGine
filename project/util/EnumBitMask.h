@@ -15,90 +15,90 @@ class EnumBitmask {
 
 public:
     constexpr EnumBitmask() noexcept : value_(0) {}
-    constexpr EnumBitmask(EnumType e) noexcept : value_(static_cast<UnderlyingType>(e)) {}
-    constexpr EnumBitmask(UnderlyingType v) noexcept : value_(v) {}
+    constexpr EnumBitmask(EnumType _e) noexcept : value_(static_cast<UnderlyingType>(_e)) {}
+    constexpr EnumBitmask(UnderlyingType _v) noexcept : value_(_v) {}
 
     /// <summary>
     /// 指定したフラグが立っているかどうかを取得する
     /// </summary>
     /// <param name="flag"></param>
     /// <returns></returns>
-    bool HasFlag(EnumType flag) const noexcept {
-        return (value_ & static_cast<UnderlyingType>(flag)) != 0;
+    bool HasFlag(EnumType _flag) const noexcept {
+        return (value_ & static_cast<UnderlyingType>(_flag)) != 0;
     }
     /// <summary>
     /// 指定したフラグが立っているかどうかを取得する
     /// </summary>
     /// <param name="flag"></param>
     /// <returns></returns>
-    bool HasFlag(UnderlyingType flag) const noexcept {
-        return (value_ & flag) != 0;
+    bool HasFlag(UnderlyingType _flag) const noexcept {
+        return (value_ & _flag) != 0;
     }
 
     /// <summary>
     /// 指定したフラグをクリアする
     /// </summary>
     /// <param name="flag"></param>
-    void SetFlag(EnumType flag) noexcept {
-        value_ |= static_cast<UnderlyingType>(flag);
+    void SetFlag(EnumType _flag) noexcept {
+        value_ |= static_cast<UnderlyingType>(_flag);
     }
     /// <summary>
     /// 指定したフラグをクリアする
     /// </summary>
     /// <param name="flag"></param>
-    void SetFlag(UnderlyingType flag) noexcept {
-        value_ |= flag;
+    void SetFlag(UnderlyingType _flag) noexcept {
+        value_ |= _flag;
     }
 
     /// <summary>
     /// 指定したフラグをクリアする
     /// </summary>
-    void ClearFlag(EnumType flag) noexcept {
-        value_ &= ~static_cast<UnderlyingType>(flag);
+    void ClearFlag(EnumType _flag) noexcept {
+        value_ &= ~static_cast<UnderlyingType>(_flag);
     }
     /// <summary>
     /// 指定したフラグをクリアする
     /// </summary>
-    void ClearFlag(UnderlyingType flag) noexcept {
-        value_ &= ~flag;
+    void ClearFlag(UnderlyingType _flag) noexcept {
+        value_ &= ~_flag;
     }
 
     // ビット演算
-    constexpr EnumBitmask operator|(EnumBitmask rhs) const noexcept { return value_ | rhs.value_; }
-    constexpr EnumBitmask operator&(EnumBitmask rhs) const noexcept { return value_ & rhs.value_; }
-    constexpr EnumBitmask operator^(EnumBitmask rhs) const noexcept { return value_ ^ rhs.value_; }
+    constexpr EnumBitmask operator|(EnumBitmask _rhs) const noexcept { return value_ | _rhs.value_; }
+    constexpr EnumBitmask operator&(EnumBitmask _rhs) const noexcept { return value_ & _rhs.value_; }
+    constexpr EnumBitmask operator^(EnumBitmask _rhs) const noexcept { return value_ ^ _rhs.value_; }
     constexpr EnumBitmask operator~() const noexcept { return ~value_; }
 
-    constexpr EnumBitmask& operator|=(EnumBitmask rhs) noexcept {
-        value_ |= rhs.value_;
+    constexpr EnumBitmask& operator|=(EnumBitmask _rhs) noexcept {
+        value_ |= _rhs.value_;
         return *this;
     }
-    constexpr EnumBitmask& operator&=(EnumBitmask rhs) noexcept {
-        value_ &= rhs.value_;
+    constexpr EnumBitmask& operator&=(EnumBitmask _rhs) noexcept {
+        value_ &= _rhs.value_;
         return *this;
     }
-    constexpr EnumBitmask& operator^=(EnumBitmask rhs) noexcept {
-        value_ ^= rhs.value_;
+    constexpr EnumBitmask& operator^=(EnumBitmask _rhs) noexcept {
+        value_ ^= _rhs.value_;
         return *this;
     }
 
     // 比較演算子
-    constexpr bool operator==(EnumBitmask rhs) const noexcept { return value_ == rhs.value_; }
-    constexpr bool operator!=(EnumBitmask rhs) const noexcept { return value_ != rhs.value_; }
-    constexpr bool operator<(EnumBitmask rhs) const noexcept { return value_ < rhs.value_; }
-    constexpr bool operator<=(EnumBitmask rhs) const noexcept { return value_ <= rhs.value_; }
-    constexpr bool operator>(EnumBitmask rhs) const noexcept { return value_ > rhs.value_; }
-    constexpr bool operator>=(EnumBitmask rhs) const noexcept { return value_ >= rhs.value_; }
+    constexpr bool operator==(EnumBitmask _rhs) const noexcept { return value_ == _rhs.value_; }
+    constexpr bool operator!=(EnumBitmask _rhs) const noexcept { return value_ != _rhs.value_; }
+    constexpr bool operator<(EnumBitmask _rhs) const noexcept { return value_ < _rhs.value_; }
+    constexpr bool operator<=(EnumBitmask _rhs) const noexcept { return value_ <= _rhs.value_; }
+    constexpr bool operator>(EnumBitmask _rhs) const noexcept { return value_ > _rhs.value_; }
+    constexpr bool operator>=(EnumBitmask _rhs) const noexcept { return value_ >= _rhs.value_; }
 
-    constexpr bool operator==(UnderlyingType rhs) const noexcept { return value_ == rhs; }
-    constexpr bool operator!=(UnderlyingType rhs) const noexcept { return value_ != rhs; }
-    constexpr bool operator<(UnderlyingType rhs) const noexcept { return value_ < rhs; }
-    constexpr bool operator<=(UnderlyingType rhs) const noexcept { return value_ <= rhs; }
-    constexpr bool operator>(UnderlyingType rhs) const noexcept { return value_ > rhs; }
-    constexpr bool operator>=(UnderlyingType rhs) const noexcept { return value_ >= rhs; }
+    constexpr bool operator==(UnderlyingType _rhs) const noexcept { return value_ == _rhs; }
+    constexpr bool operator!=(UnderlyingType _rhs) const noexcept { return value_ != _rhs; }
+    constexpr bool operator<(UnderlyingType _rhs) const noexcept { return value_ < _rhs; }
+    constexpr bool operator<=(UnderlyingType _rhs) const noexcept { return value_ <= _rhs; }
+    constexpr bool operator>(UnderlyingType _rhs) const noexcept { return value_ > _rhs; }
+    constexpr bool operator>=(UnderlyingType _rhs) const noexcept { return value_ >= _rhs; }
 
-    constexpr EnumBitmask& operator=(EnumType e) noexcept {
-        value_ = static_cast<UnderlyingType>(e);
+    constexpr EnumBitmask& operator=(EnumType _e) noexcept {
+        value_ = static_cast<UnderlyingType>(_e);
         return *this;
     }
     constexpr EnumBitmask& operator=(UnderlyingType v) noexcept {

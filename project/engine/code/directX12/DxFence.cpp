@@ -4,9 +4,9 @@
 
 using namespace OriGine;
 
-void DxFence::Initialize(Microsoft::WRL::ComPtr<ID3D12Device> device) {
+void DxFence::Initialize(Microsoft::WRL::ComPtr<ID3D12Device> _device) {
     // 初期値0でFenceを生成
-    HRESULT hr = device->CreateFence(
+    HRESULT hr = _device->CreateFence(
         fenceValue_,
         D3D12_FENCE_FLAG_NONE,
         IID_PPV_ARGS(&fence_));
@@ -18,10 +18,10 @@ void DxFence::Finalize() {
     fence_.Reset();
 }
 
-UINT64 DxFence::Signal(Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue) {
+UINT64 DxFence::Signal(Microsoft::WRL::ComPtr<ID3D12CommandQueue> _commandQueue) {
     // コマンドキューにSignalを送る
     ++fenceValue_;
-    commandQueue->Signal(fence_.Get(), fenceValue_);
+    _commandQueue->Signal(fence_.Get(), fenceValue_);
 
     return fenceValue_;
 };

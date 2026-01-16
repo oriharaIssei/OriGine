@@ -122,22 +122,22 @@ void SkyboxRenderer::Edit(Scene* /*_scene*/, EntityHandle /* _entity*/, [[maybe_
 #endif // _DEBUG
 }
 
-void OriGine::to_json(nlohmann::json& j, const SkyboxRenderer& c) {
-    j["filePath"]      = c.filePath_;
-    j["transformBuff"] = c.transformBuff_.openData_;
-    j["materialBuff"]  = c.materialBuff_.openData_;
+void OriGine::to_json(nlohmann::json& _j, const SkyboxRenderer& _comp) {
+    _j["filePath"]      = _comp.filePath_;
+    _j["transformBuff"] = _comp.transformBuff_.openData_;
+    _j["materialBuff"]  = _comp.materialBuff_.openData_;
 }
 
-void OriGine::from_json(const nlohmann::json& j, SkyboxRenderer& c) {
-    j.at("filePath").get_to(c.filePath_);
-    j.at("transformBuff").get_to(c.transformBuff_.openData_);
-    j.at("materialBuff").get_to(c.materialBuff_.openData_);
+void OriGine::from_json(const nlohmann::json& _j, SkyboxRenderer& _comp) {
+    _j.at("filePath").get_to(_comp.filePath_);
+    _j.at("transformBuff").get_to(_comp.transformBuff_.openData_);
+    _j.at("materialBuff").get_to(_comp.materialBuff_.openData_);
 }
 
-void OriGine::to_json(nlohmann::json& j, const SkyboxMaterial& c) {
-    j["color"] = c.color;
+void OriGine::to_json(nlohmann::json& _j, const SkyboxMaterial& _comp) {
+    _j["color"] = _comp.color;
 }
 
-void OriGine::from_json(const nlohmann::json& j, SkyboxMaterial& c) {
-    j.at("color").get_to(c.color);
+void OriGine::from_json(const nlohmann::json& _j, SkyboxMaterial& _comp) {
+    _j.at("color").get_to(_comp.color);
 }

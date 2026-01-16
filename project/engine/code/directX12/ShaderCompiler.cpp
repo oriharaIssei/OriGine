@@ -26,21 +26,24 @@ void ShaderCompiler::Initialize() {
     assert(SUCCEEDED(hr));
 }
 
-IDxcBlob* ShaderCompiler::CompileShader(const std::wstring& filePath, const wchar_t* profile) {
-    LOG_DEBUG("Begin CompileShader, path : {}, profile : {}\n", ConvertString(filePath), ConvertString(profile));
+IDxcBlob* ShaderCompiler::CompileShader(const std::wstring& _filePath, const wchar_t* _profile) {
+    LOG_DEBUG("Begin CompileShader, path : {}, profile : {}\n", ConvertString(_filePath), ConvertString(_profile));
 
     HRESULT hr;
 
     IDxcBlobEncoding* shaderSource = nullptr;
     DxcBuffer buf;
-    LoadShaderFile(filePath, shaderSource, buf);
+    LoadShaderFile(_filePath, shaderSource, buf);
 
     /*---------- Setting Compile Option ----------*/
     LPCWSTR args[] = {
-        filePath.c_str(), // コンパイル対象のパス
-        L"-E", L"main", // エントリーポイントの指名。(基本main)
-        L"-T", profile, // ShaderProfileの設定
-        L"-Zi", L"-Qembed_debug", // デバッグ用の情報を埋め込む
+        _filePath.c_str(), // コンパイル対象のパス
+        L"-E",
+        L"main", // エントリーポイントの指名。(基本main)
+        L"-T",
+        _profile, // ShaderProfileの設定
+        L"-Zi",
+        L"-Qembed_debug", // デバッグ用の情報を埋め込む
         L"-Od", // 最適化を外す
         L"-Zpr", // メモリレイアウトは行優先
     };
@@ -82,7 +85,7 @@ IDxcBlob* ShaderCompiler::CompileShader(const std::wstring& filePath, const wcha
         IID_PPV_ARGS(&shaderBlob),
         nullptr);
     assert(SUCCEEDED(hr));
-    LOG_DEBUG("Compile Succeeded, path : {}, profile : {}\n", ConvertString(filePath), ConvertString(profile));
+    LOG_DEBUG("Compile Succeeded, path : {}, profile : {}\n", ConvertString(_filePath), ConvertString(_profile));
 
     return shaderBlob;
 }
@@ -93,21 +96,21 @@ void ShaderCompiler::Finalize() {
     includeHandler_.Reset();
 }
 
-void ShaderCompiler::LoadShaderFile(const std::wstring& filePath, IDxcBlobEncoding* shaderSource, DxcBuffer& buf) {
+void ShaderCompiler::LoadShaderFile(const std::wstring& _filePath, IDxcBlobEncoding* _shaderSource, DxcBuffer& _buf) {
     // hlslファイルを読み込む
     HRESULT hr = dxcUtils_->LoadFile(
-        filePath.c_str(),
+        _filePath.c_str(),
         nullptr,
-        &shaderSource);
+        &_shaderSource);
 
     if (FAILED(hr)) {
-        LOG_ERROR("Failed to load shader file: {}, HRESULT: {}", ConvertString(filePath), HrToString(hr));
+        LOG_ERROR("Failed to load shader file: {}, HRESULT: {}", ConvertString(_filePath), HrToString(hr));
         assert(false);
         return;
     }
 
     // 読み込んだファイルの内容を設定する
-    buf.Ptr      = shaderSource->GetBufferPointer();
-    buf.Size     = shaderSource->GetBufferSize();
-    buf.Encoding = DXC_CP_UTF8;
+    _buf.Ptr      = _shaderSource->GetBufferPointer();
+    _buf.Size     = _shaderSource->GetBufferSize();
+    _buf.Encoding = DXC_CP_UTF8;
 }

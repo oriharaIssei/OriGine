@@ -20,8 +20,8 @@ namespace OriGine {
 /// </summary>
 struct SpotLight
     : public IComponent {
-    friend void to_json(nlohmann::json& j, const SpotLight& l);
-    friend void from_json(const nlohmann::json& j, SpotLight& l);
+    friend void to_json(nlohmann::json& _j, const SpotLight& _comp);
+    friend void from_json(const nlohmann::json& _j, SpotLight& _comp);
 
 public:
     SpotLight() {}
@@ -58,16 +58,16 @@ public:
         float cosFalloffStart; // 4 bytes
         float angularRadius;
         float padding; // 8 bytes (to align to 16 bytes)
-        ConstantBuffer& operator=(const SpotLight& light) {
-            color           = light.color;
-            pos             = light.pos;
-            intensity       = light.intensity;
-            direction       = light.direction;
-            distance        = light.distance;
-            decay           = light.decay;
-            cosAngle        = light.cosAngle;
-            cosFalloffStart = light.cosFalloffStart;
-            angularRadius   = light.angularRadius;
+        ConstantBuffer& operator=(const SpotLight& _comp) {
+            color           = _comp.color;
+            pos             = _comp.pos;
+            intensity       = _comp.intensity;
+            direction       = _comp.direction;
+            distance        = _comp.distance;
+            decay           = _comp.decay;
+            cosAngle        = _comp.cosAngle;
+            cosFalloffStart = _comp.cosFalloffStart;
+            angularRadius   = _comp.angularRadius;
             return *this;
         }
     };

@@ -36,7 +36,7 @@ Quaternion Transform::CalculateWorldRotate() const {
     }
 }
 
-void Transform::Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, [[maybe_unused]] const std::string& _parentLabel) {
+void Transform::Edit(Scene* /*_scene*/, EntityHandle /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     // --------------------------- scale --------------------------- //

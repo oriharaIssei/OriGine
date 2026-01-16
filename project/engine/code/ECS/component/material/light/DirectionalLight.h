@@ -20,8 +20,8 @@ struct DirectionalLight
     : public IComponent {
 
     // to_json, from_json を friend として宣言
-    friend void to_json(nlohmann::json& j, const DirectionalLight& l);
-    friend void from_json(const nlohmann::json& j, DirectionalLight& l);
+    friend void to_json(nlohmann::json& _j, const DirectionalLight& _comp);
+    friend void from_json(const nlohmann::json& _j, DirectionalLight& _comp);
 
 public:
     DirectionalLight() : IComponent() {}

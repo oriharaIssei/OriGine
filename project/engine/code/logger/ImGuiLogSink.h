@@ -26,10 +26,10 @@ public:
     /// spdlog から呼び出されるログ出力用のコールバック.
     /// メッセージを指定されたフォーマッタで文字列化し、リストに蓄積する.
     /// </summary>
-    void log(const spdlog::details::log_msg& msg) override {
+    void log(const spdlog::details::log_msg& _msg) override {
         std::lock_guard<std::mutex> lock(mutex_);
         spdlog::memory_buf_t formatted;
-        formatter_->format(msg, formatted);
+        formatter_->format(_msg, formatted);
         logMessages_.emplace_back(fmt::to_string(formatted));
     }
 
@@ -37,13 +37,13 @@ public:
     void flush() override {}
 
     /// <summary> ログのフォーマットパターンを設定する. </summary>
-    void set_pattern(const std::string& pattern) override {
-        formatter_ = std::make_unique<spdlog::pattern_formatter>(pattern);
+    void set_pattern(const std::string& _pattern) override {
+        formatter_ = std::make_unique<spdlog::pattern_formatter>(_pattern);
     }
 
     /// <summary> カスタムフォーマッタを設定する. </summary>
-    void set_formatter(std::unique_ptr<spdlog::formatter> sink_formatter) override {
-        formatter_ = std::move(sink_formatter);
+    void set_formatter(std::unique_ptr<spdlog::formatter> _formatter) override {
+        formatter_ = std::move(_formatter);
     }
 
     /// <summary>

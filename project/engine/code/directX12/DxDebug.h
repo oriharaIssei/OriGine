@@ -83,8 +83,8 @@ public:
     /// <summary>
     /// 出力するデバッグメッセージの重要度の最小しきい値を設定する.
     /// </summary>
-    /// <param name="severity">許容する最小重要度</param>
-    void SetDebugMessageSeverity(D3D12_MESSAGE_SEVERITY severity);
+    /// <param name="_severity">許容する最小重要度</param>
+    void SetDebugMessageSeverity(D3D12_MESSAGE_SEVERITY _severity);
 };
 
 } // namespace OriGine

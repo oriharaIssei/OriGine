@@ -9,7 +9,7 @@
 
 using namespace OriGine;
 
-void SpotLight::Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, [[maybe_unused]] const std::string& _parentLabel) {
+void SpotLight::Edit(Scene* /*_scene*/, EntityHandle /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     CheckBoxCommand("Active##" + _parentLabel, isActive);
@@ -37,30 +37,30 @@ void SpotLight::Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, [[maybe_unused]
 #endif // _DEBUG
 }
 
-void OriGine::to_json(nlohmann::json& j, const SpotLight& l) {
-    j["isActive"]        = l.isActive;
-    j["color"]           = l.color;
-    j["intensity"]       = l.intensity;
-    j["pos"]             = l.pos;
-    j["distance"]        = l.distance;
-    j["direction"]       = l.direction;
-    j["decay"]           = l.decay;
-    j["cosAngle"]        = l.cosAngle;
-    j["cosFalloffStart"] = l.cosFalloffStart;
-    j["angularRadius"]   = l.angularRadius;
+void OriGine::to_json(nlohmann::json& _j, const SpotLight& _comp) {
+    _j["isActive"]        = _comp.isActive;
+    _j["color"]           = _comp.color;
+    _j["intensity"]       = _comp.intensity;
+    _j["pos"]             = _comp.pos;
+    _j["distance"]        = _comp.distance;
+    _j["direction"]       = _comp.direction;
+    _j["decay"]           = _comp.decay;
+    _j["cosAngle"]        = _comp.cosAngle;
+    _j["cosFalloffStart"] = _comp.cosFalloffStart;
+    _j["angularRadius"]   = _comp.angularRadius;
 }
 
-void OriGine::from_json(const nlohmann::json& j, SpotLight& l) {
-    j.at("isActive").get_to(l.isActive);
-    j.at("color").get_to(l.color);
-    j.at("intensity").get_to(l.intensity);
-    j.at("pos").get_to(l.pos);
-    j.at("distance").get_to(l.distance);
-    j.at("direction").get_to(l.direction);
-    j.at("decay").get_to(l.decay);
-    j.at("cosAngle").get_to(l.cosAngle);
-    j.at("cosFalloffStart").get_to(l.cosFalloffStart);
-    if (j.contains("angularRadius")) {
-        j.at("angularRadius").get_to(l.angularRadius);
+void OriGine::from_json(const nlohmann::json& _j, SpotLight& _comp) {
+    _j.at("isActive").get_to(_comp.isActive);
+    _j.at("color").get_to(_comp.color);
+    _j.at("intensity").get_to(_comp.intensity);
+    _j.at("pos").get_to(_comp.pos);
+    _j.at("distance").get_to(_comp.distance);
+    _j.at("direction").get_to(_comp.direction);
+    _j.at("decay").get_to(_comp.decay);
+    _j.at("cosAngle").get_to(_comp.cosAngle);
+    _j.at("cosFalloffStart").get_to(_comp.cosFalloffStart);
+    if (_j.contains("angularRadius")) {
+        _j.at("angularRadius").get_to(_comp.angularRadius);
     }
 }

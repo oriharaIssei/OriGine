@@ -20,14 +20,14 @@ class SpriteRenderer;
 /// </summary>
 class SpriteAnimation
     : public IComponent {
-    friend void to_json(nlohmann::json& j, const SpriteAnimation& r);
-    friend void from_json(const nlohmann::json& j, SpriteAnimation& r);
+    friend void to_json(nlohmann::json& _j, const SpriteAnimation& _comp);
+    friend void from_json(const nlohmann::json& _j, SpriteAnimation& _comp);
 
 public:
     SpriteAnimation();
     ~SpriteAnimation() override;
 
-    void Initialize(Scene* _scene, EntityHandle _owner) override;
+    void Initialize(Scene* _scene, EntityHandle _entity) override;
     void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) override;
     void Finalize() override;
 

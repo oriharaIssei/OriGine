@@ -17,7 +17,7 @@ void Transform2d::UpdateMatrix() {
     }
 }
 
-void Transform2d::Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, [[maybe_unused]] const std::string& _parentLabel) {
+void Transform2d::Edit(Scene* /*_scene*/, EntityHandle /*_entity*/, const std::string& _parentLabel) {
 #ifdef _DEBUG
     DragGuiVectorCommand("Scale##" + _parentLabel, scale, 0.01f);
     DragGuiCommand("Rotate##" + _parentLabel, rotate, 0.01f);

@@ -10,7 +10,7 @@ using namespace OriGine;
 DissolveAnimation::DissolveAnimation() {}
 DissolveAnimation::~DissolveAnimation() {}
 
-void DissolveAnimation::Initialize(Scene*, EntityHandle) {
+void DissolveAnimation::Initialize(Scene* /*_scene*/, EntityHandle /*_entity*/) {
     currentTime_ = 0.0f;
 }
 
@@ -167,41 +167,41 @@ void DissolveAnimation::RescaleDuration(float _newDuration) {
     duration_ = _newDuration;
 }
 
-void OriGine::to_json(nlohmann::json& j, const DissolveAnimation& a) {
-    j["duration"]          = a.duration_;
-    j["isLoop"]            = a.animationState_.isLoop_;
-    j["isPlay"]            = a.animationState_.isPlay_;
-    j["InterpolationType"] = a.interpolationType_;
+void OriGine::to_json(nlohmann::json& _j, const DissolveAnimation& _comp) {
+    _j["duration"]          = _comp.duration_;
+    _j["isLoop"]            = _comp.animationState_.isLoop_;
+    _j["isPlay"]            = _comp.animationState_.isPlay_;
+    _j["InterpolationType"] = _comp.interpolationType_;
 
-    auto write = [&j](const char* name, const auto& curve) {
+    auto write = [&_j](const char* _name, const auto& _curve) {
         nlohmann::json arr = nlohmann::json::array();
-        for (const auto& k : curve) {
+        for (const auto& k : _curve) {
             arr.push_back({{"time", k.time}, {"value", k.value}});
         }
-        j[name] = arr;
+        _j[_name] = arr;
     };
 
-    write("thresholdCurve", a.thresholdCurve_);
-    write("edgeWidthCurve", a.edgeWidthCurve_);
-    write("outLineColorCurve", a.outLineColorCurve_);
+    write("thresholdCurve", _comp.thresholdCurve_);
+    write("edgeWidthCurve", _comp.edgeWidthCurve_);
+    write("outLineColorCurve", _comp.outLineColorCurve_);
 }
 
-void OriGine::from_json(const nlohmann::json& j, DissolveAnimation& a) {
-    j.at("duration").get_to(a.duration_);
-    j.at("isLoop").get_to(a.animationState_.isLoop_);
-    j.at("isPlay").get_to(a.animationState_.isPlay_);
-    j.at("InterpolationType").get_to(a.interpolationType_);
+void OriGine::from_json(const nlohmann::json& _j, DissolveAnimation& _comp) {
+    _j.at("duration").get_to(_comp.duration_);
+    _j.at("isLoop").get_to(_comp.animationState_.isLoop_);
+    _j.at("isPlay").get_to(_comp.animationState_.isPlay_);
+    _j.at("InterpolationType").get_to(_comp.interpolationType_);
 
-    auto read = [&j](const char* name, auto& curve) {
-        for (const auto& k : j.at(name)) {
-            typename std::remove_reference<decltype(curve)>::type::value_type key;
+    auto read = [&_j](const char* _name, auto& _curve) {
+        for (const auto& k : _j.at(_name)) {
+            typename std::remove_reference<decltype(_curve)>::type::value_type key;
             k.at("time").get_to(key.time);
             k.at("value").get_to(key.value);
-            curve.push_back(key);
+            _curve.push_back(key);
         }
     };
 
-    read("thresholdCurve", a.thresholdCurve_);
-    read("edgeWidthCurve", a.edgeWidthCurve_);
-    read("outLineColorCurve", a.outLineColorCurve_);
+    read("thresholdCurve", _comp.thresholdCurve_);
+    read("edgeWidthCurve", _comp.edgeWidthCurve_);
+    read("outLineColorCurve", _comp.outLineColorCurve_);
 }

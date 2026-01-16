@@ -57,9 +57,9 @@ public:
     /// <summary>
     /// デバイスの初期化を行う.
     /// </summary>
-    /// <param name="directInput">DirectInput8 インターフェース</param>
-    /// <param name="hwnd">ウィンドウハンドル</param>
-    void Initialize(IDirectInput8* directInput, HWND hwnd);
+    /// <param name="_directInput">DirectInput8 インターフェース</param>
+    /// <param name="_hwnd">ウィンドウハンドル</param>
+    void Initialize(IDirectInput8* _directInput, HWND _hwnd);
 
     /// <summary>
     /// 毎フレームのデバイス入力状態をポーリングして更新する.
@@ -147,47 +147,47 @@ public:
     /// <summary>
     /// 指定されたボタンが現在押されているか判定する.
     /// </summary>
-    /// <param name="button">ボタン番号</param>
+    /// <param name="_button">ボタン番号</param>
     /// <returns>押されていれば true</returns>
-    bool IsPress(uint32_t button) const { return currentButtonStates_[button]; }
+    bool IsPress(uint32_t _button) const { return currentButtonStates_[_button]; }
 
     /// <summary>
     /// 指定されたボタンが現在押されているか判定する.
     /// </summary>
-    /// <param name="button">ボタン種類</param>
+    /// <param name="_button">ボタン種類</param>
     /// <returns>押されていれば true</returns>
-    bool IsPress(MouseButton button) const { return currentButtonStates_[static_cast<uint32_t>(button)]; }
+    bool IsPress(MouseButton _button) const { return currentButtonStates_[static_cast<uint32_t>(_button)]; }
 
     /// <summary>
     /// 指定されたボタンがこのフレームで押されたか判定する.
     /// </summary>
-    /// <param name="button">ボタン番号</param>
+    /// <param name="_button">ボタン番号</param>
     /// <returns>押された瞬間なら true</returns>
-    bool IsTrigger(uint32_t button) const { return currentButtonStates_[button] && !prevButtonStates_[button]; }
+    bool IsTrigger(uint32_t _button) const { return currentButtonStates_[_button] && !prevButtonStates_[_button]; }
 
     /// <summary>
     /// 指定されたボタンがこのフレームで押されたか判定する.
     /// </summary>
-    /// <param name="button">ボタン種類</param>
+    /// <param name="_button">ボタン種類</param>
     /// <returns>押された瞬間なら true</returns>
-    bool IsTrigger(MouseButton button) const {
-        return currentButtonStates_[static_cast<uint32_t>(button)] && !prevButtonStates_[static_cast<uint32_t>(button)];
+    bool IsTrigger(MouseButton _button) const {
+        return currentButtonStates_[static_cast<uint32_t>(_button)] && !prevButtonStates_[static_cast<uint32_t>(_button)];
     }
 
     /// <summary>
     /// 指定されたボタンがこのフレームで離されたか判定する.
     /// </summary>
-    /// <param name="button">ボタン番号</param>
+    /// <param name="_button">ボタン番号</param>
     /// <returns>離された瞬間なら true</returns>
-    bool IsRelease(uint32_t button) const { return !currentButtonStates_[button] && prevButtonStates_[button]; }
+    bool IsRelease(uint32_t _button) const { return !currentButtonStates_[_button] && prevButtonStates_[_button]; }
 
     /// <summary>
     /// 指定されたボタンがこのフレームで離されたか判定する.
     /// </summary>
-    /// <param name="button">ボタン種類</param>
+    /// <param name="_button">ボタン種類</param>
     /// <returns>離された瞬間なら true</returns>
-    bool IsRelease(MouseButton button) const {
-        return !currentButtonStates_[static_cast<uint32_t>(button)] && prevButtonStates_[static_cast<uint32_t>(button)];
+    bool IsRelease(MouseButton _button) const {
+        return !currentButtonStates_[static_cast<uint32_t>(_button)] && prevButtonStates_[static_cast<uint32_t>(_button)];
     }
 
     /// <summary>
@@ -257,8 +257,8 @@ public:
     /// <summary>
     /// ユーザー定義の仮想座標を設定する.
     /// </summary>
-    /// <param name="pos">設定する仮想座標</param>
-    void SetVirtualPosition(const Vec2f& pos) { virtualPos_ = pos; }
+    /// <param name="_pos">設定する仮想座標</param>
+    void SetVirtualPosition(const Vec2f& _pos) { virtualPos_ = _pos; }
 
     /// <summary>
     /// 前回フレームのマウス座標を取得する.
@@ -275,14 +275,14 @@ public:
     /// <summary>
     /// システムのカーソル位置を移動させる.
     /// </summary>
-    /// <param name="pos">移動先の座標</param>
-    void SetPosition(const Vec2f& pos);
+    /// <param name="_pos">移動先の座標</param>
+    void SetPosition(const Vec2f& _pos);
 
     /// <summary>
     /// システムのマウスカーソルの表示・非表示を切り替える.
     /// </summary>
-    /// <param name="show">表示するなら true, 隠すなら false</param>
-    void SetShowCursor(bool show);
+    /// <param name="_show">表示するなら true, 隠すなら false</param>
+    void SetShowCursor(bool _show);
 };
 
 } // namespace OriGine

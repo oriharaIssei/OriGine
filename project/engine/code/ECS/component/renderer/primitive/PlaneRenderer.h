@@ -7,8 +7,8 @@ namespace OriGine {
 
 class PlaneRenderer
     : public PrimitiveMeshRenderer<Primitive::Plane> {
-    friend void to_json(nlohmann::json& j, const PlaneRenderer& r);
-    friend void from_json(const nlohmann::json& j, PlaneRenderer& r);
+    friend void to_json(nlohmann::json& _j, const PlaneRenderer& _comp);
+    friend void from_json(const nlohmann::json& _j, PlaneRenderer& _comp);
 
 public:
     PlaneRenderer() : PrimitiveMeshRenderer() {}

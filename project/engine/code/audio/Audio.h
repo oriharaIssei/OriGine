@@ -66,8 +66,8 @@ public:
 /// </summary>
 class Audio
     : public IComponent {
-    friend void to_json(nlohmann::json& j, const Audio& t);
-    friend void from_json(const nlohmann::json& j, Audio& t);
+    friend void to_json(nlohmann::json& _j, const Audio& _comp);
+    friend void from_json(const nlohmann::json& _j, Audio& _comp);
 
 public:
     /// <summary>
@@ -89,13 +89,13 @@ public:
     /// 設定されたファイル名から音声データを読み出す.
     /// </summary>
     /// <param name="_scene">所属シーン（未使用）</param>
-    /// <param name="_owner">所有者エンティティ（未使用）</param>
-    void Initialize(Scene* /*_scene*/, EntityHandle /*_owner*/) override;
+    /// <param name="_entity">所有者エンティティ（未使用）</param>
+    void Initialize(Scene* _scene, EntityHandle _entity) override;
 
     /// <summary>
     /// エディタ用 UI 編集処理.
     /// </summary>
-    void Edit(Scene* _scene, EntityHandle _handle, [[maybe_unused]] const std::string& _parentLabel) override;
+    void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) override;
 
     /// <summary>
     /// 終了処理を行う. ソースボイスの破棄と音声データのアンロードを行う.
@@ -126,9 +126,9 @@ private:
     /// <summary>
     /// 指定されたパスの WAVE ファイルをロードする.
     /// </summary>
-    /// <param name="fileName">ファイルパス</param>
+    /// <param name="_fileName">ファイルパス</param>
     /// <returns>読み込まれた音声データ</returns>
-    SoundData LoadWave(const std::string& fileName);
+    SoundData LoadWave(const std::string& _fileName);
 
     /// <summary>
     /// 音声データをメモリから解放する.
@@ -153,8 +153,8 @@ public:
     /// <summary>
     /// 音声データを読み込む.
     /// </summary>
-    /// <param name="fileName">ファイル名</param>
-    void Load(const std::string& fileName);
+    /// <param name="_fileName">ファイル名</param>
+    void Load(const std::string& _fileName);
 
     /// <summary>
     /// 現在再生中かどうかを判定する.

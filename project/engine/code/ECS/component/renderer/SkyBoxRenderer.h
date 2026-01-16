@@ -21,8 +21,8 @@ struct SkyboxVertex {
 /// 天空箱用マテリアルデータ
 /// </summary>
 struct SkyboxMaterial {
-    friend void to_json(nlohmann::json& j, const SkyboxMaterial& c);
-    friend void from_json(const nlohmann::json& j, SkyboxMaterial& c);
+    friend void to_json(nlohmann::json& _j, const SkyboxMaterial& _comp);
+    friend void from_json(const nlohmann::json& _j, SkyboxMaterial& _comp);
     Vec4f color;
 
     struct ConstantBuffer {
@@ -39,8 +39,8 @@ struct SkyboxMaterial {
 /// </summary>
 class SkyboxRenderer
     : public MeshRenderer<Mesh<SkyboxVertex>, SkyboxVertex> {
-    friend void to_json(nlohmann::json& j, const SkyboxRenderer& c);
-    friend void from_json(const nlohmann::json& j, SkyboxRenderer& c);
+    friend void to_json(nlohmann::json& _j, const SkyboxRenderer& _comp);
+    friend void from_json(const nlohmann::json& _j, SkyboxRenderer& _comp);
 
 public:
     SkyboxRenderer() : MeshRenderer() {}
@@ -78,7 +78,7 @@ public:
     }
 };
 
-void to_json(nlohmann::json& j, const SkyboxMaterial& c);
-void from_json(const nlohmann::json& j, SkyboxMaterial& c);
+void to_json(nlohmann::json& _j, const SkyboxMaterial& _comp);
+void from_json(const nlohmann::json& _j, SkyboxMaterial& _comp);
 
 } // namespace OriGine

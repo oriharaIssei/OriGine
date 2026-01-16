@@ -236,43 +236,43 @@ void TransformAnimation::RescaleDuration(float _newDuration) {
     duration_ = _newDuration;
 }
 
-void OriGine::to_json(nlohmann::json& _json, const TransformAnimation& _anim) {
-    _json["duration"]             = _anim.duration_;
-    _json["isLoop"]               = _anim.animationState_.isLoop_;
-    _json["isPlay"]               = _anim.animationState_.isPlay_;
-    _json["InterpolationType"]    = _anim.interpolationType_;
-    _json["targetTransformIndex"] = _anim.targetTransformIndex_;
+void OriGine::to_json(nlohmann::json& _j, const TransformAnimation& _comp) {
+    _j["duration"]             = _comp.duration_;
+    _j["isLoop"]               = _comp.animationState_.isLoop_;
+    _j["isPlay"]               = _comp.animationState_.isPlay_;
+    _j["InterpolationType"]    = _comp.interpolationType_;
+    _j["targetTransformIndex"] = _comp.targetTransformIndex_;
 
-    auto writeCurve = [&_json](const std::string& name, const auto& curve) {
+    auto writeCurve = [&_j](const std::string& _name, const auto& _curve) {
         nlohmann::json arr = nlohmann::json::array();
-        for (const auto& k : curve) {
+        for (const auto& k : _curve) {
             arr.push_back({{"time", k.time}, {"value", k.value}});
         }
-        _json[name] = arr;
+        _j[_name] = arr;
     };
 
-    writeCurve("scaleCurve", _anim.scaleCurve_);
-    writeCurve("rotateCurve", _anim.rotateCurve_);
-    writeCurve("translateCurve", _anim.translateCurve_);
+    writeCurve("scaleCurve", _comp.scaleCurve_);
+    writeCurve("rotateCurve", _comp.rotateCurve_);
+    writeCurve("translateCurve", _comp.translateCurve_);
 }
 
-void OriGine::from_json(const nlohmann::json& _json, TransformAnimation& _anim) {
-    _json.at("duration").get_to(_anim.duration_);
-    _json.at("isLoop").get_to(_anim.animationState_.isLoop_);
-    _json.at("isPlay").get_to(_anim.animationState_.isPlay_);
-    _json.at("InterpolationType").get_to(_anim.interpolationType_);
-    _json.at("targetTransformIndex").get_to(_anim.targetTransformIndex_);
+void OriGine::from_json(const nlohmann::json& _j, TransformAnimation& _comp) {
+    _j.at("duration").get_to(_comp.duration_);
+    _j.at("isLoop").get_to(_comp.animationState_.isLoop_);
+    _j.at("isPlay").get_to(_comp.animationState_.isPlay_);
+    _j.at("InterpolationType").get_to(_comp.interpolationType_);
+    _j.at("targetTransformIndex").get_to(_comp.targetTransformIndex_);
 
-    auto readCurve = [&_json](const std::string& name, auto& curve) {
-        for (const auto& k : _json.at(name)) {
-            typename std::remove_reference<decltype(curve)>::type::value_type key;
+    auto readCurve = [&_j](const std::string& _name, auto& _curve) {
+        for (const auto& k : _j.at(_name)) {
+            typename std::remove_reference<decltype(_curve)>::type::value_type key;
             k.at("time").get_to(key.time);
             k.at("value").get_to(key.value);
-            curve.push_back(key);
+            _curve.push_back(key);
         }
     };
 
-    readCurve("scaleCurve", _anim.scaleCurve_);
-    readCurve("rotateCurve", _anim.rotateCurve_);
-    readCurve("translateCurve", _anim.translateCurve_);
+    readCurve("scaleCurve", _comp.scaleCurve_);
+    readCurve("rotateCurve", _comp.rotateCurve_);
+    readCurve("translateCurve", _comp.translateCurve_);
 }

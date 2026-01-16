@@ -26,31 +26,31 @@ using namespace OriGine;
 /// ウィンドウメッセージプロシージャの実装.
 /// OS から通知される各種イベント (リサイズ、終了要求、システムコマンド等) をハンドリングする.
 /// </summary>
-LRESULT WinApp::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
+LRESULT WinApp::WindowProc(HWND _hwnd, UINT _msg, WPARAM _wparam, LPARAM _lparam) {
 #ifdef _DEBUG
     // ImGui の入力を優先的に処理
-    if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wparam, lparam)) {
+    if (ImGui_ImplWin32_WndProcHandler(_hwnd, _msg, _wparam, _lparam)) {
         return true;
     }
 #endif // _DEBUG
 
     // インスタンスポインタを取得
-    WinApp* pThis = reinterpret_cast<WinApp*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
+    WinApp* pThis = reinterpret_cast<WinApp*>(GetWindowLongPtr(_hwnd, GWLP_USERDATA));
 
     // ウィンドウイベントに対する処理の分岐
-    switch (msg) {
+    switch (_msg) {
     case WM_DESTROY: // ウィンドウの破棄
         PostQuitMessage(0); // OS にアプリケーション終了を通知
         return 0;
 
     case WM_SYSCOMMAND:
         // 最大化ボタン押下時にフルスクリーンモードに移行するカスタム挙動
-        if ((wparam & 0xFFF0) == SC_MAXIMIZE) {
+        if ((_wparam & 0xFFF0) == SC_MAXIMIZE) {
             if (pThis) {
                 pThis->ToggleFullscreen(true);
             }
             return 0;
-        } else if ((wparam & 0xFFF0) == SC_RESTORE) {
+        } else if ((_wparam & 0xFFF0) == SC_RESTORE) {
             // 元に戻すボタン押下時にフルスクリーンを解除
             if (pThis) {
                 pThis->ToggleFullscreen(false);
@@ -62,12 +62,12 @@ LRESULT WinApp::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
     case WM_SIZING: {
         // FIXED_ASPECT モード時、ドラッグ方向に応じてアスペクト比を維持するように矩形を補正
         if (pThis && pThis->windowResizeMode_ == WindowResizeMode::FIXED_ASPECT) {
-            RECT* rect   = reinterpret_cast<RECT*>(lparam);
+            RECT* rect   = reinterpret_cast<RECT*>(_lparam);
             int width    = rect->right - rect->left;
             int height   = rect->bottom - rect->top;
             float aspect = pThis->aspectRatio_;
 
-            switch (wparam) {
+            switch (_wparam) {
             case WMSZ_RIGHT: {
                 // 右端ドラッグ時
                 width        = rect->right - rect->left;
@@ -131,13 +131,13 @@ LRESULT WinApp::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
     }
     case WM_SIZE: {
         if (pThis == nullptr) {
-            return DefWindowProc(hwnd, msg, wparam, lparam); // デフォルトの処理
+            return DefWindowProc(_hwnd, _msg, _wparam, _lparam); // デフォルトの処理
         }
-        if (wparam != SIZE_MINIMIZED) {
+        if (_wparam != SIZE_MINIMIZED) {
             pThis->isReSized_ = true;
 
-            pThis->clientWidth_  = LOWORD(lparam);
-            pThis->clientHeight_ = HIWORD(lparam);
+            pThis->clientWidth_  = LOWORD(_lparam);
+            pThis->clientHeight_ = HIWORD(_lparam);
             pThis->windowSize_   = Vec2f(float(pThis->clientWidth_), float(pThis->clientHeight_));
         }
 
@@ -146,21 +146,21 @@ LRESULT WinApp::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
     case WM_SYSKEYDOWN:
     case WM_SYSKEYUP:
     case WM_KEYDOWN:
-        if (wparam == VK_F11 && pThis) {
+        if (_wparam == VK_F11 && pThis) {
             pThis->ToggleFullscreen(!pThis->isFullscreen_);
             return 0;
         }
     case WM_KEYUP:
     case WM_IME_KEYDOWN:
     case WM_IME_KEYUP:
-        if ((wparam == VK_MENU) || wparam == VK_F10) {
+        if ((_wparam == VK_MENU) || _wparam == VK_F10) {
             return 0;
         }
         break;
     default:
         break;
     }
-    return DefWindowProc(hwnd, msg, wparam, lparam); // デフォルトの処理
+    return DefWindowProc(_hwnd, _msg, _wparam, _lparam); // デフォルトの処理
 }
 
 WinApp::~WinApp() {
@@ -204,23 +204,23 @@ void WinApp::ToggleFullscreen(bool _enable) {
 /// ゲーム用ウィンドウを生成し、表示を開始する.
 /// COM の初期化、ウィンドウクラスの登録、CreateWindowAPI の呼び出しを実施する.
 /// </summary>
-void WinApp::CreateGameWindow(const wchar_t* title, UINT windowStyle, int32_t clientWidth, int32_t clientHeight) {
+void WinApp::CreateGameWindow(const wchar_t* _title, UINT _windowStyle, int32_t _clientWidth, int32_t _clientHeight) {
     // COM (Component Object Model) の初期化. DirectX や WIC 等で必要.
     CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 
-    wideWindowTitle_ = title;
-    windowStyle_     = windowStyle;
+    wideWindowTitle_ = _title;
+    windowStyle_     = _windowStyle;
 
-    clientWidth_  = clientWidth;
-    clientHeight_ = clientHeight;
-    windowSize_   = Vec2f(float(clientWidth_), float(clientHeight_));
+    clientWidth_  = _clientWidth;
+    clientHeight_ = _clientHeight;
+    windowSize_   = Vec2f(float(_clientWidth), float(_clientHeight));
     aspectRatio_  = windowSize_[X] / windowSize_[Y];
 
     // ウィンドウクラス (WNDCLASSEX) の構造体設定
     wndClass_                = std::make_unique<WNDCLASSEX>();
     wndClass_->cbSize        = sizeof(WNDCLASSEX);
     wndClass_->lpfnWndProc   = (WNDPROC)WindowProc; // コールバック関数の指定
-    wndClass_->lpszClassName = title; // 識別用のクラス名
+    wndClass_->lpszClassName = _title; // 識別用のクラス名
     wndClass_->hInstance     = GetModuleHandle(nullptr); // 実行インスタンス
     wndClass_->hCursor       = LoadCursor(NULL, IDC_ARROW); // デフォルトカーソル
 
@@ -228,14 +228,14 @@ void WinApp::CreateGameWindow(const wchar_t* title, UINT windowStyle, int32_t cl
     RegisterClassEx(wndClass_.get());
 
     // 指定したクライアント領域サイズから、枠を含めたウィンドウ矩形を計算
-    RECT wrc = {0, 0, clientWidth, clientHeight};
-    AdjustWindowRect(&wrc, windowStyle_, false);
+    RECT wrc = {0, 0, _clientWidth, _clientHeight};
+    AdjustWindowRect(&wrc, _windowStyle, false);
 
     // ウィンドウインスタンスの生成
     hwnd_ = CreateWindow(
         wndClass_->lpszClassName,
         wideWindowTitle_.c_str(),
-        windowStyle_,
+        _windowStyle,
         CW_USEDEFAULT, // 初期 X 座標
         CW_USEDEFAULT, // 初期 Y 座標
         wrc.right - wrc.left, // 計算された枠込みの幅
@@ -292,10 +292,10 @@ void WinApp::UpdateActivity() {
 /// 外部プロセスを実行し、その終了を待機するヘルパー関数.
 /// 標準出力と標準エラーをパイプ経由で取得し、必要に応じてログ出力等に利用可能.
 /// </summary>
-/// <param name="command">実行するコマンドライン文字列</param>
+/// <param name="_command">実行するコマンドライン文字列</param>
 /// <param name="_currentDirectory">プロセスの作業ディレクトリ (nullptr の場合はカレント)</param>
 /// <returns>プロセスの生成に成功した場合は true</returns>
-bool OriGine::RunProcessAndWait(const std::string& command, const char* _currentDirectory) {
+bool OriGine::RunProcessAndWait(const std::string& _command, const char* _currentDirectory) {
     std::string currentDirStr;
     if (!_currentDirectory) {
         std::filesystem::path current = std::filesystem::current_path();
@@ -325,8 +325,8 @@ bool OriGine::RunProcessAndWait(const std::string& command, const char* _current
 
     PROCESS_INFORMATION pi;
 
-    std::vector<char> cmdLine(command.size() + 1);
-    strcpy_s(cmdLine.data(), cmdLine.size(), command.c_str());
+    std::vector<char> cmdLine(_command.size() + 1);
+    strcpy_s(cmdLine.data(), cmdLine.size(), _command.c_str());
 
     // プロセスの生成
     if (!CreateProcessA(

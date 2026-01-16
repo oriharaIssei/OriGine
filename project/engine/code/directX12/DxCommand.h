@@ -31,17 +31,17 @@ public:
     /// コマンドリストとキューを初期化する.
     /// キーが既に存在する場合はそれを使用し、存在しない場合は作成する.
     /// </summary>
-    /// <param name="commandListKey">コマンドリストとアロケータを識別する一意のキー</param>
-    /// <param name="commandQueueKey">コマンドキューを識別する一意のキー</param>
-    void Initialize(const ::std::string& commandListKey, const ::std::string& commandQueueKey);
+    /// <param name="_commandListKey">コマンドリストとアロケータを識別する一意のキー</param>
+    /// <param name="_commandQueueKey">コマンドキューを識別する一意のキー</param>
+    void Initialize(const ::std::string& _commandListKey, const ::std::string& _commandQueueKey);
 
     /// <summary>
     /// リストタイプを指定してコマンドリストとキューを初期化する.
     /// </summary>
-    /// <param name="commandListKey">コマンドリストキー</param>
-    /// <param name="commandQueueKey">コマンドキューキー</param>
-    /// <param name="listType">D3D12_COMMAND_LIST_TYPE (DIRECT, COMPUTE, COPYなど)</param>
-    void Initialize(const ::std::string& commandListKey, const ::std::string& commandQueueKey, D3D12_COMMAND_LIST_TYPE listType);
+    /// <param name="_commandListKey">コマンドリストキー</param>
+    /// <param name="_commandQueueKey">コマンドキューキー</param>
+    /// <param name="_listType">D3D12_COMMAND_LIST_TYPE (DIRECT, COMPUTE, COPYなど)</param>
+    void Initialize(const ::std::string& _commandListKey, const ::std::string& _commandQueueKey, D3D12_COMMAND_LIST_TYPE _listType);
 
     /// <summary>
     /// 本インスタンスが保持するキー情報をクリアする（実際のコマンドリソースは ResetAll で破棄する）.
@@ -58,20 +58,20 @@ public:
     /// <summary>
     /// 指定されたキーでコマンドリストとアロケータのペアを作成し、静的マップに登録する.
     /// </summary>
-    /// <param name="device">D3D12デバイス</param>
-    /// <param name="listAndAllocatorKey">識別キー</param>
-    /// <param name="listType">コマンドリストの種類</param>
+    /// <param name="_device">D3D12デバイス</param>
+    /// <param name="_listAndAllocatorKey">識別キー</param>
+    /// <param name="_listType">コマンドリストの種類</param>
     /// <returns>成功した場合は true</returns>
-    static bool CreateCommandListWithAllocator(Microsoft::WRL::ComPtr<ID3D12Device> device, const ::std::string& listAndAllocatorKey, D3D12_COMMAND_LIST_TYPE listType);
+    static bool CreateCommandListWithAllocator(Microsoft::WRL::ComPtr<ID3D12Device> _device, const ::std::string& _listAndAllocatorKey, D3D12_COMMAND_LIST_TYPE _listType);
 
     /// <summary>
     /// 指定されたキーでコマンドキューを作成し、静的マップに登録する.
     /// </summary>
-    /// <param name="device">D3D12デバイス</param>
-    /// <param name="queueKey">識別キー</param>
-    /// <param name="desc">キューの設定情報</param>
+    /// <param name="_device">D3D12デバイス</param>
+    /// <param name="_queueKey">識別キー</param>
+    /// <param name="_desc">キューの設定情報</param>
     /// <returns>成功した場合は true</returns>
-    static bool CreateCommandQueue(Microsoft::WRL::ComPtr<ID3D12Device> device, const ::std::string& queueKey, D3D12_COMMAND_QUEUE_DESC desc);
+    static bool CreateCommandQueue(Microsoft::WRL::ComPtr<ID3D12Device> _device, const ::std::string& _queueKey, D3D12_COMMAND_QUEUE_DESC _desc);
 
 public:
     /// <summary>
@@ -99,16 +99,16 @@ public:
     /// <summary>
     /// リソースの状態遷移（バリア）を設定する. 内部のトラッカーで現在の状態を自動判別する.
     /// </summary>
-    /// <param name="resource">対象のリソース</param>
-    /// <param name="stateAfter">遷移後の状態</param>
-    void ResourceBarrier(Microsoft::WRL::ComPtr<ID3D12Resource> resource, D3D12_RESOURCE_STATES stateAfter);
+    /// <param name="_resource">対象のリソース</param>
+    /// <param name="_stateAfter">遷移後の状態</param>
+    void ResourceBarrier(Microsoft::WRL::ComPtr<ID3D12Resource> _resource, D3D12_RESOURCE_STATES _stateAfter);
 
     /// <summary>
     /// 指定されたバリア情報をコマンドリストに直接積む.
     /// </summary>
-    /// <param name="resource">対象のリソース</param>
-    /// <param name="barrier">設定するバリア構造体</param>
-    void ResourceDirectBarrier(Microsoft::WRL::ComPtr<ID3D12Resource> resource, D3D12_RESOURCE_BARRIER barrier);
+    /// <param name="_resource">対象のリソース</param>
+    /// <param name="_barrier">設定するバリア構造体</param>
+    void ResourceDirectBarrier(Microsoft::WRL::ComPtr<ID3D12Resource> _resource, D3D12_RESOURCE_BARRIER _barrier);
 
     /// <summary>
     /// コマンドリストの記録を終了する.
@@ -129,8 +129,8 @@ public:
     /// <summary>
     /// コマンドを実行し、スワップチェーンの画面転送を要求する.
     /// </summary>
-    /// <param name="swapChain">対象のスワップチェーン</param>
-    void ExecuteCommandAndPresent(IDXGISwapChain4* swapChain);
+    /// <param name="_swapChain">対象のスワップチェーン</param>
+    void ExecuteCommandAndPresent(IDXGISwapChain4* _swapChain);
 
     /// <summary>
     /// レンダーターゲットと深度バッファを指定した色/値でクリアする.

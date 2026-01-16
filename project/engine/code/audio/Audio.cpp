@@ -149,9 +149,9 @@ void Audio::Pause() {
     pSourceVoice_->Stop(0);
 }
 
-void Audio::Load(const std::string& fileName) {
-    fileName_        = fileName;
-    audioClip_.data_ = LoadWave(fileName_);
+void Audio::Load(const std::string& _fileName) {
+    fileName_        = _fileName;
+    audioClip_.data_ = LoadWave(_fileName);
 }
 
 bool Audio::isPlaying() const {
@@ -167,14 +167,14 @@ bool Audio::isPlaying() const {
     return state.BuffersQueued > 0;
 }
 
-void Audio::Initialize(Scene*, EntityHandle) {
+void Audio::Initialize(Scene* _scene, EntityHandle _entity) {
     // ファイル名が設定されていれば音声データを読み込む
     if (!fileName_.empty()) {
         audioClip_.data_ = LoadWave(fileName_);
     }
 };
 
-void Audio::Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, [[maybe_unused]] [[maybe_unused]] const std::string& _parentLabel) {
+void Audio::Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) {
 #ifdef _DEBUG
     std::string label = "LoadFile##" + _parentLabel;
     if (ImGui::Button(label.c_str())) {
@@ -213,10 +213,10 @@ void Audio::Finalize() {
     SoundUnLoad();
 }
 
-SoundData Audio::LoadWave(const std::string& fileName) {
-    std::ifstream file(fileName, std::ios::binary);
+SoundData Audio::LoadWave(const std::string& _fileName) {
+    std::ifstream file(_fileName, std::ios::binary);
     if (!file.is_open()) {
-        LOG_ERROR("Failed to open file: {}", fileName);
+        LOG_ERROR("Failed to open file: {}", _fileName);
         return {};
     }
 
@@ -280,16 +280,16 @@ void Audio::SoundUnLoad() {
     audioClip_.data_.wfex       = {};
 }
 
-void OriGine::to_json(nlohmann::json& j, const Audio& t) {
-    j["fileName"] = t.fileName_;
-    j["isLoop"]   = t.audioClip_.isLoop_;
-    j["volume"]   = t.audioClip_.volume_;
+void OriGine::to_json(nlohmann::json& _j, const Audio& _comp) {
+    _j["fileName"] = _comp.fileName_;
+    _j["isLoop"]   = _comp.audioClip_.isLoop_;
+    _j["volume"]   = _comp.audioClip_.volume_;
 }
 
-void OriGine::from_json(const nlohmann::json& j, Audio& t) {
-    j.at("fileName").get_to(t.fileName_);
-    j.at("isLoop").get_to(t.audioClip_.isLoop_);
-    j.at("volume").get_to(t.audioClip_.volume_);
+void OriGine::from_json(const nlohmann::json& _j, Audio& _comp) {
+    _j.at("fileName").get_to(_comp.fileName_);
+    _j.at("isLoop").get_to(_comp.audioClip_.isLoop_);
+    _j.at("volume").get_to(_comp.audioClip_.volume_);
 }
 
 #pragma endregion "Audio"

@@ -32,34 +32,34 @@ public:
 
     /// <summary>
     /// アニメーションの読み込み,作成
-    ///< param name="directory">ディレクトリ</param>
-    ///< param name="filename">ファイル名(format を つける .gltf)</param>
-    std::shared_ptr<AnimationData> Load(const std::string& directory, const std::string& filename);
+    /// <param name="_directory">ディレクトリ</param>
+    /// <param name="_filename">ファイル名(format を つける .gltf)</param>
+    std::shared_ptr<AnimationData> Load(const std::string& _directory, const std::string& _filename);
 
     /// <summary>
     /// アニメーションの保存
-    ///< param name="directory">ディレクトリ</param>
-    ///< param name="filename">ファイル名(format を つけない .anm 固定)</param>
-    void SaveAnimation(const std::string& directory, const std::string& filename, const AnimationData& animationData);
+    /// <param name="_directory">ディレクトリ</param>
+    /// <param name="_filename">ファイル名(format を つけない .anm 固定)</param>
+    void SaveAnimation(const std::string& _directory, const std::string& _filename, const AnimationData& _animationData);
 
-    int addAnimationData(const std::string& name, std::unique_ptr<AnimationData> animationData);
+    int addAnimationData(const std::string& _name, std::unique_ptr<AnimationData> _animationData);
 
 private:
     /// <summary>
     /// アニメーションデータの読み込み
-    ///< param name="directory">ディレクトリ</param>
-    ///< param name="filename">ファイル名(format を つける .gltf)</param>
-    AnimationData LoadAnimationData(const std::string& directory, const std::string& filename);
+    /// <param name="_directory">ディレクトリ</param>
+    /// <param name="_filename">ファイル名(format を つける .gltf)</param>
+    AnimationData LoadAnimationData(const std::string& _directory, const std::string& _filename);
     /// <summary>
     /// アニメーションデータの読み込み
-    ///< param name="directory">ディレクトリ</param>
-    ///< param name="filename">ファイル名(format は つけない .gltf固定)</param>
-    AnimationData LoadGltfAnimationData(const std::string& directory, const std::string& filename);
+    /// <param name="_directory">ディレクトリ</param>
+    /// <param name="_filename">ファイル名(format は つけない .gltf固定)</param>
+    AnimationData LoadGltfAnimationData(const std::string& _directory, const std::string& _filename);
     /// <summary>
     /// アニメーションデータの読み込み
-    ///< param name="directory">ディレクトリ</param>
-    ///< param name="filename">ファイル名(format を つけない .anm固定)</param>
-    AnimationData LoadMyAnimationData(const std::string& directory, const std::string& filename);
+    /// <param name="_directory">ディレクトリ</param>
+    /// <param name="_filename">ファイル名(format を つけない .anm固定)</param>
+    AnimationData LoadMyAnimationData(const std::string& _directory, const std::string& _filename);
 
 private:
     AnimationManager();
@@ -85,8 +85,8 @@ private:
     std::vector<std::shared_ptr<AnimationData>> animationData_;
 
 public:
-    const AnimationData* GetAnimationData(const std::string& name) const;
-    const AnimationData* GetAnimationData(int index) const { return animationData_[index].get(); }
+    const AnimationData* GetAnimationData(const std::string& _name) const;
+    const AnimationData* GetAnimationData(int _index) const { return animationData_[_index].get(); }
 };
 
 } // namespace OriGine

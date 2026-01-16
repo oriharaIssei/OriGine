@@ -11,28 +11,44 @@ namespace OriGine {
 /// Particle Transform コンポーネント
 /// </summary>
 struct ParticleTransform {
-    friend void to_json(nlohmann::json& j, const ParticleTransform& r);
-    friend void from_json(const nlohmann::json& j, ParticleTransform& r);
+    friend void to_json(nlohmann::json& _j, const ParticleTransform& _comp);
+    friend void from_json(const nlohmann::json& _j, ParticleTransform& _comp);
 
     ParticleTransform() = default;
 
     /// <summary>
     /// コピーコンストラクタ
     /// </summary>
-    /// <param name="other"></param>
-    ParticleTransform(const ParticleTransform& other) {
-        this->scale     = other.scale;
-        this->rotate    = other.rotate;
-        this->translate = other.translate;
+    /// <param name="_comp"></param>
+    ParticleTransform(const ParticleTransform& _comp) {
+        this->scale     = _comp.scale;
+        this->rotate    = _comp.rotate;
+        this->translate = _comp.translate;
 
-        this->uvScale     = other.uvScale;
-        this->uvRotate    = other.uvRotate;
-        this->uvTranslate = other.uvTranslate;
+        this->uvScale     = _comp.uvScale;
+        this->uvRotate    = _comp.uvRotate;
+        this->uvTranslate = _comp.uvTranslate;
 
-        color = other.color;
+        color = _comp.color;
 
         UpdateMatrix();
     }
+
+    ParticleTransform& operator=(const ParticleTransform& _comp) {
+        this->scale     = _comp.scale;
+        this->rotate    = _comp.rotate;
+        this->translate = _comp.translate;
+
+        this->uvScale     = _comp.uvScale;
+        this->uvRotate    = _comp.uvRotate;
+        this->uvTranslate = _comp.uvTranslate;
+
+        color = _comp.color;
+
+        UpdateMatrix();
+        return *this;
+    }
+
     ~ParticleTransform() = default;
 
     Vec3f scale, rotate, translate;
@@ -52,10 +68,10 @@ public:
         Matrix4x4 uvMat;
         Vec4f color;
 
-        ConstantBuffer& operator=(const ParticleTransform& transform) {
-            worldMat = transform.worldMat;
-            uvMat    = transform.uvMat;
-            color    = transform.color;
+        ConstantBuffer& operator=(const ParticleTransform& _comp) {
+            worldMat = _comp.worldMat;
+            uvMat    = _comp.uvMat;
+            color    = _comp.color;
             return *this;
         }
     };

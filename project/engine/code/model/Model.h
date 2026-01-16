@@ -129,9 +129,9 @@ public:
     struct ConstantBuffer {
         Vector4f weights;
         Vector4<int32_t> jointIndices;
-        ConstantBuffer& operator=(const VertexInfluence& influence) {
-            weights      = influence.weights;
-            jointIndices = influence.jointIndices;
+        ConstantBuffer& operator=(const VertexInfluence& _influence) {
+            weights      = _influence.weights;
+            jointIndices = _influence.jointIndices;
             return *this;
         }
     };
@@ -152,9 +152,9 @@ struct SkeletonMatrixWell {
         Matrix4x4 normalSpaceMat;
 
     public:
-        ConstantBuffer& operator=(const SkeletonMatrixWell& well) {
-            skeletonSpaceMat = well.skeletonSpaceMat;
-            normalSpaceMat   = well.skeletonSpaceInverseTransposeMat;
+        ConstantBuffer& operator=(const SkeletonMatrixWell& _well) {
+            skeletonSpaceMat = _well.skeletonSpaceMat;
+            normalSpaceMat   = _well.skeletonSpaceInverseTransposeMat;
             return *this;
         }
     };
@@ -170,8 +170,8 @@ struct SkinningInfo {
     /// <summary>GPU転送用の定数バッファ構造体</summary>
     struct ConstantBuffer {
         std::uint32_t vertexSize = 0;
-        ConstantBuffer& operator=(const SkinningInfo& info) {
-            vertexSize = info.vertexSize;
+        ConstantBuffer& operator=(const SkinningInfo& _info) {
+            vertexSize = _info.vertexSize;
             return *this;
         }
     };
@@ -237,27 +237,27 @@ struct Model {
     /// <summary>
     /// 指定したパーツのマテリアル情報を設定する.
     /// </summary>
-    /// <param name="part">メッシュのパーツインデックス</param>
+    /// <param name="_part">メッシュのパーツインデックス</param>
     /// <param name="_data">設定するマテリアルデータ</param>
-    void SetMaterialBuff(int32_t part, Material _data) {
-        materialData_[part].material.openData_ = _data;
+    void SetMaterialBuff(int32_t _part, Material _data) {
+        materialData_[_part].material.openData_ = _data;
     }
 
     /// <summary>
     /// 指定したパーツに使用するテクスチャをファイルからロードする.
     /// </summary>
-    /// <param name="part">メッシュのパーツインデックス</param>
+    /// <param name="_part">メッシュのパーツインデックス</param>
     /// <param name="_texturePath">テクスチャのパス</param>
-    void LoadTexture(int32_t part, const std::string& _texturePath);
+    void LoadTexture(int32_t _part, const std::string& _texturePath);
 
     /// <summary>
     /// 指定したパーツに使用するテクスチャを管理番号で直接設定する.
     /// </summary>
-    /// <param name="part">メッシュのパーツインデックス</param>
+    /// <param name="_part">メッシュのパーツインデックス</param>
     /// <param name="_textureNumber">テクスチャ管理番号</param>
-    void SetTexture(int32_t part, uint32_t _textureNumber) {
-        materialData_[part].texturePath   = "";
-        materialData_[part].textureNumber = _textureNumber;
+    void SetTexture(int32_t _part, uint32_t _textureNumber) {
+        materialData_[_part].texturePath   = "";
+        materialData_[_part].textureNumber = _textureNumber;
     }
 };
 

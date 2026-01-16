@@ -7,13 +7,13 @@
 
 using namespace OriGine;
 
-void MouseInput::Initialize(IDirectInput8* directInput, HWND hwnd) {
-    assert(directInput);
+void MouseInput::Initialize(IDirectInput8* _directInput, HWND _hwnd) {
+    assert(_directInput);
 
-    hwnd_ = hwnd;
+    hwnd_ = _hwnd;
 
     // マウスデバイスを作成
-    HRESULT hr = directInput->CreateDevice(GUID_SysMouse, &mouse_, nullptr);
+    HRESULT hr = _directInput->CreateDevice(GUID_SysMouse, &mouse_, nullptr);
     assert(SUCCEEDED(hr) && "Failed to create mouse device.");
 
     // データフォーマットを設定
@@ -21,7 +21,7 @@ void MouseInput::Initialize(IDirectInput8* directInput, HWND hwnd) {
     assert(SUCCEEDED(hr));
 
     // 協調レベル設定
-    hr = mouse_->SetCooperativeLevel(hwnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
+    hr = mouse_->SetCooperativeLevel(_hwnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
     assert(SUCCEEDED(hr));
 
     mouse_->Acquire();
@@ -29,7 +29,7 @@ void MouseInput::Initialize(IDirectInput8* directInput, HWND hwnd) {
     // 初期座標の取得
     POINT p;
     GetCursorPos(&p);
-    ScreenToClient(hwnd, &p);
+    ScreenToClient(_hwnd, &p);
     pos_     = Vec2f(static_cast<float>(p.x), static_cast<float>(p.y));
     prevPos_ = pos_;
 }
@@ -71,30 +71,30 @@ void MouseInput::Update() {
     currentWheelDelta_ = static_cast<int32_t>(current.lZ);
 }
 
-void MouseInput::SetPosition(const Vec2f& pos) {
+void MouseInput::SetPosition(const Vec2f& _pos) {
     if (mouse_) {
         POINT screenPos;
-        screenPos.x = static_cast<LONG>(pos[X]);
-        screenPos.y = static_cast<LONG>(pos[Y]);
+        screenPos.x = static_cast<LONG>(_pos[X]);
+        screenPos.y = static_cast<LONG>(_pos[Y]);
 
         ClientToScreen(hwnd_, &screenPos);
         SetCursorPos(screenPos.x, screenPos.y);
     }
 
-    pos_        = pos;
-    virtualPos_ = pos;
+    pos_        = _pos;
+    virtualPos_ = _pos;
 }
 
-void MouseInput::SetShowCursor(bool show) {
+void MouseInput::SetShowCursor(bool _show) {
     // カーソルの表示・非表示を切り替え
     if (!mouse_) {
         return;
     }
-    if (isCursorVisible_ == show) {
+    if (isCursorVisible_ == _show) {
         return;
     }
-    isCursorVisible_ = show;
-    ShowCursor(show);
+    isCursorVisible_ = _show;
+    ShowCursor(_show);
 }
 
 void MouseInput::Finalize() {

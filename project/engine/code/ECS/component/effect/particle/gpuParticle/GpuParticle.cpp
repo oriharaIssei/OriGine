@@ -17,7 +17,7 @@
 
 using namespace OriGine;
 
-void GpuParticleEmitter::Initialize(Scene* /*_scene,*/, EntityHandle /*_owner*/) {
+void GpuParticleEmitter::Initialize([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _owner) {
     Primitive::Plane plane;
     plane.CreateMesh(&mesh_);
 
@@ -30,7 +30,7 @@ void GpuParticleEmitter::Initialize(Scene* /*_scene,*/, EntityHandle /*_owner*/)
     }
 }
 
-void GpuParticleEmitter::Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, [[maybe_unused]] const std::string& _parentLabel) {
+void GpuParticleEmitter::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _owner, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     if (CheckBoxCommand("IsActive##" + _parentLabel, isActive_)) {
@@ -325,54 +325,54 @@ void GpuParticleEmitter::LoadTexture(const std::string& _path) {
     textureIndex_ = TextureManager::LoadTexture(texturePath_);
 }
 
-void OriGine::to_json(nlohmann::json& j, const GpuParticleEmitter& p) {
-    j = nlohmann::json{
-        {"isActive", p.isActive_},
-        {"particleSize", p.shapeBuffer_->particleSize},
-        {"texturePath", p.texturePath_},
-        {"Material", p.materialBuffer_.openData_},
-        {"center", p.shapeBuffer_->center},
-        {"size", p.shapeBuffer_->size},
-        {"frequencyTime", p.shapeBuffer_->frequencyTime},
-        {"emitMinParticleCount", p.shapeBuffer_->minParticleCount},
-        {"emitMaxParticleCount", p.shapeBuffer_->maxParticleCount},
-        {"minLifeParticleTime", p.shapeBuffer_->minLifeParticleTime},
-        {"maxLifeParticleTime", p.shapeBuffer_->maxLifeParticleTime},
-        {"minVelocity", p.shapeBuffer_->minVelocity},
-        {"maxVelocity", p.shapeBuffer_->maxVelocity},
-        {"minScale", p.shapeBuffer_->minScale},
-        {"maxScale", p.shapeBuffer_->maxScale},
-        {"minColor", p.shapeBuffer_->minColor},
-        {"maxColor", p.shapeBuffer_->maxColor},
-        {"isBox", p.shapeBuffer_->isBox},
-        {"isEmitEdge", p.shapeBuffer_->isEmitEdge},
-        {"blendMode", static_cast<int>(p.blendMode_)},
+void OriGine::to_json(nlohmann::json& _j, const GpuParticleEmitter& _comp) {
+    _j = nlohmann::json{
+        {"isActive", _comp.isActive_},
+        {"particleSize", _comp.shapeBuffer_->particleSize},
+        {"texturePath", _comp.texturePath_},
+        {"Material", _comp.materialBuffer_.openData_},
+        {"center", _comp.shapeBuffer_->center},
+        {"size", _comp.shapeBuffer_->size},
+        {"frequencyTime", _comp.shapeBuffer_->frequencyTime},
+        {"emitMinParticleCount", _comp.shapeBuffer_->minParticleCount},
+        {"emitMaxParticleCount", _comp.shapeBuffer_->maxParticleCount},
+        {"minLifeParticleTime", _comp.shapeBuffer_->minLifeParticleTime},
+        {"maxLifeParticleTime", _comp.shapeBuffer_->maxLifeParticleTime},
+        {"minVelocity", _comp.shapeBuffer_->minVelocity},
+        {"maxVelocity", _comp.shapeBuffer_->maxVelocity},
+        {"minScale", _comp.shapeBuffer_->minScale},
+        {"maxScale", _comp.shapeBuffer_->maxScale},
+        {"minColor", _comp.shapeBuffer_->minColor},
+        {"maxColor", _comp.shapeBuffer_->maxColor},
+        {"isBox", _comp.shapeBuffer_->isBox},
+        {"isEmitEdge", _comp.shapeBuffer_->isEmitEdge},
+        {"blendMode", static_cast<int>(_comp.blendMode_)},
     };
 }
 
-void OriGine::from_json(const nlohmann::json& j, GpuParticleEmitter& p) {
-    j.at("isActive").get_to(p.isActive_);
-    j.at("particleSize").get_to(p.shapeBuffer_->particleSize);
-    j.at("texturePath").get_to(p.texturePath_);
+void OriGine::from_json(const nlohmann::json& _j, GpuParticleEmitter& _comp) {
+    _j.at("isActive").get_to(_comp.isActive_);
+    _j.at("particleSize").get_to(_comp.shapeBuffer_->particleSize);
+    _j.at("texturePath").get_to(_comp.texturePath_);
 
-    j.at("Material").get_to(p.materialBuffer_.openData_);
+    _j.at("Material").get_to(_comp.materialBuffer_.openData_);
 
-    j.at("center").get_to(p.shapeBuffer_->center);
-    j.at("size").get_to(p.shapeBuffer_->size);
-    j.at("frequencyTime").get_to(p.shapeBuffer_->frequencyTime);
-    j.at("emitMinParticleCount").get_to(p.shapeBuffer_->minParticleCount);
-    j.at("emitMaxParticleCount").get_to(p.shapeBuffer_->maxParticleCount);
-    j.at("minLifeParticleTime").get_to(p.shapeBuffer_->minLifeParticleTime);
-    j.at("maxLifeParticleTime").get_to(p.shapeBuffer_->maxLifeParticleTime);
-    j.at("minVelocity").get_to(p.shapeBuffer_->minVelocity);
-    j.at("maxVelocity").get_to(p.shapeBuffer_->maxVelocity);
-    j.at("minScale").get_to(p.shapeBuffer_->minScale);
-    j.at("maxScale").get_to(p.shapeBuffer_->maxScale);
-    j.at("minColor").get_to(p.shapeBuffer_->minColor);
-    j.at("maxColor").get_to(p.shapeBuffer_->maxColor);
-    j.at("isBox").get_to(p.shapeBuffer_->isBox);
+    _j.at("center").get_to(_comp.shapeBuffer_->center);
+    _j.at("size").get_to(_comp.shapeBuffer_->size);
+    _j.at("frequencyTime").get_to(_comp.shapeBuffer_->frequencyTime);
+    _j.at("emitMinParticleCount").get_to(_comp.shapeBuffer_->minParticleCount);
+    _j.at("emitMaxParticleCount").get_to(_comp.shapeBuffer_->maxParticleCount);
+    _j.at("minLifeParticleTime").get_to(_comp.shapeBuffer_->minLifeParticleTime);
+    _j.at("maxLifeParticleTime").get_to(_comp.shapeBuffer_->maxLifeParticleTime);
+    _j.at("minVelocity").get_to(_comp.shapeBuffer_->minVelocity);
+    _j.at("maxVelocity").get_to(_comp.shapeBuffer_->maxVelocity);
+    _j.at("minScale").get_to(_comp.shapeBuffer_->minScale);
+    _j.at("maxScale").get_to(_comp.shapeBuffer_->maxScale);
+    _j.at("minColor").get_to(_comp.shapeBuffer_->minColor);
+    _j.at("maxColor").get_to(_comp.shapeBuffer_->maxColor);
+    _j.at("isBox").get_to(_comp.shapeBuffer_->isBox);
 
     int blendModeInt = 0;
-    j.at("blendMode").get_to(blendModeInt);
-    p.blendMode_ = static_cast<BlendMode>(blendModeInt);
+    _j.at("blendMode").get_to(blendModeInt);
+    _comp.blendMode_ = static_cast<BlendMode>(blendModeInt);
 }

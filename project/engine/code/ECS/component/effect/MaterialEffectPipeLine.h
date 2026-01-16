@@ -34,8 +34,8 @@ static const std::array<std::string, static_cast<int32_t>(MaterialEffectType::Co
 /// </summary>
 class MaterialEffectPipeLine
     : public IComponent {
-    friend void to_json(nlohmann::json& j, const MaterialEffectPipeLine& c);
-    friend void from_json(const nlohmann::json& j, MaterialEffectPipeLine& c);
+    friend void to_json(nlohmann::json& _j, const MaterialEffectPipeLine& _comp);
+    friend void from_json(const nlohmann::json& _j, MaterialEffectPipeLine& _comp);
 
 public:
     MaterialEffectPipeLine();
@@ -75,12 +75,12 @@ private:
 
 public:
     int32_t GetPriority() const { return priority_; }
-    void SetPriority(int32_t priority) { priority_ = priority; }
+    void SetPriority(int32_t _priority) { priority_ = _priority; }
     bool IsActive() const { return isActive_; }
-    void SetActive(bool active) { isActive_ = active; }
+    void SetActive(bool _active) { isActive_ = _active; }
 
     int32_t GetMaterialIndex() const { return materialIndex_; }
-    void SetMaterialIndex(int32_t index) { materialIndex_ = index; }
+    void SetMaterialIndex(int32_t _index) { materialIndex_ = _index; }
 
     int32_t GetBaseTextureId() const { return baseTextureId_; }
     const std::vector<EffectEntityData>& GetEffectEntityIdList() const { return effectEntityData_; }

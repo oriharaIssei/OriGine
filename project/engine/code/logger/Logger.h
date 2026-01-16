@@ -68,38 +68,38 @@ private:
     /// <summary>
     /// TRACE レベルのログを直接書き込む. (通常はマクロ経由で使用)
     /// </summary>
-    static void DirectTrace(const ::std::string& message, const char* file, const char* function, int line);
+    static void DirectTrace(const ::std::string& _message, const char* _file, const char* _function, int _line);
 
     /// <summary>
     /// INFO レベルのログを直接書き込む.
     /// </summary>
-    static void DirectInfo(const ::std::string& message, const char* file, const char* function, int line);
+    static void DirectInfo(const ::std::string& _message, const char* _file, const char* _function, int _line);
 
     /// <summary>
-    /// DEBUG レベルのログを直接書き込む.
+    /// DEBUG レベルেরログを直接書き込む.
     /// </summary>
-    static void DirectDebug(const ::std::string& message, const char* file, const char* function, int line);
+    static void DirectDebug(const ::std::string& _message, const char* _file, const char* _function, int _line);
 
     /// <summary>
     /// WARN レベルのログを直接書き込む.
     /// </summary>
-    static void DirectWarn(const ::std::string& message, const char* file, const char* function, int line);
+    static void DirectWarn(const ::std::string& _message, const char* _file, const char* _function, int _line);
     /// <summary>
     /// フォーマット済みメッセージを直接ログ出力する関数群
     /// </summary>
-    /// <param name="message"></param>
-    /// <param name="file"></param>
-    /// <param name="function"></param>
-    /// <param name="line"></param>
-    static void DirectError(const ::std::string& message, const char* file, const char* function, int line);
+    /// <param name="_message"></param>
+    /// <param name="_file"></param>
+    /// <param name="_function"></param>
+    /// <param name="_line"></param>
+    static void DirectError(const ::std::string& _message, const char* _file, const char* _function, int _line);
     /// <summary>
     /// フォーマット済みメッセージを直接ログ出力する関数群
     /// </summary>
-    /// <param name="message"></param>
-    /// <param name="file"></param>
-    /// <param name="function"></param>
-    /// <param name="line"></param>
-    static void DirectCritical(const ::std::string& message, const char* file, const char* function, int line);
+    /// <param name="_message"></param>
+    /// <param name="_file"></param>
+    /// <param name="_function"></param>
+    /// <param name="_line"></param>
+    static void DirectCritical(const ::std::string& _message, const char* _file, const char* _function, int _line);
 
 public:
     /// <summary>
@@ -107,45 +107,45 @@ public:
     /// ファイル名、関数名、行番号を自動的に付加する.
     /// </summary>
     template <typename... Args>
-    static void Trace(const char* file, const char* function, int line, std::string_view fmt, Args&&... args) {
-        auto msg = std::vformat(fmt, std::make_format_args(args...));
-        DirectTrace(msg, file, function, line);
+    static void Trace(const char* _file, const char* _function, int _line, std::string_view _fmt, Args&&... _args) {
+        auto msg = std::vformat(_fmt, std::make_format_args(_args...));
+        DirectTrace(msg, _file, _function, _line);
     }
 
     /// <summary>
     /// std::format 形式の文字列を受け取り、INFO レベルでログを出力する.
     /// </summary>
     template <typename... Args>
-    static void Info(const char* file, const char* function, int line, std::string_view fmt, Args&&... args) {
-        auto msg = std::vformat(fmt, std::make_format_args(args...));
-        DirectInfo(msg, file, function, line);
+    static void Info(const char* _file, const char* _function, int _line, std::string_view _fmt, Args&&... _args) {
+        auto msg = std::vformat(_fmt, std::make_format_args(_args...));
+        DirectInfo(msg, _file, _function, _line);
     }
 
     /// <summary>
     /// std::format 形式の文字列を受け取り、DEBUG レベルでログを出力する.
     /// </summary>
     template <typename... Args>
-    static void Debug(const char* file, const char* function, int line, std::string_view fmt, Args&&... args) {
-        auto msg = std::vformat(fmt, std::make_format_args(args...));
-        DirectDebug(msg, file, function, line);
+    static void Debug(const char* _file, const char* _function, int _line, std::string_view _fmt, Args&&... _args) {
+        auto msg = std::vformat(_fmt, std::make_format_args(_args...));
+        DirectDebug(msg, _file, _function, _line);
     }
 
     /// <summary>
     /// std::format 形式の文字列を受け取り、WARN レベルでログを出力する.
     /// </summary>
     template <typename... Args>
-    static void Warn(const char* file, const char* function, int line, std::string_view fmt, Args&&... args) {
-        auto msg = std::vformat(fmt, std::make_format_args(args...));
-        DirectWarn(msg, file, function, line);
+    static void Warn(const char* _file, const char* _function, int _line, std::string_view _fmt, Args&&... _args) {
+        auto msg = std::vformat(_fmt, std::make_format_args(_args...));
+        DirectWarn(msg, _file, _function, _line);
     }
 
     /// <summary>
     /// std::format 形式の文字列を受け取り、ERROR レベルでログを出力する.
     /// </summary>
     template <typename... Args>
-    static void Error(const char* file, const char* function, int line, std::string_view fmt, Args&&... args) {
-        auto msg = std::vformat(fmt, std::make_format_args(args...));
-        DirectError(msg, file, function, line);
+    static void Error(const char* _file, const char* _function, int _line, std::string_view _fmt, Args&&... _args) {
+        auto msg = std::vformat(_fmt, std::make_format_args(_args...));
+        DirectError(msg, _file, _function, _line);
     }
 
     /// <summary>
@@ -153,15 +153,15 @@ public:
     /// エンジンの中断を伴うような致命的なエラー時に使用する.
     /// </summary>
     template <typename... Args>
-    static void Critical(const char* file, const char* function, int line, std::string_view fmt, Args&&... args) {
-        auto msg = std::vformat(fmt, std::make_format_args(args...));
-        DirectCritical(msg, file, function, line);
+    static void Critical(const char* _file, const char* _function, int _line, std::string_view _fmt, Args&&... _args) {
+        auto msg = std::vformat(_fmt, std::make_format_args(_args...));
+        DirectCritical(msg, _file, _function, _line);
     }
 
     /// <summary>
     /// DirectX12 のデバッグレイヤーが保持しているメッセージを取得し、ログとして出力する.
     /// </summary>
-    static void DirectXLog(const char* file, const char* function, int line);
+    static void DirectXLog(const char* _file, const char* _function, int _line);
 
 private:
     static ::std::shared_ptr<spdlog::logger> logger_; // コアとなる spdlog ロガー

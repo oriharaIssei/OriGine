@@ -3,19 +3,19 @@
 /// <summary>
 /// エンティティハンドルのシリアライズ
 /// </summary>
-void OriGine::to_json(nlohmann::json& j, const EntityHandle& handle) {
-    j["uuid"] = uuids::to_string(handle.uuid);
+void OriGine::to_json(nlohmann::json& _j, const EntityHandle& _handle) {
+    _j["uuid"] = uuids::to_string(_handle.uuid);
 }
 
 /// <summary>
 /// エンティティハンドルのデシリアライズ
 /// </summary>
-void OriGine::from_json(const nlohmann::json& j, EntityHandle& handle) {
+void OriGine::from_json(const nlohmann::json& _j, EntityHandle& _handle) {
     std::string uuidStr;
-    j.at("uuid").get_to(uuidStr);
+    _j.at("uuid").get_to(uuidStr);
 
     auto uuid = uuids::uuid::from_string(uuidStr);
     if (uuid.has_value()) {
-        handle.uuid = uuid.value();
+        _handle.uuid = uuid.value();
     }
 }

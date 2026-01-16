@@ -27,13 +27,13 @@ using namespace OriGine;
 MaterialEffectPipeLine::MaterialEffectPipeLine() {}
 MaterialEffectPipeLine::~MaterialEffectPipeLine() {}
 
-void MaterialEffectPipeLine::Initialize(Scene* /*_scene,*/, EntityHandle /*_owner*/) {
+void MaterialEffectPipeLine::Initialize(Scene* /*_scene*/, EntityHandle /*_owner*/) {
     if (!baseTexturePath_.empty()) {
         LoadBaseTexture(baseTexturePath_);
     }
 }
 
-void MaterialEffectPipeLine::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _handle, [[maybe_unused]] const std::string& _parentLabel) {
+void MaterialEffectPipeLine::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _entity, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
     auto askLoadTexture = [this]([[maybe_unused]] const std::string& _parentLabel) {
@@ -63,7 +63,7 @@ void MaterialEffectPipeLine::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused
     };
 
     std::string label          = "MaterialIndex##" + _parentLabel;
-    auto& materials            = _scene->GetComponents<Material>(_handle);
+    auto& materials            = _scene->GetComponents<Material>(_entity);
     int32_t entityMaterialSize = static_cast<int32_t>(materials.size());
 
     if (entityMaterialSize <= 0) {
@@ -75,7 +75,7 @@ void MaterialEffectPipeLine::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused
     label = "Material##" + _parentLabel;
     if (ImGui::TreeNode(label.c_str())) {
         if (materialIndex_ >= 0 && materialIndex_ < materials.size()) {
-            materials[materialIndex_].Edit(_scene, _handle, label);
+            materials[materialIndex_].Edit(_scene, _entity, label);
         } else {
             ImGui::Text("Material is null.");
         }
@@ -185,35 +185,35 @@ void MaterialEffectPipeLine::LoadBaseTexture(const std::string& _path) {
     baseTextureId_   = TextureManager::LoadTexture(baseTexturePath_);
 }
 
-void OriGine::to_json(nlohmann::json& j, const MaterialEffectPipeLine& c) {
-    j["baseTexturePath"] = c.baseTexturePath_;
-    j["isActive"]        = c.isActive_;
-    j["priority"]        = c.priority_;
-    j["materialIndex"]   = c.materialIndex_;
+void OriGine::to_json(nlohmann::json& _j, const MaterialEffectPipeLine& _comp) {
+    _j["baseTexturePath"] = _comp.baseTexturePath_;
+    _j["isActive"]        = _comp.isActive_;
+    _j["priority"]        = _comp.priority_;
+    _j["materialIndex"]   = _comp.materialIndex_;
 
     nlohmann::json effectList = nlohmann::json::array();
-    for (const auto& effectData : c.effectEntityData_) {
+    for (const auto& effectData : _comp.effectEntityData_) {
         nlohmann::json effectJson;
         effectJson["effectType"] = static_cast<int>(effectData.effectType);
         effectJson["handle"]     = effectData.entityHandle;
         effectList.push_back(effectJson);
     }
-    j["effectEntityIdList"] = effectList;
+    _j["effectEntityIdList"] = effectList;
 }
 
-void OriGine::from_json(const nlohmann::json& j, MaterialEffectPipeLine& c) {
-    j.at("baseTexturePath").get_to(c.baseTexturePath_);
+void OriGine::from_json(const nlohmann::json& _j, MaterialEffectPipeLine& _comp) {
+    _j.at("baseTexturePath").get_to(_comp.baseTexturePath_);
 
-    j.at("isActive").get_to(c.isActive_);
-    if (j.contains("priority")) {
-        j.at("priority").get_to(c.priority_);
+    _j.at("isActive").get_to(_comp.isActive_);
+    if (_j.contains("priority")) {
+        _j.at("priority").get_to(_comp.priority_);
     }
 
-    j.at("materialIndex").get_to(c.materialIndex_);
+    _j.at("materialIndex").get_to(_comp.materialIndex_);
 
-    c.effectEntityData_.clear();
-    if (j.contains("effectEntityIdList")) {
-        for (const auto& effectJson : j.at("effectEntityIdList")) {
+    _comp.effectEntityData_.clear();
+    if (_j.contains("effectEntityIdList")) {
+        for (const auto& effectJson : _j.at("effectEntityIdList")) {
             MaterialEffectPipeLine::EffectEntityData entData;
             if (effectJson.contains("effectType")) {
                 int effectTypeInt = 0;
@@ -223,7 +223,7 @@ void OriGine::from_json(const nlohmann::json& j, MaterialEffectPipeLine& c) {
             if (effectJson.contains("handle")) {
                 effectJson.at("handle").get_to(entData.entityHandle);
             }
-            c.effectEntityData_.push_back(entData);
+            _comp.effectEntityData_.push_back(entData);
         }
     }
 }

@@ -1,11 +1,8 @@
 #pragma once
 #include "component/IComponent.h"
 
-/// engine
-// DirectX12
 #include "directX12/buffer/IConstantBuffer.h"
 
-/// math
 #include "Vector4.h"
 
 namespace OriGine {
@@ -42,14 +39,14 @@ public:
 /// </summary>
 class VignetteParam
     : public IComponent {
-    friend void to_json(nlohmann::json& j, const VignetteParam& p);
-    friend void from_json(const nlohmann::json& j, VignetteParam& p);
+    friend void to_json(nlohmann::json& _j, const VignetteParam& _comp);
+    friend void from_json(const nlohmann::json& _j, VignetteParam& _comp);
 
 public:
     VignetteParam()           = default;
     ~VignetteParam() override = default;
 
-    void Initialize(OriGine::Scene* _scene, OriGine::EntityHandle _owner)override;
+    void Initialize(OriGine::Scene* _scene, OriGine::EntityHandle _owner) override;
 
     void Edit(Scene* _scene, EntityHandle _owner, const std::string& _parentLabel) override;
     void Finalize() override;
