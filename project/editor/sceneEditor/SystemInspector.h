@@ -3,7 +3,6 @@
 #ifdef _DEBUG
 
 #include "editor/IEditor.h"
-class SceneEditorWindow;
 
 /// ECS
 // system

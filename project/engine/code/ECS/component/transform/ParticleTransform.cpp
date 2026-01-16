@@ -2,13 +2,13 @@
 
 using namespace OriGine;
 
-void ParticleTransform::UpdateMatrix(){
-	worldMat = MakeMatrix4x4::Affine(scale,rotate,translate);
-	uvMat    = MakeMatrix4x4::Affine(uvScale,uvRotate,uvTranslate);
+void ParticleTransform::UpdateMatrix() {
+    worldMat = MakeMatrix4x4::Affine(scale, rotate, translate);
+    uvMat    = MakeMatrix4x4::Affine(uvScale, uvRotate, uvTranslate);
 
-	if(parentWorldMat){
+    if (parentWorldMat) {
         worldMat *= *parentWorldMat;
-	}
+    }
 }
 
 void OriGine::to_json(nlohmann::json& _j, const ParticleTransform& _comp) {

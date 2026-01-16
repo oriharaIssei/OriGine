@@ -160,6 +160,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="editor\sceneEditor\DevelopControlArea.h" />
+    <ClInclude Include="editor\sceneEditor\HierarchyArea.h" />
+    <ClInclude Include="editor\sceneEditor\SceneEditorMenus.h" />
+    <ClInclude Include="editor\sceneEditor\SceneViewArea.h" />
     <ClInclude Include="engine\code\directX12\buffer\AppendBuffer.h" />
     <ClInclude Include="engine\code\directX12\buffer\ConceptHasBuffer.h" />
     <ClInclude Include="engine\code\directX12\buffer\RwStructuredBuffer.h" />
@@ -379,6 +383,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="util\timeline\Timeline.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="editor\sceneEditor\DevelopControlArea.cpp" />
+    <ClCompile Include="editor\sceneEditor\HierarchyArea.cpp" />
+    <ClCompile Include="editor\sceneEditor\SceneEditorMenus.cpp" />
+    <ClCompile Include="editor\sceneEditor\SceneViewArea.cpp" />
     <ClCompile Include="engine\code\directX12\raytracing\BottomLevelAccelerationStructure.cpp" />
     <ClCompile Include="editor\EditorController.cpp" />
     <ClCompile Include="editor\IEditor.cpp" />

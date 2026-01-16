@@ -2,8 +2,12 @@
 
 #ifdef _DEBUG
 
+/// engine
+#include "scene/Scene.h"
+
 /// ECS
 // system
+#include "system/ISystem.h"
 #include "system/SystemRegistry.h"
 #include "system/SystemRunner.h"
 
@@ -27,9 +31,14 @@ void SystemInspectorArea::Initialize() {
     // 全てのシステムを取得して、カテゴリごとに分類し、 local(systemMap_)に格納する
     auto& allSystems = SystemRegistry::GetInstance()->GetSystemsRef();
     for (auto& [name, createSystemFunc] : allSystems) {
-        auto createdSystem = createSystemFunc(scene);
-        int32_t category   = static_cast<int32_t>(createdSystem->GetCategory());
-        systemMap_[category].emplace_back(std::make_pair<>(name, 0));
+        std::shared_ptr<ISystem> createdSystem;
+        if (createSystemFunc) {
+            createdSystem = createSystemFunc(scene);
+            if (createdSystem) {
+                int32_t category = static_cast<int32_t>(createdSystem->GetCategory());
+                systemMap_[category].emplace_back(std::make_pair<>(name, 0));
+            }
+        }
     }
 
     // 各カテゴリ内で優先順位の昇順にソート
@@ -50,8 +59,8 @@ void SystemInspectorArea::DrawGui() {
         areaSize_ = ImGui::GetContentRegionAvail();
         ImGui::Text("System Inspector Area");
         ImGui::Separator();
-        auto currentScene = parentWindow_->GetCurrentScene();
 
+        Scene* currentScene = parentWindow_->GetCurrentScene();
         if (!currentScene) {
             ImGui::Text("No current scene found.");
             ImGui::End();
@@ -169,7 +178,7 @@ void SystemInspectorArea::Finalize() {
 }
 
 void SystemInspectorArea::SystemGui(const std::string& _systemName, int32_t& _priority) {
-    auto currentScene = parentWindow_->GetCurrentScene();
+    Scene* currentScene = parentWindow_->GetCurrentScene();
     if (!currentScene) {
         LOG_ERROR("SystemInspectorArea::SystemGui: No current scene found.");
         return;
@@ -283,7 +292,7 @@ SystemInspectorArea::ChangeSystemActivity::ChangeSystemActivity(
       newActivity_(_newActivity) {}
 
 void SystemInspectorArea::ChangeSystemActivity::Execute() {
-    auto currentScene = inspectorArea_->GetParentWindow()->GetCurrentScene();
+    Scene* currentScene = inspectorArea_->GetParentWindow()->GetCurrentScene();
     if (!currentScene) {
         LOG_ERROR("ChangeSystemActivity::Execute: No current scene found.");
         return;
@@ -297,7 +306,7 @@ void SystemInspectorArea::ChangeSystemActivity::Execute() {
 }
 
 void SystemInspectorArea::ChangeSystemActivity::Undo() {
-    auto currentScene = inspectorArea_->GetParentWindow()->GetCurrentScene();
+    Scene* currentScene = inspectorArea_->GetParentWindow()->GetCurrentScene();
     if (!currentScene) {
         LOG_ERROR("ChangeSystemActivity::Undo: No current scene found.");
         return;
@@ -335,7 +344,7 @@ SystemInspectorArea::ChangeSystemCategoryActivity::ChangeSystemCategoryActivity(
 SystemInspectorArea::ChangeSystemCategoryActivity::~ChangeSystemCategoryActivity() {}
 
 void SystemInspectorArea::ChangeSystemCategoryActivity::Execute() {
-    auto currentScene = inspectorArea_->GetParentWindow()->GetCurrentScene();
+    Scene* currentScene = inspectorArea_->GetParentWindow()->GetCurrentScene();
     if (!currentScene) {
         LOG_ERROR("ChangeSystemCategoryActivity::Execute: No current scene found.");
         return;
@@ -349,7 +358,7 @@ void SystemInspectorArea::ChangeSystemCategoryActivity::Execute() {
 }
 
 void SystemInspectorArea::ChangeSystemCategoryActivity::Undo() {
-    auto currentScene = inspectorArea_->GetParentWindow()->GetCurrentScene();
+    Scene* currentScene = inspectorArea_->GetParentWindow()->GetCurrentScene();
     if (!currentScene) {
         LOG_ERROR("ChangeSystemCategoryActivity::Undo: No current scene found.");
         return;

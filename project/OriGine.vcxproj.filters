@@ -806,6 +806,10 @@
     <ClInclude Include="util\deltaTime\DeltaTimer.h" />
     <ClInclude Include="editor\tool\ObjectPicker.h" />
     <ClInclude Include="engine\code\directX12\buffer\RwStructuredBuffer.h" />
+    <ClInclude Include="editor\sceneEditor\SceneEditorMenus.h" />
+    <ClInclude Include="editor\sceneEditor\SceneViewArea.h" />
+    <ClInclude Include="editor\sceneEditor\HierarchyArea.h" />
+    <ClInclude Include="editor\sceneEditor\DevelopControlArea.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="editor\EditorController.cpp">
@@ -1322,5 +1326,9 @@
     <ClCompile Include="engine\code\ECS\system\render\LightDebugRenderingSystem.cpp" />
     <ClCompile Include="util\deltaTime\DeltaTimer.cpp" />
     <ClCompile Include="editor\tool\ObjectPicker.cpp" />
+    <ClCompile Include="editor\sceneEditor\SceneEditorMenus.cpp" />
+    <ClCompile Include="editor\sceneEditor\SceneViewArea.cpp" />
+    <ClCompile Include="editor\sceneEditor\HierarchyArea.cpp" />
+    <ClCompile Include="editor\sceneEditor\DevelopControlArea.cpp" />
   </ItemGroup>
 </Project>
