@@ -810,6 +810,8 @@
     <ClInclude Include="editor\sceneEditor\SceneViewArea.h" />
     <ClInclude Include="editor\sceneEditor\HierarchyArea.h" />
     <ClInclude Include="editor\sceneEditor\DevelopControlArea.h" />
+    <ClInclude Include="engine\code\ECS\component\effect\post\OutlineComponent.h" />
+    <ClInclude Include="engine\code\ECS\system\postRender\OutlineRenderSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="editor\EditorController.cpp">
@@ -1330,5 +1332,7 @@
     <ClCompile Include="editor\sceneEditor\SceneViewArea.cpp" />
     <ClCompile Include="editor\sceneEditor\HierarchyArea.cpp" />
     <ClCompile Include="editor\sceneEditor\DevelopControlArea.cpp" />
+    <ClCompile Include="engine\code\ECS\component\effect\post\OutlineComponent.cpp" />
+    <ClCompile Include="engine\code\ECS\system\postRender\OutlineRenderSystem.cpp" />
   </ItemGroup>
 </Project>
