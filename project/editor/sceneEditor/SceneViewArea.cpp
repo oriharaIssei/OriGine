@@ -77,10 +77,13 @@ void SceneViewArea::DrawGui() {
         mouseInput->SetVirtualPosition(gamePos);
 
         if (isFocused_.Current()) {
+            // guizmoは常に操作可能にしておく
+            // guizmoを使用していない時に、他のツール操作を判定する
+            UseImGuizmo(imageLeftTop);
+
             switch (DetermineInteractionType()) {
-            case ToolInteractionType::Gizmo: {
-                UseImGuizmo(imageLeftTop);
-            } break;
+            case ToolInteractionType::Gizmo:
+                break;
             case ToolInteractionType::Camera:
                 debugCamera_->Update();
                 break;

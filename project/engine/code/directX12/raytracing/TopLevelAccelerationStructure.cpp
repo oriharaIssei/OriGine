@@ -91,6 +91,7 @@ void TopLevelAccelerationStructure::Update(ID3D12Device8* _device, ID3D12Graphic
 
     // インスタンスが変わったら再ビルドし直す
     if (static_cast<UINT>(_instances.size()) != inputs_.NumDescs) {
+        Finalize();
         CreateResource(_device, _commandList, _instances, allowUpdate_);
         return;
     }

@@ -167,14 +167,14 @@ bool Audio::isPlaying() const {
     return state.BuffersQueued > 0;
 }
 
-void Audio::Initialize(Scene* _scene, EntityHandle _entity) {
+void Audio::Initialize(Scene* /*_scene*/, EntityHandle /*_entity*/) {
     // ファイル名が設定されていれば音声データを読み込む
     if (!fileName_.empty()) {
         audioClip_.data_ = LoadWave(fileName_);
     }
 };
 
-void Audio::Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) {
+void Audio::Edit(Scene* /*_scene*/, EntityHandle /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     std::string label = "LoadFile##" + _parentLabel;
     if (ImGui::Button(label.c_str())) {

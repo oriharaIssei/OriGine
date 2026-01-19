@@ -36,6 +36,33 @@ template <typename T>
 using AnimationCurve = std::vector<Keyframe<T>>;
 
 /// <summary>
+/// 各軸ごとに分離されたアニメーション曲線データ
+/// </summary>
+/// <typeparam name="T"></typeparam>
+/// <typeparam name="Dimension"></typeparam>
+template <int Dimension, typename T>
+struct SeparatedAnimCurve {
+    // 現在の次元数を取得する定数
+    static constexpr int kDim = Dimension;
+    using CurveTrack = std::vector<Keyframe<T>>;
+
+    SeparatedAnimCurve()  = default;
+    ~SeparatedAnimCurve() = default;
+
+    // 各軸ごとのキーフレームリスト
+    // curves[0] = X軸, curves[1] = Y軸...
+    CurveTrack curves[Dimension];
+
+};
+
+template <typename T>
+using Separated2dAnimCurve = SeparatedAnimCurve<2, T>;
+template <typename T>
+using Separated3dAnimCurve = SeparatedAnimCurve<3, T>;
+template <typename T>
+using Separated4dAnimCurve = SeparatedAnimCurve<4, T>;
+
+/// <summary>
 /// 補間の種類
 /// </summary>
 enum class InterpolationType {

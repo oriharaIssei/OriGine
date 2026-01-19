@@ -201,12 +201,12 @@ void ModelMeshRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] En
         std::string directory;
         std::string fileName;
         if (myfs::SelectFileDialog(kApplicationResourceDirectory, directory, fileName, {"obj", "gltf", "dds"})) {
-            auto SetDirectory = std::make_unique<SetterCommand<std::string>>(&directory_, kApplicationResourceDirectory + "/" + directory);
-            auto SetName      = std::make_unique<SetterCommand<std::string>>(&fileName_, fileName);
-            CommandCombo commandCombo;
-            commandCombo.AddCommand(std::move(SetDirectory));
-            commandCombo.AddCommand(std::move(SetName));
-            commandCombo.SetFuncOnAfterCommand([this, _scene]() {
+            auto SetDirectory                          = std::make_unique<SetterCommand<std::string>>(&directory_, kApplicationResourceDirectory + "/" + directory);
+            auto SetName                               = std::make_unique<SetterCommand<std::string>>(&fileName_, fileName);
+            std::unique_ptr<CommandCombo> commandCombo = std::make_unique<CommandCombo>();
+            commandCombo->AddCommand(std::move(SetDirectory));
+            commandCombo->AddCommand(std::move(SetName));
+            commandCombo->SetFuncOnAfterCommand([this, _scene]() {
                 if (!this) {
                     return;
                 }
@@ -216,7 +216,7 @@ void ModelMeshRenderer::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] En
                 InitializeMaterialFromModelFile(this, _scene, this->hostEntityHandle_, this->directory_, this->fileName_);
             },
                 true);
-            OriGine::EditorController::GetInstance()->PushCommand(std::make_unique<CommandCombo>(commandCombo));
+            OriGine::EditorController::GetInstance()->PushCommand(std::move(commandCombo));
         }
     }
 

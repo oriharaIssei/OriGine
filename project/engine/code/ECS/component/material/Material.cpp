@@ -31,7 +31,7 @@ void Material::UpdateUvMatrix() {
     uvMat_ = MakeMatrix4x4::Affine({uvTransform_.scale_, 1}, {0.f, 0.f, uvTransform_.rotate_}, {uvTransform_.translate_, 0.f});
 }
 
-void Material::Initialize(Scene* _scene, EntityHandle _owner) {
+void Material::Initialize(Scene* /*_scene*/, EntityHandle /*_owner*/) {
     UpdateUvMatrix();
 }
 

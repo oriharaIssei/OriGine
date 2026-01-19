@@ -1,5 +1,7 @@
 #include "Timeline.h"
 
+#ifdef _DEBUG
+
 /// stl
 // assert
 #include <assert.h>
@@ -13,7 +15,6 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_internal.h"
 #include "myGui/MyGui.h"
-#ifdef _DEBUG
 
 namespace ImGui {
 
