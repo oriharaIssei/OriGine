@@ -7,7 +7,7 @@
 #include <Windows.h>
 
 /// stl
-#include <array>
+#include <deque>
 #include <map>
 #include <string>
 
@@ -27,6 +27,12 @@ enum class MouseButton : uint32_t {
     RIGHT = 1,
     /// <summary>中央（ホイール）ボタン</summary>
     MIDDLE = 2,
+
+    BTN_3 = 3,
+    BTN_4 = 4,
+    BTN_5 = 5,
+    BTN_6 = 6,
+    BTN_7 = 7,
 };
 
 /// <summary>
@@ -36,16 +42,30 @@ static ::std::map<MouseButton, ::std::string> mouseButtonName = {
     {MouseButton::LEFT, "LEFT"},
     {MouseButton::RIGHT, "RIGHT"},
     {MouseButton::MIDDLE, "MIDDLE"},
+    {MouseButton::BTN_3, "BTN_3"},
+    {MouseButton::BTN_4, "BTN_4"},
+    {MouseButton::BTN_5, "BTN_5"},
+    {MouseButton::BTN_6, "BTN_6"},
+    {MouseButton::BTN_7, "BTN_7"},
+};
+
+/// <summary>
+/// 1 フレーム分のマウス入力情報.
+/// </summary>
+struct MouseState {
+    Vec2f mousePos; // マウスのスクリーン座標
+    Vec2f velocity; // マウスの移動量 マウスの座標が後から書き換えられる可能性があるので、フレームの開始時の位置との差分を保持しておく
+    int32_t wheelDelta; // ホイールの回転量
+    uint32_t buttonData; // マウスボタンのビットマスク状態
 };
 
 /// <summary>DirectInput が扱う最大マウスボタン数</summary>
-constexpr uint32_t MOUSE_BUTTON_COUNT = 8;
+static constexpr uint32_t MOUSE_BUTTON_COUNT = 8;
 
-/// <summary>
-/// DirectInput によるマウス入力を管理するクラス.
-/// </summary>
 class MouseInput {
     friend class ReplayPlayer;
+
+    static constexpr uint32_t kInputHistoryCount = 60;
 
 public:
     MouseInput()  = default;
@@ -54,235 +74,161 @@ public:
     MouseInput(const MouseInput&)            = delete;
     MouseInput& operator=(const MouseInput&) = delete;
 
-    /// <summary>
-    /// デバイスの初期化を行う.
-    /// </summary>
-    /// <param name="_directInput">DirectInput8 インターフェース</param>
-    /// <param name="_hwnd">ウィンドウハンドル</param>
     void Initialize(IDirectInput8* _directInput, HWND _hwnd);
-
-    /// <summary>
-    /// 毎フレームのデバイス入力状態をポーリングして更新する.
-    /// </summary>
     void Update();
-
-    /// <summary>
-    /// デバイスの終了処理を行う.
-    /// </summary>
     void Finalize();
 
     /// <summary>
-    /// 現在のボタン状態をビットマスクに変換して取得する.
+    /// 履歴をクリアする
     /// </summary>
-    /// <returns>ボタン状態のビットマスク</returns>
-    uint32_t ButtonStateToBitmask() const;
-
-    /// <summary>
-    /// ボタン状態バッファをクリアする.
-    /// </summary>
-    void ClearButtonStates() {
-        currentButtonStates_.fill(0);
-        prevButtonStates_.fill(0);
-    }
-
-    /// <summary>
-    /// ホイールの変化量をリセットする.
-    /// </summary>
-    void ResetWheelDelta() {
-        currentWheelDelta_ = 0;
-        prevWheelDelta_    = 0;
-    }
-
-    /// <summary>
-    /// マウスの各座標情報をリセットする.
-    /// </summary>
-    void ResetPosition() {
-        pos_        = Vec2f(0.0f, 0.0f);
-        prevPos_    = Vec2f(0.0f, 0.0f);
-        virtualPos_ = Vec2f(0.0f, 0.0f);
-        velocity_   = Vec2f(0.0f, 0.0f);
-    }
+    void ClearHistory();
 
 private:
-    /// <summary>マウスデバイス</summary>
+    // ヘルパー: 履歴への安全なアクセス
+    const MouseState* GetState(size_t _historyIndex) const;
+    MouseState* GetStateRef(size_t _historyIndex);
+
+    // 現在のボタン状態をビットマスクに変換 (Update内で使用)
+    uint32_t CreateButtonBitmask(const DIMOUSESTATE2& _diState) const;
+
+private:
     Microsoft::WRL::ComPtr<IDirectInputDevice8> mouse_ = nullptr;
-    /// <summary>ウィンドウハンドル</summary>
-    HWND hwnd_ = nullptr;
+    HWND hwnd_                                         = nullptr;
 
-    /// <summary>現在のボタン状態</summary>
-    ::std::array<BYTE, MOUSE_BUTTON_COUNT> currentButtonStates_{};
-    /// <summary>前回フレームのボタン状態</summary>
-    ::std::array<BYTE, MOUSE_BUTTON_COUNT> prevButtonStates_{};
+    // 履歴管理
+    std::deque<MouseState> inputHistory_{};
 
-    /// <summary>現在のホイール回転量</summary>
-    int32_t currentWheelDelta_ = 0;
-    /// <summary>前回フレームのホイール回転量</summary>
-    int32_t prevWheelDelta_ = 0;
-
-    /// <summary>ユーザー制御用の仮想座標</summary>
+    // ユーザー制御用の仮想座標 (履歴とは別に保持が必要)
     Vec2f virtualPos_{};
-    /// <summary>クライアント領域内での現在の位置</summary>
-    Vec2f pos_{};
-    /// <summary>前回フレームの位置</summary>
-    Vec2f prevPos_{};
-    /// <summary>フレーム間の移動量</summary>
-    Vec2f velocity_{};
 
-    /// <summary>カーソルを表示中か</summary>
+    // カーソル表示フラグ
     bool isCursorVisible_ = true;
 
 public:
     /// <summary>
-    /// 現在の全ボタンの状態を取得する.
+    /// マウスデバイスが存在するか
+    /// このインスタンスが有効かどうか
     /// </summary>
-    /// <returns>現在のボタン状態配列</returns>
-    const ::std::array<BYTE, MOUSE_BUTTON_COUNT>& GetCurrentButtonState() const { return currentButtonStates_; }
+    /// <returns></returns>
+    bool HasMouse() const { return mouse_ != nullptr; }
+
+    // ==========================================
+    // アクセッサ (履歴を利用)
+    // ==========================================
 
     /// <summary>
-    /// 前回フレームの全ボタンの状態を取得する.
+    /// 現在のマウス状態を取得
     /// </summary>
-    /// <returns>前回フレームのボタン状態配列</returns>
-    const ::std::array<BYTE, MOUSE_BUTTON_COUNT>& GetPrevButtonState() const { return prevButtonStates_; }
+    /// <returns></returns>
+    const MouseState& GetCurrentState() const;
 
     /// <summary>
-    /// 指定されたボタンが現在押されているか判定する.
+    /// 指定したボタンが押されているか (Press/Hold)
     /// </summary>
-    /// <param name="_button">ボタン番号</param>
-    /// <returns>押されていれば true</returns>
-    bool IsPress(uint32_t _button) const { return currentButtonStates_[_button]; }
+    /// <param name="_button"></param>
+    /// <returns></returns>
+    bool IsPress(MouseButton _button) const;
 
     /// <summary>
-    /// 指定されたボタンが現在押されているか判定する.
+    /// 指定したボタンが押された瞬間か (Press/Down)
     /// </summary>
-    /// <param name="_button">ボタン種類</param>
-    /// <returns>押されていれば true</returns>
-    bool IsPress(MouseButton _button) const { return currentButtonStates_[static_cast<uint32_t>(_button)]; }
+    /// <param name="_button"></param>
+    /// <returns></returns>
+    bool IsTrigger(MouseButton _button) const;
 
     /// <summary>
-    /// 指定されたボタンがこのフレームで押されたか判定する.
+    /// 指定したボタンが離された瞬間か (Release/Up)
     /// </summary>
-    /// <param name="_button">ボタン番号</param>
-    /// <returns>押された瞬間なら true</returns>
-    bool IsTrigger(uint32_t _button) const { return currentButtonStates_[_button] && !prevButtonStates_[_button]; }
+    /// <param name="_button"></param>
+    /// <returns></returns>
+    bool IsRelease(MouseButton _button) const;
 
     /// <summary>
-    /// 指定されたボタンがこのフレームで押されたか判定する.
+    /// マウスの位置を取得
     /// </summary>
-    /// <param name="_button">ボタン種類</param>
-    /// <returns>押された瞬間なら true</returns>
-    bool IsTrigger(MouseButton _button) const {
-        return currentButtonStates_[static_cast<uint32_t>(_button)] && !prevButtonStates_[static_cast<uint32_t>(_button)];
-    }
-
+    /// <returns></returns>
+    Vec2f GetPosition() const;
     /// <summary>
-    /// 指定されたボタンがこのフレームで離されたか判定する.
+    /// マウスの位置を設定
     /// </summary>
-    /// <param name="_button">ボタン番号</param>
-    /// <returns>離された瞬間なら true</returns>
-    bool IsRelease(uint32_t _button) const { return !currentButtonStates_[_button] && prevButtonStates_[_button]; }
-
-    /// <summary>
-    /// 指定されたボタンがこのフレームで離されたか判定する.
-    /// </summary>
-    /// <param name="_button">ボタン種類</param>
-    /// <returns>離された瞬間なら true</returns>
-    bool IsRelease(MouseButton _button) const {
-        return !currentButtonStates_[static_cast<uint32_t>(_button)] && prevButtonStates_[static_cast<uint32_t>(_button)];
-    }
-
-    /// <summary>
-    /// 現在のホイール回転量を取得する.
-    /// </summary>
-    /// <returns>ホイールの変化量 (通常 120 の倍数)</returns>
-    int32_t GetWheelDelta() const { return static_cast<int32_t>(currentWheelDelta_); }
-
-    /// <summary>
-    /// 前回フレームのホイール回転量を取得する.
-    /// </summary>
-    /// <returns>前フレームのホイールの変化量</returns>
-    int32_t GetPrevWheelDelta() const { return prevWheelDelta_; }
-
-    /// <summary>
-    /// 今フレームでホイールが回転したか判定する.
-    /// </summary>
-    /// <returns>回転していれば true</returns>
-    bool IsWheel() const { return currentWheelDelta_ != 0; }
-
-    /// <summary>
-    /// ホイールが奥（画面上方向）に回転したか判定する.
-    /// </summary>
-    /// <returns>奥に回転していれば true</returns>
-    bool IsWheelUp() const { return currentWheelDelta_ > 0; }
-
-    /// <summary>
-    /// ホイールが手前（画面下方向）に回転したか判定する.
-    /// </summary>
-    /// <returns>手前に回転していれば true</returns>
-    bool IsWheelDown() const { return currentWheelDelta_ < 0; }
-
-    /// <summary>
-    /// 前回フレームでホイールが回転していたか判定する.
-    /// </summary>
-    /// <returns>回転していれば true</returns>
-    bool IsPrevWheel() const { return prevWheelDelta_ != 0; }
-
-    /// <summary>
-    /// 停止状態からホイールが回転し始めた瞬間か判定する.
-    /// </summary>
-    /// <returns>回転し始めた瞬間なら true</returns>
-    bool IsTriggerWheel() const {
-        return (currentWheelDelta_ != 0) && (prevWheelDelta_ == 0);
-    }
-
-    /// <summary>
-    /// 回転していたホイールが停止した瞬間か判定する.
-    /// </summary>
-    /// <returns>停止した瞬間なら true</returns>
-    bool IsReleaseWheel() const {
-        return (currentWheelDelta_ == 0) && (prevWheelDelta_ != 0);
-    }
-
-    /// <summary>
-    /// 現在のマウス座標を取得する.
-    /// </summary>
-    /// <returns>現在のマウス座標</returns>
-    const Vec2f& GetPosition() const { return pos_; }
-
-    /// <summary>
-    /// ユーザー定義の仮想座標を取得する.
-    /// </summary>
-    /// <returns>現在の仮想マウス座標</returns>
-    const Vec2f& GetVirtualPosition() const { return virtualPos_; }
-
-    /// <summary>
-    /// ユーザー定義の仮想座標を設定する.
-    /// </summary>
-    /// <param name="_pos">設定する仮想座標</param>
-    void SetVirtualPosition(const Vec2f& _pos) { virtualPos_ = _pos; }
-
-    /// <summary>
-    /// 前回フレームのマウス座標を取得する.
-    /// </summary>
-    /// <returns>前フレームのマウス座標</returns>
-    const OriGine::Vec2f& GetPrevPosition() const { return prevPos_; }
-
-    /// <summary>
-    /// フレーム間の移動量を取得する.
-    /// </summary>
-    /// <returns>マウスの移動量ベクトル</returns>
-    const OriGine::Vec2f& GetVelocity() const { return velocity_; }
-
-    /// <summary>
-    /// システムのカーソル位置を移動させる.
-    /// </summary>
-    /// <param name="_pos">移動先の座標</param>
+    /// <param name="_pos"></param>
     void SetPosition(const Vec2f& _pos);
 
     /// <summary>
-    /// システムのマウスカーソルの表示・非表示を切り替える.
+    /// 現在の速度を取得
     /// </summary>
-    /// <param name="_show">表示するなら true, 隠すなら false</param>
-    void SetShowCursor(bool _show);
+    /// <returns></returns>
+    Vec2f GetVelocity() const;
+
+    /// <summary>
+    /// 指定した2フレーム間の速度を計算
+    /// </summary>
+    /// <param name="_recentIdx">新しいFrame</param>
+    /// <param name="_oldIdx">古いFrame</param>
+    /// <returns></returns>
+    Vec2f CalculateVelocityBetween(size_t _recentIdx, size_t _oldIdx) const;
+
+    /// <summary>
+    /// 指定したフレームから過去に遡って履歴サイズ分の平均速度を計算
+    /// </summary>
+    /// <param name="_from">指定するフレーム(0 == 最新)</param>
+    /// <param name="_historySize">遡る履歴の範囲</param>
+    /// <returns></returns>
+    Vec2f GetAverageVelocity(size_t _from, size_t _historyRange) const;
+
+    // ホイールの回転量を取得
+    int32_t GetWheelDelta() const;
+
+    /// <summary>
+    /// 指定したフレームから過去に遡って履歴サイズ分のホイール回転量の平均を計算
+    /// </summary>
+    /// <param name="_from"></param>
+    /// <param name="_historyRange"></param>
+    /// <returns></returns>
+    int32_t WheelAverageDelta(size_t _from, size_t _historyRange) const;
+
+    /// <summary>
+    /// ホイールが回転したか
+    /// </summary>
+    /// <returns></returns>
+    bool IsWheel() const { return GetWheelDelta() != 0; }
+    /// <summary>
+    /// ホイールが上回転したか
+    /// </summary>
+    /// <returns></returns>
+    bool IsWheelUp() const { return GetWheelDelta() > 0; }
+    /// <summary>
+    /// ホイールが下回転したか
+    /// </summary>
+    /// <returns></returns>
+    bool IsWheelDown() const { return GetWheelDelta() < 0; }
+
+    /// <summary>
+    /// 指定した履歴範囲内でホイールが回転したか
+    /// </summary>
+    /// <param name="_historyRange"></param>
+    /// <returns></returns>
+    bool WasWheelMovedInHistory(size_t _historyRange) const;
+    /// <summary>
+    /// 指定した履歴範囲内でホイールが上回転したか
+    /// </summary>
+    /// <param name="_historyRange"></param>
+    /// <returns></returns>
+    bool WasWheelUpInHistory(size_t _historyRange) const;
+    /// <summary>
+    /// 指定した履歴範囲内でホイールが下回転したか
+    /// </summary>
+    /// <param name="_historyRange"></param>
+    /// <returns></returns>
+    bool WasWheelDownInHistory(size_t _historyRange) const;
+
+    // 仮想座標の設定 (エディタ操作などで使用)
+    void SetVirtualPosition(const Vec2f& _pos) { virtualPos_ = _pos; }
+    // 仮想座標の取得
+    Vec2f GetVirtualPosition() const { return virtualPos_; }
+
+    // カーソル表示切替
+    void ShowCursor(bool _show);
 };
 
 } // namespace OriGine

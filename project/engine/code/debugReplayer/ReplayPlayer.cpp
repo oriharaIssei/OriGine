@@ -121,13 +121,13 @@ bool ReplayPlayer::LoadFromFile(const std::string& _filepath) {
 
         // ゲームパッド入力
         {
-            ifs.read(reinterpret_cast<char*>(&frame.padData.lStick[X]), sizeof(float));
-            ifs.read(reinterpret_cast<char*>(&frame.padData.lStick[Y]), sizeof(float));
-            ifs.read(reinterpret_cast<char*>(&frame.padData.rStick[X]), sizeof(float));
-            ifs.read(reinterpret_cast<char*>(&frame.padData.rStick[Y]), sizeof(float));
-            ifs.read(reinterpret_cast<char*>(&frame.padData.lTrigger), sizeof(float));
-            ifs.read(reinterpret_cast<char*>(&frame.padData.rTrigger), sizeof(float));
-            ifs.read(reinterpret_cast<char*>(&frame.padData.buttonData), sizeof(uint32_t));
+            ifs.read(reinterpret_cast<char*>(&frame.padData.padState.lStick[X]), sizeof(float));
+            ifs.read(reinterpret_cast<char*>(&frame.padData.padState.lStick[Y]), sizeof(float));
+            ifs.read(reinterpret_cast<char*>(&frame.padData.padState.rStick[X]), sizeof(float));
+            ifs.read(reinterpret_cast<char*>(&frame.padData.padState.rStick[Y]), sizeof(float));
+            ifs.read(reinterpret_cast<char*>(&frame.padData.padState.lTrigger), sizeof(float));
+            ifs.read(reinterpret_cast<char*>(&frame.padData.padState.rTrigger), sizeof(float));
+            ifs.read(reinterpret_cast<char*>(&frame.padData.padState.buttonMask), sizeof(uint32_t));
             ifs.read(reinterpret_cast<char*>(&frame.padData.isActive), sizeof(bool));
         }
     }
@@ -145,70 +145,95 @@ bool ReplayPlayer::LoadFromFile(const std::string& _filepath) {
 float ReplayPlayer::Apply(KeyboardInput* _keyInput, MouseInput* _mouseInput, GamepadInput* _padInput) {
     auto& frameData = fileData_.frameData[currentFrameIndex_];
 
-    // 入力履歴（prev 状態）の復元
-    // これにより、再生中も Trigger/Release 判定が正しく機能する
-    if (currentFrameIndex_ == 0) {
-        // 再生開始時：現在の値をそのまま prev にセット
-        // key入力
-        for (size_t keyIndex = 0; keyIndex < KEY_COUNT; ++keyIndex) {
-            bool isPressed                 = frameData.keyInputData.Get(keyIndex);
-            _keyInput->prevKeys_[keyIndex] = isPressed ? 0x80 : 0x00;
+    // ========================================================================
+    // 1. KeyboardInput の復元
+    // ========================================================================
+    {
+        KeyboardState newState{};
+        // キーデータの展開 (BitSetなどから復元)
+        if (frameData.keyInputData.size() != 0) {
+            for (size_t keyIndex = 0; keyIndex < KEY_COUNT; ++keyIndex) {
+                bool isPressed          = frameData.keyInputData.Get(keyIndex);
+                newState.keys[keyIndex] = isPressed ? 0x80 : 0x00;
+            }
+        } else {
+            newState.keys.fill(0);
         }
 
-        // mouse入力
-        _mouseInput->prevPos_        = frameData.mouseData.mousePos;
-        _mouseInput->prevWheelDelta_ = frameData.mouseData.wheelDelta;
-        for (size_t mouseButtonIndex = 0; mouseButtonIndex < MOUSE_BUTTON_COUNT; ++mouseButtonIndex) {
-            _mouseInput->prevButtonStates_[mouseButtonIndex] = (frameData.mouseData.buttonData >> mouseButtonIndex) & 1u;
+        // 履歴に追加
+        _keyInput->inputHistory_.push_front(newState);
+
+        // サイズ制限 (InputManagerと同じ定数を使用)
+        if (_keyInput->inputHistory_.size() > KeyboardInput::kInputHistoryCount) {
+            _keyInput->inputHistory_.pop_back();
         }
 
-        // pad入力
-        _padInput->prevButtonMask_ = frameData.padData.buttonData;
-
-    } else {
-        // 2フレーム目以降：前回の current 値を prev へ移動
-        // key入力
-        _keyInput->prevKeys_ = _keyInput->keys_;
-
-        // mouse入力
-        _mouseInput->prevPos_          = _mouseInput->pos_;
-        _mouseInput->prevWheelDelta_   = _mouseInput->currentWheelDelta_;
-        _mouseInput->prevButtonStates_ = _mouseInput->currentButtonStates_;
-
-        // pad入力
-        _padInput->prevButtonMask_ = _padInput->buttonMask_;
-    }
-
-    // 最新状態（current）の注入
-    /// keyboard
-    if (frameData.keyInputData.size() != 0) {
-        for (size_t keyIndex = 0; keyIndex < KEY_COUNT; ++keyIndex) {
-            bool isPressed             = frameData.keyInputData.Get(keyIndex);
-            _keyInput->keys_[keyIndex] = isPressed ? 0x80 : 0x00;
+        // フレーム0の特別処理: prev(index 1) を current(index 0) と同じにする
+        // これにより、再生開始瞬間の誤った Trigger 判定を防ぐ
+        if (currentFrameIndex_ == 0 && _keyInput->inputHistory_.size() >= 2) {
+            _keyInput->inputHistory_[1] = _keyInput->inputHistory_[0];
         }
     }
 
-    /// mouse
-    _mouseInput->pos_               = frameData.mouseData.mousePos;
-    _mouseInput->virtualPos_        = _mouseInput->pos_;
-    _mouseInput->currentWheelDelta_ = frameData.mouseData.wheelDelta;
+    // ========================================================================
+    // 2. MouseInput の復元
+    // ========================================================================
+    {
+        MouseState newState{};
+        newState.mousePos   = frameData.mouseData.mousePos;
+        newState.wheelDelta = frameData.mouseData.wheelDelta;
 
-    // 速度（移動量）の計算
-    _mouseInput->velocity_ = _mouseInput->pos_ - _mouseInput->prevPos_;
+        // ボタンビットマスクの復元 (保存形式に合わせてビットシフト)
+        newState.buttonData = 0;
+        for (size_t i = 0; i < MOUSE_BUTTON_COUNT; ++i) {
+            // frameData内のデータ構造に依存しますが、元のロジックを再現
+            if ((frameData.mouseData.buttonData >> i) & 1u) {
+                // MouseInputで定義したenumに対応するビットを立てる
+                newState.buttonData |= (1 << i);
+            }
+        }
 
-    for (size_t mouseButtonIndex = 0; mouseButtonIndex < MOUSE_BUTTON_COUNT; ++mouseButtonIndex) {
-        _mouseInput->currentButtonStates_[mouseButtonIndex] = (frameData.mouseData.buttonData >> mouseButtonIndex) & 1u;
+        // Velocity は MouseInput::GetVelocity() で履歴から計算されるため、
+        // ここで代入する必要はない (State構造体からも削除済み)
+
+        // 履歴に追加
+        _mouseInput->inputHistory_.push_front(newState);
+
+        // 仮想座標の復元 (ユーザー操作用変数は履歴外にある場合が多いので直接セット)
+        _mouseInput->SetVirtualPosition(newState.mousePos);
+
+        // サイズ制限
+        if (_mouseInput->inputHistory_.size() > MouseInput::kInputHistoryCount) {
+            _mouseInput->inputHistory_.pop_back();
+        }
+
+        // フレーム0の特別処理
+        if (currentFrameIndex_ == 0 && _mouseInput->inputHistory_.size() >= 2) {
+            _mouseInput->inputHistory_[1] = _mouseInput->inputHistory_[0];
+        }
     }
 
-    /// padInput
-    _padInput->lStick_ = frameData.padData.lStick;
-    _padInput->rStick_ = frameData.padData.rStick;
+    // ========================================================================
+    // 3. GamepadInput の復元
+    // ========================================================================
+    {
+        GamepadState newState{};
+        newState             = frameData.padData.padState;
+        _padInput->isActive_ = frameData.padData.isActive;
 
-    _padInput->lTrigger_ = frameData.padData.lTrigger;
-    _padInput->rTrigger_ = frameData.padData.rTrigger;
+        // 履歴に追加
+        _padInput->inputHistory_.push_front(newState);
 
-    _padInput->buttonMask_ = frameData.padData.buttonData;
-    _padInput->isActive_   = frameData.padData.isActive;
+        // サイズ制限
+        if (_padInput->inputHistory_.size() > GamepadInput::kInputHistoryCount) {
+            _padInput->inputHistory_.pop_back();
+        }
+
+        // フレーム0の特別処理
+        if (currentFrameIndex_ == 0 && _padInput->inputHistory_.size() >= 2) {
+            _padInput->inputHistory_[1] = _padInput->inputHistory_[0];
+        }
+    }
 
     return frameData.deltaTime;
 }

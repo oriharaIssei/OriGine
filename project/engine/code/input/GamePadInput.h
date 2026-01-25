@@ -3,6 +3,9 @@
 /// input API
 #include "include/IncludeInputAPI.h"
 
+/// stl
+#include <deque>
+
 /// util
 #include "util/globalVariables/SerializedField.h"
 
@@ -13,10 +16,11 @@
 
 namespace OriGine {
 
-constexpr float kStickMax = static_cast<float>(SHORT_MAX);
-constexpr float kStickMin = static_cast<float>(-SHORT_MAX);
+constexpr float kStickMax   = static_cast<float>(SHORT_MAX);
+constexpr float kStickMin   = static_cast<float>(-SHORT_MAX);
+constexpr float kTriggerMax = static_cast<float>(BYTE_MAX);
 
-enum class PadButton : uint32_t {
+enum class GamepadButton : uint32_t {
     UP         = XINPUT_GAMEPAD_DPAD_UP,
     DOWN       = XINPUT_GAMEPAD_DPAD_DOWN,
     LEFT       = XINPUT_GAMEPAD_DPAD_LEFT,
@@ -35,33 +39,68 @@ enum class PadButton : uint32_t {
     // 仮想トリガーボタン（XInputに存在しない独自ビット）
     L_TRIGGER = 1u << 16,
     R_TRIGGER = 1u << 17,
+
+    // 仮想左スティック方向キー（ビット18-21）
+    L_STICK_UP    = 1u << 18,
+    L_STICK_DOWN  = 1u << 19,
+    L_STICK_LEFT  = 1u << 20,
+    L_STICK_RIGHT = 1u << 21,
+
+    // 仮想右スティック方向キー（ビット22-25）
+    R_STICK_UP    = 1u << 22,
+    R_STICK_DOWN  = 1u << 23,
+    R_STICK_LEFT  = 1u << 24,
+    R_STICK_RIGHT = 1u << 25,
 };
 
-static std::map<PadButton, std::string> padButtonNameMap = {
-    {PadButton::UP, "UP"},
-    {PadButton::DOWN, "DOWN"},
-    {PadButton::LEFT, "LEFT"},
-    {PadButton::RIGHT, "RIGHT"},
-    {PadButton::START, "START"},
-    {PadButton::BACK, "BACK"},
-    {PadButton::L_THUMB, "L_THUMB"},
-    {PadButton::R_THUMB, "R_THUMB"},
-    {PadButton::L_SHOULDER, "L_SHOULDER"},
-    {PadButton::R_SHOULDER, "R_SHOULDER"},
-    {PadButton::A, "A"},
-    {PadButton::B, "B"},
-    {PadButton::X, "X"},
-    {PadButton::Y, "Y"},
-    {PadButton::L_TRIGGER, "L_TRIGGER"},
-    {PadButton::R_TRIGGER, "R_TRIGGER"}};
+static std::map<GamepadButton, std::string> padButtonNameMap = {
+    {GamepadButton::UP, "UP"},
+    {GamepadButton::DOWN, "DOWN"},
+    {GamepadButton::LEFT, "LEFT"},
+    {GamepadButton::RIGHT, "RIGHT"},
+    {GamepadButton::START, "START"},
+    {GamepadButton::BACK, "BACK"},
+    {GamepadButton::L_THUMB, "L_THUMB"},
+    {GamepadButton::R_THUMB, "R_THUMB"},
+    {GamepadButton::L_SHOULDER, "L_SHOULDER"},
+    {GamepadButton::R_SHOULDER, "R_SHOULDER"},
+    {GamepadButton::A, "A"},
+    {GamepadButton::B, "B"},
+    {GamepadButton::X, "X"},
+    {GamepadButton::Y, "Y"},
+    {GamepadButton::L_TRIGGER, "L_TRIGGER"},
+    {GamepadButton::R_TRIGGER, "R_TRIGGER"},
+    {GamepadButton::L_STICK_UP, "L_STICK_UP"},
+    {GamepadButton::L_STICK_DOWN, "L_STICK_DOWN"},
+    {GamepadButton::L_STICK_LEFT, "L_STICK_LEFT"},
+    {GamepadButton::L_STICK_RIGHT, "L_STICK_RIGHT"},
+    {GamepadButton::R_STICK_UP, "R_STICK_UP"},
+    {GamepadButton::R_STICK_DOWN, "R_STICK_DOWN"},
+    {GamepadButton::R_STICK_LEFT, "R_STICK_LEFT"},
+    {GamepadButton::R_STICK_RIGHT, "R_STICK_RIGHT"},
+};
 
-constexpr uint32_t PAD_BUTTON_COUNT = 16;
+constexpr uint32_t PAD_BUTTON_COUNT = 26;
+
+/// <summary>
+/// ゲームパッドの状態構造体
+/// </summary>
+struct GamepadState {
+    uint32_t buttonMask;
+    Vec2f lStick;
+    Vec2f rStick;
+    float lTrigger;
+    float rTrigger;
+};
 
 /// <summary>
 /// XInput対応ゲームパッド入力を管理するクラス
 /// </summary>
 class GamepadInput {
     friend class ReplayPlayer;
+
+    // 入力履歴を保持する数
+    static constexpr uint32_t kInputHistoryCount = 60;
 
 public:
     GamepadInput()  = default;
@@ -86,134 +125,184 @@ public:
     void Finalize();
 
     /// <summary>
-    /// ボタン状態をクリア
+    /// 履歴をクリア
     /// </summary>
-    void ClearButtonStates() {
-        buttonMask_     = 0;
-        prevButtonMask_ = 0;
-    }
-    /// <summary>
-    /// スティック状態をクリア
-    /// </summary>
-    void ClearStickStates() {
-        lStick_ = Vec2f();
-        rStick_ = Vec2f();
-    }
-    /// <summary>
-    /// トリガー状態をクリア
-    /// </summary>
-    void ClearTriggerStates() {
-        lTrigger_ = 0.0f;
-        rTrigger_ = 0.0f;
-    }
+    void ClearHistory();
 
 private:
     /// <summary>
     /// スティックの値を正規化して更新
     /// </summary>
     /// <param name="_state">XInput状態</param>
-    void UpdateStickValues(XINPUT_STATE _state);
+    void UpdateStickValues(XINPUT_STATE _state, GamepadState& _currentState);
+
+    /// <summary>
+    /// 仮想スティックボタンの状態をスティックの値から更新
+    /// </summary>
+    void UpdateVirtualStickButtons(GamepadState& _currentState);
+
+    /// <summary>
+    /// 仮想トリガーボタンの状態をトリガーの値から更新
+    /// </summary>
+    /// <param name="_currentState"></param>
+    void UpdateVirtualTriggerButtons(GamepadState& _currentState);
 
 private:
-    // 仮想ボタンマスク
-    uint32_t buttonMask_;
-    uint32_t prevButtonMask_;
-
     SerializedField<float> deadZone_{"Input", "GamePad", "DeadZone"};
     SerializedField<float> triggerDeadZone_{"Input", "GamePad", "TriggerDeadZone"};
 
-    Vec2f lStick_{};
-    Vec2f rStick_{};
-
-    float lTrigger_ = 0.0f;
-    float rTrigger_ = 0.0f;
-
     bool isActive_ = false;
+
+    // 仮想ボタンマスク
+    std::deque<GamepadState> inputHistory_{};
 
 public:
     /// <summary>
-    /// 現在のボタンマスクを取得
+    /// ゲームパッドが接続されているか
     /// </summary>
-    /// <returns>ボタンマスクのビット集合</returns>
-    uint32_t GetButtonMask() const { return buttonMask_; }
+    /// <returns></returns>
+    bool IsActive() const {
+        return isActive_;
+    }
 
     /// <summary>
-    /// 前回フレームのボタンマスクを取得
+    /// 履歴から指定したインデックスの生状態を取得
     /// </summary>
-    /// <returns>前回フレームのボタンマスクのビット集合</returns>
-    uint32_t GetPrevButtonMask() const { return prevButtonMask_; }
+    /// <param name="_historyIndex"></param>
+    /// <returns></returns>
+    const GamepadState* GetState(size_t _historyIndex) const {
+        if (_historyIndex >= inputHistory_.size()) {
+            return nullptr;
+        }
+        return &inputHistory_[_historyIndex];
+    }
+
+    const GamepadState& GetCurrentState() const;
 
     /// <summary>
-    /// ゲームパッドが有効か
+    /// 履歴のサイズを取得
     /// </summary>
-    /// <returns>有効であればtrue</returns>
-    bool IsActive() const { return isActive_; }
+    /// <returns></returns>
+    size_t GetHistorySize() const {
+        return static_cast<int>(inputHistory_.size());
+    }
 
     /// <summary>
-    /// ボタン押下状態
+    /// 何かしらのボタンが押されているか
     /// </summary>
-    /// <param name="_button">ボタンビット（PadButtonの値をuint32_tにキャストしたものなど）</param>
-    /// <returns>押されていればtrue</returns>
-    bool IsPress(uint32_t _button) const { return (buttonMask_ & _button); }
+    /// <returns></returns>
+    bool IsPressAny() const {
+        const auto& state = GetCurrentState();
+        return state.buttonMask != 0;
+    }
 
     /// <summary>
-    /// ボタン押下状態
+    /// ボタンが押されているか (Hold)
     /// </summary>
-    /// <param name="_button">ボタン種類</param>
-    /// <returns>押されていればtrue</returns>
-    bool IsPress(PadButton _button) const { return (buttonMask_ & static_cast<uint32_t>(_button)); }
+    /// <param name="_buttonMask"></param>
+    /// <returns></returns>
+    bool IsPress(uint32_t _buttonMask) const {
+        const auto& state = GetCurrentState();
+        return (state.buttonMask & _buttonMask) != 0;
+    }
+    /// <summary>
+    /// ボタンが押されているか (Hold)
+    /// </summary>
+    /// <param name="_button"></param>
+    /// <returns></returns>
+    bool IsPress(GamepadButton _button) const;
 
     /// <summary>
-    /// ボタン押下瞬間
+    /// 左スティックの取得
     /// </summary>
-    /// <param name="_button">ボタンビット</param>
-    /// <returns>押された瞬間ならtrue</returns>
-    bool IsTrigger(uint32_t _button) const { return (buttonMask_ & _button) && !(prevButtonMask_ & _button); }
+    /// <returns></returns>
+    Vec2f GetLeftStick() const;
 
     /// <summary>
-    /// ボタン押下瞬間
+    /// 右スティックの取得
     /// </summary>
-    /// <param name="_button">ボタン種類</param>
-    /// <returns>押された瞬間ならtrue</returns>
-    bool IsTrigger(PadButton _button) const { return (buttonMask_ & static_cast<uint32_t>(_button)) && !(prevButtonMask_ & static_cast<uint32_t>(_button)); }
+    /// <returns></returns>
+    Vec2f GetRightStick() const;
 
     /// <summary>
-    /// ボタン解放瞬間
+    /// 左トリガー (L2)
     /// </summary>
-    /// <param name="_button">ボタンビット</param>
-    /// <returns>離された瞬間ならtrue</returns>
-    bool IsRelease(uint32_t _button) const { return !(buttonMask_ & _button) && (prevButtonMask_ & _button); }
+    /// <returns></returns>
+    float GetLeftTrigger() const;
 
     /// <summary>
-    /// ボタン解放瞬間
+    /// 右トリガー (R2)
     /// </summary>
-    /// <param name="_button">ボタン種類</param>
-    /// <returns>離された瞬間ならtrue</returns>
-    bool IsRelease(PadButton _button) const { return !(buttonMask_ & static_cast<uint32_t>(_button)) && (prevButtonMask_ & static_cast<uint32_t>(_button)); }
+    /// <returns></returns>
+    float GetRightTrigger() const;
+
+    // ==========================================
+    // 2. エッジ検出 (履歴比較)
+    // ==========================================
 
     /// <summary>
-    /// 左スティックの現在座標（-1.0〜1.0）
+    /// ボタンが押された瞬間か (Just Pressed / Trigger)
     /// </summary>
-    /// <returns>左スティックの入力値</returns>
-    const Vec2f& GetLStick() const { return lStick_; }
+    /// <param name="_buttonMask"></param>
+    /// <returns></returns>
+    bool IsTrigger(uint32_t _buttonMask) const;
 
     /// <summary>
-    /// 右スティックの現在座標を取得する.
+    ///  押された瞬間か (Just Pressed / Trigger)
     /// </summary>
-    /// <returns>スティック入力ベクトル (-1.0 ～ 1.0)</returns>
-    const Vec2f& GetRStick() const { return rStick_; }
+    /// <param name="_button"></param>
+    /// <returns></returns>
+    bool IsTrigger(GamepadButton _button) const;
 
     /// <summary>
-    /// 左トリガー値（0.0〜1.0）
+    /// ボタンが離された瞬間か (Just Released)
     /// </summary>
-    /// <returns>左トリガーの入力値</returns>
-    float GetLTrigger() const { return lTrigger_; }
+    /// <param name="_buttonMask"></param>
+    /// <returns></returns>
+    bool IsRelease(uint32_t _buttonMask) const;
 
     /// <summary>
-    /// 右トリガー値（0.0〜1.0）
+    /// 離された瞬間か (Just Released)
     /// </summary>
-    /// <returns>右トリガーの入力値</returns>
-    float GetRTrigger() const { return rTrigger_; }
+    /// <param name="_button"></param>
+    /// <returns></returns>
+    bool IsRelease(GamepadButton _button) const;
+
+    // ==========================================
+    // 3. 履歴を利用した拡張判定
+    // ==========================================
+
+    /// <summary>
+    /// 直近 N フレーム以内に押されたか？ (先行入力用)
+    /// </summary>
+    /// <param name="_button"></param>
+    /// <param name="_framesToCheck"></param>
+    /// <returns></returns>
+    bool WasPressedRecently(GamepadButton _button, size_t _framesToCheck = 5) const;
+
+    /// <summary>
+    /// 直近 N フレーム以内に入力を開始したか？ (先行入力用)
+    /// </summary>
+    /// <param name="_button"></param>
+    /// <param name="_framesToCheck"></param>
+    /// <returns></returns>
+    bool WasTriggeredRecently(GamepadButton _button, size_t _framesToCheck = 5) const;
+
+    /// <summary>
+    /// 直近 N フレーム以内に離されたか？ (キャンセル入力用)
+    /// </summary>
+    /// <param name="_button"></param>
+    /// <param name="_framesToCheck"></param>
+    /// <returns></returns>
+    bool WasReleasedRecently(GamepadButton _button, size_t _framesToCheck = 5) const;
+
+    /// <summary>
+    /// 指定したフレーム数、ボタンが押し続けられているか？ (溜め判定用)
+    /// </summary>
+    /// <param name="_button"></param>
+    /// <param name="_frames"></param>
+    /// <returns></returns>
+    bool IsPressedDuration(GamepadButton _button, size_t _frames) const;
 };
 
 } // namespace OriGine

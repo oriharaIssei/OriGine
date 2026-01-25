@@ -2,6 +2,7 @@
 
 /// stl
 #include <array>
+#include <deque>
 #include <map>
 #include <string>
 
@@ -248,10 +249,21 @@ static ::std::map<Key, ::std::string> keyNameMap = {
 static constexpr uint32_t KEY_COUNT = 256;
 
 /// <summary>
+/// 1フレーム分のキーボード入力情報
+/// </summary>
+struct KeyboardState {
+    // DirectInputのキー状態バッファ (0x80が立っていればON)
+    std::array<BYTE, KEY_COUNT> keys;
+};
+
+/// <summary>
 /// DirectInput によるキーボード入力を管理するクラス.
 /// </summary>
 class KeyboardInput {
     friend class ReplayPlayer;
+
+    // 履歴管理
+    static constexpr uint32_t kInputHistoryCount = 60;
 
 public:
     KeyboardInput()  = default;
@@ -277,82 +289,70 @@ public:
     /// </summary>
     void Finalize();
 
+    /// <summary>
+    /// キー状態履歴をクリアする.
+    /// </summary>
+    void ClearHistory();
+
+private:
+    /// <summary>
+    /// 安全に履歴へアクセスするヘルパー
+    /// </summary>
+    const KeyboardState* GetState(size_t _historyIndex) const;
+
 private:
     /// <summary>キーボードデバイス</summary>
-    Microsoft::WRL::ComPtr<IDirectInputDevice8> keyboard_;
-    /// <summary>現在のキー状態バッファ</summary>
-    ::std::array<BYTE, KEY_COUNT> keys_{};
-    /// <summary>前回フレームのキー状態バッファ</summary>
-    ::std::array<BYTE, KEY_COUNT> prevKeys_{};
+    Microsoft::WRL::ComPtr<IDirectInputDevice8> keyboard_ = nullptr;
+    std::deque<KeyboardState> inputHistory_{};
 
 public:
     /// <summary>
     /// 現在の全キーの状態（DIK_ 値に対応するバッファ）を取得する.
+    /// 万が一取得できない場合は、staticなダミーデータを返す.
     /// </summary>
     /// <returns>現在のキー状態配列</returns>
-    const ::std::array<BYTE, KEY_COUNT>& GetKeyStates() const { return keys_; }
-
-    /// <summary>
-    /// 前回フレームの全キーの状態を取得する.
-    /// </summary>
-    /// <returns>前回フレームのキー状態配列</returns>
-    const ::std::array<BYTE, KEY_COUNT>& GetPrevKeyStates() const { return prevKeys_; }
-
-    /// <summary>
-    /// キー状態バッファをクリアする.
-    /// </summary>
-    void ClearKeyStates() {
-        keys_.fill(0);
-        prevKeys_.fill(0);
-    }
+    const ::std::array<BYTE, KEY_COUNT>& GetKeyStates() const;
 
     /// <summary>
     /// 指定されたキーが現在押されているか判定する.
     /// </summary>
-    /// <param name="_key">DIK_* インデックス</param>
-    /// <returns>押されていれば true</returns>
-    bool IsPress(uint32_t _key) const { return keys_[_key]; }
-
-    /// <summary>
-    /// 指定されたキーが現在押されているか判定する.
-    /// </summary>
-    /// <param name="_key">キー種類</param>
-    /// <returns>押されていれば true</returns>
-    bool IsPress(Key _key) const { return keys_[static_cast<uint32_t>(_key)]; }
+    bool IsPress(uint32_t _key) const;
+    bool IsPress(Key _key) const { return IsPress(static_cast<uint32_t>(_key)); }
 
     /// <summary>
     /// 指定されたキーがこのフレームで押された（トリガーされた）か判定する.
     /// </summary>
-    /// <param name="_key">DIK_* インデックス</param>
-    /// <returns>押された瞬間なら true</returns>
-    bool IsTrigger(uint32_t _key) const { return (keys_[_key] && !prevKeys_[_key]); }
-
-    /// <summary>
-    /// 指定されたキーがこのフレームで押された（トリガーされた）か判定する.
-    /// </summary>
-    /// <param name="_key">キー種類</param>
-    /// <returns>押された瞬間なら true</returns>
-    bool IsTrigger(Key _key) const {
-        uint32_t keyNum = static_cast<uint32_t>(_key);
-        return (keys_[keyNum] && !prevKeys_[keyNum]);
-    }
+    bool IsTrigger(uint32_t _key) const;
+    bool IsTrigger(Key _key) const { return IsTrigger(static_cast<uint32_t>(_key)); }
 
     /// <summary>
     /// 指定されたキーがこのフレームで離されたか判定する.
     /// </summary>
-    /// <param name="_key">DIK_* インデックス</param>
-    /// <returns>離された瞬間なら true</returns>
-    bool IsRelease(uint32_t _key) const { return (!keys_[_key] && prevKeys_[_key]); }
+    bool IsRelease(uint32_t _key) const;
+    bool IsRelease(Key _key) const { return IsRelease(static_cast<uint32_t>(_key)); }
+
+    // ========================================================================
+    // 拡張機能 (履歴ならではの機能)
+    // ========================================================================
 
     /// <summary>
-    /// 指定されたキーがこのフレームで離されたか判定する.
+    /// 直近 N フレーム以内に指定キーが押された瞬間があったか？ (先行入力用)
     /// </summary>
-    /// <param name="_key">キー種類</param>
-    /// <returns>離された瞬間なら true</returns>
-    bool IsRelease(Key _key) const {
-        uint32_t keyNum = static_cast<uint32_t>(_key);
-        return (!keys_[keyNum] && prevKeys_[keyNum]);
-    }
+    bool WasPressedRecently(Key _key, size_t _framesToCheck = 10) const;
+    /// <summary>
+    /// 直近 N フレーム以内に指定キーがトリガーされたか？
+    /// </summary>
+    /// <param name="_key"></param>
+    /// <param name="_framesToCheck"></param>
+    /// <returns></returns>
+    bool WasTriggeredRecently(Key _key, size_t _framesToCheck = 10) const;
+    /// <summary>
+    /// 直近 N フレーム以内に指定キーが離されたか？
+    /// </summary>
+    /// <param name="_key"></param>
+    /// <param name="_framesToCheck"></param>
+    /// <returns></returns>
+    bool WasReleasedRecently(Key _key, size_t _framesToCheck = 10) const;
 };
 
 } // namespace OriGine

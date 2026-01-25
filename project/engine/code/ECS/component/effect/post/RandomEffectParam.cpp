@@ -16,7 +16,7 @@ void RandomEffectParam::Initialize(Scene* /*_scene*/, EntityHandle /*_entity*/) 
     effectParamData_.CreateBuffer(Engine::GetInstance()->GetDxDevice()->device_);
 }
 
-void RandomEffectParam::Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, const std::string& _parentLabel) {
+void RandomEffectParam::Edit(Scene* /*_scene*/, EntityHandle /*_owner*/, [[maybe_unused]] const std::string& _parentLabel) {
 
 #ifdef _DEBUG
     CheckBoxCommand("Active##" + _parentLabel, isActive_);

@@ -79,13 +79,9 @@ void DebugReplayWindow::UpdateSceneManager() {
             // index の初期化
             playerCurrentFrameIndex = 0;
             // input の初期化
-            keyboardInput_->ClearKeyStates();
-            mouseInput_->ClearButtonStates();
-            mouseInput_->ResetWheelDelta();
-            mouseInput_->ResetPosition();
-            gamePadInput_->ClearButtonStates();
-            gamePadInput_->ClearStickStates();
-            gamePadInput_->ClearTriggerStates();
+            keyboardInput_->ClearHistory();
+            mouseInput_->ClearHistory();
+            gamePadInput_->ClearHistory();
 
             // シーク
             replayPlayer_->Seek(playerCurrentFrameIndex);
@@ -168,7 +164,7 @@ void DebugReplayViewArea::DrawGui() {
             }
 
             const OriGine::Vec2f& sceneViewSize = currentScene->GetSceneView()->GetTextureSize();
-            float aspectRatio          = sceneViewSize[smallerIndex] / sceneViewSize[biggerIndex];
+            float aspectRatio                   = sceneViewSize[smallerIndex] / sceneViewSize[biggerIndex];
 
             // aspect比を維持したままリサイズ
             areaSize_[biggerIndex]  = guiWindowSize[biggerIndex];

@@ -11,7 +11,6 @@
 
 /// ECS
 // component
-#include "component/animation/SkinningAnimationComponent.h"
 #include "component/material/light/LightManager.h"
 #include "component/renderer/MeshRenderer.h"
 #include "component/renderer/primitive/base/PrimitiveMeshRendererBase.h"

@@ -32,7 +32,7 @@ void OutlineComponent::Finalize() {
     paramData.Finalize();
 }
 
-void OutlineComponent::Edit(Scene* _scene, EntityHandle _owner, const std::string& _parentLabel) {
+void OutlineComponent::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _owner, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
     CheckBoxCommand("Is Active##" + _parentLabel, isActive);
 

@@ -39,20 +39,13 @@ void ReplayRecorder::RecordFrame(float _deltaTime, KeyboardInput* _keyInput, Mou
 
     // マウス入力の記録（座標、ホイール、ボタン）
     if (_mouseInput) {
-        frameData.mouseData.mousePos   = _mouseInput->GetPosition();
-        frameData.mouseData.wheelDelta = _mouseInput->GetWheelDelta();
-
-        frameData.mouseData.buttonData = _mouseInput->ButtonStateToBitmask();
+        frameData.mouseData = _mouseInput->GetCurrentState();
     }
 
     // ゲームパッド入力の記録（スティック、トリガー、ボタン、接続状態）
     if (_padInput) {
-        frameData.padData.lStick     = _padInput->GetLStick();
-        frameData.padData.rStick     = _padInput->GetRStick();
-        frameData.padData.lTrigger   = _padInput->GetLTrigger();
-        frameData.padData.rTrigger   = _padInput->GetRTrigger();
-        frameData.padData.buttonData = _padInput->GetButtonMask();
-        frameData.padData.isActive   = _padInput->IsActive();
+        frameData.padData.padState = _padInput->GetCurrentState();
+        frameData.padData.isActive = _padInput->IsActive();
     }
 
     frames_.push_back(frameData);
@@ -149,15 +142,15 @@ void ReplayRecorder::WriteFrameData(std::ofstream& _ofs, size_t _frameIndex) {
     // ゲームパッド入力データ
     {
         // スティック入力 (L/R)
-        _ofs.write(reinterpret_cast<const char*>(&frame.padData.lStick[X]), sizeof(float));
-        _ofs.write(reinterpret_cast<const char*>(&frame.padData.lStick[Y]), sizeof(float));
-        _ofs.write(reinterpret_cast<const char*>(&frame.padData.rStick[X]), sizeof(float));
-        _ofs.write(reinterpret_cast<const char*>(&frame.padData.rStick[Y]), sizeof(float));
+        _ofs.write(reinterpret_cast<const char*>(&frame.padData.padState.lStick[X]), sizeof(float));
+        _ofs.write(reinterpret_cast<const char*>(&frame.padData.padState.lStick[Y]), sizeof(float));
+        _ofs.write(reinterpret_cast<const char*>(&frame.padData.padState.rStick[X]), sizeof(float));
+        _ofs.write(reinterpret_cast<const char*>(&frame.padData.padState.rStick[Y]), sizeof(float));
         // トリガー入力 (L/R)
-        _ofs.write(reinterpret_cast<const char*>(&frame.padData.lTrigger), sizeof(float));
-        _ofs.write(reinterpret_cast<const char*>(&frame.padData.rTrigger), sizeof(float));
+        _ofs.write(reinterpret_cast<const char*>(&frame.padData.padState.lTrigger), sizeof(float));
+        _ofs.write(reinterpret_cast<const char*>(&frame.padData.padState.rTrigger), sizeof(float));
         // ボタンのビットマスク
-        _ofs.write(reinterpret_cast<const char*>(&frame.padData.buttonData), sizeof(uint32_t));
+        _ofs.write(reinterpret_cast<const char*>(&frame.padData.padState.buttonMask), sizeof(uint32_t));
         // パッド接続状態
         _ofs.write(reinterpret_cast<const char*>(&frame.padData.isActive), sizeof(bool));
     }

@@ -7,6 +7,12 @@
 #include <array>
 #include <string>
 
+/// engine
+// input
+#include "input/GamepadInput.h"
+#include "input/KeyboardInput.h"
+#include "input/MouseInput.h"
+
 /// util
 #include <BitArray.h>
 #include <Version.h>
@@ -18,27 +24,11 @@
 namespace OriGine {
 
 /// <summary>
-/// リプレイデータ 1 フレーム分のマウス入力情報.
-/// </summary>
-struct ReplayFrameMouseData {
-    Vec2f mousePos; // マウスのスクリーン座標
-    int32_t wheelDelta; // ホイールの回転量
-
-    uint32_t buttonData; // マウスボタンのビットマスク状態
-};
-
-/// <summary>
-/// リプレイデータ 1 フレーム分のゲームパッド入力情報.
+/// リプレイデータ 1 フレーム分のパッド入力情報.
 /// </summary>
 struct ReplayFramePadData {
-    Vec2f lStick; // 左スティックの傾き
-    Vec2f rStick; // 右スティックの傾き
-
-    float lTrigger; // 左トリガーの押し込み量
-    float rTrigger; // 右トリガーの押し込み量
-
-    uint32_t buttonData; // パッドボタンのビットマスク状態
-    bool isActive; // パッドが接続されてアクティブだったか
+    GamepadState padState; // パッドの状態
+    bool isActive; // パッドが接続されているかどうか
 };
 
 /// <summary>
@@ -47,7 +37,7 @@ struct ReplayFramePadData {
 /// </summary>
 struct ReplayFrameData {
     BitArray<uint32_t> keyInputData = BitArray<uint32_t>(256); // キーボードの全キー状態（256ビット）
-    ReplayFrameMouseData mouseData; // マウス情報
+    MouseState mouseData; // マウス情報
     ReplayFramePadData padData; // パッド情報
 
     float deltaTime; // フレーム間の経過時間

@@ -74,7 +74,7 @@ void DebugCamera::TranslationState::Update() {
     // 入力状態をビットで管理
     uint32_t state = 0;
     bool a         = mouseInput->IsWheel();
-    bool b         = mouseInput->IsPress(0);
+    bool b         = mouseInput->IsPress(MouseButton::LEFT);
     uint32_t c     = (keyInput->IsPress(Key::L_ALT) | keyInput->IsPress(Key::R_ALT));
     state          = (a) + (b * 2);
     state *= c;
@@ -88,7 +88,7 @@ void DebugCamera::TranslationState::Update() {
     // wheel + mouse move -> XYZ全方向移動
     switch ((TranslationType)state) {
     case NONE:
-        host_->currentState_.reset(new Neutral(host_));
+        host_->currentState_ = std::make_unique<Neutral>(host_);
         return;
     case Z_WHEEL:
         velo = {0.0f, 0.0f, inputVal[Z]};
