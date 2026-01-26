@@ -15,13 +15,14 @@ CameraAction::~CameraAction() {}
 
 void CameraAction::Initialize(Scene* /*_scene*/, EntityHandle /*_entity*/) {}
 
-void CameraAction::Edit(Scene* /*_scene*/, EntityHandle /*_entity*/,[[maybe_unused]] const std::string& _parentLabel) {
+void CameraAction::Edit(Scene* /*_scene*/, EntityHandle /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
 
 #ifdef DEBUG
     std::string label = "AnimationState##" + _parentLabel;
     if (ImGui::TreeNode(label.c_str())) {
-        CheckBoxCommand("Is Playing##" + _parentLabel, animationState_.isPlay_);
-        CheckBoxCommand("Is Looping##" + _parentLabel, animationState_.isLoop_);
+        CheckBoxCommand("Is Debug Play##" + _parentLabel, isDebugPlay_);
+        CheckBoxCommand("Is Play##" + _parentLabel, animationState_.isPlay_);
+        CheckBoxCommand("Is Loop##" + _parentLabel, animationState_.isLoop_);
         ImGui::TreePop();
     }
 

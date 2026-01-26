@@ -23,7 +23,7 @@ void DebugCamera::Finalize() {
 void DebugCamera::DebugUpdate() {
 #ifdef _DEBUG
     if (ImGui::Begin("DebugCamera")) {
-        ImGui::DragFloat3("Rotate", &cameraBuff_.rotate[X], 0.1f);
+        ImGui::DragFloat4("Rotate", &cameraBuff_.rotate[X], 0.1f);
         ImGui::DragFloat3("Translate", &cameraBuff_.translate[X], 0.1f);
 
         cameraBuff_.UpdateMatrix();
@@ -46,7 +46,7 @@ void DebugCamera::Neutral::Update() {
     MouseInput* mouseInput  = InputManager::GetInstance()->GetMouse();
 
     // Altキーが押されていない場合は何もしない
-    if (!(keyInput->IsPress(DIK_LALT) || keyInput->IsPress(DIK_RALT))) {
+    if (!(keyInput->IsPress(DIK_LALT) || !keyInput->IsPress(DIK_RALT))) {
         return;
     }
     // Alt + 左クリックまたはホイール操作で移動状態へ遷移

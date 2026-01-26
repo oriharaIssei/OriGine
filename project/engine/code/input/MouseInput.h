@@ -22,17 +22,17 @@ namespace OriGine {
 /// </summary>
 enum class MouseButton : uint32_t {
     /// <summary>左ボタン</summary>
-    LEFT = 0,
+    LEFT = 1u << 1,
     /// <summary>右ボタン</summary>
-    RIGHT = 1,
+    RIGHT = 1u << 2,
     /// <summary>中央（ホイール）ボタン</summary>
-    MIDDLE = 2,
+    MIDDLE = 1u << 3,
 
-    BTN_3 = 3,
-    BTN_4 = 4,
-    BTN_5 = 5,
-    BTN_6 = 6,
-    BTN_7 = 7,
+    BTN_3 = 1u << 4,
+    BTN_4 = 1u << 5,
+    BTN_5 = 1u << 6,
+    BTN_6 = 1u << 7,
+    BTN_7 = 1u << 8,
 };
 
 /// <summary>

@@ -27,9 +27,12 @@ void GamepadInput::Update() {
     isActive_ = (XInputGetState(0, &state) == ERROR_SUCCESS);
 
     GamepadState currentState{};
+    // 非アクティブ時は空の状態を履歴に追加して終了
     if (!isActive_) {
         inputHistory_.push_back(currentState);
+        return;
     }
+
     // デジタルボタン
     currentState.buttonMask |= state.Gamepad.wButtons;
 
@@ -72,23 +75,24 @@ void OriGine::GamepadInput::ClearHistory() {
 void GamepadInput::UpdateStickValues(XINPUT_STATE _state, GamepadState& _currentState) {
     // deadZoneとdeadZoneを除去したあとの最大値を計算
     float deadZone = *deadZone_.GetValue();
-    float stickMax = kStickMax - deadZone;
+    // 0 ~ 1の範囲で考える そこからdeadZone分を引いた値が最大値になる
+    float stickMax = 1.f - deadZone;
 
     // deadZoneを考慮して正規化するラムダ関数
     auto normalizeStick = [this, deadZone, stickMax](SHORT _x, SHORT _y) -> Vec2f {
         float realX = static_cast<float>(_x) / kStickMax;
         float realY = static_cast<float>(_y) / kStickMax;
 
+        float signX = realX >= 0.f ? 1.0f : -1.0f;
+        float signY = realY >= 0.f ? 1.0f : -1.0f;
+
         Vec2f result = Vec2f(0.0f, 0.0f);
 
-        if (std::abs(realX) - deadZone >= kEpsilon) {
-            float signX = std::signbit(realX) ? 1.0f : -1.0f;
-            result[X]   = signX * (std::abs(realX) - deadZone) / stickMax;
-        }
-        if (std::abs(realX) - deadZone >= kEpsilon) {
-            float signY = std::signbit(realY) ? 1.0f : -1.0f;
-            result[Y]   = signY * (std::abs(realY) - deadZone) / stickMax;
-        }
+        result[X] = signX * (std::max)(std::abs(realX) - deadZone, 0.f);
+        result[X] /= stickMax;
+
+        result[Y] = signY * (std::max)(std::abs(realY) - deadZone, 0.f);
+        result[Y] /= stickMax;
 
         return result;
     };
@@ -232,7 +236,7 @@ bool OriGine::GamepadInput::IsRelease(uint32_t _buttonMask) const {
 bool GamepadInput::WasPressedRecently(GamepadButton _button, size_t _framesToCheck) const {
     // 履歴サイズを超えないように制限
     size_t checkCount = (std::min)(inputHistory_.size(), _framesToCheck);
-    uint32_t mask  = static_cast<uint32_t>(_button);
+    uint32_t mask     = static_cast<uint32_t>(_button);
 
     // 過去 N フレームを走査
     for (int i = 0; i < checkCount; ++i) {
@@ -246,7 +250,7 @@ bool GamepadInput::WasPressedRecently(GamepadButton _button, size_t _framesToChe
 bool OriGine::GamepadInput::WasTriggeredRecently(GamepadButton _button, size_t _framesToCheck) const {
     // 履歴サイズを超えないように制限
     size_t checkCount = (std::min)(inputHistory_.size() - 1, _framesToCheck - 1);
-    uint32_t mask  = static_cast<uint32_t>(_button);
+    uint32_t mask     = static_cast<uint32_t>(_button);
     // 過去 N フレームを走査
     for (int i = 0; i < checkCount; ++i) {
         bool isDownNow  = (inputHistory_[i].buttonMask & mask) != 0;
@@ -262,7 +266,7 @@ bool OriGine::GamepadInput::WasTriggeredRecently(GamepadButton _button, size_t _
 bool OriGine::GamepadInput::WasReleasedRecently(GamepadButton _button, size_t _framesToCheck) const {
     // 履歴サイズを超えないように制限
     size_t checkCount = (std::min)(inputHistory_.size() - 1, _framesToCheck - 1);
-    uint32_t mask  = static_cast<uint32_t>(_button);
+    uint32_t mask     = static_cast<uint32_t>(_button);
     // 過去 N フレームを走査
     for (int i = 0; i < checkCount; ++i) {
         bool isDownNow  = (inputHistory_[i].buttonMask & mask) != 0;

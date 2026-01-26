@@ -54,12 +54,12 @@ void CameraActionSystem::UpdateEntity(EntityHandle _handle) {
 
     // アニメーション時間を進める
     float currentTime = action->GetTime();
-    currentTime -= deltaTime;
+    currentTime += deltaTime;
     action->SetCurrentTime(currentTime);
 
     // アニメーション終了判定
     // ループ設定されている場合は最初から再生
-    if (currentTime <= 0.f) {
+    if (currentTime >= action->GetDuration()) {
         if (action->isLooping()) {
             action->Play();
         } else {

@@ -24,22 +24,38 @@ public:
     void Finalize() override;
 
     void Play() {
+#ifdef _DEBUG
+        isDebugPlay_ = true;
+#else
         animationState_.isPlay_ = true;
-        animationState_.isEnd_  = false;
-        currentTime_            = 0.0f;
+#endif // _DEBUG
+        animationState_.isEnd_ = false;
+        currentTime_           = 0.0f;
     }
     void PlayContinue() {
+#ifdef _DEBUG
+        isDebugPlay_ = true;
+#else
         animationState_.isPlay_ = true;
-        animationState_.isEnd_  = false;
+#endif // _DEBUG
+        animationState_.isEnd_ = false;
     }
     void Stop() {
+#ifdef _DEBUG
+        isDebugPlay_ = false;
+#else
         animationState_.isPlay_ = false;
-        animationState_.isEnd_  = true;
+#endif // _DEBUG
+        animationState_.isEnd_ = true;
     }
 
 private:
     float duration_    = 1.f; // アニメーションの総時間
     float currentTime_ = 0.0f;
+
+#ifdef _DEBUG
+    bool isDebugPlay_ = false;
+#endif // _DEBUG
     AnimationState animationState_; // アニメーション状態
 
     // カメラのアニメーションカーブ
@@ -51,7 +67,13 @@ private:
     AnimationCurve<Vec3f> positionCurve_; // カメラ位置のアニメーションカーブ
     AnimationCurve<Quaternion> rotationCurve_; // カメラ回転のアニメーションカーブ
 public:
-    bool isPlaying() const { return animationState_.isPlay_; }
+    bool isPlaying() const {
+#ifdef _DEBUG
+        return isDebugPlay_;
+#else
+        return animationState_.isPlay_;
+#endif // _DEBUG
+    }
     bool IsEnd() const { return animationState_.isEnd_; }
 
     bool isLooping() const { return animationState_.isLoop_; }

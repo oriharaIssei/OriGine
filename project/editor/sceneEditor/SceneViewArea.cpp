@@ -63,6 +63,8 @@ void SceneViewArea::DrawGui() {
 
         DrawScene();
 
+        debugCamera_->DebugUpdate();
+
         ImGui::Image(reinterpret_cast<ImTextureID>(renderTexture->GetBackBufferSrvHandle().ptr), areaSize_.toImVec2());
 
         // マウス座標の変換処理

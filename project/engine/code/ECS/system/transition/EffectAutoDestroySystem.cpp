@@ -11,6 +11,7 @@
 #include "component/animation/SkinningAnimationComponent.h"
 #include "component/animation/SpriteAnimation.h"
 #include "component/animation/TransformAnimation.h"
+#include "component/effect/CameraAction.h"
 
 using namespace OriGine;
 
@@ -51,6 +52,11 @@ void EffectAutoDestroySystem::UpdateEntity(OriGine::EntityHandle _handle) {
     auto& transAnimations = GetComponents<TransformAnimation>(_handle);
     for (auto& anim : transAnimations) {
         isAlive |= anim.IsPlaying();
+    }
+
+    auto& cameraActions = GetComponents<CameraAction>(_handle);
+    for (auto& action : cameraActions) {
+        isAlive |= action.isPlaying();
     }
 
     if (!isAlive) {

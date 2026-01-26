@@ -2,7 +2,9 @@
 
 /// manager
 #include "camera/CameraManager.h"
-/// components
+
+/// ECS
+// components
 #include "component/transform/CameraTransform.h"
 #include "component/transform/Transform.h"
 
@@ -42,4 +44,7 @@ void CameraInitialize::UpdateEntity(EntityHandle _handle) {
     cameraTransform->UpdateMatrix();
     CameraManager::GetInstance()->SetTransform(GetScene(), *cameraTransform);
     CameraManager::GetInstance()->DataConvertToBuffer(GetScene());
+
+    // cameraAnimation
+
 }
