@@ -5,6 +5,7 @@
 // directX12Object
 // module
 #include "camera/CameraManager.h"
+#include "EngineConfig.h"
 #include "texture/TextureManager.h"
 #include "winApp/WinApp.h"
 /// ECS
@@ -31,7 +32,7 @@ void SpriteRenderSystem::Initialize() {
 
     // ViewPortMatの計算
     WinApp* window = Engine::GetInstance()->GetWinApp();
-    viewPortMat_   = MakeMatrix4x4::Orthographic(0, 0, (float)window->GetWidth(), (float)window->GetHeight(), 0.0f, 100.0f);
+    viewPortMat_   = MakeMatrix4x4::Orthographic(0, 0, (float)window->GetWidth(), (float)window->GetHeight(), Config::Rendering::kMinDepth, Config::Camera::kDefaultFarClip);
 }
 
 /// <summary>
@@ -43,7 +44,7 @@ void SpriteRenderSystem::Rendering() {
     // OrthographicMat の再計算(Resizeされる可能性)
     ///=========================================================
     WinApp* window = Engine::GetInstance()->GetWinApp();
-    viewPortMat_   = MakeMatrix4x4::Orthographic(0, 0, (float)window->GetWidth(), (float)window->GetHeight(), 0.0f, 100.0f);
+    viewPortMat_   = MakeMatrix4x4::Orthographic(0, 0, (float)window->GetWidth(), (float)window->GetHeight(), Config::Rendering::kMinDepth, Config::Camera::kDefaultFarClip);
 
     ///=========================================================
     // Priorityが低い順に

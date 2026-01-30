@@ -4,6 +4,8 @@
 
 /// engine
 #define RESOURCE_DIRECTORY
+#include "editor/EditorConfig.h"
+#include "engine/code/EngineConfig.h"
 #include "EngineInclude.h"
 
 #include "scene/SceneFactory.h"
@@ -414,9 +416,10 @@ void SelectAddComponentArea::ComponentListRegion::DrawGui() {
     auto& componentTypeNames = ComponentRegistry::GetInstance()->GetComponentTypeNames();
 
     // ImGuiのスタイルで選択色を設定（必要に応じてアプリ全体で設定してもOK）
-    ImVec4 winSelectColor = ImVec4(0.26f, 0.59f, 0.98f, 1.0f); // Windows風の青
+    const auto& c         = EditorConfig::Color::kWinSelectColor;
+    ImVec4 winSelectColor = ImVec4(c[R], c[G], c[B], c[A]); // Windows風の青
     ::ImGui::PushStyleColor(ImGuiCol_Header, winSelectColor);
-    ::ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.26f, 0.59f, 0.98f, 0.8f));
+    ::ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(c[R], c[G], c[B], EditorConfig::Color::kWinSelectHeaderAlpha));
     ::ImGui::PushStyleColor(ImGuiCol_HeaderActive, winSelectColor);
     for (auto& name : componentTypeNames) {
 
@@ -569,9 +572,10 @@ void SelectAddSystemArea::SystemListRegion::DrawGui() {
     auto systemInspector   = dynamic_cast<SystemInspectorArea*>(sceneEditorWindow->GetArea(nameof<SystemInspectorArea>()).get());
     auto& systemsMap       = systemInspector->GetSystemMap();
 
-    ImVec4 winSelectColor = ImVec4(0.26f, 0.59f, 0.98f, 1.0f);
+    const auto& c         = EditorConfig::Color::kWinSelectColor;
+    ImVec4 winSelectColor = ImVec4(c[R], c[G], c[B], c[A]);
     ::ImGui::PushStyleColor(ImGuiCol_Header, winSelectColor);
-    ::ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(0.26f, 0.59f, 0.98f, 0.8f));
+    ::ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(c[R], c[G], c[B], EditorConfig::Color::kWinSelectHeaderAlpha));
     ::ImGui::PushStyleColor(ImGuiCol_HeaderActive, winSelectColor);
 
     if (searchBuff_.empty()) {

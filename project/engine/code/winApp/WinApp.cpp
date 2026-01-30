@@ -7,6 +7,9 @@
 
 #include <vector>
 
+/// engine
+#include "EngineConfig.h"
+
 /// util
 #include "globalVariables/SerializedField.h"
 /// external

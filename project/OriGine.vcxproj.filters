@@ -13,6 +13,9 @@
     <Filter Include="editor\setting">
       <UniqueIdentifier>{D9053C78-C5D3-2F7E-AE67-A0A49AD40BE3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="editor\tool">
+      <UniqueIdentifier>{B93CFD5F-25F2-7555-AEE6-6F2C1A9B6C59}</UniqueIdentifier>
+    </Filter>
     <Filter Include="editor\window">
       <UniqueIdentifier>{3396D15A-9F56-4D91-6891-960ED410926D}</UniqueIdentifier>
     </Filter>
@@ -133,6 +136,9 @@
     <Filter Include="engine\code\directX12\mesh">
       <UniqueIdentifier>{C6C7259D-B2D7-D16D-1B91-368C07C0C006}</UniqueIdentifier>
     </Filter>
+    <Filter Include="engine\code\directX12\raytracing">
+      <UniqueIdentifier>{8D6332AC-79B4-1DEE-A218-0CB08EC8B057}</UniqueIdentifier>
+    </Filter>
     <Filter Include="engine\code\imGuiManager">
       <UniqueIdentifier>{8A24C19B-7649-101C-9F94-F5AB8B180F3A}</UniqueIdentifier>
     </Filter>
@@ -193,6 +199,9 @@
     <Filter Include="util\timeline">
       <UniqueIdentifier>{89AC1F52-F56C-9B88-BEA7-E4052A27E064}</UniqueIdentifier>
     </Filter>
+    <Filter Include="util\uuidGenerator">
+      <UniqueIdentifier>{D05BEAF6-BC3F-AB4C-25A0-A59F11A395CE}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="editor\EditorController.h">
@@ -210,10 +219,22 @@
     <ClInclude Include="editor\debugReplayer\DebugReplayWindow.h">
       <Filter>editor\debugReplayer</Filter>
     </ClInclude>
+    <ClInclude Include="editor\sceneEditor\DevelopControlArea.h">
+      <Filter>editor\sceneEditor</Filter>
+    </ClInclude>
     <ClInclude Include="editor\sceneEditor\EntityInspector.h">
       <Filter>editor\sceneEditor</Filter>
     </ClInclude>
+    <ClInclude Include="editor\sceneEditor\HierarchyArea.h">
+      <Filter>editor\sceneEditor</Filter>
+    </ClInclude>
     <ClInclude Include="editor\sceneEditor\SceneEditor.h">
+      <Filter>editor\sceneEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="editor\sceneEditor\SceneEditorMenus.h">
+      <Filter>editor\sceneEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="editor\sceneEditor\SceneViewArea.h">
       <Filter>editor\sceneEditor</Filter>
     </ClInclude>
     <ClInclude Include="editor\sceneEditor\SystemInspector.h">
@@ -222,6 +243,9 @@
     <ClInclude Include="editor\setting\SettingWindow.h">
       <Filter>editor\setting</Filter>
     </ClInclude>
+    <ClInclude Include="editor\tool\ObjectPicker.h">
+      <Filter>editor\tool</Filter>
+    </ClInclude>
     <ClInclude Include="editor\window\EditorWindowMenu.h">
       <Filter>editor\window</Filter>
     </ClInclude>
@@ -229,6 +253,9 @@
       <Filter>engine</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\component\ComponentArray.h">
+      <Filter>engine\code\ECS\component</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\ComponentHandle.h">
       <Filter>engine\code\ECS\component</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\component\ComponentRegistry.h">
@@ -250,6 +277,9 @@
       <Filter>engine\code\ECS\component\animation</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\component\animation\AnimationManager.h">
+      <Filter>engine\code\ECS\component\animation</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\animation\DissolveAnimation.h">
       <Filter>engine\code\ECS\component\animation</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\component\animation\MaterialAnimation.h">
@@ -310,6 +340,9 @@
       <Filter>engine\code\ECS\component\effect\post</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\component\effect\post\GradationComponent.h">
+      <Filter>engine\code\ECS\component\effect\post</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\component\effect\post\OutlineComponent.h">
       <Filter>engine\code\ECS\component\effect\post</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\component\effect\post\RadialBlurParam.h">
@@ -414,6 +447,9 @@
     <ClInclude Include="engine\code\ECS\entity\Entity.h">
       <Filter>engine\code\ECS\entity</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\ECS\entity\EntityHandle.h">
+      <Filter>engine\code\ECS\entity</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\ECS\entity\EntityRepository.h">
       <Filter>engine\code\ECS\entity</Filter>
     </ClInclude>
@@ -439,6 +475,9 @@
       <Filter>engine\code\ECS\system\collision</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\system\effect\CameraActionSystem.h">
+      <Filter>engine\code\ECS\system\effect</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\system\effect\DissolveAnimationSystem.h">
       <Filter>engine\code\ECS\system\effect</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\system\effect\EmitterWorkSystem.h">
@@ -495,6 +534,9 @@
     <ClInclude Include="engine\code\ECS\system\postRender\GrayscaleEffect.h">
       <Filter>engine\code\ECS\system\postRender</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\ECS\system\postRender\OutlineRenderSystem.h">
+      <Filter>engine\code\ECS\system\postRender</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\ECS\system\postRender\RadialBlurEffect.h">
       <Filter>engine\code\ECS\system\postRender</Filter>
     </ClInclude>
@@ -525,6 +567,9 @@
     <ClInclude Include="engine\code\ECS\system\render\GpuParticleRenderSystem.h">
       <Filter>engine\code\ECS\system\render</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\ECS\system\render\LightDebugRenderingSystem.h">
+      <Filter>engine\code\ECS\system\render</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\ECS\system\render\LineRenderSystem.h">
       <Filter>engine\code\ECS\system\render</Filter>
     </ClInclude>
@@ -547,6 +592,9 @@
       <Filter>engine\code\ECS\system\render</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\system\render\TexturedMeshRenderSystem.h">
+      <Filter>engine\code\ECS\system\render</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\ECS\system\render\TexturedMeshRenderSystemWithoutRaytracing.h">
       <Filter>engine\code\ECS\system\render</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\ECS\system\render\VelocityRenderingSystem.h">
@@ -621,10 +669,19 @@
     <ClInclude Include="engine\code\directX12\ShaderManager.h">
       <Filter>engine\code\directX12</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\directX12\buffer\AppendBuffer.h">
+      <Filter>engine\code\directX12\buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\directX12\buffer\ConceptHasBuffer.h">
+      <Filter>engine\code\directX12\buffer</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\directX12\buffer\IConstantBuffer.h">
       <Filter>engine\code\directX12\buffer</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\directX12\buffer\IStructuredBuffer.h">
+      <Filter>engine\code\directX12\buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\directX12\buffer\RwStructuredBuffer.h">
       <Filter>engine\code\directX12\buffer</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\directX12\buffer\SimpleConstantBuffer.h">
@@ -638,6 +695,24 @@
     </ClInclude>
     <ClInclude Include="engine\code\directX12\mesh\Mesh.h">
       <Filter>engine\code\directX12\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\directX12\mesh\MeshHandle.h">
+      <Filter>engine\code\directX12\mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\directX12\raytracing\BottomLevelAccelerationStructure.h">
+      <Filter>engine\code\directX12\raytracing</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\directX12\raytracing\RaytracingInstance.h">
+      <Filter>engine\code\directX12\raytracing</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\directX12\raytracing\RaytracingMeshType.h">
+      <Filter>engine\code\directX12\raytracing</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\directX12\raytracing\RaytracingScene.h">
+      <Filter>engine\code\directX12\raytracing</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\code\directX12\raytracing\TopLevelAccelerationStructure.h">
+      <Filter>engine\code\directX12\raytracing</Filter>
     </ClInclude>
     <ClInclude Include="engine\code\imGuiManager\ImGuiManager.h">
       <Filter>engine\code\imGuiManager</Filter>
@@ -765,6 +840,9 @@
     <ClInclude Include="util\binaryIO\BinaryIO.h">
       <Filter>util\binaryIO</Filter>
     </ClInclude>
+    <ClInclude Include="util\deltaTime\DeltaTimer.h">
+      <Filter>util\deltaTime</Filter>
+    </ClInclude>
     <ClInclude Include="util\globalVariables\GlobalVariables.h">
       <Filter>util\globalVariables</Filter>
     </ClInclude>
@@ -786,32 +864,9 @@
     <ClInclude Include="util\timeline\Timeline.h">
       <Filter>util\timeline</Filter>
     </ClInclude>
-    <ClInclude Include="engine\code\ECS\entity\EntityHandle.h" />
-    <ClInclude Include="engine\code\ECS\component\ComponentHandle.h" />
-    <ClInclude Include="externals\uuid\uuid.h" />
-    <ClInclude Include="util\uuidGenerator\UuidGenerator.h" />
-    <ClInclude Include="engine\code\ECS\component\animation\DissolveAnimation.h" />
-    <ClInclude Include="engine\code\ECS\system\effect\DissolveAnimationSystem.h" />
-    <ClInclude Include="engine\code\directX12\raytracing\RaytracingInstance.h" />
-    <ClInclude Include="engine\code\directX12\raytracing\TopLevelAccelerationStructure.h" />
-    <ClInclude Include="engine\code\directX12\raytracing\RaytracingScene.h" />
-    <ClInclude Include="engine\code\directX12\mesh\MeshHandle.h" />
-    <ClInclude Include="engine\code\directX12\raytracing\RaytracingMeshType.h" />
-    <ClInclude Include="engine\code\directX12\raytracing\BottomLevelAccelerationStructure.h" />
-    <ClInclude Include="engine\code\ECS\system\render\TexturedMeshRenderSystemWithoutRaytracing.h" />
-    <ClInclude Include="engine\code\ECS\system\render\LightDebugRenderingSystem.h" />
-    <ClInclude Include="engine\code\ECS\component\effect\particle\emitter\Updater.h" />
-    <ClInclude Include="engine\code\directX12\buffer\AppendBuffer.h" />
-    <ClInclude Include="engine\code\directX12\buffer\ConceptHasBuffer.h" />
-    <ClInclude Include="util\deltaTime\DeltaTimer.h" />
-    <ClInclude Include="editor\tool\ObjectPicker.h" />
-    <ClInclude Include="engine\code\directX12\buffer\RwStructuredBuffer.h" />
-    <ClInclude Include="editor\sceneEditor\SceneEditorMenus.h" />
-    <ClInclude Include="editor\sceneEditor\SceneViewArea.h" />
-    <ClInclude Include="editor\sceneEditor\HierarchyArea.h" />
-    <ClInclude Include="editor\sceneEditor\DevelopControlArea.h" />
-    <ClInclude Include="engine\code\ECS\component\effect\post\OutlineComponent.h" />
-    <ClInclude Include="engine\code\ECS\system\postRender\OutlineRenderSystem.h" />
+    <ClInclude Include="util\uuidGenerator\UuidGenerator.h">
+      <Filter>util\uuidGenerator</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="editor\EditorController.cpp">
@@ -829,10 +884,22 @@
     <ClCompile Include="editor\debugReplayer\DebugReplayWindow.cpp">
       <Filter>editor\debugReplayer</Filter>
     </ClCompile>
+    <ClCompile Include="editor\sceneEditor\DevelopControlArea.cpp">
+      <Filter>editor\sceneEditor</Filter>
+    </ClCompile>
     <ClCompile Include="editor\sceneEditor\EntityInspector.cpp">
       <Filter>editor\sceneEditor</Filter>
     </ClCompile>
+    <ClCompile Include="editor\sceneEditor\HierarchyArea.cpp">
+      <Filter>editor\sceneEditor</Filter>
+    </ClCompile>
     <ClCompile Include="editor\sceneEditor\SceneEditor.cpp">
+      <Filter>editor\sceneEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="editor\sceneEditor\SceneEditorMenus.cpp">
+      <Filter>editor\sceneEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="editor\sceneEditor\SceneViewArea.cpp">
       <Filter>editor\sceneEditor</Filter>
     </ClCompile>
     <ClCompile Include="editor\sceneEditor\SystemInspector.cpp">
@@ -841,8 +908,14 @@
     <ClCompile Include="editor\setting\SettingWindow.cpp">
       <Filter>editor\setting</Filter>
     </ClCompile>
+    <ClCompile Include="editor\tool\ObjectPicker.cpp">
+      <Filter>editor\tool</Filter>
+    </ClCompile>
     <ClCompile Include="editor\window\EditorWindowMenu.cpp">
       <Filter>editor\window</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\component\ComponentHandle.cpp">
+      <Filter>engine\code\ECS\component</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\component\ComponentRegistry.cpp">
       <Filter>engine\code\ECS\component</Filter>
@@ -863,6 +936,9 @@
       <Filter>engine\code\ECS\component\animation</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\component\animation\AnimationManager.cpp">
+      <Filter>engine\code\ECS\component\animation</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\component\animation\DissolveAnimation.cpp">
       <Filter>engine\code\ECS\component\animation</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\component\animation\MaterialAnimation.cpp">
@@ -923,6 +999,9 @@
       <Filter>engine\code\ECS\component\effect\post</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\component\effect\post\GradationComponent.cpp">
+      <Filter>engine\code\ECS\component\effect\post</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\component\effect\post\OutlineComponent.cpp">
       <Filter>engine\code\ECS\component\effect\post</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\component\effect\post\RadialBlurParam.cpp">
@@ -1018,6 +1097,9 @@
     <ClCompile Include="engine\code\ECS\component\transform\Transform2d.cpp">
       <Filter>engine\code\ECS\component\transform</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\ECS\entity\EntityHandle.cpp">
+      <Filter>engine\code\ECS\entity</Filter>
+    </ClCompile>
     <ClCompile Include="engine\code\ECS\entity\EntityRepository.cpp">
       <Filter>engine\code\ECS\entity</Filter>
     </ClCompile>
@@ -1043,6 +1125,9 @@
       <Filter>engine\code\ECS\system\collision</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\system\effect\CameraActionSystem.cpp">
+      <Filter>engine\code\ECS\system\effect</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\system\effect\DissolveAnimationSystem.cpp">
       <Filter>engine\code\ECS\system\effect</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\system\effect\EmitterWorkSystem.cpp">
@@ -1099,6 +1184,9 @@
     <ClCompile Include="engine\code\ECS\system\postRender\GrayscaleEffect.cpp">
       <Filter>engine\code\ECS\system\postRender</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\ECS\system\postRender\OutlineRenderSystem.cpp">
+      <Filter>engine\code\ECS\system\postRender</Filter>
+    </ClCompile>
     <ClCompile Include="engine\code\ECS\system\postRender\RadialBlurEffect.cpp">
       <Filter>engine\code\ECS\system\postRender</Filter>
     </ClCompile>
@@ -1129,6 +1217,9 @@
     <ClCompile Include="engine\code\ECS\system\render\GpuParticleRenderSystem.cpp">
       <Filter>engine\code\ECS\system\render</Filter>
     </ClCompile>
+    <ClCompile Include="engine\code\ECS\system\render\LightDebugRenderingSystem.cpp">
+      <Filter>engine\code\ECS\system\render</Filter>
+    </ClCompile>
     <ClCompile Include="engine\code\ECS\system\render\LineRenderSystem.cpp">
       <Filter>engine\code\ECS\system\render</Filter>
     </ClCompile>
@@ -1151,6 +1242,9 @@
       <Filter>engine\code\ECS\system\render</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\system\render\TexturedMeshRenderSystem.cpp">
+      <Filter>engine\code\ECS\system\render</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\ECS\system\render\TexturedMeshRenderSystemWithoutRaytracing.cpp">
       <Filter>engine\code\ECS\system\render</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\ECS\system\render\VelocityRenderingSystem.cpp">
@@ -1221,6 +1315,18 @@
     </ClCompile>
     <ClCompile Include="engine\code\directX12\ShaderManager.cpp">
       <Filter>engine\code\directX12</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\directX12\raytracing\BottomLevelAccelerationStructure.cpp">
+      <Filter>engine\code\directX12\raytracing</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\directX12\raytracing\RaytracingMeshType.cpp">
+      <Filter>engine\code\directX12\raytracing</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\directX12\raytracing\RaytracingScene.cpp">
+      <Filter>engine\code\directX12\raytracing</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\code\directX12\raytracing\TopLevelAccelerationStructure.cpp">
+      <Filter>engine\code\directX12\raytracing</Filter>
     </ClCompile>
     <ClCompile Include="engine\code\imGuiManager\ImGuiManager.cpp">
       <Filter>engine\code\imGuiManager</Filter>
@@ -1303,6 +1409,9 @@
     <ClCompile Include="util\binaryIO\BinaryIO.cpp">
       <Filter>util\binaryIO</Filter>
     </ClCompile>
+    <ClCompile Include="util\deltaTime\DeltaTimer.cpp">
+      <Filter>util\deltaTime</Filter>
+    </ClCompile>
     <ClCompile Include="util\globalVariables\GlobalVariables.cpp">
       <Filter>util\globalVariables</Filter>
     </ClCompile>
@@ -1315,24 +1424,8 @@
     <ClCompile Include="util\timeline\Timeline.cpp">
       <Filter>util\timeline</Filter>
     </ClCompile>
-    <ClCompile Include="engine\code\ECS\entity\EntityHandle.cpp" />
-    <ClCompile Include="engine\code\ECS\component\ComponentHandle.cpp" />
-    <ClCompile Include="util\uuidGenerator\UuidGenerator.cpp" />
-    <ClCompile Include="engine\code\ECS\component\animation\DissolveAnimation.cpp" />
-    <ClCompile Include="engine\code\ECS\system\effect\DissolveAnimationSystem.cpp" />
-    <ClCompile Include="engine\code\directX12\raytracing\TopLevelAccelerationStructure.cpp" />
-    <ClCompile Include="engine\code\directX12\raytracing\RaytracingScene.cpp" />
-    <ClCompile Include="engine\code\directX12\raytracing\RaytracingMeshType.cpp" />
-    <ClCompile Include="engine\code\directX12\raytracing\BottomLevelAccelerationStructure.cpp" />
-    <ClCompile Include="engine\code\ECS\system\render\TexturedMeshRenderSystemWithoutRaytracing.cpp" />
-    <ClCompile Include="engine\code\ECS\system\render\LightDebugRenderingSystem.cpp" />
-    <ClCompile Include="util\deltaTime\DeltaTimer.cpp" />
-    <ClCompile Include="editor\tool\ObjectPicker.cpp" />
-    <ClCompile Include="editor\sceneEditor\SceneEditorMenus.cpp" />
-    <ClCompile Include="editor\sceneEditor\SceneViewArea.cpp" />
-    <ClCompile Include="editor\sceneEditor\HierarchyArea.cpp" />
-    <ClCompile Include="editor\sceneEditor\DevelopControlArea.cpp" />
-    <ClCompile Include="engine\code\ECS\component\effect\post\OutlineComponent.cpp" />
-    <ClCompile Include="engine\code\ECS\system\postRender\OutlineRenderSystem.cpp" />
+    <ClCompile Include="util\uuidGenerator\UuidGenerator.cpp">
+      <Filter>util\uuidGenerator</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

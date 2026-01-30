@@ -15,6 +15,8 @@
 #include "DxUtil.h"
 #include "StringUtil.h"
 
+#include "EngineConfig.h"
+
 using namespace OriGine;
 
 std::unordered_map<std::string, DxCommand::CommandListCombo> DxCommand::commandListComboMap_;
@@ -276,7 +278,7 @@ void DxCommand::ClearTarget(const DxRtvDescriptor& _rtv, const DxDsvDescriptor& 
         backBufferRtvHandle, _clearColor.v, 0, nullptr);
 
     commandList_->ClearDepthStencilView(
-        dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+        dsvHandle, D3D12_CLEAR_FLAG_DEPTH, Config::Rendering::kDefaultDepthClear, Config::Rendering::kDefaultStencilClear, 0, nullptr);
 }
 
 void DxCommand::Finalize() {

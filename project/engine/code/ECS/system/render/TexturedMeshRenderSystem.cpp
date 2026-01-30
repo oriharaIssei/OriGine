@@ -55,6 +55,10 @@ void OriGine::TexturedMeshRenderSystem::Update() {
         return;
     }
 
+    // RaytracingSceneの更新
+    ///! TODO: シーン側で更新するべき
+    // だけど、メッシュのTransformをここで更新しているので、暫定対応としておく
+    GetScene()->UpdateRaytracingScene();
     // レンダリング実行
     Rendering();
 }

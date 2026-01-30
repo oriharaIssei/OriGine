@@ -37,7 +37,6 @@ bool SceneJsonRegistry::SaveAllScene(const std::string& _directory) {
 /// 指定された実行中のシーンをシリアライズし、即座にファイルとして保存する.
 /// </summary>
 bool OriGine::SceneJsonRegistry::SaveScene(const Scene* _scene, const std::string& _directory) {
-
     if (!_scene) {
         LOG_ERROR("SaveScene: scene が nullptr");
         return false;
@@ -51,6 +50,8 @@ bool OriGine::SceneJsonRegistry::SaveScene(const Scene* _scene, const std::strin
         LOG_CRITICAL("シーンJSONの保存に失敗: {}", _scene->GetName());
         return false;
     }
+
+    RegisterSceneJson(_scene->GetName(), sceneJson);
 
     ofs << std::setw(4) << sceneJson;
     return true;

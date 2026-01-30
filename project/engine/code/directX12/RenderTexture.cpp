@@ -17,6 +17,8 @@
 /// util
 #include "util/StringUtil.h"
 
+#include "EngineConfig.h"
+
 using namespace OriGine;
 
 PipelineStateObj* RenderTexture::pso_;
@@ -282,7 +284,7 @@ void RenderTexture::PreDraw() {
     //	Clear DSV
     ///=========================================
     commandList->ClearDepthStencilView(
-        dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+        dsvHandle, D3D12_CLEAR_FLAG_DEPTH, Config::Rendering::kDefaultDepthClear, Config::Rendering::kDefaultStencilClear, 0, nullptr);
 
     ///=========================================
     //	ビューポート の 設定
@@ -292,8 +294,8 @@ void RenderTexture::PreDraw() {
     viewPort.Height   = textureSize_[Y];
     viewPort.TopLeftX = 0;
     viewPort.TopLeftY = 0;
-    viewPort.MinDepth = 0.0f;
-    viewPort.MaxDepth = 1.0f;
+    viewPort.MinDepth = Config::Rendering::kMinDepth;
+    viewPort.MaxDepth = Config::Rendering::kMaxDepth;
 
     commandList->RSSetViewports(1, &viewPort);
     ///=========================================
@@ -375,8 +377,8 @@ void RenderTexture::DrawTexture() {
     viewPort.Height   = textureSize_[Y];
     viewPort.TopLeftX = 0;
     viewPort.TopLeftY = 0;
-    viewPort.MinDepth = 0.0f;
-    viewPort.MaxDepth = 1.0f;
+    viewPort.MinDepth = Config::Rendering::kMinDepth;
+    viewPort.MaxDepth = Config::Rendering::kMaxDepth;
 
     commandList->RSSetViewports(1, &viewPort);
     ///=========================================
@@ -416,8 +418,8 @@ void RenderTexture::DrawTexture(D3D12_GPU_DESCRIPTOR_HANDLE _srvHandle) {
     viewPort.Height   = textureSize_[Y];
     viewPort.TopLeftX = 0;
     viewPort.TopLeftY = 0;
-    viewPort.MinDepth = 0.0f;
-    viewPort.MaxDepth = 1.0f;
+    viewPort.MinDepth = Config::Rendering::kMinDepth;
+    viewPort.MaxDepth = Config::Rendering::kMaxDepth;
 
     commandList->RSSetViewports(1, &viewPort);
     ///=========================================

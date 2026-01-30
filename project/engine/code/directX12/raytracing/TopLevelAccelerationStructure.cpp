@@ -1,5 +1,8 @@
 #include "TopLevelAccelerationStructure.h"
 
+/// engine
+#include "EngineConfig.h"
+
 using namespace OriGine;
 
 TopLevelAccelerationStructure::TopLevelAccelerationStructure() {}

@@ -2,6 +2,7 @@
 
 /// engine
 #include "Engine.h"
+#include "EngineConfig.h"
 // directX12Object
 #include "directX12/DxDevice.h"
 // module
@@ -335,9 +336,9 @@ void SkeletonRenderSystem::CreateJointMesh(
 
     auto calculatePoint = [&](float lat, float lon) -> Vector3f {
         return {
-            _center[X] + (_joint.transform.scale[X] * 0.01f) * std::cos(lat) * std::cos(lon),
-            _center[Y] + (_joint.transform.scale[Y] * 0.01f) * std::sin(lat),
-            _center[Z] + (_joint.transform.scale[Z] * 0.01f) * std::cos(lat) * std::sin(lon)};
+            _center[X] + (_joint.transform.scale[X] * Config::Debug::kJointScale) * std::cos(lat) * std::cos(lon),
+            _center[Y] + (_joint.transform.scale[Y] * Config::Debug::kJointScale) * std::sin(lat),
+            _center[Z] + (_joint.transform.scale[Z] * Config::Debug::kJointScale) * std::cos(lat) * std::sin(lon)};
     };
 
     // 緯線（緯度方向の円）を描画

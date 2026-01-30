@@ -14,6 +14,8 @@
 /// util
 #include "DxUtil.h"
 
+#include "EngineConfig.h"
+
 using namespace OriGine;
 
 const char* OriGine::DxResourceTypeToString(DxResourceType _type) {
@@ -91,7 +93,7 @@ void DxResource::CreateDSVBuffer(Microsoft::WRL::ComPtr<ID3D12Device> _device, U
     heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
 
     D3D12_CLEAR_VALUE depthClearValue{};
-    depthClearValue.DepthStencil.Depth = 1.0f; // 最大値でクリア
+    depthClearValue.DepthStencil.Depth = Config::Rendering::kDefaultDepthClear; // 最大値でクリア
     depthClearValue.Format             = DXGI_FORMAT_D24_UNORM_S8_UINT; // Resource と合わせる
 
     HRESULT result = _device->CreateCommittedResource(

@@ -46,6 +46,9 @@ class Emitter
     friend void to_json(nlohmann::json& _j, const Emitter& _comp);
     friend void from_json(const nlohmann::json& _j, Emitter& _comp);
 
+    // EmitterEditor を friend として宣言
+    friend class EmitterEditor;
+
 public:
     Emitter();
     ~Emitter();
@@ -86,19 +89,6 @@ private:
     /// </summary>
     void SpawnParticle(int32_t _spawnVal);
 
-#ifdef _DEBUG
-    void EditEmitter([[maybe_unused]] const std::string& _parentLabel);
-
-    /// <summary>
-    /// ShapeType に関する 編集項目
-    /// </summary>
-    void EditShapeType([[maybe_unused]] const std::string& _parentLabel);
-
-    /// <summary>
-    /// Particle の 編集項目
-    /// </summary>
-    void EditParticle([[maybe_unused]] const std::string& _parentLabel);
-#endif // _DEBUG
 private:
     Transform* parent_       = nullptr;
     Vec3f preWorldOriginPos_ = {0.f, 0.f, 0.f};

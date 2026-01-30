@@ -10,6 +10,7 @@
 #include <string>
 /// engine
 #include "component/IComponent.h"
+#include "EngineConfig.h"
 #include "system/ISystem.h"
 
 namespace OriGine {
@@ -57,7 +58,7 @@ public:
     /// <summary>ループ再生するか</summary>
     bool isLoop_ = false;
     /// <summary>音量 (0.0 ～ 2.0)</summary>
-    float volume_ = 0.5f;
+    float volume_ = Config::Audio::kDefaultVolume;
 };
 
 /// <summary>

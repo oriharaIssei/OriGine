@@ -17,7 +17,7 @@ try {
     Set-Location $configPath
     Write-Host "Premake5を実行中... (ディレクトリ: $configPath)"
 
-    & premake5 vs2022
+    & premake5 vs2026
 
     if ($LASTEXITCODE -eq 0) {
         Write-Host "Premake5の実行が完了しました。" -ForegroundColor Green

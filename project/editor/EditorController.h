@@ -56,19 +56,19 @@ private:
     void ExecuteCommandRequests();
 
 private:
-    ::std::unordered_map<::std::string, ::std::unique_ptr<Editor::Window>> editorWindows_;
-    ::std::unordered_map<::std::string, ::std::unique_ptr<Editor::Menu>> mainMenus_; // メインメニューのマップ
+    ::std::unordered_map<::std::string, ::std::unique_ptr<::Editor::Window>> editorWindows_;
+    ::std::unordered_map<::std::string, ::std::unique_ptr<::Editor::Menu>> mainMenus_; // メインメニューのマップ
 
     const ::std::string defaultSerializeSceneName_ = "Settings";
     const ::std::string defaultSerializeGroupName_ = "Editor";
-    ::std::unordered_map<Editor::Window*, SerializedField<bool>> editorActivity_;
+    ::std::unordered_map<::Editor::Window*, SerializedField<bool>> editorActivity_;
 
     ::std::queue<::std::unique_ptr<IEditCommand>> commandRequestQueue_;
     ::std::list<::std::unique_ptr<IEditCommand>> commandHistory_;
     ::std::list<::std::unique_ptr<IEditCommand>>::iterator currentCommandItr_ = commandHistory_.end();
 
 public:
-    const ::std::unordered_map<::std::string, ::std::unique_ptr<Editor::Window>>& GetEditorWindows() const { return editorWindows_; }
+    const ::std::unordered_map<::std::string, ::std::unique_ptr<::Editor::Window>>& GetEditorWindows() const { return editorWindows_; }
 
     template <EditorWindow EditorWindowClass>
     EditorWindowClass* GetWindow() {

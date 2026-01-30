@@ -2,6 +2,7 @@
 
 /// engine
 #include "camera/CameraManager.h"
+#include "EngineConfig.h"
 
 /// math
 #include "math/mathEnv.h"
@@ -92,7 +93,7 @@ void CreateLineMeshByLightShape(
 
     // ===== 円錐の基準軸を作る =====
     Vec3f right;
-    if (std::abs(dir[Y]) < 0.99f) {
+    if (std::abs(dir[Y]) < Config::Billboard::kThreshold) {
         right = Vec3f::Normalize(Vec3f::Cross(axisY, dir));
     } else {
         right = Vec3f::Normalize(Vec3f::Cross(axisX, dir));

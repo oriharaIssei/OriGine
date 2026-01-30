@@ -6,6 +6,7 @@
 
 /// engine
 #include "Engine.h"
+#include "EngineConfig.h"
 #include "winApp/WinApp.h"
 // directX12
 #include "directX12/DxCommand.h"
@@ -29,7 +30,7 @@ void DxSwapChain::Initialize(const WinApp* _winApp, const DxDevice* _device, con
     swapchainDesc.Format           = DXGI_FORMAT_R8G8B8A8_UNORM;
     swapchainDesc.SampleDesc.Count = 1; // マルチサンプルしない
     swapchainDesc.BufferUsage      = DXGI_USAGE_RENDER_TARGET_OUTPUT; // 描画のターゲットとして利用する
-    swapchainDesc.BufferCount      = 2; // ダブルバッファ
+    swapchainDesc.BufferCount      = Config::Rendering::kSwapChainBufferCount; // ダブルバッファ
     swapchainDesc.SwapEffect       = DXGI_SWAP_EFFECT_FLIP_DISCARD; // モニタに移したら中身を破棄する
 
     Microsoft::WRL::ComPtr<IDXGISwapChain1> swapChain1;
@@ -59,7 +60,7 @@ void DxSwapChain::Initialize(const WinApp* _winApp, const DxDevice* _device, con
     rtvDesc.Format        = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
     rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 
-    bufferCount_ = 2;
+    bufferCount_ = Config::Rendering::kSwapChainBufferCount;
     backBufferResources_.resize(bufferCount_);
 
     auto* rtvHeap = Engine::GetInstance()->GetRtvHeap();

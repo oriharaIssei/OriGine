@@ -9,6 +9,7 @@
 #include "directX12/DxDevice.h"
 // module
 #include "camera/CameraManager.h"
+#include "EngineConfig.h"
 #include "texture/TextureManager.h"
 #include "winApp/WinApp.h"
 /// ECS
@@ -32,7 +33,7 @@ void BackGroundSpriteRenderSystem::Initialize() {
 
     // ViewPortMatの計算
     WinApp* window = Engine::GetInstance()->GetWinApp();
-    viewPortMat_   = MakeMatrix4x4::Orthographic(0, 0, (float)window->GetWidth(), (float)window->GetHeight(), 0.0f, 100.0f);
+    viewPortMat_   = MakeMatrix4x4::Orthographic(0, 0, (float)window->GetWidth(), (float)window->GetHeight(), Config::Rendering::kMinDepth, Config::Camera::kDefaultFarClip);
 }
 
 /// <summary>

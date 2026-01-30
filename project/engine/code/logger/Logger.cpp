@@ -17,6 +17,7 @@
 #include "ImGuiLogSink.h"
 #endif //_DEBUG
 
+#include "EngineConfig.h"
 #include "myFileSystem/MyFileSystem.h"
 
 /// util
@@ -57,8 +58,8 @@ void Logger::Initialize() {
         const std::string logFolder   = kEngineResourceDirectory + "/logs";
         const std::string logFileName = TimeToString() + "_" + GetCurrentConfigString() + ".log";
 
-        const size_t kMaxFileSize = static_cast<size_t>(1048576) * 5; // 5MB
-        const size_t kMaxFiles    = 3; // 3ファイルまで保存
+        const size_t kMaxFileSize = Config::Logger::kMaxLogFileSize;
+        const size_t kMaxFiles    = Config::Logger::kMaxLogFiles;
 
         // ログフォルダの作成
         myfs::CreateFolder(logFolder);

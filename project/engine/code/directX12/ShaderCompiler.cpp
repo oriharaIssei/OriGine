@@ -43,8 +43,12 @@ IDxcBlob* ShaderCompiler::CompileShader(const std::wstring& _filePath, const wch
         L"-T",
         _profile, // ShaderProfileの設定
         L"-Zi",
+
+#ifdef _DEBUG
         L"-Qembed_debug", // デバッグ用の情報を埋め込む
         L"-Od", // 最適化を外す
+#endif // DEBUG
+
         L"-Zpr", // メモリレイアウトは行優先
     };
     /*--------------------------------------------*/

@@ -65,7 +65,7 @@ void Scene::InitializeECS() {
 void Scene::InitializeSceneView() {
     sceneView_ = ::std::make_unique<RenderTexture>();
 
-    sceneView_->Initialize(2, Engine::GetInstance()->GetWinApp()->GetWindowSize(), DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, {0.f, 0.f, 0.f, 0.f});
+    sceneView_->Initialize(Config::Rendering::kSwapChainBufferCount, Engine::GetInstance()->GetWinApp()->GetWindowSize(), DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, Config::Rendering::kDefaultClearColor);
     sceneView_->SetTextureName(name_ + "_SceneView");
 }
 
@@ -105,7 +105,7 @@ void Scene::Render() {
     // worldの描画
     sceneView_->PreDraw();
     DispatchMeshForRaytracing();
-    UpdateRaytracingScene();
+    // UpdateRaytracingScene();
     systemRunner_->UpdateCategory<SystemCategory::Render>();
     sceneView_->PostDraw();
 

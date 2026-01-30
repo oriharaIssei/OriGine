@@ -7,6 +7,8 @@
 
 #include "winApp/WinApp.h"
 
+#include "EngineConfig.h"
+
 // directX12Object
 #include "directX12/DxCommand.h"
 #include "directX12/DxDevice.h"
@@ -70,7 +72,7 @@ void ImGuiManager::Initialize([[maybe_unused]] const WinApp* _window, [[maybe_un
 
     // フォントの読み込み
     std::string fontPath = kEngineResourceDirectory + "/fonts/FiraMono-Regular.ttf";
-    font_                = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), 16.0f);
+    font_                = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), Config::UI::kDefaultFontSize);
 
 #endif // _DEBUG
 }

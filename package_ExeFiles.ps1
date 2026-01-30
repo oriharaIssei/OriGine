@@ -1,4 +1,4 @@
-﻿param(
+param(
     [string]$TargetDir,
     [string]$FolderName
 )
@@ -20,16 +20,25 @@ if (-not $TargetFolder) {
 Ensure-Directory $TargetFolder
 
 # サブフォルダー作成
-$AppFolder = Join-Path $TargetFolder "Application"
+# === サブフォルダー作成 ===
+$AppFolder = Join-Path $TargetFolder "application"
 $EngineFolder = Join-Path $TargetFolder "engine"
-Ensure-Directory $AppFolder
-Ensure-Directory $EngineFolder
+
+# ★変更: resource フォルダのパスを定義
+$AppResourceFolder = Join-Path $AppFolder "resource"
+$EngineResourceFolder = Join-Path $EngineFolder "resource"
+
+# ★変更: resource フォルダを作成 (親の application や engine も自動で作られます)
+Ensure-Directory $AppResourceFolder
+Ensure-Directory $EngineResourceFolder
 
 # === ビルド ===
 Write-Host "msbuildを開始しています..." -ForegroundColor Yellow
+
 $msbuildProcess = Start-Process -FilePath "msbuild.exe" `
-    -ArgumentList "project/OriGine.sln /p:Configuration=Release" `
+    -ArgumentList "project/OriGine.sln", "/p:Configuration=Release", "/nr:false" `
     -NoNewWindow -Wait -PassThru
+
 if ($msbuildProcess.ExitCode -ne 0) {
     Write-Warning "msbuildが失敗しました。終了コード: $($msbuildProcess.ExitCode)"
     exit 1
@@ -54,10 +63,10 @@ catch {
 }
 
 # === Applicationリソースコピー ===
-$sourceAppResource = "project/Application/resource"
+$sourceAppResource = "project/application/resource"
 if (Test-Path $sourceAppResource) {
-    Copy-Item "$sourceAppResource\*" -Destination $AppFolder -Recurse -Force
-    Write-Host "Applicationリソースを $AppFolder にコピーしました。" -ForegroundColor Green
+    Copy-Item "$sourceAppResource\*" -Destination $AppResourceFolder -Recurse -Force
+    Write-Host "Applicationリソースを $AppResourceFolder にコピーしました。" -ForegroundColor Green
 }
 else {
     Write-Warning "Applicationリソースフォルダー ($sourceAppResource) が存在しません。"
@@ -66,8 +75,8 @@ else {
 # === engineリソースコピー ===
 $sourceEngineResource = "project/engine/resource"
 if (Test-Path $sourceEngineResource) {
-    Copy-Item "$sourceEngineResource\*" -Destination $EngineFolder -Recurse -Force
-    Write-Host "engineリソースを $EngineFolder にコピーしました。" -ForegroundColor Green
+    Copy-Item "$sourceEngineResource\*" -Destination $EngineResourceFolder -Recurse -Force
+    Write-Host "engineリソースを $EngineResourceFolder にコピーしました。" -ForegroundColor Green
 }
 else {
     Write-Warning "engineリソースフォルダー ($sourceEngineResource) が存在しません。"

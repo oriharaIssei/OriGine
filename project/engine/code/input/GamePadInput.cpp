@@ -1,5 +1,8 @@
 #include "GamepadInput.h"
 
+/// engine
+#include "EngineConfig.h"
+
 /// math
 #include "math/mathEnv.h"
 #include <cmath>
@@ -49,7 +52,7 @@ void GamepadInput::Update() {
     // 入力履歴に追加
     inputHistory_.push_front(currentState);
     // 履歴が多すぎたら削除
-    if (inputHistory_.size() > kInputHistoryCount) {
+    if (inputHistory_.size() > Config::Input::kHistoryCount) {
         inputHistory_.pop_back();
     }
 }

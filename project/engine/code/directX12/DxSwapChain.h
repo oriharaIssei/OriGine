@@ -16,6 +16,7 @@
 // directX12
 #include "directX12/DxDescriptor.h"
 #include "DxResource.h"
+#include "EngineConfig.h"
 
 /// math
 #include "Vector4.h"
@@ -82,7 +83,7 @@ private:
     UINT bufferHeight_ = 0;
 
     /// <summary>画面クリア時に使用するデフォルト色</summary>
-    const Vec4f clearColor_ = Vec4f{0.f, 0.f, 0.f, 0.0f};
+    const Vec4f clearColor_ = Config::Rendering::kDefaultClearColor;
 
 public:
     /// <summary>構成されているバッファ数を取得する.</summary>

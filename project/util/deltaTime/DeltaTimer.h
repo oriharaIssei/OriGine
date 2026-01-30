@@ -6,11 +6,14 @@
 #include <deque>
 #include <unordered_map>
 
+/// engine
+#include "engine/code/EngineConfig.h"
+
 /// <summary>
 /// DeltaTimerの計測をするクラス
 /// </summary>
 class DeltaTimer {
-    static constexpr size_t kMaxHistorySize = 60; // 直近60フレームの平均を取る
+    static constexpr size_t kMaxHistorySize = OriGine::Config::Time::kFpsHistorySize; // 直近の平均を取る
 public:
     /// <summary>
     /// 初期化

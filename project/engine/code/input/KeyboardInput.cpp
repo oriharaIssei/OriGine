@@ -4,6 +4,7 @@
 #include <algorithm>
 
 /// engine
+#include "EngineConfig.h"
 // input
 #include "MouseInput.h"
 
@@ -58,7 +59,7 @@ void KeyboardInput::Update() {
     inputHistory_.push_front(state);
 
     // 履歴が多すぎたら削除
-    if (inputHistory_.size() > kInputHistoryCount) {
+    if (inputHistory_.size() > Config::Input::kHistoryCount) {
         inputHistory_.pop_back();
     }
 }

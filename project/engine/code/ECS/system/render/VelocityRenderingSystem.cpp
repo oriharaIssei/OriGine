@@ -3,6 +3,7 @@
 /// engine
 #include "camera/CameraManager.h"
 #include "Engine.h"
+#include "EngineConfig.h"
 // directX12
 #include "directX12/DxDevice.h"
 
@@ -25,7 +26,7 @@ void VelocityRenderingSystem::Initialize() {
     rigidbodies_ = GetComponentArray<Rigidbody>();
 
     velocityRenderer_ = std::make_unique<LineRenderer>(std::vector<Mesh<ColorVertexData>>());
-    velocityRenderer_->Initialize(GetScene(),EntityHandle());
+    velocityRenderer_->Initialize(GetScene(), EntityHandle());
     velocityRenderer_->GetMeshGroup()->push_back(Mesh<ColorVertexData>());
     velocityRenderer_->GetMeshGroup()->back().Initialize(
         VelocityRenderingSystem::kDefaultMeshCount_ * kMeshVertexSize, // 頂点数 (線 + 矢印分)
@@ -40,9 +41,6 @@ void VelocityRenderingSystem::Finalize() {
 }
 
 void VelocityRenderingSystem::CreateRenderMesh() {
-    constexpr float kSideAngleRate   = 0.2f;
-    constexpr float kArrowLengthRate = 0.3f;
-
     auto& meshGroup = velocityRenderer_->GetMeshGroup();
     for (auto& mesh : *meshGroup) {
         mesh.vertexes_.clear();
@@ -73,7 +71,7 @@ void VelocityRenderingSystem::CreateRenderMesh() {
             continue; // ゼロベクトルならスキップ
         }
 
-        Vec3f end = pos + vel * 0.5f; // スケール調整
+        Vec3f end = pos + vel * Config::Debug::kVelocityScale; // スケール調整
 
         uint32_t startIndex = (uint32_t)velocityMeshItr_->vertexes_.size();
 
@@ -89,10 +87,10 @@ void VelocityRenderingSystem::CreateRenderMesh() {
         if (side.lengthSq() < kEpsilon) {
             side = Vec3f::Cross(dir, axisX);
         }
-        side = side.normalize() * kSideAngleRate;
+        side = side.normalize() * Config::Debug::kVelocitySideAngle;
 
-        Vec3f arrowL = end - dir * kArrowLengthRate + side;
-        Vec3f arrowR = end - dir * kArrowLengthRate - side;
+        Vec3f arrowL = end - dir * Config::Debug::kVelocityRate + side;
+        Vec3f arrowR = end - dir * Config::Debug::kVelocityRate - side;
 
         uint32_t idxBase = (uint32_t)velocityMeshItr_->vertexes_.size();
         velocityMeshItr_->vertexes_.push_back({Vec4f(end, 1.f), Vec4f(0, 0, 1, 1)});
@@ -176,5 +174,5 @@ void VelocityRenderingSystem::StartRender() {
     commandList->SetPipelineState(pso_->pipelineState.Get());
     commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 
-    CameraManager::GetInstance()->SetBufferForRootParameter(GetScene(),commandList, 1);
+    CameraManager::GetInstance()->SetBufferForRootParameter(GetScene(), commandList, 1);
 }

@@ -27,6 +27,8 @@
 
 #include "logger/Logger.h"
 
+#include "EngineConfig.h"
+
 /// util
 #include "util/StringUtil.h"
 
@@ -105,11 +107,11 @@ void Engine::Initialize() {
     dxCommand_->Initialize("main", "main");
 
     // グローバル記述子ヒープの作成
-    srvHeap_ = std::make_unique<DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>>(512);
+    srvHeap_ = std::make_unique<DxDescriptorHeap<DxDescriptorHeapType::CBV_SRV_UAV>>(Config::Rendering::kDefaultSrvHeapCount);
     srvHeap_->Initialize(dxDevice_->device_);
-    rtvHeap_ = std::make_unique<DxDescriptorHeap<DxDescriptorHeapType::RTV>>(32);
+    rtvHeap_ = std::make_unique<DxDescriptorHeap<DxDescriptorHeapType::RTV>>(Config::Rendering::kDefaultRtvHeapCount);
     rtvHeap_->Initialize(dxDevice_->device_);
-    dsvHeap_ = std::make_unique<DxDescriptorHeap<DxDescriptorHeapType::DSV>>(8);
+    dsvHeap_ = std::make_unique<DxDescriptorHeap<DxDescriptorHeapType::DSV>>(Config::Rendering::kDefaultDsvHeapCount);
     dsvHeap_->Initialize(dxDevice_->device_);
 
     // スワップチェーンの初期化
@@ -180,14 +182,12 @@ bool Engine::ProcessMessage() {
     return window_->ProcessMessage();
 }
 
-constexpr float MAX_DELTATIME = 1.f / 30.f; // デルタタイムの最大キャップ値
-
 /// <summary> フレームの開始フェーズ. 経過時間の計算、ウィンドウリサイズ検知、入力更新を行う. </summary>
 void Engine::BeginFrame() {
     deltaTimer_->Update();
     // デルタタイムが大きすぎる場合はキャップをかける（スパイク対策）
-    if (deltaTimer_->GetDeltaTime() > MAX_DELTATIME) {
-        deltaTimer_->SetDeltaTimer(MAX_DELTATIME);
+    if (deltaTimer_->GetDeltaTime() > Config::Time::kMaxDeltaTime) {
+        deltaTimer_->SetDeltaTimer(Config::Time::kMaxDeltaTime);
     }
 
     window_->UpdateActivity();

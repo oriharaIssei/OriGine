@@ -6,6 +6,7 @@
 #include <cassert>
 
 /// engine
+#include "EngineConfig.h"
 #include "logger/Logger.h"
 
 using namespace OriGine;
@@ -77,7 +78,7 @@ void MouseInput::Update() {
                 emptyState.mousePos = inputHistory_.front().mousePos;
             }
             inputHistory_.push_front(emptyState);
-            if (inputHistory_.size() > kInputHistoryCount) {
+            if (inputHistory_.size() > Config::Input::kHistoryCount) {
                 inputHistory_.pop_back();
             }
             return;
@@ -110,7 +111,7 @@ void MouseInput::Update() {
 
     // --- 履歴に追加 ---
     inputHistory_.push_front(newState);
-    if (inputHistory_.size() > kInputHistoryCount) {
+    if (inputHistory_.size() > Config::Input::kHistoryCount) {
         inputHistory_.pop_back();
     }
 }

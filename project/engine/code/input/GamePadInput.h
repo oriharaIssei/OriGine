@@ -10,15 +10,16 @@
 #include "util/globalVariables/SerializedField.h"
 
 /// math
+#include "EngineConfig.h"
 #include "math/Vector2.h"
 #include <intsafe.h>
 #include <stdint.h>
 
 namespace OriGine {
 
-constexpr float kStickMax   = static_cast<float>(SHORT_MAX);
-constexpr float kStickMin   = static_cast<float>(-SHORT_MAX);
-constexpr float kTriggerMax = static_cast<float>(BYTE_MAX);
+constexpr float kStickMax   = Config::Input::kStickMax;
+constexpr float kStickMin   = Config::Input::kStickMin;
+constexpr float kTriggerMax = Config::Input::kTriggerMax;
 
 enum class GamepadButton : uint32_t {
     UP         = XINPUT_GAMEPAD_DPAD_UP,

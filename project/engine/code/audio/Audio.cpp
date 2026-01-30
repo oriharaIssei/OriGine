@@ -8,6 +8,7 @@
 #define RESOURCE_DIRECTORY
 #include "EngineInclude.h"
 /// util
+#include "EngineConfig.h"
 #include "myFileSystem/MyFileSystem.h"
 
 /// externals
@@ -189,7 +190,7 @@ void Audio::Edit(Scene* /*_scene*/, EntityHandle /*_entity*/, [[maybe_unused]] c
     ImGui::Text("File:%s", fileName_.c_str());
 
     CheckBoxCommand("Loop  ##" + _parentLabel, audioClip_.isLoop_);
-    SlideGuiCommand("Volume##" + _parentLabel, audioClip_.volume_, 0.0f, 2.0f);
+    SlideGuiCommand("Volume##" + _parentLabel, audioClip_.volume_, Config::Audio::kMinVolume, Config::Audio::kMaxVolume);
 
     label = "Play##" + _parentLabel;
     if (ImGui::Button(label.c_str())) {

@@ -6,6 +6,8 @@
 /// logger
 #include "logger/Logger.h"
 
+#include "EngineConfig.h"
+
 using namespace OriGine;
 
 void DxFunctionHelper::SetViewportsAndScissor(const DxCommand* dxCommand, const WinApp* window) {
@@ -16,8 +18,8 @@ void DxFunctionHelper::SetViewportsAndScissor(const DxCommand* dxCommand, const 
     viewPort.Height   = static_cast<float>(window->GetHeight());
     viewPort.TopLeftX = 0;
     viewPort.TopLeftY = 0;
-    viewPort.MinDepth = 0.0f;
-    viewPort.MaxDepth = 1.0f;
+    viewPort.MinDepth = Config::Rendering::kMinDepth;
+    viewPort.MaxDepth = Config::Rendering::kMaxDepth;
 
     commandList->RSSetViewports(1, &viewPort);
 
@@ -38,8 +40,8 @@ void DxFunctionHelper::SetViewportsAndScissor(const DxCommand* dxCommand, const 
     viewPort.Height   = rectSize[Y];
     viewPort.TopLeftX = 0;
     viewPort.TopLeftY = 0;
-    viewPort.MinDepth = 0.0f;
-    viewPort.MaxDepth = 1.0f;
+    viewPort.MinDepth = Config::Rendering::kMinDepth;
+    viewPort.MaxDepth = Config::Rendering::kMaxDepth;
 
     commandList->RSSetViewports(1, &viewPort);
 
@@ -85,8 +87,8 @@ void DxFunctionHelper::PreDraw(DxCommand* dxCommand, const WinApp* window, const
     viewPort.Height   = static_cast<float>(window->GetHeight());
     viewPort.TopLeftX = 0;
     viewPort.TopLeftY = 0;
-    viewPort.MinDepth = 0.0f;
-    viewPort.MaxDepth = 1.0f;
+    viewPort.MinDepth = Config::Rendering::kMinDepth;
+    viewPort.MaxDepth = Config::Rendering::kMaxDepth;
 
     commandList->RSSetViewports(1, &viewPort);
 
@@ -121,8 +123,8 @@ void DxFunctionHelper::PreDraw(DxCommand* dxCommand, const Vec2f& rectSize, cons
     viewPort.Height   = static_cast<FLOAT>(rectSize[Y]);
     viewPort.TopLeftX = 0;
     viewPort.TopLeftY = 0;
-    viewPort.MinDepth = 0.0f;
-    viewPort.MaxDepth = 1.0f;
+    viewPort.MinDepth = Config::Rendering::kMinDepth;
+    viewPort.MaxDepth = Config::Rendering::kMaxDepth;
 
     commandList->RSSetViewports(1, &viewPort);
 

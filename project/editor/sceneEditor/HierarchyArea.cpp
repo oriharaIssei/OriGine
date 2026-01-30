@@ -3,6 +3,8 @@
 #ifdef _DEBUG
 
 /// engine
+#include "editor/EditorConfig.h"
+#include "engine/code/EngineConfig.h"
 #include "input/InputManager.h"
 #include "scene/SceneFactory.h"
 #include "scene/SceneJsonRegistry.h"
@@ -85,8 +87,9 @@ void EntityHierarchyRegion::DrawGui() {
     ImGui::SeparatorText("Entities");
 
     // ImGuiのスタイルで選択色を設定（必要に応じてアプリ全体で設定してもOK）
-    ImVec4 winSelectColor       = ImVec4(0.26f, 0.59f, 0.98f, 1.0f); // Windows風の青
-    ImVec4 winSelectHeaderColor = ImVec4(0.26f, 0.59f, 0.98f, 0.8f);
+    const auto& c               = EditorConfig::Color::kWinSelectColor;
+    ImVec4 winSelectColor       = ImVec4(c[R], c[G], c[B], c[A]); // Windows風の青
+    ImVec4 winSelectHeaderColor = ImVec4(c[R], c[G], c[B], EditorConfig::Color::kWinSelectHeaderAlpha);
     ImGui::PushStyleColor(ImGuiCol_Header, winSelectColor);
     ImGui::PushStyleColor(ImGuiCol_HeaderHovered, winSelectHeaderColor);
     ImGui::PushStyleColor(ImGuiCol_HeaderActive, winSelectColor);

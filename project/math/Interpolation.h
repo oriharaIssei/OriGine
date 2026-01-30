@@ -44,4 +44,14 @@ Quaternion SlerpByDeltaTime(const Quaternion& _q0, const Quaternion& _v, float _
 /// <returns>補間後の角度</returns>
 float LerpAngle(float _current, float _target, float _t);
 
+/// <summary>
+/// Frame依存しない角度の最短経路での線形補間 (ラジアン)
+/// </summary>
+/// <param name="_current"></param>
+/// <param name="_target"></param>
+/// <param name="_deltaTime"></param>
+/// <param name="_speed"></param>
+/// <returns></returns>
+float LerpAngleByDeltaTime(float _current, float _target, float _deltaTime, float _speed);
+
 } // namespace OriGine

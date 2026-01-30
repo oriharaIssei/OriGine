@@ -18,6 +18,7 @@
 #include "logger/Logger.h"
 
 /// util
+#include "EngineConfig.h"
 #include "util/StringUtil.h"
 
 /// externals
@@ -376,10 +377,10 @@ void ModelManager::Initialize() {
     fovMa_           = ::std::make_unique<Matrix4x4>();
     Matrix4x4* maPtr = new Matrix4x4();
     *maPtr           = MakeMatrix4x4::PerspectiveFov(
-        0.45f,
+        Config::Camera::kDefaultFov,
         static_cast<float>(Engine::GetInstance()->GetWinApp()->GetWidth()) / static_cast<float>(Engine::GetInstance()->GetWinApp()->GetHeight()),
-        0.1f,
-        100.0f);
+        Config::Camera::kDefaultNearClip,
+        Config::Camera::kDefaultFarClip);
     fovMa_.reset(
         maPtr);
 
