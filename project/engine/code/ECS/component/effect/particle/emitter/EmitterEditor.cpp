@@ -4,7 +4,7 @@
 #include "Emitter.h"
 
 // engine
-#include "EditorController.h"
+#include "editor/EditorController.h"
 #include "Engine.h"
 #define RESOURCE_DIRECTORY
 #include "directX12/DxDevice.h"
