@@ -61,10 +61,11 @@ void MoveSystemByRigidBody::UpdateEntity(EntityHandle _handle) {
     /// --------------------------------------- 速度の更新 --------------------------------------- ///
     Vec3f acceleration = rigidbody->GetAcceleration();
     Vec3f velocity     = rigidbody->GetVelocity();
+    float maxFallSpeed = rigidbody->MaxFallSpeed();
 
     // 重力加速度
     if (rigidbody->GetUseGravity()) {
-        acceleration[Y] -= (std::min)(gravity_ * rigidbody->GetMass(), rigidbody->maxFallSpeed());
+        acceleration[Y] -= (std::min)(gravity_ * rigidbody->GetMass(), maxFallSpeed);
     }
     rigidbody->SetAcceleration(acceleration);
 
@@ -79,7 +80,6 @@ void MoveSystemByRigidBody::UpdateEntity(EntityHandle _handle) {
         velocity[X] = xz[X];
         velocity[Z] = xz[Y];
     }
-    float maxFallSpeed = rigidbody->maxFallSpeed();
     if (velocity[Y] * velocity[Y] >= maxFallSpeed * maxFallSpeed) {
         velocity[Y] = (velocity[Y] > 0) ? maxFallSpeed : -maxFallSpeed;
     }

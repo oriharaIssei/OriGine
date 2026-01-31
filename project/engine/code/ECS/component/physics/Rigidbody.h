@@ -80,7 +80,7 @@ public: // accsessor
     float GetMass() const { return mass_; }
     void SetMass(const float _mass) { mass_ = _mass; }
 
-    float maxFallSpeed() const { return maxFallSpeed_; }
+    float MaxFallSpeed() const { return maxFallSpeed_; }
     void SetMaxFallSpeed(float _maxFallSpeed) {
         maxFallSpeed_ = _maxFallSpeed;
     }

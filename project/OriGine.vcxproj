@@ -163,6 +163,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="editor\EditorConfig.h" />
     <ClInclude Include="editor\EditorController.h" />
     <ClInclude Include="editor\IEditor.h" />
     <ClInclude Include="editor\debugReplayer\DebugReplayControlArea.h" />
@@ -178,7 +179,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="editor\setting\SettingWindow.h" />
     <ClInclude Include="editor\tool\ObjectPicker.h" />
     <ClInclude Include="editor\window\EditorWindowMenu.h" />
-    <ClInclude Include="engine\code\ECS\component\effect\particle\emitter\EmitterEditor.h" />
     <ClInclude Include="engine\EngineInclude.h" />
     <ClInclude Include="engine\code\ECS\component\ComponentArray.h" />
     <ClInclude Include="engine\code\ECS\component\ComponentHandle.h" />
@@ -198,13 +198,17 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\ECS\component\animation\TransformAnimation.h" />
     <ClInclude Include="engine\code\ECS\component\collision\CollisionPushBackInfo.h" />
     <ClInclude Include="engine\code\ECS\component\collision\collider\AABBCollider.h" />
+    <ClInclude Include="engine\code\ECS\component\collision\collider\CapsuleCollider.h" />
     <ClInclude Include="engine\code\ECS\component\collision\collider\Collider.h" />
     <ClInclude Include="engine\code\ECS\component\collision\collider\OBBCollider.h" />
+    <ClInclude Include="engine\code\ECS\component\collision\collider\RayCollider.h" />
+    <ClInclude Include="engine\code\ECS\component\collision\collider\SegmentCollider.h" />
     <ClInclude Include="engine\code\ECS\component\collision\collider\SphereCollider.h" />
     <ClInclude Include="engine\code\ECS\component\effect\CameraAction.h" />
     <ClInclude Include="engine\code\ECS\component\effect\MaterialEffectPipeLine.h" />
     <ClInclude Include="engine\code\ECS\component\effect\particle\Particle.h" />
     <ClInclude Include="engine\code\ECS\component\effect\particle\emitter\Emitter.h" />
+    <ClInclude Include="engine\code\ECS\component\effect\particle\emitter\EmitterEditor.h" />
     <ClInclude Include="engine\code\ECS\component\effect\particle\emitter\EmitterShape.h" />
     <ClInclude Include="engine\code\ECS\component\effect\particle\gpuParticle\GpuParticle.h" />
     <ClInclude Include="engine\code\ECS\component\effect\post\DissolveEffectParam.h" />
@@ -253,6 +257,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\ECS\system\SystemRunner.h" />
     <ClInclude Include="engine\code\ECS\system\collision\CollisionCheckPairFunc.h" />
     <ClInclude Include="engine\code\ECS\system\collision\CollisionCheckSystem.h" />
+    <ClInclude Include="engine\code\ECS\system\collision\CollisionCheckUtility.h" />
     <ClInclude Include="engine\code\ECS\system\collision\CollisionPushBackSystem.h" />
     <ClInclude Include="engine\code\ECS\system\effect\CameraActionSystem.h" />
     <ClInclude Include="engine\code\ECS\system\effect\DissolveAnimationSystem.h" />
@@ -299,6 +304,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\ECS\system\render\base\BaseRenderSystem.h" />
     <ClInclude Include="engine\code\ECS\system\transition\EffectAutoDestroySystem.h" />
     <ClInclude Include="engine\code\Engine.h" />
+    <ClInclude Include="engine\code\EngineConfig.h" />
     <ClInclude Include="engine\code\audio\Audio.h" />
     <ClInclude Include="engine\code\camera\CameraManager.h" />
     <ClInclude Include="engine\code\camera\debugCamera\DebugCamera.h" />
@@ -365,7 +371,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="math\Vector3.h" />
     <ClInclude Include="math\Vector4.h" />
     <ClInclude Include="math\bounds\AABB.h" />
+    <ClInclude Include="math\bounds\Capsule.h" />
     <ClInclude Include="math\bounds\OBB.h" />
+    <ClInclude Include="math\bounds\Ray.h" />
+    <ClInclude Include="math\bounds\Segment.h" />
     <ClInclude Include="math\bounds\Sphere.h" />
     <ClInclude Include="math\bounds\base\IBounds.h" />
     <ClInclude Include="math\mathEnv.h" />
@@ -384,6 +393,11 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="util\myRandom\MyRandom.h" />
     <ClInclude Include="util\nameof.h" />
     <ClInclude Include="util\timeline\Timeline.h" />
+    <ClInclude Include="util\timeline\TimelineButtons.h" />
+    <ClInclude Include="util\timeline\TimelineConfig.h" />
+    <ClInclude Include="util\timeline\TimelineCore.h" />
+    <ClInclude Include="util\timeline\TimelineEditor.h" />
+    <ClInclude Include="util\timeline\TimelinePopup.h" />
     <ClInclude Include="util\uuidGenerator\UuidGenerator.h" />
   </ItemGroup>
   <ItemGroup>
@@ -405,7 +419,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\ECS\component\ComponentHandle.cpp" />
     <ClCompile Include="engine\code\ECS\component\ComponentRegistry.cpp" />
     <ClCompile Include="engine\code\ECS\component\ComponentRepository.cpp" />
-    <ClCompile Include="engine\code\ECS\component\effect\particle\emitter\EmitterEditor.cpp" />
     <ClCompile Include="engine\code\ECS\component\EntityReferenceList.cpp" />
     <ClCompile Include="engine\code\ECS\component\IComponent.cpp" />
     <ClCompile Include="engine\code\ECS\component\SubScene.cpp" />
@@ -420,13 +433,17 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\ECS\component\animation\TransformAnimation.cpp" />
     <ClCompile Include="engine\code\ECS\component\collision\CollisionPushBackInfo.cpp" />
     <ClCompile Include="engine\code\ECS\component\collision\collider\AABBCollider.cpp" />
+    <ClCompile Include="engine\code\ECS\component\collision\collider\CapsuleCollider.cpp" />
     <ClCompile Include="engine\code\ECS\component\collision\collider\Collider.cpp" />
     <ClCompile Include="engine\code\ECS\component\collision\collider\OBBCollider.cpp" />
+    <ClCompile Include="engine\code\ECS\component\collision\collider\RayCollider.cpp" />
+    <ClCompile Include="engine\code\ECS\component\collision\collider\SegmentCollider.cpp" />
     <ClCompile Include="engine\code\ECS\component\collision\collider\SphereCollider.cpp" />
     <ClCompile Include="engine\code\ECS\component\effect\CameraAction.cpp" />
     <ClCompile Include="engine\code\ECS\component\effect\MaterialEffectPipeLine.cpp" />
     <ClCompile Include="engine\code\ECS\component\effect\particle\Particle.cpp" />
     <ClCompile Include="engine\code\ECS\component\effect\particle\emitter\Emitter.cpp" />
+    <ClCompile Include="engine\code\ECS\component\effect\particle\emitter\EmitterEditor.cpp" />
     <ClCompile Include="engine\code\ECS\component\effect\particle\emitter\EmitterShape.cpp" />
     <ClCompile Include="engine\code\ECS\component\effect\particle\gpuParticle\GpuParticle.cpp" />
     <ClCompile Include="engine\code\ECS\component\effect\post\DissolveEffectParam.cpp" />
@@ -470,7 +487,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\ECS\system\SystemCategory.cpp" />
     <ClCompile Include="engine\code\ECS\system\SystemRegistry.cpp" />
     <ClCompile Include="engine\code\ECS\system\SystemRunner.cpp" />
+    <ClCompile Include="engine\code\ECS\system\collision\CollisionCheckCapsule.cpp" />
     <ClCompile Include="engine\code\ECS\system\collision\CollisionCheckPairFunc.cpp" />
+    <ClCompile Include="engine\code\ECS\system\collision\CollisionCheckRay.cpp" />
+    <ClCompile Include="engine\code\ECS\system\collision\CollisionCheckSegment.cpp" />
     <ClCompile Include="engine\code\ECS\system\collision\CollisionCheckSystem.cpp" />
     <ClCompile Include="engine\code\ECS\system\collision\CollisionPushBackSystem.cpp" />
     <ClCompile Include="engine\code\ECS\system\effect\CameraActionSystem.cpp" />
@@ -572,7 +592,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="util\globalVariables\GlobalVariables.cpp" />
     <ClCompile Include="util\myFileSystem\MyFileSystem.cpp" />
     <ClCompile Include="util\myGui\MyGui.cpp" />
-    <ClCompile Include="util\timeline\Timeline.cpp" />
+    <ClCompile Include="util\timeline\Timeline_New.cpp" />
     <ClCompile Include="util\uuidGenerator\UuidGenerator.cpp" />
   </ItemGroup>
   <ItemGroup>

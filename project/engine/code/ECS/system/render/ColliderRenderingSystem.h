@@ -16,7 +16,10 @@
 #include "component/renderer/MeshRenderer.h"
 // colliderType
 #include "component/collision/collider/AABBCollider.h"
+#include "component/collision/collider/CapsuleCollider.h"
 #include "component/collision/collider/OBBCollider.h"
+#include "component/collision/collider/RayCollider.h"
+#include "component/collision/collider/SegmentCollider.h"
 #include "component/collision/collider/SphereCollider.h"
 
 namespace OriGine {
@@ -124,6 +127,39 @@ private:
     /// </summary>
     std::unique_ptr<LineRenderer> sphereRenderer_;
     std::vector<LineRenderer::MeshType>::iterator sphereMeshItr_;
+
+    /// <summary>
+    /// Rayコライダーのコンポーネント配列への参照
+    /// </summary>
+    ComponentArray<RayCollider>* rayColliders_ = nullptr;
+
+    /// <summary>
+    /// Ray描画用ラインレンダラー
+    /// </summary>
+    std::unique_ptr<LineRenderer> rayRenderer_;
+    std::vector<LineRenderer::MeshType>::iterator rayMeshItr_;
+
+    /// <summary>
+    /// Segmentコライダーのコンポーネント配列への参照
+    /// </summary>
+    ComponentArray<SegmentCollider>* segmentColliders_ = nullptr;
+
+    /// <summary>
+    /// Segment描画用ラインレンダラー
+    /// </summary>
+    std::unique_ptr<LineRenderer> segmentRenderer_;
+    std::vector<LineRenderer::MeshType>::iterator segmentMeshItr_;
+
+    /// <summary>
+    /// Capsuleコライダーのコンポーネント配列への参照
+    /// </summary>
+    ComponentArray<CapsuleCollider>* capsuleColliders_ = nullptr;
+
+    /// <summary>
+    /// Capsule描画用ラインレンダラー
+    /// </summary>
+    std::unique_ptr<LineRenderer> capsuleRenderer_;
+    std::vector<LineRenderer::MeshType>::iterator capsuleMeshItr_;
 
     /// <summary>
     /// 使用するPSOポインタ

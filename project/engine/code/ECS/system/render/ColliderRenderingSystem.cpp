@@ -16,6 +16,7 @@
 
 /// math
 #include "math/bounds/base/IBounds.h"
+#include <Matrix4x4.h>
 #include <numbers>
 
 using namespace OriGine;
@@ -36,6 +37,21 @@ static const float kSphereDivisionReal = static_cast<float>(kSphereDivision);
 
 static const uint32_t kSphereVertexSize = 4 * kSphereDivision * kSphereDivision;
 static const uint32_t kSphereIndexSize  = 4 * kSphereDivision * kSphereDivision;
+
+//** Ray **//
+static const float kRayLength        = 100.0f; // 描画用の仮想長さ
+static const uint32_t kRayVertexSize = 2;
+static const uint32_t kRayIndexSize  = 2;
+
+//** Segment **//
+static const uint32_t kSegmentVertexSize = 2;
+static const uint32_t kSegmentIndexSize  = 2;
+
+//** Capsule **//
+static const uint32_t kCapsuleDivision   = 8;
+static const float kCapsuleDivisionReal  = static_cast<float>(kCapsuleDivision);
+static const uint32_t kCapsuleVertexSize = 2 + 4 * kCapsuleDivision * 2; // 軸 + 両端の球
+static const uint32_t kCapsuleIndexSize  = 2 + 4 * kCapsuleDivision * 2;
 } // namespace
 
 #pragma region "CreateLineMesh"
@@ -202,6 +218,129 @@ void CreateLineMeshByShape(
         }
     }
 }
+
+template <>
+void CreateLineMeshByShape(
+    Mesh<ColorVertexData>* _mesh,
+    const Bounds::Ray& _shape,
+    const Vec4f& _color) {
+    // Rayは始点から方向に向かって一定の長さまで描画
+    Vector3f origin   = _shape.origin;
+    Vector3f endPoint = origin + _shape.direction * kRayLength;
+
+    uint32_t startIndexesIndex = uint32_t(_mesh->vertexes_.size());
+
+    // 頂点バッファにデータを格納
+    _mesh->vertexes_.emplace_back(ColorVertexData{Vec4f(origin, 1.f), _color});
+    _mesh->vertexes_.emplace_back(ColorVertexData{Vec4f(endPoint, 1.f), _color});
+
+    // インデックスバッファにデータを格納
+    _mesh->indexes_.emplace_back(startIndexesIndex + 0);
+    _mesh->indexes_.emplace_back(startIndexesIndex + 1);
+}
+
+template <>
+void CreateLineMeshByShape(
+    Mesh<ColorVertexData>* _mesh,
+    const Bounds::Segment& _shape,
+    const Vec4f& _color) {
+    Vector3f start = _shape.start;
+    Vector3f end   = _shape.end;
+
+    uint32_t startIndexesIndex = uint32_t(_mesh->vertexes_.size());
+
+    // 頂点バッファにデータを格納
+    _mesh->vertexes_.emplace_back(ColorVertexData{Vec4f(start, 1.f), _color});
+    _mesh->vertexes_.emplace_back(ColorVertexData{Vec4f(end, 1.f), _color});
+
+    // インデックスバッファにデータを格納
+    _mesh->indexes_.emplace_back(startIndexesIndex + 0);
+    _mesh->indexes_.emplace_back(startIndexesIndex + 1);
+}
+
+template <>
+void CreateLineMeshByShape(
+    Mesh<ColorVertexData>* _mesh,
+    const Bounds::Capsule& _shape,
+    const Vec4f& _color) {
+    Vector3f start = _shape.segment.start;
+    Vector3f end   = _shape.segment.end;
+    float radius   = _shape.radius;
+
+    // カプセルの軸方向
+    Vector3f axis    = Vec3f(end - start);
+    float axisLength = axis.length();
+
+    // 軸が0の場合は球として描画
+    if (axisLength < 0.0001f) {
+        Bounds::Sphere sphere;
+        sphere.center_ = start;
+        sphere.radius_ = radius;
+        CreateLineMeshByShape(_mesh, sphere, _color);
+        return;
+    }
+
+    Vector3f axisNorm = axis.normalize();
+
+    // 軸に垂直なベクトルを求める
+    Vector3f perpendicular;
+    if (std::abs(axisNorm[Y]) < 0.99f) {
+        perpendicular = Vec3f::Cross({0.f, 1.f, 0.f}, axisNorm).normalize();
+    } else {
+        perpendicular = Vec3f::Cross({1.f, 0.f, 0.f}, axisNorm).normalize();
+    }
+    Vector3f perpendicular2 = Vec3f::Cross(axisNorm, perpendicular).normalize();
+
+    const float kAngleStep = 2.0f * std::numbers::pi_v<float> / kCapsuleDivisionReal;
+
+    // 中心軸を描画
+    uint32_t startIndexesIndex = uint32_t(_mesh->vertexes_.size());
+    _mesh->vertexes_.emplace_back(ColorVertexData{Vec4f(start, 1.f), _color});
+    _mesh->vertexes_.emplace_back(ColorVertexData{Vec4f(end, 1.f), _color});
+    _mesh->indexes_.emplace_back(startIndexesIndex + 0);
+    _mesh->indexes_.emplace_back(startIndexesIndex + 1);
+
+    // 始点側の円を描画
+    for (uint32_t i = 0; i < kCapsuleDivision; ++i) {
+        float angle1 = i * kAngleStep;
+        float angle2 = (i + 1) % kCapsuleDivision * kAngleStep;
+
+        Vector3f p1 = start + perpendicular * (radius * std::cos(angle1)) + perpendicular2 * (radius * std::sin(angle1));
+        Vector3f p2 = start + perpendicular * (radius * std::cos(angle2)) + perpendicular2 * (radius * std::sin(angle2));
+
+        _mesh->vertexes_.emplace_back(ColorVertexData{Vec4f(p1, 1.f), _color});
+        _mesh->vertexes_.emplace_back(ColorVertexData{Vec4f(p2, 1.f), _color});
+        _mesh->indexes_.emplace_back((uint32_t)_mesh->indexes_.size());
+        _mesh->indexes_.emplace_back((uint32_t)_mesh->indexes_.size());
+    }
+
+    // 終点側の円を描画
+    for (uint32_t i = 0; i < kCapsuleDivision; ++i) {
+        float angle1 = i * kAngleStep;
+        float angle2 = (i + 1) % kCapsuleDivision * kAngleStep;
+
+        Vector3f p1 = end + perpendicular * (radius * std::cos(angle1)) + perpendicular2 * (radius * std::sin(angle1));
+        Vector3f p2 = end + perpendicular * (radius * std::cos(angle2)) + perpendicular2 * (radius * std::sin(angle2));
+
+        _mesh->vertexes_.emplace_back(ColorVertexData{Vec4f(p1, 1.f), _color});
+        _mesh->vertexes_.emplace_back(ColorVertexData{Vec4f(p2, 1.f), _color});
+        _mesh->indexes_.emplace_back((uint32_t)_mesh->indexes_.size());
+        _mesh->indexes_.emplace_back((uint32_t)_mesh->indexes_.size());
+    }
+
+    // 両端を繋ぐ縦のラインを描画（4本）
+    for (uint32_t i = 0; i < 4; ++i) {
+        float angle     = i * (std::numbers::pi_v<float> / 2.0f);
+        Vector3f offset = perpendicular * (radius * std::cos(angle)) + perpendicular2 * (radius * std::sin(angle));
+        Vector3f p1     = start + offset;
+        Vector3f p2     = end + offset;
+
+        _mesh->vertexes_.emplace_back(ColorVertexData{Vec4f(p1, 1.f), _color});
+        _mesh->vertexes_.emplace_back(ColorVertexData{Vec4f(p2, 1.f), _color});
+        _mesh->indexes_.emplace_back((uint32_t)_mesh->indexes_.size());
+        _mesh->indexes_.emplace_back((uint32_t)_mesh->indexes_.size());
+    }
+}
 #pragma endregion
 
 ColliderRenderingSystem::ColliderRenderingSystem() : BaseRenderSystem() {}
@@ -240,6 +379,30 @@ void ColliderRenderingSystem::Initialize() {
     sphereRenderer_->GetMeshGroup()->push_back(Mesh<ColorVertexData>());
     sphereRenderer_->GetMeshGroup()->back().Initialize(ColliderRenderingSystem::kDefaultMeshCount_ * kSphereVertexSize, ColliderRenderingSystem::kDefaultMeshCount_ * kSphereIndexSize);
     sphereMeshItr_ = sphereRenderer_->GetMeshGroup()->begin();
+
+    //** Ray **//
+    rayColliders_ = GetComponentArray<RayCollider>();
+    rayRenderer_  = std::make_unique<LineRenderer>(std::vector<Mesh<ColorVertexData>>());
+    rayRenderer_->Initialize(nullptr, EntityHandle());
+    rayRenderer_->GetMeshGroup()->push_back(Mesh<ColorVertexData>());
+    rayRenderer_->GetMeshGroup()->back().Initialize(ColliderRenderingSystem::kDefaultMeshCount_ * kRayVertexSize, ColliderRenderingSystem::kDefaultMeshCount_ * kRayIndexSize);
+    rayMeshItr_ = rayRenderer_->GetMeshGroup()->begin();
+
+    //** Segment **//
+    segmentColliders_ = GetComponentArray<SegmentCollider>();
+    segmentRenderer_  = std::make_unique<LineRenderer>(std::vector<Mesh<ColorVertexData>>());
+    segmentRenderer_->Initialize(nullptr, EntityHandle());
+    segmentRenderer_->GetMeshGroup()->push_back(Mesh<ColorVertexData>());
+    segmentRenderer_->GetMeshGroup()->back().Initialize(ColliderRenderingSystem::kDefaultMeshCount_ * kSegmentVertexSize, ColliderRenderingSystem::kDefaultMeshCount_ * kSegmentIndexSize);
+    segmentMeshItr_ = segmentRenderer_->GetMeshGroup()->begin();
+
+    //** Capsule **//
+    capsuleColliders_ = GetComponentArray<CapsuleCollider>();
+    capsuleRenderer_  = std::make_unique<LineRenderer>(std::vector<Mesh<ColorVertexData>>());
+    capsuleRenderer_->Initialize(nullptr, EntityHandle());
+    capsuleRenderer_->GetMeshGroup()->push_back(Mesh<ColorVertexData>());
+    capsuleRenderer_->GetMeshGroup()->back().Initialize(ColliderRenderingSystem::kDefaultMeshCount_ * kCapsuleVertexSize, ColliderRenderingSystem::kDefaultMeshCount_ * kCapsuleIndexSize);
+    capsuleMeshItr_ = capsuleRenderer_->GetMeshGroup()->begin();
 }
 
 /// <summary>
@@ -265,6 +428,9 @@ void ColliderRenderingSystem::Finalize() {
     aabbRenderer_->Finalize();
     obbRenderer_->Finalize();
     sphereRenderer_->Finalize();
+    rayRenderer_->Finalize();
+    segmentRenderer_->Finalize();
+    capsuleRenderer_->Finalize();
 
     dxCommand_->Finalize();
 }
@@ -537,6 +703,183 @@ void ColliderRenderingSystem::CreateRenderMesh() {
         }
     }
     sphereMeshItr_->TransferData();
+
+    { // Ray
+        auto& meshGroup = rayRenderer_->GetMeshGroup();
+
+        for (auto meshItr = meshGroup->begin(); meshItr != meshGroup->end(); ++meshItr) {
+            meshItr->vertexes_.clear();
+            meshItr->indexes_.clear();
+        }
+
+        rayMeshItr_ = meshGroup->begin();
+
+        for (auto& slot : rayColliders_->GetSlots()) {
+            Entity* entity = GetEntity(slot.owner);
+            if (!entity) {
+                continue;
+            }
+
+            Transform* transform = GetComponent<Transform>(slot.owner);
+            if (transform) {
+                transform->UpdateMatrix();
+            }
+
+            auto& colliders = rayColliders_->GetComponents(slot.owner);
+            if (colliders.empty()) {
+                continue;
+            }
+            for (auto& ray : colliders) {
+                if (!ray.IsActive()) {
+                    continue;
+                }
+                ray.SetParent(transform);
+                ray.CalculateWorldShape();
+
+                if (rayMeshItr_->GetIndexCapacity() <= 0) {
+                    rayMeshItr_->TransferData();
+                    ++rayMeshItr_;
+                    if (rayMeshItr_ == meshGroup->end()) {
+                        meshGroup->push_back(Mesh<ColorVertexData>());
+                        meshGroup->back().Initialize(ColliderRenderingSystem::kDefaultMeshCount_ * kRayVertexSize, ColliderRenderingSystem::kDefaultMeshCount_ * kRayIndexSize);
+                        rayMeshItr_ = --meshGroup->end();
+                    }
+                }
+
+                Vec4f color    = {1, 1, 1, 1};
+                auto& stateMap = ray.GetCollisionStateMap();
+                if (!stateMap.empty()) {
+                    for (auto& [collEntityIdx, state] : stateMap) {
+                        if (state != CollisionState::None) {
+                            color = {1, 0, 0, 1};
+                            break;
+                        }
+                    }
+                }
+
+                CreateLineMeshByShape<>(rayMeshItr_._Ptr, ray.GetWorldShape(), color);
+            }
+        }
+    }
+    rayMeshItr_->TransferData();
+
+    { // Segment
+        auto& meshGroup = segmentRenderer_->GetMeshGroup();
+
+        for (auto meshItr = meshGroup->begin(); meshItr != meshGroup->end(); ++meshItr) {
+            meshItr->vertexes_.clear();
+            meshItr->indexes_.clear();
+        }
+
+        segmentMeshItr_ = meshGroup->begin();
+
+        for (auto& slot : segmentColliders_->GetSlots()) {
+            Entity* entity = GetEntity(slot.owner);
+            if (!entity) {
+                continue;
+            }
+
+            Transform* transform = GetComponent<Transform>(slot.owner);
+            if (transform) {
+                transform->UpdateMatrix();
+            }
+
+            auto& colliders = segmentColliders_->GetComponents(slot.owner);
+            if (colliders.empty()) {
+                continue;
+            }
+            for (auto& segment : colliders) {
+                if (!segment.IsActive()) {
+                    continue;
+                }
+                segment.SetParent(transform);
+                segment.CalculateWorldShape();
+
+                if (segmentMeshItr_->GetIndexCapacity() <= 0) {
+                    segmentMeshItr_->TransferData();
+                    ++segmentMeshItr_;
+                    if (segmentMeshItr_ == meshGroup->end()) {
+                        meshGroup->push_back(Mesh<ColorVertexData>());
+                        meshGroup->back().Initialize(ColliderRenderingSystem::kDefaultMeshCount_ * kSegmentVertexSize, ColliderRenderingSystem::kDefaultMeshCount_ * kSegmentIndexSize);
+                        segmentMeshItr_ = --meshGroup->end();
+                    }
+                }
+
+                Vec4f color    = {1, 1, 1, 1};
+                auto& stateMap = segment.GetCollisionStateMap();
+                if (!stateMap.empty()) {
+                    for (auto& [collEntityIdx, state] : stateMap) {
+                        if (state != CollisionState::None) {
+                            color = {1, 0, 0, 1};
+                            break;
+                        }
+                    }
+                }
+
+                CreateLineMeshByShape<>(segmentMeshItr_._Ptr, segment.GetWorldShape(), color);
+            }
+        }
+    }
+    segmentMeshItr_->TransferData();
+
+    { // Capsule
+        auto& meshGroup = capsuleRenderer_->GetMeshGroup();
+
+        for (auto meshItr = meshGroup->begin(); meshItr != meshGroup->end(); ++meshItr) {
+            meshItr->vertexes_.clear();
+            meshItr->indexes_.clear();
+        }
+
+        capsuleMeshItr_ = meshGroup->begin();
+
+        for (auto& slot : capsuleColliders_->GetSlots()) {
+            Entity* entity = GetEntity(slot.owner);
+            if (!entity) {
+                continue;
+            }
+
+            Transform* transform = GetComponent<Transform>(slot.owner);
+            if (transform) {
+                transform->UpdateMatrix();
+            }
+
+            auto& colliders = capsuleColliders_->GetComponents(slot.owner);
+            if (colliders.empty()) {
+                continue;
+            }
+            for (auto& capsule : colliders) {
+                if (!capsule.IsActive()) {
+                    continue;
+                }
+                capsule.SetParent(transform);
+                capsule.CalculateWorldShape();
+
+                if (capsuleMeshItr_->GetIndexCapacity() <= 0) {
+                    capsuleMeshItr_->TransferData();
+                    ++capsuleMeshItr_;
+                    if (capsuleMeshItr_ == meshGroup->end()) {
+                        meshGroup->push_back(Mesh<ColorVertexData>());
+                        meshGroup->back().Initialize(ColliderRenderingSystem::kDefaultMeshCount_ * kCapsuleVertexSize, ColliderRenderingSystem::kDefaultMeshCount_ * kCapsuleIndexSize);
+                        capsuleMeshItr_ = --meshGroup->end();
+                    }
+                }
+
+                Vec4f color    = {1, 1, 1, 1};
+                auto& stateMap = capsule.GetCollisionStateMap();
+                if (!stateMap.empty()) {
+                    for (auto& [collEntityIdx, state] : stateMap) {
+                        if (state != CollisionState::None) {
+                            color = {1, 0, 0, 1};
+                            break;
+                        }
+                    }
+                }
+
+                CreateLineMeshByShape<>(capsuleMeshItr_._Ptr, capsule.GetWorldShape(), color);
+            }
+        }
+    }
+    capsuleMeshItr_->TransferData();
 }
 
 /// <summary>
@@ -580,6 +923,39 @@ void ColliderRenderingSystem::RenderCall() {
         commandList->IASetIndexBuffer(&mesh.GetIndexBufferView());
         commandList->DrawIndexedInstanced(static_cast<UINT>(mesh.indexes_.size()), 1, 0, 0, 0);
     }
+
+    rayRenderer_->GetTransformBuff().SetForRootParameter(commandList, 0);
+    for (auto& mesh : *rayRenderer_->GetMeshGroup()) {
+        if (mesh.indexes_.size() <= 0) {
+            continue;
+        }
+        // 描画
+        commandList->IASetVertexBuffers(0, 1, &mesh.GetVertexBufferView());
+        commandList->IASetIndexBuffer(&mesh.GetIndexBufferView());
+        commandList->DrawIndexedInstanced(static_cast<UINT>(mesh.indexes_.size()), 1, 0, 0, 0);
+    }
+
+    segmentRenderer_->GetTransformBuff().SetForRootParameter(commandList, 0);
+    for (auto& mesh : *segmentRenderer_->GetMeshGroup()) {
+        if (mesh.indexes_.size() <= 0) {
+            continue;
+        }
+        // 描画
+        commandList->IASetVertexBuffers(0, 1, &mesh.GetVertexBufferView());
+        commandList->IASetIndexBuffer(&mesh.GetIndexBufferView());
+        commandList->DrawIndexedInstanced(static_cast<UINT>(mesh.indexes_.size()), 1, 0, 0, 0);
+    }
+
+    capsuleRenderer_->GetTransformBuff().SetForRootParameter(commandList, 0);
+    for (auto& mesh : *capsuleRenderer_->GetMeshGroup()) {
+        if (mesh.indexes_.size() <= 0) {
+            continue;
+        }
+        // 描画
+        commandList->IASetVertexBuffers(0, 1, &mesh.GetVertexBufferView());
+        commandList->IASetIndexBuffer(&mesh.GetIndexBufferView());
+        commandList->DrawIndexedInstanced(static_cast<UINT>(mesh.indexes_.size()), 1, 0, 0, 0);
+    }
 }
 
 /// <summary>
@@ -596,7 +972,7 @@ void ColliderRenderingSystem::Rendering() {
 /// </summary>
 /// <returns>true = 描画対象なし / false = 描画対象あり</returns>
 bool ColliderRenderingSystem::ShouldSkipRender() const {
-    bool isSkip = aabbColliders_->IsEmpty() && obbColliders_->IsEmpty() && sphereColliders_->IsEmpty();
+    bool isSkip = aabbColliders_->IsEmpty() && obbColliders_->IsEmpty() && sphereColliders_->IsEmpty() && rayColliders_->IsEmpty() && segmentColliders_->IsEmpty() && capsuleColliders_->IsEmpty();
 
     return isSkip;
 }

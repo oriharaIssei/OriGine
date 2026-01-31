@@ -12,7 +12,10 @@
 
 /// math
 #include "math/bounds/AABB.h"
+#include "math/bounds/Capsule.h"
 #include "math/bounds/OBB.h"
+#include "math/bounds/Ray.h"
+#include "math/bounds/Segment.h"
 #include "math/bounds/Sphere.h"
 #include "math/mathEnv.h"
 
@@ -159,6 +162,304 @@ bool CheckCollisionPair(
     EntityHandle _handleB,
     const Bounds::OBB& _shapeA,
     const Bounds::AABB& _shapeB,
+    [[maybe_unused]] CollisionPushBackInfo* _aInfo,
+    [[maybe_unused]] CollisionPushBackInfo* _bInfo);
+
+#pragma endregion
+
+#pragma region Ray
+
+/// <summary>
+/// Ray vs Sphere の衝突判定
+/// </summary>
+template <>
+bool CheckCollisionPair(
+    Scene* _scene,
+    EntityHandle _handleA,
+    EntityHandle _handleB,
+    const Bounds::Ray& _shapeA,
+    const Bounds::Sphere& _shapeB,
+    [[maybe_unused]] CollisionPushBackInfo* _aInfo,
+    [[maybe_unused]] CollisionPushBackInfo* _bInfo);
+
+/// <summary>
+/// Sphere vs Ray の衝突判定
+/// </summary>
+template <>
+bool CheckCollisionPair(
+    Scene* _scene,
+    EntityHandle _handleA,
+    EntityHandle _handleB,
+    const Bounds::Sphere& _shapeA,
+    const Bounds::Ray& _shapeB,
+    [[maybe_unused]] CollisionPushBackInfo* _aInfo,
+    [[maybe_unused]] CollisionPushBackInfo* _bInfo);
+
+/// <summary>
+/// Ray vs AABB の衝突判定
+/// </summary>
+template <>
+bool CheckCollisionPair(
+    Scene* _scene,
+    EntityHandle _handleA,
+    EntityHandle _handleB,
+    const Bounds::Ray& _shapeA,
+    const Bounds::AABB& _shapeB,
+    [[maybe_unused]] CollisionPushBackInfo* _aInfo,
+    [[maybe_unused]] CollisionPushBackInfo* _bInfo);
+
+/// <summary>
+/// AABB vs Ray の衝突判定
+/// </summary>
+template <>
+bool CheckCollisionPair(
+    Scene* _scene,
+    EntityHandle _handleA,
+    EntityHandle _handleB,
+    const Bounds::AABB& _shapeA,
+    const Bounds::Ray& _shapeB,
+    [[maybe_unused]] CollisionPushBackInfo* _aInfo,
+    [[maybe_unused]] CollisionPushBackInfo* _bInfo);
+
+/// <summary>
+/// Ray vs OBB の衝突判定
+/// </summary>
+template <>
+bool CheckCollisionPair(
+    Scene* _scene,
+    EntityHandle _handleA,
+    EntityHandle _handleB,
+    const Bounds::Ray& _shapeA,
+    const Bounds::OBB& _shapeB,
+    [[maybe_unused]] CollisionPushBackInfo* _aInfo,
+    [[maybe_unused]] CollisionPushBackInfo* _bInfo);
+
+/// <summary>
+/// OBB vs Ray の衝突判定
+/// </summary>
+template <>
+bool CheckCollisionPair(
+    Scene* _scene,
+    EntityHandle _handleA,
+    EntityHandle _handleB,
+    const Bounds::OBB& _shapeA,
+    const Bounds::Ray& _shapeB,
+    [[maybe_unused]] CollisionPushBackInfo* _aInfo,
+    [[maybe_unused]] CollisionPushBackInfo* _bInfo);
+
+#pragma endregion
+
+#pragma region Segment
+
+/// <summary>
+/// Segment vs Sphere の衝突判定
+/// </summary>
+template <>
+bool CheckCollisionPair(
+    Scene* _scene,
+    EntityHandle _handleA,
+    EntityHandle _handleB,
+    const Bounds::Segment& _shapeA,
+    const Bounds::Sphere& _shapeB,
+    [[maybe_unused]] CollisionPushBackInfo* _aInfo,
+    [[maybe_unused]] CollisionPushBackInfo* _bInfo);
+
+/// <summary>
+/// Sphere vs Segment の衝突判定
+/// </summary>
+template <>
+bool CheckCollisionPair(
+    Scene* _scene,
+    EntityHandle _handleA,
+    EntityHandle _handleB,
+    const Bounds::Sphere& _shapeA,
+    const Bounds::Segment& _shapeB,
+    [[maybe_unused]] CollisionPushBackInfo* _aInfo,
+    [[maybe_unused]] CollisionPushBackInfo* _bInfo);
+
+/// <summary>
+/// Segment vs AABB の衝突判定
+/// </summary>
+template <>
+bool CheckCollisionPair(
+    Scene* _scene,
+    EntityHandle _handleA,
+    EntityHandle _handleB,
+    const Bounds::Segment& _shapeA,
+    const Bounds::AABB& _shapeB,
+    [[maybe_unused]] CollisionPushBackInfo* _aInfo,
+    [[maybe_unused]] CollisionPushBackInfo* _bInfo);
+
+/// <summary>
+/// AABB vs Segment の衝突判定
+/// </summary>
+template <>
+bool CheckCollisionPair(
+    Scene* _scene,
+    EntityHandle _handleA,
+    EntityHandle _handleB,
+    const Bounds::AABB& _shapeA,
+    const Bounds::Segment& _shapeB,
+    [[maybe_unused]] CollisionPushBackInfo* _aInfo,
+    [[maybe_unused]] CollisionPushBackInfo* _bInfo);
+
+/// <summary>
+/// Segment vs OBB の衝突判定
+/// </summary>
+template <>
+bool CheckCollisionPair(
+    Scene* _scene,
+    EntityHandle _handleA,
+    EntityHandle _handleB,
+    const Bounds::Segment& _shapeA,
+    const Bounds::OBB& _shapeB,
+    [[maybe_unused]] CollisionPushBackInfo* _aInfo,
+    [[maybe_unused]] CollisionPushBackInfo* _bInfo);
+
+/// <summary>
+/// OBB vs Segment の衝突判定
+/// </summary>
+template <>
+bool CheckCollisionPair(
+    Scene* _scene,
+    EntityHandle _handleA,
+    EntityHandle _handleB,
+    const Bounds::OBB& _shapeA,
+    const Bounds::Segment& _shapeB,
+    [[maybe_unused]] CollisionPushBackInfo* _aInfo,
+    [[maybe_unused]] CollisionPushBackInfo* _bInfo);
+
+/// <summary>
+/// Segment vs Segment の衝突判定
+/// </summary>
+template <>
+bool CheckCollisionPair(
+    Scene* _scene,
+    EntityHandle _handleA,
+    EntityHandle _handleB,
+    const Bounds::Segment& _shapeA,
+    const Bounds::Segment& _shapeB,
+    [[maybe_unused]] CollisionPushBackInfo* _aInfo,
+    [[maybe_unused]] CollisionPushBackInfo* _bInfo);
+
+#pragma endregion
+
+#pragma region Capsule
+
+/// <summary>
+/// Capsule vs Capsule の衝突判定
+/// </summary>
+template <>
+bool CheckCollisionPair(
+    Scene* _scene,
+    EntityHandle _handleA,
+    EntityHandle _handleB,
+    const Bounds::Capsule& _shapeA,
+    const Bounds::Capsule& _shapeB,
+    [[maybe_unused]] CollisionPushBackInfo* _aInfo,
+    [[maybe_unused]] CollisionPushBackInfo* _bInfo);
+
+/// <summary>
+/// Capsule vs Sphere の衝突判定
+/// </summary>
+template <>
+bool CheckCollisionPair(
+    Scene* _scene,
+    EntityHandle _handleA,
+    EntityHandle _handleB,
+    const Bounds::Capsule& _shapeA,
+    const Bounds::Sphere& _shapeB,
+    [[maybe_unused]] CollisionPushBackInfo* _aInfo,
+    [[maybe_unused]] CollisionPushBackInfo* _bInfo);
+
+/// <summary>
+/// Sphere vs Capsule の衝突判定
+/// </summary>
+template <>
+bool CheckCollisionPair(
+    Scene* _scene,
+    EntityHandle _handleA,
+    EntityHandle _handleB,
+    const Bounds::Sphere& _shapeA,
+    const Bounds::Capsule& _shapeB,
+    [[maybe_unused]] CollisionPushBackInfo* _aInfo,
+    [[maybe_unused]] CollisionPushBackInfo* _bInfo);
+
+/// <summary>
+/// Capsule vs AABB の衝突判定
+/// </summary>
+template <>
+bool CheckCollisionPair(
+    Scene* _scene,
+    EntityHandle _handleA,
+    EntityHandle _handleB,
+    const Bounds::Capsule& _shapeA,
+    const Bounds::AABB& _shapeB,
+    [[maybe_unused]] CollisionPushBackInfo* _aInfo,
+    [[maybe_unused]] CollisionPushBackInfo* _bInfo);
+
+/// <summary>
+/// AABB vs Capsule の衝突判定
+/// </summary>
+template <>
+bool CheckCollisionPair(
+    Scene* _scene,
+    EntityHandle _handleA,
+    EntityHandle _handleB,
+    const Bounds::AABB& _shapeA,
+    const Bounds::Capsule& _shapeB,
+    [[maybe_unused]] CollisionPushBackInfo* _aInfo,
+    [[maybe_unused]] CollisionPushBackInfo* _bInfo);
+
+/// <summary>
+/// Capsule vs OBB の衝突判定
+/// </summary>
+template <>
+bool CheckCollisionPair(
+    Scene* _scene,
+    EntityHandle _handleA,
+    EntityHandle _handleB,
+    const Bounds::Capsule& _shapeA,
+    const Bounds::OBB& _shapeB,
+    [[maybe_unused]] CollisionPushBackInfo* _aInfo,
+    [[maybe_unused]] CollisionPushBackInfo* _bInfo);
+
+/// <summary>
+/// OBB vs Capsule の衝突判定
+/// </summary>
+template <>
+bool CheckCollisionPair(
+    Scene* _scene,
+    EntityHandle _handleA,
+    EntityHandle _handleB,
+    const Bounds::OBB& _shapeA,
+    const Bounds::Capsule& _shapeB,
+    [[maybe_unused]] CollisionPushBackInfo* _aInfo,
+    [[maybe_unused]] CollisionPushBackInfo* _bInfo);
+
+/// <summary>
+/// Capsule vs Segment の衝突判定
+/// </summary>
+template <>
+bool CheckCollisionPair(
+    Scene* _scene,
+    EntityHandle _handleA,
+    EntityHandle _handleB,
+    const Bounds::Capsule& _shapeA,
+    const Bounds::Segment& _shapeB,
+    [[maybe_unused]] CollisionPushBackInfo* _aInfo,
+    [[maybe_unused]] CollisionPushBackInfo* _bInfo);
+
+/// <summary>
+/// Segment vs Capsule の衝突判定
+/// </summary>
+template <>
+bool CheckCollisionPair(
+    Scene* _scene,
+    EntityHandle _handleA,
+    EntityHandle _handleB,
+    const Bounds::Segment& _shapeA,
+    const Bounds::Capsule& _shapeB,
     [[maybe_unused]] CollisionPushBackInfo* _aInfo,
     [[maybe_unused]] CollisionPushBackInfo* _bInfo);
 
