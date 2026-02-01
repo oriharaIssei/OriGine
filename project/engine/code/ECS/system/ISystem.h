@@ -64,7 +64,7 @@ public:
     /// </summary>
     void EraseDeadEntity();
 
-protected:
+public:
     /// <summary>
     /// Run() から呼ばれる処理
     /// </summary>

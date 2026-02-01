@@ -101,6 +101,34 @@ std::pair<uint32_t, uint32_t> OriGine::CalcDistanceSegmentIndex(const std::deque
     return {closestIndex1, closestIndex2};
 }
 
+float OriGine::CalcDistanceAlongSpline(const std::deque<Vec3f>& _points, const Vec3f& _position) {
+    if (_points.empty()) {
+        return 0.f;
+    }
+    float accumulatedLength = 0.0f;
+    for (size_t i = 0; i < _points.size() - 1; i++) {
+        Vec3f p1            = _points[i];
+        Vec3f p2            = _points[i + 1];
+        float segmentLength = Vec3f(p2 - p1).length();
+        // 線分p1-p2に対する点_positionの射影を計算
+        Vec3f lineDir      = p2 - p1;
+        float lineLengthSq = lineDir.lengthSq();
+        if (lineLengthSq == 0.0f) {
+            continue; // 同じ点の場合はスキップ
+        }
+        float t          = (Vec3f(_position - p1).dot(lineDir)) / lineLengthSq;
+        t                = std::clamp(t, 0.0f, 1.0f);
+        Vec3f projection = p1 + lineDir * t;
+        // 射影点が線分内にある場合、距離を計算して返す
+        if (t >= 0.0f && t <= 1.0f) {
+            return accumulatedLength + Vec3f(projection - p1).length();
+        }
+        accumulatedLength += segmentLength;
+    }
+    // 指定位置が全長を超える場合、全長を返す
+    return accumulatedLength;
+}
+
 Vec3f OriGine::CalcPointOnSplineByDistance(const std::deque<Vec3f>& _points, float _distance) {
     if (_points.empty()) {
         return Vec3f();
