@@ -80,11 +80,14 @@ protected:
     };
 
 protected:
-    std::unique_ptr<DistortionEffectParam> defaultParam_   = nullptr; // デフォルトパラメーター (3DObjectの適応に使う)
-    std::unique_ptr<RenderTexture> distortionSceneTexture_ = nullptr;
+    std::unique_ptr<DistortionEffectParam> defaultParam_ = nullptr; // デフォルトパラメーター (3DObjectの適応に使う)
 
     std::vector<RenderingData> activeRenderingData_                  = {};
     std::vector<PrimitiveMeshRendererBase*> activeDistortionObjects_ = {};
+
+    // 静的共有リソース
+    static std::unique_ptr<RenderTexture> distortionSceneTexture_; // 歪みシーンテクスチャ (全インスタンスで共有)
+    static int32_t instanceCount_; // インスタンスカウント
 
     std::unique_ptr<TexturedMeshRenderSystemWithoutRaytracing> texturedMeshRenderSystem_ = nullptr;
     PipelineStateObj* pso_                                                               = nullptr;

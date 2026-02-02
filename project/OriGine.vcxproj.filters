@@ -255,6 +255,9 @@
     <ClInclude Include="engine\EngineInclude.h">
       <Filter>engine</Filter>
     </ClInclude>
+    <ClInclude Include="engine\code\ECS\HandleAssignMode.h">
+      <Filter>engine\code\ECS</Filter>
+    </ClInclude>
     <ClInclude Include="engine\code\ECS\component\ComponentArray.h">
       <Filter>engine\code\ECS\component</Filter>
     </ClInclude>
@@ -1486,6 +1489,9 @@
     </ClCompile>
     <ClCompile Include="util\myGui\MyGui.cpp">
       <Filter>util\myGui</Filter>
+    </ClCompile>
+    <ClCompile Include="util\timeline\Timeline.cpp">
+      <Filter>util\timeline</Filter>
     </ClCompile>
     <ClCompile Include="util\timeline\Timeline_New.cpp">
       <Filter>util\timeline</Filter>

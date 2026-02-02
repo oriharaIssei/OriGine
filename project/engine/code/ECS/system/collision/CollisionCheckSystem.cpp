@@ -10,7 +10,10 @@
 #include "component/transform/Transform.h"
 // shape
 #include "component/collision/collider/AABBCollider.h"
+#include "component/collision/collider/CapsuleCollider.h"
 #include "component/collision/collider/OBBCollider.h"
+#include "component/collision/collider/RayCollider.h"
+#include "component/collision/collider/SegmentCollider.h"
 #include "component/collision/collider/SphereCollider.h"
 
 // func
@@ -58,7 +61,6 @@ void CollisionCheckSystem::Update() {
             collider.SetParent(transform);
             collider.StartCollision();
         }
-
         // Sphere
         auto& sphereColliders = GetComponents<SphereCollider>(entity);
         for (auto& collider : sphereColliders) {
@@ -68,6 +70,24 @@ void CollisionCheckSystem::Update() {
         // OBB
         auto& obbColliders = GetComponents<OBBCollider>(entity);
         for (auto& collider : obbColliders) {
+            collider.SetParent(transform);
+            collider.StartCollision();
+        }
+        // Capsule
+        auto& capsuleColliders = GetComponents<CapsuleCollider>(entity);
+        for (auto& collider : capsuleColliders) {
+            collider.SetParent(transform);
+            collider.StartCollision();
+        }
+        // Segment
+        auto& segmentColliders = GetComponents<SegmentCollider>(entity);
+        for (auto& collider : segmentColliders) {
+            collider.SetParent(transform);
+            collider.StartCollision();
+        }
+        // Ray
+        auto& rayColliders = GetComponents<RayCollider>(entity);
+        for (auto& collider : rayColliders) {
             collider.SetParent(transform);
             collider.StartCollision();
         }
@@ -101,6 +121,21 @@ void CollisionCheckSystem::Update() {
         for (auto& collider : obbColliders) {
             collider.EndCollision();
         }
+        // Capsule
+        auto& capsuleColliders = GetComponents<CapsuleCollider>(entity);
+        for (auto& collider : capsuleColliders) {
+            collider.EndCollision();
+        }
+        // Segment
+        auto& segmentColliders = GetComponents<SegmentCollider>(entity);
+        for (auto& collider : segmentColliders) {
+            collider.EndCollision();
+        }
+        // Ray
+        auto& rayColliders = GetComponents<RayCollider>(entity);
+        for (auto& collider : rayColliders) {
+            collider.EndCollision();
+        }
     }
 }
 
@@ -120,10 +155,13 @@ void CollisionCheckSystem::UpdateEntity(EntityHandle _handle) {
 
     Scene* currentScene = GetScene();
 
-    auto aCollPushbackInfo       = GetComponent<CollisionPushBackInfo>(_handle);
-    auto& aEntityAabbColliders   = GetComponents<AABBCollider>(_handle);
-    auto& aEntitySphereColliders = GetComponents<SphereCollider>(_handle);
-    auto& aEntityObbColliders    = GetComponents<OBBCollider>(_handle);
+    auto aCollPushbackInfo        = GetComponent<CollisionPushBackInfo>(_handle);
+    auto& aEntityAabbColliders    = GetComponents<AABBCollider>(_handle);
+    auto& aEntitySphereColliders  = GetComponents<SphereCollider>(_handle);
+    auto& aEntityObbColliders     = GetComponents<OBBCollider>(_handle);
+    auto& aEntityCapsuleColliders = GetComponents<CapsuleCollider>(_handle);
+    auto& aEntitySegmentColliders = GetComponents<SegmentCollider>(_handle);
+    auto& aEntityRayColliders     = GetComponents<RayCollider>(_handle);
 
     // 2つのリスト間の衝突判定をまとめる
     auto checkCollisions = [&](
@@ -152,10 +190,13 @@ void CollisionCheckSystem::UpdateEntity(EntityHandle _handle) {
     for (auto bItr = entityItr_; bItr != entities_.end(); ++bItr) {
         EntityHandle bEntity = *bItr;
 
-        auto bCollPushbackInfo       = GetComponent<CollisionPushBackInfo>(bEntity);
-        auto& bEntityAabbColliders   = GetComponents<AABBCollider>(bEntity);
-        auto& bEntitySphereColliders = GetComponents<SphereCollider>(bEntity);
-        auto& bEntityObbColliders    = GetComponents<OBBCollider>(bEntity);
+        auto bCollPushbackInfo        = GetComponent<CollisionPushBackInfo>(bEntity);
+        auto& bEntityAabbColliders    = GetComponents<AABBCollider>(bEntity);
+        auto& bEntitySphereColliders  = GetComponents<SphereCollider>(bEntity);
+        auto& bEntityObbColliders     = GetComponents<OBBCollider>(bEntity);
+        auto& bEntityCapsuleColliders = GetComponents<CapsuleCollider>(bEntity);
+        auto& bEntitySegmentColliders = GetComponents<SegmentCollider>(bEntity);
+        auto& bEntityRayColliders     = GetComponents<RayCollider>(bEntity);
 
         if (!aEntityAabbColliders.empty()) {
             if (!bEntityAabbColliders.empty()) {
@@ -166,6 +207,15 @@ void CollisionCheckSystem::UpdateEntity(EntityHandle _handle) {
             }
             if (!bEntityObbColliders.empty()) {
                 checkCollisions(_handle, bEntity, aEntityAabbColliders, bEntityObbColliders, aCollPushbackInfo, bCollPushbackInfo);
+            }
+            if (!bEntityCapsuleColliders.empty()) {
+                checkCollisions(_handle, bEntity, aEntityAabbColliders, bEntityCapsuleColliders, aCollPushbackInfo, bCollPushbackInfo);
+            }
+            if (!bEntitySegmentColliders.empty()) {
+                checkCollisions(_handle, bEntity, aEntityAabbColliders, bEntitySegmentColliders, aCollPushbackInfo, bCollPushbackInfo);
+            }
+            if (!bEntityRayColliders.empty()) {
+                checkCollisions(_handle, bEntity, aEntityAabbColliders, bEntityRayColliders, aCollPushbackInfo, bCollPushbackInfo);
             }
         }
         if (!aEntitySphereColliders.empty()) {
@@ -178,6 +228,15 @@ void CollisionCheckSystem::UpdateEntity(EntityHandle _handle) {
             if (!bEntityObbColliders.empty()) {
                 checkCollisions(_handle, bEntity, aEntitySphereColliders, bEntityObbColliders, aCollPushbackInfo, bCollPushbackInfo);
             }
+            if (!bEntityCapsuleColliders.empty()) {
+                checkCollisions(_handle, bEntity, aEntitySphereColliders, bEntityCapsuleColliders, aCollPushbackInfo, bCollPushbackInfo);
+            }
+            if (!bEntitySegmentColliders.empty()) {
+                checkCollisions(_handle, bEntity, aEntitySphereColliders, bEntitySegmentColliders, aCollPushbackInfo, bCollPushbackInfo);
+            }
+            if (!bEntityRayColliders.empty()) {
+                checkCollisions(_handle, bEntity, aEntitySphereColliders, bEntityRayColliders, aCollPushbackInfo, bCollPushbackInfo);
+            }
         }
         if (!aEntityObbColliders.empty()) {
             if (!bEntityAabbColliders.empty()) {
@@ -188,6 +247,78 @@ void CollisionCheckSystem::UpdateEntity(EntityHandle _handle) {
             }
             if (!bEntityObbColliders.empty()) {
                 checkCollisions(_handle, bEntity, aEntityObbColliders, bEntityObbColliders, aCollPushbackInfo, bCollPushbackInfo);
+            }
+            if (!bEntityCapsuleColliders.empty()) {
+                checkCollisions(_handle, bEntity, aEntityObbColliders, bEntityCapsuleColliders, aCollPushbackInfo, bCollPushbackInfo);
+            }
+            if (!bEntitySegmentColliders.empty()) {
+                checkCollisions(_handle, bEntity, aEntityObbColliders, bEntitySegmentColliders, aCollPushbackInfo, bCollPushbackInfo);
+            }
+            if (!bEntityRayColliders.empty()) {
+                checkCollisions(_handle, bEntity, aEntityObbColliders, bEntityRayColliders, aCollPushbackInfo, bCollPushbackInfo);
+            }
+        }
+        // Capsule vs All
+        if (!aEntityCapsuleColliders.empty()) {
+            if (!bEntityAabbColliders.empty()) {
+                checkCollisions(_handle, bEntity, aEntityCapsuleColliders, bEntityAabbColliders, aCollPushbackInfo, bCollPushbackInfo);
+            }
+            if (!bEntitySphereColliders.empty()) {
+                checkCollisions(_handle, bEntity, aEntityCapsuleColliders, bEntitySphereColliders, aCollPushbackInfo, bCollPushbackInfo);
+            }
+            if (!bEntityObbColliders.empty()) {
+                checkCollisions(_handle, bEntity, aEntityCapsuleColliders, bEntityObbColliders, aCollPushbackInfo, bCollPushbackInfo);
+            }
+            if (!bEntityCapsuleColliders.empty()) {
+                checkCollisions(_handle, bEntity, aEntityCapsuleColliders, bEntityCapsuleColliders, aCollPushbackInfo, bCollPushbackInfo);
+            }
+            if (!bEntitySegmentColliders.empty()) {
+                checkCollisions(_handle, bEntity, aEntityCapsuleColliders, bEntitySegmentColliders, aCollPushbackInfo, bCollPushbackInfo);
+            }
+            if (!bEntityRayColliders.empty()) {
+                checkCollisions(_handle, bEntity, aEntityCapsuleColliders, bEntityRayColliders, aCollPushbackInfo, bCollPushbackInfo);
+            }
+        }
+        // Segment vs All
+        if (!aEntitySegmentColliders.empty()) {
+            if (!bEntityAabbColliders.empty()) {
+                checkCollisions(_handle, bEntity, aEntitySegmentColliders, bEntityAabbColliders, aCollPushbackInfo, bCollPushbackInfo);
+            }
+            if (!bEntitySphereColliders.empty()) {
+                checkCollisions(_handle, bEntity, aEntitySegmentColliders, bEntitySphereColliders, aCollPushbackInfo, bCollPushbackInfo);
+            }
+            if (!bEntityObbColliders.empty()) {
+                checkCollisions(_handle, bEntity, aEntitySegmentColliders, bEntityObbColliders, aCollPushbackInfo, bCollPushbackInfo);
+            }
+            if (!bEntityCapsuleColliders.empty()) {
+                checkCollisions(_handle, bEntity, aEntitySegmentColliders, bEntityCapsuleColliders, aCollPushbackInfo, bCollPushbackInfo);
+            }
+            if (!bEntitySegmentColliders.empty()) {
+                checkCollisions(_handle, bEntity, aEntitySegmentColliders, bEntitySegmentColliders, aCollPushbackInfo, bCollPushbackInfo);
+            }
+            if (!bEntityRayColliders.empty()) {
+                checkCollisions(_handle, bEntity, aEntitySegmentColliders, bEntityRayColliders, aCollPushbackInfo, bCollPushbackInfo);
+            }
+        }
+        // Ray vs All
+        if (!aEntityRayColliders.empty()) {
+            if (!bEntityAabbColliders.empty()) {
+                checkCollisions(_handle, bEntity, aEntityRayColliders, bEntityAabbColliders, aCollPushbackInfo, bCollPushbackInfo);
+            }
+            if (!bEntitySphereColliders.empty()) {
+                checkCollisions(_handle, bEntity, aEntityRayColliders, bEntitySphereColliders, aCollPushbackInfo, bCollPushbackInfo);
+            }
+            if (!bEntityObbColliders.empty()) {
+                checkCollisions(_handle, bEntity, aEntityRayColliders, bEntityObbColliders, aCollPushbackInfo, bCollPushbackInfo);
+            }
+            if (!bEntityCapsuleColliders.empty()) {
+                checkCollisions(_handle, bEntity, aEntityRayColliders, bEntityCapsuleColliders, aCollPushbackInfo, bCollPushbackInfo);
+            }
+            if (!bEntitySegmentColliders.empty()) {
+                checkCollisions(_handle, bEntity, aEntityRayColliders, bEntitySegmentColliders, aCollPushbackInfo, bCollPushbackInfo);
+            }
+            if (!bEntityRayColliders.empty()) {
+                checkCollisions(_handle, bEntity, aEntityRayColliders, bEntityRayColliders, aCollPushbackInfo, bCollPushbackInfo);
             }
         }
     }

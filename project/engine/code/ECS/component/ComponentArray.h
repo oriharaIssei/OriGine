@@ -11,6 +11,7 @@
 #include "entity/EntityHandle.h"
 // component
 #include "ComponentHandle.h"
+#include "ECS/HandleAssignMode.h"
 #include "IComponent.h"
 
 /// externals
@@ -111,8 +112,12 @@ public:
     /// </summary>
     /// <param name="_handle">追加さき</param>
     /// <param name="_inJson">復元もと</param>
+    /// <param name="_handleMode">Handleの割り当て方法 (デフォルト: UseSaved)</param>
     /// <returns>復元されたComponentのHandle</returns>
-    virtual ComponentHandle LoadComponent(EntityHandle _handle, const nlohmann::json& _inJson) = 0;
+    virtual ComponentHandle LoadComponent(
+        EntityHandle _handle,
+        const nlohmann::json& _inJson,
+        HandleAssignMode _handleMode = HandleAssignMode::UseSaved) = 0;
 
     /// <summary>
     /// JsonからComponentを復元し、Entityに挿入する
@@ -120,15 +125,24 @@ public:
     /// <param name="_handle">追加さき</param>
     /// <param name="_compIndex">挿入先</param>
     /// <param name="_inJson">復元もと</param>
+    /// <param name="_handleMode">Handleの割り当て方法 (デフォルト: UseSaved)</param>
     /// <returns>復元されたComponentのHandle</returns>
-    virtual ComponentHandle LoadComponent(EntityHandle _handle, uint32_t _compIndex, const nlohmann::json& _inJson) = 0;
+    virtual ComponentHandle LoadComponent(
+        EntityHandle _handle,
+        uint32_t _compIndex,
+        const nlohmann::json& _inJson,
+        HandleAssignMode _handleMode = HandleAssignMode::UseSaved) = 0;
 
     /// <summary>
     /// Jsonから全てのComponentを復元し、Entityに追加する。
     /// </summary>
     /// <param name="_handle">追加さき</param>
     /// <param name="_inJson">復元もと</param>
-    virtual void LoadComponents(EntityHandle _handle, const nlohmann::json& _inJson) = 0;
+    /// <param name="_handleMode">Handleの割り当て方法 (デフォルト: UseSaved)</param>
+    virtual void LoadComponents(
+        EntityHandle _handle,
+        const nlohmann::json& _inJson,
+        HandleAssignMode _handleMode = HandleAssignMode::UseSaved) = 0;
 
     /// <summary>
     /// Componentの取得 (IComponent)
@@ -263,8 +277,12 @@ public:
     /// </summary>
     /// <param name="_handle">追加さき</param>
     /// <param name="_inJson">復元もと</param>
+    /// <param name="_handleMode">Handleの割り当て方法 (デフォルト: UseSaved)</param>
     /// <returns>復元されたComponentのHandle</returns>
-    ComponentHandle LoadComponent(EntityHandle _handle, const nlohmann::json& _inJson) override;
+    ComponentHandle LoadComponent(
+        EntityHandle _handle,
+        const nlohmann::json& _inJson,
+        HandleAssignMode _handleMode = HandleAssignMode::UseSaved) override;
 
     /// <summary>
     /// JsonからComponentを復元し、Entityに挿入する
@@ -272,15 +290,24 @@ public:
     /// <param name="_handle">追加さき</param>
     /// <param name="_compIndex">挿入先</param>
     /// <param name="_inJson">復元もと</param>
+    /// <param name="_handleMode">Handleの割り当て方法 (デフォルト: UseSaved)</param>
     /// <returns>復元されたComponentのHandle</returns>
-    ComponentHandle LoadComponent(EntityHandle _handle, uint32_t _compIndex, const nlohmann::json& _inJson) override;
+    ComponentHandle LoadComponent(
+        EntityHandle _handle,
+        uint32_t _compIndex,
+        const nlohmann::json& _inJson,
+        HandleAssignMode _handleMode = HandleAssignMode::UseSaved) override;
 
     /// <summary>
     /// Jsonから全てのComponentを復元し、Entityに追加する。
     /// </summary>
     /// <param name="_handle"></param>
     /// <param name="_inJson"></param>
-    void LoadComponents(EntityHandle _handle, const nlohmann::json& _inJson) override;
+    /// <param name="_handleMode">Handleの割り当て方法 (デフォルト: UseSaved)</param>
+    void LoadComponents(
+        EntityHandle _handle,
+        const nlohmann::json& _inJson,
+        HandleAssignMode _handleMode = HandleAssignMode::UseSaved) override;
 
     /// <summary>
     /// Componentの取得
@@ -631,7 +658,10 @@ inline bool ComponentArray<ComponentType>::SaveComponents(EntityHandle _handle, 
 }
 
 template <IsComponent ComponentType>
-inline ComponentHandle ComponentArray<ComponentType>::LoadComponent(EntityHandle _handle, const nlohmann::json& _inJson) {
+inline ComponentHandle ComponentArray<ComponentType>::LoadComponent(
+    EntityHandle _handle,
+    const nlohmann::json& _inJson,
+    HandleAssignMode _handleMode) {
     auto itr = entitySlotMap_.find(_handle.uuid);
     if (itr == entitySlotMap_.end()) {
         // エンティティが存在しない場合は何もしない
@@ -646,10 +676,10 @@ inline ComponentHandle ComponentArray<ComponentType>::LoadComponent(EntityHandle
     // コンポーネントを読み込み
     ComponentType comp         = _inJson.get<ComponentType>();
     ComponentHandle compHandle = ComponentHandle();
-    if (_inJson.contains("Handle")) {
+    if (_handleMode == HandleAssignMode::UseSaved && _inJson.contains("Handle")) {
         _inJson["Handle"].get_to<ComponentHandle>(compHandle);
     } else {
-        // Handleがない場合は新規作成
+        // 新規Handle生成
         compHandle = ComponentHandle(UuidGenerator::RandomGenerate());
     }
     comp.SetHandle(compHandle);
@@ -660,7 +690,11 @@ inline ComponentHandle ComponentArray<ComponentType>::LoadComponent(EntityHandle
 }
 
 template <IsComponent ComponentType>
-inline ComponentHandle ComponentArray<ComponentType>::LoadComponent(EntityHandle _handle, uint32_t _compIndex, const nlohmann::json& _inJson) {
+inline ComponentHandle ComponentArray<ComponentType>::LoadComponent(
+    EntityHandle _handle,
+    uint32_t _compIndex,
+    const nlohmann::json& _inJson,
+    HandleAssignMode _handleMode) {
     auto entIt = entitySlotMap_.find(_handle.uuid);
     if (entIt == entitySlotMap_.end()) {
         // エンティティが見つからなかった 場合
@@ -674,7 +708,7 @@ inline ComponentHandle ComponentArray<ComponentType>::LoadComponent(EntityHandle
     // コンポーネントを読み込み
     ComponentType comp         = _inJson.get<ComponentType>();
     ComponentHandle compHandle = ComponentHandle();
-    if (_inJson.contains("Handle")) {
+    if (_handleMode == HandleAssignMode::UseSaved && _inJson.contains("Handle")) {
         _inJson["Handle"].get_to<ComponentHandle>(compHandle);
     } else {
         compHandle = ComponentHandle(UuidGenerator::RandomGenerate());
@@ -696,7 +730,10 @@ inline ComponentHandle ComponentArray<ComponentType>::LoadComponent(EntityHandle
 }
 
 template <IsComponent ComponentType>
-inline void ComponentArray<ComponentType>::LoadComponents(EntityHandle _handle, const nlohmann::json& _inJson) {
+inline void ComponentArray<ComponentType>::LoadComponents(
+    EntityHandle _handle,
+    const nlohmann::json& _inJson,
+    HandleAssignMode _handleMode) {
     auto entIt = entitySlotMap_.find(_handle.uuid);
     if (entIt == entitySlotMap_.end()) {
         // エンティティが見つからなかった 場合
@@ -716,7 +753,7 @@ inline void ComponentArray<ComponentType>::LoadComponents(EntityHandle _handle, 
     for (const auto& compJson : _inJson) {
         ComponentType comp         = compJson.get<ComponentType>();
         ComponentHandle compHandle = ComponentHandle();
-        if (compJson.contains("Handle")) {
+        if (_handleMode == HandleAssignMode::UseSaved && compJson.contains("Handle")) {
             compJson["Handle"].get_to<ComponentHandle>(compHandle);
         } else {
             compHandle = ComponentHandle(UuidGenerator::RandomGenerate());

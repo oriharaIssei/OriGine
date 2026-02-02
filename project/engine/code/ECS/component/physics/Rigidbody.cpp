@@ -14,7 +14,7 @@ Rigidbody::Rigidbody() {}
 
 void Rigidbody::Initialize(Scene* /*_scene*/, EntityHandle /*_entity*/) {}
 
-void Rigidbody::Edit(Scene* /*_scene*/, EntityHandle /*_entity*/, const std::string& _parentLabel) {
+void Rigidbody::Edit(Scene* /*_scene*/, EntityHandle /*_entity*/, [[maybe_unused]] const std::string& _parentLabel) {
 
 #ifdef _DEBUG
 

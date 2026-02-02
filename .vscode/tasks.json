@@ -22,7 +22,7 @@
         {
             "label": "Create C++ Class",
             "type": "shell",
-            "command": "python",
+            "command": "${workspaceFolder}/.venv/Scripts/python.exe",
             "args": [
                 "${workspaceFolder}/.vscode/createClass.py",
                 "${workspaceFolder}/${input:directory}",
@@ -84,7 +84,7 @@
             "type": "shell",
             "command": "premake5",
             "args": [
-                "vs2022"
+                "vs2026"
             ],
             "options": {
                 "cwd": "${workspaceFolder}/project/config"

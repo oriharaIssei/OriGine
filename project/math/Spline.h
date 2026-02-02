@@ -53,6 +53,14 @@ std::pair<uint32_t, uint32_t> CalcPointSegmentIndex(const std::deque<Vec3f>& _po
 std::pair<uint32_t, uint32_t> CalcDistanceSegmentIndex(const std::deque<Vec3f>& _points, float _distance);
 
 /// <summary>
+/// 指定位置までのスプライン上の距離を計算
+/// </summary>
+/// <param name="_points"></param>
+/// <param name="_position"></param>
+/// <returns></returns>
+float CalcDistanceAlongSpline(const std::deque<Vec3f>& _points, const Vec3f& _position);
+
+/// <summary>
 /// 指定された始点からの距離に対応するスプライン上の点を計算
 /// </summary>
 /// <param name="_points"></param>
