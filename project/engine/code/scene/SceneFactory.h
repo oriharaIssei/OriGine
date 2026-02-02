@@ -3,6 +3,9 @@
 /// engine
 #include "scene/Scene.h"
 
+/// ECS
+#include "ECS/HandleAssignMode.h"
+
 /// externals
 #include <nlohmann/json.hpp>
 
@@ -27,13 +30,17 @@ public:
     /// </summary>
     /// <param name="_scene">構築対象のシーン</param>
     /// <param name="_data">ソースとなる JSON データ</param>
-    void BuildSceneFromJson(Scene* _scene, const nlohmann::json& _data) {
+    /// <param name="_handleMode">Handleの割り当て方法 (デフォルト: UseSaved)</param>
+    void BuildSceneFromJson(
+        Scene* _scene,
+        const nlohmann::json& _data,
+        HandleAssignMode _handleMode = HandleAssignMode::UseSaved) {
         if (!_scene) {
             return;
         }
 
         LoadSystems(_scene, _data["Systems"], _data["CategoryActivity"]);
-        LoadEntities(_scene, _data["Entities"]);
+        LoadEntities(_scene, _data["Entities"], _handleMode);
     }
 
     /// <summary>
@@ -45,6 +52,7 @@ public:
 
     /// <summary>
     /// 事前に登録されたエンティティテンプレート (json) を使用して、指定したシーン内にエンティティを新規構築する.
+    /// Handleは常に新規生成される.
     /// </summary>
     /// <param name="_scene">追加先のシーン</param>
     /// <param name="_templateTypeName">テンプレートの型名</param>
@@ -53,11 +61,21 @@ public:
 
     /// <summary>
     /// JSON データから単一のエンティティとそのコンポーネント、システムを構築する.
+    /// JSONに保存されているHandleを使用する.
     /// </summary>
     /// <param name="_scene">追加先のシーン</param>
     /// <param name="_entityJson">エンティティの定義 JSON</param>
     /// <returns>生成されたエンティティへのポインタ</returns>
     Entity* BuildEntity(Scene* _scene, const nlohmann::json& _entityJson);
+
+    /// <summary>
+    /// JSON データから単一のエンティティとそのコンポーネント、システムを構築する.
+    /// </summary>
+    /// <param name="_scene">追加先のシーン</param>
+    /// <param name="_entityJson">エンティティの定義 JSON</param>
+    /// <param name="_handleMode">Handleの割り当て方法</param>
+    /// <returns>生成されたエンティティへのポインタ</returns>
+    Entity* BuildEntity(Scene* _scene, const nlohmann::json& _entityJson, HandleAssignMode _handleMode);
 
     /// <summary>
     /// 特定のエンティティとその状態を JSON データに変換する.
@@ -78,7 +96,10 @@ private:
     /// <summary>
     /// シーン全体に対してエンティティのリストをロードする.
     /// </summary>
-    void LoadEntities(Scene* _scene, const nlohmann::json& _entitiesJson);
+    void LoadEntities(
+        Scene* _scene,
+        const nlohmann::json& _entitiesJson,
+        HandleAssignMode _handleMode = HandleAssignMode::UseSaved);
 
     /// <summary>
     /// エンティティ個別のシステム設定をロードする.
@@ -91,7 +112,8 @@ private:
     void LoadEntityComponents(
         Scene* _scene,
         EntityHandle _entity,
-        const nlohmann::json& _componentsJson);
+        const nlohmann::json& _componentsJson,
+        HandleAssignMode _handleMode = HandleAssignMode::UseSaved);
 };
 
 } // namespace OriGine

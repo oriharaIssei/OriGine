@@ -73,6 +73,10 @@ void SpriteRenderSystem::Rendering() {
     for (auto& [priority, rendererHandle] : rendererHandles_) {
         SpriteRenderer* renderer = GetComponent<SpriteRenderer>(rendererHandle);
 
+        if (!renderer) {
+            continue;
+        }
+
         // BlendModeごとにPSOを切り替え
         if (currentBlendMode != renderer->GetCurrentBlend()) {
             currentBlendMode = renderer->GetCurrentBlend();

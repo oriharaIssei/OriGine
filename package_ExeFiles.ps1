@@ -35,12 +35,11 @@ Ensure-Directory $EngineResourceFolder
 # === ビルド ===
 Write-Host "msbuildを開始しています..." -ForegroundColor Yellow
 
-$msbuildProcess = Start-Process -FilePath "msbuild.exe" `
-    -ArgumentList "project/OriGine.sln", "/p:Configuration=Release", "/nr:false" `
-    -NoNewWindow -Wait -PassThru
+# 直接実行することで出力をリアルタイムで表示
+& msbuild.exe "project/OriGine.sln" /p:Configuration=Release /nr:false
 
-if ($msbuildProcess.ExitCode -ne 0) {
-    Write-Warning "msbuildが失敗しました。終了コード: $($msbuildProcess.ExitCode)"
+if ($LASTEXITCODE -ne 0) {
+    Write-Warning "msbuildが失敗しました。終了コード: $LASTEXITCODE"
     exit 1
 }
 Write-Host "msbuildが完了しました。" -ForegroundColor Green

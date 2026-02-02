@@ -27,6 +27,7 @@ bool SceneFactory::BuildSceneByName(Scene* _scene, const std::string& _sceneName
 
 /// <summary>
 /// 登録済みのエンティティテンプレート名を使用して、シーン内に新しいエンティティを生成する.
+/// Handleは常に新規生成される.
 /// </summary>
 Entity* SceneFactory::BuildEntityFromTemplate(Scene* _scene, const std::string& _templateTypeName) {
     auto registry              = SceneJsonRegistry::GetInstance();
@@ -35,7 +36,7 @@ Entity* SceneFactory::BuildEntityFromTemplate(Scene* _scene, const std::string& 
         LOG_ERROR("BuildEntityFromTemplate: エンティティテンプレートが登録されていません: {}", _templateTypeName);
         return nullptr;
     }
-    return BuildEntity(_scene, *json);
+    return BuildEntity(_scene, *json, HandleAssignMode::GenerateNew);
 }
 
 /// <summary>
@@ -113,11 +114,25 @@ void SceneFactory::LoadSystems(Scene* _scene, const nlohmann::json& _systemsJson
 /// <summary>
 /// JSON 配列から複数のエンティティを一括でロード・構築する.
 /// </summary>
-void SceneFactory::LoadEntities(Scene* _scene, const nlohmann::json& _entitiesJson) {
+void SceneFactory::LoadEntities(
+    Scene* _scene,
+    const nlohmann::json& _entitiesJson,
+    HandleAssignMode _handleMode) {
     // エンティティの順次構築
     for (auto& entityJson : _entitiesJson) {
-        BuildEntity(_scene, entityJson);
+        BuildEntity(_scene, entityJson, _handleMode);
     }
+}
+
+/// <summary>
+/// 単一のエンティティを JSON 定義に基づき生成し、コンポーネントとシステムを紐付ける.
+/// JSONに保存されているHandleを使用する (デフォルト動作).
+/// </summary>
+/// <param name="_scene">配置先のシーン</param>
+/// <param name="_entityJson">エンティティの定義データ</param>
+/// <returns>生成されたエンティティポインタ</returns>
+Entity* SceneFactory::BuildEntity(Scene* _scene, const nlohmann::json& _entityJson) {
+    return BuildEntity(_scene, _entityJson, HandleAssignMode::UseSaved);
 }
 
 /// <summary>
@@ -125,13 +140,18 @@ void SceneFactory::LoadEntities(Scene* _scene, const nlohmann::json& _entitiesJs
 /// </summary>
 /// <param name="_scene">配置先のシーン</param>
 /// <param name="_entityJson">エンティティの定義データ</param>
+/// <param name="_handleMode">Handleの割り当て方法</param>
 /// <returns>生成されたエンティティポインタ</returns>
-Entity* SceneFactory::BuildEntity(Scene* _scene, const nlohmann::json& _entityJson) {
+Entity* SceneFactory::BuildEntity(
+    Scene* _scene,
+    const nlohmann::json& _entityJson,
+    HandleAssignMode _handleMode) {
     // エンティティの作成処理
     std::string name = _entityJson["Name"];
     bool isUnique    = _entityJson["isUnique"];
     EntityHandle handle;
-    if (_entityJson.contains("Handle")) {
+
+    if (_handleMode == HandleAssignMode::UseSaved && _entityJson.contains("Handle")) {
         handle = _entityJson["Handle"];
     }
 
@@ -142,7 +162,7 @@ Entity* SceneFactory::BuildEntity(Scene* _scene, const nlohmann::json& _entityJs
     // 所属システムの紐付け
     LoadEntitySystems(_scene, handle, _entityJson["Systems"]);
     // 各種コンポーネントデータのロード
-    LoadEntityComponents(_scene, handle, _entityJson["Components"]);
+    LoadEntityComponents(_scene, handle, _entityJson["Components"], _handleMode);
     return entity;
 }
 
@@ -211,14 +231,15 @@ void SceneFactory::LoadEntitySystems(
 void SceneFactory::LoadEntityComponents(
     Scene* _scene,
     EntityHandle _entity,
-    const nlohmann::json& _componentsJson) {
+    const nlohmann::json& _componentsJson,
+    HandleAssignMode _handleMode) {
     for (auto& [componentTypename, componentData] : _componentsJson.items()) {
         auto compArray = _scene->componentRepository_->GetComponentArray(componentTypename);
         if (!compArray) {
             LOG_WARN("Don't Registered Component. Typename {}", componentTypename);
             continue;
         }
-        compArray->LoadComponents(_entity, componentData);
+        compArray->LoadComponents(_entity, componentData, _handleMode);
 
         auto loadedComps = compArray->GetIComponents(_entity);
         for (auto& comp : loadedComps) {

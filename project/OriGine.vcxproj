@@ -180,6 +180,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="editor\tool\ObjectPicker.h" />
     <ClInclude Include="editor\window\EditorWindowMenu.h" />
     <ClInclude Include="engine\EngineInclude.h" />
+    <ClInclude Include="engine\code\ECS\HandleAssignMode.h" />
     <ClInclude Include="engine\code\ECS\component\ComponentArray.h" />
     <ClInclude Include="engine\code\ECS\component\ComponentHandle.h" />
     <ClInclude Include="engine\code\ECS\component\ComponentRegistry.h" />
@@ -592,6 +593,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="util\globalVariables\GlobalVariables.cpp" />
     <ClCompile Include="util\myFileSystem\MyFileSystem.cpp" />
     <ClCompile Include="util\myGui\MyGui.cpp" />
+    <ClCompile Include="util\timeline\Timeline.cpp" />
     <ClCompile Include="util\timeline\Timeline_New.cpp" />
     <ClCompile Include="util\uuidGenerator\UuidGenerator.cpp" />
   </ItemGroup>

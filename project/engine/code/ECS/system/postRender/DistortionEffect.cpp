@@ -18,6 +18,10 @@
 
 using namespace OriGine;
 
+// 静的メンバ変数の定義
+std::unique_ptr<RenderTexture> DistortionEffect::distortionSceneTexture_ = nullptr;
+int32_t DistortionEffect::instanceCount_                                 = 0;
+
 /// <summary>
 /// コンストラクタ
 /// </summary>
@@ -34,9 +38,15 @@ DistortionEffect::~DistortionEffect() {}
 void DistortionEffect::Initialize() {
     BasePostRenderingSystem::Initialize();
 
-    distortionSceneTexture_ = std::make_unique<RenderTexture>(dxCommand_.get());
-    distortionSceneTexture_->Initialize(2, Engine::GetInstance()->GetWinApp()->GetWindowSize(), DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, Vec4f(0.0f, 0.0f, 0.0f, 0.0f));
-    distortionSceneTexture_->SetTextureName("DistortionSceneTexture");
+    // インスタンスカウント加算
+    ++instanceCount_;
+
+    // 最初のインスタンスの場合、共有リソースを初期化
+    if (instanceCount_ == 1) {
+        distortionSceneTexture_ = std::make_unique<RenderTexture>(dxCommand_.get());
+        distortionSceneTexture_->Initialize(2, Engine::GetInstance()->GetWinApp()->GetWindowSize(), DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, Vec4f(0.0f, 0.0f, 0.0f, 0.0f));
+        distortionSceneTexture_->SetTextureName("DistortionSceneTexture");
+    }
 
     texturedMeshRenderSystem_ = std::make_unique<TexturedMeshRenderSystemWithoutRaytracing>();
     texturedMeshRenderSystem_->SetScene(GetScene());
@@ -60,9 +70,15 @@ void DistortionEffect::Finalize() {
 
     texturedMeshRenderSystem_->Finalize();
 
-    if (distortionSceneTexture_) {
-        distortionSceneTexture_->Finalize();
-        distortionSceneTexture_.reset();
+    // インスタンスカウント減算
+    --instanceCount_;
+
+    // 最後のインスタンスの場合、共有リソースを解放
+    if (instanceCount_ == 0) {
+        if (distortionSceneTexture_) {
+            distortionSceneTexture_->Finalize();
+            distortionSceneTexture_.reset();
+        }
     }
 }
 
