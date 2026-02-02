@@ -341,3 +341,6 @@ FodyWeavers.xsd
 /project/OriGineApplication
 /project/engine/resource/logs
 project/imgui.ini
+# AI/Task management files
+.github/skills/
+task/
