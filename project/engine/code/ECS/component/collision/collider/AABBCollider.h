@@ -1,5 +1,6 @@
 #pragma once
-#include "Collider.h"
+
+#include "component/collision/collider/base/Collider.h"
 
 #include "bounds/AABB.h"
 
