@@ -4,6 +4,9 @@
 #include <algorithm>
 #include <cfloat>
 
+/// util
+#include "util/globalVariables/GlobalVariables.h"
+
 /// ECS
 // component
 #include "component/collision/collider/base/Collider.h"
@@ -39,6 +42,13 @@ CollisionCheckSystem::~CollisionCheckSystem() {}
 void CollisionCheckSystem::Initialize() {
     constexpr size_t reserveSize = 100;
     entities_.reserve(reserveSize);
+
+    // GlobalVariablesからCellSizeを読み込み
+    GlobalVariables* gv = GlobalVariables::GetInstance();
+    float cellSize      = gv->GetValue<float>("Settings", "Collision", "SpatialHashCellSize");
+    if (cellSize > 0.0f) {
+        spatialHash_.SetCellSize(cellSize);
+    }
 }
 
 /// <summary>

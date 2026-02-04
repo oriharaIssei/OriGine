@@ -272,11 +272,28 @@ CollisionSettingRegion::~CollisionSettingRegion() {}
 void CollisionSettingRegion::Initialize() {
     newCategoryName_[0] = '\0';
     // カテゴリの読み込みはアプリケーション起動時に行うため、ここでは何もしない
+
+    // CellSizeをGlobalVariablesから読み込み
+    GlobalVariables* gv = GlobalVariables::GetInstance();
+    spatialHashCellSize_ = gv->GetValue<float>(
+        SettingWindow::kGlobalVariablesSceneName,
+        "Collision",
+        "SpatialHashCellSize");
+    if (spatialHashCellSize_ <= 0.0f) {
+        spatialHashCellSize_ = 100.0f; // デフォルト値
+    }
 }
 
 void CollisionSettingRegion::DrawGui() {
     auto* manager          = OriGine::CollisionCategoryManager::GetInstance();
     const auto& categories = manager->GetCategories();
+
+    // SpatialHash CellSize設定
+    ImGui::Text("Spatial Hash Settings:");
+    ImGui::DragFloat("Cell Size", &spatialHashCellSize_, 1.0f, 1.0f, 1000.0f, "%.1f");
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
 
     ImGui::Text("Collision Categories (%zu / 32)", categories.size());
     ImGui::Separator();
@@ -337,6 +354,17 @@ void CollisionSettingRegion::DrawGui() {
     // 保存ボタン
     if (ImGui::Button("Save Categories")) {
         manager->SaveToGlobalVariables();
+
+        // CellSizeも保存
+        GlobalVariables* gv = GlobalVariables::GetInstance();
+        gv->SetValue<float>(
+            SettingWindow::kGlobalVariablesSceneName,
+            "Collision",
+            "SpatialHashCellSize",
+            spatialHashCellSize_);
+        gv->SaveFile(
+            SettingWindow::kGlobalVariablesSceneName,
+            "Collision");
     }
 }
 
