@@ -148,8 +148,9 @@ void CollisionCategoryManager::LoadFromGlobalVariables() {
                     std::string catName = Trim(parts[0]);
                     std::string maskVal = Trim(parts[1]);
                     if (!catName.empty() && !maskVal.empty()) {
-                        uint32_t mask           = static_cast<uint32_t>(std::stoul(maskVal, nullptr, 16));
-                        categoryMasks_[catName] = mask;
+                        uint32_t mask = static_cast<uint32_t>(std::stoul(maskVal, nullptr, 16));
+                        // SetCategoryMaskを使用してcategories_内のmaskBits_も更新
+                        SetCategoryMask(catName, mask);
                     }
                 }
             }

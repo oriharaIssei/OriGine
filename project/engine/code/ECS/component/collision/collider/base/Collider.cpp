@@ -71,5 +71,13 @@ void OriGine::from_json(const nlohmann::json& _j, ICollider& _c) {
 }
 
 bool ICollider::CanCollideWith(const ICollider& _other) const {
-    return collisionCategory_.CanCollideWith(_other.collisionCategory_.GetBits());
+    uint32_t maskA = collisionCategory_.GetMaskBits();
+    uint32_t maskB = _other.collisionCategory_.GetMaskBits();
+    uint32_t bitsA = collisionCategory_.GetBits();
+    uint32_t bitsB = _other.collisionCategory_.GetBits();
+
+    // 双方向でマスクをチェック（AがBを許可 かつ BがAを許可）
+    bool aAllowsB = (maskA & bitsB) != 0;
+    bool bAllowsA = (maskB & bitsA) != 0;
+    return aAllowsB && bAllowsA;
 }

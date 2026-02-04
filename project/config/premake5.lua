@@ -47,7 +47,8 @@ project "OriGine"
     }
 
     warnings "Extra"
-    buildoptions { "/utf-8", "/MP" }
+    multiprocessorcompile "On"
+    buildoptions { "/utf-8" }
 
     filter "configurations:Debug"
         defines { "DEBUG", "_DEBUG" }
@@ -89,6 +90,7 @@ project "DirectXTex"
     targetname "DirectXTex"
     files { "externals/DirectXTex/**.h", "externals/DirectXTex/**.cpp" }
     includedirs { "$(ProjectDir)","$(ProjectDir)Shaders/Compiled" }
+    multiprocessorcompile "On"
 
     filter "system:windows"
         cppdialect "C++20"
@@ -119,6 +121,7 @@ project "imgui"
     }
 
     files { "externals/imgui/**.h", "externals/imgui/**.cpp" }
+    multiprocessorcompile "On"
 
     filter "system:windows"
         cppdialect "C++20"
@@ -162,7 +165,8 @@ project "OriGineApp"
         "imgui"
     }
     warnings "Extra"
-    buildoptions { "/utf-8","/bigobj", "/MP" }
+    multiprocessorcompile "On"
+    buildoptions { "/utf-8", "/bigobj" }
 
     filter "configurations:Debug"
         defines { "DEBUG", "_DEBUG" }
