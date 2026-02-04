@@ -29,14 +29,14 @@ bool SceneFactory::BuildSceneByName(Scene* _scene, const std::string& _sceneName
 /// 登録済みのエンティティテンプレート名を使用して、シーン内に新しいエンティティを生成する.
 /// Handleは常に新規生成される.
 /// </summary>
-Entity* SceneFactory::BuildEntityFromTemplate(Scene* _scene, const std::string& _templateTypeName) {
+Entity* SceneFactory::BuildEntityFromTemplate(Scene* _scene, const std::string& _templateTypeName, HandleAssignMode _assignMode) {
     auto registry              = SceneJsonRegistry::GetInstance();
     const nlohmann::json* json = registry->GetEntityTemplate(_templateTypeName);
     if (!json) {
         LOG_ERROR("BuildEntityFromTemplate: エンティティテンプレートが登録されていません: {}", _templateTypeName);
         return nullptr;
     }
-    return BuildEntity(_scene, *json, HandleAssignMode::GenerateNew);
+    return BuildEntity(_scene, *json, _assignMode);
 }
 
 /// <summary>

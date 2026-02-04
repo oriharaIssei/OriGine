@@ -375,7 +375,7 @@ void EntityHierarchyRegion::PasteEntityCommand::Execute() {
     // 貼り付けて生成したエンティティIDを保存(削除に利用)
     SceneFactory sceneFactory;
     for (const auto& entityJson : hierarchy_->copyBuffer_) {
-        Entity* createdEntity = sceneFactory.BuildEntity(currentScene, entityJson);
+        Entity* createdEntity = sceneFactory.BuildEntity(currentScene, entityJson, HandleAssignMode::GenerateNew);
         pastedEntityHandles_.emplace_back(createdEntity->GetHandle());
     }
 }

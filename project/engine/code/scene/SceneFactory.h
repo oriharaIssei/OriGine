@@ -57,7 +57,7 @@ public:
     /// <param name="_scene">追加先のシーン</param>
     /// <param name="_templateTypeName">テンプレートの型名</param>
     /// <returns>生成されたエンティティへのポインタ</returns>
-    Entity* BuildEntityFromTemplate(Scene* _scene, const std::string& _templateTypeName);
+    Entity* BuildEntityFromTemplate(Scene* _scene, const std::string& _templateTypeName, HandleAssignMode _assignMode = HandleAssignMode::UseSaved);
 
     /// <summary>
     /// JSON データから単一のエンティティとそのコンポーネント、システムを構築する.

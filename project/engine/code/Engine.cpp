@@ -9,6 +9,7 @@
 // module
 #include "camera/CameraManager.h"
 #include "component/animation/AnimationManager.h"
+#include "component/collision/collider/base/CollisionCategoryManager.h"
 #include "component/material/light/LightManager.h"
 #include "imGuiManager/ImGuiManager.h"
 #include "input/InputManager.h"
@@ -141,6 +142,9 @@ void Engine::Initialize() {
 
     AnimationManager::GetInstance()->Initialize();
     CameraManager::GetInstance()->Initialize();
+
+    auto* manager = OriGine::CollisionCategoryManager::GetInstance();
+    manager->LoadFromGlobalVariables();
 }
 
 /// <summary> エンジンの終了処理. 各システムの Finalize を逆順に呼び出し、DX12 リソースを安全に解放する. </summary>
