@@ -44,12 +44,6 @@ public:
 
 protected:
     /// <summary>
-    /// 各エンティティと他エンティティの衝突判定を行う
-    /// </summary>
-    /// <param name="_handle">対象のエンティティハンドル</param>
-    void UpdateEntity(EntityHandle _handle) override;
-
-    /// <summary>
     /// エンティティの包含AABBを計算
     /// </summary>
     Bounds::AABB ComputeEntityAABB(EntityHandle _entity);

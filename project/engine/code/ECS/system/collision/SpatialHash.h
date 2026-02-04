@@ -45,7 +45,7 @@ public:
     /// コンストラクタ
     /// </summary>
     /// <param name="_cellSize">セルのサイズ（オブジェクトの平均サイズの2倍程度を推奨）</param>
-    explicit SpatialHash(float _cellSize = 10.0f);
+    explicit SpatialHash(float _cellSize = 100.0f);
     ~SpatialHash() = default;
 
     /// <summary>
