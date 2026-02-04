@@ -179,6 +179,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="editor\setting\SettingWindow.h" />
     <ClInclude Include="editor\tool\ObjectPicker.h" />
     <ClInclude Include="editor\window\EditorWindowMenu.h" />
+    <ClInclude Include="engine\code\ECS\system\collision\SpatialHash.h" />
     <ClInclude Include="engine\EngineInclude.h" />
     <ClInclude Include="engine\code\ECS\HandleAssignMode.h" />
     <ClInclude Include="engine\code\ECS\component\ComponentArray.h" />
@@ -200,11 +201,14 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\code\ECS\component\collision\CollisionPushBackInfo.h" />
     <ClInclude Include="engine\code\ECS\component\collision\collider\AABBCollider.h" />
     <ClInclude Include="engine\code\ECS\component\collision\collider\CapsuleCollider.h" />
-    <ClInclude Include="engine\code\ECS\component\collision\collider\Collider.h" />
     <ClInclude Include="engine\code\ECS\component\collision\collider\OBBCollider.h" />
     <ClInclude Include="engine\code\ECS\component\collision\collider\RayCollider.h" />
     <ClInclude Include="engine\code\ECS\component\collision\collider\SegmentCollider.h" />
     <ClInclude Include="engine\code\ECS\component\collision\collider\SphereCollider.h" />
+    <ClInclude Include="engine\code\ECS\component\collision\collider\base\Collider.h" />
+    <ClInclude Include="engine\code\ECS\component\collision\collider\base\CollisionCategory.h" />
+    <ClInclude Include="engine\code\ECS\component\collision\collider\base\CollisionCategoryManager.h" />
+    <ClInclude Include="engine\code\ECS\component\collision\collider\base\CollisionMask.h" />
     <ClInclude Include="engine\code\ECS\component\effect\CameraAction.h" />
     <ClInclude Include="engine\code\ECS\component\effect\MaterialEffectPipeLine.h" />
     <ClInclude Include="engine\code\ECS\component\effect\particle\Particle.h" />
@@ -435,11 +439,13 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\ECS\component\collision\CollisionPushBackInfo.cpp" />
     <ClCompile Include="engine\code\ECS\component\collision\collider\AABBCollider.cpp" />
     <ClCompile Include="engine\code\ECS\component\collision\collider\CapsuleCollider.cpp" />
-    <ClCompile Include="engine\code\ECS\component\collision\collider\Collider.cpp" />
     <ClCompile Include="engine\code\ECS\component\collision\collider\OBBCollider.cpp" />
     <ClCompile Include="engine\code\ECS\component\collision\collider\RayCollider.cpp" />
     <ClCompile Include="engine\code\ECS\component\collision\collider\SegmentCollider.cpp" />
     <ClCompile Include="engine\code\ECS\component\collision\collider\SphereCollider.cpp" />
+    <ClCompile Include="engine\code\ECS\component\collision\collider\base\Collider.cpp" />
+    <ClCompile Include="engine\code\ECS\component\collision\collider\base\CollisionCategoryManager.cpp" />
+    <ClCompile Include="engine\code\ECS\component\collision\collider\base\CollisionMask.cpp" />
     <ClCompile Include="engine\code\ECS\component\effect\CameraAction.cpp" />
     <ClCompile Include="engine\code\ECS\component\effect\MaterialEffectPipeLine.cpp" />
     <ClCompile Include="engine\code\ECS\component\effect\particle\Particle.cpp" />
@@ -484,6 +490,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\code\ECS\component\transform\Transform2d.cpp" />
     <ClCompile Include="engine\code\ECS\entity\EntityHandle.cpp" />
     <ClCompile Include="engine\code\ECS\entity\EntityRepository.cpp" />
+    <ClCompile Include="engine\code\ECS\system\collision\SpatialHash.cpp" />
     <ClCompile Include="engine\code\ECS\system\ISystem.cpp" />
     <ClCompile Include="engine\code\ECS\system\SystemCategory.cpp" />
     <ClCompile Include="engine\code\ECS\system\SystemRegistry.cpp" />
@@ -594,7 +601,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="util\myFileSystem\MyFileSystem.cpp" />
     <ClCompile Include="util\myGui\MyGui.cpp" />
     <ClCompile Include="util\timeline\Timeline.cpp" />
-    <ClCompile Include="util\timeline\Timeline_New.cpp" />
     <ClCompile Include="util\uuidGenerator\UuidGenerator.cpp" />
   </ItemGroup>
   <ItemGroup>

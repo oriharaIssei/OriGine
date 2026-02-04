@@ -1,5 +1,6 @@
 #pragma once
-#include "Collider.h"
+
+#include "component/collision/collider/base/Collider.h"
 
 #include "bounds/AABB.h"
 
@@ -21,6 +22,8 @@ public:
     void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) override;
 
     void CalculateWorldShape() override;
+
+    Bounds::AABB ToWorldAABB() const override;
 
 public: // accessor
 };

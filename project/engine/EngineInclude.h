@@ -127,7 +127,7 @@ static const ::std::string kEngineResourceDirectory = "./engine/resource";
 
 #include "component/collision/collider/AABBCollider.h"
 #include "component/collision/collider/CapsuleCollider.h"
-#include "component/collision/collider/Collider.h"
+#include "component/collision/collider/base/Collider.h"
 #include "component/collision/collider/OBBCollider.h"
 #include "component/collision/collider/RayCollider.h"
 #include "component/collision/collider/SegmentCollider.h"

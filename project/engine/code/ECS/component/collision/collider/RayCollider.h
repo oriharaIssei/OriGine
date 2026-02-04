@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Collider.h"
+#include "component/collision/collider/base/Collider.h"
 /// math
 #include "bounds/Ray.h"
 
@@ -21,6 +21,8 @@ public:
     void Edit(Scene* _scene, EntityHandle _entity, const std::string& _parentLabel) override;
 
     void CalculateWorldShape() override;
+
+    Bounds::AABB ToWorldAABB() const override;
 
 public: // accessor
     const Vec3f& GetLocalOrigin() const { return shape_.origin; }

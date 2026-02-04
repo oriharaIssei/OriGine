@@ -3,6 +3,7 @@
 namespace OriGine {
 
 void to_json(nlohmann::json& _json, const CapsuleCollider& _c) {
+    to_json(_json, static_cast<const ICollider&>(_c));
     _json["start"]     = _c.shape_.segment.start;
     _json["end"]       = _c.shape_.segment.end;
     _json["radius"]    = _c.shape_.radius;
@@ -10,6 +11,7 @@ void to_json(nlohmann::json& _json, const CapsuleCollider& _c) {
 }
 
 void from_json(const nlohmann::json& _json, CapsuleCollider& _c) {
+    from_json(_json, static_cast<ICollider&>(_c));
     if (_json.contains("start")) {
         _json.at("start").get_to(_c.shape_.segment.start);
     }
@@ -19,13 +21,15 @@ void from_json(const nlohmann::json& _json, CapsuleCollider& _c) {
     if (_json.contains("radius")) {
         _json.at("radius").get_to(_c.shape_.radius);
     }
-    _json.at("transform").get_to(_c.transform_);
+    if (_json.contains("transform")) {
+        _json.at("transform").get_to(_c.transform_);
+    }
 }
 
 void CapsuleCollider::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _handle, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
-    CheckBoxCommand("IsActive", this->isActive_);
+    ICollider::Edit(_scene, _handle, _parentLabel);
 
     std::string label = "Capsule##" + _parentLabel;
     if (ImGui::TreeNode(label.c_str())) {
@@ -51,6 +55,22 @@ void CapsuleCollider::CalculateWorldShape() {
     Vec3f scale              = transform_.GetWorldScale();
     float maxScale           = std::max({scale[X], scale[Y], scale[Z]});
     this->worldShape_.radius = shape_.radius * maxScale;
+}
+
+Bounds::AABB CapsuleCollider::ToWorldAABB() const {
+    Vec3f minPt, maxPt;
+    const Vec3f& start = worldShape_.segment.start;
+    const Vec3f& end   = worldShape_.segment.end;
+    float r            = worldShape_.radius;
+
+    for (int i = 0; i < 3; ++i) {
+        minPt[i] = std::min(start[i], end[i]) - r;
+        maxPt[i] = std::max(start[i], end[i]) + r;
+    }
+
+    Vec3f center   = (minPt + maxPt) * 0.5f;
+    Vec3f halfSize = (maxPt - minPt) * 0.5f;
+    return Bounds::AABB(center, halfSize);
 }
 
 } // namespace OriGine

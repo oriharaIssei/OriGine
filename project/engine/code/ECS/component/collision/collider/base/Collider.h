@@ -9,10 +9,12 @@
 /// engine
 /// ECS
 // component
+#include "component/collision/collider/base/CollisionCategory.h"
 #include "component/transform/Transform.h"
 
 /// math
 #include "bounds/base/IBounds.h"
+#include "bounds/AABB.h"
 
 // external
 #ifdef _DEBUG
@@ -37,6 +39,9 @@ enum class CollisionState {
 /// </summary>
 class ICollider
     : public IComponent {
+    friend void to_json(nlohmann::json& _j, const ICollider& _c);
+    friend void from_json(const nlohmann::json& _j, ICollider& _c);
+
 public:
     ICollider() {}
     virtual ~ICollider() {}
@@ -44,15 +49,28 @@ public:
     virtual void Initialize(Scene* _scene, EntityHandle _entity) = 0;
     virtual void Finalize()                                      = 0;
 
-    virtual void Edit(Scene* _scene, EntityHandle _handle, const std::string& _parentLabel) = 0;
+    virtual void Edit(Scene* _scene, EntityHandle _handle, const std::string& _parentLabel);
 
     virtual void CalculateWorldShape() = 0;
 
     virtual void StartCollision();
     virtual void EndCollision();
 
+    /// <summary>
+    /// 衝突可能か判定（Manager経由でマトリクス参照）
+    /// </summary>
+    /// <param name="_other">相手のコライダー</param>
+    bool CanCollideWith(const ICollider& _other) const;
+
+    /// <summary>
+    /// ワールドAABBを形状から生成、取得
+    /// </summary>
+   virtual Bounds::AABB ToWorldAABB() const = 0;
 protected:
     bool isActive_ = true;
+
+    CollisionCategory collisionCategory_ = CollisionCategory();
+
     Transform transform_;
     std::unordered_map<EntityHandle, CollisionState> collisionStateMap_;
     std::unordered_map<EntityHandle, CollisionState> preCollisionStateMap_;
@@ -63,6 +81,9 @@ public: // accessor
 
     const Transform& GetTransform() const { return transform_; }
     void SetParent(Transform* _parent) { transform_.parent = _parent; }
+
+    const CollisionCategory& GetCollisionCategory() const { return collisionCategory_; }
+    void SetCollisionCategory(const CollisionCategory& _category) { collisionCategory_ = _category; }
 
     // 衝突状態の操作
     void SetCollisionState(EntityHandle _otherHandle) {
@@ -89,6 +110,8 @@ public:
     virtual void Edit(Scene* _scene, EntityHandle _handle, const std::string& _parentLabel) = 0;
 
     virtual void CalculateWorldShape() = 0;
+
+    virtual Bounds::AABB ToWorldAABB() const = 0;
 
 protected:
     BoundsClass shape_;

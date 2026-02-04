@@ -6,6 +6,9 @@
 /// stl
 #include <vector>
 
+/// collision
+#include "SpatialHash.h"
+
 namespace OriGine {
 
 /// <summary>
@@ -41,12 +44,26 @@ public:
 
 protected:
     /// <summary>
-    /// 各エンティティと他エンティティの衝突判定を行う
+    /// エンティティの包含AABBを計算
     /// </summary>
-    /// <param name="_handle">対象のエンティティハンドル</param>
-    void UpdateEntity(EntityHandle _handle) override;
+    Bounds::AABB ComputeEntityAABB(EntityHandle _entity);
+
+    /// <summary>
+    /// エンティティペア間の衝突判定を行う
+    /// </summary>
+    void CheckEntityPair(EntityHandle _aEntity, EntityHandle _bEntity);
 
 protected:
+    /// <summary>
+    /// 空間ハッシュ
+    /// </summary>
+    SpatialHash spatialHash_;
+
+    /// <summary>
+    /// 衝突候補ペア
+    /// </summary>
+    std::vector<std::pair<EntityHandle, EntityHandle>> collisionPairs_;
+
     /// <summary>
     /// エンティティのペアを走査するためのイテレータ
     /// </summary>

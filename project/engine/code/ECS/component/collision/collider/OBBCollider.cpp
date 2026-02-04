@@ -3,23 +3,33 @@
 using namespace OriGine;
 
 void OriGine::to_json(nlohmann::json& _json, const OBBCollider& _o) {
+    to_json(_json, static_cast<const ICollider&>(_o));
     _json["center"]       = _o.GetLocalCenter();
     _json["halfSize"]     = _o.GetLocalHalfSize();
     _json["orientations"] = _o.shape_.orientations_.rot;
     _json["transform"]    = _o.transform_;
 }
 void OriGine::from_json(const nlohmann::json& _json, OBBCollider& _o) {
-    _json.at("center").get_to(_o.shape_.center_);
-    _json.at("halfSize").get_to(_o.shape_.halfSize_);
-    _json.at("orientations").get_to(_o.shape_.orientations_.rot);
-    _o.shape_.orientations_.UpdateAxes();
-    _json.at("transform").get_to(_o.transform_);
+    from_json(_json, static_cast<ICollider&>(_o));
+    if (_json.contains("center")) {
+        _json.at("center").get_to(_o.shape_.center_);
+    }
+    if (_json.contains("halfSize")) {
+        _json.at("halfSize").get_to(_o.shape_.halfSize_);
+    }
+    if (_json.contains("orientations")) {
+        _json.at("orientations").get_to(_o.shape_.orientations_.rot);
+        _o.shape_.orientations_.UpdateAxes();
+    }
+    if (_json.contains("transform")) {
+        _json.at("transform").get_to(_o.transform_);
+    }
 }
 
 void OBBCollider::Edit([[maybe_unused]] Scene* _scene, [[maybe_unused]] EntityHandle _handle, [[maybe_unused]] const std::string& _parentLabel) {
 #ifdef _DEBUG
 
-    CheckBoxCommand("IsActive", this->isActive_);
+    ICollider::Edit(_scene, _handle, _parentLabel);
 
     std::string label = "OBB##" + _parentLabel;
     if (ImGui::TreeNode(label.c_str())) {
@@ -54,4 +64,17 @@ void OBBCollider::CalculateWorldShape() {
     this->worldShape_.halfSize_         = shape_.halfSize_ * transform_.GetWorldScale();
     this->worldShape_.orientations_.rot = shape_.orientations_.rot * transform_.CalculateWorldRotate();
     this->worldShape_.orientations_.UpdateAxes();
+}
+
+Bounds::AABB OBBCollider::ToWorldAABB() const {
+    // OBBの各軸に沿った投影からAABBを計算
+    const auto& axes = worldShape_.orientations_.axis;
+    const auto& half = worldShape_.halfSize_;
+
+    Vec3f extent;
+    for (int i = 0; i < 3; ++i) {
+        extent[i] = std::abs(axes[X][i]) * half[X] + std::abs(axes[Y][i]) * half[Y] + std::abs(axes[Z][i]) * half[Z];
+    }
+
+    return Bounds::AABB(worldShape_.center_, extent);
 }
